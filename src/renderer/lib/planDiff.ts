@@ -275,6 +275,10 @@ export const EQUIPMENT_FIELD_CLASS: Record<string, FieldClass> = {
   rentmanId: 'bookkeeping',
   rentmanRemoved: 'bookkeeping',
   manufacturerUrl: 'bookkeeping',
+  // Die Klasse nennt „Provenienz-Marker" ausdruecklich; `verifiedBy` steht
+  // schon hier. Ein Beleg aendert nicht die physische Arbeit, ist aber auch
+  // nicht bloss Optik: er sagt, worauf die Zahl daneben sich stuetzt.
+  specSource: 'bookkeeping',
   libraryRef: 'bookkeeping',
   rackInternalSnapshot: 'bookkeeping',
   verifiedBy: 'bookkeeping',

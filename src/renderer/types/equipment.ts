@@ -507,6 +507,29 @@ export interface EquipmentItem {
   imageUrl?: string
   /** Optional manufacturer / product page URL (issue #38). */
   manufacturerUrl?: string
+  /**
+   * Woher einzelne Angaben stammen — Feldname -> Beleg.
+   *
+   * DER BEFUND, DER DAS FELD NOETIG MACHT. `PortAiSuggestButton` laesst ein
+   * Modell aus dem GERAETENAMEN Ports erraten und schrieb sie ununterscheidbar
+   * neben von Hand eingetragene. Das ist genau das, was `portsUnknown`
+   * verhindern soll — dessen Begruendung in `DECLARED_PROVENANCE` lautet:
+   * „Die Ports sind leer, weil keine erfunden wurden."
+   *
+   * Der Schaden ist konkret: Pruefung 18 in `drawingChecks` warnt, solange ein
+   * Geraet ohne Datenblatt-Treffer keine Ports hat („reale Anschluesse aus dem
+   * Datenblatt ergaenzen"). Ein Klick auf den AI-Vorschlag fuellte Ports ein
+   * und brachte die Warnung damit zum Schweigen — die Pruefung, die einen
+   * Menschen zu belegten Daten zwingen soll, wurde von einer Vermutung
+   * beantwortet. Ports tragen die ganze Verkabelung: ein erfundener Port ist
+   * ein Kabel, das es nicht gibt.
+   *
+   * GLEICHE FORM WIE IN DEN ANDEREN PLANERN. `Fixture.specSource`
+   * (light-planner) und `Camera.specSource` (multicam-planner) fuehren
+   * dasselbe Feld. Eine Idee, ein Vokabular — der Suite-Guard
+   * `scripts/spec-source-vocabulary.mjs` haelt die Kopien zusammen.
+   */
+  specSource?: Record<string, { value: string; source: string }>
   /** Issue #39: physical serial number, surfaces in location/frame BOM exports. */
   serialNumber?: string
   /**
