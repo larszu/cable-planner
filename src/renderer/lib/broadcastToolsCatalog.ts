@@ -41,6 +41,7 @@ export const BROADCAST_TOOLS_CATALOG: BroadcastToolsEntry[] = [
     match: ['dmon-6s'],
     deviceTypeId: '9d653c20-d549-46ca-a735-b11754af883b',
     template: {
+      manufacturerUrl: 'https://decimator.com/Products/MultiViewers/DMON-6S%20MultiViewer/DMON-6S.html',
       name: 'Decimator DMON-6S',
       category: 'Video',
       inputs: [
@@ -61,6 +62,7 @@ export const BROADCAST_TOOLS_CATALOG: BroadcastToolsEntry[] = [
     match: ['dmon-12s'],
     deviceTypeId: '76c6b71c-9037-4fe4-9216-2498b8ed577f',
     template: {
+      manufacturerUrl: 'https://decimator.com/specs/DMON-12S_HARDWARE_MANUAL_FV1.3.pdf',
       name: 'Decimator DMON-12S',
       category: 'Video',
       inputs: [
@@ -80,6 +82,7 @@ export const BROADCAST_TOOLS_CATALOG: BroadcastToolsEntry[] = [
     match: ['md-hx'],
     deviceTypeId: 'da8513b0-c6bf-4da7-b07f-9665efb47270',
     template: {
+      manufacturerUrl: 'https://decimator.com/Products/MiniConverters/MD-HX%20Miniature%20Converter/MD-HX.html',
       name: 'Decimator MD-HX',
       category: 'Konverter',
       isConverter: true,
@@ -101,6 +104,7 @@ export const BROADCAST_TOOLS_CATALOG: BroadcastToolsEntry[] = [
     match: ['bolt', '4k', 'tx'],
     deviceTypeId: '5436a62f-738f-4182-b84f-f42c9598f89d',
     template: {
+      manufacturerUrl: 'https://teradek.com/products/bolt-4k-12g-sdi-750-tx-new-photos',
       name: 'Teradek Bolt 4K 750 TX',
       category: 'Video',
       inputs: [
@@ -121,6 +125,7 @@ export const BROADCAST_TOOLS_CATALOG: BroadcastToolsEntry[] = [
     match: ['bolt', '4k', 'rx'],
     deviceTypeId: 'e94b3454-975a-469c-ada8-69dcd2662629',
     template: {
+      manufacturerUrl: 'https://teradek.com/products/bolt-4k-750-rx-only',
       name: 'Teradek Bolt 4K 750 RX',
       category: 'Video',
       inputs: [
@@ -140,6 +145,7 @@ export const BROADCAST_TOOLS_CATALOG: BroadcastToolsEntry[] = [
     match: ['mediornet', 'micron'],
     deviceTypeId: 'b4793e5d-61db-45c5-ae9a-b9ea9eb60e1b',
     template: {
+      manufacturerUrl: 'https://www.riedel.net/en/products-solutions/distributed-video-networks/mn-micron/hardware/',
       name: 'Riedel MediorNet MicroN',
       category: 'Video',
       inputs: [

@@ -41,6 +41,7 @@ export const AUDIO_CATALOG: AudioEntry[] = [
     match: ['x32'],
     deviceTypeId: 'c6e4526b-f6f8-4b99-bf55-8b15817b42cd',
     template: {
+      manufacturerUrl: 'https://www.markertek.com/Attachments/Specifications/Behringer/X32-Specifications.pdf',
       name: 'Behringer X32',
       category: 'Audio',
       inputs: [
@@ -68,6 +69,7 @@ export const AUDIO_CATALOG: AudioEntry[] = [
     match: ['behringer', 'wing'],
     deviceTypeId: '29602fb3-d6bc-44f6-8689-88cd8accc8ce',
     template: {
+      manufacturerUrl: 'https://www.behringer.com/en/wing/wing-black',
       name: 'Behringer Wing',
       category: 'Audio',
       inputs: [
@@ -96,6 +98,7 @@ export const AUDIO_CATALOG: AudioEntry[] = [
     match: ['midas', 'm32'],
     deviceTypeId: 'f4f89c92-7ccf-48a5-8590-0504a3670ae1',
     template: {
+      manufacturerUrl: 'https://www.midasconsoles.com/product.html?modelCode=0603-AAF',
       name: 'Midas M32 Live',
       category: 'Audio',
       inputs: [
@@ -122,6 +125,7 @@ export const AUDIO_CATALOG: AudioEntry[] = [
     match: ['sq-5'],
     deviceTypeId: 'c5e58caf-e376-40ec-97e7-809b0f55257e',
     template: {
+      manufacturerUrl: 'https://www.allen-heath.com/hardware/sq/sq-5/',
       name: 'Allen & Heath SQ-5',
       category: 'Audio',
       inputs: [
@@ -145,6 +149,7 @@ export const AUDIO_CATALOG: AudioEntry[] = [
     match: ['avantis'],
     deviceTypeId: '47bf1a7b-a072-4a19-b44d-754ea00bef35',
     template: {
+      manufacturerUrl: 'https://www.allen-heath.com/hardware/avantis/',
       name: 'Allen & Heath Avantis',
       category: 'Audio',
       inputs: [
@@ -168,6 +173,7 @@ export const AUDIO_CATALOG: AudioEntry[] = [
     match: ['dlive', 'cdm32'],
     deviceTypeId: '2fc7c067-7b4b-4838-839b-7cbc3f3ad90f',
     template: {
+      manufacturerUrl: 'https://www.allen-heath.com/hardware/dlive-series/dlive-mixracks/',
       name: 'Allen & Heath dLive CDM32 MixRack',
       category: 'Audio',
       inputs: [
@@ -190,6 +196,7 @@ export const AUDIO_CATALOG: AudioEntry[] = [
     match: ['yamaha', 'cl5'],
     deviceTypeId: '67e29486-75dd-492b-af8a-40f12d62a5a1',
     template: {
+      manufacturerUrl: 'https://usa.yamaha.com/products/proaudio/mixers/cl_series/specs.html',
       name: 'Yamaha CL5',
       category: 'Audio',
       inputs: [
@@ -214,6 +221,7 @@ export const AUDIO_CATALOG: AudioEntry[] = [
     match: ['yamaha', 'ql5'],
     deviceTypeId: '20cc630c-cd57-42b1-af70-16eb45d0c725',
     template: {
+      manufacturerUrl: 'https://usa.yamaha.com/products/proaudio/mixers/ql_series/specs.html',
       name: 'Yamaha QL5',
       category: 'Audio',
       inputs: [
@@ -238,6 +246,7 @@ export const AUDIO_CATALOG: AudioEntry[] = [
     match: ['yamaha', 'dm3'],
     deviceTypeId: 'c8791489-fba5-4a0a-99c5-1218f6d997fd',
     template: {
+      manufacturerUrl: 'https://usa.yamaha.com/products/proaudio/mixers/dm3/specs.html',
       name: 'Yamaha DM3-D',
       category: 'Audio',
       inputs: [
@@ -262,6 +271,7 @@ export const AUDIO_CATALOG: AudioEntry[] = [
     match: ['digico', 's21'],
     deviceTypeId: '053f9f56-9232-416f-80f1-c2f7f34040ca',
     template: {
+      manufacturerUrl: 'https://digico.biz/consoles/s21/',
       name: 'DiGiCo S21',
       category: 'Audio',
       inputs: [
@@ -286,6 +296,7 @@ export const AUDIO_CATALOG: AudioEntry[] = [
     match: ['behringer', 's16'],
     deviceTypeId: 'd18f77b3-d775-4f93-9cf5-4242320960d3',
     template: {
+      manufacturerUrl: 'https://www.behringer.com/product.html?modelCode=0606-ABC',
       name: 'Behringer S16',
       category: 'Audio',
       inputs: [
@@ -308,6 +319,7 @@ export const AUDIO_CATALOG: AudioEntry[] = [
     match: ['behringer', 's32'],
     deviceTypeId: 'cc59f6ab-1e25-4db7-a0c8-e0ca2aab66c4',
     template: {
+      manufacturerUrl: 'https://www.behringer.com/product.html?modelCode=0606-ACQ',
       name: 'Behringer S32',
       category: 'Audio',
       inputs: [
@@ -330,6 +342,7 @@ export const AUDIO_CATALOG: AudioEntry[] = [
     match: ['midas', 'dl32'],
     deviceTypeId: 'd707763c-36b6-4df0-90e4-2f785580637e',
     template: {
+      manufacturerUrl: 'https://www.midasconsoles.com/product.html?modelCode=0605-AAC',
       name: 'Midas DL32',
       category: 'Audio',
       inputs: [
@@ -353,6 +366,7 @@ export const AUDIO_CATALOG: AudioEntry[] = [
     match: ['rio3224'],
     deviceTypeId: '5fb4ef98-c63c-4dae-b872-1f7b5a29d7d3',
     template: {
+      manufacturerUrl: 'https://usa.yamaha.com/products/proaudio/interfaces/r_series_adda_2/index.html',
       name: 'Yamaha Rio3224-D2',
       category: 'Audio',
       inputs: [
@@ -374,6 +388,7 @@ export const AUDIO_CATALOG: AudioEntry[] = [
     match: ['dx168'],
     deviceTypeId: '9453d902-5dfc-4453-a744-b7fcd8f1500f',
     template: {
+      manufacturerUrl: 'https://www.allen-heath.com/hardware/everything-i-o/dx168/',
       name: 'Allen & Heath DX168',
       category: 'Audio',
       inputs: [
