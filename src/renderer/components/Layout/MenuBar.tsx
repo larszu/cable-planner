@@ -6,7 +6,7 @@ import {
   Shuffle, Headphones, Import as ImportIcon, Users, Lightbulb, Info, Check,
   Pencil, Smartphone, Settings, HardDrive, Copy, ClipboardCheck, History, Sparkles, Drum,
   Maximize, Maximize2, ZoomIn, ZoomOut, Scan, BoxSelect, RefreshCw, PackageCheck,
-  Keyboard, Command, Boxes,
+  Keyboard, Command, Boxes, GitCompare,
 } from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import {
@@ -56,6 +56,8 @@ interface MenuBarProps {
   onOpenGraphmlImport?: () => void
   onEditProjectMeta?: () => void
   onOpenCableBom?: () => void
+  /** Roadmap-Initiative 5 — zweiten Plan-Stand gegen den offenen halten. */
+  onOpenPlanCompare?: () => void
   /** v7.9.3 — Plan als .cpviewer-Datei exportieren (read-only für Reviewer). */
   onExportViewer?: () => void
   /** v7.9.3 — Annotations aus einer .cpviewer-Datei zurück importieren. */
@@ -95,6 +97,7 @@ export const MenuBar = ({
   onOpenGraphmlImport,
   onEditProjectMeta,
   onOpenCableBom,
+  onOpenPlanCompare,
   onAttachPdfToRentman,
   onOpenRentmanCableExport,
   hasRentmanLink = false,
@@ -494,6 +497,13 @@ export const MenuBar = ({
           {onImportAnnotations && (
             <MenuItem onClick={onImportAnnotations} icon={<Icon icon={MessageSquare} size="sm" />}>
               {t('app.menu.file.importAnnotations', 'Anmerkungen aus Viewer-Datei importieren…')}
+            </MenuItem>
+          )}
+          {/* Roadmap-Initiative 5 — steht bewusst neben dem Viewer-Rueckweg:
+              es ist derselbe Vorgang, „eine zweite Datei kommt zurueck". */}
+          {onOpenPlanCompare && (
+            <MenuItem onClick={onOpenPlanCompare} icon={<Icon icon={GitCompare} size="sm" />}>
+              {t('app.menu.file.planCompare', 'Plan-Stände vergleichen…')}
             </MenuItem>
           )}
           {/* v7.9.4 — Rentman-Menü-Einträge nur wenn die Integration

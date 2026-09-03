@@ -86,6 +86,12 @@ contextBridge.exposeInMainWorld('cablePlanner', {
       ipcRenderer.invoke('project:save', project, currentPath) as Promise<string | null>,
     saveProjectAs: (project: unknown) => ipcRenderer.invoke('project:save-as', project) as Promise<string | null>,
     getRecentProjects: () => ipcRenderer.invoke('project:get-recent') as Promise<string[]>,
+    // Roadmap-Initiative 5 — zweiten Stand nur zum Vergleichen lesen.
+    // `data: null` heisst „Datei gewaehlt, aber kein lesbares JSON".
+    openForCompare: () =>
+      ipcRenderer.invoke('project:open-for-compare') as Promise<
+        { filePath: string; data: unknown } | null
+      >,
     // v7.9.3 — Viewer-File Export + Annotations-Re-Import.
     exportViewer: (project: unknown) =>
       ipcRenderer.invoke('project:export-viewer', project) as Promise<string | null>,
