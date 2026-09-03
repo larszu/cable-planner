@@ -125,6 +125,13 @@ type CablePlannerApi = {
     saveProject: (project: CablePlannerProject, currentPath?: string) => Promise<string | null>
     saveProjectAs: (project: CablePlannerProject) => Promise<string | null>
     getRecentProjects: () => Promise<string[]>
+    /**
+     * Roadmap-Initiative 5 — zweiten Plan-Stand nur zum VERGLEICHEN lesen.
+     * Laedt nichts und schreibt nichts in die Recent-Liste. `data: null`
+     * heisst „Datei gewaehlt, aber kein lesbares JSON" — der Aufrufer sagt
+     * das dem Nutzer, statt an einem Parse-Fehler zu sterben.
+     */
+    openForCompare: () => Promise<{ filePath: string; data: unknown } | null>
     /** v7.9.3 — Viewer-File-Export (.cpviewer Extension). */
     exportViewer: (project: CablePlannerProject) => Promise<string | null>
     /** v7.9.3 — Annotations aus einer Viewer-Datei zurück-importieren. */
@@ -645,6 +652,29 @@ const webFallbackApi: CablePlannerApi = {
             resolve({ filePath: file.name, data })
           } catch {
             resolve(null)
+          }
+        }
+        input.click()
+      })
+    },
+    // Im Browser genauso wie am Desktop: Datei lesen, nichts laden, nichts
+    // in die Recent-Liste. Der Unterschied zu `openProject` ist kein
+    // Versehen, sondern der Punkt.
+    openForCompare: async () => {
+      const input = document.createElement('input')
+      input.type = 'file'
+      input.accept = '.cableplan,.json,.cpviewer,application/json'
+      return await new Promise<{ filePath: string; data: unknown } | null>((resolve) => {
+        input.onchange = async () => {
+          const file = input.files?.[0]
+          if (!file) {
+            resolve(null)
+            return
+          }
+          try {
+            resolve({ filePath: file.name, data: JSON.parse(await file.text()) as unknown })
+          } catch {
+            resolve({ filePath: file.name, data: null })
           }
         }
         input.click()

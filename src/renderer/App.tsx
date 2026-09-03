@@ -60,6 +60,7 @@ import { CsvImportDialog } from './components/Import/CsvImportDialog'
 import { TemplatesDialog } from './components/Project/TemplatesDialog'
 import { ProjectMetaDialog } from './components/Project/ProjectMetaDialog'
 import { CableBomDialog } from './components/Project/CableBomDialog'
+import { PlanCompareDialog } from './components/Project/PlanCompareDialog'
 import { WelcomeDialog } from './components/Project/WelcomeDialog'
 import { Splitter } from './components/Layout/Splitter'
 import { useProject } from './hooks/useProject'
@@ -188,6 +189,7 @@ export default function App() {
   const { addProjectFile } = useRentman()
   const [metaDialog, setMetaDialog] = useState<{ mode: 'new' | 'edit' } | null>(null)
   const [cableBomOpen, setCableBomOpen] = useState(false)
+  const [planCompareOpen, setPlanCompareOpen] = useState(false)
   const [tourOpen, setTourOpen] = useState(false)
   const [welcomeOpen, setWelcomeOpen] = useState(false)
   const [pdfExportOpen, setPdfExportOpen] = useState(false)
@@ -1069,6 +1071,7 @@ export default function App() {
         hasRentmanLink={Boolean(project.metadata.rentmanProjectId)}
         onEditProjectMeta={() => setMetaDialog({ mode: 'edit' })}
         onOpenCableBom={() => setCableBomOpen(true)}
+        onOpenPlanCompare={() => setPlanCompareOpen(true)}
         onOpenTour={() => setTourOpen(true)}
         projectName={project.metadata.name}
       />
@@ -1203,6 +1206,7 @@ export default function App() {
       />
 
       <CableBomDialog open={cableBomOpen} onClose={() => setCableBomOpen(false)} />
+      <PlanCompareDialog open={planCompareOpen} onClose={() => setPlanCompareOpen(false)} />
 
       <PdfExportDialog
         open={pdfExportOpen}
