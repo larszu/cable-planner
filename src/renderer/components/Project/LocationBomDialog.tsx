@@ -10,6 +10,7 @@ import { useTranslation } from '../../lib/i18n'
 import { formatCategoryProps } from '../../lib/categorySchemas'
 import { effectiveDeviceResources } from '../../lib/equipmentSelectors'
 import type { Lang } from '../../lib/categoryTranslations'
+import { portDisplayLabel } from '../../lib/portLabel'
 
 /**
  * Issue #39 — Frame-scoped Bill of Materials. For a selected location/frame
@@ -95,7 +96,13 @@ export const LocationBomDialog = () => {
     const eq = equipmentById.get(eqId)
     if (!eq) return '?'
     const p = [...eq.inputs, ...eq.outputs].find((p) => p.id === portId)
-    const portName = p?.contentLabel || p?.name || p?.id || '?'
+    // ADR-001 Inkrement 2 — hier stand die Aufloesung ein drittes Mal von
+    // Hand, und diese Fassung wich ab: OHNE `.trim()`. Ein contentLabel aus
+    // reinen Leerzeichen war damit truthy und gewann gegen den Port-Namen —
+    // die Stueckliste zeigte eine leere Port-Spalte, wo der Resolver den
+    // Namen genommen haette. Der Ausweg auf `p.id` bleibt, denn ein '?' in
+    // einer Stueckliste sagt nichts.
+    const portName = (p ? portDisplayLabel(p) : '') || p?.id || '?'
     const externalTag = !insideIds.has(eqId) ? ' (extern)' : ''
     return `${eq.name} · ${portName}${externalTag}`
   }

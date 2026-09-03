@@ -13,12 +13,58 @@ import type { Port } from '../types/equipment'
  *   2. `port.name` als Fallback
  *   3. Leerer String wenn beides leer (sollte nicht passieren; UI
  *      faellt dann auf port.id zurueck, der Caller entscheidet).
+ *
+ * Duenner Aufsatz auf `resolvePortLabel` unten — wer die Herkunft braucht,
+ * nimmt die. Dass der Caller den letzten Ausweg entscheidet (Punkt 3), bleibt
+ * ausdruecklich so: `installerLists` haengt `|| portId` an, weil ein leeres
+ * Feld in einer Installateurs-Liste weniger sagt als eine Id.
  */
-export const portDisplayLabel = (port: Pick<Port, 'name' | 'contentLabel'>): string => {
-  const content = port.contentLabel?.trim()
-  if (content) return content
-  return port.name ?? ''
+/**
+ * Woher der Text eines Port-Labels stammt.
+ *
+ * ADR-001 hat als tragende Zusage aus dem `minimal`-Entwurf uebernommen:
+ * „Keiner liefert zurueck, *woher* der Text stammt. Eine Engstelle mit
+ * Provenienz im Rueckgabewert loest das." Genau das ist dieser Typ.
+ *
+ * `labelDerivation.ts` setzt seine `LabelProvenance` aus diesem hier plus den
+ * Geraete-Quellen zusammen — eine Vokabel, nicht zwei. Der Typ wohnt HIER und
+ * nicht dort, weil `labelDerivation` `portLabel` importiert; die andere
+ * Richtung waere ein Zyklus.
+ */
+export type PortLabelProvenance = 'port-content-label' | 'port-name' | 'none'
+
+export interface ResolvedPortLabel {
+  /** Der Text, den ein Exporter fuer diesen Port abgibt. Leer heisst: nichts. */
+  text: string
+  provenance: PortLabelProvenance
 }
+
+/**
+ * Die Engstelle. Ein Aufrufer, der wissen muss, WOHER der Text kommt, nimmt
+ * diese Funktion; wer nur den Text braucht, nimmt `portDisplayLabel` darunter.
+ *
+ * Sie stand bis ADR-001 Inkrement 2 als private `portText` in
+ * `labelDerivation.ts` — also genau dort, wo KEIN Exporter sie erreichen
+ * konnte. Die Ableitungsschicht brauchte die Provenienz fuer ihre Kandidaten
+ * und hat sie sich deshalb selbst gebaut; die Exporter, fuer die ADR-001 sie
+ * vorgesehen hatte, blieben ohne. Hochgezogen, nicht neu geschrieben.
+ *
+ * `.trim()` auch auf dem Fallback: die private Fassung tat das, die oeffentliche
+ * nicht. Ein Port-Name mit angehaengtem Leerzeichen ergab damit zwei
+ * verschiedene Texte, je nachdem wer fragte.
+ */
+export const resolvePortLabel = (
+  port: Pick<Port, 'name' | 'contentLabel'>,
+): ResolvedPortLabel => {
+  const content = port.contentLabel?.trim()
+  if (content) return { text: content, provenance: 'port-content-label' }
+  const name = port.name?.trim() ?? ''
+  if (name) return { text: name, provenance: 'port-name' }
+  return { text: '', provenance: 'none' }
+}
+
+export const portDisplayLabel = (port: Pick<Port, 'name' | 'contentLabel'>): string =>
+  resolvePortLabel(port).text
 
 /**
  * #410 — Kompaktes Symbol fuer das Steckverbinder-Geschlecht. Leerer

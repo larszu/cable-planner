@@ -17,16 +17,32 @@ import type { Cable } from '../types/cable'
 import type { EquipmentItem, Port } from '../types/equipment'
 import { INSTALL_STATUS_LABEL } from '../types/lifecycle'
 import { cableLabelId } from './docIds'
+import { portDisplayLabel } from './portLabel'
 import type { CsvCell, CsvTable } from './csv'
 import { csvFromTable, type DocumentStamp } from './documentStamp'
 
+/**
+ * ADR-001 Inkrement 2 — hier stand die Aufloesung ein zweites Mal von Hand.
+ *
+ * Sie war nicht falsch: `contentLabel?.trim() || name` ist wortgleich, was
+ * `portDisplayLabel` tut. Der Unterschied lag allein im letzten Ausweg — sie
+ * fiel auf die rohe `portId` zurueck. Das bleibt so und ist Absicht: eine
+ * leere Zelle sagt einem Installateur weniger als eine Id, und der Docstring
+ * von `portDisplayLabel` haelt ausdruecklich fest, dass der Caller diesen
+ * Ausweg entscheidet. Die Ausgabe aendert sich durch die Umstellung also
+ * NICHT — geprueft in tests/portLabelAdoption.test.ts.
+ *
+ * Der Gewinn ist trotzdem echt: die Kette steht nur noch an einer Stelle, und
+ * ein spaeteres Feld (etwa ein Rollen-Name aus der Identitaets-Spine) erreicht
+ * diese Liste jetzt mit.
+ */
 const portName = (eq: EquipmentItem | undefined, portId: string): string => {
   if (!eq) return ''
   const p =
     eq.outputs.find((x) => x.id === portId) ??
     eq.inputs.find((x) => x.id === portId)
   if (!p) return portId
-  return p.contentLabel?.trim() || p.name || portId
+  return portDisplayLabel(p) || portId
 }
 
 const portObj = (eq: EquipmentItem | undefined, portId: string): Port | undefined =>

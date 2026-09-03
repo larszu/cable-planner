@@ -33,7 +33,11 @@ import type { EquipmentItem, Port } from '../types/equipment'
 import type { SourceIdentity } from '../types/sourceIdentity'
 import type { CheckFinding } from './drawingChecks'
 import { detectDeviceKind } from './deviceKind'
-import { portDisplayLabel, shortenForAtem } from './portLabel'
+import {
+  resolvePortLabel,
+  shortenForAtem,
+  type PortLabelProvenance,
+} from './portLabel'
 import { effectiveShortName } from './shortName'
 import { suggestDanteName } from './danteNaming'
 import { umdAddressClashes } from './sourceIdentity'
@@ -45,10 +49,15 @@ import {
   type LabelTargetId,
 } from './labelTargets'
 
-/** Woher der Wunschtext eines Kandidaten stammt. */
+/**
+ * Woher der Wunschtext eines Kandidaten stammt.
+ *
+ * Die Port-Haelfte kommt aus `portLabel.ts` — eine Vokabel, nicht zwei. Bis
+ * ADR-001 Inkrement 2 standen hier alle fuenf Werte ausgeschrieben, neben
+ * einer privaten `portText`, die dieselbe Aufloesung ein zweites Mal fuehrte.
+ */
 export type LabelProvenance =
-  | 'port-content-label'
-  | 'port-name'
+  | PortLabelProvenance
   | 'device-short-name'
   | 'device-name'
   | 'source-identity'
@@ -229,14 +238,17 @@ export const resolveSignalSource = (
 // ── Wunschtexte ──────────────────────────────────────────────────────────────
 
 /**
- * Der Text, den die Exporter fuer einen Port abgeben — `portDisplayLabel`,
- * plus die Herkunft. Leerer Text heisst: der Exporter sendet fuer diesen Port
- * nichts, also gibt es auch nichts zu pruefen.
+ * Der Text, den die Exporter fuer einen Port abgeben, plus die Herkunft.
+ * Leerer Text heisst: der Exporter sendet fuer diesen Port nichts, also gibt
+ * es auch nichts zu pruefen.
+ *
+ * Duenner Adapter auf `resolvePortLabel` — die Aufloesung selbst stand bis
+ * ADR-001 Inkrement 2 hier als private Kopie und war damit fuer die Exporter
+ * unerreichbar, obwohl ADR-001 sie genau fuer sie vorgesehen hatte.
  */
 const portText = (port: Port): { raw: string; provenance: LabelProvenance } => {
-  const content = port.contentLabel?.trim()
-  if (content) return { raw: content, provenance: 'port-content-label' }
-  return { raw: portDisplayLabel(port).trim(), provenance: 'port-name' }
+  const { text, provenance } = resolvePortLabel(port)
+  return { raw: text, provenance }
 }
 
 /**

@@ -8,6 +8,7 @@ import { upsertCachedRentmanTemplateFromEquipment } from '../../lib/rentmanTempl
 import { isProjectLocked, sanitizePort, touchProject } from '../projectStoreHelpers'
 import { scheduleProjectAutosave } from '../projectAutosave'
 import type { ProjectState } from '../projectStore'
+import { resolvePortLabel } from '../../lib/portLabel'
 
 /**
  * #308 — Equipment-Slice. Equipment-CRUD-Actions:
@@ -313,7 +314,7 @@ export const createEquipmentSlice: StateCreator<ProjectState, [], [], EquipmentS
 
   // #314 — Geraet auf dem Canvas durch ein anderes Template ersetzen,
   // ohne die Kabel zu verlieren. Ports werden gematcht nach
-  //  1. (connectorType, contentLabel||name)  — beste Uebereinstimmung
+  //  1. (connectorType, aufgeloester Port-Text)  — beste Uebereinstimmung
   //  2. (connectorType, positional) fuer noch nicht zugeordnete Ports
   // Cables die kein Mapping kriegen werden geloescht (sonst zeigt
   // ReactFlow ein "broken edge" auf einen nicht-existenten Port).
@@ -337,8 +338,19 @@ export const createEquipmentSlice: StateCreator<ProjectState, [], [], EquipmentS
       const buildMap = (oldPorts: Port[], newPorts: Port[]): Map<string, string> => {
         const map = new Map<string, string>()
         const used = new Set<string>()
-        const oldKey = (p: Port) => (p.contentLabel || p.name || '').trim().toLowerCase()
-        // Pass 1: exact (connectorType, contentLabel||name) match
+        // ADR-001 Inkrement 2 — auch der MATCH-Key geht durch die Engstelle.
+        //
+        // Hier stand `(p.contentLabel || p.name || '').trim()`: getrimmt wurde
+        // erst NACH dem Fallback. Ein contentLabel aus reinen Leerzeichen war
+        // damit truthy, gewann gegen den Port-Namen und ergab einen LEEREN
+        // Key — und ein leerer Key faellt wegen `ok &&` unten aus Pass 1 heraus
+        // und landet in der positionellen Zuordnung. Der Resolver trimmt vor
+        // dem Fallback und liefert den Namen, also matcht Pass 1.
+        //
+        // Das ist nach #635 keine Kosmetik: dieser Pfad entscheidet beim
+        // Library-Update, welche Kabel ihren Port wiederfinden.
+        const oldKey = (p: Port) => resolvePortLabel(p).text.toLowerCase()
+        // Pass 1: exact (connectorType, aufgeloester Port-Text) match
         for (const op of oldPorts) {
           const ok = oldKey(op)
           const m = newPorts.find(
