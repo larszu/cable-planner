@@ -25,8 +25,14 @@
 // Die Abhilfe ist nicht, die zweite Aufzaehlung zu ergaenzen — dann laufen
 // beim naechsten Feld wieder beide auseinander. Sie ist, sie zu LOESCHEN und
 // beide Wege durch diese eine Funktion zu schicken. Framework-frei, damit
-// headless testbar; `rackBuilderModel.ts` fuehrt mit `draftFromPreset` die
-// Gegenrichtung (ist allerdings verwaist, siehe dort).
+// headless testbar; `rackBuilderHelpers.ts` fuehrt mit `draftFromPreset` die
+// Gegenrichtung.
+//
+// Danebenlag bis Inkrement 4 noch `rackBuilderModel.ts`: 260 Zeilen, die
+// niemand importierte und die dieselben Typen, Konstanten und dieselbe
+// Gegenrichtung ein zweites Mal fuehrten — auf dem Stand VOR #335, also
+// ohne die Rentman-Ids. Wer sie benutzt haette (der Name legt es nahe),
+// haette die Herkunft still verloren. Sie ist geloescht.
 // ───────────────────────────────────────────────────────────────────────────
 import { v4 as uuidv4 } from 'uuid'
 import type { EquipmentItem, GroupPreset } from '../types/equipment'
