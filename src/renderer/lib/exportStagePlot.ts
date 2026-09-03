@@ -25,7 +25,13 @@ export const exportStagePlotSvg = (project: CablePlannerProject): string => {
     }
   }
   const fromAudio = project.equipment.filter((e) => audioIds.has(e.id))
-  const devices = fromAudio.length > 0 ? fromAudio : project.equipment
+  // ADR-005, Regel 4 — der Rueckfall auf ALLE Geraete bleibt (eine
+  // Positions-Uebersicht ist auch ohne Audio-Kabel nuetzlich), aber die
+  // Unterzeile darf danach nicht weiter „Audio-Quellen/-Ziele" behaupten.
+  // Ein Plan ohne ein einziges Audio-Kabel wies sonst Kameras, Mischer und
+  // Router als Audio-Quellen aus — auf einem Blatt, das an die Halle geht.
+  const audioFound = fromAudio.length > 0
+  const devices = audioFound ? fromAudio : project.equipment
 
   let minX = Infinity
   let minY = Infinity
@@ -64,7 +70,11 @@ export const exportStagePlotSvg = (project: CablePlannerProject): string => {
     `<text x="${minX - pad + 8}" y="${minY - pad - titleH + 34}" fill="#e2e8f0" font-size="26" font-weight="700">Stage-Plot — ${esc(project.metadata?.name ?? 'Plan')}</text>`,
   )
   parts.push(
-    `<text x="${minX - pad + 8}" y="${minY - pad - titleH + 52}" fill="#94a3b8" font-size="13">${ordered.length} Audio-Quellen/-Ziele</text>`,
+    `<text x="${minX - pad + 8}" y="${minY - pad - titleH + 52}" fill="#94a3b8" font-size="13">${
+      audioFound
+        ? `${ordered.length} Audio-Quellen/-Ziele`
+        : `${ordered.length} Geräte — kein Audio-Kabel im Plan, daher alle`
+    }</text>`,
   )
 
   ordered.forEach((e, i) => {
