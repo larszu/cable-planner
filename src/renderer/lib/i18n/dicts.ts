@@ -3218,7 +3218,7 @@ export const en: Dict = {
   'export.render.rasterHint': 'JPEG snapshot. Reliable, but text blurs at high zoom in the PDF.',
   'export.render.vector': 'Vector',
   'export.render.vectorHint':
-    'Chromium printToPDF. Text stays selectable & sharp at any zoom. Smaller file size.',
+    'Chromium printToPDF. Text stays selectable & sharp at any zoom. Smaller file size. No title block — revision, state fingerprint and QR code are in the raster PDF only.',
   'export.patch.perDeviceHint': '— or create one patch sheet per device:',
   'export.patch.devicesCount': 'Devices',
   'export.patch.selectAll': 'Select all',
