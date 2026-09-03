@@ -3087,6 +3087,13 @@ export const en: Dict = {
   'app.loadReport.duplicateId': 'duplicate id, the first entry wins',
   'app.loadReport.missingRequired': 'required field missing (name)',
   'app.loadReport.hint': 'Devices that pointed at these roles lost their assignment — including the TSL address used for tally. Saving overwrites the file with this state.',
+  'app.mobileDrop.title': 'Cables sent from a phone were not taken over',
+  'app.mobileDrop.cable': 'Cable',
+  'app.mobileDrop.planLocked': 'the plan is locked or finalized',
+  'app.mobileDrop.equipmentGone': 'that device is no longer in the plan',
+  'app.mobileDrop.portGone': 'that port no longer exists on this device',
+  'app.mobileDrop.duplicate': 'this connection is already in the plan',
+  'app.mobileDrop.hint': 'The phone only reported "sent" to the technician — it cannot know about the rejection. Someone out on site may be waiting for a cable that never reaches the plan.',
   'app.pdfProgress.title': 'PDF is being created…',
   'app.pdfProgress.hint':
     'Large plans may take a few seconds. Please do not cancel.',

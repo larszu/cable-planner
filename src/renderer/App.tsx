@@ -1,4 +1,5 @@
 import { hasDrops } from './types/loadReport'
+import { hasMobileDrops } from './types/mobileReport'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useIsNarrow } from './hooks/useBreakpoint'
 import { CanvasArea } from './components/Canvas/CanvasArea'
@@ -115,6 +116,8 @@ export default function App() {
   // ADR-005 — Bericht ueber den letzten Ladevorgang (was nicht mitkam).
   const lastLoadReport = useProjectStore((s) => s.lastLoadReport)
   const dismissLoadReport = useProjectStore((s) => s.dismissLoadReport)
+  const lastMobileDrop = useProjectStore((s) => s.lastMobileDrop)
+  const dismissMobileDrop = useProjectStore((s) => s.dismissMobileDrop)
   const inventoryOpen = useUiStore((state) => state.inventory.open)
   const canvasTheme = useUiStore((state) => state.canvasTheme)
   const followSystemTheme = useUiStore((state) => state.followSystemTheme)
@@ -1330,6 +1333,55 @@ export default function App() {
             {t(
               'app.loadReport.hint',
               'Geräte, die auf diese Rollen zeigten, haben ihre Zuordnung verloren — darunter die TSL-Adresse für Tally. Speichern überschreibt die Datei mit diesem Stand.',
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ADR-005, Regel 3 — Handy-Kabel, die der Desktop abgelehnt hat. Das
+          Handy hat dem Techniker vorher nur „gesendet" gemeldet und kann von
+          der Ablehnung nichts wissen: der Server bestätigt den JSON-Empfang,
+          bevor hier entschieden wird. Wer den Plan besitzt, sieht es hier. */}
+      {hasMobileDrops(lastMobileDrop) && lastMobileDrop && (
+        <div
+          role="status"
+          className="fixed bottom-4 left-1/2 z-[210] w-[560px] max-w-[92vw] -translate-x-1/2 rounded-cp-card border border-cp-warn/60 bg-cp-surface-1 p-4 shadow-2xl"
+        >
+          <div className="mb-1 flex items-start justify-between gap-3">
+            <div className="text-cp-sm font-semibold text-cp-warn">
+              {t(
+                'app.mobileDrop.title',
+                'Vom Handy gesendete Kabel wurden nicht übernommen',
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={dismissMobileDrop}
+              className="rounded bg-cp-surface-4 px-2 py-0.5 text-cp-xs hover:bg-cp-surface-5"
+            >
+              {t('common.ok', 'OK')}
+            </button>
+          </div>
+          <ul className="max-h-40 space-y-0.5 overflow-y-auto text-[11px] text-cp-text-secondary">
+            {lastMobileDrop.drops.slice(0, 20).map((d, i) => (
+              <li key={`${d.reason}-${d.label}-${i}`}>
+                {t('app.mobileDrop.cable', 'Kabel')}
+                {d.label ? ` „${d.label}"` : ''}
+                {' — '}
+                {d.reason === 'plan-locked'
+                  ? t('app.mobileDrop.planLocked', 'Plan ist gesperrt oder finalisiert')
+                  : d.reason === 'equipment-gone'
+                    ? t('app.mobileDrop.equipmentGone', 'Gerät gibt es im Plan nicht mehr')
+                    : d.reason === 'port-gone'
+                      ? t('app.mobileDrop.portGone', 'Port gibt es an diesem Gerät nicht mehr')
+                      : t('app.mobileDrop.duplicate', 'diese Verbindung steht schon im Plan')}
+              </li>
+            ))}
+          </ul>
+          <div className="mt-2 text-[11px] text-cp-text-muted">
+            {t(
+              'app.mobileDrop.hint',
+              'Das Handy hat dem Techniker nur „gesendet" gemeldet — von der Ablehnung weiss es nichts. Wer draussen steht, wartet also womöglich auf ein Kabel, das nie im Plan ankommt.',
             )}
           </div>
         </div>

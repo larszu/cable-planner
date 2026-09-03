@@ -7,6 +7,7 @@ import { detectLayerForConnector } from '../../lib/cableLayers'
 import { inheritedCableType } from '../../lib/cableInheritance'
 import { connectionExists } from '../../lib/portOccupancy'
 import { isProjectLocked, touchProject } from '../projectStoreHelpers'
+import { addMobileDrop, type MobileDropReason } from '../../types/mobileReport'
 import { scheduleProjectAutosave } from '../projectAutosave'
 import type { ProjectState } from '../projectStore'
 
@@ -17,7 +18,8 @@ import type { ProjectState } from '../projectStore'
  *    User-Request "Haken im Canvas auch wieder loeschen koennen"
  *  - addCableFromMobile: vom Mobile-Viewer ergaenztes Kabel (mit
  *    cableSpec-Lookup + Type-Inheritance-Fallback + addedFromMobile-
- *    Badge fuer Canvas-Anzeige)
+ *    Badge fuer Canvas-Anzeige). Lehnt es ab, meldet es das ueber
+ *    `lastMobileDrop` statt still zu verwerfen — siehe types/mobileReport.ts.
  *
  * isProjectLocked-Guard nur bei addCableFromMobile (Defense-in-Depth
  * gegen finalized/viewer Bypass) — checks duerfen auch im viewer-Modus
@@ -87,18 +89,29 @@ export const createMobileSyncSlice: StateCreator<ProjectState, [], [], MobileSyn
       // Kabel mehr einspielen. Der Mobile-Viewer sollte das eigentlich
       // bereits clientseitig unterbinden (read-only beim finalized Plan),
       // aber wir validieren server-side als Defense-in-Depth.
-      if (isProjectLocked(state)) return {}
+      // ADR-005, Regel 3 — die vier Ablehnungen unten waren bis v8.3.x nackte
+      // `return {}`; der Kommentar nannte das selbst „silently skip". Fuer den
+      // Menschen auf der Leiter sah das aus wie Erfolg, weil das Handy schon
+      // „wird am Desktop eingefuegt" gemeldet hatte. Der Rueckweg zum Handy
+      // waere eine Formataenderung (die 200 kommt, bevor wir hier entscheiden);
+      // was ohne sie geht, ist es dem zu sagen, der den Plan besitzt.
+      const drop = (reason: MobileDropReason) => ({
+        lastMobileDrop: addMobileDrop(state.lastMobileDrop, {
+          reason,
+          label: input.name?.trim() || '',
+        }),
+      })
+      if (isProjectLocked(state)) return drop('plan-locked')
       // v7.9.54 — Kabel-Add vom Mobile-Viewer. Validiert dass beide
-      // Endpoints (Equipment+Port-Pair) im aktuellen Projekt existieren;
-      // sonst silently skip (Mobile zeigt eh nur das was im Projekt war).
+      // Endpoints (Equipment+Port-Pair) im aktuellen Projekt existieren.
       const fromEq = state.project.equipment.find((e) => e.id === input.fromEquipmentId)
       const toEq = state.project.equipment.find((e) => e.id === input.toEquipmentId)
-      if (!fromEq || !toEq) return {}
+      if (!fromEq || !toEq) return drop('equipment-gone')
       const fromPort =
         [...fromEq.inputs, ...fromEq.outputs].find((p) => p.id === input.fromPortId) ?? null
       const toPort =
         [...toEq.inputs, ...toEq.outputs].find((p) => p.id === input.toPortId) ?? null
-      if (!fromPort || !toPort) return {}
+      if (!fromPort || !toPort) return drop('port-gone')
       // Doppelte verhindern: dieselbe Verbindung schon vorhanden? skip.
       // #595 — verglichen wird Geraet UND Port. Der reine Port-ID-Vergleich
       // hielt ein Kabel zum zweiten Geraet derselben Vorlage faelschlich fuer
@@ -108,7 +121,7 @@ export const createMobileSyncSlice: StateCreator<ProjectState, [], [], MobileSyn
         { equipmentId: input.fromEquipmentId, portId: input.fromPortId },
         { equipmentId: input.toEquipmentId, portId: input.toPortId },
       )
-      if (dupe) return {}
+      if (dupe) return drop('duplicate')
       // v7.9.88 / #210 — Cable-Type-String → cableSpecId Lookup. Vorher
       // wurde nur `type` als Connector-String gesetzt; cableSpecId blieb
       // undefined → das Properties-Panel in der Hauptapp zeigte das
