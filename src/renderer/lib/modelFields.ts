@@ -45,6 +45,10 @@ export const MODEL_FIELDS = [
   'libraryRef',
   'netboxPath',
   'manufacturerUrl',
+  // Der Beleg gehoert zum TYP: er sagt, woher die Angaben dieses Modells
+  // stammen (Datenblatt, Katalog, oder — der Fall, der ihn noetig machte —
+  // ein Modell, das aus dem Geraetenamen geraten hat).
+  'specSource',
 
   // Bestueckung
   'inputs',
