@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { v4 as uuidv4 } from 'uuid'
+import { mergeById } from '../lib/inventoryMerge'
 import { STORAGE_KEYS } from '../lib/storageKeys'
 import type {
   InventoryItem,
@@ -715,11 +716,11 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
     const inUnits = keep('unit', snap.units ?? [], healUnit)
     const total = inItems.length + inNodes.length + inSets.length + inUnits.length
     set((state) => {
-      const mergeById = <T extends { id: string }>(base: T[], add: T[]): T[] => {
-        const byId = new Map(base.map((x) => [x.id, x]))
-        for (const x of add) byId.set(x.id, x)
-        return [...byId.values()]
-      }
+      // ADR-005, Regel 2 — hier stand `byId.set(x.id, x)`: der eingehende
+      // Datensatz ersetzte den vorhandenen als Ganzes. Eine v1-Datei ohne
+      // `deviceTypeId` loeschte damit still die bestaetigte Typ-Identitaet
+      // des lokalen Artikels. `mergeById` schreibt jetzt feldweise fort;
+      // wer wirklich ersetzen will, nimmt den Modus 'replace'.
       const items = mode === 'replace' ? inItems : mergeById(state.items, inItems)
       const nodes = mode === 'replace' ? inNodes : mergeById(state.nodes, inNodes)
       const sets = mode === 'replace' ? inSets : mergeById(state.sets, inSets)

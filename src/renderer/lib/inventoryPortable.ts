@@ -15,6 +15,14 @@ export const INVENTORY_FORMAT = 'avplan-inventory'
 // neu auf, ein Stand ohne dieses Feld wuerde es beim Re-Export also STILL
 // verlieren. Mit der Version weigert er sich stattdessen (siehe unten:
 // `f.version > INVENTORY_FORMAT_VERSION`). Aeltere Dateien lesen wir weiter.
+//
+// ADR-005, Inkrement 4 — der Satz oben deckt nur EINE Richtung ab: eine zu
+// NEUE Datei, die dieser Stand nicht vollstaendig versteht. Die andere fehlte:
+// eine zu ALTE Datei, die beim Zusammenfuehren etwas WEGNIMMT. Genau das tat
+// der Import — er ersetzte den lokalen Artikel als Ganzes, eine v1-Datei
+// loeschte also die bestaetigte deviceTypeId. Dafuer ist jetzt
+// `lib/inventoryMerge.ts` da; die Version kann das nicht leisten, weil eine
+// alte Datei zu lesen ausdruecklich erlaubt bleibt.
 export const INVENTORY_FORMAT_VERSION = 2
 
 export interface InventorySnapshot {
