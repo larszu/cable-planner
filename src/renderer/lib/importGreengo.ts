@@ -78,10 +78,41 @@ interface EquipmentItem {
 }
 
 /**
+ * ADR-005, Regel 2 — was die Datei nicht sagt, darf sie nicht loeschen.
+ *
+ * Die Zuordnung Station → Canvas-Geraet ist cable-planner-Wissen; in der .gg5
+ * steht sie NICHT. Trotzdem hat der Import sie bisher jedes Mal neu geraten
+ * und die von Hand gesetzten Verknuepfungen ueberschrieben: der Intercom-
+ * Techniker schickt eine korrigierte Matrix, der Nutzer importiert sie, und
+ * die 24 Zuordnungen, die er vorher einzeln gesetzt hat, sind wieder Ratewerk.
+ *
+ * Deshalb nimmt der Abgleich jetzt den VORHANDENEN Stand mit und behaelt die
+ * Verknuepfung, wo dieselbe Slot-Nummer denselben Stations-Namen traegt — das
+ * ist dieselbe Station im selben Slot, also dasselbe Geraet. Aendert sich der
+ * Name, ist der Slot moeglicherweise umgewidmet; dann wird geraten und das
+ * gemeldet.
+ *
+ * Der Bericht ist Teil der Zusage (Regel 3): der Nutzer muss sehen, was
+ * uebernommen und was geraten wurde, sonst ist der Unterschied unsichtbar.
+ */
+export interface EquipmentMatchReport {
+  /** userId → equipmentId. */
+  mapping: Map<number, string>
+  /** Slots, deren von Hand gesetzte Verknuepfung erhalten blieb. */
+  kept: number[]
+  /** Slots mit vorheriger Verknuepfung, deren Name sich geaendert hat — neu geraten. */
+  renamed: number[]
+  /** Slots, deren vorheriges Geraet es im Plan nicht mehr gibt — neu geraten. */
+  stale: number[]
+}
+
+/**
  * Given imported users and canvas equipment, try to auto-assign an equipmentId
  * to each user by fuzzy name matching.
  *
  * Matching strategy (first match wins):
+ *  0. Eine vorhandene, von Hand gesetzte Verknuepfung derselben Station
+ *     (gleiche Slot-Nummer, gleicher Name, Geraet existiert noch) gewinnt.
  *  1. Device type in user name matches device type in equipment name (e.g. both contain 'bpx')
  *     AND a numeric suffix matches (e.g. "BPX1" → "GreenGo BPX 1")
  *  2. Device type matches AND no numeric conflict (assign the first unassigned of that type)
@@ -89,11 +120,38 @@ interface EquipmentItem {
 export const autoMatchEquipment = (
   users: GreenGoUser[],
   equipment: EquipmentItem[],
-): Map<number, string> => {
+  existing: GreenGoUser[] = [],
+): EquipmentMatchReport => {
   const result = new Map<number, string>()
   const usedEquipmentIds = new Set<string>()
+  const kept: number[] = []
+  const renamed: number[] = []
+  const stale: number[] = []
+
+  const equipmentIds = new Set(equipment.map((e) => e.id))
+  const previousById = new Map(existing.map((u) => [u.id, u]))
+
+  // Schritt 0 — vorhandene Verknuepfungen zuerst, damit sie die Geraete
+  // belegen, bevor geraten wird. Sonst schnappt der Rateweg ein Geraet weg,
+  // das schon von Hand vergeben war.
+  for (const user of users) {
+    const prev = previousById.get(user.id)
+    if (!prev?.equipmentId) continue
+    if (prev.name !== user.name) {
+      renamed.push(user.id)
+      continue
+    }
+    if (!equipmentIds.has(prev.equipmentId)) {
+      stale.push(user.id)
+      continue
+    }
+    result.set(user.id, prev.equipmentId)
+    usedEquipmentIds.add(prev.equipmentId)
+    kept.push(user.id)
+  }
 
   for (const user of users) {
+    if (result.has(user.id)) continue
     const userType = detectDeviceType(user.name).toLowerCase()
     if (!userType) continue
 
@@ -129,7 +187,7 @@ export const autoMatchEquipment = (
     }
   }
 
-  return result
+  return { mapping: result, kept, renamed, stale }
 }
 
 // ── Main parser ───────────────────────────────────────────────────────────────
