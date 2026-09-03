@@ -232,6 +232,39 @@ export const registerProjectIpc = () => {
     return target
   })
 
+  // Roadmap-Initiative 5 — zweiten Plan-Stand zum VERGLEICHEN lesen.
+  //
+  // Bewusst nicht `project:open`: die Datei wird nicht geladen, nichts im
+  // Renderer ersetzt, und sie landet ausdruecklich NICHT in der
+  // Recent-Liste. „Zuletzt geoeffnet" soll heissen, woran der Nutzer
+  // gearbeitet hat — nicht, was er einmal gegen seinen Plan gehalten hat.
+  // Sonst schiebt jeder Vergleich die echten Projekte aus der Liste.
+  //
+  // Ein unlesbares oder kein JSON enthaltendes File gibt `null` mit Pfad
+  // zurueck, damit der Aufrufer „das war keine Plan-Datei" sagen kann,
+  // statt an einem Parse-Fehler zu sterben.
+  ipcMain.handle('project:open-for-compare', async () => {
+    const { canceled, filePaths } = await dialog.showOpenDialog({
+      title: 'Plan-Stand zum Vergleichen oeffnen',
+      filters: [
+        {
+          name: 'Cable Planner Project / Viewer',
+          extensions: ['cableplan', 'json', 'cpviewer'],
+        },
+      ],
+      properties: ['openFile'],
+    })
+    if (canceled || filePaths.length === 0) return null
+    const filePath = filePaths[0]
+    try {
+      const content = await readFile(filePath, 'utf-8')
+      return { filePath, data: JSON.parse(content) as unknown }
+    } catch (err) {
+      console.error('[project] open-for-compare failed:', (err as Error)?.message ?? err)
+      return { filePath, data: null }
+    }
+  })
+
   ipcMain.handle('project:get-recent', () => readRecentValid())
 
   // #pre-sale — Kaltstart-Öffnen: der Renderer holt beim Mounten die per
