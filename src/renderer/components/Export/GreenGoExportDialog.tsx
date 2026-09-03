@@ -247,7 +247,22 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
     updateGreenGoConfig(config)
   }
 
+  /**
+   * ADR-005, Regel 4 — der Export verspricht im Modulkopf eine Datei, die
+   * „directly into the GreenGo Manager software (v5.x)" laedt. Fuer die
+   * leere Konfiguration stimmt das nachweislich nicht: `buildGg5File`
+   * schreibt dann eine .gg5, die der EIGENE Importer des Cable-Planners
+   * ablehnt („No users or groups found in the file. Is this a valid GreenGo
+   * 5.x .gg5 file?"). Eine Station ODER eine Gruppe reicht; erst beides leer
+   * bricht es.
+   *
+   * Statt eine Datei auszugeben, die wir selbst nicht wieder einlesen
+   * koennen, bleibt der Knopf aus und sagt warum.
+   */
+  const exportBlocked = config.users.length === 0 && config.groups.length === 0
+
   const handleExport = () => {
+    if (exportBlocked) return
     updateGreenGoConfig(config)
     // v7.9.116 — Einheitlicher Stempel, gg5-Endung beibehalten.
     downloadFile(buildExportFilenameWithSuffix(config.systemName || 'GreenGo', 'config', 'gg5'), buildGg5File(config))
@@ -728,7 +743,16 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
             <button
               type="button"
               onClick={handleExport}
-              className="rounded bg-emerald-600 px-3 py-1.5 text-cp-xs hover:bg-emerald-500"
+              disabled={exportBlocked}
+              title={
+                exportBlocked
+                  ? t(
+                      'greengo.export.blocked',
+                      'Ohne mindestens eine Station oder Gruppe entsteht keine gültige .gg5 — lege zuerst eine an.',
+                    )
+                  : undefined
+              }
+              className="rounded bg-emerald-600 px-3 py-1.5 text-cp-xs hover:bg-emerald-500 disabled:cursor-not-allowed disabled:bg-cp-surface-4 disabled:text-cp-text-muted disabled:hover:bg-cp-surface-4"
             >
               <Icon icon={Download} size="xs" className="mr-1 inline-block align-text-bottom" />{t('greengo.export.gg5', 'Als .gg5 exportieren')}
             </button>
