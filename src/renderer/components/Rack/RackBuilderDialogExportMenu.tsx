@@ -1,9 +1,8 @@
 import { useState, type RefObject } from 'react'
 import { Box, Camera, ChevronDown, Save } from 'lucide-react'
 import { Icon } from '../shared/Icon'
-import { v4 as uuidv4 } from 'uuid'
 import * as THREE from 'three'
-import type { EquipmentTemplate, GroupPreset } from '../../types/equipment'
+import type { GroupPreset } from '../../types/equipment'
 import { useTranslation } from '../../lib/i18n'
 import {
   exportRack2DAsPng,
@@ -20,36 +19,25 @@ import {
  *    1. das aktuell sichtbare 2D-Rack-DOM-Element (rackCanvasRef)
  *    2. die 3D-Renderer-Refs (gl/scene/camera) sobald der 3D-Tab
  *       initialisiert wurde
- *    3. den aktuellen Draft + ggf. die editingId fuer den
- *       .cpgroup-Snapshot. Snapshot-Logik bleibt 1:1 wie vorher. */
-
-export interface RackPlacementSnapshot {
-  name: string
-  category: string
-  inputs: EquipmentTemplate['inputs']
-  outputs: EquipmentTemplate['outputs']
-  isRackDevice: boolean
-  rackUnits: number
-  startUnit: number
-  frontPanelImageUrl?: string
-  rearPanelImageUrl?: string
-  frontPanelCrop?: EquipmentTemplate['frontPanelCrop']
-  rearPanelCrop?: EquipmentTemplate['rearPanelCrop']
-  depthMm?: number
-  stlDataUri?: string
-  isPatchPanel?: boolean
-  isRackShelf?: boolean
-  mountSide?: 'front' | 'rear' | 'full'
-  shelfOffsetX?: number
-  shelfOffsetZ?: number
-}
+ *    3. den Preset-Erbauer des Dialogs (buildPreset) fuer den
+ *       .cpgroup-Export.
+ *
+ *  ADR-005 — bis Inkrement 4 stand hier eine eigene Snapshot-Logik
+ *  („bleibt 1:1 wie vorher"), die neben dem Speichern-Pfad herlief und
+ *  dabei die interne Verkabelung, die Canvas-Positionen und die
+ *  Rentman-Ids verlor. Sie ist weg; beide Wege bauen jetzt gleich. */
 
 export interface RackBuilderDialogExportMenuProps {
   rackName: string
   totalUnits: number
   depthMm?: number
-  placements: RackPlacementSnapshot[]
-  editingId?: string
+  /**
+   * Baut den aktuellen Draft in ein `GroupPreset` — DIESELBE Funktion, die
+   * der Speichern-Pfad benutzt (lib/rackPreset.ts). Als Callback statt als
+   * Rohdaten, damit hier keine zweite Aufzaehlung entstehen kann: die letzte
+   * hat die interne Verkabelung des Racks verschluckt.
+   */
+  buildPreset: () => GroupPreset
   /** Ref auf das 2D-Rack-Canvas-DOM (fuer PNG-Export). Als Ref statt Wert
    *  uebergeben, damit der Parent .current nicht waehrend des Renders liest
    *  (react-hooks/refs). */
@@ -66,8 +54,7 @@ export const RackBuilderDialogExportMenu = ({
   rackName,
   totalUnits,
   depthMm,
-  placements,
-  editingId,
+  buildPreset,
   rackCanvasRef,
   canvas3DRefs,
 }: RackBuilderDialogExportMenuProps) => {
@@ -152,49 +139,14 @@ export const RackBuilderDialogExportMenu = ({
             type="button"
             onClick={() => {
               setOpen(false)
-              // Build the current preset snapshot ohne Save-Side-Effects.
-              const sorted = placements.slice().sort((a, b) => a.startUnit - b.startUnit)
-              const items: GroupPreset['items'] = sorted.map((p) => ({
-                name: p.name,
-                category: p.category,
-                inputs: p.inputs,
-                outputs: p.outputs,
-                isRackDevice: p.isRackDevice,
-                rackUnits: p.rackUnits,
-                frontPanelImageUrl: p.frontPanelImageUrl,
-                rearPanelImageUrl: p.rearPanelImageUrl,
-                frontPanelCrop: p.frontPanelCrop,
-                rearPanelCrop: p.rearPanelCrop,
-                depthMm: p.depthMm,
-                stlDataUri: p.stlDataUri,
-                isPatchPanel: p.isPatchPanel,
-                isRackShelf: p.isRackShelf,
-                width: 240,
-                height: 80 + Math.max(p.inputs.length, p.outputs.length, 3) * 22,
-                offsetX: 0,
-                offsetY: (p.startUnit - 1) * 44,
-              }))
-              const rackPlacements = sorted.map((p, i) => ({
-                itemIndex: i,
-                startUnit: p.startUnit,
-                heightUnits: p.rackUnits,
-                ...(p.mountSide ? { mountSide: p.mountSide } : {}),
-                // #521 — auch 0 persistieren (linke Kante/Front); `!= null`
-                // statt truthy, sonst geht Position 0 beim Export verloren.
-                ...(p.shelfOffsetX != null ? { shelfOffsetX: p.shelfOffsetX } : {}),
-                ...(p.shelfOffsetZ != null ? { shelfOffsetZ: p.shelfOffsetZ } : {}),
-              }))
-              const preset: GroupPreset = {
-                id: editingId ?? uuidv4(),
-                name: rackName.trim() || 'rack',
-                rack: {
-                  totalUnits,
-                  ...(depthMm ? { depthMm } : {}),
-                  placements: rackPlacements,
-                },
-                items,
-                cables: [],
-              }
+              // ADR-005 — Hier stand eine ZWEITE Aufzaehlung derselben
+              // Umwandlung, die neben dem Speichern-Pfad hergelaufen ist:
+              // sie schrieb `cables: []` (die komplette interne Verkabelung
+              // fiel weg, obwohl der Menuepunkt „Komplettes Rack" verspricht),
+              // keine internalCanvasPositions und seit #335 auch die
+              // rentmanIds nicht mehr. Jetzt derselbe Erbauer wie beim
+              // Speichern — es gibt nur noch eine Aufzaehlung.
+              const preset = buildPreset()
               exportRackAsCpgroup(preset)
             }}
             className="flex w-full flex-col items-start gap-0.5 px-3 py-2 text-left text-cp-text-bright hover:bg-cp-surface-2"
