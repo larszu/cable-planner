@@ -130,10 +130,38 @@ const collectExtra = (
  * Format transportiert Identitaet, und ohne Rolle gibt es keine. Was dabei
  * offen bleibt, steht dann umso deutlicher in `unresolved`.
  */
+/**
+ * ADR-005, Inkrement 4 — was beim Schreiben nicht abgebildet werden konnte.
+ *
+ * Die Import-Seite hat so einen Kanal laengst (`SourceMapMergeResult`), die
+ * Export-Seite hatte keinen: `buildSourceMap` gab nur die Datei zurueck, und
+ * was dabei flach fiel, fiel still.
+ */
+export interface SourceMapBuildResult {
+  map: SourceMap
+  /**
+   * Rollen mit MEHR ALS EINEM Geraet. `labels` steht einmal je Rolle, wird
+   * aber in der Schleife ueber die Geraete beschrieben — es ueberlebt also
+   * nur das zuletzt gelesene, und welches das ist, entscheidet die
+   * Reihenfolge in `project.equipment`.
+   *
+   * Der Typ verspricht „was das jeweilige Zielsystem nach seinem
+   * Zeichenbudget wirklich zeigt". Bei einer Rolle mit Haupt- und
+   * Backup-Kamera auf zwei ATEM-Eingaengen zeigt es zwei verschiedene
+   * Beschriftungen — in der Datei steht eine davon, ohne Hinweis darauf,
+   * welche. Beim Namen genannt, statt still das letzte zu behaupten.
+   *
+   * Die Datei RICHTIG zu machen hiesse, `labels` in die `bindings` zu ziehen
+   * (dort steht die Geraete-Id ohnehin) — das aendert das Draht-Format und
+   * ist deshalb eine Entscheidung, die nicht hierher gehoert.
+   */
+  ambiguousLabels: Array<{ name: string; devices: string[] }>
+}
+
 export const buildSourceMap = (
   project: Pick<CablePlannerProject, 'equipment' | 'cables' | 'sourceIdentities'>,
   meta: { app?: string; appVersion: string; exportedAt: string },
-): SourceMap => {
+): SourceMapBuildResult => {
   const identities: SourceIdentity[] = project.sourceIdentities ?? []
   const { candidates, sources, unanswered } = deriveLabels({
     equipment: project.equipment,
@@ -151,8 +179,16 @@ export const buildSourceMap = (
     return value || undefined
   }
 
+  const ambiguousLabels: SourceMapBuildResult['ambiguousLabels'] = []
+
   const entries: SourceMapEntry[] = identities.map((identity) => {
     const devices = project.equipment.filter((e) => e.sourceIdentityId === identity.id)
+    // ADR-005 — `labels` unten ist EIN Objekt je Rolle, beschrieben in der
+    // Schleife ueber die Geraete. Bei mehreren Geraeten ueberlebt nur das
+    // letzte. Melden statt behaupten.
+    if (devices.length > 1) {
+      ambiguousLabels.push({ name: identity.name, devices: devices.map((d) => d.name) })
+    }
     const labels: Partial<Record<LabelTargetId, string>> = {}
     const bindings: SourceMapBinding[] = devices.map((device) => {
       const link = sources.find((s) => s.sourceEquipmentId === device.id)
@@ -188,7 +224,7 @@ export const buildSourceMap = (
     }
   })
 
-  return {
+  const map: SourceMap = {
     kind: SOURCE_MAP_KIND,
     formatVersion: SOURCE_MAP_VERSION,
     app: meta.app ?? 'cable-planner',
@@ -202,6 +238,7 @@ export const buildSourceMap = (
       reason: u.reason,
     })),
   }
+  return { map, ambiguousLabels }
 }
 
 // ── Lesen ────────────────────────────────────────────────────────────────────
