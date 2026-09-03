@@ -10,6 +10,7 @@
  *  - Bearbeiter-Identität setzen (Autor der Protokoll-/Service-Einträge)
  */
 import { useMemo, useState } from 'react'
+import { recordEmission } from '../../lib/documentLog'
 import jsPDF from 'jspdf'
 import QRCode from 'qrcode'
 import {
@@ -59,6 +60,7 @@ export const InstallationDocsDialog = () => {
   const open = useUiStore((s) => s.installDocs.open)
   const close = useUiStore((s) => s.closeInstallDocs)
   const project = useProjectStore((s) => s.project)
+  const filePath = useProjectStore((s) => s.filePath)
   const assignDocIds = useProjectStore((s) => s.assignDocIds)
   const applySourceDestLabels = useProjectStore((s) => s.applySourceDestLabels)
   const clearChangelog = useProjectStore((s) => s.clearChangelog)
@@ -74,8 +76,22 @@ export const InstallationDocsDialog = () => {
 
   const baseName = project.metadata.name || 'anlage'
 
+  /**
+   * Roadmap-Initiative 5 — hier wird ausgegeben, also hier wird protokolliert.
+   *
+   * Bewusst an DIESER Stelle und nicht in den sechs `build()`-Funktionen: sie
+   * ist die einzige Engstelle, durch die alle sechs gehen. Ein Protokoll, das
+   * an sechs Stellen geschrieben wird, hat spaetestens beim siebten Dokument
+   * eine Luecke — und eine Luecke in einem Register sieht aus wie „nicht
+   * ausgegeben".
+   *
+   * `suffix` IST der Dokument-Bezeichner: `documentRegistry` haelt in seinem
+   * Docstring fest, dass der Schluessel derselbe ist, der im Dateinamen
+   * steht. Der Guard in tests/documentLog.test.ts prueft das nach.
+   */
   const save = (content: string, suffix: string, ext: string, mime: string) => {
     downloadBlob(buildExportFilenameWithSuffix(baseName, suffix, ext), content, mime)
+    void recordEmission(project, suffix, filePath)
   }
 
   const exports: ExportRow[] = useMemo(

@@ -7,6 +7,24 @@ type OpenProjectResponse = {
   data: CablePlannerProject
 }
 
+/** Ein ausgegebenes Dokument, wie es im Register steht. */
+export interface DocumentLogRecord {
+  docId: string
+  label: string
+  /** Der Stand, der auf dem Blatt steht. Acht Hex-Zeichen. */
+  stand: string
+  emittedAt: string
+  project: string
+  projectPath?: string
+}
+
+export interface DocumentLogFile {
+  version: 1
+  entries: DocumentLogRecord[]
+  /** Wie viele Eintraege der Verfall entfernt hat — nie verschwiegen. */
+  dropped: number
+}
+
 export interface AtemInputSummary {
   inputId: number
   longName: string
@@ -118,6 +136,16 @@ type CablePlannerApi = {
       fileBytes: Uint8Array,
       mimeType?: string,
     ) => Promise<unknown>
+  }
+  /**
+   * Roadmap-Initiative 5 — Register der ausgegebenen Dokumente. Im Browser
+   * gibt es keinen dauerhaften Speicher dafuer; der Fallback fuehrt es fuer
+   * die Sitzung im Speicher und sagt es der Oberflaeche ueber `persistent`.
+   */
+  documentLog: {
+    read: () => Promise<DocumentLogFile>
+    append: (entry: DocumentLogRecord) => Promise<DocumentLogFile>
+    clear: () => Promise<DocumentLogFile>
   }
   project: {
     newProject: () => Promise<void>
@@ -630,6 +658,23 @@ const webFallbackApi: CablePlannerApi = {
       }
     },
   },
+  documentLog: (() => {
+    // Sitzungs-Register: im Browser gibt es kein userData-Verzeichnis. Es
+    // verhaelt sich sonst gleich, damit die Oberflaeche nicht zwei Faelle
+    // kennen muss — nur ueberlebt es das Neuladen nicht.
+    let mem: DocumentLogFile = { version: 1, entries: [], dropped: 0 }
+    return {
+      read: async () => mem,
+      append: async (entry: DocumentLogRecord) => {
+        mem = { ...mem, entries: [...mem.entries, entry] }
+        return mem
+      },
+      clear: async () => {
+        mem = { version: 1, entries: [], dropped: 0 }
+        return mem
+      },
+    }
+  })(),
   project: {
     newProject: async () => {},
     openProject: async () => {

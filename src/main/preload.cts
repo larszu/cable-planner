@@ -217,6 +217,17 @@ contextBridge.exposeInMainWorld('cablePlanner', {
       ipcRenderer.invoke('signaling:start') as Promise<{ url: string; port: number }>,
     stop: () => ipcRenderer.invoke('signaling:stop') as Promise<{ ok: boolean }>,
   },
+  /**
+   * Roadmap-Initiative 5 — Register der ausgegebenen Dokumente. Getrennt vom
+   * Projektfile: es haelt fest, was DIESE Maschine ausgegeben hat, und reist
+   * bewusst nicht mit dem Plan mit.
+   */
+  documentLog: {
+    read: () => ipcRenderer.invoke('documentLog:read') as Promise<unknown>,
+    append: (entry: unknown) =>
+      ipcRenderer.invoke('documentLog:append', entry) as Promise<unknown>,
+    clear: () => ipcRenderer.invoke('documentLog:clear') as Promise<unknown>,
+  },
   logs: {
     rendererError: (payload: { message: string; stack?: string; source?: string }) =>
       ipcRenderer.send('logs:renderer-error', payload),

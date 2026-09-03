@@ -67,6 +67,8 @@ interface MenuBarProps {
   onOpenCableBom?: () => void
   /** Roadmap-Initiative 5 — zweiten Plan-Stand gegen den offenen halten. */
   onOpenPlanCompare?: () => void
+  /** Roadmap-Initiative 5 — welche ausgegebenen Blaetter gelten noch? */
+  onOpenDocumentLog?: () => void
   /** v7.9.3 — Plan als .cpviewer-Datei exportieren (read-only für Reviewer). */
   onExportViewer?: () => void
   /** v7.9.3 — Annotations aus einer .cpviewer-Datei zurück importieren. */
@@ -107,6 +109,7 @@ export const MenuBar = ({
   onEditProjectMeta,
   onOpenCableBom,
   onOpenPlanCompare,
+  onOpenDocumentLog,
   onAttachPdfToRentman,
   onOpenRentmanCableExport,
   hasRentmanLink = false,
@@ -562,6 +565,14 @@ export const MenuBar = ({
           {onOpenPlanCompare && (
             <MenuItem onClick={onOpenPlanCompare} icon={<Icon icon={GitCompare} size="sm" />}>
               {t('app.menu.file.planCompare', 'Plan-Stände vergleichen…')}
+            </MenuItem>
+          )}
+          {/* Dieselbe Frage aus der anderen Richtung: der Vergleich haelt zwei
+              Dateien gegeneinander, das Register haelt die ausgegebenen
+              Blaetter gegen den offenen Plan. */}
+          {onOpenDocumentLog && (
+            <MenuItem onClick={onOpenDocumentLog} icon={<Icon icon={History} size="sm" />}>
+              {t('app.menu.file.documentLog', 'Ausgegebene Dokumente…')}
             </MenuItem>
           )}
           {/* v7.9.4 — Rentman-Menü-Einträge nur wenn die Integration
