@@ -14,6 +14,8 @@
 //   3. die eingefrorenen Key-Listen unten anpassen.
 // ───────────────────────────────────────────────────────────────────────────
 import { describe, it, expect } from 'vitest'
+import { interfaceKeys } from './support/interfaceKeys'
+import inventoryTypesSrc from '../src/renderer/types/inventory.ts?raw'
 import {
   INVENTORY_FORMAT,
   INVENTORY_FORMAT_VERSION,
@@ -34,8 +36,15 @@ const CONTRACT = {
   unitKeys: ['code', 'codeType', 'condition', 'createdAt', 'history', 'id', 'itemId', 'locationId', 'notes', 'serial', 'updatedAt'],
 } as const
 
-// Voll besetzte Muster-Entitaeten (jedes Feld gesetzt) — TS erzwingt, dass sie
-// zum Typ passen; die Key-Assertions unten erzwingen, dass kein Feld fehlt.
+// Voll besetzte Muster-Entitaeten (jedes Feld gesetzt). Sie halten die
+// Laufzeit-Form fest — NICHT die Typ-Vollstaendigkeit. Hier stand frueher
+// „TS erzwingt, dass sie zum Typ passen"; das stimmt in diesem Repo nicht:
+// tests/ liegt bewusst ausserhalb aller Emit-tsconfigs (vitest.config.ts:
+// kein Test-File in dist/), `npx tsc -p tsconfig.app.json` sieht diese Datei
+// also nie, und vitest streift Typen ueber esbuild ohne sie zu pruefen.
+// Nachgemessen: ein testweise hinzugefuegtes optionales Feld blieb auf beiden
+// Wegen gruen. Ein neues OPTIONALES Feld faengt daher erst der
+// interfaceKeys-Test unten, der den Interface-Rumpf aus dem Quelltext liest.
 const item: InventoryItem = {
   id: 'i1', model: 'ULXD2', manufacturer: 'Shure', category: 'wireless', quantity: 4,
   rentPricePerDay: 25, stockLocation: 'Regal A3', supplier: 'AV GmbH', ownership: 'owned',
@@ -79,6 +88,14 @@ describe('avplan-inventory Wire-Contract (Drift-Guard)', () => {
     expect(sortedKeys(node)).toEqual(CONTRACT.nodeKeys)
     expect(sortedKeys(set)).toEqual(CONTRACT.setKeys)
     expect(sortedKeys(unit)).toEqual(CONTRACT.unitKeys)
+  })
+
+  it('faengt auch ein neu hinzugefuegtes OPTIONALES Feld', () => {
+    // Die Muster-Entitaeten oben wuerden das nicht tun (siehe Kommentar dort).
+    expect(interfaceKeys(inventoryTypesSrc, 'InventoryItem')).toEqual(CONTRACT.itemKeys)
+    expect(interfaceKeys(inventoryTypesSrc, 'StorageNode')).toEqual(CONTRACT.nodeKeys)
+    expect(interfaceKeys(inventoryTypesSrc, 'InventorySet')).toEqual(CONTRACT.setKeys)
+    expect(interfaceKeys(inventoryTypesSrc, 'InventoryUnit')).toEqual(CONTRACT.unitKeys)
   })
 
   it('Round-Trip serialize -> parse ist verlustfrei', () => {
