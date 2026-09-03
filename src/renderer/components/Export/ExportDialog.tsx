@@ -352,9 +352,15 @@ const PlanSection = ({
               <span>
                 <span className="flex items-center gap-1"><Icon icon={Sparkles} size="xs" /> {t('export.render.vector', 'Vektor')}</span>
                 <span className="block text-[10px] text-cp-text-muted">
+                  {/* ADR-005, Regel 4 — hier standen nur die Vorteile. Der
+                      Vektor-Pfad klont das Canvas-DOM und druckt es via
+                      Chromium; einen Titelblock baut er nicht. Revision,
+                      Stand-Fingerprint und QR, die der Raster-Pfad zeichnet,
+                      fehlen im Vektor-PDF also. Wer zwischen zwei Wegen
+                      waehlt, muss beide Seiten kennen. */}
                   {t(
                     'export.render.vectorHint',
-                    'Chromium printToPDF. Text bleibt selektierbar & scharf bei jedem Zoom. Kleinere Dateigröße.',
+                    'Chromium printToPDF. Text bleibt selektierbar & scharf bei jedem Zoom. Kleinere Dateigröße. Ohne Titelblock — Revision, Stand-Fingerprint und QR-Code stehen nur im Raster-PDF.',
                   )}
                 </span>
               </span>
