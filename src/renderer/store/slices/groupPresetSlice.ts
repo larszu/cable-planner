@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid'
 import type { GroupPreset } from '../../types/equipment'
 import { persistGroupPresets } from '../groupPresetsPersist'
 import type { ProjectState } from '../projectStore'
+import { itemFromEquipment } from '../../lib/rackPreset'
 
 /**
  * #308 — GroupPreset-CRUD-Slice. Reine Verwaltungs-Actions auf
@@ -70,17 +71,20 @@ export const createGroupPresetSlice: StateCreator<ProjectState, [], [], GroupPre
       const preset: GroupPreset = {
         id: uuidv4(),
         name,
+        // ADR-005, Regel 1 — hier stand die fuenfte Aufzaehlung derselben
+        // Umwandlung, und sie war die aermste: zwoelf Felder von rund neunzig.
+        //
+        // Ein Rack-Geraet verlor beim „als Gruppe speichern" sein Rack-Flag,
+        // seine Hoehe, Tiefe, STL-Geometrie und die Panel-Fotos; jedes Geraet
+        // verlor seine `deviceTypeId`. `placeGroupPreset` spreizt den Eintrag
+        // spaeter direkt auf das neue EquipmentItem — was hier nicht steht,
+        // ist beim Platzieren endgueltig weg.
+        //
+        // Jetzt derselbe Erbauer wie im Rack-Weg (lib/rackPreset.ts). Nur die
+        // Versaetze sind hier andere: die Gruppe behaelt die Anordnung auf dem
+        // Canvas, das Rack stapelt nach HE.
         items: items.map((e) => ({
-          name: e.name,
-          category: e.category,
-          inputs: e.inputs,
-          outputs: e.outputs,
-          width: e.width,
-          height: e.height,
-          notes: e.notes,
-          ipAddress: e.ipAddress,
-          resolution: e.resolution,
-          displaySizeInch: e.displaySizeInch,
+          ...itemFromEquipment(e),
           offsetX: e.x - minX,
           offsetY: e.y - minY,
         })),
