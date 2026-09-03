@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
-import { v4 as uuidv4 } from 'uuid'
 import type { EquipmentTemplate, GroupPreset } from '../../types/equipment'
 import { useSettingsStore } from '../../store/settingsStore'
 import { useProjectStore } from '../../store/projectStore'
@@ -25,6 +24,7 @@ import type {
   RackDraft,
   RackPlacementDraft,
 } from './rackBuilderTypes'
+import { presetFromDraft } from '../../lib/rackPreset'
 import { RACK_MOUNT_WIDTH_MM } from './rackBuilderTypes'
 import * as THREE from 'three'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
@@ -567,103 +567,11 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
       setSaveError(null)
     }
 
-    const sorted = draft.placements.slice().sort((a, b) => a.startUnit - b.startUnit)
-
-    const itemRecords: GroupPreset['items'] = sorted.map((placement) => ({
-      name: placement.name,
-      category: placement.category,
-      inputs: placement.inputs,
-      outputs: placement.outputs,
-      isRackDevice: placement.isRackDevice,
-      rackUnits: placement.rackUnits,
-      frontPanelImageUrl: placement.frontPanelImageUrl,
-      rearPanelImageUrl: placement.rearPanelImageUrl,
-      frontPanelCrop: placement.frontPanelCrop,
-      rearPanelCrop: placement.rearPanelCrop,
-      // v7.9.73 / #170 — Engineering-Daten ans Item-Record durchreichen.
-      depthMm: placement.depthMm,
-      stlDataUri: placement.stlDataUri,
-      // v7.9.75 / #170 — Patchblende-/Shelf-Marker persistieren.
-      isPatchPanel: placement.isPatchPanel,
-      isRackShelf: placement.isRackShelf,
-      // #335 — Rentman-ID des Inhalts erhalten (nur wenn gesetzt).
-      ...(placement.rentmanId ? { rentmanId: placement.rentmanId } : {}),
-      width: 240,
-      height: 80 + Math.max(placement.inputs.length, placement.outputs.length, 3) * 22,
-      offsetX: 0,
-      offsetY: (placement.startUnit - 1) * 44,
-    }))
-
-    const rackPlacements = sorted.map((placement, index) => ({
-      itemIndex: index,
-      startUnit: placement.startUnit,
-      heightUnits: placement.rackUnits,
-      // v7.9.73 / #170 — mountSide nur persistieren wenn explizit gesetzt.
-      ...(placement.mountSide ? { mountSide: placement.mountSide } : {}),
-      // #521 — Shelf-Offsets persistieren wenn GESETZT (auch 0!). Vorher ein
-      // truthy-Check (`shelfOffsetX ? …`), der den gültigen Wert 0 (linke Kante
-      // / Front) verwarf → X/Z-Position ging beim Speichern verloren. `!= null`
-      // unterscheidet korrekt zwischen 0 (valide Position) und undefined.
-      ...(placement.shelfOffsetX != null ? { shelfOffsetX: placement.shelfOffsetX } : {}),
-      ...(placement.shelfOffsetZ != null ? { shelfOffsetZ: placement.shelfOffsetZ } : {}),
-    }))
-
-    // v7.8.5 — Map internal cables (referenced by placement id) onto the
-    // post-sort item indices for the persisted preset. Cables whose
-    // endpoints reference a placement that's been deleted are skipped.
-    const placementIdToSortedIndex = new Map<string, number>()
-    sorted.forEach((p, idx) => placementIdToSortedIndex.set(p.id, idx))
-    const persistedCables: GroupPreset['cables'] = []
-    for (const c of draft.internalCables) {
-      const fromIdx = placementIdToSortedIndex.get(c.fromPlacementId)
-      const toIdx = placementIdToSortedIndex.get(c.toPlacementId)
-      if (fromIdx == null || toIdx == null) continue
-      const entry: GroupPreset['cables'][number] = {
-        fromItemIndex: fromIdx,
-        fromPortName: c.fromPortName,
-        toItemIndex: toIdx,
-        toPortName: c.toPortName,
-        name: c.name,
-        type: c.type,
-        length: c.length,
-      }
-      if (c.color != null) entry.color = c.color
-      if (c.standard != null) entry.standard = c.standard
-      // v7.9.115 / Issue #223 — User-Waypoints im Preset persistieren
-      // damit Kabel-Positionen ueber Save/Reload erhalten bleiben.
-      if (c.waypoints && c.waypoints.length > 0) {
-        entry.waypoints = c.waypoints.map((wp) => ({ x: wp.x, y: wp.y }))
-      }
-      persistedCables.push(entry)
-    }
-
-    // v7.9.14 — Persistente Canvas-Positionen für den
-    // RackInternalCanvas. Nur Geräte mit User-gesetzten Positionen
-    // landen hier; andere bleiben beim nächsten Öffnen auf der
-    // Default-Position aus startUnit.
-    const internalCanvasPositions: Record<number, { x: number; y: number }> = {}
-    sorted.forEach((placement, index) => {
-      if (placement.canvasX != null && placement.canvasY != null) {
-        internalCanvasPositions[index] = { x: placement.canvasX, y: placement.canvasY }
-      }
-    })
-    const hasPositions = Object.keys(internalCanvasPositions).length > 0
-
-    const preset: GroupPreset = {
-      id: editingId ?? uuidv4(),
-      name: draft.rackName.trim(),
-      rack: {
-        totalUnits: draft.totalUnits,
-        // #335 — Kombi-ID des Racks erhalten (nur wenn aus Rentman-Import).
-        ...(draft.rentmanId ? { rentmanId: draft.rentmanId } : {}),
-        // v7.9.73 / #170 — Rack-Tiefe nur persistieren wenn vom User gesetzt.
-        ...(draft.depthMm ? { depthMm: draft.depthMm } : {}),
-        placements: rackPlacements,
-        ...(hasPositions ? { internalCanvasPositions } : {}),
-      },
-      items: itemRecords,
-      cables: persistedCables,
-    }
+    // ADR-005 — Der Draft wird an EINER Stelle in ein Preset uebersetzt
+    // (lib/rackPreset.ts). Vorher stand diese Aufzaehlung hier UND im
+    // Export-Menue daneben; die beiden liefen auseinander, und der Export
+    // verlor die komplette interne Verkabelung.
+    const preset = presetFromDraft(draft, editingId)
 
     onSave(preset)
     setLastSavedSnapshot(draftSnapshot)
@@ -699,8 +607,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
               rackName={draft.rackName}
               totalUnits={draft.totalUnits}
               depthMm={draft.depthMm}
-              placements={draft.placements}
-              editingId={editingId}
+              buildPreset={() => presetFromDraft(draft, editingId)}
               rackCanvasRef={rackCanvasRef}
               canvas3DRefs={canvas3DRefs}
             />
