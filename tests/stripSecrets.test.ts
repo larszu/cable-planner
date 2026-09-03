@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { SECRET_KEYS, stripSecrets } from '../src/main/util/stripSecrets'
+import { OPAQUE_KEYS, SECRET_KEYS, stripSecrets } from '../src/main/util/stripSecrets'
+import greengoTypesSrc from '../src/renderer/types/greengo.ts?raw'
 import projectIpcSrc from '../src/main/ipc/projectIpc.ts?raw'
 import mobileShareSrc from '../src/main/services/mobileShareServer.ts?raw'
 import equipmentTypesSrc from '../src/renderer/types/equipment.ts?raw'
@@ -61,6 +62,61 @@ describe('die Ausgaenge, die das Haus verlassen', () => {
 
   it('streicht die Mobile-Ansicht die Zugangsdaten', () => {
     expect(mobileShareSrc).toContain('stripSecrets(project)')
+  })
+
+  // Zweiter Befund, dieselbe Regel, andere Sorte Feld. `SECRET_KEYS` streicht
+  // nach Namen — bei einem eingelesenen Hersteller-Dokument kennen wir die
+  // Namen nicht. `GreenGoConfig.basePreset` haelt die Anlagen-Konfiguration
+  // unveraendert, samt `ConfigPassword`, `AdminPassword`, `TechPincode` und
+  // `Security.Pincode`. Keiner dieser Namen steht in `SECRET_KEYS`: die
+  // Geraete-Zugangsdaten wurden gestrichen, die der Intercom-Anlage gingen mit.
+  describe('fremde Roh-Dokumente', () => {
+    const mitPreset = () => ({
+      metadata: { name: 'Anlage' },
+      greengoConfig: {
+        systemName: 'Produktion',
+        users: [{ id: 1, name: 'Regie', groupIds: [1] }],
+        basePreset: {
+          System: {
+            ConfigPassword: 'a1b2c3d4-e5f6-0000-1111-222233334444',
+            AdminPassword: '9988-7766-5544-3322',
+            TechPincode: '4711',
+          },
+          Security: { Pincode: '0815' },
+        },
+      },
+    })
+
+    it('das Roh-Dokument verlaesst den Rechner nicht', () => {
+      const out = stripSecrets(mitPreset()) as Record<string, Record<string, unknown>>
+      expect(out.greengoConfig.basePreset).toBeUndefined()
+    })
+
+    it('kein einziges der Anlagen-Geheimnisse steht noch im Ergebnis', () => {
+      // Die Probe auf das Ganze statt auf das Feld: der serialisierte Ausgang
+      // darf keinen der vier Werte mehr enthalten, egal an welcher Stelle.
+      const json = JSON.stringify(stripSecrets(mitPreset()))
+      for (const geheim of ['a1b2c3d4', '9988-7766', '4711', '0815']) {
+        expect(json, `${geheim} steht noch im Ausgang`).not.toContain(geheim)
+      }
+    })
+
+    it('der Plan-Teil der Intercom-Konfiguration bleibt', () => {
+      // Gestrichen wird das fremde Dokument, nicht die Planung. Sonst waere
+      // die Mobile-Ansicht um Information aermer, die kein Geheimnis ist.
+      const out = stripSecrets(mitPreset()) as Record<string, Record<string, unknown>>
+      expect(out.greengoConfig.systemName).toBe('Produktion')
+      expect(out.greengoConfig.users).toEqual([{ id: 1, name: 'Regie', groupIds: [1] }])
+    })
+
+    it('der Typ sagt selbst, dass dort Passwoerter liegen', () => {
+      // Der Grund steht nicht nur in diesem Test: `GreenGoConfig.basePreset`
+      // kuendigt es im eigenen Kommentar an. Faellt der Hinweis weg, faellt
+      // dieser Test — dann ist zu pruefen, ob das Feld noch opak sein muss.
+      expect(greengoTypesSrc).toContain('basePreset')
+      expect(greengoTypesSrc).toMatch(/PASSWOERTER|Passw/)
+      expect(OPAQUE_KEYS.has('basePreset')).toBe(true)
+    })
   })
 
   it('haelt die Regel an genau einer Stelle', () => {
