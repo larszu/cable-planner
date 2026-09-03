@@ -36,6 +36,24 @@ export interface GreenGoConfig {
   sampleRate: 32000 | 48000
   users: GreenGoUser[]
   groups: GreenGoGroup[]
+  /**
+   * Das importierte Roh-Dokument, falls der Nutzer eine echte
+   * Anlagen-Konfiguration geladen hat.
+   *
+   * ENTSCHEIDUNG „Editor UND Generator": liegt hier eins, schreibt der Export
+   * hinein statt neu zu bauen — Raeume, Templates, Geraete, Netz-Einstellungen
+   * und vor allem die PASSWOERTER der Anlage bleiben, wie sie waren. Liegt
+   * keins, wird wie bisher aus dem Plan erzeugt.
+   *
+   * Der Kommentar in `importGreengo.Gg5ImportResult.unreadSections` hat genau
+   * darauf gewartet: „Bis der Round-Trip sie bewahrt, muss er wenigstens
+   * sagen, was er nicht gelesen hat." Jetzt bewahrt er sie.
+   *
+   * Der Preis: das Roh-Dokument reist im Projektfile mit. Das ist gewollt —
+   * sonst waere es beim naechsten Oeffnen weg, und der Export fiele
+   * unbemerkt auf „neu erzeugen" zurueck.
+   */
+  basePreset?: Record<string, unknown>
 }
 
 export const defaultGreenGoConfig = (): GreenGoConfig => ({

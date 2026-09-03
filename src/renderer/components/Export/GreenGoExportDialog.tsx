@@ -88,7 +88,11 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
       ...u,
       equipmentId: importMappings.get(u.id) || undefined,
     }))
-    setConfig({ ...importResult.config, users })
+    // ENTSCHEIDUNG "Editor UND Generator": das Roh-Dokument wandert mit in
+    // den Plan. Der naechste Export schreibt hinein, statt neu zu bauen —
+    // Raeume, Templates, Geraete-Registrierungen und die Anlagen-Passwoerter
+    // bleiben damit erhalten.
+    setConfig({ ...importResult.config, users, basePreset: importResult.raw })
     setActiveTab('matrix')
     setImportResult(null)
     setImportError(null)
