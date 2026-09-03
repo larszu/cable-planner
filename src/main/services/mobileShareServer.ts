@@ -42,6 +42,7 @@ import { relative as pathRelative, resolve as pathResolve, sep as pathSep } from
 import { networkInterfaces } from 'node:os'
 import { fileURLToPath } from 'node:url'
 import { randomBytes } from 'node:crypto'
+import { stripSecrets } from '../util/stripSecrets.js'
 
 const MIME_TYPES: Record<string, string> = {
   '.html': 'text/html; charset=utf-8',
@@ -179,23 +180,6 @@ const denyUnauthorized = (req: IncomingMessage, res: ServerResponse): void => {
   res.statusCode = 401
   res.setHeader('Content-Type', 'application/json; charset=utf-8')
   res.end('{"error":"unauthorized"}')
-}
-
-/** Recursively strip secret-bearing fields (device passwords etc.) from
- *  a project before it leaves the desktop. The mobile viewer never needs
- *  them, and the share server is reachable by the whole LAN. */
-const SECRET_KEYS = new Set(['password', 'passphrase', 'apiKey', 'secret', 'token'])
-const stripSecrets = (value: unknown): unknown => {
-  if (Array.isArray(value)) return value.map(stripSecrets)
-  if (value && typeof value === 'object') {
-    const out: Record<string, unknown> = {}
-    for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
-      if (SECRET_KEYS.has(k)) continue
-      out[k] = stripSecrets(v)
-    }
-    return out
-  }
-  return value
 }
 
 /** Lookup non-internal IPv4 addresses across all network interfaces. */

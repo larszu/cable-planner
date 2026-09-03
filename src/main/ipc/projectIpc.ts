@@ -2,6 +2,7 @@ import { app, dialog, ipcMain, type BrowserWindow } from 'electron'
 import { access, mkdir, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { atomicWriteFile } from '../util/atomicWrite.js'
+import { stripSecrets } from '../util/stripSecrets.js'
 import { takePendingLaunchPath } from '../services/fileOpenService.js'
 
 const RECENT_PATH = path.join(app.getPath('userData'), 'recent-projects.json')
@@ -160,7 +161,14 @@ export const registerProjectIpc = () => {
     // mode='viewer' erzwingen; bestehende Annotations aber NICHT
     // wegwerfen (der Plan-Eigentümer kann auch Pre-Annotations setzen,
     // z.B. "TODO: Cable XY checken" für die Freelancer).
-    const safe = JSON.parse(JSON.stringify(project)) as Record<string, unknown>
+    // Zugangsdaten der Geraete raus, BEVOR die Datei aus dem Haus geht.
+    // Dieselbe Regel, die der mobileShareServer schon anwendet — sie galt
+    // hier nur nicht, obwohl dieser Weg der ungeschuetztere ist: die
+    // .cpviewer-Datei geht ausdruecklich an externe Reviewer, waehrend die
+    // Mobile-Ansicht wenigstens token-gated im eigenen LAN haengt. Weder
+    // src/viewer/ noch src/mobile/ liest diese Felder (nachgesehen), es
+    // geht also nichts verloren.
+    const safe = stripSecrets(JSON.parse(JSON.stringify(project))) as Record<string, unknown>
     safe.mode = 'viewer'
     // viewerSession beim Export leeren — der Reviewer setzt seinen
     // eigenen Namen beim ersten Öffnen.
