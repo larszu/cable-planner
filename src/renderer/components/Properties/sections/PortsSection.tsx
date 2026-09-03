@@ -1,4 +1,5 @@
 import { useCanvasProjectStore as useProjectStore } from '../../../store/projectStoreContext'
+import { ProvenanceBadge } from '../../shared/ProvenanceBadge'
 import { detectDeviceKind } from '../../../lib/deviceKind'
 import { useTranslation } from '../../../lib/i18n'
 import { SortableSection } from '../SortableSection'
@@ -45,6 +46,11 @@ export const PortsSection = ({ equipment }: { equipment: EquipmentItem }) => {
               'ports.unknown',
               'Port-Belegung unbekannt (kein Datenblatt-Match beim Import). Reale Anschlüsse unten ergänzen — es wurden bewusst keine erfunden.',
             )}
+            {/* ADR-003 Inkrement 2 — derselbe Zustand wie die Rentman-Spalte,
+                nur in der anderen Auspraegung: hier steht gar kein Wert, und
+                „keine Ports" darf nicht als „das Geraet hat keine" gelesen
+                werden. */}
+            <ProvenanceBadge provenance="unknown" field="equipment.portsUnknown" />
           </div>
         )}
         {/* #317 — Wenn das Gerät bereits Ports hat (was bei Canvas-

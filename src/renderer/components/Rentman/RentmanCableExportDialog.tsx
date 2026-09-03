@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { ProvenanceBadge } from '../shared/ProvenanceBadge'
 import { X } from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import { ModalShell } from '../shared/ModalShell'
@@ -386,7 +387,17 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
                 <th className="px-3 py-2 text-left">{t('rentman.cableExport.col.typeLength', 'Typ / Länge')}</th>
                 <th className="px-3 py-2 text-right">{t('rentman.cableExport.col.built', 'Verbaut')}</th>
                 <th className="px-3 py-2 text-right">{t('rentman.cableExport.col.planned', 'Geplant')}</th>
-                <th className="px-3 py-2 text-right">{t('rentman.cableExport.col.synced', 'Bereits gesendet')}</th>
+                <th className="px-3 py-2 text-right">
+                  {t('rentman.cableExport.col.synced', 'Bereits gesendet')}
+                  {/* ADR-003 Inkrement 2 — die Spalte heisst seit jeher
+                      ehrlich „Bereits gesendet", aber die Zahl darunter sieht
+                      aus wie jede andere. Das Badge sagt einmal am Kopf, was
+                      der Name meint: abgeschickt, nicht zurueckgemeldet. */}
+                  <ProvenanceBadge
+                    provenance="commanded"
+                    field="metadata.rentmanCableMap.lastSentQty"
+                  />
+                </th>
                 <th className="px-3 py-2 text-right">Δ</th>
                 <th className="px-3 py-2 text-left">{t('rentman.cableExport.col.mapping', 'Rentman-Zuordnung')}</th>
                 <th className="px-3 py-2 text-right">{t('rentman.cableExport.col.action', 'Aktion')}</th>
