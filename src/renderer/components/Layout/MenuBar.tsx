@@ -157,14 +157,41 @@ export const MenuBar = ({
   // Eine Tally-Maschine soll nicht ein ganzes Kabelprojekt parsen muessen, um
   // zu erfahren, dass "Kamera 1" auf ATEM-Eingang 3 liegt.
   const sourceMapImportRef = useRef<HTMLInputElement | null>(null)
-  const handleExportSourceMap = () => {
+  const handleExportSourceMap = async () => {
     const project = useProjectStore.getState().project
-    const map = buildSourceMap(project, {
+    const { map, ambiguousLabels } = buildSourceMap(project, {
       appVersion: __APP_VERSION__,
       exportedAt: new Date().toISOString(),
     })
     const safe = (project.metadata?.name || 'projekt').replace(/[^a-zA-Z0-9_-]+/g, '_')
     downloadBlob(`${safe}.avsourcemap`, JSON.stringify(map, null, 2), 'application/json')
+    // ADR-005 — `labels` steht einmal je Rolle, wird aber je Geraet
+    // beschrieben: bei mehreren Geraeten ueberlebt nur das zuletzt gelesene.
+    // Der Import sagt seit jeher, was er nicht uebernehmen konnte; der Export
+    // sagte nichts. Jetzt sagt er es auch.
+    if (ambiguousLabels.length > 0) {
+      await infoDialog(t('sourceMap.export.ambiguousTitle', 'Karte geschrieben — mit einer Einschränkung'), {
+        bodyNode: (
+          <div className="flex flex-col gap-2 text-cp-xs text-cp-text-secondary">
+            <span>
+              {t(
+                'sourceMap.export.ambiguousIntro',
+                'Diese Rollen haben mehr als ein Gerät. Die Datei trägt die Ziel-Beschriftung nur EINMAL je Rolle — in ihr steht die des zuletzt gelesenen Geräts, nicht die aller:',
+              )}
+            </span>
+            <ul className="flex list-disc flex-col gap-1 pl-4">
+              {ambiguousLabels.map((a) => (
+                <li key={a.name}>
+                  <span className="font-semibold">{a.name}</span>
+                  {': '}
+                  {a.devices.join(', ')}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ),
+      })
+    }
   }
   const handleImportSourceMap = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
