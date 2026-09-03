@@ -124,8 +124,10 @@ export const en: Dict = {
     'No open session found yet. "Search the network" scans the local network for running Cable Planner sessions.',
   'collab.discover.desktopOnly': 'Network search is only available in the desktop app.',
   'collab.discover.adoptHint': 'Joining adopts the host’s plan (replaces your current plan).',
+  'collab.join.replaceTitle': 'Replace your local plan with the host’s plan?',
   'collab.join.replaceConfirm':
     'Joining loads the host’s plan and replaces your current plan. Continue?',
+  'collab.join.replaceOk': 'Join and replace',
   'common.delete': 'Delete',
   'common.edit': 'Edit',
   'common.reset': 'Reset',
