@@ -3312,8 +3312,6 @@ export const en: Dict = {
   'atem.mv.status.reading': 'Reading from ATEM…',
   'atem.mv.status.empty': 'ATEM returned no MV configuration.',
   'atem.mv.status.cancelled': 'Pull cancelled.',
-  'atem.mv.confirmOverwrite':
-    'Overwrite current MV configuration ({local} MV) with ATEM live state? From ATEM: {incoming} MV with {windows} window assignments.',
   'atem.mv.saved': 'Saved',
   'atem.mv.connectedReady': 'ATEM connected — ready to push.',
   'atem.mv.notConnected': 'ATEM not connected.',
