@@ -10,6 +10,7 @@ import {
 import { blackmagicTemplates } from '../../../lib/blackmagicCatalog'
 import { SortableSection } from '../SortableSection'
 import type { EquipmentItem, EquipmentTemplate, Port } from '../../../types/equipment'
+import { resolvePortLabel } from '../../../lib/portLabel'
 
 /**
  * #314 — "Gerät ersetzen…" — tauscht das aktuell ausgewaehlte Equipment
@@ -31,7 +32,10 @@ const previewMapping = (
 ): { mapped: number; lost: number } => {
   const used = new Set<number>()
   let mapped = 0
-  const oldKey = (p: Port) => (p.contentLabel || p.name || '').trim().toLowerCase()
+  // ADR-001 Inkrement 2 — dieselbe Engstelle wie im equipmentSlice, damit
+  // Vorschau und Ausfuehrung denselben Key sehen. Vorher trimmten beide erst
+  // NACH dem Fallback und wichen damit gleich zweimal vom Resolver ab.
+  const oldKey = (p: Port) => resolvePortLabel(p).text.toLowerCase()
   for (const op of oldPorts) {
     const ok = oldKey(op)
     const idx = newPorts.findIndex(

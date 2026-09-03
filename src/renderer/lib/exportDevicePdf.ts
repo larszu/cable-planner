@@ -26,7 +26,7 @@ import type { EquipmentItem, Port } from '../types/equipment'
 import { pdfText } from './pdfHelpers'
 import { sanitizeForPdf } from './sanitizeForPdf'
 import { buildExportFilename, buildExportFilenameWithSuffix } from './exportFilename'
-import { portLabelPair } from './portLabel'
+import { portDisplayLabel, portLabelPair } from './portLabel'
 
 interface CableEndpointSummary {
   /** Human-readable label for the cable (name OR fallback to type+length). */
@@ -73,7 +73,21 @@ const summarizeEndpoint = (
   return {
     cableLabel,
     otherDeviceName: other?.name ?? 'unbekannt',
-    otherPortName: otherPort?.name ?? null,
+    // ADR-001 Inkrement 2 — das Gegenende stand hier roh.
+    //
+    // Das Blatt fuehrt die EIGENEN Ports des Geraets seit #286 ueber
+    // `portLabelPair` (siehe drawSide unten): Haupt-Label „PGM", Subline
+    // „1 SDI 3G PGM (1080p50/60)". Das Gegenende dagegen nahm den nackten
+    // `port.name`. Auf einem Blatt standen damit beide Konventionen
+    // nebeneinander — links „PGM", rechts „an ATEM - 1 SDI 3G PGM
+    // (1080p50/60)" fuer denselben Steckverbinder.
+    //
+    // Das ist die eine Umstellung dieses Schritts, die die AUSGABE aendert:
+    // wo das Gegenport ein contentLabel hat, steht jetzt dieses. Bewusst so —
+    // die Treue-Regel aus ADR-001 Inkrement 1 verlangt, dass der Kandidat
+    // sagt, was der Exporter sendet, und ein Blatt mit zwei Konventionen ist
+    // die schlechtere Wahrheit.
+    otherPortName: otherPort ? portDisplayLabel(otherPort) || null : null,
     otherPortConnectorType: otherPort?.connectorType ? String(otherPort.connectorType) : null,
     cable,
   }
