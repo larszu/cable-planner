@@ -47,6 +47,28 @@ export const maskToBits = (mask: string | undefined): number | null => {
   return bits
 }
 
+/**
+ * Praefixlaenge -> gepunktete Maske. Die Umkehrung von `maskToBits`.
+ *
+ * WOFUER. NetBox liefert die primaere Adresse als CIDR (`10.0.5.7/26`). Der
+ * Import behielt davon nur die Adresse und warf die Praefixlaenge weg — und
+ * Pruefung 17 rechnete danach auf einer ERFUNDENEN /24 weiter
+ * (`e.subnetMask || '255.255.255.0'`). Auf einem /26- oder /22-Netz erzeugt
+ * das beides: eine Gateway-Warnung, die nicht haette kommen duerfen, und eine
+ * echte Fehlkonfiguration, die niemand meldet.
+ *
+ * Die Laenge stand die ganze Zeit in der Antwort. Sie wegzuwerfen und dann zu
+ * raten ist derselbe Fehler wie ueberall sonst heute: ein unbestaetigter Wert,
+ * der als Tatsache weiterrechnet.
+ */
+export const bitsToMask = (bits: number | null | undefined): string | null => {
+  if (bits === null || bits === undefined || !Number.isInteger(bits)) return null
+  if (bits < 0 || bits > 32) return null
+  const octets = [0, 0, 0, 0]
+  for (let i = 0; i < bits; i++) octets[Math.floor(i / 8)] |= 1 << (7 - (i % 8))
+  return octets.join('.')
+}
+
 /** Netzwerk-Adresse (Dotted) aus IP + Maske, oder null. */
 export const networkAddress = (ip: string | undefined, mask: string | undefined): string | null => {
   const ipv4 = parseIpv4(ip)

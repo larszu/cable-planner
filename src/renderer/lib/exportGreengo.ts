@@ -237,7 +237,31 @@ const SETTINGS_FROM_PLAN = ['Name', 'Description', 'SampleRate', 'MulticastAddre
  * darf der Export zurueckschreiben. Der Guard in tests/greengoPreset.test.ts
  * haelt die beiden Listen deckungsgleich.
  */
-const USER_FIELDS_FROM_PLAN = ['myId', 'Name', 'DisplayName', 'Color', 'ButtonFunctions'] as const
+const USER_FIELDS_FROM_PLAN = ['myId', 'Name', 'DisplayName', 'Color'] as const
+
+/**
+ * Felder, die der Plan ERGAENZT statt sie zu ersetzen — die dritte Kategorie.
+ *
+ * DER BEFUND. `ButtonFunctions` stand bis hierher in der Liste oben und wurde
+ * damit bei jedem Export ueberschrieben. Das war der letzte verbliebene
+ * Datenverlust im Editor-Weg, und ausgerechnet der einzige, vor dem der
+ * Import-Hinweis nicht warnt: das Feld steht in `READ_USER_FIELDS`, also
+ * meldet `unreadFields` es per Konstruktion nie als ungelesen.
+ *
+ * WARUM DER PLAN HIER NICHT ENTSCHEIDEN DARF. Er kennt die Tastenpositionen
+ * gar nicht. `GreenGoUser` fuehrt nur `groupIds` — eine MENGE von Gruppen.
+ * Der Parser liest `ButtonFunctions` auch nur als Rueckfallweg, um diese
+ * Menge zu fuellen (`importGreengo.ts:302-311`), und wirft die Positionen
+ * dabei weg. Der Generator erfand sie beim Export neu, positionsweise aus der
+ * Array-Reihenfolge, und setzte Seite 2 auf lauter Nullen.
+ *
+ * Auf einem Beltpack ist das die Tastenbelegung. Der Verlust faellt nicht am
+ * Bildschirm auf, sondern in der Probe.
+ *
+ * Das ist ADR-005 Regel 2 woertlich: eine Projektion darf nicht ueberschreiben,
+ * was sie nicht modelliert.
+ */
+const USER_FIELDS_MERGED_FROM_PLAN = ['ButtonFunctions'] as const
 
 /** Dasselbe fuer eine Gruppe. */
 const GROUP_FIELDS_FROM_PLAN = ['myId', 'Name', 'Color', 'members'] as const
@@ -255,10 +279,60 @@ const GROUP_FIELDS_FROM_PLAN = ['myId', 'Name', 'Color', 'members'] as const
  * aus dem Generator — sie hat kein Vorbild, aus dem sich etwas bewahren
  * liesse. Eine geloeschte faellt weg.
  */
+/**
+ * Die Tastenkarte fortschreiben, ohne die Positionen anzufassen.
+ *
+ * Was der Plan beitragen kann, ist ausschliesslich die MENGE der Gruppen. Also:
+ *  - Positionen kommen aus dem Preset und werden nie neu vergeben.
+ *  - Eine Gruppe, die der Plan neu kennt und die auf keiner Taste liegt,
+ *    kommt auf die erste freie Taste (Wert 0) der ersten Seite.
+ *  - Eine Gruppe, die der Plan nicht mehr kennt, wird auf ihrer Taste auf 0
+ *    gesetzt — die Taste bleibt, die Belegung geht.
+ *  - Jede weitere Seite bleibt unberuehrt. Der Plan weiss von ihr nichts.
+ */
+export const mergeButtonFunctions = (preset: unknown, fresh: unknown): unknown => {
+  if (!preset || typeof preset !== 'object') return fresh
+  const pages = preset as Record<string, unknown>
+  const freshPage1 =
+    fresh && typeof fresh === 'object'
+      ? (((fresh as Record<string, unknown>)['1'] ?? {}) as Record<string, unknown>)
+      : {}
+  // Die Gruppen, die der Plan heute vorsieht.
+  const planGroups = new Set(
+    Object.values(freshPage1)
+      .map((v) => Number(v))
+      .filter((n) => !Number.isNaN(n) && n > 0),
+  )
+  const page1 = { ...((pages['1'] ?? {}) as Record<string, unknown>) }
+  const stillThere = new Set<number>()
+  for (const [button, value] of Object.entries(page1)) {
+    const gid = Number(value)
+    if (Number.isNaN(gid) || gid <= 0) continue
+    if (planGroups.has(gid)) stillThere.add(gid)
+    else page1[button] = 0
+  }
+  // Neue Gruppen auf freie Tasten, in aufsteigender Tastenreihenfolge.
+  const frei = Object.keys(page1)
+    .filter((b) => Number(page1[b]) === 0)
+    .sort((a, b) => Number(a) - Number(b))
+  for (const gid of planGroups) {
+    if (stillThere.has(gid)) continue
+    const taste = frei.shift()
+    if (taste === undefined) break // Karte voll — lieber nichts verdraengen.
+    page1[taste] = gid
+  }
+  return { ...pages, '1': page1 }
+}
+
+const MERGE_RULES: Record<string, (preset: unknown, fresh: unknown) => unknown> = {
+  ButtonFunctions: mergeButtonFunctions,
+}
+
 const mergeKeyedSection = (
   presetSection: unknown,
   built: Record<string, unknown>,
   fieldsFromPlan: readonly string[],
+  mergedFields: readonly string[] = [],
 ): Record<string, unknown> => {
   const previous =
     presetSection && typeof presetSection === 'object'
@@ -276,6 +350,11 @@ const mergeKeyedSection = (
     const merged = { ...(old as Record<string, unknown>) }
     for (const field of fieldsFromPlan) {
       merged[field] = (fresh as Record<string, unknown>)[field]
+    }
+    // Die dritte Kategorie: zusammenfuehren statt ersetzen.
+    for (const field of mergedFields) {
+      const rule = MERGE_RULES[field]
+      if (rule) merged[field] = rule(merged[field], (fresh as Record<string, unknown>)[field])
     }
     out[key] = merged
   }
@@ -307,7 +386,12 @@ const mergeIntoPreset = (
   out.Settings = settings
   // Fortschreiben, nicht ersetzen — sonst waeren Tastenbelegungen, Pincodes
   // und Geraete-Registrierungen der Stationen trotz Preset wieder weg.
-  out.Users = mergeKeyedSection(out.Users, usersSection, USER_FIELDS_FROM_PLAN)
+  out.Users = mergeKeyedSection(
+    out.Users,
+    usersSection,
+    USER_FIELDS_FROM_PLAN,
+    USER_FIELDS_MERGED_FROM_PLAN,
+  )
   out.Groups = mergeKeyedSection(out.Groups, groupsSection, GROUP_FIELDS_FROM_PLAN)
   return out
 }
