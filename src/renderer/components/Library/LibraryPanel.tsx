@@ -20,6 +20,7 @@ import { suggestFromWeb } from '../../lib/webPortSuggestions'
 import { ALL_CONNECTOR_TYPES } from '../../types/equipment'
 import type { ConnectorType, EquipmentTemplate } from '../../types/equipment'
 import { nextPlacementPosition } from '../../lib/library'
+import { presetFromBlackBoxRack, presetFromEquipmentSelection } from '../../lib/rackPreset'
 import {
   clearNetBoxIndexCache,
   importNetBoxDeviceType,
@@ -133,48 +134,21 @@ export const LibraryPanel = () => {
   const newRackBuilderTrigger = useUiStore((s) => s.newRackBuilderTrigger)
   useEffect(() => {
     if (!rackBuilderSeedTrigger || rackBuilderSeedTrigger.length === 0) return
-    // Resolve the selected equipment to a synthesized GroupPreset
-    // shape. Stack them top-to-bottom by HE size; non-rack devices
-    // default to 1 HE. Cables connecting selected devices are NOT
-    // included (the user can wire them later in the sub-canvas).
+    // Die markierten Geraete zu einem Rack-Preset stapeln. Die Umwandlung
+    // steht in lib/rackPreset.ts neben der Gegenrichtung — hier stand sie
+    // frueher als eigene Aufzaehlung und liess dabei Tiefe, STL-Geometrie,
+    // Patchblenden-Marker und Rentman-Id liegen (ADR-005, Regel 1).
     const items = rackBuilderSeedTrigger
       .map((id) => equipmentItems.find((e) => e.id === id))
       .filter((e): e is NonNullable<typeof e> => e != null)
-    if (items.length === 0) {
+    const synthesized = presetFromEquipmentSelection(
+      items,
+      `__seed-${Date.now().toString(36)}`,
+      'Neues Rack aus Auswahl',
+    )
+    if (!synthesized) {
       clearRackBuilderSeedTrigger()
       return
-    }
-    let cursorUnit = 1
-    const placements = items.map((eq, index) => {
-      const heightUnits = Math.max(1, eq.rackUnits ?? 1)
-      const placement = { itemIndex: index, startUnit: cursorUnit, heightUnits }
-      cursorUnit += heightUnits
-      return placement
-    })
-    const synthesized: import('../../types/equipment').GroupPreset = {
-      id: `__seed-${Date.now().toString(36)}`,
-      name: 'Neues Rack aus Auswahl',
-      rack: {
-        totalUnits: Math.max(cursorUnit + 3, 12),
-        placements,
-      },
-      items: items.map((eq) => ({
-        name: eq.name,
-        category: eq.category ?? 'Sonstiges',
-        inputs: eq.inputs,
-        outputs: eq.outputs,
-        isRackDevice: eq.isRackDevice ?? !!eq.rackUnits,
-        rackUnits: Math.max(1, eq.rackUnits ?? 1),
-        frontPanelImageUrl: eq.frontPanelImageUrl,
-        rearPanelImageUrl: eq.rearPanelImageUrl,
-        frontPanelCrop: eq.frontPanelCrop,
-        rearPanelCrop: eq.rearPanelCrop,
-        width: eq.width ?? 240,
-        height: eq.height ?? 80,
-        offsetX: 0,
-        offsetY: 0,
-      })),
-      cables: [],
     }
     // eslint-disable-next-line react-hooks/set-state-in-effect -- One-shot Store-Trigger (Rack-Builder seeden), danach Trigger clearen
     setSeedPreset(synthesized)
@@ -214,60 +188,20 @@ export const LibraryPanel = () => {
     }
     const candidateName = eq.name.replace(/\s*\(Rack\)\s*$/, '').trim()
     if (eq.rackInternalSnapshot) {
-      // Wir bauen aus dem Snapshot + equipment.inputs/outputs ein
-      // temporaeres Preset zum Bearbeiten. Ports rekonstruieren wir aus
-      // equipment.inputs/outputs (via rackOriginDeviceIndex), damit
-      // sie im Dialog editierbar erscheinen.
-      const snap = eq.rackInternalSnapshot
-      const itemsByIndex = snap.items
-      const inputsByItem = new Map<number, import('../../types/equipment').Port[]>()
-      const outputsByItem = new Map<number, import('../../types/equipment').Port[]>()
-      for (const p of eq.inputs) {
-        if (typeof p.rackOriginDeviceIndex !== 'number') continue
-        const list = inputsByItem.get(p.rackOriginDeviceIndex) ?? []
-        list.push({ ...p, name: p.rackOriginPortName ?? p.name })
-        inputsByItem.set(p.rackOriginDeviceIndex, list)
-      }
-      for (const p of eq.outputs) {
-        if (typeof p.rackOriginDeviceIndex !== 'number') continue
-        const list = outputsByItem.get(p.rackOriginDeviceIndex) ?? []
-        list.push({ ...p, name: p.rackOriginPortName ?? p.name })
-        outputsByItem.set(p.rackOriginDeviceIndex, list)
-      }
-      const synth: import('../../types/equipment').GroupPreset = {
-        id: `__edit-blackbox-${Date.now().toString(36)}`,
-        name: candidateName,
-        rack: {
-          totalUnits: snap.totalUnits,
-          placements: itemsByIndex.map((it, idx) => ({
-            itemIndex: idx,
-            startUnit: it.startUnit,
-            heightUnits: it.rackUnits,
-          })),
-        },
-        items: itemsByIndex.map((it, idx) => ({
-          name: it.name,
-          category: 'Sonstiges',
-          inputs: inputsByItem.get(idx) ?? [],
-          outputs: outputsByItem.get(idx) ?? [],
-          isRackDevice: true,
-          rackUnits: it.rackUnits,
-          width: 240,
-          height: 80,
-          offsetX: 0,
-          offsetY: 0,
-        })),
-        cables: snap.cables.map((c) => ({
-          fromItemIndex: c.fromItemIndex,
-          fromPortName: c.fromPortName,
-          toItemIndex: c.toItemIndex,
-          toPortName: c.toPortName,
-          name: '',
-          type: 'unbekannt',
-          length: 0,
-          color: c.color,
-          standard: 'unbekannt',
-        })),
+      // Rueckbau aus dem Snapshot — die Umwandlung steht in
+      // lib/rackPreset.ts. Ports kommen aus den aussen liegenden Ports des
+      // Racks (via rackOriginDeviceIndex), damit sie im Dialog editierbar
+      // sind. Hier stand sie frueher als eigene Aufzaehlung und warf dabei
+      // die Rentman-Ids weg, die der Snapshot ausdruecklich traegt
+      // (#335 / ADR-005, Regel 1).
+      const synth = presetFromBlackBoxRack(
+        eq,
+        `__edit-blackbox-${Date.now().toString(36)}`,
+        candidateName,
+      )
+      if (!synth) {
+        clearRackBuilderEditFromBlackBoxTrigger()
+        return
       }
       // eslint-disable-next-line react-hooks/set-state-in-effect -- One-shot Store-Trigger (Rack aus Black-Box editieren), danach clearen
       setSeedPreset(synth)
