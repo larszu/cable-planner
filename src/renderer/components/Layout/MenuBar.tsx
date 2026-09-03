@@ -26,7 +26,14 @@ import { useModule } from '../../store/settingsStore'
 import { exportStagePlotSvg } from '../../lib/exportStagePlot'
 import { downloadBlob } from '../../lib/downloadBlob'
 import { parseCameraList, cameraListToEquipment } from '../../lib/multicamCameraImport'
-import { cableToAvPlan, parseAvPlan } from '../../lib/avplan'
+import {
+  cableToAvPlan,
+  parseAvPlan,
+  pickUnknownDomains,
+  unknownDomainSlots,
+  KNOWN_DOMAIN_SLOTS,
+} from '../../lib/avplan'
+import { unknownDomainsDialog } from '../../lib/unknownDomainsDialog'
 import { buildSourceMap, mergeSourceMap, parseSourceMap } from '../../lib/sourceMap'
 import { summarizeForeign, hasForeign } from '../../lib/foreignView'
 import type { CablePlannerProject } from '../../types/project'
@@ -143,10 +150,38 @@ export const MenuBar = ({
       try {
         const avplan = parseAvPlan(await file.text())
         const base = (avplan.domains.cabling as CablePlannerProject | undefined) ?? useProjectStore.getState().project
-        useProjectStore.getState().loadProject({
-          ...base,
-          avForeign: { venue: avplan.venue, cameras: avplan.domains.cameras, lighting: avplan.domains.lighting },
-        })
+
+        // ADR-005 — Slots, die das Format nicht benennt. Vorher wurden sie
+        // hier stillschweigend fallengelassen: die Datei wurde angenommen und
+        // der fremde Inhalt war weg. Jetzt wird gefragt, und die Vorauswahl
+        // ist die, die nichts entscheidet.
+        const unknown = unknownDomainSlots(avplan)
+        const foreign: NonNullable<CablePlannerProject['avForeign']> = {
+          venue: avplan.venue,
+          cameras: avplan.domains.cameras,
+          lighting: avplan.domains.lighting,
+        }
+        if (unknown.length > 0) {
+          const free = KNOWN_DOMAIN_SLOTS.filter(
+            (slot) => slot !== 'cabling' && avplan.domains[slot] === undefined,
+          )
+          const decisions = await unknownDomainsDialog(unknown, [...free])
+          const carried = pickUnknownDomains(avplan)
+          for (const slot of unknown) {
+            // `null` = weggeklickt, also nichts entschieden. Die vorsichtige
+            // Lesart ist behalten, nicht verwerfen.
+            const action = decisions?.[slot] ?? { kind: 'keep' as const }
+            if (action.kind === 'discard') {
+              delete carried[slot]
+            } else if (action.kind === 'assign') {
+              ;(foreign as Record<string, unknown>)[action.target] = carried[slot]
+              delete carried[slot]
+            }
+          }
+          if (Object.keys(carried).length > 0) foreign.unknownDomains = carried
+        }
+
+        useProjectStore.getState().loadProject({ ...base, avForeign: foreign })
       } catch {
         await infoDialog(
           t('app.menu.file.importAvplanError', 'Import fehlgeschlagen — keine gültige .avplan-Datei.'),
