@@ -207,12 +207,33 @@ export const RACK_DRAFT_FIELDS_NOT_FROM_EQUIPMENT = [
   'shelfOffsetZ',
 ] as const
 
-/** Die Geraete-Felder, die ein Rack-Inhalt vom Equipment erbt. */
-const itemFromEquipment = (eq: EquipmentItem): GroupPreset['items'][number] => ({
+/**
+ * Die Geraete-Felder, die ein Preset-Inhalt vom Equipment erbt.
+ *
+ * Die Feldliste ist die VEREINIGUNG dessen, was die bisherigen Aufzaehlungen
+ * schon trugen — der Rack-Weg (Tiefe, STL, Rack-Marker, Fotos) und der
+ * Gruppen-Weg in `saveGroupPreset` (Notizen, IP, Aufloesung, Display-Groesse).
+ * Jedes Feld hier steht also, weil ein bestehender Weg es bereits mitnahm;
+ * keines ist eine neue Entscheidung.
+ *
+ * Die eine Ausnahme ist `deviceTypeId`, und die ist keine: ADR-002 macht sie
+ * zur Katalog-Identitaet, und `templateFromEquipment` traegt sie mit dem
+ * Hinweis, dass ihr Verlust ein Katalog-Geraet wieder zu einer Namens-
+ * Vermutung macht. Beide Preset-Wege liessen sie liegen — ein als Gruppe
+ * gespeichertes Geraet kam beim Platzieren ohne sie zurueck.
+ *
+ * Was hier NICHT steht, sind die Handels- und Bestands-Felder (Preise,
+ * Lieferant, Lagerort). Keine der bisherigen Aufzaehlungen trug sie; ob sie
+ * reisen sollen, ist die offene Modell-/Instanz-Frage und wird hier nicht
+ * nebenbei beantwortet.
+ */
+export const itemFromEquipment = (eq: EquipmentItem): GroupPreset['items'][number] => ({
   name: eq.name,
   category: eq.category ?? 'Sonstiges',
   inputs: eq.inputs,
   outputs: eq.outputs,
+  // ADR-002 — die Katalog-Identitaet muss die Umwandlung ueberleben.
+  deviceTypeId: eq.deviceTypeId,
   isRackDevice: eq.isRackDevice ?? !!eq.rackUnits,
   rackUnits: Math.max(1, eq.rackUnits ?? 1),
   frontPanelImageUrl: eq.frontPanelImageUrl,
@@ -226,6 +247,11 @@ const itemFromEquipment = (eq: EquipmentItem): GroupPreset['items'][number] => (
   // v7.9.75 / #170 — Patchblende/Shelf sind Eigenschaften des Geraets.
   isPatchPanel: eq.isPatchPanel,
   isRackShelf: eq.isRackShelf,
+  // Aus dem Gruppen-Weg: der stand dort seit jeher und fehlte dem Rack-Weg.
+  notes: eq.notes,
+  ipAddress: eq.ipAddress,
+  resolution: eq.resolution,
+  displaySizeInch: eq.displaySizeInch,
   width: eq.width ?? 240,
   height: eq.height ?? 80,
   offsetX: 0,

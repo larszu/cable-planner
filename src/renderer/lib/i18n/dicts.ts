@@ -3110,7 +3110,7 @@ export const en: Dict = {
   'app.libUpdate.moreLines': '…and {n} more',
   'app.libUpdate.title': '{n} library item(s) in this project are out of date:',
   'app.libUpdate.body':
-    'A newer version is in the library folder. Update to the current library state?\n\n(Device names + notes are kept. Rack/group updates currently have to be replaced manually.)',
+    'A newer version is in the library folder. Update to the current library state?\n\nWhat gets adopted is what describes the device type: category, ports, rack dimensions, image and icon. Everything belonging to the individual device stays — name, notes, position, colour, network address and credentials, serial number, status.\n\nCables are carried over to the new ports (matched by connector type and label). A cable that no longer finds a matching port is removed.\n\nRack/group updates currently have to be replaced manually.',
   'app.libUpdate.okBtn': 'Update',
   'app.libUpdate.doneTitle': 'Update done',
   'app.libUpdate.doneAppliedBody': '{n} device(s) updated.',

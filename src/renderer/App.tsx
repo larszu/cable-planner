@@ -81,7 +81,7 @@ import {
   markDeviceSynced,
   markGroupSynced,
   findOutdatedEquipment,
-  applyDeviceTemplateUpdate,
+  stampDeviceLibraryRef,
   detectFolderDeletions,
   pushMissingItemsToFolder,
 } from './lib/librarySync'
@@ -389,7 +389,7 @@ export default function App() {
             `${lines.join('\n')}${more}\n\n` +
             t(
               'app.libUpdate.body',
-              'Im Bibliotheks-Ordner liegt eine neuere Version. Auf die aktuellen Library-Stände aktualisieren?\n\n(Geräte-Namen + Notizen bleiben erhalten. Rack/Gruppen-Updates müssen aktuell manuell neu platziert werden.)',
+              'Im Bibliotheks-Ordner liegt eine neuere Version. Auf die aktuellen Library-Stände aktualisieren?\n\nÜbernommen wird, was den Gerätetyp beschreibt: Kategorie, Ports, Rack-Maße, Bild und Symbol. Alles, was zum einzelnen Gerät gehört, bleibt — Name, Notizen, Position, Farbe, Netzwerk-Adresse und Zugangsdaten, Seriennummer, Status.\n\nKabel werden auf die neuen Ports mitgezogen (nach Steckertyp und Beschriftung). Findet ein Kabel keinen passenden Port mehr, wird es entfernt.\n\nRack/Gruppen-Updates müssen aktuell manuell neu platziert werden.',
             ),
           okLabel: t('app.libUpdate.okBtn', 'Aktualisieren'),
         },
@@ -403,8 +403,34 @@ export default function App() {
         if (!newTemplate) continue
         const oldEq = freshState.project.equipment.find((e) => e.id === item.equipmentId)
         if (!oldEq) continue
-        const updated = applyDeviceTemplateUpdate(oldEq, newTemplate)
-        freshState.updateEquipment(item.equipmentId, updated)
+        // ADR-005, Regel 1 und 2 — hier lief eine zweite, aermere Fassung des
+        // Template-Tauschs. `applyDeviceTemplateUpdate` legte das TEMPLATE als
+        // Basis unter das Geraet und rettete nur id/x/y/name/notes. Zwei
+        // Folgen, beide gemessen:
+        //
+        //   1. Die Ports des Templates ersetzten die des Geraets MITSAMT
+        //      ihren Ids — ohne dass irgendwer die Kabel nachzog. Nach einem
+        //      Klick auf „Aktualisieren" zeigten alle Kabel des Geraets auf
+        //      Port-Ids, die es nicht mehr gab. Sie blieben im Projekt, ohne
+        //      Anschluss.
+        //   2. Traegt das Template eine Netz-Identitaet (und das tut es:
+        //      `templateFromEquipment` speichert IP, Benutzer und Passwort),
+        //      ueberschrieb sie die des platzierten Geraets. Ein Typ-Update
+        //      setzte damit die Adresse und die Zugangsdaten EINER konkreten
+        //      Maschine auf die des Vorlagen-Geraets.
+        //
+        // `replaceEquipmentWithTemplate` (#314) macht denselben Tausch seit
+        // jeher richtig: es mappt die Ports ueber (connectorType,
+        // Beschriftung/Name) und dann positional, zieht die Kabel nach,
+        // verwirft nur, was sich nicht mappen laesst, und laesst das Geraet
+        // die Basis sein. Deshalb geht der Update-Prompt jetzt durch dieselbe
+        // Aktion. Das gestempelte Template, damit der neue fileVersion-Stand
+        // am libraryRef landet — sonst meldet der naechste Projekt-Start
+        // dasselbe Geraet wieder als veraltet.
+        freshState.replaceEquipmentWithTemplate(
+          item.equipmentId,
+          stampDeviceLibraryRef(newTemplate),
+        )
         applied += 1
       }
       const skipped = outdated.length - applied
