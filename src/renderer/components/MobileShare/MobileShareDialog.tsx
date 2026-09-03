@@ -13,8 +13,17 @@
  *      mutation to the server (debounced) so the phone always sees the
  *      latest state on refresh.
  *
- * The server has no write endpoints; the phone view is read-only. The
- * server stops when the user clicks "Stop" or when the desktop app
+ * Der Rueckkanal: entgegen einer frueheren Fassung dieses Kommentars hat
+ * der Server sehr wohl Schreib-Endpunkte — POST /checks (Haekchen),
+ * POST /cables (neu angelegte Kabel) und POST /pending-changes
+ * (Feld-Rueckmeldungen). Alle drei aendern das Projekt am Desktop.
+ * Jeder von ihnen verlangt das Token aus der QR-Code-URL (`authed`),
+ * und `stripSecrets` entfernt Passwoerter/Schluessel, bevor das Projekt
+ * das Geraet verlaesst. Der Weg ist also abgesichert — aber er ist da,
+ * und der Sicherheits-Hinweis im Dialog muss ihn benennen: wer den
+ * QR-Code hat, kann den Plan aendern, nicht nur ansehen.
+ *
+ * The server stops when the user clicks "Stop" or when the desktop app
  * closes (Electron tears down the http server with the process).
  */
 
@@ -243,7 +252,8 @@ export const MobileShareDialog = () => {
           <details className="text-[11px] text-cp-text-muted">
             <summary className="cursor-pointer hover:text-cp-text-secondary">{t('mobile.dialog.securityHeading', 'Hinweise zur Sicherheit')}</summary>
             <ul className="mt-1 list-inside list-disc space-y-1">
-              <li>{t('mobile.dialog.security.readOnly', 'Read-only: das Handy kann nur lesen, nichts schreiben.')}</li>
+              <li>{t('mobile.dialog.security.writeBack', 'Das Handy liest nicht nur: Häkchen, neu angelegte Kabel und Feld-Rückmeldungen gehen zurück ins Projekt. Wer den QR-Code hat, kann den Plan ändern.')}</li>
+              <li>{t('mobile.dialog.security.token', 'Jeder Schreibweg verlangt das Token aus dem QR-Code. Passwörter und Schlüssel werden aus dem Projekt entfernt, bevor es das Gerät verlässt.')}</li>
               <li>{t('mobile.dialog.security.bind', 'Der Server bindet auf das lokale Netzwerk (0.0.0.0). Wenn unklar ist, wer im Netz hängt, lieber stoppen.')}</li>
               <li>{t('mobile.dialog.security.autostop', 'Beim Schließen der Desktop-App stoppt auch der Server automatisch.')}</li>
             </ul>

@@ -59,7 +59,8 @@ strukturellen Änderungen.** Hier nur das Nötigste zum schnellen Einstieg:
 - `src/renderer/` — React-App. **Kein Node-Zugriff**; alles File-/Netzwerk-IO
   läuft über IPC.
 - `src/mobile/` — statische LAN-View, von `mobileShareServer` (Express) an
-  Smartphones ausgeliefert (Read/Check-only).
+  Smartphones ausgeliefert. Kein Editor, aber auch nicht read-only: drei
+  token-gated Schreibwege zurück (`/checks`, `/cables`, `/pending-changes`).
 - `src/viewer/` — eigener Vite-Entry (`viewer.html`) für read-only Web-Viewer,
   auf GitHub Pages deployt.
 

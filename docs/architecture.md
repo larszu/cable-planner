@@ -369,11 +369,19 @@ Score-Schwelle).
 
 `mobileShareServer.ts` startet Express auf ephemerem Port,
 liefert `src/mobile/` an Smartphones im LAN. Bidirektional:
-- Main → Mobile: aktuelle Projekt-Snapshot (Pull-Endpunkt).
-- Mobile → Main: Bauteam-Häkchen (POST `/checks`).
+- Main → Mobile: aktuelle Projekt-Snapshot (Pull-Endpunkt), Passwörter und
+  Schlüssel vorher via `stripSecrets` entfernt.
+- Mobile → Main: **drei** Schreibwege, nicht einer —
+  Bauteam-Häkchen (POST `/checks`), neu angelegte Kabel (POST `/cables`,
+  v7.9.54) und Feld-Rückmeldungen (POST `/pending-changes`).
+  Alle drei sind token-gated (`authed`, Token aus der QR-Code-URL).
 
-**Mobile ist heute Read/Check-only, kein Editor.** Wenn das mal Editor wird,
-braucht es eine richtige API-Schicht statt File-Push.
+**Mobile ist kein Editor** — aber auch nicht read-only: die drei Wege oben
+ändern das Projekt am Desktop. Wer das anders formuliert findet, korrigiert
+es; der Dialog-Hinweis sagte bis v7.9.x fälschlich „kann nur lesen, nichts
+schreiben", was für eine Sicherheits-Entscheidung des Nutzers die falsche
+Grundlage war. Wenn Mobile echter Editor wird, braucht es eine richtige
+API-Schicht statt File-Push.
 
 ### 6.7 · AI-Provider (optional)
 
