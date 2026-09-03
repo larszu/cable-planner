@@ -10,6 +10,7 @@ import { findProjectPathInArgv, setPendingLaunchPath } from './services/fileOpen
 import { registerAtemIpc } from './ipc/atemIpc.js'
 import { registerVideohubIpc } from './ipc/videohubIpc.js'
 import { registerLogIpc } from './ipc/logIpc.js'
+import { registerDocumentLogIpc } from './ipc/documentLogIpc.js'
 import { registerSyncIpc } from './ipc/syncIpc.js'
 import { registerGraphmlIpc } from './ipc/graphmlIpc.js'
 import { registerMobileShareIpc } from './ipc/mobileShareIpc.js'
@@ -358,6 +359,7 @@ app.whenReady().then(async () => {
   registerAtemIpc()
   registerVideohubIpc()
   registerLogIpc()
+  registerDocumentLogIpc()
   registerSyncIpc()
   registerGraphmlIpc()
   registerMobileShareIpc()
