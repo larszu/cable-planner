@@ -1468,7 +1468,7 @@ export const en: Dict = {
   'greengo.importOverlay.title': 'Import .gg5 — link devices',
   'greengo.importOverlay.system': 'System:',
   'greengo.importOverlay.unreadTitle': 'This file contains sections the import does not read',
-  'greengo.importOverlay.unreadHint': 'An export from Cable Planner creates a new .gg5 and fills those sections and fields with defaults. It does not replace the original file — keep it.',
+  'greengo.importOverlay.unreadHint': 'Cable Planner does not read these sections and fields — when you export from the loaded file they travel through unchanged. Only without a loaded file are they regenerated with defaults. The export never replaces the original file, but keep it anyway.',
   'greengo.importOverlay.matchTitle': 'Mapping to canvas devices',
   'greengo.importOverlay.matchKept': '{count} hand-set mappings are preserved (slot {slots}).',
   'greengo.importOverlay.matchRenamed': 'Slot {slots}: the station has a different name in the file — the mapping was guessed again.',

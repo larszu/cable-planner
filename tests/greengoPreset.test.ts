@@ -39,7 +39,14 @@ const anlage = () => ({
       Name: 'BPX Regie',
       DisplayName: 'Regie',
       Color: 3,
-      ButtonFunctions: {},
+      // Eine ECHTE Tastenkarte. Sie stand hier als `{}` — und genau deshalb
+      // konnte kein Test den Verlust sehen: es gab nichts zu verlieren.
+      // Seite 1 ist bewusst nicht aufsteigend belegt und hat Luecken, Seite 2
+      // traegt etwas, das der Plan gar nicht kennen kann.
+      ButtonFunctions: {
+        '1': { '1': 9, '2': 4, '3': 7, '4': 0, '5': 0, '6': 0 },
+        '2': { '1': 2, '2': 0, '3': 0 },
+      },
       // Was der Parser NICHT liest — der halbe Einmessvorgang:
       devices: [{ serial: 'GG-0001' }],
       Channels: { 1: { fn: 'talk' } },
@@ -155,6 +162,54 @@ describe('Generator-Weg: ohne Preset bleibt alles wie bisher', () => {
   })
 })
 
+describe('die Tastenkarte ueberlebt den Export', () => {
+  // Der letzte verbliebene Datenverlust im Editor-Weg — und der einzige, vor
+  // dem der Import-Hinweis nicht warnte, weil `ButtonFunctions` in
+  // `READ_USER_FIELDS` steht und `unreadFields` es deshalb nie meldet.
+  //
+  // Der Plan kennt keine Tastenpositionen: `GreenGoUser` fuehrt nur
+  // `groupIds`, eine Menge. Der Export erfand die Positionen aus der
+  // Array-Reihenfolge neu und setzte Seite 2 auf Nullen. Auf einem Beltpack
+  // ist das die Tastenbelegung; es faellt in der Probe auf, nicht am Schirm.
+
+  const users = (raw: unknown) =>
+    (JSON.parse(buildGg5File(raw as GreenGoConfig)) as Record<string, any>).Users
+
+  it('laesst die Positionen stehen, wenn sich an den Gruppen nichts aendert', () => {
+    const config = configFrom(anlage())
+    // Der Parser hat aus der Karte {9,4,7} als groupIds gelesen.
+    const out = users({ ...config, users: [{ id: 1, name: 'BPX Regie', groupIds: [9, 4, 7] }] })
+    expect(out['1'].ButtonFunctions['1']).toEqual({ '1': 9, '2': 4, '3': 7, '4': 0, '5': 0, '6': 0 })
+  })
+
+  it('fasst Seite 2 nicht an — der Plan weiss von ihr nichts', () => {
+    const config = configFrom(anlage())
+    const out = users({ ...config, users: [{ id: 1, name: 'BPX Regie', groupIds: [9, 4, 7] }] })
+    expect(out['1'].ButtonFunctions['2']).toEqual({ '1': 2, '2': 0, '3': 0 })
+  })
+
+  it('legt eine neue Gruppe auf die erste freie Taste, statt umzusortieren', () => {
+    const config = configFrom(anlage())
+    const out = users({ ...config, users: [{ id: 1, name: 'BPX Regie', groupIds: [9, 4, 7, 5] }] })
+    // 9/4/7 bleiben, wo sie waren; die 5 kommt auf Taste 4.
+    expect(out['1'].ButtonFunctions['1']).toEqual({ '1': 9, '2': 4, '3': 7, '4': 5, '5': 0, '6': 0 })
+  })
+
+  it('raeumt eine entfernte Gruppe von ihrer Taste, ohne die anderen zu verschieben', () => {
+    const config = configFrom(anlage())
+    const out = users({ ...config, users: [{ id: 1, name: 'BPX Regie', groupIds: [9, 7] }] })
+    expect(out['1'].ButtonFunctions['1']).toEqual({ '1': 9, '2': 0, '3': 7, '4': 0, '5': 0, '6': 0 })
+  })
+
+  it('erzeugt fuer eine neue Station weiterhin eine ganze Karte', () => {
+    // Der Generator-Weg bleibt, wo es kein Preset fuer diese Station gibt.
+    const config = configFrom(anlage())
+    const out = users({ ...config, users: [{ id: 7, name: 'Neu', groupIds: [3] }] })
+    expect(Object.keys(out['7'].ButtonFunctions['1'])).toHaveLength(18)
+    expect(out['7'].ButtonFunctions['1']['1']).toBe(3)
+  })
+})
+
 describe('der Round-Trip als Ganzes', () => {
   it('ueberlebt Datei -> Import -> Export -> Import ohne Verlust der Anlagenteile', () => {
     const first = anlage()
@@ -180,9 +235,16 @@ describe('was der Parser liest, schreibt der Export zurueck', () => {
       if (!m) throw new Error(`${name} nicht gefunden`)
       return [...m[1].matchAll(/'([^']+)'/g)].map((x) => x[1]).sort()
     }
-    expect(listOf(exportSrc, 'USER_FIELDS_FROM_PLAN')).toEqual(
-      listOf(importSrc, 'READ_USER_FIELDS'),
-    )
+    // Drei Kategorien statt zwei: was der Export ERSETZT, was er ERGAENZT, und
+    // zusammen muss das sein, was der Import liest. Die alte Fassung verlangte
+    // Gleichheit der Ersetz-Liste mit der Lese-Liste — und zementierte damit,
+    // dass `ButtonFunctions` ueberschrieben wird.
+    expect(
+      [
+        ...listOf(exportSrc, 'USER_FIELDS_FROM_PLAN'),
+        ...listOf(exportSrc, 'USER_FIELDS_MERGED_FROM_PLAN'),
+      ].sort(),
+    ).toEqual(listOf(importSrc, 'READ_USER_FIELDS'))
     expect(listOf(exportSrc, 'GROUP_FIELDS_FROM_PLAN')).toEqual(
       listOf(importSrc, 'READ_GROUP_FIELDS'),
     )

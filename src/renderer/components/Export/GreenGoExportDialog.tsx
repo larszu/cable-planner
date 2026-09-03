@@ -852,7 +852,7 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
                   <div className="mt-1.5 text-[11px] text-cp-text-muted">
                     {t(
                       'greengo.importOverlay.unreadHint',
-                      'Ein Export aus dem Cable-Planner erzeugt eine neue .gg5 und füllt diese Abschnitte und Felder mit Standardwerten. Er ersetzt die Original-Datei nicht — bewahre sie auf.',
+                      'Diese Abschnitte und Felder liest der Cable-Planner nicht — beim Export aus der geladenen Datei reisen sie unverändert mit. Nur ohne geladene Datei werden sie mit Standardwerten neu erzeugt. Die Original-Datei ersetzt der Export nie — bewahre sie trotzdem auf.',
                     )}
                   </div>
                 </div>
