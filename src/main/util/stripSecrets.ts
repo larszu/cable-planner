@@ -32,13 +32,42 @@ export const SECRET_KEYS = new Set([
   'token',
 ])
 
-/** Rekursiv alle Felder aus `SECRET_KEYS` entfernen. Arrays bleiben Arrays. */
+/**
+ * Fremde Roh-Dokumente, die als Ganzes nicht mitgehen.
+ *
+ * `SECRET_KEYS` streicht nach Feldnamen. Das setzt voraus, dass wir die Namen
+ * kennen — bei unseren eigenen Typen tun wir das. Bei einem eingelesenen
+ * Hersteller-Dokument nicht: `GreenGoConfig.basePreset` haelt die
+ * Anlagen-Konfiguration unveraendert, und ihr Kopf-Kommentar sagt ausdruecklich
+ * „und vor allem die PASSWOERTER der Anlage bleiben, wie sie waren".
+ *
+ * Sie heissen `ConfigPassword`, `AdminPassword`, `TechPincode` und
+ * `Security.Pincode` — keiner dieser Namen steht in `SECRET_KEYS`. Die
+ * Zugangsdaten der Geraete wurden also gestrichen, die der Intercom-Anlage
+ * gingen mit: in die `.cpviewer`-Datei fuer externe Reviewer und an jedes
+ * Handy in der Mobile-Ansicht. Das widerspricht der Regel im Kopf dieser
+ * Datei, nicht bloss dem guten Geschmack.
+ *
+ * Feldnamen nachzutragen waere die schlechtere Antwort: das Dokument gehoert
+ * einem Hersteller, und die naechste Firmware bringt ein Feld mit, das hier
+ * niemand aufgeschrieben hat. Deshalb geht das Roh-Dokument als Ganzes nicht
+ * mit — was nichts kostet, denn **kein Empfaenger liest es.** Nachgesehen:
+ * weder `src/mobile/` noch `src/viewer/` kennen GreenGo ueberhaupt, und
+ * `basePreset` wird nur im Renderer gelesen, auf dem Rechner des Eigentuemers.
+ * Beim eigenen Speichern bleibt es unangetastet — dieselbe Grenze wie oben.
+ */
+export const OPAQUE_KEYS = new Set(['basePreset'])
+
+/**
+ * Rekursiv alle Felder aus `SECRET_KEYS` und `OPAQUE_KEYS` entfernen. Arrays
+ * bleiben Arrays.
+ */
 export const stripSecrets = (value: unknown): unknown => {
   if (Array.isArray(value)) return value.map(stripSecrets)
   if (value && typeof value === 'object') {
     const out: Record<string, unknown> = {}
     for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
-      if (SECRET_KEYS.has(k)) continue
+      if (SECRET_KEYS.has(k) || OPAQUE_KEYS.has(k)) continue
       out[k] = stripSecrets(v)
     }
     return out
