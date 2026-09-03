@@ -426,23 +426,19 @@ export const findOutdatedEquipment = (
  *  dangling if v2 of the template changed port IDs — the user is
  *  responsible for that (rare in practice because templates rarely
  *  recycle IDs). */
-export const applyDeviceTemplateUpdate = (
-  oldEq: EquipmentItem,
-  newTemplate: EquipmentTemplate,
-): EquipmentItem => {
-  const stamped = stampDeviceLibraryRef(newTemplate)
-  return {
-    ...stamped,
-    id: oldEq.id,
-    x: oldEq.x,
-    y: oldEq.y,
-    // Preserve user-local Edits am Equipment — Notizen + ggf. Rename
-    // sind nicht Teil des Library-Templates, der Update soll sie nicht
-    // wegwerfen.
-    name: oldEq.name,
-    notes: oldEq.notes,
-  }
-}
+// ADR-005, Inkrement 4 — `applyDeviceTemplateUpdate` stand hier und ist weg.
+//
+// Sie war die zweite, aermere Fassung des Template-Tauschs: sie legte das
+// TEMPLATE als Basis unter das Geraet und rettete nur id/x/y/name/notes.
+// Damit ersetzten die Template-Ports die des Geraets mitsamt ihren Ids, ohne
+// dass irgendwer die Kabel nachzog — nach einem Klick auf „Aktualisieren"
+// hingen alle Kabel des Geraets an Port-Ids, die es nicht mehr gab. Und trug
+// das Template eine Netz-Identitaet (`templateFromEquipment` speichert IP,
+// Benutzer und Passwort), ueberschrieb sie die der konkreten Maschine.
+//
+// `replaceEquipmentWithTemplate` im equipmentSlice (#314) macht denselben
+// Tausch seit jeher richtig — Port-Mapping, Kabel nachziehen, Geraet als
+// Basis. Der Update-Prompt in App.tsx geht jetzt durch diese eine Aktion.
 
 export const syncPresetsToFolder = (presets: GroupPreset[]): void => {
   const next = new Map(presets.map((p) => [p.name, p]))
