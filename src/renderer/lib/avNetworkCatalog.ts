@@ -44,6 +44,7 @@ export const AVNETWORK_CATALOG: AvNetworkEntry[] = [
     deviceTypeId: '92dcba31-e2aa-4ba3-bbca-83375fdbb97c',
     networkKind: 'switch',
     template: {
+      manufacturerUrl: 'https://www.netgear.com/support/product/gsm4212p',
       name: 'Netgear M4250-10G2F-PoE+',
       category: 'Netzwerk',
       categoryProps: { poeBudgetW: 125 },
@@ -66,6 +67,7 @@ export const AVNETWORK_CATALOG: AvNetworkEntry[] = [
     deviceTypeId: 'af2817ec-1604-4b72-9d6c-fc385edf8b74',
     networkKind: 'switch',
     template: {
+      manufacturerUrl: 'https://support.netgear.com/support/product/gsm4230p',
       name: 'Netgear M4250-26G4F-PoE+',
       category: 'Netzwerk',
       categoryProps: { poeBudgetW: 300 },
@@ -88,6 +90,7 @@ export const AVNETWORK_CATALOG: AvNetworkEntry[] = [
     deviceTypeId: '41806ac2-4515-4c94-922a-72a17e9f7332',
     networkKind: 'switch',
     template: {
+      manufacturerUrl: 'https://www.luminex.be/products/gigacore/',
       name: 'Luminex GigaCore 16Xt',
       category: 'Netzwerk',
       inputs: [
@@ -107,6 +110,7 @@ export const AVNETWORK_CATALOG: AvNetworkEntry[] = [
     match: ['flex', '4k in'],
     deviceTypeId: 'f472514c-647b-4956-9b61-92b9bc1ad996',
     template: {
+      manufacturerUrl: 'https://birddog.tv/flex-overview/flex-techspecs/',
       name: 'BirdDog Flex 4K IN',
       category: 'IP/NDI',
       isConverter: true,
@@ -127,6 +131,7 @@ export const AVNETWORK_CATALOG: AvNetworkEntry[] = [
     match: ['flex', '4k out'],
     deviceTypeId: 'b23e0c0e-92e0-48a2-a855-3812b775983c',
     template: {
+      manufacturerUrl: 'https://birddog.tv/flex-overview/flex-techspecs/',
       name: 'BirdDog Flex 4K OUT',
       category: 'IP/NDI',
       isConverter: true,
@@ -147,6 +152,7 @@ export const AVNETWORK_CATALOG: AvNetworkEntry[] = [
     match: ['pro convert', 'hdmi', '4k'],
     deviceTypeId: '60b05acc-b521-4a32-82ea-8c44f7709c70',
     template: {
+      manufacturerUrl: 'https://www.magewell.com/products/pro-convert-hdmi-4k-plus',
       name: 'Magewell Pro Convert HDMI 4K Plus',
       category: 'IP/NDI',
       isConverter: true,
@@ -168,6 +174,7 @@ export const AVNETWORK_CATALOG: AvNetworkEntry[] = [
     deviceTypeId: '605c86c2-344b-4652-92e6-7eceeb2b26ab',
     networkKind: 'switch',
     template: {
+      manufacturerUrl: 'https://www.luminex.be/products/gigacore/gigacore-10t/',
       name: 'Luminex GigaCore 10t',
       category: 'Netzwerk',
       inputs: [
@@ -188,6 +195,7 @@ export const AVNETWORK_CATALOG: AvNetworkEntry[] = [
     deviceTypeId: 'b70cec7b-17f9-4a60-b417-a4052ef6ee48',
     networkKind: 'switch',
     template: {
+      manufacturerUrl: 'https://www.luminex.be/products/gigacore/',
       name: 'Luminex GigaCore 26i',
       category: 'Netzwerk',
       inputs: [

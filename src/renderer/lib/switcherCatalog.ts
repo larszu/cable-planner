@@ -41,6 +41,7 @@ export const SWITCHER_CATALOG: SwitcherEntry[] = [
     match: ['panasonic', 'av-uhs500'],
     deviceTypeId: 'd3671648-297a-4785-a48f-9ecdcab0f934',
     template: {
+      manufacturerUrl: 'https://pro-av.panasonic.net/en/products/av-uhs500/spec.html',
       name: 'Panasonic AV-UHS500',
       category: 'Video Mixer',
       inputs: [
@@ -63,6 +64,7 @@ export const SWITCHER_CATALOG: SwitcherEntry[] = [
     match: ['for-a', 'hvs-490'],
     deviceTypeId: 'ce02f5e9-95c8-4910-a616-6147a312998b',
     template: {
+      manufacturerUrl: 'https://www.for-a.com/products/hvs490/',
       name: 'For-A HVS-490',
       category: 'Video Mixer',
       inputs: [
@@ -84,6 +86,7 @@ export const SWITCHER_CATALOG: SwitcherEntry[] = [
     match: ['roland', 'v-8hd'],
     deviceTypeId: '7079510f-190f-4fe2-9efb-bf7bcef97244',
     template: {
+      manufacturerUrl: 'https://proav.roland.com/global/products/v-8hd/',
       name: 'Roland V-8HD',
       category: 'Video Mixer',
       inputs: [
@@ -105,6 +108,7 @@ export const SWITCHER_CATALOG: SwitcherEntry[] = [
     match: ['roland', 'v-60hd'],
     deviceTypeId: 'f2786473-7eea-44e7-97a8-cbe63c6d8cc4',
     template: {
+      manufacturerUrl: 'https://proav.roland.com/global/products/v-60hd/',
       name: 'Roland V-60HD',
       category: 'Video Mixer',
       inputs: [
@@ -130,6 +134,7 @@ export const SWITCHER_CATALOG: SwitcherEntry[] = [
     match: ['roland', 'v-160hd'],
     deviceTypeId: '2983ce7e-e004-49c5-8411-709546aea466',
     template: {
+      manufacturerUrl: 'https://proav.roland.com/global/products/v-160hd/',
       name: 'Roland V-160HD',
       category: 'Video Mixer',
       inputs: [
@@ -157,6 +162,7 @@ export const SWITCHER_CATALOG: SwitcherEntry[] = [
     match: ['sony', 'mcx-500'],
     deviceTypeId: 'ee3a295e-5ef1-44e1-96c3-5866ea062431',
     template: {
+      manufacturerUrl: 'https://pro.sony/ue_US/products/video-switchers/mcx-500',
       name: 'Sony MCX-500',
       category: 'Video Mixer',
       inputs: [
@@ -180,6 +186,7 @@ export const SWITCHER_CATALOG: SwitcherEntry[] = [
     match: ['tricaster', 'elite'],
     deviceTypeId: '3cc4a0b1-735f-46b8-b08b-7a2692c89135',
     template: {
+      manufacturerUrl: 'https://www.vizrt.com/products/tricaster/',
       name: 'Vizrt (NewTek) TriCaster 2 Elite',
       category: 'Video Mixer',
       inputs: [
@@ -199,6 +206,7 @@ export const SWITCHER_CATALOG: SwitcherEntry[] = [
     match: ['barco', 'e2'],
     deviceTypeId: '3c49815f-6ce9-4792-8818-a1e70d2c3f97',
     template: {
+      manufacturerUrl: 'https://assets.barco.com/m/1da1a218bfbbede6/original/E2-Gen-2-en-Spec-sheet.pdf',
       name: 'Barco E2 Gen 2',
       category: 'Video Mixer',
       inputs: [

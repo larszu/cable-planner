@@ -41,6 +41,7 @@ export const WIRELESS_AUDIO_CATALOG: WirelessAudioEntry[] = [
     match: ['iem', 'g4'],
     deviceTypeId: '17582c72-e61e-41c4-8264-53254efee398',
     template: {
+      manufacturerUrl: 'https://www.sennheiser.com/en-us/catalog/products/wireless-systems/ew-iem-g4',
       name: 'Sennheiser EW IEM G4 (SR)',
       category: 'Funkstrecke',
       inputs: [
@@ -60,6 +61,7 @@ export const WIRELESS_AUDIO_CATALOG: WirelessAudioEntry[] = [
     match: ['g4', '500'],
     deviceTypeId: '6d10c291-7122-456b-9e36-ad19e4e30581',
     template: {
+      manufacturerUrl: 'https://www.sennheiser.com/en-us/catalog/products/wireless-systems/ew-500-g4',
       name: 'Sennheiser EW 500 G4 (EM 300-500)',
       category: 'Funkstrecke',
       inputs: [
@@ -81,6 +83,7 @@ export const WIRELESS_AUDIO_CATALOG: WirelessAudioEntry[] = [
     match: ['ew-dx', 'em 2'],
     deviceTypeId: '2c20ec58-4eec-4e6f-98a6-017379da8fda',
     template: {
+      manufacturerUrl: 'https://www.sennheiser.com/en-us/catalog/products/wireless-systems/ew-dx-em-2-dante',
       name: 'Sennheiser EW-DX EM 2 Dante',
       category: 'Funkstrecke',
       inputs: [
@@ -103,6 +106,7 @@ export const WIRELESS_AUDIO_CATALOG: WirelessAudioEntry[] = [
     match: ['em 6000'],
     deviceTypeId: '989c3a28-d8af-4d0a-8ed6-c6093d7d2dc0',
     template: {
+      manufacturerUrl: 'https://www.sennheiser.com/en-us/catalog/products/wireless-systems/digital-6000',
       name: 'Sennheiser Digital 6000 (EM 6000)',
       category: 'Funkstrecke',
       inputs: [
@@ -124,6 +128,7 @@ export const WIRELESS_AUDIO_CATALOG: WirelessAudioEntry[] = [
     match: ['qlxd4'],
     deviceTypeId: 'c5f97ce0-2bb5-4da3-b210-d7ed00e42b5f',
     template: {
+      manufacturerUrl: 'https://www.shure.com/en-US/products/wireless-systems/qlx-d_digital_wireless',
       name: 'Shure QLXD4',
       category: 'Funkstrecke',
       inputs: [
@@ -145,6 +150,7 @@ export const WIRELESS_AUDIO_CATALOG: WirelessAudioEntry[] = [
     match: ['ulxd4q'],
     deviceTypeId: 'fc7e6880-2377-4015-8855-f69c9bfbb9a8',
     template: {
+      manufacturerUrl: 'https://www.shure.com/en-US/products/wireless-systems/ulx-d_digital_wireless/ulxd4q',
       name: 'Shure ULXD4Q',
       category: 'Funkstrecke',
       inputs: [
@@ -166,6 +172,7 @@ export const WIRELESS_AUDIO_CATALOG: WirelessAudioEntry[] = [
     match: ['p10t'],
     deviceTypeId: '5504f8e6-dd18-46e9-8c00-f6283c34d2cd',
     template: {
+      manufacturerUrl: 'https://www.shure.com/en-US/products/in-ear-monitoring/psm1000/p10t',
       name: 'Shure PSM 1000 (P10T)',
       category: 'Funkstrecke',
       inputs: [

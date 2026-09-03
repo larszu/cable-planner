@@ -41,6 +41,7 @@ export const AJA_CATALOG: AjaEntry[] = [
     match: ['kumo 1616', '12g'],
     deviceTypeId: 'ca069939-edff-479f-acc1-56650a5a1e8e',
     template: {
+      manufacturerUrl: 'https://www.aja.com/products/kumo-1616-12g',
       name: 'AJA KUMO 1616-12G',
       category: 'Video Router',
       inputs: [
@@ -63,6 +64,7 @@ export const AJA_CATALOG: AjaEntry[] = [
     match: ['kumo 3232', '12g'],
     deviceTypeId: '2a3eed49-cc33-45be-ae0f-c5e6c89e818d',
     template: {
+      manufacturerUrl: 'https://www.aja.com/products/kumo-3232-12g',
       name: 'AJA KUMO 3232-12G',
       category: 'Video Router',
       inputs: [
@@ -85,6 +87,7 @@ export const AJA_CATALOG: AjaEntry[] = [
     match: ['kumo 6464', '12g'],
     deviceTypeId: '40147c52-679d-4784-a009-f8211be107f9',
     template: {
+      manufacturerUrl: 'https://www.aja.com/products/kumo-6464-12g',
       name: 'AJA KUMO 6464-12G',
       category: 'Video Router',
       inputs: [
@@ -107,6 +110,7 @@ export const AJA_CATALOG: AjaEntry[] = [
     match: ['ki pro', 'ultra', '12g'],
     deviceTypeId: 'ecf80e2e-5376-4f86-865f-ce146e90d032',
     template: {
+      manufacturerUrl: 'https://www.aja.com/products/ki-pro-ultra-12g',
       name: 'AJA Ki Pro Ultra 12G',
       category: 'Video',
       inputs: [
@@ -138,6 +142,7 @@ export const AJA_CATALOG: AjaEntry[] = [
     match: ['kumo 1616'],
     deviceTypeId: 'd8584156-1793-4794-a4b4-488cfe834e59',
     template: {
+      manufacturerUrl: 'https://www.aja.com/products/kumo-1616',
       name: 'AJA KUMO 1616',
       category: 'Video Router',
       inputs: [
@@ -160,6 +165,7 @@ export const AJA_CATALOG: AjaEntry[] = [
     match: ['kumo 3232'],
     deviceTypeId: 'd435ffb1-c471-4059-89ee-84a490f6025c',
     template: {
+      manufacturerUrl: 'https://www.aja.com/products/kumo-3232',
       name: 'AJA KUMO 3232',
       category: 'Video Router',
       inputs: [
@@ -182,6 +188,7 @@ export const AJA_CATALOG: AjaEntry[] = [
     match: ['kumo 6464'],
     deviceTypeId: '379c5b0a-a4b5-40d0-a66d-a3fda51b5059',
     template: {
+      manufacturerUrl: 'https://www.aja.com/family/routers',
       name: 'AJA KUMO 6464',
       category: 'Video Router',
       inputs: [
@@ -204,6 +211,7 @@ export const AJA_CATALOG: AjaEntry[] = [
     match: ['fs-hdr'],
     deviceTypeId: 'efd29eeb-fc5a-4ad4-8f34-ec58c16d15aa',
     template: {
+      manufacturerUrl: 'https://www.aja.com/products/fs-hdr',
       name: 'AJA FS-HDR',
       category: 'Konverter',
       inputs: [
@@ -225,6 +233,7 @@ export const AJA_CATALOG: AjaEntry[] = [
     match: ['helo', 'plus'],
     deviceTypeId: '48011180-869a-490a-a041-a6d797196acb',
     template: {
+      manufacturerUrl: 'https://www.aja.com/products/helo-plus',
       name: 'AJA HELO Plus',
       category: 'IP/NDI',
       inputs: [
