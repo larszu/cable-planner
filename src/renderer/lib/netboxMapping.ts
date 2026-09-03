@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from 'uuid'
 import type { Cable, CableType } from '../types/cable'
 import type { ConnectorType, EquipmentItem, Port } from '../types/equipment'
 import type { LocationFrame } from '../types/location'
+import { bitsToMask, maskToBits } from './subnet'
 import type {
   NetboxCable,
   NetboxComponent,
@@ -585,7 +586,17 @@ export const buildNetboxImportPlan = (
       width: NODE_WIDTH,
       height: nodeHeight(built.inputs, built.outputs),
       ...(uHeight > 0 ? { isRackDevice: true, rackUnits: Math.max(1, Math.round(uHeight)) } : {}),
+      // NetBox liefert `10.0.5.7/26`. Die Praefixlaenge wurde hier
+      // weggeworfen — und Pruefung 17 rechnete danach auf einer erfundenen
+      // /24 (`e.subnetMask || '255.255.255.0'`). Sie stand die ganze Zeit in
+      // der Antwort; sie mitzunehmen kostet nichts.
       ...(primaryIp ? { ipAddress: primaryIp.split('/')[0] } : {}),
+      ...(primaryIp && primaryIp.includes('/')
+        ? (() => {
+            const mask = bitsToMask(maskToBits(primaryIp.split('/')[1]))
+            return mask ? { subnetMask: mask } : {}
+          })()
+        : {}),
       importSource: 'netbox',
       netboxId,
       netboxSourceUrl: baseUrl,
