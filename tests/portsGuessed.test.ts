@@ -89,6 +89,37 @@ describe('Pruefung 18 verstummt nicht mehr durch eine Vermutung', () => {
   })
 })
 
+describe('die zweite Stelle: der ganze generierte Plan', () => {
+  it('markiert auch die Ports generierter Geraete', async () => {
+    // `#650` hat den Einzelfall geheilt (ein Klick, ein Geraet). Die
+    // Plangenerierung fuegt einen GANZEN Plan ein — Geraete, deren Ports und
+    // die Kabel dazwischen. Ohne dieselbe Kennzeichnung waere Pruefung 18
+    // dort fuer alle Geraete auf einmal still.
+    const src = (await import('../src/renderer/lib/planGeneration.ts?raw')).default
+    expect(src).toContain('AI_PLAN_SOURCE')
+    expect(src).toContain('specSource:')
+    // Und die Warnung greift dann wirklich.
+    const ids = befunde([
+      geraet({
+        inputs: [port('i1')],
+        specSource: { inputs: { value: '1 In', source: 'AI-Plangenerierung aus einer Beschreibung' } },
+      }),
+    ])
+    expect(ids).toContain('ports-guessed:e1')
+  })
+
+  it('haelt die offene Frage fest, statt sie stillschweigend zu beantworten', async () => {
+    // Ob ein vom Modell ERFUNDENES KABEL eine Kennzeichnung tragen soll — und
+    // ob eine Markierung dafuer ueberhaupt reicht — ist nicht entschieden.
+    // `Cable` hat kein `specSource`. Dieser Test haelt fest, dass das
+    // absichtlich so ist und nicht vergessen wurde.
+    const src = (await import('../src/renderer/lib/planGeneration.ts?raw')).default
+    expect(src).toContain('Nur die GERAETE tragen die Kennzeichnung')
+    const cableTypes = (await import('../src/renderer/types/cable.ts?raw')).default
+    expect(cableTypes).not.toContain('specSource')
+  })
+})
+
 describe('die beiden Haelften am Quelltext', () => {
   it('der AI-Knopf haelt fest, dass er geraten hat', () => {
     expect(aiButtonSrc).toContain('specSource:')
