@@ -46,6 +46,27 @@ export const DOCUMENT_STANDS: Record<string, (project: CablePlannerProject) => s
   uebergabe: ofTable(handoverTable),
 }
 
+/**
+ * Dokumente, die es GIBT, deren Stand aber nicht aus dem Plan allein
+ * reproduzierbar ist — mit dem Grund im Klartext.
+ *
+ * Bis Roadmap-Initiative 5 stand diese Kenntnis nur im Kommentar über
+ * `DOCUMENT_STANDS`. Ein Kommentar kann eine Impact-Liste nicht warnen: sie
+ * hätte `kabel-bom` einfach nicht genannt, und Verschweigen sieht aus wie
+ * „unberührt". Als Daten statt als Prosa kann `changeImpact` daraus ein
+ * ausdrückliches `unknown` machen.
+ *
+ * Wer ein Dokument hier einträgt, sagt damit: es ist bekannt UND nicht
+ * beurteilbar. Wer es reproduzierbar macht, verschiebt es nach
+ * `DOCUMENT_STANDS` — beides gleichzeitig fängt der Guard in
+ * `tests/changeImpact.test.ts`.
+ */
+export const UNJUDGEABLE_DOCUMENTS: Record<string, string> = {
+  'kabel-bom':
+    'Der Inhalt hängt am Reserve-Aufschlag, den der Nutzer beim Export einstellt; ' +
+    'dieser Prozentsatz steht nicht im Stempel.',
+}
+
 /** Lesbarer Name eines Dokument-Bezeichners für Meldungen. */
 export const DOCUMENT_LABELS: Record<string, string> = {
   plan: 'Plan',
@@ -54,6 +75,7 @@ export const DOCUMENT_LABELS: Record<string, string> = {
   'kabel-schedule': 'Kabel-Schedule',
   'asset-register': 'Asset-Register',
   uebergabe: 'Übergabe-Dokument',
+  'kabel-bom': 'Kabel-Stückliste',
 }
 
 /**
