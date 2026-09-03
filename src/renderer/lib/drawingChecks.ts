@@ -574,6 +574,20 @@ export const runDrawingChecks = (
         equipmentId: e.id,
       })
     }
+    // Zweiter Fall, und der stillere: Ports SIND da, aber geraten. Der
+    // AI-Vorschlag leitet sie aus dem Gerätenamen ab. Vorher brachte das die
+    // Warnung oben zum Schweigen — die Prüfung, die zu belegten Daten zwingen
+    // soll, wurde von einer Vermutung beantwortet. Ports tragen die ganze
+    // Verkabelung: ein erfundener Port ist ein Kabel, das es nicht gibt.
+    else if (e.specSource?.inputs || e.specSource?.outputs) {
+      findings.push({
+        id: `ports-guessed:${e.id}`,
+        severity: 'warning',
+        category: 'Ports geraten',
+        message: `${e.name}: Ports stammen aus einem AI-Vorschlag, nicht aus einem Datenblatt — gegen die realen Anschlüsse prüfen`,
+        equipmentId: e.id,
+      })
+    }
   }
 
   // — Check 17: Gateway nicht im Geräte-Subnetz (#346) -----------------------

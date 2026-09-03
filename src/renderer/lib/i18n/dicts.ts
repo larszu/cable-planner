@@ -4244,6 +4244,7 @@ export const de: Dict = {
   "atem.audio.loadedMatrix": "Matrix: {outputs} outputs × {sources} sources",
   "atem.audio.loadedTitle": "Audio config read from ATEM",
   "atem.audio.noAudio": "No Audio",
+  "props.aiPorts.source": "AI suggestion from the device name — not from a datasheet",
   "eq.field.manufacturerUrlInherited": "From catalog type {name}:",
   "atem.audio.live.title": "Read from the switcher",
   "atem.audio.live.differs": "{n} differences from the plan",

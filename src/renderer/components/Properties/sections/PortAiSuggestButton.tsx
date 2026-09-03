@@ -53,7 +53,23 @@ export const PortAiSuggestButton = ({
       mode === 'replace' ? synthesized.inputs : [...equipment.inputs, ...synthesized.inputs]
     const newOutputs =
       mode === 'replace' ? synthesized.outputs : [...equipment.outputs, ...synthesized.outputs]
-    updateEquipment(equipment.id, { inputs: newInputs, outputs: newOutputs })
+    // Festhalten, dass diese Ports GERATEN sind — aus dem Geraetenamen, von
+    // einem Modell. Ohne diese Zeile standen sie ununterscheidbar neben von
+    // Hand eingetragenen, und Pruefung 18 („reale Anschluesse aus dem
+    // Datenblatt ergaenzen") verstummte, weil ueberhaupt Ports da waren.
+    // Genau die Pruefung, die einen Menschen zu belegten Daten zwingen soll.
+    const beleg = {
+      value: `${newInputs.length} In / ${newOutputs.length} Out`,
+      source: t(
+        'props.aiPorts.source',
+        'AI-Vorschlag aus dem Gerätenamen — nicht aus einem Datenblatt',
+      ),
+    }
+    updateEquipment(equipment.id, {
+      inputs: newInputs,
+      outputs: newOutputs,
+      specSource: { ...(equipment.specSource ?? {}), inputs: beleg, outputs: beleg },
+    })
     setHints(null)
     setError(null)
   }

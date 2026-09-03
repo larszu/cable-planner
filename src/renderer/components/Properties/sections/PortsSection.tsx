@@ -26,9 +26,24 @@ export const PortsSection = ({ equipment }: { equipment: EquipmentItem }) => {
     const inputs = patch.inputs ?? equipment.inputs
     const outputs = patch.outputs ?? equipment.outputs
     const clearMarker = equipment.portsUnknown && (inputs.length > 0 || outputs.length > 0)
+    // Fasst ein Mensch die Ports an, ist der AI-Beleg ueberholt: die Zahl
+    // daneben stammt jetzt von ihm, nicht mehr aus dem Vorschlag. Ihn stehen
+    // zu lassen hiesse, die Warnung „Ports geraten" gegen jemanden zu
+    // erheben, der sie gerade geprueft hat — und der Beleg wuerde einen Wert
+    // behaupten, den er nicht mehr stuetzt.
+    const stale = equipment.specSource?.inputs || equipment.specSource?.outputs
+    const clearedSource = stale
+      ? (() => {
+          const rest = { ...(equipment.specSource ?? {}) }
+          delete rest.inputs
+          delete rest.outputs
+          return Object.keys(rest).length > 0 ? rest : undefined
+        })()
+      : undefined
     updateEquipment(equipment.id, {
       ...patch,
       ...(clearMarker ? { portsUnknown: undefined } : {}),
+      ...(stale ? { specSource: clearedSource } : {}),
     })
   }
 
