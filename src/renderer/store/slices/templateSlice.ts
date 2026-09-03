@@ -2,6 +2,9 @@ import type { StateCreator } from 'zustand'
 import type { EquipmentItem, EquipmentTemplate } from '../../types/equipment'
 import { LIMITS } from '../../lib/layoutConstants'
 import { upsertCachedRentmanTemplate } from '../../lib/rentmanTemplateCache'
+// Dieselbe Regel wie beim Lager-Import (#628): was die neue Fassung nicht
+// sagt, loescht nichts. Der Helfer wohnt dort, weil er dort entstanden ist.
+import { mergeDefined } from '../../lib/inventoryMerge'
 import { persistCustomLibrary, persistKnownCategories } from '../libraryPersist'
 import type { ProjectState } from '../projectStore'
 
@@ -145,11 +148,36 @@ export const createTemplateSlice: StateCreator<ProjectState, [], [], TemplateSli
       const item = state.project.equipment.find((e) => e.id === equipmentId)
       if (!item) return {}
       const existing = state.customLibrary.find((t) => t.name === item.name)
-      const template = templateFromEquipment(item, { preserveFlags: existing })
-      const next = [
-        ...state.customLibrary.filter((t) => t.name !== template.name),
-        template,
-      ]
+      const rebuilt = templateFromEquipment(item, { preserveFlags: existing })
+      // ADR-005, Regel 2 — der aermere Nachbau darf nicht loeschen.
+      //
+      // `templateFromEquipment` nennt 23 Felder. Die Bibliothek traegt aber
+      // mehr: Rack-Hoehe und Rack-Flag, Front-/Rear-Foto samt Zuschnitt,
+      // Tiefe, Gewicht, Leistung, Aufloesung, Display-Groesse, NetBox-Pfad —
+      // alles, was ein Rentman- oder NetBox-Import eingetragen hat. Das
+      // Ersetzen loeschte sie: ein aus Rentman importiertes Rack-Geraet war
+      // nach einem Klick auf „Als Standard-Vorlage ueberschreiben" kein
+      // Rack-Geraet mehr und konnte in kein Rack.
+      //
+      // `upsertCachedRentmanTemplate` (lib/rentmanTemplateCache.ts) fuehrt
+      // genau diese Regel seit ADR-005 fuer den CACHE — mit derselben
+      // Begruendung. Die Bibliothek selbst hatte sie nie.
+      //
+      // `mergeDefined` und nicht `{ ...alt, ...neu }`: der Nachbau setzt
+      // Felder AUSDRUECKLICH auf `undefined`, ein Spread wuerde sie damit
+      // ebenfalls ausloeschen. Was das Geraet SAGT, gewinnt weiterhin — auch
+      // ein leerer String, denn ein geleertes Feld ist eine Aussage (die
+      // Eingabefelder schreiben `event.target.value`, also '').
+      //
+      // Welche der ueberzaehligen Felder der Nachbau kuenftig selbst tragen
+      // soll, ist die offene Modell-/Instanz-Frage. Diese Regel entscheidet
+      // sie nicht — sie sorgt nur dafuer, dass bis dahin nichts verschwindet.
+      const template = existing ? mergeDefined(existing, rebuilt) : rebuilt
+      // In-place ersetzen statt ans Ende haengen: der Eintrag behaelt seine
+      // Stelle in der Bibliothek.
+      const next = existing
+        ? state.customLibrary.map((t) => (t.name === template.name ? template : t))
+        : [...state.customLibrary, template]
       persistCustomLibrary(next)
       if (template.rentmanId) upsertCachedRentmanTemplate(template)
       return { customLibrary: next }

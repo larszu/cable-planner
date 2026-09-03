@@ -25,6 +25,12 @@
 /**
  * `over` ueber `base` legen, aber nur dort, wo `over` einen Wert HAT.
  * `undefined` heisst „keine Aussage", nicht „loeschen".
+ *
+ * Die Regel ist nicht auf das Lager beschraenkt: `saveEquipmentAsTemplate`
+ * (store/slices/templateSlice.ts) benutzt sie aus demselben Grund — der
+ * 23-Feld-Nachbau eines Templates darf die reicheren Felder eines
+ * vorhandenen Bibliothekseintrags nicht loeschen. Der Helfer wohnt hier,
+ * weil er hier entstanden ist.
  */
 export const mergeDefined = <T extends object>(base: T, over: T): T => {
   const out = { ...base } as Record<string, unknown>
