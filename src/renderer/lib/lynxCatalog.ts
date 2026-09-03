@@ -41,6 +41,7 @@ export const LYNX_CATALOG: LynxEntry[] = [
     match: ['cdh', '1813'],
     deviceTypeId: 'ba941ff8-e5b0-41e7-a82b-a305042fe471',
     template: {
+      manufacturerUrl: 'https://lynx-technik.com/p/cdh-1813/',
       name: 'Lynx Technik yellobrik CDH 1813',
       category: 'Konverter',
       isConverter: true,
@@ -62,6 +63,7 @@ export const LYNX_CATALOG: LynxEntry[] = [
     match: ['chd', '1802'],
     deviceTypeId: '58869e00-5679-49ce-a783-4f95485974e3',
     template: {
+      manufacturerUrl: 'https://lynx-technik.com/p/chd-1802/',
       name: 'Lynx Technik yellobrik CHD 1802',
       category: 'Konverter',
       isConverter: true,
@@ -81,6 +83,7 @@ export const LYNX_CATALOG: LynxEntry[] = [
     match: ['otx', '1812'],
     deviceTypeId: 'e8379cf4-705f-4cdb-86cb-370464448e3b',
     template: {
+      manufacturerUrl: 'https://lynx-technik.com/p/otx-1812/',
       name: 'Lynx Technik yellobrik OTX 1812',
       category: 'Konverter',
       isConverter: true,
@@ -101,6 +104,7 @@ export const LYNX_CATALOG: LynxEntry[] = [
     match: ['orx', '1802'],
     deviceTypeId: '4893e659-7dd0-4971-98f0-3c6a8e0e0d23',
     template: {
+      manufacturerUrl: 'https://lynx-technik.com/p/orx-1802/',
       name: 'Lynx Technik yellobrik ORX 1802',
       category: 'Konverter',
       isConverter: true,
@@ -120,6 +124,7 @@ export const LYNX_CATALOG: LynxEntry[] = [
     match: ['spg', '1707'],
     deviceTypeId: '5418624a-0c12-4e3d-b2ba-bc2a898206ed',
     template: {
+      manufacturerUrl: 'https://lynx-technik.com/p/spg-1707/',
       name: 'Lynx Technik yellobrik SPG 1707',
       category: 'Sync/Referenz',
       inputs: [
@@ -140,6 +145,7 @@ export const LYNX_CATALOG: LynxEntry[] = [
     match: ['dvd', '1817'],
     deviceTypeId: '55cf940f-9dd8-4f0b-a839-8a05b07cce22',
     template: {
+      manufacturerUrl: 'https://lynx-technik.com/p/dvd-1817/',
       name: 'Lynx Technik yellobrik DVD 1817',
       category: 'Video',
       isDistributionAmp: true,
@@ -159,6 +165,7 @@ export const LYNX_CATALOG: LynxEntry[] = [
     match: ['greenmachine', 'callisto'],
     deviceTypeId: '52cf25a3-9efd-4f87-a54a-a420376e50b5',
     template: {
+      manufacturerUrl: 'https://lynx-technik.com/p/gm-6825/',
       name: 'Lynx Technik greenMachine callisto+',
       category: 'Konverter',
       isConverter: true,

@@ -43,6 +43,7 @@ export const ROSS_CATALOG: RossEntry[] = [
     match: ['carbonite', 'ultra', '60'],
     deviceTypeId: '279f9af4-2f91-469e-87a3-3911f321f45a',
     template: {
+      manufacturerUrl: 'https://www.rossvideo.com/live-production/production-switchers/carbonite-ultra-60/',
       name: 'Ross Video Carbonite Ultra 60',
       category: 'Video Mixer',
       inputs: [
@@ -63,6 +64,7 @@ export const ROSS_CATALOG: RossEntry[] = [
     match: ['carbonite', 'black', 'plus'],
     deviceTypeId: '0ad93ca1-31b3-455f-ba6c-8d3872a5e344',
     template: {
+      manufacturerUrl: 'https://www.rossvideo.com/products/production-switchers/carbonite-black/carbonite-black-specifications/',
       name: 'Ross Video Carbonite Black Plus 2 M/E',
       category: 'Video Mixer',
       inputs: [
@@ -83,6 +85,7 @@ export const ROSS_CATALOG: RossEntry[] = [
     match: ['carbonite', 'ultra'],
     deviceTypeId: 'e0366446-6a23-472a-ad8d-92f3b6bf4db7',
     template: {
+      manufacturerUrl: 'https://www.rossvideo.com/live-production/production-switchers/carbonite-ultra/specifications/',
       name: 'Ross Video Carbonite Ultra',
       category: 'Video Mixer',
       inputs: [
@@ -103,6 +106,7 @@ export const ROSS_CATALOG: RossEntry[] = [
     match: ['ross', 'graphite'],
     deviceTypeId: '5c62f236-ef20-423f-b27f-a803148be416',
     template: {
+      manufacturerUrl: 'https://www.rossvideo.com/products/production-switchers/graphite/graphite-specifications/',
       name: 'Ross Video Graphite',
       category: 'Video Mixer',
       inputs: [
@@ -125,6 +129,7 @@ export const ROSS_CATALOG: RossEntry[] = [
     match: ['ultrix', 'fr1'],
     deviceTypeId: '37276fa0-ee91-4334-98e7-b9a34e97b005',
     template: {
+      manufacturerUrl: 'https://www.rossvideo.com/products/routing-systems/ultrix/ultrix-specifications/',
       name: 'Ross Video Ultrix FR1',
       category: 'Video Router',
       inputs: [
@@ -145,6 +150,7 @@ export const ROSS_CATALOG: RossEntry[] = [
     match: ['ultrix', 'fr2'],
     deviceTypeId: '0035f21b-bc95-40a6-bcf2-6f93cb9fb33b',
     template: {
+      manufacturerUrl: 'https://www.rossvideo.com/products/routing-systems/ultrix/ultrix-specifications/',
       name: 'Ross Video Ultrix FR2',
       category: 'Video Router',
       inputs: [
@@ -165,6 +171,7 @@ export const ROSS_CATALOG: RossEntry[] = [
     match: ['ultrix', 'fr5'],
     deviceTypeId: 'aa1dd919-e9ed-4170-a8cb-a6ac7c1bf975',
     template: {
+      manufacturerUrl: 'https://www.rossvideo.com/products/routing-systems/ultrix/ultrix-specifications/',
       name: 'Ross Video Ultrix FR5',
       category: 'Video Router',
       inputs: [
@@ -185,6 +192,7 @@ export const ROSS_CATALOG: RossEntry[] = [
     match: ['ross', 'nk-3g72'],
     deviceTypeId: '9f3f125f-823b-48c1-9e4e-8960a0cc6c49',
     template: {
+      manufacturerUrl: 'https://www.rossvideo.com/infrastructure/routing-systems/nk-3g72/',
       name: 'Ross Video NK-3G72',
       category: 'Video Router',
       inputs: [
@@ -205,6 +213,7 @@ export const ROSS_CATALOG: RossEntry[] = [
     match: ['ross', 'nk-3g16'],
     deviceTypeId: '2e14ed1e-284b-4b5d-bc76-caa07a433d8c',
     template: {
+      manufacturerUrl: 'https://www.rossvideo.com/infrastructure/routing-systems/nk-3g-series/',
       name: 'Ross Video NK-3G16',
       category: 'Video Router',
       inputs: [
