@@ -4,6 +4,7 @@ import { Icon } from '../shared/Icon'
 import { ModalShell } from '../shared/ModalShell'
 import { Spinner } from '../shared/Spinner'
 import { useProjectStore } from '../../store/projectStore'
+import { withSentQty, type RentmanCableMap } from '../../lib/rentmanCableMap'
 import { useRentman } from '../../hooks/useRentman'
 import { format, useTranslation } from '../../lib/i18n'
 import type { Cable } from '../../types/cable'
@@ -201,12 +202,28 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
     updateMeta({ rentmanCableMap: next })
   }
 
-  const sendBucket = async (bucket: CableBucket) => {
-    if (!linkedProjectId) return
-    if (!bucket.mappedId) return
-    if (bucket.delta <= 0) return
+  /**
+   * Schickt EINEN Eimer und gibt die fortgeschriebene Karte zurueck.
+   *
+   * `baseMap` ist der Grund fuer den Rueckgabewert: `sendAll` reicht das
+   * Ergebnis der vorigen Runde herein, statt jede Runde `project` aus der
+   * Render-Closure zu lesen — die aendert sich waehrend der Schleife nicht,
+   * und jede Runde loeschte so den Zaehler der vorigen. Ohne `baseMap` (der
+   * Knopf in einer einzelnen Zeile) wird frisch aus dem Store gelesen, nicht
+   * aus der Closure: der Dialog kann zwischen Render und Klick veraltet sein.
+   */
+  const sendBucket = async (
+    bucket: CableBucket,
+    baseMap?: RentmanCableMap,
+  ): Promise<RentmanCableMap | undefined> => {
+    if (!linkedProjectId) return baseMap
+    if (!bucket.mappedId) return baseMap
+    if (bucket.delta <= 0) return baseMap
     setBusyKey(bucket.key)
     setStatusByKey((prev) => ({ ...prev, [bucket.key]: t('rentman.cableExport.sending', 'Sende an Rentman…') }))
+    // Bei Fehler bleibt die Karte, wie sie war — die schon gebuchten Eimer
+    // der vorigen Runden duerfen dabei nicht verlorengehen.
+    let carried: RentmanCableMap | undefined = baseMap
     try {
       // v7.9.110 — Nutzt die neue Batch-Export-Action. Landet in der
       // 'CablePlanner'-EquipmentGroup im Subproject (wird angelegt
@@ -219,20 +236,13 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
       if (result.failed.length > 0) {
         const msg = result.failed[0]?.error ?? t('rentman.cableExport.unknownError', 'Unbekannter Fehler')
         setStatusByKey((prev) => ({ ...prev, [bucket.key]: format(t('rentman.cableExport.errorFormat', 'Fehler: {msg}'), { msg }) }))
-        return
+        return carried
       }
-      const current = project.metadata.rentmanCableMap ?? {}
-      updateMeta({
-        rentmanCableMap: {
-          ...current,
-          [bucket.key]: {
-            // ADR-005 — siehe setMapping: fortschreiben, nicht neu bauen.
-            ...current[bucket.key],
-            rentmanEquipmentId: bucket.mappedId,
-            lastSentQty: bucket.built,
-          },
-        },
-      })
+      const current = baseMap ?? useProjectStore.getState().project.metadata.rentmanCableMap
+      // ADR-005 — siehe setMapping: fortschreiben, nicht neu bauen.
+      const next = withSentQty(current, bucket.key, bucket.mappedId, bucket.built)
+      carried = next
+      updateMeta({ rentmanCableMap: next })
       // v7.9.117 — Drei Faelle (siehe rentmanApiClient).
       const groupNote = result.groupCreated
         ? t('rentman.cableExport.groupCreated', ' (Gruppe angelegt)')
@@ -249,6 +259,7 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
     } finally {
       setBusyKey(null)
     }
+    return carried
   }
 
   /**
@@ -256,16 +267,25 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
    * still need a Rentman mapping are skipped (and reported in their row).
    * Used by the "Alle senden" header button so the user doesn't have to
    * click `Senden` on each row individually.
+   *
+   * ADR-005 — hier stand: „updates project metadata after each push so the
+   * next iteration sees the fresh sentQty value." Das stimmte fuer den Store,
+   * aber nicht fuer die Quelle, aus der gelesen wurde: `project` kommt aus
+   * der Render-Closure und aendert sich waehrend der Schleife nicht. Jede
+   * Runde schrieb `{ ...alteKarte, [ihrKey]: … }` und loeschte damit den
+   * Zaehler der vorigen. Nach N Eimern stand nur der letzte in der Datei —
+   * die uebrigen behielten ihr Delta und wurden beim naechsten Mal ein
+   * zweites Mal nach Rentman gebucht.
+   *
+   * Jetzt wird die Karte durchgereicht statt neu gelesen.
    */
   const sendAll = async () => {
     if (!linkedProjectId) return
     const sendable = buckets.filter((b) => b.mappedId && b.delta > 0)
     if (sendable.length === 0) return
+    let acc = useProjectStore.getState().project.metadata.rentmanCableMap
     for (const bucket of sendable) {
-      // sendBucket guards on busyKey === bucket.key inside its own state,
-      // and updates project metadata after each push so the next iteration
-      // sees the fresh sentQty value.
-      await sendBucket(bucket)
+      acc = await sendBucket(bucket, acc)
     }
   }
 
