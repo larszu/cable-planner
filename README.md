@@ -41,9 +41,9 @@
 
 ## ✨ Overview
 
-**CablePlanner** is free, open-source **broadcast cable planning software** for designing and visualizing **SDI signal flow**, **ATEM multiviewer** layouts and **Blackmagic Videohub routing** on a node-based canvas. It runs **fully offline** on macOS and Windows, so every audio, video and data run is documented before you ever pull cable on site.
+**CablePlanner** is free-to-use **broadcast cable planning software** for designing and visualizing **SDI signal flow**, **ATEM multiviewer** layouts and **Blackmagic Videohub routing** on a node-based canvas. It runs **fully offline** on macOS and Windows, so every audio, video and data run is documented before you ever pull cable on site.
 
-Built with **Electron, React, and TypeScript**, it is designed for real-world production environments such as studios, OB vans, and live event setups — a modern, open alternative to legacy AV/broadcast wiring tools.
+Built with **Electron, React, and TypeScript**, it is designed for real-world production environments such as studios, OB vans, and live event setups — a modern alternative to legacy AV/broadcast wiring tools. The source is public to read; the licence is proprietary (see [LICENSE](LICENSE)).
 
 ✔ Fully offline desktop application  
 ✔ macOS & Windows support  

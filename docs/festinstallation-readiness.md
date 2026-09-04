@@ -1,5 +1,7 @@
 # Cable-Planner für Festinstallationen — Bedarfsanalyse & Roadmap
 
+<!-- lizenzaussage: fremd — nennt Fremdsysteme (NetBox u. a.) samt deren Lizenzmodell -->
+
 > Strategie-Dokument. Es beantwortet die Frage: *Was muss Cable-Planner
 > können, damit es nicht nur Show-/Event-Verkabelung plant, sondern
 > dauerhafte Festinstallationen dokumentiert, die nach der Erstinstallation
