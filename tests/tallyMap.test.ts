@@ -193,3 +193,56 @@ describe('tallyMapCsv', () => {
     expect(cells[4]).toBe('1') // der Eingang steht sehr wohl da
   })
 })
+
+// ── Der Datenvertrag mit tally-pi, an ECHTEN Ids geprueft ──────────────────
+//
+// Gemessen 2026-09-04: `toTallyPiDevices` schrieb die Rollen-Id unveraendert
+// als `devices[].id`. Rollen-Ids sind `uuidv4()` — 36 Zeichen.
+// `tally-pi/guide_server.py:310` prueft gegen `^[A-Za-z0-9_-]{1,32}$` und
+// wirft bei einem Verstoss die GANZE Datei zurueck. Jede echte tally.json aus
+// dem Planer war damit unbrauchbar.
+//
+// Warum die vorhandenen Tests das nicht fanden: sie tragen `'r1'` als
+// identityId — zwei Zeichen. Der Vertrag wurde ueber die Feldnamen
+// verglichen, nicht ueber die Wertebereiche. Diese Tests benutzen deshalb
+// echte UUIDs.
+describe('tally-pi-Vertrag: Id-Raum', () => {
+  /** Woertlich aus tally-pi/guide_server.py:310. */
+  const TALLY_PI_ID = /^[A-Za-z0-9_-]{1,32}$/
+
+  const mitIds = (ids: string[]): TallyMap => ({
+    rows: ids.map((id, i) => ({
+      identityId: id,
+      name: `Kamera ${i + 1}`,
+      number: i + 1,
+      devices: [],
+      switcher: { name: 'ATEM', input: i + 1 },
+      umdAddress: undefined,
+    })),
+    findings: [],
+  }) as unknown as TallyMap
+
+  it('haelt eine echte uuidv4 im erlaubten Raum', () => {
+    const uuid = '9d653c20-d549-46ca-a735-b11754af883b'
+    expect(uuid.length).toBe(36) // die Eingabe, an der es brach
+    const [d] = toTallyPiDevices(mitIds([uuid]))
+    expect(d.id).toMatch(TALLY_PI_ID)
+    expect(d.id).toBe('9d653c20d54946caa735b11754af883b')
+    expect(d.id.length).toBe(32)
+  })
+
+  it('laesst kurze, handvergebene Ids unangetastet', () => {
+    // Der Umbau darf lesbare Ids nicht ohne Not verstuemmeln.
+    const [d] = toTallyPiDevices(mitIds(['cam-1']))
+    expect(d.id).toBe('cam-1')
+  })
+
+  it('haelt die Eindeutigkeit, wenn das Kuerzen zwei Ids zusammenfaellen laesst', () => {
+    // guide_server.py:312 lehnt doppelte Ids ebenso ab wie zu lange.
+    const lang = 'a'.repeat(40)
+    const ds = toTallyPiDevices(mitIds([lang, `${lang}b`]))
+    expect(ds.map((d) => d.id)).toHaveLength(2)
+    expect(new Set(ds.map((d) => d.id)).size).toBe(2)
+    for (const d of ds) expect(d.id).toMatch(TALLY_PI_ID)
+  })
+})

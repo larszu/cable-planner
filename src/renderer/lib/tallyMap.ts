@@ -210,7 +210,47 @@ export interface TallyPiDevice {
  * trifft dieselben Eintraege wieder und verliert die Hardware-Verdrahtung
  * nicht, die an dieser Id haengt.
  */
-export const toTallyPiDevices = (map: TallyMap): TallyPiDevice[] =>
-  map.rows
+/**
+ * Die Rollen-Id in tally-pis Id-Raum uebersetzen.
+ *
+ * WARUM DAS NOETIG IST. `guide_server.py:310` prueft jede Geraete-Id gegen
+ * `^[A-Za-z0-9_-]{1,32}$` und wirft sonst die GANZE Datei zurueck. Eine
+ * Rollen-Id ist ein `uuidv4()` — **36** Zeichen. Jede echte `tally.json` aus
+ * dem Planer wurde damit abgelehnt.
+ *
+ * Warum das niemandem auffiel: der Vertrag wurde ueber die FELDNAMEN
+ * verglichen (id/name/input vorhanden), nicht ueber die WERTEBEREICHE, und
+ * die Testdaten hier trugen `'r1'` — zwei Zeichen. Ein Fixture, das der
+ * echten Eingabe nicht aehnelt, prueft die Stelle nicht, an der es bricht.
+ *
+ * Die Abbildung: Bindestriche raus, dann passt eine UUID auf exakt 32 Zeichen
+ * und verliert dabei nichts — die vier Striche tragen keine Information.
+ * Handvergebene Ids bleiben unangetastet, solange sie hineinpassen.
+ */
+const toTallyPiId = (roh: string): string => {
+  const erlaubt = roh.replace(/[^A-Za-z0-9_-]/g, '_')
+  if (erlaubt.length <= 32) return erlaubt || '_'
+  const ohneStriche = erlaubt.replace(/-/g, '')
+  return (ohneStriche.length <= 32 ? ohneStriche : ohneStriche.slice(0, 32)) || '_'
+}
+
+export const toTallyPiDevices = (map: TallyMap): TallyPiDevice[] => {
+  const vergeben = new Set<string>()
+  return map.rows
     .filter((r) => r.switcher !== undefined)
-    .map((r) => ({ id: r.identityId, name: r.name, input: r.switcher!.input }))
+    .map((r) => {
+      // Eindeutigkeit ist Teil desselben Vertrags: `guide_server.py:312`
+      // lehnt doppelte Ids ebenso ab wie zu lange. Kuerzen kann zwei
+      // handvergebene Ids zusammenfallen lassen; dann wird die zweite
+      // deterministisch durchnummeriert, statt die Datei unbrauchbar zu
+      // machen.
+      const basis = toTallyPiId(r.identityId)
+      let id = basis
+      for (let n = 2; vergeben.has(id); n += 1) {
+        const suffix = `_${n}`
+        id = `${basis.slice(0, 32 - suffix.length)}${suffix}`
+      }
+      vergeben.add(id)
+      return { id, name: r.name, input: r.switcher!.input }
+    })
+}
