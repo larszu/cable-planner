@@ -4,6 +4,7 @@ import { Icon } from '../shared/Icon'
 import * as THREE from 'three'
 import type { GroupPreset } from '../../types/equipment'
 import { useTranslation } from '../../lib/i18n'
+import { infoDialog } from '../../lib/infoDialog'
 import {
   exportRack2DAsPng,
   exportRack3DAsPngs,
@@ -100,7 +101,7 @@ export const RackBuilderDialogExportMenu = ({
               setOpen(false)
               const refs = canvas3DRefs.current
               if (!refs) {
-                alert(t('rack.export.no3dInit', '3D-Tab muss zuerst geöffnet worden sein um die 3D-Szene zu initialisieren.'))
+                await infoDialog(t('rack.export.no3dInit', '3D-Tab muss zuerst geöffnet worden sein um die 3D-Szene zu initialisieren.'), { tone: 'warning' })
                 return
               }
               await exportRack3DAsPngs(refs.gl, refs.scene, refs.camera, {
@@ -123,7 +124,8 @@ export const RackBuilderDialogExportMenu = ({
               setOpen(false)
               const refs = canvas3DRefs.current
               if (!refs) {
-                alert(t('rack.export.no3dInit', '3D-Tab muss zuerst geöffnet worden sein um die 3D-Szene zu initialisieren.'))
+                // Dieser Handler ist nicht async (der PNG-Export daneben schon).
+                void infoDialog(t('rack.export.no3dInit', '3D-Tab muss zuerst geöffnet worden sein um die 3D-Szene zu initialisieren.'), { tone: 'warning' })
                 return
               }
               exportRackAsStl(refs.scene, rackName || 'rack')
