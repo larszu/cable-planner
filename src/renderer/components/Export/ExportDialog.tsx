@@ -1418,11 +1418,15 @@ const DeviceBomSection = () => {
   const projectName = useProjectStore((s) => s.project.metadata?.name)
   const items = useInventoryStore((s) => s.items)
   const nodes = useInventoryStore((s) => s.nodes)
+  // Serialisierte Einheiten: ihr Zustand nimmt Stuecke aus dem nutzbaren
+  // Bestand. Ohne sie meldete die Liste „gedeckt, Bestand 4", waehrend zwei
+  // davon in der Werkstatt standen.
+  const units = useInventoryStore((s) => s.units)
   const updateItem = useInventoryStore((s) => s.updateItem)
 
   const bom = useMemo(
-    () => buildPlanBom(equipment, items, nodes),
-    [equipment, items, nodes],
+    () => buildPlanBom(equipment, items, nodes, units),
+    [equipment, items, nodes, units],
   )
 
   const download = (suffix: string, content: string) =>

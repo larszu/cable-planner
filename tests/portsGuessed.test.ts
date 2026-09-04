@@ -130,7 +130,17 @@ describe('die beiden Haelften am Quelltext', () => {
     // Ohne diese Haelfte truege ein Geraet die Warnung „Ports geraten" auch
     // dann noch, wenn jemand die Ports laengst geprueft und korrigiert hat —
     // und der Beleg behauptete einen Wert, den er nicht mehr stuetzt.
-    expect(portsSectionSrc).toContain('delete rest.inputs')
-    expect(portsSectionSrc).toContain('delete rest.outputs')
+    //
+    // WARUM HIER NUR NOCH DIE VERDRAHTUNG STEHT (2026-09-04). Diese Zeilen
+    // prueften frueher, dass `delete rest.inputs` und `delete rest.outputs`
+    // im Quelltext der Sektion STEHEN. Sie standen da — und waren an zwei
+    // Stellen falsch: jede Aenderung loeschte BEIDE Seiten, und eine reine
+    // Umsortierung loeschte ebenfalls. Ein Text-Guard kann nicht sagen,
+    // WELCHE Aenderung loeschen darf; das prueft jetzt
+    // `tests/portHerkunftBleibtBeiUmsortierung.test.ts`, indem es die
+    // Funktion faehrt. Hier bleibt nur, dass die Sektion sie ueberhaupt
+    // benutzt — sonst waere die Regel gebaut und unerreichbar.
+    expect(portsSectionSrc).toContain('portProvenanceUpdate(equipment, patch)')
+    expect(portsSectionSrc).toContain("from '../../../lib/portProvenance'")
   })
 })

@@ -20,7 +20,7 @@
 // ───────────────────────────────────────────────────────────────────────────
 
 import type { EquipmentItem } from '../types/equipment'
-import type { InventoryItem, StorageNode } from '../types/inventory'
+import type { InventoryItem, InventoryUnit, StorageNode } from '../types/inventory'
 import { resolveCoverage, type CoverageLine, type CoverageOutcome } from './inventoryCoverage'
 import { nodePathLabel } from './storageTree'
 import { toCsv } from './csv'
@@ -36,6 +36,9 @@ export interface PlanBomRow {
   available?: number
   /** Fehlmenge — nur bei einer echten Deckung aussagekräftig. */
   short?: number
+  /** Serialisierte Einheiten, die nicht einsatzbereit sind (defekt, in
+   *  Reparatur, ausgemustert). Bereits aus `available` herausgerechnet. */
+  unusable?: number
   /** Lagerort-Pfad („Depot › Regal A3 › Case 1"). Leer, wenn unbekannt.
    *  Bei mehreren deckenden Positionen die Pfade, mit „ · " verbunden —
    *  wer nur EINEN liest, faehrt an einem der Orte vorbei. */
@@ -81,6 +84,10 @@ const rowOf = (
   // Alle deckenden Positionen mit ihrem Lagerort, nach Pfad sortiert — der
   // Weg durchs Depot geht einmal in eine Richtung. Positionen ohne Lagerort
   // fallen raus: ein leerer Pfad in der Kommissionier-Liste ist keine Angabe.
+  const unbrauchbar = (line.sources ?? []).reduce((n, q) => n + (q.unusable ?? 0), 0)
+  const racks = line.demand.fromRacks ?? []
+  const rackHinweis =
+    racks.length > 0 ? `Aus dem Innenleben von: ${racks.join(', ')}.` : ''
   const orte = (line.sources ?? [])
     .filter((q) => q.locationId)
     .map((q) => ({ location: nodePathLabel(nodes, q.locationId as string), available: q.available }))
@@ -92,6 +99,10 @@ const rowOf = (
     outcome: line.outcome,
     ...(line.available !== undefined ? { available: line.available } : {}),
     ...(line.short !== undefined ? { short: line.short } : {}),
+    // Nicht einsatzbereite Einheiten werden BENANNT, nicht bloss abgezogen.
+    // Ein stiller Abzug sieht aus wie ein zu kleiner Bestand, und der naechste
+    // Mensch sucht die fehlenden Stuecke im Regal statt in der Werkstatt.
+    ...(unbrauchbar > 0 ? { unusable: unbrauchbar } : {}),
     // Der Lagerort gilt nur für eine echte Deckung: Bei einem Vorschlag ist
     // noch gar nicht sicher, dass es diese Position ist, und ein Regalplatz
     // liest sich wie eine Zusage.
@@ -100,7 +111,13 @@ const rowOf = (
         ? orte.map((o) => o.location).join(' · ')
         : '',
     ...(line.outcome === 'matched-by-type' && orte.length > 0 ? { locations: orte } : {}),
-    ...(line.reason ? { reason: line.reason } : {}),
+    // Woher die Zeile kommt, steht dabei. Eine Position, die nur im
+    // Innenleben eines Racks vorkommt, sieht auf der Liste sonst aus wie ein
+    // frei stehendes Geraet — und wer sie im Regal sucht, findet sie nicht,
+    // weil sie im Rack schon verbaut ist.
+    ...(rackHinweis || line.reason
+      ? { reason: [line.reason, rackHinweis].filter(Boolean).join(' ') }
+      : {}),
     modelIsDeviceName: line.demand.labelIsDeviceName,
     ...(line.itemId ? { itemId: line.itemId } : {}),
     ...(line.demand.deviceTypeId ? { deviceTypeId: line.demand.deviceTypeId } : {}),
@@ -111,8 +128,9 @@ export const buildPlanBom = (
   equipment: EquipmentItem[],
   items: InventoryItem[],
   nodes: StorageNode[],
+  units: InventoryUnit[] = [],
 ): PlanBom => {
-  const coverage = resolveCoverage(equipment, items)
+  const coverage = resolveCoverage(equipment, items, units)
   const rows = coverage.lines.map((line) => rowOf(line, items, nodes))
   return {
     rows,
@@ -131,7 +149,7 @@ export const buildPlanBom = (
 /** Die kaufmännische Sicht: was der Plan braucht, mit Deckungsstand. */
 export const planBomCsv = (bom: PlanBom): string =>
   toCsv(
-    ['Menge', 'Modell', 'Kategorie', 'Deckung', 'Bestand', 'Fehlmenge', 'Hinweis'],
+    ['Menge', 'Modell', 'Kategorie', 'Deckung', 'Bestand', 'Fehlmenge', 'Nicht einsatzbereit', 'Hinweis'],
     bom.rows.map((r) => [
       r.quantity,
       r.model,
@@ -139,6 +157,7 @@ export const planBomCsv = (bom: PlanBom): string =>
       outcomeLabel(r.outcome),
       r.available ?? '',
       r.short ?? '',
+      r.unusable ?? '',
       r.reason ?? (r.modelIsDeviceName ? 'Ohne Katalog-Typ — Modellname ist der Gerätename.' : ''),
     ]),
   )

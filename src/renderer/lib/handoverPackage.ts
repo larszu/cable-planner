@@ -30,18 +30,104 @@ const cableStatusCounts = (project: CablePlannerProject): Record<string, number>
 }
 
 /**
- * Der Inhalt, den das Uebergabe-Dokument zeigt — als Tabelle, damit `stampForRows`
- * denselben Aufbau auf den Revisions-Snapshot anwenden kann. Fingerabdruck ueber
- * das, was auf dem Blatt steht: Assets und Kabel-Stueckliste. Der Kopf mit
- * Adressen und Kontakten aendert sich zwischen Revisionen nicht.
+ * Der Inhalt, den das Uebergabe-Dokument zeigt — als Tabelle, damit
+ * `stampForRows` denselben Aufbau auf den Revisions-Snapshot anwenden kann.
+ *
+ * WAS HIER FEHLTE (gemessen 2026-09-04, Gegenrunde). Der Fingerabdruck lief
+ * ueber Asset-Register und Kabel-Stueckliste, und der Kommentar begruendete
+ * das damit, der Rest des Blattes aendere sich zwischen Revisionen nicht. Das
+ * stimmt nicht: Abschnitt 2 zaehlt `project.locations`, Abschnitt 3 liest
+ * `c.installStatus`, `c.testResult` und die As-Built-Revisionen — und keine
+ * dieser Groessen kommt in einer der beiden Tabellen vor. `assetRegisterTable`
+ * laeuft ueber `project.equipment` (Kabel stehen dort gar nicht),
+ * `cableBomTable` bucketiert nach `Typ|Laenge|Festverbindung` und hat keine
+ * Status-Spalte.
+ *
+ * Der Fehlgang, beide Enden ueber die Oberflaeche erreichbar: Uebergabe
+ * drucken, dann in den Kabel-Eigenschaften den Installations-Status setzen
+ * oder ein Testergebnis eintragen. Abschnitt 3 des ausgeteilten Blattes ist
+ * dann nachweislich falsch — und der Stand bleibt gleich, der Rueckweg meldet
+ * gruen „aktueller Stand".
+ *
+ * Das ist woertlich die Fehlerform, gegen die ADR-004 geschrieben wurde
+ * („Ein Blatt, das den Aufbaustand von gestern zeigt, meldete sich im
+ * Dokument-Register als aktueller Stand") — und ausgerechnet auf dem Blatt,
+ * das die ADR selbst als das schwerste bezeichnet: es geht an den Betreiber
+ * und liegt dort jahrelang.
+ *
+ * DIE REGEL, die daraus folgt und die hier gilt: **was auf dem Blatt steht,
+ * geht in den Fingerabdruck.** Nicht „was sich vermutlich aendert" — diese
+ * Vermutung war der Fehler. Deshalb sind jetzt auch die Kopf-Felder dabei,
+ * die veraenderlich UND gedruckt sind (Uebergabe-Datum, wartender
+ * Dienstleister, Notfallkontakt, Revision); der Standort- und Kundenblock
+ * ebenfalls, weil ein geaendertes Kundenfeld dasselbe Blatt falsch macht.
  */
 export const handoverTable = (project: CablePlannerProject): CsvTable => {
   const assets = assetRegisterTable(project)
   const bom = cableBomTable(project)
+  const kopf = kopfTable(project)
+  const stand = commissioningTable(project)
   return {
-    headers: [...assets.headers, ...bom.headers],
-    rows: [...assets.rows, ...bom.rows],
+    headers: [...kopf.headers, ...assets.headers, ...bom.headers, ...stand.headers],
+    rows: [...kopf.rows, ...assets.rows, ...bom.rows, ...stand.rows],
   }
+}
+
+/** Abschnitt 1 — die veraenderlichen, gedruckten Kopf-Felder. */
+const kopfTable = (project: CablePlannerProject): CsvTable => {
+  const m = project.metadata
+  return {
+    headers: ['Feld', 'Wert'],
+    rows: [
+      ['Anlage', m.name ?? ''],
+      ['Standort', m.siteAddress ?? ''],
+      ['Kunde', m.client ?? ''],
+      ['Errichter', m.contractor ?? m.author ?? ''],
+      ['Projekt-Nr.', m.projectNumber ?? ''],
+      ['Uebergabe-Datum', m.handoverDate ?? ''],
+      ['Wartender Dienstleister', m.serviceProvider ?? ''],
+      ['Notfallkontakt', m.emergencyContact ?? ''],
+      // `m.revision` steht bewusst NICHT drin, obwohl es gedruckt wird: die
+      // Revisions-Zeile des Dokuments zeigt die Abweichung selbst an („Rev 1 +
+      // Aenderungen"). Das Etikett in den Fingerabdruck zu nehmen machte die
+      // Anzeige zirkulaer und liesse ein frisch festgeschriebenes Blatt
+      // abweichen, nur weil das Etikett nach dem Snapshot vergeben wurde.
+    ],
+  }
+}
+
+/**
+ * Abschnitt 2 und 3 — Umfang und Commissioning.
+ *
+ * Die Status-Schluessel werden sortiert, damit der Fingerabdruck nicht davon
+ * abhaengt, in welcher Reihenfolge jemand die Kabel angelegt hat: derselbe
+ * Plan muss denselben Stand ergeben. Genau diese Sorte Reihenfolge-Abhaengigkeit
+ * hat in derselben Gegenrunde die Tally-Karte getroffen.
+ */
+const commissioningTable = (project: CablePlannerProject): CsvTable => {
+  const counts = cableStatusCounts(project)
+  const rows: string[][] = [
+    ['Geraete', String(project.equipment.length)],
+    ['Kabel', String(project.cables.length)],
+    ['Gesamtlaenge', project.cables.reduce((s, c) => s + (c.length ?? 0), 0).toFixed(1)],
+    ['Raeume', String((project.locations ?? []).length)],
+    ['Getestet', String(project.cables.filter((c) => c.testResult).length)],
+    ['PASS', String(project.cables.filter((c) => c.testResult?.result === 'pass').length)],
+  ]
+  for (const key of Object.keys(counts).sort()) rows.push([`Status ${key}`, String(counts[key])])
+  // Die As-Built-Zeilen des Dokuments stehen hier NICHT, obwohl sie gedruckt
+  // werden. `tests/changeImpact.test.ts` haelt fest, warum: der
+  // Revisions-Vergleich spannt einen Snapshot mit `revisions: []` auf — der
+  // Typ fuehrt das Feld nicht. Eine Ableitung, die die Revisionsliste liest,
+  // meldete danach JEDES Uebergabe-Blatt als ueberholt, allein weil die Liste
+  // leer ist. Eine erfundene Abweichung ist derselbe Schaden wie ein
+  // erfundener Zustand (ADR-003), und dieser hier waere sogar der haeufigere.
+  //
+  // Ich habe das beim ersten Anlauf falsch gemacht und der bestehende Guard hat
+  // es gefangen. Er stand vor dieser Aenderung da und hat genau den Fall
+  // vorhergesagt — deshalb bleibt die Begruendung hier stehen und nicht nur
+  // dort.
+  return { headers: ['Kennzahl', 'Wert'], rows }
 }
 
 export const buildHandoverManifest = (

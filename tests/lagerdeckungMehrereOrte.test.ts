@@ -125,3 +125,82 @@ describe('die Kommissionier-Liste teilt auf die Lagerorte auf', () => {
     }
   })
 })
+
+// ───────────────────────────────────────────────────────────────────────────
+// Serialisierte Einheiten in Reparatur zaehlen nicht zum nutzbaren Bestand.
+//
+// Gemessen 2026-09-04 (Gegenrunde): `resolveCoverage` nahm `units` gar nicht
+// entgegen. Vier Geraete im Bestand, zwei davon in Reparatur — die Liste sagte
+// „gedeckt, Bestand 4" und schickte jemanden nach vier. Dass der Zustand
+// Lager-Information ist, weiss `packList.ts` (traegt `condition` in die
+// Packliste) und `inventoryReport.ts` (zaehlt nach Zustand). Nur die Liste,
+// die INS LAGER GEHT, tat es nicht.
+// ───────────────────────────────────────────────────────────────────────────
+
+const unit = (id: string, itemId: string, condition: string) =>
+  ({
+    id,
+    itemId,
+    condition,
+    history: [],
+    createdAt: 't',
+    updatedAt: 't',
+  }) as unknown as import('../src/renderer/types/inventory').InventoryUnit
+
+describe('nicht einsatzbereite Einheiten zaehlen nicht', () => {
+  const vier = [item({ id: 'i1', model: MODELL, quantity: 4, deviceTypeId: TYP, locationId: 'c1' })]
+
+  it('zwei in Reparatur machen aus vier zwei', () => {
+    const res = resolveCoverage(plan(4), vier, [
+      unit('u1', 'i1', 'inRepair'),
+      unit('u2', 'i1', 'inRepair'),
+      unit('u3', 'i1', 'ok'),
+    ])
+    expect(res.lines[0]).toMatchObject({ available: 2, short: 2 })
+  })
+
+  it('defekt und ausgemustert zaehlen genauso', () => {
+    const res = resolveCoverage(plan(4), vier, [
+      unit('u1', 'i1', 'defect'),
+      unit('u2', 'i1', 'retired'),
+    ])
+    expect(res.lines[0]).toMatchObject({ available: 2 })
+  })
+
+  it('ok-Einheiten aendern nichts', () => {
+    const res = resolveCoverage(plan(4), vier, [unit('u1', 'i1', 'ok'), unit('u2', 'i1', 'ok')])
+    expect(res.lines[0]).toMatchObject({ available: 4 })
+    expect(res.lines[0].short).toBeUndefined()
+  })
+
+  it('ohne Einheiten bleibt es beim alten Verhalten', () => {
+    expect(resolveCoverage(plan(4), vier).lines[0]).toMatchObject({ available: 4 })
+  })
+
+  it('mehr Unbrauchbare als Bestand ergeben nicht weniger als null', () => {
+    // Widerspruechlicher Datenstand; eine negative Menge in einer
+    // Kommissionier-Liste waere schlimmer als eine zu kleine.
+    const res = resolveCoverage(plan(1), [
+      item({ id: 'i1', model: MODELL, quantity: 1, deviceTypeId: TYP, locationId: 'c1' }),
+    ], [unit('u1', 'i1', 'defect'), unit('u2', 'i1', 'defect')])
+    expect(res.lines[0].sources?.[0].available).toBe(0)
+  })
+
+  it('die Stueckliste NENNT die unbrauchbaren, statt sie still abzuziehen', () => {
+    // Ein stiller Abzug sieht aus wie ein zu kleiner Bestand, und der naechste
+    // Mensch sucht die fehlenden Stuecke im Regal statt in der Werkstatt.
+    const bom = buildPlanBom(plan(4), vier, NODES, [
+      unit('u1', 'i1', 'inRepair'),
+      unit('u2', 'i1', 'inRepair'),
+    ])
+    expect(bom.rows[0]).toMatchObject({ available: 2, unusable: 2 })
+  })
+
+  it('die Kommissionier-Liste nennt nie mehr, als einsatzbereit ist', () => {
+    const bom = buildPlanBom(plan(4), vier, NODES, [unit('u1', 'i1', 'inRepair')])
+    for (const zeile of pickListCsv(bom).split('\r\n').slice(1)) {
+      const [, menge, , bestand] = zeile.split(';')
+      expect(Number(menge)).toBeLessThanOrEqual(Number(bestand))
+    }
+  })
+})
