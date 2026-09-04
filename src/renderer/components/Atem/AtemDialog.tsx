@@ -5,6 +5,7 @@ import { cablePlannerApi, type AtemStateSummary, type AtemInputSummary } from '.
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
 import { portDisplayLabel, shortenForAtem } from '../../lib/portLabel'
+import { roleLabelsByPort } from '../../lib/labelDerivation'
 import { getEquipmentById } from '../../lib/equipmentSelectors'
 import { ModalShell } from '../shared/ModalShell'
 import { useTranslation, format } from '../../lib/i18n'
@@ -106,6 +107,19 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
     preselectedDeviceId ? getEquipmentById(state.project.equipment, preselectedDeviceId) : undefined,
   )
   const openAtemMvLayout = useUiStore((state) => state.openAtemMvLayout)
+  const allEquipment = useProjectStore((state) => state.project.equipment)
+  const cables = useProjectStore((state) => state.project.cables)
+  const sourceIdentities = useProjectStore((state) => state.project.sourceIdentities)
+
+  // B-28 — portId → Rollenname der Quelle, die an diesem ATEM-Eingang
+  // ankommt. Bis 2026-09-04 hing der Long-/Short-Name allein am Portnamen:
+  // ein Umbenennen der Rolle aenderte UMD-Text, `.avsourcemap` und Tally-CSV,
+  // aber nicht den Namen auf dem Mischer — also genau in dem System, in das
+  // ihn sonst jemand von Hand tippt. Dieselbe Karte liest `deriveLabels`.
+  const roleLabels = useMemo(
+    () => roleLabelsByPort(allEquipment, cables, sourceIdentities ?? []),
+    [allEquipment, cables, sourceIdentities],
+  )
 
   const [ip, setIp] = useState(equipment?.ipAddress ?? '')
   const [status, setStatus] = useState<'idle' | 'connecting' | 'connected' | 'error'>('idle')
@@ -129,10 +143,13 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
   //  Canvas-Port-Name ("1 SDI 3G PGM (1080p50/60)" → "PGM").
   const projectInputNames = useMemo(() => {
     if (!equipment) return [] as string[]
-    return equipment.inputs.map((p) => portDisplayLabel(p))
-  }, [equipment])
+    // B-28 — die gebundene Rolle gewinnt gegen den Portnamen.
+    return equipment.inputs.map((p) => roleLabels.get(p.id) ?? portDisplayLabel(p))
+  }, [equipment, roleLabels])
   const projectOutputNames = useMemo(() => {
     if (!equipment) return [] as string[]
+    // B-28: Ausgang, keine Rolle — ein ATEM-Ausgang (ME/AUX/MV) traegt das
+    // Ziel, nicht die Quelle; eine Quell-Rolle gibt es dort nicht.
     return equipment.outputs.map((p) => portDisplayLabel(p))
   }, [equipment])
 

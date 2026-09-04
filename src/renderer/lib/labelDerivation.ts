@@ -171,6 +171,66 @@ export const routerLinkFor = (
     )[0]
 }
 
+/**
+ * Je EINGANGSPORT eines Routers/Mischers der Name der ROLLE, die dort
+ * tatsaechlich ankommt — oder kein Eintrag, wenn keine gebunden ist.
+ *
+ * WARUM DIESE KARTE UEBERHAUPT EXISTIERT (B-28, gemessen 2026-09-04). Ein
+ * Umbenennen der `SourceIdentity` aenderte den UMD-Text, die `.avsourcemap`
+ * und die Tally-CSV — aber NICHT den ATEM-Lang-/Kurznamen und NICHT die
+ * Videohub-Labels. Ausgerechnet die beiden Systeme, in die der Name sonst von
+ * Hand getippt wird, hingen nicht an der Rolle. Initiative 1 heisst "Rename
+ * kostet eine Aenderung"; solange diese zwei Ausgabewege am Portnamen hingen,
+ * kostete es drei.
+ *
+ * WARUM ALS EINE KARTE UND NICHT ALS ZEILE IN JEDEM EXPORTER. Die TREUE-REGEL
+ * oben verlangt, dass die Ableitung nur behauptet, was der Exporter WIRKLICH
+ * sendet. Ein Vorrang, den `deriveLabels` kennt und `exportVideohub` nicht,
+ * bricht sie sofort: der Plan-Check meldete dann Kollisionen auf Texten, die
+ * nie ein Geraet erreichen. Deshalb liefert diese Funktion die Aufloesung, und
+ * beide Seiten lesen dieselbe.
+ *
+ * VORRANG. Die Rolle gewinnt gegen den Portnamen — dieselbe Begruendung wie
+ * beim UMD-Text: "Kamera 1" bleibt "Kamera 1", auch wenn die Havarie-Kamera
+ * einspringt. Wer den Portnamen sehen will, bindet keine Rolle.
+ *
+ * NUR EINGAENGE. Ein Router-AUSGANG traegt das Ziel, nicht die Quelle, und
+ * welches Ziel das ist, entscheidet der Kreuzpunkt zur Laufzeit — nicht die
+ * Verkabelung. Das ist ein eigener Schritt und wird hier bewusst nicht
+ * geraten.
+ */
+const roleNameOf = (
+  source: EquipmentItem | undefined,
+  identityById: ReadonlyMap<string, SourceIdentity>,
+): string | undefined => {
+  const identity = source?.sourceIdentityId
+    ? identityById.get(source.sourceIdentityId)
+    : undefined
+  return identity?.name?.trim() || undefined
+}
+
+export const roleLabelsByPort = (
+  equipment: EquipmentItem[],
+  cables: Cable[],
+  sourceIdentities: SourceIdentity[],
+): Map<string, string> => {
+  const ctx = buildGraphContext(equipment, cables)
+  const identityById = new Map(sourceIdentities.map((s) => [s.id, s]))
+  const out = new Map<string, string>()
+
+  for (const device of equipment) {
+    const kind = detectDeviceKind(device)
+    if (kind !== 'atem' && kind !== 'videohub') continue
+    for (const port of device.inputs) {
+      const resolved = resolveSignalSource(port.id, ctx)
+      const source = resolved ? ctx.eqById.get(resolved.equipmentId) : undefined
+      const name = roleNameOf(source, identityById)
+      if (name) out.set(port.id, name)
+    }
+  }
+  return out
+}
+
 export type AnchorField = 'umd-address'
 
 export interface UnansweredAnchor {
@@ -448,7 +508,15 @@ export const deriveLabels = ({
           sinkKind: kind,
         })
       }
-      const { raw, provenance } = portText(port)
+      // B-28 — die Rolle gewinnt gegen den Portnamen, und zwar HIER, wo
+      // beide Exporter sie ablesen (`roleLabelsByPort` liefert dieselbe
+      // Aufloesung ueber `roleNameOf`). Wuerde nur diese Ableitung sie
+      // kennen, braeche die TREUE-REGEL am Kopf der Datei: der Plan-Check
+      // meldete Kollisionen auf Texten, die nie ein Geraet erreichen.
+      const roleName = roleNameOf(source, identityById)
+      const fromPort = portText(port)
+      const raw = roleName ?? fromPort.raw
+      const provenance: LabelProvenance = roleName ? 'source-identity' : fromPort.provenance
       if (!raw) {
         // Kein Label heisst nicht: keine Quelle. Der UMD-Text haengt an der
         // Quelle, nicht am Portnamen — deshalb erst hier abbrechen.

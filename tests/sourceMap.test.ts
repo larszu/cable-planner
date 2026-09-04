@@ -355,11 +355,23 @@ describe('buildSourceMap — Rolle mit mehreren Geraeten', () => {
     // Dieser Test beschreibt den heutigen, falschen Zustand — bewusst. Wer
     // `labels` in die `bindings` zieht, bringt ihn zu Fall und muss ihn
     // anfassen, statt die Aenderung unbemerkt vorbeizuschieben.
+    //
+    // GENAU DAS IST PASSIERT (B-28, 2026-09-04). Seit die gebundene Rolle
+    // gegen den Portnamen gewinnt, tragen BEIDE Eingaenge "Kamera 1" statt
+    // "Kamera 1 Haupt" / "Kamera 1 Backup". Der Verlust, den dieser Test
+    // festhaelt, ist derselbe geblieben — flach ist flach —, aber seine
+    // Gestalt hat gewechselt: vorher ueberschrieb die zweite Beschriftung
+    // die erste und man sah, WELCHE gewonnen hat; jetzt sind sie gleich.
+    //
+    // Das ist die richtige Richtung und nicht bloss eine andere: eine Rolle
+    // heisst in jedem Zielsystem gleich, auch wenn die Havarie-Kamera
+    // einspringt — dafuer gibt es sie. Die Zuordnung, welches GERAET an
+    // welchem Eingang haengt, geht dabei nicht verloren, sie steht in
+    // `bindings` (Test darueber). Und `ambiguousLabels` meldet den Fall
+    // weiterhin, statt ihn stillschweigend hinzunehmen.
     const { map } = buildSourceMap(zweiGeraete(), META)
     const labels = map.sources[0].labels
-    // Zwei Eingaenge, zwei Beschriftungen — in der Datei steht die des
-    // ZULETZT gelesenen Geraets, hier also die des Backups.
-    expect(labels['atem-input-long']).toBe('Kamera 1 Backup')
+    expect(labels['atem-input-long']).toBe('Kamera 1')
     expect(Object.keys(labels).filter((k) => k.startsWith('atem-input'))).toHaveLength(2)
   })
 

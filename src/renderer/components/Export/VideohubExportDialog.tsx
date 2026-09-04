@@ -8,7 +8,7 @@ import {
   mergeLegacySalvos,
   routingDifferences,
 } from '../../lib/videohubRouting'
-import type { VideohubSalvo } from '../../types/equipment'
+import type { Port, VideohubSalvo } from '../../types/equipment'
 import { useTranslation, format as fmt } from '../../lib/i18n'
 import { videohubPresetForDevice } from '../../lib/deviceKind'
 import { downloadBlob } from '../../lib/downloadBlob'
@@ -29,6 +29,7 @@ import { VideohubRoutingMatrix } from './VideohubRoutingMatrix'
 import { VideohubRoutingList } from './VideohubRoutingList'
 import { cablePlannerApi, hasDesktopBridge, type VideohubState } from '../../lib/bridge'
 import { portDisplayLabel } from '../../lib/portLabel'
+import { roleLabelsByPort } from '../../lib/labelDerivation'
 import { isWithinDistance } from '../../lib/levenshtein'
 import { promptDialog } from '../../lib/promptDialog'
 
@@ -83,6 +84,18 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
   const equipment = useProjectStore((s) => s.project.equipment)
   const cables = useProjectStore((s) => s.project.cables)
   const updateEquipment = useProjectStore((s) => s.updateEquipment)
+  const sourceIdentities = useProjectStore((s) => s.project.sourceIdentities)
+
+  // B-28 — portId → Rollenname. Dieselbe Karte fuer JEDEN Ausgabeweg dieses
+  // Dialogs: Vorschau, .txt-Download, Label-PDF, TCP-Push und die Tabelle in
+  // der Oberflaeche. Vier davon standen vorher mit eigenem `portDisplayLabel`
+  // da; genau so entsteht ein Weg, der die Rolle nicht kennt.
+  const roleLabels = useMemo(
+    () => roleLabelsByPort(equipment, cables, sourceIdentities ?? []),
+    [equipment, cables, sourceIdentities],
+  )
+  const labelOf = (port: Port | undefined, fallback: string): string =>
+    (port ? roleLabels.get(port.id) ?? portDisplayLabel(port) : '') || fallback
   const [deviceId, setDeviceId] = useState<string>(() => {
     if (preselectedDeviceId && equipment.some((e) => e.id === preselectedDeviceId)) {
       return preselectedDeviceId
@@ -580,6 +593,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
       return buildVideohubLabelTxt(device, {
         totalInputs: preset.inputs,
         totalOutputs: preset.outputs,
+        roleLabels,
       })
     }
     return buildVideohubRoutingDump(device, {
@@ -588,8 +602,9 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
       totalInputs: preset.inputs,
       totalOutputs: preset.outputs,
       routing,
+      roleLabels,
     })
-  }, [device, format, preset, friendlyName, routing])
+  }, [device, format, preset, friendlyName, routing, roleLabels])
 
   const handleExport = () => {
     if (!device) return
@@ -667,14 +682,14 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
     Array.from({ length: preset.inputs }, (_, i) => {
       // #286 — contentLabel (PGM/PVW/Cam1) gewinnt vor port.name.
       const port = device?.inputs[i]
-      const portName = port ? portDisplayLabel(port) || `In ${i + 1}` : `In ${i + 1}`
+      const portName = labelOf(port, `In ${i + 1}`)
       const conn = connections.inputConn.get(i)
       return conn ? `${portName} <- ${conn.sourceName}` : portName
     })
   const computeEffectiveOutputLabels = (): string[] =>
     Array.from({ length: preset.outputs }, (_, i) => {
       const port = device?.outputs[i]
-      const portName = port ? portDisplayLabel(port) || `Out ${i + 1}` : `Out ${i + 1}`
+      const portName = labelOf(port, `Out ${i + 1}`)
       const conn = connections.outputConn.get(i)
       return conn ? `${portName} -> ${conn.destName}` : portName
     })
@@ -993,7 +1008,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
               if (hubLabel) return { port: hubLabel }
               // #286 — Canvas-Port: contentLabel bevorzugt vor port.name.
               const p = device?.inputs[i]
-              const portName = p ? portDisplayLabel(p) || `In ${i + 1}` : `In ${i + 1}`
+              const portName = labelOf(p, `In ${i + 1}`)
               const conn = connections.inputConn.get(i)
               if (!conn || !showConnections) return { port: portName }
               return {
@@ -1016,7 +1031,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                     : ''
               if (hubLabel) return { port: hubLabel, lockBadge }
               const p = device?.outputs[i]
-              const portName = p ? portDisplayLabel(p) || `Out ${i + 1}` : `Out ${i + 1}`
+              const portName = labelOf(p, `Out ${i + 1}`)
               const conn = connections.outputConn.get(i)
               if (!conn || !showConnections) return { port: portName, lockBadge }
               return {
