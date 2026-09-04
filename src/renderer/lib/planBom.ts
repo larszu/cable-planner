@@ -22,6 +22,7 @@
 import type { EquipmentItem } from '../types/equipment'
 import type { InventoryItem, InventoryUnit, StorageNode } from '../types/inventory'
 import { resolveCoverage, type CoverageLine, type CoverageOutcome } from './inventoryCoverage'
+import type { ZusatzBedarf } from './planDemandExtras'
 import { nodePathLabel } from './storageTree'
 import { toCsv } from './csv'
 
@@ -86,8 +87,10 @@ const rowOf = (
   // fallen raus: ein leerer Pfad in der Kommissionier-Liste ist keine Angabe.
   const unbrauchbar = (line.sources ?? []).reduce((n, q) => n + (q.unusable ?? 0), 0)
   const racks = line.demand.fromRacks ?? []
+  const planteile = line.demand.fromPlanParts ?? []
+  const herkunft = [...racks, ...planteile]
   const rackHinweis =
-    racks.length > 0 ? `Aus dem Innenleben von: ${racks.join(', ')}.` : ''
+    herkunft.length > 0 ? `Stammt (auch) aus: ${herkunft.join(', ')}.` : ''
   const orte = (line.sources ?? [])
     .filter((q) => q.locationId)
     .map((q) => ({ location: nodePathLabel(nodes, q.locationId as string), available: q.available }))
@@ -129,8 +132,9 @@ export const buildPlanBom = (
   items: InventoryItem[],
   nodes: StorageNode[],
   units: InventoryUnit[] = [],
+  zusatz: ZusatzBedarf[] = [],
 ): PlanBom => {
-  const coverage = resolveCoverage(equipment, items, units)
+  const coverage = resolveCoverage(equipment, items, units, zusatz)
   const rows = coverage.lines.map((line) => rowOf(line, items, nodes))
   return {
     rows,
