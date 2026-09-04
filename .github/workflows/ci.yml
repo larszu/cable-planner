@@ -10,10 +10,24 @@ name: CI
 #   npm test                                vitest
 #   npm run build                           main + preload + renderer
 #
+# Dazu die beiden headless Node-Checks fuer die Live-Kollaboration:
+#
+#   npm run test:crdt        CRDT-Konvergenz (reine Rechnung, ~0,4 s)
+#   npm run test:signaling   Signaling-Relay gegen den echten Server (~2,6 s)
+#
+# Die standen bis 2026-09-04 nicht hier, mit der Begruendung, sie "erwarten
+# einen laufenden Renderer bzw. Netzwerk". Nachgemessen stimmt das fuer diese
+# beiden nicht: `test:crdt` ist ein reines Node-Skript ohne jedes IO, und
+# `signaling-relay-check.mjs` startet den echten Server selbst und traegt im
+# eigenen Kopf "Exit 0 = alle Asserts gruen, Exit 1 = Fehler (CI-tauglich)".
+# Kollaboration war damit die am schlechtesten abgesicherte Funktion des
+# groessten Repos -- nicht mangels Pruefung, sondern weil die vorhandene nie
+# lief.
+#
 # Bewusst NICHT hier: electron-builder (`npm run dist`) — das gehoert zu
-# release.yml und braucht Signatur-Material, und die gezielten Node-Checks
-# (test:crdt, test:signaling, ui:smoke, test:drag), die einen laufenden
-# Renderer bzw. Netzwerk erwarten.
+# release.yml und braucht Signatur-Material. Ebenso `ui:smoke` und
+# `test:drag`: die brauchen wirklich einen laufenden Renderer
+# (`dev:renderer`), und dafuer stimmt die alte Begruendung.
 
 on:
   pull_request:
@@ -48,5 +62,9 @@ jobs:
         run: npm run lint
       - name: Tests
         run: npm test
+      - name: CRDT-Konvergenz
+        run: npm run test:crdt
+      - name: Signaling-Relay
+        run: npm run test:signaling
       - name: Build
         run: npm run build
