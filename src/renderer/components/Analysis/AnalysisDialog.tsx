@@ -19,25 +19,12 @@ import { Icon } from '../shared/Icon'
 import { downloadBlob } from '../../lib/downloadBlob'
 import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 import { useTranslation, format } from '../../lib/i18n'
-import { effectiveDeviceResources } from '../../lib/equipmentSelectors'
+import { effectiveDeviceResources, effectiveWatts } from '../../lib/equipmentSelectors'
 import { checkDanteName } from '../../lib/danteNaming'
 import { subnetCidr } from '../../lib/subnet'
 import { RF_BANDS, bandsForFrequency, bandLabel } from '../../lib/rfBands'
-import type { EquipmentItem } from '../../types/equipment'
 
 type Tab = 'weight' | 'network' | 'redundancy' | 'rf'
-
-/** Effektive Leistung eines Geräts: aktiver Modus (#124) > explizite Watt > V×A. */
-const effectiveWatts = (e: EquipmentItem): number => {
-  const modePower = e.activeModeId
-    ? e.modes?.find((m) => m.id === e.activeModeId)?.powerWatts
-    : undefined
-  return (
-    modePower ??
-    e.powerConsumptionWatts ??
-    (e.voltage && e.currentAmps ? e.voltage * e.currentAmps : 0)
-  )
-}
 
 const WATT_TO_BTU = 3.412
 

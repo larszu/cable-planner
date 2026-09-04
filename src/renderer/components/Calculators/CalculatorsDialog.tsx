@@ -16,6 +16,7 @@ import { AlertTriangle, Download, Calculator, BatteryCharging } from 'lucide-rea
 import { useTranslation } from '../../lib/i18n'
 import { Icon } from '../shared/Icon'
 import { downloadBlob } from '../../lib/downloadBlob'
+import { effectiveWatts } from '../../lib/equipmentSelectors'
 import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 import { bandwidthMbpsForStandard } from '../../types/cableSpec'
 import { powerStandardById, POWER_SUPPLY_PRESETS } from '../../types/powerStandard'
@@ -405,7 +406,7 @@ const PowerTab = () => {
     let missingDevices = 0
     const devices: PhaseDevice[] = []
     for (const e of equipment) {
-      const w = e.powerConsumptionWatts ?? (e.voltage && e.currentAmps ? e.voltage * e.currentAmps : 0)
+      const w = effectiveWatts(e)
       if (w > 0) {
         totalW += w
         countedDevices += 1
