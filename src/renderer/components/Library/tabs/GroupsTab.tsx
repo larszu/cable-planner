@@ -139,7 +139,7 @@ export const GroupsTab = () => {
                             type="button"
                             onClick={(event) => {
                               event.stopPropagation()
-                              exportPresetToFile(preset)
+                              void exportPresetToFile(preset)
                             }}
                             className="rounded bg-cp-surface-4 px-1 text-[11px] text-cp-text-secondary hover:bg-cp-surface-5"
                             title={t(

@@ -149,7 +149,7 @@ export const RackBuilderDialogExportMenu = ({
               // rentmanIds nicht mehr. Jetzt derselbe Erbauer wie beim
               // Speichern — es gibt nur noch eine Aufzaehlung.
               const preset = buildPreset()
-              exportRackAsCpgroup(preset)
+              void exportRackAsCpgroup(preset)
             }}
             className="flex w-full flex-col items-start gap-0.5 px-3 py-2 text-left text-cp-text-bright hover:bg-cp-surface-2"
           >

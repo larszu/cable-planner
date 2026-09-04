@@ -14,9 +14,22 @@
 // Viewer-Export die Regel des Mobile-Share-Pfads nicht mitbekam.
 //
 // WO DIESE DATEI GILT: Ausgaenge, die der Renderer selbst baut — der
-// `.avplan`-Export und der Push in die geteilte Bibliothek. Die Ausgaenge im
-// Hauptprozess (Mobile-Share, Viewer-Export) benutzen weiterhin `stripSecrets`
-// dort.
+// `.avplan`-Export, der Push in die geteilte Bibliothek und der Push in den
+// geteilten Sync-Ordner (`SharedSyncPanel`). Die Ausgaenge im Hauptprozess
+// (Mobile-Share, Viewer-Export) benutzen weiterhin `stripSecrets` dort.
+//
+// DER DRITTE STAND BIS 2026-09-04 NICHT HIER — und lief auch nicht durch die
+// Regel: `SharedSyncPanel.handlePush` schrieb Projekt, Bibliothek und
+// Gruppen-Presets ROH in denselben Team-Ordner. Wer beim .avplan-Export
+// ausdruecklich „Zugangsdaten entfernen" gewaehlt hatte, hatte sie trotzdem
+// dort, sobald irgendwer Push drueckte.
+//
+// Diese Liste ist deshalb nicht mehr die Absicherung, sondern nur noch die
+// Erklaerung. Die Absicherung ist berechnet:
+// `tests/credentialExits.test.ts` sucht JEDEN Renderer-Ausgang, der
+// Projekt-/Bibliotheks-Daten hinausschreibt, und verlangt, dass er die Regel
+// kennt. Der vierte Ausgang faellt dort auf, ohne dass sein Autor diese Datei
+// gelesen haben muss.
 // ---------------------------------------------------------------------------
 
 /** Muss zeichengleich zur Menge in `src/main/util/stripSecrets.ts` sein. */

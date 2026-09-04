@@ -21,6 +21,8 @@ import { useProjectStore } from '../../store/projectStore'
 import type { EquipmentTemplate, GroupPreset } from '../../types/equipment'
 import type { CablePlannerProject } from '../../types/project'
 import { format, useTranslation } from '../../lib/i18n'
+import { countCredentialBearers, hasCredential, stripCredentials } from '../../lib/credentialKeys'
+import { credentialChoiceDialog, type CredentialChoice } from '../../lib/credentialChoiceDialog'
 
 const PROJECT_FILE = 'cable-planner.project.json'
 const LIBRARY_FILE = 'cable-planner.library.json'
@@ -79,20 +81,58 @@ export function SharedSyncPanel() {
 
   const handlePush = async () => {
     if (!syncPath) return
+
+    // ── Zugangsdaten: der fuenfte Ausgang ────────────────────────────────────
+    //
+    // WARUM DAS HIER STEHT (gemessen 2026-09-04). `credentialKeys.ts` nennt in
+    // seinem Kopfkommentar die Ausgaenge, fuer die es gilt: den
+    // `.avplan`-Export und den Push in die geteilte Bibliothek. Dieser Push
+    // war der dritte, den der Renderer selbst baut — und er stand nicht in
+    // der Liste und lief nicht durch die Regel. Er schrieb Projekt,
+    // Bibliothek und Gruppen-Presets ROH in denselben Team-Ordner.
+    //
+    // Der Schaden ist nicht theoretisch: wer beim .avplan-Export ausdruecklich
+    // „Zugangsdaten entfernen" waehlt, hatte sie trotzdem im Team-Ordner,
+    // sobald irgendwer hier auf Push drueckte. Switch-Passwoerter und die
+    // vollstaendige Netz-Identitaet lagen dort im Klartext.
+    //
+    // Gefragt wird mit demselben Dialog wie an den anderen beiden Ausgaengen,
+    // und nur dann, wenn es etwas zu entscheiden gibt — eine Rueckfrage bei
+    // jedem Push waere in zwei Wochen eine Klickgewohnheit.
+    const traeger =
+      countCredentialBearers(customLibrary) +
+      countCredentialBearers(groupPresets) +
+      (hasCredential(project) ? 1 : 0)
+
+    let wahl: CredentialChoice = 'strip'
+    if (traeger > 0) {
+      const antwort = await credentialChoiceDialog(
+        traeger,
+        t(
+          'cred.dest.sharedSync',
+          'in den geteilten Ordner — jeder im Team, der Pull drückt, bekommt die Datei.',
+        ),
+      )
+      // Abbruch heisst abbrechen, nicht „dann eben mitschicken".
+      if (antwort === null) return
+      wahl = antwort
+    }
+    const raus = <T,>(wert: T): T => (wahl === 'strip' ? stripCredentials(wert) : wert)
+
     setBusy(true)
     try {
       await withLock(async () => {
         await cablePlannerApi.sync.writeFile(
           joinPath(syncPath, PROJECT_FILE),
-          JSON.stringify(project, null, 2),
+          JSON.stringify(raus(project), null, 2),
         )
         await cablePlannerApi.sync.writeFile(
           joinPath(syncPath, LIBRARY_FILE),
-          JSON.stringify(customLibrary, null, 2),
+          JSON.stringify(raus(customLibrary), null, 2),
         )
         await cablePlannerApi.sync.writeFile(
           joinPath(syncPath, PRESETS_FILE),
-          JSON.stringify(groupPresets, null, 2),
+          JSON.stringify(raus(groupPresets), null, 2),
         )
         setStatus({
           kind: 'ok',
