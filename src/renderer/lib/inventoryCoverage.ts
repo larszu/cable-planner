@@ -48,6 +48,9 @@ export interface DemandLine {
   /** true, wenn `label` nur der Instanzname ist — dann ist er als
    *  Modellbezeichnung wenig wert, und die UI soll das zeigen koennen. */
   labelIsDeviceName: boolean
+  /** Namen der Racks, aus deren Innenleben diese Zeile (auch) stammt.
+   *  Leer/fehlend bei Geraeten, die selbst auf dem Canvas liegen. */
+  fromRacks?: string[]
 }
 
 export interface CoverageLine {
@@ -148,26 +151,87 @@ const MAX_EDIT_DISTANCE = 2
  */
 export const deriveDemand = (equipment: EquipmentItem[]): DemandLine[] => {
   const byKey = new Map<string, DemandLine>()
+
+  const zaehle = (
+    key: string,
+    zeile: Omit<DemandLine, 'key' | 'quantity'>,
+    ausRack?: string,
+  ) => {
+    const existing = byKey.get(key)
+    if (existing) {
+      existing.quantity += 1
+      existing.equipmentIds.push(...zeile.equipmentIds)
+      if (ausRack && !existing.fromRacks?.includes(ausRack)) {
+        existing.fromRacks = [...(existing.fromRacks ?? []), ausRack]
+      }
+      return
+    }
+    byKey.set(key, {
+      key,
+      quantity: 1,
+      ...zeile,
+      ...(ausRack ? { fromRacks: [ausRack] } : {}),
+    })
+  }
+
+  // Erste Phase: die Geraete, die selbst auf dem Canvas liegen.
   for (const eq of equipment) {
     const type = resolveDeviceType(eq.deviceTypeId)
     const label = type?.template.name?.trim() || eq.name.trim()
     if (!label) continue
-    const key = eq.deviceTypeId ?? `name:${normaliseName(label)}|${normaliseName(eq.category ?? '')}`
-    const existing = byKey.get(key)
-    if (existing) {
-      existing.quantity += 1
-      existing.equipmentIds.push(eq.id)
-      continue
-    }
-    byKey.set(key, {
-      key,
+    const key =
+      eq.deviceTypeId ?? `name:${normaliseName(label)}|${normaliseName(eq.category ?? '')}`
+    zaehle(key, {
       ...(eq.deviceTypeId ? { deviceTypeId: eq.deviceTypeId } : {}),
       label,
       ...(eq.category ? { category: eq.category } : {}),
-      quantity: 1,
       equipmentIds: [eq.id],
       labelIsDeviceName: !type,
     })
+  }
+
+  // ZWEITE PHASE — DAS INNENLEBEN EINES BLACK-BOX-RACKS.
+  //
+  // Gemessen 2026-09-04 (Gegenrunde): `groupPresetSpawnSlice` legt fuer ein
+  // eingefuegtes Rack GENAU EIN EquipmentItem an; die enthaltenen Geraete
+  // leben nur im `rackInternalSnapshot`. `deriveDemand` las ausschliesslich
+  // `equipment` — ein Rack mit zwoelf Geraeten erschien damit als „1x FOH Rack
+  // (Rack) — nicht im Lager", ohne jeden Hinweis, dass zwoelf Positionen
+  // darunter verschwinden. Stiller Unterlauf des Bedarfs, in genau der Liste,
+  // mit der jemand ins Lager geht.
+  //
+  // WARUM ZWEITE PHASE UND NICHT IN DERSELBEN SCHLEIFE. Der Schluessel einer
+  // Namenszeile enthaelt die Kategorie; ein Snapshot-Eintrag hat keine. In
+  // einem Durchgang haetten „Yamaha CL5" auf dem Canvas und „Yamaha CL5" im
+  // Rack zwei Zeilen a 1 ergeben statt einer mit 2 — und welche zuerst
+  // entsteht, haengt an der Array-Reihenfolge. Erst alle echten Geraete, dann
+  // die Rack-Inhalte gegen die vorhandenen Zeilen: das Ergebnis haengt am
+  // Plan, nicht am Bearbeitungsverlauf.
+  //
+  // Die Snapshot-Eintraege tragen NUR einen Namen (plus Hoehe und optional
+  // eine Rentman-Id) — keine Katalog-Guid. Sie koennen deshalb nur ueber den
+  // Namen zugeordnet werden und landen im Vorschlags-Pfad, nicht in der
+  // Tatsachen-Spalte. Mehr weiss der Snapshot nicht.
+  const nachLabel = new Map<string, string>()
+  for (const [k, v] of byKey) nachLabel.set(normaliseName(v.label), k)
+
+  for (const eq of equipment) {
+    for (const inhalt of eq.rackInternalSnapshot?.items ?? []) {
+      const name = inhalt.name?.trim()
+      if (!name) continue
+      const vorhanden = nachLabel.get(normaliseName(name))
+      const key = vorhanden ?? `name:${normaliseName(name)}|`
+      if (!vorhanden) nachLabel.set(normaliseName(name), key)
+      zaehle(
+        key,
+        {
+          label: name,
+          equipmentIds: [eq.id],
+          labelIsDeviceName: true,
+        },
+        eq.name.trim() || eq.id,
+      )
+    }
   }
   return [...byKey.values()].sort((a, b) => a.label.localeCompare(b.label, 'de'))
 }

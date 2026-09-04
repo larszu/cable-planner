@@ -85,6 +85,9 @@ const rowOf = (
   // Weg durchs Depot geht einmal in eine Richtung. Positionen ohne Lagerort
   // fallen raus: ein leerer Pfad in der Kommissionier-Liste ist keine Angabe.
   const unbrauchbar = (line.sources ?? []).reduce((n, q) => n + (q.unusable ?? 0), 0)
+  const racks = line.demand.fromRacks ?? []
+  const rackHinweis =
+    racks.length > 0 ? `Aus dem Innenleben von: ${racks.join(', ')}.` : ''
   const orte = (line.sources ?? [])
     .filter((q) => q.locationId)
     .map((q) => ({ location: nodePathLabel(nodes, q.locationId as string), available: q.available }))
@@ -108,7 +111,13 @@ const rowOf = (
         ? orte.map((o) => o.location).join(' · ')
         : '',
     ...(line.outcome === 'matched-by-type' && orte.length > 0 ? { locations: orte } : {}),
-    ...(line.reason ? { reason: line.reason } : {}),
+    // Woher die Zeile kommt, steht dabei. Eine Position, die nur im
+    // Innenleben eines Racks vorkommt, sieht auf der Liste sonst aus wie ein
+    // frei stehendes Geraet — und wer sie im Regal sucht, findet sie nicht,
+    // weil sie im Rack schon verbaut ist.
+    ...(rackHinweis || line.reason
+      ? { reason: [line.reason, rackHinweis].filter(Boolean).join(' ') }
+      : {}),
     modelIsDeviceName: line.demand.labelIsDeviceName,
     ...(line.itemId ? { itemId: line.itemId } : {}),
     ...(line.demand.deviceTypeId ? { deviceTypeId: line.demand.deviceTypeId } : {}),
