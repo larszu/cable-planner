@@ -18,7 +18,7 @@ import { Icon } from '../shared/Icon'
 import { downloadBlob } from '../../lib/downloadBlob'
 import { effectiveWatts } from '../../lib/equipmentSelectors'
 import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
-import { bandwidthMbpsForStandard } from '../../types/cableSpec'
+import { bandwidthMbpsForStandard, linkCapacityMbpsForStandard } from '../../types/cableSpec'
 import { powerStandardById, POWER_SUPPLY_PRESETS } from '../../types/powerStandard'
 import jsPDF from 'jspdf'
 import { sanitizeForPdf } from '../../lib/sanitizeForPdf'
@@ -93,11 +93,25 @@ const BandwidthTab = () => {
   const cables = useProjectStore((s) => s.project.cables)
   // #346 — Projekt-Netzwerk-Budget: Summe der IP-/Netzwerk-Signal-Bandbreiten
   // über alle Kabel mit gesetztem Netzwerk-Standard.
+  // LAST und KAPAZITAET werden getrennt gezaehlt. Bis 2026-09-04 lieferte
+  // `bandwidthMbpsForStandard` auch fuer Eth-100/1G/10G einen Wert, und diese
+  // Schleife summierte ihn als Last: ein einziges gezeichnetes Cat6a-Kabel
+  // ergab „10 Gbps Gesamt" und die Empfehlung „10 GbE" — bei null
+  // Mediensignalen. Die Empfehlung haing daran, wie viele Netzwerkkabel jemand
+  // gezeichnet hatte, nicht daran, was darueber laeuft.
   const netBudget = useMemo(() => {
     let totalMbps = 0
     let count = 0
+    let linkMbps = 0
+    let linkCount = 0
     const byStd = new Map<string, { mbps: number; count: number }>()
     for (const c of cables) {
+      const kapazitaet = linkCapacityMbpsForStandard(c.standard)
+      if (kapazitaet != null) {
+        linkMbps += kapazitaet
+        linkCount += 1
+        continue
+      }
       const mbps = bandwidthMbpsForStandard(c.standard)
       if (mbps == null) continue
       totalMbps += mbps
@@ -111,7 +125,7 @@ const BandwidthTab = () => {
       .map(([std, v]) => ({ std, ...v }))
       .sort((a, b) => b.mbps - a.mbps)
     const tier = LINK_TIERS.find((l) => totalMbps <= l.mbps)
-    return { totalMbps, count, rows, tier }
+    return { totalMbps, count, rows, tier, linkMbps, linkCount }
   }, [cables])
   const [resolution, setResolution] = useState(RESOLUTION_PRESETS[1])
   const [fps, setFps] = useState(50)
@@ -255,10 +269,26 @@ const BandwidthTab = () => {
               </li>
             ))}
           </ul>
+          {netBudget.linkCount > 0 && (
+            <dl className="mt-2 grid grid-cols-[max-content_1fr] gap-x-3 gap-y-1 border-t border-cp-border-muted pt-2 text-cp-xs">
+              <dt className="text-cp-text-faint">
+                {t('calc.bandwidth.netLinkCapacity', 'Gezeichnete Link-Kapazität')}
+              </dt>
+              <dd className="font-mono text-cp-text-muted">
+                {netBudget.linkMbps >= 1000
+                  ? `${(netBudget.linkMbps / 1000).toFixed(2)} Gbps`
+                  : `${netBudget.linkMbps} Mbps`}{' '}
+                <span className="text-cp-text-faint">
+                  ({netBudget.linkCount}{' '}
+                  {t('calc.bandwidth.netEthCables', 'Ethernet-Kabel')})
+                </span>
+              </dd>
+            </dl>
+          )}
           <p className="mt-2 text-[10px] text-cp-text-muted">
             {t(
               'calc.bandwidth.netNote',
-              'Summe der Brutto-Bandbreiten aller Kabel mit IP-/Netzwerk-Signalstandard (NDI, Dante/AES67, ST 2110, Ethernet). Richtwerte; ST 2110-20 stark formatabhängig.',
+              'Summe der Brutto-Bandbreiten aller Kabel mit IP-Mediensignal (NDI, Dante/AES67, ST 2110). Ethernet-Kabel zählen NICHT als Last — was eine Leitung kann, ist keine Last, die sie trägt; ihre Kapazität steht getrennt darunter. Richtwerte; ST 2110-20 stark formatabhängig.',
             )}
           </p>
         </div>
