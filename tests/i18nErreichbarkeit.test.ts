@@ -2,24 +2,32 @@ import { describe, expect, it } from 'vitest'
 import dictsSrc from '../src/renderer/lib/i18n/dicts.ts?raw'
 import { stripComments } from './support/stripComments'
 
-// Der Sprachschalter ist hier ERREICHBAR: Einstellungen → Darstellung
-// (`AppearanceTab.tsx:180`) setzt `setLanguage`. Was das Woerterbuch nicht
-// hat, bekommt der englische Nutzer deshalb auf Deutsch zu sehen --
-// `translate()` (`lib/i18n.ts:62`) faellt bei fehlendem Schluessel auf den
-// deutschen Inline-Fallback zurueck, in JEDER Sprache.
+// WAS HIER GEFUNDEN WURDE (2026-09-04).
 //
-// GEMESSEN 2026-09-04: 3.490 Schluessel werden von gerenderten Komponenten
-// aufgerufen, 492 davon haben keine englische Fassung. Das englische
-// Woerterbuch hat 3.396 Eintraege -- eine reine Zaehlung sieht daher
-// "praktisch vollstaendig" und ist es nicht. Betroffen sind ganze Bereiche:
-// Export (75), ATEM (68), Bibliothek (37), Doku (36), Kabel (34), Rack (34).
+// Der Sprachschalter ist erreichbar — Einstellungen → Darstellung
+// (`AppearanceTab.tsx:180`). Und `translate()` (`lib/i18n.ts:62`) faellt bei
+// fehlendem Schluessel auf den deutschen Inline-Fallback zurueck, in JEDER
+// Sprache. Gemessen fehlten **492** erreichbare Schluessel im en-Dict.
 //
-// Dieser Test uebersetzt nichts. Er haelt die Zahl fest, damit sie nicht
-// weiter waechst, und benennt uebersetzten Code, der nirgends gerendert wird
-// -- die zweite Haelfte desselben Musters: Arbeit, die in unsichtbaren Code
-// geflossen ist, waehrend die sichtbare Oberflaeche unuebersetzt blieb.
-// (Dieselbe Erhebung hat in `light-planner` ergeben, dass 40 von 42
-// englischen Schluesseln toten Code bedienten.)
+// Die Ursache war keine fehlende Uebersetzung, sondern eine Fehlablage. Am
+// Ende des DEUTSCHEN Woerterbuchs stand ein Block von **451** Eintraegen
+// unter der Marke „i18n coverage completion (auto-merged)" — mit englischen
+// Werten: „(empty)", „Click = show text", „Configure Videohub · Labels +
+// Routing". Damit waren beide Sprachen falsch:
+//
+//   Deutsch    de-Dict trifft zu, liefert Englisch — der deutsche
+//              Inline-Fallback kam nie zum Zug
+//   Englisch   Schluessel fehlt im en-Dict, also greift der Fallback —
+//              also Deutsch
+//
+// Der Umzug hat 434 der 492 erledigt; die restlichen 58 (Drum-Mikrofonierung,
+// Schema-Builder, .avplan-Import, Quellen-Karte) sind nachtraeglich
+// uebersetzt. Beide Zahlen stehen jetzt auf null, und dieser Test haelt sie
+// dort.
+//
+// Die zweite Haelfte desselben Musters ist uebersetzter Code, den niemand
+// rendert — in `light-planner` bedienten 40 von 42 englischen Schluesseln
+// toten Code. Hier sind es zwei Dateien, und sie werden benannt.
 
 const sources = import.meta.glob('../src/renderer/**/*.{ts,tsx}', {
   eager: true,
@@ -45,19 +53,24 @@ const wirdImportiert = (pfad: string): boolean => {
 const aufrufe = (s: string): string[] =>
   [...s.matchAll(/\bt\(\s*'([^']+)'/g)].map((m) => m[1])
 
-/** Die englischen Schluessel: `export const en: Dict = { … }` bis zum `de`. */
-const englisch = (() => {
-  const roh = stripComments(dictsSrc)
-  const von = roh.indexOf('export const en: Dict = {')
-  const bis = roh.indexOf('export const de: Dict = {')
-  expect(von, 'Das en-Woerterbuch wurde nicht gefunden').toBeGreaterThanOrEqual(0)
-  expect(bis, 'Das de-Woerterbuch wurde nicht gefunden').toBeGreaterThan(von)
-  const keys = new Set([...roh.slice(von, bis).matchAll(/^\s*'([^']+)':/gm)].map((m) => m[1]))
-  // Untergrenze: findet der Schneider das Woerterbuch nicht mehr, soll der
-  // Test das sagen und nicht reihenweise Fehltreffer melden.
-  expect(keys.size, 'Zu wenige englische Schluessel — das Muster passt nicht mehr').toBeGreaterThan(1000)
-  return keys
-})()
+/**
+ * Die Schluessel eines Dict-Abschnitts — in BEIDEN Anfuehrungsformen.
+ *
+ * Der auto-merge-Block war doppelt gequotet, der Rest der Datei einfach. Eine
+ * Zaehlung, die nur `'…':` kennt, haette ihn nicht gesehen — und damit genau
+ * den Block uebersehen, um den es hier geht.
+ */
+const keysOf = (teil: string): Set<string> =>
+  new Set([
+    ...[...teil.matchAll(/^\s*'((?:[^'\\]|\\.)+)':/gm)].map((m) => m[1]),
+    ...[...teil.matchAll(/^\s*"((?:[^"\\]|\\.)+)":/gm)].map((m) => m[1]),
+  ])
+
+const roh = stripComments(dictsSrc)
+const vonEn = roh.indexOf('export const en: Dict = {')
+const vonDe = roh.indexOf('export const de: Dict = {')
+const englisch = keysOf(roh.slice(vonEn, vonDe))
+const deutsch = keysOf(roh.slice(vonDe))
 
 const erreichbar = new Set<string>()
 const totUebersetzt: Array<[string, number]> = []
@@ -69,45 +82,53 @@ for (const [pfad, s] of code) {
   else totUebersetzt.push([pfad.replace('../src/renderer/', ''), ks.length])
 }
 
-const ohneEnglisch = [...erreichbar].filter((k) => !englisch.has(k)).sort()
-
-/**
- * Die Decke, unter der die Zahl bleiben muss.
- *
- * Sie ist KEIN Ziel, sondern der heutige Stand. Wer uebersetzt, zieht sie
- * herunter; wer einen neuen Schluessel ohne englische Fassung anlegt, laesst
- * den Test hier auflaufen. Absichtlich eine Obergrenze und keine Gleichheit:
- * eine Uebersetzung soll den Test nicht brechen, nur weil sie hilft.
- */
-const DECKE = 492
-
 describe('i18n — die erreichbare Oberflaeche', () => {
-  it('bekommt nicht mehr unuebersetzte Schluessel als heute', () => {
-    const domaenen = new Map<string, number>()
-    for (const k of ohneEnglisch) {
-      const d = k.split('.')[0]
-      domaenen.set(d, (domaenen.get(d) ?? 0) + 1)
-    }
-    const top = [...domaenen].sort((a, b) => b[1] - a[1]).slice(0, 6)
+  it('findet beide Woerterbuecher', () => {
+    expect(vonEn, 'en-Dict nicht gefunden').toBeGreaterThanOrEqual(0)
+    expect(vonDe, 'de-Dict nicht gefunden').toBeGreaterThan(vonEn)
+    // Untergrenze: findet der Schneider die Woerterbuecher nicht mehr, soll
+    // der Test das sagen statt reihenweise Fehltreffer zu melden.
+    expect(englisch.size, 'Zu wenige englische Schluessel — Muster passt nicht mehr').toBeGreaterThan(3000)
+  })
+
+  it('hat fuer jeden erreichbaren Schluessel eine englische Fassung', () => {
+    const fehlend = [...erreichbar].filter((k) => !englisch.has(k)).sort()
     expect(
-      ohneEnglisch.length,
-      `${ohneEnglisch.length} erreichbare Schluessel ohne englische Fassung ` +
-        `(Decke ${DECKE}). Groesste Bereiche: ${top.map(([d, n]) => `${d} ${n}`).join(', ')}. ` +
-        'Der Sprachschalter ist erreichbar — was hier fehlt, sieht ein englischer ' +
-        'Nutzer auf Deutsch.',
-    ).toBeLessThanOrEqual(DECKE)
+      fehlend,
+      `Ohne englische Fassung, obwohl die Stelle gerendert wird: ${fehlend.slice(0, 12).join(', ')}` +
+        `${fehlend.length > 12 ? ` … (+${fehlend.length - 12})` : ''}. Der Sprachschalter ist ` +
+        'erreichbar — was hier fehlt, sieht ein englischer Nutzer auf Deutsch.',
+    ).toEqual([])
+  })
+
+  it('haelt kein deutsches Dict-Eintrag ohne englisches Gegenstueck', () => {
+    // DIE FORM DES FEHLERS, nicht sein Wortlaut. Deutsch ist Quellsprache und
+    // steht an der Aufrufstelle; ein `de`-Eintrag ist eine Ueberschreibung.
+    // Eine Ueberschreibung, die es NUR auf Deutsch gibt, ist genau das, was
+    // 451 fehlabgelegte englische Zeilen ausmachte — sie standen im de-Dict
+    // und in keinem en-Dict.
+    //
+    // Bewusst nicht am Text geprueft: „ist dieser Wert deutsch?" ist bei
+    // Fachbegriffen (Truss, Gain, Patch) nicht entscheidbar. Die Ablageform
+    // ist es.
+    const ohneEnglisch = [...deutsch].filter((k) => !englisch.has(k)).sort()
+    expect(
+      ohneEnglisch,
+      `Nur im de-Dict, ohne englische Fassung: ${ohneEnglisch.slice(0, 12).join(', ')}. ` +
+        'Entweder gehoert der Eintrag ins en-Dict, oder er ist ueberfluessig — der ' +
+        'deutsche Text steht ohnehin als Fallback an der Aufrufstelle.',
+    ).toEqual([])
   })
 
   it('nennt uebersetzten Code, der nirgends gerendert wird', () => {
-    // Zwei Dateien, beide belegt: `PrintDialog.tsx` (34 Aufrufe) wird nirgends
-    // importiert -- gedruckt wird ueber `ExportDialog`, das `printPdfBlob`
-    // selbst aufruft. `TitleBlock.tsx` (14) ebenso; der Schriftkopf im
-    // PDF-Export entsteht in `exportPdfVector.ts` aus eigenem Code.
+    // Beide belegt: `PrintDialog.tsx` (34 Aufrufe) wird nirgends importiert —
+    // gedruckt wird ueber `ExportDialog`, das `printPdfBlob` selbst aufruft.
+    // `TitleBlock.tsx` (14) ebenso; der Schriftkopf im PDF-Export entsteht in
+    // `exportPdfVector.ts` aus eigenem Code.
     //
     // Ob die beiden verdrahtet oder geloescht gehoeren, ist eine
-    // Eigentuemer-Entscheidung (B-24). Bis dahin sollen sie bei jedem Lauf
-    // sichtbar sein statt in einer Zaehlung zu verschwinden -- und keine
-    // dritte Datei still dazukommen.
+    // Eigentuemer-Entscheidung. Bis dahin sollen sie bei jedem Lauf sichtbar
+    // sein — und keine dritte Datei still dazukommen.
     expect(totUebersetzt.map(([f]) => f).sort()).toEqual([
       'components/Canvas/TitleBlock.tsx',
       'components/Print/PrintDialog.tsx',
