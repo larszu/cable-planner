@@ -19,6 +19,7 @@
 import { ipcMain } from 'electron'
 import { readFile, writeFile, mkdir, access, unlink } from 'node:fs/promises'
 import path from 'node:path'
+import { atomicWriteFile } from '../util/atomicWrite.js'
 
 const LOCK_FILE = '.cable-planner-sync.lock'
 const LOCK_TTL_MS = 2 * 60 * 60 * 1000 // 2 hours
@@ -136,9 +137,22 @@ export function registerSyncIpc() {
 
   // ── sync:write-file ─────────────────────────────────────────────────────────
   ipcMain.handle('sync:write-file', async (_event, filePath: string, data: string): Promise<void> => {
+    // Hier geht das GANZE Projekt raus (`SharedSyncPanel` schickt
+    // `JSON.stringify(project)`), und zwar auf ein Netzlaufwerk. Bis hierher
+    // mit blankem `writeFile` — genau das, was die Invariante in CLAUDE.md
+    // ausschliesst: Userdaten immer atomar ueber `atomicWriteFile`.
+    //
+    // Der Weg mit der unzuverlaessigsten Ablage war der einzige ohne den
+    // Schutz. `project:save` und `library:write` haben ihn seit jeher; diese
+    // Datei importierte `atomicWrite` nicht einmal.
+    //
+    // atomicWriteFile legt das Verzeichnis selbst an (mkdir recursive), das
+    // frühere `ensureDir` hier ist damit ueberfluessig. Seine In-Flight-Sperre
+    // ist auf einem GETEILTEN Laufwerk zusaetzlich willkommen: zwei
+    // gleichzeitige Schreibvorgaenge auf dieselbe Datei sind dort der
+    // Normalfall, nicht die Ausnahme.
     const safe = assertSafeFilePath(filePath)
-    await ensureDir(path.dirname(safe))
-    await writeFile(safe, String(data ?? ''), 'utf-8')
+    await atomicWriteFile(safe, String(data ?? ''))
   })
 
   // ── sync:exists ─────────────────────────────────────────────────────────────
