@@ -161,3 +161,62 @@ describe('was der Test NICHT behauptet', () => {
     ])
   })
 })
+
+describe('der Beleg zeigt auf den Hersteller, nicht auf einen Haendler', () => {
+  // Gemessen 2026-09-04 ueber alle 253 Belege: **einer** zeigt auf einen
+  // Haendler. `audioCatalog.ts` fuehrt die Behringer X32 mit einem bei
+  // Markertek liegenden Spec-PDF, waehrend der Eintrag direkt darunter (Wing)
+  // auf `behringer.com` zeigt. Dasselbe Feld, derselbe Hersteller, dieselbe
+  // Datei — zwei Sorten Quelle.
+  //
+  // Das Feld heisst `manufacturerUrl` und wird in der Eigenschaften-Leiste als
+  // „Hersteller-Link" angeboten. Ein Haendler-Link dort ist kein kleiner
+  // Schoenheitsfehler: Haendler-Seiten verschwinden, wenn ein Produkt aus dem
+  // Sortiment faellt, und sie sagen dem Nutzer etwas anderes zu, als drauf
+  // steht.
+  //
+  // WAS DIESER TEST NICHT KANN. Ob eine URL erreichbar ist, prueft er nicht —
+  // die Hersteller-Domaenen sind aus dieser Umgebung nicht erreichbar
+  // (gemessen: `blackmagicdesign.com`, `ui.com` und sogar `lynx-technik.com`,
+  // dessen URLs hier bereits im Code stehen, laufen alle in den
+  // Egress-Filter). Geprueft wird deshalb, was ohne Netz pruefbar ist: dass
+  // die Domaene keinem bekannten Haendler gehoert.
+  const HAENDLER = [
+    'markertek.com', 'bhphotovideo.com', 'fullcompass.com', 'thomann.de',
+    'sweetwater.com', 'newegg.com', 'amazon.com', 'amazon.de', 'ebay.com',
+    'adorama.com', 'musicstore.de', 'soundpro.com', 'geartechs.com',
+  ]
+
+  /** Die eine bekannte Ausnahme — mit Grund, nicht als stille Duldung. */
+  const AUSNAHME = new Map([
+    [
+      'https://www.markertek.com/Attachments/Specifications/Behringer/X32-Specifications.pdf',
+      'Behringer X32: das Spec-PDF liegt bei Markertek. Ersetzt wird es erst ' +
+        'durch eine GEPRUEFTE behringer.com-Adresse — eine geratene waere ' +
+        'schlimmer als die haendlereigene, die wenigstens nachweislich das ' +
+        'Datenblatt zeigt.',
+    ],
+  ])
+
+  it('nennt jeden Haendler-Link, der nicht als Ausnahme begruendet ist', () => {
+    const treffer = pairs()
+      .map((p) => p.field)
+      .filter((u): u is string => !!u)
+      .filter((u) => HAENDLER.some((h) => new URL(u).host.replace(/^www\./, '').endsWith(h)))
+      .filter((u) => !AUSNAHME.has(u))
+    expect(treffer).toEqual([])
+  })
+
+  it('haelt fest, dass die Ausnahme noch gebraucht wird', () => {
+    // Wird die X32-URL eines Tages ersetzt, faellt dieser Test — und die
+    // Ausnahme oben verschwindet mit ihm, statt als Altlast stehenzubleiben.
+    const alle = new Set(pairs().map((p) => p.field))
+    for (const url of AUSNAHME.keys()) expect(alle.has(url)).toBe(true)
+  })
+
+  it('prueft alle Belege, nicht nur die mit Feld', () => {
+    // Ohne diese Zusicherung waere der Haendler-Test auch dann gruen, wenn
+    // `pairs()` nichts mehr faende.
+    expect(pairs().filter((p) => p.field).length).toBe(253)
+  })
+})
