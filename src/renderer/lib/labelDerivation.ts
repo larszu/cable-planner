@@ -32,7 +32,7 @@ import type { Cable } from '../types/cable'
 import type { EquipmentItem, Port } from '../types/equipment'
 import type { SourceIdentity } from '../types/sourceIdentity'
 import type { CheckFinding } from './drawingChecks'
-import { detectDeviceKind } from './deviceKind'
+import { detectDeviceKind, type DeviceKind } from './deviceKind'
 import {
   resolvePortLabel,
   shortenForAtem,
@@ -93,6 +93,82 @@ export interface SignalSourceLink {
   sourceEquipmentId: string
   /** Anzahl durchlaufener Zwischengeraete (0 = direkt verkabelt). */
   hops: number
+  /**
+   * Was fuer eine Senke das ist. Steht MIT im Link und wird nicht vom
+   * Verbraucher nachgeleitet, weil genau das schiefging: `sources` fuehrt
+   * Router- und Mischer-Eingaenge gleichberechtigt, und zwei Verbraucher
+   * (`tallyMap`, `sourceMap`) griffen sich mit `find()` den ersten Treffer,
+   * ohne die Art zu pruefen. Bei der Standardkette Kamera -> Videohub -> ATEM
+   * ist das immer der ROUTER-Eingang. Wer die Art nur nebenbei ableiten kann,
+   * leitet sie irgendwann nicht ab.
+   */
+  sinkKind: DeviceKind
+}
+
+/**
+ * Der Link, ueber den das Tally dieser Rolle laeuft — also der MISCHER-Eingang,
+ * nicht der erstbeste Eingang irgendeiner Senke.
+ *
+ * WARUM DAS EINE FUNKTION IST UND KEINE ZEILE IN ZWEI DATEIEN. Genau diese
+ * Auswahl stand bis 2026-09-04 zweimal als `sources.find(...)` da — in
+ * `tallyMap.ts` und in `sourceMap.ts` — und beide Kopien pruefen die Senkenart
+ * nicht. Bei der Standardkette Kamera -> Videohub -> ATEM greifen sie deshalb
+ * den ROUTER-Eingang, und beide Ausgabewege tragen dieselbe falsche Zahl.
+ * Nachgemessen: Kamera an Videohub In 7, Videohub Out 3 an ATEM In 1 ergab
+ * `{"id":"r1","name":"Kamera 1","input":7}` — `tally-pi` haelt das Feld gegen
+ * den ATEM-PGM-Eingang und schaltet damit die Lampe von Eingang 7.
+ *
+ * Zwei Regeln, beide notwendig:
+ *
+ * 1. NUR MISCHER-SENKEN. Das Tally kommt vom Mischer; ein Router-Eingang ist
+ *    keine Tally-Adresse. Gibt es keinen Mischer-Link, gibt es KEINE Zahl —
+ *    der Aufrufer meldet das, statt eine zu erfinden. `tallyMap.ts` schreibt
+ *    sich diese Regel selbst vor: "eine erfundene Pin-Nummer waere schlimmer
+ *    als ein fehlendes Feld — sie sieht aus wie eine Zusage und schaltet die
+ *    falsche Lampe."
+ *
+ * 2. DETERMINISTISCH. `find()` nahm den ersten Treffer in `sources`, und
+ *    `sources` folgt der Reihenfolge des `equipment`-Arrays. Nachgemessen:
+ *    derselbe Plan mit umsortiertem Array lieferte einmal Eingang 7 und einmal
+ *    Eingang 3, beide ohne Befund. Eine exportierte Datei darf keine Funktion
+ *    des Bearbeitungsverlaufs sein — `tallyMap.ts` verspricht woertlich, dass
+ *    ein spaeterer Lauf "dieselben Eintraege wieder trifft". Sortiert wird
+ *    deshalb nach Eingangsnummer, dann nach Geraete- und Port-Id.
+ */
+export const switcherLinkFor = (
+  sources: SignalSourceLink[],
+  equipmentIds: Iterable<string>,
+): SignalSourceLink | undefined => {
+  const ids = new Set(equipmentIds)
+  return sources
+    .filter((s) => s.sinkKind === 'atem' && ids.has(s.sourceEquipmentId))
+    .sort(
+      (a, b) =>
+        a.inputIndex - b.inputIndex ||
+        a.sinkEquipmentId.localeCompare(b.sinkEquipmentId) ||
+        a.sinkPortId.localeCompare(b.sinkPortId),
+    )[0]
+}
+
+/**
+ * Ein Link auf eine NICHT-Mischer-Senke fuer dieselben Geraete — die Erklaerung
+ * dafuer, warum `switcherLinkFor` nichts liefert. Ohne diese Unterscheidung
+ * lautet der Befund "erreicht keinen Mischer-Eingang", obwohl das Kabel steckt
+ * und nur der Kreuzpunkt fehlt; der Nutzer sucht dann am falschen Ende.
+ */
+export const routerLinkFor = (
+  sources: SignalSourceLink[],
+  equipmentIds: Iterable<string>,
+): SignalSourceLink | undefined => {
+  const ids = new Set(equipmentIds)
+  return sources
+    .filter((s) => s.sinkKind !== 'atem' && ids.has(s.sourceEquipmentId))
+    .sort(
+      (a, b) =>
+        a.inputIndex - b.inputIndex ||
+        a.sinkEquipmentId.localeCompare(b.sinkEquipmentId) ||
+        a.sinkPortId.localeCompare(b.sinkPortId),
+    )[0]
 }
 
 export type AnchorField = 'umd-address'
@@ -186,11 +262,43 @@ const isReferencePort = (port: Port): boolean =>
  * und nennt das Zwischengeraet. Das sagt weniger, stimmt aber.
  */
 const feedingInput = (device: EquipmentItem, arrival: Port): Port | null => {
-  if (detectDeviceKind(device) !== null) return null
+  const kind = detectDeviceKind(device)
+  if (kind === 'videohub') return routedInput(device, arrival)
+  if (kind !== null) return null
   const candidates = device.inputs.filter(
     (p) => p.connectorType === arrival.connectorType && !isReferencePort(p),
   )
   return candidates.length === 1 ? candidates[0] : null
+}
+
+/**
+ * Der Router-Durchgang — der Grund, warum `videohubRouting` ueberhaupt im
+ * Projekt liegt.
+ *
+ * ADR-001 Inkrement 0 hat den geplanten Kreuzpunkt persistiert (`cable#601`)
+ * und ausdruecklich damit begruendet, dass die Kette Kamera -> Router ->
+ * Mischer-Eingang sonst nicht ableitbar ist. Der Zustand lag dann da und
+ * WURDE VON NIEMANDEM GELESEN: die Ableitung brach weiter an jedem Router ab,
+ * und die Tally-Karte trug still die Router-Nummer. Formal beseitigt,
+ * praktisch unveraendert — bis hierher.
+ *
+ * `planned` ist `routing[outputIndex] = inputIndex`, beide 0-basiert. Wir
+ * kommen von einem AUSGANG des Routers (rueckwaerts betrachtet) und suchen
+ * den Eingang, der darauf geschaltet ist.
+ *
+ * Ohne gesetzten Kreuzpunkt gibt es null — dann haelt die Suche am Router an
+ * wie bisher. Das ist Absicht: geraten wird hier nichts. Ein Router mit 20
+ * Eingaengen hat 20 gleich plausible Antworten, und die falsche schaltet die
+ * falsche Lampe.
+ */
+const routedInput = (device: EquipmentItem, arrival: Port): Port | null => {
+  const planned = device.videohubRouting?.planned
+  if (!planned) return null
+  const outIdx = device.outputs.findIndex((p) => p.id === arrival.id)
+  if (outIdx < 0) return null
+  const inIdx = planned[outIdx]
+  if (typeof inIdx !== 'number' || !Number.isInteger(inIdx) || inIdx < 0) return null
+  return device.inputs[inIdx] ?? null
 }
 
 const MAX_HOPS = 8
@@ -337,6 +445,7 @@ export const deriveLabels = ({
           inputIndex: idx + 1,
           sourceEquipmentId: resolved.equipmentId,
           hops: resolved.hops,
+          sinkKind: kind,
         })
       }
       const { raw, provenance } = portText(port)

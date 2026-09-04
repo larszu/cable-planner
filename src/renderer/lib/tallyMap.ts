@@ -25,7 +25,8 @@
 
 import type { CablePlannerProject } from '../types/project'
 import type { SourceIdentity } from '../types/sourceIdentity'
-import { deriveLabels } from './labelDerivation'
+import { deriveLabels, routerLinkFor, switcherLinkFor } from './labelDerivation'
+import { detectDeviceKind } from './deviceKind'
 import { umdAddressClashes } from './sourceIdentity'
 import { toCsv } from './csv'
 
@@ -58,6 +59,8 @@ export type TallyIssueKind =
   | 'no-umd-address'
   | 'duplicate-address'
   | 'source-without-role'
+  /** Erreicht einen Router, aber der Kreuzpunkt zum Mischer fehlt. */
+  | 'router-not-resolved'
 
 export interface TallyIssue {
   kind: TallyIssueKind
@@ -99,10 +102,13 @@ export const buildTallyMap = (project: TallyProject): TallyMap => {
 
   for (const identity of identities) {
     const devices = project.equipment.filter((e) => e.sourceIdentityId === identity.id)
-    // Der erste Treffer gewinnt: bei einem Haupt-/Backup-Paar haengen beide
-    // Geraete an derselben Rolle, und das Tally folgt dem, was am Mischer
-    // ankommt — nicht dem Blech.
-    const link = sources.find((s) => devices.some((d) => d.id === s.sourceEquipmentId))
+    // Bei einem Haupt-/Backup-Paar haengen beide Geraete an derselben Rolle,
+    // und das Tally folgt dem, was am MISCHER ankommt — nicht dem Blech und
+    // nicht dem Router. `switcherLinkFor` haelt beide Regeln (nur
+    // Mischer-Senken, deterministische Reihenfolge) an einer Stelle; hier
+    // stand bis 2026-09-04 ein `sources.find()`, das keine von beiden hatte.
+    const ids = devices.map((d) => d.id)
+    const link = switcherLinkFor(sources, ids)
     const sink = link ? eqById.get(link.sinkEquipmentId) : undefined
 
     const row: TallyMapRow = {
@@ -125,12 +131,31 @@ export const buildTallyMap = (project: TallyProject): TallyMap => {
         message: `Rolle "${identity.name}" ist an kein Geraet gebunden — es gibt nichts, dessen Tally geschaltet wuerde.`,
       })
     } else if (!row.switcher) {
-      issues.push({
-        kind: 'no-switcher-input',
-        severity: 'warning',
-        subject: identity.id,
-        message: `Rolle "${identity.name}" erreicht keinen Mischer-Eingang — ohne Eingang gibt es kein Tally-Signal.`,
-      })
+      // Ein Kabel zum Router IST ein Unterschied zu gar keinem Kabel. Ohne
+      // diese Unterscheidung meldet die Karte "erreicht keinen Mischer-
+      // Eingang", obwohl der Stecker sitzt und nur der Kreuzpunkt fehlt — der
+      // Nutzer sucht dann am falschen Ende.
+      const ueberRouter = routerLinkFor(sources, ids)
+      const routerName = ueberRouter ? eqById.get(ueberRouter.sinkEquipmentId)?.name : undefined
+      if (ueberRouter && routerName) {
+        issues.push({
+          kind: 'router-not-resolved',
+          severity: 'warning',
+          subject: identity.id,
+          message:
+            `Rolle "${identity.name}" erreicht ${routerName} auf Eingang ` +
+            `${ueberRouter.inputIndex}, aber der Kreuzpunkt zum Mischer ist nicht ` +
+            'geplant — welchen Mischer-Eingang das Tally schaltet, ist damit offen. ' +
+            'Kreuzpunkt im Videohub-Export setzen.',
+        })
+      } else {
+        issues.push({
+          kind: 'no-switcher-input',
+          severity: 'warning',
+          subject: identity.id,
+          message: `Rolle "${identity.name}" erreicht keinen Mischer-Eingang — ohne Eingang gibt es kein Tally-Signal.`,
+        })
+      }
     }
     if (identity.umdAddress === undefined) {
       issues.push({
@@ -165,6 +190,14 @@ export const buildTallyMap = (project: TallyProject): TallyMap => {
     const source = eqById.get(link.sourceEquipmentId)
     const sink = eqById.get(link.sinkEquipmentId)
     if (!source || !sink) continue
+    // Ein Router oder Mischer ist keine Tally-Quelle und bekommt keine Rolle.
+    // Ohne diese Zeile lautete der einzige Befund in Router-Plaenen: "Smart
+    // Videohub 20x20 speist ATEM Mini Extreme auf Eingang 1, traegt aber keine
+    // Rolle" — eine Aufforderung, dem ROUTER eine Rolle und eine UMD-Adresse
+    // zu geben. Das ist keine Nichtaussage, das ist eine falsche Anweisung,
+    // und sie fuehrt vom eigentlichen Mangel weg (dem fehlenden Kreuzpunkt,
+    // den `router-not-resolved` benennt).
+    if (detectDeviceKind(source) !== null) continue
     issues.push({
       kind: 'source-without-role',
       severity: 'warning',

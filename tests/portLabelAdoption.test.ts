@@ -233,11 +233,33 @@ describe('die beiden Stellen ohne Test-Naht', () => {
 
 // ── Der Guard: keine sechste Kopie ──────────────────────────────────────────
 
-const rendererSources = import.meta.glob('../src/renderer/**/*.{ts,tsx}', {
+/**
+ * ALLE Quellen unter `src/`, nicht nur `src/renderer/`.
+ *
+ * Der Glob lautete bis 2026-09-04 `../src/renderer/**` — und genau das machte
+ * den Guard schwaecher als seine eigene Zusage. `src/mobile/` (die LAN-Ansicht
+ * am Telefon) und `src/viewer/` (der Web-Viewer) liegen ausserhalb. Gemessen:
+ * `MobileApp.tsx` rendete an vier Stellen `port.name` roh, das Telefon zeigte
+ * damit "1 SDI 3G PGM (1080p50/60)", wo Canvas, Patchliste, Geraete-PDF und
+ * jeder Export "PGM" zeigten. Es ist die Oberflaeche, die jemand mit einem
+ * Stecker in der Hand ansieht.
+ *
+ * Der Guard konnte es prinzipiell nicht finden — nicht nur wegen des Globs:
+ * er sucht eine NACHGEBAUTE Kette (`contentLabel ... ||`), und `mobile` baute
+ * nichts nach, es ignorierte `contentLabel` schlicht. Ein Guard, der nur
+ * Nachbauten sucht, belegt "keine zweite Kopie der Kette" und nicht "jede
+ * Oberflaeche geht durch die Engstelle". Deshalb steht unten ein ZWEITER,
+ * positiver Guard daneben.
+ */
+const alleQuellen = import.meta.glob('../src/**/*.{ts,tsx}', {
   query: '?raw',
   import: 'default',
   eager: true,
 }) as Record<string, string>
+
+const rendererSources = Object.fromEntries(
+  Object.entries(alleQuellen).filter(([p]) => p.includes('/src/renderer/')),
+) as Record<string, string>
 
 /** Kommentarzeilen weg, bevor gesucht wird — sonst findet der Guard die
  *  Erklaerung, warum er existiert, und meldet sie als Verstoss. Genau das ist
@@ -255,11 +277,53 @@ describe('die Kette steht nur noch an einer Stelle', () => {
   })
 
   it('niemand baut die contentLabel-Kette selbst nach', () => {
-    const offenders = Object.entries(rendererSources)
+    const offenders = Object.entries(alleQuellen)
       .filter(([path]) => !path.endsWith('lib/portLabel.ts'))
       .filter(([, src]) => /contentLabel[^)\n]{0,40}\|\|/.test(withoutComments(src)))
-      .map(([path]) => path.split('/src/renderer/')[1])
+      .map(([path]) => path.split('/src/')[1])
       .sort()
     expect(offenders).toEqual([])
   })
+})
+
+// ── Der zweite Guard: die mitlesenden Oberflaechen gehen durch die Engstelle ─
+
+/**
+ * WARUM DAS KEIN PAUSCHALVERBOT IST. Gemessen am 2026-09-04 stehen unter
+ * `src/` **17** JSX-Stellen, die `port.name` roh rendern (Template-Literale
+ * herausgerechnet — `${port.name}` ist kein JSX-Ausdruck, und wer das nicht
+ * ausschliesst, misst 38 statt 17). Die meisten davon sind richtig so:
+ * `PortList`, `ModeEditorDialog`, `TemplateMergeDialog` und `NetworkConfig`
+ * BEARBEITEN den Port. Wer einen Namen umbenennt, muss den Namen sehen und
+ * nicht den daraufliegenden Inhalts-Text — ein Editor, der den aufgeloesten
+ * Text zeigt, macht das Feld unbedienbar.
+ *
+ * Ein Guard, der alle 17 verbietet, waere also falsch, und ein Guard mit einer
+ * Ausnahmeliste von 10 Dateien waere in vier Wochen veraltet. Geprueft wird
+ * deshalb die andere Richtung: die Oberflaechen, die den Plan fuer einen LESER
+ * spiegeln, benutzen die Engstelle nachweislich. Kommt eine dazu, gehoert sie
+ * hier hinein — das ist eine Zeile, und sie steht an der Stelle, an der man
+ * beim Lesen darueber stolpert.
+ */
+const MITLESENDE_OBERFLAECHEN = ['/src/mobile/MobileApp.tsx']
+
+describe('die mitlesenden Oberflaechen benutzen die Engstelle', () => {
+  for (const marke of MITLESENDE_OBERFLAECHEN) {
+    const eintrag = Object.entries(alleQuellen).find(([p]) => p.endsWith(marke))
+
+    it(`${marke} ist ueberhaupt im Glob`, () => {
+      // Ohne diese Zeile prueft der Guard bei umbenannter Datei still nichts.
+      expect(eintrag).toBeDefined()
+    })
+
+    it(`${marke} ruft portDisplayLabel auf`, () => {
+      expect(eintrag?.[1] ?? '').toContain('portDisplayLabel(')
+    })
+
+    it(`${marke} rendert keinen rohen Port-Namen`, () => {
+      const src = withoutComments(eintrag?.[1] ?? '')
+      const roh = src.match(/(?<!\$)\{\s*(?:\w*[Pp]ort|p)\.name\s*\}/g) ?? []
+      expect(roh).toEqual([])
+    })
+  }
 })

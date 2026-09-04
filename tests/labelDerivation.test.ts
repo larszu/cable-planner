@@ -209,8 +209,11 @@ describe('deriveLabels', () => {
   it('merkt sich die Eingangsnummer — die adressiert der ATEM auf dem Draht', () => {
     const { sources } = deriveLabels(scene())
     expect(sources).toEqual([
-      { sinkEquipmentId: 'atem', sinkPortId: 'in1', inputIndex: 1, sourceEquipmentId: 'cam1', hops: 0 },
-      { sinkEquipmentId: 'atem', sinkPortId: 'in2', inputIndex: 2, sourceEquipmentId: 'cam2', hops: 0 },
+      // `sinkKind` steht MIT im Link, damit die Verbraucher die Senkenart
+      // nicht nachleiten muessen — genau das hatten `tallyMap` und `sourceMap`
+      // unterlassen und darum in Router-Plaenen die Router-Nummer exportiert.
+      { sinkEquipmentId: 'atem', sinkPortId: 'in1', inputIndex: 1, sourceEquipmentId: 'cam1', hops: 0, sinkKind: 'atem' },
+      { sinkEquipmentId: 'atem', sinkPortId: 'in2', inputIndex: 2, sourceEquipmentId: 'cam2', hops: 0, sinkKind: 'atem' },
     ])
   })
 
