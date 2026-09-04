@@ -4114,6 +4114,9 @@ export const en: Dict = {
   // Quellen-Karte
   'sourceMap.export.ambiguousTitle': 'Map written — with one limitation',
   'sourceMap.export.ambiguousIntro': 'These roles have more than one device. The file carries the target label only ONCE per role — it holds the label of the device read last, not of all of them:',
+  'sourceMap.export.routerTitle': 'Map written — without a switcher input',
+  'sourceMap.export.routerIntro': 'These roles reach a router, but the crosspoint to the switcher is not planned. Which switcher input the tally follows is therefore open — the file carries no input number for them. Set the crosspoint in the Videohub export:',
+  'sourceMap.export.routerInput': 'input',
 
   // Aus dem Umbau zweier zusammengesetzter Saetze (siehe VideohubRoutingMatrix)
   'export.focusOutput': 'Focus output {n}',

@@ -32,7 +32,12 @@
 
 import type { CablePlannerProject } from '../types/project'
 import type { SourceIdentity } from '../types/sourceIdentity'
-import { deriveLabels, type UnansweredAnchor } from './labelDerivation'
+import {
+  deriveLabels,
+  routerLinkFor,
+  switcherLinkFor,
+  type UnansweredAnchor,
+} from './labelDerivation'
 import type { LabelTargetId } from './labelTargets'
 import { LABEL_TARGETS, fitToTarget } from './labelTargets'
 import { UMD_ADDRESS_MAX, UMD_ADDRESS_MIN, isValidUmdAddress } from './sourceIdentity'
@@ -156,6 +161,19 @@ export interface SourceMapBuildResult {
    * ist deshalb eine Entscheidung, die nicht hierher gehoert.
    */
   ambiguousLabels: Array<{ name: string; devices: string[] }>
+  /**
+   * Rollen, die einen ROUTER erreichen, aber keinen Mischer-Eingang, weil der
+   * Kreuzpunkt nicht geplant ist.
+   *
+   * Bis 2026-09-04 trug die Datei fuer diese Rollen die Router-Eingangsnummer
+   * im Feld `input` — dasselbe Feld, das der Kommentar oben mit "dass 'Kamera
+   * 1' auf ATEM-Eingang 3 liegt" begruendet. Sie stand ohne Vorbehalt da und
+   * war bei jeder Kette mit einem Router im Weg falsch. Jetzt steht sie nicht
+   * mehr da, und der Export sagt, warum — nach derselben Regel wie
+   * `ambiguousLabels`: was die Datei nicht tragen kann, wird beim Namen
+   * genannt und nicht stillschweigend erfunden.
+   */
+  unresolvedRouters: Array<{ name: string; router: string; input: number }>
 }
 
 export const buildSourceMap = (
@@ -180,6 +198,7 @@ export const buildSourceMap = (
   }
 
   const ambiguousLabels: SourceMapBuildResult['ambiguousLabels'] = []
+  const unresolvedRouters: SourceMapBuildResult['unresolvedRouters'] = []
 
   const entries: SourceMapEntry[] = identities.map((identity) => {
     const devices = project.equipment.filter((e) => e.sourceIdentityId === identity.id)
@@ -191,7 +210,24 @@ export const buildSourceMap = (
     }
     const labels: Partial<Record<LabelTargetId, string>> = {}
     const bindings: SourceMapBinding[] = devices.map((device) => {
-      const link = sources.find((s) => s.sourceEquipmentId === device.id)
+      // Nur MISCHER-Senken, und deterministisch — dieselbe Regel wie in
+      // `tallyMap`, aus derselben Funktion. Hier stand ein `sources.find()`,
+      // das den erstbesten Link nahm; bei Kamera -> Videohub -> ATEM war das
+      // immer der Router. Nebeneffekt derselben Zeile: der Label-Griff unten
+      // baut auf `link.sinkPortId` auf und zeigte damit auf einen
+      // Videohub-Port, sodass `labels` in Router-Plaenen leer blieb.
+      const link = switcherLinkFor(sources, [device.id])
+      if (!link) {
+        const ueberRouter = routerLinkFor(sources, [device.id])
+        const router = ueberRouter ? eqById.get(ueberRouter.sinkEquipmentId) : undefined
+        if (ueberRouter && router) {
+          unresolvedRouters.push({
+            name: identity.name,
+            router: router.name,
+            input: ueberRouter.inputIndex,
+          })
+        }
+      }
       if (link) {
         const long = fitted(`atem-long:${link.sinkPortId}`, 'atem-input-long')
         const short = fitted(`atem-short:${link.sinkPortId}`, 'atem-input-short')
@@ -238,7 +274,7 @@ export const buildSourceMap = (
       reason: u.reason,
     })),
   }
-  return { map, ambiguousLabels }
+  return { map, ambiguousLabels, unresolvedRouters }
 }
 
 // ── Lesen ────────────────────────────────────────────────────────────────────

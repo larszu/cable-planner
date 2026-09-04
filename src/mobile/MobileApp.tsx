@@ -34,6 +34,12 @@ import {
 } from '../renderer/lib/qrPayload'
 import { currentStand, findByStand, DOCUMENT_LABELS } from '../renderer/lib/documentRegistry'
 import { cableLabelId } from '../renderer/lib/docIds'
+// Die Port-Beschriftung kommt aus derselben Engstelle wie ueberall sonst.
+// Bis 2026-09-04 rendete diese Datei `port.name` roh: das Telefon zeigte
+// "1 SDI 3G PGM (1080p50/60)", wo Canvas, Patchliste, Geraete-PDF und jeder
+// Export "PGM" zeigten. Der Guard dagegen globte nur `src/renderer/**` und
+// konnte es nicht sehen.
+import { portDisplayLabel } from '../renderer/lib/portLabel'
 import type { CablePlannerProject } from '../renderer/types/project'
 
 /** Deep-Link beim Laden: `?lookup=cable/C-0001` oder `#cable/C-0001` /
@@ -782,7 +788,7 @@ const PortList = ({
                 </span>
                 <span className="flex-1 min-w-0 break-words">
                   <span className="flex flex-wrap items-baseline gap-x-2">
-                    <span className="font-medium">{p.name}</span>
+                    <span className="font-medium">{portDisplayLabel(p)}</span>
                     <span className="text-[10px] text-cp-text-faint">
                       {p.connectorType}
                     </span>
@@ -807,7 +813,7 @@ const PortList = ({
                       {otherPort && (
                         <>
                           <span className="mx-1 text-cp-accent">·</span>
-                          <span>{otherPort.name}</span>
+                          <span>{portDisplayLabel(otherPort)}</span>
                           {otherPort.connectorType && (
                             <span className="ml-1 text-[10px] text-cp-accent/80">
                               ({otherPort.connectorType})
@@ -1790,7 +1796,7 @@ const AddCableModal = ({
                   <option value="">— wählen —</option>
                   {fromPorts.map((p) => (
                     <option key={p.id} value={p.id}>
-                      {p.name} ({p.connectorType}){occupiedPortIds.has(p.id) ? ' • belegt' : ''}
+                      {portDisplayLabel(p)} ({p.connectorType}){occupiedPortIds.has(p.id) ? ' • belegt' : ''}
                     </option>
                   ))}
                 </select>
@@ -1824,7 +1830,7 @@ const AddCableModal = ({
                   <option value="">— wählen —</option>
                   {toPorts.map((p) => (
                     <option key={p.id} value={p.id}>
-                      {p.name} ({p.connectorType}){occupiedPortIds.has(p.id) ? ' • belegt' : ''}
+                      {portDisplayLabel(p)} ({p.connectorType}){occupiedPortIds.has(p.id) ? ' • belegt' : ''}
                     </option>
                   ))}
                 </select>

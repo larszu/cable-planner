@@ -223,7 +223,7 @@ export const MenuBar = ({
   const sourceMapImportRef = useRef<HTMLInputElement | null>(null)
   const handleExportSourceMap = async () => {
     const project = useProjectStore.getState().project
-    const { map, ambiguousLabels } = buildSourceMap(project, {
+    const { map, ambiguousLabels, unresolvedRouters } = buildSourceMap(project, {
       appVersion: __APP_VERSION__,
       exportedAt: new Date().toISOString(),
     })
@@ -255,6 +255,37 @@ export const MenuBar = ({
           </div>
         ),
       })
+    }
+    // Dieselbe Regel, zweiter Fall: Rollen, die nur bis zum Router reichen.
+    // Bis 2026-09-04 trug die Datei fuer die die ROUTER-Eingangsnummer im Feld
+    // `input` — ohne Vorbehalt und bei jeder Kette mit einem Router im Weg
+    // falsch. Jetzt fehlt die Zahl, und der Export sagt, warum. Ein stiller
+    // Verlust waere hier schlimmer als der frueher stille Fehler: der Nutzer
+    // saehe eine unvollstaendige Datei und keinen Grund.
+    if (unresolvedRouters.length > 0) {
+      await infoDialog(
+        t('sourceMap.export.routerTitle', 'Karte geschrieben — ohne Mischer-Eingang'),
+        {
+          bodyNode: (
+            <div className="flex flex-col gap-2 text-cp-xs text-cp-text-secondary">
+              <span>
+                {t(
+                  'sourceMap.export.routerIntro',
+                  'Diese Rollen erreichen einen Router, aber der Kreuzpunkt zum Mischer ist nicht geplant. Welchen Mischer-Eingang das Tally schaltet, ist damit offen — die Datei trägt für sie keine Eingangsnummer. Kreuzpunkt im Videohub-Export setzen:',
+                )}
+              </span>
+              <ul className="flex list-disc flex-col gap-1 pl-4">
+                {unresolvedRouters.map((r) => (
+                  <li key={`${r.name}-${r.router}-${r.input}`}>
+                    <span className="font-semibold">{r.name}</span>
+                    {` → ${r.router} · ${t('sourceMap.export.routerInput', 'Eingang')} ${r.input}`}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ),
+        },
+      )
     }
   }
   const handleImportSourceMap = async (e: ChangeEvent<HTMLInputElement>) => {
