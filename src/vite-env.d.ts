@@ -5,6 +5,7 @@ declare global {
     cablePlanner?: {
       credentials: {
         getToken: () => Promise<string | null>
+        hasToken: () => Promise<boolean>
         saveToken: (token: string) => Promise<boolean>
         deleteToken: () => Promise<boolean>
         testToken: () => Promise<{ ok: boolean; message: string }>

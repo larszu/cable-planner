@@ -6,6 +6,15 @@ import { createRentmanApiClient } from '../services/rentmanApiClient.js'
 export const registerCredentialsIpc = () => {
   ipcMain.handle('credentials:get-token', () => credentialsService.getToken())
 
+  // Nach dem Vorbild von `netbox:has-token`: wer nur wissen will, OB ein
+  // Token hinterlegt ist, bekommt einen Boolean statt des Klartexts.
+  //
+  // `App.tsx` holte beim Start das echte Token nur, um `Boolean(token)` zu
+  // bilden -- das Geheimnis lag danach fuer die ganze Sitzung im Renderer,
+  // ohne dass es dort jemand brauchte. Der Klartext-Weg bleibt fuer den
+  // Einstellungs-Dialog, der das Token wirklich anzeigt.
+  ipcMain.handle('credentials:has-token', async () => Boolean(await credentialsService.getToken()))
+
   ipcMain.handle('credentials:save-token', async (_event, token: string) => {
     if (!token?.trim()) {
       throw new Error('Token is required.')
