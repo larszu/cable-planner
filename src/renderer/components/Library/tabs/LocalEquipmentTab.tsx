@@ -412,7 +412,7 @@ export const LocalEquipmentTab = ({
                             onRemove={() => removeCustomTemplate(item.name)}
                             onToggleFavorite={() => toggleTemplateFavorite(item.name)}
                             onToggleHidden={() => toggleTemplateHidden(item.name)}
-                            onExport={() => exportTemplateToFile(item)}
+                            onExport={() => void exportTemplateToFile(item)}
                           />
                           {/* Edit button — appears on hover */}
                           <button

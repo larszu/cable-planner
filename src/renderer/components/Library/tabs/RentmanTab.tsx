@@ -509,7 +509,7 @@ export const RentmanTab = () => {
                                                   ...nextPlacementPosition(equipmentCount, equipmentItems),
                                                 })
                                               }}
-                                              onExport={() => exportTemplateToFile(item)}
+                                              onExport={() => void exportTemplateToFile(item)}
                                               onLinkPorts={
                                                 localMatch
                                                   ? () => {

@@ -406,6 +406,15 @@ const pushRecent = (item: string) => {
   saveRecents(next)
 }
 
+// zugangsdaten: eigener speicherweg
+//
+// Das ist "Projekt als Datei speichern" — die eigene Datei des Nutzers, die er
+// gleich wieder oeffnet. Hier zu strippen waere kein Schutz, sondern
+// Datenverlust: beim naechsten Oeffnen fehlten die Zugangsdaten seiner eigenen
+// Anlage. Die Marke steht an der Stelle und nicht in einer Ausnahmeliste in
+// `tests/credentialExits.test.ts` — eine Liste dort waere wieder der
+// Kenntnisstand ihres Autors, und genau das war der Fehler, den die Pruefung
+// abloest.
 const downloadJson = (project: CablePlannerProject, suggestedFileName: string) =>
   downloadBlob(suggestedFileName, JSON.stringify(project, null, 2), 'application/json')
 
