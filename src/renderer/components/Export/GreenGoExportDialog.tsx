@@ -6,6 +6,12 @@ import type { GreenGoConfig, GreenGoGroup, GreenGoUser } from '../../types/green
 import { defaultGreenGoConfig } from '../../types/greengo'
 import { buildGg5File } from '../../lib/exportGreengo'
 import {
+  fromIntercomExchange,
+  parseIntercomExchange,
+  serializeIntercomExchange,
+  toIntercomExchange,
+} from '../../lib/intercomExchange'
+import {
   autoMatchEquipment,
   detectDeviceType,
   isParseError,
@@ -47,6 +53,7 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const xlsxInputRef = useRef<HTMLInputElement>(null)
+  const neutralInputRef = useRef<HTMLInputElement>(null)
   const [importResult, setImportResult] = useState<Gg5ImportResult | null>(null)
   const [importError, setImportError] = useState<string | null>(null)
   const [xlsxImportNotice, setXlsxImportNotice] = useState<string | null>(null)
@@ -270,6 +277,53 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
     updateGreenGoConfig(config)
     // v7.9.116 — Einheitlicher Stempel, gg5-Endung beibehalten.
     downloadFile(buildExportFilenameWithSuffix(config.systemName || 'GreenGo', 'config', 'gg5'), buildGg5File(config))
+  }
+
+  // ── Herstellerneutraler Austausch (B-8) ───────────────────────────────────
+  //
+  // Der .gg5-Export bleibt der Weg IN die Anlage. Dieser hier ist der Weg aus
+  // dem Haus: eine Datei, die auch jemand lesen kann, der Riedel oder
+  // Clear-Com aufbaut. Beide Knoepfe stehen bewusst nebeneinander -- ein
+  // Format, das nur im Code existiert, ist kein Austauschformat.
+  const handleNeutralExport = () => {
+    if (exportBlocked) return
+    updateGreenGoConfig(config)
+    const file = toIntercomExchange(config, { exportedAt: new Date().toISOString() })
+    downloadFile(
+      buildExportFilenameWithSuffix(config.systemName || 'Intercom', 'neutral', 'json'),
+      serializeIntercomExchange(file),
+    )
+  }
+
+  const handleNeutralSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      const gelesen = parseIntercomExchange((ev.target?.result as string) ?? '')
+      if (!gelesen) {
+        setImportError(
+          t(
+            'intercom.import.invalid',
+            'Keine gültige neutrale Intercom-Datei (avplan-intercom) — oder sie stammt aus einer neueren Version.',
+          ),
+        )
+        return
+      }
+      setImportError(null)
+      // Bewusst ohne Geraete-Zuordnung: die neutrale Datei kennt
+      // `equipmentId` nur, wenn sie aus DIESEM Plan stammt. Was sie mitbringt,
+      // uebernimmt `fromIntercomExchange`; was sie nicht hat, wird nicht
+      // geraten.
+      setConfig(fromIntercomExchange(gelesen))
+      setXlsxImportNotice(
+        t('intercom.import.done', '{n} Sprechstellen und {g} Konferenzen übernommen.')
+          .replace('{n}', String(gelesen.stations.length))
+          .replace('{g}', String(gelesen.channels.length)),
+      )
+    }
+    reader.readAsText(file)
   }
 
   // ── GreenGo device filter (equipment with 'greengo' or 'intercom' in category/name) ──
@@ -727,6 +781,35 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
             >
               <Icon icon={FileSpreadsheet} size="xs" className="mr-1 inline-block align-text-bottom" />
               {t('greengo.import.xlsx', 'Excel-Matrix importieren')}
+            </button>
+            <input
+              ref={neutralInputRef}
+              type="file"
+              accept=".json,application/json"
+              className="hidden"
+              onChange={handleNeutralSelected}
+            />
+            <button
+              type="button"
+              onClick={() => neutralInputRef.current?.click()}
+              className="rounded border border-cp-surface-5 px-3 py-1.5 text-cp-xs text-cp-text-muted hover:border-violet-700 hover:text-violet-300"
+              title={t('intercom.import.title', 'Herstellerneutrale Intercom-Datei (avplan-intercom) importieren.')}
+            >
+              <Icon icon={Upload} size="xs" className="mr-1 inline-block align-text-bottom" />
+              {t('intercom.import.button', 'Neutral importieren')}
+            </button>
+            <button
+              type="button"
+              onClick={handleNeutralExport}
+              disabled={exportBlocked}
+              title={
+                exportBlocked
+                  ? t('greengo.export.blocked', 'Ohne mindestens eine Station oder Gruppe entsteht keine gültige .gg5 — lege zuerst eine an.')
+                  : t('intercom.export.title', 'Herstellerneutrale Intercom-Datei — Sprechstellen, Konferenzen und wer spricht/hört, lesbar auch außerhalb von GreenGo.')
+              }
+              className="rounded border border-cp-surface-5 px-3 py-1.5 text-cp-xs text-cp-text-muted hover:border-violet-700 hover:text-violet-300 disabled:cursor-not-allowed disabled:text-cp-text-muted"
+            >
+              {t('intercom.export.button', 'Neutral exportieren')}
             </button>
             <button
               type="button"
