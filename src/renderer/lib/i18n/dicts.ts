@@ -1470,6 +1470,17 @@ export const en: Dict = {
   'greengo.export.xlsxTitle':
     'Download current GreenGo configuration as an intercom-matrix Excel (for print / hand-off).',
   'greengo.export.xlsx': 'Export Excel matrix',
+  // B-8 — herstellerneutrales Austauschformat. Nur im englischen Dict; die
+  // deutsche Quellsprache steht als Fallback am Aufruf.
+  'intercom.export.button': 'Export neutral',
+  'intercom.export.title':
+    'Vendor-neutral intercom file — stations, conferences and who talks/listens, readable outside GreenGo too.',
+  'intercom.import.button': 'Import neutral',
+  'intercom.import.title': 'Import a vendor-neutral intercom file (avplan-intercom).',
+  'intercom.import.invalid':
+    'Not a valid vendor-neutral intercom file (avplan-intercom) — or it comes from a newer version.',
+  // Die Platzhalter {n} und {g} werden im Code ersetzt und muessen bleiben.
+  'intercom.import.done': '{n} stations and {g} conferences imported.',
   'greengo.saveProject': 'Save in project',
   'greengo.export.gg5': 'Export as .gg5',
   'greengo.importOverlay.title': 'Import .gg5 — link devices',
