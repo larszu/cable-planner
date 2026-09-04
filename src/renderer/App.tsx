@@ -94,7 +94,7 @@ import { exportProjectToDxf } from './lib/exportDxf'
 import { downloadBlob } from './lib/downloadBlob'
 import { buildExportFilename } from './lib/exportFilename'
 import { connectorToCableType } from './lib/cableInheritance'
-import { routeCable } from './lib/canvasViewport'
+import { routeCable, triggerCanvasSelectAll } from './lib/canvasViewport'
 import { useProjectStore } from './store/projectStore'
 import {
   scanLibraryFolder,
@@ -658,6 +658,13 @@ export default function App() {
       newProject: () => void handleNewProject(),
       openProject: () => void openProject(),
       deleteSelected: () => useProjectStore.getState().deleteSelected(),
+      // Die Aktion gab es laengst -- Menue (MenuBar) und Befehlspalette rufen
+      // sie auf, und das Menue zeigt sogar "Strg+A" als Kuerzel an. Nur die
+      // Bindung fehlte, also war die Anzeige eine Zusage ohne Deckung.
+      selectAll: () => triggerCanvasSelectAll(),
+      // Dito: `openPatchList` existiert, 'P' stand in den Defaults und im
+      // Einstellungen-Tab -- ohne Handler lief die Taste ins Leere.
+      jumpToPatches: () => useUiStore.getState().openPatchList(),
       clearSelection: () =>
         useProjectStore.getState().setSelection(undefined, undefined, undefined),
       toggleLibrary: () => useUiStore.getState().toggleLibraryCollapsed(),
