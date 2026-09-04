@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, lazy, Suspense } from 'react'
 import { Settings, Ruler, Globe, Sparkles, ExternalLink } from 'lucide-react'
 import { v4 as uuidv4 } from 'uuid'
 import { Icon } from '../shared/Icon'
@@ -27,7 +27,7 @@ import {
   searchNetBoxDeviceTypes,
   type NetBoxDeviceTypeSearchResult,
 } from '../../lib/netboxImport'
-import { RackBuilderDialog } from '../Rack/RackBuilderDialog'
+const RackBuilderDialog = lazy(() => import('../Rack/RackBuilderDialog').then((m) => ({ default: m.RackBuilderDialog })))
 import { TemplateMergeDialog } from './TemplateMergeDialog'
 import { FloatingPanelShell } from '../Layout/FloatingPanelShell'
 import { triggerCanvasFitView } from '../../lib/canvasViewport'
@@ -1250,45 +1250,53 @@ export const LibraryPanel = () => {
         </div>
       )}
 
-      <RackBuilderDialog
-        open={showRackBuilderDialog}
-        templates={rackBuilderTemplates}
-        initialPreset={
-          editingRackPresetId
-            ? groupPresets.find((p) => p.id === editingRackPresetId) ?? null
-            : // v7.9.0 / Issue #120 — wenn der RackBuilder via Toolbar-Seed
-              // geöffnet wurde, übergeben wir die synthetisierte Preset
-              // als initialPreset. Beim Speichern wird id durch addGroupPreset
-              // ggf. überschrieben (Upsert).
-              seedPreset
-        }
-        onClose={() => {
-          setShowRackBuilderDialog(false)
-          setEditingRackPresetId(null)
-          setSeedPreset(null)
-          setEditingCanvasRackEquipmentId(null)
-        }}
-        onSave={(preset) => {
-          // v7.9.105 / Issue #224 — Wenn der Dialog aus dem Canvas-
-          // Toolbar-'Rack bearbeiten'-Button geoeffnet wurde, schreiben
-          // wir die Aenderungen ins Canvas-Equipment zurueck (Ports +
-          // Snapshot), nicht in die Library-Preset.
-          if (editingCanvasRackEquipmentId) {
-            replaceCanvasRackWithPreset(editingCanvasRackEquipmentId, preset)
-          } else {
-            // addGroupPreset upserts by id, so edit-mode reuses the same
-            // id and simply overwrites the existing entry. For seed-mode
-            // the synthetic __seed- id is replaced by a fresh uuid in
-            // saveRack already.
-            addGroupPreset(preset)
-          }
-          setShowRackBuilderDialog(false)
-          setEditingRackPresetId(null)
-          setSeedPreset(null)
-          setEditingCanvasRackEquipmentId(null)
-          setTab('racks')
-        }}
-      />
+      {/* Der Rack-Builder zieht Three.js (~1,25 MB) nach. Er wird deshalb erst
+          gemountet und nachgeladen, wenn ihn jemand oeffnet -- das haelt den
+          Haupt-Chunk um genau diesen Betrag kleiner. `open` bleibt am Dialog,
+          damit sein Vertrag unveraendert ist. */}
+      {showRackBuilderDialog && (
+        <Suspense fallback={null}>
+          <RackBuilderDialog
+            open={showRackBuilderDialog}
+            templates={rackBuilderTemplates}
+            initialPreset={
+              editingRackPresetId
+                ? groupPresets.find((p) => p.id === editingRackPresetId) ?? null
+                : // v7.9.0 / Issue #120 — wenn der RackBuilder via Toolbar-Seed
+                  // geöffnet wurde, übergeben wir die synthetisierte Preset
+                  // als initialPreset. Beim Speichern wird id durch addGroupPreset
+                  // ggf. überschrieben (Upsert).
+                  seedPreset
+            }
+            onClose={() => {
+              setShowRackBuilderDialog(false)
+              setEditingRackPresetId(null)
+              setSeedPreset(null)
+              setEditingCanvasRackEquipmentId(null)
+            }}
+            onSave={(preset) => {
+              // v7.9.105 / Issue #224 — Wenn der Dialog aus dem Canvas-
+              // Toolbar-'Rack bearbeiten'-Button geoeffnet wurde, schreiben
+              // wir die Aenderungen ins Canvas-Equipment zurueck (Ports +
+              // Snapshot), nicht in die Library-Preset.
+              if (editingCanvasRackEquipmentId) {
+                replaceCanvasRackWithPreset(editingCanvasRackEquipmentId, preset)
+              } else {
+                // addGroupPreset upserts by id, so edit-mode reuses the same
+                // id and simply overwrites the existing entry. For seed-mode
+                // the synthetic __seed- id is replaced by a fresh uuid in
+                // saveRack already.
+                addGroupPreset(preset)
+              }
+              setShowRackBuilderDialog(false)
+              setEditingRackPresetId(null)
+              setSeedPreset(null)
+              setEditingCanvasRackEquipmentId(null)
+              setTab('racks')
+            }}
+          />
+        </Suspense>
+      )}
 
       {netBoxConflict && (
         <div className="fixed inset-0 z-[75] flex items-center justify-center bg-black/70 p-6">

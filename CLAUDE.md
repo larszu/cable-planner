@@ -90,8 +90,19 @@ Pfad-Validierung passiert **immer in main**, nie im Renderer.
 
 **Canvas & 3D:**
 - ReactFlow 11 mit Custom-Nodes/Edges in `src/renderer/components/Canvas/`.
-- Three.js (`@react-three/fiber`) **nur in `components/Rack/`** — Imports
-  außerhalb ziehen ~600 KB in den Hauptbundle.
+- Three.js (`@react-three/fiber`) **nur in `components/Rack/`** — plus
+  `lib/exportRack.ts`, das nur von dort aus erreicht wird.
+- **Was den Bundle wirklich klein hält, ist die Lazy-Grenze, nicht der
+  Import-Ort** (gemessen 2026-09-04). Solange irgendein statisch importiertes
+  Modul in `Rack/` hineinreicht, liegt Three im Haupt-Chunk — egal wie
+  diszipliniert die Imports sind. Genau das war der Fall: `LibraryPanel`
+  importierte `RackBuilderDialog` statisch.
+  Die beiden Eintritte sind deshalb `lazy` + `Suspense` und werden nur
+  gemountet, wenn sie offen sind: `RackBuilderDialog` (in `LibraryPanel`) und
+  `RackEditorDialog` (in `App.tsx`). **Gemessen: Haupt-Chunk 4.193 → 2.938 kB
+  (gzip 1.165 → 822 kB).** Wer einen dritten Eintritt nach `Rack/` anlegt,
+  macht ihn genauso lazy — sonst ist der ganze Gewinn wieder weg, und zwar
+  unbemerkt. `tests/threeBundleGrenze.test.ts` hält das fest.
 
 **Domänen-Typen:** `src/renderer/types/` (`CablePlannerProject`, `EquipmentItem`,
 `Cable`, `LocationFrame`, …). Berechnungen/Helper in `src/renderer/lib/`.

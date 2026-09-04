@@ -1,6 +1,6 @@
 import { hasDrops } from './types/loadReport'
 import { hasMobileDrops } from './types/mobileReport'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, lazy, Suspense } from 'react'
 import { useIsNarrow } from './hooks/useBreakpoint'
 import { CanvasArea } from './components/Canvas/CanvasArea'
 import { CableDialog } from './components/Cable/CableDialog'
@@ -26,7 +26,7 @@ import { AtemAudioRouterDialog } from './components/Atem/AtemAudioRouterDialog'
 import { DrumMicingDialog } from './components/DrumMicing/DrumMicingDialog'
 import { WirelessRigDialog } from './components/Wireless/WirelessRigDialog'
 import { LocationBomDialog } from './components/Project/LocationBomDialog'
-import { RackEditorDialog } from './components/Rack/RackEditorDialog'
+
 import { CableContextMenu } from './components/Canvas/CableContextMenu'
 import { LayerVisibilityChips } from './components/Canvas/LayerVisibilityChips'
 import { ExportDialog } from './components/Export/ExportDialog'
@@ -35,6 +35,24 @@ import { AnnotationsPanel } from './components/Annotations/AnnotationsPanel'
 // v7.9.3 — Hook-Wrapper damit das Annotations-Panel auf
 // uiStore.annotationsPanelOpen reagiert. Direkt im JSX würde
 // useUiStore.getState() nur beim ersten Render gelesen.
+/**
+ * Three.js kostet ~26 MB im node_modules und landet gebuendelt im Haupt-Chunk.
+ * `CLAUDE.md` verspricht dagegen: "Three.js nur in `components/Rack/` --
+ * Imports ausserhalb ziehen ~600 KB in den Hauptbundle."
+ *
+ * Das Versprechen hielt nicht, und zwar unabhaengig von der Import-Regel: der
+ * Rack-Dialog wurde hier STATISCH importiert und unbedingt gerendert (er gibt
+ * intern `null` zurueck, solange er zu ist). Damit lag Three im Haupt-Chunk,
+ * auch wenn kein einziger Import ausserhalb von `Rack/` stand.
+ *
+ * Jetzt wird er nur gemountet, wenn er offen ist, und per `lazy` nachgeladen.
+ * Der Fallback ist `null`: der Dialog erscheint einen Wimpernschlag spaeter,
+ * und zwar erst, wenn ihn jemand oeffnet.
+ */
+const RackEditorDialog = lazy(() =>
+  import('./components/Rack/RackEditorDialog').then((m) => ({ default: m.RackEditorDialog })),
+)
+
 const AnnotationsPanelHost = () => {
   const open = useUiStore((s) => s.annotationsPanelOpen)
   const setOpen = useUiStore((s) => s.setAnnotationsPanelOpen)
@@ -177,6 +195,9 @@ export default function App() {
     refreshRecent,
   } = useProject()
   const settingsOpen = useUiStore((s) => s.settingsOpen)
+  // Nur der Offen-Zustand: der Rack-Dialog (und mit ihm Three.js) wird erst
+  // gemountet und nachgeladen, wenn ihn jemand oeffnet.
+  const rackEditorOpen = useUiStore((s) => s.rackEditor.open)
   const settingsSection = useUiStore((s) => s.settingsSection)
   const setSettingsOpen = (open: boolean) =>
     open ? useUiStore.getState().openSettings() : useUiStore.getState().closeSettings()
@@ -1165,7 +1186,11 @@ export default function App() {
       <DrumMicingDialog />
       <WirelessRigDialog />
       <LocationBomDialog />
-      <RackEditorDialog />
+      {rackEditorOpen && (
+        <Suspense fallback={null}>
+          <RackEditorDialog />
+        </Suspense>
+      )}
       <MobileShareDialog />
       <AboutDialog />
       <PatchListDialog />
