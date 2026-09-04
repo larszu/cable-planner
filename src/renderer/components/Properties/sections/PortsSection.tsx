@@ -1,6 +1,7 @@
 import { useCanvasProjectStore as useProjectStore } from '../../../store/projectStoreContext'
 import { ProvenanceBadge } from '../../shared/ProvenanceBadge'
 import { detectDeviceKind } from '../../../lib/deviceKind'
+import { portProvenanceUpdate } from '../../../lib/portProvenance'
 import { useTranslation } from '../../../lib/i18n'
 import { SortableSection } from '../SortableSection'
 import { PortList } from '../PortList'
@@ -31,19 +32,20 @@ export const PortsSection = ({ equipment }: { equipment: EquipmentItem }) => {
     // zu lassen hiesse, die Warnung „Ports geraten" gegen jemanden zu
     // erheben, der sie gerade geprueft hat — und der Beleg wuerde einen Wert
     // behaupten, den er nicht mehr stuetzt.
-    const stale = equipment.specSource?.inputs || equipment.specSource?.outputs
-    const clearedSource = stale
-      ? (() => {
-          const rest = { ...(equipment.specSource ?? {}) }
-          delete rest.inputs
-          delete rest.outputs
-          return Object.keys(rest).length > 0 ? rest : undefined
-        })()
-      : undefined
+    //
+    // ZWEI EINSCHRAENKUNGEN, beide 2026-09-04 nachgemessen: der Beleg faellt
+    // nur JE SEITE und nur bei einer ECHTEN Aenderung. Die Regel und ihre
+    // Begruendung stehen in `lib/portProvenance.ts` — dort, wo ein Test sie
+    // fahren kann. Vorher lag sie hier im Rumpf einer React-Komponente, und
+    // der Guard konnte nur pruefen, dass die Zeichenkette `delete rest.inputs`
+    // im Quelltext steht.
+    const herkunft = portProvenanceUpdate(equipment, patch)
     updateEquipment(equipment.id, {
       ...patch,
       ...(clearMarker ? { portsUnknown: undefined } : {}),
-      ...(stale ? { specSource: clearedSource } : {}),
+      ...(herkunft.inputsWeg || herkunft.outputsWeg
+        ? { specSource: herkunft.specSource }
+        : {}),
     })
   }
 

@@ -28,7 +28,7 @@
 // ───────────────────────────────────────────────────────────────────────────
 
 import type { EquipmentItem } from '../types/equipment'
-import type { InventoryItem } from '../types/inventory'
+import type { InventoryItem, InventoryUnit } from '../types/inventory'
 import { resolveDeviceType } from './deviceTypeRegistry'
 import { isWithinDistance } from './levenshtein'
 
@@ -48,6 +48,9 @@ export interface DemandLine {
   /** true, wenn `label` nur der Instanzname ist — dann ist er als
    *  Modellbezeichnung wenig wert, und die UI soll das zeigen koennen. */
   labelIsDeviceName: boolean
+  /** Namen der Racks, aus deren Innenleben diese Zeile (auch) stammt.
+   *  Leer/fehlend bei Geraeten, die selbst auf dem Canvas liegen. */
+  fromRacks?: string[]
 }
 
 export interface CoverageLine {
@@ -88,11 +91,35 @@ export interface CoverageLine {
 /** Eine einzelne Lager-Position, die zu einer Bedarfszeile beitraegt. */
 export interface CoverageSource {
   itemId: string
-  model: string
+  /** Nutzbarer Bestand: Menge abzueglich bekannt unbrauchbarer Einheiten. */
   available: number
+  model: string
   /** Lagerort-Id der Position — der Aufrufer loest den Pfad auf. */
   locationId?: string
+  /** Wie viele serialisierte Einheiten dieser Position nicht einsatzbereit
+   *  sind (defekt, in Reparatur, ausgemustert). 0 wird weggelassen. */
+  unusable?: number
 }
+
+/**
+ * Zustaende, die eine serialisierte Einheit aus dem nutzbaren Bestand nehmen.
+ *
+ * WARUM DAS HIER STEHT (gemessen 2026-09-04, Gegenrunde). `resolveCoverage`
+ * nahm `units` gar nicht entgegen. Vier Geraete im Bestand, zwei davon in
+ * Reparatur — die Stueckliste sagte „gedeckt, Bestand 4", und die
+ * Kommissionier-Liste schickte jemanden nach vier.
+ *
+ * Dass der Zustand Lager-Information ist, weiss der Code an anderer Stelle
+ * sehr wohl: `packList.ts` traegt `condition` in die Packliste,
+ * `inventoryReport.ts` zaehlt nach Zustand. Nur die Liste, die INS LAGER
+ * GEHT, tat es nicht.
+ *
+ * `ok` ist der einzige einsatzbereite Zustand — die uebrigen drei sind es
+ * ausdruecklich nicht (`types/inventory.ts`). Die Liste steht als Menge da
+ * und nicht als Negativ-Pruefung, damit ein spaeter ergaenzter Zustand hier
+ * auffaellt statt still als brauchbar durchzulaufen.
+ */
+const UNBRAUCHBAR: ReadonlySet<string> = new Set(['defect', 'inRepair', 'retired'])
 
 export interface CoverageResult {
   lines: CoverageLine[]
@@ -124,26 +151,87 @@ const MAX_EDIT_DISTANCE = 2
  */
 export const deriveDemand = (equipment: EquipmentItem[]): DemandLine[] => {
   const byKey = new Map<string, DemandLine>()
+
+  const zaehle = (
+    key: string,
+    zeile: Omit<DemandLine, 'key' | 'quantity'>,
+    ausRack?: string,
+  ) => {
+    const existing = byKey.get(key)
+    if (existing) {
+      existing.quantity += 1
+      existing.equipmentIds.push(...zeile.equipmentIds)
+      if (ausRack && !existing.fromRacks?.includes(ausRack)) {
+        existing.fromRacks = [...(existing.fromRacks ?? []), ausRack]
+      }
+      return
+    }
+    byKey.set(key, {
+      key,
+      quantity: 1,
+      ...zeile,
+      ...(ausRack ? { fromRacks: [ausRack] } : {}),
+    })
+  }
+
+  // Erste Phase: die Geraete, die selbst auf dem Canvas liegen.
   for (const eq of equipment) {
     const type = resolveDeviceType(eq.deviceTypeId)
     const label = type?.template.name?.trim() || eq.name.trim()
     if (!label) continue
-    const key = eq.deviceTypeId ?? `name:${normaliseName(label)}|${normaliseName(eq.category ?? '')}`
-    const existing = byKey.get(key)
-    if (existing) {
-      existing.quantity += 1
-      existing.equipmentIds.push(eq.id)
-      continue
-    }
-    byKey.set(key, {
-      key,
+    const key =
+      eq.deviceTypeId ?? `name:${normaliseName(label)}|${normaliseName(eq.category ?? '')}`
+    zaehle(key, {
       ...(eq.deviceTypeId ? { deviceTypeId: eq.deviceTypeId } : {}),
       label,
       ...(eq.category ? { category: eq.category } : {}),
-      quantity: 1,
       equipmentIds: [eq.id],
       labelIsDeviceName: !type,
     })
+  }
+
+  // ZWEITE PHASE — DAS INNENLEBEN EINES BLACK-BOX-RACKS.
+  //
+  // Gemessen 2026-09-04 (Gegenrunde): `groupPresetSpawnSlice` legt fuer ein
+  // eingefuegtes Rack GENAU EIN EquipmentItem an; die enthaltenen Geraete
+  // leben nur im `rackInternalSnapshot`. `deriveDemand` las ausschliesslich
+  // `equipment` — ein Rack mit zwoelf Geraeten erschien damit als „1x FOH Rack
+  // (Rack) — nicht im Lager", ohne jeden Hinweis, dass zwoelf Positionen
+  // darunter verschwinden. Stiller Unterlauf des Bedarfs, in genau der Liste,
+  // mit der jemand ins Lager geht.
+  //
+  // WARUM ZWEITE PHASE UND NICHT IN DERSELBEN SCHLEIFE. Der Schluessel einer
+  // Namenszeile enthaelt die Kategorie; ein Snapshot-Eintrag hat keine. In
+  // einem Durchgang haetten „Yamaha CL5" auf dem Canvas und „Yamaha CL5" im
+  // Rack zwei Zeilen a 1 ergeben statt einer mit 2 — und welche zuerst
+  // entsteht, haengt an der Array-Reihenfolge. Erst alle echten Geraete, dann
+  // die Rack-Inhalte gegen die vorhandenen Zeilen: das Ergebnis haengt am
+  // Plan, nicht am Bearbeitungsverlauf.
+  //
+  // Die Snapshot-Eintraege tragen NUR einen Namen (plus Hoehe und optional
+  // eine Rentman-Id) — keine Katalog-Guid. Sie koennen deshalb nur ueber den
+  // Namen zugeordnet werden und landen im Vorschlags-Pfad, nicht in der
+  // Tatsachen-Spalte. Mehr weiss der Snapshot nicht.
+  const nachLabel = new Map<string, string>()
+  for (const [k, v] of byKey) nachLabel.set(normaliseName(v.label), k)
+
+  for (const eq of equipment) {
+    for (const inhalt of eq.rackInternalSnapshot?.items ?? []) {
+      const name = inhalt.name?.trim()
+      if (!name) continue
+      const vorhanden = nachLabel.get(normaliseName(name))
+      const key = vorhanden ?? `name:${normaliseName(name)}|`
+      if (!vorhanden) nachLabel.set(normaliseName(name), key)
+      zaehle(
+        key,
+        {
+          label: name,
+          equipmentIds: [eq.id],
+          labelIsDeviceName: true,
+        },
+        eq.name.trim() || eq.id,
+      )
+    }
   }
   return [...byKey.values()].sort((a, b) => a.label.localeCompare(b.label, 'de'))
 }
@@ -164,8 +252,16 @@ export const deriveDemand = (equipment: EquipmentItem[]): DemandLine[] => {
 export const resolveCoverage = (
   equipment: EquipmentItem[],
   items: InventoryItem[],
+  units: InventoryUnit[] = [],
 ): CoverageResult => {
   const demands = deriveDemand(equipment)
+
+  // Je Artikel: wie viele serialisierte Einheiten sind nicht einsatzbereit.
+  const unbrauchbarProItem = new Map<string, number>()
+  for (const u of units) {
+    if (!UNBRAUCHBAR.has(u.condition)) continue
+    unbrauchbarProItem.set(u.itemId, (unbrauchbarProItem.get(u.itemId) ?? 0) + 1)
+  }
 
   // Deterministische Reihenfolge, bevor gruppiert wird: die erzeugte Liste
   // soll nicht davon abhaengen, in welcher Reihenfolge jemand die Positionen
@@ -174,12 +270,19 @@ export const resolveCoverage = (
     .slice()
     .sort((a, b) => a.model.localeCompare(b.model, 'de') || a.id.localeCompare(b.id))
 
-  const quelle = (item: InventoryItem): CoverageSource => ({
-    itemId: item.id,
-    model: item.model,
-    available: item.quantity,
-    ...(item.locationId ? { locationId: item.locationId } : {}),
-  })
+  const quelle = (item: InventoryItem): CoverageSource => {
+    // Nicht unter null: mehr unbrauchbare Einheiten als Bestand waere ein
+    // widerspruechlicher Datenstand, und eine negative Menge in einer
+    // Kommissionier-Liste ist schlimmer als eine zu kleine.
+    const unusable = Math.min(item.quantity, unbrauchbarProItem.get(item.id) ?? 0)
+    return {
+      itemId: item.id,
+      model: item.model,
+      available: item.quantity - unusable,
+      ...(item.locationId ? { locationId: item.locationId } : {}),
+      ...(unusable > 0 ? { unusable } : {}),
+    }
+  }
   const summe = (q: CoverageSource[]): number => q.reduce((n, x) => n + x.available, 0)
 
   // ALLE Positionen je Typ, nicht die erste. Siehe CoverageLine.sources.
