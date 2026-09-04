@@ -15,7 +15,7 @@ import { describe, expect, it } from 'vitest'
 import { buildPlanBom, pickListCsv } from '../src/renderer/lib/planBom'
 import { resolveCoverage } from '../src/renderer/lib/inventoryCoverage'
 import type { EquipmentItem } from '../src/renderer/types/equipment'
-import type { InventoryItem, StorageNode } from '../src/renderer/types/inventory'
+import type { InventoryItem, InventoryUnit, StorageNode } from '../src/renderer/types/inventory'
 
 const TYP = 'eb02ca7e-856c-40ab-9a73-d1e98110f003'
 const MODELL = 'Sony PMW-F55'
@@ -137,6 +137,10 @@ describe('die Kommissionier-Liste teilt auf die Lagerorte auf', () => {
 // die INS LAGER GEHT, tat es nicht.
 // ───────────────────────────────────────────────────────────────────────────
 
+// Der Typ steht oben als normaler Import, nicht als `import(...)` im
+// Ausdruck: der Drift-Guard der Suite erkennt eine ausgetauschte
+// IMPORT-ANWEISUNG als bewusste Ueberlagerung, einen Inline-Typ-Import aber
+// nicht — die Datei zaehlte dadurch als echte Divergenz statt als Overlay.
 const unit = (id: string, itemId: string, condition: string) =>
   ({
     id,
@@ -145,7 +149,7 @@ const unit = (id: string, itemId: string, condition: string) =>
     history: [],
     createdAt: 't',
     updatedAt: 't',
-  }) as unknown as import('../src/renderer/types/inventory').InventoryUnit
+  }) as unknown as InventoryUnit
 
 describe('nicht einsatzbereite Einheiten zaehlen nicht', () => {
   const vier = [item({ id: 'i1', model: MODELL, quantity: 4, deviceTypeId: TYP, locationId: 'c1' })]
