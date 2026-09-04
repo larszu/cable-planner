@@ -97,3 +97,39 @@ describe('Invariante 7 sagt, was gilt', () => {
     expect(aussen).toEqual([join('lib', 'exportRack.ts')])
   })
 })
+
+describe('jede IPC-Domaene ist irgendwo beschrieben', () => {
+  // Der Renderer kann nichts ausserhalb dieser Kanaele. Eine Domaene, die
+  // nirgends beschrieben ist, ist eine Faehigkeit, von der nur erfaehrt, wer
+  // `src/main/ipc/` durchblaettert -- gemessen 2026-09-04 traf das auf
+  // `documentLog` zu (das Register der ausgegebenen Dokumente aus ADR-004).
+  //
+  // Die Liste kommt aus dem Dateisystem, nicht aus einer Aufzaehlung: eine
+  // niedergeschriebene Liste waere am Tag ihrer Entstehung vollstaendig und am
+  // naechsten nicht mehr -- genau so ist die Luecke ueberhaupt entstanden.
+  const domaenen = readdirSync(join(ROOT, 'src', 'main', 'ipc'))
+    .filter((f) => f.endsWith('Ipc.ts'))
+    .map((f) => f.replace(/Ipc\.ts$/, ''))
+    .sort()
+
+  it('es gibt ueberhaupt Domaenen', () => {
+    expect(domaenen.length).toBeGreaterThan(10)
+  })
+
+  it('keine Domaene fehlt in README oder architecture.md', () => {
+    // Nutzerseitige Domaenen gehoeren ins README, infrastrukturelle in die
+    // Architektur-Doku. Welche wohin, entscheidet der Mensch; der Test verlangt
+    // nur, dass sie ueberhaupt irgendwo steht.
+    const readme = readFileSync(join(ROOT, 'README.md'), 'utf8').toLowerCase()
+    const arch = doku.toLowerCase()
+    const fehlend = domaenen.filter((d) => {
+      const n = d.toLowerCase()
+      return !readme.includes(n) && !arch.includes(n)
+    })
+    expect(
+      fehlend,
+      'Diese IPC-Domaenen sind nirgends beschrieben. Nutzerseitiges ins README, ' +
+        'Infrastruktur in die IPC-Tabelle von docs/architecture.md.',
+    ).toEqual([])
+  })
+})
