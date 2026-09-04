@@ -320,3 +320,8 @@ Donations are completely optional — the app stays free to use. It is proprieta
 ## 📄 License
 
 Proprietär — © 2026 Lars Zumpe, alle Rechte vorbehalten. Nutzung der veröffentlichten Builds ist kostenlos; Weiterverbreitung und abgeleitete Werke sind es nicht. Siehe [LICENSE](LICENSE).
+
+Die gebündelten Fremdpakete behalten ihre eigenen Lizenzen; deren Texte und
+Copyright-Hinweise stehen vollständig in
+[THIRD-PARTY-LICENSES.md](THIRD-PARTY-LICENSES.md) (erzeugt von
+`scripts/generate-notices.mjs` aus dem Produktions-Dependency-Baum).
