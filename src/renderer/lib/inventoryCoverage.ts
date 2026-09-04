@@ -63,6 +63,35 @@ export interface CoverageLine {
   short?: number
   /** Warum der Vorschlag zustande kam — damit ein Mensch ihn pruefen kann. */
   reason?: string
+  /**
+   * ALLE deckenden Positionen, nicht nur die erste.
+   *
+   * WARUM DAS FELD EXISTIERT. Bis 2026-09-04 gewann hier die erste gefundene
+   * Position und die zweite wurde verworfen — nichts wurde addiert. Ein Lager
+   * fuehrt dasselbe Modell aber regelmaessig an mehreren Orten: ein Artikel
+   * traegt genau EINE `locationId` (types/inventory.ts), gleiches Modell in
+   * zwei Cases erzwingt also zwei Positionen, und `addItem` dedupliziert
+   * nichts. Gemessen: Plan braucht 5, Lager hat 3 in Case 1 und 3 in Case 2 —
+   * die Liste meldete "Bestand 3, Fehlmenge 2" und schickte den
+   * Kommissionierer mit "Menge 5" nach Case 1. Es waren sechs da.
+   *
+   * `packList.ts` summiert an der begrifflich gleichen Stelle korrekt ueber
+   * Positionen (`counts.get(it.model) + it.quantity`). Der Resolver tat es
+   * nicht — dieselbe Wahrheit, zwei Rechnungen, eine davon falsch.
+   *
+   * Reihenfolge ist deterministisch (Modell, dann Id), damit eine erneut
+   * erzeugte Liste dieselbe bleibt.
+   */
+  sources?: CoverageSource[]
+}
+
+/** Eine einzelne Lager-Position, die zu einer Bedarfszeile beitraegt. */
+export interface CoverageSource {
+  itemId: string
+  model: string
+  available: number
+  /** Lagerort-Id der Position — der Aufrufer loest den Pfad auf. */
+  locationId?: string
 }
 
 export interface CoverageResult {
@@ -137,41 +166,67 @@ export const resolveCoverage = (
   items: InventoryItem[],
 ): CoverageResult => {
   const demands = deriveDemand(equipment)
-  const byType = new Map<string, InventoryItem>()
-  for (const item of items) {
-    if (item.deviceTypeId && !byType.has(item.deviceTypeId)) byType.set(item.deviceTypeId, item)
+
+  // Deterministische Reihenfolge, bevor gruppiert wird: die erzeugte Liste
+  // soll nicht davon abhaengen, in welcher Reihenfolge jemand die Positionen
+  // angelegt hat.
+  const sortiert = items
+    .slice()
+    .sort((a, b) => a.model.localeCompare(b.model, 'de') || a.id.localeCompare(b.id))
+
+  const quelle = (item: InventoryItem): CoverageSource => ({
+    itemId: item.id,
+    model: item.model,
+    available: item.quantity,
+    ...(item.locationId ? { locationId: item.locationId } : {}),
+  })
+  const summe = (q: CoverageSource[]): number => q.reduce((n, x) => n + x.available, 0)
+
+  // ALLE Positionen je Typ, nicht die erste. Siehe CoverageLine.sources.
+  const byType = new Map<string, CoverageSource[]>()
+  for (const item of sortiert) {
+    if (!item.deviceTypeId) continue
+    const liste = byType.get(item.deviceTypeId)
+    if (liste) liste.push(quelle(item))
+    else byType.set(item.deviceTypeId, [quelle(item)])
   }
-  const untyped = items.filter((i) => !i.deviceTypeId)
-  const byModel = new Map<string, InventoryItem>()
+  const untyped = sortiert.filter((i) => !i.deviceTypeId)
+  const byModel = new Map<string, CoverageSource[]>()
   for (const item of untyped) {
     const key = normaliseName(item.model)
-    if (key && !byModel.has(key)) byModel.set(key, item)
+    if (!key) continue
+    const liste = byModel.get(key)
+    if (liste) liste.push(quelle(item))
+    else byModel.set(key, [quelle(item)])
   }
 
   const lines: CoverageLine[] = demands.map((demand) => {
     const exactType = demand.deviceTypeId ? byType.get(demand.deviceTypeId) : undefined
-    if (exactType) {
-      const short = Math.max(0, demand.quantity - exactType.quantity)
+    if (exactType && exactType.length > 0) {
+      const bestand = summe(exactType)
+      const short = Math.max(0, demand.quantity - bestand)
       return {
         demand,
         outcome: 'matched-by-type',
-        itemId: exactType.id,
-        itemModel: exactType.model,
-        available: exactType.quantity,
+        itemId: exactType[0].itemId,
+        itemModel: exactType[0].model,
+        available: bestand,
+        sources: exactType,
         ...(short > 0 ? { short } : {}),
       }
     }
 
     const wanted = normaliseName(demand.label)
     const exactName = wanted ? byModel.get(wanted) : undefined
-    if (exactName) {
+    if (exactName && exactName.length > 0) {
       return {
         demand,
         outcome: 'proposed-by-name',
-        itemId: exactName.id,
-        itemModel: exactName.model,
-        available: exactName.quantity,
-        reason: `Modellname stimmt ueberein ("${exactName.model}"), aber die Lager-Position traegt keine Typ-Identitaet.`,
+        itemId: exactName[0].itemId,
+        itemModel: exactName[0].model,
+        available: summe(exactName),
+        sources: exactName,
+        reason: `Modellname stimmt ueberein ("${exactName[0].model}"), aber die Lager-Position traegt keine Typ-Identitaet.`,
       }
     }
 
@@ -185,12 +240,15 @@ export const resolveCoverage = (
         )
       })
       if (near) {
+        // Auch hier alle Positionen desselben Modells, nicht nur die gefundene.
+        const gleiche = byModel.get(normaliseName(near.model)) ?? [quelle(near)]
         return {
           demand,
           outcome: 'proposed-by-name',
-          itemId: near.id,
-          itemModel: near.model,
-          available: near.quantity,
+          itemId: gleiche[0].itemId,
+          itemModel: gleiche[0].model,
+          available: summe(gleiche),
+          sources: gleiche,
           reason: `Modellname weicht um hoechstens ${MAX_EDIT_DISTANCE} Zeichen ab ("${near.model}") — bitte pruefen.`,
         }
       }
