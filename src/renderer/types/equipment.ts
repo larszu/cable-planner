@@ -564,9 +564,34 @@ export interface EquipmentItem {
    *  lock from #177. */
   positionLocked?: boolean
   /** v7.9.70 / #167 — Engineering-Daten aus dem Rentman-Katalog (oder
-   *  manuell gepflegt). Werden in den Properties angezeigt und vom
-   *  3D-Rack-Builder (Issue #170) für die Tiefen-Visualisierung genutzt.
-   *  Alle Werte sind optional, damit alte Datenstände kompatibel bleiben. */
+   *  manuell gepflegt). Alle Werte sind optional, damit alte Datenstände
+   *  kompatibel bleiben.
+   *
+   *  WAS HIER FRÜHER STAND, WAR FALSCH (nachgemessen 2026-09-04). Der
+   *  Kommentar behauptete, beide Felder würden „in den Properties angezeigt
+   *  und vom 3D-Rack-Builder (#170) für die Tiefen-Visualisierung genutzt".
+   *  Gemessen: `components/Rack/` enthält weder `powerWatts` noch `weightKg`
+   *  kein einziges Mal — die Tiefe kommt aus `depthMm`
+   *  (`RackPlacementProperties.tsx:276`). Eine Typ-Doku, die Konsumenten
+   *  nennt, die es nicht gibt, ist schlimmer als keine: sie lässt ein Feld
+   *  benutzt aussehen und hält damit genau die Nachfrage ab, die den Defekt
+   *  finden würde.
+   *
+   *  WAS TATSÄCHLICH LIEST:
+   *  - `weightKg` — Properties über `categorySchemas.ts` (Kategorie-Feld
+   *    „Eigengewicht"), dazu `AnalysisDialog`, `LocationBomDialog`
+   *    (Logistik-Zeile), `InventoryDialog`, CSV-Import.
+   *  - `powerWatts` — NICHTS. Geschrieben von Rentman-Import und
+   *    Template-Merge, persistiert, gediffed, gecacht, aber von keiner
+   *    Anzeige und keiner Summe gelesen.
+   *
+   *  Die Leistungskette nimmt bewusst `powerConsumptionWatts` (#76) und den
+   *  Modus-Wert, nicht dieses Feld: `effectiveWatts` in
+   *  `lib/equipmentSelectors.ts`, festgehalten in
+   *  `tests/effektiveLeistung.test.ts`. Ob `powerWatts` dazugehören soll, ist
+   *  eine Eigentümer-Entscheidung (B-15 / E-8 im Suite-Backlog) — es würde die
+   *  Zahlen bestehender Projekte verändern. Diese Korrektur nimmt sie nicht
+   *  vorweg, sie beschreibt nur den Stand richtig. */
   powerWatts?: number
   weightKg?: number
   /** #354 — Optionaler Stückpreis bzw. Tagesmietpreis in EUR. Wird im

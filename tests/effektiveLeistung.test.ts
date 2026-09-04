@@ -5,6 +5,7 @@ import analysisSrc from '../src/renderer/components/Analysis/AnalysisDialog.tsx?
 import calculatorSrc from '../src/renderer/components/Calculators/CalculatorsDialog.tsx?raw'
 import locationBomSrc from '../src/renderer/components/Project/LocationBomDialog.tsx?raw'
 import drawingChecksSrc from '../src/renderer/lib/drawingChecks.ts?raw'
+import equipmentTypesSrc from '../src/renderer/types/equipment.ts?raw'
 import { stripComments } from './support/stripComments'
 
 // Die effektive Leistung eines Geraets stand in VIER Kopien im Renderer, und
@@ -119,5 +120,64 @@ describe('effektive Leistung — keine neue Kopie', () => {
         /activeModeId[\s\S]{0,120}?\?\.powerWatts/,
       )
     }
+  })
+})
+
+// ───────────────────────────────────────────────────────────────────────────
+// Die Typ-Doku von `powerWatts`/`weightKg` gegen den gemessenen Stand.
+//
+// WARUM ES DAS GIBT (2026-09-04). Der Kommentar an den beiden Feldern in
+// `types/equipment.ts` behauptete, sie wuerden "in den Properties angezeigt
+// und vom 3D-Rack-Builder (#170) fuer die Tiefen-Visualisierung genutzt".
+// Beides war falsch: `components/Rack/` nennt keines der beiden Felder, die
+// Tiefe kommt aus `depthMm` (`RackPlacementProperties.tsx:276`).
+//
+// Der Schaden lag nicht im falschen Satz, sondern darin, was er verhindert
+// hat: `powerWatts` sah benutzt aus. Wer nach stummen Feldern sucht, haette
+// es uebersprungen -- und genau das ist ueber acht Fundstellen hinweg
+// passiert (B-15 im Suite-Backlog).
+//
+// WARUM ALS BERECHNETE PRUEFUNG. Die Korrektur ist eine Messung, und eine
+// Messung, die nur als Prosa dasteht, ist am naechsten Tag wieder eine
+// Behauptung. Diese Pruefung faellt, sobald `Rack/` eines der Felder
+// benutzt -- nicht um das zu verbieten (ein Gewichts-Hinweis am Rack waere
+// sinnvoll), sondern damit derselbe Satz nicht ein zweites Mal stehenbleibt,
+// waehrend die Welt sich darunter bewegt.
+// ───────────────────────────────────────────────────────────────────────────
+const rackQuellen = import.meta.glob('../src/renderer/components/Rack/*.ts*', {
+  eager: true,
+  query: '?raw',
+  import: 'default',
+}) as Record<string, string>
+
+describe('Typ-Doku powerWatts/weightKg', () => {
+  it('Rack/ liest weder powerWatts noch weightKg — sonst gehoert die Doku nachgezogen', () => {
+    const dateien = Object.keys(rackQuellen)
+    expect(dateien.length, 'Rack-Glob hat nichts gefunden — dann misst diese Pruefung nichts').toBeGreaterThan(0)
+
+    const treffer = dateien.flatMap((pfad) =>
+      ['powerWatts', 'weightKg']
+        .filter((feld) => stripComments(rackQuellen[pfad]).includes(feld))
+        .map((feld) => `${pfad.split('/').pop()}: ${feld}`),
+    )
+
+    expect(
+      treffer,
+      'Rack/ benutzt jetzt eines der Felder. Das ist erlaubt — aber die Typ-Doku ' +
+        'an EquipmentItem.powerWatts/weightKg sagt derzeit ausdruecklich, dass es ' +
+        'das NICHT tut. Diesen Absatz mit anpassen, sonst steht dort wieder eine ' +
+        'Behauptung statt einer Messung.',
+    ).toEqual([])
+  })
+
+  it('die Typ-Doku behauptet keine Rack-Nutzung mehr', () => {
+    const start = equipmentTypesSrc.indexOf('v7.9.70 / #167')
+    expect(start, 'Doku-Block zu powerWatts nicht gefunden').toBeGreaterThan(-1)
+    const block = equipmentTypesSrc.slice(start, equipmentTypesSrc.indexOf('powerWatts?: number', start))
+
+    expect(
+      /Werden in den Properties angezeigt und vom[\s*]+3D-Rack-Builder/.test(block),
+      'Der widerlegte Satz steht wieder in der Typ-Doku.',
+    ).toBe(false)
   })
 })
