@@ -107,6 +107,21 @@ Pfad-Validierung passiert **immer in main**, nie im Renderer.
 **Domänen-Typen:** `src/renderer/types/` (`CablePlannerProject`, `EquipmentItem`,
 `Cable`, `LocationFrame`, …). Berechnungen/Helper in `src/renderer/lib/`.
 
+## Arbeitsweise (Standing User Directive, 2026-09-04)
+
+- **Nicht erklären. Abarbeiten.** Keine Zwischenstände, keine Zusammenfassungen
+  dessen, was gerade gefunden oder repariert wurde, keine Tabellen mit „was
+  bisher geschah". Der Nutzer will das Ergebnis, nicht den Bericht.
+- Antworten bleiben kurz: was gemacht wurde, in ein bis zwei Sätzen, und was
+  als Nächstes drankommt. Alles Weitere steht ohnehin im Commit, im PR-Body und
+  im Backlog — dort gehört die Begründung hin, nicht in den Chat.
+- Rückfragen nur, wenn die Arbeit sonst blockiert (Eigentümer-Entscheidungen
+  aus `docs/IMPLEMENTATION_BACKLOG.md`, Abschnitt „Nicht zu entscheiden ohne den
+  Eigentümer"). Nicht, um Zwischenergebnisse abzunicken.
+- Das gilt NICHT für die Artefakte: Commit-Messages, PR-Bodies, Code-Kommentare
+  und Backlog-Einträge bleiben ausführlich und begründet. Die liest jemand
+  später und braucht den Grund; der Chat nicht.
+
 ## Konventionen
 
 - **Patch-Versionen bevorzugt** — keine großen Versionssprünge bei Deps (Standing
