@@ -33,15 +33,42 @@ import { join, relative, resolve, sep } from 'node:path'
 
 const RENDERER = resolve(__dirname, '..', 'src', 'renderer')
 
-/** Ein Lese-Aufruf gegen ein Geraet oder ein Fremdsystem. */
-const READS_DEVICE = /cablePlannerApi\.(atem|videohub|netbox|rentman)\.(read|get)[A-Za-z]*/
+/**
+ * Ein Aufruf gegen ein Geraet oder ein Fremdsystem.
+ *
+ * WARUM OHNE VERBEN-LISTE (nachgemessen 2026-09-04). Hier stand
+ * `\.(read|get)[A-Za-z]*` — und das widersprach der Ansage des Kommentars
+ * oben, der Test fange „BEWUSST ZU BREIT". Er fing zu eng: die echten
+ * Lesewege heissen auch `atem.discover`, `videohub.discover`, `atem.onEvent`
+ * und `netbox.fetchSnapshot`, und keiner davon faengt mit `read` oder `get`
+ * an.
+ *
+ * Gemessen: die enge Fassung traf 7 von 8 Dateien mit solchen Aufrufen — und
+ * die vier oben genannten Wege fielen nur deshalb nicht durchs Raster, weil
+ * dieselben Dateien ZUFAELLIG auch ein `getState`/`readState` enthalten. Der
+ * Guard hielt also, aber nicht durch Konstruktion. Wer `videohub.discover` in
+ * eine neue Datei schreibt, faellt heute durch.
+ *
+ * Deshalb jetzt jedes Verb. Eine Datei zu viel einzuordnen kostet zwei
+ * Zeilen — genau das sagt der Kommentar oben, und jetzt tut der Regex es auch.
+ */
+const READS_DEVICE = /cablePlannerApi\.(atem|videohub|netbox|rentman)\.[A-Za-z]/
 
 /**
  * Beruehrt den Projekt-Store ueberhaupt. Absichtlich das grobe Kriterium:
  * eine feinere Unterscheidung zwischen Lesen und Schreiben ist genau die
  * Stelle, an der die Messung oben danebengegriffen hat.
+ *
+ * `useCanvasProjectStore` steht seit 2026-09-04 mit drin. Nachgemessen aendert
+ * das HEUTE nichts — beide Fassungen treffen dieselben 131 Dateien —, weil der
+ * Importpfad `store/projectStoreContext` die Zeichenkette `projectStore`
+ * ohnehin enthaelt. Genau das ist der Grund, es hinzuschreiben: der Guard hing
+ * an der Schreibweise eines Importpfades, nicht am Bezeichner. Wer den Kontext
+ * einmal aus einem anders benannten Modul re-exportiert, faellt sonst durch,
+ * und niemand merkt es — die Zahl 131 sagt nichts darueber, ob die 132. Datei
+ * gefunden wird.
  */
-const TOUCHES_PLAN = /useProjectStore|projectStore/
+const TOUCHES_PLAN = /useProjectStore|useCanvasProjectStore|projectStore|ProjectStore/
 
 type Verdict =
   /** Befund und Absicht sind getrennt: der gelesene Wert landet NICHT im Plan. */
@@ -92,6 +119,19 @@ const CLASSIFIED: Site[] = [
       'Geraete behalten jede manuelle Nacharbeit. Dass dabei `portsUnknown` ' +
       'faellt, ist richtig: es fiel, WEIL echte Ports gelesen wurden — genau ' +
       'die Bedingung, unter der die Unbekannt-Markierung nicht mehr gilt.',
+  },
+  {
+    file: 'components/Settings/tabs/IntegrationsTab.tsx',
+    verdict: 'getrennt',
+    reason:
+      'Kam mit dem breiteren Muster dazu (2026-09-04) und war vorher unsichtbar. ' +
+      'Die Datei ruft ausschliesslich Token-Verwaltung auf — hasToken, saveToken, ' +
+      'deleteToken, normalizeUrl, testConnection. Kein einziger dieser Aufrufe ' +
+      'liefert einen Geraetewert, und keiner davon beruehrt den Plan: das ' +
+      'Ergebnis von testConnection landet in lokalem useState und wird als ' +
+      'Statuszeile angezeigt. Sie steht trotzdem hier, weil der Test bewusst zu ' +
+      'breit faengt — und weil genau diese Datei belegt, dass er es vorher nicht ' +
+      'tat.',
   },
   {
     file: 'components/Atem/AtemDialog.tsx',
