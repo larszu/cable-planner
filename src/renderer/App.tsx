@@ -897,6 +897,10 @@ export default function App() {
         gridSize: exportGridSize,
         bgOpacity: exportBgOpacity,
         customPalette: exportCustomPalette,
+        // Initiative 4 — dieselbe Zusicherung wie beim Datei-Export darueber.
+        // Sie fehlte hier: DER DRUCK-KNOPF druckte ungestempelt, obwohl das
+        // Papier aus genau diesem Knopf das ist, dem der Stempel gilt.
+        stamp: stampForPlan(project, new Date()),
         onProgress: (phase, detail) =>
           setPdfProgress({ active: true, phase, detail }),
       })
@@ -952,6 +956,10 @@ export default function App() {
         gridSize: exportGridSize,
         bgOpacity: exportBgOpacity,
         customPalette: exportCustomPalette,
+        // Initiative 4 — und hier am noetigsten: dieses PDF haengt am
+        // Rentman-Projekt und geht damit an den Kunden. Ohne Stempel kann
+        // niemand sehen, welchem Planstand das Blatt entspricht.
+        stamp: stampForPlan(project, new Date()),
       })
       const baseName = (meta.name || 'cable-planner').replace(/[^a-z0-9\-_. ]/gi, '_')
       const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')
