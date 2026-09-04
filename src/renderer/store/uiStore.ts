@@ -359,6 +359,7 @@ const defaults: PersistedUiState = {
     newProject: 'Ctrl+N',
     openProject: 'Ctrl+O',
     deleteSelected: 'Delete',
+    selectAll: 'Ctrl+A',
     clearSelection: 'Escape',
     toggleLibrary: 'Ctrl+B',
     toggleProperties: 'Ctrl+I',

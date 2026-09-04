@@ -39,7 +39,7 @@ const CustomPaletteCard = () => {
       title={t('settings.customPalette.title', 'Custom-Palette')}
       description={t(
         'settings.customPalette.desc',
-        'Eigene Farben für Canvas-Hintergrund, Raster und Akzent — überschreibt die Theme-Defaults (dark/light). Wirkt nur auf den Canvas; Dialoge bleiben themed.',
+        'Eigene Farben für Canvas-Hintergrund und Raster — überschreibt die Theme-Defaults (dark/light). Wirkt nur auf den Canvas; Dialoge bleiben themed.',
       )}
     >
       <label className="mb-2 flex items-center gap-2 text-cp-base text-cp-text-bright">
@@ -56,7 +56,18 @@ const CustomPaletteCard = () => {
             [
               { key: 'canvasBg', label: t('settings.customPalette.bg', 'Hintergrund') },
               { key: 'gridColor', label: t('settings.customPalette.grid', 'Raster-Strich') },
-              { key: 'accent', label: t('settings.customPalette.accent', 'Akzent') },
+              // `accent` stand hier als dritter Regler -- und wurde von NICHTS
+              // gelesen. Jeder Konsument der Palette tippt genau zwei Felder
+              // (`{ canvasBg, gridColor }`): CanvasArea, exportBackground,
+              // exportImage, exportPdf, exportPdfVector. Der Wert wurde
+              // gespeichert, beim Laden validiert und nach einem Neustart im
+              // Picker wieder angezeigt -- folgenlos.
+              //
+              // Er wird nicht durch eine erfundene Bedeutung ersetzt: welches
+              // Element auf dem Canvas ein "Akzent" waere, steht nirgends, und
+              // es zu bestimmen wuerde das Aussehen jedes bestehenden Plans
+              // aendern. Das Feld bleibt im Store, damit gespeicherte Staende
+              // weiter durch die Validierung in `uiStore.ts:477-483` kommen.
             ] as const
           ).map((field) => (
             <label key={field.key} className="block">

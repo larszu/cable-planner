@@ -86,6 +86,7 @@ export const HOTKEY_ACTION_LABEL: Record<string, string> = {
   newProject: 'Neues Projekt',
   openProject: 'Projekt öffnen',
   deleteSelected: 'Auswahl löschen',
+  selectAll: 'Alles auswählen',
   clearSelection: 'Auswahl aufheben',
   toggleLibrary: 'Library ein-/ausblenden',
   toggleProperties: 'Eigenschaften ein-/ausblenden',

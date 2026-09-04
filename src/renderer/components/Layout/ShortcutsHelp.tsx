@@ -45,7 +45,6 @@ export const ShortcutsHelp = () => {
         [`${mod}+O`, t('shortcutsHelp.open', 'Projekt öffnen')],
         [`${mod}+S`, t('shortcutsHelp.save', 'Speichern')],
         [`${mod}+${shift}+S`, t('shortcutsHelp.saveAs', 'Speichern unter')],
-        [`${mod}+P`, t('shortcutsHelp.print', 'Drucken')],
       ],
     },
     {
@@ -69,6 +68,15 @@ export const ShortcutsHelp = () => {
         [`${mod}++`, t('shortcutsHelp.quickAdd', 'Neues Gerät an Mausposition')],
         ['↑ ↓ ← →', t('shortcutsHelp.nudge', 'Gerät verschieben (Umsch = große Schritte)')],
         ['?', t('shortcutsHelp.help', 'Diese Übersicht anzeigen')],
+      ],
+    },
+    {
+      title: t('shortcutsHelp.panels', 'Panels & Ansicht'),
+      items: [
+        [`${mod}+B`, t('shortcutsHelp.toggleLibrary', 'Library ein-/ausblenden')],
+        [`${mod}+I`, t('shortcutsHelp.toggleProperties', 'Eigenschaften ein-/ausblenden')],
+        ['P', t('shortcutsHelp.jumpToPatches', 'Patch-Liste öffnen')],
+        ['A', t('shortcutsHelp.toggleArrows', 'Pfeil-Anzeige umschalten')],
       ],
     },
   ]
