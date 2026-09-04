@@ -508,9 +508,10 @@ export default function App() {
 
   useEffect(() => {
     void refreshRecent()
-    cablePlannerApi.credentials.getToken().then((token) => {
-      setHasToken(Boolean(token))
-    })
+    // Nur die Ja/Nein-Frage -- das Klartext-Token muss dafuer nicht in den
+    // Renderer. Es lag hier bisher ab dem Start fuer die ganze Sitzung im
+    // Speicher, ohne dass es jemand brauchte.
+    cablePlannerApi.credentials.hasToken().then(setHasToken)
   }, [refreshRecent, setHasToken])
 
   // #pre-sale — OS-Dateiverknüpfung: beim Kaltstart die per Doppelklick
