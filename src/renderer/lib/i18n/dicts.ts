@@ -4147,25 +4147,25 @@ export const en: Dict = {
 export const de: Dict = {
   // Cable catalog notes
   'catalog.cable.xlr-3pin-audio.notes':
-    'Balanced analog audio or AES3 (digital). Gender: male → female.',
+    'Symmetrisches Analog-Audio oder AES3 (digital). Steckrichtung: männlich → weiblich.',
   'catalog.cable.sdi-3g.notes':
-    'Works for SD/HD/3G. Use 75Ω coax (Belden 1694A or similar).',
+    'Für SD/HD/3G geeignet. 75-Ω-Koax verwenden (Belden 1694A oder vergleichbar).',
   'catalog.cable.sdi-6g.notes':
-    '6G needs higher-quality coax; mix with 3G only via down-converter.',
+    '6G braucht hochwertigeres Koax; mit 3G nur über einen Down-Converter mischen.',
   'catalog.cable.sdi-12g.notes':
-    'Use 4K-rated 12G coax (e.g. Belden 4694R). Downscale to 3G requires a scaler/converter.',
+    '4K-taugliches 12G-Koax verwenden (z. B. Belden 4694R). Herunterskalieren auf 3G braucht einen Scaler/Converter.',
   'catalog.cable.hdmi-2.0.notes':
-    'Passive copper limited to ~10 m; use optical HDMI for longer runs.',
+    'Passives Kupfer nur bis ca. 10 m; für längere Strecken optisches HDMI verwenden.',
   'catalog.cable.hdmi-2.1.notes':
-    'Ultra-high speed cables required; pairing with HDMI 1.4 device limits to 1.4.',
-  'catalog.cable.cat6a.notes': 'Required for 10GBASE-T over full 100 m runs.',
+    'Erfordert Ultra-High-Speed-Kabel; zusammen mit einem HDMI-1.4-Gerät fällt die Strecke auf 1.4 zurück.',
+  'catalog.cable.cat6a.notes': 'Nötig für 10GBASE-T über die vollen 100 m.',
   'catalog.cable.fiber-sm-lc.notes':
-    'Single-mode (yellow jacket). Long distance (>300 m).',
+    'Singlemode (gelber Mantel). Lange Strecken (>300 m).',
   'catalog.cable.fiber-mm-lc.notes':
-    'Multi-mode (aqua jacket). Short haul in racks/venue.',
-  'catalog.cable.iec-230v.notes': 'Standard device power cable ("kettle lead").',
+    'Multimode (aquafarbener Mantel). Kurze Wege im Rack oder in der Halle.',
+  'catalog.cable.iec-230v.notes': 'Standard-Gerätenetzkabel (Kaltgerätekabel).',
   'catalog.cable.powercon-tru1.notes':
-    'Locking, touring-grade power. Do not mix with classic powerCON (grey/blue).',
+    'Verriegelnder Strom-Steckverbinder für den Tourbetrieb. Nicht mit klassischem powerCON (grau/blau) mischen.',
   'catalog.cable.thunderbolt-3.notes':
     'USB-C Stecker, passiv bis 2 m. Aktives TB3-Kabel bis ~50 cm. Vorwärtskompatibel mit Thunderbolt 4.',
   'catalog.cable.thunderbolt-4.notes':
