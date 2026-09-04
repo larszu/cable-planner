@@ -1,4 +1,4 @@
-import { useTranslation } from '../../lib/i18n'
+import { format, useTranslation } from '../../lib/i18n'
 
 interface Props {
   totalInputs: number
@@ -78,7 +78,14 @@ export const VideohubRoutingList = ({
                 value={routedIdx}
                 onChange={(e) => onRoute(oi, parseInt(e.target.value, 10))}
                 className="flex-1 min-w-0 rounded border border-cp-border bg-cp-surface-3 px-2 py-1 text-[13px] text-cp-text-bright focus:border-sky-500 focus:outline-none"
-                title={`${t('export.selectInputForOutput', 'Input fuer Output')} ${oi + 1} (${outLabel}) ${t('export.selectVerb', 'waehlen')} — ${t('export.currentLabel', 'aktuell')}: ${routedIdx + 1} ${routedLabel}`}
+                /* Ein Schluessel mit Platzhaltern statt drei zusammengesetzter
+                   Stuecke: das Deutsche stellt das Verb ans Ende ("… waehlen"),
+                   das Englische an den Anfang ("Select input for output …").
+                   Aus Bausteinen laesst sich das nicht bauen. */
+                title={format(
+                  t('export.selectInputForOutput', 'Input fuer Output {n} ({label}) waehlen — aktuell: {cur} {curLabel}'),
+                  { n: oi + 1, label: outLabel, cur: routedIdx + 1, curLabel: routedLabel },
+                )}
               >
                 {inputLabels.map((inLabel, ii) => (
                   <option key={ii} value={ii} className="bg-cp-surface-3 text-cp-text">
