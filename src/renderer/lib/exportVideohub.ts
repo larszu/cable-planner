@@ -1,4 +1,4 @@
-import type { EquipmentItem } from '../types/equipment'
+import type { EquipmentItem, Port } from '../types/equipment'
 import { portDisplayLabel } from './portLabel'
 
 /**
@@ -63,9 +63,35 @@ export const parseVideohubLabelsTxt = (text: string): ParsedVideohubLabels => {
  * emitted with just the channel number so the file has `totalInputs`/
  * `totalOutputs` rows (Videohub Control expects sequential numbering).
  */
+/**
+ * Der Text, den dieser Videohub-Eingang/-Ausgang bekommt.
+ *
+ * B-28 — `roleLabels` ist die Karte aus `labelDerivation.roleLabelsByPort`:
+ * je EINGANGSPORT der Name der Rolle, die dort ankommt. Sie gewinnt gegen den
+ * Portnamen, damit ein Umbenennen der Rolle im Videohub ankommt statt nur im
+ * UMD-Text. Ausgaenge stehen nicht in der Karte (dort traegt der Kreuzpunkt
+ * das Ziel, nicht die Verkabelung) und fallen deshalb immer auf den Portnamen.
+ *
+ * Weitergereicht statt hier berechnet: dieses Modul ist rein und kennt weder
+ * Kabel noch Rollen. Wer den Graphen hat, gibt die Karte mit; wer nicht,
+ * bekommt exakt das bisherige Verhalten.
+ */
+const displayFor = (
+  port: Port | undefined,
+  roleLabels: ReadonlyMap<string, string> | undefined,
+): string => {
+  if (!port) return ''
+  return (port.id ? roleLabels?.get(port.id) : undefined) ?? portDisplayLabel(port)
+}
+
 export const buildVideohubLabelTxt = (
   device: Pick<EquipmentItem, 'inputs' | 'outputs'>,
-  opts: { totalInputs?: number; totalOutputs?: number } = {},
+  opts: {
+    totalInputs?: number
+    totalOutputs?: number
+    /** B-28 — portId → Rollenname, aus `labelDerivation.roleLabelsByPort`. */
+    roleLabels?: ReadonlyMap<string, string>
+  } = {},
 ): string => {
   const totalIn = opts.totalInputs ?? device.inputs.length
   const totalOut = opts.totalOutputs ?? device.outputs.length
@@ -73,13 +99,14 @@ export const buildVideohubLabelTxt = (
   for (let i = 0; i < totalIn; i++) {
     const port = device.inputs[i]
     // #286 — contentLabel ("PGM", "Cam1") gewinnt gegen port.name wenn gesetzt.
-    const display = port ? portDisplayLabel(port) : ''
+    // B-28 — die gebundene Rolle gewinnt gegen beides.
+    const display = displayFor(port, opts.roleLabels)
     const label = display ? `${i + 1} ${display}`.trim() : `${i + 1}`
     lines.push(`Input, ${i + 1}, ${label}`)
   }
   for (let i = 0; i < totalOut; i++) {
     const port = device.outputs[i]
-    const display = port ? portDisplayLabel(port) : ''
+    const display = displayFor(port, opts.roleLabels)
     const label = display ? `${i + 1} ${display}`.trim() : `${i + 1}`
     lines.push(`Output, ${i + 1}, ${label}`)
   }
@@ -126,6 +153,8 @@ export const buildVideohubRoutingDump = (
     totalOutputs?: number
     /** output-index → input-index mapping; missing entries default to 0 */
     routing?: Record<number, number>
+    /** B-28 — portId → Rollenname, aus `labelDerivation.roleLabelsByPort`. */
+    roleLabels?: ReadonlyMap<string, string>
   } = {},
 ): string => {
   const totalIn = opts.totalInputs ?? device.inputs.length
@@ -160,7 +189,8 @@ export const buildVideohubRoutingDump = (
   for (let i = 0; i < totalIn; i++) {
     const port = device.inputs[i]
     // #286 — bevorzugt contentLabel (PGM/PVW) vor port.name.
-    const display = port ? portDisplayLabel(port) : ''
+    // B-28 — die gebundene Rolle gewinnt gegen beides.
+    const display = displayFor(port, opts.roleLabels)
     const label = display ? `${i + 1} ${display}`.trim() : `${i + 1}`
     out.push(`${i} ${label}`)
   }
@@ -168,7 +198,7 @@ export const buildVideohubRoutingDump = (
   out.push('OUTPUT LABELS:')
   for (let i = 0; i < totalOut; i++) {
     const port = device.outputs[i]
-    const display = port ? portDisplayLabel(port) : ''
+    const display = displayFor(port, opts.roleLabels)
     const label = display ? `${i + 1} ${display}`.trim() : `${i + 1}`
     out.push(`${i} ${label}`)
   }
