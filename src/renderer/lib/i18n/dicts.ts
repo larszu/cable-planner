@@ -3469,6 +3469,9 @@ export const en: Dict = {
   // useProject viewer name prompt (translate() from hook)
   'project.viewerName.prompt':
     'Viewer file — enter name\n\nYou are opening a viewer file for review. Please enter your name — it will be attached to all annotations you create in this session.',
+  'project.open.notAPlanTitle': 'This file is not a Cable Planner project',
+  'project.open.notAPlan':
+    'The file could be read but contains no equipment and cable list. Nothing was loaded — the open project is unchanged.',
   'project.viewerName.missingTitle': 'Name missing',
   'project.viewerName.missingBody':
     'Without a name no annotations can be made. The file will not be loaded.',
