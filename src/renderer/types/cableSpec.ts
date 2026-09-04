@@ -41,6 +41,9 @@ export type SignalStandard =
   | 'ST2110-20'
   | 'ST2110-30'
   | 'ST2110-40'
+  | 'SRT'
+  | 'RTMP'
+  | 'HLS'
   | 'Blackburst'
   | 'Tri-Level'
   | 'Word-Clock'
@@ -77,6 +80,7 @@ export const ALL_SIGNAL_STANDARDS: SignalStandard[] = [
   'Thunderbolt-3', 'Thunderbolt-4',
   'MADI', 'DVB-ASI', 'SMPTE-297', 'SMPTE-304M', 'SMPTE-311M',
   'NDI', 'NDI-HX', 'Dante', 'AES67', 'ST2110-20', 'ST2110-30', 'ST2110-40',
+  'SRT', 'RTMP', 'HLS',
   'Blackburst', 'Tri-Level', 'Word-Clock', 'PTP', 'LTC',
   'RF-UHF', 'RF-VHF', 'RF-2.4G', 'RF-5G',
   'RS-232', 'RS-422', 'RS-485', 'DMX512', 'RDM', 'Art-Net', 'sACN',
@@ -252,6 +256,18 @@ export const cableCatalog: CableSpec[] = [
     maxLengthMeters: 100,
     color: '#14b8a6',
     notesKey: 'catalog.cable.dante-cat6.notes',
+  },
+  {
+    // B-10 — die Ausspiel-Haelfte. Physisch dasselbe Cat6-Kabel wie
+    // `cat6a`; getrennt gefuehrt, damit der Weg im Netz-Budget als
+    // Ausspielung erkennbar ist und nicht als weiteres Produktionssignal.
+    id: 'stream-uplink-cat6',
+    name: 'Stream-Uplink (SRT/RTMP/HLS)',
+    connectorType: 'Ethernet/RJ45',
+    standards: ['Eth-100', 'Eth-1G', 'SRT', 'RTMP', 'HLS'],
+    maxLengthMeters: 100,
+    color: '#a855f7',
+    notesKey: 'catalog.cable.stream-uplink-cat6.notes',
   },
   {
     id: 'st2110-fiber',
@@ -728,6 +744,34 @@ export const bandwidthMbpsForStandard = (s: SignalStandard | undefined): number 
       return 2 // ANC/Metadaten
     case 'ST2110-20':
       return 3000 // 1080p unkomprimiert (≈2160p → 12000)
+
+    // ── Delivery / Contribution (B-10) ──────────────────────────────────
+    //
+    // Bis hierher kannte das Modell nur die PRODUKTIONS-Seite des Netzes:
+    // NDI, Dante, ST 2110 — alles, was im Haus bleibt. Die Ausspiel-Haelfte
+    // fehlte vollstaendig; `SRT`, `RTMP` und `HLS` kamen im Quelltext
+    // nirgends vor, obwohl jeder Stream-Job an ihnen haengt.
+    //
+    // WAS DIESE ZAHLEN SIND UND WAS NICHT. Es sind Richtwerte fuer EINEN
+    // 1080p50-Beitragsweg bei ueblicher Encoder-Einstellung, nicht die
+    // Spitzenlast und nicht die Summe einer ABR-Leiter:
+    //   SRT   12 Mbps — Beitrag mit Overhead/Retransmit-Reserve (8-10 netto)
+    //   RTMP   6 Mbps — was YouTube/Twitch fuer 1080p als Richtwert nennen
+    //   HLS   10 Mbps — Ausspiel-Leiter (mehrere Renditionen zusammen)
+    // Wer eine 4K-Kette plant, setzt den Wert am Kabel selbst hoeher; das
+    // Modell soll die Groessenordnung tragen, nicht eine Genauigkeit
+    // behaupten, die es nicht hat.
+    //
+    // WARUM SIE TROTZDEM IN DIE LAST GEHOEREN. Ein Ausspielweg teilt sich
+    // das Netz mit der Produktion — genau das ist die Regel im Docstring
+    // oben. Ein Uplink, der neben zwanzig NDI-Quellen liegt, ist der Weg,
+    // der als Erstes klemmt, und er fehlte in der Summe komplett.
+    case 'SRT':
+      return 12
+    case 'RTMP':
+      return 6
+    case 'HLS':
+      return 10
     default:
       // Eth-100/1G/10G stehen hier BEWUSST nicht mehr. Siehe unten.
       return undefined

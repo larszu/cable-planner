@@ -4644,6 +4644,8 @@ export const en: Dict = {
     'NDI / NDI-HX over standard Gigabit Ethernet. Keep NDI and Dante on separate VLANs/links to avoid congestion.',
   'catalog.cable.dante-cat6.notes':
     'Dante / AES67 audio-over-IP. Requires PTP clocking; QoS/DSCP recommended on managed switches.',
+  'catalog.cable.stream-uplink-cat6.notes':
+    'Outbound stream leg: SRT (contribution, with retransmit reserve), RTMP (platform ingest) or HLS (delivery ladder). Physically the same Cat6 as any other link — kept separate so the network budget shows the uplink as delivery, not as another production source. The budget figures are guide values for one 1080p50 path.',
   'catalog.cable.st2110-fiber.notes':
     'SMPTE ST 2110 (-20 video / -30 audio / -40 ANC) over fiber. Needs a PTP grandmaster; typically 10/25/100 GbE.',
   'catalog.cable.blackburst-bnc.notes':
@@ -4752,6 +4754,8 @@ export const de: Dict = {
     'NDI / NDI-HX über normales Gigabit-Ethernet. NDI und Dante auf getrennten VLANs/Links halten, um Überlast zu vermeiden.',
   'catalog.cable.dante-cat6.notes':
     'Dante / AES67 Audio-over-IP. Benötigt PTP-Clocking; QoS/DSCP auf Managed Switches empfohlen.',
+  'catalog.cable.stream-uplink-cat6.notes':
+    'Ausspielweg nach draußen: SRT (Beitrag, mit Retransmit-Reserve), RTMP (Plattform-Ingest) oder HLS (Ausspiel-Leiter). Physisch dasselbe Cat6 wie jeder andere Link — getrennt geführt, damit das Netz-Budget den Uplink als Ausspielung zeigt und nicht als weitere Produktionsquelle. Die Budget-Zahlen sind Richtwerte für einen 1080p50-Weg.',
   'catalog.cable.st2110-fiber.notes':
     'SMPTE ST 2110 (-20 Video / -30 Audio / -40 ANC) über Faser. Benötigt PTP-Grandmaster; typ. 10/25/100 GbE.',
   'catalog.cable.blackburst-bnc.notes':
