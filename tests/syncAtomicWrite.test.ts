@@ -50,6 +50,15 @@ describe('Atomic-Write-Invariante auf den Userdaten-Pfaden', () => {
   it('der Sync-Panel schickt wirklich das ganze Projekt (sonst waere die Regel egal)', () => {
     // Belegt, warum dieser Pfad unter die Invariante faellt. Aendert sich das,
     // gehoert die Einordnung oben neu geprueft -- nicht dieser Test gestrichen.
-    expect(code(panelSrc)).toMatch(/sync\.writeFile\([\s\S]{0,120}JSON\.stringify\(project/)
+    //
+    // Seit 2026-09-04 laeuft das Projekt hier durch `raus(...)` -- den
+    // Zugangsdaten-Filter, den dieser Ausgang vorher NICHT hatte (siehe
+    // `tests/credentialExits.test.ts`). Das Muster laesst deshalb genau einen
+    // Wrapper zu und verlangt weiter, dass das GANZE Projekt hinausgeht: eine
+    // Ableitung oder ein Teilobjekt wuerde die Einordnung kippen, ein Filter
+    // auf einzelnen Feldern nicht.
+    expect(code(panelSrc)).toMatch(
+      /sync\.writeFile\([\s\S]{0,120}JSON\.stringify\(\s*(?:[A-Za-z_$][\w$]*\()?\s*project\b/,
+    )
   })
 })

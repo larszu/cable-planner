@@ -114,7 +114,15 @@ export const syncSharedLibrary = async (
     // Zugangsdaten — sonst kostete ein einziger Sync sie dem Nutzer dauerhaft.
     const writeDevices =
       credentials === 'strip' ? stripCredentials(merged) : merged
-    const writeGroups = unionByName(after.groupPresets, sGroups)
+    // Gruppen-Presets gingen bis 2026-09-04 UNGESTRIPPT hinaus, obwohl sie
+    // dieselben Geraete tragen wie die Bibliothek. App-intern faellt es nicht
+    // auf (`rackPreset.itemFromEquipment` schreibt keine Zugangsdaten), aber
+    // ein von aussen importiertes `.cpgroup` bringt sie mit — und dann trug
+    // genau der Weg sie hinaus, dessen Rueckfrage der Nutzer gerade
+    // beantwortet hat.
+    const mergedGroups = unionByName(after.groupPresets, sGroups)
+    const writeGroups =
+      credentials === 'strip' ? stripCredentials(mergedGroups) : mergedGroups
     const writeCats = [...new Set([...after.knownCategories, ...sCats])]
     const out: SharedLibraryFile = {
       type: 'cable-planner-shared-library',
