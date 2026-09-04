@@ -1,12 +1,16 @@
 # Monorepo-Plan: cable-planner · multicam-planner · light-planner
 
-> Status: **Vorschlag / Konzept** — noch nichts migriert.
+> Status: **umgesetzt** — der Monorepo existiert als eigenes Repo
+> [`av-planner-suite`](https://github.com/larszu/av-planner-suite); die drei Apps
+> liegen dort unter `apps/` (vendoriert, nicht verschoben — die Einzel-Repos
+> bleiben die Quelle, ein Drift-Guard haelt die Kopien nach).
+> Dieses Dokument bleibt als Begruendung der damaligen Entscheidung stehen.
 > Ziel: Die drei eigenständigen Broadcast-Planungs-Apps unter ein Dach bringen,
 > ohne laufende Feature-Arbeit (aktuell multicam) zu blockieren.
 
 ## 1. Warum überhaupt
 
-Die drei Apps stammen vom selben Autor, sind MIT-lizenziert, offline-first und
+Die drei Apps stammen vom selben Autor, sind proprietär lizenziert (kostenlos nutzbar), offline-first und
 zielen auf dieselbe Domäne (Broadcast-Produktionsplanung) und dieselben
 Plattformen (macOS/Windows). Der Stack ist nahezu deckungsgleich:
 
