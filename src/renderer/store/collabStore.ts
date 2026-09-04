@@ -8,6 +8,7 @@
 import { create } from 'zustand'
 import { startCollaboration, type CollabMode, type CollabSession } from '../lib/crdt/collab'
 import { colorForId, type PresencePeer } from '../lib/crdt/presence'
+import { parseIceServers } from '../lib/crdt/iceServers'
 import { cablePlannerApi, hasDesktopBridge, type DiscoveredCollabSession } from '../lib/bridge'
 import { useUiStore } from './uiStore'
 import { useProjectStore } from './projectStore'
@@ -32,6 +33,11 @@ interface PersistedCollab {
    *  ausschließlich das lokale Netz (LAN-Signaling). Für sensible Umgebungen —
    *  nichts verlässt das eigene Netzwerk. */
   localOnly: boolean
+  /** Eigene STUN-/TURN-Server, Rohtext aus dem Panel (eine Zeile je Server,
+   *  `url|benutzer|passwort`). Rohtext und nicht die geparste Liste, damit ein
+   *  Tippfehler beim naechsten Oeffnen noch sichtbar ist statt still
+   *  verschwunden zu sein. Siehe `lib/crdt/iceServers.ts` (B-37). */
+  iceServers: string
 }
 
 const COLLAB_KEY = 'cable-planner.collab'
@@ -42,7 +48,7 @@ const COLLAB_KEY = 'cable-planner.collab'
  *  Discovery weiter, während im LAN der lokale Server gewinnt. */
 const PUBLIC_SIGNALING_FALLBACK = 'wss://y-webrtc-eu.fly.dev'
 
-const defaults: PersistedCollab = { mode: 'broadcast', room: 'cable-planner', name: '', signaling: '', password: '', localOnly: false }
+const defaults: PersistedCollab = { mode: 'broadcast', room: 'cable-planner', name: '', signaling: '', password: '', localOnly: false, iceServers: '' }
 
 /** Stabile Peer-Id pro Fenster/Tab. Bewusst sessionStorage (NICHT
  *  localStorage): mehrere Fenster derselben Maschine teilen sich
@@ -75,10 +81,35 @@ const load = (): PersistedCollab => {
       signaling: typeof p.signaling === 'string' ? p.signaling : defaults.signaling,
       password: typeof p.password === 'string' ? p.password : defaults.password,
       localOnly: typeof p.localOnly === 'boolean' ? p.localOnly : defaults.localOnly,
+      iceServers: typeof p.iceServers === 'string' ? p.iceServers : defaults.iceServers,
     }
   } catch {
     return defaults
   }
+}
+
+/**
+ * Einziger Schreibweg der Setter.
+ *
+ * Vorher wiederholte jeder der sechs Setter die vollstaendige Feldliste. Ein
+ * neues Feld haette in allen sechs ergaenzt werden muessen, und genau eine
+ * vergessene Stelle faellt niemandem auf: die Einstellung wirkt in der
+ * laufenden Sitzung und ist nach dem Neustart weg. Die Liste kommt jetzt aus
+ * `defaults` — ein Feld, das dort steht, wird zwangslaeufig mitgeschrieben.
+ */
+const merkeUndSetze = (
+  set: (patch: Partial<CollabState>) => void,
+  get: () => CollabState,
+  patch: Partial<PersistedCollab>,
+) => {
+  const zustand = get()
+  const raus = {} as PersistedCollab
+  for (const key of Object.keys(defaults) as (keyof PersistedCollab)[]) {
+    const wert = key in patch ? patch[key] : zustand[key]
+    ;(raus as unknown as Record<string, unknown>)[key] = wert
+  }
+  persist(raus)
+  set(patch as Partial<CollabState>)
 }
 
 const persist = (s: PersistedCollab) => {
@@ -118,6 +149,8 @@ interface CollabState {
   name: string
   signaling: string
   password: string
+  /** Rohtext der eigenen STUN-/TURN-Server (B-37). */
+  iceServers: string
   error?: string
   peers: PresencePeer[]
   selfId: string
@@ -136,6 +169,7 @@ interface CollabState {
   setPassword: (password: string) => void
   localOnly: boolean
   setLocalOnly: (localOnly: boolean) => void
+  setIceServers: (iceServers: string) => void
   /** Startet eine Session. `adopt` (Beitreten): eigenen Plan NICHT seeden, den
    *  Plan des Hosts übernehmen, und keinen eigenen Signaling-Server starten. */
   start: (opts?: { adopt?: boolean }) => Promise<void>
@@ -156,6 +190,7 @@ export const useCollabStore = create<CollabState>((set, get) => ({
   signaling: initial.signaling,
   password: initial.password,
   localOnly: initial.localOnly,
+  iceServers: initial.iceServers,
   error: undefined,
   peers: [],
   selfId,
@@ -164,34 +199,17 @@ export const useCollabStore = create<CollabState>((set, get) => ({
   discovered: [],
   discovering: false,
 
-  setMode: (mode) => {
-    persist({ mode, room: get().room, name: get().name, signaling: get().signaling, password: get().password, localOnly: get().localOnly })
-    set({ mode })
-  },
-  setRoom: (room) => {
-    persist({ mode: get().mode, room, name: get().name, signaling: get().signaling, password: get().password, localOnly: get().localOnly })
-    set({ room })
-  },
-  setName: (name) => {
-    persist({ mode: get().mode, room: get().room, name, signaling: get().signaling, password: get().password, localOnly: get().localOnly })
-    set({ name })
-  },
-  setSignaling: (signaling) => {
-    persist({ mode: get().mode, room: get().room, name: get().name, signaling, password: get().password, localOnly: get().localOnly })
-    set({ signaling })
-  },
-  setPassword: (password) => {
-    persist({ mode: get().mode, room: get().room, name: get().name, signaling: get().signaling, password, localOnly: get().localOnly })
-    set({ password })
-  },
-  setLocalOnly: (localOnly) => {
-    persist({ mode: get().mode, room: get().room, name: get().name, signaling: get().signaling, password: get().password, localOnly })
-    set({ localOnly })
-  },
+  setMode: (mode) => merkeUndSetze(set, get, { mode }),
+  setRoom: (room) => merkeUndSetze(set, get, { room }),
+  setName: (name) => merkeUndSetze(set, get, { name }),
+  setSignaling: (signaling) => merkeUndSetze(set, get, { signaling }),
+  setPassword: (password) => merkeUndSetze(set, get, { password }),
+  setLocalOnly: (localOnly) => merkeUndSetze(set, get, { localOnly }),
+  setIceServers: (iceServers) => merkeUndSetze(set, get, { iceServers }),
 
   start: async (opts) => {
     const adopt = opts?.adopt === true
-    const { status, mode, room, name, signaling, password, session, localOnly } = get()
+    const { status, mode, room, name, signaling, password, session, localOnly, iceServers } = get()
     if (status === 'connecting' || status === 'on') return
     if (session) session.stop()
     set({ status: 'connecting', error: undefined, session: null, peers: [] })
@@ -222,12 +240,21 @@ export const useCollabStore = create<CollabState>((set, get) => ({
     }
 
     const pw = password.trim()
+    // B-37: eigene STUN-/TURN-Server. Sie gehen NUR an den lokalen Provider —
+    // weder in den Einladungslink noch in die mDNS-Ankündigung (siehe
+    // `lib/crdt/iceServers.ts`): ein Einladungslink wird in einen Chat
+    // gepastet, und ein TURN-Passwort, das dort mitfährt, ist veröffentlicht.
+    const ice = parseIceServers(iceServers)
     // Nur ein WebRTC-Options-Objekt bauen, wenn es etwas zu setzen gibt
-    // (Signaling und/oder Passwort). Das Passwort verschlüsselt den Raum E2E —
-    // nur Peers mit demselben Passwort können das Projekt lesen.
+    // (Signaling, Passwort und/oder ICE-Server). Das Passwort verschlüsselt den
+    // Raum E2E — nur Peers mit demselben Passwort können das Projekt lesen.
     const webrtcOpts =
-      signalingList.length > 0 || pw
-        ? { ...(signalingList.length > 0 ? { signaling: signalingList } : {}), ...(pw ? { password: pw } : {}) }
+      signalingList.length > 0 || pw || ice.length > 0
+        ? {
+            ...(signalingList.length > 0 ? { signaling: signalingList } : {}),
+            ...(pw ? { password: pw } : {}),
+            ...(ice.length > 0 ? { iceServers: ice } : {}),
+          }
         : undefined
     try {
       const s = await startCollaboration({

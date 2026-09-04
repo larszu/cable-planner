@@ -19,6 +19,7 @@
 
 import type { ProjectCrdt } from './projectCrdt'
 import type { AwarenessLike } from './presence'
+import type { IceServerConfig } from './iceServers'
 
 export interface WebrtcOptions {
   /** Signaling-Server. Default: öffentliche y-webrtc-Server. Für LAN-only
@@ -26,7 +27,32 @@ export interface WebrtcOptions {
   signaling?: string[]
   /** Optionales Raum-Passwort (E2E-Verschlüsselung der Updates). */
   password?: string
+  /** Eigene STUN-/TURN-Server (B-37). Ohne Angabe gelten die Default-STUN-
+   *  Server von y-webrtc — die genügen im LAN und scheitern zwischen zwei
+   *  Netzen hinter symmetrischem NAT. */
+  iceServers?: IceServerConfig[]
 }
+
+/**
+ * Das Optionen-Objekt, das an `new WebrtcProvider` geht — als eigene, reine
+ * Funktion, damit die Weitergabe messbar ist und nicht nur behauptet.
+ *
+ * Das war der eigentliche Befund hinter B-37: `iceServers` ins Interface zu
+ * schreiben kostet eine Zeile, und ob der Wert unten auch ankommt, sieht man
+ * einer Typdefinition nicht an. `tests/iceServerErreichenDenProvider.test.ts`
+ * prüft deshalb dieses Objekt, nicht den Typ.
+ */
+export const webrtcProviderOptions = (opts: WebrtcOptions) => ({
+  signaling: opts.signaling,
+  password: opts.password,
+  // y-webrtc reicht `peerOpts` unverändert an simple-peer weiter, das daraus
+  // die RTCPeerConnection baut. Nur gesetzt, wenn wirklich Server konfiguriert
+  // sind: ein leeres `iceServers: []` würde die Defaults ABSCHALTEN statt sie
+  // zu ergänzen — dann fände sich im LAN gar nichts mehr.
+  ...(opts.iceServers && opts.iceServers.length > 0
+    ? { peerOpts: { config: { iceServers: opts.iceServers } } }
+    : {}),
+})
 
 export interface WebrtcHandle {
   /** Trennt die Verbindung und gibt den Provider frei. Das Doc bleibt. */
@@ -48,10 +74,7 @@ export const attachWebrtcProvider = async (
   opts: WebrtcOptions = {},
 ): Promise<WebrtcHandle> => {
   const { WebrtcProvider } = await import('y-webrtc')
-  const provider = new WebrtcProvider(room, crdt.doc, {
-    signaling: opts.signaling,
-    password: opts.password,
-  })
+  const provider = new WebrtcProvider(room, crdt.doc, webrtcProviderOptions(opts))
   return {
     awareness: provider.awareness as unknown as AwarenessLike,
     disconnect: () => {

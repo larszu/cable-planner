@@ -100,6 +100,10 @@ export const en: Dict = {
   'collab.password': 'Room password',
   'collab.optional': 'optional',
   'collab.password.placeholder': 'encrypts the room',
+  'collab.ice': 'STUN/TURN servers',
+  'collab.ice.hint':
+    'One server per line: URL|user|password. Only needed when the other side sits in a different network. The credentials stay on this machine — they are not part of the invite link.',
+  'collab.ice.invalid': 'Not usable:',
   'collab.webrtc.noPassword':
     'Without a room password the room is unencrypted: anyone who knows the room name and signaling server (or finds the session on the LAN) can read the entire project. Set a password and share it only with your team.',
   'collab.peers.aloneTitle': 'Only you in the room',
