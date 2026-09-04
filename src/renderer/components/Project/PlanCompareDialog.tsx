@@ -10,6 +10,7 @@ import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 import { planDiff, planDiffCsv, planDiffSummary, type PlanDiff } from '../../lib/planDiff'
 import { changeImpact, changeImpactSummary, type ChangeImpact } from '../../lib/changeImpact'
 import { planFingerprint } from '../../lib/documentStamp'
+import { looksLikeProject } from '../../lib/looksLikeProject'
 import type { CablePlannerProject, ProjectRevision } from '../../types/project'
 
 // Roadmap-Initiative 5 — hier laufen beide Ableitungen zusammen.
@@ -54,13 +55,6 @@ type Loaded = {
   /** Dateipfad oder Revisions-Label — was im Dialog neben der Auswahl steht. */
   label: string
   project: CablePlannerProject
-}
-
-/** Plausibilitaet statt Vertrauen: eine fremde Datei ist erst mal nur JSON. */
-const looksLikeProject = (data: unknown): data is CablePlannerProject => {
-  if (typeof data !== 'object' || data === null) return false
-  const p = data as Record<string, unknown>
-  return Array.isArray(p.equipment) && Array.isArray(p.cables) && typeof p.metadata === 'object'
 }
 
 const VERDICT_STYLE: Record<string, string> = {

@@ -6,6 +6,7 @@ import { projectHistory } from '../store/projectHistory'
 import type { CablePlannerProject } from '../types/project'
 import { promptDialog } from '../lib/promptDialog'
 import { infoDialog } from '../lib/infoDialog'
+import { looksLikeProject } from '../lib/looksLikeProject'
 import { translate } from '../lib/i18n'
 
 interface OpenProjectResponse {
@@ -53,6 +54,30 @@ export const useProject = () => {
           y: e.y,
         })),
       })
+      // Die Datei-Tuer. `healProjectPositions` greift ungeschuetzt auf
+      // `equipment`/`cables` zu; gueltiges JSON, das kein Projekt ist, laesst
+      // den Renderer sonst in die ErrorBoundary laufen. Der Autosave-Pfad
+      // prueft das seit laengerem, diese Tuer nicht — nachgewiesen mit
+      // `TypeError: Cannot read properties of undefined (reading 'filter')`.
+      //
+      // Abgelehnt statt repariert: ein auf `[]` aufgefuelltes Projekt saehe
+      // aus, als waere die Arbeit des Nutzers weg.
+      if (!looksLikeProject(result.data)) {
+        const lang = useUiStore.getState().language
+        await infoDialog(
+          translate(lang, 'project.open.notAPlanTitle', 'Diese Datei ist kein Cable-Planner-Projekt'),
+          {
+            body: translate(
+              lang,
+              'project.open.notAPlan',
+              'Die Datei ließ sich lesen, enthält aber keine Geräte- und Kabel-Liste. ' +
+                'Es wurde nichts geladen — das offene Projekt bleibt unverändert.',
+            ),
+            tone: 'warning',
+          },
+        )
+        return
+      }
       // Sync metadata.name with filename if project still has the default name.
       const incoming = result.data
       if (
