@@ -104,6 +104,7 @@ export interface DiscoveredCollabSession {
 type CablePlannerApi = {
   credentials: {
     getToken: () => Promise<string | null>
+    hasToken: () => Promise<boolean>
     saveToken: (token: string) => Promise<boolean>
     deleteToken: () => Promise<boolean>
     testToken: () => Promise<{ ok: boolean; message: string }>
@@ -530,6 +531,7 @@ const webFallbackApi: CablePlannerApi = {
       const stored = localStorage.getItem(TOKEN_KEY)
       return stored ? normalizeToken(stored) : null
     },
+    hasToken: async () => Boolean(normalizeToken(localStorage.getItem(TOKEN_KEY) ?? '')),
     saveToken: async (token: string) => {
       const clean = normalizeToken(token)
       if (!clean) {

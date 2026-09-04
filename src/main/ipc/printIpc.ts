@@ -152,6 +152,17 @@ export const registerPrintIpc = (): void => {
         if (resolved) return
         resolved = true
         try { win.destroy() } catch { /* ignore */ }
+        // Die Temp-Datei wurde bis hierher nie geloescht: jeder Druck liess
+        // ein `cable-planner-print-<timestamp>.pdf` in tmpdir zurueck --
+        // dauerhaft, und mit dem kompletten Plan darin. Der Handler direkt
+        // darueber raeumt seine Datei auf (Zeile 127); dieser nicht.
+        //
+        // `settle` ist der einzige Ausgang (Erfolg, did-fail-load, 60-s-
+        // Notbremse, abgelehntes loadURL), also der richtige Ort. Erst
+        // `win.destroy()`, dann loeschen: unter Windows scheitert das
+        // Loeschen, solange das Fenster die Datei offen haelt -- deshalb
+        // best effort statt Fehlerpfad.
+        void unlink(tmpFile).catch(() => {})
         resolve(ok)
       }
       // Sicherheitsnetz: wenn die print-Pipeline hängt, nach 60 s aufgeben

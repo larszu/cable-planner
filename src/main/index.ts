@@ -3,6 +3,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import fs from 'node:fs'
 import { registerCredentialsIpc } from './ipc/credentialsIpc.js'
+import { appendLogCapped } from './util/appendLogCapped.js'
 import { registerRentmanIpc } from './ipc/rentmanIpc.js'
 import { registerNetboxIpc } from './ipc/netboxIpc.js'
 import { openExternalProject, registerProjectIpc } from './ipc/projectIpc.js'
@@ -59,24 +60,6 @@ if (!gotInstanceLock) {
   })
 }
 
-// Append to a log file with a hard size cap so a crash-loop can't fill
-// the user's disk. When the file passes the cap it is rotated to `.1`.
-const LOG_MAX_BYTES = 2 * 1024 * 1024 // 2 MB
-const appendLogCapped = (fileName: string, msg: string): void => {
-  try {
-    const file = path.join(app.getPath('userData'), fileName)
-    try {
-      if (fs.statSync(file).size > LOG_MAX_BYTES) {
-        fs.renameSync(file, `${file}.1`)
-      }
-    } catch {
-      /* no existing file → fine */
-    }
-    fs.appendFileSync(file, msg)
-  } catch {
-    /* ignore */
-  }
-}
 
 // Prevents black-screen rendering issues seen on some Windows GPU drivers.
 if (process.platform === 'win32') {

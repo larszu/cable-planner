@@ -3,6 +3,7 @@ import { contextBridge, ipcRenderer } from 'electron'
 contextBridge.exposeInMainWorld('cablePlanner', {
   credentials: {
     getToken: () => ipcRenderer.invoke('credentials:get-token') as Promise<string | null>,
+    hasToken: () => ipcRenderer.invoke('credentials:has-token') as Promise<boolean>,
     saveToken: (token: string) => ipcRenderer.invoke('credentials:save-token', token) as Promise<boolean>,
     deleteToken: () => ipcRenderer.invoke('credentials:delete-token') as Promise<boolean>,
     testToken: () =>
