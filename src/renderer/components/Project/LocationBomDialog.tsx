@@ -8,7 +8,7 @@ import { sanitizeForPdf } from '../../lib/sanitizeForPdf'
 import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 import { useTranslation } from '../../lib/i18n'
 import { formatCategoryProps } from '../../lib/categorySchemas'
-import { effectiveDeviceResources } from '../../lib/equipmentSelectors'
+import { effectiveDeviceResources, effectiveWatts } from '../../lib/equipmentSelectors'
 import type { Lang } from '../../lib/categoryTranslations'
 import { portDisplayLabel } from '../../lib/portLabel'
 
@@ -141,14 +141,11 @@ export const LocationBomDialog = () => {
     for (const d of devices) {
       // #124 — aktiver Betriebsmodus kann Gewicht/Leistung überschreiben.
       const res = effectiveDeviceResources(d)
-      const modePower = d.activeModeId
-        ? d.modes?.find((m) => m.id === d.activeModeId)?.powerWatts
-        : undefined
       if (typeof res.weightKg === 'number' && res.weightKg > 0) {
         weightKg += res.weightKg
         weighed += 1
       }
-      watts += modePower ?? d.powerConsumptionWatts ?? (d.voltage && d.currentAmps ? d.voltage * d.currentAmps : 0)
+      watts += effectiveWatts(d)
     }
     return { weightKg, weighed, watts, btu: Math.round(watts * 3.412) }
   }, [devices])

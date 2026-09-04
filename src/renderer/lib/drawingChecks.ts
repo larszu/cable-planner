@@ -7,14 +7,19 @@
 // Die Heuristiken sind bewusst die GLEICHEN wie im AnalysisDialog (Doppel-IP,
 // RF-Konflikt, Single-Power) plus neue, dort fehlende Checks (offene Ports,
 // inkompatible Connectoren, doppelte Kabelnummern, fehlende Längen). Wir
-// duplizieren nur die kleinen reinen Helfer (parseFreqMHz, effectiveWatts),
-// nicht die Report-UI.
+// duplizieren nur den kleinen reinen Helfer parseFreqMHz, nicht die Report-UI.
+//
+// `effectiveWatts` wurde hier ebenfalls dupliziert -- und lief auseinander:
+// die Kopie hier kannte den aktiven Betriebsmodus nicht, die im AnalysisDialog
+// schon, obwohl der Kommentar "bewusst die GLEICHEN" behauptete. Der Helfer
+// kommt deshalb jetzt aus `equipmentSelectors`, wo er nur einmal existiert.
 
 import type { Cable } from '../types/cable'
 import type { EquipmentItem, Port, ConnectorType } from '../types/equipment'
 import type { DrumKitPlan } from '../types/drumKit'
 import { checkImpedanceMismatch, checkBalanceMismatch, maxPassiveLengthM } from '../types/cableSpec'
 import { networkAddress } from './subnet'
+import { effectiveWatts } from './equipmentSelectors'
 import { deriveDrumChannels } from './drumMicing'
 import { labelTargetIssues } from './labelDerivation'
 
@@ -32,10 +37,6 @@ export interface CheckFinding {
   equipmentId?: string
   cableId?: string
 }
-
-/** Effektive Leistung eines Geräts: explizite Watt, sonst V×A. */
-const effectiveWatts = (e: EquipmentItem): number =>
-  e.powerConsumptionWatts ?? (e.voltage && e.currentAmps ? e.voltage * e.currentAmps : 0)
 
 /** Frequenz-String („5.8 GHz", „600 MHz", „614") → MHz (oder null). */
 const parseFreqMHz = (s: string | undefined): number | null => {

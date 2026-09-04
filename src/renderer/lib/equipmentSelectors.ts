@@ -67,6 +67,48 @@ export const effectiveDeviceResources = (
 }
 
 /**
+ * Die effektive Leistungsaufnahme eines Geraets in Watt.
+ *
+ * WARUM DAS HIER LIEGT. Diese Kette stand in VIER Kopien im Renderer, und
+ * zwei davon liefen auseinander (gemessen 2026-09-04):
+ *
+ *   Analyse -> Gewicht/Waerme      beruecksichtigte den aktiven Modus
+ *   Location-BOM                   beruecksichtigte den aktiven Modus
+ *   Werkzeuge -> Stromverbrauch    NICHT
+ *   Plan-Check (drawingChecks)     NICHT
+ *
+ * Derselbe Plan zeigte damit je nach Ansicht eine andere Zahl, sobald ein
+ * Geraet einen aktiven Betriebsmodus mit eigener Leistung hatte. Und die
+ * Ansicht, die zu NIEDRIG rechnete, war ausgerechnet der Stromrechner --
+ * aus dessen Summe kommen Phasenverteilung, Neutralleiterstrom,
+ * Generator-kVA, USV-Laufzeit und die Ueberlast-Warnung. Die
+ * sicherheitsrelevante Ansicht war die optimistischere.
+ *
+ * `drawingChecks.ts` behauptete im Kopf sogar ausdruecklich, seine Helfer
+ * seien "bewusst die GLEICHEN wie im AnalysisDialog" -- sie waren es nicht.
+ *
+ * REIHENFOLGE. Modus vor Geraete-Wert vor V x A. Der Modus-Wert gewinnt,
+ * weil das Feld im Editor "Leistung (W) in diesem Modus" heisst: wer ihn
+ * setzt, erwartet ihn in der Stromrechnung.
+ *
+ * NICHT in der Kette: `item.powerWatts`. Das ist ein zweites, getrennt
+ * dokumentiertes Feld (Rentman-Engineering-Daten, #167) und wird heute von
+ * keiner Summe gelesen. Es hier aufzunehmen wuerde die Zahlen bestehender
+ * Projekte veraendern -- das ist eine Eigentuemer-Entscheidung, keine
+ * Aufraeumarbeit. Siehe B-15 im Backlog der Suite.
+ */
+export const effectiveWatts = (item: EquipmentItem): number => {
+  const modePower = item.activeModeId
+    ? item.modes?.find((m) => m.id === item.activeModeId)?.powerWatts
+    : undefined
+  return (
+    modePower ??
+    item.powerConsumptionWatts ??
+    (item.voltage && item.currentAmps ? item.voltage * item.currentAmps : 0)
+  )
+}
+
+/**
  * Helper fuer den haeufigen Pattern "Port aus dem Equipment ueber Port-ID
  * suchen", der sonst zweimal `find()` braucht.
  */
