@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useTranslation } from '../../lib/i18n'
+import { format, useTranslation } from '../../lib/i18n'
 
 /** Struktur fuer farb-kodierte Label-Rendering. Wenn ein Eintrag
  *  mehr als nur `port` enthaelt, rendert der Matrix-Header die Teile
@@ -584,7 +584,7 @@ export const VideohubRoutingMatrix = ({
                         type="button"
                         onClick={() => focusRow(oi)}
                         className="block w-full hover:text-cp-text-secondary"
-                        title={`Output ${oi + 1} ${t('export.focusVerb', 'fokussieren')}`}
+                        title={format(t('export.focusOutput', 'Output {n} fokussieren'), { n: oi + 1 })}
                       >
                         {oi + 1}
                       </button>
