@@ -246,6 +246,10 @@ npm run dist
 ---
 
 ## 📚 Documentation
+- [**`docs/README.md`**](docs/README.md) — index of everything in `docs/`,
+  grouped by operations, development, domain concepts and dated audits.
+- [`docs/self-hosted-relay.md`](docs/self-hosted-relay.md) — run your own
+  signaling relay and TURN server for live collaboration across networks.
 - [`docs/architecture.md`](docs/architecture.md) — Process model, IPC, store
   architecture, build & release workflow, non-negotiable invariants.
 - [`docs/app-structure.html`](docs/app-structure.html) — interactive module
