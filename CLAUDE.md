@@ -160,12 +160,16 @@ Pfad-Validierung passiert **immer in main**, nie im Renderer.
 - Merge-Regel: **nur mergen, wenn CI grün ist.** Bei rotem CI erst fixen. Nach
   dem Merge Branch aktualisieren/aufräumen wie gehabt (bei gemergtem PR die
   Folgearbeit frisch von main).
-- **Repos ohne CI** (Broadcast-intercom, sony-camera-bridge, pi-media-station
-  haben keine Checks): „CI grün" ist dort nicht erfüllbar und darf nicht als
-  erfüllt behandelt werden. Statt dessen gilt, was das Repo selbst hergibt —
-  Build/Tests lokal laufen lassen, wenn es welche gibt, und den Diff lesen.
-  Eine reine Lizenz- oder Doku-Änderung ohne Code-Anteil ist der eine Fall,
-  in dem beides entfällt.
+- **Alle acht Repos haben inzwischen CI** (Stand 2026-09-04). Die frühere
+  Ausnahme für Broadcast-intercom, sony-camera-bridge und pi-media-station ist
+  damit hinfällig — und sie stehenzulassen wäre schlimmer als nutzlos: sie
+  sagte „CI grün ist dort nicht erfüllbar", was jemanden dazu brächte, eine
+  vorhandene Prüfung zu überspringen. Nachgesehen: alle drei Workflows lösen
+  auf `pull_request` aus (`Broadcast-intercom#6`, `sony-camera-bridge#11`,
+  `pi-media-station#3`).
+- Es gibt damit **keinen** Fall mehr, in dem „nur mergen, wenn CI grün ist"
+  nicht anwendbar wäre. Wer künftig ein Repo ohne Checks anlegt, trägt die
+  Ausnahme hier wieder ein — mit Datum und Begründung, nicht stillschweigend.
 
 ### Author-Identität
 Bot-Commits sind unter `Claude <noreply@anthropic.com>` authored (Harness setzt
