@@ -87,6 +87,7 @@ import { useRentman } from './hooks/useRentman'
 import { cablePlannerApi, hasDesktopBridge } from './lib/bridge'
 import { exportCanvasToPdf, exportCanvasToPdfBytes } from './lib/exportPdf'
 import { stampForPlan } from './lib/documentStamp'
+import { recordEmission } from './lib/documentLog'
 import { exportCanvasToPdfVector } from './lib/exportPdfVector'
 import { printPdfBlob } from './lib/printPdfBlob'
 import { exportCanvasToImage } from './lib/exportImage'
@@ -830,6 +831,62 @@ export default function App() {
     })
   }
 
+
+  /**
+
+   * Roadmap-Initiative 5 — der Plan geht ins Dokument-Register.
+
+   *
+
+   * WARUM DAS HIER NACHGETRAGEN WURDE. `documentRegistry` fuehrt `plan` als
+
+   * vollwertiges Dokument mit berechenbarem Stand (DOCUMENT_STANDS.plan =
+
+   * planFingerprint), `changeImpact` hat ein eigenes Feld `planChanged`, und
+
+   * der Papier-Rueckweg rechnet ausdruecklich damit, dass jemand einen
+
+   * GEDRUCKTEN PLAN in der Hand haelt und dessen acht Zeichen eintippt.
+
+   * Trotzdem hatte `recordEmission` genau EINEN Aufrufer — den
+
+   * Installations-Dialog. Wer den Plan druckte, danach eine Kabellaenge
+
+   * aenderte und „Ausgegebene Dokumente" oeffnete, las „Fuer dieses Projekt
+
+   * wurde noch nichts ausgegeben". Falsche Beruhigung ueber das Blatt, das
+
+   * beim Kunden liegt.
+
+   *
+
+   * Das ist dieselbe Form wie beim Stempel selbst: eine Zusicherung existiert,
+
+   * ist an ihrer Stelle begruendet, und die Nachbar-Aufrufer kennen sie nicht.
+
+   * Deshalb steht die Aufzeichnung in EINER Funktion und wird von jedem
+
+   * Plan-Ausgabeweg gerufen; `tests/planAusgabeStehtImRegister.test.ts` rechnet
+
+   * die Aufruferliste aus dem Quelltext aus und laesst keinen aus.
+
+   */
+
+  const recordPlanEmission = () => {
+
+    void recordEmission(
+
+      useProjectStore.getState().project,
+
+      'plan',
+
+      useProjectStore.getState().filePath,
+
+    )
+
+  }
+
+
   const handleExportPdf = async (
     theme: 'dark' | 'light' = canvasTheme,
     vector = false,
@@ -855,6 +912,11 @@ export default function App() {
           onProgress: (phase, detail) =>
             setPdfProgress({ active: true, phase, detail }),
         })
+        // Auch der Vektor-Weg gibt ein Plan-Blatt aus. Dass ihm der Titelblock
+        // und damit der Stempel fehlt (offengelegt im Export-Dialog), macht die
+        // Ausgabe nicht ungeschehen — ein fehlender Registereintrag saehe aus
+        // wie „nicht ausgegeben".
+        recordPlanEmission()
       } else {
         await exportCanvasToPdf(project.metadata.name, project.metadata, 0.85, {
           backgroundTheme: theme,
@@ -868,6 +930,7 @@ export default function App() {
           onProgress: (phase, detail) =>
             setPdfProgress({ active: true, phase, detail }),
         })
+        recordPlanEmission()
       }
     } catch (error) {
       console.error('PDF export failed:', error)
@@ -906,6 +969,7 @@ export default function App() {
       })
       const blob = new Blob([new Uint8Array(bytes)], { type: 'application/pdf' })
       void printPdfBlob(blob)
+      recordPlanEmission()
     } catch (error) {
       console.error('PDF print failed:', error)
       await infoDialog('PDF-Druck fehlgeschlagen', {
@@ -965,6 +1029,7 @@ export default function App() {
       const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')
       const fileName = `${baseName}_${stamp}.pdf`
       await addProjectFile(linkedId, fileName, bytes, 'application/pdf')
+      recordPlanEmission()
       await infoDialog(t('app.rentman.attachedTitle', 'An Rentman angehängt'), {
         body: format(
           t('app.rentman.attachedBody', '{file} wurde dem Projekt "{name}" als Anhang hinzugefügt.'),

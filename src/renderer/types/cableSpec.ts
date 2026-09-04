@@ -88,11 +88,42 @@ export const ALL_SIGNAL_STANDARDS: SignalStandard[] = [
 export const SDI_STANDARDS: SignalStandard[] = ['SDI-SD', 'SDI-HD', 'SDI-3G', 'SDI-6G', 'SDI-12G']
 
 /**
- * Returns the highest applicable SDI standard from the given list,
- * or the last element if no SDI standard is found.
+ * Der hoechste anwendbare SDI-Standard aus der Liste — und wenn keiner dabei
+ * ist, der mit der hoechsten bekannten Medien-Bandbreite.
+ *
+ * WAS HIER FALSCH WAR (gemessen 2026-09-04). Der Rueckfall lautete
+ * `standards[standards.length - 1]` — das LETZTE Listenelement, also eine
+ * Eigenschaft der Schreibreihenfolge in der Spec und keine fachliche Aussage.
+ * Weil die Reihenfolge der ST-2110- und NDI-Specs mit dem KLEINSTEN Signal
+ * endet, kippte der Vorgabewert genau in die falsche Richtung:
+ *
+ *   st2110-fiber  -> ST2110-40 (2 Mbps)   statt ST2110-20 (3000 Mbps)
+ *   ndi-cat6a     -> NDI-HX   (20 Mbps)   statt NDI       (250 Mbps)
+ *
+ * Ein Plan mit zwanzig unberuehrten ST-2110-Links meldete damit 40 Mbps
+ * Gesamtlast und bekam „1 GbE" empfohlen — eine Unterschaetzung um Faktor
+ * 1500, ausgegeben ohne Vorbehalt in grosser Schrift.
+ *
+ * Der Vorgabewert ist der Wert, den die allermeisten Kabel behalten. Er muss
+ * deshalb der wahrscheinliche Hauptweg sein: bei ST 2110 die Video-Essenz,
+ * bei NDI der unkomprimierte Stream. Wo keiner der Standards eine bekannte
+ * Bandbreite hat (reine Ethernet-, Steuer- oder Stromspecs), bleibt es beim
+ * letzten Element wie bisher — dort gibt es nichts zu ordnen.
  */
-export const pickHighestSdiStandard = (standards: SignalStandard[]): SignalStandard | undefined =>
-  [...SDI_STANDARDS].reverse().find((s) => standards.includes(s)) ?? standards[standards.length - 1]
+export const pickHighestSdiStandard = (standards: SignalStandard[]): SignalStandard | undefined => {
+  const sdi = [...SDI_STANDARDS].reverse().find((s) => standards.includes(s))
+  if (sdi) return sdi
+  let breitester: SignalStandard | undefined
+  let breite = -1
+  for (const s of standards) {
+    const mbps = bandwidthMbpsForStandard(s)
+    if (mbps !== undefined && mbps > breite) {
+      breite = mbps
+      breitester = s
+    }
+  }
+  return breitester ?? standards[standards.length - 1]
+}
 
 export interface CableSpec {
   id: string
@@ -697,6 +728,39 @@ export const bandwidthMbpsForStandard = (s: SignalStandard | undefined): number 
       return 2 // ANC/Metadaten
     case 'ST2110-20':
       return 3000 // 1080p unkomprimiert (≈2160p → 12000)
+    default:
+      // Eth-100/1G/10G stehen hier BEWUSST nicht mehr. Siehe unten.
+      return undefined
+  }
+}
+
+/**
+ * Die Kapazitaet eines Ethernet-Links (Mbps) — was die Leitung KANN, nicht was
+ * darueber laeuft.
+ *
+ * WARUM DAS GETRENNT IST (gemessen 2026-09-04). `bandwidthMbpsForStandard`
+ * lieferte fuer Eth-100/1G/10G 100/1000/10000 zurueck, und das
+ * Netzwerk-Budget im Rechner summiert seine Rueckgabewerte als LAST. Ein
+ * einziges gezeichnetes Cat6a-Kabel ergab damit „10 Gbps Gesamt-Bandbreite"
+ * und die Empfehlung „10 GbE" — bei null Mediensignalen im Plan. Zwei Kabel
+ * ergaben 25 GbE. Die Empfehlung wurde davon getrieben, wie viele
+ * Netzwerkkabel jemand gezeichnet hat, nicht davon, was darueber laeuft.
+ *
+ * Der Docstring der Funktion sagte die richtige Regel bereits — „nur
+ * Standards, die sich ein Ethernet-/IP-Netz teilen" — und die drei
+ * Eth-Faelle widersprachen ihr: ein Eth-1G-Kabel TEILT sich das Netz nicht,
+ * es IST das Netz. Kapazitaet als Last zu zaehlen ist ein Kategoriefehler,
+ * und er ist gross: Eth-10G ist das Vierzigfache eines NDI-Streams und
+ * dominiert damit jeden realen Plan.
+ *
+ * Die Zahlen selbst sind nicht falsch, nur ihre Verwendung. Sie stehen
+ * deshalb hier weiter — fuer den Aufrufer, der wissen will, ob die Summe der
+ * Lasten in die gezeichneten Leitungen passt.
+ */
+export const linkCapacityMbpsForStandard = (
+  s: SignalStandard | undefined,
+): number | undefined => {
+  switch (s) {
     case 'Eth-100':
       return 100
     case 'Eth-1G':
