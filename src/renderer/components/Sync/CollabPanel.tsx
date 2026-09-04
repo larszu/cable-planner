@@ -5,7 +5,7 @@
 // eine klare „so treten andere bei"-Anleitung (#471). Logik liegt im
 // collabStore + lib/crdt/*; diese Komponente ist Anzeige + Steuerung.
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import {
   useCollabStore,
   type CollabMode,
@@ -16,6 +16,7 @@ import { hasDesktopBridge } from '../../lib/bridge'
 import { buildInviteLink } from '../../lib/collabInvite'
 import { useTranslation } from '../../lib/i18n'
 import { confirmDialog } from '../../lib/confirmDialog'
+import { ungueltigeIceZeilen } from '../../lib/crdt/iceServers'
 
 const statusLabel = (
   status: ReturnType<typeof useCollabStore.getState>['status'],
@@ -65,6 +66,8 @@ export const CollabPanel = () => {
   const localOnly = useCollabStore((s) => s.localOnly)
   const setLocalOnly = useCollabStore((s) => s.setLocalOnly)
   const setPassword = useCollabStore((s) => s.setPassword)
+  const iceServers = useCollabStore((s) => s.iceServers)
+  const setIceServers = useCollabStore((s) => s.setIceServers)
   const start = useCollabStore((s) => s.start)
   const stop = useCollabStore((s) => s.stop)
   const discovered = useCollabStore((s) => s.discovered)
@@ -74,6 +77,10 @@ export const CollabPanel = () => {
 
   const [copied, setCopied] = useState(false)
   const active = status === 'on' || status === 'connecting'
+  // Verworfene Zeilen benennen statt sie stumm zu schlucken: eine
+  // ignorierte Zeile sieht im Feld genauso aus wie eine akzeptierte, und
+  // der Nutzer sucht den Fehler dann in coturn statt in seinem Tippfehler.
+  const iceFehler = useMemo(() => ungueltigeIceZeilen(iceServers), [iceServers])
 
   // #516 — Einladungs-Link statt Text-Block: ein klickbarer Link (wie
   // Zoom/Teams), der die App öffnet und Raum/Modus/Signaling/Passwort
@@ -234,6 +241,40 @@ export const CollabPanel = () => {
               onChange={(e) => setPassword(e.target.value)}
               placeholder={t('collab.password.placeholder', 'verschlüsselt den Raum')}
             />
+          </label>
+        )}
+
+        {/* B-37 — STUN/TURN. Ohne eigene Server gelten die y-webrtc-Defaults:
+            die genügen im LAN und scheitern zwischen zwei Netzen hinter
+            symmetrischem NAT. `docs/self-hosted-relay.md` beschrieb dieses
+            Feld, bevor es es gab. */}
+        {mode === 'webrtc' && (
+          <label className="space-y-1">
+            <span className="block text-cp-xs text-[var(--cp-text-muted)]">
+              {t('collab.ice', 'STUN-/TURN-Server')}
+              <span className="text-[var(--cp-text-faint)]"> ({t('collab.optional', 'optional')})</span>
+            </span>
+            <textarea
+              rows={2}
+              spellCheck={false}
+              autoComplete="off"
+              className="w-full rounded border border-[var(--cp-border)] bg-[var(--cp-surface-3)] px-2 py-1 font-mono text-cp-xs disabled:opacity-50"
+              value={iceServers}
+              disabled={active}
+              onChange={(e) => setIceServers(e.target.value)}
+              placeholder={'turn:turn.example.com:3478|benutzer|geheim'}
+            />
+            <span className="block text-cp-xs text-[var(--cp-text-faint)]">
+              {t(
+                'collab.ice.hint',
+                'Eine Zeile je Server: URL|Benutzer|Passwort. Nur nötig, wenn die Gegenstelle in einem anderen Netz sitzt. Die Zugangsdaten bleiben auf diesem Rechner — sie stehen nicht im Einladungslink.',
+              )}
+            </span>
+            {iceFehler.length > 0 && (
+              <span className="block text-cp-xs text-[var(--cp-danger)]">
+                {t('collab.ice.invalid', 'Nicht verwertbar:')} {iceFehler.join(' · ')}
+              </span>
+            )}
           </label>
         )}
       </div>
