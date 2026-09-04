@@ -29,6 +29,7 @@
 
 import type { EquipmentItem } from '../types/equipment'
 import type { InventoryItem, InventoryUnit } from '../types/inventory'
+import type { ZusatzBedarf } from './planDemandExtras'
 import { resolveDeviceType } from './deviceTypeRegistry'
 import { isWithinDistance } from './levenshtein'
 
@@ -51,6 +52,9 @@ export interface DemandLine {
   /** Namen der Racks, aus deren Innenleben diese Zeile (auch) stammt.
    *  Leer/fehlend bei Geraeten, die selbst auf dem Canvas liegen. */
   fromRacks?: string[]
+  /** Planteile ausserhalb von `project.equipment`, aus denen diese Zeile
+   *  (auch) stammt — Drum-Mikrofonierung, Funkstrecken-Plan. */
+  fromPlanParts?: string[]
 }
 
 export interface CoverageLine {
@@ -149,7 +153,10 @@ const MAX_EDIT_DISTANCE = 2
  * sind dort zwei Schluessel und werden zu zwei Positionen a 1 Stueck, obwohl
  * es ein Modell mit Menge 2 ist.
  */
-export const deriveDemand = (equipment: EquipmentItem[]): DemandLine[] => {
+export const deriveDemand = (
+  equipment: EquipmentItem[],
+  zusatz: ZusatzBedarf[] = [],
+): DemandLine[] => {
   const byKey = new Map<string, DemandLine>()
 
   const zaehle = (
@@ -233,6 +240,41 @@ export const deriveDemand = (equipment: EquipmentItem[]): DemandLine[] => {
       )
     }
   }
+  // DRITTE PHASE — Planteile ausserhalb von `project.equipment`.
+  //
+  // `drumKit` und `wirelessRig` sind eigene Projektfelder und tauchten in
+  // keiner Stueckliste auf. Sie kommen hier zuletzt, aus demselben Grund wie
+  // die Rack-Inhalte: gegen die vorhandenen Zeilen, damit ein Mikrofon, das
+  // auch als Geraet auf dem Canvas liegt, nicht zwei Zeilen ergibt.
+  //
+  // Anders als Rack-Inhalte tragen diese Positionen oft eine Katalog-GUID —
+  // dann ist die Zeile eine Tatsache und keine Namensvermutung. Wo keine da
+  // ist (Stative, Clamps, XLR aus `deriveDrumBom`), laeuft es ueber den Namen,
+  // und das ist richtig so: mehr weiss der Plan dort nicht.
+  for (const z of zusatz) {
+    const nameKey = normaliseName(z.label)
+    const key = z.deviceTypeId ?? nachLabel.get(nameKey) ?? `name:${nameKey}|`
+    if (!z.deviceTypeId && !nachLabel.has(nameKey)) nachLabel.set(nameKey, key)
+    const vorhanden = byKey.get(key)
+    if (vorhanden) {
+      vorhanden.quantity += z.quantity
+      if (!vorhanden.fromPlanParts?.includes(z.herkunft)) {
+        vorhanden.fromPlanParts = [...(vorhanden.fromPlanParts ?? []), z.herkunft]
+      }
+      continue
+    }
+    byKey.set(key, {
+      key,
+      ...(z.deviceTypeId ? { deviceTypeId: z.deviceTypeId } : {}),
+      label: z.label,
+      ...(z.category ? { category: z.category } : {}),
+      quantity: z.quantity,
+      equipmentIds: [],
+      labelIsDeviceName: !z.deviceTypeId,
+      fromPlanParts: [z.herkunft],
+    })
+  }
+
   return [...byKey.values()].sort((a, b) => a.label.localeCompare(b.label, 'de'))
 }
 
@@ -253,8 +295,9 @@ export const resolveCoverage = (
   equipment: EquipmentItem[],
   items: InventoryItem[],
   units: InventoryUnit[] = [],
+  zusatz: ZusatzBedarf[] = [],
 ): CoverageResult => {
-  const demands = deriveDemand(equipment)
+  const demands = deriveDemand(equipment, zusatz)
 
   // Je Artikel: wie viele serialisierte Einheiten sind nicht einsatzbereit.
   const unbrauchbarProItem = new Map<string, number>()
