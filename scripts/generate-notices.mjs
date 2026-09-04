@@ -3,7 +3,8 @@
  * #pre-sale — Generiert THIRD-PARTY-LICENSES.md aus allen PRODUKTIONS-
  * Dependencies (transitiv). Pflicht-Attribution: für MIT/BSD/Apache/ISC u.a.
  * müssen Lizenztext + Copyright-Notices der gebündelten Pakete reproduziert
- * werden. Eigener App-Code bleibt davon unberührt (App-Lizenz: MIT).
+ * werden. Eigener App-Code bleibt davon unberührt (App-Lizenz: proprietär,
+ * siehe LICENSE).
  *
  * Quelle des Baums: `npm ls --omit=dev --all --json`. Lizenztext: LICENSE*-
  * Datei im jeweiligen node_modules/<pkg>, sonst das `license`-Feld.
@@ -47,7 +48,10 @@ let unresolved = 0
 const out = []
 out.push('# Third-Party Licenses')
 out.push('')
-out.push(`Cable Planner (eigener Code: MIT) bündelt die folgenden Open-Source-Pakete.`)
+out.push('<!-- lizenzaussage: fremd — diese Datei listet Fremdpaket-Lizenzen, nicht die eigene -->')
+out.push('')
+out.push('Cable Planner (eigener Code: proprietär, © Lars Zumpe — siehe LICENSE) bündelt die folgenden Open-Source-Pakete.')
+out.push('Die unten gelisteten Lizenzen gelten für die Fremdpakete und bleiben davon unberührt.')
 out.push(`Diese Datei reproduziert deren Lizenz-/Copyright-Notices wie von den`)
 out.push(`jeweiligen Lizenzen gefordert. Automatisch generiert via`)
 out.push('`scripts/generate-notices.mjs` aus dem Produktions-Dependency-Baum.')
