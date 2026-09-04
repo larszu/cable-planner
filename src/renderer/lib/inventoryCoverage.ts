@@ -28,7 +28,7 @@
 // ───────────────────────────────────────────────────────────────────────────
 
 import type { EquipmentItem } from '../types/equipment'
-import type { InventoryItem } from '../types/inventory'
+import type { InventoryItem, InventoryUnit } from '../types/inventory'
 import { resolveDeviceType } from './deviceTypeRegistry'
 import { isWithinDistance } from './levenshtein'
 
@@ -88,11 +88,35 @@ export interface CoverageLine {
 /** Eine einzelne Lager-Position, die zu einer Bedarfszeile beitraegt. */
 export interface CoverageSource {
   itemId: string
-  model: string
+  /** Nutzbarer Bestand: Menge abzueglich bekannt unbrauchbarer Einheiten. */
   available: number
+  model: string
   /** Lagerort-Id der Position — der Aufrufer loest den Pfad auf. */
   locationId?: string
+  /** Wie viele serialisierte Einheiten dieser Position nicht einsatzbereit
+   *  sind (defekt, in Reparatur, ausgemustert). 0 wird weggelassen. */
+  unusable?: number
 }
+
+/**
+ * Zustaende, die eine serialisierte Einheit aus dem nutzbaren Bestand nehmen.
+ *
+ * WARUM DAS HIER STEHT (gemessen 2026-09-04, Gegenrunde). `resolveCoverage`
+ * nahm `units` gar nicht entgegen. Vier Geraete im Bestand, zwei davon in
+ * Reparatur — die Stueckliste sagte „gedeckt, Bestand 4", und die
+ * Kommissionier-Liste schickte jemanden nach vier.
+ *
+ * Dass der Zustand Lager-Information ist, weiss der Code an anderer Stelle
+ * sehr wohl: `packList.ts` traegt `condition` in die Packliste,
+ * `inventoryReport.ts` zaehlt nach Zustand. Nur die Liste, die INS LAGER
+ * GEHT, tat es nicht.
+ *
+ * `ok` ist der einzige einsatzbereite Zustand — die uebrigen drei sind es
+ * ausdruecklich nicht (`types/inventory.ts`). Die Liste steht als Menge da
+ * und nicht als Negativ-Pruefung, damit ein spaeter ergaenzter Zustand hier
+ * auffaellt statt still als brauchbar durchzulaufen.
+ */
+const UNBRAUCHBAR: ReadonlySet<string> = new Set(['defect', 'inRepair', 'retired'])
 
 export interface CoverageResult {
   lines: CoverageLine[]
@@ -164,8 +188,16 @@ export const deriveDemand = (equipment: EquipmentItem[]): DemandLine[] => {
 export const resolveCoverage = (
   equipment: EquipmentItem[],
   items: InventoryItem[],
+  units: InventoryUnit[] = [],
 ): CoverageResult => {
   const demands = deriveDemand(equipment)
+
+  // Je Artikel: wie viele serialisierte Einheiten sind nicht einsatzbereit.
+  const unbrauchbarProItem = new Map<string, number>()
+  for (const u of units) {
+    if (!UNBRAUCHBAR.has(u.condition)) continue
+    unbrauchbarProItem.set(u.itemId, (unbrauchbarProItem.get(u.itemId) ?? 0) + 1)
+  }
 
   // Deterministische Reihenfolge, bevor gruppiert wird: die erzeugte Liste
   // soll nicht davon abhaengen, in welcher Reihenfolge jemand die Positionen
@@ -174,12 +206,19 @@ export const resolveCoverage = (
     .slice()
     .sort((a, b) => a.model.localeCompare(b.model, 'de') || a.id.localeCompare(b.id))
 
-  const quelle = (item: InventoryItem): CoverageSource => ({
-    itemId: item.id,
-    model: item.model,
-    available: item.quantity,
-    ...(item.locationId ? { locationId: item.locationId } : {}),
-  })
+  const quelle = (item: InventoryItem): CoverageSource => {
+    // Nicht unter null: mehr unbrauchbare Einheiten als Bestand waere ein
+    // widerspruechlicher Datenstand, und eine negative Menge in einer
+    // Kommissionier-Liste ist schlimmer als eine zu kleine.
+    const unusable = Math.min(item.quantity, unbrauchbarProItem.get(item.id) ?? 0)
+    return {
+      itemId: item.id,
+      model: item.model,
+      available: item.quantity - unusable,
+      ...(item.locationId ? { locationId: item.locationId } : {}),
+      ...(unusable > 0 ? { unusable } : {}),
+    }
+  }
   const summe = (q: CoverageSource[]): number => q.reduce((n, x) => n + x.available, 0)
 
   // ALLE Positionen je Typ, nicht die erste. Siehe CoverageLine.sources.
