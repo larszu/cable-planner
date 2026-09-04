@@ -32,7 +32,13 @@ const ROOT = join(__dirname, '..')
 const EINSTIEGE = ['README.md', 'CLAUDE.md', 'CONTRIBUTING.md', 'TESTING.md', 'SECURITY.md']
 
 const alleDokumente = (): string[] => {
-  const treffer: string[] = []
+  // Auch die Dokumente in der Wurzel, nicht nur `docs/`: `THIRD-PARTY-LICENSES.md`
+  // war von nirgends verlinkt (gemessen 2026-09-04). Das ist ein
+  // Attributions-Artefakt, dessen Reproduktion die Fremdlizenzen VERLANGEN — es
+  // nutzt niemandem in einer Datei, die keiner findet.
+  const treffer: string[] = readdirSync(ROOT)
+    .filter((e) => /\.md$/i.test(e) && !EINSTIEGE.includes(e))
+    .map((e) => relative(ROOT, join(ROOT, e)))
   const lauf = (verzeichnis: string) => {
     for (const eintrag of readdirSync(verzeichnis)) {
       const pfad = join(verzeichnis, eintrag)

@@ -133,12 +133,42 @@ Designed for Blackmagic Videohub infrastructure.
 
 ---
 
-### 🔗 Rentman Integration
-- Secure API integration with the Rentman rental-management platform
-- Import projects, equipment, and categories
-- Token-based authentication (encrypted local storage)
-- No credentials stored in source code
-- Selective import workflow (project/equipment filtering)
+### 🔗 Integrations & Interchange
+- **Rentman** — import projects, equipment and categories from the rental
+  platform, with a selective import workflow
+- **NetBox** — import racks, devices and cable paths from the DCIM side
+- **GraphML** — import existing diagrams, with a preview before anything lands
+  in the plan
+- **Green-GO** — intercom configuration export (`.gg5`), plus a
+  **vendor-neutral intercom exchange file** that someone building a Riedel or
+  Clear-Com system can also read
+- **`.avplan`** — the shared exchange format across the planner suite
+
+API tokens live in the **operating system's credential store** (macOS Keychain,
+Windows Credential Manager, libsecret) through `keytar` — not in the project
+file, not in browser storage, not in source. Exports strip them before writing.
+
+---
+
+### 👥 Live Collaboration
+- Real-time co-editing over **WebRTC** with a CRDT document — no server holds
+  your plan
+- Presence: who is in the room, and where they are working
+- Join by **invite link**, or find open sessions on the LAN automatically
+- **Room password** encrypts the session end-to-end; without it, anyone who
+  knows the room name can read along
+- Bring your own **signaling relay and STUN/TURN servers** for connections
+  across networks — or switch on **local-only** mode, where nothing leaves
+  your LAN
+- Collaborative undo takes back *your* edits, not other people's
+
+---
+
+### 🗄️ Inventory & Stock
+- Warehouse stock with storage locations, serial numbers and quantities
+- The plan's demand checked against what is actually in stock — including the
+  parts that are not equipment nodes (drum kits, wireless rigs, patch fields)
+- Portable stock file, importable and mergeable
 
 ---
 
@@ -160,11 +190,20 @@ Designed for Blackmagic Videohub infrastructure.
 
 ---
 
+## 📱 On Site
+- **Mobile build-day view** over the LAN, opened by QR code — no install, no
+  account. It is not read-only: the build team ticks off what is done, adds
+  cables it actually pulled, and files change requests, all of which come back
+  into the plan.
+- **Label sheets and QR labels** for cables and devices, print-ready.
+- **Read-only web viewer** for sharing a plan with someone who does not run the
+  app.
+
+---
+
 ## ⚙️ Experimental Features
 - 🌐 Shared network-drive sync for multi-planner collaboration *(experimental)*
 - 🗄️ 3D rack builder with STL export *(in progress)*
-- 🎧 GreenGo intercom configuration export *(experimental)*
-- 📱 Mobile build-day viewer (LAN + QR) for field technicians
 
 ---
 
@@ -281,3 +320,8 @@ Donations are completely optional — the app stays free to use. It is proprieta
 ## 📄 License
 
 Proprietär — © 2026 Lars Zumpe, alle Rechte vorbehalten. Nutzung der veröffentlichten Builds ist kostenlos; Weiterverbreitung und abgeleitete Werke sind es nicht. Siehe [LICENSE](LICENSE).
+
+Die gebündelten Fremdpakete behalten ihre eigenen Lizenzen; deren Texte und
+Copyright-Hinweise stehen vollständig in
+[THIRD-PARTY-LICENSES.md](THIRD-PARTY-LICENSES.md) (erzeugt von
+`scripts/generate-notices.mjs` aus dem Produktions-Dependency-Baum).
