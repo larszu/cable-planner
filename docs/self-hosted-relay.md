@@ -49,8 +49,28 @@ apt install coturn
 # /etc/turnserver.conf: realm, listening-port=3478, lt-cred-mech, user=...:...
 ```
 
-Die TURN-Zugangsdaten trägst du in der App unter **Zusammenarbeit → ICE-Server**
-ein (bzw. via `iceServers`-Feld). STUN allein reicht im WLAN meist.
+Die TURN-Zugangsdaten trägst du in der App unter **Zusammenarbeit →
+STUN-/TURN-Server** ein — eine Zeile je Server, Felder mit `|` getrennt:
+
+```
+stun:stun.example.com:3478
+turn:turn.example.com:3478|benutzer|geheim
+turns:turn.example.com:5349|benutzer|geheim
+```
+
+Getrennt wird mit `|` und nicht mit `:` oder `@`, weil coturn-Passwörter aus
+`lt-cred-mech` beides regelmäßig enthalten. Eine Zeile ohne bekanntes Schema —
+oder ein `turn:` ohne Zugangsdaten, das jede Allocation abwiese — meldet das
+Panel als „Nicht verwertbar", statt sie stillschweigend zu verwerfen.
+
+**Jeder Teilnehmer trägt seinen eigenen TURN-Server ein.** Die Zugangsdaten
+bleiben auf dem jeweiligen Rechner: sie stehen weder im Einladungslink noch in
+der mDNS-Ankündigung der Session. Ein Einladungslink wird in einen Chat
+gepastet — ein TURN-Passwort, das dort mitfährt, ist damit veröffentlicht.
+
+Ohne eingetragene Server gelten die Default-STUN-Server von y-webrtc. Die
+reichen im WLAN meist; zwischen zwei Netzen hinter symmetrischem NAT reichen
+sie nicht.
 
 ## 4. In der App eintragen
 
