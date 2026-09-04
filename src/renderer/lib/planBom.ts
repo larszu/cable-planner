@@ -36,8 +36,13 @@ export interface PlanBomRow {
   available?: number
   /** Fehlmenge — nur bei einer echten Deckung aussagekräftig. */
   short?: number
-  /** Lagerort-Pfad („Depot › Regal A3 › Case 1"). Leer, wenn unbekannt. */
+  /** Lagerort-Pfad („Depot › Regal A3 › Case 1"). Leer, wenn unbekannt.
+   *  Bei mehreren deckenden Positionen die Pfade, mit „ · " verbunden —
+   *  wer nur EINEN liest, faehrt an einem der Orte vorbei. */
   location: string
+  /** Die deckenden Positionen einzeln, nach Lagerort sortiert. Die
+   *  Kommissionier-Liste teilt die Menge daran auf. */
+  locations?: Array<{ location: string; available: number }>
   /** Begründung eines Vorschlags. Bei einer Deckung leer. */
   reason?: string
   /** true, wenn `model` nur der Instanzname eines Geräts ist. */
@@ -73,6 +78,13 @@ const rowOf = (
   nodes: StorageNode[],
 ): PlanBomRow => {
   const item = line.itemId ? items.find((i) => i.id === line.itemId) : undefined
+  // Alle deckenden Positionen mit ihrem Lagerort, nach Pfad sortiert — der
+  // Weg durchs Depot geht einmal in eine Richtung. Positionen ohne Lagerort
+  // fallen raus: ein leerer Pfad in der Kommissionier-Liste ist keine Angabe.
+  const orte = (line.sources ?? [])
+    .filter((q) => q.locationId)
+    .map((q) => ({ location: nodePathLabel(nodes, q.locationId as string), available: q.available }))
+    .sort((a, b) => a.location.localeCompare(b.location, 'de'))
   return {
     quantity: line.demand.quantity,
     model: line.demand.label,
@@ -85,8 +97,9 @@ const rowOf = (
     // liest sich wie eine Zusage.
     location:
       line.outcome === 'matched-by-type' && item?.locationId
-        ? nodePathLabel(nodes, item.locationId)
+        ? orte.map((o) => o.location).join(' · ')
         : '',
+    ...(line.outcome === 'matched-by-type' && orte.length > 0 ? { locations: orte } : {}),
     ...(line.reason ? { reason: line.reason } : {}),
     modelIsDeviceName: line.demand.labelIsDeviceName,
     ...(line.itemId ? { itemId: line.itemId } : {}),
@@ -131,21 +144,51 @@ export const planBomCsv = (bom: PlanBom): string =>
   )
 
 /**
- * Die Lager-Sicht: nur was sicher gedeckt ist, sortiert nach Lagerort, damit
- * man den Weg durchs Depot einmal geht statt dreimal.
+ * Die Lager-Sicht: was gedeckt ist, sortiert nach Lagerort, damit man den Weg
+ * durchs Depot einmal geht statt dreimal.
  *
  * Vorschläge stehen bewusst NICHT drin: Wer kommissioniert, soll nicht
  * unterwegs entscheiden müssen, ob eine Zuordnung stimmt.
+ *
+ * EINE ZEILE JE LAGERORT, NICHT JE MODELL. Liegt dasselbe Modell in zwei
+ * Cases, bekommt jeder Ort seine eigene Zeile mit der dort zu entnehmenden
+ * Menge. Vorher stand eine Zeile mit dem ERSTEN Ort und der VOLLEN Menge da —
+ * der zweite Ort kam in der Liste nicht vor.
+ *
+ * UND DIE FEHLMENGE STEHT DRIN. Der Docstring versprach „nur sicher
+ * Gedecktes", gefiltert wurde aber allein auf `outcome === 'matched-by-type'`
+ * — eine Zeile mit `short > 0` blieb mit der vollen Bedarfsmenge stehen,
+ * obwohl `buildPlanBom` dieselbe Zeile 30 Zeilen weiter oben zu `missing`
+ * zählt. Zwei Funktionen derselben Datei waren sich nicht einig, was
+ * „gedeckt" heißt.
+ *
+ * Sie ganz herauszuwerfen wäre die andere falsche Antwort: die drei Stück,
+ * die da sind, will der Kommissionierer trotzdem mitnehmen. Sie steht also
+ * drin — mit der Menge, die wirklich da ist, und der Fehlmenge daneben. Das
+ * ist dieselbe Regel wie im Modulkopf: was unsicher ist, muss als unsicher
+ * lesbar bleiben, nicht verschwinden und nicht sicher aussehen.
  */
-export const pickListCsv = (bom: PlanBom): string =>
-  toCsv(
-    ['Lagerort', 'Menge', 'Modell', 'Bestand'],
-    bom.rows
-      .filter((r) => r.outcome === 'matched-by-type')
+export const pickListCsv = (bom: PlanBom): string => {
+  const zeilen: Array<[string, number, string, number, number | string]> = []
+  for (const r of bom.rows) {
+    if (r.outcome !== 'matched-by-type') continue
+    const orte = r.locations ?? []
+    let offen = r.quantity
+    for (const o of orte) {
+      if (offen <= 0) break
+      const nehmen = Math.min(offen, o.available)
+      if (nehmen <= 0) continue
+      offen -= nehmen
+      zeilen.push([o.location, nehmen, r.model, o.available, ''])
+    }
+    // Fehlmenge: eine eigene Zeile ohne Lagerort — es gibt keinen Ort, an dem
+    // sie läge. Auch dann, wenn gar keine Position einen Lagerort trug.
+    if (offen > 0) zeilen.push(['', 0, r.model, 0, offen])
+  }
+  return toCsv(
+    ['Lagerort', 'Menge', 'Modell', 'Bestand', 'Fehlmenge'],
+    zeilen
       .slice()
-      .sort(
-        (a, b) =>
-          a.location.localeCompare(b.location, 'de') || a.model.localeCompare(b.model, 'de'),
-      )
-      .map((r) => [r.location, r.quantity, r.model, r.available ?? '']),
+      .sort((a, b) => a[0].localeCompare(b[0], 'de') || a[2].localeCompare(b[2], 'de')),
   )
+}

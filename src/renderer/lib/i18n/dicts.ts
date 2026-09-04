@@ -2774,8 +2774,9 @@ export const en: Dict = {
   'calc.bandwidth.netTotal': 'Total bandwidth',
   'calc.bandwidth.netLink': 'Smallest link',
   'calc.bandwidth.netExceeds': '> 100 GbE — split / spine-leaf',
-  'calc.bandwidth.netNote':
-    'Sum of the gross bandwidth of all cables with an IP/network signal standard (NDI, Dante/AES67, ST 2110, Ethernet). Approximate; ST 2110-20 is highly format-dependent.',
+  'calc.bandwidth.netNote': 'Sum of the gross bandwidths of all cables carrying an IP media signal (NDI, Dante/AES67, ST 2110). Ethernet cables do NOT count as load — what a line can carry is not a load it carries; their capacity is listed separately below. Rough figures; ST 2110-20 heavily format-dependent.',
+  'calc.bandwidth.netLinkCapacity': 'Drawn link capacity',
+  'calc.bandwidth.netEthCables': 'Ethernet cables',
   'calc.power.intro1': 'Sum of the consumption values in the device properties',
   'calc.power.wattsField': 'Power (W)',
   'calc.power.intro2':
