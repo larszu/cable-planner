@@ -118,6 +118,7 @@ jobs:
           path: |
             release/*.exe
             release/*.dmg
+            release/*.zip
             release/*.blockmap
             release/latest*.yml
           # Fail the job loudly if no artifacts were produced. Previously
@@ -137,11 +138,23 @@ jobs:
           path: artifacts
 
       - name: Create GitHub Release
+        # Nicht nur die Installer: die App bringt einen Auto-Updater mit
+        # (`services/updaterService.ts` ruft `checkForUpdatesAndNotify()`), und
+        # electron-updater sucht seine Manifeste als RELEASE-ASSETS --
+        # `latest.yml` (Windows) und `latest-mac.yml` (macOS). Die wurden zwar
+        # gebaut und als Workflow-Artefakt hochgeladen, aber nie ans Release
+        # gehaengt: der Updater lief damit in jedem ausgelieferten Build ins
+        # Leere. Das mac-`.zip` gehoert dazu, weil `latest-mac.yml` darauf
+        # zeigt (Squirrel.Mac aktualisiert nicht aus einem DMG), die
+        # `.blockmap`s ermoeglichen den differenziellen Download.
         uses: softprops/action-gh-release@v2
         with:
           files: |
             artifacts/**/*.exe
             artifacts/**/*.dmg
+            artifacts/**/*.zip
+            artifacts/**/*.blockmap
+            artifacts/**/latest*.yml
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
