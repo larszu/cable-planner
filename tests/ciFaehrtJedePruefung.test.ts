@@ -79,12 +79,30 @@ const OHNE_CI: Record<string, string> = {
     'ist der Lauf ein Werkzeug fuer die Hand, keine Zusicherung.',
 }
 
+/**
+ * Der Workflow-Text OHNE reine Kommentarzeilen.
+ *
+ * Gemessen 2026-09-05: ein Kommentar, der `npm run actions:check` bloss
+ * ERWAEHNT, hat diesen Guard zufriedengestellt -- der Lauf stand nirgends als
+ * Schritt und waere bei keinem Merge gefahren. Genau die Zusicherung, die
+ * dieser Test geben soll, war damit von einem Satz Prosa zu haben. Ein Guard,
+ * den ein Kommentar besaenftigt, ist keiner.
+ *
+ * Nur ganze Kommentarzeilen fallen weg; ein `#` mitten in einer Zeile bleibt
+ * stehen (es steckt in URLs und in Shell-Zeilen, und ein zu eifriges
+ * Wegschneiden waere die naechste stille Fehlerquelle).
+ */
 const workflowsAus = (wurzel: string): string => {
   const verzeichnis = join(wurzel, '.github', 'workflows')
   if (!existsSync(verzeichnis)) return ''
   return readdirSync(verzeichnis)
     .filter((f) => /\.ya?ml$/.test(f))
-    .map((f) => readFileSync(join(verzeichnis, f), 'utf8'))
+    .map((f) =>
+      readFileSync(join(verzeichnis, f), 'utf8')
+        .split('\n')
+        .filter((zeile) => !/^\s*#/.test(zeile))
+        .join('\n'),
+    )
     .join('\n')
 }
 

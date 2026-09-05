@@ -76,6 +76,14 @@ jobs:
         run: npm run test:signaling
       - name: Build
         run: npm run build
+      # Fragt die action.yml jedes Pins nach ihrer Node-Version, statt sie in
+      # einem Kommentar zu behaupten. Am 2026-09-05 liefen fuenf Actions auf
+      # node20 -- und die Kommentare im Workflow gaben dazu einen Stand von Mai
+      # wieder, der laengst nicht mehr galt. Der Lauf folgt eine Ebene in
+      # Composite-Actions hinein: upload-pages-artifact@v3 hatte node20 nur im
+      # Inneren, von aussen sah der Pin sauber aus.
+      - name: Actions laufen auf einer unterstuetzten Node-Version
+        run: npm run actions:check
 
   # ---------------------------------------------------------------------------
   # UI-Smoke: startet die gebaute Electron-App headless, oeffnet jedes Top-Menu
@@ -107,7 +115,7 @@ jobs:
         run: xvfb-run -a npm run ui:smoke
       - name: Screenshots bei Fehlschlag
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ui-smoke-screenshots
           path: /tmp/cable-planner-ui-shots

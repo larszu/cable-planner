@@ -9,13 +9,13 @@ on:
 permissions:
   contents: write
 
-# actions/checkout@v5 and actions/setup-node@v5 ship Node 24 natively.
-# Three actions still don't have a Node-24 release as of May 2026:
-# actions/upload-artifact@v4, actions/download-artifact@v4, and
-# softprops/action-gh-release@v2 — so we keep the env flag to force them
-# onto Node 24 too. Drop it once all four publish a v5.
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+# Kein FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 mehr. Hier stand, drei Actions
+# haetten "as of May 2026" noch kein Node-24-Release — das galt am 2026-09-05
+# fuer keine einzige mehr: upload-artifact ist bei v6/v7, download-artifact bei
+# v7/v8, action-gh-release bei v3, alle node24. Der Satz war nicht bloss
+# veraltet, er war die Begruendung dafuer, nicht nachzusehen.
+# `npm run actions:check` fragt jetzt die action.yml jedes Pins statt zu
+# behaupten, was es gibt.
 
 # Centralised Node version for the build matrix. Node 24 LTS is the
 # active LTS as of October 2025 — bump here if you move to a newer LTS.
@@ -112,7 +112,7 @@ jobs:
         run: ls -lh release/ || true
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: cable-planner-${{ matrix.name }}
           path: |
@@ -133,9 +133,49 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v')
     steps:
       - name: Download all artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           path: artifacts
+
+      - name: Release-Vollstaendigkeit pruefen
+        # v8.3.3 hat NULL Assets. Der macOS-Job brach beim Universal-Merge ab,
+        # `release` haengt an `needs: build`, also wurde auch die fertige
+        # Windows-.exe nie angehaengt — und die Release-Seite sah dabei aus wie
+        # jede andere. Fuenf Wochen lang hat das niemand bemerkt.
+        #
+        # Dieser Schritt macht den Teil-Ausfall laut. Er prueft nicht, dass
+        # IRGENDWAS da ist (das tut `if-no-files-found: error` schon je Job),
+        # sondern dass JEDE Gattung da ist: beide Installer und die drei
+        # Dateien, die der eingebaute Auto-Updater braucht. Faellt eine weg,
+        # bricht der Lauf ab, statt ein halbes Release zu veroeffentlichen.
+        shell: bash
+        run: |
+          set -eu
+          echo "--- heruntergeladene Artefakte ---"
+          find artifacts -type f | sort
+          echo "----------------------------------"
+          fehlt=0
+          pruefe() {
+            anzahl="$(find artifacts -type f -name "$1" | wc -l | tr -d ' ')"
+            if [ "$anzahl" -ge 1 ]; then
+              echo "ok   $1 ($anzahl)"
+            else
+              echo "FEHLT $1 -- $2"
+              fehlt=1
+            fi
+          }
+          pruefe '*.exe'          'Windows-Installer/Portable (windows-Job)'
+          pruefe '*.dmg'          'macOS-Download (macos-Job)'
+          pruefe '*.zip'          'macOS-Auto-Update: Squirrel.Mac spielt nur aus einem zip ein'
+          pruefe 'latest.yml'     'Update-Manifest Windows'
+          pruefe 'latest-mac.yml' 'Update-Manifest macOS'
+          if [ "$fehlt" -ne 0 ]; then
+            echo
+            echo "Ein halbes Release ist schlimmer als keines: es sieht auf der"
+            echo "Release-Seite vollstaendig aus. Erst den fehlenden Build-Job"
+            echo "reparieren, dann den Tag neu setzen."
+            exit 1
+          fi
 
       - name: Create GitHub Release
         # Nicht nur die Installer: die App bringt einen Auto-Updater mit
@@ -147,7 +187,7 @@ jobs:
         # Leere. Das mac-`.zip` gehoert dazu, weil `latest-mac.yml` darauf
         # zeigt (Squirrel.Mac aktualisiert nicht aus einem DMG), die
         # `.blockmap`s ermoeglichen den differenziellen Download.
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: |
             artifacts/**/*.exe
