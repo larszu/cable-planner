@@ -37,12 +37,40 @@ await shot('01-launch')
 
 // Erststart-Overlays (Welcome-Dialog / Onboarding-Tour) wegklicken, damit die
 // Menüleiste frei bedienbar ist.
-for (const rx of [/Decide later|Später/i, /Skip|Überspringen|End tour|Beenden|Fertig/i]) {
-  const b = win.getByRole('button', { name: rx })
-  if (await b.count()) await b.first().click({ timeout: 1500 }).catch(() => {})
+//
+// Vorher standen hier zwei feste Klickversuche und ein Escape, Fehler
+// verschluckt. Das genügte auf einem Profil, das die Tour schon gesehen hatte —
+// und CI hat IMMER ein frisches Profil. Gemessen 2026-09-05: mit gelöschtem
+// `~/.config/cable-planner` bleibt die Getting-Started-Tour (Schritt 1/7)
+// stehen, ihr `.cp-modal-backdrop` fängt jeden Klick ab, und der erste
+// Menü-Klick läuft 30 Sekunden in einen Timeout. Genau deshalb lief dieser
+// Lauf nie in CI: er kann dort in der alten Form gar nicht durchkommen.
+//
+// Jetzt wird auf den ZUSTAND geschleift statt auf eine feste Zahl von
+// Versuchen: solange ein Backdrop steht, wird weiter zugemacht. Ein Overlay,
+// das später dazukommt (das Dismissen des Welcome-Dialogs startet die Tour),
+// wird damit auch erwischt.
+const overlayWeg = async () => {
+  const abweisungen =
+    /End tour|Tour beenden|Beenden|Skip|Überspringen|Fertig|Decide later|Später|Schließen|Close/i
+  for (let runde = 0; runde < 6; runde++) {
+    if ((await win.locator('.cp-modal-backdrop').count()) === 0) return
+    const b = win.getByRole('button', { name: abweisungen })
+    if (await b.count()) await b.first().click({ timeout: 1500 }).catch(() => {})
+    await win.keyboard.press('Escape').catch(() => {})
+    await win.waitForTimeout(400)
+  }
+  const rest = await win.locator('.cp-modal-backdrop').count()
+  if (rest > 0) {
+    // Laut scheitern statt weiterlaufen: sonst folgt ein 30-Sekunden-Timeout
+    // beim ersten Menü-Klick, und der sagt nichts über die Ursache.
+    throw new Error(
+      `Erststart-Overlay liess sich nicht schliessen (${rest} Backdrop(s) offen). ` +
+        'Screenshot 01-launch.png zeigt, was steht.',
+    )
+  }
 }
-await win.keyboard.press('Escape').catch(() => {})
-await win.waitForTimeout(500)
+await overlayWeg()
 await shot('02-main')
 
 // Top-Menüs öffnen — sprach-unabhängig über die Menü-Buttons.
