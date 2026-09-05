@@ -24,10 +24,18 @@ name: CI
 # groessten Repos -- nicht mangels Pruefung, sondern weil die vorhandene nie
 # lief.
 #
+# Seit 2026-09-05 zusaetzlich als eigener Job: `ui:smoke` (siehe unten).
+#
 # Bewusst NICHT hier: electron-builder (`npm run dist`) — das gehoert zu
-# release.yml und braucht Signatur-Material. Ebenso `ui:smoke` und
-# `test:drag`: die brauchen wirklich einen laufenden Renderer
-# (`dev:renderer`), und dafuer stimmt die alte Begruendung.
+# release.yml und braucht Signatur-Material. Ebenso `test:drag`: der braucht
+# wirklich einen laufenden Renderer (`dev:renderer`).
+#
+# Korrektur an derselben Begruendung: sie zaehlte `ui:smoke` mit auf, und das
+# war falsch. `ui:smoke` startet die GEBAUTE App (`electron .` gegen `dist/`),
+# nicht den Dev-Server. Nachgemessen 2026-09-05: unter `xvfb-run` mit
+# installiertem `libsecret-1-0` laeuft er durch. Eine Begruendung, die zwei
+# Laeufe zusammenfasst, von denen nur einer sie traegt, haelt den anderen
+# jahrelang aus der CI heraus.
 
 on:
   pull_request:
@@ -68,3 +76,39 @@ jobs:
         run: npm run test:signaling
       - name: Build
         run: npm run build
+
+  # ---------------------------------------------------------------------------
+  # UI-Smoke: startet die gebaute Electron-App headless, oeffnet jedes Top-Menu
+  # und meldet ein Menu ohne Eintraege. Mit genau diesem Harness wurde #549
+  # gefunden -- und danach lief er bei keinem Merge mehr, weil er in der
+  # CI-Begruendung faelschlich mit `test:drag` in einen Topf geworfen war.
+  #
+  # Eigener Job, weil er `npm run build` und einen X-Server braucht: so
+  # verlaengert er den Merge-Gate nicht, sondern laeuft daneben.
+  #
+  # Warum `libsecret-1-0` (Laufzeit) UND `libsecret-1-dev` (Kompilieren):
+  # gemessen bricht der Main-Prozess sonst beim `require('keytar')` mit
+  # "libsecret-1.so.0: cannot open shared object file" ab, bevor ein Fenster
+  # entsteht -- der Smoke-Lauf meldete dann nur einen 30-Sekunden-Timeout ohne
+  # Ursache.
+  ui-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          cache: 'npm'
+      - run: sudo apt-get update && sudo apt-get install -y libsecret-1-dev libsecret-1-0 xvfb
+      - run: npm ci
+      - name: Build
+        run: npm run build
+      - name: UI-Smoke (headless)
+        run: xvfb-run -a npm run ui:smoke
+      - name: Screenshots bei Fehlschlag
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-smoke-screenshots
+          path: /tmp/cable-planner-ui-shots
+          if-no-files-found: ignore
