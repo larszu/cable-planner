@@ -85,6 +85,41 @@ export default {
     // Paket: das naechste Paket dieser Bauart faellt sonst genauso um.
     // `tests/macUniversalBuild.test.ts` haelt das fest.
     x64ArchFiles: '**/prebuilds/*darwin*/**',
+    // OHNE DIESE ZEILE BRICHT DER UNIVERSAL-BUILD EINE STUFE SPAETER AB.
+    // Gemessen am Suite-Tag v0.1.1 (Lauf 33974015212, 2026-09-05), der genau
+    // hier gestorben ist, nachdem `x64ArchFiles` die erste Huerde geraeumt
+    // hatte:
+    //
+    //   ⨯ pattern is too long
+    //     at assertValidPattern (@electron/asar/.../minimatch.js:281)
+    //     at shouldUnpackPath   (@electron/asar/src/asar.ts:158)
+    //     at mergeASARs         (@electron/universal/src/asar-utils.ts:216)
+    //
+    // WARUM. `mergeASARs` baut fuer die entpackten Dateien EIN einziges
+    // Glob-Muster -- `{pfad1,pfad2,…}` mit absoluten Pfaden -- und reicht es
+    // an minimatch, das bei 64 KiB abriegelt. Die Zahl der entpackten Dateien
+    // ist hier nicht klein: electron-builder entpackt bei einem nativen Modul
+    // nicht die .node-Datei, sondern das GANZE Paketverzeichnis
+    // (`unpackDetector.detectUnpackedDirs` -> `autoUnpackDirs.add(
+    // moduleRootPath)`). `@julusian/freetype2` bringt seinen kompletten
+    // C++-Quellbaum mit: 553 Dateien. Mit keytar zusammen sind es 586, und
+    // das Muster wird 72.642 Zeichen lang -- nachgemessen, nicht geschaetzt.
+    //
+    // Das ist upstream nicht behoben: auch `@electron/universal@3.0.6` baut
+    // dieselbe Glob (asar-utils.ts:241). Und es ist nichts, was man kleiner
+    // konfigurieren koennte -- dieses Projekt setzt gar kein `asarUnpack`,
+    // die 586 Dateien kommen ausschliesslich aus der automatischen
+    // Native-Erkennung.
+    //
+    // `mergeASARs: false` umgeht den Aufruf. Sind die beiden Teil-Archive
+    // gleich -- und das sind sie hier, weil alles Arch-Spezifische entpackt
+    // neben dem Archiv liegt --, bleibt es bei EINEM `app.asar` wie bisher;
+    // unterscheiden sie sich, legt @electron/universal `app-x64.asar` und
+    // `app-arm64.asar` mit einem kleinen Einsprung-Archiv an. Der lipo-Lauf
+    // ueber die Mach-O-Dateien und `x64ArchFiles` laufen in beiden Faellen
+    // vorher. `tests/macUniversalBuild.test.ts` misst die Musterlaenge und
+    // haelt fest, dass diese Zeile stehen bleibt, solange sie noch reisst.
+    mergeASARs: false,
     icon: 'build/icon.png',
     // Ad-hoc sign the app so macOS Gatekeeper doesn't reject the binary
     // outright with "Cable Planner is damaged and can't be opened" on
