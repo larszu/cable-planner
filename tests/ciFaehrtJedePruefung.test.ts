@@ -20,11 +20,41 @@
 // faellt ebenfalls auf. Damit ist „laeuft nicht in CI" eine sichtbare
 // Entscheidung statt eines Versehens.
 // ───────────────────────────────────────────────────────────────────────────
-import { readFileSync, readdirSync } from 'node:fs'
-import { join } from 'node:path'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
+import { dirname, join, relative } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 const ROOT = join(__dirname, '..')
+
+/**
+ * Diese Datei laeuft auch in der vendorierten Kopie unter
+ * `av-planner-suite/apps/cable-planner/`. Dort gibt es KEIN `ci.yml` — die
+ * Suite faehrt die Tests der Kopie ueber `npm run test --workspaces`, und
+ * verschachtelte `.github/workflows/` sind im Monorepo ohnehin inert.
+ *
+ * Der Unterschied wird gemessen, nicht geraten: vendoriert ist die Kopie dann,
+ * wenn ein Elternverzeichnis eine `package.json` mit `workspaces` hat, unter
+ * die dieses Verzeichnis faellt. Und er fuehrt NICHT zu einem stillen
+ * Ueberspringen — in der Kopie wird stattdessen geprueft, dass die Suite die
+ * Tests dieses Workspace ueberhaupt faehrt. Ein Guard, der sich in der Kopie
+ * einfach abschaltet, waere genau der Fehler, gegen den er gebaut ist.
+ */
+const suiteWurzel = ((): string | null => {
+  let verzeichnis = dirname(ROOT)
+  for (let i = 0; i < 4; i++) {
+    const pj = join(verzeichnis, 'package.json')
+    if (existsSync(pj)) {
+      const inhalt = JSON.parse(readFileSync(pj, 'utf8')) as { workspaces?: string[] }
+      const muster = inhalt.workspaces ?? []
+      const rel = relative(verzeichnis, ROOT).split(/[\\/]/)[0]
+      if (muster.some((m) => m.split('/')[0] === rel)) return verzeichnis
+    }
+    const oben = dirname(verzeichnis)
+    if (oben === verzeichnis) break
+    verzeichnis = oben
+  }
+  return null
+})()
 const skripte = (JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8')) as {
   scripts: Record<string, string>
 }).scripts
@@ -53,17 +83,18 @@ const OHNE_CI: Record<string, string> = {
     'aber als bewusste Erweiterung mit Zeitbudget, nicht nebenbei. Backlog-Punkt, kein Versehen.',
 }
 
-const workflows = (): string => {
-  const verzeichnis = join(ROOT, '.github', 'workflows')
+const workflowsAus = (wurzel: string): string => {
+  const verzeichnis = join(wurzel, '.github', 'workflows')
+  if (!existsSync(verzeichnis)) return ''
   return readdirSync(verzeichnis)
     .filter((f) => /\.ya?ml$/.test(f))
     .map((f) => readFileSync(join(verzeichnis, f), 'utf8'))
     .join('\n')
 }
 
-describe('CI faehrt jede Pruefung', () => {
+describe.skipIf(suiteWurzel !== null)('CI faehrt jede Pruefung (eigenes Repo)', () => {
   const alle = Object.keys(skripte).filter(istPruefung).sort()
-  const yml = workflows()
+  const yml = workflowsAus(ROOT)
 
   it('findet ueberhaupt Pruef-Laeufe und Workflows', () => {
     // Ein leerer Suchlauf ist gruen und wertlos; der haeufigste Weg dorthin ist
@@ -93,5 +124,28 @@ describe('CI faehrt jede Pruefung', () => {
     // hat — und der naechste Leser haelt ihn weiter fuer ungeprueft.
     const ueberfluessig = Object.keys(OHNE_CI).filter((n) => yml.includes(`npm run ${n}`))
     expect(ueberfluessig).toEqual([])
+  })
+})
+
+describe.skipIf(suiteWurzel === null)('CI faehrt jede Pruefung (vendorierte Kopie)', () => {
+  // Hier gibt es kein eigenes `ci.yml`. Statt sich abzuschalten, prueft der
+  // Guard, was in dieser Lage die tatsaechliche Zusicherung ist: dass die
+  // Suite die Tests dieses Workspace ueberhaupt faehrt.
+  it('die Suite faehrt die Tests dieses Workspace', () => {
+    const yml = workflowsAus(suiteWurzel!)
+    expect(yml.length, 'Die Suite hat keine Workflows — dann faehrt hier gar nichts.').toBeGreaterThan(200)
+    expect(
+      /npm run test --workspaces/.test(yml),
+      'Die Suite-CI faehrt `npm run test --workspaces` nicht — die Tests dieser Kopie liefen dann bei keinem Merge.',
+    ).toBe(true)
+  })
+
+  it('und die Suite prueft ihre eigene Guard-Liste', () => {
+    // Das Gegenstueck zu diesem Test auf Suite-Ebene ist `npm run ci:complete`.
+    // Gibt es das nicht mehr, faellt die Kette hier auf.
+    const suitePaket = JSON.parse(readFileSync(join(suiteWurzel!, 'package.json'), 'utf8')) as {
+      scripts?: Record<string, string>
+    }
+    expect(suitePaket.scripts?.['ci:complete']).toBeDefined()
   })
 })
