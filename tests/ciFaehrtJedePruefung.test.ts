@@ -77,10 +77,6 @@ const OHNE_CI: Record<string, string> = {
     'Braucht einen laufenden `dev:renderer` auf localhost:5173 und einen echten Browser. ' +
     'Ein CI-Job dafuer muesste den Dev-Server hochfahren und wieder abraeumen; bis jemand das baut, ' +
     'ist der Lauf ein Werkzeug fuer die Hand, keine Zusicherung.',
-  'ui:smoke':
-    'Startet die GEBAUTE Electron-App und braucht dafuer `npm run build`, fuer Electron gebaute ' +
-    'native Module und unter Linux `xvfb-run`. Das ist ein eigener, langsamer Job — er gehoert in CI, ' +
-    'aber als bewusste Erweiterung mit Zeitbudget, nicht nebenbei. Backlog-Punkt, kein Versehen.',
 }
 
 const workflowsAus = (wurzel: string): string => {
