@@ -144,3 +144,41 @@ describe('die beiden Haelften am Quelltext', () => {
     expect(portsSectionSrc).toContain("from '../../../lib/portProvenance'")
   })
 })
+
+describe('drawingChecks — die Meldung nennt die aufgezeichnete Quelle', () => {
+  // WARUM DIESER TEST. Bis hierher stand die Quelle als fester Text in der
+  // Meldung („AI-Vorschlag"), waehrend `specSource.source` sie als Datum
+  // fuehrte. Solange es nur eine Quelle ohne Datenblatt gab, fiel das nicht
+  // auf. Mit der zweiten (Suite-Seed) wuerde dieselbe Zeile eine falsche
+  // Herkunft behaupten — in genau der Pruefung, die zu belegten Daten zwingen
+  // soll. Der Test haelt beide Richtungen fest: der Beleg wird gelesen, und
+  // ohne Beleg wird nichts erfunden.
+  const mitBeleg = (quelle: string): EquipmentItem => ({
+    id: 'e9',
+    name: 'Gerät',
+    category: 'Sonstiges',
+    inputs: [{ id: 'i1', name: 'IN', type: 'BNC', connectorType: 'BNC' }],
+    outputs: [],
+    x: 0,
+    y: 0,
+    width: 200,
+    height: 160,
+    specSource: { inputs: { value: '1 In / 0 Out', source: quelle } },
+  })
+
+  it('gibt den Text aus specSource.source wieder', () => {
+    const quelle = 'Suite-Seed aus dem Shell-Projekt — nicht aus einem Datenblatt'
+    const { findings } = runDrawingChecks({ equipment: [mitBeleg(quelle)], cables: [] })
+    const f = findings.find((x) => x.id === 'ports-guessed:e9')
+    expect(f?.message).toContain(quelle)
+    expect(f?.message).not.toContain('AI-Vorschlag')
+  })
+
+  it('behauptet ohne Beleg-Text keine Quelle', () => {
+    const eq = mitBeleg('')
+    eq.specSource = { inputs: { value: '1 In / 0 Out', source: '' } }
+    const { findings } = runDrawingChecks({ equipment: [eq], cables: [] })
+    const f = findings.find((x) => x.id === 'ports-guessed:e9')
+    expect(f?.message).toContain('ohne Datenblatt')
+  })
+})
