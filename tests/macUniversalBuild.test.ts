@@ -120,7 +120,8 @@ const istPfadPrebuild = (segmente: string[]): boolean =>
 
 type Fund = { pfad: string; segmente: string[] }
 
-const mac = (konfiguration as { mac?: { target?: unknown[]; x64ArchFiles?: string } }).mac ?? {}
+const mac =
+  (konfiguration as { mac?: { target?: unknown[]; x64ArchFiles?: string; mergeASARs?: boolean } }).mac ?? {}
 const muster = mac.x64ArchFiles
 
 /**
@@ -150,6 +151,55 @@ const darwinPrebuilds = alleNativen.filter(
   (f) => istPfadPrebuild(f.segmente) && f.segmente.some((s) => s.includes('darwin')),
 )
 const proArchGebaut = alleNativen.filter((f) => !istPfadPrebuild(f.segmente))
+
+/**
+ * minimatch lehnt Muster ueber 64 KiB ab (`MAX_PATTERN_LENGTH = 1024 * 64`).
+ * Genau dagegen laeuft `mergeASARs`: es baut fuer ALLE entpackten Dateien EIN
+ * Glob -- `{pfad1,pfad2,…}` mit absoluten Pfaden -- und gibt es an minimatch.
+ */
+const MUSTER_GRENZE = 1024 * 64
+
+/**
+ * Das Praefix, das `mergeASARs` den Pfaden voranstellt:
+ * `fs.mkdtemp(path.join(os.tmpdir(), 'x64-'))`. Auf einem macOS-Runner ist
+ * `os.tmpdir()` ein `/var/folders/…`-Pfad; hier steht ein typischer, damit die
+ * Rechnung nicht vom lokalen `/tmp` abhaengt und die Laenge NICHT unterschaetzt
+ * wird. Sie wird eher unterschaetzt als ueberschaetzt -- siehe unten.
+ */
+const TEMP_PRAEFIX = '/var/folders/6t/1lqm9rgn7wl4b6q0d5x3z9_c0000gn/T/x64-AbCdEf/'
+
+/**
+ * Was electron-builder entpackt, OHNE dass jemand es hinschreibt: sobald eine
+ * Datei eines Moduls eine Bibliothek oder ausfuehrbar ist, wandert das GANZE
+ * Modulverzeichnis aus dem Archiv --
+ * `unpackDetector.detectUnpackedDirs` -> `autoUnpackDirs.add(moduleRootPath)`.
+ * `@julusian/freetype2` bringt seinen kompletten C++-Quellbaum mit, und der
+ * zaehlt damit vollstaendig mit.
+ *
+ * Das Ergebnis ist eine UNTERGRENZE: `asarUnpack` aus der Konfiguration kaeme
+ * noch dazu. Fuer eine Untergrenze reicht das -- wer sie schon reisst, reisst
+ * auch die echte Zahl.
+ */
+const istLibOderExe = (datei: string): boolean =>
+  /\.(dll|exe|dylib|so|node)$/.test(datei)
+
+const entpackteDateien = (): string[] => {
+  const treffer: string[] = []
+  for (const { verzeichnis } of produktionsBaum()) {
+    const alle: string[] = []
+    const lauf = (d: string) => {
+      for (const eintrag of readdirSync(d)) {
+        const pfad = join(d, eintrag)
+        if (statSync(pfad).isDirectory()) {
+          if (eintrag !== 'node_modules') lauf(pfad)
+        } else alle.push(pfad)
+      }
+    }
+    lauf(verzeichnis)
+    if (alle.some(istLibOderExe)) treffer.push(...alle.map((p) => imBaum(p).join('/')))
+  }
+  return treffer
+}
 
 describe('der macOS-Universal-Build laesst sich zusammenfuegen', () => {
   it('die mac-Ziele enthalten einen Universal-Build', () => {
@@ -186,6 +236,33 @@ describe('der macOS-Universal-Build laesst sich zusammenfuegen', () => {
         'daran ab — und weil der release-Job auf needs: build steht, faellt damit auch ' +
         'das Windows-Artefakt aus. Muster in electron-builder.js erweitern.',
     ).toEqual([])
+  })
+
+  it('bei zu vielen entpackten Dateien ist mergeASARs abgeschaltet', () => {
+    // Die zweite Stufe, an der der Universal-Build reisst -- und sie kommt
+    // ERST, wenn x64ArchFiles die erste geraeumt hat. Gemessen am Suite-Tag
+    // v0.1.1 (2026-09-05): `pattern is too long`, geworfen von minimatch in
+    // `shouldUnpackPath`, aufgerufen aus `mergeASARs`.
+    //
+    // Der Test verlangt nicht "wenig entpacken" -- das laesst sich hier nicht
+    // steuern, die Dateien kommen aus der automatischen Native-Erkennung. Er
+    // verlangt: wenn das Muster zu lang WIRD, muss `mergeASARs` aus sein.
+    // Wird `@julusian/freetype2` eines Tages schlanker, faellt die Forderung
+    // von selbst weg.
+    const dateien = entpackteDateien()
+    const laenge = `{${dateien.map((d) => TEMP_PRAEFIX + d).join(',')}}`.length
+
+    expect(dateien.length, 'Keine entpackten Dateien gefunden -- lief `npm install`?').toBeGreaterThan(0)
+
+    if (laenge >= MUSTER_GRENZE) {
+      expect(
+        mac.mergeASARs,
+        `Das Merge-Muster waere mindestens ${laenge} Zeichen lang (${dateien.length} entpackte ` +
+          `Dateien), minimatch riegelt bei ${MUSTER_GRENZE} ab. mergeASARs MUSS deshalb false ` +
+          'bleiben, sonst bricht der Universal-Build mit "pattern is too long" ab -- und weil ' +
+          'der release-Job auf needs: build steht, faellt dann auch das Windows-Artefakt aus.',
+      ).toBe(false)
+    }
   })
 
   it('die pro Arch gebauten Module sind NICHT gedeckt', () => {
