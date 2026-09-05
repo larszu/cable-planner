@@ -59,7 +59,8 @@
     "test:signaling": "npm run build:main && node scripts/signaling-relay-check.mjs",
     "relay": "node scripts/signaling-server.mjs",
     "dist": "npm run build && electron-builder",
-    "notices": "node scripts/generate-notices.mjs"
+    "notices": "node scripts/generate-notices.mjs",
+    "actions:check": "node scripts/actions-node-runtime.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
