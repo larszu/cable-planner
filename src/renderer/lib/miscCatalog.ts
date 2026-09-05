@@ -4,7 +4,7 @@ import type { EquipmentTemplate, Port } from '../types/equipment'
 // Covers: Rosendahl nanosyncs sync generators, Behringer X32 digital mixers,
 // Decimator SDI/HDMI converters, AJA recorders/scalers, Miranda frame sync,
 // TC Electronics metering, Yamaha studio monitors.
-// Verified against talentwerk filmproduktion Rentman account (April 2026).
+// Verified against a professional rental-house Rentman inventory (April 2026).
 
 const port = (name: string, connectorType: Port['connectorType'] = 'BNC'): Port => ({
   id: '',
