@@ -23,10 +23,12 @@ permissions:
   pages: write
   id-token: write
 
-# Node-20-Actions (configure/upload/deploy-pages) auf Node 24 zwingen, solange
-# sie noch keine v-Bump-Releases haben (analog release.yml). Nur Warnung sonst.
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+# Kein FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 mehr. Hier stand, die Pages-Actions
+# haetten "noch keine v-Bump-Releases" — am 2026-09-05 hatten sie alle welche:
+# configure-pages v6, deploy-pages v5, upload-pages-artifact v5, alle node24.
+# Der letzte war der interessante Fall: er ist selbst ein Composite und zog
+# ueber `actions/upload-artifact@v4` node20 herein, ohne dass man das der
+# gepinnten Zeile ansieht. `npm run actions:check` sieht genau da nach.
 
 # Immer nur ein Deploy gleichzeitig; laufende abbrechen wenn ein neuer kommt.
 concurrency:
@@ -53,8 +55,8 @@ jobs:
       # integration"). Daher EINMALIG manuell aktivieren:
       #   Settings → Pages → Build and deployment → Source = "GitHub Actions".
       # Danach deployt dieser Workflow bei jedem Push auf main automatisch.
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: dist/renderer
 
@@ -66,4 +68,4 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
