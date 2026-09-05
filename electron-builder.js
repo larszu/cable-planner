@@ -58,6 +58,33 @@ export default {
       { target: 'zip', arch: 'universal' },
     ],
     artifactName: '${productName}-${version}-${arch}.${ext}',
+    // OHNE DIESE ZEILE GIBT ES KEIN macOS-ARTEFAKT. Gemessen an v8.3.3
+    // (Lauf 30617724085, 2026-07-31): der Universal-Build bricht ab mit
+    //   Detected file ".../@julusian/freetype2/prebuilds/
+    //   freetype2-darwin-arm64/node-napi-v7.node" that's the same in both
+    //   x64 and arm64 builds and not covered by the x64ArchFiles rule
+    // und da `release` auf `needs: build` steht, wurde danach auch die
+    // fertige Windows-.exe nie ans Release gehaengt: v8.3.3 hat NULL Assets.
+    //
+    // WARUM. `@julusian/freetype2` liefert seine Binaries nicht gebaut,
+    // sondern fertig aus — ein Verzeichnis je Plattform+Arch unter
+    // `prebuilds/`, ausgewaehlt zur Laufzeit von `pkg-prebuilds/bindings.js`
+    // ueber `os.arch()`. Beide Teil-Builds (x64 und arm64) enthalten deshalb
+    // denselben vollstaendigen `prebuilds/`-Baum, Byte fuer Byte gleich.
+    // `@electron/universal` erwartet bei einer Mach-O-Datei, die in beiden
+    // Builds identisch ist, eine ausdrueckliche Ansage — sonst koennte es
+    // ebenso gut ein vergessenes Rebuild sein — und bricht ab. `lipo` waere
+    // hier auch falsch: die Auswahl passiert ueber den PFAD, nicht ueber eine
+    // Fat-Binary.
+    //
+    // Der Name der Option ist irrefuehrend („x64ArchFiles"), ihre Wirkung ist
+    // genau die richtige: „identisch ist in Ordnung, eine Kopie behalten".
+    // Sie greift ausschliesslich im Gleichheitsfall — unterscheiden sich die
+    // beiden Dateien, laeuft weiterhin lipo. Das Muster deckt bewusst die
+    // FORM ab (per Pfad benannte Prebuild-Verzeichnisse), nicht das eine
+    // Paket: das naechste Paket dieser Bauart faellt sonst genauso um.
+    // `tests/macUniversalBuild.test.ts` haelt das fest.
+    x64ArchFiles: '**/prebuilds/*darwin*/**',
     icon: 'build/icon.png',
     // Ad-hoc sign the app so macOS Gatekeeper doesn't reject the binary
     // outright with "Cable Planner is damaged and can't be opened" on

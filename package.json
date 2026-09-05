@@ -111,6 +111,7 @@
     "eslint-plugin-react-refresh": "^0.5.3",
     "globals": "^17.7.0",
     "happy-dom": "^20.10.6",
+    "minimatch": "^10.2.5",
     "playwright-core": "^1.61.1",
     "png-to-ico": "^3.0.1",
     "postcss": "^8.5.15",

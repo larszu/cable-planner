@@ -1,0 +1,190 @@
+// ───────────────────────────────────────────────────────────────────────────
+// Der macOS-Universal-Build laesst sich zusammenfuegen.
+//
+// WARUM ES DAS GIBT. `v8.3.3` hat NULL Assets. Kein DMG, keine EXE, nichts —
+// und das steht seit dem 2026-07-31 unbemerkt so auf der Release-Seite. Der
+// macOS-Job brach beim Verschmelzen der beiden Teil-Builds ab:
+//
+//   Detected file "Contents/Resources/app.asar.unpacked/node_modules/
+//   @julusian/freetype2/prebuilds/freetype2-darwin-arm64/node-napi-v7.node"
+//   that's the same in both x64 and arm64 builds and not covered by the
+//   x64ArchFiles rule: "undefined"
+//
+// Weil der `release`-Job auf `needs: build` steht, riss der macOS-Fehler auch
+// die bereits fertig gebaute Windows-.exe mit ins Nichts. Ein einziger nicht
+// gesetzter Konfigurationswert hat damit ZWEI Plattformen um ihr Artefakt
+// gebracht, und die Release-Seite sah dabei aus wie immer.
+//
+// `@julusian/freetype2` baut nichts, es liefert fertige Binaries aus: ein
+// Verzeichnis je Plattform+Arch unter `prebuilds/`, zur Laufzeit ausgewaehlt
+// von `pkg-prebuilds/bindings.js` ueber `os.arch()`. Beide Teil-Builds
+// enthalten deshalb denselben vollstaendigen Baum, Byte fuer Byte gleich.
+// `@electron/universal` verlangt fuer eine in beiden Builds identische
+// Mach-O-Datei eine ausdrueckliche Ansage (`mac.x64ArchFiles`) — sonst waere
+// ein vergessenes Rebuild nicht von einer absichtlich geteilten Datei zu
+// unterscheiden.
+//
+// WIE ER PRUEFT. In BEIDE Richtungen, und das ist der Punkt:
+//
+//  1. Jede per Pfad ausgewaehlte darwin-Prebuild-Datei im Produktions-Baum
+//     MUSS vom Muster gedeckt sein — sonst bricht der Build ab.
+//  2. Jede pro Arch NEU GEBAUTE Datei (keytar & Co. unter `build/Release/`)
+//     darf es NICHT sein. Der bequemste Weg, Fehler 1 loszuwerden, ist
+//     `x64ArchFiles: '**/*.node'` — der Build wird gruen, und die
+//     Universal-App traegt dann in beiden Architekturen die x64-Variante von
+//     keytar. Das faellt nicht beim Bauen auf, sondern auf einem Apple-
+//     Silicon-Rechner beim ersten Zugriff auf den Schluesselbund.
+//
+// Gemessen wird am echten `node_modules`, nicht an einer Liste hier: das
+// naechste Paket dieser Bauart faellt damit von selbst auf. Der Abgleich
+// laeuft mit `minimatch` und denselben Optionen, die `@electron/universal`
+// benutzt (`matchBase: true`) — eine nachgebaute Pfadlogik wuerde raten.
+//
+// WAS ER NICHT PRUEFT: ob `lipo` die zusammengefuegten Binaries akzeptiert.
+// Das braucht einen macOS-Runner; hier geht es um den Abbruch, der schon
+// vorher passiert.
+// ───────────────────────────────────────────────────────────────────────────
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
+import { join, relative, sep } from 'node:path'
+import { minimatch } from 'minimatch'
+import { describe, expect, it } from 'vitest'
+import konfiguration from '../electron-builder.js'
+
+const ROOT = join(__dirname, '..')
+
+/** So heisst die Datei spaeter IM Paket — genau diesen Pfad sieht der Merge. */
+const imPaket = (relativZuNodeModules: string): string =>
+  ['Contents', 'Resources', 'app.asar.unpacked', 'node_modules', relativZuNodeModules].join('/')
+
+/** node-Aufloesung von Hand: von `start` aus die `node_modules` hochlaufen. */
+const paketVerzeichnis = (name: string, start: string): string | null => {
+  let verzeichnis = start
+  for (;;) {
+    const kandidat = join(verzeichnis, 'node_modules', name)
+    if (existsSync(join(kandidat, 'package.json'))) return kandidat
+    const oben = join(verzeichnis, '..')
+    if (oben === verzeichnis) return null
+    verzeichnis = oben
+  }
+}
+
+/**
+ * Der Baum, den electron-builder verpackt: `dependencies` transitiv,
+ * `devDependencies` NICHT. Genau diese Grenze ist die entscheidende — ein
+ * Prebuild-Paket, das nur ein Build-Werkzeug mitbringt, landet nie im
+ * Installer und darf den Guard nicht beschaeftigen.
+ */
+const produktionsBaum = (): { name: string; verzeichnis: string }[] => {
+  const wurzel = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8')) as {
+    dependencies?: Record<string, string>
+  }
+  const gesehen = new Set<string>()
+  const treffer: { name: string; verzeichnis: string }[] = []
+  const offen = Object.keys(wurzel.dependencies ?? {}).map((n) => ({ name: n, von: ROOT }))
+  while (offen.length > 0) {
+    const { name, von } = offen.pop()!
+    const verzeichnis = paketVerzeichnis(name, von)
+    if (!verzeichnis || gesehen.has(verzeichnis)) continue
+    gesehen.add(verzeichnis)
+    treffer.push({ name, verzeichnis })
+    const pj = JSON.parse(readFileSync(join(verzeichnis, 'package.json'), 'utf8')) as {
+      dependencies?: Record<string, string>
+    }
+    for (const kind of Object.keys(pj.dependencies ?? {})) offen.push({ name: kind, von: verzeichnis })
+  }
+  return treffer
+}
+
+const nodeDateien = (verzeichnis: string): string[] => {
+  const treffer: string[] = []
+  const lauf = (d: string) => {
+    for (const eintrag of readdirSync(d)) {
+      if (eintrag === 'node_modules') continue
+      const pfad = join(d, eintrag)
+      if (statSync(pfad).isDirectory()) lauf(pfad)
+      else if (eintrag.endsWith('.node')) treffer.push(pfad)
+    }
+  }
+  lauf(verzeichnis)
+  return treffer
+}
+
+/**
+ * Per Pfad ausgewaehlt heisst: ein `prebuilds`-Segment, und irgendein Segment
+ * darunter nennt die Plattform. Solche Dateien sind in beiden Teil-Builds
+ * identisch, weil nichts sie neu baut.
+ */
+const istPfadPrebuild = (segmente: string[]): boolean =>
+  segmente.includes('prebuilds') &&
+  segmente.some((s, i) => i > segmente.indexOf('prebuilds') && /darwin|win32|linux/.test(s))
+
+type Fund = { pfad: string; segmente: string[] }
+
+const mac = (konfiguration as { mac?: { target?: unknown[]; x64ArchFiles?: string } }).mac ?? {}
+const muster = mac.x64ArchFiles
+
+const alleNativen: Fund[] = produktionsBaum().flatMap(({ verzeichnis }) =>
+  nodeDateien(verzeichnis).map((pfad) => {
+    const rel = relative(join(ROOT, 'node_modules'), pfad)
+    return { pfad: rel.split(sep).join('/'), segmente: rel.split(sep) }
+  }),
+)
+
+const darwinPrebuilds = alleNativen.filter(
+  (f) => istPfadPrebuild(f.segmente) && f.segmente.some((s) => s.includes('darwin')),
+)
+const proArchGebaut = alleNativen.filter((f) => !istPfadPrebuild(f.segmente))
+
+describe('der macOS-Universal-Build laesst sich zusammenfuegen', () => {
+  it('die mac-Ziele enthalten einen Universal-Build', () => {
+    // Die Voraussetzung dieses Guards, ausgesprochen statt stillschweigend
+    // angenommen: nur beim Universal-Build laeuft der Merge, um den es hier
+    // geht. Wer die Ziele bewusst aendert, aendert diese Datei mit — das ist
+    // eine sichtbare Entscheidung, kein stilles Ueberspringen.
+    const ziele = (mac.target ?? []) as { arch?: string }[]
+    expect(ziele.some((z) => z.arch === 'universal')).toBe(true)
+  })
+
+  it('findet ueberhaupt native Module im Produktions-Baum', () => {
+    // Ein leerer Suchlauf waere gruen und wertlos — etwa nach einem
+    // Umbau der Abhaengigkeiten oder ohne `npm install`.
+    expect(
+      alleNativen.length,
+      'Keine .node-Dateien im Produktions-Baum gefunden — lief `npm install`?',
+    ).toBeGreaterThan(0)
+    expect(
+      darwinPrebuilds.length,
+      'Keine per Pfad ausgewaehlten darwin-Prebuilds gefunden. Entweder liefert kein ' +
+        'Paket mehr welche aus (dann darf dieser Guard weg) oder der Suchlauf greift daneben.',
+    ).toBeGreaterThan(0)
+  })
+
+  it('jedes per Pfad ausgewaehlte darwin-Prebuild ist von x64ArchFiles gedeckt', () => {
+    const ungedeckt = darwinPrebuilds
+      .filter((f) => !muster || !minimatch(imPaket(f.pfad), muster, { matchBase: true }))
+      .map((f) => f.pfad)
+    expect(
+      ungedeckt,
+      'Diese Dateien sind in beiden Teil-Builds identisch und von `mac.x64ArchFiles` ' +
+        `nicht gedeckt (Muster: ${JSON.stringify(muster)}). @electron/universal bricht ` +
+        'daran ab — und weil der release-Job auf needs: build steht, faellt damit auch ' +
+        'das Windows-Artefakt aus. Muster in electron-builder.js erweitern.',
+    ).toEqual([])
+  })
+
+  it('die pro Arch gebauten Module sind NICHT gedeckt', () => {
+    // Die Gegenrichtung. `x64ArchFiles: '**/*.node'` macht den Build gruen und
+    // die Universal-App kaputt: keytar laege dann in beiden Architekturen als
+    // x64-Binary bei, und der Schluesselbund-Zugriff stirbt erst auf einem
+    // Apple-Silicon-Rechner beim Nutzer.
+    const faelschlichGedeckt = proArchGebaut
+      .filter((f) => muster && minimatch(imPaket(f.pfad), muster, { matchBase: true }))
+      .map((f) => f.pfad)
+    expect(
+      faelschlichGedeckt,
+      'Diese Module baut @electron/rebuild pro Architektur neu; sie MUESSEN von lipo ' +
+        'zusammengefuehrt werden. Deckt x64ArchFiles sie ab, wird stattdessen die ' +
+        'x64-Variante fuer beide Architekturen behalten.',
+    ).toEqual([])
+  })
+})

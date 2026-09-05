@@ -137,6 +137,46 @@ jobs:
         with:
           path: artifacts
 
+      - name: Release-Vollstaendigkeit pruefen
+        # v8.3.3 hat NULL Assets. Der macOS-Job brach beim Universal-Merge ab,
+        # `release` haengt an `needs: build`, also wurde auch die fertige
+        # Windows-.exe nie angehaengt — und die Release-Seite sah dabei aus wie
+        # jede andere. Fuenf Wochen lang hat das niemand bemerkt.
+        #
+        # Dieser Schritt macht den Teil-Ausfall laut. Er prueft nicht, dass
+        # IRGENDWAS da ist (das tut `if-no-files-found: error` schon je Job),
+        # sondern dass JEDE Gattung da ist: beide Installer und die drei
+        # Dateien, die der eingebaute Auto-Updater braucht. Faellt eine weg,
+        # bricht der Lauf ab, statt ein halbes Release zu veroeffentlichen.
+        shell: bash
+        run: |
+          set -eu
+          echo "--- heruntergeladene Artefakte ---"
+          find artifacts -type f | sort
+          echo "----------------------------------"
+          fehlt=0
+          pruefe() {
+            anzahl="$(find artifacts -type f -name "$1" | wc -l | tr -d ' ')"
+            if [ "$anzahl" -ge 1 ]; then
+              echo "ok   $1 ($anzahl)"
+            else
+              echo "FEHLT $1 -- $2"
+              fehlt=1
+            fi
+          }
+          pruefe '*.exe'          'Windows-Installer/Portable (windows-Job)'
+          pruefe '*.dmg'          'macOS-Download (macos-Job)'
+          pruefe '*.zip'          'macOS-Auto-Update: Squirrel.Mac spielt nur aus einem zip ein'
+          pruefe 'latest.yml'     'Update-Manifest Windows'
+          pruefe 'latest-mac.yml' 'Update-Manifest macOS'
+          if [ "$fehlt" -ne 0 ]; then
+            echo
+            echo "Ein halbes Release ist schlimmer als keines: es sieht auf der"
+            echo "Release-Seite vollstaendig aus. Erst den fehlenden Build-Job"
+            echo "reparieren, dann den Tag neu setzen."
+            exit 1
+          fi
+
       - name: Create GitHub Release
         # Nicht nur die Installer: die App bringt einen Auto-Updater mit
         # (`services/updaterService.ts` ruft `checkForUpdatesAndNotify()`), und
