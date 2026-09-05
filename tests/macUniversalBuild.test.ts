@@ -265,6 +265,43 @@ describe('der macOS-Universal-Build laesst sich zusammenfuegen', () => {
     }
   })
 
+  it('die verpackte package.json bringt den Einsprung-Shim nicht um', () => {
+    // Die DRITTE Stufe, an der der Universal-Build reisst -- und sie entsteht
+    // erst durch `mergeASARs: false`. Gemessen an der ausgelieferten Suite-App
+    // v0.1.1: `ReferenceError: exports is not defined in ES module scope`,
+    // geworfen in `app.asar/index.js`.
+    //
+    // Das ist nicht unser Code: `@electron/universal` legt bei
+    // `mergeASARs: false` einen CommonJS-Shim als `index.js` ab und daneben
+    // eine KOPIE unserer package.json. Sagt die `type: module`, parst Node den
+    // Shim als ESM, und die App stirbt vor der ersten eigenen Zeile.
+    //
+    // Ab `@electron/universal@3` schreibt es in dem Fall `index.mjs`; die
+    // Forderung faellt dann von selbst weg, ohne dass jemand diese Datei
+    // anfassen muss.
+    const universalPaket = JSON.parse(
+      readFileSync(join(ROOT, 'node_modules', '@electron', 'universal', 'package.json'), 'utf8'),
+    ) as { version: string }
+    const major = Number(universalPaket.version.split('.')[0])
+    const universal = ((mac.target ?? []) as { arch?: string }[]).some((z) => z.arch === 'universal')
+    if (!universal || mac.mergeASARs !== false || major >= 3) return
+
+    const eigenes = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8')) as { type?: string }
+    // `extraMetadata` gewinnt ueber die package.json im Repo -- genau dafuer
+    // ist es da, und genau das landet spaeter im Archiv.
+    const konfig = konfiguration as { extraMetadata?: { type?: string } }
+    const effektiv = konfig.extraMetadata?.type ?? eigenes.type
+
+    expect(
+      effektiv,
+      `@electron/universal@${universalPaket.version} legt bei mergeASARs:false einen ` +
+        'CommonJS-Shim als `index.js` neben eine Kopie dieser package.json. Mit ' +
+        '`type: module` startet die App nicht -- "exports is not defined in ES module ' +
+        "scope\". Abhilfe: `extraMetadata: { type: 'commonjs' }`, und der ESM-Teil " +
+        'bekommt seine eigene package.json (scripts/mark-main-esm.mjs).',
+    ).not.toBe('module')
+  })
+
   it('die pro Arch gebauten Module sind NICHT gedeckt', () => {
     // Die Gegenrichtung. `x64ArchFiles: '**/*.node'` macht den Build gruen und
     // die Universal-App kaputt: keytar laege dann in beiden Architekturen als
