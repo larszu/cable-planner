@@ -45,7 +45,7 @@
 // vorher passiert.
 // ───────────────────────────────────────────────────────────────────────────
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
-import { join, relative, sep } from 'node:path'
+import { join, sep } from 'node:path'
 import { minimatch } from 'minimatch'
 import { describe, expect, it } from 'vitest'
 import konfiguration from '../electron-builder.js'
@@ -123,10 +123,26 @@ type Fund = { pfad: string; segmente: string[] }
 const mac = (konfiguration as { mac?: { target?: unknown[]; x64ArchFiles?: string } }).mac ?? {}
 const muster = mac.x64ArchFiles
 
+/**
+ * Der Pfad ab dem LETZTEN `node_modules`-Segment -- genau so adressiert
+ * electron-builder die Datei im Paket.
+ *
+ * Nicht `relative(ROOT/node_modules, …)`: das setzt voraus, dass die
+ * Abhaengigkeiten direkt neben der `package.json` liegen. In der vendorten
+ * Kopie unter `av-planner-suite/apps/cable-planner/` sind sie an die
+ * Monorepo-Wurzel gehoistet, und der relative Pfad begann dann mit `../../..`
+ * -- das Muster traf nichts mehr, und der Guard meldete faelschlich einen
+ * Fehler (gemessen 2026-09-05, gefunden von genau dieser Kopie).
+ */
+const imBaum = (pfad: string): string[] => {
+  const teile = pfad.split(sep)
+  return teile.slice(teile.lastIndexOf('node_modules') + 1)
+}
+
 const alleNativen: Fund[] = produktionsBaum().flatMap(({ verzeichnis }) =>
   nodeDateien(verzeichnis).map((pfad) => {
-    const rel = relative(join(ROOT, 'node_modules'), pfad)
-    return { pfad: rel.split(sep).join('/'), segmente: rel.split(sep) }
+    const segmente = imBaum(pfad)
+    return { pfad: segmente.join('/'), segmente }
   }),
 )
 
