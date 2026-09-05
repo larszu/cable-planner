@@ -581,11 +581,23 @@ export const runDrawingChecks = (
     // soll, wurde von einer Vermutung beantwortet. Ports tragen die ganze
     // Verkabelung: ein erfundener Port ist ein Kabel, das es nicht gibt.
     else if (e.specSource?.inputs || e.specSource?.outputs) {
+      // Die Meldung nennt die AUFGEZEICHNETE Herkunft, statt eine zu behaupten.
+      // Vorher stand hier fest „AI-Vorschlag" — richtig, solange der
+      // Port-Vorschlag die einzige Quelle ohne Datenblatt war. Sobald eine
+      // zweite dazukommt (die Suite-Shell schiebt ihr Projekt als Seed in den
+      // eingebetteten Planer und legt daraus Ports an), benennt derselbe Satz
+      // die falsche Quelle — und zwar ausgerechnet in der Pruefung, die zu
+      // belegten Daten zwingen soll. `specSource.source` traegt den Beleg
+      // ohnehin als ganzen Satz; er wird hier gelesen statt nacherzaehlt.
+      // Leerer Beleg zaehlt wie keiner: `??` faengt nur null/undefined, und ein
+      // leerer Text ergaebe „Ports stammen aus  —" statt einer Aussage.
+      const belegText = (e.specSource?.inputs?.source || e.specSource?.outputs?.source || '').trim()
+      const beleg = belegText || undefined
       findings.push({
         id: `ports-guessed:${e.id}`,
         severity: 'warning',
         category: 'Ports geraten',
-        message: `${e.name}: Ports stammen aus einem AI-Vorschlag, nicht aus einem Datenblatt — gegen die realen Anschlüsse prüfen`,
+        message: `${e.name}: Ports stammen aus ${beleg ?? 'einer Quelle ohne Datenblatt'} — gegen die realen Anschlüsse prüfen`,
         equipmentId: e.id,
       })
     }
