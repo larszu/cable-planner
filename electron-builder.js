@@ -14,6 +14,35 @@ export default {
   // doppelt hochladen" — die publish-CONFIG bleibt im Paket eingebettet.
   publish: [{ provider: 'github', owner: 'larszu', repo: 'cable-planner', releaseType: 'release' }],
   files: ['dist/**/*', 'package.json'],
+  // DIE VERPACKTE package.json DARF KEIN `type: module` TRAGEN.
+  //
+  // Gemessen an der ausgelieferten Suite-App `v0.1.1`, die beim Start
+  // abstuerzt -- dieselbe Konstellation steckt hier:
+  //
+  //   ReferenceError: exports is not defined in ES module scope
+  //   ... app.asar/package.json contains "type": "module"
+  //   at app.asar/index.js:5:23
+  //
+  // `index.js` ist nicht unser Code, sondern der Einsprung-Shim, den
+  // `@electron/universal` bei `mergeASARs: false` erzeugt: er waehlt zur
+  // Laufzeit zwischen `app-x64.asar` und `app-arm64.asar`. Der Shim ist
+  // CommonJS (`exports`, `require`), heisst `index.js` -- und daneben legt
+  // @electron/universal eine KOPIE UNSERER package.json. Steht dort
+  // `type: module`, parst Node den Shim als ESM und die App ist tot, bevor
+  // eine Zeile eigener Code laeuft.
+  //
+  // `@electron/universal@3.x` behebt das (es schreibt dann `index.mjs`), ist
+  // hier aber nicht zu haben: `app-builder-lib` pinnt 2.0.3 exakt, und ein
+  // npm-`overrides` liesse sich nur mit einer vollstaendigen Neuaufloesung
+  // des Lockfiles anwenden.
+  //
+  // `extraMetadata` aendert NUR die verpackte package.json, nicht die im
+  // Repo: `eslint.config.js`, `vite.config.ts` und diese Datei bleiben ESM.
+  // Was dadurch ESM verliert, bekommt es zurueck: `scripts/mark-main-esm.mjs`
+  // legt bei jedem `build:main` ein `dist/main/package.json` mit
+  // `type: module` ab -- der Main-Prozess ist der einzige Node-geladene
+  // ESM-Code im Paket.
+  extraMetadata: { type: 'commonjs' },
   directories: {
     buildResources: 'build',
     output: 'release',
