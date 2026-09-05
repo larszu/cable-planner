@@ -279,8 +279,19 @@ describe('der macOS-Universal-Build laesst sich zusammenfuegen', () => {
     // Ab `@electron/universal@3` schreibt es in dem Fall `index.mjs`; die
     // Forderung faellt dann von selbst weg, ohne dass jemand diese Datei
     // anfassen muss.
+    // NICHT `join(ROOT, 'node_modules', ...)`: in der vendorten Kopie unter
+    // `av-planner-suite/apps/cable-planner/` liegen die Abhaengigkeiten an der
+    // Monorepo-Wurzel. Genau dieser Fehler steckte schon in der Pfad-Bildung
+    // dieses Tests (#696) -- `paketVerzeichnis` laeuft die `node_modules`
+    // hoch und trifft beide Lagen.
+    const universalDir = paketVerzeichnis('@electron/universal', ROOT)
+    expect(
+      universalDir,
+      '@electron/universal ist nicht auffindbar -- ohne das Paket hat diese Pruefung ' +
+        'keine Grundlage, und sie darf dann nicht stillschweigend durchgehen.',
+    ).not.toBeNull()
     const universalPaket = JSON.parse(
-      readFileSync(join(ROOT, 'node_modules', '@electron', 'universal', 'package.json'), 'utf8'),
+      readFileSync(join(universalDir!, 'package.json'), 'utf8'),
     ) as { version: string }
     const major = Number(universalPaket.version.split('.')[0])
     const universal = ((mac.target ?? []) as { arch?: string }[]).some((z) => z.arch === 'universal')
