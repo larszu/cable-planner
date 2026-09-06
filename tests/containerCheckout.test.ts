@@ -349,7 +349,12 @@ describe('Erreichbarkeit im Lager-Dialog', () => {
   it('gibt aus und bucht zurueck ueber den Store', () => {
     expect(dialogQuelle).toContain("from '../../store/checkoutStore'")
     expect(dialogQuelle).toMatch(/checkOut\(snap, nodeId,/)
-    expect(dialogQuelle).toMatch(/checkIn\(snap, r\.id\)/)
+    // Seit Bedarf 68 laeuft die Rueckbuchung ueber `bucheZurueck`, weil sie
+    // die aufgenommenen Schaeden mitgeben muss. Der Weg IN DEN STORE bleibt
+    // derselbe -- das ist es, was diese Zeile zusichert, und deshalb prueft
+    // sie den Aufruf und nicht mehr den Knopf.
+    expect(dialogQuelle).toMatch(/checkIn\(snap, r\.id, undefined, damageOf\(r\)\)/)
+    expect(dialogQuelle).toMatch(/onClick=\{\(\) => bucheZurueck\(r\)\}/)
   })
 
   it('zeigt VOR dem Klick, was mitginge', () => {
