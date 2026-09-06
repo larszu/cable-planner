@@ -4231,7 +4231,11 @@ export const en: Dict = {
   'analysis.rf.conflictChannel': '{a} ↔ {b}: same channel {ch}',
   // CSV-Import (#354)
   'csvImport.title': 'Import equipment from CSV',
-  'csvImport.intro': 'Paste CSV or pick a file. First row = column headers. Recognized columns: name, category, power (W), weight (kg), serial number, IP, RU, subtitle/manufacturer. Import creates library templates (no overwrite).',
+  'csvImport.intro':
+    'Paste CSV or pick a file. First row = column headers. Recognized columns: name, category, ' +
+    'power (W), weight (kg), serial number, IP, RU, subtitle/manufacturer. Every other column is ' +
+    'carried into the notes — nothing is dropped silently. Import creates library templates ' +
+    '(no overwrite).',
   'csvImport.pickFile': 'Choose CSV file…',
   'csvImport.detected': 'Detected: {rows} row(s), mapped columns: {fields}',
   'csvImport.fallbackCategory': 'Imported',
@@ -4239,7 +4243,17 @@ export const en: Dict = {
   'csvImport.col.category': 'Category',
   'csvImport.importBtn': 'Import {n}',
   'csvImport.doneTitle': 'CSV imported',
-  'csvImport.doneBody': 'Added {n} device(s) as library templates (existing names unchanged).',
+  'csvImport.doneBody':
+    'Created {n} new device(s). Left unchanged: {vorhanden} name(s) that already existed. ' +
+    'Skipped: {ohneName} row(s) without a name.',
+  // Bedarf 29 — was NICHT ankommt, hat einen Namen.
+  'csvImport.whatHappens': 'What happens to the rest',
+  'csvImport.unmapped': 'Not recognised as a field, carried into the notes: {cols}',
+  'csvImport.duplicateCols':
+    'Second column on the same field — the first one wins, this one becomes a note: {cols}',
+  'csvImport.noName': '{n} row(s) without a name will be skipped: {rows}',
+  'csvImport.existing':
+    '{n} name(s) already exist — they stay unchanged, nothing is overwritten: {names}',
   'app.mobileShare.title': 'Phone access: a small LAN server + QR code so a phone can open the mobile viewer.',
   'app.mobileShare.ariaLabel': 'Phone access',
   'app.redo': 'Redo (Ctrl+Y)',
