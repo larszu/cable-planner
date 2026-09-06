@@ -28,6 +28,8 @@ import type { ProjectState } from '../projectStore'
  * resyncRentmanLibraryFromCanvas (haengt an healRentmanLibraryFromProject,
  * dem Project-Healing-Helper).
  */
+import type { TemplateAddReport } from '../../lib/templateAddReport'
+
 export type TemplateSlice = Pick<
   ProjectState,
   | 'addCustomTemplate'
@@ -104,20 +106,43 @@ export const createTemplateSlice: StateCreator<ProjectState, [], [], TemplateSli
       if (template.rentmanId) upsertCachedRentmanTemplate(template)
       return { customLibrary: next }
     }),
-  addCustomTemplates: (templates) =>
+  /**
+   * Vorlagen ergaenzen — und SAGEN, was dabei nicht passiert ist (Bedarf 65).
+   *
+   * Uebersprungen wird weiterhin, was es schon gibt: ein Import darf eigene
+   * Edits nicht ueberschreiben. Neu ist nur, dass es niemand mehr erraten
+   * muss. Die Auskunft steht hier und nicht bei den drei Aufrufern, weil sie
+   * dort dreimal danebengerechnet wurde — einmal aus der Datei statt aus dem
+   * Ergebnis, einmal gar nicht, einmal parallel.
+   */
+  addCustomTemplates: (templates) => {
+    const report: TemplateAddReport = { added: [], skipped: [], unnamed: 0 }
     set((state) => {
       const byName = new Map(state.customLibrary.map((t) => [t.name, t]))
-      // Only add templates that don't already exist (don't overwrite user edits).
-      templates.forEach((t) => {
-        if (!byName.has(t.name)) byName.set(t.name, t)
-      })
+      for (const t of templates) {
+        const name = t.name?.trim() ?? ''
+        if (!name) {
+          // Zwei namenlose Vorlagen haetten denselben leeren Schluessel; die
+          // zweite ueberschriebe die erste. Sie werden deshalb nicht angelegt.
+          report.unnamed += 1
+          continue
+        }
+        if (byName.has(t.name)) {
+          if (!report.skipped.includes(t.name)) report.skipped.push(t.name)
+          continue
+        }
+        byName.set(t.name, t)
+        report.added.push(t.name)
+      }
       const next = Array.from(byName.values())
       persistCustomLibrary(next)
       templates.forEach((template) => {
         if (template.rentmanId) upsertCachedRentmanTemplate(template)
       })
       return { customLibrary: next }
-    }),
+    })
+    return report
+  },
   removeCustomTemplate: (name) =>
     set((state) => {
       const next = state.customLibrary.filter((t) => t.name !== name)

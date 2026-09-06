@@ -29,6 +29,8 @@ import {
 import { useProjectStore } from '../../store/projectStore'
 import { projectHistory } from '../../store/projectHistory'
 import { useTranslation, format } from '../../lib/i18n'
+import { infoDialog } from '../../lib/infoDialog'
+import { hasOmissions } from '../../lib/templateAddReport'
 
 export interface GraphmlImportDialogProps {
   open: boolean
@@ -236,7 +238,29 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
         void _gid
         return rest
       })
-      addCustomTemplates(templates)
+      // Bedarf 65: bis hierher schloss dieser Zweig den Dialog KOMMENTARLOS.
+      // Wer zwanzig Geraete aus einem yEd-Diagramm in die Library schickte,
+      // von denen achtzehn schon dastanden, sah zwei neue Eintraege und keinen
+      // Hinweis darauf, warum.
+      const bericht = addCustomTemplates(templates)
+      void infoDialog(t('graphml.dialog.libDoneTitle', 'In die Library übernommen'), {
+        body: format(
+          t(
+            'graphml.dialog.libDoneBody',
+            '{n} Gerät(e) neu angelegt. Nicht angelegt: {vorhanden} bereits vorhandene(r) Name(n){namen}{ohneName}',
+          ),
+          {
+            n: bericht.added.length,
+            vorhanden: bericht.skipped.length,
+            namen: bericht.skipped.length > 0 ? ` — ${bericht.skipped.slice(0, 12).join(', ')}` : '',
+            ohneName:
+              bericht.unnamed > 0
+                ? format(t('graphml.dialog.libUnnamed', ' · {n} ohne Namen'), { n: bericht.unnamed })
+                : '',
+          },
+        ),
+        tone: hasOmissions(bericht) ? 'info' : 'success',
+      })
       reset()
       onClose()
       return

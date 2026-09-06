@@ -164,7 +164,15 @@ describe('Erreichbarkeit im Import-Dialog', () => {
   })
 
   it('meldet am Ende die WIRKLICH angelegte Zahl', () => {
-    expect(dialogQuelle).toContain('n: plan.fresh.length')
+    // Seit Bedarf 65 kommt sie aus dem BERICHT des Stores, nicht mehr aus dem
+    // Plan. Der Plan ist die Vorschau VOR dem Klick; gemeldet werden muss das
+    // Ergebnis. Vorher stand hier `n: plan.fresh.length` -- dieselbe Zahl,
+    // aber aus der falschen Quelle: zwei parallel gefuehrte Zaehlungen ueber
+    // dieselbe Operation weichen irgendwann ab, und dann stimmt die falsche.
+    expect(dialogQuelle).toContain('n: bericht.added.length')
+    expect(dialogQuelle).not.toContain('n: plan.fresh.length')
+    // Was nur der Plan weiss, kommt weiter von ihm — die namenlosen Zeilen
+    // der DATEI sieht der Store nie.
     expect(dialogQuelle).toContain('vorhanden: plan.existing.length')
     expect(dialogQuelle).toContain('ohneName: plan.rowsWithoutName.length')
   })

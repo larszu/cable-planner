@@ -268,6 +268,10 @@ export const en: Dict = {
   'settings.project.libImport.okTitle': 'Library imported',
   'settings.project.libImport.okBody':
     'Only new entries were added — existing templates remain unchanged.',
+  // Bedarf 65 — was NICHT angelegt wurde, mit Namen.
+  'settings.project.libImport.skipped':
+    'Not created: {n} name(s) that already existed{namen}{ohneName}',
+  'settings.project.libImport.unnamed': ' · {n} without a name',
   'settings.project.libImport.templatesWord': 'device templates',
   'settings.project.libImport.presetsWord': 'group presets',
   'settings.project.libImport.failTitle': 'Import failed',
@@ -1530,6 +1534,11 @@ export const en: Dict = {
   'graphml.dialog.pickOther': 'Pick another file',
   'graphml.dialog.file': 'File',
   'graphml.dialog.nodes': 'nodes',
+  // Bedarf 65 — der Library-Zweig meldete gar nichts.
+  'graphml.dialog.libDoneTitle': 'Added to the library',
+  'graphml.dialog.libDoneBody':
+    'Created {n} device(s). Not created: {vorhanden} name(s) that already existed{namen}{ohneName}',
+  'graphml.dialog.libUnnamed': ' · {n} without a name',
   'graphml.dialog.edges': 'edges',
   'graphml.dialog.otherFile': '↻ Another file',
   'graphml.dialog.devices': 'Devices',
