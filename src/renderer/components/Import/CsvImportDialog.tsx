@@ -5,9 +5,16 @@
 // der Kopfzeile automatisch zugeordnet (DE/EN-Aliase); der User sieht eine
 // Vorschau bevor importiert wird. Deckt Rental-Systeme ab, die kein
 // dediziertes Plugin haben (Current RMS / HireHop / Flex / Excel-Export).
+//
+// BEDARF 29 (P1) — „silent data loss on import must be impossible". Die
+// Zuordnung, die Vorschau und die Zaehlung liegen seither in
+// `lib/csvImportPlan.ts`: was NICHT uebernommen wird, hat dort einen Namen,
+// eine Liste und eine Zahl, und dieser Dialog zeigt sie. Drei stille Verluste
+// waren es vorher — unbekannte Spalten, namenlose Zeilen, und eine
+// Erfolgsmeldung, die uebersprungene Namen als „hinzugefuegt" zaehlte.
 
 import { useMemo, useState } from 'react'
-import { FileUp } from 'lucide-react'
+import { FileUp, AlertTriangle } from 'lucide-react'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
 import { ModalShell } from '../shared/ModalShell'
@@ -16,90 +23,27 @@ import { Button } from '../shared/Button'
 import { infoDialog } from '../../lib/infoDialog'
 import { useTranslation, format } from '../../lib/i18n'
 import { parseCsv } from '../../lib/csvParse'
-import type { EquipmentTemplate } from '../../types/equipment'
-
-type FieldKey = 'name' | 'category' | 'watts' | 'weight' | 'serial' | 'ip' | 'rackUnits' | 'subtitle'
-
-const ALIASES: Record<FieldKey, string[]> = {
-  name: ['name', 'gerät', 'geraet', 'device', 'bezeichnung', 'artikel'],
-  category: ['kategorie', 'category', 'typ', 'type', 'gruppe'],
-  watts: ['watt', 'watts', 'leistung', 'power', 'w'],
-  weight: ['gewicht', 'weight', 'kg'],
-  serial: ['seriennummer', 'serial', 's/n', 'sn'],
-  ip: ['ip', 'ip-adresse', 'ipaddress', 'ip address', 'ip adresse'],
-  rackUnits: ['he', 'rackunits', 'ru', 'höheneinheiten', 'hoeheneinheiten'],
-  subtitle: ['untertitel', 'subtitle', 'hersteller', 'manufacturer', 'marke', 'brand'],
-}
-
-const mapHeader = (header: string[]): Partial<Record<FieldKey, number>> => {
-  const map: Partial<Record<FieldKey, number>> = {}
-  header.forEach((h, i) => {
-    const key = h.trim().toLowerCase()
-    for (const [field, aliases] of Object.entries(ALIASES) as [FieldKey, string[]][]) {
-      if (map[field] == null && aliases.includes(key)) map[field] = i
-    }
-  })
-  return map
-}
-
-const toNum = (s?: string): number | undefined => {
-  const n = parseFloat((s ?? '').replace(',', '.').replace(/[^\d.-]/g, ''))
-  return Number.isFinite(n) ? n : undefined
-}
-
-const buildTemplates = (
-  rows: string[][],
-  map: Partial<Record<FieldKey, number>>,
-  fallbackCategory: string,
-): EquipmentTemplate[] => {
-  const at = (r: string[], key: FieldKey): string | undefined =>
-    map[key] != null ? r[map[key] as number]?.trim() : undefined
-  const [, ...body] = rows
-  const out: EquipmentTemplate[] = []
-  for (const r of body) {
-    const name = (map.name != null ? r[map.name] : r[0])?.trim()
-    if (!name) continue
-    const tpl: EquipmentTemplate = {
-      name,
-      category: at(r, 'category') || fallbackCategory,
-      inputs: [],
-      outputs: [],
-      width: 220,
-      height: 60,
-    }
-    const w = toNum(at(r, 'watts'))
-    if (w != null) tpl.powerConsumptionWatts = w
-    const kg = toNum(at(r, 'weight'))
-    if (kg != null) tpl.weightKg = kg
-    const sn = at(r, 'serial')
-    if (sn) tpl.serialNumber = sn
-    const ip = at(r, 'ip')
-    if (ip) tpl.ipAddress = ip
-    const ru = toNum(at(r, 'rackUnits'))
-    if (ru != null) {
-      tpl.rackUnits = Math.max(1, Math.round(ru))
-      tpl.isRackDevice = true
-    }
-    const sub = at(r, 'subtitle')
-    if (sub) tpl.subtitle = sub
-    out.push(tpl)
-  }
-  return out
-}
+import { ALIASES, planCsvImport, type FieldKey } from '../../lib/csvImportPlan'
 
 export const CsvImportDialog = () => {
   const t = useTranslation()
   const open = useUiStore((s) => s.csvImport.open)
   const close = useUiStore((s) => s.closeCsvImport)
   const addCustomTemplates = useProjectStore((s) => s.addCustomTemplates)
+  const customLibrary = useProjectStore((s) => s.customLibrary)
   const [text, setText] = useState('')
 
   const parsed = useMemo(() => parseCsv(text), [text])
-  const map = useMemo(() => mapHeader(parsed[0] ?? []), [parsed])
-  const templates = useMemo(
-    () => buildTemplates(parsed, map, t('csvImport.fallbackCategory', 'Importiert')),
-    [parsed, map, t],
+  const plan = useMemo(
+    () =>
+      planCsvImport(
+        parsed,
+        customLibrary.map((tpl) => tpl.name),
+        t('csvImport.fallbackCategory', 'Importiert'),
+      ),
+    [parsed, customLibrary, t],
   )
+  const templates = plan.fresh
 
   if (!open) return null
 
@@ -114,18 +58,27 @@ export const CsvImportDialog = () => {
     addCustomTemplates(templates)
     close()
     setText('')
-    void infoDialog(
-      t('csvImport.doneTitle', 'CSV importiert'),
-      {
-        body: format(t('csvImport.doneBody', '{n} Gerät(e) als Library-Templates hinzugefügt (bestehende Namen unverändert).'), {
-          n: templates.length,
-        }),
-        tone: 'success',
-      },
-    )
+    // Die Zahl im Erfolgsfenster ist jetzt die, die wirklich angelegt wurde —
+    // und was NICHT angelegt wurde, steht daneben statt nirgends.
+    void infoDialog(t('csvImport.doneTitle', 'CSV importiert'), {
+      body: format(
+        t(
+          'csvImport.doneBody',
+          '{n} Gerät(e) neu angelegt. Unverändert geblieben: {vorhanden} bereits vorhandene(r) Name(n). Übersprungen: {ohneName} Zeile(n) ohne Namen.',
+        ),
+        {
+          n: plan.fresh.length,
+          vorhanden: plan.existing.length,
+          ohneName: plan.rowsWithoutName.length,
+        },
+      ),
+      tone: 'success',
+    })
   }
 
-  const mappedFields = (Object.keys(ALIASES) as FieldKey[]).filter((k) => map[k] != null)
+  const mappedFields = (Object.keys(ALIASES) as FieldKey[]).filter((k) => plan.mapping[k] != null)
+  const etwasFaelltAuf =
+    plan.unmapped.length > 0 || plan.duplicates.length > 0 || plan.rowsWithoutName.length > 0 || plan.existing.length > 0
 
   return (
     <ModalShell
@@ -139,7 +92,7 @@ export const CsvImportDialog = () => {
         <p className="text-cp-xs text-[var(--cp-text-muted)]">
           {t(
             'csvImport.intro',
-            'CSV einfügen oder Datei wählen. Erste Zeile = Spaltenüberschriften. Erkannte Spalten: Name, Kategorie, Leistung (W), Gewicht (kg), Seriennummer, IP, HE, Untertitel/Hersteller. Import legt Library-Templates an (kein Überschreiben).',
+            'CSV einfügen oder Datei wählen. Erste Zeile = Spaltenüberschriften. Erkannte Spalten: Name, Kategorie, Leistung (W), Gewicht (kg), Seriennummer, IP, HE, Untertitel/Hersteller. Jede andere Spalte wandert in die Notizen — nichts fällt still weg. Import legt Library-Templates an (kein Überschreiben).',
           )}
         </p>
         <label className="inline-flex cursor-pointer items-center gap-1 rounded bg-[var(--cp-surface-2)] px-2 py-1 text-cp-xs hover:bg-[var(--cp-surface-3)]">
@@ -166,6 +119,73 @@ export const CsvImportDialog = () => {
                 fields: mappedFields.join(', ') || '—',
               })}
             </div>
+
+            {/* BEDARF 29 — was NICHT ankommt, steht hier. Der Bedarf verlangt
+                „a preview that names exactly what will be dropped"; eine
+                Vorschau, die nur die erkannten Spalten nennt, sagt ueber die
+                nicht erkannten nichts — und Verschweigen sieht aus wie
+                „vollstaendig uebernommen". */}
+            {etwasFaelltAuf && (
+              <div className="rounded border border-[var(--cp-warn)]/40 bg-[var(--cp-surface-2)] p-2 text-cp-xs">
+                <div className="mb-1 flex items-center gap-1 font-medium text-[var(--cp-text)]">
+                  <Icon icon={AlertTriangle} size="xs" />
+                  {t('csvImport.whatHappens', 'Was mit dem Rest passiert')}
+                </div>
+                <ul className="flex list-disc flex-col gap-0.5 pl-4 text-[var(--cp-text-secondary)]">
+                  {plan.unmapped.length > 0 && (
+                    <li>
+                      {format(
+                        t(
+                          'csvImport.unmapped',
+                          'Nicht als Feld erkannt, wandert in die Notizen: {cols}',
+                        ),
+                        { cols: plan.unmapped.map((c) => c.header || `#${c.index + 1}`).join(', ') },
+                      )}
+                    </li>
+                  )}
+                  {plan.duplicates.length > 0 && (
+                    <li>
+                      {format(
+                        t(
+                          'csvImport.duplicateCols',
+                          'Zweite Spalte auf dasselbe Feld — die erste gewinnt, diese wird zur Notiz: {cols}',
+                        ),
+                        {
+                          cols: plan.duplicates
+                            .map((c) => `${c.header || `#${c.index + 1}`} (${c.field})`)
+                            .join(', '),
+                        },
+                      )}
+                    </li>
+                  )}
+                  {plan.rowsWithoutName.length > 0 && (
+                    <li>
+                      {format(
+                        t('csvImport.noName', '{n} Zeile(n) ohne Namen werden übersprungen: {rows}'),
+                        {
+                          n: plan.rowsWithoutName.length,
+                          rows: plan.rowsWithoutName.slice(0, 12).join(', '),
+                        },
+                      )}
+                    </li>
+                  )}
+                  {plan.existing.length > 0 && (
+                    <li>
+                      {format(
+                        t(
+                          'csvImport.existing',
+                          '{n} Name(n) gibt es schon — sie bleiben unverändert, es wird nichts überschrieben: {names}',
+                        ),
+                        {
+                          n: plan.existing.length,
+                          names: plan.existing.slice(0, 12).join(', '),
+                        },
+                      )}
+                    </li>
+                  )}
+                </ul>
+              </div>
+            )}
             <div className="max-h-48 overflow-auto rounded border border-[var(--cp-border-muted)]">
               <table className="w-full text-cp-xs">
                 <thead className="sticky top-0 bg-[var(--cp-surface-2)] text-left text-[var(--cp-text-muted)]">
