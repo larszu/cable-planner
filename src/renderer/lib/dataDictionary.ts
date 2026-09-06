@@ -60,6 +60,9 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   Abschnitt: 'Der Themenblock des Merkblatts (Zugang, Adressen, Verbote, Ansprechpartner).',
   'Abweichung begründet':
     'Warum dieses Ziel andere Veranstaltungsangaben trägt als das Projekt. „—" heißt: es weicht nicht ab.',
+  'Alter Name': 'Wie das Gerät heute heißt.',
+  'Am Dante-Netz':
+    'Ob das Gerät eine Dante-Schnittstelle führt. Nur dort gilt die 31-Zeichen-Grenze, und nur dort brechen Subscriptions beim Umbenennen.',
   An: 'An wen der Container ausgegeben wurde.',
   'Änderungen seither':
     'Wie viele inhaltliche Änderungen seit dem festgeschriebenen As-Built dazugekommen sind.',
@@ -129,6 +132,8 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
     'Woher die Angabe stammt. Im Sendebericht: gesehen, aus einem Log abgetippt oder gemeldet. Auf anderen Blättern: aus welcher Quelle im Plan der Wert kommt.',
   'Herkunft (Ist)':
     'Woher der Ist-Wert stammt — aus dem ERP, von der Rechnung oder von Hand geschätzt.',
+  'Im Klartext im Plan':
+    'Wie oft der alte Name in Notizen oder Antworten als Text vorkommt. Diese Stellen bricht ein Umbenennen still.',
   'Im Plan': 'Was der Plan an dieser Stelle vorsieht — die Soll-Seite des Abgleichs.',
   'Ingest-URL': 'Die Adresse, an die gesendet wird. Ohne Stream-Key — der steht nie in einer Datei.',
   IP: 'Die IP-Adresse der Schnittstelle.',
@@ -150,6 +155,7 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   Mischer: 'Der Bildmischer, auf den sich die Eingangsnummer bezieht.',
   Modell: 'Der Gerätetyp — nicht die einzelne Einheit.',
   Name: 'Der Name, unter dem der Datensatz im Plan geführt wird.',
+  'Neuer Name': 'Der Name, den die Regel für dieses Gerät ergibt.',
   'Niedrige Bitrate': 'Die Szene, auf die bei niedriger Bitrate geschaltet werden soll.',
   Normalbetrieb: 'Die Szene für den Normalbetrieb — der Rückweg aus der Ausweichszene.',
   Notiz: 'Freitext zu diesem Ziel.',
@@ -209,6 +215,7 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   X: 'Die X-Position auf der Bühnenfläche.',
   Y: 'Die Y-Position auf der Bühnenfläche.',
   Zeit: 'Der Zeitpunkt des Eintrags, wie ihn ein Mensch eingetragen hat.',
+  Zeichen: 'Wie viele Zeichen der neue Name hat.',
   Ziel:
     'Wohin es geht. Bei der Ausspielung das Ausspielziel (Plattform-Adresse), sonst das empfangende Gerät oder der empfangende Kanal.',
   'Zugeordnet ueber': 'Woran das vorgefundene Gerät dem geplanten zugeordnet wurde.',

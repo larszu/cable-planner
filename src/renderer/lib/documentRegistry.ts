@@ -31,6 +31,7 @@ import { fallbackTable } from './fallbackPlan'
 import { eventMetadataTable } from './eventMetadata'
 import { transmissionRecordTable } from './transmissionRecord'
 import { costComparisonTable } from './costComparison'
+import { renameSetTable } from './namingScheme'
 import type { CsvTable } from './csv'
 
 const ofTable =
@@ -126,6 +127,11 @@ export const DOCUMENT_STANDS: Record<string, (project: CablePlannerProject) => s
   // Nutzer-Einstellung beim Export, keine Sprache, keine Uhr. Die BEFUNDE
   // stehen nicht in der Tabelle -- sie tragen Fliesstext.
   'kosten-vergleich': ofTable(costComparisonTable),
+  // Bedarf 74 — der Umbenennungssatz. Reproduzierbar: er folgt allein aus der
+  // Namensregel im Projekt und den Geraeten. Ohne Regel ist er leer, und das
+  // ist die wahre Antwort und kein Ausweichen. Die BEFUNDE stehen nicht in der
+  // Tabelle -- sie tragen Fliesstext.
+  umbenennungssatz: ofTable((p) => renameSetTable(p)),
 }
 
 /**
@@ -219,6 +225,7 @@ export const DOCUMENT_LABELS: Record<string, string> = {
   'event-metadaten': 'Angaben zur Veranstaltung',
   sendebericht: 'Sendebericht',
   'kosten-vergleich': 'Kosten: Plan gegen Ist',
+  umbenennungssatz: 'Umbenennungssatz',
   'kunden-uebersicht': 'Kunden-Übersicht',
   'job-grundlage': 'Grundlage der Übergabe',
   'videohub-labels': 'Videohub-Labels',

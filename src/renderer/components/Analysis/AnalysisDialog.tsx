@@ -48,6 +48,14 @@ import {
   type CostLine,
   type CostPlan,
 } from '../../types/costLines'
+import {
+  NAMING_FINDING_LABEL,
+  applyNamingScheme,
+  assessNaming,
+  renameSetTable,
+  type NamingRefusal,
+} from '../../lib/namingScheme'
+import type { NamingScheme } from '../../types/namingScheme'
 import { cableRunFindings, cableRunTable, type RunFinding } from '../../lib/cableRunChecks'
 import { lookUpSheet, type SheetLookup } from '../../lib/sheetLookup'
 import {
@@ -94,7 +102,16 @@ import {
   spectrumTable,
 } from '../../lib/spectrumPlan'
 
-type Tab = 'weight' | 'network' | 'redundancy' | 'rf' | 'runs' | 'sheet' | 'client' | 'cost'
+type Tab =
+  | 'weight'
+  | 'network'
+  | 'redundancy'
+  | 'rf'
+  | 'runs'
+  | 'sheet'
+  | 'client'
+  | 'cost'
+  | 'naming'
 
 const WATT_TO_BTU = 3.412
 
@@ -2235,9 +2252,155 @@ const CostTab = ({ projectName }: { projectName: string }) => {
   )
 }
 
+/* ------------------------------------------------------- Namensregel -- */
+
+const DEFAULT_SCHEME: NamingScheme = {
+  segments: [{ part: 'category' }, { part: 'location' }, { part: 'index', pad: 2 }],
+  separator: '-',
+  caseMode: 'as-is',
+}
+
+/**
+ * BEDARF 74 — Namen nach Regel, und der Umbenennungssatz zum Abtippen.
+ *
+ * Der Knopf „Anwenden" bleibt KLICKBAR, wenn die Regel verweigert wird — die
+ * Weigerung nennt dann ihren Grund. Ein ausgegrauter Knopf sagt nur „nein",
+ * nicht „warum": dieselbe Entscheidung wie beim As-Built-zur-Vorlage
+ * (Bedarf 75).
+ */
+const NamingTab = ({ projectName }: { projectName: string }) => {
+  const t = useTranslation()
+  const project = useProjectStore((s) => s.project)
+  const setNamingScheme = useProjectStore((s) => s.setNamingScheme)
+  const applyNaming = useProjectStore((s) => s.applyNaming)
+  const scheme = project.namingScheme ?? DEFAULT_SCHEME
+  const bewertung = useMemo(() => assessNaming(project, scheme), [project, scheme])
+  const [refusal, setRefusal] = useState<NamingRefusal | undefined>()
+
+  const patch = (p: Partial<NamingScheme>) => {
+    setRefusal(undefined)
+    setNamingScheme({ ...scheme, ...p })
+  }
+
+  const anwenden = () => {
+    // Erst fragen, was passieren WUERDE — dieselbe reine Funktion, die der
+    // Store aufruft. Die Weigerung wird dadurch sichtbar, statt als stilles
+    // Nichts zu enden: der Store gaebe bei einer Verweigerung nur `{}` zurueck
+    // und die Oberflaeche saehe wie eingefroren aus.
+    const probe = applyNamingScheme(project, scheme)
+    setRefusal(probe.refused)
+    if (!probe.refused) applyNaming(scheme)
+  }
+
+  const exportCsv = () => {
+    downloadBlob(
+      buildExportFilenameWithSuffix(projectName, 'umbenennungssatz', 'csv'),
+      csvFromTable(renameSetTable(project, scheme)),
+      'text/csv',
+    )
+  }
+
+  const inp = 'rounded border border-[var(--cp-border)] bg-[var(--cp-surface-3)] p-1 text-cp-xs'
+  const kategorien = [...new Set(project.equipment.map((e) => e.category).filter(Boolean))].sort()
+
+  return (
+    <div className="flex flex-col gap-3">
+      <p className="text-cp-xs leading-snug text-[var(--cp-text-muted)]">
+        {t(
+          'analysis.naming.intro',
+          'Namen aus einer Regel statt aus dem Gefühl. Der Umbenennungssatz ist ein Blatt zum Abtippen — kein Dante-Preset: dieses Schema hat diese Anwendung nie gesehen.',
+        )}
+      </p>
+      <div className="flex flex-wrap items-center gap-2">
+        <input
+          value={scheme.separator}
+          onChange={(e) => patch({ separator: e.target.value })}
+          placeholder={t('analysis.naming.sepPh', 'Trenner')}
+          aria-label={t('analysis.naming.sep', 'Trennzeichen')}
+          className={`${inp} w-[5rem]`}
+        />
+        <select
+          value={scheme.caseMode}
+          onChange={(e) => patch({ caseMode: e.target.value as NamingScheme['caseMode'] })}
+          aria-label={t('analysis.naming.case', 'Schreibweise')}
+          className={inp}
+        >
+          <option value="as-is">{t('analysis.naming.case.asIs', 'wie erzeugt')}</option>
+          <option value="upper">{t('analysis.naming.case.upper', 'GROSS')}</option>
+          <option value="lower">{t('analysis.naming.case.lower', 'klein')}</option>
+        </select>
+        <select
+          value={scheme.categoryFilter ?? ''}
+          onChange={(e) => patch({ categoryFilter: e.target.value || undefined })}
+          aria-label={t('analysis.naming.filter', 'Nur diese Kategorie')}
+          className={inp}
+        >
+          <option value="">{t('analysis.naming.allCategories', '— alle Kategorien —')}</option>
+          {kategorien.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
+        </select>
+        <button
+          type="button"
+          onClick={anwenden}
+          className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs"
+        >
+          {t('analysis.naming.apply', 'Anwenden')} ({bewertung.proposals.length})
+        </button>
+        <CsvButton onClick={exportCsv} />
+      </div>
+
+      {refusal && (
+        <p className="text-cp-xs text-amber-300/90">
+          {refusal === 'duplicates'
+            ? t(
+                'analysis.naming.refusedDuplicates',
+                'Nicht angewandt: die Regel ergäbe doppelte Namen. Ein doppelter Name im Netz ist kein Schönheitsfehler.',
+              )
+            : t('analysis.naming.refusedNothing', 'Nicht angewandt: es gibt nichts zu ändern.')}
+        </p>
+      )}
+
+      {bewertung.proposals.length > 0 && (
+        <table className="w-full text-cp-xs">
+          <thead>
+            <tr className="text-left text-[var(--cp-text-muted)]">
+              <th className="py-1">{t('analysis.naming.before', 'Alter Name')}</th>
+              <th>{t('analysis.naming.after', 'Neuer Name')}</th>
+              <th>{t('analysis.naming.chars', 'Zeichen')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {bewertung.proposals.map((p) => (
+              <tr key={p.equipmentId} className="border-t border-[var(--cp-border-muted)]">
+                <td className="py-1">{p.before}</td>
+                <td>{p.after}</td>
+                <td className="tabular-nums">{p.after.length}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+
+      {bewertung.findings.length > 0 && (
+        <ul className="flex flex-col gap-1 text-cp-xs">
+          {bewertung.findings.map((f, i) => (
+            <li key={`${f.kind}-${i}`} className="text-amber-300/90">
+              <strong>{NAMING_FINDING_LABEL[f.kind]}</strong> — {f.text}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  )
+}
+
 const TABS: { id: Tab; labelKey: string; fallback: string }[] = [
   { id: 'client', labelKey: 'analysis.tab.client', fallback: 'Kunden-Übersicht' },
   { id: 'cost', labelKey: 'analysis.tab.cost', fallback: 'Kosten: Plan gegen Ist' },
+  { id: 'naming', labelKey: 'analysis.tab.naming', fallback: 'Namensregel' },
   { id: 'weight', labelKey: 'analysis.tab.weight', fallback: 'Gewicht & Wärme' },
   { id: 'network', labelKey: 'analysis.tab.network', fallback: 'Netzwerk' },
   { id: 'redundancy', labelKey: 'analysis.tab.redundancy', fallback: 'Redundanz' },
@@ -2287,6 +2450,7 @@ export const AnalysisDialog = () => {
       {active === 'sheet' && <SheetTab />}
       {active === 'client' && <ClientTab projectName={projectName} />}
       {active === 'cost' && <CostTab projectName={projectName} />}
+      {active === 'naming' && <NamingTab projectName={projectName} />}
     </ModalShell>
   )
 }

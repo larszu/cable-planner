@@ -76,6 +76,7 @@ import { normaliseFallbackPlan } from '../lib/fallbackPlan'
 import { normaliseEventMetadata } from '../lib/eventMetadata'
 import { normaliseTransmissionRecord } from '../lib/transmissionRecord'
 import { normaliseCostPlan } from '../lib/costComparison'
+import { normaliseNamingScheme } from '../lib/namingScheme'
 import { normaliseVenueAnswers } from '../lib/venueAnswers'
 import { isNetworkInterfaceRole, normaliseNetworkInterface } from '../lib/networkInterfaces'
 import type { NetworkInterface } from '../types/network'
@@ -454,6 +455,8 @@ export interface ProjectState {
     record: import('../types/transmissionRecord').TransmissionRecord | undefined,
   ) => void
   setCostPlan: (plan: import('../types/costLines').CostPlan | undefined) => void
+  setNamingScheme: (scheme: import('../types/namingScheme').NamingScheme | undefined) => void
+  applyNaming: (scheme: import('../types/namingScheme').NamingScheme) => void
   /** v7.9.3 — Mobile-Viewer Check-State setzen (vom POST /checks-IPC).
    *  Komplettes Objekt-Replace damit gelöschte Checks (false → kein
    *  key) auch übernommen werden. */
@@ -666,6 +669,13 @@ const healProjectPositions = (
   const costPlan = normaliseCostPlan(project.costPlan, (d) =>
     onDrop?.({ kind: 'cost-line', reason: d.reason, label: d.label }),
   )
+  // Bedarf 74 — die Namensregel. Ein Segment mit unbekanntem Teil fliegt raus:
+  // es erzeugte sonst still einen leeren Namensteil, und der faellt erst auf,
+  // wenn das Ergebnis schon an fuenfzig Geraeten steht. Nichts zu melden gibt
+  // es dabei — eine Regel ist kein Datensatz des Nutzers, sondern eine
+  // Einstellung, und ein Ladebericht ueber eine verworfene Einstellung waere
+  // Laerm.
+  const namingScheme = normaliseNamingScheme(project.namingScheme)
   return {
     ...project,
     equipment: project.equipment.map((item) => {
@@ -821,6 +831,8 @@ const healProjectPositions = (
     transmissionRecord,
     // Bedarf 79 — dito: `undefined` heisst „kein Kostenvergleich gefuehrt".
     costPlan,
+    // Bedarf 74 — dito: `undefined` heisst „keine Namensregel hinterlegt".
+    namingScheme,
     // ADR-003 — Rentman-Zaehler: gesendet ist nicht bestaetigt.
     metadata: {
       ...healRentmanCableMap(project.metadata),

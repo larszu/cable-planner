@@ -167,6 +167,10 @@ describe('changeImpact — die Vorwärts-Frage', () => {
       // GIBT. Auf einem Torso ohne Kostenplan ist das leere Blatt die wahre
       // Antwort und kein Ausweichen; dieselbe Lage wie beim `ausspielweg`.
       'kosten-vergleich',
+      // `umbenennungssatz` (Bedarf 74) haengt an `equipment` — aber nur, wenn
+      // eine Namensregel im Projekt steht. Auf einem Torso ohne Regel ist der
+      // leere Satz die wahre Antwort: es gibt nichts umzubenennen.
+      'umbenennungssatz',
     ])
     expect(
       impact.documents.some((d) => d.verdict === 'unaffected' && !ohneGeraetebezug.has(d.docId)),

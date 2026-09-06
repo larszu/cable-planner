@@ -282,6 +282,15 @@ export interface CablePlannerProject {
    */
   costPlan?: import('./costLines').CostPlan
   /**
+   * Bedarf 74 — die Namensregel dieses Projekts (Rolle-Ort-Nummer).
+   *
+   * Am Projekt und nicht in den App-Einstellungen: eine Namenskonvention
+   * gehört der Show und reist mit ihr. Zwei Trucks derselben Firma benennen
+   * verschieden, und die Datei muss beim Empfänger dieselben Namen ergeben
+   * wie beim Absender.
+   */
+  namingScheme?: import('./namingScheme').NamingScheme
+  /**
    * Bedarf 72 — der Multicast-Adressplan: aus welchem Pool vergeben wird und
    * welche Gruppe welcher Sende-Port belegt.
    *

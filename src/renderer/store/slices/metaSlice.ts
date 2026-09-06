@@ -2,6 +2,7 @@ import type { StateCreator } from 'zustand'
 import type { CablePlannerProject } from '../../types/project'
 import { touchProject } from '../projectStoreHelpers'
 import { scheduleProjectAutosave } from '../projectAutosave'
+import { applyNamingScheme } from '../../lib/namingScheme'
 import type { ProjectState } from '../projectStore'
 
 /**
@@ -36,6 +37,8 @@ export type MetaSlice = Pick<
   | 'setEventMetadata'
   | 'setTransmissionRecord'
   | 'setCostPlan'
+  | 'setNamingScheme'
+  | 'applyNaming'
 >
 
 export const createMetaSlice: StateCreator<ProjectState, [], [], MetaSlice> = (set) => ({
@@ -164,5 +167,25 @@ export const createMetaSlice: StateCreator<ProjectState, [], [], MetaSlice> = (s
       const updated = { ...state.project, costPlan: plan }
       scheduleProjectAutosave(updated)
       return { project: updated }
+    }),
+  // BEDARF 74 — die Namensregel.
+  setNamingScheme: (scheme) =>
+    set((state) => {
+      const updated = { ...state.project, namingScheme: scheme }
+      scheduleProjectAutosave(updated)
+      return { project: updated }
+    }),
+
+  // BEDARF 74 — die Regel ANWENDEN. Der Store rechnet hier nichts selbst: er
+  // ruft `applyNamingScheme`, und wenn die verweigert (doppelte Namen, nichts
+  // zu tun), bleibt der Zustand unveraendert. Eine Verweigerung im Store still
+  // in ein Teil-Umbenennen zu verwandeln waere genau das Ueberschreiben, gegen
+  // das Bedarf 96 geschrieben ist.
+  applyNaming: (scheme) =>
+    set((state) => {
+      const result = applyNamingScheme(state.project, scheme)
+      if (!result.project) return {}
+      scheduleProjectAutosave(result.project)
+      return { project: result.project }
     }),
 })

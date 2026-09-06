@@ -4432,6 +4432,25 @@ export const en: Dict = {
   'analysis.cost.total': 'Project estimate (derived)',
   'analysis.cost.without': 'without an estimate',
   'analysis.cost.withoutActual': 'without an actual',
+  // Bedarf 74 — die Namensregel.
+  'analysis.tab.naming': 'Naming rule',
+  'analysis.naming.intro':
+    'Names from a rule instead of from a feeling. The rename set is a sheet to type from \u2014 not a Dante preset: this application has never seen that schema.',
+  'analysis.naming.sep': 'Separator',
+  'analysis.naming.sepPh': 'Separator',
+  'analysis.naming.case': 'Case',
+  'analysis.naming.case.asIs': 'as generated',
+  'analysis.naming.case.upper': 'UPPER',
+  'analysis.naming.case.lower': 'lower',
+  'analysis.naming.filter': 'Only this category',
+  'analysis.naming.allCategories': '\u2014 all categories \u2014',
+  'analysis.naming.apply': 'Apply',
+  'analysis.naming.refusedDuplicates':
+    'Not applied: the rule would produce duplicate names. A duplicate name on the network is not a cosmetic flaw.',
+  'analysis.naming.refusedNothing': 'Not applied: there is nothing to change.',
+  'analysis.naming.before': 'Old name',
+  'analysis.naming.after': 'New name',
+  'analysis.naming.chars': 'Characters',
 
   /* Bedarf 27 — der Rueckweg vom Papier. */
   'analysis.sheet.intro':
