@@ -49,6 +49,7 @@ import {
 } from '../../lib/venueAnswers'
 import type { VenueAnswerStatus } from '../../types/venueAnswer'
 import { RF_BANDS, bandsForFrequency, bandLabel } from '../../lib/rfBands'
+import { PTP_FINDING_LABEL, buildPtpPlan, ptpTable } from '../../lib/ptpPlan'
 
 type Tab = 'weight' | 'network' | 'redundancy' | 'rf' | 'runs' | 'sheet'
 
@@ -367,6 +368,10 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
   // consume, generated from one model."
   const request = useMemo(() => buildVenueNetworkRequest(equipment, cables), [equipment, cables])
 
+  // BEDARF 73 — der Zeit-Plan. Aus denselben zwei Quellen: die PTP-Felder an
+  // den Schnittstellen und die Standards an den Kabeln. Kein drittes Modell.
+  const ptp = useMemo(() => buildPtpPlan(equipment, cables), [equipment, cables])
+
   // Ausgeschriebene Beschriftungen statt `t(`...${key}`)`: ein zusammengesetzter
   // Schluessel ist fuer den i18n-Abdeckungs-Test unsichtbar, und der deutsche
   // Rueckfall waere der nackte Schluessel („igmpQuerier") gewesen — in BEIDEN
@@ -469,6 +474,13 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
     downloadBlob(
       buildExportFilenameWithSuffix(projectName, 'vlan-tabelle', 'csv'),
       csvFromTable(vlanTable(equipment)),
+      'text/csv',
+    )
+  }
+  const exportPtp = () => {
+    downloadBlob(
+      buildExportFilenameWithSuffix(projectName, 'zeit-plan-ptp', 'csv'),
+      csvFromTable(ptpTable(ptp)),
       'text/csv',
     )
   }
@@ -810,6 +822,82 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
         )}
       </div>
 
+      {/* BEDARF 73 — der Zeit-Plan. Nur sichtbar, wenn der Plan ueberhaupt
+          PTP-abhaengige Essenz traegt: ein reiner SDI-Aufbau braucht diesen
+          Abschnitt nicht, und ihn dort leer anzuzeigen waere Rauschen. */}
+      {ptp.needsPtp && (
+        <div className="rounded-cp-panel border border-[var(--cp-border)] bg-[var(--cp-surface-1)] p-cp-3">
+          <div className="mb-2 text-cp-sm font-semibold text-[var(--cp-text)]">
+            {t('analysis.ptp.title', 'Zeit (PTP)')}
+          </div>
+          <div className="mb-2 text-cp-xs text-[var(--cp-text-muted)]">
+            {t(
+              'analysis.ptp.intro',
+              'ST 2059-2 steht per Vorgabe auf Domäne 127, AES67 in der Praxis auf 0. Ein gemischter Aufbau auf einer gemeinsamen Domäne lässt eine der beiden Familien am falschen Medientakt hängen — und meldet dabei keinen Fehler.',
+            )}
+          </div>
+          {ptp.domains.length === 0 ? (
+            <div className="text-cp-xs text-amber-300/90">
+              {t(
+                'analysis.ptp.none',
+                'Der Plan trägt PTP-abhängige Essenz, aber keine einzige Schnittstelle nennt eine Domäne. Die Felder stehen an der Schnittstelle im Geräte-Panel.',
+              )}
+            </div>
+          ) : (
+            <ul className="flex flex-col gap-0.5 text-cp-xs">
+              {ptp.domains.map((d) => (
+                <li key={d.domain} className="flex flex-wrap items-baseline gap-2">
+                  <span className="w-28 shrink-0 font-mono text-[var(--cp-text-muted)]">
+                    {t('analysis.ptp.domain', 'Domäne {n}').replace('{n}', String(d.domain))}
+                  </span>
+                  <span className="flex-1 text-[var(--cp-text)]">
+                    {d.members.map((m) => m.label).join(', ')}
+                  </span>
+                  <span className="shrink-0 text-[var(--cp-text-faint)]">
+                    {d.grandmasters.length
+                      ? d.grandmasters.join(', ')
+                      : t('analysis.ptp.noGm', 'keine Uhr benannt')}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+          {ptp.withoutDomain.length > 0 && (
+            <div className="mt-2 text-cp-xs text-[var(--cp-text-faint)]">
+              {format(
+                t(
+                  'analysis.ptp.withoutDomain',
+                  '{n} Geräte führen PTP-abhängige Essenz und nennen keine Domäne: {liste}',
+                ),
+                {
+                  n: String(ptp.withoutDomain.length),
+                  liste: ptp.withoutDomain
+                    .map((id) => equipment.find((e) => e.id === id)?.name ?? id)
+                    .join(', '),
+                },
+              )}
+            </div>
+          )}
+          {ptp.findings.length > 0 && (
+            <ul className="mt-2 flex flex-col gap-1">
+              {ptp.findings.map((f, i) => (
+                <li key={`${f.kind}-${f.domain}-${i}`} className="text-cp-xs">
+                  <span
+                    className={
+                      f.kind === 'off-default'
+                        ? 'text-[var(--cp-text-muted)]'
+                        : 'text-amber-300/90'
+                    }
+                  >
+                    <strong>{PTP_FINDING_LABEL[f.kind]}</strong> — {f.text}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+
       <div className="flex justify-end gap-2">
         <button
           type="button"
@@ -831,6 +919,14 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
           className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs font-medium text-[var(--cp-text)] hover:bg-[var(--cp-surface-2)]"
         >
           <Icon icon={Download} size="xs" /> {t('analysis.venue.vlanTable', 'VLAN-Tabelle')}
+        </button>
+        <button
+          type="button"
+          onClick={exportPtp}
+          disabled={ptp.domains.length === 0}
+          className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs font-medium text-[var(--cp-text)] hover:bg-[var(--cp-surface-2)] disabled:opacity-40"
+        >
+          <Icon icon={Download} size="xs" /> {t('analysis.ptp.export', 'Zeit-Plan (PTP)')}
         </button>
         <button
           type="button"

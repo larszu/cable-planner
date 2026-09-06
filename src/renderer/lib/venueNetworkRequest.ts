@@ -249,6 +249,20 @@ export function buildVenueNetworkRequest(
       source: 'Blue Room, Dante switch performance; ControlBooth 47261',
     },
     {
+      // BEDARF 73 — die Zeit. Der Plan kennt seine eigenen Domaenen (siehe
+      // `ptpPlan.ts`), aber nicht, ob das Haus PTP ueber seine Switches
+      // durchlaesst oder terminiert. Beides kommt vor, und der Unterschied
+      // entscheidet, ob der Aufbau eine eigene Uhr braucht.
+      key: 'ptp',
+      origin: 'question',
+      why:
+        'Lassen die Haus-Switches PTP (IEEE 1588) durch, oder sind sie Boundary Clock? ' +
+        'Welche Domaene ist im Haus schon belegt? ST 2059-2 steht per Vorgabe auf Domaene 127, ' +
+        'AES67 in der Praxis auf 0 — kollidiert eine davon mit dem Haus, laeuft der Aufbau auf ' +
+        'dem falschen Medientakt an, ohne einen Fehler zu melden.',
+      source: 'SMPTE ST 2059-2; AES67 Media Profile',
+    },
+    {
       key: 'dhcp',
       origin: 'question',
       why:
@@ -301,6 +315,7 @@ export function venueRequestTable(req: VenueNetworkRequest): CsvTable {
     multicast: 'Multicast-Standards im Plan',
     poe: 'PoE',
     igmpQuerier: 'IGMP-Querier',
+    ptp: 'PTP / Zeit',
     dhcp: 'DHCP',
     qos: 'QoS / DSCP',
     jointTest: 'Gemeinsamer Testtermin',

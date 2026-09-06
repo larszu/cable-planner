@@ -64,6 +64,84 @@ export const NETWORK_INTERFACE_ROLES: ReadonlyArray<NetworkInterfaceRole> = [
   'unspecified',
 ]
 
+// ───────────────────────────────────────────────────────────────────────────
+// BEDARF 73 — die Zeit. „First-class timing/PTP fields in the plan."
+//
+//   > PTP domain number, grandmaster and boundary-clock topology live
+//   > nowhere. No Excel network-documentation template in the German or
+//   > English source set has a column for them.
+//
+// Und der Schaden steht in derselben Zeile, mit Zahlen:
+//
+//   > ST 2059-2 defaults to domain 127 while AES67 commonly uses domain 0,
+//   > so mixed 2110/AES67 rigs receive packets with wrong media clocks.
+//
+// Das ist die Sorte Regel, gegen die ein Mensch blind verstoesst und die ein
+// Werkzeug umsonst durchsetzt — dieselbe Bauform wie der IGMP-Widerspruch in
+// `venueNetworkRequest` (Bedarf 23), und aus demselben Grund hier: der Plan
+// weiss, welche Essenz ueber welches Geraet laeuft, also kann er die Frage
+// stellen. Beantworten kann er sie nicht, und er tut es auch nicht.
+// ───────────────────────────────────────────────────────────────────────────
+
+/**
+ * Das PTP-Profil, unter dem eine Schnittstelle laeuft.
+ *
+ * `unspecified` ist der ehrliche Normalfall und KEIN Fehler: ein Geraet, das
+ * niemand angefasst hat, sagt nicht, in welchem Profil es steht. Es zu raten
+ * waere hier besonders teuer — die beiden Profile setzen VERSCHIEDENE
+ * Vorgabe-Domaenen (127 gegen 0), und wer das falsch raet, erzeugt genau den
+ * Widerspruch, den diese Felder aufdecken sollen.
+ */
+export type PtpProfile =
+  /** SMPTE ST 2059-2 — Vorgabe-Domaene 127. */
+  | 'st2059-2'
+  /** AES67 (Media Profile) — in der Praxis Domaene 0. */
+  | 'aes67'
+  /** IEEE 1588 Default Profile. */
+  | 'default'
+  | 'unspecified'
+
+export const PTP_PROFILES: ReadonlyArray<PtpProfile> = [
+  'st2059-2',
+  'aes67',
+  'default',
+  'unspecified',
+]
+
+/**
+ * Die Vorgabe-Domaene je Profil — als BELEG, nicht als Vorbelegung.
+ *
+ * Nichts in dieser Anwendung setzt daraus eine Domaene an ein Geraet. Die
+ * Zahl steht hier, damit ein Befund sie NENNEN kann („Profil ST 2059-2, aber
+ * Domaene 0 — die Vorgabe des Profils ist 127"), und der Leser sieht, woher
+ * die Erwartung kommt. Eine stille Vorbelegung waere eine Behauptung ueber
+ * ein Geraet, das niemand befragt hat.
+ */
+export const PTP_PROFILE_DEFAULT_DOMAIN: Readonly<Record<PtpProfile, number | null>> = {
+  'st2059-2': 127,
+  aes67: 0,
+  default: 0,
+  unspecified: null,
+}
+
+/**
+ * Die Rolle im Zeit-Baum.
+ *
+ * `boundary` ist eigens dabei, weil der Bedarf die TOPOLOGIE nennt und nicht
+ * nur die Zahl: ein Boundary-Clock-Switch trennt zwei Domaenen und ist damit
+ * die Antwort auf den Widerspruch, den diese Felder aufdecken. Ohne ihn im
+ * Modell saehe jeder gemischte Aufbau nach Fehler aus, auch der richtig
+ * gebaute.
+ */
+export type PtpRole = 'grandmaster' | 'boundary' | 'slave' | 'unspecified'
+
+export const PTP_ROLES: ReadonlyArray<PtpRole> = [
+  'grandmaster',
+  'boundary',
+  'slave',
+  'unspecified',
+]
+
 export interface NetworkInterface {
   id: string
   /** Beschriftung am Geraet („NET 1", „Dante Sec", „SFP+ 2"). */
@@ -85,6 +163,17 @@ export interface NetworkInterface {
   /** Port-Bezeichnung am Switch, wie sie dort aufgedruckt ist („1/0/12"). */
   switchPort?: string
   /**
+   * BEDARF 73 — die PTP-Domaene, in der diese Schnittstelle laeuft.
+   *
+   * An der SCHNITTSTELLE und nicht am Geraet: ein redundanter 2110-Aufbau
+   * faehrt rot und blau bewusst in getrennten Domaenen, und ein Geraet mit
+   * einer Steuer-NIC im Haus-Netz hat dort ueberhaupt keine. Ein Feld am
+   * Geraet muesste sich fuer eine davon entscheiden.
+   */
+  ptpDomain?: number
+  ptpProfile?: PtpProfile
+  ptpRole?: PtpRole
+  /**
    * Der Port am EIGENEN Geraet, ueber den diese Schnittstelle laeuft — als
    * `Port.id`. Damit haengt die Schnittstelle am Kabelgraphen und nicht daneben:
    * genau das verlangt Bedarf 24 („Model switch, port, and the cable that
@@ -97,4 +186,9 @@ export interface NetworkInterface {
  *  Schnittstelle ist kein Befund, sondern ein leeres Formular. */
 export const interfaceIsEmpty = (n: NetworkInterface): boolean =>
   !n.ipAddress && !n.subnetMask && !n.gateway && !n.macAddress &&
-  n.vlanId === undefined && !n.switchEquipmentId && !n.switchPort
+  n.vlanId === undefined && !n.switchEquipmentId && !n.switchPort &&
+  // BEDARF 73: die PTP-Felder zaehlen mit. Ohne sie waere eine Schnittstelle,
+  // an der jemand NUR die Domaene eingetragen hat, „leer" — und `deviceInterfaces`
+  // wirft leere Schnittstellen weg. Die Eingabe waere beim naechsten Laden
+  // verschwunden, ohne dass irgendwo etwas steht.
+  n.ptpDomain === undefined && !n.ptpProfile && !n.ptpRole

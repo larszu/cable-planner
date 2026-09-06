@@ -23,6 +23,7 @@ import { deliveryTableForProject } from './deliveryParity'
 import { runOfShowSheetForProject } from './encoderFeasibility'
 import { tallyMapTableForProject } from './tallyMap'
 import { deliveryPathTable } from './deliveryPath'
+import { buildPtpPlan, ptpTable } from './ptpPlan'
 import type { CsvTable } from './csv'
 
 const ofTable =
@@ -71,6 +72,13 @@ export const DOCUMENT_STANDS: Record<string, (project: CablePlannerProject) => s
   // keine Nutzer-Einstellung beim Export, keine Sprache (die Befundtexte sind
   // kanonisches Deutsch, siehe `chainFindingText`) und kein Zufall.
   ausspielweg: ofTable(deliveryPathTable),
+  // Bedarf 73 — der Zeit-Plan. Reproduzierbar aus demselben Grund: er folgt
+  // allein aus den PTP-Feldern der Schnittstellen und den Standards an den
+  // Kabeln. Die BEFUNDE stehen bewusst nicht in der Tabelle — sie tragen
+  // Fliesstext, und ein Blatt, dessen Stand sich mit jeder Umformulierung
+  // aendert, meldete jedes gedruckte Exemplar als veraltet.
+  'ptp-plan': (project) =>
+    ofTable(() => ptpTable(buildPtpPlan(project.equipment, project.cables)))(project),
 }
 
 /**
@@ -134,6 +142,7 @@ export const DOCUMENT_LABELS: Record<string, string> = {
   ablaufblatt: 'Ablaufblatt',
   'tally-karte': 'Tally-Karte',
   ausspielweg: 'Ausspielweg',
+  'ptp-plan': 'Zeit-Plan (PTP)',
   'videohub-labels': 'Videohub-Labels',
   'atem-mv-layout': 'Multiviewer-Layout',
   'switch-port-karte': 'Switch-Port-Karte',
