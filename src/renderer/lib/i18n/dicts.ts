@@ -1926,6 +1926,13 @@ export const en: Dict = {
   'rentman.import.loadingShort': 'Loading…',
   'rentman.import.reloadSync': '↻ Reload & sync',
   'rentman.import.categories': 'Categories:',
+
+  /* Bedarf 28 — der Abgleich in beide Richtungen. */
+  'rentman.diff.title': 'Plan vs. reservation',
+  // {plan}, {erp} und {qty} werden vom Aufrufer ersetzt.
+  'rentman.diff.summary': '{plan} only in the plan \u00b7 {erp} only reserved \u00b7 {qty} quantities differ',
+  // {n} wird vom Aufrufer ersetzt.
+  'rentman.diff.ignored': '{n} lines not counted (comments, set contents, cancelled)',
   'rentman.import.categoriesAll': 'All',
   'rentman.import.status.linkedTitle':
     'Items with identical Rentman equipment ID in the local library — silent re-import, ports + custom data are preserved.',
@@ -3695,6 +3702,20 @@ export const en: Dict = {
   'inventory.checkout.alreadyOut': 'Already checked out',
   'inventory.checkout.insideOut': 'Sits inside a container that is already checked out',
   'inventory.checkout.unknownNode': 'Unknown storage node',
+
+  /* Bedarf 16 — der Papierweg zurueck. */
+  'inventory.checkout.scanIntro':
+    'Read a code off the run sheet \u2014 ticking on paper becomes the input, not a second list.',
+  'inventory.checkout.scanPlaceholder': 'Label code',
+  'inventory.checkout.scanCheck': 'Check',
+  // {node} wird vom Aufrufer ersetzt.
+  'inventory.checkout.scanFor': 'Code for {node}',
+  // {code} und {label} werden vom Aufrufer ersetzt.
+  'inventory.checkout.scanHit': '{code} \u2192 {label}',
+  // {code} wird vom Aufrufer ersetzt.
+  'inventory.checkout.scanMiss': '{code} does not belong to this check-out',
+  // {n} wird vom Aufrufer ersetzt.
+  'inventory.checkout.unlabelled': '{n} without a label \u2014 hand reconciliation only',
   'inventory.location': 'Location / case',
   'inventory.noLocation': '— no location —',
   'inventory.locationsHint': 'Storage locations and cases — every node scannable, nestable at will (case in case in transport case).',
@@ -4137,6 +4158,24 @@ export const en: Dict = {
   'analysis.redundancy.none': 'No obvious single power feeds found.',
   'analysis.tab.rf': 'RF / wireless',
   'analysis.tab.runs': 'Cable runs',
+  'analysis.tab.sheet': 'Check a sheet',
+
+  /* Bedarf 27 — der Rueckweg vom Papier. */
+  'analysis.sheet.intro':
+    'A sheet in your hand: type the eight-character state from its foot, or read the whole document code. The answer says which document it is and whether the plan has moved on since.',
+  'analysis.sheet.placeholder': '1a2b3c4d or cableplanner://doc/\u2026',
+  'analysis.sheet.check': 'Check',
+  // {label} und {stand} werden vom Aufrufer ersetzt.
+  'analysis.sheet.current': '{label}: state {stand} \u2014 current',
+  'analysis.sheet.stale': '{label}: state {stand} \u2014 SUPERSEDED, the plan has moved on',
+  // {label}, {stand} und {grund} werden vom Aufrufer ersetzt.
+  'analysis.sheet.unknown': '{label}: state {stand} \u2014 not judgeable ({grund})',
+  'analysis.sheet.matched': '{label}: current (state {stand})',
+  // {stand} wird vom Aufrufer ersetzt.
+  'analysis.sheet.foreign':
+    'State {stand} belongs to no document of this plan \u2014 most likely a superseded printout',
+  'analysis.sheet.unreadable':
+    'Neither a document code nor a state \u2014 eight characters from the foot of the sheet, or the whole code',
 
   /* Bedarf 13 — die Kabelwege: was die Laenge behauptet, und ob sie noch gilt. */
   'analysis.runs.intro':

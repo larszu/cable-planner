@@ -21,6 +21,7 @@ import { assetRegisterTable } from './assetRegister'
 import { handoverTable } from './handoverPackage'
 import { deliveryTableForProject } from './deliveryParity'
 import { runOfShowSheetForProject } from './encoderFeasibility'
+import { tallyMapTableForProject } from './tallyMap'
 import type { CsvTable } from './csv'
 
 const ofTable =
@@ -57,6 +58,13 @@ export const DOCUMENT_STANDS: Record<string, (project: CablePlannerProject) => s
   // kanonisches Deutsch. Der Stream-Key steht darauf als Verweis, nicht als
   // Wert -- der Fingerabdruck misst also nichts Geheimes.
   ablaufblatt: ofTable(runOfShowSheetForProject),
+  // Bedarf 26 — die Tally-Karte. Der Bedarf nennt sie als erstes unter den
+  // Blaettern, die bei einer spaeten Aenderung vergessen werden („multiviewer
+  // window, comms position, TALLY, truck plan, check-in list"), und sie war
+  // fuer die Impact-Liste unsichtbar. Reproduzierbar, weil `buildTallyMap`
+  // allein aus `equipment`, `cables` und `sourceIdentities` ableitet: keine
+  // Nutzer-Einstellung, keine Sprache.
+  'tally-karte': ofTable(tallyMapTableForProject),
 }
 
 /**
@@ -78,6 +86,33 @@ export const UNJUDGEABLE_DOCUMENTS: Record<string, string> = {
   'kabel-bom':
     'Der Inhalt hängt am Reserve-Aufschlag, den der Nutzer beim Export einstellt; ' +
     'dieser Prozentsatz steht nicht im Stempel.',
+  // Bedarf 26 — was der Plan zwar erzeugt, aber nicht als EIN Dokument.
+  //
+  // Diese drei gibt es je GERAET: eine Label-Datei je Videohub, ein
+  // Multiviewer-Layout je Mischer, eine Port-Karte je Switch. Das Register
+  // fuehrt EINEN Stand je Bezeichner; ein gemeinsamer ergaebe einen Stand,
+  // der beim zweiten Geraet nicht passt — schlimmer als keiner.
+  //
+  // Sie hier zu nennen ist der Punkt: bis hierher fehlten sie ganz, und
+  // Verschweigen sieht in einer Impact-Liste aus wie „unberuehrt". Als
+  // `unknown` sagen sie, was wahr ist — nachsehen muss ein Mensch. Wer sie
+  // reproduzierbar machen will, braucht einen Bezeichner JE GERAET; das ist
+  // ein eigener Schritt.
+  'videohub-labels':
+    'Es gibt eine Label-Datei je Videohub; das Register führt einen Stand je ' +
+    'Bezeichner. Ein gemeinsamer Stand wäre beim zweiten Gerät falsch.',
+  'atem-mv-layout':
+    'Es gibt ein Multiviewer-Layout je Mischer, und die Fensterzahl ist eine ' +
+    'Einstellung am Gerät, die nicht im Plan steht.',
+  'switch-port-karte':
+    'Es gibt eine Port-Karte je Switch; dieselbe Begründung wie bei den ' +
+    'Videohub-Labels.',
+  // Die Deckung haengt am LAGERBESTAND, und der steht nicht im Projekt: er
+  // lebt projektuebergreifend im Lager-Store. Dieselbe Liste ergibt morgen
+  // ein anderes Ergebnis, ohne dass sich am Plan etwas geaendert hat.
+  stueckliste:
+    'Der Inhalt hängt am Lagerbestand, der projektübergreifend lebt und nicht ' +
+    'im Plan steht — dieselbe Liste ergibt morgen ein anderes Ergebnis.',
 }
 
 /** Lesbarer Name eines Dokument-Bezeichners für Meldungen. */
@@ -91,6 +126,11 @@ export const DOCUMENT_LABELS: Record<string, string> = {
   'kabel-bom': 'Kabel-Stückliste',
   ausspielung: 'Ausspielung',
   ablaufblatt: 'Ablaufblatt',
+  'tally-karte': 'Tally-Karte',
+  'videohub-labels': 'Videohub-Labels',
+  'atem-mv-layout': 'Multiviewer-Layout',
+  'switch-port-karte': 'Switch-Port-Karte',
+  stueckliste: 'Stückliste',
 }
 
 /**

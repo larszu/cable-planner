@@ -31,6 +31,7 @@ import {
 } from '../../lib/switchPortMap'
 import { csvFromTable } from '../../lib/documentStamp'
 import { cableRunFindings, cableRunTable, type RunFinding } from '../../lib/cableRunChecks'
+import { lookUpSheet, type SheetLookup } from '../../lib/sheetLookup'
 import {
   buildVenueNetworkRequest,
   rackDoorSheetTable,
@@ -39,7 +40,7 @@ import {
 } from '../../lib/venueNetworkRequest'
 import { RF_BANDS, bandsForFrequency, bandLabel } from '../../lib/rfBands'
 
-type Tab = 'weight' | 'network' | 'redundancy' | 'rf' | 'runs'
+type Tab = 'weight' | 'network' | 'redundancy' | 'rf' | 'runs' | 'sheet'
 
 const WATT_TO_BTU = 3.412
 
@@ -1231,12 +1232,119 @@ const RunsTab = ({ projectName }: { projectName: string }) => {
   )
 }
 
+// ───────────────────────────────────────────────────────────────────────────
+// Bedarf 27 — der Rueckweg vom Papier.
+//
+// „Gilt dieses Blatt noch?" konnte `documentRegistry` seit ADR-004
+// beantworten, und niemand konnte fragen: `docStandStatus` und `findByStand`
+// waren gebaut, getestet und von KEINEM Knopf erreichbar. Hier ist der Knopf.
+//
+// Der Bedarf nennt die Frist: „Must complete in under ten seconds or it will
+// not be used in the last two hours before doors." Deshalb ein Feld und kein
+// Formular — acht Zeichen abtippen, Enter.
+// ───────────────────────────────────────────────────────────────────────────
+const SheetTab = () => {
+  const t = useTranslation()
+  const project = useProjectStore((s) => s.project)
+  const [draft, setDraft] = useState('')
+  const [treffer, setTreffer] = useState<SheetLookup | null>(null)
+
+  const pruefen = () => setTreffer(lookUpSheet(draft, project))
+
+  // Ausgeschriebener switch, ein Schluessel je Fall — ein aus dem `kind`
+  // gebauter waere fuer den i18n-Deckungs-Guard unsichtbar.
+  const text = (r: SheetLookup): string => {
+    switch (r.kind) {
+      case 'identified':
+        switch (r.status) {
+          case 'current':
+            return format(t('analysis.sheet.current', '{label}: Stand {stand} — aktuell'), {
+              label: r.label ?? '',
+              stand: r.stand ?? '',
+            })
+          case 'stale':
+            return format(
+              t('analysis.sheet.stale', '{label}: Stand {stand} — ÜBERHOLT, der Plan ist seither weiter'),
+              { label: r.label ?? '', stand: r.stand ?? '' },
+            )
+          default:
+            return format(
+              t('analysis.sheet.unknown', '{label}: Stand {stand} — nicht beurteilbar ({grund})'),
+              { label: r.label ?? '', stand: r.stand ?? '', grund: r.reason ?? '' },
+            )
+        }
+      case 'matched-by-stand':
+        return format(t('analysis.sheet.matched', '{label}: aktuell (Stand {stand})'), {
+          label: r.label ?? '',
+          stand: r.stand ?? '',
+        })
+      case 'stale-or-foreign':
+        return format(
+          t(
+            'analysis.sheet.foreign',
+            'Stand {stand} gehört zu keinem Dokument dieses Plans — vermutlich ein überholter Ausdruck',
+          ),
+          { stand: r.stand ?? '' },
+        )
+      case 'unreadable':
+        return t(
+          'analysis.sheet.unreadable',
+          'Kein Dokument-Code und kein Stand — acht Zeichen vom Fuß des Blatts oder der ganze Code',
+        )
+    }
+  }
+
+  const ton = (r: SheetLookup): string => {
+    if (r.kind === 'identified' && r.status === 'current') return 'text-cp-text-secondary'
+    if (r.kind === 'matched-by-stand') return 'text-cp-text-secondary'
+    if (r.kind === 'unreadable') return 'text-cp-text-muted'
+    // „Ueberholt" und „gehoert zu keinem Dokument" sind dieselbe Nachricht in
+    // zwei Schaerfen: das Blatt in der Hand stimmt nicht mehr.
+    return 'text-cp-warn'
+  }
+
+  return (
+    <div className="space-y-3 p-4 text-cp-base">
+      <p className="text-cp-xs text-[var(--cp-text-muted)]">
+        {t(
+          'analysis.sheet.intro',
+          'Ein Blatt in der Hand: den Stand vom Fuß abtippen (acht Zeichen) oder den ganzen Dokument-Code einlesen. Die Antwort sagt, welches Dokument es ist und ob der Plan seither weiter ist.',
+        )}
+      </p>
+
+      <div className="flex flex-wrap items-center gap-2">
+        <input
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') pruefen()
+          }}
+          placeholder={t('analysis.sheet.placeholder', '1a2b3c4d oder cableplanner://doc/…')}
+          aria-label={t('analysis.sheet.placeholder', '1a2b3c4d oder cableplanner://doc/…')}
+          className="min-w-[16rem] flex-1 rounded border border-cp-border bg-cp-surface-3 p-1.5"
+        />
+        <button
+          type="button"
+          onClick={pruefen}
+          disabled={!draft.trim()}
+          className="rounded border border-cp-border px-2.5 py-1 text-cp-text-secondary hover:text-cp-text disabled:opacity-40"
+        >
+          {t('analysis.sheet.check', 'Prüfen')}
+        </button>
+      </div>
+
+      {treffer && <div className={`text-cp-sm ${ton(treffer)}`}>{text(treffer)}</div>}
+    </div>
+  )
+}
+
 const TABS: { id: Tab; labelKey: string; fallback: string }[] = [
   { id: 'weight', labelKey: 'analysis.tab.weight', fallback: 'Gewicht & Wärme' },
   { id: 'network', labelKey: 'analysis.tab.network', fallback: 'Netzwerk' },
   { id: 'redundancy', labelKey: 'analysis.tab.redundancy', fallback: 'Redundanz' },
   { id: 'rf', labelKey: 'analysis.tab.rf', fallback: 'RF / Funk' },
   { id: 'runs', labelKey: 'analysis.tab.runs', fallback: 'Kabelwege' },
+  { id: 'sheet', labelKey: 'analysis.tab.sheet', fallback: 'Blatt prüfen' },
 ]
 
 export const AnalysisDialog = () => {
@@ -1277,6 +1385,7 @@ export const AnalysisDialog = () => {
       {active === 'redundancy' && <RedundancyTab projectName={projectName} />}
       {active === 'rf' && <RfTab projectName={projectName} />}
       {active === 'runs' && <RunsTab projectName={projectName} />}
+      {active === 'sheet' && <SheetTab />}
     </ModalShell>
   )
 }

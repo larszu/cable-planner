@@ -52,7 +52,7 @@ export const containerContents = (
 
   for (const n of snap.nodes) {
     if (!inner.has(n.id)) continue
-    lines.push({ kind: 'node', refId: n.id, label: n.name, quantity: 1 })
+    lines.push({ kind: 'node', refId: n.id, label: n.name, quantity: 1, ...(n.code ? { code: n.code } : {}) })
   }
   for (const u of snap.units) {
     if (!u.locationId || !scope.has(u.locationId)) continue
@@ -60,11 +60,27 @@ export const containerContents = (
     // gibt, sonst der Code. Ein blosses „1 x Modell" beantwortet die Frage
     // „welche fehlt?" nicht.
     const kennung = u.serial ?? u.code ?? u.id
-    lines.push({ kind: 'unit', refId: u.id, label: kennung, quantity: 1 })
+    // Der Code ist das, was der Scanner findet; die Seriennummer ist das, was
+    // der Mensch liest. Beide werden mitgeschrieben -- sie sind nicht
+    // dasselbe, und die eine durch die andere zu ersetzen macht genau eine
+    // der beiden Rollen kaputt.
+    lines.push({
+      kind: 'unit',
+      refId: u.id,
+      label: kennung,
+      quantity: 1,
+      ...(u.code ? { code: u.code } : {}),
+    })
   }
   for (const it of snap.items) {
     if (!it.locationId || !scope.has(it.locationId)) continue
-    lines.push({ kind: 'item', refId: it.id, label: it.model, quantity: it.quantity })
+    lines.push({
+      kind: 'item',
+      refId: it.id,
+      label: it.model,
+      quantity: it.quantity,
+      ...(it.code ? { code: it.code } : {}),
+    })
   }
 
   // Stabil sortiert: Container, dann Einheiten, dann Mengen-Artikel; innerhalb
@@ -206,9 +222,59 @@ const ART: Record<CheckoutLine['kind'], string> = {
  * Kanonisches Deutsch -- er wandert als CSV und wird in Excel geoeffnet.
  */
 export const checkoutSheet = (record: CheckoutRecord): CsvTable => ({
-  headers: ['Art', 'Bezeichnung', 'Menge', 'Kennung'],
-  rows: record.contents.map((l): CsvCell[] => [ART[l.kind], l.label, l.quantity, l.refId]),
+  headers: ['Art', 'Bezeichnung', 'Menge', 'Etiketten-Code', 'Abgehakt'],
+  rows: record.contents.map((l): CsvCell[] => [
+    ART[l.kind],
+    l.label,
+    l.quantity,
+    // Bedarf 16 — der Code, den der Scanner am Objekt findet. Wo keiner
+    // klebt, steht das da: die interne Id einzusetzen ergaebe eine Spalte,
+    // die scannbar AUSSIEHT und es nicht ist.
+    l.code ?? 'kein Etikett',
+    // Die leere Spalte fuer den Stift. Sie ist der Grund, warum das Blatt
+    // ueberhaupt gedruckt wird: „works with gloves, in the dark, never logs
+    // out". Ohne sie wird daneben auf dem Rand abgehakt.
+    '',
+  ]),
 })
+
+/**
+ * Bedarf 16 — der Rueckweg des Papiers.
+ *
+ * Ein gescannter Code wird gegen die Ausgabeliste gehalten: gehoert er zu
+ * diesem Vorgang, und welche Zeile ist es? So wird das Abhaken auf Papier zur
+ * EINGABE fuer den digitalen Datensatz statt zu einem zweiten, der ihm
+ * widerspricht.
+ *
+ * `unknown-code` ist ein eigenes Ergebnis und kein `null`: „der Code gehoert
+ * nicht in dieses Case" ist die nuetzlichste Auskunft, die dieser Scan geben
+ * kann -- sie faengt das Packen ins falsche Case, und zwar bevor es faehrt.
+ */
+export type ScanBackResult =
+  | { kind: 'line'; line: CheckoutLine }
+  | { kind: 'unknown-code' }
+
+/** Normalisierung wie beim Lager-Scan: Etiketten kommen mit Leerzeichen und
+ *  in wechselnder Schreibweise aus dem Lesegeraet. */
+const normCode = (v: string | undefined): string => (v ?? '').trim().toLowerCase()
+
+export const scanBackIntoCheckout = (record: CheckoutRecord, raw: string): ScanBackResult => {
+  const needle = normCode(raw)
+  if (!needle) return { kind: 'unknown-code' }
+  const line = record.contents.find((l) => normCode(l.code) === needle)
+  return line ? { kind: 'line', line } : { kind: 'unknown-code' }
+}
+
+/**
+ * Was auf dem Blatt steht, aber kein Etikett traegt.
+ *
+ * Nicht als Fehler, sondern als ARBEITSLISTE: diese Positionen lassen sich
+ * beim Rueckweg nicht scannen, also muessen sie von Hand abgeglichen werden.
+ * Wer den Anteil kennt, weiss, wieviel des Bedarfs-Gewinns er heute schon
+ * hat -- und welche Kisten ein Etikett brauchen.
+ */
+export const unlabelledLines = (record: CheckoutRecord): CheckoutLine[] =>
+  record.contents.filter((l) => !l.code)
 
 /**
  * Die Uebersicht: was ist draussen, bei wem, seit wann, bis wann.
