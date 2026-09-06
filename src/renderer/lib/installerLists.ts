@@ -156,7 +156,7 @@ export const pullListTable = (project: CablePlannerProject): CsvTable => {
 }
 
 export const pullListCsv = (project: CablePlannerProject, stamp?: DocumentStamp): string =>
-  csvFromTable(pullListTable(project), stamp)
+  csvFromTable(pullListTable(project), stamp, 'pull-liste')
 
 // --- Termination-Liste ----------------------------------------------------
 
@@ -221,7 +221,7 @@ export const terminationListTable = (project: CablePlannerProject): CsvTable => 
 export const terminationListCsv = (
   project: CablePlannerProject,
   stamp?: DocumentStamp,
-): string => csvFromTable(terminationListTable(project), stamp)
+): string => csvFromTable(terminationListTable(project), stamp, 'termination-liste')
 
 // --- Kabel-Schedule (Design-Register) -------------------------------------
 
@@ -267,7 +267,7 @@ export const cableScheduleTable = (project: CablePlannerProject): CsvTable => {
 export const cableScheduleCsv = (
   project: CablePlannerProject,
   stamp?: DocumentStamp,
-): string => csvFromTable(cableScheduleTable(project), stamp)
+): string => csvFromTable(cableScheduleTable(project), stamp, 'kabel-schedule')
 
 // --- Kabel-BOM mit Reserve ------------------------------------------------
 
@@ -352,4 +352,4 @@ export const cableBomCsv = (
   project: CablePlannerProject,
   reservePercent = 10,
   stamp?: DocumentStamp,
-): string => csvFromTable(cableBomTable(project, reservePercent), stamp)
+): string => csvFromTable(cableBomTable(project, reservePercent), stamp, 'kabel-bom')
