@@ -52,6 +52,24 @@ export interface CheckoutLine {
   label: string
   /** Stueckzahl. Bei `unit` und `node` immer 1 -- sie sind einzeln. */
   quantity: number
+  /**
+   * Bedarf 16 -- der ETIKETTEN-CODE, so wie er auf dem Objekt klebt.
+   *
+   * Der Befund verlangt „the printed artefact scannable back in": das
+   * Abhaken auf Papier soll die EINGABE fuer den digitalen Datensatz werden
+   * statt eines zweiten, widerspruechlichen. Dafuer muss auf dem Blatt die
+   * Kennung stehen, die der Scanner am Objekt findet.
+   *
+   * Der erste Wurf dieses Blatts druckte `refId` -- die interne UUID. Sie
+   * sieht auf Papier aus wie eine Kennung und ist keine: sie klebt auf
+   * keinem Case, und kein Scanner findet sie. Ein Blatt, das eine
+   * unscannbare Zeichenkette in die Spalte „Kennung" setzt, ist schlimmer
+   * als eines ohne Spalte -- es sieht benutzbar aus.
+   *
+   * Undefined = das Objekt traegt kein Etikett. Das wird auf dem Blatt
+   * BENANNT, nicht durch die UUID ersetzt.
+   */
+  code?: string
 }
 
 /** Der Vorgang der Ausgabe. */

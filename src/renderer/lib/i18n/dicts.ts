@@ -3695,6 +3695,20 @@ export const en: Dict = {
   'inventory.checkout.alreadyOut': 'Already checked out',
   'inventory.checkout.insideOut': 'Sits inside a container that is already checked out',
   'inventory.checkout.unknownNode': 'Unknown storage node',
+
+  /* Bedarf 16 — der Papierweg zurueck. */
+  'inventory.checkout.scanIntro':
+    'Read a code off the run sheet \u2014 ticking on paper becomes the input, not a second list.',
+  'inventory.checkout.scanPlaceholder': 'Label code',
+  'inventory.checkout.scanCheck': 'Check',
+  // {node} wird vom Aufrufer ersetzt.
+  'inventory.checkout.scanFor': 'Code for {node}',
+  // {code} und {label} werden vom Aufrufer ersetzt.
+  'inventory.checkout.scanHit': '{code} \u2192 {label}',
+  // {code} wird vom Aufrufer ersetzt.
+  'inventory.checkout.scanMiss': '{code} does not belong to this check-out',
+  // {n} wird vom Aufrufer ersetzt.
+  'inventory.checkout.unlabelled': '{n} without a label \u2014 hand reconciliation only',
   'inventory.location': 'Location / case',
   'inventory.noLocation': '— no location —',
   'inventory.locationsHint': 'Storage locations and cases — every node scannable, nestable at will (case in case in transport case).',
