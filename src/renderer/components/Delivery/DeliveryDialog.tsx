@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { X, Plus, Trash2, AlertTriangle, Radio, Eye, EyeOff, Download } from 'lucide-react'
+import { X, Plus, Trash2, AlertTriangle, Radio, Eye, EyeOff, Download, Cpu, FileText } from 'lucide-react'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
 import { useTranslation, format } from '../../lib/i18n'
@@ -9,6 +9,13 @@ import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 import { csvFromTable, stampForRows } from '../../lib/documentStamp'
 import { checkDelivery, deliveryTable, deliveryTableForProject, type DeliveryIssue } from '../../lib/deliveryParity'
 import { srtLatencyAdvice, uplinkBudget } from '../../lib/transportParams'
+import {
+  ENCODERS,
+  checkEncoderFeasibility,
+  runOfShowSheet,
+  runOfShowSheetForProject,
+  type FeasibilityFinding,
+} from '../../lib/encoderFeasibility'
 import {
   DELIVERY_PLATFORMS,
   DEFAULT_ENCODING,
@@ -73,6 +80,12 @@ export const DeliveryDialog = () => {
     () => uplinkBudget(uplinkMbps, report.primaryKbps),
     [uplinkMbps, report.primaryKbps],
   )
+  // Bedarf 36: je Encoder ein eigener Befundsatz. NICHT zusammengeworfen — wer
+  // vMix fährt, interessiert die OBS-Zeile nicht, und umgekehrt.
+  const feasibility = useMemo(
+    () => ENCODERS.map((e) => ({ encoder: e, findings: checkEncoderFeasibility(list, e) })),
+    [list],
+  )
 
   if (!open) return null
 
@@ -107,6 +120,34 @@ export const DeliveryDialog = () => {
         })
       case 'needs-port-forward':
         return t('delivery.issue.portForward', 'SRT-Listener: Portfreigabe nötig')
+    }
+  }
+
+  // Ausgeschriebener switch statt `t(`delivery.enc.${f.kind}`)`: ein dynamisch
+  // zusammengesetzter Schluessel ist fuer den i18n-Deckungs-Guard unsichtbar
+  // und faellt im EN-Betrieb still auf den nackten Slug zurueck.
+  const feasibilityText = (f: FeasibilityFinding): string => {
+    switch (f.kind) {
+      case 'too-many-destinations':
+        return format(
+          t('delivery.encoder.tooMany', '{n} gleichzeitige Ziele, das Werkzeug führt {max}'),
+          { n: f.values?.[0] ?? '', max: f.values?.[1] ?? '' },
+        )
+      case 'per-destination-quality-unsupported':
+        return t(
+          'delivery.encoder.noPerDestination',
+          'Der Plan verlangt je Ziel eine eigene Qualität — dieses Werkzeug sendet allen dieselbe',
+        )
+      case 'per-destination-quality-unknown':
+        return t(
+          'delivery.encoder.perDestinationUnknown',
+          'Der Plan verlangt je Ziel eine eigene Qualität — ob dieses Werkzeug das kann, ist ungeklärt',
+        )
+      case 'must-match-differs':
+        return format(
+          t('delivery.encoder.mustMatch', '{field} muss über alle Ziele gleich sein, ist aber {values}'),
+          { field: String(f.field ?? ''), values: (f.values ?? []).join(' / ') },
+        )
     }
   }
 
@@ -152,6 +193,18 @@ export const DeliveryDialog = () => {
     downloadBlob(buildExportFilenameWithSuffix(projectName, 'ausspielung', 'csv'), csv, 'text/csv')
   }
 
+  // Bedarf 33, der Teil ohne fremdes Schema: das Blatt, das am Showtag neben
+  // dem Encoder liegt. Der Stream-Key steht darauf als VERWEIS auf den
+  // Schluesselbund, nie als Wert — ein Regieplatz ist der letzte Ort dafuer.
+  const exportRunOfShow = () => {
+    const csv = csvFromTable(
+      runOfShowSheet(list),
+      stampForRows(project, runOfShowSheetForProject, new Date()),
+      'ablaufblatt',
+    )
+    downloadBlob(buildExportFilenameWithSuffix(projectName, 'ablaufblatt', 'csv'), csv, 'text/csv')
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
       <div className="flex max-h-[88vh] w-full max-w-5xl flex-col overflow-hidden rounded-lg border border-cp-border bg-cp-surface-1 shadow-xl">
@@ -162,6 +215,14 @@ export const DeliveryDialog = () => {
           <div className="flex items-center gap-2">
             <button type="button" onClick={exportCsv} className="flex items-center gap-1 rounded border border-cp-border px-2 py-1 text-cp-sm text-cp-text-secondary hover:text-cp-text">
               <Download size={13} /> CSV
+            </button>
+            <button
+              type="button"
+              onClick={exportRunOfShow}
+              title={t('delivery.runOfShowHint', 'Ein Blatt für den Showtag — Stream-Keys stehen darauf nur als Verweis auf den Schlüsselbund')}
+              className="flex items-center gap-1 rounded border border-cp-border px-2 py-1 text-cp-sm text-cp-text-secondary hover:text-cp-text"
+            >
+              <FileText size={13} /> {t('delivery.runOfShow', 'Ablaufblatt')}
             </button>
             <button type="button" onClick={() => setOpen(false)} aria-label={t('common.close', 'Schließen')} className="text-cp-text-muted hover:text-cp-text">
               <X size={18} />
@@ -202,6 +263,43 @@ export const DeliveryDialog = () => {
               {budget.usable.formula} · {budget.usable.source}
             </p>
           </div>
+
+          {/* Bedarf 36 — kann das Werkzeug, was der Plan verlangt? Der Block
+              erscheint nur, wenn es etwas zu sagen gibt: unter zwei
+              Primaerwegen ist die Frage gegenstandslos, und ein Kasten, der
+              dann „alles in Ordnung" meldet, verlernt sich. */}
+          {feasibility.some((f) => f.findings.length > 0) && (
+            <div className="mb-4 rounded border border-cp-warn/40 bg-cp-surface-2 p-2.5">
+              <h3 className="mb-1.5 flex items-center gap-1.5 text-cp-sm font-medium text-cp-text">
+                <Cpu size={14} /> {t('delivery.encoder.title', 'Encoder-Machbarkeit')}
+              </h3>
+              <ul className="flex flex-col gap-2">
+                {feasibility
+                  .filter((f) => f.findings.length > 0)
+                  .map(({ encoder, findings }) => (
+                    <li key={encoder.id}>
+                      <div className="text-cp-sm text-cp-text-secondary">{encoder.label}</div>
+                      <ul className="flex flex-col gap-0.5">
+                        {findings.map((f, idx) => (
+                          <li
+                            key={`${f.kind}-${String(f.field ?? idx)}`}
+                            className="flex items-start gap-1 text-cp-xs text-cp-warn"
+                          >
+                            <AlertTriangle size={12} className="mt-0.5 flex-none" />
+                            <span>
+                              {feasibilityText(f)}
+                              {/* Die Fundstelle steht dabei: ein Befund ueber
+                                  fremde Software ohne Beleg ist eine Behauptung. */}
+                              <span className="ml-1 text-cp-text-faint">({f.source})</span>
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </li>
+                  ))}
+              </ul>
+            </div>
+          )}
 
           {list.length === 0 ? (
             <p className="py-6 text-center text-cp-sm text-cp-text-muted">

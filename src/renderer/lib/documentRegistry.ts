@@ -20,6 +20,7 @@ import {
 import { assetRegisterTable } from './assetRegister'
 import { handoverTable } from './handoverPackage'
 import { deliveryTableForProject } from './deliveryParity'
+import { runOfShowSheetForProject } from './encoderFeasibility'
 import type { CsvTable } from './csv'
 
 const ofTable =
@@ -50,6 +51,12 @@ export const DOCUMENT_STANDS: Record<string, (project: CablePlannerProject) => s
   // (anders als `kabel-bom` mit seinem Reserve-Aufschlag) und keine Sprache
   // (die Tabelle traegt kanonisches Deutsch, siehe `deliveryIssueText`).
   ausspielung: ofTable(deliveryTableForProject),
+  // Bedarf 33 — das Ablaufblatt fuer den Showtag. Aus demselben Grund
+  // reproduzierbar wie `ausspielung`: sein Inhalt folgt allein aus
+  // `project.deliveryDestinations`, es traegt keine Nutzer-Einstellung und
+  // kanonisches Deutsch. Der Stream-Key steht darauf als Verweis, nicht als
+  // Wert -- der Fingerabdruck misst also nichts Geheimes.
+  ablaufblatt: ofTable(runOfShowSheetForProject),
 }
 
 /**
@@ -83,6 +90,7 @@ export const DOCUMENT_LABELS: Record<string, string> = {
   uebergabe: 'Übergabe-Dokument',
   'kabel-bom': 'Kabel-Stückliste',
   ausspielung: 'Ausspielung',
+  ablaufblatt: 'Ablaufblatt',
 }
 
 /**

@@ -3665,6 +3665,36 @@ export const en: Dict = {
   'inventory.summary3': '{items} items · {units} units · {nodes} locations · {sets} sets',
   'inventory.tabLocations': 'Locations ({n})',
   'inventory.tabSets': 'Sets ({n})',
+
+  /* Bedarf 15 — Ausgabe/Rueckgabe auf Container-Ebene. */
+  'inventory.tabCheckout': 'Check-out ({n})',
+  'inventory.checkout.intro':
+    'A container goes out as a whole \u2014 whatever sits inside follows across every level. The check-out records what was ACTUALLY in it; on return the difference is reported, not quietly settled.',
+  'inventory.checkout.container': 'Container',
+  'inventory.checkout.pick': '\u2014 pick a container \u2014',
+  'inventory.checkout.to': 'To (person, truck, client)',
+  'inventory.checkout.show': 'Show (optional)',
+  'inventory.checkout.dueBack': 'Due back',
+  'inventory.checkout.doOut': 'Check out',
+  'inventory.checkout.doIn': 'Check in',
+  'inventory.checkout.sheet': 'Sheet',
+  'inventory.checkout.remove': 'Delete record',
+  'inventory.checkout.empty': 'This container is empty \u2014 nothing would go out.',
+  // {n} und {list} werden vom Aufrufer ersetzt.
+  'inventory.checkout.preview': '{n} positions go with it: {list}',
+  // {n} wird vom Aufrufer ersetzt.
+  'inventory.checkout.openTitle': 'Out ({n})',
+  'inventory.checkout.nothingOut': 'Nothing out.',
+  // {to} und {n} werden vom Aufrufer ersetzt.
+  'inventory.checkout.outLine': 'to {to} \u00b7 {n} positions',
+  'inventory.checkout.overdue': 'overdue',
+  'inventory.checkout.discrepancy': 'Return findings',
+  // {node}, {to}, {missing} und {extra} werden vom Aufrufer ersetzt.
+  'inventory.checkout.discrepancyLine': '{node} (to {to}): {missing} missing, {extra} extra',
+  'inventory.checkout.notContainer': 'Not a container: only cases and transport cases can be checked out',
+  'inventory.checkout.alreadyOut': 'Already checked out',
+  'inventory.checkout.insideOut': 'Sits inside a container that is already checked out',
+  'inventory.checkout.unknownNode': 'Unknown storage node',
   'inventory.location': 'Location / case',
   'inventory.noLocation': '— no location —',
   'inventory.locationsHint': 'Storage locations and cases — every node scannable, nestable at will (case in case in transport case).',
@@ -3847,6 +3877,22 @@ export const en: Dict = {
   'delivery.issue.overBitrate': 'Bitrate {actual} above the platform limit {expected}',
   'delivery.issue.keyframe': 'Keyframe interval {actual}, required is {expected}',
   'delivery.issue.portForward': 'SRT listener: port forward required',
+
+  /* Bedarfe 33 und 36 — das Ablaufblatt und die Encoder-Machbarkeit.
+     Eigener Namensraum `delivery.encoder.*`: `delivery.enc.*` daruber sind die
+     Encoding-FELDER (Breite, fps, Keyframe), hier geht es um das WERKZEUG. */
+  'delivery.runOfShow': 'Run sheet',
+  'delivery.runOfShowHint':
+    'One sheet for show day \u2014 stream keys appear on it only as a reference to the keychain',
+  'delivery.encoder.title': 'Encoder feasibility',
+  // {n} und {max} werden vom Aufrufer ersetzt.
+  'delivery.encoder.tooMany': '{n} simultaneous destinations, the tool handles {max}',
+  'delivery.encoder.noPerDestination':
+    'The plan asks for per-destination quality \u2014 this tool sends all of them the same',
+  'delivery.encoder.perDestinationUnknown':
+    'The plan asks for per-destination quality \u2014 whether this tool can do that is unresolved',
+  // {field} und {values} werden vom Aufrufer ersetzt.
+  'delivery.encoder.mustMatch': '{field} must match across all destinations, but is {values}',
   'wireless.title': 'Wireless / vocals',
   'wireless.channel': 'Channel',
   'wireless.addChannel': 'Channel',
