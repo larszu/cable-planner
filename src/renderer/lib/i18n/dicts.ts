@@ -3842,7 +3842,14 @@ export const en: Dict = {
   'inventory.auditStart': 'Stock-take at this location',
   'inventory.auditTitle': 'Stock-take: {name}',
   'inventory.auditPh': 'Scan a code — a location label switches the location',
-  'inventory.auditEmpty': 'Nothing scanned yet.',
+  'inventory.auditEmpty': 'Nothing recorded yet.',
+  // Bedarf 150 — scannen ist der schnelle Weg, nie der einzige.
+  'inventory.auditExpectedList': 'Tick off without a scanner \u2014 expected here: {n}, still open: {open}',
+  'inventory.auditPick': 'here',
+  'inventory.auditPicked': 'recorded',
+  'inventory.auditPickHint':
+    'Record as \u201cit is here\u201d without a code \u2014 the sheet notes that it was ticked off, not scanned',
+  'inventory.auditViaPick': 'from the list',
   'inventory.auditExpected': 'expected in {ort}',
   'inventory.auditAdopt': 'Adopt location ({n})',
   'inventory.auditAdoptHint':

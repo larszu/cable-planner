@@ -96,8 +96,15 @@ describe('das Blatt traegt Modell UND Ort', () => {
   it('nennt beides plus den gepruefen Ort', () => {
     const hits = [auditScan('ITM-WEG', 'a3', lager())]
     const t = auditTable(hits, lager().nodes, 'a3')
-    expect(t.headers).toEqual(['Ergebnis', 'Code', 'Objekt', 'Modell', 'Erwartet in', 'Geprueft an'])
-    expect(t.rows[0]).toEqual(['Am falschen Ort', 'ITM-WEG', 'Stativ', 'Stativ', 'Regal B1', 'Regal A3'])
+    // Die Spalte „Wie erfasst" kam mit Bedarf 150 dazu: ein Scan und ein
+    // Haken in der Liste sind nicht dieselbe Auskunft, und das Blatt muss
+    // beides auseinanderhalten koennen.
+    expect(t.headers).toEqual([
+      'Ergebnis', 'Wie erfasst', 'Code', 'Objekt', 'Modell', 'Erwartet in', 'Geprueft an',
+    ])
+    expect(t.rows[0]).toEqual([
+      'Am falschen Ort', 'gescannt', 'ITM-WEG', 'Stativ', 'Stativ', 'Regal B1', 'Regal A3',
+    ])
   })
 
   it('haelt die Etiketten kanonisch deutsch', () => {
@@ -164,7 +171,10 @@ describe('Erreichbarkeit im Lager-Dialog', () => {
   it('zeigt das Ergebnis mit Modell und erwartetem Ort', () => {
     expect(inventarQuelle).toContain('AUDIT_LABEL[h.outcome]')
     expect(inventarQuelle).toContain("t('inventory.auditExpected'")
-    expect(inventarQuelle).toContain('auditTable(auditHits, nodes, node.id)')
+    // Bedarf 150: das Blatt geht jetzt MIT den Fehlt-Zeilen heraus. Ohne sie
+    // zaehlte es nur, was jemand vorgezeigt hat, und laese sich wie eine
+    // vollstaendige Inventur.
+    expect(inventarQuelle).toContain('auditTable(auditHits, nodes, node.id, auditFehlt)')
   })
 
   it('hat fuer jeden neuen Text einen EN-Eintrag', () => {
