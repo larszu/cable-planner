@@ -49,7 +49,8 @@ import type {
 } from '../../types/inventory'
 import { useCheckoutStore } from '../../store/checkoutStore'
 import { ownershipNote, overdueSubhire, subhireStatus } from '../../lib/ownership'
-import type { CheckoutRecord } from '../../types/checkout'
+import type { CheckoutDamage, CheckoutRecord } from '../../types/checkout'
+import { damageEntries, damageTable, damageTally } from '../../lib/damageRegister'
 import {
   containerContents,
   checkoutSheet,
@@ -1658,6 +1659,10 @@ const CheckoutTab = () => {
   // Bedarf 16 — der Papierweg zurueck. Der Code vom Blatt wird gegen die
   // Ausgabeliste gehalten; das Abhaken auf Papier wird damit zur EINGABE fuer
   // den Datensatz statt zu einem zweiten, der ihm widerspricht.
+  // Bedarf 68 — Schaeden, aufgenommen in dem Moment, in dem das Objekt in der
+  // Hand ist. Schluessel: `recordId` → `kind:refId` → Text.
+  const [damageDraft, setDamageDraft] = useState<Record<string, Record<string, string>>>({})
+  const [damageOpen, setDamageOpen] = useState<Record<string, boolean>>({})
   const [scanDraft, setScanDraft] = useState<Record<string, string>>({})
   const [scanEcho, setScanEcho] = useState<Record<string, { text: string; ok: boolean }>>({})
 
@@ -1665,6 +1670,9 @@ const CheckoutTab = () => {
   const container = useMemo(() => nodes.filter((n) => isContainerKind(n.kind)), [nodes])
   const offen = useMemo(() => records.filter((r) => !r.in), [records])
   const zurueck = useMemo(() => records.filter((r) => r.in), [records])
+  // Bedarf 68 — die aufgenommenen Schaeden mit ihrer abgeleiteten Zuordnung.
+  const schaeden = useMemo(() => damageEntries(records), [records])
+  const haeufung = useMemo(() => damageTally(records, 'person'), [records])
   // Der Stichtag kommt EINMAL aus der Uhr und wird durchgereicht — sonst
   // beantwortet dieselbe Zeile in zwei Zellen zwei verschiedene Tage.
   const heute = new Date().toISOString().slice(0, 10)
@@ -1691,6 +1699,22 @@ const CheckoutTab = () => {
       setProjectName('')
       setDueBack('')
     }
+  }
+
+  /** Die aufgenommenen Schaeden eines Vorgangs, als Belegzeilen. */
+  const damageOf = (r: CheckoutRecord): CheckoutDamage[] => {
+    const entwurf = damageDraft[r.id] ?? {}
+    return r.contents
+      .map((line) => ({ line, note: (entwurf[`${line.kind}:${line.refId}`] ?? '').trim() }))
+      .filter((d) => d.note.length > 0)
+  }
+
+  const bucheZurueck = (r: CheckoutRecord) => {
+    checkIn(snap, r.id, undefined, damageOf(r))
+    // Der Entwurf ist verbraucht: er steht jetzt im Beleg, und ein
+    // stehengebliebener Text landete beim naechsten Vorgang im falschen.
+    setDamageDraft((d) => ({ ...d, [r.id]: {} }))
+    setDamageOpen((o) => ({ ...o, [r.id]: false }))
   }
 
   const scanBack = (r: CheckoutRecord) => {
@@ -1862,9 +1886,21 @@ const CheckoutTab = () => {
                     >
                       {t('inventory.checkout.sheet', 'Schein')}
                     </button>
+                    {/* Bedarf 68: der Schaden wird aufgenommen, BEVOR
+                        zurueckgebucht wird — danach ist der Beleg zu, und ein
+                        Beleg darf nicht nachtraeglich anders lauten. */}
                     <button
                       type="button"
-                      onClick={() => checkIn(snap, r.id)}
+                      onClick={() => setDamageOpen((o) => ({ ...o, [r.id]: !o[r.id] }))}
+                      className="mr-2 text-cp-text-secondary hover:text-cp-text"
+                    >
+                      {format(t('inventory.checkout.damageBtn', 'Schaden ({n})'), {
+                        n: damageOf(r).length,
+                      })}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => bucheZurueck(r)}
                       className="mr-2 text-cp-text-secondary hover:text-cp-text"
                     >
                       {t('inventory.checkout.doIn', 'Zurückbuchen')}
@@ -1880,6 +1916,46 @@ const CheckoutTab = () => {
                   </td>
                 </tr>
               ))}
+              {/* Bedarf 68 — die Aufnahme selbst. Eine Zeile je Position des
+                  Vorgangs; wer nichts eintraegt, hat keinen Schaden gemeldet.
+                  KEIN Ankreuzfeld: „beschaedigt" ohne Angabe hilft weder der
+                  Werkstatt noch der Rechnung. */}
+              {offen
+                .filter((r) => damageOpen[r.id])
+                .map((r) => (
+                  <tr key={`${r.id}-damage`} className="border-t border-cp-border-muted">
+                    <td colSpan={3} className="bg-cp-surface-2 px-2 py-1.5">
+                      <div className="mb-1 text-cp-text-secondary">
+                        {format(t('inventory.checkout.damageTitle', 'Schaden aufnehmen — {name}'), {
+                          name: r.nodeLabel,
+                        })}
+                      </div>
+                      <ul className="flex max-h-48 flex-col gap-1 overflow-y-auto">
+                        {r.contents.map((line) => {
+                          const key = `${line.kind}:${line.refId}`
+                          return (
+                            <li key={key} className="flex items-center gap-2">
+                              <span className="min-w-[9rem] flex-none truncate text-cp-text-muted">
+                                {line.label}
+                              </span>
+                              <input
+                                value={damageDraft[r.id]?.[key] ?? ''}
+                                onChange={(e) =>
+                                  setDamageDraft((d) => ({
+                                    ...d,
+                                    [r.id]: { ...(d[r.id] ?? {}), [key]: e.target.value },
+                                  }))
+                                }
+                                placeholder={t('inventory.checkout.damagePh', 'Was ist kaputt?')}
+                                className="flex-1 rounded border border-cp-border bg-cp-surface-3 px-1.5 py-1"
+                              />
+                            </li>
+                          )
+                        })}
+                      </ul>
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </table>
         )}
@@ -1970,6 +2046,59 @@ const CheckoutTab = () => {
                 </li>
               ))}
           </ul>
+        </div>
+      )}
+
+      {/* BEDARF 68 — Schaden MIT ZUORDNUNG. Der Bedarf nennt sie „the valuable
+          field" (job, person, time, container) und das Foto ausdruecklich
+          nicht. Die Zuordnung steht nicht am Schaden, sondern wird aus dem
+          Vorgang abgeleitet — vier gespeicherte Felder waeren von der ersten
+          Korrektur am Vorgang an falsch.
+
+          Die Haeufungs-Zeile ist der Wunsch aus dem Beleg (snipe-it#13153):
+          „to see whether particular people/locations tend to break devices
+          more often". Sie ZAEHLT und urteilt nicht — ein Werkzeug, das aus
+          drei Vorfaellen eine Schuld macht, wird beim vierten nicht mehr
+          gefuettert. */}
+      {schaeden.length > 0 && (
+        <div className="rounded border border-cp-danger/40">
+          <div className="flex items-center justify-between border-b border-cp-border-muted bg-cp-surface-2 px-2 py-1">
+            <span className="flex items-center gap-1.5 font-medium">
+              <AlertTriangle size={13} />
+              {format(t('inventory.checkout.damageTitleList', 'Schäden ({n})'), { n: schaeden.length })}
+            </span>
+            <button
+              type="button"
+              onClick={() => csv('schaeden.csv', damageTable(records))}
+              className="flex items-center gap-1 text-cp-text-secondary hover:text-cp-text"
+            >
+              <Download size={12} /> CSV
+            </button>
+          </div>
+          <ul className="flex flex-col gap-0.5 px-2 py-1.5">
+            {schaeden.slice(0, 12).map((e, i) => (
+              <li key={`${e.recordId}-${e.label}-${i}`} className="text-cp-text-secondary">
+                {format(
+                  t('inventory.checkout.damageLine', '{at} · {label}: {note} — {job}, an {person} ({container})'),
+                  {
+                    at: e.at.slice(0, 10),
+                    label: e.label,
+                    note: e.note,
+                    job: e.job,
+                    person: e.person,
+                    container: e.container,
+                  },
+                )}
+              </li>
+            ))}
+          </ul>
+          {haeufung.length > 1 && (
+            <div className="border-t border-cp-border-muted px-2 py-1.5 text-cp-text-muted">
+              {format(t('inventory.checkout.damageTally', 'Häufung nach Ausgabe an: {list}'), {
+                list: haeufung.map((h) => `${h.key} (${h.count})`).join(', '),
+              })}
+            </div>
+          )}
         </div>
       )}
     </div>
