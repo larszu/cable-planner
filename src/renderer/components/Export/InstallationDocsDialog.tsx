@@ -46,6 +46,11 @@ import {
 import { assetRegisterCsv, assetRegisterTable } from '../../lib/assetRegister'
 import { stampForRows } from '../../lib/documentStamp'
 import { buildHandoverManifest, handoverTable } from '../../lib/handoverPackage'
+import {
+  JOB_BASIS_LABEL,
+  JOB_FINDING_LABEL,
+  assessJobHandover,
+} from '../../lib/jobHandover'
 import { cableLabelId, equipmentAssetTag, qrPayload } from '../../lib/docIds'
 
 type ExportRow = {
@@ -73,6 +78,11 @@ export const InstallationDocsDialog = () => {
   const [busy, setBusy] = useState(false)
   const [info, setInfo] = useState('')
   const [overwriteLabels, setOverwriteLabels] = useState(false)
+
+  // BEDARF 84 — woraus naechstes Jahr geplant wuerde. Steht GANZ OBEN in
+  // diesem Dialog: hier wird die Uebergabe gebaut, und wer sie baut, muss
+  // wissen, ob sie den Bauzustand oder das Angebot traegt.
+  const job = useMemo(() => assessJobHandover(project), [project])
 
   const baseName = project.metadata.name || 'anlage'
 
@@ -284,6 +294,47 @@ export const InstallationDocsDialog = () => {
       draggableKey="cable-planner:modal-pos:install-docs"
     >
       <div className="space-y-4 text-cp-sm">
+        {/* BEDARF 84 — die Grundlage. „Next year the same event is re-planned
+            from the QUOTE, not from what was actually built." Der Zustand
+            steht vor allem anderen, weil er über den Wert des ganzen Pakets
+            entscheidet. */}
+        <section
+          className={`rounded border p-3 ${
+            job.basis === 'as-built'
+              ? 'border-cp-border bg-cp-surface-2/40'
+              : 'border-amber-500/40 bg-amber-500/5'
+          }`}
+        >
+          <div className="mb-1 flex flex-wrap items-baseline gap-2">
+            <span className="font-medium text-cp-text">
+              {t('docs.job.title', 'Grundlage dieser Übergabe')}
+            </span>
+            <span
+              className={
+                job.basis === 'as-built' ? 'text-cp-text-secondary' : 'text-amber-300/90'
+              }
+            >
+              {JOB_BASIS_LABEL[job.basis]}
+              {job.asBuilt ? ` — ${job.asBuilt.label}` : ''}
+            </span>
+          </div>
+          <p className="text-cp-xs text-cp-text-muted">
+            {t(
+              'docs.job.intro',
+              'Nächstes Jahr wird dieselbe Veranstaltung aus dieser Datei geplant. Trägt sie den Plan von vor dem Aufbau, wird jede Änderung vor Ort ein zweites Mal gefunden.',
+            )}
+          </p>
+          {job.findings.length > 0 && (
+            <ul className="mt-2 flex flex-col gap-1">
+              {job.findings.map((f) => (
+                <li key={f.kind} className="text-cp-xs text-amber-300/90">
+                  <strong>{JOB_FINDING_LABEL[f.kind]}</strong> — {f.text}
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
         {/* Bearbeiter-Identität */}
         <section className="rounded border border-cp-border bg-cp-surface-2/40 p-3">
           <label className="block">

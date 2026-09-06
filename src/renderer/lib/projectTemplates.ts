@@ -11,6 +11,7 @@ import { v4 as uuidv4 } from 'uuid'
 import type { CablePlannerProject } from '../types/project'
 import type { LocationFrame } from '../types/location'
 import { stripForTemplate, projectVenue, type TemplateScope } from './templateScope'
+import { assessJobHandover, type JobBasis } from './jobHandover'
 
 export interface ProjectTemplate {
   id: string
@@ -32,6 +33,20 @@ export interface ProjectTemplate {
    * können, aus welchem Haus die Antworten kommen.
    */
   venue?: string
+  /**
+   * BEDARF 84 — woraus diese Vorlage gemacht wurde: aus dem Bauzustand oder
+   * aus dem Plan von vorher.
+   *
+   * **Beim Schreiben eingefroren**, wie `VenueAnswer.venue` (Bedarf 85). Das
+   * Quell-Projekt zieht weiter; die Vorlage nicht. Sie später aus dem
+   * mitkopierten Stand zu berechnen ergäbe eine Auskunft über einen Plan, den
+   * niemand mehr aufmacht.
+   *
+   * Der Bedarf sagt es wörtlich: „next year the same event is re-planned from
+   * the QUOTE, not from what was actually built". Wenn das passiert, soll es
+   * wenigstens draufstehen.
+   */
+  basis?: JobBasis
   project: CablePlannerProject
 }
 
@@ -213,12 +228,17 @@ export const saveUserTemplate = (
   delete clone.metadata.rentmanCableMap
 
   const venue = scope === 'venue' ? projectVenue(project) : undefined
+  // Bedarf 84 — aus dem QUELL-Projekt gelesen, nicht aus der Kopie: `clone`
+  // hat die Revisionen bereits verloren (sie sind die Geschichte einer
+  // anderen Show), und ohne sie waere jede Vorlage „wie geplant".
+  const basis = assessJobHandover(project).basis
   const tpl: ProjectTemplate = {
     id: `user-${uuidv4()}`,
     name,
     description,
     builtin: false,
     ...(venue ? { venue } : {}),
+    basis,
     project: clone,
   }
   const next = [...loadUserTemplates(), tpl]

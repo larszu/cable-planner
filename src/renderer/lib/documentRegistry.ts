@@ -151,6 +151,18 @@ export const UNJUDGEABLE_DOCUMENTS: Record<string, string> = {
   stueckliste:
     'Der Inhalt hängt am Lagerbestand, der projektübergreifend lebt und nicht ' +
     'im Plan steht — dieselbe Liste ergibt morgen ein anderes Ergebnis.',
+  // Bedarf 84 — die Grundlage der Übergabe. Der erste Wurf trug sie in
+  // `DOCUMENT_STANDS`, und der Guard „keine Dokument-Ableitung hängt an der
+  // Revisionsliste" hat das sofort gefangen — zu Recht: der Revisions-Vergleich
+  // spannt einen Snapshot mit `revisions: []` auf, und ein revisions-abhängiger
+  // Stand meldete danach JEDES Blatt als überholt, nur weil die Liste leer ist.
+  // Eine erfundene Abweichung ist derselbe Schaden wie ein erfundener Zustand
+  // (ADR-003). Dieselbe Begründung, aus der `buildHandoverManifest` seit jeher
+  // draußen steht.
+  'job-grundlage':
+    'Der Zustand hängt an der Revisionsliste (As-Built). Der Revisions-Vergleich ' +
+    'spannt Snapshots ohne diese Liste auf — ein Stand daraus meldete jedes Blatt ' +
+    'als überholt, obwohl sich nichts geändert hat.',
 }
 
 /** Lesbarer Name eines Dokument-Bezeichners für Meldungen. */
@@ -171,6 +183,7 @@ export const DOCUMENT_LABELS: Record<string, string> = {
   'spektrum-plan': 'Spektrum-Plan',
   'multicast-plan': 'Multicast-Adressplan',
   'ausweich-plan': 'Ausweich-Plan (Sicherheitsnetz)',
+  'job-grundlage': 'Grundlage der Übergabe',
   'videohub-labels': 'Videohub-Labels',
   'atem-mv-layout': 'Multiviewer-Layout',
   'switch-port-karte': 'Switch-Port-Karte',
