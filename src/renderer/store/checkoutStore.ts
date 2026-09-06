@@ -141,7 +141,12 @@ export const useCheckoutStore = create<CheckoutState>((set, get) => ({
     set((state) => {
       const at = new Date().toISOString()
       const records = state.records.map((r) =>
-        r.id === recordId && !r.in ? closeCheckout(r, containerContents(snap, r.nodeId), at, note) : r,
+        // Der Stichtag der RUECKGABE: die Herkunfts-Notiz auf der
+        // Rueckgabe-Liste soll sagen, ob etwas heute schon ueberfaellig ist,
+        // nicht ob es das am Ausgabetag war.
+        r.id === recordId && !r.in
+          ? closeCheckout(r, containerContents(snap, r.nodeId, at.slice(0, 10)), at, note)
+          : r,
       )
       persist(records)
       return { records }

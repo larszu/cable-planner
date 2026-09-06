@@ -8,14 +8,25 @@
 // ───────────────────────────────────────────────────────────────────────────
 import type { InventoryItem, StorageNode, InventoryUnit } from '../types/inventory'
 import { isContainerKind } from './storageTree'
+import { ownershipNote } from './ownership'
 
 export interface PackListItemLine {
   model: string
   qty: number
+  /**
+   * Fremdes Material, im Klartext (Bedarf 67): „Sub-Hire · Videohaus Meier ·
+   * zurueck 2026-09-12". Leer bei eigenem.
+   *
+   * Es ist ein FELD und kein Nachschlagen beim Anzeigen, weil die Gruppierung
+   * daran haengt — siehe unten.
+   */
+  ownership?: string
 }
 export interface PackListUnitLine {
   label: string
   condition: InventoryUnit['condition']
+  /** Wie bei `PackListItemLine`. Die Einheit erbt es von ihrem Artikel. */
+  ownership?: string
 }
 /** Ein Knoten der Packliste samt seiner direkten Inhalte. */
 export interface PackListNode {
@@ -40,6 +51,12 @@ export interface PackListSources {
 export const derivePackList = (
   rootId: string,
   { items, nodes, units }: PackListSources,
+  /**
+   * Stichtag fuer „zurueck seit" (ISO-Datum). Von aussen, damit diese
+   * Ableitung rein bleibt — dieselbe Regel wie bei `overdueCheckouts`.
+   * Ohne ihn steht das Datum ohne Faelligkeits-Urteil da.
+   */
+  heute = '',
 ): PackListNode[] => {
   const byId = new Map(nodes.map((n) => [n.id, n]))
   if (!byId.has(rootId)) return []
@@ -57,21 +74,44 @@ export const derivePackList = (
   const visit = (id: string, depth: number) => {
     const node = byId.get(id)
     if (!node) return
-    // Direkte Bulk-Artikel nach Modell gruppieren.
-    const counts = new Map<string, number>()
+    // Direkte Bulk-Artikel gruppieren — nach Modell UND HERKUNFT.
+    //
+    // BEDARF 67. Bis hierher lief die Gruppierung ueber den Modellnamen
+    // allein. Vier eigene und zwei sub-gemietete Kameras desselben Typs fielen
+    // damit in EINE Zeile „6x Sony PMW-F55", und die Herkunft war nicht
+    // verloren, sondern strukturell nicht darstellbar. Wer die Liste im Lager
+    // abarbeitet, kann fremdes Material dann gar nicht erkennen — und der
+    // Bedarf sagt, was das kostet: nicht der Verlust, sondern „keeping it
+    // three weeks too long".
+    const counts = new Map<string, { model: string; qty: number; ownership: string }>()
     for (const it of items) {
-      if (it.locationId === id) counts.set(it.model, (counts.get(it.model) ?? 0) + it.quantity)
+      if (it.locationId !== id) continue
+      const ownership = ownershipNote(it, heute)
+      const key = `${it.model}\u0000${ownership}`
+      const vorhanden = counts.get(key)
+      if (vorhanden) vorhanden.qty += it.quantity
+      else counts.set(key, { model: it.model, qty: it.quantity, ownership })
     }
-    const itemLines: PackListItemLine[] = [...counts.entries()]
-      .map(([model, qty]) => ({ model, qty }))
-      .sort((a, b) => a.model.localeCompare(b.model))
+    const itemLines: PackListItemLine[] = [...counts.values()]
+      .map((c) => ({ model: c.model, qty: c.qty, ...(c.ownership ? { ownership: c.ownership } : {}) }))
+      // Eigenes vor fremdem bei gleichem Modell: die Liste liest sich von
+      // „das haben wir" nach „das muss zurueck".
+      .sort((a, b) => a.model.localeCompare(b.model) || (a.ownership ?? '').localeCompare(b.ownership ?? ''))
     // Direkte Einheiten.
     const unitLines: PackListUnitLine[] = units
       .filter((u) => u.locationId === id)
       .map((u) => {
-        const model = itemById.get(u.itemId)?.model ?? '?'
+        const item = itemById.get(u.itemId)
+        const model = item?.model ?? '?'
         const serial = u.serial || u.code || u.id.slice(0, 6)
-        return { label: `${model} · ${serial}`, condition: u.condition }
+        // Die Einheit erbt die Herkunft ihres Artikels: sie hat keine eigene,
+        // und eine erfundene waere schlimmer als keine.
+        const ownership = item ? ownershipNote(item, heute) : ''
+        return {
+          label: `${model} · ${serial}`,
+          condition: u.condition,
+          ...(ownership ? { ownership } : {}),
+        }
       })
       .sort((a, b) => a.label.localeCompare(b.label))
     out.push({ node, depth, items: itemLines, units: unitLines })
@@ -92,8 +132,13 @@ export const packListToText = (list: PackListNode[]): string => {
     const pad = '  '.repeat(n.depth)
     const marker = isContainerKind(n.node.kind) ? '[]' : '#'
     lines.push(`${pad}${marker} ${n.node.name}${n.node.code ? ` (${n.node.code})` : ''}`)
-    for (const it of n.items) lines.push(`${pad}  ${it.qty}x ${it.model}`)
-    for (const u of n.units) lines.push(`${pad}  - ${u.label}${u.condition !== 'ok' ? ` [${u.condition}]` : ''}`)
+    for (const it of n.items) {
+      lines.push(`${pad}  ${it.qty}x ${it.model}${it.ownership ? `  [${it.ownership}]` : ''}`)
+    }
+    for (const u of n.units) {
+      const zustand = u.condition !== 'ok' ? ` [${u.condition}]` : ''
+      lines.push(`${pad}  - ${u.label}${zustand}${u.ownership ? `  [${u.ownership}]` : ''}`)
+    }
   }
   return lines.join('\n')
 }

@@ -23,6 +23,7 @@ import type {
 import type { CheckoutLine, CheckoutRecord } from '../types/checkout'
 import { descendantNodeIds, isContainerKind, nodePathLabel } from './storageTree'
 import type { CsvCell, CsvTable } from './csv'
+import { ownershipNote } from './ownership'
 
 /** Der Bestand, aus dem eine Ausgabe entsteht. */
 export interface InventorySnapshotIn {
@@ -43,6 +44,9 @@ export interface InventorySnapshotIn {
 export const containerContents = (
   snap: InventorySnapshotIn,
   nodeId: string,
+  /** Stichtag fuer „zurueck seit" (ISO-Datum). Von aussen, damit die
+   *  Ableitung rein bleibt. */
+  heute = '',
 ): CheckoutLine[] => {
   const inner = descendantNodeIds(snap.nodes, nodeId)
   const scope = new Set(inner)
@@ -60,6 +64,11 @@ export const containerContents = (
     // gibt, sonst der Code. Ein blosses „1 x Modell" beantwortet die Frage
     // „welche fehlt?" nicht.
     const kennung = u.serial ?? u.code ?? u.id
+    // Die Einheit erbt die Herkunft ihres Artikels — eine eigene hat sie nicht.
+    const einheitHerkunft = (() => {
+      const it = snap.items.find((i) => i.id === u.itemId)
+      return it ? ownershipNote(it, heute) : ''
+    })()
     // Der Code ist das, was der Scanner findet; die Seriennummer ist das, was
     // der Mensch liest. Beide werden mitgeschrieben -- sie sind nicht
     // dasselbe, und die eine durch die andere zu ersetzen macht genau eine
@@ -70,16 +79,19 @@ export const containerContents = (
       label: kennung,
       quantity: 1,
       ...(u.code ? { code: u.code } : {}),
+      ...(einheitHerkunft ? { ownership: einheitHerkunft } : {}),
     })
   }
   for (const it of snap.items) {
     if (!it.locationId || !scope.has(it.locationId)) continue
+    const herkunft = ownershipNote(it, heute)
     lines.push({
       kind: 'item',
       refId: it.id,
       label: it.model,
       quantity: it.quantity,
       ...(it.code ? { code: it.code } : {}),
+      ...(herkunft ? { ownership: herkunft } : {}),
     })
   }
 
@@ -136,6 +148,10 @@ export const buildCheckout = (
   nodeId: string,
   out: CheckoutRecord['out'],
   id: string,
+  /** Stichtag fuer die Herkunfts-Notiz (ISO-Datum). Vorgabe: der Tag der
+   *  Ausgabe selbst — sie steht ja in `out.at`, und ein anderer waere hier
+   *  nicht zu begruenden. */
+  heute = out.at.slice(0, 10),
 ): { record: CheckoutRecord } | { refusal: CheckoutRefusal } => {
   const refusal = checkoutRefusal(snap, open, nodeId)
   if (refusal) return { refusal }
@@ -146,7 +162,7 @@ export const buildCheckout = (
       nodeId,
       nodeLabel: node.name,
       out,
-      contents: containerContents(snap, nodeId),
+      contents: containerContents(snap, nodeId, heute),
     },
   }
 }
@@ -222,7 +238,10 @@ const ART: Record<CheckoutLine['kind'], string> = {
  * Kanonisches Deutsch -- er wandert als CSV und wird in Excel geoeffnet.
  */
 export const checkoutSheet = (record: CheckoutRecord): CsvTable => ({
-  headers: ['Art', 'Bezeichnung', 'Menge', 'Etiketten-Code', 'Abgehakt'],
+  // Bedarf 67: die Herkunft steht auf dem Blatt, das im Truck liegt. „Make
+  // sure it survives into every printed pack list, case label and check-in
+  // screen" — dies ist das dritte davon, und es war leer.
+  headers: ['Art', 'Bezeichnung', 'Menge', 'Etiketten-Code', 'Herkunft', 'Abgehakt'],
   rows: record.contents.map((l): CsvCell[] => [
     ART[l.kind],
     l.label,
@@ -231,6 +250,9 @@ export const checkoutSheet = (record: CheckoutRecord): CsvTable => ({
     // klebt, steht das da: die interne Id einzusetzen ergaebe eine Spalte,
     // die scannbar AUSSIEHT und es nicht ist.
     l.code ?? 'kein Etikett',
+    // Leer bei eigenem Material: stuende in jeder Zeile „Eigen", ginge der
+    // Hinweis, auf den es ankommt, darin unter.
+    l.ownership ?? '',
     // Die leere Spalte fuer den Stift. Sie ist der Grund, warum das Blatt
     // ueberhaupt gedruckt wird: „works with gloves, in the dark, never logs
     // out". Ohne sie wird daneben auf dem Rand abgehakt.
