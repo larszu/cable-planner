@@ -1430,7 +1430,13 @@ const DeviceBomSection = () => {
   // Drum-Mikrofonierung (Stative, Clamps, XLR) kommt ueber den Namen mit.
   const drumKit = useProjectStore((s) => s.project.drumKit)
   const wirelessRig = useProjectStore((s) => s.project.wirelessRig)
-  const zusatz = useMemo(() => zusatzBedarf({ drumKit, wirelessRig }), [drumKit, wirelessRig])
+  // Bedarf 17 — die Kabel und die vom Plan verlangten Adapter gehoeren in
+  // DIESELBE Liste. Das Lager kommissioniert aus einer, nicht aus dreien.
+  const cables = useProjectStore((s) => s.project.cables)
+  const zusatz = useMemo(
+    () => zusatzBedarf({ drumKit, wirelessRig, cables, equipment }),
+    [drumKit, wirelessRig, cables, equipment],
+  )
   const bom = useMemo(
     () => buildPlanBom(equipment, items, nodes, units, zusatz),
     [equipment, items, nodes, units, zusatz],
