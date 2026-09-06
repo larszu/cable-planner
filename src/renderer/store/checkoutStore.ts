@@ -36,7 +36,11 @@ const istZeile = (v: unknown): v is CheckoutLine => {
     typeof l.refId === 'string' &&
     typeof l.label === 'string' &&
     typeof l.quantity === 'number' &&
-    Number.isFinite(l.quantity)
+    Number.isFinite(l.quantity) &&
+    // Bedarf 16 — der Etiketten-Code ist optional, aber wenn er da ist, ist er
+    // ein String. Ein `code: 42` aus einer fremden Datei wuerde beim Scannen
+    // nie treffen und die Zeile stumm unscannbar machen.
+    (l.code === undefined || typeof l.code === 'string')
   )
 }
 

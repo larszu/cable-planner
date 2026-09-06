@@ -21,6 +21,7 @@ import storeQuelle from '../src/renderer/store/checkoutStore.ts?raw'
 import inventoryStoreQuelle from '../src/renderer/store/inventoryStore.ts?raw'
 import keysQuelle from '../src/renderer/lib/storageKeys.ts?raw'
 import { stripComments } from './support/stripComments'
+import { scanBackIntoCheckout, unlabelledLines } from '../src/renderer/lib/containerCheckout'
 
 // ---------------------------------------------------------------------------
 // Bedarf 15 -- den Container ein- und auschecken, nicht den Artikel.
@@ -38,16 +39,16 @@ import { stripComments } from './support/stripComments'
 
 const zeit = '2026-09-06T10:00:00.000Z'
 
-const node = (id: string, name: string, kind: StorageNode['kind'], parentId?: string): StorageNode => ({
-  id, name, kind, parentId, createdAt: zeit, updatedAt: zeit,
+const node = (id: string, name: string, kind: StorageNode['kind'], parentId?: string, code?: string): StorageNode => ({
+  id, name, kind, parentId, code, createdAt: zeit, updatedAt: zeit,
 })
 
-const item = (id: string, model: string, quantity: number, locationId?: string): InventoryItem => ({
-  id, model, quantity, locationId, createdAt: zeit, updatedAt: zeit,
+const item = (id: string, model: string, quantity: number, locationId?: string, code?: string): InventoryItem => ({
+  id, model, quantity, locationId, code, createdAt: zeit, updatedAt: zeit,
 })
 
-const unit = (id: string, itemId: string, serial: string, locationId?: string): InventoryUnit => ({
-  id, itemId, serial, locationId, condition: 'ok', history: [], createdAt: zeit, updatedAt: zeit,
+const unit = (id: string, itemId: string, serial: string, locationId?: string, code?: string): InventoryUnit => ({
+  id, itemId, serial, locationId, code, condition: 'ok', history: [], createdAt: zeit, updatedAt: zeit,
 })
 
 /**
@@ -70,14 +71,14 @@ const lager = (): InventorySnapshotIn => ({
     node('a3', 'Regal A3', 'shelf', 'depot'),
     node('b1', 'Regal B1', 'shelf', 'depot'),
     node('tc1', 'Transport-Case 1', 'transportCase', 'a3'),
-    node('c2', 'Case 2', 'case', 'tc1'),
+    node('c2', 'Case 2', 'case', 'tc1', 'CASE-002'),
   ],
   items: [
-    item('klett', 'Klettband', 5, 'c2'),
+    item('klett', 'Klettband', 5, 'c2'),  // bewusst OHNE Etikett
     item('stativ', 'Stativ', 2, 'b1'),
   ],
   units: [
-    unit('u1', 'obj', 'S-1', 'c2'),
+    unit('u1', 'obj', 'S-1', 'c2', 'UNIT-0001'),
     unit('u2', 'cam', 'S-2', 'tc1'),
   ],
 })
@@ -256,11 +257,24 @@ describe('die Blaetter', () => {
       record: CheckoutRecord
     }).record
 
-  it('der Ausgabeschein zaehlt jede Position mit Kennung auf', () => {
+  it('der Ausgabeschein traegt den ETIKETTEN-CODE, nicht die interne Id', () => {
+    // Bedarf 16: „the printed artefact scannable back in". Der erste Wurf
+    // druckte `refId` -- eine UUID, die auf keinem Case klebt und die kein
+    // Scanner findet. Eine Spalte, die scannbar AUSSIEHT und es nicht ist,
+    // ist schlimmer als keine.
     const t = checkoutSheet(rec())
-    expect(t.headers).toEqual(['Art', 'Bezeichnung', 'Menge', 'Kennung'])
+    expect(t.headers).toEqual(['Art', 'Bezeichnung', 'Menge', 'Etiketten-Code', 'Abgehakt'])
     expect(t.rows).toHaveLength(4)
-    expect(t.rows.every((r) => String(r[3] ?? '').length > 0)).toBe(true)
+    const codes = t.rows.map((r) => String(r[3]))
+    expect(codes).not.toContain('id-Case 2')
+    expect(codes.some((c) => c === 'kein Etikett')).toBe(true)
+  })
+
+  it('haelt eine leere Spalte fuer den Stift frei', () => {
+    // Der Grund, warum das Blatt ueberhaupt gedruckt wird: „works with
+    // gloves, in the dark, never logs out". Ohne die Spalte wird auf dem Rand
+    // abgehakt, und der Rand kommt nicht zurueck in den Datensatz.
+    expect(checkoutSheet(rec()).rows.every((r) => r[4] === '')).toBe(true)
   })
 
   it('die Uebersicht nennt den Lagerort als PFAD', () => {
@@ -377,5 +391,100 @@ describe('die Belege bleiben aus dem portablen Lager-Format heraus', () => {
   it('benutzt einen eigenen localStorage-Key aus der Registry', () => {
     expect(storeQuelle).toContain('STORAGE_KEYS.checkouts')
     expect(keysQuelle).toContain("checkouts: 'cable-planner:checkouts'")
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Bedarf 16 -- den Papierweg schliessen.
+//
+//   > Picking is ticked on paper with a pen (works with gloves, in the dark,
+//   > never logs out), then typed into the ERP hours later; the warehouse runs
+//   > permanently a few hours behind reality.
+//
+// Die Zahlen daneben: ~1 Fehler je 300 getippte Zeichen gegen ~1 je 3 Mio.
+// Scans. Der Bedarf verlangt deshalb nicht, das Papier abzuschaffen, sondern
+// es SCANNBAR ZURUECK zu machen.
+// ---------------------------------------------------------------------------
+describe('der Etiketten-Code faehrt mit', () => {
+  const rec = (): CheckoutRecord =>
+    (buildCheckout(lager(), [], 'tc1', ausgabe(), 'r1') as { record: CheckoutRecord }).record
+
+  it('friert den Code des Containers ein', () => {
+    expect(rec().contents.find((l) => l.refId === 'c2')?.code).toBe('CASE-002')
+  })
+
+  it('friert den Code der Einheit ein -- getrennt von der Seriennummer', () => {
+    // Der Code ist, was der Scanner findet; die Seriennummer, was der Mensch
+    // liest. Die eine durch die andere zu ersetzen macht eine der beiden
+    // Rollen kaputt.
+    const l = rec().contents.find((x) => x.refId === 'u1')!
+    expect(l.code).toBe('UNIT-0001')
+    expect(l.label).toBe('S-1')
+  })
+
+  it('erfindet keinen Code, wo keiner klebt', () => {
+    expect(rec().contents.find((l) => l.refId === 'klett')?.code).toBeUndefined()
+  })
+
+  it('nennt die Positionen ohne Etikett als Arbeitsliste', () => {
+    // Nicht als Fehler: wer den Anteil kennt, weiss, welche Kisten ein
+    // Etikett brauchen -- und wieviel des Gewinns er heute schon hat.
+    expect(unlabelledLines(rec()).map((l) => l.refId)).toEqual(['u2', 'klett'])
+  })
+})
+
+describe('der Scan zurueck ins Blatt', () => {
+  const rec = (): CheckoutRecord =>
+    (buildCheckout(lager(), [], 'tc1', ausgabe(), 'r1') as { record: CheckoutRecord }).record
+
+  it('findet die Zeile zum Code', () => {
+    const r = scanBackIntoCheckout(rec(), 'CASE-002')
+    expect(r.kind).toBe('line')
+    expect(r.kind === 'line' && r.line.refId).toBe('c2')
+  })
+
+  it('liest Leerzeichen und Schreibweise weg', () => {
+    // Etiketten kommen mit Leerzeichen und in wechselnder Schreibweise aus
+    // dem Lesegeraet.
+    expect(scanBackIntoCheckout(rec(), '  case-002 ').kind).toBe('line')
+  })
+
+  it('meldet einen fremden Code ALS SOLCHEN', () => {
+    // Die nuetzlichste Auskunft dieses Scans: „gehoert nicht in dieses Case"
+    // faengt das Packen ins falsche Case, und zwar bevor es faehrt.
+    expect(scanBackIntoCheckout(rec(), 'CASE-999').kind).toBe('unknown-code')
+    expect(scanBackIntoCheckout(rec(), '').kind).toBe('unknown-code')
+  })
+
+  it('trifft NICHT ueber die interne Id', () => {
+    // Sie steht auf keinem Etikett. Ein Treffer darauf waere ein Zufall, der
+    // im Betrieb nie eintritt und im Test Sicherheit vortaeuscht.
+    expect(scanBackIntoCheckout(rec(), 'c2').kind).toBe('unknown-code')
+  })
+})
+
+describe('der Scan-Rueckweg ist erreichbar', () => {
+  it('steht im Lager-Dialog und TREIBT die Anzeige', () => {
+    // Der erste Wurf dieses Tests suchte nur den NAMEN im Quelltext. Die
+    // Gegenprobe liess ihn als `void scanBackIntoCheckout` stehen und
+    // verdrahtete daneben eine feste Antwort -- der Test blieb gruen. Ein
+    // Guard auf einen Bezeichner prueft, dass er vorkommt, nicht dass er
+    // etwas tut.
+    expect(dialogQuelle).toMatch(/const treffer = scanBackIntoCheckout\(r, roh\)/)
+    expect(dialogQuelle).toMatch(/treffer\.kind === 'line'/)
+    expect(dialogQuelle).toMatch(/treffer\.line\.label/)
+    expect(dialogQuelle).toMatch(/onKeyDown=\{\(e\) => \{\s*\n\s*if \(e\.key === 'Enter'\) scanBack\(r\)/)
+  })
+
+  it('nennt die Positionen ohne Etikett auf dem Schirm', () => {
+    expect(dialogQuelle).toContain('unlabelledLines(r)')
+    expect(dialogQuelle).toContain("'inventory.checkout.unlabelled'")
+  })
+
+  it('meldet den fremden Code, statt ihn zu verschlucken', () => {
+    for (const key of ['inventory.checkout.scanHit', 'inventory.checkout.scanMiss']) {
+      expect(dialogQuelle).toContain(`'${key}'`)
+      expect(dictsQuelle).toContain(`'${key}'`)
+    }
   })
 })

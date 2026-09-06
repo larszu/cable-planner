@@ -28,7 +28,7 @@ import type { SourceIdentity } from '../types/sourceIdentity'
 import { deriveLabels, routerLinkFor, switcherLinkFor } from './labelDerivation'
 import { detectDeviceKind } from './deviceKind'
 import { umdAddressClashes } from './sourceIdentity'
-import { toCsv } from './csv'
+import { toCsv, type CsvTable } from './csv'
 
 export interface TallyMapDevice {
   id: string
@@ -215,6 +215,31 @@ export const buildTallyMap = (project: TallyProject): TallyMap => {
 }
 
 /** Die Karte als reviewbare Tabelle — was auf Papier oder in Excel landet. */
+/**
+ * Die Tally-Karte als Tabelle, getrennt vom Serialisieren.
+ *
+ * Bedarf 26 braucht sie in dieser Form: `documentRegistry` rechnet den Stand
+ * eines Dokuments aus seiner TABELLE aus, nicht aus dem fertigen CSV. Vorher
+ * gab es nur `tallyMapCsv`, und die Tally-Karte war damit fuer die
+ * Impact-Liste unsichtbar -- ausgerechnet das Blatt, das der Bedarf als
+ * erstes unter den vergessenen nennt.
+ */
+export const tallyMapTable = (map: TallyMap): CsvTable => ({
+  headers: ['Nr.', 'Rolle', 'Geraet(e)', 'Mischer', 'Eingang', 'UMD-Adresse'],
+  rows: map.rows.map((r) => [
+    r.number ?? '',
+    r.name,
+    r.devices.map((d) => d.name).join(' + '),
+    r.switcher?.name ?? '',
+    r.switcher?.input ?? '',
+    r.umdAddress ?? '',
+  ]),
+})
+
+/** Fuer das Register: dieselbe Tabelle aus einem Projekt. */
+export const tallyMapTableForProject = (project: TallyProject): CsvTable =>
+  tallyMapTable(buildTallyMap(project))
+
 export const tallyMapCsv = (map: TallyMap): string =>
   toCsv(
     ['Nr.', 'Rolle', 'Geraet(e)', 'Mischer', 'Eingang', 'UMD-Adresse'],

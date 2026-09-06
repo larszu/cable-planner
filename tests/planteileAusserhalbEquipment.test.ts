@@ -20,6 +20,7 @@ import type { EquipmentItem } from '../src/renderer/types/equipment'
 import type { InventoryItem, StorageNode } from '../src/renderer/types/inventory'
 import type { DrumKitPlan } from '../src/renderer/types/drumKit'
 import type { WirelessRigPlan } from '../src/renderer/types/wirelessRig'
+import exportDialogQuelle from '../src/renderer/components/Export/ExportDialog.tsx?raw'
 
 const SM57 = '8a940e24-1c9c-4571-a820-50cd7ce55ed1'
 const SM58 = '4e75a4d0-7490-431f-8230-fef93fa265ef'
@@ -177,5 +178,154 @@ describe('die beiden Zaehlungen der Drum-Mics widersprechen sich nicht', () => {
       (x) => x.label === 'XLR-Kabel (Mic → Stagebox)',
     )
     expect(xlr?.quantity).toBe(plan.mics.length)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Bedarf 17 -- die Kabel und die Adapter in DIESELBE Liste.
+//
+//   > The pick list is generated from the commercial reservation, never from
+//   > the cable/camera/lighting plan. The plan's BOM (INCLUDING ADAPTERS AND
+//   > SPARES) is re-typed by a human.
+//
+// Der Cable-Planner hatte die Kabel-Stueckliste als EIGENES Blatt, und der
+// Deckungs-Abgleich gegen das Lager las nur die Geraete. Die Adapter standen
+// nirgends -- obwohl der Plan an zwei Stellen sagt, dass er welche braucht.
+// ---------------------------------------------------------------------------
+const kabel = (over: Partial<import('../src/renderer/types/cable').Cable> = {}) =>
+  ({
+    id: 'c1',
+    name: 'K1',
+    type: 'SDI',
+    length: 5,
+    color: '#fff',
+    fromEquipmentId: 'A',
+    fromPortId: 'A-out',
+    toEquipmentId: 'B',
+    toPortId: 'B-in',
+    notes: '',
+    ...over,
+  }) as import('../src/renderer/types/cable').Cable
+
+const mitPorts = (id: string, portId: string, over: Record<string, unknown> = {}): EquipmentItem =>
+  eq({
+    id,
+    outputs: [{ id: portId, name: portId, type: 'port', connectorType: 'BNC', ...over }],
+  } as Partial<EquipmentItem>)
+
+describe('Bedarf 17 — die Kabel kommen in die Bedarfsliste', () => {
+  it('zaehlt Kabel nach Typ UND Laenge', () => {
+    // Ein 5-m-SDI und ein 50-m-SDI sind im Lager zwei Artikel.
+    const z = zusatzBedarf({
+      cables: [kabel(), kabel({ id: 'c2' }), kabel({ id: 'c3', length: 50 })],
+      equipment: [],
+    })
+    const kabelZeilen = z.filter((x) => x.herkunft === 'Kabelplan')
+    expect(kabelZeilen.map((x) => `${x.label} x${x.quantity}`).sort()).toEqual([
+      'SDI 5 m x2',
+      'SDI 50 m x1',
+    ])
+  })
+
+  it('zaehlt ein Multicore je Buendel EINMAL', () => {
+    // Sonst kommissioniert das Lager sechzehn Kabel fuer eine Trommel.
+    //
+    // Der erste Anlauf dieses Tests prueft die ZEILENZAHL -- und blieb gruen,
+    // als die Buendel-Sperre entfernt wurde: drei gleiche Adern tragen
+    // dieselbe Beschriftung, `zusammen()` legt sie ohnehin zu EINER Zeile
+    // zusammen. Was sich aendert, ist die MENGE.
+    const adern = [1, 2, 3].map((n) => kabel({ id: `m${n}`, multicoreName: 'MC-1' }))
+    const z = zusatzBedarf({ cables: adern, equipment: [] })
+    const zeilen = z.filter((x) => x.herkunft === 'Kabelplan')
+    expect(zeilen).toHaveLength(1)
+    expect(zeilen[0].quantity).toBe(1)
+  })
+
+  it('zaehlt ZWEI Buendel als zwei', () => {
+    // Die Gegenrichtung derselben Regel: die Sperre darf nicht so weit gehen,
+    // dass sie ein zweites Multicore verschluckt.
+    const adern = [
+      kabel({ id: 'a1', multicoreName: 'MC-1' }),
+      kabel({ id: 'a2', multicoreName: 'MC-1' }),
+      kabel({ id: 'b1', multicoreName: 'MC-2' }),
+    ]
+    const zeilen = zusatzBedarf({ cables: adern, equipment: [] }).filter(
+      (x) => x.herkunft === 'Kabelplan',
+    )
+    expect(zeilen[0].quantity).toBe(2)
+  })
+
+  it('laesst Funkstrecken weg -- die sind keine Kabel', () => {
+    const z = zusatzBedarf({ cables: [kabel({ wireless: true })], equipment: [] })
+    expect(z.filter((x) => x.herkunft === 'Kabelplan')).toEqual([])
+  })
+
+  it('rechnet KEINEN Reserve-Aufschlag ein', () => {
+    // Der Aufschlag ist eine Export-Einstellung des Nutzers -- deshalb steht
+    // `kabel-bom` in `UNJUDGEABLE_DOCUMENTS`. Ihn hier einzurechnen hiesse,
+    // die Antwort „reicht der Bestand?" von einem Prozentsatz abhaengig zu
+    // machen, den an dieser Stelle niemand sieht.
+    const z = zusatzBedarf({ cables: [kabel()], equipment: [] })
+    expect(z.find((x) => x.herkunft === 'Kabelplan')?.quantity).toBe(1)
+  })
+})
+
+describe('Bedarf 17 — die Adapter, die der Plan selbst verlangt', () => {
+  it('macht aus einem LWL-Steckertyp-Mismatch einen benannten Adapter', () => {
+    // Dieselbe Bedingung wie Check 17b in `drawingChecks`. Bis hierher blieb
+    // die Erkenntnis im Zeichnungs-Befund stehen und wurde nie zu Material.
+    const von = eq({ id: 'A', outputs: [{ id: 'A-out', name: 'OUT', type: 'port', connectorType: 'LC', fiberConnector: 'LC' }] } as Partial<EquipmentItem>)
+    const nach = eq({ id: 'B', inputs: [{ id: 'B-in', name: 'IN', type: 'port', connectorType: 'SC', fiberConnector: 'SC' }] } as Partial<EquipmentItem>)
+    const z = zusatzBedarf({ cables: [kabel()], equipment: [von, nach] })
+    const ad = z.filter((x) => x.herkunft === 'Adapter (vom Plan verlangt)')
+    expect(ad).toHaveLength(1)
+    // BENANNT: „LWL-Adapter LC ↔ SC" ist kommissionierbar, „Adapter" nicht.
+    expect(ad[0].label).toBe('LWL-Adapter LC ↔ SC')
+  })
+
+  it('macht aus dem Haekchen `needsConverter` einen Adapter mit Steckern', () => {
+    const von = eq({ id: 'A', outputs: [{ id: 'A-out', name: 'OUT', type: 'port', connectorType: 'BNC' }] } as Partial<EquipmentItem>)
+    const nach = eq({ id: 'B', inputs: [{ id: 'B-in', name: 'IN', type: 'port', connectorType: 'HDMI' }] } as Partial<EquipmentItem>)
+    const z = zusatzBedarf({ cables: [kabel({ needsConverter: true })], equipment: [von, nach] })
+    expect(z.find((x) => x.herkunft === 'Adapter (vom Plan verlangt)')?.label).toBe('Adapter BNC ↔ HDMI')
+  })
+
+  it('erfindet keine Steckerpaarung, wo die Ports unbekannt sind', () => {
+    // Eine erfundene Paarung waere schlimmer als eine unbestimmte Zeile: sie
+    // sieht bestellbar aus.
+    const z = zusatzBedarf({ cables: [kabel({ needsConverter: true, name: 'K7' })], equipment: [] })
+    expect(z.find((x) => x.herkunft === 'Adapter (vom Plan verlangt)')?.label).toBe('Adapter für „K7"')
+  })
+
+  it('zaehlt EINEN Link nicht zweimal', () => {
+    // Dasselbe Kabel traegt oft beides gleichzeitig.
+    const von = eq({ id: 'A', outputs: [{ id: 'A-out', name: 'OUT', type: 'port', connectorType: 'LC', fiberConnector: 'LC' }] } as Partial<EquipmentItem>)
+    const nach = eq({ id: 'B', inputs: [{ id: 'B-in', name: 'IN', type: 'port', connectorType: 'SC', fiberConnector: 'SC' }] } as Partial<EquipmentItem>)
+    const z = zusatzBedarf({ cables: [kabel({ needsConverter: true })], equipment: [von, nach] })
+    expect(z.filter((x) => x.herkunft === 'Adapter (vom Plan verlangt)')).toHaveLength(1)
+  })
+
+  it('meldet keinen Adapter, wo der Plan keinen verlangt', () => {
+    const von = eq({ id: 'A', outputs: [{ id: 'A-out', name: 'OUT', type: 'port', connectorType: 'BNC' }] } as Partial<EquipmentItem>)
+    const nach = eq({ id: 'B', inputs: [{ id: 'B-in', name: 'IN', type: 'port', connectorType: 'BNC' }] } as Partial<EquipmentItem>)
+    expect(
+      zusatzBedarf({ cables: [kabel()], equipment: [von, nach] }).filter(
+        (x) => x.herkunft === 'Adapter (vom Plan verlangt)',
+      ),
+    ).toEqual([])
+  })
+})
+
+describe('Bedarf 17 — die Erreichbarkeit im Deckungs-Abgleich', () => {
+  it('die Kabel-Zeilen erreichen deriveDemand', () => {
+    // Der eigentliche Punkt: nicht ein weiteres Blatt, sondern DIESELBE
+    // Liste, gegen die der Lagerbestand gehalten wird.
+    const z = zusatzBedarf({ cables: [kabel()], equipment: [] })
+    const demand = deriveDemand([], z)
+    expect(demand.some((d) => d.label === 'SDI 5 m')).toBe(true)
+  })
+
+  it('der Export-Dialog reicht Kabel UND Geraete herein', () => {
+    expect(exportDialogQuelle).toMatch(/zusatzBedarf\(\{ drumKit, wirelessRig, cables, equipment \}\)/)
   })
 })

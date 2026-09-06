@@ -48,12 +48,15 @@ import type {
   SetComponent,
 } from '../../types/inventory'
 import { useCheckoutStore } from '../../store/checkoutStore'
+import type { CheckoutRecord } from '../../types/checkout'
 import {
   containerContents,
   checkoutSheet,
   discrepancyTable,
   openCheckoutsTable,
   overdueCheckouts,
+  scanBackIntoCheckout,
+  unlabelledLines,
   type CheckoutRefusal,
 } from '../../lib/containerCheckout'
 import { toCsv } from '../../lib/csv'
@@ -1534,6 +1537,11 @@ const CheckoutTab = () => {
   const [projectName, setProjectName] = useState('')
   const [dueBack, setDueBack] = useState('')
   const [refusal, setRefusal] = useState<CheckoutRefusal | null>(null)
+  // Bedarf 16 — der Papierweg zurueck. Der Code vom Blatt wird gegen die
+  // Ausgabeliste gehalten; das Abhaken auf Papier wird damit zur EINGABE fuer
+  // den Datensatz statt zu einem zweiten, der ihm widerspricht.
+  const [scanDraft, setScanDraft] = useState<Record<string, string>>({})
+  const [scanEcho, setScanEcho] = useState<Record<string, { text: string; ok: boolean }>>({})
 
   const snap = useMemo(() => ({ items, nodes, units }), [items, nodes, units])
   const container = useMemo(() => nodes.filter((n) => isContainerKind(n.kind)), [nodes])
@@ -1565,6 +1573,33 @@ const CheckoutTab = () => {
       setProjectName('')
       setDueBack('')
     }
+  }
+
+  const scanBack = (r: CheckoutRecord) => {
+    const roh = (scanDraft[r.id] ?? '').trim()
+    if (!roh) return
+    const treffer = scanBackIntoCheckout(r, roh)
+    setScanEcho((s) => ({
+      ...s,
+      [r.id]:
+        treffer.kind === 'line'
+          ? {
+              text: format(t('inventory.checkout.scanHit', '{code} → {label}'), {
+                code: roh,
+                label: treffer.line.label,
+              }),
+              ok: true,
+            }
+          : {
+              // Die nuetzlichste Auskunft dieses Scans. Sie faengt das Packen
+              // ins falsche Case, und zwar bevor es faehrt.
+              text: format(t('inventory.checkout.scanMiss', '{code} gehört nicht zu diesem Vorgang'), {
+                code: roh,
+              }),
+              ok: false,
+            },
+    }))
+    setScanDraft((s) => ({ ...s, [r.id]: '' }))
   }
 
   const refusalLabel = (r: CheckoutRefusal): string => {
@@ -1729,6 +1764,61 @@ const CheckoutTab = () => {
               ))}
             </tbody>
           </table>
+        )}
+
+        {/* Bedarf 16 — der Papierweg zurueck. Der Schein traegt die
+            Etiketten-Codes; hier kommen sie wieder herein, per Lesegeraet
+            oder getippt. Ein Code, der nicht zum Vorgang gehoert, wird als
+            solcher gemeldet — das ist der eigentliche Fang. */}
+        {offen.length > 0 && (
+          <div className="border-t border-cp-border-muted px-2 py-1.5">
+            <div className="mb-1 text-cp-text-secondary">
+              {t(
+                'inventory.checkout.scanIntro',
+                'Code vom Ausgabeschein einlesen — das Abhaken auf Papier wird damit zur Eingabe statt zu einer zweiten Liste.',
+              )}
+            </div>
+            {offen.map((r) => {
+              const ohneEtikett = unlabelledLines(r)
+              return (
+                <div key={r.id} className="mb-1 flex flex-wrap items-center gap-1.5">
+                  <span className="text-cp-text-muted">{r.nodeLabel}</span>
+                  <input
+                    value={scanDraft[r.id] ?? ''}
+                    onChange={(e) => setScanDraft((s) => ({ ...s, [r.id]: e.target.value }))}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') scanBack(r)
+                    }}
+                    placeholder={t('inventory.checkout.scanPlaceholder', 'Etiketten-Code')}
+                    aria-label={format(t('inventory.checkout.scanFor', 'Code für {node}'), { node: r.nodeLabel })}
+                    className="w-40 rounded border border-cp-border bg-cp-surface-3 p-1"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => scanBack(r)}
+                    className="rounded border border-cp-border px-2 py-0.5 text-cp-text-secondary hover:text-cp-text"
+                  >
+                    {t('inventory.checkout.scanCheck', 'Prüfen')}
+                  </button>
+                  {scanEcho[r.id] && (
+                    <span className={scanEcho[r.id].ok ? 'text-cp-text-secondary' : 'text-cp-danger'}>
+                      {scanEcho[r.id].text}
+                    </span>
+                  )}
+                  {ohneEtikett.length > 0 && (
+                    // Kein Fehler, sondern eine Arbeitsliste: diese Positionen
+                    // muessen von Hand abgeglichen werden, bis sie ein Etikett
+                    // haben.
+                    <span className="text-cp-text-faint">
+                      {format(t('inventory.checkout.unlabelled', '{n} ohne Etikett — nur von Hand abgleichbar'), {
+                        n: ohneEtikett.length,
+                      })}
+                    </span>
+                  )}
+                </div>
+              )
+            })}
+          </div>
         )}
       </div>
 

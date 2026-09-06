@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { changeImpact, changeImpactSummary } from '../src/renderer/lib/changeImpact'
 import {
-  DOCUMENT_STANDS,
   DOCUMENT_LABELS,
+  DOCUMENT_STANDS,
   UNJUDGEABLE_DOCUMENTS,
 } from '../src/renderer/lib/documentRegistry'
 import registrySrc from '../src/renderer/lib/documentRegistry.ts?raw'
@@ -67,7 +67,12 @@ describe('changeImpact — die Vorwärts-Frage', () => {
       Object.keys(DOCUMENT_STANDS).length,
     )
     expect(impact.unknown).toBe(Object.keys(UNJUDGEABLE_DOCUMENTS).length)
-    expect(changeImpactSummary(impact)).toBe('1 nicht beurteilbar')
+    // Aus dem Register abgeleitet und nicht als Zahl getippt: die Liste der
+    // unbeurteilbaren Dokumente WAECHST (Bedarf 26 hat vier dazugelegt), und
+    // eine feste Zahl haette hier nur gesagt, dass jemand sie nachtippt.
+    expect(changeImpactSummary(impact)).toBe(
+      `${Object.keys(UNJUDGEABLE_DOCUMENTS).length} nicht beurteilbar`,
+    )
   })
 
   it('erkennt, dass ein geänderter Kabel-Typ die Pull-Liste überholt', () => {
@@ -133,12 +138,16 @@ describe('changeImpact — die Vorwärts-Frage', () => {
     expect(
       impact.documents.some((d) => d.verdict === 'unaffected' && !ohneGeraetebezug.has(d.docId)),
     ).toBe(false)
-    // Zwei verschiedene Gruende fuer dasselbe Urteil — die Meldung darf sie
-    // nicht vermischen.
+    // JEDER unbeurteilbare Grund steht fuer sich, und die gescheiterte
+    // Ableitung ist noch einer dazu — die Meldung darf sie nicht vermischen.
+    // Fruehe Fassung: `toBe(2)`, als es genau ein unbeurteilbares Dokument
+    // gab. Das war dieselbe Aussage, nur nachgetippt; sie wird jetzt
+    // gerechnet, damit ein neuer Eintrag im Register sie nicht falsch macht,
+    // sondern mitnimmt.
     const reasons = new Set(
       impact.documents.filter((d) => d.verdict === 'unknown').map((d) => d.reason),
     )
-    expect(reasons.size).toBe(2)
+    expect(reasons.size).toBe(Object.keys(UNJUDGEABLE_DOCUMENTS).length + 1)
   })
 
   it('die Zusammenfassung verschweigt das Unbeurteilbare nicht', () => {
@@ -238,6 +247,72 @@ describe('der Guard: das Register ist die einzige Liste', () => {
     for (const [id, reason] of Object.entries(UNJUDGEABLE_DOCUMENTS)) {
       expect(reason, `Grund fehlt fuer ${id}`).toBeTruthy()
       expect(DOCUMENT_LABELS[id], `Label fehlt fuer ${id}`).toBeTruthy()
+    }
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Bedarf 26 -- die Blaetter, die bei einer spaeten Aenderung vergessen werden.
+//
+//   > One late change (e.g. a fifth camera 48h out) touches roughly 30
+//   > artefacts ... The ones that get missed are OMISSIONS, not errors:
+//   > multiviewer window, comms position, tally, truck plan, check-in list.
+//   > Nothing links them.
+//
+// `changeImpact` gab es schon -- aber es kannte nur die Dokumente im Register,
+// und die vom Bedarf genannten standen NICHT darin. Ein Blatt, das die Liste
+// gar nicht nennt, ist in ihr nicht „unberuehrt", sondern unsichtbar; und
+// genau das nennt der Bedarf: Auslassungen, keine Fehler.
+// ---------------------------------------------------------------------------
+describe('Bedarf 26 — die vergessenen Blaetter stehen jetzt in der Liste', () => {
+  it('die Tally-Karte ist reproduzierbar und wird beurteilt', () => {
+    // Sie leitet allein aus `equipment`, `cables` und `sourceIdentities` ab —
+    // keine Nutzer-Einstellung, keine Sprache. Also gehoert sie nicht unter
+    // „weiss ich nicht", sondern unter die beurteilbaren.
+    expect(Object.keys(DOCUMENT_STANDS)).toContain('tally-karte')
+    expect(DOCUMENT_LABELS['tally-karte']).toBeTruthy()
+  })
+
+  it('die Tally-Karte reagiert auf eine Aenderung am Plan', () => {
+    // Der eigentliche Punkt: nicht dass sie im Register STEHT, sondern dass
+    // ihr Stand sich bewegt, wenn sich der Plan bewegt.
+    //
+    // Der erste Anlauf benannte einfach ein Geraet des Standard-Projekts um --
+    // und blieb gleich. Zu Recht: `buildTallyMap` laeuft ueber
+    // `sourceIdentities`, und das Fixture hat keine, die Karte ist also leer.
+    // Ein Test, der eine leere Karte gegen eine leere Karte haelt, prueft
+    // nichts. Hier steht deshalb eine Rolle mit einem Geraet daran.
+    const mitRolle = (name: string): CablePlannerProject =>
+      project({
+        equipment: [{ ...eq('A', name), sourceIdentityId: 'src1' } as EquipmentItem, eq('B', 'Switcher')],
+        sourceIdentities: [{ id: 'src1', name: 'CAM 1', number: 1 }],
+      } as Partial<CablePlannerProject>)
+
+    const before = mitRolle('Kamera 1')
+    const after = mitRolle('Kamera 1 NEU')
+    expect(DOCUMENT_STANDS['tally-karte'](before)).not.toBe(DOCUMENT_STANDS['tally-karte'](after))
+    // Und sie bleibt gleich, wenn sich nichts bewegt -- sonst waere der
+    // Stempel Rauschen und der Vergleich wertlos.
+    expect(DOCUMENT_STANDS['tally-karte'](before)).toBe(DOCUMENT_STANDS['tally-karte'](mitRolle('Kamera 1')))
+  })
+
+  it('die Blaetter je Geraet sind BENANNT statt weggelassen', () => {
+    // Videohub-Labels, MV-Layout und Port-Karte gibt es je GERAET; das
+    // Register fuehrt einen Stand je Bezeichner. Sie sind deshalb nicht
+    // beurteilbar — aber sie zu verschweigen sieht in einer Impact-Liste aus
+    // wie „unberuehrt", und das ist die schlechtere Antwort.
+    for (const id of ['videohub-labels', 'atem-mv-layout', 'switch-port-karte', 'stueckliste']) {
+      expect(Object.keys(UNJUDGEABLE_DOCUMENTS)).toContain(id)
+      expect(UNJUDGEABLE_DOCUMENTS[id].length).toBeGreaterThan(30)
+      expect(DOCUMENT_LABELS[id]).toBeTruthy()
+    }
+  })
+
+  it('kein Bezeichner steht in BEIDEN Registern', () => {
+    // Beurteilbar UND unbeurteilbar zugleich waere eine Aussage, die sich
+    // selbst widerspricht.
+    for (const id of Object.keys(UNJUDGEABLE_DOCUMENTS)) {
+      expect(Object.keys(DOCUMENT_STANDS)).not.toContain(id)
     }
   })
 })
