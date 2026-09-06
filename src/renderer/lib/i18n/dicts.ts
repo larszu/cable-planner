@@ -4255,6 +4255,15 @@ export const en: Dict = {
   'analysis.crew.title': 'Network briefing sheet for the crew',
   'analysis.crew.ask': '{n} points to settle on site',
   'analysis.crew.export': 'Crew network sheet',
+  // Bedarf 91 — Vorlagen, die wissen, aus welchem Haus sie kommen.
+  'tplScope.title': 'Bind this template to the venue?',
+  'tplScope.body':
+    '{n} venue-bound entries hang on this project \u2014 the venue IT answers and the address{venue}. A neutral template leaves them out; a venue template takes them along and remembers which venue they apply to.',
+  'tplScope.venue': 'For this venue',
+  'tplScope.neutral': 'Neutral (shape only)',
+  'templates.venue': 'Venue template: {venue} \u00b7 {n} answers',
+  'templates.carryTitle': 'Answers from a different venue',
+  'templates.carryOk': 'Load anyway',
   // Bedarf 89 — das Sicherheitsnetz.
   'delivery.fb.title': 'Fallback behaviour (safety net)',
   'delivery.fb.intro':

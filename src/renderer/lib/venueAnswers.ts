@@ -87,7 +87,11 @@ const trimmed = (v: string | undefined): string | undefined => {
  * Bereich galt. Im Zweifel `elsewhere` — das kostet einen Anruf, der andere
  * Fehler kostet den Aufbau.
  */
-const sameVenue = (a: string | undefined, b: string | undefined): boolean =>
+// Exportiert seit Bedarf 91: die Vorlage muss dieselbe Frage stellen wie das
+// Blatt („ist das dasselbe Haus?"), und zwei Antworten darauf waeren besonders
+// teuer -- die eine entscheidet, was eine Vorlage mitbringt, die andere, wie
+// es markiert wird.
+export const sameVenue = (a: string | undefined, b: string | undefined): boolean =>
   (a ?? '').trim().toLowerCase() === (b ?? '').trim().toLowerCase()
 
 export interface MergeInput {
