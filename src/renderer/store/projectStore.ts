@@ -360,7 +360,12 @@ export interface ProjectState {
   ) => string
   clear: () => void
   addCustomTemplate: (template: EquipmentTemplate) => void
-  addCustomTemplates: (templates: EquipmentTemplate[]) => void
+  /** Ergaenzt die Library und BERICHTET, was dabei uebersprungen wurde
+   *  (Bedarf 65). Der Rueckgabewert ist die einzige Wahrheit darueber; wer
+   *  ihn ignoriert, meldet zwangslaeufig etwas anderes als das Ergebnis. */
+  addCustomTemplates: (
+    templates: EquipmentTemplate[],
+  ) => import('../lib/templateAddReport').TemplateAddReport
   /** v7.9.70 / #171 — Rebuild library entries for every Rentman-tagged
    *  canvas equipment whose template was lost. Returns the count of
    *  templates that were added/patched. */

@@ -5,6 +5,7 @@ import { Icon } from '../../shared/Icon'
 import { useProjectStore } from '../../../store/projectStore'
 import { useTranslation, format } from '../../../lib/i18n'
 import { infoDialog } from '../../../lib/infoDialog'
+import { EMPTY_TEMPLATE_ADD_REPORT, hasOmissions } from '../../../lib/templateAddReport'
 import { pickImageAsDataUri } from '../../../lib/readImageAsDataUri'
 import { SettingsCard } from '../SettingsCard'
 import { DEFAULT_CABLE_NUMBERING, cableNumberExample } from '../../../lib/cableNumbering'
@@ -88,8 +89,12 @@ const LibraryExportSection = () => {
       // Merge-by-name: addCustomTemplates only adds entries whose name
       // doesn't exist yet. Damit überschreibt der Import nie eigene
       // Edits am gleichen Template.
+      // Bedarf 65: der Bericht sagt, was WIRKLICH angelegt wurde. Bis hierher
+      // meldete das Fenster `data.customLibrary.length` — die Zahl aus der
+      // DATEI. Zweihundert importiert, drei angelegt, gemeldet: „200".
+      let bericht = EMPTY_TEMPLATE_ADD_REPORT
       if (Array.isArray(data.customLibrary)) {
-        addCustomTemplates(data.customLibrary)
+        bericht = addCustomTemplates(data.customLibrary)
       }
       if (Array.isArray(data.knownCategories)) {
         addKnownCategories(data.knownCategories)
@@ -105,9 +110,31 @@ const LibraryExportSection = () => {
       }
       await infoDialog(t('settings.project.libImport.okTitle', 'Library importiert'), {
         body:
-          `${data.customLibrary?.length ?? 0} ${t('settings.project.libImport.templatesWord', 'Geräte-Templates')} · ` +
+          `${bericht.added.length} ${t('settings.project.libImport.templatesWord', 'Geräte-Templates')} · ` +
           `${data.groupPresets?.length ?? 0} ${t('settings.project.libImport.presetsWord', 'Gruppen-Presets')}\n\n` +
-          t('settings.project.libImport.okBody', 'Nur neue Einträge wurden hinzugefügt — vorhandene Templates bleiben unverändert.'),
+          t('settings.project.libImport.okBody', 'Nur neue Einträge wurden hinzugefügt — vorhandene Templates bleiben unverändert.') +
+          // Was NICHT angelegt wurde, mit Namen. „Vorhandene bleiben
+          // unveraendert" allein sagt nicht, WELCHE und WIE VIELE — und wer
+          // die Datei geschickt hat, will genau das wissen.
+          (hasOmissions(bericht)
+            ? '\n\n' +
+              format(
+                t(
+                  'settings.project.libImport.skipped',
+                  'Nicht angelegt: {n} bereits vorhandene(r) Name(n){namen}{ohneName}',
+                ),
+                {
+                  n: bericht.skipped.length,
+                  namen: bericht.skipped.length > 0 ? ` — ${bericht.skipped.slice(0, 12).join(', ')}` : '',
+                  ohneName:
+                    bericht.unnamed > 0
+                      ? format(t('settings.project.libImport.unnamed', ' · {n} ohne Namen'), {
+                          n: bericht.unnamed,
+                        })
+                      : '',
+                },
+              )
+            : ''),
         tone: 'success',
       })
     } catch (err) {
