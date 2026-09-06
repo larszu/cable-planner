@@ -5,7 +5,7 @@ Invarianten der App. Sie ist die Pflicht-Lektüre, bevor strukturelle Änderunge
 gemacht werden. Für die interaktive Modul-Übersicht siehe [`app-structure.html`](./app-structure.html),
 für einen Wettbewerber-Vergleich [`comparison.html`](./comparison.html).
 
-Stand: v9.0.0 · ~435 TS/TSX-Module · ~127.1k LOC
+Stand: v9.0.0 · ~442 TS/TSX-Module · ~128.7k LOC
 
 ---
 
@@ -124,7 +124,7 @@ isoliert testbar ist.
 
 ### 3.2 · Komponenten
 
-`src/renderer/components/` ist in 27 Subdomänen aufgeteilt:
+`src/renderer/components/` ist in 28 Subdomänen aufgeteilt:
 
 ```
 About/         Analysis/      Annotations/   Atem/          Cable/
@@ -245,6 +245,20 @@ CablePlannerProject
   Projekt, weil eine `.avplan` per Mail wandert, in Dropbox liegt und in den
   Mobile-/Web-Viewer geht. Beim Laden wird das Häkchen nachgefragt, nicht
   geglaubt.
+
+**NetworkInterface** (Bedarf 19, `types/network.ts`):
+- `role` (`media-primary` | `media-secondary` | `control` | `management` |
+  `unspecified`), `ipAddress?`, `subnetMask?`, `gateway?`, `macAddress?`,
+  `vlanId?`, `switchEquipmentId?`, `switchPort?`, `portId?`
+- **Die vier Netz-Felder am Gerät SIND Schnittstelle 0**; `networkInterfaces`
+  hält 1..n. Es gibt also je Adresse genau ein Zuhause — keine Spiegelung. Wer
+  ALLE Schnittstellen braucht, nimmt die Engstelle
+  `lib/networkInterfaces.ts#deviceInterfaces`, nicht `item.ipAddress`.
+  Der Grund für die Bauform steht in `types/network.ts`: `ipAddress` steht an
+  95 Stellen in 36 Dateien, und ein Umzug in einem Schritt hätte jede
+  übersehene Stelle still `undefined` lesen lassen.
+- `role` ist ohne Angabe `unspecified` — geraten wird nicht: ob die eine IP
+  einer Kamera ihre Steuerung oder ihr Medienweg ist, weiss der Plan nicht.
 
 **LocationFrame**:
 - `id`, `name`, `x`, `y`, `width`, `height`, `color`
@@ -539,7 +553,7 @@ optionales Cloud-Backend (`y-websocket`, Auth/Permissions) bleiben offen.
 `vitest` ist eingerichtet (`npm test` / `npm run test:watch`); dazu kommen
 gezielte Node-Checks (`npm run test:crdt`, `npm run test:signaling`), ein
 UI-Smoke-Skript (`npm run ui:smoke`) und ein headless Drag-/Interaktions-Test
-(`npm run test:drag`, treibt den Renderer via Playwright). Bei ~127.1k LOC
+(`npm run test:drag`, treibt den Renderer via Playwright). Bei ~128.7k LOC
 bleibt der Ausbau der Abdeckung wichtig — empfohlene Schwerpunkte:
 - Snapshot-Tests auf `healProjectPositions` mit echten
   Beispiel-Projekt-JSONs.
@@ -575,3 +589,5 @@ standalone, keine Edits. Wird über `.github/workflows/pages.yml`
 | Neuer Settings-Tab | `src/renderer/components/Settings/tabs/` + Eintrag in `SettingsDialog.tsx` Sidebar |
 | Neues Geheimnis (Token, Key) | `credentialsService.ts` (`keytar`) + eigener IPC-Namensraum — **niemals** ein Feld im Projekt |
 | Neues gestempeltes Dokument | Tabelle in `lib/`, Eintrag in `DOCUMENT_STANDS` (`documentRegistry.ts`), Export via `csvFromTable(..., stamp, docId)` |
+| Alle Adressen eines Geräts lesen | `lib/networkInterfaces.ts#deviceInterfaces` — **nicht** `item.ipAddress` (das ist nur Schnittstelle 0) |
+| CSV lesen | `lib/csvParse.ts#parseCsv` — die eine Stelle; ein zweiter Parser antwortet beim ersten Semikolon im Feld anders |

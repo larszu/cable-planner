@@ -4,6 +4,7 @@ import { useCanvasProjectStore as useProjectStore } from '../../../store/project
 import { useTranslation } from '../../../lib/i18n'
 import { SortableSection } from '../SortableSection'
 import { Icon } from '../../shared/Icon'
+import { ExtraInterfacesPanel } from './ExtraInterfacesPanel'
 import type { EquipmentItem } from '../../../types/equipment'
 
 /**
@@ -125,6 +126,7 @@ export const NetworkAccessSection = ({ equipment }: { equipment: EquipmentItem }
           className="w-full rounded border border-cp-border bg-cp-surface-1 p-2"
         />
       </label>
+      <ExtraInterfacesPanel equipment={equipment} />
     </SortableSection>
   )
 }
