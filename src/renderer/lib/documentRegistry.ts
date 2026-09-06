@@ -19,6 +19,7 @@ import {
 } from './installerLists'
 import { assetRegisterTable } from './assetRegister'
 import { handoverTable } from './handoverPackage'
+import { deliveryTableForProject } from './deliveryParity'
 import type { CsvTable } from './csv'
 
 const ofTable =
@@ -44,6 +45,11 @@ export const DOCUMENT_STANDS: Record<string, (project: CablePlannerProject) => s
   'kabel-schedule': ofTable(cableScheduleTable),
   'asset-register': ofTable(assetRegisterTable),
   uebergabe: ofTable(handoverTable),
+  // Initiative 9 — die Ausspielung. Reproduzierbar, weil ihr Inhalt allein aus
+  // `project.deliveryDestinations` folgt: keine Nutzer-Einstellung beim Export
+  // (anders als `kabel-bom` mit seinem Reserve-Aufschlag) und keine Sprache
+  // (die Tabelle traegt kanonisches Deutsch, siehe `deliveryIssueText`).
+  ausspielung: ofTable(deliveryTableForProject),
 }
 
 /**
@@ -76,6 +82,7 @@ export const DOCUMENT_LABELS: Record<string, string> = {
   'asset-register': 'Asset-Register',
   uebergabe: 'Übergabe-Dokument',
   'kabel-bom': 'Kabel-Stückliste',
+  ausspielung: 'Ausspielung',
 }
 
 /**

@@ -117,7 +117,16 @@ describe('changeImpact — die Vorwärts-Frage', () => {
     const broken = { metadata: { name: 'x' } } as unknown as CablePlannerProject
     const impact = changeImpact(broken, broken)
     expect(impact.documents.filter((d) => d.verdict === 'unknown').length).toBeGreaterThan(1)
-    expect(impact.documents.some((d) => d.verdict === 'unaffected' && d.docId !== 'plan')).toBe(false)
+    // Ausgenommen sind die Ableitungen, die NICHT an `equipment` haengen und
+    // deshalb auch auf diesem Torso ein gueltiges (leeres) Ergebnis liefern.
+    // `plan` war das von Anfang an; `ausspielung` (Initiative 9) kam dazu, weil
+    // ihr Inhalt allein aus `deliveryDestinations` folgt. Beide hier zu
+    // erzwingen hiesse, ein ehrliches „leer" in ein „weiss ich nicht" zu
+    // faelschen -- und genau das wirft dieser Test dem Gegenteil vor.
+    const ohneGeraetebezug = new Set(['plan', 'ausspielung'])
+    expect(
+      impact.documents.some((d) => d.verdict === 'unaffected' && !ohneGeraetebezug.has(d.docId)),
+    ).toBe(false)
     // Zwei verschiedene Gruende fuer dasselbe Urteil — die Meldung darf sie
     // nicht vermischen.
     const reasons = new Set(

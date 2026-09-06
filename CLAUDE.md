@@ -67,13 +67,13 @@ strukturellen Änderungen.** Hier nur das Nötigste zum schnellen Einstieg:
 **IPC:** Alle Channels sind domain-präfixiert (`project:*`, `library:*`,
 `atem:*`, `videohub:*`, `sync:*`, `mobileShare:*`, `credentials:*`, `rentman:*`,
 `netbox:*`, `graphml:*`, `print:*`, `logs:*`, `signaling:*`, `collabDiscovery:*`,
-`documentLog:*`). Definition in `src/main/ipc/<domain>Ipc.ts`,
+`documentLog:*`, `streamKey:*`). Definition in `src/main/ipc/<domain>Ipc.ts`,
 Aufruf via `window.cablePlanner.<domain>.<action>`. Ein Channel = eine Domäne.
 Pfad-Validierung passiert **immer in main**, nie im Renderer.
 
 **State (Zustand, `src/renderer/store/`):**
 - `projectStore.ts` — **Single Source of Truth** für alle Projekt-Daten. Intern
-  in 16 Slices unter `store/slices/` komponiert. Komponenten dürfen Projekt-Daten
+  in 17 Slices unter `store/slices/` komponiert. Komponenten dürfen Projekt-Daten
   nicht lokal duplizieren/cachen.
 - `uiStore.ts` — Viewport, Panels, Editor-Defaults, Geräte-Farben. **Keine**
   Projekt-Daten.
@@ -139,8 +139,11 @@ Pfad-Validierung passiert **immer in main**, nie im Renderer.
   gebunden in `index.css` via `@theme inline`. Sie flippen automatisch im
   Light-Theme. Rohes `slate-*`/Inline-Hex nur noch in Canvas-/Print-Komponenten,
   die über einen `isLight`-Prop themen (EquipmentNode, Rack3DView …).
-- **Externe Tokens** (Rentman) liegen im OS-Credential-Store via `keytar` —
-  niemals loggen oder ins Projekt-File schreiben.
+- **Externe Tokens** (Rentman, NetBox) und die **Stream-Keys der
+  Ausspielziele** liegen im OS-Credential-Store via `keytar` — niemals loggen
+  oder ins Projekt-File schreiben. Das Projekt trägt höchstens die Tatsache,
+  dass eines hinterlegt ist, und die wird beim Laden nachgefragt statt aus der
+  Datei geglaubt: sie gilt für den Rechner, nicht für die Datei.
 
 ## Git-Workflow
 

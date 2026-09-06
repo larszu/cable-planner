@@ -102,6 +102,14 @@ export interface DiscoveredCollabSession {
 }
 
 type CablePlannerApi = {
+  /** Initiative 9 — Stream-Key je Ausspielziel. Der Wert steht NIE im
+   *  Projekt; siehe `types/delivery.ts`. */
+  streamKey: {
+    get: (id: string) => Promise<string | null>
+    has: (id: string) => Promise<boolean>
+    save: (id: string, key: string) => Promise<boolean>
+    delete: (id: string) => Promise<boolean>
+  }
   credentials: {
     getToken: () => Promise<string | null>
     hasToken: () => Promise<boolean>
@@ -534,7 +542,36 @@ const isForbiddenForPath = (error: unknown, path: string): boolean => {
   return error.message.includes('Rentman request failed (403)') && error.message.includes(`on ${path}`)
 }
 
+/** Im Browser gibt es keinen OS-Schluesselbund. Der Stream-Key liegt dann im
+ *  `localStorage` — dieselbe Notloesung, die der Rentman-Token dort seit
+ *  jeher nutzt.
+ *
+ *  Was das ist und was nicht: es haelt die EINE Zusage, auf die es ankommt —
+ *  der Key steht nicht im Projekt und wandert nicht mit der `.avplan`. Es ist
+ *  KEIN Ersatz fuer den Schluesselbund: `localStorage` ist unverschluesselt
+ *  und jedem Skript auf derselben Herkunft zugaenglich. Deshalb ist die
+ *  Desktop-App der vorgesehene Ort fuer echte Keys, und deshalb steht das
+ *  hier statt in einem Kommentar, den niemand liest. */
+const STREAM_KEY_WEB_PREFIX = 'cablePlanner.streamKey.'
+
 const webFallbackApi: CablePlannerApi = {
+  streamKey: {
+    get: async (id: string) => localStorage.getItem(STREAM_KEY_WEB_PREFIX + id),
+    has: async (id: string) => Boolean(localStorage.getItem(STREAM_KEY_WEB_PREFIX + id)),
+    save: async (id: string, key: string) => {
+      const clean = key.trim()
+      if (!clean) {
+        localStorage.removeItem(STREAM_KEY_WEB_PREFIX + id)
+        return false
+      }
+      localStorage.setItem(STREAM_KEY_WEB_PREFIX + id, clean)
+      return true
+    },
+    delete: async (id: string) => {
+      localStorage.removeItem(STREAM_KEY_WEB_PREFIX + id)
+      return true
+    },
+  },
   credentials: {
     getToken: async () => {
       const stored = localStorage.getItem(TOKEN_KEY)

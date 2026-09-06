@@ -23,7 +23,13 @@ export type LoadDropReason =
   | 'duplicate-id'
 
 /** Woher der verworfene Datensatz kam. */
-export type LoadDropKind = 'source-identity'
+export type LoadDropKind =
+  | 'source-identity'
+  /** Initiative 9 — ein Ausspielziel, das die Normalisierung nicht bestanden
+   *  hat. Dieselbe Regel wie bei der Rolle: ein Ziel, das still verschwindet,
+   *  nimmt die Ingest-URL und den Verweis auf seinen Stream-Key mit, und der
+   *  faellt erst am Showtag auf. */
+  | 'delivery-destination'
 
 export interface LoadDrop {
   kind: LoadDropKind
