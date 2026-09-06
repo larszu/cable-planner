@@ -41,6 +41,10 @@ export type LoadDropKind =
    *  bei jeder anderen Sorte: die Vergabe steht im Blatt, das jemand mit ins
    *  Rack nimmt, und eine unlesbare Zeile fiele erst dort auf. */
   | 'multicast-assignment'
+  /** Bedarf 89 — eine Ausweich-Regel ohne Ziel. Sie schuetzt nichts, und sie
+   *  stehenzulassen waere schlimmer als sie zu verwerfen: im Blatt saehe sie
+   *  aus wie ein Sicherheitsnetz. */
+  | 'fallback-rule'
 
 export interface LoadDrop {
   kind: LoadDropKind

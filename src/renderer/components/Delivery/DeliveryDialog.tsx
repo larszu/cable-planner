@@ -29,6 +29,13 @@ import {
   assessArchive,
 } from '../../lib/archiveIsolation'
 import {
+  FALLBACK_FINDING_LABEL,
+  assessFallback,
+  fallbackSkeleton,
+  fallbackTable,
+} from '../../lib/fallbackPlan'
+import type { FallbackRule } from '../../types/fallback'
+import {
   DELIVERY_PLATFORMS,
   DEFAULT_ENCODING,
   platformByKey,
@@ -109,6 +116,11 @@ export const DeliveryDialog = () => {
   // mitreissen koennte, und sie wird an derselben Stelle beantwortet, an der
   // die Encoder benannt werden.
   const archive = useMemo(() => assessArchive(project), [project])
+  // BEDARF 89 — das Sicherheitsnetz. Auch hier: die Frage entsteht erst, wenn
+  // es eine Ausspielung gibt, die geschuetzt werden koennte.
+  const setFallbackPlan = useProjectStore((s) => s.setFallbackPlan)
+  const fallback = useMemo(() => assessFallback(project), [project])
+  const [sceneDraft, setSceneDraft] = useState('')
   const chainById = useMemo(
     () => new Map<string, DeliveryChain>(chains.map((c) => [c.destinationId, c])),
     [chains],
@@ -310,6 +322,55 @@ export const DeliveryDialog = () => {
     )
   }
 
+  // Ein Setter fuer den ganzen Plan (siehe metaSlice): Szenenliste, Waechter
+  // und Regeln haengen aneinander.
+  const patchFallback = (patch: Partial<typeof fallback.plan>) =>
+    setFallbackPlan({ ...fallback.plan, ...patch })
+
+  const addRule = (destinationId: string) => {
+    const id = `fb-${destinationId}`
+    if (fallback.plan.rules.some((r) => r.id === id)) return
+    patchFallback({ rules: [...fallback.plan.rules, { id, destinationId }] })
+  }
+  const patchRule = (id: string, patch: Partial<FallbackRule>) =>
+    patchFallback({
+      rules: fallback.plan.rules.map((r) => (r.id === id ? { ...r, ...patch } : r)),
+    })
+  const removeRule = (id: string) =>
+    patchFallback({ rules: fallback.plan.rules.filter((r) => r.id !== id) })
+
+  // Die Szenenliste wird EINGEFUEGT, nicht gelesen: der Planer oeffnet keine
+  // Szenensammlung. Zeilen- oder kommagetrennt, weil beides aus einem
+  // Encoder-Fenster kommt.
+  const applyScenes = () => {
+    const namen = [
+      ...new Set(
+        sceneDraft
+          .split(/[\n,;]+/)
+          .map((x) => x.trim())
+          .filter(Boolean),
+      ),
+    ]
+    if (!namen.length) return
+    patchFallback({ scenes: namen })
+    setSceneDraft('')
+  }
+
+  const exportFallback = () => {
+    downloadBlob(
+      buildExportFilenameWithSuffix(projectName, 'ausweich-plan', 'csv'),
+      csvFromTable(fallbackTable(project)),
+      'text/csv',
+    )
+  }
+  const exportSkeleton = () => {
+    downloadBlob(
+      buildExportFilenameWithSuffix(projectName, 'ausweich-geruest', 'json'),
+      fallbackSkeleton(project),
+      'application/json',
+    )
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
       <div className="flex max-h-[88vh] w-full max-w-5xl flex-col overflow-hidden rounded-lg border border-cp-border bg-cp-surface-1 shadow-xl">
@@ -447,6 +508,210 @@ export const DeliveryDialog = () => {
                   {archive.findings.map((f, i) => (
                     <li key={`${f.kind}-${i}`} className="text-amber-300/90">
                       <strong>{ARCHIVE_FINDING_LABEL[f.kind]}</strong> — {archiveFindingText(f)}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+
+          {/* BEDARF 89 — das Sicherheitsnetz. Nur sichtbar, wenn es ein Ziel
+              gibt: ohne Ausspielung gibt es nichts zu schützen, und der
+              Abschnitt wäre eine Frage ohne Anlass. */}
+          {list.length > 0 && (
+            <div className="mb-4 rounded border border-cp-border-muted bg-cp-surface-2 p-2.5">
+              <div className="mb-1.5 flex flex-wrap items-center gap-2 text-cp-sm">
+                <span className="font-medium text-cp-text">
+                  {t('delivery.fb.title', 'Ausweichverhalten (Sicherheitsnetz)')}
+                </span>
+                <button
+                  type="button"
+                  onClick={exportFallback}
+                  className="ml-auto flex items-center gap-1 rounded border border-cp-border px-2 py-1 text-cp-sm text-cp-text-secondary hover:text-cp-text"
+                >
+                  <FileText size={13} /> {t('delivery.fb.export', 'Blatt')}
+                </button>
+                <button
+                  type="button"
+                  onClick={exportSkeleton}
+                  title={t(
+                    'delivery.fb.skeletonHint',
+                    'Gerüst zum Abtippen, keine einspielbare Konfiguration — das NOALBS-Schema hängt an deiner Version',
+                  )}
+                  className="flex items-center gap-1 rounded border border-cp-border px-2 py-1 text-cp-sm text-cp-text-secondary hover:text-cp-text"
+                >
+                  <Download size={13} /> {t('delivery.fb.skeleton', 'Gerüst')}
+                </button>
+              </div>
+
+              <p className="mb-2 text-cp-xs text-cp-text-muted">
+                {t(
+                  'delivery.fb.intro',
+                  'Der teure Fehler ist nicht das Netz, das nicht auslöst — es ist das Netz, das grundlos auslöst und die Show auf eine Tafel parkt, während die Strecke läuft. Szenennamen stehen im Encoder, im Wächter und im Kopf des Operators; hier stehen sie einmal, und der Abgleich kostet nichts.',
+                )}
+              </p>
+
+              <div className="mb-2 flex flex-wrap items-end gap-2 text-cp-sm">
+                <label className="flex flex-col gap-0.5">
+                  <span className="text-cp-xs text-cp-text-muted">
+                    {t('delivery.fb.watcher', 'Wächter läuft auf')}
+                  </span>
+                  <select
+                    value={fallback.plan.watcherEquipmentId ?? ''}
+                    onChange={(e) =>
+                      patchFallback({ watcherEquipmentId: e.target.value || undefined })
+                    }
+                    aria-label={t('delivery.fb.watcher', 'Wächter läuft auf')}
+                    className={inputCls}
+                  >
+                    <option value="">{t('delivery.fb.watcherNone', '— nicht benannt —')}</option>
+                    {encoderChoices.map((e) => (
+                      <option key={e.id} value={e.id}>
+                        {e.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="flex flex-1 flex-col gap-0.5">
+                  <span className="text-cp-xs text-cp-text-muted">
+                    {t('delivery.fb.stats', 'Statistik-Quelle, wie der Wächter sie sieht')}
+                  </span>
+                  <input
+                    value={fallback.plan.statsUrl ?? ''}
+                    onChange={(e) => patchFallback({ statsUrl: e.target.value || undefined })}
+                    placeholder="http://10.0.0.20/stat"
+                    aria-label={t('delivery.fb.stats', 'Statistik-Quelle, wie der Wächter sie sieht')}
+                    className={`${inputCls} w-full`}
+                  />
+                </label>
+              </div>
+
+              <div className="mb-2 flex flex-wrap items-end gap-2 text-cp-sm">
+                <label className="flex flex-1 flex-col gap-0.5">
+                  <span className="text-cp-xs text-cp-text-muted">
+                    {format(
+                      t('delivery.fb.scenes', 'Szenen im Encoder ({n} hinterlegt)'),
+                      { n: String(fallback.plan.scenes.length) },
+                    )}
+                  </span>
+                  <input
+                    value={sceneDraft}
+                    onChange={(e) => setSceneDraft(e.target.value)}
+                    placeholder={t(
+                      'delivery.fb.scenesPh',
+                      'Namen einfügen, durch Komma oder Zeilenumbruch getrennt',
+                    )}
+                    aria-label={t('delivery.fb.scenes', 'Szenen im Encoder')}
+                    className={`${inputCls} w-full`}
+                  />
+                </label>
+                <button
+                  type="button"
+                  onClick={applyScenes}
+                  className="rounded border border-cp-border px-2 py-1.5 text-cp-sm text-cp-text-secondary hover:text-cp-text"
+                >
+                  {t('delivery.fb.scenesApply', 'Übernehmen')}
+                </button>
+              </div>
+              {fallback.plan.scenes.length > 0 && (
+                <div className="mb-2 text-cp-xs text-cp-text-faint">
+                  {fallback.plan.scenes.join(' · ')}
+                </div>
+              )}
+
+              <ul className="flex flex-col gap-1.5">
+                {list.map((d) => {
+                  const rule = fallback.plan.rules.find((r) => r.destinationId === d.id)
+                  if (!rule) {
+                    return (
+                      <li key={d.id} className="flex items-center gap-2 text-cp-xs">
+                        <span className="flex-1 text-cp-text-muted">{d.name}</span>
+                        <button
+                          type="button"
+                          onClick={() => addRule(d.id)}
+                          className="rounded border border-cp-border px-2 py-0.5 text-cp-text-secondary hover:text-cp-text"
+                        >
+                          <Plus size={11} className="inline" />{' '}
+                          {t('delivery.fb.protect', 'Absichern')}
+                        </button>
+                      </li>
+                    )
+                  }
+                  return (
+                    <li
+                      key={d.id}
+                      className="rounded border border-cp-border-muted bg-cp-surface-3 p-2"
+                    >
+                      <div className="mb-1 flex items-center gap-2 text-cp-sm">
+                        <span className="flex-1 font-medium text-cp-text">{d.name}</span>
+                        <button
+                          type="button"
+                          onClick={() => removeRule(rule.id)}
+                          aria-label={t('delivery.fb.remove', 'Regel entfernen')}
+                          className="text-cp-text-muted hover:text-cp-danger"
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
+                      <div className="flex flex-wrap gap-2 text-cp-xs">
+                        {(
+                          [
+                            ['sceneNormal', t('delivery.fb.sceneNormal', 'Normalbetrieb')],
+                            ['sceneLow', t('delivery.fb.sceneLow', 'Niedrige Bitrate')],
+                            ['sceneOffline', t('delivery.fb.sceneOffline', 'Offline')],
+                          ] as const
+                        ).map(([feld, label]) => (
+                          <label key={feld} className="flex flex-col gap-0.5">
+                            <span className="text-cp-text-muted">{label}</span>
+                            <input
+                              value={rule[feld] ?? ''}
+                              onChange={(e) => patchRule(rule.id, { [feld]: e.target.value || undefined })}
+                              aria-label={`${d.name} — ${label}`}
+                              className={`${inputCls} w-36`}
+                            />
+                          </label>
+                        ))}
+                        <label className="flex flex-col gap-0.5">
+                          <span className="text-cp-text-muted">
+                            {t('delivery.fb.low', 'Schwelle niedrig')}
+                          </span>
+                          <input
+                            type="number"
+                            min={0}
+                            value={rule.lowKbps ?? ''}
+                            onChange={(e) =>
+                              patchRule(rule.id, { lowKbps: Number(e.target.value) || undefined })
+                            }
+                            aria-label={`${d.name} — ${t('delivery.fb.low', 'Schwelle niedrig')}`}
+                            className={`${inputCls} w-24`}
+                          />
+                        </label>
+                        <label className="flex flex-col gap-0.5">
+                          <span className="text-cp-text-muted">
+                            {t('delivery.fb.offline', 'Schwelle offline')}
+                          </span>
+                          <input
+                            type="number"
+                            min={0}
+                            value={rule.offlineKbps ?? ''}
+                            onChange={(e) =>
+                              patchRule(rule.id, { offlineKbps: Number(e.target.value) || undefined })
+                            }
+                            aria-label={`${d.name} — ${t('delivery.fb.offline', 'Schwelle offline')}`}
+                            className={`${inputCls} w-24`}
+                          />
+                        </label>
+                      </div>
+                    </li>
+                  )
+                })}
+              </ul>
+
+              {fallback.findings.length > 0 && (
+                <ul className="mt-2 flex flex-col gap-1 text-cp-xs">
+                  {fallback.findings.map((f, i) => (
+                    <li key={`${f.kind}-${i}`} className="text-amber-300/90">
+                      <strong>{FALLBACK_FINDING_LABEL[f.kind]}</strong> — {f.text}
                     </li>
                   ))}
                 </ul>

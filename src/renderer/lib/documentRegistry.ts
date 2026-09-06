@@ -27,6 +27,7 @@ import { buildPtpPlan, ptpTable } from './ptpPlan'
 import { crewSheetTableForProject } from './crewNetworkSheet'
 import { spectrumTableForProject } from './spectrumPlan'
 import { multicastTableForProject } from './multicastPlan'
+import { fallbackTable } from './fallbackPlan'
 import type { CsvTable } from './csv'
 
 const ofTable =
@@ -98,6 +99,10 @@ export const DOCUMENT_STANDS: Record<string, (project: CablePlannerProject) => s
   // sich mit jeder Umformulierung aendert, meldete jedes gedruckte Exemplar
   // als veraltet.
   'multicast-plan': ofTable(multicastTableForProject),
+  // Bedarf 89 — das Sicherheitsnetz als Blatt mit Stand. Reproduzierbar: der
+  // Inhalt folgt allein aus den Regeln und den Zielen. Die BEFUNDE stehen
+  // nicht drin -- sie tragen Fliesstext.
+  'ausweich-plan': ofTable(fallbackTable),
 }
 
 /**
@@ -165,6 +170,7 @@ export const DOCUMENT_LABELS: Record<string, string> = {
   'crew-netz': 'Netz-Merkblatt (Crew)',
   'spektrum-plan': 'Spektrum-Plan',
   'multicast-plan': 'Multicast-Adressplan',
+  'ausweich-plan': 'Ausweich-Plan (Sicherheitsnetz)',
   'videohub-labels': 'Videohub-Labels',
   'atem-mv-layout': 'Multiviewer-Layout',
   'switch-port-karte': 'Switch-Port-Karte',

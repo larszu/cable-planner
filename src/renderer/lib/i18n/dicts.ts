@@ -3211,6 +3211,7 @@ export const en: Dict = {
   'app.loadReport.deliveryDestination': 'Delivery destination',
   'app.loadReport.venueAnswer': 'Venue IT answer',
   'app.loadReport.multicastAssignment': 'Multicast assignment',
+  'app.loadReport.fallbackRule': 'Fallback rule',
   'app.loadReport.duplicateId': 'duplicate id, the first entry wins',
   'app.loadReport.missingRequired': 'required field missing (name)',
   'app.loadReport.hint': 'Devices that pointed at these roles lost their assignment — including the TSL address used for tally. Saving overwrites the file with this state.',
@@ -4254,6 +4255,27 @@ export const en: Dict = {
   'analysis.crew.title': 'Network briefing sheet for the crew',
   'analysis.crew.ask': '{n} points to settle on site',
   'analysis.crew.export': 'Crew network sheet',
+  // Bedarf 89 — das Sicherheitsnetz.
+  'delivery.fb.title': 'Fallback behaviour (safety net)',
+  'delivery.fb.intro':
+    'The expensive failure is not the net that never fires \u2014 it is the net that fires for no reason and parks the show on a slate while the stream is fine. Scene names live in the encoder, in the watchdog and in the operator\u2019s head; here they live once, and comparing them costs nothing.',
+  'delivery.fb.export': 'Sheet',
+  'delivery.fb.skeleton': 'Skeleton',
+  'delivery.fb.skeletonHint':
+    'A skeleton to copy by hand, not a config to load \u2014 the NOALBS schema depends on the version you run',
+  'delivery.fb.watcher': 'Watchdog runs on',
+  'delivery.fb.watcherNone': '\u2014 not stated \u2014',
+  'delivery.fb.stats': 'Stats source, as the watchdog sees it',
+  'delivery.fb.scenes': 'Scenes in the encoder ({n} on file)',
+  'delivery.fb.scenesPh': 'Paste names, separated by comma or newline',
+  'delivery.fb.scenesApply': 'Apply',
+  'delivery.fb.protect': 'Protect',
+  'delivery.fb.remove': 'Remove rule',
+  'delivery.fb.sceneNormal': 'Normal',
+  'delivery.fb.sceneLow': 'Low bitrate',
+  'delivery.fb.sceneOffline': 'Offline',
+  'delivery.fb.low': 'Low threshold',
+  'delivery.fb.offline': 'Offline threshold',
   // Bedarf 72 — der Multicast-Adressplan.
   'analysis.mc.title': 'Multicast address plan',
   'analysis.mc.intro':
