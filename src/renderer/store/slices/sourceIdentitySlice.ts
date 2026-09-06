@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { scheduleProjectAutosave } from '../projectAutosave'
 import type { ProjectState } from '../projectStore'
 import type { SourceIdentity } from '../../types/sourceIdentity'
+import { renameRefusal } from '../../lib/renameImpact'
 
 /**
  * ADR-001, Inkrement 2 — Signalquellen-Rollen.
@@ -20,6 +21,7 @@ export type SourceIdentitySlice = Pick<
   ProjectState,
   | 'addSourceIdentity'
   | 'updateSourceIdentity'
+  | 'renameSourceIdentity'
   | 'removeSourceIdentity'
   | 'bindEquipmentToSourceIdentity'
 >
@@ -58,17 +60,43 @@ export const createSourceIdentitySlice: StateCreator<
     set((state) => {
       const existing = state.project.sourceIdentities ?? []
       if (!existing.some((s) => s.id === id)) return {}
-      const next = existing.map((s) => {
-        if (s.id !== id) return s
-        const merged = { ...s, ...patch, id: s.id }
-        // Ein leerer Name macht die Rolle unzuweisbar — der alte bleibt.
-        if (typeof merged.name === 'string' && merged.name.trim() === '') merged.name = s.name
-        return merged
-      })
+      // `name` steht nicht im Typ des Patches — umbenannt wird ueber
+      // `renameSourceIdentity`. Sollte ein ungetypter Aufrufer ihn doch
+      // mitschicken, faellt er hier weg, statt an der Pruefung vorbeizukommen.
+      const { name: _verworfen, ...rest } = patch as Partial<SourceIdentity>
+      const next = existing.map((s) => (s.id === id ? { ...s, ...rest, id: s.id } : s))
       const updated = { ...state.project, sourceIdentities: next }
       scheduleProjectAutosave(updated)
       return { project: updated }
     }),
+  /**
+   * BEDARF 101 — die eine Aenderung, mit einem Grund statt eines Schweigens.
+   *
+   * Der Beleg (`bitfocus/companion#1266`, `#4324`) beschreibt das Nachtippen
+   * auf jedem Knopf. Hier folgt jedes abgeleitete Blatt der Rolle von selbst,
+   * weil es ihren Namen ueber `deriveLabels` nachliest — diese Funktion ist
+   * die einzige Stelle, an der er sich aendert.
+   *
+   * Abgelehnt wird mit `RenameRefusal` und nicht mit `false`: „name-taken"
+   * und „empty-name" verlangen verschiedene Antworten des Bedienenden, und
+   * ein Boolean zwaenge die Oberflaeche, den Grund zu erraten.
+   */
+  renameSourceIdentity: (id, newName) => {
+    let absage: ReturnType<typeof renameRefusal> = null
+    set((state) => {
+      const existing = state.project.sourceIdentities ?? []
+      absage = renameRefusal(existing, id, newName)
+      if (absage) return {}
+      const trimmed = newName.trim()
+      const updated = {
+        ...state.project,
+        sourceIdentities: existing.map((s) => (s.id === id ? { ...s, name: trimmed } : s)),
+      }
+      scheduleProjectAutosave(updated)
+      return { project: updated }
+    })
+    return absage ?? undefined
+  },
   removeSourceIdentity: (id) =>
     set((state) => {
       const existing = state.project.sourceIdentities ?? []
