@@ -42,6 +42,7 @@ import type { CsvCell, CsvTable } from './csv'
 import { topLayer, detectLayerForConnector } from './cableLayers'
 import { portDisplayLabel } from './portLabel'
 import { fitToTarget, LABEL_TARGETS } from './labelTargets'
+import { channelName, venueNumber } from './channelIdentity'
 
 /** Eine Zeile der EINEN Kanalliste. Alle fuenf Sichten schneiden hieraus. */
 export interface ChannelRow {
@@ -126,28 +127,51 @@ export function buildChannelList(equipment: EquipmentItem[], cables: Cable[]): C
  * Was im Rider steht: Kanal, was gespielt wird, womit abgenommen. Kein
  * Stagebox-Port, keine Kabellaenge — das interessiert dort niemanden, und eine
  * Spalte, die niemand liest, macht das Blatt unlesbar.
+ *
+ * BEDARF 110 — hier stehen ausschliesslich Angaben, die der BAND gehoeren
+ * (`columnOwner` in `channelIdentity.ts` sagt fuer jedes Feld, wem es
+ * gehoert). Die interne Kanalnummer bleibt, denn dies ist die eigene Liste
+ * der Band; draussen faellt sie weg (Bedarf 111, `venueView`).
+ *
+ * Die Spalte hiess „Abnahme" und zeigte den Port der Quelle — die XLR-Buchse
+ * am Mikrofon. Das ist keine Abnahme, und in einem Rider ist genau diese
+ * Verwechslung der gemeldete Fehler: Infrastruktur in der Mikrofon-Spalte.
+ * Womit abgenommen wird, steht in der Art (`sourceKind`); der Port der Quelle
+ * heisst jetzt so, wie er ist.
  */
 export function bandView(rows: ChannelRow[]): CsvTable {
   return {
-    headers: ['Ch', 'Quelle', 'Art', 'Abnahme'],
-    rows: rows.map((r): CsvCell[] => [r.ch, r.source, r.sourceKind ?? '', r.sourcePort]),
+    headers: ['Ch', 'Name', 'Abnahme', 'Anschluss an der Quelle'],
+    rows: rows.map((r): CsvCell[] => [r.ch, channelName(r), r.sourceKind ?? '', r.sourcePort]),
   }
 }
 
 /**
  * SICHT 2 — das Haus.
  *
- * Die Patch-Sicht: welcher Kanal auf welchen Port, mit welchem Stecker und
- * welcher Laenge. Das ist die Liste, die beim Abstecken in der Hand liegt.
+ * Die Patch-Sicht: welcher Port, mit welchem Stecker und welcher Laenge. Das
+ * ist die Liste, die beim Abstecken in der Hand liegt.
+ *
+ * BEDARF 111 — sie fuehrte bis hierher die interne Kanalnummer UND den Port
+ * nebeneinander:
+ *
+ *   > the channel number is internal to the band and meaningless to venue
+ *   > staff; SHOWING BOTH IMPLIES BOTH MATTER
+ *
+ * Zwei Nummern nebeneinander sind keine Vollstaendigkeit, sondern eine
+ * Aufforderung zum Abgleich — und der Haustechniker gleicht dann eine Nummer
+ * ab, die auf seinem Blech nirgends steht. Es bleibt der Port. Wo keiner
+ * gepflegt ist, springt die interne Nummer ein, aber BENANNT
+ * („Ch 7 (kein Port)"): die Regel dafuer steht in `venueNumber`, damit sie
+ * nicht in jeder Sicht neu erfunden wird.
  */
 export function venueView(rows: ChannelRow[]): CsvTable {
   return {
-    headers: ['Ch', 'Quelle', 'Ziel', 'Port', 'Stecker', 'Laenge (m)'],
+    headers: ['Port', 'Name', 'Ziel', 'Stecker', 'Laenge (m)'],
     rows: rows.map((r): CsvCell[] => [
-      r.ch,
-      r.source,
+      venueNumber(r),
+      channelName(r),
       r.destination,
-      r.destinationPort,
       r.connector,
       r.lengthM ?? '',
     ]),
@@ -163,10 +187,10 @@ export function venueView(rows: ChannelRow[]): CsvTable {
  */
 export function stageView(rows: ChannelRow[]): CsvTable {
   return {
-    headers: ['Ch', 'Quelle', 'X', 'Y'],
+    headers: ['Ch', 'Name', 'X', 'Y'],
     rows: rows.map((r): CsvCell[] => [
       r.ch,
-      r.source,
+      channelName(r),
       r.x === undefined ? '' : Math.round(r.x),
       r.y === undefined ? '' : Math.round(r.y),
     ]),
@@ -193,11 +217,17 @@ export function consoleView(rows: ChannelRow[]): CsvTable {
   return {
     headers: ['Ch', 'Name', 'Gekuerzt'],
     rows: rows.map((r): CsvCell[] => {
-      const fitted = fitToTarget(r.source, LABEL_TARGETS['dante-device'])
+      // BEDARF 113 — der Name kommt aus `channelName` und nicht roh aus der
+      // Quelle. Eine blosse Nummer ist an dieser Stelle kein Name: sie steht
+      // schon in der Ch-Spalte daneben, und am Pult, im Multitrack und auf
+      // dem Etikett sagt sie nichts. Genau das beschreibt der Beleg als
+      // Verlust — gruene Haken im Dante Controller, und niemand weiss, welcher
+      // Kanal gemeint ist.
+      const name = channelName(r)
+      const fitted = fitToTarget(name, LABEL_TARGETS['dante-device'])
       // `truncated` UND die nicht transportierbaren Zeichen: ein Name, der nur
       // seine Umlaute verliert, ist nicht gekuerzt und trotzdem ein anderer.
-      const hinweis =
-        fitted.truncated || fitted.value !== fitted.raw ? `aus: ${r.source}` : ''
+      const hinweis = fitted.truncated || fitted.value !== fitted.raw ? `aus: ${name}` : ''
       return [r.ch, fitted.value, hinweis]
     }),
   }
