@@ -30,6 +30,11 @@ import { NewRentmanDeviceWizard, type UnknownCandidate } from './NewRentmanDevic
 import { ProjectSelector } from './ProjectSelector'
 import { TemplateMergeDialog } from '../Library/TemplateMergeDialog'
 
+import { reconcileErp, erpReconcileTable } from '../../lib/erpReconcile'
+import { deriveDemand } from '../../lib/inventoryCoverage'
+import { zusatzBedarf } from '../../lib/planDemandExtras'
+import { csvFromTable } from '../../lib/documentStamp'
+import { downloadBlob } from '../../lib/downloadBlob'
 import {
   mapProjects, mapEquipment, isRentmanPhysicalFlag,
   autoDetectCategory, loadRentmanCatMap, saveRentmanCatMap, detectCableRows,
@@ -79,6 +84,25 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
   const [pickerOpen, setPickerOpen] = useState(false)
   const [selectedProjectId, setSelectedProjectId] = useState('')
   const [items, setItems] = useState<RentmanEquipment[]>([])
+
+  // Bedarf 28 — Plan gegen Reservierung. Der Plan-Bedarf ist derselbe, den
+  // die Stueckliste benutzt (samt Kabeln und Adaptern aus Bedarf 17): zwei
+  // Bedarfsbegriffe nebeneinander waeren zwei Wahrheiten.
+  const drumKit = useProjectStore((s) => s.project.drumKit)
+  const wirelessRig = useProjectStore((s) => s.project.wirelessRig)
+  const planCables = useProjectStore((s) => s.project.cables)
+  const erpReport = useMemo(
+    () =>
+      reconcileErp(
+        deriveDemand(
+          projectEquipment,
+          zusatzBedarf({ drumKit, wirelessRig, cables: planCables, equipment: projectEquipment }),
+        ),
+        projectEquipment,
+        items,
+      ),
+    [projectEquipment, drumKit, wirelessRig, planCables, items],
+  )
   // #335 — Kombinationen (Sets), die als Rack importiert werden sollen.
   const [rackSetIds, setRackSetIds] = useState<Set<string>>(new Set())
   const [selectedCategories, setSelectedCategories] = useState<Set<string>>(new Set())
@@ -1476,6 +1500,53 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
         {loading && <div className="mb-2 text-cp-base text-cp-text-secondary">{t('rentman.import.loading', 'Loading…')}</div>}
         {error && <div className="mb-2 rounded bg-red-900/50 p-2 text-cp-base text-red-100">{error}</div>}
         {warning && <div className="mb-2 rounded bg-amber-900/40 p-2 text-cp-base text-amber-100">{warning}</div>}
+
+        {/* Bedarf 28 — der Abgleich in BEIDE Richtungen. Ein reiner Import
+            zeigt nur, was die Reservierung hat; die Frage des Projektleiters
+            ist aber „was steht in meinem Plan, das die Reservierung NICHT
+            hat" — und die Gegenrichtung: was ist reserviert und wird nicht
+            gebraucht. */}
+        {items.length > 0 && erpReport.rows.length > 0 && (
+          <div className="mb-2 rounded border border-cp-border bg-cp-surface-2 p-2 text-cp-xs">
+            <div className="mb-1 flex items-center justify-between">
+              <span className="font-medium text-cp-text">
+                {t('rentman.diff.title', 'Plan gegen Reservierung')}
+              </span>
+              <button
+                type="button"
+                onClick={() =>
+                  downloadBlob(
+                    'plan-gegen-reservierung.csv',
+                    csvFromTable(erpReconcileTable(erpReport)),
+                    'text/csv',
+                  )
+                }
+                className="rounded border border-cp-border px-2 py-0.5 text-cp-text-secondary hover:text-cp-text"
+              >
+                CSV
+              </button>
+            </div>
+            <div className="text-cp-text-secondary">
+              {format(
+                t(
+                  'rentman.diff.summary',
+                  '{plan} nur im Plan · {erp} nur reserviert · {qty} Mengen weichen ab',
+                ),
+                { plan: erpReport.onlyInPlan, erp: erpReport.onlyInErp, qty: erpReport.differing },
+              )}
+            </div>
+            {erpReport.ignored.length > 0 && (
+              // Die weggelassenen Zeilen werden GENANNT. Eine Reservierung mit
+              // vierzig Zeilen, von denen zwoelf stillschweigend fehlen,
+              // laesst niemanden nachvollziehen, warum die Summe nicht stimmt.
+              <div className="mt-0.5 text-cp-text-faint">
+                {format(t('rentman.diff.ignored', '{n} Zeilen nicht gezählt (Kommentare, Set-Inhalte, gestrichene)'), {
+                  n: erpReport.ignored.length,
+                })}
+              </div>
+            )}
+          </div>
+        )}
 
         {items.length > 0 && (
           <>

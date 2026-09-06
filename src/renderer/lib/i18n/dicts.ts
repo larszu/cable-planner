@@ -1926,6 +1926,13 @@ export const en: Dict = {
   'rentman.import.loadingShort': 'Loading…',
   'rentman.import.reloadSync': '↻ Reload & sync',
   'rentman.import.categories': 'Categories:',
+
+  /* Bedarf 28 — der Abgleich in beide Richtungen. */
+  'rentman.diff.title': 'Plan vs. reservation',
+  // {plan}, {erp} und {qty} werden vom Aufrufer ersetzt.
+  'rentman.diff.summary': '{plan} only in the plan \u00b7 {erp} only reserved \u00b7 {qty} quantities differ',
+  // {n} wird vom Aufrufer ersetzt.
+  'rentman.diff.ignored': '{n} lines not counted (comments, set contents, cancelled)',
   'rentman.import.categoriesAll': 'All',
   'rentman.import.status.linkedTitle':
     'Items with identical Rentman equipment ID in the local library — silent re-import, ports + custom data are preserved.',
