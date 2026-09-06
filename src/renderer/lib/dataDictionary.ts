@@ -51,6 +51,13 @@ export const UNDESCRIBED = 'nicht beschrieben'
  * Datei, ohne dass sich am Plan etwas geaendert haette.
  */
 export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
+  // Bedarf 136 — der Quittungs-Block (`lib/handoverSignature.ts`).
+  Vorgang: 'Welches Bein des Ausgabe-Vorgangs quittiert wird: die Ausgabe oder die Rückgabe.',
+  Datum:
+    'Der Tag, auf den sich die Zeile bezieht — bei einer geleisteten Unterschrift ihr Datum, sonst der Tag der Ausgabe bzw. der Rückgabe.',
+  Bemerkung: 'Was beim Unterschreiben gesagt wurde („unter Vorbehalt“, „Deckel fehlt“).',
+  Unterschrift:
+    'Die Strichlinie für den Stift. Sie steht nur da, wo NICHT unterschrieben ist — wo jemand quittiert hat, steht sein Name in der Spalte „Name“, und die Anwendung führt KEIN Bild der Unterschrift.',
   // Bedarf 126 — das As-Built-Blatt (`lib/asBuilt.ts`).
   Gegenstand:
     'Worum die Zeile geht — ein Gerät, ein Anschluss oder ein Ausgang, so benannt, wie er im Plan heißt.',

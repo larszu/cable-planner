@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { v4 as uuidv4 } from 'uuid'
 import { STORAGE_KEYS } from '../lib/storageKeys'
+import { signHandover } from '../lib/handoverSignature'
 import type { CheckoutDamage, CheckoutLine, CheckoutRecord } from '../types/checkout'
 import {
   buildCheckout,
@@ -119,6 +120,21 @@ interface CheckoutState {
     /** Schaeden, beim Einchecken aufgenommen (Bedarf 68). */
     damaged?: CheckoutDamage[],
   ) => void
+  /**
+   * BEDARF 136 — quittieren. Liefert den Grund, wenn nicht quittiert wurde:
+   * „schon unterschrieben" und „noch nicht zurueck" verlangen verschiedene
+   * Antworten des Bedienenden, und ein wortloses Nichts ist von einem
+   * kaputten Programm nicht zu unterscheiden.
+   *
+   * Die Uhr wird HIER genommen, weil hier die Unterschrift geleistet wird —
+   * `lib/handoverSignature.ts` bleibt rein.
+   */
+  sign: (
+    recordId: string,
+    leg: import('../lib/handoverSignature').HandoverLeg,
+    name: string,
+    note?: string,
+  ) => import('../lib/handoverSignature').SignatureRefusal | 'unknown-record' | undefined
   /** Einen Beleg loeschen (Fehleingabe). Die Historie hat sonst kein Ventil. */
   removeRecord: (recordId: string) => void
 }
@@ -157,6 +173,30 @@ export const useCheckoutStore = create<CheckoutState>((set, get) => ({
       persist(records)
       return { records }
     }),
+
+  sign: (recordId, leg, name, note) => {
+    let absage: ReturnType<CheckoutState['sign']>
+    set((state) => {
+      const vorhanden = state.records.find((r) => r.id === recordId)
+      if (!vorhanden) {
+        absage = 'unknown-record'
+        return {}
+      }
+      const gesetzt = signHandover(vorhanden, leg, {
+        name,
+        at: new Date().toISOString(),
+        ...(note ? { note } : {}),
+      })
+      if ('refusal' in gesetzt) {
+        absage = gesetzt.refusal
+        return {}
+      }
+      const records = state.records.map((r) => (r.id === recordId ? gesetzt.record : r))
+      persist(records)
+      return { records }
+    })
+    return absage
+  },
 
   removeRecord: (recordId) =>
     set((state) => {

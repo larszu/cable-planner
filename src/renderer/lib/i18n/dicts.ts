@@ -3490,6 +3490,16 @@ export const en: Dict = {
   'channelList.view.stage': 'Stage (position)',
   'channelList.view.console': 'Console (names)',
   'channelList.view.monitor': 'Monitor paths',
+  // Bedarf 136 — eine Unterschrift je Container, auf BEIDEN Beinen.
+  'handover.signOut': 'Sign out',
+  'handover.signIn': 'Counter-sign return',
+  'handover.askOut': 'Handover signed by:',
+  'handover.askIn': 'Return counter-signed by:',
+  'handover.state.both': 'signed on both legs',
+  'handover.state.out-only': 'only handover signed',
+  'handover.state.in-only': 'only return signed',
+  'handover.state.none': 'not signed',
+  'inventory.checkout.signState': 'Signature block to print (both legs)',
   // Bedarf 126 — „wie geplant" gegen „wie gebaut".
   'asBuilt.title': 'As-built sheet (as planned / as built)',
   'asBuilt.count': '{verified} of {total} entries verified',

@@ -51,7 +51,15 @@ import type {
 } from '../../types/inventory'
 import { FAULT_SERVICE_LABEL } from '../../types/inventory'
 import { affectedServices, openFaultsOf } from '../../lib/faultHistory'
+import { promptDialog } from '../../lib/promptDialog'
 import { useCheckoutStore } from '../../store/checkoutStore'
+import {
+  SIGNATURE_REFUSAL_LABEL,
+  SIGNATURE_STATE_LABEL,
+  handoverSignatureTable,
+  signatureState,
+  type HandoverLeg,
+} from '../../lib/handoverSignature'
 import { ownershipNote, overdueSubhire, subhireStatus } from '../../lib/ownership'
 import type { CheckoutDamage, CheckoutRecord } from '../../types/checkout'
 import { damageEntries, damageTable, damageTally } from '../../lib/damageRegister'
@@ -2000,6 +2008,9 @@ const CheckoutTab = () => {
   const checkOut = useCheckoutStore((s) => s.checkOut)
   const checkIn = useCheckoutStore((s) => s.checkIn)
   const removeRecord = useCheckoutStore((s) => s.removeRecord)
+  // BEDARF 136 — quittieren, beide Beine.
+  const sign = useCheckoutStore((s) => s.sign)
+  const [signRefusal, setSignRefusal] = useState<string | null>(null)
 
   const [nodeId, setNodeId] = useState('')
   const [to, setTo] = useState('')
@@ -2236,6 +2247,62 @@ const CheckoutTab = () => {
                     >
                       {t('inventory.checkout.sheet', 'Schein')}
                     </button>
+                    {/* BEDARF 136 — die Quittung, und zwar auf BEIDEN Beinen.
+                        „check-in has no signature at all, so the return leg
+                        has no counter-signed evidence when a dispute arises
+                        weeks later" (snipe-it#19070/#19114). Das Blatt traegt
+                        beide Zeilen; hier wird festgehalten, WER und WANN. */}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        csv(`quittung-${r.nodeLabel}.csv`, handoverSignatureTable(r))
+                      }
+                      className="mr-2 text-cp-text-secondary hover:text-cp-text"
+                      title={t(
+                        'inventory.checkout.signState',
+                        'Quittungs-Block zum Ausdrucken (beide Beine)',
+                      )}
+                    >
+                      {t(`handover.state.${signatureState(r)}`, SIGNATURE_STATE_LABEL[signatureState(r)])}
+                    </button>
+                    {signRefusal && (
+                      <span className="mr-2 text-cp-danger">{signRefusal}</span>
+                    )}
+                    {(['out', 'in'] as HandoverLeg[]).map((leg) => {
+                      const schon = leg === 'out' ? r.out.signature : r.in?.signature
+                      if (schon) return null
+                      // Die Rueckgabe laesst sich erst gegenzeichnen, wenn sie
+                      // stattgefunden hat — sonst quittierte jemand etwas, das
+                      // noch im Truck liegt.
+                      if (leg === 'in' && !r.in) return null
+                      return (
+                        <button
+                          key={leg}
+                          type="button"
+                          onClick={async () => {
+                            const name = (
+                              await promptDialog(
+                                leg === 'out'
+                                  ? t('handover.askOut', 'Ausgabe quittiert von:')
+                                  : t('handover.askIn', 'Rückgabe gegengezeichnet von:'),
+                              )
+                            )?.trim()
+                            if (!name) return
+                            const absage = sign(r.id, leg, name)
+                            setSignRefusal(
+                              absage && absage !== 'unknown-record'
+                                ? SIGNATURE_REFUSAL_LABEL[absage]
+                                : null,
+                            )
+                          }}
+                          className="mr-2 text-cp-text-secondary hover:text-cp-text"
+                        >
+                          {leg === 'out'
+                            ? t('handover.signOut', 'Ausgabe quittieren')
+                            : t('handover.signIn', 'Rückgabe gegenzeichnen')}
+                        </button>
+                      )
+                    })}
                     {/* Bedarf 68: der Schaden wird aufgenommen, BEVOR
                         zurueckgebucht wird — danach ist der Beleg zu, und ein
                         Beleg darf nicht nachtraeglich anders lauten. */}
