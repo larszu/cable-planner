@@ -98,6 +98,9 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   'Bezug im Plan':
     'Woran die Kostenposition im Plan hängt — ein Gerät, ein Ausspielziel, oder ausdrücklich nichts (Fahrt, Personal).',
   Ch: 'Die Kanalnummer am Pult.',
+  'Ch (Pult)': 'Die Kanalnummer, die in der Szenendatei des Pults steht.',
+  'Ch (Plan)':
+    'Die Kanalnummer der Kanalliste aus dem Plan. „nicht zugeordnet" heißt: dieser Pult-Kanal findet im Plan keine Entsprechung.',
   Code: 'Der Etiketten- oder Barcode, mit dem die Einheit gescannt wird.',
   Container: 'Der Container (Case, Kiste), zu dem diese Zeile gehört.',
   Dienste:
@@ -115,6 +118,8 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   'Etiketten-Code': 'Der aufgeklebte Code, unter dem die Einheit gescannt wird.',
   'Fehler gesamt':
     'Alle je gemeldeten Fehler an dieser Einheit, auch die behobenen. Die Zahl daneben zählt nur die offenen.',
+  Farbe:
+    'Die Farbe des Kanals am Pult. Sie ist dort die Gruppierung — Drums rot, Vocals gelb.',
   Feld: 'Das benannte Feld des Übergabe-Dokuments.',
   Fluss: 'Ein einzelner Sende-Strom, aus dem Kabelgraph abgeleitet (Gerät und Port).',
   'Frage an das Haus':
@@ -158,8 +163,10 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   Menge: 'Die Stückzahl dieser Position.',
   Mischer: 'Der Bildmischer, auf den sich die Eingangsnummer bezieht.',
   Modell: 'Der Gerätetyp — nicht die einzelne Einheit.',
+  Nachher: 'Der Stand nach dem zweiten Import.',
   Name: 'Der Name, unter dem der Datensatz im Plan geführt wird.',
   'Neuer Name': 'Der Name, den die Regel für dieses Gerät ergibt.',
+  'Name (Pult)': 'Der Name, den jemand am Pult eingetippt hat.',
   'Niedrige Bitrate': 'Die Szene, auf die bei niedriger Bitrate geschaltet werden soll.',
   Normalbetrieb: 'Die Szene für den Normalbetrieb — der Rückweg aus der Ausweichszene.',
   Notiz: 'Freitext zu diesem Ziel.',
@@ -181,6 +188,7 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   Punkt: 'Der Punkt des Anforderungsblatts, auf den sich die Zeile bezieht.',
   Quelle:
     'Woher das Signal oder die Angabe kommt — je nach Blatt das speisende Gerät, der Kanal oder die Fundstelle.',
+  'Quelle (Plan)': 'Die Quelle, die der Plan für den zugeordneten Kanal führt.',
   Reservierung: 'Die Menge, die im Warenwirtschaftssystem reserviert ist.',
   Rolle: 'Wofür das Gerät oder die Schnittstelle in diesem Zusammenhang steht.',
   'Schätzung': 'Der geschätzte Betrag dieser Position.',
@@ -199,6 +207,7 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   Stecker: 'Der Steckertyp an diesem Ende.',
   'Stream-Key':
     'Nur der VERWEIS auf den Schlüsselbund-Eintrag, nie der Wert. Ein Blatt geht per Mail.',
+  Stumm: 'Ob der Kanal stummgeschaltet gespeichert wurde.',
   Text: 'Der Klartext dieser Zeile.',
   Thumbnail: 'Der Dateiname des Vorschaubilds — das Bild selbst steckt nicht im Projekt.',
   Titel: 'Der Titel, unter dem die Veranstaltung läuft.',
@@ -208,6 +217,7 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   'UMD-Adresse': 'Die TSL-Adresse, unter der der Multiviewer diese Quelle beschriftet.',
   Video: 'Die geplanten Video-Parameter des Ziels.',
   VLAN: 'Das VLAN, in dem die Schnittstelle liegt.',
+  Vorher: 'Der Stand beim ersten Import.',
   Vorgefunden: 'Was vor Ort tatsächlich angetroffen wurde — die Ist-Seite des Abgleichs.',
   Wann: 'Wann die Angabe gemacht oder die Antwort gegeben wurde.',
   Was: 'Worum es in dieser Zeile geht.',

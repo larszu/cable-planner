@@ -3491,6 +3491,20 @@ export const en: Dict = {
   'channelList.view.console': 'Console (names)',
   'channelList.view.monitor': 'Monitor paths',
   'channelList.export': '🎚 Channel list',
+  // Bedarf 92 — die Szenendatei des Pults lesen und zwei Staende vergleichen.
+  'scene.import': '\u{1F39B} Read scene file',
+  'scene.importHint':
+    'Read the console scene file (X32/M32/WING). This application writes nothing back to the console.',
+  'scene.title': 'Console scene file',
+  'scene.channelCount': '{n} channels',
+  'scene.unreadable': '{n} lines not readable',
+  'scene.matchMode': 'Match to the plan',
+  'scene.byName': 'by name',
+  'scene.byNumber': 'by channel number (only if it holds)',
+  'scene.exportList': 'Channels',
+  'scene.exportMatch': 'Match',
+  'scene.exportDiff': 'Changes',
+  'scene.noChange': 'Nothing changed in the channel names between the two states.',
   'channelList.exportHint':
     'The same channel list, cut for this reader. The monitor view shows paths, not mix contents \u2014 the plan does not know those.',
   // #314 Replace device section
