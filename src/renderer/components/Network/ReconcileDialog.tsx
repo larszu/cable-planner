@@ -17,6 +17,13 @@ import {
   type ReconcileReport,
   type ReconcileVerdict,
 } from '../../lib/networkReconcile'
+import {
+  asBuiltSummary,
+  asBuiltTable,
+  fromNetworkReport,
+  mergeEntries,
+  unverifiedEntries,
+} from '../../lib/asBuilt'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Plan gegen Vorgefundenes (Bedarf 21).
@@ -48,6 +55,27 @@ export const ReconcileDialog = () => {
     [equipment, scan],
   )
 
+  // BEDARF 126 — das As-Built-Blatt.
+  //
+  //   > post HAS NO RECORD of which physical source was on which input.
+  //
+  // Der Abgleich oben zeigt die ABWEICHUNGEN; dieses Blatt zeigt den ganzen
+  // Bestand, und zwar mit der Luecke darin: jedes Geraet, das der Scan NICHT
+  // gesehen hat, steht als „nicht nachgesehen" darauf. Ohne diese Zeilen
+  // fuehrte das Blatt nur die Geraete, an denen jemand war, und laese sich wie
+  // eine vollstaendige Pruefung.
+  const asBuilt = useMemo(() => {
+    const geplant = unverifiedEntries(
+      equipment
+        .filter((e) => e.ipAddress)
+        .map((e) => ({ subject: e.name, field: 'IP-Adresse', planned: e.ipAddress })),
+      'network-scan',
+    )
+    return mergeEntries(geplant, report ? fromNetworkReport(report) : [])
+  }, [equipment, report])
+
+  const asBuiltStand = useMemo(() => asBuiltSummary(asBuilt), [asBuilt])
+
   if (!open) return null
 
   const load = async () => {
@@ -77,6 +105,14 @@ export const ReconcileDialog = () => {
     downloadBlob(
       buildExportFilenameWithSuffix(projectName, 'abgleich', 'csv'),
       csvFromTable(reconcileTable(report)),
+      'text/csv',
+    )
+  }
+
+  const exportAsBuilt = () => {
+    downloadBlob(
+      buildExportFilenameWithSuffix(projectName, 'as-built', 'csv'),
+      csvFromTable(asBuiltTable(asBuilt)),
       'text/csv',
     )
   }
@@ -153,6 +189,30 @@ export const ReconcileDialog = () => {
                 </button>
               </>
             )}
+          </div>
+
+          {/* BEDARF 126 — „wie geplant" gegen „wie gebaut", als EIN Blatt.
+              Es steht auch OHNE Scan da: dann besteht es ganz aus „nicht
+              nachgesehen", und genau das ist die ehrliche Auskunft. */}
+          <div className="flex flex-wrap items-center gap-2 border-t border-cp-border-muted pt-2 text-cp-xs">
+            <span className="text-cp-text-secondary">
+              {t('asBuilt.title', 'As-Built-Blatt (wie geplant / wie gebaut)')}
+            </span>
+            <span className="text-cp-text-muted">
+              {format(
+                t('asBuilt.count', '{verified} von {total} Angaben nachgesehen'),
+                { verified: asBuiltStand.verified, total: asBuiltStand.total },
+              )}
+            </span>
+            <button
+              type="button"
+              onClick={exportAsBuilt}
+              disabled={asBuiltStand.total === 0}
+              className="ml-auto inline-flex items-center gap-1 rounded border border-cp-border px-2 py-1 text-cp-text-secondary hover:text-cp-text disabled:opacity-40"
+            >
+              <Icon icon={Download} size="xs" />
+              {t('asBuilt.export', 'As-Built')}
+            </button>
           </div>
 
           {error && (

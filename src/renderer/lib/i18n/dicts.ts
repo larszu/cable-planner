@@ -3490,6 +3490,10 @@ export const en: Dict = {
   'channelList.view.stage': 'Stage (position)',
   'channelList.view.console': 'Console (names)',
   'channelList.view.monitor': 'Monitor paths',
+  // Bedarf 126 — „wie geplant" gegen „wie gebaut".
+  'asBuilt.title': 'As-built sheet (as planned / as built)',
+  'asBuilt.count': '{verified} of {total} entries verified',
+  'asBuilt.export': 'As-built',
   // Bedarf 125 — das Multiviewer-Bild als Blatt.
   'mv.sheet.title': 'Multiviewer layout (who is in which window)',
   'mv.sheet.hint':

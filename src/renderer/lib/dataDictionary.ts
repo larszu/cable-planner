@@ -51,6 +51,16 @@ export const UNDESCRIBED = 'nicht beschrieben'
  * Datei, ohne dass sich am Plan etwas geaendert haette.
  */
 export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
+  // Bedarf 126 — das As-Built-Blatt (`lib/asBuilt.ts`).
+  Gegenstand:
+    'Worum die Zeile geht — ein Gerät, ein Anschluss oder ein Ausgang, so benannt, wie er im Plan heißt.',
+  'Wie geplant': 'Was der Plan für dieses Feld vorsieht. „keine Angabe“ heißt: der Plan sagt dazu nichts.',
+  'Wie gebaut':
+    'Was am Gerät ABGELESEN wurde. „keine Angabe“ heißt: niemand hat nachgesehen oder das Gerät hat dazu nichts gemeldet — nicht, dass es leer wäre.',
+  'Abgelesen von':
+    'Woher die Ablesung stammt (Netz-Scan, Mischer, Router, Vermietung, von Hand). Ohne Ablesung steht in der Urteils-Spalte „nicht nachgesehen“.',
+  'Abgelesen am':
+    'Der Tag der Ablesung. Fehlt er, gilt die Zeile als ungeprüft — ein Verify-Lauf von gestern ist kein Verify-Lauf.',
   // Bedarf 125 — das Multiviewer-Bild (`lib/mvSheet.ts`).
   Multiviewer:
     'Welcher Multiviewer des Mischers gemeint ist — Gerätename plus laufende Nummer, ab 1 gezählt wie am Gerät.',
