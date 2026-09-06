@@ -3490,6 +3490,18 @@ export const en: Dict = {
   'channelList.view.stage': 'Stage (position)',
   'channelList.view.console': 'Console (names)',
   'channelList.view.monitor': 'Monitor paths',
+  // Bedarf 112 — der Scan vor Ort, gegen den Plan gehalten.
+  'scan.title': 'Spectrum scan from the analyser',
+  'scan.import': '📈 Read scan',
+  'scan.points': '{n} measurement points',
+  'scan.threshold': 'occupied from (dBm)',
+  'scan.thresholdHint':
+    'What \u201Coccupied\u201D means depends on antenna, preamp and distance \u2014 none of which is in the file. That is why the threshold is a field, not a fixed value.',
+  'scan.exportCheck': 'Comparison',
+  'scan.what': 'What transmits',
+  'scan.freq': 'MHz',
+  'scan.verdict': 'Verdict',
+  'scan.peak': 'Peak (dBm)',
   // Bedarf 114 — wer traegt in welcher Vorstellung welche Strecke.
   'micPlot.title': 'Mic plot — who wears which channel',
   'micPlot.session': 'Session',

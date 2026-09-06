@@ -111,6 +111,15 @@ import {
   parseFreqMhz,
   spectrumTable,
 } from '../../lib/spectrumPlan'
+import {
+  carrierCheckTable,
+  checkCarriers,
+  parseScanCsv,
+  SCAN_FINDING_LABEL,
+  scanFindings,
+  scannedRange,
+} from '../../lib/spectrumScan'
+import { DEFAULT_OCCUPIED_DBM, VERDICT_LABEL, type SpectrumScan } from '../../types/spectrumScan'
 
 type Tab =
   | 'weight'
@@ -1502,6 +1511,23 @@ const RfTab = ({ projectName }: { projectName: string }) => {
   // ALLES, was funkt, und `computeRfConflicts` laeuft genau einmal darueber.
   const spectrum = useMemo(() => buildSpectrumPlan(project), [project])
 
+  // BEDARF 112 — der Scan vor Ort. Ein Scan ist KEIN Sender und geht deshalb
+  // nicht in `collectTransmitters` ein: was dort steht, sind Traeger, aus
+  // denen Intermodulation gerechnet wird, und eine Messung ist ein
+  // Pegelverlauf, dessen Spitzen auch eine Reflexion sein koennen. Er wird
+  // GEGEN den Plan gehalten, nicht in ihn hinein.
+  const [scan, setScan] = useState<SpectrumScan | null>(null)
+  const [schwelle, setSchwelle] = useState(DEFAULT_OCCUPIED_DBM)
+  const carrierChecks = useMemo(
+    () => (scan ? checkCarriers(scan, spectrum.entries, schwelle) : []),
+    [scan, spectrum, schwelle],
+  )
+  const scanBefunde = useMemo(
+    () => (scan ? scanFindings(scan, carrierChecks, schwelle) : []),
+    [scan, carrierChecks, schwelle],
+  )
+  const scanSpanne = useMemo(() => (scan ? scannedRange(scan) : null), [scan])
+
   const links = useMemo(() => {
     const nameOf = new Map(project.equipment.map((e) => [e.id, e.name]))
     return project.cables
@@ -1778,6 +1804,105 @@ const RfTab = ({ projectName }: { projectName: string }) => {
           </p>
         </div>
       </details>
+
+      {/* BEDARF 112 — die Messung gegen den Plan. „Nicht gemessen" ist ein
+          eigenes Urteil und keine Entwarnung: ein Scan von 470–608 MHz sagt
+          ueber 614 MHz gar nichts. */}
+      <div className="rounded border border-[var(--cp-border)] p-2">
+        <div className="mb-2 flex flex-wrap items-center gap-2 text-cp-xs">
+          <span className="font-medium">
+            {t('scan.title', 'Spektrum-Scan vom Analyser')}
+          </span>
+          <label className="cursor-pointer rounded border border-[var(--cp-border)] px-2 py-1 hover:bg-[var(--cp-surface-2)]">
+            {t('scan.import', '📈 Scan einlesen')}
+            <input
+              type="file"
+              accept=".csv,.txt"
+              className="hidden"
+              onChange={(e) => {
+                const f = e.target.files?.[0]
+                // Das Feld wird geleert, damit dieselbe Datei zweimal gewaehlt
+                // werden kann — nach einem zweiten Scan heisst sie oft gleich.
+                e.target.value = ''
+                if (!f) return
+                void f.text().then((text) => setScan(parseScanCsv(text, f.name)))
+              }}
+            />
+          </label>
+          {scan && (
+            <>
+              <span className="text-[var(--cp-text-secondary)]">
+                {scan.fileName ? `${scan.fileName} · ` : ''}
+                {format(t('scan.points', '{n} Messpunkte'), { n: String(scan.points.length) })}
+                {scanSpanne ? ` · ${scanSpanne.fromMhz}–${scanSpanne.toMhz} MHz` : ''}
+              </span>
+              <label className="flex items-center gap-1">
+                {t('scan.threshold', 'belegt ab (dBm)')}
+                <input
+                  type="number"
+                  value={schwelle}
+                  onChange={(e) => setSchwelle(Number(e.target.value))}
+                  title={t(
+                    'scan.thresholdHint',
+                    'Was „belegt" heißt, hängt an Antenne, Vorverstärker und Abstand — keine dieser Angaben steht in der Datei. Deshalb ist die Schwelle ein Feld und kein Festwert.',
+                  )}
+                  className="w-20 rounded border border-[var(--cp-border)] bg-[var(--cp-surface-1)] px-1 py-0.5"
+                />
+              </label>
+              <button
+                type="button"
+                onClick={() =>
+                  downloadBlob(
+                    buildExportFilenameWithSuffix(projectName || 'cable-planner', 'scan-abgleich', 'csv'),
+                    csvFromTable(carrierCheckTable(carrierChecks)),
+                    'text/csv;charset=utf-8',
+                  )
+                }
+                className="rounded border border-[var(--cp-border)] px-2 py-1 hover:bg-[var(--cp-surface-2)]"
+              >
+                {t('scan.exportCheck', 'Abgleich')}
+              </button>
+            </>
+          )}
+        </div>
+        {scanBefunde.length > 0 && (
+          <ul className="flex flex-col gap-1 text-cp-xs">
+            {scanBefunde.map((f, i) => (
+              <li key={`${f.kind}-${i}`} className="text-amber-300/90">
+                <strong>{SCAN_FINDING_LABEL[f.kind]}</strong> — {f.text}
+              </li>
+            ))}
+          </ul>
+        )}
+        {scan && carrierChecks.length > 0 && (
+          <table className="mt-2 w-full text-cp-xs">
+            <thead className="text-[var(--cp-text-secondary)]">
+              <tr>
+                <th className="px-2 py-1 text-left">{t('scan.what', 'Was funkt')}</th>
+                <th className="px-2 py-1 text-left">{t('scan.freq', 'MHz')}</th>
+                <th className="px-2 py-1 text-left">{t('scan.verdict', 'Urteil')}</th>
+                <th className="px-2 py-1 text-left">{t('scan.peak', 'Spitze (dBm)')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {carrierChecks.map((c) => (
+                <tr key={c.entry.id} className="border-t border-[var(--cp-border-muted)]">
+                  <td className="px-2 py-1">{c.entry.label}</td>
+                  <td className="px-2 py-1">{c.entry.mhz}</td>
+                  <td
+                    className={`px-2 py-1 ${c.verdict === 'occupied' ? 'text-cp-danger' : c.verdict === 'not-scanned' ? 'text-[var(--cp-text-muted)]' : ''}`}
+                  >
+                    {VERDICT_LABEL[c.verdict]}
+                  </td>
+                  <td className="px-2 py-1">
+                    {c.peakDbm === undefined ? VERDICT_LABEL['not-scanned'] : c.peakDbm}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
 
       <div className="flex justify-end gap-2">
         <button
