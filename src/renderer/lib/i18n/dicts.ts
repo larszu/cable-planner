@@ -3490,6 +3490,14 @@ export const en: Dict = {
   'channelList.view.stage': 'Stage (position)',
   'channelList.view.console': 'Console (names)',
   'channelList.view.monitor': 'Monitor paths',
+  // Bedarf 121 — der Umbau-Zettel: nur was sich aendert.
+  'salvo.changeover': 'Changeover from',
+  'salvo.to': 'to',
+  'salvo.pick': '\u2014 pick a set \u2014',
+  'salvo.exportChangeover': 'Changeover sheet',
+  'salvo.exportFull': 'Full set',
+  'salvo.noChange': 'No difference \u2014 nothing to re-patch for this changeover.',
+  'salvo.changeCount': '{n} of {total} crosspoints change.',
   // Bedarf 116 — die Segmente: welche VLAN wofuer da ist.
   'segment.title': 'Segments (VLAN, purpose, timing, way in)',
   'segment.hint':

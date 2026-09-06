@@ -74,6 +74,22 @@ describe('COLUMN_GLOSSARY — ein Lexikon nach NAMEN, nicht nach Blatt', () => {
     for (const spalte of ['Ziel', 'Quelle', 'Art', 'Herkunft']) {
       expect(COLUMN_GLOSSARY[spalte], spalte).toMatch(/je nach|sonst|Auf anderen|Im /)
     }
+    // `Vorher`/`Nachher`/`Ausgang` sind erst mit Bedarf 101 und 121
+    // mehrdeutig geworden — und die Erklaerung blieb dabei stehen: sie
+    // beschrieb weiter NUR den Import-Vergleich, waehrend die Spalte laengst
+    // auch auf dem Umbenennungs-Blatt und dem Umbau-Zettel stand. Eine
+    // Erklaerung, die etwas anderes beschreibt als die Spalte, ist schlimmer
+    // als keine — sie wird geglaubt. Der Guard haelt jetzt fest, dass jede
+    // dieser drei Spalten ALLE ihre Lesarten nennt.
+    for (const [spalte, lesarten] of [
+      ['Vorher', ['Import', 'Zielsystem', 'Ausgang']],
+      ['Nachher', ['Import', 'Umbenennung', 'Ausgang']],
+      ['Ausgang', ['Pult', 'Router']],
+    ] as const) {
+      for (const lesart of lesarten) {
+        expect(COLUMN_GLOSSARY[spalte], `${spalte} nennt "${lesart}" nicht`).toContain(lesart)
+      }
+    }
   })
 
   it('verspricht bei „Stream-Key" ausdruecklich, dass kein Wert darin steht', () => {
