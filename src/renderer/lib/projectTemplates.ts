@@ -10,6 +10,7 @@
 import { v4 as uuidv4 } from 'uuid'
 import type { CablePlannerProject } from '../types/project'
 import type { LocationFrame } from '../types/location'
+import { stripForTemplate, projectVenue, type TemplateScope } from './templateScope'
 
 export interface ProjectTemplate {
   id: string
@@ -22,6 +23,15 @@ export interface ProjectTemplate {
   descKey?: string
   /** i18n-Key für den Namen (nur Built-ins). */
   nameKey?: string
+  /**
+   * Bedarf 91 — das Haus, aus dem diese Vorlage stammt.
+   *
+   * Nur bei `scope: 'venue'` gesetzt. Es steht HIER und nicht nur in
+   * `project.metadata.siteAddress`, weil es beim Verwenden gebraucht wird,
+   * BEVOR das Projekt geladen ist: die Karte in der Galerie muss sagen
+   * können, aus welchem Haus die Antworten kommen.
+   */
+  venue?: string
   project: CablePlannerProject
 }
 
@@ -163,8 +173,22 @@ export const saveUserTemplate = (
   name: string,
   description: string,
   project: CablePlannerProject,
+  /**
+   * BEDARF 91 — ein Pflicht-Parameter OHNE Default, und das mit Absicht.
+   *
+   * Dieselbe Bauform wie `credentials` bei `syncSharedLibrary` (Design-Frage
+   * 5): der alte Zustand war „geht stillschweigend mit", und ein Default
+   * hätte genau den wiederhergestellt, sobald ein Aufrufer ihn weglässt. Wer
+   * eine Vorlage schreibt, muss beantwortet haben, ob sie an ein Haus
+   * gebunden ist.
+   */
+  scope: TemplateScope,
 ): ProjectTemplate => {
-  const clone: CablePlannerProject = cloneProject(project)
+  // Bedarf 91 — erst das Ortsgebundene, dann die Auftrags-Identität. Zwei
+  // Schritte, weil die Fragen verschieden sind: das eine hängt am HAUS, das
+  // andere am KUNDEN, und eine Vorlage für dasselbe Haus behält das eine und
+  // nie das andere.
+  const clone: CablePlannerProject = stripForTemplate(cloneProject(project), scope)
   // projektspezifische Identität entfernen
   delete clone.annotations
   delete clone.checkState
@@ -188,11 +212,13 @@ export const saveUserTemplate = (
   delete clone.metadata.rentmanCablePlan
   delete clone.metadata.rentmanCableMap
 
+  const venue = scope === 'venue' ? projectVenue(project) : undefined
   const tpl: ProjectTemplate = {
     id: `user-${uuidv4()}`,
     name,
     description,
     builtin: false,
+    ...(venue ? { venue } : {}),
     project: clone,
   }
   const next = [...loadUserTemplates(), tpl]

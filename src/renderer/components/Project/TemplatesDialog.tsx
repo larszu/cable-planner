@@ -25,6 +25,13 @@ import {
   saveUserTemplate,
   type ProjectTemplate,
 } from '../../lib/projectTemplates'
+import {
+  projectVenue,
+  templateCarryReport,
+  venueBoundCount,
+  type TemplateScope,
+} from '../../lib/templateScope'
+import { venueScopeDialog } from '../../lib/venueScopeDialog'
 
 export const TemplatesDialog = () => {
   const t = useTranslation()
@@ -66,6 +73,21 @@ export const TemplatesDialog = () => {
       )
       if (!ok) return
     }
+    // BEDARF 91 — was die Vorlage an Haus-Antworten mitbringt, und ob es hier
+    // gilt. VOR dem Laden gesagt: danach steht es im Blatt und sieht aus wie
+    // Auskunft.
+    const bericht = templateCarryReport(
+      tpl.venue,
+      tpl.project.metadata?.venueAnswers?.length ?? 0,
+      projectVenue(useProjectStore.getState().project),
+    )
+    if (bericht.state === 'elsewhere') {
+      const weiter = await confirmDialog(t('templates.carryTitle', 'Antworten aus einem anderen Haus'), {
+        body: bericht.text,
+        okLabel: t('templates.carryOk', 'Trotzdem laden'),
+      })
+      if (!weiter) return
+    }
     const name = await promptDialog(
       t('templates.namePrompt', 'Name des neuen Projekts'),
       label(tpl),
@@ -89,7 +111,18 @@ export const TemplatesDialog = () => {
         : '',
     )
     if (name === null) return
-    saveUserTemplate(name, current.metadata.description ?? '', current)
+    // BEDARF 91 — gefragt wird NUR, wenn etwas Ortsgebundenes dranhaengt.
+    // Ohne Haus-Antworten und ohne Adresse gibt es nichts zu entscheiden, und
+    // eine Rueckfrage, die meistens „nichts dabei" bedeutet, wird zur
+    // Klickgewohnheit.
+    const gebunden = venueBoundCount(current)
+    let scope: TemplateScope = 'neutral'
+    if (gebunden > 0) {
+      const antwort = await venueScopeDialog(gebunden, projectVenue(current) ?? '')
+      if (antwort === null) return
+      scope = antwort
+    }
+    saveUserTemplate(name, current.metadata.description ?? '', current, scope)
     setUserTemplates(loadUserTemplates())
     void infoDialog(t('templates.savedTitle', 'Als Vorlage gespeichert'), {
       body: format(t('templates.savedBody', 'Vorlage „{name}“ gespeichert.'), { name }),
@@ -120,6 +153,17 @@ export const TemplatesDialog = () => {
         </div>
       </div>
       <div className="text-[10px] text-[var(--cp-text-faint)]">{stats(tpl)}</div>
+      {/* BEDARF 91 — aus welchem Haus. Steht auf der Karte, weil die
+          Entscheidung „diese Vorlage oder die neutrale" hier faellt und nicht
+          erst nach dem Laden. */}
+      {tpl.venue && (
+        <div className="text-[10px] text-[var(--cp-text-muted)]">
+          {format(t('templates.venue', 'Haus-Vorlage: {venue} · {n} Antworten'), {
+            venue: tpl.venue,
+            n: tpl.project.metadata?.venueAnswers?.length ?? 0,
+          })}
+        </div>
+      )}
       <div className="mt-auto flex items-center justify-between gap-2 pt-1">
         <Button variant="success" size="sm" onClick={() => void applyTemplate(tpl)}>
           {t('templates.use', 'Verwenden')}
