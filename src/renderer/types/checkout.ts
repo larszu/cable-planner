@@ -70,6 +70,20 @@ export interface CheckoutLine {
    * BENANNT, nicht durch die UUID ersetzt.
    */
   code?: string
+  /**
+   * Fremdes Material, im Klartext (Bedarfe 67 und 82) — „Sub-Hire · Videohaus
+   * Meier · zurueck 2026-09-12". Leer/fehlend bei eigenem.
+   *
+   * MITGESCHRIEBEN, aus demselben Grund wie `label`: der Ausgabeschein wird
+   * gedruckt und liegt drei Wochen im Truck. Wuerde die Herkunft beim Anzeigen
+   * nachgeschlagen, saehe ein inzwischen zurueckgegebener Sub-Hire-Artikel auf
+   * dem alten Blatt aus wie eigener — und genau bei der Rueckgabe braucht ihn
+   * jemand.
+   *
+   * Bedarf 67 nennt den Check-in-Bildschirm ausdruecklich als eine der drei
+   * Stellen, an denen die Herkunft ankommen muss.
+   */
+  ownership?: string
 }
 
 /** Der Vorgang der Ausgabe. */

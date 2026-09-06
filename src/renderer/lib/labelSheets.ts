@@ -168,6 +168,16 @@ export interface LabelSpec {
   code: string
   /** Optionaler Titel (z. B. Modell-/Case-Name). */
   title?: string
+  /**
+   * Fremdes Material, im Klartext (Bedarf 67) — „Sub-Hire · Videohaus Meier ·
+   * zurueck 2026-09-12". Leer bei eigenem.
+   *
+   * Das Etikett ist die einzige der drei vom Bedarf genannten Stellen, die AM
+   * OBJEKT klebt: wer im Lager ein Case in die Hand nimmt, sieht sonst
+   * nirgends, dass es fremdes ist. Genau daran haengt der Schaden, den der
+   * Bedarf nennt — nicht der Verlust, sondern die zusaetzliche Mietwoche.
+   */
+  note?: string
   /** Symbologie — steuert das Zell-Layout (QR quadratisch, Barcode quer). */
   symbology?: 'qr' | 'barcode'
 }
@@ -196,17 +206,21 @@ export const buildLabelSheetHtml = (
   const cell = (label: LabelSpec, slot: LabelSlot): string => {
     const box = `left:${slot.leftMm}mm;top:${slot.topMm}mm;width:${sheet.labelWidthMm}mm;height:${sheet.labelHeightMm}mm`
     const title = label.title ? `<div class="t">${esc(label.title)}</div>` : ''
+    // Bedarf 67: die Herkunft AUF dem Etikett. Nur wenn es eine gibt — ein
+    // „Eigen" auf jedem Etikett macht den Hinweis unsichtbar, auf den es
+    // ankommt.
+    const note = label.note ? `<div class="o">${esc(label.note)}</div>` : ''
     if (label.symbology === 'barcode') {
       // Gestapelt: Barcode oben (quer), Titel + Code darunter.
       return `<div class="lbl bc" style="${box}">
   <img class="bar" src="${label.qrDataUrl}" style="width:${barWmm}mm;height:${barHmm}mm" alt="" />
-  <div class="txt">${title}<div class="c">${esc(label.code)}</div></div>
+  <div class="txt">${title}<div class="c">${esc(label.code)}</div>${note}</div>
 </div>`
     }
     // QR: quadratisch links, Text rechts.
     return `<div class="lbl" style="${box}">
   <img class="qr" src="${label.qrDataUrl}" style="width:${qrMm}mm;height:${qrMm}mm" alt="" />
-  <div class="txt">${title}<div class="c">${esc(label.code)}</div></div>
+  <div class="txt">${title}<div class="c">${esc(label.code)}</div>${note}</div>
 </div>`
   }
   const pageDivs: string[] = []
@@ -233,6 +247,9 @@ export const buildLabelSheetHtml = (
   .txt { min-width: 0; font-family: Arial, sans-serif; line-height: 1.15; }
   .t { font-size: 7pt; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .c { font-size: 8pt; font-family: 'Courier New', monospace; word-break: break-all; }
+  /* Herkunft (Bedarf 67): kleiner als der Code, aber FETT — auf einem Case im
+     Regal muss „Sub-Hire" ins Auge fallen, ohne den Code zu verdraengen. */
+  .o { font-size: 6.5pt; font-weight: 700; margin-top: 0.3mm; }
 </style></head><body>
 ${pageDivs.join('\n')}
 </body></html>`

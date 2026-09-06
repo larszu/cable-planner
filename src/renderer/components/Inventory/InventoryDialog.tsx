@@ -48,6 +48,7 @@ import type {
   SetComponent,
 } from '../../types/inventory'
 import { useCheckoutStore } from '../../store/checkoutStore'
+import { ownershipNote, overdueSubhire, subhireStatus } from '../../lib/ownership'
 import type { CheckoutRecord } from '../../types/checkout'
 import {
   containerContents,
@@ -145,6 +146,14 @@ export const InventoryDialog = ({ open, onClose }: InventoryDialogProps) => {
   const importSnapshot = useInventoryStore((s) => s.importSnapshot)
   const equipment = useProjectStore((s) => s.project.equipment)
 
+  // Der Stichtag kommt EINMAL aus der Uhr und wird durchgereicht — sonst
+  // beantwortet dieselbe Zeile in zwei Zellen zwei verschiedene Tage.
+  const heuteIso = new Date().toISOString().slice(0, 10)
+  // Bedarf 82 — was zurueckmuss und noch da ist. Ueberfaelliges zuerst, dann
+  // das undatierte: „the failure mode is not losing sub-hire gear, it is
+  // keeping it three weeks too long."
+  const rueckgaben = useMemo(() => overdueSubhire(items, heuteIso), [items, heuteIso])
+
   const [tab, setTab] = useState<Tab>('items')
   const [form, setForm] = useState<ItemFormState | null>(null)
   const [query, setQuery] = useState('')
@@ -190,6 +199,11 @@ export const InventoryDialog = ({ open, onClose }: InventoryDialogProps) => {
         form.rentPricePerDay != null && form.rentPricePerDay >= 0 ? form.rentPricePerDay : undefined,
       supplier: form.supplier?.trim() || undefined,
       ownership: form.ownership,
+      // Bedarf 82: das Rueckgabedatum. Bei eigenem Material bedeutungslos —
+      // es wird trotzdem NICHT still geloescht, sondern bleibt stehen, falls
+      // jemand die Eigentumsart versehentlich umgestellt hat. `subhireStatus`
+      // sagt „owned" und ignoriert es; ein geloeschtes Datum waere weg.
+      returnDue: form.returnDue?.trim() || undefined,
       code: form.code?.trim() || undefined,
       codeType: form.code?.trim() ? form.codeType ?? 'qr' : undefined,
       locationId: form.locationId || undefined,
@@ -485,6 +499,46 @@ export const InventoryDialog = ({ open, onClose }: InventoryDialogProps) => {
 
         {tab === 'items' && (
           <>
+            {/* BEDARF 82 — was zurueckmuss und noch da ist. Der Kasten
+                erscheint nur, wenn es etwas zu sagen gibt: ein Feld, das
+                staendig „nichts faellig" meldet, wird nach der zweiten Woche
+                nicht mehr gelesen, und dann faellt auch die echte Meldung
+                nicht mehr auf. */}
+            {rueckgaben.length > 0 && (
+              <div className="rounded border border-cp-warn/40 bg-cp-surface-2 p-2.5 text-cp-sm">
+                <div className="mb-1 flex items-center gap-1.5 font-medium text-cp-text">
+                  <AlertTriangle size={14} />
+                  {format(t('inventory.returnsTitle', 'Fremdes Material: {n} Position(en) zurückzugeben'), {
+                    n: rueckgaben.length,
+                  })}
+                </div>
+                <ul className="flex flex-col gap-0.5">
+                  {rueckgaben.slice(0, 12).map((r) => (
+                    <li key={r.itemId} className={r.status === 'overdue' ? 'text-cp-danger' : 'text-cp-warn'}>
+                      {format(
+                        r.status === 'overdue'
+                          ? t('inventory.returnOverdue', '{qty}× {model} → {supplier} · zurück seit {due}')
+                          : t('inventory.returnNoDate', '{qty}× {model} → {supplier} · kein Rückgabedatum'),
+                        {
+                          qty: r.quantity,
+                          model: r.model,
+                          // Ohne Lieferant steht es DA: „es geht zurueck, aber
+                          // wir wissen nicht wohin" ist die Auskunft, die
+                          // jemand braucht.
+                          supplier: r.supplier || t('inventory.supplierUnknown', 'Lieferant unbekannt'),
+                          due: r.returnDue,
+                        },
+                      )}
+                    </li>
+                  ))}
+                </ul>
+                {rueckgaben.length > 12 && (
+                  <div className="mt-1 text-cp-xs text-cp-text-muted">
+                    {format(t('inventory.returnsMore', '… und {n} weitere'), { n: rueckgaben.length - 12 })}
+                  </div>
+                )}
+              </div>
+            )}
             <div className="flex flex-wrap items-center gap-2">
               <input
                 value={query}
@@ -578,6 +632,21 @@ export const InventoryDialog = ({ open, onClose }: InventoryDialogProps) => {
                     {t('inventory.supplier', 'Lieferant')}
                     <input value={form.supplier ?? ''} onChange={(e) => setForm({ ...form, supplier: e.target.value })} className={inputCls} />
                   </label>
+                  {/* Bedarf 82 — „mark ownership and return date inside the job
+                      and stop there". Nur bei fremdem Material: an einer
+                      eigenen Position ist das Feld sinnlos und wuerde nur
+                      Platz kosten. */}
+                  {(form.ownership === 'rented' || form.ownership === 'subhire') && (
+                    <label className="block">
+                      {t('inventory.returnDue', 'Rückgabe bis')}
+                      <input
+                        type="date"
+                        value={form.returnDue ?? ''}
+                        onChange={(e) => setForm({ ...form, returnDue: e.target.value })}
+                        className={inputCls}
+                      />
+                    </label>
+                  )}
                   <label className="block">
                     {t('inventory.code', 'Code (QR/Barcode)')}
                     <input value={form.code ?? ''} onChange={(e) => setForm({ ...form, code: e.target.value })} placeholder={t('inventory.codePh', 'z.B. INV-00123')} className={inputCls} />
@@ -656,7 +725,22 @@ export const InventoryDialog = ({ open, onClose }: InventoryDialogProps) => {
                         <td className="px-2 py-1.5 text-right tabular-nums">{it.quantity}</td>
                         <td className="px-2 py-1.5">{locationCell(it.locationId)}</td>
                         <td className="px-2 py-1.5">{codeCell(it.code, it.codeType)}</td>
-                        <td className="px-2 py-1.5 text-cp-text-secondary">{ownershipLabel(it.ownership)}</td>
+                        {/* Bedarf 82: die Eigentumsart allein sagt nicht, ob
+                            etwas ueberfaellig ist — und genau daran haengt das
+                            Geld („keeping it three weeks too long"). */}
+                        <td className="px-2 py-1.5 text-cp-text-secondary">
+                          {ownershipLabel(it.ownership)}
+                          {subhireStatus(it, heuteIso) === 'overdue' && (
+                            <span className="ml-1 text-cp-danger">
+                              {format(t('inventory.overdueSince', '· zurück seit {d}'), { d: it.returnDue ?? '' })}
+                            </span>
+                          )}
+                          {subhireStatus(it, heuteIso) === 'no-date' && (
+                            <span className="ml-1 text-cp-warn">
+                              {t('inventory.noReturnDate', '· kein Rückgabedatum')}
+                            </span>
+                          )}
+                        </td>
                         <td className="px-2 py-1.5">
                           <div className="flex justify-end gap-1">
                             <button type="button" onClick={() => setForm({ ...it })} className="rounded p-1 text-cp-text-muted hover:bg-cp-surface-4 hover:text-cp-text" title={t('common.edit', 'Bearbeiten')}>
@@ -727,9 +811,11 @@ const LocationsTab = ({ dimsEditor, formatDims, codeCell }: LocationsTabProps) =
   const updateNode = useInventoryStore((s) => s.updateNode)
   const moveNode = useInventoryStore((s) => s.moveNode)
   const removeNode = useInventoryStore((s) => s.removeNode)
+  // Der Stichtag kommt EINMAL aus der Uhr und wird durchgereicht.
+  const heuteIso = new Date().toISOString().slice(0, 10)
 
   const handlePackList = async (node: StorageNode) => {
-    const list = derivePackList(node.id, { items, nodes, units })
+    const list = derivePackList(node.id, { items, nodes, units }, heuteIso)
     const text = packListToText(list)
     const count = packListTotalCount(list)
     try {
@@ -744,7 +830,7 @@ const LocationsTab = ({ dimsEditor, formatDims, codeCell }: LocationsTabProps) =
   }
 
   const handlePackListPrint = (node: StorageNode) => {
-    const list = derivePackList(node.id, { items, nodes, units })
+    const list = derivePackList(node.id, { items, nodes, units }, heuteIso)
     printHtmlDocument(buildPackListHtml(node.name, node.code, list))
   }
   const [form, setForm] = useState<NodeFormState | null>(null)
@@ -1353,11 +1439,16 @@ const LabelsTab = () => {
   const containers = useMemo(() => nodes.filter((n) => isContainerKind(n.kind)), [nodes])
   const itemById = useMemo(() => new Map(items.map((it) => [it.id, it])), [items])
 
-  type Entry = { code: string; title?: string; codeType?: InventoryCodeType }
+  // Der Stichtag kommt EINMAL aus der Uhr und wird durchgereicht — sonst
+  // beantwortet dieselbe Zeile in zwei Zellen zwei verschiedene Tage.
+  const heuteIso = new Date().toISOString().slice(0, 10)
+  type Entry = { code: string; title?: string; codeType?: InventoryCodeType; note?: string }
   // Sammelt die zu druckenden Codes (nur Entitäten MIT Code — kein Raten).
   const collect = (): Entry[] => {
     if (source === 'items') {
-      return items.filter((it) => it.code).map((it) => ({ code: it.code!, title: it.model, codeType: it.codeType }))
+      return items
+        .filter((it) => it.code)
+        .map((it) => ({ code: it.code!, title: it.model, codeType: it.codeType, note: ownershipNote(it, heuteIso) }))
     }
     if (source === 'nodes') {
       return nodes.filter((n) => n.code).map((n) => ({ code: n.code!, title: n.name, codeType: n.codeType }))
@@ -1365,15 +1456,36 @@ const LabelsTab = () => {
     if (source === 'units') {
       return units
         .filter((u) => u.code)
-        .map((u) => ({ code: u.code!, title: itemById.get(u.itemId)?.model, codeType: u.codeType }))
+        .map((u) => {
+          const it = itemById.get(u.itemId)
+          return {
+            code: u.code!,
+            title: it?.model,
+            codeType: u.codeType,
+            // Die Einheit erbt die Herkunft ihres Artikels.
+            note: it ? ownershipNote(it, heuteIso) : '',
+          }
+        })
     }
     // 'case' — Codes aller Artikel + Einheiten (rekursiv) im gewählten Container.
     if (!caseId) return []
     const ids = new Set([caseId, ...descendantNodeIds(nodes, caseId)])
     const out: Entry[] = []
-    for (const it of items) if (it.code && it.locationId && ids.has(it.locationId)) out.push({ code: it.code, title: it.model, codeType: it.codeType })
-    for (const u of units)
-      if (u.code && u.locationId && ids.has(u.locationId)) out.push({ code: u.code, title: itemById.get(u.itemId)?.model, codeType: u.codeType })
+    for (const it of items) {
+      if (it.code && it.locationId && ids.has(it.locationId)) {
+        out.push({ code: it.code, title: it.model, codeType: it.codeType, note: ownershipNote(it, heuteIso) })
+      }
+    }
+    for (const u of units) {
+      if (!u.code || !u.locationId || !ids.has(u.locationId)) continue
+      const it = itemById.get(u.itemId)
+      out.push({
+        code: u.code,
+        title: it?.model,
+        codeType: u.codeType,
+        note: it ? ownershipNote(it, heuteIso) : '',
+      })
+    }
     return out
   }
 
@@ -1407,7 +1519,13 @@ const LabelsTab = () => {
         } catch {
           /* Render fehlgeschlagen → Etikett trägt nur den Code-Text. */
         }
-        labels.push({ qrDataUrl: dataUrl, code: e.code, title: e.title, symbology: sym })
+        labels.push({
+          qrDataUrl: dataUrl,
+          code: e.code,
+          title: e.title,
+          symbology: sym,
+          ...(e.note ? { note: e.note } : {}),
+        })
       }
       printHtmlDocument(buildLabelSheetHtml(labels, sheet, offset))
     } finally {
