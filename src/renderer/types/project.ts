@@ -263,6 +263,16 @@ export interface CablePlannerProject {
    * neu berechnet, sieht aus wie die alte und ist es nicht.
    */
   multicast?: import('./multicast').MulticastConfig
+  /**
+   * Bedarf 89 — das Sicherheitsnetz: Schwellen, Szenennamen, welches Ziel
+   * geschützt wird, und wo der Wächter läuft.
+   *
+   * Am Projekt und nicht am Ziel: die Szenenliste des Encoders und die
+   * Maschine, auf der der Wächter steht, gelten für die ganze Show. Ein Feld
+   * je Ziel müsste sie vervielfachen — und der Namensabgleich verglich dann
+   * gegen die falsche Kopie.
+   */
+  fallback?: import('./fallback').FallbackPlan
 }
 
 /** #412 — Ein festgeschriebener Projekt-Stand. */

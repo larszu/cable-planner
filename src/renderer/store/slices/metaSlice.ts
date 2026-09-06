@@ -32,6 +32,7 @@ export type MetaSlice = Pick<
   | 'setDrumKit'
   | 'setWirelessRig'
   | 'setMulticastConfig'
+  | 'setFallbackPlan'
 >
 
 export const createMetaSlice: StateCreator<ProjectState, [], [], MetaSlice> = (set) => ({
@@ -117,6 +118,17 @@ export const createMetaSlice: StateCreator<ProjectState, [], [], MetaSlice> = (s
   setMulticastConfig: (config) =>
     set((state) => {
       const updated = { ...state.project, multicast: config }
+      scheduleProjectAutosave(updated)
+      return { project: updated }
+    }),
+  // BEDARF 89 — das Sicherheitsnetz. Wieder ein Setter fuer das ganze Objekt:
+  // Szenenliste, Waechter und Regeln haengen aneinander, und ein Einzel-Setter
+  // je Regel liesse einen Zustand zu, in dem eine Regel auf eine Szene zeigt,
+  // die die Liste noch nicht kennt — genau der Zustand, den die Pruefung
+  // meldet, nur diesmal von der Oberflaeche selbst erzeugt.
+  setFallbackPlan: (plan) =>
+    set((state) => {
+      const updated = { ...state.project, fallback: plan }
       scheduleProjectAutosave(updated)
       return { project: updated }
     }),
