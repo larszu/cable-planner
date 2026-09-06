@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { unitLabel } from '../../../lib/unitIdentity'
 import { Eye, EyeOff } from 'lucide-react'
 import { useCanvasProjectStore as useProjectStore } from '../../../store/projectStoreContext'
 import { useTranslation } from '../../../lib/i18n'
@@ -33,9 +34,12 @@ export const NetworkAccessSection = ({ equipment }: { equipment: EquipmentItem }
   // handelt vom eingebrannten Geraete-Namen, und wo keiner ist, waere das Feld
   // Ballast in jeder Seitenleiste.
   const anchors = identityAnchors(equipment)
-  const unitLabel = (u: (typeof units)[number]) => {
+  // Bedarf 107 — im Plan zaehlt die Hausreferenz: das Geraet steht hier im
+  // eigenen Aufbau, nicht auf einem Versicherungsblatt. Die Regel dafuer steht
+  // in `unitLabel` und nicht hier: sie war bis dahin an vier Stellen kopiert.
+  const einheitZeile = (u: (typeof units)[number]): string => {
     const modell = items.find((i) => i.id === u.itemId)?.model
-    return [modell, u.serial ?? u.code ?? u.id].filter(Boolean).join(' · ')
+    return [modell, unitLabel(u, 'house')].filter(Boolean).join(' · ')
   }
 
   return (
@@ -89,7 +93,7 @@ export const NetworkAccessSection = ({ equipment }: { equipment: EquipmentItem }
               <option value="">{t('eq.field.unitNone', '— nicht benannt —')}</option>
               {units.map((u) => (
                 <option key={u.id} value={u.id}>
-                  {unitLabel(u)}
+                  {einheitZeile(u)}
                 </option>
               ))}
             </select>

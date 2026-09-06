@@ -277,8 +277,35 @@ export interface InventoryUnit {
   id: string
   /** Referenz auf das Artikel-Modell (`InventoryItem.id`). */
   itemId: string
-  /** Seriennummer (Hersteller oder intern). */
+  /**
+   * Die HERSTELLER-Seriennummer.
+   *
+   * Bedarf 107 — bis hierher hiess das Feld „Hersteller ODER intern", und
+   * genau das ist der Defekt: ein Feld fuer zwei Identitaeten zwingt das
+   * Lager, sich fuer eine zu entscheiden, und die andere landet auf dem Case
+   * mit Filzstift oder in einer Tabelle daneben. Gebraucht werden aber beide,
+   * und zwar von verschiedenen Leuten: die Herstellernummer fuer Versicherung,
+   * Sub-Vermietung an Dritte und Wartungshistorie, die Hausnummer fuer alles
+   * Interne.
+   *
+   * Die Trennung passiert JETZT, weil sie jetzt nichts kostet: es gibt noch
+   * keine Bestandsdaten zu migrieren. Die Bedarfs-Datenbank sagt genau das —
+   * „Cheap today, expensive after the first real deployment."
+   */
   serial?: string
+  /**
+   * Die HAUS-EIGENE Referenz — die Nummer, unter der dieses Haus die Einheit
+   * fuehrt („AV-0421").
+   *
+   * Steht NEBEN `serial` und nicht statt ihr. Ein Altbestand, in dem die
+   * Hausnummer im `serial`-Feld steht, wird NICHT automatisch umgeraeumt:
+   * welche der beiden dort gemeint war, weiss der Planer nicht, und eine
+   * geratene Umbuchung machte aus einer Herstellernummer eine Hausnummer, die
+   * die Versicherung nicht kennt. Welche gemeint war, weiss nur der Mensch;
+   * die App zeigt stattdessen beide Felder nebeneinander (`identityTable`),
+   * damit die Verwechslung sichtbar wird statt weiterzuwandern.
+   */
+  houseRef?: string
   /** Fester Etiketten-Code der Einheit. */
   code?: string
   codeType?: InventoryCodeType

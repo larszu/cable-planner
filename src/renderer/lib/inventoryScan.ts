@@ -22,9 +22,16 @@ export interface ScanSources {
 }
 
 /**
- * Löst einen gescannten/eingegebenen Code auf. Reihenfolge: Einheit (Code oder
- * Seriennr.) → Lager-Knoten (Code) → Artikel (Code). Einheiten zuerst, weil ihr
- * Code am spezifischsten ist. Liefert den ersten Treffer oder null.
+ * Löst einen gescannten/eingegebenen Code auf. Reihenfolge: Einheit (Code,
+ * Hausreferenz oder Seriennr.) → Lager-Knoten (Code) → Artikel (Code).
+ * Einheiten zuerst, weil ihr Code am spezifischsten ist. Liefert den ersten
+ * Treffer oder null.
+ *
+ * Bedarf 107 — die HAUSREFERENZ gehört hier ausdrücklich dazu, und zwar als
+ * die wahrscheinlichste Eingabe von allen: sie ist die Nummer, die auf dem
+ * Case klebt und die jemand abtippt, wenn der Aufkleber unlesbar geworden
+ * ist. Ein neues Identitäts-Feld, das die Suche nicht kennt, wäre für den
+ * Lageristen unsichtbar.
  */
 export const resolveInventoryCode = (
   raw: string,
@@ -33,7 +40,9 @@ export const resolveInventoryCode = (
   const needle = norm(raw)
   if (!needle) return null
 
-  const unit = units.find((u) => norm(u.code) === needle || norm(u.serial) === needle)
+  const unit = units.find(
+    (u) => norm(u.code) === needle || norm(u.houseRef) === needle || norm(u.serial) === needle,
+  )
   if (unit) return { kind: 'unit', unit }
 
   const node = nodes.find((n) => norm(n.code) === needle)

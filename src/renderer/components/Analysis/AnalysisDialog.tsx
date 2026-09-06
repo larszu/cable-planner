@@ -56,6 +56,16 @@ import {
   type NamingRefusal,
 } from '../../lib/namingScheme'
 import type { NamingScheme } from '../../types/namingScheme'
+import {
+  DANTE_DIFF_LABEL,
+  DANTE_FINDING_LABEL,
+  assessDantePatch,
+  danteDiffTable,
+  dantePatchTable,
+  diffDantePatches,
+  parseDanteMatrix,
+} from '../../lib/dantePatch'
+import type { DantePatch } from '../../types/dantePatch'
 import { cableRunFindings, cableRunTable, type RunFinding } from '../../lib/cableRunChecks'
 import { lookUpSheet, type SheetLookup } from '../../lib/sheetLookup'
 import {
@@ -112,6 +122,7 @@ type Tab =
   | 'client'
   | 'cost'
   | 'naming'
+  | 'dante'
 
 const WATT_TO_BTU = 3.412
 
@@ -2397,10 +2408,140 @@ const NamingTab = ({ projectName }: { projectName: string }) => {
   )
 }
 
+/* ------------------------------------------------------ Dante-Patch -- */
+
+/**
+ * BEDARF 94 — der Dante-Patch als lesbares, vergleichbares Dokument.
+ *
+ * Eingelesen wird die MATRIX, nicht das Preset-XML: dessen Schema liegt nicht
+ * vor, und ein Parser nach Vermutung sähe aus, als könnte er es. Die
+ * Begründung steht ausführlich im Kopf von `types/dantePatch.ts`.
+ *
+ * Der zweite Import ist wie bei der Szenendatei (Bedarf 92) der eigentliche
+ * Nutzen — und der erste bleibt der Bezugsstand.
+ */
+const DanteTab = ({ projectName }: { projectName: string }) => {
+  const t = useTranslation()
+  const project = useProjectStore((s) => s.project)
+  const [patchA, setPatchA] = useState<DantePatch | null>(null)
+  const [patchB, setPatchB] = useState<DantePatch | null>(null)
+
+  const aktuell = patchB ?? patchA
+  const befunde = useMemo(
+    () => (aktuell ? assessDantePatch(aktuell, project) : []),
+    [aktuell, project],
+  )
+  const unterschiede = useMemo(
+    () => (patchA && patchB ? diffDantePatches(patchA, patchB) : []),
+    [patchA, patchB],
+  )
+
+  const laden = async (f: File) => {
+    const gelesen = parseDanteMatrix(await f.text())
+    if (!patchA) setPatchA(gelesen)
+    else setPatchB(gelesen)
+  }
+
+  return (
+    <div className="flex flex-col gap-3">
+      <p className="text-cp-xs leading-snug text-[var(--cp-text-muted)]">
+        {t(
+          'analysis.dante.intro',
+          'Die Subscription-Matrix als Blatt und als Vergleich. Diese Anwendung geht nicht ins Netz, abonniert nichts und benennt nichts um — sie liest die Tabelle, in die das Preset ohnehin konvertiert wird.',
+        )}
+      </p>
+      <div className="flex flex-wrap items-center gap-2">
+        <label className="cursor-pointer rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs">
+          {t('analysis.dante.import', 'Matrix einlesen')}
+          <input
+            type="file"
+            accept=".csv,.txt"
+            className="hidden"
+            onChange={(e) => {
+              const f = e.target.files?.[0]
+              // Geleert, damit dieselbe Datei zweimal gewählt werden kann.
+              e.target.value = ''
+              if (f) void laden(f)
+            }}
+          />
+        </label>
+        {aktuell && (
+          <>
+            <span className="text-cp-xs text-[var(--cp-text-secondary)]">
+              {t('analysis.dante.count', '{n} Empfangskanäle')
+                .replace('{n}', String(aktuell.subscriptions.length))}
+            </span>
+            {aktuell.unreadable > 0 && (
+              <span className="text-cp-xs text-amber-300/90">
+                {t('analysis.dante.unreadable', '{n} Zeilen nicht lesbar').replace(
+                  '{n}',
+                  String(aktuell.unreadable),
+                )}
+              </span>
+            )}
+            <CsvButton
+              onClick={() =>
+                downloadBlob(
+                  buildExportFilenameWithSuffix(projectName, 'dante-patch', 'csv'),
+                  csvFromTable(dantePatchTable(aktuell)),
+                  'text/csv',
+                )
+              }
+            />
+            {unterschiede.length > 0 && (
+              <button
+                type="button"
+                onClick={() =>
+                  downloadBlob(
+                    buildExportFilenameWithSuffix(projectName, 'dante-aenderungen', 'csv'),
+                    csvFromTable(danteDiffTable(unterschiede)),
+                    'text/csv',
+                  )
+                }
+                className="rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs"
+              >
+                {t('analysis.dante.exportDiff', 'Änderungen')}
+              </button>
+            )}
+          </>
+        )}
+      </div>
+
+      {/* Zwei Stände, keine Änderung: das ist eine Aussage und wird gesagt. */}
+      {patchB && unterschiede.length === 0 && (
+        <p className="text-cp-xs text-[var(--cp-text-secondary)]">
+          {t('analysis.dante.noChange', 'Zwischen den beiden Ständen hat sich am Patch nichts geändert.')}
+        </p>
+      )}
+      {unterschiede.length > 0 && (
+        <ul className="flex flex-col gap-0.5 text-cp-xs">
+          {unterschiede.map((d) => (
+            <li key={`${d.rx}-${d.kind}`}>
+              <span className="text-[var(--cp-text-faint)]">{d.rx}</span>{' '}
+              <span className="text-amber-300/90">{DANTE_DIFF_LABEL[d.kind]}</span>{' '}
+              {d.before} → {d.after}
+            </li>
+          ))}
+        </ul>
+      )}
+      {befunde.length > 0 && (
+        <ul className="flex flex-col gap-1 text-cp-xs">
+          {befunde.map((f, i) => (
+            <li key={`${f.kind}-${i}`} className="text-amber-300/90">
+              <strong>{DANTE_FINDING_LABEL[f.kind]}</strong> — {f.text}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  )
+}
+
 const TABS: { id: Tab; labelKey: string; fallback: string }[] = [
   { id: 'client', labelKey: 'analysis.tab.client', fallback: 'Kunden-Übersicht' },
   { id: 'cost', labelKey: 'analysis.tab.cost', fallback: 'Kosten: Plan gegen Ist' },
   { id: 'naming', labelKey: 'analysis.tab.naming', fallback: 'Namensregel' },
+  { id: 'dante', labelKey: 'analysis.tab.dante', fallback: 'Dante-Patch' },
   { id: 'weight', labelKey: 'analysis.tab.weight', fallback: 'Gewicht & Wärme' },
   { id: 'network', labelKey: 'analysis.tab.network', fallback: 'Netzwerk' },
   { id: 'redundancy', labelKey: 'analysis.tab.redundancy', fallback: 'Redundanz' },
@@ -2451,6 +2592,7 @@ export const AnalysisDialog = () => {
       {active === 'client' && <ClientTab projectName={projectName} />}
       {active === 'cost' && <CostTab projectName={projectName} />}
       {active === 'naming' && <NamingTab projectName={projectName} />}
+      {active === 'dante' && <DanteTab projectName={projectName} />}
     </ModalShell>
   )
 }

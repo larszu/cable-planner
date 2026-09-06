@@ -31,6 +31,17 @@ import {
   venueView,
   type ChannelViewId,
 } from '../../lib/channelList'
+import {
+  diffScenes,
+  matchToPlan,
+  matchTable,
+  parseSceneFile,
+  sceneDiffTable,
+  sceneTable,
+  SCENE_DIFF_LABEL,
+  type MatchMode,
+} from '../../lib/sceneImport'
+import { SCENE_FORMAT_LABEL, type SceneImport } from '../../types/sceneImport'
 import type { Cable } from '../../types/cable'
 import type { EquipmentItem, Port } from '../../types/equipment'
 
@@ -257,6 +268,40 @@ export const PatchListDialog = () => {
   // und React beschwert sich zu Recht.
   const channels = useMemo(() => buildChannelList(equipment, cables), [equipment, cables])
   const monitors = useMemo(() => monitorPaths(equipment, cables), [equipment, cables])
+
+  // BEDARF 92 — zwei Stände: der erste Import und der letzte. Mehr braucht
+  // der Vergleich nicht, und eine Historie aller Uploads wäre eine zweite
+  // Revisionsliste neben der, die das Projekt schon hat.
+  const [szeneA, setSzeneA] = useState<SceneImport | null>(null)
+  const [szeneB, setSzeneB] = useState<SceneImport | null>(null)
+  const [szeneMode, setSzeneMode] = useState<MatchMode>('by-name')
+
+  const ladeSzene = async (f: File) => {
+    const text = await f.text()
+    const gelesen = parseSceneFile(text)
+    // Der erste Import wird der Bezugsstand, jeder weitere der aktuelle. So
+    // vergleicht der zweite Upload gegen den ersten, der dritte gegen den
+    // ersten — der Bezugspunkt bleibt die Probe, nicht der letzte Klick.
+    if (!szeneA) setSzeneA(gelesen)
+    else setSzeneB(gelesen)
+  }
+
+  const szeneAktuell = szeneB ?? szeneA
+  const szeneDiff = useMemo(
+    () => (szeneA && szeneB ? diffScenes(szeneA, szeneB) : []),
+    [szeneA, szeneB],
+  )
+  const szeneMatches = useMemo(
+    () =>
+      szeneAktuell
+        ? matchToPlan(
+            szeneAktuell,
+            channels.map((c) => ({ ch: c.ch, source: c.source })),
+            szeneMode,
+          )
+        : [],
+    [szeneAktuell, channels, szeneMode],
+  )
 
   if (!open) return null
 
@@ -580,6 +625,34 @@ export const PatchListDialog = () => {
                 >
                   {t('channelList.export', '🎚 Kanalliste')}
                 </button>
+                {/* BEDARF 92 — die Kanalliste aus der Datei lesen, die das
+                    Pult ohnehin schreibt. Ein LESER, kein Schreiber: hier
+                    geht nichts ans Pult zurück. Der zweite Import ist der
+                    eigentliche Nutzen — er ist die Änderungsliste aus der
+                    Probe, die heute nur im Kopf von jemandem existiert. */}
+                <label
+                  className="cursor-pointer rounded border border-cp-border px-3 py-1 text-cp-xs text-cp-text-secondary hover:text-cp-text"
+                  title={t(
+                    'scene.importHint',
+                    'Szenendatei des Pults (X32/M32/WING) einlesen. Diese Anwendung schreibt nichts zurück ans Pult.',
+                  )}
+                >
+                  {t('scene.import', '🎛 Szene einlesen')}
+                  <input
+                    type="file"
+                    accept=".scn,.txt,.snap,.shw"
+                    className="hidden"
+                    onChange={(e) => {
+                      const f = e.target.files?.[0]
+                      // Das Feld wird geleert, damit dieselbe Datei zweimal
+                      // gewählt werden kann — genau das braucht der Vergleich,
+                      // wenn jemand nach der Probe neu exportiert und die Datei
+                      // gleich heisst.
+                      e.target.value = ''
+                      if (f) void ladeSzene(f)
+                    }}
+                  />
+                </label>
               </>
             )}
           </div>
@@ -587,6 +660,113 @@ export const PatchListDialog = () => {
       }
     >
       <div className="flex h-full flex-col">
+        {/* BEDARF 92 — was aus der Szenendatei gelesen wurde, und was sich
+            seit dem ersten Import geändert hat. Steht ÜBER der Kabelliste und
+            nicht in einem eigenen Dialog: der Vergleich beantwortet die Frage
+            „was hat sich in der Probe geändert", und die stellt sich genau
+            hier, mit der Liste daneben. */}
+        {szeneAktuell && (
+          <div className="mb-2 rounded border border-cp-border-muted bg-cp-surface-2 p-2 text-cp-xs">
+            <div className="mb-1.5 flex flex-wrap items-center gap-2">
+              <span className="font-medium text-cp-text">
+                {t('scene.title', 'Szenendatei des Pults')}
+              </span>
+              <span className="text-cp-text-secondary">
+                {SCENE_FORMAT_LABEL[szeneAktuell.format]} ·{' '}
+                {t('scene.channelCount', '{n} Kanäle').replace(
+                  '{n}',
+                  String(szeneAktuell.channels.length),
+                )}
+              </span>
+              {/* Eine Datei, aus der die Hälfte nicht gelesen wurde, sieht
+                  sonst aus wie ein Pult mit wenigen Kanälen. */}
+              {szeneAktuell.unreadable > 0 && (
+                <span className="text-amber-300/90">
+                  {t('scene.unreadable', '{n} Zeilen nicht lesbar').replace(
+                    '{n}',
+                    String(szeneAktuell.unreadable),
+                  )}
+                </span>
+              )}
+              <select
+                value={szeneMode}
+                onChange={(e) => setSzeneMode(e.target.value as MatchMode)}
+                aria-label={t('scene.matchMode', 'Zuordnung zum Plan')}
+                className="rounded border border-cp-border bg-cp-surface-3 px-1 py-0.5"
+              >
+                <option value="by-name">{t('scene.byName', 'über den Namen')}</option>
+                <option value="by-number">
+                  {t('scene.byNumber', 'über die Kanalnummer (nur wenn sie stimmt)')}
+                </option>
+              </select>
+              <button
+                type="button"
+                onClick={() =>
+                  downloadBlob(
+                    buildExportFilenameWithSuffix(projectName, 'pult-kanaele', 'csv'),
+                    csvFromTable(sceneTable(szeneAktuell)),
+                    'text/csv',
+                  )
+                }
+                className="rounded border border-cp-border px-2 py-0.5 text-cp-text-secondary hover:text-cp-text"
+              >
+                {t('scene.exportList', 'Kanäle')}
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  downloadBlob(
+                    buildExportFilenameWithSuffix(projectName, 'pult-zuordnung', 'csv'),
+                    csvFromTable(matchTable(szeneMatches)),
+                    'text/csv',
+                  )
+                }
+                className="rounded border border-cp-border px-2 py-0.5 text-cp-text-secondary hover:text-cp-text"
+              >
+                {t('scene.exportMatch', 'Zuordnung')}
+              </button>
+              {szeneDiff.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    downloadBlob(
+                      buildExportFilenameWithSuffix(projectName, 'pult-aenderungen', 'csv'),
+                      csvFromTable(sceneDiffTable(szeneDiff)),
+                      'text/csv',
+                    )
+                  }
+                  className="rounded border border-cp-border px-2 py-0.5 text-cp-text-secondary hover:text-cp-text"
+                >
+                  {t('scene.exportDiff', 'Änderungen')}
+                </button>
+              )}
+            </div>
+            {/* Zwei Stände liegen vor, aber nichts hat sich geändert: das ist
+                eine Aussage und wird gesagt. Ein leerer Block läse sich als
+                „noch nicht verglichen". */}
+            {szeneB && szeneDiff.length === 0 && (
+              <p className="text-cp-text-secondary">
+                {t(
+                  'scene.noChange',
+                  'Zwischen den beiden Ständen hat sich an den Kanalnamen nichts geändert.',
+                )}
+              </p>
+            )}
+            {szeneDiff.length > 0 && (
+              <ul className="flex flex-col gap-0.5">
+                {szeneDiff.map((d) => (
+                  <li key={`${d.ch}-${d.kind}`}>
+                    <span className="tabular-nums text-cp-text-faint">Ch {d.ch}</span>{' '}
+                    <span className="text-amber-300/90">{SCENE_DIFF_LABEL[d.kind]}</span>{' '}
+                    {d.kind === 'recolored'
+                      ? `${d.beforeColor ?? '—'} → ${d.afterColor ?? '—'}`
+                      : `${d.before || '—'} → ${d.after || '—'}`}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
         <div className="flex items-center gap-2 border-b border-cp-border-muted py-2">
           <input
             value={filter}
