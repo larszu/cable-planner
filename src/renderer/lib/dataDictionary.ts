@@ -259,6 +259,9 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   Y: 'Die Y-Position auf der Bühnenfläche.',
   Zeit: 'Der Zeitpunkt des Eintrags, wie ihn ein Mensch eingetragen hat.',
   Zeichen: 'Wie viele Zeichen der neue Name hat.',
+  Zeitpunkt: 'Wann der Vorgang stattgefunden hat (ISO-Zeitstempel).',
+  Von: 'Wo das Objekt vor dem Umräumen lag. „nicht mehr im Lager" heißt: der Lagerort existiert nicht mehr.',
+  Nach: 'Wohin es gebucht wurde — im Klartext des Zeitpunkts, damit die Auskunft auch nach einer Umbenennung stimmt.',
   Ziel:
     'Wohin es geht. Bei der Ausspielung das Ausspielziel (Plattform-Adresse), sonst das empfangende Gerät oder der empfangende Kanal.',
   'Zugeordnet ueber': 'Woran das vorgefundene Gerät dem geplanten zugeordnet wurde.',

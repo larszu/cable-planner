@@ -149,11 +149,16 @@ describe('Erreichbarkeit im Lager-Dialog', () => {
     expect(inventarQuelle).toContain("if (e.key === 'Enter') auditScanNow()")
   })
 
-  it('uebernimmt den Ort ueber `moveUnit`, nicht als stilles Feld', () => {
+  it('uebernimmt den Ort als VORGANG, nicht als stilles Feld', () => {
     // Ein Ortswechsel gehoert in die Historie der Einheit; sonst bleibt „wann
     // kam die hierher?" unbeantwortet.
     expect(inventarQuelle).toContain('moveUnit(r.unitId, auditNode, nodePathLabel(nodes, auditNode))')
-    expect(inventarQuelle).toContain("updateItem(r.itemId, { locationId: auditNode })")
+    // BEDARF 106 — dasselbe fuer den Artikel. Bis hierher lief das ueber
+    // `updateItem`, also ueber dieselbe Funktion, die eine Notiz aendert: die
+    // Bewegung war von einer beliebigen Feldaenderung nicht zu unterscheiden
+    // und hinterliess nichts.
+    expect(inventarQuelle).toContain('moveItem(r.itemId, auditNode)')
+    expect(inventarQuelle).not.toContain('updateItem(r.itemId')
   })
 
   it('zeigt das Ergebnis mit Modell und erwartetem Ort', () => {
