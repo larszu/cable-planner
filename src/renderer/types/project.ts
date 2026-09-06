@@ -2,6 +2,7 @@ import type { Cable } from './cable'
 import type { EquipmentItem } from './equipment'
 import type { GreenGoConfig } from './greengo'
 import type { LocationFrame } from './location'
+import type { VenueAnswer } from './venueAnswer'
 import type { VideoFormatId } from './videoFormat'
 import type { PowerStandardId } from './powerStandard'
 import type { ChangeLogEntry, PendingChange } from './lifecycle'
@@ -119,6 +120,16 @@ export interface ProjectMetadata {
   lengthEstimation?: LengthEstimationScheme
   /** Festinstallation — Standort/Adresse der Anlage (Übergabe-Doku). */
   siteAddress?: string
+  /**
+   * Bedarf 85 — was die Haus-IT auf das Anforderungsblatt geantwortet hat.
+   *
+   * Liegt am Projekt und nicht am Gerät: die Frage ist eine Frage an das Haus,
+   * nicht an eine Kiste. Jede Antwort trägt den Ort, für den sie gegeben wurde,
+   * eingefroren beim Speichern — damit eine aus einer Vorlage mitgereiste
+   * Antwort sagt, aus welchem Haus sie stammt, statt eine Genehmigung zu
+   * behaupten, die es hier nie gab.
+   */
+  venueAnswers?: VenueAnswer[]
   /** Festinstallation — Übergabe-/Abnahme-Datum (ISO). */
   handoverDate?: string
   /** Festinstallation — wartender Dienstleister / Servicekontakt. */

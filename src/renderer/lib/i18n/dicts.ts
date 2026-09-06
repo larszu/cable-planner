@@ -3208,6 +3208,8 @@ export const en: Dict = {
   // App.tsx PDF progress overlay
   'app.loadReport.title': 'Some records could not be loaded',
   'app.loadReport.sourceIdentity': 'Source',
+  'app.loadReport.deliveryDestination': 'Delivery destination',
+  'app.loadReport.venueAnswer': 'Venue IT answer',
   'app.loadReport.duplicateId': 'duplicate id, the first entry wins',
   'app.loadReport.missingRequired': 'required field missing (name)',
   'app.loadReport.hint': 'Devices that pointed at these roles lost their assignment — including the TSL address used for tally. Saving overwrites the file with this state.',
@@ -4157,6 +4159,20 @@ export const en: Dict = {
   'analysis.venue.igmpConflict':
     'The plan carries both: {audio} (audio vendors\u2019 field advice: turn IGMP snooping off) and {video} (does not work without multicast management). On a shared network those two pieces of advice are mutually exclusive \u2014 that belongs before the build, not into the night.',
   'analysis.venue.rackDoor': 'Rack-door sheet',
+  // Bedarf 85 — was das Haus geantwortet hat.
+  'analysis.venue.a.granted': 'granted',
+  'analysis.venue.a.partial': 'with a condition',
+  'analysis.venue.a.refused': 'refused',
+  'analysis.venue.a.pending': 'no answer yet',
+  'analysis.venue.a.elsewhere': 'answer from a different venue',
+  'analysis.venue.a.stale': 'answer to a point the plan no longer raises',
+  'analysis.venue.a.notePh': 'condition or workaround, in plain words',
+  'analysis.venue.a.elsewhereHint':
+    'This answer was given for {dort}; this project is at {hier}. It does not apply here until somebody asks again.',
+  'analysis.venue.a.staleHead':
+    'Answers to points the plan no longer raises — knowledge about the venue, not rubbish:',
+  'analysis.venue.a.open': '{n} points to call back about: {liste}',
+  'analysis.venue.a.export': 'Question and answer',
   'analysis.venue.vlanTable': 'VLAN table',
   'analysis.venue.item.vlans': 'VLANs',
   'analysis.venue.item.subnets': 'Address ranges',

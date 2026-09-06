@@ -38,6 +38,16 @@ import {
   venueRequestTable,
   vlanTable,
 } from '../../lib/venueNetworkRequest'
+import {
+  ANSWER_STATE_LABEL,
+  mergeVenueAnswers,
+  openQuestions,
+  recordAnswer,
+  upsertAnswer,
+  venueAnswerTable,
+  type AnswerRowState,
+} from '../../lib/venueAnswers'
+import type { VenueAnswerStatus } from '../../types/venueAnswer'
 import { RF_BANDS, bandsForFrequency, bandLabel } from '../../lib/rfBands'
 
 type Tab = 'weight' | 'network' | 'redundancy' | 'rf' | 'runs' | 'sheet'
@@ -260,6 +270,10 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
   const t = useTranslation()
   const equipment = useProjectStore((s) => s.project.equipment)
   const cables = useProjectStore((s) => s.project.cables)
+  // BEDARF 85 — die Antwort des Hauses. Sie liegt am Projekt, nicht am Geraet.
+  const venueAnswers = useProjectStore((s) => s.project.metadata.venueAnswers)
+  const siteAddress = useProjectStore((s) => s.project.metadata.siteAddress)
+  const updateProjectMetadata = useProjectStore((s) => s.updateProjectMetadata)
 
   const { rows, duplicates, vlanCounts, danteIssues, subnets } = useMemo(() => {
     const rows = equipment
@@ -384,10 +398,63 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
     }
   }
 
+  // BEDARF 85 — Frage und Antwort in einer Liste. `siteAddress` ist der Ort
+  // DIESES Projekts; weicht er vom eingefrorenen Ort einer Antwort ab, sagt
+  // die Zeile das, statt die Genehmigung stillschweigend zu uebernehmen.
+  const answerRows = useMemo(
+    () =>
+      mergeVenueAnswers({
+        request,
+        answers: venueAnswers ?? [],
+        ...(siteAddress ? { venue: siteAddress } : {}),
+      }),
+    [request, venueAnswers, siteAddress],
+  )
+  const offen = useMemo(() => openQuestions(answerRows), [answerRows])
+
+  const stateLabel = (st: AnswerRowState): string =>
+    ({
+      granted: t('analysis.venue.a.granted', 'genehmigt'),
+      partial: t('analysis.venue.a.partial', 'mit Auflage'),
+      refused: t('analysis.venue.a.refused', 'abgelehnt'),
+      pending: t('analysis.venue.a.pending', 'keine Antwort'),
+      elsewhere: t('analysis.venue.a.elsewhere', 'Antwort aus einem anderen Haus'),
+      stale: t('analysis.venue.a.stale', 'Antwort ohne Frage im Plan'),
+    })[st] ?? ANSWER_STATE_LABEL[st]
+
+  const setzeAntwort = (key: string, status: VenueAnswerStatus) => {
+    const vorher = (venueAnswers ?? []).find((a) => a.key === key)
+    updateProjectMetadata({
+      venueAnswers: upsertAnswer(
+        venueAnswers ?? [],
+        recordAnswer(key, status, new Date().toISOString(), {
+          ...(vorher?.note ? { note: vorher.note } : {}),
+          ...(vorher?.by ? { by: vorher.by } : {}),
+          ...(siteAddress ? { venue: siteAddress } : {}),
+        }),
+      ),
+    })
+  }
+
+  const setzeNotiz = (key: string, note: string) => {
+    const vorher = (venueAnswers ?? []).find((a) => a.key === key)
+    if (!vorher) return
+    updateProjectMetadata({
+      venueAnswers: upsertAnswer(venueAnswers ?? [], { ...vorher, note }),
+    })
+  }
+
   const exportVenueRequest = () => {
     downloadBlob(
       buildExportFilenameWithSuffix(projectName, 'haus-it-anforderung', 'csv'),
       csvFromTable(venueRequestTable(request)),
+      'text/csv',
+    )
+  }
+  const exportVenueAnswers = () => {
+    downloadBlob(
+      buildExportFilenameWithSuffix(projectName, 'haus-it-antwort', 'csv'),
+      csvFromTable(venueAnswerTable(answerRows, venueItemLabel)),
       'text/csv',
     )
   }
@@ -663,20 +730,84 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
           </div>
         )}
         <ul className="flex flex-col gap-0.5">
-          {request.items.map((i) => (
-            <li key={i.key} className="flex flex-wrap items-baseline gap-2 text-cp-xs">
-              <span className="w-52 shrink-0 text-[var(--cp-text-muted)]">{venueItemLabel(i.key)}</span>
-              {i.origin === 'derived' ? (
-                <span className="font-mono text-[var(--cp-text)]">{i.value}</span>
-              ) : (
-                <span className="flex-1 text-amber-300/90">{i.why}</span>
-              )}
-              {i.source && (
-                <span className="w-full pl-52 text-[10px] text-[var(--cp-text-faint)]">{i.source}</span>
-              )}
-            </li>
-          ))}
+          {request.items.map((i) => {
+            const antwort = answerRows.find((r) => r.key === i.key)
+            return (
+              <li key={i.key} className="flex flex-wrap items-baseline gap-2 text-cp-xs">
+                <span className="w-52 shrink-0 text-[var(--cp-text-muted)]">{venueItemLabel(i.key)}</span>
+                {i.origin === 'derived' ? (
+                  <span className="font-mono text-[var(--cp-text)]">{i.value}</span>
+                ) : (
+                  <span className="flex-1 text-amber-300/90">{i.why}</span>
+                )}
+                {i.source && (
+                  <span className="w-full pl-52 text-[10px] text-[var(--cp-text-faint)]">{i.source}</span>
+                )}
+                {/* BEDARF 85 — die Antwort direkt an der Frage. Vier Knoepfe, weil
+                    „mit Auflage" der haeufigste Ausgang ist und ein Ja/Nein-Kreuz
+                    ihn beim naechsten Mal in beide Richtungen falsch macht. */}
+                <span className="flex w-full items-center gap-1 pl-52">
+                  {(['granted', 'partial', 'refused', 'pending'] as VenueAnswerStatus[]).map((st) => (
+                    <button
+                      key={st}
+                      type="button"
+                      onClick={() => setzeAntwort(i.key, st)}
+                      className={`rounded border px-1.5 py-0.5 text-[10px] ${
+                        antwort?.answered === st || (st === 'pending' && !antwort?.answered)
+                          ? 'border-[var(--cp-accent)] text-[var(--cp-accent)]'
+                          : 'border-[var(--cp-border)] text-[var(--cp-text-faint)] hover:text-[var(--cp-text)]'
+                      }`}
+                    >
+                      {stateLabel(st)}
+                    </button>
+                  ))}
+                  {antwort?.answered && antwort.answered !== 'pending' && (
+                    <input
+                      value={antwort.note ?? ''}
+                      onChange={(e) => setzeNotiz(i.key, e.target.value)}
+                      placeholder={t('analysis.venue.a.notePh', 'Auflage oder Umweg im Klartext')}
+                      className="min-w-0 flex-1 rounded border border-[var(--cp-border)] bg-transparent px-1.5 py-0.5 text-[10px] text-[var(--cp-text)] outline-none placeholder:text-[var(--cp-text-faint)]"
+                    />
+                  )}
+                </span>
+                {antwort?.state === 'elsewhere' && (
+                  <span className="w-full pl-52 text-[10px] text-amber-300/90">
+                    {format(
+                      t(
+                        'analysis.venue.a.elsewhereHint',
+                        'Diese Antwort wurde für {dort} gegeben, dieses Projekt steht in {hier}. Sie gilt hier nicht, bis jemand nachfragt.',
+                      ),
+                      { dort: antwort.venue ?? '?', hier: antwort.hier ?? '?' },
+                    )}
+                  </span>
+                )}
+              </li>
+            )
+          })}
         </ul>
+        {answerRows.some((r) => r.state === 'stale') && (
+          <div className="mt-2 border-t border-[var(--cp-border-muted)] pt-2 text-[10px] text-[var(--cp-text-faint)]">
+            {t(
+              'analysis.venue.a.staleHead',
+              'Antworten zu Punkten, die der Plan nicht mehr stellt — Auskunft über das Haus, nicht Müll:',
+            )}{' '}
+            {answerRows
+              .filter((r) => r.state === 'stale')
+              .map((r) => `${venueItemLabel(r.key)} (${stateLabel(r.answered ?? 'pending')})`)
+              .join(', ')}
+          </div>
+        )}
+        {offen.length > 0 && (
+          <div className="mt-2 text-cp-xs text-amber-300/90">
+            {format(
+              t('analysis.venue.a.open', '{n} Punkte, wegen derer noch einmal anzurufen ist: {liste}'),
+              {
+                n: String(offen.length),
+                liste: offen.map((r) => venueItemLabel(r.key)).join(', '),
+              },
+            )}
+          </div>
+        )}
       </div>
 
       <div className="flex justify-end gap-2">
@@ -686,6 +817,13 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
           className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs font-medium text-[var(--cp-text)] hover:bg-[var(--cp-surface-2)]"
         >
           <Icon icon={Download} size="xs" /> {t('analysis.venue.rackDoor', 'Rack-Tür-Blatt')}
+        </button>
+        <button
+          type="button"
+          onClick={exportVenueAnswers}
+          className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs font-medium text-[var(--cp-text)] hover:bg-[var(--cp-surface-2)]"
+        >
+          <Icon icon={Download} size="xs" /> {t('analysis.venue.a.export', 'Frage und Antwort')}
         </button>
         <button
           type="button"

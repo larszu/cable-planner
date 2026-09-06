@@ -1476,7 +1476,16 @@ export default function App() {
           <ul className="max-h-40 space-y-0.5 overflow-y-auto text-[11px] text-cp-text-secondary">
             {lastLoadReport.drops.slice(0, 20).map((d, i) => (
               <li key={`${d.kind}-${d.label}-${i}`}>
-                {t('app.loadReport.sourceIdentity', 'Signalquelle')}
+                {/* Die Art beschriftet die Zeile. Bis Bedarf 85 stand hier fuer
+                    JEDEN Fall „Signalquelle" — auch fuer ein verworfenes
+                    Ausspielziel aus Initiative 9. Ein Bericht, der jemanden
+                    die falsche Sorte Datensatz in seiner Datei suchen laesst,
+                    ist schlechter als eine Zeile ohne Namen. */}
+                {d.kind === 'delivery-destination'
+                  ? t('app.loadReport.deliveryDestination', 'Ausspielziel')
+                  : d.kind === 'venue-answer'
+                    ? t('app.loadReport.venueAnswer', 'Antwort der Haus-IT')
+                    : t('app.loadReport.sourceIdentity', 'Signalquelle')}
                 {d.label ? ` „${d.label}"` : ''}
                 {' — '}
                 {d.reason === 'duplicate-id'

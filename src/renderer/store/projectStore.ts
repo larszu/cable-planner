@@ -71,6 +71,7 @@ import {
   sourceIdentityIdSet,
 } from '../lib/sourceIdentity'
 import { normaliseDeliveryDestinations } from '../lib/deliveryNormalise'
+import { normaliseVenueAnswers } from '../lib/venueAnswers'
 import { isNetworkInterfaceRole, normaliseNetworkInterface } from '../lib/networkInterfaces'
 import type { NetworkInterface } from '../types/network'
 
@@ -611,6 +612,12 @@ const healProjectPositions = (
   // Initiative 9 — Ausspielziele. Dieselbe Bauform wie die Rollen darueber:
   // normalisieren, Verworfenes melden, Backup-Zeiger ins Leere entfernen.
   const deliveryDestinations = normaliseDeliveryDestinations(project.deliveryDestinations, onDrop)
+  // Bedarf 85 — die Antwort des Hauses. Was keine Antwort ist, wird verworfen
+  // und gemeldet: eine Zeile mit unbekanntem Ausgang saehe im Blatt aus wie
+  // eine Auskunft und waere keine.
+  const venueAnswers = normaliseVenueAnswers(project.metadata?.venueAnswers, (d) =>
+    onDrop?.({ kind: 'venue-answer', reason: d.reason, label: d.label }),
+  )
   return {
     ...project,
     equipment: project.equipment.map((item) => {
@@ -757,7 +764,10 @@ const healProjectPositions = (
     sourceIdentities,
     deliveryDestinations,
     // ADR-003 — Rentman-Zaehler: gesendet ist nicht bestaetigt.
-    metadata: healRentmanCableMap(project.metadata),
+    metadata: {
+      ...healRentmanCableMap(project.metadata),
+      ...(venueAnswers ? { venueAnswers } : {}),
+    },
   }
 }
 
