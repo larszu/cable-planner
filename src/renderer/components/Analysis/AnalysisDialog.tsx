@@ -52,6 +52,15 @@ import { RF_BANDS, bandsForFrequency, bandLabel } from '../../lib/rfBands'
 import { PTP_FINDING_LABEL, buildPtpPlan, ptpTable } from '../../lib/ptpPlan'
 import { CREW_SECTION_LABEL, buildCrewSheet, crewSheetTable } from '../../lib/crewNetworkSheet'
 import {
+  MULTICAST_ESSENCE_LABEL,
+  MULTICAST_FINDING_LABEL,
+  allocateMulticast,
+  buildMulticastPlan,
+  multicastMac,
+  multicastTable,
+} from '../../lib/multicastPlan'
+import { MULTICAST_LEG_LABEL } from '../../types/multicast'
+import {
   SPECTRUM_SOURCE_LABEL,
   buildSpectrumPlan,
   conflictParticipants,
@@ -383,6 +392,54 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
   // aus vier Quellen schoepft (Geraete, Kabel, Kontakte, Antworten des Hauses).
   const projekt = useProjectStore((s) => s.project)
   const crew = useMemo(() => buildCrewSheet(projekt), [projekt])
+
+  // BEDARF 72 — der Multicast-Adressplan. Die Fluesse kommen aus dem
+  // Kabelgraph, die Adressen aus dem Projekt.
+  const setMulticastConfig = useProjectStore((s) => s.setMulticastConfig)
+  const multicast = useMemo(() => buildMulticastPlan(projekt), [projekt])
+  // Der Entwurf liegt lokal, damit das Tippen im Pool-Feld nicht bei jedem
+  // Zeichen eine Vergabe-Rechnung ueber mehrere hundert Fluesse ausloest.
+  const [poolDraft, setPoolDraft] = useState(projekt.multicast?.pool ?? '')
+  const [portDraft, setPortDraft] = useState(String(projekt.multicast?.basePort ?? 20000))
+
+  const rahmenUebernehmen = () => {
+    const port = Number(portDraft)
+    setMulticastConfig({
+      pool: poolDraft.trim(),
+      basePort: Number.isInteger(port) && port > 0 && port <= 65535 ? port : 20000,
+      assignments: projekt.multicast?.assignments ?? [],
+    })
+  }
+
+  // Vergeben heisst NACHVERGEBEN. `allocateMulticast` bewegt keine bestehende
+  // Adresse — eine verteilte Adresse umzunummerieren waere der stille Verlust
+  // aus Bedarf 96. Deshalb braucht dieser Knopf auch keine Rueckfrage.
+  const vergeben = () => {
+    const cfg = projekt.multicast
+    if (!cfg) return
+    const res = allocateMulticast(multicast.flows, cfg)
+    setMulticastConfig({ ...cfg, assignments: res.assignments })
+  }
+
+  // Verwaiste Vergaben wegzuraeumen ist eine eigene, sichtbare Handlung: sie
+  // LOESCHT etwas, und was sie loescht, steht darueber namentlich da.
+  const verwaisteEntfernen = () => {
+    const cfg = projekt.multicast
+    if (!cfg) return
+    const weg = new Set(multicast.stale.map((a) => `${a.flowKey}|${a.leg}`))
+    setMulticastConfig({
+      ...cfg,
+      assignments: cfg.assignments.filter((a) => !weg.has(`${a.flowKey}|${a.leg}`)),
+    })
+  }
+
+  const exportMulticast = () => {
+    downloadBlob(
+      buildExportFilenameWithSuffix(projectName, 'multicast-adressplan', 'csv'),
+      csvFromTable(multicastTable(multicast)),
+      'text/csv',
+    )
+  }
 
   // Ausgeschriebene Beschriftungen statt `t(`...${key}`)`: ein zusammengesetzter
   // Schluessel ist fuer den i18n-Abdeckungs-Test unsichtbar, und der deutsche
@@ -917,6 +974,143 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
         </div>
       )}
 
+      {/* BEDARF 72 — der Multicast-Adressplan. Nur sichtbar, wenn der Plan
+          ueberhaupt Multicast-Essenz traegt: ein reiner SDI-Aufbau hat keine
+          Gruppen, und ein leerer Abschnitt waere Rauschen. */}
+      {multicast.needsMulticast && (
+        <div className="rounded-cp-panel border border-[var(--cp-border)] bg-[var(--cp-surface-1)] p-cp-3">
+          <div className="mb-2 text-cp-sm font-semibold text-[var(--cp-text)]">
+            {t('analysis.mc.title', 'Multicast-Adressplan')}
+          </div>
+          <div className="mb-2 text-cp-xs text-[var(--cp-text-muted)]">
+            {t(
+              'analysis.mc.intro',
+              'Jede Essenz ist eine eigene Gruppe, und die Gruppe gehört dem Sender — fünf Empfänger an einer Kamera abonnieren eine, nicht fünf. Zwei Regeln sieht man einer Tabelle nicht an: Adresse und Port müssen zusammen eindeutig sein, und 32 Gruppen fallen auf dieselbe L2-Adresse. Die MAC steht deshalb im Blatt.',
+            )}
+          </div>
+
+          <div className="mb-2 flex flex-wrap items-end gap-2">
+            <label className="flex flex-col gap-0.5">
+              <span className="text-cp-xs text-[var(--cp-text-muted)]">
+                {t('analysis.mc.pool', 'Pool (CIDR)')}
+              </span>
+              <input
+                value={poolDraft}
+                onChange={(e) => setPoolDraft(e.target.value)}
+                onBlur={rahmenUebernehmen}
+                placeholder="239.100.0.0/16"
+                className="w-44 rounded border border-[var(--cp-border)] bg-[var(--cp-surface-2)] px-2 py-1 font-mono text-cp-xs text-[var(--cp-text)]"
+              />
+            </label>
+            <label className="flex flex-col gap-0.5">
+              <span className="text-cp-xs text-[var(--cp-text-muted)]">
+                {t('analysis.mc.port', 'UDP-Port')}
+              </span>
+              <input
+                value={portDraft}
+                onChange={(e) => setPortDraft(e.target.value)}
+                onBlur={rahmenUebernehmen}
+                inputMode="numeric"
+                className="w-24 rounded border border-[var(--cp-border)] bg-[var(--cp-surface-2)] px-2 py-1 font-mono text-cp-xs text-[var(--cp-text)]"
+              />
+            </label>
+            <button
+              type="button"
+              onClick={vergeben}
+              disabled={!multicast.pool || multicast.open.length === 0}
+              className="rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs font-medium text-[var(--cp-text)] hover:bg-[var(--cp-surface-2)] disabled:opacity-40"
+            >
+              {format(t('analysis.mc.allocate', '{n} offene Beine vergeben'), {
+                n: String(multicast.open.length),
+              })}
+            </button>
+          </div>
+
+          {multicast.poolError && (
+            <div className="mb-2 text-cp-xs text-amber-300/90">{multicast.poolError}</div>
+          )}
+          {!multicast.pool && !multicast.poolError && (
+            <div className="mb-2 text-cp-xs text-[var(--cp-text-faint)]">
+              {t(
+                'analysis.mc.noPool',
+                'Kein Pool erklärt — es wird nichts vergeben. Ein Pool mit /9 oder enger kann mit sich selbst nicht kollidieren; erst ein weiterer lässt das Bit los, das die 32 Gruppen auf eine MAC fallen lässt.',
+              )}
+            </div>
+          )}
+
+          <ul className="flex flex-col gap-0.5 text-cp-xs">
+            {multicast.flows.map((f) =>
+              f.legs.map((leg) => {
+                const a = multicast.assignments.find((x) => x.flowKey === f.key && x.leg === leg)
+                return (
+                  <li key={`${f.key}-${leg}`} className="flex flex-wrap items-baseline gap-2">
+                    <span className="flex-1 text-[var(--cp-text)]">{f.label}</span>
+                    <span className="w-20 shrink-0 text-[var(--cp-text-muted)]">
+                      {MULTICAST_ESSENCE_LABEL[f.essence]}
+                    </span>
+                    <span className="w-24 shrink-0 text-[var(--cp-text-faint)]">
+                      {MULTICAST_LEG_LABEL[leg]}
+                    </span>
+                    <span
+                      className={`w-32 shrink-0 font-mono ${
+                        a ? 'text-[var(--cp-text)]' : 'text-amber-300/90'
+                      }`}
+                    >
+                      {a ? a.address : t('analysis.mc.open', 'offen')}
+                    </span>
+                    <span className="w-40 shrink-0 font-mono text-[var(--cp-text-faint)]">
+                      {a ? (multicastMac(a.address) ?? '') : ''}
+                    </span>
+                  </li>
+                )
+              }),
+            )}
+          </ul>
+
+          {multicast.stale.length > 0 && (
+            <div className="mt-2 flex flex-wrap items-baseline gap-2">
+              <span className="text-cp-xs text-[var(--cp-text-faint)]">
+                {format(
+                  t(
+                    'analysis.mc.stale',
+                    '{n} Vergabe(n) gehören zu Flüssen, die es nicht mehr gibt: {liste}',
+                  ),
+                  {
+                    n: String(multicast.stale.length),
+                    liste: multicast.stale.map((a) => a.address).join(', '),
+                  },
+                )}
+              </span>
+              <button
+                type="button"
+                onClick={verwaisteEntfernen}
+                className="rounded border border-[var(--cp-border)] px-2 py-0.5 text-cp-xs text-[var(--cp-text)] hover:bg-[var(--cp-surface-2)]"
+              >
+                {t('analysis.mc.dropStale', 'Verwaiste entfernen')}
+              </button>
+            </div>
+          )}
+
+          {multicast.findings.length > 0 && (
+            <ul className="mt-2 flex flex-col gap-1">
+              {multicast.findings.map((f, i) => (
+                <li key={`${f.kind}-${i}`} className="text-cp-xs">
+                  <span
+                    className={
+                      f.kind === 'outside-pool'
+                        ? 'text-[var(--cp-text-muted)]'
+                        : 'text-amber-300/90'
+                    }
+                  >
+                    <strong>{MULTICAST_FINDING_LABEL[f.kind]}</strong> — {f.text}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+
       {/* BEDARF 77 — das Merkblatt. Kurz gehalten: es soll auf eine Seite
           passen und von jemandem gelesen werden, der gerade ein Kabel in der
           Hand hat. Was der Plan nicht weiss, steht als Frage drauf statt als
@@ -988,6 +1182,14 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
           className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs font-medium text-[var(--cp-text)] hover:bg-[var(--cp-surface-2)] disabled:opacity-40"
         >
           <Icon icon={Download} size="xs" /> {t('analysis.ptp.export', 'Zeit-Plan (PTP)')}
+        </button>
+        <button
+          type="button"
+          onClick={exportMulticast}
+          disabled={!multicast.needsMulticast}
+          className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs font-medium text-[var(--cp-text)] hover:bg-[var(--cp-surface-2)] disabled:opacity-40"
+        >
+          <Icon icon={Download} size="xs" /> {t('analysis.mc.export', 'Multicast-Adressplan')}
         </button>
         <button
           type="button"

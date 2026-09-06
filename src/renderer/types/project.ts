@@ -252,6 +252,17 @@ export interface CablePlannerProject {
    * einer einzelnen Ausspielung. Zwei Ziele teilen sich dieselbe Aufzeichnung.
    */
   archiveRecording?: import('./delivery').ArchiveRecording
+  /**
+   * Bedarf 72 — der Multicast-Adressplan: aus welchem Pool vergeben wird und
+   * welche Gruppe welcher Sende-Port belegt.
+   *
+   * Nur die VERGABEN stehen hier. Welche Flüsse es gibt, leitet
+   * `collectFlows` aus dem Kabelgraph ab — ein zweites Feld dafür wäre ab dem
+   * ersten umgesteckten Kabel falsch. Die Adresse dagegen muss stehen
+   * bleiben: sie ist verteilt worden, und eine, die sich beim nächsten Öffnen
+   * neu berechnet, sieht aus wie die alte und ist es nicht.
+   */
+  multicast?: import('./multicast').MulticastConfig
 }
 
 /** #412 — Ein festgeschriebener Projekt-Stand. */

@@ -191,4 +191,17 @@ export const interfaceIsEmpty = (n: NetworkInterface): boolean =>
   // an der jemand NUR die Domaene eingetragen hat, „leer" — und `deviceInterfaces`
   // wirft leere Schnittstellen weg. Die Eingabe waere beim naechsten Laden
   // verschwunden, ohne dass irgendwo etwas steht.
-  n.ptpDomain === undefined && !n.ptpProfile && !n.ptpRole
+  n.ptpDomain === undefined && !n.ptpProfile && !n.ptpRole &&
+  // BEDARF 72: die ROLLE zaehlt genauso mit, und aus demselben Grund.
+  // Aufgefallen beim Multicast-Adressplan, der das zweite 2022-7-Bein aus
+  // `media-primary` PLUS `media-secondary` ableitet: waehrend der Planung hat
+  // noch keine der beiden Karten eine Adresse — es steht nur die Rolle da.
+  // Ohne diese Zeile war so eine Schnittstelle „leer", `deviceInterfaces`
+  // warf sie weg und `normaliseNetworkInterface` gab `null` zurueck. Das
+  // Sekundaernetz war beim naechsten Laden verschwunden, und der Adressplan
+  // haette anschliessend behauptet, dieser Fluss brauche nur EIN Bein.
+  //
+  // `unspecified` zaehlt NICHT mit: das ist die Abwesenheit einer Angabe, und
+  // Schnittstelle 0 traegt sie immer. Wuerde sie mitzaehlen, waere nie eine
+  // Schnittstelle leer und jedes Geraet bekaeme eine erfundene NIC 0.
+  (!n.role || n.role === 'unspecified')
