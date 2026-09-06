@@ -71,6 +71,7 @@ import {
   sourceIdentityIdSet,
 } from '../lib/sourceIdentity'
 import { normaliseDeliveryDestinations } from '../lib/deliveryNormalise'
+import { normaliseMulticastConfig } from '../lib/multicastPlan'
 import { normaliseVenueAnswers } from '../lib/venueAnswers'
 import { isNetworkInterfaceRole, normaliseNetworkInterface } from '../lib/networkInterfaces'
 import type { NetworkInterface } from '../types/network'
@@ -440,6 +441,7 @@ export interface ProjectState {
   /** Drum-Mikrofonierung — den Drum-Kit-Plan setzen (undefined = entfernen). */
   setDrumKit: (plan: import('../types/drumKit').DrumKitPlan | undefined) => void
   setWirelessRig: (plan: import('../types/wirelessRig').WirelessRigPlan | undefined) => void
+  setMulticastConfig: (config: import('../types/multicast').MulticastConfig | undefined) => void
   /** v7.9.3 — Mobile-Viewer Check-State setzen (vom POST /checks-IPC).
    *  Komplettes Objekt-Replace damit gelöschte Checks (false → kein
    *  key) auch übernommen werden. */
@@ -620,6 +622,13 @@ const healProjectPositions = (
   const venueAnswers = normaliseVenueAnswers(project.metadata?.venueAnswers, (d) =>
     onDrop?.({ kind: 'venue-answer', reason: d.reason, label: d.label }),
   )
+  // Bedarf 72 — die Multicast-Vergaben. Verworfen wird nur, was UNLESBAR ist;
+  // eine lesbare Adresse mit einem Problem (gesperrter Bereich, L2-Alias,
+  // ausserhalb des Pools) bleibt stehen und bekommt einen Befund. Sie hier
+  // wegzuwerfen hiesse, den Fehler zu verstecken, statt ihn zu zeigen.
+  const multicast = normaliseMulticastConfig(project.multicast, (d) =>
+    onDrop?.({ kind: 'multicast-assignment', reason: d.reason, label: d.label }),
+  )
   return {
     ...project,
     equipment: project.equipment.map((item) => {
@@ -765,6 +774,8 @@ const healProjectPositions = (
     // ADR-001 — Rollen sind optional; alte Projekte heilen zu [].
     sourceIdentities,
     deliveryDestinations,
+    // Bedarf 72 — `undefined` heisst „kein Adressplan", nicht „leerer".
+    multicast,
     // ADR-003 — Rentman-Zaehler: gesendet ist nicht bestaetigt.
     metadata: {
       ...healRentmanCableMap(project.metadata),

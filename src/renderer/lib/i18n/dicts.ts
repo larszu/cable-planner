@@ -3210,6 +3210,7 @@ export const en: Dict = {
   'app.loadReport.sourceIdentity': 'Source',
   'app.loadReport.deliveryDestination': 'Delivery destination',
   'app.loadReport.venueAnswer': 'Venue IT answer',
+  'app.loadReport.multicastAssignment': 'Multicast assignment',
   'app.loadReport.duplicateId': 'duplicate id, the first entry wins',
   'app.loadReport.missingRequired': 'required field missing (name)',
   'app.loadReport.hint': 'Devices that pointed at these roles lost their assignment — including the TSL address used for tally. Saving overwrites the file with this state.',
@@ -4253,6 +4254,19 @@ export const en: Dict = {
   'analysis.crew.title': 'Network briefing sheet for the crew',
   'analysis.crew.ask': '{n} points to settle on site',
   'analysis.crew.export': 'Crew network sheet',
+  // Bedarf 72 — der Multicast-Adressplan.
+  'analysis.mc.title': 'Multicast address plan',
+  'analysis.mc.intro':
+    'Every essence is its own group, and the group belongs to the sender \u2014 five receivers on one camera subscribe to one, not five. Two rules a table never shows: address and port must be unique together, and 32 groups collapse onto the same L2 address. That is why the MAC is on the sheet.',
+  'analysis.mc.pool': 'Pool (CIDR)',
+  'analysis.mc.port': 'UDP port',
+  'analysis.mc.allocate': 'Allocate {n} open legs',
+  'analysis.mc.noPool':
+    'No pool declared \u2014 nothing is allocated. A pool of /9 or narrower cannot collide with itself; only a wider one frees the bit that drops 32 groups onto one MAC.',
+  'analysis.mc.open': 'open',
+  'analysis.mc.stale': '{n} assignment(s) belong to flows that no longer exist: {liste}',
+  'analysis.mc.dropStale': 'Remove orphaned',
+  'analysis.mc.export': 'Multicast address plan',
   // Bedarf 95 — ein Spektrum-Plan.
   'analysis.rf.scope': '{n} transmitters in the plan: {rig} from the wireless mic rig, {link} as radio links.',
   'analysis.rf.noFreq': '{n} without a frequency \u2014 they are in NO calculation: {liste}',

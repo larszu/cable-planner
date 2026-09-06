@@ -130,9 +130,23 @@ describe('mehrere Schnittstellen', () => {
   it('ueberspringt leere Zusatz-Schnittstellen', () => {
     const e = geraet('X', {
       ipAddress: '10.0.0.5',
-      networkInterfaces: [{ id: 'n2', role: 'control' }],
+      networkInterfaces: [{ id: 'n2', role: 'unspecified' }],
     })
     expect(deviceInterfaces(e)).toHaveLength(1)
+  })
+
+  it('BEHAELT eine Schnittstelle, an der nur die ROLLE steht (Bedarf 72)', () => {
+    // Aufgefallen beim Multicast-Adressplan: waehrend der Planung hat noch
+    // keine der beiden Medien-Karten eine Adresse — es steht nur die Rolle da.
+    // Bis Bedarf 72 galt so eine Schnittstelle als leer und flog raus, und der
+    // Adressplan haette anschliessend behauptet, dieser Fluss brauche nur EIN
+    // 2022-7-Bein. Dieselbe Begruendung wie beim Etikett eine Zeile weiter
+    // unten: eine ausgesprochene Rolle IST eine Aussage.
+    const e = geraet('X', {
+      ipAddress: '10.0.0.5',
+      networkInterfaces: [{ id: 'n2', role: 'media-secondary' }],
+    })
+    expect(deviceInterfaces(e)).toHaveLength(2)
   })
 
   it('sammelt sie ueber den ganzen Plan mit ihrem Geraet', () => {
@@ -159,9 +173,17 @@ describe('Normalisierung beim Laden', () => {
 
   it('wirft eine voellig leere Schnittstelle weg', () => {
     // Ballast in jedem Projektfile, und in der Port-Karte eine Zeile ohne Inhalt.
-    expect(normaliseNetworkInterface({ id: 'n2', role: 'control' }, 'x', roleOk)).toBeNull()
+    // „Voellig leer" heisst: auch OHNE ausgesprochene Rolle — `unspecified` ist
+    // die Abwesenheit einer Angabe und traegt nichts bei.
+    expect(normaliseNetworkInterface({ id: 'n2', role: 'unspecified' }, 'x', roleOk)).toBeNull()
+    expect(normaliseNetworkInterface({ id: 'n2' }, 'x', roleOk)).toBeNull()
     // Eine nur beschriftete bleibt: „SFP+ 2" ohne Adresse ist eine Aussage.
     expect(normaliseNetworkInterface({ id: 'n2', label: 'SFP+ 2' }, 'x', roleOk)).not.toBeNull()
+    // Und eine nur mit Rolle genauso — Bedarf 72. Sie hier zu verwerfen liesse
+    // das Sekundaernetz beim naechsten Laden verschwinden.
+    expect(normaliseNetworkInterface({ id: 'n2', role: 'media-secondary' }, 'x', roleOk)?.role).toBe(
+      'media-secondary',
+    )
   })
 
   it('nimmt nur VLAN-Ids, die es geben kann', () => {
