@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { ipcMain } from 'electron'
-import { credentialsService } from '../services/credentialsService.js'
+import { credentialsService, streamKeyService } from '../services/credentialsService.js'
 import { createRentmanApiClient } from '../services/rentmanApiClient.js'
 
 export const registerCredentialsIpc = () => {
@@ -24,6 +24,19 @@ export const registerCredentialsIpc = () => {
   })
 
   ipcMain.handle('credentials:delete-token', () => credentialsService.deleteToken())
+
+  // Initiative 9 — Stream-Keys der Ausspielziele. Eigene Kanaele auf derselben
+  // Domaene: es ist dieselbe Sache (ein Geheimnis im OS-Schluesselbund), nur
+  // je Ziel statt je Integration.
+  //
+  // `has` steht neben `get`, weil die Liste nur wissen muss, OB ein Key da
+  // ist. Ohne diesen Weg holte sie fuer eine Haekchen-Spalte alle Keys im
+  // Klartext in den Renderer -- genau der Fehler, den `credentials:has-token`
+  // an anderer Stelle schon einmal behoben hat.
+  ipcMain.handle('streamKey:get', (_event, id: string) => streamKeyService.get(id))
+  ipcMain.handle('streamKey:has', (_event, id: string) => streamKeyService.has(id))
+  ipcMain.handle('streamKey:save', (_event, id: string, key: string) => streamKeyService.save(id, key))
+  ipcMain.handle('streamKey:delete', (_event, id: string) => streamKeyService.delete(id))
 
   ipcMain.handle('credentials:test-token', async () => {
     const token = await credentialsService.getToken()

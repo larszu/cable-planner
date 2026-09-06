@@ -228,6 +228,11 @@ export interface CablePlannerProject {
    *  verweisen ueber `EquipmentItem.sourceIdentityId` darauf. Optional → alte
    *  Projekte heilen zu []. */
   sourceIdentities?: import('./sourceIdentity').SourceIdentity[]
+  /** Initiative 9 — die Ausspielung: wohin gesendet wird, mit welchen
+   *  Parametern, und welcher Weg der Ausweichweg ist. Optional → alte
+   *  Projekte heilen zu []. **Ohne Stream-Keys** — die liegen im
+   *  OS-Schluesselbund, siehe `types/delivery.ts`. */
+  deliveryDestinations?: import('./delivery').DeliveryDestination[]
 }
 
 /** #412 — Ein festgeschriebener Projekt-Stand. */

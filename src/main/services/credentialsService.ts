@@ -65,3 +65,63 @@ export const netboxCredentialsService = {
     return keytar.deletePassword(SERVICE_NAME, NETBOX_ACCOUNT_NAME)
   },
 }
+
+/**
+ * Initiative 9 — Stream-Keys der Ausspielziele.
+ *
+ * Ein Stream-Key ist ein Geheimnis mit unmittelbarer Wirkung: wer ihn hat,
+ * sendet auf den Kanal des Kunden. `CLAUDE.md` schreibt fuer externe Tokens
+ * den OS-Schluesselbund vor („niemals loggen oder ins Projekt-File
+ * schreiben"), und fuer diesen gilt es doppelt: eine `.avplan` wandert per
+ * Mail, liegt in Dropbox, geht in den Mobile-Viewer und in den Web-Viewer.
+ *
+ * EIN ACCOUNT JE ZIEL (`stream-key:<id>`), nicht ein Blob fuer alle: sonst
+ * nimmt das Loeschen eines Ziels entweder alle Keys mit oder keinen.
+ *
+ * Der Klartext GEHT an den Renderer zurueck — anders als beim NetBox-Token.
+ * Das ist Absicht und kein Rueckschritt: der Techniker muss den Key in OBS
+ * oder vMix einfuegen koennen, und ein Geheimnis, das man nicht mehr
+ * herausbekommt, wird daneben in eine Textdatei geschrieben. Der Unterschied
+ * zum Projekt-File bleibt der entscheidende: der Schluesselbund wandert nicht
+ * mit der Datei.
+ */
+const STREAM_KEY_PREFIX = 'stream-key:'
+
+/** Ein Ziel-Id ist eine UUID aus dem Renderer. Trotzdem geprueft, bevor sie
+ *  zum Schluesselbund-Account wird: ein Account-Name aus ungeprueftem Text
+ *  koennte einen fremden Eintrag adressieren -- etwa den Rentman-Token. */
+const isSafeDestinationId = (id: string): boolean => /^[A-Za-z0-9_-]{1,64}$/.test(id)
+
+const accountFor = (destinationId: string): string => {
+  if (!isSafeDestinationId(destinationId)) {
+    throw new Error('Invalid destination id.')
+  }
+  return STREAM_KEY_PREFIX + destinationId
+}
+
+export const streamKeyService = {
+  async get(destinationId: string): Promise<string | null> {
+    return keytar.getPassword(SERVICE_NAME, accountFor(destinationId))
+  },
+
+  async has(destinationId: string): Promise<boolean> {
+    return Boolean(await keytar.getPassword(SERVICE_NAME, accountFor(destinationId)))
+  },
+
+  async save(destinationId: string, key: string): Promise<boolean> {
+    const account = accountFor(destinationId)
+    const clean = sanitizeToken(key)
+    if (!clean) {
+      // Ein geleertes Feld heisst „loeschen". Einen leeren String abzulegen
+      // ergaebe ein Ziel, das einen Key BEHAUPTET und keinen hat.
+      await keytar.deletePassword(SERVICE_NAME, account)
+      return false
+    }
+    await keytar.setPassword(SERVICE_NAME, account, clean)
+    return true
+  },
+
+  async delete(destinationId: string): Promise<boolean> {
+    return keytar.deletePassword(SERVICE_NAME, accountFor(destinationId))
+  },
+}

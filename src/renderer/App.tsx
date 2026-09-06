@@ -68,6 +68,8 @@ import { RecordingStorageCalculatorDialog } from './components/Calculators/Recor
 import { ProjectionCalculatorDialog } from './components/Calculators/ProjectionCalculatorDialog'
 import { BulkConnectDialog } from './components/Canvas/BulkConnectDialog'
 import { AnalysisDialog } from './components/Analysis/AnalysisDialog'
+import { DeliveryDialog } from './components/Delivery/DeliveryDialog'
+import { setStreamKeyDropper } from './store/slices/deliverySlice'
 import { PlanCheckPanel } from './components/Analysis/PlanCheckPanel'
 import { InventoryDialog } from './components/Inventory/InventoryDialog'
 import { ShortcutsHelp } from './components/Layout/ShortcutsHelp'
@@ -237,6 +239,17 @@ export default function App() {
   useEffect(() => {
     document.documentElement.dataset.theme = pdfExportThemeOverride ?? canvasTheme
   }, [canvasTheme, pdfExportThemeOverride])
+
+  // Initiative 9 — wer den Stream-Key eines geloeschten Ausspielziels aus dem
+  // Schluesselbund nimmt. Der Store kann kein IPC; ohne diese Verdrahtung
+  // ueberlebte der Key des Kunden das Projekt an einer Stelle, an der ihn
+  // niemand mehr sucht.
+  useEffect(() => {
+    setStreamKeyDropper((id) => {
+      void cablePlannerApi.streamKey.delete(id).catch(() => {})
+    })
+    return () => setStreamKeyDropper(null)
+  }, [])
 
   // #516 — Per Einladungs-Link geöffnet (…#join=…)? Raum/Modus/Signaling/
   // Passwort vorbefüllen und nach Rückfrage der Session beitreten (Host-Plan
@@ -1265,6 +1278,7 @@ export default function App() {
       <AtemAudioRouterDialog />
       <DrumMicingDialog />
       <WirelessRigDialog />
+      <DeliveryDialog />
       <LocationBomDialog />
       {rackEditorOpen && (
         <Suspense fallback={null}>
