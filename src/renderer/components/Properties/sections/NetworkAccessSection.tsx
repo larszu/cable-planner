@@ -6,6 +6,8 @@ import { SortableSection } from '../SortableSection'
 import { Icon } from '../../shared/Icon'
 import { ExtraInterfacesPanel } from './ExtraInterfacesPanel'
 import type { EquipmentItem } from '../../../types/equipment'
+import { useInventoryStore } from '../../../store/inventoryStore'
+import { identityAnchors } from '../../../lib/assetIdentity'
 
 /**
  * #306 — "Network & Access"-SortableSection aus EquipmentProperties
@@ -20,6 +22,21 @@ export const NetworkAccessSection = ({ equipment }: { equipment: EquipmentItem }
   const t = useTranslation()
   const updateEquipment = useProjectStore((state) => state.updateEquipment)
   const [showPassword, setShowPassword] = useState(false)
+  // BEDARF 78 — welche KISTE diesen Platz fuellt. Der Bestand liegt in einem
+  // eigenen Store (localStorage), nicht am Projekt: dieselbe Kiste faehrt auf
+  // mehreren Shows, und sie ins Projektfile zu kopieren waere eine zweite
+  // Wahrheit ueber den Lagerbestand.
+  const units = useInventoryStore((state) => state.units)
+  const items = useInventoryStore((state) => state.items)
+  // Die Auswahl erscheint nur an Plaetzen MIT Netz-Identitaet. An einem Stativ
+  // ist die Frage „welche Kiste" richtig und hier trotzdem falsch: der Bedarf
+  // handelt vom eingebrannten Geraete-Namen, und wo keiner ist, waere das Feld
+  // Ballast in jeder Seitenleiste.
+  const anchors = identityAnchors(equipment)
+  const unitLabel = (u: (typeof units)[number]) => {
+    const modell = items.find((i) => i.id === u.itemId)?.model
+    return [modell, u.serial ?? u.code ?? u.id].filter(Boolean).join(' · ')
+  }
 
   return (
     <SortableSection
@@ -51,6 +68,41 @@ export const NetworkAccessSection = ({ equipment }: { equipment: EquipmentItem }
             className="w-full rounded border border-cp-border bg-cp-surface-1 p-2 font-mono"
           />
         </label>
+        {/* BEDARF 78 — WELCHE Kiste. Direkt neben der Seriennummer, weil die
+            beiden gegeneinander gehalten werden: der Freitext ist abgetippt,
+            die Einheit kommt aus dem Bestand, und wo sie auseinandergehen, ist
+            ein Tausch uebrig geblieben. */}
+        {anchors.length > 0 && (
+          <label className="block">
+            <span className="mb-1 block text-cp-text-secondary">
+              {t('eq.field.unit', 'Einheit aus dem Bestand')}
+            </span>
+            <select
+              value={equipment.inventoryUnitId ?? ''}
+              onChange={(event) =>
+                updateEquipment(equipment.id, {
+                  inventoryUnitId: event.target.value || undefined,
+                })
+              }
+              className="w-full rounded border border-cp-border bg-cp-surface-1 p-2"
+            >
+              <option value="">{t('eq.field.unitNone', '— nicht benannt —')}</option>
+              {units.map((u) => (
+                <option key={u.id} value={u.id}>
+                  {unitLabel(u)}
+                </option>
+              ))}
+            </select>
+            {!equipment.inventoryUnitId && (
+              <span className="mt-1 block text-cp-xs text-cp-text-muted">
+                {t(
+                  'eq.field.unitHint',
+                  'Dieser Platz trägt eine Netz-Identität. Ohne benannte Einheit ist ein Tausch gegen eine baugleiche Kiste unsichtbar — der eingebrannte Geräte-Name wandert mit.',
+                )}
+              </span>
+            )}
+          </label>
+        )}
         <label className="block">
           <span className="mb-1 block text-cp-text-secondary">{t('eq.field.subnet', 'Subnet Mask')}</span>
           <input

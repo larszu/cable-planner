@@ -128,6 +128,11 @@ export const INSTANCE_FIELDS = [
   // Wer dieses Exemplar ist
   'assetTag',
   'serialNumber',
+  // BEDARF 78 — die Einheit aus dem Bestand. Instanz, und zwar besonders
+  // deutlich: sie IST das eine Exemplar. In einem Template getragen wuerde sie
+  // beim zweiten Herausziehen zwei Plaetze auf dieselbe Kiste zeigen lassen --
+  // genau der Befund `unit-double`, nur diesmal vom Werkzeug erzeugt.
+  'inventoryUnitId',
   'qrId',
   'sourceIdentityId',
   'installStatus',
