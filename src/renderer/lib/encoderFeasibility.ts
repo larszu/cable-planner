@@ -107,6 +107,14 @@ export type FeasibilityKind =
 export interface FeasibilityFinding {
   kind: FeasibilityKind
   encoder: EncoderId
+  /**
+   * Das Geraet im Plan, dessen Ziele diesen Befund ausgeloest haben
+   * (`DeliveryDestination.encoderEquipmentId`, Bedarf 32).
+   *
+   * `undefined` heisst: die Ziele dieser Gruppe benennen kein Geraet. Dann
+   * gilt der Befund fuer sie gemeinsam — mehr weiss der Plan nicht.
+   */
+  deviceId?: string
   /** Bei `must-match-differs`: welches Feld. */
   field?: keyof EncodingProfile
   /** Die abweichenden Werte im Klartext, in Zielreihenfolge. */
@@ -116,17 +124,64 @@ export interface FeasibilityFinding {
 }
 
 /**
+ * Die Primaerwege, gruppiert nach dem GERAET, das sie beliefert (Bedarf 32).
+ *
+ * WARUM DAS NOETIG WURDE. Bis `encoderEquipmentId` existierte, zaehlte diese
+ * Datei alle Primaerwege in einen Topf und hielt die Summe gegen die
+ * Zielgrenze eines Werkzeugs. Das setzt stillschweigend voraus, dass alle
+ * Ziele auf DEMSELBEN Encoder liegen — bei zwei Maschinen mit je zwei Zielen
+ * meldete sie „vier gleichzeitige Ziele, vMix fuehrt drei", obwohl keine der
+ * beiden Maschinen mehr als zwei zu tragen hat. Ein falscher Befund auf einem
+ * korrekten Aufbau, und laut dem Kommentar oben ist genau das der Weg, auf
+ * dem auch die richtigen Befunde ignoriert werden.
+ *
+ * Ziele ohne benanntes Geraet bilden EINE Gruppe. Das ist die vorsichtigere
+ * Annahme (der uebliche Fall ist eine Maschine, die niemand aufgeschrieben
+ * hat) und zugleich das bisherige Verhalten — wer kein Geraet benennt,
+ * bekommt genau die Pruefung von vorher.
+ */
+export interface EncoderGroup {
+  /** Das benannte Geraet, oder `undefined` fuer die Ziele ohne Angabe. */
+  deviceId?: string
+  destinations: DeliveryDestination[]
+}
+
+export function groupByEncoder(destinations: DeliveryDestination[]): EncoderGroup[] {
+  const groups = new Map<string, EncoderGroup>()
+  for (const d of destinations) {
+    // Der leere Schluessel ist die Gruppe „kein Geraet benannt". Ein Geraet
+    // kann nie so heissen, weil `encoderEquipmentId` beim Laden getrimmt und
+    // leer verworfen wird.
+    const key = d.encoderEquipmentId ?? ''
+    const existing = groups.get(key)
+    if (existing) existing.destinations.push(d)
+    else groups.set(key, { ...(key ? { deviceId: key } : {}), destinations: [d] })
+  }
+  return [...groups.values()]
+}
+
+/**
  * Den Plan gegen einen Encoder halten.
  *
  * Gezählt werden die PRIMÄRWEGE — ein Backup läuft im Havariefall und nicht
  * daneben; es als viertes gleichzeitiges Ziel zu zählen ergäbe einen Befund,
  * den es nicht gibt. Dieselbe Regel wie im Uplink-Budget.
+ *
+ * Und gezählt wird JE GERAET, nicht ueber den ganzen Plan (siehe
+ * `groupByEncoder`). Die Gruppierung sitzt hier und nicht beim Aufrufer:
+ * damit bekommt jede Stelle, die diese Funktion ruft, dieselbe Rechnung.
  */
 export function checkEncoderFeasibility(
   destinations: DeliveryDestination[],
   encoder: EncoderSpec,
 ): FeasibilityFinding[] {
   const primaries = checkDelivery(destinations).primaries
+  return groupByEncoder(primaries).flatMap((g) => findingsForGroup(g, encoder))
+}
+
+function findingsForGroup(group: EncoderGroup, encoder: EncoderSpec): FeasibilityFinding[] {
+  const primaries = group.destinations
+  const deviceId = group.deviceId
   const out: FeasibilityFinding[] = []
   if (primaries.length < 2) return out
 
@@ -134,6 +189,7 @@ export function checkEncoderFeasibility(
     out.push({
       kind: 'too-many-destinations',
       encoder: encoder.id,
+      deviceId,
       values: [String(primaries.length), String(encoder.maxDestinations)],
       source: encoder.source,
     })
@@ -162,6 +218,7 @@ export function checkEncoderFeasibility(
           ? 'per-destination-quality-unsupported'
           : 'per-destination-quality-unknown',
       encoder: encoder.id,
+      deviceId,
       source: encoder.source,
     })
   }
@@ -171,6 +228,7 @@ export function checkEncoderFeasibility(
     out.push({
       kind: 'must-match-differs',
       encoder: encoder.id,
+      deviceId,
       field: f,
       values: primaries.map((d) => String(d.encoding[f])),
       source: encoder.source,

@@ -245,6 +245,20 @@ CablePlannerProject
   Projekt, weil eine `.avplan` per Mail wandert, in Dropbox liegt und in den
   Mobile-/Web-Viewer geht. Beim Laden wird das Häkchen nachgefragt, nicht
   geglaubt.
+- `encoderEquipmentId?` (Bedarf 32) — **die einzige Naht zwischen Ziel-Register
+  und Plan.** Zeigt auf das `EquipmentItem`, das dieses Ziel beliefert. Alles
+  Weitere ist abgeleitet und wird nicht gespeichert: der Programm-Eingang des
+  Encoders kommt aus seinen Anschlüssen, die Quelle aus der Rückwärtssuche im
+  Kabelgraph (`labelDerivation.resolveSignalSource`, ADR-001). Die Ableitung
+  steht in `lib/deliveryPath.ts` und erzeugt das Blatt `ausspielweg`.
+  - **Optional, und das bleibt es.** Ohne Angabe meldet die Kette `no-encoder`
+    statt sich einen Encoder auszusuchen. Ein Zeiger auf ein gelöschtes Gerät
+    wird beim Laden **nicht** stillschweigend geleert — `encoder-gone` ist die
+    ehrlichere Antwort als ein Feld, das kommentarlos leer wird.
+  - Die Encoder-Machbarkeit (`lib/encoderFeasibility.ts`) zählt seither **je
+    Gerät** statt über den ganzen Plan. Vier Ziele auf zwei Maschinen sind je
+    Maschine zwei; die frühere Summe meldete „vier gleichzeitige Ziele, vMix
+    führt drei" auf einem korrekten Aufbau.
 
 **NetworkInterface** (Bedarf 19, `types/network.ts`):
 - `role` (`media-primary` | `media-secondary` | `control` | `management` |
