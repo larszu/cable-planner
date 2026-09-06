@@ -496,6 +496,8 @@ export interface ProjectState {
   ) => void
   /** Loescht das Ziel UND seinen Stream-Key aus dem OS-Schluesselbund. */
   removeDeliveryDestination: (id: string) => void
+  /** Bedarf 90 — die Antwort auf „wo liegt die unabhaengige Aufzeichnung". */
+  setArchiveRecording: (rec: import('../types/delivery').ArchiveRecording | undefined) => void
   /** #143 — Annotationen aus einer zurückgelesenen Viewer-Datei mergen
    *  (by id: neue hinzufügen, geänderte aktualisieren, vorhandene behalten).
    *  Gibt die Anzahl hinzugefügter/aktualisierter Annotationen zurück. */

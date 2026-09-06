@@ -294,3 +294,60 @@ export const normaliseDeliveryDestination = (
   }
   return out
 }
+
+// ───────────────────────────────────────────────────────────────────────────
+// BEDARF 90 — die Archiv-Aufzeichnung. „The insurance copy needs isolation."
+//
+// DER BELEG ist ein geschlossener, nicht behobener Fehlerbericht:
+//
+//   > with obs-multi-rtmp, „OBS encoder will overload if (any) stream upload
+//   > will stall/lag", degrading the recording's frame rate to the point the
+//   > material must be discarded
+//
+// obsproject/obs-studio#13147 (2026-02-20, „closed as not planned"). Der
+// Melder nennt das Prinzip, um das es geht: die Ausspielung darf die
+// Aufzeichnung nicht anfassen duerfen. Und der Schaden faellt erst NACH dem
+// Abbau auf — da ist die Show vorbei und die Kamera-Karten sind gelöscht.
+//
+// ─── WAS HIER NICHT GEBAUT WIRD ────────────────────────────────────────────
+//
+// Telemetrie. Der Bedarf sagt es selbst: „Not a Cable Planner feature but a
+// PLANNING FACT." Ob ein Encoder gerade ueberlastet ist, weiss ein
+// offline-Planer nicht, und eine geratene Antwort saehe wie eine Messung aus
+// — dieselbe Grenze wie bei „is it flowing" in Bedarf 76.
+//
+// ─── WAS GEBAUT WIRD ───────────────────────────────────────────────────────
+//
+// Eine ausdrueckliche Antwort auf „wo liegt die unabhaengige Aufzeichnung",
+// und die Pruefung, ob sie ihr Schicksal mit der Ausspielung teilt.
+//
+// `none-by-choice` ist der Grund, warum das ein eigener Typ ist und kein
+// optionales Feld: „wir haben bewusst keine Archiv-Kopie" ist eine gueltige
+// Entscheidung (ein Webinar ohne Nachverwertung), und sie ist etwas ANDERES
+// als „niemand hat es gesagt". Ein fehlendes Feld koennte beides heissen,
+// und der Bedarf verlangt ausdruecklich, dass der Plan die Antwort ERZWINGT.
+// ───────────────────────────────────────────────────────────────────────────
+
+/** Die drei Antworten auf „wo liegt die unabhaengige Aufzeichnung". */
+export type ArchiveAnswer =
+  /** Auf diesem Geraet. */
+  | 'device'
+  /** Es gibt bewusst keine — mit Begruendung. */
+  | 'none-by-choice'
+  /** Niemand hat geantwortet. Kein Fehler, aber auch keine Antwort. */
+  | 'not-stated'
+
+export interface ArchiveRecording {
+  answer: ArchiveAnswer
+  /**
+   * Das aufzeichnende Geraet — nur bei `answer === 'device'`.
+   *
+   * Wie `encoderEquipmentId` in Bedarf 32 die einzige Naht zwischen
+   * Ziel-Register und Plan ist, ist dies die einzige zwischen der
+   * Archiv-Frage und dem Plan. Alles Weitere — ob das Geraet auch sendet, ob
+   * es hinter dem Encoder haengt — wird aus dem Kabelgraph ABGELEITET.
+   */
+  equipmentId?: string
+  /** Bei `none-by-choice` die Begruendung; sonst eine Anmerkung. */
+  note?: string
+}
