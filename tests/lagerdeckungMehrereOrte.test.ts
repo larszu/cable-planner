@@ -73,9 +73,13 @@ describe('der Bestand wird ueber Lagerpositionen summiert', () => {
 
   it('beide Positionen stehen als Quelle drin', () => {
     const res = resolveCoverage(plan(5), zweiOrte(3, 3))
+    // `stock` kam mit Bedarf 80 dazu: ohne offene Ausgabe ist es dasselbe wie
+    // `available`, und genau das haelt die Zeile hier fest. Auseinander gehen
+    // die beiden erst, wenn ein Case draussen ist — das prueft
+    // `tests/verfuegbarkeitGegenAusgaben.test.ts`.
     expect(res.lines[0].sources).toEqual([
-      { itemId: 'i1', model: MODELL, available: 3, locationId: 'c1' },
-      { itemId: 'i2', model: MODELL, available: 3, locationId: 'c2' },
+      { itemId: 'i1', model: MODELL, available: 3, stock: 3, locationId: 'c1' },
+      { itemId: 'i2', model: MODELL, available: 3, stock: 3, locationId: 'c2' },
     ])
   })
 
