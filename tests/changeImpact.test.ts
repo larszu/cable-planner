@@ -134,7 +134,15 @@ describe('changeImpact — die Vorwärts-Frage', () => {
     // Die Liste ist bewusst benannt und nicht „alles, was durchkommt": waechst
     // sie um einen Bezeichner, der doch an `equipment` haengt, faellt das beim
     // Eintragen auf statt still.
-    const ohneGeraetebezug = new Set(['plan', 'ausspielung', 'ablaufblatt'])
+    //
+    // `ausspielweg` (Bedarf 32) steht hier mit einem ANDEREN Grund als die
+    // beiden davor, und der ist wichtig genug, um ihn nicht zu verwischen: er
+    // haengt sehr wohl an `equipment` — nur nicht, solange es kein einziges
+    // Ausspielziel gibt. Dann ist das leere Blatt die wahre Antwort und kein
+    // Ausweichen. Sobald ein Ziel existiert, ist er ohne Geraete unbeurteilbar;
+    // genau das haelt der Test unter diesem hier fest, damit die Zeile nicht
+    // als „haengt nie an Geraeten" missverstanden wird.
+    const ohneGeraetebezug = new Set(['plan', 'ausspielung', 'ablaufblatt', 'ausspielweg'])
     expect(
       impact.documents.some((d) => d.verdict === 'unaffected' && !ohneGeraetebezug.has(d.docId)),
     ).toBe(false)
@@ -148,6 +156,21 @@ describe('changeImpact — die Vorwärts-Frage', () => {
       impact.documents.filter((d) => d.verdict === 'unknown').map((d) => d.reason),
     )
     expect(reasons.size).toBe(Object.keys(UNJUDGEABLE_DOCUMENTS).length + 1)
+  })
+
+  it('der Ausspielweg ist ohne Geraete unbeurteilbar, SOBALD es ein Ziel gibt', () => {
+    // Die Ausnahme oben gilt nur dem leeren Register. Ein Torso MIT Ziel darf
+    // nicht „unberuehrt" melden: ohne Geraete und Kabel gibt es keinen Weg zu
+    // pruefen, und „unberuehrt" laese sich als Freigabe lesen.
+    const mitZiel = {
+      metadata: { name: 'x' },
+      deliveryDestinations: [
+        { id: 'd1', name: 'YouTube', platform: 'custom', transport: 'RTMP', encoding: {} },
+      ],
+    } as unknown as CablePlannerProject
+    const impact = changeImpact(mitZiel, mitZiel)
+    const weg = impact.documents.find((d) => d.docId === 'ausspielweg')
+    expect(weg?.verdict).toBe('unknown')
   })
 
   it('die Zusammenfassung verschweigt das Unbeurteilbare nicht', () => {
