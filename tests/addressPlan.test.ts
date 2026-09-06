@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { buildAddressPlan, addressPlanTable } from '../src/renderer/lib/addressPlan'
+import { buildAddressPlan, addressPlanTable, NETWORK_CONNECTORS } from '../src/renderer/lib/addressPlan'
+import { ALL_CONNECTOR_TYPES } from '../src/renderer/types/equipment'
 import type { EquipmentItem, Port } from '../src/renderer/types/equipment'
 import type { SignalStandard } from '../src/renderer/types/cableSpec'
 
@@ -42,7 +43,7 @@ const geraet = (name: string, over: Partial<EquipmentItem> = {}): EquipmentItem 
   }) as unknown as EquipmentItem
 
 const netzPort = (standard: SignalStandard) =>
-  port('NET 1', { connectorType: 'RJ45', standard })
+  port('NET 1', { connectorType: 'Ethernet/RJ45', standard })
 
 describe('wer eine Adresse braucht', () => {
   it('leitet die Netzfaehigkeit aus einem IP-Standard am Port ab', () => {
@@ -66,10 +67,10 @@ describe('wer eine Adresse braucht', () => {
     expect(plan.rows[0].evidence).toBe('SFP 1 (ST2110-30)')
   })
 
-  it('nimmt auch den blossen RJ45-Anschluss, ohne erklaerten Standard', () => {
+  it('nimmt auch den blossen Ethernet-Anschluss, ohne erklaerten Standard', () => {
     // Nicht jedes Katalog-Geraet traegt einen Standard am Port. Die Bauform
     // allein sagt trotzdem: hier geht ein Netzwerkkabel hinein.
-    const plan = buildAddressPlan([geraet('Switch', { outputs: [port('1', { connectorType: 'RJ45' })] })])
+    const plan = buildAddressPlan([geraet('Switch', { outputs: [port('1', { connectorType: 'Ethernet/RJ45' })] })])
     expect(plan.rows[0].networked).toBe(true)
   })
 
@@ -95,9 +96,9 @@ describe('wer eine Adresse braucht', () => {
     const plan = buildAddressPlan([geraet('Stagebox', { inputs: [netzPort('AES67')] })])
     expect(plan.rows[0].evidence).toBe('NET 1 (AES67)')
     const ohneStandard = buildAddressPlan([
-      geraet('Switch', { outputs: [port('Uplink', { connectorType: 'RJ45' })] }),
+      geraet('Switch', { outputs: [port('Uplink', { connectorType: 'Ethernet/RJ45' })] }),
     ])
-    expect(ohneStandard.rows[0].evidence).toBe('Uplink (RJ45)')
+    expect(ohneStandard.rows[0].evidence).toBe('Uplink (Ethernet/RJ45)')
   })
 })
 
@@ -189,5 +190,100 @@ describe('CSV', () => {
     expect(rows[1][0]).toBe('Stagebox')
     expect(rows[1][5]).toBe('NET 1 (Dante)')
     expect(rows[1][6]).toBe('missing-address')
+  })
+})
+
+describe('die Anschluss-Liste besteht aus echten Steckertypen', () => {
+  it('kennt nur Werte, die es in ALL_CONNECTOR_TYPES gibt', () => {
+    // DER GRUND FUER DIESEN TEST, und er ist ein Fund und keine Vorsichtsmassnahme:
+    // hier standen `'RJ45'` und `'etherCON'`. Die Union heisst `'Ethernet/RJ45'`
+    // und `'GG45'` -- der Anschluss-Rueckfall traf also KEIN EINZIGES echtes
+    // Geraet, und die zwei Tests, die ihn belegten, trugen ein Fixture mit
+    // `connectorType: 'RJ45'`: einen Wert, den kein Katalog-Geraet je haben kann.
+    //
+    // Verglichen worden war der Feldname, nicht der Wertebereich -- derselbe
+    // Fehler wie bei der Rollen-Id gegen `guide_server.py` (`cable#674`). Ein
+    // Test, der seine Eingabe selbst erfindet, prueft nur sich selbst.
+    for (const c of NETWORK_CONNECTORS) {
+      expect(ALL_CONNECTOR_TYPES, `kein echter Steckertyp: ${c}`).toContain(c)
+    }
+  })
+
+  it('nimmt SFP, SFP+ und Fiber bewusst NICHT als Beleg', () => {
+    // Ueber sie laeuft genauso oft SDI. Fuer sie greift die erste Regel (ein
+    // IP-Standard am Port), und die ist ein Beleg statt einer Bauform-Vermutung.
+    for (const c of ['SFP', 'SFP+', 'Fiber'] as const) {
+      const plan = buildAddressPlan([geraet(c, { inputs: [port('1', { connectorType: c })] })])
+      expect(plan.rows[0].networked, `${c} sollte kein Beleg sein`).toBe(false)
+    }
+  })
+})
+
+describe('mehrere Schnittstellen je Geraet (Bedarf 19)', () => {
+  it('fuehrt jede Schnittstelle als eigene Zeile', () => {
+    // Der Kern der Erweiterung. Vorher sah der Plan nur `item.ipAddress` und
+    // uebersah damit die zweite Karte eines redundanten Dante-Aufbaus.
+    const plan = buildAddressPlan([
+      geraet('Stagebox', {
+        ipAddress: '10.0.0.5',
+        subnetMask: '255.255.255.0',
+        networkInterfaces: [
+          { id: 'n2', label: 'Dante Sec', role: 'media-secondary', ipAddress: '10.1.0.5', subnetMask: '255.255.255.0' },
+        ],
+      }),
+    ])
+    expect(plan.rows).toHaveLength(2)
+    expect(plan.rows.map((r) => r.ip)).toEqual(['10.0.0.5', '10.1.0.5'])
+    expect(plan.rows[1].nicLabel).toBe('Dante Sec')
+    expect(plan.rows[1].role).toBe('media-secondary')
+  })
+
+  it('findet eine Doppel-IP zwischen ZWEI Schnittstellen verschiedener Geraete', () => {
+    // Der Fall, der vorher unsichtbar war: die Kollision sitzt auf der zweiten
+    // Karte, nicht auf der ersten.
+    const plan = buildAddressPlan([
+      geraet('Stagebox', {
+        ipAddress: '10.0.0.5',
+        networkInterfaces: [{ id: 'n2', label: 'Sec', role: 'media-secondary', ipAddress: '10.1.0.9' }],
+      }),
+      geraet('Pult', {
+        ipAddress: '10.0.0.7',
+        networkInterfaces: [{ id: 'n3', label: 'Sec', role: 'media-secondary', ipAddress: '10.1.0.9' }],
+      }),
+    ])
+    const dup = plan.rows.filter((r) => r.issues.some((i) => i.kind === 'duplicate-address'))
+    expect(dup).toHaveLength(2)
+    expect(dup[0].issues.find((i) => i.kind === 'duplicate-address')?.others).toEqual(['Pult · Sec'])
+  })
+
+  it('meldet ein Geraet NICHT gegen sich selbst', () => {
+    // Der Fehler, den eine Spiegelung der Alt-Felder in `networkInterfaces`
+    // machen wuerde: dieselbe Adresse zweimal, also ein Dauer-Fehlalarm auf
+    // jedem gepflegten Geraet.
+    const plan = buildAddressPlan([
+      geraet('Kamera', {
+        ipAddress: '10.0.0.5',
+        networkInterfaces: [{ id: 'n2', label: 'Control', role: 'control', ipAddress: '192.168.1.5' }],
+      }),
+    ])
+    expect(plan.rows.some((r) => r.issues.some((i) => i.kind === 'duplicate-address'))).toBe(false)
+  })
+
+  it('behaelt eine Zeile fuer ein netzfaehiges Geraet ohne jede Adresse', () => {
+    const plan = buildAddressPlan([geraet('Stagebox', { inputs: [netzPort('Dante')] })])
+    expect(plan.rows).toHaveLength(1)
+    expect(plan.missing.map((r) => r.name)).toEqual(['Stagebox'])
+  })
+
+  it('traegt die Schnittstelle im CSV mit', () => {
+    const plan = buildAddressPlan([
+      geraet('Stagebox', {
+        ipAddress: '10.0.0.5',
+        networkInterfaces: [{ id: 'n2', label: 'Dante Sec', role: 'media-secondary', ipAddress: '10.1.0.5' }],
+      }),
+    ])
+    const rows = addressPlanTable(plan, (i) => i.kind, ['Gerät', 'IP', 'Maske', 'Gateway', 'Subnetz', 'Beleg', 'Befund'])
+    expect(rows[1][0]).toBe('Stagebox')
+    expect(rows[2][0]).toBe('Stagebox · Dante Sec')
   })
 })

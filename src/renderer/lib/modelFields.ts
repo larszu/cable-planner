@@ -43,6 +43,11 @@ export const MODEL_FIELDS = [
   'deviceTypeId',
   'categoryProps',
   'libraryRef',
+  // Bedarf 19 — wofuer die Adresse in den Alt-Feldern da ist. Ein
+  // Datenblatt-Fakt ueber den TYP („dieser Anschluss ist der
+  // Dante-Sekundaerweg"), nicht ueber dieses Exemplar; die Adresse selbst
+  // steht unten bei den Instanz-Feldern.
+  'primaryInterfaceRole',
   'netboxPath',
   'manufacturerUrl',
   // Der Beleg gehoert zum TYP: er sagt, woher die Angaben dieses Modells
@@ -152,6 +157,13 @@ export const INSTANCE_FIELDS = [
   'firmware',
   'username',
   'password',
+  // Bedarf 19 — die weiteren Schnittstellen gehoeren zur selben Netz-Identitaet
+  // wie `ipAddress` darueber und aus demselben Grund hierher: eine Vorlage mit
+  // fest eingebauter Dante-Sekundaeradresse erzeugt beim zweiten Herausziehen
+  // zwei Adresskonflikte statt einem. Die ROLLE dagegen ist ein Datenblatt-Fakt
+  // („dieser Port ist der Dante-Sekundaerweg") und steht deshalb unten bei den
+  // Modell-Feldern.
+  'networkInterfaces',
 
   // Zustand dieses Exemplars
   'activeModeId',

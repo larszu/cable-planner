@@ -71,6 +71,8 @@ import {
   sourceIdentityIdSet,
 } from '../lib/sourceIdentity'
 import { normaliseDeliveryDestinations } from '../lib/deliveryNormalise'
+import { isNetworkInterfaceRole, normaliseNetworkInterface } from '../lib/networkInterfaces'
+import type { NetworkInterface } from '../types/network'
 
 const CUSTOM_LIB_KEY = STORAGE_KEYS.customLibrary
 const PROJECT_AUTOSAVE_KEY = STORAGE_KEYS.projectAutosave
@@ -616,6 +618,22 @@ const healProjectPositions = (
       // undefined — nur Videohub-Geraete bekommen das Feld ueberhaupt, und
       // erst wenn der Nutzer routet. Ein leerer Block auf jedem Geraet waere
       // Ballast in jedem Projektfile.
+      // Bedarf 19 — Netzwerk-Schnittstellen normalisieren. Sie werden nur
+      // angefasst, wenn das Geraet welche fuehrt: ein leeres Feld auf jedem
+      // Geraet waere Ballast in jedem Projektfile, und die Alt-Felder bleiben
+      // ohnehin Schnittstelle 0.
+      if (item.networkInterfaces !== undefined) {
+        const seen = new Set<string>()
+        const nics: NetworkInterface[] = []
+        ;(Array.isArray(item.networkInterfaces) ? item.networkInterfaces : []).forEach((raw, idx) => {
+          const nic = normaliseNetworkInterface(raw, `${item.id}#nic${idx + 1}`, isNetworkInterfaceRole)
+          if (!nic || seen.has(nic.id)) return
+          seen.add(nic.id)
+          nics.push(nic)
+        })
+        item = nics.length > 0 ? { ...item, networkInterfaces: nics } : { ...item, networkInterfaces: undefined }
+      }
+
       if (item.videohubRouting !== undefined) {
         item = { ...item, videohubRouting: normaliseVideohubRouting(item.videohubRouting) }
       }
