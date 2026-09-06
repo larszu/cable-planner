@@ -145,6 +145,10 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
     'Woher der Ist-Wert stammt — aus dem ERP, von der Rechnung oder von Hand geschätzt.',
   'Im Klartext im Plan':
     'Wie oft der alte Name in Notizen oder Antworten als Text vorkommt. Diese Stellen bricht ein Umbenennen still.',
+  Herstellernummer:
+    'Die Seriennummer des Herstellers. Sie zählt außerhalb des Hauses — Versicherung, Sub-Vermietung, Wartung.',
+  Hausreferenz:
+    'Die Nummer, unter der dieses Haus die Einheit führt. Sie klebt auf dem Case und ist die, die der Lagerist ruft.',
   'Im Plan': 'Was der Plan an dieser Stelle vorsieht — die Soll-Seite des Abgleichs.',
   'Ingest-URL': 'Die Adresse, an die gesendet wird. Ohne Stream-Key — der steht nie in einer Datei.',
   IP: 'Die IP-Adresse der Schnittstelle.',

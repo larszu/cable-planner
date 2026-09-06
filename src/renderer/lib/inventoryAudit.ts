@@ -40,6 +40,7 @@
 // ───────────────────────────────────────────────────────────────────────────
 
 import type { InventoryItem, StorageNode, InventoryUnit } from '../types/inventory'
+import { unitLabel } from './unitIdentity'
 import { resolveInventoryCode, type ScanSources } from './inventoryScan'
 import { descendantNodeIds, nodePathLabel } from './storageTree'
 import type { CsvCell, CsvTable } from './csv'
@@ -103,7 +104,8 @@ export function auditScan(
   if (treffer.kind === 'unit') {
     const u: InventoryUnit = treffer.unit
     const model = sources.items.find((i) => i.id === u.itemId)?.model
-    const label = u.serial || u.code || u.id.slice(0, 6)
+    // Bedarf 107 — die Inventur zaehlt im eigenen Haus.
+    const label = unitLabel(u, 'house')
     if (!u.locationId) {
       return { outcome: 'no-location', code: roh, label, ...(model ? { model } : {}), unitId: u.id }
     }

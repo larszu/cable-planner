@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { IDENTITY_FINDING_LABEL, identityFindings, unitLabel } from '../../lib/unitIdentity'
 import {
   Plus,
   Pencil,
@@ -269,7 +270,7 @@ export const InventoryDialog = ({ open, onClose }: InventoryDialogProps) => {
     } else {
       const model = items.find((it) => it.id === match.unit.itemId)?.model ?? '?'
       setTab('units')
-      setScanResult(format(t('inventory.scanUnit', 'Einheit: {model} · {serial}'), { model, serial: match.unit.serial || match.unit.code || match.unit.id.slice(0, 6) }))
+      setScanResult(format(t('inventory.scanUnit', 'Einheit: {model} · {serial}'), { model, serial: unitLabel(match.unit, 'house') }))
     }
     setScan('')
   }
@@ -1407,6 +1408,7 @@ const UnitsTab = ({ codeCell }: UnitsTabProps) => {
   const [faultFor, setFaultFor] = useState<string | null>(null)
   const [faultText, setFaultText] = useState('')
   const [faultServices, setFaultServices] = useState<FaultService[]>([])
+  const identitaetsBefunde = useMemo(() => identityFindings(units), [units])
   const [form, setForm] = useState<UnitFormState | null>(null)
   const [openHistory, setOpenHistory] = useState<string | null>(null)
 
@@ -1424,13 +1426,14 @@ const UnitsTab = ({ codeCell }: UnitsTabProps) => {
     const payload: InventoryUnitInput = {
       itemId: form.itemId,
       serial: form.serial?.trim() || undefined,
+      houseRef: form.houseRef?.trim() || undefined,
       code: form.code?.trim() || undefined,
       codeType: form.code?.trim() ? form.codeType ?? 'qr' : undefined,
       locationId: form.locationId || undefined,
       condition: form.condition ?? 'ok',
       notes: form.notes?.trim() || undefined,
     }
-    if (form.id) updateUnit(form.id, { serial: payload.serial, code: payload.code, codeType: payload.codeType, notes: payload.notes })
+    if (form.id) updateUnit(form.id, { serial: payload.serial, houseRef: payload.houseRef, code: payload.code, codeType: payload.codeType, notes: payload.notes })
     else addUnit(payload)
     setForm(null)
   }
@@ -1476,8 +1479,22 @@ const UnitsTab = ({ codeCell }: UnitsTabProps) => {
               </select>
             </label>
             <label className="block">
-              {t('inventory.serial', 'Seriennummer')}
+              {t('inventory.serial', 'Seriennummer (Hersteller)')}
               <input value={form.serial ?? ''} onChange={(e) => setForm({ ...form, serial: e.target.value })} className={inputCls} />
+            </label>
+            {/* BEDARF 107 — zwei Identitäten, zwei Felder. Die Herstellernummer
+                braucht die Versicherung, die Sub-Vermietung und die Wartung;
+                die Hausreferenz braucht alles Interne. Ein Feld für beide
+                zwingt das Lager zur Wahl, und die andere landet mit Filzstift
+                auf dem Case. */}
+            <label className="block">
+              {t('inventory.houseRef', 'Hausreferenz')}
+              <input
+                value={form.houseRef ?? ''}
+                onChange={(e) => setForm({ ...form, houseRef: e.target.value })}
+                placeholder={t('inventory.houseRefPh', 'z. B. AV-0421')}
+                className={inputCls}
+              />
             </label>
             <label className="block">
               {t('inventory.code', 'Code (QR/Barcode)')}
@@ -1506,6 +1523,18 @@ const UnitsTab = ({ codeCell }: UnitsTabProps) => {
         </div>
       )}
 
+      {/* BEDARF 107 — was an den Nummern nicht stimmt. Beide Doppelungen sind
+          unmöglich und deshalb aussagekräftig: eine Herstellernummer gibt es
+          genau einmal auf der Welt, eine Hausreferenz genau einmal im Haus. */}
+      {identitaetsBefunde.length > 0 && (
+        <ul className="mb-2 flex flex-col gap-1 text-cp-xs">
+          {identitaetsBefunde.map((f, i) => (
+            <li key={`${f.kind}-${i}`} className="text-amber-300/90">
+              <strong>{IDENTITY_FINDING_LABEL[f.kind]}</strong> — {f.text}
+            </li>
+          ))}
+        </ul>
+      )}
       {units.length === 0 ? (
         <div className="rounded border border-dashed border-cp-border py-10 text-center text-cp-text-muted">
           {items.length === 0
@@ -1520,6 +1549,7 @@ const UnitsTab = ({ codeCell }: UnitsTabProps) => {
                 <Tags size={13} className="shrink-0 text-cp-text-muted" />
                 <span className="font-medium">{itemById.get(u.itemId)?.model ?? t('inventory.unknownItem', '(gelöschter Artikel)')}</span>
                 {u.serial && <span className="text-cp-text-secondary">SN {u.serial}</span>}
+                {u.houseRef && <span className="text-cp-text-secondary">#{u.houseRef}</span>}
                 {u.code && codeCell(u.code, u.codeType)}
                 <span className={`rounded px-1.5 py-0.5 text-[10px] ${CONDITION_TONE[u.condition]}`}>{conditionLabel(u.condition)}</span>
                 {/* BEDARF 52 — der Verdacht steht NEBEN dem Zustand, nicht

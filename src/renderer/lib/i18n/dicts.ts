@@ -3838,7 +3838,10 @@ export const en: Dict = {
   'inventory.editUnit': 'Edit unit',
   'inventory.newUnit': 'New unit',
   'inventory.unitItem': 'Item model',
-  'inventory.serial': 'Serial number',
+  'inventory.serial': 'Serial number (manufacturer)',
+  // Bedarf 107 — zwei Identitaeten, zwei Felder.
+  'inventory.houseRef': 'House reference',
+  'inventory.houseRefPh': 'e.g. AV-0421',
   'inventory.unitDeleteTitle': 'Delete unit?',
   'inventory.unitsNoItems': 'Create items first, then you can serialize individual units.',
   'inventory.unitsEmpty': 'No units yet. Serialize individual copies of an item.',
