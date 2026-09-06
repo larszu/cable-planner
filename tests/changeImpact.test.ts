@@ -120,10 +120,16 @@ describe('changeImpact — die Vorwärts-Frage', () => {
     // Ausgenommen sind die Ableitungen, die NICHT an `equipment` haengen und
     // deshalb auch auf diesem Torso ein gueltiges (leeres) Ergebnis liefern.
     // `plan` war das von Anfang an; `ausspielung` (Initiative 9) kam dazu, weil
-    // ihr Inhalt allein aus `deliveryDestinations` folgt. Beide hier zu
-    // erzwingen hiesse, ein ehrliches „leer" in ein „weiss ich nicht" zu
-    // faelschen -- und genau das wirft dieser Test dem Gegenteil vor.
-    const ohneGeraetebezug = new Set(['plan', 'ausspielung'])
+    // ihr Inhalt allein aus `deliveryDestinations` folgt, und `ablaufblatt`
+    // (Bedarf 33) aus demselben Grund -- es ist dieselbe Datenquelle in einer
+    // anderen Spaltenform. Sie hier zu erzwingen hiesse, ein ehrliches „leer"
+    // in ein „weiss ich nicht" zu faelschen -- und genau das wirft dieser Test
+    // dem Gegenteil vor.
+    //
+    // Die Liste ist bewusst benannt und nicht „alles, was durchkommt": waechst
+    // sie um einen Bezeichner, der doch an `equipment` haengt, faellt das beim
+    // Eintragen auf statt still.
+    const ohneGeraetebezug = new Set(['plan', 'ausspielung', 'ablaufblatt'])
     expect(
       impact.documents.some((d) => d.verdict === 'unaffected' && !ohneGeraetebezug.has(d.docId)),
     ).toBe(false)

@@ -3847,6 +3847,22 @@ export const en: Dict = {
   'delivery.issue.overBitrate': 'Bitrate {actual} above the platform limit {expected}',
   'delivery.issue.keyframe': 'Keyframe interval {actual}, required is {expected}',
   'delivery.issue.portForward': 'SRT listener: port forward required',
+
+  /* Bedarfe 33 und 36 — das Ablaufblatt und die Encoder-Machbarkeit.
+     Eigener Namensraum `delivery.encoder.*`: `delivery.enc.*` daruber sind die
+     Encoding-FELDER (Breite, fps, Keyframe), hier geht es um das WERKZEUG. */
+  'delivery.runOfShow': 'Run sheet',
+  'delivery.runOfShowHint':
+    'One sheet for show day \u2014 stream keys appear on it only as a reference to the keychain',
+  'delivery.encoder.title': 'Encoder feasibility',
+  // {n} und {max} werden vom Aufrufer ersetzt.
+  'delivery.encoder.tooMany': '{n} simultaneous destinations, the tool handles {max}',
+  'delivery.encoder.noPerDestination':
+    'The plan asks for per-destination quality \u2014 this tool sends all of them the same',
+  'delivery.encoder.perDestinationUnknown':
+    'The plan asks for per-destination quality \u2014 whether this tool can do that is unresolved',
+  // {field} und {values} werden vom Aufrufer ersetzt.
+  'delivery.encoder.mustMatch': '{field} must match across all destinations, but is {values}',
   'wireless.title': 'Wireless / vocals',
   'wireless.channel': 'Channel',
   'wireless.addChannel': 'Channel',
