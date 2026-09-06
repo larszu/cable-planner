@@ -4216,6 +4216,35 @@ export const en: Dict = {
   'nic.switch': 'Switch',
   'nic.switchPort': 'Port',
   'nic.noSwitch': '\u2014 no switch \u2014',
+  // Bedarf 73 — die Zeit im Netz-Modell.
+  'nic.ptpDomain': 'PTP domain',
+  'nic.ptpProfile': 'PTP profile',
+  'nic.ptpProfile.unspecified': '\u2014 PTP profile \u2014',
+  'nic.ptpProfile.st2059': 'ST 2059-2 (default 127)',
+  'nic.ptpProfile.aes67': 'AES67 (commonly 0)',
+  'nic.ptpProfile.default': 'IEEE 1588 default',
+  'nic.ptpRole': 'PTP role',
+  'nic.ptpRole.unspecified': '\u2014 role \u2014',
+  'nic.ptpRole.grandmaster': 'Grandmaster',
+  'nic.ptpRole.boundary': 'Boundary clock',
+  'nic.ptpRole.slave': 'Slave',
+  'analysis.ptp.title': 'Timing (PTP)',
+  'analysis.ptp.intro':
+    'ST 2059-2 defaults to domain 127, AES67 in practice to 0. A mixed rig on one shared domain leaves one of the two families on the wrong media clock \u2014 and reports no error while doing it.',
+  'analysis.ptp.none':
+    'The plan carries PTP-dependent essence, but not one interface names a domain. The fields sit on the interface in the device panel.',
+  'analysis.ptp.domain': 'Domain {n}',
+  'analysis.ptp.noGm': 'no clock named',
+  'analysis.ptp.withoutDomain': '{n} devices carry PTP-dependent essence and name no domain: {liste}',
+  'analysis.ptp.export': 'Timing plan (PTP)',
+  // Bedarf 77 — das Netz-Merkblatt fuer die Crew.
+  'analysis.crew.title': 'Network briefing sheet for the crew',
+  'analysis.crew.ask': '{n} points to settle on site',
+  'analysis.crew.export': 'Crew network sheet',
+  // Bedarf 95 — ein Spektrum-Plan.
+  'analysis.rf.scope': '{n} transmitters in the plan: {rig} from the wireless mic rig, {link} as radio links.',
+  'analysis.rf.noFreq': '{n} without a frequency \u2014 they are in NO calculation: {liste}',
+  'analysis.rf.spectrumExport': 'Spectrum plan (everything that transmits)',
   'nic.role.mediaPrimary': 'Media primary',
   'nic.role.mediaSecondary': 'Media secondary',
   'nic.role.control': 'Control',
@@ -4273,9 +4302,10 @@ export const en: Dict = {
     'Derived length, but an end device is gone \u2014 it can no longer be recomputed',
   // {n} und {liste} werden vom Aufrufer ersetzt.
   'analysis.runs.bundled': 'one run, {n} services: {liste}',
-  'analysis.rf.intro': 'Wireless links (wireless cables) with frequency/channel. Conflict heuristic: frequency spacing < 0.4 MHz or same channel. Plus 3rd-order intermodulation (2·f₁−f₂) — the most common interference source for wireless mics/IEM.',
+  'analysis.rf.intro':
+    'Everything that transmits in the plan \u2014 wireless mic rig AND radio links, in one calculation. Conflict heuristic: frequency spacing, 3rd-order intermodulation (2\u00b7f\u2081\u2212f\u2082, the most common interference source for wireless mics/IEM) and same Wi-Fi channel. The table below shows only the radio links, because only they carry band and channel.',
   'analysis.rf.im3': 'IM3: 2×{a} − {b} = {prod} MHz hits {c} ({cmhz} MHz)',
-  'analysis.rf.imTitle': '3rd-order intermodulation',
+  'analysis.rf.imTitle': 'Frequency findings across the whole spectrum',
   'analysis.rf.imMore': '+{n} more',
   'analysis.rf.suggestTitle': 'Free frequencies in band',
   'analysis.rf.suggestNone': 'No conflict-free frequency found (band full/overlapping).',
@@ -4466,6 +4496,11 @@ export const en: Dict = {
   'drum.splHint': 'Max SPL < 140 dB on kick/snare — a single snare hit can exceed 156 dB (DPA).',
   'drum.copy': 'copy',
   'drum.copied': 'copied ✓',
+  // Bedarf 96 — ein Preset darf nie still ueberschreiben.
+  'drum.preset.dropTitle': '{n} placed microphones will be lost',
+  'drum.preset.dropBody':
+    'The \u201c{tech}\u201d technique does not know these zones: {liste}. Afterwards the plan holds {rows} microphones.',
+  'drum.preset.dropOk': 'Apply anyway',
 
   // Schema-Builder (eigene Fachfelder)
   'schemaBuilder.title': 'Categories & fields',

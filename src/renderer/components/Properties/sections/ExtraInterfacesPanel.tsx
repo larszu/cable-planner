@@ -3,7 +3,13 @@ import { useCanvasProjectStore as useProjectStore } from '../../../store/project
 import { useTranslation } from '../../../lib/i18n'
 import { Icon } from '../../shared/Icon'
 import { detectNetworkDevice } from '../../../lib/deviceKind'
-import { NETWORK_INTERFACE_ROLES, type NetworkInterface, type NetworkInterfaceRole } from '../../../types/network'
+import {
+  NETWORK_INTERFACE_ROLES,
+  type NetworkInterface,
+  type NetworkInterfaceRole,
+  type PtpProfile,
+  type PtpRole,
+} from '../../../types/network'
 import type { EquipmentItem } from '../../../types/equipment'
 
 /**
@@ -192,6 +198,65 @@ export const ExtraInterfacesPanel = ({ equipment }: { equipment: EquipmentItem }
                     aria-label={t('nic.switchPort', 'Port')}
                     className="w-20 rounded border border-cp-border bg-cp-surface-1 p-2 font-mono"
                   />
+                </div>
+                {/* BEDARF 73 — die Zeit. Drei Felder, weil der Bedarf drei
+                    nennt (Domaene, Profil, Rolle im Zeit-Baum). Kein Feld
+                    wird vorbelegt: die beiden Profile setzen VERSCHIEDENE
+                    Vorgabe-Domaenen (127 gegen 0), und eine geratene waere
+                    genau der Widerspruch, den die Pruefung suchen soll. */}
+                <div className="flex gap-1">
+                  <input
+                    type="number"
+                    min={0}
+                    max={127}
+                    value={n.ptpDomain ?? ''}
+                    onChange={(e) => {
+                      const v = Number(e.target.value)
+                      patch(n.id, {
+                        ptpDomain:
+                          e.target.value === '' || !Number.isInteger(v) ? undefined : v,
+                      })
+                    }}
+                    placeholder={t('nic.ptpDomain', 'PTP-Domäne')}
+                    aria-label={t('nic.ptpDomain', 'PTP-Domäne')}
+                    className="w-24 rounded border border-cp-border bg-cp-surface-1 p-2 font-mono"
+                  />
+                  <select
+                    value={n.ptpProfile ?? 'unspecified'}
+                    onChange={(e) =>
+                      patch(n.id, {
+                        ptpProfile:
+                          e.target.value === 'unspecified'
+                            ? undefined
+                            : (e.target.value as PtpProfile),
+                      })
+                    }
+                    aria-label={t('nic.ptpProfile', 'PTP-Profil')}
+                    className="min-w-0 flex-1 rounded border border-cp-border bg-cp-surface-1 p-2"
+                  >
+                    <option value="unspecified">{t('nic.ptpProfile.unspecified', '— PTP-Profil —')}</option>
+                    <option value="st2059-2">{t('nic.ptpProfile.st2059', 'ST 2059-2 (Vorgabe 127)')}</option>
+                    <option value="aes67">{t('nic.ptpProfile.aes67', 'AES67 (üblich 0)')}</option>
+                    <option value="default">{t('nic.ptpProfile.default', 'IEEE 1588 Default')}</option>
+                  </select>
+                  <select
+                    value={n.ptpRole ?? 'unspecified'}
+                    onChange={(e) =>
+                      patch(n.id, {
+                        ptpRole:
+                          e.target.value === 'unspecified'
+                            ? undefined
+                            : (e.target.value as PtpRole),
+                      })
+                    }
+                    aria-label={t('nic.ptpRole', 'PTP-Rolle')}
+                    className="w-28 rounded border border-cp-border bg-cp-surface-1 p-2"
+                  >
+                    <option value="unspecified">{t('nic.ptpRole.unspecified', '— Rolle —')}</option>
+                    <option value="grandmaster">{t('nic.ptpRole.grandmaster', 'Grandmaster')}</option>
+                    <option value="boundary">{t('nic.ptpRole.boundary', 'Boundary Clock')}</option>
+                    <option value="slave">{t('nic.ptpRole.slave', 'Slave')}</option>
+                  </select>
                 </div>
               </div>
             </li>
