@@ -3861,6 +3861,15 @@ export const en: Dict = {
   'inventory.labelRollsGroup': 'Continuous label printers',
   'inventory.labelOffset': 'First label position (partially used sheet)',
   // Bedarf 70 — passt der Klartext-Code auf das gewaehlte Format?
+  // Bedarf 52 — die Fehlerhistorie am physischen Objekt.
+  'inventory.reportFault': 'Report a fault',
+  'inventory.openFaults': '{n} open faults',
+  'inventory.faultText': 'Fault description',
+  'inventory.faultPh': 'What happened? (video lost from camera 3 \u2026)',
+  'inventory.faultSave': 'Record',
+  'inventory.faultOpen': 'Fault',
+  'inventory.faultResolved': 'Fault (resolved)',
+  'inventory.markResolved': 'resolved',
   'inventory.labelFitTitle': 'The code does not fully fit',
   'inventory.labelFitBody':
     'Estimated from font size and character width \u2014 not measured. This format leaves room for {n} characters; the longest code has {m}. Whatever does not fit is cut off at print time, and that plain-text code is the fallback when the barcode is scuffed.',

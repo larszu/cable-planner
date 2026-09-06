@@ -41,12 +41,15 @@ import type {
   InventorySet,
   InventoryUnit,
   UnitCondition,
+  FaultService,
   InventoryOwnership,
   InventoryCodeType,
   InventoryMaterialKind,
   PhysicalDimensions,
   SetComponent,
 } from '../../types/inventory'
+import { FAULT_SERVICE_LABEL } from '../../types/inventory'
+import { affectedServices, openFaultsOf } from '../../lib/faultHistory'
 import { useCheckoutStore } from '../../store/checkoutStore'
 import { ownershipNote, overdueSubhire, subhireStatus } from '../../lib/ownership'
 import type { CheckoutDamage, CheckoutRecord } from '../../types/checkout'
@@ -1398,6 +1401,12 @@ const UnitsTab = ({ codeCell }: UnitsTabProps) => {
   const removeUnit = useInventoryStore((s) => s.removeUnit)
   const moveUnit = useInventoryStore((s) => s.moveUnit)
   const setUnitCondition = useInventoryStore((s) => s.setUnitCondition)
+  // BEDARF 52 — die Fehlerhistorie am physischen Objekt.
+  const reportUnitFault = useInventoryStore((s) => s.reportUnitFault)
+  const resolveUnitFault = useInventoryStore((s) => s.resolveUnitFault)
+  const [faultFor, setFaultFor] = useState<string | null>(null)
+  const [faultText, setFaultText] = useState('')
+  const [faultServices, setFaultServices] = useState<FaultService[]>([])
   const [form, setForm] = useState<UnitFormState | null>(null)
   const [openHistory, setOpenHistory] = useState<string | null>(null)
 
@@ -1513,6 +1522,23 @@ const UnitsTab = ({ codeCell }: UnitsTabProps) => {
                 {u.serial && <span className="text-cp-text-secondary">SN {u.serial}</span>}
                 {u.code && codeCell(u.code, u.codeType)}
                 <span className={`rounded px-1.5 py-0.5 text-[10px] ${CONDITION_TONE[u.condition]}`}>{conditionLabel(u.condition)}</span>
+                {/* BEDARF 52 — der Verdacht steht NEBEN dem Zustand, nicht
+                    darin. „defekt" ist eine Entscheidung, die jemand getroffen
+                    hat; „3 offene Fehler" ist eine Zählung, und genau die lebte
+                    bisher nur im Gedächtnis der Crew. */}
+                {openFaultsOf(u).length > 0 && (
+                  <span
+                    className="rounded bg-amber-900/50 px-1.5 py-0.5 text-[10px] text-amber-200"
+                    title={affectedServices(u)
+                      .map((x) => FAULT_SERVICE_LABEL[x])
+                      .join(', ')}
+                  >
+                    {t('inventory.openFaults', '{n} offene Fehler').replace(
+                      '{n}',
+                      String(openFaultsOf(u).length),
+                    )}
+                  </span>
+                )}
                 {/* Zustand ändern */}
                 <select
                   value={u.condition}
@@ -1544,6 +1570,9 @@ const UnitsTab = ({ codeCell }: UnitsTabProps) => {
                   ))}
                 </select>
                 <div className="ml-auto flex gap-1">
+                  <button type="button" onClick={() => setFaultFor(faultFor === u.id ? null : u.id)} className="rounded p-1 text-cp-text-muted hover:bg-cp-surface-4 hover:text-cp-text" title={t('inventory.reportFault', 'Fehler melden')}>
+                    <AlertTriangle size={13} />
+                  </button>
                   <button type="button" onClick={() => setOpenHistory(openHistory === u.id ? null : u.id)} className="rounded p-1 text-cp-text-muted hover:bg-cp-surface-4 hover:text-cp-text" title={t('inventory.history', 'Historie')}>
                     <ClipboardList size={13} />
                   </button>
@@ -1560,10 +1589,71 @@ const UnitsTab = ({ codeCell }: UnitsTabProps) => {
                   {u.history.map((e, i) => (
                     <li key={i} className="flex gap-2">
                       <span className="tabular-nums text-cp-text-faint">{e.at.slice(0, 10)}</span>
+                      {/* Ein Fehler sieht anders aus als eine Notiz — sonst
+                          geht er in der Historie unter, und das ist genau der
+                          Zustand vor diesem Bedarf. */}
+                      {e.kind === 'fault' && (
+                        <span className={e.resolved ? 'text-cp-text-faint' : 'text-amber-300/90'}>
+                          {e.resolved
+                            ? t('inventory.faultResolved', 'Fehler (behoben)')
+                            : t('inventory.faultOpen', 'Fehler')}
+                        </span>
+                      )}
                       <span>{e.detail}</span>
+                      {e.kind === 'fault' && (e.services ?? []).length > 0 && (
+                        <span className="text-cp-text-faint">
+                          ({(e.services ?? []).map((x) => FAULT_SERVICE_LABEL[x]).join(', ')})
+                        </span>
+                      )}
+                      {e.kind === 'fault' && !e.resolved && (
+                        <button
+                          type="button"
+                          onClick={() => resolveUnitFault(u.id, e.at)}
+                          className="text-cp-text-muted underline hover:text-cp-text"
+                        >
+                          {t('inventory.markResolved', 'behoben')}
+                        </button>
+                      )}
                     </li>
                   ))}
                 </ul>
+              )}
+              {faultFor === u.id && (
+                <div className="flex flex-wrap items-center gap-1.5 border-t border-cp-border-muted px-3 py-1.5 text-[10px]">
+                  <input
+                    value={faultText}
+                    onChange={(e) => setFaultText(e.target.value)}
+                    placeholder={t('inventory.faultPh', 'Was war los? (Bild weg ab Kamera 3 …)')}
+                    aria-label={t('inventory.faultText', 'Fehlerbeschreibung')}
+                    className="min-w-0 flex-1 rounded border border-cp-border bg-cp-surface-3 p-1"
+                  />
+                  {(Object.keys(FAULT_SERVICE_LABEL) as FaultService[]).map((sv) => (
+                    <label key={sv} className="flex items-center gap-0.5">
+                      <input
+                        type="checkbox"
+                        checked={faultServices.includes(sv)}
+                        onChange={(e) =>
+                          setFaultServices((prev) =>
+                            e.target.checked ? [...prev, sv] : prev.filter((x) => x !== sv),
+                          )
+                        }
+                      />
+                      {FAULT_SERVICE_LABEL[sv]}
+                    </label>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      reportUnitFault(u.id, faultText, faultServices)
+                      setFaultText('')
+                      setFaultServices([])
+                      setFaultFor(null)
+                    }}
+                    className="rounded border border-cp-border px-2 py-0.5 hover:bg-cp-surface-4"
+                  >
+                    {t('inventory.faultSave', 'Festhalten')}
+                  </button>
+                </div>
               )}
             </div>
           ))}

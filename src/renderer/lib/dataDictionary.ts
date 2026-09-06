@@ -100,6 +100,8 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   Ch: 'Die Kanalnummer am Pult.',
   Code: 'Der Etiketten- oder Barcode, mit dem die Einheit gescannt wird.',
   Container: 'Der Container (Case, Kiste), zu dem diese Zeile gehört.',
+  Dienste:
+    'Welche Dienste ein Fehler mitgenommen hat. Ein SMPTE-/Fiber-Strang trägt sie gemeinsam, deshalb ist die Angabe mehrwertig.',
   'Dienste auf dem Strang':
     'Welche Dienste über denselben Kabelstrang laufen — die Grundlage der Trennungs-Prüfung.',
   Domaene: 'Die PTP-Domänennummer der Schnittstelle.',
@@ -111,6 +113,8 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   'Erwartet in': 'Wo die Position laut Plan liegen müsste.',
   Essenz: 'Die Sorte Nutzlast — Video, Audio, ANC oder Licht.',
   'Etiketten-Code': 'Der aufgeklebte Code, unter dem die Einheit gescannt wird.',
+  'Fehler gesamt':
+    'Alle je gemeldeten Fehler an dieser Einheit, auch die behobenen. Die Zahl daneben zählt nur die offenen.',
   Feld: 'Das benannte Feld des Übergabe-Dokuments.',
   Fluss: 'Ein einzelner Sende-Strom, aus dem Kabelgraph abgeleitet (Gerät und Port).',
   'Frage an das Haus':
@@ -161,6 +165,8 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   Notiz: 'Freitext zu diesem Ziel.',
   'Nr.': 'Die laufende Nummer auf diesem Blatt.',
   Objekt: 'Die Sache, um die es geht — Einheit, Container oder Position.',
+  'Offene Fehler':
+    'Wie viele gemeldete Fehler an dieser Einheit noch nicht als behoben nachgetragen sind. Ein Eintrag ohne Angabe zählt als offen.',
   Offline: 'Die Szene, auf die geschaltet wird, wenn nichts mehr ankommt.',
   Plan: 'Die Menge oder der Wert, den der Plan vorsieht.',
   'Plan-IP': 'Die Adresse, die der Plan für dieses Gerät vorsieht.',
@@ -222,6 +228,7 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   Zuordnung: 'Wie die Plan-Position dem Artikel im Warenwirtschaftssystem zugeordnet ist.',
   'Zurueck am': 'Wann die Einheit oder der Container zurückgegeben wurde.',
   'Zurueck bis': 'Bis wann die Rückgabe zugesagt ist.',
+  Zuletzt: 'Wann der jüngste Fehler an dieser Einheit gemeldet wurde.',
   Zwischenstationen: 'Die Geräte, die zwischen Programm-Eingang und Ziel im Weg liegen.',
 }
 
