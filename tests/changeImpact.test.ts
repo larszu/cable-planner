@@ -142,7 +142,36 @@ describe('changeImpact — die Vorwärts-Frage', () => {
     // Ausweichen. Sobald ein Ziel existiert, ist er ohne Geraete unbeurteilbar;
     // genau das haelt der Test unter diesem hier fest, damit die Zeile nicht
     // als „haengt nie an Geraeten" missverstanden wird.
-    const ohneGeraetebezug = new Set(['plan', 'ausspielung', 'ablaufblatt', 'ausspielweg'])
+    //
+    // `event-metadaten` (Bedarf 88) kam mit dem Grund der ersten beiden dazu:
+    // Titel, Beginn und Sichtbarkeit stehen am Projekt, die Zeilen kommen aus
+    // `deliveryDestinations`. Kein Geraet wird dafuer angefasst — auch nicht
+    // mittelbar, denn anders als beim `ausspielweg` wird kein Encoder-Zeiger
+    // aufgeloest.
+    //
+    // `sendebericht` (Bedarf 87) steht hier mit einer Einschraenkung, die
+    // wichtig ist: die BEWERTUNG des Sendeberichts fasst sehr wohl Geraete an
+    // (sie vergleicht gegen das As-Built), aber das BLATT tut es nicht — es
+    // traegt nur die Eintraege und die Ziel-Namen. Der Stand haengt am Blatt,
+    // also gehoert der Bezeichner hierher. Wer die Abweichungen einmal MIT auf
+    // das Blatt nimmt, muss ihn wieder herausnehmen.
+    const ohneGeraetebezug = new Set([
+      'plan',
+      'ausspielung',
+      'ablaufblatt',
+      'ausspielweg',
+      'event-metadaten',
+      'sendebericht',
+      // `kosten-vergleich` (Bedarf 79) haengt zwar an `equipment` — der Anker
+      // einer Position kann ein Geraet sein —, aber nur, wenn es Positionen
+      // GIBT. Auf einem Torso ohne Kostenplan ist das leere Blatt die wahre
+      // Antwort und kein Ausweichen; dieselbe Lage wie beim `ausspielweg`.
+      'kosten-vergleich',
+      // `umbenennungssatz` (Bedarf 74) haengt an `equipment` — aber nur, wenn
+      // eine Namensregel im Projekt steht. Auf einem Torso ohne Regel ist der
+      // leere Satz die wahre Antwort: es gibt nichts umzubenennen.
+      'umbenennungssatz',
+    ])
     expect(
       impact.documents.some((d) => d.verdict === 'unaffected' && !ohneGeraetebezug.has(d.docId)),
     ).toBe(false)

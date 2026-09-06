@@ -201,15 +201,75 @@ export interface InventorySet {
 export type UnitCondition = 'ok' | 'defect' | 'inRepair' | 'retired'
 
 /** Ereignis-Typ in der Unit-Historie. */
-export type UnitEventKind = 'created' | 'moved' | 'condition' | 'note'
+export type UnitEventKind = 'created' | 'moved' | 'condition' | 'note' | 'fault'
 
-/** Ein Eintrag in der Historie einer Einheit (append-only). */
+// ───────────────────────────────────────────────────────────────────────────
+// BEDARF 52 (P2) — die Fehlerhistorie haengt am physischen Objekt.
+//
+//   > One SMPTE/fibre run carries video, return video, comms, tally, control
+//   > and power, so a single fault presents as several departments' problems;
+//   > which drum is suspect lives only in crew memory and THE SAME BAD DRUM
+//   > SHIPS AGAIN NEXT MONTH.
+//
+// ─── WARUM DAS HIER STEHT UND NICHT AM KABEL IM PLAN ───────────────────────
+//
+// Weil ein Fehlerprotokoll am Plan-Kabel wertlos waere. Das Projekt endet, die
+// Datei wird archiviert — und die Trommel geht naechsten Monat wieder raus.
+// Der Bedarf nennt genau das als den Schaden. Die Historie gehoert deshalb an
+// die EINHEIT im Lager, die projektuebergreifend denselben festen Code traegt.
+//
+// ─── DIE HERKUNFT DER FUNDSTELLE, IM KLARTEXT ──────────────────────────────
+//
+// Der Beleg ist ZWEITER HAND: die Bedarfs-Datenbank fuehrt ihn aus dem
+// Schwester-Dossier (Church Production/Hitachi, Production Distro) und sagt
+// ausdruecklich „second-hand, not re-fetched in this session; no
+// shader-specific fault-log source could be reached". Gebaut wird deshalb nur,
+// was aus dem MECHANISMUS folgt — ein Strang traegt mehrere Dienste, also ist
+// ein Fehler daran mehrdeutig — und nichts, was eine Statistik ueber
+// Ausfallraten behaupten wuerde.
+// ───────────────────────────────────────────────────────────────────────────
+
+/**
+ * Welche Dienste ein Fehler betraf.
+ *
+ * Die Vokabeln der Signal-Ebenen dieses Planers. Ein SMPTE-/Fiber-Strang
+ * traegt sie gemeinsam, und genau deshalb ist die Angabe MEHRWERTIG: „das Bild
+ * war weg und die Comms auch" ist eine andere Meldung als „nur das Bild".
+ */
+export type FaultService = 'video' | 'returnVideo' | 'comms' | 'tally' | 'control' | 'power'
+
+export const FAULT_SERVICE_LABEL: Readonly<Record<FaultService, string>> = {
+  video: 'Video',
+  returnVideo: 'Rückvideo',
+  comms: 'Comms',
+  tally: 'Tally',
+  control: 'Steuerung',
+  power: 'Strom',
+}
+
+/**
+ * Ein Eintrag in der Historie einer Einheit (append-only).
+ *
+ * `fault` traegt zusaetzlich die betroffenen Dienste und ob der Fehler erledigt
+ * ist. Beides steht NICHT im `detail`-Text: ein Freitext laesst sich nicht
+ * zaehlen, und „welche Trommel ist verdaechtig" ist genau eine Zaehlfrage.
+ */
 export interface UnitEvent {
   /** ISO-Zeitstempel. */
   at: string
   kind: UnitEventKind
   /** Menschlich lesbare Beschreibung (z. B. „nach Case 2", „defekt → Reparatur"). */
   detail: string
+  /** Nur bei `kind === 'fault'`: welche Dienste ausgefallen sind. */
+  services?: FaultService[]
+  /**
+   * Nur bei `kind === 'fault'`: ob der Fehler abgestellt ist.
+   *
+   * Fehlt die Angabe, gilt der Fehler als OFFEN. Das ist Absicht: ein
+   * unbeantwortetes „ist das behoben?" als erledigt zu lesen ist genau der
+   * Weg, auf dem dieselbe Trommel wieder rausgeht.
+   */
+  resolved?: boolean
 }
 
 /** Eine serialisierte Einzel-Einheit eines Artikel-Modells. */

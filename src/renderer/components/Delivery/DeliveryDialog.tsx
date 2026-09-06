@@ -36,6 +36,29 @@ import {
 } from '../../lib/fallbackPlan'
 import type { FallbackRule } from '../../types/fallback'
 import {
+  EVENT_METADATA_FINDING_LABEL,
+  assessEventMetadata,
+  eventMetadataTable,
+} from '../../lib/eventMetadata'
+import {
+  TRANSMISSION_FINDING_LABEL,
+  assessTransmission,
+  transmissionRecordTable,
+} from '../../lib/transmissionRecord'
+import {
+  TRANSMISSION_EVENT_LABEL,
+  TRANSMISSION_SOURCE_LABEL,
+  type TransmissionEvent,
+  type TransmissionEventKind,
+  type TransmissionSource,
+} from '../../types/transmissionRecord'
+import { JOB_BASIS_LABEL } from '../../lib/jobHandover'
+import type {
+  DestinationMetadataOverride,
+  EventMetadata,
+  EventPrivacy,
+} from '../../types/eventMetadata'
+import {
   DELIVERY_PLATFORMS,
   DEFAULT_ENCODING,
   platformByKey,
@@ -119,6 +142,13 @@ export const DeliveryDialog = () => {
   // BEDARF 89 — das Sicherheitsnetz. Auch hier: die Frage entsteht erst, wenn
   // es eine Ausspielung gibt, die geschuetzt werden koennte.
   const setFallbackPlan = useProjectStore((s) => s.setFallbackPlan)
+  // BEDARF 88 — die Veranstaltungsangaben. Wie ueberall in diesem Dialog:
+  // die Bewertung ist die Engstelle, die Oberflaeche liest nur ab.
+  const setEventMetadata = useProjectStore((s) => s.setEventMetadata)
+  const meta = useMemo(() => assessEventMetadata(project), [project])
+  // BEDARF 87 — der Sendebericht. Auch hier: die Bewertung ist die Engstelle.
+  const setTransmissionRecord = useProjectStore((s) => s.setTransmissionRecord)
+  const sendung = useMemo(() => assessTransmission(project), [project])
   const fallback = useMemo(() => assessFallback(project), [project])
   const [sceneDraft, setSceneDraft] = useState('')
   const chainById = useMemo(
@@ -356,6 +386,78 @@ export const DeliveryDialog = () => {
     setSceneDraft('')
   }
 
+  const patchEvent = (patch: Partial<EventMetadata>) => {
+    const event: EventMetadata = { ...meta.plan.event, ...patch }
+    // Leere Schlagwortlisten wieder loswerden, damit `normaliseEventMetadata`
+    // das Objekt als leer erkennen und ganz verwerfen kann.
+    if (event.tags && event.tags.length === 0) delete event.tags
+    setEventMetadata({ event, overrides: meta.plan.overrides })
+  }
+
+  const overrideOf = (destinationId: string): DestinationMetadataOverride | undefined =>
+    meta.plan.overrides.find((o) => o.destinationId === destinationId)
+
+  /**
+   * Eine Abweichung setzen — und sie wieder ENTFERNEN, wenn nichts mehr drin
+   * steht. Ein leerer Ueberschreiber traegt sonst dauerhaft den Befund
+   * `override-inert`, nur weil jemand einmal ins Feld getippt und es wieder
+   * geleert hat.
+   */
+  const patchOverride = (destinationId: string, patch: Partial<DestinationMetadataOverride>) => {
+    const current = overrideOf(destinationId) ?? { destinationId }
+    const next: DestinationMetadataOverride = { ...current, ...patch, destinationId }
+    const leer = !next.title && !next.description && !next.privacy && !next.reason
+    const rest = meta.plan.overrides.filter((o) => o.destinationId !== destinationId)
+    setEventMetadata({
+      event: meta.plan.event,
+      overrides: leer ? rest : [...rest, next],
+    })
+  }
+
+  const exportEventMetadata = () => {
+    downloadBlob(
+      buildExportFilenameWithSuffix(projectName, 'event-metadaten', 'csv'),
+      csvFromTable(eventMetadataTable(project)),
+      'text/csv',
+    )
+  }
+
+  const patchRecord = (events: TransmissionEvent[], summary?: string) => {
+    const naechste = summary === undefined ? sendung.record.summary : summary
+    const leer = events.length === 0 && !(naechste ?? '').trim()
+    setTransmissionRecord(
+      leer ? undefined : { events, ...(naechste?.trim() ? { summary: naechste } : {}) },
+    )
+  }
+
+  /**
+   * Einen Eintrag anlegen — mit LEEREM Zeitpunkt.
+   *
+   * Die Anwendung setzt hier bewusst keine Uhrzeit: ein Bericht, dessen Zeiten
+   * die Anwendung vergibt, saehe aus, als haette sie zugesehen. Den Zeitpunkt
+   * traegt der Mensch ein, der dabei war.
+   */
+  const addTransmissionEvent = () => {
+    patchRecord([
+      ...sendung.events,
+      { id: crypto.randomUUID(), at: '', kind: 'note', text: '', source: 'unstated' },
+    ])
+  }
+
+  const patchTransmissionEvent = (id: string, patch: Partial<TransmissionEvent>) =>
+    patchRecord(sendung.events.map((e) => (e.id === id ? { ...e, ...patch } : e)))
+
+  const removeTransmissionEvent = (id: string) =>
+    patchRecord(sendung.events.filter((e) => e.id !== id))
+
+  const exportTransmission = () => {
+    downloadBlob(
+      buildExportFilenameWithSuffix(projectName, 'sendebericht', 'csv'),
+      csvFromTable(transmissionRecordTable(project)),
+      'text/csv',
+    )
+  }
+
   const exportFallback = () => {
     downloadBlob(
       buildExportFilenameWithSuffix(projectName, 'ausweich-plan', 'csv'),
@@ -508,6 +610,311 @@ export const DeliveryDialog = () => {
                   {archive.findings.map((f, i) => (
                     <li key={`${f.kind}-${i}`} className="text-amber-300/90">
                       <strong>{ARCHIVE_FINDING_LABEL[f.kind]}</strong> — {archiveFindingText(f)}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+
+          {/* BEDARF 88 — die Angaben zur Veranstaltung. Nur sichtbar, wenn es
+              ein Ziel gibt: ohne Ausspielung hat der Titel keine Plattform,
+              auf der er getippt würde, und der Abschnitt wäre eine Frage ohne
+              Anlass — dieselbe Regel wie beim Archiv und beim Sicherheitsnetz. */}
+          {list.length > 0 && (
+            <div className="mb-4 rounded border border-cp-border-muted bg-cp-surface-2 p-2.5">
+              <div className="mb-1.5 flex flex-wrap items-center gap-2 text-cp-sm">
+                <span className="font-medium text-cp-text">
+                  {t('delivery.event.title', 'Angaben zur Veranstaltung')}
+                </span>
+                <button
+                  type="button"
+                  onClick={exportEventMetadata}
+                  title={t(
+                    'delivery.event.exportHint',
+                    'Ein Blatt zum Abtippen — je Ziel eine Zeile mit Titel, Beginn und Sichtbarkeit',
+                  )}
+                  className="flex items-center gap-1 rounded border border-cp-border px-2 py-1 text-cp-sm text-cp-text-secondary hover:text-cp-text"
+                >
+                  <FileText size={13} /> {t('delivery.event.export', 'Blatt')}
+                </button>
+              </div>
+              <div className="mb-2 grid grid-cols-2 gap-2">
+                <input
+                  value={meta.plan.event.title ?? ''}
+                  onChange={(e) => patchEvent({ title: e.target.value || undefined })}
+                  placeholder={t('delivery.event.titlePh', 'Titel der Veranstaltung')}
+                  aria-label={t('delivery.event.titleLabel', 'Titel')}
+                  className={inputCls}
+                />
+                <select
+                  value={meta.plan.event.privacy}
+                  onChange={(e) => patchEvent({ privacy: e.target.value as EventPrivacy })}
+                  aria-label={t('delivery.event.privacy', 'Sichtbarkeit')}
+                  className={inputCls}
+                >
+                  <option value="not-stated">
+                    {t('delivery.event.privacy.notStated', '— Sichtbarkeit nicht angegeben —')}
+                  </option>
+                  <option value="public">{t('delivery.event.privacy.public', 'öffentlich')}</option>
+                  <option value="unlisted">
+                    {t('delivery.event.privacy.unlisted', 'nicht gelistet')}
+                  </option>
+                  <option value="private">{t('delivery.event.privacy.private', 'privat')}</option>
+                </select>
+                {/* Ein `datetime-local`-Feld stünde hier nahe — und wäre genau
+                    der Fehler aus dem Bedarf: es liefert „2026-09-12T19:00"
+                    ohne Offset, und der Plan sähe aus, als wüsste er die
+                    Zeitzone. Das Textfeld nimmt den Offset auf, wenn jemand
+                    ihn hat, und der Befund sagt es laut, wenn nicht. */}
+                <input
+                  value={meta.plan.event.scheduledStart ?? ''}
+                  onChange={(e) => patchEvent({ scheduledStart: e.target.value || undefined })}
+                  placeholder={t('delivery.event.startPh', 'Beginn, z. B. 2026-09-12T19:00+02:00')}
+                  aria-label={t('delivery.event.start', 'Geplanter Beginn')}
+                  className={inputCls}
+                />
+                <input
+                  value={meta.plan.event.timezone ?? ''}
+                  onChange={(e) => patchEvent({ timezone: e.target.value || undefined })}
+                  placeholder={t('delivery.event.tzPh', 'Angesagt in, z. B. Europe/Berlin')}
+                  aria-label={t('delivery.event.tz', 'Zeitzone')}
+                  className={inputCls}
+                />
+                <input
+                  value={meta.plan.event.thumbnailRef ?? ''}
+                  onChange={(e) => patchEvent({ thumbnailRef: e.target.value || undefined })}
+                  placeholder={t('delivery.event.thumbPh', 'Vorschaubild — Dateiname, nicht das Bild')}
+                  aria-label={t('delivery.event.thumb', 'Vorschaubild')}
+                  className={inputCls}
+                />
+                <input
+                  value={(meta.plan.event.tags ?? []).join(', ')}
+                  onChange={(e) =>
+                    patchEvent({
+                      tags: e.target.value
+                        .split(',')
+                        .map((x) => x.trim())
+                        .filter(Boolean),
+                    })
+                  }
+                  placeholder={t('delivery.event.tagsPh', 'Schlagworte, durch Komma getrennt')}
+                  aria-label={t('delivery.event.tags', 'Schlagworte')}
+                  className={inputCls}
+                />
+              </div>
+              <textarea
+                value={meta.plan.event.description ?? ''}
+                onChange={(e) => patchEvent({ description: e.target.value || undefined })}
+                placeholder={t('delivery.event.descPh', 'Beschreibungstext für die Plattform-Formulare')}
+                aria-label={t('delivery.event.desc', 'Beschreibung')}
+                rows={2}
+                className={`${inputCls} mb-2 w-full`}
+              />
+              <div className="mb-2 flex flex-col gap-1">
+                <span className="text-cp-xs text-cp-text-muted">
+                  {t(
+                    'delivery.event.overrides',
+                    'Bewusste Abweichungen je Ziel — leer heißt „gilt wie am Projekt".',
+                  )}
+                </span>
+                {meta.resolved.map((r) => (
+                  <div key={r.destinationId} className="flex flex-wrap items-center gap-1.5">
+                    <span className="min-w-[7rem] text-cp-xs text-cp-text-secondary">
+                      {r.destinationName}
+                    </span>
+                    <input
+                      value={overrideOf(r.destinationId)?.title ?? ''}
+                      onChange={(e) =>
+                        patchOverride(r.destinationId, { title: e.target.value || undefined })
+                      }
+                      placeholder={t('delivery.event.ovTitlePh', 'abweichender Titel')}
+                      aria-label={`${t('delivery.event.ovTitle', 'Abweichender Titel')} — ${r.destinationName}`}
+                      className={`${inputCls} min-w-0 flex-1`}
+                    />
+                    <input
+                      value={overrideOf(r.destinationId)?.reason ?? ''}
+                      onChange={(e) =>
+                        patchOverride(r.destinationId, { reason: e.target.value || undefined })
+                      }
+                      placeholder={t('delivery.event.ovReasonPh', 'warum abweichend?')}
+                      aria-label={`${t('delivery.event.ovReason', 'Begründung')} — ${r.destinationName}`}
+                      className={`${inputCls} min-w-0 flex-1`}
+                    />
+                  </div>
+                ))}
+              </div>
+              {meta.findings.length > 0 && (
+                <ul className="flex flex-col gap-1 text-cp-xs">
+                  {meta.findings.map((f, i) => (
+                    <li key={`${f.kind}-${i}`} className="text-amber-300/90">
+                      <strong>{EVENT_METADATA_FINDING_LABEL[f.kind]}</strong> — {f.text}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+
+          {/* BEDARF 87 — der Sendebericht. Nur sichtbar, wenn es ein Ziel gibt:
+              ohne Ausspielung gab es keine Sendung, über die zu berichten
+              wäre. */}
+          {list.length > 0 && (
+            <div className="mb-4 rounded border border-cp-border-muted bg-cp-surface-2 p-2.5">
+              <div className="mb-1.5 flex flex-wrap items-center gap-2 text-cp-sm">
+                <span className="font-medium text-cp-text">
+                  {t('delivery.record.title', 'Sendebericht')}
+                </span>
+                {/* Woraus der Bericht spricht — derselbe Zustand wie bei der
+                    Übergabe (Bedarf 84). Er steht hier und nicht nur in den
+                    Befunden, weil er entscheidet, ob „Abweichung" überhaupt
+                    etwas heißen kann. */}
+                <span className="rounded border border-cp-border-muted px-1.5 py-0.5 text-cp-xs text-cp-text-secondary">
+                  {JOB_BASIS_LABEL[sendung.basis]}
+                </span>
+                <button
+                  type="button"
+                  onClick={addTransmissionEvent}
+                  className="flex items-center gap-1 rounded border border-cp-border px-2 py-1 text-cp-sm text-cp-text-secondary hover:text-cp-text"
+                >
+                  <Plus size={13} /> {t('delivery.record.add', 'Eintrag')}
+                </button>
+                <button
+                  type="button"
+                  onClick={exportTransmission}
+                  title={t(
+                    'delivery.record.exportHint',
+                    'Der Verlauf als Blatt — jede Zeile trägt, woher die Angabe stammt. Dieser Plan misst nichts.',
+                  )}
+                  className="flex items-center gap-1 rounded border border-cp-border px-2 py-1 text-cp-sm text-cp-text-secondary hover:text-cp-text"
+                >
+                  <FileText size={13} /> {t('delivery.record.export', 'Blatt')}
+                </button>
+              </div>
+              <p className="mb-2 text-cp-xs leading-snug text-cp-text-muted">
+                {t(
+                  'delivery.record.hint',
+                  'Was die Sendung getan hat, soweit jemand es aufgeschrieben hat. Keine Messung: Zeitpunkt und Herkunft trägt der Mensch ein, der dabei war.',
+                )}
+              </p>
+              {sendung.events.length > 0 && (
+                <div className="mb-2 flex flex-col gap-1">
+                  {sendung.events.map((e) => (
+                    <div key={e.id} className="flex flex-wrap items-center gap-1.5">
+                      <input
+                        value={e.at}
+                        onChange={(ev) => patchTransmissionEvent(e.id, { at: ev.target.value })}
+                        placeholder={t('delivery.record.atPh', '2026-09-12T19:04+02:00')}
+                        aria-label={t('delivery.record.at', 'Zeitpunkt')}
+                        className={`${inputCls} w-[13rem]`}
+                      />
+                      <select
+                        value={e.kind}
+                        onChange={(ev) =>
+                          patchTransmissionEvent(e.id, {
+                            kind: ev.target.value as TransmissionEventKind,
+                          })
+                        }
+                        aria-label={t('delivery.record.kind', 'Was')}
+                        className={inputCls}
+                      >
+                        {Object.keys(TRANSMISSION_EVENT_LABEL).map((k) => (
+                          <option key={k} value={k}>
+                            {TRANSMISSION_EVENT_LABEL[k as TransmissionEventKind]}
+                          </option>
+                        ))}
+                      </select>
+                      <select
+                        value={e.destinationId ?? ''}
+                        onChange={(ev) =>
+                          patchTransmissionEvent(e.id, {
+                            destinationId: ev.target.value || undefined,
+                          })
+                        }
+                        aria-label={t('delivery.record.dest', 'Ziel')}
+                        className={inputCls}
+                      >
+                        <option value="">{t('delivery.record.whole', '— ganze Sendung —')}</option>
+                        {list.map((d) => (
+                          <option key={d.id} value={d.id}>
+                            {d.name}
+                          </option>
+                        ))}
+                      </select>
+                      {/* Die Herkunft steht NEBEN dem Text, nicht am Rand: sie
+                          entscheidet, wie belastbar die Zeile ist, wenn der
+                          Bericht beim Kunden liegt. */}
+                      <select
+                        value={e.source}
+                        onChange={(ev) =>
+                          patchTransmissionEvent(e.id, {
+                            source: ev.target.value as TransmissionSource,
+                          })
+                        }
+                        aria-label={t('delivery.record.source', 'Herkunft')}
+                        className={inputCls}
+                      >
+                        {Object.keys(TRANSMISSION_SOURCE_LABEL).map((k) => (
+                          <option key={k} value={k}>
+                            {TRANSMISSION_SOURCE_LABEL[k as TransmissionSource]}
+                          </option>
+                        ))}
+                      </select>
+                      <input
+                        value={e.observedBy ?? ''}
+                        onChange={(ev) =>
+                          patchTransmissionEvent(e.id, {
+                            observedBy: ev.target.value || undefined,
+                          })
+                        }
+                        placeholder={t('delivery.record.byPh', 'von wem?')}
+                        aria-label={t('delivery.record.by', 'Beobachtet von')}
+                        className={`${inputCls} w-[8rem]`}
+                      />
+                      <input
+                        value={e.text}
+                        onChange={(ev) => patchTransmissionEvent(e.id, { text: ev.target.value })}
+                        placeholder={t('delivery.record.textPh', 'Was war zu sehen?')}
+                        aria-label={t('delivery.record.text', 'Beschreibung')}
+                        className={`${inputCls} min-w-0 flex-1`}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeTransmissionEvent(e.id)}
+                        aria-label={t('delivery.record.remove', 'Eintrag entfernen')}
+                        className="text-cp-text-muted hover:text-cp-danger"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <textarea
+                value={sendung.record.summary ?? ''}
+                onChange={(e) => patchRecord(sendung.events, e.target.value)}
+                placeholder={t(
+                  'delivery.record.summaryPh',
+                  'Zusammenfassung für den Kunden — bewusst von Hand, nicht erzeugt',
+                )}
+                aria-label={t('delivery.record.summary', 'Zusammenfassung')}
+                rows={2}
+                className={`${inputCls} mb-2 w-full`}
+              />
+              {sendung.deviations.length > 0 && (
+                <ul className="mb-2 flex flex-col gap-1 text-cp-xs text-cp-text-secondary">
+                  {sendung.deviations.map((d) => (
+                    <li key={d.section}>
+                      <strong>{d.label}</strong> — {d.detail}
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {sendung.findings.length > 0 && (
+                <ul className="flex flex-col gap-1 text-cp-xs">
+                  {sendung.findings.map((f, i) => (
+                    <li key={`${f.kind}-${i}`} className="text-amber-300/90">
+                      <strong>{TRANSMISSION_FINDING_LABEL[f.kind]}</strong> — {f.text}
                     </li>
                   ))}
                 </ul>

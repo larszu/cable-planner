@@ -28,6 +28,10 @@ import { crewSheetTableForProject } from './crewNetworkSheet'
 import { spectrumTableForProject } from './spectrumPlan'
 import { multicastTableForProject } from './multicastPlan'
 import { fallbackTable } from './fallbackPlan'
+import { eventMetadataTable } from './eventMetadata'
+import { transmissionRecordTable } from './transmissionRecord'
+import { costComparisonTable } from './costComparison'
+import { renameSetTable } from './namingScheme'
 import type { CsvTable } from './csv'
 
 const ofTable =
@@ -103,6 +107,31 @@ export const DOCUMENT_STANDS: Record<string, (project: CablePlannerProject) => s
   // Inhalt folgt allein aus den Regeln und den Zielen. Die BEFUNDE stehen
   // nicht drin -- sie tragen Fliesstext.
   'ausweich-plan': ofTable(fallbackTable),
+  // Bedarf 88 — die Veranstaltungsangaben als Blatt zum Abtippen.
+  // Reproduzierbar: der Inhalt folgt allein aus `eventMetadata` und
+  // `deliveryDestinations`, keine Nutzer-Einstellung beim Export und keine
+  // Sprache (die Ersatztexte sind kanonisches Deutsch, siehe `NO_TITLE` &
+  // Co. in `eventMetadata.ts`). Die BEFUNDE stehen nicht in der Tabelle --
+  // sie tragen Fliesstext, und ein Blatt, dessen Stand sich mit jeder
+  // Umformulierung aendert, meldete jedes gedruckte Exemplar als veraltet.
+  'event-metadaten': ofTable(eventMetadataTable),
+  // Bedarf 87 — der Sendebericht. Reproduzierbar: der Inhalt folgt allein aus
+  // `transmissionRecord` und den Ziel-Namen, keine Nutzer-Einstellung beim
+  // Export und keine Sprache. Die BEFUNDE stehen nicht in der Tabelle -- sie
+  // tragen Fliesstext. Die ZUSAMMENFASSUNG steht ebenfalls nicht drin: sie ist
+  // Fliesstext eines Menschen, und ein umformulierter Satz duerfte nicht jedes
+  // gedruckte Exemplar als veraltet melden.
+  sendebericht: ofTable(transmissionRecordTable),
+  // Bedarf 79 — der Kostenvergleich. Reproduzierbar: sein Inhalt folgt allein
+  // aus `costPlan` und den Namen der verankerten Objekte. Keine
+  // Nutzer-Einstellung beim Export, keine Sprache, keine Uhr. Die BEFUNDE
+  // stehen nicht in der Tabelle -- sie tragen Fliesstext.
+  'kosten-vergleich': ofTable(costComparisonTable),
+  // Bedarf 74 — der Umbenennungssatz. Reproduzierbar: er folgt allein aus der
+  // Namensregel im Projekt und den Geraeten. Ohne Regel ist er leer, und das
+  // ist die wahre Antwort und kein Ausweichen. Die BEFUNDE stehen nicht in der
+  // Tabelle -- sie tragen Fliesstext.
+  umbenennungssatz: ofTable((p) => renameSetTable(p)),
 }
 
 /**
@@ -163,6 +192,16 @@ export const UNJUDGEABLE_DOCUMENTS: Record<string, string> = {
     'Der Zustand hängt an der Revisionsliste (As-Built). Der Revisions-Vergleich ' +
     'spannt Snapshots ohne diese Liste auf — ein Stand daraus meldete jedes Blatt ' +
     'als überholt, obwohl sich nichts geändert hat.',
+  // Bedarf 81 — dieselbe Ursache, und sie ist hier eine bewusste Abwägung:
+  // die Übersicht trägt je Zeile eine Spalte „Grundlage" (Plan / As-Built /
+  // gemeldet), und genau die macht sie von der Revisionsliste abhängig. Die
+  // Spalte wegzulassen, um einen Stand zu bekommen, hiesse jede Planzahl wie
+  // einen Leistungsnachweis aussehen zu lassen — der teurere Fehler von
+  // beiden. Also lieber ein Blatt ohne Stand als ein Blatt ohne Grundlage.
+  'kunden-uebersicht':
+    'Jede Zeile nennt ihre Grundlage (Plan, As-Built, gemeldet), und die hängt ' +
+    'an der Revisionsliste. Der Revisions-Vergleich spannt Snapshots ohne diese ' +
+    'Liste auf — ein Stand daraus meldete jedes Blatt als überholt.',
 }
 
 /** Lesbarer Name eines Dokument-Bezeichners für Meldungen. */
@@ -183,6 +222,11 @@ export const DOCUMENT_LABELS: Record<string, string> = {
   'spektrum-plan': 'Spektrum-Plan',
   'multicast-plan': 'Multicast-Adressplan',
   'ausweich-plan': 'Ausweich-Plan (Sicherheitsnetz)',
+  'event-metadaten': 'Angaben zur Veranstaltung',
+  sendebericht: 'Sendebericht',
+  'kosten-vergleich': 'Kosten: Plan gegen Ist',
+  umbenennungssatz: 'Umbenennungssatz',
+  'kunden-uebersicht': 'Kunden-Übersicht',
   'job-grundlage': 'Grundlage der Übergabe',
   'videohub-labels': 'Videohub-Labels',
   'atem-mv-layout': 'Multiviewer-Layout',

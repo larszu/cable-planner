@@ -12,10 +12,12 @@ import type {
   InventoryUnit,
   UnitEvent,
   UnitCondition,
+  FaultService,
   PhysicalDimensions,
   InventoryMaterialKind,
 } from '../types/inventory'
 import { wouldCreateCycle } from '../lib/storageTree'
+import { normaliseFaultEvent } from '../lib/faultHistory'
 import { deriveDemand } from '../lib/inventoryCoverage'
 import type { EquipmentItem } from '../types/equipment'
 
@@ -241,11 +243,26 @@ const healUnit = (raw: unknown): InventoryUnit | null => {
           if (!e || typeof e !== 'object') return null
           const ev = e as Partial<UnitEvent>
           if (typeof ev.at !== 'string' || typeof ev.detail !== 'string') return null
+          // BEDARF 52 — `fault` MUSS hier stehen. Ohne diesen Zweig faellt
+          // jedes gespeicherte Fehler-Ereignis beim naechsten Laden auf
+          // `note` zurueck: der Text bliebe stehen, aber `services` und
+          // `resolved` waeren weg und die Zaehlung „welche Trommel ist
+          // verdaechtig" ergaebe still null. Genau das Vergessen, gegen das
+          // dieser Bedarf geschrieben ist — nur diesmal von der Software.
           const kind =
-            ev.kind === 'created' || ev.kind === 'moved' || ev.kind === 'condition' || ev.kind === 'note'
+            ev.kind === 'created' ||
+            ev.kind === 'moved' ||
+            ev.kind === 'condition' ||
+            ev.kind === 'note' ||
+            ev.kind === 'fault'
               ? ev.kind
               : 'note'
-          return { at: ev.at, kind, detail: ev.detail }
+          return {
+            at: ev.at,
+            kind,
+            detail: ev.detail,
+            ...(kind === 'fault' ? normaliseFaultEvent(ev) : {}),
+          }
         })
         .filter((e): e is UnitEvent => e !== null)
     : []
@@ -379,6 +396,17 @@ interface InventoryState {
   moveUnit: (id: string, nodeId: string | undefined, locationLabel: string) => void
   /** Ändert den Zustand einer Einheit (hängt „condition" an die Historie). */
   setUnitCondition: (id: string, condition: UnitCondition) => void
+  /**
+   * Bedarf 52 — einen Fehler an dieser Einheit festhalten.
+   *
+   * Append-only wie die uebrige Historie: ein Fehler wird nicht bearbeitet,
+   * sondern spaeter als erledigt NACHGETRAGEN (`resolveUnitFault`). Ein
+   * ueberschriebener Fehlereintrag waere genau das Vergessen, gegen das dieser
+   * Bedarf geschrieben ist.
+   */
+  reportUnitFault: (id: string, detail: string, services: FaultService[]) => void
+  /** Bedarf 52 — den n-ten Fehlereintrag einer Einheit als erledigt markieren. */
+  resolveUnitFault: (id: string, at: string) => void
   /** Aktueller Bestand als portabler Snapshot (für App-übergreifenden Export). */
   exportSnapshot: () => { items: InventoryItem[]; nodes: StorageNode[]; sets: InventorySet[]; units: InventoryUnit[] }
   /**
@@ -681,6 +709,55 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
               ...u,
               condition,
               history: [...u.history, { at: now, kind: 'condition' as const, detail: `Zustand → ${condition}` }],
+              updatedAt: now,
+            }
+          : u,
+      )
+      persist(state.items, state.nodes, state.sets, units)
+      return { units }
+    }),
+  // BEDARF 52 — der Fehler wird ANGEHAENGT, nie ersetzt. Der Zustand der
+  // Einheit wird dabei NICHT automatisch auf „defekt" gesetzt: ob ein
+  // Bild-Aussetzer die Trommel oder den Wandler betraf, weiss der Planer
+  // nicht, und eine automatisch gesperrte Trommel waere eine Behauptung.
+  reportUnitFault: (id, detail, services) =>
+    set((state) => {
+      const now = new Date().toISOString()
+      const text = detail.trim()
+      if (!text) return {}
+      const units = state.units.map((u) =>
+        u.id === id
+          ? {
+              ...u,
+              history: [
+                ...u.history,
+                {
+                  at: now,
+                  kind: 'fault' as const,
+                  detail: text,
+                  ...(services.length > 0 ? { services: [...new Set(services)] } : {}),
+                },
+              ],
+              updatedAt: now,
+            }
+          : u,
+      )
+      persist(state.items, state.nodes, state.sets, units)
+      return { units }
+    }),
+
+  // Erledigt wird der Eintrag an seinem Zeitstempel markiert — der Text bleibt
+  // stehen. „Behoben" ist eine Ergaenzung der Historie, kein Loeschen aus ihr.
+  resolveUnitFault: (id, at) =>
+    set((state) => {
+      const now = new Date().toISOString()
+      const units = state.units.map((u) =>
+        u.id === id
+          ? {
+              ...u,
+              history: u.history.map((e) =>
+                e.kind === 'fault' && e.at === at ? { ...e, resolved: true } : e,
+              ),
               updatedAt: now,
             }
           : u,
