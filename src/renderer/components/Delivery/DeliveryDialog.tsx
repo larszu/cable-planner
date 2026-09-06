@@ -23,9 +23,16 @@ import {
   type DeliveryChain,
 } from '../../lib/deliveryPath'
 import {
+  ARCHIVE_FINDING_LABEL,
+  archiveFindingText,
+  archiveTable,
+  assessArchive,
+} from '../../lib/archiveIsolation'
+import {
   DELIVERY_PLATFORMS,
   DEFAULT_ENCODING,
   platformByKey,
+  type ArchiveAnswer,
   type DeliveryDestination,
 } from '../../types/delivery'
 
@@ -51,6 +58,7 @@ export const DeliveryDialog = () => {
   const add = useProjectStore((s) => s.addDeliveryDestination)
   const update = useProjectStore((s) => s.updateDeliveryDestination)
   const remove = useProjectStore((s) => s.removeDeliveryDestination)
+  const setArchive = useProjectStore((s) => s.setArchiveRecording)
   const project = useProjectStore((s) => s.project)
   const projectName = project.metadata.name
 
@@ -96,6 +104,11 @@ export const DeliveryDialog = () => {
   // demselben Kabelgraph wie die Label-Ableitung. Nichts davon wird
   // gespeichert ausser dem einen Zeiger auf das Geraet.
   const chains = useMemo(() => buildDeliveryChains(project), [project])
+  // BEDARF 90 — die Archiv-Aufzeichnung. Sie gehoert hierher und nicht in die
+  // Analyse: die Frage entsteht erst, wenn es eine Ausspielung gibt, die sie
+  // mitreissen koennte, und sie wird an derselben Stelle beantwortet, an der
+  // die Encoder benannt werden.
+  const archive = useMemo(() => assessArchive(project), [project])
   const chainById = useMemo(
     () => new Map<string, DeliveryChain>(chains.map((c) => [c.destinationId, c])),
     [chains],
@@ -287,6 +300,16 @@ export const DeliveryDialog = () => {
     downloadBlob(buildExportFilenameWithSuffix(projectName, 'ausspielweg', 'csv'), csv, 'text/csv')
   }
 
+  // BEDARF 90 — das Archiv-Blatt. Klein, aber ein Beleg: „wir haben gefragt,
+  // und das war die Antwort" ist genau das, was nach dem Abbau fehlt.
+  const exportArchive = () => {
+    downloadBlob(
+      buildExportFilenameWithSuffix(projectName, 'archiv-aufzeichnung', 'csv'),
+      csvFromTable(archiveTable(archive)),
+      'text/csv',
+    )
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
       <div className="flex max-h-[88vh] w-full max-w-5xl flex-col overflow-hidden rounded-lg border border-cp-border bg-cp-surface-1 shadow-xl">
@@ -330,6 +353,106 @@ export const DeliveryDialog = () => {
               'Wohin gesendet wird, mit welchen Parametern, und welcher Weg der Ausweichweg ist. Der Stream-Key liegt im Schlüsselbund des Rechners, nie in der Projektdatei — eine .avplan geht per Mail.',
             )}
           </p>
+
+          {/* BEDARF 90 — die Archiv-Aufzeichnung. Nur sichtbar, wenn es
+              überhaupt ein Ausspielziel gibt: ohne Übertragung gibt es nichts,
+              was die Aufzeichnung mitreißen könnte, und die Frage dort zu
+              stellen wäre eine Warnung ohne Anlass. */}
+          {list.length > 0 && (
+            <div className="mb-4 rounded border border-cp-border-muted bg-cp-surface-2 p-2.5">
+              <div className="mb-1.5 flex flex-wrap items-center gap-2 text-cp-sm">
+                <span className="font-medium text-cp-text">
+                  {t('delivery.archive.title', 'Unabhängige Archiv-Aufzeichnung')}
+                </span>
+                <select
+                  value={archive.answer}
+                  onChange={(e) => {
+                    const answer = e.target.value as ArchiveAnswer
+                    if (answer === 'not-stated') return setArchive(undefined)
+                    setArchive({
+                      answer,
+                      ...(answer === 'device' && project.archiveRecording?.equipmentId
+                        ? { equipmentId: project.archiveRecording.equipmentId }
+                        : {}),
+                      ...(project.archiveRecording?.note
+                        ? { note: project.archiveRecording.note }
+                        : {}),
+                    })
+                  }}
+                  aria-label={t('delivery.archive.answer', 'Antwort')}
+                  className={inputCls}
+                >
+                  <option value="not-stated">
+                    {t('delivery.archive.notStated', '— noch nicht beantwortet —')}
+                  </option>
+                  <option value="device">{t('delivery.archive.onDevice', 'auf diesem Gerät')}</option>
+                  <option value="none-by-choice">
+                    {t('delivery.archive.none', 'bewusst keine')}
+                  </option>
+                </select>
+                {archive.answer === 'device' && (
+                  <select
+                    value={project.archiveRecording?.equipmentId ?? ''}
+                    onChange={(e) =>
+                      setArchive({
+                        answer: 'device',
+                        ...(e.target.value ? { equipmentId: e.target.value } : {}),
+                        ...(project.archiveRecording?.note
+                          ? { note: project.archiveRecording.note }
+                          : {}),
+                      })
+                    }
+                    aria-label={t('delivery.archive.device', 'Aufzeichnendes Gerät')}
+                    className={inputCls}
+                  >
+                    <option value="">{t('delivery.archive.pick', '— Gerät wählen —')}</option>
+                    {encoderChoices.map((e) => (
+                      <option key={e.id} value={e.id}>
+                        {e.name}
+                      </option>
+                    ))}
+                  </select>
+                )}
+                {archive.answer !== 'not-stated' && (
+                  <input
+                    value={project.archiveRecording?.note ?? ''}
+                    onChange={(e) =>
+                      setArchive({
+                        answer: archive.answer,
+                        ...(project.archiveRecording?.equipmentId
+                          ? { equipmentId: project.archiveRecording.equipmentId }
+                          : {}),
+                        ...(e.target.value ? { note: e.target.value } : {}),
+                      })
+                    }
+                    placeholder={
+                      archive.answer === 'none-by-choice'
+                        ? t('delivery.archive.whyPh', 'Warum keine? (Webinar ohne Nachverwertung …)')
+                        : t('delivery.archive.notePh', 'Anmerkung (Medium, Kartenwechsel …)')
+                    }
+                    aria-label={t('delivery.archive.note', 'Anmerkung')}
+                    className={`${inputCls} min-w-0 flex-1`}
+                  />
+                )}
+                <button
+                  type="button"
+                  onClick={exportArchive}
+                  className="flex items-center gap-1 rounded border border-cp-border px-2 py-1 text-cp-sm text-cp-text-secondary hover:text-cp-text"
+                >
+                  <FileText size={13} /> {t('delivery.archive.export', 'Blatt')}
+                </button>
+              </div>
+              {archive.findings.length > 0 && (
+                <ul className="flex flex-col gap-1 text-cp-xs">
+                  {archive.findings.map((f, i) => (
+                    <li key={`${f.kind}-${i}`} className="text-amber-300/90">
+                      <strong>{ARCHIVE_FINDING_LABEL[f.kind]}</strong> — {archiveFindingText(f)}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
 
           {/* Uplink-Budget: die 40-%-Kopfraum-Regel, mit Rechnung daneben. */}
           <div className="mb-4 rounded border border-cp-border-muted bg-cp-surface-2 p-2.5">

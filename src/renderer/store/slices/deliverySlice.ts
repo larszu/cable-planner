@@ -25,7 +25,10 @@ import {
  */
 export type DeliverySlice = Pick<
   ProjectState,
-  'addDeliveryDestination' | 'updateDeliveryDestination' | 'removeDeliveryDestination'
+  | 'addDeliveryDestination'
+  | 'updateDeliveryDestination'
+  | 'removeDeliveryDestination'
+  | 'setArchiveRecording'
 >
 
 /**
@@ -113,6 +116,19 @@ export const createDeliverySlice: StateCreator<ProjectState, [], [], DeliverySli
       } catch {
         /* Der Schluesselbund kann fehlen (Browser, Linux ohne libsecret). */
       }
+      return { project: updated }
+    }),
+
+  // BEDARF 90 — die Antwort auf „wo liegt die unabhaengige Aufzeichnung".
+  //
+  // `undefined` loescht die Antwort und ist damit etwas anderes als
+  // `none-by-choice`: das eine heisst „niemand hat geantwortet", das andere
+  // „wir haben bewusst keine". Genau diese Unterscheidung verlangt der
+  // Bedarf, also darf der Setter sie nicht einebnen.
+  setArchiveRecording: (rec) =>
+    set((state) => {
+      const updated = { ...state.project, archiveRecording: rec }
+      scheduleProjectAutosave(updated)
       return { project: updated }
     }),
 })
