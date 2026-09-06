@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { CablePlannerProject, ProjectAnnotation } from '../renderer/types/project'
 import { styleForLayer } from '../renderer/lib/cableLayers'
+import { stampForPlan } from '../renderer/lib/documentStamp'
 
 // #143 — Zero-Install-Web-Viewer (Stage 1). Lädt eine .cpviewer/.json und
 // rendert den Plan read-only als SVG plus die Anmerkungen. Der Reviewer kann
@@ -10,6 +11,26 @@ import { styleForLayer } from '../renderer/lib/cableLayers'
 //
 // Bewusst self-contained — kein ReactFlow/Store/Electron, damit das Bundle
 // klein bleibt und in jedem Browser ohne Backend offline läuft.
+//
+// BEDARF 1 (P1) — „the technical plan on the freelancer's phone before they
+// leave home, and offline once on site". Der Bedarf nennt zwei Inkremente:
+// „share to a person with no account, and make it the live document rather
+// than a PDF fork". Das ERSTE ist genau diese Datei: sie braucht kein Konto,
+// keine Installation und kein Backend.
+//
+// Das ZWEITE fehlte, und zwar an der einzigen Stelle, an der es zählt. Was
+// hier ankommt, ist eine Momentaufnahme — und sie sagte nicht, WELCHE. Der
+// Kopf zeigte den Projektnamen und der Fuß drei Zahlen; der STAND stand
+// nirgends. Damit war das Geteilte funktional die PDF-Gabelung, die der
+// Bedarf beklagt: der Empfänger hält etwas in der Hand und kann nicht
+// feststellen, ob es noch gilt.
+//
+// Der Stempel steht seit ADR-004 im Planer, auf jedem Blatt und in jeder
+// Liste, und die Rückfrage ist seit `cable#709` beantwortbar
+// (`docStandStatus` / `findByStand`, Bedarf 27). Von den acht Hex-Zeichen
+// heisst es dort ausdrücklich, ein Mensch könne sie „am Telefon vorlesen und
+// mit dem Bildschirm vergleichen" — genau der Rückweg, den ein Freelancer
+// ohne Konto braucht. Er stand nur nicht auf dem, was er bekommt.
 
 const REVIEWER_KEY = 'cable-planner.viewer.reviewer'
 const annKey = (p: CablePlannerProject): string =>
@@ -262,20 +283,40 @@ export const ViewerApp = () => {
   const removeAnnotation = (id: string): void =>
     setAnnotations((prev) => prev.filter((a) => a.id !== id))
 
+  // Der Stempel des GETEILTEN Plans (Bedarf 1). Berechnet aus der Datei, nicht
+  // aus einer Uhr: `fingerprint`, `revision` und `drifted` haengen allein am
+  // Inhalt. `printedAt` waere hier der Moment des Oeffnens und damit eine
+  // Aussage ueber den Leser statt ueber das Dokument — es wird deshalb NICHT
+  // angezeigt. Ueber `stampForPlan` und nicht ueber einen eigenen Nachbau,
+  // damit im Viewer dieselbe Zahl steht wie auf dem Ausdruck.
+  const stamp = useMemo(
+    () => (project ? stampForPlan(project, new Date()) : null),
+    [project],
+  )
+  const standHinweis =
+    'Diese Ansicht ist eine Momentaufnahme. Ob sie noch gilt, beantwortet der ' +
+    'Planer: dort „Analyse → Blatt prüfen" mit dieser Zeichenfolge.'
+
   const downloadAnnotated = (): void => {
-    if (!project) return
+    // `stamp` statt einer zweiten Berechnung: eine zweite Ableitung derselben
+    // Zahl im selben Bauteil ist die zweite Wahrheit, die irgendwann abweicht.
+    if (!project || !stamp) return
     const out: CablePlannerProject = { ...project, annotations }
     const blob = new Blob([JSON.stringify(out, null, 2)], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
     const base = (project.metadata?.name ?? 'plan').replace(/[^\w.-]+/g, '_')
-    a.download = `${base}.cpviewer`
+    // Der Stand IM DATEINAMEN (Bedarf 1). Wer drei Ruecklaeufer im
+    // Download-Ordner hat, sieht sonst dreimal denselben Namen und muss jede
+    // oeffnen, um zu wissen, auf welchem Plan sie sitzt. Kein `#`: das ist in
+    // URLs ein Fragment-Trenner und faellt beim Verschicken ueber Weblinks ab.
+    a.download = `${base}_${stamp.fingerprint}.cpviewer`
     document.body.appendChild(a); a.click(); document.body.removeChild(a)
     URL.revokeObjectURL(url)
   }
 
-  if (!project) {
+  if (!project || !stamp) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-cp-bg p-4 text-cp-text">
         <div className="w-full max-w-md rounded-lg border border-cp-border bg-cp-surface-1 p-6 shadow-2xl" onDragOver={(e) => e.preventDefault()} onDrop={onDrop}>
@@ -324,6 +365,12 @@ export const ViewerApp = () => {
         <div className="min-w-0">
           <h1 className="truncate text-sm font-semibold">{project.metadata?.name ?? 'Plan'}</h1>
           {project.metadata?.description && <p className="truncate text-xs text-cp-text-muted">{project.metadata.description}</p>}
+          {/* Bedarf 1: der Stand des Geteilten. Ohne ihn ist diese Ansicht
+              eine Momentaufnahme, die nicht sagt, welche. */}
+          <p className="truncate text-[11px] text-cp-text-faint" title={standHinweis}>
+            Stand <span className="font-mono">#{stamp.fingerprint}</span>
+            {stamp.revision && <> · {stamp.revision}{stamp.drifted && ' + Änderungen'}</>}
+          </p>
         </div>
         <div className="flex shrink-0 items-center gap-2 text-xs text-cp-text-muted">
           <span className="rounded bg-cp-surface-3 px-2 py-1">Plan read-only</span>
