@@ -8,6 +8,7 @@ import { compatibleCapsules, compatibleBodypackMics } from '../../lib/wirelessCo
 import { emptyWirelessRig, deriveRig } from '../../lib/wirelessRig'
 import { collectTransmitters } from '../../lib/spectrumPlan'
 import type { WirelessRigPlan, WirelessChannel } from '../../types/wirelessRig'
+import { MicPlotPanel } from './MicPlotPanel'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Funkstrecken / Gesang — Kanalplan: je Kanal Body + kompatible Kapsel/Headset +
@@ -255,6 +256,11 @@ export const WirelessRigDialog = () => {
               </p>
             </div>
           )}
+
+          {/* BEDARF 114 — der Kanalplan oben gehört der PRODUKTION, die
+              Zuordnung darunter der VORSTELLUNG. Beides in einem Fenster,
+              weil wer zuordnet, die Frequenz daneben braucht. */}
+          <MicPlotPanel />
         </div>
       </div>
     </div>
