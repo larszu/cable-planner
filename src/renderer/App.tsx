@@ -69,6 +69,7 @@ import { ProjectionCalculatorDialog } from './components/Calculators/ProjectionC
 import { BulkConnectDialog } from './components/Canvas/BulkConnectDialog'
 import { AnalysisDialog } from './components/Analysis/AnalysisDialog'
 import { DeliveryDialog } from './components/Delivery/DeliveryDialog'
+import { ReconcileDialog } from './components/Network/ReconcileDialog'
 import { setStreamKeyDropper } from './store/slices/deliverySlice'
 import { PlanCheckPanel } from './components/Analysis/PlanCheckPanel'
 import { InventoryDialog } from './components/Inventory/InventoryDialog'
@@ -1279,6 +1280,7 @@ export default function App() {
       <DrumMicingDialog />
       <WirelessRigDialog />
       <DeliveryDialog />
+      <ReconcileDialog />
       <LocationBomDialog />
       {rackEditorOpen && (
         <Suspense fallback={null}>

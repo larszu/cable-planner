@@ -3758,6 +3758,29 @@ export const en: Dict = {
   // Funkstrecken / Gesang (Wireless-Rig)
   'app.menu.tools.wirelessRig': 'Wireless / vocals…',
   'app.menu.tools.delivery': 'Delivery (streaming destinations)…',
+  'app.menu.tools.reconcile': 'Plan vs. found…',
+
+  /* Bedarf 21 — Plan gegen Vorgefundenes. Keys: reconcile.* */
+  'reconcile.title': 'Plan vs. found',
+  'reconcile.intro':
+    'What came off the truck, under which names and with which addresses \u2014 against what the plan says. The plan asks no device: you supply a file (ARP/neighbour output or CSV) and the reconciliation computes the delta.',
+  'reconcile.load': 'Load file',
+  'reconcile.empty': 'No file loaded yet.',
+  'reconcile.error.empty':
+    'No readable device in that file. Expected an ARP/neighbour dump or a CSV with a name, IP or MAC column.',
+  // {source} und {when} werden vom Aufrufer ersetzt.
+  'reconcile.taken': '{source} \u00b7 {when}',
+  // {name} wird vom Aufrufer ersetzt.
+  'reconcile.foundAs': 'found as {name}',
+  // {basis} wird vom Aufrufer ersetzt.
+  'reconcile.matchedBy': 'via {basis}',
+  'reconcile.v.match': 'matches',
+  'reconcile.v.address': 'address differs',
+  'reconcile.v.name': 'name differs',
+  'reconcile.v.renamed': 'renamed (collision form)',
+  'reconcile.v.missing': 'not found',
+  'reconcile.v.unexpected': 'not in the plan',
+  'reconcile.v.ambiguous': 'not unique \u2014 no match made',
 
   /* Initiative 9 — die Ausspielung. Keys: delivery.* */
   'delivery.title': 'Delivery',
