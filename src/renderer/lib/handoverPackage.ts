@@ -11,6 +11,7 @@ import type { CsvTable } from './csv'
 import { buildAssetRows, assetRegisterTable } from './assetRegister'
 import { buildCableBomRows, cableBomTable } from './installerLists'
 import { stampLine, type DocumentStamp } from './documentStamp'
+import { buildDocQrPayload } from './qrPayload'
 import { INSTALL_STATUS_LABEL, type InstallStatus } from './../types/lifecycle'
 
 const fmtDate = (iso?: string): string => {
@@ -222,6 +223,12 @@ export const buildHandoverManifest = (
   if (stamp) {
     lines.push('')
     lines.push(`_${stampLine(stamp)}_`)
+    // ADR-004 Inkrement 3 — der Dokument-Code auch auf diesem Blatt. Die acht
+    // Zeichen darueber sagen im Mobile-Viewer "aktuell" oder "gehoert zu
+    // keinem aktuellen Blatt"; der Code nennt zusaetzlich das Dokument und
+    // macht daraus "Uebergabe: VERALTET, aktueller Stand #xyz".
+    lines.push('')
+    lines.push(`\`${buildDocQrPayload('uebergabe', stamp.fingerprint, stamp.revision)}\``)
   }
   return lines.join('\n')
 }

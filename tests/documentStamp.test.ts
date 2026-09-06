@@ -10,7 +10,16 @@ import {
   stampForRows,
   stampLine,
 } from '../src/renderer/lib/documentStamp'
-import { pullListTable, pullListCsv } from '../src/renderer/lib/installerLists'
+import {
+  cableBomCsv,
+  cableScheduleCsv,
+  pullListCsv,
+  pullListTable,
+  terminationListCsv,
+} from '../src/renderer/lib/installerLists'
+import { assetRegisterCsv } from '../src/renderer/lib/assetRegister'
+import { parseDocQrPayload } from '../src/renderer/lib/qrPayload'
+import { currentStand } from '../src/renderer/lib/documentRegistry'
 import { buildHandoverManifest, handoverTable } from '../src/renderer/lib/handoverPackage'
 import type { CablePlannerProject, ProjectRevision } from '../src/renderer/types/project'
 import type { Cable } from '../src/renderer/types/cable'
@@ -350,5 +359,89 @@ describe('Übergabe-Dokument', () => {
     expect(buildHandoverManifest(p)).toBe(buildHandoverManifest(p, undefined))
     // Kein Stempel-Fussnoten-Block (die '#' der Markdown-Ueberschriften bleiben).
     expect(buildHandoverManifest(p)).not.toMatch(/_Testanlage {2}·/)
+  })
+})
+
+describe('Dokument-Code auf dem Listen-Ausdruck (ADR-004 Inkrement 3)', () => {
+  // Bis hierher trug nur das Plan-PDF einen Dokument-Code (als QR). Die Listen
+  // trugen die acht Zeichen als Text -- und die sagen im Mobile-Viewer
+  // entweder "aktueller Stand" oder "gehoert zu keinem aktuellen Blatt". Der
+  // Code nennt zusaetzlich das DOKUMENT, und damit wird aus "unbekannt" die
+  // brauchbare Antwort: "Pull-Liste: VERALTET, aktueller Stand #xyz".
+  //
+  // Als TEXT und nicht als QR, weil ein CSV kein Bild traegt und der Ausdruck
+  // aus Excel entsteht: ein hier erzeugter QR ueberlebte den Weg nicht, der
+  // Code ueberlebt ihn und ist abtippbar.
+  const NOW2 = new Date('2026-09-06T08:00:00.000Z')
+
+  it('haengt den Code an die Fussnote, wenn das Dokument einen hat', () => {
+    const p = project()
+    const csv = pullListCsv(p, buildDocumentStamp(p, 'deadbeef', undefined, NOW2))
+    const letzte = csv.replace(/^﻿/, '').split('\r\n').at(-1) ?? ''
+    expect(letzte).toContain('#deadbeef')
+    expect(letzte).toContain('cableplanner://doc/pull-liste?s=deadbeef')
+  })
+
+  it('nennt die Revision im Code, wenn eine festgeschrieben ist', () => {
+    // Der Viewer kann damit auch dann etwas sagen, wenn der Stand nicht mehr
+    // passt: welche Revision das Blatt behauptet.
+    const base = project()
+    const p = {
+      ...base,
+      revisions: [revision(base)],
+      metadata: { ...base.metadata, revision: 'Rev 1' },
+    } as CablePlannerProject
+    const csv = pullListCsv(p, stampForRows(p, pullListTable, NOW2))
+    expect(csv).toContain('&r=Rev%201')
+  })
+
+  it('laesst die geteilte Stempelzeile unangetastet', () => {
+    // `stampLine` ist das Format, das alle drei Planer teilen; `stamp:parity`
+    // in der Suite haelt es Zeichen fuer Zeichen gegeneinander. Der Code haengt
+    // HINTER der Zeile, er veraendert sie nicht.
+    const p = project()
+    const stamp = buildDocumentStamp(p, 'deadbeef', undefined, NOW2)
+    const csv = pullListCsv(p, stamp)
+    expect(csv).toContain(`# ${stampLine(stamp)}  ·  `)
+  })
+
+  it('bleibt ohne Dokument-Kennung bei der blossen Stempelzeile', () => {
+    // Ein Aufrufer ohne Dokument-Begriff (eine beliebige Tabelle) bekommt
+    // genau das alte Verhalten -- sonst waere das eine stille Formataenderung.
+    const stamp = buildDocumentStamp(project(), 'deadbeef', undefined, NOW2)
+    expect(String(csvStampRow(stamp, 3)[0])).toBe(`# ${stampLine(stamp)}`)
+    expect(String(csvStampRow(stamp, 3)[0])).not.toContain('cableplanner://')
+  })
+
+  it('traegt ihn auf allen fuenf CSV-Listen und im Uebergabe-Dokument', () => {
+    // Der Punkt der ganzen Uebung: nicht eine Liste, sondern jede. Eine
+    // Ausnahme waere genau das Blatt, bei dem spaeter jemand raet.
+    const p = project()
+    const stamp = buildDocumentStamp(p, 'deadbeef', undefined, NOW2)
+    expect(pullListCsv(p, stamp)).toContain('doc/pull-liste')
+    expect(terminationListCsv(p, stamp)).toContain('doc/termination-liste')
+    expect(cableScheduleCsv(p, stamp)).toContain('doc/kabel-schedule')
+    expect(cableBomCsv(p, 10, stamp)).toContain('doc/kabel-bom')
+    expect(assetRegisterCsv(p, stamp)).toContain('doc/asset-register')
+    expect(buildHandoverManifest(p, stamp)).toContain('doc/uebergabe')
+  })
+
+  it('nutzt dieselben Kennungen, die das Dokument-Register fuehrt', () => {
+    // Ein Code mit einer Kennung, die das Register nicht kennt, ist im Viewer
+    // "Stand nicht pruefbar" -- also schlimmer als keiner, weil er Genauigkeit
+    // vortaeuscht.
+    const p = project()
+    const stamp = buildDocumentStamp(p, 'deadbeef', undefined, NOW2)
+    for (const [csv, id] of [
+      [pullListCsv(p, stamp), 'pull-liste'],
+      [terminationListCsv(p, stamp), 'termination-liste'],
+      [cableScheduleCsv(p, stamp), 'kabel-schedule'],
+      [cableBomCsv(p, 10, stamp), 'kabel-bom'],
+      [assetRegisterCsv(p, stamp), 'asset-register'],
+    ] as const) {
+      const ref = parseDocQrPayload(csv.slice(csv.indexOf('cableplanner://')).split(/[\r\n";]/)[0])
+      expect(ref?.docId).toBe(id)
+      expect(currentStand(id, p)).not.toBeNull()
+    }
   })
 })
