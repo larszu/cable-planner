@@ -8,7 +8,13 @@
 import type { WirelessRigPlan, WirelessChannel } from '../types/wirelessRig'
 import { wirelessById } from './wirelessCatalog'
 import { isCapsuleCompatible, isBodypackMicCompatible } from './wirelessCompat'
-import { computeRfConflicts, DEFAULT_RF_OPTIONS, type RfConflict, type RfCoordinationOptions } from './rfCoordination'
+import {
+  computeRfConflicts,
+  DEFAULT_RF_OPTIONS,
+  type RfConflict,
+  type RfCoordinationOptions,
+  type RfFreq,
+} from './rfCoordination'
 
 /** Kompatibilitäts-Status einer Body↔Mic-Zuordnung. */
 export type ChannelCompat = 'ok' | 'incompatible' | 'unknown' | 'empty'
@@ -47,9 +53,21 @@ export const channelCompat = (channel: WirelessChannel): ChannelCompat => {
  * Leitet den Gesamtstatus des Rigs ab: Zuordnungs-Kompatibilität je Kanal +
  * RF-Konflikte über alle belegten Frequenzen.
  */
+/**
+ * BEDARF 95 — der Rest des Spektrums.
+ *
+ * Bis 2026-09-06 rechnete diese Funktion die Intermodulation ueber die
+ * Rig-Kanaele ALLEIN. Eine Funkstrecke im Kabelgraph auf einer benachbarten
+ * Frequenz kam darin nicht vor, und die Rechnung meldete „frei". Wer den
+ * ganzen Plan hat, reicht die uebrigen Sender hier herein
+ * (`collectTransmitters` in `spectrumPlan.ts`); wer nur den Rig-Plan hat --
+ * etwa ein Test oder eine Vorschau -- laesst es weg und bekommt wie bisher
+ * die Rechnung ueber das Rig.
+ */
 export const deriveRig = (
   plan: WirelessRigPlan,
   rfOptions: RfCoordinationOptions = DEFAULT_RF_OPTIONS,
+  fremde: RfFreq[] = [],
 ): RigDerivation => {
   const rows: ChannelDerivation[] = []
   let incompatibleCount = 0
@@ -72,9 +90,14 @@ export const deriveRig = (
   }
 
   const rfConflicts = computeRfConflicts(
-    plan.channels
-      .filter((c) => typeof c.frequencyMhz === 'number' && c.frequencyMhz! > 0)
-      .map((c) => ({ id: c.id, label: c.label || 'Kanal', mhz: c.frequencyMhz! })),
+    [
+      ...plan.channels
+        .filter((c) => typeof c.frequencyMhz === 'number' && c.frequencyMhz! > 0)
+        .map((c) => ({ id: c.id, label: c.label || 'Kanal', mhz: c.frequencyMhz! })),
+      // Fremde Sender, die dieselbe Luft benutzen. Ohne sie meldet die
+      // Rechnung „frei", obwohl daneben ein Kamera-Rueckweg sendet.
+      ...fremde,
+    ],
     rfOptions,
   )
 

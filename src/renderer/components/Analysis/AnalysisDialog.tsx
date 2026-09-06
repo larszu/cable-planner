@@ -51,21 +51,27 @@ import type { VenueAnswerStatus } from '../../types/venueAnswer'
 import { RF_BANDS, bandsForFrequency, bandLabel } from '../../lib/rfBands'
 import { PTP_FINDING_LABEL, buildPtpPlan, ptpTable } from '../../lib/ptpPlan'
 import { CREW_SECTION_LABEL, buildCrewSheet, crewSheetTable } from '../../lib/crewNetworkSheet'
+import {
+  SPECTRUM_SOURCE_LABEL,
+  buildSpectrumPlan,
+  conflictParticipants,
+  parseFreqMhz,
+  spectrumTable,
+} from '../../lib/spectrumPlan'
 
 type Tab = 'weight' | 'network' | 'redundancy' | 'rf' | 'runs' | 'sheet'
 
 const WATT_TO_BTU = 3.412
 
-/** Frequenz-String („5.8 GHz", „600 MHz", „614") → MHz (oder null). */
-const parseFreqMHz = (s: string | undefined): number | null => {
-  if (!s) return null
-  const m = s.match(/([\d.]+)\s*(g|m|k)?hz/i) ?? s.match(/^([\d.]+)$/)
-  if (!m) return null
-  const value = parseFloat(m[1])
-  if (Number.isNaN(value)) return null
-  const unit = (m[2] ?? 'm').toLowerCase()
-  return unit === 'g' ? value * 1000 : unit === 'k' ? value / 1000 : value
-}
+/**
+ * BEDARF 95 — die Frequenz-Zerlegung steht jetzt in `spectrumPlan.ts`.
+ *
+ * Sie stand hier im Rumpf des Dialogs und war damit fuer jede andere Stelle
+ * unerreichbar. Genau daraus entstanden ZWEI Rechnungen: das Rig rechnete mit
+ * `computeRfConflicts`, dieser Reiter mit einer eigenen Schleife und einer
+ * eigenen Konstante — und keine der beiden sah die Sender der anderen.
+ */
+const parseFreqMHz = parseFreqMhz
 
 /** Mindestabstand (MHz) unter dem zwei Funkstrecken als Konflikt gelten. */
 const RF_MIN_SPACING_MHZ = 0.4
@@ -1155,9 +1161,18 @@ const RfTab = ({ projectName }: { projectName: string }) => {
   const project = useProjectStore((s) => s.project)
   const [bandIdx, setBandIdx] = useState(0)
 
-  const { links, conflicts, imConflicts } = useMemo(() => {
+  // BEDARF 95 — EIN Spektrum-Plan. Bis 2026-09-06 stand hier eine eigene
+  // IM3-Schleife im Komponenten-Rumpf, die nur die KABEL-Strecken kannte,
+  // waehrend `deriveRig` dieselbe Rechnung fuer die Rig-Kanaele machte. Eine
+  // Handmikrofon-Strecke und ein Kamera-Funklink auf benachbarten Frequenzen
+  // begegneten sich in keiner der beiden — und die beiden waren sich nicht
+  // einmal einig, was ein Konflikt ist. Jetzt sammelt `buildSpectrumPlan`
+  // ALLES, was funkt, und `computeRfConflicts` laeuft genau einmal darueber.
+  const spectrum = useMemo(() => buildSpectrumPlan(project), [project])
+
+  const links = useMemo(() => {
     const nameOf = new Map(project.equipment.map((e) => [e.id, e.name]))
-    const links = project.cables
+    return project.cables
       .filter((c) => c.wireless || parseFreqMHz(c.frequency) != null)
       .map((c) => ({
         name: c.name || '—',
@@ -1167,21 +1182,19 @@ const RfTab = ({ projectName }: { projectName: string }) => {
         from: nameOf.get(c.fromEquipmentId) ?? '?',
         to: nameOf.get(c.toEquipmentId) ?? '?',
       }))
-    const conflicts: string[] = []
+  }, [project])
+
+  // Gleicher WLAN-Kanal ist KEINE Frequenz-Frage und bleibt deshalb hier:
+  // `computeRfConflicts` rechnet in MHz, ein Kanal-Bezeichner („36", „149")
+  // ist eine Zeichenkette aus einer anderen Welt.
+  const channelConflicts = useMemo(() => {
+    const out: string[] = []
     for (let i = 0; i < links.length; i++) {
       for (let j = i + 1; j < links.length; j++) {
         const a = links[i]
         const b = links[j]
-        if (a.mhz != null && b.mhz != null && Math.abs(a.mhz - b.mhz) < RF_MIN_SPACING_MHZ) {
-          conflicts.push(
-            format(t('analysis.rf.conflictClose', '{a} ↔ {b}: Frequenzen < {mhz} MHz auseinander'), {
-              a: a.name,
-              b: b.name,
-              mhz: RF_MIN_SPACING_MHZ,
-            }),
-          )
-        } else if (a.channel && a.channel === b.channel) {
-          conflicts.push(
+        if (a.channel && a.channel === b.channel) {
+          out.push(
             format(t('analysis.rf.conflictChannel', '{a} ↔ {b}: gleicher Kanal {ch}'), {
               a: a.name,
               b: b.name,
@@ -1191,50 +1204,35 @@ const RfTab = ({ projectName }: { projectName: string }) => {
         }
       }
     }
-    // #344 — 3.-Ordnung-Intermodulation (2·fi − fj). Diese Produkte fallen
-    // typischerweise nahe an die Arbeitsfrequenzen anderer Sender und sind die
-    // häufigste Störquelle bei Funkmikros/IEM. Treffer = Produkt liegt im
-    // Schutzabstand einer ECHTEN Arbeitsfrequenz (außer den zwei Erzeugern).
-    const freqs = links
-      .map((l, idx) => ({ idx, name: l.name, mhz: l.mhz }))
-      .filter((l): l is { idx: number; name: string; mhz: number } => l.mhz != null)
-    const seen = new Set<string>()
-    const imConflicts: string[] = []
-    for (let i = 0; i < freqs.length; i++) {
-      for (let j = 0; j < freqs.length; j++) {
-        if (i === j) continue
-        const prod = 2 * freqs[i].mhz - freqs[j].mhz
-        if (prod <= 0) continue
-        for (let k = 0; k < freqs.length; k++) {
-          if (k === i || k === j) continue
-          if (Math.abs(prod - freqs[k].mhz) <= RF_MIN_SPACING_MHZ) {
-            const key = [freqs[i].idx, freqs[j].idx, freqs[k].idx].join('-')
-            if (seen.has(key)) continue
-            seen.add(key)
-            imConflicts.push(
-              format(
-                t('analysis.rf.im3', 'IM3: 2×{a} − {b} = {prod} MHz trifft {c} ({cmhz} MHz)'),
-                {
-                  a: freqs[i].name,
-                  b: freqs[j].name,
-                  prod: prod.toFixed(2),
-                  c: freqs[k].name,
-                  cmhz: freqs[k].mhz,
-                },
-              ),
-            )
-          }
-        }
-      }
-    }
-    return { links, conflicts, imConflicts }
-  }, [project, t])
+    return out
+  }, [links, t])
+
+  // Die Frequenz-Befunde in Worten — mit Geraet UND Traeger, weil „Lead Vox
+  // gegen Kamera 2 Rueckweg" eine Handlungsanweisung ist und „606.4 gegen
+  // 606.5" eine Zahlenkolonne.
+  const rfFindings = useMemo(
+    () =>
+      spectrum.conflicts.map((c) => {
+        const wer = conflictParticipants(spectrum, c)
+          .map((e) =>
+            e.carrier
+              ? `${e.label} (${SPECTRUM_SOURCE_LABEL[e.source]}: ${e.carrier})`
+              : `${e.label} (${SPECTRUM_SOURCE_LABEL[e.source]})`,
+          )
+          .join(' ↔ ')
+        return { kind: c.kind, text: wer ? `${wer} — ${c.message}` : c.message }
+      }),
+    [spectrum],
+  )
 
   const suggestion = useMemo(() => {
     const band = RF_BANDS[bandIdx] ?? RF_BANDS[0]
-    const occupied = links.map((l) => l.mhz).filter((m): m is number => m != null)
+    // Belegt ist ALLES, was funkt — nicht nur die Kabel-Strecken. Ein
+    // Vorschlag, der die Rig-Kanaele nicht kennt, schlaegt eine besetzte
+    // Frequenz vor.
+    const occupied = spectrum.entries.map((e) => e.mhz)
     return { band, freqs: suggestFreqs(band.fromMHz, band.toMHz, occupied, 8) }
-  }, [bandIdx, links])
+  }, [bandIdx, spectrum])
 
   const exportCsv = () => {
     const rows: (string | number)[][] = [
@@ -1258,36 +1256,71 @@ const RfTab = ({ projectName }: { projectName: string }) => {
     downloadBlob(buildExportFilenameWithSuffix(projectName, 'rf-plan', 'csv'), toCsv(rows), 'text/csv')
   }
 
+  // BEDARF 95 — das Blatt ueber ALLES, was funkt. Der RF-Export darueber
+  // listet nur die Kabel-Strecken; er bleibt, weil er Band und WLAN-Kanal
+  // traegt, die das Spektrum-Blatt nicht kennt.
+  const exportSpectrum = () => {
+    downloadBlob(
+      buildExportFilenameWithSuffix(projectName, 'spektrum-plan', 'csv'),
+      csvFromTable(spectrumTable(spectrum)),
+      'text/csv',
+    )
+  }
+
   return (
     <div className="space-y-3 p-4 text-cp-base">
       <p className="text-cp-xs text-[var(--cp-text-muted)]">
         {t(
           'analysis.rf.intro',
-          'Funkstrecken (Wireless-Kabel) mit Frequenz/Kanal. Konflikt-Heuristik: Frequenzabstand < 0,4 MHz oder gleicher Kanal. Zusätzlich 3.-Ordnung-Intermodulation (2·f₁−f₂) — die häufigste Störquelle bei Funkmikros/IEM.',
+          'Alles, was im Plan funkt — Funkmikrofon-Rig UND Funkstrecken, in einer Rechnung. Konflikt-Heuristik: Frequenzabstand, 3.-Ordnung-Intermodulation (2·f₁−f₂, die häufigste Störquelle bei Funkmikros/IEM) und gleicher WLAN-Kanal. Die Tabelle unten zeigt nur die Funkstrecken, weil nur sie Band und Kanal tragen.',
         )}
       </p>
-      {conflicts.length > 0 && (
+      {/* BEDARF 95 — der Umfang der Rechnung steht ueber ihrem Ergebnis. Eine
+          Intermodulations-Rechnung, die drei von acht Sendern nicht kennt,
+          sagt „frei" und meint „ich habe nicht nachgesehen". */}
+      <div className="rounded border border-[var(--cp-border)] bg-[var(--cp-surface-2)] p-2 text-cp-xs">
+        {format(
+          t('analysis.rf.scope', '{n} Sender im Plan: {rig} aus dem Funkmikrofon-Rig, {link} als Funkstrecke.'),
+          {
+            n: String(spectrum.entries.length),
+            rig: String(spectrum.entries.filter((e) => e.source === 'rig').length),
+            link: String(spectrum.entries.filter((e) => e.source === 'link').length),
+          },
+        )}
+        {spectrum.withoutFrequency.length > 0 && (
+          <span className="ml-1 text-amber-300/90">
+            {format(
+              t('analysis.rf.noFreq', '{n} ohne Frequenz — sie sind in KEINER Rechnung enthalten: {liste}'),
+              {
+                n: String(spectrum.withoutFrequency.length),
+                liste: spectrum.withoutFrequency.join(', '),
+              },
+            )}
+          </span>
+        )}
+      </div>
+      {channelConflicts.length > 0 && (
         <div className="rounded border border-red-700/60 bg-red-900/30 p-2 text-cp-xs text-red-200">
           <div className="mb-1 font-semibold">{t('analysis.rf.conflictTitle', 'Mögliche RF-Konflikte')}</div>
           <ul className="list-inside list-disc">
-            {conflicts.map((c, i) => (
+            {channelConflicts.map((c, i) => (
               <li key={i}>{c}</li>
             ))}
           </ul>
         </div>
       )}
-      {imConflicts.length > 0 && (
+      {rfFindings.length > 0 && (
         <div className="rounded border border-amber-700/60 bg-amber-900/30 p-2 text-cp-xs text-amber-200">
           <div className="mb-1 font-semibold">
-            {t('analysis.rf.imTitle', 'Intermodulation 3. Ordnung')} ({imConflicts.length})
+            {t('analysis.rf.imTitle', 'Frequenz-Befunde über das ganze Spektrum')} ({rfFindings.length})
           </div>
           <ul className="list-inside list-disc">
-            {imConflicts.slice(0, 20).map((c, i) => (
-              <li key={i} className="font-mono">{c}</li>
+            {rfFindings.slice(0, 20).map((f, i) => (
+              <li key={i}>{f.text}</li>
             ))}
-            {imConflicts.length > 20 && (
+            {rfFindings.length > 20 && (
               <li className="text-amber-300/80">
-                {format(t('analysis.rf.imMore', '+{n} weitere'), { n: imConflicts.length - 20 })}
+                {format(t('analysis.rf.imMore', '+{n} weitere'), { n: rfFindings.length - 20 })}
               </li>
             )}
           </ul>
@@ -1414,7 +1447,15 @@ const RfTab = ({ projectName }: { projectName: string }) => {
         </div>
       </details>
 
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-2">
+        <button
+          type="button"
+          onClick={exportSpectrum}
+          disabled={spectrum.entries.length === 0}
+          className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs font-medium text-[var(--cp-text)] hover:bg-[var(--cp-surface-2)] disabled:opacity-40"
+        >
+          <Icon icon={Download} size="xs" /> {t('analysis.rf.spectrumExport', 'Spektrum-Plan (alles, was funkt)')}
+        </button>
         <CsvButton onClick={exportCsv} />
       </div>
     </div>

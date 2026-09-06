@@ -25,6 +25,7 @@ import { tallyMapTableForProject } from './tallyMap'
 import { deliveryPathTable } from './deliveryPath'
 import { buildPtpPlan, ptpTable } from './ptpPlan'
 import { crewSheetTableForProject } from './crewNetworkSheet'
+import { spectrumTableForProject } from './spectrumPlan'
 import type { CsvTable } from './csv'
 
 const ofTable =
@@ -85,6 +86,11 @@ export const DOCUMENT_STANDS: Record<string, (project: CablePlannerProject) => s
   // mit Bezeichner und Stand laesst sich mit „gilt das noch?" pruefen
   // (Bedarf 27), eine WhatsApp-Nachricht nicht.
   'crew-netz': ofTable(crewSheetTableForProject),
+  // Bedarf 95 — alles, was funkt, in einem Blatt. Reproduzierbar: der Inhalt
+  // folgt allein aus dem Rig-Plan, den drahtlosen Kabeln und den
+  // Intercom-Zuordnungen. Die BEFUNDE stehen nicht drin -- sie tragen
+  // Fliesstext aus `computeRfConflicts`.
+  'spektrum-plan': ofTable(spectrumTableForProject),
 }
 
 /**
@@ -150,6 +156,7 @@ export const DOCUMENT_LABELS: Record<string, string> = {
   ausspielweg: 'Ausspielweg',
   'ptp-plan': 'Zeit-Plan (PTP)',
   'crew-netz': 'Netz-Merkblatt (Crew)',
+  'spektrum-plan': 'Spektrum-Plan',
   'videohub-labels': 'Videohub-Labels',
   'atem-mv-layout': 'Multiviewer-Layout',
   'switch-port-karte': 'Switch-Port-Karte',

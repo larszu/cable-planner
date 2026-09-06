@@ -6,6 +6,7 @@ import { useTranslation, format } from '../../lib/i18n'
 import { WIRELESS_CATALOG, wirelessBodies, wirelessById } from '../../lib/wirelessCatalog'
 import { compatibleCapsules, compatibleBodypackMics } from '../../lib/wirelessCompat'
 import { emptyWirelessRig, deriveRig } from '../../lib/wirelessRig'
+import { collectTransmitters } from '../../lib/spectrumPlan'
 import type { WirelessRigPlan, WirelessChannel } from '../../types/wirelessRig'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -22,6 +23,7 @@ export const WirelessRigDialog = () => {
   const open = useUiStore((s) => s.wirelessRigOpen)
   const setOpen = useUiStore((s) => s.setWirelessRigOpen)
   const rig = useProjectStore((s) => s.project.wirelessRig)
+  const project = useProjectStore((s) => s.project)
   const setRig = useProjectStore((s) => s.setWirelessRig)
 
   const counter = useRef(0)
@@ -31,7 +33,19 @@ export const WirelessRigDialog = () => {
   const commit = (next: WirelessRigPlan) => setRig(next)
 
   const bodies = useMemo(() => wirelessBodies(), [])
-  const derivation = useMemo(() => deriveRig(plan), [plan])
+
+  // BEDARF 95 — die uebrigen Sender des Plans. Ohne sie meldete diese Ansicht
+  // „frei", waehrend daneben ein Kamera-Rueckweg auf einer Nachbarfrequenz
+  // sendete. Nur die FREMDEN: die eigenen Kanaele bringt `deriveRig` selbst
+  // mit, und sie doppelt einzuspeisen erzeugte Konflikte mit sich selbst.
+  const fremde = useMemo(
+    () =>
+      collectTransmitters(project)
+        .entries.filter((e) => e.source !== 'rig')
+        .map((e) => ({ id: e.id, label: e.carrier ? `${e.label} (${e.carrier})` : e.label, mhz: e.mhz })),
+    [project],
+  )
+  const derivation = useMemo(() => deriveRig(plan, undefined, fremde), [plan, fremde])
   const conflictIds = useMemo(() => {
     const s = new Set<string>()
     for (const c of derivation.rfConflicts) for (const id of c.ids) s.add(id)
