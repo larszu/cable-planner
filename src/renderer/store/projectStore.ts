@@ -79,6 +79,7 @@ import { normaliseCostPlan } from '../lib/costComparison'
 import { normaliseNamingScheme } from '../lib/namingScheme'
 import { normaliseMicPlot } from '../lib/micAssignment'
 import { normaliseTallyPositions } from '../lib/tallyPosition'
+import { normaliseNetworkSegments } from '../lib/networkSegments'
 import { normaliseVenueAnswers } from '../lib/venueAnswers'
 import { isNetworkInterfaceRole, normaliseNetworkInterface } from '../lib/networkInterfaces'
 import type { NetworkInterface } from '../types/network'
@@ -515,6 +516,11 @@ export interface ProjectState {
    * ausgefuehrt wurde, statt still nichts zu tun: fuer den Bedienenden ist
    * ein wortloses Nichts von einem kaputten Programm nicht zu unterscheiden.
    */
+  /** Bedarf 116 — die Segmente setzen. Ein Setter fuer die ganze Liste:
+   *  die Befunde lesen alle Segmente gegeneinander. */
+  setNetworkSegments: (
+    segments: import('../types/networkSegment').NetworkSegment[],
+  ) => void
   /** Bedarf 105 — Tally-Weg/Lampe einer Position setzen (Upsert). Liefert
    *  `'unknown-role'`, wenn es die Rolle nicht gibt. */
   setTallyPosition: (
@@ -666,6 +672,16 @@ const healProjectPositions = (
   // bei `clearDanglingIdentity` eine Zeile weiter unten.
   const tallyPositions = normaliseTallyPositions(project.tallyPositions).filter((p) =>
     identityIds.has(p.identityId),
+  )
+  // Bedarf 116 — die Segmente. Der Gateway-Zeiger wird gegen die Geraete
+  // gehalten: ein Zeiger ins Leere saehe auf dem Blatt aus wie ein Weg in das
+  // Segment hinein, und genau danach sucht jemand vor Ort. Das SEGMENT selbst
+  // ueberlebt — es ist der Entwurf, und der gilt auch ohne Gateway.
+  const geraeteIds = new Set(project.equipment.map((e) => e.id))
+  const networkSegments = normaliseNetworkSegments(project.networkSegments).map((s) =>
+    s.gatewayEquipmentId && !geraeteIds.has(s.gatewayEquipmentId)
+      ? (({ gatewayEquipmentId: _weg, ...rest }) => rest)(s)
+      : s,
   )
   // Initiative 9 — Ausspielziele. Dieselbe Bauform wie die Rollen darueber:
   // normalisieren, Verworfenes melden, Backup-Zeiger ins Leere entfernen.
@@ -873,6 +889,8 @@ const healProjectPositions = (
     // hinterlegt" und „Liste leer" sind hier dasselbe, und ein `undefined`
     // zwaenge jeden Leser zu einer zweiten Fallunterscheidung.
     tallyPositions,
+    // Bedarf 116 — dito.
+    networkSegments,
     deliveryDestinations,
     // Bedarf 72 — `undefined` heisst „kein Adressplan", nicht „leerer".
     multicast,

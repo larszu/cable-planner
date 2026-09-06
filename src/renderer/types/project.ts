@@ -259,6 +259,13 @@ export interface CablePlannerProject {
    *  Rolle wird beim Laden verworfen: er zeigte ins Leere und saehe auf dem
    *  Blatt aus wie eine gepruefte Position. */
   tallyPositions?: import('./tallyPosition').TallyPosition[]
+  /** Bedarf 116 — die Segmente: welche VLAN wofuer da ist, welche Zeit darin
+   *  laeuft und wie man hineinkommt. Die VLAN-Id steht seit Bedarf 19/24 an
+   *  jeder Schnittstelle; hier bekommt sie eine Bedeutung. Optional -> alte
+   *  Projekte heilen zu []. Ein Segment mit einem Gateway-Zeiger ins Leere
+   *  verliert den Zeiger beim Laden: er saehe auf dem Blatt aus wie ein Weg
+   *  hinein. */
+  networkSegments?: import('./networkSegment').NetworkSegment[]
   /** Initiative 9 — die Ausspielung: wohin gesendet wird, mit welchen
    *  Parametern, und welcher Weg der Ausweichweg ist. Optional → alte
    *  Projekte heilen zu []. **Ohne Stream-Keys** — die liegen im

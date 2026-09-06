@@ -41,6 +41,7 @@ export type MetaSlice = Pick<
   | 'setMicPlot'
   | 'setTallyPosition'
   | 'recordTallyCheck'
+  | 'setNetworkSegments'
   | 'applyNaming'
 >
 
@@ -127,6 +128,20 @@ export const createMetaSlice: StateCreator<ProjectState, [], [], MetaSlice> = (s
   setMicPlot: (plot) =>
     set((state) => {
       const updated = { ...state.project, micPlot: plot }
+      scheduleProjectAutosave(updated)
+      return { project: updated }
+    }),
+  // BEDARF 116 — die Segmente.
+  //
+  // EIN Setter fuer die ganze Liste und keiner je Segment: die Befunde
+  // ("Medien und Steuerung im selben Segment", "Rolle passt nicht zum Zweck")
+  // lesen ALLE Segmente gegeneinander. Ein Einzel-Setter verfuehrte dazu, in
+  // einer Schleife zu schreiben, und jede Zwischenstufe waere ein Zustand, in
+  // dem die Pruefung die eigenen frisch gesetzten Zwecke noch nicht kennt --
+  // dieselbe Begruendung wie bei `setMulticastConfig` und `setMicPlot`.
+  setNetworkSegments: (segments) =>
+    set((state) => {
+      const updated = { ...state.project, networkSegments: segments }
       scheduleProjectAutosave(updated)
       return { project: updated }
     }),
