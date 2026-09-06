@@ -82,6 +82,8 @@ import { buildPackListHtml } from '../../lib/inventoryPrint'
 import { printHtmlDocument } from '../../lib/printHtml'
 import {
   ALL_LABEL_FORMATS,
+  estimateLabelFit,
+  formatsThatFit,
   labelSheetById,
   labelPageCount,
   buildLabelSheetHtml,
@@ -1648,6 +1650,41 @@ const LabelsTab = () => {
   const specsCount = useMemo(() => collect().length, [source, caseId, items, nodes, units]) // eslint-disable-line react-hooks/exhaustive-deps
   const pages = labelPageCount(specsCount, sheet, offset)
 
+  // BEDARF 70 — passt der Klartext-Code auf dieses Format?
+  //
+  // Der Beleg bittet ausdruecklich um den Code als Text, „for visual
+  // confirmation and manual entry" (snipe-it#18280). Genau der geht verloren,
+  // wenn er nicht draufpasst: `.lbl` schneidet mit `overflow: hidden` ab, und
+  // auf dem Bogen sieht das aus wie ein fertiges Etikett. Die Schaetzung
+  // laeuft VOR dem Druck, nicht danach.
+  const fit = useMemo(
+    () =>
+      estimateLabelFit(
+        sheet,
+        collect().map((e) => ({
+          code: e.code,
+          title: e.title,
+          symbology: symbologyFor(e),
+          ...(e.note ? { note: e.note } : {}),
+        })),
+      ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [sheet, source, caseId, items, nodes, units, symbology],
+  )
+  const passende = useMemo(
+    () =>
+      formatsThatFit(
+        collect().map((e) => ({
+          code: e.code,
+          title: e.title,
+          symbology: symbologyFor(e),
+          ...(e.note ? { note: e.note } : {}),
+        })),
+      ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [source, caseId, items, nodes, units, symbology],
+  )
+
   const handlePrint = async () => {
     const entries = collect()
     if (entries.length === 0) {
@@ -1746,6 +1783,26 @@ const LabelsTab = () => {
             </optgroup>
           </select>
         </label>
+        {!fit.fits && specsCount > 0 && (
+          <p className="md:col-span-2 text-cp-xs text-amber-300/90">
+            <strong>{t('inventory.labelFitTitle', 'Der Code passt nicht ganz drauf')}</strong>{' '}
+            {t(
+              'inventory.labelFitBody',
+              'Geschätzt aus Schriftgröße und Zeichenbreite — nicht gemessen. Auf diesem Format bleiben {n} Zeichen Platz, der längste Code hat {m}. Was nicht passt, wird beim Druck abgeschnitten, und genau der Klartext-Code ist der Rückfallweg, wenn der Barcode zerkratzt ist.',
+            )
+              .replace('{n}', String(fit.codeCapacity))
+              .replace('{m}', String(fit.longestCode.length))}{' '}
+            {passende.length > 0
+              ? t('inventory.labelFitAlt', 'Es passt auf: {liste}').replace(
+                  '{liste}',
+                  passende.map((s2) => s2.name).join(', '),
+                )
+              : t(
+                  'inventory.labelFitNone',
+                  'Auf keinem der hinterlegten Formate passt er vollständig — hier hilft nur ein kürzerer Code.',
+                )}
+          </p>
+        )}
         {!sheet.roll && (
           <label className="block">
             {t('inventory.labelOffset', 'Erste Etikett-Position (angebrochener Bogen)')}

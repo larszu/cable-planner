@@ -3860,6 +3860,13 @@ export const en: Dict = {
   'inventory.labelSheetsGroup': 'A4 sheets (Avery / Zweckform)',
   'inventory.labelRollsGroup': 'Continuous label printers',
   'inventory.labelOffset': 'First label position (partially used sheet)',
+  // Bedarf 70 — passt der Klartext-Code auf das gewaehlte Format?
+  'inventory.labelFitTitle': 'The code does not fully fit',
+  'inventory.labelFitBody':
+    'Estimated from font size and character width \u2014 not measured. This format leaves room for {n} characters; the longest code has {m}. Whatever does not fit is cut off at print time, and that plain-text code is the fallback when the barcode is scuffed.',
+  'inventory.labelFitAlt': 'It fits on: {liste}',
+  'inventory.labelFitNone':
+    'It does not fit completely on any of the stored formats \u2014 only a shorter code helps here.',
   'inventory.labelSummary': '{n} labels · {p} page(s)',
   'inventory.labelPrint': 'Print',
   'inventory.labelBusy': 'Generating…',
