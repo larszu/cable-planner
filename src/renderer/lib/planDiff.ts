@@ -208,6 +208,11 @@ export const EQUIPMENT_FIELD_CLASS: Record<string, FieldClass> = {
   vlans: 'substantive',
   portVlans: 'substantive',
   managementVlanId: 'substantive',
+  // Bedarf 19 — eine geaenderte Schnittstelle aendert, wohin ein Kabel geht
+  // und welche Adresse dort erwartet wird. Beides steht auf den Listen, die
+  // schon draussen sind.
+  networkInterfaces: 'substantive',
+  primaryInterfaceRole: 'substantive',
   mgmtUrl: 'substantive',
   firmware: 'substantive',
 

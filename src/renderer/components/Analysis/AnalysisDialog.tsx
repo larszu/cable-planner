@@ -23,6 +23,13 @@ import { effectiveDeviceResources, effectiveWatts } from '../../lib/equipmentSel
 import { checkDanteName } from '../../lib/danteNaming'
 import { subnetCidr } from '../../lib/subnet'
 import { addressPlanTable, buildAddressPlan, type AddressIssue } from '../../lib/addressPlan'
+import {
+  buildSwitchPortMaps,
+  switchPortDescriptionBlock,
+  switchPortTable,
+  type SwitchPortMap,
+} from '../../lib/switchPortMap'
+import { csvFromTable } from '../../lib/documentStamp'
 import { RF_BANDS, bandsForFrequency, bandLabel } from '../../lib/rfBands'
 
 type Tab = 'weight' | 'network' | 'redundancy' | 'rf'
@@ -244,6 +251,7 @@ const issueLabel = (t: ReturnType<typeof useTranslation>) => (issue: AddressIssu
 const NetworkTab = ({ projectName }: { projectName: string }) => {
   const t = useTranslation()
   const equipment = useProjectStore((s) => s.project.equipment)
+  const cables = useProjectStore((s) => s.project.cables)
 
   const { rows, duplicates, vlanCounts, danteIssues, subnets } = useMemo(() => {
     const rows = equipment
@@ -304,6 +312,34 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
   }
 
   /** Der Adressplan als eigene Datei -- die Liste, die der Netzmensch abarbeitet. */
+  // Bedarf 24 — die Karten je Switch. `cables` kommt aus demselben Store wie
+  // `equipment`: Switch, Port und das Kabel darin stehen in EINEM Graphen, und
+  // genau das verlangt der Bedarf.
+  const portMaps = useMemo(() => buildSwitchPortMaps(equipment, cables), [equipment, cables])
+
+  // OHNE Dokument-Stempel, und das ist eine Aussage: das Register in
+  // `documentRegistry.ts` fuehrt EINEN Stand je Dokument-Bezeichner, und hier
+  // gibt es eine Karte JE SWITCH. Ein gemeinsamer Bezeichner ergaebe einen
+  // Stand, der bei jedem zweiten Switch nicht passt — schlimmer als keiner.
+  // Ein Stempel je Switch braucht einen Bezeichner je Switch; das ist ein
+  // eigener Schritt und keine Zeile hier.
+  const exportPortMap = (m: SwitchPortMap) => {
+    const table = switchPortTable(m)
+    downloadBlob(
+      buildExportFilenameWithSuffix(`${projectName}-${m.switchName}`, 'port-karte', 'csv'),
+      csvFromTable(table),
+      'text/csv',
+    )
+  }
+
+  const exportPortDescriptions = (m: SwitchPortMap) => {
+    downloadBlob(
+      buildExportFilenameWithSuffix(`${projectName}-${m.switchName}`, 'port-beschriftung', 'txt'),
+      switchPortDescriptionBlock(m),
+      'text/plain',
+    )
+  }
+
   const exportAddressPlan = () => {
     const csvRows = addressPlanTable(plan, label, [
       t('analysis.network.device', 'Gerät'),
@@ -448,6 +484,84 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
               ))}
             </ul>
           )}
+        </div>
+      )}
+      {/* Bedarf 24 — die Switch-Port-Karte. Erzeugt statt gepflegt: die
+          deutsche Praxis dafuer ist eine Excel-Mappe mit einem Reiter je
+          Switch, und die ist die zweite Wahrheit neben dem Plan. */}
+      {portMaps.length > 0 && (
+        <div className="rounded border border-[var(--cp-border)] p-2">
+          <div className="mb-1 flex items-center justify-between">
+            <span className="font-semibold">{t('analysis.switchPorts.title', 'Switch-Port-Karte')}</span>
+            <span className="text-cp-xs text-[var(--cp-text-muted)]">
+              {format(t('analysis.switchPorts.count', '{n} Switches'), { n: portMaps.length })}
+            </span>
+          </div>
+          {portMaps.map((m) => (
+            <div key={m.switchId} className="mb-2">
+              <div className="mb-1 flex items-center justify-between">
+                <span className="text-cp-xs font-medium">{m.switchName}</span>
+                <div className="flex items-center gap-1">
+                  <span className="text-[10px] text-[var(--cp-text-faint)]">
+                    {format(t('analysis.switchPorts.used', '{u} von {n} belegt'), {
+                      u: m.usedCount,
+                      n: m.rows.length,
+                    })}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => exportPortMap(m)}
+                    className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] px-1.5 py-0.5 text-[10px] hover:bg-[var(--cp-surface-2)]"
+                  >
+                    <Icon icon={Download} size="xs" /> CSV
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => exportPortDescriptions(m)}
+                    title={t(
+                      'analysis.switchPorts.descHint',
+                      'Herstellerneutraler Text zum Einfügen. Der Plan schickt nichts an den Switch — lies, was du einfügst.',
+                    )}
+                    className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] px-1.5 py-0.5 text-[10px] hover:bg-[var(--cp-surface-2)]"
+                  >
+                    <Icon icon={Download} size="xs" />{' '}
+                    {t('analysis.switchPorts.descriptions', 'Beschriftung')}
+                  </button>
+                </div>
+              </div>
+              <ul className="flex flex-col gap-0.5">
+                {m.rows.map((r) => (
+                  <li key={r.port} className="flex items-center gap-2 text-cp-xs">
+                    <span className="w-14 shrink-0 font-mono text-[var(--cp-text-muted)]">{r.port}</span>
+                    <span className={r.device ? '' : 'text-[var(--cp-text-faint)]'}>
+                      {r.device ?? t('analysis.switchPorts.free', 'frei')}
+                    </span>
+                    {r.nicLabel && (
+                      <span className="text-[10px] text-[var(--cp-text-faint)]">{r.nicLabel}</span>
+                    )}
+                    {r.ipAddress && <span className="font-mono text-[10px]">{r.ipAddress}</span>}
+                    {r.vlanId !== undefined && (
+                      <span className="text-[10px] text-[var(--cp-text-muted)]">VLAN {r.vlanId}</span>
+                    )}
+                    {r.source && (
+                      <span className="text-[10px] text-[var(--cp-text-faint)]">
+                        {r.source === 'interface'
+                          ? t('analysis.switchPorts.fromNic', 'Schnittstelle')
+                          : t('analysis.switchPorts.fromCable', 'Kabel')}
+                      </span>
+                    )}
+                    {r.conflict && (
+                      <span className="text-amber-300/90">
+                        {format(t('analysis.switchPorts.conflict', 'Kabel sagt: {name}'), {
+                          name: r.conflict,
+                        })}
+                      </span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
       )}
       <div className="flex justify-end gap-2">

@@ -403,10 +403,32 @@ export interface EquipmentItem {
   y: number
   width: number
   height: number
-  /** Optional network/access info for devices that have it (cameras, switches, servers). */
+  /** Optional network/access info for devices that have it (cameras, switches, servers).
+   *
+   *  **Diese vier Felder SIND Schnittstelle 0** (Bedarf 19, siehe
+   *  `types/network.ts`). Weitere Schnittstellen stehen in
+   *  `networkInterfaces`; wer ALLE braucht, nimmt die Engstelle
+   *  `lib/networkInterfaces.ts#deviceInterfaces` und nicht diese Felder
+   *  direkt. Sie hier zu lassen ist Absicht: `ipAddress` steht an 95 Stellen
+   *  in 36 Dateien, und jede uebersehene liest nach einem Umzug still
+   *  `undefined` statt einer Adresse. */
   ipAddress?: string
   subnetMask?: string
   macAddress?: string
+  /**
+   * Bedarf 19 — die WEITEREN Netzwerk-Schnittstellen (Dante sekundaer,
+   * ST 2110 blau, getrennte Steuerung). Schnittstelle 0 sind die Felder
+   * darueber; hier stehen 1..n, damit es je Adresse genau ein Zuhause gibt.
+   * Optional → alte Projekte heilen zu [].
+   */
+  networkInterfaces?: import('./network').NetworkInterface[]
+  /**
+   * Wofuer die Adresse in den Alt-Feldern da ist. Ohne Angabe gilt
+   * `unspecified` — geraten wird nicht: ob die eine IP einer Kamera ihre
+   * Steuerung oder ihr Medienweg ist, weiss der Plan nicht, und eine geratene
+   * Rolle erschiene in jeder Liste als Aussage.
+   */
+  primaryInterfaceRole?: import('./network').NetworkInterfaceRole
   username?: string
   password?: string
   notes?: string

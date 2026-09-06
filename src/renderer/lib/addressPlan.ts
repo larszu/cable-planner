@@ -32,9 +32,11 @@
 // das wären Vermutungen, und eine Warnung, die falsch anschlägt, wird nach dem
 // zweiten Mal ignoriert — dann auch die vier richtigen daneben.
 // ───────────────────────────────────────────────────────────────────────────
-import type { EquipmentItem, Port } from '../types/equipment'
+import type { ConnectorType, EquipmentItem, Port } from '../types/equipment'
 import type { SignalStandard } from '../types/cableSpec'
+import type { NetworkInterfaceRole } from '../types/network'
 import { networkAddress, parseIpv4, subnetCidr } from './subnet'
+import { allDeviceInterfaces, deviceInterfaces, interfaceLabel, primaryInterfaceId } from './networkInterfaces'
 
 /** Standards, die über ein IP-Netz laufen. Aus `SignalStandard`, nicht geraten. */
 const IP_STANDARDS: ReadonlySet<SignalStandard> = new Set<SignalStandard>([
@@ -46,8 +48,31 @@ const IP_STANDARDS: ReadonlySet<SignalStandard> = new Set<SignalStandard>([
   'PTP',
 ])
 
-/** Anschlussformen, die ein Netzwerkkabel aufnehmen. */
-const NETWORK_CONNECTORS = new Set(['RJ45', 'etherCON'])
+/**
+ * Anschlussformen, die ein Netzwerkkabel aufnehmen.
+ *
+ * BERICHTIGT: hier standen `'RJ45'` und `'etherCON'` — **beide gibt es in
+ * `ConnectorType` nicht.** Die Union kennt `'Ethernet/RJ45'` und `'GG45'`; der
+ * Anschluss-Rueckfall traf damit kein einziges echtes Geraet, und der Test, der
+ * ihn belegte, trug ein Fixture mit `connectorType: 'RJ45'` — einen Wert, den
+ * kein Katalog-Geraet je haben kann. Verglichen worden war der Feldname, nicht
+ * der Wertebereich; genau derselbe Fehler wie bei der Rollen-Id gegen
+ * `guide_server.py` (`cable#674`).
+ *
+ * Der Typ ist deshalb jetzt `ConnectorType` und nicht `string`: ein Tippfehler
+ * faellt beim Uebersetzen auf, nicht beim Kunden. `tests/addressPlan.test.ts`
+ * prueft zusaetzlich, dass jeder Eintrag in `ALL_CONNECTOR_TYPES` vorkommt —
+ * ein Typ allein haette den alten Wert auch abgefangen, aber nur, wenn jemand
+ * ihn ueberhaupt annotiert.
+ *
+ * SFP, SFP+ und Fiber stehen bewusst NICHT dabei: ueber sie laeuft genauso oft
+ * SDI. Fuer sie greift die erste Regel (ein IP-Standard am Port), und die ist
+ * ein Beleg statt einer Bauform-Vermutung.
+ */
+export const NETWORK_CONNECTORS: ReadonlySet<ConnectorType> = new Set<ConnectorType>([
+  'Ethernet/RJ45',
+  'GG45',
+])
 
 /**
  * Der Port, der ein Gerät netzfähig macht — oder `null`.
@@ -59,7 +84,7 @@ const networkPort = (item: EquipmentItem): Port | null => {
   const ports = [...(item.inputs ?? []), ...(item.outputs ?? [])]
   return (
     ports.find((p) => p.standard && IP_STANDARDS.has(p.standard)) ??
-    ports.find((p) => NETWORK_CONNECTORS.has(p.connectorType as string)) ??
+    ports.find((p) => NETWORK_CONNECTORS.has(p.connectorType)) ??
     null
   )
 }
@@ -78,8 +103,20 @@ export interface AddressIssue {
 }
 
 export interface AddressPlanRow {
+  /** Geraete-Id. Mehrere Zeilen desselben Geraets teilen sie sich. */
   id: string
   name: string
+  /**
+   * Welche Schnittstelle diese Zeile ist (Bedarf 19). Zeilen sind **je
+   * Schnittstelle** und nicht je Geraet: ein Geraet mit Dante primaer und
+   * sekundaer hat zwei Adressen, und eine Doppel-IP-Pruefung, die nur die
+   * erste sieht, uebersieht genau die Haelfte eines redundanten Aufbaus.
+   */
+  nicId: string
+  /** Beschriftung der Schnittstelle („Dante Sec"). Fehlt bei Schnittstelle 0. */
+  nicLabel?: string
+  /** Wofuer die Schnittstelle da ist. `unspecified`, wenn niemand es sagte. */
+  role: NetworkInterfaceRole
   ip?: string
   mask?: string
   gateway?: string
@@ -134,66 +171,102 @@ const spansNetwork = (mask: string): boolean => {
  * das Sortieren gehört der Ansicht.
  */
 export function buildAddressPlan(equipment: EquipmentItem[]): AddressPlan {
+  // Bedarf 19 — ueber SCHNITTSTELLEN, nicht ueber Geraete. Ein Geraet mit
+  // Dante primaer und sekundaer traegt zwei Adressen; die alte Fassung sah nur
+  // `item.ipAddress` und uebersah damit genau die Haelfte eines redundanten
+  // Aufbaus — ausgerechnet in der Pruefung, die vor Doppel-IPs warnt.
+  const nics = allDeviceInterfaces(equipment)
+
   // Doppelte Adressen einmal vorab, damit jede Zeile die ANDEREN nennen kann.
-  const byIp = new Map<string, string[]>()
-  for (const e of equipment) {
-    if (!e.ipAddress) continue
-    byIp.set(e.ipAddress, [...(byIp.get(e.ipAddress) ?? []), e.name])
+  // Der Schluessel ist die SCHNITTSTELLE und nicht das Geraet: sonst meldete
+  // ein Geraet mit zwei Karten sich selbst.
+  const byIp = new Map<string, Array<{ nicId: string; label: string }>>()
+  for (const { equipment: e, nic } of nics) {
+    if (!nic.ipAddress) continue
+    byIp.set(nic.ipAddress, [
+      ...(byIp.get(nic.ipAddress) ?? []),
+      { nicId: nic.id, label: interfaceLabel(e, nic) },
+    ])
   }
 
-  const rows: AddressPlanRow[] = equipment.map((e) => {
-    const port = networkPort(e)
-    // Eine gesetzte Adresse macht ein Gerät ebenfalls zu einem Netzgerät —
-    // auch wenn seine Ports nichts davon sagen. Sonst fiele ein von Hand
-    // gepflegtes Gerät aus der Doppel-IP-Prüfung heraus, und ausgerechnet die
-    // ist der Befund mit den handfestesten Folgen.
-    const networked = !!port || !!e.ipAddress
-    const issues: AddressIssue[] = []
+  const rows: AddressPlanRow[] = []
 
-    if (networked && !e.ipAddress) {
-      issues.push({ kind: 'missing-address' })
+  for (const e of equipment) {
+    const own = deviceInterfaces(e)
+    const port = networkPort(e)
+    // Netzfaehig, wenn ein Port es sagt ODER irgendeine Schnittstelle eine
+    // Adresse traegt. Sonst fiele ein von Hand gepflegtes Geraet aus der
+    // Doppel-IP-Pruefung heraus — der Befund mit den handfestesten Folgen.
+    const networked = !!port || own.length > 0
+    const evidence = port
+      ? port.standard
+        ? `${port.name} (${port.standard})`
+        : `${port.name} (${port.connectorType})`
+      : undefined
+
+    if (own.length === 0) {
+      // Nichts eingetragen, an keiner Schnittstelle. EINE Zeile, damit die
+      // Arbeitsliste das Geraet nennt statt zu schweigen.
+      rows.push({
+        id: e.id,
+        name: e.name,
+        nicId: primaryInterfaceId(e.id),
+        role: e.primaryInterfaceRole ?? 'unspecified',
+        networked,
+        ...(evidence ? { evidence } : {}),
+        issues: networked ? [{ kind: 'missing-address' as const }] : [],
+      })
+      continue
     }
 
-    if (e.ipAddress) {
-      const others = (byIp.get(e.ipAddress) ?? []).filter((n) => n !== e.name)
-      if (others.length > 0) issues.push({ kind: 'duplicate-address', others })
-      if (!e.subnetMask) {
-        // Die Netz-Übersicht nimmt hier still /24 an. Angenommen ist nicht
-        // gewusst: sobald jemand nach dem Subnetz fragt, hängt die Antwort an
-        // einer Vorgabe, die niemand gesetzt hat.
-        issues.push({ kind: 'missing-mask' })
+    for (const nic of own) {
+      const issues: AddressIssue[] = []
+      if (!nic.ipAddress) {
+        issues.push({ kind: 'missing-address' })
       } else {
-        if (spansNetwork(e.subnetMask)) {
-          const net = networkAddress(e.ipAddress, e.subnetMask)
-          const bc = broadcastAddress(e.ipAddress, e.subnetMask)
-          if (e.ipAddress === net || e.ipAddress === bc) {
-            issues.push({ kind: 'network-or-broadcast-address' })
+        const others = (byIp.get(nic.ipAddress) ?? [])
+          .filter((o) => o.nicId !== nic.id)
+          .map((o) => o.label)
+        if (others.length > 0) issues.push({ kind: 'duplicate-address', others })
+        if (!nic.subnetMask) {
+          // Die Netz-Uebersicht nimmt hier still /24 an. Angenommen ist nicht
+          // gewusst: sobald jemand nach dem Subnetz fragt, haengt die Antwort
+          // an einer Vorgabe, die niemand gesetzt hat.
+          issues.push({ kind: 'missing-mask' })
+        } else {
+          if (spansNetwork(nic.subnetMask)) {
+            const net = networkAddress(nic.ipAddress, nic.subnetMask)
+            const bc = broadcastAddress(nic.ipAddress, nic.subnetMask)
+            if (nic.ipAddress === net || nic.ipAddress === bc) {
+              issues.push({ kind: 'network-or-broadcast-address' })
+            }
+          }
+          if (nic.gateway) {
+            const ownNet = networkAddress(nic.ipAddress, nic.subnetMask)
+            const gw = networkAddress(nic.gateway, nic.subnetMask)
+            if (ownNet && gw && ownNet !== gw) issues.push({ kind: 'gateway-outside-subnet' })
           }
         }
-        if (e.gateway) {
-          const own = networkAddress(e.ipAddress, e.subnetMask)
-          const gw = networkAddress(e.gateway, e.subnetMask)
-          if (own && gw && own !== gw) issues.push({ kind: 'gateway-outside-subnet' })
-        }
       }
-    }
 
-    return {
-      id: e.id,
-      name: e.name,
-      ...(e.ipAddress ? { ip: e.ipAddress } : {}),
-      ...(e.subnetMask ? { mask: e.subnetMask } : {}),
-      ...(e.gateway ? { gateway: e.gateway } : {}),
-      ...(e.ipAddress && e.subnetMask
-        ? { cidr: subnetCidr(e.ipAddress, e.subnetMask) ?? undefined }
-        : {}),
-      networked,
-      ...(port
-        ? { evidence: port.standard ? `${port.name} (${port.standard})` : `${port.name} (${port.connectorType})` }
-        : {}),
-      issues,
+      rows.push({
+        id: e.id,
+        name: e.name,
+        nicId: nic.id,
+        ...(nic.label ? { nicLabel: nic.label } : {}),
+        role: nic.role,
+        ...(nic.ipAddress ? { ip: nic.ipAddress } : {}),
+        ...(nic.subnetMask ? { mask: nic.subnetMask } : {}),
+        ...(nic.gateway ? { gateway: nic.gateway } : {}),
+        ...(nic.ipAddress && nic.subnetMask
+          ? { cidr: subnetCidr(nic.ipAddress, nic.subnetMask) ?? undefined }
+          : {}),
+        networked: true,
+        ...(evidence ? { evidence } : {}),
+        issues,
+      })
     }
-  })
+  }
 
   return {
     rows,
@@ -214,7 +287,7 @@ export function addressPlanTable(
     ...plan.rows
       .filter((r) => r.networked)
       .map((r) => [
-        r.name,
+        r.nicLabel ? `${r.name} · ${r.nicLabel}` : r.name,
         r.ip ?? '',
         r.mask ?? '',
         r.gateway ?? '',

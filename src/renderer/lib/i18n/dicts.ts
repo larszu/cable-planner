@@ -3985,6 +3985,43 @@ export const en: Dict = {
   'analysis.address.coverage': '{done} of {total} networked devices addressed',
   'analysis.address.clean': 'Nothing open: every networked device has an address, a mask and a gateway that fits.',
   'analysis.address.export': 'Address plan as CSV',
+
+  /* Bedarf 24 — die Switch-Port-Karte. Keys: analysis.switchPorts.* */
+  'analysis.switchPorts.title': 'Switch port map',
+  // {n} wird vom Aufrufer ersetzt.
+  'analysis.switchPorts.count': '{n} switches',
+  // {u} und {n} werden vom Aufrufer ersetzt.
+  'analysis.switchPorts.used': '{u} of {n} occupied',
+  'analysis.switchPorts.free': 'free',
+  'analysis.switchPorts.fromNic': 'interface',
+  'analysis.switchPorts.fromCable': 'cable',
+  // {name} wird vom Aufrufer ersetzt.
+  'analysis.switchPorts.conflict': 'cable says: {name}',
+  'analysis.switchPorts.descriptions': 'Descriptions',
+  'analysis.switchPorts.descHint':
+    'Vendor-neutral text to paste. The plan sends nothing to the switch \u2014 read what you paste.',
+
+  /* Bedarf 19 — weitere Netzwerk-Schnittstellen. Keys: nic.* */
+  'nic.title': 'Additional network interfaces',
+  'nic.add': 'Add',
+  'nic.none': 'No additional interfaces.',
+  'nic.hint':
+    'The fields above are the first interface. These are the further ones \u2014 Dante secondary, ST 2110 blue, separate control.',
+  'nic.primaryRole': 'Role of the first interface',
+  'nic.label': 'Label, e.g. \u201eDante Sec\u201c',
+  'nic.role': 'Role',
+  'nic.remove': 'Remove interface',
+  'nic.gateway': 'Gateway',
+  'nic.mac': 'MAC address',
+  'nic.vlan': 'VLAN',
+  'nic.switch': 'Switch',
+  'nic.switchPort': 'Port',
+  'nic.noSwitch': '\u2014 no switch \u2014',
+  'nic.role.mediaPrimary': 'Media primary',
+  'nic.role.mediaSecondary': 'Media secondary',
+  'nic.role.control': 'Control',
+  'nic.role.management': 'Management',
+  'nic.role.unspecified': 'not stated',
   'analysis.address.mask': 'Mask',
   'analysis.address.evidence': 'Evidence',
   'analysis.address.finding': 'Finding',
