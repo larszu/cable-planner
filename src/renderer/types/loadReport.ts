@@ -36,6 +36,11 @@ export type LoadDropKind =
    *  aus wie „nie gefragt", und dann fragt jemand ein zweites Mal — oder gar
    *  nicht mehr, weil er die Genehmigung von letztem Jahr im Kopf hat. */
   | 'venue-answer'
+  /** Bedarf 72 — eine Multicast-Vergabe, die keine Adresse traegt oder deren
+   *  Bein/Fluss unlesbar ist. Sie still zu behalten waere hier schlimmer als
+   *  bei jeder anderen Sorte: die Vergabe steht im Blatt, das jemand mit ins
+   *  Rack nimmt, und eine unlesbare Zeile fiele erst dort auf. */
+  | 'multicast-assignment'
 
 export interface LoadDrop {
   kind: LoadDropKind

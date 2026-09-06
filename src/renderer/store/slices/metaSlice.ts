@@ -31,6 +31,7 @@ export type MetaSlice = Pick<
   | 'updateGreenGoConfig'
   | 'setDrumKit'
   | 'setWirelessRig'
+  | 'setMulticastConfig'
 >
 
 export const createMetaSlice: StateCreator<ProjectState, [], [], MetaSlice> = (set) => ({
@@ -103,6 +104,19 @@ export const createMetaSlice: StateCreator<ProjectState, [], [], MetaSlice> = (s
   setWirelessRig: (plan) =>
     set((state) => {
       const updated = { ...state.project, wirelessRig: plan }
+      scheduleProjectAutosave(updated)
+      return { project: updated }
+    }),
+  // BEDARF 72 — Pool, Port und die vergebenen Gruppen.
+  //
+  // Ein Setter fuer das ganze Objekt und keiner je Vergabe: der Aufrufer ist
+  // `allocateMulticast`, das die vollstaendige Liste zurueckgibt. Ein
+  // Einzel-Setter verfuehrte dazu, in einer Schleife zu vergeben — und jede
+  // Zwischenstufe waere ein Zustand, in dem die Alias-Pruefung die eigenen
+  // frisch vergebenen Adressen noch nicht kennt.
+  setMulticastConfig: (config) =>
+    set((state) => {
+      const updated = { ...state.project, multicast: config }
       scheduleProjectAutosave(updated)
       return { project: updated }
     }),

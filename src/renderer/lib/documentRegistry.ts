@@ -26,6 +26,7 @@ import { deliveryPathTable } from './deliveryPath'
 import { buildPtpPlan, ptpTable } from './ptpPlan'
 import { crewSheetTableForProject } from './crewNetworkSheet'
 import { spectrumTableForProject } from './spectrumPlan'
+import { multicastTableForProject } from './multicastPlan'
 import type { CsvTable } from './csv'
 
 const ofTable =
@@ -91,6 +92,12 @@ export const DOCUMENT_STANDS: Record<string, (project: CablePlannerProject) => s
   // Intercom-Zuordnungen. Die BEFUNDE stehen nicht drin -- sie tragen
   // Fliesstext aus `computeRfConflicts`.
   'spektrum-plan': ofTable(spectrumTableForProject),
+  // Bedarf 72 — der Multicast-Adressplan. Reproduzierbar: die Fluesse folgen
+  // aus dem Kabelgraph, die Adressen stehen im Projekt. Die BEFUNDE stehen
+  // nicht in der Tabelle -- sie tragen Fliesstext, und ein Blatt, dessen Stand
+  // sich mit jeder Umformulierung aendert, meldete jedes gedruckte Exemplar
+  // als veraltet.
+  'multicast-plan': ofTable(multicastTableForProject),
 }
 
 /**
@@ -157,6 +164,7 @@ export const DOCUMENT_LABELS: Record<string, string> = {
   'ptp-plan': 'Zeit-Plan (PTP)',
   'crew-netz': 'Netz-Merkblatt (Crew)',
   'spektrum-plan': 'Spektrum-Plan',
+  'multicast-plan': 'Multicast-Adressplan',
   'videohub-labels': 'Videohub-Labels',
   'atem-mv-layout': 'Multiviewer-Layout',
   'switch-port-karte': 'Switch-Port-Karte',
