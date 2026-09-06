@@ -39,6 +39,8 @@ export type MetaSlice = Pick<
   | 'setCostPlan'
   | 'setNamingScheme'
   | 'setMicPlot'
+  | 'setTallyPosition'
+  | 'recordTallyCheck'
   | 'applyNaming'
 >
 
@@ -128,6 +130,60 @@ export const createMetaSlice: StateCreator<ProjectState, [], [], MetaSlice> = (s
       scheduleProjectAutosave(updated)
       return { project: updated }
     }),
+  // BEDARF 105 — der Tally-Weg EINER Position.
+  //
+  // Hier ist der Einzel-Setter richtig, und zwar aus dem Gegenteil des
+  // Grundes von oben: zwischen zwei Positionen gibt es keine Zusicherung, die
+  // eine Zwischenstufe verletzen koennte. Jede Lampe haengt fuer sich.
+  //
+  // Abgelehnt wird, was auf keine Rolle zeigt: ein Datensatz ohne Rolle stuende
+  // auf dem Vor-Show-Blatt wie eine gepruefte Position und zeigte ins Leere.
+  setTallyPosition: (identityId, patch) => {
+    let absage: 'unknown-role' | undefined
+    set((state) => {
+      const rollen = state.project.sourceIdentities ?? []
+      if (!rollen.some((s) => s.id === identityId)) {
+        absage = 'unknown-role'
+        return {}
+      }
+      const bisher = state.project.tallyPositions ?? []
+      const vorhanden = bisher.find((p) => p.identityId === identityId)
+      const naechste = vorhanden
+        ? bisher.map((p) => (p.identityId === identityId ? { ...p, ...patch } : p))
+        : [...bisher, { identityId, transport: 'unknown' as const, ...patch }]
+      const updated = { ...state.project, tallyPositions: naechste }
+      scheduleProjectAutosave(updated)
+      return { project: updated }
+    })
+    return absage
+  },
+  // BEDARF 105 — die Sichtpruefung wird ANGEHAENGT, nie ersetzt.
+  //
+  // „Gestern ging es, heute nicht" ist die Auskunft, die den Fehler findet,
+  // und sie geht verloren, wenn jede Pruefung die vorige ueberschreibt. Der
+  // Zeitpunkt kommt fertig herein — der Store nimmt keine Uhr, sonst
+  // stempelte dieselbe Beobachtung bei jedem Aufruf anders.
+  recordTallyCheck: (identityId, check) => {
+    let absage: 'unknown-role' | undefined
+    set((state) => {
+      const rollen = state.project.sourceIdentities ?? []
+      if (!rollen.some((s) => s.id === identityId)) {
+        absage = 'unknown-role'
+        return {}
+      }
+      const bisher = state.project.tallyPositions ?? []
+      const vorhanden = bisher.find((p) => p.identityId === identityId)
+      const naechste = vorhanden
+        ? bisher.map((p) =>
+            p.identityId === identityId ? { ...p, checks: [check, ...(p.checks ?? [])] } : p,
+          )
+        : [...bisher, { identityId, transport: 'unknown' as const, checks: [check] }]
+      const updated = { ...state.project, tallyPositions: naechste }
+      scheduleProjectAutosave(updated)
+      return { project: updated }
+    })
+    return absage
+  },
   // BEDARF 72 — Pool, Port und die vergebenen Gruppen.
   //
   // Ein Setter fuer das ganze Objekt und keiner je Vergabe: der Aufrufer ist

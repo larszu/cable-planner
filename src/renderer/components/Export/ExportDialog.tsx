@@ -42,6 +42,7 @@ import { printPdfBlob } from '../../lib/printPdfBlob'
 import { sanitizeForPdf } from '../../lib/sanitizeForPdf'
 import { downloadBlob } from '../../lib/downloadBlob'
 import { buildTallyMap, tallyMapCsv, toTallyPiDevices } from '../../lib/tallyMap'
+import { TallyPreShowPanel } from '../Tally/TallyPreShowPanel'
 import { buildPlanBom, outcomeLabel, pickListCsv, planBomCsv } from '../../lib/planBom'
 import { useCheckoutStore } from '../../store/checkoutStore'
 import { zusatzBedarf } from '../../lib/planDemandExtras'
@@ -1354,6 +1355,11 @@ const TallySection = () => {
           </table>
         </div>
       )}
+
+      {/* BEDARF 105 — die zweite Haelfte. Die Karte darueber sagt, was der Plan
+          ABLEITET; hier steht, was niemand ableiten kann: der Weg zur Lampe
+          und was jemand beim Hinsehen gesehen hat. */}
+      <TallyPreShowPanel />
 
       {map.issues.length > 0 && (
         <div className="max-h-40 shrink-0 overflow-auto rounded border border-cp-border bg-cp-surface-2 p-2">

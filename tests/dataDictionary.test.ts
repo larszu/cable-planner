@@ -158,7 +158,17 @@ describe('der Guard: jede Spalte, die irgendwo exportiert wird, ist erklaert', (
     const gefunden = new Map<string, string>()
     for (const [pfad, src] of Object.entries(quellen)) {
       if (pfad.includes('/lib/dataDictionary.ts')) continue
-      for (const m of src.matchAll(/headers:\s*\[([\s\S]*?)\]/g)) {
+      // Zwei Formen, und die zweite fehlte: `headers: [...]` direkt am Objekt
+      // UND `const X_HEADERS = [...]`, das erst per Spread hineingeht. Die
+      // zweite war fuer den Scan unsichtbar — der Spread traegt keine
+      // String-Literale —, und damit war jedes Blatt unsichtbar, dessen
+      // Spalten aus einer Konstanten kommen. Gefunden beim Anlegen von
+      // `PRE_SHOW_HEADERS` (Bedarf 105).
+      const listen = [
+        ...src.matchAll(/headers:\s*\[([\s\S]*?)\]/g),
+        ...src.matchAll(/_HEADERS(?::[^=]*)?\s*=\s*\[([\s\S]*?)\]/g),
+      ]
+      for (const m of listen) {
         for (const s of m[1].matchAll(/'((?:[^'\\]|\\.)*)'/g)) {
           const spalte = s[1].replace(/\\'/g, "'")
           if (!gefunden.has(spalte)) gefunden.set(spalte, pfad)
