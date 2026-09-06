@@ -10,6 +10,8 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import { keepScreenAwake } from './wakeLock'
+
 /** Ist Kamera-Scannen in dieser Umgebung möglich? */
 export const isBarcodeScannerSupported = (): boolean =>
   typeof window !== 'undefined' &&
@@ -40,6 +42,11 @@ export const startCameraScan = async (
   video.setAttribute('playsinline', 'true')
   await video.play().catch(() => {})
 
+  // Bedarf 69: das Telefon darf nicht mitten im Scan zugehen. Die Sperre
+  // haengt am SCAN, nicht an einem Knopf — sie beginnt mit der Kamera und
+  // endet mit ihr, also kann sie nicht versehentlich stehenbleiben.
+  const awake = keepScreenAwake()
+
   const Detector = (window as any).BarcodeDetector
   const supported: string[] = (await Detector.getSupportedFormats?.().catch(() => FORMATS)) ?? FORMATS
   const detector = new Detector({ formats: FORMATS.filter((f) => supported.includes(f)) })
@@ -67,6 +74,7 @@ export const startCameraScan = async (
       cancelAnimationFrame(raf)
       stream.getTracks().forEach((t) => t.stop())
       video.srcObject = null
+      awake.release()
     },
   }
 }

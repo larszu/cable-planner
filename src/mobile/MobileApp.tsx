@@ -40,6 +40,7 @@ import { cableLabelId } from '../renderer/lib/docIds'
 // Export "PGM" zeigten. Der Guard dagegen globte nur `src/renderer/**` und
 // konnte es nicht sehen.
 import { portDisplayLabel } from '../renderer/lib/portLabel'
+import { keepScreenAwake } from '../renderer/lib/wakeLock'
 import type { CablePlannerProject } from '../renderer/types/project'
 
 /** Deep-Link beim Laden: `?lookup=cable/C-0001` oder `#cable/C-0001` /
@@ -873,6 +874,15 @@ const QrFindOverlay = ({
   const [text, setText] = useState('')
   const [camError, setCamError] = useState<string | null>(null)
   const canScan = cameraScanSupported()
+
+  // Bedarf 69 — „the phone locks mid-scan and has to be double-tapped"
+  // (inventree-app#492). Die Sperre haengt am OVERLAY und nicht an der
+  // Kamera: wer im Lager einen Code abtippt, weil der Kamera-Scan im
+  // unsicheren LAN-Kontext gesperrt ist, hat dasselbe Problem.
+  useEffect(() => {
+    const awake = keepScreenAwake()
+    return () => awake.release()
+  }, [])
 
   useEffect(() => {
     if (!canScan) return
