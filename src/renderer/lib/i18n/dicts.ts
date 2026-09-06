@@ -4402,6 +4402,14 @@ export const en: Dict = {
   'analysis.tab.rf': 'RF / wireless',
   'analysis.tab.runs': 'Cable runs',
   'analysis.tab.sheet': 'Check a sheet',
+  // Bedarf 81 — die Kunden-Uebersicht.
+  'analysis.tab.client': 'Client summary',
+  'analysis.client.basis': 'Basis of this sheet',
+  'analysis.client.area': 'Area',
+  'analysis.client.metric': 'Metric',
+  'analysis.client.value': 'Value',
+  'analysis.client.share': 'Share',
+  'analysis.client.source': 'Basis',
 
   /* Bedarf 27 — der Rueckweg vom Papier. */
   'analysis.sheet.intro':

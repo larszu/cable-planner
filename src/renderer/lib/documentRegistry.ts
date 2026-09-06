@@ -180,6 +180,16 @@ export const UNJUDGEABLE_DOCUMENTS: Record<string, string> = {
     'Der Zustand hängt an der Revisionsliste (As-Built). Der Revisions-Vergleich ' +
     'spannt Snapshots ohne diese Liste auf — ein Stand daraus meldete jedes Blatt ' +
     'als überholt, obwohl sich nichts geändert hat.',
+  // Bedarf 81 — dieselbe Ursache, und sie ist hier eine bewusste Abwägung:
+  // die Übersicht trägt je Zeile eine Spalte „Grundlage" (Plan / As-Built /
+  // gemeldet), und genau die macht sie von der Revisionsliste abhängig. Die
+  // Spalte wegzulassen, um einen Stand zu bekommen, hiesse jede Planzahl wie
+  // einen Leistungsnachweis aussehen zu lassen — der teurere Fehler von
+  // beiden. Also lieber ein Blatt ohne Stand als ein Blatt ohne Grundlage.
+  'kunden-uebersicht':
+    'Jede Zeile nennt ihre Grundlage (Plan, As-Built, gemeldet), und die hängt ' +
+    'an der Revisionsliste. Der Revisions-Vergleich spannt Snapshots ohne diese ' +
+    'Liste auf — ein Stand daraus meldete jedes Blatt als überholt.',
 }
 
 /** Lesbarer Name eines Dokument-Bezeichners für Meldungen. */
@@ -202,6 +212,7 @@ export const DOCUMENT_LABELS: Record<string, string> = {
   'ausweich-plan': 'Ausweich-Plan (Sicherheitsnetz)',
   'event-metadaten': 'Angaben zur Veranstaltung',
   sendebericht: 'Sendebericht',
+  'kunden-uebersicht': 'Kunden-Übersicht',
   'job-grundlage': 'Grundlage der Übergabe',
   'videohub-labels': 'Videohub-Labels',
   'atem-mv-layout': 'Multiviewer-Layout',

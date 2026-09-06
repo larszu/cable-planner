@@ -26,6 +26,7 @@
  */
 import { toCsv, type CsvCell, type CsvTable } from './csv'
 import { buildDocQrPayload } from './qrPayload'
+import { dictionaryBlock } from './dataDictionary'
 import type { CablePlannerProject, ProjectRevision, RevisionSnapshot } from '../types/project'
 
 export interface DocumentStamp {
@@ -306,16 +307,39 @@ export const csvStampRow = (
 }
 
 /**
- * Serialisiert eine Tabelle als CSV und haengt den Stempel als letzte Zeile an.
- * Ohne Stempel identisch zu `toCsv` — der Aufrufer entscheidet, ob das Dokument
- * einen tragen soll (ein Zwischenexport in Excel braucht keinen).
+ * Serialisiert eine Tabelle als CSV, haengt den Stempel als letzte Datenzeile
+ * an und darunter das Spaltenlexikon (Bedarf 81).
+ *
+ * ─── WARUM DAS LEXIKON HIER HAENGT UND NICHT AN JEDEM AUFRUFER ─────────────
+ *
+ * Weil es sonst genau dort fehlte, wo es gebraucht wird. Diese Funktion ist
+ * die Engstelle, durch die JEDER CSV-Export dieser Anwendung geht; ein
+ * Lexikon, das der Aufrufer anhaengen MUSS, waere an dem einen Blatt vergessen
+ * worden, das der Kunde bekommt. Der Bedarf sagt „alongside EVERY export", und
+ * das ist hier woertlich zu nehmen.
+ *
+ * `dictionary: false` gibt es fuer den Fall, dass eine Ausgabe maschinell
+ * weiterverarbeitet wird und ein Anhang sie zerlegen wuerde. Heute nutzt das
+ * niemand — der Schalter steht hier, damit ein solcher Fall ihn nennen muss,
+ * statt die Engstelle zu umgehen.
+ *
+ * DER STAND AENDERT SICH DADURCH NICHT: `documentFingerprint` rechnet ueber
+ * `headers`/`rows`, nicht ueber die exportierten Bytes. Ein Lexikon, das den
+ * Fingerabdruck veraenderte, meldete jedes gedruckte Exemplar als veraltet.
  */
 export const csvFromTable = (
   table: CsvTable,
   stamp?: DocumentStamp,
   docId?: string,
-): string =>
-  toCsv(
-    table.headers,
-    stamp ? [...table.rows, csvStampRow(stamp, table.headers.length, docId)] : table.rows,
-  )
+  opts: { dictionary?: boolean } = {},
+): string => {
+  const lexikon =
+    opts.dictionary === false ? [] : dictionaryBlock(table.headers, table.headers.length)
+  // Das Lexikon steht ZWISCHEN Daten und Stempel, nicht dahinter. Der Stempel
+  // bleibt damit die letzte Zeile der Datei — eine Zusicherung, die es seit
+  // ADR-004 gibt und an der der Mobile-Viewer und die Fussnoten-Pruefung
+  // haengen. Ein Anhang gehoert vor die Fussnote, nicht hinter sie.
+  const rows: CsvCell[][] = [...table.rows, ...lexikon]
+  if (stamp) rows.push(csvStampRow(stamp, table.headers.length, docId))
+  return toCsv(table.headers, rows)
+}

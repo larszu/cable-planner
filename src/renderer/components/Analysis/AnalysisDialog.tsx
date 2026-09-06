@@ -30,6 +30,13 @@ import {
   type SwitchPortMap,
 } from '../../lib/switchPortMap'
 import { csvFromTable } from '../../lib/documentStamp'
+import {
+  CLIENT_SUMMARY_FINDING_LABEL,
+  SUMMARY_BASIS_LABEL,
+  clientSummary,
+  clientSummaryTable,
+} from '../../lib/clientSummary'
+import { JOB_BASIS_LABEL } from '../../lib/jobHandover'
 import { cableRunFindings, cableRunTable, type RunFinding } from '../../lib/cableRunChecks'
 import { lookUpSheet, type SheetLookup } from '../../lib/sheetLookup'
 import {
@@ -76,7 +83,7 @@ import {
   spectrumTable,
 } from '../../lib/spectrumPlan'
 
-type Tab = 'weight' | 'network' | 'redundancy' | 'rf' | 'runs' | 'sheet'
+type Tab = 'weight' | 'network' | 'redundancy' | 'rf' | 'runs' | 'sheet' | 'client'
 
 const WATT_TO_BTU = 3.412
 
@@ -1961,7 +1968,77 @@ const SheetTab = () => {
   )
 }
 
+/* ---------------------------------------------------- Kunden-Übersicht -- */
+
+/**
+ * BEDARF 81 — die Übersicht, die ein Kunde lesen kann.
+ *
+ * Die beiden Spalten, um die es geht, stehen NEBEN der Zahl und nicht am
+ * Rand: „Anteil" nennt immer seinen Nenner, „Grundlage" sagt, ob die Zahl aus
+ * dem Plan, aus dem As-Built oder aus einer Feld-Rückmeldung kommt. Ohne die
+ * zweite liest ein Kunde jede Planzahl als Leistungsnachweis.
+ */
+const ClientTab = ({ projectName }: { projectName: string }) => {
+  const t = useTranslation()
+  const project = useProjectStore((s) => s.project)
+  const summary = useMemo(() => clientSummary(project), [project])
+
+  const exportCsv = () => {
+    downloadBlob(
+      buildExportFilenameWithSuffix(projectName, 'kunden-uebersicht', 'csv'),
+      csvFromTable(clientSummaryTable(project)),
+      'text/csv',
+    )
+  }
+
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-cp-sm text-[var(--cp-text-secondary)]">
+          {t('analysis.client.basis', 'Grundlage des Blatts')}:
+        </span>
+        <span className="rounded border border-[var(--cp-border-muted)] px-1.5 py-0.5 text-cp-xs text-[var(--cp-text-secondary)]">
+          {JOB_BASIS_LABEL[summary.basis]}
+        </span>
+        <CsvButton onClick={exportCsv} />
+      </div>
+      <table className="w-full text-cp-xs">
+        <thead>
+          <tr className="text-left text-[var(--cp-text-muted)]">
+            <th className="py-1">{t('analysis.client.area', 'Bereich')}</th>
+            <th>{t('analysis.client.metric', 'Kennzahl')}</th>
+            <th>{t('analysis.client.value', 'Wert')}</th>
+            <th>{t('analysis.client.share', 'Anteil')}</th>
+            <th>{t('analysis.client.source', 'Grundlage')}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {summary.rows.map((r, i) => (
+            <tr key={`${r.gruppe}-${r.kennzahl}-${i}`} className="border-t border-[var(--cp-border-muted)]">
+              <td className="py-1 text-[var(--cp-text-muted)]">{r.gruppe}</td>
+              <td>{r.kennzahl}</td>
+              <td className="tabular-nums">{r.wert}</td>
+              <td className="tabular-nums">{r.anteil}</td>
+              <td className="text-[var(--cp-text-muted)]">{SUMMARY_BASIS_LABEL[r.basis]}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {summary.findings.length > 0 && (
+        <ul className="flex flex-col gap-1 text-cp-xs">
+          {summary.findings.map((f, i) => (
+            <li key={`${f.kind}-${i}`} className="text-amber-300/90">
+              <strong>{CLIENT_SUMMARY_FINDING_LABEL[f.kind]}</strong> — {f.text}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  )
+}
+
 const TABS: { id: Tab; labelKey: string; fallback: string }[] = [
+  { id: 'client', labelKey: 'analysis.tab.client', fallback: 'Kunden-Übersicht' },
   { id: 'weight', labelKey: 'analysis.tab.weight', fallback: 'Gewicht & Wärme' },
   { id: 'network', labelKey: 'analysis.tab.network', fallback: 'Netzwerk' },
   { id: 'redundancy', labelKey: 'analysis.tab.redundancy', fallback: 'Redundanz' },
@@ -2009,6 +2086,7 @@ export const AnalysisDialog = () => {
       {active === 'rf' && <RfTab projectName={projectName} />}
       {active === 'runs' && <RunsTab projectName={projectName} />}
       {active === 'sheet' && <SheetTab />}
+      {active === 'client' && <ClientTab projectName={projectName} />}
     </ModalShell>
   )
 }
