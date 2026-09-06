@@ -118,7 +118,10 @@ describe('fuenf Sichten, ein Datensatz', () => {
 
   it('die Band sieht ihre Spalten und nicht die des Hauses', () => {
     const t = bandView(rows())
-    expect(t.headers).toEqual(['Ch', 'Quelle', 'Art', 'Abnahme'])
+    // BEDARF 110 — die Spalte hiess „Abnahme" und zeigte den Port der Quelle,
+    // also die XLR-Buchse am Mikrofon. Das ist Infrastruktur in der
+    // Mikrofon-Spalte, und genau diese Verwechslung ist der gemeldete Fehler.
+    expect(t.headers).toEqual(['Ch', 'Name', 'Abnahme', 'Anschluss an der Quelle'])
     // Kein Stagebox-Port, keine Laenge: eine Spalte, die niemand liest, macht
     // das Blatt unlesbar.
     expect(t.headers).not.toContain('Port')
@@ -126,9 +129,15 @@ describe('fuenf Sichten, ein Datensatz', () => {
     expect(t.rows[0]).toEqual([1, 'SM58 Lead Vox', 'Shure', 'OUT'])
   })
 
-  it('das Haus sieht Port, Stecker und Laenge', () => {
+  it('das Haus sieht den Port und NICHT die interne Kanalnummer', () => {
+    // BEDARF 111 — „the channel number is internal to the band and
+    // meaningless to venue staff; showing both implies both matter". Zwei
+    // Nummern nebeneinander sind eine Aufforderung zum Abgleich, und
+    // abgeglichen wuerde eine Nummer, die auf dem Blech nirgends steht.
     const t = venueView(rows())
-    expect(t.rows[0]).toEqual([1, 'SM58 Lead Vox', 'Stagebox A', '1', 'XLR', 10])
+    expect(t.headers).toEqual(['Port', 'Name', 'Ziel', 'Stecker', 'Laenge (m)'])
+    expect(t.headers).not.toContain('Ch')
+    expect(t.rows[0]).toEqual(['1', 'SM58 Lead Vox', 'Stagebox A', 'XLR', 10])
   })
 
   it('die Buehne sieht Positionen — und behauptet keine, wo keine ist', () => {

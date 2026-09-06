@@ -3490,6 +3490,8 @@ export const en: Dict = {
   'channelList.view.stage': 'Stage (position)',
   'channelList.view.console': 'Console (names)',
   'channelList.view.monitor': 'Monitor paths',
+  // Bedarf 110 — wem welche Spalte gehoert.
+  'channelList.view.owner': 'Venue / band (who owns what)',
   'channelList.export': '🎚 Channel list',
   // Bedarf 92 — die Szenendatei des Pults lesen und zwei Staende vergleichen.
   'scene.import': '\u{1F39B} Read scene file',

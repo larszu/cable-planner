@@ -2,6 +2,10 @@ import { create } from 'zustand'
 import { v4 as uuidv4 } from 'uuid'
 import { mergeById } from '../lib/inventoryMerge'
 import { STORAGE_KEYS } from '../lib/storageKeys'
+import { moveRefusal } from '../lib/storageMoves'
+import { nodePathLabel } from '../lib/storageTree'
+import { useStorageMoveStore } from './storageMoveStore'
+import type { MoveRefusal } from '../types/storageMove'
 import type {
   InventoryItem,
   InventoryCase,
@@ -16,7 +20,6 @@ import type {
   PhysicalDimensions,
   InventoryMaterialKind,
 } from '../types/inventory'
-import { wouldCreateCycle } from '../lib/storageTree'
 import { normaliseFaultEvent } from '../lib/faultHistory'
 import { deriveDemand } from '../lib/inventoryCoverage'
 import type { EquipmentItem } from '../types/equipment'
@@ -350,7 +353,7 @@ interface InventoryState {
   /** Legt einen neuen Artikel an, liefert die erzeugte id. */
   addItem: (input: InventoryItemInput) => string
   /** Aktualisiert Felder eines Artikels (id/createdAt bleiben unangetastet). */
-  updateItem: (id: string, patch: Partial<InventoryItemInput>) => void
+  updateItem: (id: string, patch: Partial<Omit<InventoryItemInput, 'locationId'>>) => void
   /** Entfernt einen Artikel (und aus allen Set-Komponenten). */
   removeItem: (id: string) => void
   /**
@@ -373,7 +376,26 @@ interface InventoryState {
    * Hängt einen Knoten unter einen neuen Parent (Verschieben im Baum /
    * Case-in-Case). Zyklen (Knoten in sich/seinen Nachfahren) werden abgewiesen.
    */
-  moveNode: (id: string, newParentId: string | undefined) => void
+  /**
+   * Bedarf 106 — einen Lagerort/Container umhaengen.
+   *
+   * Liefert die ABSAGE, wenn es nicht geht, statt still nichts zu tun. Der
+   * Zyklus-Schutz gab bisher `{}` zurueck: die Kiste blieb stehen, und
+   * niemand erfuhr, warum. Ein Vorgang, der ohne Grund nichts tut, ist fuer
+   * den Bedienenden ununterscheidbar von einem kaputten Programm — und beim
+   * naechsten Mal raeumt er von Hand um und traegt es nirgends ein. Genau das
+   * ist die „stale location" aus dem Beleg.
+   */
+  moveNode: (id: string, newParentId: string | undefined) => MoveRefusal | undefined
+  /**
+   * Bedarf 106 — einen ARTIKEL (Bulk-Ware) einraeumen oder umraeumen.
+   *
+   * Ein eigener Vorgang und keine Nebenwirkung von `updateItem`: dieselbe
+   * Funktion, die eine Notiz aendert, verschob bisher auch Ware, und keine
+   * der beiden Aenderungen war von der anderen zu unterscheiden. Der Bedarf
+   * sagt es woertlich — „a 'move' verb, not a side effect".
+   */
+  moveItem: (id: string, nodeId: string | undefined) => MoveRefusal | undefined
   /**
    * Entfernt einen Knoten. Direkte Kinder werden zum Parent des gelöschten
    * Knotens hochgezogen (kein Waisen-Subtree); Artikel, die dort lagen,
@@ -385,7 +407,11 @@ interface InventoryState {
    * `nodeId` auf einen Container, ist der Artikel damit eingepackt. `undefined`
    * = kein Lagerort. Kein Pack-Zustand außerhalb des Baums — LPN-Prinzip.
    */
-  setItemLocation: (itemId: string, nodeId: string | undefined) => void
+  // BEDARF 106 — `setItemLocation` ist ENTFALLEN. Es schrieb den Lagerort als
+  // stilles Feld und hinterliess nichts; damit war es die zweite Tuer neben
+  // `updateItem`, durch die eine Bewegung ohne Vorgang ging. Wer einen Artikel
+  // einraeumt oder umraeumt, nimmt `moveItem` — es prueft, protokolliert und
+  // sagt, wenn es nicht geht.
   /** Legt ein Set an, liefert die id. */
   addSet: (input: InventorySetInput) => string
   /** Aktualisiert Felder eines Sets. */
@@ -589,16 +615,51 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
       persist(state.items, nodes, state.sets, state.units)
       return { nodes }
     }),
-  moveNode: (id, newParentId) =>
-    set((state) => {
-      // Zyklus-Schutz: ein Knoten darf nicht in sich/seinen Nachfahren landen.
-      if (wouldCreateCycle(state.nodes, id, newParentId)) return {}
-      const nodes = state.nodes.map((n) =>
+  moveNode: (id, newParentId) => {
+    // Bedarf 106 — die Absage hat einen Namen. `moveRefusal` prueft alles an
+    // einer Stelle (unbekanntes Objekt, unbekanntes Ziel, Zyklus, schon dort)
+    // und liefert den Grund; der Aufrufer zeigt ihn an.
+    const state = get()
+    const knoten = state.nodes.find((n) => n.id === id)
+    const absage = moveRefusal(
+      state.nodes,
+      'node',
+      knoten ? { id, currentPlaceId: knoten.parentId } : undefined,
+      newParentId,
+    )
+    if (absage) return absage
+    const label = newParentId ? nodePathLabel(state.nodes, newParentId) : undefined
+    set((s2) => {
+      const nodes = s2.nodes.map((n) =>
         n.id === id ? { ...n, parentId: newParentId, updatedAt: new Date().toISOString() } : n,
       )
-      persist(state.items, nodes, state.sets, state.units)
+      persist(s2.items, nodes, s2.sets, s2.units)
       return { nodes }
-    }),
+    })
+    useStorageMoveStore.getState().record('node', id, knoten?.parentId, newParentId, label)
+    return undefined
+  },
+  moveItem: (id, nodeId) => {
+    const state = get()
+    const artikel = state.items.find((i) => i.id === id)
+    const absage = moveRefusal(
+      state.nodes,
+      'item',
+      artikel ? { id, currentPlaceId: artikel.locationId } : undefined,
+      nodeId,
+    )
+    if (absage) return absage
+    const label = nodeId ? nodePathLabel(state.nodes, nodeId) : undefined
+    set((s2) => {
+      const items = s2.items.map((i) =>
+        i.id === id ? { ...i, locationId: nodeId, updatedAt: new Date().toISOString() } : i,
+      )
+      persist(items, s2.nodes, s2.sets, s2.units)
+      return { items }
+    })
+    useStorageMoveStore.getState().record('item', id, artikel?.locationId, nodeId, label)
+    return undefined
+  },
   removeNode: (id) =>
     set((state) => {
       const removed = state.nodes.find((n) => n.id === id)
@@ -627,14 +688,6 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
       )
       persist(items, nodes, state.sets, units)
       return { items, nodes, units }
-    }),
-  setItemLocation: (itemId, nodeId) =>
-    set((state) => {
-      const items = state.items.map((it) =>
-        it.id === itemId ? { ...it, locationId: nodeId, updatedAt: new Date().toISOString() } : it,
-      )
-      persist(items, state.nodes, state.sets, state.units)
-      return { items }
     }),
   addSet: (input) => {
     const now = new Date().toISOString()
@@ -693,6 +746,7 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
   moveUnit: (id, nodeId, locationLabel) =>
     set((state) => {
       const now = new Date().toISOString()
+      const vorher = state.units.find((u) => u.id === id)?.locationId
       const units = state.units.map((u) =>
         u.id === id
           ? {
@@ -704,6 +758,13 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
           : u,
       )
       persist(state.items, state.nodes, state.sets, units)
+      // Bedarf 106 — auch die Einheit landet im Journal. Ihre eigene Historie
+      // bleibt, wo sie ist (sie faehrt mit dem Objekt mit); das Journal
+      // beantwortet die andere Frage: „was wurde in diesem Lager wann
+      // umgeraeumt", ueber alle drei Arten hinweg.
+      useStorageMoveStore
+        .getState()
+        .record('unit', id, vorher, nodeId, nodeId ? locationLabel : undefined)
       return { units }
     }),
   setUnitCondition: (id, condition) =>

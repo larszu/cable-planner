@@ -56,7 +56,25 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   'Abweichung %':
     'Die Abweichung im Verhältnis zur Schätzung. Bei einer Schätzung von 0 gibt es keinen Prozentsatz.',
   Abgehakt: 'Wie viele Positionen des Containers beim Ein- oder Auschecken bestätigt wurden.',
-  Abnahme: 'Ob der Kanal bei der Probe abgenommen wurde.',
+  // Bedarf 110 — dieser Eintrag sagte „ob der Kanal bei der Probe abgenommen
+  // wurde". Die Spalte trug aber nie eine Abnahme im Sinne einer Freigabe,
+  // sondern den Port der Quelle: eine Erklaerung, die etwas anderes beschreibt
+  // als die Spalte, ist schlimmer als keine — sie wird geglaubt. Die Spalte
+  // fuehrt jetzt die Abnahme im Wortsinn (womit abgenommen wird), und die
+  // Erklaerung sagt das.
+  Abnahme:
+    'Womit die Quelle abgenommen wird — Mikrofon-Art, DI, Line. Gehört der Band und steht in keiner Pult-Datei.',
+  'Abnahme (Band)':
+    'Womit die Quelle abgenommen wird — Mikrofon-Art, DI, Line. Gehört der Band und steht in keiner Pult-Datei.',
+  'Anschluss an der Quelle':
+    'Die Buchse am abnehmenden Gerät selbst (etwa der XLR-Ausgang des Mikrofons). Nicht der Stagebox-Port.',
+  'Ch (bandintern)':
+    'Die laufende Nummer dieser Liste. Sie ist bandintern und bedeutet am Haus-Pult nichts — deshalb steht sie auf dem Haus-Blatt nicht.',
+  'Name (Band)':
+    'Der Name des Kanals, wie er auf Pult, Etikett und Multitrack stehen soll. Eine bloße Nummer gilt nicht als Name.',
+  'Port (Haus)':
+    'Der Stagebox-/Pult-Eingang, in dem das Signal steckt. Gehört dem Haus und ist draußen die einzige Nummer, die etwas bedeutet.',
+  'Stecker (Band)': 'Der Steckertyp an diesem Ende.',
   Abschnitt: 'Der Themenblock des Merkblatts (Zugang, Adressen, Verbote, Ansprechpartner).',
   'Abweichung begründet':
     'Warum dieses Ziel andere Veranstaltungsangaben trägt als das Projekt. „—" heißt: es weicht nicht ab.',
@@ -241,6 +259,9 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   Y: 'Die Y-Position auf der Bühnenfläche.',
   Zeit: 'Der Zeitpunkt des Eintrags, wie ihn ein Mensch eingetragen hat.',
   Zeichen: 'Wie viele Zeichen der neue Name hat.',
+  Zeitpunkt: 'Wann der Vorgang stattgefunden hat (ISO-Zeitstempel).',
+  Von: 'Wo das Objekt vor dem Umräumen lag. „nicht mehr im Lager" heißt: der Lagerort existiert nicht mehr.',
+  Nach: 'Wohin es gebucht wurde — im Klartext des Zeitpunkts, damit die Auskunft auch nach einer Umbenennung stimmt.',
   Ziel:
     'Wohin es geht. Bei der Ausspielung das Ausspielziel (Plattform-Adresse), sonst das empfangende Gerät oder der empfangende Kanal.',
   'Zugeordnet ueber': 'Woran das vorgefundene Gerät dem geplanten zugeordnet wurde.',

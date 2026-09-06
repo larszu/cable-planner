@@ -41,6 +41,17 @@ export const STORAGE_KEYS = {
    * durchreichen, das sie nie fuellen.
    */
   checkouts: 'cable-planner:checkouts',
+  /**
+   * Bedarf 106 — das Umräum-Journal des Lagers.
+   *
+   * EIGENER KEY, aus demselben Grund wie `checkouts`: ein Umräum-Eintrag sagt
+   * „dieses Regal, dieser Betrieb". In eine fremde Installation importiert,
+   * zeigen `fromId`/`toId` ins Leere — und ein Journal, dessen Einträge auf
+   * nichts zeigen, ist schlimmer als keins, weil es aussieht wie eine
+   * Auskunft. Die Historie der EINHEIT liegt dagegen im Austauschformat: sie
+   * hängt am physischen Objekt, und das fährt mit. Ein Regalplatz nicht.
+   */
+  storageMoves: 'cable-planner:storageMoves',
   /** ATEM-Switcher Discovery-Cache. */
   rentmanTemplateCacheV1: 'cable-planner:rentmanTemplateCache:v1',
   /** NetBox device-type-library Index-Cache. */
