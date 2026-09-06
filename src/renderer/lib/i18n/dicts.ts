@@ -3490,6 +3490,10 @@ export const en: Dict = {
   'channelList.view.stage': 'Stage (position)',
   'channelList.view.console': 'Console (names)',
   'channelList.view.monitor': 'Monitor paths',
+  // Bedarf 125 — das Multiviewer-Bild als Blatt.
+  'mv.sheet.title': 'Multiviewer layout (who is in which window)',
+  'mv.sheet.hint':
+    'The names come from the same roles as tally and UMD \u2014 not from a second, hand-kept list. The switcher stores its layout as a binary file; this sheet can be read by the camera crew too.',
   // Bedarf 121 — der Umbau-Zettel: nur was sich aendert.
   'salvo.changeover': 'Changeover from',
   'salvo.to': 'to',

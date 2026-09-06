@@ -85,6 +85,9 @@ describe('COLUMN_GLOSSARY — ein Lexikon nach NAMEN, nicht nach Blatt', () => {
       ['Vorher', ['Import', 'Zielsystem', 'Ausgang']],
       ['Nachher', ['Import', 'Umbenennung', 'Ausgang']],
       ['Ausgang', ['Pult', 'Router']],
+      // Bedarf 125: `Position` heisst auf drei Blaettern drei verschiedene
+      // Dinge, und der Eintrag beschrieb lange nur das erste.
+      ['Position', ['Listenzeile', 'Kamera-Position', 'Schirm']],
     ] as const) {
       for (const lesart of lesarten) {
         expect(COLUMN_GLOSSARY[spalte], `${spalte} nennt "${lesart}" nicht`).toContain(lesart)
