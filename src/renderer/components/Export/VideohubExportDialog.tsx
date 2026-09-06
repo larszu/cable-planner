@@ -32,6 +32,15 @@ import { portDisplayLabel } from '../../lib/portLabel'
 import { roleLabelsByPort } from '../../lib/labelDerivation'
 import { isWithinDistance } from '../../lib/levenshtein'
 import { promptDialog } from '../../lib/promptDialog'
+import {
+  changeoverTable,
+  salvoById,
+  salvoChanges,
+  salvoFindings,
+  salvoTable,
+  type PortLabels,
+} from '../../lib/salvoSheet'
+import { toCsv } from '../../lib/csv'
 
 // #237 — Stop-Words die im Smart-Routing nicht zum Score beitragen.
 // "out"/"in" matched sonst auf praktisch jeden Port-Namen weil beide
@@ -79,6 +88,136 @@ const buildDefaultRouting = (totalIn: number, totalOut: number): Record<number, 
 const downloadTextFile = (filename: string, content: string) =>
   downloadBlob(filename, content, 'text/plain;charset=utf-8')
 
+/**
+ * BEDARF 121 — der Umbau-Zettel.
+ *
+ *   > A printed paper sheet of routes is RE-KEYED INTO A 40x40 VIDEOHUB
+ *   > BEFORE EVERY CHANGEOVER.
+ *
+ * Belegt an `bitfocus/companion-module-bmd-videohub#9` (2020-10, weiterhin
+ * offen): „I have a paper sheet of routes for our BMD 40x40 that I need to
+ * manually enter before each change over" — eine Halle, die zwischen Baseball
+ * und Softball wechselt.
+ *
+ * Der volle Zustand steht als eigenes Blatt daneben; er ist der Zettel, den
+ * es heute schon gibt. Der NEUE Zettel ist der Unterschied: wer vierzig
+ * Zeilen abtippt, tippt achtunddreissig davon unveraendert ab.
+ */
+const ChangeoverSheet = ({
+  salvos,
+  labels,
+  deviceName,
+  onLog,
+}: {
+  salvos: VideohubSalvo[]
+  labels: PortLabels
+  deviceName: string
+  onLog: (text: string, ok?: boolean) => void
+}) => {
+  const t = useTranslation()
+  const [vonId, setVonId] = useState<string>('')
+  const [nachId, setNachId] = useState<string>('')
+
+  const von = salvoById(salvos, vonId)
+  const nach = salvoById(salvos, nachId)
+  const aenderungen = useMemo(
+    () => (von && nach ? salvoChanges(von.routing, nach.routing) : []),
+    [von, nach],
+  )
+  const befunde = useMemo(() => salvoFindings(salvos), [salvos])
+
+  const ladeCsv = (suffix: string, table: { headers: string[]; rows: unknown[][] }) => {
+    downloadBlob(
+      buildExportFilenameWithSuffix(deviceName, suffix, 'csv'),
+      toCsv(table.headers, table.rows as never),
+      'text/csv;charset=utf-8',
+    )
+    onLog(`${suffix} als CSV geladen`)
+  }
+
+  const selCls =
+    'rounded border border-cyan-800/60 bg-cyan-950/40 px-1 py-0.5 text-[11px] text-cyan-100'
+
+  return (
+    <div className="mb-2 rounded border border-cyan-800/40 bg-cp-surface-2/40 p-2">
+      <div className="mb-1 flex flex-wrap items-center gap-1 text-[11px]">
+        <span className="text-cyan-300">{t('salvo.changeover', 'Umbau von')}</span>
+        <select value={vonId} onChange={(e) => setVonId(e.target.value)} className={selCls}>
+          <option value="">{t('salvo.pick', '— Satz wählen —')}</option>
+          {salvos.map((s) => (
+            <option key={s.id} value={s.id}>
+              {s.name}
+            </option>
+          ))}
+        </select>
+        <span className="text-cyan-300">{t('salvo.to', 'nach')}</span>
+        <select value={nachId} onChange={(e) => setNachId(e.target.value)} className={selCls}>
+          <option value="">{t('salvo.pick', '— Satz wählen —')}</option>
+          {salvos.map((s) => (
+            <option key={s.id} value={s.id}>
+              {s.name}
+            </option>
+          ))}
+        </select>
+        {von && nach && (
+          <button
+            type="button"
+            onClick={() =>
+              ladeCsv('umbau', changeoverTable(von.routing, nach.routing, labels))
+            }
+            className="ml-auto rounded bg-cyan-700 px-2 py-0.5 text-white hover:bg-cyan-600"
+          >
+            <Icon icon={Download} size="xs" className="mr-1 inline-block align-text-bottom" />
+            {t('salvo.exportChangeover', 'Umbau-Zettel')}
+          </button>
+        )}
+        {nach && (
+          <button
+            type="button"
+            onClick={() => ladeCsv('satz', salvoTable(nach.routing, labels))}
+            className="rounded border border-cyan-800/60 px-2 py-0.5 text-cyan-100 hover:bg-cyan-900/40"
+          >
+            <Icon icon={Download} size="xs" className="mr-1 inline-block align-text-bottom" />
+            {t('salvo.exportFull', 'Voller Satz')}
+          </button>
+        )}
+      </div>
+
+      {von && nach && (
+        <div className="text-[11px]">
+          {aenderungen.length === 0 ? (
+            /* Ein leeres Blatt ist hier eine ANTWORT und kein Fehler: die
+               beiden Saetze sind gleich, es ist nichts umzustecken. */
+            <span className="text-emerald-300">
+              {t('salvo.noChange', 'Kein Unterschied — beim Umbau ist nichts umzustecken.')}
+            </span>
+          ) : (
+            <span className="text-cyan-200">
+              {fmt(
+                t('salvo.changeCount', '{n} von {total} Kreuzpunkten ändern sich.'),
+                { n: aenderungen.length, total: Object.keys(nach.routing).length },
+              )}
+            </span>
+          )}
+        </div>
+      )}
+
+      {befunde.length > 0 && (
+        <ul className="mt-1 flex flex-col gap-0.5 text-[11px]">
+          {befunde.map((b, idx) => (
+            <li
+              key={`${b.kind}:${b.subject}:${idx}`}
+              className={b.severity === 'error' ? 'text-red-400' : 'text-amber-300/90'}
+            >
+              {b.message}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  )
+}
+
 export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShowMatrix }: Props) => {
   const t = useTranslation()
   const equipment = useProjectStore((s) => s.project.equipment)
@@ -110,6 +249,18 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
   // Datei nutzt. Frueher doppelt weiter unten definiert — was verhinderte, dass
   // Code oberhalb davon auf das Geraet zugreifen kann.
   const device = initialDevice
+  // BEDARF 121 — die Beschriftungen fuer den Umbau-Zettel kommen aus
+  // DERSELBEN Aufloesung wie Vorschau, .txt, Label-PDF und TCP-Push
+  // (`labelOf`). Ein eigener `portDisplayLabel`-Aufruf waere der fuenfte Weg,
+  // und genau so entsteht einer, der die Rolle nicht kennt.
+  const portLabels: PortLabels = useMemo(
+    () => ({
+      inputs: (initialDevice?.inputs ?? []).map((p) => labelOf(p, '')),
+      outputs: (initialDevice?.outputs ?? []).map((p) => labelOf(p, '')),
+    }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [initialDevice, roleLabels],
+  )
   // Kein Raten: Geraetetyp-ID → expliziter Katalog-Preset-Key; sonst 'custom'
   // mit den echten BNC-Port-Zahlen des Geraets (siehe videohubPresetForDevice).
   const initialPreset = initialDevice
@@ -1138,6 +1289,20 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
               + {t('export.saveCurrentRouting', 'Aktuelles Routing speichern')}
             </button>
           </div>
+          {/* BEDARF 121 — der Umbau-Zettel.
+              „I have a paper sheet of routes for our BMD 40x40 that I need to
+              MANUALLY ENTER BEFORE EACH CHANGE OVER" (bmd-videohub#9). Wer
+              vor dem Umbau alle vierzig Zeilen abtippt, tippt achtunddreissig
+              davon unveraendert ab. Der Zettel, der die Arbeit spart, ist
+              nicht der Zustand, sondern der UNTERSCHIED. */}
+          {salvos.length > 0 && (
+            <ChangeoverSheet
+              salvos={salvos}
+              labels={portLabels}
+              deviceName={device?.name || 'Videohub'}
+              onLog={logEvent}
+            />
+          )}
           {salvos.length === 0 ? (
             <div className="text-[11px] text-cp-text-muted">
               {t('export.noSalvos', 'Noch keine Salvos. Speichere die aktuelle Crosspoint-Verteilung und ruf sie spaeter mit einem Klick zurueck.')}
