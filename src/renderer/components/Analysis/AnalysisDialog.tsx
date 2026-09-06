@@ -30,6 +30,7 @@ import {
   type SwitchPortMap,
 } from '../../lib/switchPortMap'
 import { csvFromTable } from '../../lib/documentStamp'
+import { cableRunFindings, cableRunTable, type RunFinding } from '../../lib/cableRunChecks'
 import {
   buildVenueNetworkRequest,
   rackDoorSheetTable,
@@ -38,7 +39,7 @@ import {
 } from '../../lib/venueNetworkRequest'
 import { RF_BANDS, bandsForFrequency, bandLabel } from '../../lib/rfBands'
 
-type Tab = 'weight' | 'network' | 'redundancy' | 'rf'
+type Tab = 'weight' | 'network' | 'redundancy' | 'rf' | 'runs'
 
 const WATT_TO_BTU = 3.412
 
@@ -1125,11 +1126,117 @@ const RfTab = ({ projectName }: { projectName: string }) => {
 
 /* ------------------------------------------------------------- Container -- */
 
+// ───────────────────────────────────────────────────────────────────────────
+// Bedarf 13 — die Kabelwege. Was die Laenge behauptet, und ob sie noch gilt.
+//
+// Der Befund nennt das stille Veralten beim Namen: „a moved position SILENTLY
+// invalidates the cable call". Diese Ansicht macht es laut — und nennt bei
+// einem Hybrid-Kamerakabel dazu, wie viele Dienste an dem einen Strang
+// haengen: „one wrong SMPTE run kills video, return, comms, tally and power
+// at once."
+// ───────────────────────────────────────────────────────────────────────────
+const RunsTab = ({ projectName }: { projectName: string }) => {
+  const t = useTranslation()
+  const cables = useProjectStore((s) => s.project.cables)
+  const equipment = useProjectStore((s) => s.project.equipment)
+
+  const findings = useMemo(() => cableRunFindings(cables, equipment), [cables, equipment])
+
+  // Ausgeschriebener switch, ein Schluessel je Fall. Einen Schluessel aus dem
+  // kind-Feld zusammenzusetzen waere fuer den i18n-Deckungs-Guard unsichtbar
+  // und fiele im EN-Betrieb still auf den nackten Slug zurueck. (Die verbotene
+  // Form steht hier bewusst NICHT als Beispiel: sie stuende dann im Quelltext,
+  // und der Guard, der sie sucht, findet den Kommentar.)
+  const text = (f: RunFinding): string => {
+    const kern = (() => {
+      switch (f.kind) {
+        case 'derived-length-stale':
+          return format(
+            t(
+              'analysis.runs.stale',
+              'Länge {alt} m wurde geschätzt; seither um {px} px verschoben, die Schätzung ergäbe jetzt {neu} m',
+            ),
+            { alt: f.values[0], neu: f.values[1], px: f.values[2] },
+          )
+        case 'over-max-length':
+          return format(
+            t('analysis.runs.overMax', 'Länge {laenge} m über der Reichweite von {max} m ({typ})'),
+            { laenge: f.values[0], max: f.values[1], typ: f.values[2] },
+          )
+        case 'endpoint-missing':
+          return t(
+            'analysis.runs.endpointMissing',
+            'Abgeleitete Länge, aber ein Endgerät fehlt — sie lässt sich nicht mehr nachrechnen',
+          )
+      }
+    })()
+    return f.services
+      ? `${kern} — ${format(t('analysis.runs.bundled', 'ein Strang, {n} Dienste: {liste}'), {
+          n: f.services.length,
+          liste: f.services.join(', '),
+        })}`
+      : kern
+  }
+
+  const exportCsv = () => {
+    downloadBlob(
+      buildExportFilenameWithSuffix(projectName, 'kabelwege', 'csv'),
+      csvFromTable(cableRunTable(cables, equipment)),
+      'text/csv',
+    )
+  }
+
+  return (
+    <div className="space-y-3 p-4 text-cp-base">
+      <p className="text-cp-xs text-[var(--cp-text-muted)]">
+        {t(
+          'analysis.runs.intro',
+          'Geschätzte Längen tragen ihre Herkunft. Wird ein Gerät verschoben, veraltet die Schätzung — hier steht es, statt still zu bleiben. Von Hand eingetragene Längen werden NICHT gegen die Luftlinie gehalten: ein echter Kabelweg wird verlegt, nicht gespannt.',
+        )}
+      </p>
+
+      {findings.length === 0 ? (
+        <p className="text-cp-xs text-[var(--cp-text-muted)]">
+          {t('analysis.runs.none', 'Keine Befunde: keine überholte Schätzung, keine Länge über der Reichweite.')}
+        </p>
+      ) : (
+        <>
+          <div className="flex justify-end">
+            <button
+              type="button"
+              onClick={exportCsv}
+              className="rounded border border-cp-border px-2 py-1 text-cp-xs text-cp-text-secondary hover:text-cp-text"
+            >
+              CSV
+            </button>
+          </div>
+          <ul className="space-y-1">
+            {findings.map((f) => (
+              <li
+                key={`${f.kind}-${f.cableId}`}
+                className={
+                  f.kind === 'over-max-length'
+                    ? 'rounded border border-red-700/60 bg-red-900/30 p-2 text-cp-xs text-red-200'
+                    : 'rounded border border-amber-700/60 bg-amber-900/30 p-2 text-cp-xs text-amber-200'
+                }
+              >
+                <span className="font-semibold">{f.cableLabel}</span> — {text(f)}
+                {f.source && <span className="ml-1 opacity-70">({f.source})</span>}
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+    </div>
+  )
+}
+
 const TABS: { id: Tab; labelKey: string; fallback: string }[] = [
   { id: 'weight', labelKey: 'analysis.tab.weight', fallback: 'Gewicht & Wärme' },
   { id: 'network', labelKey: 'analysis.tab.network', fallback: 'Netzwerk' },
   { id: 'redundancy', labelKey: 'analysis.tab.redundancy', fallback: 'Redundanz' },
   { id: 'rf', labelKey: 'analysis.tab.rf', fallback: 'RF / Funk' },
+  { id: 'runs', labelKey: 'analysis.tab.runs', fallback: 'Kabelwege' },
 ]
 
 export const AnalysisDialog = () => {
@@ -1169,6 +1276,7 @@ export const AnalysisDialog = () => {
       {active === 'network' && <NetworkTab projectName={projectName} />}
       {active === 'redundancy' && <RedundancyTab projectName={projectName} />}
       {active === 'rf' && <RfTab projectName={projectName} />}
+      {active === 'runs' && <RunsTab projectName={projectName} />}
     </ModalShell>
   )
 }

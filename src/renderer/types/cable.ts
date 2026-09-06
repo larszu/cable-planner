@@ -160,4 +160,46 @@ export interface Cable {
    *  Verknüpft das physische Etikett mit dem digitalen Datensatz
    *  ("Was ist dieses Kabel? Wo geht es hin?"). */
   qrId?: string
+  /**
+   * Bedarf 13 — WORAUS die Länge geschätzt wurde.
+   *
+   * Der Befund benennt genau diese Lücke: „a moved position **silently**
+   * invalidates the cable call". `estimateCableLengths` schreibt heute eine
+   * Zahl nach `length` und hinterlässt keine Spur — danach sieht eine
+   * geschätzte Länge aus wie eine gemessene, und ein verschobenes Gerät
+   * macht sie falsch, ohne dass es jemand erfährt.
+   *
+   * Mit dieser Angabe lässt sich beides trennen: eine Länge OHNE sie ist von
+   * Hand eingetragen und geht niemanden etwas an; eine MIT ihr ist abgeleitet
+   * und kann veralten. Genau dieselbe Unterscheidung wie beim PTZ-Preset.
+   *
+   * Undefined = von Hand eingetragen. Das ist der Normalfall und kein Mangel.
+   */
+  lengthDerivedFrom?: DerivedLengthOrigin
+}
+
+/**
+ * Geometrie und Maßstab zum Zeitpunkt der Schätzung (Bedarf 13).
+ *
+ * Gespeichert werden die **Geräte-Ursprünge** (`x`/`y`), nicht die
+ * Mittelpunkte. Der Grund ist die Raster-Heilung beim Laden: sie snappt `x`
+ * und `y` der Geräte auf Vielfache der Rasterweite. Ein Mittelpunkt
+ * (`x + width/2`) landet dabei irgendwo zwischen zwei Rasterpunkten, und die
+ * gespeicherte Kopie liesse sich nicht auf denselben Wert heilen — ein
+ * Projekt, das nur GELADEN wurde, meldete dann seine Schätzungen als
+ * überholt. Mit dem Ursprung heilt beides identisch.
+ *
+ * Es ist ausserdem die Frage, die der Bedarf stellt: „a moved position".
+ * Ein Knoten, dessen Breite sich ändert, wurde nicht verschoben.
+ */
+export interface DerivedLengthOrigin {
+  /** Canvas-Ursprung (`x`/`y`) der beiden Endgeräte, als die Länge entstand. */
+  fromX: number
+  fromY: number
+  toX: number
+  toY: number
+  /** Der Maßstab, mit dem gerechnet wurde. Ändert er sich, ist die Länge
+   *  genauso überholt wie nach einem Verschieben — die Zahl hängt an beidem. */
+  metersPer100px: number
+  slackPercent: number
 }
