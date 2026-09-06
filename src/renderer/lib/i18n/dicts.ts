@@ -3969,6 +3969,18 @@ export const en: Dict = {
   // Bedarf 32 — der Ausspielweg.
   'delivery.encoder.onDevice': 'on {device}',
   'delivery.path.title': 'Delivery path',
+  // Bedarf 90 — die unabhaengige Archiv-Aufzeichnung.
+  'delivery.archive.title': 'Independent archive recording',
+  'delivery.archive.answer': 'Answer',
+  'delivery.archive.notStated': '\u2014 not answered yet \u2014',
+  'delivery.archive.onDevice': 'on this device',
+  'delivery.archive.none': 'deliberately none',
+  'delivery.archive.device': 'Recording device',
+  'delivery.archive.pick': '\u2014 pick a device \u2014',
+  'delivery.archive.whyPh': 'Why none? (webinar with no re-use \u2026)',
+  'delivery.archive.notePh': 'Note (medium, card swap \u2026)',
+  'delivery.archive.note': 'Note',
+  'delivery.archive.export': 'Sheet',
   'delivery.path.hint':
     'The path from the programme feed to the platform — source, encoder, transport, destination',
   'delivery.path.encoder': 'Encoder in the plan',

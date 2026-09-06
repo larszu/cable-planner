@@ -244,6 +244,14 @@ export interface CablePlannerProject {
    *  Projekte heilen zu []. **Ohne Stream-Keys** — die liegen im
    *  OS-Schluesselbund, siehe `types/delivery.ts`. */
   deliveryDestinations?: import('./delivery').DeliveryDestination[]
+  /**
+   * Bedarf 90 — die Antwort auf „wo liegt die unabhängige Archiv-Aufzeichnung
+   * und wovon ist sie getrennt".
+   *
+   * Am Projekt und nicht am Ziel: die Archiv-Kopie gehört der Show, nicht
+   * einer einzelnen Ausspielung. Zwei Ziele teilen sich dieselbe Aufzeichnung.
+   */
+  archiveRecording?: import('./delivery').ArchiveRecording
 }
 
 /** #412 — Ein festgeschriebener Projekt-Stand. */
