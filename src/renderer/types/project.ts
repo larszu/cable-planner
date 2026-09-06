@@ -234,6 +234,19 @@ export interface CablePlannerProject {
   /** Wireless-Rig — Funkstrecken-Kanalplan (Body + Kapsel/Headset + Frequenz).
    *  Optional → alte Projekte laden sauber. Verlustfrei in der .avplan. */
   wirelessRig?: import('./wirelessRig').WirelessRigPlan
+  /**
+   * Bedarf 114 — wer traegt in WELCHER Vorstellung welche Strecke.
+   *
+   * Getrennt vom `wirelessRig`, und das ist der ganze Punkt: der Rig-Plan
+   * gehoert der PRODUKTION (Kanal, Sender, Kapsel, Frequenz), die Zuordnung
+   * der VORSTELLUNG. Der Beleg nennt sie „the only audio artefact that
+   * recurs per performance rather than per production". Beides in ein Objekt
+   * zu legen hiesse, den Kanalplan je Vorstellung zu kopieren — und die
+   * Kopien laufen auseinander, sobald jemand am Plan etwas aendert.
+   *
+   * Optional → alte Projekte heilen zu einem leeren Plan.
+   */
+  micPlot?: import('./micAssignment').MicPlot
   /** ADR-001 — Signalquellen als Rollen („Kamera 1"), an denen die Anker
    *  haengen, die keine Runtime besitzt (heute: die TSL-UMD-Adresse). Geraete
    *  verweisen ueber `EquipmentItem.sourceIdentityId` darauf. Optional → alte

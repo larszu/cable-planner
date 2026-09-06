@@ -38,6 +38,7 @@ export type MetaSlice = Pick<
   | 'setTransmissionRecord'
   | 'setCostPlan'
   | 'setNamingScheme'
+  | 'setMicPlot'
   | 'applyNaming'
 >
 
@@ -111,6 +112,19 @@ export const createMetaSlice: StateCreator<ProjectState, [], [], MetaSlice> = (s
   setWirelessRig: (plan) =>
     set((state) => {
       const updated = { ...state.project, wirelessRig: plan }
+      scheduleProjectAutosave(updated)
+      return { project: updated }
+    }),
+  // BEDARF 114 — der Mic-Plot (Personen, Sessions, Zuordnungen).
+  //
+  // Ein Setter fuer den ganzen Plan und keiner je Zuordnung: `carryForward`
+  // liefert eine ganze Session auf einmal, und ein Einzel-Setter verfuehrte
+  // dazu, sie in einer Schleife zu schreiben — jede Zwischenstufe waere ein
+  // Zustand, in dem die Doppelbelegungs-Pruefung die eigenen frisch
+  // uebernommenen Zeilen noch nicht kennt.
+  setMicPlot: (plot) =>
+    set((state) => {
+      const updated = { ...state.project, micPlot: plot }
       scheduleProjectAutosave(updated)
       return { project: updated }
     }),
