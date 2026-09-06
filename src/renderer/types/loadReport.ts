@@ -30,6 +30,12 @@ export type LoadDropKind =
    *  nimmt die Ingest-URL und den Verweis auf seinen Stream-Key mit, und der
    *  faellt erst am Showtag auf. */
   | 'delivery-destination'
+  /** Bedarf 85 — eine Antwort der Haus-IT, die keine ist: ohne Punkt, auf den
+   *  sie sich bezieht, oder mit einem Ausgang, den es nicht gibt. Sie still zu
+   *  verwerfen waere hier besonders teuer: eine fehlende Zeile im Blatt sieht
+   *  aus wie „nie gefragt", und dann fragt jemand ein zweites Mal — oder gar
+   *  nicht mehr, weil er die Genehmigung von letztem Jahr im Kopf hat. */
+  | 'venue-answer'
 
 export interface LoadDrop {
   kind: LoadDropKind
