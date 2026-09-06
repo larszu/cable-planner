@@ -97,9 +97,11 @@ describe('der Bestand wird ueber Lagerpositionen summiert', () => {
 describe('die Kommissionier-Liste teilt auf die Lagerorte auf', () => {
   it('eine Zeile je Ort, mit der dort zu entnehmenden Menge', () => {
     const bom = buildPlanBom(plan(5), zweiOrte(3, 3), NODES)
+    // Die Spalte „Grund" kam mit Bedarf 64 dazu und ist hier leer: es fehlt
+    // nichts, also gibt es nichts zu begruenden.
     expect(pickListCsv(bom).split('\r\n').slice(1)).toEqual([
-      'Depot › Case 1;3;Sony PMW-F55;3;',
-      'Depot › Case 2;2;Sony PMW-F55;3;',
+      'Depot › Case 1;3;Sony PMW-F55;3;;',
+      'Depot › Case 2;2;Sony PMW-F55;3;;',
     ])
   })
 
@@ -116,8 +118,8 @@ describe('die Kommissionier-Liste teilt auf die Lagerorte auf', () => {
       item({ id: 'i1', model: MODELL, quantity: 3, deviceTypeId: TYP, locationId: 'c1' }),
     ], NODES)
     expect(pickListCsv(bom).split('\r\n').slice(1)).toEqual([
-      ';0;Sony PMW-F55;0;2',
-      'Depot › Case 1;3;Sony PMW-F55;3;',
+      ';0;Sony PMW-F55;0;2;',
+      'Depot › Case 1;3;Sony PMW-F55;3;;',
     ])
   })
 
