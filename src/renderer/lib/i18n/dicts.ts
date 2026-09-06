@@ -3213,6 +3213,7 @@ export const en: Dict = {
   'app.loadReport.multicastAssignment': 'Multicast assignment',
   'app.loadReport.fallbackRule': 'Fallback rule',
   'app.loadReport.metadataOverride': 'Event-detail deviation',
+  'app.loadReport.transmissionEvent': 'Transmission-record entry',
   'app.loadReport.duplicateId': 'duplicate id, the first entry wins',
   'app.loadReport.missingRequired': 'required field missing (name)',
   'app.loadReport.hint': 'Devices that pointed at these roles lost their assignment — including the TSL address used for tally. Saving overwrites the file with this state.',
@@ -4012,6 +4013,27 @@ export const en: Dict = {
   'delivery.event.export': 'Sheet',
   'delivery.event.exportHint':
     'A sheet to type from \u2014 one row per destination with title, start and visibility',
+  // Bedarf 87 — der Sendebericht.
+  'delivery.record.title': 'Transmission record',
+  'delivery.record.add': 'Entry',
+  'delivery.record.export': 'Sheet',
+  'delivery.record.exportHint':
+    'The sequence as a sheet \u2014 every row states where the statement came from. This plan measures nothing.',
+  'delivery.record.hint':
+    'What the transmission did, as far as somebody wrote it down. Not a measurement: the time and the origin are entered by the person who was there.',
+  'delivery.record.at': 'Time',
+  'delivery.record.atPh': '2026-09-12T19:04+02:00',
+  'delivery.record.kind': 'What',
+  'delivery.record.dest': 'Destination',
+  'delivery.record.whole': '\u2014 whole transmission \u2014',
+  'delivery.record.source': 'Origin',
+  'delivery.record.by': 'Observed by',
+  'delivery.record.byPh': 'by whom?',
+  'delivery.record.text': 'Description',
+  'delivery.record.textPh': 'What was visible?',
+  'delivery.record.remove': 'Remove entry',
+  'delivery.record.summary': 'Summary',
+  'delivery.record.summaryPh': 'Summary for the client \u2014 written by hand on purpose, not generated',
   'delivery.path.hint':
     'The path from the programme feed to the platform — source, encoder, transport, destination',
   'delivery.path.encoder': 'Encoder in the plan',

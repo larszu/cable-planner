@@ -51,6 +51,13 @@ export type LoadDropKind =
    *  Abweichung auf ein GELOESCHTES Ziel wird dagegen NICHT verworfen — dafuer
    *  gibt es den Befund `override-orphan`. */
   | 'metadata-override'
+  /** Bedarf 87 — ein Eintrag im Sendebericht ohne Zeitpunkt oder ohne Art.
+   *  In einem Bericht ueber einen VERLAUF ist eine Zeile ohne Zeitpunkt keine
+   *  Zeile. Ein Eintrag auf ein GELOESCHTES Ziel wird dagegen nicht verworfen
+   *  — dafuer gibt es den Befund `event-orphan`, und ein spurlos
+   *  verschwundener Eintrag ueber einen Abriss waere die teuerste Luecke, die
+   *  dieser Bericht haben kann. */
+  | 'transmission-event'
 
 export interface LoadDrop {
   kind: LoadDropKind

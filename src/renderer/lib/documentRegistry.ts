@@ -29,6 +29,7 @@ import { spectrumTableForProject } from './spectrumPlan'
 import { multicastTableForProject } from './multicastPlan'
 import { fallbackTable } from './fallbackPlan'
 import { eventMetadataTable } from './eventMetadata'
+import { transmissionRecordTable } from './transmissionRecord'
 import type { CsvTable } from './csv'
 
 const ofTable =
@@ -112,6 +113,13 @@ export const DOCUMENT_STANDS: Record<string, (project: CablePlannerProject) => s
   // sie tragen Fliesstext, und ein Blatt, dessen Stand sich mit jeder
   // Umformulierung aendert, meldete jedes gedruckte Exemplar als veraltet.
   'event-metadaten': ofTable(eventMetadataTable),
+  // Bedarf 87 — der Sendebericht. Reproduzierbar: der Inhalt folgt allein aus
+  // `transmissionRecord` und den Ziel-Namen, keine Nutzer-Einstellung beim
+  // Export und keine Sprache. Die BEFUNDE stehen nicht in der Tabelle -- sie
+  // tragen Fliesstext. Die ZUSAMMENFASSUNG steht ebenfalls nicht drin: sie ist
+  // Fliesstext eines Menschen, und ein umformulierter Satz duerfte nicht jedes
+  // gedruckte Exemplar als veraltet melden.
+  sendebericht: ofTable(transmissionRecordTable),
 }
 
 /**
@@ -193,6 +201,7 @@ export const DOCUMENT_LABELS: Record<string, string> = {
   'multicast-plan': 'Multicast-Adressplan',
   'ausweich-plan': 'Ausweich-Plan (Sicherheitsnetz)',
   'event-metadaten': 'Angaben zur Veranstaltung',
+  sendebericht: 'Sendebericht',
   'job-grundlage': 'Grundlage der Übergabe',
   'videohub-labels': 'Videohub-Labels',
   'atem-mv-layout': 'Multiviewer-Layout',

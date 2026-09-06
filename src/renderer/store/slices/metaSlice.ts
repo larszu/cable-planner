@@ -34,6 +34,7 @@ export type MetaSlice = Pick<
   | 'setMulticastConfig'
   | 'setFallbackPlan'
   | 'setEventMetadata'
+  | 'setTransmissionRecord'
 >
 
 export const createMetaSlice: StateCreator<ProjectState, [], [], MetaSlice> = (set) => ({
@@ -141,6 +142,16 @@ export const createMetaSlice: StateCreator<ProjectState, [], [], MetaSlice> = (s
   setEventMetadata: (plan) =>
     set((state) => {
       const updated = { ...state.project, eventMetadata: plan }
+      scheduleProjectAutosave(updated)
+      return { project: updated }
+    }),
+  // BEDARF 87 — der Sendebericht. Wieder ein Setter fuer das ganze Objekt:
+  // Zusammenfassung und Eintraege gehoeren zusammen, und eine Zusammenfassung
+  // ohne die Eintraege, auf die sie sich bezieht, waere eine Bewertung ohne
+  // Beleg.
+  setTransmissionRecord: (record) =>
+    set((state) => {
+      const updated = { ...state.project, transmissionRecord: record }
       scheduleProjectAutosave(updated)
       return { project: updated }
     }),

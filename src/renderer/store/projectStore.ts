@@ -74,6 +74,7 @@ import { normaliseDeliveryDestinations } from '../lib/deliveryNormalise'
 import { normaliseMulticastConfig } from '../lib/multicastPlan'
 import { normaliseFallbackPlan } from '../lib/fallbackPlan'
 import { normaliseEventMetadata } from '../lib/eventMetadata'
+import { normaliseTransmissionRecord } from '../lib/transmissionRecord'
 import { normaliseVenueAnswers } from '../lib/venueAnswers'
 import { isNetworkInterfaceRole, normaliseNetworkInterface } from '../lib/networkInterfaces'
 import type { NetworkInterface } from '../types/network'
@@ -448,6 +449,9 @@ export interface ProjectState {
   setEventMetadata: (
     plan: import('../types/eventMetadata').EventMetadataPlan | undefined,
   ) => void
+  setTransmissionRecord: (
+    record: import('../types/transmissionRecord').TransmissionRecord | undefined,
+  ) => void
   /** v7.9.3 — Mobile-Viewer Check-State setzen (vom POST /checks-IPC).
    *  Komplettes Objekt-Replace damit gelöschte Checks (false → kein
    *  key) auch übernommen werden. */
@@ -648,6 +652,12 @@ const healProjectPositions = (
   const eventMetadata = normaliseEventMetadata(project.eventMetadata, (d) =>
     onDrop?.({ kind: 'metadata-override', reason: d.reason, label: d.label }),
   )
+  // Bedarf 87 — der Sendebericht. Ein Eintrag ohne Zeitpunkt oder ohne Art ist
+  // in einem Verlaufsbericht keine Zeile; ein Eintrag auf ein GELOESCHTES Ziel
+  // bleibt und bekommt `event-orphan`.
+  const transmissionRecord = normaliseTransmissionRecord(project.transmissionRecord, (d) =>
+    onDrop?.({ kind: 'transmission-event', reason: d.reason, label: d.label }),
+  )
   return {
     ...project,
     equipment: project.equipment.map((item) => {
@@ -799,6 +809,8 @@ const healProjectPositions = (
     fallback,
     // Bedarf 88 — dito: `undefined` heisst „keine Angaben zur Veranstaltung".
     eventMetadata,
+    // Bedarf 87 — dito: `undefined` heisst „kein Sendebericht gefuehrt".
+    transmissionRecord,
     // ADR-003 — Rentman-Zaehler: gesendet ist nicht bestaetigt.
     metadata: {
       ...healRentmanCableMap(project.metadata),

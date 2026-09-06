@@ -263,6 +263,15 @@ export interface CablePlannerProject {
    */
   eventMetadata?: import('./eventMetadata').EventMetadataPlan
   /**
+   * Bedarf 87 — der Sendebericht: was die Übertragung getan hat, soweit ein
+   * Mensch es aufgeschrieben hat.
+   *
+   * Ausdrücklich KEINE Telemetrie. Der Bedarf zieht die Grenze selbst
+   * („not live telemetry capture"), und jede Zeile trägt deshalb ihre
+   * Herkunft — siehe `types/transmissionRecord.ts`.
+   */
+  transmissionRecord?: import('./transmissionRecord').TransmissionRecord
+  /**
    * Bedarf 72 — der Multicast-Adressplan: aus welchem Pool vergeben wird und
    * welche Gruppe welcher Sende-Port belegt.
    *

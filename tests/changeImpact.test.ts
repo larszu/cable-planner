@@ -148,12 +148,20 @@ describe('changeImpact — die Vorwärts-Frage', () => {
     // `deliveryDestinations`. Kein Geraet wird dafuer angefasst — auch nicht
     // mittelbar, denn anders als beim `ausspielweg` wird kein Encoder-Zeiger
     // aufgeloest.
+    //
+    // `sendebericht` (Bedarf 87) steht hier mit einer Einschraenkung, die
+    // wichtig ist: die BEWERTUNG des Sendeberichts fasst sehr wohl Geraete an
+    // (sie vergleicht gegen das As-Built), aber das BLATT tut es nicht — es
+    // traegt nur die Eintraege und die Ziel-Namen. Der Stand haengt am Blatt,
+    // also gehoert der Bezeichner hierher. Wer die Abweichungen einmal MIT auf
+    // das Blatt nimmt, muss ihn wieder herausnehmen.
     const ohneGeraetebezug = new Set([
       'plan',
       'ausspielung',
       'ablaufblatt',
       'ausspielweg',
       'event-metadaten',
+      'sendebericht',
     ])
     expect(
       impact.documents.some((d) => d.verdict === 'unaffected' && !ohneGeraetebezug.has(d.docId)),

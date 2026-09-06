@@ -1491,7 +1491,9 @@ export default function App() {
                         ? t('app.loadReport.fallbackRule', 'Ausweich-Regel')
                         : d.kind === 'metadata-override'
                           ? t('app.loadReport.metadataOverride', 'Abweichung der Veranstaltungsangaben')
-                          : t('app.loadReport.sourceIdentity', 'Signalquelle')}
+                          : d.kind === 'transmission-event'
+                            ? t('app.loadReport.transmissionEvent', 'Eintrag im Sendebericht')
+                            : t('app.loadReport.sourceIdentity', 'Signalquelle')}
                 {d.label ? ` „${d.label}"` : ''}
                 {' — '}
                 {d.reason === 'duplicate-id'
