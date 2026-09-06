@@ -32,6 +32,7 @@ import {
   type TemplateScope,
 } from '../../lib/templateScope'
 import { venueScopeDialog } from '../../lib/venueScopeDialog'
+import { JOB_BASIS_LABEL } from '../../lib/jobHandover'
 
 export const TemplatesDialog = () => {
   const t = useTranslation()
@@ -161,6 +162,23 @@ export const TemplatesDialog = () => {
           {format(t('templates.venue', 'Haus-Vorlage: {venue} · {n} Antworten'), {
             venue: tpl.venue,
             n: tpl.project.metadata?.venueAnswers?.length ?? 0,
+          })}
+        </div>
+      )}
+      {/* BEDARF 84 — woraus die Vorlage gemacht wurde. Steht auf der Karte,
+          weil es hier über ihren Wert entscheidet: eine aus dem Angebot
+          gemachte Vorlage bringt nächstes Jahr genau die Fixes NICHT mit, um
+          derentwillen jemand sie aufmacht. */}
+      {tpl.basis && (
+        <div
+          className={`text-[10px] ${
+            tpl.basis === 'as-built'
+              ? 'text-[var(--cp-text-muted)]'
+              : 'text-amber-300/90'
+          }`}
+        >
+          {format(t('templates.basis', 'Grundlage: {basis}'), {
+            basis: JOB_BASIS_LABEL[tpl.basis],
           })}
         </div>
       )}

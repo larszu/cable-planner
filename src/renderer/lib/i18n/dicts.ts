@@ -4255,6 +4255,11 @@ export const en: Dict = {
   'analysis.crew.title': 'Network briefing sheet for the crew',
   'analysis.crew.ask': '{n} points to settle on site',
   'analysis.crew.export': 'Crew network sheet',
+  // Bedarf 84 — woraus naechstes Jahr geplant wuerde.
+  'docs.job.title': 'Basis of this handover',
+  'docs.job.intro':
+    'Next year the same event will be planned from this file. If it carries the plan from before load-in, every on-site change gets rediscovered.',
+  'templates.basis': 'Basis: {basis}',
   // Bedarf 78 — welche Kiste welchen Platz fuellt.
   'analysis.asset.title': 'Which box fills which slot',
   'analysis.asset.intro':
