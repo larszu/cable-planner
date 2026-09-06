@@ -86,6 +86,7 @@ import {
 import type { VenueAnswerStatus } from '../../types/venueAnswer'
 import { RF_BANDS, bandsForFrequency, bandLabel } from '../../lib/rfBands'
 import { PTP_FINDING_LABEL, buildPtpPlan, ptpTable } from '../../lib/ptpPlan'
+import { SegmentsPanel } from '../Network/SegmentsPanel'
 import { CREW_SECTION_LABEL, buildCrewSheet, crewSheetTable } from '../../lib/crewNetworkSheet'
 import {
   MULTICAST_ESSENCE_LABEL,
@@ -725,6 +726,11 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
           {vlanCounts.map((v) => `VLAN ${v.id} (${v.count})`).join(' · ')}
         </p>
       )}
+      {/* BEDARF 116 — die Segmente. Sie stehen ZWISCHEN der VLAN-Zeile
+          darueber (welche Ids kommen vor) und den Subnetzen darunter: erst
+          die Zahl, dann ihre Bedeutung, dann die Adressen. */}
+      <SegmentsPanel projectName={projectName} />
+
       {/* #346 — IPAM: Subnetz-Übersicht. */}
       {subnets.length > 0 && (
         <div className="rounded border border-[var(--cp-border-muted)] bg-[var(--cp-surface-3)] p-2 text-cp-xs">

@@ -3490,6 +3490,24 @@ export const en: Dict = {
   'channelList.view.stage': 'Stage (position)',
   'channelList.view.console': 'Console (names)',
   'channelList.view.monitor': 'Monitor paths',
+  // Bedarf 116 — die Segmente: welche VLAN wofuer da ist.
+  'segment.title': 'Segments (VLAN, purpose, timing, way in)',
+  'segment.hint':
+    'A VLAN number alone tells nobody whether Dante may go there. The purpose is not guessed \u2014 it decides which interface is in the wrong place.',
+  'segment.adopt': 'Adopt {n} VLAN(s) from the plan',
+  'segment.export': 'Segments',
+  'segment.exportReach': 'Who sits where',
+  'segment.empty': 'No VLAN id assigned to an interface yet.',
+  'segment.notKept': 'not recorded',
+  'segment.namePh': 'Dante Prim',
+  'segment.noGateway': 'reachable only from inside',
+  'segment.remove': 'Remove segment record',
+  'segment.col.vlan': 'VLAN',
+  'segment.col.name': 'Segment',
+  'segment.col.purpose': 'Purpose',
+  'segment.col.ptp': 'PTP domain',
+  'segment.col.gateway': 'Way in',
+  'segment.col.members': 'Interfaces',
   // Bedarf 105 — das Tally je Position: Weg, Lampe, und was zu sehen war.
   'tallyPos.title': 'Pre-show check: path, lamp, and what was seen',
   'tallyPos.hint':
