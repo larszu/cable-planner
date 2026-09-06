@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { v4 as uuidv4 } from 'uuid'
 import { STORAGE_KEYS } from '../lib/storageKeys'
-import type { CheckoutLine, CheckoutRecord } from '../types/checkout'
+import type { CheckoutDamage, CheckoutLine, CheckoutRecord } from '../types/checkout'
 import {
   buildCheckout,
   closeCheckout,
@@ -112,7 +112,13 @@ interface CheckoutState {
    * ABGELEITET und gegen die Ausgabeliste gehalten; der Unterschied landet im
    * Beleg, statt still verrechnet zu werden.
    */
-  checkIn: (snap: InventorySnapshotIn, recordId: string, note?: string) => void
+  checkIn: (
+    snap: InventorySnapshotIn,
+    recordId: string,
+    note?: string,
+    /** Schaeden, beim Einchecken aufgenommen (Bedarf 68). */
+    damaged?: CheckoutDamage[],
+  ) => void
   /** Einen Beleg loeschen (Fehleingabe). Die Historie hat sonst kein Ventil. */
   removeRecord: (recordId: string) => void
 }
@@ -137,7 +143,7 @@ export const useCheckoutStore = create<CheckoutState>((set, get) => ({
     return undefined
   },
 
-  checkIn: (snap, recordId, note) =>
+  checkIn: (snap, recordId, note, damaged) =>
     set((state) => {
       const at = new Date().toISOString()
       const records = state.records.map((r) =>
@@ -145,7 +151,7 @@ export const useCheckoutStore = create<CheckoutState>((set, get) => ({
         // Rueckgabe-Liste soll sagen, ob etwas heute schon ueberfaellig ist,
         // nicht ob es das am Ausgabetag war.
         r.id === recordId && !r.in
-          ? closeCheckout(r, containerContents(snap, r.nodeId, at.slice(0, 10)), at, note)
+          ? closeCheckout(r, containerContents(snap, r.nodeId, at.slice(0, 10)), at, note, damaged)
           : r,
       )
       persist(records)

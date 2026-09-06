@@ -99,6 +99,40 @@ export interface CheckoutOut {
   note?: string
 }
 
+/**
+ * Ein Schaden, festgehalten in dem Moment, in dem das Objekt in der Hand ist
+ * (Bedarf 68, P2).
+ *
+ * Der Bedarf sagt, WO das hingehoert und WAS daran wertvoll ist:
+ *
+ *   > Damage capture belongs on the device already in their hand AT CHECK-IN,
+ *   > and the valuable field is THE ATTRIBUTION (job, person, time,
+ *   > container), not the photo. Feeds the invoice-or-absorb decision
+ *   > directly.
+ *
+ * Und was heute stattdessen passiert: „Damage evidence is photos in a WhatsApp
+ * thread plus a paper condition form; the load-out list was ticked in the dark
+ * or does not exist. With 24-hour reporting windows commonly cited, an
+ * undocumented load-out becomes an UNCHARGED, UNATTRIBUTABLE loss."
+ *
+ * Die Zuordnung steht NICHT in diesem Objekt. Sie steht im Vorgang, an dem es
+ * haengt -- Job (`out.projectName`), Person (`out.to`), Zeit (`in.at`),
+ * Container (`nodeLabel`) -- und wird von `lib/damageRegister.ts` daraus
+ * abgeleitet. Sie hier zu wiederholen ergaebe vier Felder, die von der
+ * ersten Korrektur am Vorgang an falsch waeren.
+ *
+ * KEIN FOTO. Der Bedarf sagt ausdruecklich, dass es nicht das Wertvolle ist,
+ * und ein Bild im Projekt-Zustand waere ein Anhang-Verwaltungsproblem, das
+ * hier nichts zu suchen hat.
+ */
+export interface CheckoutDamage {
+  /** Die betroffene Zeile der Ausgabeliste — eingefroren wie sie ausging. */
+  line: CheckoutLine
+  /** Was kaputt ist, im Klartext. Ohne Text kein Eintrag: „beschaedigt" ohne
+   *  Angabe hilft weder der Werkstatt noch der Rechnung. */
+  note: string
+}
+
 /** Der Vorgang der Rueckgabe, mit dem Unterschied zur Ausgabe. */
 export interface CheckoutIn {
   at: string
@@ -106,6 +140,14 @@ export interface CheckoutIn {
   missing: CheckoutLine[]
   /** Was zurueckkam, ohne auf der Ausgabeliste zu stehen. */
   extra: CheckoutLine[]
+  /**
+   * Was zurueckkam und beschaedigt war (Bedarf 68).
+   *
+   * Getrennt von `missing`: ein beschaedigtes Objekt IST da. Es unter die
+   * Fehlmengen zu schreiben waere zweimal falsch — die Rueckgabe saehe
+   * unvollstaendig aus, und der Schaden waere als Verlust verbucht.
+   */
+  damaged?: CheckoutDamage[]
   note?: string
 }
 

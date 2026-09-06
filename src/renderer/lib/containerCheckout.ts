@@ -20,7 +20,7 @@ import type {
   InventoryUnit,
   StorageNode,
 } from '../types/inventory'
-import type { CheckoutLine, CheckoutRecord } from '../types/checkout'
+import type { CheckoutDamage, CheckoutLine, CheckoutRecord } from '../types/checkout'
 import { descendantNodeIds, isContainerKind, nodePathLabel } from './storageTree'
 import type { CsvCell, CsvTable } from './csv'
 import { ownershipNote } from './ownership'
@@ -211,9 +211,25 @@ export const closeCheckout = (
   jetzt: CheckoutLine[],
   at: string,
   note?: string,
+  /** Schaeden, die beim Einchecken aufgenommen wurden (Bedarf 68). Getrennt
+   *  von den Fehlmengen: ein beschaedigtes Objekt IST da. */
+  damaged?: CheckoutDamage[],
 ): CheckoutRecord => {
   const { missing, extra } = checkinDifference(record, jetzt)
-  return { ...record, in: { at, missing, extra, ...(note ? { note } : {}) } }
+  // Ohne Text kein Eintrag: „beschaedigt" ohne Angabe hilft weder der
+  // Werkstatt noch der Rechnung, und eine leere Zeile im Beleg sieht aus wie
+  // eine Aussage.
+  const echte = (damaged ?? []).filter((d) => d.note.trim().length > 0)
+  return {
+    ...record,
+    in: {
+      at,
+      missing,
+      extra,
+      ...(echte.length > 0 ? { damaged: echte.map((d) => ({ ...d, note: d.note.trim() })) } : {}),
+      ...(note ? { note } : {}),
+    },
+  }
 }
 
 /** Offene Vorgaenge (noch nicht zurueck). */
