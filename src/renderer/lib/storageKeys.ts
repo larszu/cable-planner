@@ -30,6 +30,17 @@ export const STORAGE_KEYS = {
   settings: 'cable-planner:settings',
   /** Inventory-Store (Phase 2 — zentraler, planübergreifender Bestand). */
   inventory: 'cable-planner:inventory',
+  /**
+   * Bedarf 15 — Ausgabe-/Rueckgabe-Belege der Container.
+   *
+   * EIGENER KEY, nicht im Inventory-Blob. Der Bestand ist ein Katalog und
+   * wandert per `avplan-inventory` zwischen den drei Apps; ein Ausgabe-Beleg
+   * ist Betriebszustand EINES Lagers und hat dort nichts zu suchen. Ihn in
+   * den Envelope zu legen hiesse, das in allen drei Repos byte-identisch
+   * eingefrorene Format zu brechen, damit multicam und light ein Feld
+   * durchreichen, das sie nie fuellen.
+   */
+  checkouts: 'cable-planner:checkouts',
   /** ATEM-Switcher Discovery-Cache. */
   rentmanTemplateCacheV1: 'cable-planner:rentmanTemplateCache:v1',
   /** NetBox device-type-library Index-Cache. */

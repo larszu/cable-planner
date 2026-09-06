@@ -20,6 +20,8 @@ import {
   Camera,
   Download,
   Upload,
+  Truck,
+  AlertTriangle,
 } from 'lucide-react'
 import QRCode from 'qrcode'
 import { ModalShell } from '../shared/ModalShell'
@@ -45,6 +47,17 @@ import type {
   PhysicalDimensions,
   SetComponent,
 } from '../../types/inventory'
+import { useCheckoutStore } from '../../store/checkoutStore'
+import {
+  containerContents,
+  checkoutSheet,
+  discrepancyTable,
+  openCheckoutsTable,
+  overdueCheckouts,
+  type CheckoutRefusal,
+} from '../../lib/containerCheckout'
+import { toCsv } from '../../lib/csv'
+import { downloadBlob } from '../../lib/downloadBlob'
 import {
   nodePathLabel,
   itemsInNode,
@@ -86,7 +99,7 @@ export interface InventoryDialogProps {
   onClose: () => void
 }
 
-type Tab = 'items' | 'locations' | 'units' | 'sets' | 'labels' | 'reports'
+type Tab = 'items' | 'locations' | 'units' | 'sets' | 'checkout' | 'labels' | 'reports'
 type ItemFormState = InventoryItemInput & { id?: string }
 
 const inputCls = 'mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-1.5'
@@ -123,6 +136,9 @@ export const InventoryDialog = ({ open, onClose }: InventoryDialogProps) => {
   const removeItem = useInventoryStore((s) => s.removeItem)
   const seedFromEquipment = useInventoryStore((s) => s.seedFromEquipment)
   const exportSnapshot = useInventoryStore((s) => s.exportSnapshot)
+  // Bedarf 15 — die Zahl am Reiter ist die Zahl der offenen Vorgaenge. Ein
+  // Reiter, der nicht sagt, dass drei Cases draussen sind, wird nicht geoeffnet.
+  const offeneAusgaben = useCheckoutStore((s) => s.records.filter((r) => !r.in).length)
   const importSnapshot = useInventoryStore((s) => s.importSnapshot)
   const equipment = useProjectStore((s) => s.project.equipment)
 
@@ -446,6 +462,7 @@ export const InventoryDialog = ({ open, onClose }: InventoryDialogProps) => {
             { id: 'locations' as Tab, icon: Warehouse, label: format(t('inventory.tabLocations', 'Lagerorte ({n})'), { n: nodes.length }) },
             { id: 'units' as Tab, icon: Tags, label: format(t('inventory.tabUnits', 'Einheiten ({n})'), { n: units.length }) },
             { id: 'sets' as Tab, icon: Layers, label: format(t('inventory.tabSets', 'Sets ({n})'), { n: sets.length }) },
+            { id: 'checkout' as Tab, icon: Truck, label: format(t('inventory.tabCheckout', 'Ausgabe ({n})'), { n: offeneAusgaben }) },
             { id: 'labels' as Tab, icon: QrCodeIcon, label: t('inventory.tabLabels', 'Labels') },
             { id: 'reports' as Tab, icon: BarChart3, label: t('inventory.tabReports', 'Auswertung') },
           ]).map((tb) => (
@@ -659,6 +676,7 @@ export const InventoryDialog = ({ open, onClose }: InventoryDialogProps) => {
         {tab === 'locations' && <LocationsTab dimsEditor={dimsEditor} formatDims={formatDims} codeCell={codeCell} />}
         {tab === 'units' && <UnitsTab codeCell={codeCell} />}
         {tab === 'sets' && <SetsTab />}
+        {tab === 'checkout' && <CheckoutTab />}
         {tab === 'labels' && <LabelsTab />}
         {tab === 'reports' && <ReportsTab />}
 
@@ -1489,6 +1507,267 @@ const LabelsTab = () => {
 }
 
 // ── Reports-Tab ──────────────────────────────────────────────────────────────
+// ───────────────────────────────────────────────────────────────────────────
+// Bedarf 15 — Ausgabe und Rueckgabe auf Container-Ebene.
+//
+// EIN Knopf gibt das Transport-Case samt allem darin aus; der Inhalt folgt
+// mit, weil er im Baum haengt und nicht angefasst wird. Genau das ist der
+// Unterschied zu der halben Stunde Klickerei, die snipe-it#9517 beschreibt.
+//
+// KEIN DOKUMENT-STEMPEL auf diesen Blaettern. Der Stempel (ADR-004) bindet
+// ein Blatt an einen PLAN-Stand; ein Ausgabeschein haengt am Lager und nicht
+// am geoeffneten Projekt. Einen Plan-Fingerabdruck daraufzuschreiben waere
+// eine Aussage ueber etwas, das dieses Blatt nicht beschreibt.
+// ───────────────────────────────────────────────────────────────────────────
+const CheckoutTab = () => {
+  const t = useTranslation()
+  const items = useInventoryStore((s) => s.items)
+  const nodes = useInventoryStore((s) => s.nodes)
+  const units = useInventoryStore((s) => s.units)
+  const records = useCheckoutStore((s) => s.records)
+  const checkOut = useCheckoutStore((s) => s.checkOut)
+  const checkIn = useCheckoutStore((s) => s.checkIn)
+  const removeRecord = useCheckoutStore((s) => s.removeRecord)
+
+  const [nodeId, setNodeId] = useState('')
+  const [to, setTo] = useState('')
+  const [projectName, setProjectName] = useState('')
+  const [dueBack, setDueBack] = useState('')
+  const [refusal, setRefusal] = useState<CheckoutRefusal | null>(null)
+
+  const snap = useMemo(() => ({ items, nodes, units }), [items, nodes, units])
+  const container = useMemo(() => nodes.filter((n) => isContainerKind(n.kind)), [nodes])
+  const offen = useMemo(() => records.filter((r) => !r.in), [records])
+  const zurueck = useMemo(() => records.filter((r) => r.in), [records])
+  // Der Stichtag kommt EINMAL aus der Uhr und wird durchgereicht — sonst
+  // beantwortet dieselbe Zeile in zwei Zellen zwei verschiedene Tage.
+  const heute = new Date().toISOString().slice(0, 10)
+  const ueberfaellig = useMemo(() => new Set(overdueCheckouts(records, heute).map((r) => r.id)), [records, heute])
+
+  // Was WUERDE rausgehen — vor dem Klick sichtbar. Ein Knopf, der ungesehen
+  // vierzig Positionen ausbucht, wird beim ersten Fehlgriff nicht mehr benutzt.
+  const vorschau = useMemo(
+    () => (nodeId ? containerContents(snap, nodeId) : []),
+    [snap, nodeId],
+  )
+
+  const ausgeben = () => {
+    if (!nodeId || !to.trim()) return
+    const r = checkOut(snap, nodeId, {
+      to: to.trim(),
+      ...(projectName.trim() ? { projectName: projectName.trim() } : {}),
+      ...(dueBack ? { dueBack } : {}),
+    })
+    setRefusal(r ?? null)
+    if (!r) {
+      setNodeId('')
+      setTo('')
+      setProjectName('')
+      setDueBack('')
+    }
+  }
+
+  const refusalLabel = (r: CheckoutRefusal): string => {
+    switch (r) {
+      case 'not-a-container':
+        return t('inventory.checkout.notContainer', 'Kein Container: nur Cases und Transport-Cases lassen sich ausgeben')
+      case 'already-out':
+        return t('inventory.checkout.alreadyOut', 'Bereits ausgegeben')
+      case 'inside-checked-out':
+        return t('inventory.checkout.insideOut', 'Liegt in einem bereits ausgegebenen Container')
+      case 'unknown-node':
+        return t('inventory.checkout.unknownNode', 'Unbekannter Lager-Knoten')
+    }
+  }
+
+  const csv = (name: string, table: { headers: string[]; rows: (string | number | null | undefined)[][] }) =>
+    downloadBlob(name, toCsv(table.headers, table.rows), 'text/csv')
+
+  return (
+    <div className="space-y-3">
+      <p className="text-cp-sm leading-snug text-cp-text-secondary">
+        {t(
+          'inventory.checkout.intro',
+          'Ein Container geht als Ganzes raus — was darin liegt, folgt über alle Ebenen mit. Die Ausgabe hält fest, was tatsächlich drin war; bei der Rückgabe wird verglichen und die Abweichung berichtet, nicht stillschweigend verrechnet.',
+        )}
+      </p>
+
+      {/* Ausgeben */}
+      <div className="rounded border border-cp-border bg-cp-surface-2 p-2.5">
+        <div className="mb-2 flex flex-wrap items-center gap-2">
+          <select
+            value={nodeId}
+            onChange={(e) => {
+              setNodeId(e.target.value)
+              setRefusal(null)
+            }}
+            aria-label={t('inventory.checkout.container', 'Container')}
+            className="rounded border border-cp-border bg-cp-surface-3 p-1.5"
+          >
+            <option value="">{t('inventory.checkout.pick', '— Container wählen —')}</option>
+            {container.map((n) => (
+              <option key={n.id} value={n.id}>
+                {nodePathLabel(nodes, n.id)}
+              </option>
+            ))}
+          </select>
+          <input
+            value={to}
+            onChange={(e) => setTo(e.target.value)}
+            placeholder={t('inventory.checkout.to', 'An (Person, Truck, Kunde)')}
+            aria-label={t('inventory.checkout.to', 'An (Person, Truck, Kunde)')}
+            className="min-w-[12rem] rounded border border-cp-border bg-cp-surface-3 p-1.5"
+          />
+          <input
+            value={projectName}
+            onChange={(e) => setProjectName(e.target.value)}
+            placeholder={t('inventory.checkout.show', 'Show (optional)')}
+            aria-label={t('inventory.checkout.show', 'Show (optional)')}
+            className="min-w-[10rem] rounded border border-cp-border bg-cp-surface-3 p-1.5"
+          />
+          <label className="flex items-center gap-1.5 text-cp-text-secondary">
+            {t('inventory.checkout.dueBack', 'Zurück bis')}
+            <input
+              type="date"
+              value={dueBack}
+              onChange={(e) => setDueBack(e.target.value)}
+              className="rounded border border-cp-border bg-cp-surface-3 p-1.5"
+            />
+          </label>
+          <button
+            type="button"
+            onClick={ausgeben}
+            disabled={!nodeId || !to.trim()}
+            className="flex items-center gap-1 rounded border border-cp-border px-2.5 py-1 text-cp-text-secondary hover:text-cp-text disabled:opacity-40"
+          >
+            <Truck size={13} /> {t('inventory.checkout.doOut', 'Ausgeben')}
+          </button>
+        </div>
+
+        {refusal && (
+          <div className="flex items-start gap-1 text-cp-danger">
+            <AlertTriangle size={12} className="mt-0.5 flex-none" />
+            <span>{refusalLabel(refusal)}</span>
+          </div>
+        )}
+
+        {nodeId && !refusal && (
+          <div className="text-cp-text-muted">
+            {vorschau.length === 0
+              ? t('inventory.checkout.empty', 'Dieser Container ist leer — es ginge nichts raus.')
+              : format(t('inventory.checkout.preview', '{n} Positionen gehen mit: {list}'), {
+                  n: vorschau.length,
+                  list: vorschau.slice(0, 8).map((l) => l.label).join(', ') + (vorschau.length > 8 ? ' …' : ''),
+                })}
+          </div>
+        )}
+      </div>
+
+      {/* Offene Vorgaenge */}
+      <div className="rounded border border-cp-border">
+        <div className="flex items-center justify-between border-b border-cp-border-muted bg-cp-surface-2 px-2 py-1">
+          <span className="font-medium">
+            {format(t('inventory.checkout.openTitle', 'Draußen ({n})'), { n: offen.length })}
+          </span>
+          <button
+            type="button"
+            disabled={offen.length === 0}
+            onClick={() => csv('ausgaben-offen.csv', openCheckoutsTable(records, nodes, heute))}
+            className="flex items-center gap-1 text-cp-text-secondary hover:text-cp-text disabled:opacity-40"
+          >
+            <Download size={12} /> CSV
+          </button>
+        </div>
+        {offen.length === 0 ? (
+          <div className="px-2 py-1.5 text-cp-text-muted">{t('inventory.checkout.nothingOut', 'Nichts draußen.')}</div>
+        ) : (
+          <table className="w-full text-left">
+            <tbody>
+              {offen.map((r) => (
+                <tr key={r.id} className="border-t border-cp-border-muted align-top">
+                  <td className="px-2 py-1">
+                    <div className="font-medium text-cp-text">{r.nodeLabel}</div>
+                    <div className="text-cp-text-muted">
+                      {format(t('inventory.checkout.outLine', 'an {to} · {n} Positionen'), {
+                        to: r.out.to,
+                        n: r.contents.length,
+                      })}
+                      {r.out.projectName ? ` · ${r.out.projectName}` : ''}
+                    </div>
+                  </td>
+                  <td className="px-2 py-1 text-cp-text-secondary">
+                    {r.out.dueBack ?? '—'}
+                    {ueberfaellig.has(r.id) && (
+                      <span className="ml-1 text-cp-danger">{t('inventory.checkout.overdue', 'überfällig')}</span>
+                    )}
+                  </td>
+                  <td className="px-2 py-1 text-right">
+                    <button
+                      type="button"
+                      onClick={() => csv(`ausgabeschein-${r.nodeLabel}.csv`, checkoutSheet(r))}
+                      className="mr-2 text-cp-text-secondary hover:text-cp-text"
+                    >
+                      {t('inventory.checkout.sheet', 'Schein')}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => checkIn(snap, r.id)}
+                      className="mr-2 text-cp-text-secondary hover:text-cp-text"
+                    >
+                      {t('inventory.checkout.doIn', 'Zurückbuchen')}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => removeRecord(r.id)}
+                      aria-label={t('inventory.checkout.remove', 'Beleg löschen')}
+                      className="text-cp-text-faint hover:text-cp-danger"
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+
+      {/* Rueckgabe-Befunde — nur die mit Abweichung. Ein Blatt, auf dem auch
+          die glatten Rueckgaben stehen, wird nicht gelesen. */}
+      {zurueck.some((r) => r.in!.missing.length > 0 || r.in!.extra.length > 0) && (
+        <div className="rounded border border-cp-warn/40">
+          <div className="flex items-center justify-between border-b border-cp-border-muted bg-cp-surface-2 px-2 py-1">
+            <span className="flex items-center gap-1.5 font-medium">
+              <AlertTriangle size={13} /> {t('inventory.checkout.discrepancy', 'Rückgabe-Befunde')}
+            </span>
+            <button
+              type="button"
+              onClick={() => csv('rueckgabe-befunde.csv', discrepancyTable(records))}
+              className="flex items-center gap-1 text-cp-text-secondary hover:text-cp-text"
+            >
+              <Download size={12} /> CSV
+            </button>
+          </div>
+          <ul className="flex flex-col gap-0.5 px-2 py-1.5">
+            {zurueck
+              .filter((r) => r.in!.missing.length > 0 || r.in!.extra.length > 0)
+              .map((r) => (
+                <li key={r.id} className="text-cp-warn">
+                  {format(t('inventory.checkout.discrepancyLine', '{node} (an {to}): {missing} fehlen, {extra} zusätzlich'), {
+                    node: r.nodeLabel,
+                    to: r.out.to,
+                    missing: r.in!.missing.length,
+                    extra: r.in!.extra.length,
+                  })}
+                </li>
+              ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  )
+}
+
 const ReportsTab = () => {
   const t = useTranslation()
   const items = useInventoryStore((s) => s.items)
