@@ -3442,12 +3442,18 @@ export const en: Dict = {
   'patchList.labelCsv.brother': 'Brother P-touch (TXT)',
   'patchList.labelCsv.dymo': 'Dymo (CSV)',
   // #353 Audio input list
-  'patchList.exportInputList': '🎚 Input list',
-  'inputList.col.ch': 'Ch',
-  'inputList.col.source': 'Source',
-  'inputList.col.port': 'Port',
-  'inputList.col.connector': 'Connector',
-  'inputList.col.toDevice': 'To device',
+  /* Bedarf 37 — eine Kanalliste, fuenf Sichten. Keys: channelList.*
+     Die alten `patchList.exportInputList` und `inputList.col.*` sind weg: die
+     Eingangsliste war EINE Sicht von fuenf und baute ihre Spalten im Dialog. */
+  'channelList.view': 'View of the channel list',
+  'channelList.view.band': 'Band (rider)',
+  'channelList.view.venue': 'Venue (patch)',
+  'channelList.view.stage': 'Stage (position)',
+  'channelList.view.console': 'Console (names)',
+  'channelList.view.monitor': 'Monitor paths',
+  'channelList.export': '🎚 Channel list',
+  'channelList.exportHint':
+    'The same channel list, cut for this reader. The monitor view shows paths, not mix contents \u2014 the plan does not know those.',
   // #314 Replace device section
   'replaceDevice.title': 'Replace device',
   'replaceDevice.subtitle': 'Preserve cabling',
