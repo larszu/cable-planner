@@ -3666,6 +3666,15 @@ export const en: Dict = {
   'inventory.checkout.damageTitleList': 'Damage ({n})',
   'inventory.checkout.damageLine': '{at} · {label}: {note} — {job}, out to {person} ({container})',
   'inventory.checkout.damageTally': 'Concentration by who it went out to: {list}',
+  // Bedarf 66 — Inventur mit „am falschen Ort" als eigenem Ergebnis.
+  'inventory.auditStart': 'Stock-take at this location',
+  'inventory.auditTitle': 'Stock-take: {name}',
+  'inventory.auditPh': 'Scan a code — a location label switches the location',
+  'inventory.auditEmpty': 'Nothing scanned yet.',
+  'inventory.auditExpected': 'expected in {ort}',
+  'inventory.auditAdopt': 'Adopt location ({n})',
+  'inventory.auditAdoptHint':
+    'Writes this location onto every object found in the wrong place — the records then follow what is actually here',
   'inventory.notes': 'Note',
   'inventory.empty': 'No inventory items yet. Add some or import them from the plan.',
   'inventory.noMatch': 'No items match the search.',

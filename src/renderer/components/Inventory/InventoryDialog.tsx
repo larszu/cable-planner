@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   Plus,
   Pencil,
@@ -51,6 +51,8 @@ import { useCheckoutStore } from '../../store/checkoutStore'
 import { ownershipNote, overdueSubhire, subhireStatus } from '../../lib/ownership'
 import type { CheckoutDamage, CheckoutRecord } from '../../types/checkout'
 import { damageEntries, damageTable, damageTally } from '../../lib/damageRegister'
+import { AUDIT_LABEL, auditRelocations, auditScan, auditTable, type AuditHit } from '../../lib/inventoryAudit'
+import { keepScreenAwake } from '../../lib/wakeLock'
 import {
   containerContents,
   checkoutSheet,
@@ -812,8 +814,63 @@ const LocationsTab = ({ dimsEditor, formatDims, codeCell }: LocationsTabProps) =
   const updateNode = useInventoryStore((s) => s.updateNode)
   const moveNode = useInventoryStore((s) => s.moveNode)
   const removeNode = useInventoryStore((s) => s.removeNode)
+  const updateItem = useInventoryStore((s) => s.updateItem)
+  // `moveUnit` statt `updateUnit`: ein Ortswechsel gehoert in die Historie der
+  // Einheit. Ein stilles Feld-Schreiben liesse die Frage „wann kam die
+  // hierher?" unbeantwortet — und genau die stellt jemand drei Wochen spaeter.
+  const moveUnit = useInventoryStore((s) => s.moveUnit)
   // Der Stichtag kommt EINMAL aus der Uhr und wird durchgereicht.
   const heuteIso = new Date().toISOString().slice(0, 10)
+
+  // ── BEDARF 66 + die Restreibung aus Bedarf 69 ────────────────────────────
+  //
+  // Der Ort steht FEST, bevor der erste Artikel gescannt wird -- „the scan
+  // resolves to the company default warehouse rather than where the stock is"
+  // ist genau der Fehler, den das verhindert.
+  const [auditNode, setAuditNode] = useState('')
+  const [auditDraft, setAuditDraft] = useState('')
+  const [auditHits, setAuditHits] = useState<AuditHit[]>([])
+
+  // Bedarf 69: waehrend inventiert wird, bleibt der Bildschirm an. Die Sperre
+  // haengt am geoeffneten Panel und endet mit ihm.
+  useEffect(() => {
+    if (!auditNode) return
+    const awake = keepScreenAwake()
+    return () => awake.release()
+  }, [auditNode])
+
+  const auditScanNow = () => {
+    const roh = auditDraft.trim()
+    if (!roh || !auditNode) return
+    const hit = auditScan(roh, auditNode, { items, nodes, units })
+    // Ein Lagerort-Etikett wechselt den KONTEXT, statt als Fehltreffer zu
+    // gelten: wer das Case-Etikett scannt, meint fast immer „ich stehe jetzt
+    // hier". Das ist die location-context-first-Regel im Betrieb.
+    if (hit.outcome === 'is-a-location') {
+      const ziel = nodes.find((n) => (n.code ?? '').trim().toLowerCase() === roh.toLowerCase())
+      if (ziel) {
+        setAuditNode(ziel.id)
+        setAuditHits([])
+        setAuditDraft('')
+        return
+      }
+    }
+    // Neueste oben: wer scannt, schaut auf die letzte Zeile.
+    setAuditHits((h) => [hit, ...h])
+    setAuditDraft('')
+  }
+
+  /** Den TATSAECHLICHEN Ort uebernehmen — der Beleg verlangt genau das.
+   *  Schreibend, deshalb ein eigener Klick und nicht automatisch. */
+  const auditAdopt = () => {
+    for (const r of auditRelocations(auditHits)) {
+      if (r.itemId) updateItem(r.itemId, { locationId: auditNode })
+      if (r.unitId) moveUnit(r.unitId, auditNode, nodePathLabel(nodes, auditNode))
+    }
+    // Nach dem Uebernehmen stimmt die Liste nicht mehr: sie behauptete einen
+    // Widerspruch, den es nicht mehr gibt.
+    setAuditHits([])
+  }
 
   const handlePackList = async (node: StorageNode) => {
     const list = derivePackList(node.id, { items, nodes, units }, heuteIso)
@@ -935,6 +992,17 @@ const LocationsTab = ({ dimsEditor, formatDims, codeCell }: LocationsTabProps) =
                 </button>
               </>
             )}
+            {/* BEDARF 66 — „verify this rack". Der Knopf sitzt an JEDER
+                Lagerstelle, nicht nur an Containern: ein Regal wird genauso
+                inventiert wie ein Case, und die Frage ist dieselbe. */}
+            <button
+              type="button"
+              onClick={() => setAuditNode(auditNode === node.id ? '' : node.id)}
+              className="rounded p-1 text-cp-text-muted hover:bg-cp-surface-4 hover:text-cp-text"
+              title={t('inventory.auditStart', 'Inventur an diesem Ort')}
+            >
+              <ScanLine size={13} />
+            </button>
             <button
               type="button"
               onClick={() => setForm({ name: '', kind: container ? 'case' : 'shelf', parentId: node.id })}
@@ -951,6 +1019,89 @@ const LocationsTab = ({ dimsEditor, formatDims, codeCell }: LocationsTabProps) =
             </button>
           </div>
         </div>
+
+        {/* BEDARF 66 — die Inventur an DIESEM Ort. Zwei Farben („im Bestand /
+            nicht im Bestand") beantworten die Frage nicht, die im Lager
+            gestellt wird: fast alles ist im Bestand, und „am falschen Ort" ist
+            nach jedem Load-out der Normalfall, nicht die Ausnahme. */}
+        {auditNode === node.id && (
+          <div
+            style={{ marginLeft: depth * 16 + 22 }}
+            className="mb-1 mt-1 rounded border border-cp-accent/40 bg-cp-surface-2 p-2"
+          >
+            <div className="mb-1.5 flex flex-wrap items-center gap-2">
+              <span className="font-medium text-cp-text">
+                {format(t('inventory.auditTitle', 'Inventur: {name}'), { name: node.name })}
+              </span>
+              <input
+                value={auditDraft}
+                onChange={(e) => setAuditDraft(e.target.value)}
+                onKeyDown={(e) => {
+                  // Enter scannt weiter, statt ein Formular abzuschicken
+                  // (Bedarf 69, snipe-it#17057). Das Feld leert sich selbst —
+                  // der naechste Code kann sofort kommen.
+                  if (e.key === 'Enter') auditScanNow()
+                }}
+                autoFocus
+                placeholder={t('inventory.auditPh', 'Code scannen — Lagerort-Etikett wechselt den Ort')}
+                className="min-w-[14rem] flex-1 rounded border border-cp-border bg-cp-surface-3 px-2 py-1"
+              />
+              <button
+                type="button"
+                disabled={auditHits.length === 0}
+                onClick={() => {
+                  const t2 = auditTable(auditHits, nodes, node.id)
+                  downloadBlob(`inventur-${node.name}.csv`, toCsv(t2.headers, t2.rows), 'text/csv')
+                }}
+                className="flex items-center gap-1 text-cp-text-secondary hover:text-cp-text disabled:opacity-40"
+              >
+                <Download size={12} /> CSV
+              </button>
+              <button
+                type="button"
+                disabled={auditRelocations(auditHits).length === 0}
+                onClick={auditAdopt}
+                title={t(
+                  'inventory.auditAdoptHint',
+                  'Schreibt diesen Ort auf alle am falschen Ort gefundenen Objekte — der Bestand folgt damit dem, was tatsächlich hier liegt',
+                )}
+                className="rounded border border-cp-border px-2 py-1 text-cp-text-secondary hover:text-cp-text disabled:opacity-40"
+              >
+                {format(t('inventory.auditAdopt', 'Ort übernehmen ({n})'), {
+                  n: auditRelocations(auditHits).length,
+                })}
+              </button>
+            </div>
+            {auditHits.length === 0 ? (
+              <div className="text-cp-text-muted">
+                {t('inventory.auditEmpty', 'Noch nichts gescannt.')}
+              </div>
+            ) : (
+              <ul className="flex max-h-56 flex-col gap-0.5 overflow-y-auto">
+                {auditHits.map((h, i) => (
+                  <li
+                    key={`${h.code}-${i}`}
+                    className={
+                      h.outcome === 'expected-here'
+                        ? 'text-cp-text-secondary'
+                        : h.outcome === 'wrong-place'
+                          ? 'text-cp-warn'
+                          : 'text-cp-danger'
+                    }
+                  >
+                    {/* Modell UND Ort in jeder Zeile — beides verlangt der
+                        Beleg ausdruecklich, und ohne beides „finds nothing
+                        actionable". */}
+                    {AUDIT_LABEL[h.outcome]} · {h.label || h.code}
+                    {h.model && h.model !== h.label ? ` (${h.model})` : ''}
+                    {h.expected ? ` — ${format(t('inventory.auditExpected', 'erwartet in {ort}'), { ort: h.expected })}` : ''}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
+
         {directItems.length > 0 && (
           <div style={{ marginLeft: depth * 16 + 22 }} className="mt-0.5 mb-0.5 flex flex-wrap gap-1">
             {directItems.map((it) => (
