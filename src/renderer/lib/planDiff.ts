@@ -238,6 +238,11 @@ export const EQUIPMENT_FIELD_CLASS: Record<string, FieldClass> = {
   installStatus: 'substantive',
   assetTag: 'substantive',
   serialNumber: 'substantive',
+  // BEDARF 78 — welche Kiste. Substantiell und nicht kosmetisch: wer sie
+  // aendert, hat getauscht, und mit der Kiste wandern der eingebrannte
+  // Geraete-Name und die MAC. Ein Diff, der das schluckt, verschweigt genau
+  // die Aenderung, deretwegen das Feld existiert.
+  inventoryUnitId: 'substantive',
   ownership: 'substantive',
   stockLocation: 'substantive',
   packed: 'substantive',

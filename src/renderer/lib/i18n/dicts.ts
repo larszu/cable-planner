@@ -4255,6 +4255,16 @@ export const en: Dict = {
   'analysis.crew.title': 'Network briefing sheet for the crew',
   'analysis.crew.ask': '{n} points to settle on site',
   'analysis.crew.export': 'Crew network sheet',
+  // Bedarf 78 — welche Kiste welchen Platz fuellt.
+  'analysis.asset.title': 'Which box fills which slot',
+  'analysis.asset.intro':
+    'Two identical stageboxes are one box on the plan, two units in the warehouse and two different devices on the network \u2014 each with its own burned-in name and its own MAC. A swap on load-in day only surfaces during rehearsal. Only records are compared here; what is actually in the rack, the plan does not know.',
+  'analysis.asset.export': 'Sheet',
+  'analysis.asset.none': 'not stated',
+  'eq.field.unit': 'Unit from stock',
+  'eq.field.unitNone': '\u2014 not stated \u2014',
+  'eq.field.unitHint':
+    'This slot carries a network identity. Without a named unit a swap for an identical box is invisible \u2014 the burned-in device name travels with it.',
   // Bedarf 91 — Vorlagen, die wissen, aus welchem Haus sie kommen.
   'tplScope.title': 'Bind this template to the venue?',
   'tplScope.body':
