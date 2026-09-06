@@ -270,6 +270,12 @@ const healUnit = (raw: unknown): InventoryUnit | null => {
     id: typeof r.id === 'string' && r.id ? r.id : uuidv4(),
     itemId: r.itemId,
     serial: typeof r.serial === 'string' && r.serial.trim() ? r.serial.trim() : undefined,
+    // Bedarf 107 — die Hausreferenz kommt NEU dazu und wird NICHT aus `serial`
+    // abgeleitet. Welche der beiden Identitaeten in einem Altbestand im
+    // `serial`-Feld steht, weiss dieser Planer nicht; eine geratene Umbuchung
+    // machte aus einer Herstellernummer eine Hausnummer, die die Versicherung
+    // nicht kennt. Neues Feld, Vorgabewert leer, nie ueberschreiben.
+    houseRef: typeof r.houseRef === 'string' && r.houseRef.trim() ? r.houseRef.trim() : undefined,
     code: typeof r.code === 'string' && r.code.trim() ? r.code.trim() : undefined,
     codeType: healCodeType(r.codeType),
     locationId: typeof r.locationId === 'string' && r.locationId ? r.locationId : undefined,
@@ -389,7 +395,7 @@ interface InventoryState {
   /** Legt eine serialisierte Einheit an (mit „created"-Historieneintrag). */
   addUnit: (input: InventoryUnitInput) => string
   /** Aktualisiert Stammfelder einer Einheit (Ort/Zustand via move/condition). */
-  updateUnit: (id: string, patch: Partial<Pick<InventoryUnit, 'serial' | 'code' | 'codeType' | 'notes'>>) => void
+  updateUnit: (id: string, patch: Partial<Pick<InventoryUnit, 'serial' | 'houseRef' | 'code' | 'codeType' | 'notes'>>) => void
   /** Entfernt eine Einheit. */
   removeUnit: (id: string) => void
   /** Verschiebt eine Einheit an einen Lagerort (hängt „moved" an die Historie). */

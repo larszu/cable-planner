@@ -23,7 +23,16 @@ export const INVENTORY_FORMAT = 'avplan-inventory'
 // loeschte also die bestaetigte deviceTypeId. Dafuer ist jetzt
 // `lib/inventoryMerge.ts` da; die Version kann das nicht leisten, weil eine
 // alte Datei zu lesen ausdruecklich erlaubt bleibt.
-export const INVENTORY_FORMAT_VERSION = 2
+//
+// Version 3 (Bedarf 107): `InventoryUnit.houseRef` — die haus-eigene Referenz
+// neben der Hersteller-Seriennummer. Dieselbe Begruendung wie bei Version 2,
+// eine Ebene tiefer: `inventoryStore.healUnit` baut jede Einheit Feld fuer
+// Feld neu auf. Ein Planer, der `houseRef` nicht kennt, wuerde eine Datei mit
+// Hausreferenzen still ohne sie zurueckschreiben — und die Nummer, die auf dem
+// Case klebt, waere weg. Mit der erhoehten Version weigert er sich stattdessen
+// zu lesen, und das ist die ehrlichere Antwort. Aeltere Dateien (v1/v2) lesen
+// wir unveraendert weiter; ihre Einheiten haben schlicht keine Hausreferenz.
+export const INVENTORY_FORMAT_VERSION = 3
 
 export interface InventorySnapshot {
   items: InventoryItem[]

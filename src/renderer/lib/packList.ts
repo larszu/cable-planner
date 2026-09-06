@@ -7,6 +7,7 @@
 // (nichts erfinden).
 // ───────────────────────────────────────────────────────────────────────────
 import type { InventoryItem, StorageNode, InventoryUnit } from '../types/inventory'
+import { unitLabel } from './unitIdentity'
 import { isContainerKind } from './storageTree'
 import { ownershipNote } from './ownership'
 
@@ -103,7 +104,9 @@ export const derivePackList = (
       .map((u) => {
         const item = itemById.get(u.itemId)
         const model = item?.model ?? '?'
-        const serial = u.serial || u.code || u.id.slice(0, 6)
+        // Bedarf 107 — die Packliste ist ein HAUS-Blatt: der Lagerist ruft
+        // die Hausreferenz, nicht die Herstellernummer.
+        const serial = unitLabel(u, 'house')
         // Die Einheit erbt die Herkunft ihres Artikels: sie hat keine eigene,
         // und eine erfundene waere schlimmer als keine.
         const ownership = item ? ownershipNote(item, heute) : ''
