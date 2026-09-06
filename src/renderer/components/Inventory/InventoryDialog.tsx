@@ -146,6 +146,9 @@ export const InventoryDialog = ({ open, onClose }: InventoryDialogProps) => {
   const units = useInventoryStore((s) => s.units)
   const addItem = useInventoryStore((s) => s.addItem)
   const updateItem = useInventoryStore((s) => s.updateItem)
+  // BEDARF 106 — Einraeumen und Umraeumen sind ein eigener Vorgang mit
+  // Journal-Eintrag, nicht ein Feld im Patch.
+  const moveArticle = useInventoryStore((s) => s.moveItem)
   const removeItem = useInventoryStore((s) => s.removeItem)
   const seedFromEquipment = useInventoryStore((s) => s.seedFromEquipment)
   const exportSnapshot = useInventoryStore((s) => s.exportSnapshot)
@@ -220,8 +223,20 @@ export const InventoryDialog = ({ open, onClose }: InventoryDialogProps) => {
       materialKinds: form.materialKinds?.length ? form.materialKinds : undefined,
       notes: form.notes?.trim() || undefined,
     }
-    if (form.id) updateItem(form.id, payload)
-    else addItem(payload)
+    // BEDARF 106 — der Lagerort geht NICHT im Feld-Patch mit. Bis hierher
+    // verschob dieselbe Funktion, die eine Notiz aendert, auch Ware; die
+    // Bewegung war von einer beliebigen Feldaenderung nicht zu unterscheiden
+    // und hinterliess nichts. Sie ist jetzt ein eigener Vorgang mit
+    // Journal-Eintrag — und beim Anlegen genauso, denn der Beleg nennt
+    // ausdruecklich auch das Einraeumen eines neu angelegten Artikels.
+    const { locationId, ...ohneOrt } = payload
+    if (form.id) {
+      updateItem(form.id, ohneOrt)
+      moveArticle(form.id, locationId)
+    } else {
+      const neueId = addItem(ohneOrt)
+      moveArticle(neueId, locationId)
+    }
     setForm(null)
   }
 
@@ -820,11 +835,13 @@ const LocationsTab = ({ dimsEditor, formatDims, codeCell }: LocationsTabProps) =
   const updateNode = useInventoryStore((s) => s.updateNode)
   const moveNode = useInventoryStore((s) => s.moveNode)
   const removeNode = useInventoryStore((s) => s.removeNode)
-  const updateItem = useInventoryStore((s) => s.updateItem)
   // `moveUnit` statt `updateUnit`: ein Ortswechsel gehoert in die Historie der
   // Einheit. Ein stilles Feld-Schreiben liesse die Frage „wann kam die
   // hierher?" unbeantwortet — und genau die stellt jemand drei Wochen spaeter.
   const moveUnit = useInventoryStore((s) => s.moveUnit)
+  // BEDARF 106 — dasselbe fuer den Artikel: der Lagerort ist eine Beziehung
+  // mit eigenem Vorgang, nicht ein Feld unter vielen.
+  const moveItem = useInventoryStore((s) => s.moveItem)
   // Der Stichtag kommt EINMAL aus der Uhr und wird durchgereicht.
   const heuteIso = new Date().toISOString().slice(0, 10)
 
@@ -870,7 +887,12 @@ const LocationsTab = ({ dimsEditor, formatDims, codeCell }: LocationsTabProps) =
    *  Schreibend, deshalb ein eigener Klick und nicht automatisch. */
   const auditAdopt = () => {
     for (const r of auditRelocations(auditHits)) {
-      if (r.itemId) updateItem(r.itemId, { locationId: auditNode })
+      // BEDARF 106 — Umräumen ist ein Vorgang. Bis hierher lief es über
+      // `updateItem`, also über dieselbe Funktion, die eine Notiz ändert:
+      // die Bewegung war von einer beliebigen Feldänderung nicht zu
+      // unterscheiden und hinterließ nichts. `moveItem` bucht sie und
+      // schreibt sie ins Journal.
+      if (r.itemId) moveItem(r.itemId, auditNode)
       if (r.unitId) moveUnit(r.unitId, auditNode, nodePathLabel(nodes, auditNode))
     }
     // Nach dem Uebernehmen stimmt die Liste nicht mehr: sie behauptete einen

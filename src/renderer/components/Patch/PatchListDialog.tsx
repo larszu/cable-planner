@@ -32,6 +32,11 @@ import {
   type ChannelViewId,
 } from '../../lib/channelList'
 import {
+  CHANNEL_IDENTITY_LABEL,
+  channelIdentityFindings,
+  channelOwnerTable,
+} from '../../lib/channelIdentity'
+import {
   diffScenes,
   matchToPlan,
   matchTable,
@@ -87,7 +92,7 @@ export const PatchListDialog = () => {
   const [sortKey, setSortKey] = useState<SortKey>('fromDevice')
   // #349 — Ziel-Format fuer den Label-Drucker-CSV-Export.
   const [labelCsvFormat, setLabelCsvFormat] = useState<LabelCsvFormat>('generic')
-  const [channelView, setChannelView] = useState<ChannelViewId>('venue')
+  const [channelView, setChannelView] = useState<ChannelViewId | 'owner'>('venue')
 
   const rows = useMemo<PatchRow[]>(() => {
     if (!open) return []
@@ -287,6 +292,10 @@ export const PatchListDialog = () => {
   }
 
   const szeneAktuell = szeneB ?? szeneA
+  // BEDARF 110/111/113 — die Befunde zur Kanal-Identität, aus derselben Liste
+  // wie die fünf Sichten. Keine eigene Ableitung: was hier gemeldet wird, ist
+  // genau das, was auf den Blättern stünde.
+  const identitaetsBefunde = useMemo(() => channelIdentityFindings(channels), [channels])
   const szeneDiff = useMemo(
     () => (szeneA && szeneB ? diffScenes(szeneA, szeneB) : []),
     [szeneA, szeneB],
@@ -511,9 +520,16 @@ export const PatchListDialog = () => {
   // `lib/channelList.ts` und nicht mehr in diesem Dialog — sie hat fuenf Leser
   // und gehoert keinem davon.
 
-  const exportChannelView = (view: ChannelViewId) => {
+  // BEDARF 110 — das Blatt, das beide Haelften benannt nebeneinander stellt.
+  // Der Beleg sagt „a rider needs both": der Stagebox-Eingang gehoert dem
+  // Haus und steht in der Pult-Datei, das Mikrofon gehoert der Band und steht
+  // in keiner. Wer eine geerbte Tabelle hat, in der beides in einer Spalte
+  // stand, sieht hier, welche Angabe von wem nachzutragen ist.
+  const exportChannelView = (view: ChannelViewId | 'owner') => {
     const table =
-      view === 'band'
+      view === 'owner'
+        ? channelOwnerTable(channels)
+        : view === 'band'
         ? bandView(channels)
         : view === 'venue'
           ? venueView(channels)
@@ -601,7 +617,7 @@ export const PatchListDialog = () => {
               <>
                 <select
                   value={channelView}
-                  onChange={(e) => setChannelView(e.target.value as ChannelViewId)}
+                  onChange={(e) => setChannelView(e.target.value as ChannelViewId | 'owner')}
                   title={t('channelList.view', 'Sicht auf die Kanalliste')}
                   aria-label={t('channelList.view', 'Sicht auf die Kanalliste')}
                   className="rounded border border-cp-border bg-cp-surface-3 px-1 py-1 text-cp-xs"
@@ -613,6 +629,8 @@ export const PatchListDialog = () => {
                   {monitors.length > 0 && (
                     <option value="monitor">{t('channelList.view.monitor', 'Monitor-Wege')}</option>
                   )}
+                  {/* BEDARF 110 — wem welche Spalte gehört. */}
+                  <option value="owner">{t('channelList.view.owner', 'Haus / Band (wem gehört was)')}</option>
                 </select>
                 <button
                   type="button"
@@ -660,6 +678,23 @@ export const PatchListDialog = () => {
       }
     >
       <div className="flex h-full flex-col">
+        {/* BEDARF 110/111/113 — was an den Kanal-Identitäten nicht stimmt.
+            Steht ÜBER allem anderen, weil jeder der drei Befunde erst
+            auffällt, wenn das Blatt schon gedruckt ist: der Kanal ohne
+            Haus-Port, die Nummer, die als Name auftritt, und zwei Kanäle auf
+            derselben Buchse. */}
+        {identitaetsBefunde.length > 0 && (
+          <ul className="mb-2 flex flex-col gap-1 text-cp-xs">
+            {identitaetsBefunde.map((f, i) => (
+              <li key={`${f.kind}-${i}`} className="text-amber-300/90">
+                <strong>{CHANNEL_IDENTITY_LABEL[f.kind]}</strong> — {f.text}
+                {f.channels.length > 0 && (
+                  <span className="text-cp-text-muted"> (Ch {f.channels.join(', ')})</span>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
         {/* BEDARF 92 — was aus der Szenendatei gelesen wurde, und was sich
             seit dem ersten Import geändert hat. Steht ÜBER der Kabelliste und
             nicht in einem eigenen Dialog: der Vergleich beantwortet die Frage
