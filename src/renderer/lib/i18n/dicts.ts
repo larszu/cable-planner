@@ -3490,6 +3490,20 @@ export const en: Dict = {
   'channelList.view.stage': 'Stage (position)',
   'channelList.view.console': 'Console (names)',
   'channelList.view.monitor': 'Monitor paths',
+  // Bedarf 101 — Umbenennen kostet eine Aenderung, und man sieht wo sie ankommt.
+  'rename.apply': 'Rename',
+  'rename.discard': 'Discard',
+  'rename.lands':
+    '\u201C{old}\u201D \u2192 \u201C{new}\u201D changes {n} places in the derived sheets \u2014 one edit, no re-typing.',
+  'rename.swallowed':
+    '{n} target(s) will store the same text as before \u2014 the rename does not arrive there.',
+  'rename.stragglers':
+    'The old name is typed out in {n} field(s) ({where}) \u2014 those do NOT follow.',
+  'rename.refusal.unknown-role': 'This role no longer exists.',
+  'rename.refusal.empty-name': 'Without a name the role cannot be assigned to anyone.',
+  'rename.refusal.same-name': 'That is already the name.',
+  'rename.refusal.name-taken':
+    'Another role is already called that \u2014 two roles with one name cannot be told apart on the multiviewer.',
   // Bedarf 115 — der Unterlagen-Stapel.
   'packet.paper': 'Paper',
   'packet.colour': 'Colour',

@@ -8,6 +8,11 @@ import {
   parseUmdAddress,
   umdAddressClashes,
 } from '../../../lib/sourceIdentity'
+import {
+  RENAME_REFUSAL_LABEL,
+  renameImpact,
+  swallowedLandings,
+} from '../../../lib/renameImpact'
 import type { EquipmentItem } from '../../../types/equipment'
 
 const NEW_ROLE = '__new__'
@@ -31,6 +36,8 @@ export const SourceIdentitySection = ({ equipment }: { equipment: EquipmentItem 
   const allEquipment = useProjectStore((s) => s.project.equipment)
   const addSourceIdentity = useProjectStore((s) => s.addSourceIdentity)
   const updateSourceIdentity = useProjectStore((s) => s.updateSourceIdentity)
+  const renameSourceIdentity = useProjectStore((s) => s.renameSourceIdentity)
+  const cables = useProjectStore((s) => s.project.cables)
   const removeSourceIdentity = useProjectStore((s) => s.removeSourceIdentity)
   const bindEquipment = useProjectStore((s) => s.bindEquipmentToSourceIdentity)
 
@@ -68,6 +75,35 @@ export const SourceIdentitySection = ({ equipment }: { equipment: EquipmentItem 
         : ''
   const umdRejected =
     umdText.trim() !== '' && parseUmdAddress(umdText.trim()) === undefined
+
+  // BEDARF 101 — der Namens-Entwurf.
+  //
+  // Bis hierher schrieb jeder Anschlag direkt in den Store. Das ist bei einem
+  // Namen, an dem der ganze Plan haengt, die falsche Zusage: „Kam" ist ein
+  // gueltiger Zwischenstand des Tippens und ein ungueltiger Rollenname, und
+  // die Vorschau haette fuer jeden davon eine andere Antwort. Der Entwurf
+  // steht, bis jemand „Umbenennen" drueckt — und bis dahin zeigt die Vorschau,
+  // WO die eine Aenderung ankommt.
+  const [nameDraft, setNameDraft] = useState<{ id: string; text: string } | null>(null)
+  const nameText = bound && nameDraft?.id === bound.id ? nameDraft.text : (bound?.name ?? '')
+  const nameDirty = Boolean(bound && nameText.trim() !== bound.name.trim())
+
+  const impact = useMemo(() => {
+    if (!bound || !nameDirty) return null
+    return renameImpact(
+      { equipment: allEquipment, cables, sourceIdentities: list },
+      bound.id,
+      nameText,
+    )
+  }, [allEquipment, bound, cables, list, nameDirty, nameText])
+
+  const verschluckt = useMemo(() => (impact ? swallowedLandings(impact) : []), [impact])
+
+  const applyRename = () => {
+    if (!bound) return
+    const absage = renameSourceIdentity(bound.id, nameText)
+    if (!absage) setNameDraft(null)
+  }
 
   const onPickRole = (value: string) => {
     if (value === '') {
@@ -131,10 +167,12 @@ export const SourceIdentitySection = ({ equipment }: { equipment: EquipmentItem 
                   {t('sourceIdentity.name', 'Redaktioneller Name')}
                 </span>
                 <input
-                  value={bound.name}
-                  onChange={(event) =>
-                    updateSourceIdentity(bound.id, { name: event.target.value })
-                  }
+                  value={nameText}
+                  onChange={(event) => setNameDraft({ id: bound.id, text: event.target.value })}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter') applyRename()
+                    if (event.key === 'Escape') setNameDraft(null)
+                  }}
                   placeholder="Kamera 1"
                   className="w-full rounded border border-cp-border bg-cp-surface-1 p-2"
                 />
@@ -161,6 +199,93 @@ export const SourceIdentitySection = ({ equipment }: { equipment: EquipmentItem 
                 />
               </label>
             </div>
+
+            {/* BEDARF 101 — die Vorschau auf die eine Änderung.
+                Sie steht ZWISCHEN Eingabefeld und Knopf, weil sie dort gelesen
+                wird: erst sehen, wo es ankommt, dann drücken. */}
+            {impact && (
+              <div className="flex flex-col gap-1.5 rounded border border-cp-border-muted bg-cp-surface-2 p-2">
+                {impact.refusal ? (
+                  <p className="text-cp-danger">
+                    {t(`rename.refusal.${impact.refusal}`, RENAME_REFUSAL_LABEL[impact.refusal])}
+                  </p>
+                ) : (
+                  <>
+                    <p className="text-cp-text-secondary">
+                      {format(
+                        t(
+                          'rename.lands',
+                          '„{old}“ → „{new}“ ändert {n} Stellen in den abgeleiteten Blättern — eine Änderung, kein Nachtippen.',
+                        ),
+                        { old: impact.oldName, new: impact.newName, n: impact.landings.length },
+                      )}
+                    </p>
+                    {impact.landings.length > 0 && (
+                      <ul className="flex flex-col gap-0.5 font-mono text-cp-xs">
+                        {impact.landings.slice(0, 8).map((l) => (
+                          <li key={l.key} className="text-cp-text-muted">
+                            {l.target} · {l.where}: {l.before || '—'} →{' '}
+                            <span className={l.unchangedAtTarget ? 'text-cp-warn' : 'text-cp-text'}>
+                              {l.after || '—'}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                    {/* Der unangenehme Befund: das Blatt ändert sich, das
+                        Gerät nicht — weil das Budget die Unterscheidung
+                        wegschneidet. */}
+                    {verschluckt.length > 0 && (
+                      <p className="text-cp-warn">
+                        {format(
+                          t(
+                            'rename.swallowed',
+                            '{n} Ziel(e) speichern danach denselben Text wie vorher — dort kommt die Umbenennung nicht an.',
+                          ),
+                          { n: verschluckt.length },
+                        )}
+                      </p>
+                    )}
+                    {/* Und der Rest des Marktproblems im eigenen Modell: was
+                        abgetippt dasteht, folgt nicht mit. */}
+                    {impact.stragglers.length > 0 && (
+                      <p className="text-cp-warn">
+                        {format(
+                          t(
+                            'rename.stragglers',
+                            'Der alte Name steht abgetippt in {n} Feld(ern) ({where}) — die folgen NICHT mit.',
+                          ),
+                          {
+                            n: impact.stragglers.length,
+                            where: impact.stragglers
+                              .slice(0, 3)
+                              .map((s) => `${s.where} · ${s.field}`)
+                              .join(', '),
+                          },
+                        )}
+                      </p>
+                    )}
+                  </>
+                )}
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={applyRename}
+                    disabled={Boolean(impact.refusal)}
+                    className="rounded bg-emerald-700 px-2 py-1 hover:bg-emerald-600 disabled:opacity-40"
+                  >
+                    {t('rename.apply', 'Umbenennen')}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setNameDraft(null)}
+                    className="rounded border border-cp-border px-2 py-1 hover:bg-cp-surface-3"
+                  >
+                    {t('rename.discard', 'Verwerfen')}
+                  </button>
+                </div>
+              </div>
+            )}
 
             <label className="block">
               <span className="mb-1 block text-cp-text-secondary">
