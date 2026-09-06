@@ -4136,6 +4136,21 @@ export const en: Dict = {
   'analysis.redundancy.st2110': 'ST 2110 without 2110-7 redundancy (only one network path)',
   'analysis.redundancy.none': 'No obvious single power feeds found.',
   'analysis.tab.rf': 'RF / wireless',
+  'analysis.tab.runs': 'Cable runs',
+
+  /* Bedarf 13 — die Kabelwege: was die Laenge behauptet, und ob sie noch gilt. */
+  'analysis.runs.intro':
+    'Estimated lengths carry their origin. Move a device and the estimate goes stale \u2014 it is stated here instead of staying silent. Hand-entered lengths are NOT held against the straight line: a real cable run is laid, not stretched.',
+  'analysis.runs.none': 'No findings: no stale estimate, no length beyond reach.',
+  // {alt}, {neu} und {px} werden vom Aufrufer ersetzt.
+  'analysis.runs.stale':
+    'Length {alt} m was estimated; moved {px} px since, the estimate would now give {neu} m',
+  // {laenge}, {max} und {typ} werden vom Aufrufer ersetzt.
+  'analysis.runs.overMax': 'Length {laenge} m beyond the reach of {max} m ({typ})',
+  'analysis.runs.endpointMissing':
+    'Derived length, but an end device is gone \u2014 it can no longer be recomputed',
+  // {n} und {liste} werden vom Aufrufer ersetzt.
+  'analysis.runs.bundled': 'one run, {n} services: {liste}',
   'analysis.rf.intro': 'Wireless links (wireless cables) with frequency/channel. Conflict heuristic: frequency spacing < 0.4 MHz or same channel. Plus 3rd-order intermodulation (2·f₁−f₂) — the most common interference source for wireless mics/IEM.',
   'analysis.rf.im3': 'IM3: 2×{a} − {b} = {prod} MHz hits {c} ({cmhz} MHz)',
   'analysis.rf.imTitle': '3rd-order intermodulation',

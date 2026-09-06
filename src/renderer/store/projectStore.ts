@@ -704,6 +704,24 @@ const healProjectPositions = (
       if (!patched.layer) {
         patched = { ...patched, layer: detectLayerForConnector(patched.type) }
       }
+      // Bedarf 13 — die HERKUNFT einer geschaetzten Laenge sind Canvas-
+      // Koordinaten und muss deshalb dieselbe Rasterung mitmachen wie die
+      // Geraete darueber. Ohne diese Zeilen meldete ein Projekt, das nur
+      // GELADEN wurde, seine Schaetzungen als ueberholt: das Raster hat die
+      // Geraete verschoben, die gespeicherte Herkunft nicht.
+      if (patched.lengthDerivedFrom) {
+        const o = patched.lengthDerivedFrom
+        patched = {
+          ...patched,
+          lengthDerivedFrom: {
+            ...o,
+            fromX: r(o.fromX),
+            fromY: r(o.fromY),
+            toX: r(o.toX),
+            toY: r(o.toY),
+          },
+        }
+      }
       // v7.9.112 / Issue #234 — Legacy labelHidden=true wird ersetzt
       // durch labelPosition='none'. labelHidden bleibt aus Backward-
       // Compat im Schema, wird aber nicht mehr aktiv genutzt.

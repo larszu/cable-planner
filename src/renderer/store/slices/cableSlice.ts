@@ -248,6 +248,13 @@ export const createCableSlice: StateCreator<ProjectState, [], [], CableSlice> = 
           cables: state.project.cables.map((item) => {
             if (item.id !== id) return item
             const merged = { ...item, ...patch }
+            // Bedarf 13 — wer die Laenge von HAND setzt, loescht damit ihre
+            // Herkunft. Ohne diese Zeile bliebe eine berichtigte Laenge als
+            // „ueberholte Schaetzung" stehen, und der Befund waere unbeirrbar:
+            // man koennte ihn nicht abstellen, indem man die Zahl korrigiert.
+            if (patch.length !== undefined && patch.lengthDerivedFrom === undefined) {
+              delete (merged as { lengthDerivedFrom?: unknown }).lengthDerivedFrom
+            }
             if (!inheritType) return merged
             const typePatch = cableTypePatchFromPorts(merged, state.project.equipment)
             return typePatch ? { ...merged, ...typePatch } : merged
@@ -279,7 +286,7 @@ export const createCableSlice: StateCreator<ProjectState, [], [], CableSlice> = 
     const state = get()
     if (isProjectLocked(state)) return 0
     const scheme = state.project.metadata.lengthEstimation ?? DEFAULT_LENGTH_ESTIMATION
-    const { updates } = estimateAllCableLengths(
+    const { updates, origins } = estimateAllCableLengths(
       state.project.cables,
       state.project.equipment,
       scheme,
@@ -289,7 +296,12 @@ export const createCableSlice: StateCreator<ProjectState, [], [], CableSlice> = 
       project: touchProject({
         ...s.project,
         cables: s.project.cables.map((c) =>
-          updates.has(c.id) ? { ...c, length: updates.get(c.id)! } : c,
+          updates.has(c.id)
+            // Bedarf 13 — die Herkunft wird MITGESCHRIEBEN. Ohne sie sieht eine
+            // geschaetzte Laenge aus wie eine gemessene, und ein verschobenes
+            // Geraet macht sie still falsch.
+            ? { ...c, length: updates.get(c.id)!, lengthDerivedFrom: origins.get(c.id) }
+            : c,
         ),
       }),
     }))
