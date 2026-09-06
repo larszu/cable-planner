@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { committedByItem, commitmentNote } from '../src/renderer/lib/inventoryCommitment'
 import { resolveCoverage } from '../src/renderer/lib/inventoryCoverage'
-import { buildPlanBom, planBomCsv } from '../src/renderer/lib/planBom'
+import { buildPlanBom, pickListCsv, planBomCsv } from '../src/renderer/lib/planBom'
 import type { CheckoutRecord } from '../src/renderer/types/checkout'
 import type { EquipmentItem } from '../src/renderer/types/equipment'
 import type { InventoryItem, InventoryUnit, StorageNode } from '../src/renderer/types/inventory'
@@ -177,6 +177,35 @@ describe('das Blatt zeigt beide Zahlen', () => {
   it('die Zeile gilt als fehlend, obwohl der Bestand reicht', () => {
     const bom = buildPlanBom(plan(5), lager(5), NODES, [], [], [ausgabe()])
     expect(bom.missing).toHaveLength(1)
+  })
+
+  it('die Kommissionier-Liste nennt den GRUND der Fehlmenge (Bedarf 64)', () => {
+    // „which job holds it": ohne diesen Hinweis sucht der Kommissionierer das
+    // fehlende Stueck im Regal, obwohl es auf einem Truck steht. Seit
+    // Bedarf 80 weiss die Zeile es -- sie hat es nur nicht gesagt.
+    const bom = buildPlanBom(plan(5), lager(5), NODES, [], [], [ausgabe()])
+    const zeilen = pickListCsv(bom).split('\r\n')
+    expect(zeilen[0]).toContain('Fehlmenge;Grund')
+    const fehl = zeilen.find((z) => z.startsWith(';0;'))
+    expect(fehl).toContain('2 auf offener Ausgabe (2× Show B)')
+  })
+
+  it('laesst die Spalte leer, wenn nichts gebunden ist', () => {
+    // Ein Grund, der immer dasteht, ist keiner.
+    const bom = buildPlanBom(plan(9), lager(5), NODES)
+    const fehl = pickListCsv(bom).split('\r\n').find((z) => z.startsWith(';0;'))
+    expect(fehl?.endsWith(';')).toBe(true)
+  })
+
+  it('setzt den Grund NUR auf die Fehlmengen-Zeile', () => {
+    // Auf einer Entnahme-Zeile waere er falsch: was dort steht, ist DA. Die
+    // erste Fassung dieser Pruefung sah nur den Fall ohne Bindung -- eine
+    // Gegenprobe, die den Grund auf jede Zeile schrieb, blieb gruen.
+    const bom = buildPlanBom(plan(5), lager(5), NODES, [], [], [ausgabe()])
+    const zeilen = pickListCsv(bom).split('\r\n').slice(1).filter(Boolean)
+    const entnahme = zeilen.filter((z) => !z.startsWith(';0;'))
+    expect(entnahme.length).toBeGreaterThan(0)
+    for (const z of entnahme) expect(z.endsWith(';')).toBe(true)
   })
 })
 

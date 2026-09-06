@@ -227,7 +227,7 @@ export const planBomCsv = (bom: PlanBom): string =>
  * lesbar bleiben, nicht verschwinden und nicht sicher aussehen.
  */
 export const pickListCsv = (bom: PlanBom): string => {
-  const zeilen: Array<[string, number, string, number, number | string]> = []
+  const zeilen: Array<[string, number, string, number, number | string, string]> = []
   for (const r of bom.rows) {
     if (r.outcome !== 'matched-by-type') continue
     const orte = r.locations ?? []
@@ -237,14 +237,19 @@ export const pickListCsv = (bom: PlanBom): string => {
       const nehmen = Math.min(offen, o.available)
       if (nehmen <= 0) continue
       offen -= nehmen
-      zeilen.push([o.location, nehmen, r.model, o.available, ''])
+      zeilen.push([o.location, nehmen, r.model, o.available, '', ''])
     }
     // Fehlmenge: eine eigene Zeile ohne Lagerort — es gibt keinen Ort, an dem
     // sie läge. Auch dann, wenn gar keine Position einen Lagerort trug.
-    if (offen > 0) zeilen.push(['', 0, r.model, 0, offen])
+    //
+    // BEDARF 64: mit dem GRUND, soweit er bekannt ist. Der Bedarf verlangt
+    // ausdruecklich „which job holds it" — und ohne diesen Hinweis sucht der
+    // Kommissionierer das fuenfte Stueck im Regal, obwohl es auf einem Truck
+    // steht. Seit Bedarf 80 weiss die Zeile das; sie hat es nur nicht gesagt.
+    if (offen > 0) zeilen.push(['', 0, r.model, 0, offen, r.commitmentNote ?? ''])
   }
   return toCsv(
-    ['Lagerort', 'Menge', 'Modell', 'Bestand', 'Fehlmenge'],
+    ['Lagerort', 'Menge', 'Modell', 'Bestand', 'Fehlmenge', 'Grund'],
     zeilen
       .slice()
       .sort((a, b) => a[0].localeCompare(b[0], 'de') || a[2].localeCompare(b[2], 'de')),
