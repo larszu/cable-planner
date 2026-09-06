@@ -3490,6 +3490,16 @@ export const en: Dict = {
   'channelList.view.stage': 'Stage (position)',
   'channelList.view.console': 'Console (names)',
   'channelList.view.monitor': 'Monitor paths',
+  // Bedarf 115 — der Unterlagen-Stapel.
+  'packet.paper': 'Paper',
+  'packet.colour': 'Colour',
+  'packet.colour.colour': 'colour',
+  'packet.colour.mono': 'black and white',
+  'packet.colourHint':
+    'Colour swatches are printed in colour mode only. The name of the group is shown in BOTH modes \u2014 a grey box on a photocopy no longer tells two groups apart.',
+  'packet.glossary': 'Print column glossary',
+  'packet.print': 'Print packet',
+  'packet.undescribed': '\u201C{sheet}\u201D: {cols} not explained in the glossary.',
   // Bedarf 112 — der Scan vor Ort, gegen den Plan gehalten.
   'scan.title': 'Spectrum scan from the analyser',
   'scan.import': '📈 Read scan',
