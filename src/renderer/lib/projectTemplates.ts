@@ -11,7 +11,7 @@ import { v4 as uuidv4 } from 'uuid'
 import type { CablePlannerProject } from '../types/project'
 import type { LocationFrame } from '../types/location'
 import { stripForTemplate, projectVenue, type TemplateScope } from './templateScope'
-import { assessJobHandover, type JobBasis } from './jobHandover'
+import { assessJobHandover, latestAsBuilt, type JobBasis } from './jobHandover'
 
 export interface ProjectTemplate {
   id: string
@@ -244,6 +244,63 @@ export const saveUserTemplate = (
   const next = [...loadUserTemplates(), tpl]
   persist(next)
   return tpl
+}
+
+/**
+ * BEDARF 75 — „promote as-built to template".
+ *
+ *   > Trucks historically 'would need to be completely reconfigured to meet
+ *   > the requirements of the new job' when moving between event types. Switch
+ *   > configs are typically not saved back after load-out, so the next show
+ *   > starts from the plan rather than from the as-built.
+ *
+ * Der Bedarf nennt den Weg selbst: „a 'promote as-built to template' action
+ * after load-out so the reconciliation import feeds back into the next show's
+ * starting point."
+ *
+ * WARUM DAS NICHT DASSELBE IST WIE `saveUserTemplate`. Der schreibt den
+ * Plan, wie er GERADE ist. Nach dem Abbau ist das der Stand nach dem letzten
+ * Klick — und der kann alles Moegliche sein: halb aufgeraeumt, mit
+ * Testgeraeten, mit einer Ruecknahme, die nur im Kopf stattgefunden hat. Was
+ * die naechste Show braucht, ist der Stand, den jemand ausdruecklich als
+ * gebaut festgeschrieben hat.
+ *
+ * DIE ABLEHNUNG IST DER PUNKT. Ohne As-Built gibt es nichts zu befoerdern,
+ * und auf den Live-Plan auszuweichen waere der Fehler, gegen den Bedarf 84
+ * geschrieben ist: eine Vorlage mit dem Wort „wie gebaut" darauf, die den
+ * Angebotsstand traegt. `promoteAsBuiltToTemplate` gibt dann `null` und einen
+ * Grund zurueck; die Oberflaeche sagt ihn, statt still etwas anderes zu tun.
+ */
+export type PromoteRefusal = 'no-as-built'
+
+export interface PromoteResult {
+  template?: ProjectTemplate
+  /** Gesetzt, wenn nichts befoerdert wurde — mit dem Grund. */
+  refused?: PromoteRefusal
+  /** Das Etikett der befoerderten Revision, fuer die Rueckmeldung. */
+  from?: string
+}
+
+export const promoteAsBuiltToTemplate = (
+  name: string,
+  description: string,
+  project: CablePlannerProject,
+  scope: TemplateScope,
+): PromoteResult => {
+  const asBuilt = latestAsBuilt(project)
+  if (!asBuilt) return { refused: 'no-as-built' }
+  // Der Schnappschuss ist ein Projekt OHNE `revisions` (per Typ). Genau das
+  // ist hier richtig: die Geschichte der alten Show gehoert nicht in die
+  // Vorlage, und `stripForTemplate` wuerde sie ohnehin entfernen.
+  const stand = { ...asBuilt.snapshot, revisions: [] } as CablePlannerProject
+  const tpl = saveUserTemplate(name, description, stand, scope)
+  // `saveUserTemplate` liest die Grundlage aus dem uebergebenen Projekt, und
+  // das ist hier der Schnappschuss OHNE Revisionen — also „wie geplant".
+  // Das waere die falsche Auskunft: der Inhalt IST der Bauzustand. Die
+  // Vorlage wird deshalb nachtraeglich richtiggestellt und neu abgelegt.
+  const korrigiert: ProjectTemplate = { ...tpl, basis: 'as-built' }
+  persist(loadUserTemplates().map((t) => (t.id === tpl.id ? korrigiert : t)))
+  return { template: korrigiert, from: asBuilt.label }
 }
 
 /** Löscht eine User-Vorlage. Built-ins sind nicht löschbar. */
