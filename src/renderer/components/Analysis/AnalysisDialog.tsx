@@ -50,6 +50,7 @@ import {
 import type { VenueAnswerStatus } from '../../types/venueAnswer'
 import { RF_BANDS, bandsForFrequency, bandLabel } from '../../lib/rfBands'
 import { PTP_FINDING_LABEL, buildPtpPlan, ptpTable } from '../../lib/ptpPlan'
+import { CREW_SECTION_LABEL, buildCrewSheet, crewSheetTable } from '../../lib/crewNetworkSheet'
 
 type Tab = 'weight' | 'network' | 'redundancy' | 'rf' | 'runs' | 'sheet'
 
@@ -372,6 +373,11 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
   // den Schnittstellen und die Standards an den Kabeln. Kein drittes Modell.
   const ptp = useMemo(() => buildPtpPlan(equipment, cables), [equipment, cables])
 
+  // BEDARF 77 — das Merkblatt fuer die Crew. Nimmt das ganze Projekt, weil es
+  // aus vier Quellen schoepft (Geraete, Kabel, Kontakte, Antworten des Hauses).
+  const projekt = useProjectStore((s) => s.project)
+  const crew = useMemo(() => buildCrewSheet(projekt), [projekt])
+
   // Ausgeschriebene Beschriftungen statt `t(`...${key}`)`: ein zusammengesetzter
   // Schluessel ist fuer den i18n-Abdeckungs-Test unsichtbar, und der deutsche
   // Rueckfall waere der nackte Schluessel („igmpQuerier") gewesen — in BEIDEN
@@ -481,6 +487,13 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
     downloadBlob(
       buildExportFilenameWithSuffix(projectName, 'zeit-plan-ptp', 'csv'),
       csvFromTable(ptpTable(ptp)),
+      'text/csv',
+    )
+  }
+  const exportCrew = () => {
+    downloadBlob(
+      buildExportFilenameWithSuffix(projectName, 'netz-merkblatt-crew', 'csv'),
+      csvFromTable(crewSheetTable(crew)),
       'text/csv',
     )
   }
@@ -898,6 +911,48 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
         </div>
       )}
 
+      {/* BEDARF 77 — das Merkblatt. Kurz gehalten: es soll auf eine Seite
+          passen und von jemandem gelesen werden, der gerade ein Kabel in der
+          Hand hat. Was der Plan nicht weiss, steht als Frage drauf statt als
+          Luecke — eine leere Zeile liest sich wie „gibt es nicht". */}
+      <div className="rounded-cp-panel border border-[var(--cp-border)] bg-[var(--cp-surface-1)] p-cp-3">
+        <div className="mb-2 flex items-baseline justify-between gap-2">
+          <div className="text-cp-sm font-semibold text-[var(--cp-text)]">
+            {t('analysis.crew.title', 'Netz-Merkblatt für die Crew')}
+          </div>
+          {crew.askCount > 0 && (
+            <div className="text-cp-xs text-amber-300/90">
+              {format(t('analysis.crew.ask', '{n} Punkte vor Ort zu klären'), {
+                n: String(crew.askCount),
+              })}
+            </div>
+          )}
+        </div>
+        <div className="flex flex-col gap-2">
+          {crew.sections
+            .filter((sec) => sec.lines.length > 0)
+            .map((sec) => (
+              <div key={sec.key}>
+                <div className="text-cp-xs font-semibold text-[var(--cp-text-muted)]">
+                  {CREW_SECTION_LABEL[sec.key]}
+                </div>
+                <ul className="flex flex-col gap-0.5">
+                  {sec.lines.map((l) => (
+                    <li
+                      key={l.key}
+                      className={`text-cp-xs ${
+                        l.origin === 'ask' ? 'text-amber-300/90' : 'text-[var(--cp-text)]'
+                      }`}
+                    >
+                      {l.text}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+        </div>
+      </div>
+
       <div className="flex justify-end gap-2">
         <button
           type="button"
@@ -927,6 +982,13 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
           className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs font-medium text-[var(--cp-text)] hover:bg-[var(--cp-surface-2)] disabled:opacity-40"
         >
           <Icon icon={Download} size="xs" /> {t('analysis.ptp.export', 'Zeit-Plan (PTP)')}
+        </button>
+        <button
+          type="button"
+          onClick={exportCrew}
+          className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs font-medium text-[var(--cp-text)] hover:bg-[var(--cp-surface-2)]"
+        >
+          <Icon icon={Download} size="xs" /> {t('analysis.crew.export', 'Netz-Merkblatt (Crew)')}
         </button>
         <button
           type="button"

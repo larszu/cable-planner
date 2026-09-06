@@ -24,6 +24,7 @@ import { runOfShowSheetForProject } from './encoderFeasibility'
 import { tallyMapTableForProject } from './tallyMap'
 import { deliveryPathTable } from './deliveryPath'
 import { buildPtpPlan, ptpTable } from './ptpPlan'
+import { crewSheetTableForProject } from './crewNetworkSheet'
 import type { CsvTable } from './csv'
 
 const ofTable =
@@ -79,6 +80,11 @@ export const DOCUMENT_STANDS: Record<string, (project: CablePlannerProject) => s
   // aendert, meldete jedes gedruckte Exemplar als veraltet.
   'ptp-plan': (project) =>
     ofTable(() => ptpTable(buildPtpPlan(project.equipment, project.cables)))(project),
+  // Bedarf 77 — das Netz-Merkblatt fuer die Crew. Es IST ein Dokument und
+  // keine Nachricht, und der Unterschied ist genau dieser Eintrag: ein Blatt
+  // mit Bezeichner und Stand laesst sich mit „gilt das noch?" pruefen
+  // (Bedarf 27), eine WhatsApp-Nachricht nicht.
+  'crew-netz': ofTable(crewSheetTableForProject),
 }
 
 /**
@@ -143,6 +149,7 @@ export const DOCUMENT_LABELS: Record<string, string> = {
   'tally-karte': 'Tally-Karte',
   ausspielweg: 'Ausspielweg',
   'ptp-plan': 'Zeit-Plan (PTP)',
+  'crew-netz': 'Netz-Merkblatt (Crew)',
   'videohub-labels': 'Videohub-Labels',
   'atem-mv-layout': 'Multiviewer-Layout',
   'switch-port-karte': 'Switch-Port-Karte',

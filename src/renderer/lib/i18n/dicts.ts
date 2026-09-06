@@ -4237,6 +4237,10 @@ export const en: Dict = {
   'analysis.ptp.noGm': 'no clock named',
   'analysis.ptp.withoutDomain': '{n} devices carry PTP-dependent essence and name no domain: {liste}',
   'analysis.ptp.export': 'Timing plan (PTP)',
+  // Bedarf 77 — das Netz-Merkblatt fuer die Crew.
+  'analysis.crew.title': 'Network briefing sheet for the crew',
+  'analysis.crew.ask': '{n} points to settle on site',
+  'analysis.crew.export': 'Crew network sheet',
   'nic.role.mediaPrimary': 'Media primary',
   'nic.role.mediaSecondary': 'Media secondary',
   'nic.role.control': 'Control',
