@@ -727,6 +727,9 @@ export const MenuBar = ({
           <MenuItem onClick={() => useUiStore.getState().setWirelessRigOpen(true)} icon={<Icon icon={Radio} size="sm" />}>
             {t('app.menu.tools.wirelessRig', 'Funkstrecken / Gesang…')}
           </MenuItem>
+          <MenuItem onClick={() => useUiStore.getState().setDeliveryOpen(true)} icon={<Icon icon={Radio} size="sm" />}>
+            {t('app.menu.tools.delivery', 'Ausspielung (Streaming-Ziele)…')}
+          </MenuItem>
 
           <MenuSectionHeader>{t('app.menu.tools.group.build', 'Erstellen & verwalten')}</MenuSectionHeader>
           <MenuItem

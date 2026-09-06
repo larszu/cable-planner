@@ -764,6 +764,9 @@ interface UiState extends PersistedUiState {
   /** Wireless-Rig-Dialog (Funkstrecken-Kanalplan). */
   wirelessRigOpen: boolean
   setWirelessRigOpen: (open: boolean) => void
+  /** Initiative 9 — Register der Ausspielziele. */
+  deliveryOpen: boolean
+  setDeliveryOpen: (open: boolean) => void
   atemMvLayout: { open: boolean }
   openAtemMvLayout: () => void
   closeAtemMvLayout: () => void
@@ -1274,6 +1277,8 @@ export const useUiStore = create<UiState>((set) => ({
   setDrumMicingOpen: (open) => set({ drumMicingOpen: open }),
   wirelessRigOpen: false,
   setWirelessRigOpen: (open) => set({ wirelessRigOpen: open }),
+  deliveryOpen: false,
+  setDeliveryOpen: (open) => set({ deliveryOpen: open }),
   atemMvLayout: { open: false },
   openAtemMvLayout: () => set({ atemMvLayout: { open: true } }),
   closeAtemMvLayout: () => set({ atemMvLayout: { open: false } }),

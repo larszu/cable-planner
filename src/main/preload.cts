@@ -1,6 +1,15 @@
 import { contextBridge, ipcRenderer } from 'electron'
 
 contextBridge.exposeInMainWorld('cablePlanner', {
+  // Initiative 9 — Stream-Keys je Ausspielziel. Eigener Namensraum, weil ein
+  // Kanal eine Domaene ist: `credentials:*` gehoert den Integrationen
+  // (Rentman, NetBox), `streamKey:*` den Zielen des Projekts.
+  streamKey: {
+    get: (id: string) => ipcRenderer.invoke('streamKey:get', id) as Promise<string | null>,
+    has: (id: string) => ipcRenderer.invoke('streamKey:has', id) as Promise<boolean>,
+    save: (id: string, key: string) => ipcRenderer.invoke('streamKey:save', id, key) as Promise<boolean>,
+    delete: (id: string) => ipcRenderer.invoke('streamKey:delete', id) as Promise<boolean>,
+  },
   credentials: {
     getToken: () => ipcRenderer.invoke('credentials:get-token') as Promise<string | null>,
     hasToken: () => ipcRenderer.invoke('credentials:has-token') as Promise<boolean>,

@@ -13,6 +13,7 @@ import { createLocationSlice } from './slices/locationSlice'
 import { createCableSlice } from './slices/cableSlice'
 import { createAnnotationSlice } from './slices/annotationSlice'
 import { createSourceIdentitySlice } from './slices/sourceIdentitySlice'
+import { createDeliverySlice } from './slices/deliverySlice'
 import { createRevisionSlice } from './slices/revisionSlice'
 import { createMobileSyncSlice } from './slices/mobileSyncSlice'
 import { createTemplateSlice } from './slices/templateSlice'
@@ -69,6 +70,7 @@ import {
   normaliseSourceIdentities,
   sourceIdentityIdSet,
 } from '../lib/sourceIdentity'
+import { normaliseDeliveryDestinations } from '../lib/deliveryNormalise'
 
 const CUSTOM_LIB_KEY = STORAGE_KEYS.customLibrary
 const PROJECT_AUTOSAVE_KEY = STORAGE_KEYS.projectAutosave
@@ -475,6 +477,17 @@ export interface ProjectState {
   removeSourceIdentity: (id: string) => void
   /** Geraet an eine Rolle binden; `undefined` loest die Bindung. */
   bindEquipmentToSourceIdentity: (equipmentId: string, identityId: string | undefined) => void
+  /** Initiative 9 — Ausspielziel anlegen; liefert die (ggf. erzeugte) Id, oder
+   *  undefined wenn nichts angelegt wurde (leerer Name). */
+  addDeliveryDestination: (
+    dest: Partial<import('../types/delivery').DeliveryDestination> & { name: string },
+  ) => string | undefined
+  updateDeliveryDestination: (
+    id: string,
+    patch: Partial<Omit<import('../types/delivery').DeliveryDestination, 'id'>>,
+  ) => void
+  /** Loescht das Ziel UND seinen Stream-Key aus dem OS-Schluesselbund. */
+  removeDeliveryDestination: (id: string) => void
   /** #143 — Annotationen aus einer zurückgelesenen Viewer-Datei mergen
    *  (by id: neue hinzufügen, geänderte aktualisieren, vorhandene behalten).
    *  Gibt die Anzahl hinzugefügter/aktualisierter Annotationen zurück. */
@@ -588,6 +601,9 @@ const healProjectPositions = (
   // sieht im Plan aus wie eine zugewiesene Tally-Adresse.
   const sourceIdentities = normaliseSourceIdentities(project.sourceIdentities, onDrop)
   const identityIds = sourceIdentityIdSet(sourceIdentities)
+  // Initiative 9 — Ausspielziele. Dieselbe Bauform wie die Rollen darueber:
+  // normalisieren, Verworfenes melden, Backup-Zeiger ins Leere entfernen.
+  const deliveryDestinations = normaliseDeliveryDestinations(project.deliveryDestinations, onDrop)
   return {
     ...project,
     equipment: project.equipment.map((item) => {
@@ -698,6 +714,7 @@ const healProjectPositions = (
     changelog: project.changelog ?? [],
     // ADR-001 — Rollen sind optional; alte Projekte heilen zu [].
     sourceIdentities,
+    deliveryDestinations,
     // ADR-003 — Rentman-Zaehler: gesendet ist nicht bestaetigt.
     metadata: healRentmanCableMap(project.metadata),
   }
@@ -908,6 +925,7 @@ const buildProjectStore = (
   ...createCableSlice(set, get, store),
   ...createAnnotationSlice(set, get, store),
   ...createSourceIdentitySlice(set, get, store),
+  ...createDeliverySlice(set, get, store),
   ...createRevisionSlice(set, get, store),
   ...createMobileSyncSlice(set, get, store),
   ...createTemplateSlice(set, get, store),
