@@ -4151,6 +4151,24 @@ export const en: Dict = {
   'analysis.redundancy.none': 'No obvious single power feeds found.',
   'analysis.tab.rf': 'RF / wireless',
   'analysis.tab.runs': 'Cable runs',
+  'analysis.tab.sheet': 'Check a sheet',
+
+  /* Bedarf 27 — der Rueckweg vom Papier. */
+  'analysis.sheet.intro':
+    'A sheet in your hand: type the eight-character state from its foot, or read the whole document code. The answer says which document it is and whether the plan has moved on since.',
+  'analysis.sheet.placeholder': '1a2b3c4d or cableplanner://doc/\u2026',
+  'analysis.sheet.check': 'Check',
+  // {label} und {stand} werden vom Aufrufer ersetzt.
+  'analysis.sheet.current': '{label}: state {stand} \u2014 current',
+  'analysis.sheet.stale': '{label}: state {stand} \u2014 SUPERSEDED, the plan has moved on',
+  // {label}, {stand} und {grund} werden vom Aufrufer ersetzt.
+  'analysis.sheet.unknown': '{label}: state {stand} \u2014 not judgeable ({grund})',
+  'analysis.sheet.matched': '{label}: current (state {stand})',
+  // {stand} wird vom Aufrufer ersetzt.
+  'analysis.sheet.foreign':
+    'State {stand} belongs to no document of this plan \u2014 most likely a superseded printout',
+  'analysis.sheet.unreadable':
+    'Neither a document code nor a state \u2014 eight characters from the foot of the sheet, or the whole code',
 
   /* Bedarf 13 — die Kabelwege: was die Laenge behauptet, und ob sie noch gilt. */
   'analysis.runs.intro':
