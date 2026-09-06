@@ -4255,6 +4255,14 @@ export const en: Dict = {
   'analysis.crew.title': 'Network briefing sheet for the crew',
   'analysis.crew.ask': '{n} points to settle on site',
   'analysis.crew.export': 'Crew network sheet',
+  // Bedarf 75 — den As-Built zur Vorlage der naechsten Show machen.
+  'templates.promote': 'As-built as template',
+  'templates.promoteHint': 'Takes the committed as-built state, not the current plan',
+  'templates.promoteNamePrompt': 'Template name (from the as-built)',
+  'templates.promoteNoneTitle': 'No as-built committed',
+  'templates.promoteNoneBody':
+    'Nothing is committed as \u201cas built\u201d. Commit an as-built revision first \u2014 otherwise the template would be the plan from before load-in, only under another name.',
+  'templates.promotedBody': 'Template \u201c{name}\u201d created from the as-built \u201c{from}\u201d.',
   // Bedarf 84 — woraus naechstes Jahr geplant wuerde.
   'docs.job.title': 'Basis of this handover',
   'docs.job.intro':
