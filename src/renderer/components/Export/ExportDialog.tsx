@@ -16,6 +16,7 @@ import {
 import { useDialogA11y } from '../../hooks/useDialogA11y'
 import jsPDF from 'jspdf'
 import { useUiStore } from '../../store/uiStore'
+import { PacketSection } from './PacketSection'
 import { useProjectStore } from '../../store/projectStore'
 import { AlertTriangle, Check, Lightbulb, Package as PackageIcon } from 'lucide-react'
 import { useTranslation, format } from '../../lib/i18n'
@@ -51,7 +52,7 @@ import { LayerVisibilityChips } from '../Canvas/LayerVisibilityChips'
 import type { Cable } from '../../types/cable'
 
 export type ExportFormat = 'pdf' | 'png' | 'jpeg' | 'svg' | 'dxf'
-type Section = 'plan' | 'patch' | 'bom' | 'devicebom' | 'rack' | 'tally'
+type Section = 'plan' | 'patch' | 'bom' | 'devicebom' | 'rack' | 'tally' | 'packet'
 
 /** v7.9.103 — Page-Size-Optionen fuer den Vektor-PDF-Pfad. */
 export type PdfPageSizeOpt =
@@ -88,6 +89,7 @@ const SECTION_LABEL: Record<Section, string> = {
   devicebom: 'Geräte-Stückliste',
   rack: 'Racks & Gruppen',
   tally: 'Tally-Karte',
+  packet: 'Unterlagen-Stapel',
 }
 
 const SECTION_ICON: Record<Section, LucideIcon> = {
@@ -97,6 +99,7 @@ const SECTION_ICON: Record<Section, LucideIcon> = {
   devicebom: PackageIcon,
   rack: Server,
   tally: Lightbulb,
+  packet: Printer,
 }
 
 const SECTION_DESC: Record<Section, string> = {
@@ -105,6 +108,8 @@ const SECTION_DESC: Record<Section, string> = {
   bom: 'Stückliste aller Kabel im Projekt (Typ + Länge zusammengefasst). Editierbare Rentman-Planung daneben. Export als CSV oder PDF.',
   devicebom: 'Was der Plan an Geräten braucht, gezählt nach Modell und gegen das Lager gedeckt. Drei Zustände, die unterscheidbar bleiben: gedeckt (über die Katalog-Identität), VORSCHLAG (Namenstreffer, wartet auf Bestätigung) und nicht im Lager. Dazu die Kommissionier-Liste — nur sicher Gedecktes, nach Lagerort sortiert.',
   rack: 'Gespeicherte Racks und Gruppen einzeln als PDF exportieren oder drucken — eine Patch-Seite pro enthaltenem Gerät mit interner Verkabelung.',
+  packet:
+    'Mehrere Blätter als EIN druckbarer Stapel: eine Seite je Blatt, Spaltenkopf auf jeder Folgeseite wiederholt, Papierformat und Farbmodus wählbar. Für den Ordner, der mit auf die Show fährt. Jedes Blatt trägt seinen Stempel — ein Stapel aus gestempelten Blättern lässt sich morgen gegen den Plan halten.',
   tally: 'Die Kette Rolle → Gerät → Mischer-Eingang → UMD-Adresse, aus dem Plan abgeleitet und geprüft. Als CSV zum Gegenlesen, als JSON für die tally-pi-Konfiguration. Die Lampe selbst — welcher GPIO-Pin welcher Box — gehört der Hardware und steht bewusst nicht drin.',
 }
 
@@ -190,6 +195,7 @@ export const ExportDialog = ({
               {section === 'bom' && <BomSection />}
               {section === 'devicebom' && <DeviceBomSection />}
               {section === 'rack' && <RackGroupSection onClose={onClose} />}
+              {section === 'packet' && <PacketSection />}
               {section === 'tally' && <TallySection />}
             </div>
           </div>
