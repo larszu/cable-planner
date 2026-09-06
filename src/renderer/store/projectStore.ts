@@ -78,6 +78,7 @@ import { normaliseTransmissionRecord } from '../lib/transmissionRecord'
 import { normaliseCostPlan } from '../lib/costComparison'
 import { normaliseNamingScheme } from '../lib/namingScheme'
 import { normaliseMicPlot } from '../lib/micAssignment'
+import { normaliseTallyPositions } from '../lib/tallyPosition'
 import { normaliseVenueAnswers } from '../lib/venueAnswers'
 import { isNetworkInterfaceRole, normaliseNetworkInterface } from '../lib/networkInterfaces'
 import type { NetworkInterface } from '../types/network'
@@ -514,6 +515,18 @@ export interface ProjectState {
    * ausgefuehrt wurde, statt still nichts zu tun: fuer den Bedienenden ist
    * ein wortloses Nichts von einem kaputten Programm nicht zu unterscheiden.
    */
+  /** Bedarf 105 — Tally-Weg/Lampe einer Position setzen (Upsert). Liefert
+   *  `'unknown-role'`, wenn es die Rolle nicht gibt. */
+  setTallyPosition: (
+    identityId: string,
+    patch: Partial<Omit<import('../types/tallyPosition').TallyPosition, 'identityId' | 'checks'>>,
+  ) => 'unknown-role' | undefined
+  /** Bedarf 105 — eine Sichtpruefung anhaengen. Der Zeitpunkt kommt vom
+   *  Aufrufer; der Store nimmt keine Uhr. */
+  recordTallyCheck: (
+    identityId: string,
+    check: import('../types/tallyPosition').TallyCheck,
+  ) => 'unknown-role' | undefined
   renameSourceIdentity: (
     id: string,
     newName: string,
@@ -647,6 +660,13 @@ const healProjectPositions = (
   // sieht im Plan aus wie eine zugewiesene Tally-Adresse.
   const sourceIdentities = normaliseSourceIdentities(project.sourceIdentities, onDrop)
   const identityIds = sourceIdentityIdSet(sourceIdentities)
+  // Bedarf 105 — das Tally je Position. NACH den Rollen, weil es sie braucht:
+  // ein Datensatz auf eine geloeschte Rolle zeigt ins Leere und saehe auf dem
+  // Vor-Show-Blatt aus wie eine gepruefte Position. Dieselbe Entscheidung wie
+  // bei `clearDanglingIdentity` eine Zeile weiter unten.
+  const tallyPositions = normaliseTallyPositions(project.tallyPositions).filter((p) =>
+    identityIds.has(p.identityId),
+  )
   // Initiative 9 — Ausspielziele. Dieselbe Bauform wie die Rollen darueber:
   // normalisieren, Verworfenes melden, Backup-Zeiger ins Leere entfernen.
   const deliveryDestinations = normaliseDeliveryDestinations(project.deliveryDestinations, onDrop)
@@ -849,6 +869,10 @@ const healProjectPositions = (
     changelog: project.changelog ?? [],
     // ADR-001 — Rollen sind optional; alte Projekte heilen zu [].
     sourceIdentities,
+    // Bedarf 105 — dito. Leere Liste und nicht `undefined`: „keine Position
+    // hinterlegt" und „Liste leer" sind hier dasselbe, und ein `undefined`
+    // zwaenge jeden Leser zu einer zweiten Fallunterscheidung.
+    tallyPositions,
     deliveryDestinations,
     // Bedarf 72 — `undefined` heisst „kein Adressplan", nicht „leerer".
     multicast,

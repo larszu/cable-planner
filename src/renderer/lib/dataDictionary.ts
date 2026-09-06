@@ -51,6 +51,25 @@ export const UNDESCRIBED = 'nicht beschrieben'
  * Datei, ohne dass sich am Plan etwas geaendert haette.
  */
 export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
+  // Bedarf 101 — die Vorschau auf eine Umbenennung (`lib/renameImpact.ts`).
+  Zielsystem:
+    'Das System, das den Namen speichert (ATEM, Videohub, TSL-UMD, Dante) — samt Feld, weil derselbe Name dort in mehreren Feldern mit verschiedenen Budgets landet.',
+  Ort:
+    'Wo im Plan der Text ankommt — Gerät und, wo es eines gibt, der Anschluss („ATEM 1 · In 3“).',
+  Hinweis:
+    'Was beim Zielsystem NICHT so ankommt wie gemeint: gekürzt, nicht darstellbare Zeichen, oder „kommt hier NICHT an“ — dann speichert das Ziel nach der Umbenennung denselben Text wie vorher.',
+  // Bedarf 105 — die Vor-Show-Liste fuer das Tally (`lib/tallyPosition.ts`).
+  Weg:
+    'Über welchen Weg das Tally an diese Position kommt (TSL UMD v3.1, GPIO, NDI, der Mischer selbst). „nicht festgelegt“ heißt: niemand hat es entschieden.',
+  Adresse:
+    'Adresse, Host oder Pin, wie es AM GERÄT eingetragen ist. Der Plan prüft den Wert nicht — was gültig ist, hängt am Weg; geprüft wird an der Lampe.',
+  Lampe: 'Wo die Lampe sitzt, die diese Position anzeigt („Kamerakopf“, „Box am Stativ“).',
+  Programm:
+    'Was an der Lampe zu sehen war, während die Position auf PROGRAMM lag. „nicht geprüft“ heißt: niemand hat hingesehen — nicht, dass sie aus war.',
+  Vorschau:
+    'Was an der Lampe zu sehen war, während die Position auf VORSCHAU lag. Rot ist hier ein Fehler: der Operator glaubt dann, er sei auf Sendung.',
+  'Geprüft am':
+    'Tag der letzten Sichtprüfung an dieser Lampe. Ohne Datum gilt die Position als ungeprüft — der Plan sagt nie von sich aus, dass ein Tally funktioniert.',
   Abweichung:
     'Ist minus Schätzung. „unbekannt“ heißt: eine der beiden Zahlen fehlt — nicht, dass die Abweichung null wäre.',
   'Abweichung %':

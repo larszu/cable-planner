@@ -171,6 +171,13 @@ describe('changeImpact — die Vorwärts-Frage', () => {
       // eine Namensregel im Projekt steht. Auf einem Torso ohne Regel ist der
       // leere Satz die wahre Antwort: es gibt nichts umzubenennen.
       'umbenennungssatz',
+      // `tally-vorshow` (Bedarf 105) haengt ABSICHTLICH nicht an `equipment`:
+      // die Lampe haengt am PLATZ, nicht am Blech. Die Zeile fuehrt die Rolle
+      // („Kamera 1"), und die ueberlebt den Geraetetausch — das ist der Grund,
+      // warum es Rollen ueberhaupt gibt (ADR-001). Ein Geraetewechsel aendert
+      // die Tally-KARTE (Eingangsnummer) und nicht diese Liste; wer das
+      // umdreht, muss den Bezeichner hier wieder herausnehmen.
+      'tally-vorshow',
     ])
     expect(
       impact.documents.some((d) => d.verdict === 'unaffected' && !ohneGeraetebezug.has(d.docId)),
