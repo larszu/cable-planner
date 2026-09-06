@@ -99,6 +99,13 @@ export const CABLE_FIELD_CLASS: Record<string, FieldClass> = {
   standard: 'substantive',
   cableSpecId: 'substantive',
   length: 'substantive',
+  // Bedarf 13 — die Herkunft einer geschaetzten Laenge. `bookkeeping` und
+  // nicht `substantive`: an der Zahl aendert sich nichts, wenn sie sich
+  // aendert, und niemand muss deswegen ein Kabel anders ziehen. Sie ist auch
+  // nicht `cosmetic` — dort stuende „daran muss niemand nochmal ran", und
+  // genau das waere falsch: aus ihr faellt der Befund, dass die Laenge
+  // ueberholt ist. Sie gehoert zu den Feldern, die der naechste Lauf liest.
+  lengthDerivedFrom: 'bookkeeping',
   fromEquipmentId: 'substantive',
   fromPortId: 'substantive',
   toEquipmentId: 'substantive',

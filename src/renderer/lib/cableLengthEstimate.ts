@@ -5,7 +5,7 @@
 // manuelle Längen-Tippen für grobe Planung. Eine spätere Stufe kann die
 // echten Waypoint-/A*-Pfade statt der Luftlinie nutzen (siehe Issue #350).
 
-import type { Cable } from '../types/cable'
+import type { Cable, DerivedLengthOrigin } from '../types/cable'
 import type { EquipmentItem } from '../types/equipment'
 import type { LengthEstimationScheme } from '../types/project'
 
@@ -15,7 +15,10 @@ export const DEFAULT_LENGTH_ESTIMATION: LengthEstimationScheme = {
   roundUp: true,
 }
 
-const centerOf = (e: EquipmentItem): { x: number; y: number } => ({
+/** Canvas-Mittelpunkt eines Geraets. EXPORTIERT, weil die Veraltungs-Pruefung
+ *  denselben Punkt braucht: zwei Rechnungen mit zwei Mittelpunkt-Begriffen
+ *  meldeten einen Versatz, den es nicht gibt. */
+export const centerOf = (e: EquipmentItem): { x: number; y: number } => ({
   x: e.x + (e.width ?? 220) / 2,
   y: e.y + (e.height ?? 60) / 2,
 })
@@ -42,6 +45,9 @@ export const estimateCableLength = (
 export interface EstimateResult {
   /** id → neue Länge für alle Kabel, die geschätzt werden konnten. */
   updates: Map<string, number>
+  /** id → Geometrie und Maßstab, aus denen sie entstand (Bedarf 13).
+   *  Ohne diese Spur sieht eine geschätzte Länge aus wie eine gemessene. */
+  origins: Map<string, DerivedLengthOrigin>
   estimated: number
   skipped: number
 }
@@ -54,11 +60,27 @@ export const estimateAllCableLengths = (
 ): EstimateResult => {
   const eqById = new Map(equipment.map((e) => [e.id, e]))
   const updates = new Map<string, number>()
+  const origins = new Map<string, DerivedLengthOrigin>()
   let skipped = 0
   for (const c of cables) {
     const len = estimateCableLength(c, eqById, scheme)
-    if (len == null) skipped += 1
-    else updates.set(c.id, len)
+    if (len == null) {
+      skipped += 1
+      continue
+    }
+    updates.set(c.id, len)
+    const from = eqById.get(c.fromEquipmentId)!
+    const to = eqById.get(c.toEquipmentId)!
+    // Der URSPRUNG, nicht der Mittelpunkt — siehe `DerivedLengthOrigin`:
+    // nur er ueberlebt die Raster-Heilung beim Laden unveraendert.
+    origins.set(c.id, {
+      fromX: from.x,
+      fromY: from.y,
+      toX: to.x,
+      toY: to.y,
+      metersPer100px: scheme.metersPer100px,
+      slackPercent: scheme.slackPercent,
+    })
   }
-  return { updates, estimated: updates.size, skipped }
+  return { updates, origins, estimated: updates.size, skipped }
 }
