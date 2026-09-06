@@ -156,6 +156,13 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   Grundlage:
     'Woraus dieses Blatt spricht: aus dem festgeschriebenen As-Built, aus einem veralteten As-Built oder aus dem Plan (also im Zweifel dem Angebot).',
   Gruppe: 'Die vergebene Multicast-Gruppenadresse.',
+  // Bedarf 112 — der Scan vor Ort.
+  'Was funkt': 'Der geplante Träger — ein Rig-Kanal oder eine drahtlose Strecke aus dem Kabelgraph.',
+  'Pegel (dBm)': 'Der gemessene Pegel an diesem Punkt.',
+  Urteil:
+    'Was die Messung über diesen Träger sagt: frei gemessen, belegt gemessen — oder „nicht gemessen“, wenn er außerhalb des gescannten Bereichs liegt. Das dritte ist keine Entwarnung.',
+  'Spitzenpegel (dBm)':
+    'Der höchste gemessene Pegel im Fenster um diese Frequenz. „nicht gemessen“ heißt: der Scan reicht dort nicht hin.',
   // Bedarf 114 — die Spalten des Session-Blatts.
   Akku:
     'Wie lange der Akku schon eingelegt ist. Keine Restlaufzeit — die hängt an Typ, Alter, Sendeleistung und Temperatur und steht nirgends im Plan.',
