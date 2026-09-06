@@ -4496,6 +4496,11 @@ export const en: Dict = {
   'drum.splHint': 'Max SPL < 140 dB on kick/snare — a single snare hit can exceed 156 dB (DPA).',
   'drum.copy': 'copy',
   'drum.copied': 'copied ✓',
+  // Bedarf 96 — ein Preset darf nie still ueberschreiben.
+  'drum.preset.dropTitle': '{n} placed microphones will be lost',
+  'drum.preset.dropBody':
+    'The \u201c{tech}\u201d technique does not know these zones: {liste}. Afterwards the plan holds {rows} microphones.',
+  'drum.preset.dropOk': 'Apply anyway',
 
   // Schema-Builder (eigene Fachfelder)
   'schemaBuilder.title': 'Categories & fields',

@@ -6,6 +6,7 @@ import {
   DRUM_TECHNIQUES,
 } from '../src/renderer/lib/drumMicing'
 import { matchMicTemplate } from '../src/renderer/lib/micCatalog'
+import drumDialogQuelle from '../src/renderer/components/DrumMicing/DrumMicingDialog.tsx?raw'
 
 let n = 0
 const id = () => `t-${n++}`
@@ -19,7 +20,10 @@ describe('drumMicing — Technik-Presets + Ableitungen', () => {
   })
 
   it('Glyn Johns belegt 4 Zonen inkl. Overhead-Stereo-Paar', () => {
-    const mics = applyTechnique(emptyDrumKit(), 'glynJohns', id)
+    // BEDARF 96: `applyTechnique` gibt seit 2026-09-06 einen BERICHT zurueck
+    // und nicht mehr nur die Liste — ein Preset, das still ueberschreibt, ist
+    // genau der Fehler, den der Bedarf benennt.
+    const { placements: mics } = applyTechnique(emptyDrumKit(), 'glynJohns', id)
     expect(mics).toHaveLength(4)
     const oh = mics.filter((m) => m.stereoGroup)
     expect(oh).toHaveLength(2)
@@ -55,7 +59,7 @@ describe('drumMicing — Technik-Presets + Ableitungen', () => {
     const km184 = matchMicTemplate('Neumann KM 184')!
     const kit = emptyDrumKit()
     kit.mics = [{ id: 'keep', zoneId: 'ohL', micDeviceTypeId: km184.deviceTypeId }]
-    const mics = applyTechnique(kit, 'glynJohns', id)
+    const { placements: mics } = applyTechnique(kit, 'glynJohns', id)
     const ohL = mics.find((m) => m.zoneId === 'ohL')
     expect(ohL?.micDeviceTypeId).toBe(km184.deviceTypeId) // Zuordnung erhalten
   })
@@ -84,5 +88,94 @@ describe('drumMicing — Technik-Presets + Ableitungen', () => {
     for (const def of Object.values(DRUM_TECHNIQUES)) {
       for (const zid of def.zoneIds) expect(zoneIds.has(zid), zid).toBe(true)
     }
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Bedarf 96 — ein Preset darf nie still ueberschreiben.
+//
+//   > Applying a preset must never silently replace an existing grid; presets
+//   > must append or prompt AND SHOW THE RESULTING ROW COUNT.
+//   > A wrong preset is worse than no preset.
+//
+// Beleg: Cryde/musicall#798, geschrieben nach einem Datenverlust-Fehler.
+//
+// Genau das passierte hier: `applyTechnique` gab NUR die Zonen der gewaehlten
+// Technik zurueck. Wer auf drei Toms Mikrofone gesetzt hatte und dann auf eine
+// kleinere Technik wechselte, verlor sie — wortlos.
+// ---------------------------------------------------------------------------
+
+describe('Bedarf 96 — das Preset sagt, was es kostet', () => {
+  const km184 = matchMicTemplate('Neumann KM 184')!
+
+  it('meldet ein gesetztes Mikrofon, das die neue Technik nicht kennt', () => {
+    const kit = emptyDrumKit()
+    kit.mics = [{ id: 'tom', zoneId: 'tom1', micDeviceTypeId: km184.deviceTypeId }]
+    const { placements, dropped } = applyTechnique(kit, 'minimal', id)
+    expect(placements.some((m) => m.zoneId === 'tom1')).toBe(false)
+    expect(dropped).toHaveLength(1)
+    expect(dropped[0].zoneLabel).toBe('Tom 1')
+  })
+
+  it('nennt den Namen, nicht nur die Zone — sonst weiss niemand, was faellt', () => {
+    const kit = emptyDrumKit()
+    kit.mics = [{ id: 'tom', zoneId: 'tom1', micName: 'Sennheiser MD 421' }]
+    expect(applyTechnique(kit, 'minimal', id).dropped[0].what).toBe('Sennheiser MD 421')
+  })
+
+  it('meldet auch eine EIGENE Kanal-Beschriftung als Verlust', () => {
+    const kit = emptyDrumKit()
+    kit.mics = [{ id: 'tom', zoneId: 'tom1', channelLabel: 'Tom Floor Sub' }]
+    expect(applyTechnique(kit, 'minimal', id).dropped).toHaveLength(1)
+  })
+
+  it('meldet eine LEERE Platzierung NICHT', () => {
+    // Eine Rueckfrage bei jedem Wechsel klickt man beim vierten Mal weg.
+    const kit = emptyDrumKit()
+    kit.mics = [{ id: 'tom', zoneId: 'tom1' }]
+    expect(applyTechnique(kit, 'minimal', id).dropped).toHaveLength(0)
+  })
+
+  it('meldet eine ABGELEITETE Kanal-Beschriftung NICHT als Eingabe', () => {
+    // Sie stammt von der Zone, nicht von einem Menschen. Der voranstehende
+    // Technik-Wechsel hat sie selbst gesetzt.
+    const kit = emptyDrumKit()
+    const erst = applyTechnique(kit, 'glynJohns', id)
+    const zwischen = { ...kit, mics: erst.placements }
+    expect(applyTechnique(zwischen, 'minimal', id).dropped).toHaveLength(0)
+  })
+
+  it('meldet nichts, wenn die neue Technik alles behaelt', () => {
+    const kit = emptyDrumKit()
+    kit.mics = [{ id: 'k', zoneId: 'kick', micDeviceTypeId: km184.deviceTypeId }]
+    expect(applyTechnique(kit, 'minimal', id).dropped).toHaveLength(0)
+  })
+
+  it('behaelt die Zuordnung auf Zonen, die beide Techniken kennen', () => {
+    const kit = emptyDrumKit()
+    kit.mics = [
+      { id: 'k', zoneId: 'kick', micDeviceTypeId: km184.deviceTypeId },
+      { id: 't', zoneId: 'tom1', micDeviceTypeId: km184.deviceTypeId },
+    ]
+    const { placements, dropped } = applyTechnique(kit, 'minimal', id)
+    expect(placements.find((m) => m.zoneId === 'kick')?.micDeviceTypeId).toBe(km184.deviceTypeId)
+    expect(dropped.map((d) => d.zoneLabel)).toEqual(['Tom 1'])
+  })
+})
+
+describe('Bedarf 96 — die Oberflaeche fragt, bevor sie verwirft', () => {
+  it('der Dialog ruft confirmDialog und wendet bei Abbruch nichts an', () => {
+    expect(drumDialogQuelle).toMatch(/if \(dropped\.length\) \{/)
+    expect(drumDialogQuelle).toMatch(/await confirmDialog\(/)
+    expect(drumDialogQuelle).toMatch(/if \(!ok\) return/)
+  })
+
+  it('die Rueckfrage nennt die Zahl DANACH', () => {
+    // „show the resulting row count" steht woertlich im Bedarf.
+    expect(drumDialogQuelle).toContain('rows: String(placements.length)')
+  })
+
+  it('sie ist als zerstoerend markiert', () => {
+    expect(drumDialogQuelle).toContain('destructive: true')
   })
 })
