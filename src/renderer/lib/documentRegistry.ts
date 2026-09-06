@@ -28,6 +28,7 @@ import { crewSheetTableForProject } from './crewNetworkSheet'
 import { spectrumTableForProject } from './spectrumPlan'
 import { multicastTableForProject } from './multicastPlan'
 import { fallbackTable } from './fallbackPlan'
+import { eventMetadataTable } from './eventMetadata'
 import type { CsvTable } from './csv'
 
 const ofTable =
@@ -103,6 +104,14 @@ export const DOCUMENT_STANDS: Record<string, (project: CablePlannerProject) => s
   // Inhalt folgt allein aus den Regeln und den Zielen. Die BEFUNDE stehen
   // nicht drin -- sie tragen Fliesstext.
   'ausweich-plan': ofTable(fallbackTable),
+  // Bedarf 88 — die Veranstaltungsangaben als Blatt zum Abtippen.
+  // Reproduzierbar: der Inhalt folgt allein aus `eventMetadata` und
+  // `deliveryDestinations`, keine Nutzer-Einstellung beim Export und keine
+  // Sprache (die Ersatztexte sind kanonisches Deutsch, siehe `NO_TITLE` &
+  // Co. in `eventMetadata.ts`). Die BEFUNDE stehen nicht in der Tabelle --
+  // sie tragen Fliesstext, und ein Blatt, dessen Stand sich mit jeder
+  // Umformulierung aendert, meldete jedes gedruckte Exemplar als veraltet.
+  'event-metadaten': ofTable(eventMetadataTable),
 }
 
 /**
@@ -183,6 +192,7 @@ export const DOCUMENT_LABELS: Record<string, string> = {
   'spektrum-plan': 'Spektrum-Plan',
   'multicast-plan': 'Multicast-Adressplan',
   'ausweich-plan': 'Ausweich-Plan (Sicherheitsnetz)',
+  'event-metadaten': 'Angaben zur Veranstaltung',
   'job-grundlage': 'Grundlage der Übergabe',
   'videohub-labels': 'Videohub-Labels',
   'atem-mv-layout': 'Multiviewer-Layout',

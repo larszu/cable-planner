@@ -33,6 +33,7 @@ export type MetaSlice = Pick<
   | 'setWirelessRig'
   | 'setMulticastConfig'
   | 'setFallbackPlan'
+  | 'setEventMetadata'
 >
 
 export const createMetaSlice: StateCreator<ProjectState, [], [], MetaSlice> = (set) => ({
@@ -129,6 +130,17 @@ export const createMetaSlice: StateCreator<ProjectState, [], [], MetaSlice> = (s
   setFallbackPlan: (plan) =>
     set((state) => {
       const updated = { ...state.project, fallback: plan }
+      scheduleProjectAutosave(updated)
+      return { project: updated }
+    }),
+  // BEDARF 88 — die Veranstaltungsangaben. Ein Setter fuer das ganze Objekt,
+  // aus demselben Grund wie oben: die Abweichungen je Ziel haengen an den
+  // Projektwerten, gegen die sie abweichen. Ein Einzel-Setter je Abweichung
+  // liesse den Zustand zu, in dem ein Ueberschreiber gegen einen Projektwert
+  // steht, den es in derselben Aktion gar nicht mehr gibt.
+  setEventMetadata: (plan) =>
+    set((state) => {
+      const updated = { ...state.project, eventMetadata: plan }
       scheduleProjectAutosave(updated)
       return { project: updated }
     }),

@@ -142,7 +142,19 @@ describe('changeImpact — die Vorwärts-Frage', () => {
     // Ausweichen. Sobald ein Ziel existiert, ist er ohne Geraete unbeurteilbar;
     // genau das haelt der Test unter diesem hier fest, damit die Zeile nicht
     // als „haengt nie an Geraeten" missverstanden wird.
-    const ohneGeraetebezug = new Set(['plan', 'ausspielung', 'ablaufblatt', 'ausspielweg'])
+    //
+    // `event-metadaten` (Bedarf 88) kam mit dem Grund der ersten beiden dazu:
+    // Titel, Beginn und Sichtbarkeit stehen am Projekt, die Zeilen kommen aus
+    // `deliveryDestinations`. Kein Geraet wird dafuer angefasst — auch nicht
+    // mittelbar, denn anders als beim `ausspielweg` wird kein Encoder-Zeiger
+    // aufgeloest.
+    const ohneGeraetebezug = new Set([
+      'plan',
+      'ausspielung',
+      'ablaufblatt',
+      'ausspielweg',
+      'event-metadaten',
+    ])
     expect(
       impact.documents.some((d) => d.verdict === 'unaffected' && !ohneGeraetebezug.has(d.docId)),
     ).toBe(false)

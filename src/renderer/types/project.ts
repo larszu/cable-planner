@@ -253,6 +253,16 @@ export interface CablePlannerProject {
    */
   archiveRecording?: import('./delivery').ArchiveRecording
   /**
+   * Bedarf 88 — die Angaben zur Veranstaltung (Titel, Beschreibung, Beginn,
+   * Sichtbarkeit, Vorschaubild) einmal, plus die ausdrücklichen Abweichungen
+   * je Ziel.
+   *
+   * Am Projekt und nicht am Ziel: der Bedarf ist „entered ONCE and reconciled
+   * across platforms". Ein Feld je Ziel wäre genau das Retippen, das eine
+   * ganze Produktkategorie als Kaufgrund verkauft.
+   */
+  eventMetadata?: import('./eventMetadata').EventMetadataPlan
+  /**
    * Bedarf 72 — der Multicast-Adressplan: aus welchem Pool vergeben wird und
    * welche Gruppe welcher Sende-Port belegt.
    *

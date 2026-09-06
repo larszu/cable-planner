@@ -73,6 +73,7 @@ import {
 import { normaliseDeliveryDestinations } from '../lib/deliveryNormalise'
 import { normaliseMulticastConfig } from '../lib/multicastPlan'
 import { normaliseFallbackPlan } from '../lib/fallbackPlan'
+import { normaliseEventMetadata } from '../lib/eventMetadata'
 import { normaliseVenueAnswers } from '../lib/venueAnswers'
 import { isNetworkInterfaceRole, normaliseNetworkInterface } from '../lib/networkInterfaces'
 import type { NetworkInterface } from '../types/network'
@@ -444,6 +445,9 @@ export interface ProjectState {
   setWirelessRig: (plan: import('../types/wirelessRig').WirelessRigPlan | undefined) => void
   setMulticastConfig: (config: import('../types/multicast').MulticastConfig | undefined) => void
   setFallbackPlan: (plan: import('../types/fallback').FallbackPlan | undefined) => void
+  setEventMetadata: (
+    plan: import('../types/eventMetadata').EventMetadataPlan | undefined,
+  ) => void
   /** v7.9.3 — Mobile-Viewer Check-State setzen (vom POST /checks-IPC).
    *  Komplettes Objekt-Replace damit gelöschte Checks (false → kein
    *  key) auch übernommen werden. */
@@ -637,6 +641,13 @@ const healProjectPositions = (
   const fallback = normaliseFallbackPlan(project.fallback, (d) =>
     onDrop?.({ kind: 'fallback-rule', reason: d.reason, label: d.label }),
   )
+  // Bedarf 88 — die Veranstaltungsangaben. Eine Abweichung ohne Ziel-Id kann
+  // nichts ueberschreiben und fliegt raus; eine Abweichung auf ein GELOESCHTES
+  // Ziel bleibt — dafuer gibt es `override-orphan`, und ein spurlos
+  // verschwundener abweichender Titel waere die schlechtere Auskunft.
+  const eventMetadata = normaliseEventMetadata(project.eventMetadata, (d) =>
+    onDrop?.({ kind: 'metadata-override', reason: d.reason, label: d.label }),
+  )
   return {
     ...project,
     equipment: project.equipment.map((item) => {
@@ -786,6 +797,8 @@ const healProjectPositions = (
     multicast,
     // Bedarf 89 — dito: `undefined` heisst „kein Sicherheitsnetz erklaert".
     fallback,
+    // Bedarf 88 — dito: `undefined` heisst „keine Angaben zur Veranstaltung".
+    eventMetadata,
     // ADR-003 — Rentman-Zaehler: gesendet ist nicht bestaetigt.
     metadata: {
       ...healRentmanCableMap(project.metadata),
