@@ -156,6 +156,15 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   Grundlage:
     'Woraus dieses Blatt spricht: aus dem festgeschriebenen As-Built, aus einem veralteten As-Built oder aus dem Plan (also im Zweifel dem Angebot).',
   Gruppe: 'Die vergebene Multicast-Gruppenadresse.',
+  // Bedarf 114 — die Spalten des Session-Blatts.
+  Akku:
+    'Wie lange der Akku schon eingelegt ist. Keine Restlaufzeit — die hängt an Typ, Alter, Sendeleistung und Temperatur und steht nirgends im Plan.',
+  Frequenz: 'Die Sendefrequenz des Kanals, aus dem Funkstrecken-Plan.',
+  Funktion: 'Die Rolle der Person („Moderation“, „Pfarrer“). Steht auch da, wo kein Klarname gepflegt ist.',
+  Kanal: 'Der Kanal aus dem Funkstrecken-Plan. „Kanal entfernt“ heißt: der Plan führt ihn nicht mehr.',
+  Kapsel:
+    'Abweichende Kapsel oder Headset für diese Session. „wie im Kanalplan“ heißt: keine Abweichung eingetragen.',
+  Person: 'Wer die Strecke in dieser Session trägt. „ohne Namen“ heißt: weder Name noch Funktion gepflegt.',
   Haus: 'Der Ort, für den die Antwort gegeben wurde — eingefroren beim Speichern.',
   Herkunft:
     'Woher die Angabe stammt. Im Sendebericht: gesehen, aus einem Log abgetippt oder gemeldet. Auf anderen Blättern: aus welcher Quelle im Plan der Wert kommt.',
@@ -224,6 +233,8 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   Sender:
     'Das sendende Dante-Gerät. „nichts“ heißt: dieser Empfangskanal ist nicht abonniert — ein gültiger Zustand, kein Fehler.',
   Sendekanal: 'Der Ausgang am sendenden Dante-Gerät.',
+  'Sender (Einheit)':
+    'Die konkrete Lager-Einheit des Funksenders, die in dieser Session am Körper hängt — nicht der Typ aus dem Kanalplan.',
   'Serie (Einheit)': 'Die Seriennummer, die an der Lager-Einheit steht.',
   'Serie (Platz)': 'Die Seriennummer, die am Platz im Plan hinterlegt ist.',
   Show: 'Das Projekt oder die Show, zu der die Zeile gehört.',
