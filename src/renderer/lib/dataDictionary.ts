@@ -51,6 +51,18 @@ export const UNDESCRIBED = 'nicht beschrieben'
  * Datei, ohne dass sich am Plan etwas geaendert haette.
  */
 export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
+  // Bedarf 116 — die Segmente (`lib/networkSegments.ts`).
+  Segment:
+    'Der Name des VLAN im Haus („Dante Prim“, „Steuerung“). „ohne Namen“ heißt: die Id ist in Gebrauch, aber niemand hat gesagt, wofür.',
+  Zweck:
+    'Wofür das Segment da ist — dieselbe Vokabel wie die Rolle an der Schnittstelle (Medien primär/sekundär, Steuerung, Management). „nicht angegeben“ ist kein Fehler, sondern eine offene Entscheidung.',
+  'PTP-Domäne (geplant)':
+    'Die Zeit, die in diesem Segment laufen SOLL — der Entwurf, nicht die Messung am Gerät. Weicht ein Gerät davon ab, ist das ein Befund.',
+  'Weg hinein':
+    'Das Gerät, das in dieses Segment routet (das Mgmt-Gateway). „nur direkt am Segment“ ist eine Auskunft und keine Lücke: nicht jedes Segment soll von außen erreichbar sein.',
+  Schnittstellen: 'Wie viele Netz-Schnittstellen aus dem Plan in diesem Segment liegen.',
+  'Gerät':
+    'Das Gerät, dem die Zeile gehört — mit seinem Namen aus dem Plan, nicht mit einer Kurzform.',
   // Bedarf 101 — die Vorschau auf eine Umbenennung (`lib/renameImpact.ts`).
   Zielsystem:
     'Das System, das den Namen speichert (ATEM, Videohub, TSL-UMD, Dante) — samt Feld, weil derselbe Name dort in mehreren Feldern mit verschiedenen Budgets landet.',
