@@ -42,6 +42,7 @@ import { sanitizeForPdf } from '../../lib/sanitizeForPdf'
 import { downloadBlob } from '../../lib/downloadBlob'
 import { buildTallyMap, tallyMapCsv, toTallyPiDevices } from '../../lib/tallyMap'
 import { buildPlanBom, outcomeLabel, pickListCsv, planBomCsv } from '../../lib/planBom'
+import { useCheckoutStore } from '../../store/checkoutStore'
 import { zusatzBedarf } from '../../lib/planDemandExtras'
 import { useInventoryStore } from '../../store/inventoryStore'
 import { exportGroupAsPatchPdf, buildGroupPatchPdfBlob } from '../../lib/exportGroupPdf'
@@ -1437,9 +1438,13 @@ const DeviceBomSection = () => {
     () => zusatzBedarf({ drumKit, wirelessRig, cables, equipment }),
     [drumKit, wirelessRig, cables, equipment],
   )
+  // Bedarf 80: die offenen Ausgaben gehoeren in die Rechnung. Ohne sie sagt
+  // die Stueckliste „Bestand 5" fuer ein Case, das auf einer anderen Show
+  // steht — „the PM promises gear they do not have".
+  const checkoutRecords = useCheckoutStore((s) => s.records)
   const bom = useMemo(
-    () => buildPlanBom(equipment, items, nodes, units, zusatz),
-    [equipment, items, nodes, units, zusatz],
+    () => buildPlanBom(equipment, items, nodes, units, zusatz, checkoutRecords),
+    [equipment, items, nodes, units, zusatz, checkoutRecords],
   )
 
   const download = (suffix: string, content: string) =>
@@ -1525,7 +1530,22 @@ const DeviceBomSection = () => {
                         </button>
                       )}
                     </td>
-                    <td className="px-2 py-1 font-mono">{row.available ?? '—'}</td>
+                    {/* Bedarf 80: die Qualifizierung steht IN DEMSELBEN
+                        Zug wie die Zahl („5 im Lager · 3 verfügbar"), nicht
+                        in einer Fussnote und nicht in einem Tooltip. Und die
+                        Bindung steht am Objekt, das sie hat — nicht als
+                        ausgegrauter Knopf irgendwo anders. */}
+                    <td className="px-2 py-1 font-mono">
+                      {row.available ?? '—'}
+                      {row.committed !== undefined && row.committed > 0 && (
+                        <span className="ml-1 font-sans text-cp-warn" title={row.commitmentNote}>
+                          {format(
+                            t('export.devicebom.committed', '(von {stock} · {n} auf Ausgabe)'),
+                            { stock: row.stock ?? '?', n: row.committed },
+                          )}
+                        </span>
+                      )}
+                    </td>
                     <td className="px-2 py-1 text-cp-text-secondary">{row.location || '—'}</td>
                   </tr>
                 ))}

@@ -22,6 +22,7 @@
 import type { EquipmentItem } from '../types/equipment'
 import type { InventoryItem, InventoryUnit, StorageNode } from '../types/inventory'
 import { resolveCoverage, type CoverageLine, type CoverageOutcome } from './inventoryCoverage'
+import type { CheckoutRecord } from '../types/checkout'
 import type { ZusatzBedarf } from './planDemandExtras'
 import { nodePathLabel } from './storageTree'
 import { toCsv } from './csv'
@@ -33,8 +34,15 @@ export interface PlanBomRow {
   model: string
   category?: string
   outcome: CoverageOutcome
-  /** Bestand der deckenden bzw. vorgeschlagenen Position. */
+  /** VERFUEGBAR: Bestand abzueglich unbrauchbarer Einheiten und abzueglich
+   *  offener Ausgaben (Bedarf 80). */
   available?: number
+  /** Bestand IM LAGER, ohne Ruecksicht auf offene Ausgaben. */
+  stock?: number
+  /** Davon gerade auf einer offenen Ausgabe. */
+  committed?: number
+  /** Auf welchen Vorgaengen, im Klartext. */
+  commitmentNote?: string
   /** Fehlmenge — nur bei einer echten Deckung aussagekräftig. */
   short?: number
   /** Serialisierte Einheiten, die nicht einsatzbereit sind (defekt, in
@@ -101,6 +109,13 @@ const rowOf = (
     ...(line.demand.category ? { category: line.demand.category } : {}),
     outcome: line.outcome,
     ...(line.available !== undefined ? { available: line.available } : {}),
+    // Bedarf 80: die Zahl traegt ihre Qualifizierung MIT. Ein blosser Bestand
+    // ohne den Hinweis, dass die Haelfte davon auf einer anderen Show steht,
+    // ist genau die Zahl, an der die Produktionsleitung Technik zusagt, die
+    // sie nicht hat.
+    ...(line.stock !== undefined ? { stock: line.stock } : {}),
+    ...(line.committed !== undefined ? { committed: line.committed } : {}),
+    ...(line.commitmentNote ? { commitmentNote: line.commitmentNote } : {}),
     ...(line.short !== undefined ? { short: line.short } : {}),
     // Nicht einsatzbereite Einheiten werden BENANNT, nicht bloss abgezogen.
     // Ein stiller Abzug sieht aus wie ein zu kleiner Bestand, und der naechste
@@ -133,8 +148,12 @@ export const buildPlanBom = (
   nodes: StorageNode[],
   units: InventoryUnit[] = [],
   zusatz: ZusatzBedarf[] = [],
+  /** Offene Ausgaben (Bedarf 80). Ohne sie rechnet die Liste gegen den
+   *  blossen Lagerbestand und verspricht Technik, die auf einer anderen Show
+   *  steht. */
+  checkouts: CheckoutRecord[] = [],
 ): PlanBom => {
-  const coverage = resolveCoverage(equipment, items, units, zusatz)
+  const coverage = resolveCoverage(equipment, items, units, zusatz, checkouts)
   const rows = coverage.lines.map((line) => rowOf(line, items, nodes))
   return {
     rows,
@@ -153,13 +172,29 @@ export const buildPlanBom = (
 /** Die kaufmännische Sicht: was der Plan braucht, mit Deckungsstand. */
 export const planBomCsv = (bom: PlanBom): string =>
   toCsv(
-    ['Menge', 'Modell', 'Kategorie', 'Deckung', 'Bestand', 'Fehlmenge', 'Nicht einsatzbereit', 'Hinweis'],
+    // Bedarf 80: „Bestand" und „Verfuegbar" stehen NEBENEINANDER, und dazu
+    // die Bindung im Klartext. Eine einzige Spalte „Bestand" liest jeder als
+    // „so viel kann ich einplanen" — und genau daran haengt der Befund.
+    [
+      'Menge',
+      'Modell',
+      'Kategorie',
+      'Deckung',
+      'Bestand',
+      'Verfuegbar',
+      'Auf offener Ausgabe',
+      'Fehlmenge',
+      'Nicht einsatzbereit',
+      'Hinweis',
+    ],
     bom.rows.map((r) => [
       r.quantity,
       r.model,
       r.category ?? '',
       outcomeLabel(r.outcome),
+      r.stock ?? '',
       r.available ?? '',
+      r.commitmentNote ?? '',
       r.short ?? '',
       r.unusable ?? '',
       r.reason ?? (r.modelIsDeviceName ? 'Ohne Katalog-Typ — Modellname ist der Gerätename.' : ''),

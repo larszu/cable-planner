@@ -29,6 +29,8 @@
 
 import type { EquipmentItem } from '../types/equipment'
 import type { InventoryItem, InventoryUnit } from '../types/inventory'
+import type { CheckoutRecord } from '../types/checkout'
+import { commitmentNote, committedByItem } from './inventoryCommitment'
 import type { ZusatzBedarf } from './planDemandExtras'
 import { resolveDeviceType } from './deviceTypeRegistry'
 import { isWithinDistance } from './levenshtein'
@@ -63,8 +65,16 @@ export interface CoverageLine {
   /** Deckende bzw. VORGESCHLAGENE Lager-Position. */
   itemId?: string
   itemModel?: string
-  /** Bestand dieser Position. */
+  /** VERFUEGBAR ueber alle deckenden Positionen: Bestand abzueglich
+   *  unbrauchbarer Einheiten und abzueglich offener Ausgaben (Bedarf 80). */
   available?: number
+  /** Bestand IM LAGER, ohne Ruecksicht auf offene Ausgaben. */
+  stock?: number
+  /** Davon gerade auf einer offenen Ausgabe. 0 wird weggelassen. */
+  committed?: number
+  /** Auf welchen Vorgaengen — der Konflikt steht am Objekt, nicht als
+   *  ausgegrauter Knopf. */
+  commitmentNote?: string
   /** Fehlmenge, wenn der Bestand nicht reicht. Nur bei matched aussagekraeftig:
    *  bei einem Vorschlag ist noch gar nicht sicher, dass es die Position ist. */
   short?: number
@@ -95,8 +105,25 @@ export interface CoverageLine {
 /** Eine einzelne Lager-Position, die zu einer Bedarfszeile beitraegt. */
 export interface CoverageSource {
   itemId: string
-  /** Nutzbarer Bestand: Menge abzueglich bekannt unbrauchbarer Einheiten. */
+  /**
+   * VERFUEGBAR: Bestand abzueglich unbrauchbarer Einheiten UND abzueglich
+   * dessen, was gerade auf einer offenen Ausgabe steht (Bedarf 80).
+   *
+   * Der Name bleibt `available`, und das ist Absicht: er bedeutet jetzt, was
+   * er sagt. Bis `cable#714` war es der Lagerbestand — und jede Stelle, die
+   * ihn las, versprach damit Technik, die auf einer anderen Show stand
+   * („the PM promises gear they do not have"). Wer den Bestand braucht,
+   * nimmt `stock`.
+   */
   available: number
+  /** Nutzbarer Bestand IM LAGER: Menge abzueglich unbrauchbarer Einheiten,
+   *  ohne Ruecksicht auf offene Ausgaben. */
+  stock: number
+  /** Davon gerade auf einer offenen Ausgabe. 0 wird weggelassen. */
+  committed?: number
+  /** Auf WELCHEN Vorgaengen — der Bedarf verlangt den Konflikt am Objekt,
+   *  nicht als blosse Zahl. Leer, wenn nichts gebunden ist. */
+  commitmentNote?: string
   model: string
   /** Lagerort-Id der Position — der Aufrufer loest den Pfad auf. */
   locationId?: string
@@ -296,6 +323,13 @@ export const resolveCoverage = (
   items: InventoryItem[],
   units: InventoryUnit[] = [],
   zusatz: ZusatzBedarf[] = [],
+  /**
+   * Offene Ausgaben (Bedarf 80). Fehlt der Parameter, rechnet die Deckung wie
+   * bisher gegen den blossen Lagerbestand — das ist der ehrliche Rueckfall
+   * fuer Aufrufer, die kein Ausgabe-Register haben (Mobile, Viewer), und
+   * NICHT der Normalfall. Wer eins hat, reicht es durch.
+   */
+  checkouts: CheckoutRecord[] = [],
 ): CoverageResult => {
   const demands = deriveDemand(equipment, zusatz)
 
@@ -313,20 +347,54 @@ export const resolveCoverage = (
     .slice()
     .sort((a, b) => a.model.localeCompare(b.model, 'de') || a.id.localeCompare(b.id))
 
+  // Bedarf 80: was gerade auf einer offenen Ausgabe steht. Aus demselben
+  // Register, das `cable#707` angelegt hat — kein zweiter Zustand.
+  const gebunden = committedByItem(checkouts, units)
+
   const quelle = (item: InventoryItem): CoverageSource => {
     // Nicht unter null: mehr unbrauchbare Einheiten als Bestand waere ein
     // widerspruechlicher Datenstand, und eine negative Menge in einer
     // Kommissionier-Liste ist schlimmer als eine zu kleine.
     const unusable = Math.min(item.quantity, unbrauchbarProItem.get(item.id) ?? 0)
+    const stock = item.quantity - unusable
+    const c = gebunden.get(item.id)
+    // Dieselbe Regel wie oben: nicht unter null. Mehr ausgegeben als im
+    // Bestand ist ein widerspruechlicher Datenstand (jemand hat den Artikel
+    // nach der Ausgabe reduziert) — dann ist „nichts verfuegbar" die
+    // richtige Antwort, keine negative Zahl.
+    const committed = Math.min(stock, c?.quantity ?? 0)
+    const note = commitmentNote(c)
     return {
       itemId: item.id,
       model: item.model,
-      available: item.quantity - unusable,
+      available: stock - committed,
+      stock,
+      ...(committed > 0 ? { committed } : {}),
+      ...(note ? { commitmentNote: note } : {}),
       ...(item.locationId ? { locationId: item.locationId } : {}),
       ...(unusable > 0 ? { unusable } : {}),
     }
   }
   const summe = (q: CoverageSource[]): number => q.reduce((n, x) => n + x.available, 0)
+  const summeStock = (q: CoverageSource[]): number => q.reduce((n, x) => n + x.stock, 0)
+  const summeGebunden = (q: CoverageSource[]): number =>
+    q.reduce((n, x) => n + (x.committed ?? 0), 0)
+  /** Die Bindungen aller Positionen einer Zeile, mit „ · " verbunden. Wer nur
+   *  die erste liest, ruft beim falschen Job an. */
+  const notizen = (q: CoverageSource[]): string =>
+    q.map((x) => x.commitmentNote).filter(Boolean).join(' · ')
+  /** Die drei Zahlen einer Zeile in einem Zug — der Bedarf verlangt die
+   *  Qualifizierung neben der Zahl, nicht in einer Fussnote. */
+  const mengen = (q: CoverageSource[]) => {
+    const gebundenSumme = summeGebunden(q)
+    const note = notizen(q)
+    return {
+      available: summe(q),
+      stock: summeStock(q),
+      ...(gebundenSumme > 0 ? { committed: gebundenSumme } : {}),
+      ...(note ? { commitmentNote: note } : {}),
+    }
+  }
 
   // ALLE Positionen je Typ, nicht die erste. Siehe CoverageLine.sources.
   const byType = new Map<string, CoverageSource[]>()
@@ -349,14 +417,17 @@ export const resolveCoverage = (
   const lines: CoverageLine[] = demands.map((demand) => {
     const exactType = demand.deviceTypeId ? byType.get(demand.deviceTypeId) : undefined
     if (exactType && exactType.length > 0) {
-      const bestand = summe(exactType)
-      const short = Math.max(0, demand.quantity - bestand)
+      // Die Fehlmenge zaehlt gegen das VERFUEGBARE, nicht gegen den Bestand
+      // (Bedarf 80). Sonst meldet die Liste „gedeckt" fuer Technik, die auf
+      // einer anderen Show steht.
+      const verfuegbar = summe(exactType)
+      const short = Math.max(0, demand.quantity - verfuegbar)
       return {
         demand,
         outcome: 'matched-by-type',
         itemId: exactType[0].itemId,
         itemModel: exactType[0].model,
-        available: bestand,
+        ...mengen(exactType),
         sources: exactType,
         ...(short > 0 ? { short } : {}),
       }
@@ -370,7 +441,7 @@ export const resolveCoverage = (
         outcome: 'proposed-by-name',
         itemId: exactName[0].itemId,
         itemModel: exactName[0].model,
-        available: summe(exactName),
+        ...mengen(exactName),
         sources: exactName,
         reason: `Modellname stimmt ueberein ("${exactName[0].model}"), aber die Lager-Position traegt keine Typ-Identitaet.`,
       }
@@ -393,7 +464,7 @@ export const resolveCoverage = (
           outcome: 'proposed-by-name',
           itemId: gleiche[0].itemId,
           itemModel: gleiche[0].model,
-          available: summe(gleiche),
+          ...mengen(gleiche),
           sources: gleiche,
           reason: `Modellname weicht um hoechstens ${MAX_EDIT_DISTANCE} Zeichen ab ("${near.model}") — bitte pruefen.`,
         }
