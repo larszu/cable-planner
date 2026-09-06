@@ -2298,6 +2298,8 @@ export const en: Dict = {
   'export.devicebom.noTypeTitle':
     'No catalogue type — the model name here is only the device name. Assigning a catalogue type turns the coverage into a fact.',
   'export.devicebom.short': '— {n} missing',
+  // Bedarf 80 — die Zahl traegt ihre Qualifizierung mit.
+  'export.devicebom.committed': '(of {stock} · {n} checked out)',
   'export.devicebom.confirm': 'Confirm',
   'export.devicebom.confirmTitle':
     'Writes the catalogue identity permanently onto this inventory position. The coverage is then a fact and never has to be guessed from the name again.',
