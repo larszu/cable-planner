@@ -20,6 +20,17 @@ import { Cable as CableIcon, Tag, Download } from 'lucide-react'
 import { ModalShell } from '../shared/ModalShell'
 import { Icon } from '../shared/Icon'
 import { useTranslation } from '../../lib/i18n'
+import { csvFromTable } from '../../lib/documentStamp'
+import {
+  bandView,
+  buildChannelList,
+  consoleView,
+  monitorPaths,
+  monitorView,
+  stageView,
+  venueView,
+  type ChannelViewId,
+} from '../../lib/channelList'
 import type { Cable } from '../../types/cable'
 import type { EquipmentItem, Port } from '../../types/equipment'
 
@@ -65,6 +76,7 @@ export const PatchListDialog = () => {
   const [sortKey, setSortKey] = useState<SortKey>('fromDevice')
   // #349 — Ziel-Format fuer den Label-Drucker-CSV-Export.
   const [labelCsvFormat, setLabelCsvFormat] = useState<LabelCsvFormat>('generic')
+  const [channelView, setChannelView] = useState<ChannelViewId>('venue')
 
   const rows = useMemo<PatchRow[]>(() => {
     if (!open) return []
@@ -238,6 +250,13 @@ export const PatchListDialog = () => {
     })
   }, [rows, filter, layerFilter])
 
+
+  // Bedarf 37 — die Kanalliste. VOR dem frueh zurueckkehrenden Zweig, weil
+  // Hooks in jeder Runde in derselben Reihenfolge laufen muessen; unten neben
+  // den Export-Funktionen stehend liefe sie nur, wenn der Dialog offen ist,
+  // und React beschwert sich zu Recht.
+  const channels = useMemo(() => buildChannelList(equipment, cables), [equipment, cables])
+  const monitors = useMemo(() => monitorPaths(equipment, cables), [equipment, cables])
 
   if (!open) return null
 
@@ -437,32 +456,30 @@ export const PatchListDialog = () => {
     )
   }
 
-  // #353 — Audio-Eingangsliste: die Audio-Layer-Kabel als nummerierte
-  // Kanal-Liste (Ch · Quelle · Port · Stecker · nach Gerät · Länge). Der
-  // klassische FOH-Deliverable; baut auf den vorhandenen Patch-Rows auf.
-  const exportInputList = () => {
-    const audioRows = filtered.filter((r) => r.layer === 'audio')
-    const escape = (v: unknown) => {
-      const s = sanitizeForPdf(String(v ?? ''))
-      return /[";\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s
-    }
-    const header = [
-      t('inputList.col.ch', 'Ch'),
-      t('inputList.col.source', 'Quelle'),
-      t('inputList.col.port', 'Port'),
-      t('inputList.col.connector', 'Stecker'),
-      t('inputList.col.toDevice', 'nach Gerät'),
-      t('export.bom.csv.lengthM', 'Länge (m)'),
-    ]
-    const lines = [
-      header.join(';'),
-      ...audioRows.map((r, i) =>
-        [String(i + 1), r.fromDevice, r.fromPort, r.type, r.toDevice, r.length || ''].map(escape).join(';'),
-      ),
-    ]
+  // Bedarf 37 — EINE Kanalliste, FUENF Sichten.
+  //
+  // Hier stand bis dahin genau EINE CSV: die Eingangsliste aus `#353`, im
+  // Dialog gebaut und nur fuer einen Leser richtig. Die Bedarfs-Datenbank sagt
+  // woertlich, was der naechste Schritt ist: „Next step is PROJECTIONS of one
+  // dataset, NOT MORE FIELDS: band view, venue view (port), monitor-mix view,
+  // stage view, console view." Die Ableitung liegt deshalb jetzt in
+  // `lib/channelList.ts` und nicht mehr in diesem Dialog — sie hat fuenf Leser
+  // und gehoert keinem davon.
+
+  const exportChannelView = (view: ChannelViewId) => {
+    const table =
+      view === 'band'
+        ? bandView(channels)
+        : view === 'venue'
+          ? venueView(channels)
+          : view === 'stage'
+            ? stageView(channels)
+            : view === 'console'
+              ? consoleView(channels)
+              : monitorView(monitors)
     downloadBlob(
-      buildExportFilenameWithSuffix(projectName || 'cable-planner', 'eingangsliste', 'csv'),
-      '﻿' + lines.join('\r\n'),
+      buildExportFilenameWithSuffix(projectName || 'cable-planner', `kanalliste-${view}`, 'csv'),
+      csvFromTable(table),
       'text/csv;charset=utf-8',
     )
   }
@@ -531,15 +548,39 @@ export const PatchListDialog = () => {
             >
               {t('patchList.exportLabelCsv', '🏷 Etiketten-CSV')}
             </button>
-            {/* #353 — Audio-Eingangsliste (nur sichtbar wenn Audio-Kabel da). */}
-            {filtered.some((r) => r.layer === 'audio') && (
-              <button
-                type="button"
-                onClick={exportInputList}
-                className="rounded bg-purple-700 px-3 py-1 text-cp-xs hover:bg-purple-600"
-              >
-                {t('patchList.exportInputList', '🎚 Eingangsliste')}
-              </button>
+            {/* Bedarf 37 — die fuenf Sichten auf dieselbe Kanalliste. Sichtbar,
+                sobald es Audio-Kanaele gibt; die Monitor-Sicht zusaetzlich nur,
+                wenn es Monitor-Wege gibt — ein leeres Blatt anzubieten waere
+                ein Versprechen ohne Inhalt. */}
+            {channels.length > 0 && (
+              <>
+                <select
+                  value={channelView}
+                  onChange={(e) => setChannelView(e.target.value as ChannelViewId)}
+                  title={t('channelList.view', 'Sicht auf die Kanalliste')}
+                  aria-label={t('channelList.view', 'Sicht auf die Kanalliste')}
+                  className="rounded border border-cp-border bg-cp-surface-3 px-1 py-1 text-cp-xs"
+                >
+                  <option value="band">{t('channelList.view.band', 'Band (Rider)')}</option>
+                  <option value="venue">{t('channelList.view.venue', 'Haus (Patch)')}</option>
+                  <option value="stage">{t('channelList.view.stage', 'Bühne (Position)')}</option>
+                  <option value="console">{t('channelList.view.console', 'Pult (Namen)')}</option>
+                  {monitors.length > 0 && (
+                    <option value="monitor">{t('channelList.view.monitor', 'Monitor-Wege')}</option>
+                  )}
+                </select>
+                <button
+                  type="button"
+                  onClick={() => exportChannelView(channelView)}
+                  title={t(
+                    'channelList.exportHint',
+                    'Dieselbe Kanalliste, für diesen Leser geschnitten. Die Monitor-Sicht zeigt Wege, nicht Mix-Inhalte — die kennt der Plan nicht.',
+                  )}
+                  className="rounded bg-purple-700 px-3 py-1 text-cp-xs hover:bg-purple-600"
+                >
+                  {t('channelList.export', '🎚 Kanalliste')}
+                </button>
+              </>
             )}
           </div>
         </div>
