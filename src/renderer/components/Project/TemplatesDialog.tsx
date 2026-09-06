@@ -22,6 +22,7 @@ import {
   deleteUserTemplate,
   instantiateTemplate,
   loadUserTemplates,
+  promoteAsBuiltToTemplate,
   saveUserTemplate,
   type ProjectTemplate,
 } from '../../lib/projectTemplates'
@@ -32,7 +33,7 @@ import {
   type TemplateScope,
 } from '../../lib/templateScope'
 import { venueScopeDialog } from '../../lib/venueScopeDialog'
-import { JOB_BASIS_LABEL } from '../../lib/jobHandover'
+import { JOB_BASIS_LABEL, latestAsBuilt } from '../../lib/jobHandover'
 
 export const TemplatesDialog = () => {
   const t = useTranslation()
@@ -103,6 +104,11 @@ export const TemplatesDialog = () => {
     })
   }
 
+  // Bedarf 75 — nur fuer den Hinweistext am Knopf. Der Knopf bleibt aktiv:
+  // wer ihn drueckt, bekommt den GRUND zu sehen, statt vor einem grauen Knopf
+  // zu stehen.
+  const hasAsBuilt = !!latestAsBuilt(useProjectStore.getState().project)
+
   const saveCurrent = async () => {
     const current = useProjectStore.getState().project
     const name = await promptDialog(
@@ -127,6 +133,50 @@ export const TemplatesDialog = () => {
     setUserTemplates(loadUserTemplates())
     void infoDialog(t('templates.savedTitle', 'Als Vorlage gespeichert'), {
       body: format(t('templates.savedBody', 'Vorlage „{name}“ gespeichert.'), { name }),
+      tone: 'success',
+    })
+  }
+
+  // BEDARF 75 — den festgeschriebenen Bauzustand zur Vorlage machen.
+  //
+  // Ein eigener Weg neben „Aktuelles als Vorlage": der speichert den Plan, wie
+  // er GERADE ist — nach dem Abbau also den Stand nach dem letzten Klick.
+  // Was die naechste Show braucht, ist der Stand, den jemand ausdruecklich als
+  // gebaut festgeschrieben hat.
+  const promoteCurrent = async () => {
+    const current = useProjectStore.getState().project
+    const name = await promptDialog(
+      t('templates.promoteNamePrompt', 'Name der Vorlage (aus dem As-Built)'),
+      current.metadata.name && current.metadata.name !== 'Untitled Project' ? current.metadata.name : '',
+    )
+    if (name === null) return
+    const gebunden = venueBoundCount(current)
+    let scope: TemplateScope = 'neutral'
+    if (gebunden > 0) {
+      const antwort = await venueScopeDialog(gebunden, projectVenue(current) ?? '')
+      if (antwort === null) return
+      scope = antwort
+    }
+    const res = promoteAsBuiltToTemplate(name, current.metadata.description ?? '', current, scope)
+    if (res.refused) {
+      // Die Ablehnung ist der Punkt: auf den Live-Plan auszuweichen ergaebe
+      // eine Vorlage mit dem Wort „wie gebaut" darauf, die den Angebotsstand
+      // traegt (Bedarf 84).
+      void infoDialog(t('templates.promoteNoneTitle', 'Kein As-Built festgeschrieben'), {
+        body: t(
+          'templates.promoteNoneBody',
+          'Es ist nichts als „wie gebaut" festgeschrieben. Schreibe zuerst eine As-Built-Revision fest — sonst wäre die Vorlage der Plan von vor dem Aufbau, nur mit einem anderen Namen.',
+        ),
+        tone: 'warning',
+      })
+      return
+    }
+    setUserTemplates(loadUserTemplates())
+    void infoDialog(t('templates.savedTitle', 'Als Vorlage gespeichert'), {
+      body: format(
+        t('templates.promotedBody', 'Vorlage „{name}“ aus dem As-Built „{from}“ erstellt.'),
+        { name, from: res.from ?? '' },
+      ),
       tone: 'success',
     })
   }
@@ -225,6 +275,23 @@ export const TemplatesDialog = () => {
             className="shrink-0"
           >
             {t('templates.saveCurrent', 'Aktuelles Projekt als Vorlage')}
+          </Button>
+          {/* BEDARF 75 — der Bauzustand als Startpunkt der nächsten Show.
+              Immer sichtbar, auch ohne As-Built: ein Knopf, der verschwindet,
+              erklärt nicht, warum. Der Hinweis dahinter tut es. */}
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => void promoteCurrent()}
+            leftIcon={Save}
+            className="shrink-0"
+            title={
+              hasAsBuilt
+                ? t('templates.promoteHint', 'Nimmt den festgeschriebenen As-Built-Stand, nicht den aktuellen Plan')
+                : t('templates.promoteNoneTitle', 'Kein As-Built festgeschrieben')
+            }
+          >
+            {t('templates.promote', 'As-Built als Vorlage')}
           </Button>
         </div>
 
