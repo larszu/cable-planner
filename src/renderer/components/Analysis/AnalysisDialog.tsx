@@ -61,6 +61,14 @@ import {
 } from '../../lib/multicastPlan'
 import { MULTICAST_LEG_LABEL } from '../../types/multicast'
 import {
+  ASSET_FINDING_LABEL,
+  IDENTITY_ANCHOR_LABEL,
+  assessAssetIdentity,
+  assetIdentityTable,
+} from '../../lib/assetIdentity'
+import { useInventoryStore } from '../../store/inventoryStore'
+import { useCheckoutStore } from '../../store/checkoutStore'
+import {
   SPECTRUM_SOURCE_LABEL,
   buildSpectrumPlan,
   conflictParticipants,
@@ -399,6 +407,29 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
   const multicast = useMemo(() => buildMulticastPlan(projekt), [projekt])
   // Der Entwurf liegt lokal, damit das Tippen im Pool-Feld nicht bei jedem
   // Zeichen eine Vergabe-Rechnung ueber mehrere hundert Fluesse ausloest.
+  // BEDARF 78 — welche Kiste welchen Platz fuellt. Der Bestand und die
+  // Ausgabescheine liegen in eigenen Stores; hier werden sie NUR GELESEN.
+  const invUnits = useInventoryStore((st) => st.units)
+  const invItems = useInventoryStore((st) => st.items)
+  const checkouts = useCheckoutStore((st) => st.records)
+  const asset = useMemo(
+    () =>
+      assessAssetIdentity({
+        equipment,
+        units: invUnits,
+        items: invItems,
+        checkouts,
+      }),
+    [equipment, invUnits, invItems, checkouts],
+  )
+  const exportAsset = () => {
+    downloadBlob(
+      buildExportFilenameWithSuffix(projectName, 'geraete-identitaet', 'csv'),
+      csvFromTable(assetIdentityTable(asset)),
+      'text/csv',
+    )
+  }
+
   const [poolDraft, setPoolDraft] = useState(projekt.multicast?.pool ?? '')
   const [portDraft, setPortDraft] = useState(String(projekt.multicast?.basePort ?? 20000))
 
@@ -967,6 +998,59 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
                   >
                     <strong>{PTP_FINDING_LABEL[f.kind]}</strong> — {f.text}
                   </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+
+      {/* BEDARF 78 — welche Kiste den Platz füllt. Nur sichtbar, wenn der
+          Plan überhaupt Plätze mit Netz-Identität trägt: an einem reinen
+          SDI-Aufbau gibt es keinen eingebrannten Geräte-Namen, der beim
+          Tausch mitwandern könnte. */}
+      {asset.hasAnchored && (
+        <div className="rounded-cp-panel border border-[var(--cp-border)] bg-[var(--cp-surface-1)] p-cp-3">
+          <div className="mb-2 flex items-baseline justify-between gap-2">
+            <div className="text-cp-sm font-semibold text-[var(--cp-text)]">
+              {t('analysis.asset.title', 'Welche Kiste füllt welchen Platz')}
+            </div>
+            <button
+              type="button"
+              onClick={exportAsset}
+              className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] px-2 py-0.5 text-cp-xs text-[var(--cp-text)] hover:bg-[var(--cp-surface-2)]"
+            >
+              <Icon icon={Download} size="xs" /> {t('analysis.asset.export', 'Blatt')}
+            </button>
+          </div>
+          <div className="mb-2 text-cp-xs text-[var(--cp-text-muted)]">
+            {t(
+              'analysis.asset.intro',
+              'Zwei baugleiche Stageboxen sind im Plan dasselbe Kästchen, im Lager zwei Einheiten und im Netz zwei verschiedene Geräte — jede mit eigenem eingebranntem Namen und eigener MAC. Ein Tausch am Ladetag fällt erst in der Probe auf. Hier werden nur Aufzeichnungen verglichen; was im Rack steht, weiß der Plan nicht.',
+            )}
+          </div>
+          <ul className="flex flex-col gap-0.5 text-cp-xs">
+            {asset.rows.map((r) => (
+              <li key={r.equipmentId} className="flex flex-wrap items-baseline gap-2">
+                <span className="flex-1 text-[var(--cp-text)]">{r.name}</span>
+                <span className="w-48 shrink-0 text-[var(--cp-text-faint)]">
+                  {r.anchors.map((x) => IDENTITY_ANCHOR_LABEL[x]).join(', ')}
+                </span>
+                <span
+                  className={`w-40 shrink-0 font-mono ${
+                    r.unitId ? 'text-[var(--cp-text)]' : 'text-amber-300/90'
+                  }`}
+                >
+                  {r.unitSerial ?? (r.unitId ? r.unitId : t('analysis.asset.none', 'nicht benannt'))}
+                </span>
+              </li>
+            ))}
+          </ul>
+          {asset.findings.length > 0 && (
+            <ul className="mt-2 flex flex-col gap-1">
+              {asset.findings.map((f, i) => (
+                <li key={`${f.kind}-${f.equipmentId}-${i}`} className="text-cp-xs text-amber-300/90">
+                  <strong>{ASSET_FINDING_LABEL[f.kind]}</strong> — {f.text}
                 </li>
               ))}
             </ul>

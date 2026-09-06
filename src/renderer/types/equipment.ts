@@ -555,6 +555,25 @@ export interface EquipmentItem {
   /** Issue #39: physical serial number, surfaces in location/frame BOM exports. */
   serialNumber?: string
   /**
+   * BEDARF 78 — WELCHE Kiste diesen Platz füllt (`InventoryUnit.id`).
+   *
+   * Zwei baugleiche Stageboxen sind im Plan dasselbe Kästchen, im Lager zwei
+   * Einheiten und im Netz zwei verschiedene Geräte: jede trägt ihren eigenen
+   * eingebrannten Dante-Namen und ihre eigene MAC. Ohne dieses Feld ist ein
+   * Tausch am Ladetag für beide Seiten unsichtbar und fällt erst in der Probe
+   * auf, wenn ein Kanal stumm bleibt.
+   *
+   * OPTIONAL, und das bleibt es. Die meisten Plätze im Plan sind kein
+   * Netz-Gerät und brauchen keine Einheit; ein Pflichtfeld würde den halben
+   * Plan mit Warnungen füllen. `assessAssetIdentity` meldet nur die Plätze,
+   * an denen überhaupt eine Netz-Identität hängt.
+   *
+   * `serialNumber` daneben bleibt, wo es ist: es ist FREITEXT, den jemand
+   * abgetippt hat, und die beiden gegeneinander zu halten ist genau der
+   * Befund, den der Bedarf will (`serial-mismatch`).
+   */
+  inventoryUnitId?: string
+  /**
    * When true, render the equipment node as a compact label-only badge
    * (icon + name only, ports as dots on the edges) instead of the full
    * port-list card. Issue #37 — useful for converters and other devices
