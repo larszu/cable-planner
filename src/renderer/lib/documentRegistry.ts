@@ -30,6 +30,7 @@ import { multicastTableForProject } from './multicastPlan'
 import { fallbackTable } from './fallbackPlan'
 import { eventMetadataTable } from './eventMetadata'
 import { transmissionRecordTable } from './transmissionRecord'
+import { costComparisonTable } from './costComparison'
 import type { CsvTable } from './csv'
 
 const ofTable =
@@ -120,6 +121,11 @@ export const DOCUMENT_STANDS: Record<string, (project: CablePlannerProject) => s
   // Fliesstext eines Menschen, und ein umformulierter Satz duerfte nicht jedes
   // gedruckte Exemplar als veraltet melden.
   sendebericht: ofTable(transmissionRecordTable),
+  // Bedarf 79 — der Kostenvergleich. Reproduzierbar: sein Inhalt folgt allein
+  // aus `costPlan` und den Namen der verankerten Objekte. Keine
+  // Nutzer-Einstellung beim Export, keine Sprache, keine Uhr. Die BEFUNDE
+  // stehen nicht in der Tabelle -- sie tragen Fliesstext.
+  'kosten-vergleich': ofTable(costComparisonTable),
 }
 
 /**
@@ -212,6 +218,7 @@ export const DOCUMENT_LABELS: Record<string, string> = {
   'ausweich-plan': 'Ausweich-Plan (Sicherheitsnetz)',
   'event-metadaten': 'Angaben zur Veranstaltung',
   sendebericht: 'Sendebericht',
+  'kosten-vergleich': 'Kosten: Plan gegen Ist',
   'kunden-uebersicht': 'Kunden-Übersicht',
   'job-grundlage': 'Grundlage der Übergabe',
   'videohub-labels': 'Videohub-Labels',

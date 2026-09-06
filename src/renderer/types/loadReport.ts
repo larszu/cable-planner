@@ -58,6 +58,12 @@ export type LoadDropKind =
    *  verschwundener Eintrag ueber einen Abriss waere die teuerste Luecke, die
    *  dieser Bericht haben kann. */
   | 'transmission-event'
+  /** Bedarf 79 — eine Kostenposition ohne Id oder ohne Bezeichnung. In einem
+   *  Vergleich ist eine namenlose Zeile keine Zeile. Eine Position mit einem
+   *  ANKER INS LEERE wird dagegen nicht verworfen — dafuer gibt es den Befund
+   *  `anchor-orphan`, und sie still auf „ohne Bezug" zu setzen hiesse, eine
+   *  gebuchte Position in eine Fahrtkostenzeile zu verwandeln. */
+  | 'cost-line'
 
 export interface LoadDrop {
   kind: LoadDropKind

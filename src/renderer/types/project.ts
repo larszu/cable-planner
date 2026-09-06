@@ -272,6 +272,16 @@ export interface CablePlannerProject {
    */
   transmissionRecord?: import('./transmissionRecord').TransmissionRecord
   /**
+   * Bedarf 79 — der Vergleich Plan gegen Ist: Kostenpositionen mit Schätzung
+   * und Ist-Wert, plus Währung und Toleranz.
+   *
+   * KEINE Projektsumme. Sie wird gerechnet (`costTotals`), nicht gespeichert —
+   * eine gespeicherte Summe ist genau der Defekt aus dem Beleg
+   * (frappe/erpnext#34127): sie wird einmal eingetippt, die Positionen wandern
+   * weiter, und ab da widersprechen sich zwei Zahlen im selben System.
+   */
+  costPlan?: import('./costLines').CostPlan
+  /**
    * Bedarf 72 — der Multicast-Adressplan: aus welchem Pool vergeben wird und
    * welche Gruppe welcher Sende-Port belegt.
    *

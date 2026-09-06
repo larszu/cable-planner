@@ -162,6 +162,11 @@ describe('changeImpact — die Vorwärts-Frage', () => {
       'ausspielweg',
       'event-metadaten',
       'sendebericht',
+      // `kosten-vergleich` (Bedarf 79) haengt zwar an `equipment` — der Anker
+      // einer Position kann ein Geraet sein —, aber nur, wenn es Positionen
+      // GIBT. Auf einem Torso ohne Kostenplan ist das leere Blatt die wahre
+      // Antwort und kein Ausweichen; dieselbe Lage wie beim `ausspielweg`.
+      'kosten-vergleich',
     ])
     expect(
       impact.documents.some((d) => d.verdict === 'unaffected' && !ohneGeraetebezug.has(d.docId)),

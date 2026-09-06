@@ -75,6 +75,7 @@ import { normaliseMulticastConfig } from '../lib/multicastPlan'
 import { normaliseFallbackPlan } from '../lib/fallbackPlan'
 import { normaliseEventMetadata } from '../lib/eventMetadata'
 import { normaliseTransmissionRecord } from '../lib/transmissionRecord'
+import { normaliseCostPlan } from '../lib/costComparison'
 import { normaliseVenueAnswers } from '../lib/venueAnswers'
 import { isNetworkInterfaceRole, normaliseNetworkInterface } from '../lib/networkInterfaces'
 import type { NetworkInterface } from '../types/network'
@@ -452,6 +453,7 @@ export interface ProjectState {
   setTransmissionRecord: (
     record: import('../types/transmissionRecord').TransmissionRecord | undefined,
   ) => void
+  setCostPlan: (plan: import('../types/costLines').CostPlan | undefined) => void
   /** v7.9.3 — Mobile-Viewer Check-State setzen (vom POST /checks-IPC).
    *  Komplettes Objekt-Replace damit gelöschte Checks (false → kein
    *  key) auch übernommen werden. */
@@ -658,6 +660,12 @@ const healProjectPositions = (
   const transmissionRecord = normaliseTransmissionRecord(project.transmissionRecord, (d) =>
     onDrop?.({ kind: 'transmission-event', reason: d.reason, label: d.label }),
   )
+  // Bedarf 79 — der Kostenvergleich. Eine namenlose Position ist in einem
+  // Vergleich keine Zeile; eine Position mit einem Anker ins Leere BLEIBT und
+  // bekommt `anchor-orphan`.
+  const costPlan = normaliseCostPlan(project.costPlan, (d) =>
+    onDrop?.({ kind: 'cost-line', reason: d.reason, label: d.label }),
+  )
   return {
     ...project,
     equipment: project.equipment.map((item) => {
@@ -811,6 +819,8 @@ const healProjectPositions = (
     eventMetadata,
     // Bedarf 87 — dito: `undefined` heisst „kein Sendebericht gefuehrt".
     transmissionRecord,
+    // Bedarf 79 — dito: `undefined` heisst „kein Kostenvergleich gefuehrt".
+    costPlan,
     // ADR-003 — Rentman-Zaehler: gesendet ist nicht bestaetigt.
     metadata: {
       ...healRentmanCableMap(project.metadata),

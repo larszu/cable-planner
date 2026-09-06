@@ -35,6 +35,7 @@ export type MetaSlice = Pick<
   | 'setFallbackPlan'
   | 'setEventMetadata'
   | 'setTransmissionRecord'
+  | 'setCostPlan'
 >
 
 export const createMetaSlice: StateCreator<ProjectState, [], [], MetaSlice> = (set) => ({
@@ -152,6 +153,15 @@ export const createMetaSlice: StateCreator<ProjectState, [], [], MetaSlice> = (s
   setTransmissionRecord: (record) =>
     set((state) => {
       const updated = { ...state.project, transmissionRecord: record }
+      scheduleProjectAutosave(updated)
+      return { project: updated }
+    }),
+  // BEDARF 79 — der Kostenvergleich. Wieder ein Setter fuer das ganze Objekt:
+  // Waehrung, Toleranz und Positionen gehoeren zusammen, und eine Summe ueber
+  // Positionen in zwei Waehrungen waere eine Zahl, die nichts bedeutet.
+  setCostPlan: (plan) =>
+    set((state) => {
+      const updated = { ...state.project, costPlan: plan }
       scheduleProjectAutosave(updated)
       return { project: updated }
     }),

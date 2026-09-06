@@ -51,6 +51,10 @@ export const UNDESCRIBED = 'nicht beschrieben'
  * Datei, ohne dass sich am Plan etwas geaendert haette.
  */
 export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
+  Abweichung:
+    'Ist minus Schätzung. „unbekannt“ heißt: eine der beiden Zahlen fehlt — nicht, dass die Abweichung null wäre.',
+  'Abweichung %':
+    'Die Abweichung im Verhältnis zur Schätzung. Bei einer Schätzung von 0 gibt es keinen Prozentsatz.',
   Abgehakt: 'Wie viele Positionen des Containers beim Ein- oder Auschecken bestätigt wurden.',
   Abnahme: 'Ob der Kanal bei der Probe abgenommen wurde.',
   Abschnitt: 'Der Themenblock des Merkblatts (Zugang, Adressen, Verbote, Ansprechpartner).',
@@ -88,6 +92,8 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   Beschreibung: 'Der Klartext zu dieser Zeile.',
   Bezeichnung: 'Wie der Container im Lager heißt.',
   Bild: 'Die geplanten Bild-Parameter des Ziels (Auflösung, Bildrate, Codec).',
+  'Bezug im Plan':
+    'Woran die Kostenposition im Plan hängt — ein Gerät, ein Ausspielziel, oder ausdrücklich nichts (Fahrt, Personal).',
   Ch: 'Die Kanalnummer am Pult.',
   Code: 'Der Etiketten- oder Barcode, mit dem die Einheit gescannt wird.',
   Container: 'Der Container (Case, Kiste), zu dem diese Zeile gehört.',
@@ -121,9 +127,12 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   Haus: 'Der Ort, für den die Antwort gegeben wurde — eingefroren beim Speichern.',
   Herkunft:
     'Woher die Angabe stammt. Im Sendebericht: gesehen, aus einem Log abgetippt oder gemeldet. Auf anderen Blättern: aus welcher Quelle im Plan der Wert kommt.',
+  'Herkunft (Ist)':
+    'Woher der Ist-Wert stammt — aus dem ERP, von der Rechnung oder von Hand geschätzt.',
   'Im Plan': 'Was der Plan an dieser Stelle vorsieht — die Soll-Seite des Abgleichs.',
   'Ingest-URL': 'Die Adresse, an die gesendet wird. Ohne Stream-Key — der steht nie in einer Datei.',
   IP: 'Die IP-Adresse der Schnittstelle.',
+  Ist: 'Der tatsächlich angefallene Betrag. Wird nie gerechnet und nie geraten.',
   Kabel: 'Das Kabel, um das es in dieser Zeile geht.',
   Kennung: 'Die interne Kennung des Datensatzes, für den Rückbezug.',
   Kennzahl: 'Der Name der Kennzahl im Übergabe-Dokument.',
@@ -162,6 +171,7 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
     'Woher das Signal oder die Angabe kommt — je nach Blatt das speisende Gerät, der Kanal oder die Fundstelle.',
   Reservierung: 'Die Menge, die im Warenwirtschaftssystem reserviert ist.',
   Rolle: 'Wofür das Gerät oder die Schnittstelle in diesem Zusammenhang steht.',
+  'Schätzung': 'Der geschätzte Betrag dieser Position.',
   Schaden: 'Was an der Einheit beschädigt ist.',
   Schlagworte: 'Die Schlagworte für die Plattform-Formulare.',
   Schnittstelle: 'Die Netzwerk-Schnittstelle des Geräts (erste, Dante-Sekundär, ST 2110 blau …).',
@@ -189,6 +199,7 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   Vorgefunden: 'Was vor Ort tatsächlich angetroffen wurde — die Ist-Seite des Abgleichs.',
   Wann: 'Wann die Angabe gemacht oder die Antwort gegeben wurde.',
   Was: 'Worum es in dieser Zeile geht.',
+  'Währung': 'Das Währungskürzel des Projekts. Wird nicht geraten, auch nicht „EUR“.',
   'Was gilt': 'Die Regel, die für diesen Abschnitt gilt.',
   Wer: 'Wer die Angabe gemacht hat.',
   'Wer / wo': 'Wer die Frequenz benutzt und an welcher Position.',

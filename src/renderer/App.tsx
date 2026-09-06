@@ -1493,7 +1493,9 @@ export default function App() {
                           ? t('app.loadReport.metadataOverride', 'Abweichung der Veranstaltungsangaben')
                           : d.kind === 'transmission-event'
                             ? t('app.loadReport.transmissionEvent', 'Eintrag im Sendebericht')
-                            : t('app.loadReport.sourceIdentity', 'Signalquelle')}
+                            : d.kind === 'cost-line'
+                              ? t('app.loadReport.costLine', 'Kostenposition')
+                              : t('app.loadReport.sourceIdentity', 'Signalquelle')}
                 {d.label ? ` „${d.label}"` : ''}
                 {' — '}
                 {d.reason === 'duplicate-id'
