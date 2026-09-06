@@ -2,8 +2,9 @@ import { useMemo, useRef, useState } from 'react'
 import { X, Plus, Trash2, Zap, AlertTriangle, Wrench, Check } from 'lucide-react'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
-import { useTranslation } from '../../lib/i18n'
+import { format, useTranslation } from '../../lib/i18n'
 import { micTemplates } from '../../lib/micCatalog'
+import { confirmDialog } from '../../lib/confirmDialog'
 import {
   emptyDrumKit,
   applyTechnique,
@@ -120,10 +121,41 @@ export const DrumMicingDialog = () => {
     commit({ ...plan, mics: plan.mics.filter((m) => m.id !== placementId) })
   }
 
-  const applyPreset = (tech: DrumTechnique) => {
+  // BEDARF 96 — ein Preset darf nie still ueberschreiben.
+  //
+  //   > Applying a preset must never silently replace an existing grid;
+  //   > presets must append or PROMPT and show the resulting row count.
+  //   > A wrong preset is worse than no preset.
+  //
+  // Bis 2026-09-06 warf dieser Aufruf jede Platzierung weg, die die neue
+  // Technik nicht kennt — mit Mikrofon-Modell und Kanal-Beschriftung, ohne
+  // Meldung. Gefragt wird NUR, wenn wirklich etwas Eingetragenes faellt:
+  // eine Rueckfrage bei jedem Wechsel klickt man beim vierten Mal weg.
+  const applyPreset = async (tech: DrumTechnique) => {
     if (tech === 'custom') return
-    const mics = applyTechnique(plan, tech, (zid) => nextId(`mic-${zid}`))
-    commit({ ...plan, mics, technique: tech })
+    const { placements, dropped } = applyTechnique(plan, tech, (zid) => nextId(`mic-${zid}`))
+    if (dropped.length) {
+      const liste = dropped.map((d) => `${d.zoneLabel}: ${d.what}`).join(', ')
+      const ok = await confirmDialog(
+        format(
+          t('drum.preset.dropTitle', '{n} gesetzte Mikrofone gehen verloren'),
+          { n: String(dropped.length) },
+        ),
+        {
+          body: format(
+            t(
+              'drum.preset.dropBody',
+              'Die Technik „{tech}" kennt diese Zonen nicht: {liste}. Danach hat der Plan {rows} Mikrofone.',
+            ),
+            { tech: DRUM_TECHNIQUES[tech].label.de, liste, rows: String(placements.length) },
+          ),
+          okLabel: t('drum.preset.dropOk', 'Trotzdem anwenden'),
+          destructive: true,
+        },
+      )
+      if (!ok) return
+    }
+    commit({ ...plan, mics: placements, technique: tech })
   }
 
   const clearAll = () => commit({ ...plan, mics: [], technique: 'custom' })

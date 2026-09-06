@@ -19,7 +19,14 @@
 
 import type { EquipmentItem } from '../types/equipment'
 import type { NetworkInterface, NetworkInterfaceRole } from '../types/network'
-import { interfaceIsEmpty, NETWORK_INTERFACE_ROLES } from '../types/network'
+import {
+  interfaceIsEmpty,
+  NETWORK_INTERFACE_ROLES,
+  PTP_PROFILES,
+  PTP_ROLES,
+  type PtpProfile,
+  type PtpRole,
+} from '../types/network'
 
 /** Die Id, unter der Schnittstelle 0 erscheint. Abgeleitet und nie
  *  gespeichert — sonst koennte sie von den Alt-Feldern abweichen. */
@@ -128,6 +135,39 @@ export function normaliseNetworkInterface(
   if (sw) nic.switchEquipmentId = sw
   if (typeof r.vlanId === 'number' && Number.isInteger(r.vlanId) && r.vlanId >= 0 && r.vlanId <= 4094) {
     nic.vlanId = r.vlanId
+  }
+  // BEDARF 73 — die PTP-Felder. Ohne sie hier waeren sie bei JEDEM Laden weg:
+  // die Normalisierung baut die Schnittstelle neu auf, und was sie nicht kennt,
+  // uebernimmt sie nicht.
+  //
+  // 0..255 GROSSZUEGIG gelesen, obwohl die Oberflaeche nur 0..127 anbietet:
+  // das ist der Bereich, den die beiden hier relevanten Profile nutzen, aber
+  // IEEE 1588-2019 laesst mehr zu. Eine gespeicherte 200 stammt von irgendwo
+  // her, und sie beim Laden wegzuwerfen waere genau der stille Verlust, gegen
+  // den `LoadDrop` geschrieben ist.
+  if (
+    typeof r.ptpDomain === 'number' &&
+    Number.isInteger(r.ptpDomain) &&
+    r.ptpDomain >= 0 &&
+    r.ptpDomain <= 255
+  ) {
+    nic.ptpDomain = r.ptpDomain
+  }
+  // `unspecified` ist die Abwesenheit einer Angabe und wird deshalb NICHT
+  // gespeichert -- sonst stuende in jedem Projektfile ein Feld, das nichts sagt.
+  if (
+    typeof r.ptpProfile === 'string' &&
+    (PTP_PROFILES as readonly string[]).includes(r.ptpProfile) &&
+    r.ptpProfile !== 'unspecified'
+  ) {
+    nic.ptpProfile = r.ptpProfile as PtpProfile
+  }
+  if (
+    typeof r.ptpRole === 'string' &&
+    (PTP_ROLES as readonly string[]).includes(r.ptpRole) &&
+    r.ptpRole !== 'unspecified'
+  ) {
+    nic.ptpRole = r.ptpRole as PtpRole
   }
   return interfaceIsEmpty(nic) && !nic.label ? null : nic
 }

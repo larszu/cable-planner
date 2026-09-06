@@ -71,11 +71,48 @@ const zoneChannelLabel = (z: DrumZone): string => {
  * Placements (ohne konkretes Mic — der User waehlt Modelle). Behaelt bereits
  * gesetzte Mic-Zuordnungen, wenn die Zone erneut belegt wird.
  */
+/**
+ * BEDARF 96 — was ein Preset kosten wuerde, BEVOR es angewandt wird.
+ *
+ *   > Applying a preset must never silently replace an existing grid;
+ *   > presets must append or prompt AND SHOW THE RESULTING ROW COUNT.
+ *   > A wrong preset is worse than no preset.
+ *
+ * Beleg: Cryde/musicall#798, geschrieben nach einem Datenverlust-Fehler.
+ *
+ * Genau das passierte hier: `applyTechnique` gab NUR die Zonen der gewaehlten
+ * Technik zurueck. Wer auf drei Toms Mikrofone gesetzt hatte — mit Modell aus
+ * dem Katalog und eigener Kanal-Beschriftung — und dann auf eine kleinere
+ * Technik wechselte, verlor sie. Wortlos, ohne Rueckfrage, ohne Hinweis.
+ *
+ * `dropped` traegt deshalb nur, was ein MENSCH eingetragen hat: ein
+ * Mikrofon-Modell, ein eigener Name oder eine eigene Kanal-Beschriftung. Eine
+ * leere Platzierung auf einer Zone, die die neue Technik nicht kennt, ist
+ * kein Verlust — sie als solchen zu melden wuerde die Rueckfrage bei jedem
+ * Wechsel stellen, und wer sie dreimal grundlos sieht, klickt sie beim
+ * vierten Mal weg.
+ */
+export interface TechniqueChange {
+  /** Die Platzierungen NACH dem Wechsel. */
+  placements: DrumMicPlacement[]
+  /**
+   * Was dabei verlorenginge — nur Platzierungen mit eingetragenem Inhalt,
+   * mit dem Zonennamen, damit die Rueckfrage sie benennen kann.
+   */
+  dropped: Array<{ zoneLabel: string; what: string }>
+}
+
+/** Hat ein Mensch an dieser Platzierung etwas eingetragen? */
+const hatInhalt = (m: DrumMicPlacement, zone: DrumZone | undefined): boolean =>
+  Boolean(m.micDeviceTypeId) ||
+  Boolean(m.micName?.trim()) ||
+  Boolean(m.channelLabel?.trim() && m.channelLabel !== (zone ? zoneChannelLabel(zone) : undefined))
+
 export const applyTechnique = (
   plan: DrumKitPlan,
   technique: Exclude<DrumTechnique, 'custom'>,
   idFor: (zoneId: string) => string,
-): DrumMicPlacement[] => {
+): TechniqueChange => {
   const def = DRUM_TECHNIQUES[technique]
   const byZone = new Map(plan.mics.map((m) => [m.zoneId, m]))
   const zonesById = new Map(plan.zones.map((z) => [z.id, z]))
@@ -83,20 +120,32 @@ export const applyTechnique = (
     const pair = def.stereoPairs?.find((p) => p.includes(zoneId))
     return pair ? pair.join('-') : undefined
   }
-  return def.zoneIds
-    .filter((zid) => zonesById.has(zid))
-    .map((zid) => {
-      const existing = byZone.get(zid)
-      const zone = zonesById.get(zid)!
-      return {
-        id: existing?.id ?? idFor(zid),
-        zoneId: zid,
-        micDeviceTypeId: existing?.micDeviceTypeId,
-        micName: existing?.micName,
-        channelLabel: existing?.channelLabel ?? zoneChannelLabel(zone),
-        stereoGroup: stereoOf(zid),
-      }
+  const behalten = new Set(def.zoneIds.filter((zid) => zonesById.has(zid)))
+
+  const dropped: TechniqueChange['dropped'] = []
+  for (const m of plan.mics) {
+    if (behalten.has(m.zoneId)) continue
+    const zone = zonesById.get(m.zoneId)
+    if (!hatInhalt(m, zone)) continue
+    dropped.push({
+      zoneLabel: zone?.label ?? m.zoneId,
+      what: m.micName?.trim() || m.channelLabel?.trim() || m.micDeviceTypeId || '—',
     })
+  }
+
+  const placements = [...behalten].map((zid) => {
+    const existing = byZone.get(zid)
+    const zone = zonesById.get(zid)!
+    return {
+      id: existing?.id ?? idFor(zid),
+      zoneId: zid,
+      micDeviceTypeId: existing?.micDeviceTypeId,
+      micName: existing?.micName,
+      channelLabel: existing?.channelLabel ?? zoneChannelLabel(zone),
+      stereoGroup: stereoOf(zid),
+    }
+  })
+  return { placements, dropped }
 }
 
 export interface DrumChannelRow {

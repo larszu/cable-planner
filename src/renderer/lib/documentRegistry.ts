@@ -23,6 +23,9 @@ import { deliveryTableForProject } from './deliveryParity'
 import { runOfShowSheetForProject } from './encoderFeasibility'
 import { tallyMapTableForProject } from './tallyMap'
 import { deliveryPathTable } from './deliveryPath'
+import { buildPtpPlan, ptpTable } from './ptpPlan'
+import { crewSheetTableForProject } from './crewNetworkSheet'
+import { spectrumTableForProject } from './spectrumPlan'
 import type { CsvTable } from './csv'
 
 const ofTable =
@@ -71,6 +74,23 @@ export const DOCUMENT_STANDS: Record<string, (project: CablePlannerProject) => s
   // keine Nutzer-Einstellung beim Export, keine Sprache (die Befundtexte sind
   // kanonisches Deutsch, siehe `chainFindingText`) und kein Zufall.
   ausspielweg: ofTable(deliveryPathTable),
+  // Bedarf 73 — der Zeit-Plan. Reproduzierbar aus demselben Grund: er folgt
+  // allein aus den PTP-Feldern der Schnittstellen und den Standards an den
+  // Kabeln. Die BEFUNDE stehen bewusst nicht in der Tabelle — sie tragen
+  // Fliesstext, und ein Blatt, dessen Stand sich mit jeder Umformulierung
+  // aendert, meldete jedes gedruckte Exemplar als veraltet.
+  'ptp-plan': (project) =>
+    ofTable(() => ptpTable(buildPtpPlan(project.equipment, project.cables)))(project),
+  // Bedarf 77 — das Netz-Merkblatt fuer die Crew. Es IST ein Dokument und
+  // keine Nachricht, und der Unterschied ist genau dieser Eintrag: ein Blatt
+  // mit Bezeichner und Stand laesst sich mit „gilt das noch?" pruefen
+  // (Bedarf 27), eine WhatsApp-Nachricht nicht.
+  'crew-netz': ofTable(crewSheetTableForProject),
+  // Bedarf 95 — alles, was funkt, in einem Blatt. Reproduzierbar: der Inhalt
+  // folgt allein aus dem Rig-Plan, den drahtlosen Kabeln und den
+  // Intercom-Zuordnungen. Die BEFUNDE stehen nicht drin -- sie tragen
+  // Fliesstext aus `computeRfConflicts`.
+  'spektrum-plan': ofTable(spectrumTableForProject),
 }
 
 /**
@@ -134,6 +154,9 @@ export const DOCUMENT_LABELS: Record<string, string> = {
   ablaufblatt: 'Ablaufblatt',
   'tally-karte': 'Tally-Karte',
   ausspielweg: 'Ausspielweg',
+  'ptp-plan': 'Zeit-Plan (PTP)',
+  'crew-netz': 'Netz-Merkblatt (Crew)',
+  'spektrum-plan': 'Spektrum-Plan',
   'videohub-labels': 'Videohub-Labels',
   'atem-mv-layout': 'Multiviewer-Layout',
   'switch-port-karte': 'Switch-Port-Karte',
