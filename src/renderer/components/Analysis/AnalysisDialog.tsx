@@ -30,6 +30,12 @@ import {
   type SwitchPortMap,
 } from '../../lib/switchPortMap'
 import { csvFromTable } from '../../lib/documentStamp'
+import {
+  buildVenueNetworkRequest,
+  rackDoorSheetTable,
+  venueRequestTable,
+  vlanTable,
+} from '../../lib/venueNetworkRequest'
 import { RF_BANDS, bandsForFrequency, bandLabel } from '../../lib/rfBands'
 
 type Tab = 'weight' | 'network' | 'redundancy' | 'rf'
@@ -340,6 +346,64 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
     )
   }
 
+  // Bedarf 22/23 — die Netz-Dokumente aus DEMSELBEN Modell. Kein zweites
+  // Datenmodell fuer das Blatt: „Export artefacts other departments actually
+  // consume, generated from one model."
+  const request = useMemo(() => buildVenueNetworkRequest(equipment, cables), [equipment, cables])
+
+  // Ausgeschriebene Beschriftungen statt `t(`...${key}`)`: ein zusammengesetzter
+  // Schluessel ist fuer den i18n-Abdeckungs-Test unsichtbar, und der deutsche
+  // Rueckfall waere der nackte Schluessel („igmpQuerier") gewesen — in BEIDEN
+  // Sprachen.
+  const venueItemLabel = (key: string): string => {
+    switch (key) {
+      case 'vlans':
+        return t('analysis.venue.item.vlans', 'VLANs')
+      case 'subnets':
+        return t('analysis.venue.item.subnets', 'Adressbereiche')
+      case 'ports':
+        return t('analysis.venue.item.ports', 'Netz-Ports')
+      case 'bandwidth':
+        return t('analysis.venue.item.bandwidth', 'Medien-Bandbreite')
+      case 'multicast':
+        return t('analysis.venue.item.multicast', 'Multicast-Standards')
+      case 'poe':
+        return t('analysis.venue.item.poe', 'PoE')
+      case 'igmpQuerier':
+        return t('analysis.venue.item.igmpQuerier', 'IGMP-Querier')
+      case 'dhcp':
+        return t('analysis.venue.item.dhcp', 'DHCP')
+      case 'qos':
+        return t('analysis.venue.item.qos', 'QoS / DSCP')
+      case 'jointTest':
+        return t('analysis.venue.item.jointTest', 'Gemeinsamer Testtermin')
+      default:
+        return key
+    }
+  }
+
+  const exportVenueRequest = () => {
+    downloadBlob(
+      buildExportFilenameWithSuffix(projectName, 'haus-it-anforderung', 'csv'),
+      csvFromTable(venueRequestTable(request)),
+      'text/csv',
+    )
+  }
+  const exportRackDoor = () => {
+    downloadBlob(
+      buildExportFilenameWithSuffix(projectName, 'rack-tuer', 'csv'),
+      csvFromTable(rackDoorSheetTable(equipment)),
+      'text/csv',
+    )
+  }
+  const exportVlans = () => {
+    downloadBlob(
+      buildExportFilenameWithSuffix(projectName, 'vlan-tabelle', 'csv'),
+      csvFromTable(vlanTable(equipment)),
+      'text/csv',
+    )
+  }
+
   const exportAddressPlan = () => {
     const csvRows = addressPlanTable(plan, label, [
       t('analysis.network.device', 'Gerät'),
@@ -564,7 +628,70 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
           ))}
         </div>
       )}
+      {/* Bedarf 23 — das Blatt fuer die Haus-IT. Jede Zeile sagt, ob sie
+          abgeleitet ist oder eine Frage: ein Blatt, das die DHCP-Reichweite
+          des Hauses „ausfuellt", legt dem Administrator eine Behauptung ueber
+          sein eigenes Netz vor. */}
+      <div className="rounded border border-[var(--cp-border)] p-2">
+        <div className="mb-1 flex items-center justify-between">
+          <span className="font-semibold">{t('analysis.venue.title', 'Anforderung an die Haus-IT')}</span>
+          <button
+            type="button"
+            onClick={exportVenueRequest}
+            className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs font-medium text-[var(--cp-text)] hover:bg-[var(--cp-surface-2)]"
+          >
+            <Icon icon={Download} size="xs" /> CSV
+          </button>
+        </div>
+        <p className="mb-1.5 text-cp-xs text-[var(--cp-text-muted)]">
+          {t(
+            'analysis.venue.intro',
+            'Die Design-Literatur schreibt den Inhalt vor und einen gemeinsamen Testtermin, aber kein Dokument. Was der Plan weiß, steht mit Zahl da; was er nicht wissen kann, steht als Frage.',
+          )}
+        </p>
+        {request.igmpConflict && (
+          <div className="mb-1.5 rounded border border-amber-700/60 bg-amber-900/20 p-2 text-cp-xs text-amber-200">
+            {format(
+              t(
+                'analysis.venue.igmpConflict',
+                'Der Plan trägt beides: {audio} (Feldrat der Audio-Hersteller: IGMP-Snooping aus) und {video} (funktioniert ohne Multicast-Verwaltung nicht). Diese beiden Ratschläge schließen sich auf einem gemeinsamen Netz aus — das gehört vor den Aufbau, nicht in die Nacht.',
+              ),
+              { audio: request.igmpConflict.audio.join(', '), video: request.igmpConflict.video.join(', ') },
+            )}
+          </div>
+        )}
+        <ul className="flex flex-col gap-0.5">
+          {request.items.map((i) => (
+            <li key={i.key} className="flex flex-wrap items-baseline gap-2 text-cp-xs">
+              <span className="w-52 shrink-0 text-[var(--cp-text-muted)]">{venueItemLabel(i.key)}</span>
+              {i.origin === 'derived' ? (
+                <span className="font-mono text-[var(--cp-text)]">{i.value}</span>
+              ) : (
+                <span className="flex-1 text-amber-300/90">{i.why}</span>
+              )}
+              {i.source && (
+                <span className="w-full pl-52 text-[10px] text-[var(--cp-text-faint)]">{i.source}</span>
+              )}
+            </li>
+          ))}
+        </ul>
+      </div>
+
       <div className="flex justify-end gap-2">
+        <button
+          type="button"
+          onClick={exportRackDoor}
+          className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs font-medium text-[var(--cp-text)] hover:bg-[var(--cp-surface-2)]"
+        >
+          <Icon icon={Download} size="xs" /> {t('analysis.venue.rackDoor', 'Rack-Tür-Blatt')}
+        </button>
+        <button
+          type="button"
+          onClick={exportVlans}
+          className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs font-medium text-[var(--cp-text)] hover:bg-[var(--cp-surface-2)]"
+        >
+          <Icon icon={Download} size="xs" /> {t('analysis.venue.vlanTable', 'VLAN-Tabelle')}
+        </button>
         <button
           type="button"
           onClick={exportAddressPlan}
