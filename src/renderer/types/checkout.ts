@@ -87,9 +87,46 @@ export interface CheckoutLine {
 }
 
 /** Der Vorgang der Ausgabe. */
+/**
+ * Eine Unterschrift (Bedarf 136, P4).
+ *
+ *   > Each asset in a bulk handover has to be signed for separately;
+ *   > CHECK-IN HAS NO SIGNATURE AT ALL, so the return leg has no
+ *   > counter-signed evidence when a dispute arises weeks later.
+ *
+ * Belegt an `grokability/snipe-it#19070` (2026-05-26, offen: „they have to
+ * sign for each one separately… possible to have multiple assets on one sign
+ * out document?") und `#19114` (2026-05-29, offen): die Unterschrift gibt es
+ * bei der Abholung und NICHT bei der Rueckgabe.
+ *
+ * Die erste Haelfte war hier schon geloest: ein `CheckoutRecord` ist EIN
+ * Container mit eingefrorenem Inhalt, also EINE Unterschrift fuer alles darin
+ * — der Container IST die unterschreibbare Einheit (Bedarf 15). Was fehlte,
+ * ist die zweite: der Rueckweg.
+ *
+ * ES IST KEINE BILD-UNTERSCHRIFT. Der Beleg verlangt eine gegengezeichnete
+ * Spur, keine Grafik — und ein gemaltes Feld auf einem Tablet, das niemand
+ * pruefen kann, waere eine Zusage ueber Beweiskraft, die diese Anwendung
+ * nicht halten kann. Festgehalten wird, WER unterschrieben hat und WANN; das
+ * Papier daneben traegt den Stift.
+ */
+export interface CheckoutSignature {
+  /** Wer unterschrieben hat. Ohne Namen keine Unterschrift. */
+  name: string
+  /** Wann (ISO). Kommt von der Uhr des Aufrufers. */
+  at: string
+  /** Was dabei gesagt wurde („unter Vorbehalt", „Deckel fehlt"). */
+  note?: string
+}
+
 export interface CheckoutOut {
   /** ISO-Zeitstempel. */
   at: string
+  /**
+   * Wer die Ausgabe quittiert hat. Fehlt, solange niemand unterschrieben hat
+   * — und das steht dann auch so auf dem Blatt.
+   */
+  signature?: CheckoutSignature
   /** An wen -- Person, Truck, Kunde. Freitext, weil ein Lager sie alle kennt. */
   to: string
   /** Fuer welche Show, wenn bekannt. */
@@ -148,6 +185,15 @@ export interface CheckoutIn {
    * unvollstaendig aus, und der Schaden waere als Verlust verbucht.
    */
   damaged?: CheckoutDamage[]
+  /**
+   * Bedarf 136 — die GEGENZEICHNUNG. Genau die, die im Beleg fehlt.
+   *
+   * Ohne sie hat der Rueckweg keinen Beleg: wenn drei Wochen spaeter jemand
+   * fragt, in welchem Zustand das Case zurueckkam, steht Aussage gegen
+   * Aussage. Sie ist optional, weil eine Rueckgabe ohne Unterschrift
+   * vorkommt — aber dann sagt das Blatt das, statt die Luecke zu verschweigen.
+   */
+  signature?: CheckoutSignature
   note?: string
 }
 
