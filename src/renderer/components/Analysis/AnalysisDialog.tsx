@@ -22,6 +22,7 @@ import { useTranslation, format } from '../../lib/i18n'
 import { effectiveDeviceResources, effectiveWatts } from '../../lib/equipmentSelectors'
 import { checkDanteName } from '../../lib/danteNaming'
 import { subnetCidr } from '../../lib/subnet'
+import { addressPlanTable, buildAddressPlan, type AddressIssue } from '../../lib/addressPlan'
 import { RF_BANDS, bandsForFrequency, bandLabel } from '../../lib/rfBands'
 
 type Tab = 'weight' | 'network' | 'redundancy' | 'rf'
@@ -217,6 +218,29 @@ const WeightTab = ({ projectName }: { projectName: string }) => {
 
 /* --------------------------------------------------------------- Network -- */
 
+/**
+ * Was ein Adressplan-Befund bedeutet, in einem Satz (Initiative 8).
+ *
+ * Als Funktion und nicht als Tabelle im Modul: die Uebersetzung haengt an der
+ * Sprache, das Modell nicht. `addressPlan.ts` liefert Sorten, keine Saetze --
+ * sonst muesste die reine Ableitung wissen, welche Sprache jemand eingestellt
+ * hat.
+ */
+const issueLabel = (t: ReturnType<typeof useTranslation>) => (issue: AddressIssue): string => {
+  switch (issue.kind) {
+    case 'missing-address':
+      return t('analysis.address.missing', 'Keine Adresse')
+    case 'duplicate-address':
+      return `${t('analysis.address.duplicate', 'Adresse doppelt')}: ${(issue.others ?? []).join(', ')}`
+    case 'missing-mask':
+      return t('analysis.address.noMask', 'Keine Maske (/24 angenommen)')
+    case 'gateway-outside-subnet':
+      return t('analysis.address.gatewayOutside', 'Gateway ausserhalb des Subnetzes')
+    case 'network-or-broadcast-address':
+      return t('analysis.address.netOrBroadcast', 'Netz- oder Broadcast-Adresse')
+  }
+}
+
 const NetworkTab = ({ projectName }: { projectName: string }) => {
   const t = useTranslation()
   const equipment = useProjectStore((s) => s.project.equipment)
@@ -266,12 +290,31 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
     return { rows, duplicates, vlanCounts, danteIssues, subnets }
   }, [equipment])
 
+  // Initiative 8 -- der abgeleitete Adressplan. Die Tabelle darueber zeigt,
+  // was AUSGEFUELLT ist; dieser Block zeigt, was fehlt und was nicht stimmt.
+  const plan = useMemo(() => buildAddressPlan(equipment), [equipment])
+  const label = issueLabel(t)
+
   const exportCsv = () => {
     const csvRows: (string | number)[][] = [
       [t('analysis.network.device', 'Gerät'), 'IP', t('analysis.network.mgmtVlan', 'Mgmt-VLAN'), 'VLANs'],
       ...rows.map((r) => [r.name, r.ip, r.mgmtVlan, r.vlans]),
     ]
     downloadBlob(buildExportFilenameWithSuffix(projectName, 'netzwerk', 'csv'), toCsv(csvRows), 'text/csv')
+  }
+
+  /** Der Adressplan als eigene Datei -- die Liste, die der Netzmensch abarbeitet. */
+  const exportAddressPlan = () => {
+    const csvRows = addressPlanTable(plan, label, [
+      t('analysis.network.device', 'Gerät'),
+      'IP',
+      t('analysis.address.mask', 'Maske'),
+      'Gateway',
+      t('analysis.network.subnets', 'Subnetze'),
+      t('analysis.address.evidence', 'Beleg'),
+      t('analysis.address.finding', 'Befund'),
+    ])
+    downloadBlob(buildExportFilenameWithSuffix(projectName, 'adressplan', 'csv'), toCsv(csvRows), 'text/csv')
   }
 
   return (
@@ -366,7 +409,56 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
           </ul>
         </div>
       )}
-      <div className="flex justify-end">
+      {/* ── Adressplan (Initiative 8) ────────────────────────────────────
+          Die Tabelle oben zeigt, was AUSGEFUELLT ist. Dieser Block zeigt, was
+          fehlt und was nicht stimmt -- abgeleitet aus den Geraeten selbst,
+          samt Beleg, welcher Port die Forderung ausgeloest hat. Er vergibt
+          keine Adressen: woher Subnetze kommen, ist die offene
+          Eigentuemer-Frage E-5. */}
+      {plan.networkedCount > 0 && (
+        <div className="rounded border border-[var(--cp-border-muted)] bg-[var(--cp-surface-3)] p-2 text-cp-xs">
+          <div className="mb-1 flex flex-wrap items-baseline gap-x-2">
+            <span className="font-semibold text-[var(--cp-text-muted)]">
+              {t('analysis.address.title', 'Adressplan')}
+            </span>
+            <span className="text-[var(--cp-text-faint)]">
+              {format(
+                t('analysis.address.coverage', '{done} von {total} Netzgeräten adressiert'),
+                { done: plan.networkedCount - plan.missing.length, total: plan.networkedCount },
+              )}
+            </span>
+          </div>
+          {plan.withIssues.length === 0 ? (
+            <p className="text-[var(--cp-text-faint)]">
+              {t('analysis.address.clean', 'Kein offener Punkt: jedes Netzgerät hat Adresse, Maske und ein passendes Gateway.')}
+            </p>
+          ) : (
+            <ul className="space-y-0.5">
+              {plan.withIssues.map((r) => (
+                <li key={r.id} className="flex flex-wrap items-baseline gap-x-2">
+                  <span className="font-semibold">{r.name}</span>
+                  {r.ip && <span className="font-mono text-[var(--cp-text-muted)]">{r.ip}</span>}
+                  <span className="text-amber-300/90">{r.issues.map(label).join(' · ')}</span>
+                  {/* Der Beleg. Wer die Zeile fuer falsch haelt, soll sehen,
+                      welcher Port sie ausgeloest hat. */}
+                  {r.evidence && (
+                    <span className="text-[10px] text-[var(--cp-text-faint)]">{r.evidence}</span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+      <div className="flex justify-end gap-2">
+        <button
+          type="button"
+          onClick={exportAddressPlan}
+          disabled={plan.networkedCount === 0}
+          className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs font-medium text-[var(--cp-text)] hover:bg-[var(--cp-surface-2)] disabled:opacity-40"
+        >
+          <Icon icon={Download} size="xs" /> {t('analysis.address.export', 'Adressplan als CSV')}
+        </button>
         <CsvButton onClick={exportCsv} />
       </div>
     </div>
