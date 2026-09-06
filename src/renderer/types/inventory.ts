@@ -64,6 +64,22 @@ export interface InventoryItem {
   supplier?: string
   /** Eigentum (owned/rented/subhire). */
   ownership?: InventoryOwnership
+  /**
+   * Wann fremdes Material zurueckmuss (ISO-Datum, Bedarf 82).
+   *
+   * Der Bedarf sagt ausdruecklich, wo die Grenze liegt: „the achievable win is
+   * a flag on the inventory unit, not a supplier portal. […] mark ownership
+   * and return date inside the job and STOP THERE." Kein Bestellwesen, keine
+   * Lieferanten-Anbindung — ein Datum.
+   *
+   * Und er sagt, warum es gebraucht wird: „the failure mode is not losing
+   * sub-hire gear, IT IS KEEPING IT THREE WEEKS TOO LONG." Jeder Tag darueber
+   * ist eine weitere Mietwoche.
+   *
+   * Ohne `ownership` ausser `owned` bedeutungslos — dann steht es fuer eigenes
+   * Material, das nirgendwohin zurueckmuss, und `subhireStatus` sagt das.
+   */
+  returnDue?: string
   /** Fester Etiketten-Code (projektübergreifend). */
   code?: string
   /** Codeart des Etiketts (QR oder Barcode). */

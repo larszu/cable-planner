@@ -263,7 +263,17 @@ describe('die Blaetter', () => {
     // Scanner findet. Eine Spalte, die scannbar AUSSIEHT und es nicht ist,
     // ist schlimmer als keine.
     const t = checkoutSheet(rec())
-    expect(t.headers).toEqual(['Art', 'Bezeichnung', 'Menge', 'Etiketten-Code', 'Abgehakt'])
+    // „Herkunft" kam mit Bedarf 67 dazu: der Bedarf nennt den
+    // Check-in-Bildschirm ausdruecklich als eine der drei Stellen, an denen
+    // fremdes Material erkennbar sein muss.
+    expect(t.headers).toEqual([
+      'Art',
+      'Bezeichnung',
+      'Menge',
+      'Etiketten-Code',
+      'Herkunft',
+      'Abgehakt',
+    ])
     expect(t.rows).toHaveLength(4)
     const codes = t.rows.map((r) => String(r[3]))
     expect(codes).not.toContain('id-Case 2')

@@ -30,7 +30,7 @@ const CONTRACT = {
   format: 'avplan-inventory',
   version: 2,
   envelopeKeys: ['app', 'exportedAt', 'format', 'items', 'nodes', 'sets', 'units', 'version'],
-  itemKeys: ['category', 'code', 'codeType', 'createdAt', 'deviceTypeId', 'dimensions', 'id', 'locationId', 'manufacturer', 'materialKinds', 'model', 'notes', 'ownership', 'quantity', 'rentPricePerDay', 'stockLocation', 'supplier', 'updatedAt'],
+  itemKeys: ['category', 'code', 'codeType', 'createdAt', 'deviceTypeId', 'dimensions', 'id', 'locationId', 'manufacturer', 'materialKinds', 'model', 'notes', 'ownership', 'quantity', 'rentPricePerDay', 'returnDue', 'stockLocation', 'supplier', 'updatedAt'],
   nodeKeys: ['code', 'codeType', 'createdAt', 'dimensions', 'id', 'kind', 'name', 'notes', 'parentId', 'updatedAt'],
   setKeys: ['components', 'createdAt', 'id', 'name', 'notes', 'updatedAt'],
   unitKeys: ['code', 'codeType', 'condition', 'createdAt', 'history', 'id', 'itemId', 'locationId', 'notes', 'serial', 'updatedAt'],
@@ -48,6 +48,7 @@ const CONTRACT = {
 const item: InventoryItem = {
   id: 'i1', model: 'ULXD2', manufacturer: 'Shure', category: 'wireless', quantity: 4,
   rentPricePerDay: 25, stockLocation: 'Regal A3', supplier: 'AV GmbH', ownership: 'owned',
+  returnDue: '2026-09-12',
   code: 'ITM-1', codeType: 'qr', locationId: 'n1', deviceTypeId: 'dt-0001',
   dimensions: { widthMm: 50, heightMm: 20, depthMm: 200, weightKg: 0.3 },
   materialKinds: ['rental'], notes: 'x', createdAt: 't', updatedAt: 't',
