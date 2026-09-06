@@ -111,6 +111,8 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   Eingang: 'Der physische Eingang am Gerät oder Mischer.',
   Einheit: 'Die einzelne, mit Seriennummer unterscheidbare Kiste — nicht das Modell.',
   Empfänger: 'Wer den Multicast-Fluss empfängt.',
+  Empfangskanal:
+    'Der Eingang am empfangenden Dante-Gerät. Jeder kann genau ein Abo haben — steht er zweimal, ist eine der Zeilen falsch.',
   Encoder: 'Das Gerät im Plan, das dieses Ziel beliefert.',
   Ergebnis: 'Wie die Inventur-Prüfung dieser Position ausgegangen ist.',
   'Erwartet in': 'Wo die Position laut Plan liegen müsste.',
@@ -197,6 +199,9 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   Schnittstelle: 'Die Netzwerk-Schnittstelle des Geräts (erste, Dante-Sekundär, ST 2110 blau …).',
   'Schwelle niedrig (kbit/s)': 'Ab welcher Bitrate der Wächter „niedrig" annehmen soll.',
   'Schwelle offline (kbit/s)': 'Ab welcher Bitrate der Wächter „offline" annehmen soll.',
+  Sender:
+    'Das sendende Dante-Gerät. „nichts“ heißt: dieser Empfangskanal ist nicht abonniert — ein gültiger Zustand, kein Fehler.',
+  Sendekanal: 'Der Ausgang am sendenden Dante-Gerät.',
   'Serie (Einheit)': 'Die Seriennummer, die an der Lager-Einheit steht.',
   'Serie (Platz)': 'Die Seriennummer, die am Platz im Plan hinterlegt ist.',
   Show: 'Das Projekt oder die Show, zu der die Zeile gehört.',

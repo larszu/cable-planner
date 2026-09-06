@@ -4481,6 +4481,15 @@ export const en: Dict = {
   'analysis.naming.before': 'Old name',
   'analysis.naming.after': 'New name',
   'analysis.naming.chars': 'Characters',
+  // Bedarf 94 — der Dante-Patch als Dokument.
+  'analysis.tab.dante': 'Dante patch',
+  'analysis.dante.intro':
+    'The subscription matrix as a sheet and as a comparison. This application does not go on the network, subscribes to nothing and renames nothing \u2014 it reads the table the preset is converted into anyway.',
+  'analysis.dante.import': 'Read matrix',
+  'analysis.dante.count': '{n} receive channels',
+  'analysis.dante.unreadable': '{n} lines not readable',
+  'analysis.dante.exportDiff': 'Changes',
+  'analysis.dante.noChange': 'Nothing changed in the patch between the two states.',
 
   /* Bedarf 27 — der Rueckweg vom Papier. */
   'analysis.sheet.intro':
