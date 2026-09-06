@@ -23,6 +23,8 @@ import { deliveryTableForProject } from './deliveryParity'
 import { runOfShowSheetForProject } from './encoderFeasibility'
 import { tallyMapTableForProject } from './tallyMap'
 import { preShowTallyTable } from './tallyPosition'
+import { mvSheetTable, multiViewersOf, sourceNamesFromTallyRows } from './mvSheet'
+import { buildTallyMap } from './tallyMap'
 import { deliveryPathTable } from './deliveryPath'
 import { buildPtpPlan, ptpTable } from './ptpPlan'
 import { crewSheetTableForProject } from './crewNetworkSheet'
@@ -84,6 +86,27 @@ export const DOCUMENT_STANDS: Record<string, (project: CablePlannerProject) => s
   // keine Sprache (die Zellen tragen kanonisches Deutsch aus
   // `TALLY_*_LABEL`), kein Zufall — die Zeitstempel stehen in den Daten und
   // werden nicht beim Bauen genommen.
+  // Bedarf 125 — das Multiviewer-Bild als Blatt. Reproduzierbar, weil es
+  // allein aus `atemMvConfig` und derselben Tally-Aufloesung folgt: keine
+  // Nutzer-Einstellung beim Export, keine Sprache, kein Live-Zustand des
+  // Mischers (der waere eine Beobachtung und wuerde jeden Vergleich brechen).
+  'mv-bild': (project) => {
+    const namen = sourceNamesFromTallyRows(
+      buildTallyMap({
+        equipment: project.equipment,
+        cables: project.cables,
+        sourceIdentities: project.sourceIdentities,
+      }).rows,
+    )
+    const rows: string[] = []
+    for (const device of project.equipment) {
+      const mvs = multiViewersOf(device)
+      if (mvs.length === 0) continue
+      const table = mvSheetTable(device.name, mvs, namen)
+      rows.push(documentFingerprint(table.headers, table.rows))
+    }
+    return documentFingerprint(['mv'], rows.map((r) => [r]))
+  },
   'tally-vorshow': (project) =>
     ofTable(() => preShowTallyTable(project.sourceIdentities ?? [], project.tallyPositions ?? []))(
       project,
@@ -230,6 +253,7 @@ export const DOCUMENT_LABELS: Record<string, string> = {
   ablaufblatt: 'Ablaufblatt',
   'tally-karte': 'Tally-Karte',
   'tally-vorshow': 'Tally-Vor-Show-Liste',
+  'mv-bild': 'Multiviewer-Bild',
   ausspielweg: 'Ausspielweg',
   'ptp-plan': 'Zeit-Plan (PTP)',
   'crew-netz': 'Netz-Merkblatt (Crew)',

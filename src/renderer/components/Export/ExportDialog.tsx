@@ -18,7 +18,7 @@ import jsPDF from 'jspdf'
 import { useUiStore } from '../../store/uiStore'
 import { PacketSection } from './PacketSection'
 import { useProjectStore } from '../../store/projectStore'
-import { AlertTriangle, Check, Lightbulb, Package as PackageIcon } from 'lucide-react'
+import { AlertTriangle, Check, Download, Lightbulb, Package as PackageIcon } from 'lucide-react'
 import { useTranslation, format } from '../../lib/i18n'
 import { detectLayerForConnector, type StandardLayer } from '../../lib/cableLayers'
 
@@ -43,6 +43,13 @@ import { sanitizeForPdf } from '../../lib/sanitizeForPdf'
 import { downloadBlob } from '../../lib/downloadBlob'
 import { buildTallyMap, tallyMapCsv, toTallyPiDevices } from '../../lib/tallyMap'
 import { TallyPreShowPanel } from '../Tally/TallyPreShowPanel'
+import { toCsv } from '../../lib/csv'
+import {
+  mvFindings,
+  mvSheetTable,
+  multiViewersOf,
+  sourceNamesFromTallyRows,
+} from '../../lib/mvSheet'
 import { buildPlanBom, outcomeLabel, pickListCsv, planBomCsv } from '../../lib/planBom'
 import { useCheckoutStore } from '../../store/checkoutStore'
 import { zusatzBedarf } from '../../lib/planDemandExtras'
@@ -1279,6 +1286,84 @@ const BomSection = () => {
 // beantwortet der Plan; das vierte, die Lampe, gehoert der Hardware und wird
 // ausdruecklich NICHT erfunden.
 
+/**
+ * BEDARF 125 — das Multiviewer-Bild als Blatt.
+ *
+ *   > MV window assignment is configured by hand per show; remote recall is
+ *   > unreliable, so THE TRUSTED STORE IS THE SWITCHER'S OWN BINARY SAVE
+ *   > FILE, WHICH NO OTHER DEPARTMENT CAN READ.
+ *
+ * Der Plan macht den Recall nicht zuverlaessiger — das ist Sache des
+ * Mischers. Er liefert das Blatt, das heute fehlt: welche Rolle steht in
+ * welchem Fenster, lesbar fuer Regie, Bildtechnik und Kameraleute, aus
+ * derselben Aufloesung wie Tally und UMD.
+ */
+const MvSheetPanel = ({ map }: { map: ReturnType<typeof buildTallyMap> }) => {
+  const t = useTranslation()
+  const equipment = useProjectStore((s) => s.project.equipment)
+  const projectName = useProjectStore((s) => s.project.metadata?.name)
+
+  const namen = useMemo(() => sourceNamesFromTallyRows(map.rows), [map.rows])
+  const geraete = useMemo(
+    () => equipment.filter((e) => multiViewersOf(e).length > 0),
+    [equipment],
+  )
+  const befunde = useMemo(
+    () => geraete.flatMap((e) => mvFindings(multiViewersOf(e), namen)),
+    [geraete, namen],
+  )
+
+  if (geraete.length === 0) return null
+
+  const laden = (device: (typeof geraete)[number]) => {
+    const table = mvSheetTable(device.name, multiViewersOf(device), namen)
+    downloadBlob(
+      buildExportFilenameWithSuffix(projectName, `mv-${device.name}`, 'csv'),
+      toCsv(table.headers, table.rows),
+      'text/csv;charset=utf-8',
+    )
+  }
+
+  return (
+    <div className="shrink-0 rounded border border-cp-border bg-cp-surface-2 p-2">
+      <div className="mb-1 flex flex-wrap items-center gap-2">
+        <span className="text-cp-xs font-semibold text-cp-text-secondary">
+          {t('mv.sheet.title', 'Multiviewer-Bild (wer steht in welchem Fenster)')}
+        </span>
+        {geraete.map((e) => (
+          <button
+            key={e.id}
+            type="button"
+            onClick={() => laden(e)}
+            className="inline-flex items-center gap-1 rounded border border-cp-border px-2 py-0.5 text-cp-xs hover:bg-cp-surface-3"
+          >
+            <Icon icon={Download} size="xs" />
+            {e.name}
+          </button>
+        ))}
+      </div>
+      <p className="text-cp-xs text-cp-text-muted">
+        {t(
+          'mv.sheet.hint',
+          'Die Namen kommen aus denselben Rollen wie Tally und UMD — nicht aus einer zweiten, von Hand geführten Liste. Der Mischer speichert sein Bild binär; dieses Blatt kann auch die Kamera-Crew lesen.',
+        )}
+      </p>
+      {befunde.length > 0 && (
+        <ul className="mt-1 flex max-h-32 flex-col gap-0.5 overflow-auto text-cp-xs">
+          {befunde.map((b, idx) => (
+            <li
+              key={`${b.kind}:${b.mvIndex}:${idx}`}
+              className={b.severity === 'error' ? 'text-cp-danger' : 'text-cp-warn'}
+            >
+              {b.message}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  )
+}
+
 const TallySection = () => {
   const t = useTranslation()
   const project = useProjectStore((s) => s.project)
@@ -1355,6 +1440,14 @@ const TallySection = () => {
           </table>
         </div>
       )}
+
+      {/* BEDARF 125 — das Multiviewer-Bild. Es steht HIER und nicht in einem
+          eigenen Abschnitt, weil es an derselben Aufloesung haengt wie die
+          Tally-Karte darueber: „labels come from the source records". Ein
+          eigener Abschnitt verfuehrte dazu, die Namen ein zweites Mal
+          aufzuloesen — genau die dritte handgefuehrte Kopie, die der Bedarf
+          beklagt. */}
+      <MvSheetPanel map={map} />
 
       {/* BEDARF 105 — die zweite Haelfte. Die Karte darueber sagt, was der Plan
           ABLEITET; hier steht, was niemand ableiten kann: der Weg zur Lampe
