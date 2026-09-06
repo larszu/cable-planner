@@ -498,10 +498,26 @@ export interface ProjectState {
   addSourceIdentity: (
     identity: Omit<import('../types/sourceIdentity').SourceIdentity, 'id'> & { id?: string },
   ) => string | undefined
+  /**
+   * Alles AUSSER dem Namen. Umbenannt wird ueber `renameSourceIdentity`
+   * (Bedarf 101): nur dort wird geprueft, ob schon eine andere Rolle so
+   * heisst, und zwei gleichnamige Rollen sind auf dem Multiviewer nicht mehr
+   * auseinanderzuhalten. Ein zweiter Weg an dieser Pruefung vorbei waere
+   * genau der Zustand, den die Pruefung verhindern soll.
+   */
   updateSourceIdentity: (
     id: string,
-    patch: Partial<Omit<import('../types/sourceIdentity').SourceIdentity, 'id'>>,
+    patch: Partial<Omit<import('../types/sourceIdentity').SourceIdentity, 'id' | 'name'>>,
   ) => void
+  /**
+   * Bedarf 101 — die EINE Aenderung. Liefert den Grund, wenn sie nicht
+   * ausgefuehrt wurde, statt still nichts zu tun: fuer den Bedienenden ist
+   * ein wortloses Nichts von einem kaputten Programm nicht zu unterscheiden.
+   */
+  renameSourceIdentity: (
+    id: string,
+    newName: string,
+  ) => import('../lib/renameImpact').RenameRefusal | undefined
   removeSourceIdentity: (id: string) => void
   /** Geraet an eine Rolle binden; `undefined` loest die Bindung. */
   bindEquipmentToSourceIdentity: (equipmentId: string, identityId: string | undefined) => void
