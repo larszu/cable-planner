@@ -25,6 +25,7 @@
  *     Zustand.
  */
 import { toCsv, type CsvCell, type CsvTable } from './csv'
+import { buildDocQrPayload } from './qrPayload'
 import type { CablePlannerProject, ProjectRevision, RevisionSnapshot } from '../types/project'
 
 export interface DocumentStamp {
@@ -272,8 +273,34 @@ export const stampLine = (stamp: DocumentStamp): string => {
  * die die erste Zeile als Header liest. Hinten steht sie da, wo eine Fußzeile
  * hingehört — auf dem Ausdruck unten, und in Excel in der letzten Zeile.
  */
-export const csvStampRow = (stamp: DocumentStamp, columns: number): CsvCell[] => {
-  const row: CsvCell[] = [`# ${stampLine(stamp)}`]
+export const csvStampRow = (
+  stamp: DocumentStamp,
+  columns: number,
+  docId?: string,
+): CsvCell[] => {
+  // ADR-004 Inkrement 3 — der Dokument-Code auf dem Listen-Ausdruck selbst.
+  //
+  // WARUM ALS TEXT UND NICHT ALS QR. Ein CSV kann kein Bild tragen, und ein
+  // Listen-Ausdruck entsteht aus Excel — jeder QR, den wir hier erzeugten,
+  // ueberlebte den Weg nicht. Der Code als Text ueberlebt ihn, ist abtippbar
+  // und wird, wenn jemand das Blatt fotografiert, von derselben Suche
+  // gefunden wie ein gescannter.
+  //
+  // WAS ER GEGENUEBER DEN ACHT ZEICHEN KANN. Die acht Zeichen allein sagen im
+  // Mobile-Viewer entweder "aktueller Stand" oder "gehoert zu keinem aktuellen
+  // Blatt". Der Code nennt zusaetzlich das DOKUMENT — und damit wird aus
+  // "unbekannt" die brauchbare Antwort: "Pull-Liste: VERALTET, aktueller
+  // Stand #xyz". Auf der Baustelle ist das der Unterschied zwischen "irgendwas
+  // stimmt nicht" und "hol dir die neue Pull-Liste".
+  //
+  // `stampLine` bleibt unangetastet: sie ist das Format, das alle drei Planer
+  // teilen, und `stamp:parity` in der Suite haelt sie Zeichen fuer Zeichen
+  // gegeneinander. Der Code haengt hinten dran, wo er nur den cable-planner
+  // betrifft -- die anderen beiden haben kein Dokument-Register.
+  const zeile = docId
+    ? `# ${stampLine(stamp)}  ·  ${buildDocQrPayload(docId, stamp.fingerprint, stamp.revision)}`
+    : `# ${stampLine(stamp)}`
+  const row: CsvCell[] = [zeile]
   while (row.length < Math.max(1, columns)) row.push('')
   return row
 }
@@ -283,8 +310,12 @@ export const csvStampRow = (stamp: DocumentStamp, columns: number): CsvCell[] =>
  * Ohne Stempel identisch zu `toCsv` — der Aufrufer entscheidet, ob das Dokument
  * einen tragen soll (ein Zwischenexport in Excel braucht keinen).
  */
-export const csvFromTable = (table: CsvTable, stamp?: DocumentStamp): string =>
+export const csvFromTable = (
+  table: CsvTable,
+  stamp?: DocumentStamp,
+  docId?: string,
+): string =>
   toCsv(
     table.headers,
-    stamp ? [...table.rows, csvStampRow(stamp, table.headers.length)] : table.rows,
+    stamp ? [...table.rows, csvStampRow(stamp, table.headers.length, docId)] : table.rows,
   )

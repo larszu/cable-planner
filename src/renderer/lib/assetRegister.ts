@@ -116,4 +116,4 @@ export const assetRegisterTable = (project: CablePlannerProject): CsvTable => {
 export const assetRegisterCsv = (
   project: CablePlannerProject,
   stamp?: DocumentStamp,
-): string => csvFromTable(assetRegisterTable(project), stamp)
+): string => csvFromTable(assetRegisterTable(project), stamp, 'asset-register')
