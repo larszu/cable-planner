@@ -4009,6 +4009,26 @@ export const en: Dict = {
   'analysis.address.clean': 'Nothing open: every networked device has an address, a mask and a gateway that fits.',
   'analysis.address.export': 'Address plan as CSV',
 
+  /* Bedarfe 22/23 — Netz-Dokumente aus einem Modell. Keys: analysis.venue.* */
+  'analysis.venue.title': 'Request to the venue IT',
+  'analysis.venue.intro':
+    'The design literature prescribes the content and a joint test session, but no document. What the plan knows is stated with a number; what it cannot know is stated as a question.',
+  // {audio} und {video} werden vom Aufrufer ersetzt.
+  'analysis.venue.igmpConflict':
+    'The plan carries both: {audio} (audio vendors\u2019 field advice: turn IGMP snooping off) and {video} (does not work without multicast management). On a shared network those two pieces of advice are mutually exclusive \u2014 that belongs before the build, not into the night.',
+  'analysis.venue.rackDoor': 'Rack-door sheet',
+  'analysis.venue.vlanTable': 'VLAN table',
+  'analysis.venue.item.vlans': 'VLANs',
+  'analysis.venue.item.subnets': 'Address ranges',
+  'analysis.venue.item.ports': 'Network ports',
+  'analysis.venue.item.bandwidth': 'Media bandwidth',
+  'analysis.venue.item.multicast': 'Multicast standards',
+  'analysis.venue.item.poe': 'PoE',
+  'analysis.venue.item.igmpQuerier': 'IGMP querier',
+  'analysis.venue.item.dhcp': 'DHCP',
+  'analysis.venue.item.qos': 'QoS / DSCP',
+  'analysis.venue.item.jointTest': 'Joint test session',
+
   /* Bedarf 24 — die Switch-Port-Karte. Keys: analysis.switchPorts.* */
   'analysis.switchPorts.title': 'Switch port map',
   // {n} wird vom Aufrufer ersetzt.
