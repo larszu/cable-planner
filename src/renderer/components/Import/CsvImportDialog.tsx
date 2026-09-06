@@ -55,11 +55,14 @@ export const CsvImportDialog = () => {
   }
 
   const doImport = () => {
-    addCustomTemplates(templates)
+    // Die Zahlen kommen aus dem BERICHT des Stores, nicht aus dem Plan
+    // (Bedarf 65). Der Plan ist die Vorschau VOR dem Klick; was danach
+    // gemeldet wird, muss das Ergebnis sein. Zwei parallel gefuehrte
+    // Zaehlungen ueber dieselbe Operation weichen irgendwann ab, und dann
+    // stimmt die falsche.
+    const bericht = addCustomTemplates(templates)
     close()
     setText('')
-    // Die Zahl im Erfolgsfenster ist jetzt die, die wirklich angelegt wurde —
-    // und was NICHT angelegt wurde, steht daneben statt nirgends.
     void infoDialog(t('csvImport.doneTitle', 'CSV importiert'), {
       body: format(
         t(
@@ -67,9 +70,14 @@ export const CsvImportDialog = () => {
           '{n} Gerät(e) neu angelegt. Unverändert geblieben: {vorhanden} bereits vorhandene(r) Name(n). Übersprungen: {ohneName} Zeile(n) ohne Namen.',
         ),
         {
-          n: plan.fresh.length,
-          vorhanden: plan.existing.length,
-          ohneName: plan.rowsWithoutName.length,
+          n: bericht.added.length,
+          // Der Plan kennt die Namen, die schon in der Library standen; der
+          // Bericht die, die es ERST BEIM ANLEGEN waren — also die, die
+          // zwischen Vorschau und Klick dazugekommen sind (zweites Fenster,
+          // Ordner-Sync). Beide zaehlen, und der zweite Fall ist genau der
+          // stille Sprung, den Bedarf 65 meint.
+          vorhanden: plan.existing.length + bericht.skipped.length,
+          ohneName: plan.rowsWithoutName.length + bericht.unnamed,
         },
       ),
       tone: 'success',
