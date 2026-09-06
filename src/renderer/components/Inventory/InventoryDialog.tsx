@@ -63,7 +63,10 @@ import {
 import { ownershipNote, overdueSubhire, subhireStatus } from '../../lib/ownership'
 import type { CheckoutDamage, CheckoutRecord } from '../../types/checkout'
 import { damageEntries, damageTable, damageTally } from '../../lib/damageRegister'
-import { AUDIT_LABEL, auditRelocations, auditScan, auditTable, type AuditHit } from '../../lib/inventoryAudit'
+import {
+  AUDIT_LABEL, auditPick, auditRelocations, auditScan, auditTable, expectedAt, missingAt,
+  type AuditCandidate, type AuditHit,
+} from '../../lib/inventoryAudit'
 import { keepScreenAwake } from '../../lib/wakeLock'
 import {
   containerContents,
@@ -891,6 +894,27 @@ const LocationsTab = ({ dimsEditor, formatDims, codeCell }: LocationsTabProps) =
     setAuditDraft('')
   }
 
+  /**
+   * BEDARF 150 — der Scanner ist der schnelle Weg, nie der einzige.
+   *
+   * Getippte Codes gab es hier schon; die retten den leeren Akku. Sie retten
+   * NICHT das abgerissene Etikett und nicht das Case, das schon auf dem Lkw
+   * steht — wer den Code nicht lesen kann, kann ihn auch nicht tippen. Der
+   * Weg, der dann bleibt, ist die Liste dessen, was hier liegen soll.
+   */
+  const auditErwartet = useMemo(
+    () => (auditNode ? expectedAt(auditNode, { items, nodes, units }) : []),
+    [auditNode, items, nodes, units],
+  )
+  const auditFehlt = useMemo(
+    () => (auditNode ? missingAt(auditNode, { items, nodes, units }, auditHits) : []),
+    [auditNode, items, nodes, units, auditHits],
+  )
+  const auditPickNow = (c: AuditCandidate) => {
+    if (!auditNode) return
+    setAuditHits((h) => [auditPick(c, auditNode, { items, nodes, units }), ...h])
+  }
+
   /** Den TATSAECHLICHEN Ort uebernehmen — der Beleg verlangt genau das.
    *  Schreibend, deshalb ein eigener Klick und nicht automatisch. */
   const auditAdopt = () => {
@@ -1086,7 +1110,10 @@ const LocationsTab = ({ dimsEditor, formatDims, codeCell }: LocationsTabProps) =
                 type="button"
                 disabled={auditHits.length === 0}
                 onClick={() => {
-                  const t2 = auditTable(auditHits, nodes, node.id)
+                  // Mit den Fehlt-Zeilen: ein Blatt ohne sie zaehlt nur,
+                  // was jemand vorgezeigt hat, und laese sich wie eine
+                  // vollstaendige Inventur.
+                  const t2 = auditTable(auditHits, nodes, node.id, auditFehlt)
                   downloadBlob(`inventur-${node.name}.csv`, toCsv(t2.headers, t2.rows), 'text/csv')
                 }}
                 className="flex items-center gap-1 text-cp-text-secondary hover:text-cp-text disabled:opacity-40"
@@ -1108,9 +1135,57 @@ const LocationsTab = ({ dimsEditor, formatDims, codeCell }: LocationsTabProps) =
                 })}
               </button>
             </div>
+            {/* BEDARF 150 — die Liste dessen, was hier liegen soll. Sie ist
+                der Weg, der bleibt, wenn der Scanner leer oder das Etikett ab
+                ist: abhaken statt scannen. Was am Ende weder gescannt noch
+                abgehakt ist, steht als „Nicht gefunden" auf dem Blatt — das
+                ist das eigentliche Ergebnis einer Inventur, und ohne diese
+                Liste gab es dafuer keine Zeile. */}
+            {auditErwartet.length > 0 && (
+              <details className="mb-1.5 rounded border border-cp-border-muted bg-cp-surface-3 px-2 py-1">
+                <summary className="cursor-pointer text-cp-text-secondary">
+                  {format(
+                    // NICHT `inventory.auditExpected` — den Schluessel gibt
+                    // es unten schon mit „erwartet in {ort}". Zwei deutsche
+                    // Fassungen unter einem Schluessel heisst: die zweite
+                    // Uebersetzung ueberschreibt die erste, und irgendwo im
+                    // Englischen steht dann der falsche Satz.
+                    t('inventory.auditExpectedList', 'Ohne Scanner abhaken — hier erwartet: {n}, davon offen: {open}'),
+                    { n: auditErwartet.length, open: auditFehlt.length },
+                  )}
+                </summary>
+                <ul className="mt-1 flex max-h-48 flex-col gap-0.5 overflow-y-auto">
+                  {auditErwartet.map((c) => {
+                    const offen = auditFehlt.some((m) => m.key === c.key)
+                    return (
+                      <li key={c.key} className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          disabled={!offen}
+                          onClick={() => auditPickNow(c)}
+                          title={t(
+                            'inventory.auditPickHint',
+                            'Ohne Code als „liegt hier" verbuchen — das Blatt hält fest, dass es abgehakt und nicht gescannt wurde',
+                          )}
+                          className="rounded border border-cp-border px-1.5 py-0.5 text-cp-text-secondary hover:text-cp-text disabled:opacity-40"
+                        >
+                          {offen
+                            ? t('inventory.auditPick', 'hier')
+                            : t('inventory.auditPicked', 'erfasst')}
+                        </button>
+                        <span className={offen ? 'text-cp-text' : 'text-cp-text-muted line-through'}>
+                          {c.label}
+                          {c.model && c.model !== c.label ? ` · ${c.model}` : ''}
+                        </span>
+                      </li>
+                    )
+                  })}
+                </ul>
+              </details>
+            )}
             {auditHits.length === 0 ? (
               <div className="text-cp-text-muted">
-                {t('inventory.auditEmpty', 'Noch nichts gescannt.')}
+                {t('inventory.auditEmpty', 'Noch nichts erfasst.')}
               </div>
             ) : (
               <ul className="flex max-h-56 flex-col gap-0.5 overflow-y-auto">
@@ -1129,6 +1204,10 @@ const LocationsTab = ({ dimsEditor, formatDims, codeCell }: LocationsTabProps) =
                         Beleg ausdruecklich, und ohne beides „finds nothing
                         actionable". */}
                     {AUDIT_LABEL[h.outcome]} · {h.label || h.code}
+                    {/* Bedarf 150: gescannt oder abgehakt steht dran. Ein
+                        Etikett gelesen zu haben ist eine andere Auskunft als
+                        eine Zeile angeklickt zu haben. */}
+                    {h.via === 'pick' ? ` [${t('inventory.auditViaPick', 'aus der Liste')}]` : ''}
                     {h.model && h.model !== h.label ? ` (${h.model})` : ''}
                     {h.expected ? ` — ${format(t('inventory.auditExpected', 'erwartet in {ort}'), { ort: h.expected })}` : ''}
                   </li>

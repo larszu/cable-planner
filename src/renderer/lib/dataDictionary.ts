@@ -68,6 +68,9 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
     'Woher die Ablesung stammt (Netz-Scan, Mischer, Router, Vermietung, von Hand). Ohne Ablesung steht in der Urteils-Spalte „nicht nachgesehen“.',
   'Abgelesen am':
     'Der Tag der Ablesung. Fehlt er, gilt die Zeile als ungeprüft — ein Verify-Lauf von gestern ist kein Verify-Lauf.',
+  // Bedarf 150 — der Scanner ist der schnelle Weg, nie der einzige.
+  'Wie erfasst':
+    'Womit die Inventur-Zeile belegt ist: „gescannt“ heißt, jemand hat das Etikett AM OBJEKT gelesen; „aus der Liste“ heißt, jemand hat eine Zeile der Erwartungsliste angehakt (der Weg, der bleibt, wenn der Scanner leer oder das Etikett ab ist). Ein Strich steht bei „Nicht gefunden“ — dort wurde weder gescannt noch angehakt. Die Spalte trennt eine Ablesung von einer Behauptung; sie zusammenzuwerfen wäre dieselbe stille Lüge, die das Lexikon an anderen Stellen verhindert.',
   // Bedarf 125 — das Multiviewer-Bild (`lib/mvSheet.ts`).
   Multiviewer:
     'Welcher Multiviewer des Mischers gemeint ist — Gerätename plus laufende Nummer, ab 1 gezählt wie am Gerät.',
