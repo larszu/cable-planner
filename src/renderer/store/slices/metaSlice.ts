@@ -2,6 +2,7 @@ import type { StateCreator } from 'zustand'
 import type { CablePlannerProject } from '../../types/project'
 import { touchProject } from '../projectStoreHelpers'
 import { scheduleProjectAutosave } from '../projectAutosave'
+import { applyNamingScheme } from '../../lib/namingScheme'
 import type { ProjectState } from '../projectStore'
 
 /**
@@ -33,6 +34,11 @@ export type MetaSlice = Pick<
   | 'setWirelessRig'
   | 'setMulticastConfig'
   | 'setFallbackPlan'
+  | 'setEventMetadata'
+  | 'setTransmissionRecord'
+  | 'setCostPlan'
+  | 'setNamingScheme'
+  | 'applyNaming'
 >
 
 export const createMetaSlice: StateCreator<ProjectState, [], [], MetaSlice> = (set) => ({
@@ -131,5 +137,55 @@ export const createMetaSlice: StateCreator<ProjectState, [], [], MetaSlice> = (s
       const updated = { ...state.project, fallback: plan }
       scheduleProjectAutosave(updated)
       return { project: updated }
+    }),
+  // BEDARF 88 — die Veranstaltungsangaben. Ein Setter fuer das ganze Objekt,
+  // aus demselben Grund wie oben: die Abweichungen je Ziel haengen an den
+  // Projektwerten, gegen die sie abweichen. Ein Einzel-Setter je Abweichung
+  // liesse den Zustand zu, in dem ein Ueberschreiber gegen einen Projektwert
+  // steht, den es in derselben Aktion gar nicht mehr gibt.
+  setEventMetadata: (plan) =>
+    set((state) => {
+      const updated = { ...state.project, eventMetadata: plan }
+      scheduleProjectAutosave(updated)
+      return { project: updated }
+    }),
+  // BEDARF 87 — der Sendebericht. Wieder ein Setter fuer das ganze Objekt:
+  // Zusammenfassung und Eintraege gehoeren zusammen, und eine Zusammenfassung
+  // ohne die Eintraege, auf die sie sich bezieht, waere eine Bewertung ohne
+  // Beleg.
+  setTransmissionRecord: (record) =>
+    set((state) => {
+      const updated = { ...state.project, transmissionRecord: record }
+      scheduleProjectAutosave(updated)
+      return { project: updated }
+    }),
+  // BEDARF 79 — der Kostenvergleich. Wieder ein Setter fuer das ganze Objekt:
+  // Waehrung, Toleranz und Positionen gehoeren zusammen, und eine Summe ueber
+  // Positionen in zwei Waehrungen waere eine Zahl, die nichts bedeutet.
+  setCostPlan: (plan) =>
+    set((state) => {
+      const updated = { ...state.project, costPlan: plan }
+      scheduleProjectAutosave(updated)
+      return { project: updated }
+    }),
+  // BEDARF 74 — die Namensregel.
+  setNamingScheme: (scheme) =>
+    set((state) => {
+      const updated = { ...state.project, namingScheme: scheme }
+      scheduleProjectAutosave(updated)
+      return { project: updated }
+    }),
+
+  // BEDARF 74 — die Regel ANWENDEN. Der Store rechnet hier nichts selbst: er
+  // ruft `applyNamingScheme`, und wenn die verweigert (doppelte Namen, nichts
+  // zu tun), bleibt der Zustand unveraendert. Eine Verweigerung im Store still
+  // in ein Teil-Umbenennen zu verwandeln waere genau das Ueberschreiben, gegen
+  // das Bedarf 96 geschrieben ist.
+  applyNaming: (scheme) =>
+    set((state) => {
+      const result = applyNamingScheme(state.project, scheme)
+      if (!result.project) return {}
+      scheduleProjectAutosave(result.project)
+      return { project: result.project }
     }),
 })

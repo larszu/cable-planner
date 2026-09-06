@@ -254,3 +254,126 @@ export const buildLabelSheetHtml = (
 ${pageDivs.join('\n')}
 </body></html>`
 }
+
+// ───────────────────────────────────────────────────────────────────────────
+// BEDARF 70 (P2) — passt das ueberhaupt drauf?
+//
+//   > manually cut parts of it so that it fits, sometimes trimming very close
+//   > to the QR code
+//   (grokability/snipe-it#19541, 2026-08-24, offen)
+//
+//   > wants the code as text for „visual confirmation" and „manual entry"
+//   (grokability/snipe-it#18280, 2025-12, offen)
+//
+// Die Massnahme der Bedarfs-Datenbank: „Any label/QR output from the suite
+// must print the code as text, offer at least three geometries, and treat
+// manual entry of the code as a first-class path rather than a punishment."
+//
+// ─── ZWEI DAVON STEHEN SCHON ───────────────────────────────────────────────
+//
+// Der Klartext-Code steht unter der Grafik (`.c`), und Geometrien gibt es
+// mehr als drei (`ALL_LABEL_FORMATS`). Was fehlte, ist die dritte, unsichtbare
+// Haelfte des zweiten Belegs: der Klartext-Code NUETZT NUR, WENN ER DRAUFPASST.
+// `.lbl` schneidet mit `overflow: hidden` ab — ein zu langer Code wird also
+// still gekuerzt, und genau der Rueckfallweg, um den der Melder bittet, ist
+// dann weg. Auf dem Bogen sieht das aus wie ein Etikett.
+//
+// ─── DAS IST EINE SCHAETZUNG, KEINE MESSUNG ────────────────────────────────
+//
+// Gerechnet wird aus Schriftgroesse und Zeichenbreite, nicht aus einem
+// gerenderten Layout — diese Anwendung hat keinen Zugriff auf die
+// Textmetriken des Druckertreibers. Die Funktion heisst deshalb
+// `estimateLabelFit`, und der Befund sagt es. Eine als Messung ausgegebene
+// Schaetzung waere hier besonders teuer: sie gaebe gruenes Licht fuer einen
+// Bogen, der dann doch abschneidet.
+//
+// Zwei Vorsichtsmassnahmen, damit die Schaetzung eher zu frueh warnt als zu
+// spaet: die Zeichenbreite ist die von Courier (0,6 em, monospace — genau die
+// Schrift, in der `.c` gesetzt ist), und angebrochene Zeilen zaehlen nicht mit.
+// ───────────────────────────────────────────────────────────────────────────
+
+/** mm je Punkt. 1 pt = 1/72 Zoll, 1 Zoll = 25,4 mm. */
+const MM_PER_PT = 25.4 / 72
+
+/** Schriftgroessen aus dem Stylesheet oben, in Punkt. Sie stehen hier als
+ *  Konstanten, damit Layout und Pruefung nicht auseinanderlaufen koennen. */
+const CODE_PT = 8
+const TITLE_PT = 7
+const NOTE_PT = 6.5
+const LINE_HEIGHT = 1.15
+/** Zeichenbreite einer Monospace-Schrift in em. Courier: 0,6. */
+const MONO_ADVANCE_EM = 0.6
+
+export interface LabelFit {
+  /** Wie viele Zeichen des Codes je Zeile Platz haben. */
+  charsPerLine: number
+  /** Wie viele volle Zeilen fuer den Code bleiben. */
+  linesForCode: number
+  /** Wie viele Zeichen des Codes insgesamt Platz haben. */
+  codeCapacity: number
+  /** Passt der laengste uebergebene Code? */
+  fits: boolean
+  /** Der laengste Code, der geprueft wurde. Leer, wenn keiner uebergeben war. */
+  longestCode: string
+}
+
+/**
+ * Schaetzt, wie viel Klartext-Code auf ein Etikett dieses Formats passt.
+ *
+ * Rechnet dieselbe Geometrie nach, die `buildLabelSheetHtml` setzt: bei QR
+ * steht die Grafik links und der Text daneben, bei Barcode darueber und der
+ * Text darunter ueber die volle Breite.
+ */
+export const estimateLabelFit = (
+  sheet: LabelSheet,
+  labels: Pick<LabelSpec, 'code' | 'title' | 'note' | 'symbology'>[],
+): LabelFit => {
+  const longest = labels.reduce(
+    (a, b) => ((b.code ?? '').length > a.length ? (b.code ?? '') : a),
+    '',
+  )
+  const hatTitel = labels.some((l) => (l.title ?? '').trim() !== '')
+  const hatNotiz = labels.some((l) => (l.note ?? '').trim() !== '')
+  const barcode = labels.some((l) => l.symbology === 'barcode')
+
+  // Dieselben Zahlen wie im Builder oben.
+  const qrMm = Math.max(8, Math.min(sheet.labelHeightMm - 3, sheet.labelWidthMm * 0.42))
+  const barHmm = Math.max(6, Math.min(sheet.labelHeightMm * 0.55, sheet.labelHeightMm - 5))
+
+  // `.lbl` hat 1,5 mm Padding rundum; bei QR zusaetzlich 1,5 mm Spalt.
+  const textWidthMm = barcode
+    ? sheet.labelWidthMm - 3
+    : sheet.labelWidthMm - 3 - 1.5 - qrMm
+  const textHeightMm = barcode ? sheet.labelHeightMm - 3 - barHmm - 0.5 : sheet.labelHeightMm - 3
+
+  const charWidthMm = CODE_PT * MONO_ADVANCE_EM * MM_PER_PT
+  const charsPerLine = Math.max(0, Math.floor(textWidthMm / charWidthMm))
+
+  const titleMm = hatTitel ? TITLE_PT * LINE_HEIGHT * MM_PER_PT : 0
+  const noteMm = hatNotiz ? NOTE_PT * LINE_HEIGHT * MM_PER_PT + 0.3 : 0
+  const codeLineMm = CODE_PT * LINE_HEIGHT * MM_PER_PT
+  // Angebrochene Zeilen zaehlen NICHT mit: eine halb sichtbare Zeile ist kein
+  // lesbarer Code, sondern genau der Fall aus dem Beleg.
+  const linesForCode = Math.max(0, Math.floor((textHeightMm - titleMm - noteMm) / codeLineMm))
+
+  const codeCapacity = charsPerLine * linesForCode
+  return {
+    charsPerLine,
+    linesForCode,
+    codeCapacity,
+    fits: longest.length <= codeCapacity,
+    longestCode: longest,
+  }
+}
+
+/**
+ * Die Formate, auf denen der laengste Code noch vollstaendig steht.
+ *
+ * Eine Empfehlung und keine Automatik: welches Etikett physisch auf die Kiste
+ * passt, weiss nur jemand, der die Kiste sieht. Der Beleg beschreibt genau den
+ * umgekehrten Fehler — ein Werkzeug, das eine Groesse vorgibt, und einen
+ * Menschen mit der Schere.
+ */
+export const formatsThatFit = (
+  labels: Pick<LabelSpec, 'code' | 'title' | 'note' | 'symbology'>[],
+): LabelSheet[] => ALL_LABEL_FORMATS.filter((s) => estimateLabelFit(s, labels).fits)

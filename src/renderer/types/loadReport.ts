@@ -45,6 +45,25 @@ export type LoadDropKind =
    *  stehenzulassen waere schlimmer als sie zu verwerfen: im Blatt saehe sie
    *  aus wie ein Sicherheitsnetz. */
   | 'fallback-rule'
+  /** Bedarf 88 — eine Abweichung der Veranstaltungsangaben ohne Ziel-Id. Sie
+   *  kann nichts ueberschreiben, und sie still zu behalten hiesse, dass ein
+   *  abweichender Titel im Projektfile liegt, den kein Blatt je zeigt. Eine
+   *  Abweichung auf ein GELOESCHTES Ziel wird dagegen NICHT verworfen — dafuer
+   *  gibt es den Befund `override-orphan`. */
+  | 'metadata-override'
+  /** Bedarf 87 — ein Eintrag im Sendebericht ohne Zeitpunkt oder ohne Art.
+   *  In einem Bericht ueber einen VERLAUF ist eine Zeile ohne Zeitpunkt keine
+   *  Zeile. Ein Eintrag auf ein GELOESCHTES Ziel wird dagegen nicht verworfen
+   *  — dafuer gibt es den Befund `event-orphan`, und ein spurlos
+   *  verschwundener Eintrag ueber einen Abriss waere die teuerste Luecke, die
+   *  dieser Bericht haben kann. */
+  | 'transmission-event'
+  /** Bedarf 79 — eine Kostenposition ohne Id oder ohne Bezeichnung. In einem
+   *  Vergleich ist eine namenlose Zeile keine Zeile. Eine Position mit einem
+   *  ANKER INS LEERE wird dagegen nicht verworfen — dafuer gibt es den Befund
+   *  `anchor-orphan`, und sie still auf „ohne Bezug" zu setzen hiesse, eine
+   *  gebuchte Position in eine Fahrtkostenzeile zu verwandeln. */
+  | 'cost-line'
 
 export interface LoadDrop {
   kind: LoadDropKind

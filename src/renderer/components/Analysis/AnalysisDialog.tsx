@@ -11,7 +11,7 @@
 // Calculators (dort bereits implementiert) — hier nicht dupliziert.
 
 import { useMemo, useState } from 'react'
-import { BarChart3, Download } from 'lucide-react'
+import { BarChart3, Download, Plus, Trash2 } from 'lucide-react'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
 import { ModalShell } from '../shared/ModalShell'
@@ -30,6 +30,32 @@ import {
   type SwitchPortMap,
 } from '../../lib/switchPortMap'
 import { csvFromTable } from '../../lib/documentStamp'
+import {
+  CLIENT_SUMMARY_FINDING_LABEL,
+  SUMMARY_BASIS_LABEL,
+  clientSummary,
+  clientSummaryTable,
+} from '../../lib/clientSummary'
+import { JOB_BASIS_LABEL } from '../../lib/jobHandover'
+import {
+  COST_FINDING_LABEL,
+  assessCosts,
+  costComparisonTable,
+} from '../../lib/costComparison'
+import {
+  ACTUAL_SOURCE_LABEL,
+  type ActualSource,
+  type CostLine,
+  type CostPlan,
+} from '../../types/costLines'
+import {
+  NAMING_FINDING_LABEL,
+  applyNamingScheme,
+  assessNaming,
+  renameSetTable,
+  type NamingRefusal,
+} from '../../lib/namingScheme'
+import type { NamingScheme } from '../../types/namingScheme'
 import { cableRunFindings, cableRunTable, type RunFinding } from '../../lib/cableRunChecks'
 import { lookUpSheet, type SheetLookup } from '../../lib/sheetLookup'
 import {
@@ -76,7 +102,16 @@ import {
   spectrumTable,
 } from '../../lib/spectrumPlan'
 
-type Tab = 'weight' | 'network' | 'redundancy' | 'rf' | 'runs' | 'sheet'
+type Tab =
+  | 'weight'
+  | 'network'
+  | 'redundancy'
+  | 'rf'
+  | 'runs'
+  | 'sheet'
+  | 'client'
+  | 'cost'
+  | 'naming'
 
 const WATT_TO_BTU = 3.412
 
@@ -1961,7 +1996,411 @@ const SheetTab = () => {
   )
 }
 
+/* ---------------------------------------------------- Kunden-Übersicht -- */
+
+/**
+ * BEDARF 81 — die Übersicht, die ein Kunde lesen kann.
+ *
+ * Die beiden Spalten, um die es geht, stehen NEBEN der Zahl und nicht am
+ * Rand: „Anteil" nennt immer seinen Nenner, „Grundlage" sagt, ob die Zahl aus
+ * dem Plan, aus dem As-Built oder aus einer Feld-Rückmeldung kommt. Ohne die
+ * zweite liest ein Kunde jede Planzahl als Leistungsnachweis.
+ */
+const ClientTab = ({ projectName }: { projectName: string }) => {
+  const t = useTranslation()
+  const project = useProjectStore((s) => s.project)
+  const summary = useMemo(() => clientSummary(project), [project])
+
+  const exportCsv = () => {
+    downloadBlob(
+      buildExportFilenameWithSuffix(projectName, 'kunden-uebersicht', 'csv'),
+      csvFromTable(clientSummaryTable(project)),
+      'text/csv',
+    )
+  }
+
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-cp-sm text-[var(--cp-text-secondary)]">
+          {t('analysis.client.basis', 'Grundlage des Blatts')}:
+        </span>
+        <span className="rounded border border-[var(--cp-border-muted)] px-1.5 py-0.5 text-cp-xs text-[var(--cp-text-secondary)]">
+          {JOB_BASIS_LABEL[summary.basis]}
+        </span>
+        <CsvButton onClick={exportCsv} />
+      </div>
+      <table className="w-full text-cp-xs">
+        <thead>
+          <tr className="text-left text-[var(--cp-text-muted)]">
+            <th className="py-1">{t('analysis.client.area', 'Bereich')}</th>
+            <th>{t('analysis.client.metric', 'Kennzahl')}</th>
+            <th>{t('analysis.client.value', 'Wert')}</th>
+            <th>{t('analysis.client.share', 'Anteil')}</th>
+            <th>{t('analysis.client.source', 'Grundlage')}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {summary.rows.map((r, i) => (
+            <tr key={`${r.gruppe}-${r.kennzahl}-${i}`} className="border-t border-[var(--cp-border-muted)]">
+              <td className="py-1 text-[var(--cp-text-muted)]">{r.gruppe}</td>
+              <td>{r.kennzahl}</td>
+              <td className="tabular-nums">{r.wert}</td>
+              <td className="tabular-nums">{r.anteil}</td>
+              <td className="text-[var(--cp-text-muted)]">{SUMMARY_BASIS_LABEL[r.basis]}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {summary.findings.length > 0 && (
+        <ul className="flex flex-col gap-1 text-cp-xs">
+          {summary.findings.map((f, i) => (
+            <li key={`${f.kind}-${i}`} className="text-amber-300/90">
+              <strong>{CLIENT_SUMMARY_FINDING_LABEL[f.kind]}</strong> — {f.text}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  )
+}
+
+/* ------------------------------------------------ Kosten: Plan gegen Ist -- */
+
+/**
+ * BEDARF 79 — der Vergleich, den ein ERP nicht macht.
+ *
+ * Die Projektschätzung steht hier als GERECHNETE Zeile und nicht als Feld:
+ * „Project estimate is a derived quantity based on what the task estimate is."
+ * Ein Eingabefeld dafür wäre der Defekt aus dem Beleg — es wird einmal
+ * getippt, die Positionen wandern weiter, und ab da widersprechen sich zwei
+ * Zahlen im selben System.
+ */
+const CostTab = ({ projectName }: { projectName: string }) => {
+  const t = useTranslation()
+  const project = useProjectStore((s) => s.project)
+  const setCostPlan = useProjectStore((s) => s.setCostPlan)
+  const kosten = useMemo(() => assessCosts(project), [project])
+
+  const patch = (patchIn: Partial<CostPlan>) => {
+    const next: CostPlan = { ...kosten.plan, ...patchIn }
+    const leer = next.lines.length === 0 && !next.currency && next.tolerancePercent === undefined
+    setCostPlan(leer ? undefined : next)
+  }
+
+  const addLine = () =>
+    patch({
+      lines: [
+        ...kosten.plan.lines,
+        {
+          id: crypto.randomUUID(),
+          label: '',
+          anchor: { kind: 'free' },
+          actualSource: 'unstated',
+        },
+      ],
+    })
+
+  const patchLine = (id: string, p: Partial<CostLine>) =>
+    patch({ lines: kosten.plan.lines.map((l) => (l.id === id ? { ...l, ...p } : l)) })
+
+  const removeLine = (id: string) => patch({ lines: kosten.plan.lines.filter((l) => l.id !== id) })
+
+  /** Leeres Feld heisst „nicht angegeben", nicht „null". */
+  const numOrUndef = (v: string): number | undefined => {
+    const n = Number(v.replace(',', '.'))
+    return v.trim() === '' || !Number.isFinite(n) ? undefined : n
+  }
+
+  const exportCsv = () => {
+    downloadBlob(
+      buildExportFilenameWithSuffix(projectName, 'kosten-vergleich', 'csv'),
+      csvFromTable(costComparisonTable(project)),
+      'text/csv',
+    )
+  }
+
+  const inp = 'rounded border border-[var(--cp-border)] bg-[var(--cp-surface-3)] p-1 text-cp-xs'
+
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <input
+          value={kosten.plan.currency ?? ''}
+          onChange={(e) => patch({ currency: e.target.value || undefined })}
+          placeholder={t('analysis.cost.currencyPh', 'Währung, z. B. EUR')}
+          aria-label={t('analysis.cost.currency', 'Währung')}
+          className={`${inp} w-[9rem]`}
+        />
+        <input
+          value={kosten.plan.tolerancePercent ?? ''}
+          onChange={(e) => patch({ tolerancePercent: numOrUndef(e.target.value) })}
+          placeholder={t('analysis.cost.tolerancePh', 'Toleranz in %')}
+          aria-label={t('analysis.cost.tolerance', 'Toleranz')}
+          className={`${inp} w-[9rem]`}
+        />
+        <button
+          type="button"
+          onClick={addLine}
+          className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs"
+        >
+          <Icon icon={Plus} size="xs" /> {t('analysis.cost.add', 'Position')}
+        </button>
+        <CsvButton onClick={exportCsv} />
+      </div>
+
+      {kosten.plan.lines.length > 0 && (
+        <div className="flex flex-col gap-1">
+          {kosten.rows.map((r) => (
+            <div key={r.line.id} className="flex flex-wrap items-center gap-1.5">
+              <input
+                value={r.line.label}
+                onChange={(e) => patchLine(r.line.id, { label: e.target.value })}
+                placeholder={t('analysis.cost.labelPh', 'Position')}
+                aria-label={t('analysis.cost.label', 'Bezeichnung')}
+                className={`${inp} min-w-0 flex-1`}
+              />
+              <select
+                value={r.line.anchor.kind === 'equipment' ? r.line.anchor.equipmentId : ''}
+                onChange={(e) =>
+                  patchLine(r.line.id, {
+                    anchor: e.target.value
+                      ? { kind: 'equipment', equipmentId: e.target.value }
+                      : { kind: 'free' },
+                  })
+                }
+                aria-label={t('analysis.cost.anchor', 'Bezug im Plan')}
+                className={inp}
+              >
+                <option value="">{t('analysis.cost.free', '— ohne Bezug —')}</option>
+                {project.equipment.map((eq) => (
+                  <option key={eq.id} value={eq.id}>
+                    {eq.name}
+                  </option>
+                ))}
+              </select>
+              <input
+                value={r.line.estimate ?? ''}
+                onChange={(e) => patchLine(r.line.id, { estimate: numOrUndef(e.target.value) })}
+                placeholder={t('analysis.cost.estimatePh', 'Schätzung')}
+                aria-label={t('analysis.cost.estimate', 'Schätzung')}
+                className={`${inp} w-[6.5rem] tabular-nums`}
+              />
+              <input
+                value={r.line.actual ?? ''}
+                onChange={(e) => patchLine(r.line.id, { actual: numOrUndef(e.target.value) })}
+                placeholder={t('analysis.cost.actualPh', 'Ist')}
+                aria-label={t('analysis.cost.actual', 'Ist')}
+                className={`${inp} w-[6.5rem] tabular-nums`}
+              />
+              {/* Die Herkunft steht NEBEN der Zahl: aus dem ERP und aus dem
+                  Bauch sehen in einer Spalte sonst gleich aus. */}
+              <select
+                value={r.line.actualSource}
+                onChange={(e) =>
+                  patchLine(r.line.id, { actualSource: e.target.value as ActualSource })
+                }
+                aria-label={t('analysis.cost.source', 'Herkunft des Ist-Werts')}
+                className={inp}
+              >
+                {Object.keys(ACTUAL_SOURCE_LABEL).map((k) => (
+                  <option key={k} value={k}>
+                    {ACTUAL_SOURCE_LABEL[k as ActualSource]}
+                  </option>
+                ))}
+              </select>
+              <span className="w-[8rem] text-right text-cp-xs tabular-nums text-[var(--cp-text-secondary)]">
+                {r.delta === undefined
+                  ? t('analysis.cost.unknown', 'unbekannt')
+                  : `${r.delta > 0 ? '+' : ''}${Math.round(r.delta * 100) / 100}${
+                      r.deltaPercent === undefined ? '' : ` (${r.deltaPercent} %)`
+                    }`}
+              </span>
+              <button
+                type="button"
+                onClick={() => removeLine(r.line.id)}
+                aria-label={t('analysis.cost.remove', 'Position entfernen')}
+                className="text-[var(--cp-text-muted)] hover:text-[var(--cp-danger)]"
+              >
+                <Icon icon={Trash2} size="xs" />
+              </button>
+            </div>
+          ))}
+          <div className="mt-1 flex flex-wrap items-center gap-2 border-t border-[var(--cp-border-muted)] pt-1 text-cp-xs">
+            <strong>{t('analysis.cost.total', 'Projektschätzung (gerechnet)')}</strong>
+            <span className="tabular-nums">{Math.round(kosten.totals.estimate * 100) / 100}</span>
+            <span className="text-[var(--cp-text-muted)]">
+              {t('analysis.cost.without', 'ohne Schätzung')}: {kosten.totals.linesWithoutEstimate}
+            </span>
+            <span className="text-[var(--cp-text-muted)]">
+              {t('analysis.cost.withoutActual', 'ohne Ist-Wert')}: {kosten.totals.linesWithoutActual}
+            </span>
+          </div>
+        </div>
+      )}
+
+      {kosten.findings.length > 0 && (
+        <ul className="flex flex-col gap-1 text-cp-xs">
+          {kosten.findings.map((f, i) => (
+            <li key={`${f.kind}-${i}`} className="text-amber-300/90">
+              <strong>{COST_FINDING_LABEL[f.kind]}</strong> — {f.text}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  )
+}
+
+/* ------------------------------------------------------- Namensregel -- */
+
+const DEFAULT_SCHEME: NamingScheme = {
+  segments: [{ part: 'category' }, { part: 'location' }, { part: 'index', pad: 2 }],
+  separator: '-',
+  caseMode: 'as-is',
+}
+
+/**
+ * BEDARF 74 — Namen nach Regel, und der Umbenennungssatz zum Abtippen.
+ *
+ * Der Knopf „Anwenden" bleibt KLICKBAR, wenn die Regel verweigert wird — die
+ * Weigerung nennt dann ihren Grund. Ein ausgegrauter Knopf sagt nur „nein",
+ * nicht „warum": dieselbe Entscheidung wie beim As-Built-zur-Vorlage
+ * (Bedarf 75).
+ */
+const NamingTab = ({ projectName }: { projectName: string }) => {
+  const t = useTranslation()
+  const project = useProjectStore((s) => s.project)
+  const setNamingScheme = useProjectStore((s) => s.setNamingScheme)
+  const applyNaming = useProjectStore((s) => s.applyNaming)
+  const scheme = project.namingScheme ?? DEFAULT_SCHEME
+  const bewertung = useMemo(() => assessNaming(project, scheme), [project, scheme])
+  const [refusal, setRefusal] = useState<NamingRefusal | undefined>()
+
+  const patch = (p: Partial<NamingScheme>) => {
+    setRefusal(undefined)
+    setNamingScheme({ ...scheme, ...p })
+  }
+
+  const anwenden = () => {
+    // Erst fragen, was passieren WUERDE — dieselbe reine Funktion, die der
+    // Store aufruft. Die Weigerung wird dadurch sichtbar, statt als stilles
+    // Nichts zu enden: der Store gaebe bei einer Verweigerung nur `{}` zurueck
+    // und die Oberflaeche saehe wie eingefroren aus.
+    const probe = applyNamingScheme(project, scheme)
+    setRefusal(probe.refused)
+    if (!probe.refused) applyNaming(scheme)
+  }
+
+  const exportCsv = () => {
+    downloadBlob(
+      buildExportFilenameWithSuffix(projectName, 'umbenennungssatz', 'csv'),
+      csvFromTable(renameSetTable(project, scheme)),
+      'text/csv',
+    )
+  }
+
+  const inp = 'rounded border border-[var(--cp-border)] bg-[var(--cp-surface-3)] p-1 text-cp-xs'
+  const kategorien = [...new Set(project.equipment.map((e) => e.category).filter(Boolean))].sort()
+
+  return (
+    <div className="flex flex-col gap-3">
+      <p className="text-cp-xs leading-snug text-[var(--cp-text-muted)]">
+        {t(
+          'analysis.naming.intro',
+          'Namen aus einer Regel statt aus dem Gefühl. Der Umbenennungssatz ist ein Blatt zum Abtippen — kein Dante-Preset: dieses Schema hat diese Anwendung nie gesehen.',
+        )}
+      </p>
+      <div className="flex flex-wrap items-center gap-2">
+        <input
+          value={scheme.separator}
+          onChange={(e) => patch({ separator: e.target.value })}
+          placeholder={t('analysis.naming.sepPh', 'Trenner')}
+          aria-label={t('analysis.naming.sep', 'Trennzeichen')}
+          className={`${inp} w-[5rem]`}
+        />
+        <select
+          value={scheme.caseMode}
+          onChange={(e) => patch({ caseMode: e.target.value as NamingScheme['caseMode'] })}
+          aria-label={t('analysis.naming.case', 'Schreibweise')}
+          className={inp}
+        >
+          <option value="as-is">{t('analysis.naming.case.asIs', 'wie erzeugt')}</option>
+          <option value="upper">{t('analysis.naming.case.upper', 'GROSS')}</option>
+          <option value="lower">{t('analysis.naming.case.lower', 'klein')}</option>
+        </select>
+        <select
+          value={scheme.categoryFilter ?? ''}
+          onChange={(e) => patch({ categoryFilter: e.target.value || undefined })}
+          aria-label={t('analysis.naming.filter', 'Nur diese Kategorie')}
+          className={inp}
+        >
+          <option value="">{t('analysis.naming.allCategories', '— alle Kategorien —')}</option>
+          {kategorien.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
+        </select>
+        <button
+          type="button"
+          onClick={anwenden}
+          className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs"
+        >
+          {t('analysis.naming.apply', 'Anwenden')} ({bewertung.proposals.length})
+        </button>
+        <CsvButton onClick={exportCsv} />
+      </div>
+
+      {refusal && (
+        <p className="text-cp-xs text-amber-300/90">
+          {refusal === 'duplicates'
+            ? t(
+                'analysis.naming.refusedDuplicates',
+                'Nicht angewandt: die Regel ergäbe doppelte Namen. Ein doppelter Name im Netz ist kein Schönheitsfehler.',
+              )
+            : t('analysis.naming.refusedNothing', 'Nicht angewandt: es gibt nichts zu ändern.')}
+        </p>
+      )}
+
+      {bewertung.proposals.length > 0 && (
+        <table className="w-full text-cp-xs">
+          <thead>
+            <tr className="text-left text-[var(--cp-text-muted)]">
+              <th className="py-1">{t('analysis.naming.before', 'Alter Name')}</th>
+              <th>{t('analysis.naming.after', 'Neuer Name')}</th>
+              <th>{t('analysis.naming.chars', 'Zeichen')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {bewertung.proposals.map((p) => (
+              <tr key={p.equipmentId} className="border-t border-[var(--cp-border-muted)]">
+                <td className="py-1">{p.before}</td>
+                <td>{p.after}</td>
+                <td className="tabular-nums">{p.after.length}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+
+      {bewertung.findings.length > 0 && (
+        <ul className="flex flex-col gap-1 text-cp-xs">
+          {bewertung.findings.map((f, i) => (
+            <li key={`${f.kind}-${i}`} className="text-amber-300/90">
+              <strong>{NAMING_FINDING_LABEL[f.kind]}</strong> — {f.text}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  )
+}
+
 const TABS: { id: Tab; labelKey: string; fallback: string }[] = [
+  { id: 'client', labelKey: 'analysis.tab.client', fallback: 'Kunden-Übersicht' },
+  { id: 'cost', labelKey: 'analysis.tab.cost', fallback: 'Kosten: Plan gegen Ist' },
+  { id: 'naming', labelKey: 'analysis.tab.naming', fallback: 'Namensregel' },
   { id: 'weight', labelKey: 'analysis.tab.weight', fallback: 'Gewicht & Wärme' },
   { id: 'network', labelKey: 'analysis.tab.network', fallback: 'Netzwerk' },
   { id: 'redundancy', labelKey: 'analysis.tab.redundancy', fallback: 'Redundanz' },
@@ -2009,6 +2448,9 @@ export const AnalysisDialog = () => {
       {active === 'rf' && <RfTab projectName={projectName} />}
       {active === 'runs' && <RunsTab projectName={projectName} />}
       {active === 'sheet' && <SheetTab />}
+      {active === 'client' && <ClientTab projectName={projectName} />}
+      {active === 'cost' && <CostTab projectName={projectName} />}
+      {active === 'naming' && <NamingTab projectName={projectName} />}
     </ModalShell>
   )
 }
