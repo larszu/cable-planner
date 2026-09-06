@@ -307,7 +307,14 @@ export const buildGraphContext = (
 const REFERENCE_PORT =
   /genlock|\bref\b|reference|sync|return|tally|timecode|\bltc\b|talkback|intercom|comms|control|\bctrl\b|\brcp\b|\bgpi\b|prompter/i
 
-const isReferencePort = (port: Port): boolean =>
+/**
+ * Exportiert, weil `deliveryPath.ts` (Bedarf 32) dieselbe Frage stellt: welcher
+ * Eingang eines Geraets fuehrt das PROGRAMM und welcher nur Referenz, Rueckweg
+ * oder Steuerung? Eine zweite Kopie derselben Liste waere die zweite Wahrheit,
+ * die morgen auseinanderlaeuft — dann meldete die Kette einen Encoder als
+ * „gespeist", weil an seinem Intercom-Anschluss ein Kabel haengt.
+ */
+export const isReferencePort = (port: Port): boolean =>
   REFERENCE_PORT.test(`${port.name ?? ''} ${port.contentLabel ?? ''}`)
 
 /**

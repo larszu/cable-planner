@@ -124,6 +124,35 @@ describe('Normalisierung', () => {
 // Key des Kunden das Projekt, und zwar unbemerkt: die Oberflaeche sieht danach
 // genauso aus.
 // ---------------------------------------------------------------------------
+describe('der Zeiger auf den Encoder (Bedarf 32)', () => {
+  it('ueberlebt das Laden', () => {
+    const d = normaliseDeliveryDestination(
+      { name: 'YouTube', encoderEquipmentId: '  enc-1  ' },
+      'x',
+    )
+    expect(d?.encoderEquipmentId).toBe('enc-1')
+  })
+
+  it('wird NICHT geprueft und NICHT still geleert', () => {
+    // Diese Funktion sieht nur den Rohsatz, nicht den Geraetebestand. Ein
+    // hier geleertes Feld saehe spaeter aus wie „nie ausgefuellt" -- dann
+    // sucht niemand nach dem Geraet, das jemand geloescht hat. Die Auskunft
+    // gibt `buildDeliveryChains` mit `encoder-gone`.
+    const d = normaliseDeliveryDestination({ name: 'YouTube', encoderEquipmentId: 'weg' }, 'x')
+    expect(d?.encoderEquipmentId).toBe('weg')
+  })
+
+  it('laesst leere und falsch getypte Werte weg', () => {
+    expect(
+      normaliseDeliveryDestination({ name: 'X', encoderEquipmentId: '   ' }, 'x')
+        ?.encoderEquipmentId,
+    ).toBeUndefined()
+    expect(
+      normaliseDeliveryDestination({ name: 'X', encoderEquipmentId: 42 }, 'x')?.encoderEquipmentId,
+    ).toBeUndefined()
+  })
+})
+
 describe('der Weg vom Loeschen zum Schluesselbund', () => {
   it('ist in App.tsx verdrahtet', async () => {
     const src = await import('../src/renderer/App.tsx?raw').then((m) => m.default as string)

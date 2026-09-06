@@ -3,6 +3,7 @@ import {
   checkAllEncoders,
   checkEncoderFeasibility,
   ENCODERS,
+  groupByEncoder,
   runOfShowSheet,
 } from '../src/renderer/lib/encoderFeasibility'
 import { DEFAULT_ENCODING, type DeliveryDestination } from '../src/renderer/types/delivery'
@@ -111,6 +112,79 @@ describe('vMix — belegte Grenzen', () => {
     expect(felder).toContain('keyframeSec')
     const fpsBefund = f.find((x) => x.field === 'fps')
     expect(fpsBefund?.values).toEqual(['25', '30'])
+  })
+})
+
+describe('gezaehlt wird je GERAET, nicht ueber den ganzen Plan (Bedarf 32)', () => {
+  it('meldet NICHT zu viele Ziele, wenn sie auf zwei Maschinen liegen', () => {
+    // Vier Ziele auf zwei Encodern sind je Maschine zwei. Bis
+    // `encoderEquipmentId` existierte, warf diese Datei alles in einen Topf
+    // und meldete „4 gleichzeitige Ziele, vMix fuehrt 3" -- ein falscher
+    // Befund auf einem korrekten Aufbau, und genau so werden auch die
+    // richtigen Befunde daneben ignoriert.
+    const f = checkEncoderFeasibility(
+      [
+        ziel('A', { encoderEquipmentId: 'enc-1' }),
+        ziel('B', { encoderEquipmentId: 'enc-1' }),
+        ziel('C', { encoderEquipmentId: 'enc-2' }),
+        ziel('D', { encoderEquipmentId: 'enc-2' }),
+      ],
+      vmix,
+    )
+    expect(f.map((x) => x.kind)).not.toContain('too-many-destinations')
+  })
+
+  it('meldet die Grenze weiterhin, wenn alle vier auf DERSELBEN Maschine liegen', () => {
+    const f = checkEncoderFeasibility(
+      ['A', 'B', 'C', 'D'].map((n) => ziel(n, { encoderEquipmentId: 'enc-1' })),
+      vmix,
+    )
+    const zuViele = f.find((x) => x.kind === 'too-many-destinations')
+    expect(zuViele?.values).toEqual(['4', '3'])
+    expect(zuViele?.deviceId).toBe('enc-1')
+  })
+
+  it('vergleicht die Qualitaet nur INNERHALB einer Maschine', () => {
+    // Twitch auf Maschine 1 mit 6.000 und YouTube auf Maschine 2 mit 12.000
+    // ist kein Widerspruch -- es sind zwei Encoder mit je einem Ziel.
+    const f = checkEncoderFeasibility(
+      [
+        ziel('Twitch', {
+          encoderEquipmentId: 'enc-1',
+          encoding: { ...DEFAULT_ENCODING, videoBitrateKbps: 6000 },
+        }),
+        ziel('YouTube', {
+          encoderEquipmentId: 'enc-2',
+          encoding: { ...DEFAULT_ENCODING, videoBitrateKbps: 12000 },
+        }),
+      ],
+      vmix,
+    )
+    expect(f).toEqual([])
+  })
+
+  it('haelt die Ziele OHNE benanntes Geraet zusammen — und sagt das per leerem deviceId', () => {
+    // Der uebliche Fall ist eine Maschine, die niemand aufgeschrieben hat.
+    // Sie einzeln zu zaehlen liesse die Grenze nie greifen.
+    const f = checkEncoderFeasibility(['A', 'B', 'C', 'D'].map((n) => ziel(n)), vmix)
+    const zuViele = f.find((x) => x.kind === 'too-many-destinations')
+    expect(zuViele?.values).toEqual(['4', '3'])
+    expect(zuViele?.deviceId).toBeUndefined()
+  })
+
+  it('gruppiert nach dem Geraet, nicht nach der Reihenfolge', () => {
+    // Abwechselnd eingetragen: eine Gruppierung, die nur benachbarte Ziele
+    // zusammenfasst, liefe hier auseinander.
+    const gruppen = groupByEncoder([
+      ziel('A', { encoderEquipmentId: 'enc-1' }),
+      ziel('B', { encoderEquipmentId: 'enc-2' }),
+      ziel('C', { encoderEquipmentId: 'enc-1' }),
+    ])
+    expect(gruppen).toHaveLength(2)
+    expect(gruppen.find((g) => g.deviceId === 'enc-1')?.destinations.map((d) => d.name)).toEqual([
+      'A',
+      'C',
+    ])
   })
 })
 

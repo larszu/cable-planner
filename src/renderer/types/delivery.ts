@@ -118,6 +118,28 @@ export interface DeliveryDestination {
    * verschwindet die Beziehung mit dem Backup, das sie behauptet.
    */
   backupOfId?: string
+  /**
+   * Das GERAET im Plan, das dieses Ziel beliefert (Bedarf 32).
+   *
+   * Bis hierher endete der Signalfluss am Encoder-Eingang: das Ziel-Register
+   * war ein zweites Dokument neben dem Plan, und der Bedarf sagt genau das —
+   * „signal-flow diagrams stop at the encoder input; everything downstream
+   * lives in encoder web UIs, platform consoles and someone's head, so no
+   * artefact shows the delivery path".
+   *
+   * Dieses eine Feld schliesst die Naht. Es ist eine `EquipmentItem.id`, also
+   * ein Zeiger in denselben Plan, aus dem Kabel und Anschluesse kommen —
+   * damit ist der Weg vom Programm-Signal bis zur Plattform ableitbar
+   * (`lib/deliveryPath.ts`) statt erzaehlt.
+   *
+   * OPTIONAL, und das bleibt es. Ein Ziel ohne benanntes Geraet ist ein
+   * gueltiges Ziel — der Weg dahin ist dann eben unbekannt, und die Kette
+   * sagt das als Befund (`no-encoder`), statt sich einen Encoder auszusuchen.
+   * Ein Zeiger auf ein geloeschtes Geraet wird beim Laden NICHT stillschweigend
+   * entfernt: `encoder-gone` ist die ehrlichere Antwort als ein Feld, das
+   * kommentarlos leer wird.
+   */
+  encoderEquipmentId?: string
   /** Notiz — was am Showtag jemand wissen muss. */
   note?: string
 }
@@ -248,6 +270,14 @@ export const normaliseDeliveryDestination = (
   if (typeof r.ingestUrl === 'string' && r.ingestUrl.trim()) out.ingestUrl = r.ingestUrl.trim()
   if (typeof r.account === 'string' && r.account.trim()) out.account = r.account.trim()
   if (typeof r.note === 'string' && r.note.trim()) out.note = r.note.trim()
+  // Bedarf 32: der Zeiger auf den Encoder im Plan. Ob das Geraet noch
+  // existiert, weiss diese Funktion nicht — sie sieht nur den Rohsatz. Genau
+  // deshalb wird hier nichts verworfen: `buildDeliveryChains` sagt spaeter
+  // `encoder-gone`, und das ist eine Auskunft. Ein hier still geleertes Feld
+  // waere keine.
+  if (typeof r.encoderEquipmentId === 'string' && r.encoderEquipmentId.trim()) {
+    out.encoderEquipmentId = r.encoderEquipmentId.trim()
+  }
   if (typeof r.backupOfId === 'string' && r.backupOfId.trim() && r.backupOfId.trim() !== id) {
     out.backupOfId = r.backupOfId.trim()
   }

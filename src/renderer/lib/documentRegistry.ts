@@ -22,6 +22,7 @@ import { handoverTable } from './handoverPackage'
 import { deliveryTableForProject } from './deliveryParity'
 import { runOfShowSheetForProject } from './encoderFeasibility'
 import { tallyMapTableForProject } from './tallyMap'
+import { deliveryPathTable } from './deliveryPath'
 import type { CsvTable } from './csv'
 
 const ofTable =
@@ -65,6 +66,11 @@ export const DOCUMENT_STANDS: Record<string, (project: CablePlannerProject) => s
   // allein aus `equipment`, `cables` und `sourceIdentities` ableitet: keine
   // Nutzer-Einstellung, keine Sprache.
   'tally-karte': ofTable(tallyMapTableForProject),
+  // Bedarf 32 — der Ausspielweg. Reproduzierbar, weil `buildDeliveryChains`
+  // allein aus `deliveryDestinations`, `equipment` und `cables` ableitet:
+  // keine Nutzer-Einstellung beim Export, keine Sprache (die Befundtexte sind
+  // kanonisches Deutsch, siehe `chainFindingText`) und kein Zufall.
+  ausspielweg: ofTable(deliveryPathTable),
 }
 
 /**
@@ -127,6 +133,7 @@ export const DOCUMENT_LABELS: Record<string, string> = {
   ausspielung: 'Ausspielung',
   ablaufblatt: 'Ablaufblatt',
   'tally-karte': 'Tally-Karte',
+  ausspielweg: 'Ausspielweg',
   'videohub-labels': 'Videohub-Labels',
   'atem-mv-layout': 'Multiviewer-Layout',
   'switch-port-karte': 'Switch-Port-Karte',

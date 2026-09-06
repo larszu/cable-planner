@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { X, Plus, Trash2, AlertTriangle, Radio, Eye, EyeOff, Download, Cpu, FileText } from 'lucide-react'
+import { X, Plus, Trash2, AlertTriangle, Radio, Eye, EyeOff, Download, Cpu, FileText, Route } from 'lucide-react'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
 import { useTranslation, format } from '../../lib/i18n'
@@ -16,6 +16,12 @@ import {
   runOfShowSheetForProject,
   type FeasibilityFinding,
 } from '../../lib/encoderFeasibility'
+import {
+  buildDeliveryChains,
+  deliveryPathTable,
+  type ChainFinding,
+  type DeliveryChain,
+} from '../../lib/deliveryPath'
 import {
   DELIVERY_PLATFORMS,
   DEFAULT_ENCODING,
@@ -86,6 +92,24 @@ export const DeliveryDialog = () => {
     () => ENCODERS.map((e) => ({ encoder: e, findings: checkEncoderFeasibility(list, e) })),
     [list],
   )
+  // Bedarf 32: der Weg vom Programm-Signal bis zur Plattform, abgeleitet aus
+  // demselben Kabelgraph wie die Label-Ableitung. Nichts davon wird
+  // gespeichert ausser dem einen Zeiger auf das Geraet.
+  const chains = useMemo(() => buildDeliveryChains(project), [project])
+  const chainById = useMemo(
+    () => new Map<string, DeliveryChain>(chains.map((c) => [c.destinationId, c])),
+    [chains],
+  )
+  // Die Auswahl zeigt ALLE Geraete des Plans, nicht nur die, die nach einem
+  // Encoder aussehen. Es gibt keine Encoder-Kategorie im Katalog, und eine
+  // geratene Filterung liesse genau das Geraet verschwinden, das jemand als
+  // „Streaming-PC" oder „Sonstiges" angelegt hat.
+  const encoderChoices = useMemo(
+    () => [...project.equipment].sort((a, b) => a.name.localeCompare(b.name)),
+    [project.equipment],
+  )
+  const deviceName = (id?: string): string =>
+    id ? (project.equipment.find((e) => e.id === id)?.name ?? id) : ''
 
   if (!open) return null
 
@@ -151,6 +175,53 @@ export const DeliveryDialog = () => {
     }
   }
 
+  // Ausgeschriebener switch, aus demselben Grund wie bei `feasibilityText`:
+  // ein zusammengesetzter Schluessel ist fuer den i18n-Deckungs-Guard
+  // unsichtbar und faellt im EN-Betrieb still auf den nackten Slug zurueck.
+  const chainFindingLabel = (f: ChainFinding): string => {
+    switch (f.kind) {
+      case 'no-encoder':
+        return t('delivery.chain.noEncoder', 'Kein Encoder im Plan benannt')
+      case 'encoder-gone':
+        return t('delivery.chain.encoderGone', 'Benanntes Gerät steht nicht mehr im Plan')
+      case 'encoder-unfed':
+        return format(
+          t('delivery.chain.encoderUnfed', '{device} hat an keinem Programm-Eingang ein Kabel'),
+          { device: f.values?.[0] ?? '' },
+        )
+      case 'feed-ambiguous':
+        return format(
+          t('delivery.chain.feedAmbiguous', 'Mehrere verkabelte Programm-Eingänge: {ports}'),
+          { ports: (f.values ?? []).join(' / ') },
+        )
+      case 'backup-shares-encoder':
+        return format(
+          t(
+            'delivery.chain.backupSharesEncoder',
+            'Backup läuft über dasselbe Gerät wie der Primärweg ({device})',
+          ),
+          { device: f.values?.[0] ?? '' },
+        )
+    }
+  }
+
+  /** Die Kette als eine Zeile. Nur was bekannt ist — kein Platzhalter, der
+   *  wie eine Antwort aussieht. */
+  const chainLine = (c: DeliveryChain): string => {
+    const parts: string[] = []
+    if (c.source) {
+      parts.push(
+        c.source.hops > 0
+          ? `${c.source.name} ${format(t('delivery.path.hops', '(über {n})'), { n: c.source.hops })}`
+          : c.source.name,
+      )
+    }
+    if (c.encoder) parts.push(c.encoder.name)
+    parts.push(c.transport)
+    parts.push(c.destinationName)
+    return parts.join(' → ')
+  }
+
   const addDestination = () => {
     add({ name: t('delivery.newName', 'Neues Ziel'), platform: 'custom', encoding: { ...DEFAULT_ENCODING } })
   }
@@ -205,6 +276,17 @@ export const DeliveryDialog = () => {
     downloadBlob(buildExportFilenameWithSuffix(projectName, 'ablaufblatt', 'csv'), csv, 'text/csv')
   }
 
+  // Bedarf 32: das Blatt, das der Bedarf vermisst — „no artefact shows the
+  // delivery path". Mit Stempel wie jede andere Liste.
+  const exportPath = () => {
+    const csv = csvFromTable(
+      deliveryPathTable(project),
+      stampForRows(project, deliveryPathTable, new Date()),
+      'ausspielweg',
+    )
+    downloadBlob(buildExportFilenameWithSuffix(projectName, 'ausspielweg', 'csv'), csv, 'text/csv')
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
       <div className="flex max-h-[88vh] w-full max-w-5xl flex-col overflow-hidden rounded-lg border border-cp-border bg-cp-surface-1 shadow-xl">
@@ -223,6 +305,17 @@ export const DeliveryDialog = () => {
               className="flex items-center gap-1 rounded border border-cp-border px-2 py-1 text-cp-sm text-cp-text-secondary hover:text-cp-text"
             >
               <FileText size={13} /> {t('delivery.runOfShow', 'Ablaufblatt')}
+            </button>
+            <button
+              type="button"
+              onClick={exportPath}
+              title={t(
+                'delivery.path.hint',
+                'Der Weg vom Programm-Signal bis zur Plattform — Quelle, Encoder, Transport, Ziel',
+              )}
+              className="flex items-center gap-1 rounded border border-cp-border px-2 py-1 text-cp-sm text-cp-text-secondary hover:text-cp-text"
+            >
+              <Route size={13} /> {t('delivery.path.title', 'Ausspielweg')}
             </button>
             <button type="button" onClick={() => setOpen(false)} aria-label={t('common.close', 'Schließen')} className="text-cp-text-muted hover:text-cp-text">
               <X size={18} />
@@ -288,6 +381,17 @@ export const DeliveryDialog = () => {
                             <AlertTriangle size={12} className="mt-0.5 flex-none" />
                             <span>
                               {feasibilityText(f)}
+                              {/* Seit Bedarf 32 zaehlt die Pruefung je Geraet.
+                                  Ohne diesen Zusatz saehen zwei Gruppen gleich
+                                  aus und niemand wuesste, welche Maschine
+                                  gemeint ist. */}
+                              {f.deviceId && (
+                                <span className="ml-1 text-cp-text-secondary">
+                                  {format(t('delivery.encoder.onDevice', 'auf {device}'), {
+                                    device: deviceName(f.deviceId),
+                                  })}
+                                </span>
+                              )}
                               {/* Die Fundstelle steht dabei: ein Befund ueber
                                   fremde Software ohne Beleg ist eine Behauptung. */}
                               <span className="ml-1 text-cp-text-faint">({f.source})</span>
@@ -309,6 +413,7 @@ export const DeliveryDialog = () => {
             <ul className="flex flex-col gap-3">
               {list.map((d) => {
                 const issues = issuesFor(d.id)
+                const chain = chainById.get(d.id)
                 const advice = d.transport === 'SRT' ? srtLatencyAdvice(d.srt?.measuredRttMs) : null
                 return (
                   <li key={d.id} className="rounded border border-cp-border bg-cp-surface-2 p-2.5">
@@ -345,6 +450,30 @@ export const DeliveryDialog = () => {
                         <option value="RTMP">RTMP</option>
                         <option value="SRT">SRT</option>
                         <option value="HLS">HLS</option>
+                      </select>
+                      <select
+                        value={d.encoderEquipmentId ?? ''}
+                        onChange={(e) => update(d.id, { encoderEquipmentId: e.target.value || undefined })}
+                        aria-label={t('delivery.path.encoder', 'Encoder im Plan')}
+                        title={t(
+                          'delivery.path.encoderHint',
+                          'Welches Gerät des Plans dieses Ziel beliefert — daraus leitet sich der Ausspielweg ab',
+                        )}
+                        className={inputCls}
+                      >
+                        <option value="">{t('delivery.path.noEncoder', '— kein Encoder benannt —')}</option>
+                        {encoderChoices.map((e) => (
+                          <option key={e.id} value={e.id}>{e.name}</option>
+                        ))}
+                        {/* Ein Zeiger auf ein geloeschtes Geraet bleibt sichtbar,
+                            statt still auf „kein Encoder" zu springen — sonst
+                            sieht der Nutzer nie, dass da mal etwas stand. */}
+                        {d.encoderEquipmentId &&
+                          !encoderChoices.some((e) => e.id === d.encoderEquipmentId) && (
+                            <option value={d.encoderEquipmentId}>
+                              {t('delivery.path.encoderGoneOption', '(Gerät nicht mehr im Plan)')}
+                            </option>
+                          )}
                       </select>
                       <select
                         value={d.backupOfId ?? ''}
@@ -526,6 +655,28 @@ export const DeliveryDialog = () => {
                           </li>
                         ))}
                       </ul>
+                    )}
+
+                    {/* Bedarf 32 — der Weg als eine Zeile, direkt an dem Ziel,
+                        um das es geht. Ein eigener Kasten weiter oben waere
+                        weiter weg von der Auswahl, die ihn bestimmt. */}
+                    {chain && (
+                      <div className="mt-1.5 border-t border-cp-border-muted pt-1.5">
+                        <div className="flex items-start gap-1 text-cp-xs text-cp-text-muted">
+                          <Route size={12} className="mt-0.5 flex-none" />
+                          <span>{chainLine(chain)}</span>
+                        </div>
+                        {chain.findings.length > 0 && (
+                          <ul className="mt-0.5 flex flex-col gap-0.5">
+                            {chain.findings.map((f) => (
+                              <li key={f.kind} className="flex items-start gap-1 text-cp-xs text-cp-warn">
+                                <AlertTriangle size={12} className="mt-0.5 flex-none" />
+                                <span>{chainFindingLabel(f)}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
                     )}
                   </li>
                 )
