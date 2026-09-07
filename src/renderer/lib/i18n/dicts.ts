@@ -3247,6 +3247,20 @@ export const en: Dict = {
   'app.loadReport.costLine': 'Cost line',
   // ── Bedarfe 40/41/42/83 — die Crew-Seite (Analysen-Reiter) ────────────────
   'analysis.tab.crew': 'Crew: hours & expenses',
+  // Bedarf 108 — die Handlungsliste.
+  'analysis.tab.todo': 'What is due',
+  'analysis.action.hint':
+    'This page tells you what is due — it edits nothing. Every line comes from the place that reports it: crew, costs, receipts, warehouse. What is missing here is missing there too; no second derivation happens on this page.',
+  'analysis.action.none': 'Nothing open — there is nothing to report on this state.',
+  'analysis.action.when': 'Due',
+  'analysis.action.urgency': 'State',
+  'analysis.action.source': 'Source',
+  'analysis.action.what': 'What',
+  'analysis.action.noDate': '—',
+  'analysis.action.count': '{n} lines, sorted by urgency.',
+  'statusbar.todo.title':
+    'Overdue or due today: returns, check-outs, hours, receipts, costs. Click opens the analyses on "What is due".',
+  'statusbar.todo.counts': 'Due {count}',
   'analysis.crew.intro':
     'Hours, rates and expenses for this job — and the sheet that carries them into the accounts. Overlapping bands do not stack: the highest surcharge applies to each minute. Overtime and band surcharges DO add up — they measure different things. The call-out fee applies once per person and calendar day, not per entry. A break is a gap between two entries, not a deduction: only then does every minute sit in its real band.',
   'analysis.crew.unknownBy': 'sender not stated',
