@@ -2,6 +2,22 @@ import type { CablePlannerProject } from '../types/project'
 import type { NetboxRack, NetboxSite, NetboxSnapshot } from '../types/netbox'
 import { downloadBlob } from './downloadBlob'
 
+/**
+ * BEDARF 133 — was die Freigabe anbietet, und was sie zurueckhaelt.
+ *
+ * `withheld` ist kein Zusatz, sondern die zweite Haelfte der Auskunft: eine
+ * zurueckgehaltene Adresse, die niemand nennt, ist fuer den Nutzer dasselbe
+ * wie eine, die es nicht gibt — und dann sucht er den Fehler in der
+ * Netzwerktechnik statt in einer Entscheidung, die diese Anwendung getroffen
+ * hat.
+ */
+export interface MobileShareInfo {
+  port: number
+  urls: string[]
+  hasProject: boolean
+  withheld: { address: string; reach: string; reason: string }[]
+}
+
 type OpenProjectResponse = {
   filePath: string
   data: CablePlannerProject
@@ -351,10 +367,18 @@ type CablePlannerApi = {
     deleteItem: (params: { kind: 'device' | 'group'; name: string }) => Promise<boolean>
   }
   mobileShare: {
-    start: () => Promise<{ port: number; urls: string[]; hasProject: boolean }>
+    start: () => Promise<MobileShareInfo>
     stop: () => Promise<{ ok: boolean }>
-    status: () => Promise<{ running: boolean; port: number; urls: string[]; hasProject: boolean }>
+    status: () => Promise<MobileShareInfo & { running: boolean }>
     setProject: (project: unknown) => Promise<{ ok: boolean }>
+    /**
+     * BEDARF 133 — Adressen ueber das LAN hinaus freigeben.
+     *
+     * Ausdruecklich und nur fuer diese Sitzung: `stop` setzt es im
+     * Main-Prozess zurueck. Eine Freigabe, die sich aus der Netzwerkkarte
+     * ergibt, ist keine Entscheidung.
+     */
+    setAllowBeyondLan: (allow: boolean) => Promise<MobileShareInfo>
     /** v7.9.3 — Listener für CheckState-Updates vom Mobile-Viewer.
      *  Wird vom Renderer registriert; der Main-Prozess schickt
      *  'mobileShare:checksUpdate' Events sobald POST /checks
@@ -940,8 +964,11 @@ const webFallbackApi: CablePlannerApi = {
       throw new Error('Handy-Zugriff erfordert die Desktop-App.')
     },
     stop: async () => ({ ok: true }),
-    status: async () => ({ running: false, port: 0, urls: [], hasProject: false }),
+    status: async () => ({ running: false, port: 0, urls: [], hasProject: false, withheld: [] }),
     setProject: async () => ({ ok: true }),
+    setAllowBeyondLan: async () => {
+      throw new Error('Handy-Zugriff erfordert die Desktop-App.')
+    },
     onChecksUpdate: () => () => {},
     onCableAdded: () => () => {},
     onPendingChange: () => () => {},

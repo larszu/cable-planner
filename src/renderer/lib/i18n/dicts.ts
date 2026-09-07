@@ -1642,6 +1642,10 @@ export const en: Dict = {
   'mobile.dialog.activeUrl': 'Active URL',
   'mobile.dialog.copyToClipboard': 'Copy to clipboard',
   'mobile.dialog.altUrls': 'Alternative LAN addresses (in case one is unreachable)',
+  'mobile.dialog.noAddress':
+    'No address shared — the server is running, but there is no local network it could be reached on.',
+  'mobile.dialog.withheldTitle': 'Not shared',
+  'mobile.dialog.allowBeyondLan': 'Share anyway (this session only)',
   'mobile.dialog.portLabel': 'Port',
   'mobile.dialog.projectSynced': 'Project synced',
   'mobile.dialog.noProject': 'No project loaded',
