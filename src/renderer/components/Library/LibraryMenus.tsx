@@ -160,13 +160,17 @@ export const LibraryFiltersMenu = ({
         title={t('library.menus.filterTitle', 'Filter und Ansichtsoptionen')}
         aria-haspopup="menu"
         aria-expanded={open}
-        className="flex h-7 w-7 items-center justify-center rounded border border-cp-border bg-cp-surface-1 text-cp-text-muted hover:bg-cp-surface-2 hover:text-cp-text-bright"
+        className="flex h-7 items-center justify-center gap-0.5 rounded border border-cp-border bg-cp-surface-1 px-1.5 text-cp-text-muted hover:bg-cp-surface-2 hover:text-cp-text-bright"
       >
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-          <circle cx="3" cy="8" r="1.4" />
-          <circle cx="8" cy="8" r="1.4" />
-          <circle cx="13" cy="8" r="1.4" />
+        {/* GEAENDERT 2026-09-07: hier standen drei Punkte. Drei Punkte heissen
+            „hier ist noch etwas" und sonst nichts — und in einer 235 px
+            breiten Zeile neben Suchfeld und Anlegen-Knopf ist fuer ein Wort
+            kein Platz. Ein Trichter mit Pfeil sagt wenigstens die Richtung:
+            hier wird gefiltert und die Ansicht eingestellt. */}
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+          <path d="M2 3h12l-4.5 5.5V13l-3-1.5V8.5L2 3z" strokeLinejoin="round" />
         </svg>
+        <span className="text-[9px] leading-none">▾</span>
       </button>
       {open && (
         <div

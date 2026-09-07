@@ -1035,7 +1035,7 @@ export const MenuBar = ({
           <button
             type="button"
             onClick={() => useUiStore.getState().openMobileShare()}
-            className="rounded bg-cp-surface-2 px-2 py-1 text-cp-text hover:bg-cp-surface-4"
+            className="inline-flex items-center gap-1 rounded bg-cp-surface-2 px-2 py-1 text-cp-text hover:bg-cp-surface-4"
             aria-label={t('app.mobileShare.ariaLabel', 'Handy-Zugriff')}
             title={t(
               'app.mobileShare.title',
@@ -1043,6 +1043,13 @@ export const MenuBar = ({
             )}
           >
             <Icon icon={Smartphone} size="sm" />
+            {/* BESCHRIFTET 2026-09-07. Ein Telefon-Symbol allein sagt nicht,
+                dass dahinter ein LAN-Server mit QR-Code steckt — das ist ein
+                Feature, das man nicht findet, wenn man es nicht kennt. Genau
+                dieselbe Form wie der Einstellungen-Knopf daneben: Wort ab
+                `lg`, darunter nur das Symbol, damit die Kopfleiste auf
+                schmalen Fenstern nicht bricht. */}
+            <span className="hidden lg:inline">{t('app.mobileShare.ariaLabel', 'Handy-Zugriff')}</span>
           </button>
         )}
         <button
