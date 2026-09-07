@@ -7,6 +7,8 @@ import { useCollabStore } from '../../store/collabStore'
 import { useProjectStore } from '../../store/projectStore'
 import { useTranslation, format } from '../../lib/i18n'
 import { runDrawingChecks } from '../../lib/drawingChecks'
+import { buildAddressPlan } from '../../lib/addressPlan'
+import { segmentFindings } from '../../lib/networkSegments'
 import { Icon } from '../shared/Icon'
 
 interface StatusBarProps {
@@ -74,6 +76,7 @@ export const StatusBar = ({
   const cables = useProjectStore((s) => s.project.cables)
   const drumKit = useProjectStore((s) => s.project.drumKit)
   const sourceIdentities = useProjectStore((s) => s.project.sourceIdentities)
+  const networkSegments = useProjectStore((s) => s.project.networkSegments)
   const togglePlanCheck = useUiStore((s) => s.togglePlanCheck)
   // Memoisiert, weil die StatusBar bei jeder Viewport-Aenderung rendert, die
   // Check-Engine aber ueber den ganzen Plan laeuft (seit ADR-001 auch ueber
@@ -83,6 +86,34 @@ export const StatusBar = ({
     () => runDrawingChecks({ equipment, cables, drumKit, sourceIdentities }),
     [equipment, cables, drumKit, sourceIdentities],
   )
+  // ── DIE NETZ-BEFUNDE, NEBEN DEN PLAN-CHECK (2026-09-07) ────────────────
+  //
+  // Der Plan-Check steht seit #411 hier; die Befunde der ANALYSEN standen
+  // nirgends. Wer nicht von selbst den Netzwerk-Reiter aufmachte, erfuhr nie,
+  // dass zwei Geraete dieselbe IP tragen.
+  //
+  // ICH HATTE DAS ALS ZU TEUER ZURUECKGESTELLT — nachgemessen stimmt das
+  // nicht. Auf einem Plan mit 800 Geraeten und 799 Kabeln:
+  //
+  //     runDrawingChecks   12,68 ms   (steht laengst hier)
+  //     buildAddressPlan    8,02 ms
+  //     segmentFindings     0,35 ms
+  //
+  // Das Dazugekommene kostet weniger als das, was ohnehin schon laeuft. Und
+  // es laeuft NICHT bei jeder Viewport-Aenderung: `useMemo` haengt an
+  // Store-Referenzen, die nur bei echter Projekt-Aenderung wechseln.
+  //
+  // ZWEI ABZEICHEN UND NICHT EINES. Ein Abzeichen, dessen Klick woanders
+  // landet als das, was es gezaehlt hat, ist dieselbe Sorte Luege wie eine
+  // Zahl ohne Deckung: der Plan-Check-Knopf oeffnet die Plan-Check-Palette,
+  // der Netz-Knopf die Analysen auf dem Netzwerk-Reiter.
+  const netzBefunde = useMemo(() => {
+    const plan = buildAddressPlan(equipment)
+    const adressen = plan.withIssues.length
+    const segmente = segmentFindings(equipment, networkSegments ?? []).length
+    return adressen + segmente
+  }, [equipment, networkSegments])
+
   const checkTone =
     errorCount > 0
       ? 'bg-red-700 text-red-50'
@@ -136,6 +167,20 @@ export const StatusBar = ({
             ? format(t('statusbar.planCheck.counts', '{errors}⚠'), { errors: errorCount + warningCount })
             : t('statusbar.planCheck.ok', 'OK')}
         </button>
+        {netzBefunde > 0 && (
+          <button
+            type="button"
+            onClick={() => useUiStore.getState().openAnalysis('network')}
+            className="inline-flex shrink-0 items-center gap-1 rounded bg-amber-600 px-1.5 py-0.5 text-cp-xs font-bold text-amber-50"
+            title={t(
+              'statusbar.network.title',
+              'Netz-Befunde: fehlende oder doppelte Adressen, Masken, Segmente. Klick öffnet die Analysen auf dem Netzwerk-Reiter.',
+            )}
+          >
+            <Icon icon={AlertTriangle} size="xs" />
+            {format(t('statusbar.network.counts', 'Netz {count}'), { count: netzBefunde })}
+          </button>
+        )}
       </div>
       <div className="flex shrink-0 items-center gap-3">
         {/* v7.9.4 — Rentman-Badge nur sichtbar wenn die Integration

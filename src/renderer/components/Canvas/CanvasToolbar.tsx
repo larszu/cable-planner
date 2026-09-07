@@ -459,6 +459,38 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
               <rect x="2" y="3" width="12" height="10" rx="0.5" strokeDasharray="2 1.5" />
             </svg>
           </IconButton>
+          {/* GENAU ZWEI markiert: Mehrfach-Verkabelung, mit beiden Geraeten
+              schon eingesetzt (2026-09-07).
+
+              Das Werkzeug stand nur im Menue, und dort verlangte es die
+              Auswahl von Quelle und Ziel in zwei Aufklapplisten — obwohl
+              genau das die Frage ist, die der Nutzer mit seiner Markierung
+              bereits beantwortet hat. Der Menue-Eintrag bleibt: er ist der
+              Weg fuer den, der nichts markiert hat, und die Listen sind dort
+              der richtige Rueckfall.
+
+              Bei EINEM oder DREI markierten Geraeten erscheint der Knopf
+              nicht: „von wo nach wo" hat dann keine eindeutige Antwort, und
+              eine geratene waere schlimmer als die Aufklappliste. */}
+          {selectedEquipmentIds.length === 2 && (
+            <IconButton T={T}
+              label={t('toolbar.bulkConnect.label', 'Kabel verbinden')}
+              title={t(
+                'toolbar.bulkConnect.title',
+                'Mehrere Kabel zwischen den zwei markierten Geräten auf einmal anlegen',
+              )}
+              onClick={() =>
+                useUiStore
+                  .getState()
+                  .openBulkConnect(selectedEquipmentIds[0], selectedEquipmentIds[1])
+              }
+            >
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4">
+                <path d="M2 5h4M2 8h4M2 11h4M10 5h4M10 8h4M10 11h4" strokeLinecap="round" />
+                <path d="M6 5h4M6 8h4M6 11h4" strokeLinecap="round" opacity="0.5" />
+              </svg>
+            </IconButton>
+          )}
           {hasSelection && (
             <IconButton T={T}
               title={format(t('toolbar.group.save', '{count} markierte Geräte als Gruppe speichern'), { count: selectedEquipmentIds.length })}
