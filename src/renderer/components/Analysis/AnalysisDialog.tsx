@@ -67,6 +67,7 @@ import {
 } from '../../lib/dantePatch'
 import type { DantePatch } from '../../types/dantePatch'
 import { cableRunFindings, cableRunTable, type RunFinding } from '../../lib/cableRunChecks'
+import { CrewTab } from './CrewTab'
 import { lookUpSheet, type SheetLookup } from '../../lib/sheetLookup'
 import {
   buildVenueNetworkRequest,
@@ -159,6 +160,7 @@ type Tab =
   | 'sheet'
   | 'client'
   | 'cost'
+  | 'crew'
   | 'naming'
   | 'dante'
 
@@ -2704,6 +2706,7 @@ const DanteTab = ({ projectName }: { projectName: string }) => {
 const TABS: { id: Tab; labelKey: string; fallback: string }[] = [
   { id: 'client', labelKey: 'analysis.tab.client', fallback: 'Kunden-Übersicht' },
   { id: 'cost', labelKey: 'analysis.tab.cost', fallback: 'Kosten: Plan gegen Ist' },
+  { id: 'crew', labelKey: 'analysis.tab.crew', fallback: 'Crew: Stunden & Auslagen' },
   { id: 'naming', labelKey: 'analysis.tab.naming', fallback: 'Namensregel' },
   { id: 'dante', labelKey: 'analysis.tab.dante', fallback: 'Dante-Patch' },
   { id: 'weight', labelKey: 'analysis.tab.weight', fallback: 'Gewicht & Wärme' },
@@ -2775,6 +2778,7 @@ const AnalysisDialogInner = () => {
       {active === 'sheet' && <SheetTab />}
       {active === 'client' && <ClientTab projectName={projectName} />}
       {active === 'cost' && <CostTab projectName={projectName} />}
+      {active === 'crew' && <CrewTab projectName={projectName} />}
       {active === 'naming' && <NamingTab projectName={projectName} />}
       {active === 'dante' && <DanteTab projectName={projectName} />}
     </ModalShell>

@@ -64,6 +64,13 @@ export type LoadDropKind =
    *  `anchor-orphan`, und sie still auf „ohne Bezug" zu setzen hiesse, eine
    *  gebuchte Position in eine Fahrtkostenzeile zu verwandeln. */
   | 'cost-line'
+  /** Bedarfe 40/41/83 — ein Datensatz der Crew-Seite, dem ein Pflichtfeld
+   *  fehlt: eine Schicht ohne Person, Datum oder Zeiten, ein Satz ohne
+   *  Stundenbetrag, eine Auslage ohne Betrag, eine Zusage ohne Absender.
+   *  Eine Schicht, deren SATZ geloescht wurde, wird dagegen NICHT verworfen —
+   *  dafuer gibt es den Befund `rate-missing`, und eine spurlos entfernte
+   *  Schicht ist eine geleistete Stunde, die niemand mehr abrechnet. */
+  | 'crew-entry'
 
 export interface LoadDrop {
   kind: LoadDropKind

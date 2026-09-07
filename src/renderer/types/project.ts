@@ -334,6 +334,16 @@ export interface CablePlannerProject {
    */
   costPlan?: import('./costLines').CostPlan
   /**
+   * Bedarfe 40/41/42/83 — die Crew-Seite dieses Jobs: Saetze, Schichten,
+   * Auslagen und die festgehaltenen Zusagen.
+   *
+   * IM PROJEKT UND NICHT IM LAGER-STORE: sie gehoert zu diesem Job, faehrt
+   * mit ihm per Mail und muss beim Empfaenger aufloesbar sein — dieselbe
+   * Begruendung wie beim Kostenplan. Und wie dort steht hier KEINE Summe: die
+   * rechnet `labourCost`, minutenweise, an genau einer Stelle.
+   */
+  crewPlan?: import('./labour').CrewPlan
+  /**
    * Bedarf 74 — die Namensregel dieses Projekts (Rolle-Ort-Nummer).
    *
    * Am Projekt und nicht in den App-Einstellungen: eine Namenskonvention

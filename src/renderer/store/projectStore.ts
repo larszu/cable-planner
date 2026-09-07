@@ -14,6 +14,7 @@ import { createCableSlice } from './slices/cableSlice'
 import { createAnnotationSlice } from './slices/annotationSlice'
 import { createSourceIdentitySlice } from './slices/sourceIdentitySlice'
 import { createDeliverySlice } from './slices/deliverySlice'
+import { createCrewSlice } from './slices/crewSlice'
 import { createAddressTemplateSlice } from './slices/addressTemplateSlice'
 import { createRevisionSlice } from './slices/revisionSlice'
 import { createMobileSyncSlice } from './slices/mobileSyncSlice'
@@ -77,6 +78,7 @@ import { normaliseFallbackPlan } from '../lib/fallbackPlan'
 import { normaliseEventMetadata } from '../lib/eventMetadata'
 import { normaliseTransmissionRecord } from '../lib/transmissionRecord'
 import { normaliseCostPlan } from '../lib/costComparison'
+import { normaliseCrewPlan } from '../lib/labourCost'
 import { normaliseNamingScheme } from '../lib/namingScheme'
 import { normaliseMicPlot } from '../lib/micAssignment'
 import { normaliseTallyPositions } from '../lib/tallyPosition'
@@ -555,6 +557,50 @@ export interface ProjectState {
   removeDeliveryDestination: (id: string) => void
   /** Bedarf 90 — die Antwort auf „wo liegt die unabhaengige Aufzeichnung". */
   setArchiveRecording: (rec: import('../types/delivery').ArchiveRecording | undefined) => void
+  // ── Bedarfe 40/41/42/83: die Crew-Seite ──────────────────────────────────
+  setCrewPlan: (plan: import('../types/labour').CrewPlan) => void
+  /** Person anlegen; liefert die Id, oder undefined bei leerem Namen. */
+  addCrewPerson: (
+    person: Partial<import('../types/labour').CrewPerson> & { name: string },
+  ) => string | undefined
+  /** Loescht die Person MIT ihren Saetzen und Schichten und sagt, wie viel das
+   *  war — die Oberflaeche fragt damit nach, bevor Stundenzettel verschwinden.
+   *  Auslagen bleiben und verlieren nur den Namen: sie sind ausgelegtes Geld. */
+  removeCrewPerson: (id: string) => { rates: number; entries: number; expenses: number }
+  addCrewRate: (
+    rate: Partial<import('../types/labour').CrewRate> & { personId: string; activity: string },
+  ) => string | undefined
+  updateCrewRate: (
+    id: string,
+    patch: Partial<Omit<import('../types/labour').CrewRate, 'id'>>,
+  ) => void
+  /** Loescht den Satz und die Schichten, die auf ihn zeigen; liefert deren Zahl. */
+  removeCrewRate: (id: string) => number
+  addRateBand: (
+    band: Partial<import('../types/labour').RateBand> & { label: string },
+  ) => string | undefined
+  removeRateBand: (id: string) => void
+  addTimeEntry: (
+    entry: Partial<import('../types/labour').TimeEntry> & {
+      personId: string
+      rateId: string
+      date: string
+    },
+  ) => string | undefined
+  updateTimeEntry: (
+    id: string,
+    patch: Partial<Omit<import('../types/labour').TimeEntry, 'id'>>,
+  ) => void
+  removeTimeEntry: (id: string) => void
+  addCrewExpense: (
+    expense: Partial<import('../types/labour').CrewExpense> & { date: string; amount: number },
+  ) => string | undefined
+  removeCrewExpense: (id: string) => void
+  /** Bedarf 42 — eine festgehaltene Zusage. */
+  addApproval: (
+    approval: Partial<import('../types/labour').Approval> & { by: string; text: string; capturedAt: string },
+  ) => string | undefined
+  removeApproval: (id: string) => void
   /** Bedarf 20 — eine Adressbereichs-Ebene anlegen; liefert die Id, oder
    *  undefined wenn nichts angelegt wurde (leerer Name). */
   addAddressLayer: (
@@ -768,6 +814,14 @@ const healProjectPositions = (
   const costPlan = normaliseCostPlan(project.costPlan, (d) =>
     onDrop?.({ kind: 'cost-line', reason: d.reason, label: d.label }),
   )
+  // Bedarfe 40/41/83 — die Crew-Seite. Eine Schicht ohne Person, Datum oder
+  // Satz-Zeiger ist keine Schicht; eine Schicht, deren SATZ geloescht wurde,
+  // bleibt aber stehen und wird zum Befund `rate-missing`. Sie hier
+  // wegzuwerfen hiesse, eine geleistete Stunde stillschweigend aus jeder
+  // Abrechnung zu nehmen.
+  const crewPlan = normaliseCrewPlan(project.crewPlan, (d) =>
+    onDrop?.({ kind: 'crew-entry', reason: d.reason, label: d.label }),
+  )
   // Bedarf 74 — die Namensregel. Ein Segment mit unbekanntem Teil fliegt raus:
   // es erzeugte sonst still einen leeren Namensteil, und der faellt erst auf,
   // wenn das Ergebnis schon an fuenfzig Geraeten steht. Nichts zu melden gibt
@@ -948,6 +1002,7 @@ const healProjectPositions = (
     transmissionRecord,
     // Bedarf 79 — dito: `undefined` heisst „kein Kostenvergleich gefuehrt".
     costPlan,
+    crewPlan,
     // Bedarf 74 — dito: `undefined` heisst „keine Namensregel hinterlegt".
     namingScheme,
     // Bedarf 114 — dito: `undefined` heisst „keine Zuordnungen gefuehrt".
@@ -1174,6 +1229,7 @@ const buildProjectStore = (
   ...createAnnotationSlice(set, get, store),
   ...createSourceIdentitySlice(set, get, store),
   ...createDeliverySlice(set, get, store),
+  ...createCrewSlice(set, get, store),
   ...createAddressTemplateSlice(set, get, store),
   ...createRevisionSlice(set, get, store),
   ...createMobileSyncSlice(set, get, store),
