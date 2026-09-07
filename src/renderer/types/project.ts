@@ -35,6 +35,24 @@ export interface CableNumberingScheme {
 }
 
 export interface ProjectMetadata {
+  /**
+   * BEDARF 127 — welche Show das hier ist.
+   *
+   *   > A house running roughly 65 events a year cannot have team members
+   *   > working concurrently on SEPARATE SHOWS.
+   *
+   * Beleg: `cpvalente/ontime#1325` (2024).
+   *
+   * Die Kennung wird beim Laden vergeben (`healProjectPositions`) und wandert
+   * mit der Datei. Sie ueberlebt das Umbenennen — ein umbenanntes Projekt ist
+   * dieselbe Show —, und sie ist der Anker der LAN-Freigabe: der Rueckweg vom
+   * Handy nennt sie, und der Server nimmt nur an, was zu der Show gehoert, die
+   * er gerade ausliefert.
+   *
+   * Optional, weil aeltere Dateien sie nicht haben; nach dem ersten Laden und
+   * Speichern traegt sie jede.
+   */
+  projectId?: string
   name: string
   description: string
   createdAt: string
