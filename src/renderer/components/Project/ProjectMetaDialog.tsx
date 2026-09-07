@@ -4,6 +4,7 @@ import { readImageAsDataUri } from '../../lib/readImageAsDataUri'
 import { ModalShell } from '../shared/ModalShell'
 import { useTranslation } from '../../lib/i18n'
 import { useModule } from '../../store/settingsStore'
+import { PanelHint } from '../shared/PanelHint'
 
 /**
  * Dialog used both when starting a new project and when editing metadata
@@ -283,12 +284,13 @@ export const ProjectMetaDialog = ({
             </div>
           </div>
 
-          <p className="text-[10px] italic text-cp-text-muted">
-            {t(
+          <PanelHint
+            className="text-[10px] italic text-cp-text-muted"
+            text={t(
               'project.meta.footnote',
               'Diese Daten erscheinen im Planköpfchen unten rechts beim PDF-Export. Jeder Speichervorgang aktualisiert das „zuletzt geändert"-Datum automatisch.',
             )}
-          </p>
+          />
       </div>
     </ModalShell>
   )

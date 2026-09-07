@@ -166,13 +166,13 @@ describe('die Haeufung zaehlt und urteilt nicht', () => {
 })
 
 describe('das Blatt fuer „berechnen oder tragen"', () => {
-  it('traegt alle vier Zuordnungs-Spalten', () => {
+  it('trägt alle vier Zuordnungs-Spalten', () => {
     const r = closeCheckout(record(), record().contents, '2026-09-10T17:00:00Z', undefined, [
       { line: line('Objektiv', { code: 'INV-7' }), note: 'zerkratzt' },
     ])
     const t = damageTable([r])
     expect(t.headers).toEqual([
-      'Zurueck am',
+      'Zurück am',
       'Objekt',
       'Etiketten-Code',
       'Schaden',

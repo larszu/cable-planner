@@ -56,7 +56,7 @@ const DISAGREEMENT_RATIO = 3
 
 const RTT_SOURCE = 'vajracast.com/srt-latency-tuning/ (3-4x RTT)'
 const FIXED_SOURCE =
-  'Praxis-Leitfaeden, fester Wert 1.500-2.500 ms; siehe medium.com/innovation-labs-blog/examining-srt-streaming-over-4g-networks-925e71c45cdf'
+  'Praxis-Leitfäden, fester Wert 1.500-2.500 ms; siehe medium.com/innovation-labs-blog/examining-srt-streaming-over-4g-networks-925e71c45cdf'
 
 /**
  * SRT-Latenz-Empfehlung. `measuredRttMs` ist optional, weil sie oft nicht
@@ -98,7 +98,7 @@ export function srtLatencyAdvice(measuredRttMs?: number): SrtLatencyAdvice {
       `Die beiden belegten Lesarten liegen bei ${measuredRttMs} ms RTT um Faktor ` +
       `${Math.round((fixed.low.value / fromRtt.value) * 10) / 10} auseinander ` +
       `(${fromRtt.value} ms gegen ${fixed.low.value} ms). Auf kurzen Strecken widersprechen ` +
-      `sich die Quellen; die Entscheidung gehoert dem Menschen, nicht diesem Rechner.`
+      `sich die Quellen; die Entscheidung gehört dem Menschen, nicht diesem Rechner.`
   }
   return advice
 }

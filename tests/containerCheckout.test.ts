@@ -287,12 +287,12 @@ describe('die Blaetter', () => {
     expect(checkoutSheet(rec()).rows.every((r) => r[4] === '')).toBe(true)
   })
 
-  it('die Uebersicht nennt den Lagerort als PFAD', () => {
+  it('die Übersicht nennt den Lagerort als PFAD', () => {
     // „Case 2" gibt es dreimal, „Depot > Regal A3 > Transport-Case 1" einmal.
     const t = openCheckoutsTable([rec()], lager().nodes, '2026-09-09')
     expect(String(t.rows[0][1])).toContain('Depot')
     expect(String(t.rows[0][1])).toContain('Regal A3')
-    expect(t.rows[0][7]).toBe('ueberfaellig')
+    expect(t.rows[0][7]).toBe('überfällig')
   })
 
   it('der Rueckgabe-Befund bleibt LEER, wenn alles glatt zurueckkam', () => {

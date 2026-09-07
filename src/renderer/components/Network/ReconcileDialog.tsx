@@ -24,6 +24,7 @@ import {
   mergeEntries,
   unverifiedEntries,
 } from '../../lib/asBuilt'
+import { PanelHint } from '../shared/PanelHint'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Plan gegen Vorgefundenes (Bedarf 21).
@@ -157,12 +158,13 @@ export const ReconcileDialog = () => {
         </div>
 
         <div className="flex-1 overflow-y-auto p-4">
-          <p className="mb-3 text-cp-sm leading-snug text-cp-text-secondary">
-            {t(
+          <PanelHint
+            className="mb-3 text-cp-sm leading-snug text-cp-text-secondary"
+            text={t(
               'reconcile.intro',
               'Was vom LKW kam, unter welchen Namen und mit welchen Adressen — gegen das, was der Plan sagt. Der Plan fragt kein Gerät: du legst eine Datei ab (ARP-/Neighbour-Ausgabe oder CSV), und der Abgleich rechnet die Abweichung aus.',
             )}
-          </p>
+          />
 
           <div className="mb-3 flex items-center gap-2">
             <button

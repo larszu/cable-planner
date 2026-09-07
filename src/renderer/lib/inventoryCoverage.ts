@@ -443,7 +443,7 @@ export const resolveCoverage = (
         itemModel: exactName[0].model,
         ...mengen(exactName),
         sources: exactName,
-        reason: `Modellname stimmt ueberein ("${exactName[0].model}"), aber die Lager-Position traegt keine Typ-Identitaet.`,
+        reason: `Modellname stimmt überein ("${exactName[0].model}"), aber die Lager-Position trägt keine Typ-Identität.`,
       }
     }
 
@@ -466,7 +466,7 @@ export const resolveCoverage = (
           itemModel: gleiche[0].model,
           ...mengen(gleiche),
           sources: gleiche,
-          reason: `Modellname weicht um hoechstens ${MAX_EDIT_DISTANCE} Zeichen ab ("${near.model}") — bitte pruefen.`,
+          reason: `Modellname weicht um höchstens ${MAX_EDIT_DISTANCE} Zeichen ab ("${near.model}") — bitte prüfen.`,
         }
       }
     }

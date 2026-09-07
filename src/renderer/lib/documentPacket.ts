@@ -214,7 +214,7 @@ ${zeilen}
   return `<!doctype html><html><head><meta charset="utf-8"><title>${esc(documentTitle)}</title>
 <style>
   @page { size: ${PAPER_CSS[opts.paper]}; margin: 14mm; }
-  /* Papier ist weiss. Der dunkle Modus der Oberflaeche hat auf Papier nichts
+  /* Papier ist weiss. Der dunkle Modus der Oberfläche hat auf Papier nichts
      zu suchen: er kostet Toner und macht die Kopie unlesbar. */
   body { font-family: Arial, sans-serif; color: #111; background: #fff; font-size: 10pt; }
   h1 { font-size: 14pt; margin: 0 0 1mm; }

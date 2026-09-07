@@ -132,7 +132,7 @@ describe('planBomCsv', () => {
     )
     const line = planBomCsv(bom).split('\r\n')[1]
     expect(line).toContain('VORSCHLAG')
-    expect(line).toContain('Typ-Identitaet')
+    expect(line).toContain('Typ-Identität')
   })
 
   it('erklärt eine Zeile ohne Katalog-Typ', () => {

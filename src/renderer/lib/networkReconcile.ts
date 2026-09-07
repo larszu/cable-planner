@@ -348,7 +348,7 @@ export function reconcileTable(report: ReconcileReport): CsvTable {
   }
   const basis: Record<MatchBasis, string> = { mac: 'MAC', ip: 'IP', name: 'Name' }
   return {
-    headers: ['Befund', 'Im Plan', 'Plan-IP', 'Vorgefunden', 'Gefundene IP', 'MAC', 'Zugeordnet ueber'],
+    headers: ['Befund', 'Im Plan', 'Plan-IP', 'Vorgefunden', 'Gefundene IP', 'MAC', 'Zugeordnet über'],
     rows: report.rows.map((r): CsvCell[] => [
       label[r.verdict],
       r.planned ?? '',

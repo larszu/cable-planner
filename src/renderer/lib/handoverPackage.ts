@@ -85,7 +85,7 @@ const kopfTable = (project: CablePlannerProject): CsvTable => {
       ['Kunde', m.client ?? ''],
       ['Errichter', m.contractor ?? m.author ?? ''],
       ['Projekt-Nr.', m.projectNumber ?? ''],
-      ['Uebergabe-Datum', m.handoverDate ?? ''],
+      ['Übergabe-Datum', m.handoverDate ?? ''],
       ['Wartender Dienstleister', m.serviceProvider ?? ''],
       ['Notfallkontakt', m.emergencyContact ?? ''],
       // `m.revision` steht bewusst NICHT drin, obwohl es gedruckt wird: die
@@ -108,10 +108,10 @@ const kopfTable = (project: CablePlannerProject): CsvTable => {
 const commissioningTable = (project: CablePlannerProject): CsvTable => {
   const counts = cableStatusCounts(project)
   const rows: string[][] = [
-    ['Geraete', String(project.equipment.length)],
+    ['Geräte', String(project.equipment.length)],
     ['Kabel', String(project.cables.length)],
-    ['Gesamtlaenge', project.cables.reduce((s, c) => s + (c.length ?? 0), 0).toFixed(1)],
-    ['Raeume', String((project.locations ?? []).length)],
+    ['Gesamtlänge', project.cables.reduce((s, c) => s + (c.length ?? 0), 0).toFixed(1)],
+    ['Räume', String((project.locations ?? []).length)],
     ['Getestet', String(project.cables.filter((c) => c.testResult).length)],
     ['PASS', String(project.cables.filter((c) => c.testResult?.result === 'pass').length)],
   ]

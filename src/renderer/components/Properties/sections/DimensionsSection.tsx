@@ -2,6 +2,7 @@ import { useProjectStore } from '../../../store/projectStore'
 import { useTranslation } from '../../../lib/i18n'
 import type { EquipmentItem } from '../../../types/equipment'
 import { SortableSection } from '../SortableSection'
+import { PanelHint } from '../../shared/PanelHint'
 
 /**
  * #306 — DimensionsSection aus EquipmentProperties ausgelagert.
@@ -70,12 +71,13 @@ export const DimensionsSection = ({ equipment }: { equipment: EquipmentItem }) =
           />
         </label>
       </div>
-      <p className="mt-2 text-[10px] text-cp-text-muted">
-        {t(
+      <PanelHint
+        className="mt-2 text-[10px] text-cp-text-muted"
+        text={t(
           'dims.hint',
           'Physische Aussenmaße. 19" Rack-Gerät: 1 HE = 44.45 mm, Standard-Breite 482 mm, typische Tiefe 400-600 mm. Wird vom 3D-Rack-Renderer + Logistik-Tools genutzt.',
         )}
-      </p>
+      />
     </SortableSection>
   )
 }

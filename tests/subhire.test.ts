@@ -92,26 +92,26 @@ describe('der Zusatz, der ueberall mitfaehrt', () => {
   it('nennt Art, Lieferant und Datum', () => {
     expect(
       ownershipNote(item({ ownership: 'subhire', supplier: 'Videohaus Meier', returnDue: '2026-09-20' }), HEUTE),
-    ).toBe('Sub-Hire · Videohaus Meier · zurueck 2026-09-20')
+    ).toBe('Sub-Hire · Videohaus Meier · zurück 2026-09-20')
   })
 
   it('sagt „zurueck seit", wenn es ueberfaellig ist', () => {
     expect(
       ownershipNote(item({ ownership: 'subhire', supplier: 'Meier', returnDue: '2026-09-10' }), HEUTE),
-    ).toBe('Sub-Hire · Meier · zurueck seit 2026-09-10')
+    ).toBe('Sub-Hire · Meier · zurück seit 2026-09-10')
   })
 
   it('nennt den fehlenden Lieferanten, statt ihn wegzulassen', () => {
     // „Es geht zurueck, aber wir wissen nicht wohin" ist die Auskunft, die
     // jemand braucht.
     expect(ownershipNote(item({ ownership: 'subhire', returnDue: '2026-09-20' }), HEUTE)).toBe(
-      'Sub-Hire · Lieferant unbekannt · zurueck 2026-09-20',
+      'Sub-Hire · Lieferant unbekannt · zurück 2026-09-20',
     )
   })
 
   it('nennt das fehlende Datum, statt es wegzulassen', () => {
     expect(ownershipNote(item({ ownership: 'rented', supplier: 'Meier' }), HEUTE)).toBe(
-      'Gemietet · Meier · kein Rueckgabedatum',
+      'Gemietet · Meier · kein Rückgabedatum',
     )
   })
 
@@ -170,7 +170,7 @@ describe('1. die Packliste', () => {
     const list = derivePackList('c1', { items, nodes, units: [] }, HEUTE)
     expect(list[0].items).toEqual([
       { model: 'Sony PMW-F55', qty: 4 },
-      { model: 'Sony PMW-F55', qty: 2, ownership: 'Sub-Hire · Meier · zurueck 2026-09-20' },
+      { model: 'Sony PMW-F55', qty: 2, ownership: 'Sub-Hire · Meier · zurück 2026-09-20' },
     ])
   })
 
@@ -181,7 +181,7 @@ describe('1. die Packliste', () => {
     ]
     const list = derivePackList('c1', { items: zwei, nodes, units: [] }, HEUTE)
     expect(list[0].items).toEqual([
-      { model: 'Sony PMW-F55', qty: 5, ownership: 'Sub-Hire · Meier · zurueck 2026-09-20' },
+      { model: 'Sony PMW-F55', qty: 5, ownership: 'Sub-Hire · Meier · zurück 2026-09-20' },
     ])
   })
 
@@ -202,7 +202,7 @@ describe('1. die Packliste', () => {
     // Der Text ist das, was jemand in WhatsApp einfuegt — dort darf die
     // Herkunft nicht wegfallen.
     const text = packListToText(derivePackList('c1', { items, nodes, units: [] }, HEUTE))
-    expect(text).toContain('[Sub-Hire · Meier · zurueck 2026-09-20]')
+    expect(text).toContain('[Sub-Hire · Meier · zurück 2026-09-20]')
   })
 })
 
@@ -237,7 +237,7 @@ describe('3. der Ausgabeschein', () => {
     // Ein inzwischen zurueckgegebener Artikel saehe sonst aus wie eigener —
     // und genau bei der Rueckgabe braucht ihn jemand.
     const lines = containerContents(snap, 'c1', HEUTE)
-    expect(lines[0].ownership).toBe('Sub-Hire · Meier · zurueck 2026-09-20')
+    expect(lines[0].ownership).toBe('Sub-Hire · Meier · zurück 2026-09-20')
   })
 
   it('steht als eigene Spalte auf dem Blatt', () => {

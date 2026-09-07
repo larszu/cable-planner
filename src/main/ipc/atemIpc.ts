@@ -362,7 +362,7 @@ export const registerAtemIpc = () => {
       }
       pushEvent(
         `Applied MV config: ${applied} window assignments` +
-          (skipped > 0 ? ` (${skipped} ohne Entsprechung im Layout uebersprungen)` : ''),
+          (skipped > 0 ? ` (${skipped} ohne Entsprechung im Layout übersprungen)` : ''),
       )
       return { applied, skipped }
     },

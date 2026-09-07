@@ -243,13 +243,13 @@ export const LibraryItem = ({
                 ? format(
                     t(
                       'library.item.linkNamed',
-                      'Mit lokalem Geraet "{name}" verknuepfen (Ports uebernehmen)',
+                      'Mit lokalem Gerät "{name}" verknüpfen (Ports übernehmen)',
                     ),
                     { name: linkTargetName },
                   )
                 : t(
                     'library.item.linkSameName',
-                    'Mit gleichnamigem lokalem Geraet verknuepfen (Ports uebernehmen)',
+                    'Mit gleichnamigem lokalem Gerät verknüpfen (Ports übernehmen)',
                   )
             }
           >
@@ -260,7 +260,7 @@ export const LibraryItem = ({
                 onLinkPorts()
               }}
               className="rounded bg-emerald-700 px-1 text-[11px] text-emerald-100 hover:bg-emerald-600"
-              aria-label={t('library.item.linkAria', 'Verknuepfen')}
+              aria-label={t('library.item.linkAria', 'Verknüpfen')}
             >
               <Icon icon={Link} size="xs" />
             </button>

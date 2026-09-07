@@ -47,7 +47,7 @@ describe('die Zeilen, die nicht zaehlen', () => {
     // Abgleich falsch.
     const r = reconcileErp([], [], [erp({ kind: 'comment', name: 'Aufbau ab 8 Uhr' })])
     expect(r.rows).toEqual([])
-    expect(r.ignored).toEqual([{ label: 'Aufbau ab 8 Uhr', reason: 'Kommentarzeile, kein Geraet' }])
+    expect(r.ignored).toEqual([{ label: 'Aufbau ab 8 Uhr', reason: 'Kommentarzeile, kein Gerät' }])
   })
 
   it('ignoriert den Inhalt einer Kombination', () => {
@@ -154,11 +154,11 @@ describe('die vier Befunde', () => {
 })
 
 describe('das Blatt', () => {
-  it('fuehrt beide Mengen und die Art der Zuordnung', () => {
+  it('führt beide Mengen und die Art der Zuordnung', () => {
     const r = reconcileErp([demand('Sony PMW-F55', 5)], [], [erp({ qty: 3 })])
     const t = erpReconcileTable(r)
     expect(t.headers).toEqual(['Befund', 'Position', 'Plan', 'Reservierung', 'Zuordnung'])
-    expect(t.rows[0]).toEqual(['Menge weicht ab', 'Sony PMW-F55', 5, 3, 'ueber den Namen (Vorschlag)'])
+    expect(t.rows[0]).toEqual(['Menge weicht ab', 'Sony PMW-F55', 5, 3, 'über den Namen (Vorschlag)'])
   })
 
   it('laesst die Mengenspalte LEER, wo eine Seite die Position nicht kennt', () => {

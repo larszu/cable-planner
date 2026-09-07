@@ -248,7 +248,7 @@ export const buildLabelSheetHtml = (
   .t { font-size: 7pt; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .c { font-size: 8pt; font-family: 'Courier New', monospace; word-break: break-all; }
   /* Herkunft (Bedarf 67): kleiner als der Code, aber FETT — auf einem Case im
-     Regal muss „Sub-Hire" ins Auge fallen, ohne den Code zu verdraengen. */
+     Regal muss „Sub-Hire" ins Auge fallen, ohne den Code zu verdrängen. */
   .o { font-size: 6.5pt; font-weight: 700; margin-top: 0.3mm; }
 </style></head><body>
 ${pageDivs.join('\n')}

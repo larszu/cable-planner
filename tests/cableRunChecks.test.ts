@@ -123,7 +123,7 @@ describe('ein Strang, fuenf Dienste', () => {
   it('nennt sie bei einem Hybrid-Kamerakabel', () => {
     // Der Befund woertlich: „one wrong SMPTE run kills video, return, comms,
     // tally and power at once."
-    expect(bundledServices(smpteSpec)).toEqual(['Bild', 'Rueckbild', 'Intercom', 'Tally', 'Strom'])
+    expect(bundledServices(smpteSpec)).toEqual(['Bild', 'Rückbild', 'Intercom', 'Tally', 'Strom'])
     expect(bundledServices(smpteSpec)!.length).toBe(5)
   })
 

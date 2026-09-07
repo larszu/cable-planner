@@ -2,6 +2,7 @@ import type { GroupPreset } from '../../types/equipment'
 import { useTranslation } from '../../lib/i18n'
 import { RackInternalCanvas } from './RackInternalCanvas'
 import type { InternalCableDraft, RackPlacementDraft } from './rackBuilderTypes'
+import { PanelHint } from '../shared/PanelHint'
 
 /** v7.8.5+ — Wire-Dialog-Overlay fuer die Rack-interne Verkabelung.
  *
@@ -67,12 +68,13 @@ export const RackInternalWireOverlay = ({
         <div className="mb-2 flex items-center justify-between gap-3">
           <div>
             <h3 className="text-cp-xl font-semibold">{t('rack.wire.title', 'Rack-Verkabelung')}: {rackName || t('rack.unnamed', '(unbenannt)')}</h3>
-            <p className="mt-1 text-cp-xs text-cp-text-muted">
-              {t(
+            <PanelHint
+              className="mt-1 text-cp-xs text-cp-text-muted"
+              text={t(
                 'rack.wire.intro',
                 'Ziehe Linien Output → Input. Rechtsklick auf Kabel = Menü, Doppelklick = Eigenschaften, Entf = Löschen. Verwendet jetzt die echte Canvas-Komponente — Toolbar, Routing, Waypoints, A*-Routing alles wie im Hauptcanvas.',
               )}
-            </p>
+            />
           </div>
           <button
             type="button"

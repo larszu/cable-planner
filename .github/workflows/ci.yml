@@ -123,6 +123,13 @@ jobs:
       # gemeldet hat es am 2026-09-07 ein Mensch, nicht die Pruefung.
       - name: Nichts abgeschnitten, nichts verdeckt
         run: xvfb-run -a npm run ui:overflow
+      # Dritter Lauf im selben Job, aus demselben Grund: dieselbe gebaute App.
+      # Er zaehlt, was der Nutzer am 2026-09-07 beschrieben hat -- „man erkennt
+      # nicht auf den ersten Blick, was jedes Element verursacht": Knoepfe ohne
+      # Namen (heute null) und Knoepfe, die nur ein Symbol tragen (heute sechs,
+      # vorher 32). Die Zahl ist gedeckelt, damit sie nicht still zurueckwaechst.
+      - name: Jedes Bedienelement hat einen Namen
+        run: xvfb-run -a npm run ui:labels
       - name: Screenshots bei Fehlschlag
         if: failure()
         uses: actions/upload-artifact@v6

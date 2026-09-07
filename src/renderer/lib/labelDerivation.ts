@@ -492,9 +492,9 @@ export const deriveLabels = ({
       sourceIdentityId: identity?.id,
       reason: identity
         ? `Rolle "${identity.name}" speist ${sink.name} auf Eingang ` +
-          `${inputIdx + 1}, traegt aber keine UMD-Adresse`
+          `${inputIdx + 1}, trägt aber keine UMD-Adresse`
         : `speist ${sink.name} auf Eingang ${inputIdx + 1} — ohne gebundene ` +
-          'Rolle gibt es keinen Ort fuer die UMD-Adresse',
+          'Rolle gibt es keinen Ort für die UMD-Adresse',
     })
   }
 
@@ -686,7 +686,7 @@ export const labelTargetIssues = (input: LabelDerivationInput): CheckFinding[] =
         severity: 'warning',
         category: `${spec.system}-Zeichensatz`,
         message:
-          `"${f.raw}" enthaelt ${f.invalidChars.map((ch) => `"${ch}"`).join(', ')} — ` +
+          `"${f.raw}" enthält ${f.invalidChars.map((ch) => `"${ch}"`).join(', ')} — ` +
           `im ${spec.system}-${spec.field} nicht darstellbar (${c.where}).`,
         equipmentId: c.equipmentId,
       })

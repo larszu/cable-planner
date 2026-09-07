@@ -66,3 +66,22 @@ describe('PanelHint teilt den Erklaersatz', () => {
     }
   })
 })
+
+describe('teile schneidet nicht hinter einer Ordnungszahl', () => {
+  it('laesst „Intermodulation 3. Ordnung" zusammen', () => {
+    // Gefunden im Funkstrecken-Dialog: der sichtbare Teil endete mit
+    // „Intermodulation 3." — der Begriff war mitten durchgeschnitten, und
+    // wer nicht aufklappte, las etwas anderes als dasteht.
+    const text =
+      'Geprüft: Trägerabstand + Intermodulation 3. Ordnung (2- und 3-Sender-Produkte). Treffer heißt: die Frequenz liegt zu dicht an einem Produkt.'
+    const { kopf } = teile(text)
+    expect(kopf).toContain('3. Ordnung')
+    expect(kopf.endsWith('Intermodulation 3.')).toBe(false)
+  })
+
+  it('schneidet weiterhin am echten Satzende', () => {
+    const { kopf, rest } = teile('Der erste Satz steht hier. Der zweite erklaert warum.')
+    expect(kopf).toBe('Der erste Satz steht hier.')
+    expect(rest).toBe('Der zweite erklaert warum.')
+  })
+})

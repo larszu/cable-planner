@@ -508,7 +508,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
     const { routing: merged, imported } = mergeLegacySalvos(current, legacy)
     if (imported > 0) {
       updateEquipment(deviceId, { videohubRouting: merged })
-      logEvent(`${imported} Salvo(s) aus lokalem Speicher ins Projekt uebernommen`)
+      logEvent(`${imported} Salvo(s) aus lokalem Speicher ins Projekt übernommen`)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deviceId, device])
@@ -544,7 +544,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
     if (!device) return
     const port = parseInt(vhPort, 10)
     if (!vhHost.trim() || isNaN(port)) {
-      logEvent('Status-Read abgebrochen: ungueltige IP/Port', false)
+      logEvent('Status-Read abgebrochen: ungültige IP/Port', false)
       return
     }
     setReadingState(true)
@@ -858,8 +858,8 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
     const portNum = parseInt(vhPort, 10)
     if (!vhHost.trim() || isNaN(portNum)) {
       setSendStatus('error')
-      setSendMessage(t('export.invalidIpPort', 'Bitte gueltige IP und Port angeben.'))
-      logEvent(`${what}: abgebrochen — ungueltige IP/Port`, false)
+      setSendMessage(t('export.invalidIpPort', 'Bitte gültige IP und Port angeben.'))
+      logEvent(`${what}: abgebrochen — ungültige IP/Port`, false)
       return false
     }
     setSendStatus('sending')
@@ -1101,7 +1101,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
               title={
                 showConnections
                   ? t('export.hideConnInfo', 'Connection-Info ausblenden (nur Port-Name)')
-                  : t('export.showConnInfo', 'Connection-Info einblenden (← angeschlossenes Geraet)')
+                  : t('export.showConnInfo', 'Connection-Info einblenden (← angeschlossenes Gerät)')
               }
               className={`rounded border px-2 py-1 text-cp-xs ${
                 showConnections
@@ -1122,8 +1122,8 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                 onClick={toggleShowConnectionPorts}
                 title={
                   showConnectionPorts
-                    ? t('export.hideConnPorts', 'Port-Namen der angeschlossenen Geraete ausblenden')
-                    : t('export.showConnPorts', 'Port-Namen der angeschlossenen Geraete einblenden')
+                    ? t('export.hideConnPorts', 'Port-Namen der angeschlossenen Geräte ausblenden')
+                    : t('export.showConnPorts', 'Port-Namen der angeschlossenen Geräte einblenden')
                 }
                 className={`rounded border px-2 py-1 text-cp-xs ${
                   showConnectionPorts
@@ -1312,7 +1312,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
           )}
           {salvos.length === 0 ? (
             <div className="text-[11px] text-cp-text-muted">
-              {t('export.noSalvos', 'Noch keine Salvos. Speichere die aktuelle Crosspoint-Verteilung und ruf sie spaeter mit einem Klick zurueck.')}
+              {t('export.noSalvos', 'Noch keine Salvos. Speichere die aktuelle Crosspoint-Verteilung und ruf sie später mit einem Klick zurück.')}
             </div>
           ) : (
             <div className="flex flex-wrap gap-1">
@@ -1441,7 +1441,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
               ) : (
                 <div className="flex flex-col gap-1">
                   <div className="mb-1 text-[10px] uppercase tracking-wide text-teal-300">
-                    Gefunden ({discovered.length}) — Klick uebernimmt IP/Port
+                    Gefunden ({discovered.length}) — Klick übernimmt IP/Port
                   </div>
                   {discovered.map((d) => (
                     <button
@@ -1546,7 +1546,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                       onClick={() => {
                         setRouting({ ...hubState.routing })
                         logEvent(
-                          `Hub-Routing in den Plan uebernommen (${diff.length} Kreuzpunkte geaendert).`,
+                          `Hub-Routing in den Plan übernommen (${diff.length} Kreuzpunkte geändert).`,
                         )
                       }}
                       className="ml-1.5 rounded border border-sky-600/60 px-1.5 py-0.5 text-sky-100 hover:bg-sky-900/40"

@@ -165,13 +165,30 @@ describe('der Konflikt steht am Objekt, das ihn hat', () => {
 })
 
 describe('das Blatt zeigt beide Zahlen', () => {
-  it('die CSV hat Bestand UND Verfuegbar nebeneinander', () => {
+  it('die CSV hat Bestand UND Verfügbar nebeneinander', () => {
     // Eine einzige Spalte „Bestand" liest jeder als „so viel kann ich
     // einplanen" — daran haengt der ganze Befund.
     const bom = buildPlanBom(plan(5), lager(5), NODES, [], [], [ausgabe()])
     const zeilen = planBomCsv(bom).split('\r\n')
-    expect(zeilen[0]).toContain('Bestand;Verfuegbar;Auf offener Ausgabe')
+    expect(zeilen[0]).toContain('Bestand;Verfügbar;Auf offener Ausgabe')
     expect(zeilen[1]).toContain('5;3;2 auf offener Ausgabe')
+  })
+
+  it('die Kommissionier-Liste nennt ihre vierte Spalte nach dem, was drin steht', () => {
+    // Sie hiess „Bestand" und trug `available` — also die Zahl, aus der
+    // offene Ausgaben und unbrauchbare Einheiten schon herausgerechnet sind.
+    // Genau die Verwechslung, gegen die Bedarf 80 in der Stueckliste die
+    // zweite Spalte eingezogen hat: wer „Bestand 3" liest, plant mit 3,
+    // obwohl zwei davon auf einem Truck stehen. Aufgefallen ist es erst, als
+    // der Lexikon-Guard auch die positionell an `toCsv` uebergebenen Spalten
+    // gesehen hat.
+    const bom = buildPlanBom(plan(5), lager(5), NODES, [], [], [ausgabe()])
+    const zeilen = pickListCsv(bom).split('\r\n')
+    const spalten = zeilen[0].replace(/^\ufeff/, '').split(';')
+    expect(spalten[3]).toBe('Verfügbar')
+    // Lager 5, davon 2 auf offener Ausgabe: die Zeile nennt 3, nicht 5.
+    const ortszeile = zeilen.slice(1).find((z) => z.startsWith('Depot'))
+    expect(ortszeile?.split(';')[3]).toBe('3')
   })
 
   it('die Zeile gilt als fehlend, obwohl der Bestand reicht', () => {

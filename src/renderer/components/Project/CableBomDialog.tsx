@@ -339,7 +339,7 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
                 onClose()
                 openRentmanCableExport()
               }}
-              title={t('bom.cable.syncRentmanTitle', 'Schliesst diesen Dialog und oeffnet den Rentman-Cable-Export mit den aktuellen Buckets vorbefuellt.')}
+              title={t('bom.cable.syncRentmanTitle', 'Schliesst diesen Dialog und öffnet den Rentman-Cable-Export mit den aktuellen Buckets vorbefüllt.')}
               className="inline-flex items-center gap-1.5 rounded bg-orange-700 px-3 py-1 text-cp-xs font-semibold hover:bg-orange-600"
             >
               <Icon icon={Package} size="xs" />
@@ -425,7 +425,7 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
                       <div className="mt-0.5 text-[10px] text-orange-300/80">
                         <span
                           className="rounded bg-orange-700/30 px-1 py-0 font-mono text-[11px] text-orange-200"
-                          title={t('bom.cable.rentmanLinkedTitle', 'Verknuepfter Rentman-Equipment-Name')}
+                          title={t('bom.cable.rentmanLinkedTitle', 'Verknüpfter Rentman-Equipment-Name')}
                         >
                           R
                         </span>{' '}
@@ -435,7 +435,7 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
                     {!r.rentmanName && r.rentmanId && (
                       <div
                         className="mt-0.5 text-[10px] text-cp-text-muted"
-                        title={t('bom.cable.rentmanMissingTitle', 'Verknuepft, aber Rentman-Template lokal nicht gefunden')}
+                        title={t('bom.cable.rentmanMissingTitle', 'Verknüpft, aber Rentman-Template lokal nicht gefunden')}
                       >
                         R #{r.rentmanId}
                       </div>

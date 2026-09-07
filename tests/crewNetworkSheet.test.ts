@@ -64,7 +64,7 @@ describe('Bedarf 77 — was der Plan weiss, steht drauf', () => {
     })
     const zeilen = abschnitt(p, 'netze').lines.filter((l) => l.key.startsWith('vlan-'))
     expect(zeilen.map((l) => l.key)).toEqual(['vlan-10', 'vlan-30'])
-    expect(zeilen[1].text).toContain('2 Geraete')
+    expect(zeilen[1].text).toContain('2 Geräte')
     expect(zeilen[1].text).toContain('Kamera 1')
   })
 

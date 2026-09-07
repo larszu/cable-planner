@@ -63,8 +63,8 @@ export const MOVE_TOLERANCE_PX = 20
  * eine Liste anzuhaengen machte aus einem Befund eine Floskel.
  */
 export const BUNDLED_SERVICES: Readonly<Record<string, readonly string[]>> = {
-  'SMPTE-304M': ['Bild', 'Rueckbild', 'Intercom', 'Tally', 'Strom'],
-  'SMPTE-311M': ['Bild', 'Rueckbild', 'Intercom', 'Tally', 'Strom'],
+  'SMPTE-304M': ['Bild', 'Rückbild', 'Intercom', 'Tally', 'Strom'],
+  'SMPTE-311M': ['Bild', 'Rückbild', 'Intercom', 'Tally', 'Strom'],
 }
 
 /** Traegt dieses Kabel mehrere Dienste? Liefert die Liste oder `null`. */
@@ -189,11 +189,11 @@ export const runFindingText = (f: RunFinding): string => {
   const kern = (() => {
     switch (f.kind) {
       case 'derived-length-stale':
-        return `Laenge ${f.values[0]} m wurde geschaetzt; seither um ${f.values[2]} px verschoben, die Schaetzung ergaebe jetzt ${f.values[1]} m`
+        return `Länge ${f.values[0]} m wurde geschätzt; seither um ${f.values[2]} px verschoben, die Schätzung ergäbe jetzt ${f.values[1]} m`
       case 'over-max-length':
-        return `Laenge ${f.values[0]} m ueber der Reichweite von ${f.values[1]} m (${f.values[2]})`
+        return `Länge ${f.values[0]} m über der Reichweite von ${f.values[1]} m (${f.values[2]})`
       case 'endpoint-missing':
-        return 'Abgeleitete Laenge, aber ein Endgeraet fehlt — sie laesst sich nicht mehr nachrechnen'
+        return 'Abgeleitete Länge, aber ein Endgerät fehlt — sie lässt sich nicht mehr nachrechnen'
     }
   })()
   // Der Zusatz, den der Bedarf ausdruecklich verlangt: ein Strang, fuenf
@@ -203,9 +203,9 @@ export const runFindingText = (f: RunFinding): string => {
 }
 
 const ART: Record<RunFindingKind, string> = {
-  'derived-length-stale': 'Schaetzung ueberholt',
-  'over-max-length': 'Ueber Reichweite',
-  'endpoint-missing': 'Endgeraet fehlt',
+  'derived-length-stale': 'Schätzung überholt',
+  'over-max-length': 'Über Reichweite',
+  'endpoint-missing': 'Endgerät fehlt',
 }
 
 /** Die Befunde als Blatt. */

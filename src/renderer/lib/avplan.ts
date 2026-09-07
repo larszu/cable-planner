@@ -97,10 +97,10 @@ export function makeAvPlan(args: {
 export function parseAvPlan(text: string): AvPlan {
   const data = JSON.parse(text) as Partial<AvPlan>
   if (!data || data.kind !== AVPLAN_KIND) {
-    throw new Error('Keine gueltige .avplan-Datei (kind != avplan).')
+    throw new Error('Keine gültige .avplan-Datei (kind != avplan).')
   }
   if (data.formatVersion !== AVPLAN_VERSION) {
-    throw new Error(`Nicht unterstuetzte .avplan-Version: ${data.formatVersion}`)
+    throw new Error(`Nicht unterstützte .avplan-Version: ${data.formatVersion}`)
   }
   if (!data.venue || !data.domains) throw new Error('.avplan ohne venue/domains.')
   return data as AvPlan

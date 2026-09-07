@@ -688,7 +688,7 @@ const webFallbackApi: CablePlannerApi = {
      *  Mehrwert ohne Token-Management via Electron-Credentials-Store. */
     exportToCablePlannerGroup: async () => {
       throw new Error(
-        'Rentman-Export ist nur in der Electron-Desktop-App verfuegbar, nicht im Web-/Mobile-Build.',
+        'Rentman-Export ist nur in der Electron-Desktop-App verfügbar, nicht im Web-/Mobile-Build.',
       )
     },
     addProjectFile: async (

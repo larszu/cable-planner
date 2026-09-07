@@ -128,7 +128,7 @@ export const buildTallyMap = (project: TallyProject): TallyMap => {
         kind: 'no-device',
         severity: 'warning',
         subject: identity.id,
-        message: `Rolle "${identity.name}" ist an kein Geraet gebunden — es gibt nichts, dessen Tally geschaltet wuerde.`,
+        message: `Rolle "${identity.name}" ist an kein Gerät gebunden — es gibt nichts, dessen Tally geschaltet würde.`,
       })
     } else if (!row.switcher) {
       // Ein Kabel zum Router IST ein Unterschied zu gar keinem Kabel. Ohne
@@ -202,7 +202,7 @@ export const buildTallyMap = (project: TallyProject): TallyMap => {
       kind: 'source-without-role',
       severity: 'warning',
       subject: source.id,
-      message: `"${source.name}" speist ${sink.name} auf Eingang ${link.inputIndex}, traegt aber keine Rolle — ohne Rolle kein Tally-Eintrag.`,
+      message: `"${source.name}" speist ${sink.name} auf Eingang ${link.inputIndex}, trägt aber keine Rolle — ohne Rolle kein Tally-Eintrag.`,
     })
   }
 
@@ -225,7 +225,7 @@ export const buildTallyMap = (project: TallyProject): TallyMap => {
  * erstes unter den vergessenen nennt.
  */
 export const tallyMapTable = (map: TallyMap): CsvTable => ({
-  headers: ['Nr.', 'Rolle', 'Geraet(e)', 'Mischer', 'Eingang', 'UMD-Adresse'],
+  headers: ['Nr.', 'Rolle', 'Gerät(e)', 'Mischer', 'Eingang', 'UMD-Adresse'],
   rows: map.rows.map((r) => [
     r.number ?? '',
     r.name,
@@ -242,7 +242,7 @@ export const tallyMapTableForProject = (project: TallyProject): CsvTable =>
 
 export const tallyMapCsv = (map: TallyMap): string =>
   toCsv(
-    ['Nr.', 'Rolle', 'Geraet(e)', 'Mischer', 'Eingang', 'UMD-Adresse'],
+    ['Nr.', 'Rolle', 'Gerät(e)', 'Mischer', 'Eingang', 'UMD-Adresse'],
     map.rows.map((r) => [
       r.number ?? '',
       r.name,

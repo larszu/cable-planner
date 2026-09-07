@@ -208,7 +208,7 @@ export function registerVideohubIpc() {
           done(
             false,
             receivedAcks > 0
-              ? `Timeout nach ${receivedAcks}/${expectedAcks} ACKs — Hub hat nicht alle Blocks bestaetigt`
+              ? `Timeout nach ${receivedAcks}/${expectedAcks} ACKs — Hub hat nicht alle Blocks bestätigt`
               : 'Timeout: keine Antwort vom Videohub (5 s)',
           )
         }, 5000)
@@ -257,7 +257,7 @@ export function registerVideohubIpc() {
                 true,
                 expectedAcks === 1
                   ? 'Erfolgreich übertragen'
-                  : `Erfolgreich übertragen (${receivedAcks} Blocks bestaetigt)`,
+                  : `Erfolgreich übertragen (${receivedAcks} Blocks bestätigt)`,
               )
             }
           }
@@ -287,11 +287,11 @@ export function registerVideohubIpc() {
       return new Promise<{ ok: boolean; message: string; state: VideohubState | null }>(
         (resolve) => {
           if (!host || !/^[\w.\-:]+$/.test(host)) {
-            resolve({ ok: false, message: 'Ungueltige IP-Adresse', state: null })
+            resolve({ ok: false, message: 'Ungültige IP-Adresse', state: null })
             return
           }
           if (!Number.isInteger(port) || port < 1 || port > 65535) {
-            resolve({ ok: false, message: 'Ungueltiger Port', state: null })
+            resolve({ ok: false, message: 'Ungültiger Port', state: null })
             return
           }
 

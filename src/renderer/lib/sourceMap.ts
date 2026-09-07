@@ -302,12 +302,12 @@ const asProvenance = (value: unknown): ValueProvenance | undefined =>
 export const parseSourceMap = (text: string): SourceMap => {
   const data = asRecord(JSON.parse(text))
   if (!data || data.kind !== SOURCE_MAP_KIND) {
-    throw new Error('Keine gueltige .avsourcemap-Datei (kind != av-source-map).')
+    throw new Error('Keine gültige .avsourcemap-Datei (kind != av-source-map).')
   }
   const version = data.formatVersion
   if (typeof version !== 'number' || version > SOURCE_MAP_VERSION) {
     throw new Error(
-      `.avsourcemap-Version ${String(version)} ist neuer als unterstuetzt (${SOURCE_MAP_VERSION}).`,
+      `.avsourcemap-Version ${String(version)} ist neuer als unterstützt (${SOURCE_MAP_VERSION}).`,
     )
   }
 

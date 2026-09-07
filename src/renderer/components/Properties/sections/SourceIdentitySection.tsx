@@ -14,6 +14,7 @@ import {
   swallowedLandings,
 } from '../../../lib/renameImpact'
 import type { EquipmentItem } from '../../../types/equipment'
+import { PanelHint } from '../../shared/PanelHint'
 
 const NEW_ROLE = '__new__'
 
@@ -131,12 +132,13 @@ export const SourceIdentitySection = ({ equipment }: { equipment: EquipmentItem 
       }
     >
       <div className="flex flex-col gap-2">
-        <p className="text-cp-text-muted">
-          {t(
+        <PanelHint
+          className="text-cp-text-muted"
+          text={t(
             'sourceIdentity.hint',
             'Die Rolle überlebt den Gerätetausch: „Kamera 1" bleibt „Kamera 1", auch wenn die Havarie-Kamera einspringt. An ihr hängt die Tally-/UMD-Adresse.',
           )}
-        </p>
+        />
 
         <label className="block">
           <span className="mb-1 block text-cp-text-secondary">

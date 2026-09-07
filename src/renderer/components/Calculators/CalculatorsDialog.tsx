@@ -9,7 +9,6 @@
  */
 
 import { useMemo, useState } from 'react'
-import { PanelHint } from '../shared/PanelHint'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
 import { ModalShell } from '../shared/ModalShell'
@@ -23,6 +22,7 @@ import { bandwidthMbpsForStandard, linkCapacityMbpsForStandard } from '../../typ
 import { powerStandardById, POWER_SUPPLY_PRESETS } from '../../types/powerStandard'
 import jsPDF from 'jspdf'
 import { sanitizeForPdf } from '../../lib/sanitizeForPdf'
+import { PanelHint } from '../shared/PanelHint'
 
 // v7.5.0 — Cable-Length tab removed. The standalone calculator
 // can't produce meaningful estimates without inter-location distances
@@ -136,7 +136,7 @@ const BandwidthTab = () => {
   const fittingTier = SDI_TIERS.find((t) => mbps <= t.mbps)
   return (
     <div className="space-y-3 p-4 text-cp-base">
-      <PanelHint className="text-[11px] text-cp-text-muted" text={t(
+      <PanelHint className="mb-2 text-[11px] text-cp-text-muted" text={t(
           'calc.bandwidth.intro',
           'Brutto-Datenrate eines Video-Streams (vor Kompression) und der kleinste SDI-Tier der sie tragen kann. Pixel × Zeilen × fps × Bits-pro-Pixel.',
         )} />
@@ -580,12 +580,12 @@ const PowerTab = () => {
     line(t('calc.pdf.summary', 'ZUSAMMENFASSUNG'), 11, 20)
     line(`${t('calc.pdf.totalUsage', 'Gesamtverbrauch')}: ${totals.totalW.toFixed(0)} W  ·  + ${marginPercent}% ${t('calc.pdf.reserve', 'Reserve')} = ${totalWithMargin.toFixed(0)} W (${(totalWithMargin / 1000).toFixed(2)} kW)`)
     if (supply.phases === 1) {
-      line(`${t('calc.pdf.current1phase', 'Stromstaerke (1-phasig)')}: ${ampsSinglePhase.toFixed(1)} A  ·  ${t('calc.pdf.breakerMax', 'Absicherung max')} ${supply.perPhaseAmps} A`)
+      line(`${t('calc.pdf.current1phase', 'Stromstärke (1-phasig)')}: ${ampsSinglePhase.toFixed(1)} A  ·  ${t('calc.pdf.breakerMax', 'Absicherung max')} ${supply.perPhaseAmps} A`)
     } else {
       line(`${t('calc.pdf.current3phase', 'Symmetrisch (3-phasig)')}: ${ampsThreePhase.toFixed(1)} A ${t('calc.pdf.perPhase', 'je Phase')}  ·  ${t('calc.pdf.breakerMax', 'Absicherung max')} ${supply.perPhaseAmps} A`)
     }
     line(`${t('calc.pdf.generator', 'Generator (cosphi 0,8)')}: ${generatorKva.toFixed(1)} kVA  ·  ${t('calc.pdf.recommended', 'empfohlen')} >= ${generatorKvaRecommended.toFixed(1)} kVA`)
-    line(`${t('calc.pdf.heatCooling', 'Waerme/Kuehlung')}: ${totalBtu} BTU/h  ~ ${(totals.totalW / 1000).toFixed(1)} kW  ·  ${Math.max(1, Math.ceil(totalBtu / 12000))}x 12k-BTU-AC`)
+    line(`${t('calc.pdf.heatCooling', 'Wärme/Kühlung')}: ${totalBtu} BTU/h  ~ ${(totals.totalW / 1000).toFixed(1)} kW  ·  ${Math.max(1, Math.ceil(totalBtu / 12000))}x 12k-BTU-AC`)
     y += 6
 
     if (supply.phases === 3 && distribution.perPhaseWatts.length === 3) {
@@ -594,7 +594,7 @@ const PowerTab = () => {
         const a = w / supply.voltage
         line(`L${i + 1}: ${Math.round(w)} W  ·  ${a.toFixed(1)} A  ·  ${Math.round((a / supply.perPhaseAmps) * 100)}% ${t('calc.pdf.load', 'Last')}`, 9, 40, 8)
       })
-      line(`${t('calc.pdf.neutral', 'Neutralleiter (geschaetzt)')}: ${neutralAmps.toFixed(1)} A  ·  ${t('calc.pdf.imbalance', 'Unwucht')} ${maxImbalancePct}%`, 9, 40, 8)
+      line(`${t('calc.pdf.neutral', 'Neutralleiter (geschätzt)')}: ${neutralAmps.toFixed(1)} A  ·  ${t('calc.pdf.imbalance', 'Unwucht')} ${maxImbalancePct}%`, 9, 40, 8)
       y += 6
     }
 
@@ -607,7 +607,7 @@ const PowerTab = () => {
     line(`${t('calc.pdf.battery', 'Akku')} ${Math.round(batteryWh)} Wh (${Math.round(usableWh)} Wh ${t('calc.pdf.usable', 'nutzbar')})  ->  ${t('calc.pdf.runtime', 'Pufferzeit')} ~${runtimeMin <= 0 ? '-' : runtimeMin >= 60 ? `${Math.floor(runtimeMin / 60)} h ${Math.round(runtimeMin % 60)} min` : `${runtimeMin.toFixed(0)} min`}`, 9, 40, 8)
     y += 6
 
-    line(`${t('calc.pdf.devicesToPhase', 'GERAETE -> PHASE')} (${distribution.assignments.length})`, 11, 20)
+    line(`${t('calc.pdf.devicesToPhase', 'GERÄTE -> PHASE')} (${distribution.assignments.length})`, 11, 20)
     for (const a of distribution.assignments) {
       line(`${a.pinned ? `[${t('calc.pdf.fixed', 'fix')}] ` : ''}${a.name}  —  ${a.watts} W  —  L${a.phase}`, 8, 60, 8)
     }
@@ -875,12 +875,13 @@ const PowerTab = () => {
               </span>
             ))}
           </div>
-          <p className="mt-2 text-[10px] text-cp-text-muted">
-            {t(
+          <PanelHint
+            className="mt-2 text-[10px] text-cp-text-muted"
+            text={t(
               'calc.greedyExplain',
               'Greedy-Verteilung: sortiert nach Leistung, jedes Gerät auf die aktuell am schwächsten belastete Phase. Bei symmetrischen Lasten zieht der Drehstrom nur {amps} A je Phase; Unwucht erhöht den höchsten Phasenstrom. Ziel: jede Phase < 85% Last + Unwucht < 20%.',
             ).replace('{amps}', ampsThreePhase.toFixed(1))}
-          </p>
+          />
           <div className="mt-3 flex items-center justify-between text-[11px]">
             <span className="text-cp-text-muted">
               {t('calc.power.heat', 'Wärme (BTU/h)')}:{' '}
@@ -1055,7 +1056,7 @@ const PowerTab = () => {
               </span>
             </div>
           </div>
-          <PanelHint className="text-[10px] text-cp-text-muted" text={t(
+          <PanelHint className="mb-2 text-[10px] text-cp-text-muted" text={t(
           'calc.ups.note',
           'USV-Kapazität (W) = VA × Leistungsfaktor. Pufferzeit ≈ nutzbare Akku-Energie / Last. Lineare Näherung — reale Laufzeit hängt von Entladekurve, Alter und Temperatur ab; im Zweifel die Hersteller-Runtime-Tabelle prüfen.',
         )} />
@@ -1147,7 +1148,7 @@ const PowerTab = () => {
               </dd>
             </dl>
           </div>
-          <PanelHint className="text-[10px] text-cp-text-muted" text={t(
+          <PanelHint className="mb-2 text-[10px] text-cp-text-muted" text={t(
           'calc.vdrop.note',
           'Kupfer, ρ ≈ 0,0175 Ω·mm²/m. 1-phasig ΔU = 2·L·I·ρ/A, 3-phasig ΔU = √3·L·I·ρ/A. Richtwert: ≤ 3 % an Endgeräten. Laststrom = symmetrischer Strom inkl. Reserve.',
         )} />

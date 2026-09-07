@@ -52,6 +52,7 @@ import {
   assessJobHandover,
 } from '../../lib/jobHandover'
 import { cableLabelId, equipmentAssetTag, qrPayload } from '../../lib/docIds'
+import { PanelHint } from '../shared/PanelHint'
 
 type ExportRow = {
   key: string
@@ -318,12 +319,13 @@ export const InstallationDocsDialog = () => {
               {job.asBuilt ? ` — ${job.asBuilt.label}` : ''}
             </span>
           </div>
-          <p className="text-cp-xs text-cp-text-muted">
-            {t(
+          <PanelHint
+            className="text-cp-xs text-cp-text-muted"
+            text={t(
               'docs.job.intro',
               'Nächstes Jahr wird dieselbe Veranstaltung aus dieser Datei geplant. Trägt sie den Plan von vor dem Aufbau, wird jede Änderung vor Ort ein zweites Mal gefunden.',
             )}
-          </p>
+          />
           {job.findings.length > 0 && (
             <ul className="mt-2 flex flex-col gap-1">
               {job.findings.map((f) => (

@@ -9,6 +9,7 @@ import { roleLabelsByPort } from '../../lib/labelDerivation'
 import { getEquipmentById } from '../../lib/equipmentSelectors'
 import { ModalShell } from '../shared/ModalShell'
 import { useTranslation, format } from '../../lib/i18n'
+import { PanelHint } from '../shared/PanelHint'
 
 interface AtemDialogProps {
   onClose: () => void
@@ -260,7 +261,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
         category === 'mediaplayer'
           ? t('atem.dialog.lockReason.mediaplayer', 'Mediaplayer-Slot — Default-Label vom ATEM (zeigt Clip-/Still-Name)')
           : category === 'audio-input'
-            ? t('atem.dialog.lockReason.audioInput', 'Audio-Input — wird nicht aus Canvas-Port-Namen ueberschrieben')
+            ? t('atem.dialog.lockReason.audioInput', 'Audio-Input — wird nicht aus Canvas-Port-Namen überschrieben')
             : category === 'internal'
               ? t('atem.dialog.lockReason.internal', 'Interne Quelle (Black/Bars/Color/SuperSource) — Default-Label behalten')
               : undefined
@@ -528,12 +529,13 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
                 ))}
               </tbody>
             </table>
-            <p className="mt-3 text-[11px] text-cp-text-muted">
-              {t(
+            <PanelHint
+              className="mt-3 text-[11px] text-cp-text-muted"
+              text={t(
                 'atem.dialog.changesNote',
-                'Hinweis: Änderungen gehen direkt an den Switcher (RAM). Damit sie einen Reboot überleben, in der Blackmagic ATEM Software „Save Startup State" auslösen. Audio-Eingaenge (XLR/RJ45-Talkback), Mediaplayer und interne Quellen sind gesperrt — der ATEM verwaltet die selbst.',
+                'Hinweis: Änderungen gehen direkt an den Switcher (RAM). Damit sie einen Reboot überleben, in der Blackmagic ATEM Software „Save Startup State" auslösen. Audio-Eingänge (XLR/RJ45-Talkback), Mediaplayer und interne Quellen sind gesperrt — der ATEM verwaltet die selbst.',
               )}
-            </p>
+            />
           </div>
         )}
 

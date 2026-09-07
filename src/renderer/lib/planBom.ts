@@ -181,7 +181,7 @@ export const planBomCsv = (bom: PlanBom): string =>
       'Kategorie',
       'Deckung',
       'Bestand',
-      'Verfuegbar',
+      'Verfügbar',
       'Auf offener Ausgabe',
       'Fehlmenge',
       'Nicht einsatzbereit',
@@ -249,7 +249,12 @@ export const pickListCsv = (bom: PlanBom): string => {
     if (offen > 0) zeilen.push(['', 0, r.model, 0, offen, r.commitmentNote ?? ''])
   }
   return toCsv(
-    ['Lagerort', 'Menge', 'Modell', 'Bestand', 'Fehlmenge', 'Grund'],
+    // „Bestand" stand hier ueber `o.available` — also ueber der bereits um
+    // offene Ausgaben und unbrauchbare Einheiten bereinigten Zahl. Genau die
+    // Verwechslung, gegen die Bedarf 80 die zweite Spalte eingezogen hat: wer
+    // „Bestand 3" liest, plant mit 3, auch wenn zwei davon auf einem Truck
+    // stehen. Die Spalte heisst, was in ihr steht.
+    ['Lagerort', 'Menge', 'Modell', 'Verfügbar', 'Fehlmenge', 'Grund'],
     zeilen
       .slice()
       .sort((a, b) => a[0].localeCompare(b[0], 'de') || a[2].localeCompare(b[2], 'de')),

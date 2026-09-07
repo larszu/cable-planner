@@ -11,7 +11,6 @@
 // Calculators (dort bereits implementiert) — hier nicht dupliziert.
 
 import { useMemo, useState } from 'react'
-import { PanelHint } from '../shared/PanelHint'
 import { BarChart3, Calculator, Download, Plus, Trash2 } from 'lucide-react'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
@@ -123,6 +122,7 @@ import {
   scannedRange,
 } from '../../lib/spectrumScan'
 import { DEFAULT_OCCUPIED_DBM, VERDICT_LABEL, type SpectrumScan } from '../../types/spectrumScan'
+import { PanelHint } from '../shared/PanelHint'
 
 /**
  * Der Weg zum passenden Rechner, direkt neben der Tabelle, die seine Zahl
@@ -283,7 +283,7 @@ const WeightTab = ({ projectName }: { projectName: string }) => {
 
   return (
     <div className="space-y-3 p-4 text-cp-base">
-      <PanelHint className="text-cp-xs text-[var(--cp-text-muted)]" text={t(
+      <PanelHint className="mb-2 text-cp-xs text-[var(--cp-text-muted)]" text={t(
           'analysis.weight.intro',
           'Gewicht (kg) und Wärmelast je Kategorie aus den Geräte-Eigenschaften. Wärme ≈ Leistung × 3,412 BTU/h.',
         )} />
@@ -1675,7 +1675,7 @@ const RfTab = ({ projectName }: { projectName: string }) => {
 
   return (
     <div className="space-y-3 p-4 text-cp-base">
-      <PanelHint className="text-cp-xs text-[var(--cp-text-muted)]" text={t(
+      <PanelHint className="mb-2 text-cp-xs text-[var(--cp-text-muted)]" text={t(
           'analysis.rf.intro',
           'Alles, was im Plan funkt — Funkmikrofon-Rig UND Funkstrecken, in einer Rechnung. Konflikt-Heuristik: Frequenzabstand, 3.-Ordnung-Intermodulation (2·f₁−f₂, die häufigste Störquelle bei Funkmikros/IEM) und gleicher WLAN-Kanal. Die Tabelle unten zeigt nur die Funkstrecken, weil nur sie Band und Kanal tragen.',
         )} />
@@ -2030,7 +2030,7 @@ const RunsTab = ({ projectName }: { projectName: string }) => {
 
   return (
     <div className="space-y-3 p-4 text-cp-base">
-      <PanelHint className="text-cp-xs text-[var(--cp-text-muted)]" text={t(
+      <PanelHint className="mb-2 text-cp-xs text-[var(--cp-text-muted)]" text={t(
           'analysis.runs.intro',
           'Geschätzte Längen tragen ihre Herkunft. Wird ein Gerät verschoben, veraltet die Schätzung — hier steht es, statt still zu bleiben. Von Hand eingetragene Längen werden NICHT gegen die Luftlinie gehalten: ein echter Kabelweg wird verlegt, nicht gespannt.',
         )} />
@@ -2144,7 +2144,7 @@ const SheetTab = () => {
 
   return (
     <div className="space-y-3 p-4 text-cp-base">
-      <PanelHint className="text-cp-xs text-[var(--cp-text-muted)]" text={t(
+      <PanelHint className="mb-2 text-cp-xs text-[var(--cp-text-muted)]" text={t(
           'analysis.sheet.intro',
           'Ein Blatt in der Hand: den Stand vom Fuß abtippen (acht Zeichen) oder den ganzen Dokument-Code einlesen. Die Antwort sagt, welches Dokument es ist und ob der Plan seither weiter ist.',
         )} />

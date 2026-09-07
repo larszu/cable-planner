@@ -190,7 +190,7 @@ export function buildSwitchPortMaps(
  *  sprachabhaengig. */
 export function switchPortTable(map: SwitchPortMap): CsvTable {
   return {
-    headers: ['Port', 'Geraet', 'Schnittstelle', 'IP', 'VLAN', 'Quelle', 'Widerspruch'],
+    headers: ['Port', 'Gerät', 'Schnittstelle', 'IP', 'VLAN', 'Quelle', 'Widerspruch'],
     rows: map.rows.map((r): CsvCell[] => [
       r.port,
       r.device ?? '',

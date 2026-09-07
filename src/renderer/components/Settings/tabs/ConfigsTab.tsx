@@ -13,6 +13,7 @@ import { downloadBlob } from '../../../lib/downloadBlob'
 import { pickTextFile } from '../../../lib/pickFile'
 import { SettingsCard } from '../SettingsCard'
 import type { DeviceConfigEntry, DeviceConfigKind } from '../../../store/uiStore'
+import { PanelHint } from '../../shared/PanelHint'
 
 /**
  * #307 — Configs-Tab (Issue #80) aus SettingsDialog ausgelagert. Verwaltet
@@ -149,12 +150,13 @@ export const ConfigsTab = () => {
 
   return (
     <div className="space-y-3">
-      <p className="text-cp-xs text-cp-text-muted">
-        {t(
+      <PanelHint
+        className="text-cp-xs text-cp-text-muted"
+        text={t(
           'settings.configs.intro',
           'Globale Bibliothek von Geräte-Konfigurationen (ATEM, Videohub, GreenGo). Lade Dateien hier hoch, lade sie als Datei wieder herunter, oder weise einer canvas-Gerät die passende Config zu (im Properties-Panel des Geräts).',
         )}
-      </p>
+      />
 
       <SettingsCard
         title={t('settings.configs.upload.title', 'Neue Konfiguration hochladen')}

@@ -253,7 +253,7 @@ export const registerProjectIpc = () => {
   // statt an einem Parse-Fehler zu sterben.
   ipcMain.handle('project:open-for-compare', async () => {
     const { canceled, filePaths } = await dialog.showOpenDialog({
-      title: 'Plan-Stand zum Vergleichen oeffnen',
+      title: 'Plan-Stand zum Vergleichen öffnen',
       filters: [
         {
           name: 'Cable Planner Project / Viewer',

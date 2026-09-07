@@ -31,6 +31,7 @@ import {
   roleForSource,
   type AtemMvCapabilities,
 } from '../../lib/atemMvLayout'
+import { PanelHint } from '../shared/PanelHint'
 
 /** v7.9.4 — Quadranten-basiertes Render-Helper. Wir rendern NICHT
  *  mehr basierend auf ATEM-Layout-IDs, sondern auf einem direkten
@@ -566,12 +567,13 @@ const CapabilitiesPanel = ({
       </button>
       {open && (
         <div className="mt-1 space-y-1.5 pl-4">
-          <p className="text-cp-text-faint">
-            {t(
+          <PanelHint
+            className="text-cp-text-faint"
+            text={t(
               'atem.mv.layoutsHint',
               'Heuristik basierend auf dem Geräte-Namen. Falls dein Modell ein Layout unterstützt das die Heuristik nicht erkennt (oder umgekehrt), Häkchen hier setzen — die Auswahl überschreibt das Default und bleibt beim Projekt.',
             )}
-          </p>
+          />
           <div className="flex flex-wrap gap-1">
             {allLayouts.map((l) => {
               const on = caps.supportedLayouts.includes(l.value)
@@ -1375,7 +1377,7 @@ export const AtemMvConfigDialog = () => {
               className="rounded bg-sky-700 px-3 py-1 text-cp-xs enabled:hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-50"
               title={
                 connected
-                  ? t('atem.mv.readFromTitle', 'Multiviewer-Setup vom verbundenen ATEM auslesen und in die Anzeige uebernehmen.')
+                  ? t('atem.mv.readFromTitle', 'Multiviewer-Setup vom verbundenen ATEM auslesen und in die Anzeige übernehmen.')
                   : t('atem.mv.notConnectedTitle', 'ATEM nicht verbunden — erst im ATEM-Dialog verbinden.')
               }
             >

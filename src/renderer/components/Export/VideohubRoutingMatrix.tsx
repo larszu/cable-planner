@@ -210,7 +210,7 @@ export const VideohubRoutingMatrix = ({
       <div className="overflow-auto max-h-64 rounded border border-cp-border bg-cp-surface-3 p-2">
         <div className="mb-2 text-[10px] text-amber-300">
           {totalInputs}×{totalOutputs} ({cellCount.toLocaleString()} Crosspoints) —{' '}
-          {t('export.listModeOverload', 'Listen-Modus, da die Crosspoint-Matrix bei dieser Groesse das Browser-Rendering ueberlastet.')}
+          {t('export.listModeOverload', 'Listen-Modus, da die Crosspoint-Matrix bei dieser Größe das Browser-Rendering überlastet.')}
         </div>
         <div className="space-y-0.5">
           {outputLabels.map((outLabel, oi) => (
@@ -344,7 +344,7 @@ export const VideohubRoutingMatrix = ({
             onClick={resetLayout}
             className="rounded bg-cp-surface-2 px-2 py-0.5 text-[11px] text-cp-text-secondary hover:bg-cp-surface-4"
           >
-            ↺ {t('export.resetLayout', 'Layout zuruecksetzen')}
+            ↺ {t('export.resetLayout', 'Layout zurücksetzen')}
           </button>
         )}
       </div>
@@ -592,7 +592,7 @@ export const VideohubRoutingMatrix = ({
                       <div
                         onMouseDown={startRowResize(oi)}
                         className="absolute bottom-0 left-0 h-1.5 w-full cursor-row-resize hover:bg-sky-400/60"
-                        title={`${t('export.row', 'Zeile')} ${oi + 1} ${t('export.resizeRowHint', 'hoeher/niedriger ziehen')}`}
+                        title={`${t('export.row', 'Zeile')} ${oi + 1} ${t('export.resizeRowHint', 'höher/niedriger ziehen')}`}
                       />
                     </div>
                   </td>
@@ -621,7 +621,7 @@ export const VideohubRoutingMatrix = ({
                             setDragging(true)
                             onRoute(oi, ii)
                           }}
-                          title={`${outLabelTip[oi]} ← ${inLabelTip[ii]} (${t('export.clickDragRouting', 'klick + ziehen fuer 1:1-Routing')})`}
+                          title={`${outLabelTip[oi]} ← ${inLabelTip[ii]} (${t('export.clickDragRouting', 'klick + ziehen für 1:1-Routing')})`}
                           aria-label={`Set Output ${oi + 1} (${outLabel}) to Input ${ii + 1} (${inLabel})`}
                           className={
                             active

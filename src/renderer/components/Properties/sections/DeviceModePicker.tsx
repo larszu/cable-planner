@@ -7,6 +7,7 @@ import { promptDialog } from '../../../lib/promptDialog'
 import { format, useTranslation } from '../../../lib/i18n'
 import { ModeEditorDialog } from '../ModeEditorDialog'
 import type { DeviceMode, EquipmentItem } from '../../../types/equipment'
+import { PanelHint } from '../../shared/PanelHint'
 
 /**
  * #306 — Device-Mode-Picker (Issue #113) aus EquipmentProperties
@@ -139,12 +140,13 @@ export const DeviceModePicker = ({
 
   return (
     <div className="space-y-2 text-cp-xs">
-      <p className="text-[10px] text-cp-text-muted">
-        {t(
+      <PanelHint
+        className="text-[10px] text-cp-text-muted"
+        text={t(
           'modes.intro',
           'Wechselt das Port-Layout des Geräts. Bestehende Kabel an Ports, die im neuen Modus nicht existieren, bleiben im Projekt, müssen aber neu gesteckt werden.',
         )}
-      </p>
+      />
       <div className="grid grid-cols-1 gap-1">
         {modes.length === 0 && (
           <div className="rounded border border-dashed border-cp-border p-3 text-center text-[11px] text-cp-text-muted">
