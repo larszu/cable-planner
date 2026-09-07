@@ -87,6 +87,7 @@ import type { VenueAnswerStatus } from '../../types/venueAnswer'
 import { RF_BANDS, bandsForFrequency, bandLabel } from '../../lib/rfBands'
 import { PTP_FINDING_LABEL, buildPtpPlan, ptpTable } from '../../lib/ptpPlan'
 import { SegmentsPanel } from '../Network/SegmentsPanel'
+import { AddressTemplatePanel } from '../Network/AddressTemplatePanel'
 import { CREW_SECTION_LABEL, buildCrewSheet, crewSheetTable } from '../../lib/crewNetworkSheet'
 import {
   MULTICAST_ESSENCE_LABEL,
@@ -730,6 +731,12 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
           darueber (welche Ids kommen vor) und den Subnetzen darunter: erst
           die Zahl, dann ihre Bedeutung, dann die Adressen. */}
       <SegmentsPanel projectName={projectName} />
+
+      {/* BEDARF 20 — die Adressbereiche. Sie stehen NACH den Segmenten und VOR
+          der Subnetz-Uebersicht: das Segment sagt, wofuer eine VLAN da ist,
+          der Bereich sagt, welche Adressen darin gelten, und die Uebersicht
+          darunter zeigt, was tatsaechlich vergeben wurde. */}
+      <AddressTemplatePanel projectName={projectName} />
 
       {/* #346 — IPAM: Subnetz-Übersicht. */}
       {subnets.length > 0 && (
