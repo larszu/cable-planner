@@ -4938,6 +4938,8 @@ export const en: Dict = {
   'library.origin.web': 'Derived from {source} (connectors counted in the text): "{snippet}"',
   'library.origin.heuristic': 'Heuristic from name and category — not from a datasheet',
   'eq.field.manufacturerUrlInherited': 'From catalog type {name}:',
+  'eq.field.manufacturerUrlNoSource':
+    'Catalog type {name} carries no datasheet — this entry is unsourced.',
   'atem.audio.live.title': 'Read from the switcher',
   'atem.audio.live.differs': '{n} differences from the plan',
   'atem.audio.live.matches': 'Plan and device agree',

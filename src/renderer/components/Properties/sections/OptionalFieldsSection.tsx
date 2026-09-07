@@ -4,6 +4,7 @@ import { pickImageAsDataUri } from '../../../lib/readImageAsDataUri'
 import { promptDialog } from '../../../lib/promptDialog'
 import { SortableSection } from '../SortableSection'
 import { resolveDeviceType } from '../../../lib/deviceTypeRegistry'
+import { evidenceForType } from '../../../lib/catalogueEvidence'
 import type { EquipmentItem } from '../../../types/equipment'
 
 const ICON_GLYPHS = ['📷', '🖥', '💻', '📺', '🎙', '💡', '🌐', '⚡', '🔌', '🔧', '⇄'] as const
@@ -22,6 +23,11 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
   const catalogType = resolveDeviceType(equipment.deviceTypeId)
   const inheritedUrl = catalogType?.template.manufacturerUrl
   const inheritedName = catalogType?.template.name
+  // Initiative 11, Schritt 3 — und der Fall, den es bis hierher nicht gab:
+  // der Katalog-Typ OHNE Datenblatt. `no-type` (von Hand angelegt, Import)
+  // ist etwas anderes als `unsourced` (Katalog-Eintrag ohne Beleg); als
+  // leeres Feld sahen beide gleich aus.
+  const typBeleg = evidenceForType(equipment.deviceTypeId)
 
   // #580 — Verifizierung: eine Person bestätigt, dass die Ports/Daten des
   // Geräts korrekt sind. Name kommt aus dem Projekt-Autor (Einstellungen);
@@ -159,6 +165,24 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
               ein ebenso unerreichbares Feld gewandert. Das eigene Feld
               gewinnt, wenn es gesetzt ist: es ist die Ausnahme, die jemand
               bewusst eingetragen hat. */}
+          {/* Initiative 11 — der FEHLENDE Beleg, ebenso benannt wie der
+              vorhandene. 159 von 412 Katalog-Eintraegen fuehren keinen
+              Datenblatt-Link (sechs Kataloge, siehe `catalogueEvidence.ts`);
+              am Geraet war das bisher von „hier hat nur gerade niemand
+              nachgesehen" nicht zu unterscheiden. Ein Strich auf dem Blatt
+              statt einer leeren Zelle — dieselbe Regel wie ueberall sonst
+              hier. */}
+          {!equipment.manufacturerUrl && !inheritedUrl && typBeleg.kind === 'unsourced' && (
+            <div className="mt-1 text-cp-xs text-cp-text-muted">
+              {format(
+                t(
+                  'eq.field.manufacturerUrlNoSource',
+                  'Der Katalog-Typ {name} führt kein Datenblatt — dieser Eintrag ist unbelegt.',
+                ),
+                { name: inheritedName ?? '' },
+              )}
+            </div>
+          )}
           {!equipment.manufacturerUrl && inheritedUrl && (
             <div className="mt-1 flex items-center gap-1 text-cp-xs">
               <span className="text-cp-text-muted">
