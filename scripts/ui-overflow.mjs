@@ -26,7 +26,10 @@
  *      auf „Grup…" schrumpft, faellt aus keiner Reihe heraus und ist trotzdem
  *      unlesbar — und genau so war die Beschwerde formuliert („Equipment kann
  *      man lesen, Cable schon nicht mehr").
- *   3. **Verdeckte Bedienelemente.** Ein schwebendes Element (`position:
+ *   3. **Klappmenues der Werkzeugleiste.** Sie werden geoeffnet und
+ *      einzeln vermessen — ein Menue, das ueber den Fensterrand laeuft, ist
+ *      halb unlesbar, und offen sieht die Messung von aussen es nie.
+ *   4. **Verdeckte Bedienelemente.** Ein schwebendes Element (`position:
  *      absolute/fixed`) liegt ueber einem Knopf und faengt dessen Klicks ab.
  *      Geprueft wird nicht die Ueberlappung an sich — die ist bei Menues,
  *      Dialogen und Tooltips gewollt —, sondern nur bei Elementen, die
@@ -215,6 +218,81 @@ for (const g of groessen) {
     befunde += 1
   }
 }
+
+// ── 4. Die Klappmenues der Werkzeugleiste ─────────────────────────────────
+// WARUM SIE EINEN EIGENEN DURCHGANG BRAUCHEN. Die Messung oben sieht nur, was
+// offen auf dem Schirm steht; ein Menue, das erst auf Klick aufgeht, ist dabei
+// nicht dabei. Genau dort ist am 2026-09-07 der naechste Fehler derselben Art
+// entstanden: das neue „Sperren"-Menue klappte nach RECHTS auf, lief in den
+// Inspector und stand als „Keine Waypoint-Bearbeitun" da. Aufgefallen ist es
+// wieder an einem Screenshot — also wird jetzt auch geklickt.
+await win.setViewportSize(groessen[0])
+await win.waitForTimeout(600)
+// `[▾▴]`, nicht nur `▾`: der Pfeil dreht sich beim Oeffnen um. Mit nur `▾`
+// faellt der gerade offene Knopf aus dem Treffersatz und alle folgenden
+// Indizes verschieben sich — der zweite Durchlauf lief dann in einen Timeout.
+const klappknoepfe = win.locator('[data-cp-canvas-toolbar] button', { hasText: /[▾▴]/ })
+const anzahl = await klappknoepfe.count()
+for (let i = 0; i < anzahl; i++) {
+  const knopf = klappknoepfe.nth(i)
+  const name = ((await knopf.innerText()) || `Menue ${i + 1}`).replace(/\s+/g, ' ').trim()
+  await knopf.click().catch(() => {})
+  await win.waitForTimeout(350)
+  const menue = await win.evaluate(() => {
+    const m = document.querySelector('[role="menu"]')
+    if (!m) return null
+    const r = m.getBoundingClientRect()
+    const beschnitten = []
+    for (const el of m.querySelectorAll('span, div, button')) {
+      const st = getComputedStyle(el)
+      if (st.textOverflow !== 'ellipsis' && st.overflow !== 'hidden') continue
+      if (el.scrollWidth - el.clientWidth < 3) continue
+      const txt = (el.textContent || '').trim()
+      if (txt) beschnitten.push(txt.slice(0, 30))
+    }
+    // GEGEN WEN wird gemessen: nicht gegen das Fenster, sondern gegen den
+    // ersten Vorfahren, der ueberhaupt abschneidet. Das linksbuendige
+    // „Sperren"-Menue lief in den Inspector und war dort halb weg — im
+    // FENSTER lag es trotzdem vollstaendig drin. Wer gegen `innerWidth`
+    // prueft, sieht diesen Fall nie.
+    let klammer = m.parentElement
+    let kRect = null
+    while (klammer && klammer !== document.body) {
+      const ks = getComputedStyle(klammer)
+      if (/(hidden|clip|auto|scroll)/.test(ks.overflowX) || /(hidden|clip)/.test(ks.overflow)) {
+        kRect = klammer.getBoundingClientRect()
+        break
+      }
+      klammer = klammer.parentElement
+    }
+    const grenze = kRect
+      ? { links: Math.round(kRect.left), rechts: Math.round(kRect.right), was: (klammer.className || '').toString().slice(0, 40) || 'Vorfahre' }
+      : { links: 0, rechts: window.innerWidth, was: 'Fenster' }
+    return {
+      links: Math.round(r.left),
+      rechts: Math.round(r.right),
+      grenze,
+      beschnitten,
+    }
+  })
+  await win.keyboard.press('Escape').catch(() => {})
+  await win.waitForTimeout(200)
+  if (!menue) continue
+  // Laeuft das Menue ueber den Fensterrand hinaus? Dann ist ein Teil davon
+  // nicht lesbar, ganz gleich wie der Text formatiert ist.
+  if (menue.rechts > menue.grenze.rechts || menue.links < menue.grenze.links) {
+    console.error(
+      `✗ Menue „${name}" laeuft aus seinem Rahmen (${menue.grenze.was}): ` +
+        `Menue ${menue.links}..${menue.rechts}, Rahmen ${menue.grenze.links}..${menue.grenze.rechts}`,
+    )
+    befunde += 1
+  }
+  for (const t of menue.beschnitten) {
+    console.error(`✗ Menue „${name}": Text „${t}" ist beschnitten`)
+    befunde += 1
+  }
+}
+console.log(`${anzahl} Klappmenue(s) der Werkzeugleiste geprueft`)
 
 await app.close()
 console.log(`UI-Overflow fertig → ${OUT} (${befunde} Befund(e))`)
