@@ -24,12 +24,16 @@ export const TabButton = ({
     type="button"
     onClick={onClick}
     title={title}
-    className={`flex items-center gap-1 rounded px-2 py-1 ${
+    className={`flex min-w-0 items-center gap-1 rounded px-2 py-1 ${
       active ? 'bg-sky-700 text-white' : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'
     }`}
   >
-    <span className={active ? 'text-white' : 'text-cp-text-muted'}>{icon}</span>
-    <span>{label}</span>
+    <span className={`shrink-0 ${active ? 'text-white' : 'text-cp-text-muted'}`}>{icon}</span>
+    {/* `truncate` + `title` als Gürtel und Hosenträger: das Raster gibt jedem
+        Register dieselbe Breite, aber eine künftige Sprache mit längerem Wort
+        soll das Label KÜRZEN und nicht die Nachbarn aus dem Panel schieben —
+        genau das ist am 2026-09-07 mit „Gruppen" und „Racks" passiert. */}
+    <span className="truncate">{label}</span>
     {count != null && count > 0 && (
       <span
         className={`ml-1 rounded-full px-1 text-[10px] ${

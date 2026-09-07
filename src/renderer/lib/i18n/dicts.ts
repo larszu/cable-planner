@@ -789,6 +789,18 @@ export const en: Dict = {
   'toolbar.lock.equipment.unlocked': 'Lock devices (no device moves)',
   'toolbar.lock.cables.locked': 'Unlock cables',
   'toolbar.lock.cables.unlocked': 'Lock cables (no waypoint editing)',
+  // Die drei Icon-Knoepfe sind zu EINEM beschrifteten Knopf mit Menue
+  // zusammengelegt (2026-09-07). Die sechs Schluessel darueber bleiben, weil
+  // sie noch in der Kurzhilfe und in den Tastenkuerzeln vorkommen.
+  'toolbar.location.label': 'Frame',
+  'toolbar.lock.button': 'Lock',
+  'toolbar.lock.title': 'Protection against accidental moves',
+  'toolbar.lock.frames.label': 'Frames',
+  'toolbar.lock.frames.note': 'No frame moves',
+  'toolbar.lock.equipment.label': 'Devices',
+  'toolbar.lock.equipment.note': 'No device moves',
+  'toolbar.lock.cables.label': 'Cables',
+  'toolbar.lock.cables.note': 'No waypoint editing',
   'toolbar.planLock.viewer': 'Viewer file — read-only',
   'toolbar.planLock.finalized': 'Plan is finalised (click: re-enable editing)',
   'toolbar.planLock.editing': 'Mark plan as finalised',

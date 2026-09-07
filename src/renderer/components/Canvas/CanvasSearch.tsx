@@ -129,8 +129,44 @@ export const CanvasSearch = () => {
   }
 
   // Positionierung: Default oben mittig (pos === null), sonst freie px-Lage.
-  const posClass = pos ? '' : 'top-3 left-1/2 -translate-x-1/2'
-  const posStyle = pos ? { left: pos.x, top: pos.y } : undefined
+  // ─────────────────────────────────────────────────────────────────────
+  // WO DIE LEISTE LANDET, WENN SIE NIEMAND VERSCHOBEN HAT.
+  //
+  // Bis 2026-09-07 war das `top-3 left-1/2` — oben MITTIG. Genau dort liegt
+  // die Canvas-Werkzeugleiste: sie beginnt bei `left: 8` und ist bis zu
+  // 880 px breit, die Mitte einer 1070 px breiten Flaeche liegt also
+  // mitten in ihr. Gemessen im laufenden Fenster: die Suchleiste verdeckte
+  // die Ebenen-Schalter „Audio", „Control" und „Network" — drei Schalter,
+  // die man nicht sieht und nicht trifft.
+  //
+  // Die Leiste UMBRICHT (`flexWrap: 'wrap'`), ihre Hoehe haengt also von
+  // Fensterbreite, Sprache und Auswahl ab. Eine feste Zahl waere hier nur
+  // eine andere Kollision, deshalb wird gemessen: die Suche setzt sich
+  // unter die tatsaechliche Unterkante der Werkzeugleiste.
+  const [toolbarBottom, setToolbarBottom] = useState(0)
+  useEffect(() => {
+    const eigen = containerRef.current
+    const wurzel = eigen?.offsetParent ?? document.body
+    const leiste = wurzel.querySelector<HTMLElement>('[data-cp-canvas-toolbar]')
+    if (!leiste) return
+    const messen = () => {
+      const r = leiste.getBoundingClientRect()
+      const w = wurzel.getBoundingClientRect()
+      setToolbarBottom(Math.round(r.bottom - w.top))
+    }
+    messen()
+    const ro = new ResizeObserver(messen)
+    ro.observe(leiste)
+    ro.observe(wurzel)
+    return () => ro.disconnect()
+    // `open` haengt drin, weil die Leiste im geschlossenen Zustand ein
+    // anderes Element ist und `containerRef` dann neu zeigt.
+  }, [open])
+
+  const posClass = pos ? '' : 'left-1/2 -translate-x-1/2'
+  const posStyle = pos
+    ? { left: pos.x, top: pos.y }
+    : { top: toolbarBottom > 0 ? toolbarBottom + 8 : 12 }
 
   const Grip = (
     <button
