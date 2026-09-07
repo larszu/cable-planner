@@ -31,9 +31,12 @@
    *   - card:    Sub-Karten, Panels, Listeneinträge
    *   - modal:   Dialoge/Shells (ModalShell, FloatingPanelShell)
    * Neue Komponenten nutzen diese statt bare `rounded`. */
-  --radius-cp-control: 0.375rem; /* 6px */
-  --radius-cp-card: 0.5rem; /* 8px */
-  --radius-cp-modal: 0.75rem; /* 12px */
+  /* ADR-007 — der Guide kennt keine Rundungen ("Was es nicht gibt", S. 10).
+   * Die drei Namen bleiben, damit kein Aufrufer umgebaut werden muss; der
+   * Wert ist ueberall null. Struktur entsteht durch Linie und Weissraum. */
+  --radius-cp-control: 0;
+  --radius-cp-card: 0;
+  --radius-cp-modal: 0;
 
   /* ── Spacing-Rhythmus (UX audit #53/#466) ────────────────────────────────
    * Die :root-Variablen --cp-space-x waren als Referenz gedacht, aber nicht
@@ -79,6 +82,8 @@
   --color-cp-text-muted: var(--cp-text-muted);
   --color-cp-text-faint: var(--cp-text-faint);
   --color-cp-accent: var(--cp-accent);
+  --color-cp-accent-text: var(--cp-accent-text);
+  --color-cp-signal: var(--cp-signal);
   --color-cp-warn: var(--cp-warn);
   --color-cp-danger: var(--cp-danger);
 }
@@ -100,27 +105,45 @@
    * sind die Tokens jetzt per Definition deckungsgleich mit den rohen
    * slate-/sky-/amber-/red-Utilities — die Migration ist damit beweisbar
    * appearance-neutral, und es gibt nur noch EINE Farbquelle. */
-  --cp-bg: var(--color-slate-900); /* App-Hintergrund */
-  --cp-surface-1: var(--color-slate-900); /* Panels/Modals */
-  --cp-surface-2: var(--color-slate-800); /* raised/hover */
-  --cp-surface-3: var(--color-slate-950); /* sunken/Leisten/Inputs */
-  /* #449 — interaktive Button-Surfaces (heller als border). Erlauben die
-   * Migration der schweren Settings-Tabs, die slate-700/600 als Knopf-BG +
-   * slate-200 als helleren Text nutzen — wofür es bisher keinen Token gab. */
-  --cp-surface-4: var(--color-slate-700); /* Button-/Chip-Surface */
-  --cp-surface-5: var(--color-slate-600); /* heller, z.B. surface-4-Hover */
-  --cp-border: var(--color-slate-700);
-  --cp-border-muted: var(--color-slate-800);
-  --cp-text: var(--color-slate-100);
-  --cp-text-bright: var(--color-slate-200); /* zwischen text und secondary */
-  --cp-text-secondary: var(--color-slate-300);
-  --cp-text-muted: var(--color-slate-400);
-  --cp-text-faint: var(--color-slate-500);
-  --cp-text-dim: var(--color-slate-600);
-  --cp-text-dimmer: var(--color-slate-700);
-  --cp-accent: var(--color-sky-400);
-  --cp-warn: var(--color-amber-500);
-  --cp-danger: var(--color-red-500);
+  /* ADR-007 (av-planner-suite) — die Tokens zeigen nicht mehr auf Tailwinds
+   * `slate`, sondern auf die Marken-Palette der Suite. Die Utilities
+   * (`bg-cp-surface-1`, `text-cp-muted`, …) bleiben unveraendert: genau
+   * dafuer wurde die Token-Schicht in #449 angelegt — die Umstellung einer
+   * ganzen App ist damit diese eine Stelle.
+   *
+   * Werte und Rollen stehen in `@avplan/ui` (`src/brand.ts`,
+   * `packages/ui/test/brand.test.ts`) und kommen aus dem Brand Guide 2.0.
+   * Drei Stufen sind daraus ABGELEITET, weil ein Control-Surface mehr
+   * Flaechen braucht, als ein Marken-Handbuch vorsieht: versenkt, Panel,
+   * erhoben. Sie sind unten als abgeleitet gekennzeichnet. */
+  --cp-bg: #132040; /* Deep Navy — App-Hintergrund */
+  --cp-surface-1: #182948; /* abgeleitet — Panels/Modals */
+  --cp-surface-2: #1D324F; /* Zumpe Navy — raised/hover, Karten */
+  --cp-surface-3: #0E1930; /* abgeleitet — versenkt: Leisten, Inputs */
+  --cp-surface-4: #24405F; /* abgeleitet — Button-/Chip-Flaeche */
+  --cp-surface-5: #2E4E73; /* abgeleitet — surface-4-Hover */
+  --cp-border: rgba(246, 245, 240, 0.14);
+  --cp-border-muted: rgba(246, 245, 240, 0.07);
+  /* Off-White ist die HELLERE Stufe, Eisblau der Fliesstext — so steht es
+   * im Guide (S. 17). `--cp-text-bright` traegt damit die Ueberschriften,
+   * `--cp-text` den Lauftext. */
+  --cp-text: #E1ECEF; /* Eisblau — Fliesstext auf Dunkel */
+  --cp-text-bright: #F6F5F0; /* Off-White — Ueberschriften, Hervorhebung */
+  --cp-text-secondary: #C7D5DC; /* abgeleitet — zwischen Fliesstext und Meta */
+  --cp-text-muted: #8C9CB3; /* Stahlblau — Kicker, Meta, Platzhalter */
+  --cp-text-faint: #6E7F99; /* abgeleitet */
+  --cp-text-dim: #55678A; /* abgeleitet */
+  --cp-text-dimmer: #3E5175; /* abgeleitet */
+  /* Interaktiv/ausgewaehlt ist Off-White — der Primaerknopf des Guides.
+   * Nicht Rot: Rot ist das Signal, siehe `--cp-signal`. */
+  --cp-accent: #F6F5F0;
+  --cp-accent-text: #132040; /* Navy auf Off-White — 13:1 */
+  --cp-warn: #C8892B;
+  --cp-danger: #B04A3F;
+  /* Das Aufnahmelicht. Fokusring, EIN Punkt am primaeren Knopf, Live-/
+   * Aufnahme-Zustand. Nie Flaeche, nie Text, nie zweimal in einem
+   * Sichtfeld. Fehlerrot ist `--cp-danger` und ein anderer Ton. */
+  --cp-signal: #D6402E;
 
   /* Spacing-Skala (Referenz; schrittweise Migration der Shells) */
   --cp-space-1: 0.25rem;
@@ -165,7 +188,10 @@ body,
  * obscures the user-configurable Background component entirely. The
  * pane must stay transparent for the pattern to be visible. */
 #cable-planner-canvas {
-  background: radial-gradient(circle at 20% 10%, #1e293b 0%, #0f172a 45%, #020617 100%);
+  /* ADR-007 — keine Verlaeufe. Der Canvas-Grund ist die Flaeche der
+   * Marke, damit der Plan darauf und die Panels daneben derselben
+   * Anwendung angehoeren. */
+  background: #0E1930;
 }
 
 #cable-planner-canvas .react-flow__pane {
@@ -173,7 +199,7 @@ body,
 }
 
 #cable-planner-canvas.canvas-theme-light {
-  background: radial-gradient(circle at 30% 20%, #eef2f7 0%, #e8edf4 50%, #dde4ee 100%);
+  background: #ECEBE6;
 }
 
 #cable-planner-canvas.canvas-theme-light .react-flow__pane {
@@ -227,32 +253,30 @@ body,
  * avoid that.
  * ─────────────────────────────────────────────────────────── */
 [data-theme="light"] {
-  /* Phase 2: Light-Overrides der Farb-Tokens. Werte = bisheriger
-   * Slate-Remap, damit migrierte Shells im Light-Mode identisch aussehen
-   * und keine dunklen Rest-Flächen entstehen. */
-  --cp-bg: #f0f4f8;
-  --cp-surface-1: #eaeff5; /* = .bg-slate-900 light remap */
-  --cp-surface-2: #dde4ee; /* = .bg-slate-800 */
-  --cp-surface-3: #f0f4f8; /* = .bg-slate-950 */
-  /* #449 — Light-Werte = exakt der bestehende 340-Zeilen-Remap der rohen
-   * Klassen, damit bg-cp-surface-4/5 pixelgleich zu .bg-slate-700/600 bleiben. */
-  --cp-surface-4: #cbd5e1; /* = .bg-slate-700 (light) */
-  --cp-surface-5: #b8c4d0; /* = .bg-slate-600 (light) */
-  --cp-border: #94a3b8; /* = .border-slate-700 */
-  --cp-border-muted: #b8c4d0; /* = .border-slate-800 */
-  --cp-text: #0f172a; /* = .text-slate-100 */
-  --cp-text-bright: #1e293b; /* = .text-slate-200 (light) */
-  /* #449 — fehlte im Light-Remap: --cp-text-secondary fiel auf den Dark-Wert
-   * zurück (heller Grauton auf hellem Grund → unlesbar). Jetzt = light
-   * .text-slate-300 (#1e293b), passt in die Ramp text(#0f172a) → muted(#334155). */
-  --cp-text-secondary: #1e293b; /* = .text-slate-300 (light) */
-  --cp-text-muted: #334155; /* = .text-slate-400 */
-  --cp-text-faint: #475569; /* = .text-slate-500 */
-  --cp-text-dim: #334155; /* = .text-slate-600 (light) */
-  --cp-text-dimmer: #94a3b8; /* = .text-slate-700 (light) */
-  --cp-accent: #0284c7; /* sky-600 */
-  --cp-warn: #d97706; /* amber-600 */
-  --cp-danger: #dc2626; /* red-600 */
+  /* ADR-007 — dieselbe Palette, gedrehte Gewichtung: Print ist hell
+   * (60 % Weiss), das Web dunkel (70 % Deep Navy). Schiefer ist hier der
+   * Sekundaertext — der Wert, fuer den der Guide ihn misst (5,4:1 auf
+   * Weiss); auf Navy waere er unlesbar und kommt dort nicht vor. */
+  --cp-bg: #F6F5F0; /* Off-White */
+  --cp-surface-1: #FFFFFF;
+  --cp-surface-2: #E1ECEF; /* Eisblau — Karten, Tabellenkoepfe */
+  --cp-surface-3: #ECEBE6; /* abgeleitet — versenkt */
+  --cp-surface-4: #FFFFFF;
+  --cp-surface-5: #E1ECEF;
+  --cp-border: rgba(29, 50, 79, 0.16);
+  --cp-border-muted: rgba(29, 50, 79, 0.08);
+  --cp-text: #1D324F; /* Zumpe Navy */
+  --cp-text-bright: #132040;
+  --cp-text-secondary: #5C6B85; /* Schiefer */
+  --cp-text-muted: #6E7F99;
+  --cp-text-faint: #8C9CB3; /* Stahlblau */
+  --cp-text-dim: #8C9CB3;
+  --cp-text-dimmer: #A7B3C4;
+  --cp-accent: #1D324F;
+  --cp-accent-text: #F6F5F0;
+  --cp-warn: #C8892B;
+  --cp-danger: #B04A3F;
+  --cp-signal: #D6402E;
   /* Render native form elements (selects, checkboxes, inputs) in light mode */
   color-scheme: light;
 }
@@ -564,14 +588,17 @@ a:focus-visible,
 [role="menuitem"]:focus-visible,
 [role="checkbox"]:focus-visible,
 [role="tab"]:focus-visible {
-  outline: 2px solid var(--cp-accent);
-  outline-offset: 1px;
-  border-radius: 4px;
+  /* ADR-007 — der Fokusring ist Tally-Rot, 2 px, 3 px Abstand. Das ist der
+   * eine Ort, an dem das Signal ohne Zutun erscheint: wer mit der Tastatur
+   * arbeitet, soll sehen, wo er ist. */
+  outline: 2px solid var(--cp-signal);
+  outline-offset: 3px;
+  border-radius: 0;
 }
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid var(--cp-accent);
+  outline: 2px solid var(--cp-signal);
   outline-offset: -1px;
 }
 [data-theme="light"] button:focus-visible,
@@ -579,7 +606,7 @@ textarea:focus-visible {
 [data-theme="light"] input:focus-visible,
 [data-theme="light"] select:focus-visible,
 [data-theme="light"] textarea:focus-visible {
-  outline-color: var(--cp-accent);
+  outline-color: var(--cp-signal);
 }
 
 /* ── Consistent disabled affordance (UX audit #45/#464) ─────────────────────
