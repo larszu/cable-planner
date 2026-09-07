@@ -68,6 +68,7 @@ import {
 import type { DantePatch } from '../../types/dantePatch'
 import { cableRunFindings, cableRunTable, type RunFinding } from '../../lib/cableRunChecks'
 import { CrewTab } from './CrewTab'
+import { ActionTab } from './ActionTab'
 import { lookUpSheet, type SheetLookup } from '../../lib/sheetLookup'
 import {
   buildVenueNetworkRequest,
@@ -152,6 +153,7 @@ const RechnerLink = ({ onClick, label }: { onClick: () => void; label: string })
 )
 
 type Tab =
+  | 'todo'
   | 'weight'
   | 'network'
   | 'redundancy'
@@ -2704,6 +2706,9 @@ const DanteTab = ({ projectName }: { projectName: string }) => {
 }
 
 const TABS: { id: Tab; labelKey: string; fallback: string }[] = [
+  // Bedarf 108 zuerst: „users ask to be TOLD something rather than to go and
+  // check". Was ansteht, steht vorn — nicht auf Platz zwoelf.
+  { id: 'todo', labelKey: 'analysis.tab.todo', fallback: 'Was ansteht' },
   { id: 'client', labelKey: 'analysis.tab.client', fallback: 'Kunden-Übersicht' },
   { id: 'cost', labelKey: 'analysis.tab.cost', fallback: 'Kosten: Plan gegen Ist' },
   { id: 'crew', labelKey: 'analysis.tab.crew', fallback: 'Crew: Stunden & Auslagen' },
@@ -2777,6 +2782,7 @@ const AnalysisDialogInner = () => {
       {active === 'runs' && <RunsTab projectName={projectName} />}
       {active === 'sheet' && <SheetTab />}
       {active === 'client' && <ClientTab projectName={projectName} />}
+      {active === 'todo' && <ActionTab />}
       {active === 'cost' && <CostTab projectName={projectName} />}
       {active === 'crew' && <CrewTab projectName={projectName} />}
       {active === 'naming' && <NamingTab projectName={projectName} />}
