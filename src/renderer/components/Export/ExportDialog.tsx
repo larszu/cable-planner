@@ -280,7 +280,14 @@ const PlanSection = ({
   ]
 
   return (
-    <div className="space-y-4">
+    // v7.9.4 sagte: „Body als flex-col OHNE eigenes overflow-auto. Jede
+    // Sektion macht ihr Scrolling intern." Diese hier tat es nicht — sie war
+    // ein einfacher Block, und bei kleinem Fenster oder vielen Ebenen-Chips
+    // rutschten „Drucken" und „Als PDF herunterladen" aus dem Dialog, ohne
+    // dass irgendetwas gescrollt haette. Jetzt scrollt der Inhalt, die
+    // Knopfleiste bleibt unten stehen.
+    <div className="flex min-h-0 flex-1 flex-col gap-4">
+      <div className="min-h-0 flex-1 space-y-4 overflow-y-auto pr-1">
       <fieldset className="space-y-2">
         <legend className="mb-1 text-cp-xs font-semibold text-cp-text-secondary">{t('export.format', 'Format')}</legend>
         {FORMAT_OPTIONS.map((opt) => {
@@ -433,8 +440,9 @@ const PlanSection = ({
       <div className="rounded border border-cp-border-muted bg-cp-surface-3/40 p-2 text-[11px] text-cp-text-muted">
         {t('export.savedAs', 'Wird gespeichert als')} <code className="rounded bg-cp-surface-2 px-1 py-0.5">{projectName || 'cable-planner'}</code>
       </div>
+      </div>
 
-      <div className="flex justify-end gap-2">
+      <div className="flex shrink-0 justify-end gap-2">
         {/* v7.9.4 — Drucken-Button neben "Als PDF herunterladen"
             (User-Request). Nur sinnvoll für PDF; bei PNG/JPEG
             disabled mit Tooltip. */}
@@ -537,7 +545,11 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
   }
 
   return (
-    <div className="space-y-3">
+    // Dieselbe Reparatur wie in `PlanSection`: der Inhalt scrollt, die
+    // Aktionszeile bleibt unten. Vorher konnte die Geraeteliste die Knoepfe
+    // aus dem Dialog schieben.
+    <div className="flex min-h-0 flex-1 flex-col gap-3">
+      <div className="min-h-0 flex-1 space-y-3 overflow-y-auto pr-1">
       {/* v7.9.126 — Kompakt-Patchliste (eine Zeile pro Kabel, sortiert nach
           Quell-Gerät) ist hier zusaetzlich erreichbar. War vorher unter
           Werkzeuge → Patchliste; ist jetzt hier weil sie eine Export-/
@@ -620,10 +632,12 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
         </div>
       </div>
 
+      </div>
+
       {/* v7.9.4 — Action-Zeile. Wenn keine pending action: 3 Buttons.
           Wenn pending action: A4/A3-Auswahl + Abbrechen. */}
       {pendingAction == null ? (
-        <div className="flex justify-end gap-2">
+        <div className="flex shrink-0 justify-end gap-2">
           <button
             type="button"
             onClick={() => setPendingAction('individual')}

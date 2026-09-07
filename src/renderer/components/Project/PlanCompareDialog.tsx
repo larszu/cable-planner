@@ -176,7 +176,7 @@ export const PlanCompareDialog = ({ open, onClose }: PlanCompareDialogProps) => 
             type="button"
             disabled={busy}
             onClick={() => void pickFile()}
-            className="flex items-center gap-2 rounded bg-cp-accent px-3 py-1.5 text-cp-xs text-white disabled:opacity-50"
+            className="flex items-center gap-2 rounded-cp-control bg-cp-accent px-3 py-1.5 text-cp-xs text-cp-accent-text disabled:opacity-50"
           >
             <Icon icon={FolderOpen} size="sm" />
             {t('compare.pick', 'Vergleichs-Datei wählen…')}

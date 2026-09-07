@@ -69,6 +69,7 @@ import type { DantePatch } from '../../types/dantePatch'
 import { cableRunFindings, cableRunTable, type RunFinding } from '../../lib/cableRunChecks'
 import { CrewTab } from './CrewTab'
 import { ActionTab } from './ActionTab'
+import { ChainTab } from './ChainTab'
 import {
   RECORD_NAME_FINDING_LABEL,
   normaliseRecordNaming,
@@ -166,6 +167,7 @@ type Tab =
   | 'redundancy'
   | 'rf'
   | 'runs'
+  | 'chain'
   | 'sheet'
   | 'client'
   | 'cost'
@@ -2852,6 +2854,9 @@ const TABS: { id: Tab; labelKey: string; fallback: string }[] = [
   { id: 'redundancy', labelKey: 'analysis.tab.redundancy', fallback: 'Redundanz' },
   { id: 'rf', labelKey: 'analysis.tab.rf', fallback: 'RF / Funk' },
   { id: 'runs', labelKey: 'analysis.tab.runs', fallback: 'Kabelwege' },
+  // #664 — der Weg ueber mehrere Ebenen, direkt neben den Kabelwegen:
+  // dort sucht, wer wissen will, wo ein Signal ankommt.
+  { id: 'chain', labelKey: 'analysis.tab.chain', fallback: 'Signalwege' },
   { id: 'sheet', labelKey: 'analysis.tab.sheet', fallback: 'Blatt prüfen' },
 ]
 
@@ -2913,6 +2918,7 @@ const AnalysisDialogInner = () => {
       {active === 'redundancy' && <RedundancyTab projectName={projectName} />}
       {active === 'rf' && <RfTab projectName={projectName} />}
       {active === 'runs' && <RunsTab projectName={projectName} />}
+      {active === 'chain' && <ChainTab />}
       {active === 'sheet' && <SheetTab />}
       {active === 'client' && <ClientTab projectName={projectName} />}
       {active === 'todo' && <ActionTab />}

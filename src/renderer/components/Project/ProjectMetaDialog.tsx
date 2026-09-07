@@ -123,7 +123,7 @@ export const ProjectMetaDialog = ({
               autoFocus
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder={t('project.meta.namePh', 'z.B. ProSieben Studio Umbau')}
+              placeholder={t('project.meta.namePh', 'z.B. Studio 2 Umbau')}
               className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-1.5"
             />
           </label>

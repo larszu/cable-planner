@@ -17,7 +17,7 @@ import {
 } from '../../store/projectStoreContext'
 import { useUiStore } from '../../store/uiStore'
 import { CableWaypoints } from './CableWaypoints'
-import { computeObstacleAwareWaypoints, type Rect } from '../../lib/cableRouting'
+import { computeObstacleAwareWaypoints, pathIsBlocked, type Rect } from '../../lib/cableRouting'
 import { computeEquipmentLayout } from '../../lib/equipmentLayout'
 import { isCableVisibleByLayer } from '../../lib/cableLayers'
 import { netKeyOf, netEndpoints } from '../../lib/offPageNet'
@@ -430,6 +430,31 @@ export const CableEdge = ({
   const orthogonalWaypoints = cable
     ? resolveOrthogonalWaypoints(cable, routingArgs, obstacles, obstacleIds)
     : []
+  // Nutzer-Meldung 2026-09-07: „das Kabel automatisch Routen funktioniert
+  // nicht sauber." Der Rechenfehler steckte in `cableRouting.ts` und ist dort
+  // behoben. Was blieb, ist der Fall, in dem es GAR KEINEN freien Weg gibt:
+  // dann wird der kuerzeste gezeichnet, und der laeuft durch ein Geraet.
+  // Bisher sah das aus wie eine gelungene Fuehrung.
+  //
+  // Geprueft wird der Weg, der WIRKLICH GEZEICHNET WIRD — nicht das Ergebnis
+  // des Routers. Zwei Gruende: die automatische Fuehrung wird nach dem ersten
+  // Rechnen in `cable.waypoints` gespeichert (#206), danach gibt es kein
+  // Router-Ergebnis mehr; und ein von Hand gezogener Stuetzpunkt mitten durch
+  // ein Geraet ist derselbe Fehler und war ebenso stumm.
+  const wegBlockiert =
+    !!cable &&
+    !cable.offPage &&
+    (cable.routing ?? 'orthogonal') === 'orthogonal' &&
+    pathIsBlocked(
+      [
+        { x: sourceX, y: sourceY },
+        ...orthogonalWaypoints,
+        { x: targetX, y: targetY },
+      ],
+      obstacles,
+      new Set([cable.fromEquipmentId, cable.toEquipmentId]),
+      obstacleIds,
+    )
   // v7.9.84 / #206 — Persist auto-computed Waypoints einmalig nach dem
   // ersten erfolgreichen Compute. Vorher hat resolveOrthogonalWaypoints
   // bei JEDEM Render mit dem CURRENT-obstacle-Set neu berechnet — d.h.
@@ -906,6 +931,38 @@ export const CableEdge = ({
           renderWaypoints={orthogonalWaypoints}
           exportThemeOverride={data?.exportThemeOverride}
         />
+      )}
+      {/* Der Weg laeuft durch ein Geraet. Das Zeichen haengt NICHT am
+          Kabel-Label: das laesst sich global und je Kabel abschalten, und
+          eine Warnung, die mit der Beschriftung verschwindet, waere in
+          genau den Plaenen unsichtbar, in denen es eng zugeht. */}
+      {wegBlockiert && (
+        <EdgeLabelRenderer>
+          <div
+            className="nodrag nopan"
+            style={{
+              position: 'absolute',
+              transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY}px) translate(0, -15px)`,
+              background: '#b91c1c',
+              color: '#fff',
+              border: '1px solid #fca5a5',
+              borderRadius: 9,
+              width: 15,
+              height: 15,
+              lineHeight: '13px',
+              textAlign: 'center',
+              fontSize: 11,
+              fontWeight: 700,
+              pointerEvents: 'all',
+            }}
+            title={t(
+              'canvas.cableEdge.blockedPath',
+              'Dieser Kabelweg läuft durch ein Gerät — es gibt hier keine freie Führung. Gerät verschieben oder den Weg von Hand legen.',
+            )}
+          >
+            !
+          </div>
+        </EdgeLabelRenderer>
       )}
       {/* v7.9.112 / Issue #234 — Label nur rendern wenn:
           - globaler Toggle nicht aktiv

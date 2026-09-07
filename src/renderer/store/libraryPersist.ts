@@ -29,6 +29,12 @@ export const DEFAULT_CATEGORIES = [
   'PC',
   'Netzwerk',
   'Kabel',
+  // ISSUE #664 — „Patchbays als Geraetekategorie erstellen". Die Kategorie ist
+  // der zweite Weg, ein Geraet als Blende auszuweisen (der erste ist das Flag
+  // `isPatchPanel`); `patchPanel.ts` fuehrt beide zu EINER Antwort zusammen.
+  // Neu hinzugefuegte Vorgabe-Kategorien erreichen auch bestehende Nutzer:
+  // `loadKnownCategories` vereinigt Vorgabe und Gespeichertes.
+  'Patchfelder',
   'Strom',
   'Rigging',
   'Sonstiges',
