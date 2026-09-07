@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, lazy, Suspense } from 'react'
-import { Settings, Ruler, Globe, Sparkles, ExternalLink } from 'lucide-react'
+import { Settings, Ruler, Globe, Sparkles } from 'lucide-react'
 import { v4 as uuidv4 } from 'uuid'
 import { Icon } from '../shared/Icon'
 import { Spinner } from '../shared/Spinner'
@@ -33,6 +33,7 @@ import { FloatingPanelShell } from '../Layout/FloatingPanelShell'
 import { triggerCanvasFitView } from '../../lib/canvasViewport'
 import { openPanelPopout, isPopout } from '../../lib/panelPopout'
 import { usePanelTearOff } from '../../lib/usePanelTearOff'
+import { PanelWindowMenu } from '../shared/PanelWindowMenu'
 import { TabButton } from './TabButton'
 import { GroupsTab } from './tabs/GroupsTab'
 import { RacksTab } from './tabs/RacksTab'
@@ -728,35 +729,16 @@ export const LibraryPanel = () => {
           </button>
         )}
         {!floating && !inPopout && (
-          <button
-            type="button"
-            data-tearoff="handle"
+          <PanelWindowMenu
+            titel={t('library.title', 'Bibliothek')}
             onPointerDown={tearOff.onPointerDown}
-            onClick={() => {
-              // Reiner Klick = an Ort und Stelle abdocken; ein Tear-off-Drag
-              // hat das bereits erledigt und unterdrückt hier das Doppel-Float.
-              if (tearOff.draggedRef.current) return
+            draggedRef={tearOff.draggedRef}
+            onUndock={() => {
               setFloating(true)
               window.setTimeout(triggerCanvasFitView, 60)
             }}
-            title={t('library.float.title', 'Library abdocken (klicken oder herausziehen)')}
-            aria-label={t('library.float.aria', 'Library abdocken')}
-            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-cp-border bg-cp-surface-1 text-cp-text-secondary transition-all hover:border-sky-500 hover:bg-cp-surface-2 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
-            style={{ touchAction: 'none' }}
-          >
-            <span className="pointer-events-none text-[11px] leading-none">⤢</span>
-          </button>
-        )}
-        {!floating && !inPopout && (
-          <button
-            type="button"
-            onClick={() => openPanelPopout('library')}
-            title={t('panel.popoutTitle', 'In separates Fenster auslagern (weiterer Monitor)')}
-            aria-label={t('panel.popout', 'Auslagern')}
-            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-cp-border bg-cp-surface-1 text-cp-text-secondary transition-all hover:border-sky-500 hover:bg-cp-surface-2 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
-          >
-            <Icon icon={ExternalLink} size="xs" />
-          </button>
+            onPopout={() => openPanelPopout('library')}
+          />
         )}
         </div>
       )}

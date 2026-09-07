@@ -169,17 +169,23 @@ export const LayerVisibilityChips = () => {
           </button>
         )
       })}
+      {/* „⋯" allein sagt niemandem, dass dahinter das Anlegen einer eigenen
+          Ebene und das Zuruecksetzen aller Ebenen steckt (Nutzer-Rueckmeldung
+          2026-09-07). Der Knopf traegt jetzt das Wort. */}
       <button
         type="button"
         onClick={() => setMenuOpen((v) => !v)}
         title={t('canvas.layerChips.menuTitle', 'Layer-Verwaltung (Custom anlegen / alle zurücksetzen)')}
-        className={`inline-flex h-6 w-6 items-center justify-center rounded-full border text-[11px] transition ${
+        aria-haspopup="menu"
+        aria-expanded={menuOpen}
+        className={`inline-flex h-6 items-center gap-1 rounded-full border px-2 text-[11px] transition ${
           isLight
             ? 'border-slate-300 bg-slate-100 text-slate-600 hover:bg-slate-200'
             : 'border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700'
         }`}
       >
-        ⋯
+        <span>{t('canvas.layerChips.menuButton', 'Ebenen')}</span>
+        <span aria-hidden="true">⋯</span>
       </button>
       {menuOpen && (
         <div

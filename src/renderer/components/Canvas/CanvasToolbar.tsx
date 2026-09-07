@@ -860,14 +860,16 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
         style={{
           display: 'inline-flex',
           alignItems: 'center',
+          gap: 4,
           justifyContent: 'center',
-          width: T.iconBtnSize,
           height: T.iconBtnSize,
+          padding: '0 8px',
           background: annotationsVisible ? T.btnBg : T.btnActiveBg,
           color: annotationsVisible ? T.text : '#ffffff',
           border: `1px solid ${annotationsVisible ? T.border : T.btnActiveBg}`,
           borderRadius: 6,
           cursor: 'pointer',
+          fontSize: 11,
         }}
       >
         {annotationsVisible ? (
@@ -881,6 +883,10 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
             <path d="M3 5.5c1.4-1.6 3-2.5 5-2.5s3.6.9 5 2.5M1.5 8c1-2 2.5-3.5 4.5-4.3M14.5 8c-1.5 3-4 5-6.5 5-.7 0-1.4-.15-2-.4" />
           </svg>
         )}
+        {/* „Badges" und nicht „Anmerkungen": der Knopf DANEBEN oeffnet die
+            Anmerkungen, dieser blendet nur ihre Marken auf der Zeichnung aus.
+            Zweimal dasselbe Wort waere schlimmer als das blosse Auge. */}
+        <span>{t('toolbar.annotations.badgeLabel', 'Badges')}</span>
       </button>
       <button
         type="button"

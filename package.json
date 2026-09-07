@@ -61,7 +61,8 @@
     "dist": "npm run build && electron-builder",
     "notices": "node scripts/generate-notices.mjs",
     "actions:check": "node scripts/actions-node-runtime.mjs",
-    "ui:overflow": "node scripts/ui-overflow.mjs"
+    "ui:overflow": "node scripts/ui-overflow.mjs",
+    "ui:labels": "node scripts/ui-labels.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
