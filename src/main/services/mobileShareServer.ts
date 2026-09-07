@@ -44,6 +44,7 @@ import { fileURLToPath } from 'node:url'
 import { randomBytes } from 'node:crypto'
 import { stripSecrets } from '../util/stripSecrets.js'
 import { shareAddresses, type WithheldAddress } from '../util/lanReach.js'
+import { showIdOf, showMismatch } from '../util/shareShow.js'
 
 const MIME_TYPES: Record<string, string> = {
   '.html': 'text/html; charset=utf-8',
@@ -91,6 +92,14 @@ interface MobileShareState {
    * Entscheidung.
    */
   allowBeyondLan: boolean
+  /**
+   * BEDARF 127 — die Show, die gerade freigegeben ist.
+   *
+   * Steht neben dem Projekt und nicht in ihm, damit die Pruefung des
+   * Rueckwegs nicht bei jedem Aufruf durch das ganze Projekt greifen muss.
+   * Gesetzt wird sie an EINER Stelle, zusammen mit dem Projekt selbst.
+   */
+  showId: string | null
   project: unknown | null
   /** Cached JSON serialization of `project` with secrets stripped. Built
    *  once per setProject() so each /project.json poll doesn't re-stringify
@@ -145,6 +154,7 @@ const state: MobileShareState = {
   port: 0,
   token: '',
   allowBeyondLan: false,
+  showId: null,
   project: null,
   serialized: null,
   rendererDir: '',
@@ -297,6 +307,36 @@ const handleRequest = (req: IncomingMessage, res: ServerResponse) => {
     return
   }
 
+  /**
+   * BEDARF 127 — gehoert dieser Rueckweg zur freigegebenen Show?
+   *
+   * DIE ENGSTELLE fuer alle drei Schreibwege (`/checks`, `/cables`,
+   * `/pending-changes`). Sie fragen hier und vergleichen nicht selbst: drei
+   * eigene Vergleiche waeren drei Gelegenheiten, einen zu vergessen — und
+   * vergessen wuerde man den seltensten, also den, bei dem es am laengsten
+   * niemandem auffaellt.
+   *
+   * 409 und nicht 400: der Aufruf ist nicht falsch gebaut, er kommt in eine
+   * Lage, die sich seit dem Laden der Seite geaendert hat. Der Grund geht
+   * mit — eine abgewiesene Rueckmeldung ohne Erklaerung sieht am Handy aus
+   * wie ein Netzfehler, und dann drueckt der Field-Tech noch dreimal.
+   */
+  const showOk = (parsed: Record<string, unknown>): boolean => {
+    const sent = typeof parsed.projectId === 'string' && parsed.projectId.trim().length > 0
+      ? parsed.projectId
+      : null
+    const pruefung = showMismatch(state.showId, sent)
+    if (pruefung.ok) return true
+    res.statusCode = 409
+    applyCors(req, res)
+    res.end(JSON.stringify({
+      error: pruefung.rejection,
+      reason: pruefung.reason,
+      servedShow: pruefung.served,
+    }))
+    return false
+  }
+
   // v7.9.3 — POST /checks: das Mobile-View schickt nach jedem Toggle
   // einen vollständigen CheckState. Wir leiten ihn via Callback an
   // den Renderer weiter, der dann project.checkState updated → das
@@ -320,9 +360,11 @@ const handleRequest = (req: IncomingMessage, res: ServerResponse) => {
       if (aborted) return
       try {
         const parsed = JSON.parse(body) as {
+          projectId?: string
           ports?: Record<string, boolean>
           cables?: Record<string, boolean>
         }
+        if (!showOk(parsed)) return
         const checks = {
           ports: parsed.ports && typeof parsed.ports === 'object' ? parsed.ports : {},
           cables: parsed.cables && typeof parsed.cables === 'object' ? parsed.cables : {},
@@ -370,6 +412,7 @@ const handleRequest = (req: IncomingMessage, res: ServerResponse) => {
       if (aborted) return
       try {
         const parsed = JSON.parse(body) as Record<string, unknown>
+        if (!showOk(parsed)) return
         const fromEquipmentId = String(parsed.fromEquipmentId ?? '').trim()
         const fromPortId = String(parsed.fromPortId ?? '').trim()
         const toEquipmentId = String(parsed.toEquipmentId ?? '').trim()
@@ -433,6 +476,7 @@ const handleRequest = (req: IncomingMessage, res: ServerResponse) => {
       if (aborted) return
       try {
         const parsed = JSON.parse(body) as Record<string, unknown>
+        if (!showOk(parsed)) return
         const summary = String(parsed.summary ?? '').trim()
         const kind = String(parsed.kind ?? '').trim()
         if (!summary || !kind) {
@@ -652,11 +696,16 @@ export const stopMobileShareServer = (): void => {
   state.allowBeyondLan = false
   state.project = null
   state.serialized = null
+  state.showId = null
   state.devProxyUrl = undefined
 }
 
 export const setMobileShareProject = (project: unknown): void => {
   state.project = project
+  // Bedarf 127 — die Show wandert MIT dem Projekt. Wer sie hier nicht
+  // nachzieht, laesst die Freigabe auf die alte Show zeigen und nimmt
+  // Rueckwege an, die in die neue gehoeren.
+  state.showId = showIdOf(project)
   // Strip secrets and pre-serialize once; /project.json serves the cached
   // string so polling phones don't re-stringify the project each request.
   try {
