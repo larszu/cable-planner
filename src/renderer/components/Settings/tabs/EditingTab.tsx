@@ -4,6 +4,7 @@ import { useTranslation, format } from '../../../lib/i18n'
 import { confirmDialog } from '../../../lib/confirmDialog'
 import { RoutingToggle } from '../../shared/RoutingToggle'
 import { SettingsCard } from '../SettingsCard'
+import { PanelHint } from '../../shared/PanelHint'
 
 /**
  * #307 — Editing-Tab aus SettingsDialog ausgelagert. Enthaelt
@@ -24,7 +25,7 @@ const CableEndpointLabelsCard = () => {
       title={t('settings.editing.endpointLabels', 'Endpoint-Labels an Kabelenden')}
       description={t(
         'settings.editing.endpointLabelsDesc',
-        'Zeigt an jedem Kabelende ein kleines Label das anzeigt, wohin das andere Ende geht — am Source-Ende "→ Ziel-Geraet · Ziel-Port", am Target-Ende "← Quell-Geraet · Quell-Port". Hilft beim Verfolgen von Kabeln ohne ihnen visuell folgen zu muessen.',
+        'Zeigt an jedem Kabelende ein kleines Label das anzeigt, wohin das andere Ende geht — am Source-Ende "→ Ziel-Gerät · Ziel-Port", am Target-Ende "← Quell-Gerät · Quell-Port". Hilft beim Verfolgen von Kabeln ohne ihnen visuell folgen zu müssen.',
       )}
     >
       <label className="flex items-center gap-2 text-cp-base text-cp-text-bright">
@@ -35,9 +36,10 @@ const CableEndpointLabelsCard = () => {
         />
         {t('settings.editing.endpointLabelsLabel', 'Endpoint-Labels einblenden')}
       </label>
-      <p className="mt-2 text-[11px] text-cp-text-muted">
-        {t('settings.editing.endpointLabelsNote', 'Default aus — gibt zusaetzlichen Visual-Noise. Wirkt zusammen mit dem globalen "Alle Labels ausblenden"-Toggle und respektiert per-Kabel labelPosition=\'none\'.')}
-      </p>
+      <PanelHint
+        className="mt-2 text-[11px] text-cp-text-muted"
+        text={t('settings.editing.endpointLabelsNote', 'Default aus — gibt zusätzlichen Visual-Noise. Wirkt zusammen mit dem globalen "Alle Labels ausblenden"-Toggle und respektiert per-Kabel labelPosition=\'none\'.')}
+      />
     </SettingsCard>
   )
 }
@@ -56,7 +58,7 @@ const CableInheritTypeCard = () => {
       title={t('settings.editing.cableInherit', 'Kabel-Typ folgt Port-Connector')}
       description={t(
         'settings.editing.cableInheritDesc',
-        'Wenn ein Port-Connector geaendert wird (z.B. BNC -> XLR), uebernehmen verbundene Kabel automatisch den neuen Typ. Gilt auch beim Umstecken auf einen Port mit anderem Connector. Kabel mit Konverter-Hinweis (needsConverter) bleiben unberuehrt.',
+        'Wenn ein Port-Connector geändert wird (z.B. BNC -> XLR), übernehmen verbundene Kabel automatisch den neuen Typ. Gilt auch beim Umstecken auf einen Port mit anderem Connector. Kabel mit Konverter-Hinweis (needsConverter) bleiben unberührt.',
       )}
     >
       <label className="flex items-center gap-2 text-cp-base text-cp-text-bright">
@@ -67,12 +69,13 @@ const CableInheritTypeCard = () => {
         />
         {t('settings.editing.cableInheritLabel', 'Kabel-Typ aus Port-Connector ableiten')}
       </label>
-      <p className="mt-2 text-[11px] text-cp-text-muted">
-        {t(
+      <PanelHint
+        className="mt-2 text-[11px] text-cp-text-muted"
+        text={t(
           'settings.editing.cableInheritNote',
           'Default an: meistens sollen Kabel den physischen Anschluss-Typ ihrer Ports widerspiegeln. Abschalten, wenn Kabel-Typen unabhängig von Port-Typen verwaltet werden sollen.',
         )}
-      </p>
+      />
     </SettingsCard>
   )
 }
@@ -90,7 +93,7 @@ const CableReconnectOptionsCard = () => {
       title={t('settings.editing.labelSwap', 'Label mit Kabel mit-wandern')}
       description={t(
         'settings.editing.labelSwapDesc',
-        'Beim Umstecken eines Kabels uebernimmt der neue Port den User-Namen vom alten Port. Der alte Port faellt auf seinen Template-default zurueck. Spart Copy-Paste vom Label.',
+        'Beim Umstecken eines Kabels übernimmt der neue Port den User-Namen vom alten Port. Der alte Port fällt auf seinen Template-default zurück. Spart Copy-Paste vom Label.',
       )}
     >
       <label className="flex items-center gap-2 text-cp-base text-cp-text-bright">
@@ -101,12 +104,13 @@ const CableReconnectOptionsCard = () => {
         />
         {t('settings.editing.labelSwapLabel', 'Beim Reconnect Port-Labels mit-tauschen')}
       </label>
-      <p className="mt-2 text-[11px] text-cp-text-muted">
-        {t(
+      <PanelHint
+        className="mt-2 text-[11px] text-cp-text-muted"
+        text={t(
           'settings.editing.labelSwapNote',
           'Aus Sicherheit per default aus — sonst würden Test-Umsteckungen ungewollt Labels umbenennen. Wirkt nur bei Ports, die einen vom User editierten Namen haben (sonst gibts nichts zu tauschen).',
         )}
-      </p>
+      />
     </SettingsCard>
   )
 }

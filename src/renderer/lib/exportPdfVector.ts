@@ -202,7 +202,7 @@ const collectAllCss = (): string => {
       if (segments.length > 0) parts.push(segments.join('\n'))
     } catch (err) {
       console.warn(
-        '[pdf-vector] Stylesheet uebersprungen (CORS?):',
+        '[pdf-vector] Stylesheet übersprungen (CORS?):',
         sheet.href,
         err,
       )
@@ -483,7 +483,7 @@ export const exportCanvasToPdfVector = async (
   const appCss = collectAllCss()
   if (appCss.length < 1000) {
     console.warn(
-      `[pdf-vector] Wenig CSS gesammelt (${appCss.length} bytes) — moeglicherweise CORS-blockiert.`,
+      `[pdf-vector] Wenig CSS gesammelt (${appCss.length} bytes) — möglicherweise CORS-blockiert.`,
     )
   }
 
@@ -537,7 +537,7 @@ export const exportCanvasToPdfVector = async (
   const canvasOuterHtml = canvasClone.outerHTML
   if (canvasOuterHtml.length < 1000) {
     throw new Error(
-      `Canvas-Clone ist verdaechtig klein (${canvasOuterHtml.length} bytes) — Export abgebrochen.`,
+      `Canvas-Clone ist verdächtig klein (${canvasOuterHtml.length} bytes) — Export abgebrochen.`,
     )
   }
 
@@ -572,7 +572,7 @@ export const exportCanvasToPdfVector = async (
   onProgress('save', 'Datei speichern…')
   if (!bytes || bytes.byteLength < 1000) {
     throw new Error(
-      `printToPDF lieferte verdaechtig wenig zurueck (${bytes?.byteLength ?? 0} bytes).`,
+      `printToPDF lieferte verdächtig wenig zurück (${bytes?.byteLength ?? 0} bytes).`,
     )
   }
   const blob = new Blob([new Uint8Array(bytes)], { type: 'application/pdf' })

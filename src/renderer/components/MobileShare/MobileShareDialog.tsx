@@ -35,6 +35,7 @@ import { ModalShell } from '../shared/ModalShell'
 import { useUiStore } from '../../store/uiStore'
 import { cablePlannerApi, hasDesktopBridge } from '../../lib/bridge'
 import { useTranslation } from '../../lib/i18n'
+import { PanelHint } from '../shared/PanelHint'
 
 interface WithheldAddress {
   address: string
@@ -185,9 +186,10 @@ export const MobileShareDialog = () => {
             </div>
           )}
 
-          <p className="text-cp-xs text-cp-text-muted">
-            {t('mobile.dialog.description', 'Startet einen kleinen Web-Server im lokalen Netzwerk. Scanne den QR-Code mit dem Handy → der Mobile-Viewer öffnet sich im Browser und lädt das aktuelle Projekt. Der Server stoppt automatisch beim Schließen der App oder über den Stop-Button.')}
-          </p>
+          <PanelHint
+            className="text-cp-xs text-cp-text-muted"
+            text={t('mobile.dialog.description', 'Startet einen kleinen Web-Server im lokalen Netzwerk. Scanne den QR-Code mit dem Handy → der Mobile-Viewer öffnet sich im Browser und lädt das aktuelle Projekt. Der Server stoppt automatisch beim Schließen der App oder über den Stop-Button.')}
+          />
 
           {status.running ? (
             <div className="space-y-3">

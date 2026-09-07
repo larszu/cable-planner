@@ -93,7 +93,7 @@ describe('Bedarf 62 — die Übergabe an die Post', () => {
   })
 
   // -- 2 --------------------------------------------------------------------
-  it('ohne Nummer traegt das Praefix den bereinigten Namen — und sagt das', () => {
+  it('ohne Nummer trägt das Präfix den bereinigten Namen — und sagt das', () => {
     expect(cardPrefixFor({ name: 'Kamera 1', number: 3 })).toEqual({
       prefix: 'C',
       basis: 'number',
@@ -113,7 +113,7 @@ describe('Bedarf 62 — die Übergabe an die Post', () => {
     expect(sanitisePrefix('  Rand  ')).toBe('Rand')
     // Bleibt nichts uebrig, wird nichts erfunden.
     expect(sanitisePrefix('///')).toBe('')
-    expect(cardPrefixFor({ name: '///' }).prefix).toBe('ohne Praefix')
+    expect(cardPrefixFor({ name: '///' }).prefix).toBe('ohne Präfix')
   })
 
   // -- 3 --------------------------------------------------------------------

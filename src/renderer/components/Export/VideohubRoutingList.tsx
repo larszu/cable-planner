@@ -41,7 +41,7 @@ export const VideohubRoutingList = ({
   return (
     <div className="rounded-cp-control border border-cp-border bg-cp-surface-3">
       <div className="border-b border-cp-border-muted bg-cp-surface-1 px-3 py-2 text-[11px] uppercase tracking-wide text-cp-text-muted">
-        {t('export.routingListHeader', 'Routing-Liste')} · {totalOutputs} Outputs · {totalInputs} {t('export.inputsAvailable', 'Inputs verfuegbar')}
+        {t('export.routingListHeader', 'Routing-Liste')} · {totalOutputs} Outputs · {totalInputs} {t('export.inputsAvailable', 'Inputs verfügbar')}
       </div>
       <div
         className="space-y-1 overflow-auto p-2"
@@ -83,7 +83,7 @@ export const VideohubRoutingList = ({
                    das Englische an den Anfang ("Select input for output …").
                    Aus Bausteinen laesst sich das nicht bauen. */
                 title={format(
-                  t('export.selectInputForOutput', 'Input fuer Output {n} ({label}) waehlen — aktuell: {cur} {curLabel}'),
+                  t('export.selectInputForOutput', 'Input für Output {n} ({label}) wählen — aktuell: {cur} {curLabel}'),
                   { n: oi + 1, label: outLabel, cur: routedIdx + 1, curLabel: routedLabel },
                 )}
               >
@@ -97,7 +97,7 @@ export const VideohubRoutingList = ({
               <span
                 className="w-7 shrink-0 text-center text-cp-text-dimmer"
                 aria-hidden
-                title={t('videohub.lockSoon', 'Lock (folgt in spaeterer Iteration)')}
+                title={t('videohub.lockSoon', 'Lock (folgt in späterer Iteration)')}
               >
                 ⬚
               </span>

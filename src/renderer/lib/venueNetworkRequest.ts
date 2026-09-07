@@ -214,8 +214,8 @@ export function buildVenueNetworkRequest(
       origin: 'derived',
       value: `${mediaMbps} Mbit/s`,
       source:
-        'Summe der Medien-Standards im Plan; Link-Kapazitaet zaehlt bewusst nicht mit. ' +
-        'Planungsrichtwert fuer eine Konferenz mit drei Streams: mindestens 100 Mbit/s ' +
+        'Summe der Medien-Standards im Plan; Link-Kapazität zählt bewusst nicht mit. ' +
+        'Planungsrichtwert für eine Konferenz mit drei Streams: mindestens 100 Mbit/s ' +
         'dedizierter Upload, getrennt vom Besuchernetz (trivisionstudios.com)',
     },
     {
@@ -237,7 +237,7 @@ export function buildVenueNetworkRequest(
       : {
           key: 'poe',
           origin: 'question' as const,
-          why: 'Kein Geraet im Plan fuehrt ein PoE-Budget. Aus der Portzahl darauf zu schliessen waere geraten — die meisten AV-Geraete haben ein Netzteil.',
+          why: 'Kein Gerät im Plan führt ein PoE-Budget. Aus der Portzahl darauf zu schliessen wäre geraten — die meisten AV-Geräte haben ein Netzteil.',
         },
     {
       key: 'igmpQuerier',
@@ -257,8 +257,8 @@ export function buildVenueNetworkRequest(
       origin: 'question',
       why:
         'Lassen die Haus-Switches PTP (IEEE 1588) durch, oder sind sie Boundary Clock? ' +
-        'Welche Domaene ist im Haus schon belegt? ST 2059-2 steht per Vorgabe auf Domaene 127, ' +
-        'AES67 in der Praxis auf 0 — kollidiert eine davon mit dem Haus, laeuft der Aufbau auf ' +
+        'Welche Domäne ist im Haus schon belegt? ST 2059-2 steht per Vorgabe auf Domäne 127, ' +
+        'AES67 in der Praxis auf 0 — kollidiert eine davon mit dem Haus, läuft der Aufbau auf ' +
         'dem falschen Medientakt an, ohne einen Fehler zu melden.',
       source: 'SMPTE ST 2059-2; AES67 Media Profile',
     },
@@ -268,14 +268,14 @@ export function buildVenueNetworkRequest(
       why:
         'Gibt es DHCP in diesen VLANs, und in welchem Bereich? Der Plan arbeitet mit festen ' +
         'Adressen; ein zweiter, unbekannter DHCP-Dienst im selben Netz ist ein benannter ' +
-        'Ausfallgrund. Audinates Feldrat fuer AV-Switches lautet ausdruecklich: kein DHCP anbieten.',
+        'Ausfallgrund. Audinates Feldrat für AV-Switches lautet ausdrücklich: kein DHCP anbieten.',
       source: 'Blue Room, Dante switch performance',
     },
     {
       key: 'qos',
       origin: 'question',
       why:
-        'Welche QoS-/DSCP-Behandlung ist im Haus gesetzt, und bleibt sie ueber alle beteiligten ' +
+        'Welche QoS-/DSCP-Behandlung ist im Haus gesetzt, und bleibt sie über alle beteiligten ' +
         'Switches gleich? Die Design-Literatur schreibt QoS als Inhalt vor, nennt aber keine Werte; ' +
         'und uneinheitliche Switches sind selbst die Gefahr: „if the network uses different types of ' +
         'switches, the configurations may not behave as intended even if set correctly".',
@@ -286,8 +286,8 @@ export function buildVenueNetworkRequest(
       origin: 'question',
       why:
         'Wann findet der gemeinsame Testtermin statt? Die Design-Literatur schreibt ihn vor und ' +
-        'liefert kein Dokument dafuer; die praktische Ersatzloesung der Branche ist ein monatliches ' +
-        'Treffen zwischen AV und IT — eine Organisationsform fuer ein fehlendes Blatt.',
+        'liefert kein Dokument dafür; die praktische Ersatzlösung der Branche ist ein monatliches ' +
+        'Treffen zwischen AV und IT — eine Organisationsform für ein fehlendes Blatt.',
       source: 'Crestron; Ruckus; Church Production',
     },
   ]
@@ -357,7 +357,7 @@ export function rackDoorSheetTable(equipment: EquipmentItem[]): CsvTable {
     ])
   }
   return {
-    headers: ['Geraet', 'Schnittstelle', 'IP', 'Maske', 'Gateway', 'VLAN', 'MAC'],
+    headers: ['Gerät', 'Schnittstelle', 'IP', 'Maske', 'Gateway', 'VLAN', 'MAC'],
     rows,
   }
 }
@@ -371,7 +371,7 @@ export function vlanTable(equipment: EquipmentItem[]): CsvTable {
     byVlan.set(nic.vlanId, [...(byVlan.get(nic.vlanId) ?? []), name])
   }
   return {
-    headers: ['VLAN', 'Geraete', 'Anzahl'],
+    headers: ['VLAN', 'Geräte', 'Anzahl'],
     rows: [...byVlan.entries()]
       .sort((a, b) => a[0] - b[0])
       .map(([id, names]): CsvCell[] => [id, names.join(', '), names.length]),

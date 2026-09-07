@@ -128,7 +128,7 @@ export const damageTally = (
  * wann. Kanonisches Deutsch, weil das Blatt einen Stand traegt.
  */
 export const damageTable = (records: CheckoutRecord[]): CsvTable => ({
-  headers: ['Zurueck am', 'Objekt', 'Etiketten-Code', 'Schaden', 'Show', 'Ausgegeben an', 'Container'],
+  headers: ['Zurück am', 'Objekt', 'Etiketten-Code', 'Schaden', 'Show', 'Ausgegeben an', 'Container'],
   rows: damageEntries(records).map((e): CsvCell[] => [
     e.at.slice(0, 10),
     e.label,

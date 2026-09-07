@@ -281,7 +281,7 @@ describe('das Blatt', () => {
       ],
     })
     const rolle = t.headers.indexOf('Rolle')
-    expect(t.rows[0][rolle]).toBe('Primaerweg')
+    expect(t.rows[0][rolle]).toBe('Primärweg')
     expect(String(t.rows[1][rolle])).toContain('Backup von Haupt')
   })
 })

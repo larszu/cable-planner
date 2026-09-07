@@ -34,6 +34,7 @@ import {
 } from '../../lib/templateScope'
 import { venueScopeDialog } from '../../lib/venueScopeDialog'
 import { JOB_BASIS_LABEL, latestAsBuilt } from '../../lib/jobHandover'
+import { PanelHint } from '../shared/PanelHint'
 
 export const TemplatesDialog = () => {
   const t = useTranslation()
@@ -261,12 +262,13 @@ export const TemplatesDialog = () => {
     >
       <div className="space-y-4 p-1 text-cp-base">
         <div className="flex items-center justify-between gap-2">
-          <p className="text-cp-xs text-[var(--cp-text-muted)]">
-            {t(
+          <PanelHint
+            className="text-cp-xs text-[var(--cp-text-muted)]"
+            text={t(
               'templates.intro',
               'Mitgelieferte Show-Setups oder eigene gespeicherte Vorlagen als Startpunkt. Lädt eine Kopie — das bestehende Projekt wird erst nach Bestätigung ersetzt.',
             )}
-          </p>
+          />
           <Button
             variant="secondary"
             size="sm"

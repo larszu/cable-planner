@@ -59,6 +59,7 @@ import { exportGroupAsPatchPdf, buildGroupPatchPdfBlob } from '../../lib/exportG
 import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 import { LayerVisibilityChips } from '../Canvas/LayerVisibilityChips'
 import type { Cable } from '../../types/cable'
+import { PanelHint } from '../shared/PanelHint'
 
 export type ExportFormat = 'pdf' | 'png' | 'jpeg' | 'svg' | 'dxf'
 type Section = 'plan' | 'patch' | 'bom' | 'devicebom' | 'rack' | 'tally' | 'packet'
@@ -402,12 +403,12 @@ const PlanSection = ({
                 <option value="a1">A1 Landscape (841×594 mm)</option>
                 <option value="a0">A0 Landscape (1189×841 mm)</option>
                 <option value="a0plus">A0+ Plotter (1682×1189 mm)</option>
-                <option value="original">{t('export.page.original', 'Original — volle Canvas-Groesse fuer Plotter')}</option>
+                <option value="original">{t('export.page.original', 'Original — volle Canvas-Größe für Plotter')}</option>
               </select>
               <p className="text-[10px] text-cp-text-muted">
                 {pdfPageSize === 'original'
                   ? t('export.page.originalHint', 'Achtung: Edge / Preview zeigen Pages über A0 manchmal weiss an. Acrobat + Plotter-Software drucken trotzdem.')
-                  : t('export.page.scaleHint', 'Canvas wird vektoriell auf die Page-Groesse skaliert. Text bleibt scharf.')}
+                  : t('export.page.scaleHint', 'Canvas wird vektoriell auf die Page-Größe skaliert. Text bleibt scharf.')}
               </p>
             </fieldset>
           )}
@@ -1343,12 +1344,13 @@ const MvSheetPanel = ({ map }: { map: ReturnType<typeof buildTallyMap> }) => {
           </button>
         ))}
       </div>
-      <p className="text-cp-xs text-cp-text-muted">
-        {t(
+      <PanelHint
+        className="text-cp-xs text-cp-text-muted"
+        text={t(
           'mv.sheet.hint',
           'Die Namen kommen aus denselben Rollen wie Tally und UMD — nicht aus einer zweiten, von Hand geführten Liste. Der Mischer speichert sein Bild binär; dieses Blatt kann auch die Kamera-Crew lesen.',
         )}
-      </p>
+      />
       {befunde.length > 0 && (
         <ul className="mt-1 flex max-h-32 flex-col gap-0.5 overflow-auto text-cp-xs">
           {befunde.map((b, idx) => (

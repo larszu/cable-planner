@@ -12,6 +12,7 @@ import { changeImpact, changeImpactSummary, type ChangeImpact } from '../../lib/
 import { planFingerprint } from '../../lib/documentStamp'
 import { looksLikeProject } from '../../lib/looksLikeProject'
 import type { CablePlannerProject, ProjectRevision } from '../../types/project'
+import { PanelHint } from '../shared/PanelHint'
 
 // Roadmap-Initiative 5 — hier laufen beide Ableitungen zusammen.
 //
@@ -225,12 +226,13 @@ export const PlanCompareDialog = ({ open, onClose }: PlanCompareDialogProps) => 
         )}
 
         {!other && !error && (
-          <p className="text-cp-xs text-cp-text-muted">
-            {t(
+          <PanelHint
+            className="text-cp-xs text-cp-text-muted"
+            text={t(
               'compare.hint',
               'Wähle eine zweite Projektdatei — etwa den Stand, den ein Kollege zurückgeschickt hat — oder eine festgeschriebene Revision aus diesem Projekt. Beides wird nur gelesen und nicht geöffnet.',
             )}
-          </p>
+          />
         )}
 
         {diff && impact && other && (

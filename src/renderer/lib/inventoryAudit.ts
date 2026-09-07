@@ -337,7 +337,7 @@ export function auditTable(
 ): CsvTable {
   const geprueft = nodePathLabel(nodes, atNodeId)
   return {
-    headers: ['Ergebnis', 'Wie erfasst', 'Code', 'Objekt', 'Modell', 'Erwartet in', 'Geprueft an'],
+    headers: ['Ergebnis', 'Wie erfasst', 'Code', 'Objekt', 'Modell', 'Erwartet in', 'Geprüft an'],
     rows: [
       ...hits.map((h): CsvCell[] => [
         AUDIT_LABEL[h.outcome],

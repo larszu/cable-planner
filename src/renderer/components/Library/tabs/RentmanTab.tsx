@@ -377,8 +377,8 @@ export const RentmanTab = () => {
                 onKeyDown={(e) => {
                   if (e.key === 'Escape') setRentmanSearch('')
                 }}
-                placeholder={t('library.rentmanSearchPlaceholder', 'In Rentman-Geraeten suchen…')}
-                aria-label={t('library.rentmanSearchPlaceholder', 'In Rentman-Geraeten suchen…')}
+                placeholder={t('library.rentmanSearchPlaceholder', 'In Rentman-Geräten suchen…')}
+                aria-label={t('library.rentmanSearchPlaceholder', 'In Rentman-Geräten suchen…')}
                 className="w-full rounded border border-cp-border bg-cp-surface-1 py-1 pl-7 pr-7 text-cp-xs text-cp-text placeholder-slate-500"
               />
               {rentmanSearch && (

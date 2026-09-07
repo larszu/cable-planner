@@ -4,6 +4,7 @@ import { useTranslation } from '../../../lib/i18n'
 import type { EquipmentItem } from '../../../types/equipment'
 import { SortableSection } from '../SortableSection'
 import { Icon } from '../../shared/Icon'
+import { PanelHint } from '../../shared/PanelHint'
 
 /**
  * v7.4.0 / #306 — Stromverbrauch accordion. Two entry paths:
@@ -114,12 +115,13 @@ export const PowerConsumptionSection = ({ equipment }: { equipment: EquipmentIte
           />
         </label>
       </div>
-      <p className="mt-2 text-[10px] text-cp-text-muted">
-        {t(
+      <PanelHint
+        className="mt-2 text-[10px] text-cp-text-muted"
+        text={t(
           'power.formulaHint',
           'Wenn Spannung und Stromstärke gesetzt sind, wird die Leistung automatisch berechnet (P = U × I). Werkzeuge → Stromverbrauch summiert das Leistungs-Feld über alle Geräte.',
         )}
-      </p>
+      />
     </SortableSection>
   )
 }

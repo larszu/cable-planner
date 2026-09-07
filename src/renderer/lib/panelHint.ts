@@ -16,7 +16,11 @@
  * wie er ist.
  */
 export function teile(text: string): { kopf: string; rest: string } {
-  const m = /([.!?])\s+(?=[A-ZÄÖÜ])/.exec(text)
+  // Kein Schnitt hinter einer Ziffer: „Intermodulation 3. Ordnung" ist eine
+  // Ordnungszahl und kein Satzende — der Hinweis endete sonst mitten im
+  // Begriff („Geprueft: Traegerabstand + Intermodulation 3."). Dasselbe gilt
+  // fuer „1. Januar" und „19. Zoll".
+  const m = /(?<![0-9])([.!?])\s+(?=[A-ZÄÖÜ])/.exec(text)
   if (!m || m.index < 20) return { kopf: text, rest: '' }
   const schnitt = m.index + 1
   return { kopf: text.slice(0, schnitt).trim(), rest: text.slice(schnitt).trim() }

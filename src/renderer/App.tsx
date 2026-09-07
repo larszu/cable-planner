@@ -1144,11 +1144,11 @@ export default function App() {
       .getState()
       .project.cables.filter((c) => c.type === draft.type && c.length === draft.length).length
     if (built > planned) {
-      await infoDialog('Ueber Rentman-Plan hinaus', {
+      await infoDialog('Über Rentman-Plan hinaus', {
         body:
           `Es sind jetzt ${built} x ${draft.type} ${draft.length} m verbaut, ` +
           `aber nur ${planned} laut Rentman-Plan vorhanden. ` +
-          `Bitte zusaetzliche Kabel in Rentman buchen oder die Verkabelung anpassen.`,
+          `Bitte zusätzliche Kabel in Rentman buchen oder die Verkabelung anpassen.`,
         tone: 'warning',
       })
     }
@@ -1626,7 +1626,7 @@ const PdfExportDialog = ({
             <p className="mt-2 text-[10px] text-cp-text-muted">
               {t(
                 'pdfExport.layers.hint',
-                'Klick auf einen Chip schaltet die Ebene fuer Canvas UND PDF um. Beispiel: nur Video drucken ⇒ alle anderen Chips ausschalten.',
+                'Klick auf einen Chip schaltet die Ebene für Canvas UND PDF um. Beispiel: nur Video drucken ⇒ alle anderen Chips ausschalten.',
               )}
             </p>
           </fieldset>

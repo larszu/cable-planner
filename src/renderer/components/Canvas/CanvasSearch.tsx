@@ -176,6 +176,8 @@ export const CanvasSearch = () => {
       className="cursor-grab text-cp-text-faint hover:text-cp-text active:cursor-grabbing"
       title={t('canvas.search.move', 'Suchleiste verschieben')}
       aria-label={t('canvas.search.move', 'Suchleiste verschieben')}
+      // Zieh-Griff, kein Knopf — siehe `ui:labels`.
+      data-cp-drag-handle=""
     >
       <Icon icon={GripVertical} size="sm" />
     </button>

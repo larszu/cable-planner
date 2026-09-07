@@ -9,6 +9,7 @@ import { syncSharedLibrary, type LibrarySyncResult } from '../../../lib/sharedLi
 import { countCredentialBearers } from '../../../lib/credentialKeys'
 import { credentialChoiceDialog, type CredentialChoice } from '../../../lib/credentialChoiceDialog'
 import { useProjectStore } from '../../../store/projectStore'
+import { PanelHint } from '../../shared/PanelHint'
 
 /**
  * #434 — Workgroup-/Shared-Library: ein „Bibliothek jetzt synchronisieren"-
@@ -138,12 +139,13 @@ export const SyncTab = () => {
           )}
         </div>
       )}
-      <p className="text-cp-xs text-cp-text-muted">
-        {t(
+      <PanelHint
+        className="text-cp-xs text-cp-text-muted"
+        text={t(
           'settings.sync.intro',
           'Gemeinsames Verzeichnis (FTP-Laufwerk, Netzwerkpfad oder lokaler Ordner), in dem Projekt, Bibliothek und Presets als JSON-Dateien geteilt werden.',
         )}
-      </p>
+      />
       <label className="block text-cp-base text-cp-text-secondary">
         {t('settings.sync.path', 'Sync-Verzeichnis')}
         <input

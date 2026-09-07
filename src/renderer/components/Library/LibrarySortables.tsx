@@ -52,6 +52,11 @@ export const SortableCategorySection = ({
           {...listeners}
           aria-label={t('library.sortables.categoryAria', 'Kategorie verschieben')}
           title={t('library.sortables.dragTitle', 'Per Drag&Drop verschieben')}
+          // Ein Zieh-Griff, kein Knopf: er loest nichts aus, er verschiebt.
+          // `ui:labels` zaehlt ihn deshalb nicht unter den symbolgleichen
+          // Knoepfen mit — ein Wort daneben zu schreiben, waere Ballast an
+          // jeder Kategoriezeile.
+          data-cp-drag-handle=""
           role="button"
           tabIndex={0}
           className="absolute left-0.5 top-0.5 z-10 flex h-5 w-3 cursor-grab items-center justify-center text-cp-text-faint hover:text-cp-text-bright active:cursor-grabbing"

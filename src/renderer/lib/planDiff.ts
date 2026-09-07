@@ -435,7 +435,7 @@ const sectionDetail = (before: unknown, after: unknown): string => {
   if (Array.isArray(before) || Array.isArray(after)) {
     const b = Array.isArray(before) ? before.length : 0
     const a = Array.isArray(after) ? after.length : 0
-    return b === a ? `${a} Eintraege, Inhalt geaendert` : `${b} -> ${a} Eintraege`
+    return b === a ? `${a} Einträge, Inhalt geändert` : `${b} -> ${a} Einträge`
   }
   const isObj = (v: unknown): v is Record<string, unknown> =>
     typeof v === 'object' && v !== null
@@ -445,7 +445,7 @@ const sectionDetail = (before: unknown, after: unknown): string => {
     const changed = [...new Set([...Object.keys(b), ...Object.keys(a)])]
       .filter((k) => stableJson(b[k]) !== stableJson(a[k]))
       .sort()
-    return changed.length > 0 ? changed.join(', ') : 'geaendert'
+    return changed.length > 0 ? changed.join(', ') : 'geändert'
   }
   return `${renderValue(before)} -> ${renderValue(after)}`
 }
@@ -612,18 +612,18 @@ export const planDiffSummary = (diff: PlanDiff): string => {
 }
 
 const CHANGE_LABEL: Record<EntityChange['change'], string> = {
-  removed: 'entfaellt',
+  removed: 'entfällt',
   added: 'neu',
-  modified: 'geaendert',
+  modified: 'geändert',
 }
 
 const KIND_LABEL: Record<EntityChange['kind'], string> = {
-  equipment: 'Geraet',
+  equipment: 'Gerät',
   cable: 'Kabel',
 }
 
 const CLASS_LABEL: Record<FieldClass, string> = {
-  identity: 'Identitaet',
+  identity: 'Identität',
   substantive: 'inhaltlich',
   cosmetic: 'Darstellung',
   bookkeeping: 'Herkunft',
@@ -685,7 +685,7 @@ export const planDiffTable = (
   }
 
   for (const section of diff.sections) {
-    rows.push(['Bereich', 'nicht aufgeschluesselt', section.section, '', '', section.detail, ''])
+    rows.push(['Bereich', 'nicht aufgeschlüsselt', section.section, '', '', section.detail, ''])
   }
   for (const hint of diff.recreationHints) {
     rows.push([

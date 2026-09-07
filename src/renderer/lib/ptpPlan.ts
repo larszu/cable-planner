@@ -215,11 +215,11 @@ export function buildPtpPlan(
         kind: 'domain-clash',
         domain: d.domain,
         text:
-          `Domaene ${d.domain} traegt ${d.families.map((f) => FAMILY_LABEL[f]).join(' und ')}. ` +
+          `Domäne ${d.domain} trägt ${d.families.map((f) => FAMILY_LABEL[f]).join(' und ')}. ` +
           `ST 2059-2 steht per Vorgabe auf 127, AES67 in der Praxis auf 0 — auf einer ` +
-          `gemeinsamen Domaene haengt eine der beiden Familien am falschen Medientakt. ` +
-          `Entweder zwei Domaenen mit einer Boundary Clock dazwischen, oder ein ` +
-          `erklaerter Grund, warum es hier ohne geht.`,
+          `gemeinsamen Domäne hängt eine der beiden Familien am falschen Medientakt. ` +
+          `Entweder zwei Domänen mit einer Boundary Clock dazwischen, oder ein ` +
+          `erklärter Grund, warum es hier ohne geht.`,
         deviceIds: ids,
       })
     }
@@ -229,8 +229,8 @@ export function buildPtpPlan(
         kind: 'profile-clash',
         domain: d.domain,
         text:
-          `Domaene ${d.domain} traegt zwei Profile: ` +
-          `${d.profiles.map((p) => PROFILE_LABEL[p]).join(' und ')}. Dieselbe Domaene, ` +
+          `Domäne ${d.domain} trägt zwei Profile: ` +
+          `${d.profiles.map((p) => PROFILE_LABEL[p]).join(' und ')}. Dieselbe Domäne, ` +
           `zwei Vorstellungen davon, was darin gilt.`,
         deviceIds: ids,
       })
@@ -243,7 +243,7 @@ export function buildPtpPlan(
           kind: 'off-default',
           domain: d.domain,
           text:
-            `${m.label}: Profil ${PROFILE_LABEL[m.profile]} auf Domaene ${d.domain}. ` +
+            `${m.label}: Profil ${PROFILE_LABEL[m.profile]} auf Domäne ${d.domain}. ` +
             `Die Vorgabe dieses Profils ist ${vorgabe}. Das ist kein Fehler — aber es ` +
             `ist die Zahl, die man beim Fehlersuchen als Erstes sehen will.`,
           deviceIds: [m.equipmentId],
@@ -256,8 +256,8 @@ export function buildPtpPlan(
         kind: 'no-grandmaster',
         domain: d.domain,
         text:
-          `Domaene ${d.domain} nennt keine Uhr. Der Aufbau laeuft trotzdem an — das ` +
-          `BMCA waehlt ein Geraet aus. Welches, steht dann nirgends.`,
+          `Domäne ${d.domain} nennt keine Uhr. Der Aufbau läuft trotzdem an — das ` +
+          `BMCA wählt ein Gerät aus. Welches, steht dann nirgends.`,
         deviceIds: ids,
       })
     } else if (d.grandmasters.length > 1) {
@@ -265,8 +265,8 @@ export function buildPtpPlan(
         kind: 'two-grandmaster',
         domain: d.domain,
         text:
-          `Domaene ${d.domain} nennt ${d.grandmasters.length} Uhren ` +
-          `(${d.grandmasters.join(', ')}). Auch das laeuft an, und auch hier waehlt das ` +
+          `Domäne ${d.domain} nennt ${d.grandmasters.length} Uhren ` +
+          `(${d.grandmasters.join(', ')}). Auch das läuft an, und auch hier wählt das ` +
           `BMCA — nur hatte diesmal jemand eine Absicht, und der Plan sagt nicht, welche.`,
         deviceIds: ids,
       })
@@ -277,11 +277,11 @@ export function buildPtpPlan(
 }
 
 export const PTP_FINDING_LABEL: Record<PtpFindingKind, string> = {
-  'domain-clash': 'Zwei Essenz-Familien auf einer Domaene',
-  'profile-clash': 'Zwei Profile auf einer Domaene',
-  'off-default': 'Domaene weicht von der Profil-Vorgabe ab',
-  'no-grandmaster': 'Domaene ohne erklaerte Uhr',
-  'two-grandmaster': 'Domaene mit mehreren erklaerten Uhren',
+  'domain-clash': 'Zwei Essenz-Familien auf einer Domäne',
+  'profile-clash': 'Zwei Profile auf einer Domäne',
+  'off-default': 'Domäne weicht von der Profil-Vorgabe ab',
+  'no-grandmaster': 'Domäne ohne erklärte Uhr',
+  'two-grandmaster': 'Domäne mit mehreren erklärten Uhren',
 }
 
 /**
@@ -305,7 +305,7 @@ export function ptpTable(plan: PtpPlan): CsvTable {
     }
   }
   return {
-    headers: ['Domaene', 'Schnittstelle', 'Profil', 'Rolle', 'Essenz'],
+    headers: ['Domäne', 'Schnittstelle', 'Profil', 'Rolle', 'Essenz'],
     rows,
   }
 }

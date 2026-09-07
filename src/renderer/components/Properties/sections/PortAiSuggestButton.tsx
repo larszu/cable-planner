@@ -32,7 +32,7 @@ export const PortAiSuggestButton = ({
     try {
       const result = await suggestFromAI(equipment.name ?? '', equipment.category ?? '')
       if (result.length === 0) {
-        setError(t('props.aiPorts.noSuggestion', 'AI konnte keine Ports vorschlagen. Geraete-Name praeziseren?'))
+        setError(t('props.aiPorts.noSuggestion', 'AI konnte keine Ports vorschlagen. Geräte-Name präzisieren?'))
       } else {
         setHints(result)
       }
@@ -91,7 +91,7 @@ export const PortAiSuggestButton = ({
           title={format(
             t(
               'props.aiPorts.btnTitle',
-              'Fragt den im Einstellungen → AI gewaehlten Provider was "{name}" ueblicherweise fuer Ports hat',
+              'Fragt den im Einstellungen → AI gewählten Provider was "{name}" üblicherweise für Ports hat',
             ),
             { name: equipment.name },
           )}
@@ -128,7 +128,7 @@ export const PortAiSuggestButton = ({
                     format(
                       t(
                         'props.aiPorts.confirmReplace',
-                        'Bestehende {in} In / {out} Out durch AI-Vorschlag ueberschreiben?',
+                        'Bestehende {in} In / {out} Out durch AI-Vorschlag überschreiben?',
                       ),
                       { in: equipment.inputs.length, out: equipment.outputs.length },
                     ),
@@ -136,7 +136,7 @@ export const PortAiSuggestButton = ({
                   if (ok) apply('replace')
                 }}
                 className="rounded bg-amber-700 px-2 py-0.5 text-[10px] text-amber-100 hover:bg-amber-600"
-                title={t('props.aiPorts.replaceTitle', 'Loescht aktuelle Ports und nimmt die AI-Vorschlaege')}
+                title={t('props.aiPorts.replaceTitle', 'Löscht aktuelle Ports und nimmt die AI-Vorschläge')}
               >
                 {t('props.aiPorts.replace', 'Ersetzen')}
               </button>
@@ -145,11 +145,11 @@ export const PortAiSuggestButton = ({
               type="button"
               onClick={() => apply('append')}
               className="rounded bg-emerald-700 px-2 py-0.5 text-[10px] text-emerald-100 hover:bg-emerald-600"
-              title={t('props.aiPorts.appendTitle', 'Haengt die AI-Vorschlaege an die bestehenden Ports an')}
+              title={t('props.aiPorts.appendTitle', 'Hängt die AI-Vorschläge an die bestehenden Ports an')}
             >
               {hasExisting
-                ? t('props.aiPorts.append', 'Anhaengen')
-                : t('props.aiPorts.adopt', 'Uebernehmen')}
+                ? t('props.aiPorts.append', 'Anhängen')
+                : t('props.aiPorts.adopt', 'Übernehmen')}
             </button>
             <button
               type="button"

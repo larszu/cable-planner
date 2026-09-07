@@ -168,7 +168,7 @@ describe('planDiff — Verhalten', () => {
     })
     const diff = planDiff(before, after)
     expect(diff.sections).toEqual([
-      { section: 'locations', detail: '0 -> 1 Eintraege' },
+      { section: 'locations', detail: '0 -> 1 Einträge' },
       { section: 'metadata', detail: 'revision, updatedAt' },
     ])
     // Der Metadaten-Bereich nennt die geaenderten Schluessel, damit
@@ -354,7 +354,7 @@ describe('planDiffTable — der Vergleich auf Papier', () => {
       locations: [{ id: 'L1', name: 'Halle' }] as unknown as CablePlannerProject['locations'],
     })
     const csv = planDiffCsv(before, after)
-    expect(csv).toContain('nicht aufgeschluesselt')
+    expect(csv).toContain('nicht aufgeschlüsselt')
     expect(csv).toContain('locations')
     expect(csv).toContain('gleicher Name in Ab- und Zugang')
     expect(csv).toContain('Feld ohne Klassifizierung')
@@ -364,7 +364,7 @@ describe('planDiffTable — der Vergleich auf Papier', () => {
   it('zeigt einen Ab- oder Zugang als eine Zeile ohne Feld-Spalten', () => {
     const before = project({ equipment: [eq('A', 'Kamera 1'), eq('B', 'Switcher')] })
     const after = project({ equipment: [eq('A', 'Kamera 1')] })
-    const rows = planDiffTable(before, after).rows.filter((r) => r[0] === 'entfaellt')
-    expect(rows).toEqual([['entfaellt', 'Geraet', 'Switcher', '', '', '', '']])
+    const rows = planDiffTable(before, after).rows.filter((r) => r[0] === 'entfällt')
+    expect(rows).toEqual([['entfällt', 'Gerät', 'Switcher', '', '', '', '']])
   })
 })

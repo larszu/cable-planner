@@ -165,10 +165,29 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   'Aus dem Plan':
     'Der Wert, den der Plan für diesen Punkt vorsieht — die Frage- oder Vergleichsseite.',
   Ausgang:
-    'Der Ausgang, auf den etwas geht — je nach Blatt der Pult-Ausgang eines Kanals oder der Router-Ausgang eines Kreuzpunkts. Auf dem Umbau-Zettel steht die Nummer, wie sie am Geraet aufgedruckt ist (ab 1), nicht die interne ab 0.',
+    'Der Ausgang, auf den etwas geht — je nach Blatt der Pult-Ausgang eines Kanals oder der Router-Ausgang eines Kreuzpunkts. Auf dem Umbau-Zettel steht die Nummer, wie sie am Gerät aufgedruckt ist (ab 1), nicht die interne ab 0.',
   Ausgegeben: 'Wann der Container ausgegeben wurde.',
   'Ausgegeben an': 'An wen die beschädigte Einheit zuletzt ausgegeben war.',
   'Backup von': 'Für welches Ziel dieses Ziel der Ausweichweg ist.',
+  // Die Stueckliste und die Kommissionier-Liste (Bedarf 64/80). Acht Spalten,
+  // die dieser Guard bis heute nicht gesehen hat: `planBomCsv` und
+  // `pickListCsv` uebergeben ihre Spalten POSITIONELL an `toCsv`, ohne
+  // `headers:` und ohne `_HEADERS` — die beiden Formen, nach denen der Scan
+  // suchte. Der Scan kennt jetzt auch die dritte.
+  'Auf offener Ausgabe':
+    'Wie viel von diesem Modell gerade auf einem anderen Vorgang draußen ist. Auf welchem, steht in „Grund“.',
+  Bestand:
+    'Wie viel von diesem Modell im Lager liegt — ohne Rücksicht auf offene Ausgaben. Was davon wirklich einplanbar ist, steht in „Verfügbar“.',
+  Deckung:
+    'Wie die Zeile im Lager gedeckt ist: „gedeckt“ über die Typ-Identität, „VORSCHLAG“ nur über den Modellnamen, oder „nicht im Lager“.',
+  Fehlmenge: 'Wie viele Stück zur Bedarfsmenge fehlen.',
+  Grund:
+    'Warum die Fehlmenge besteht, soweit bekannt — im Regelfall der Vorgang, der die Stücke gerade hält.',
+  Kategorie: 'Die Kategorie, unter der das Modell im Plan geführt wird.',
+  'Nicht einsatzbereit':
+    'Einheiten, die als defekt, in Reparatur oder ausgemustert geführt sind. Aus „Verfügbar“ bereits herausgerechnet.',
+  'Verfügbar':
+    'Der Bestand abzüglich nicht einsatzbereiter Einheiten und abzüglich dessen, was auf einer offenen Ausgabe steht — die Zahl, mit der geplant werden darf.',
   Bereich: 'Der Themenblock der Übersicht (Geräte, Kabel, Ausspielung, Aufbau).',
   Befund:
     'Was die Prüfung an dieser Zeile beanstandet. Leer heißt: nichts beanstandet, nicht „nicht geprüft".',
@@ -190,7 +209,7 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
     'Welche Dienste ein Fehler mitgenommen hat. Ein SMPTE-/Fiber-Strang trägt sie gemeinsam, deshalb ist die Angabe mehrwertig.',
   'Dienste auf dem Strang':
     'Welche Dienste über denselben Kabelstrang laufen — die Grundlage der Trennungs-Prüfung.',
-  Domaene: 'Die PTP-Domänennummer der Schnittstelle.',
+  'Domäne': 'Die PTP-Domänennummer der Schnittstelle.',
   Eingang: 'Der physische Eingang am Gerät oder Mischer.',
   Einheit: 'Die einzelne, mit Seriennummer unterscheidbare Kiste — nicht das Modell.',
   Empfänger: 'Wer den Multicast-Fluss empfängt.',
@@ -212,12 +231,11 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   'Frequenz (MHz)': 'Die belegte Funkfrequenz in Megahertz.',
   Gateway: 'Das Standard-Gateway des Netzsegments.',
   'Gefundene IP': 'Die Adresse, die vor Ort tatsächlich angetroffen wurde.',
-  Gekuerzt: 'Ob der Name für das Ziel-Gerät gekürzt werden musste, und wie.',
+  'Gekürzt': 'Ob der Name für das Ziel-Gerät gekürzt werden musste, und wie.',
   'Geplant (kbit/s)': 'Die im Plan hinterlegte Gesamt-Bitrate des Ziels (Bild plus Ton).',
-  'Geprueft an': 'Wann diese Position zuletzt geprüft wurde.',
-  Geraet: 'Das Gerät im Plan, um das es in dieser Zeile geht.',
-  'Geraet(e)': 'Die Geräte, die dieser Zeile zugeordnet sind.',
-  Geraete: 'Die Geräte, die an diesem Punkt hängen.',
+  'Geprüft an': 'Wann diese Position zuletzt geprüft wurde.',
+  'Gerät(e)': 'Die Geräte, die dieser Zeile zugeordnet sind.',
+  'Geräte': 'Die Geräte, die an diesem Punkt hängen.',
   Grundlage:
     'Woraus dieses Blatt spricht: aus dem festgeschriebenen As-Built, aus einem veralteten As-Built oder aus dem Plan (also im Zweifel dem Angebot).',
   Gruppe: 'Die vergebene Multicast-Gruppenadresse.',
@@ -261,7 +279,7 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   Konto: 'Das Konto oder der Kanal auf der Plattform.',
   'L2-MAC':
     'Die Ethernet-Adresse, auf die diese Gruppe abgebildet wird. 32 Gruppen fallen auf dieselbe — daran erkennt man einen Alias.',
-  'Laenge (m)': 'Die Länge in Metern.',
+  'Länge (m)': 'Die Länge in Metern.',
   Lagerort: 'Wo der Container im Lager steht.',
   MAC: 'Die Ethernet-Adresse der Schnittstelle.',
   Maske: 'Die Subnetzmaske des Segments.',
@@ -280,7 +298,7 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
     'sagt die Zelle genau das.',
   Modell: 'Der Gerätetyp — nicht die einzelne Einheit.',
   Nachher:
-    'Der Stand NACH der Aenderung: beim Vergleich zweier Importe der zweite Stand, auf dem Umbenennungs-Blatt der Text nach der Umbenennung, auf dem Umbau-Zettel der Eingang, der auf diesen Ausgang kommt.',
+    'Der Stand NACH der Änderung: beim Vergleich zweier Importe der zweite Stand, auf dem Umbenennungs-Blatt der Text nach der Umbenennung, auf dem Umbau-Zettel der Eingang, der auf diesen Ausgang kommt.',
   Name: 'Der Name, unter dem der Datensatz im Plan geführt wird.',
   'Neuer Name': 'Der Name, den die Regel für dieses Gerät ergibt.',
   'Name (Pult)': 'Der Name, den jemand am Pult eingetippt hat.',
@@ -302,7 +320,7 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   // Ort auf dem SCHIRM) — und der Eintrag beschrieb bis dahin weiter nur die
   // Listenzeile. Genau die Art Erklaerung, die geglaubt wird und falsch ist.
   Position:
-    'Je nach Blatt dreierlei: die Listenzeile einer Liste oder Buchung; die Kamera-Position (die Rolle, an der die Tally-Lampe haengt); oder der Ort auf dem Schirm („oben links, Zelle 2“).',
+    'Je nach Blatt dreierlei: die Listenzeile einer Liste oder Buchung; die Kamera-Position (die Rolle, an der die Tally-Lampe hängt); oder der Ort auf dem Schirm („oben links, Zelle 2“).',
   Positionen: 'Wie viele Positionen der Container enthält.',
   Profil: 'Das PTP-Profil (ST 2059-2, AES67 …).',
   'Programm-Eingang': 'Der Eingang, an dem das Programm-Signal in den Ausspielweg eintritt.',
@@ -360,7 +378,7 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   // Umbenennungs-Blatt (Bedarf 101) stand: eine Erklaerung, die etwas anderes
   // beschreibt als die Spalte, ist schlimmer als keine — sie wird geglaubt.
   Vorher:
-    'Der Stand VOR der Aenderung: beim Vergleich zweier Importe der erste Stand, auf dem Umbenennungs-Blatt der Text, den das Zielsystem heute speichert, auf dem Umbau-Zettel der Eingang, der jetzt auf diesem Ausgang liegt.',
+    'Der Stand VOR der Änderung: beim Vergleich zweier Importe der erste Stand, auf dem Umbenennungs-Blatt der Text, den das Zielsystem heute speichert, auf dem Umbau-Zettel der Eingang, der jetzt auf diesem Ausgang liegt.',
   Vorgefunden: 'Was vor Ort tatsächlich angetroffen wurde — die Ist-Seite des Abgleichs.',
   Wann: 'Wann die Angabe gemacht oder die Antwort gegeben wurde.',
   Was: 'Worum es in dieser Zeile geht.',
@@ -380,10 +398,10 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   Nach: 'Wohin es gebucht wurde — im Klartext des Zeitpunkts, damit die Auskunft auch nach einer Umbenennung stimmt.',
   Ziel:
     'Wohin es geht. Bei der Ausspielung das Ausspielziel (Plattform-Adresse), sonst das empfangende Gerät oder der empfangende Kanal.',
-  'Zugeordnet ueber': 'Woran das vorgefundene Gerät dem geplanten zugeordnet wurde.',
+  'Zugeordnet über': 'Woran das vorgefundene Gerät dem geplanten zugeordnet wurde.',
   Zuordnung: 'Wie die Plan-Position dem Artikel im Warenwirtschaftssystem zugeordnet ist.',
-  'Zurueck am': 'Wann die Einheit oder der Container zurückgegeben wurde.',
-  'Zurueck bis': 'Bis wann die Rückgabe zugesagt ist.',
+  'Zurück am': 'Wann die Einheit oder der Container zurückgegeben wurde.',
+  'Zurück bis': 'Bis wann die Rückgabe zugesagt ist.',
   Zuletzt: 'Wann der jüngste Fehler an dieser Einheit gemeldet wurde.',
   Zwischenstationen: 'Die Geräte, die zwischen Programm-Eingang und Ziel im Weg liegen.',
 }

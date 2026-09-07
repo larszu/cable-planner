@@ -10,7 +10,7 @@
 
 import { useMemo, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
-import { MapPin, MessageSquare, ExternalLink } from 'lucide-react'
+import { MapPin, MessageSquare } from 'lucide-react'
 import { getViewportCenter } from '../../lib/canvasViewport'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
@@ -24,6 +24,7 @@ import type { ProjectAnnotation } from '../../types/project'
 import { FloatingPanelShell } from '../Layout/FloatingPanelShell'
 import { openPanelPopout, isPopout } from '../../lib/panelPopout'
 import { usePanelTearOff } from '../../lib/usePanelTearOff'
+import { PanelWindowMenu } from '../shared/PanelWindowMenu'
 
 // Source-of-Truth für Canvas-Drag-MIMEs ist lib/dragDropMimes.ts.
 import { MIME_ANNOTATION as ANNOTATION_DRAG_MIME } from '../../lib/dragDropMimes'
@@ -460,32 +461,13 @@ export const AnnotationsPanel = ({
               persistiert (auch ueber App-Restarts). Im Popout-Fenster
               entfällt das (#427) — dort gibt es nur Schließen. */}
           {!inPopout && (
-            <button
-              type="button"
-              data-tearoff="handle"
+            <PanelWindowMenu
+              titel={t('annotations.title', 'Anmerkungen')}
               onPointerDown={tearOff.onPointerDown}
-              onClick={() => {
-                if (tearOff.draggedRef.current) return
-                setFloating(true)
-              }}
-              title={t('annotations.float.title', 'Abdocken (klicken oder herausziehen)')}
-              aria-label={t('annotations.float.aria', 'Anmerkungen abdocken')}
-              className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
-              style={{ touchAction: 'none' }}
-            >
-              <span className="pointer-events-none">⤢</span>
-            </button>
-          )}
-          {!inPopout && (
-            <button
-              type="button"
-              onClick={() => openPanelPopout('annotations')}
-              title={t('panel.popoutTitle', 'In separates Fenster auslagern (weiterer Monitor)')}
-              aria-label={t('panel.popout', 'Auslagern')}
-              className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
-            >
-              <Icon icon={ExternalLink} size="xs" />
-            </button>
+              draggedRef={tearOff.draggedRef}
+              onUndock={() => setFloating(true)}
+              onPopout={() => openPanelPopout('annotations')}
+            />
           )}
           <button
             type="button"

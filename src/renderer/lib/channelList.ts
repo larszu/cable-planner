@@ -167,7 +167,7 @@ export function bandView(rows: ChannelRow[]): CsvTable {
  */
 export function venueView(rows: ChannelRow[]): CsvTable {
   return {
-    headers: ['Port', 'Name', 'Ziel', 'Stecker', 'Laenge (m)'],
+    headers: ['Port', 'Name', 'Ziel', 'Stecker', 'Länge (m)'],
     rows: rows.map((r): CsvCell[] => [
       venueNumber(r),
       channelName(r),
@@ -215,7 +215,7 @@ export function stageView(rows: ChannelRow[]): CsvTable {
  */
 export function consoleView(rows: ChannelRow[]): CsvTable {
   return {
-    headers: ['Ch', 'Name', 'Gekuerzt'],
+    headers: ['Ch', 'Name', 'Gekürzt'],
     rows: rows.map((r): CsvCell[] => {
       // BEDARF 113 — der Name kommt aus `channelName` und nicht roh aus der
       // Quelle. Eine blosse Nummer ist an dieser Stelle kein Name: sie steht

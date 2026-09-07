@@ -78,21 +78,21 @@ export const registerCredentialsIpc = () => {
         return {
           ok: true,
           message:
-            'Rentman-Token ist gueltig fuer LESEN und SCHREIBEN (Write-Probe ergab Daten-Fehler statt Auth-Fehler).',
+            'Rentman-Token ist gültig für LESEN und SCHREIBEN (Write-Probe ergab Daten-Fehler statt Auth-Fehler).',
         }
       } catch (probeErr: unknown) {
         const meta = probeErr as { __probe?: string; status?: number }
         if (meta?.__probe === 'auth-denied') {
           return {
             ok: false,
-            message: `Rentman-Token ist gueltig zum LESEN, aber Schreibrechte fehlen (Write-Probe HTTP ${meta.status}). Rentman-Admin fragen ob das API-Token 'projectequipment.create' darf, oder ob dein Plan-Tier den Endpoint freischaltet.`,
+            message: `Rentman-Token ist gültig zum LESEN, aber Schreibrechte fehlen (Write-Probe HTTP ${meta.status}). Rentman-Admin fragen ob das API-Token 'projectequipment.create' darf, oder ob dein Plan-Tier den Endpoint freischaltet.`,
           }
         }
         // Probe-Fehler aus anderem Grund (Netz, Timeout) — Read war ok.
         return {
           ok: true,
           message:
-            'Rentman-Token liest erfolgreich. Write-Probe nicht durchfuehrbar — gleich beim naechsten Schreibversuch sehen wir mehr.',
+            'Rentman-Token liest erfolgreich. Write-Probe nicht durchführbar — gleich beim nächsten Schreibversuch sehen wir mehr.',
         }
       }
     } catch (error) {

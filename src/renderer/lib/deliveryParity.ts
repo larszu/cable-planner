@@ -196,7 +196,7 @@ export const deliveryIssueText = (i: DeliveryIssue): string => {
     case 'backup-mismatch':
       return `Backup weicht ab: ${String(i.field)} ist ${i.actual}, muss ${i.expected} sein`
     case 'backup-orphan':
-      return 'Backup-Zeiger fuehrt ins Leere'
+      return 'Backup-Zeiger führt ins Leere'
     case 'backup-cycle':
       return 'Backup-Zeiger laufen im Kreis'
     case 'no-backup':
@@ -206,11 +206,11 @@ export const deliveryIssueText = (i: DeliveryIssue): string => {
     case 'missing-key':
       return 'Kein Stream-Key hinterlegt'
     case 'over-platform-bitrate':
-      return `Bitrate ${i.actual} ueber der Plattform-Grenze ${i.expected}`
+      return `Bitrate ${i.actual} über der Plattform-Grenze ${i.expected}`
     case 'keyframe-mismatch':
       return `Keyframe-Abstand ${i.actual}, verlangt ist ${i.expected}`
     case 'needs-port-forward':
-      return 'SRT-Listener: Portfreigabe noetig'
+      return 'SRT-Listener: Portfreigabe nötig'
   }
 }
 

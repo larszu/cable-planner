@@ -5,6 +5,7 @@ import { useUiStore } from '../../../store/uiStore'
 import { useTranslation } from '../../../lib/i18n'
 import { HOTKEY_ACTION_LABEL, comboFromEvent } from '../../../lib/hotkeys'
 import { SettingsCard } from '../SettingsCard'
+import { PanelHint } from '../../shared/PanelHint'
 
 /**
  * #307 — Hotkeys-Tab aus SettingsDialog ausgelagert.
@@ -72,12 +73,13 @@ export const HotkeysTab = () => {
   const actions = Object.keys(HOTKEY_ACTION_LABEL)
   return (
     <div className="space-y-3">
-      <p className="text-cp-xs text-cp-text-muted">
-        {t(
+      <PanelHint
+        className="text-cp-xs text-cp-text-muted"
+        text={t(
           'settings.hotkeys.intro',
           'Tastenkürzel können hier frei belegt werden. Klicke auf eine Combo-Zelle und drücke die gewünschten Tasten — Ctrl/Shift/Alt + Buchstabe oder Funktionstaste.',
         )}
-      </p>
+      />
       <SettingsCard
         title={t('settings.hotkeys.title', 'Aktive Tastenkürzel')}
         description={t(

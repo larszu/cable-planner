@@ -100,7 +100,7 @@ describe('das Blatt traegt Modell UND Ort', () => {
     // Haken in der Liste sind nicht dieselbe Auskunft, und das Blatt muss
     // beides auseinanderhalten koennen.
     expect(t.headers).toEqual([
-      'Ergebnis', 'Wie erfasst', 'Code', 'Objekt', 'Modell', 'Erwartet in', 'Geprueft an',
+      'Ergebnis', 'Wie erfasst', 'Code', 'Objekt', 'Modell', 'Erwartet in', 'Geprüft an',
     ])
     expect(t.rows[0]).toEqual([
       'Am falschen Ort', 'gescannt', 'ITM-WEG', 'Stativ', 'Stativ', 'Regal B1', 'Regal A3',

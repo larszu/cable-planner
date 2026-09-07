@@ -269,12 +269,12 @@ export function runOfShowSheet(destinations: DeliveryDestination[]): CsvTable {
     ],
     rows: destinations.map((d): CsvCell[] => [
       d.name,
-      d.backupOfId ? `Backup von ${nameById.get(d.backupOfId) ?? d.backupOfId}` : 'Primaerweg',
+      d.backupOfId ? `Backup von ${nameById.get(d.backupOfId) ?? d.backupOfId}` : 'Primärweg',
       d.platform,
       d.transport,
       d.ingestUrl ?? '',
       // Der VERWEIS, nicht der Wert.
-      d.hasStreamKey ? `Schluesselbund: stream-key:${d.id}` : 'nicht hinterlegt',
+      d.hasStreamKey ? `Schlüsselbund: stream-key:${d.id}` : 'nicht hinterlegt',
       `${d.encoding.width}x${d.encoding.height}p${d.encoding.fps}`,
       `${d.encoding.videoBitrateKbps} kbit/s ${d.encoding.videoCodec}`,
       `${d.encoding.keyframeSec} s`,

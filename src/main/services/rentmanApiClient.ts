@@ -75,9 +75,9 @@ const wrapRentmanError = (err: unknown, context: string): Error => {
       status === 401
         ? 'Token ungültig oder abgelaufen — Einstellungen → Rentman prüfen.'
         : status === 403
-          ? `403 Forbidden auf ${reqMethod} ${reqUrl}. Entweder fehlen dem Token die Schreibrechte fuer diesen Endpoint, ODER der Endpoint existiert nicht fuer deinen Rentman-Plan (manche Endpoints sind Tarif-abhaengig). Server-Antwort: ${serverMsg}`
+          ? `403 Forbidden auf ${reqMethod} ${reqUrl}. Entweder fehlen dem Token die Schreibrechte für diesen Endpoint, ODER der Endpoint existiert nicht für deinen Rentman-Plan (manche Endpoints sind Tarif-abhängig). Server-Antwort: ${serverMsg}`
           : status === 404
-            ? `404 Not Found auf ${reqMethod} ${reqUrl}. Resource gibt's nicht — Projekt-/Equipment-ID falsch oder geloescht, oder Endpoint-Pfad falsch.`
+            ? `404 Not Found auf ${reqMethod} ${reqUrl}. Resource gibt's nicht — Projekt-/Equipment-ID falsch oder gelöscht, oder Endpoint-Pfad falsch.`
             : status === 422
               ? `422 Validation auf ${reqMethod} ${reqUrl}: ${serverMsg}`
               : status && status >= 500
@@ -183,7 +183,7 @@ export const createRentmanApiClient = (token: string) => {
     try {
       return await fetchAll(`/projects/${encodeURIComponent(projectId)}/subprojects`)
     } catch (err) {
-      throw wrapRentmanError(err, `GET subprojects fuer Projekt ${projectId}`)
+      throw wrapRentmanError(err, `GET subprojects für Projekt ${projectId}`)
     }
   }
 
@@ -206,12 +206,12 @@ export const createRentmanApiClient = (token: string) => {
         const status = err.response?.status
         if (status === 403 || status === 404) {
           console.warn(
-            `[rentman] /equipmentgroups nicht verfuegbar (${status}) — fallback auf Equipment-Add ohne Gruppe.`,
+            `[rentman] /equipmentgroups nicht verfügbar (${status}) — fallback auf Equipment-Add ohne Gruppe.`,
           )
           return null
         }
       }
-      throw wrapRentmanError(err, `GET equipmentgroups fuer Subproject ${subprojectId}`)
+      throw wrapRentmanError(err, `GET equipmentgroups für Subproject ${subprojectId}`)
     }
   }
 
@@ -237,7 +237,7 @@ export const createRentmanApiClient = (token: string) => {
       })
       const id = pickId(response.data)
       if (!id) {
-        throw new Error('Rentman lieferte beim Erstellen der Group keine id zurueck.')
+        throw new Error('Rentman lieferte beim Erstellen der Group keine id zurück.')
       }
       return { id }
     } catch (err) {

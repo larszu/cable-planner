@@ -9,6 +9,7 @@ import { useSettingsStore } from '../../../store/settingsStore'
 import { useTranslation } from '../../../lib/i18n'
 import { MODULES } from '../../../lib/modules'
 import { SettingsCard } from '../SettingsCard'
+import { PanelHint } from '../../shared/PanelHint'
 
 export const ModulesTab = () => {
   const t = useTranslation()
@@ -17,12 +18,13 @@ export const ModulesTab = () => {
 
   return (
     <div className="space-y-3">
-      <p className="text-cp-base text-cp-text-secondary">
-        {t(
+      <PanelHint
+        className="text-cp-base text-cp-text-secondary"
+        text={t(
           'settings.modules.intro',
           'Schalte Funktionsbereiche ein oder aus, um die Oberfläche auf deinen Anwendungsfall zuzuschneiden. Das betrifft nur die Sichtbarkeit — gespeicherte Projektdaten bleiben immer vollständig erhalten.',
         )}
-      </p>
+      />
       {MODULES.map((m) => (
         <SettingsCard
           key={m.id}

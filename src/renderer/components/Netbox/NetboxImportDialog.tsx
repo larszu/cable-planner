@@ -8,6 +8,7 @@ import { useSettingsStore } from '../../store/settingsStore'
 import { useTranslation, format } from '../../lib/i18n'
 import { buildNetboxImportPlan, type NetboxImportPlan } from '../../lib/netboxMapping'
 import type { NetboxRack, NetboxSite, NetboxSnapshot } from '../../types/netbox'
+import { PanelHint } from '../shared/PanelHint'
 
 /**
  * #597 — NetBox-Import.
@@ -233,12 +234,13 @@ export const NetboxImportDialog = ({ open, onClose }: { open: boolean; onClose: 
         </div>
       ) : phase === 'choose' ? (
         <div className="space-y-3">
-          <p className="text-cp-base text-cp-text-secondary">
-            {t(
+          <PanelHint
+            className="text-cp-base text-cp-text-secondary"
+            text={t(
               'netbox.import.intro',
               'Wähle eine Site oder ein einzelnes Rack. Geräte, Ports und Verbindungen werden gelesen und als Kabelplan angelegt. Der Abgleich fügt immer nur hinzu — bereits vorhandene Geräte und Kabel bleiben mit allen Anpassungen erhalten.',
             )}
-          </p>
+          />
 
           <label className="block text-cp-base">
             {t('netbox.import.site', 'Site')}

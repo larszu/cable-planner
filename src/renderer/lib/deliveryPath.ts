@@ -224,7 +224,7 @@ export function deliveryPathTable(project: ChainInput): CsvTable {
     ],
     rows: chains.map((c): CsvCell[] => [
       c.destinationName,
-      c.role === 'backup' ? `Backup von ${c.backupOfName ?? '?'}` : 'Primaerweg',
+      c.role === 'backup' ? `Backup von ${c.backupOfName ?? '?'}` : 'Primärweg',
       c.source?.name ?? '',
       // Leer statt 0, wenn es keine Quelle gibt: eine 0 laese sich als
       // „direkt verkabelt" lesen, und das waere eine Aussage, die niemand

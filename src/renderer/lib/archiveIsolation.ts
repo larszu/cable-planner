@@ -206,29 +206,29 @@ export function archiveFindingText(f: ArchiveFinding): string {
   switch (f.kind) {
     case 'not-stated':
       return (
-        'Der Plan hat Ausspielziele, sagt aber nicht, wo die unabhaengige ' +
-        'Archiv-Aufzeichnung liegt. Das ist keine Warnung ueber ein Geraet, sondern ' +
-        'eine offene Frage: entweder ein Geraet benennen oder ausdruecklich sagen, ' +
+        'Der Plan hat Ausspielziele, sagt aber nicht, wo die unabhängige ' +
+        'Archiv-Aufzeichnung liegt. Das ist keine Warnung über ein Gerät, sondern ' +
+        'eine offene Frage: entweder ein Gerät benennen oder ausdrücklich sagen, ' +
         'dass es bewusst keine gibt.'
       )
     case 'recorder-gone':
       return (
-        `Das als Recorder benannte Geraet steht nicht mehr im Plan${v[0] ? ` (${v[0]})` : ''}. ` +
+        `Das als Recorder benannte Gerät steht nicht mehr im Plan${v[0] ? ` (${v[0]})` : ''}. ` +
         'Die Antwort auf die Archiv-Frage zeigt damit ins Leere.'
       )
     case 'shares-encoder':
       return (
         `${v[0]} zeichnet auf UND sendet (${v.slice(1).join(', ')}). Eine stockende ` +
-        'Ausspielung ueberlastet denselben Encoder und zieht die Aufzeichnung mit ' +
+        'Ausspielung überlastet denselben Encoder und zieht die Aufzeichnung mit ' +
         'herunter — belegt an obs-studio#13147, wo die Bildrate der Aufnahme so weit ' +
         'einbrach, dass das Material verworfen werden musste. Auffallen wird es erst ' +
         'nach dem Abbau.'
       )
     case 'fed-by-encoder':
       return (
-        `${v[0]} haengt hinter ${v[1]}, also hinter dem sendenden Geraet. Stockt der ` +
-        'Encoder, stockt auch, was er ausgibt: dieselbe Abhaengigkeit, nur eine ' +
-        'Kabellaenge weiter.'
+        `${v[0]} hängt hinter ${v[1]}, also hinter dem sendenden Gerät. Stockt der ` +
+        'Encoder, stockt auch, was er ausgibt: dieselbe Abhängigkeit, nur eine ' +
+        'Kabellänge weiter.'
       )
   }
 }
@@ -236,12 +236,12 @@ export function archiveFindingText(f: ArchiveFinding): string {
 export const ARCHIVE_FINDING_LABEL: Record<ArchiveFindingKind, string> = {
   'not-stated': 'Archiv-Frage unbeantwortet',
   'recorder-gone': 'Benannter Recorder fehlt im Plan',
-  'shares-encoder': 'Aufzeichnung und Ausspielung auf einem Geraet',
-  'fed-by-encoder': 'Aufzeichnung haengt hinter dem Encoder',
+  'shares-encoder': 'Aufzeichnung und Ausspielung auf einem Gerät',
+  'fed-by-encoder': 'Aufzeichnung hängt hinter dem Encoder',
 }
 
 export const ARCHIVE_ANSWER_LABEL: Record<ArchiveRecording['answer'], string> = {
-  device: 'auf einem Geraet',
+  device: 'auf einem Gerät',
   'none-by-choice': 'bewusst keine',
   'not-stated': 'nicht beantwortet',
 }
@@ -254,5 +254,5 @@ export function archiveTable(a: ArchiveAssessment): CsvTable {
   for (const f of a.findings) {
     rows.push(['Befund', ARCHIVE_FINDING_LABEL[f.kind], '', archiveFindingText(f)])
   }
-  return { headers: ['Art', 'Was', 'Geraet', 'Text'], rows }
+  return { headers: ['Art', 'Was', 'Gerät', 'Text'], rows }
 }

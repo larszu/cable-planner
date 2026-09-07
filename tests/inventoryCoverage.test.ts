@@ -112,7 +112,7 @@ describe('resolveCoverage — proposed-by-name', () => {
       [item({ id: 'inv1', model: F55_MODEL, quantity: 4 })],
     )
     expect(res.lines[0]).toMatchObject({ outcome: 'proposed-by-name', itemId: 'inv1' })
-    expect(res.lines[0].reason).toContain('keine Typ-Identitaet')
+    expect(res.lines[0].reason).toContain('keine Typ-Identität')
     expect(res.proposed).toBe(1)
   })
 

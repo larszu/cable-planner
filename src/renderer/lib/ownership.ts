@@ -106,9 +106,9 @@ export const ownershipNote = (
   // Ohne Lieferant steht es DA und wird nicht weggelassen: „es geht zurueck,
   // aber wir wissen nicht wohin" ist die Auskunft, die jemand braucht.
   teile.push(lieferant || 'Lieferant unbekannt')
-  if (status === 'no-date') teile.push('kein Rueckgabedatum')
-  else if (status === 'overdue') teile.push(`zurueck seit ${item.returnDue}`)
-  else teile.push(`zurueck ${item.returnDue}`)
+  if (status === 'no-date') teile.push('kein Rückgabedatum')
+  else if (status === 'overdue') teile.push(`zurück seit ${item.returnDue}`)
+  else teile.push(`zurück ${item.returnDue}`)
   return teile.join(' · ')
 }
 
