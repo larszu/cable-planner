@@ -891,13 +891,27 @@ interface UiState extends PersistedUiState {
   openSettings: (section?: string) => void
   closeSettings: () => void
   /** #378 — Bulk-Cable-Connect-Dialog (mehrere Kabel auf einmal). */
-  bulkConnect: { open: boolean }
-  openBulkConnect: () => void
+  /**
+   * Mehrere Kabel auf einmal. `fromEqId`/`toEqId` sind die VORBELEGUNG aus
+   * der Canvas-Auswahl (2026-09-07): wer zwei Geraete markiert hat, hat die
+   * Frage nach Quelle und Ziel schon beantwortet und soll sie nicht in zwei
+   * Aufklapplisten wiederholen. Fehlen sie, faellt der Dialog auf seine
+   * Listen zurueck — der Weg ueber das Menue bleibt unveraendert.
+   */
+  bulkConnect: { open: boolean; fromEqId?: string; toEqId?: string }
+  openBulkConnect: (fromEqId?: string, toEqId?: string) => void
   closeBulkConnect: () => void
   /** Projekt-Analysen (read-only Reports): Strom/Phasen, Netzwerk, Gewicht/
    *  Wärme, Redundanz. Issues #345/#346/#351/#352. */
-  analysis: { open: boolean }
-  openAnalysis: () => void
+  /**
+   * Die Analysen. `tab` ist der Reiter, auf dem sich der Dialog oeffnen soll
+   * (2026-09-07): die Statusleiste zaehlt Netz-Befunde und muss dorthin
+   * fuehren, wo sie stehen — ein Abzeichen, dessen Klick woanders landet als
+   * das, was es gezaehlt hat, ist dieselbe Sorte Luege wie eine Zahl ohne
+   * Deckung. Fehlt der Reiter, bleibt es beim bisherigen Startreiter.
+   */
+  analysis: { open: boolean; tab?: string }
+  openAnalysis: (tab?: string) => void
   closeAnalysis: () => void
   /** Vereinte „Plan-Check"-Palette: Live-Validierung des Plans (#411). */
   planCheck: { open: boolean }
@@ -1349,10 +1363,11 @@ export const useUiStore = create<UiState>((set) => ({
   openSettings: (section) => set({ settingsOpen: true, settingsSection: section }),
   closeSettings: () => set({ settingsOpen: false }),
   bulkConnect: { open: false },
-  openBulkConnect: () => set({ bulkConnect: { open: true } }),
+  openBulkConnect: (fromEqId, toEqId) =>
+    set({ bulkConnect: { open: true, ...(fromEqId ? { fromEqId } : {}), ...(toEqId ? { toEqId } : {}) } }),
   closeBulkConnect: () => set({ bulkConnect: { open: false } }),
   analysis: { open: false },
-  openAnalysis: () => set({ analysis: { open: true } }),
+  openAnalysis: (tab) => set({ analysis: { open: true, ...(tab ? { tab } : {}) } }),
   closeAnalysis: () => set({ analysis: { open: false } }),
   planCheck: { open: false },
   openPlanCheck: () => set({ planCheck: { open: true } }),

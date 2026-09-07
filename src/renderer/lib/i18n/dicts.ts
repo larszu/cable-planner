@@ -795,7 +795,11 @@ export const en: Dict = {
   // Die drei Icon-Knoepfe sind zu EINEM beschrifteten Knopf mit Menue
   // zusammengelegt (2026-09-07). Die sechs Schluessel darueber bleiben, weil
   // sie noch in der Kurzhilfe und in den Tastenkuerzeln vorkommen.
+  'statusbar.network.counts': 'Network {count}',
+  'statusbar.network.title': 'Network findings: missing or duplicate addresses, masks, segments. Click opens the analyses on the network tab.',
   'toolbar.location.label': 'Frame',
+  'toolbar.bulkConnect.label': 'Connect cables',
+  'toolbar.bulkConnect.title': 'Create several cables between the two selected devices at once',
   'toolbar.lock.button': 'Lock',
   'toolbar.lock.title': 'Protection against accidental moves',
   'toolbar.lock.frames.label': 'Frames',
