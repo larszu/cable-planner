@@ -11,7 +11,7 @@ React 19 + TypeScript + Zustand + ReactFlow + Three.js, offline-first.
 ```bash
 npm install                              # Dependencies (rebuildet native Module: keytar, freetype2)
 npm run dev                              # Vite + 3× tsc-watch (main/preload/renderer) + Electron, hot-reload
-npm run dev:renderer                     # nur Renderer im Browser (localhost:5173) — Desktop-Features inert
+npm run dev:renderer                     # nur Renderer im Browser (localhost:4181) — Desktop-Features inert
 npm run build                            # build:main + build:preload + build:renderer
 npm run dist                             # build + electron-builder → Installer in release/
 npm run lint                             # eslint .

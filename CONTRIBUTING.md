@@ -32,7 +32,7 @@ npm install
 # Run the full Electron shell with hot-reload
 npm run dev
 
-# Renderer-only in a plain browser (desktop features inert) → localhost:5173
+# Renderer-only in a plain browser (desktop features inert) → localhost:4181
 npm run dev:renderer
 ```
 

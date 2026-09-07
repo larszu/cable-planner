@@ -6,7 +6,7 @@
  * Prüft, dass Geräte-Knoten, Location-Rahmen und die Inline-Auswahl-Toolbar
  * (#118) sich verhalten wie erwartet, und meldet Renderer-Konsolenfehler.
  *
- * Voraussetzung: `npm run dev:renderer` läuft auf :5173.
+ * Voraussetzung: `npm run dev:renderer` läuft auf :4181.
  * Lauf:          npm run test:drag   (oder: node scripts/drag-test.mjs)
  *   Browser-Pfad ggf. via CP_CHROME=… überschreiben (Sandbox), Screenshots
  *   landen in CP_UI_SHOTS (Default /tmp/cp-drag-shots).
@@ -15,7 +15,7 @@ import { chromium } from 'playwright-core'
 import { mkdirSync } from 'node:fs'
 import { join } from 'node:path'
 
-const URL = process.env.CP_URL || 'http://localhost:5173/'
+const URL = process.env.CP_URL || 'http://localhost:4181/'
 const OUT = process.env.CP_UI_SHOTS || '/tmp/cp-drag-shots'
 mkdirSync(OUT, { recursive: true })
 
