@@ -3852,6 +3852,7 @@ export const en: Dict = {
   'app.menu.tools.rentmanImport': 'Rentman import…',
   // Werkzeuge-Menue 2026-09-07 neu gruppiert; `.note` ist die zweite
   // Zeile, die sagt, WAS der Klick ausloest.
+  'props.deviceTools.title': 'Tools for this device',
   'app.menu.tools.group.calc': 'Calculate',
   'app.menu.tools.group.check': 'Check',
   'app.menu.tools.group.plan': 'Plan',

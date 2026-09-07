@@ -22,6 +22,7 @@ import { useTranslation, format } from '../../lib/i18n'
 import { projectHistory } from '../../store/projectHistory'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
+import { toolsInPlan } from '../../lib/deviceTools'
 import { useModule } from '../../store/settingsStore'
 import { exportStagePlotSvg } from '../../lib/exportStagePlot'
 import { downloadBlob } from '../../lib/downloadBlob'
@@ -454,6 +455,19 @@ export const MenuBar = ({
   const netboxEnabled = useModule('netbox')
   // Modulares UI — Festinstallations-Doku nur zeigen, wenn das Modul an ist.
   const festinstallationModule = useModule('festinstallation')
+  // WELCHE GERAETE-WERKZEUGE DER PLAN UEBERHAUPT BRAUCHT (2026-09-07).
+  //
+  // „ATEM Multiviewer-Layout", „ATEM Audio-Routing", „ATEM Input-Labels",
+  // „Videohub-Routing/Labels" und „GreenGo-Intercom" tun ohne ein solches
+  // Geraet im Plan nichts — sie standen trotzdem dauerhaft in der Liste, auch
+  // in einem Plan ohne einen einzigen ATEM. Fuenf von 24 Zeilen, und damit
+  // ein guter Teil des Grundes, warum die Liste zu lang war.
+  //
+  // Die Zuordnung ist eine Datenblatt-Tatsache (`deviceTypeRegistry` ueber
+  // `detectDeviceKind`), keine Namens-Vermutung — siehe `lib/deviceTools.ts`.
+  const geraeteWerkzeuge = toolsInPlan(useProjectStore((s) => s.project.equipment) ?? [])
+  const hatGeraeteWerkzeuge = geraeteWerkzeuge.length > 0
+
   // Modulares UI — Handy-Zugriff nur zeigen, wenn das Mobile-Modul an ist.
   const mobileModule = useModule('mobile')
   const rentalModule = useModule('rental')
@@ -811,22 +825,34 @@ export const MenuBar = ({
             </MenuItem>
           )}
 
-          <MenuSectionHeader>{t('app.menu.tools.group.deviceConfig', 'Geräte-Konfiguration')}</MenuSectionHeader>
-          <MenuItem onClick={() => useUiStore.getState().openAtemMvConfig()} icon={<Icon icon={Monitor} size="sm" />}>
-            {t('app.menu.tools.atemMv', 'ATEM Multiviewer-Layout…')}
-          </MenuItem>
-          <MenuItem onClick={() => useUiStore.getState().openAtemAudioConfig()} icon={<Icon icon={SlidersHorizontal} size="sm" />}>
-            {t('app.menu.tools.atemAudio', 'ATEM Audio-Routing…')}
-          </MenuItem>
-          <MenuItem onClick={() => useUiStore.getState().openAtemDialog()} icon={<Icon icon={Tag} size="sm" />}>
-            {t('app.menu.tools.atemLabels', 'ATEM Input-Labels…')}
-          </MenuItem>
-          <MenuItem onClick={() => useUiStore.getState().openVideohubExport()} icon={<Icon icon={Shuffle} size="sm" />}>
-            {t('app.menu.tools.videohub', 'Videohub-Routing/Labels…')}
-          </MenuItem>
-          <MenuItem onClick={() => useUiStore.getState().openGreenGoExport()} icon={<Icon icon={Headphones} size="sm" />}>
-            {t('app.menu.tools.greengo', 'GreenGo-Intercom…')}
-          </MenuItem>
+          {hatGeraeteWerkzeuge && (
+            <MenuSectionHeader>{t('app.menu.tools.group.deviceConfig', 'Geräte-Konfiguration')}</MenuSectionHeader>
+          )}
+          {geraeteWerkzeuge.includes('atem-mv') && (
+            <MenuItem onClick={() => useUiStore.getState().openAtemMvConfig()} icon={<Icon icon={Monitor} size="sm" />}>
+              {t('app.menu.tools.atemMv', 'ATEM Multiviewer-Layout…')}
+            </MenuItem>
+          )}
+          {geraeteWerkzeuge.includes('atem-audio') && (
+            <MenuItem onClick={() => useUiStore.getState().openAtemAudioConfig()} icon={<Icon icon={SlidersHorizontal} size="sm" />}>
+              {t('app.menu.tools.atemAudio', 'ATEM Audio-Routing…')}
+            </MenuItem>
+          )}
+          {geraeteWerkzeuge.includes('atem-labels') && (
+            <MenuItem onClick={() => useUiStore.getState().openAtemDialog()} icon={<Icon icon={Tag} size="sm" />}>
+              {t('app.menu.tools.atemLabels', 'ATEM Input-Labels…')}
+            </MenuItem>
+          )}
+          {geraeteWerkzeuge.includes('videohub') && (
+            <MenuItem onClick={() => useUiStore.getState().openVideohubExport()} icon={<Icon icon={Shuffle} size="sm" />}>
+              {t('app.menu.tools.videohub', 'Videohub-Routing/Labels…')}
+            </MenuItem>
+          )}
+          {geraeteWerkzeuge.includes('greengo') && (
+            <MenuItem onClick={() => useUiStore.getState().openGreenGoExport()} icon={<Icon icon={Headphones} size="sm" />}>
+              {t('app.menu.tools.greengo', 'GreenGo-Intercom…')}
+            </MenuItem>
+          )}
 
           <MenuSectionHeader>{t('app.menu.tools.group.io', 'Import & Export')}</MenuSectionHeader>
           <MenuItem onClick={() => useUiStore.getState().openPatchList()} icon={<Icon icon={Cable} size="sm" />}
