@@ -1241,7 +1241,7 @@ export const AtemMvConfigDialog = () => {
               <button
                 type="button"
                 onClick={() => void adoptLive()}
-                className="ml-auto rounded bg-cp-accent px-3 py-1 text-white hover:opacity-90"
+                className="ml-auto rounded-cp-control bg-cp-accent px-3 py-1 text-cp-accent-text hover:opacity-90"
                 title={t(
                   'atem.mv.live.adoptTitle',
                   'Den gelesenen Stand als neuen Plan übernehmen — ersetzt die bisherige Absicht.',
