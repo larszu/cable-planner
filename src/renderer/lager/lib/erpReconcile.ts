@@ -44,8 +44,8 @@
 // ───────────────────────────────────────────────────────────────────────────
 import type { DemandLine } from './inventoryCoverage'
 import { normaliseName } from './inventoryCoverage'
-import type { EquipmentItem } from '../types/equipment'
-import type { CsvCell, CsvTable } from './csv'
+import type { EquipmentItem } from '../../types/equipment'
+import type { CsvCell, CsvTable } from '../../lib/csv'
 
 /**
  * Was dieser Abgleich von einer ERP-Zeile braucht.

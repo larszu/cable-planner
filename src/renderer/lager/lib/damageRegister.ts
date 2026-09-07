@@ -41,7 +41,7 @@
 // ───────────────────────────────────────────────────────────────────────────
 
 import type { CheckoutRecord } from '../types/checkout'
-import type { CsvCell, CsvTable } from './csv'
+import type { CsvCell, CsvTable } from '../../lib/csv'
 
 export interface DamageEntry {
   recordId: string

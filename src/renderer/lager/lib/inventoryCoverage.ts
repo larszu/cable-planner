@@ -27,13 +27,13 @@
 // Geraet einen Katalog-Typ zu geben — nicht, den Namen besser zu raten.
 // ───────────────────────────────────────────────────────────────────────────
 
-import type { EquipmentItem } from '../types/equipment'
+import type { EquipmentItem } from '../../types/equipment'
 import type { InventoryItem, InventoryUnit } from '../types/inventory'
 import type { CheckoutRecord } from '../types/checkout'
 import { commitmentNote, committedByItem } from './inventoryCommitment'
-import type { ZusatzBedarf } from './planDemandExtras'
-import { resolveDeviceType } from './deviceTypeRegistry'
-import { isWithinDistance } from './levenshtein'
+import type { ZusatzBedarf } from '../../lib/planDemandExtras'
+import { resolveDeviceType } from '../../lib/deviceTypeRegistry'
+import { isWithinDistance } from '../../lib/levenshtein'
 
 export type CoverageOutcome = 'matched-by-type' | 'proposed-by-name' | 'unmatched'
 

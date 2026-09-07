@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { damageEntries, damageTable, damageTally } from '../src/renderer/lib/damageRegister'
-import { closeCheckout } from '../src/renderer/lib/containerCheckout'
-import type { CheckoutLine, CheckoutRecord } from '../src/renderer/types/checkout'
-import inventarQuelle from '../src/renderer/components/Inventory/InventoryDialog.tsx?raw'
-import storeQuelle from '../src/renderer/store/checkoutStore.ts?raw'
+import { damageEntries, damageTable, damageTally } from '../src/renderer/lager/lib/damageRegister'
+import { closeCheckout } from '../src/renderer/lager/lib/containerCheckout'
+import type { CheckoutLine, CheckoutRecord } from '../src/renderer/lager/types/checkout'
+import inventarQuelle from '../src/renderer/lager/ui/InventoryDialog.tsx?raw'
+import storeQuelle from '../src/renderer/lager/store/checkoutStore.ts?raw'
 import dictsQuelle from '../src/renderer/lib/i18n/dicts.ts?raw'
 
 // ---------------------------------------------------------------------------

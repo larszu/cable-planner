@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { STORAGE_KEYS } from '../lib/storageKeys'
+import { STORAGE_KEYS } from '../../lib/storageKeys'
 import type { MoveRefusal, MoveSubjectKind, StorageMove } from '../types/storageMove'
 import { buildMove } from '../lib/storageMoves'
 

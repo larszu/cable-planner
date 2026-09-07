@@ -22,7 +22,7 @@ import type {
 } from '../types/inventory'
 import type { CheckoutDamage, CheckoutLine, CheckoutRecord } from '../types/checkout'
 import { descendantNodeIds, isContainerKind, nodePathLabel } from './storageTree'
-import type { CsvCell, CsvTable } from './csv'
+import type { CsvCell, CsvTable } from '../../lib/csv'
 import { ownershipNote } from './ownership'
 
 /** Der Bestand, aus dem eine Ausgabe entsteht. */

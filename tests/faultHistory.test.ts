@@ -6,17 +6,17 @@ import {
   normaliseFaultEvent,
   openFaultsOf,
   suspectUnits,
-} from '../src/renderer/lib/faultHistory'
+} from '../src/renderer/lager/lib/faultHistory'
 import {
   FAULT_SERVICE_LABEL,
   type InventoryItem,
   type InventoryUnit,
   type UnitEvent,
-} from '../src/renderer/types/inventory'
-import typenQuelle from '../src/renderer/types/inventory.ts?raw'
-import libQuelle from '../src/renderer/lib/faultHistory.ts?raw'
-import storeQuelle from '../src/renderer/store/inventoryStore.ts?raw'
-import dialogQuelle from '../src/renderer/components/Inventory/InventoryDialog.tsx?raw'
+} from '../src/renderer/lager/types/inventory'
+import typenQuelle from '../src/renderer/lager/types/inventory.ts?raw'
+import libQuelle from '../src/renderer/lager/lib/faultHistory.ts?raw'
+import storeQuelle from '../src/renderer/lager/store/inventoryStore.ts?raw'
+import dialogQuelle from '../src/renderer/lager/ui/InventoryDialog.tsx?raw'
 
 // ---------------------------------------------------------------------------
 // Verdaechtige Einheiten (Bedarf 52, P2).

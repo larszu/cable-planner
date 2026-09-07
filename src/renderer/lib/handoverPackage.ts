@@ -12,7 +12,7 @@ import { buildAssetRows, assetRegisterTable } from './assetRegister'
 import { buildCableBomRows, cableBomTable } from './installerLists'
 import { stampLine, type DocumentStamp } from './documentStamp'
 import { buildDocQrPayload } from './qrPayload'
-import { INSTALL_STATUS_LABEL, type InstallStatus } from './../types/lifecycle'
+import { INSTALL_STATUS_LABEL, type InstallStatus } from '../types/lifecycle'
 
 const fmtDate = (iso?: string): string => {
   if (!iso) return '—'

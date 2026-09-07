@@ -8,8 +8,8 @@ import {
   wouldCreateCycle,
   availabilityOfSet,
   isContainerKind,
-} from '../src/renderer/lib/storageTree'
-import type { StorageNode, InventoryItem, InventorySet } from '../src/renderer/types/inventory'
+} from '../src/renderer/lager/lib/storageTree'
+import type { StorageNode, InventoryItem, InventorySet } from '../src/renderer/lager/types/inventory'
 
 const now = '2026-07-06T00:00:00.000Z'
 const node = (id: string, kind: StorageNode['kind'], parentId?: string): StorageNode => ({

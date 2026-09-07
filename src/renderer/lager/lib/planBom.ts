@@ -19,13 +19,13 @@
 // gelesen, und der erste Irrtum kommt als fehlendes Gerät am Aufbautag heraus.
 // ───────────────────────────────────────────────────────────────────────────
 
-import type { EquipmentItem } from '../types/equipment'
+import type { EquipmentItem } from '../../types/equipment'
 import type { InventoryItem, InventoryUnit, StorageNode } from '../types/inventory'
 import { resolveCoverage, type CoverageLine, type CoverageOutcome } from './inventoryCoverage'
 import type { CheckoutRecord } from '../types/checkout'
-import type { ZusatzBedarf } from './planDemandExtras'
+import type { ZusatzBedarf } from '../../lib/planDemandExtras'
 import { nodePathLabel } from './storageTree'
-import { toCsv } from './csv'
+import { toCsv } from '../../lib/csv'
 
 export interface PlanBomRow {
   /** Anzahl im Plan. */

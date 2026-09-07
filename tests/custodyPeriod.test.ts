@@ -9,8 +9,8 @@ import {
   extendRefusal,
   extensionCount,
   originalDueBack,
-} from '../src/renderer/lib/custodyPeriod'
-import type { CheckoutRecord } from '../src/renderer/types/checkout'
+} from '../src/renderer/lager/lib/custodyPeriod'
+import type { CheckoutRecord } from '../src/renderer/lager/types/checkout'
 
 // ───────────────────────────────────────────────────────────────────────────
 // Bedarf 98 — der Vorgang auf der Platte entsteht NACH dem Vorgang in der
@@ -149,7 +149,7 @@ describe('der Zeitraum als Satz', () => {
 // ───────────────────────────────────────────────────────────────────────────
 describe('nichts verlangt einen Scanner', () => {
   const dlg = readFileSync(
-    resolve(__dirname, '..', 'src/renderer/components/Inventory/InventoryDialog.tsx'),
+    resolve(__dirname, '..', 'src/renderer/lager/ui/InventoryDialog.tsx'),
     'utf8',
   )
 

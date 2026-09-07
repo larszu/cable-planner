@@ -1,7 +1,5 @@
 import { useMemo } from 'react'
 import { useProjectStore } from '../../store/projectStore'
-import { useInventoryStore } from '../../store/inventoryStore'
-import { useCheckoutStore } from '../../store/checkoutStore'
 import { useTranslation, format } from '../../lib/i18n'
 import { PanelHint } from '../shared/PanelHint'
 import {
@@ -11,6 +9,7 @@ import {
   actionItems,
   type ActionUrgency,
 } from '../../lib/actionItems'
+import { useAusgaben, useBestand } from '../../lager'
 
 /**
  * BEDARF 108 — die Liste, die sagt, was ansteht.
@@ -37,8 +36,8 @@ const heute = (): string => new Date().toISOString().slice(0, 10)
 export const ActionTab = () => {
   const t = useTranslation()
   const project = useProjectStore((s) => s.project)
-  const inventory = useInventoryStore((s) => s.items)
-  const checkouts = useCheckoutStore((s) => s.records)
+  const inventory = useBestand()
+  const checkouts = useAusgaben()
 
   // Der Stichtag wird EINMAL beim Rendern geholt und dann durchgereicht —
   // `actionItems` selbst liest keine Uhr, sonst waere sie nicht pruefbar.
