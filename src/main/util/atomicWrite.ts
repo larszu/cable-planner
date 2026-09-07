@@ -14,9 +14,18 @@ import path from 'node:path'
 
 const inFlightSaves = new Set<string>()
 
+/**
+ * `content` darf auch binaer sein (`Uint8Array`).
+ *
+ * Ergaenzt fuer die Belegdateien (Bedarf 97): ein abfotografierter
+ * Kassenzettel ist kein Text, muss aber unter derselben Zusage geschrieben
+ * werden wie alles andere in dieser App — die Repo-Regel sagt „Schreibvorgaenge
+ * fuer Userdaten immer atomic", ohne Ausnahme fuer Bilder. Ein direktes
+ * `fs.writeFile` daneben waere genau die Ausnahme, die die Regel aufweicht.
+ */
 export const atomicWriteFile = async (
   targetPath: string,
-  content: string,
+  content: string | Uint8Array,
   opts: { backup?: boolean } = { backup: true },
 ): Promise<void> => {
   if (inFlightSaves.has(targetPath)) {
@@ -27,7 +36,8 @@ export const atomicWriteFile = async (
   const tmpPath = `${targetPath}.${randomBytes(4).toString('hex')}.tmp`
   try {
     await mkdir(dir, { recursive: true })
-    await writeFile(tmpPath, content, 'utf-8')
+    if (typeof content === 'string') await writeFile(tmpPath, content, 'utf-8')
+    else await writeFile(tmpPath, content)
     if (opts.backup !== false) {
       const bakPath = `${targetPath}.bak`
       try {

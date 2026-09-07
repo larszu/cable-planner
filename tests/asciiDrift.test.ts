@@ -85,6 +85,7 @@ const HARMLOS = new Set(
     'neu', 'neue', 'neuer', 'neues', 'neuen', 'neuerdings', 'aktuell', 'aktuelle',
     'aktuellen', 'aktueller', 'aktuelles', 'aktuellste', 'quelle', 'quellen',
     'quell', 'signalquelle', 'produktionsquelle', 'steuer', 'steuern', 'steuert',
+    'steuersatz', 'steuersätze', 'steuerbetrag', 'mehrwertsteuer', 'umsatzsteuer',
     'steuerung', 'steueradern', 'steuerverkehr', 'geraetesteuerung', 'frequenz',
     'frequenzen', 'frequenzgang', 'frequenzabstand', 'funkfrequenz',
     'sendefrequenz', 'bauen', 'dauerhaft', 'dauerhafte', 'genaue', 'teuerste',

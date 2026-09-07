@@ -15,6 +15,16 @@ import {
 } from '../../lib/labourCost'
 import { bestApprovalCandidate, parsePastedApproval } from '../../lib/approvalCapture'
 import {
+  READ_SOURCE_LABEL,
+  RECEIPT_FINDING_LABEL,
+  expenseFromProposal,
+  readReceipt,
+  type ReceiptProposal,
+} from '../../lib/receiptRead'
+import { CHAIN_FINDING_LABEL, actualFromReceipts, receiptChain } from '../../lib/receiptChain'
+import { cablePlannerApi, hasDesktopBridge } from '../../lib/bridge'
+import { ATTACH_REFUSAL_LABEL } from '../../types/receipt'
+import {
   BAND_RULE,
   BOOKING_STATE_LABEL,
   CALLOUT_RULE,
@@ -67,9 +77,17 @@ export const CrewTab = ({ projectName }: { projectName: string }) => {
   const updateTimeEntry = useProjectStore((s) => s.updateTimeEntry)
   const removeTimeEntry = useProjectStore((s) => s.removeTimeEntry)
   const addCrewExpense = useProjectStore((s) => s.addCrewExpense)
+  const updateCrewExpense = useProjectStore((s) => s.updateCrewExpense)
   const removeCrewExpense = useProjectStore((s) => s.removeCrewExpense)
+  const costPlan = useProjectStore((s) => s.project.costPlan)
+  const setCostPlan = useProjectStore((s) => s.setCostPlan)
+  const filePath = useProjectStore((s) => s.filePath)
   const addApproval = useProjectStore((s) => s.addApproval)
   const removeApproval = useProjectStore((s) => s.removeApproval)
+
+  // Bedarf 97 — die Kette von der Quittung zur Kostenzeile. Gerechnet wird sie
+  // in `receiptChain`; hier wird sie nur gezeigt.
+  const kette = useMemo(() => receiptChain(costPlan, plan), [costPlan, plan])
 
   // Der Zeitraum: von der ersten bis zur letzten Schicht. Ein voreingestellter
   // Kalendermonat waere eine Annahme ueber den Job — die meisten dauern keinen.
@@ -480,6 +498,12 @@ export const CrewTab = ({ projectName }: { projectName: string }) => {
       {/* ── Auslagen ── */}
       <section className="flex flex-col gap-1">
         <h3 className="text-cp-xs font-semibold text-cp-text">{t('analysis.crew.expenses', 'Auslagen')}</h3>
+        <PanelHint
+          text={t(
+            'analysis.crew.receiptHint',
+            'Der Beleg hängt an der Zeile, nicht am Projekt: nur so ist im Streitfall zu sehen, welche Quittung zu welchem Betrag gehört. Die Datei liegt im Ordner „Belege" neben dem Projekt — wer das Projekt ohne diesen Ordner weitergibt, gibt die Belege nicht mit. Die Kostenzeile daneben entscheidet, ob die Auslage im Kostenvergleich überhaupt auftaucht.',
+          )}
+        />
         {plan.expenses.map((x) => (
           <div key={x.id} className="flex flex-wrap items-center gap-1.5 text-cp-xs">
             <span className="tabular-nums">{x.date}</span>
@@ -488,6 +512,24 @@ export const CrewTab = ({ projectName }: { projectName: string }) => {
             <span className="text-cp-text-muted">
               {x.receiptRef ?? t('analysis.crew.noReceipt', 'ohne Beleg')}
             </span>
+            <BelegZelle
+              expense={x}
+              filePath={filePath}
+              onChange={(patch) => updateCrewExpense(x.id, patch)}
+            />
+            <select
+              value={x.costLineId ?? ''}
+              onChange={(e) => updateCrewExpense(x.id, { costLineId: e.target.value || undefined })}
+              aria-label={t('analysis.crew.expenseCostLine', 'Kostenzeile dieser Auslage')}
+              className="rounded border border-cp-border bg-cp-surface-2 px-1 py-0.5 text-cp-xs"
+            >
+              <option value="">{t('analysis.crew.expenseNoCostLine', '— keine Kostenzeile —')}</option>
+              {(costPlan?.lines ?? []).map((l) => (
+                <option key={l.id} value={l.id}>
+                  {l.label}
+                </option>
+              ))}
+            </select>
             <span className={x.billable ? '' : 'text-cp-text-muted'}>
               {x.billable
                 ? t('analysis.crew.billableYes', 'geht an den Kunden')
@@ -508,7 +550,77 @@ export const CrewTab = ({ projectName }: { projectName: string }) => {
           onAdd={(x) => addCrewExpense(x)}
           people={plan.people}
         />
+        <BelegEinlesen
+          people={plan.people}
+          onAdd={(x) => addCrewExpense(x)}
+        />
       </section>
+
+      {/* ── Belegdeckung je Kostenzeile (Bedarf 97) ── */}
+      {(kette.rows.length > 0 || kette.unlinked.length > 0) && (
+        <section className="flex flex-col gap-1">
+          <h3 className="text-cp-xs font-semibold text-cp-text">
+            {t('analysis.crew.coverage', 'Belegdeckung je Kostenzeile')}
+          </h3>
+          <PanelHint
+            text={t(
+              'analysis.crew.coverageHint',
+              'Die belegte Summe wird nicht in den Ist-Wert geschrieben. Sie steht daneben, damit die Abweichung sichtbar ist — übernommen wird sie nur auf Klick, und dann steht „von der Rechnung" als Herkunft daran.',
+            )}
+          />
+          {kette.rows.map((r) => (
+            <div key={r.line.id} className="flex flex-wrap items-center gap-1.5 text-cp-xs">
+              <span className="min-w-[9rem] font-medium">{r.line.label}</span>
+              <span className="tabular-nums">
+                {t('analysis.crew.documented', 'belegt')}: {r.documented.toFixed(2)}
+              </span>
+              <span className="tabular-nums text-cp-text-muted">
+                {t('analysis.crew.withFile', 'davon mit Datei')}: {r.withFile.toFixed(2)}
+              </span>
+              <span className="tabular-nums">
+                {t('analysis.crew.actual', 'Ist')}:{' '}
+                {r.line.actual === undefined
+                  ? t('analysis.crew.actualUnset', 'nicht gesetzt')
+                  : r.line.actual.toFixed(2)}
+              </span>
+              {r.expenses.length > 0 && r.line.actual !== r.proposedActual && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const werte = actualFromReceipts(r)
+                    setCostPlan({
+                      ...(costPlan ?? { lines: [] }),
+                      lines: (costPlan?.lines ?? []).map((l) =>
+                        l.id === r.line.id ? { ...l, ...werte } : l,
+                      ),
+                    })
+                  }}
+                  className="rounded border border-cp-border px-1.5 py-0.5 hover:bg-cp-surface-3"
+                >
+                  {t('analysis.crew.takeActual', 'Ist-Wert übernehmen')}
+                </button>
+              )}
+              {r.findings.map((f, i) => (
+                <span key={i} className="text-cp-warn">
+                  {CHAIN_FINDING_LABEL[f.kind]}
+                  {f.detail ? ` (${f.detail})` : ''}
+                </span>
+              ))}
+            </div>
+          ))}
+          {kette.unlinked.length > 0 && (
+            <p className="text-cp-xs text-cp-warn">
+              {format(
+                t(
+                  'analysis.crew.unlinkedCount',
+                  '{n} Auslagen zeigen auf keine Kostenzeile und tauchen in keinem Vergleich auf.',
+                ),
+                { n: kette.unlinked.length },
+              )}
+            </p>
+          )}
+        </section>
+      )}
 
       {/* ── Zusagen (Bedarf 42) ── */}
       <section className="flex flex-col gap-1">
@@ -759,6 +871,244 @@ const NeuerSatz = ({
         <Icon icon={Plus} size="xs" /> {t('analysis.crew.addRate', 'Satz')}
       </button>
     </div>
+  )
+}
+
+/**
+ * Die Belegdatei einer Auslagenzeile — anhaengen, zeigen, loesen.
+ *
+ * OHNE DESKTOP-BRUECKE GIBT ES KEINEN KNOPF, sondern einen Satz. Ein Knopf,
+ * der im Browser nichts tut, ist schlimmer als keiner: er verspricht, dass
+ * der Beleg gesichert sei.
+ */
+const BelegZelle = ({
+  expense,
+  filePath,
+  onChange,
+}: {
+  expense: CrewExpense
+  filePath?: string
+  onChange: (patch: Partial<Omit<CrewExpense, 'id'>>) => void
+}) => {
+  const t = useTranslation()
+  const [fehler, setFehler] = useState<string | null>(null)
+
+  if (!hasDesktopBridge) {
+    return (
+      <span className="text-cp-text-muted">
+        {t('analysis.crew.receiptDesktopOnly', 'Belegdateien nur in der Desktop-App')}
+      </span>
+    )
+  }
+
+  if (expense.receipt) {
+    return (
+      <span className="flex items-center gap-1">
+        <span className="max-w-[12rem] truncate" title={expense.receipt.fileName}>
+          {expense.receipt.fileName}
+        </span>
+        <button
+          type="button"
+          onClick={() => void cablePlannerApi.receipt.reveal(filePath, expense.receipt!.storedAs)}
+          className="rounded border border-cp-border px-1 py-0.5 hover:bg-cp-surface-3"
+        >
+          {t('analysis.crew.revealReceipt', 'Im Ordner zeigen')}
+        </button>
+        <button
+          type="button"
+          onClick={() => onChange({ receipt: undefined })}
+          className="rounded border border-cp-border px-1 py-0.5 hover:bg-cp-surface-3"
+        >
+          {t('analysis.crew.detachReceipt', 'Beleg lösen')}
+        </button>
+      </span>
+    )
+  }
+
+  return (
+    <span className="flex items-center gap-1">
+      <button
+        type="button"
+        onClick={async () => {
+          setFehler(null)
+          const r = await cablePlannerApi.receipt.pick(filePath)
+          if (r.canceled) return
+          const erster = r.results[0]
+          if (!erster) return
+          if (!erster.ok) {
+            setFehler(ATTACH_REFUSAL_LABEL[erster.reason])
+            return
+          }
+          // Das Datum der Aufnahme wird NICHT ueber ein vorhandenes gelegt:
+          // die Zeile hat schon eines, und ein stiller Wechsel waere eine
+          // Aenderung an einer Zahl, die jemand eingetragen hat.
+          onChange({ receipt: erster.attachment })
+        }}
+        className="rounded border border-cp-border px-1.5 py-0.5 hover:bg-cp-surface-3"
+      >
+        {t('analysis.crew.attachReceipt', 'Beleg anhängen')}
+      </button>
+      {fehler && <span className="text-cp-danger">{fehler}</span>}
+    </span>
+  )
+}
+
+/**
+ * Aus einem Belegtext eine Auslagenzeile (Bedarf 97).
+ *
+ * Der Vorschlag wird GEZEIGT, bevor er zur Zeile wird, und jedes Feld traegt
+ * seine Herkunft. Das ist der Unterschied zwischen „das Programm hat es
+ * gelesen" und „das Programm behauptet es": im Streit um eine Rechnung haengt
+ * an dieser Unterscheidung das Geld.
+ */
+const BelegEinlesen = ({
+  people,
+  onAdd,
+}: {
+  people: { id: string; name: string }[]
+  onAdd: (x: Partial<CrewExpense> & { date: string; amount: number }) => void
+}) => {
+  const t = useTranslation()
+  const [text, setText] = useState('')
+  const [personId, setPersonId] = useState('')
+  const vorschlag: ReceiptProposal | null = useMemo(
+    () => (text.trim() ? readReceipt({ text }) : null),
+    [text],
+  )
+  const zeile = vorschlag ? expenseFromProposal(vorschlag, { personId: personId || undefined }) : null
+
+  return (
+    <div className="flex flex-col gap-1 rounded border border-cp-border-muted p-1.5">
+      <label className="text-cp-xs text-cp-text-secondary" htmlFor="beleg-text">
+        {t('analysis.crew.pasteReceipt', 'Belegtext einfügen (Kassenbon-Mail, PDF-Text, abgetippt)')}
+      </label>
+      <textarea
+        id="beleg-text"
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        rows={3}
+        className="rounded border border-cp-border bg-cp-surface-2 p-1 text-cp-xs"
+      />
+      {vorschlag && (
+        <div className="flex flex-col gap-0.5 text-cp-xs">
+          <div className="flex flex-wrap gap-2">
+            <Gelesen label={t('analysis.crew.readDate', 'Datum')} feld={vorschlag.date} />
+            <Gelesen
+              label={t('analysis.crew.readAmount', 'Betrag')}
+              feld={vorschlag.amount}
+              zeige={(v) => v.toFixed(2)}
+            />
+            <Gelesen label={t('analysis.crew.readMerchant', 'Aussteller')} feld={vorschlag.merchant} />
+            <Gelesen label={t('analysis.crew.readCurrency', 'Währung')} feld={vorschlag.currency} />
+            <Gelesen
+              label={t('analysis.crew.readVat', 'Steuersatz')}
+              feld={vorschlag.vatPercent}
+              zeige={(v) => `${v} %`}
+            />
+          </div>
+          {vorschlag.findings.map((f, i) => (
+            <span key={i} className="text-cp-warn">
+              {RECEIPT_FINDING_LABEL[f.kind]}
+              {f.detail ? `: ${f.detail}` : ''}
+            </span>
+          ))}
+          {vorschlag.amountCandidates.length > 1 && (
+            <div className="flex flex-wrap items-center gap-1">
+              <span className="text-cp-text-secondary">
+                {t('analysis.crew.pickAmount', 'Welcher Betrag ist die Endsumme?')}
+              </span>
+              {vorschlag.amountCandidates.map((c) => (
+                <button
+                  key={c.value}
+                  type="button"
+                  onClick={() => {
+                    if (!vorschlag.date) return
+                    onAdd({
+                      date: vorschlag.date.value,
+                      amount: c.value,
+                      kind: vorschlag.kind?.value ?? 'other',
+                      billable: false,
+                      ...(personId ? { personId } : {}),
+                      ...(vorschlag.merchant ? { note: vorschlag.merchant.value } : {}),
+                    })
+                    setText('')
+                  }}
+                  className="rounded border border-cp-border px-1.5 py-0.5 hover:bg-cp-surface-3"
+                >
+                  {c.value.toFixed(2)}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+      <div className="flex flex-wrap items-center gap-1">
+        <select
+          value={personId}
+          onChange={(e) => setPersonId(e.target.value)}
+          aria-label={t('analysis.crew.expensePerson', 'Wer hat ausgelegt')}
+          className="rounded border border-cp-border bg-cp-surface-2 px-1 py-0.5 text-cp-xs"
+        >
+          <option value="">{t('analysis.crew.expenseNoPerson', '— Job —')}</option>
+          {people.map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.name}
+            </option>
+          ))}
+        </select>
+        <button
+          type="button"
+          disabled={!zeile?.ok}
+          onClick={() => {
+            if (!zeile?.ok) return
+            onAdd(zeile.expense)
+            setText('')
+          }}
+          className="rounded border border-cp-border px-1.5 py-0.5 text-cp-xs hover:bg-cp-surface-3 disabled:opacity-40"
+        >
+          {t('analysis.crew.addFromReceipt', 'Auslage aus Beleg anlegen')}
+        </button>
+        {zeile && !zeile.ok && (
+          <span className="text-cp-xs text-cp-text-muted">
+            {format(t('analysis.crew.missingFields', 'Es fehlt: {was}'), {
+              was: zeile.missing
+                .map((m) =>
+                  m === 'amount'
+                    ? t('analysis.crew.readAmount', 'Betrag')
+                    : t('analysis.crew.readDate', 'Datum'),
+                )
+                .join(', '),
+            })}
+          </span>
+        )}
+      </div>
+    </div>
+  )
+}
+
+/** Ein gelesenes Feld mit seiner Herkunft. Ohne Herkunft wird nichts gezeigt. */
+const Gelesen = <T,>({
+  label,
+  feld,
+  zeige,
+}: {
+  label: string
+  feld?: { value: T; source: keyof typeof READ_SOURCE_LABEL; evidence: string }
+  zeige?: (v: T) => string
+}) => {
+  const t = useTranslation()
+  if (!feld) {
+    return (
+      <span className="text-cp-text-muted">
+        {label}: {t('analysis.crew.readNothing', 'nicht gelesen')}
+      </span>
+    )
+  }
+  return (
+    <span title={feld.evidence}>
+      {label}: <strong>{zeige ? zeige(feld.value) : String(feld.value)}</strong>{' '}
+      <span className="text-cp-text-muted">({READ_SOURCE_LABEL[feld.source]})</span>
+    </span>
   )
 }
 

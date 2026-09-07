@@ -33,6 +33,7 @@ export type CrewSlice = Pick<
   | 'updateTimeEntry'
   | 'removeTimeEntry'
   | 'addCrewExpense'
+  | 'updateCrewExpense'
   | 'removeCrewExpense'
   | 'addApproval'
   | 'removeApproval'
@@ -212,6 +213,19 @@ export const createCrewSlice: StateCreator<ProjectState, [], [], CrewSlice> = (s
       )
       return id
     },
+
+    /**
+     * Eine Auslagenzeile aendern (Bedarf 97).
+     *
+     * `id` ist ausdruecklich nicht ueberschreibbar: an ihr haengt der Beleg,
+     * und eine getauschte Id machte aus einer korrigierten Zeile eine
+     * fremde — mit einer Quittung, die dann etwas anderes belegt.
+     */
+    updateCrewExpense: (id, patch) =>
+      schreibe((p) => ({
+        ...p,
+        expenses: p.expenses.map((e) => (e.id === id ? { ...e, ...patch, id: e.id } : e)),
+      })),
 
     removeCrewExpense: (id) =>
       schreibe((p) => ({
