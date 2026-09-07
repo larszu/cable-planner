@@ -284,6 +284,13 @@ export interface CablePlannerProject {
    *  verliert den Zeiger beim Laden: er saehe auf dem Blatt aus wie ein Weg
    *  hinein. */
   networkSegments?: import('./networkSegment').NetworkSegment[]
+  /** Bedarf 20 — die schichtbaren Adressbereiche: der stehende Plan des
+   *  Wagens und die Ueberlagerung des Hauses. Sie sagen, WOHIN eine Adresse
+   *  gehoert; vergeben wird trotzdem nichts von allein (siehe
+   *  `types/addressTemplate.ts`). Optional -> alte Projekte heilen zu [].
+   *  Ein Bereich ohne rechenbaren CIDR wird beim Laden verworfen: er ist kein
+   *  Bereich, und jede Pruefung muesste ihn sonst einzeln ueberspringen. */
+  addressLayers?: import('./addressTemplate').AddressLayer[]
   /** Initiative 9 — die Ausspielung: wohin gesendet wird, mit welchen
    *  Parametern, und welcher Weg der Ausweichweg ist. Optional → alte
    *  Projekte heilen zu []. **Ohne Stream-Keys** — die liegen im

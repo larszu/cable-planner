@@ -14,6 +14,7 @@ import { createCableSlice } from './slices/cableSlice'
 import { createAnnotationSlice } from './slices/annotationSlice'
 import { createSourceIdentitySlice } from './slices/sourceIdentitySlice'
 import { createDeliverySlice } from './slices/deliverySlice'
+import { createAddressTemplateSlice } from './slices/addressTemplateSlice'
 import { createRevisionSlice } from './slices/revisionSlice'
 import { createMobileSyncSlice } from './slices/mobileSyncSlice'
 import { createTemplateSlice } from './slices/templateSlice'
@@ -80,6 +81,7 @@ import { normaliseNamingScheme } from '../lib/namingScheme'
 import { normaliseMicPlot } from '../lib/micAssignment'
 import { normaliseTallyPositions } from '../lib/tallyPosition'
 import { normaliseNetworkSegments } from '../lib/networkSegments'
+import { normaliseAddressLayers } from '../lib/addressTemplate'
 import { normaliseVenueAnswers } from '../lib/venueAnswers'
 import { isNetworkInterfaceRole, normaliseNetworkInterface } from '../lib/networkInterfaces'
 import type { NetworkInterface } from '../types/network'
@@ -553,6 +555,31 @@ export interface ProjectState {
   removeDeliveryDestination: (id: string) => void
   /** Bedarf 90 — die Antwort auf „wo liegt die unabhaengige Aufzeichnung". */
   setArchiveRecording: (rec: import('../types/delivery').ArchiveRecording | undefined) => void
+  /** Bedarf 20 — eine Adressbereichs-Ebene anlegen; liefert die Id, oder
+   *  undefined wenn nichts angelegt wurde (leerer Name). */
+  addAddressLayer: (
+    layer: Partial<import('../types/addressTemplate').AddressLayer> & { name: string },
+  ) => string | undefined
+  updateAddressLayer: (
+    id: string,
+    patch: Partial<Omit<import('../types/addressTemplate').AddressLayer, 'id' | 'ranges'>>,
+  ) => void
+  removeAddressLayer: (id: string) => void
+  /** Bereich in einer Ebene anlegen; liefert die Id, oder undefined wenn die
+   *  Ebene fehlt oder der CIDR keiner ist. */
+  addAddressRange: (
+    layerId: string,
+    range: Partial<import('../types/addressTemplate').AddressRange> & { cidr: string },
+  ) => string | undefined
+  updateAddressRange: (
+    layerId: string,
+    rangeId: string,
+    patch: Partial<Omit<import('../types/addressTemplate').AddressRange, 'id'>>,
+  ) => void
+  removeAddressRange: (layerId: string, rangeId: string) => void
+  /** Bedarf 20 — einen Umzugs-VORSCHLAG uebernehmen. Ausdruecklich und je
+   *  Schnittstelle: es gibt keinen Weg, alle auf einmal still zu schreiben. */
+  applyReaddress: (equipmentId: string, nicId: string, ip: string, mask: string) => boolean
   /** #143 — Annotationen aus einer zurückgelesenen Viewer-Datei mergen
    *  (by id: neue hinzufügen, geänderte aktualisieren, vorhandene behalten).
    *  Gibt die Anzahl hinzugefügter/aktualisierter Annotationen zurück. */
@@ -696,6 +723,10 @@ const healProjectPositions = (
       ? (({ gatewayEquipmentId: _weg, ...rest }) => rest)(s)
       : s,
   )
+  // Bedarf 20 — die Adressbereichs-Ebenen. Die Normalisierung kanonisiert
+  // jeden CIDR auf seine Netz-Adresse und wirft weg, was keiner ist; ein
+  // Gateway ausserhalb seines eigenen Bereichs verliert dabei den Eintrag.
+  const addressLayers = normaliseAddressLayers(project.addressLayers)
   // Initiative 9 — Ausspielziele. Dieselbe Bauform wie die Rollen darueber:
   // normalisieren, Verworfenes melden, Backup-Zeiger ins Leere entfernen.
   const deliveryDestinations = normaliseDeliveryDestinations(project.deliveryDestinations, onDrop)
@@ -904,6 +935,8 @@ const healProjectPositions = (
     tallyPositions,
     // Bedarf 116 — dito.
     networkSegments,
+    // Bedarf 20 — dito.
+    addressLayers,
     deliveryDestinations,
     // Bedarf 72 — `undefined` heisst „kein Adressplan", nicht „leerer".
     multicast,
@@ -1141,6 +1174,7 @@ const buildProjectStore = (
   ...createAnnotationSlice(set, get, store),
   ...createSourceIdentitySlice(set, get, store),
   ...createDeliverySlice(set, get, store),
+  ...createAddressTemplateSlice(set, get, store),
   ...createRevisionSlice(set, get, store),
   ...createMobileSyncSlice(set, get, store),
   ...createTemplateSlice(set, get, store),

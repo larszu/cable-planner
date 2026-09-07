@@ -345,6 +345,15 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   'UMD-Adresse': 'Die TSL-Adresse, unter der der Multiviewer diese Quelle beschriftet.',
   Video: 'Die geplanten Video-Parameter des Ziels.',
   VLAN: 'Das VLAN, in dem die Schnittstelle liegt.',
+  // Bedarf 20 — die vier Spalten des Adressbereichs-Blatts.
+  Ebene:
+    'Aus welcher Schicht der Bereich stammt: „stehend“ ist der Plan, der am Wagen hängt, „Haus“ die Überlagerung vor Ort. Die Haus-Ebene gewinnt.',
+  'Schluessel':
+    'Der Schlüssel, an dem sich die Ebenen treffen: die Haus-Ebene ersetzt den stehenden Bereich mit DEMSELBEN Schlüssel und lässt alle anderen stehen. Ein Tippfehler hier heisst, dass die gemeinte Ersetzung nicht stattfindet.',
+  CIDR:
+    'Der Adressbereich in CIDR-Schreibweise, immer kanonisch auf seine Netz-Adresse gerundet („10.0.5.7/24“ wird zu „10.0.5.0/24“).',
+  ersetzt:
+    'Welcher stehende Bereich durch diesen hier abgelöst wurde. Leer heisst: dieser Bereich löst nichts ab — er gilt so, wie er geplant war.',
   // Drei Lesarten, und der Eintrag nennt alle drei — genau dafuer geht das
   // Lexikon nach NAMEN und nicht nach Blatt. Bis zum Bedarf 121 stand hier
   // nur der Import, waehrend die Spalte laengst auch auf dem
