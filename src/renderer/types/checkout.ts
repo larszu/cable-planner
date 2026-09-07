@@ -203,6 +203,26 @@ export interface CheckoutIn {
  * Beleg mehr -- und ein Beleg ist genau das, was hier gebraucht wird, wenn
  * drei Wochen spaeter jemand fragt, wo das Objektiv geblieben ist.
  */
+/**
+ * Bedarf 98 — eine Aenderung des Rueckgabetermins, mit dem alten Wert.
+ *
+ * Der alte Termin steht HIER und wird nicht ueberschrieben: eine
+ * Verlaengerung, die ihn loescht, nimmt genau die Auskunft weg, wegen der
+ * jemand nachsieht — war das so geplant oder ist es dreimal verschoben
+ * worden? Beim Sub-Hire haengt daran die Rechnung des Lieferanten.
+ */
+export interface CustodyExtension {
+  /** Wann die Aenderung eingetragen wurde (ISO-Zeitstempel). */
+  at: string
+  /** Der Termin, der vorher galt. Fehlt, wenn es vorher keinen gab. */
+  from?: string
+  /** Der neue Termin (ISO-Datum). */
+  to: string
+  /** Wer sie eingetragen hat, wenn jemand es gesagt hat. */
+  by?: string
+  note?: string
+}
+
 export interface CheckoutRecord {
   id: string
   /** Der ausgegebene Container (`StorageNode.id`). */
@@ -214,4 +234,11 @@ export interface CheckoutRecord {
   contents: CheckoutLine[]
   /** Fehlt, solange der Vorgang offen ist. */
   in?: CheckoutIn
+  /**
+   * Bedarf 98 — jede Verschiebung des Rueckgabetermins, aelteste zuerst.
+   * Fehlt, solange nie verschoben wurde: eine leere Liste und „nie
+   * verschoben" sind dasselbe, und ein leeres Array in jeder Datei waere
+   * ein Unterschied im Datei-Vergleich ohne Aussage.
+   */
+  extensions?: CustodyExtension[]
 }

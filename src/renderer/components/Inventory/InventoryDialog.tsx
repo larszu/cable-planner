@@ -78,6 +78,14 @@ import {
   unlabelledLines,
   type CheckoutRefusal,
 } from '../../lib/containerCheckout'
+import {
+  CUSTODY_START_REFUSAL_TEXT,
+  EXTEND_REFUSAL_TEXT,
+  custodyPeriodText,
+  extensionCount,
+  type CustodyStartRefusal,
+  type ExtendRefusal,
+} from '../../lib/custodyPeriod'
 import { toCsv } from '../../lib/csv'
 import { downloadBlob } from '../../lib/downloadBlob'
 import {
@@ -2087,6 +2095,7 @@ const CheckoutTab = () => {
   const records = useCheckoutStore((s) => s.records)
   const checkOut = useCheckoutStore((s) => s.checkOut)
   const checkIn = useCheckoutStore((s) => s.checkIn)
+  const extendDueBack = useCheckoutStore((s) => s.extendDueBack)
   const removeRecord = useCheckoutStore((s) => s.removeRecord)
   // BEDARF 136 — quittieren, beide Beine.
   const sign = useCheckoutStore((s) => s.sign)
@@ -2096,7 +2105,18 @@ const CheckoutTab = () => {
   const [to, setTo] = useState('')
   const [projectName, setProjectName] = useState('')
   const [dueBack, setDueBack] = useState('')
-  const [refusal, setRefusal] = useState<CheckoutRefusal | null>(null)
+  const [refusal, setRefusal] = useState<CheckoutRefusal | CustodyStartRefusal | null>(null)
+  /**
+   * BEDARF 98 — der Zeitpunkt der Ausgabe, wenn sie nachgetragen wird.
+   *
+   * Leer heisst „jetzt". Der Beleg nennt genau diesen Fall: „items picked up
+   * in hurry" — erst laden, dann eintragen. Ohne dieses Feld bekaeme der
+   * Vorgang den Zeitpunkt des Eintragens, und die Ueberfaelligkeit rechnete
+   * ab dem falschen Tag.
+   */
+  const [outAt, setOutAt] = useState('')
+  const [extendDraft, setExtendDraft] = useState<Record<string, string>>({})
+  const [extendMsg, setExtendMsg] = useState<Record<string, string>>({})
   // Bedarf 16 — der Papierweg zurueck. Der Code vom Blatt wird gegen die
   // Ausgabeliste gehalten; das Abhaken auf Papier wird damit zur EINGABE fuer
   // den Datensatz statt zu einem zweiten, der ihm widerspricht.
@@ -2128,18 +2148,45 @@ const CheckoutTab = () => {
 
   const ausgeben = () => {
     if (!nodeId || !to.trim()) return
-    const r = checkOut(snap, nodeId, {
-      to: to.trim(),
-      ...(projectName.trim() ? { projectName: projectName.trim() } : {}),
-      ...(dueBack ? { dueBack } : {}),
-    })
+    const r = checkOut(
+      snap,
+      nodeId,
+      {
+        to: to.trim(),
+        ...(projectName.trim() ? { projectName: projectName.trim() } : {}),
+        ...(dueBack ? { dueBack } : {}),
+      },
+      // Ein Datum ohne Uhrzeit: der Vorgang wird auf den Mittag dieses Tages
+      // gebucht. Mitternacht waere schlechter — bei einer Ausgabe, die
+      // gestern lief, saehe „00:00" nach einer Systemangabe aus statt nach
+      // einer nachgetragenen.
+      outAt ? `${outAt}T12:00:00` : undefined,
+    )
     setRefusal(r ?? null)
     if (!r) {
       setNodeId('')
       setTo('')
       setProjectName('')
       setDueBack('')
+      setOutAt('')
     }
+  }
+
+  /** BEDARF 98 — den Rueckgabetermin verschieben, in beide Richtungen. */
+  const verschiebe = (r: CheckoutRecord) => {
+    const ziel = (extendDraft[r.id] ?? '').trim()
+    if (!ziel) return
+    const grund = extendDueBack(r.id, ziel)
+    setExtendMsg((m) => ({
+      ...m,
+      [r.id]:
+        grund === undefined
+          ? ''
+          : grund === 'unknown-record'
+            ? t('inventory.checkout.unknownRecord', 'Diesen Vorgang gibt es nicht mehr.')
+            : EXTEND_REFUSAL_TEXT[grund as ExtendRefusal],
+    }))
+    if (grund === undefined) setExtendDraft((d) => ({ ...d, [r.id]: '' }))
   }
 
   /** Die aufgenommenen Schaeden eines Vorgangs, als Belegzeilen. */
@@ -2185,7 +2232,7 @@ const CheckoutTab = () => {
     setScanDraft((s) => ({ ...s, [r.id]: '' }))
   }
 
-  const refusalLabel = (r: CheckoutRefusal): string => {
+  const refusalLabel = (r: CheckoutRefusal | CustodyStartRefusal): string => {
     switch (r) {
       case 'not-a-container':
         return t('inventory.checkout.notContainer', 'Kein Container: nur Cases und Transport-Cases lassen sich ausgeben')
@@ -2195,6 +2242,11 @@ const CheckoutTab = () => {
         return t('inventory.checkout.insideOut', 'Liegt in einem bereits ausgegebenen Container')
       case 'unknown-node':
         return t('inventory.checkout.unknownNode', 'Unbekannter Lager-Knoten')
+      // BEDARF 98 — die Zeit-Absagen. Der Wortlaut steht in
+      // `custodyPeriod.ts`, damit Regel und Satz an einer Stelle liegen.
+      case 'in-the-future':
+      case 'not-a-time':
+        return CUSTODY_START_REFUSAL_TEXT[r]
     }
   }
 
@@ -2244,6 +2296,19 @@ const CheckoutTab = () => {
             aria-label={t('inventory.checkout.show', 'Show (optional)')}
             className="min-w-[10rem] rounded border border-cp-border bg-cp-surface-3 p-1.5"
           />
+          <label className="flex items-center gap-1.5 text-cp-text-secondary">
+            {t('inventory.checkout.outAt', 'Ausgabe war am')}
+            <input
+              type="date"
+              value={outAt}
+              onChange={(e) => setOutAt(e.target.value)}
+              title={t(
+                'inventory.checkout.outAtHint',
+                'Leer heißt jetzt. Ein Tag in der Vergangenheit trägt eine Ausgabe nach, die schon gelaufen ist.',
+              )}
+              className="rounded border border-cp-border bg-cp-surface-3 p-1.5"
+            />
+          </label>
           <label className="flex items-center gap-1.5 text-cp-text-secondary">
             {t('inventory.checkout.dueBack', 'Zurück bis')}
             <input
@@ -2315,9 +2380,41 @@ const CheckoutTab = () => {
                     </div>
                   </td>
                   <td className="px-2 py-1 text-cp-text-secondary">
-                    {r.out.dueBack ?? '—'}
+                    <div>{custodyPeriodText(r, new Date().toISOString().slice(0, 10))}</div>
                     {ueberfaellig.has(r.id) && (
-                      <span className="ml-1 text-cp-danger">{t('inventory.checkout.overdue', 'überfällig')}</span>
+                      <span className="text-cp-danger">{t('inventory.checkout.overdue', 'überfällig')}</span>
+                    )}
+                    {/* BEDARF 98 — „edit bookings end date while it's going
+                        on". In BEIDE Richtungen: der Beleg nennt das frühere
+                        Abziehen im selben Satz wie das Verlängern. */}
+                    <div className="mt-1 flex flex-wrap items-center gap-1">
+                      <input
+                        type="date"
+                        value={extendDraft[r.id] ?? ''}
+                        onChange={(e) =>
+                          setExtendDraft((d) => ({ ...d, [r.id]: e.target.value }))
+                        }
+                        aria-label={t('inventory.checkout.newDueBack', 'Neuer Rückgabetermin')}
+                        className="rounded border border-cp-border bg-cp-surface-3 p-1"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => verschiebe(r)}
+                        disabled={!(extendDraft[r.id] ?? '').trim()}
+                        className="rounded border border-cp-border px-1.5 py-0.5 hover:text-cp-text disabled:opacity-40"
+                      >
+                        {t('inventory.checkout.moveDueBack', 'Termin verschieben')}
+                      </button>
+                      {extensionCount(r) > 0 && (
+                        <span className="text-cp-text-muted">
+                          {format(t('inventory.checkout.movedTimes', '{n}× verschoben'), {
+                            n: extensionCount(r),
+                          })}
+                        </span>
+                      )}
+                    </div>
+                    {extendMsg[r.id] && (
+                      <div className="text-cp-danger">{extendMsg[r.id]}</div>
                     )}
                   </td>
                   <td className="px-2 py-1 text-right">

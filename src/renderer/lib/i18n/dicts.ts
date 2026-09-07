@@ -4130,6 +4130,14 @@ export const en: Dict = {
   'inventory.checkout.pick': '\u2014 pick a container \u2014',
   'inventory.checkout.to': 'To (person, truck, client)',
   'inventory.checkout.show': 'Show (optional)',
+  // Bedarf 98 — rueckwirkend ausgeben und den Termin verschieben.
+  'inventory.checkout.outAt': 'Handed out on',
+  'inventory.checkout.outAtHint':
+    'Empty means now. A day in the past records a hand-out that has already happened.',
+  'inventory.checkout.newDueBack': 'New return date',
+  'inventory.checkout.moveDueBack': 'Move return date',
+  'inventory.checkout.movedTimes': 'moved {n}×',
+  'inventory.checkout.unknownRecord': 'That record no longer exists.',
   'inventory.checkout.dueBack': 'Due back',
   'inventory.checkout.doOut': 'Check out',
   'inventory.checkout.doIn': 'Check in',
