@@ -21,6 +21,7 @@ import { crewSheetTableForProject } from '../../lib/crewNetworkSheet'
 import { spectrumTableForProject } from '../../lib/spectrumPlan'
 import { deliveryTableForProject } from '../../lib/deliveryParity'
 import { tallyMapTableForProject } from '../../lib/tallyMap'
+import { handoverManifestTableForProject } from '../../lib/postHandover'
 import type { CsvTable } from '../../lib/csv'
 import type { CablePlannerProject } from '../../types/project'
 
@@ -58,6 +59,10 @@ const KANDIDATEN: ReadonlyArray<Kandidat> = [
   { id: 'spektrum-plan', label: 'Spektrum-Plan', table: spectrumTableForProject },
   { id: 'ausspielung', label: 'Ausspielung', table: deliveryTableForProject },
   { id: 'tally-karte', label: 'Tally-Karte', table: tallyMapTableForProject },
+  // Bedarf 62 — das Blatt, mit dem die Post die Karten wiederfindet, ohne die
+  // Crew anzurufen. Es gehoert in den Stapel und nicht in einen eigenen
+  // Dialog: es geht mit den Karten mit, und was mitgeht, wird zusammengeheftet.
+  { id: 'post-uebergabe', label: 'Übergabe an die Post', table: handoverManifestTableForProject },
 ]
 
 export const PacketSection = () => {

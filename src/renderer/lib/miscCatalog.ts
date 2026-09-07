@@ -1,4 +1,5 @@
 import type { EquipmentTemplate, Port } from '../types/equipment'
+import type { RecordingCapability } from './recording'
 
 // Miscellaneous professional A/V equipment templates for rental catalog matching.
 // Covers: Rosendahl nanosyncs sync generators, Behringer X32 digital mixers,
@@ -31,6 +32,10 @@ interface MiscEntry {
    *  FixtureTypeID). Autoritativer Schluessel fuer Import/Aufloesung —
    *  versionsstabil, unabhaengig vom Modellnamen. */
   deviceTypeId: string
+  /** Zeichnet dieses Modell auf, und in welcher Form (Bedarf 62)? Fehlt das
+   *  Feld, ist das die Datenblatt-Aussage „zeichnet nicht auf" — siehe
+   *  `recording.ts`. */
+  records?: RecordingCapability
   /** Lowercase substrings that must ALL appear in the source name. */
   match: string[]
   template: EquipmentTemplate
@@ -227,6 +232,7 @@ export const MISC_CATALOG: MiscEntry[] = [
   {
     match: ['aja', 'kipro'],
     deviceTypeId: '17528d76-a3d0-4002-afee-e164d50509f0',
+    records: 'per-device',
     template: {
       name: 'AJA KiPro Recorder',
       category: VIDEO,

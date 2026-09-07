@@ -8,6 +8,7 @@
 // einmalig gemintet, versionsstabil.
 // ───────────────────────────────────────────────────────────────────────────
 import type { EquipmentTemplate, Port } from '../types/equipment'
+import type { RecordingCapability } from './recording'
 
 const num = (base: string, n: number, connectorType: Port['connectorType'], bidi = false): Port[] =>
   Array.from({ length: n }, (_, i) => ({
@@ -23,6 +24,10 @@ interface AjaEntry {
    *  FixtureTypeID). Autoritativer Schluessel fuer Import/Aufloesung —
    *  versionsstabil, unabhaengig vom Modellnamen. */
   deviceTypeId: string
+  /** Zeichnet dieses Modell auf, und in welcher Form (Bedarf 62)? Fehlt das
+   *  Feld, ist das die Datenblatt-Aussage „zeichnet nicht auf" — siehe
+   *  `recording.ts`. */
+  records?: RecordingCapability
   /** Lowercase substrings that must ALL appear in the source name. */
   match: string[]
   template: EquipmentTemplate
@@ -109,6 +114,7 @@ export const AJA_CATALOG: AjaEntry[] = [
   {
     match: ['ki pro', 'ultra', '12g'],
     deviceTypeId: 'ecf80e2e-5376-4f86-865f-ce146e90d032',
+    records: 'per-device',
     template: {
       manufacturerUrl: 'https://www.aja.com/products/ki-pro-ultra-12g',
       name: 'AJA Ki Pro Ultra 12G',
@@ -232,6 +238,7 @@ export const AJA_CATALOG: AjaEntry[] = [
   {
     match: ['helo', 'plus'],
     deviceTypeId: '48011180-869a-490a-a041-a6d797196acb',
+    records: 'per-device',
     template: {
       manufacturerUrl: 'https://www.aja.com/products/helo-plus',
       name: 'AJA HELO Plus',
