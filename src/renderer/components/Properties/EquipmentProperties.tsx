@@ -37,6 +37,7 @@ import { ModesSection } from './sections/ModesSection'
 import { RackInstanceCard } from './sections/RackInstanceCard'
 import { ReplaceDeviceSection } from './sections/ReplaceDeviceSection'
 import { LifecycleSection } from './sections/LifecycleSection'
+import { CameraControlsSection } from './sections/CameraControlsSection'
 import { SourceIdentitySection } from './sections/SourceIdentitySection'
 import { DeviceToolsSection } from './sections/DeviceToolsSection'
 
@@ -148,6 +149,9 @@ export const EquipmentProperties = () => {
       <NetworkAccessSection equipment={equipment} />
 
       <LifecycleSection equipment={equipment} />
+      {/* BEDARF 103 — Faehigkeiten je Modell. Rendert sich an Nicht-Kameras
+          selbst weg; ein aufklappbares Feld an jedem Stativ waere Laerm. */}
+      <CameraControlsSection equipment={equipment} />
 
       <PowerConsumptionSection equipment={equipment} />
 

@@ -2492,7 +2492,7 @@ export const en: Dict = {
   'project.meta.titleEdit': 'Edit project metadata',
   'project.meta.create': 'Create project',
   'project.meta.name': 'Project name',
-  'project.meta.namePh': 'e.g. ProSieben Studio refit',
+  'project.meta.namePh': 'e.g. Studio 2 refit',
   'project.meta.contractor': 'Contractor (company)',
   'project.meta.contractorPh': 'Your Company Ltd',
   'project.meta.client': 'Client',
@@ -3249,6 +3249,10 @@ export const en: Dict = {
   'analysis.tab.crew': 'Crew: hours & expenses',
   // Bedarf 108 — die Handlungsliste.
   'analysis.tab.todo': 'What is due',
+  // Bedarf 103 — Fähigkeiten je Modell.
+  'props.cameraControls.title': 'Controllable functions',
+  'props.cameraControls.noSource':
+    'No capability statement exists for this model. "Not on record" does not mean "does not work" — it means nobody has checked.',
   // Bedarf 100 — die Aufnahmenamen.
   'analysis.recordName.title': 'Recording names',
   'analysis.recordName.intro':

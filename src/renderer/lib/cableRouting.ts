@@ -1,14 +1,33 @@
 /**
- * Lightweight obstacle-aware orthogonal routing for cable edges.
+ * Orthogonale Kabelführung um Geräte herum.
  *
- * Given the two endpoints of a cable (already at the device boundary) and a
- * list of equipment bounding boxes, returns a list of waypoints that form an
- * orthogonal path that does **not** cross through any equipment rectangle.
+ * Gegeben sind die beiden Endpunkte eines Kabels (bereits am Geräterand) und
+ * die Rechtecke der Geräte; zurück kommen Zwischenpunkte, die einen
+ * rechtwinkligen Weg ergeben, der durch KEIN Gerät läuft.
  *
- * The algorithm is intentionally simple — it is not a full A* solver, but
- * handles the common case of one obstacle between source and target by going
- * around the nearest edge of the obstacle. If no obstacle is in the way, the
- * path is returned without waypoints.
+ * ─── WAS AN DER ALTEN FASSUNG NICHT STIMMTE (2026-09-07) ───────────────────
+ *
+ * Nutzer-Meldung: „manche Basisfunktionen wie das Kabel automatisch Routen
+ * funktionieren nicht sauber." Nachgesehen, drei Befunde, und der dritte ist
+ * der eigentliche:
+ *
+ *  1. Der Umweg wurde um GENAU EIN Hindernis gerechnet — um das erste, das
+ *     der HVH-Weg schnitt. Standen zwei Geräte hintereinander, führte der
+ *     Umweg um das erste geradewegs ins zweite.
+ *  2. Gesucht wurde das störende Gerät am HVH-Weg (`variants[2]`), obwohl
+ *     bevorzugt der L-Weg (`variants[0]`) gezeichnet wird. Das störende
+ *     Gerät konnte also ein anderes sein als das, an dem der gezeichnete Weg
+ *     scheiterte.
+ *  3. Und wenn gar nichts frei war, gab die Funktion „den kürzesten Umweg
+ *     zurück, auch wenn er noch etwas streift" — WORTLOS. Das Ergebnis sah
+ *     aus wie eine gelungene Führung, und das Kabel lief durch ein Gerät.
+ *
+ * Der dritte ist der teure: eine Funktion ohne Sprache für „ich konnte das
+ * nicht" muss lügen. `routeAround` gibt deshalb `{ waypoints, clear }` zurück
+ * — der Weg wird weiter geliefert (eine Kante ohne Weg wäre unsichtbar), aber
+ * er ist als nicht frei GEKENNZEICHNET, und die Oberfläche kann es zeigen.
+ *
+ * REIN: keine Uhr, kein Store, kein IO.
  */
 
 export interface Rect {
@@ -23,6 +42,7 @@ interface Point {
   y: number
 }
 
+/** Abstand, den ein Umweg zum Gerät hält. */
 const PADDING = 12
 
 const inflate = (r: Rect, pad: number): Rect => ({
@@ -32,18 +52,23 @@ const inflate = (r: Rect, pad: number): Rect => ({
   height: r.height + pad * 2,
 })
 
+/**
+ * Schneidet der (waagerechte oder senkrechte) Abschnitt das Rechteck?
+ *
+ * STRIKT: eine Linie, die genau auf der Kante entlangläuft, schneidet nicht.
+ * Sonst wäre jeder Weg, der ein Gerät sauber tangiert, blockiert — und der
+ * Umweg um ein Gerät läuft naturgemäß an dessen Kante entlang.
+ */
 const segmentIntersectsRect = (a: Point, b: Point, r: Rect): boolean => {
   const minX = Math.min(a.x, b.x)
   const maxX = Math.max(a.x, b.x)
   const minY = Math.min(a.y, b.y)
   const maxY = Math.max(a.y, b.y)
-  if (maxX < r.x || minX > r.x + r.width) return false
-  if (maxY < r.y || minY > r.y + r.height) return false
-  return true
+  return maxX > r.x && minX < r.x + r.width && maxY > r.y && minY < r.y + r.height
 }
 
 const pathClearsAll = (points: Point[], obstacles: Rect[]): boolean => {
-  for (let i = 0; i < points.length - 1; i++) {
+  for (let i = 0; i < points.length - 1; i += 1) {
     for (const rect of obstacles) {
       if (segmentIntersectsRect(points[i], points[i + 1], rect)) return false
     }
@@ -52,55 +77,120 @@ const pathClearsAll = (points: Point[], obstacles: Rect[]): boolean => {
 }
 
 /**
- * Build an orthogonal L- or U-shape path from source to target, detouring
- * around a single obstacle when required.
+ * Die vier einfachen Wege von A nach B.
+ *
+ * Die Reihenfolge ist Absicht: der L-Weg mit einem Knick steht vorn, weil er
+ * beim Ziehen eines Geräts an beiden Enden haften bleibt. Die zweiknickigen
+ * Wege springen bei jeder Pixelbewegung, und das war als „Flackern" sichtbar.
  */
 const orthogonalVariants = (source: Point, target: Point): Point[][] => {
   const midX = (source.x + target.x) / 2
   const midY = (source.y + target.y) / 2
   return [
-    // L: horizontal first — single bend, stays attached when target moves
-    // vertically. Preferred so cables don't "spin" while dragging endpoints.
     [source, { x: target.x, y: source.y }, target],
-    // L: vertical first
     [source, { x: source.x, y: target.y }, target],
-    // HVH (two bends at horizontal mid-point) — fallback when L collides.
     [source, { x: midX, y: source.y }, { x: midX, y: target.y }, target],
-    // VHV (two bends at vertical mid-point)
     [source, { x: source.x, y: midY }, { x: target.x, y: midY }, target],
   ]
 }
 
+/** Die vier Umwege um EIN Rechteck: oben herum, unten herum, links, rechts. */
 const detourAround = (source: Point, target: Point, rect: Rect): Point[][] => {
   const r = inflate(rect, PADDING)
-  const above = r.y
-  const below = r.y + r.height
-  const left = r.x
-  const right = r.x + r.width
+  const oben = r.y
+  const unten = r.y + r.height
+  const links = r.x
+  const rechts = r.x + r.width
   return [
-    // Over the top of the obstacle.
-    [source, { x: source.x, y: above }, { x: target.x, y: above }, target],
-    // Under the bottom of the obstacle.
-    [source, { x: source.x, y: below }, { x: target.x, y: below }, target],
-    // Around the left side.
-    [source, { x: left, y: source.y }, { x: left, y: target.y }, target],
-    // Around the right side.
-    [source, { x: right, y: source.y }, { x: right, y: target.y }, target],
+    [source, { x: source.x, y: oben }, { x: target.x, y: oben }, target],
+    [source, { x: source.x, y: unten }, { x: target.x, y: unten }, target],
+    [source, { x: links, y: source.y }, { x: links, y: target.y }, target],
+    [source, { x: rechts, y: source.y }, { x: rechts, y: target.y }, target],
   ]
 }
 
 const pathLength = (points: Point[]): number => {
   let total = 0
-  for (let i = 0; i < points.length - 1; i++) {
+  for (let i = 0; i < points.length - 1; i += 1) {
     total += Math.abs(points[i + 1].x - points[i].x) + Math.abs(points[i + 1].y - points[i].y)
   }
   return total
 }
 
+export interface RouteResult {
+  /** Die Zwischenpunkte, ohne Anfang und Ende. */
+  waypoints: Point[]
+  /**
+   * Läuft der Weg wirklich an allem vorbei?
+   *
+   * `false` heisst: es wurde keiner gefunden, der frei ist — geliefert wird
+   * der kürzeste. Die Oberfläche soll das zeigen, statt eine Führung zu
+   * behaupten, die durch ein Gerät läuft.
+   */
+  clear: boolean
+}
+
+const relevant = (
+  obstacles: Rect[],
+  ignoreIds?: Set<string>,
+  obstacleIds?: string[],
+): Rect[] =>
+  obstacles.filter((_, i) => {
+    const id = obstacleIds?.[i]
+    if (!id) return true
+    return !ignoreIds?.has(id)
+  })
+
 /**
- * Given source and target points plus equipment bounding boxes, returns a set
- * of intermediate waypoints (excluding source/target) that routes around any
- * obstacle. Returns an empty array when the direct orthogonal route is clear.
+ * Einen Weg von `source` nach `target` legen, der die Hindernisse meidet.
+ *
+ * ALLE Kandidaten werden gegen ALLE Hindernisse geprüft — die einfachen Wege
+ * zuerst, dann die Umwege um jedes einzelne Hindernis, zuletzt der Umweg um
+ * das umschliessende Rechteck aller Hindernisse. Der letzte ist der, der den
+ * Fall „zwei Geräte hintereinander" löst: um beide herum statt zwischen sie
+ * hinein.
+ */
+export const routeAround = (
+  source: Point,
+  target: Point,
+  obstacles: Rect[],
+  ignoreIds?: Set<string>,
+  obstacleIds?: string[],
+): RouteResult => {
+  const hindernisse = relevant(obstacles, ignoreIds, obstacleIds)
+  if (hindernisse.length === 0) return { waypoints: [], clear: true }
+
+  const einfach = orthogonalVariants(source, target)
+  const direkt = einfach.find((v) => pathClearsAll(v, hindernisse))
+  if (direkt) return { waypoints: direkt.slice(1, -1), clear: true }
+
+  // Umwege um JEDES Hindernis — und jeder Kandidat wird gegen ALLE Hindernisse
+  // geprueft. Das ist der Unterschied zur alten Fassung: sie suchte ein
+  // einziges stoerendes Geraet und fuhr um dieses herum, ohne den Umweg noch
+  // einmal gegen die uebrigen zu halten. Standen zwei hintereinander, lief
+  // der Umweg um das erste ins zweite.
+  //
+  // Ein zusaetzlicher Umweg um das umschliessende Rechteck ALLER Hindernisse
+  // stand hier kurz und ist wieder heraus: keine Gegenprobe konnte ihn rot
+  // faerben. Die Umwege um das oberste und unterste Hindernis fuehren
+  // ohnehin an der ganzen Gruppe vorbei, und Code, den kein Test von seinem
+  // Fehlen unterscheiden kann, ist nicht belegt.
+  const kandidaten = hindernisse.flatMap((r) => detourAround(source, target, r))
+
+  const freier = kandidaten.find((v) => pathClearsAll(v, hindernisse))
+  if (freier) return { waypoints: freier.slice(1, -1), clear: true }
+
+  // Nichts frei. Der kürzeste Kandidat wird geliefert — und als nicht frei
+  // gekennzeichnet. Wortlos das Gleiche zu tun war der eigentliche Defekt.
+  const alleWege = [...einfach, ...kandidaten].sort((a, b) => pathLength(a) - pathLength(b))
+  return { waypoints: alleWege[0].slice(1, -1), clear: false }
+}
+
+/**
+ * Nur die Zwischenpunkte — die Form, die der Canvas seit jeher aufruft.
+ *
+ * Bleibt bestehen, damit `CableEdge` nicht umgebaut werden muss; wer wissen
+ * will, ob der Weg frei ist, ruft `routeAround`.
  */
 export const computeObstacleAwareWaypoints = (
   source: Point,
@@ -108,33 +198,4 @@ export const computeObstacleAwareWaypoints = (
   obstacles: Rect[],
   ignoreIds?: Set<string>,
   obstacleIds?: string[],
-): Point[] => {
-  const relevantObstacles = obstacles.filter((_, i) => {
-    const id = obstacleIds?.[i]
-    if (!id) return true
-    return !ignoreIds?.has(id)
-  })
-  if (relevantObstacles.length === 0) return []
-
-  const variants = orthogonalVariants(source, target)
-  // Pick the FIRST clear variant in the predefined order (L-h > L-v > HVH >
-  // VHV). Single-bend L-shapes are preferred because they stay attached to
-  // both endpoints when nodes are dragged, eliminating the user-visible
-  // "spinning" / flickering of orthogonal cables on every pixel-level move.
-  const firstClear = variants.find((v) => pathClearsAll(v, relevantObstacles))
-  if (firstClear) return firstClear.slice(1, -1)
-
-  // Find the first obstacle the naive HVH path crosses and detour around it.
-  const naive = variants[2]
-  const offender = relevantObstacles.find((rect) =>
-    naive.some((_, i) => i < naive.length - 1 && segmentIntersectsRect(naive[i], naive[i + 1], rect)),
-  )
-  if (!offender) return []
-
-  const detours = detourAround(source, target, offender)
-  const firstClearDetour = detours.find((v) => pathClearsAll(v, relevantObstacles))
-  if (firstClearDetour) return firstClearDetour.slice(1, -1)
-  // Fall back to the shortest detour even if it still grazes something.
-  detours.sort((a, b) => pathLength(a) - pathLength(b))
-  return detours[0].slice(1, -1)
-}
+): Point[] => routeAround(source, target, obstacles, ignoreIds, obstacleIds).waypoints
