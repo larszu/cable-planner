@@ -24,6 +24,7 @@ import {
   parseIntercomMatrixXlsx,
 } from '../../lib/intercomMatrixXlsx'
 import { downloadBlob } from '../../lib/downloadBlob'
+import { exportDeviceConfig } from '../../lib/deviceConfigExport'
 import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 import { useTranslation, format } from '../../lib/i18n'
 
@@ -276,7 +277,16 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
     if (exportBlocked) return
     updateGreenGoConfig(config)
     // v7.9.116 — Einheitlicher Stempel, gg5-Endung beibehalten.
-    downloadFile(buildExportFilenameWithSuffix(config.systemName || 'GreenGo', 'config', 'gg5'), buildGg5File(config))
+    // BEDARF 43 — mit Herkunfts-Blatt. Die .gg5 traegt die Version des
+    // HERSTELLER-Formats (`fileCreatedVersion`), aber nichts ueber den Plan,
+    // aus dem sie stammt.
+    exportDeviceConfig(
+      'Green-GO',
+      'Intercom-Konfiguration',
+      buildExportFilenameWithSuffix(config.systemName || 'GreenGo', 'config', 'gg5'),
+      buildGg5File(config),
+      'application/json;charset=utf-8',
+    )
   }
 
   // ── Herstellerneutraler Austausch (B-8) ───────────────────────────────────

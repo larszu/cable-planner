@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
-import { downloadBlob } from '../../lib/downloadBlob'
+import { exportDeviceConfig } from '../../lib/deviceConfigExport'
 import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 import { LIMITS } from '../../lib/layoutConstants'
 import { cablePlannerApi, hasDesktopBridge } from '../../lib/bridge'
@@ -225,7 +225,13 @@ export const AtemAudioRouterDialog = () => {
     setBusy(true)
     try {
       const xml = serializeAudioConfigXml(draft)
-      downloadBlob(
+      // BEDARF 43 — mit Herkunfts-Blatt daneben. Die Datei selbst bleibt
+      // unberuehrt: was ATEM Setup an zusaetzlichem XML durchlaesst, steht
+      // hier nicht fest, und eine zurueckgewiesene Datei ist beim Load-in
+      // schlimmer als eine ohne Herkunft.
+      exportDeviceConfig(
+        equipment.name || 'ATEM',
+        'Audio-Zuordnung',
         // v7.9.116 — Einheitlicher Stempel.
         buildExportFilenameWithSuffix(equipment.name, 'AudioConfig', 'xml'),
         xml,

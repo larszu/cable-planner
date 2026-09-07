@@ -12,6 +12,7 @@ import type { Port, VideohubSalvo } from '../../types/equipment'
 import { useTranslation, format as fmt } from '../../lib/i18n'
 import { videohubPresetForDevice } from '../../lib/deviceKind'
 import { downloadBlob } from '../../lib/downloadBlob'
+import { exportDeviceConfig } from '../../lib/deviceConfigExport'
 import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 import { buildVideohubControlLabelsPdf } from '../../lib/exportVideohubLabels'
 import {
@@ -84,9 +85,6 @@ const buildDefaultRouting = (totalIn: number, totalOut: number): Record<number, 
   for (let i = 0; i < totalOut; i++) r[i] = i < totalIn ? i : 0
   return r
 }
-
-const downloadTextFile = (filename: string, content: string) =>
-  downloadBlob(filename, content, 'text/plain;charset=utf-8')
 
 /**
  * BEDARF 121 — der Umbau-Zettel.
@@ -766,7 +764,16 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
       `${preset.key}_${baseSuffix}`,
       'txt',
     )
-    downloadTextFile(fileName, preview)
+    // BEDARF 43 — die Datei geht mit einem Herkunfts-Blatt daneben raus.
+    // Ohne es liegen auf dem Rechner des Freelancers fuenf aehnlich benannte
+    // Dateien, und welche zu welcher Show gehoert, weiss niemand mehr.
+    exportDeviceConfig(
+      device.name || 'Blackmagic Videohub',
+      format === 'labels' ? 'Anschluss-Beschriftungen' : 'Kreuzschienen-Routing',
+      fileName,
+      preview,
+      'text/plain;charset=utf-8',
+    )
   }
 
   // #502 — Druckbare Beschriftungs-Labels (Smart-Control-Raster) als PDF,

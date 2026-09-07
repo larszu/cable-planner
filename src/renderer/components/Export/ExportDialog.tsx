@@ -41,6 +41,7 @@ import {
 import { printPdfBlob } from '../../lib/printPdfBlob'
 import { sanitizeForPdf } from '../../lib/sanitizeForPdf'
 import { downloadBlob } from '../../lib/downloadBlob'
+import { exportDeviceConfig } from '../../lib/deviceConfigExport'
 import { buildTallyMap, tallyMapCsv, toTallyPiDevices } from '../../lib/tallyMap'
 import { TallyPreShowPanel } from '../Tally/TallyPreShowPanel'
 import { toCsv } from '../../lib/csv'
@@ -1388,7 +1389,10 @@ const TallySection = () => {
     )
   }
   const downloadTallyPi = () => {
-    downloadBlob(
+    // BEDARF 43 — die Geraetedatei fuer den Pi geht mit Herkunfts-Blatt raus.
+    exportDeviceConfig(
+      'tally-pi',
+      'Geräteliste für die Tally-Karte',
       buildExportFilenameWithSuffix(project.metadata?.name, 'tally-devices', 'json'),
       JSON.stringify({ devices: toTallyPiDevices(map) }, null, 2),
       'application/json',
