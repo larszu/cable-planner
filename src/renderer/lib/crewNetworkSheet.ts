@@ -119,7 +119,7 @@ export function buildCrewSheet(project: CablePlannerProject): CrewSheet {
       // Bewusst die ANZAHL und drei Beispiele statt aller Namen: das Blatt
       // soll auf eine Seite passen. Wer alle braucht, nimmt die VLAN-Tabelle.
       text:
-        `VLAN ${id} — ${namen.size} Geraete` +
+        `VLAN ${id} — ${namen.size} Geräte` +
         (namen.size ? ` (u. a. ${[...namen].slice(0, 3).join(', ')})` : ''),
     }))
   netze.push({
@@ -145,7 +145,7 @@ export function buildCrewSheet(project: CablePlannerProject): CrewSheet {
       origin: 'ask',
       text:
         'Der Plan nennt kein Subnetz (es fehlen Adressen oder Masken). Welche Bereiche ' +
-        'belegt sind, muss vor Ort geklaert werden.',
+        'belegt sind, muss vor Ort geklärt werden.',
     })
   }
   sections.push({ key: 'reserviert', lines: reserviert })
@@ -218,7 +218,7 @@ export const CREW_SECTION_LABEL: Record<CrewSection['key'], string> = {
 
 export const CREW_ORIGIN_LABEL: Record<CrewOrigin, string> = {
   derived: 'aus dem Plan',
-  ask: 'vor Ort klaeren',
+  ask: 'vor Ort klären',
   venue: 'Auskunft des Hauses',
 }
 

@@ -325,7 +325,7 @@ export const openCheckoutsTable = (
   nodes: StorageNode[],
   heute: string,
 ): CsvTable => ({
-  headers: ['Container', 'Lagerort', 'An', 'Show', 'Ausgegeben', 'Zurueck bis', 'Positionen', 'Status'],
+  headers: ['Container', 'Lagerort', 'An', 'Show', 'Ausgegeben', 'Zurück bis', 'Positionen', 'Status'],
   rows: openCheckouts(records).map((r): CsvCell[] => [
     r.nodeLabel,
     nodePathLabel(nodes, r.nodeId) || '',
@@ -334,7 +334,7 @@ export const openCheckoutsTable = (
     r.out.at,
     r.out.dueBack ?? '',
     r.contents.length,
-    r.out.dueBack !== undefined && r.out.dueBack < heute ? 'ueberfaellig' : 'offen',
+    r.out.dueBack !== undefined && r.out.dueBack < heute ? 'überfällig' : 'offen',
   ]),
 })
 
@@ -354,7 +354,7 @@ export const openCheckoutsTable = (
  * bleibt. Wer eine „alles in Ordnung"-Zeile ergaenzt, faellt darueber.
  */
 export const discrepancyTable = (records: CheckoutRecord[]): CsvTable => ({
-  headers: ['Container', 'An', 'Zurueck am', 'Befund', 'Art', 'Bezeichnung', 'Menge', 'Kennung'],
+  headers: ['Container', 'An', 'Zurück am', 'Befund', 'Art', 'Bezeichnung', 'Menge', 'Kennung'],
   rows: records
     .filter((r) => r.in)
     .flatMap((r) => [
@@ -362,7 +362,7 @@ export const discrepancyTable = (records: CheckoutRecord[]): CsvTable => ({
         r.nodeLabel, r.out.to, r.in!.at, 'fehlt', ART[l.kind], l.label, l.quantity, l.refId,
       ]),
       ...r.in!.extra.map((l): CsvCell[] => [
-        r.nodeLabel, r.out.to, r.in!.at, 'zusaetzlich', ART[l.kind], l.label, l.quantity, l.refId,
+        r.nodeLabel, r.out.to, r.in!.at, 'zusätzlich', ART[l.kind], l.label, l.quantity, l.refId,
       ]),
     ]),
 })

@@ -149,7 +149,7 @@ export interface HandoverManifest {
   gaps: HandoverGap[]
 }
 
-const NO_PREFIX = 'ohne Praefix'
+const NO_PREFIX = 'ohne Präfix'
 
 /**
  * Das Praefix einer Rolle, samt seiner Grundlage.

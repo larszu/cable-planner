@@ -24,7 +24,7 @@ const CableEndpointLabelsCard = () => {
       title={t('settings.editing.endpointLabels', 'Endpoint-Labels an Kabelenden')}
       description={t(
         'settings.editing.endpointLabelsDesc',
-        'Zeigt an jedem Kabelende ein kleines Label das anzeigt, wohin das andere Ende geht — am Source-Ende "→ Ziel-Geraet · Ziel-Port", am Target-Ende "← Quell-Geraet · Quell-Port". Hilft beim Verfolgen von Kabeln ohne ihnen visuell folgen zu muessen.',
+        'Zeigt an jedem Kabelende ein kleines Label das anzeigt, wohin das andere Ende geht — am Source-Ende "→ Ziel-Gerät · Ziel-Port", am Target-Ende "← Quell-Gerät · Quell-Port". Hilft beim Verfolgen von Kabeln ohne ihnen visuell folgen zu müssen.',
       )}
     >
       <label className="flex items-center gap-2 text-cp-base text-cp-text-bright">
@@ -36,7 +36,7 @@ const CableEndpointLabelsCard = () => {
         {t('settings.editing.endpointLabelsLabel', 'Endpoint-Labels einblenden')}
       </label>
       <p className="mt-2 text-[11px] text-cp-text-muted">
-        {t('settings.editing.endpointLabelsNote', 'Default aus — gibt zusaetzlichen Visual-Noise. Wirkt zusammen mit dem globalen "Alle Labels ausblenden"-Toggle und respektiert per-Kabel labelPosition=\'none\'.')}
+        {t('settings.editing.endpointLabelsNote', 'Default aus — gibt zusätzlichen Visual-Noise. Wirkt zusammen mit dem globalen "Alle Labels ausblenden"-Toggle und respektiert per-Kabel labelPosition=\'none\'.')}
       </p>
     </SettingsCard>
   )
@@ -56,7 +56,7 @@ const CableInheritTypeCard = () => {
       title={t('settings.editing.cableInherit', 'Kabel-Typ folgt Port-Connector')}
       description={t(
         'settings.editing.cableInheritDesc',
-        'Wenn ein Port-Connector geaendert wird (z.B. BNC -> XLR), uebernehmen verbundene Kabel automatisch den neuen Typ. Gilt auch beim Umstecken auf einen Port mit anderem Connector. Kabel mit Konverter-Hinweis (needsConverter) bleiben unberuehrt.',
+        'Wenn ein Port-Connector geändert wird (z.B. BNC -> XLR), übernehmen verbundene Kabel automatisch den neuen Typ. Gilt auch beim Umstecken auf einen Port mit anderem Connector. Kabel mit Konverter-Hinweis (needsConverter) bleiben unberührt.',
       )}
     >
       <label className="flex items-center gap-2 text-cp-base text-cp-text-bright">
@@ -90,7 +90,7 @@ const CableReconnectOptionsCard = () => {
       title={t('settings.editing.labelSwap', 'Label mit Kabel mit-wandern')}
       description={t(
         'settings.editing.labelSwapDesc',
-        'Beim Umstecken eines Kabels uebernimmt der neue Port den User-Namen vom alten Port. Der alte Port faellt auf seinen Template-default zurueck. Spart Copy-Paste vom Label.',
+        'Beim Umstecken eines Kabels übernimmt der neue Port den User-Namen vom alten Port. Der alte Port fällt auf seinen Template-default zurück. Spart Copy-Paste vom Label.',
       )}
     >
       <label className="flex items-center gap-2 text-cp-base text-cp-text-bright">

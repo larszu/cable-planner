@@ -256,7 +256,7 @@ describe('Bedarf 90 — ein Zeiger ins Leere heisst so', () => {
 })
 
 describe('Bedarf 90 — das Blatt', () => {
-  it('traegt Antwort, Geraet und die Befunde im Klartext', () => {
+  it('trägt Antwort, Gerät und die Befunde im Klartext', () => {
     const a = assessArchive(
       eingabe({
         equipment: [geraet('obs', 'PC')],
@@ -265,7 +265,7 @@ describe('Bedarf 90 — das Blatt', () => {
       }),
     )
     const tab = archiveTable(a)
-    expect(tab.headers).toEqual(['Art', 'Was', 'Geraet', 'Text'])
+    expect(tab.headers).toEqual(['Art', 'Was', 'Gerät', 'Text'])
     expect(tab.rows[0]).toContain(ARCHIVE_ANSWER_LABEL.device)
     expect(tab.rows[0]).toContain('SSD im Schacht')
     expect(tab.rows[1]).toContain(ARCHIVE_FINDING_LABEL['shares-encoder'])

@@ -551,12 +551,12 @@ export const AppearanceTab = () => {
         title={t('settings.categoryColors.title', 'Geräte-Farben pro Kategorie')}
         description={t(
           'settings.categoryColors.desc',
-          'Default-Farbe je Kategorie (z.B. Monitore=blau). Gilt fuer alle Geraete dieser Kategorie ohne eigene Farbe. Eine pro Geraet gesetzte Farbe gewinnt weiterhin.',
+          'Default-Farbe je Kategorie (z.B. Monitore=blau). Gilt für alle Geräte dieser Kategorie ohne eigene Farbe. Eine pro Gerät gesetzte Farbe gewinnt weiterhin.',
         )}
       >
         {allKnownCategories.length === 0 ? (
           <div className="text-[11px] text-cp-text-muted">
-            {t('settings.categoryColors.empty', 'Noch keine Kategorien bekannt. Wird gefuellt sobald Geraete im Plan oder in der Library Kategorien haben.')}
+            {t('settings.categoryColors.empty', 'Noch keine Kategorien bekannt. Wird gefüllt sobald Geräte im Plan oder in der Library Kategorien haben.')}
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-x-3 gap-y-2 text-cp-base md:grid-cols-3">
@@ -594,7 +594,7 @@ export const AppearanceTab = () => {
               onClick={() => resetCategoryColors()}
               className="rounded bg-cp-surface-2 px-2 py-1 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-4"
             >
-              {t('settings.categoryColors.resetAll', 'Alle zuruecksetzen')}
+              {t('settings.categoryColors.resetAll', 'Alle zurücksetzen')}
             </button>
           </div>
         )}

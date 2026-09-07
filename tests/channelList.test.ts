@@ -135,7 +135,7 @@ describe('fuenf Sichten, ein Datensatz', () => {
     // Nummern nebeneinander sind eine Aufforderung zum Abgleich, und
     // abgeglichen wuerde eine Nummer, die auf dem Blech nirgends steht.
     const t = venueView(rows())
-    expect(t.headers).toEqual(['Port', 'Name', 'Ziel', 'Stecker', 'Laenge (m)'])
+    expect(t.headers).toEqual(['Port', 'Name', 'Ziel', 'Stecker', 'Länge (m)'])
     expect(t.headers).not.toContain('Ch')
     expect(t.rows[0]).toEqual(['1', 'SM58 Lead Vox', 'Stagebox A', 'XLR', 10])
   })

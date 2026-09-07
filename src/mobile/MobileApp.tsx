@@ -1151,7 +1151,7 @@ const ProjectView = ({
           ? { ok: true, text: `${label}: aktueller Stand` }
           : status === 'stale'
             ? { ok: false, text: `${label}: VERALTET — aktueller Stand #${now}` }
-            : { ok: false, text: `${label}: Stand nicht pruefbar` },
+            : { ok: false, text: `${label}: Stand nicht prüfbar` },
       )
       return
     }
@@ -1165,7 +1165,7 @@ const ProjectView = ({
       // Acht Hex-Zeichen, aber kein Dokument passt: das Blatt ist veraltet.
       // Das ist eine Aussage und kein "nicht gefunden" — deshalb eigener Fall.
       setFocus(null)
-      setLookupMsg({ ok: false, text: `Stand ${raw.trim()} gehoert zu keinem aktuellen Blatt` })
+      setLookupMsg({ ok: false, text: `Stand ${raw.trim()} gehört zu keinem aktuellen Blatt` })
       return
     }
 

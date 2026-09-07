@@ -402,12 +402,12 @@ const PlanSection = ({
                 <option value="a1">A1 Landscape (841×594 mm)</option>
                 <option value="a0">A0 Landscape (1189×841 mm)</option>
                 <option value="a0plus">A0+ Plotter (1682×1189 mm)</option>
-                <option value="original">{t('export.page.original', 'Original — volle Canvas-Groesse fuer Plotter')}</option>
+                <option value="original">{t('export.page.original', 'Original — volle Canvas-Größe für Plotter')}</option>
               </select>
               <p className="text-[10px] text-cp-text-muted">
                 {pdfPageSize === 'original'
                   ? t('export.page.originalHint', 'Achtung: Edge / Preview zeigen Pages über A0 manchmal weiss an. Acrobat + Plotter-Software drucken trotzdem.')
-                  : t('export.page.scaleHint', 'Canvas wird vektoriell auf die Page-Groesse skaliert. Text bleibt scharf.')}
+                  : t('export.page.scaleHint', 'Canvas wird vektoriell auf die Page-Größe skaliert. Text bleibt scharf.')}
               </p>
             </fieldset>
           )}

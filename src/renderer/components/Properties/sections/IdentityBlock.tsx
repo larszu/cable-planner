@@ -46,7 +46,7 @@ export const IdentityBlock = ({ equipment }: { equipment: EquipmentItem }) => {
             ({t('common.optional', 'optional')},{' '}
             {t(
               'eq.field.shortNameHint',
-              'fuer Port-/Endpoint-Labels — z.B. "ATEM8K" statt "ATEM Constellation 8K"',
+              'für Port-/Endpoint-Labels — z.B. "ATEM8K" statt "ATEM Constellation 8K"',
             )}
             )
           </span>

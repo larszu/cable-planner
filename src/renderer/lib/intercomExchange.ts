@@ -79,7 +79,7 @@ export const toIntercomExchange = (
       },
     },
     derivedFrom:
-      'Green-GO-Konfiguration. Dort ist die Zugehoerigkeit EINE Liste je ' +
+      'Green-GO-Konfiguration. Dort ist die Zugehörigkeit EINE Liste je ' +
       'Sprechstelle; talk und listen sind deshalb beide gesetzt und nicht ' +
       'getrennt gemessen.',
   }

@@ -83,8 +83,8 @@ export const DECLARED_PROVENANCE: ProvenanceDeclaration[] = [
     field: 'metadata.rentmanCableMap.lastSentQty',
     provenance: 'commanded',
     reason:
-      'Diese Menge wurde an Rentman geschickt. Rentman meldet nicht zurueck, ' +
-      'ob sie dort angekommen ist — ein Ruecklesen kostete einen zweiten ' +
+      'Diese Menge wurde an Rentman geschickt. Rentman meldet nicht zurück, ' +
+      'ob sie dort angekommen ist — ein Rücklesen kostete einen zweiten ' +
       'API-Aufruf je Position gegen ein Rate-Limit.',
   },
   {
@@ -92,7 +92,7 @@ export const DECLARED_PROVENANCE: ProvenanceDeclaration[] = [
     provenance: 'unknown',
     reason:
       'Beim Import gab es keinen Datenblatt-Treffer. Die Ports sind leer, ' +
-      'weil keine erfunden wurden — nicht, weil das Geraet keine haette.',
+      'weil keine erfunden wurden — nicht, weil das Gerät keine hätte.',
   },
 ]
 

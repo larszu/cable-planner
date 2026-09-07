@@ -237,7 +237,7 @@ describe('das Ablauf-Blatt', () => {
     // „secrets as references" sagt der Bedarf, und ein Blatt, das auf einem
     // Regieplatz liegt, ist der letzte Ort fuer ein Geheimnis.
     const t = runOfShowSheet([ziel('YouTube', { account: 'Kanal Kunde' })])
-    expect(t.rows[0][5]).toBe('Schluesselbund: stream-key:id-YouTube')
+    expect(t.rows[0][5]).toBe('Schlüsselbund: stream-key:id-YouTube')
     expect(JSON.stringify(t)).not.toMatch(/live-[a-z0-9-]{8,}/)
   })
 
@@ -248,7 +248,7 @@ describe('das Ablauf-Blatt', () => {
 
   it('nennt die Rolle, damit am Showtag klar ist, was der Ausweichweg ist', () => {
     const t = runOfShowSheet([ziel('Haupt'), ziel('Backup', { backupOfId: 'id-Haupt' })])
-    expect(t.rows[0][1]).toBe('Primaerweg')
+    expect(t.rows[0][1]).toBe('Primärweg')
     expect(t.rows[1][1]).toBe('Backup von Haupt')
   })
 })

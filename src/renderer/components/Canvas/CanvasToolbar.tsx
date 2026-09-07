@@ -555,12 +555,12 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
                 format(
                   t(
                     'toolbar.group.overwriteConfirm',
-                    'Es existiert bereits eine Vorlage namens "{name}". Ueberschreiben?',
+                    'Es existiert bereits eine Vorlage namens "{name}". Überschreiben?',
                   ),
                   { name: trimmed },
                 ),
                 {
-                  okLabel: t('toolbar.group.overwrite', 'Ueberschreiben'),
+                  okLabel: t('toolbar.group.overwrite', 'Überschreiben'),
                   cancelLabel: t('common.cancel', 'Abbrechen'),
                   destructive: true,
                 },

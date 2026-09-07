@@ -46,10 +46,10 @@ export interface CameraListExchange {
 export function parseCameraList(text: string): CameraListExchange {
   const data = JSON.parse(text) as Partial<CameraListExchange>
   if (!data || data.kind !== CAMERA_LIST_KIND) {
-    throw new Error('Keine gueltige Kamera-Liste (kind != camera-list).')
+    throw new Error('Keine gültige Kamera-Liste (kind != camera-list).')
   }
   if (data.formatVersion !== CAMERA_LIST_VERSION) {
-    throw new Error(`Nicht unterstuetzte Kamera-Listen-Version: ${data.formatVersion}`)
+    throw new Error(`Nicht unterstützte Kamera-Listen-Version: ${data.formatVersion}`)
   }
   if (!Array.isArray(data.cameras)) throw new Error('Kamera-Liste ohne cameras-Array.')
   return data as CameraListExchange

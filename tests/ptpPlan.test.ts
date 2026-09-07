@@ -264,13 +264,13 @@ describe('Bedarf 73 — needsPtp trennt den SDI-Aufbau vom IP-Aufbau', () => {
 })
 
 describe('Bedarf 73 — das Blatt', () => {
-  it('fuehrt eine Zeile je Schnittstelle in einer Domaene', () => {
+  it('führt eine Zeile je Schnittstelle in einer Domäne', () => {
     const eq = [
       geraet('a', 'A', [{ ptpDomain: 0, ptpProfile: 'aes67', ptpRole: 'grandmaster', label: 'Dante Pri' }]),
       geraet('sw', 'S'),
     ]
     const tab = ptpTable(buildPtpPlan(eq, [kabel('k1', 'a', 'sw', 'Dante')]))
-    expect(tab.headers).toEqual(['Domaene', 'Schnittstelle', 'Profil', 'Rolle', 'Essenz'])
+    expect(tab.headers).toEqual(['Domäne', 'Schnittstelle', 'Profil', 'Rolle', 'Essenz'])
     expect(tab.rows).toHaveLength(1)
     expect(tab.rows[0][0]).toBe(0)
     expect(String(tab.rows[0][1])).toContain('Dante Pri')

@@ -580,12 +580,12 @@ const PowerTab = () => {
     line(t('calc.pdf.summary', 'ZUSAMMENFASSUNG'), 11, 20)
     line(`${t('calc.pdf.totalUsage', 'Gesamtverbrauch')}: ${totals.totalW.toFixed(0)} W  ·  + ${marginPercent}% ${t('calc.pdf.reserve', 'Reserve')} = ${totalWithMargin.toFixed(0)} W (${(totalWithMargin / 1000).toFixed(2)} kW)`)
     if (supply.phases === 1) {
-      line(`${t('calc.pdf.current1phase', 'Stromstaerke (1-phasig)')}: ${ampsSinglePhase.toFixed(1)} A  ·  ${t('calc.pdf.breakerMax', 'Absicherung max')} ${supply.perPhaseAmps} A`)
+      line(`${t('calc.pdf.current1phase', 'Stromstärke (1-phasig)')}: ${ampsSinglePhase.toFixed(1)} A  ·  ${t('calc.pdf.breakerMax', 'Absicherung max')} ${supply.perPhaseAmps} A`)
     } else {
       line(`${t('calc.pdf.current3phase', 'Symmetrisch (3-phasig)')}: ${ampsThreePhase.toFixed(1)} A ${t('calc.pdf.perPhase', 'je Phase')}  ·  ${t('calc.pdf.breakerMax', 'Absicherung max')} ${supply.perPhaseAmps} A`)
     }
     line(`${t('calc.pdf.generator', 'Generator (cosphi 0,8)')}: ${generatorKva.toFixed(1)} kVA  ·  ${t('calc.pdf.recommended', 'empfohlen')} >= ${generatorKvaRecommended.toFixed(1)} kVA`)
-    line(`${t('calc.pdf.heatCooling', 'Waerme/Kuehlung')}: ${totalBtu} BTU/h  ~ ${(totals.totalW / 1000).toFixed(1)} kW  ·  ${Math.max(1, Math.ceil(totalBtu / 12000))}x 12k-BTU-AC`)
+    line(`${t('calc.pdf.heatCooling', 'Wärme/Kühlung')}: ${totalBtu} BTU/h  ~ ${(totals.totalW / 1000).toFixed(1)} kW  ·  ${Math.max(1, Math.ceil(totalBtu / 12000))}x 12k-BTU-AC`)
     y += 6
 
     if (supply.phases === 3 && distribution.perPhaseWatts.length === 3) {
@@ -594,7 +594,7 @@ const PowerTab = () => {
         const a = w / supply.voltage
         line(`L${i + 1}: ${Math.round(w)} W  ·  ${a.toFixed(1)} A  ·  ${Math.round((a / supply.perPhaseAmps) * 100)}% ${t('calc.pdf.load', 'Last')}`, 9, 40, 8)
       })
-      line(`${t('calc.pdf.neutral', 'Neutralleiter (geschaetzt)')}: ${neutralAmps.toFixed(1)} A  ·  ${t('calc.pdf.imbalance', 'Unwucht')} ${maxImbalancePct}%`, 9, 40, 8)
+      line(`${t('calc.pdf.neutral', 'Neutralleiter (geschätzt)')}: ${neutralAmps.toFixed(1)} A  ·  ${t('calc.pdf.imbalance', 'Unwucht')} ${maxImbalancePct}%`, 9, 40, 8)
       y += 6
     }
 
@@ -607,7 +607,7 @@ const PowerTab = () => {
     line(`${t('calc.pdf.battery', 'Akku')} ${Math.round(batteryWh)} Wh (${Math.round(usableWh)} Wh ${t('calc.pdf.usable', 'nutzbar')})  ->  ${t('calc.pdf.runtime', 'Pufferzeit')} ~${runtimeMin <= 0 ? '-' : runtimeMin >= 60 ? `${Math.floor(runtimeMin / 60)} h ${Math.round(runtimeMin % 60)} min` : `${runtimeMin.toFixed(0)} min`}`, 9, 40, 8)
     y += 6
 
-    line(`${t('calc.pdf.devicesToPhase', 'GERAETE -> PHASE')} (${distribution.assignments.length})`, 11, 20)
+    line(`${t('calc.pdf.devicesToPhase', 'GERÄTE -> PHASE')} (${distribution.assignments.length})`, 11, 20)
     for (const a of distribution.assignments) {
       line(`${a.pinned ? `[${t('calc.pdf.fixed', 'fix')}] ` : ''}${a.name}  —  ${a.watts} W  —  L${a.phase}`, 8, 60, 8)
     }

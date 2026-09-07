@@ -119,7 +119,7 @@ export const GroupsTab = () => {
                                   format(
                                     t(
                                       'library.tabs.groups.renameConflict',
-                                      'Es existiert bereits eine Vorlage namens "{name}". Bitte einen anderen Namen waehlen.',
+                                      'Es existiert bereits eine Vorlage namens "{name}". Bitte einen anderen Namen wählen.',
                                     ),
                                     { name: trimmed },
                                   ),

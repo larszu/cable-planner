@@ -1626,13 +1626,13 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
                       className="rounded bg-emerald-900/40 px-1.5 py-0.5 text-emerald-200"
                       title={t('rentman.import.status.linkedTitle', 'Items mit identischem Rentman-Equipment-ID in der lokalen Library — silent re-import, Ports + Custom-Daten bleiben erhalten.')}
                     >
-                      {format(t('rentman.import.status.linked', '✓ {count} bereits verknuepft'), { count: linked })}
+                      {format(t('rentman.import.status.linked', '✓ {count} bereits verknüpft'), { count: linked })}
                     </span>
                   )}
                   {conflicts > 0 && (
                     <span
                       className="rounded bg-amber-900/40 px-1.5 py-0.5 text-amber-100"
-                      title={t('rentman.import.status.conflictsTitle', 'Items mit gleichem Namen wie ein lokales Template, aber ohne Rentman-ID. Beim Import faellt pro Item der Konflikt-Dialog (Default: lokale Version behalten + Rentman-ID anhaengen).')}
+                      title={t('rentman.import.status.conflictsTitle', 'Items mit gleichem Namen wie ein lokales Template, aber ohne Rentman-ID. Beim Import fällt pro Item der Konflikt-Dialog (Default: lokale Version behalten + Rentman-ID anhängen).')}
                     >
                       <><Icon icon={Zap} size="xs" className="mr-1 inline-block align-text-bottom" />{format(t('rentman.import.status.conflicts', '{count}× schon in Bibliothek (gleicher Name)'), { count: conflicts })}</>
                     </span>

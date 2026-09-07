@@ -1375,7 +1375,7 @@ export const AtemMvConfigDialog = () => {
               className="rounded bg-sky-700 px-3 py-1 text-cp-xs enabled:hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-50"
               title={
                 connected
-                  ? t('atem.mv.readFromTitle', 'Multiviewer-Setup vom verbundenen ATEM auslesen und in die Anzeige uebernehmen.')
+                  ? t('atem.mv.readFromTitle', 'Multiviewer-Setup vom verbundenen ATEM auslesen und in die Anzeige übernehmen.')
                   : t('atem.mv.notConnectedTitle', 'ATEM nicht verbunden — erst im ATEM-Dialog verbinden.')
               }
             >

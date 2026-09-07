@@ -107,13 +107,13 @@ export const registerPrintIpc = (): void => {
               `${(widthMicrons / 1000).toFixed(0)}×${(heightMicrons / 1000).toFixed(0)} mm, ` +
               `${isLandscape ? 'landscape' : 'portrait'}).\n` +
               `Debug-HTML: ${debugPath}\n` +
-              `Tipp: HTML im Browser oeffnen — wenn sauber aussieht, ist der Bug in printToPDF; wenn leer, im HTML-Build.`,
+              `Tipp: HTML im Browser öffnen — wenn sauber aussieht, ist der Bug in printToPDF; wenn leer, im HTML-Build.`,
             { cause: printErr },
           )
         }
         if (!buffer || buffer.byteLength < 1000) {
           throw new Error(
-            `printToPDF gab nur ${buffer?.byteLength ?? 0} Bytes zurueck — Render fehlgeschlagen. Debug-HTML liegt unter ${debugPath}.`,
+            `printToPDF gab nur ${buffer?.byteLength ?? 0} Bytes zurück — Render fehlgeschlagen. Debug-HTML liegt unter ${debugPath}.`,
           )
         }
         return new Uint8Array(buffer)

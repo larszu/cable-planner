@@ -183,9 +183,23 @@ describe('der Guard: jede Spalte, die irgendwo exportiert wird, ist erklaert', (
       // String-Literale —, und damit war jedes Blatt unsichtbar, dessen
       // Spalten aus einer Konstanten kommen. Gefunden beim Anlegen von
       // `PRE_SHOW_HEADERS` (Bedarf 105).
+      // DRITTE FORM, und sie war der groesste blinde Fleck: `toCsv([...], rows)`
+      // uebergibt die Spalten POSITIONELL — ohne `headers:` und ohne
+      // `_HEADERS`. Gefunden an `planBomCsv`, dessen Spalte „Verfuegbar" seit
+      // Bedarf 80 exportiert wurde und in KEINEM Lexikon-Eintrag stand, ohne
+      // dass dieser Guard je rot wurde. Ein Guard, der die haeufigste
+      // Schreibweise nicht sieht, behauptet eine Deckung, die es nicht gibt.
+      //
+      // Kommentare fliegen vorher raus: der Text vor der Spaltenliste in
+      // `planBom` nennt Spaltennamen in Anfuehrungszeichen, und ohne diesen
+      // Schnitt landete Prosa als Spaltenname im Ergebnis.
+      const ohneKommentar = src
+        .replace(/\/\*[\s\S]*?\*\//g, '')
+        .replace(/(^|[^:])\/\/[^\n]*/gm, '$1')
       const listen = [
-        ...src.matchAll(/headers:\s*\[([\s\S]*?)\]/g),
-        ...src.matchAll(/_HEADERS(?::[^=]*)?\s*=\s*\[([\s\S]*?)\]/g),
+        ...ohneKommentar.matchAll(/headers:\s*\[([\s\S]*?)\]/g),
+        ...ohneKommentar.matchAll(/_HEADERS(?::[^=]*)?\s*=\s*\[([\s\S]*?)\]/g),
+        ...ohneKommentar.matchAll(/toCsv\(\s*\[([\s\S]*?)\]/g),
       ]
       for (const m of listen) {
         for (const s of m[1].matchAll(/'((?:[^'\\]|\\.)*)'/g)) {

@@ -114,11 +114,11 @@ const teilen = (erp: ErpLine[]): { geraete: ErpLine[]; ignored: ErpReport['ignor
   const ignored: ErpReport['ignored'] = []
   for (const l of erp) {
     if (l.kind === 'comment') {
-      ignored.push({ label: l.name, reason: 'Kommentarzeile, kein Geraet' })
+      ignored.push({ label: l.name, reason: 'Kommentarzeile, kein Gerät' })
       continue
     }
     if (l.isSetChild) {
-      ignored.push({ label: l.name, reason: 'Inhalt einer Kombination, im Elternteil gezaehlt' })
+      ignored.push({ label: l.name, reason: 'Inhalt einer Kombination, im Elternteil gezählt' })
       continue
     }
     if (!(l.qty > 0)) {
@@ -250,8 +250,8 @@ const URTEIL: Record<ErpVerdict, string> = {
 }
 
 const BASIS: Record<ErpBasis, string> = {
-  'rentman-id': 'ueber Rentman-Id (Tatsache)',
-  name: 'ueber den Namen (Vorschlag)',
+  'rentman-id': 'über Rentman-Id (Tatsache)',
+  name: 'über den Namen (Vorschlag)',
   none: '',
   ambiguous: 'Name mehrfach — nicht zugeordnet',
 }

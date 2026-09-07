@@ -60,7 +60,7 @@ export const LABEL_TARGETS: Record<LabelTargetId, LabelTargetSpec> = {
     asciiOnly: true,
     caseSensitive: true,
     source:
-      'ATEM-Protokoll: InCm-Block traegt den Langnamen als 20-Byte-Feld. ' +
+      'ATEM-Protokoll: InCm-Block trägt den Langnamen als 20-Byte-Feld. ' +
       'Gleiche Zahl bereits im Kommentar von lib/portLabel.ts.',
   },
   'atem-input-short': {
@@ -72,7 +72,7 @@ export const LABEL_TARGETS: Record<LabelTargetId, LabelTargetSpec> = {
     asciiOnly: true,
     caseSensitive: true,
     source:
-      'ATEM-Protokoll: InCm-Block traegt den Kurznamen als 4-Byte-Feld. ' +
+      'ATEM-Protokoll: InCm-Block trägt den Kurznamen als 4-Byte-Feld. ' +
       'Der Kurzname ist das, was Multiviewer-Fenster beschriftet.',
   },
   'videohub-label': {
@@ -90,8 +90,8 @@ export const LABEL_TARGETS: Record<LabelTargetId, LabelTargetSpec> = {
     forbidden: /[,\r\n]/,
     caseSensitive: true,
     source:
-      'Kein dokumentiertes Laengenlimit im Videohub-Ethernet-Protokoll. ' +
-      'Die Zeichen-Einschraenkung folgt aus dem Labels.txt-Format in ' +
+      'Kein dokumentiertes Längenlimit im Videohub-Ethernet-Protokoll. ' +
+      'Die Zeichen-Einschränkung folgt aus dem Labels.txt-Format in ' +
       'lib/exportVideohub.ts (Komma-getrennt, zeilenbasiert).',
   },
   'tsl-umd-v31': {
@@ -109,7 +109,7 @@ export const LABEL_TARGETS: Record<LabelTargetId, LabelTargetSpec> = {
   'dante-device': {
     id: 'dante-device',
     system: 'Dante',
-    field: 'Geraetename',
+    field: 'Gerätename',
     budget: DANTE_MAX_LENGTH,
     budgetUnit: 'chars',
     asciiOnly: true,
