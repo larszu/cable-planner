@@ -10,6 +10,9 @@ export const en: Dict = {
   'common.cancel': 'Cancel',
   'common.save': 'Save',
   'common.close': 'Close',
+  // PanelHint: der Rest eines Erklaersatzes steht hinter diesem Wort.
+  'common.more': 'more',
+  'common.less': 'less',
   'common.refresh': 'Refresh',
   'doclog.title': 'Documents handed out',
   'doclog.footer': 'The register lives next to the app, not in the project — it records what was handed out on this machine and does not travel with the plan.',
