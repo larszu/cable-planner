@@ -12,7 +12,7 @@
 
 import { useMemo, useState } from 'react'
 import { PanelHint } from '../shared/PanelHint'
-import { BarChart3, Download, Plus, Trash2 } from 'lucide-react'
+import { BarChart3, Calculator, Download, Plus, Trash2 } from 'lucide-react'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
 import { ModalShell } from '../shared/ModalShell'
@@ -123,6 +123,32 @@ import {
   scannedRange,
 } from '../../lib/spectrumScan'
 import { DEFAULT_OCCUPIED_DBM, VERDICT_LABEL, type SpectrumScan } from '../../types/spectrumScan'
+
+/**
+ * Der Weg zum passenden Rechner, direkt neben der Tabelle, die seine Zahl
+ * zeigt.
+ *
+ * Nutzer-Frage 2026-09-07: „Die ganzen Tools muessten eigentlich besser
+ * eingebaut werden da wo man sie auch wirklich braucht." Wer auf die
+ * Leistungs-Spalte schaut und wissen will, ob die Phase reicht, soll den
+ * Rechner HIER finden — nicht in einem Menue, das er dafuer erst schliessen
+ * und wieder oeffnen muss.
+ *
+ * Die beiden Menue-Eintraege sind dafuer entfallen. Die zwei anderen Rechner
+ * (Aufzeichnungs-Speicher, Projektion) bleiben im Menue: sie haben hier keine
+ * Tabelle, neben die sie gehoerten, und ein Knopf ohne Bezug waere nur eine
+ * weitere Zeile.
+ */
+const RechnerLink = ({ onClick, label }: { onClick: () => void; label: string }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className="inline-flex items-center gap-1 rounded border border-cp-border bg-cp-surface-2 px-2 py-0.5 text-cp-xs text-cp-text hover:border-sky-500 hover:bg-cp-surface-3"
+  >
+    <Icon icon={Calculator} size="xs" />
+    {label}
+  </button>
+)
 
 type Tab =
   | 'weight'
@@ -261,6 +287,12 @@ const WeightTab = ({ projectName }: { projectName: string }) => {
           'analysis.weight.intro',
           'Gewicht (kg) und Wärmelast je Kategorie aus den Geräte-Eigenschaften. Wärme ≈ Leistung × 3,412 BTU/h.',
         )} />
+      <div>
+        <RechnerLink
+          onClick={() => useUiStore.getState().openPowerCalc()}
+          label={t('app.menu.tools.power', 'Stromverbrauch berechnen…')}
+        />
+      </div>
       <table className="w-full text-cp-xs">
         <thead>
           <tr className="border-b border-[var(--cp-border)] text-left text-[var(--cp-text-muted)]">
@@ -666,6 +698,12 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
       <p className="text-cp-xs text-[var(--cp-text-muted)]">
         {t('analysis.network.intro', 'IP-/VLAN-Übersicht aller netzwerkfähigen Geräte mit Doppel-IP-Prüfung.')}
       </p>
+      <div>
+        <RechnerLink
+          onClick={() => useUiStore.getState().openBandwidthCalc()}
+          label={t('app.menu.tools.bandwidth', 'Bandbreite berechnen…')}
+        />
+      </div>
       {duplicates.length > 0 && (
         <div className="rounded border border-red-700/60 bg-red-900/30 p-2 text-cp-xs text-red-200">
           <div className="mb-1 font-semibold">{t('analysis.network.dupTitle', 'Doppelte IP-Adressen')}</div>

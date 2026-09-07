@@ -1,12 +1,57 @@
 import { useEffect, useRef, useState, useSyncExternalStore, type ChangeEvent } from 'react'
 import {
-  FileText, Clapperboard, FolderOpen, Save, SaveAll, Ruler, Upload, FileDown,
-  Image as ImageIcon, Calculator, Eye, MessageSquare, Paperclip, Plug, Cable,
-  Undo2, Redo2, Radio, Zap, BarChart3, Server, Monitor, MonitorPlay, SlidersHorizontal, Tag,
-  Shuffle, Headphones, Import as ImportIcon, Users, Lightbulb, Info, Check,
-  Pencil, Smartphone, Settings, HardDrive, Copy, ClipboardCheck, History, Sparkles, Drum,
-  Maximize, Maximize2, ZoomIn, ZoomOut, Scan, BoxSelect, RefreshCw, PackageCheck,
-  Keyboard, Command, Boxes, GitCompare,
+  BarChart3,
+  Boxes,
+  BoxSelect,
+  Cable,
+  Calculator,
+  Check,
+  Clapperboard,
+  ClipboardCheck,
+  Command,
+  Copy,
+  Drum,
+  Eye,
+  FileDown,
+  FileText,
+  FolderOpen,
+  GitCompare,
+  HardDrive,
+  Headphones,
+  History,
+  Image as ImageIcon,
+  Import as ImportIcon,
+  Info,
+  Keyboard,
+  Lightbulb,
+  Maximize,
+  Maximize2,
+  MessageSquare,
+  Monitor,
+  MonitorPlay,
+  PackageCheck,
+  Paperclip,
+  Pencil,
+  Plug,
+  Radio,
+  Redo2,
+  RefreshCw,
+  Ruler,
+  Save,
+  SaveAll,
+  Scan,
+  Server,
+  Settings,
+  Shuffle,
+  SlidersHorizontal,
+  Smartphone,
+  Sparkles,
+  Tag,
+  Undo2,
+  Upload,
+  Users,
+  ZoomIn,
+  ZoomOut,
 } from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import {
@@ -535,6 +580,27 @@ export const MenuBar = ({
           <MenuItem onClick={() => cameraImportRef.current?.click()} icon={<Icon icon={ImportIcon} size="sm" />}>
             {t('app.menu.file.importCameras', 'MultiCam-Kameras importieren…')}
           </MenuItem>
+          {/* VERSCHOBEN 2026-09-07 aus dem Werkzeuge-Menue. Ein Import gehoert
+              dorthin, wo die anderen Importe stehen — yEd, MultiCam, .avplan
+              und die Identitaets-Karte lagen laengst hier, CSV, Rentman und
+              NetBox standen als einzige woanders. Wer eine Datei einlesen
+              will, sucht unter „Datei", nicht unter „Werkzeuge". */}
+          <MenuItem onClick={() => useUiStore.getState().openCsvImport()} icon={<Icon icon={ImportIcon} size="sm" />}>
+            {t('app.menu.tools.csvImport', 'Equipment aus CSV importieren…')}
+          </MenuItem>
+          {/* Rentman-Import nur wenn die Integration aktiv ist (standardmäßig
+              aus; Aktivierung in den Einstellungen → Integrationen). */}
+          {rentmanEnabled && (
+            <MenuItem onClick={() => useUiStore.getState().openRentmanImport()} icon={<Icon icon={Users} size="sm" />}>
+              {t('app.menu.tools.rentmanImport', 'Rentman-Import…')}
+            </MenuItem>
+          )}
+          {/* #597 — NetBox-Import, ebenfalls nur bei aktivem Modul. */}
+          {netboxEnabled && (
+            <MenuItem onClick={() => useUiStore.getState().openNetboxImport()} icon={<Icon icon={Server} size="sm" />}>
+              {t('app.menu.tools.netboxImport', 'NetBox-Import…')}
+            </MenuItem>
+          )}
           <MenuSep />
           <MenuItem onClick={() => void handleExportAvplan()} icon={<Icon icon={Upload} size="sm" />}>
             {t('app.menu.file.exportAvplan', 'Gesamtprojekt exportieren (.avplan)…')}
@@ -560,6 +626,35 @@ export const MenuBar = ({
               Eintrag zum Hub-Dialog mit allen Sektionen.
               User-Request: "Vereinheitliche zu einer Großen funktion".
               Strg+P bleibt als direkter Shortcut für den OS-Druckdialog. */}
+          {/* VERSCHOBEN 2026-09-07 aus dem Werkzeuge-Menue. Patch-Liste,
+              Stage-Plot und die Uebergabe-Doku sind AUSGABEN — Blaetter, die
+              den Plan verlassen. Sie gehoeren neben „Exportieren & Drucken",
+              nicht in eine Werkzeug-Liste, in der man sie nicht sucht. */}
+          <MenuItem onClick={() => useUiStore.getState().openPatchList()} icon={<Icon icon={Cable} size="sm" />}
+            note={t('app.menu.tools.patchList.note', 'Wer hängt an welchem Ein- und Ausgang')}
+          >
+            {t('app.menu.tools.patchList', 'Patch-Liste…')}
+          </MenuItem>
+          {festinstallationModule && (
+            <MenuItem onClick={() => useUiStore.getState().openInstallDocs()} icon={<Icon icon={PackageCheck} size="sm" />}>
+              {t('app.menu.tools.installDocs', 'Festinstallation: Doku & Übergabe…')}
+            </MenuItem>
+          )}
+          <MenuItem
+            onClick={() => {
+              const p = useProjectStore.getState().project
+              downloadBlob(
+                buildExportFilename(p.metadata.name, 'stageplot.svg'),
+                exportStagePlotSvg(p),
+                'image/svg+xml',
+              )
+            }}
+            icon={<Icon icon={ImageIcon} size="sm" />}
+          
+            note={t('app.menu.tools.stagePlot.note', 'Bühnenaufsicht als Ein-Seiten-Blatt')}
+          >
+            {t('app.menu.tools.stagePlot', 'Stage-Plot (SVG)…')}
+          </MenuItem>
           {onOpenExportDialog ? (
             <MenuItem onClick={onOpenExportDialog} icon={<Icon icon={Upload} size="sm" />}>
               {t('app.menu.file.export', 'Exportieren & Drucken…')}
@@ -714,19 +809,16 @@ export const MenuBar = ({
               Jetzt sechs Abschnitte mit drei bis fünf Einträgen, jede
               Überschrift für alle ihre Einträge wahr. Patchliste-Export liegt
               zusätzlich unter Datei → Exportieren & Drucken. */}
+          {/* VERSCHOBEN 2026-09-07: „Bandbreite berechnen" steht jetzt auf dem
+              Netzwerk-Reiter der Analysen, „Stromverbrauch berechnen" auf dem
+              Reiter „Gewicht & Waerme" — jeweils neben der Tabelle, deren
+              Zahl sie erklaeren. Wer auf die Leistungs-Spalte schaut und
+              wissen will, ob die Phase reicht, findet den Rechner dort und
+              muss nicht erst ein Menue oeffnen.
+
+              Die zwei uebrigen bleiben hier: sie haben in den Analysen keine
+              Tabelle, neben die sie gehoerten. */}
           <MenuSectionHeader>{t('app.menu.tools.group.calc', 'Berechnen')}</MenuSectionHeader>
-          <MenuItem
-            onClick={() => useUiStore.getState().openBandwidthCalc()}
-            icon={<Icon icon={Radio} size="sm" />}
-          >
-            {t('app.menu.tools.bandwidth', 'Bandbreite berechnen…')}
-          </MenuItem>
-          <MenuItem
-            onClick={() => useUiStore.getState().openPowerCalc()}
-            icon={<Icon icon={Zap} size="sm" />}
-          >
-            {t('app.menu.tools.power', 'Stromverbrauch berechnen…')}
-          </MenuItem>
           <MenuItem
             onClick={() => useUiStore.getState().openRecordingStorageCalc()}
             icon={<Icon icon={HardDrive} size="sm" />}
@@ -854,48 +946,6 @@ export const MenuBar = ({
             </MenuItem>
           )}
 
-          <MenuSectionHeader>{t('app.menu.tools.group.io', 'Import & Export')}</MenuSectionHeader>
-          <MenuItem onClick={() => useUiStore.getState().openPatchList()} icon={<Icon icon={Cable} size="sm" />}
-            note={t('app.menu.tools.patchList.note', 'Wer hängt an welchem Ein- und Ausgang')}
-          >
-            {t('app.menu.tools.patchList', 'Patch-Liste…')}
-          </MenuItem>
-          {festinstallationModule && (
-            <MenuItem onClick={() => useUiStore.getState().openInstallDocs()} icon={<Icon icon={PackageCheck} size="sm" />}>
-              {t('app.menu.tools.installDocs', 'Festinstallation: Doku & Übergabe…')}
-            </MenuItem>
-          )}
-          <MenuItem
-            onClick={() => {
-              const p = useProjectStore.getState().project
-              downloadBlob(
-                buildExportFilename(p.metadata.name, 'stageplot.svg'),
-                exportStagePlotSvg(p),
-                'image/svg+xml',
-              )
-            }}
-            icon={<Icon icon={ImageIcon} size="sm" />}
-          
-            note={t('app.menu.tools.stagePlot.note', 'Bühnenaufsicht als Ein-Seiten-Blatt')}
-          >
-            {t('app.menu.tools.stagePlot', 'Stage-Plot (SVG)…')}
-          </MenuItem>
-          <MenuItem onClick={() => useUiStore.getState().openCsvImport()} icon={<Icon icon={ImportIcon} size="sm" />}>
-            {t('app.menu.tools.csvImport', 'Equipment aus CSV importieren…')}
-          </MenuItem>
-          {/* Rentman-Import nur wenn die Integration aktiv ist (standardmäßig
-              aus; Aktivierung in den Einstellungen → Integrationen). */}
-          {rentmanEnabled && (
-            <MenuItem onClick={() => useUiStore.getState().openRentmanImport()} icon={<Icon icon={Users} size="sm" />}>
-              {t('app.menu.tools.rentmanImport', 'Rentman-Import…')}
-            </MenuItem>
-          )}
-          {/* #597 — NetBox-Import, ebenfalls nur bei aktivem Modul. */}
-          {netboxEnabled && (
-            <MenuItem onClick={() => useUiStore.getState().openNetboxImport()} icon={<Icon icon={Server} size="sm" />}>
-              {t('app.menu.tools.netboxImport', 'NetBox-Import…')}
-            </MenuItem>
-          )}
         </Menu>
 
         <Menu label={t('app.menu.view', 'Ansicht')}>
