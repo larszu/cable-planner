@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
 import { projectHistory } from '../../store/projectHistory'
@@ -24,9 +24,31 @@ const toCableType = (connectorType: string): CableType =>
  *
  * Trigger: Werkzeuge-Menue 'Mehrere Kabel verbinden...' (siehe MenuBar).
  */
+/**
+ * Aussenhuelle: montiert den Inhalt ERST beim Oeffnen — und damit bei jedem
+ * Oeffnen neu.
+ *
+ * WARUM DIESE FORM UND KEIN `useEffect` (berichtigt 2026-09-07). Die
+ * Vorbelegung aus der Canvas-Auswahl war zuerst als Effekt geschrieben, der
+ * beim Oeffnen `setFromEqId`/`setToEqId` rief. Das ist genau das Muster, das
+ * `react-hooks/set-state-in-effect` als FEHLER meldet: ein `setState` im
+ * Effekt-Rumpf erzwingt eine zweite Renderrunde, nur um einen Anfangswert zu
+ * setzen, den man auch gleich haette setzen koennen.
+ *
+ * Wird der Inhalt stattdessen erst bei `open` montiert, ist die Vorbelegung
+ * schlicht der ANFANGSWERT von `useState` — kein Effekt, keine zweite
+ * Renderrunde, und „nur beim Oeffnen" gilt von selbst statt als Bedingung im
+ * Effekt. Ein von Hand gewaehltes Geraet ueberlebt damit jede Aenderung am
+ * Store, weil nichts es mehr ueberschreibt.
+ */
 export const BulkConnectDialog = () => {
-  const t = useTranslation()
   const open = useUiStore((s) => s.bulkConnect.open)
+  if (!open) return null
+  return <BulkConnectDialogInner />
+}
+
+const BulkConnectDialogInner = () => {
+  const t = useTranslation()
   const vorgabeVon = useUiStore((s) => s.bulkConnect.fromEqId)
   const vorgabeNach = useUiStore((s) => s.bulkConnect.toEqId)
   const close = useUiStore((s) => s.closeBulkConnect)
@@ -34,29 +56,15 @@ export const BulkConnectDialog = () => {
   const customCableSpecs = useUiStore((s) => s.customCableSpecs)
   const addCablesBulk = useProjectStore((s) => s.addCablesBulk)
 
-  const [fromEqId, setFromEqId] = useState<string>('')
+  const [fromEqId, setFromEqId] = useState<string>(vorgabeVon ?? '')
   const [fromSide, setFromSide] = useState<'outputs' | 'inputs'>('outputs')
   const [fromStart, setFromStart] = useState<number>(1)
-  const [toEqId, setToEqId] = useState<string>('')
+  const [toEqId, setToEqId] = useState<string>(vorgabeNach ?? '')
   const [toSide, setToSide] = useState<'inputs' | 'outputs'>('inputs')
   const [toStart, setToStart] = useState<number>(1)
   const [count, setCount] = useState<number>(8)
   const [cableSpecId, setCableSpecId] = useState<string>('bnc-coax')
   const [lengthMeters, setLengthMeters] = useState<number>(2)
-
-  // VORBELEGUNG AUS DER AUSWAHL (2026-09-07). Wer zwei Geraete auf der
-  // Flaeche markiert und dort auf „Kabel verbinden" klickt, hat die Frage
-  // nach Quelle und Ziel bereits beantwortet — sie in zwei Aufklapplisten
-  // zu wiederholen ist die Sorte Doppelarbeit, wegen der das Werkzeug im
-  // Menue verstaubte.
-  //
-  // NUR BEIM OEFFNEN, nicht bei jeder Aenderung: sonst spraenge die Auswahl
-  // zurueck, sobald der Nutzer im Dialog ein anderes Geraet waehlt.
-  useEffect(() => {
-    if (!open) return
-    if (vorgabeVon) setFromEqId(vorgabeVon)
-    if (vorgabeNach) setToEqId(vorgabeNach)
-  }, [open, vorgabeVon, vorgabeNach])
 
   const allSpecs = useMemo(
     () => [...cableCatalog, ...customCableSpecs],
@@ -124,7 +132,7 @@ export const BulkConnectDialog = () => {
 
   return (
     <ModalShell
-      open={open}
+      open
       onClose={close}
       title={t('bulk.title', '🔗 Mehrere Kabel verbinden')}
       maxWidth="2xl"

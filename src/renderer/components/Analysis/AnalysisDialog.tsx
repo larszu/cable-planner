@@ -10,7 +10,7 @@
 // Die 3-Phasen-Last-/Distro-Planung (#345) lebt weiterhin im Strom-Tab der
 // Calculators (dort bereits implementiert) — hier nicht dupliziert.
 
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { PanelHint } from '../shared/PanelHint'
 import { BarChart3, Calculator, Download, Plus, Trash2 } from 'lucide-react'
 import { useUiStore } from '../../store/uiStore'
@@ -2714,26 +2714,38 @@ const TABS: { id: Tab; labelKey: string; fallback: string }[] = [
   { id: 'sheet', labelKey: 'analysis.tab.sheet', fallback: 'Blatt prüfen' },
 ]
 
+/**
+ * Aussenhuelle: montiert den Inhalt ERST beim Oeffnen — und damit bei jedem
+ * Oeffnen neu.
+ *
+ * WARUM DIESE FORM UND KEIN `useEffect` (berichtigt 2026-09-07). Der
+ * Start-Reiter aus `openAnalysis('network')` war zuerst als Effekt gesetzt,
+ * der beim Oeffnen `setActive` rief. Das ist das Muster, das
+ * `react-hooks/set-state-in-effect` als FEHLER meldet: eine zweite
+ * Renderrunde, nur um einen Anfangswert zu setzen.
+ *
+ * Erst beim Oeffnen montiert, ist der gewuenschte Reiter schlicht der
+ * ANFANGSWERT — und „nur beim Oeffnen, damit ein Reiterwechsel von Hand nicht
+ * zurueckspringt" gilt von selbst, statt als Bedingung im Effekt.
+ */
 export const AnalysisDialog = () => {
-  const t = useTranslation()
   const open = useUiStore((s) => s.analysis.open)
+  if (!open) return null
+  return <AnalysisDialogInner />
+}
+
+const AnalysisDialogInner = () => {
+  const t = useTranslation()
   const gewuenschterTab = useUiStore((s) => s.analysis.tab)
   const close = useUiStore((s) => s.closeAnalysis)
   const projectName = useProjectStore((s) => s.project.metadata.name)
-  const [active, setActive] = useState<Tab>('weight')
-
-  // Beim Oeffnen auf den gewuenschten Reiter springen — und nur dann, damit
-  // ein Reiterwechsel von Hand nicht sofort zurueckgesetzt wird.
-  useEffect(() => {
-    if (!open || !gewuenschterTab) return
-    if (TABS.some((tb) => tb.id === gewuenschterTab)) setActive(gewuenschterTab as Tab)
-  }, [open, gewuenschterTab])
-
-  if (!open) return null
+  const [active, setActive] = useState<Tab>(() =>
+    TABS.some((tb) => tb.id === gewuenschterTab) ? (gewuenschterTab as Tab) : 'weight',
+  )
 
   return (
     <ModalShell
-      open={open}
+      open
       onClose={close}
       maxWidth="4xl"
       titleIcon={<Icon icon={BarChart3} size="md" />}
