@@ -76,3 +76,57 @@ describe('mobileShare: der Rueckkanal und was der Dialog darueber sagt', () => {
     expect(dicts).not.toContain("'mobile.dialog.security.readOnly'")
   })
 })
+
+// ── BEDARF 39 — der Crew-Feed ist ein LESEWEG, und er ist gegated ──────────
+//
+// Er kommt in diese Datei und nicht in eine eigene, weil hier die Zusage des
+// Dialogs gegen den Code gehalten wird: „das Handy kann lesen, nicht
+// schreiben". Ein neuer LESEweg aendert diese Zusage nicht — aber er darf die
+// zweite nicht brechen, naemlich dass jeder Weg das Token verlangt. Wer wann
+// wo arbeitet, ist dieselbe Sorte Auskunft wie der Plan selbst.
+
+describe('mobileShare: der Crew-Kalender (Bedarf 39)', () => {
+  const src = read(SERVER)
+
+  it('ist ein GET-Weg und steht in keiner Schreibliste', () => {
+    expect(postRoutes(src)).not.toContain('/crew.ics')
+    expect(src).toContain("pathname === '/crew.ics'")
+  })
+
+  it('verlangt dasselbe Token wie der Plan', () => {
+    const block = src.slice(src.indexOf("pathname === '/crew.ics'"))
+    expect(block.slice(0, 300)).toContain('authed(req, url)')
+  })
+
+  it('antwortet ohne Kalender mit 503 statt mit einem leeren', () => {
+    // Ein leerer Kalender liest sich als „diese Person hat frei" — die eine
+    // Auskunft, die dieser Bedarf nie geben darf.
+    const block = src.slice(src.indexOf("pathname === '/crew.ics'"))
+    expect(block.slice(0, 400)).toContain('state.crewIcs ? 200 : 503')
+  })
+
+  it('liefert text/calendar aus, nicht text/plain', () => {
+    const block = src.slice(src.indexOf("pathname === '/crew.ics'"))
+    expect(block.slice(0, 400)).toContain('text/calendar')
+  })
+
+  it('rechnet den Kalender NICHT im Main-Prozess nach', () => {
+    // Die Rechnung steht in `renderer/lib/crewCalendar.ts`. Eine zweite hier
+    // waere eine zweite Vorstellung davon, was eine Schicht ist.
+    expect(src).not.toContain('BEGIN:VCALENDAR')
+    expect(src).not.toContain('DTSTART')
+  })
+
+  it('bietet die Feed-Adresse im Dialog an — sonst findet sie niemand', () => {
+    const dlg = read(DIALOG)
+    expect(dlg).toContain('/crew.ics')
+    // `webcal://` und nicht `http://`: das oeffnet am Handy das ABO statt
+    // eines Downloads, und genau darum geht es im Bedarf.
+    expect(dlg).toContain('webcal://')
+  })
+
+  it('zeigt sie nur, wenn es Schichten gibt', () => {
+    const dlg = read(DIALOG)
+    expect(dlg).toContain('hatSchichten')
+  })
+})

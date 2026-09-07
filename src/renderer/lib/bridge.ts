@@ -371,6 +371,8 @@ type CablePlannerApi = {
     stop: () => Promise<{ ok: boolean }>
     status: () => Promise<MobileShareInfo & { running: boolean }>
     setProject: (project: unknown) => Promise<{ ok: boolean }>
+    /** Bedarf 39 — der fertige Crew-Kalender fuer den abonnierbaren Feed. */
+    setCrewCalendar: (ics: string | null) => Promise<{ ok: boolean }>
     /**
      * BEDARF 133 — Adressen ueber das LAN hinaus freigeben.
      *
@@ -966,6 +968,7 @@ const webFallbackApi: CablePlannerApi = {
     stop: async () => ({ ok: true }),
     status: async () => ({ running: false, port: 0, urls: [], hasProject: false, withheld: [] }),
     setProject: async () => ({ ok: true }),
+    setCrewCalendar: async () => ({ ok: true }),
     setAllowBeyondLan: async () => {
       throw new Error('Handy-Zugriff erfordert die Desktop-App.')
     },
