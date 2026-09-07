@@ -704,3 +704,56 @@ button:disabled,
     scroll-behavior: auto !important;
   }
 }
+
+/* ── ADR-007 Abschnitt 6: der Rahmen ────────────────────────────────────────
+ *
+ * „Damit alle acht Werkzeuge gleich zu bedienen sind, steht der Rahmen fest."
+ * Die Suite hat dafuer `.av-topbar` (40 px), `.av-statusbar` (24 px) und
+ * `.av-panel-head` in `@avplan/ui`. Der Cable-Planner laeuft auch ALLEIN als
+ * Electron-App und kann das Paket nicht laden; deshalb stehen die drei
+ * Klassen hier mit denselben Zahlen.
+ *
+ * ALS KLASSE UND NICHT ALS UTILITY AM ELEMENT, und das ist der Punkt: `h-10`
+ * an der Kopfzeile waere dieselbe Zahl, aber keine Regel — sie stuende an
+ * einer Stelle im Markup und liesse sich beim naechsten Umbau still auf
+ * `py-1.5` zuruecksetzen (genau so stand sie vorher hier). Als benannte
+ * Klasse ist sie eine Zusage, die `tests/rahmenMasse.test.ts` messen kann.
+ *
+ * WAS HIER FEHLT: die Modul-Rail (56 px). Sie ordnet die MODULE der Suite —
+ * Kabel, Licht, Kameras — und gehoert deshalb in die Shell. Eine Rail im
+ * Cable-Planner haette genau einen Eintrag und waere 56 px verschenkte
+ * Breite, die nichts ordnet. */
+
+.cp-topbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 40px;
+  flex: none;
+  padding: 0 12px;
+  background: var(--cp-surface-3);
+  border-bottom: 1px solid var(--cp-border);
+}
+
+.cp-statusbar {
+  display: flex;
+  align-items: center;
+  height: 24px;
+  flex: none;
+  padding: 0 12px;
+  background: var(--cp-surface-3);
+  border-top: 1px solid var(--cp-border);
+  font-size: 12px;
+  color: var(--cp-text-secondary);
+}
+
+/* Die Kopflinie eines Dialogs/Panels: „Dialoge sind Flaechen, keine Karten —
+ * kein Radius, kein Schatten, Kopflinie oben." Die Linie ist der Akzent, nicht
+ * eine Flaeche in Akzentfarbe: sie trennt, ohne einen Balken zu setzen. */
+.cp-panel-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--cp-accent);
+}
