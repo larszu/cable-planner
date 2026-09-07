@@ -34,6 +34,7 @@ type ToolbarTokens = {
 // Module-level (not defined during render) so React keeps a stable type.
 const IconButton = ({
   title,
+  label,
   onClick,
   active,
   disabled,
@@ -42,6 +43,16 @@ const IconButton = ({
   T,
 }: {
   title: string
+  /**
+   * Sichtbare Beschriftung neben dem Symbol.
+   *
+   * Optional, weil nicht jedes Symbol eine braucht: die Ausrichte-Knoepfe
+   * tragen in jedem Zeichenprogramm dieselben Zeichen, und sie erscheinen nur
+   * bei Auswahl. Wo ein Knopf aber DAUERHAFT steht und sein Symbol nichts
+   * Gelerntes ist, gehoert das Wort daneben — der Tooltip kommt erst nach
+   * Zeigen und Warten, und danach sucht niemand.
+   */
+  label?: string
   onClick?: () => void
   active?: boolean
   disabled?: boolean
@@ -60,12 +71,11 @@ const IconButton = ({
       onClick={onClick}
       disabled={disabled}
       style={{
-        width: T.iconBtnSize,
-        height: T.iconBtnSize,
+        ...(label ? { height: T.iconBtnSize, padding: '0 8px', gap: 4 } : { width: T.iconBtnSize, height: T.iconBtnSize, padding: 0 }),
         display: 'inline-flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: 0,
+        fontSize: 11,
         background: active ? T.btnActiveBg : T.btnBg,
         color: active ? T.btnActiveText : (color ?? T.text),
         border: '1px solid transparent',
@@ -84,6 +94,7 @@ const IconButton = ({
       }}
     >
       {children}
+      {label && <span>{label}</span>}
     </button>
   </Tooltip>
 )
@@ -318,6 +329,11 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
     <div
       ref={containerRef}
       className="nodrag nopan"
+      /* Marke fuer die Geraete-Suche: sie legt sich sonst genau hierhin.
+         Die Leiste UMBRICHT (`flexWrap`), ihre Hoehe ist also nicht
+         konstant — wer sie umgehen will, muss sie MESSEN. Siehe
+         `CanvasSearch.tsx`. */
+      data-cp-canvas-toolbar=""
       style={{
         position: 'absolute',
         top: 8,
@@ -409,7 +425,14 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
           auch ohne Auswahl ein leeres Rahmen-Rechteck erstellt. */}
       {mode === 'main' && (
         <>
+          {/* BESCHRIFTET 2026-09-07: dieser Knopf ist immer sichtbar und trug
+              nur ein gestricheltes Rechteck. „Ein Rahmen" ist nichts, was man
+              aus einem Symbol errät, und der Tooltip kommt erst nach Zeigen
+              und Warten. Die Ausrichte-Knöpfe daneben bleiben Symbole: sie
+              erscheinen nur bei Auswahl, und ihre Zeichen (links/mittig/
+              verteilen) sind in jedem Zeichenprogramm dieselben. */}
           <IconButton T={T}
+            label={t('toolbar.location.label', 'Rahmen')}
             title={
               hasSelection
                 ? format(t('toolbar.location.addAround', 'Rahmen um die {count} markierten Geräte'), { count: selectedEquipmentIds.length })
@@ -694,85 +717,31 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
           nutzen genau diese 5 Top-Level-Layer als Branchenstandard. */}
       <LayerVisibilityChips />
       <span style={dividerStyle} />
-      {/* v7.9.67 / #177 — 3 Lock-Mode-Buttons (Rahmen / Geräte / Kabel).
-          Toggelt globalen Schutz gegen Verschieben pro Objektart. */}
-      {([
-        {
-          key: 'frames',
-          active: lockFrames,
-          toggle: () => setLockFrames(!lockFrames),
-          title: lockFrames
-            ? t('toolbar.lock.frames.locked', 'Rahmen entsperren')
-            : t('toolbar.lock.frames.unlocked', 'Rahmen sperren (keine Frame-Verschiebung)'),
-          icon: (
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <rect x="2" y="2" width="12" height="12" rx="1" />
-            </svg>
-          ),
-        },
-        {
-          key: 'equipment',
-          active: lockEquipment,
-          toggle: () => setLockEquipment(!lockEquipment),
-          title: lockEquipment
-            ? t('toolbar.lock.equipment.locked', 'Geräte entsperren')
-            : t('toolbar.lock.equipment.unlocked', 'Geräte sperren (keine Geräte-Verschiebung)'),
-          icon: (
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <rect x="2" y="4" width="12" height="8" rx="1" />
-              <circle cx="5" cy="8" r="0.8" fill="currentColor" />
-              <circle cx="11" cy="8" r="0.8" fill="currentColor" />
-            </svg>
-          ),
-        },
-        {
-          key: 'cables',
-          active: lockCables,
-          toggle: () => setLockCables(!lockCables),
-          title: lockCables
-            ? t('toolbar.lock.cables.locked', 'Kabel entsperren')
-            : t('toolbar.lock.cables.unlocked', 'Kabel sperren (keine Waypoint-Bearbeitung)'),
-          icon: (
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <path d="M2 12c2 0 2-8 6-8s4 8 6 8" />
-            </svg>
-          ),
-        },
-      ] as const).map((btn) => (
-        <button
-          key={btn.key}
-          type="button"
-          onClick={btn.toggle}
-          title={btn.title}
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: T.iconBtnSize,
-            height: T.iconBtnSize,
-            background: btn.active ? '#0e7490' : T.btnBg,
-            color: btn.active ? '#e0f2fe' : T.text,
-            border: `1px solid ${btn.active ? '#06b6d4' : T.border}`,
-            borderRadius: 6,
-            cursor: 'pointer',
-            position: 'relative',
-          }}
-        >
-          {btn.icon}
-          {btn.active && (
-            <svg
-              width="8"
-              height="8"
-              viewBox="0 0 16 16"
-              fill="currentColor"
-              style={{ position: 'absolute', right: 2, bottom: 2 }}
-            >
-              <rect x="5" y="7" width="6" height="5" rx="0.5" />
-              <path d="M6 7V5.5a2 2 0 0 1 4 0V7" fill="none" stroke="currentColor" strokeWidth="1.2" />
-            </svg>
-          )}
-        </button>
-      ))}
+      {/* v7.9.67 / #177 — der Schutz gegen versehentliches Verschieben, je
+          Objektart (Rahmen / Geräte / Kabel).
+
+          ZUSAMMENGELEGT 2026-09-07, auf Zuruf des Nutzers: „Nicht jeder
+          Button ist beschriftet und man erkennt nicht auf den ersten Blick
+          wofür er gut sein soll." Hier standen DREI Knöpfe nebeneinander,
+          alle gleich gross, alle ohne Text, unterschieden nur durch ein
+          Rechteck, ein Rechteck mit zwei Punkten und eine Wellenlinie. Wer
+          die drei nicht kennt, kann sie nicht auseinanderhalten — und die
+          Beschriftung stand nur im Tooltip, also erst nach Zeigen und
+          Warten.
+
+          Jetzt EIN Knopf mit dem Wort „Sperren" und der Zahl der aktiven
+          Sperren; die drei Schalter stehen beschriftet im Menü darunter.
+          Das nimmt der Leiste zwei Bedienelemente und gibt dem dritten
+          einen lesbaren Namen. */}
+      <LockMenu
+        lockFrames={lockFrames}
+        setLockFrames={setLockFrames}
+        lockEquipment={lockEquipment}
+        setLockEquipment={setLockEquipment}
+        lockCables={lockCables}
+        setLockCables={setLockCables}
+        T={T}
+      />
       <span style={dividerStyle} />
       <button
         type="button"
@@ -1260,6 +1229,180 @@ const DefaultsMenu = ({
               />
               <span>{opt.label}</span>
             </label>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+
+/**
+ * Der Sperren-Knopf mit seinen drei beschrifteten Schaltern.
+ *
+ * WARUM EIN MENUE UND NICHT DREI KNOEPFE. Weil drei gleich grosse Symbole
+ * ohne Text nicht unterscheidbar sind — das war die Beschwerde. Ein Wort auf
+ * dem Knopf sagt, worum es geht; die Zahl daneben sagt, ob gerade etwas
+ * gesperrt ist, ohne dass man das Menue oeffnen muss. Erst wer wirklich
+ * umschalten will, klickt hinein, und dort steht jeder Schalter ausgeschrieben.
+ *
+ * Sperren ist eine Einstellung, die man einmal setzt und dann stehen laesst —
+ * ein zusaetzlicher Klick kostet hier nichts. Bei einer Handlung, die man
+ * dutzendfach am Tag ausloest, waere dieselbe Aenderung falsch.
+ */
+const LockMenu = ({
+  lockFrames,
+  setLockFrames,
+  lockEquipment,
+  setLockEquipment,
+  lockCables,
+  setLockCables,
+  T,
+}: {
+  lockFrames: boolean
+  setLockFrames: (v: boolean) => void
+  lockEquipment: boolean
+  setLockEquipment: (v: boolean) => void
+  lockCables: boolean
+  setLockCables: (v: boolean) => void
+  T: ToolbarTokens
+}) => {
+  const t = useTranslation()
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (!open) return
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [open])
+
+  const schalter = [
+    {
+      key: 'frames',
+      an: lockFrames,
+      um: () => setLockFrames(!lockFrames),
+      label: t('toolbar.lock.frames.label', 'Rahmen'),
+      note: t('toolbar.lock.frames.note', 'Keine Frame-Verschiebung'),
+    },
+    {
+      key: 'equipment',
+      an: lockEquipment,
+      um: () => setLockEquipment(!lockEquipment),
+      label: t('toolbar.lock.equipment.label', 'Geräte'),
+      note: t('toolbar.lock.equipment.note', 'Keine Geräte-Verschiebung'),
+    },
+    {
+      key: 'cables',
+      an: lockCables,
+      um: () => setLockCables(!lockCables),
+      label: t('toolbar.lock.cables.label', 'Kabel'),
+      note: t('toolbar.lock.cables.note', 'Keine Waypoint-Bearbeitung'),
+    },
+  ]
+  const aktiv = schalter.filter((s) => s.an).length
+
+  return (
+    <div ref={ref} style={{ position: 'relative' }}>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        title={t('toolbar.lock.title', 'Schutz gegen versehentliches Verschieben')}
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 4,
+          height: T.iconBtnSize,
+          padding: '0 8px',
+          background: aktiv > 0 ? '#0e7490' : open ? T.btnActiveBg : T.btnBg,
+          color: aktiv > 0 ? '#e0f2fe' : open ? T.btnActiveText : T.text,
+          border: `1px solid ${aktiv > 0 ? '#06b6d4' : 'transparent'}`,
+          borderRadius: 6,
+          cursor: 'pointer',
+          fontSize: 11,
+        }}
+      >
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+          <rect x="4" y="7" width="8" height="6" rx="1" />
+          <path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" />
+        </svg>
+        <span>{t('toolbar.lock.button', 'Sperren')}</span>
+        {/* Die Zahl steht AUSSEN, damit „ist gerade etwas gesperrt" ohne
+            Oeffnen beantwortet ist. Bei null wird nichts gezeigt: eine „0"
+            waere eine Angabe ueber nichts. */}
+        {aktiv > 0 && <span style={{ fontVariantNumeric: 'tabular-nums' }}>{aktiv}/3</span>}
+        <span style={{ fontSize: 9 }}>{open ? '▴' : '▾'}</span>
+      </button>
+      {open && (
+        <div
+          role="menu"
+          style={{
+            position: 'absolute',
+            top: 'calc(100% + 4px)',
+            // RECHTS verankert, nicht links: dieser Knopf sitzt am rechten
+            // Ende der Werkzeugleiste, und ein nach rechts aufklappendes
+            // Menue laeuft dort in den Inspector und wird abgeschnitten —
+            // gesehen im ersten Screenshot dieser Aenderung, „Keine
+            // Waypoint-Bearbeitun". Nach links klappt es ins Freie.
+            right: 0,
+            minWidth: 220,
+            background: T.bg,
+            border: `1px solid ${T.border}`,
+            borderRadius: 8,
+            padding: 8,
+            boxShadow: '0 8px 20px rgba(0,0,0,0.3)',
+            fontSize: 11,
+            color: T.text,
+            zIndex: 30,
+          }}
+        >
+          {schalter.map((s) => (
+            <button
+              key={s.key}
+              type="button"
+              onClick={s.um}
+              style={{
+                display: 'flex',
+                width: '100%',
+                alignItems: 'center',
+                gap: 8,
+                padding: '5px 6px',
+                marginBottom: 2,
+                background: s.an ? T.btnActiveBg : 'transparent',
+                color: s.an ? T.btnActiveText : T.text,
+                border: '1px solid transparent',
+                borderRadius: 4,
+                cursor: 'pointer',
+                fontSize: 11,
+                textAlign: 'left',
+              }}
+            >
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: 14,
+                  height: 14,
+                  borderRadius: 3,
+                  border: `1px solid ${s.an ? '#06b6d4' : T.border}`,
+                  background: s.an ? '#0e7490' : 'transparent',
+                  flexShrink: 0,
+                }}
+              >
+                {s.an && (
+                  <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="#e0f2fe" strokeWidth="2.5">
+                    <path d="M3 8.5l3.5 3.5L13 5" />
+                  </svg>
+                )}
+              </span>
+              <span style={{ flex: 1, minWidth: 0 }}>
+                <span style={{ display: 'block' }}>{s.label}</span>
+                <span style={{ display: 'block', color: T.textMuted, fontSize: 10 }}>{s.note}</span>
+              </span>
+            </button>
           ))}
         </div>
       )}
