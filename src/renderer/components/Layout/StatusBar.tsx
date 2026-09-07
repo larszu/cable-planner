@@ -165,7 +165,7 @@ export const StatusBar = ({
         : 'bg-emerald-700 text-emerald-50'
   const checkIcon = errorCount > 0 ? AlertCircle : warningCount > 0 ? AlertTriangle : CheckCircle2
   return (
-    <footer className="flex shrink-0 items-center justify-between gap-3 border-t border-[var(--cp-border)] bg-[var(--cp-surface-3)] px-3 py-1 text-cp-xs text-[var(--cp-text-secondary)]">
+    <footer className="cp-statusbar justify-between gap-3 text-cp-xs">
       <div className="flex min-w-0 items-center gap-3 overflow-hidden">
         <span className="truncate font-medium text-[var(--cp-text)]">{projectName}</span>
         <span className="text-[var(--cp-text-faint)]" aria-hidden="true">|</span>

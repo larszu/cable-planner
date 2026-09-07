@@ -542,7 +542,7 @@ export const MenuBar = ({
     projectHistory.canRedo,
   )
   return (
-    <header className="flex shrink-0 items-center justify-between gap-3 border-b border-[var(--cp-border)] bg-[var(--cp-surface-3)] px-3 py-1.5 text-cp-xs shadow-sm">
+    <header className="cp-topbar justify-between text-cp-xs">
       <input ref={cameraImportRef} type="file" accept=".cameras.json,.json" className="hidden" onChange={handleImportCameras} />
       <input ref={avplanImportRef} type="file" accept=".avplan,.json" className="hidden" onChange={handleImportAvplan} />
       <input ref={sourceMapImportRef} type="file" accept=".avsourcemap,.json" className="hidden" onChange={handleImportSourceMap} />

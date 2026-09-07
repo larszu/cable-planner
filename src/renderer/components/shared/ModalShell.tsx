@@ -101,11 +101,14 @@ export const ModalShell = ({
         aria-labelledby={titleId}
         {...dialogProps}
         style={draggableKey ? drag.containerStyle : undefined}
-        className={`cp-modal-panel flex max-h-[90vh] w-full ${MAX_WIDTH_CLASS[maxWidth]} flex-col overflow-hidden rounded-cp-modal border border-cp-border bg-cp-surface-1 text-cp-text shadow-2xl outline-none`}
+        className={`cp-modal-panel flex max-h-[90vh] w-full ${MAX_WIDTH_CLASS[maxWidth]} flex-col overflow-hidden rounded-cp-modal border border-cp-border bg-cp-surface-1 text-cp-text outline-none`}
       >
         <header
           {...(draggableKey ? drag.headerProps : {})}
-          className="flex items-center justify-between border-b border-cp-border px-cp-4 py-cp-3 select-none"
+          /* ADR-007 Abschnitt 6: die Kopflinie ist der Akzent. `cp-panel-head`
+             traegt sie; `justify-between` und `select-none` bleiben, weil sie
+             zum Dialog gehoeren und nicht zum Rahmen. */
+          className="cp-panel-head justify-between select-none"
         >
           <h2 id={titleId} className="flex items-center text-cp-xl font-semibold">
             {titleIcon && <span className="mr-2">{titleIcon}</span>}
