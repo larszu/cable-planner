@@ -43,6 +43,7 @@ import { networkInterfaces } from 'node:os'
 import { fileURLToPath } from 'node:url'
 import { randomBytes } from 'node:crypto'
 import { stripSecrets } from '../util/stripSecrets.js'
+import { shareAddresses, type WithheldAddress } from '../util/lanReach.js'
 
 const MIME_TYPES: Record<string, string> = {
   '.html': 'text/html; charset=utf-8',
@@ -74,6 +75,22 @@ interface MobileShareState {
    *  data/write route (?t= query or X-CP-Token header). Empty when the
    *  server is stopped. */
   token: string
+  /**
+   * BEDARF 133 — ob Adressen ueber das LAN hinaus angeboten werden duerfen.
+   *
+   * Vorgabe `false`. Der Server bindet auf `0.0.0.0`, und bis 2026-09-07 wurde
+   * JEDE nicht-interne IPv4 des Rechners als Freigabe-Adresse angeboten —
+   * samt Token in der URL. Auf einem Hallen-WLAN ist das richtig; an einer
+   * oeffentlich erreichbaren Adresse war es ein Bearer-Token im offenen Netz,
+   * ohne dass es jemand entschieden haette. Es ergab sich aus der
+   * Netzwerkkarte.
+   *
+   * Die Quelle (`cpvalente/ontime#1423`) verlangt Zugriffskontrolle genau
+   * fuer Aufstellungen, die „globally available" sind. Also: der LAN-Weg
+   * bleibt leicht, der Weg darueber hinaus verlangt eine ausdrueckliche
+   * Entscheidung.
+   */
+  allowBeyondLan: boolean
   project: unknown | null
   /** Cached JSON serialization of `project` with secrets stripped. Built
    *  once per setProject() so each /project.json poll doesn't re-stringify
@@ -127,6 +144,7 @@ const state: MobileShareState = {
   server: null,
   port: 0,
   token: '',
+  allowBeyondLan: false,
   project: null,
   serialized: null,
   rendererDir: '',
@@ -548,14 +566,34 @@ export interface MobileShareInfo {
   port: number
   urls: string[]
   hasProject: boolean
+  /**
+   * BEDARF 133 — Adressen, unter denen der Rechner erreichbar ist und die
+   * NICHT angeboten werden, mit Grund.
+   *
+   * Der Dialog zeigt sie. Eine zurueckgehaltene Adresse, die niemand nennt,
+   * ist fuer den Nutzer dasselbe wie eine, die es nicht gibt — und dann
+   * sucht er den Fehler in der Netzwerktechnik.
+   */
+  withheld: WithheldAddress[]
 }
 
 /** Build the phone-facing viewer URLs, embedding the session token so the
  *  QR/links carry it transparently. */
 const buildUrls = (port: number): string[] => {
   const q = state.token ? `?t=${state.token}` : ''
-  return collectLanAddresses().map((ip) => `http://${ip}:${port}/mobile.html${q}`)
+  return shareAddresses(collectLanAddresses(), { allowBeyondLan: state.allowBeyondLan }).offered
+    .map((ip) => `http://${ip}:${port}/mobile.html${q}`)
 }
+
+/**
+ * BEDARF 133 — was NICHT angeboten wird, und warum.
+ *
+ * Aus DERSELBEN Einordnung wie die angebotenen Adressen (`shareAddresses`):
+ * zwei Rechnungen koennten sich widersprechen, und dann stuende eine Adresse
+ * oben als angeboten und unten als zurueckgehalten.
+ */
+const buildWithheld = (): WithheldAddress[] =>
+  shareAddresses(collectLanAddresses(), { allowBeyondLan: state.allowBeyondLan }).withheld
 
 export const startMobileShareServer = async (
   rendererDir: string,
@@ -566,6 +604,7 @@ export const startMobileShareServer = async (
       port: state.port,
       urls: buildUrls(state.port),
       hasProject: state.project !== null,
+      withheld: buildWithheld(),
     }
   }
   state.rendererDir = pathResolve(rendererDir)
@@ -580,6 +619,25 @@ export const startMobileShareServer = async (
     port,
     urls: buildUrls(port),
     hasProject: state.project !== null,
+    withheld: buildWithheld(),
+  }
+}
+
+/**
+ * BEDARF 133 — Adressen ueber das LAN hinaus freigeben oder wieder sperren.
+ *
+ * Eine ausdrueckliche Entscheidung des Nutzers, und sie gilt nur fuer diese
+ * Sitzung: `stopMobileShareServer` setzt sie zurueck. Wer den Rechner morgen
+ * woanders aufstellt, faengt wieder beim LAN an — eine Freigabe, die eine
+ * Ortsaenderung ueberlebt, ist keine Entscheidung ueber DIESES Netz.
+ */
+export const setMobileShareAllowBeyondLan = (allow: boolean): MobileShareInfo => {
+  state.allowBeyondLan = allow
+  return {
+    port: state.port,
+    urls: buildUrls(state.port),
+    hasProject: state.project !== null,
+    withheld: buildWithheld(),
   }
 }
 
@@ -589,6 +647,9 @@ export const stopMobileShareServer = (): void => {
   state.server = null
   state.port = 0
   state.token = ''
+  // Die Freigabe gilt fuer DIESES Netz und diese Sitzung. Wer den Rechner
+  // morgen woanders aufstellt, faengt wieder beim LAN an.
+  state.allowBeyondLan = false
   state.project = null
   state.serialized = null
   state.devProxyUrl = undefined
@@ -656,6 +717,7 @@ export const getMobileShareStatus = (): MobileShareInfo & { running: boolean } =
   port: state.port,
   urls: state.server ? buildUrls(state.port) : [],
   hasProject: state.project !== null,
+  withheld: state.server ? buildWithheld() : [],
 })
 
 void __filename // keep ESM file-url alive

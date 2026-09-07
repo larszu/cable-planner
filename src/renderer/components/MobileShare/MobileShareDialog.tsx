@@ -36,11 +36,26 @@ import { useUiStore } from '../../store/uiStore'
 import { cablePlannerApi, hasDesktopBridge } from '../../lib/bridge'
 import { useTranslation } from '../../lib/i18n'
 
+interface WithheldAddress {
+  address: string
+  reach: string
+  reason: string
+}
+
 interface ShareStatus {
   running: boolean
   port: number
   urls: string[]
   hasProject: boolean
+  /**
+   * BEDARF 133 — Adressen, unter denen der Rechner erreichbar ist und die
+   * NICHT angeboten werden.
+   *
+   * Sie werden GEZEIGT und nicht verschwiegen: eine zurueckgehaltene Adresse,
+   * die niemand nennt, ist fuer den Nutzer dasselbe wie eine, die es nicht
+   * gibt — und dann sucht er den Fehler in der Netzwerktechnik.
+   */
+  withheld: WithheldAddress[]
 }
 
 const renderQrTo = async (url: string): Promise<string> => {
@@ -76,6 +91,7 @@ export const MobileShareDialog = () => {
     port: 0,
     urls: [],
     hasProject: false,
+    withheld: [],
   })
   const [busy, setBusy] = useState(false)
   const [qrDataUrl, setQrDataUrl] = useState<string>('')
@@ -117,11 +133,24 @@ export const MobileShareDialog = () => {
     }
   }
 
+  // BEDARF 133 — die ausdrueckliche Entscheidung. Sie gilt nur fuer diese
+  // Sitzung: `stop` setzt sie im Main-Prozess zurueck, und wer den Rechner
+  // morgen woanders aufstellt, faengt wieder beim LAN an.
+  const handleAllowBeyondLan = async () => {
+    setBusy(true)
+    try {
+      const result = await cablePlannerApi.mobileShare.setAllowBeyondLan(true)
+      setStatus({ ...result, running: true })
+    } finally {
+      setBusy(false)
+    }
+  }
+
   const handleStop = async () => {
     setBusy(true)
     try {
       await cablePlannerApi.mobileShare.stop()
-      setStatus({ running: false, port: 0, urls: [], hasProject: false })
+      setStatus({ running: false, port: 0, urls: [], hasProject: false, withheld: [] })
     } finally {
       setBusy(false)
     }
@@ -163,8 +192,17 @@ export const MobileShareDialog = () => {
           {status.running ? (
             <div className="space-y-3">
               <div className="flex flex-col items-center gap-2 rounded border border-emerald-700 bg-emerald-950/30 p-3">
+                {/* Drei Zustaende, nicht zwei. Laeuft der Server, ist aber
+                    keine Adresse uebrig — jede wurde zurueckgehalten (Bedarf
+                    133) —, dann pulste hier frueher ein Platzhalter, der nie
+                    fertig wird: „niemand hat nachgesehen" statt „da ist
+                    nichts". Der Zustand wird jetzt benannt. */}
                 {qrDataUrl ? (
                   <img src={qrDataUrl} alt={t('mobile.dialog.qrAlt', 'QR-Code')} className="rounded bg-white p-2" />
+                ) : status.urls.length === 0 ? (
+                  <div className="flex h-[240px] w-[240px] items-center justify-center rounded border border-cp-border bg-cp-surface-2 p-3 text-center text-cp-xs text-cp-text-secondary">
+                    {t('mobile.dialog.noAddress', 'Keine Adresse freigegeben — der Server läuft, aber es gibt kein lokales Netz, unter dem er erreichbar wäre.')}
+                  </div>
                 ) : (
                   <div className="h-[240px] w-[240px] animate-pulse rounded bg-cp-surface-2" />
                 )}
@@ -211,6 +249,45 @@ export const MobileShareDialog = () => {
                       </button>
                     ))}
                   </div>
+                </div>
+              )}
+              {/* ── BEDARF 133 — was NICHT angeboten wird, und warum ──────
+                  „Managers also need multi-site and remote viewers, and
+                  IMMEDIATELY WANT ACCESS CONTROL when they get it."
+                  (cpvalente/ontime#1423)
+
+                  Der Server bindet auf 0.0.0.0. Adressen jenseits des LANs
+                  werden deshalb zurueckgehalten — aber GENANNT: eine
+                  verschwiegene Adresse ist fuer den Nutzer dasselbe wie eine,
+                  die es nicht gibt, und dann sucht er den Fehler in der
+                  Netzwerktechnik. Wer sie braucht, schaltet sie frei und
+                  liest dabei, was er tut. */}
+              {status.withheld.length > 0 && (
+                <div className="rounded border border-amber-700 bg-amber-950/40 p-2">
+                  <div className="mb-1 text-[10px] uppercase tracking-wide text-amber-300">
+                    {t('mobile.dialog.withheldTitle', 'Nicht freigegeben')}
+                  </div>
+                  <div className="mb-1 flex flex-wrap gap-1">
+                    {status.withheld.map((w) => (
+                      <span
+                        key={w.address}
+                        className="rounded border border-amber-700 bg-cp-surface-1 px-2 py-0.5 font-mono text-[10px] text-amber-200"
+                      >
+                        {w.address}
+                      </span>
+                    ))}
+                  </div>
+                  <p className="text-[11px] leading-snug text-cp-text-secondary">
+                    {status.withheld[0].reason}
+                  </p>
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => void handleAllowBeyondLan()}
+                    className="mt-1 rounded border border-amber-600 px-2 py-0.5 text-[10px] text-amber-200 hover:bg-amber-900/60"
+                  >
+                    {t('mobile.dialog.allowBeyondLan', 'Trotzdem freigeben (nur für diese Sitzung)')}
+                  </button>
                 </div>
               )}
               <div className="flex items-center justify-between">

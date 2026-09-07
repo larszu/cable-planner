@@ -4,6 +4,7 @@ import { existsSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import {
   getMobileShareStatus,
+  setMobileShareAllowBeyondLan,
   setMobileShareProject,
   setMobileShareChecksHandler,
   setMobileShareCableAddedHandler,
@@ -91,6 +92,10 @@ export const registerMobileShareIpc = () => {
     return { ok: true }
   })
   ipcMain.handle('mobileShare:status', () => getMobileShareStatus())
+  // BEDARF 133 — Adressen ueber das LAN hinaus freigeben. Eine ausdrueckliche
+  // Entscheidung des Nutzers und keine, die sich aus der Netzwerkkarte ergibt.
+  ipcMain.handle('mobileShare:setAllowBeyondLan', (_event, allow: unknown) =>
+    setMobileShareAllowBeyondLan(allow === true))
   ipcMain.handle('mobileShare:setProject', (_event, project: unknown) => {
     setMobileShareProject(project)
     return { ok: true }
