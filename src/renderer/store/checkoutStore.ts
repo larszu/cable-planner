@@ -10,6 +10,13 @@ import {
   type CheckoutRefusal,
   type InventorySnapshotIn,
 } from '../lib/containerCheckout'
+import {
+  applyExtension,
+  custodyStartRefusal,
+  extendRefusal,
+  type CustodyStartRefusal,
+  type ExtendRefusal,
+} from '../lib/custodyPeriod'
 
 /**
  * Bedarf 15 — die Ausgabe-Belege. Eigener Store, eigener localStorage-Key.
@@ -107,7 +114,25 @@ interface CheckoutState {
     snap: InventorySnapshotIn,
     nodeId: string,
     out: Omit<CheckoutRecord['out'], 'at'>,
-  ) => CheckoutRefusal | undefined
+    /**
+     * BEDARF 98 — der Zeitpunkt der Ausgabe, wenn er nicht „jetzt" ist.
+     *
+     * Fehlt er, gilt jetzt. Angegeben darf er in der VERGANGENHEIT liegen —
+     * genau der Fall aus dem Beleg: erst laden, dann eintragen. In der
+     * Zukunft nicht; das waere eine Reservierung, und die Absage sagt es.
+     */
+    at?: string,
+  ) => CheckoutRefusal | CustodyStartRefusal | undefined
+  /**
+   * BEDARF 98 — den Rueckgabetermin eines laufenden Vorgangs verschieben,
+   * in beide Richtungen. Der alte Termin bleibt in `extensions` stehen.
+   */
+  extendDueBack: (
+    recordId: string,
+    to: string,
+    by?: string,
+    note?: string,
+  ) => ExtendRefusal | 'unknown-record' | undefined
   /**
    * Container zurueckbuchen. Der aktuelle Inhalt wird aus dem Bestand
    * ABGELEITET und gegen die Ausgabeliste gehalten; der Unterschied landet im
@@ -142,12 +167,16 @@ interface CheckoutState {
 export const useCheckoutStore = create<CheckoutState>((set, get) => ({
   records: load(),
 
-  checkOut: (snap, nodeId, out) => {
+  checkOut: (snap, nodeId, out, at) => {
+    const jetzt = new Date().toISOString()
+    // Die Uhr wird HIER gelesen und die Regel steht in `custodyPeriod.ts`.
+    const zeitAbsage = at ? custodyStartRefusal(at, jetzt) : undefined
+    if (zeitAbsage) return zeitAbsage
     const gebaut = buildCheckout(
       snap,
       get().records,
       nodeId,
-      { ...out, at: new Date().toISOString() },
+      { ...out, at: at ?? jetzt },
       uuidv4(),
     )
     if ('refusal' in gebaut) return gebaut.refusal
@@ -157,6 +186,27 @@ export const useCheckoutStore = create<CheckoutState>((set, get) => ({
       return { records }
     })
     return undefined
+  },
+
+  extendDueBack: (recordId, to, by, note) => {
+    let absage: ExtendRefusal | 'unknown-record' | undefined
+    set((state) => {
+      const vorhanden = state.records.find((r) => r.id === recordId)
+      if (!vorhanden) {
+        absage = 'unknown-record'
+        return {}
+      }
+      const grund = extendRefusal(vorhanden, to)
+      if (grund) {
+        absage = grund
+        return {}
+      }
+      const geaendert = applyExtension(vorhanden, to, new Date().toISOString(), by, note)
+      const records = state.records.map((r) => (r.id === recordId ? geaendert : r))
+      persist(records)
+      return { records }
+    })
+    return absage
   },
 
   checkIn: (snap, recordId, note, damaged) =>

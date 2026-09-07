@@ -130,3 +130,87 @@ describe('mobileShare: der Crew-Kalender (Bedarf 39)', () => {
     expect(dlg).toContain('hatSchichten')
   })
 })
+
+// ───────────────────────────────────────────────────────────────────────────
+// BEDARF 109 — „read-many, write-one".
+//
+//   > both sites want to be able to SEE the cuesheet ... however as the
+//   > producer / show caller I do not want some one else to be able to ALTER
+//   > the cue sheet once we are on site      (`cpvalente/ontime#1547`)
+//
+// Diese Tests haengen an derselben Frage wie der Rest der Datei: was der
+// Dialog verspricht, muss der Server tun. Neu ist, dass die Antwort jetzt
+// EINSTELLBAR ist — und damit gibt es zwei Zusagen statt einer, die beide
+// stimmen muessen.
+// ───────────────────────────────────────────────────────────────────────────
+describe('mobileShare: lesen viele, schreiben einer (Bedarf 109)', () => {
+  const src = read(SERVER)
+
+  it('prüft die Erlaubnis in JEDEM der drei Schreibwege', () => {
+    // Nicht „in mindestens einem": ein ungeschuetzter dritter Weg waere genau
+    // der Fall, den die Zusage des Dialogs dann nicht mehr deckt.
+    for (const route of postRoutes(src)) {
+      const block = src.slice(src.indexOf(`pathname === '${route}' && req.method === 'POST'`))
+      expect(block.slice(0, 300)).toContain('writeAllowed(req, res)')
+    }
+    expect(postRoutes(src)).toHaveLength(3)
+  })
+
+  it('prüft sie VOR dem Lesen des Bodys', () => {
+    for (const route of postRoutes(src)) {
+      const block = src.slice(src.indexOf(`pathname === '${route}' && req.method === 'POST'`))
+      const gate = block.indexOf('writeAllowed(req, res)')
+      const body = block.indexOf("req.on('data'")
+      expect(gate).toBeGreaterThan(-1)
+      expect(body).toBeGreaterThan(gate)
+    }
+  })
+
+  it('lehnt mit 403 ab und nicht mit 401 — das Token war ja richtig', () => {
+    const block = src.slice(src.indexOf('const writeAllowed'))
+    expect(block.slice(0, 500)).toContain('res.statusCode = 403')
+    expect(block.slice(0, 500)).toContain('read-only')
+  })
+
+  it('lässt nur den einen erlaubenden Wert durch', () => {
+    // Alles ausser `contribute` ist `read-only`. Ein unbekannter Wert darf nie
+    // in den erlaubenden Zustand fallen.
+    const setter = src.slice(src.indexOf('export const setMobileShareWriteMode'))
+    expect(setter.slice(0, 300)).toContain("mode === 'contribute' ? 'contribute' : 'read-only'")
+  })
+
+  it('beginnt jede Sitzung bei „nur lesen"', () => {
+    expect(src).toContain("writeMode: 'read-only',")
+  })
+
+  it('sagt dem Handy in /share-info.json, was gilt', () => {
+    const block = src.slice(src.indexOf("pathname === '/share-info.json'"))
+    expect(block.slice(0, 900)).toContain('writeMode: state.writeMode')
+  })
+})
+
+describe('mobileShare: Dialog und Handy sagen dasselbe wie der Server', () => {
+  it('der Dialog holt den Modus vom Server, statt ihn anzunehmen', () => {
+    const dlg = read(DIALOG)
+    expect(dlg).toContain('getWriteMode()')
+    // Und übernimmt die ANTWORT des Setzens, nicht den eigenen Klick.
+    expect(dlg).toContain('setWriteModeState(r.writeMode)')
+  })
+
+  it('das Handy blendet die Schreib-Bedienung aus, statt sie ins Leere laufen zu lassen', () => {
+    const mob = read('src/mobile/MobileApp.tsx')
+    expect(mob).toContain("writeMode === 'contribute' &&")
+    // Und sagt es auch: die Häkchen bleiben dann lokal.
+    expect(mob).toContain('Nur lesen · Häkchen bleiben auf diesem Gerät')
+  })
+
+  it('das Handy fällt bei unbekanntem Wert auf „nur lesen" zurück', () => {
+    const mob = read('src/mobile/MobileApp.tsx')
+    expect(mob).toContain("info.writeMode === 'contribute' ? 'contribute' : 'read-only'")
+  })
+
+  it('der Sicherheits-Hinweis behauptet nicht mehr, es werde immer geschrieben', () => {
+    const dlg = read(DIALOG)
+    expect(dlg).toContain('entscheidet die Einstellung darüber')
+  })
+})

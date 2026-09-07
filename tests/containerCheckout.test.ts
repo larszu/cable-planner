@@ -348,7 +348,9 @@ describe('Erreichbarkeit im Lager-Dialog', () => {
 
   it('gibt aus und bucht zurueck ueber den Store', () => {
     expect(dialogQuelle).toContain("from '../../store/checkoutStore'")
-    expect(dialogQuelle).toMatch(/checkOut\(snap, nodeId,/)
+    // Mehrzeilig seit Bedarf 98 (der Ausgabe-Zeitpunkt kam als viertes
+    // Argument dazu). Die Aussage bleibt: der Dialog geht durch den Store.
+    expect(dialogQuelle).toMatch(/checkOut\(\s*snap,\s*nodeId,/)
     // Seit Bedarf 68 laeuft die Rueckbuchung ueber `bucheZurueck`, weil sie
     // die aufgenommenen Schaeden mitgeben muss. Der Weg IN DEN STORE bleibt
     // derselbe -- das ist es, was diese Zeile zusichert, und deshalb prueft
