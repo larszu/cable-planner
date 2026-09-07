@@ -30,8 +30,8 @@ import { NewRentmanDeviceWizard, type UnknownCandidate } from './NewRentmanDevic
 import { ProjectSelector } from './ProjectSelector'
 import { TemplateMergeDialog } from '../Library/TemplateMergeDialog'
 
-import { reconcileErp, erpReconcileTable } from '../../lib/erpReconcile'
-import { deriveDemand } from '../../lib/inventoryCoverage'
+import { reconcileErp, erpReconcileTable } from '../../lager'
+import { deriveDemand } from '../../lager'
 import { zusatzBedarf } from '../../lib/planDemandExtras'
 import { csvFromTable } from '../../lib/documentStamp'
 import { downloadBlob } from '../../lib/downloadBlob'

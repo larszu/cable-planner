@@ -4,8 +4,8 @@ import {
   parseInventory,
   INVENTORY_FORMAT,
   INVENTORY_FORMAT_VERSION,
-} from '../src/renderer/lib/inventoryPortable'
-import { useInventoryStore } from '../src/renderer/store/inventoryStore'
+} from '../src/renderer/lager/lib/inventoryPortable'
+import { useInventoryStore } from '../src/renderer/lager/store/inventoryStore'
 
 const reset = () => {
   localStorage.clear()

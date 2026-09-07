@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { v4 as uuidv4 } from 'uuid'
-import { STORAGE_KEYS } from '../lib/storageKeys'
+import { STORAGE_KEYS } from '../../lib/storageKeys'
 import { signHandover } from '../lib/handoverSignature'
 import type { CheckoutDamage, CheckoutLine, CheckoutRecord } from '../types/checkout'
 import {

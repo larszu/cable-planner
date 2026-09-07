@@ -11,12 +11,12 @@ import {
   signHandover,
   signatureRefusal,
   signatureState,
-} from '../src/renderer/lib/handoverSignature'
-import type { CheckoutRecord } from '../src/renderer/types/checkout'
-import libQuelle from '../src/renderer/lib/handoverSignature.ts?raw'
-import typenQuelle from '../src/renderer/types/checkout.ts?raw'
-import storeQuelle from '../src/renderer/store/checkoutStore.ts?raw'
-import dialogQuelle from '../src/renderer/components/Inventory/InventoryDialog.tsx?raw'
+} from '../src/renderer/lager/lib/handoverSignature'
+import type { CheckoutRecord } from '../src/renderer/lager/types/checkout'
+import libQuelle from '../src/renderer/lager/lib/handoverSignature.ts?raw'
+import typenQuelle from '../src/renderer/lager/types/checkout.ts?raw'
+import storeQuelle from '../src/renderer/lager/store/checkoutStore.ts?raw'
+import dialogQuelle from '../src/renderer/lager/ui/InventoryDialog.tsx?raw'
 
 // ---------------------------------------------------------------------------
 // Eine Unterschrift je Container — und eine fuer den Rueckweg

@@ -8,7 +8,7 @@ import {
   buildLabelSheetHtml,
 } from '../src/renderer/lib/labelSheets'
 import libQuelle from '../src/renderer/lib/labelSheets.ts?raw'
-import dialogQuelle from '../src/renderer/components/Inventory/InventoryDialog.tsx?raw'
+import dialogQuelle from '../src/renderer/lager/ui/InventoryDialog.tsx?raw'
 
 // ---------------------------------------------------------------------------
 // Passt der Klartext-Code drauf? (Bedarf 70, P2)

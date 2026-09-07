@@ -38,11 +38,11 @@
 // REIN: keine Uhr, kein Store, kein IO.
 // ───────────────────────────────────────────────────────────────────────────
 
-import type { EquipmentItem } from '../types/equipment'
+import type { EquipmentItem } from '../../types/equipment'
 import type { InventoryUnit, InventoryItem } from '../types/inventory'
 import type { CheckoutRecord } from '../types/checkout'
-import type { CsvTable } from './csv'
-import { deviceInterfaces } from './networkInterfaces'
+import type { CsvTable } from '../../lib/csv'
+import { deviceInterfaces } from '../../lib/networkInterfaces'
 
 /**
  * Woran haengt an diesem Platz eine Netz-Identitaet?

@@ -10,9 +10,8 @@ import { runDrawingChecks } from '../../lib/drawingChecks'
 import { buildAddressPlan } from '../../lib/addressPlan'
 import { segmentFindings } from '../../lib/networkSegments'
 import { actionCounts, actionItems } from '../../lib/actionItems'
-import { useInventoryStore } from '../../store/inventoryStore'
-import { useCheckoutStore } from '../../store/checkoutStore'
 import { Icon } from '../shared/Icon'
+import { useAusgaben, useBestand } from '../../lager'
 
 interface StatusBarProps {
   projectName: string
@@ -77,8 +76,8 @@ const CollabStatusBadge = () => {
 const AufgabenBadge = () => {
   const t = useTranslation()
   const project = useProjectStore((s) => s.project)
-  const inventory = useInventoryStore((s) => s.items)
-  const checkouts = useCheckoutStore((s) => s.records)
+  const inventory = useBestand()
+  const checkouts = useAusgaben()
   const dringend = useMemo(() => {
     const z = actionCounts(
       actionItems({ today: new Date().toISOString().slice(0, 10), project, inventory, checkouts }),

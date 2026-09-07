@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { unitLabel } from '../../../lib/unitIdentity'
 import { Eye, EyeOff } from 'lucide-react'
 import { useCanvasProjectStore as useProjectStore } from '../../../store/projectStoreContext'
 import { useTranslation } from '../../../lib/i18n'
@@ -7,8 +6,7 @@ import { SortableSection } from '../SortableSection'
 import { Icon } from '../../shared/Icon'
 import { ExtraInterfacesPanel } from './ExtraInterfacesPanel'
 import type { EquipmentItem } from '../../../types/equipment'
-import { useInventoryStore } from '../../../store/inventoryStore'
-import { identityAnchors } from '../../../lib/assetIdentity'
+import { identityAnchors, unitLabel, useBestand, useEinheiten } from '../../../lager'
 
 /**
  * #306 — "Network & Access"-SortableSection aus EquipmentProperties
@@ -27,8 +25,8 @@ export const NetworkAccessSection = ({ equipment }: { equipment: EquipmentItem }
   // eigenen Store (localStorage), nicht am Projekt: dieselbe Kiste faehrt auf
   // mehreren Shows, und sie ins Projektfile zu kopieren waere eine zweite
   // Wahrheit ueber den Lagerbestand.
-  const units = useInventoryStore((state) => state.units)
-  const items = useInventoryStore((state) => state.items)
+  const units = useEinheiten()
+  const items = useBestand()
   // Die Auswahl erscheint nur an Plaetzen MIT Netz-Identitaet. An einem Stativ
   // ist die Frage „welche Kiste" richtig und hier trotzdem falsch: der Bedarf
   // handelt vom eingebrannten Geraete-Namen, und wo keiner ist, waere das Feld

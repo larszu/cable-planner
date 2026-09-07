@@ -1,5 +1,5 @@
 import { describe, expect, it, beforeEach } from 'vitest'
-import { useInventoryStore } from '../src/renderer/store/inventoryStore'
+import { useInventoryStore } from '../src/renderer/lager/store/inventoryStore'
 
 /**
  * Lager-Modul — LPN-Baum (Lagerplätze + Container) + Sets.

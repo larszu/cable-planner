@@ -15,15 +15,15 @@
 // ───────────────────────────────────────────────────────────────────────────
 import { describe, it, expect } from 'vitest'
 import { interfaceKeys } from './support/interfaceKeys'
-import inventoryTypesSrc from '../src/renderer/types/inventory.ts?raw'
+import inventoryTypesSrc from '../src/renderer/lager/types/inventory.ts?raw'
 import {
   INVENTORY_FORMAT,
   INVENTORY_FORMAT_VERSION,
   serializeInventory,
   parseInventory,
   type InventorySnapshot,
-} from '../src/renderer/lib/inventoryPortable'
-import type { InventoryItem, StorageNode, InventorySet, InventoryUnit } from '../src/renderer/types/inventory'
+} from '../src/renderer/lager/lib/inventoryPortable'
+import type { InventoryItem, StorageNode, InventorySet, InventoryUnit } from '../src/renderer/lager/types/inventory'
 
 // Eingefrorener Contract — MUSS in allen drei Repos identisch sein.
 const CONTRACT = {

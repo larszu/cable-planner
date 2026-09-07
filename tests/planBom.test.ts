@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { buildPlanBom, outcomeLabel, pickListCsv, planBomCsv } from '../src/renderer/lib/planBom'
+import { buildPlanBom, outcomeLabel, pickListCsv, planBomCsv } from '../src/renderer/lager/lib/planBom'
 import type { EquipmentItem } from '../src/renderer/types/equipment'
-import type { InventoryItem, StorageNode } from '../src/renderer/types/inventory'
+import type { InventoryItem, StorageNode } from '../src/renderer/lager/types/inventory'
 
 const F55_ID = 'eb02ca7e-856c-40ab-9a73-d1e98110f003'
 const F55_MODEL = 'Sony PMW-F55'

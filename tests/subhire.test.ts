@@ -5,12 +5,12 @@ import {
   ownershipNote,
   overdueSubhire,
   subhireStatus,
-} from '../src/renderer/lib/ownership'
-import { derivePackList, packListToText } from '../src/renderer/lib/packList'
-import { checkoutSheet, containerContents } from '../src/renderer/lib/containerCheckout'
+} from '../src/renderer/lager/lib/ownership'
+import { derivePackList, packListToText } from '../src/renderer/lager/lib/packList'
+import { checkoutSheet, containerContents } from '../src/renderer/lager/lib/containerCheckout'
 import { buildLabelSheetHtml, LABEL_SHEETS } from '../src/renderer/lib/labelSheets'
-import type { InventoryItem, InventoryUnit, StorageNode } from '../src/renderer/types/inventory'
-import inventarQuelle from '../src/renderer/components/Inventory/InventoryDialog.tsx?raw'
+import type { InventoryItem, InventoryUnit, StorageNode } from '../src/renderer/lager/types/inventory'
+import inventarQuelle from '../src/renderer/lager/ui/InventoryDialog.tsx?raw'
 import dictsQuelle from '../src/renderer/lib/i18n/dicts.ts?raw'
 
 // ---------------------------------------------------------------------------

@@ -45,7 +45,7 @@ import type {
   CheckoutRecord,
   CheckoutSignature,
 } from '../types/checkout'
-import type { CsvTable } from './csv'
+import type { CsvTable } from '../../lib/csv'
 
 /** Welches Bein des Vorgangs unterschrieben wird. */
 export type HandoverLeg = 'out' | 'in'

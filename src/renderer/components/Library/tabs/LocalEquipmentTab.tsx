@@ -3,7 +3,6 @@ import { ChevronDown, ChevronRight, Pencil, X } from 'lucide-react'
 import { Icon } from '../../shared/Icon'
 import { useProjectStore } from '../../../store/projectStore'
 import { useUiStore } from '../../../store/uiStore'
-import { useInventoryStore } from '../../../store/inventoryStore'
 import { bilingualCategoryDialog } from '../../../lib/bilingualCategoryDialog'
 import { categoryDisplay } from '../../../lib/categoryTranslations'
 import { format, useTranslation } from '../../../lib/i18n'
@@ -17,6 +16,7 @@ import { CategoryDndWrapper } from '../LibraryDndWrappers'
 import { SortableCategorySection } from '../LibrarySortables'
 import { PlusMenu, LibraryFiltersMenu } from '../LibraryMenus'
 import { LibraryItem } from '../LibraryItem'
+import { useBestand } from '../../../lager'
 
 interface LocalEquipmentTabProps {
   /** Opens the "Eigenes Gerät anlegen" dialog in the parent. */
@@ -59,7 +59,7 @@ export const LocalEquipmentTab = ({
   const setLibrarySortMode = useUiStore((s) => s.setLibrarySortMode)
   // Lager-Modul (#Task 13): „nur eigenes Material" — Menge der Modelle, die als
   // Eigentum (ownership=owned) im projektübergreifenden Lager stehen.
-  const inventoryItems = useInventoryStore((s) => s.items)
+  const inventoryItems = useBestand()
   const ownedModels = useMemo(() => {
     const set = new Set<string>()
     for (const it of inventoryItems) {

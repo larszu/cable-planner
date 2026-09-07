@@ -9,11 +9,11 @@ import {
   expectedAt,
   missingAt,
   type AuditCandidate,
-} from '../src/renderer/lib/inventoryAudit'
-import type { InventoryItem, InventoryUnit, StorageNode } from '../src/renderer/types/inventory'
-import inventarQuelle from '../src/renderer/components/Inventory/InventoryDialog.tsx?raw'
+} from '../src/renderer/lager/lib/inventoryAudit'
+import type { InventoryItem, InventoryUnit, StorageNode } from '../src/renderer/lager/types/inventory'
+import inventarQuelle from '../src/renderer/lager/ui/InventoryDialog.tsx?raw'
 import mobileQuelle from '../src/mobile/MobileApp.tsx?raw'
-import auditQuelle from '../src/renderer/lib/inventoryAudit.ts?raw'
+import auditQuelle from '../src/renderer/lager/lib/inventoryAudit.ts?raw'
 
 // ---------------------------------------------------------------------------
 // Scannen ist der schnelle Weg, nie der einzige (Bedarf 150, P4).
