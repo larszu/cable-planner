@@ -329,6 +329,10 @@ contextBridge.exposeInMainWorld('cablePlanner', {
         port: number
         urls: string[]
         hasProject: boolean
+        // BEDARF 133 — Adressen, die es gibt und die NICHT angeboten werden.
+        // Eine zurueckgehaltene Adresse, die niemand nennt, ist fuer den
+        // Nutzer dasselbe wie eine, die es nicht gibt.
+        withheld: { address: string; reach: string; reason: string }[]
       }>,
     stop: () => ipcRenderer.invoke('mobileShare:stop') as Promise<{ ok: boolean }>,
     status: () =>
@@ -337,6 +341,16 @@ contextBridge.exposeInMainWorld('cablePlanner', {
         port: number
         urls: string[]
         hasProject: boolean
+        withheld: { address: string; reach: string; reason: string }[]
+      }>,
+    // BEDARF 133 — Adressen ueber das LAN hinaus freigeben. Ausdruecklich und
+    // nur fuer diese Sitzung: `stop` setzt es zurueck.
+    setAllowBeyondLan: (allow: boolean) =>
+      ipcRenderer.invoke('mobileShare:setAllowBeyondLan', allow) as Promise<{
+        port: number
+        urls: string[]
+        hasProject: boolean
+        withheld: { address: string; reach: string; reason: string }[]
       }>,
     setProject: (project: unknown) =>
       ipcRenderer.invoke('mobileShare:setProject', project) as Promise<{ ok: boolean }>,
