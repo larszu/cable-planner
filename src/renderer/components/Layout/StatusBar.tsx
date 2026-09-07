@@ -9,6 +9,9 @@ import { useTranslation, format } from '../../lib/i18n'
 import { runDrawingChecks } from '../../lib/drawingChecks'
 import { buildAddressPlan } from '../../lib/addressPlan'
 import { segmentFindings } from '../../lib/networkSegments'
+import { actionCounts, actionItems } from '../../lib/actionItems'
+import { useInventoryStore } from '../../store/inventoryStore'
+import { useCheckoutStore } from '../../store/checkoutStore'
 import { Icon } from '../shared/Icon'
 
 interface StatusBarProps {
@@ -54,6 +57,47 @@ const CollabStatusBadge = () => {
     >
       <span className="inline-block h-2 w-2 rounded-full bg-emerald-300" />
       {t('statusbar.collab.live', 'Live')} · {Math.max(peers.length, 1)}
+    </button>
+  )
+}
+
+/**
+ * BEDARF 108 — das Abzeichen, das den taeglichen Rundgang ersetzt.
+ *
+ * Der Bedarf sagt es in einem Satz: „users ask to be TOLD something rather
+ * than to go and check". Deshalb steht die Zahl in der Statuszeile und nicht
+ * hinter zwei Klicks — und deshalb steht sie NUR DA, WENN ES ETWAS ZU SAGEN
+ * GIBT. Ein Abzeichen, das jeden Tag „0" zeigt, ist der Anfang davon, dass
+ * niemand mehr hinsieht.
+ *
+ * Gezaehlt wird, was heute oder frueher faellig ist. Das Anstehende und das
+ * Undatierte stehen auf der Seite selbst: sie brauchen keinen Alarm, sie
+ * brauchen einen Blick.
+ */
+const AufgabenBadge = () => {
+  const t = useTranslation()
+  const project = useProjectStore((s) => s.project)
+  const inventory = useInventoryStore((s) => s.items)
+  const checkouts = useCheckoutStore((s) => s.records)
+  const dringend = useMemo(() => {
+    const z = actionCounts(
+      actionItems({ today: new Date().toISOString().slice(0, 10), project, inventory, checkouts }),
+    )
+    return z.overdue + z.today
+  }, [project, inventory, checkouts])
+  if (dringend === 0) return null
+  return (
+    <button
+      type="button"
+      onClick={() => useUiStore.getState().openAnalysis('todo')}
+      className="inline-flex shrink-0 items-center gap-1 rounded bg-red-700 px-1.5 py-0.5 text-cp-xs font-bold text-red-50 hover:bg-red-600"
+      title={t(
+        'statusbar.todo.title',
+        'Überfällig oder heute fällig: Rückgaben, Ausgaben, Stunden, Belege, Kosten. Klick öffnet die Analysen auf „Was ansteht".',
+      )}
+    >
+      <Icon icon={AlertCircle} size="xs" />
+      {format(t('statusbar.todo.counts', 'Fällig {count}'), { count: dringend })}
     </button>
   )
 }
@@ -181,6 +225,7 @@ export const StatusBar = ({
             {format(t('statusbar.network.counts', 'Netz {count}'), { count: netzBefunde })}
           </button>
         )}
+        <AufgabenBadge />
       </div>
       <div className="flex shrink-0 items-center gap-3">
         {/* v7.9.4 — Rentman-Badge nur sichtbar wenn die Integration

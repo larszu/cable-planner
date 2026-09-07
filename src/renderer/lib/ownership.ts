@@ -117,6 +117,13 @@ export interface OverdueLine {
   model: string
   quantity: number
   supplier: string
+  /**
+   * Gemietet oder Sub-Hire — der Unterschied steht auf jedem Blatt und darf
+   * auf dieser Liste nicht verlorengehen. Ohne ihn muesste ein Aufrufer
+   * (`actionItems`) raten, und ein geratenes „Sub-Hire" auf einem gemieteten
+   * Stueck nennt den falschen Vertrag.
+   */
+  ownership: InventoryOwnership
   /** Leer bei `no-date`. */
   returnDue: string
   status: Extract<SubhireStatus, 'overdue' | 'no-date'>
@@ -142,6 +149,7 @@ export const overdueSubhire = (items: InventoryItem[], heute: string): OverdueLi
       model: it.model,
       quantity: it.quantity,
       supplier: (it.supplier ?? '').trim(),
+      ownership: it.ownership as InventoryOwnership,
       returnDue: status === 'overdue' ? (it.returnDue ?? '') : '',
       status,
     })
