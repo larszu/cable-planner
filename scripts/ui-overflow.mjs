@@ -29,7 +29,10 @@
  *   3. **Klappmenues der Werkzeugleiste.** Sie werden geoeffnet und
  *      einzeln vermessen — ein Menue, das ueber den Fensterrand laeuft, ist
  *      halb unlesbar, und offen sieht die Messung von aussen es nie.
- *   4. **Verdeckte Bedienelemente.** Ein schwebendes Element (`position:
+ *   4. **Menues der Kopfleiste.** Bei der kleinsten geprueften Groesse: was
+ *      nicht hineinpasst, muss scrollen koennen. Ein Menue, das weder passt
+ *      noch scrollt, hat unerreichbare Eintraege.
+ *   5. **Verdeckte Bedienelemente.** Ein schwebendes Element (`position:
  *      absolute/fixed`) liegt ueber einem Knopf und faengt dessen Klicks ab.
  *      Geprueft wird nicht die Ueberlappung an sich — die ist bei Menues,
  *      Dialogen und Tooltips gewollt —, sondern nur bei Elementen, die
@@ -293,6 +296,69 @@ for (let i = 0; i < anzahl; i++) {
   }
 }
 console.log(`${anzahl} Klappmenue(s) der Werkzeugleiste geprueft`)
+
+// ── 5. Die Menues der Kopfleiste ──────────────────────────────────────────
+// WARUM AUCH DIE. Gemessen 2026-09-07: das Werkzeuge-Menue war 823 px hoch
+// und blieb 823 px hoch auch in einem 800 px hohen Fenster — die letzten
+// Eintraege standen unter dem Fensterrand und waren nicht anklickbar. Wieder
+// dieselbe Sorte Fehler wie die zwei Register, die aus der Bibliothek fielen.
+//
+// Geprueft wird deshalb bei der KLEINSTEN Groesse: passt das Menue nicht,
+// muss es scrollen koennen. Ein Menue, das weder passt noch scrollt, hat
+// unerreichbare Eintraege.
+await win.setViewportSize(groessen[groessen.length - 1])
+await win.waitForTimeout(600)
+const kopfMenues = win.locator('header button[aria-haspopup="menu"]')
+const kopfAnzahl = await kopfMenues.count()
+for (let i = 0; i < kopfAnzahl; i++) {
+  const knopf = kopfMenues.nth(i)
+  const name = ((await knopf.innerText()) || `Menue ${i + 1}`).replace(/[\s▾▴]+/g, ' ').trim()
+  await knopf.click().catch(() => {})
+  await win.waitForTimeout(350)
+  const m = await win.evaluate(() => {
+    const el = document.querySelector('header [role="menu"], [role="menu"]')
+    if (!el) return null
+    const r = el.getBoundingClientRect()
+    const st = getComputedStyle(el)
+    const beschnitten = []
+    for (const k of el.querySelectorAll('span')) {
+      if (getComputedStyle(k).textOverflow !== 'ellipsis') continue
+      if (k.scrollWidth - k.clientWidth < 3) continue
+      const t = (k.textContent || '').trim()
+      if (t) beschnitten.push(t.slice(0, 30))
+    }
+    return {
+      unten: Math.round(r.bottom),
+      fensterHoehe: window.innerHeight,
+      inhalt: el.scrollHeight,
+      sichtbar: el.clientHeight,
+      scrollt: /(auto|scroll)/.test(st.overflowY),
+      eintraege: el.querySelectorAll('[role="menuitem"]').length,
+      beschnitten,
+    }
+  })
+  await win.keyboard.press('Escape').catch(() => {})
+  await win.waitForTimeout(200)
+  if (!m) continue
+  if (m.inhalt - m.sichtbar > 4 && !m.scrollt) {
+    console.error(
+      `✗ Menue „${name}" ist ${m.inhalt}px hoch, zeigt ${m.sichtbar}px und scrollt nicht — ` +
+        'die unteren Eintraege sind nicht erreichbar',
+    )
+    befunde += 1
+  }
+  if (m.unten > m.fensterHoehe + 2) {
+    console.error(
+      `✗ Menue „${name}" endet bei ${m.unten}px, das Fenster ist ${m.fensterHoehe}px hoch`,
+    )
+    befunde += 1
+  }
+  for (const t of m.beschnitten) {
+    console.error(`✗ Menue „${name}": Eintrag „${t}" ist beschnitten`)
+    befunde += 1
+  }
+}
+console.log(`${kopfAnzahl} Menue(s) der Kopfleiste geprueft`)
 
 await app.close()
 console.log(`UI-Overflow fertig → ${OUT} (${befunde} Befund(e))`)

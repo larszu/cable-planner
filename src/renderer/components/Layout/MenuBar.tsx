@@ -687,10 +687,20 @@ export const MenuBar = ({
         </Menu>
 
         <Menu label={t('app.menu.tools', 'Werkzeuge')}>
-          {/* Gruppiert in vier thematische Abschnitte (Findbarkeit bei ~18
-              Einträgen). Patchliste-Export liegt zusätzlich unter Datei →
-              Exportieren & Drucken. */}
-          <MenuSectionHeader>{t('app.menu.tools.group.calc', 'Berechnen & analysieren')}</MenuSectionHeader>
+          {/* NEU GRUPPIERT 2026-09-07, auf Zuruf des Nutzers: „im Werkzeug-Menü
+              sind viele unübersichtliche Tools."
+
+              Vorher vier Abschnitte — aber der erste, „Berechnen & analysieren",
+              trug ZEHN der 24 Einträge, und bei der Hälfte davon stimmte die
+              Überschrift nicht: Drum-Mikrofonierung, Funkstrecken und
+              Ausspielung berechnen nichts und analysieren nichts, sie planen.
+              Eine Überschrift, die die Hälfte ihrer Einträge falsch beschreibt,
+              ist schlimmer als keine — man sucht dann woanders.
+
+              Jetzt sechs Abschnitte mit drei bis fünf Einträgen, jede
+              Überschrift für alle ihre Einträge wahr. Patchliste-Export liegt
+              zusätzlich unter Datei → Exportieren & Drucken. */}
+          <MenuSectionHeader>{t('app.menu.tools.group.calc', 'Berechnen')}</MenuSectionHeader>
           <MenuItem
             onClick={() => useUiStore.getState().openBandwidthCalc()}
             icon={<Icon icon={Radio} size="sm" />}
@@ -715,29 +725,59 @@ export const MenuBar = ({
           >
             {t('app.menu.tools.projection', 'Projektion & Display…')}
           </MenuItem>
-          <MenuItem onClick={() => useUiStore.getState().openAnalysis()} icon={<Icon icon={BarChart3} size="sm" />}>
-            {t('app.menu.tools.analysis', 'Analysen (Gewicht/Netzwerk/Redundanz)…')}
+
+          <MenuSectionHeader>{t('app.menu.tools.group.check', 'Prüfen')}</MenuSectionHeader>
+          <MenuItem
+            onClick={() => useUiStore.getState().openAnalysis()}
+            icon={<Icon icon={BarChart3} size="sm" />}
+            note={t('app.menu.tools.analysis.note', 'Gewicht, Netzwerk, Redundanz, Kabelwege')}
+          >
+            {t('app.menu.tools.analysis', 'Analysen…')}
           </MenuItem>
-          <MenuItem onClick={() => useUiStore.getState().openPlanCheck()} icon={<Icon icon={ClipboardCheck} size="sm" />}>
+          <MenuItem
+            onClick={() => useUiStore.getState().openPlanCheck()}
+            icon={<Icon icon={ClipboardCheck} size="sm" />}
+            note={t('app.menu.tools.planCheck.note', 'Findet Lücken und Widersprüche im Plan')}
+          >
             {t('app.menu.tools.planCheck', 'Plan-Check…')}
           </MenuItem>
-          <MenuItem onClick={() => useUiStore.getState().setDrumMicingOpen(true)} icon={<Icon icon={Drum} size="sm" />}>
+          <MenuItem
+            onClick={() => useUiStore.getState().setReconcileOpen(true)}
+            icon={<Icon icon={ClipboardCheck} size="sm" />}
+            note={t('app.menu.tools.reconcile.note', 'Vergleicht den Plan mit dem, was vor Ort steht')}
+          >
+            {t('app.menu.tools.reconcile', 'Plan gegen Vorgefundenes…')}
+          </MenuItem>
+
+          <MenuSectionHeader>{t('app.menu.tools.group.plan', 'Planen')}</MenuSectionHeader>
+          <MenuItem
+            onClick={() => useUiStore.getState().setDrumMicingOpen(true)}
+            icon={<Icon icon={Drum} size="sm" />}
+            note={t('app.menu.tools.drumMicing.note', 'Mikrofone am Schlagzeug setzen und benennen')}
+          >
             {t('app.menu.tools.drumMicing', 'Drum-Mikrofonierung…')}
           </MenuItem>
-          <MenuItem onClick={() => useUiStore.getState().setWirelessRigOpen(true)} icon={<Icon icon={Radio} size="sm" />}>
+          <MenuItem
+            onClick={() => useUiStore.getState().setWirelessRigOpen(true)}
+            icon={<Icon icon={Radio} size="sm" />}
+            note={t('app.menu.tools.wirelessRig.note', 'Frequenzen, Sender, Empfänger im Spektrum')}
+          >
             {t('app.menu.tools.wirelessRig', 'Funkstrecken / Gesang…')}
           </MenuItem>
-          <MenuItem onClick={() => useUiStore.getState().setDeliveryOpen(true)} icon={<Icon icon={Radio} size="sm" />}>
+          <MenuItem
+            onClick={() => useUiStore.getState().setDeliveryOpen(true)}
+            icon={<Icon icon={Radio} size="sm" />}
+            note={t('app.menu.tools.delivery.note', 'Wohin gesendet wird, mit welchen Parametern')}
+          >
             {t('app.menu.tools.delivery', 'Ausspielung (Streaming-Ziele)…')}
-          </MenuItem>
-          <MenuItem onClick={() => useUiStore.getState().setReconcileOpen(true)} icon={<Icon icon={ClipboardCheck} size="sm" />}>
-            {t('app.menu.tools.reconcile', 'Plan gegen Vorgefundenes…')}
           </MenuItem>
 
           <MenuSectionHeader>{t('app.menu.tools.group.build', 'Erstellen & verwalten')}</MenuSectionHeader>
           <MenuItem
             onClick={() => useUiStore.getState().openBulkConnect()}
             icon={<Icon icon={Cable} size="sm" />}
+          
+            note={t('app.menu.tools.bulkConnect.note', 'Viele Ports in einem Zug verkabeln')}
           >
             {t('app.menu.tools.bulkConnect', 'Mehrere Kabel verbinden…')}
           </MenuItem>
@@ -750,13 +790,19 @@ export const MenuBar = ({
           <MenuItem
             onClick={() => useUiStore.getState().triggerRackBuilderFromSelection([])}
             icon={<Icon icon={Server} size="sm" />}
+          
+            note={t('app.menu.tools.rackBuilder.note', 'Bestehende Racks bestücken und bearbeiten')}
           >
             {t('app.menu.tools.rackBuilder', 'Rack-Builder…')}
           </MenuItem>
-          <MenuItem onClick={() => useUiStore.getState().openAiPlanGen()} icon={<Icon icon={Sparkles} size="sm" />}>
+          <MenuItem onClick={() => useUiStore.getState().openAiPlanGen()} icon={<Icon icon={Sparkles} size="sm" />}
+            note={t('app.menu.tools.aiPlanGen.note', 'Erzeugt einen Entwurf aus einer Beschreibung')}
+          >
             {t('app.menu.tools.aiPlanGen', 'KI-Plan generieren…')}
           </MenuItem>
-          <MenuItem onClick={() => useUiStore.getState().openRevisions()} icon={<Icon icon={History} size="sm" />}>
+          <MenuItem onClick={() => useUiStore.getState().openRevisions()} icon={<Icon icon={History} size="sm" />}
+            note={t('app.menu.tools.revisions.note', 'Stände sichern und vergleichen')}
+          >
             {t('app.menu.tools.revisions', 'Revisionen & Snapshots…')}
           </MenuItem>
           {rentalModule && (
@@ -783,7 +829,9 @@ export const MenuBar = ({
           </MenuItem>
 
           <MenuSectionHeader>{t('app.menu.tools.group.io', 'Import & Export')}</MenuSectionHeader>
-          <MenuItem onClick={() => useUiStore.getState().openPatchList()} icon={<Icon icon={Cable} size="sm" />}>
+          <MenuItem onClick={() => useUiStore.getState().openPatchList()} icon={<Icon icon={Cable} size="sm" />}
+            note={t('app.menu.tools.patchList.note', 'Wer hängt an welchem Ein- und Ausgang')}
+          >
             {t('app.menu.tools.patchList', 'Patch-Liste…')}
           </MenuItem>
           {festinstallationModule && (
@@ -801,6 +849,8 @@ export const MenuBar = ({
               )
             }}
             icon={<Icon icon={ImageIcon} size="sm" />}
+          
+            note={t('app.menu.tools.stagePlot.note', 'Bühnenaufsicht als Ein-Seiten-Blatt')}
           >
             {t('app.menu.tools.stagePlot', 'Stage-Plot (SVG)…')}
           </MenuItem>
@@ -1103,7 +1153,14 @@ const Menu = ({ label, children }: MenuProps) => {
         <div
           onClick={() => setOpen(false)}
           onKeyDown={onMenuKeyDown}
-          className="absolute left-0 top-full z-50 mt-1 min-w-[14rem] rounded border border-[var(--cp-border)] bg-[var(--cp-surface-1)] py-1 shadow-2xl"
+          /* GEDECKELT 2026-09-07. Gemessen im laufenden Fenster: das
+             Werkzeuge-Menue ist 823 px hoch und blieb 823 px hoch auch in
+             einem 800 px hohen Fenster — die letzten Eintraege („Stage-Plot",
+             „Equipment aus CSV importieren") standen auf jedem Laptop-Schirm
+             unter dem Fensterrand und waren nicht anklickbar. Dieselbe Sorte
+             Fehler wie die zwei Register, die aus der Bibliothek fielen:
+             ein Menuepunkt, den es fuer den Nutzer nicht gibt. */
+          className="absolute left-0 top-full z-50 mt-1 max-h-[calc(100vh-3.5rem)] min-w-[14rem] overflow-y-auto rounded border border-[var(--cp-border)] bg-[var(--cp-surface-1)] py-1 shadow-2xl"
           role="menu"
         >
           {children}
@@ -1118,10 +1175,25 @@ interface MenuItemProps {
   icon?: React.ReactNode
   shortcut?: string
   disabled?: boolean
+  /**
+   * Zweite Zeile: WAS PASSIERT, wenn man klickt.
+   *
+   * Nutzer-Rueckmeldung 2026-09-07: „man erkennt nicht auf den ersten Blick
+   * was jedes Element das man anklickt verursacht." Bei einem Menuepunkt
+   * hilft kein Tooltip — man liest die Liste, waehlt und klickt; ein
+   * Hinweis, der erst nach Zeigen und Warten erscheint, kommt zu spaet.
+   *
+   * NUR WO DER NAME ES NICHT SAGT. „Bandbreite berechnen…" braucht keine
+   * Erklaerung; „Plan-Check…", „Rack-Builder…" und „Stage-Plot (SVG)…"
+   * schon. Eine Zeile an JEDEM Punkt machte das Menue doppelt so hoch und
+   * damit wieder unlesbar — die Zeile ist ein Mittel gegen Unklarheit, kein
+   * Schmuck.
+   */
+  note?: string
   children: React.ReactNode
 }
 
-const MenuItem = ({ onClick, icon, shortcut, disabled, children }: MenuItemProps) => {
+const MenuItem = ({ onClick, icon, shortcut, disabled, note, children }: MenuItemProps) => {
   return (
     <button
       type="button"
@@ -1131,7 +1203,12 @@ const MenuItem = ({ onClick, icon, shortcut, disabled, children }: MenuItemProps
       role="menuitem"
     >
       <span className="inline-flex w-4 shrink-0 items-center justify-center text-[var(--cp-text-muted)]">{icon}</span>
-      <span className="flex-1 truncate">{children}</span>
+      <span className="min-w-0 flex-1">
+        <span className="block truncate">{children}</span>
+        {note && (
+          <span className="block truncate text-[11px] text-[var(--cp-text-faint)]">{note}</span>
+        )}
+      </span>
       {shortcut && (
         <span className="ml-3 shrink-0 text-cp-xs tracking-wide text-[var(--cp-text-faint)]">
           {shortcut}
