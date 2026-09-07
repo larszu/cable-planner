@@ -10,7 +10,7 @@
 // Die 3-Phasen-Last-/Distro-Planung (#345) lebt weiterhin im Strom-Tab der
 // Calculators (dort bereits implementiert) — hier nicht dupliziert.
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { PanelHint } from '../shared/PanelHint'
 import { BarChart3, Calculator, Download, Plus, Trash2 } from 'lucide-react'
 import { useUiStore } from '../../store/uiStore'
@@ -2717,9 +2717,17 @@ const TABS: { id: Tab; labelKey: string; fallback: string }[] = [
 export const AnalysisDialog = () => {
   const t = useTranslation()
   const open = useUiStore((s) => s.analysis.open)
+  const gewuenschterTab = useUiStore((s) => s.analysis.tab)
   const close = useUiStore((s) => s.closeAnalysis)
   const projectName = useProjectStore((s) => s.project.metadata.name)
   const [active, setActive] = useState<Tab>('weight')
+
+  // Beim Oeffnen auf den gewuenschten Reiter springen — und nur dann, damit
+  // ein Reiterwechsel von Hand nicht sofort zurueckgesetzt wird.
+  useEffect(() => {
+    if (!open || !gewuenschterTab) return
+    if (TABS.some((tb) => tb.id === gewuenschterTab)) setActive(gewuenschterTab as Tab)
+  }, [open, gewuenschterTab])
 
   if (!open) return null
 

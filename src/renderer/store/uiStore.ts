@@ -903,8 +903,15 @@ interface UiState extends PersistedUiState {
   closeBulkConnect: () => void
   /** Projekt-Analysen (read-only Reports): Strom/Phasen, Netzwerk, Gewicht/
    *  Wärme, Redundanz. Issues #345/#346/#351/#352. */
-  analysis: { open: boolean }
-  openAnalysis: () => void
+  /**
+   * Die Analysen. `tab` ist der Reiter, auf dem sich der Dialog oeffnen soll
+   * (2026-09-07): die Statusleiste zaehlt Netz-Befunde und muss dorthin
+   * fuehren, wo sie stehen — ein Abzeichen, dessen Klick woanders landet als
+   * das, was es gezaehlt hat, ist dieselbe Sorte Luege wie eine Zahl ohne
+   * Deckung. Fehlt der Reiter, bleibt es beim bisherigen Startreiter.
+   */
+  analysis: { open: boolean; tab?: string }
+  openAnalysis: (tab?: string) => void
   closeAnalysis: () => void
   /** Vereinte „Plan-Check"-Palette: Live-Validierung des Plans (#411). */
   planCheck: { open: boolean }
@@ -1360,7 +1367,7 @@ export const useUiStore = create<UiState>((set) => ({
     set({ bulkConnect: { open: true, ...(fromEqId ? { fromEqId } : {}), ...(toEqId ? { toEqId } : {}) } }),
   closeBulkConnect: () => set({ bulkConnect: { open: false } }),
   analysis: { open: false },
-  openAnalysis: () => set({ analysis: { open: true } }),
+  openAnalysis: (tab) => set({ analysis: { open: true, ...(tab ? { tab } : {}) } }),
   closeAnalysis: () => set({ analysis: { open: false } }),
   planCheck: { open: false },
   openPlanCheck: () => set({ planCheck: { open: true } }),
