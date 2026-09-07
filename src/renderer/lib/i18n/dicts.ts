@@ -796,6 +796,8 @@ export const en: Dict = {
   // zusammengelegt (2026-09-07). Die sechs Schluessel darueber bleiben, weil
   // sie noch in der Kurzhilfe und in den Tastenkuerzeln vorkommen.
   'toolbar.location.label': 'Frame',
+  'toolbar.bulkConnect.label': 'Connect cables',
+  'toolbar.bulkConnect.title': 'Create several cables between the two selected devices at once',
   'toolbar.lock.button': 'Lock',
   'toolbar.lock.title': 'Protection against accidental moves',
   'toolbar.lock.frames.label': 'Frames',

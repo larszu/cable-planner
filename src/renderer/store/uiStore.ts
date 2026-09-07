@@ -891,8 +891,15 @@ interface UiState extends PersistedUiState {
   openSettings: (section?: string) => void
   closeSettings: () => void
   /** #378 — Bulk-Cable-Connect-Dialog (mehrere Kabel auf einmal). */
-  bulkConnect: { open: boolean }
-  openBulkConnect: () => void
+  /**
+   * Mehrere Kabel auf einmal. `fromEqId`/`toEqId` sind die VORBELEGUNG aus
+   * der Canvas-Auswahl (2026-09-07): wer zwei Geraete markiert hat, hat die
+   * Frage nach Quelle und Ziel schon beantwortet und soll sie nicht in zwei
+   * Aufklapplisten wiederholen. Fehlen sie, faellt der Dialog auf seine
+   * Listen zurueck — der Weg ueber das Menue bleibt unveraendert.
+   */
+  bulkConnect: { open: boolean; fromEqId?: string; toEqId?: string }
+  openBulkConnect: (fromEqId?: string, toEqId?: string) => void
   closeBulkConnect: () => void
   /** Projekt-Analysen (read-only Reports): Strom/Phasen, Netzwerk, Gewicht/
    *  Wärme, Redundanz. Issues #345/#346/#351/#352. */
@@ -1349,7 +1356,8 @@ export const useUiStore = create<UiState>((set) => ({
   openSettings: (section) => set({ settingsOpen: true, settingsSection: section }),
   closeSettings: () => set({ settingsOpen: false }),
   bulkConnect: { open: false },
-  openBulkConnect: () => set({ bulkConnect: { open: true } }),
+  openBulkConnect: (fromEqId, toEqId) =>
+    set({ bulkConnect: { open: true, ...(fromEqId ? { fromEqId } : {}), ...(toEqId ? { toEqId } : {}) } }),
   closeBulkConnect: () => set({ bulkConnect: { open: false } }),
   analysis: { open: false },
   openAnalysis: () => set({ analysis: { open: true } }),

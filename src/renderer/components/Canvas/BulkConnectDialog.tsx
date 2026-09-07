@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
 import { projectHistory } from '../../store/projectHistory'
@@ -27,6 +27,8 @@ const toCableType = (connectorType: string): CableType =>
 export const BulkConnectDialog = () => {
   const t = useTranslation()
   const open = useUiStore((s) => s.bulkConnect.open)
+  const vorgabeVon = useUiStore((s) => s.bulkConnect.fromEqId)
+  const vorgabeNach = useUiStore((s) => s.bulkConnect.toEqId)
   const close = useUiStore((s) => s.closeBulkConnect)
   const equipment = useProjectStore((s) => s.project.equipment)
   const customCableSpecs = useUiStore((s) => s.customCableSpecs)
@@ -41,6 +43,20 @@ export const BulkConnectDialog = () => {
   const [count, setCount] = useState<number>(8)
   const [cableSpecId, setCableSpecId] = useState<string>('bnc-coax')
   const [lengthMeters, setLengthMeters] = useState<number>(2)
+
+  // VORBELEGUNG AUS DER AUSWAHL (2026-09-07). Wer zwei Geraete auf der
+  // Flaeche markiert und dort auf „Kabel verbinden" klickt, hat die Frage
+  // nach Quelle und Ziel bereits beantwortet — sie in zwei Aufklapplisten
+  // zu wiederholen ist die Sorte Doppelarbeit, wegen der das Werkzeug im
+  // Menue verstaubte.
+  //
+  // NUR BEIM OEFFNEN, nicht bei jeder Aenderung: sonst spraenge die Auswahl
+  // zurueck, sobald der Nutzer im Dialog ein anderes Geraet waehlt.
+  useEffect(() => {
+    if (!open) return
+    if (vorgabeVon) setFromEqId(vorgabeVon)
+    if (vorgabeNach) setToEqId(vorgabeNach)
+  }, [open, vorgabeVon, vorgabeNach])
 
   const allSpecs = useMemo(
     () => [...cableCatalog, ...customCableSpecs],
