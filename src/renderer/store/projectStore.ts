@@ -595,6 +595,15 @@ export interface ProjectState {
   addCrewExpense: (
     expense: Partial<import('../types/labour').CrewExpense> & { date: string; amount: number },
   ) => string | undefined
+  /**
+   * Bedarf 97 — eine Auslagenzeile aendern: Beleg anhaengen, Kostenzeile
+   * zuordnen, Betrag korrigieren. Es gab bisher nur Anlegen und Loeschen,
+   * und „loeschen und neu anlegen" haette den angehaengten Beleg mitgenommen.
+   */
+  updateCrewExpense: (
+    id: string,
+    patch: Partial<Omit<import('../types/labour').CrewExpense, 'id'>>,
+  ) => void
   removeCrewExpense: (id: string) => void
   /** Bedarf 42 — eine festgehaltene Zusage. */
   addApproval: (

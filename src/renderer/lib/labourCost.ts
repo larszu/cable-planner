@@ -593,7 +593,27 @@ export const normaliseCrewPlan = (
           : 'other')()
       const personId = str(r.personId)
       const receiptRef = str(r.receiptRef)
+      const costLineId = str(r.costLineId)
       const note = str(r.note)
+      // Bedarf 97 — der Beleg kommt aus einer Datei und wird Feld fuer Feld
+      // gelesen. Halb gelesen waere er schlimmer als gar nicht: eine Zeile,
+      // die einen Beleg NENNT, aber keinen Pfad traegt, sieht in jeder Liste
+      // belegt aus und ist es nicht.
+      const beleg = ((): CrewExpense['receipt'] => {
+        const b = (r.receipt ?? undefined) as Record<string, unknown> | undefined
+        if (!b || typeof b !== 'object') return undefined
+        const sha256 = str(b.sha256)
+        const storedAs = str(b.storedAs)
+        const fileName = str(b.fileName)
+        const mediaType = str(b.mediaType)
+        const addedAt = str(b.addedAt)
+        const bytes = num(b.bytes)
+        if (!sha256 || !storedAs || !fileName || !mediaType || !addedAt || bytes === undefined) {
+          return undefined
+        }
+        const takenAt = str(b.takenAt)
+        return { sha256, storedAs, fileName, mediaType, addedAt, bytes, ...(takenAt ? { takenAt } : {}) }
+      })()
       return {
         id,
         ...(personId ? { personId } : {}),
@@ -601,6 +621,8 @@ export const normaliseCrewPlan = (
         date,
         amount,
         ...(receiptRef ? { receiptRef } : {}),
+        ...(beleg ? { receipt: beleg } : {}),
+        ...(costLineId ? { costLineId } : {}),
         // `billable` ist Pflicht im Modell; fehlt es in der Datei, gilt NICHT
         // weiterberechenbar. Die andere Richtung braechte fremde Betraege auf
         // eine Rechnung, weil ein Feld fehlte.

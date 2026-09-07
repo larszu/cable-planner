@@ -197,6 +197,32 @@ export interface CrewExpense {
   amount: number
   /** Belegnummer oder Dateiname. Fehlt sie, faellt das auf (Befund). */
   receiptRef?: string
+  /**
+   * Die Belegdatei selbst (Bedarf 97).
+   *
+   * SIE HAENGT AN DER ZEILE UND NICHT AM PROJEKT. Die Massnahme sagt es
+   * woertlich: „Attach the receipt to the expense line, not the parent."
+   * Der Beleg beschreibt den Gegenzustand — „Images attach to the parent
+   * record, unlinked to the line" —, und genau der macht die Zahl im
+   * Streitfall unbelegbar: der Ordner ist voll, aber niemand weiss, welches
+   * Foto zu welcher Zeile gehoert.
+   *
+   * `receiptRef` bleibt daneben stehen und wird nicht ersetzt: eine
+   * Belegnummer aus der Buchhaltung und eine abfotografierte Quittung sind
+   * zwei verschiedene Dinge, und ein Job hat oft nur eines von beiden.
+   */
+  receipt?: import('./receipt').ReceiptAttachment
+  /**
+   * Auf welche Kostenzeile diese Auslage zeigt (Bedarf 97, zweite Haelfte:
+   * „hang the line on the project so it can become a BillingDoc line").
+   *
+   * Ohne diesen Zeiger ist die Auslage genau das, was der Beleg beklagt:
+   * „Trips produce no accounting consequence at all." Der Zeiger RECHNET
+   * NICHTS — er stellt nur die Verbindung her, aus der `receiptChain` einen
+   * VORSCHLAG fuer den Ist-Wert macht. Geschrieben wird der Ist-Wert nur von
+   * einem Menschen; siehe `types/costLines.ts`.
+   */
+  costLineId?: string
   billable: boolean
   note?: string
 }
