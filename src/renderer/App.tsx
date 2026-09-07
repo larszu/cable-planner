@@ -131,6 +131,7 @@ import { promptDialog } from './lib/promptDialog'
 import { infoDialog } from './lib/infoDialog'
 import { AlertTriangle } from 'lucide-react'
 import { useTranslation, format } from './lib/i18n'
+import { crewCalendar } from './lib/crewCalendar'
 import { Icon } from './components/shared/Icon'
 import { cableTouches } from './lib/portOccupancy'
 
@@ -614,6 +615,22 @@ export default function App() {
     if (!hasDesktopBridge) return
     const timer = window.setTimeout(() => {
       void cablePlannerApi.mobileShare.setProject(project)
+      // BEDARF 39 — der Crew-Kalender faehrt mit dem Projekt. Er wird HIER
+      // gebaut und nicht im Main-Prozess: die Rechnung, was eine Schicht ist,
+      // steht im Renderer, und eine zweite dort waere eine zweite Wahrheit.
+      // Ohne Schichten wird `null` geschickt — der Feed antwortet dann mit
+      // 503 statt mit einem leeren Kalender, und ein leerer Kalender liest
+      // sich als „diese Person hat frei".
+      const crew = project.crewPlan
+      void cablePlannerApi.mobileShare.setCrewCalendar(
+        crew && crew.entries.length > 0
+          ? crewCalendar(crew, {
+              projectName: project.metadata.name || 'Cable Planner',
+              now: new Date().toISOString(),
+              projectId: project.metadata.projectId ?? project.metadata.name ?? 'cable-planner',
+            })
+          : null,
+      )
     }, 500)
     return () => window.clearTimeout(timer)
   }, [project])
@@ -1495,7 +1512,9 @@ export default function App() {
                             ? t('app.loadReport.transmissionEvent', 'Eintrag im Sendebericht')
                             : d.kind === 'cost-line'
                               ? t('app.loadReport.costLine', 'Kostenposition')
-                              : t('app.loadReport.sourceIdentity', 'Signalquelle')}
+                              : d.kind === 'crew-entry'
+                                ? t('app.loadReport.crewEntry', 'Eintrag der Crew-Seite')
+                                : t('app.loadReport.sourceIdentity', 'Signalquelle')}
                 {d.label ? ` „${d.label}"` : ''}
                 {' — '}
                 {d.reason === 'duplicate-id'

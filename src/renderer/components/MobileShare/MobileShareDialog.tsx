@@ -33,6 +33,7 @@ import QRCode from 'qrcode'
 import { Icon } from '../shared/Icon'
 import { ModalShell } from '../shared/ModalShell'
 import { useUiStore } from '../../store/uiStore'
+import { useProjectStore } from '../../store/projectStore'
 import { cablePlannerApi, hasDesktopBridge } from '../../lib/bridge'
 import { useTranslation } from '../../lib/i18n'
 import { PanelHint } from '../shared/PanelHint'
@@ -98,6 +99,19 @@ export const MobileShareDialog = () => {
   const [qrDataUrl, setQrDataUrl] = useState<string>('')
   const [selectedUrl, setSelectedUrl] = useState<string>('')
   const [copied, setCopied] = useState(false)
+
+  // BEDARF 39 — die Feed-Adresse leitet sich aus der aktiven URL ab und wird
+  // NICHT zweitverwaltet: eine zweite Adresse, die aus derselben Quelle
+  // anders gebildet wird, geht beim naechsten Umbau auseinander. `webcal://`
+  // statt `http://`, weil das am Handy das Abo oeffnet statt eine Datei zu
+  // laden — genau der Unterschied, den der Bedarf verlangt.
+  const hatSchichten = useProjectStore(
+    (st) => (st.project.crewPlan?.entries.length ?? 0) > 0,
+  )
+  const crewFeedUrl =
+    hatSchichten && selectedUrl
+      ? selectedUrl.replace(/^http:\/\//, 'webcal://').replace(/\/mobile\.html/, '/crew.ics')
+      : ''
 
   // Initial status check whenever the dialog opens — the server may
   // already be running from a previous session in the same Electron
@@ -230,6 +244,43 @@ export const MobileShareDialog = () => {
                   </div>
                 </div>
               </div>
+              {/* ── BEDARF 39 — der abonnierbare Crew-Kalender ──────────
+                  „Serve a subscribable webcal:// feed from the local project
+                  file rather than an .ics download." Die Adresse steht hier,
+                  weil sie sonst niemand faende: sie ist dieselbe wie oben, nur
+                  mit `/crew.ics` statt `/mobile.html` — und `webcal://` statt
+                  `http://`, damit ein Klick am Handy das ABO oeffnet und nicht
+                  den Download. Ohne Schichten im Plan wird sie nicht gezeigt:
+                  ein Feed, der nichts traegt, liest sich als „hat frei". */}
+              {crewFeedUrl && (
+                <div className="w-full">
+                  <div className="text-[10px] uppercase tracking-wide text-sky-300">
+                    {t('mobile.dialog.crewFeed', 'Crew-Kalender abonnieren')}
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <input
+                      readOnly
+                      value={crewFeedUrl}
+                      className="flex-1 rounded border border-cp-border bg-cp-surface-3 px-2 py-1 font-mono text-[11px] text-cp-text"
+                      onFocus={(e) => e.target.select()}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => void navigator.clipboard?.writeText(crewFeedUrl)}
+                      className="rounded bg-cp-surface-4 px-2 py-1 text-[10px] hover:bg-cp-surface-5"
+                      title={t('mobile.dialog.copyToClipboard', 'In die Zwischenablage kopieren')}
+                    >
+                      <Icon icon={Clipboard} size="xs" />
+                    </button>
+                  </div>
+                  <div className="mt-0.5 text-[10px] text-cp-text-muted">
+                    {t(
+                      'mobile.dialog.crewFeedHint',
+                      'Im Kalender als Abonnement eintragen — er holt sich den Stand selbst, statt zu veralten.',
+                    )}
+                  </div>
+                </div>
+              )}
               {status.urls.length > 1 && (
                 <div>
                   <div className="mb-1 text-[10px] uppercase tracking-wide text-cp-text-muted">

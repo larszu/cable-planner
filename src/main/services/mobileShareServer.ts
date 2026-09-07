@@ -105,6 +105,16 @@ interface MobileShareState {
    *  once per setProject() so each /project.json poll doesn't re-stringify
    *  the whole (potentially multi-MB) project on the main thread. */
   serialized: string | null
+  /**
+   * BEDARF 39 — der Crew-Kalender als fertiger iCalendar-Text.
+   *
+   * ER WIRD IM RENDERER GEBAUT und hier nur gehalten. Die Rechnung dafuer
+   * steht in `renderer/lib/crewCalendar.ts`; sie hier ein zweites Mal zu
+   * schreiben waere dieselbe Doppelung, gegen die der Bedarf ueberhaupt
+   * geschrieben ist — und `main` haette dann eine eigene Vorstellung davon,
+   * was eine Schicht ist.
+   */
+  crewIcs: string | null
   /** Absolute path to dist/renderer (where mobile.html + assets live). */
   rendererDir: string
   /** When set (e.g. `npm run dev`), static-asset requests are proxied
@@ -157,6 +167,7 @@ const state: MobileShareState = {
   showId: null,
   project: null,
   serialized: null,
+  crewIcs: null,
   rendererDir: '',
   devProxyUrl: undefined,
   onChecksUpdate: null,
@@ -304,6 +315,30 @@ const handleRequest = (req: IncomingMessage, res: ServerResponse) => {
     res.setHeader('Cache-Control', 'no-store')
     applyCors(req, res)
     res.end(state.serialized ?? '{}')
+    return
+  }
+
+  /**
+   * BEDARF 39 — der abonnierbare Crew-Kalender.
+   *
+   * Ein FEED und kein Download: „Serve a subscribable webcal:// feed from the
+   * local project file rather than an .ics download." Eine heruntergeladene
+   * Datei veraltet in dem Moment, in dem sich der Plan aendert — genau der
+   * Zustand, den der Bedarf beklagt.
+   *
+   * Dieselbe Token-Pruefung wie `/project.json`: wer den Plan nicht sehen
+   * darf, darf auch nicht wissen, wer wann wo arbeitet. `no-store` steht
+   * bewusst NICHT hier — ein Kalender-Abo darf zwischenspeichern, und der
+   * `REFRESH-INTERVAL` im Dokument sagt ihm, wie lange.
+   */
+  if (pathname === '/crew.ics') {
+    if (!authed(req, url)) return denyUnauthorized(req, res)
+    res.statusCode = state.crewIcs ? 200 : 503
+    res.setHeader('Content-Type', 'text/calendar; charset=utf-8')
+    // Ein Dateiname fuer die Leser, die doch speichern statt zu abonnieren.
+    res.setHeader('Content-Disposition', 'inline; filename="crew.ics"')
+    applyCors(req, res)
+    res.end(state.crewIcs ?? '')
     return
   }
 
@@ -715,6 +750,17 @@ export const setMobileShareProject = (project: unknown): void => {
   } catch {
     state.serialized = null
   }
+}
+
+/**
+ * BEDARF 39 — den fertigen Kalendertext hinterlegen.
+ *
+ * `null` heisst „es gibt keinen", und der Feed antwortet dann mit 503 statt
+ * mit einem leeren Kalender: ein leerer Kalender liest sich als „diese Person
+ * hat frei", und das ist die eine Auskunft, die dieser Bedarf nie geben darf.
+ */
+export const setMobileShareCrewCalendar = (ics: string | null): void => {
+  state.crewIcs = typeof ics === 'string' && ics.trim() ? ics : null
 }
 
 /** v7.9.3 — Registrierung des Callbacks, der vom IPC-Handler im

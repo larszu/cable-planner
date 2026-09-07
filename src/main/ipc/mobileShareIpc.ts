@@ -6,6 +6,7 @@ import {
   getMobileShareStatus,
   setMobileShareAllowBeyondLan,
   setMobileShareProject,
+  setMobileShareCrewCalendar,
   setMobileShareChecksHandler,
   setMobileShareCableAddedHandler,
   setMobileSharePendingChangeHandler,
@@ -98,6 +99,12 @@ export const registerMobileShareIpc = () => {
     setMobileShareAllowBeyondLan(allow === true))
   ipcMain.handle('mobileShare:setProject', (_event, project: unknown) => {
     setMobileShareProject(project)
+    return { ok: true }
+  })
+  // BEDARF 39 — der Crew-Kalender kommt FERTIG aus dem Renderer. Main haelt
+  // ihn nur; die Rechnung steht in `renderer/lib/crewCalendar.ts`.
+  ipcMain.handle('mobileShare:setCrewCalendar', (_event, ics: unknown) => {
+    setMobileShareCrewCalendar(typeof ics === 'string' ? ics : null)
     return { ok: true }
   })
 }

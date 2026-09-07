@@ -169,6 +169,21 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   Ausgegeben: 'Wann der Container ausgegeben wurde.',
   'Ausgegeben an': 'An wen die beschädigte Einheit zuletzt ausgegeben war.',
   'Backup von': 'Für welches Ziel dieses Ziel der Ausweichweg ist.',
+  // Das Stunden- und Auslagenblatt (Bedarfe 40/41/83). „Person" und „Art"
+  // stehen schon oben; die sieben hier kommen mit diesem Blatt dazu.
+  Firma:
+    'Für wen die Person auf diesem Job arbeitet — die eigene Firma, eine andere, oder „freiberuflich". Steht so da, wie sie eingetragen wurde.',
+  Tätigkeit:
+    'Wofür der Satz gilt („Kamera", „Ton", „Fahrer"). Dieselbe Person kann mehrere haben, und sie werden getrennt gezählt.',
+  Stunden: 'Die geleistete Zeit als Stunden:Minuten, nicht als Dezimalzahl.',
+  'davon Mehrarbeit':
+    'Der Teil der Stunden jenseits der Tagesschwelle des Satzes. Leer heißt: keine Mehrarbeit, nicht „keine Schwelle vereinbart".',
+  Arbeitsbetrag:
+    'Die Stunden mit ihren Zuschlägen, ohne Pauschale. Überlappende Bänder stapeln nicht — auf jeder Minute gilt der höchste.',
+  'Pauschale / Beleg':
+    'Auf einer Arbeitszeile die Einsatzpauschale (einmal je Person und Tag), auf einer Auslagenzeile die Belegnummer.',
+  Summe:
+    'Arbeitsbetrag plus Pauschale. Auf einer Auslagenzeile der Betrag — in Klammern, wenn er NICHT an den Kunden weitergeht.',
   // Die Stueckliste und die Kommissionier-Liste (Bedarf 64/80). Acht Spalten,
   // die dieser Guard bis heute nicht gesehen hat: `planBomCsv` und
   // `pickListCsv` uebergeben ihre Spalten POSITIONELL an `toCsv`, ohne
