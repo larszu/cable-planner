@@ -37,8 +37,18 @@
 // erfunden — deshalb steht die erkannte Form im Ergebnis mit dabei.
 // ───────────────────────────────────────────────────────────────────────────
 
-/** Wie das Datum im eingefuegten Text geschrieben war. */
-export type DateStyle = 'day-first' | 'month-first' | 'none'
+import { istTagZuerst, vierstelligesJahr, type DateStyle } from './dateStyle'
+
+/**
+ * Wie das Datum im eingefuegten Text geschrieben war.
+ *
+ * Weitergereicht aus `dateStyle.ts` — DIE Stelle, die entscheidet, ob
+ * `09.10.26` der 9. Oktober oder der 10. September ist. Sie steht dort und
+ * nicht hier, weil das Beleg-Einlesen (Bedarf 97) dieselbe Frage stellt und
+ * zwei getrennte Antworten darauf sich nur im Streitfall widersprechen
+ * wuerden — also dann, wenn es zu spaet ist.
+ */
+export type { DateStyle }
 
 export interface ParsedMessage {
   /** ISO-Zeitpunkt, wenn im Text einer stand. */
@@ -50,7 +60,6 @@ export interface ParsedMessage {
   style: DateStyle
 }
 
-const zweistelligesJahr = (j: number): number => (j < 100 ? 2000 + j : j)
 
 /**
  * Datum und Uhrzeit zu ISO zusammensetzen.
@@ -70,7 +79,7 @@ const zuIso = (
 ): string | undefined => {
   if (monat < 1 || monat > 12 || tag < 1 || tag > 31 || stunde > 23 || minute > 59) return undefined
   const p = (n: number, l = 2) => String(n).padStart(l, '0')
-  return `${p(zweistelligesJahr(jahr), 4)}-${p(monat)}-${p(tag)}T${p(stunde)}:${p(minute)}:${p(sekunde)}`
+  return `${p(vierstelligesJahr(jahr), 4)}-${p(monat)}-${p(tag)}T${p(stunde)}:${p(minute)}:${p(sekunde)}`
 }
 
 /**
@@ -90,9 +99,8 @@ const zerlegeKopf = (zeile: string): ParsedMessage | undefined => {
   const [, aStr, trenner, bStr, jStr, hStr, minStr, secStr, ampm, absender, rest] = m
   const a = Number(aStr)
   const b = Number(bStr)
-  // Punkte: Tag zuerst. Schraegstriche: Monat zuerst — ausser die erste Zahl
-  // kann kein Monat sein.
-  const tagZuerst = trenner === '.' || a > 12
+  // Die Regel steht in `dateStyle.ts` und wird hier nur angewandt.
+  const tagZuerst = istTagZuerst(trenner as '.' | '/', a)
   const tag = tagZuerst ? a : b
   const monat = tagZuerst ? b : a
   let stunde = Number(hStr)
