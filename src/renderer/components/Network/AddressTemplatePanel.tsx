@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { PanelHint } from '../shared/PanelHint'
 import { AlertTriangle, Download, Layers, Plus, Trash2 } from 'lucide-react'
 import { useProjectStore } from '../../store/projectStore'
 import { useTranslation, format } from '../../lib/i18n'
@@ -122,12 +123,12 @@ export const AddressTemplatePanel = ({ projectName }: { projectName: string }) =
         </button>
       </div>
 
-      <p className="mb-2 text-cp-text-muted">
-        {t(
+      <PanelHint
+        text={t(
           'addrTpl.hint',
           'Die Haus-Ebene ersetzt einen stehenden Bereich mit demselben Schlüssel und lässt alle anderen stehen. Vergeben wird nichts von allein — der Umzug wird vorgeschlagen und einzeln übernommen.',
         )}
-      </p>
+      />
 
       {layers.length === 0 ? (
         <p className="text-cp-text-muted">

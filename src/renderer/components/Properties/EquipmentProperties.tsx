@@ -38,6 +38,7 @@ import { RackInstanceCard } from './sections/RackInstanceCard'
 import { ReplaceDeviceSection } from './sections/ReplaceDeviceSection'
 import { LifecycleSection } from './sections/LifecycleSection'
 import { SourceIdentitySection } from './sections/SourceIdentitySection'
+import { DeviceToolsSection } from './sections/DeviceToolsSection'
 
 /** Module-level sensor options so re-renders don't churn the sensor
  *  instances. Stable references are critical for DnDContext's
@@ -169,6 +170,11 @@ export const EquipmentProperties = () => {
       <ReplaceDeviceSection equipment={equipment} />
 
       <RackInstanceCard equipment={equipment} />
+
+      {/* Die Werkzeuge DIESES Geraets (2026-09-07). Vorher standen sie nur im
+          Werkzeuge-Menue — man musste wissen, dass es sie gibt, und drinnen
+          erst das Geraet waehlen, das man gerade ausgewaehlt hatte. */}
+      <DeviceToolsSection equipment={equipment} />
 
       <DeviceConfigsBlock equipmentId={equipment.id} />
 
