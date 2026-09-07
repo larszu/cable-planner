@@ -16,11 +16,13 @@ import {
 import { bestApprovalCandidate, parsePastedApproval } from '../../lib/approvalCapture'
 import {
   BAND_RULE,
+  BOOKING_STATE_LABEL,
   CALLOUT_RULE,
   EMPTY_CREW_PLAN,
   EXPENSE_KIND_LABEL,
   OVERTIME_RULE,
   type ApprovalScope,
+  type BookingState,
   type CrewExpense,
 } from '../../types/labour'
 
@@ -83,6 +85,17 @@ export const CrewTab = ({ projectName }: { projectName: string }) => {
   const befunde = useMemo(() => labourFindings(plan), [plan])
   const kosten = useMemo(() => labourCosts(plan), [plan])
   const uebergabe = useMemo(() => crewBillingHandoff(abrechnung), [abrechnung])
+
+  // Geplante Schichten stehen NICHT in den Summen (Bedarf 39) — ihre Zahl
+  // steht daneben, damit „fehlt da nicht was" beantwortet ist, ohne dass
+  // jemand nachzaehlen muss.
+  const geplant = useMemo(
+    () =>
+      plan.entries.filter(
+        (e) => (e.booking ?? 'worked') === 'pencil' || (e.booking ?? 'worked') === 'hold',
+      ).length,
+    [plan.entries],
+  )
 
   const [paste, setPaste] = useState('')
   const [scope, setScope] = useState<string>('free')
@@ -186,6 +199,14 @@ export const CrewTab = ({ projectName }: { projectName: string }) => {
           {t('analysis.crew.billable', 'an den Kunden')}:{' '}
           <strong>{abrechnung.billableTotal.toFixed(2)}</strong>
         </span>
+        {geplant > 0 && (
+          <span className="text-cp-text-muted">
+            {format(
+              t('analysis.crew.planned', '{n} vorgemerkt/reserviert — nicht in den Summen'),
+              { n: geplant },
+            )}
+          </span>
+        )}
         {abrechnung.unpricedEntries > 0 && (
           <span className="text-amber-300">
             {format(
@@ -395,6 +416,22 @@ export const CrewTab = ({ projectName }: { projectName: string }) => {
                 aria-label={t('analysis.crew.end', 'Ende')}
                 className={`${inp} w-[4.5rem] tabular-nums`}
               />
+              {/* BEDARF 39 — der Buchungsstand. „Vorgemerkt" und „reserviert"
+                  zaehlen in KEINE Summe; sie stehen trotzdem im Kalender-Feed,
+                  denn genau dafuer ist er da: die eigene Belegung fuer andere
+                  lesbar machen, bevor sie zur Rechnung wird. */}
+              <select
+                value={e.booking ?? 'worked'}
+                onChange={(ev) => updateTimeEntry(e.id, { booking: ev.target.value as BookingState })}
+                aria-label={t('analysis.crew.booking', 'Buchungsstand')}
+                className={inp}
+              >
+                {(Object.keys(BOOKING_STATE_LABEL) as BookingState[]).map((b) => (
+                  <option key={b} value={b}>
+                    {BOOKING_STATE_LABEL[b]}
+                  </option>
+                ))}
+              </select>
               <span className="tabular-nums text-cp-text-muted">
                 {formatHours(Math.max(0, e.endMinute - e.startMinute))}
                 {e.endMinute > 1440 ? ` (${t('analysis.crew.nextDay', 'Folgetag')})` : ''}

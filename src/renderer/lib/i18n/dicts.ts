@@ -3324,6 +3324,11 @@ export const en: Dict = {
   'analysis.crew.receiptPh': 'Receipt',
   'analysis.crew.receipt': 'Receipt',
   'analysis.crew.addExpense': 'Expense',
+  'analysis.crew.booking': 'Booking state',
+  'mobile.dialog.crewFeed': 'Subscribe to the crew calendar',
+  'mobile.dialog.crewFeedHint':
+    'Add it to your calendar as a subscription — it fetches the current state instead of going stale.',
+  'analysis.crew.planned': '{n} pencilled/held — not in the totals',
   'app.loadReport.crewEntry': 'Crew record',
   'app.loadReport.duplicateId': 'duplicate id, the first entry wins',
   'app.loadReport.missingRequired': 'required field missing (name)',

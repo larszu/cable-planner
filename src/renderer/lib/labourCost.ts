@@ -16,6 +16,7 @@
 // ───────────────────────────────────────────────────────────────────────────
 import type {
   Approval,
+  BookingState,
   ApprovalScope,
   CrewExpense,
   CrewPerson,
@@ -25,6 +26,7 @@ import type {
   RateBand,
   TimeEntry,
 } from '../types/labour'
+import { BILLABLE_BOOKINGS } from '../types/labour'
 
 /** Wochentag -> Tagesart. Feiertage schlagen den Wochentag. */
 export const dayKindOf = (isoDate: string, holidays: ReadonlySet<string>): DayKind => {
@@ -191,6 +193,16 @@ export const entryCost = (
  * liest sich als „hat nichts gekostet"; das ist der Unterschied zwischen
  * einer Luecke und einem Betrag.
  */
+/**
+ * Zaehlt diese Schicht in eine Summe?
+ *
+ * Ein fehlender Buchungsstand heisst `worked` — siehe `TimeEntry.booking`.
+ * Diese eine Stelle entscheidet es fuer alle: Blatt, Uebergabe und Befunde
+ * fragen hier, statt den Vergleich je dreimal zu schreiben.
+ */
+export const zaehltInSumme = (booking: BookingState | undefined): boolean =>
+  BILLABLE_BOOKINGS.includes(booking ?? 'worked')
+
 export const labourCosts = (plan: CrewPlan): EntryCost[] => {
   const holidays = new Set(plan.holidays ?? [])
   const rateById = new Map(plan.rates.map((r) => [r.id, r]))
@@ -208,6 +220,9 @@ export const labourCosts = (plan: CrewPlan): EntryCost[] => {
   for (const e of sortiert) {
     const rate = rateById.get(e.rateId)
     if (!rate) continue
+    // Vormerkung und Reservierung sind Planung, keine Rechnung (Bedarf 39).
+    // Sie fallen hier heraus und stehen dafuer eigens auf dem Blatt.
+    if (!zaehltInSumme(e.booking)) continue
     const tagesschluessel = `${e.personId}|${e.date}`
     const bisher = geleistet.get(tagesschluessel) ?? 0
     const erster = !pauschaleGesetzt.has(tagesschluessel)
@@ -543,6 +558,10 @@ export const normaliseCrewPlan = (
         return undefined
       }
       const note = str(r.note)
+      const booking =
+        r.booking === 'pencil' || r.booking === 'hold' || r.booking === 'confirmed' || r.booking === 'worked'
+          ? (r.booking as BookingState)
+          : undefined
       return {
         id,
         personId,
@@ -550,6 +569,7 @@ export const normaliseCrewPlan = (
         date,
         startMinute: Math.round(start),
         endMinute: Math.round(end),
+        ...(booking ? { booking } : {}),
         ...(note ? { note } : {}),
       }
     },

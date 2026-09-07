@@ -124,8 +124,50 @@ export interface TimeEntry {
   date: string
   startMinute: number
   endMinute: number
+  /**
+   * Der Buchungsstand (Bedarf 39). Fehlt er, gilt die Schicht als
+   * `worked` — jede Schicht, die vor diesem Feld eingetragen wurde, ist
+   * geleistete Arbeit, und sie ploetzlich als „unbestaetigt" zu behandeln
+   * nähme sie aus jeder Abrechnung.
+   */
+  booking?: BookingState
   note?: string
 }
+
+/**
+ * Der Buchungsstand einer Schicht (Bedarf 39).
+ *
+ * DER BELEG BESCHREIBT DEN SCHADEN GENAU: „a pencil at company A is invisible
+ * to company B, so the freelancer is the only conflict-detection engine in the
+ * system." Und den Ausgang: eine Verlaengerung wurde ohne Konfliktpruefung
+ * zugesagt und fiel erst auf, als der zweite Besteller vor der Tuer stand.
+ *
+ * VIER ZUSTAENDE, UND DIE MASSNAHME NENNT DREI DAVON. Sie sagt aber auch
+ * ausdruecklich: „but verify that convention first, it is unverified". Diese
+ * Sitzung konnte die Konvention NICHT an einer Primaerquelle pruefen — die
+ * Anbieterseiten liegen hinter dem Egress-Filter. Die drei Namen stehen
+ * deshalb so da, wie der Bedarf sie nennt, und nicht als bewiesene
+ * Branchenkonvention. `worked` ist der vierte und kommt aus dieser Anwendung
+ * selbst: eine geleistete Schicht ist kein Buchungsstand mehr.
+ */
+export type BookingState = 'pencil' | 'hold' | 'confirmed' | 'worked'
+
+export const BOOKING_STATE_LABEL: Readonly<Record<BookingState, string>> = {
+  pencil: 'vorgemerkt',
+  hold: 'reserviert',
+  confirmed: 'bestätigt',
+  worked: 'geleistet',
+}
+
+/**
+ * WELCHE ZUSTAENDE IN DIE ABRECHNUNG GEHEN.
+ *
+ * Nur `confirmed` und `worked`. Eine Vormerkung ist kein Auftrag; sie in eine
+ * Summe zu nehmen hiesse, Geld zu zeigen, das niemand zugesagt hat — und die
+ * Zahl faende ihren Weg in ein Angebot. Die uebrigen verschwinden nicht: das
+ * Blatt nennt sie eigens (`plannedEntries`).
+ */
+export const BILLABLE_BOOKINGS: readonly BookingState[] = ['confirmed', 'worked']
 
 export type ExpenseKind = 'travel' | 'accommodation' | 'per-diem' | 'material' | 'other'
 
