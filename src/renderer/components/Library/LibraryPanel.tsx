@@ -46,6 +46,7 @@ const connectorOptions = ALL_CONNECTOR_TYPES
 
 import { defaultGroup, buildPorts } from './libraryPanelHelpers'
 import type { PortGroupDraft } from './libraryPanelHelpers'
+import { PanelHint } from '../shared/PanelHint'
 
 
 
@@ -889,12 +890,13 @@ export const LibraryPanel = () => {
             <div className="mb-3 flex items-start justify-between gap-3">
               <div>
                 <h3 className="text-cp-xl font-semibold">{t('library.netbox.title', 'NetBox Import')}</h3>
-                <p className="mt-1 text-cp-xs text-cp-text-muted">
-                  {t(
+                <PanelHint
+                  className="mt-1 text-cp-xs text-cp-text-muted"
+                  text={t(
                     'library.netbox.intro',
                     'Importiert Geräte aus der NetBox device-type-library in die lokale Library. Nicht-destruktiv: bestehende Geräte auf dem Canvas bleiben unverändert.',
                   )}
-                </p>
+                />
               </div>
               <button
                 type="button"

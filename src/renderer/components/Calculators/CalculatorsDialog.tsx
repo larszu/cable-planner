@@ -9,7 +9,6 @@
  */
 
 import { useMemo, useState } from 'react'
-import { PanelHint } from '../shared/PanelHint'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
 import { ModalShell } from '../shared/ModalShell'
@@ -23,6 +22,7 @@ import { bandwidthMbpsForStandard, linkCapacityMbpsForStandard } from '../../typ
 import { powerStandardById, POWER_SUPPLY_PRESETS } from '../../types/powerStandard'
 import jsPDF from 'jspdf'
 import { sanitizeForPdf } from '../../lib/sanitizeForPdf'
+import { PanelHint } from '../shared/PanelHint'
 
 // v7.5.0 — Cable-Length tab removed. The standalone calculator
 // can't produce meaningful estimates without inter-location distances
@@ -136,7 +136,7 @@ const BandwidthTab = () => {
   const fittingTier = SDI_TIERS.find((t) => mbps <= t.mbps)
   return (
     <div className="space-y-3 p-4 text-cp-base">
-      <PanelHint className="text-[11px] text-cp-text-muted" text={t(
+      <PanelHint className="mb-2 text-[11px] text-cp-text-muted" text={t(
           'calc.bandwidth.intro',
           'Brutto-Datenrate eines Video-Streams (vor Kompression) und der kleinste SDI-Tier der sie tragen kann. Pixel × Zeilen × fps × Bits-pro-Pixel.',
         )} />
@@ -875,12 +875,13 @@ const PowerTab = () => {
               </span>
             ))}
           </div>
-          <p className="mt-2 text-[10px] text-cp-text-muted">
-            {t(
+          <PanelHint
+            className="mt-2 text-[10px] text-cp-text-muted"
+            text={t(
               'calc.greedyExplain',
               'Greedy-Verteilung: sortiert nach Leistung, jedes Gerät auf die aktuell am schwächsten belastete Phase. Bei symmetrischen Lasten zieht der Drehstrom nur {amps} A je Phase; Unwucht erhöht den höchsten Phasenstrom. Ziel: jede Phase < 85% Last + Unwucht < 20%.',
             ).replace('{amps}', ampsThreePhase.toFixed(1))}
-          </p>
+          />
           <div className="mt-3 flex items-center justify-between text-[11px]">
             <span className="text-cp-text-muted">
               {t('calc.power.heat', 'Wärme (BTU/h)')}:{' '}
@@ -1055,7 +1056,7 @@ const PowerTab = () => {
               </span>
             </div>
           </div>
-          <PanelHint className="text-[10px] text-cp-text-muted" text={t(
+          <PanelHint className="mb-2 text-[10px] text-cp-text-muted" text={t(
           'calc.ups.note',
           'USV-Kapazität (W) = VA × Leistungsfaktor. Pufferzeit ≈ nutzbare Akku-Energie / Last. Lineare Näherung — reale Laufzeit hängt von Entladekurve, Alter und Temperatur ab; im Zweifel die Hersteller-Runtime-Tabelle prüfen.',
         )} />
@@ -1147,7 +1148,7 @@ const PowerTab = () => {
               </dd>
             </dl>
           </div>
-          <PanelHint className="text-[10px] text-cp-text-muted" text={t(
+          <PanelHint className="mb-2 text-[10px] text-cp-text-muted" text={t(
           'calc.vdrop.note',
           'Kupfer, ρ ≈ 0,0175 Ω·mm²/m. 1-phasig ΔU = 2·L·I·ρ/A, 3-phasig ΔU = √3·L·I·ρ/A. Richtwert: ≤ 3 % an Endgeräten. Laststrom = symmetrischer Strom inkl. Reserve.',
         )} />

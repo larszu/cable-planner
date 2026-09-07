@@ -24,6 +24,7 @@ import { infoDialog } from '../../lib/infoDialog'
 import { useTranslation, format } from '../../lib/i18n'
 import { parseCsv } from '../../lib/csvParse'
 import { ALIASES, planCsvImport, type FieldKey } from '../../lib/csvImportPlan'
+import { PanelHint } from '../shared/PanelHint'
 
 export const CsvImportDialog = () => {
   const t = useTranslation()
@@ -97,12 +98,13 @@ export const CsvImportDialog = () => {
       title={t('csvImport.title', 'Equipment aus CSV importieren')}
     >
       <div className="space-y-3 p-1 text-cp-base">
-        <p className="text-cp-xs text-[var(--cp-text-muted)]">
-          {t(
+        <PanelHint
+          className="text-cp-xs text-[var(--cp-text-muted)]"
+          text={t(
             'csvImport.intro',
             'CSV einfügen oder Datei wählen. Erste Zeile = Spaltenüberschriften. Erkannte Spalten: Name, Kategorie, Leistung (W), Gewicht (kg), Seriennummer, IP, HE, Untertitel/Hersteller. Jede andere Spalte wandert in die Notizen — nichts fällt still weg. Import legt Library-Templates an (kein Überschreiben).',
           )}
-        </p>
+        />
         <label className="inline-flex cursor-pointer items-center gap-1 rounded bg-[var(--cp-surface-2)] px-2 py-1 text-cp-xs hover:bg-[var(--cp-surface-3)]">
           <Icon icon={FileUp} size="xs" /> {t('csvImport.pickFile', 'CSV-Datei wählen…')}
           <input

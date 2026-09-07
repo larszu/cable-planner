@@ -11,6 +11,7 @@ import { DEFAULT_CONNECTOR_TYPE_COLORS } from '../../../lib/cableColors'
 import type { Language } from '../../../store/uiStore'
 import { SettingsCard } from '../SettingsCard'
 import { EquipmentColorsSection } from '../EquipmentColorsSection'
+import { PanelHint } from '../../shared/PanelHint'
 
 /**
  * #307 — Appearance-Tab aus SettingsDialog ausgelagert. Sprache, Theme,
@@ -188,12 +189,13 @@ export const AppearanceTab = () => {
             </button>
           ))}
         </div>
-        <p className="mt-2 text-[10px] text-cp-text-muted">
-          {t(
+        <PanelHint
+          className="mt-2 text-[10px] text-cp-text-muted"
+          text={t(
             'settings.appearance.coverage',
             'Aktuell übersetzt: Einstellungen, Top-Level-Menüs und gemeinsame Buttons. Properties-Panels, Bibliothek, Rentman, ATEM und Export-Dialoge bleiben einstweilen deutsch.',
           )}
-        </p>
+        />
       </SettingsCard>
 
       <SettingsCard

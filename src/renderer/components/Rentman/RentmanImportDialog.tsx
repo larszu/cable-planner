@@ -42,6 +42,7 @@ import {
 import type {
   RentmanProject, RentmanEquipment, DetectedCableRow,
 } from './rentmanImportHelpers'
+import { PanelHint } from '../shared/PanelHint'
 
 interface RentmanImportDialogProps {
   open: boolean
@@ -1080,9 +1081,10 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
               ? t('rentman.import.conflict.titleOne', 'Gerät bereits in lokaler Bibliothek')
               : format(t('rentman.import.conflict.titleMany', '{count} Geräte bereits in lokaler Bibliothek'), { count: conflictItems.length })}
           </h3>
-          <p className="mb-3 text-cp-base text-cp-text-secondary">
-            {t('rentman.import.conflict.intro', 'Folgende aus Rentman ausgewählte Geräte gibt es schon in deiner lokalen Bibliothek. Standardmäßig wird die lokale Definition beibehalten – damit gehen deine eigenen Port-Konfigurationen nicht verloren. Du kannst pro Gerät entscheiden:')}
-          </p>
+          <PanelHint
+            className="mb-3 text-cp-base text-cp-text-secondary"
+            text={t('rentman.import.conflict.intro', 'Folgende aus Rentman ausgewählte Geräte gibt es schon in deiner lokalen Bibliothek. Standardmäßig wird die lokale Definition beibehalten – damit gehen deine eigenen Port-Konfigurationen nicht verloren. Du kannst pro Gerät entscheiden:')}
+          />
           <div className="mb-3 max-h-[55vh] overflow-auto rounded border border-cp-border-muted">
             <table className="w-full text-cp-xs">
               <thead className="sticky top-0 bg-cp-surface-3 text-left text-[11px] uppercase tracking-wide text-cp-text-muted">
@@ -1252,12 +1254,13 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
       {!pendingProjectSwitch && !conflictItems && categoryAssignments && (
         <div className="w-full max-w-2xl rounded border border-cyan-700 bg-cp-surface-1 p-5 text-cp-text shadow-xl">
           <h3 className="mb-2 text-cp-xl font-semibold text-cyan-300">{t('rentman.import.catMap.title', 'Kategorie-Zuordnung vor Import')}</h3>
-          <p className="mb-3 text-cp-base text-cp-text-secondary">
-            {t(
+          <PanelHint
+            className="mb-3 text-cp-base text-cp-text-secondary"
+            text={t(
               'rentman.import.catMap.intro',
               'Jedes Gerät einer lokalen Kategorie zuordnen. Passende werden automatisch erkannt und gemerkt — fehlende kannst du mit „+ Neu“ direkt anlegen. „Zurück“ behält deine Auswahl.',
             )}
-          </p>
+          />
           <div className="mb-3 max-h-[55vh] overflow-auto rounded border border-cp-border-muted">
             <table className="w-full text-cp-xs">
               <thead className="sticky top-0 bg-cp-surface-3 text-left text-[11px] uppercase tracking-wide text-cp-text-muted">

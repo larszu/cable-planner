@@ -65,6 +65,7 @@ import {
   type ArchiveAnswer,
   type DeliveryDestination,
 } from '../../types/delivery'
+import { PanelHint } from '../shared/PanelHint'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Die Ausspielung (Initiative 9). Ein Register der Ziele: Plattform, Ingest,
@@ -510,12 +511,13 @@ export const DeliveryDialog = () => {
         </div>
 
         <div className="flex-1 overflow-y-auto p-4">
-          <p className="mb-3 text-cp-sm leading-snug text-cp-text-secondary">
-            {t(
+          <PanelHint
+            className="mb-3 text-cp-sm leading-snug text-cp-text-secondary"
+            text={t(
               'delivery.intro',
               'Wohin gesendet wird, mit welchen Parametern, und welcher Weg der Ausweichweg ist. Der Stream-Key liegt im Schlüsselbund des Rechners, nie in der Projektdatei — eine .avplan geht per Mail.',
             )}
-          </p>
+          />
 
           {/* BEDARF 90 — die Archiv-Aufzeichnung. Nur sichtbar, wenn es
               überhaupt ein Ausspielziel gibt: ohne Übertragung gibt es nichts,
@@ -951,12 +953,13 @@ export const DeliveryDialog = () => {
                 </button>
               </div>
 
-              <p className="mb-2 text-cp-xs text-cp-text-muted">
-                {t(
+              <PanelHint
+                className="mb-2 text-cp-xs text-cp-text-muted"
+                text={t(
                   'delivery.fb.intro',
                   'Der teure Fehler ist nicht das Netz, das nicht auslöst — es ist das Netz, das grundlos auslöst und die Show auf eine Tafel parkt, während die Strecke läuft. Szenennamen stehen im Encoder, im Wächter und im Kopf des Operators; hier stehen sie einmal, und der Abgleich kostet nichts.',
                 )}
-              </p>
+              />
 
               <div className="mb-2 flex flex-wrap items-end gap-2 text-cp-sm">
                 <label className="flex flex-col gap-0.5">

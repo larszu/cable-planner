@@ -4,6 +4,7 @@ import { useTranslation, format } from '../../../lib/i18n'
 import { confirmDialog } from '../../../lib/confirmDialog'
 import { RoutingToggle } from '../../shared/RoutingToggle'
 import { SettingsCard } from '../SettingsCard'
+import { PanelHint } from '../../shared/PanelHint'
 
 /**
  * #307 — Editing-Tab aus SettingsDialog ausgelagert. Enthaelt
@@ -35,9 +36,10 @@ const CableEndpointLabelsCard = () => {
         />
         {t('settings.editing.endpointLabelsLabel', 'Endpoint-Labels einblenden')}
       </label>
-      <p className="mt-2 text-[11px] text-cp-text-muted">
-        {t('settings.editing.endpointLabelsNote', 'Default aus — gibt zusätzlichen Visual-Noise. Wirkt zusammen mit dem globalen "Alle Labels ausblenden"-Toggle und respektiert per-Kabel labelPosition=\'none\'.')}
-      </p>
+      <PanelHint
+        className="mt-2 text-[11px] text-cp-text-muted"
+        text={t('settings.editing.endpointLabelsNote', 'Default aus — gibt zusätzlichen Visual-Noise. Wirkt zusammen mit dem globalen "Alle Labels ausblenden"-Toggle und respektiert per-Kabel labelPosition=\'none\'.')}
+      />
     </SettingsCard>
   )
 }
@@ -67,12 +69,13 @@ const CableInheritTypeCard = () => {
         />
         {t('settings.editing.cableInheritLabel', 'Kabel-Typ aus Port-Connector ableiten')}
       </label>
-      <p className="mt-2 text-[11px] text-cp-text-muted">
-        {t(
+      <PanelHint
+        className="mt-2 text-[11px] text-cp-text-muted"
+        text={t(
           'settings.editing.cableInheritNote',
           'Default an: meistens sollen Kabel den physischen Anschluss-Typ ihrer Ports widerspiegeln. Abschalten, wenn Kabel-Typen unabhängig von Port-Typen verwaltet werden sollen.',
         )}
-      </p>
+      />
     </SettingsCard>
   )
 }
@@ -101,12 +104,13 @@ const CableReconnectOptionsCard = () => {
         />
         {t('settings.editing.labelSwapLabel', 'Beim Reconnect Port-Labels mit-tauschen')}
       </label>
-      <p className="mt-2 text-[11px] text-cp-text-muted">
-        {t(
+      <PanelHint
+        className="mt-2 text-[11px] text-cp-text-muted"
+        text={t(
           'settings.editing.labelSwapNote',
           'Aus Sicherheit per default aus — sonst würden Test-Umsteckungen ungewollt Labels umbenennen. Wirkt nur bei Ports, die einen vom User editierten Namen haben (sonst gibts nichts zu tauschen).',
         )}
-      </p>
+      />
     </SettingsCard>
   )
 }

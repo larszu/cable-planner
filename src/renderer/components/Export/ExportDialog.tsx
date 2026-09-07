@@ -59,6 +59,7 @@ import { exportGroupAsPatchPdf, buildGroupPatchPdfBlob } from '../../lib/exportG
 import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 import { LayerVisibilityChips } from '../Canvas/LayerVisibilityChips'
 import type { Cable } from '../../types/cable'
+import { PanelHint } from '../shared/PanelHint'
 
 export type ExportFormat = 'pdf' | 'png' | 'jpeg' | 'svg' | 'dxf'
 type Section = 'plan' | 'patch' | 'bom' | 'devicebom' | 'rack' | 'tally' | 'packet'
@@ -1343,12 +1344,13 @@ const MvSheetPanel = ({ map }: { map: ReturnType<typeof buildTallyMap> }) => {
           </button>
         ))}
       </div>
-      <p className="text-cp-xs text-cp-text-muted">
-        {t(
+      <PanelHint
+        className="text-cp-xs text-cp-text-muted"
+        text={t(
           'mv.sheet.hint',
           'Die Namen kommen aus denselben Rollen wie Tally und UMD — nicht aus einer zweiten, von Hand geführten Liste. Der Mischer speichert sein Bild binär; dieses Blatt kann auch die Kamera-Crew lesen.',
         )}
-      </p>
+      />
       {befunde.length > 0 && (
         <ul className="mt-1 flex max-h-32 flex-col gap-0.5 overflow-auto text-cp-xs">
           {befunde.map((b, idx) => (

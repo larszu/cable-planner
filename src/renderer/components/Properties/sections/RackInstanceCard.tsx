@@ -3,6 +3,7 @@ import { useUiStore } from '../../../store/uiStore'
 import { useTranslation, format } from '../../../lib/i18n'
 import type { EquipmentItem } from '../../../types/equipment'
 import { Icon } from '../../shared/Icon'
+import { PanelHint } from '../../shared/PanelHint'
 
 /**
  * #306 — Karte fuer Geraete die zu einer Rack-Instanz gehoeren.
@@ -20,12 +21,13 @@ export const RackInstanceCard = ({ equipment }: { equipment: EquipmentItem }) =>
       <div className="mb-1 text-[10px] uppercase tracking-wide text-cyan-300">
         {t('rackInstance.label', 'Rack-Instanz')} · {equipment.rackInstanceLabel ?? t('rackInstance.fallback', 'Rack')}
       </div>
-      <p className="mb-2 text-[10px] text-cp-text-muted">
-        {t(
+      <PanelHint
+        className="mb-2 text-[10px] text-cp-text-muted"
+        text={t(
           'rackInstance.intro',
           'Dieses Gerät gehört zu einer Rack-Instanz. Der Rack-Editor zeigt eine gefilterte Sub-Canvas mit nur diesem Rack — Änderungen an der Position werden beim Loslassen auf ganze HU gerundet.',
         )}
-      </p>
+      />
       <button
         type="button"
         onClick={() => openRackEditor(equipment.rackInstanceId!)}

@@ -107,6 +107,7 @@ import {
 import { renderBarcodeDataUrl } from '../../lib/barcode'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { infoDialog } from '../../lib/infoDialog'
+import { PanelHint } from '../shared/PanelHint'
 
 /**
  * Lager-Modul — projektübergreifender Bestand (docs/inventory-rental-readiness.md).
@@ -2202,12 +2203,13 @@ const CheckoutTab = () => {
 
   return (
     <div className="space-y-3">
-      <p className="text-cp-sm leading-snug text-cp-text-secondary">
-        {t(
+      <PanelHint
+        className="text-cp-sm leading-snug text-cp-text-secondary"
+        text={t(
           'inventory.checkout.intro',
           'Ein Container geht als Ganzes raus — was darin liegt, folgt über alle Ebenen mit. Die Ausgabe hält fest, was tatsächlich drin war; bei der Rückgabe wird verglichen und die Abweichung berichtet, nicht stillschweigend verrechnet.',
         )}
-      </p>
+      />
 
       {/* Ausgeben */}
       <div className="rounded border border-cp-border bg-cp-surface-2 p-2.5">

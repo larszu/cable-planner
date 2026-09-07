@@ -9,6 +9,7 @@ import { emptyWirelessRig, deriveRig } from '../../lib/wirelessRig'
 import { collectTransmitters } from '../../lib/spectrumPlan'
 import type { WirelessRigPlan, WirelessChannel } from '../../types/wirelessRig'
 import { MicPlotPanel } from './MicPlotPanel'
+import { PanelHint } from '../shared/PanelHint'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Funkstrecken / Gesang — Kanalplan: je Kanal Body + kompatible Kapsel/Headset +
@@ -251,9 +252,10 @@ export const WirelessRigDialog = () => {
                   </li>
                 ))}
               </ul>
-              <p className="mt-1 text-[11px] text-cp-text-muted">
-                {t('wireless.rfHint', 'Geprüft: Trägerabstand + Intermodulation 3. Ordnung (2- und 3-Sender). Grundkoordination wie in Wireless Workbench — kein Ersatz für einen Spektrum-Scan vor Ort.')}
-              </p>
+              <PanelHint
+                className="mt-1 text-[11px] text-cp-text-muted"
+                text={t('wireless.rfHint', 'Geprüft: Trägerabstand + Intermodulation 3. Ordnung (2- und 3-Sender). Grundkoordination wie in Wireless Workbench — kein Ersatz für einen Spektrum-Scan vor Ort.')}
+              />
             </div>
           )}
 

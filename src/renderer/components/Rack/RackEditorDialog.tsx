@@ -32,6 +32,7 @@ import { useDraggablePosition } from '../../hooks/useDraggablePosition'
 import { useTranslation } from '../../lib/i18n'
 import { EquipmentNode } from '../Canvas/EquipmentNode'
 import { CableEdge } from '../Canvas/CableEdge'
+import { PanelHint } from '../shared/PanelHint'
 
 const nodeTypes = { equipment: EquipmentNode }
 const edgeTypes = { cable: CableEdge }
@@ -230,12 +231,13 @@ export const RackEditorDialog = () => {
         >
           <div>
             <h2 className="text-cp-base font-semibold">{t('rackEditor.title', 'Rack-Editor')}</h2>
-            <p className="text-[10px] text-cp-text-muted">
-              {t(
+            <PanelHint
+              className="text-[10px] text-cp-text-muted"
+              text={t(
                 'rackEditor.intro',
                 'Sub-Canvas pro Rack — Geräte sind im Hauptprojekt gespeichert, der Editor zeigt nur diese Rack-Instanz. Vertikal ziehen rastet auf HU-Linien ein.',
               )}
-            </p>
+            />
           </div>
           <button
             type="button"

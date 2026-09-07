@@ -17,6 +17,7 @@ import { buildInviteLink } from '../../lib/collabInvite'
 import { useTranslation } from '../../lib/i18n'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { ungueltigeIceZeilen } from '../../lib/crdt/iceServers'
+import { PanelHint } from '../shared/PanelHint'
 
 const statusLabel = (
   status: ReturnType<typeof useCollabStore.getState>['status'],
@@ -147,12 +148,13 @@ export const CollabPanel = () => {
         </span>
       </div>
 
-      <p className="text-cp-xs text-[var(--cp-text-muted)]">
-        {t(
+      <PanelHint
+        className="text-cp-xs text-[var(--cp-text-muted)]"
+        text={t(
           'collab.desc',
           'Mehrere Planer bearbeiten denselben Plan in Echtzeit. Änderungen werden ohne Server zusammengeführt (CRDT) — auch nach kurzzeitiger Trennung.',
         )}
-      </p>
+      />
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <label className="space-y-1">
@@ -382,21 +384,23 @@ export const CollabPanel = () => {
       )}
 
       {mode === 'webrtc' && !active && (
-        <p className="text-cp-xs text-[var(--cp-warning,#f59e0b)]">
-          {t(
+        <PanelHint
+          className="text-cp-xs text-[var(--cp-warning,#f59e0b)]"
+          text={t(
             'collab.webrtc.hint',
             'Netzwerk-Modus nutzt WebRTC + einen Signaling-Server zum Finden der Peers. Im reinen LAN einen eigenen Server eintragen (sonst öffentliche y-webrtc-Server).',
           )}
-        </p>
+        />
       )}
 
       {mode === 'webrtc' && !active && !password.trim() && (
-        <p className="rounded-cp-control border border-[var(--cp-danger,#ef4444)] bg-[color-mix(in_srgb,var(--cp-danger,#ef4444)_12%,transparent)] px-2 py-1.5 text-cp-xs text-[var(--cp-danger,#ef4444)]">
-          {t(
+        <PanelHint
+          className="rounded-cp-control border border-[var(--cp-danger,#ef4444)] bg-[color-mix(in_srgb,var(--cp-danger,#ef4444)_12%,transparent)] px-2 py-1.5 text-cp-xs text-[var(--cp-danger,#ef4444)]"
+          text={t(
             'collab.webrtc.noPassword',
             'Ohne Raum-Passwort ist der Raum unverschlüsselt: jeder, der Raumname und Signaling-Server kennt (oder die Session im LAN findet), kann das gesamte Projekt mitlesen. Setze ein Passwort und teile es nur mit deinem Team.',
           )}
-        </p>
+        />
       )}
 
       {error && (

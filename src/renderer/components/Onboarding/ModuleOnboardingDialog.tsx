@@ -13,6 +13,7 @@ import { useTranslation } from '../../lib/i18n'
 import { PRESETS, type PresetId } from '../../lib/modules'
 import { ModalShell } from '../shared/ModalShell'
 import { Icon } from '../shared/Icon'
+import { PanelHint } from '../shared/PanelHint'
 
 export const ModuleOnboardingDialog = () => {
   const t = useTranslation()
@@ -63,12 +64,13 @@ export const ModuleOnboardingDialog = () => {
       }
     >
       <div className="space-y-3 text-cp-xs">
-        <p className="text-cp-text-secondary">
-          {t(
+        <PanelHint
+          className="text-cp-text-secondary"
+          text={t(
             'onboarding.intro',
             'Wähle einen oder mehrere Anwendungsfälle — passende Funktionsmodule werden aktiviert. Du kannst alles jederzeit unter Einstellungen → Module ändern.',
           )}
-        </p>
+        />
         <div className="grid gap-2 sm:grid-cols-3">
           {PRESETS.map((p) => {
             const on = selected.includes(p.id)

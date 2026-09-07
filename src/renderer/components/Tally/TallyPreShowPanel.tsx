@@ -20,6 +20,7 @@ import {
   type TallyObservation,
   type TallyTransport,
 } from '../../types/tallyPosition'
+import { PanelHint } from '../shared/PanelHint'
 
 /**
  * BEDARF 105 — die Vor-Show-Liste fuer das Tally.
@@ -116,12 +117,13 @@ export const TallyPreShowPanel = () => {
         </button>
       </div>
 
-      <p className="text-cp-xs text-cp-text-muted">
-        {t(
+      <PanelHint
+        className="text-cp-xs text-cp-text-muted"
+        text={t(
           'tallyPos.hint',
           'Der Plan sagt nie, dass ein Tally funktioniert — er hält fest, was jemand gesehen hat, und wann. Eine Position ohne Prüfung heißt „nicht geprüft", nicht „in Ordnung".',
         )}
-      </p>
+      />
 
       <div className="overflow-auto">
         <table className="w-full border-collapse text-cp-xs">

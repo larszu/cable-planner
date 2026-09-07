@@ -49,6 +49,7 @@ import {
 import { SCENE_FORMAT_LABEL, type SceneImport } from '../../types/sceneImport'
 import type { Cable } from '../../types/cable'
 import type { EquipmentItem, Port } from '../../types/equipment'
+import { PanelHint } from '../shared/PanelHint'
 
 type SortKey = 'number' | 'fromDevice' | 'toDevice' | 'type' | 'length' | 'color'
 /** #349 — Spalten-/Trenner-Profil fuer gaengige Etiketten-Drucker-Software. */
@@ -556,12 +557,13 @@ export const PatchListDialog = () => {
       scrollBody={false}
       footer={
         <div className="flex items-center justify-between">
-          <p className="text-[10px] text-cp-text-muted">
-            {t(
+          <PanelHint
+            className="text-[10px] text-cp-text-muted"
+            text={t(
               'patchList.footerHint',
               'Jedes Kabel als eigene Zeile, sortiert für die Patch-Reihenfolge auf dem Set. CSV-Export für Excel/Druck enthält die aktuell gefilterten Zeilen.',
             )}
-          </p>
+          />
           <div className="flex gap-1">
             <button
               type="button"

@@ -5,6 +5,7 @@ import { confirmDialog } from '../../lib/confirmDialog'
 import { format, useTranslation } from '../../lib/i18n'
 import { ColorField } from '../shared/ColorField'
 import { Icon } from '../shared/Icon'
+import { PanelHint } from '../shared/PanelHint'
 
 export const LocationProperties = () => {
   const t = useTranslation()
@@ -165,12 +166,13 @@ export const LocationProperties = () => {
         </button>
       </div>
 
-      <p className="text-[10px] italic text-cp-text-muted">
-        {t(
+      <PanelHint
+        className="text-[10px] italic text-cp-text-muted"
+        text={t(
           'location.tip',
           'Tipp: Der Rahmen bewegt sich standardmäßig unabhängig. Aktiviere „Geräte mitnehmen", wenn alle enthaltenen Geräte beim Verschieben des Rahmens mitwandern sollen.',
         )}
-      </p>
+      />
     </div>
   )
 }

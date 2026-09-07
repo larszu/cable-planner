@@ -25,6 +25,16 @@ import { teile } from '../../lib/panelHint'
  * Knopf: ein Aufklapper, hinter dem nichts steckt, ist schlimmer als der Satz
  * selbst.
  */
+/**
+ * `className` ERSETZT die Vorgabe, statt sie zu ergaenzen. Zwei Tailwind-
+ * Utilities derselben Eigenschaft (`mb-2` und `mb-3`, `text-cp-text-muted` und
+ * `text-cp-text-secondary`) entscheiden sich nicht ueber die Reihenfolge im
+ * Attribut, sondern ueber die Reihenfolge im Stylesheet — beim Ergaenzen kaeme
+ * also mal die eine, mal die andere durch, und zwar unvorhersehbar. Wer eine
+ * eigene Klasse mitgibt, gibt die ganze mit.
+ */
+const KLASSE_VORGABE = 'mb-2 text-cp-text-muted'
+
 export const PanelHint = ({ text, className }: { text: string; className?: string }) => {
   const t = useTranslation()
   const [offen, setOffen] = useState(false)
@@ -32,11 +42,11 @@ export const PanelHint = ({ text, className }: { text: string; className?: strin
   const { kopf, rest } = teile(text)
 
   if (!rest) {
-    return <p className={`mb-2 text-cp-text-muted ${className ?? ''}`}>{text}</p>
+    return <p className={className ?? KLASSE_VORGABE}>{text}</p>
   }
 
   return (
-    <p className={`mb-2 text-cp-text-muted ${className ?? ''}`}>
+    <p className={className ?? KLASSE_VORGABE}>
       {offen ? text : kopf}{' '}
       <button
         type="button"
