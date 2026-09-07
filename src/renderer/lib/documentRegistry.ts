@@ -30,6 +30,7 @@ import { buildPtpPlan, ptpTable } from './ptpPlan'
 import { crewSheetTableForProject } from './crewNetworkSheet'
 import { spectrumTableForProject } from './spectrumPlan'
 import { multicastTableForProject } from './multicastPlan'
+import { handoverManifestTableForProject } from './postHandover'
 import { fallbackTable } from './fallbackPlan'
 import { eventMetadataTable } from './eventMetadata'
 import { transmissionRecordTable } from './transmissionRecord'
@@ -139,6 +140,12 @@ export const DOCUMENT_STANDS: Record<string, (project: CablePlannerProject) => s
   // sich mit jeder Umformulierung aendert, meldete jedes gedruckte Exemplar
   // als veraltet.
   'multicast-plan': ofTable(multicastTableForProject),
+  // Bedarf 62 — die Uebergabe an die Post. Reproduzierbar, weil das Manifest
+  // allein aus `sourceIdentities`, `equipment` und `cables` folgt: keine
+  // Nutzer-Einstellung beim Export, keine Sprache (die Zellen tragen
+  // kanonisches Deutsch aus `recordText` und `PREFIX_BASIS_LABEL`) und keine
+  // Uhr — das Karten-Praefix kommt aus der Rolle und nicht aus dem Drehtag.
+  'post-uebergabe': ofTable(handoverManifestTableForProject),
   // Bedarf 89 — das Sicherheitsnetz als Blatt mit Stand. Reproduzierbar: der
   // Inhalt folgt allein aus den Regeln und den Zielen. Die BEFUNDE stehen
   // nicht drin -- sie tragen Fliesstext.
@@ -259,6 +266,7 @@ export const DOCUMENT_LABELS: Record<string, string> = {
   'crew-netz': 'Netz-Merkblatt (Crew)',
   'spektrum-plan': 'Spektrum-Plan',
   'multicast-plan': 'Multicast-Adressplan',
+  'post-uebergabe': 'Übergabe an die Post',
   'ausweich-plan': 'Ausweich-Plan (Sicherheitsnetz)',
   'event-metadaten': 'Angaben zur Veranstaltung',
   sendebericht: 'Sendebericht',

@@ -1,4 +1,5 @@
 import type { EquipmentTemplate, Port } from '../types/equipment'
+import type { RecordingCapability } from './recording'
 
 // Broadcast monitor / monitor-recorder templates sourced from official datasheets.
 // Matched by name substrings so Rentman items resolve to the correct port layout
@@ -25,6 +26,10 @@ interface MonitorEntry {
    *  FixtureTypeID). Autoritativer Schluessel fuer Import/Aufloesung —
    *  versionsstabil, unabhaengig vom Modellnamen. */
   deviceTypeId: string
+  /** Zeichnet dieses Modell auf, und in welcher Form (Bedarf 62)? Fehlt das
+   *  Feld, ist das die Datenblatt-Aussage „zeichnet nicht auf" — siehe
+   *  `recording.ts`. */
+  records?: RecordingCapability
   /** Lowercase substrings that must ALL appear in the source name. */
   match: string[]
   template: EquipmentTemplate
@@ -91,6 +96,7 @@ export const MONITOR_CATALOG: MonitorEntry[] = [
   {
     match: ['shogun', 'ultra'],
     deviceTypeId: '37ca86f0-451a-4e6a-85aa-80e23beb6a3f',
+    records: 'per-device',
     template: {
       name: 'Atomos Shogun Ultra',
       category: MON,
@@ -103,6 +109,7 @@ export const MONITOR_CATALOG: MonitorEntry[] = [
   {
     match: ['shogun', 'connect'],
     deviceTypeId: '2e9c5687-76b7-4e8f-9262-a50b92bbe064',
+    records: 'per-device',
     template: {
       name: 'Atomos Shogun Connect',
       category: MON,
@@ -115,6 +122,7 @@ export const MONITOR_CATALOG: MonitorEntry[] = [
   {
     match: ['shogun', 'inferno'],
     deviceTypeId: 'a37271a6-a807-49f3-ba22-a4486ebed9a7',
+    records: 'per-device',
     template: {
       name: 'Atomos Shogun Inferno',
       category: MON,
@@ -127,6 +135,7 @@ export const MONITOR_CATALOG: MonitorEntry[] = [
   {
     match: ['sumo', '19m'],
     deviceTypeId: '02b44704-82d1-4b1d-89b1-ae107832ea78',
+    records: 'per-device',
     template: {
       name: 'Atomos Sumo 19M',
       category: MON,
@@ -148,6 +157,7 @@ export const MONITOR_CATALOG: MonitorEntry[] = [
   {
     match: ['sumo', '19'],
     deviceTypeId: 'e44ee4b8-842c-4bad-a628-e6c0d71ae782',
+    records: 'per-device',
     template: {
       name: 'Atomos Sumo 19',
       category: MON,
@@ -167,6 +177,7 @@ export const MONITOR_CATALOG: MonitorEntry[] = [
   {
     match: ['ninja', 'v+'],
     deviceTypeId: '86bc69fc-7c67-4a72-b454-e3b9be3ed099',
+    records: 'per-device',
     template: {
       name: 'Atomos Ninja V+',
       category: MON,
@@ -179,6 +190,7 @@ export const MONITOR_CATALOG: MonitorEntry[] = [
   {
     match: ['ninja', 'v'],
     deviceTypeId: 'bbf307e6-9e91-4991-822e-9f089ef44e10',
+    records: 'per-device',
     template: {
       name: 'Atomos Ninja V',
       category: MON,

@@ -1,4 +1,5 @@
 import type { EquipmentTemplate, Port } from '../types/equipment'
+import type { RecordingCapability } from './recording'
 
 // Known Blackmagic Design device templates with port counts taken from the
 // official datasheets. Matched by name substrings so Rentman items like
@@ -28,6 +29,10 @@ interface BlackmagicEntry {
    *  exportVideohub.ts → videohubPresets). Datenblatt-Fakt statt
    *  Port-Zaehl-Schaetzung. */
   videohubPresetKey?: string
+  /** Zeichnet dieses Geraet auf, und in welcher Form (Bedarf 62)?
+   *  EIGENES Feld und kein `kind`-Wert: ein ATEM ISO ist Mischer UND
+   *  Recorder, `kind` kann nur eines von beidem sagen. */
+  records?: RecordingCapability
   /** Name patterns (lowercased) that must ALL appear in the source name. */
   match: string[]
   template: EquipmentTemplate
@@ -252,6 +257,9 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
     match: ['atem', 'mini', 'extreme', 'iso'],
     deviceTypeId: '4622e885-df82-430e-9512-fca13b673b4d',
     kind: 'atem',
+    // Der ISO zeichnet je Eingang eine Datei auf — die Kanalnummer IST die
+    // Eingangsnummer, und die steht schon im Kabelgraph (Bedarf 62).
+    records: 'per-input',
     template: {
       name: 'Blackmagic ATEM Mini Extreme ISO',
       category: 'Video Mixer',
@@ -296,6 +304,7 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
     match: ['atem', 'mini', 'pro', 'iso'],
     deviceTypeId: 'a252049d-992a-432b-8084-d1f794c79c4a',
     kind: 'atem',
+    records: 'per-input',
     template: {
       name: 'Blackmagic ATEM Mini Pro ISO',
       category: 'Video Mixer',
@@ -350,6 +359,9 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
   {
     match: ['hyperdeck', 'hd plus'],
     deviceTypeId: 'e6699d97-5974-430e-981d-2a6bad93e116',
+    // Ein HyperDeck zeichnet auf, was an seinem Eingang anliegt — eine
+    // Aufzeichnung, keine Kanalnummer.
+    records: 'per-device',
     template: {
       name: 'Blackmagic Hyperdeck Studio HD Plus',
       category: 'Video',
