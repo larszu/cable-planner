@@ -9,32 +9,36 @@ name: Deploy Web (GitHub Pages)
 # Auto-Update, Keychain) fallen im Browser sauber auf den Web-Fallback
 # (src/renderer/lib/bridge.ts) zurück.
 #
-# ─── WARUM DIESER WORKFLOW NICHT MEHR AUF JEDEN PUSH LAEUFT (2026-09-07) ────
+# ─── WARUM DIESER WORKFLOW EINEN HALBEN TAG LANG NICHT AUF PUSH LIEF ───────
 #
-# Pages ist in diesem Repo NICHT aktiviert. `actions/configure-pages` bricht
+# Pages war in diesem Repo nicht aktiviert. `actions/configure-pages` brach
 # deshalb mit 404 ab ("repository has Pages enabled?"), und weil der Workflow
-# auf `push: [main]` stand, war JEDER Push auf main rot — seit Wochen, ohne
-# dass sich daran etwas aendern liesse: der `GITHUB_TOKEN` darf keine
-# Pages-Site anlegen ("Resource not accessible by integration"), das kann nur
-# ein Mensch in den Repo-Einstellungen.
+# auf `push: [main]` stand, war JEDER Push auf main rot — ueber Wochen, ohne
+# dass sich daran aus dem Repo heraus etwas aendern liess: der `GITHUB_TOKEN`
+# darf keine Pages-Site anlegen ("Resource not accessible by integration"),
+# das kann nur ein Mensch in den Repo-Einstellungen.
 #
 # Ein Lauf, der immer rot ist und immer rot bleiben MUSS, ist schlimmer als
 # keiner: er gewoehnt einem das Hinsehen ab, und der naechste echte Fehler auf
-# main faellt dann in derselben roten Spalte nicht mehr auf.
+# main faellt dann in derselben roten Spalte nicht mehr auf. Deshalb stand hier
+# am 2026-09-07 fuer einen halben Tag `workflow_dispatch` allein.
 #
-# Also `workflow_dispatch` allein. Der Workflow bleibt vollstaendig erhalten —
-# er ist einen Klick weit weg, sobald jemand Pages einschaltet:
+# Am selben Tag hat der Eigentuemer Pages auf "GitHub Actions" gestellt. Der
+# Push-Trigger ist damit wieder da, und zwar erst NACHDEM ein Lauf von Hand
+# gruen durchging (Run 181 auf main) — die Reihenfolge ist der Punkt: erst
+# nachsehen, dann automatisieren. Die drei Schritte, die hier als Anleitung
+# standen, sind abgearbeitet und stehen deshalb nicht mehr da; was bleibt, ist
+# der Grund, warum sie noetig waren.
 #
-#   1. Settings → Pages → Build and deployment → Source = "GitHub Actions"
-#   2. Actions → "Deploy Web (GitHub Pages)" → Run workflow
-#   3. Danach hier wieder `push: branches: [main]` eintragen, damit jeder
-#      Stand automatisch deployt.
-#
-# Geloescht wird er ausdruecklich NICHT: die Einladungs-Links der
-# Kollaboration (`collabInvite.ts` haengt `#join=…` an die Adresse, unter der
-# die App laeuft) brauchen eine gehostete Seite, sonst zeigen sie ins Leere.
+# Wird Pages je wieder abgeschaltet, faellt dieser Workflow in denselben
+# Dauer-Rotzustand zurueck. Dann gehoert er wieder auf `workflow_dispatch`
+# allein — nicht geloescht: die Einladungs-Links der Kollaboration
+# (`collabInvite.ts` haengt `#join=…` an die Adresse, unter der die App laeuft)
+# brauchen eine gehostete Seite, sonst zeigen sie ins Leere.
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -69,11 +73,12 @@ jobs:
       - run: sudo apt-get update && sudo apt-get install -y libsecret-1-dev
       - run: npm ci
       - run: npm run build:renderer
-      # Auto-Aktivierung via `enablement: true` ist hier NICHT möglich: der
-      # GITHUB_TOKEN darf keine Pages-Site anlegen ("Resource not accessible by
-      # integration"). Ohne den einmaligen Settings-Schritt (siehe Kopf) endet
-      # dieser Schritt mit 404 — das ist dann kein Bug, sondern die fehlende
-      # Freigabe.
+      # Ohne `enablement: true`, und das bleibt so: der GITHUB_TOKEN darf
+      # keine Pages-Site anlegen ("Resource not accessible by integration").
+      # Die Site ist seit dem 2026-09-07 in den Repo-Einstellungen aktiviert;
+      # sollte dieser Schritt je wieder mit 404 enden, ist sie abgeschaltet
+      # worden — kein Bug, sondern die fehlende Freigabe, und dann gilt der
+      # Hinweis im Kopf dieser Datei.
       - uses: actions/configure-pages@v6
       - uses: actions/upload-pages-artifact@v5
         with:
