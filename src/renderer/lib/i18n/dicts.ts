@@ -3381,6 +3381,14 @@ export const en: Dict = {
   'analysis.crew.addFromReceipt': 'Create expense from receipt',
   'analysis.crew.missingFields': 'Missing: {was}',
   'mobile.dialog.crewFeed': 'Subscribe to the crew calendar',
+  // Bedarf 109 — read-many, write-one.
+  'mobile.dialog.writeMode': 'Feedback from the phone',
+  'mobile.dialog.writeMode.read': 'Read only',
+  'mobile.dialog.writeMode.contribute': 'Send back ticks and cables',
+  'mobile.dialog.writeMode.readHint':
+    'The three write routes are closed — the phone is refused on every write attempt. The plan is changed by the person at the desk.',
+  'mobile.dialog.writeMode.contributeHint':
+    'Ticks, cables added on site and field reports go back into the project. Anyone with the QR code can change the plan.',
   'mobile.dialog.crewFeedHint':
     'Add it to your calendar as a subscription — it fetches the current state instead of going stale.',
   'analysis.crew.planned': '{n} pencilled/held — not in the totals',

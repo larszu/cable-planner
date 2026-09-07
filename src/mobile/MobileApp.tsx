@@ -1333,14 +1333,17 @@ const ProjectView = ({
           >
             <Icon icon={QrCode} size="xs" />
           </button>
-          <button
-            type="button"
-            onClick={() => setShowReport(true)}
-            className="rounded bg-cp-surface-3 px-2 py-1 text-[11px] text-amber-300 hover:bg-cp-surface-4"
-            title="Korrektur/Problem melden (Feld-Rückkanal)"
-          >
-            Meldung
-          </button>
+          {writeMode === 'contribute' && (
+            <button
+              type="button"
+              onClick={() => setShowReport(true)}
+              className="rounded bg-cp-surface-3 px-2 py-1 text-[11px] text-amber-300 hover:bg-cp-surface-4"
+              title="Korrektur/Problem melden (Feld-Rückkanal)"
+            >
+              Meldung
+            </button>
+          )}
+          {writeMode === 'contribute' && (
           <button
             type="button"
             onClick={() => setShowAddCable(true)}
@@ -1349,6 +1352,7 @@ const ProjectView = ({
           >
             + Kabel
           </button>
+          )}
         </div>
         )}
         {lookupMsg && (
@@ -1373,6 +1377,20 @@ const ProjectView = ({
             <span>
               Offline · Cache vom {cachedAt ? new Date(cachedAt).toLocaleString() : '?'} · Checks
               werden bei Re-Connect synchronisiert
+            </span>
+          </div>
+        )}
+        {/* BEDARF 109 — die Freigabe steht auf „nur lesen". Der Satz steht
+            DA und nicht nur im Verzicht auf die Knöpfe: Häkchen lassen sich
+            weiter setzen, sie bleiben aber auf diesem Gerät. Ein Häkchen, das
+            aussieht wie am Desktop angekommen und es nicht ist, ist genau die
+            Sorte Auskunft, wegen der jemand ein Kabel für gesteckt hält. */}
+        {writeMode === 'read-only' && (
+          <div className="mt-2 flex items-start gap-1.5 rounded border border-cp-border bg-cp-surface-2 px-2 py-1 text-[10px] text-cp-text-secondary">
+            <Icon icon={AlertTriangle} size="xs" className="mt-0.5 shrink-0" />
+            <span>
+              Nur lesen · Häkchen bleiben auf diesem Gerät und erreichen den Plan nicht · den Plan
+              ändert die Person am Rechner
             </span>
           </div>
         )}
@@ -1568,6 +1586,15 @@ export const MobileApp = () => {
   // BEDARF 127 — der Desktop steht inzwischen auf einer anderen Show. Der
   // Plan bleibt stehen; die Seite sagt es, und der Wechsel ist ein Neuladen.
   const [showSwitched, setShowSwitched] = useState(false)
+  /**
+   * BEDARF 109 — darf dieses Gerät zurückschreiben?
+   *
+   * ANFANGSWERT `read-only`, und zwar auch dann, wenn die Antwort noch
+   * unterwegs ist. Wer es umgekehrt anlegt, zeigt für einen Moment Knöpfe,
+   * die eine Absage bekommen — und ein Knopf, der einmal funktioniert hat und
+   * dann nicht mehr, ist schlimmer als einer, der nie da war.
+   */
+  const [writeMode, setWriteMode] = useState<'read-only' | 'contribute'>('read-only')
 
   // When loaded via the desktop app's LAN share server, a sibling
   // /project.json endpoint serves the live project. Auto-fetch on
@@ -1579,7 +1606,14 @@ export const MobileApp = () => {
       try {
         const res = await apiFetch('/share-info.json', { cache: 'no-store' })
         if (!res.ok) throw new Error(`share-info ${res.status}`)
-        const info = (await res.json()) as { ok: boolean; hasProject: boolean }
+        const info = (await res.json()) as {
+          ok: boolean
+          hasProject: boolean
+          writeMode?: 'read-only' | 'contribute'
+        }
+        // Alles ausser `contribute` heisst nur lesen — dieselbe Richtung wie
+        // im Server: ein unbekannter Wert faellt nie in den erlaubenden Zustand.
+        if (!cancelled) setWriteMode(info.writeMode === 'contribute' ? 'contribute' : 'read-only')
         if (!info.ok || !info.hasProject) {
           setAutoLoadAttempted(true)
           return

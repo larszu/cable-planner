@@ -7,6 +7,8 @@ import {
   setMobileShareAllowBeyondLan,
   setMobileShareProject,
   setMobileShareCrewCalendar,
+  setMobileShareWriteMode,
+  mobileShareWriteMode,
   setMobileShareChecksHandler,
   setMobileShareCableAddedHandler,
   setMobileSharePendingChangeHandler,
@@ -107,4 +109,12 @@ export const registerMobileShareIpc = () => {
     setMobileShareCrewCalendar(typeof ics === 'string' ? ics : null)
     return { ok: true }
   })
+  // BEDARF 109 — lesen viele, schreiben einer. Der Modus gilt sofort, auch
+  // fuer eine laufende Freigabe; zurueck kommt der Wert, der WIRKLICH gilt,
+  // damit der Dialog nicht seine eigene Annahme anzeigt.
+  ipcMain.handle('mobileShare:setWriteMode', (_event, mode: unknown) => ({
+    ok: true,
+    writeMode: setMobileShareWriteMode(mode),
+  }))
+  ipcMain.handle('mobileShare:getWriteMode', () => ({ writeMode: mobileShareWriteMode() }))
 }
