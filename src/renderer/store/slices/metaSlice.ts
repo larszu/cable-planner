@@ -38,6 +38,7 @@ export type MetaSlice = Pick<
   | 'setTransmissionRecord'
   | 'setCostPlan'
   | 'setNamingScheme'
+  | 'setRecordNaming'
   | 'setMicPlot'
   | 'setTallyPosition'
   | 'recordTallyCheck'
@@ -250,6 +251,13 @@ export const createMetaSlice: StateCreator<ProjectState, [], [], MetaSlice> = (s
   setCostPlan: (plan) =>
     set((state) => {
       const updated = { ...state.project, costPlan: plan }
+      scheduleProjectAutosave(updated)
+      return { project: updated }
+    }),
+  // BEDARF 100 — das Namensschema der Aufzeichnungen.
+  setRecordNaming: (scheme) =>
+    set((state) => {
+      const updated = { ...state.project, recordNaming: scheme }
       scheduleProjectAutosave(updated)
       return { project: updated }
     }),

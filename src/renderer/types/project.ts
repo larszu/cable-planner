@@ -353,6 +353,15 @@ export interface CablePlannerProject {
    */
   namingScheme?: import('./namingScheme').NamingScheme
   /**
+   * Bedarf 100 — das Namensschema der Aufzeichnungen samt Take-Nummer.
+   *
+   * Aus demselben Grund am Projekt wie `namingScheme`: die Take-Nummer
+   * gehoert der Show. Der Schaden aus dem Beleg ist gerade, dass sie an
+   * zehn bis sechzehn Deck-Konfigurationsseiten einzeln hochgezaehlt wird —
+   * eine Nummer je Rechner oder je Geraet baute ihn nach.
+   */
+  recordNaming?: import('./recordNaming').RecordNamingScheme
+  /**
    * Bedarf 72 — der Multicast-Adressplan: aus welchem Pool vergeben wird und
    * welche Gruppe welcher Sende-Port belegt.
    *

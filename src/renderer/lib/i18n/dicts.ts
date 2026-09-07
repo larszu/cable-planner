@@ -3249,6 +3249,19 @@ export const en: Dict = {
   'analysis.tab.crew': 'Crew: hours & expenses',
   // Bedarf 108 — die Handlungsliste.
   'analysis.tab.todo': 'What is due',
+  // Bedarf 100 — die Aufnahmenamen.
+  'analysis.recordName.title': 'Recording names',
+  'analysis.recordName.intro':
+    'The filename of every recording, built from the plan instead of deck by deck on each config page. The take number applies to the whole project. What shows up here as a finding becomes an empty card at the device — a rejected name does not announce itself on the deck.',
+  'analysis.recordName.take': 'Take',
+  'analysis.recordName.separator': 'Separator',
+  'analysis.recordName.export': 'Sheet for the deck (CSV)',
+  'analysis.recordName.empty': 'No role in the plan — without roles there is no recording name.',
+  'analysis.recordName.role': 'Role',
+  'analysis.recordName.recorder': 'Recorder',
+  'analysis.recordName.channel': 'Channel',
+  'analysis.recordName.file': 'Filename',
+  'analysis.recordName.noRecorder': 'no recorder in the plan',
   'analysis.action.hint':
     'This page tells you what is due — it edits nothing. Every line comes from the place that reports it: crew, costs, receipts, warehouse. What is missing here is missing there too; no second derivation happens on this page.',
   'analysis.action.none': 'Nothing open — there is nothing to report on this state.',
