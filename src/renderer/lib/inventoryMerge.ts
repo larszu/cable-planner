@@ -20,25 +20,14 @@
 // Deshalb: nur DEFINIERTE Werte uebernehmen. Was die Datei nicht sagt, sagt
 // nichts — und loescht nichts. Wer den Datensatz wirklich ersetzen will,
 // nimmt den Modus „replace"; genau dafuer gibt es ihn.
+//
+// Die Regel selbst wohnt seit dem Lager-Schnitt (ADR-006) in
+// `lib/mergeDefined.ts` — sie ist nicht Lager, sondern allgemein.
 // ───────────────────────────────────────────────────────────────────────────
 
-/**
- * `over` ueber `base` legen, aber nur dort, wo `over` einen Wert HAT.
- * `undefined` heisst „keine Aussage", nicht „loeschen".
- *
- * Die Regel ist nicht auf das Lager beschraenkt: `saveEquipmentAsTemplate`
- * (store/slices/templateSlice.ts) benutzt sie aus demselben Grund — der
- * 23-Feld-Nachbau eines Templates darf die reicheren Felder eines
- * vorhandenen Bibliothekseintrags nicht loeschen. Der Helfer wohnt hier,
- * weil er hier entstanden ist.
- */
-export const mergeDefined = <T extends object>(base: T, over: T): T => {
-  const out = { ...base } as Record<string, unknown>
-  for (const [key, value] of Object.entries(over)) {
-    if (value !== undefined) out[key] = value
-  }
-  return out as T
-}
+import { mergeDefined } from './mergeDefined'
+
+export { mergeDefined }
 
 /**
  * Eingehende Datensaetze in den Bestand mischen: bekannte Ids feldweise

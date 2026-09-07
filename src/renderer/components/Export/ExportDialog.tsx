@@ -51,15 +51,23 @@ import {
   multiViewersOf,
   sourceNamesFromTallyRows,
 } from '../../lib/mvSheet'
-import { buildPlanBom, outcomeLabel, pickListCsv, planBomCsv } from '../../lib/planBom'
-import { useCheckoutStore } from '../../store/checkoutStore'
 import { zusatzBedarf } from '../../lib/planDemandExtras'
-import { useInventoryStore } from '../../store/inventoryStore'
 import { exportGroupAsPatchPdf, buildGroupPatchPdfBlob } from '../../lib/exportGroupPdf'
 import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 import { LayerVisibilityChips } from '../Canvas/LayerVisibilityChips'
 import type { Cable } from '../../types/cable'
 import { PanelHint } from '../shared/PanelHint'
+import {
+  buildPlanBom,
+  outcomeLabel,
+  pickListCsv,
+  planBomCsv,
+  useAusgaben,
+  useBestand,
+  useEinheiten,
+  useLagerorte,
+  useTypBestaetigen,
+} from '../../lager'
 
 export type ExportFormat = 'pdf' | 'png' | 'jpeg' | 'svg' | 'dxf'
 type Section = 'plan' | 'patch' | 'bom' | 'devicebom' | 'rack' | 'tally' | 'packet'
@@ -1543,13 +1551,13 @@ const DeviceBomSection = () => {
   const t = useTranslation()
   const equipment = useProjectStore((s) => s.project.equipment)
   const projectName = useProjectStore((s) => s.project.metadata?.name)
-  const items = useInventoryStore((s) => s.items)
-  const nodes = useInventoryStore((s) => s.nodes)
+  const items = useBestand()
+  const nodes = useLagerorte()
   // Serialisierte Einheiten: ihr Zustand nimmt Stuecke aus dem nutzbaren
   // Bestand. Ohne sie meldete die Liste „gedeckt, Bestand 4", waehrend zwei
   // davon in der Werkstatt standen.
-  const units = useInventoryStore((s) => s.units)
-  const updateItem = useInventoryStore((s) => s.updateItem)
+  const units = useEinheiten()
+  const typBestaetigen = useTypBestaetigen()
 
   // `drumKit` und `wirelessRig` sind eigene Projektfelder und standen in
   // keiner Stueckliste. Beide tragen echte Katalog-GUIDs; das Zubehoer der
@@ -1566,7 +1574,7 @@ const DeviceBomSection = () => {
   // Bedarf 80: die offenen Ausgaben gehoeren in die Rechnung. Ohne sie sagt
   // die Stueckliste „Bestand 5" fuer ein Case, das auf einer anderen Show
   // steht — „the PM promises gear they do not have".
-  const checkoutRecords = useCheckoutStore((s) => s.records)
+  const checkoutRecords = useAusgaben()
   const bom = useMemo(
     () => buildPlanBom(equipment, items, nodes, units, zusatz, checkoutRecords),
     [equipment, items, nodes, units, zusatz, checkoutRecords],
@@ -1643,7 +1651,7 @@ const DeviceBomSection = () => {
                         <button
                           type="button"
                           onClick={() =>
-                            updateItem(row.itemId!, { deviceTypeId: row.deviceTypeId })
+                            typBestaetigen(row.itemId!, row.deviceTypeId!)
                           }
                           className="ml-2 rounded border border-cp-border px-1.5 py-0.5 text-[10px] font-normal text-cp-text-secondary hover:bg-cp-surface-3"
                           title={t(

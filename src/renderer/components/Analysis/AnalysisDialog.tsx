@@ -113,9 +113,7 @@ import {
   IDENTITY_ANCHOR_LABEL,
   assessAssetIdentity,
   assetIdentityTable,
-} from '../../lib/assetIdentity'
-import { useInventoryStore } from '../../store/inventoryStore'
-import { useCheckoutStore } from '../../store/checkoutStore'
+} from '../../lager'
 import {
   SPECTRUM_SOURCE_LABEL,
   buildSpectrumPlan,
@@ -133,6 +131,7 @@ import {
 } from '../../lib/spectrumScan'
 import { DEFAULT_OCCUPIED_DBM, VERDICT_LABEL, type SpectrumScan } from '../../types/spectrumScan'
 import { PanelHint } from '../shared/PanelHint'
+import { useAusgaben, useBestand, useEinheiten } from '../../lager'
 
 /**
  * Der Weg zum passenden Rechner, direkt neben der Tabelle, die seine Zahl
@@ -510,9 +509,9 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
   // Zeichen eine Vergabe-Rechnung ueber mehrere hundert Fluesse ausloest.
   // BEDARF 78 — welche Kiste welchen Platz fuellt. Der Bestand und die
   // Ausgabescheine liegen in eigenen Stores; hier werden sie NUR GELESEN.
-  const invUnits = useInventoryStore((st) => st.units)
-  const invItems = useInventoryStore((st) => st.items)
-  const checkouts = useCheckoutStore((st) => st.records)
+  const invUnits = useEinheiten()
+  const invItems = useBestand()
+  const checkouts = useAusgaben()
   const asset = useMemo(
     () =>
       assessAssetIdentity({

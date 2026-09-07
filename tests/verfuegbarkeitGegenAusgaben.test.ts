@@ -231,7 +231,10 @@ describe('das Blatt zeigt beide Zahlen', () => {
 // ---------------------------------------------------------------------------
 describe('Erreichbarkeit im Export-Dialog', () => {
   it('reicht die offenen Ausgaben in die Rechnung durch', () => {
-    expect(exportQuelle).toContain("from '../../store/checkoutStore'")
+    // Der Weg fuehrt seit ADR-006 durch den Lager-Vertrag; die Ausgaben
+    // kommen weiterhin aus dem Lager und nicht aus dem Projektfile.
+    expect(exportQuelle).toContain("from '../../lager'")
+    expect(exportQuelle).toContain('const checkoutRecords = useAusgaben()')
     expect(exportQuelle).toContain('buildPlanBom(equipment, items, nodes, units, zusatz, checkoutRecords)')
     // Ohne die Abhaengigkeit rechnet das Memo nach einer Ausgabe nicht neu.
     expect(exportQuelle).toContain('[equipment, items, nodes, units, zusatz, checkoutRecords]')

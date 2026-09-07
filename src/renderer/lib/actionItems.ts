@@ -55,15 +55,15 @@
 // die echten Ueberfaelligkeiten nach unten.
 // ───────────────────────────────────────────────────────────────────────────
 import type { CablePlannerProject } from '../types/project'
-import type { CheckoutRecord } from '../types/checkout'
-import type { InventoryItem } from '../types/inventory'
+import type { CheckoutRecord } from '../lager'
+import type { InventoryItem } from '../lager'
 import { EMPTY_CREW_PLAN } from '../types/labour'
 import { LABOUR_FINDING_LABEL, labourFindings, type LabourFindingKind } from './labourCost'
 import { COST_FINDING_LABEL, assessCosts, type CostFindingKind } from './costComparison'
 import { CHAIN_FINDING_LABEL, receiptChain, type ChainFindingKind } from './receiptChain'
 import { bookingConflicts } from './crewCalendar'
-import { overdueSubhire, ownershipNote } from './ownership'
-import { overdueCheckouts } from './containerCheckout'
+import { overdueSubhire, ownershipNote } from '../lager'
+import { overdueCheckouts } from '../lager'
 
 /** Woher eine Zeile stammt — und damit, wohin der Sprung geht. */
 export type ActionSource = 'subhire' | 'checkout' | 'crew' | 'receipt' | 'cost' | 'booking'

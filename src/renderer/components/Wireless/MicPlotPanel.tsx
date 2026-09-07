@@ -1,9 +1,7 @@
 import { useMemo, useRef, useState } from 'react'
 import { Plus, Trash2, Users, Download, CopyPlus } from 'lucide-react'
 import { useProjectStore } from '../../store/projectStore'
-import { useInventoryStore } from '../../store/inventoryStore'
 import { useTranslation } from '../../lib/i18n'
-import { unitLabel } from '../../lib/unitIdentity'
 import {
   MIC_FINDING_LABEL,
   carryForward,
@@ -17,6 +15,7 @@ import { EMPTY_MIC_PLOT, type MicPlot } from '../../types/micAssignment'
 import { csvFromTable } from '../../lib/documentStamp'
 import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 import { downloadBlob } from '../../lib/downloadBlob'
+import { unitLabel, useEinheiten } from '../../lager'
 
 /**
  * BEDARF 114 — wer trägt heute welche Strecke.
@@ -40,7 +39,7 @@ export const MicPlotPanel = () => {
   const plot = useProjectStore((s) => s.project.micPlot) ?? EMPTY_MIC_PLOT
   const setPlot = useProjectStore((s) => s.setMicPlot)
   const projectName = useProjectStore((s) => s.project.metadata.name)
-  const units = useInventoryStore((s) => s.units)
+  const units = useEinheiten()
 
   const counter = useRef(0)
   const nextId = (p: string) => `${p}${Date.now().toString(36)}-${counter.current++}`

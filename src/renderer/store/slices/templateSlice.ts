@@ -5,7 +5,7 @@ import { LIMITS } from '../../lib/layoutConstants'
 import { upsertCachedRentmanTemplate } from '../../lib/rentmanTemplateCache'
 // Dieselbe Regel wie beim Lager-Import (#628): was die neue Fassung nicht
 // sagt, loescht nichts. Der Helfer wohnt dort, weil er dort entstanden ist.
-import { mergeDefined } from '../../lib/inventoryMerge'
+import { mergeDefined } from '../../lib/mergeDefined'
 import { persistCustomLibrary, persistKnownCategories } from '../libraryPersist'
 import type { ProjectState } from '../projectStore'
 
