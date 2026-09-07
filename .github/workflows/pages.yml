@@ -9,13 +9,32 @@ name: Deploy Web (GitHub Pages)
 # Auto-Update, Keychain) fallen im Browser sauber auf den Web-Fallback
 # (src/renderer/lib/bridge.ts) zurück.
 #
-# Pages wird per `enablement: true` automatisch aktiviert (build_type=workflow)
-# — kein manueller Settings-Schritt nötig. Falls das durch eine Org-/Account-
-# Policy verboten ist, einmalig: Settings → Pages → Source = "GitHub Actions".
+# ─── WARUM DIESER WORKFLOW NICHT MEHR AUF JEDEN PUSH LAEUFT (2026-09-07) ────
+#
+# Pages ist in diesem Repo NICHT aktiviert. `actions/configure-pages` bricht
+# deshalb mit 404 ab ("repository has Pages enabled?"), und weil der Workflow
+# auf `push: [main]` stand, war JEDER Push auf main rot — seit Wochen, ohne
+# dass sich daran etwas aendern liesse: der `GITHUB_TOKEN` darf keine
+# Pages-Site anlegen ("Resource not accessible by integration"), das kann nur
+# ein Mensch in den Repo-Einstellungen.
+#
+# Ein Lauf, der immer rot ist und immer rot bleiben MUSS, ist schlimmer als
+# keiner: er gewoehnt einem das Hinsehen ab, und der naechste echte Fehler auf
+# main faellt dann in derselben roten Spalte nicht mehr auf.
+#
+# Also `workflow_dispatch` allein. Der Workflow bleibt vollstaendig erhalten —
+# er ist einen Klick weit weg, sobald jemand Pages einschaltet:
+#
+#   1. Settings → Pages → Build and deployment → Source = "GitHub Actions"
+#   2. Actions → "Deploy Web (GitHub Pages)" → Run workflow
+#   3. Danach hier wieder `push: branches: [main]` eintragen, damit jeder
+#      Stand automatisch deployt.
+#
+# Geloescht wird er ausdruecklich NICHT: die Einladungs-Links der
+# Kollaboration (`collabInvite.ts` haengt `#join=…` an die Adresse, unter der
+# die App laeuft) brauchen eine gehostete Seite, sonst zeigen sie ins Leere.
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -52,9 +71,9 @@ jobs:
       - run: npm run build:renderer
       # Auto-Aktivierung via `enablement: true` ist hier NICHT möglich: der
       # GITHUB_TOKEN darf keine Pages-Site anlegen ("Resource not accessible by
-      # integration"). Daher EINMALIG manuell aktivieren:
-      #   Settings → Pages → Build and deployment → Source = "GitHub Actions".
-      # Danach deployt dieser Workflow bei jedem Push auf main automatisch.
+      # integration"). Ohne den einmaligen Settings-Schritt (siehe Kopf) endet
+      # dieser Schritt mit 404 — das ist dann kein Bug, sondern die fehlende
+      # Freigabe.
       - uses: actions/configure-pages@v6
       - uses: actions/upload-pages-artifact@v5
         with:
