@@ -279,7 +279,7 @@ npm run dist
 ```
 
 > Tip: `npm run dev` launches the full Electron shell. The renderer also runs
-> in a plain browser (`npm run dev:renderer` → `localhost:5173`) for quick UI
+> in a plain browser (`npm run dev:renderer` → `localhost:4181`) for quick UI
 > work, though desktop-only features (file I/O, ATEM/LAN) are inert there.
 
 ---

@@ -74,7 +74,7 @@ const istPruefung = (name: string): boolean =>
 const OHNE_CI: Record<string, string> = {
   'test:watch': 'Interaktiver Watch-Modus. In CI waere er ein Lauf, der nie endet.',
   'test:drag':
-    'Braucht einen laufenden `dev:renderer` auf localhost:5173 und einen echten Browser. ' +
+    'Braucht einen laufenden `dev:renderer` auf localhost:4181 und einen echten Browser. ' +
     'Ein CI-Job dafuer muesste den Dev-Server hochfahren und wieder abraeumen; bis jemand das baut, ' +
     'ist der Lauf ein Werkzeug fuer die Hand, keine Zusicherung.',
 }

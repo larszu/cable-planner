@@ -71,6 +71,19 @@ export default defineConfig({
   // Use relative asset paths so file:// loading from Electron works.
   base: './',
   server: {
+    // Suite-Einbettung (Backlog B-17): Die Shell erwartet den Cable-Planer im
+    // Entwicklungsbetrieb auf 4181 — so steht es in ihrer `registry.ts` und in
+    // ihrer README. Ohne feste Angabe landete er auf dem Vite-Standard 5173,
+    // wo ihn niemand sucht; startete daneben ein zweiter Planer, rueckte einer
+    // von beiden still auf 5174 weiter. Die Shell zeigte dann „Signal-Flow ist
+    // gerade nicht erreichbar", und der Fehler sah aus wie ein Fehler der
+    // Shell.
+    //
+    // `strictPort`, damit ein besetzter Port ABBRICHT statt weiterzuruecken.
+    // Genau das stille Weiterruecken ist der Defekt; ein Startfehler mit
+    // Portnummer ist die bessere Meldung.
+    port: 4181,
+    strictPort: true,
     proxy: {
       '/api/rentman': {
         target: 'https://api.rentman.net',

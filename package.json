@@ -43,7 +43,7 @@
     "dev:renderer": "vite",
     "dev:main": "tsc -p tsconfig.main.json --watch",
     "dev:preload": "tsc -p tsconfig.preload.json --watch",
-    "dev:electron": "wait-on http-get://localhost:5173 dist/main/index.js dist/main/preload.cjs && cross-env VITE_DEV_SERVER_URL=http://localhost:5173 electron .",
+    "dev:electron": "wait-on http-get://localhost:4181 dist/main/index.js dist/main/preload.cjs && cross-env VITE_DEV_SERVER_URL=http://localhost:4181 electron .",
     "build": "npm run build:main && npm run build:preload && npm run build:renderer",
     "build:main": "tsc -p tsconfig.main.json && node scripts/mark-main-esm.mjs",
     "build:preload": "tsc -p tsconfig.preload.json",
