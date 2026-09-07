@@ -233,7 +233,7 @@ export function addressTemplateFindings(
           severity: 'error',
           key,
           message:
-            `Ebene "${layer.name.trim() || NO_RANGE_NAME}" fuehrt den Schluessel "${key}" zweimal ` +
+            `Ebene "${layer.name.trim() || NO_RANGE_NAME}" führt den Schlüssel "${key}" zweimal ` +
             `(${rangeName(vorher)} ${vorher.cidr} und ${rangeName(r)} ${r.cidr}). ` +
             'Dann ist nicht entscheidbar, welchen der beiden eine Haus-Ebene ersetzt.',
         })
@@ -267,9 +267,9 @@ export function addressTemplateFindings(
         message:
           `${rangeName(a)} (${a.cidr}, ${a.layerName.trim() || NO_RANGE_NAME}) und ` +
           `${rangeName(b)} (${b.cidr}, ${b.layerName.trim() || NO_RANGE_NAME}) ` +
-          'liegen auf denselben Adressen, und der aeussere der beiden ist keine ' +
+          'liegen auf denselben Adressen, und der äußere der beiden ist keine ' +
           'Klammer. Zwei Zwecke auf denselben Adressen erzeugen die doppelte IP, ' +
-          'die einen Teil des Netzes stehen laesst.',
+          'die einen Teil des Netzes stehen lässt.',
       })
     }
   }
@@ -299,9 +299,9 @@ export function addressTemplateFindings(
         severity: 'error',
         key,
         message:
-          `${rangeName(r)} (${r.cidr}) traegt den Schluessel "${key}", den der stehende Plan ` +
-          `nicht kennt — ersetzt also nichts — und ueberschneidet sich mit ` +
-          `${rangeName(kollision.r)} (${kollision.r.cidr}). Entweder ist der Schluessel ` +
+          `${rangeName(r)} (${r.cidr}) trägt den Schlüssel "${key}", den der stehende Plan ` +
+          `nicht kennt — ersetzt also nichts — und überschneidet sich mit ` +
+          `${rangeName(kollision.r)} (${kollision.r.cidr}). Entweder ist der Schlüssel ` +
           'vertippt und die gemeinte Ersetzung findet nicht statt, oder beide Bereiche ' +
           'gelten nebeneinander auf denselben Adressen.',
       })
@@ -328,7 +328,7 @@ export function addressTemplateFindings(
         message:
           `${wo} steht auf ${nic.ipAddress} — das liegt in der Klammer ` +
           `${rangeName(innerster)} (${innerster.cidr}), aber in keinem ihrer ` +
-          'Unterbereiche. Der Unterbereich, in den das Geraet gehoert, fehlt im Plan.',
+          'Unterbereiche. Der Unterbereich, in den das Gerät gehört, fehlt im Plan.',
       })
     }
 
@@ -342,7 +342,7 @@ export function addressTemplateFindings(
         key: fuerRolle[0].key,
         message:
           `${wo} ist "${ROLE_TEXT[nic.role]}" und steht auf ${nic.ipAddress}. Geplant ist ` +
-          `dafuer ${fuerRolle.map((r) => `${rangeName(r)} (${r.cidr})`).join(', ')}. ` +
+          `dafür ${fuerRolle.map((r) => `${rangeName(r)} (${r.cidr})`).join(', ')}. ` +
           'Die Adresse liegt in keinem davon.',
       })
     }
@@ -360,7 +360,7 @@ export function addressTemplateFindings(
         key: innerster.key,
         message:
           `${wo} steht in VLAN ${nic.vlanId}, ihre Adresse ${nic.ipAddress} liegt aber in ` +
-          `${rangeName(innerster)} (${innerster.cidr}), geplant fuer VLAN ` +
+          `${rangeName(innerster)} (${innerster.cidr}), geplant für VLAN ` +
           `${innerster.vlanId}.`,
       })
     }
@@ -518,16 +518,16 @@ export function proposeReaddress(
  */
 export const REFUSAL_TEXT: Readonly<Record<ReaddressRefusal, string>> = {
   'no-address': 'keine Adresse eingetragen',
-  'no-range': 'fuer diese Rolle ist kein Bereich geplant',
+  'no-range': 'für diese Rolle ist kein Bereich geplant',
   'already-inside': 'liegt bereits im geplanten Bereich',
   'host-does-not-fit': 'der Host-Anteil passt nicht in den Zielbereich',
-  'network-or-broadcast': 'waere die Netz- oder Broadcast-Adresse des Zielbereichs',
-  'already-taken': 'die vorgeschlagene Adresse traegt bereits ein anderes Geraet',
+  'network-or-broadcast': 'wäre die Netz- oder Broadcast-Adresse des Zielbereichs',
+  'already-taken': 'die vorgeschlagene Adresse trägt bereits ein anderes Gerät',
 }
 
 export const RANGE_HEADERS = [
   'Ebene',
-  'Schluessel',
+  'Schlüssel',
   'Bereich',
   'CIDR',
   'Art',
