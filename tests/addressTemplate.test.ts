@@ -684,6 +684,27 @@ describe('Engstellen', () => {
     expect(gefunden).toEqual(erwartet)
   })
 
+  it('schreibt seine Meldungen in richtigem Deutsch, nicht in ASCII-Ersatz', () => {
+    // AUFGEFALLEN AM SCREENSHOT, nicht am Test (2026-09-07): im Panel stand
+    // „der Unterbereich, in den das Geraet gehoert". Die Kommentare dieser
+    // Codebasis sind bewusst ASCII — die STRINGS sind es nicht, sie stehen
+    // im Dialog und auf dem Blatt neben Spaltenkoepfen wie „Gerät".
+    //
+    // Geprueft werden nur String-Literale ohne Kommentare, und nur Woerter,
+    // die als ASCII-Ersatz wirklich vorkommen. Ein Bezeichner oder eine Id
+    // faellt nicht darunter: die Liste enthaelt nur Woerter mit Umlaut.
+    const ohneKommentare = libQuelle
+      .replace(/\/\*[\s\S]*?\*\//g, '')
+      .replace(/^[ \t]*\/\/.*$/gm, '')
+    const literale = [...ohneKommentare.matchAll(/'((?:[^'\\\n]|\\.)*)'|`((?:[^`\\]|\\.)*)`/g)]
+      .map((m) => m[1] ?? m[2])
+      .filter(Boolean)
+    const ersatz =
+      /(Geraet|gehoert|ueber|waere|wuerde|fuer |Schluessel|laesst|traegt|aeuss|fuehrt|koenn|muess|naechst|loesch|groess|zurueck|Laenge|Groesse|Aenderung)/
+    const schlecht = literale.filter((l) => ersatz.test(l))
+    expect(schlecht, `ASCII-Ersatz in Meldungstexten: ${schlecht.join(' | ')}`).toEqual([])
+  })
+
   it('vergibt nirgends selbst eine Adresse', () => {
     // Die Datei darf rechnen, was eine Adresse WAERE. Schreiben tut sie
     // nichts — das ist die E-5-Entscheidung und die Haltung aus Bedarf 96.
