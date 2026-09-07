@@ -9,6 +9,7 @@
  */
 
 import { useMemo, useState } from 'react'
+import { PanelHint } from '../shared/PanelHint'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
 import { ModalShell } from '../shared/ModalShell'
@@ -135,12 +136,10 @@ const BandwidthTab = () => {
   const fittingTier = SDI_TIERS.find((t) => mbps <= t.mbps)
   return (
     <div className="space-y-3 p-4 text-cp-base">
-      <p className="text-[11px] text-cp-text-muted">
-        {t(
+      <PanelHint className="text-[11px] text-cp-text-muted" text={t(
           'calc.bandwidth.intro',
           'Brutto-Datenrate eines Video-Streams (vor Kompression) und der kleinste SDI-Tier der sie tragen kann. Pixel × Zeilen × fps × Bits-pro-Pixel.',
-        )}
-      </p>
+        )} />
       <div className="grid grid-cols-3 gap-3">
         <label className="block">
           <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('calc.resolution', 'Auflösung')}</span>
@@ -285,12 +284,10 @@ const BandwidthTab = () => {
               </dd>
             </dl>
           )}
-          <p className="mt-2 text-[10px] text-cp-text-muted">
-            {t(
-              'calc.bandwidth.netNote',
-              'Summe der Brutto-Bandbreiten aller Kabel mit IP-Mediensignal (NDI, Dante/AES67, ST 2110). Ethernet-Kabel zählen NICHT als Last — was eine Leitung kann, ist keine Last, die sie trägt; ihre Kapazität steht getrennt darunter. Richtwerte; ST 2110-20 stark formatabhängig.',
-            )}
-          </p>
+          <PanelHint className="mt-2 text-[10px] text-cp-text-muted" text={t(
+          'calc.bandwidth.netNote',
+          'Summe der Brutto-Bandbreiten aller Kabel mit IP-Mediensignal (NDI, Dante/AES67, ST 2110). Ethernet-Kabel zählen NICHT als Last — was eine Leitung kann, ist keine Last, die sie trägt; ihre Kapazität steht getrennt darunter. Richtwerte; ST 2110-20 stark formatabhängig.',
+        )} />
         </div>
       )}
     </div>
@@ -1058,12 +1055,10 @@ const PowerTab = () => {
               </span>
             </div>
           </div>
-          <p className="text-[10px] text-cp-text-muted">
-            {t(
-              'calc.ups.note',
-              'USV-Kapazität (W) = VA × Leistungsfaktor. Pufferzeit ≈ nutzbare Akku-Energie / Last. Lineare Näherung — reale Laufzeit hängt von Entladekurve, Alter und Temperatur ab; im Zweifel die Hersteller-Runtime-Tabelle prüfen.',
-            )}
-          </p>
+          <PanelHint className="text-[10px] text-cp-text-muted" text={t(
+          'calc.ups.note',
+          'USV-Kapazität (W) = VA × Leistungsfaktor. Pufferzeit ≈ nutzbare Akku-Energie / Last. Lineare Näherung — reale Laufzeit hängt von Entladekurve, Alter und Temperatur ab; im Zweifel die Hersteller-Runtime-Tabelle prüfen.',
+        )} />
         </div>
       </details>
 
@@ -1152,12 +1147,10 @@ const PowerTab = () => {
               </dd>
             </dl>
           </div>
-          <p className="text-[10px] text-cp-text-muted">
-            {t(
-              'calc.vdrop.note',
-              'Kupfer, ρ ≈ 0,0175 Ω·mm²/m. 1-phasig ΔU = 2·L·I·ρ/A, 3-phasig ΔU = √3·L·I·ρ/A. Richtwert: ≤ 3 % an Endgeräten. Laststrom = symmetrischer Strom inkl. Reserve.',
-            )}
-          </p>
+          <PanelHint className="text-[10px] text-cp-text-muted" text={t(
+          'calc.vdrop.note',
+          'Kupfer, ρ ≈ 0,0175 Ω·mm²/m. 1-phasig ΔU = 2·L·I·ρ/A, 3-phasig ΔU = √3·L·I·ρ/A. Richtwert: ≤ 3 % an Endgeräten. Laststrom = symmetrischer Strom inkl. Reserve.',
+        )} />
         </div>
       </details>
 

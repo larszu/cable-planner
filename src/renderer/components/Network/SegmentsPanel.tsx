@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { PanelHint } from '../shared/PanelHint'
 import { AlertTriangle, Download, Plus, Trash2 } from 'lucide-react'
 import { useProjectStore } from '../../store/projectStore'
 import { useTranslation, format } from '../../lib/i18n'
@@ -105,12 +106,12 @@ export const SegmentsPanel = ({ projectName }: { projectName: string }) => {
         </button>
       </div>
 
-      <p className="mb-2 text-cp-text-muted">
-        {t(
+      <PanelHint
+        text={t(
           'segment.hint',
           'Eine VLAN-Nummer allein sagt niemandem, ob Dante dort hin darf. Der Zweck wird nicht geraten — er entscheidet, welche Schnittstelle hier falsch liegt.',
         )}
-      </p>
+      />
 
       {views.length === 0 ? (
         <p className="text-cp-text-muted">

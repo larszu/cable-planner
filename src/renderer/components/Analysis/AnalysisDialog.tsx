@@ -11,6 +11,7 @@
 // Calculators (dort bereits implementiert) — hier nicht dupliziert.
 
 import { useMemo, useState } from 'react'
+import { PanelHint } from '../shared/PanelHint'
 import { BarChart3, Download, Plus, Trash2 } from 'lucide-react'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
@@ -256,12 +257,10 @@ const WeightTab = ({ projectName }: { projectName: string }) => {
 
   return (
     <div className="space-y-3 p-4 text-cp-base">
-      <p className="text-cp-xs text-[var(--cp-text-muted)]">
-        {t(
+      <PanelHint className="text-cp-xs text-[var(--cp-text-muted)]" text={t(
           'analysis.weight.intro',
           'Gewicht (kg) und Wärmelast je Kategorie aus den Geräte-Eigenschaften. Wärme ≈ Leistung × 3,412 BTU/h.',
-        )}
-      </p>
+        )} />
       <table className="w-full text-cp-xs">
         <thead>
           <tr className="border-b border-[var(--cp-border)] text-left text-[var(--cp-text-muted)]">
@@ -899,12 +898,10 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
             <Icon icon={Download} size="xs" /> CSV
           </button>
         </div>
-        <p className="mb-1.5 text-cp-xs text-[var(--cp-text-muted)]">
-          {t(
-            'analysis.venue.intro',
-            'Die Design-Literatur schreibt den Inhalt vor und einen gemeinsamen Testtermin, aber kein Dokument. Was der Plan weiß, steht mit Zahl da; was er nicht wissen kann, steht als Frage.',
-          )}
-        </p>
+        <PanelHint className="mb-1.5 text-cp-xs text-[var(--cp-text-muted)]" text={t(
+          'analysis.venue.intro',
+          'Die Design-Literatur schreibt den Inhalt vor und einen gemeinsamen Testtermin, aber kein Dokument. Was der Plan weiß, steht mit Zahl da; was er nicht wissen kann, steht als Frage.',
+        )} />
         {request.igmpConflict && (
           <div className="mb-1.5 rounded border border-amber-700/60 bg-amber-900/20 p-2 text-cp-xs text-amber-200">
             {format(
@@ -1640,12 +1637,10 @@ const RfTab = ({ projectName }: { projectName: string }) => {
 
   return (
     <div className="space-y-3 p-4 text-cp-base">
-      <p className="text-cp-xs text-[var(--cp-text-muted)]">
-        {t(
+      <PanelHint className="text-cp-xs text-[var(--cp-text-muted)]" text={t(
           'analysis.rf.intro',
           'Alles, was im Plan funkt — Funkmikrofon-Rig UND Funkstrecken, in einer Rechnung. Konflikt-Heuristik: Frequenzabstand, 3.-Ordnung-Intermodulation (2·f₁−f₂, die häufigste Störquelle bei Funkmikros/IEM) und gleicher WLAN-Kanal. Die Tabelle unten zeigt nur die Funkstrecken, weil nur sie Band und Kanal tragen.',
-        )}
-      </p>
+        )} />
       {/* BEDARF 95 — der Umfang der Rechnung steht ueber ihrem Ergebnis. Eine
           Intermodulations-Rechnung, die drei von acht Sendern nicht kennt,
           sagt „frei" und meint „ich habe nicht nachgesehen". */}
@@ -1812,9 +1807,10 @@ const RfTab = ({ projectName }: { projectName: string }) => {
               ))}
             </tbody>
           </table>
-          <p className="mt-2 text-[10px] text-[var(--cp-text-faint)]">
-            {t('analysis.rf.bandDisclaimer', 'Gängige Nominalbereiche — Band-Buchstaben sind serien-/regionsabhängig. Immer gegen das aktuelle Datenblatt und die lokale Frequenzregulierung prüfen.')}
-          </p>
+          <PanelHint className="mt-2 text-[10px] text-[var(--cp-text-faint)]" text={t(
+          'analysis.rf.bandDisclaimer',
+          'Gängige Nominalbereiche — Band-Buchstaben sind serien-/regionsabhängig. Immer gegen das aktuelle Datenblatt und die lokale Frequenzregulierung prüfen.',
+        )} />
         </div>
       </details>
 
@@ -1996,12 +1992,10 @@ const RunsTab = ({ projectName }: { projectName: string }) => {
 
   return (
     <div className="space-y-3 p-4 text-cp-base">
-      <p className="text-cp-xs text-[var(--cp-text-muted)]">
-        {t(
+      <PanelHint className="text-cp-xs text-[var(--cp-text-muted)]" text={t(
           'analysis.runs.intro',
           'Geschätzte Längen tragen ihre Herkunft. Wird ein Gerät verschoben, veraltet die Schätzung — hier steht es, statt still zu bleiben. Von Hand eingetragene Längen werden NICHT gegen die Luftlinie gehalten: ein echter Kabelweg wird verlegt, nicht gespannt.',
-        )}
-      </p>
+        )} />
 
       {findings.length === 0 ? (
         <p className="text-cp-xs text-[var(--cp-text-muted)]">
@@ -2112,12 +2106,10 @@ const SheetTab = () => {
 
   return (
     <div className="space-y-3 p-4 text-cp-base">
-      <p className="text-cp-xs text-[var(--cp-text-muted)]">
-        {t(
+      <PanelHint className="text-cp-xs text-[var(--cp-text-muted)]" text={t(
           'analysis.sheet.intro',
           'Ein Blatt in der Hand: den Stand vom Fuß abtippen (acht Zeichen) oder den ganzen Dokument-Code einlesen. Die Antwort sagt, welches Dokument es ist und ob der Plan seither weiter ist.',
-        )}
-      </p>
+        )} />
 
       <div className="flex flex-wrap items-center gap-2">
         <input
@@ -2454,12 +2446,10 @@ const NamingTab = ({ projectName }: { projectName: string }) => {
 
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-cp-xs leading-snug text-[var(--cp-text-muted)]">
-        {t(
+      <PanelHint className="text-cp-xs leading-snug text-[var(--cp-text-muted)]" text={t(
           'analysis.naming.intro',
           'Namen aus einer Regel statt aus dem Gefühl. Der Umbenennungssatz ist ein Blatt zum Abtippen — kein Dante-Preset: dieses Schema hat diese Anwendung nie gesehen.',
-        )}
-      </p>
+        )} />
       <div className="flex flex-wrap items-center gap-2">
         <input
           value={scheme.separator}
@@ -2582,12 +2572,10 @@ const DanteTab = ({ projectName }: { projectName: string }) => {
 
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-cp-xs leading-snug text-[var(--cp-text-muted)]">
-        {t(
+      <PanelHint className="text-cp-xs leading-snug text-[var(--cp-text-muted)]" text={t(
           'analysis.dante.intro',
           'Die Subscription-Matrix als Blatt und als Vergleich. Diese Anwendung geht nicht ins Netz, abonniert nichts und benennt nichts um — sie liest die Tabelle, in die das Preset ohnehin konvertiert wird.',
-        )}
-      </p>
+        )} />
       <div className="flex flex-wrap items-center gap-2">
         <label className="cursor-pointer rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs">
           {t('analysis.dante.import', 'Matrix einlesen')}
