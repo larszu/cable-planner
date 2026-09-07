@@ -133,15 +133,32 @@ const apiFetch = (path: string, init?: RequestInit): Promise<Response> => {
   return fetch(`${url}${sep}t=${encodeURIComponent(activeToken)}`, { ...init, headers })
 }
 
-const CHECK_KEY = (projectName: string) => `cable-planner-mobile:checks:${projectName}`
+/**
+ * BEDARF 127 — welche Show ist das hier?
+ *
+ * Der SCHLUESSEL fuer alles, was dieses Handy lokal ablegt, und die Kennung,
+ * die an jedem Rueckweg mitgeht. Vorher stand hier der Projekt-NAME: zwei
+ * Shows „Konzert" teilten sich einen Speicher, und die Haken der einen
+ * standen in der anderen.
+ */
+const showIdOf = (project: unknown): string | null => {
+  const meta = (project as { metadata?: { projectId?: unknown } } | null)?.metadata
+  const id = meta?.projectId
+  return typeof id === 'string' && id.trim().length > 0 ? id : null
+}
+
+const CHECK_KEY = (showId: string) => `cable-planner-mobile:checks:${showId}`
 // v7.9.54 — Offline-Cache des kompletten Projekts. Ein Eintrag pro
 // Hostname/Port-Origin, damit verschiedene Geräte-Sessions sich nicht
 // gegenseitig überschreiben. So überlebt eine Session den
 // Funkverbindungs-Verlust und der Techniker kann lokal weiter haken
 // setzen, die beim nächsten Re-Connect automatisch synchronisiert werden.
-const PROJECT_CACHE_KEY = `cable-planner-mobile:project-cache:${
+// BEDARF 127 — und ZUSAETZLICH je Show. Ein Cache je Origin allein hiess:
+// wer am Desktop die Show wechselt, bekommt beim naechsten Funkloch den Plan
+// der anderen Show angezeigt — mit Zeitstempel, also glaubwuerdig.
+const PROJECT_CACHE_KEY = (showId: string | null) => `cable-planner-mobile:project-cache:${
   typeof window !== 'undefined' ? window.location.host : 'unknown'
-}`
+}${showId ? `:${showId}` : ''}`
 interface ProjectCacheEnvelope {
   cachedAt: string
   project: unknown
@@ -152,9 +169,9 @@ interface CheckState {
   ports: Record<string, boolean>
 }
 
-const loadChecks = (projectName: string): CheckState => {
+const loadChecks = (showId: string): CheckState => {
   try {
-    const raw = localStorage.getItem(CHECK_KEY(projectName))
+    const raw = localStorage.getItem(CHECK_KEY(showId))
     if (!raw) return { cables: {}, ports: {} }
     return JSON.parse(raw) as CheckState
   } catch {
@@ -162,9 +179,9 @@ const loadChecks = (projectName: string): CheckState => {
   }
 }
 
-const saveChecks = (projectName: string, state: CheckState) => {
+const saveChecks = (showId: string, state: CheckState) => {
   try {
-    localStorage.setItem(CHECK_KEY(projectName), JSON.stringify(state))
+    localStorage.setItem(CHECK_KEY(showId), JSON.stringify(state))
   } catch {
     /* ignore quota */
   }
@@ -174,15 +191,44 @@ const saveChecks = (projectName: string, state: CheckState) => {
 const cacheProject = (project: unknown): void => {
   try {
     const env: ProjectCacheEnvelope = { cachedAt: new Date().toISOString(), project }
-    localStorage.setItem(PROJECT_CACHE_KEY, JSON.stringify(env))
+    localStorage.setItem(PROJECT_CACHE_KEY(showIdOf(project)), JSON.stringify(env))
+    rememberShow(showIdOf(project))
   } catch {
     /* quota / private-mode → einfach skippen, ist nur ein Cache */
   }
 }
 
-const loadCachedProject = (): { cachedAt: string; project: unknown } | null => {
+/**
+ * Welche Show dieser Freigabe-Zugang zuletzt ausgeliefert hat.
+ *
+ * Beim Start ohne Verbindung weiss das Handy noch nicht, um welche Show es
+ * geht — der Zeiger sagt es. Er ist eine ERINNERUNG und keine Zusage: steht
+ * der Desktop inzwischen auf einer anderen Show, faellt das beim ersten
+ * erfolgreichen Abruf auf.
+ */
+const LAST_SHOW_KEY = `cable-planner-mobile:last-show:${
+  typeof window !== 'undefined' ? window.location.host : 'unknown'
+}`
+
+const rememberShow = (showId: string | null): void => {
   try {
-    const raw = localStorage.getItem(PROJECT_CACHE_KEY)
+    if (showId) localStorage.setItem(LAST_SHOW_KEY, showId)
+  } catch {
+    /* quota / private-mode */
+  }
+}
+
+const lastShow = (): string | null => {
+  try {
+    return localStorage.getItem(LAST_SHOW_KEY)
+  } catch {
+    return null
+  }
+}
+
+const loadCachedProject = (showId: string | null = lastShow()): { cachedAt: string; project: unknown } | null => {
+  try {
+    const raw = localStorage.getItem(PROJECT_CACHE_KEY(showId))
     if (!raw) return null
     const parsed = JSON.parse(raw) as Partial<ProjectCacheEnvelope>
     if (parsed && typeof parsed.cachedAt === 'string' && parsed.project) {
@@ -1006,6 +1052,13 @@ const ProjectView = ({
   onUnload: () => void
 }) => {
   const projectName = project.metadata?.name || 'cable-planner'
+  // BEDARF 127 — die Show, an der dieses Handy gerade haengt. Der Name taugt
+  // dafuer nicht: zwei Shows heissen leicht gleich, und dann stehen die Haken
+  // der einen in der anderen. Fehlt die Kennung, wird auf den Namen
+  // zurueckgefallen — aber der Rueckweg geht dann NICHT raus (der Server
+  // weist ihn ohnehin ab), statt in irgendein Projekt zu schreiben.
+  const showId = showIdOf(project)
+  const speicherKey = showId ?? `name:${projectName}`
   // v7.9.3 — Initial-State kommt jetzt PRIMÄR aus project.checkState
   // (Desktop ist Source-of-Truth) und nur als Fallback aus localStorage
   // (für Offline-Sessions). Nach jedem Toggle wird der State zusätzlich
@@ -1018,22 +1071,27 @@ const ProjectView = ({
         cables: fromProject.cables ?? {},
       }
     }
-    return loadChecks(projectName)
+    return loadChecks(showId ?? `name:${projectName}`)
   })
   const [filter, setFilter] = useState('')
   const [onlyOpen, setOnlyOpen] = useState(false)
 
   useEffect(() => {
-    saveChecks(projectName, checks)
+    saveChecks(speicherKey, checks)
     // POST to the desktop server so the Cable Planner Canvas shows
     // the green tick at this port immediately. Fire-and-forget; offline
     // Mobile-Sessions fallen auf localStorage zurück (siehe oben).
+    //
+    // BEDARF 127 — die Show geht MIT. Ohne sie weist der Server den Rueckweg
+    // ab, und das ist richtig so: am Desktop kann inzwischen ein anderes
+    // Projekt offen sein, und diese Haken gehoeren zu dem, an dem der Kollege
+    // in der Halle steht.
     void apiFetch('/checks', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(checks),
+      body: JSON.stringify({ ...checks, projectId: showId }),
     }).catch(() => {})
-  }, [projectName, checks])
+  }, [speicherKey, showId, checks])
 
   // v7.9.54 — Reconnect-Resync. Wenn der Online-Status von false → true
   // wechselt (= Funkverbindung wieder da), schicken wir EINMAL den
@@ -1049,10 +1107,10 @@ const ProjectView = ({
       void apiFetch('/checks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(checks),
+        body: JSON.stringify({ ...checks, projectId: showId }),
       }).catch(() => {})
     }
-  }, [online, checks])
+  }, [online, showId, checks])
 
   // #180 — Zwei Betriebsmodi: Patchliste (Default) + Planansicht.
   const [viewMode, setViewMode] = useState<'list' | 'plan'>('list')
@@ -1507,6 +1565,9 @@ export const MobileApp = () => {
   // setzt online basierend auf dem Ergebnis. Spätere Polls toggeln es.
   const [online, setOnline] = useState(true)
   const [cachedAt, setCachedAt] = useState<string | null>(null)
+  // BEDARF 127 — der Desktop steht inzwischen auf einer anderen Show. Der
+  // Plan bleibt stehen; die Seite sagt es, und der Wechsel ist ein Neuladen.
+  const [showSwitched, setShowSwitched] = useState(false)
 
   // When loaded via the desktop app's LAN share server, a sibling
   // /project.json endpoint serves the live project. Auto-fetch on
@@ -1567,6 +1628,26 @@ export const MobileApp = () => {
         if (!r.ok) throw new Error(`project ${r.status}`)
         const next = (await r.json()) as CablePlannerProject
         if (next && Array.isArray(next.equipment)) {
+          // BEDARF 127 — der Show-Wechsel wird BEMERKT und nicht vollzogen.
+          //
+          // Bisher tauschte dieser Abruf den Plan wortlos aus: wer am Desktop
+          // eine andere Show oeffnete, hatte auf jedem Handy in der Halle
+          // dieselbe URL, dasselbe Token und eine andere Show — mitten im
+          // Aufbau, ohne ein Wort. Jetzt bleibt der Plan stehen und die Seite
+          // sagt, was passiert ist; der Wechsel ist ein Neuladen, also eine
+          // Handlung des Nutzers.
+          // `project` ist hier die Show, mit der diese Seite geladen wurde:
+          // der Effekt haengt an `project !== null` und laeuft beim Wechsel
+          // des Inhalts nicht neu. Genau das ist gemeint — verglichen wird
+          // gegen das, was dieses Handy bekommen hat, nicht gegen den
+          // vorletzten Abruf.
+          const jetzt = showIdOf(next)
+          const bisher = showIdOf(project)
+          if (bisher !== null && jetzt !== null && jetzt !== bisher) {
+            setShowSwitched(true)
+            setOnline(true)
+            return
+          }
           setProject(next)
           setOnline(true)
           cacheProject(next)
@@ -1582,6 +1663,26 @@ export const MobileApp = () => {
   return (
     <div className="min-h-screen bg-cp-bg text-cp-text">
       <ConnectionSettings />
+      {/* BEDARF 127 — am Desktop steht jetzt eine andere Show. Der Plan auf
+          diesem Handy bleibt der, mit dem es geladen wurde: ein stiller Tausch
+          mitten im Aufbau ist genau der Schaden, den `ontime#1325` beschreibt.
+          Der Wechsel ist ein Neuladen und damit eine Entscheidung. */}
+      {showSwitched && (
+        <div className="mx-auto max-w-md p-2">
+          <div className="rounded border border-amber-600 bg-amber-950/60 p-2 text-[11px] text-amber-100">
+            <b>Am Desktop ist jetzt eine andere Show offen.</b> Dieser Plan bleibt
+            stehen — er gehört zu der Show, mit der diese Seite geladen wurde.
+            Häkchen und Meldungen gehen bis zum Neuladen nicht mehr durch.
+            <button
+              type="button"
+              className="mt-1 block rounded border border-amber-500 px-2 py-0.5 text-[11px]"
+              onClick={() => window.location.reload()}
+            >
+              Zur neuen Show wechseln (neu laden)
+            </button>
+          </div>
+        </div>
+      )}
       {!autoLoadAttempted ? (
         <div className="grid min-h-screen place-items-center p-4 text-xs text-cp-text-muted">
           <div className="animate-pulse">Lade Projekt vom Desktop…</div>
@@ -1713,6 +1814,8 @@ const AddCableModal = ({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          // BEDARF 127 — welche Show. Ohne sie weist der Server ab.
+          projectId: showIdOf(project),
           fromEquipmentId: fromEqId,
           fromPortId,
           toEquipmentId: toEqId,
@@ -2017,6 +2120,8 @@ const MobileReportModal = ({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          // BEDARF 127 — welche Show. Ohne sie weist der Server ab.
+          projectId: showIdOf(project),
           author: reporter.trim() || undefined,
           kind,
           summary,

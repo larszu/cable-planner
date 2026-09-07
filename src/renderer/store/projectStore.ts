@@ -638,6 +638,19 @@ export interface ProjectState {
  */
 const initialDrops: LoadDrop[] = []
 
+/**
+ * Eine neue Show-Kennung (Bedarf 127).
+ *
+ * `crypto.randomUUID` gibt es im Renderer wie im Test-Runner; der Rueckfall
+ * ist da, damit das Laden eines Projekts nicht an einer fehlenden Web-Crypto
+ * scheitert — ohne Kennung wuerde die LAN-Freigabe jeden Rueckweg abweisen,
+ * und der Aufbau stuende wegen einer Zufallsquelle.
+ */
+const newProjectId = (): string =>
+  typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+    ? crypto.randomUUID()
+    : `show-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`
+
 const healProjectPositions = (
   project: CablePlannerProject,
   onDrop?: (drop: LoadDrop) => void,
@@ -910,6 +923,14 @@ const healProjectPositions = (
     metadata: {
       ...healRentmanCableMap(project.metadata),
       ...(venueAnswers ? { venueAnswers } : {}),
+      // Bedarf 127 — die Show-Kennung. Sie wird HIER vergeben und nirgends
+      // sonst: das ist die Schema-Migrationsschicht, und ein zweiter Ort, an
+      // dem eine Kennung entsteht, ergaebe zwei Kennungen fuer eine Show.
+      //
+      // Vergeben wird nur, was fehlt. Eine vorhandene Kennung anzufassen
+      // hiesse, aus einer Show beim blossen Oeffnen eine andere zu machen —
+      // und genau daran haengt die LAN-Freigabe.
+      projectId: project.metadata.projectId?.trim() || newProjectId(),
     },
   }
 }
