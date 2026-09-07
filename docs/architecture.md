@@ -413,6 +413,32 @@ plain-text Routing-/Label-Blöcke. Smart-Routing erkennt Quellen anhand
 ihrer Namen (Fuzzy-Match mit AI-Provider-Fallback bei niedriger
 Score-Schwelle).
 
+### 6.5b · Gerätekonfigurationen tragen ihre Herkunft daneben (Bedarf 43)
+
+Jede Datei, die dieses Programm an ein **fremdes Gerät** ausgibt — Videohub
+(Routing und Beschriftungen), Green-GO `.gg5`, ATEM-Audio-XML, die Geräteliste
+für `tally-pi` — geht über `lib/deviceConfigExport.ts#exportDeviceConfig` und
+bekommt ein zweites File daneben: `<datei>.herkunft.txt` mit Projekt, Stand,
+Dokument-Stempel (ADR-004), App-Version und einer Prüfsumme über den Inhalt
+der Konfigurationsdatei.
+
+**Die Gerätedatei selbst wird nicht angefasst.** Ob Blackmagics Videohub Setup
+eine `#`-Zeile überliest, ob der Green-GO-Editor ein unbekanntes JSON-Feld
+durchlässt, ob der ATEM-Importer ein zusätzliches Kommentar akzeptiert — das
+steht ohne die Hersteller-Spezifikation nicht fest, und die liegt hier nicht
+vor. Dass *unser* Parser (`parseVideohubLabelsTxt`) `#`-Zeilen überspringt,
+sagt nichts über das Gerät: die Datei geht dorthin, nicht zu uns zurück. Eine
+Konfiguration, die das Pult beim Laden zurückweist, ist beim Load-in schlimmer
+als eine ohne Herkunft.
+
+Das Blatt geht **zuerst** raus, die Konfiguration danach: bricht der Browser
+die zweite Ausgabe ab, fehlt das Blatt und nicht die Datei, die die Show
+braucht.
+
+`deviceConfigProvenance.ts` ist rein (keine Uhr, kein Store);
+`deviceConfigExport.ts` setzt Stempel, Uhr und Version zusammen und ist die
+einzige unreine Zeile des Wegs.
+
 ### 6.6 · Mobile-Share
 
 `mobileShareServer.ts` startet einen `node:http`-Server auf ephemerem Port
@@ -603,5 +629,6 @@ standalone, keine Edits. Wird über `.github/workflows/pages.yml`
 | Neuer Settings-Tab | `src/renderer/components/Settings/tabs/` + Eintrag in `SettingsDialog.tsx` Sidebar |
 | Neues Geheimnis (Token, Key) | `credentialsService.ts` (`keytar`) + eigener IPC-Namensraum — **niemals** ein Feld im Projekt |
 | Neues gestempeltes Dokument | Tabelle in `lib/`, Eintrag in `DOCUMENT_STANDS` (`documentRegistry.ts`), Export via `csvFromTable(..., stamp, docId)` |
+| Neue **Gerätekonfiguration** (Datei, die an ein fremdes Gerät geht) | `lib/deviceConfigExport.ts#exportDeviceConfig` — **nicht** `downloadBlob` direkt: sonst geht die Datei ohne Herkunfts-Blatt raus (Bedarf 43) |
 | Alle Adressen eines Geräts lesen | `lib/networkInterfaces.ts#deviceInterfaces` — **nicht** `item.ipAddress` (das ist nur Schnittstelle 0) |
 | CSV lesen | `lib/csvParse.ts#parseCsv` — die eine Stelle; ein zweiter Parser antwortet beim ersten Semikolon im Feld anders |
