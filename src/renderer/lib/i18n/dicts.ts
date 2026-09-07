@@ -2713,6 +2713,8 @@ export const en: Dict = {
   'offPage.waypoint.add': 'Add waypoint',
 
   // Canvas — CableEdge
+  'canvas.cableEdge.blockedPath':
+    'This cable path runs through a device — there is no clear route here. Move a device or draw the path by hand.',
   'canvas.cableEdge.deleteTitle': 'Delete cable',
 
   // Canvas — CanvasArea

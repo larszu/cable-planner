@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   computeObstacleAwareWaypoints,
+  pathIsBlocked,
   routeAround,
   type Rect,
 } from '../src/renderer/lib/cableRouting'
@@ -140,5 +141,69 @@ describe('die alte Schnittstelle bleibt', () => {
       ['a'],
     )
     expect(r).toEqual([])
+  })
+})
+
+// ───────────────────────────────────────────────────────────────────────────
+// Der gezeichnete Weg wird nachgerechnet, nicht das Router-Ergebnis geglaubt.
+//
+// Die automatische Führung wird nach dem ersten Rechnen in `cable.waypoints`
+// gespeichert (#206). Ab da gibt es kein `clear` mehr — und ein von Hand
+// gezogener Stützpunkt mitten durch ein Gerät ist derselbe Fehler.
+// ───────────────────────────────────────────────────────────────────────────
+describe('pathIsBlocked prüft den Weg, der wirklich gezeichnet wird', () => {
+  const geraet = { x: 100, y: 100, width: 100, height: 100 }
+
+  it('schweigt bei einem Weg, der außen herum läuft', () => {
+    expect(
+      pathIsBlocked(
+        [
+          { x: 0, y: 0 },
+          { x: 300, y: 0 },
+          { x: 300, y: 300 },
+        ],
+        [geraet],
+      ),
+    ).toBe(false)
+  })
+
+  it('meldet den Weg mitten durch das Gerät', () => {
+    expect(
+      pathIsBlocked(
+        [
+          { x: 0, y: 150 },
+          { x: 300, y: 150 },
+        ],
+        [geraet],
+      ),
+    ).toBe(true)
+  })
+
+  it('lässt die beiden verbundenen Geräte außen vor', () => {
+    // Ein Kabel endet AM Gerät — es läuft immer ein Stück an dessen Rand.
+    expect(
+      pathIsBlocked(
+        [
+          { x: 0, y: 150 },
+          { x: 300, y: 150 },
+        ],
+        [geraet],
+        new Set(['A']),
+        ['A'],
+      ),
+    ).toBe(false)
+  })
+
+  it('meldet auch einen von Hand gezogenen Stützpunkt durch ein Gerät', () => {
+    expect(
+      pathIsBlocked(
+        [
+          { x: 0, y: 0 },
+          { x: 150, y: 0 },
+          { x: 150, y: 300 },
+        ],
+        [geraet],
+      ),
+    ).toBe(true)
   })
 })

@@ -37,7 +37,7 @@ export interface Rect {
   height: number
 }
 
-interface Point {
+export interface Point {
   x: number
   y: number
 }
@@ -185,6 +185,27 @@ export const routeAround = (
   const alleWege = [...einfach, ...kandidaten].sort((a, b) => pathLength(a) - pathLength(b))
   return { waypoints: alleWege[0].slice(1, -1), clear: false }
 }
+
+/**
+ * Laeuft der GEZEICHNETE Weg durch ein Geraet?
+ *
+ * `routeAround` beantwortet das fuer den Weg, den es selbst gerade gelegt hat
+ * — und genau diese Antwort geht verloren, sobald der Weg einmal in
+ * `cable.waypoints` gespeichert ist (#206 persistiert die automatische
+ * Fuehrung nach dem ersten Rechnen). Ab da rechnet niemand mehr nach, und
+ * eine Fuehrung, die durch ein Geraet laeuft, sieht aus wie eine gelungene.
+ *
+ * Diese Funktion prueft deshalb den Weg, der WIRKLICH GEZEICHNET WIRD, egal
+ * woher seine Punkte stammen. Das deckt den zweiten Fall gleich mit ab: ein
+ * von Hand gezogener Stuetzpunkt mitten durch ein Geraet ist derselbe Fehler
+ * und war bisher ebenso stumm.
+ */
+export const pathIsBlocked = (
+  points: readonly Point[],
+  obstacles: Rect[],
+  ignoreIds?: Set<string>,
+  obstacleIds?: string[],
+): boolean => !pathClearsAll([...points], relevant(obstacles, ignoreIds, obstacleIds))
 
 /**
  * Nur die Zwischenpunkte — die Form, die der Canvas seit jeher aufruft.
