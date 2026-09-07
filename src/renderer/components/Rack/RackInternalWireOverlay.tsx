@@ -3,6 +3,7 @@ import { useTranslation } from '../../lib/i18n'
 import { RackInternalCanvas } from './RackInternalCanvas'
 import type { InternalCableDraft, RackPlacementDraft } from './rackBuilderTypes'
 import { PanelHint } from '../shared/PanelHint'
+import { rackWireFindings } from '../../lib/rackWireChecks'
 
 /** v7.8.5+ — Wire-Dialog-Overlay fuer die Rack-interne Verkabelung.
  *
@@ -34,6 +35,12 @@ export const RackInternalWireOverlay = ({
 }: RackInternalWireOverlayProps) => {
   const t = useTranslation()
   if (!open) return null
+
+  // ISSUE #663 — „Es fehlt die Fehlermeldung, dass Kabeltypen nicht
+  // zusammenpassen." Der Signalplan meldet das seit langem; hier fehlte es.
+  // Gerechnet wird in `lib/rackWireChecks.ts`, nicht in dieser Datei: die
+  // Regel gehoert in eine pruefbare Funktion und nicht in eine Ansicht.
+  const befunde = rackWireFindings(placements, internalCables)
 
   // draft.internalCables (per-id) → GroupPreset.cables (per-index)
   const initialCables: GroupPreset['cables'] = (() => {
@@ -84,6 +91,18 @@ export const RackInternalWireOverlay = ({
             {t('common.done', 'Fertig')}
           </button>
         </div>
+        {befunde.length > 0 && (
+          <ul className="mb-2 max-h-28 shrink-0 space-y-0.5 overflow-y-auto rounded border border-cp-border-muted bg-cp-surface-3/40 p-1.5 text-cp-xs">
+            {befunde.map((f, i) => (
+              <li
+                key={`${f.kind}-${f.index}-${i}`}
+                className={f.severity === 'error' ? 'text-cp-danger' : 'text-cp-warn'}
+              >
+                {f.text}
+              </li>
+            ))}
+          </ul>
+        )}
         <div className="min-h-0 flex-1 overflow-hidden rounded border border-cp-border">
           <RackInternalCanvas
             rackName={rackName}
