@@ -113,6 +113,16 @@ jobs:
         run: npm run build
       - name: UI-Smoke (headless)
         run: xvfb-run -a npm run ui:smoke
+      # Im SELBEN Job wie der Smoke-Lauf, weil beide dasselbe teuer Gebaute
+      # brauchen: `npm ci`, `npm run build` und ein X-Server. Ein eigener Job
+      # haette das dreimal bezahlt, um dieselbe App zweimal zu starten.
+      #
+      # Was er findet, findet sonst niemand: `vitest` rendert nicht und kennt
+      # keine Schriftbreiten, der Smoke-Lauf prueft nur, dass Menues aufgehen.
+      # Ein Register, das aus seinem Panel faellt, war damit unsichtbar --
+      # gemeldet hat es am 2026-09-07 ein Mensch, nicht die Pruefung.
+      - name: Nichts abgeschnitten, nichts verdeckt
+        run: xvfb-run -a npm run ui:overflow
       - name: Screenshots bei Fehlschlag
         if: failure()
         uses: actions/upload-artifact@v6

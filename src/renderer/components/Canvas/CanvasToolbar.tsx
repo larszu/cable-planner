@@ -318,6 +318,11 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
     <div
       ref={containerRef}
       className="nodrag nopan"
+      /* Marke fuer die Geraete-Suche: sie legt sich sonst genau hierhin.
+         Die Leiste UMBRICHT (`flexWrap`), ihre Hoehe ist also nicht
+         konstant — wer sie umgehen will, muss sie MESSEN. Siehe
+         `CanvasSearch.tsx`. */
+      data-cp-canvas-toolbar=""
       style={{
         position: 'absolute',
         top: 8,

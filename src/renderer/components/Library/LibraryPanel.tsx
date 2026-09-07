@@ -693,8 +693,28 @@ export const LibraryPanel = () => {
           konsistent deutschen Labels (Geräte/Kabel/Gruppen/Racks).
           Counts NUR an der kleinsten Granularität — der R-Badge am
           Equipment-Tab ist raus, weil die Lokal/Rentman-Untertoggle
-          die gleiche Info zeigt. Tab-Zeile in EINE Zeile gepackt. */}
-      <div className="mb-2 flex items-center gap-1 text-cp-xs">
+          die gleiche Info zeigt.
+
+          BERICHTIGT 2026-09-07 — hier stand „Tab-Zeile in EINE Zeile
+          gepackt", und genau das war der Fehler. Gemessen im laufenden
+          Fenster: die Zeile ist 235 px breit, ihr Inhalt 390 px. Die drei
+          runden Panel-Knöpfe (Einklappen, Abdocken, Auslagern) fressen
+          allein 104 px; danach passen „Geräte" und knapp „Kabel" hinein —
+          **„Gruppen" und „Racks" lagen vollständig ausserhalb** und waren
+          damit nicht angezeigt UND nicht anklickbar. Ohne Scrollbar,
+          ohne Umbruch, bei jeder Fenstergrösse, weil die Bibliothek
+          260 px fest breit ist. Zwei von vier Registern existierten für
+          den Nutzer nicht.
+
+          Die Zeile ist deshalb aufgeteilt: die Panel-Knöpfe stehen in
+          ihrer eigenen Reihe (sie gehören zum Rahmen, nicht zum Inhalt),
+          die vier Register liegen in einem ZWEISPALTIGEN Raster. Ein
+          Raster und keine Flex-Zeile mit Umbruch: so ist die Lage jedes
+          Registers unabhängig von der Textlänge — die englischen Labels
+          („Equipment", „Cables", „Groups", „Racks") sind zusammen 309 px
+          breit und würden in einer Zeile genauso herausfallen. */}
+      {(!floating && !inPopout) && (
+        <div className="mb-1 flex items-center gap-1 text-cp-xs">
         {!floating && !inPopout && (
           <button
             type="button"
@@ -737,10 +757,14 @@ export const LibraryPanel = () => {
             <Icon icon={ExternalLink} size="xs" />
           </button>
         )}
+        </div>
+      )}
+      <div className="mb-2 grid grid-cols-2 gap-1 text-cp-xs">
         <TabButton
           active={tab === 'equipment'}
           onClick={() => setTab('equipment')}
           label={t('library.tab.equipment', 'Geräte')}
+          title={t('library.tab.equipment', 'Geräte')}
           icon={
             <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
               <rect x="2" y="3" width="12" height="10" rx="1.5" />
@@ -754,6 +778,7 @@ export const LibraryPanel = () => {
           active={tab === 'cables'}
           onClick={() => setTab('cables')}
           label={t('library.tab.cables', 'Kabel')}
+          title={t('library.tab.cables', 'Kabel')}
           icon={
             <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
               <path d="M2 11 Q 5 5, 8 8 T 14 5" strokeLinecap="round" />
