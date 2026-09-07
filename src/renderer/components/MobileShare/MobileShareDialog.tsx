@@ -99,6 +99,26 @@ export const MobileShareDialog = () => {
   const [qrDataUrl, setQrDataUrl] = useState<string>('')
   const [selectedUrl, setSelectedUrl] = useState<string>('')
   const [copied, setCopied] = useState(false)
+  /**
+   * BEDARF 109 — ob das Handy zurueckschreiben darf.
+   *
+   * Der Wert kommt VOM SERVER und wird nicht hier gehalten: der Dialog wird
+   * geschlossen und wieder geoeffnet, der Server laeuft weiter. Ein
+   * Anfangswert aus dem Bauch zeigte nach dem zweiten Oeffnen etwas anderes
+   * an, als tatsaechlich gilt — und genau daran haengt die Frage, ob jemand
+   * am Plan mitschreibt.
+   */
+  const [writeMode, setWriteModeState] = useState<'read-only' | 'contribute'>('read-only')
+
+  useEffect(() => {
+    let lebt = true
+    void cablePlannerApi.mobileShare.getWriteMode().then((r) => {
+      if (lebt) setWriteModeState(r.writeMode)
+    })
+    return () => {
+      lebt = false
+    }
+  }, [])
 
   // BEDARF 39 — die Feed-Adresse leitet sich aus der aktiven URL ab und wird
   // NICHT zweitverwaltet: eine zweite Adresse, die aus derselben Quelle
@@ -379,10 +399,48 @@ export const MobileShareDialog = () => {
             </div>
           )}
 
+          <div className="flex flex-col gap-1 rounded border border-cp-border-muted p-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-cp-xs font-medium text-cp-text">
+                {t('mobile.dialog.writeMode', 'Rückmeldungen vom Handy')}
+              </span>
+              {(['read-only', 'contribute'] as const).map((m) => (
+                <label key={m} className="flex items-center gap-1 text-cp-xs">
+                  <input
+                    type="radio"
+                    name="cp-write-mode"
+                    checked={writeMode === m}
+                    onChange={async () => {
+                      // Der angezeigte Wert kommt aus der ANTWORT und nicht aus
+                      // dem Klick: sonst zeigte der Dialog einen Zustand, den
+                      // der Server womöglich nicht angenommen hat.
+                      const r = await cablePlannerApi.mobileShare.setWriteMode(m)
+                      setWriteModeState(r.writeMode)
+                    }}
+                  />
+                  {m === 'read-only'
+                    ? t('mobile.dialog.writeMode.read', 'Nur lesen')
+                    : t('mobile.dialog.writeMode.contribute', 'Häkchen und Kabel zurückschicken')}
+                </label>
+              ))}
+            </div>
+            <p className="text-[11px] text-cp-text-muted">
+              {writeMode === 'read-only'
+                ? t(
+                    'mobile.dialog.writeMode.readHint',
+                    'Die drei Schreibwege sind geschlossen — das Handy bekommt auf jeden Schreibversuch eine Absage. Den Plan ändert die Person am Rechner.',
+                  )
+                : t(
+                    'mobile.dialog.writeMode.contributeHint',
+                    'Häkchen, neu angelegte Kabel und Feld-Rückmeldungen gehen zurück ins Projekt. Wer den QR-Code hat, kann den Plan ändern.',
+                  )}
+            </p>
+          </div>
+
           <details className="text-[11px] text-cp-text-muted">
             <summary className="cursor-pointer hover:text-cp-text-secondary">{t('mobile.dialog.securityHeading', 'Hinweise zur Sicherheit')}</summary>
             <ul className="mt-1 list-inside list-disc space-y-1">
-              <li>{t('mobile.dialog.security.writeBack', 'Das Handy liest nicht nur: Häkchen, neu angelegte Kabel und Feld-Rückmeldungen gehen zurück ins Projekt. Wer den QR-Code hat, kann den Plan ändern.')}</li>
+              <li>{t('mobile.dialog.security.writeBack', 'Ob das Handy zurückschreiben darf, entscheidet die Einstellung darüber. Steht sie auf „Häkchen und Kabel zurückschicken“, kann jeder mit dem QR-Code den Plan ändern.')}</li>
               <li>{t('mobile.dialog.security.token', 'Jeder Schreibweg verlangt das Token aus dem QR-Code. Passwörter und Schlüssel werden aus dem Projekt entfernt, bevor es das Gerät verlässt.')}</li>
               <li>{t('mobile.dialog.security.bind', 'Der Server bindet auf das lokale Netzwerk (0.0.0.0). Wenn unklar ist, wer im Netz hängt, lieber stoppen.')}</li>
               <li>{t('mobile.dialog.security.autostop', 'Beim Schließen der Desktop-App stoppt auch der Server automatisch.')}</li>

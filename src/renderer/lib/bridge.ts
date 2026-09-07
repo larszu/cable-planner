@@ -385,6 +385,11 @@ type CablePlannerApi = {
     setProject: (project: unknown) => Promise<{ ok: boolean }>
     /** Bedarf 39 — der fertige Crew-Kalender fuer den abonnierbaren Feed. */
     setCrewCalendar: (ics: string | null) => Promise<{ ok: boolean }>
+    /** Bedarf 109 — ob das Handy zurueckschreiben darf. Vorgabe: nur lesen. */
+    setWriteMode: (
+      mode: 'read-only' | 'contribute',
+    ) => Promise<{ ok: boolean; writeMode: 'read-only' | 'contribute' }>
+    getWriteMode: () => Promise<{ writeMode: 'read-only' | 'contribute' }>
     /**
      * BEDARF 133 — Adressen ueber das LAN hinaus freigeben.
      *
@@ -987,6 +992,9 @@ const webFallbackApi: CablePlannerApi = {
     status: async () => ({ running: false, port: 0, urls: [], hasProject: false, withheld: [] }),
     setProject: async () => ({ ok: true }),
     setCrewCalendar: async () => ({ ok: true }),
+    // Im Browser gibt es keinen Server — und damit auch keinen Schreibweg.
+    setWriteMode: async () => ({ ok: true, writeMode: 'read-only' as const }),
+    getWriteMode: async () => ({ writeMode: 'read-only' as const }),
     setAllowBeyondLan: async () => {
       throw new Error('Handy-Zugriff erfordert die Desktop-App.')
     },

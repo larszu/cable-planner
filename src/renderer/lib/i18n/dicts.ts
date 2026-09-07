@@ -3249,6 +3249,19 @@ export const en: Dict = {
   'analysis.tab.crew': 'Crew: hours & expenses',
   // Bedarf 108 — die Handlungsliste.
   'analysis.tab.todo': 'What is due',
+  // Bedarf 100 — die Aufnahmenamen.
+  'analysis.recordName.title': 'Recording names',
+  'analysis.recordName.intro':
+    'The filename of every recording, built from the plan instead of deck by deck on each config page. The take number applies to the whole project. What shows up here as a finding becomes an empty card at the device — a rejected name does not announce itself on the deck.',
+  'analysis.recordName.take': 'Take',
+  'analysis.recordName.separator': 'Separator',
+  'analysis.recordName.export': 'Sheet for the deck (CSV)',
+  'analysis.recordName.empty': 'No role in the plan — without roles there is no recording name.',
+  'analysis.recordName.role': 'Role',
+  'analysis.recordName.recorder': 'Recorder',
+  'analysis.recordName.channel': 'Channel',
+  'analysis.recordName.file': 'Filename',
+  'analysis.recordName.noRecorder': 'no recorder in the plan',
   'analysis.action.hint':
     'This page tells you what is due — it edits nothing. Every line comes from the place that reports it: crew, costs, receipts, warehouse. What is missing here is missing there too; no second derivation happens on this page.',
   'analysis.action.none': 'Nothing open — there is nothing to report on this state.',
@@ -3368,6 +3381,14 @@ export const en: Dict = {
   'analysis.crew.addFromReceipt': 'Create expense from receipt',
   'analysis.crew.missingFields': 'Missing: {was}',
   'mobile.dialog.crewFeed': 'Subscribe to the crew calendar',
+  // Bedarf 109 — read-many, write-one.
+  'mobile.dialog.writeMode': 'Feedback from the phone',
+  'mobile.dialog.writeMode.read': 'Read only',
+  'mobile.dialog.writeMode.contribute': 'Send back ticks and cables',
+  'mobile.dialog.writeMode.readHint':
+    'The three write routes are closed — the phone is refused on every write attempt. The plan is changed by the person at the desk.',
+  'mobile.dialog.writeMode.contributeHint':
+    'Ticks, cables added on site and field reports go back into the project. Anyone with the QR code can change the plan.',
   'mobile.dialog.crewFeedHint':
     'Add it to your calendar as a subscription — it fetches the current state instead of going stale.',
   'analysis.crew.planned': '{n} pencilled/held — not in the totals',
@@ -4109,6 +4130,14 @@ export const en: Dict = {
   'inventory.checkout.pick': '\u2014 pick a container \u2014',
   'inventory.checkout.to': 'To (person, truck, client)',
   'inventory.checkout.show': 'Show (optional)',
+  // Bedarf 98 — rueckwirkend ausgeben und den Termin verschieben.
+  'inventory.checkout.outAt': 'Handed out on',
+  'inventory.checkout.outAtHint':
+    'Empty means now. A day in the past records a hand-out that has already happened.',
+  'inventory.checkout.newDueBack': 'New return date',
+  'inventory.checkout.moveDueBack': 'Move return date',
+  'inventory.checkout.movedTimes': 'moved {n}×',
+  'inventory.checkout.unknownRecord': 'That record no longer exists.',
   'inventory.checkout.dueBack': 'Due back',
   'inventory.checkout.doOut': 'Check out',
   'inventory.checkout.doIn': 'Check in',

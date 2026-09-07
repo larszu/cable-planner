@@ -80,6 +80,7 @@ import { normaliseTransmissionRecord } from '../lib/transmissionRecord'
 import { normaliseCostPlan } from '../lib/costComparison'
 import { normaliseCrewPlan } from '../lib/labourCost'
 import { normaliseNamingScheme } from '../lib/namingScheme'
+import { normaliseRecordNaming } from '../lib/recordNaming'
 import { normaliseMicPlot } from '../lib/micAssignment'
 import { normaliseTallyPositions } from '../lib/tallyPosition'
 import { normaliseNetworkSegments } from '../lib/networkSegments'
@@ -463,6 +464,10 @@ export interface ProjectState {
   ) => void
   setCostPlan: (plan: import('../types/costLines').CostPlan | undefined) => void
   setNamingScheme: (scheme: import('../types/namingScheme').NamingScheme | undefined) => void
+  /** Bedarf 100 — das Namensschema der Aufzeichnungen. */
+  setRecordNaming: (
+    scheme: import('../types/recordNaming').RecordNamingScheme | undefined,
+  ) => void
   /** Bedarf 114 — Personen, Sessions und ihre Strecken-Zuordnungen. */
   setMicPlot: (plot: import('../types/micAssignment').MicPlot | undefined) => void
   applyNaming: (scheme: import('../types/namingScheme').NamingScheme) => void
@@ -838,6 +843,8 @@ const healProjectPositions = (
   // Einstellung, und ein Ladebericht ueber eine verworfene Einstellung waere
   // Laerm.
   const namingScheme = normaliseNamingScheme(project.namingScheme)
+  // Bedarf 100 — dasselbe fuer das Namensschema der Aufzeichnungen.
+  const recordNaming = normaliseRecordNaming(project.recordNaming)
   // Bedarf 114 — der Mic-Plot. `undefined` heisst „keine Zuordnungen gefuehrt",
   // und ein leerer Plan ist dasselbe wie keiner; deshalb wird er nur dann
   // gesetzt, wenn wirklich etwas drinsteht. Sonst traege jedes Projekt ab
@@ -1014,6 +1021,7 @@ const healProjectPositions = (
     crewPlan,
     // Bedarf 74 — dito: `undefined` heisst „keine Namensregel hinterlegt".
     namingScheme,
+    recordNaming,
     // Bedarf 114 — dito: `undefined` heisst „keine Zuordnungen gefuehrt".
     micPlot,
     // ADR-003 — Rentman-Zaehler: gesendet ist nicht bestaetigt.

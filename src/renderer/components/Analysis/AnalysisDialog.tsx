@@ -69,6 +69,13 @@ import type { DantePatch } from '../../types/dantePatch'
 import { cableRunFindings, cableRunTable, type RunFinding } from '../../lib/cableRunChecks'
 import { CrewTab } from './CrewTab'
 import { ActionTab } from './ActionTab'
+import {
+  RECORD_NAME_FINDING_LABEL,
+  normaliseRecordNaming,
+  recordNamePlan,
+  recordNameSheet,
+} from '../../lib/recordNaming'
+import { DEFAULT_RECORD_SCHEME } from '../../types/recordNaming'
 import { lookUpSheet, type SheetLookup } from '../../lib/sheetLookup'
 import {
   buildVenueNetworkRequest,
@@ -2451,6 +2458,130 @@ const DEFAULT_SCHEME: NamingScheme = {
  * nicht „warum": dieselbe Entscheidung wie beim As-Built-zur-Vorlage
  * (Bedarf 75).
  */
+/**
+ * BEDARF 100 — die Aufnahmenamen, im Reiter der Namensregel.
+ *
+ * HIER UND NICHT IN EINEM EIGENEN REITER: es ist dieselbe Frage („wie heisst
+ * das nachher?"), nur fuer Dateien statt fuer Geraete, und die Reiterleiste
+ * ist bereits zwoelf Eintraege lang. Ein dreizehnter fuer denselben Begriff
+ * waere die Sorte Aufteilung, nach der man an zwei Stellen sucht.
+ *
+ * DIE TAKE-NUMMER STEHT EINMAL. Genau ihr Hochzaehlen an zehn bis sechzehn
+ * Deck-Konfigurationsseiten ist der Schaden aus dem Beleg.
+ */
+const AufnahmeNamen = ({ projectName }: { projectName: string }) => {
+  const t = useTranslation()
+  const project = useProjectStore((s) => s.project)
+  const setRecordNaming = useProjectStore((s) => s.setRecordNaming)
+  const schema = project.recordNaming ?? DEFAULT_RECORD_SCHEME
+  const plan = useMemo(() => recordNamePlan(project, schema), [project, schema])
+
+  const inp = 'rounded border border-[var(--cp-border)] bg-[var(--cp-surface-3)] p-1 text-cp-xs'
+
+  return (
+    <div className="flex flex-col gap-2 border-t border-[var(--cp-border)] pt-3">
+      <h3 className="text-cp-sm font-semibold text-[var(--cp-text)]">
+        {t('analysis.recordName.title', 'Aufnahmenamen')}
+      </h3>
+      <PanelHint
+        className="text-cp-xs leading-snug text-[var(--cp-text-muted)]"
+        text={t(
+          'analysis.recordName.intro',
+          'Der Dateiname jeder Aufzeichnung, gebildet aus dem Plan statt an jeder Deck-Konfigurationsseite einzeln. Die Take-Nummer gilt für das ganze Projekt. Was hier als Befund steht, wird am Gerät zu einer leeren Karte — ein abgelehnter Name fällt am Deck nicht auf.',
+        )}
+      />
+      <div className="flex flex-wrap items-center gap-2">
+        <label className="flex items-center gap-1 text-cp-xs">
+          {t('analysis.recordName.take', 'Take')}
+          <input
+            type="number"
+            min={0}
+            value={schema.take ?? ''}
+            onChange={(e) =>
+              setRecordNaming(
+                normaliseRecordNaming({
+                  ...schema,
+                  take: e.target.value === '' ? undefined : Number(e.target.value),
+                }),
+              )
+            }
+            className={`${inp} w-16`}
+          />
+        </label>
+        <label className="flex items-center gap-1 text-cp-xs">
+          {t('analysis.recordName.separator', 'Trenner')}
+          <input
+            value={schema.separator}
+            onChange={(e) =>
+              setRecordNaming(normaliseRecordNaming({ ...schema, separator: e.target.value }))
+            }
+            aria-label={t('analysis.recordName.separator', 'Trenner')}
+            className={`${inp} w-12`}
+          />
+        </label>
+        <button
+          type="button"
+          onClick={() =>
+            downloadBlob(
+              buildExportFilenameWithSuffix(projectName, 'aufnahmenamen', 'csv'),
+              csvFromTable(
+                (() => {
+                  const [kopf, ...zeilen] = recordNameSheet(plan)
+                  return { headers: kopf, rows: zeilen }
+                })(),
+              ),
+              'text/csv',
+            )
+          }
+          className="rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs hover:bg-[var(--cp-surface-4)]"
+        >
+          {t('analysis.recordName.export', 'Zettel fürs Deck (CSV)')}
+        </button>
+      </div>
+
+      {plan.rows.length === 0 ? (
+        <p className="text-cp-xs text-[var(--cp-text-muted)]">
+          {t(
+            'analysis.recordName.empty',
+            'Keine Rolle im Plan — ohne Rollen entsteht kein Aufnahmename.',
+          )}
+        </p>
+      ) : (
+        <table className="w-full border-collapse text-cp-xs">
+          <thead>
+            <tr className="border-b border-[var(--cp-border)] text-left text-[var(--cp-text-secondary)]">
+              <th className="py-1 pr-2">{t('analysis.recordName.role', 'Rolle')}</th>
+              <th className="py-1 pr-2">{t('analysis.recordName.recorder', 'Recorder')}</th>
+              <th className="py-1 pr-2">{t('analysis.recordName.channel', 'Kanal')}</th>
+              <th className="py-1 pr-2">{t('analysis.recordName.file', 'Dateiname')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {plan.rows.map((r) => (
+              <tr key={r.roleId} className="border-b border-[var(--cp-border-muted)] align-top">
+                <td className="py-1 pr-2">{r.roleName}</td>
+                <td className="py-1 pr-2 text-[var(--cp-text-muted)]">
+                  {r.recorder ?? t('analysis.recordName.noRecorder', 'kein Recorder im Plan')}
+                </td>
+                <td className="py-1 pr-2 tabular-nums">{r.channel ?? ''}</td>
+                <td className="py-1 pr-2">
+                  <span className="font-mono">{r.name}</span>
+                  {r.findings.map((f, i) => (
+                    <span key={i} className="ml-2 text-amber-300/90">
+                      {RECORD_NAME_FINDING_LABEL[f.kind]}
+                      {f.detail ? ` (${f.detail})` : ''}
+                    </span>
+                  ))}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  )
+}
+
 const NamingTab = ({ projectName }: { projectName: string }) => {
   const t = useTranslation()
   const project = useProjectStore((s) => s.project)
@@ -2574,6 +2705,8 @@ const NamingTab = ({ projectName }: { projectName: string }) => {
           ))}
         </ul>
       )}
+
+      <AufnahmeNamen projectName={projectName} />
     </div>
   )
 }

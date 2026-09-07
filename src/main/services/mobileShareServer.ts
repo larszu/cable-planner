@@ -34,6 +34,15 @@
  * Offen (bewusster Tradeoff): kein per-IP Rate-Limit auf Write-Routen, und
  * das Token-Modell schützt nicht gegen jemanden, der die URL inkl. Token
  * sieht (Schulter-Surfen am QR). Für kleine Studio-LANs ausreichend.
+ *
+ * BEDARF 109 — „read-many, write-one":
+ *   - `state.writeMode` entscheidet, ob die drei Schreibwege (/checks,
+ *     /cables, /pending-changes) überhaupt antworten. Vorgabe ist
+ *     `read-only`; dann lehnen sie mit 403 ab, BEVOR ein Body gelesen wird.
+ *   - Der Modus steht in /share-info.json. Das Handy versteckt seine
+ *     Schreib-Bedienung danach — ein Knopf, der immer 403 bekommt, ist
+ *     dieselbe Sorte Lüge wie ein Hinweis, der „read-only" behauptet,
+ *     während drei Schreibwege offen sind (siehe ADR-005, Inkrement 4).
  */
 
 import { createServer, type Server, type IncomingMessage, type ServerResponse } from 'node:http'
@@ -69,6 +78,9 @@ const mimeFor = (filePath: string): string => {
 
 const __filename = fileURLToPath(import.meta.url)
 
+/** Ob das Handy zurueckschreiben darf. */
+export type MobileShareWriteMode = 'read-only' | 'contribute'
+
 interface MobileShareState {
   server: Server | null
   port: number
@@ -92,6 +104,22 @@ interface MobileShareState {
    * Entscheidung.
    */
   allowBeyondLan: boolean
+  /**
+   * BEDARF 109 — wer schreiben darf.
+   *
+   *   > both sites want to be able to SEE the cuesheet ... however as the
+   *   > producer / show caller I do not want some one else to be able to
+   *   > ALTER the cue sheet once we are on site
+   *   (`cpvalente/ontime#1547`)
+   *
+   * VORGABE IST `read-only`, und das ist eine Verhaltensaenderung mit
+   * Absicht. Bis hierher war jede Freigabe zugleich ein Schreibweg, ohne
+   * dass es jemand entschieden haette — es ergab sich daraus, dass der
+   * Server die Routen hat. Der Bedarf verlangt das Gegenteil: lesen viele,
+   * schreiben einer. Wer Rueckmeldungen vom Handy will, schaltet sie an;
+   * das ist ein Klick und danach steht es im Dialog.
+   */
+  writeMode: MobileShareWriteMode
   /**
    * BEDARF 127 — die Show, die gerade freigegeben ist.
    *
@@ -164,6 +192,7 @@ const state: MobileShareState = {
   port: 0,
   token: '',
   allowBeyondLan: false,
+  writeMode: 'read-only',
   showId: null,
   project: null,
   serialized: null,
@@ -219,6 +248,27 @@ const denyUnauthorized = (req: IncomingMessage, res: ServerResponse): void => {
   res.statusCode = 401
   res.setHeader('Content-Type', 'application/json; charset=utf-8')
   res.end('{"error":"unauthorized"}')
+}
+
+/**
+ * BEDARF 109 — darf dieser Aufruf schreiben?
+ *
+ * Die Pruefung steht an EINER Stelle und wird von jedem der drei
+ * Schreibwege als erste Zeile gerufen — VOR dem Lesen des Bodys. Wer sie
+ * spaeter rufen wuerde, haette den Body schon angenommen, und ein
+ * abgelehnter Aufruf saehe fuer den Absender aus wie ein angenommener.
+ *
+ * 403 und nicht 401: das Token war richtig. Der Unterschied entscheidet,
+ * was das Handy anzeigt — „nicht angemeldet" schickt jemanden auf die
+ * Suche nach einem neuen QR-Code, „nur lesen" sagt die Wahrheit.
+ */
+const writeAllowed = (req: IncomingMessage, res: ServerResponse): boolean => {
+  if (state.writeMode === 'contribute') return true
+  applyCors(req, res)
+  res.statusCode = 403
+  res.setHeader('Content-Type', 'application/json; charset=utf-8')
+  res.end('{"error":"read-only","writeMode":"read-only"}')
+  return false
 }
 
 /** Lookup non-internal IPv4 addresses across all network interfaces. */
@@ -378,6 +428,7 @@ const handleRequest = (req: IncomingMessage, res: ServerResponse) => {
   // Canvas zeigt die Häkchen sofort live an.
   if (pathname === '/checks' && req.method === 'POST') {
     if (!authed(req, url)) return denyUnauthorized(req, res)
+    if (!writeAllowed(req, res)) return
     let body = ''
     let aborted = false
     req.on('data', (chunk) => {
@@ -431,6 +482,7 @@ const handleRequest = (req: IncomingMessage, res: ServerResponse) => {
   // (alle 4 IDs vorhanden) und leiten an den Renderer-Callback weiter.
   if (pathname === '/cables' && req.method === 'POST') {
     if (!authed(req, url)) return denyUnauthorized(req, res)
+    if (!writeAllowed(req, res)) return
     let body = ''
     let aborted = false
     req.on('data', (chunk) => {
@@ -495,6 +547,7 @@ const handleRequest = (req: IncomingMessage, res: ServerResponse) => {
   // Renderer-Callback in die Review-Queue.
   if (pathname === '/pending-changes' && req.method === 'POST') {
     if (!authed(req, url)) return denyUnauthorized(req, res)
+    if (!writeAllowed(req, res)) return
     let body = ''
     let aborted = false
     req.on('data', (chunk) => {
@@ -573,6 +626,11 @@ const handleRequest = (req: IncomingMessage, res: ServerResponse) => {
         hasProject: state.project !== null,
         port: state.port,
         mode: state.devProxyUrl ? 'dev-proxy' : 'static',
+        // BEDARF 109 — das Handy erfaehrt HIER, ob es schreiben darf, und
+        // blendet seine Schreib-Bedienung sonst aus. Ein Knopf, der immer
+        // 403 bekommt, ist dieselbe Luege wie ein „read-only"-Hinweis
+        // neben drei offenen Schreibwegen.
+        writeMode: state.writeMode,
       }),
     )
     return
@@ -759,6 +817,24 @@ export const setMobileShareProject = (project: unknown): void => {
  * mit einem leeren Kalender: ein leerer Kalender liest sich als „diese Person
  * hat frei", und das ist die eine Auskunft, die dieser Bedarf nie geben darf.
  */
+/**
+ * BEDARF 109 — den Schreibweg oeffnen oder schliessen.
+ *
+ * Sofort wirksam, auch fuer eine laufende Freigabe: wer waehrend der Show
+ * merkt, dass am Handy jemand mitschreibt, schaltet es ab und muss dafuer
+ * nicht die Freigabe beenden und den QR-Code neu verteilen.
+ *
+ * Alles ausser `contribute` ist `read-only`. Das ist Absicht: ein unbekannter
+ * Wert darf nie in den erlaubenden Zustand fallen.
+ */
+export const setMobileShareWriteMode = (mode: unknown): MobileShareWriteMode => {
+  state.writeMode = mode === 'contribute' ? 'contribute' : 'read-only'
+  return state.writeMode
+}
+
+/** Der Modus, wie er gerade gilt — fuer den Dialog. */
+export const mobileShareWriteMode = (): MobileShareWriteMode => state.writeMode
+
 export const setMobileShareCrewCalendar = (ics: string | null): void => {
   state.crewIcs = typeof ics === 'string' && ics.trim() ? ics : null
 }
