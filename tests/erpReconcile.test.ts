@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { erpReconcileTable, reconcileErp, type ErpLine } from '../src/renderer/lib/erpReconcile'
-import type { DemandLine } from '../src/renderer/lib/inventoryCoverage'
+import { erpReconcileTable, reconcileErp, type ErpLine } from '../src/renderer/lager/lib/erpReconcile'
+import type { DemandLine } from '../src/renderer/lager/lib/inventoryCoverage'
 import type { EquipmentItem } from '../src/renderer/types/equipment'
-import quelle from '../src/renderer/lib/erpReconcile.ts?raw'
+import quelle from '../src/renderer/lager/lib/erpReconcile.ts?raw'
 import dialogQuelle from '../src/renderer/components/Rentman/RentmanImportDialog.tsx?raw'
 import dictsQuelle from '../src/renderer/lib/i18n/dicts.ts?raw'
 

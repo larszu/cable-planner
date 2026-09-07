@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { IDENTITY_FINDING_LABEL, identityFindings, unitLabel } from '../../lib/unitIdentity'
+import { IDENTITY_FINDING_LABEL, identityFindings, unitLabel } from '../lib/unitIdentity'
 import {
   Plus,
   Pencil,
@@ -25,7 +25,7 @@ import {
   AlertTriangle,
 } from 'lucide-react'
 import QRCode from 'qrcode'
-import { ModalShell } from '../shared/ModalShell'
+import { ModalShell } from '../../components/shared/ModalShell'
 import { useTranslation, format } from '../../lib/i18n'
 import {
   useInventoryStore,
@@ -33,7 +33,7 @@ import {
   type StorageNodeInput,
   type InventorySetInput,
   type InventoryUnitInput,
-} from '../../store/inventoryStore'
+} from '../store/inventoryStore'
 import { useProjectStore } from '../../store/projectStore'
 import type {
   InventoryItem,
@@ -48,25 +48,25 @@ import type {
   InventoryMaterialKind,
   PhysicalDimensions,
   SetComponent,
-} from '../../types/inventory'
-import { FAULT_SERVICE_LABEL } from '../../types/inventory'
-import { affectedServices, openFaultsOf } from '../../lib/faultHistory'
+} from '../types/inventory'
+import { FAULT_SERVICE_LABEL } from '../types/inventory'
+import { affectedServices, openFaultsOf } from '../lib/faultHistory'
 import { promptDialog } from '../../lib/promptDialog'
-import { useCheckoutStore } from '../../store/checkoutStore'
+import { useCheckoutStore } from '../store/checkoutStore'
 import {
   SIGNATURE_REFUSAL_LABEL,
   SIGNATURE_STATE_LABEL,
   handoverSignatureTable,
   signatureState,
   type HandoverLeg,
-} from '../../lib/handoverSignature'
-import { ownershipNote, overdueSubhire, subhireStatus } from '../../lib/ownership'
-import type { CheckoutDamage, CheckoutRecord } from '../../types/checkout'
-import { damageEntries, damageTable, damageTally } from '../../lib/damageRegister'
+} from '../lib/handoverSignature'
+import { ownershipNote, overdueSubhire, subhireStatus } from '../lib/ownership'
+import type { CheckoutDamage, CheckoutRecord } from '../types/checkout'
+import { damageEntries, damageTable, damageTally } from '../lib/damageRegister'
 import {
   AUDIT_LABEL, auditPick, auditRelocations, auditScan, auditTable, expectedAt, missingAt,
   type AuditCandidate, type AuditHit,
-} from '../../lib/inventoryAudit'
+} from '../lib/inventoryAudit'
 import { keepScreenAwake } from '../../lib/wakeLock'
 import {
   containerContents,
@@ -77,7 +77,7 @@ import {
   scanBackIntoCheckout,
   unlabelledLines,
   type CheckoutRefusal,
-} from '../../lib/containerCheckout'
+} from '../lib/containerCheckout'
 import {
   CUSTODY_START_REFUSAL_TEXT,
   EXTEND_REFUSAL_TEXT,
@@ -85,7 +85,7 @@ import {
   extensionCount,
   type CustodyStartRefusal,
   type ExtendRefusal,
-} from '../../lib/custodyPeriod'
+} from '../lib/custodyPeriod'
 import { toCsv } from '../../lib/csv'
 import { downloadBlob } from '../../lib/downloadBlob'
 import {
@@ -94,14 +94,14 @@ import {
   availabilityOfSet,
   isContainerKind,
   descendantNodeIds,
-} from '../../lib/storageTree'
-import { resolveInventoryCode } from '../../lib/inventoryScan'
-import { serializeInventory, parseInventory } from '../../lib/inventoryPortable'
+} from '../lib/storageTree'
+import { resolveInventoryCode } from '../lib/inventoryScan'
+import { serializeInventory, parseInventory } from '../lib/inventoryPortable'
 import { isBarcodeScannerSupported } from '../../lib/barcodeScanner'
 import { ScannerModal } from './ScannerModal'
-import { derivePackList, packListToText, packListTotalCount } from '../../lib/packList'
-import { buildInventoryReport } from '../../lib/inventoryReport'
-import { buildPackListHtml } from '../../lib/inventoryPrint'
+import { derivePackList, packListToText, packListTotalCount } from '../lib/packList'
+import { buildInventoryReport } from '../lib/inventoryReport'
+import { buildPackListHtml } from '../lib/inventoryPrint'
 import { printHtmlDocument } from '../../lib/printHtml'
 import {
   ALL_LABEL_FORMATS,
@@ -115,7 +115,7 @@ import {
 import { renderBarcodeDataUrl } from '../../lib/barcode'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { infoDialog } from '../../lib/infoDialog'
-import { PanelHint } from '../shared/PanelHint'
+import { PanelHint } from '../../components/shared/PanelHint'
 
 /**
  * Lager-Modul — projektübergreifender Bestand (docs/inventory-rental-readiness.md).

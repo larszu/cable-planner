@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { v4 as uuidv4 } from 'uuid'
 import { mergeById } from '../lib/inventoryMerge'
-import { STORAGE_KEYS } from '../lib/storageKeys'
+import { STORAGE_KEYS } from '../../lib/storageKeys'
 import { moveRefusal } from '../lib/storageMoves'
 import { nodePathLabel } from '../lib/storageTree'
 import { useStorageMoveStore } from './storageMoveStore'
@@ -22,7 +22,7 @@ import type {
 } from '../types/inventory'
 import { normaliseFaultEvent } from '../lib/faultHistory'
 import { deriveDemand } from '../lib/inventoryCoverage'
-import type { EquipmentItem } from '../types/equipment'
+import type { EquipmentItem } from '../../types/equipment'
 
 /**
  * Phase 2 — Zentraler Bestand (docs/inventory-rental-readiness.md).

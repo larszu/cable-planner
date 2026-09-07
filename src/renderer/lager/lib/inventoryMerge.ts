@@ -25,7 +25,7 @@
 // `lib/mergeDefined.ts` — sie ist nicht Lager, sondern allgemein.
 // ───────────────────────────────────────────────────────────────────────────
 
-import { mergeDefined } from './mergeDefined'
+import { mergeDefined } from '../../lib/mergeDefined'
 
 export { mergeDefined }
 

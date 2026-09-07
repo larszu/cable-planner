@@ -43,7 +43,7 @@ import type { InventoryItem, StorageNode, InventoryUnit } from '../types/invento
 import { unitLabel } from './unitIdentity'
 import { resolveInventoryCode, type ScanSources } from './inventoryScan'
 import { descendantNodeIds, nodePathLabel } from './storageTree'
-import type { CsvCell, CsvTable } from './csv'
+import type { CsvCell, CsvTable } from '../../lib/csv'
 
 export type AuditOutcome =
   /** Der Datensatz sagt: liegt hier (oder in einem Behaelter hier drin). */

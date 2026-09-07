@@ -47,10 +47,10 @@
 // ADR-006 Punkt 4 ausdruecklich warnt („Nichts wird zweimal gerechnet").
 // ───────────────────────────────────────────────────────────────────────────
 
-import { useInventoryStore } from '../store/inventoryStore'
-import { useCheckoutStore } from '../store/checkoutStore'
-import type { InventoryItem, InventoryUnit, StorageNode } from '../types/inventory'
-import type { CheckoutRecord } from '../types/checkout'
+import { useInventoryStore } from './store/inventoryStore'
+import { useCheckoutStore } from './store/checkoutStore'
+import type { InventoryItem, InventoryUnit, StorageNode } from './types/inventory'
+import type { CheckoutRecord } from './types/checkout'
 
 // ───────────────────────────────────────────────────────────────────────────
 // DER BESTAND, WIE DER PLAN IHN SIEHT
@@ -99,21 +99,21 @@ export const useTypBestaetigen = (): ((itemId: string, deviceTypeId: string) => 
 // stimmt und deshalb nicht mehr gelesen, sondern geglaubt wird.
 // ───────────────────────────────────────────────────────────────────────────
 
-export { deriveDemand, resolveCoverage, normaliseName } from '../lib/inventoryCoverage'
+export { deriveDemand, resolveCoverage, normaliseName } from './lib/inventoryCoverage'
 export type {
   CoverageLine,
   CoverageOutcome,
   CoverageResult,
   CoverageSource,
   DemandLine,
-} from '../lib/inventoryCoverage'
+} from './lib/inventoryCoverage'
 
-export { buildPlanBom, outcomeLabel, planBomCsv, pickListCsv } from '../lib/planBom'
-export type { PlanBom, PlanBomRow } from '../lib/planBom'
+export { buildPlanBom, outcomeLabel, planBomCsv, pickListCsv } from './lib/planBom'
+export type { PlanBom, PlanBomRow } from './lib/planBom'
 
 /** Derselbe Abgleich gegen die ERP-Reservierung — in beide Richtungen. */
-export { reconcileErp, erpReconcileTable } from '../lib/erpReconcile'
-export type { ErpBasis, ErpLine, ErpReport, ErpRow, ErpVerdict } from '../lib/erpReconcile'
+export { reconcileErp, erpReconcileTable } from './lib/erpReconcile'
+export type { ErpBasis, ErpLine, ErpReport, ErpRow, ErpVerdict } from './lib/erpReconcile'
 
 // ───────────────────────────────────────────────────────────────────────────
 // FRAGE 2 — „Was steht auf dem Ausgabeschein?"
@@ -123,7 +123,7 @@ export type { ErpBasis, ErpLine, ErpReport, ErpRow, ErpVerdict } from '../lib/er
 // fuer den Plan unsichtbar und fuer die Adressvergabe entscheidend.
 // ───────────────────────────────────────────────────────────────────────────
 
-export { overdueCheckouts, openCheckouts } from '../lib/containerCheckout'
+export { overdueCheckouts, openCheckouts } from './lib/containerCheckout'
 
 export {
   assessAssetIdentity,
@@ -131,7 +131,7 @@ export {
   identityAnchors,
   ASSET_FINDING_LABEL,
   IDENTITY_ANCHOR_LABEL,
-} from '../lib/assetIdentity'
+} from './lib/assetIdentity'
 export type {
   AssetFinding,
   AssetFindingKind,
@@ -139,11 +139,11 @@ export type {
   AssetIdentityInput,
   AssetIdentityRow,
   IdentityAnchor,
-} from '../lib/assetIdentity'
+} from './lib/assetIdentity'
 
 /** Wie eine Einheit heisst — je nachdem, wer liest (Haus oder Fremdfirma). */
-export { unitLabel } from '../lib/unitIdentity'
-export type { IdentityAudience } from '../lib/unitIdentity'
+export { unitLabel } from './lib/unitIdentity'
+export type { IdentityAudience } from './lib/unitIdentity'
 
 // ───────────────────────────────────────────────────────────────────────────
 // FRAGE 3 — „Ist das Stueck fremdes Material?"
@@ -153,8 +153,8 @@ export type { IdentityAudience } from '../lib/unitIdentity'
 // Abbautag ist.
 // ───────────────────────────────────────────────────────────────────────────
 
-export { ownershipNote, overdueSubhire, isForeign, subhireStatus, OWNERSHIP_LABEL } from '../lib/ownership'
-export type { OverdueLine, SubhireStatus } from '../lib/ownership'
+export { ownershipNote, overdueSubhire, isForeign, subhireStatus, OWNERSHIP_LABEL } from './lib/ownership'
+export type { OverdueLine, SubhireStatus } from './lib/ownership'
 
 // ───────────────────────────────────────────────────────────────────────────
 // DIE OBERFLAECHE
@@ -163,12 +163,12 @@ export type { OverdueLine, SubhireStatus } from '../lib/ownership'
 // Fenster der Suite; bis dahin haengt er wie bisher in `App.tsx`.
 // ───────────────────────────────────────────────────────────────────────────
 
-export { InventoryDialog } from '../components/Inventory/InventoryDialog'
+export { InventoryDialog } from './ui/InventoryDialog'
 
 // ───────────────────────────────────────────────────────────────────────────
 // DIE DATENTYPEN, die ueber die Tuer gehen. Bewusst nur die, die ein Aufrufer
 // ausserhalb wirklich in der Hand haelt — nicht das ganze Modell.
 // ───────────────────────────────────────────────────────────────────────────
 
-export type { InventoryItem, InventoryUnit, StorageNode, InventoryOwnership } from '../types/inventory'
-export type { CheckoutRecord } from '../types/checkout'
+export type { InventoryItem, InventoryUnit, StorageNode, InventoryOwnership } from './types/inventory'
+export type { CheckoutRecord } from './types/checkout'

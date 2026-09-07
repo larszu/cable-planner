@@ -11,17 +11,17 @@ import {
   openCheckoutsTable,
   overdueCheckouts,
   type InventorySnapshotIn,
-} from '../src/renderer/lib/containerCheckout'
-import type { CheckoutLine, CheckoutRecord } from '../src/renderer/types/checkout'
-import type { InventoryItem, InventoryUnit, StorageNode } from '../src/renderer/types/inventory'
-import quelle from '../src/renderer/lib/containerCheckout.ts?raw'
-import dialogQuelle from '../src/renderer/components/Inventory/InventoryDialog.tsx?raw'
+} from '../src/renderer/lager/lib/containerCheckout'
+import type { CheckoutLine, CheckoutRecord } from '../src/renderer/lager/types/checkout'
+import type { InventoryItem, InventoryUnit, StorageNode } from '../src/renderer/lager/types/inventory'
+import quelle from '../src/renderer/lager/lib/containerCheckout.ts?raw'
+import dialogQuelle from '../src/renderer/lager/ui/InventoryDialog.tsx?raw'
 import dictsQuelle from '../src/renderer/lib/i18n/dicts.ts?raw'
-import storeQuelle from '../src/renderer/store/checkoutStore.ts?raw'
-import inventoryStoreQuelle from '../src/renderer/store/inventoryStore.ts?raw'
+import storeQuelle from '../src/renderer/lager/store/checkoutStore.ts?raw'
+import inventoryStoreQuelle from '../src/renderer/lager/store/inventoryStore.ts?raw'
 import keysQuelle from '../src/renderer/lib/storageKeys.ts?raw'
 import { stripComments } from './support/stripComments'
-import { scanBackIntoCheckout, unlabelledLines } from '../src/renderer/lib/containerCheckout'
+import { scanBackIntoCheckout, unlabelledLines } from '../src/renderer/lager/lib/containerCheckout'
 
 // ---------------------------------------------------------------------------
 // Bedarf 15 -- den Container ein- und auschecken, nicht den Artikel.
@@ -347,7 +347,7 @@ describe('Erreichbarkeit im Lager-Dialog', () => {
   })
 
   it('gibt aus und bucht zurueck ueber den Store', () => {
-    expect(dialogQuelle).toContain("from '../../store/checkoutStore'")
+    expect(dialogQuelle).toContain("from '../store/checkoutStore'")
     // Mehrzeilig seit Bedarf 98 (der Ausgabe-Zeitpunkt kam als viertes
     // Argument dazu). Die Aussage bleibt: der Dialog geht durch den Store.
     expect(dialogQuelle).toMatch(/checkOut\(\s*snap,\s*nodeId,/)

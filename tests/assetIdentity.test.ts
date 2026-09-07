@@ -6,11 +6,11 @@ import {
   assetIdentityTable,
   identityAnchors,
   type AssetIdentityInput,
-} from '../src/renderer/lib/assetIdentity'
+} from '../src/renderer/lager/lib/assetIdentity'
 import { INSTANCE_FIELDS } from '../src/renderer/lib/modelFields'
 import type { EquipmentItem } from '../src/renderer/types/equipment'
-import type { InventoryUnit, InventoryItem } from '../src/renderer/types/inventory'
-import type { CheckoutRecord } from '../src/renderer/types/checkout'
+import type { InventoryUnit, InventoryItem } from '../src/renderer/lager/types/inventory'
+import type { CheckoutRecord } from '../src/renderer/lager/types/checkout'
 import sectionQuelle from '../src/renderer/components/Properties/sections/NetworkAccessSection.tsx?raw'
 import analyseQuelle from '../src/renderer/components/Analysis/AnalysisDialog.tsx?raw'
 import diffQuelle from '../src/renderer/lib/planDiff.ts?raw'

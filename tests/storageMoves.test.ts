@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { useInventoryStore } from '../src/renderer/store/inventoryStore'
-import { useStorageMoveStore } from '../src/renderer/store/storageMoveStore'
+import { useInventoryStore } from '../src/renderer/lager/store/inventoryStore'
+import { useStorageMoveStore } from '../src/renderer/lager/store/storageMoveStore'
 import {
   NEVER_PLACED,
   UNKNOWN_PLACE,
@@ -10,15 +10,15 @@ import {
   moveTable,
   movesOf,
   unjournalledPlaces,
-} from '../src/renderer/lib/storageMoves'
-import { MOVE_REFUSAL_LABEL, MOVE_SUBJECT_LABEL, type StorageMove } from '../src/renderer/types/storageMove'
-import type { InventoryItem, InventoryUnit, StorageNode } from '../src/renderer/types/inventory'
-import typenQuelle from '../src/renderer/types/storageMove.ts?raw'
-import libQuelle from '../src/renderer/lib/storageMoves.ts?raw'
-import storeQuelle from '../src/renderer/store/inventoryStore.ts?raw'
-import journalQuelle from '../src/renderer/store/storageMoveStore.ts?raw'
-import portableQuelle from '../src/renderer/lib/inventoryPortable.ts?raw'
-import dialogQuelle from '../src/renderer/components/Inventory/InventoryDialog.tsx?raw'
+} from '../src/renderer/lager/lib/storageMoves'
+import { MOVE_REFUSAL_LABEL, MOVE_SUBJECT_LABEL, type StorageMove } from '../src/renderer/lager/types/storageMove'
+import type { InventoryItem, InventoryUnit, StorageNode } from '../src/renderer/lager/types/inventory'
+import typenQuelle from '../src/renderer/lager/types/storageMove.ts?raw'
+import libQuelle from '../src/renderer/lager/lib/storageMoves.ts?raw'
+import storeQuelle from '../src/renderer/lager/store/inventoryStore.ts?raw'
+import journalQuelle from '../src/renderer/lager/store/storageMoveStore.ts?raw'
+import portableQuelle from '../src/renderer/lager/lib/inventoryPortable.ts?raw'
+import dialogQuelle from '../src/renderer/lager/ui/InventoryDialog.tsx?raw'
 import lexikonQuelle from '../src/renderer/lib/dataDictionary.ts?raw'
 
 // ---------------------------------------------------------------------------

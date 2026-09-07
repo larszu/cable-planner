@@ -37,7 +37,7 @@ import {
   type InventoryUnit,
   type UnitEvent,
 } from '../types/inventory'
-import type { CsvTable } from './csv'
+import type { CsvTable } from '../../lib/csv'
 
 /** Die Fehler-Ereignisse einer Einheit, juengste zuerst. */
 export const faultsOf = (unit: InventoryUnit): UnitEvent[] =>

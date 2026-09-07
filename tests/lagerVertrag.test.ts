@@ -8,67 +8,28 @@ import { stripComments } from './support/stripComments'
 //
 // ADR-006 schneidet „Lager & Logistik" aus dem Planer heraus und nennt die
 // Reihenfolge ausdruecklich: erst die Fragen, dann das Paket, dann das Repo.
-// `src/renderer/lager/index.ts` ist Schritt eins und zwei — die abschliessende
-// Liste dessen, was der Plan das Lager fragt.
+// `src/renderer/lager/` ist das Paket, `lager/index.ts` sind die Fragen — die
+// abschliessende Liste dessen, was der Plan das Lager fragt.
 //
-// EINE SOLCHE LISTE HAELT NUR, WENN SIE GEMESSEN WIRD. Der Vertrag ist eine
-// Datei mit Re-Exports; niemand merkt, wenn die naechste Komponente wieder
-// `../../store/inventoryStore` importiert, weil das genauso gut funktioniert.
-// Nach drei solchen Importen ist der Umzug wieder ein Grossumbau, und zwar
-// unbemerkt — genau die Sorte Verfall, gegen die ADR-006 Punkt 2 geschrieben
-// ist („Bricht dabei etwas, bricht es sichtbar und an einer Stelle").
+// DIE DOMAENE IST DER ORDNER. Eine Datei gehoert zum Lager, wenn sie unter
+// `lager/` liegt — nicht, weil eine Liste in diesem Test sie nennt. Das ist
+// der Unterschied zwischen einer Behauptung und einer Tatsache: eine
+// aufgezaehlte Domaene faellt beim ersten Tippfehler still auseinander, ein
+// Ordner nicht. Wer ein Modul hinzunimmt, verschiebt es; das ist ein Diff, den
+// man sieht.
 //
-// WARUM DIE DOMAENE HIER AUFGEZAEHLT STEHT und nicht gerechnet wird: Die
-// Zugehoerigkeit eines Moduls zum Lager ist eine ENTSCHEIDUNG, keine
-// Messgroesse. `handoverPackage.ts` heisst „Uebergabe" und ist
-// Festinstallation; `actionItems.ts` liest das Lager und gehoert dem Plan;
-// `mergeDefined` ist in der Lager-Datei entstanden und ist trotzdem
-// allgemein. Ein Automatismus ueber Dateinamen oder Import-Ketten haette alle
-// drei falsch einsortiert. Was hier gerechnet wird, ist die Einhaltung —
-// welche Datei welchen Import traegt, und das ist eine Tatsache.
-//
-// Wer ein Modul zur Domaene hinzufuegt, traegt es in DOMAENE ein; wer eines
-// herausnimmt, streicht es. Beides ist eine bewusste Handlung mit einem Diff.
+// EINE TUER HAELT NUR, WENN SIE GEMESSEN WIRD. Der Vertrag ist eine Datei mit
+// Re-Exports; niemand merkt, wenn die naechste Komponente wieder
+// `../../lager/store/inventoryStore` importiert, weil das genauso gut
+// funktioniert. Nach drei solchen Importen ist der Umzug ins eigene Repo
+// wieder ein Grossumbau, und zwar unbemerkt — genau die Sorte Verfall, gegen
+// die ADR-006 Punkt 2 geschrieben ist („Bricht dabei etwas, bricht es sichtbar
+// und an einer Stelle").
 // ---------------------------------------------------------------------------
 
 const WURZEL = resolve(__dirname, '..', 'src', 'renderer')
+const LAGER = 'lager'
 const TUER = 'lager/index.ts'
-
-/**
- * Die Lager-Domaene, wie ADR-006 sie schneidet — 21 Rechenmodule, zwei
- * Stores, drei Typdateien, die Oberflaeche.
- */
-const DOMAENE = new Set([
-  'lib/assetIdentity.ts',
-  'lib/containerCheckout.ts',
-  'lib/custodyPeriod.ts',
-  'lib/damageRegister.ts',
-  'lib/erpReconcile.ts',
-  'lib/faultHistory.ts',
-  'lib/handoverSignature.ts',
-  'lib/inventoryAudit.ts',
-  'lib/inventoryCommitment.ts',
-  'lib/inventoryCoverage.ts',
-  'lib/inventoryMerge.ts',
-  'lib/inventoryPortable.ts',
-  'lib/inventoryPrint.ts',
-  'lib/inventoryReport.ts',
-  'lib/inventoryScan.ts',
-  'lib/ownership.ts',
-  'lib/packList.ts',
-  'lib/planBom.ts',
-  'lib/storageMoves.ts',
-  'lib/storageTree.ts',
-  'lib/unitIdentity.ts',
-  'store/inventoryStore.ts',
-  'store/checkoutStore.ts',
-  'store/storageMoveStore.ts',
-  'types/inventory.ts',
-  'types/checkout.ts',
-  'types/storageMove.ts',
-  'components/Inventory/InventoryDialog.tsx',
-  'components/Inventory/ScannerModal.tsx',
-])
 
 const dateien = (dir: string): string[] => {
   const out: string[] = []
@@ -80,57 +41,79 @@ const dateien = (dir: string): string[] => {
   return out
 }
 
+const relativ = (voll: string): string => relative(WURZEL, voll).split(sep).join('/')
+
 const IMPORT = /(?:import|export)\s+(?:type\s+)?(?:[\w*{][^;]*?\s+from\s+)?['"](\.[^'"]+)['"]/g
 
-/** Welches Domaenen-Modul meint dieser relative Import — oder keines? */
-const zielInDerDomaene = (datei: string, ziel: string): string | null => {
+/** Welche Datei meint dieser relative Import — relativ zu `src/renderer`? */
+const zielDatei = (datei: string, ziel: string): string | null => {
   const roh = resolve(join(datei, '..'), ziel)
-  for (const endung of ['.ts', '.tsx', '/index.ts', '/index.tsx', '']) {
-    const kandidat = relative(WURZEL, roh + endung).split(sep).join('/')
-    if (DOMAENE.has(kandidat)) return kandidat
+  for (const endung of ['.ts', '.tsx', '/index.ts', '/index.tsx']) {
+    try {
+      if (statSync(roh + endung).isFile()) return relativ(roh + endung)
+    } catch {
+      /* naechste Endung */
+    }
   }
   return null
 }
 
-interface Verstoss {
-  datei: string
-  ziel: string
-}
-
-const verstoesse = (): Verstoss[] => {
-  const gefunden: Verstoss[] = []
+const vorbeiAnDerTuer = (): string[] => {
+  const gefunden: string[] = []
   for (const voll of dateien(WURZEL)) {
-    const rel = relative(WURZEL, voll).split(sep).join('/')
-    if (rel === TUER) continue
-    if (DOMAENE.has(rel)) continue
-    if (rel.startsWith('lager/')) continue
+    const rel = relativ(voll)
+    if (rel.startsWith(`${LAGER}/`) || rel === TUER) continue
     const quelle = stripComments(readFileSync(voll, 'utf8'))
     for (const treffer of quelle.matchAll(IMPORT)) {
-      const ziel = zielInDerDomaene(voll, treffer[1])
-      if (ziel) gefunden.push({ datei: rel, ziel })
+      const ziel = zielDatei(voll, treffer[1])
+      if (ziel && ziel.startsWith(`${LAGER}/`) && ziel !== TUER) {
+        gefunden.push(`${rel} -> ${ziel}`)
+      }
     }
   }
-  return gefunden
+  return gefunden.sort()
 }
 
 describe('Der Lager-Vertrag ist die einzige Tuer (ADR-006)', () => {
-  it('kein Modul ausserhalb der Domaene greift an der Tuer vorbei', () => {
-    const offen = verstoesse()
-    const text = offen.map((v) => `${v.datei} -> ${v.ziel}`).sort()
-    expect(text).toEqual([])
+  it('kein Modul ausserhalb von lager/ greift an der Tuer vorbei', () => {
+    expect(vorbeiAnDerTuer()).toEqual([])
   })
 
-  it('die Domaene ist vollstaendig aufgezaehlt — jede genannte Datei existiert', () => {
-    // Ein Tippfehler in DOMAENE macht den Test still wirkungslos: das Modul
-    // faellt aus der Menge, und jeder Import darauf gilt als erlaubt.
-    const fehlend = [...DOMAENE].filter((rel) => {
-      try {
-        return !statSync(join(WURZEL, rel)).isFile()
-      } catch {
-        return true
-      }
-    })
-    expect(fehlend).toEqual([])
+  it('das Lager ist nicht leer und traegt seine Rechenschicht', () => {
+    // Ohne diese Zusicherung waere der erste Test auch dann gruen, wenn der
+    // Ordner verschwaende: „niemand importiert an der Tuer vorbei" ist bei
+    // null Modulen trivial wahr.
+    const drin = dateien(join(WURZEL, LAGER)).map(relativ)
+    expect(drin.length).toBeGreaterThanOrEqual(25)
+    expect(drin).toContain('lager/lib/inventoryCoverage.ts')
+    expect(drin).toContain('lager/store/inventoryStore.ts')
+    expect(drin).toContain('lager/types/inventory.ts')
+    expect(drin).toContain('lager/ui/InventoryDialog.tsx')
+  })
+
+  it('die drei bewussten Ausnahmen sind NICHT im Lager', () => {
+    // Jede haette man mit einem Blick auf den Namen hineinsortiert; jede
+    // waere dann nach dem Umzug aus einem fremden Repo zu holen.
+    //
+    //   pickFile        generischer Datei-Dialog, fuenf Aufrufer quer durch
+    //                   den Planer. Im Lager-Import entstanden, keine
+    //                   Lager-Frage.
+    //   mergeDefined    „Die Regel ist nicht auf das Lager beschraenkt" —
+    //                   steht so in ihrem eigenen Kommentar; templateSlice
+    //                   benutzt sie aus demselben Grund.
+    //   handoverPackage klingt nach Ausgabeschein, ist das Uebergabe-Paket
+    //                   der Festinstallation (die andere Domaene aus
+    //                   ADR-006, Issues #665-#667).
+    //   actionItems     liest das Lager, gehoert aber dem Plan: es zaehlt
+    //                   auch Netz- und Geld-Befunde zusammen.
+    for (const bleibt of [
+      'lib/pickFile.ts',
+      'lib/mergeDefined.ts',
+      'lib/handoverPackage.ts',
+      'lib/actionItems.ts',
+    ]) {
+      expect(statSync(join(WURZEL, bleibt)).isFile(), bleibt).toBe(true)
+    }
   })
 
   it('die Tuer rechnet nicht selbst', () => {
@@ -138,19 +121,15 @@ describe('Der Lager-Vertrag ist die einzige Tuer (ADR-006)', () => {
     // durch — er hat kein Recht, aus Bestand und Bedarf selbst eine Zahl zu
     // machen, denn diese Zahl gaebe es dann zweimal. Erlaubt sind
     // Re-Exports und die duennen Store-Haken.
-    const quelle = stripComments(
-      readFileSync(join(WURZEL, TUER), 'utf8'),
-    )
-    // Kein Schleifen-, Rechen- oder Verzweigungs-Konstrukt.
+    const quelle = stripComments(readFileSync(join(WURZEL, TUER), 'utf8'))
     expect(quelle).not.toMatch(/\bfor\b|\bwhile\b|\.map\(|\.filter\(|\.reduce\(/)
     expect(quelle).not.toMatch(/\bif\s*\(/)
   })
 
-  it('jeder Store-Haken liest genau einen Selektor', () => {
+  it('jeder Store-Haken IST ein Selektor', () => {
     // Ein Haken, der ein frisches Objekt zurueckgibt (`{ items, units }`),
     // zeichnet jede lesende Komponente bei JEDER Store-Aenderung neu — der
-    // Vertrag waere dann nicht kostenlos, sondern eine Bremse. Deshalb: ein
-    // Feld je Haken, dieselbe Referenz wie vorher.
+    // Vertrag waere dann nicht kostenlos, sondern eine Bremse.
     const quelle = stripComments(readFileSync(join(WURZEL, TUER), 'utf8'))
     const haken = [...quelle.matchAll(/export const (use\w+)([^\n]*)/g)]
     expect(haken.length).toBeGreaterThanOrEqual(4)

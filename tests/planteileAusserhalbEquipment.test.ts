@@ -14,10 +14,10 @@
 // ───────────────────────────────────────────────────────────────────────────
 import { describe, expect, it } from 'vitest'
 import { zusatzBedarf } from '../src/renderer/lib/planDemandExtras'
-import { deriveDemand } from '../src/renderer/lib/inventoryCoverage'
-import { buildPlanBom } from '../src/renderer/lib/planBom'
+import { deriveDemand } from '../src/renderer/lager/lib/inventoryCoverage'
+import { buildPlanBom } from '../src/renderer/lager/lib/planBom'
 import type { EquipmentItem } from '../src/renderer/types/equipment'
-import type { InventoryItem, StorageNode } from '../src/renderer/types/inventory'
+import type { InventoryItem, StorageNode } from '../src/renderer/lager/types/inventory'
 import type { DrumKitPlan } from '../src/renderer/types/drumKit'
 import type { WirelessRigPlan } from '../src/renderer/types/wirelessRig'
 import exportDialogQuelle from '../src/renderer/components/Export/ExportDialog.tsx?raw'
