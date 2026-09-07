@@ -1,5 +1,6 @@
 import type { EquipmentItem } from '../types/equipment'
 import { resolveDeviceType } from './deviceTypeRegistry'
+import { isPatchPanelDevice } from './patchPanel'
 
 /**
  * Derive a default icon glyph for an equipment item from its category, name,
@@ -22,6 +23,7 @@ export const defaultIconForEquipment = (device: {
   if (cat === 'netzwerk' || /switch|router|firewall|access point|edgerouter/.test(name)) return '🌐'
   if (cat === 'strom' || /\bpower\b|psu|ups|distro/.test(name)) return '⚡'
   if (cat === 'video' || /converter|teranex|mini.?converter|hyperdeck|atem|videohub/.test(name)) return '📺'
+  if (cat === 'patchfelder') return '🔀'
   if (cat === 'kabel') return '🔌'
   if (cat === 'rigging') return '🔧'
   return ''
@@ -74,6 +76,16 @@ export const detectNetworkDevice = (device: EquipmentItem): NetworkDeviceKind =>
 export const detectDeviceKind = (device: EquipmentItem): DeviceKind => {
   const resolved = resolveDeviceType(device.deviceTypeId)
   if (resolved) return resolved.kind ?? null
+
+  // ISSUE #664 — eine Patchblende ist KEINE Kreuzschiene, auch wenn sie so
+  // aussieht: die Struktur-Heuristik weiter unten ("mindestens acht BNC rein,
+  // ebenso viele raus") trifft auf jede 24er-Blende zu. Sie wurde damit als
+  // 'videohub' gefuehrt — und die Rueckwaertssuche verlangte danach einen
+  // GESCHALTETEN Kreuzpunkt, den eine Blende nie hat. Die Kette brach an
+  // jeder Blende, und der Export-Dialog bot fuer sie einen Videohub-Export
+  // an. Die ausdrueckliche Markierung schlaegt die Heuristik; das Datenblatt
+  // (resolveDeviceType, oben) schlaegt weiterhin beides.
+  if (isPatchPanelDevice(device)) return null
 
   const name = device.name.toLowerCase()
 

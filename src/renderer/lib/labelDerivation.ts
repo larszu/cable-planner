@@ -33,6 +33,7 @@ import type { EquipmentItem, Port } from '../types/equipment'
 import type { SourceIdentity } from '../types/sourceIdentity'
 import type { CheckFinding } from './drawingChecks'
 import { detectDeviceKind, type DeviceKind } from './deviceKind'
+import { patchPanelCounterpart } from './patchPanel'
 import {
   resolvePortLabel,
   shortenForAtem,
@@ -332,6 +333,12 @@ const feedingInput = (device: EquipmentItem, arrival: Port): Port | null => {
   const kind = detectDeviceKind(device)
   if (kind === 'videohub') return routedInput(device, arrival)
   if (kind !== null) return null
+  // ISSUE #664 — die Patchblende ist der haeufigste Kettenbruch. Sie hat
+  // vierundzwanzig gleiche Buchsen, also greift die Eindeutigkeits-Regel
+  // unten NIE, und die Suche hielt an der Blende an. Ihr Durchgang steht
+  // aber fest; die Ableitung steht in `patchPanel.ts`.
+  const durch = patchPanelCounterpart(device, arrival)
+  if (durch) return durch
   const candidates = device.inputs.filter(
     (p) => p.connectorType === arrival.connectorType && !isReferencePort(p),
   )

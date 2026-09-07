@@ -1,5 +1,10 @@
 import { useCanvasProjectStore as useProjectStore } from '../../../store/projectStoreContext'
 import { useTranslation } from '../../../lib/i18n'
+import {
+  PATCH_PANEL_CATEGORY,
+  categoryIsPatchPanel,
+  isPatchPanelDevice,
+} from '../../../lib/patchPanel'
 import { ColorField } from '../../shared/ColorField'
 import { SortableSection } from '../SortableSection'
 import type { EquipmentItem } from '../../../types/equipment'
@@ -16,6 +21,10 @@ import type { EquipmentItem } from '../../../types/equipment'
 export const DisplayFlagsSection = ({ equipment }: { equipment: EquipmentItem }) => {
   const t = useTranslation()
   const updateEquipment = useProjectStore((state) => state.updateEquipment)
+  // ISSUE #664 — die Kategorie „Patchfelder" sagt es bereits; dann ist das
+  // Haekchen gesetzt UND gesperrt, statt eine zweite, widersprechbare
+  // Wahrheit anzubieten.
+  const ausKategorie = categoryIsPatchPanel(equipment.category)
 
   return (
     <SortableSection id="flags" title={t('flags.title', 'Darstellung & Flags')} subtitle={t('flags.subtitle', 'kompakt · Farbe · gepackt')}>
@@ -73,6 +82,35 @@ export const DisplayFlagsSection = ({ equipment }: { equipment: EquipmentItem })
             }
           />
           {t('flags.converter', 'Wandler (Patchliste folgt Durchgangskabel)')}
+        </label>
+        {/* #664 — Patchblenden-Marker. Setzt den positionsweisen Durchgang
+            (Buchse n hinten auf Buchse n vorn), dem Patchliste, Signalweg
+            und Namens-Ableitung folgen. */}
+        <label
+          className="flex items-center gap-2 text-[11px] text-cp-text-secondary"
+          title={
+            ausKategorie
+              ? t(
+                  'flags.patchPanelByCategory',
+                  `Die Kategorie „${PATCH_PANEL_CATEGORY}" weist dieses Gerät bereits als Patchfeld aus.`,
+                )
+              : t(
+                  'flags.patchPanelTitle',
+                  'Patchfeld: Buchse n hinten liegt auf Buchse n vorn. Der Signalweg und die Patchliste folgen dem Durchgang, statt an der Blende anzuhalten. Setzt gleich viele Ein- und Ausgänge voraus.',
+                )
+          }
+        >
+          <input
+            type="checkbox"
+            checked={isPatchPanelDevice(equipment)}
+            disabled={ausKategorie}
+            onChange={(event) =>
+              updateEquipment(equipment.id, {
+                isPatchPanel: event.target.checked || undefined,
+              })
+            }
+          />
+          {t('flags.patchPanel', 'Patchfeld (Durchgang folgt der Position)')}
         </label>
         <label
           className="flex items-center gap-2 text-[11px] text-cp-text-secondary"

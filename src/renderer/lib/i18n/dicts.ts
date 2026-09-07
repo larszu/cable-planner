@@ -2410,6 +2410,11 @@ export const en: Dict = {
   'flags.title': 'Display & flags',
   'flags.subtitle': 'compact · colour · packed',
   'flags.colorTitle': 'Device node colour',
+  'flags.patchPanel': 'Patch panel (through-path follows the position)',
+  'flags.patchPanelTitle':
+    'Patch panel: rear socket n lands on front socket n. The signal path and the patch list follow that through-path instead of stopping at the panel. Requires an equal number of inputs and outputs.',
+  'flags.patchPanelByCategory':
+    'The category „Patchfelder“ already marks this device as a patch panel.',
   'flags.da': 'Distribution amp (1→N)',
   'flags.daTitle': 'Distribution amplifier: one input is actively split to several outputs of the same source (1→N).',
   'roles.tc': 'Timecode',
@@ -4825,6 +4830,14 @@ export const en: Dict = {
   'analysis.redundancy.none': 'No obvious single power feeds found.',
   'analysis.tab.rf': 'RF / wireless',
   'analysis.tab.runs': 'Cable runs',
+  'analysis.tab.chain': 'Signal paths',
+  'analysis.chain.hint':
+    'Paths crossing at least one intermediate stage — patch panel, converter, distribution amp, switched router crosspoint. Direct connections live in the patch list and are deliberately absent here. Where a path does not reach an end device, the reason is stated: nothing is guessed.',
+  'analysis.chain.none':
+    'No multi-stage path in this plan. A device becomes a patch panel through the category „Patchfelder“ or the checkbox under „Display & flags“.',
+  'analysis.chain.count': 'multi-stage paths',
+  'analysis.chain.openCount': 'without a reached end device',
+  'analysis.chain.endTarget': 'End device reached',
   'analysis.tab.sheet': 'Check a sheet',
   // Bedarf 81 — die Kunden-Uebersicht.
   'analysis.tab.client': 'Client summary',
