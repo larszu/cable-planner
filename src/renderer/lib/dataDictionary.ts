@@ -267,6 +267,17 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   Maske: 'Die Subnetzmaske des Segments.',
   Menge: 'Die Stückzahl dieser Position.',
   Mischer: 'Der Bildmischer, auf den sich die Eingangsnummer bezieht.',
+  'Mischer-Eingang':
+    'Die 1-basierte Eingangsnummer am Mischer — dieselbe, mit der er den ' +
+    'Eingang auf dem Draht adressiert (Tally, UMD, ISO-Kanal).',
+  'Karten-Präfix':
+    'Unter welchem Kürzel die Post die Karten dieser Rolle wiederfindet. ' +
+    'NUR das Präfix: Drehtag und Kartennummer entstehen am Set und stehen ' +
+    'nicht im Plan.',
+  Aufzeichnung:
+    'Wo die Aufzeichnung dieser Rolle landet — ein Mischer mit ISO-Kanal ' +
+    'oder ein eigener Recorder mit seinem Eingang. Steht im Plan keiner, ' +
+    'sagt die Zelle genau das.',
   Modell: 'Der Gerätetyp — nicht die einzelne Einheit.',
   Nachher:
     'Der Stand NACH der Aenderung: beim Vergleich zweier Importe der zweite Stand, auf dem Umbenennungs-Blatt der Text nach der Umbenennung, auf dem Umbau-Zettel der Eingang, der auf diesen Ausgang kommt.',
@@ -302,6 +313,7 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   'Quelle (Plan)': 'Die Quelle, die der Plan für den zugeordneten Kanal führt.',
   Reservierung: 'Die Menge, die im Warenwirtschaftssystem reserviert ist.',
   Rolle: 'Wofür das Gerät oder die Schnittstelle in diesem Zusammenhang steht.',
+  Nummer: 'Die redaktionelle Nummer der Rolle — die Zahl, die in der Regie gesprochen wird.',
   'Schätzung': 'Der geschätzte Betrag dieser Position.',
   Schaden: 'Was an der Einheit beschädigt ist.',
   Schlagworte: 'Die Schlagworte für die Plattform-Formulare.',

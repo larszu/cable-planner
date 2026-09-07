@@ -11,6 +11,7 @@
 // (manuell angelegt, Rentman/GraphML-Import ohne Katalog-Zuordnung).
 // ───────────────────────────────────────────────────────────────────────────
 import type { EquipmentTemplate } from '../types/equipment'
+import type { RecordingCapability } from './recording'
 import { CAMERA_CATALOG } from './cameraCatalog'
 import { BLACKMAGIC_CATALOG } from './blackmagicCatalog'
 import { GREENGO_CATALOG } from './greengoCatalog'
@@ -36,6 +37,15 @@ export interface DeviceTypeInfo {
   networkKind?: 'switch' | 'router'
   /** Videohubs: expliziter Export-Preset-Key (Datenblatt-Fakt). */
   videohubPresetKey?: string
+  /**
+   * Zeichnet dieses Modell auf, und in welcher Form (Bedarf 62)?
+   *
+   * Eigenes Feld neben `kind`, weil beides zugleich gilt: ein ATEM Mini Pro
+   * ISO ist Mischer UND Recorder. Fehlt das Feld bei einem Katalog-Eintrag,
+   * ist das die Datenblatt-Aussage „zeichnet nicht auf" — `detectRecording`
+   * laesst die Namens-Heuristik dann bewusst nicht mehr darueber.
+   */
+  records?: RecordingCapability
 }
 
 /** Lazy aufgebaut, damit der Modul-Import billig bleibt. */
@@ -59,6 +69,7 @@ const buildRegistry = (): Map<string, DeviceTypeInfo> => {
       template: { ...e.template, deviceTypeId: e.deviceTypeId },
       kind: e.kind,
       videohubPresetKey: e.videohubPresetKey,
+      records: e.records,
     })
   }
   for (const e of GREENGO_CATALOG) {
@@ -69,7 +80,10 @@ const buildRegistry = (): Map<string, DeviceTypeInfo> => {
     })
   }
   for (const e of MONITOR_CATALOG) {
-    put(e.deviceTypeId, { template: { ...e.template, deviceTypeId: e.deviceTypeId } })
+    put(e.deviceTypeId, {
+      template: { ...e.template, deviceTypeId: e.deviceTypeId },
+      records: e.records,
+    })
   }
   for (const e of UBIQUITI_CATALOG) {
     put(e.deviceTypeId, {
@@ -78,13 +92,19 @@ const buildRegistry = (): Map<string, DeviceTypeInfo> => {
     })
   }
   for (const e of MISC_CATALOG) {
-    put(e.deviceTypeId, { template: { ...e.template, deviceTypeId: e.deviceTypeId } })
+    put(e.deviceTypeId, {
+      template: { ...e.template, deviceTypeId: e.deviceTypeId },
+      records: e.records,
+    })
   }
   // AJA/Ross/Lynx/Switcher: KEIN kind 'videohub' fuer fremde Router (KUMO,
   // Ultrix, NK) — der Videohub-Export spricht das Blackmagic-Protokoll
   // (Port 9990), das diese Geraete nicht verstehen. Rolle bleibt null.
   for (const e of AJA_CATALOG) {
-    put(e.deviceTypeId, { template: { ...e.template, deviceTypeId: e.deviceTypeId } })
+    put(e.deviceTypeId, {
+      template: { ...e.template, deviceTypeId: e.deviceTypeId },
+      records: e.records,
+    })
   }
   for (const e of ROSS_CATALOG) {
     put(e.deviceTypeId, { template: { ...e.template, deviceTypeId: e.deviceTypeId } })
