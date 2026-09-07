@@ -348,7 +348,7 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   // Bedarf 20 — die vier Spalten des Adressbereichs-Blatts.
   Ebene:
     'Aus welcher Schicht der Bereich stammt: „stehend“ ist der Plan, der am Wagen hängt, „Haus“ die Überlagerung vor Ort. Die Haus-Ebene gewinnt.',
-  'Schluessel':
+  'Schlüssel':
     'Der Schlüssel, an dem sich die Ebenen treffen: die Haus-Ebene ersetzt den stehenden Bereich mit DEMSELBEN Schlüssel und lässt alle anderen stehen. Ein Tippfehler hier heisst, dass die gemeinte Ersetzung nicht stattfindet.',
   CIDR:
     'Der Adressbereich in CIDR-Schreibweise, immer kanonisch auf seine Netz-Adresse gerundet („10.0.5.7/24“ wird zu „10.0.5.0/24“).',
