@@ -313,6 +313,11 @@ prüfen, ob das gemeinsame Konzept nach `shared/` gehört.
 - `LocationNode.tsx` (Rahmen mit Move-Contents-Logik)
 - `LayerVisibilityChips.tsx` (Layer-Filter mit Count-Badges)
 - `pathfinding.ts` (Orthogonal-Routing zwischen Ports)
+- `cableApproach.ts` (die Anfahrt an das Geraet: Stummel an beiden Enden,
+  Form gewaehlt statt angenommen — der Weg macht nicht kehrt, und der Pfeil
+  faehrt gerade in die Buchse). Wer eine zweite Stelle baut, an der ein
+  Kabelweg zusammengesetzt wird, hebelt das aus: `CableEdge.tsx` hatte genau
+  deshalb zwei Fassungen, und nur eine setzte einen Stummel.
 
 ### 3.4 · 3D
 

@@ -18,6 +18,7 @@ import {
 import { useUiStore } from '../../store/uiStore'
 import { CableWaypoints } from './CableWaypoints'
 import { computeObstacleAwareWaypoints, pathIsBlocked, type Rect } from '../../lib/cableRouting'
+import { legeAnfahrt, type Anschlussseite } from '../../lib/cableApproach'
 import { computeEquipmentLayout } from '../../lib/equipmentLayout'
 import { isCableVisibleByLayer } from '../../lib/cableLayers'
 import { netKeyOf, netEndpoints } from '../../lib/offPageNet'
@@ -138,28 +139,26 @@ const buildPathWithBumps = (
   return segments.join(' ')
 }
 
-/** Normalize waypoints so every segment is strictly horizontal or vertical.
- *  Any diagonal is replaced by an L-corner (horizontal-first). Already
- *  orthogonal segments are passed through unchanged so we don't introduce
- *  spurious bends that make the cable visually "jump". */
-function normalizeOrthogonal(
-  src: { x: number; y: number },
-  wps: { x: number; y: number }[],
-  tgt: { x: number; y: number },
-  tol = 2,
-): { x: number; y: number }[] {
-  const pts = [src, ...wps, tgt]
-  const result: { x: number; y: number }[] = []
-  for (let i = 0; i < pts.length - 1; i++) {
-    const p = pts[i]
-    const q = pts[i + 1]
-    const isDiag = Math.abs(q.x - p.x) > tol && Math.abs(q.y - p.y) > tol
-    // Push every intermediate waypoint (not source, not target).
-    if (i > 0) result.push({ x: p.x, y: p.y })
-    // Only insert an L-corner if this segment is actually diagonal.
-    if (isDiag) result.push({ x: q.x, y: p.y })
+/**
+ * Auf welche Seite des Geraets zeigt dieser Anschluss?
+ *
+ * ReactFlow spricht von `Position`, die Wegfindung von der Anschlussseite.
+ * Ist die Seite unbekannt, wird `rechts` angenommen — dieselbe Annahme wie in
+ * der alten Fassung, damit sich an dieser Stelle nichts still aendert.
+ */
+const anschlussseite = (
+  pos: EdgeProps['sourcePosition'] | EdgeProps['targetPosition'] | undefined,
+): Anschlussseite => {
+  switch (pos) {
+    case Position.Left:
+      return 'links'
+    case Position.Top:
+      return 'oben'
+    case Position.Bottom:
+      return 'unten'
+    default:
+      return 'rechts'
   }
-  return result
 }
 
 const resolveOrthogonalWaypoints = (
@@ -174,24 +173,14 @@ const resolveOrthogonalWaypoints = (
   obstacleIds: string[],
 ): { x: number; y: number }[] => {
   const manualWaypoints = cable.waypoints ?? []
-  const autoWaypoints =
-    manualWaypoints.length === 0
-      ? computeObstacleAwareWaypoints(
-          { x: args.sourceX, y: args.sourceY },
-          { x: args.targetX, y: args.targetY },
-          obstacles,
-          new Set([cable.fromEquipmentId, cable.toEquipmentId]),
-          obstacleIds,
-        )
-      : []
-  const rawWaypoints = manualWaypoints.length > 0 ? manualWaypoints : autoWaypoints
-  return rawWaypoints.length > 0
-    ? normalizeOrthogonal(
-        { x: args.sourceX, y: args.sourceY },
-        rawWaypoints,
-        { x: args.targetX, y: args.targetY },
-      )
-    : rawWaypoints
+  if (manualWaypoints.length > 0) return manualWaypoints
+  return computeObstacleAwareWaypoints(
+    { x: args.sourceX, y: args.sourceY },
+    { x: args.targetX, y: args.targetY },
+    obstacles,
+    new Set([cable.fromEquipmentId, cable.toEquipmentId]),
+    obstacleIds,
+  )
 }
 
 /** Issue #53: deterministic small offset for the midline of a cable
@@ -214,6 +203,35 @@ const midlineJitter = (cableId: string): number => {
  *  überlappen → Fallback auf die normale durchgehende Linie. */
 const OFF_PAGE_MIN_SPAN = 220
 
+/**
+ * Aus einem Streckenzug den SVG-Pfad und die Beschriftungsstelle machen.
+ *
+ * EINE Fassung, nicht zwei. Vorher rechneten der Zweig mit und der Zweig ohne
+ * Stuetzpunkte dasselbe zweimal — die Defektform `zwei-rechnungen`, und sie
+ * war schon auseinandergelaufen: nur eine der beiden setzte einen Stummel an
+ * die Geraete.
+ */
+const ausPunkten = (punkte: { x: number; y: number }[]): [string, number, number] => {
+  const d = punkte
+    .map((p, i) => (i === 0 ? `M ${p.x} ${p.y}` : `L ${p.x} ${p.y}`))
+    .join(' ')
+  // Die Beschriftung sitzt in der Mitte des laengsten Abschnitts, damit sie
+  // auf freier Strecke liegt und nicht in einer Ecke klemmt.
+  let bestLen = -1
+  let labelX = punkte[0].x
+  let labelY = punkte[0].y
+  for (let i = 0; i < punkte.length - 1; i += 1) {
+    const len =
+      Math.abs(punkte[i + 1].x - punkte[i].x) + Math.abs(punkte[i + 1].y - punkte[i].y)
+    if (len > bestLen) {
+      bestLen = len
+      labelX = (punkte[i].x + punkte[i + 1].x) / 2
+      labelY = (punkte[i].y + punkte[i + 1].y) / 2
+    }
+  }
+  return [d, labelX, labelY]
+}
+
 const buildPath = (
   cable: Cable,
   args: {
@@ -224,10 +242,7 @@ const buildPath = (
     sourcePosition: EdgeProps['sourcePosition']
     targetPosition: EdgeProps['targetPosition']
   },
-  obstacles: Rect[],
-  obstacleIds: string[],
-  collisionShiftOn: boolean,
-  resolvedOrthogonalWaypoints?: { x: number; y: number }[],
+  gezeichneterWeg: { x: number; y: number }[],
 ): [string, number, number] => {
   const routing = cable.routing ?? 'orthogonal'
 
@@ -244,117 +259,7 @@ const buildPath = (
     const [path, labelX, labelY] = getBezierPath(args)
     return [path, labelX, labelY]
   }
-  const waypoints =
-    resolvedOrthogonalWaypoints ??
-    resolveOrthogonalWaypoints(cable, args, obstacles, obstacleIds)
-
-  if (waypoints.length === 0) {
-    // No manual waypoints and no obstacle detour: build a stub-respecting
-    // orthogonal path. The first/last segment must be perpendicular to the
-    // device handle (i.e. exit a Right-handle going right, enter a Left-handle
-    // going right). Without that, an L-shape can land at the target's left
-    // handle going *vertically*, so the cable runs along the device's left
-    // edge and visually disappears behind the device body (issue #51).
-    const sx = args.sourceX
-    const sy = args.sourceY
-    const tx = args.targetX
-    const ty = args.targetY
-    const STUB = 18
-    const stub = (
-      pt: { x: number; y: number },
-      pos: EdgeProps['sourcePosition'] | EdgeProps['targetPosition'] | undefined,
-    ): { x: number; y: number } => {
-      switch (pos) {
-        case Position.Left:
-          return { x: pt.x - STUB, y: pt.y }
-        case Position.Right:
-          return { x: pt.x + STUB, y: pt.y }
-        case Position.Top:
-          return { x: pt.x, y: pt.y - STUB }
-        case Position.Bottom:
-          return { x: pt.x, y: pt.y + STUB }
-        default:
-          // Unknown handle orientation: fall back to a tiny rightward stub so
-          // the path is still well-defined.
-          return { x: pt.x + STUB, y: pt.y }
-      }
-    }
-    const sStub = stub({ x: sx, y: sy }, args.sourcePosition)
-    const tStub = stub({ x: tx, y: ty }, args.targetPosition)
-    const sHorizontal =
-      args.sourcePosition === Position.Left || args.sourcePosition === Position.Right
-    const tHorizontal =
-      args.targetPosition === Position.Left || args.targetPosition === Position.Right
-
-    // Compose intermediate points between sStub and tStub. The exact shape
-    // depends on whether the two stubs share an axis after stub-out.
-    // Issue #53: when `collisionShiftOn` is true (read from uiStore by
-    // the calling component) we jitter the midline so cables that would
-    // compute identical midX/midY don't perfectly overlap. The jitter
-    // is hashed from the cable id so it's stable across re-renders.
-    const jitter = collisionShiftOn ? midlineJitter(cable.id) : 0
-    const points: { x: number; y: number }[] = [{ x: sx, y: sy }, sStub]
-    if (Math.abs(sStub.x - tStub.x) < 2 || Math.abs(sStub.y - tStub.y) < 2) {
-      // Stubs are collinear: src → sStub → tStub → tgt is already orthogonal.
-    } else if (sHorizontal && tHorizontal) {
-      // Both handles horizontal (typical port-to-port): bend at midX.
-      const midX = (sStub.x + tStub.x) / 2 + jitter
-      points.push({ x: midX, y: sStub.y }, { x: midX, y: tStub.y })
-    } else if (!sHorizontal && !tHorizontal) {
-      // Both handles vertical: bend at midY.
-      const midY = (sStub.y + tStub.y) / 2 + jitter
-      points.push({ x: sStub.x, y: midY }, { x: tStub.x, y: midY })
-    } else if (sHorizontal) {
-      // Source horizontal → target vertical: single bend at (tStub.x, sStub.y).
-      points.push({ x: tStub.x, y: sStub.y })
-    } else {
-      // Source vertical → target horizontal: single bend at (sStub.x, tStub.y).
-      points.push({ x: sStub.x, y: tStub.y })
-    }
-    points.push(tStub, { x: tx, y: ty })
-
-    // Build SVG path and find the longest segment for the label position.
-    const d = points
-      .map((p, i) => (i === 0 ? `M ${p.x} ${p.y}` : `L ${p.x} ${p.y}`))
-      .join(' ')
-    let bestLen = -1
-    let labelX = (sx + tx) / 2
-    let labelY = (sy + ty) / 2
-    for (let i = 0; i < points.length - 1; i++) {
-      const len =
-        Math.abs(points[i + 1].x - points[i].x) + Math.abs(points[i + 1].y - points[i].y)
-      if (len > bestLen) {
-        bestLen = len
-        labelX = (points[i].x + points[i + 1].x) / 2
-        labelY = (points[i].y + points[i + 1].y) / 2
-      }
-    }
-    return [d, labelX, labelY]
-  }
-  const points = [
-    { x: args.sourceX, y: args.sourceY },
-    ...waypoints,
-    { x: args.targetX, y: args.targetY },
-  ]
-  const d = points
-    .map((p, i) => (i === 0 ? `M ${p.x} ${p.y}` : `L ${p.x} ${p.y}`))
-    .join(' ')
-  // Place label at midpoint of the longest segment so it appears on a clear
-  // stretch of cable, not crammed into the bend corner.
-  let bestLen = -1
-  let labelX = points[Math.floor(points.length / 2)].x
-  let labelY = points[Math.floor(points.length / 2)].y
-  for (let i = 0; i < points.length - 1; i++) {
-    const dx = points[i + 1].x - points[i].x
-    const dy = points[i + 1].y - points[i].y
-    const len = Math.abs(dx) + Math.abs(dy)
-    if (len > bestLen) {
-      bestLen = len
-      labelX = (points[i].x + points[i + 1].x) / 2
-      labelY = (points[i].y + points[i + 1].y) / 2
-    }
-  }
-  return [d, labelX, labelY]
+  return ausPunkten(gezeichneterWeg)
 }
 
 export const CableEdge = ({
@@ -439,6 +344,34 @@ export const CableEdge = ({
   const orthogonalWaypoints = cable
     ? resolveOrthogonalWaypoints(cable, routingArgs, obstacles, obstacleIds)
     : []
+  // Die beiden beteiligten Geraete — um sie wird eine Bahn herumgelegt, wenn
+  // das Kabel rueckwaerts laeuft (Ziel hinter der Quelle, Anschluss vom
+  // Partner weg). Ohne sie legte die Bahn sich auf die Hoehe der Buchsen und
+  // damit quer durch die Geraetekaesten.
+  const meideRechtecke = cable
+    ? obstacles.filter(
+        (_, i) =>
+          obstacleIds[i] === cable.fromEquipmentId || obstacleIds[i] === cable.toEquipmentId,
+      )
+    : []
+  // Nutzer-Meldung 2026-09-08: Striche, die hin und wieder zurueckgehen, und
+  // Pfeile, die schraeg in das Geraet stechen. Beides kam daher, dass der
+  // gezeichnete Weg an dieser Stelle zusammengesetzt wurde, ohne die
+  // Anschlussseite zu beachten. Jetzt liefert `legeAnfahrt` den ganzen
+  // Streckenzug — Stummel an beiden Enden, Form gewaehlt statt angenommen.
+  // Siehe `src/renderer/lib/cableApproach.ts` fuer die Messung dahinter.
+  const gezeichneterWeg =
+    cable && (cable.routing ?? 'orthogonal') === 'orthogonal'
+      ? legeAnfahrt({
+          quelle: { x: sourceX, y: sourceY },
+          quelleSeite: anschlussseite(sourcePosition),
+          ziel: { x: targetX, y: targetY },
+          zielSeite: anschlussseite(targetPosition),
+          zwischen: orthogonalWaypoints,
+          jitter: collisionShiftOn ? midlineJitter(cable.id) : 0,
+          meide: meideRechtecke,
+        })
+      : []
   // Nutzer-Meldung 2026-09-07: „das Kabel automatisch Routen funktioniert
   // nicht sauber." Der Rechenfehler steckte in `cableRouting.ts` und ist dort
   // behoben. Was blieb, ist der Fall, in dem es GAR KEINEN freien Weg gibt:
@@ -455,11 +388,7 @@ export const CableEdge = ({
     !cable.offPage &&
     (cable.routing ?? 'orthogonal') === 'orthogonal' &&
     pathIsBlocked(
-      [
-        { x: sourceX, y: sourceY },
-        ...orthogonalWaypoints,
-        { x: targetX, y: targetY },
-      ],
+      gezeichneterWeg,
       obstacles,
       new Set([cable.fromEquipmentId, cable.toEquipmentId]),
       obstacleIds,
@@ -510,7 +439,7 @@ export const CableEdge = ({
     updateCable(cable.id, { waypoints: orthogonalWaypoints })
   }, [cable, orthogonalWaypoints, updateCable])
   const [path, centerX, centerY] = cable
-    ? buildPath(cable, routingArgs, obstacles, obstacleIds, collisionShiftOn, orthogonalWaypoints)
+    ? buildPath(cable, routingArgs, gezeichneterWeg)
     : getSmoothStepPath(routingArgs)
 
   // v7.8.7 / Issue #106 — Apply cable bumps (line jumps) where THIS
