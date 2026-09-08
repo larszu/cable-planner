@@ -96,6 +96,7 @@ import { normaliseHubSwitches } from '../types/hubSwitch'
 import { normalisePlannedCrosspoints } from '../lib/deviceCrosspoints'
 import { istControlProtocol, istControlTarget, istControlRole } from '../types/switcherControl'
 import { normalisiereAdapter, normalisiereKann } from '../types/adapter'
+import { normalisiereSenkenprofil } from '../types/displayCapability'
 import {
   normalisiereAdern,
   normalisiereAnschluss,
@@ -991,6 +992,20 @@ const healProjectPositions = (
           item = (({ adapter: _weg, ...rest }) => rest)(item) as EquipmentItem
         } else {
           item = { ...item, adapter: geheilt }
+        }
+      }
+      // B-47 — das Senkenprofil. Ein Profil ohne `herkunft` faellt WEG statt
+      // mit leerem Feld stehenzubleiben: es stuende sonst am Geraet wie eine
+      // gepruefte Angabe, und niemand koennte nachlesen, woher sie kommt.
+      // „Aus dem Handbuch, Seite 41" und „hat der Kollege mal gesagt" sind
+      // zwei verschiedene Auskuenfte, und die Anzeige zeigt beide gleich.
+      if (item.senkenprofil !== undefined) {
+        const geheilt = normalisiereSenkenprofil(item.senkenprofil)
+        if (!geheilt) {
+          onDrop?.({ kind: 'senkenprofil', reason: 'invalid-value', label: item.name })
+          item = (({ senkenprofil: _weg, ...rest }) => rest)(item) as EquipmentItem
+        } else {
+          item = { ...item, senkenprofil: geheilt }
         }
       }
       // B-46 — die erklaerten Merkmale. Leer und fehlend bedeuten dasselbe

@@ -845,6 +845,26 @@ Das Wichtigste in Listenform. Niemals brechen ohne expliziten Architektur-Review
     lässt die erste in der zweiten untergehen. Und der Anschluss ist NICHT
     `multicoreName`: der sagt „zähle diese Kabel als ein Stück", nur der
     Anschluss sagt „er muss diese Leiter haben".
+23. **Eine EDID wird erklärt, nicht entziffert.** Ein Senkenprofil
+    (`types/displayCapability.ts`, B-47) sagt, welche Formate ein Gerät
+    annimmt — in welchen Farbtiefen, Farbräumen und Dynamik-Fassungen. Es
+    ersetzt nicht die Aushandlung am Kabel; es beantwortet die Frage, die man
+    vorher stellt: kommt das Bild dort an, das ich schicken will?
+    **Aus `resolution` folgt es nicht** — zwei Monitore mit „3840x2160"
+    können verschiedene Bildwiederholraten und HDR-Fassungen annehmen —, und
+    **aus einer EDID-Datei wird es hier nicht gelesen.** Eine ausgelesene
+    EDID ist eine 128-Byte-Struktur mit Erweiterungsblöcken, deren
+    Feldbedeutungen in einer Spezifikation stehen, die aus dieser Umgebung
+    nicht erreichbar ist. Sie aus dem Gedächtnis zu entziffern wäre schlimmer
+    als ein nachgebautes Protokoll (Invariante 18): ein falsch gelesenes Byte
+    ergibt keine Fehlermeldung, sondern eine plausible Zahl. Ein Gerät bekäme
+    „nimmt 2160p60 an", weil ein Offset um eins daneben lag.
+    Eine **leere Achse heisst „dazu ist nichts erklärt"** und führt zu
+    `offen`, nie zu einem stillen „na klar, 8 Bit RGB SDR". Und der Check
+    springt nur an, wo jemand etwas erklärt hat — ein Namensabgleich auf die
+    Kategorie („Monitor") stand kurz drin und ist wieder heraus: er wäre eine
+    Aussage über die Schreibweise der Kategorie und nicht über das Gerät
+    (ADR-002).
 
 ---
 

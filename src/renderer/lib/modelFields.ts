@@ -76,6 +76,12 @@ export const MODEL_FIELDS = [
   // dasselbe. Genau deshalb ist es in der Bibliothek EINMAL einzutragen und
   // gilt dann fuer jedes Geraet, das daraus entsteht.
   'kann',
+  // B-47 — das Formatprofil. MODELL: jedes Exemplar desselben Monitors nimmt
+  // dieselben Formate an. Genau deshalb wird es in der Bibliothek EINMAL
+  // eingetragen — samt Herkunft — und gilt fuer jedes Geraet daraus. Im
+  // Exemplar muesste man es bei jedem Herausziehen neu eintragen, und wer das
+  // vergisst, bekommt „nicht erklaert" statt der Angabe, die es schon gab.
+  'senkenprofil',
   'tallyRole',
   'tcRole',
   'embedderRole',

@@ -123,6 +123,9 @@ export const CABLE_FIELD_CLASS: Record<string, FieldClass> = {
   // gezogener ist eine Gefahr. Das ist keine Optik.
   adern: 'substantive',
   anschlussId: 'substantive',
+  // B-47 — was ueber diese Strecke laufen soll. `substantive`: es entscheidet,
+  // gegen welches Format die Senke geprueft wird.
+  videoFormat: 'substantive',
   needsConverter: 'substantive',
   installStatus: 'substantive',
   testResult: 'substantive',
@@ -203,6 +206,9 @@ export const EQUIPMENT_FIELD_CLASS: Record<string, FieldClass> = {
   // ob die Strecke ueberhaupt traegt, was auf der Packliste steht und wie der
   // Signalweg weiterlaeuft. Eine geaenderte Richtung ist keine Optik.
   adapter: 'substantive',
+  // B-47 — das Formatprofil. `substantive`: an ihm haengt, ob der Plan sagt,
+  // dass das Bild ankommt. Wer es streicht, aendert die Aussage des Plans.
+  senkenprofil: 'substantive',
   // B-46 — die erklaerten Merkmale. Ebenfalls `substantive`: ob die Quelle den
   // Alternate-Mode kann, entscheidet ueber einen Befund am Adapter. Wer das
   // Merkmal streicht, aendert die Aussage des Plans, nicht sein Aussehen.

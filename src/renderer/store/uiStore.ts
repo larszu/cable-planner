@@ -431,6 +431,11 @@ const defaults: PersistedUiState = {
     // die Sektion fuer jeden unerreichbar, der die App schon einmal
     // geoeffnet hat.
     'adapter',
+    // Das Formatprofil (B-47) hinter dem Adapter: beide beantworten
+    // dieselbe Frage von zwei Seiten -- traegt der Weg das Bild. Bestands-
+    // nutzer bekommen den Eintrag ueber die Vollstaendigkeits-Schleife
+    // weiter unten nachgetragen.
+    'sink-profile',
     'dimensions',
     'display',
     'network-config',
