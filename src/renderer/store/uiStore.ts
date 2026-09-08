@@ -756,6 +756,15 @@ interface UiState extends PersistedUiState {
   setPortLabelFontSize: (value: number) => void
   pdfExportThemeOverride: 'dark' | 'light' | null
   setPdfExportThemeOverride: (value: 'dark' | 'light' | null) => void
+  /**
+   * Bedarf 128 — der Ausdruck fuer den Tisch, monochrom sicher.
+   *
+   * Wie `pdfExportThemeOverride` nur waehrend des Exports gesetzt und danach
+   * zurueckgenommen: es ist eine Eigenschaft DIESER Ausgabe und keine
+   * Einstellung des Nutzers. Auf dem Schirm aendert sich nichts.
+   */
+  pdfExportMonochrome: boolean
+  setPdfExportMonochrome: (value: boolean) => void
   cableEdit: { open: boolean; cableId?: string }
   openCableEdit: (cableId: string) => void
   closeCableEdit: () => void
@@ -1271,6 +1280,8 @@ export const useUiStore = create<UiState>((set) => ({
     set(applyPatch({ portLabelFontSize: Math.max(8, Math.min(18, Math.round(value))) })),
   pdfExportThemeOverride: null,
   setPdfExportThemeOverride: (value) => set({ pdfExportThemeOverride: value }),
+  pdfExportMonochrome: false,
+  setPdfExportMonochrome: (value) => set({ pdfExportMonochrome: value }),
   cableEdit: { open: false },
   openCableEdit: (cableId) => set({ cableEdit: { open: true, cableId } }),
   closeCableEdit: () => set({ cableEdit: { open: false } }),

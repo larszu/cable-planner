@@ -295,6 +295,7 @@ export default function App() {
   const [graphmlImportOpen, setGraphmlImportOpen] = useState(false)
   const pdfExportThemeOverride = useUiStore((state) => state.pdfExportThemeOverride)
   const setPdfExportThemeOverride = useUiStore((state) => state.setPdfExportThemeOverride)
+  const setPdfExportMonochrome = useUiStore((state) => state.setPdfExportMonochrome)
   // v7.9.62 — Progress-State für die PDF-Export-Phasen damit der User
   // sieht dass der Export läuft (war vorher silent → wirkte "ewig hängend").
   const [pdfProgress, setPdfProgress] = useState<{
@@ -1032,8 +1033,12 @@ export default function App() {
     theme: 'dark' | 'light' = canvasTheme,
     vector = false,
     pageSize: 'auto' | 'original' | 'a4' | 'a3' | 'a2' | 'a1' | 'a0' | 'a0plus' = 'auto',
+    monochrom = false,
   ) => {
     setPdfExportThemeOverride(theme)
+    // Bedarf 128 — wie das Thema: nur fuer die Dauer dieser Ausgabe gesetzt
+    // und im `finally` zurueckgenommen. Auf dem Schirm aendert sich nichts.
+    setPdfExportMonochrome(monochrom)
     setPdfProgress({ active: true, phase: 'Starte…' })
     await new Promise<void>((resolve) =>
       requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
@@ -1081,6 +1086,7 @@ export default function App() {
       })
     } finally {
       setPdfExportThemeOverride(null)
+      setPdfExportMonochrome(false)
       setPdfProgress({ active: false })
     }
   }
@@ -1119,6 +1125,7 @@ export default function App() {
       })
     } finally {
       setPdfExportThemeOverride(null)
+      setPdfExportMonochrome(false)
       setPdfProgress({ active: false })
     }
   }

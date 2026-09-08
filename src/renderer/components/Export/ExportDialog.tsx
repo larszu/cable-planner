@@ -94,6 +94,7 @@ interface ExportDialogProps {
     theme: 'dark' | 'light',
     vector?: boolean,
     pageSize?: PdfPageSizeOpt,
+    monochrom?: boolean,
   ) => Promise<void> | void
   /** Triggert OS-Druckdialog mit dem Plan-PDF. */
   onPrintPdf: (theme: 'dark' | 'light') => Promise<void> | void
@@ -237,6 +238,7 @@ const PlanSection = ({
     theme: 'dark' | 'light',
     vector?: boolean,
     pageSize?: PdfPageSizeOpt,
+    monochrom?: boolean,
   ) => Promise<void> | void
   onPrintPdf: (theme: 'dark' | 'light') => Promise<void> | void
   onExportImage: (format: 'png' | 'jpeg' | 'svg' | 'dxf') => Promise<void> | void
@@ -249,6 +251,9 @@ const PlanSection = ({
   // v7.9.97 — Beta-Toggle: Vektor-PDF via Chromium printToPDF.
   // Default off, damit der Raster-Pfad unveraendert bleibt.
   const [pdfVector, setPdfVector] = useState(false)
+  // Bedarf 128 — der Ausdruck fuer den Tisch. Eine Eigenschaft DIESER
+  // Ausgabe, deshalb hier im Dialog und nicht in den Einstellungen.
+  const [pdfMonochrom, setPdfMonochrom] = useState(false)
   // v7.9.103 — Plotter-Page-Size fuer den Vektor-Pfad. Default 'auto'
   // = A0-Cap fuer Viewer-Kompatibilitaet. 'original' = volle Groesse
   // fuer Plotter-Drucke.
@@ -259,7 +264,7 @@ const PlanSection = ({
   const handleExport = async () => {
     setBusy(true)
     try {
-      if (format === 'pdf') await onExportPdf(pdfTheme, pdfVector, pdfPageSize)
+      if (format === 'pdf') await onExportPdf(pdfTheme, pdfVector, pdfPageSize, pdfMonochrom)
       else await onExportImage(format)
       onClose()
     } finally {
@@ -351,6 +356,25 @@ const PlanSection = ({
               <span className="inline-flex items-center gap-1"><Icon icon={Sun} size="xs" /> {t('export.theme.lightLabel', 'Helles Thema (für Ausdruck empfohlen)')}</span>
             </label>
           </fieldset>
+          {/* Bedarf 128 — der Ausdruck fuer den Tisch. Nachgerechnet: die
+              sechs Ebenenfarben liegen im Graustufen-Druck zwischen 114 und
+              175, Audio und Video 2 von 255 auseinander. Auf einem
+              Schwarzweiss-Drucker ist ein Videokabel dasselbe wie ein
+              Audiokabel. Ein Strichmuster kam als zweiter Kanal nicht in
+              Frage — das gehoert schon `cable.dashed` und dem Laengen-Modus;
+              es dafuer zu nehmen hiesse, eine Angabe des Nutzers zu
+              ueberschreiben. Deshalb Text: die Ebene steht im Klartext an
+              jedem Kabel, und alle Striche bekommen dieselbe Tinte. */}
+          <label className="flex items-center gap-2 text-cp-xs">
+            <input
+              type="checkbox"
+              checked={pdfMonochrom}
+              onChange={(e) => setPdfMonochrom(e.target.checked)}
+            />
+            <span>
+              {t('export.monochrome', 'Monochrom sicher (Ebene im Klartext, eine Strichfarbe)')}
+            </span>
+          </label>
           {/* v7.9.97 — Render-Modus: Raster (klassisch) vs Vektor (Beta).
               Vektor-Pfad nutzt Chromium printToPDF → Text bleibt echter
               Text, scharf bei jedem Zoom, kleinere Dateigröße. Default

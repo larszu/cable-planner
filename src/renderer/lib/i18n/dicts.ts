@@ -1401,6 +1401,7 @@ export const en: Dict = {
   'export.processing': 'Processing…',
   'export.downloadAs': 'Download as {fmt}',
   'export.pdfTheme': 'PDF theme',
+  'export.monochrome': 'Monochrome-safe (layer spelled out, one line colour)',
   'export.theme.darkLabel': 'Dark theme (like canvas)',
   'export.layersInPdf': 'Layers (included in PDF)',
   'export.layersHint': 'Click a chip to toggle that layer for canvas AND PDF.',
