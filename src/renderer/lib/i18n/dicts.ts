@@ -3419,6 +3419,18 @@ export const en: Dict = {
   'canvas.pattern.saveImageTitle':
     'Save the image as SVG — for a media player, the switcher stills store, or a laptop on an output. This app feeds nothing in.',
   'canvas.pattern.saveSheet': 'Check sheet',
+  'canvas.pattern.swapped': '· {n} swapped',
+  'canvas.pattern.unchecked': '· {n} unchecked',
+  'canvas.pattern.saveAcceptance': 'Sign-off',
+  'canvas.pattern.saveAcceptanceTitle':
+    'What was actually seen, with timestamps — and the places nobody has looked at yet.',
+  // Die Rueckmeldung vom Rundgang, am Ankunftsort.
+  'canvas.pattern.check.ok': 'correct',
+  'canvas.pattern.check.wrong': 'different image…',
+  'canvas.pattern.check.none': 'no image',
+  'canvas.pattern.check.noMonitor': 'no monitor',
+  'canvas.pattern.check.seenPlaceholder': 'Which name is on it?',
+  'canvas.pattern.check.save': 'record',
   'canvas.pattern.saveSheetTitle':
     'The walk-around list — including the paths the plan cannot follow to the end, and why.',
   // Schaltbild-Angaben am Geraet (Eigenschaften-Panel).

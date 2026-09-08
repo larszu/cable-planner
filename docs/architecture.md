@@ -245,10 +245,35 @@ Plan nicht weiter" ist bei einer Inbetriebnahme die nützlichere Auskunft als
 eine kurze Liste, die vollständig aussieht — genau dort steht der Monitor,
 an dem später niemand versteht, warum kein Bild kommt.
 
-**Noch nicht gebaut, und mit Absicht getrennt:** die Rückmeldung („stimmt" /
-„falsches Bild, es steht X drauf" / „kein Bild"). Sie ist eine Beobachtung
-mit Zeitpunkt und gehört damit ins Projekt — wie `TallyCheck` und anders als
-die Wahl der Quelle.
+**Die Rückmeldung — und warum sie ins Projekt gehört.** „Stimmt" /
+„falsches Bild, es steht X drauf" / „kein Bild" / „kein Monitor" wird am
+Ankunftsort erfasst und liegt als `PatternCheck` **im Projekt**: sie ist ein
+BELEG mit Zeitpunkt und Prüfer, die Antwort auf „habt ihr das abgenommen?".
+Dieselbe Einordnung wie `TallyCheck`, und der Gegenpol zur Wahl der Quelle,
+die ein Vorgang ist. Angehängt, nie ersetzt — „gestern ging es, heute nicht"
+ist die Auskunft, die den Fehler findet.
+
+**Der gesehene Name ist ein eigenes Feld**, und daran hängt der ganze
+Nutzen. „Falsches Bild" ist ein Symptom; „es steht KAMERA 3 drauf" ist ein
+Befund; und wenn am anderen Monitor umgekehrt KAMERA 1 steht, ist es die
+Ursache: **zwei Ausgänge sind vertauscht.** `lib/patternDiagnose.ts` macht
+genau diese Verdichtung — und rät dabei nichts zurecht: der Name wird nur
+über Gross-/Kleinschreibung und Randleerzeichen normalisiert, ein doppelt
+vergebener Name löst gar nicht auf. Wer hier unscharf verglichen (Präfix,
+„enthält", Levenshtein) machte aus einer Beobachtung eine Vermutung, und die
+stünde dann als Befund da.
+
+**„Kein Monitor" ist ein eigener Wert** und nicht „kein Bild": es ist ein
+Befund über den PLAN, nicht über das Signal. Wer ihn als „kein Bild"
+meldete, schickte jemanden auf die Suche nach einem Kabelfehler, den es
+nicht gibt.
+
+**Ungeprüfte Orte stehen in der Liste**, mit eigenem Befund. Eine Liste, die
+nur die geprüften zeigt, sieht nach abgeschlossener Abnahme aus, sobald
+jemand drei von zwölf Monitoren angesehen hat.
+
+**Noch offen:** die Erfassung über die Mobile-Ansicht (der Weg dafür steht:
+`/checks` ist token-gesichert) und das Setzen von Kreuzpunkten aus dem Plan.
 
 ### 3.2 · Komponenten
 
@@ -455,6 +480,7 @@ gehören hier rein, nicht in einzelne Komponenten.
 | **Beobachtungen (Tally, Kreuzpunkte)** | **nirgends — `liveStore`, nur im Speicher** | — |
 | **Schalterstellungen im Schaltbild** | **nirgends — `circuitStore`, nur im Speicher** | — |
 | **Gewählte Prüfbild-Quelle** | **nirgends — `patternStore`, nur im Speicher** | — |
+| Sichtprüfungen vom Prüfbild-Rundgang | im Projekt (`patternChecks`) | — |
 
 Die letzten beiden Zeilen stehen hier, weil sie Entscheidungen sind und
 keine Versäumnisse. Was die Anlage vor einer Stunde tat, weiß diese App nach

@@ -293,6 +293,15 @@ export interface CablePlannerProject {
    *  Rolle wird beim Laden verworfen: er zeigte ins Leere und saehe auf dem
    *  Blatt aus wie eine gepruefte Position. */
   tallyPositions?: import('./tallyPosition').TallyPosition[]
+  /** B-42 — die Sichtpruefungen vom Pruefbild-Rundgang: was jemand VOR DEM
+   *  MONITOR gesehen hat. Sie stehen im Projekt und nicht im fluechtigen
+   *  `patternStore`, weil sie ein BELEG sind: Zeitpunkt, Pruefer, Ergebnis —
+   *  die Antwort auf „habt ihr das abgenommen?". Dieselbe Einordnung wie
+   *  `TallyCheck`. Die WAHL der Pruefquelle ist dagegen ein Vorgang und
+   *  bleibt draussen. Optional -> alte Projekte heilen zu []; ein Datensatz
+   *  auf ein geloeschtes Geraet wird beim Laden verworfen, weil er sonst als
+   *  gepruefter Ankunftsort im Blatt staende. */
+  patternChecks?: import('./patternCheck').PatternCheck[]
   /** Bedarf 116 — die Segmente: welche VLAN wofuer da ist, welche Zeit darin
    *  laeuft und wie man hineinkommt. Die VLAN-Id steht seit Bedarf 19/24 an
    *  jeder Schnittstelle; hier bekommt sie eine Bedeutung. Optional -> alte

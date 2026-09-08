@@ -33,6 +33,7 @@ import { useTally } from '../../hooks/useCanvasFlow'
 import { useLampLevel } from '../../hooks/useCircuit'
 import { useErwartetesBild } from '../../hooks/usePattern'
 import { testPatternDataUri } from '../../lib/testPattern'
+import { PatternCheckRow } from './PatternCheckRow'
 import { useCircuitStore, istSchaltbar } from '../../store/circuitStore'
 import { CIRCUIT_KIND_INFO } from '../../types/circuit'
 const HEADER_HEIGHT = EQUIPMENT_LAYOUT.HEADER_HEIGHT
@@ -865,6 +866,10 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
                 border: `1px dashed ${isLight ? '#a16207' : '#fbbf24'}`,
               }}
             />
+            {/* Und darunter die andere Haelfte: was jemand WIRKLICH gesehen
+                hat. Das Bild darueber ist die Erwartung; erst diese Zeile
+                macht daraus eine Abnahme. */}
+            <PatternCheckRow equipmentId={id} />
           </div>
         )}
       </div>
