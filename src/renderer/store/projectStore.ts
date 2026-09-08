@@ -92,6 +92,7 @@ import type { NetworkInterface } from '../types/network'
 import { istCircuitKind } from '../types/circuit'
 import { normalisePatternChecks } from '../types/patternCheck'
 import { normaliseHubSwitches } from '../types/hubSwitch'
+import { normalisePlannedCrosspoints } from '../lib/deviceCrosspoints'
 
 const CUSTOM_LIB_KEY = STORAGE_KEYS.customLibrary
 const PROJECT_AUTOSAVE_KEY = STORAGE_KEYS.projectAutosave
@@ -919,6 +920,26 @@ const healProjectPositions = (
       if (item.circuitKind !== undefined && !istCircuitKind(item.circuitKind)) {
         onDrop?.({ kind: 'equipment-circuit', reason: 'invalid-value', label: item.name })
         item = (({ circuitKind: _weg, ...rest }) => rest)(item) as EquipmentItem
+      }
+
+      // S-1 (2026-09-08) — die herstellerneutrale Kreuzpunkt-Tabelle. Regel in
+      // `normalisePlannedCrosspoints` (lib/deviceCrosspoints.ts), dort am
+      // VERHALTEN geprueft. Angefasst wird das Feld nur, wenn es da ist:
+      // eine leere Tabelle auf jedem Geraet waere Ballast in jedem Projektfile.
+      //
+      // Warum eine Zeile ins Leere faellt und nicht stehenbleibt: sie ist ein
+      // WEITERWEG. Im Signalweg endete er stumm an einem geloeschten
+      // Anschluss, und im Schaltbefehl (B-42 Inkrement 3) wuerde daraus eine
+      // geratene Nummer, die an eine laufende Anlage ginge.
+      if (item.plannedCrosspoints !== undefined) {
+        const outIds = new Set(item.outputs.map((p) => p.id))
+        const inIds = new Set(item.inputs.map((p) => p.id))
+        const geheilt = normalisePlannedCrosspoints(item.plannedCrosspoints, outIds, inIds, (d) =>
+          onDrop?.({ kind: 'crosspoint', reason: d.reason, label: `${item.name} · ${d.label}` }),
+        )
+        item = geheilt
+          ? { ...item, plannedCrosspoints: geheilt }
+          : ((({ plannedCrosspoints: _weg, ...rest }) => rest)(item) as EquipmentItem)
       }
 
       // ADR-001 / Inkrement 0 — Videohub-Routing-Migration: der Kreuzpunkt-

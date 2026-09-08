@@ -194,6 +194,7 @@ export const EQUIPMENT_FIELD_CLASS: Record<string, FieldClass> = {
   isDistributionAmp: 'substantive',
   isPatchPanel: 'substantive',
   videohubRouting: 'substantive',
+  plannedCrosspoints: 'substantive',
   atemMvConfig: 'substantive',
   atemMvCapabilitiesOverride: 'substantive',
   atemAudioConfig: 'substantive',

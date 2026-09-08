@@ -3452,6 +3452,15 @@ export const en: Dict = {
   'canvas.hubSwitch.sending': 'sending …',
   'canvas.hubSwitch.close': 'Close',
   'app.loadReport.hubSwitch': 'router switching action',
+  'app.loadReport.crosspoint': 'planned switching entry',
+  'switching.title': 'Switching (signal path)',
+  'switching.summaryCount': '{n} of {total} outputs',
+  'switching.summaryNone': 'cannot switch',
+  'switching.unset': 'not planned',
+  'switching.notSwitchable':
+    'This device has no inputs and outputs at the same time and therefore cannot switch anything. The section stays visible so it is clear that nothing is missing.',
+  'switching.hint':
+    'Per output: which input sits on it. This is the plan\u2019s intent, not the state read back from the device \u2014 without an entry the signal path ends here, and that is the more honest answer than a guessed continuation.',
   'canvas.pattern.saveSheetTitle':
     'The walk-around list — including the paths the plan cannot follow to the end, and why.',
   // Schaltbild-Angaben am Geraet (Eigenschaften-Panel).

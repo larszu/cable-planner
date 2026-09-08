@@ -321,7 +321,14 @@ describe('Bedarf 85 — die Oberflaeche ist verdrahtet', () => {
       appQuelle.indexOf('const DROP_ART'),
       appQuelle.indexOf('const DROP_GRUND'),
     )
-    for (const art of arten) expect(tabelle).toContain(`'${art}':`)
+    // Mit ODER ohne Anfuehrungszeichen: eine Sorte ohne Bindestrich ist ein
+    // gueltiger Bezeichner und darf unquotiert stehen. Der Waechter haelt
+    // fest, dass sie BESCHRIFTET ist — nicht, wie sie geschrieben wird. Ein
+    // Waechter, der an einer richtigen Schreibweise rot wird, wird geaendert
+    // statt gelesen, und dann haelt er gar nichts mehr.
+    for (const art of arten) {
+      expect(tabelle, art).toMatch(new RegExp(`(^|[\\s{])'?${art}'?\\s*:`, 'm'))
+    }
     // Und die erste Sorte, die kein `|` vor sich hat, darf nicht durchrutschen.
     expect(tabelle).toContain("'source-identity':")
   })

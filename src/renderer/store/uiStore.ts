@@ -419,6 +419,11 @@ const defaults: PersistedUiState = {
     // die Sektion fuer jeden gebaut, der die App schon einmal geoeffnet hat,
     // unerreichbar.
     'circuit',
+    // Die Schaltung (Signalweg, 2026-09-08) direkt hinter dem Schaltbild:
+    // dieselbe Frage fuer das andere Gewerk -- was leitet dieses Geraet
+    // wohin weiter. Bestandsnutzer bekommen den Eintrag ueber die
+    // Vollstaendigkeits-Schleife weiter unten nachgetragen.
+    'switching',
     'dimensions',
     'display',
     'network-config',
