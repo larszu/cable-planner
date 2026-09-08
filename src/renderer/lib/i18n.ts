@@ -12,7 +12,7 @@ import { useUiStore, type Language } from '../store/uiStore'
  *     Sync, Advanced + Configs sub-tab)
  *   ✓ Canvas — toolbar (Defaults menu, alignment, locks, plan-finalise,
  *     annotations, length legend, rail labels), CableContextMenu, CableEdge,
- *     LayerVisibilityChips, TitleBlock, EquipmentNode tooltips,
+ *     LayerVisibilityChips, EquipmentNode tooltips,
  *     AnnotationCanvasOverlay
  *   ✓ Properties panel — chrome + Equipment / Cable / Location / Template
  *     panels + all 17 sub-sections (Identity, NetworkAccess, NetworkConfig,
@@ -27,7 +27,7 @@ import { useUiStore, type Language } from '../store/uiStore'
  *     CableLibraryPanel + Editor)
  *   ✓ Layout chrome (FloatingPanelShell, Splitter, ModalShell)
  *   ✓ Shared widgets (ColorField, RoutingToggle, CategorySelect)
- *   ✓ CableDialog, PrintDialog
+ *   ✓ CableDialog
  *   ✓ AboutDialog, AnnotationsPanel, PatchListDialog, CalculatorsDialog,
  *     OnboardingTour (all 7 steps), WelcomeDialog, ProjectMetaDialog
  *   ✓ Export dialogs — ExportDialog (Plan / Patch-Sheets / BOM bodies),

@@ -120,18 +120,21 @@ describe('i18n — die erreichbare Oberflaeche', () => {
     ).toEqual([])
   })
 
-  it('nennt uebersetzten Code, der nirgends gerendert wird', () => {
-    // Beide belegt: `PrintDialog.tsx` (34 Aufrufe) wird nirgends importiert —
-    // gedruckt wird ueber `ExportDialog`, das `printPdfBlob` selbst aufruft.
-    // `TitleBlock.tsx` (14) ebenso; der Schriftkopf im PDF-Export entsteht in
-    // `exportPdfVector.ts` aus eigenem Code.
+  it('duldet KEINEN uebersetzten Code, der nirgends gerendert wird', () => {
+    // Bis 2026-09-08 stand hier eine Liste mit zwei Namen: `PrintDialog.tsx`
+    // (34 t()-Aufrufe) und `TitleBlock.tsx` (14) wurden nirgends importiert.
+    // Beide waren Doppel, keine Luecken — gedruckt wird ueber `ExportDialog`,
+    // das `printPdfBlob` selbst aufruft, und der Schriftkopf im PDF entsteht
+    // in `exportPdfVector.ts` aus eigenem Code.
     //
-    // Ob die beiden verdrahtet oder geloescht gehoeren, ist eine
-    // Eigentuemer-Entscheidung. Bis dahin sollen sie bei jedem Lauf sichtbar
-    // sein — und keine dritte Datei still dazukommen.
-    expect(totUebersetzt.map(([f]) => f).sort()).toEqual([
-      'components/Canvas/TitleBlock.tsx',
-      'components/Print/PrintDialog.tsx',
-    ])
+    // E-16 hat entschieden: geloescht. Zwei Druckwege waeren zwei Stellen, an
+    // denen der Stempel fehlen kann — `cable#673` hat gezeigt, wie das
+    // ausgeht.
+    //
+    // Und damit wird aus der Liste die staerkere Zusicherung: LEER. Eine
+    // Liste mit Namen darin haelt einen Zustand fest; die leere Liste
+    // verbietet ihn. Wer eine dritte uebersetzte Datei anlegt und nirgends
+    // einhaengt, wird hier rot — nicht bloss genannt.
+    expect(totUebersetzt.map(([f]) => f).sort()).toEqual([])
   })
 })

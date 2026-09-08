@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { effectiveWatts } from '../src/renderer/lib/equipmentSelectors'
+import { effectiveWatts, wattsWithSource } from '../src/renderer/lib/equipmentSelectors'
 import type { EquipmentItem } from '../src/renderer/types/equipment'
 import analysisSrc from '../src/renderer/components/Analysis/AnalysisDialog.tsx?raw'
 import calculatorSrc from '../src/renderer/components/Calculators/CalculatorsDialog.tsx?raw'
@@ -77,14 +77,73 @@ describe('effektive Leistung — eine Kette, nicht vier', () => {
     expect(effectiveWatts(item)).toBe(100)
   })
 
-  it('nimmt `powerWatts` des GERAETS bewusst NICHT auf', () => {
-    // #167-Feld (Rentman-Engineering-Daten) ist ein anderes Feld als
-    // `powerConsumptionWatts` und wird von keiner Summe gelesen. Es hier
-    // aufzunehmen wuerde die Zahlen bestehender Projekte veraendern -- das ist
-    // eine Eigentuemer-Entscheidung (B-15 im Suite-Backlog), keine
-    // Aufraeumarbeit. Dieser Test haelt die Entscheidung fest, damit sie nicht
-    // beilaeufig gekippt wird.
-    expect(effectiveWatts(eq({ powerWatts: 500 }))).toBe(0)
+  it('nimmt `powerWatts` des GERAETS auf — seit E-8', () => {
+    // Hier stand bis 2026-09-08 die Gegenprobe: `expect(...).toBe(0)`, mit der
+    // Begruendung, die Aufnahme sei eine Eigentuemer-Entscheidung. Die ist
+    // gefallen (E-8), und der Einwand loest sich in seiner eigenen Formulierung
+    // auf: „veraendert die Zahlen bestehender Projekte" beschreibt eine
+    // BERICHTIGUNG. Ein Geraet, dessen Leistung im Projekt steht und das mit
+    // 0 W in die Summe geht, faellt aus Phasenverteilung und Ueberlast-Warnung
+    // heraus.
+    expect(effectiveWatts(eq({ powerWatts: 500 }))).toBe(500)
+  })
+
+  it('laesst dem GEPLANTEN Wert den Vorrang vor dem importierten', () => {
+    // Wer geplant hat, hat entschieden. Ohne diese Reihenfolge ueberschriebe
+    // ein Rentman-Import stillschweigend eine Angabe, die jemand von Hand
+    // gesetzt hat.
+    expect(effectiveWatts(eq({ powerConsumptionWatts: 100, powerWatts: 500 }))).toBe(100)
+  })
+
+  it('nimmt den Import VOR der Rechnung aus V x A', () => {
+    // Der Import ist eine genannte Zahl, V x A eine Rechnung aus zwei Feldern,
+    // die oft Typenschild-Nennwerte tragen.
+    expect(effectiveWatts(eq({ powerWatts: 500, voltage: 230, currentAmps: 2 }))).toBe(500)
+  })
+})
+
+describe('die Leistung kommt nie ohne ihre Herkunft', () => {
+  // Die zweite Bedingung von E-8. Eine Summe aus zwei Quellen ohne Herkunft
+  // ist genau die Zahl, an der jemand eine Verteilung zusagt.
+  it('nennt jede der fuenf Herkuenfte', () => {
+    expect(
+      wattsWithSource(
+        eq({
+          activeModeId: 'm',
+          modes: [{ id: 'm', name: '4K', inputs: [], outputs: [], powerWatts: 250 }],
+        }),
+      ),
+    ).toEqual({ watts: 250, source: 'mode' })
+    expect(wattsWithSource(eq({ powerConsumptionWatts: 100 }))).toEqual({
+      watts: 100,
+      source: 'planned',
+    })
+    expect(wattsWithSource(eq({ powerWatts: 500 }))).toEqual({ watts: 500, source: 'imported' })
+    expect(wattsWithSource(eq({ voltage: 230, currentAmps: 2 }))).toEqual({
+      watts: 460,
+      source: 'derived',
+    })
+    expect(wattsWithSource(eq({}))).toEqual({ watts: 0, source: 'none' })
+  })
+
+  it('der Stromrechner zeigt die Herkunft in derselben Zeile wie die Zahl', () => {
+    // Eine Herkunft in einer Fussnote wird nicht gelesen; die Liste liest man
+    // wegen der Zahlen.
+    const zeile = calculatorSrc.slice(
+      calculatorSrc.indexOf('totals.devices.slice(0, 12).map'),
+      calculatorSrc.indexOf('</details>', calculatorSrc.indexOf('totals.devices.slice(0, 12).map')),
+    )
+    expect(zeile).toContain('wattsQuelleLabel(t, d.source)')
+    expect(zeile).toContain('{d.watts} W')
+  })
+
+  it('beschriftet jede Herkunft — erzwungen durch den Typ', () => {
+    // Eine Kette mit Default haette eine neue Quelle stumm als „geplant"
+    // ausgegeben, und das ist die eine Auskunft, die nicht raten darf.
+    expect(calculatorSrc).toContain('satisfies Record<WattsSource, [string, string]>')
+    for (const q of ['mode', 'planned', 'imported', 'derived', 'none']) {
+      expect(calculatorSrc).toMatch(new RegExp(`\\b${q}: \\['calc\\.watts\\.`))
+    }
   })
 })
 
@@ -97,17 +156,23 @@ describe('effektive Leistung — keine neue Kopie', () => {
   ]
 
   it('alle vier Stellen holen den Helfer aus equipmentSelectors', () => {
+    // Auf DIE ENGSTELLE pruefen, nicht auf einen Namen: seit E-8 gibt es zwei
+    // Ausgaenge desselben Helfers — `effectiveWatts` (nur die Zahl) und
+    // `wattsWithSource` (Zahl mit Herkunft). Der Stromrechner nimmt den
+    // zweiten. Eine erste Fassung pinnte den Namen `effectiveWatts` und wurde
+    // an genau dieser Verbesserung rot — also an der richtigen Aenderung statt
+    // am Defekt.
     for (const [name, src] of QUELLEN) {
-      expect(stripComments(src), `${name} importiert effectiveWatts nicht`).toMatch(
-        /import\s*\{[^}]*\beffectiveWatts\b[^}]*\}\s*from\s*'[^']*equipmentSelectors'/,
+      expect(stripComments(src), `${name} importiert den Leistungs-Helfer nicht`).toMatch(
+        /import\s*\{[^}]*\b(?:effectiveWatts|wattsWithSource)\b[^}]*\}\s*from\s*'[^']*equipmentSelectors'/,
       )
     }
   })
 
   it('keine der vier Stellen deklariert eine eigene Fassung', () => {
     for (const [name, src] of QUELLEN) {
-      expect(stripComments(src), `${name} deklariert effectiveWatts erneut`).not.toMatch(
-        /(?:const|function)\s+effectiveWatts\b/,
+      expect(stripComments(src), `${name} deklariert den Leistungs-Helfer erneut`).not.toMatch(
+        /(?:const|function)\s+(?:effectiveWatts|wattsWithSource)\b/,
       )
     }
   })

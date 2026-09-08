@@ -85,8 +85,29 @@ export const CableProperties = () => {
     updateCable(cable.id, { toEquipmentId: id, toPortId: first })
   }
 
+  // E-1 — die Verbindung stammt nicht aus der Hand des Planers. Zuerst im
+  // Panel, nicht am Ende: Wer ein Kabel anklickt, soll das erfahren, BEVOR er
+  // Laenge und Typ liest — sonst hat er die Zahlen schon geglaubt.
+  const verbindungsBeleg = cable.specSource?.connection
+
   return (
     <div className="space-y-2 text-cp-xs">
+      {verbindungsBeleg && (
+        <div className="rounded border border-cp-warn/60 bg-cp-warn/10 px-2 py-1.5">
+          <div className="font-medium text-cp-warn">
+            {t('cable.specSource.title', 'Diese Verbindung ist nicht belegt')}
+          </div>
+          <div className="mt-0.5 text-cp-text-secondary">
+            {format(
+              t(
+                'cable.specSource.body',
+                'Herkunft: {source}. Vor dem Aufbau gegen die Anlage prüfen — sie steht so auf der Kabelliste.',
+              ),
+              { source: verbindungsBeleg.source },
+            )}
+          </div>
+        </div>
+      )}
       {/* Spec info bar */}
       {spec && (
         <div className="flex items-center gap-1.5 rounded border border-cp-border bg-cp-surface-1 px-2 py-1.5">
