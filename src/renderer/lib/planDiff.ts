@@ -198,6 +198,7 @@ export const EQUIPMENT_FIELD_CLASS: Record<string, FieldClass> = {
   controlProtocol: 'substantive',
   controlPort: 'substantive',
   controlText: 'substantive',
+  controlCompanion: 'substantive',
   atemMvConfig: 'substantive',
   atemMvCapabilitiesOverride: 'substantive',
   atemAudioConfig: 'substantive',

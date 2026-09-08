@@ -33,7 +33,7 @@
  */
 
 /** Die Protokolle, die diese App sprechen kann. */
-export type ControlProtocol = 'videohub' | 'atem' | 'text'
+export type ControlProtocol = 'videohub' | 'atem' | 'text' | 'companion'
 
 /**
  * Was ein ANSCHLUSS im Protokoll ist.
@@ -118,6 +118,16 @@ export const PROTOCOL_INFO = {
     hinweis:
       'Der Mischer spricht kein Text-Protokoll; gesendet wird über die ATEM-Bibliothek. Jeder Anschluss braucht seine Nummer am Mischer — die Position in der Liste sagt sie NICHT, weil Aux-Ausgänge und Mediaplayer dort in einem anderen Zahlenraum liegen.',
   },
+  companion: {
+    label: 'Bitfocus Companion (alle Hersteller, ~500 Module)',
+    defaultPort: 8000,
+    // Woher die Nummern kommen, entscheidet die Companion-Konfiguration
+    // selbst (`nummern: 'position' | 'declared'`) — wie beim Text-Protokoll.
+    adressen: 'declared',
+    rollen: ['input', 'crosspoint-output'],
+    hinweis:
+      'Companion spricht das Protokoll, der Plan sagt WAS geschaltet wird. Voraussetzung: eine laufende Companion-Instanz mit dem Modul des Geräts und EINER Schaltfläche, deren Route-Aktion ihre Argumente aus zwei Custom-Variablen zieht. Damit ist jedes Gerät bedienbar, für das es ein Companion-Modul gibt — ohne dass hier ein Protokoll nachgebaut wird.',
+  },
   text: {
     label: 'Erklärtes Text-Protokoll (Ross, Panasonic, Roland, Quartz …)',
     defaultPort: 0,
@@ -146,6 +156,22 @@ export const istControlProtocol = (v: unknown): v is ControlProtocol =>
  * ein „gesendeter Text" für ein Binärprotokoll wäre eine Erfindung.
  */
 export type ControlAction =
+  | {
+      protocol: 'companion'
+      equipmentId: string
+      equipmentName: string
+      host: string
+      port: number
+      vorschau: string
+      art: 'companion'
+      /** Die Aufrufe in der Reihenfolge, in der sie gehen MÜSSEN. */
+      schritte: {
+        method: 'POST'
+        pfad: string
+        zweck: string
+        abbruchBeiFehler: true
+      }[]
+    }
   | {
       protocol: 'text'
       equipmentId: string

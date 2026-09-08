@@ -317,6 +317,12 @@ type CablePlannerApi = {
     send: (
       action: import('../types/switcherControl').ControlAction,
     ) => Promise<{ ok: boolean; message: string }>
+    /** S-4 — die eingerichteten Verbindungen einer Companion-Instanz. */
+    companionConnections: (params: { host: string; port: number }) => Promise<{
+      ok: boolean
+      message: string
+      connections: unknown
+    }>
   }
   videohub: {
     sendRouting: (params: { host: string; port: number; block: string }) => Promise<{ ok: boolean; message: string }>
@@ -973,6 +979,11 @@ const webFallbackApi: CablePlannerApi = {
     send: async () => ({
       ok: false,
       message: 'Schalten erfordert die Desktop-App.',
+    }),
+    companionConnections: async () => ({
+      ok: false,
+      message: 'Companion abfragen erfordert die Desktop-App.',
+      connections: [],
     }),
   },
   videohub: {

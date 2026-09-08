@@ -575,6 +575,12 @@ export interface EquipmentItem {
    *  Vorzeichen sind vier Angaben, die dort stehen. Damit ist jedes
    *  textgesteuerte Geraet bedienbar, ohne dass ein Byte erfunden wird. */
   controlText?: import('../lib/textProtocol').TextProtocolConfig
+  /** S-4 — die Companion-Anbindung, wenn `controlProtocol` auf `'companion'`
+   *  steht: welche Schaltflaeche gedrueckt wird und in welche beiden
+   *  Custom-Variablen vorher Ausgang und Eingang geschrieben werden.
+   *  Companion (MIT, ~500 gepflegte Hersteller-Module) spricht dann das
+   *  Protokoll; hier wird keines nachgebaut (Invariante 18). */
+  controlCompanion?: import('../lib/companionControl').CompanionConfig
   /** ADR-001 — Rolle, die dieses Geraet realisiert („Kamera 1"). Zeigt auf
    *  `CablePlannerProject.sourceIdentities`. Mehrere Geraete duerfen dieselbe
    *  Rolle tragen: das Haupt-/Backup-Paar ist EINE Rolle, nicht zwei. */

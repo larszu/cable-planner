@@ -1,5 +1,9 @@
 import { ipcMain } from 'electron'
-import { sendControlAction, type ControlAction } from '../services/switcherControl/index.js'
+import {
+  companionConnections,
+  sendControlAction,
+  type ControlAction,
+} from '../services/switcherControl/index.js'
 
 /**
  * Die IPC-Domaene fuer das SCHALTEN von Mischern und Kreuzschienen (S-2).
@@ -26,10 +30,28 @@ export const registerSwitcherIpc = () => {
     if (
       action.protocol !== 'videohub' &&
       action.protocol !== 'atem' &&
-      action.protocol !== 'text'
+      action.protocol !== 'text' &&
+      action.protocol !== 'companion'
     ) {
       return { ok: false, message: `Unbekanntes Protokoll „${String((action as { protocol?: unknown }).protocol)}".` }
     }
     return sendControlAction(action)
   })
+
+  /**
+   * S-4 — die eingerichteten Verbindungen einer Companion-Instanz abfragen.
+   *
+   * Reine Bequemlichkeit beim EINRICHTEN: der Nutzer sieht, welche Geraete in
+   * seiner eigenen Companion schon stehen. Das ist ein LESEN und kein
+   * Eingriff — es steht deshalb nicht hinter der Bestaetigung, die das
+   * Schalten verlangt.
+   */
+  ipcMain.handle(
+    'switcher:companionConnections',
+    async (_event, params: { host?: unknown; port?: unknown }) => {
+      const host = typeof params?.host === 'string' ? params.host.trim() : ''
+      const port = typeof params?.port === 'number' ? params.port : 8000
+      return companionConnections(host, port)
+    },
+  )
 }

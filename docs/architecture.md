@@ -5,7 +5,7 @@ Invarianten der App. Sie ist die Pflicht-Lektüre, bevor strukturelle Änderunge
 gemacht werden. Für die interaktive Modul-Übersicht siehe [`app-structure.html`](./app-structure.html),
 für einen Wettbewerber-Vergleich [`comparison.html`](./comparison.html).
 
-Stand: v9.0.1 · ~597 TS/TSX-Module · ~173.5k LOC
+Stand: v9.0.1 · ~599 TS/TSX-Module · ~174.4k LOC
 
 ---
 
@@ -762,6 +762,22 @@ Das Wichtigste in Listenform. Niemals brechen ohne expliziten Architektur-Review
     rausgeht — Steuerzeichen benannt. Eine mitgelieferte Vorlage trägt ihre
     Herkunft im Klartext und behauptet nie, vom Hersteller zu stammen, wenn
     sie es nicht tut.
+19. **Wer das Protokoll nicht kennt, delegiert — und sagt, an wen.** Bitfocus
+    Companion (MIT) pflegt rund fünfhundert Hersteller-Module, jedes von
+    Leuten mit dem Gerät auf dem Tisch. Das ist die bessere Antwort auf „alle
+    Hersteller" als jeder eigene Nachbau, und `switcherControl/
+    companionDriver.ts` nutzt sie: zwei Custom-Variablen setzen, dann die
+    eine Schaltfläche drücken, deren Route-Aktion sie liest.
+    **Die Reihenfolge ist dabei die ganze Zusicherung.** Schlägt eine
+    Variable fehl, darf der Druck NICHT passieren — sonst feuert die
+    Schaltfläche mit den Werten von vorhin und schaltet den *vorigen*
+    Kreuzpunkt, auf einer laufenden Anlage, und es sieht aus wie ein
+    gelungener Befehl. Deshalb steht die Folge als Datenstruktur
+    (`CompanionSchritt[]` mit `abbruchBeiFehler`) und nicht als Ablauf im
+    Treiber: einen Ablauf baut jemand um, ohne die Folge zu bedenken.
+    Und die Rückmeldung bleibt genau: „Companion hat die Aufrufe angenommen"
+    ist NICHT „das Gerät hat geschaltet" — was hinter der Schaltfläche
+    passiert, meldet Companion an dieser Stelle nicht zurück.
 
 ---
 
@@ -825,7 +841,7 @@ optionales Cloud-Backend (`y-websocket`, Auth/Permissions) bleiben offen.
 `vitest` ist eingerichtet (`npm test` / `npm run test:watch`); dazu kommen
 gezielte Node-Checks (`npm run test:crdt`, `npm run test:signaling`), ein
 UI-Smoke-Skript (`npm run ui:smoke`) und ein headless Drag-/Interaktions-Test
-(`npm run test:drag`, treibt den Renderer via Playwright). Bei ~173.5k LOC
+(`npm run test:drag`, treibt den Renderer via Playwright). Bei ~174.4k LOC
 bleibt der Ausbau der Abdeckung wichtig — empfohlene Schwerpunkte:
 - Snapshot-Tests auf `healProjectPositions` mit echten
   Beispiel-Projekt-JSONs.

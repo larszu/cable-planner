@@ -95,6 +95,7 @@ import { normaliseHubSwitches } from '../types/hubSwitch'
 import { normalisePlannedCrosspoints } from '../lib/deviceCrosspoints'
 import { istControlProtocol, istControlRole } from '../types/switcherControl'
 import { pruefeVorlage } from '../lib/textProtocol'
+import { pruefeCompanion } from '../lib/companionControl'
 
 const CUSTOM_LIB_KEY = STORAGE_KEYS.customLibrary
 const PROJECT_AUTOSAVE_KEY = STORAGE_KEYS.projectAutosave
@@ -944,6 +945,19 @@ const healProjectPositions = (
         } catch {
           onDrop?.({ kind: 'crosspoint', reason: 'invalid-value', label: item.name })
           item = (({ controlText: _weg, ...rest }) => rest)(item) as EquipmentItem
+        }
+      }
+      // S-4 — die Companion-Anbindung. Eine Konfiguration, die die Pruefung
+      // nicht besteht (leerer Variablenname, beide Variablen gleich, krumme
+      // Schaltflaechen-Angabe), faellt WEG statt stehenzubleiben: sie stuende
+      // sonst wie eine gueltige Angabe da, und der Fehler faellt erst beim
+      // Senden auf — vor dem Geraet, unter Zeitdruck.
+      if (item.controlCompanion !== undefined) {
+        try {
+          pruefeCompanion(item.controlCompanion)
+        } catch {
+          onDrop?.({ kind: 'crosspoint', reason: 'invalid-value', label: item.name })
+          item = (({ controlCompanion: _weg, ...rest }) => rest)(item) as EquipmentItem
         }
       }
       // Dito je Anschluss: eine unbekannte Rolle oder eine krumme Nummer

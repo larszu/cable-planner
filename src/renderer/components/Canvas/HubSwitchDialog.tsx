@@ -184,7 +184,12 @@ export function HubSwitchDialog({ onClose }: { onClose: () => void }) {
                               'canvas.hubSwitch.sentDeclared',
                               'Gesendet (Steuerzeichen benannt, aus Ihrer Befehlszeile):',
                             )
-                          : t('canvas.hubSwitch.sentCalls', 'Gesendete Befehle (kein Text-Protokoll):')}
+                          : a.art === 'companion'
+                            ? t(
+                                'canvas.hubSwitch.sentCompanion',
+                                'An Companion, in dieser Reihenfolge (bricht beim ersten Fehler ab):',
+                              )
+                            : t('canvas.hubSwitch.sentCalls', 'Gesendete Befehle (kein Text-Protokoll):')}
                     </div>
                     <pre className="mt-1 overflow-x-auto rounded bg-cp-surface-3 p-2 text-[11px] leading-tight">
                       {a.vorschau}
