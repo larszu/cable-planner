@@ -31,10 +31,21 @@ const postRoutes = (src: string): string[] =>
     .sort()
 
 describe('mobileShare: der Rueckkanal und was der Dialog darueber sagt', () => {
-  it('kennt genau die drei dokumentierten Schreibwege', () => {
+  it('kennt genau die dokumentierten Schreibwege', () => {
     // Waechst diese Liste, ist der Dialog-Hinweis (und docs/architecture.md
     // 6.6) nachzuziehen — nicht einfach die Erwartung hier zu erweitern.
-    expect(postRoutes(read(SERVER))).toEqual(['/cables', '/checks', '/pending-changes'])
+    //
+    // Genau das ist am 2026-09-08 passiert: `/pattern-checks` kam dazu
+    // (B-42 Inkrement 2b), der Waechter wurde rot, und nachgezogen wurden
+    // ZUERST die beiden Dokumentationsstellen. Die Liste hier ist das
+    // Letzte, was man anfasst — sonst waere sie eine Abschrift des Codes
+    // statt eine Zusage darueber.
+    expect(postRoutes(read(SERVER))).toEqual([
+      '/cables',
+      '/checks',
+      '/pattern-checks',
+      '/pending-changes',
+    ])
   })
 
   it('gated jeden Schreibweg mit dem Token aus der QR-Code-URL', () => {
@@ -43,7 +54,7 @@ describe('mobileShare: der Rueckkanal und was der Dialog darueber sagt', () => {
       .map((line, i) => ({ line, i }))
       .filter(({ line }) => /req\.method === 'POST'/.test(line))
 
-    expect(routeLines.length).toBe(3)
+    expect(routeLines.length).toBe(4)
     for (const { line, i } of routeLines) {
       // Die Pruefung steht unmittelbar als erste Anweisung im Handler.
       expect(lines[i + 1], `ungegated: ${line.trim()}`).toContain('authed(req, url)')
@@ -146,14 +157,14 @@ describe('mobileShare: der Crew-Kalender (Bedarf 39)', () => {
 describe('mobileShare: lesen viele, schreiben einer (Bedarf 109)', () => {
   const src = read(SERVER)
 
-  it('prüft die Erlaubnis in JEDEM der drei Schreibwege', () => {
-    // Nicht „in mindestens einem": ein ungeschuetzter dritter Weg waere genau
-    // der Fall, den die Zusage des Dialogs dann nicht mehr deckt.
+  it('prüft die Erlaubnis in JEDEM Schreibweg', () => {
+    // Nicht „in mindestens einem": ein ungeschuetzter weiterer Weg waere
+    // genau der Fall, den die Zusage des Dialogs dann nicht mehr deckt.
     for (const route of postRoutes(src)) {
       const block = src.slice(src.indexOf(`pathname === '${route}' && req.method === 'POST'`))
       expect(block.slice(0, 300)).toContain('writeAllowed(req, res)')
     }
-    expect(postRoutes(src)).toHaveLength(3)
+    expect(postRoutes(src)).toHaveLength(4)
   })
 
   it('prüft sie VOR dem Lesen des Bodys', () => {

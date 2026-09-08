@@ -42,6 +42,7 @@ import { cableLabelId } from '../renderer/lib/docIds'
 import { portDisplayLabel } from '../renderer/lib/portLabel'
 import { keepScreenAwake } from '../renderer/lib/wakeLock'
 import type { CablePlannerProject } from '../renderer/types/project'
+import { PatternWalk } from './PatternWalk'
 
 /** Deep-Link beim Laden: `?lookup=cable/C-0001` oder `#cable/C-0001` /
  *  `#C-0001`. Wird einmalig nach dem Projekt-Load aufgelöst und springt
@@ -1128,6 +1129,10 @@ const ProjectView = ({
   // eine kurze Status-Meldung.
   const [findOpen, setFindOpen] = useState(false)
   const [showReport, setShowReport] = useState(false)
+  // B-42 Inkrement 2b — der Pruefbild-Rundgang. Eigenes Overlay und kein
+  // Reiter: er ist ein Vorgang mit Anfang und Ende, kein zweiter Blick auf
+  // dieselbe Liste.
+  const [walkOpen, setWalkOpen] = useState(false)
   const [focus, setFocus] = useState<{ deviceId: string; portId?: string; nonce: number } | null>(
     null,
   )
@@ -1333,6 +1338,17 @@ const ProjectView = ({
           >
             <Icon icon={QrCode} size="xs" />
           </button>
+          {/* Der Rundgang steht AUCH im Nur-Lesen-Modus zur Verfuegung: die
+              Erwartung abzulesen ist harmlos, und wer nicht melden darf, sieht
+              das im Rundgang selbst statt einen fehlenden Knopf zu suchen. */}
+          <button
+            type="button"
+            onClick={() => setWalkOpen(true)}
+            className="rounded bg-cp-surface-3 px-2 py-1 text-[11px] text-cp-text hover:bg-cp-surface-4"
+            title="Prüfbild-Rundgang: wo müsste welches Bild ankommen"
+          >
+            Prüfbild
+          </button>
           {writeMode === 'contribute' && (
             <button
               type="button"
@@ -1407,6 +1423,14 @@ const ProjectView = ({
       )}
       {showReport && (
         <MobileReportModal project={project} onClose={() => setShowReport(false)} />
+      )}
+      {walkOpen && (
+        <PatternWalk
+          apiFetch={apiFetch}
+          showId={showId}
+          schreibbar={writeMode === 'contribute'}
+          onClose={() => setWalkOpen(false)}
+        />
       )}
       {viewMode === 'list' ? (
         <div className="space-y-2 pb-8">

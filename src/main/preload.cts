@@ -376,6 +376,9 @@ contextBridge.exposeInMainWorld('cablePlanner', {
     /** Bedarf 39 — der fertige Crew-Kalender fuer den abonnierbaren Feed. */
     setCrewCalendar: (ics: string | null) =>
       ipcRenderer.invoke('mobileShare:setCrewCalendar', ics) as Promise<{ ok: boolean }>,
+    /** B-42 Inkrement 2b — der berechnete Pruefbild-Plan fuer den Rundgang. */
+    setPatternPlan: (json: string | null) =>
+      ipcRenderer.invoke('mobileShare:setPatternPlan', json) as Promise<{ ok: boolean }>,
     setWriteMode: (mode: 'read-only' | 'contribute') =>
       ipcRenderer.invoke('mobileShare:setWriteMode', mode) as Promise<{
         ok: boolean
@@ -416,6 +419,36 @@ contextBridge.exposeInMainWorld('cablePlanner', {
       ) => cb(checks)
       ipcRenderer.on('mobileShare:checksUpdate', listener)
       return () => ipcRenderer.removeListener('mobileShare:checksUpdate', listener)
+    },
+    // B-42 Inkrement 2b — der Rundgang hat eine Sichtpruefung gemeldet.
+    // Der Renderer stempelt den Zeitpunkt (die Uhr eines fremden Telefons
+    // kann beliebig falsch gehen) und lehnt ab, was auf ein unbekanntes
+    // Geraet zeigt.
+    onPatternCheck: (
+      cb: (check: {
+        quelleId: string
+        equipmentId: string
+        portId?: string
+        gesehen: string
+        gesehenerName?: string
+        by?: string
+        note?: string
+      }) => void,
+    ) => {
+      const listener = (
+        _event: unknown,
+        check: {
+          quelleId: string
+          equipmentId: string
+          portId?: string
+          gesehen: string
+          gesehenerName?: string
+          by?: string
+          note?: string
+        },
+      ) => cb(check)
+      ipcRenderer.on('mobileShare:patternCheck', listener)
+      return () => ipcRenderer.removeListener('mobileShare:patternCheck', listener)
     },
     // v7.9.54 — Mobile-User hat ein Kabel via Dropdown-UI im Phone
     // hinzugefügt. Renderer fügt es ins Projekt ein mit addedFromMobile=true.

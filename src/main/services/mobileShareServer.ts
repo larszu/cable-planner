@@ -81,6 +81,24 @@ const __filename = fileURLToPath(import.meta.url)
 /** Ob das Handy zurueckschreiben darf. */
 export type MobileShareWriteMode = 'read-only' | 'contribute'
 
+/**
+ * Die vier Beobachtungen, die ein Rundgang melden kann (B-42 Inkrement 2b).
+ *
+ * ZWEITE NIEDERSCHRIFT, mit Absicht: die Wahrheit steht in
+ * `renderer/types/patternCheck.ts` (`PATTERN_OBSERVATION_LABEL`), und der
+ * Hauptprozess baut gegen eine eigene tsconfig, die nicht in den
+ * Renderer-Baum hineinreicht. Dass beide Listen gleich bleiben, haelt
+ * `tests/mobilePatternCheck.test.ts` fest — sonst faellt es erst auf, wenn
+ * eine Rueckmeldung vom Handy am Server haengen bleibt, waehrend der
+ * Techniker schon weitergegangen ist.
+ */
+const PATTERN_OBSERVATIONS: readonly string[] = [
+  'stimmt',
+  'falsches-bild',
+  'kein-bild',
+  'kein-monitor',
+]
+
 interface MobileShareState {
   server: Server | null
   port: number
@@ -181,6 +199,21 @@ interface MobileShareState {
    * was eine Schicht ist.
    */
   crewIcs: string | null
+  /**
+   * B-42 Inkrement 2b — der Pruefbild-Plan, wie ihn der Renderer BERECHNET
+   * hat: welche Quelle das Bild traegt und wo es laut Plan ankommen muesste.
+   *
+   * Als fertiges JSON und nicht als Rohdaten, aus demselben Grund wie beim
+   * Crew-Kalender daneben: die Ableitung ist `lib/patternRouting.ts` und
+   * laeuft ueber `signalChains`, dieselbe Traversierung wie Patchliste und
+   * Mehr-Ebenen-Ansicht. Sie hier ein zweites Mal zu schreiben waere die
+   * Defektform `zwei-rechnungen` — und `main` haette dann eine eigene
+   * Vorstellung davon, wo ein Bild ankommt.
+   *
+   * `null` heisst: keine Quelle gewaehlt. Die Mobile-Seite zeigt dann
+   * nichts an, statt eine leere Liste zu zeigen, die wie „nirgends" aussieht.
+   */
+  patternPlan: string | null
   /** Absolute path to dist/renderer (where mobile.html + assets live). */
   rendererDir: string
   /** When set (e.g. `npm run dev`), static-asset requests are proxied
@@ -192,6 +225,29 @@ interface MobileShareState {
    *  POST /checks-Handler aufgerufen sobald das Handy einen Port
    *  als gesteckt markiert. */
   onChecksUpdate: ((checks: { ports: Record<string, boolean>; cables: Record<string, boolean> }) => void) | null
+  /**
+   * B-42 Inkrement 2b — Callback fuer eine SICHTPRUEFUNG vom Rundgang.
+   *
+   * Anders als `/checks` ist das kein vollstaendiger Zustand, sondern EIN
+   * Datensatz, der ANGEHAENGT wird: „an diesem Monitor stand KAMERA 3".
+   * Ein Ersetzen loeschte die Auskunft „gestern ging es, heute nicht" —
+   * dieselbe Regel wie im Store (`recordPatternCheck`).
+   *
+   * Der Server prueft hier nur die FORM. Ob das Geraet existiert, weiss der
+   * Renderer, und er lehnt es dort ab; der Server haette dafuer eine zweite
+   * Vorstellung vom Projekt gebraucht.
+   */
+  onPatternCheck:
+    | ((check: {
+        quelleId: string
+        equipmentId: string
+        portId?: string
+        gesehen: string
+        gesehenerName?: string
+        by?: string
+        note?: string
+      }) => void)
+    | null
   /** v7.9.54 — Callback für vom Mobile-Viewer hinzugefügte Kabel.
    *  Der User steht vor Ort am Gerät, merkt dass ein Patch fehlt und
    *  trägt das fehlende Kabel über die Dropdown-UI im Phone ein.
@@ -240,9 +296,11 @@ const state: MobileShareState = {
   project: null,
   serialized: null,
   crewIcs: null,
+  patternPlan: null,
   rendererDir: '',
   devProxyUrl: undefined,
   onChecksUpdate: null,
+  onPatternCheck: null,
   onCableAdded: null,
   onPendingChange: null,
 }
@@ -493,6 +551,29 @@ const handleRequest = (req: IncomingMessage, res: ServerResponse) => {
   }
 
   /**
+   * B-42 Inkrement 2b — der Pruefbild-Plan fuer den Rundgang.
+   *
+   * Dieselbe Token-Pruefung wie `/project.json`: wer den Plan nicht sehen
+   * darf, darf auch nicht wissen, welche Quelle wo ankommen soll. `no-store`
+   * steht hier sehr wohl — anders als beim Kalender ist das eine Angabe, die
+   * sich waehrend des Rundgangs aendert, und eine zwischengespeicherte
+   * Erwartung schickt jemanden an den falschen Monitor.
+   *
+   * 503 ohne gewaehlte Quelle, und nicht eine leere Liste: „keine Quelle
+   * gewaehlt" und „nirgends erwartet" sind verschiedene Aussagen, und die
+   * zweite waere hier gelogen.
+   */
+  if (pathname === '/pattern.json') {
+    if (!authed(req, url)) return denyUnauthorized(req, res)
+    res.statusCode = state.patternPlan ? 200 : 503
+    res.setHeader('Content-Type', 'application/json; charset=utf-8')
+    res.setHeader('Cache-Control', 'no-store')
+    applyCors(req, res)
+    res.end(state.patternPlan ?? '{"error":"keine Quelle gewaehlt"}')
+    return
+  }
+
+  /**
    * BEDARF 127 — gehoert dieser Rueckweg zur freigegebenen Show?
    *
    * DIE ENGSTELLE fuer alle drei Schreibwege (`/checks`, `/cables`,
@@ -567,6 +648,87 @@ const handleRequest = (req: IncomingMessage, res: ServerResponse) => {
     })
     return
   }
+  /**
+   * B-42 Inkrement 2b — POST /pattern-checks: EINE Sichtpruefung vom Rundgang.
+   *
+   * WARUM EIN EIGENER WEG UND NICHT `/checks`. Der dort geschickte
+   * `CheckState` ist ein VOLLSTAENDIGER Zustand und ersetzt den vorigen —
+   * richtig fuer Haekchen an Ports, falsch fuer eine Beobachtung. Eine
+   * Sichtpruefung wird ANGEHAENGT: „gestern ging es, heute nicht" ist die
+   * Auskunft, die den Fehler findet, und ein Ersetzen loescht sie.
+   *
+   * WAS HIER GEPRUEFT WIRD: nur die Form. Die vier zulaessigen Beobachtungen
+   * stehen in `renderer/types/patternCheck.ts`; sie hier ein zweites Mal
+   * aufzuschreiben ist unvermeidlich (der Hauptprozess baut gegen eine eigene
+   * tsconfig und darf nicht in den Renderer-Baum hineinreichen), und dass die
+   * beiden Listen gleich bleiben, haelt `tests/mobilePatternCheck.test.ts`
+   * fest. Ob es das GERAET gibt, weiss der Renderer und lehnt es dort ab.
+   *
+   * KEIN ZEITSTEMPEL VOM TELEFON. Der Renderer stempelt beim Empfang. Die
+   * Uhr eines fremden Telefons kann beliebig falsch gehen, und ein Beleg mit
+   * erfundener Uhrzeit ist schlimmer als einer mit der Empfangszeit — der
+   * Unterschied ist waehrend eines Rundgangs Sekunden.
+   */
+  if (pathname === '/pattern-checks' && req.method === 'POST') {
+    if (!authed(req, url)) return denyUnauthorized(req, res)
+    if (!writeAllowed(req, res)) return
+    let body = ''
+    let aborted = false
+    req.on('data', (chunk) => {
+      if (aborted) return
+      body += chunk
+      // Ein Datensatz, kein Zustand — 32 KB sind reichlich.
+      if (body.length > 32_000) {
+        aborted = true
+        res.statusCode = 413
+        res.end('Payload too large')
+        req.destroy()
+      }
+    })
+    req.on('end', () => {
+      if (aborted) return
+      try {
+        const parsed = JSON.parse(body) as Record<string, unknown>
+        if (!showOk(parsed)) return
+        const text = (v: unknown): string => (typeof v === 'string' ? v.trim() : '')
+        const quelleId = text(parsed.quelleId)
+        const equipmentId = text(parsed.equipmentId)
+        const gesehen = text(parsed.gesehen)
+        if (!quelleId || !equipmentId || !PATTERN_OBSERVATIONS.includes(gesehen)) {
+          res.statusCode = 400
+          applyCors(req, res)
+          res.end('{"error":"quelleId, equipmentId und gesehen sind Pflicht"}')
+          return
+        }
+        state.onPatternCheck?.({
+          quelleId,
+          equipmentId,
+          gesehen,
+          ...(text(parsed.portId) ? { portId: text(parsed.portId) } : {}),
+          ...(text(parsed.gesehenerName) ? { gesehenerName: text(parsed.gesehenerName) } : {}),
+          ...(text(parsed.by) ? { by: text(parsed.by) } : {}),
+          ...(text(parsed.note) ? { note: text(parsed.note) } : {}),
+        })
+        res.statusCode = 200
+        applyCors(req, res)
+        res.end('{"ok":true}')
+      } catch {
+        res.statusCode = 400
+        applyCors(req, res)
+        res.end('{"error":"invalid json"}')
+      }
+    })
+    return
+  }
+  if (pathname === '/pattern-checks' && req.method === 'OPTIONS') {
+    res.statusCode = 204
+    applyCors(req, res)
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-CP-Token')
+    res.end()
+    return
+  }
+
   // CORS preflight for POST /checks
   if (pathname === '/checks' && req.method === 'OPTIONS') {
     res.statusCode = 204
@@ -991,6 +1153,28 @@ export const mobileShareWriteMode = (): MobileShareWriteMode => state.writeMode
 
 export const setMobileShareCrewCalendar = (ics: string | null): void => {
   state.crewIcs = typeof ics === 'string' && ics.trim() ? ics : null
+}
+
+/** B-42 Inkrement 2b — den berechneten Pruefbild-Plan hinterlegen. */
+export const setMobileSharePatternPlan = (json: string | null): void => {
+  state.patternPlan = typeof json === 'string' && json.trim() ? json : null
+}
+
+/** B-42 Inkrement 2b — Callback fuer POST /pattern-checks. */
+export const setMobileSharePatternCheckHandler = (
+  handler:
+    | ((check: {
+        quelleId: string
+        equipmentId: string
+        portId?: string
+        gesehen: string
+        gesehenerName?: string
+        by?: string
+        note?: string
+      }) => void)
+    | null,
+): void => {
+  state.onPatternCheck = handler
 }
 
 /** v7.9.3 — Registrierung des Callbacks, der vom IPC-Handler im

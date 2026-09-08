@@ -5,7 +5,7 @@ Invarianten der App. Sie ist die Pflicht-Lektüre, bevor strukturelle Änderunge
 gemacht werden. Für die interaktive Modul-Übersicht siehe [`app-structure.html`](./app-structure.html),
 für einen Wettbewerber-Vergleich [`comparison.html`](./comparison.html).
 
-Stand: v9.0.1 · ~595 TS/TSX-Module · ~172.8k LOC
+Stand: v9.0.1 · ~597 TS/TSX-Module · ~173.5k LOC
 
 ---
 
@@ -611,12 +611,21 @@ einzige unreine Zeile des Wegs.
 liefert `src/mobile/` an Smartphones im LAN. Bidirektional:
 - Main → Mobile: aktuelle Projekt-Snapshot (Pull-Endpunkt), Passwörter und
   Schlüssel vorher via `stripSecrets` entfernt.
-- Mobile → Main: **drei** Schreibwege, nicht einer —
+- Mobile → Main: **vier** Schreibwege, nicht einer —
   Bauteam-Häkchen (POST `/checks`), neu angelegte Kabel (POST `/cables`,
-  v7.9.54) und Feld-Rückmeldungen (POST `/pending-changes`).
-  Alle drei sind token-gated (`authed`, Token aus der QR-Code-URL).
+  v7.9.54), Feld-Rückmeldungen (POST `/pending-changes`) und die
+  Sichtprüfung vom Prüfbild-Rundgang (POST `/pattern-checks`, B-42
+  Inkrement 2b). Alle vier sind token-gated (`authed`, Token aus der
+  QR-Code-URL), gehen durch `writeAllowed` (Bedarf 109) und durch
+  `showOk` (Bedarf 127).
+  Der vierte ist bewusst KEIN Zweig von `/checks`: der dort geschickte
+  `CheckState` ist ein vollständiger Zustand und ersetzt den vorigen —
+  richtig für Häkchen, falsch für eine Beobachtung, die angehängt gehört.
+- Main → Mobile, zusätzlich: die Prüfbild-Erwartung (GET `/pattern.json`),
+  im Renderer aus `patternRouting` gerechnet und hier nur gehalten. Eine
+  zweite Traversierung auf dem Telefon wäre `zwei-rechnungen`.
 
-**Mobile ist kein Editor** — aber auch nicht read-only: die drei Wege oben
+**Mobile ist kein Editor** — aber auch nicht read-only: die vier Wege oben
 ändern das Projekt am Desktop. Wer das anders formuliert findet, korrigiert
 es; der Dialog-Hinweis sagte bis v7.9.x fälschlich „kann nur lesen, nichts
 schreiben", was für eine Sicherheits-Entscheidung des Nutzers die falsche
@@ -816,7 +825,7 @@ optionales Cloud-Backend (`y-websocket`, Auth/Permissions) bleiben offen.
 `vitest` ist eingerichtet (`npm test` / `npm run test:watch`); dazu kommen
 gezielte Node-Checks (`npm run test:crdt`, `npm run test:signaling`), ein
 UI-Smoke-Skript (`npm run ui:smoke`) und ein headless Drag-/Interaktions-Test
-(`npm run test:drag`, treibt den Renderer via Playwright). Bei ~172.8k LOC
+(`npm run test:drag`, treibt den Renderer via Playwright). Bei ~173.5k LOC
 bleibt der Ausbau der Abdeckung wichtig — empfohlene Schwerpunkte:
 - Snapshot-Tests auf `healProjectPositions` mit echten
   Beispiel-Projekt-JSONs.

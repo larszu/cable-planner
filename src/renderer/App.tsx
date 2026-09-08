@@ -132,6 +132,9 @@ import { infoDialog } from './lib/infoDialog'
 import { AlertTriangle } from 'lucide-react'
 import { useTranslation, format } from './lib/i18n'
 import { crewCalendar } from './lib/crewCalendar'
+import { patternSharePlanJson } from './lib/patternSharePlan'
+import { istPatternObservation } from './types/patternCheck'
+import { usePatternStore } from './store/patternStore'
 import { Icon } from './components/shared/Icon'
 import { cableTouches } from './lib/portOccupancy'
 
@@ -666,6 +669,10 @@ export default function App() {
   // refresh. The bridge no-ops gracefully when the server isn't
   // running, so we don't need to gate this on a UI flag. Debounced
   // 500 ms to avoid IPC churn during rapid drags.
+  // Die gewaehlte Pruefquelle lebt im nicht persistierten `patternStore` —
+  // sie ist ein Vorgang, keine Plan-Angabe (Invariante 15). Fuer den
+  // Rundgang am Telefon braucht der Push sie trotzdem.
+  const patternQuelleId = usePatternStore((s) => s.quelleId)
   useEffect(() => {
     if (!hasDesktopBridge) return
     const timer = window.setTimeout(() => {
@@ -686,9 +693,22 @@ export default function App() {
             })
           : null,
       )
+      // B-42 Inkrement 2b — der Pruefbild-Plan faehrt mit, aus demselben
+      // Grund wie der Crew-Kalender darueber: die Rechnung („wo muesste das
+      // Bild ankommen") steht in `lib/patternRouting.ts` und laeuft ueber
+      // `signalChains`. Eine zweite auf dem Telefon liefe bei der ersten
+      // Kreuzschiene ohne gesetzten Kreuzpunkt auseinander, und dann stuende
+      // dort ein Ankunftsort, den der Plan am Rechner nicht kennt.
+      //
+      // Ohne gewaehlte Quelle wird `null` geschickt — der Weg antwortet dann
+      // mit 503 statt mit einer leeren Liste, und eine leere Liste liest sich
+      // als „nirgends erwartet".
+      void cablePlannerApi.mobileShare.setPatternPlan(
+        patternSharePlanJson(project, patternQuelleId, new Date().toISOString()),
+      )
     }, 500)
     return () => window.clearTimeout(timer)
-  }, [project])
+  }, [project, patternQuelleId])
 
   // v7.9.3 — Subscribe to mobile check-state updates. Wenn der Field-
   // Tech am Handy einen Port als "gesteckt" markiert, schickt das
@@ -701,6 +721,34 @@ export default function App() {
       setCheckState(checks)
     })
   }, [setCheckState])
+
+  // B-42 Inkrement 2b — der Rundgang hat eine Sichtpruefung gemeldet.
+  //
+  // DER ZEITSTEMPEL KOMMT VON HIER und nicht vom Telefon. Die Uhr eines
+  // fremden Geraets kann beliebig falsch gehen, und ein Beleg mit erfundener
+  // Uhrzeit ist schlimmer als einer mit der Empfangszeit — waehrend eines
+  // Rundgangs ist der Unterschied Sekunden.
+  //
+  // Abgelehnt wird hier nichts von Hand: `recordPatternCheck` prueft selbst,
+  // ob es das Geraet und die Quelle gibt, und ist damit die EINE Stelle, an
+  // der diese Regel steht.
+  const recordPatternCheck = useProjectStore((s) => s.recordPatternCheck)
+  useEffect(() => {
+    if (!hasDesktopBridge) return
+    return cablePlannerApi.mobileShare.onPatternCheck((check) => {
+      if (!istPatternObservation(check.gesehen)) return
+      recordPatternCheck({
+        at: new Date().toISOString(),
+        quelleId: check.quelleId,
+        equipmentId: check.equipmentId,
+        gesehen: check.gesehen,
+        ...(check.portId ? { portId: check.portId } : {}),
+        ...(check.gesehenerName ? { gesehenerName: check.gesehenerName } : {}),
+        ...(check.by ? { by: check.by } : {}),
+        ...(check.note ? { note: check.note } : {}),
+      })
+    })
+  }, [recordPatternCheck])
 
   // v7.9.54 — Mobile-User hat ein Kabel via Dropdown-UI hinzugefügt.
   // ProjectStore fügt es mit addedFromMobile=true ein → Canvas zeigt
