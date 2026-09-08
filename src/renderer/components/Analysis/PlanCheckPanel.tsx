@@ -34,11 +34,12 @@ export const PlanCheckPanel = () => {
   const sourceIdentities = useProjectStore((s) => s.project.sourceIdentities)
   const anschlussListe = useProjectStore((s) => s.project.anschlussListe)
   const farbnormen = useProjectStore((s) => s.project.farbnormen)
+  const defaultVideoFormat = useProjectStore((s) => s.project.metadata.defaultVideoFormat)
   const setSelection = useProjectStore((s) => s.setSelection)
 
   const result = useMemo(
-    () => runDrawingChecks({ equipment, cables, drumKit, sourceIdentities, anschlussListe, farbnormen }),
-    [equipment, cables, drumKit, sourceIdentities, anschlussListe, farbnormen],
+    () => runDrawingChecks({ equipment, cables, drumKit, sourceIdentities, anschlussListe, farbnormen, defaultVideoFormat }),
+    [equipment, cables, drumKit, sourceIdentities, anschlussListe, farbnormen, defaultVideoFormat],
   )
 
   if (!open) return null

@@ -3539,6 +3539,22 @@ export const en: Dict = {
     'This device has no connectors. Without them no line can be attached, and the circuit stays empty at this point.',
   'circuit.terminalHint':
     'The terminal belongs to the connector, not to its position in the list — reordering does not rewire the circuit.',
+  // B-47 — das virtuelle EDID: was eine Senke erklaertermassen annimmt.
+  'sink.title': 'Format profile (sink)',
+  'sink.none': 'not declared',
+  'sink.summaryN': '{n} format(s) declared',
+  'sink.declare': 'For this device it is declared which formats it accepts',
+  'sink.noneHint':
+    'Without a profile the plan says "not declared" instead of "fits" — it neither claims the picture arrives nor that it does not.',
+  'sink.herkunft': 'Source (required)',
+  'sink.herkunftPlaceholder': 'Manual, page … · read from the device on … · confirmed by the manufacturer',
+  'sink.herkunftMissing':
+    'Without a source the profile is discarded on the next load. "From the manual, page 41" and "a colleague once said so" are two different answers — the display shows them the same.',
+  'sink.format': 'Format',
+  'sink.addFormat': '+ Format',
+  'sink.emptyAxisHint':
+    'An empty row means "nothing is declared about this": the plan does not judge it and says "open". Ticking a box is an assurance — tick it only where you can back it up.',
+  'sink.notiz': 'Note',
   // B-45 — Adern, Farbnormen und Anschluesse (Stromplanung).
   'adern.title': 'Conductors, colour standards and connections',
   'adern.tab.normen': 'Colour standards',
