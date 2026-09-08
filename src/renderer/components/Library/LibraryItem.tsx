@@ -267,7 +267,7 @@ export const LibraryItem = ({
           </Tooltip>
         )}
         {onRemove && (
-          <Tooltip label={t('library.item.removeTitle', 'Remove from library')}>
+          <Tooltip label={t('library.item.removeTitle', 'Aus der Bibliothek entfernen')}>
             <button
               type="button"
               onClick={(event) => {
@@ -275,7 +275,7 @@ export const LibraryItem = ({
                 onRemove()
               }}
               className="rounded bg-red-700 px-1 text-[10px] hover:bg-red-600"
-              aria-label={t('library.item.removeTitle', 'Remove from library')}
+              aria-label={t('library.item.removeTitle', 'Aus der Bibliothek entfernen')}
             >
               ×
             </button>

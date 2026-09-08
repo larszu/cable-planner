@@ -536,13 +536,13 @@ export default function App() {
       if (applied > 0 || skipped > 0) {
         await infoDialog(t('app.libUpdate.doneTitle', 'Update fertig'), {
           body:
-            format(t('app.libUpdate.doneAppliedBody', '{n} device(s) updated.'), { n: applied }) +
+            format(t('app.libUpdate.doneAppliedBody', '{n} Gerät(e) aktualisiert.'), { n: applied }) +
             (skipped > 0
               ? '\n' +
                 format(
                   t(
                     'app.libUpdate.doneSkippedBody',
-                    '{n} rack/group item(s) skipped — please re-place manually if needed.',
+                    '{n} Rack-/Gruppen-Eintrag/-Einträge übersprungen — bitte bei Bedarf von Hand neu platzieren.',
                   ),
                   { n: skipped },
                 )
@@ -954,11 +954,11 @@ export default function App() {
     const { added, updated } = useProjectStore.getState().mergeAnnotationsFromViewerFile(incoming)
     await infoDialog(t('app.annotationsImport.okTitle', 'Annotations importiert'), {
       body:
-        format(t('app.annotationsImport.okBodyImported', '{n} new annotation(s) imported.'), {
+        format(t('app.annotationsImport.okBodyImported', '{n} neue Anmerkung(en) importiert.'), {
           n: added,
         }) +
         '\n' +
-        format(t('app.annotationsImport.okBodyUpdated', '{n} updated from reviewer changes.'), {
+        format(t('app.annotationsImport.okBodyUpdated', '{n} aus Prüfer-Änderungen aktualisiert.'), {
           n: updated,
         }),
       tone: 'success',
