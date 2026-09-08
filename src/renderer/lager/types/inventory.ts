@@ -34,6 +34,73 @@ export interface PhysicalDimensions {
   weightKg?: number
 }
 
+/**
+ * Ein Geldbetrag — Betrag UND Währung, immer zusammen (Bedarf 118).
+ *
+ * WARUM DIE WÄHRUNG AM BETRAG HÄNGT UND NICHT EINMAL AM BESTAND. Der
+ * Kostenplan macht es umgekehrt (`types/costLines.ts`: „Das Waehrungskuerzel,
+ * EINMAL am Projekt") und hat recht — für ein Projekt. Ein Bestand ist etwas
+ * anderes: er wächst über Jahre, und die Kamera aus dem US-Kauf steht
+ * neben dem hier gekauften Stativ. Eine Währung am Bestand zwänge dazu, den
+ * einen Betrag umzurechnen — und ein Umrechnungskurs wäre ein Wert ohne
+ * Fundstelle.
+ *
+ * Die Regel dahinter bleibt DIESELBE: zwei Währungen in EINER Summe sind eine
+ * Zahl, die nichts bedeutet. Deshalb summiert `versicherungsListe` je Währung
+ * getrennt und legt sie nie zusammen.
+ *
+ * GANZZAHLIG in der kleinsten Einheit. `0.1 + 0.2` ist in Fliesskomma nicht
+ * `0.3`, und eine Versicherungssumme, die um Cent daneben liegt, ist eine
+ * Zahl, der jemand widerspricht.
+ */
+export interface Geldbetrag {
+  /** Betrag in der kleinsten Einheit der Währung (Cent, Penny, …). */
+  cent: number
+  /**
+   * Währungskürzel nach ISO 4217 („EUR", „USD", „CHF").
+   *
+   * ANGEGEBEN, nie geraten — auch nicht „EUR", auch nicht aus dem Gebietsschema
+   * des Rechners. Derselbe Befund wie `currency-unstated` im Kostenplan.
+   */
+  waehrung: string
+}
+
+/**
+ * Was eine Einheit gekostet hat, und wann (Bedarf 118).
+ *
+ * Der Anschaffungspreis ist eine Tatsache mit Datum: er ändert sich nie.
+ */
+export interface Anschaffung {
+  betrag: Geldbetrag
+  /** Kaufdatum (ISO). */
+  am?: string
+}
+
+/**
+ * Wofür eine Einheit versichert ist, und mit welchem Stand (Bedarf 118).
+ *
+ * ═══════════════════════════════════════════════════════════════════════
+ * ZWEI ZAHLEN, WEIL ES ZWEI ZAHLEN SIND — UND KEINE DRITTE
+ * ═══════════════════════════════════════════════════════════════════════
+ *
+ * Anschaffungspreis und Versicherungswert sind verschiedene Angaben und
+ * werden NICHT auseinander gerechnet. Die naheliegende dritte Zahl wäre der
+ * ZEITWERT — Anschaffung minus Abschreibung — und sie wird hier nicht
+ * gebildet: nach welcher Regel abgeschrieben wird, entscheidet der
+ * Versicherer, und diese Anwendung kennt seinen Vertrag nicht. Eine
+ * gerechnete Zahl sähe aus wie eine Auskunft und wäre eine Vermutung, mit der
+ * jemand in einen Schadensfall ginge.
+ *
+ * Deshalb der STAND: „so war er am 12.03.2026 gemeldet". Ohne ihn ist der
+ * Wert einer ohne Zeitpunkt, und die Liste sagt das, statt ihn für aktuell zu
+ * halten.
+ */
+export interface Versicherungswert {
+  betrag: Geldbetrag
+  /** Stand des Werts (ISO-Datum). */
+  stand?: string
+}
+
 export interface InventoryItem {
   id: string
   /** Modell-/Artikelname (Pflicht, Anzeigename). */
@@ -93,6 +160,19 @@ export interface InventoryItem {
   locationId?: string
   /** Physische Artikelmaße (für Case-Packing). */
   dimensions?: PhysicalDimensions
+  /**
+   * Ursprungsland nach ISO 3166-1 alpha-2 („DE", „JP", „US") — Bedarf 118.
+   *
+   * Steht am ARTIKEL und nicht an der Einheit: es ist eine Eigenschaft des
+   * Modells, und zwei Einheiten desselben Modells aus verschiedenen
+   * Fertigungen auseinanderzuhalten kann diese Anwendung nicht.
+   *
+   * Wofür: das Carnet-Datenblatt (`carnetDatenblatt`). Ein Carnet A.T.A.
+   * verlangt Ursprungsland, Gewicht und Wert je Position. Ohne diese Angabe
+   * steht dort „nicht angegeben" — und genau das ist der Zweck des Blattes:
+   * zu zeigen, was noch fehlt, bevor jemand am Zoll steht.
+   */
+  ursprungsland?: string
   /** Material-Art(en): Vermiet- und/oder Verbrauchsmaterial. */
   materialKinds?: InventoryMaterialKind[]
   /** Freie Notiz. */
@@ -313,6 +393,10 @@ export interface InventoryUnit {
   locationId?: string
   /** Zustand (Wartung/Reparatur). */
   condition: UnitCondition
+  /** Bedarf 118 — was sie gekostet hat. Siehe `Anschaffung`. */
+  anschaffung?: Anschaffung
+  /** Bedarf 118 — wofür sie versichert ist. Siehe `Versicherungswert`. */
+  versicherungswert?: Versicherungswert
   /** Freie Notiz. */
   notes?: string
   /** Append-only Historie (Bewegungen, Zustandswechsel). */

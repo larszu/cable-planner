@@ -32,7 +32,19 @@ export const INVENTORY_FORMAT = 'avplan-inventory'
 // Case klebt, waere weg. Mit der erhoehten Version weigert er sich stattdessen
 // zu lesen, und das ist die ehrlichere Antwort. Aeltere Dateien (v1/v2) lesen
 // wir unveraendert weiter; ihre Einheiten haben schlicht keine Hausreferenz.
-export const INVENTORY_FORMAT_VERSION = 3
+//
+// Version 4 (Bedarf 118): `InventoryUnit.anschaffung`,
+// `InventoryUnit.versicherungswert` und `InventoryItem.ursprungsland` — die
+// Angaben, aus denen Versicherungsliste und Carnet-Datenblatt entstehen.
+// Dieselbe Begruendung wie bei 2 und 3, und hier die teuerste: `healUnit` baut
+// jede Einheit Feld fuer Feld neu auf. Ein Planer, der die Werte nicht kennt,
+// schriebe eine Datei mit Versicherungswerten still ohne sie zurueck — und der
+// Freiberufler haette eine Versicherungsliste, die seinen halben Bestand nicht
+// mehr kennt, ohne dass ihm jemand etwas gesagt haette. Mit der erhoehten
+// Version weigert sich ein aelterer Stand stattdessen zu lesen. Aeltere
+// Dateien (v1-v3) lesen wir unveraendert weiter; ihre Einheiten haben schlicht
+// keine Werte.
+export const INVENTORY_FORMAT_VERSION = 4
 
 export interface InventorySnapshot {
   items: InventoryItem[]

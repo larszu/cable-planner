@@ -28,12 +28,12 @@ import type { InventoryItem, StorageNode, InventorySet, InventoryUnit } from '..
 // Eingefrorener Contract — MUSS in allen drei Repos identisch sein.
 const CONTRACT = {
   format: 'avplan-inventory',
-  version: 3,
+  version: 4,
   envelopeKeys: ['app', 'exportedAt', 'format', 'items', 'nodes', 'sets', 'units', 'version'],
-  itemKeys: ['category', 'code', 'codeType', 'createdAt', 'deviceTypeId', 'dimensions', 'id', 'locationId', 'manufacturer', 'materialKinds', 'model', 'notes', 'ownership', 'quantity', 'rentPricePerDay', 'returnDue', 'stockLocation', 'supplier', 'updatedAt'],
+  itemKeys: ['category', 'code', 'codeType', 'createdAt', 'deviceTypeId', 'dimensions', 'id', 'locationId', 'manufacturer', 'materialKinds', 'model', 'notes', 'ownership', 'quantity', 'rentPricePerDay', 'returnDue', 'stockLocation', 'supplier', 'updatedAt', 'ursprungsland'],
   nodeKeys: ['code', 'codeType', 'createdAt', 'dimensions', 'id', 'kind', 'name', 'notes', 'parentId', 'updatedAt'],
   setKeys: ['components', 'createdAt', 'id', 'name', 'notes', 'updatedAt'],
-  unitKeys: ['code', 'codeType', 'condition', 'createdAt', 'history', 'houseRef', 'id', 'itemId', 'locationId', 'notes', 'serial', 'updatedAt'],
+  unitKeys: ['anschaffung', 'code', 'codeType', 'condition', 'createdAt', 'history', 'houseRef', 'id', 'itemId', 'locationId', 'notes', 'serial', 'updatedAt', 'versicherungswert'],
 } as const
 
 // Voll besetzte Muster-Entitaeten (jedes Feld gesetzt). Sie halten die
@@ -51,6 +51,8 @@ const item: InventoryItem = {
   returnDue: '2026-09-12',
   code: 'ITM-1', codeType: 'qr', locationId: 'n1', deviceTypeId: 'dt-0001',
   dimensions: { widthMm: 50, heightMm: 20, depthMm: 200, weightKg: 0.3 },
+  // Bedarf 118 — fuers Carnet-Datenblatt.
+  ursprungsland: 'JP',
   materialKinds: ['rental'], notes: 'x', createdAt: 't', updatedAt: 't',
 }
 const node: StorageNode = {
@@ -65,6 +67,12 @@ const set: InventorySet = {
 const unit: InventoryUnit = {
   id: 'u1', itemId: 'i1', serial: 'SN-1', houseRef: 'AV-0421', code: 'UNI-1', codeType: 'qr', locationId: 'n1',
   condition: 'ok', notes: 'x', history: [{ at: 't', kind: 'created', detail: 'x' }],
+  // Bedarf 118 — die zwei Werte, aus denen Versicherungsliste und
+  // Carnet-Datenblatt entstehen. Sie MUESSEN im Round-Trip ueberleben: eine
+  // Datei, die den Versicherungswert unterwegs verliert, ist die stille
+  // Unterversicherung.
+  anschaffung: { betrag: { cent: 249900, waehrung: 'EUR' }, am: '2024-03-12' },
+  versicherungswert: { betrag: { cent: 180000, waehrung: 'EUR' }, stand: '2026-01-02' },
   createdAt: 't', updatedAt: 't',
 }
 const snapshot: InventorySnapshot = { items: [item], nodes: [node], sets: [set], units: [unit] }
