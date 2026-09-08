@@ -4507,6 +4507,38 @@ export const en: Dict = {
   'inventory.insuranceHint':
     'Insurance schedule: value per unit, one total per currency — and the units with no declared value listed by name underneath.',
   'inventory.carnetSheet': 'Carnet',
+  // Bedarf 120 — Nachweise (Qualifikationen, Versicherungen, Unterweisungen).
+  'nachweis.title': 'Credentials',
+  'nachweis.intro':
+    'Qualifications, insurance and safety briefings held by this person, with expiry dates. They belong to you, not to the plan — they never go into a project file.',
+  'nachweis.storageFull':
+    'The last entry could not be saved — storage is full. It is shown here but would be gone on the next start.',
+  'nachweis.count': '{n} credentials',
+  'nachweis.pack': 'Cover sheet',
+  'nachweis.packHint':
+    'Cover sheet for the credential pack: what is enclosed, until when it is valid, and what is still missing. Put the scans next to it — the app does not store them.',
+  'nachweis.add': 'Credential',
+  'nachweis.art': 'Kind',
+  'nachweis.bezeichnung': 'Name',
+  'nachweis.bezeichnungPh': 'e.g. working-at-height certificate',
+  'nachweis.aussteller': 'Issued by',
+  'nachweis.nummer': 'Number',
+  'nachweis.ausgestellt': 'Issued on',
+  'nachweis.gueltigBis': 'Valid until',
+  'nachweis.datei': 'Scan file name',
+  'nachweis.dateiPh': 'e.g. height-2026.pdf',
+  'nachweis.noExpiryHint':
+    'Without a “valid until” date the credential does not count as open-ended — it counts as “no expiry stated”, and the cover sheet says exactly that.',
+  'nachweis.empty': 'No credentials entered yet.',
+  'nachweis.inDays': ' (in {n} days)',
+  'nachweis.warnTitle': 'Advance warning',
+  'nachweis.warnIntro':
+    'How many days before expiry to warn. With no figure, nothing is reported — a default would be an opinion about how long a renewal takes.',
+  'nachweis.warnPh': 'not stated',
+  'nachweis.days': 'days',
+  'nachweis.noneSoon': 'Nothing expires within that window.',
+  'nachweis.someSoon': '{n} expire within that window: {liste}',
+  'settings.tab.nachweise': 'Credentials',
   'inventory.carnetHint':
     'Carnet data sheet: the columns a carnet line needs, to copy into the chamber of commerce form. Not a carnet.',
   'inventory.unitDeleteTitle': 'Delete unit?',

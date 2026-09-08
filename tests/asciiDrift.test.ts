@@ -90,6 +90,10 @@ const HARMLOS = new Set(
     'steuersatz', 'steuersätze', 'steuerbetrag', 'mehrwertsteuer', 'umsatzsteuer',
     'steuerbar', 'steuerbare', 'steuerbaren', 'steuerbares',
     'steuerung', 'steueradern', 'steuerverkehr', 'geraetesteuerung', 'frequenz',
+    // Bedarf 120 (2026-09-08): „dauert" ist richtiges Deutsch — die
+    // Silbengrenze faellt in „da-uert" mitten in ein „ue", genau wie bei
+    // „Ste-uer". Dieselbe Ursache, dieselbe Aufnahme in die Liste.
+    'dauer', 'dauert', 'dauern', 'dauernd', 'dauerhaft', 'andauernd',
     // S-3 (2026-09-08): „Steuerzeichen" ist richtiges Deutsch und wurde
     // gemeldet — die Silbengrenze faellt in „Ste-uer" mitten in ein „ue".
     // Dasselbe gilt fuer die uebrigen Zusammensetzungen mit „Steuer-", die

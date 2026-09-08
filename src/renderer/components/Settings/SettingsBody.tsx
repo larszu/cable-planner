@@ -6,6 +6,7 @@
 import { useState, type HTMLAttributes, type ReactNode } from 'react'
 import {
   ClipboardList, Palette, Pencil, Keyboard, Plug, Database, RefreshCw, Settings, Blocks, X, ListPlus,
+  BadgeCheck,
   type LucideIcon,
 } from 'lucide-react'
 import { Icon } from '../shared/Icon'
@@ -19,6 +20,7 @@ import { EditingTab } from './tabs/EditingTab'
 import { AppearanceTab } from './tabs/AppearanceTab'
 import { IntegrationsTab } from './tabs/IntegrationsTab'
 import { SchemaBuilderTab } from './tabs/SchemaBuilderTab'
+import { NachweiseTab } from './tabs/NachweiseTab'
 import { useTranslation } from '../../lib/i18n'
 
 export type SettingsSection =
@@ -31,6 +33,7 @@ export type SettingsSection =
   | 'configs'
   | 'schema'
   | 'sync'
+  | 'nachweise'
   | 'advanced'
 
 const TAB_ICONS: Record<SettingsSection, LucideIcon> = {
@@ -43,6 +46,7 @@ const TAB_ICONS: Record<SettingsSection, LucideIcon> = {
   configs: Database,
   schema: ListPlus,
   sync: RefreshCw,
+  nachweise: BadgeCheck,
   advanced: Settings,
 }
 
@@ -56,6 +60,7 @@ const TAB_FALLBACK_LABEL: Record<SettingsSection, string> = {
   configs: 'Konfigurationen',
   schema: 'Kategorien & Felder',
   sync: 'Netzwerk-Sync',
+  nachweise: 'Nachweise',
   advanced: 'Erweitert',
 }
 
@@ -69,12 +74,23 @@ const TAB_FALLBACK_TITLE: Record<SettingsSection, string> = {
   configs: 'Geräte-Konfigurationen',
   schema: 'Kategorien & Felder (Feld-Builder)',
   sync: 'Netzwerk-Sync',
+  nachweise: 'Nachweise (Qualifikationen, Versicherungen)',
   advanced: 'Erweitert',
 }
 
+/**
+ * Die Liste kommt aus der Icon-Tabelle statt noch einmal hingeschrieben zu
+ * werden (Bedarf 120).
+ *
+ * Vorher stand hier eine eigene Aufzaehlung — die VIERTE Stelle, an der jeder
+ * Abschnitt genannt sein musste, und die einzige ohne Typ-Pruefung. Wer einen
+ * Tab ergaenzte und sie vergass, bekam einen Abschnitt, der sich zwar
+ * anklicken, aber nicht per `initialSection` oeffnen liess — still und ohne
+ * Fehlermeldung. Die drei `Record<SettingsSection, …>`-Tabellen daneben
+ * erzwingen die Vollstaendigkeit; diese Zeile erbt sie jetzt.
+ */
 const isSection = (v: unknown): v is SettingsSection =>
-  typeof v === 'string' &&
-  ['project', 'modules', 'appearance', 'editing', 'hotkeys', 'integrations', 'configs', 'schema', 'sync', 'advanced'].includes(v)
+  typeof v === 'string' && Object.prototype.hasOwnProperty.call(TAB_ICONS, v)
 
 interface SettingsBodyProps {
   onClose: () => void
@@ -149,6 +165,7 @@ export const SettingsBody = ({ onClose, initialSection, headerProps, titleId, he
           {section === 'configs' && <ConfigsTab />}
           {section === 'schema' && <SchemaBuilderTab />}
           {section === 'sync' && <SyncTab />}
+          {section === 'nachweise' && <NachweiseTab />}
           {section === 'advanced' && <AdvancedTab />}
         </div>
       </main>
