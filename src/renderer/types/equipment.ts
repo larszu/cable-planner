@@ -121,6 +121,21 @@ export interface Port {
    */
   circuitTerminal?: number
   /**
+   * Absicherung DIESES Abgangs in Ampere (B-52, 2026-09-08).
+   *
+   * Am PORT und nicht in einem eigenen Objekt: ein Verteiler mit acht
+   * Abgaengen hat acht Absicherungen, und eine Liste daneben waere ein
+   * zweiter Ort fuer dieselbe Aussage — beim Umsortieren der Anschluesse
+   * laufen die beiden auseinander. Genau dieser Befund steht in B-33 fuer
+   * die Port-Nummerierung und ueber `circuitTerminal` fuer die Klemme.
+   *
+   * ANGEGEBEN, NIE GERATEN. Ohne Wert ist die Absicherung unbekannt und
+   * wird auch so genannt; sie aus dem Steckertyp abzuleiten („CEE16 also
+   * 16 A") waere ein Namensabgleich fuer eine folgenreiche Aussage
+   * (ADR-002) — die Buchse sagt, was hineinpasst, nicht was davor haengt.
+   */
+  absicherungA?: number
+  /**
    * Die Adresse dieses Anschlusses IM STEUER-PROTOKOLL des Geraets (S-2).
    *
    * Nur noetig, wo das Protokoll sie nicht selbst festlegt. Beim Videohub tut
