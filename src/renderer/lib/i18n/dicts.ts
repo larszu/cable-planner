@@ -3408,8 +3408,12 @@ export const en: Dict = {
     'Add it to your calendar as a subscription — it fetches the current state instead of going stale.',
   'analysis.crew.planned': '{n} pencilled/held — not in the totals',
   'app.loadReport.crewEntry': 'Crew record',
+  // ADR-005, Regel 3 — zwei Sorten, die bis hierher still verschwanden.
+  'app.loadReport.tallyPosition': 'Tally position',
+  'app.loadReport.addressRange': 'Address range',
   'app.loadReport.duplicateId': 'duplicate id, the first entry wins',
   'app.loadReport.missingRequired': 'required field missing (name)',
+  'app.loadReport.danglingRef': 'the reference points at nothing — the target was deleted',
   'app.loadReport.hint': 'Devices that pointed at these roles lost their assignment — including the TSL address used for tally. Saving overwrites the file with this state.',
   'app.mobileDrop.title': 'Cables sent from a phone were not taken over',
   'app.mobileDrop.cable': 'Cable',

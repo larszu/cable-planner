@@ -773,9 +773,19 @@ const healProjectPositions = (
   // ein Datensatz auf eine geloeschte Rolle zeigt ins Leere und saehe auf dem
   // Vor-Show-Blatt aus wie eine gepruefte Position. Dieselbe Entscheidung wie
   // bei `clearDanglingIdentity` eine Zeile weiter unten.
-  const tallyPositions = normaliseTallyPositions(project.tallyPositions).filter((p) =>
-    identityIds.has(p.identityId),
-  )
+  const tallyPositions = normaliseTallyPositions(project.tallyPositions, (d) =>
+    onDrop?.({ kind: 'tally-position', reason: d.reason, label: d.label }),
+  ).filter((p) => {
+    if (identityIds.has(p.identityId)) return true
+    // ADR-005, Regel 3. Bis hierher fiel dieser Datensatz WORTLOS weg, und mit
+    // ihm seine `checks` — die Beobachtungen, die jemand an der Kamera
+    // aufgenommen hat. Verworfen wird er weiterhin (ohne Rolle sieht er auf
+    // dem Vor-Show-Blatt aus wie eine gepruefte Position), aber nicht mehr
+    // stumm: `dangling-ref` sagt, dass die ROLLE weg ist — sonst suchte
+    // jemand nach einem fehlenden Pflichtfeld, das nie gefehlt hat.
+    onDrop?.({ kind: 'tally-position', reason: 'dangling-ref', label: p.endpoint ?? p.lamp ?? p.identityId })
+    return false
+  })
   // Bedarf 116 — die Segmente. Der Gateway-Zeiger wird gegen die Geraete
   // gehalten: ein Zeiger ins Leere saehe auf dem Blatt aus wie ein Weg in das
   // Segment hinein, und genau danach sucht jemand vor Ort. Das SEGMENT selbst
@@ -789,7 +799,9 @@ const healProjectPositions = (
   // Bedarf 20 — die Adressbereichs-Ebenen. Die Normalisierung kanonisiert
   // jeden CIDR auf seine Netz-Adresse und wirft weg, was keiner ist; ein
   // Gateway ausserhalb seines eigenen Bereichs verliert dabei den Eintrag.
-  const addressLayers = normaliseAddressLayers(project.addressLayers)
+  const addressLayers = normaliseAddressLayers(project.addressLayers, (d) =>
+    onDrop?.({ kind: 'address-range', reason: d.reason, label: d.label }),
+  )
   // Initiative 9 — Ausspielziele. Dieselbe Bauform wie die Rollen darueber:
   // normalisieren, Verworfenes melden, Backup-Zeiger ins Leere entfernen.
   const deliveryDestinations = normaliseDeliveryDestinations(project.deliveryDestinations, onDrop)

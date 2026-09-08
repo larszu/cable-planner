@@ -377,11 +377,27 @@ describe('die Verben im Store', () => {
     expect(p?.endpoint).toBe('17')
   })
 
-  it('wirft beim Laden weg, was auf eine geloeschte Rolle zeigt', () => {
+  it('wirft beim Laden weg, was auf eine geloeschte Rolle zeigt — und MELDET es', () => {
     // Ein Datensatz auf eine geloeschte Rolle saehe auf dem Vor-Show-Blatt
-    // aus wie eine gepruefte Position und zeigte ins Leere.
-    expect(storeQuelle).toContain('normaliseTallyPositions(project.tallyPositions).filter')
-    expect(storeQuelle).toContain('identityIds.has(p.identityId)')
+    // aus wie eine gepruefte Position und zeigte ins Leere. Er faellt also
+    // weiter weg — aber ADR-005 Regel 3 verlangt, dass es jemand erfaehrt: er
+    // traegt die `checks`, also die Beobachtungen, die jemand an der Kamera
+    // aufgenommen hat.
+    //
+    // Auf die BEIDEN Zusicherungen pruefen, nicht auf die Aufruf-Form: Eine
+    // erste Fassung pinnte den Einzeiler `normaliseTallyPositions(...).filter`
+    // und wurde rot, als der Melde-Rueckruf dazukam — also an der Verbesserung,
+    // nicht am Defekt. Ein Waechter, der an einer richtigen Aenderung rot wird,
+    // wird geaendert statt gelesen.
+    const stelle = storeQuelle.slice(
+      storeQuelle.indexOf('const tallyPositions ='),
+      storeQuelle.indexOf('// Bedarf 116'),
+    )
+    expect(stelle).toContain('normaliseTallyPositions(project.tallyPositions')
+    expect(stelle).toContain('identityIds.has(p.identityId)')
+    expect(stelle).toMatch(/kind: 'tally-position'[\s\S]{0,200}?reason: 'dangling-ref'/)
+    // Und die Normalisierung selbst meldet ihre beiden Faelle.
+    expect(stelle).toMatch(/normaliseTallyPositions\(project\.tallyPositions,\s*\(d\)/)
   })
 })
 

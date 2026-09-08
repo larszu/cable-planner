@@ -324,8 +324,18 @@ export function preShowTallyTable(
   }
 }
 
-/** Normalisiert einen geladenen Datensatz — die Schema-Migrationsschicht. */
-export function normaliseTallyPositions(raw: unknown): TallyPosition[] {
+/**
+ * Normalisiert einen geladenen Datensatz — die Schema-Migrationsschicht.
+ *
+ * ADR-005, Regel 3: Was hier wegfaellt, wird GEMELDET. Bis dahin verschwanden
+ * beide Faelle wortlos — und mit ihnen die `checks`, also die Beobachtungen,
+ * die jemand vor Ort aufgenommen hat. Das Vor-Show-Blatt zeigte die Position
+ * danach als „nie geprueft".
+ */
+export function normaliseTallyPositions(
+  raw: unknown,
+  onDrop?: (d: { reason: 'missing-required' | 'duplicate-id'; label: string }) => void,
+): TallyPosition[] {
   if (!Array.isArray(raw)) return []
   const gueltigeWege: readonly TallyTransport[] = [
     'tsl-umd-v31',
@@ -351,7 +361,21 @@ export function normaliseTallyPositions(raw: unknown): TallyPosition[] {
     const identityId = typeof r.identityId === 'string' ? r.identityId.trim() : ''
     // Ein Datensatz ohne Rolle zeigt ins Leere. Zwei fuer dieselbe Rolle sind
     // zwei Wahrheiten — die erste gewinnt, wie bei `normaliseSourceIdentities`.
-    if (!identityId || gesehen.has(identityId)) continue
+    if (!identityId) {
+      // Als Griff dient, was der Datensatz sonst hergibt: der Endpunkt oder
+      // die Lampe. Ohne Rolle ist das alles, woran jemand ihn in seiner Datei
+      // wiedererkennt.
+      onDrop?.({
+        reason: 'missing-required',
+        label: (typeof r.endpoint === 'string' ? r.endpoint.trim() : '') ||
+          (typeof r.lamp === 'string' ? r.lamp.trim() : ''),
+      })
+      continue
+    }
+    if (gesehen.has(identityId)) {
+      onDrop?.({ reason: 'duplicate-id', label: identityId })
+      continue
+    }
     gesehen.add(identityId)
     const transport = gueltigeWege.includes(r.transport as TallyTransport)
       ? (r.transport as TallyTransport)
