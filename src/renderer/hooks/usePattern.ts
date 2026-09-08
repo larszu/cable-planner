@@ -7,6 +7,12 @@ import {
   zielGeraete,
   type PatternRouting,
 } from '../lib/patternRouting'
+import {
+  diagnoseSumme,
+  patternDiagnose,
+  type DiagnoseSumme,
+  type PatternBefund,
+} from '../lib/patternDiagnose'
 import type { CablePlannerProject } from '../types/project'
 
 /**
@@ -25,6 +31,9 @@ interface PatternErgebnis {
   /** Der Name der Quelle, wie er auf dem Bild steht. */
   quellName: string
   quelleId: string | null
+  /** Je Ankunftsort: was jemand gesehen hat und was das bedeutet. */
+  befunde: Map<string, PatternBefund>
+  alleBefunde: PatternBefund[]
 }
 
 const LEER: PatternErgebnis = {
@@ -32,6 +41,8 @@ const LEER: PatternErgebnis = {
   ziele: new Set(),
   quellName: '',
   quelleId: null,
+  befunde: new Map(),
+  alleBefunde: [],
 }
 
 let cache: {
@@ -43,11 +54,14 @@ let cache: {
 const loese = (project: CablePlannerProject, quelleId: string): PatternErgebnis => {
   if (cache && cache.project === project && cache.quelleId === quelleId) return cache.ergebnis
   const routing = patternRouting(project, quelleId)
+  const alleBefunde = patternDiagnose(project, quelleId)
   const ergebnis: PatternErgebnis = {
     routing,
     ziele: zielGeraete(routing),
     quellName: project.equipment.find((e) => e.id === quelleId)?.name ?? '',
     quelleId,
+    befunde: new Map(alleBefunde.map((b) => [b.equipmentId, b])),
+    alleBefunde,
   }
   cache = { project, quelleId, ergebnis }
   return ergebnis
@@ -110,3 +124,27 @@ export const usePatternOverview = (): PatternOverview => {
 
 /** Das vollständige Routing — für den Prüfblatt-Export. */
 export const usePatternRouting = (): PatternRouting => useErgebnis().routing
+
+
+/**
+ * Der Befund an DIESEM Ankunftsort — oder `null`.
+ *
+ * `null` heisst „hier ist nichts zu erwarten": entweder ist keine Quelle
+ * gewaehlt, oder der Plan sieht hier keine Ankunft vor. Es heisst NICHT
+ * „hier ist alles in Ordnung"; wo der Plan etwas vorsieht und niemand
+ * hingesehen hat, kommt `ungeprueft` zurueck, und das ist eine Aussage.
+ */
+export const useBefund = (equipmentId: string | undefined): PatternBefund | null => {
+  const { befunde } = useErgebnis()
+  if (!equipmentId) return null
+  return befunde.get(equipmentId) ?? null
+}
+
+/** Alle Befunde — fuer das Abnahme-Blatt. */
+export const usePatternBefunde = (): PatternBefund[] => useErgebnis().alleBefunde
+
+/** Die Zahlen der Abnahme fuer den Streifen. */
+export const usePatternSumme = (): DiagnoseSumme => {
+  const { alleBefunde } = useErgebnis()
+  return useMemo(() => diagnoseSumme(alleBefunde), [alleBefunde])
+}

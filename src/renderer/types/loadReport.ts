@@ -63,6 +63,16 @@ export type LoadDropKind =
    * dunkel bleibt.
    */
   | 'equipment-circuit'
+  /**
+   * B-42 — eine Sichtpruefung vom Pruefbild-Rundgang, deren Ankunftsort oder
+   * Quelle es nicht mehr gibt.
+   *
+   * Warum sie faellt: sie landet im Abnahme-Blatt und stuende dort als
+   * GEPRUEFTER Ankunftsort — an einem Geraet, das geloescht wurde, oder fuer
+   * eine Quelle, deren Bild niemand mehr zuordnen kann. Eine Zeile, die
+   * aussieht wie eine Abnahme und keine ist, ist teurer als eine fehlende.
+   */
+  | 'pattern-check'
   /** Initiative 9 — ein Ausspielziel, das die Normalisierung nicht bestanden
    *  hat. Dieselbe Regel wie bei der Rolle: ein Ziel, das still verschwindet,
    *  nimmt die Ingest-URL und den Verweis auf seinen Stream-Key mit, und der

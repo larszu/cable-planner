@@ -90,6 +90,7 @@ import { normaliseVenueAnswers } from '../lib/venueAnswers'
 import { isNetworkInterfaceRole, normaliseNetworkInterface } from '../lib/networkInterfaces'
 import type { NetworkInterface } from '../types/network'
 import { istCircuitKind } from '../types/circuit'
+import { normalisePatternChecks } from '../types/patternCheck'
 
 const CUSTOM_LIB_KEY = STORAGE_KEYS.customLibrary
 const PROJECT_AUTOSAVE_KEY = STORAGE_KEYS.projectAutosave
@@ -546,6 +547,17 @@ export interface ProjectState {
     identityId: string,
     check: import('../types/tallyPosition').TallyCheck,
   ) => 'unknown-role' | undefined
+  /** B-42 — eine Sichtpruefung vom Pruefbild-Rundgang anhaengen.
+   *
+   *  Angehaengt, nie ersetzt: „gestern ging es, heute nicht" ist die
+   *  Auskunft, die den Fehler findet. Der Zeitpunkt kommt vom Aufrufer; der
+   *  Store nimmt keine Uhr, sonst stempelte dieselbe Beobachtung bei jedem
+   *  Aufruf anders. Abgelehnt wird, was auf ein unbekanntes Geraet zeigt —
+   *  ein solcher Datensatz stuende im Abnahme-Blatt als geprueft und zeigte
+   *  ins Leere. */
+  recordPatternCheck: (
+    check: import('../types/patternCheck').PatternCheck,
+  ) => 'unknown-equipment' | undefined
   renameSourceIdentity: (
     id: string,
     newName: string,
@@ -792,6 +804,12 @@ const healProjectPositions = (
   // Segment hinein, und genau danach sucht jemand vor Ort. Das SEGMENT selbst
   // ueberlebt — es ist der Entwurf, und der gilt auch ohne Gateway.
   const geraeteIds = new Set(project.equipment.map((e) => e.id))
+  // B-42 — die Sichtpruefungen vom Pruefbild-Rundgang. Die Regel steht in
+  // `normalisePatternChecks` (types/patternCheck.ts) und ist dort am
+  // VERHALTEN geprueft, nicht am Quelltext.
+  const patternChecks = normalisePatternChecks(project.patternChecks, geraeteIds, (d) =>
+    onDrop?.({ kind: 'pattern-check', reason: d.reason, label: d.label }),
+  )
   const networkSegments = normaliseNetworkSegments(project.networkSegments).map((s) =>
     s.gatewayEquipmentId && !geraeteIds.has(s.gatewayEquipmentId)
       ? (({ gatewayEquipmentId: _weg, ...rest }) => rest)(s)
@@ -1030,6 +1048,7 @@ const healProjectPositions = (
     // hinterlegt" und „Liste leer" sind hier dasselbe, und ein `undefined`
     // zwaenge jeden Leser zu einer zweiten Fallunterscheidung.
     tallyPositions,
+    patternChecks,
     // Bedarf 116 — dito.
     networkSegments,
     // Bedarf 20 — dito.
