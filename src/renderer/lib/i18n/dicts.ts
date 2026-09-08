@@ -3380,6 +3380,17 @@ export const en: Dict = {
     'The three write routes are closed — the phone is refused on every write attempt. The plan is changed by the person at the desk.',
   'mobile.dialog.writeMode.contributeHint':
     'Ticks, cables added on site and field reports go back into the project. Anyone with the QR code can change the plan.',
+  // Signalfluss im Canvas — Schema vs. Live (Eigentuemer-Entscheidung 2026-09-08).
+  'canvas.flow.live': 'Live',
+  'canvas.flow.schema': 'Schematic',
+  'canvas.flow.lostContact': '· connection lost',
+  'canvas.flow.still': '· still',
+  'canvas.flow.liveTitle': 'Observed state from the switcher/router.',
+  'canvas.flow.schemaTitle': 'The planned path. There is no connection to a live system.',
+  'canvas.flow.fellBackTitle': 'The live connection dropped — showing the planned path again.',
+  'canvas.flow.systemReduced': 'Your system has motion turned off; the view stays still.',
+  'canvas.flow.toggleOff': 'Click: turn motion off.',
+  'canvas.flow.toggleOn': 'Click: turn motion on.',
   // E-3 — die Anlagen-Zugangscodes hinter einem eigenen Code.
   'mobile.dialog.pincode': 'Make system access codes retrievable',
   'mobile.dialog.pincode.none': 'This project carries no intercom configuration with access codes.',
