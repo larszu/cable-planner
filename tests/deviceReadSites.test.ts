@@ -90,6 +90,13 @@ const SONSTIGE_DOMAENEN = [
   'project',
   'receipt',
   'signaling',
+  // E-23 — der eingehende OSC-Hoerer. Ausdruecklich KEIN Geraete-Weg, und
+  // das ist die ganze Entscheidung hinter E-23: was aus einer Nachricht
+  // kommt, ist eine EMPFANGSMELDUNG und nie ein Anlagenzustand. Sie wird
+  // angezeigt und nirgends in den Plan geschrieben — der Test „die Mitschrift
+  // erreicht den Projekt-Speicher nicht" in `tests/oscEmpfang.test.ts` haelt
+  // genau das fest. Ohne ihn waere diese Zeile eine Behauptung.
+  'showControl',
   'streamKey',
   'sync',
   'updater',

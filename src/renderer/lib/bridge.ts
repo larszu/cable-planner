@@ -1,6 +1,7 @@
 import type { CablePlannerProject } from '../types/project'
 import type { NetboxRack, NetboxSite, NetboxSnapshot } from '../types/netbox'
 import type { AttachResult, ReceiptContent } from '../types/receipt'
+import type { LauscherZustand, OscEmpfang, OscLauscherConfig } from '../types/showControl'
 import { downloadBlob } from './downloadBlob'
 
 /**
@@ -194,6 +195,22 @@ type CablePlannerApi = {
     attach: (projectPath: string | undefined, sourcePath: string) => Promise<AttachResult>
     read: (projectPath: string | undefined, storedAs: string) => Promise<ReceiptContent>
     reveal: (projectPath: string | undefined, storedAs: string) => Promise<boolean>
+  }
+  /**
+   * E-23 — der eingehende OSC-Lauscher.
+   *
+   * `start` gibt IMMER einen Zustand zurueck, auch den gescheiterten: aus
+   * einem stillen `undefined` liest jemand „laeuft wohl", und genau das ist
+   * die Entwarnung, die E-23 ausschliesst.
+   */
+  showControl: {
+    start: (config: OscLauscherConfig) => Promise<LauscherZustand>
+    stop: () => Promise<LauscherZustand>
+    state: () => Promise<{ zustand: LauscherZustand; meldungen: OscEmpfang[] }>
+    clear: () => Promise<{ zustand: LauscherZustand; meldungen: OscEmpfang[] }>
+    onUpdate: (
+      cb: (payload: { zustand: LauscherZustand; meldungen: OscEmpfang[] }) => void,
+    ) => () => void
   }
   project: {
     newProject: () => Promise<void>
@@ -645,6 +662,22 @@ const isForbiddenForPath = (error: unknown, path: string): boolean => {
 const STREAM_KEY_WEB_PREFIX = 'cablePlanner.streamKey.'
 
 const webFallbackApi: CablePlannerApi = {
+  /**
+   * E-23 im Browser: es gibt keinen UDP-Port, und das wird GESAGT statt
+   * still nichts zu tun. „Nicht gebunden, weil hier kein Desktop laeuft" ist
+   * eine Auskunft; ein stilles „aus" saehe aus wie „laeuft, es kommt nur
+   * nichts" — und das ist die Entwarnung, gegen die E-23 geschrieben ist.
+   */
+  showControl: {
+    start: async () => ({
+      lage: 'nicht-gebunden' as const,
+      grund: 'Im Browser gibt es keinen Port zum Lauschen — dafür braucht es die Desktop-App.',
+    }),
+    stop: async () => ({ lage: 'aus' as const }),
+    state: async () => ({ zustand: { lage: 'aus' as const }, meldungen: [] }),
+    clear: async () => ({ zustand: { lage: 'aus' as const }, meldungen: [] }),
+    onUpdate: () => () => {},
+  },
   streamKey: {
     get: async (id: string) => localStorage.getItem(STREAM_KEY_WEB_PREFIX + id),
     has: async (id: string) => Boolean(localStorage.getItem(STREAM_KEY_WEB_PREFIX + id)),

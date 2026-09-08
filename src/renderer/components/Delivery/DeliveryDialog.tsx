@@ -1461,6 +1461,75 @@ export const DeliveryDialog = () => {
                       </div>
                     )}
 
+                    {/* E-23 — wo dieses Ziel im Show-Control-Sinn liegt.
+                        Der Plan BENENNT die Adresse und druckt sie; er
+                        verschickt nichts. Sie steht hier neben dem Ziel, weil
+                        sie zu ihm gehoert und nicht zu einer eigenen Liste. */}
+                    <div className="mt-1.5 grid grid-cols-1 gap-1.5 sm:grid-cols-3">
+                      <label className="block text-cp-xs">
+                        <span className="mb-0.5 block text-cp-text-muted">
+                          {t('delivery.osc.address', 'OSC-Adresse')}
+                        </span>
+                        <input
+                          className="w-full rounded border border-cp-border bg-cp-surface-2 px-2 py-1"
+                          value={d.showControl?.oscAdresse ?? ''}
+                          placeholder="/stream/haupt/start"
+                          onChange={(e) =>
+                            update(d.id, {
+                              showControl: {
+                                ...d.showControl,
+                                oscAdresse: e.target.value || undefined,
+                              },
+                            })
+                          }
+                        />
+                      </label>
+                      <label className="block text-cp-xs">
+                        <span className="mb-0.5 block text-cp-text-muted">
+                          {t('delivery.osc.page', 'Companion-Seite')}
+                        </span>
+                        <input
+                          type="number"
+                          className="w-full rounded border border-cp-border bg-cp-surface-2 px-2 py-1"
+                          value={d.showControl?.companionSeite ?? ''}
+                          onChange={(e) =>
+                            update(d.id, {
+                              showControl: {
+                                ...d.showControl,
+                                companionSeite: e.target.value ? Number(e.target.value) : undefined,
+                              },
+                            })
+                          }
+                        />
+                      </label>
+                      <label className="block text-cp-xs">
+                        <span className="mb-0.5 block text-cp-text-muted">
+                          {t('delivery.osc.bank', 'Companion-Platz')}
+                        </span>
+                        <input
+                          type="number"
+                          className="w-full rounded border border-cp-border bg-cp-surface-2 px-2 py-1"
+                          value={d.showControl?.companionPlatz ?? ''}
+                          onChange={(e) =>
+                            update(d.id, {
+                              showControl: {
+                                ...d.showControl,
+                                companionPlatz: e.target.value ? Number(e.target.value) : undefined,
+                              },
+                            })
+                          }
+                        />
+                      </label>
+                    </div>
+                    {d.showControl?.companionSeite !== undefined && (
+                      <div className="mt-1 text-cp-xs text-cp-text-muted">
+                        {t(
+                          'delivery.osc.companionOptIn',
+                          'Companions Schnittstelle ist ab Werk aus — sie muss dort eingeschaltet werden. Ohne diesen Hinweis zeigt das Blatt einen Weg, den es beim Kunden nicht gibt.',
+                        )}
+                      </div>
+                    )}
+
                     {issues.length > 0 && (
                       <ul className="mt-1 flex flex-col gap-0.5">
                         {issues.map((i, idx) => (

@@ -97,6 +97,7 @@ import { normalisePlannedCrosspoints } from '../lib/deviceCrosspoints'
 import { istControlProtocol, istControlTarget, istControlRole } from '../types/switcherControl'
 import { normalisiereAdapter, normalisiereKann } from '../types/adapter'
 import { normalisiereSenkenprofil } from '../types/displayCapability'
+import { normalisiereOscLauscher } from '../types/showControl'
 import {
   normalisiereAdern,
   normalisiereAnschluss,
@@ -728,6 +729,8 @@ export interface ProjectState {
   setFarbnormen: (farbnormen: import('../types/conductor').Farbnorm[]) => void
   /** B-45 — die Anschluss des Projekts ersetzen. */
   setAnschluss: (anschlussListe: import('../types/conductor').Anschluss[]) => void
+  /** E-23 — die Lauscher-Einstellung dieses Projekts. */
+  setOscLauscher: (oscLauscher: import('../types/showControl').OscLauscherConfig) => void
   /** Setzt den Kabel-Namen auf das AVIXA-F501.01-Label „Quelle → Ziel".
    *  Ohne `overwrite` werden nur leere Namen gefüllt. Liefert die Anzahl
    *  geänderter Kabel. */
@@ -839,6 +842,13 @@ const healProjectPositions = (
   )
   // B-42 Inkrement 3 — die Eingriffe. Regel in `normaliseHubSwitches`
   // (types/hubSwitch.ts), dort am VERHALTEN geprueft.
+  // E-23 — der OSC-Lauscher. Er wird beim Laden NORMALISIERT und nicht
+  // geglaubt: eine Datei, die von einem anderen Rechner kommt, traegt eine
+  // Adresse, die es hier nicht gibt. Ohne Adresse ist er AUS — Auflage 3 aus
+  // E-23 gilt auch fuer eine fremde Datei, und ein Port, der auf einer
+  // fremden Angabe lauscht, ist einer, den hier niemand wollte.
+  const oscLauscher = normalisiereOscLauscher(project.oscLauscher)
+
   // B-45 — die Farbnormen und die Anschluss. Die Normen ZUERST: ein Anschluss
   // mit einem Zeiger auf eine geloeschte Norm verliert ihn, und die Kabel
   // brauchen anschliessend die gueltigen Anschluss-Ids. Eine Norm ohne
@@ -1244,6 +1254,8 @@ const healProjectPositions = (
     hubSwitches,
     // B-45 — dito: leere Liste, nicht `undefined`.
     farbnormen,
+    // E-23 — dito.
+    oscLauscher,
     anschlussListe,
     // Bedarf 116 — dito.
     networkSegments,

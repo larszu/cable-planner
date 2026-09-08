@@ -3557,6 +3557,31 @@ export const en: Dict = {
   'sink.emptyAxisHint':
     'An empty row means "nothing is declared about this": the plan does not judge it and says "open". Ticking a box is an assurance — tick it only where you can back it up.',
   'sink.notiz': 'Note',
+  // E-23 — Show-Control: die benannte Adresse und die Mitschrift.
+  'delivery.osc.address': 'OSC address',
+  'delivery.osc.page': 'Companion page',
+  'delivery.osc.bank': 'Companion bank',
+  'delivery.osc.companionOptIn':
+    "Companion's interface is off by default — it has to be switched on there. Without this note the sheet shows a path that does not exist at the customer.",
+  'app.menu.tools.osc': 'Received show-control messages…',
+  'app.menu.tools.osc.note': 'What came in — a transcript, not a system state',
+  'osc.title': 'Received show-control messages',
+  'osc.notAState':
+    'This list is a transcript, not a system state. It says something arrived — not that anything is in order. This plan cannot give an all-clear.',
+  'osc.state': 'Listener',
+  'osc.notBoundHint':
+    'While nothing is bound, nothing arrives here — not even when something is being sent. An empty list then does NOT mean "no cues".',
+  'osc.enable': 'Listen for this project',
+  'osc.address': 'Address to listen on',
+  'osc.addressPlaceholder': 'e.g. 10.0.0.20 — no default',
+  'osc.port': 'Port',
+  'osc.addressHint':
+    'There is deliberately no default: one that listens on every interface would be a decision nobody made — including on the customer network.',
+  'osc.log': 'Transcript',
+  'osc.clear': 'Clear',
+  'osc.empty':
+    'Nothing received yet. That means: nothing arrived here — not that nothing was sent.',
+  'osc.payloadBytes': 'bytes payload',
   // B-45 — Adern, Farbnormen und Anschluesse (Stromplanung).
   'adern.title': 'Conductors, colour standards and connections',
   'adern.tab.normen': 'Colour standards',

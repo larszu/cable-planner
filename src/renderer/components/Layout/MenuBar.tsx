@@ -887,6 +887,16 @@ export const MenuBar = ({
           >
             {t('app.menu.tools.adern', 'Adern und Farbnormen…')}
           </MenuItem>
+          <MenuItem
+            onClick={() => useUiStore.getState().setOscOpen(true)}
+            icon={<Icon icon={Radio} size="sm" />}
+            note={t(
+              'app.menu.tools.osc.note',
+              'Was hereinkam — eine Mitschrift, kein Anlagenzustand',
+            )}
+          >
+            {t('app.menu.tools.osc', 'Empfangene Show-Control-Nachrichten…')}
+          </MenuItem>
 
           <MenuSectionHeader>{t('app.menu.tools.group.build', 'Erstellen & verwalten')}</MenuSectionHeader>
           <MenuItem
