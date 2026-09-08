@@ -8,6 +8,9 @@
     "email": "lars@zumpe.dev"
   },
   "license": "UNLICENSED",
+  "avplan": {
+    "sourceLanguage": "de"
+  },
   "homepage": "https://larszu.github.io/cable-planner/",
   "repository": {
     "type": "git",
@@ -49,6 +52,7 @@
     "build:preload": "tsc -p tsconfig.preload.json",
     "build:renderer": "vite build",
     "lint": "eslint .",
+    "lang:check": "node scripts/quellsprache.mjs src/renderer de",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",

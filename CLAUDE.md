@@ -130,6 +130,15 @@ Pfad-Validierung passiert **immer in main**, nie im Renderer.
 - **Keine Emojis im Code** außer auf expliziten Wunsch.
 - **Version lebt nur in `package.json`** — überall sonst via `__APP_VERSION__`
   (Vite-Define) gelesen, nirgends hardcoden.
+- **Quellsprache: `de`** (E-20, entschieden 2026-09-08). Maschinenlesbar steht
+  sie in `package.json` unter `avplan.sourceLanguage`; diese Zeile und das Feld
+  müssen übereinstimmen, `tests/quellsprache.test.ts` hält beides fest.
+  Die Quellsprache ist der Text, der im JSX steht und bei fehlendem Schlüssel
+  erscheint — sie später zu drehen heisst, jede Zeichenkette erneut anzufassen.
+  **Sie ist eine Eigenschaft dieses Repos, nicht der Suite:** `light-planner`
+  ist ebenfalls deutsch-quellig, `multicam-planner` und `sony-camera-bridge`
+  sind englisch-quellig. Wer hier englische Fallbacks einträgt, „vereinheitlicht"
+  nicht, sondern bricht die Konvention — der Wächter sagt es.
 - **i18n:** Deutsche Strings sind Quell-Sprache, immer als Fallback:
   `t(key, 'Deutsche Form')`. EN-Übersetzung im `en`-Dict in
   `src/renderer/lib/i18n.ts`. Class-Komponenten nutzen `translate(lang, key, fallback)`.

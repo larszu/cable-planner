@@ -68,6 +68,12 @@ jobs:
         run: npx tsc -p tsconfig.app.json --noEmit
       - name: Lint
         run: npm run lint
+      # Quellsprache (E-17/E-20): dieses Repo ist deutsch-quellig, und das
+      # steht nicht nur da, es wird gemessen. Laeuft eigenstaendig neben
+      # `npm test`, weil die Ausgabe die abweichenden Zeilen NAMENTLICH nennt
+      # — in einem roten Vitest-Lauf ginge das unter.
+      - name: Quellsprache
+        run: npm run lang:check
       - name: Tests
         run: npm test
       - name: CRDT-Konvergenz
