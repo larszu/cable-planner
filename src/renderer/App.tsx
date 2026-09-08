@@ -1,4 +1,4 @@
-import { hasDrops } from './types/loadReport'
+import { hasDrops, type LoadDropKind, type LoadDropReason } from './types/loadReport'
 import { hasMobileDrops } from './types/mobileReport'
 import { useEffect, useMemo, useRef, useState, lazy, Suspense } from 'react'
 import { useIsNarrow } from './hooks/useBreakpoint'
@@ -134,6 +134,53 @@ import { useTranslation, format } from './lib/i18n'
 import { crewCalendar } from './lib/crewCalendar'
 import { Icon } from './components/shared/Icon'
 import { cableTouches } from './lib/portOccupancy'
+
+// ───────────────────────────────────────────────────────────────────────────
+// ADR-005, Regel 3 — die Beschriftung des Ladeberichts.
+//
+// Hier stand eine Kette aus zwoelf verschachtelten Ternaeroperatoren, deren
+// LETZTER Zweig „Signalquelle" war. Das machte den Fall-Through zum Default:
+// Wer eine neue Sorte an `LoadDropKind` haengte und diese Kette vergass, bekam
+// keinen Fehler, sondern eine Zeile, die den Nutzer die FALSCHE Sorte
+// Datensatz in seiner Datei suchen laesst. Genau davor warnte der Kommentar an
+// der Kette — und die Kette selbst war die Bauform, die es zulaesst.
+//
+// Jetzt eine Tabelle mit `satisfies Record<LoadDropKind, …>`: eine neue Sorte
+// ohne Beschriftung ist ein Typfehler, kein stiller Fehlgriff.
+// ───────────────────────────────────────────────────────────────────────────
+
+type Uebersetzer = (key: string, fallback?: string) => string
+
+const DROP_ART: Record<LoadDropKind, [key: string, de: string]> = {
+  'source-identity': ['app.loadReport.sourceIdentity', 'Signalquelle'],
+  'delivery-destination': ['app.loadReport.deliveryDestination', 'Ausspielziel'],
+  'venue-answer': ['app.loadReport.venueAnswer', 'Antwort der Haus-IT'],
+  'multicast-assignment': ['app.loadReport.multicastAssignment', 'Multicast-Vergabe'],
+  'fallback-rule': ['app.loadReport.fallbackRule', 'Ausweich-Regel'],
+  'metadata-override': [
+    'app.loadReport.metadataOverride',
+    'Abweichung der Veranstaltungsangaben',
+  ],
+  'transmission-event': ['app.loadReport.transmissionEvent', 'Eintrag im Sendebericht'],
+  'cost-line': ['app.loadReport.costLine', 'Kostenposition'],
+  'crew-entry': ['app.loadReport.crewEntry', 'Eintrag der Crew-Seite'],
+  'tally-position': ['app.loadReport.tallyPosition', 'Tally-Position'],
+  'address-range': ['app.loadReport.addressRange', 'Adressbereich'],
+} satisfies Record<LoadDropKind, [string, string]>
+
+const DROP_GRUND: Record<LoadDropReason, [key: string, de: string]> = {
+  'missing-required': ['app.loadReport.missingRequired', 'Pflichtfeld fehlt (Name)'],
+  'duplicate-id': ['app.loadReport.duplicateId', 'doppelte Id, der erste Eintrag gilt'],
+  'dangling-ref': [
+    'app.loadReport.danglingRef',
+    'der Verweis zeigt ins Leere — das Ziel wurde gelöscht',
+  ],
+} satisfies Record<LoadDropReason, [string, string]>
+
+const dropArtLabel = (t: Uebersetzer, kind: LoadDropKind): string => t(...DROP_ART[kind])
+const dropGrundLabel = (t: Uebersetzer, reason: LoadDropReason): string =>
+  t(...DROP_GRUND[reason])
+
 
 export default function App() {
   const t = useTranslation()
@@ -1493,33 +1540,10 @@ export default function App() {
           <ul className="max-h-40 space-y-0.5 overflow-y-auto text-[11px] text-cp-text-secondary">
             {lastLoadReport.drops.slice(0, 20).map((d, i) => (
               <li key={`${d.kind}-${d.label}-${i}`}>
-                {/* Die Art beschriftet die Zeile. Bis Bedarf 85 stand hier fuer
-                    JEDEN Fall „Signalquelle" — auch fuer ein verworfenes
-                    Ausspielziel aus Initiative 9. Ein Bericht, der jemanden
-                    die falsche Sorte Datensatz in seiner Datei suchen laesst,
-                    ist schlechter als eine Zeile ohne Namen. */}
-                {d.kind === 'delivery-destination'
-                  ? t('app.loadReport.deliveryDestination', 'Ausspielziel')
-                  : d.kind === 'venue-answer'
-                    ? t('app.loadReport.venueAnswer', 'Antwort der Haus-IT')
-                    : d.kind === 'multicast-assignment'
-                      ? t('app.loadReport.multicastAssignment', 'Multicast-Vergabe')
-                      : d.kind === 'fallback-rule'
-                        ? t('app.loadReport.fallbackRule', 'Ausweich-Regel')
-                        : d.kind === 'metadata-override'
-                          ? t('app.loadReport.metadataOverride', 'Abweichung der Veranstaltungsangaben')
-                          : d.kind === 'transmission-event'
-                            ? t('app.loadReport.transmissionEvent', 'Eintrag im Sendebericht')
-                            : d.kind === 'cost-line'
-                              ? t('app.loadReport.costLine', 'Kostenposition')
-                              : d.kind === 'crew-entry'
-                                ? t('app.loadReport.crewEntry', 'Eintrag der Crew-Seite')
-                                : t('app.loadReport.sourceIdentity', 'Signalquelle')}
+                {dropArtLabel(t, d.kind)}
                 {d.label ? ` „${d.label}"` : ''}
                 {' — '}
-                {d.reason === 'duplicate-id'
-                  ? t('app.loadReport.duplicateId', 'doppelte Id, der erste Eintrag gilt')
-                  : t('app.loadReport.missingRequired', 'Pflichtfeld fehlt (Name)')}
+                {dropGrundLabel(t, d.reason)}
               </li>
             ))}
           </ul>
