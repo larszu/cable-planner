@@ -117,6 +117,12 @@ export const CABLE_FIELD_CLASS: Record<string, FieldClass> = {
   terminationTo: 'substantive',
   isTieLine: 'substantive',
   multicoreName: 'substantive',
+  // B-45 — die Adern und die Zugehoerigkeit zum Anschluss. `substantive`,
+  // und zwar buchstaeblich: an der Adernfarbe haengt, welcher Leiter wohin
+  // gehoert. Ein vertauschter Aussenleiter dreht ein Drehfeld; ein als N
+  // gezogener ist eine Gefahr. Das ist keine Optik.
+  adern: 'substantive',
+  anschlussId: 'substantive',
   needsConverter: 'substantive',
   installStatus: 'substantive',
   testResult: 'substantive',

@@ -32,11 +32,13 @@ export const PlanCheckPanel = () => {
   const cables = useProjectStore((s) => s.project.cables)
   const drumKit = useProjectStore((s) => s.project.drumKit)
   const sourceIdentities = useProjectStore((s) => s.project.sourceIdentities)
+  const anschlussListe = useProjectStore((s) => s.project.anschlussListe)
+  const farbnormen = useProjectStore((s) => s.project.farbnormen)
   const setSelection = useProjectStore((s) => s.setSelection)
 
   const result = useMemo(
-    () => runDrawingChecks({ equipment, cables, drumKit, sourceIdentities }),
-    [equipment, cables, drumKit, sourceIdentities],
+    () => runDrawingChecks({ equipment, cables, drumKit, sourceIdentities, anschlussListe, farbnormen }),
+    [equipment, cables, drumKit, sourceIdentities, anschlussListe, farbnormen],
   )
 
   if (!open) return null

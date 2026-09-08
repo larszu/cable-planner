@@ -16,6 +16,7 @@ import type { CablePlannerProject } from '../types/project'
 import type { Cable } from '../types/cable'
 import type { EquipmentItem, Port } from '../types/equipment'
 import { INSTALL_STATUS_LABEL } from '../types/lifecycle'
+import { aderKurz } from '../types/conductor'
 import { cableLabelId } from './docIds'
 import { portDisplayLabel } from './portLabel'
 import type { CsvCell, CsvTable } from './csv'
@@ -75,6 +76,17 @@ export interface PullListRow {
   toPort: string
   type: string
   lengthM: number
+  /**
+   * B-45 — welche Leiter diese Leitung fuehrt, mit Farbe: „L1 (braun)".
+   *
+   * Auf der ZIEHLISTE und nicht bloss im Plan, weil die Farbe genau dort
+   * gebraucht wird: sie ist die einzige Angabe, an der auf der Baustelle
+   * haengt, welcher Leiter wohin gehoert. Ein vertauschter Aussenleiter dreht
+   * ein Drehfeld; ein als N gezogener Aussenleiter ist eine Gefahr.
+   */
+  adern: string
+  /** Zu welchem Anschluss die Leitung gehoert — leer, wenn zu keinem. */
+  anschluss: string
   layer: string
   pathway: string
   jacket: string
@@ -87,6 +99,18 @@ export interface PullListRow {
 
 export const buildPullListRows = (project: CablePlannerProject): PullListRow[] => {
   const byId = indexEquipment(project)
+  // B-45 — Anschluss und Norm einmal aufschlagen. Die Farbe einer Ader kommt
+  // aus der Norm DES ANSCHLUSSS, nicht aus einer zweiten Tabelle hier: zwei
+  // Auskuenfte ueber dieselbe Farbe waeren `zwei-rechnungen`, und die eine
+  // stuende auf der Ziehliste und die andere im Plan.
+  const anschlussById = new Map((project.anschlussListe ?? []).map((b) => [b.id, b]))
+  const normById = new Map((project.farbnormen ?? []).map((n) => [n.id, n]))
+  const anschlussName = (id: string | undefined): string =>
+    (id && anschlussById.get(id)?.name) || ''
+  const normFuer = (id: string | undefined) => {
+    const b = id ? anschlussById.get(id) : undefined
+    return b?.farbnormId ? normById.get(b.farbnormId) : undefined
+  }
   return project.cables.map((c) => {
     const from = byId.get(c.fromEquipmentId)
     const to = byId.get(c.toEquipmentId)
@@ -100,6 +124,10 @@ export const buildPullListRows = (project: CablePlannerProject): PullListRow[] =
       toPort: portName(to, c.toPortId),
       type: c.type,
       lengthM: c.length ?? 0,
+      adern: (c.adern ?? [])
+        .map((a) => aderKurz(a, normFuer(c.anschlussId)))
+        .join(' · '),
+      anschluss: anschlussName(c.anschlussId),
       layer: c.layer ?? '',
       pathway: c.pathway ?? '',
       jacket: c.jacketRating ?? '',
@@ -124,6 +152,8 @@ export const pullListTable = (project: CablePlannerProject): CsvTable => {
     'Nach Port',
     'Typ',
     'Länge (m)',
+    'Adern',
+    'Bündel',
     'Ebene',
     'Trasse/Pfad',
     'Mantel/Brandklasse',
@@ -143,6 +173,8 @@ export const pullListTable = (project: CablePlannerProject): CsvTable => {
     r.toPort,
     r.type,
     r.lengthM,
+    r.adern,
+    r.anschluss,
     r.layer,
     r.pathway,
     r.jacket,

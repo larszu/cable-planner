@@ -36,7 +36,7 @@ import { AnnotationsPanel } from './components/Annotations/AnnotationsPanel'
 // uiStore.annotationsPanelOpen reagiert. Direkt im JSX würde
 // useUiStore.getState() nur beim ersten Render gelesen.
 /**
- * Three.js kostet ~26 MB im node_modules und landet gebuendelt im Haupt-Chunk.
+ * Three.js kostet ~26 MB im node_modules und landet geanschlusst im Haupt-Chunk.
  * `CLAUDE.md` verspricht dagegen: "Three.js nur in `components/Rack/` --
  * Imports ausserhalb ziehen ~600 KB in den Hauptbundle."
  *
@@ -69,6 +69,7 @@ import { ProjectionCalculatorDialog } from './components/Calculators/ProjectionC
 import { BulkConnectDialog } from './components/Canvas/BulkConnectDialog'
 import { AnalysisDialog } from './components/Analysis/AnalysisDialog'
 import { DeliveryDialog } from './components/Delivery/DeliveryDialog'
+import { AdernDialog } from './components/Power/AdernDialog'
 import { ReconcileDialog } from './components/Network/ReconcileDialog'
 import { setStreamKeyDropper } from './store/slices/deliverySlice'
 import { PlanCheckPanel } from './components/Analysis/PlanCheckPanel'
@@ -171,6 +172,9 @@ const DROP_ART: Record<LoadDropKind, [key: string, de: string]> = {
   'address-range': ['app.loadReport.addressRange', 'Adressbereich'],
   'equipment-circuit': ['app.loadReport.equipmentCircuit', 'Schaltbild-Bauart eines Geräts'],
   'equipment-adapter': ['app.loadReport.equipmentAdapter', 'Adapter-Angaben eines Geräts'],
+  'farbnorm': ['app.loadReport.farbnorm', 'Farbnorm ohne Herkunft'],
+  'anschlussListe': ['app.loadReport.anschlussListe', 'Adernbündel'],
+  'ader': ['app.loadReport.ader', 'Ader-Angaben einer Leitung'],
   'pattern-check': ['app.loadReport.patternCheck', 'Sichtprüfung vom Prüfbild-Rundgang'],
   'hub-switch': ['app.loadReport.hubSwitch', 'Schaltvorgang an einer Kreuzschiene'],
   'crosspoint': ['app.loadReport.crosspoint', 'Zeile der geplanten Schaltung'],
@@ -1401,6 +1405,7 @@ export default function App() {
       <DrumMicingDialog />
       <WirelessRigDialog />
       <DeliveryDialog />
+      <AdernDialog />
       <ReconcileDialog />
       <LocationBomDialog />
       {rackEditorOpen && (

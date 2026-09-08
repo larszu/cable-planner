@@ -64,6 +64,9 @@ export type LoadDropKind =
    */
   | 'equipment-circuit'
   | 'equipment-adapter'
+  | 'farbnorm'
+  | 'anschlussListe'
+  | 'ader'
   /**
    * B-42 — eine Sichtpruefung vom Pruefbild-Rundgang, deren Ankunftsort oder
    * Quelle es nicht mehr gibt.

@@ -119,6 +119,8 @@ export const StatusBar = ({
   const cables = useProjectStore((s) => s.project.cables)
   const drumKit = useProjectStore((s) => s.project.drumKit)
   const sourceIdentities = useProjectStore((s) => s.project.sourceIdentities)
+  const anschlussListe = useProjectStore((s) => s.project.anschlussListe)
+  const farbnormen = useProjectStore((s) => s.project.farbnormen)
   const networkSegments = useProjectStore((s) => s.project.networkSegments)
   const togglePlanCheck = useUiStore((s) => s.togglePlanCheck)
   // Memoisiert, weil die StatusBar bei jeder Viewport-Aenderung rendert, die
@@ -126,8 +128,8 @@ export const StatusBar = ({
   // den Kabelgraph). Abhaengigkeiten sind Store-Referenzen, wechseln also nur
   // bei echter Projekt-Aenderung.
   const { errorCount, warningCount } = useMemo(
-    () => runDrawingChecks({ equipment, cables, drumKit, sourceIdentities }),
-    [equipment, cables, drumKit, sourceIdentities],
+    () => runDrawingChecks({ equipment, cables, drumKit, sourceIdentities, anschlussListe, farbnormen }),
+    [equipment, cables, drumKit, sourceIdentities, anschlussListe, farbnormen],
   )
   // ── DIE NETZ-BEFUNDE, NEBEN DEN PLAN-CHECK (2026-09-07) ────────────────
   //
