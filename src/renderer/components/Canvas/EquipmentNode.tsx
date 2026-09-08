@@ -630,7 +630,15 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
           {circuitOverlay && data.circuitKind && (() => {
             const info = CIRCUIT_KIND_INFO[data.circuitKind]
             const schaltbar = istSchaltbar(data.circuitKind)
-            const gezeigt = stellung ?? (data.circuitKind === 'feed' ? 1 : undefined)
+            // Die Ruhestellung kommt aus DERSELBEN Zeile, aus der auch der
+            // Rechner sie liest (B-52 Teil 2). Vorher stand hier „feed ? 1 :
+            // undefined" — und ein Not-Aus, der geschlossen gerechnet wird,
+            // trüge dann eine Marke ohne Stellung.
+            //
+            // Eine Stellung steht nur an einer schaltbaren Bauart: an einer
+            // Leuchte wäre „L0" eine Angabe über etwas, das keine Stellung
+            // hat.
+            const gezeigt = schaltbar ? (stellung ?? info.ruhe) : undefined
             return (
               <span
                 role={schaltbar ? 'button' : undefined}
@@ -665,7 +673,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
                     : info.label
                 }
               >
-                {info.label.slice(0, 1).toUpperCase()}
+                {info.marke}
                 {gezeigt !== undefined ? gezeigt : ''}
               </span>
             )

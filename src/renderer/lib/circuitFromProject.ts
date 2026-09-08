@@ -50,26 +50,13 @@ export interface CircuitSim {
 export const LEERE_SIM: CircuitSim = { positions: {}, levels: {} }
 
 /**
- * Vorgabe-Stellung je Bauart.
- *
- * Einspeisung EIN, alles andere AUS — und zwar so herum, weil ein
- * Schaltbild, das beim Öffnen alles brennen lässt, nichts zeigt. Der
- * Nutzer will sehen, was seine Schalter TUN; er fängt beim dunklen Bild an
- * und legt um.
- *
- * `changeover` und `crossover` haben keine „Aus"-Stellung — sie leiten in
- * jeder Stellung, nur woandershin. Ihre Vorgabe ist deshalb 1 und nicht 0;
- * 0 wäre bei ihnen keine Stellung, die es an einem echten Schalter gibt.
+ * Die Vorgabe-Stellung steht in `CIRCUIT_KIND_INFO[kind].ruhe` — eine Zeile
+ * je Bauart, gelesen vom Rechner (hier), vom `circuitStore` (wovon das
+ * nächste Antippen ausgeht) und von der Marke am Canvas-Knoten (was der
+ * Nutzer sieht). Warum die drei sie sich teilen müssen, steht dort:
+ * bis B-52 Teil 2 hatte jeder seine eigene, und mit Not-Aus, FI und LS
+ * liefen sie auseinander.
  */
-const VORGABE_STELLUNG = {
-  feed: 1,
-  switch: 0,
-  changeover: 1,
-  crossover: 1,
-  dimmer: 0,
-  lamp: 0,
-  junction: 0,
-} satisfies Record<keyof typeof CIRCUIT_KIND_INFO, number>
 
 export interface CircuitPlan {
   nodes: CircuitNode[]
@@ -130,7 +117,7 @@ export const circuitFromProject = (
       position:
         typeof stellung === 'number' && Number.isFinite(stellung)
           ? stellung
-          : VORGABE_STELLUNG[eq.circuitKind],
+          : CIRCUIT_KIND_INFO[eq.circuitKind].ruhe,
       ...(eq.circuitKind === 'dimmer' && typeof pegel === 'number' && Number.isFinite(pegel)
         ? { levelPct: pegel }
         : {}),

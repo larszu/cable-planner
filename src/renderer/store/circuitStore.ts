@@ -60,10 +60,29 @@ export const STELLUNGEN: Record<CircuitKind, number[]> = {
   dimmer: [],
   lamp: [],
   junction: [],
+  distro: [],
+  // B-52 Teil 2 — die Schaltreihenfolge beginnt bei der RUHESTELLUNG. Ein
+  // Not-Aus, dessen erstes Antippen ihn schliesst, waere verkehrt herum
+  // bedient: er ist zu, bis jemand ihn schlaegt.
+  button: [0, 1],
+  contactor: [0, 1],
+  relay: [0, 1],
+  emergencyStop: [1, 0],
+  rcd: [1, 0],
+  mcb: [1, 0],
 }
 
-/** Vorgabe-Stellung, sobald noch keine gewählt wurde. */
-const vorgabe = (kind: CircuitKind): number => (kind === 'feed' ? 1 : STELLUNGEN[kind][0] ?? 0)
+/**
+ * Vorgabe-Stellung, sobald noch keine gewählt wurde.
+ *
+ * Gelesen aus `CIRCUIT_KIND_INFO[kind].ruhe` und NICHT aus `STELLUNGEN[0]`,
+ * obwohl beide heute dasselbe sagen: die Schaltreihenfolge ist eine Aussage
+ * darüber, was das nächste Antippen tut, die Ruhestellung eine darüber, wie
+ * das Gerät ohne Zutun dasteht. Sie hier aus der Reihenfolge abzuleiten
+ * hiesse, sie ein zweites Mal auszurechnen — und der Rechner
+ * (`circuitFromProject`) nähme dann womöglich die andere.
+ */
+const vorgabe = (kind: CircuitKind): number => CIRCUIT_KIND_INFO[kind].ruhe
 
 export const useCircuitStore = create<CircuitState>((set) => ({
   sim: LEERE_SIM,

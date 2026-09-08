@@ -57,6 +57,47 @@ export type CircuitKind =
   | 'lamp'
   /** Klemmstelle/Dose: alles, was hier ankommt, geht überall weiter. */
   | 'junction'
+  /**
+   * Stromverteiler (B-52 Teil 2): eine Klemmstelle mit abgesicherten
+   * Abgängen. Elektrisch dasselbe wie `junction` — die Absicherung steht am
+   * Anschluss (`Port.absicherungA`) und nicht hier, und sie LÖST NICHT AUS:
+   * dafür müsste der Plan die Lasten kennen, und er kennt sie nicht.
+   */
+  | 'distro'
+  /**
+   * Taster: schliesst, solange er gedrückt wird. Ruhestellung OFFEN.
+   *
+   * ─── WARUM DIE SECHS FOLGENDEN BAUARTEN SICH EINE ZEILE TEILEN ──────────
+   *
+   * Schütz, Relais, Taster, Not-Aus, FI und LS sind elektrisch DASSELBE wie
+   * `switch`: ein Kontakt, der leitet oder nicht. Für jede eine eigene Zeile
+   * in `INNERE_VERBINDUNG` zu schreiben hiesse, dieselbe Rechnung sechsmal
+   * hinzuschreiben — sechs Orte, die beim ersten Sonderfall auseinander
+   * laufen.
+   *
+   * Was sie WIRKLICH unterscheidet, ist die RUHESTELLUNG, und die steht
+   * schon irgendwo: in `CIRCUIT_KIND_INFO[kind].ruhe` (`types/circuit.ts`).
+   * Ein
+   * Taster ist im Ruhezustand offen, ein Not-Aus geschlossen. Ohne diese
+   * Unterscheidung läse ein Not-Aus ohne gesetzte Stellung als „offen" —
+   * und der Plan zeichnete eine Leuchte als dunkel, die brennt. Das ist eine
+   * Falschaussage, nicht das Fehlen einer Aussage.
+   *
+   * Eigene Bauarten sind sie trotzdem, aber nur für das, was sie wirklich
+   * unterscheidet: Beschriftung und Symbol. „Aus-Schalter" auf einem Not-Aus
+   * wäre auf einem Blatt schlicht falsch.
+   */
+  | 'button'
+  /** Schütz. Ruhestellung offen. Die SPULE ist nicht modelliert — siehe unten. */
+  | 'contactor'
+  /** Relais. Ruhestellung offen. Ebenfalls ohne Spule. */
+  | 'relay'
+  /** Not-Aus. Ruhestellung GESCHLOSSEN — er unterbricht erst, wenn geschlagen. */
+  | 'emergencyStop'
+  /** Fehlerstrom-Schutzschalter. Ruhestellung geschlossen. */
+  | 'rcd'
+  /** Leitungsschutzschalter. Ruhestellung geschlossen. */
+  | 'mcb'
 
 export interface CircuitNode {
   id: string
@@ -81,6 +122,14 @@ export interface CircuitEdge {
 }
 
 /**
+ * Ein Kontakt: leitet in Stellung 1, sonst nicht.
+ *
+ * Eigene Funktion, damit `switch` und die sechs Bauarten aus B-52 Teil 2
+ * DENSELBEN Code benutzen und nicht sechs Kopien davon.
+ */
+const kontakt = (n: CircuitNode): [number, number][] => (n.position === 1 ? [[1, 2]] : [])
+
+/**
  * Welche Klemmen ein Knoten in seiner Stellung innen verbindet.
  *
  * Als TABELLE mit `satisfies Record<CircuitKind, …>`: eine neue Bauart ohne
@@ -88,13 +137,14 @@ export interface CircuitEdge {
  * wäre der unangenehmste Fehler hier — eine Leuchte, die nicht brennt, sieht
  * aus wie eine richtige Antwort.
  *
- * Jeder Eintrag gibt Klemmen-PAARE zurück. `junction` ist der Sonderfall
- * „alles mit allem" und wird beim Auflösen gesondert behandelt, weil seine
- * Klemmenzahl erst aus den Kanten folgt.
+ * Jeder Eintrag gibt Klemmen-PAARE zurück. Die KLEMMSTELLEN (`junction`,
+ * `distro`) sind der Sonderfall „alles mit allem" und werden beim Auflösen
+ * gesondert behandelt, weil ihre Klemmenzahl erst aus den Kanten folgt —
+ * ihr Eintrag hier bleibt deshalb leer.
  */
 const INNERE_VERBINDUNG = {
   feed: () => [] as [number, number][],
-  switch: (n: CircuitNode) => (n.position === 1 ? ([[1, 2]] as [number, number][]) : []),
+  switch: kontakt,
   changeover: (n: CircuitNode) =>
     n.position === 2 ? ([[0, 2]] as [number, number][]) : ([[0, 1]] as [number, number][]),
   crossover: (n: CircuitNode) =>
@@ -110,7 +160,27 @@ const INNERE_VERBINDUNG = {
   dimmer: () => [[1, 2]] as [number, number][],
   lamp: () => [] as [number, number][],
   junction: () => [] as [number, number][],
+  distro: () => [] as [number, number][],
+  // B-52 Teil 2 — sechs Bauarten, EINE Rechnung. Sie zeigen alle auf
+  // dieselbe Funktion wie `switch`; das ist keine Kopie, sondern derselbe
+  // Code unter sechs Namen. Was sie unterscheidet, ist die Ruhestellung
+  // (`CIRCUIT_KIND_INFO[kind].ruhe`) und die Beschriftung, nicht das Verhalten.
+  button: kontakt,
+  contactor: kontakt,
+  relay: kontakt,
+  emergencyStop: kontakt,
+  rcd: kontakt,
+  mcb: kontakt,
 } satisfies Record<CircuitKind, (n: CircuitNode) => [number, number][]>
+
+/**
+ * Die Klemmstellen: was hier ankommt, geht überall weiter.
+ *
+ * Erklärt und nicht abgeleitet — ein Verteiler ist eine, eine Dose auch.
+ * Wer eine dritte anlegt, trägt sie hier ein; ohne Eintrag verhält sie sich
+ * wie ein Bauteil mit inneren Verbindungen, und das wäre still falsch.
+ */
+const KLEMMSTELLEN: ReadonlySet<CircuitKind> = new Set(['junction', 'distro'])
 
 /** Helligkeit hinter einem Dimmer. Ohne Angabe volle Helligkeit. */
 const dimmerPegel = (n: CircuitNode): number => {
@@ -219,7 +289,7 @@ export const solveCircuit = (
     const node = nachId.get(nodeId)
     if (!node) continue
 
-    if (node.kind === 'junction') {
+    if (KLEMMSTELLEN.has(node.kind)) {
       for (const t of klemmenVon.get(nodeId) ?? []) {
         if (t !== terminal) anbieten(schluessel(nodeId, t), pegel)
       }
