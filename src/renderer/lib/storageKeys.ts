@@ -84,6 +84,17 @@ export const STORAGE_KEYS = {
   categoryTranslations: 'cable-planner:categoryTranslations',
   /** #499 — Gelernte Zuordnung Rentman-Kategorie → lokale Kategorie. */
   rentmanCategoryMap: 'cable-planner:rentman:category-map:v1',
+  /**
+   * Bedarf 120 — die Nachweise dieser Person (Qualifikationen,
+   * Versicherungen, Unterweisungen).
+   *
+   * EIGENER KEY, und zwar aus demselben Grund wie bei `checkouts`: das hier
+   * gehört dem MENSCHEN und nicht dem Plan. In einer `.avplan`, die an einen
+   * Kunden geht, hätte die Versicherungsnummer des Freiberuflers nichts zu
+   * suchen — und im Lager-Austauschformat, das zwischen drei Apps wandert,
+   * erst recht nicht.
+   */
+  nachweise: 'cable-planner:nachweise',
 } as const
 
 export type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS]
