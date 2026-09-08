@@ -62,6 +62,17 @@ export type PassThroughKind =
    * sitzt, und wer den Weg abgeht, sucht ein Gerät, das dort nicht steht.
    */
   | 'mixer'
+  /**
+   * Ein ADAPTER (B-46).
+   *
+   * Eigener Wert und nicht `converter`, obwohl die Ableitung dieselbe ist:
+   * auf dem Blatt stuende sonst „Wandler" an einer Stelle, an der ein
+   * Steckadapter sitzt. Wer den Weg abgeht, sucht dann ein Geraet mit
+   * Netzteil und findet ein Teil in der Groesse eines Daumens — oder haelt
+   * umgekehrt einen echten Wandler fuer einen Adapter und packt keinen
+   * Strom ein.
+   */
+  | 'adapter'
 
 export const PASS_THROUGH_LABEL: Readonly<Record<PassThroughKind, string>> = {
   'patch-panel': 'Patchfeld',
@@ -69,6 +80,7 @@ export const PASS_THROUGH_LABEL: Readonly<Record<PassThroughKind, string>> = {
   'distribution-amp': 'Verteilverstärker',
   router: 'Kreuzschiene',
   mixer: 'Mischer',
+  adapter: 'Adapter',
 }
 
 /** Warum die Kette aufhoert. Nie „einfach so". */
@@ -167,6 +179,23 @@ const forwardFrom = (
       (c) => c.fromPortId !== arrivalPortId,
     )
     return { kind: 'distribution-amp', cables: outs }
+  }
+
+  // Der Adapter kommt VOR dem Wandler, weil ein Geraet beides tragen kann
+  // (ein aktiver Adapter ist ein winziger Wandler) und die genauere Aussage
+  // gewinnen muss: „Adapter" sagt mehr als „Wandler", nicht weniger.
+  if (device.adapter) {
+    const outs = (cablesFromEquipment.get(device.id) ?? []).filter(
+      (c) => c.fromPortId !== arrivalPortId,
+    )
+    if (outs.length > 1) {
+      return {
+        kind: 'adapter',
+        cables: [],
+        ambiguous: `Adapter mit ${outs.length} abgehenden Kabeln — kein eindeutiger Weiterweg`,
+      }
+    }
+    return { kind: 'adapter', cables: outs }
   }
 
   if (device.isConverter) {

@@ -180,11 +180,31 @@ export const zusatzBedarf = (
   // Material zu werden. Ein Adapter, den niemand einpackt, ist am Aufbautag
   // dasselbe wie ein fehlendes Kabel.
   const portById = new Map<string, Port>()
+  // B-46 — Anschluesse, die an einem ERKLAERTEN Adapter sitzen.
+  //
+  // Seit es den Adapter als eigenes Geraet gibt, kann er zweimal auf der
+  // Liste stehen: einmal als platziertes Geraet (er steht in
+  // `plan.equipment`, `deriveDemand` zaehlt ihn) und einmal als die hier
+  // abgeleitete Zeile. Das ist `zwei-rechnungen` in Reinform, und der
+  // Schaden ist konkret: die Kommissionierung packt zwei, oder sie sieht
+  // zwei Zeilen und streicht die falsche.
+  //
+  // Die abgeleitete Zeile ist die schwaechere Aussage — sie ist aus einem
+  // MANGEL gebaut („diese beiden Stecker passen nicht") und nicht aus einer
+  // Angabe. Wo ein Adapter erklaert im Plan steht, weicht sie.
+  const adapterPortIds = new Set<string>()
   for (const e of plan.equipment ?? []) {
-    for (const p of [...(e.inputs ?? []), ...(e.outputs ?? [])]) portById.set(p.id, p)
+    for (const p of [...(e.inputs ?? []), ...(e.outputs ?? [])]) {
+      portById.set(p.id, p)
+      if (e.adapter) adapterPortIds.add(p.id)
+    }
   }
   for (const c of plan.cables ?? []) {
     if (c.wireless) continue
+    // Haengt dieses Kabel an einem erklaerten Adapter, ist der Adapter schon
+    // als Geraet gezaehlt. Eine geratene Zeile daneben waere die zweite
+    // Rechnung derselben Sache.
+    if (adapterPortIds.has(c.fromPortId) || adapterPortIds.has(c.toPortId)) continue
     const von = portById.get(c.fromPortId)
     const nach = portById.get(c.toPortId)
 

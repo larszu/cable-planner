@@ -3539,6 +3539,29 @@ export const en: Dict = {
     'This device has no connectors. Without them no line can be attached, and the circuit stays empty at this point.',
   'circuit.terminalHint':
     'The terminal belongs to the connector, not to its position in the list — reordering does not rewire the circuit.',
+  // B-46 — die Adapter-Angaben am Geraet (Eigenschaften-Panel).
+  'adapter.title': 'Adapter',
+  'adapter.none': 'not an adapter',
+  'adapter.isAdapter': 'This device is an adapter',
+  'adapter.noneHint':
+    'An adapter belongs in the plan as a device of its own — otherwise it is neither in the signal path nor on the pick list, and it is missing on the build day.',
+  'adapter.von': 'Side facing the source',
+  'adapter.nach': 'Side facing the sink',
+  'adapter.richtung': 'Direction',
+  'adapter.speisung': 'Power',
+  'adapter.grenze': 'Passes at most',
+  'adapter.grenzeNone': 'not declared',
+  'adapter.grenzeHint':
+    'Two HDMI adapters that look alike can be 1.4 and 2.1. Without the entry the plan does not check the ceiling — but it does not claim it holds, either.',
+  'adapter.setztVoraus': 'Requires at the source',
+  'adapter.setztVorausPlaceholder': 'e.g. DisplayPort Alternate Mode',
+  'adapter.setztVorausHint':
+    'If something is entered here, the source device must list it under "Can" — otherwise the plan check says "open" instead of "fits". Two USB-C sockets look the same; only one carries a picture.',
+  'adapter.notiz': 'Note',
+  'adapter.kann': 'Can (declared capabilities of this device)',
+  'adapter.kannPlaceholder': 'DisplayPort Alternate Mode, USB-PD',
+  'adapter.kannHint':
+    'Empty means "not declared", not "cannot". The plan says exactly that, instead of putting a green tick on a path that stays black.',
   // E-3 — die Anlagen-Zugangscodes hinter einem eigenen Code.
   'mobile.dialog.pincode': 'Make system access codes retrievable',
   'mobile.dialog.pincode.none': 'This project carries no intercom configuration with access codes.',

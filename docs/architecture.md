@@ -801,6 +801,29 @@ Das Wichtigste in Listenform. Niemals brechen ohne expliziten Architektur-Review
     die beiden Irrtümer nicht gleich viel kosten: ein Beleg, der fälschlich
     „Anlage" sagt, lässt jemanden nachsehen; einer, der fälschlich
     „Prüfstand" sagt, lässt ihn es lassen.
+21. **Eine fehlende Angabe ist kein grüner Haken.** Ein Adapter
+    (`types/adapter.ts`, B-46) sitzt im Signalweg und entscheidet, ob eine
+    Strecke überhaupt trägt: „USB-C auf DisplayPort" arbeitet nur an einem
+    Anschluss mit DisplayPort-Alternate-Mode, und zwei USB-C-Buchsen sehen
+    gleich aus. Die Beurteilung hat deshalb **drei** Ausgänge und nicht zwei —
+    `passt`, `passt-nicht` und `offen`. Die dritte ist die, um die es geht:
+    „trägt nicht" und „ist nicht erklärt" sehen auf dem Blatt gleich aus und
+    bedeuten das Gegenteil, das eine ist ein Befund, das andere eine fehlende
+    Angabe. Wer sie zusammenwirft, macht aus jeder Lücke einen Fehler oder aus
+    jeder Lücke ein OK; die zweite Richtung ist die gefährliche.
+    Daraus folgt, wie ein halber Datensatz behandelt wird: `normalisiereAdapter`
+    setzt fehlende Felder auf `unbekannt` **herunter**, statt sie stehen zu
+    lassen. Ungeheilt wäre `spec.richtung === 'unbekannt'` schlicht `false`,
+    die Beurteilung fiele bis ans Ende durch — auf `passt` —, und ein
+    fehlendes Feld ergäbe genau den grünen Haken, den diese Invariante
+    verbietet.
+    Und keine dieser Angaben wird aus den Steckertypen abgeleitet: aus
+    „USB-C auf DisplayPort" folgt nicht, dass der Adapter einweg ist, aus
+    „HDMI auf HDMI" nicht, dass er 2.1 durchlässt. Das ist derselbe
+    Fehlschluss wie der Namensabgleich aus ADR-002, nur mit Steckern statt
+    Namen. Standards werden aus demselben Grund nur **innerhalb ihrer
+    Familie** verglichen; „ist HDMI-2.0 mehr als DP-1.4?" hat keine Antwort,
+    die stimmt, und die erfundene stünde danach in einem Befund.
 
 ---
 

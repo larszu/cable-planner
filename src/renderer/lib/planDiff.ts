@@ -193,6 +193,14 @@ export const EQUIPMENT_FIELD_CLASS: Record<string, FieldClass> = {
   isConverter: 'substantive',
   isDistributionAmp: 'substantive',
   isPatchPanel: 'substantive',
+  // B-46 — der Adapter. `substantive`, und zwar mit Nachdruck: an ihm haengt,
+  // ob die Strecke ueberhaupt traegt, was auf der Packliste steht und wie der
+  // Signalweg weiterlaeuft. Eine geaenderte Richtung ist keine Optik.
+  adapter: 'substantive',
+  // B-46 — die erklaerten Merkmale. Ebenfalls `substantive`: ob die Quelle den
+  // Alternate-Mode kann, entscheidet ueber einen Befund am Adapter. Wer das
+  // Merkmal streicht, aendert die Aussage des Plans, nicht sein Aussehen.
+  kann: 'substantive',
   videohubRouting: 'substantive',
   plannedCrosspoints: 'substantive',
   controlProtocol: 'substantive',

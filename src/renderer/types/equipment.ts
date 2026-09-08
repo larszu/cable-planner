@@ -32,6 +32,11 @@ export type ConnectorType =
   | 'Mini-XLR'
   | 'HD-BNC'
   | 'Mini-HDMI'
+  /** B-46 — HDMI Typ D. Fehlte, obwohl `HDMI` (Typ A) und `Mini-HDMI` (Typ C)
+   *  da waren: an jeder kleinen Kamera und jedem Pi sitzt genau dieser
+   *  Stecker, und das Beispiel des Eigentuemers („Micro HDMI auf HDMI") liess
+   *  sich ohne ihn nicht einmal benennen. */
+  | 'Micro-HDMI'
   | 'F-Connector'
   | 'GG45'
   | 'Kleeblatt'
@@ -58,7 +63,7 @@ export type ConnectorType =
 
 /** All valid connector type values in display order. */
 export const ALL_CONNECTOR_TYPES: ConnectorType[] = [
-  'XLR', 'Mini-XLR', 'Klinke', 'BNC', 'HD-BNC', 'HDMI', 'Mini-HDMI', 'Ethernet/RJ45', 'GG45', 'Fiber', 'SFP', 'SFP+', 'DIN',
+  'XLR', 'Mini-XLR', 'Klinke', 'BNC', 'HD-BNC', 'HDMI', 'Mini-HDMI', 'Micro-HDMI', 'Ethernet/RJ45', 'GG45', 'Fiber', 'SFP', 'SFP+', 'DIN',
   'DisplayPort', 'VGA', 'DVI', 'USB', 'USB-C',
   'Triax', 'Triax (Damar & Hagen)', 'Triax (Fischer)',
   'LEMO 3K.93C (SMPTE 304M)', 'Neutrik Dragonfly (SMPTE 304M)',
@@ -69,6 +74,7 @@ export const ALL_CONNECTOR_TYPES: ConnectorType[] = [
 ]
 
 import type { SignalStandard } from './cableSpec'
+import type { AdapterSpec } from './adapter'
 import type { SdiCapabilities } from './videoFormat'
 import type { InstallStatus, ServiceRecord } from './lifecycle'
 import type { CircuitKind } from '../lib/circuitSolver'
@@ -825,6 +831,31 @@ export interface EquipmentItem {
    * (verteilt dann faktisch nichts).
    */
   isDistributionAmp?: boolean
+  /**
+   * B-46 — die Angaben eines ADAPTERS: Steckerseiten, Richtung, Speisung,
+   * Bandbreiten-Grenze und was er an der Quelle voraussetzt.
+   *
+   * Warum ein eigenes Feld und kein `isAdapter`-Haekchen wie oben: die
+   * anderen Marker sagen nur, WAS ein Geraet ist — beim Adapter ist das die
+   * uninteressante Haelfte. Was ihn brauchbar macht, sind die Angaben, und
+   * die kann keine Heuristik aus dem Namen holen (siehe `types/adapter.ts`).
+   * Gesetzt heisst „ist ein Adapter"; nicht gesetzt heisst, dass keiner da
+   * ist — nicht, dass einer ohne Angaben da waere.
+   */
+  adapter?: AdapterSpec
+  /**
+   * B-46 — was dieses Geraet ERKLAERTERMASSEN kann, als freie Merkmale.
+   *
+   * Der Fall: „USB-C auf DisplayPort" arbeitet nur an einem Anschluss mit
+   * DisplayPort-Alternate-Mode. Zwei USB-C-Buchsen sehen gleich aus, und aus
+   * dem Modellnamen darauf zu schliessen waere genau der Namensabgleich, den
+   * ADR-002 fuer folgenreiche Entscheidungen verbietet — die falsche Antwort
+   * ist hier ein gruener Haken auf einer Strecke, die schwarz bleibt.
+   *
+   * Leer heisst „nicht erklaert" und nicht „kann nicht". Der Plan sagt dann
+   * genau das.
+   */
+  kann?: string[]
   /** #580 — Namen der Personen, die bestätigt haben, dass die eingetragenen
    *  Ports/Daten dieses Geräts korrekt sind (Community-Verifizierung). Beim
    *  Zusammenführen geteilter Bibliotheken werden die Listen vereinigt, sodass
