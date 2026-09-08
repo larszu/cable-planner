@@ -302,6 +302,14 @@ export interface CablePlannerProject {
    *  auf ein geloeschtes Geraet wird beim Laden verworfen, weil er sonst als
    *  gepruefter Ankunftsort im Blatt staende. */
   patternChecks?: import('./patternCheck').PatternCheck[]
+  /** B-42 Inkrement 3 — die EINGRIFFE: welcher Kreuzpunkt wurde wann und von
+   *  wem an eine laufende Kreuzschiene geschickt. Weder Rechnung noch
+   *  Beobachtung, sondern etwas Getanes — und deshalb ein Beleg, der die
+   *  Sitzung ueberlebt (das Ereignis-Protokoll tut das nicht). Sie aendern
+   *  `videohubRouting.planned` NICHT: der Plan ist die Absicht, der Hub ein
+   *  Zustand, und sie gleichzuziehen machte die Abweichung unsichtbar
+   *  (ADR-001). Optional -> alte Projekte heilen zu []. */
+  hubSwitches?: import('./hubSwitch').HubSwitch[]
   /** Bedarf 116 — die Segmente: welche VLAN wofuer da ist, welche Zeit darin
    *  laeuft und wie man hineinkommt. Die VLAN-Id steht seit Bedarf 19/24 an
    *  jeder Schnittstelle; hier bekommt sie eine Bedeutung. Optional -> alte

@@ -168,6 +168,7 @@ const DROP_ART: Record<LoadDropKind, [key: string, de: string]> = {
   'address-range': ['app.loadReport.addressRange', 'Adressbereich'],
   'equipment-circuit': ['app.loadReport.equipmentCircuit', 'Schaltbild-Bauart eines Geräts'],
   'pattern-check': ['app.loadReport.patternCheck', 'Sichtprüfung vom Prüfbild-Rundgang'],
+  'hub-switch': ['app.loadReport.hubSwitch', 'Schaltvorgang an einer Kreuzschiene'],
 } satisfies Record<LoadDropKind, [string, string]>
 
 const DROP_GRUND: Record<LoadDropReason, [key: string, de: string]> = {

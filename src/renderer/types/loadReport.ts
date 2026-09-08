@@ -73,6 +73,15 @@ export type LoadDropKind =
    * aussieht wie eine Abnahme und keine ist, ist teurer als eine fehlende.
    */
   | 'pattern-check'
+  /**
+   * B-42 Inkrement 3 — ein Schaltvorgang, dessen Kreuzschiene es nicht mehr
+   * gibt.
+   *
+   * Warum er faellt: er ist die Antwort auf „wer hat den Ausgang
+   * umgeschaltet?". Eine Antwort, die auf ein geloeschtes Geraet zeigt,
+   * schickt die Suche in die Irre — teurer als eine fehlende Zeile.
+   */
+  | 'hub-switch'
   /** Initiative 9 — ein Ausspielziel, das die Normalisierung nicht bestanden
    *  hat. Dieselbe Regel wie bei der Rolle: ein Ziel, das still verschwindet,
    *  nimmt die Ingest-URL und den Verweis auf seinen Stream-Key mit, und der

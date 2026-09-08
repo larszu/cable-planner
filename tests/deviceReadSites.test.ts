@@ -103,6 +103,22 @@ const CLASSIFIED: Site[] = [
       '`sourceId !== 0` und liess einen schwarz geplanten Multiviewer fallen.',
   },
   {
+    file: 'components/Canvas/HubSwitchDialog.tsx',
+    verdict: 'additiv',
+    reason:
+      'B-42 Inkrement 3, der EINGRIFF (2026-09-08). Diese Datei liest kein ' +
+      'Geraet, sie SCHREIBT eines: sie schickt einer laufenden Kreuzschiene ' +
+      'genau die Kreuzpunkte, ueber die der gewaehlte Weg laeuft. Was in den ' +
+      'Projekt-Store geht, ist ausschliesslich der BELEG darueber ' +
+      '(`recordHubSwitch` -> `project.hubSwitches`), angehaengt und nie ' +
+      'ersetzt — samt der gescheiterten Versuche, weil „wer hat geschaltet?" ' +
+      'auch die beantwortet. An `videohubRouting.planned` wird NICHTS ' +
+      'geschrieben, auch nicht „zum Gleichziehen": der Plan ist die Absicht, ' +
+      'die Kreuzschiene ein Zustand, und zoege das Senden den Plan mit, gaebe ' +
+      'es hinterher keine Abweichung mehr zu sehen (ADR-001). ' +
+      '`tests/hubSwitch.test.ts` haelt das als negative Zusicherung fest.',
+  },
+  {
     file: 'components/Export/VideohubExportDialog.tsx',
     verdict: 'getrennt',
     reason:
