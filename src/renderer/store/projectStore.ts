@@ -46,6 +46,7 @@ import { ubiquitiTemplates } from '../lib/ubiquitiCatalog'
 import { monitorTemplates } from '../lib/monitorCatalog'
 import { cameraTemplates } from '../lib/cameraCatalog'
 import { miscTemplates } from '../lib/miscCatalog'
+import { mediaStationTemplates } from '../lib/mediaStationCatalog'
 import { greengoTemplates } from '../lib/greengoCatalog'
 import { ajaTemplates } from '../lib/ajaCatalog'
 import { rossTemplates } from '../lib/rossCatalog'
@@ -111,7 +112,7 @@ const runLibraryMigration = () => {
     const existing: EquipmentTemplate[] = raw ? JSON.parse(raw) : []
     const byName = new Map(existing.map((t) => [t.name, t]))
     let added = false
-    for (const t of [...blackmagicTemplates, ...ubiquitiTemplates, ...monitorTemplates, ...cameraTemplates, ...miscTemplates, ...greengoTemplates, ...ajaTemplates, ...rossTemplates, ...lynxTemplates, ...switcherTemplates, ...avNetworkTemplates, ...broadcastToolsTemplates, ...audioTemplates, ...wirelessAudioTemplates, ...micTemplates]) {
+    for (const t of [...blackmagicTemplates, ...ubiquitiTemplates, ...monitorTemplates, ...cameraTemplates, ...miscTemplates, ...greengoTemplates, ...ajaTemplates, ...rossTemplates, ...lynxTemplates, ...switcherTemplates, ...avNetworkTemplates, ...broadcastToolsTemplates, ...audioTemplates, ...wirelessAudioTemplates, ...micTemplates, ...mediaStationTemplates]) {
       if (!byName.has(t.name)) {
         byName.set(t.name, t)
         added = true
