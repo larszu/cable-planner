@@ -21,6 +21,7 @@ import {
 import { createDemoProject } from '../../lib/demoProject'
 import { useTranslation } from '../../lib/i18n'
 import { Icon } from '../shared/Icon'
+import { useDialogA11y } from '../../hooks/useDialogA11y'
 
 interface Command {
   id: string
@@ -121,6 +122,14 @@ export const CommandPalette = () => {
     node?.scrollIntoView({ block: 'nearest' })
   }, [active])
 
+  // Phase 3 der UI-Pruefung — hier mit `closeOnEscape: false`. Die Palette
+  // hat ihre eigene Tastensteuerung (Pfeile, Enter, Escape) am Eingabefeld;
+  // ein zweites Escape darueber waere doppelt. Was ihr fehlte und was der
+  // Haken beitraegt, sind Fokus-Falle und Fokus-Rueckgabe.
+  const { panelRef, dialogProps } = useDialogA11y(open, close, {
+    closeOnEscape: false,
+  })
+
   if (!open) return null
 
   const runCmd = (c: Command) => {
@@ -151,7 +160,12 @@ export const CommandPalette = () => {
         if (e.target === e.currentTarget) close()
       }}
     >
-      <div className="w-full max-w-xl overflow-hidden rounded-cp-modal border border-cp-border bg-cp-surface-1 shadow-2xl">
+      <div
+        ref={panelRef}
+        aria-label={t('palette.placeholder', 'Befehl suchen…')}
+        {...dialogProps}
+        className="w-full max-w-xl overflow-hidden rounded-cp-modal border border-cp-border bg-cp-surface-1 shadow-2xl"
+      >
         <div className="flex items-center gap-2 border-b border-cp-border px-cp-4 py-cp-3">
           <Icon icon={Search} size="sm" className="text-cp-text-muted" />
           <input

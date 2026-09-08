@@ -197,17 +197,38 @@ Inline-Fallback in `ErrorBoundary`). → Token-Schicht einführen.
 - Globaler `:focus-visible`-Ring war bereits vorhanden (`index.css`).
 - Lint dadurch sogar verbessert (124 statt 127 Fehler).
 
-### TODO (restliche Standalone-Dialoge → useDialogA11y adоptieren)
+### ~~TODO (restliche Standalone-Dialoge → useDialogA11y adoptieren)~~ — erledigt 2026-09-08
 
-Diese rollen noch eigenes `fixed inset-0`-Boilerplate ohne Focus-Trap/
-Escape — Hook analog `SettingsDialog`/`ExportDialog` anwenden:
-`RentmanImportDialog`, `RentmanCableExportDialog`, `NewRentmanDeviceWizard`,
-`AtemMvConfigDialog`, `AtemAudioRouterDialog`, `MultiviewerLayoutView`,
-`VideohubExportDialog`, `GreenGoExportDialog`, `GraphmlImportDialog`,
-`RackEditorDialog`, `RackImageCropDialog`, `NonRackAddDialog`,
-`PatchPanelCreateDialog`, `RackShelfCreateDialog`, `MobileShareDialog`,
-`LocationBomDialog`, `CableBomDialog`. (Panels `LibraryPanel`/
-`CableLibraryPanel` sind keine Modals — separat behandeln.)
+**Alle selbstgebauten Dialoge gehen jetzt über `useDialogA11y`**, und ein
+Wächter hält das fest: `tests/dialogTastaturbedienung.test.ts`.
+
+Die Liste, die hier stand, war an **beiden** Enden falsch — und beide Fehler
+kommen daher, dass sie von Hand geführt wurde:
+
+* **Sieben der siebzehn brauchten gar nichts mehr.** `RentmanCableExportDialog`,
+  `NonRackAddDialog`, `PatchPanelCreateDialog`, `RackShelfCreateDialog`,
+  `MobileShareDialog`, `LocationBomDialog` und `CableBomDialog` gehen längst
+  über `ModalShell` — und die hat den Hook seit derselben Phase.
+* **Neun Dialoge fehlten ganz.** Sie sind nach dem Audit entstanden und
+  niemand hat sie nachgetragen: `ReconcileDialog`, `DeliveryDialog`,
+  `DrumMicingDialog`, `WirelessRigDialog`, `RackInternalWireOverlay`,
+  `RackBuilderDialog`, `CommandPalette` und die vier Überlagerungen in
+  `LibraryPanel`/`CableLibraryPanel` — die beiden Panels sind zwar keine
+  Modals, die Dialoge **in** ihnen aber schon.
+
+**Deshalb ist der Wächter kein Listenabgleich, sondern ein Lauf über den
+Ordner:** er findet jede Datei unter `src/renderer/components`, die ein
+eigenes `fixed inset-0` aufspannt, und verlangt für sie den Hook (oder
+`ModalShell`). Wer morgen einen Dialog anlegt, wird rot, ohne dass jemand
+eine Liste pflegt. Dieselbe Lehre wie beim Lager-Vertrag in ADR-006: **die
+Domäne ist der Ordner, nicht eine Liste im Wächter.**
+
+Zwei Dialoge bekommen den Hook bewusst **ohne** sein Escape
+(`closeOnEscape: false`), weil sie eine eigene, klügere Behandlung haben:
+der `RackBuilderDialog` fragt bei ungesicherten Änderungen nach, die
+`CommandPalette` hat ihre eigene Tastensteuerung. Beide nehmen vom Hook nur
+Fokus-Falle und Fokus-Rückgabe — ein zweites Escape daneben würde an der
+Rückfrage vorbei schließen.
 
 ## Phase 4 — i18n
 

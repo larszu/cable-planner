@@ -32,6 +32,7 @@ import { cablePlannerApi, hasDesktopBridge, type VideohubState } from '../../lib
 import { portDisplayLabel } from '../../lib/portLabel'
 import { roleLabelsByPort } from '../../lib/labelDerivation'
 import { isWithinDistance } from '../../lib/levenshtein'
+import { useDialogA11y } from '../../hooks/useDialogA11y'
 import { promptDialog } from '../../lib/promptDialog'
 import {
   changeoverTable,
@@ -217,6 +218,10 @@ const ChangeoverSheet = ({
 }
 
 export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShowMatrix }: Props) => {
+  // Phase 3 der UI-Pruefung: Escape, Fokus-Falle und Fokus-Rueckgabe kommen
+  // aus dem Haken statt aus eigenem Boilerplate. Der Dialog kennt kein
+  // `open` — er wird bedingt gemountet —, also ist der erste Parameter `true`.
+  const { panelRef, titleId, dialogProps } = useDialogA11y(true, onClose)
   const t = useTranslation()
   const equipment = useProjectStore((s) => s.project.equipment)
   const cables = useProjectStore((s) => s.project.cables)
@@ -909,9 +914,14 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6">
-      <div className="flex max-h-[95vh] w-full max-w-6xl flex-col overflow-hidden rounded border border-cp-border bg-cp-surface-1 p-4 text-cp-text">
+      <div
+        ref={panelRef}
+        aria-labelledby={titleId}
+        {...dialogProps}
+        className="flex max-h-[95vh] w-full max-w-6xl flex-col overflow-hidden rounded border border-cp-border bg-cp-surface-1 p-4 text-cp-text"
+      >
         <div className="mb-3 flex items-center justify-between">
-          <h3 className="flex items-center gap-2 text-cp-xl font-semibold"><Icon icon={SlidersHorizontal} size="sm" /> {t('export.dialogTitle', 'Videohub konfigurieren · Labels + Routing')}</h3>
+          <h3 id={titleId} className="flex items-center gap-2 text-cp-xl font-semibold"><Icon icon={SlidersHorizontal} size="sm" /> {t('export.dialogTitle', 'Videohub konfigurieren · Labels + Routing')}</h3>
           <button
             type="button"
             onClick={onClose}

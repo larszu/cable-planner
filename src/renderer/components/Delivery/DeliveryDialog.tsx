@@ -66,6 +66,7 @@ import {
   type DeliveryDestination,
 } from '../../types/delivery'
 import { PanelHint } from '../shared/PanelHint'
+import { useDialogA11y } from '../../hooks/useDialogA11y'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Die Ausspielung (Initiative 9). Ein Register der Ziele: Plattform, Ingest,
@@ -166,6 +167,10 @@ export const DeliveryDialog = () => {
   )
   const deviceName = (id?: string): string =>
     id ? (project.equipment.find((e) => e.id === id)?.name ?? id) : ''
+
+  // Phase 3 der UI-Pruefung: Escape, Fokus-Falle und Fokus-Rueckgabe aus dem
+  // Haken. Vor dem bedingten Ausstieg, weil Haken nicht bedingt laufen.
+  const { panelRef, titleId, dialogProps } = useDialogA11y(open, () => setOpen(false))
 
   if (!open) return null
 
@@ -476,9 +481,14 @@ export const DeliveryDialog = () => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-      <div className="flex max-h-[88vh] w-full max-w-5xl flex-col overflow-hidden rounded-lg border border-cp-border bg-cp-surface-1 shadow-xl">
+      <div
+        ref={panelRef}
+        aria-labelledby={titleId}
+        {...dialogProps}
+        className="flex max-h-[88vh] w-full max-w-5xl flex-col overflow-hidden rounded-lg border border-cp-border bg-cp-surface-1 shadow-xl"
+      >
         <div className="flex items-center justify-between border-b border-cp-border px-4 py-2.5">
-          <h2 className="flex items-center gap-2 text-cp-base font-semibold text-cp-text">
+          <h2 id={titleId} className="flex items-center gap-2 text-cp-base font-semibold text-cp-text">
             <Radio size={16} /> {t('delivery.title', 'Ausspielung')}
           </h2>
           <div className="flex items-center gap-2">

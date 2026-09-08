@@ -8,6 +8,7 @@ import { suggestFromWeb } from '../../lib/webPortSuggestions'
 import { useProjectStore } from '../../store/projectStore'
 import { format, useTranslation } from '../../lib/i18n'
 import { CategorySelect } from '../shared/CategorySelect'
+import { useDialogA11y } from '../../hooks/useDialogA11y'
 
 const connectorOptions: ConnectorType[] = [
   'XLR',
@@ -82,6 +83,10 @@ export const NewRentmanDeviceWizard = ({
   }, [current])
 
   const progress = useMemo(() => `${Math.min(index + 1, items.length)} / ${items.length}`, [index, items.length])
+
+  // Phase 3 der UI-Pruefung. Vor dem bedingten Ausstieg, weil Haken nicht
+  // bedingt laufen duerfen; `open` schaltet stattdessen ihre Wirkung.
+  const { panelRef, titleId, dialogProps } = useDialogA11y(open, onCancel)
 
   if (!open || !current) return null
 
@@ -181,10 +186,15 @@ export const NewRentmanDeviceWizard = ({
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 p-6">
-      <div className="max-h-[90vh] w-full max-w-3xl overflow-auto rounded border border-cp-border bg-cp-surface-1 p-4 text-cp-text">
+      <div
+        ref={panelRef}
+        aria-labelledby={titleId}
+        {...dialogProps}
+        className="max-h-[90vh] w-full max-w-3xl overflow-auto rounded border border-cp-border bg-cp-surface-1 p-4 text-cp-text"
+      >
         <div className="mb-3 flex items-center justify-between">
           <div>
-            <h3 className="text-cp-xl font-semibold">
+            <h3 id={titleId} className="text-cp-xl font-semibold">
               {format(t('rentman.wizard.title', 'Neues Rentman-Gerät ({progress})'), { progress })}
             </h3>
             <p className="mt-1 text-cp-xs text-cp-text-muted">

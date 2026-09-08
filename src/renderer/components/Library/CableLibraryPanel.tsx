@@ -20,6 +20,7 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import { ALL_SIGNAL_STANDARDS, cableCatalog } from '../../types/cableSpec'
 import type { CableSpec, SignalStandard } from '../../types/cableSpec'
+import { useDialogA11y } from '../../hooks/useDialogA11y'
 import { ALL_CONNECTOR_TYPES } from '../../types/equipment'
 import type { ConnectorType } from '../../types/equipment'
 import { useProjectStore } from '../../store/projectStore'
@@ -83,6 +84,12 @@ const CableTypeEditor = ({
     [customSignalStandards],
   )
 
+  // Phase 3 der UI-Pruefung. Das Panel selbst ist kein Modal — dieser
+  // Kabeltyp-Editor darin schon, und er hatte weder Escape noch Fokus-Falle.
+  // Der Haken steht VOR dem bedingten Ausstieg: Haken duerfen nicht bedingt
+  // laufen, `open` schaltet stattdessen ihre Wirkung.
+  const { panelRef, titleId, dialogProps } = useDialogA11y(open, onCancel)
+
   if (!open) return null
 
   const trimmedName = name.trim()
@@ -109,9 +116,14 @@ const CableTypeEditor = ({
 
   return (
     <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/70 p-4">
-      <div className="w-full max-w-md rounded border border-cp-border bg-cp-surface-1 p-4 text-cp-text shadow-2xl">
+      <div
+        ref={panelRef}
+        aria-labelledby={titleId}
+        {...dialogProps}
+        className="w-full max-w-md rounded border border-cp-border bg-cp-surface-1 p-4 text-cp-text shadow-2xl"
+      >
         <div className="mb-3 flex items-center justify-between">
-          <h3 className="text-cp-base font-semibold">
+          <h3 id={titleId} className="text-cp-base font-semibold">
             {isEditing ? t('cableLib.editor.editTitle', 'Kabeltyp bearbeiten') : t('cableLib.editor.newTitle', 'Neuer Kabeltyp')}
           </h3>
           <button

@@ -4,6 +4,7 @@ import { RackInternalCanvas } from './RackInternalCanvas'
 import type { InternalCableDraft, RackPlacementDraft } from './rackBuilderTypes'
 import { PanelHint } from '../shared/PanelHint'
 import { rackWireFindings } from '../../lib/rackWireChecks'
+import { useDialogA11y } from '../../hooks/useDialogA11y'
 
 /** v7.8.5+ — Wire-Dialog-Overlay fuer die Rack-interne Verkabelung.
  *
@@ -34,6 +35,10 @@ export const RackInternalWireOverlay = ({
   onPlacementMoved,
 }: RackInternalWireOverlayProps) => {
   const t = useTranslation()
+  // Phase 3 der UI-Pruefung: Escape, Fokus-Falle und Fokus-Rueckgabe aus dem
+  // Haken. Vor dem bedingten Ausstieg, weil Haken nicht bedingt laufen.
+  const { panelRef, titleId, dialogProps } = useDialogA11y(open, onClose)
+
   if (!open) return null
 
   // ISSUE #663 — „Es fehlt die Fehlermeldung, dass Kabeltypen nicht
@@ -71,10 +76,15 @@ export const RackInternalWireOverlay = ({
 
   return (
     <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/70 p-2 sm:p-6">
-      <div className="flex h-[92vh] w-[min(1500px,calc(100vw-1rem))] flex-col rounded border border-cp-border bg-cp-surface-1 p-3 text-cp-text shadow-2xl">
+      <div
+        ref={panelRef}
+        aria-labelledby={titleId}
+        {...dialogProps}
+        className="flex h-[92vh] w-[min(1500px,calc(100vw-1rem))] flex-col rounded border border-cp-border bg-cp-surface-1 p-3 text-cp-text shadow-2xl"
+      >
         <div className="mb-2 flex items-center justify-between gap-3">
           <div>
-            <h3 className="text-cp-xl font-semibold">{t('rack.wire.title', 'Rack-Verkabelung')}: {rackName || t('rack.unnamed', '(unbenannt)')}</h3>
+            <h3 id={titleId} className="text-cp-xl font-semibold">{t('rack.wire.title', 'Rack-Verkabelung')}: {rackName || t('rack.unnamed', '(unbenannt)')}</h3>
             <PanelHint
               className="mt-1 text-cp-xs text-cp-text-muted"
               text={t(

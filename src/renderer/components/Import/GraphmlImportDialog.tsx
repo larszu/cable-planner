@@ -39,6 +39,7 @@ export interface GraphmlImportDialogProps {
 
 import type { GraphmlDocument } from '../../lib/graphml/types'
 import { GraphmlViewer } from './GraphmlViewer'
+import { useDialogA11y } from '../../hooks/useDialogA11y'
 
 type Stage =
   | { kind: 'empty' }
@@ -130,6 +131,12 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
         c.inferredCableType.toLowerCase().includes(needle),
     )
   }, [stage, filterText])
+
+  // Phase 3 der UI-Pruefung: Escape, Fokus-Falle und Fokus-Rueckgabe aus dem
+  // Haken statt aus eigenem Boilerplate. Er steht VOR dem `if (!open)`, weil
+  // Haken nicht bedingt aufgerufen werden duerfen — `open` geht als Parameter
+  // hinein und schaltet die Wirkung.
+  const { panelRef, titleId, dialogProps } = useDialogA11y(open, onClose)
 
   if (!open) return null
 
@@ -666,9 +673,14 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6">
-      <div className="flex h-[80vh] w-[min(1100px,95vw)] flex-col overflow-hidden rounded border border-cp-border bg-cp-surface-1 text-cp-text">
+      <div
+        ref={panelRef}
+        aria-labelledby={titleId}
+        {...dialogProps}
+        className="flex h-[80vh] w-[min(1100px,95vw)] flex-col overflow-hidden rounded border border-cp-border bg-cp-surface-1 text-cp-text"
+      >
         <div className="flex items-center justify-between border-b border-cp-border px-4 py-2">
-          <h3 className="text-cp-base font-semibold">{t('graphml.dialog.heading', 'yEd / GraphML importieren')}</h3>
+          <h3 id={titleId} className="text-cp-base font-semibold">{t('graphml.dialog.heading', 'yEd / GraphML importieren')}</h3>
           <button
             type="button"
             onClick={() => {

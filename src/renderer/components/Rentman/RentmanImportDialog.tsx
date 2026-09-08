@@ -43,6 +43,7 @@ import type {
   RentmanProject, RentmanEquipment, DetectedCableRow,
 } from './rentmanImportHelpers'
 import { PanelHint } from '../shared/PanelHint'
+import { useDialogA11y } from '../../hooks/useDialogA11y'
 
 interface RentmanImportDialogProps {
   open: boolean
@@ -320,6 +321,17 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, linkedProjectId, projects.length, selectedProjectId])
+
+  // Phase 3 der UI-Pruefung. Escape geht ueber `safeClose` und nicht ueber
+  // `onClose`: dieser Dialog lehnt das Schliessen ab, solange ein Import
+  // laeuft, und eine Taste, die diese Sperre umgeht, waere schlimmer als
+  // keine Taste — sie bricht den Vorgang halb ab.
+  //
+  // Der Haken haengt am AEUSSEREN Kasten, weil dieser Dialog je nach Zustand
+  // eines von fuenf Feldern zeigt; die Fokus-Falle muss sie alle umschliessen.
+  // Deshalb `aria-label` statt `aria-labelledby`: es gibt keine EINE
+  // Ueberschrift, und auf eine von fuenfen zu zeigen waere falsch.
+  const { panelRef, dialogProps } = useDialogA11y(open, safeClose)
 
   if (!open) {
     return null
@@ -1035,7 +1047,12 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
   const activeMergeItem = mergeQueue[mergeIndex] ?? null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6">
+    <div
+      ref={panelRef}
+      aria-label={t('rentman.import.title', 'Aus Rentman importieren')}
+      {...dialogProps}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6"
+    >
       {/* ── Confirmation: switch linked Rentman project ── */}
       {pendingProjectSwitch && (
         <div className="w-full max-w-md rounded border border-amber-600 bg-cp-surface-1 p-5 text-cp-text shadow-xl">

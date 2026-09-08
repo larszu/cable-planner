@@ -10,6 +10,7 @@ import { collectTransmitters } from '../../lib/spectrumPlan'
 import type { WirelessRigPlan, WirelessChannel } from '../../types/wirelessRig'
 import { MicPlotPanel } from './MicPlotPanel'
 import { PanelHint } from '../shared/PanelHint'
+import { useDialogA11y } from '../../hooks/useDialogA11y'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Funkstrecken / Gesang — Kanalplan: je Kanal Body + kompatible Kapsel/Headset +
@@ -56,6 +57,10 @@ export const WirelessRigDialog = () => {
 
   const [freqDraft, setFreqDraft] = useState<Record<string, string>>({})
 
+  // Phase 3 der UI-Pruefung: Escape, Fokus-Falle und Fokus-Rueckgabe aus dem
+  // Haken. Vor dem bedingten Ausstieg, weil Haken nicht bedingt laufen.
+  const { panelRef, titleId, dialogProps } = useDialogA11y(open, () => setOpen(false))
+
   if (!open) return null
 
   const addChannel = () => {
@@ -94,9 +99,14 @@ export const WirelessRigDialog = () => {
 
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 p-4">
-      <div className="flex max-h-[90vh] w-full max-w-5xl flex-col overflow-hidden rounded-lg border border-cp-border bg-cp-bg shadow-2xl">
+      <div
+        ref={panelRef}
+        aria-labelledby={titleId}
+        {...dialogProps}
+        className="flex max-h-[90vh] w-full max-w-5xl flex-col overflow-hidden rounded-lg border border-cp-border bg-cp-bg shadow-2xl"
+      >
         <header className="flex shrink-0 items-center justify-between border-b border-cp-border-muted px-4 py-2.5">
-          <h2 className="flex items-center gap-2 text-cp-lg font-semibold">
+          <h2 id={titleId} className="flex items-center gap-2 text-cp-lg font-semibold">
             <Radio size={18} /> {t('wireless.title', 'Funkstrecken / Gesang')}
           </h2>
           <button
