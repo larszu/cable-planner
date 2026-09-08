@@ -166,6 +166,7 @@ const DROP_ART: Record<LoadDropKind, [key: string, de: string]> = {
   'crew-entry': ['app.loadReport.crewEntry', 'Eintrag der Crew-Seite'],
   'tally-position': ['app.loadReport.tallyPosition', 'Tally-Position'],
   'address-range': ['app.loadReport.addressRange', 'Adressbereich'],
+  'equipment-circuit': ['app.loadReport.equipmentCircuit', 'Schaltbild-Bauart eines Geräts'],
 } satisfies Record<LoadDropKind, [string, string]>
 
 const DROP_GRUND: Record<LoadDropReason, [key: string, de: string]> = {
@@ -174,6 +175,10 @@ const DROP_GRUND: Record<LoadDropReason, [key: string, de: string]> = {
   'dangling-ref': [
     'app.loadReport.danglingRef',
     'der Verweis zeigt ins Leere — das Ziel wurde gelöscht',
+  ],
+  'invalid-value': [
+    'app.loadReport.unknownValue',
+    'unbekannter Wert — die Datei stammt vermutlich aus einer anderen Fassung',
   ],
 } satisfies Record<LoadDropReason, [string, string]>
 

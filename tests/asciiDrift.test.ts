@@ -151,6 +151,22 @@ interface Befund {
   text: string
 }
 
+/**
+ * Ein i18n-SCHLUESSEL ist Code, kein Text.
+ *
+ * BEFUND 2026-09-08: der Waechter meldete `'app.loadReport.unknownValue'`,
+ * weil „Value" auf „ue" endet. Das ist kein Umlaut-Ersatz, sondern ein
+ * englisches Wort in einem Bezeichner, den niemand liest — er wird
+ * NACHGESCHLAGEN. Der Ausweg war zweimal, den Schluessel umzubenennen; beim
+ * dritten Mal waere jemand auf die Idee gekommen, den Waechter zu entschaerfen.
+ *
+ * Die Form ist eng gefasst: nur ASCII, Punkte als Trenner, mindestens zwei
+ * Teile, keine Leerzeichen. Ein deutscher Anzeigetext sieht so nie aus — und
+ * ein ASCII-Ersatz IM ANZEIGETEXT bleibt damit weiter ein Befund.
+ */
+const istSchluessel = (text: string): boolean =>
+  /^[A-Za-z][A-Za-z0-9]*(\.[A-Za-z0-9]+)+$/.test(text.trim())
+
 const scanne = (): { befunde: Befund[]; literale: number } => {
   const befunde: Befund[] = []
   let literale = 0
@@ -174,7 +190,7 @@ const scanne = (): { befunde: Befund[]; literale: number } => {
         // und bekommt die geschweifte Klammer im Dialog zu sehen — der
         // Uebersetzungs-Eintrag im en-Dict war genau so kaputtgegangen.
         const ohnePlatzhalter = text.replace(/\{[^}]*\}/g, ' ')
-        if (!erlaubt.has(text.toLowerCase()) && !KENNUNGEN.has(text.trim())) {
+        if (!erlaubt.has(text.toLowerCase()) && !KENNUNGEN.has(text.trim()) && !istSchluessel(text)) {
           for (const wort of ohnePlatzhalter.match(/[A-Za-zÄÖÜäöüß]+/g) ?? []) {
             // Auf dem WORT in seiner Schreibweise, nicht auf der Kleinform:
             // `toEquipmentId` traegt „oE" ueber eine camelCase-Grenze hinweg,
@@ -193,6 +209,33 @@ const scanne = (): { befunde: Befund[]; literale: number } => {
   }
   return { befunde, literale }
 }
+
+describe('was als Schluessel durchgeht, und was nicht', () => {
+  // Die Ausnahme fuer i18n-Schluessel ist eine LOECHERBEDINGUNG: was sie
+  // durchlaesst, prueft der Waechter nicht mehr. Sie an echten Literalen zu
+  // messen reicht nicht — heute enthaelt kein deutscher Text einen Punkt und
+  // eine Ersatzform zugleich, also waere jede zu weite Form gruen. Geprueft
+  // wird deshalb die Bedingung selbst.
+  it('nimmt einen i18n-Schluessel an', () => {
+    expect(istSchluessel('app.loadReport.unknownValue')).toBe(true)
+    expect(istSchluessel('canvas.circuit.label')).toBe(true)
+  })
+
+  it('nimmt keinen Satz an, auch keinen mit Punkt', () => {
+    expect(istSchluessel('Der Bestand wird ersetzt. Das laesst sich nicht widerrufen.')).toBe(false)
+    expect(istSchluessel('Schaltbild fuer Raeume')).toBe(false)
+    // Zwei Woerter mit Punkt dazwischen sind noch kein Schluessel, wenn ein
+    // Leerzeichen darin steht — genau hier waere die Form zu weit.
+    expect(istSchluessel('Kein Treffer. Erneut suchen')).toBe(false)
+  })
+
+  it('nimmt ein einzelnes Wort nicht an', () => {
+    // Ohne Punkt ist es kein Schluessel, sondern ein Wort — und ein Wort ist
+    // genau das, was dieser Waechter liest.
+    expect(istSchluessel('Wechselschalter')).toBe(false)
+    expect(istSchluessel('Geraet')).toBe(false)
+  })
+})
 
 describe('die Texte stehen in richtigem Deutsch, nicht in ASCII-Ersatzformen', () => {
   it('scannt ueberhaupt etwas (sonst prueft dieser Test nichts)', () => {

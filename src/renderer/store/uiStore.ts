@@ -112,6 +112,20 @@ interface PersistedUiState {
    *              die er nicht einloeste.
    */
   cableColorMode: 'manual' | 'byLength' | 'byLayer'
+  /**
+   * Schaltbild-Anzeige (Strom): brennende Leuchten, Schalterstellungen und
+   * Leitungen unter Spannung (2026-09-08).
+   *
+   * AUS ALS VORGABE, und aus demselben Grund wie `byLayer`: die Anzeige
+   * setzt voraus, dass jemand `circuitKind` an den Geraeten angegeben hat.
+   * In einem Plan, in dem das niemand getan hat, zeigte sie ein leeres
+   * Schaltbild — und ein leeres Schaltbild sieht aus wie „nichts brennt".
+   *
+   * Sie ist ANZEIGE. Die Schalterstellungen dahinter liegen im
+   * `circuitStore` und nicht im Projekt: Umlegen ist Ausprobieren, nicht
+   * Planen.
+   */
+  circuitOverlay: boolean
   /** Canvas background theme. */
   canvasTheme: 'dark' | 'light'
   /** #453 — Wenn true, folgt canvasTheme automatisch dem OS-Theme
@@ -329,6 +343,7 @@ const defaults: PersistedUiState = {
   libraryWidth: 260,
   propertiesWidth: 280,
   cableColorMode: 'manual',
+  circuitOverlay: false,
   canvasTheme: 'dark',
   followSystemTheme: false,
   colorPortsByType: false,
@@ -397,6 +412,13 @@ const defaults: PersistedUiState = {
     'network',
     'sdi',
     'power',
+    // Schaltbild (Strom, 2026-09-08) direkt hinter dem Verbrauch: beides ist
+    // dieselbe Frage von zwei Seiten -- wie viel zieht es, und wann zieht es
+    // ueberhaupt. Bestandsnutzer bekommen den Eintrag ueber die
+    // Vollstaendigkeits-Schleife weiter unten nachgetragen; ohne sie waere
+    // die Sektion fuer jeden gebaut, der die App schon einmal geoeffnet hat,
+    // unerreichbar.
+    'circuit',
     'dimensions',
     'display',
     'network-config',
@@ -641,6 +663,7 @@ interface UiState extends PersistedUiState {
   setLibraryWidth: (value: number) => void
   setPropertiesWidth: (value: number) => void
   setCableColorMode: (value: 'manual' | 'byLength' | 'byLayer') => void
+  setCircuitOverlay: (value: boolean) => void
   setCanvasTheme: (value: 'dark' | 'light') => void
   setFollowSystemTheme: (value: boolean) => void
   setColorPortsByType: (value: boolean) => void
@@ -1031,6 +1054,7 @@ export const useUiStore = create<UiState>((set) => ({
   setPropertiesWidth: (value) =>
     set(applyPatch({ propertiesWidth: Math.max(PANEL_LIMITS.properties.MIN, Math.min(PANEL_LIMITS.properties.MAX, Math.round(value))) })),
   setCableColorMode: (value) => set(applyPatch({ cableColorMode: value })),
+  setCircuitOverlay: (value) => set(applyPatch({ circuitOverlay: value })),
   setCanvasTheme: (value) => set(applyPatch({ canvasTheme: value })),
   setFollowSystemTheme: (value) => set(applyPatch({ followSystemTheme: value })),
   setColorPortsByType: (value) => set(applyPatch({ colorPortsByType: value })),

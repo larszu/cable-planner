@@ -27,6 +27,7 @@ import { effectiveShortName } from '../../lib/shortName'
 import { getEquipmentById } from '../../lib/equipmentSelectors'
 import { useTranslation } from '../../lib/i18n'
 import { useEdgeFlow } from '../../hooks/useCanvasFlow'
+import { useEdgeEnergised } from '../../hooks/useCircuit'
 
 interface CableEdgeData {
   cable: Cable
@@ -374,6 +375,10 @@ export const CableEdge = ({
   // Signalfluss dieser Kante. Der Hook laeuft VOR jedem fruehen Ausstieg
   // (Off-Page, Layer-Filter) — React-Hook-Regeln.
   const flow = useEdgeFlow(cable)
+  // Schaltbild: liegt auf dieser Leitung Spannung? Der Hook laeuft ebenfalls
+  // vor jedem fruehen Ausstieg (React-Hook-Regeln) und ist `false`, solange
+  // die Anzeige aus ist.
+  const unterSpannung = useEdgeEnergised(cable?.id)
   const deleteCable = useProjectStore((state) => state.deleteCable)
   const equipment = useProjectStore((state) => state.project.equipment)
   const greengoConfig = useProjectStore((state) => state.project.greengoConfig)
@@ -918,6 +923,28 @@ export const CableEdge = ({
 
   return (
     <>
+      {/* Spannung auf der Leitung (Schaltbild) — ein zweiter, DURCHGEHENDER
+          Pfad unter der Kante, kein laufender Strich.
+
+          BEWUSST NICHT DIE FLIESS-ANIMATION. Sie sagt „hier bewegt sich
+          etwas"; bei Wechselstrom bewegt sich nichts, was man zeichnen
+          koennte, und die laufenden Striche wuerden eine Richtung behaupten,
+          die es nicht gibt. „Unter Spannung" ist ein ZUSTAND, also ein
+          ruhiger, breiterer Schein.
+
+          Die Kante selbst bleibt unangetastet — sie traegt die Layer-Farbe
+          und die Beschriftung. */}
+      {unterSpannung && (
+        <path
+          d={path}
+          fill="none"
+          stroke="#facc15"
+          strokeWidth={strokeWidth + 4}
+          strokeLinecap="round"
+          opacity={0.3}
+          pointerEvents="none"
+        />
+      )}
       <BaseEdge
         id={id}
         path={path}

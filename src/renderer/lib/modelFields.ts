@@ -92,6 +92,12 @@ export const MODEL_FIELDS = [
   'voltage',
   'currentAmps',
   'powerPhase',
+  // Schaltbild (2026-09-08): Bauart im Stromkreis. MODELL und nicht Instanz —
+  // dass ein Artikel ein Wechselschalter IST, ist eine Eigenschaft der Sorte
+  // und steht im Katalog, nicht an dem einen verbauten Exemplar. Die
+  // Klemmennummern haengen dagegen am Port, also am Exemplar; sie stehen hier
+  // nicht, weil `ports` als Ganzes schon eingeordnet ist.
+  'circuitKind',
 
   // Preise — die Gruppe, die der ADR beim Namen nennt: sie laeuft in
   // Stuecklisten weiter, eine falsche Zuordnung propagiert still falsche Zahlen

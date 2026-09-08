@@ -89,6 +89,7 @@ import { normaliseAddressLayers } from '../lib/addressTemplate'
 import { normaliseVenueAnswers } from '../lib/venueAnswers'
 import { isNetworkInterfaceRole, normaliseNetworkInterface } from '../lib/networkInterfaces'
 import type { NetworkInterface } from '../types/network'
+import { istCircuitKind } from '../types/circuit'
 
 const CUSTOM_LIB_KEY = STORAGE_KEYS.customLibrary
 const PROJECT_AUTOSAVE_KEY = STORAGE_KEYS.projectAutosave
@@ -874,6 +875,17 @@ const healProjectPositions = (
     ...project,
     equipment: project.equipment.map((item) => {
       item = clearDanglingIdentity(item, identityIds)
+
+      // Schaltbild (Strom, 2026-09-08). Eine Bauart, die dieser Stand nicht
+      // kennt, faellt WEG statt stehenzubleiben: der Rechner haette fuer sie
+      // keine innere Verbindung, und `INNERE_VERBINDUNG[kind]` waere
+      // `undefined` -- die Leuchte dahinter „brennt nicht", was aussieht wie
+      // eine Antwort. Ohne Feld ist das Geraet fuer das Schaltbild schlicht
+      // nicht vorhanden, und der Streifen sagt das.
+      if (item.circuitKind !== undefined && !istCircuitKind(item.circuitKind)) {
+        onDrop?.({ kind: 'equipment-circuit', reason: 'invalid-value', label: item.name })
+        item = (({ circuitKind: _weg, ...rest }) => rest)(item) as EquipmentItem
+      }
 
       // ADR-001 / Inkrement 0 — Videohub-Routing-Migration: der Kreuzpunkt-
       // Zustand lag frueher nur im Komponenten-State des Export-Dialogs.

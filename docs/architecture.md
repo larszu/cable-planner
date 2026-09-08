@@ -168,6 +168,44 @@ Zustand neben `carrying`. Der Kreuzpunkt steht auch dann, wenn upstream die
 Kamera aus ist; ihn als „Signal liegt an" zu zeigen machte aus einer
 Router-Einstellung eine Aussage über die Anlage.
 
+#### 3.1c · `circuitStore` — die PROBIER-Spur des Schaltbilds
+
+Dieselbe Trennung ein zweites Mal, aus einem anderen Anlass. Seit
+2026-09-08 rechnet `lib/circuitSolver.ts`, welche Leuchte bei welcher
+Schalterstellung brennt. Dafür braucht er zwei Sorten Angaben, und sie
+gehören an verschiedene Orte:
+
+| Was | Wo | Warum |
+|---|---|---|
+| Die **Verdrahtung**: welches Gerät ein Wechselschalter ist (`EquipmentItem.circuitKind`), an welcher Klemme welcher Anschluss hängt (`Port.circuitTerminal`) | `projectStore`, gespeichert | Das ist der Plan. Er steht auf dem Blatt und geht durch Undo/Redo |
+| Die **Schalterstellung** und der Dimmerwert | `circuitStore`, **nicht persistiert** | Umlegen ist Ausprobieren, kein Planen |
+
+**Warum die Stellung nicht ins Projekt darf.** Wer am Schaltbild einen
+Schalter umlegt, fragt „was passiert dann". Läge die Stellung im
+`projectStore`, wäre jedes Umlegen ein Undo-Schritt, ein Autospeichern und
+eine Änderung an der Projektdatei: zwei Minuten Ausprobieren fräsen die
+Undo-Historie leer, und die Datei trüge hinterher eine Schalterstellung,
+die niemand entschieden hat. Dieselbe Wurzel wie beim `liveStore`
+(`cable#647`).
+
+**Die Bauart wird angegeben, nie geraten.** Sie aus der Kategorie zu
+schliessen („Leuchte" → `lamp`) wäre der Namensabgleich, gegen den ADR-001
+und ADR-002 stehen — und hier fällt er in die gefährliche Richtung: ein
+Gerät namens „Wandleuchte" bekäme keinen Knoten, und der Rechner sagte
+„brennt nicht". Das sieht aus wie eine Antwort. Ohne `circuitKind` ist ein
+Gerät für das Schaltbild **nicht vorhanden**, und der `CircuitChip` nennt
+die Zahl derer, die an einem Strom-Kabel hängen und keine tragen.
+
+**Die Klemme hängt am Port, nicht an seiner Position.** Eine
+Wechselschaltung unterscheidet Klemme 1 von Klemme 2 — vertauscht man sie,
+brennt die Leuchte bei genau den umgekehrten Stellungen. Aus der
+Port-Reihenfolge abgeleitet wäre sie eine stille Umverdrahtung bei jedem
+Umsortieren (derselbe Befund wie B-33).
+
+**Was der Rechner NICHT ist:** eine elektrotechnische Berechnung oder ein
+Sicherheitsnachweis. Der Rückleiter fehlt absichtlich — ein
+Wechselschaltungs-Plan zeigt den geschalteten Außenleiter.
+
 ### 3.2 · Komponenten
 
 `src/renderer/components/` ist in 27 Subdomänen aufgeteilt:
@@ -371,11 +409,15 @@ gehören hier rein, nicht in einzelne Komponenten.
 | Sync-Lock | `<shared-pfad>/.cable-planner-sync.lock` | JSON (TTL 2h) |
 | Kategorie-Übersetzungen | `localStorage[categoryTranslations]` | JSON-Map |
 | **Beobachtungen (Tally, Kreuzpunkte)** | **nirgends — `liveStore`, nur im Speicher** | — |
+| **Schalterstellungen im Schaltbild** | **nirgends — `circuitStore`, nur im Speicher** | — |
 
-Die letzte Zeile steht hier, weil sie eine Entscheidung ist und kein
-Versäumnis: was die Anlage vor einer Stunde tat, weiß diese App nach einem
-Neustart nicht mehr, und das ist die richtige Aussage. Ein persistierter
-Beobachtungsstand sähe beim nächsten Öffnen aus wie ein aktueller.
+Die letzten beiden Zeilen stehen hier, weil sie Entscheidungen sind und
+keine Versäumnisse. Was die Anlage vor einer Stunde tat, weiß diese App nach
+einem Neustart nicht mehr, und das ist die richtige Aussage — ein
+persistierter Beobachtungsstand sähe beim nächsten Öffnen aus wie ein
+aktueller. Und wie die Schalter beim letzten Ausprobieren standen, will
+niemand wiederhaben; gespeichert wäre es eine Angabe, die niemand
+entschieden hat.
 
 ---
 
@@ -591,6 +633,15 @@ Das Wichtigste in Listenform. Niemals brechen ohne expliziten Architektur-Review
     anschließt, hält sich an dieselbe Grenze: melden, was das Gerät WIRKLICH
     sagt (`routed` ist nicht `carrying`), mit Zeitstempel, und beim Ausfall
     nur die eigene Hälfte räumen.
+15. **Was der Nutzer ausprobiert, ist keine Planänderung.** Die
+    Schalterstellungen des Schaltbilds liegen im `circuitStore` und nie im
+    Projekt; ein Klick auf einen Schalter erzeugt keinen Undo-Schritt, keine
+    Autospeicherung und keine Änderung an der Datei. Die VERDRAHTUNG dagegen
+    ist Plan und steht im Projekt (`circuitKind`, `circuitTerminal`). Wer
+    eine weitere Probier-Ansicht baut — eine zweite Ausspiel-Variante, ein
+    „was wäre wenn" auf der Kreuzschiene — trennt genauso: das Ergebnis darf
+    gerechnet und gezeigt werden, die Eingabe dafür wird nicht gespeichert,
+    und die Ansicht sagt, dass sie gerechnet ist.
 
 ---
 

@@ -37,10 +37,32 @@ export type LoadDropReason =
    * selbst die richtige Entscheidung ist.
    */
   | 'dangling-ref'
+  /**
+   * Das Feld trug einen Wert, den dieser Stand nicht kennt — kein fehlender
+   * Verweis, sondern eine unbekannte Vokabel.
+   *
+   * Eigener Grund, weil die Auskunft eine andere ist: `dangling-ref` schickt
+   * jemanden zu einem gelöschten Ziel, `invalid-value` zu einer Datei, die
+   * aus einer anderen (neueren oder fremden) Fassung stammt. Wer das Erste
+   * liest und das Zweite braucht, sucht ein Ziel, das es nie gab.
+   */
+  | 'invalid-value'
 
 /** Woher der verworfene Datensatz kam. */
 export type LoadDropKind =
   | 'source-identity'
+  /**
+   * Schaltbild (Strom) — eine `circuitKind`-Angabe, die dieser Stand nicht
+   * kennt. Verworfen wird nur DIESES FELD, nicht das Gerät.
+   *
+   * Warum überhaupt gemeldet: ohne Bauart ist das Gerät für den
+   * Schaltbild-Rechner nicht vorhanden, und die Leuchte dahinter „brennt
+   * nicht". Das sieht aus wie eine Aussage über die Anlage. Wer die Datei in
+   * einer neueren Fassung angelegt hat, soll erfahren, dass hier eine Angabe
+   * verlorengegangen ist — statt sich zu wundern, warum sein Schaltbild
+   * dunkel bleibt.
+   */
+  | 'equipment-circuit'
   /** Initiative 9 — ein Ausspielziel, das die Normalisierung nicht bestanden
    *  hat. Dieselbe Regel wie bei der Rolle: ein Ziel, das still verschwindet,
    *  nimmt die Ingest-URL und den Verweis auf seinen Stream-Key mit, und der
