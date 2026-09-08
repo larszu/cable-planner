@@ -48,6 +48,7 @@ import { monitorTemplates } from '../lib/monitorCatalog'
 import { cameraTemplates } from '../lib/cameraCatalog'
 import { miscTemplates } from '../lib/miscCatalog'
 import { mediaStationTemplates } from '../lib/mediaStationCatalog'
+import { passiveTemplates } from '../lib/passiveCatalog'
 import { greengoTemplates } from '../lib/greengoCatalog'
 import { ajaTemplates } from '../lib/ajaCatalog'
 import { rossTemplates } from '../lib/rossCatalog'
@@ -109,7 +110,7 @@ import { pruefeCompanion } from '../lib/companionControl'
 const CUSTOM_LIB_KEY = STORAGE_KEYS.customLibrary
 const PROJECT_AUTOSAVE_KEY = STORAGE_KEYS.projectAutosave
 const LIB_MIGRATION_KEY = STORAGE_KEYS.libMigration
-const LIB_MIGRATION_VERSION = '2026-04-greengo-catalog-v2'
+const LIB_MIGRATION_VERSION = '2026-09-passive-carriers'
 
 const runLibraryMigration = () => {
   try {
@@ -117,7 +118,7 @@ const runLibraryMigration = () => {
     // Step 1 (earlier migration): the previous build auto-generated bogus
     // 1-in/1-out templates for every Rentman device. Ensure those are cleared
     // ONCE, but don't wipe libraries created by any later good migration.
-    const preservedVersions = new Set(['2026-04-reset', '2026-04-blackmagic-seed', '2026-04-monitor-camera-seed', '2026-04-misc-catalog-seed', '2026-04-greengo-catalog-seed', LIB_MIGRATION_VERSION])
+    const preservedVersions = new Set(['2026-04-reset', '2026-04-blackmagic-seed', '2026-04-monitor-camera-seed', '2026-04-misc-catalog-seed', '2026-04-greengo-catalog-seed', '2026-04-greengo-catalog-v2', LIB_MIGRATION_VERSION])
     if (current && !preservedVersions.has(current)) {
       localStorage.removeItem(CUSTOM_LIB_KEY)
     }
@@ -128,7 +129,7 @@ const runLibraryMigration = () => {
     const existing: EquipmentTemplate[] = raw ? JSON.parse(raw) : []
     const byName = new Map(existing.map((t) => [t.name, t]))
     let added = false
-    for (const t of [...blackmagicTemplates, ...ubiquitiTemplates, ...monitorTemplates, ...cameraTemplates, ...miscTemplates, ...greengoTemplates, ...ajaTemplates, ...rossTemplates, ...lynxTemplates, ...switcherTemplates, ...avNetworkTemplates, ...broadcastToolsTemplates, ...audioTemplates, ...wirelessAudioTemplates, ...micTemplates, ...mediaStationTemplates]) {
+    for (const t of [...blackmagicTemplates, ...ubiquitiTemplates, ...monitorTemplates, ...cameraTemplates, ...miscTemplates, ...greengoTemplates, ...ajaTemplates, ...rossTemplates, ...lynxTemplates, ...switcherTemplates, ...avNetworkTemplates, ...broadcastToolsTemplates, ...audioTemplates, ...wirelessAudioTemplates, ...micTemplates, ...mediaStationTemplates, ...passiveTemplates]) {
       if (!byName.has(t.name)) {
         byName.set(t.name, t)
         added = true
