@@ -19,6 +19,9 @@ import type {
   FaultService,
   PhysicalDimensions,
   InventoryMaterialKind,
+  Geldbetrag,
+  Anschaffung,
+  Versicherungswert,
 } from '../types/inventory'
 import { normaliseFaultEvent } from '../lib/faultHistory'
 import { deriveDemand } from '../lib/inventoryCoverage'
@@ -130,6 +133,14 @@ const healItem = (raw: unknown): InventoryItem | null => {
     codeType: healCodeType(r.codeType),
     locationId: typeof r.locationId === 'string' && r.locationId ? r.locationId : undefined,
     dimensions: healDimensions(r.dimensions),
+    // Bedarf 118 — Ursprungsland fuers Carnet-Datenblatt. Zwei Buchstaben nach
+    // ISO 3166-1, gross geschrieben; laenger ist es kein Kuerzel und wird
+    // unveraendert durchgereicht, statt beschnitten zu werden (ein
+    // abgeschnittenes Land waere ein falsches).
+    ursprungsland:
+      typeof r.ursprungsland === 'string' && r.ursprungsland.trim()
+        ? r.ursprungsland.trim().toUpperCase()
+        : undefined,
     materialKinds: healMaterialKinds(r.materialKinds),
     notes: typeof r.notes === 'string' ? r.notes : undefined,
     createdAt: typeof r.createdAt === 'string' ? r.createdAt : now,
@@ -235,6 +246,47 @@ const migrateLegacyCases = (
 const UNIT_CONDITIONS = new Set<UnitCondition>(['ok', 'defect', 'inRepair', 'retired'])
 
 /** Heilt eine geladene Einheit. */
+/**
+ * Einen Geldbetrag aus einer Datei heilen (Bedarf 118).
+ *
+ * OHNE WAEHRUNG KEIN BETRAG — dieselbe Regel wie bei der Eingabe
+ * (`geldAusEingabe`), nur fuer die andere Richtung. Eine Datei von einem
+ * anderen Rechner kann eine Zahl ohne Kuerzel tragen; sie stillschweigend zu
+ * „EUR" zu erklaeren waere eine Annahme ueber einen fremden
+ * Versicherungsvertrag. Ohne Waehrung faellt der Betrag weg, und die
+ * Versicherungsliste fuehrt die Einheit als „ohne angegebenen Wert" — sichtbar
+ * statt still falsch.
+ */
+const healGeld = (raw: unknown): Geldbetrag | undefined => {
+  if (!raw || typeof raw !== 'object') return undefined
+  const g = raw as Partial<Geldbetrag>
+  const w = typeof g.waehrung === 'string' ? g.waehrung.trim().toUpperCase() : ''
+  if (!w) return undefined
+  if (typeof g.cent !== 'number' || !Number.isFinite(g.cent)) return undefined
+  return { cent: Math.round(g.cent), waehrung: w }
+}
+
+/**
+ * Anschaffung heilen. Das Datum allein ist keine Angabe und faellt mit dem
+ * Betrag weg — ein Kaufdatum ohne Preis ist nichts, was auf eine Liste kommt.
+ */
+const healAnschaffung = (raw: unknown): Anschaffung | undefined => {
+  if (!raw || typeof raw !== 'object') return undefined
+  const r = raw as Partial<Anschaffung>
+  const betrag = healGeld(r.betrag)
+  if (!betrag) return undefined
+  return { betrag, ...(typeof r.am === 'string' && r.am.trim() ? { am: r.am.trim() } : {}) }
+}
+
+/** Versicherungswert heilen — dieselbe Regel, anderes Datumsfeld. */
+const healVersicherungswert = (raw: unknown): Versicherungswert | undefined => {
+  if (!raw || typeof raw !== 'object') return undefined
+  const r = raw as Partial<Versicherungswert>
+  const betrag = healGeld(r.betrag)
+  if (!betrag) return undefined
+  return { betrag, ...(typeof r.stand === 'string' && r.stand.trim() ? { stand: r.stand.trim() } : {}) }
+}
+
 const healUnit = (raw: unknown): InventoryUnit | null => {
   if (!raw || typeof raw !== 'object') return null
   const r = raw as Partial<InventoryUnit>
@@ -284,6 +336,12 @@ const healUnit = (raw: unknown): InventoryUnit | null => {
     locationId: typeof r.locationId === 'string' && r.locationId ? r.locationId : undefined,
     condition: r.condition && UNIT_CONDITIONS.has(r.condition) ? r.condition : 'ok',
     notes: typeof r.notes === 'string' ? r.notes : undefined,
+    // Bedarf 118 — die beiden Werte. Sie MUESSEN hier stehen: `healUnit` baut
+    // jede Einheit Feld fuer Feld neu auf, ein hier vergessenes Feld ist beim
+    // naechsten Laden still weg. Genau deshalb steigt auch die Format-Version
+    // (siehe `inventoryPortable.ts`).
+    anschaffung: healAnschaffung(r.anschaffung),
+    versicherungswert: healVersicherungswert(r.versicherungswert),
     history,
     createdAt: typeof r.createdAt === 'string' ? r.createdAt : now,
     updatedAt: typeof r.updatedAt === 'string' ? r.updatedAt : now,
@@ -421,7 +479,23 @@ interface InventoryState {
   /** Legt eine serialisierte Einheit an (mit „created"-Historieneintrag). */
   addUnit: (input: InventoryUnitInput) => string
   /** Aktualisiert Stammfelder einer Einheit (Ort/Zustand via move/condition). */
-  updateUnit: (id: string, patch: Partial<Pick<InventoryUnit, 'serial' | 'houseRef' | 'code' | 'codeType' | 'notes'>>) => void
+  updateUnit: (
+    id: string,
+    patch: Partial<
+      Pick<
+        InventoryUnit,
+        | 'serial'
+        | 'houseRef'
+        | 'code'
+        | 'codeType'
+        | 'notes'
+        // Bedarf 118 — Anschaffungspreis und Versicherungswert sind Stammdaten
+        // der Einheit und werden hier gepflegt, nicht ueber Bewegungen.
+        | 'anschaffung'
+        | 'versicherungswert'
+      >
+    >,
+  ) => void
   /** Entfernt eine Einheit. */
   removeUnit: (id: string) => void
   /** Verschiebt eine Einheit an einen Lagerort (hängt „moved" an die Historie). */

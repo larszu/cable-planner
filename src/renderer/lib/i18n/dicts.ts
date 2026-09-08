@@ -4493,6 +4493,22 @@ export const en: Dict = {
   // Bedarf 107 — zwei Identitaeten, zwei Felder.
   'inventory.houseRef': 'House reference',
   'inventory.houseRefPh': 'e.g. AV-0421',
+  // Bedarf 118 — Versicherungsliste und Carnet-Datenblatt.
+  'inventory.purchase': 'Purchase price',
+  'inventory.purchaseCurrency': 'Currency',
+  'inventory.purchaseDate': 'Bought on',
+  'inventory.insuredValue': 'Insured value',
+  'inventory.insuredCurrency': 'Currency',
+  'inventory.insuredAsOf': 'Value as of',
+  'inventory.currencyPh': 'e.g. EUR',
+  'inventory.origin': 'Country of origin',
+  'inventory.originPh': 'e.g. DE, JP, US',
+  'inventory.insuranceList': 'Insurance',
+  'inventory.insuranceHint':
+    'Insurance schedule: value per unit, one total per currency — and the units with no declared value listed by name underneath.',
+  'inventory.carnetSheet': 'Carnet',
+  'inventory.carnetHint':
+    'Carnet data sheet: the columns a carnet line needs, to copy into the chamber of commerce form. Not a carnet.',
   'inventory.unitDeleteTitle': 'Delete unit?',
   'inventory.unitsNoItems': 'Create items first, then you can serialize individual units.',
   'inventory.unitsEmpty': 'No units yet. Serialize individual copies of an item.',
