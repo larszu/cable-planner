@@ -96,6 +96,9 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   Schnittstellen: 'Wie viele Netz-Schnittstellen aus dem Plan in diesem Segment liegen.',
   'Gerät':
     'Das Gerät, dem die Zeile gehört — mit seinem Namen aus dem Plan, nicht mit einer Kurzform.',
+  // Prüfbild-Liste (`lib/patternRouting.ts`) — die Liste zum Abgehen.
+  Anschluss:
+    'Der Anschluss, an dem das Prüfbild ankommen müsste — mit seiner Beschriftung aus dem Plan. Ohne ihn stünde nur das Gerät da, und bei einem Monitor-Verteiler mit acht Eingängen ist das die halbe Auskunft.',
   // Bedarf 101 — die Vorschau auf eine Umbenennung (`lib/renameImpact.ts`).
   Zielsystem:
     'Das System, das den Namen speichert (ATEM, Videohub, TSL-UMD, Dante) — samt Feld, weil derselbe Name dort in mehreren Feldern mit verschiedenen Budgets landet.',
