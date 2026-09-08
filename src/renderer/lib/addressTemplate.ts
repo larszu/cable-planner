@@ -584,14 +584,26 @@ export function addressTemplateTable(layers: readonly AddressLayer[]): CsvTable 
  * und nicht still: der Nutzer sieht danach im Feld, was wirklich gilt, statt
  * eine Schreibweise stehen zu haben, gegen die intern anders gerechnet wird.
  */
-export function normaliseAddressLayers(raw: unknown): AddressLayer[] {
+export function normaliseAddressLayers(
+  raw: unknown,
+  onDrop?: (d: { reason: 'missing-required'; label: string }) => void,
+): AddressLayer[] {
   if (!Array.isArray(raw)) return []
   const out: AddressLayer[] = []
   for (const entry of raw) {
     if (!entry || typeof entry !== 'object' || Array.isArray(entry)) continue
     const l = entry as Record<string, unknown>
     const id = typeof l.id === 'string' && l.id.trim() ? l.id.trim() : null
-    if (!id) continue
+    if (!id) {
+      // ADR-005, Regel 3: Eine ganze Ebene ohne Id nimmt ALLE ihre Bereiche
+      // mit. Sie still fallen zu lassen hiesse, dass der naechste Adresslauf
+      // aus einem Plan vergibt, in dem diese Netze nie standen.
+      onDrop?.({
+        reason: 'missing-required',
+        label: typeof l.name === 'string' ? l.name.trim() : '',
+      })
+      continue
+    }
     const kind = ADDRESS_LAYER_KINDS.includes(l.kind as AddressLayerKind)
       ? (l.kind as AddressLayerKind)
       : 'standing'
@@ -599,7 +611,24 @@ export function normaliseAddressLayers(raw: unknown): AddressLayer[] {
     if (Array.isArray(l.ranges)) {
       for (const rEntry of l.ranges) {
         const r = normaliseAddressRange(rEntry)
-        if (r) ranges.push(r)
+        if (r) {
+          ranges.push(r)
+          continue
+        }
+        // Der Griff ist der beste Name, den der rohe Eintrag hergibt — Name,
+        // sonst der CIDR, der keiner war, und erst zuletzt der Schluessel.
+        //
+        // Der CIDR VOR dem Schluessel, und das ist kein Zufall: Der Schluessel
+        // ist ein Kuerzel wie „media", das in jeder zweiten Ebene steht; der
+        // fehlerhafte CIDR steht woertlich genau einmal in der Datei. Wer
+        // suchen soll, bekommt die eindeutige Zeichenkette.
+        const roh = (rEntry ?? {}) as Record<string, unknown>
+        const griff =
+          (typeof roh.name === 'string' && roh.name.trim()) ||
+          (typeof roh.cidr === 'string' && roh.cidr.trim()) ||
+          (typeof roh.key === 'string' && roh.key.trim()) ||
+          ''
+        onDrop?.({ reason: 'missing-required', label: griff })
       }
     }
     out.push({

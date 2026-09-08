@@ -12,6 +12,7 @@ import type { VenueAnswer } from '../src/renderer/types/venueAnswer'
 import type { VenueNetworkRequest } from '../src/renderer/lib/venueNetworkRequest'
 import analyseQuelle from '../src/renderer/components/Analysis/AnalysisDialog.tsx?raw'
 import appQuelle from '../src/renderer/App.tsx?raw'
+import typQuelle from '../src/renderer/types/loadReport.ts?raw'
 
 // ---------------------------------------------------------------------------
 // Was das Haus geantwortet hat (Bedarf 85, zweite Haelfte).
@@ -301,10 +302,27 @@ describe('Bedarf 85 — die Oberflaeche ist verdrahtet', () => {
     expect(analyseQuelle).toMatch(/recordAnswer\([\s\S]{0,400}?venue: siteAddress/)
   })
 
-  it('der Lade-Bericht beschriftet jede Art einzeln', () => {
+  it('der Lade-Bericht beschriftet JEDE Art einzeln — die Liste kommt aus dem Typ', () => {
     // Bis hierher stand fuer JEDEN Fall „Signalquelle" — auch fuer ein
     // verworfenes Ausspielziel aus Initiative 9.
-    expect(appQuelle).toContain("d.kind === 'delivery-destination'")
-    expect(appQuelle).toContain("d.kind === 'venue-answer'")
+    //
+    // Und bis hierher pruefte diese Zusicherung ZWEI Sorten namentlich. Das
+    // war dieselbe Bauform wie der Fehler, den sie bewacht: eine Hand
+    // gepflegte Liste, die eine neue Sorte nicht kennt. Jetzt kommt die Liste
+    // aus `LoadDropKind` selbst, und die Tabelle in `App.tsx` muss jede davon
+    // beschriften.
+    const block = typQuelle.slice(
+      typQuelle.indexOf('export type LoadDropKind'),
+      typQuelle.indexOf('export interface LoadDrop'),
+    )
+    const arten = [...block.matchAll(/\|\s*'([a-z-]+)'/g)].map((m) => m[1])
+    expect(arten.length).toBeGreaterThanOrEqual(10)
+    const tabelle = appQuelle.slice(
+      appQuelle.indexOf('const DROP_ART'),
+      appQuelle.indexOf('const DROP_GRUND'),
+    )
+    for (const art of arten) expect(tabelle).toContain(`'${art}':`)
+    // Und die erste Sorte, die kein `|` vor sich hat, darf nicht durchrutschen.
+    expect(tabelle).toContain("'source-identity':")
   })
 })

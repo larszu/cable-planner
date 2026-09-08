@@ -21,6 +21,22 @@ export type LoadDropReason =
   | 'missing-required'
   /** Eine Id kam mehrfach vor; der erste Datensatz hat gewonnen. */
   | 'duplicate-id'
+  /**
+   * Der Datensatz zeigte auf etwas, das es nicht (mehr) gibt — und ohne dieses
+   * Ziel ist er nicht bloss unvollständig, sondern irreführend.
+   *
+   * Eigener Grund und nicht `missing-required`, weil die beiden verschiedene
+   * Auskünfte sind: „Pflichtfeld fehlt" schickt jemanden in seine Datei, um
+   * einen Namen nachzutragen; „Verweis zeigt ins Leere" sagt ihm, dass das
+   * Ziel gelöscht wurde und der Datensatz mit ihm. Wer das Erste liest und das
+   * Zweite braucht, sucht am falschen Ende.
+   *
+   * NICHT für jeden Fehlzeiger: Wo ein Datensatz ohne sein Ziel noch etwas
+   * aussagt, bleibt er stehen und bekommt einen Befund (`override-orphan`,
+   * `anchor-orphan`, `rate-missing`). Dieser Grund gilt nur, wo das Verwerfen
+   * selbst die richtige Entscheidung ist.
+   */
+  | 'dangling-ref'
 
 /** Woher der verworfene Datensatz kam. */
 export type LoadDropKind =
@@ -71,6 +87,21 @@ export type LoadDropKind =
    *  dafuer gibt es den Befund `rate-missing`, und eine spurlos entfernte
    *  Schicht ist eine geleistete Stunde, die niemand mehr abrechnet. */
   | 'crew-entry'
+  /** Bedarf 105 — das Tally je Position. Ein Datensatz ohne Rolle oder mit
+   *  doppelter Rolle wird verworfen, und ebenso einer, dessen Rolle es nicht
+   *  mehr gibt. Er traegt die BEOBACHTUNGEN vor Ort: jemand stand an der
+   *  Kamera und hat gesehen, dass die Lampe rot wird. Still verschwinden zu
+   *  lassen, was jemand nachgesehen hat, ist die teuerste Sorte Verlust — das
+   *  Vor-Show-Blatt zeigt die Position danach als „nie geprueft", und dann
+   *  laeuft jemand ein zweites Mal denselben Weg. Oder eben nicht, weil er
+   *  sich erinnert, dort schon gewesen zu sein. */
+  | 'tally-position'
+  /** Bedarf 20 — ein Adressbereich, dessen CIDR keiner ist, oder der keine Id
+   *  traegt. Ein Bereich ist der Vorrat, aus dem jede Geraete-Adresse kommt;
+   *  faellt er beim Laden still weg, vergibt der naechste Adresslauf aus einem
+   *  Plan, in dem dieses Netz nie stand — und der Widerspruch faellt erst auf,
+   *  wenn zwei Geraete im Rack dieselbe Adresse tragen. */
+  | 'address-range'
 
 export interface LoadDrop {
   kind: LoadDropKind
