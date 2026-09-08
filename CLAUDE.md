@@ -48,6 +48,9 @@ node16), `tsconfig.preload.json` (preload, **CommonJS**), `tsconfig.app.json`
 ## Architektur (Big Picture)
 
 Vollständige Referenz + nicht-verhandelbare Invarianten:
+Den Mischer gegen einen Emulator statt gegen die laufende Anlage schalten:
+[`docs/atem-pruefstand.md`](docs/atem-pruefstand.md).
+
 [`docs/architecture.md`](docs/architecture.md) — **Pflicht-Lektüre vor
 strukturellen Änderungen.** Hier nur das Nötigste zum schnellen Einstieg:
 

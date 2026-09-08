@@ -42,6 +42,7 @@ import {
   PROTOCOL_INFO,
   type AtemBefehl,
   type ControlAction,
+  type ControlActionBody,
 } from '../types/switcherControl'
 import type { HubKreuzpunkt } from './patternRouting'
 import { buildCrosspointCommand, kreuzpunktKlartext } from './videohubCrosspoint'
@@ -96,7 +97,7 @@ const portIndex = (ports: readonly Port[], id: string): number => ports.findInde
 const videohubAction = (
   device: EquipmentItem,
   punkte: readonly HubKreuzpunkt[],
-): ControlAction | ControlHindernis => {
+): ControlActionBody | ControlHindernis => {
   const host = device.ipAddress?.trim() ?? ''
   if (!host) {
     return {
@@ -146,7 +147,7 @@ const videohubAction = (
 const atemAction = (
   device: EquipmentItem,
   punkte: readonly HubKreuzpunkt[],
-): ControlAction | ControlHindernis => {
+): ControlActionBody | ControlHindernis => {
   const host = device.ipAddress?.trim() ?? ''
   if (!host) {
     return {
@@ -220,7 +221,7 @@ export const atemBefehlText = (b: AtemBefehl): string => {
 const textAction = (
   device: EquipmentItem,
   punkte: readonly HubKreuzpunkt[],
-): ControlAction | ControlHindernis => {
+): ControlActionBody | ControlHindernis => {
   const host = device.ipAddress?.trim() ?? ''
   if (!host) {
     return {
@@ -310,7 +311,7 @@ const textAction = (
 const companionAction = (
   device: EquipmentItem,
   punkte: readonly HubKreuzpunkt[],
-): ControlAction | ControlHindernis => {
+): ControlActionBody | ControlHindernis => {
   const host = device.ipAddress?.trim() ?? ''
   if (!host) {
     return {
@@ -379,7 +380,7 @@ const companionAction = (
   }
 }
 
-const istHindernis = (v: ControlAction | ControlHindernis): v is ControlHindernis =>
+const istHindernis = (v: ControlActionBody | ControlHindernis): v is ControlHindernis =>
   Object.prototype.hasOwnProperty.call(v, 'grund')
 
 /**
@@ -426,7 +427,11 @@ export const controlActions = (
             ? companionAction(device, punkte)
             : textAction(device, punkte)
     if (istHindernis(ergebnis)) hindernisse.push(ergebnis)
-    else actions.push(ergebnis)
+    // DIE EINE STELLE, an der das Ziel angeheftet wird (S-5). Fehlt die
+    // Erklaerung, ist es die Anlage — die vorsichtigere Lesart: ein Eintrag,
+    // der faelschlich „Anlage" sagt, laesst jemanden nachsehen; einer, der
+    // faelschlich „Pruefstand" sagt, laesst ihn es lassen.
+    else actions.push({ ...ergebnis, target: device.controlTarget ?? 'device' })
   }
   return { actions, hindernisse }
 }
@@ -523,6 +528,15 @@ export const eintraegeFuerAction = (
     at: meta.at,
     equipmentId: action.equipmentId,
     protocol: action.protocol,
+    // S-5 — das Ziel faehrt in JEDEN Beleg, und zwar aus derselben
+    // `gemeinsam`-Stelle wie das Protokoll: drei Zweige darunter, und ein
+    // vergessener liesse eine Probe wie einen Eingriff aussehen.
+    //
+    // Nur beim Pruefstand geschrieben. `'device'` ist die Vorgabe, und ein
+    // Feld, das in jeder Zeile jeder Projektdatei „device" sagt, kostet
+    // Platz und traegt nichts — das Fehlen IST die Auskunft (siehe
+    // `HubSwitch.target`).
+    ...(action.target === 'simulator' ? { target: action.target } : {}),
     ...(meta.quelleId ? { quelleId: meta.quelleId } : {}),
     ...(meta.by?.trim() ? { by: meta.by.trim() } : {}),
     ok: ergebnis.ok,

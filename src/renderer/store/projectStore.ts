@@ -93,7 +93,7 @@ import { istCircuitKind } from '../types/circuit'
 import { normalisePatternChecks } from '../types/patternCheck'
 import { normaliseHubSwitches } from '../types/hubSwitch'
 import { normalisePlannedCrosspoints } from '../lib/deviceCrosspoints'
-import { istControlProtocol, istControlRole } from '../types/switcherControl'
+import { istControlProtocol, istControlTarget, istControlRole } from '../types/switcherControl'
 import { pruefeVorlage } from '../lib/textProtocol'
 import { pruefeCompanion } from '../lib/companionControl'
 
@@ -933,6 +933,16 @@ const healProjectPositions = (
       if (item.controlProtocol !== undefined && !istControlProtocol(item.controlProtocol)) {
         onDrop?.({ kind: 'crosspoint', reason: 'invalid-value', label: item.name })
         item = (({ controlProtocol: _weg, ...rest }) => rest)(item) as EquipmentItem
+      }
+      // S-5 — das erklaerte Ziel. Wie beim Protokoll: ein Wert, den dieser
+      // Stand nicht kennt, faellt WEG. Er faellt dabei bewusst auf `'device'`
+      // zurueck und nicht auf `'simulator'` — die Vorgabe muss die
+      // vorsichtige sein: ein Beleg, der faelschlich „Anlage" sagt, laesst
+      // jemanden nachsehen; einer, der faelschlich „Pruefstand" sagt, laesst
+      // ihn es lassen.
+      if (item.controlTarget !== undefined && !istControlTarget(item.controlTarget)) {
+        onDrop?.({ kind: 'crosspoint', reason: 'invalid-value', label: item.name })
+        item = (({ controlTarget: _weg, ...rest }) => rest)(item) as EquipmentItem
       }
       // S-3 — die erklaerte Befehlszeile. Eine Vorlage, die die Pruefung
       // nicht besteht (kein {out}, kein {in}, unbekannter Platzhalter),

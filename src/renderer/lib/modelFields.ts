@@ -187,6 +187,10 @@ export const INSTANCE_FIELDS = [
   // dieselbe Einordnung wie `ipAddress`. In eine Bibliothek uebernommen
   // richteten sie einen Befehl an das Exemplar, von dem abgeschrieben wurde.
   'controlProtocol',
+  // S-5 — auch das ZIEL beschreibt dieses Exemplar. In eine Bibliothek
+  // uebernommen machte es aus jedem daraus angelegten Geraet einen
+  // Pruefstand (oder umgekehrt eine Anlage), und der Beleg loege still.
+  'controlTarget',
   'controlPort',
   'controlText',
   'controlCompanion',
