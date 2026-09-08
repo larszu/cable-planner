@@ -48,6 +48,16 @@ export interface DemandLine {
   quantity: number
   /** Die Plan-Geraete, die diese Zeile ausmachen. */
   equipmentIds: string[]
+  /** Die Plan-Geraete, denen ein Katalog-Typ zugewiesen werden DARF.
+   *
+   *  Nicht dasselbe wie `equipmentIds`, und der Unterschied ist der ganze
+   *  Zweck des Feldes: Ein Rack-Innenleben traegt hier die Id des RACKS
+   *  (mehr weiss der Snapshot nicht), und ein Zusatz-Bedarf gar keine. Wer
+   *  aus `equipmentIds` einen Typ zuwiese, schriebe dem Rack den Typ des
+   *  Geraets in seinem Bauch — die Behauptung, das Rack SEI eine URSA. Nur
+   *  Geraete aus der ersten Phase stehen fuer sich selbst; nur die stehen
+   *  hier. */
+  typeTargetIds: string[]
   /** true, wenn `label` nur der Instanzname ist — dann ist er als
    *  Modellbezeichnung wenig wert, und die UI soll das zeigen koennen. */
   labelIsDeviceName: boolean
@@ -195,6 +205,7 @@ export const deriveDemand = (
     if (existing) {
       existing.quantity += 1
       existing.equipmentIds.push(...zeile.equipmentIds)
+      existing.typeTargetIds.push(...zeile.typeTargetIds)
       if (ausRack && !existing.fromRacks?.includes(ausRack)) {
         existing.fromRacks = [...(existing.fromRacks ?? []), ausRack]
       }
@@ -220,6 +231,9 @@ export const deriveDemand = (
       label,
       ...(eq.category ? { category: eq.category } : {}),
       equipmentIds: [eq.id],
+      // Ein Geraet auf dem Canvas steht fuer sich selbst — es darf den Typ
+      // bekommen, den die Zeile meint.
+      typeTargetIds: [eq.id],
       labelIsDeviceName: !type,
     })
   }
@@ -261,6 +275,10 @@ export const deriveDemand = (
         {
           label: name,
           equipmentIds: [eq.id],
+          // Leer, und zwar mit Absicht: `eq` ist das RACK, nicht das Geraet
+          // in seinem Bauch. Das Geraet hat im Plan kein eigenes
+          // EquipmentItem, dem sich etwas zuweisen liesse.
+          typeTargetIds: [],
           labelIsDeviceName: true,
         },
         eq.name.trim() || eq.id,
@@ -297,6 +315,9 @@ export const deriveDemand = (
       ...(z.category ? { category: z.category } : {}),
       quantity: z.quantity,
       equipmentIds: [],
+      // Drum-Mikrofonierung und Funkstrecken-Plan sind eigene Projektfelder;
+      // es gibt kein EquipmentItem, an dem eine Zuweisung haengen koennte.
+      typeTargetIds: [],
       labelIsDeviceName: !z.deviceTypeId,
       fromPlanParts: [z.herkunft],
     })

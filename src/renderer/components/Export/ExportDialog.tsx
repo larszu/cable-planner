@@ -18,6 +18,7 @@ import jsPDF from 'jspdf'
 import { useUiStore } from '../../store/uiStore'
 import { PacketSection } from './PacketSection'
 import { useProjectStore } from '../../store/projectStore'
+import { listDeviceTypes } from '../../lib/deviceTypeRegistry'
 import { AlertTriangle, Check, Download, Lightbulb, Package as PackageIcon } from 'lucide-react'
 import { useTranslation, format } from '../../lib/i18n'
 import { detectLayerForConnector, type StandardLayer } from '../../lib/cableLayers'
@@ -1558,6 +1559,19 @@ const DeviceBomSection = () => {
   // davon in der Werkstatt standen.
   const units = useEinheiten()
   const typBestaetigen = useTypBestaetigen()
+  // ADR-002, die zweite Haelfte des Auswegs: Der Vorschlag laesst sich auf der
+  // LAGER-Position bestaetigen (`typBestaetigen`) — aber eine Zeile ohne
+  // Katalog-Typ im PLAN blieb ohne Handlung. Sie stand mit „(ohne Katalog-Typ)"
+  // da, und wer das lesen konnte, musste das Geraet auf dem Canvas suchen und
+  // im Eigenschaften-Panel einzeln zuweisen. Bei drei gleichen Kameras dreimal.
+  const updateEquipment = useProjectStore((s) => s.updateEquipment)
+  const katalogTypen = useMemo(() => listDeviceTypes(), [])
+  const typZuweisen = (ids: string[], deviceTypeId: string) => {
+    // Alle Geraete der Zeile in einem Zug: Der Bedarf ist der Typ, gezaehlt.
+    // Eine halb zugewiesene Zeile zerfiele beim naechsten Abgleich in eine
+    // Tatsache und mehrere Vermutungen.
+    for (const id of ids) updateEquipment(id, { deviceTypeId })
+  }
 
   // `drumKit` und `wirelessRig` sind eigene Projektfelder und standen in
   // keiner Stueckliste. Beide tragen echte Katalog-GUIDs; das Zubehoer der
@@ -1634,6 +1648,41 @@ const DeviceBomSection = () => {
                         >
                           {t('export.devicebom.noType', '(ohne Katalog-Typ)')}
                         </span>
+                      )}
+                      {/* Der Ausweg aus „(ohne Katalog-Typ)": ein Griff, der
+                          allen Geraeten dieser Zeile die Katalog-Identitaet
+                          gibt. Ab dann deckt der Abgleich ueber die GUID —
+                          eine Tatsache statt eines Namensvergleichs, und zwar
+                          dauerhaft im Plan, nicht nur in dieser Ansicht.
+
+                          NUR wo es ein Ziel gibt: Rack-Innenleben und
+                          Zusatz-Bedarfe haben kein eigenes EquipmentItem
+                          (`typeTargetIds` ist dort leer). Ein Auswahlfeld,
+                          das dort ins Leere schriebe, waere schlimmer als
+                          keines. */}
+                      {row.modelIsDeviceName && row.typeTargetIds.length > 0 && (
+                        <select
+                          value=""
+                          onChange={(event) => {
+                            if (event.target.value) {
+                              typZuweisen(row.typeTargetIds, event.target.value)
+                            }
+                          }}
+                          className="ml-2 max-w-[14rem] rounded border border-cp-border bg-cp-surface-1 px-1 py-0.5 text-[10px] text-cp-text-secondary"
+                          title={t(
+                            'export.devicebom.assignTitle',
+                            'Schreibt den Katalog-Typ auf alle Geräte dieser Zeile. Danach deckt der Lager-Abgleich über die Katalog-Identität statt über den Namen.',
+                          )}
+                        >
+                          <option value="">
+                            {t('export.devicebom.assign', 'Typ zuweisen…')}
+                          </option>
+                          {katalogTypen.map((c) => (
+                            <option key={c.id} value={c.id}>
+                              {c.category ? `${c.name} · ${c.category}` : c.name}
+                            </option>
+                          ))}
+                        </select>
                       )}
                     </td>
                     <td className={`px-2 py-1 ${OUTCOME_STYLE[row.outcome] ?? ''}`} title={row.reason}>
