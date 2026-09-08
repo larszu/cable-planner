@@ -65,6 +65,7 @@ import { format, useTranslation } from '../../lib/i18n'
 import { useAtemTallyFeed } from '../../hooks/useAtemTallyFeed'
 import { useVideohubLinkFeed } from '../../hooks/useVideohubLinkFeed'
 import { styleForLayer } from '../../lib/cableLayers'
+import { MONO_TINTE, monochromLabel } from '../../lib/monochromeSheet'
 
 const nodeTypes = { equipment: EquipmentNode, location: LocationFrameNode }
 const edgeTypes = { cable: CableEdge }
@@ -143,6 +144,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
   const cableLabelShortForm = useUiStore((state) => state.cableLabelShortForm)
   const canvasTheme = useUiStore((state) => state.canvasTheme)
   const pdfExportThemeOverride = useUiStore((state) => state.pdfExportThemeOverride)
+  const pdfExportMonochrome = useUiStore((state) => state.pdfExportMonochrome)
   const pendingCable = useUiStore((state) => state.pendingCable)
   const addPendingWaypoint = useUiStore((state) => state.addPendingWaypoint)
   const clearPendingCable = useUiStore((state) => state.clearPendingCable)
@@ -507,8 +509,15 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         // unangetastet. Ein Modus, der die gespeicherte Farbe ueberschreibt,
         // nimmt dem Nutzer eine Angabe weg, um eine andere zu zeigen — und
         // beim Zurueckschalten waere sie fort.
-        const strokeColor =
-          cableColorMode === 'byLength'
+        // Bedarf 128 — im monochromen Ausdruck bekommt jeder Strich DIESELBE
+        // Tinte. Nicht sechs Grautoene: die liegen zwischen Audio und Video
+        // 2 von 255 auseinander, und ein Grauton, der fast wie der daneben
+        // aussieht, laedt zum Deuten ein. Wer nichts unterscheiden kann,
+        // soll auch nicht glauben, er koenne es.
+        const monoTinte = MONO_TINTE[(pdfExportThemeOverride ?? 'dark') === 'light' ? 'light' : 'dark']
+        const strokeColor = pdfExportMonochrome
+          ? monoTinte
+          : cableColorMode === 'byLength'
             ? (lengthColor ? lengthColor.color : '#64748b')
             : cableColorMode === 'byLayer'
               ? styleForLayer(item.layer).color
@@ -544,11 +553,17 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
             const base = `${displayName} (${item.length}m)`
             // Auto-Kabelnummerierung: Nummer als [Nr]-Praefix voranstellen.
             const numbered = item.cableNumber ? `[${item.cableNumber}] ${base}` : base
-            return item.needsConverter ? `${numbered} ⚠ converter` : numbered
+            const fertig = item.needsConverter ? `${numbered} ⚠ converter` : numbered
+            // Bedarf 128 — die Ebene im Klartext, weil die Farbe sie auf
+            // Papier nicht mehr traegt. ANGEHAENGT, nicht ersetzend: Name,
+            // Nummer und Laenge bleiben stehen. Das Strichmuster kam dafuer
+            // nicht in Frage — es gehoert schon `cable.dashed` und dem
+            // Laengen-Modus.
+            return pdfExportMonochrome ? monochromLabel(fertig, item.layer) : fertig
           })(),
         }
       }),
-    [project.cables, cableColorMode, cableLabelShortForm, pdfExportThemeOverride],
+    [project.cables, cableColorMode, cableLabelShortForm, pdfExportThemeOverride, pdfExportMonochrome],
   )
 
   // Helper: check if equipment position overlaps with others.
