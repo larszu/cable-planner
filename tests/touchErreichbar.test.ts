@@ -89,46 +89,76 @@ describe('Was nur beim Darueberfahren erscheint, erscheint auf Touch trotzdem', 
 
 describe('Was am Rechtsklick haengt, haengt nicht nur daran', () => {
   /**
-   * Die eine Stelle, die den langen Druck NICHT bekommt — mit Grund.
+   * DIE AUSNAHMENLISTE IST LEER — und das ist der Punkt.
    *
-   * Am Kabel-Wegpunkt sitzt auf demselben `pointerdown` bereits das ZIEHEN.
-   * Ein langer Druck daneben hiesse: wer den Punkt anfasst und einen Moment
-   * zoegert, bevor er zieht, hat ihn geloescht. Das ist ein zerstoerender
-   * Fehlgriff, und er waere haeufig.
+   * Sie enthielt `components/Canvas/CableWaypoints.tsx`, mit Grund: dort
+   * sitzt auf demselben `pointerdown` bereits das ZIEHEN, und ein langer
+   * Druck daneben hiesse „wer den Punkt anfasst und einen Moment zoegert,
+   * hat ihn geloescht". Das ist ein zerstoerender Fehlgriff, und er waere
+   * haeufig.
    *
-   * Der Weg dorthin ist deshalb ein anderer und noch offen (B-44): auf einem
-   * groben Zeiger ein sichtbarer kleiner Loeschgriff am Punkt, statt einer
-   * verborgenen Geste. Bis dahin steht die Luecke hier — benannt, nicht
-   * vergessen.
+   * Geloest wurde er nicht mit dem langen Druck, sondern mit dem anderen Weg,
+   * der schon damals als der richtige benannt war: einem SICHTBAREN kleinen
+   * Loeschgriff, den es nur auf grobem Zeiger gibt (`.cp-coarse-only`).
+   * Damit ist die Ausnahme gestrichen — genau wie es die Zusicherung
+   * darunter verlangt hat.
    */
-  const OHNE_LANGEN_DRUCK = ['components/Canvas/CableWaypoints.tsx']
+  const OHNE_ZWEITEN_WEG: string[] = []
 
-  it('jede andere Rechtsklick-Funktion hat einen zweiten Weg', () => {
+  /**
+   * Was als zweiter Weg zaehlt.
+   *
+   * Die erste Fassung fragte nach `useLongPress` — nach EINEM Bauteil also,
+   * nicht nach der Eigenschaft. Damit haette der Loeschgriff am Wegpunkt als
+   * Luecke gegolten, obwohl er die bessere Antwort ist. Die Regel lautet:
+   * es gibt einen Weg ohne Rechtsklick. Wie er aussieht, entscheidet die
+   * Stelle.
+   */
+  const ZWEITE_WEGE = ['useLongPress', 'cp-coarse-only']
+
+  it('jede Rechtsklick-Funktion hat einen zweiten Weg', () => {
     const nurRechtsklick = quellen()
       .filter((q) => /onContextMenu=\{\(e\) => \{/.test(q.text))
-      .filter((q) => !q.text.includes('useLongPress'))
+      .filter((q) => !ZWEITE_WEGE.some((w) => q.text.includes(w)))
       .map((q) => q.datei)
-      .filter((d) => !OHNE_LANGEN_DRUCK.includes(d))
+      .filter((d) => !OHNE_ZWEITEN_WEG.includes(d))
     expect(
       nurRechtsklick,
       'Diese Dateien binden eine Funktion an den Rechtsklick, ohne zweiten Weg. ' +
-        'Auf einem Tablet gibt es sie damit nicht. `useLongPress` benutzen — oder ' +
-        'hier mit Grund eintragen, wie beim Kabel-Wegpunkt.',
+        'Auf einem Tablet gibt es sie damit nicht. `useLongPress` benutzen, oder ' +
+        'einen sichtbaren Griff mit `cp-coarse-only` — oder hier mit Grund eintragen.',
     ).toEqual([])
   })
 
-  it('die benannte Ausnahme ist auch wirklich eine', () => {
+  it('jede benannte Ausnahme ist auch wirklich eine', () => {
     // Sonst bliebe sie stehen, nachdem sie geloest wurde — und der naechste
-    // haelt eine erledigte Sache fuer offen.
-    for (const datei of OHNE_LANGEN_DRUCK) {
+    // haelt eine erledigte Sache fuer offen. Die Liste ist derzeit leer; die
+    // Zusicherung bleibt, damit die naechste Ausnahme dieselbe Pflicht hat.
+    for (const datei of OHNE_ZWEITEN_WEG) {
       const text = readFileSync(join(RENDERER, ...datei.split('/')), 'utf8')
-      expect(text, `${datei} hat den langen Druck jetzt — Ausnahme streichen`).not.toContain(
-        'useLongPress',
+      expect(text, `${datei} hat jetzt einen zweiten Weg — Ausnahme streichen`).not.toMatch(
+        new RegExp(ZWEITE_WEGE.join('|')),
       )
       expect(text, `${datei} hat kein Kontextmenue mehr — Ausnahme streichen`).toMatch(
         /onContextMenu/,
       )
     }
+  })
+
+  it('der Loeschgriff am Kabel-Wegpunkt ist sichtbar und nicht verborgen', () => {
+    // Der Grund, warum er hier KEIN langer Druck ist, steht im Kopf dieses
+    // Blocks. Diese Zusicherung haelt fest, dass es auch dabei bleibt.
+    const wp = readFileSync(join(RENDERER, 'components', 'Canvas', 'CableWaypoints.tsx'), 'utf8')
+    expect(wp).toContain('cp-coarse-only')
+    expect(wp, 'am Wegpunkt darf KEIN langer Druck sitzen — dort zieht man').not.toContain(
+      'useLongPress',
+    )
+  })
+
+  it('und die Klasse dafuer gibt es, mit der Abfrage nach dem groben Zeiger', () => {
+    expect(cssSrc).toMatch(/\.cp-coarse-only\s*\{/)
+    const block = cssSrc.slice(cssSrc.indexOf('@media (pointer: coarse)'))
+    expect(block).toMatch(/cp-coarse-only/)
   })
 })
 

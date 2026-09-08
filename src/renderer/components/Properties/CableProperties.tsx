@@ -914,7 +914,7 @@ export const CableProperties = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-1">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-1">
         <label className="flex items-center gap-1">
           <input
             type="checkbox"

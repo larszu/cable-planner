@@ -151,7 +151,7 @@ export const DocumentLogDialog = ({ open, onClose }: DocumentLogDialogProps) => 
         )}
 
         {entries.length > 0 && (
-          <table className="w-full text-cp-xs">
+          <table className="block overflow-x-auto w-full text-cp-xs">
             <thead className="text-cp-text-secondary">
               <tr>
                 <th className="px-2 py-1 text-left">{t('doclog.col.doc', 'Dokument')}</th>

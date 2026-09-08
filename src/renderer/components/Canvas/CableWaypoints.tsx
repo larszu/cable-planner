@@ -412,6 +412,59 @@ export const CableWaypoints = ({
           <title>{t('cable.waypoint.tooltip', 'Ziehen zum Verschieben · Alt+Klick oder Rechtsklick zum Entfernen')}</title>
         </circle>
       ))}
+
+      {/* ── B-44 Teil 3: der sichtbare Loeschgriff fuer grobe Zeiger ──
+          Auf einem Tablet gibt es weder Alt+Klick noch Rechtsklick, und ein
+          LANGER DRUCK waere hier der falsche Weg: auf demselben `pointerdown`
+          sitzt das Ziehen, wer also den Punkt anfasst und einen Moment
+          zoegert, haette ihn geloescht. Das ist ein zerstoerender Fehlgriff,
+          und er waere haeufig.
+
+          Deshalb ein eigener kleiner Griff daneben — sichtbar statt
+          verborgen, und nur dort, wo es keinen Rechtsklick gibt
+          (`.cp-coarse-only` in index.css). */}
+      {selected && waypoints.map((wp, index) => (
+        <g key={`wp-del-${index}`} className="cp-coarse-only">
+          <circle
+            cx={wp.x + HANDLE_SIZE}
+            cy={wp.y - HANDLE_SIZE}
+            r={HANDLE_SIZE * 0.7}
+            fill="#b91c1c"
+            stroke={isLight ? '#e2e8f0' : '#0f172a'}
+            strokeWidth={1.5}
+            style={{ cursor: 'pointer' }}
+            onPointerDown={(e) => {
+              // `stopPropagation`, sonst faengt der Ziehen-Griff darunter das
+              // Ereignis und der Punkt wandert, statt zu verschwinden.
+              e.stopPropagation()
+              e.preventDefault()
+              const next = waypoints.slice()
+              next.splice(index, 1)
+              updateCable(cable.id, { waypoints: next.length ? next : undefined })
+            }}
+          >
+            <title>{t('cable.waypoint.remove', 'Wegpunkt entfernen')}</title>
+          </circle>
+          <line
+            x1={wp.x + HANDLE_SIZE - 3}
+            y1={wp.y - HANDLE_SIZE - 3}
+            x2={wp.x + HANDLE_SIZE + 3}
+            y2={wp.y - HANDLE_SIZE + 3}
+            stroke="#fff"
+            strokeWidth={1.5}
+            pointerEvents="none"
+          />
+          <line
+            x1={wp.x + HANDLE_SIZE + 3}
+            y1={wp.y - HANDLE_SIZE - 3}
+            x2={wp.x + HANDLE_SIZE - 3}
+            y2={wp.y - HANDLE_SIZE + 3}
+            stroke="#fff"
+            strokeWidth={1.5}
+            pointerEvents="none"
+          />
+        </g>
+      ))}
     </g>
   )
 }

@@ -190,7 +190,7 @@ const ProjectionCalcCore = () => {
           <p className="text-cp-xs text-cp-text-muted">
             {t('calc.projection.led.intro', 'Auflösung einer LED-Wand aus Pixel-Pitch und physischer Größe.')}
           </p>
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <NumField label={t('calc.projection.pitch', 'Pixel-Pitch')} value={pitch} onChange={setPitch} step={0.1} suffix="mm" />
             <NumField label={t('calc.projection.ledWidth', 'Breite')} value={ledW} onChange={setLedW} suffix="m" />
             <NumField label={t('calc.projection.ledHeight', 'Höhe')} value={ledH} onChange={setLedH} suffix="m" />
