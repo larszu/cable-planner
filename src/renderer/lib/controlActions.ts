@@ -45,6 +45,12 @@ import {
 } from '../types/switcherControl'
 import type { HubKreuzpunkt } from './patternRouting'
 import { buildCrosspointCommand, kreuzpunktKlartext } from './videohubCrosspoint'
+import {
+  TextVorlagenFehler,
+  lesbar,
+  renderTextCommand,
+  type TextKreuzpunkt,
+} from './textProtocol'
 
 export interface ControlHindernis {
   equipmentId: string
@@ -193,6 +199,98 @@ export const atemBefehlText = (b: AtemBefehl): string => {
   return `cut(ME ${b.me + 1})`
 }
 
+/**
+ * Der Befehl fuer ein erklaertes Text-Protokoll.
+ *
+ * Hier steht KEINE Protokollkenntnis — nur die Vorlage, die der Nutzer aus
+ * seinem Handbuch eingetragen hat. Das ist der ganze Punkt: was die App
+ * ueber ein fremdes Protokoll nicht weiss, erfindet sie auch nicht.
+ *
+ * Die Vorschau ist die LESBARE Form (`lesbar`), weil ein unsichtbares STX
+ * vor der Zeile genau der Unterschied zwischen „verstanden" und „keine
+ * Antwort" ist. Der Dialog beschriftet sie entsprechend; ueber die Leitung
+ * geht `rohtext`.
+ */
+const textAction = (
+  device: EquipmentItem,
+  punkte: readonly HubKreuzpunkt[],
+): ControlAction | ControlHindernis => {
+  const host = device.ipAddress?.trim() ?? ''
+  if (!host) {
+    return {
+      equipmentId: device.id,
+      equipmentName: device.name,
+      grund: `Für „${device.name}" ist keine IP-Adresse hinterlegt (Eigenschaften des Geräts).`,
+    }
+  }
+  const config = device.controlText
+  if (!config) {
+    return {
+      equipmentId: device.id,
+      equipmentName: device.name,
+      grund: `Für „${device.name}" ist keine Befehlszeile eingetragen (Eigenschaften → Schaltung). Sie steht im Handbuch des Geräts — geraten wird sie nicht.`,
+    }
+  }
+  if (!device.controlPort) {
+    return {
+      equipmentId: device.id,
+      equipmentName: device.name,
+      grund: `Für „${device.name}" ist kein Port eingetragen. Welchen das Gerät benutzt, steht im Handbuch.`,
+    }
+  }
+  const kreuz: TextKreuzpunkt[] = []
+  for (const k of punkte) {
+    const outputIndex = portIndex(device.outputs, k.outputPortId)
+    const inputIndex = portIndex(device.inputs, k.inputPortId)
+    if (outputIndex < 0 || inputIndex < 0) {
+      return {
+        equipmentId: device.id,
+        equipmentName: device.name,
+        grund: `„${device.name}": der Anschluss „${outputIndex < 0 ? k.outputName : k.inputName}" gehört nicht mehr zum Gerät.`,
+      }
+    }
+    const outAddr = device.outputs[outputIndex].control?.address
+    const inAddr = device.inputs[inputIndex].control?.address
+    if (config.nummern === 'declared' && (outAddr === undefined || inAddr === undefined)) {
+      return {
+        equipmentId: device.id,
+        equipmentName: device.name,
+        grund: `„${device.name}": dem Anschluss „${outAddr === undefined ? k.outputName : k.inputName}" fehlt die Nummer am Gerät (Anschlüsse → Steuerung).`,
+      }
+    }
+    kreuz.push({
+      outputIndex,
+      inputIndex,
+      ...(outAddr !== undefined ? { outputAddress: outAddr } : {}),
+      ...(inAddr !== undefined ? { inputAddress: inAddr } : {}),
+    })
+  }
+  let rohtext: string
+  try {
+    rohtext = renderTextCommand(config, kreuz)
+  } catch (e) {
+    return {
+      equipmentId: device.id,
+      equipmentName: device.name,
+      grund:
+        e instanceof TextVorlagenFehler
+          ? `„${device.name}": ${e.message}`
+          : `„${device.name}": die Befehlszeile lässt sich nicht bilden.`,
+    }
+  }
+  return {
+    protocol: 'text',
+    equipmentId: device.id,
+    equipmentName: device.name,
+    host,
+    port: device.controlPort,
+    art: 'text-vorlage',
+    vorschau: lesbar(rohtext),
+    rohtext,
+    ...(config.quittung?.trim() ? { quittung: config.quittung.trim() } : {}),
+  }
+}
+
 const istHindernis = (v: ControlAction | ControlHindernis): v is ControlHindernis =>
   Object.prototype.hasOwnProperty.call(v, 'grund')
 
@@ -232,7 +330,11 @@ export const controlActions = (
       continue
     }
     const ergebnis =
-      protokoll === 'videohub' ? videohubAction(device, punkte) : atemAction(device, punkte)
+      protokoll === 'videohub'
+        ? videohubAction(device, punkte)
+        : protokoll === 'atem'
+          ? atemAction(device, punkte)
+          : textAction(device, punkte)
     if (istHindernis(ergebnis)) hindernisse.push(ergebnis)
     else actions.push(ergebnis)
   }
@@ -262,12 +364,21 @@ export const actionKlartext = (
       }),
     )
   }
-  return action.befehle.map((b, i) => {
-    const k = meine[i]
-    const ziel = k?.outputName ? `${ATEM_BEFEHL_LABEL[b.kind]} „${k.outputName}"` : ATEM_BEFEHL_LABEL[b.kind]
-    const quelle = k?.inputName ? `„${k.inputName}"` : 'Quelle'
-    return `${ziel} auf ${quelle} — ${atemBefehlText(b)}`
-  })
+  if (action.protocol === 'atem') {
+    return action.befehle.map((b, i) => {
+      const k = meine[i]
+      const ziel = k?.outputName
+        ? `${ATEM_BEFEHL_LABEL[b.kind]} „${k.outputName}"`
+        : ATEM_BEFEHL_LABEL[b.kind]
+      const quelle = k?.inputName ? `„${k.inputName}"` : 'Quelle'
+      return `${ziel} auf ${quelle} — ${atemBefehlText(b)}`
+    })
+  }
+  // Text-Protokoll: die App kennt die Bedeutung der Zeile NICHT — sie kennt
+  // nur die Anschluesse. Also nennt der Satz die Anschluesse, und die Zeile
+  // selbst steht darunter in der Vorschau. Eine erfundene Deutung („setzt
+  // Ausgang 3") waere eine Behauptung ueber ein fremdes Protokoll.
+  return meine.map((k) => `„${k.outputName}" auf „${k.inputName}"`)
 }
 
 /**
@@ -325,6 +436,19 @@ export const eintraegeFuerAction = (
     ...(meta.by?.trim() ? { by: meta.by.trim() } : {}),
     ok: ergebnis.ok,
     ...(ergebnis.message ? { message: ergebnis.message } : {}),
+  }
+  if (action.protocol === 'text') {
+    return meine.map((k) => ({
+      ...gemeinsam,
+      // Beim erklaerten Text-Protokoll kennt die App die Nummern des Geraets
+      // nicht sicher — sie kennt die POSITIONEN. Genau die stehen hier, und
+      // `befehl` traegt die Zeile, die wirklich gesendet wurde.
+      output: -1,
+      input: -1,
+      outputName: k.outputName,
+      inputName: k.inputName,
+      befehl: action.vorschau.trim(),
+    }))
   }
   if (action.protocol === 'videohub') {
     return action.punkte.map((p, i) => ({

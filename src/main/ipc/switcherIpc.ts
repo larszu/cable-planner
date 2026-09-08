@@ -23,7 +23,11 @@ export const registerSwitcherIpc = () => {
     if (!action || typeof action !== 'object') {
       return { ok: false, message: 'Kein Befehl übergeben.' }
     }
-    if (action.protocol !== 'videohub' && action.protocol !== 'atem') {
+    if (
+      action.protocol !== 'videohub' &&
+      action.protocol !== 'atem' &&
+      action.protocol !== 'text'
+    ) {
       return { ok: false, message: `Unbekanntes Protokoll „${String((action as { protocol?: unknown }).protocol)}".` }
     }
     return sendControlAction(action)

@@ -188,6 +188,7 @@ export const INSTANCE_FIELDS = [
   // richteten sie einen Befehl an das Exemplar, von dem abgeschrieben wurde.
   'controlProtocol',
   'controlPort',
+  'controlText',
   'notes',
 
   // Herkunft dieses Exemplars

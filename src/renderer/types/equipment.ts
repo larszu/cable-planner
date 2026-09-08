@@ -569,6 +569,12 @@ export interface EquipmentItem {
   /** Abweichender Steuer-Port. Ohne Angabe gilt der des Protokolls; wo das
    *  Protokoll den Port selbst festlegt (ATEM), wird das Feld ignoriert. */
   controlPort?: number
+  /** S-3 — die erklaerte Form der Befehlszeile, wenn `controlProtocol` auf
+   *  `'text'` steht. Sie kommt aus dem HANDBUCH des Geraets und nicht aus
+   *  einer Vermutung: Zeilenform, Zeilenende, Zaehlweise und ein moegliches
+   *  Vorzeichen sind vier Angaben, die dort stehen. Damit ist jedes
+   *  textgesteuerte Geraet bedienbar, ohne dass ein Byte erfunden wird. */
+  controlText?: import('../lib/textProtocol').TextProtocolConfig
   /** ADR-001 — Rolle, die dieses Geraet realisiert („Kamera 1"). Zeigt auf
    *  `CablePlannerProject.sourceIdentities`. Mehrere Geraete duerfen dieselbe
    *  Rolle tragen: das Haupt-/Backup-Paar ist EINE Rolle, nicht zwei. */

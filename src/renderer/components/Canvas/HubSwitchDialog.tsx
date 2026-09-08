@@ -179,13 +179,18 @@ export function HubSwitchDialog({ onClose }: { onClose: () => void }) {
                     <div className="mt-2 text-[11px] text-cp-text-muted">
                       {a.art === 'text'
                         ? t('canvas.hubSwitch.sentText', 'Wortwörtlich gesendet:')
-                        : t('canvas.hubSwitch.sentCalls', 'Gesendete Befehle (kein Text-Protokoll):')}
+                        : a.art === 'text-vorlage'
+                          ? t(
+                              'canvas.hubSwitch.sentDeclared',
+                              'Gesendet (Steuerzeichen benannt, aus Ihrer Befehlszeile):',
+                            )
+                          : t('canvas.hubSwitch.sentCalls', 'Gesendete Befehle (kein Text-Protokoll):')}
                     </div>
                     <pre className="mt-1 overflow-x-auto rounded bg-cp-surface-3 p-2 text-[11px] leading-tight">
                       {a.vorschau}
                     </pre>
                     <div className="mt-1 text-[11px] text-cp-text-muted">
-                      {a.art === 'text' ? `${a.host}:${a.port}` : a.host}
+                      {a.art === 'aufruf' ? a.host : `${a.host}:${a.port}`}
                     </div>
                   </div>
                 ))}

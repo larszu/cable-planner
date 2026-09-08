@@ -33,7 +33,7 @@
  */
 
 /** Die Protokolle, die diese App sprechen kann. */
-export type ControlProtocol = 'videohub' | 'atem'
+export type ControlProtocol = 'videohub' | 'atem' | 'text'
 
 /**
  * Was ein ANSCHLUSS im Protokoll ist.
@@ -118,6 +118,18 @@ export const PROTOCOL_INFO = {
     hinweis:
       'Der Mischer spricht kein Text-Protokoll; gesendet wird über die ATEM-Bibliothek. Jeder Anschluss braucht seine Nummer am Mischer — die Position in der Liste sagt sie NICHT, weil Aux-Ausgänge und Mediaplayer dort in einem anderen Zahlenraum liegen.',
   },
+  text: {
+    label: 'Erklärtes Text-Protokoll (Ross, Panasonic, Roland, Quartz …)',
+    defaultPort: 0,
+    // Woher die Nummern kommen, entscheidet die Konfiguration selbst
+    // (`nummern: 'position' | 'declared'`) — deshalb steht hier weder das
+    // eine noch das andere fest. `declared` ist die vorsichtigere Angabe:
+    // sie verlangt nichts, was nicht eingetragen ist.
+    adressen: 'declared',
+    rollen: ['input', 'crosspoint-output'],
+    hinweis:
+      'Für jedes Gerät, das zeilenorientierten Text über TCP versteht. Die Form der Zeile, das Zeilenende und die Zählweise stehen im Handbuch des Geräts und werden hier eingetragen — geraten wird nichts, und vor dem Senden steht der Text wortwörtlich im Dialog.',
+  },
 } satisfies Record<ControlProtocol, ProtocolInfo>
 
 export const CONTROL_PROTOCOLS = Object.keys(PROTOCOL_INFO) as ControlProtocol[]
@@ -134,6 +146,20 @@ export const istControlProtocol = (v: unknown): v is ControlProtocol =>
  * ein „gesendeter Text" für ein Binärprotokoll wäre eine Erfindung.
  */
 export type ControlAction =
+  | {
+      protocol: 'text'
+      equipmentId: string
+      equipmentName: string
+      host: string
+      port: number
+      /** Die LESBARE Form — Steuerzeichen benannt. Siehe `lesbar`. */
+      vorschau: string
+      art: 'text-vorlage'
+      /** Was wirklich über die Leitung geht. */
+      rohtext: string
+      /** Teilzeichenkette, die als Bestätigung gilt. Leer = keine erwartet. */
+      quittung?: string
+    }
   | {
       protocol: 'videohub'
       equipmentId: string

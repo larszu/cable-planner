@@ -89,6 +89,12 @@ const HARMLOS = new Set(
     'steuersatz', 'steuersätze', 'steuerbetrag', 'mehrwertsteuer', 'umsatzsteuer',
     'steuerbar', 'steuerbare', 'steuerbaren', 'steuerbares',
     'steuerung', 'steueradern', 'steuerverkehr', 'geraetesteuerung', 'frequenz',
+    // S-3 (2026-09-08): „Steuerzeichen" ist richtiges Deutsch und wurde
+    // gemeldet — die Silbengrenze faellt in „Ste-uer" mitten in ein „ue".
+    // Dasselbe gilt fuer die uebrigen Zusammensetzungen mit „Steuer-", die
+    // in dieser Liste noch fehlten.
+    'steuerzeichen', 'steuerbefehl', 'steuerbefehle', 'steuerprotokoll',
+    'steuerprotokolle', 'steuerport', 'steuerweg', 'steuerwege',
     'frequenzen', 'frequenzgang', 'frequenzabstand', 'funkfrequenz',
     'sendefrequenz', 'bauen', 'dauerhaft', 'dauerhafte', 'genaue', 'teuerste',
     'auszugrauen', 'koexistenz', 'manuell', 'manuelle', 'manuellen', 'individuell',

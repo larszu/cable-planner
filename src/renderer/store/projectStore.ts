@@ -94,6 +94,7 @@ import { normalisePatternChecks } from '../types/patternCheck'
 import { normaliseHubSwitches } from '../types/hubSwitch'
 import { normalisePlannedCrosspoints } from '../lib/deviceCrosspoints'
 import { istControlProtocol, istControlRole } from '../types/switcherControl'
+import { pruefeVorlage } from '../lib/textProtocol'
 
 const CUSTOM_LIB_KEY = STORAGE_KEYS.customLibrary
 const PROJECT_AUTOSAVE_KEY = STORAGE_KEYS.projectAutosave
@@ -931,6 +932,19 @@ const healProjectPositions = (
       if (item.controlProtocol !== undefined && !istControlProtocol(item.controlProtocol)) {
         onDrop?.({ kind: 'crosspoint', reason: 'invalid-value', label: item.name })
         item = (({ controlProtocol: _weg, ...rest }) => rest)(item) as EquipmentItem
+      }
+      // S-3 — die erklaerte Befehlszeile. Eine Vorlage, die die Pruefung
+      // nicht besteht (kein {out}, kein {in}, unbekannter Platzhalter),
+      // faellt WEG statt stehenzubleiben: sie stuende sonst in der
+      // Oberflaeche wie eine gueltige Angabe, und der Fehler faellt erst
+      // beim Senden auf — vor dem Geraet, unter Zeitdruck.
+      if (item.controlText !== undefined) {
+        try {
+          pruefeVorlage(item.controlText)
+        } catch {
+          onDrop?.({ kind: 'crosspoint', reason: 'invalid-value', label: item.name })
+          item = (({ controlText: _weg, ...rest }) => rest)(item) as EquipmentItem
+        }
       }
       // Dito je Anschluss: eine unbekannte Rolle oder eine krumme Nummer
       // ergaebe einen Befehl an einen Bus, den es nicht gibt.

@@ -43,6 +43,18 @@ export type AtemBefehl =
  */
 export type ControlAction =
   | {
+      protocol: 'text'
+      equipmentId: string
+      equipmentName: string
+      host: string
+      port: number
+      vorschau: string
+      art: 'text-vorlage'
+      /** Was wirklich ueber die Leitung geht — mit Steuerzeichen. */
+      rohtext: string
+      quittung?: string
+    }
+  | {
       protocol: 'videohub'
       equipmentId: string
       equipmentName: string

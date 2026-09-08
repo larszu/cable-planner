@@ -1,6 +1,7 @@
 import type { ControlAction, ControlResult, SwitcherDriver } from './types.js'
 import { videohubDriver } from './videohubDriver.js'
 import { atemDriver } from './atemDriver.js'
+import { textDriver } from './textDriver.js'
 
 export type { ControlAction, ControlResult, SwitcherDriver } from './types.js'
 
@@ -16,6 +17,7 @@ export type { ControlAction, ControlResult, SwitcherDriver } from './types.js'
 const TREIBER = {
   videohub: videohubDriver,
   atem: atemDriver,
+  text: textDriver,
 } satisfies Record<ControlAction['protocol'], SwitcherDriver>
 
 export const sendControlAction = async (action: ControlAction): Promise<ControlResult> => {

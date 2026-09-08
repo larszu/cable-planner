@@ -9,6 +9,18 @@ import {
   type ControlProtocol,
   type ControlRole,
 } from '../../../types/switcherControl'
+import {
+  LEERE_TEXT_KONFIG,
+  TEXT_VORLAGEN,
+  ZEILEN_ANFANG,
+  ZEILEN_ENDE,
+  lesbar,
+  pruefeVorlage,
+  renderTextCommand,
+  type TextProtocolConfig,
+  type ZeilenAnfang,
+  type ZeilenEnde,
+} from '../../../lib/textProtocol'
 import { portDisplayLabel } from '../../../lib/portLabel'
 import { SortableSection } from '../SortableSection'
 import { PanelHint } from '../../shared/PanelHint'
@@ -65,7 +77,37 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
   // Nur wo das Protokoll die Nummern NICHT selbst festlegt, gibt es etwas
   // einzutragen. Beim Videohub ist die Position die Nummer — ein Feld dafuer
   // waere eine Einladung, sie zu verstellen.
-  const brauchtAdressen = info?.adressen === 'declared'
+  const textKonfig = equipment.controlText
+  const istText = protokoll === 'text'
+  // Beim Text-Protokoll entscheidet die Konfiguration selbst, woher die
+  // Nummern kommen — `PROTOCOL_INFO` kann das nicht wissen.
+  const brauchtAdressen = istText
+    ? textKonfig?.nummern === 'declared'
+    : info?.adressen === 'declared'
+
+  const setzeText = (patch: Partial<TextProtocolConfig>) => {
+    updateEquipment(equipment.id, {
+      controlText: { ...LEERE_TEXT_KONFIG, ...textKonfig, ...patch },
+    })
+  }
+
+  // Die Probe: was ginge fuer den ERSTEN Ausgang raus. Sie steht neben dem
+  // Feld, weil eine Vorlage ohne sichtbares Ergebnis eine Vermutung bleibt —
+  // und weil ein unsichtbares Steuerzeichen genau der Unterschied zwischen
+  // „das Geraet versteht es" und „das Geraet antwortet nicht" ist.
+  const probe = (() => {
+    if (!istText || !textKonfig) return null
+    try {
+      pruefeVorlage(textKonfig)
+      return lesbar(
+        renderTextCommand(textKonfig, [
+          { outputIndex: 0, inputIndex: 1, outputAddress: 1, inputAddress: 2 },
+        ]),
+      ).trim()
+    } catch (e) {
+      return e instanceof Error ? `⚠ ${e.message}` : null
+    }
+  })()
 
   const setzeAdresse = (
     portId: string,
@@ -182,6 +224,167 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
               </label>
             ))}
           </div>
+
+          {istText && (
+            <div className="mt-3 space-y-2">
+              <label className="block text-cp-xs">
+                <span className="mb-1 block text-cp-text-muted">
+                  {t('switching.textTemplate', 'Befehlszeile (aus dem Handbuch des Geräts)')}
+                </span>
+                <input
+                  className="w-full rounded border border-cp-border bg-cp-surface-2 px-2 py-1 font-mono text-cp-text"
+                  value={textKonfig?.vorlage ?? ''}
+                  placeholder=".S{level}{out},{in}"
+                  onChange={(e) => setzeText({ vorlage: e.target.value })}
+                />
+              </label>
+
+              <div className="flex flex-wrap items-end gap-2 text-cp-xs">
+                <label>
+                  <span className="mb-1 block text-cp-text-muted">
+                    {t('switching.textStart', 'Zeilenanfang')}
+                  </span>
+                  <select
+                    className="rounded border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
+                    value={textKonfig?.anfang ?? 'none'}
+                    onChange={(e) => setzeText({ anfang: e.target.value as ZeilenAnfang })}
+                  >
+                    {(Object.keys(ZEILEN_ANFANG) as ZeilenAnfang[]).map((k) => (
+                      <option key={k} value={k}>
+                        {ZEILEN_ANFANG[k].label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  <span className="mb-1 block text-cp-text-muted">
+                    {t('switching.textEnd', 'Zeilenende')}
+                  </span>
+                  <select
+                    className="rounded border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
+                    value={textKonfig?.ende ?? 'cr'}
+                    onChange={(e) => setzeText({ ende: e.target.value as ZeilenEnde })}
+                  >
+                    {(Object.keys(ZEILEN_ENDE) as ZeilenEnde[]).map((k) => (
+                      <option key={k} value={k}>
+                        {ZEILEN_ENDE[k].label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  <span className="mb-1 block text-cp-text-muted">
+                    {t('switching.textBase', 'Zählt ab')}
+                  </span>
+                  <select
+                    className="rounded border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
+                    value={String(textKonfig?.basis ?? 1)}
+                    onChange={(e) => setzeText({ basis: e.target.value === '0' ? 0 : 1 })}
+                  >
+                    <option value="0">0</option>
+                    <option value="1">1</option>
+                  </select>
+                </label>
+                <label>
+                  <span className="mb-1 block text-cp-text-muted">
+                    {t('switching.textNumbers', 'Nummern')}
+                  </span>
+                  <select
+                    className="rounded border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
+                    value={textKonfig?.nummern ?? 'position'}
+                    onChange={(e) =>
+                      setzeText({ nummern: e.target.value === 'declared' ? 'declared' : 'position' })
+                    }
+                  >
+                    <option value="position">
+                      {t('switching.textNumbersPos', 'Position in der Liste')}
+                    </option>
+                    <option value="declared">
+                      {t('switching.textNumbersDecl', 'je Anschluss eingetragen')}
+                    </option>
+                  </select>
+                </label>
+                <label>
+                  <span className="mb-1 block text-cp-text-muted">
+                    {t('switching.textLevel', 'Ebene')}
+                  </span>
+                  <input
+                    className="w-14 rounded border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
+                    value={textKonfig?.level ?? ''}
+                    onChange={(e) => setzeText({ level: e.target.value })}
+                  />
+                </label>
+                <label>
+                  <span className="mb-1 block text-cp-text-muted">
+                    {t('switching.textAck', 'Quittung')}
+                  </span>
+                  <input
+                    className="w-20 rounded border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
+                    value={textKonfig?.quittung ?? ''}
+                    placeholder={t('switching.textAckNone', 'keine')}
+                    onChange={(e) => setzeText({ quittung: e.target.value })}
+                  />
+                </label>
+                <label>
+                  <span className="mb-1 block text-cp-text-muted">
+                    {t('switching.textPort', 'Port')}
+                  </span>
+                  <input
+                    type="number"
+                    className="w-20 rounded border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
+                    value={equipment.controlPort ?? ''}
+                    onChange={(e) => {
+                      const n = parseInt(e.target.value, 10)
+                      updateEquipment(equipment.id, {
+                        controlPort: Number.isInteger(n) && n > 0 ? n : undefined,
+                      })
+                    }}
+                  />
+                </label>
+              </div>
+
+              {probe && (
+                <div className="text-cp-xs">
+                  <span className="text-cp-text-muted">
+                    {t('switching.textProbe', 'So ginge es raus (Ausgang 1, Eingang 2):')}
+                  </span>{' '}
+                  <code className="rounded bg-cp-surface-3 px-1">{probe}</code>
+                </div>
+              )}
+
+              {/* Vorlagen als STARTPUNKT, mit ihrer Herkunft. Eine Vorlage aus
+                  dem Gedaechtnis waere schlimmer als keine: sie saehe aus wie
+                  geprueftes Wissen und ginge als Befehl raus. */}
+              <div className="flex flex-wrap items-center gap-1 text-cp-xs">
+                <span className="text-cp-text-muted">
+                  {t('switching.textPresets', 'Vorlage übernehmen:')}
+                </span>
+                {TEXT_VORLAGEN.map((v) => (
+                  <button
+                    key={v.id}
+                    type="button"
+                    title={v.herkunft}
+                    onClick={() => {
+                      updateEquipment(equipment.id, {
+                        controlText: { ...v.config },
+                        controlPort: v.port,
+                      })
+                    }}
+                    className="av-focus rounded border border-cp-border px-1.5 py-0.5 hover:bg-cp-surface-3"
+                  >
+                    {v.label}
+                  </button>
+                ))}
+              </div>
+              <PanelHint
+                className="text-cp-xs text-cp-text-muted"
+                text={t(
+                  'switching.textHint',
+                  'Die Vorlagen sind ein Startpunkt und keine Zusicherung — ihre Herkunft steht im Tooltip, und sie gehören gegen das Handbuch geprüft. Vor dem Senden zeigt der Schalt-Dialog den Text noch einmal wortwörtlich; Steuerzeichen stehen dort benannt, weil ein unsichtbares STX der Unterschied zwischen „verstanden" und „keine Antwort" ist.',
+                )}
+              />
+            </div>
+          )}
 
           {brauchtAdressen && (
             <div className="mt-3">

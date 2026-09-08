@@ -3468,6 +3468,22 @@ export const en: Dict = {
     'Without a number nothing is sent to this port. On the ATEM the source number of an input is read off the switcher, an aux output counts in its own row, and program/preview carry the mix-effect number. The position in the list does not tell you.',
   'canvas.hubSwitch.sentText': 'Sent verbatim:',
   'canvas.hubSwitch.sentCalls': 'Commands sent (not a text protocol):',
+  'canvas.hubSwitch.sentDeclared': 'Sent (control characters named, from your command line):',
+  'switching.textTemplate': 'Command line (from the device manual)',
+  'switching.textStart': 'Line start',
+  'switching.textEnd': 'Line end',
+  'switching.textBase': 'Counts from',
+  'switching.textNumbers': 'Numbers',
+  'switching.textNumbersPos': 'position in the list',
+  'switching.textNumbersDecl': 'entered per port',
+  'switching.textLevel': 'Level',
+  'switching.textAck': 'Ack',
+  'switching.textAckNone': 'none',
+  'switching.textPort': 'Port',
+  'switching.textProbe': 'This is what would go out (output 1, input 2):',
+  'switching.textPresets': 'Apply template:',
+  'switching.textHint':
+    'The templates are a starting point, not an assurance \u2014 their provenance is in the tooltip, and they belong checked against the manual. Before sending, the switching dialog shows the text once more verbatim; control characters are named there, because an invisible STX is the difference between \u201cunderstood\u201d and \u201cno answer\u201d.',
   'switching.notSwitchable':
     'This device has no inputs and outputs at the same time and therefore cannot switch anything. The section stays visible so it is clear that nothing is missing.',
   'switching.hint':
