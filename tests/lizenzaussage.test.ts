@@ -108,7 +108,7 @@ describe('Lizenzaussage in der Dokumentation', () => {
     expect(dokumente.some((d) => d.endsWith(join('docs', 'index.html')))).toBe(true)
   })
 
-  it('genau drei Dokumente sind als „redet ueber fremde Lizenzen" markiert', () => {
+  it('genau vier Dokumente sind als „redet ueber fremde Lizenzen" markiert', () => {
     const markiert = dokumente
       .filter((d) => readFileSync(d, 'utf8').includes(FREMD_MARKER))
       .map((d) => relative(ROOT, d))
@@ -119,6 +119,7 @@ describe('Lizenzaussage in der Dokumentation', () => {
         'Wer einen setzt, traegt ihn hier nach und begruendet ihn im Commit.',
     ).toEqual([
       'THIRD-PARTY-LICENSES.md',
+      join('docs', 'atem-pruefstand.md'),
       join('docs', 'comparison.html'),
       join('docs', 'festinstallation-readiness.md'),
     ])

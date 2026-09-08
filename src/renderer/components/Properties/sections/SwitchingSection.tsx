@@ -6,6 +6,9 @@ import { deviceCrosspoints } from '../../../lib/deviceCrosspoints'
 import {
   CONTROL_PROTOCOLS,
   CONTROL_ROLE_LABEL,
+  CONTROL_TARGETS,
+  CONTROL_TARGET_HINWEIS,
+  CONTROL_TARGET_LABEL,
   PROTOCOL_INFO,
   type ControlProtocol,
   type ControlRole,
@@ -238,6 +241,43 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
               ))}
             </select>
           </label>
+          {/* S-5 — WOHIN gesteuert wird. Direkt unter dem Protokoll, weil es
+              dieselbe Sorte Angabe ist: erklaert und nicht geraten. Aus der
+              Adresse liesse es sich nicht ablesen — ein Pruefstand kann im
+              selben Netz stehen, ein echter Mischer ueber einen Tunnel auf
+              localhost liegen. */}
+          {protokoll && (
+            <>
+              <label className="mb-2 block text-cp-xs">
+                <span className="mb-1 block text-cp-text-muted">
+                  {t('switching.target', 'Ziel')}
+                </span>
+                <select
+                  className="w-full rounded border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-text"
+                  value={equipment.controlTarget ?? 'device'}
+                  onChange={(e) =>
+                    updateEquipment(equipment.id, {
+                      // `'device'` wird NICHT geschrieben: es ist die Vorgabe,
+                      // und ein Feld, das in jeder Datei „device" sagt, traegt
+                      // nichts bei. Das Fehlen ist die Auskunft.
+                      controlTarget:
+                        e.target.value === 'simulator' ? 'simulator' : undefined,
+                    })
+                  }
+                >
+                  {CONTROL_TARGETS.map((k) => (
+                    <option key={k} value={k}>
+                      {CONTROL_TARGET_LABEL[k]}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <PanelHint
+                className="mb-2 text-cp-xs text-cp-text-muted"
+                text={CONTROL_TARGET_HINWEIS[equipment.controlTarget ?? 'device']}
+              />
+            </>
+          )}
           <PanelHint
             className="mb-2 text-cp-xs text-cp-text-muted"
             text={
