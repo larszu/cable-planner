@@ -378,6 +378,25 @@ contextBridge.exposeInMainWorld('cablePlanner', {
       ipcRenderer.invoke('mobileShare:getWriteMode') as Promise<{
         writeMode: 'read-only' | 'contribute'
       }>,
+    /**
+     * E-3 — Zugriff auf die Anlagen-Zugangscodes ein- oder ausschalten.
+     * Gibt beim Einschalten den zweiten Token EINMAL zurueck; es gibt
+     * bewusst keinen Weg, ihn spaeter nachzuschlagen.
+     */
+    setPincodeAccess: (on: boolean) =>
+      ipcRenderer.invoke('mobileShare:setPincodeAccess', on) as Promise<{
+        ok: boolean
+        token: string
+      }>,
+    /** E-3 — die Codes in main hinterlegen. Sie verlassen den Renderer nur hierhin. */
+    setPincodes: (codes: { label: string; value: string }[] | null) =>
+      ipcRenderer.invoke('mobileShare:setPincodes', codes) as Promise<{
+        ok: boolean
+        on: boolean
+        count: number
+      }>,
+    pincodeStatus: () =>
+      ipcRenderer.invoke('mobileShare:pincodeStatus') as Promise<{ on: boolean; count: number }>,
     // v7.9.3 — Subscriber für Mobile-Check-State-Updates. Main schickt
     // 'mobileShare:checksUpdate' wenn POST /checks reinkommt; Renderer
     // updated daraufhin project.checkState im Store.

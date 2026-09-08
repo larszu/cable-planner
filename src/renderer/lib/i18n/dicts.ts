@@ -3380,6 +3380,17 @@ export const en: Dict = {
     'The three write routes are closed — the phone is refused on every write attempt. The plan is changed by the person at the desk.',
   'mobile.dialog.writeMode.contributeHint':
     'Ticks, cables added on site and field reports go back into the project. Anyone with the QR code can change the plan.',
+  // E-3 — die Anlagen-Zugangscodes hinter einem eigenen Code.
+  'mobile.dialog.pincode': 'Make system access codes retrievable',
+  'mobile.dialog.pincode.none': 'This project carries no intercom configuration with access codes.',
+  'mobile.dialog.pincode.hint':
+    'Type this code on the phone. It is NOT part of the QR code — whoever only has the link cannot reach the access data.',
+  'mobile.dialog.pincode.count':
+    '{n} code(s) held. Every retrieval is recorded in the document register — with a timestamp, not with the value.',
+  'mobile.dialog.pincode.offHint':
+    'Off. {n} code(s) would be available — they leave this machine only once the switch is on.',
+  'mobile.dialog.security.pincode':
+    'The system access codes NEVER travel with the project. They live only in the desktop app\'s memory and only while the switch above is on; they are retrieved with a second code that is not part of the QR code.',
   'mobile.dialog.crewFeedHint':
     'Add it to your calendar as a subscription — it fetches the current state instead of going stale.',
   'analysis.crew.planned': '{n} pencilled/held — not in the totals',

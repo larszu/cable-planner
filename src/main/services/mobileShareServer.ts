@@ -121,6 +121,44 @@ interface MobileShareState {
    */
   writeMode: MobileShareWriteMode
   /**
+   * E-3 — der ZWEITE Token, hinter dem die Anlagen-Zugangscodes liegen.
+   *
+   * Leer heisst: nicht ausgegeben, und dann gibt es die Route nicht, egal
+   * welchen Token jemand mitschickt. Er wird ausdruecklich am Rechner
+   * erzeugt und von Hand weitergegeben — er reist NICHT im QR-Code und
+   * NICHT in der URL.
+   *
+   * WARUM NICHT DER SITZUNGS-TOKEN. Der steckt im QR-Code und liegt damit
+   * auf jedem Telefon im WLAN, das ihn abfotografiert hat. Ihn auch fuer
+   * die Zugangscodes gelten zu lassen hiesse „hinter einem Token" zu sagen
+   * und „hinter dem Link" zu bauen — der Eigentuemer hat am 2026-09-08 das
+   * erste entschieden.
+   */
+  pincodeToken: string
+  /**
+   * E-3 — die Codes selbst. NUR HIER, nur im Speicher von `main`, nie in
+   * `serialized` und nie in einer Datei.
+   *
+   * Der Renderer setzt sie zusammen mit dem Projekt und nur dann, wenn der
+   * Zugriff eingeschaltet ist. `stripSecrets` bleibt unveraendert: das
+   * Roh-Dokument des Herstellers geht weiterhin als Ganzes nicht mit, und
+   * das ausgelieferte Blatt traegt keinen einzigen dieser Werte. Wer sie
+   * will, holt sie ueber eine eigene Route mit dem zweiten Token.
+   */
+  pincodes: { label: string; value: string }[] | null
+  /**
+   * E-3 — wohin der Abruf gemeldet wird.
+   *
+   * Als Rueckruf und nicht als direkter Aufruf des Dokument-Registers: der
+   * Server soll ohne Electron laufen und pruefbar bleiben. Die Verdrahtung
+   * macht `mobileShareIpc`, wie bei den drei Schreibwegen auch.
+   *
+   * Er bekommt den FINGERABDRUCK des Tokens, nie den Token und nie die Codes.
+   * Ein Protokoll, das das Geheimnis mitschreibt, ist die zweite Kopie des
+   * Geheimnisses.
+   */
+  onPincodeRead: ((info: { at: string; tokenPrefix: string; count: number }) => void) | null
+  /**
    * BEDARF 127 — die Show, die gerade freigegeben ist.
    *
    * Steht neben dem Projekt und nicht in ihm, damit die Pruefung des
@@ -193,6 +231,11 @@ const state: MobileShareState = {
   token: '',
   allowBeyondLan: false,
   writeMode: 'read-only',
+  // Vorgabe: kein Zugriff. Wie `writeMode` eine Verhaltensvorgabe und keine
+  // Folge davon, dass die Route existiert.
+  pincodeToken: '',
+  pincodes: null,
+  onPincodeRead: null,
   showId: null,
   project: null,
   serialized: null,
@@ -365,6 +408,63 @@ const handleRequest = (req: IncomingMessage, res: ServerResponse) => {
     res.setHeader('Cache-Control', 'no-store')
     applyCors(req, res)
     res.end(state.serialized ?? '{}')
+    return
+  }
+
+  /**
+   * E-3 — die Anlagen-Zugangscodes, hinter dem ZWEITEN Token.
+   *
+   * DREI SPERREN, und jede fuer sich ist notwendig:
+   *
+   *   1. der Sitzungstoken wie ueberall — wer den Plan nicht sehen darf,
+   *      darf auch die Codes nicht;
+   *   2. der AUSGEGEBENE zweite Token (`X-CP-Pin-Token`). Er steckt nicht im
+   *      QR-Code und nicht in der URL, sondern wird am Rechner angezeigt und
+   *      von Hand weitergegeben. Ohne ihn gibt es die Route nicht — 404 und
+   *      nicht 401, damit ein abgeschalteter Zugriff nicht wie ein falsch
+   *      eingetippter Code aussieht;
+   *   3. der Zugriff muss eingeschaltet sein. Vorgabe ist AUS.
+   *
+   * Er kommt bewusst NICHT als Query-Parameter durch: der Sitzungstoken darf
+   * das, weil er ohnehin im QR-Code steht, aber ein Code in einer URL landet
+   * im Verlauf, im Screenshot und in jedem Server-Log dazwischen. Hier zaehlt
+   * nur der Header.
+   *
+   * Jeder Abruf steht danach im Dokument-Register — mit Zeitpunkt und den
+   * ersten sechs Zeichen des Tokens, NICHT mit dem Wert. Ein Protokoll, das
+   * das Geheimnis mitschreibt, ist die zweite Kopie des Geheimnisses.
+   */
+  if (pathname === '/pincodes') {
+    if (!authed(req, url)) return denyUnauthorized(req, res)
+    // Kein Zugriff eingeschaltet: die Route existiert nicht. Der Unterschied
+    // ist wichtig — 401 hiesse „falscher Code, versuch es nochmal" und
+    // schickte jemanden ans Raten.
+    if (!state.pincodeToken) {
+      applyCors(req, res)
+      res.statusCode = 404
+      res.setHeader('Content-Type', 'application/json; charset=utf-8')
+      res.end('{"error":"not-available"}')
+      return
+    }
+    const pin = req.headers['x-cp-pin-token']
+    if (typeof pin !== 'string' || pin !== state.pincodeToken) {
+      applyCors(req, res)
+      res.statusCode = 403
+      res.setHeader('Content-Type', 'application/json; charset=utf-8')
+      res.end('{"error":"pin-token"}')
+      return
+    }
+    applyCors(req, res)
+    res.statusCode = 200
+    res.setHeader('Content-Type', 'application/json; charset=utf-8')
+    res.setHeader('Cache-Control', 'no-store')
+    const codes = state.pincodes ?? []
+    state.onPincodeRead?.({
+      at: new Date().toISOString(),
+      tokenPrefix: state.pincodeToken.slice(0, 6),
+      count: codes.length,
+    })
+    res.end(JSON.stringify({ codes }))
     return
   }
 
@@ -787,11 +887,65 @@ export const stopMobileShareServer = (): void => {
   // Die Freigabe gilt fuer DIESES Netz und diese Sitzung. Wer den Rechner
   // morgen woanders aufstellt, faengt wieder beim LAN an.
   state.allowBeyondLan = false
+  // E-3: Zugriff und Codes ueberleben das Stoppen nicht. Ein Token, das
+  // eine Sitzung ueberlebt, ist kein ausgegebener Token mehr, sondern ein
+  // hinterlegter — und die Codes haben ohne laufenden Server nichts im
+  // Speicher zu suchen.
+  state.pincodeToken = ''
+  state.pincodes = null
   state.project = null
   state.serialized = null
   state.showId = null
   state.devProxyUrl = undefined
 }
+
+/**
+ * E-3 — den Zugriff auf die Anlagen-Zugangscodes einschalten und dabei einen
+ * frischen zweiten Token ausgeben. `false` schaltet ihn ab und wirft Token
+ * UND Codes weg.
+ *
+ * Der Rueckgabewert ist der Token im Klartext — er wird am Rechner angezeigt
+ * und von Hand weitergegeben. Genau das ist der Unterschied zum Sitzungstoken,
+ * der im QR-Code steht: dieser hier reist nicht.
+ */
+export const setMobileSharePincodeAccess = (on: boolean): string => {
+  if (!on) {
+    state.pincodeToken = ''
+    state.pincodes = null
+    return ''
+  }
+  // Ein neuer Token bei jedem Einschalten. Wer ihn einmal weitergegeben hat,
+  // nimmt ihn durch Aus- und Wiedereinschalten zurueck.
+  state.pincodeToken = randomBytes(6).toString('hex')
+  return state.pincodeToken
+}
+
+/**
+ * E-3 — die Codes hinterlegen. Nur wirksam, solange der Zugriff eingeschaltet
+ * ist: ohne Token gibt es keine Route, und Codes ohne Route waeren ein
+ * Geheimnis im Speicher ohne Zweck.
+ */
+export const setMobileSharePincodes = (
+  codes: { label: string; value: string }[] | null,
+): void => {
+  state.pincodes = state.pincodeToken ? codes : null
+}
+
+/**
+ * E-3 — wohin ein Abruf gemeldet wird. Wie bei den Schreibwegen registriert
+ * der IPC-Anschluss den Rueckruf; der Server selbst kennt das Register nicht.
+ */
+export const setMobileSharePincodeReadHandler = (
+  handler: ((info: { at: string; tokenPrefix: string; count: number }) => void) | null,
+): void => {
+  state.onPincodeRead = handler
+}
+
+/** Ist der Zugriff eingeschaltet, und liegen Codes bereit? Ohne den Token. */
+export const mobileSharePincodeStatus = (): { on: boolean; count: number } => ({
+  on: state.pincodeToken !== '',
+  count: state.pincodes?.length ?? 0,
+})
 
 export const setMobileShareProject = (project: unknown): void => {
   state.project = project
