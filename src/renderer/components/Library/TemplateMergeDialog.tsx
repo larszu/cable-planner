@@ -162,7 +162,7 @@ export const TemplateMergeDialog = ({
         )}
       </p>
 
-      <div className="mb-3 grid grid-cols-3 gap-2 text-cp-xs">
+      <div className="mb-3 grid grid-cols-1 sm:grid-cols-3 gap-2 text-cp-xs">
           <label className="block">
             {t('templateMerge.targetCategory', 'Zielkategorie')}
             <select

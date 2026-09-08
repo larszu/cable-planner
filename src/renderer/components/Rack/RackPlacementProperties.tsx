@@ -361,7 +361,7 @@ export const RackPlacementProperties = ({
               {format(t('rack.portSideSection.counts', '({inputs} Inputs / {outputs} Outputs)'), { inputs: selectedPlacement.inputs.length, outputs: selectedPlacement.outputs.length })}
             </span>
           </summary>
-          <div className="mt-2 grid grid-cols-3 gap-1 text-[10px]">
+          <div className="mt-2 grid grid-cols-1 sm:grid-cols-3 gap-1 text-[10px]">
             <button
               type="button"
               onClick={() =>

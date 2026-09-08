@@ -197,7 +197,7 @@ export const ConnectorPicker = ({
                     />
                     {t(`connector.cat.${g.category.id}`, g.category.de)}
                   </div>
-                  <div className="grid grid-cols-3 gap-1">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-1">
                     {g.entries.map((e) => {
                       const active = e.id === value
                       return (

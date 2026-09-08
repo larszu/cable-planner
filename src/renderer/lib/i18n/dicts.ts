@@ -3539,6 +3539,8 @@ export const en: Dict = {
     'This device has no connectors. Without them no line can be attached, and the circuit stays empty at this point.',
   'circuit.terminalHint':
     'The terminal belongs to the connector, not to its position in the list — reordering does not rewire the circuit.',
+  // B-44 Teil 3 — der sichtbare Loeschgriff am Kabel-Wegpunkt.
+  'cable.waypoint.remove': 'Remove waypoint',
   // B-47 — das virtuelle EDID: was eine Senke erklaertermassen annimmt.
   'sink.title': 'Format profile (sink)',
   'sink.none': 'not declared',

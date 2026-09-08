@@ -397,7 +397,7 @@ export const LocationBomDialog = () => {
           </div>
 
           <h3 className="mb-1 text-cp-base font-semibold text-cp-text-bright">{t('locbom.section.devices', 'Geräte')}</h3>
-          <table className="mb-4 w-full text-cp-xs">
+          <table className="block overflow-x-auto mb-4 w-full text-cp-xs">
             <thead className="text-cp-text-muted">
               <tr className="border-b border-cp-border">
                 <th className="px-2 py-1 text-center w-10">{t('locbom.col.packed', 'Pack')}</th>
@@ -432,7 +432,7 @@ export const LocationBomDialog = () => {
           {internalCables.length === 0 ? (
             <div className="mb-3 text-cp-text-faint">{t('locbom.noInternalCables', 'Keine internen Kabel.')}</div>
           ) : grouped ? (
-            <table className="mb-4 w-full text-cp-xs">
+            <table className="block overflow-x-auto mb-4 w-full text-cp-xs">
               <thead className="text-cp-text-muted">
                 <tr className="border-b border-cp-border">
                   <th className="px-2 py-1 text-right w-12">{t('locbom.col.qty', 'Stk.')}</th>
@@ -459,7 +459,7 @@ export const LocationBomDialog = () => {
               </tbody>
             </table>
           ) : (
-            <table className="mb-4 w-full text-cp-xs">
+            <table className="block overflow-x-auto mb-4 w-full text-cp-xs">
               <thead className="text-cp-text-muted">
                 <tr className="border-b border-cp-border">
                   <th className="px-2 py-1 text-left">{t('locbom.col.name', 'Name')}</th>
@@ -489,7 +489,7 @@ export const LocationBomDialog = () => {
                 {t('locbom.section.externalConnections', 'Externe Verbindungen')}
               </h3>
               {grouped ? (
-                <table className="w-full text-cp-xs">
+                <table className="block overflow-x-auto w-full text-cp-xs">
                   <thead className="text-cp-text-muted">
                     <tr className="border-b border-cp-border">
                       <th className="px-2 py-1 text-right w-12">{t('locbom.col.qty', 'Stk.')}</th>
@@ -516,7 +516,7 @@ export const LocationBomDialog = () => {
                   </tbody>
                 </table>
               ) : (
-                <table className="w-full text-cp-xs">
+                <table className="block overflow-x-auto w-full text-cp-xs">
                   <thead className="text-cp-text-muted">
                     <tr className="border-b border-cp-border">
                       <th className="px-2 py-1 text-left">{t('locbom.col.name', 'Name')}</th>

@@ -692,7 +692,7 @@ export const CrewTab = ({ projectName }: { projectName: string }) => {
           <h3 className="text-cp-xs font-semibold text-cp-text">
             {t('analysis.crew.handoff', 'Übergabe an die Buchhaltung (netto)')}
           </h3>
-          <table className="w-full text-cp-xs">
+          <table className="block overflow-x-auto w-full text-cp-xs">
             <tbody>
               {uebergabe.map((l, i) => (
                 <tr key={`${l.name}-${i}`} className="border-b border-cp-border-muted">

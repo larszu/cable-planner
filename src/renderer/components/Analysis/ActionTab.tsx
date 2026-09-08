@@ -71,7 +71,7 @@ export const ActionTab = () => {
                 </span>
               ))}
           </div>
-          <table className="w-full border-collapse text-cp-xs">
+          <table className="block overflow-x-auto w-full border-collapse text-cp-xs">
             <thead>
               <tr className="border-b border-cp-border text-left text-cp-text-secondary">
                 <th className="py-1 pr-2">{t('analysis.action.when', 'Termin')}</th>

@@ -128,7 +128,7 @@ export const DisplayFlagsSection = ({ equipment }: { equipment: EquipmentItem })
           {t('flags.da', 'Verteilverstärker (1→N)')}
         </label>
         {/* #359/#360/#366 — Signal-Flow-Rollen (Timecode / Tally / Embedding). */}
-        <div className="grid grid-cols-3 gap-1 border-t border-cp-border-muted pt-2">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 border-t border-cp-border-muted pt-2">
           <label className="block text-[10px]">
             <span className="mb-0.5 block text-cp-text-muted">{t('roles.tc', 'Timecode')}</span>
             <select

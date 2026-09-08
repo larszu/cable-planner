@@ -265,7 +265,7 @@ const BulkConnectDialogInner = () => {
         </div>
 
         {/* Anzahl + Kabel-Spec + Laenge */}
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <label className="block">
             <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('bulk.count', 'Anzahl Kabel')}</span>
             <input

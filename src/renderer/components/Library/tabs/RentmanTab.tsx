@@ -296,7 +296,7 @@ export const RentmanTab = () => {
         </div>
       )}
 
-      <div className="grid grid-cols-3 rounded border border-cp-border-muted bg-cp-surface-1 p-0.5 text-[11px]">
+      <div className="grid grid-cols-1 sm:grid-cols-3 rounded border border-cp-border-muted bg-cp-surface-1 p-0.5 text-[11px]">
         {([
           ['imported', t('library.rentman.view.imported', 'Importiert')],
           ['catalog', t('library.rentman.view.catalog', 'Katalog')],

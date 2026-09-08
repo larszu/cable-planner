@@ -55,7 +55,7 @@ export const CameraControlsSection = ({ equipment }: { equipment: EquipmentItem 
                 'Zu diesem Modell liegt keine Fähigkeits-Aussage vor. „Nicht belegt" heißt nicht „geht nicht" — es heißt, dass niemand es nachgesehen hat.',
               )}
         </p>
-        <table className="w-full border-collapse">
+        <table className="block overflow-x-auto w-full border-collapse">
           <tbody>
             {zeilen.map((z) => (
               <tr key={z.control} className="border-b border-cp-border-muted">

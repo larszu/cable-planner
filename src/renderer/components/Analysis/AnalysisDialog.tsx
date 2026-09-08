@@ -305,7 +305,7 @@ const WeightTab = ({ projectName }: { projectName: string }) => {
           label={t('app.menu.tools.power', 'Stromverbrauch berechnen…')}
         />
       </div>
-      <table className="w-full text-cp-xs">
+      <table className="block overflow-x-auto w-full text-cp-xs">
         <thead>
           <tr className="border-b border-[var(--cp-border)] text-left text-[var(--cp-text-muted)]">
             <th className="py-1 pr-2">{t('analysis.weight.category', 'Kategorie')}</th>
@@ -743,7 +743,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
           </ul>
         </div>
       )}
-      <table className="w-full text-cp-xs">
+      <table className="block overflow-x-auto w-full text-cp-xs">
         <thead>
           <tr className="border-b border-[var(--cp-border)] text-left text-[var(--cp-text-muted)]">
             <th className="py-1 pr-2">{t('analysis.network.device', 'Gerät')}</th>
@@ -1496,7 +1496,7 @@ const RedundancyTab = ({ projectName }: { projectName: string }) => {
           {t('analysis.redundancy.none', 'Keine offensichtlichen Single-Power-Feeds gefunden.')}
         </p>
       ) : (
-        <table className="w-full text-cp-xs">
+        <table className="block overflow-x-auto w-full text-cp-xs">
           <thead>
             <tr className="border-b border-[var(--cp-border)] text-left text-[var(--cp-text-muted)]">
               <th className="py-1 pr-2">{t('analysis.redundancy.device', 'Gerät')}</th>
@@ -1778,7 +1778,7 @@ const RfTab = ({ projectName }: { projectName: string }) => {
         </p>
       </div>
 
-      <table className="w-full text-cp-xs">
+      <table className="block overflow-x-auto w-full text-cp-xs">
         <thead>
           <tr className="border-b border-[var(--cp-border)] text-left text-[var(--cp-text-muted)]">
             <th className="py-1 pr-2">{t('analysis.rf.link', 'Funkstrecke')}</th>
@@ -1835,7 +1835,7 @@ const RfTab = ({ projectName }: { projectName: string }) => {
           {t('analysis.rf.bandRef', 'Frequenzbänder (Sennheiser / Shure / …)')} ({RF_BANDS.length})
         </summary>
         <div className="px-3 py-2">
-          <table className="w-full text-cp-xs">
+          <table className="block overflow-x-auto w-full text-cp-xs">
             <thead className="text-[var(--cp-text-faint)]">
               <tr className="text-left">
                 <th className="py-0.5 pr-2">{t('analysis.rf.bandMfr', 'Hersteller')}</th>
@@ -1934,7 +1934,7 @@ const RfTab = ({ projectName }: { projectName: string }) => {
           </ul>
         )}
         {scan && carrierChecks.length > 0 && (
-          <table className="mt-2 w-full text-cp-xs">
+          <table className="block overflow-x-auto mt-2 w-full text-cp-xs">
             <thead className="text-[var(--cp-text-secondary)]">
               <tr>
                 <th className="px-2 py-1 text-left">{t('scan.what', 'Was funkt')}</th>
@@ -2221,7 +2221,7 @@ const ClientTab = ({ projectName }: { projectName: string }) => {
         </span>
         <CsvButton onClick={exportCsv} />
       </div>
-      <table className="w-full text-cp-xs">
+      <table className="block overflow-x-auto w-full text-cp-xs">
         <thead>
           <tr className="text-left text-[var(--cp-text-muted)]">
             <th className="py-1">{t('analysis.client.area', 'Bereich')}</th>
@@ -2548,7 +2548,7 @@ const AufnahmeNamen = ({ projectName }: { projectName: string }) => {
           )}
         </p>
       ) : (
-        <table className="w-full border-collapse text-cp-xs">
+        <table className="block overflow-x-auto w-full border-collapse text-cp-xs">
           <thead>
             <tr className="border-b border-[var(--cp-border)] text-left text-[var(--cp-text-secondary)]">
               <th className="py-1 pr-2">{t('analysis.recordName.role', 'Rolle')}</th>
@@ -2677,7 +2677,7 @@ const NamingTab = ({ projectName }: { projectName: string }) => {
       )}
 
       {bewertung.proposals.length > 0 && (
-        <table className="w-full text-cp-xs">
+        <table className="block overflow-x-auto w-full text-cp-xs">
           <thead>
             <tr className="text-left text-[var(--cp-text-muted)]">
               <th className="py-1">{t('analysis.naming.before', 'Alter Name')}</th>

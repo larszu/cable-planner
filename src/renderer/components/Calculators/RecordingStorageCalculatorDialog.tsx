@@ -139,7 +139,7 @@ export const RecordingStorageCalcCore = ({
         </label>
       )}
 
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
         <label className="block">
           <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('recStorage.hours', 'Stunden')}</span>
           <input
@@ -217,7 +217,7 @@ export const RecordingStorageCalcCore = ({
         <div className="mb-2 text-[11px] uppercase tracking-wide text-cp-text-secondary">
           {t('recStorage.sizing', 'Array-Dimensionierung')}
         </div>
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
           <label className="block">
             <span className="mb-1 block text-[10px] text-cp-text-muted">{t('recStorage.redundancy', 'Redundanz')}</span>
             <select
