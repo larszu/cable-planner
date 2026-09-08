@@ -824,6 +824,27 @@ Das Wichtigste in Listenform. Niemals brechen ohne expliziten Architektur-Review
     Namen. Standards werden aus demselben Grund nur **innerhalb ihrer
     Familie** verglichen; „ist HDMI-2.0 mehr als DP-1.4?" hat keine Antwort,
     die stimmt, und die erfundene stünde danach in einem Befund.
+22. **Eine Farbnorm wird gewählt, nicht mitgeliefert.** Powerlock zieht man je
+    Leiter einzeln (`types/conductor.ts`, B-45): fünf Leitungen bilden einen
+    400-A-Anschluss, und welcher Leiter welche ist, steht in seiner Farbe.
+    Die Farbe ist deshalb keine Kosmetik — ein vertauschter Aussenleiter dreht
+    ein Drehfeld, ein als N gezogener ist eine Gefahr —, und genau darum ist
+    `EINGEBAUTE_FARBNORMEN` **leer**. Die deutsche Neuinstallation, die ältere
+    Farbgebung und die nordamerikanische Zuordnung sind drei verschiedene
+    Sätze; welcher für eine Anlage gilt, steht nicht im Programm. Eine
+    geratene Vorgabe wäre schlimmer als keine: sie sähe aus wie eine geprüfte
+    Angabe, sie färbte jede Ader, und die Prüfung bestätigte sie anschliessend
+    gegen sich selbst. Jede Norm trägt ihre `herkunft` im Klartext, und eine
+    ohne wird beim Laden verworfen statt mit leerem Feld gezeigt (dieselbe
+    Regel wie bei den Protokoll-Vorlagen, Invariante 18).
+    Das **Soll** am Anschluss ist der zweite Teil und der eigentliche Zweck:
+    ohne die Angabe, welche Leiter er haben muss, könnte die Prüfung nur
+    zählen, was da ist, und nie merken, dass die vierte von fünf Leitungen
+    fehlt. Genau dieser Fehler muss auffallen — deshalb ist eine fehlende Ader
+    ein `error` und eine fehlende Norm ein `info`: wer beide gleich zeigt,
+    lässt die erste in der zweiten untergehen. Und der Anschluss ist NICHT
+    `multicoreName`: der sagt „zähle diese Kabel als ein Stück", nur der
+    Anschluss sagt „er muss diese Leiter haben".
 
 ---
 

@@ -877,6 +877,16 @@ export const MenuBar = ({
           >
             {t('app.menu.tools.delivery', 'Ausspielung (Streaming-Ziele)…')}
           </MenuItem>
+          <MenuItem
+            onClick={() => useUiStore.getState().setAdernOpen(true)}
+            icon={<Icon icon={Cable} size="sm" />}
+            note={t(
+              'app.menu.tools.adern.note',
+              'Farbnormen und Anschlüsse, die man je Leiter einzeln zieht',
+            )}
+          >
+            {t('app.menu.tools.adern', 'Adern und Farbnormen…')}
+          </MenuItem>
 
           <MenuSectionHeader>{t('app.menu.tools.group.build', 'Erstellen & verwalten')}</MenuSectionHeader>
           <MenuItem

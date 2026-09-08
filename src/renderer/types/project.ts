@@ -310,6 +310,21 @@ export interface CablePlannerProject {
    *  Zustand, und sie gleichzuziehen machte die Abweichung unsichtbar
    *  (ADR-001). Optional -> alte Projekte heilen zu []. */
   hubSwitches?: import('./hubSwitch').HubSwitch[]
+  /** B-45 — die Farbnormen, die fuer DIESE Anlage gelten. Eingebaut sind
+   *  KEINE: die deutsche Neuinstallation, die aeltere Farbgebung und die
+   *  nordamerikanische Zuordnung sind drei verschiedene Saetze, und welcher
+   *  gilt, steht nicht im Programm. Eine geratene Vorgabe saehe wie eine
+   *  gepruefte Angabe aus und faerbte jede Ader — an einer Stelle, an der
+   *  jemand mit Strom arbeitet. Jede Norm traegt ihre `herkunft` im Klartext
+   *  (dieselbe Regel wie bei den Protokoll-Vorlagen, Invariante 18).
+   *  Optional -> alte Projekte heilen zu []. */
+  farbnormen?: import('./conductor').Farbnorm[]
+  /** B-45 — die Anschluss: welche Leitungen zusammen einen Anschluss bilden
+   *  und welche Leiter er haben MUSS. Powerlock zieht man je Leiter einzeln;
+   *  ein 400-A-Anschluss sind fuenf Leitungen. Ohne das `soll` koennte die
+   *  Pruefung nur zaehlen, was da ist, und nie merken, dass die vierte fehlt
+   *  — und genau dieser Fehler muss auffallen. Optional -> heilt zu []. */
+  anschlussListe?: import('./conductor').Anschluss[]
   /** Bedarf 116 — die Segmente: welche VLAN wofuer da ist, welche Zeit darin
    *  laeuft und wie man hineinkommt. Die VLAN-Id steht seit Bedarf 19/24 an
    *  jeder Schnittstelle; hier bekommt sie eine Bedeutung. Optional -> alte

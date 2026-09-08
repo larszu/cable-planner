@@ -23,6 +23,7 @@ import { effectiveWatts } from './equipmentSelectors'
 import { deriveDrumChannels } from './drumMicing'
 import { labelTargetIssues } from './labelDerivation'
 import { beurteileAdapter } from '../types/adapter'
+import { anschlussBefunde, type AnschlussLeitung } from '../types/conductor'
 
 export type CheckSeverity = 'error' | 'warning' | 'info'
 
@@ -81,6 +82,9 @@ export interface DrawingCheckInput {
   drumKit?: DrumKitPlan
   /** ADR-001 — Signalquellen-Rollen; speisen die Label-/UMD-Checks. */
   sourceIdentities?: import('../types/sourceIdentity').SourceIdentity[]
+  /** B-45 — die Anschluss und die gewaehlten Farbnormen. */
+  anschlussListe?: import('../types/conductor').Anschluss[]
+  farbnormen?: import('../types/conductor').Farbnorm[]
 }
 
 export interface DrawingCheckResult {
@@ -95,7 +99,7 @@ export interface DrawingCheckResult {
  * (errors zuerst). Pure function — leicht testbar, kein Store-Zugriff.
  */
 export const runDrawingChecks = (
-  { equipment, cables, drumKit, sourceIdentities }: DrawingCheckInput,
+  { equipment, cables, drumKit, sourceIdentities, anschlussListe, farbnormen }: DrawingCheckInput,
 ): DrawingCheckResult => {
   const findings: CheckFinding[] = []
   const eqById = new Map(equipment.map((e) => [e.id, e]))
@@ -731,6 +735,43 @@ export const runDrawingChecks = (
           cableId: rein.id,
         })
       }
+    }
+  }
+
+  // — Check 22: Adernbündel — liegt jeder geplante Leiter? (B-45) ----------
+  //
+  // Der Fehler, den ein Plan finden MUSS: vier gezogene Leitungen bei fünf
+  // geplanten. Powerlock zieht man je Leiter einzeln, und ohne das `soll` am
+  // Bündel könnte hier nur gezählt werden, was da ist — nie, was fehlt.
+  //
+  // Die Schwere folgt der Bedeutung und nicht der Sortierung: eine fehlende
+  // Ader ist eine Leitung, die auf der Baustelle nicht liegt (`error`); eine
+  // fehlende Farbnorm ist eine Angabe, die niemand eingetragen hat (`info`).
+  // Wer beide gleich zeigt, lässt die erste in der zweiten untergehen.
+  const SCHWERE: Record<string, CheckSeverity> = {
+    'ader-fehlt': 'error',
+    'ader-doppelt': 'error',
+    'farbe-widerspricht': 'error',
+    'leitung-stumm': 'warning',
+    'norm-offen': 'info',
+  }
+  for (const anschluss of anschlussListe ?? []) {
+    const leitungen: AnschlussLeitung[] = cables
+      .filter((c) => c.anschlussId === anschluss.id)
+      .map((c) => ({
+        cableId: c.id,
+        bezeichnung: c.cableNumber?.trim() || c.name?.trim() || c.type || c.id,
+        adern: c.adern ?? [],
+      }))
+    const norm = (farbnormen ?? []).find((n) => n.id === anschluss.farbnormId)
+    for (const b of anschlussBefunde(anschluss, leitungen, norm)) {
+      findings.push({
+        id: `anschluss-${b.art}:${b.anschlussId}${b.cableId ? `:${b.cableId}` : ''}:${b.text.length}`,
+        severity: SCHWERE[b.art] ?? 'info',
+        category: 'Adernbündel',
+        message: b.text,
+        ...(b.cableId ? { cableId: b.cableId } : {}),
+      })
     }
   }
 
