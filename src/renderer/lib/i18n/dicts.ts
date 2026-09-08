@@ -3431,6 +3431,27 @@ export const en: Dict = {
   'canvas.pattern.check.noMonitor': 'no monitor',
   'canvas.pattern.check.seenPlaceholder': 'Which name is on it?',
   'canvas.pattern.check.save': 'record',
+  'canvas.pattern.switch': 'Switch path…',
+  'canvas.pattern.switchTitle':
+    'Set the crosspoints the plan foresees for one path — an intervention in the live installation. Only that path\u2019s outputs are switched; the plan itself stays unchanged.',
+  'canvas.hubSwitch.title': 'Switch path',
+  'canvas.hubSwitch.warning':
+    'This is an intervention in the live installation, not a display. Only the crosspoints listed below are sent; every other output stays untouched. The plan does not change.',
+  'canvas.hubSwitch.nothing':
+    'No path from this source runs through a router — there is nothing to switch.',
+  'canvas.hubSwitch.pick': 'Where should the image go?',
+  'canvas.hubSwitch.pickNone': 'please choose',
+  'canvas.hubSwitch.noIp': 'no IP address on record',
+  'canvas.hubSwitch.port': 'Port',
+  'canvas.hubSwitch.badPort': 'Invalid port.',
+  'canvas.hubSwitch.by': 'Switched by',
+  'canvas.hubSwitch.byPlaceholder': 'Name (optional)',
+  'canvas.hubSwitch.confirm':
+    'I have read which outputs will be switched, and I am switching the live installation.',
+  'canvas.hubSwitch.send': 'switch now',
+  'canvas.hubSwitch.sending': 'sending …',
+  'canvas.hubSwitch.close': 'Close',
+  'app.loadReport.hubSwitch': 'router switching action',
   'canvas.pattern.saveSheetTitle':
     'The walk-around list — including the paths the plan cannot follow to the end, and why.',
   // Schaltbild-Angaben am Geraet (Eigenschaften-Panel).

@@ -38,8 +38,34 @@
  * Defektform `zwei-rechnungen`: er liefe beim nächsten Sonderfall
  * auseinander, und dann widersprächen sich zwei Ansichten desselben Plans.
  */
+import type { EquipmentItem } from '../types/equipment'
 import type { CablePlannerProject } from '../types/project'
 import { chainOneLine, signalChains, type ChainEnd, type SignalChain } from './signalChain'
+
+/**
+ * Ein Kreuzpunkt, den DIESER Weg an einer Kreuzschiene braucht.
+ *
+ * Er wird nicht neu gesucht, sondern aus der bereits gelaufenen Kette
+ * abgelesen: `signalChains` folgt an einer Kreuzschiene ohnehin dem
+ * geplanten Kreuzpunkt, also steht das Paar (Eingang, Ausgang) schon in
+ * zwei aufeinanderfolgenden Schritten. Es hier ein zweites Mal aus
+ * `videohubRouting.planned` zu rechnen waere die Defektform
+ * `zwei-rechnungen` — zwei Wege durch dieselbe Kreuzschiene, die beim
+ * naechsten Sonderfall auseinanderlaufen.
+ *
+ * Die Nummern sind 0-basiert wie im Videohub-Protokoll; die Anzeige zaehlt
+ * ab 1 (siehe `kreuzpunktKlartext`).
+ */
+export interface HubKreuzpunkt {
+  equipmentId: string
+  equipmentName: string
+  /** Aus dem Geraetedatensatz. Leer heisst: die App weiss nicht, wohin. */
+  ipAddress: string
+  input: number
+  inputName: string
+  output: number
+  outputName: string
+}
 
 /** Ein Ort, an dem ein Weg endet. */
 export interface PatternStop {
@@ -55,6 +81,13 @@ export interface PatternStop {
   ebenen: number
   end: ChainEnd
   endNote: string
+  /**
+   * Die Kreuzpunkte, ueber die dieser Weg laeuft — in der Reihenfolge des
+   * Wegs. Leer heisst: keine Kreuzschiene dazwischen, es ist nichts zu
+   * schalten. Das ist die Grundlage fuer „diesen Weg schalten" und
+   * ausdruecklich der PLAN, nicht der gelesene Zustand der Anlage.
+   */
+  kreuzpunkte: HubKreuzpunkt[]
 }
 
 export interface PatternRouting {
@@ -77,7 +110,55 @@ export interface PatternRouting {
 
 export const LEERES_ROUTING: PatternRouting = { ziele: [], offen: [] }
 
-const stopOf = (chain: SignalChain): PatternStop => {
+/**
+ * Die Kreuzpunkte einer Kette, abgelesen statt gerechnet.
+ *
+ * Ein Schritt, dessen `through` 'router' ist, kam an einer Kreuzschiene an;
+ * der FOLGESCHRITT sagt, an welchem Ausgang es weiterging. Fehlt der
+ * Folgeschritt (die Kette endete dort mangels Kabel), gibt es auch keinen
+ * Kreuzpunkt zu schalten — dann steht hier nichts, statt einer geratenen
+ * Zeile.
+ *
+ * EXPORTIERT NUR FUER DEN TEST, und das mit Absicht: die Nummern-Pruefung
+ * unten (`input < 0 || output < 0`) ist ueber `patternRouting` heute nicht
+ * erreichbar — `forwardFrom` findet einen Kreuzschienen-Weiterweg nur ueber
+ * Anschluesse, die das Geraet auch hat, also kommen -1 dort nie an. Sie
+ * bleibt trotzdem stehen, weil die Folge eines Wegfalls eine GERATENE
+ * Nummer waere, die als Befehl an eine laufende Anlage ginge; und sie wird
+ * direkt geprueft, weil eine Zusicherung, die kein Gegenversuch rot machen
+ * kann, keine ist. Genau das hat der Gegenversuch hier gezeigt: der Test,
+ * der sie zu decken schien, deckte in Wahrheit den `!weiter`-Fall.
+ */
+export const kreuzpunkteDerKette = (
+  chain: SignalChain,
+  geraete: ReadonlyMap<string, EquipmentItem>,
+): HubKreuzpunkt[] => {
+  const punkte: HubKreuzpunkt[] = []
+  chain.steps.forEach((schritt, i) => {
+    if (schritt.through !== 'router') return
+    const weiter = chain.steps[i + 1]
+    if (!weiter) return
+    const hub = geraete.get(schritt.toEquipmentId)
+    if (!hub) return
+    const input = hub.inputs.findIndex((p) => p.id === schritt.toPortId)
+    const output = hub.outputs.findIndex((p) => p.id === weiter.fromPortId)
+    // Ein Anschluss, den das Geraet nicht (mehr) hat, ergibt keine Nummer.
+    // Eine erfundene waere hier besonders teuer: sie ginge als Befehl raus.
+    if (input < 0 || output < 0) return
+    punkte.push({
+      equipmentId: hub.id,
+      equipmentName: hub.name,
+      ipAddress: hub.ipAddress?.trim() ?? '',
+      input,
+      inputName: schritt.toPortName,
+      output,
+      outputName: weiter.fromPortName,
+    })
+  })
+  return punkte
+}
+
+const stopOf = (chain: SignalChain, geraete: ReadonlyMap<string, EquipmentItem>): PatternStop => {
   const letzter = chain.steps[chain.steps.length - 1]
   return {
     id: chain.id,
@@ -89,6 +170,7 @@ const stopOf = (chain: SignalChain): PatternStop => {
     ebenen: chain.levels,
     end: chain.end,
     endNote: chain.endNote,
+    kreuzpunkte: kreuzpunkteDerKette(chain, geraete),
   }
 }
 
@@ -110,10 +192,11 @@ export const patternRouting = (
     vonEquipmentId: quelleId,
     auchDirekte: true,
   })
+  const geraete = new Map(project.equipment.map((e) => [e.id, e]))
   const ziele: PatternStop[] = []
   const offen: PatternStop[] = []
   for (const kette of ketten) {
-    ;(kette.end === 'ziel' ? ziele : offen).push(stopOf(kette))
+    ;(kette.end === 'ziel' ? ziele : offen).push(stopOf(kette, geraete))
   }
   return { ziele, offen }
 }

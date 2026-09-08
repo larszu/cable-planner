@@ -5,7 +5,7 @@ Invarianten der App. Sie ist die Pflicht-Lektüre, bevor strukturelle Änderunge
 gemacht werden. Für die interaktive Modul-Übersicht siehe [`app-structure.html`](./app-structure.html),
 für einen Wettbewerber-Vergleich [`comparison.html`](./comparison.html).
 
-Stand: v9.0.1 · ~580 TS/TSX-Module · ~169.8k LOC
+Stand: v9.0.1 · ~584 TS/TSX-Module · ~170.7k LOC
 
 ---
 
@@ -723,6 +723,22 @@ Das Wichtigste in Listenform. Niemals brechen ohne expliziten Architektur-Review
     Erwartung beschriftet. Es gibt keine dritte Möglichkeit, und „sieht man
     doch" ist keine — die ganze Schwierigkeit ist, dass man es eben nicht
     sieht.
+17. **Ein Befehl an eine laufende Anlage nennt nur, was er meint.** Wer aus
+    dem Plan heraus schaltet, sendet GENAU die Kreuzpunkte, um die es geht —
+    nie den ganzen Zustand des Geräts. Der Unterschied ist kein Stilfrage:
+    `buildVideohubRoutingCommand` schreibt eine Zeile für jeden Ausgang und
+    setzt fehlende Einträge auf Eingang 0, was für einen vollständigen Export
+    richtig und für „schalte Ausgang 7" das Schwarzschalten fremder,
+    womöglich sendender Ausgänge wäre. `buildCrosspointCommand` hat deshalb
+    **kein `totalOutputs` und keinen Default**: ein Ausgang, über den niemand
+    etwas gesagt hat, kommt im Befehl nicht vor. Dazu drei Bedingungen, die
+    für jeden weiteren Steuerweg gelten (ATEM, Beleuchtung, was auch immer):
+    der Nutzer liest vor dem Bestätigen den **Klartext mit Namen** und den
+    **wortwörtlich gesendeten Text**; jeder Versuch wird als Beleg im Projekt
+    festgehalten, **auch der gescheiterte** („wer hat geschaltet?" ist die
+    Frage, die er beantwortet); und der Plan wird dabei **nicht nachgezogen**
+    (Invariante 14 in die andere Richtung — zöge das Senden den Plan mit,
+    gäbe es hinterher keine Abweichung mehr zu sehen).
 
 ---
 
@@ -786,7 +802,7 @@ optionales Cloud-Backend (`y-websocket`, Auth/Permissions) bleiben offen.
 `vitest` ist eingerichtet (`npm test` / `npm run test:watch`); dazu kommen
 gezielte Node-Checks (`npm run test:crdt`, `npm run test:signaling`), ein
 UI-Smoke-Skript (`npm run ui:smoke`) und ein headless Drag-/Interaktions-Test
-(`npm run test:drag`, treibt den Renderer via Playwright). Bei ~169.8k LOC
+(`npm run test:drag`, treibt den Renderer via Playwright). Bei ~170.7k LOC
 bleibt der Ausbau der Abdeckung wichtig — empfohlene Schwerpunkte:
 - Snapshot-Tests auf `healProjectPositions` mit echten
   Beispiel-Projekt-JSONs.

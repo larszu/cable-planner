@@ -43,6 +43,7 @@ export type MetaSlice = Pick<
   | 'setTallyPosition'
   | 'recordTallyCheck'
   | 'recordPatternCheck'
+  | 'recordHubSwitch'
   | 'setNetworkSegments'
   | 'applyNaming'
 >
@@ -222,6 +223,35 @@ export const createMetaSlice: StateCreator<ProjectState, [], [], MetaSlice> = (s
       const updated = {
         ...state.project,
         patternChecks: [check, ...(state.project.patternChecks ?? [])],
+      }
+      scheduleProjectAutosave(updated)
+      return { project: updated }
+    })
+    return absage
+  },
+  // B-42 Inkrement 3 — der EINGRIFF an der Kreuzschiene, ebenfalls ANGEHAENGT.
+  //
+  // Auch der ABGELEHNTE Befehl wird aufgezeichnet. Was dieser Datensatz
+  // beantwortet, ist „wer hat geschaltet?" — und ein Versuch, der am
+  // Netzwerk scheiterte, ist Teil dieser Auskunft; er sagt, dass jemand die
+  // Absicht hatte und dass der Hub in dem Moment nicht erreichbar war.
+  //
+  // Was hier ABSICHTLICH NICHT passiert: `videohubRouting.planned` wird
+  // nicht nachgezogen. Der Plan ist die Absicht, der Hub ein Zustand; zoege
+  // das Senden den Plan mit, gaebe es hinterher keine Abweichung mehr zu
+  // sehen — und die Abweichung ist der einzige Grund, warum der Plan neben
+  // der Anlage steht (ADR-001).
+  recordHubSwitch: (eintrag) => {
+    let absage: 'unknown-equipment' | undefined
+    set((state) => {
+      const ids = new Set(state.project.equipment.map((e) => e.id))
+      if (!ids.has(eintrag.equipmentId)) {
+        absage = 'unknown-equipment'
+        return {}
+      }
+      const updated = {
+        ...state.project,
+        hubSwitches: [eintrag, ...(state.project.hubSwitches ?? [])],
       }
       scheduleProjectAutosave(updated)
       return { project: updated }

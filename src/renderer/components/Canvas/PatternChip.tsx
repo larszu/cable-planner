@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
 import { stampForRows } from '../../lib/documentStamp'
 import { usePatternStore } from '../../store/patternStore'
@@ -6,6 +6,8 @@ import { usePatternBefunde, usePatternOverview, usePatternRouting, usePatternSum
 import { diagnoseZeilen } from '../../lib/patternDiagnose'
 import { patternPruefzeilen, patternRouting } from '../../lib/patternRouting'
 import { testPatternSvg } from '../../lib/testPattern'
+import { HubSwitchDialog } from './HubSwitchDialog'
+import { schaltbareWege } from '../../lib/hubSwitchPlan'
 import { useTranslation, format } from '../../lib/i18n'
 
 /**
@@ -32,6 +34,15 @@ export function PatternChip() {
   const routing = usePatternRouting()
   const summe = usePatternSumme()
   const befunde = usePatternBefunde()
+  const [schaltenOffen, setSchaltenOffen] = useState(false)
+
+  // B-42 Inkrement 3 — „schalten" wird nur angeboten, wenn auf einem Weg
+  // dieser Quelle ueberhaupt eine Kreuzschiene liegt. Ein Knopf, der bei
+  // fest verkabelten Wegen nichts tun kann, verspricht eine Wirkung.
+  const schaltbar = useMemo(
+    () => schaltbareWege(routing.ziele).length > 0,
+    [routing.ziele],
+  )
 
   // Als Quelle kommt in Frage, was einen Ausgang hat. Kein Namensabgleich,
   // keine Kategorie-Liste: ein Gerät ohne Ausgang kann nichts einspeisen,
@@ -191,8 +202,22 @@ export function PatternChip() {
           >
             {t('canvas.pattern.saveAcceptance', 'Abnahme')}
           </button>
+          {schaltbar && (
+            <button
+              type="button"
+              onClick={() => setSchaltenOffen(true)}
+              title={t(
+                'canvas.pattern.switchTitle',
+                'Die Kreuzpunkte setzen, die der Plan für einen Weg vorsieht — ein Eingriff in die laufende Anlage. Es werden nur die Ausgänge dieses Wegs geschaltet, der Plan bleibt unverändert.',
+              )}
+              className="av-focus rounded-full border border-cp-danger/60 px-2 py-0.5 text-[11px] text-cp-danger hover:bg-cp-surface-3"
+            >
+              {t('canvas.pattern.switch', 'Weg schalten…')}
+            </button>
+          )}
         </>
       )}
+      {schaltenOffen && <HubSwitchDialog onClose={() => setSchaltenOffen(false)} />}
     </span>
   )
 }
