@@ -2899,6 +2899,12 @@ export const en: Dict = {
   'calc.euColorTitle': 'EU colour code (DIN VDE 0293-308)',
   'calc.greedyExplain':
     'Greedy distribution: sorted by power, each device on the currently least-loaded phase. With symmetric loads three-phase draws only {amps} A per phase; imbalance raises the highest phase current. Target: every phase < 85% load + imbalance < 20%.',
+  // E-8 — die Herkunft der Leistungszahl, in derselben Zeile wie die Zahl.
+  'calc.watts.mode': 'mode',
+  'calc.watts.planned': 'planned',
+  'calc.watts.imported': 'imported',
+  'calc.watts.derived': 'from V×A',
+  'calc.watts.none': 'no figure',
   'calc.topConsumers': 'Top consumers',
 
   // #378 — Bulk cable connect dialog
