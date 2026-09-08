@@ -57,10 +57,21 @@ import type { ReadingSource } from './asBuilt'
  */
 export const LIVE_STALE_AFTER_MS = 5000
 
-/** Beobachteter Zustand einer Strecke. Nur mit Beleg. */
+/**
+ * Beobachteter Zustand einer Strecke. Nur mit Beleg.
+ *
+ * `carrying` und `routed` sind ausdrücklich ZWEI Aussagen und keine Nuance
+ * derselben. Ein Videohub meldet seine Kreuzpunkte — er sagt, dass er diesen
+ * Eingang auf diesen Ausgang durchschaltet, und NICHTS darüber, ob dort
+ * Signal anliegt. Das als `carrying` zu melden wäre die Falschaussage, gegen
+ * die diese ganze Datei gebaut ist: der Kreuzpunkt steht auch dann, wenn
+ * upstream die Kamera aus ist.
+ */
 export type LinkState =
-  /** Signal liegt an. */
+  /** Signal liegt an — von einer Quelle, die Signal wirklich erkennt. */
   | 'carrying'
+  /** Der Router führt diese Strecke. Über anliegendes Signal sagt er nichts. */
+  | 'routed'
   /** Verbindung steht, es läuft nichts darüber. */
   | 'idle'
   /** Keine Verbindung. */
@@ -131,6 +142,8 @@ export type FlowKind =
   | 'schema'
   /** Beobachtet: Signal liegt an. */
   | 'live-carrying'
+  /** Beobachtet: der Router führt die Strecke — über Signal ist nichts bekannt. */
+  | 'live-routed'
   /** Beobachtet: Verbindung steht, kein Signal. */
   | 'live-idle'
   /** Beobachtet: keine Verbindung. */
@@ -203,6 +216,19 @@ export const edgeFlow = (
     case 'carrying':
       return {
         kind: 'live-carrying',
+        animate: opts.motion,
+        direction,
+        dimmed: false,
+        ageMs,
+        source: eintrag.source,
+      }
+    case 'routed':
+      // Bewegt sich wie `carrying`: der Router SCHALTET diese Strecke durch,
+      // das ist ein Weg und kein Stillstand. Der Unterschied steckt in `kind`
+      // und wird dort gelesen, wo er etwas aendert — nicht in der Bewegung,
+      // die sonst dreierlei bedeutete.
+      return {
+        kind: 'live-routed',
         animate: opts.motion,
         direction,
         dimmed: false,

@@ -63,6 +63,7 @@ import { createDemoProject } from '../../lib/demoProject'
 import { CanvasSearch } from './CanvasSearch'
 import { format, useTranslation } from '../../lib/i18n'
 import { useAtemTallyFeed } from '../../hooks/useAtemTallyFeed'
+import { useVideohubLinkFeed } from '../../hooks/useVideohubLinkFeed'
 import { styleForLayer } from '../../lib/cableLayers'
 
 const nodeTypes = { equipment: EquipmentNode, location: LocationFrameNode }
@@ -101,6 +102,9 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
   // Der Mischer-Zustand als Beobachtung. Er haengt am Canvas, weil der Canvas
   // ihn zeigt — nicht an `App`, wo er auch dann liefe, wenn niemand hinsieht.
   useAtemTallyFeed()
+  // Der Kreuzpunkt-Zustand des Routers. Zweite Quelle neben dem Mischer; sie
+  // meldet ihre eigene Haelfte ab, wenn sie ausfaellt.
+  useVideohubLinkFeed()
   // #515 — stabile ID dieser CanvasArea-Instanz für die A*-Router-Registry.
   // Haupt- und Rack-Canvas teilen die Komponente, aber nicht die Instanz;
   // die ID hält ihre Router im Stack auseinander (siehe setCableRouter).

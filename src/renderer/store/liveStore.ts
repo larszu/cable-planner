@@ -37,8 +37,22 @@ interface LiveState {
    * und ein Einspeiser, der sie mitliefert, koennte sie schoenen.
    */
   melde: (teil: { links?: readonly LiveLink[]; tally?: readonly LiveTally[] }, now: number) => void
-  /** Verbindung weg. Der Canvas faellt beim naechsten Takt aufs Schema. */
-  verbindungWeg: () => void
+  /**
+   * Eine QUELLE ist weg. Sie raeumt ihre eigene Haelfte und ruehrt
+   * `lastContactAt` NICHT an.
+   *
+   * WARUM NICHT ALLES. Es gibt zwei Einspeiser — der Mischer meldet Tally,
+   * der Router meldet Kreuzpunkte. Faellt einer aus, faellt nicht der andere
+   * aus; wer hier alles leerte, machte aus einem toten Router einen toten
+   * Mischer. Und `lastContactAt` stehen zu lassen ist richtig, solange die
+   * andere Quelle es weiter hochsetzt: „live" heisst, dass ueberhaupt jemand
+   * meldet. Die Eintraege der toten Quelle altern von selbst aus dem
+   * Frische-Fenster heraus, und ihre Kanten fallen einzeln aufs Schema —
+   * genau die Regel, die `edgeFlow` je Eintrag prueft.
+   *
+   * Ohne Argument: beide Haelften, und dann faellt auch `lastContactAt` weg.
+   */
+  verbindungWeg: (teil?: 'links' | 'tally') => void
 }
 
 export const useLiveStore = create<LiveState>((set) => ({
@@ -51,7 +65,17 @@ export const useLiveStore = create<LiveState>((set) => ({
         lastContactAt: now,
       },
     })),
-  verbindungWeg: () => set({ snapshot: EMPTY_LIVE }),
+  verbindungWeg: (teil) =>
+    set((s) => {
+      if (!teil) return { snapshot: EMPTY_LIVE }
+      return {
+        snapshot: {
+          ...s.snapshot,
+          links: teil === 'links' ? [] : s.snapshot.links,
+          tally: teil === 'tally' ? [] : s.snapshot.tally,
+        },
+      }
+    }),
 }))
 
 /**

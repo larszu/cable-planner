@@ -17,7 +17,8 @@ import { buildTallyMap } from '../lib/tallyMap'
  * kann. Ein Push OHNE Zeitstempel wäre schlechter — dann sähe eine
  * eingefrorene Verbindung aus wie ein stabiler Zustand.
  *
- * WAS BEI EINEM FEHLSCHLAG PASSIERT: `verbindungWeg()`. Nicht „letzten Stand
+ * WAS BEI EINEM FEHLSCHLAG PASSIERT: er meldet seine eigene Hälfte ab — und
+ * nur die, denn ein toter Mischer ist kein toter Router. Nicht „letzten Stand
  * behalten": ein Mischer, den wir nicht mehr erreichen, ist kein Mischer, der
  * dasselbe zeigt wie eben. Der Canvas fällt dann aufs Schema zurück, und der
  * Streifen sagt es (Eigentümer-Entscheidung vom 2026-09-08).
@@ -41,7 +42,7 @@ export const useAtemTallyFeed = (): void => {
         const status = await cablePlannerApi.atem.getStatus()
         if (!lebt) return
         if (!status.connected) {
-          verbindungWeg()
+          verbindungWeg('tally')
           return
         }
         const state = await cablePlannerApi.atem.getState()
@@ -55,7 +56,7 @@ export const useAtemTallyFeed = (): void => {
       } catch {
         // Erreichbar heisst nicht antwortend. Kein Stand ist besser als ein
         // alter, der wie ein aktueller aussieht.
-        if (lebt) verbindungWeg()
+        if (lebt) verbindungWeg('tally')
       }
     }
 

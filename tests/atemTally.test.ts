@@ -106,16 +106,34 @@ import { resolve } from 'node:path'
 const quelle = (rel: string) => readFileSync(resolve(__dirname, '..', rel), 'utf8')
 
 describe('Der Mischer-Einspeiser', () => {
+  // Ohne Kommentare: der Kopfkommentar der Datei NENNT `verbindungWeg`, um zu
+  // erklaeren, was sie tut. Ein Waechter, der Begruendungen mitliest, macht
+  // die Begruendung zum Fehler — derselbe Griff daneben wie beim Live-Store.
   const feed = quelle('src/renderer/hooks/useAtemTallyFeed.ts')
+    .replace(/\/\*[\s\S]*?\*\//g, ' ')
+    .replace(/(^|[^:])\/\/.*$/gm, '$1')
 
+  // Die Zusicherung ist „er wirft den Stand weg", nicht „er ruft
+  // `verbindungWeg()` ohne Argument". Der erste Anlauf pinnte die leere
+  // Klammer und wurde rot, als die Funktion ein Argument bekam (welche
+  // Haelfte) — eine RICHTIGE Aenderung. Ein Waechter, der daran rot wird,
+  // wird geaendert statt gelesen.
   it('wirft den Stand weg, sobald der Mischer nicht mehr verbunden ist', () => {
     expect(feed).toContain('if (!status.connected)')
-    expect(feed).toMatch(/if \(!status\.connected\) \{\s*verbindungWeg\(\)/)
+    expect(feed).toMatch(/if \(!status\.connected\) \{\s*verbindungWeg\(/)
   })
 
   it('wirft den Stand auch bei einem Fehlschlag weg', () => {
     // Erreichbar heisst nicht antwortend.
-    expect(feed).toMatch(/catch \{[\s\S]*verbindungWeg\(\)/)
+    expect(feed).toMatch(/catch \{[\s\S]*verbindungWeg\(/)
+  })
+
+  it('raeumt dabei NUR seine eigene Haelfte', () => {
+    // Ein toter Mischer ist kein toter Router. Das ist die Aussage, die das
+    // Argument traegt — deshalb steht sie hier als eigene Zeile und nicht
+    // als Klammerinhalt in den beiden darueber.
+    expect(feed).toContain("verbindungWeg('tally')")
+    expect(feed).not.toMatch(/verbindungWeg\(\)/)
   })
 
   it('stempelt jede Meldung mit der Zeit', () => {
