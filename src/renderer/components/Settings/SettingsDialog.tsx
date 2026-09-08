@@ -5,6 +5,7 @@ import { useDialogA11y } from '../../hooks/useDialogA11y'
 import { useTranslation } from '../../lib/i18n'
 import { openPanelPopout } from '../../lib/panelPopout'
 import { SettingsBody } from './SettingsBody'
+import { useBackdropClose } from '../../hooks/useBackdropClose'
 
 interface SettingsDialogProps {
   open: boolean
@@ -20,10 +21,17 @@ export const SettingsDialog = ({ open, onClose, initialSection }: SettingsDialog
     ref: drag.containerRef,
   })
 
+  // B-44 — der Hintergrund schliesst. Ohne Schutz: dieser Dialog haelt
+  // keinen Entwurf, jede Einstellung ist beim Umlegen schon geschrieben.
+  const backdrop = useBackdropClose(onClose)
+
   if (!open) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-2 sm:p-6">
+    <div
+      {...backdrop}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-2 sm:p-6"
+    >
       <div
         ref={panelRef}
         aria-labelledby={titleId}

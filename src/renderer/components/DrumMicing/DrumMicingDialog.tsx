@@ -15,6 +15,7 @@ import {
 } from '../../lib/drumMicing'
 import type { DrumKitPlan, DrumMicPlacement, DrumTechnique, DrumZone } from '../../types/drumKit'
 import { useDialogA11y } from '../../hooks/useDialogA11y'
+import { useBackdropClose } from '../../hooks/useBackdropClose'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // #Drum-Mikrofonierung — visuelles Schlagzeug (SVG-Draufsicht), Mic-Platzierung,
@@ -93,6 +94,9 @@ export const DrumMicingDialog = () => {
   // Phase 3 der UI-Pruefung: Escape, Fokus-Falle und Fokus-Rueckgabe aus dem
   // Haken. Vor dem bedingten Ausstieg, weil Haken nicht bedingt laufen.
   const { panelRef, titleId, dialogProps } = useDialogA11y(open, () => setOpen(false))
+
+  // B-44 — der Hintergrund schliesst, aus derselben Quelle wie ueberall.
+  const backdrop = useBackdropClose(() => setOpen(false))
 
   if (!open) return null
 
@@ -209,7 +213,10 @@ export const DrumMicingDialog = () => {
   }
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 p-4">
+    <div
+      {...backdrop}
+      className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 p-4"
+    >
       <div
         ref={panelRef}
         aria-labelledby={titleId}

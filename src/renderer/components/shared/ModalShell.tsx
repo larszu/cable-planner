@@ -14,6 +14,7 @@ import type { ReactNode } from 'react'
 import { X } from 'lucide-react'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
 import { useDialogA11y } from '../../hooks/useDialogA11y'
+import { useBackdropClose } from '../../hooks/useBackdropClose'
 import { useTranslation } from '../../lib/i18n'
 import { Icon } from './Icon'
 
@@ -86,15 +87,19 @@ export const ModalShell = ({
     ref: draggableKey ? drag.containerRef : undefined,
   })
 
+  const backdrop = useBackdropClose(onClose, { aus: !closeOnBackdrop })
+
   if (!open) return null
 
   return (
     <div
       className="cp-modal-backdrop fixed inset-0 flex items-center justify-center bg-black/60 p-4"
       style={{ zIndex }}
-      onMouseDown={(e) => {
-        if (closeOnBackdrop && e.target === e.currentTarget) onClose()
-      }}
+      /* B-44 — die Regel steht in `useBackdropClose` und nicht mehr hier.
+         Zwei Fassungen derselben Bedingung waeren die Defektform
+         `zwei-rechnungen`: die eine wuerde irgendwann um den Schutz fuer
+         ungesicherte Eingaben erweitert und die andere nicht. */
+      {...backdrop}
     >
       <div
         ref={panelRef}

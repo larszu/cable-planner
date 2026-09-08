@@ -67,6 +67,7 @@ import {
 } from '../../types/delivery'
 import { PanelHint } from '../shared/PanelHint'
 import { useDialogA11y } from '../../hooks/useDialogA11y'
+import { useBackdropClose } from '../../hooks/useBackdropClose'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Die Ausspielung (Initiative 9). Ein Register der Ziele: Plattform, Ingest,
@@ -171,6 +172,9 @@ export const DeliveryDialog = () => {
   // Phase 3 der UI-Pruefung: Escape, Fokus-Falle und Fokus-Rueckgabe aus dem
   // Haken. Vor dem bedingten Ausstieg, weil Haken nicht bedingt laufen.
   const { panelRef, titleId, dialogProps } = useDialogA11y(open, () => setOpen(false))
+
+  // B-44 — der Hintergrund schliesst, aus derselben Quelle wie ueberall.
+  const backdrop = useBackdropClose(() => setOpen(false))
 
   if (!open) return null
 
@@ -480,7 +484,10 @@ export const DeliveryDialog = () => {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+    <div
+      {...backdrop}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+    >
       <div
         ref={panelRef}
         aria-labelledby={titleId}

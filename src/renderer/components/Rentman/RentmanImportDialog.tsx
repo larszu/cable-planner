@@ -44,6 +44,7 @@ import type {
 } from './rentmanImportHelpers'
 import { PanelHint } from '../shared/PanelHint'
 import { useDialogA11y } from '../../hooks/useDialogA11y'
+import { useBackdropClose } from '../../hooks/useBackdropClose'
 
 interface RentmanImportDialogProps {
   open: boolean
@@ -332,6 +333,11 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
   // Deshalb `aria-label` statt `aria-labelledby`: es gibt keine EINE
   // Ueberschrift, und auf eine von fuenfen zu zeigen waere falsch.
   const { panelRef, dialogProps } = useDialogA11y(open, safeClose)
+
+  // B-44 — der Hintergrund schliesst, aus derselben Quelle wie ueberall.
+  // `safeClose` und nicht `onClose`: dieser Dialog raeumt beim Schliessen
+  // seinen Assistenten auf, und der Hintergrund darf daran nicht vorbei.
+  const backdrop = useBackdropClose(safeClose)
 
   if (!open) {
     return null
@@ -1048,6 +1054,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
 
   return (
     <div
+      {...backdrop}
       ref={panelRef}
       aria-label={t('rentman.import.title', 'Aus Rentman importieren')}
       {...dialogProps}
