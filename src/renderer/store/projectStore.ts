@@ -91,6 +91,7 @@ import { isNetworkInterfaceRole, normaliseNetworkInterface } from '../lib/networ
 import type { NetworkInterface } from '../types/network'
 import { istCircuitKind } from '../types/circuit'
 import { normalisePatternChecks } from '../types/patternCheck'
+import { normaliseHubSwitches } from '../types/hubSwitch'
 
 const CUSTOM_LIB_KEY = STORAGE_KEYS.customLibrary
 const PROJECT_AUTOSAVE_KEY = STORAGE_KEYS.projectAutosave
@@ -558,6 +559,16 @@ export interface ProjectState {
   recordPatternCheck: (
     check: import('../types/patternCheck').PatternCheck,
   ) => 'unknown-equipment' | undefined
+  /** B-42 Inkrement 3 — einen gesendeten Kreuzpunkt-Befehl aufzeichnen.
+   *
+   *  Angehaengt wie die Sichtpruefung, und aus demselben Grund. Aufgezeichnet
+   *  wird AUCH der abgelehnte Befehl (`ok: false`): dass jemand geschaltet
+   *  HAT, ist die Auskunft, nicht nur dass es geklappt hat. Der Plan bleibt
+   *  unangetastet — hier wird nichts an `videohubRouting.planned` geschrieben,
+   *  weil sonst die Abweichung zwischen Plan und Anlage verschwaende. */
+  recordHubSwitch: (
+    eintrag: import('../types/hubSwitch').HubSwitch,
+  ) => 'unknown-equipment' | undefined
   renameSourceIdentity: (
     id: string,
     newName: string,
@@ -810,6 +821,11 @@ const healProjectPositions = (
   const patternChecks = normalisePatternChecks(project.patternChecks, geraeteIds, (d) =>
     onDrop?.({ kind: 'pattern-check', reason: d.reason, label: d.label }),
   )
+  // B-42 Inkrement 3 — die Eingriffe. Regel in `normaliseHubSwitches`
+  // (types/hubSwitch.ts), dort am VERHALTEN geprueft.
+  const hubSwitches = normaliseHubSwitches(project.hubSwitches, geraeteIds, (d) =>
+    onDrop?.({ kind: 'hub-switch', reason: d.reason, label: d.label }),
+  )
   const networkSegments = normaliseNetworkSegments(project.networkSegments).map((s) =>
     s.gatewayEquipmentId && !geraeteIds.has(s.gatewayEquipmentId)
       ? (({ gatewayEquipmentId: _weg, ...rest }) => rest)(s)
@@ -1049,6 +1065,7 @@ const healProjectPositions = (
     // zwaenge jeden Leser zu einer zweiten Fallunterscheidung.
     tallyPositions,
     patternChecks,
+    hubSwitches,
     // Bedarf 116 — dito.
     networkSegments,
     // Bedarf 20 — dito.
