@@ -32,7 +32,6 @@ const GRENZE = 140
 const ZUSAMMENGESETZT = new Set([
   'components/Import/GraphmlImportDialog.tsx',
   'lager/ui/InventoryDialog.tsx',
-  'components/Print/PrintDialog.tsx',
 ])
 
 interface Fund {
