@@ -6,6 +6,7 @@ import { useUiStore } from '../../store/uiStore'
 import { useModule } from '../../store/settingsStore'
 import { cableTypePatchFromPorts } from '../../lib/cableInheritance'
 import type { Cable } from '../../types/cable'
+import { LEITER_ROLLEN, type LeiterRolle } from '../../types/conductor'
 import type { EquipmentItem, Port } from '../../types/equipment'
 import { ColorField } from '../shared/ColorField'
 import { v4 as uuidv4 } from 'uuid'
@@ -29,6 +30,7 @@ export const CableProperties = () => {
   const equipment = useProjectStore((state) => state.project.equipment)
   const cables = useProjectStore((state) => state.project.cables)
   const updateCable = useProjectStore((state) => state.updateCable)
+  const anschlussListe = useProjectStore((state) => state.project.anschlussListe)
   const deleteCable = useProjectStore((state) => state.deleteCable)
   const setCableInstallStatus = useProjectStore((state) => state.setCableInstallStatus)
   const setCableTestResult = useProjectStore((state) => state.setCableTestResult)
@@ -429,6 +431,135 @@ export const CableProperties = () => {
           )}
         </datalist>
       </label>
+
+      {/* B-45 — welche Leiter DIESE Leitung fuehrt, und zu welchem Anschluss
+          sie gehoert.
+
+          Nicht dasselbe wie „Multicore / Snake" darueber, auch wenn es so
+          aussieht: der Multicore-Name sagt „diese Kabel stecken in EINEM
+          Mantel, zaehle sie als ein Stueck". Das Anschluss sagt „diese getrennt
+          gezogenen Leitungen bilden EINEN Anschluss, und er muss diese Leiter
+          haben". Nur das Zweite kann merken, dass die vierte von fuenf
+          Leitungen fehlt. */}
+      <details className="rounded border border-cp-border bg-cp-surface-3/40">
+        <summary className="cursor-pointer select-none px-2 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-cp-text-muted hover:bg-cp-surface-2/40">
+          {t('adern.cableSection', 'Adern (Strom)')}
+        </summary>
+        <div className="space-y-2 border-t border-cp-border p-2">
+          <label className="block text-cp-xs">
+            <span className="mb-1 block text-cp-text-secondary">
+              {t('adern.cable.anschluss', 'Gehört zum Anschluss')}
+            </span>
+            <select
+              className="w-full rounded border border-cp-border bg-cp-surface-1 p-2"
+              value={cable.anschlussId ?? ''}
+              onChange={(e) => updateCable(cable.id, { anschlussId: e.target.value || undefined })}
+            >
+              <option value="">{t('adern.cable.anschlussNone', 'zu keinem')}</option>
+              {(anschlussListe ?? []).map((b) => (
+                <option key={b.id} value={b.id}>
+                  {b.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          {(anschlussListe ?? []).length === 0 && (
+            <div className="text-cp-xs text-cp-text-muted">
+              {t(
+                'adern.cable.noAnschluss',
+                'Noch kein Anschluss angelegt — unter „Werkzeuge → Adern und Farbnormen".',
+              )}
+            </div>
+          )}
+
+          <div className="text-cp-xs text-cp-text-secondary">
+            {t('adern.cable.adern', 'Leiter in dieser Leitung')}
+          </div>
+          {(cable.adern ?? []).map((a, i) => (
+            <div key={a.id} className="flex flex-wrap items-center gap-1">
+              <select
+                className="rounded border border-cp-border bg-cp-surface-1 px-1 py-1 text-cp-xs"
+                value={a.rolle}
+                onChange={(e) =>
+                  updateCable(cable.id, {
+                    adern: (cable.adern ?? []).map((x, j) =>
+                      j === i ? { ...x, rolle: e.target.value as LeiterRolle } : x,
+                    ),
+                  })
+                }
+                aria-label={t('adern.cable.rolle', 'Leiter')}
+              >
+                {LEITER_ROLLEN.map((r) => (
+                  <option key={r} value={r}>
+                    {r}
+                  </option>
+                ))}
+              </select>
+              <input
+                className="min-w-0 flex-1 rounded border border-cp-border bg-cp-surface-1 px-1 py-1 text-cp-xs"
+                value={a.farbe ?? ''}
+                placeholder={t('adern.cable.farbe', 'Farbe (leer = aus der Norm)')}
+                onChange={(e) =>
+                  updateCable(cable.id, {
+                    adern: (cable.adern ?? []).map((x, j) =>
+                      j === i ? { ...x, farbe: e.target.value || undefined } : x,
+                    ),
+                  })
+                }
+                aria-label={t('adern.cable.farbe', 'Farbe (leer = aus der Norm)')}
+              />
+              <input
+                className="min-w-0 flex-1 rounded border border-cp-border bg-cp-surface-1 px-1 py-1 text-cp-xs"
+                value={a.abweichungsgrund ?? ''}
+                placeholder={t('adern.cable.grund', 'Grund, falls abweichend')}
+                onChange={(e) =>
+                  updateCable(cable.id, {
+                    adern: (cable.adern ?? []).map((x, j) =>
+                      j === i ? { ...x, abweichungsgrund: e.target.value || undefined } : x,
+                    ),
+                  })
+                }
+                aria-label={t('adern.cable.grund', 'Grund, falls abweichend')}
+              />
+              <button
+                type="button"
+                className="rounded bg-red-700 px-1.5 py-1 text-[10px] hover:bg-red-600"
+                onClick={() =>
+                  updateCable(cable.id, {
+                    adern:
+                      (cable.adern ?? []).length > 1
+                        ? (cable.adern ?? []).filter((_, j) => j !== i)
+                        : undefined,
+                  })
+                }
+                aria-label={t('common.delete', 'Löschen')}
+              >
+                ×
+              </button>
+            </div>
+          ))}
+          <button
+            type="button"
+            className="rounded bg-emerald-700 px-2 py-1 text-cp-xs hover:bg-emerald-600"
+            onClick={() =>
+              updateCable(cable.id, {
+                adern: [
+                  ...(cable.adern ?? []),
+                  {
+                    id: `ader-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
+                    // Vorgabe `frei` und NICHT L1: eine geratene Rolle sähe in
+                    // der Ziehliste aus wie eine Angabe, und ein falsch als N
+                    // geführter Aussenleiter ist eine Gefahr.
+                    rolle: 'frei' as LeiterRolle,
+                  },
+                ],
+              })
+            }
+          >
+            {t('adern.cable.add', '+ Leiter')}
+          </button>
+        </div>
+      </details>
 
       {/* #368 — Tie-Line / Festverbindung (permanente Haus-/Dauerleitung). */}
       <label className="flex items-center gap-2 text-[12px] text-cp-text-secondary">

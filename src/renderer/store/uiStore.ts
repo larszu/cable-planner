@@ -813,6 +813,9 @@ interface UiState extends PersistedUiState {
   /** Initiative 9 — Register der Ausspielziele. */
   deliveryOpen: boolean
   setDeliveryOpen: (open: boolean) => void
+  /** B-45 — Farbnormen und Anschluss. */
+  adernOpen: boolean
+  setAdernOpen: (open: boolean) => void
   /** Bedarf 21 — Plan gegen Vorgefundenes. */
   reconcileOpen: boolean
   setReconcileOpen: (open: boolean) => void
@@ -1343,6 +1346,8 @@ export const useUiStore = create<UiState>((set) => ({
   setWirelessRigOpen: (open) => set({ wirelessRigOpen: open }),
   deliveryOpen: false,
   setDeliveryOpen: (open) => set({ deliveryOpen: open }),
+  adernOpen: false,
+  setAdernOpen: (open) => set({ adernOpen: open }),
   reconcileOpen: false,
   setReconcileOpen: (open) => set({ reconcileOpen: open }),
   atemMvLayout: { open: false },

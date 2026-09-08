@@ -3539,6 +3539,51 @@ export const en: Dict = {
     'This device has no connectors. Without them no line can be attached, and the circuit stays empty at this point.',
   'circuit.terminalHint':
     'The terminal belongs to the connector, not to its position in the list — reordering does not rewire the circuit.',
+  // B-45 — Adern, Farbnormen und Anschluesse (Stromplanung).
+  'adern.title': 'Conductors, colour standards and connections',
+  'adern.tab.normen': 'Colour standards',
+  'adern.tab.anschluss': 'Connections (bundles)',
+  'adern.norm.hint':
+    'No standard is built in, and that is deliberate: which colour assignment applies to this installation is not something the program knows. A guessed default would look like a checked entry and would colour every conductor. Enter the standard that applies here — and where it comes from.',
+  'adern.norm.empty':
+    'No colour standard entered yet. Without one the conductor colours stay unchecked — the plan check says so instead of quietly showing them as correct.',
+  'adern.norm.newName': 'New colour standard',
+  'adern.norm.name': 'Name of the standard',
+  'adern.norm.herkunft': 'Source (required)',
+  'adern.norm.herkunftPlaceholder':
+    'Where does this assignment come from? Regulation, edition, page — or "house standard, set by …"',
+  'adern.norm.herkunftMissing':
+    'Without a source this standard is discarded on the next load — it would otherwise sit in the list without anyone being able to check whether it applies here.',
+  'adern.norm.colourPlaceholder': 'Colour',
+  'adern.norm.add': 'Enter colour standard',
+  'adern.norm.confirmDelete': 'Delete colour standard?',
+  'adern.norm.confirmDeleteBody':
+    'Bundles that chose it are then left without a standard — their conductor colours are no longer checked.',
+  'adern.anschluss.hint':
+    'A connection pulled one conductor at a time: five lines make up one 400 A connection. Enter which conductors it must have — only then can the plan notice that the fourth is missing.',
+  'adern.anschluss.newName': 'New connection',
+  'adern.anschluss.name': 'Name of the connection',
+  'adern.anschluss.soll': 'These conductors the connection must have',
+  'adern.anschluss.norm': 'Colour standard for this connection',
+  'adern.anschluss.normNone': 'none chosen',
+  'adern.anschluss.notiz': 'Note (e.g. connector coding)',
+  'adern.anschluss.notizPlaceholder':
+    'The coding is in the manufacturer document — enter it here, do not guess it.',
+  'adern.anschluss.add': 'Add connection',
+  'adern.anschluss.confirmDelete': 'Delete connection?',
+  'adern.anschluss.confirmDeleteBody':
+    'The lines remain; afterwards they belong to no connection, and the check for missing conductors no longer applies to them.',
+  'adern.cableSection': 'Conductors (power)',
+  'adern.cable.anschluss': 'Belongs to connection',
+  'adern.cable.anschlussNone': 'to none',
+  'adern.cable.noAnschluss': 'No connection created yet — under "Tools → Conductors and colour standards".',
+  'adern.cable.adern': 'Conductors in this line',
+  'adern.cable.rolle': 'Conductor',
+  'adern.cable.farbe': 'Colour (empty = from the standard)',
+  'adern.cable.grund': 'Reason, if deviating',
+  'adern.cable.add': '+ Conductor',
+  'app.menu.tools.adern': 'Conductors and colour standards…',
+  'app.menu.tools.adern.note': 'Colour standards and connections pulled one conductor at a time',
   // B-46 — die Adapter-Angaben am Geraet (Eigenschaften-Panel).
   'adapter.title': 'Adapter',
   'adapter.none': 'not an adapter',

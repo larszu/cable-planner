@@ -14,6 +14,7 @@ import { createCableSlice } from './slices/cableSlice'
 import { createAnnotationSlice } from './slices/annotationSlice'
 import { createSourceIdentitySlice } from './slices/sourceIdentitySlice'
 import { createDeliverySlice } from './slices/deliverySlice'
+import { createConductorSlice } from './slices/conductorSlice'
 import { createCrewSlice } from './slices/crewSlice'
 import { createAddressTemplateSlice } from './slices/addressTemplateSlice'
 import { createRevisionSlice } from './slices/revisionSlice'
@@ -95,6 +96,11 @@ import { normaliseHubSwitches } from '../types/hubSwitch'
 import { normalisePlannedCrosspoints } from '../lib/deviceCrosspoints'
 import { istControlProtocol, istControlTarget, istControlRole } from '../types/switcherControl'
 import { normalisiereAdapter, normalisiereKann } from '../types/adapter'
+import {
+  normalisiereAdern,
+  normalisiereAnschluss,
+  normalisiereFarbnorm,
+} from '../types/conductor'
 import { pruefeVorlage } from '../lib/textProtocol'
 import { pruefeCompanion } from '../lib/companionControl'
 
@@ -717,6 +723,10 @@ export interface ProjectState {
   /** Vergibt allen Kabeln/Geräten ohne QR-/Asset-ID eine stabile ID.
    *  Liefert die Anzahl neu vergebener IDs je Sorte. */
   assignDocIds: () => { cables: number; equipment: number }
+  /** B-45 — die Farbnormen des Projekts ersetzen. */
+  setFarbnormen: (farbnormen: import('../types/conductor').Farbnorm[]) => void
+  /** B-45 — die Anschluss des Projekts ersetzen. */
+  setAnschluss: (anschlussListe: import('../types/conductor').Anschluss[]) => void
   /** Setzt den Kabel-Namen auf das AVIXA-F501.01-Label „Quelle → Ziel".
    *  Ohne `overwrite` werden nur leere Namen gefüllt. Liefert die Anzahl
    *  geänderter Kabel. */
@@ -828,6 +838,27 @@ const healProjectPositions = (
   )
   // B-42 Inkrement 3 — die Eingriffe. Regel in `normaliseHubSwitches`
   // (types/hubSwitch.ts), dort am VERHALTEN geprueft.
+  // B-45 — die Farbnormen und die Anschluss. Die Normen ZUERST: ein Anschluss
+  // mit einem Zeiger auf eine geloeschte Norm verliert ihn, und die Kabel
+  // brauchen anschliessend die gueltigen Anschluss-Ids. Eine Norm ohne
+  // `herkunft` wird verworfen — sie stuende sonst in der Auswahl, ohne dass
+  // jemand nachlesen kann, ob sie fuer diese Anlage gilt, und faerbte
+  // trotzdem jede Ader.
+  const farbnormen = (project.farbnormen ?? [])
+    .map(normalisiereFarbnorm)
+    .filter((n): n is import('../types/conductor').Farbnorm => !!n)
+  if ((project.farbnormen?.length ?? 0) !== farbnormen.length) {
+    onDrop?.({ kind: 'farbnorm', reason: 'invalid-value', label: '' })
+  }
+  const normIds = new Set(farbnormen.map((n) => n.id))
+  const anschlussListe = (project.anschlussListe ?? [])
+    .map((b) => normalisiereAnschluss(b, normIds))
+    .filter((b): b is import('../types/conductor').Anschluss => !!b)
+  if ((project.anschlussListe?.length ?? 0) !== anschlussListe.length) {
+    onDrop?.({ kind: 'anschlussListe', reason: 'invalid-value', label: '' })
+  }
+  const anschlussIds = new Set(anschlussListe.map((b) => b.id))
+
   const hubSwitches = normaliseHubSwitches(project.hubSwitches, geraeteIds, (d) =>
     onDrop?.({ kind: 'hub-switch', reason: d.reason, label: d.label }),
   )
@@ -1125,6 +1156,25 @@ const healProjectPositions = (
       if (!patched.layer) {
         patched = { ...patched, layer: detectLayerForConnector(patched.type) }
       }
+      // B-45 — die Adern. Eine Ader ohne gueltige Rolle faellt weg: sie
+      // stuende sonst in der Ziehliste als Zeile ohne Leiter, und eine
+      // Zeile ohne Leiter ist auf einer Ziehliste schlimmer als keine.
+      if (patched.adern !== undefined) {
+        const geheilt = normalisiereAdern(patched.adern)
+        if (!geheilt) {
+          onDrop?.({ kind: 'ader', reason: 'invalid-value', label: patched.name || patched.id })
+          patched = (({ adern: _weg, ...rest }) => rest)(patched) as typeof patched
+        } else {
+          patched = { ...patched, adern: geheilt }
+        }
+      }
+      // Ein Anschluss-Zeiger ins Leere faellt WEG. Er saehe in der Anzeige aus
+      // wie eine Zugehoerigkeit — und die Pruefung, die das fehlende
+      // Gegenstueck finden soll, faende ein Anschluss, das es nicht gibt.
+      if (patched.anschlussId !== undefined && !anschlussIds.has(patched.anschlussId)) {
+        onDrop?.({ kind: 'anschlussListe', reason: 'dangling-ref', label: patched.name || patched.id })
+        patched = (({ anschlussId: _weg, ...rest }) => rest)(patched) as typeof patched
+      }
       // Bedarf 13 — die HERKUNFT einer geschaetzten Laenge sind Canvas-
       // Koordinaten und muss deshalb dieselbe Rasterung mitmachen wie die
       // Geraete darueber. Ohne diese Zeilen meldete ein Projekt, das nur
@@ -1177,6 +1227,9 @@ const healProjectPositions = (
     tallyPositions,
     patternChecks,
     hubSwitches,
+    // B-45 — dito: leere Liste, nicht `undefined`.
+    farbnormen,
+    anschlussListe,
     // Bedarf 116 — dito.
     networkSegments,
     // Bedarf 20 — dito.
@@ -1420,6 +1473,7 @@ const buildProjectStore = (
   ...createAnnotationSlice(set, get, store),
   ...createSourceIdentitySlice(set, get, store),
   ...createDeliverySlice(set, get, store),
+  ...createConductorSlice(set, get, store),
   ...createCrewSlice(set, get, store),
   ...createAddressTemplateSlice(set, get, store),
   ...createRevisionSlice(set, get, store),
