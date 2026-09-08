@@ -62,6 +62,7 @@ import {
 import { createDemoProject } from '../../lib/demoProject'
 import { CanvasSearch } from './CanvasSearch'
 import { format, useTranslation } from '../../lib/i18n'
+import { useAtemTallyFeed } from '../../hooks/useAtemTallyFeed'
 
 const nodeTypes = { equipment: EquipmentNode, location: LocationFrameNode }
 const edgeTypes = { cable: CableEdge }
@@ -96,6 +97,9 @@ const ViewportStateSync = ({
 
 const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
   const t = useTranslation()
+  // Der Mischer-Zustand als Beobachtung. Er haengt am Canvas, weil der Canvas
+  // ihn zeigt — nicht an `App`, wo er auch dann liefe, wenn niemand hinsieht.
+  useAtemTallyFeed()
   // #515 — stabile ID dieser CanvasArea-Instanz für die A*-Router-Registry.
   // Haupt- und Rack-Canvas teilen die Komponente, aber nicht die Instanz;
   // die ID hält ihre Router im Stack auseinander (siehe setCableRouter).

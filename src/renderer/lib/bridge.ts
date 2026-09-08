@@ -101,6 +101,17 @@ export interface AtemStateSummary {
   auxiliaries?: number
   inputs: AtemInputSummary[]
   multiViewers?: (AtemMultiviewer | null)[]
+  /**
+   * Was gerade auf Sendung ist — je Mix-Effect. Optional, weil eine aeltere
+   * `main`-Fassung (etwa im Browser-Betrieb) das Feld nicht liefert; die
+   * Tally-Anzeige zeigt dann nichts statt etwas Erfundenes.
+   */
+  mixEffectStates?: {
+    index: number
+    programInput?: number
+    previewInput?: number
+    inTransition?: boolean
+  }[]
 }
 
 export interface AtemConnectResult {

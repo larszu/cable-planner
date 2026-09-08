@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useSettingsStore } from '../store/settingsStore'
 import { useLiveStore, LIVE_TICK_MS } from '../store/liveStore'
-import { edgeFlow, liveFreshness, tallyOf, type EdgeFlow } from '../lib/signalAnimation'
+import { edgeFlow, liveFreshness, tallyOf, type EdgeFlow, type TallyState } from '../lib/signalAnimation'
 import type { Cable } from '../types/cable'
 import { useReducedMotion } from './useReducedMotion'
 
@@ -73,10 +73,18 @@ export const useEdgeFlow = (cable: Pick<Cable, 'id' | 'bidirectional'> | undefin
   return edgeFlow(cable, snapshot, now, { motion })
 }
 
-/** Tally eines Geräts — oder `null`, wenn nichts bekannt ist. */
-export const useTally = (equipmentId: string | undefined) => {
+/**
+ * Tally eines Geräts — oder `null`, wenn nichts bekannt ist.
+ *
+ * Gibt bewusst nur den ZUSTAND zurück und nicht das Alter: der Wert ist damit
+ * ein einfacher String, und React kann einen Knoten überspringen, dessen
+ * Tally sich nicht geändert hat. Mit einem Objekt wären es bei dreihundert
+ * Geräten dreihundert Neuzeichnungen pro Sekunde für nichts. Das Alter steht
+ * am Canvas-Streifen, wo es einmal hingehört.
+ */
+export const useTally = (equipmentId: string | undefined): TallyState | null => {
   const snapshot = useLiveStore((s) => s.snapshot)
   const now = useLiveTick()
   if (!equipmentId) return null
-  return tallyOf(equipmentId, snapshot, now)
+  return tallyOf(equipmentId, snapshot, now)?.state ?? null
 }

@@ -29,6 +29,7 @@ type EquipmentNodeData = EquipmentItem & {
 // equipmentLayout.ts dupliziert — Bug-Garantie wenn einer der beiden
 // geändert wurde.
 import { EQUIPMENT_LAYOUT } from '../../lib/layoutConstants'
+import { useTally } from '../../hooks/useCanvasFlow'
 const HEADER_HEIGHT = EQUIPMENT_LAYOUT.HEADER_HEIGHT
 const HEADER_HEIGHT_WITH_IP = EQUIPMENT_LAYOUT.HEADER_HEIGHT_WITH_IP
 const PORT_ROW = EQUIPMENT_LAYOUT.PORT_ROW
@@ -49,6 +50,8 @@ const resolvePortSide = (
 }
 
 export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeData>) => {
+  // Tally aus dem Mischer — `null`, solange nichts bekannt ist.
+  const tally = useTally(id)
   const t = useTranslation()
   const pendingCable = useUiStore((s) => s.pendingCable)
   const startPendingCable = useUiStore((s) => s.startPendingCable)
@@ -557,9 +560,21 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
         borderRadius: 6,
         color: tokens.text,
         fontSize: 12,
-        boxShadow: isLight
-          ? '0 2px 6px rgba(0,0,0,0.12)'
-          : '0 2px 6px rgba(0,0,0,0.4)',
+        // Tally-Ring (Eigentuemer-Entscheidung 2026-09-08). Als AUSSENRING
+        // und nicht als Rahmenfarbe: der Rahmen traegt bereits die
+        // Geraetefarbe und die Auswahl, und ihn zu ueberschreiben liesse
+        // zwei Aussagen um eine Stelle streiten.
+        //
+        // `null` heisst KEINE Aussage und faerbt nichts. Eine Kamera, die
+        // der Mischer nicht kennt, darf nicht aussehen wie eine, von der
+        // bekannt ist, dass sie frei ist.
+        boxShadow: [
+          isLight ? '0 2px 6px rgba(0,0,0,0.12)' : '0 2px 6px rgba(0,0,0,0.4)',
+          tally === 'program' ? '0 0 0 3px #ef4444' : '',
+          tally === 'preview' ? '0 0 0 3px #22c55e' : '',
+        ]
+          .filter(Boolean)
+          .join(', '),
       }}
     >
       {/* Header */}
