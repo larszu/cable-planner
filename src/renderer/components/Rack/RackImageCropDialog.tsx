@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
 import { format, useTranslation } from '../../lib/i18n'
+import { useDialogA11y } from '../../hooks/useDialogA11y'
 
 interface CropRect {
   x: number
@@ -265,6 +266,17 @@ export const RackImageCropDialog = ({
     }
   }
 
+  // Phase 3 der UI-Pruefung. Der Haken bekommt die vorhandene Container-Ref
+  // mit, damit Fokus-Falle und Zieh-Container denselben Knoten meinen.
+  //
+  // Sein `onKeyDown` sitzt am INNEREN Kasten, die vorhandene Pfeiltasten-
+  // Steuerung am aeusseren. Das vertraegt sich: der Haken greift nur nach
+  // Escape und Tab, alles andere blubbert weiter nach aussen zur
+  // Zuschnitt-Steuerung. Escape gab es hier vorher gar nicht.
+  const { panelRef, titleId, dialogProps } = useDialogA11y(open, onCancel, {
+    ref: containerRef,
+  })
+
   if (!open || !imageSrc) return null
 
   const finalizeCrop = () => {
@@ -305,8 +317,10 @@ export const RackImageCropDialog = ({
       onKeyDown={onKeyDown}
     >
       <div
-        ref={containerRef}
+        ref={panelRef}
         style={containerStyle}
+        aria-labelledby={titleId}
+        {...dialogProps}
         className="max-h-[94vh] w-full max-w-5xl overflow-auto rounded border border-cp-border bg-cp-surface-1 p-4 text-cp-text shadow-2xl"
       >
         <div
@@ -314,7 +328,7 @@ export const RackImageCropDialog = ({
           className="mb-3 flex items-start justify-between gap-3 select-none"
         >
           <div>
-            <h3 className="text-cp-xl font-semibold">
+            <h3 id={titleId} className="text-cp-xl font-semibold">
               {format(
                 side === 'front'
                   ? t('rackCrop.titleFront', 'Front Grafik zuschneiden ({units} HE)')

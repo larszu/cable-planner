@@ -14,6 +14,7 @@ import {
   DRUM_TECHNIQUES,
 } from '../../lib/drumMicing'
 import type { DrumKitPlan, DrumMicPlacement, DrumTechnique, DrumZone } from '../../types/drumKit'
+import { useDialogA11y } from '../../hooks/useDialogA11y'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // #Drum-Mikrofonierung — visuelles Schlagzeug (SVG-Draufsicht), Mic-Platzierung,
@@ -88,6 +89,10 @@ export const DrumMicingDialog = () => {
       window.setTimeout(() => setCopied(false), 1500)
     })
   }
+
+  // Phase 3 der UI-Pruefung: Escape, Fokus-Falle und Fokus-Rueckgabe aus dem
+  // Haken. Vor dem bedingten Ausstieg, weil Haken nicht bedingt laufen.
+  const { panelRef, titleId, dialogProps } = useDialogA11y(open, () => setOpen(false))
 
   if (!open) return null
 
@@ -205,9 +210,14 @@ export const DrumMicingDialog = () => {
 
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 p-4">
-      <div className="flex max-h-[90vh] w-full max-w-5xl flex-col overflow-hidden rounded-lg border border-cp-border bg-cp-bg shadow-2xl">
+      <div
+        ref={panelRef}
+        aria-labelledby={titleId}
+        {...dialogProps}
+        className="flex max-h-[90vh] w-full max-w-5xl flex-col overflow-hidden rounded-lg border border-cp-border bg-cp-bg shadow-2xl"
+      >
         <header className="flex shrink-0 items-center justify-between border-b border-cp-border-muted px-4 py-2.5">
-          <h2 className="text-cp-lg font-semibold">
+          <h2 id={titleId} className="text-cp-lg font-semibold">
             {t('drum.title', 'Drum-Mikrofonierung')}
           </h2>
           <button

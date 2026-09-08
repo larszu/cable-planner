@@ -32,6 +32,7 @@ import {
   type AtemMvCapabilities,
 } from '../../lib/atemMvLayout'
 import { PanelHint } from '../shared/PanelHint'
+import { useDialogA11y } from '../../hooks/useDialogA11y'
 
 /** v7.9.4 — Quadranten-basiertes Render-Helper. Wir rendern NICHT
  *  mehr basierend auf ATEM-Layout-IDs, sondern auf einem direkten
@@ -659,14 +660,21 @@ const AtemMvDevicePicker = () => {
     () => equipment.filter((e) => detectDeviceKind(e) === 'atem' || !!e.atemMvConfig),
     [equipment],
   )
+  // Phase 3 der UI-Pruefung. Beide Felder dieser Datei — Geraete-Picker und
+  // Editor — bekommen ihren eigenen Haken; sie sind zwei Dialoge, die
+  // nacheinander stehen, nicht ineinander.
+  const { panelRef, titleId, dialogProps } = useDialogA11y(true, close)
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={close}>
       <div
+        ref={panelRef}
+        aria-labelledby={titleId}
+        {...dialogProps}
         className="flex max-h-[80vh] w-[440px] max-w-[95vw] flex-col rounded-cp-card border border-cp-border bg-cp-surface-1 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-cp-border px-4 py-2">
-          <h2 className="flex items-center gap-2 text-cp-base font-semibold text-cp-text-bright">
+          <h2 id={titleId} className="flex items-center gap-2 text-cp-base font-semibold text-cp-text-bright">
             <Icon icon={Monitor} size="sm" />
             {t('atemMv.picker.title', 'ATEM Multiviewer — Gerät wählen')}
           </h2>
@@ -872,6 +880,14 @@ export const AtemMvConfigDialog = () => {
         : null,
     [config.multiViewers, live],
   )
+
+  // Phase 3 der UI-Pruefung, zweiter Haken dieser Datei — fuer den Editor.
+  // Vor den bedingten Ausstiegen, weil Haken nicht bedingt laufen duerfen.
+  const {
+    panelRef: editorRef,
+    titleId: editorTitleId,
+    dialogProps: editorDialogProps,
+  } = useDialogA11y(slot.open, close)
 
   if (!slot.open) return null
   // #402 — Ohne vorausgewähltes Gerät (Werkzeuge-Menü) zuerst den Picker.
@@ -1164,11 +1180,14 @@ export const AtemMvConfigDialog = () => {
       onClick={close}
     >
       <div
+        ref={editorRef}
+        aria-labelledby={editorTitleId}
+        {...editorDialogProps}
         className="flex max-h-[95vh] w-[960px] max-w-[95vw] flex-col rounded-cp-card border border-cp-border bg-cp-surface-1 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-cp-border px-4 py-2">
-          <h2 className="text-cp-base font-semibold text-cp-text">
+          <h2 id={editorTitleId} className="text-cp-base font-semibold text-cp-text">
             {format(t('atem.mv.dialogTitle', 'Multiviewer-Layout · {name}'), { name: equipment.name })}
           </h2>
           <button

@@ -17,6 +17,7 @@ import {
   serializeAudioConfigXml,
 } from '../../lib/atemAudioMappingXml'
 import { confirmDialog } from '../../lib/confirmDialog'
+import { useDialogA11y } from '../../hooks/useDialogA11y'
 import {
   allDeltas,
   audioMatrixAssignments,
@@ -192,6 +193,14 @@ export const AtemAudioRouterDialog = () => {
     setLive(null)
     setLiveReadAt('')
   }
+
+  // Phase 3 der UI-Pruefung. Der Haken bekommt die vorhandene Container-Ref
+  // mit, damit Fokus-Falle und Zieh-Container denselben Knoten meinen. Er
+  // steht VOR dem bedingten Ausstieg, weil Haken nicht bedingt aufgerufen
+  // werden duerfen.
+  const { panelRef, titleId, dialogProps } = useDialogA11y(open, close, {
+    ref: containerRef,
+  })
 
   if (!open || !equipment) return null
 
@@ -421,8 +430,10 @@ export const AtemAudioRouterDialog = () => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
       <div
-        ref={containerRef}
+        ref={panelRef}
         style={containerStyle}
+        aria-labelledby={titleId}
+        {...dialogProps}
         className="flex h-full max-h-[92vh] w-full max-w-[95vw] flex-col rounded border border-slate-700 bg-slate-900 text-slate-100 shadow-2xl"
       >
         <header
@@ -430,7 +441,7 @@ export const AtemAudioRouterDialog = () => {
           className="flex items-center justify-between border-b border-slate-700 px-4 py-2 select-none"
         >
           <div>
-            <h2 className="text-cp-xl font-semibold">
+            <h2 id={titleId} className="text-cp-xl font-semibold">
               {t('atem.audio.title', 'ATEM Audio-Konfiguration')} — {equipment.name}
             </h2>
             <div className="text-[11px] text-slate-400">

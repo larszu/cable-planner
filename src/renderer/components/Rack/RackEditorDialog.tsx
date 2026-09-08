@@ -33,6 +33,7 @@ import { useTranslation } from '../../lib/i18n'
 import { EquipmentNode } from '../Canvas/EquipmentNode'
 import { CableEdge } from '../Canvas/CableEdge'
 import { PanelHint } from '../shared/PanelHint'
+import { useDialogA11y } from '../../hooks/useDialogA11y'
 
 const nodeTypes = { equipment: EquipmentNode }
 const edgeTypes = { cable: CableEdge }
@@ -213,6 +214,13 @@ export const RackEditorDialog = () => {
     'cable-planner:modal-pos:rack-editor',
     slot.open,
   )
+  // Phase 3 der UI-Pruefung. Der Haken bekommt die VORHANDENE Container-Ref
+  // mit (`ref`-Option), damit Fokus-Falle und Zieh-Container denselben Knoten
+  // meinen — dafuer gibt es die Option, und eine zweite Ref daneben waere
+  // genau die Sorte stiller Widerspruch, die spaeter niemand mehr findet.
+  const { panelRef, titleId, dialogProps } = useDialogA11y(slot.open, close, {
+    ref: containerRef,
+  })
   if (!slot.open || !slot.rackInstanceId) return null
 
   return (
@@ -221,8 +229,10 @@ export const RackEditorDialog = () => {
       onMouseDown={(e) => e.target === e.currentTarget && close()}
     >
       <div
-        ref={containerRef}
+        ref={panelRef}
         style={containerStyle}
+        aria-labelledby={titleId}
+        {...dialogProps}
         className="flex h-[80vh] w-full max-w-5xl flex-col overflow-hidden rounded border border-cp-border bg-cp-surface-1 text-cp-text shadow-2xl"
       >
         <header
@@ -230,7 +240,7 @@ export const RackEditorDialog = () => {
           className="flex items-center justify-between border-b border-cp-border px-4 py-2 select-none"
         >
           <div>
-            <h2 className="text-cp-base font-semibold">{t('rackEditor.title', 'Rack-Editor')}</h2>
+            <h2 id={titleId} className="text-cp-base font-semibold">{t('rackEditor.title', 'Rack-Editor')}</h2>
             <PanelHint
               className="text-[10px] text-cp-text-muted"
               text={t(

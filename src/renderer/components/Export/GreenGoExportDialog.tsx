@@ -27,6 +27,7 @@ import { downloadBlob } from '../../lib/downloadBlob'
 import { exportDeviceConfig } from '../../lib/deviceConfigExport'
 import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 import { useTranslation, format } from '../../lib/i18n'
+import { useDialogA11y } from '../../hooks/useDialogA11y'
 
 interface Props {
   onClose: () => void
@@ -358,8 +359,30 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
 
   // ── render ────────────────────────────────────────────────────────────────
 
+  // Phase 3 der UI-Pruefung.
+  //
+  // ESCAPE BRICHT DAS INNERSTE AB, NICHT DAS GANZE. Liegt eine Import-
+  // Zuordnung offen, nimmt Escape sie zurueck (`cancelImport`) statt den
+  // Dialog zu schliessen — sonst waere eine Taste, die man reflexhaft
+  // drueckt, der schnellste Weg, eine halb fertige Zuordnung zu verlieren.
+  //
+  // Der Haken haengt am AEUSSEREN Kasten, weil die Zuordnungs-Ueberlagerung
+  // ein Geschwister des Hauptfeldes IN diesem Kasten ist. Damit umschliesst
+  // die Fokus-Falle beide. Dass der Fokus bei offener Ueberlagerung noch
+  // hinter sie greifen kann, bleibt so — eine verschachtelte zweite Falle
+  // waere hier mehr Mechanik als Gewinn, und heute gibt es gar keine.
+  const { panelRef, dialogProps } = useDialogA11y(true, () => {
+    if (importResult) cancelImport()
+    else onClose()
+  })
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+    <div
+      ref={panelRef}
+      aria-label={t('greengo.title', 'GreenGo Intercom-Planung')}
+      {...dialogProps}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+    >
       <div className="flex max-h-[92vh] w-full max-w-4xl flex-col overflow-hidden rounded border border-emerald-700 bg-cp-surface-1 text-cp-text">
 
         {/* Header */}
