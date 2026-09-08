@@ -636,6 +636,10 @@ export const en: Dict = {
   'cable.warn.converterSuggest': 'Matching converters from your library:',
   'cable.warn.converterNone':
     'No matching converter in the library. Add one via "+ Device" or Rentman import.',
+  // E-1 — eine Verbindung, die ein Modell erfunden hat.
+  'cable.specSource.title': 'This connection is not evidenced',
+  'cable.specSource.body':
+    'Origin: {source}. Check it against the installation before rigging — it appears on the cable list as it stands.',
   'cable.click.placeholder': 'Click a cable to see properties.',
 
   // Location properties

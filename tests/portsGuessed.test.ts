@@ -108,15 +108,35 @@ describe('die zweite Stelle: der ganze generierte Plan', () => {
     expect(ids).toContain('ports-guessed:e1')
   })
 
-  it('haelt die offene Frage fest, statt sie stillschweigend zu beantworten', async () => {
-    // Ob ein vom Modell ERFUNDENES KABEL eine Kennzeichnung tragen soll — und
-    // ob eine Markierung dafuer ueberhaupt reicht — ist nicht entschieden.
-    // `Cable` hat kein `specSource`. Dieser Test haelt fest, dass das
-    // absichtlich so ist und nicht vergessen wurde.
-    const src = (await import('../src/renderer/lib/planGeneration.ts?raw')).default
-    expect(src).toContain('Nur die GERAETE tragen die Kennzeichnung')
+  it('markiert auch die KABEL, seit E-1', async () => {
+    // Hier stand die Gegenprobe: `Cable` habe kein `specSource`, und das sei
+    // Absicht, weil die Frage offen sei. E-1 hat sie beantwortet — mit dem
+    // Argument, das in der Frage selbst stand: Ein erfundener Port ist eine
+    // Behauptung ueber ein Geraet, eine erfundene Verbindung eine ueber die
+    // ANLAGE. Sie geht in die Kabelliste, die jemand mit ins Lager nimmt.
     const cableTypes = (await import('../src/renderer/types/cable.ts?raw')).default
-    expect(cableTypes).not.toContain('specSource')
+    expect(cableTypes).toContain('specSource?: Record<string, { value: string; source: string }>')
+
+    const src = (await import('../src/renderer/lib/planGeneration.ts?raw')).default
+    // Der Beleg haengt am Kabel-Objekt, nicht irgendwo in der Datei: die
+    // Stelle zwischen `cables.push({` und dem Ende des Literals.
+    const stelle = src.slice(src.indexOf('cables.push({'))
+    expect(stelle.slice(0, 700)).toMatch(/specSource:\s*\{[\s\S]{0,200}?connection:/)
+    expect(stelle.slice(0, 700)).toContain('AI_PLAN_SOURCE')
+  })
+
+  it('zeigt den Beleg dem, der das Kabel anklickt — VOR Laenge und Typ', async () => {
+    // Ein Beleg, den die Oberflaeche nicht zeigt, ist Buchhaltung ueber einen
+    // Zustand, den der Nutzer trotzdem glaubt. Und die Reihenfolge zaehlt: wer
+    // Laenge und Typ zuerst liest, hat die Zahlen schon geglaubt.
+    const panel = (await import('../src/renderer/components/Properties/CableProperties.tsx?raw'))
+      .default
+    expect(panel).toContain('cable.specSource?.connection')
+    expect(panel).toContain("'cable.specSource.title'")
+    const start = panel.indexOf('<div className="space-y-2 text-cp-xs">')
+    expect(panel.indexOf('verbindungsBeleg &&', start)).toBeLessThan(
+      panel.indexOf('{/* Spec info bar */}', start),
+    )
   })
 })
 

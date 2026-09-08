@@ -135,12 +135,12 @@ export const generatePlanFromPrompt = async (description: string): Promise<Gener
       // und Pruefung 18 bliebe still — hier sogar fuer einen ganzen Plan auf
       // einmal.
       //
-      // Nur die GERAETE tragen die Kennzeichnung. Ob und wie ein vom Modell
-      // erfundenes KABEL sie tragen soll, ist eine eigene Frage: `Cable` hat
-      // kein `specSource`, und eine erfundene Verbindung ist womoeglich mehr
-      // als eine Markierung wert. Sie hier nebenbei zu beantworten waere die
-      // Sorte Nebenbei-Entscheidung, die dieses Repo an mehreren Stellen
-      // ausdruecklich zurueckweist.
+      // SEIT E-1 (2026-09-08) tragen auch die KABEL sie. Hier stand, das sei
+      // eine eigene Frage, weil „eine erfundene Verbindung womoeglich mehr als
+      // eine Markierung wert" sei — und genau dieser Satz hat sie beantwortet:
+      // Ein erfundener Port ist eine Behauptung ueber ein Geraet, eine
+      // erfundene Verbindung eine ueber die ANLAGE. Sie geht in die
+      // Kabelliste, die jemand mit ins Lager nimmt.
       ...(inputs.length > 0 || outputs.length > 0
         ? {
             specSource: {
@@ -206,6 +206,12 @@ export const generatePlanFromPrompt = async (description: string): Promise<Gener
     cables.push({
       id: uuid(),
       name: `${fromEq.name} → ${toEq.name}`,
+      // E-1 — die Verbindung als solche stammt vom Modell. Der Schluessel ist
+      // `connection` und nicht etwa `length`: geraten ist hier, DASS es diese
+      // Strecke gibt, nicht wie lang sie ist.
+      specSource: {
+        connection: { value: `${fromEq.name} → ${toEq.name}`, source: AI_PLAN_SOURCE },
+      },
       type: cableType,
       length: 0,
       color: '#64748b',
