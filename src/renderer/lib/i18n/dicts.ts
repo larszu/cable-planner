@@ -300,9 +300,10 @@ export const en: Dict = {
     'SDI = amber, HDMI = violet, Ethernet = green, fibre = yellow…',
   'settings.appearance.cableColor': 'Cable colour',
   'settings.appearance.cableColorDesc':
-    'Manual = per cable in the properties panel; by length = length-based colour coding.',
+    'Manual = per cable in the properties panel; by length = length-based colour coding; by discipline = the layer legend (video/audio/control/network/power). The colour stored on the cable is kept in every mode.',
   'settings.appearance.cableColor.manual': 'Manual',
   'settings.appearance.cableColor.byLength': 'By length',
+  'settings.appearance.cableColor.byLayer': 'By discipline',
   'settings.appearance.arrows': 'Arrows on cables',
   'settings.appearance.arrowsDesc':
     'Default for newly drawn cables. Overridable per cable in the properties panel.',
@@ -4549,6 +4550,7 @@ export const en: Dict = {
   'app.menu.view.hideLabels': 'Hide cable labels',
   'app.menu.view.offPageNames': 'Show off-page names',
   'app.menu.view.colorByLength': 'Color cables by length',
+  'app.menu.view.colorByLayer': 'Color cables by discipline',
   'app.menu.view.annotations': 'Annotations panel',
   'app.menu.view.fit': 'Fit to view',
   'app.menu.view.zoom100': 'Zoom 100 %',

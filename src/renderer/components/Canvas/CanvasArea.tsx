@@ -63,6 +63,7 @@ import { createDemoProject } from '../../lib/demoProject'
 import { CanvasSearch } from './CanvasSearch'
 import { format, useTranslation } from '../../lib/i18n'
 import { useAtemTallyFeed } from '../../hooks/useAtemTallyFeed'
+import { styleForLayer } from '../../lib/cableLayers'
 
 const nodeTypes = { equipment: EquipmentNode, location: LocationFrameNode }
 const edgeTypes = { cable: CableEdge }
@@ -498,10 +499,16 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         const lengthColor = cableColorMode === 'byLength' ? colorByLength(item.length) : null
         // In byLength mode, cables with no matching length rule get a neutral grey so they're
         // visually distinct from manually-colored cables and easy to spot.
+        // `byLayer` faerbt NUR die Darstellung; `item.color` bleibt
+        // unangetastet. Ein Modus, der die gespeicherte Farbe ueberschreibt,
+        // nimmt dem Nutzer eine Angabe weg, um eine andere zu zeigen — und
+        // beim Zurueckschalten waere sie fort.
         const strokeColor =
           cableColorMode === 'byLength'
             ? (lengthColor ? lengthColor.color : '#64748b')
-            : item.color
+            : cableColorMode === 'byLayer'
+              ? styleForLayer(item.layer).color
+              : item.color
         const dashArray = item.dashed
           ? '6 4'
           : cableColorMode === 'byLength' && lengthColor?.dashArray
