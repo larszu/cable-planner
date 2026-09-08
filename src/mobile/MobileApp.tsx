@@ -1501,6 +1501,154 @@ const PlanModeView = ({
   )
 }
 
+/**
+ * E-3 — die Anlagen-Zugangscodes, hinter einem EIGENEN Code.
+ *
+ * Der Techniker steht vor der Intercom-Anlage und braucht den Pincode. Bis
+ * `cable#656` stand er im ausgelieferten Blatt und damit auf jedem Telefon im
+ * WLAN, das den QR-Code abfotografiert hatte; seither steht er nirgends. Der
+ * Eigentümer hat am 2026-09-08 den Mittelweg entschieden: abrufbar, aber
+ * hinter einem zweiten Code, den jemand am Rechner ausgibt und von Hand
+ * weitergibt.
+ *
+ * DREI DINGE MACHT DIESE ANSICHT BEWUSST NICHT:
+ *
+ *   * Sie merkt sich den Code nicht. Kein `localStorage`, kein Feld mit
+ *     `autocomplete` — er wird bei jedem Abruf neu eingetippt. Ein
+ *     gespeicherter Zugangscode auf einem Baustellen-Handy ist derselbe
+ *     Fehler wie der Code im Blatt, nur später.
+ *   * Sie hält die Werte nicht. Sie fallen weg, sobald das Feld geschlossen
+ *     wird — nicht als Schutz gegen einen Angreifer, sondern damit der
+ *     nächste Blick aufs Telefon sie nicht mehr zeigt.
+ *   * Sie schickt den Code NICHT in der URL. Der Sitzungstoken darf das (er
+ *     steht ohnehin im QR-Code), dieser hier nicht: eine URL landet im
+ *     Verlauf, im Screenshot und in jedem Server-Log dazwischen.
+ *
+ * Ein 404 heißt „nicht freigegeben", ein 403 „falscher Code". Der
+ * Unterschied steht im Text, weil er entscheidet, was der Techniker als
+ * Nächstes tut: nachfragen oder nochmal tippen.
+ */
+const Zugangscodes = () => {
+  const [offen, setOffen] = useState(false)
+  const [code, setCode] = useState('')
+  const [codes, setCodes] = useState<{ label: string; value: string }[] | null>(null)
+  const [fehler, setFehler] = useState('')
+  const [laeuft, setLaeuft] = useState(false)
+
+  const schliessen = () => {
+    setOffen(false)
+    setCode('')
+    setCodes(null)
+    setFehler('')
+  }
+
+  const hole = async () => {
+    setLaeuft(true)
+    setFehler('')
+    try {
+      const r = await apiFetch('/pincodes', { headers: { 'X-CP-Pin-Token': code.trim() } })
+      if (r.status === 404) {
+        setFehler('Nicht freigegeben. Am Planer muss jemand die Zugangscodes freigeben.')
+        return
+      }
+      if (r.status === 403) {
+        setFehler('Falscher Code.')
+        return
+      }
+      if (!r.ok) {
+        setFehler(`Fehler ${r.status}.`)
+        return
+      }
+      const daten = (await r.json()) as { codes?: { label: string; value: string }[] }
+      setCodes(daten.codes ?? [])
+    } catch {
+      setFehler('Keine Verbindung zum Planer.')
+    } finally {
+      setLaeuft(false)
+    }
+  }
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setOffen(true)}
+        className="fixed right-3 top-12 z-[300] flex items-center gap-1 rounded-full border border-cp-border bg-cp-surface-3/90 px-2.5 py-1 text-[11px] text-cp-text shadow-lg backdrop-blur"
+        title="Anlagen-Zugangscodes"
+      >
+        Zugangscodes
+      </button>
+      {offen && (
+        <div className="fixed inset-0 z-[301] flex items-end justify-center bg-black/60 p-3" onClick={schliessen}>
+          <div
+            className="w-full max-w-md rounded-lg border border-cp-border bg-cp-surface-1 p-3 text-cp-text shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-2 text-sm font-semibold">Anlagen-Zugangscodes</div>
+            {codes === null ? (
+              <>
+                <p className="mb-2 text-[11px] text-cp-text-muted">
+                  Der Code steht nicht im QR-Link. Er wird am Planer ausgegeben und einzeln
+                  weitergegeben.
+                </p>
+                <input
+                  type="text"
+                  inputMode="text"
+                  autoComplete="off"
+                  autoCapitalize="off"
+                  spellCheck={false}
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                  placeholder="Code vom Planer"
+                  className="mb-2 w-full rounded border border-cp-border bg-cp-surface-2 px-2 py-1.5 font-mono text-sm tracking-widest"
+                />
+                {fehler && <div className="mb-2 text-[11px] text-red-300">{fehler}</div>}
+                <div className="flex justify-end gap-2">
+                  <button type="button" onClick={schliessen} className="rounded px-3 py-1.5 text-sm">
+                    Abbrechen
+                  </button>
+                  <button
+                    type="button"
+                    onClick={hole}
+                    disabled={laeuft || code.trim() === ''}
+                    className="rounded bg-sky-700 px-3 py-1.5 text-sm text-white disabled:opacity-50"
+                  >
+                    {laeuft ? 'Hole…' : 'Anzeigen'}
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <ul className="mb-2 space-y-1.5">
+                  {codes.length === 0 && (
+                    <li className="text-[11px] text-cp-text-muted">
+                      Freigegeben, aber es sind keine Codes hinterlegt.
+                    </li>
+                  )}
+                  {codes.map((c) => (
+                    <li key={c.label} className="flex items-baseline justify-between gap-2">
+                      <span className="text-[11px] text-cp-text-muted">{c.label}</span>
+                      <code className="select-all font-mono text-base tracking-widest">{c.value}</code>
+                    </li>
+                  ))}
+                </ul>
+                <p className="mb-2 text-[11px] text-cp-text-muted">
+                  Dieser Abruf steht im Dokument-Register des Planers.
+                </p>
+                <div className="flex justify-end">
+                  <button type="button" onClick={schliessen} className="rounded px-3 py-1.5 text-sm">
+                    Schließen
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+    </>
+  )
+}
+
 // Verbindungs-Umschalter: Lokal (LAN) ↔ Remote (Mobilfunk, eigener Tunnel/Relay).
 // Persistiert; „Übernehmen" lädt die App mit der neuen Verbindung neu.
 const ConnectionSettings = () => {
@@ -1697,6 +1845,7 @@ export const MobileApp = () => {
   return (
     <div className="min-h-screen bg-cp-bg text-cp-text">
       <ConnectionSettings />
+      <Zugangscodes />
       {/* BEDARF 127 — am Desktop steht jetzt eine andere Show. Der Plan auf
           diesem Handy bleibt der, mit dem es geladen wurde: ein stiller Tausch
           mitten im Aufbau ist genau der Schaden, den `ontime#1325` beschreibt.

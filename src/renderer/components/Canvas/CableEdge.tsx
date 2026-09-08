@@ -26,6 +26,7 @@ import { OffPageLeaderHandles } from './OffPageLeaderHandles'
 import { effectiveShortName } from '../../lib/shortName'
 import { getEquipmentById } from '../../lib/equipmentSelectors'
 import { useTranslation } from '../../lib/i18n'
+import { useEdgeFlow } from '../../hooks/useCanvasFlow'
 
 interface CableEdgeData {
   cable: Cable
@@ -370,6 +371,9 @@ export const CableEdge = ({
 }: EdgeProps<CableEdgeData>) => {
   const t = useTranslation()
   const cable = data?.cable
+  // Signalfluss dieser Kante. Der Hook laeuft VOR jedem fruehen Ausstieg
+  // (Off-Page, Layer-Filter) — React-Hook-Regeln.
+  const flow = useEdgeFlow(cable)
   const deleteCable = useProjectStore((state) => state.deleteCable)
   const equipment = useProjectStore((state) => state.project.equipment)
   const greengoConfig = useProjectStore((state) => state.project.greengoConfig)
@@ -921,6 +925,25 @@ export const CableEdge = ({
         markerEnd={markerEnd}
         markerStart={markerStart}
       />
+      {/* Signalfluss (Eigentümer-Entscheidung 2026-09-08) — ein zweiter,
+          gestrichelter Pfad ÜBER der Kante, dessen Strichversatz läuft.
+          Die Kante selbst bleibt unangetastet: sie trägt die Layer-Farbe,
+          die Beschriftung und `cable.dashed` für Funkstrecken.
+
+          Was die Bewegung BEDEUTET, entscheidet `useEdgeFlow` und nicht
+          diese Stelle — im Schema „hier ist ein Weg vorgesehen", im
+          Live-Betrieb „hier liegt Signal an". Welche der beiden gilt,
+          steht am Canvas und nicht an der Kante; an dreihundert Kanten
+          wäre es dreihundertmal dasselbe zu lesen. */}
+      {flow?.animate && (
+        <path
+          d={path}
+          className={`cp-flow${flow.direction === -1 ? ' cp-flow--reverse' : ''}`}
+          stroke={(mergedStyle.stroke as string) ?? '#94a3b8'}
+          strokeWidth={strokeWidth + 1}
+          opacity={0.85}
+        />
+      )}
       {cable && (
         <CableWaypoints
           cable={cable}

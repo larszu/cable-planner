@@ -100,7 +100,18 @@ interface PersistedUiState {
   propertiesWidth: number
   /** Whether cable color on the canvas is derived from the manually set color
    * or from the standard length-color coding. */
-  cableColorMode: 'manual' | 'byLength'
+  /**
+   * Woher die Kabelfarbe kommt.
+   *
+   *   manual   — was am Kabel steht (Vorgabe; nichts wird ueberschrieben)
+   *   byLength — Laengen-Farbcodierung fuer die Kommissionierung
+   *   byLayer  — die Layer-Legende (Video/Audio/Control/Netz/Strom), damit
+   *              Steuerpfade auf dem Plan von Video und Audio zu
+   *              unterscheiden sind. Bis 2026-09-08 gab es die Farben nur
+   *              an den Legenden-Chips: der Plan versprach eine Codierung,
+   *              die er nicht einloeste.
+   */
+  cableColorMode: 'manual' | 'byLength' | 'byLayer'
   /** Canvas background theme. */
   canvasTheme: 'dark' | 'light'
   /** #453 — Wenn true, folgt canvasTheme automatisch dem OS-Theme
@@ -629,7 +640,7 @@ interface UiState extends PersistedUiState {
   setDefaultArrow: (value: boolean) => void
   setLibraryWidth: (value: number) => void
   setPropertiesWidth: (value: number) => void
-  setCableColorMode: (value: 'manual' | 'byLength') => void
+  setCableColorMode: (value: 'manual' | 'byLength' | 'byLayer') => void
   setCanvasTheme: (value: 'dark' | 'light') => void
   setFollowSystemTheme: (value: boolean) => void
   setColorPortsByType: (value: boolean) => void

@@ -101,6 +101,17 @@ export interface AtemStateSummary {
   auxiliaries?: number
   inputs: AtemInputSummary[]
   multiViewers?: (AtemMultiviewer | null)[]
+  /**
+   * Was gerade auf Sendung ist — je Mix-Effect. Optional, weil eine aeltere
+   * `main`-Fassung (etwa im Browser-Betrieb) das Feld nicht liefert; die
+   * Tally-Anzeige zeigt dann nichts statt etwas Erfundenes.
+   */
+  mixEffectStates?: {
+    index: number
+    programInput?: number
+    previewInput?: number
+    inTransition?: boolean
+  }[]
 }
 
 export interface AtemConnectResult {
@@ -390,6 +401,16 @@ type CablePlannerApi = {
       mode: 'read-only' | 'contribute',
     ) => Promise<{ ok: boolean; writeMode: 'read-only' | 'contribute' }>
     getWriteMode: () => Promise<{ writeMode: 'read-only' | 'contribute' }>
+    /**
+     * E-3 — Zugriff auf die Anlagen-Zugangscodes. Gibt den zweiten Token
+     * EINMAL beim Einschalten zurueck; nachschlagen kann man ihn nicht.
+     */
+    setPincodeAccess: (on: boolean) => Promise<{ ok: boolean; token: string }>
+    /** E-3 — die Codes im Hauptprozess hinterlegen. Sie gehen nirgends sonst hin. */
+    setPincodes: (
+      codes: { label: string; value: string }[] | null,
+    ) => Promise<{ ok: boolean; on: boolean; count: number }>
+    pincodeStatus: () => Promise<{ on: boolean; count: number }>
     /**
      * BEDARF 133 — Adressen ueber das LAN hinaus freigeben.
      *
@@ -995,6 +1016,11 @@ const webFallbackApi: CablePlannerApi = {
     // Im Browser gibt es keinen Server — und damit auch keinen Schreibweg.
     setWriteMode: async () => ({ ok: true, writeMode: 'read-only' as const }),
     getWriteMode: async () => ({ writeMode: 'read-only' as const }),
+    // Ohne Desktop-App gibt es keinen Server, der etwas herausgeben koennte —
+    // und damit auch keinen Zugriff, den man einschalten kann.
+    setPincodeAccess: async () => ({ ok: false, token: '' }),
+    setPincodes: async () => ({ ok: false, on: false, count: 0 }),
+    pincodeStatus: async () => ({ on: false, count: 0 }),
     setAllowBeyondLan: async () => {
       throw new Error('Handy-Zugriff erfordert die Desktop-App.')
     },

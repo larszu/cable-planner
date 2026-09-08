@@ -227,6 +227,39 @@ body,
   animation: overlap-flash 0.5s ease-in-out;
 }
 
+/* ── Signalfluss auf den Kanten (Eigentümer-Entscheidung 2026-09-08) ───────
+ *
+ * Ein zweiter Pfad ÜBER der Kante, gestrichelt, dessen Strichversatz läuft.
+ * Bewusst nicht die Kante selbst animiert: die trägt Farbe (Layer-Legende),
+ * Breite, Auswahl-Schatten und Beschriftung, und ein `stroke-dasharray`
+ * darauf würde mit `cable.dashed` (Funkstrecken) kollidieren.
+ *
+ * `pointer-events: none` ist Pflicht: der Overlay-Pfad liegt genau über der
+ * klickbaren Kante, und ohne die Zeile ließe sich kein Kabel mehr auswählen.
+ *
+ * Die Bewegung wird NICHT hier per Media-Query unterdrückt, sondern in
+ * `useCanvasMotion` — sonst liefe die Klasse weiter und der Code glaubte, es
+ * bewege sich etwas, während es das nicht tut. Ein System, das über seinen
+ * eigenen Zustand irrt, ist schlimmer als eines, das sich bewegt. */
+@keyframes cp-flow {
+  from { stroke-dashoffset: 24; }
+  to   { stroke-dashoffset: 0; }
+}
+@keyframes cp-flow-reverse {
+  from { stroke-dashoffset: 0; }
+  to   { stroke-dashoffset: 24; }
+}
+.cp-flow {
+  pointer-events: none;
+  fill: none;
+  stroke-dasharray: 8 16;
+  stroke-linecap: round;
+  animation: cp-flow 1.1s linear infinite;
+}
+.cp-flow--reverse {
+  animation-name: cp-flow-reverse;
+}
+
 /* ── Light theme: remap dark Tailwind slate classes ────────────────────────
  *
  * GLOBAL THEMING SYSTEM

@@ -4,6 +4,7 @@ import { useUiStore } from '../../store/uiStore'
 import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
 import { LENGTH_COLOR_RULES } from '../../lib/cableColors'
 import { LayerVisibilityChips } from './LayerVisibilityChips'
+import { FlowModeChip } from './FlowModeChip'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { computeEquipmentLayout } from '../../lib/equipmentLayout'
@@ -749,6 +750,11 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
           nutzen genau diese 5 Top-Level-Layer als Branchenstandard. */}
       <LayerVisibilityChips />
       <span style={dividerStyle} />
+      {/* Die Betriebsart des Signalflusses. Sie steht neben der
+          Layer-Legende, weil beide dasselbe beantworten: wonach ist dieses
+          Bild zu lesen. */}
+      <FlowModeChip />
+      <span style={dividerStyle} />
       {/* v7.9.67 / #177 — der Schutz gegen versehentliches Verschieben, je
           Objektart (Rahmen / Geräte / Kabel).
 
@@ -1041,8 +1047,8 @@ const DefaultsMenu = ({
   setCableLabelShortForm: (v: boolean) => void
   colorPortsByType: boolean
   setColorPortsByType: (v: boolean) => void
-  cableColorMode: 'manual' | 'byLength'
-  setCableColorMode: (v: 'manual' | 'byLength') => void
+  cableColorMode: 'manual' | 'byLength' | 'byLayer'
+  setCableColorMode: (v: 'manual' | 'byLength' | 'byLayer') => void
   showLengthLegend: boolean
   setShowLengthLegend: (v: boolean) => void
   isLight: boolean

@@ -300,9 +300,10 @@ export const en: Dict = {
     'SDI = amber, HDMI = violet, Ethernet = green, fibre = yellow…',
   'settings.appearance.cableColor': 'Cable colour',
   'settings.appearance.cableColorDesc':
-    'Manual = per cable in the properties panel; by length = length-based colour coding.',
+    'Manual = per cable in the properties panel; by length = length-based colour coding; by discipline = the layer legend (video/audio/control/network/power). The colour stored on the cable is kept in every mode.',
   'settings.appearance.cableColor.manual': 'Manual',
   'settings.appearance.cableColor.byLength': 'By length',
+  'settings.appearance.cableColor.byLayer': 'By discipline',
   'settings.appearance.arrows': 'Arrows on cables',
   'settings.appearance.arrowsDesc':
     'Default for newly drawn cables. Overridable per cable in the properties panel.',
@@ -3380,6 +3381,28 @@ export const en: Dict = {
     'The three write routes are closed — the phone is refused on every write attempt. The plan is changed by the person at the desk.',
   'mobile.dialog.writeMode.contributeHint':
     'Ticks, cables added on site and field reports go back into the project. Anyone with the QR code can change the plan.',
+  // Signalfluss im Canvas — Schema vs. Live (Eigentuemer-Entscheidung 2026-09-08).
+  'canvas.flow.live': 'Live',
+  'canvas.flow.schema': 'Schematic',
+  'canvas.flow.lostContact': '· connection lost',
+  'canvas.flow.still': '· still',
+  'canvas.flow.liveTitle': 'Observed state from the switcher/router.',
+  'canvas.flow.schemaTitle': 'The planned path. There is no connection to a live system.',
+  'canvas.flow.fellBackTitle': 'The live connection dropped — showing the planned path again.',
+  'canvas.flow.systemReduced': 'Your system has motion turned off; the view stays still.',
+  'canvas.flow.toggleOff': 'Click: turn motion off.',
+  'canvas.flow.toggleOn': 'Click: turn motion on.',
+  // E-3 — die Anlagen-Zugangscodes hinter einem eigenen Code.
+  'mobile.dialog.pincode': 'Make system access codes retrievable',
+  'mobile.dialog.pincode.none': 'This project carries no intercom configuration with access codes.',
+  'mobile.dialog.pincode.hint':
+    'Type this code on the phone. It is NOT part of the QR code — whoever only has the link cannot reach the access data.',
+  'mobile.dialog.pincode.count':
+    '{n} code(s) held. Every retrieval is recorded in the document register — with a timestamp, not with the value.',
+  'mobile.dialog.pincode.offHint':
+    'Off. {n} code(s) would be available — they leave this machine only once the switch is on.',
+  'mobile.dialog.security.pincode':
+    'The system access codes NEVER travel with the project. They live only in the desktop app\'s memory and only while the switch above is on; they are retrieved with a second code that is not part of the QR code.',
   'mobile.dialog.crewFeedHint':
     'Add it to your calendar as a subscription — it fetches the current state instead of going stale.',
   'analysis.crew.planned': '{n} pencilled/held — not in the totals',
@@ -4527,6 +4550,7 @@ export const en: Dict = {
   'app.menu.view.hideLabels': 'Hide cable labels',
   'app.menu.view.offPageNames': 'Show off-page names',
   'app.menu.view.colorByLength': 'Color cables by length',
+  'app.menu.view.colorByLayer': 'Color cables by discipline',
   'app.menu.view.annotations': 'Annotations panel',
   'app.menu.view.fit': 'Fit to view',
   'app.menu.view.zoom100': 'Zoom 100 %',

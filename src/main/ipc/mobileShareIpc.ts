@@ -1,4 +1,5 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
+import { appendDocumentLog } from '../services/documentLog.js'
 import path from 'node:path'
 import { existsSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
@@ -12,6 +13,10 @@ import {
   setMobileShareChecksHandler,
   setMobileShareCableAddedHandler,
   setMobileSharePendingChangeHandler,
+  setMobileSharePincodeAccess,
+  setMobileSharePincodeReadHandler,
+  setMobileSharePincodes,
+  mobileSharePincodeStatus,
   startMobileShareServer,
   stopMobileShareServer,
 } from '../services/mobileShareServer.js'
@@ -117,4 +122,54 @@ export const registerMobileShareIpc = () => {
     writeMode: setMobileShareWriteMode(mode),
   }))
   ipcMain.handle('mobileShare:getWriteMode', () => ({ writeMode: mobileShareWriteMode() }))
+
+  /**
+   * E-3 — Zugriff auf die Anlagen-Zugangscodes.
+   *
+   * Der Token kommt hier EINMAL im Klartext zurueck, direkt beim Einschalten,
+   * damit die Oberflaeche ihn anzeigen kann. Es gibt bewusst keinen
+   * „gib mir den aktuellen Token"-Aufruf: ein Geheimnis, das man jederzeit
+   * nachschlagen kann, wandert in jeden Screenshot des Dialogs. Wer ihn
+   * verliert, schaltet aus und wieder ein — und macht damit zugleich den
+   * alten ungueltig, was richtig ist.
+   */
+  ipcMain.handle('mobileShare:setPincodeAccess', (_event, on: unknown) => ({
+    ok: true,
+    token: setMobileSharePincodeAccess(on === true),
+  }))
+
+  ipcMain.handle('mobileShare:setPincodes', (_event, codes: unknown) => {
+    // Formpruefung in main, nicht im Renderer: was hier ankommt, geht ueber
+    // eine Netzroute wieder hinaus.
+    const clean = Array.isArray(codes)
+      ? codes
+          .map((c) => (c && typeof c === 'object' ? (c as Record<string, unknown>) : null))
+          .filter((c): c is Record<string, unknown> => c !== null)
+          .filter((c) => typeof c.label === 'string' && typeof c.value === 'string')
+          .map((c) => ({ label: String(c.label), value: String(c.value) }))
+      : null
+    setMobileSharePincodes(clean && clean.length ? clean : null)
+    return { ok: true, ...mobileSharePincodeStatus() }
+  })
+
+  ipcMain.handle('mobileShare:pincodeStatus', () => mobileSharePincodeStatus())
+
+  /**
+   * Jeder Abruf ins Dokument-Register. Der Eintrag traegt den Zeitpunkt und
+   * die ersten sechs Zeichen des Tokens als `stand` — genug, um zwei
+   * Ausgaben auseinanderzuhalten, und zu wenig, um damit etwas zu oeffnen.
+   *
+   * Der Fehlerfall wird verschluckt: ein Register, das nicht schreiben kann,
+   * darf den Abruf nicht auch noch zum Absturz bringen. Der Abruf ist
+   * bereits beantwortet, wenn dieser Rueckruf laeuft.
+   */
+  setMobileSharePincodeReadHandler((info) => {
+    void appendDocumentLog({
+      docId: 'mobile-pincode',
+      label: `Zugangscodes abgerufen (${info.count})`,
+      stand: info.tokenPrefix,
+      emittedAt: info.at,
+      project: '',
+    }).catch(() => {})
+  })
 }
