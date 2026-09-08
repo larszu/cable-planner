@@ -114,6 +114,25 @@ export interface Port {
    * `CIRCUIT_KIND_INFO` (`types/circuit.ts`).
    */
   circuitTerminal?: number
+  /**
+   * Die Adresse dieses Anschlusses IM STEUER-PROTOKOLL des Geraets (S-2).
+   *
+   * Nur noetig, wo das Protokoll sie nicht selbst festlegt. Beim Videohub tut
+   * es das: „VIDEO OUTPUT ROUTING: <output> <input>" zaehlt beides 0-basiert
+   * ueber die Anschluesse des Geraets, also ist die Position die Nummer, und
+   * dieses Feld bleibt leer.
+   *
+   * Beim Mischer nicht. Der ATEM spricht Quellen-Nummern (Eingang 1 ist 1,
+   * ein Mediaplayer 3010, ein Aux-Ausgang 8001 aufwaerts) und Busse
+   * (Programm ueber den Mix-Effect, Aux ueber eine eigene Zaehlung). Sie aus
+   * der Reihenfolge zu erraten ergaebe einen Befehl an den falschen Bus —
+   * derselbe Fehler, den `circuitTerminal` oben fuer die Klemmen verhindert,
+   * nur dass er hier an eine laufende Anlage geht.
+   *
+   * Ohne Angabe wird fuer dieses Protokoll NICHT gesendet, und die
+   * Oberflaeche nennt den Anschluss, dem die Nummer fehlt.
+   */
+  control?: import('./switcherControl').PortControl
   type: string
   connectorType: ConnectorType
   /** Optional side override on the node (default comes from input/output + mirror). */
@@ -290,6 +309,31 @@ export interface VideohubSalvo {
   /** ISO-Zeitstempel. */
   createdAt: string
 }
+
+/**
+ * Die HERSTELLERNEUTRALE Form derselben Aussage: welcher EINGANGS-ANSCHLUSS
+ * speist diesen AUSGANGS-ANSCHLUSS.
+ *
+ * `plannedCrosspoints[outputPortId] = inputPortId`.
+ *
+ * Warum es sie neben `VideohubCrosspoints` gibt: die Index-Tabelle passt zum
+ * Videohub, weil dessen Protokoll selbst mit genau diesen Indizes spricht.
+ * Zu sonst nichts. Ein Mischer schaltet ebenfalls Kreuzpunkte — was auf dem
+ * Programm-Ausgang liegt, was auf einem Aux —, aber seine Nummern sind
+ * andere (beim ATEM ist der Programm-Bus kein Ausgangs-Index, sondern ein
+ * Mix-Effect, und Aux-Busse zaehlen getrennt), und die naechste Kreuzschiene
+ * eines anderen Herstellers zaehlt schon wieder anders.
+ *
+ * Diese Form kennt keine Protokollnummern, sondern die Anschluesse, die im
+ * Plan ohnehin stehen. Damit ist ein Weg Kamera -> Mischer -> Aux -> Monitor
+ * ueberhaupt erst ableitbar; bis 2026-09-08 endete jeder Weg am Mischer,
+ * weil nur ein Videohub weiterleitete.
+ *
+ * AUSGEWERTET WIRD SIE AN GENAU EINER STELLE: `lib/deviceCrosspoints.ts`.
+ * Zwei Leser, die je eine Form kennen, waeren die Defektform
+ * `zwei-rechnungen`.
+ */
+export type PlannedCrosspoints = Record<string, string>
 
 /** Geplantes Routing eines Videohub-Geraets, Teil des Projekts. */
 export interface VideohubRouting {
@@ -504,6 +548,33 @@ export interface EquipmentItem {
   atemAudioConfig?: AtemAudioConfig
   /** Geplantes Videohub-Routing (ADR-001). Nur bei Videohub-Geraeten gesetzt. */
   videohubRouting?: VideohubRouting
+  /** Die geplante Schaltung in herstellerneutraler Form:
+   *  `plannedCrosspoints[outputPortId] = inputPortId`. Fuer JEDES Geraet, das
+   *  schaltet — Mischer eingeschlossen, deren Bus-Nummern nicht zu einer
+   *  Index-Tabelle passen. Ausgewertet ausschliesslich ueber
+   *  `lib/deviceCrosspoints.ts`, wo sie mit `videohubRouting.planned`
+   *  zusammengefuehrt wird (die ausdrueckliche Angabe gewinnt je AUSGANG,
+   *  nicht je Geraet). Optional -> alte Projekte bleiben unveraendert; eine
+   *  Zeile auf einen geloeschten Anschluss wird beim Laden verworfen, weil
+   *  daraus im Schaltbefehl eine geratene Nummer wuerde. */
+  plannedCrosspoints?: PlannedCrosspoints
+  /** S-2 — WELCHES Protokoll dieses Geraet spricht, wenn aus dem Plan heraus
+   *  geschaltet wird. DEKLARIERT, nie aus dem Namen erkannt: `detectDeviceKind`
+   *  raet die Geraeteart aus dem Namen, und fuer eine Beschriftung ist das in
+   *  Ordnung — fuer einen BEFEHL nicht. Ein Geraet namens „Videohub Ersatz"
+   *  bekaeme sonst einen Videohub-Befehl auf Port 9990, und was dort in
+   *  Wahrheit horcht, weiss niemand (ADR-002). Ohne Angabe wird nichts
+   *  gesendet, und die Oberflaeche sagt, dass sie fehlt. */
+  controlProtocol?: import('./switcherControl').ControlProtocol
+  /** Abweichender Steuer-Port. Ohne Angabe gilt der des Protokolls; wo das
+   *  Protokoll den Port selbst festlegt (ATEM), wird das Feld ignoriert. */
+  controlPort?: number
+  /** S-3 — die erklaerte Form der Befehlszeile, wenn `controlProtocol` auf
+   *  `'text'` steht. Sie kommt aus dem HANDBUCH des Geraets und nicht aus
+   *  einer Vermutung: Zeilenform, Zeilenende, Zaehlweise und ein moegliches
+   *  Vorzeichen sind vier Angaben, die dort stehen. Damit ist jedes
+   *  textgesteuerte Geraet bedienbar, ohne dass ein Byte erfunden wird. */
+  controlText?: import('../lib/textProtocol').TextProtocolConfig
   /** ADR-001 — Rolle, die dieses Geraet realisiert („Kamera 1"). Zeigt auf
    *  `CablePlannerProject.sourceIdentities`. Mehrere Geraete duerfen dieselbe
    *  Rolle tragen: das Haupt-/Backup-Paar ist EINE Rolle, nicht zwei. */

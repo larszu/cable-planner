@@ -61,9 +61,23 @@ export interface HubKreuzpunkt {
   equipmentName: string
   /** Aus dem Geraetedatensatz. Leer heisst: die App weiss nicht, wohin. */
   ipAddress: string
-  input: number
+  /**
+   * Die ANSCHLUESSE, nicht ihre Nummern (S-2, 2026-09-08).
+   *
+   * Bis dahin standen hier zwei Indizes — die Position in der
+   * Anschlussliste —, und das war eine stille Festlegung auf EIN Protokoll:
+   * beim Videohub IST die Position die Protokollnummer, bei einem Mischer
+   * nicht (dort liegen Aux-Ausgaenge und Mediaplayer in einem ganz anderen
+   * Zahlenraum). Wer die Indizes als Adresse weiterreichte, schickte den
+   * Befehl an den falschen Bus.
+   *
+   * Die Uebersetzung Anschluss -> Adresse passiert deshalb an genau einer
+   * Stelle, und zwar dort, wo das Protokoll bekannt ist:
+   * `lib/controlActions.ts`.
+   */
+  inputPortId: string
   inputName: string
-  output: number
+  outputPortId: string
   outputName: string
 }
 
@@ -113,7 +127,8 @@ export const LEERES_ROUTING: PatternRouting = { ziele: [], offen: [] }
 /**
  * Die Kreuzpunkte einer Kette, abgelesen statt gerechnet.
  *
- * Ein Schritt, dessen `through` 'router' ist, kam an einer Kreuzschiene an;
+ * Ein Schritt, dessen `through` 'router' oder 'mixer' ist, kam an einem
+ * schaltenden Geraet an;
  * der FOLGESCHRITT sagt, an welchem Ausgang es weiterging. Fehlt der
  * Folgeschritt (die Kette endete dort mangels Kabel), gibt es auch keinen
  * Kreuzpunkt zu schalten — dann steht hier nichts, statt einer geratenen
@@ -135,7 +150,7 @@ export const kreuzpunkteDerKette = (
 ): HubKreuzpunkt[] => {
   const punkte: HubKreuzpunkt[] = []
   chain.steps.forEach((schritt, i) => {
-    if (schritt.through !== 'router') return
+    if (schritt.through !== 'router' && schritt.through !== 'mixer') return
     const weiter = chain.steps[i + 1]
     if (!weiter) return
     const hub = geraete.get(schritt.toEquipmentId)
@@ -149,9 +164,9 @@ export const kreuzpunkteDerKette = (
       equipmentId: hub.id,
       equipmentName: hub.name,
       ipAddress: hub.ipAddress?.trim() ?? '',
-      input,
+      inputPortId: hub.inputs[input].id,
       inputName: schritt.toPortName,
-      output,
+      outputPortId: hub.outputs[output].id,
       outputName: weiter.fromPortName,
     })
   })

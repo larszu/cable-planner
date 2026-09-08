@@ -5,7 +5,7 @@ Invarianten der App. Sie ist die Pflicht-Lektüre, bevor strukturelle Änderunge
 gemacht werden. Für die interaktive Modul-Übersicht siehe [`app-structure.html`](./app-structure.html),
 für einen Wettbewerber-Vergleich [`comparison.html`](./comparison.html).
 
-Stand: v9.0.1 · ~584 TS/TSX-Module · ~170.7k LOC
+Stand: v9.0.1 · ~595 TS/TSX-Module · ~172.8k LOC
 
 ---
 
@@ -739,6 +739,20 @@ Das Wichtigste in Listenform. Niemals brechen ohne expliziten Architektur-Review
     Frage, die er beantwortet); und der Plan wird dabei **nicht nachgezogen**
     (Invariante 14 in die andere Richtung — zöge das Senden den Plan mit,
     gäbe es hinterher keine Abweichung mehr zu sehen).
+18. **Ein Protokoll, das nicht belegt ist, wird nicht nachgebaut.** Die
+    Versuchung ist gross: die meisten Mischer und Kreuzschienen sprechen
+    zeilenorientierten Text, und die Zeile „weiss man doch". Man weiss sie
+    nicht — die verbindliche Beschreibung steht im Handbuch des Geräts, und
+    frei zugängliche Nachbauten sind Nachbauten (in einem davon hängt der
+    Sender an jeden Befehl ein Semikolon, das im Befehl schon steht). Ein aus
+    dem Gedächtnis geschriebener Treiber ist deshalb keine Bequemlichkeit,
+    sondern eine ungeprüfte Zusicherung, die als Befehl an eine laufende
+    Anlage geht. Wo eine Beschreibung vorliegt, gehört ein eigener Treiber
+    her; wo nicht, trägt der NUTZER die vier Angaben ein, die im Handbuch
+    stehen (`lib/textProtocol.ts`), und die App zeigt vor dem Senden, was
+    rausgeht — Steuerzeichen benannt. Eine mitgelieferte Vorlage trägt ihre
+    Herkunft im Klartext und behauptet nie, vom Hersteller zu stammen, wenn
+    sie es nicht tut.
 
 ---
 
@@ -802,7 +816,7 @@ optionales Cloud-Backend (`y-websocket`, Auth/Permissions) bleiben offen.
 `vitest` ist eingerichtet (`npm test` / `npm run test:watch`); dazu kommen
 gezielte Node-Checks (`npm run test:crdt`, `npm run test:signaling`), ein
 UI-Smoke-Skript (`npm run ui:smoke`) und ein headless Drag-/Interaktions-Test
-(`npm run test:drag`, treibt den Renderer via Playwright). Bei ~170.7k LOC
+(`npm run test:drag`, treibt den Renderer via Playwright). Bei ~172.8k LOC
 bleibt der Ausbau der Abdeckung wichtig — empfohlene Schwerpunkte:
 - Snapshot-Tests auf `healProjectPositions` mit echten
   Beispiel-Projekt-JSONs.

@@ -44,17 +44,31 @@
 import type { Cable } from '../types/cable'
 import type { EquipmentItem, Port } from '../types/equipment'
 import { detectDeviceKind } from './deviceKind'
+import { deviceCrosspoints } from './deviceCrosspoints'
 import { isPatchPanelDevice, patchPanelCounterpart } from './patchPanel'
 import { resolvePortLabel } from './portLabel'
 
 /** Welche Bauform den Weiterweg hergegeben hat. */
-export type PassThroughKind = 'patch-panel' | 'converter' | 'distribution-amp' | 'router'
+export type PassThroughKind =
+  | 'patch-panel'
+  | 'converter'
+  | 'distribution-amp'
+  | 'router'
+  /**
+   * Ein MISCHER mit geplanter Schaltung (2026-09-08).
+   *
+   * Eigener Wert und nicht `router`, obwohl die Ableitung dieselbe ist: auf
+   * dem Blatt steht sonst „Kreuzschiene" an einer Stelle, an der ein Mischer
+   * sitzt, und wer den Weg abgeht, sucht ein Gerät, das dort nicht steht.
+   */
+  | 'mixer'
 
 export const PASS_THROUGH_LABEL: Readonly<Record<PassThroughKind, string>> = {
   'patch-panel': 'Patchfeld',
   converter: 'Wandler',
   'distribution-amp': 'Verteilverstärker',
   router: 'Kreuzschiene',
+  mixer: 'Mischer',
 }
 
 /** Warum die Kette aufhoert. Nie „einfach so". */
@@ -170,28 +184,53 @@ const forwardFrom = (
     return { kind: 'converter', cables: outs }
   }
 
-  if (detectDeviceKind(device) === 'videohub') {
-    const planned = device.videohubRouting?.planned
-    const inIdx = device.inputs.findIndex((p) => p.id === arrivalPortId)
-    if (!planned || inIdx < 0) {
-      return {
-        kind: 'router',
-        cables: [],
-        ambiguous: 'Kreuzschiene ohne gesetzten Kreuzpunkt — der Weiterweg ist nicht geplant',
-      }
-    }
+  // ─── SCHALTENDE GERAETE ────────────────────────────────────────────────
+  //
+  // Bis 2026-09-08 stand hier ausschliesslich der Videohub, und der
+  // Weiterweg kam aus `videohubRouting.planned`. Das liess jeden Weg am
+  // MISCHER enden — „Kamera 1 -> ATEM -> Aux 2 -> Monitor Regie" gab es im
+  // Plan gar nicht, obwohl der Mischer genauso einen Kreuzpunkt schaltet.
+  //
+  // Jetzt entscheidet nicht mehr die Geraeteart, sondern die GEPLANTE
+  // SCHALTUNG: wer eine hat, leitet durch. `deviceCrosspoints` fuehrt beide
+  // Formen zusammen (Index-Tabelle des Videohubs und die herstellerneutrale
+  // Anschluss-Tabelle) — an genau einer Stelle, damit die Anzeige und der
+  // Signalweg nie zwei Antworten haben.
+  //
+  // Ein Mischer OHNE geplante Schaltung bleibt das Ziel, wie bisher. Das ist
+  // kein Rest, sondern die Regel dieser Datei: geraten wird nichts. Wer
+  // wissen will, was hinter dem Mischer liegt, traegt ein, was er schaltet.
+  const kreuzpunkte = deviceCrosspoints(device)
+  const istVideohub = detectDeviceKind(device) === 'videohub'
+  if (kreuzpunkte.size > 0) {
+    const kind: PassThroughKind = istVideohub ? 'router' : 'mixer'
     const outs: Cable[] = []
-    device.outputs.forEach((p, outIdx) => {
-      if (planned[outIdx] === inIdx) outs.push(...(cablesFromPort.get(p.id) ?? []))
-    })
+    for (const [outId, inId] of kreuzpunkte) {
+      if (inId === arrivalPortId) outs.push(...(cablesFromPort.get(outId) ?? []))
+    }
     if (outs.length === 0) {
+      // ZWEI Faelle, die gleich aussehen und es nicht sind. Ohne die
+      // Unterscheidung schickte der Satz „am geschalteten Ausgang haengt kein
+      // Kabel" jemanden auf die Suche nach einem fehlenden Kabel, obwohl in
+      // Wahrheit die Schaltung dieses Signal nirgendwohin legt.
+      const liegtAn = [...kreuzpunkte.values()].includes(arrivalPortId)
       return {
-        kind: 'router',
+        kind,
         cables: [],
-        ambiguous: 'Kreuzpunkt gesetzt, aber am geschalteten Ausgang hängt kein Kabel',
+        ambiguous: liegtAn
+          ? 'Kreuzpunkt gesetzt, aber am geschalteten Ausgang hängt kein Kabel'
+          : 'Die geplante Schaltung legt dieses Signal auf keinen Ausgang',
       }
     }
-    return { kind: 'router', cables: outs }
+    return { kind, cables: outs }
+  }
+
+  if (istVideohub) {
+    return {
+      kind: 'router',
+      cables: [],
+      ambiguous: 'Kreuzschiene ohne gesetzten Kreuzpunkt — der Weiterweg ist nicht geplant',
+    }
   }
 
   return null

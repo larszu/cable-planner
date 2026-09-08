@@ -176,6 +176,13 @@ contextBridge.exposeInMainWorld('cablePlanner', {
         Array<{ name: string; ip: string; port: number; model?: string }>
       >,
   },
+  // S-2 — das Schalten von Mischern und Kreuzschienen. Eigene Domaene, weil
+  // die Aufgabe fuer viele Geraete existiert; `videohub:*` und `atem:*`
+  // bleiben, was sie sind (Export bzw. Dialog des jeweiligen Herstellers).
+  switcher: {
+    send: (action: unknown) =>
+      ipcRenderer.invoke('switcher:send', action) as Promise<{ ok: boolean; message: string }>,
+  },
   videohub: {
     sendRouting: (params: { host: string; port: number; block: string }) =>
       ipcRenderer.invoke('videohub:send', params) as Promise<{ ok: boolean; message: string }>,

@@ -7,7 +7,7 @@ import { diagnoseZeilen } from '../../lib/patternDiagnose'
 import { patternPruefzeilen, patternRouting } from '../../lib/patternRouting'
 import { testPatternSvg } from '../../lib/testPattern'
 import { HubSwitchDialog } from './HubSwitchDialog'
-import { schaltbareWege } from '../../lib/hubSwitchPlan'
+import { schaltbareWege } from '../../lib/controlActions'
 import { useTranslation, format } from '../../lib/i18n'
 
 /**

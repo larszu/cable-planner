@@ -179,6 +179,16 @@ export const INSTANCE_FIELDS = [
   // Zustand dieses Exemplars
   'activeModeId',
   'videohubRouting',
+  // Die herstellerneutrale Kreuzpunkt-Tabelle gehoert zum EXEMPLAR, nicht zum
+  // Modell — sie zeigt auf Anschluss-Ids DIESES Geraets. In eine Bibliothek
+  // uebernommen zeigte sie auf Anschluesse, die es dort nicht gibt.
+  'plannedCrosspoints',
+  // Protokoll und Steuer-Port beschreiben, wie DIESES Geraet erreicht wird —
+  // dieselbe Einordnung wie `ipAddress`. In eine Bibliothek uebernommen
+  // richteten sie einen Befehl an das Exemplar, von dem abgeschrieben wurde.
+  'controlProtocol',
+  'controlPort',
+  'controlText',
   'notes',
 
   // Herkunft dieses Exemplars

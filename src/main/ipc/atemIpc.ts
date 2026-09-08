@@ -1,52 +1,32 @@
-import { ipcMain, BrowserWindow } from 'electron'
-import { Atem, AtemConnectionStatus } from 'atem-connection'
+import { ipcMain } from 'electron'
 import { Bonjour, type Service } from 'bonjour-service'
 import { mapAtemWindowIndexToCp, mapCpWindowIndexToAtem } from '../util/mvWindowMapping.js'
+import {
+  atemEvents,
+  atemStatus,
+  connectAtem,
+  connectedAtem,
+  disconnectAtem,
+  pushAtemEvent,
+} from '../services/atemSession.js'
 
 /**
- * Singleton ATEM session. Only one device at a time is supported - matches the
- * usage pattern (open dialog, push, close) and avoids leaking UDP sockets.
+ * IPC-Oberflaeche des ATEM-Dialogs.
+ *
+ * Die VERBINDUNG selbst liegt seit S-2 (2026-09-08) in
+ * `services/atemSession.ts` — sie hat einen zweiten Aufrufer bekommen (den
+ * Steuerungs-Treiber), und zwei Singletons haetten zwei Sitzungen zum selben
+ * Mischer bedeutet, am Connect-Lock vorbei.
  *
  * Protocol implementation comes from the `atem-connection` package, which
  * implements the same packet format documented by the LibAtem project
  * (peschuster) and SuperFlyTV's reverse-engineering work.
  */
-let atem: Atem | null = null
-let connectedIp: string | null = null
-// v7.9.93 — Connect-Lock gegen Race wenn der User schnell zwei IPs
-// hintereinander connect't. Ohne Lock konnten zwei parallele atem.connect()
-// im selben Modul-Scope laufen — alte Listener feuerten auf neue atem-
-// Instanz oder umgekehrt.
-let connectInFlight: Promise<unknown> | null = null
 
-const events: string[] = []
-const pushEvent = (line: string) => {
-  events.push(`[${new Date().toISOString()}] ${line}`)
-  if (events.length > 200) events.splice(0, events.length - 200)
-  // Forward to all renderer windows for live status updates.
-  for (const win of BrowserWindow.getAllWindows()) {
-    win.webContents.send('atem:event', line)
-  }
-}
-
-const ensureDisconnected = async () => {
-  if (atem) {
-    const old = atem
-    // v7.9.93 — Listener vor disconnect() abreißen damit late-firing
-    // events nicht mehr in pushEvent() landen + GC den alten Object
-    // sauber abräumt.
-    try { old.removeAllListeners() } catch { /* ignore */ }
-    try {
-      await old.disconnect()
-    } catch {
-      /* ignore */
-    }
-    atem = null
-    connectedIp = null
-  }
-}
+const pushEvent = pushAtemEvent
 
 const summarizeState = () => {
+  const atem = connectedAtem()
   if (!atem || !atem.state) return null
   const state = atem.state
   const inputs = Object.entries(state.inputs ?? {}).map(([id, input]) => ({
@@ -127,91 +107,16 @@ const summarizeState = () => {
 
 export const registerAtemIpc = () => {
   ipcMain.handle('atem:connect', async (_event, ip: string) => {
-    if (!ip || typeof ip !== 'string') {
-      throw new Error('ATEM IP address is required.')
-    }
-    // v7.9.93 — Serialisiere connect-Aufrufe damit zwei parallele
-    // connect-IPC-Calls (User klickt schnell mit zwei IPs) nicht
-    // race-en. Der zweite Call wartet bis der erste durch ist.
-    if (connectInFlight) {
-      try { await connectInFlight } catch { /* der erste darf scheitern */ }
-    }
-    const runConnect = async (): Promise<{ ip: string; summary: ReturnType<typeof summarizeState> }> => {
-      await ensureDisconnected()
-      const localAtem = new Atem()
-      atem = localAtem
-      connectedIp = ip
-
-      // v7.9.93 — Event-Wait via Promise statt Polling-Loop. Wir
-      // wrappen 'connected' / 'error' / Timeout in race().
-      const handshake = new Promise<void>((resolve, reject) => {
-        const onConnected = () => {
-          cleanupOnce()
-          resolve()
-        }
-        const onError = (msg: string) => {
-          cleanupOnce()
-          reject(new Error(msg))
-        }
-        const cleanupOnce = () => {
-          localAtem.off('connected', onConnected)
-          localAtem.off('error', onError)
-        }
-        localAtem.once('connected', onConnected)
-        localAtem.once('error', onError)
-        setTimeout(() => {
-          cleanupOnce()
-          reject(new Error('Handshake timeout (5s)'))
-        }, 5000)
-      })
-
-      // Permanente Listener für UI-Events.
-      localAtem.on('connected', () => pushEvent(`Connected to ATEM at ${ip}`))
-      localAtem.on('disconnected', () => pushEvent(`Disconnected from ATEM at ${ip}`))
-      localAtem.on('error', (msg: string) => pushEvent(`ATEM error: ${msg}`))
-      localAtem.on('info', (msg: string) => pushEvent(`ATEM: ${msg}`))
-
-      try {
-        await localAtem.connect(ip)
-        await handshake
-      } catch (err) {
-        // Wenn dieser Connect noch der "aktuelle" ist → aufräumen.
-        // Bei concurrent-replace könnte atem schon auf ein anderes Objekt
-        // zeigen — dann nichts kaputt machen.
-        if (atem === localAtem) await ensureDisconnected()
-        throw new Error(
-          `Could not connect to ATEM at ${ip}: ${err instanceof Error ? err.message : String(err)}`,
-          { cause: err },
-        )
-      }
-
-      if (atem !== localAtem || localAtem.status !== AtemConnectionStatus.CONNECTED) {
-        if (atem === localAtem) await ensureDisconnected()
-        throw new Error(`ATEM at ${ip} did not finish handshake within 5s.`)
-      }
-
-      return { ip, summary: summarizeState() }
-    }
-    const promise = runConnect()
-    connectInFlight = promise
-    try {
-      return await promise
-    } finally {
-      if (connectInFlight === promise) connectInFlight = null
-    }
+    await connectAtem(ip)
+    return { ip, summary: summarizeState() }
   })
 
   ipcMain.handle('atem:disconnect', async () => {
-    await ensureDisconnected()
+    await disconnectAtem()
     return { ok: true }
   })
 
-  ipcMain.handle('atem:state', async () => {
-    if (!atem || atem.status !== AtemConnectionStatus.CONNECTED) {
-      return null
-    }
-    return summarizeState()
-  })
+  ipcMain.handle('atem:state', async () => summarizeState())
 
   ipcMain.handle(
     'atem:set-input-name',
@@ -219,7 +124,8 @@ export const registerAtemIpc = () => {
       _event,
       payload: { inputId: number; longName: string; shortName: string },
     ) => {
-      if (!atem || atem.status !== AtemConnectionStatus.CONNECTED) {
+      const atem = connectedAtem()
+      if (!atem) {
         throw new Error('Not connected to an ATEM. Connect first.')
       }
       const { inputId, longName, shortName } = payload
@@ -237,7 +143,8 @@ export const registerAtemIpc = () => {
       _event,
       payload: { entries: { inputId: number; longName: string; shortName: string }[] },
     ) => {
-      if (!atem || atem.status !== AtemConnectionStatus.CONNECTED) {
+      const atem = connectedAtem()
+      if (!atem) {
         throw new Error('Not connected to an ATEM. Connect first.')
       }
       let count = 0
@@ -257,12 +164,9 @@ export const registerAtemIpc = () => {
     },
   )
 
-  ipcMain.handle('atem:get-events', async () => events.slice(-100))
+  ipcMain.handle('atem:get-events', async () => atemEvents())
 
-  ipcMain.handle('atem:get-status', async () => ({
-    connected: !!atem && atem.status === AtemConnectionStatus.CONNECTED,
-    ip: connectedIp,
-  }))
+  ipcMain.handle('atem:get-status', async () => atemStatus())
 
   // #288 — MV-Setup vom live verbundenen ATEM auslesen und in das
   // CP-Quadranten-Schema konvertieren. Spiegel zu atem:apply-mv-config:
@@ -279,7 +183,8 @@ export const registerAtemIpc = () => {
         windows: Array<{ windowIndex: number; sourceId: number }>
       }>
     }> => {
-      if (!atem || atem.status !== AtemConnectionStatus.CONNECTED) {
+      const atem = connectedAtem()
+      if (!atem) {
         throw new Error('ATEM not connected')
       }
       const state = atem.state
@@ -329,7 +234,8 @@ export const registerAtemIpc = () => {
         }[]
       },
     ) => {
-      if (!atem || atem.status !== AtemConnectionStatus.CONNECTED) {
+      const atem = connectedAtem()
+      if (!atem) {
         throw new Error('ATEM not connected')
       }
       let applied = 0
@@ -397,7 +303,8 @@ export const registerAtemIpc = () => {
   // atem.state.fairlight + atem.state.fairlight.audioRouting (Matrix
   // auf Extreme/Constellation). Wir mappen direkt darauf.
   ipcMain.handle('atem:read-audio-config', async () => {
-    if (!atem || atem.status !== AtemConnectionStatus.CONNECTED) {
+    const atem = connectedAtem()
+    if (!atem) {
       throw new Error('ATEM not connected')
     }
     const state = atem.state
@@ -498,7 +405,8 @@ export const registerAtemIpc = () => {
         inputLabels?: Record<number, { shortName: string; longName: string }>
       },
     ): Promise<{ matrixApplied: number; classicApplied: number; labelsApplied: number }> => {
-      if (!atem || atem.status !== AtemConnectionStatus.CONNECTED) {
+      const atem = connectedAtem()
+      if (!atem) {
         throw new Error('ATEM not connected')
       }
       let matrixApplied = 0

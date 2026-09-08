@@ -52,7 +52,50 @@ const RENDERER = resolve(__dirname, '..', 'src', 'renderer')
  * Deshalb jetzt jedes Verb. Eine Datei zu viel einzuordnen kostet zwei
  * Zeilen — genau das sagt der Kommentar oben, und jetzt tut der Regex es auch.
  */
-const READS_DEVICE = /cablePlannerApi\.(atem|videohub|netbox|rentman)\.[A-Za-z]/
+/**
+ * Die Bruecken-Domaenen, die ein GERAET oder ein Fremdsystem ansprechen.
+ *
+ * S-2 (2026-09-08) hat gezeigt, wo dieser Waechter seine Luecke hat — und es
+ * war nicht die Regex-Form, die 2026-09-04 verbreitert wurde, sondern die
+ * LISTE. `switcher` kam als neue Domaene dazu (Mischer und Kreuzschienen aus
+ * dem Plan schalten), und der Waechter sah die Datei, die das tut, schlicht
+ * nicht mehr: `HubSwitchDialog` war vorher ueber `videohub.` erfasst und
+ * fiel mit dem Wechsel auf `switcher.` heraus. Ein Waechter, der beim
+ * Umzug einer Datei leise aufhoert zu greifen, ist schlimmer als keiner.
+ *
+ * Deshalb steht die Liste jetzt neben ihrem Gegenstueck, und ein Test unten
+ * haelt fest, dass beide zusammen ALLE Domaenen der Bruecke abdecken. Wer
+ * eine neue anlegt, muss sie einordnen — zwei Zeilen — statt sie stillschweigend
+ * durchrutschen zu lassen.
+ */
+const GERAETE_DOMAENEN = ['atem', 'videohub', 'switcher', 'netbox', 'rentman'] as const
+
+/**
+ * Die uebrigen Domaenen — ausdruecklich KEINE Geraete-Wege.
+ *
+ * Sie reden mit dem Dateisystem, dem Schluesselbund, dem eigenen
+ * Mobil-Server oder dem Kollaborations-Relais. Keine davon liefert einen
+ * Geraete-Befund, der als Absicht in den Plan rutschen koennte, und genau
+ * darum geht es in diesem Test.
+ */
+const SONSTIGE_DOMAENEN = [
+  'collabDiscovery',
+  'credentials',
+  'documentLog',
+  'graphml',
+  'library',
+  'logs',
+  'mobileShare',
+  'print',
+  'project',
+  'receipt',
+  'signaling',
+  'streamKey',
+  'sync',
+  'updater',
+] as const
+
+const READS_DEVICE = new RegExp(`cablePlannerApi\\.(${GERAETE_DOMAENEN.join('|')})\\.[A-Za-z]`)
 
 /**
  * Beruehrt den Projekt-Store ueberhaupt. Absichtlich das grobe Kriterium:
@@ -108,7 +151,9 @@ const CLASSIFIED: Site[] = [
     reason:
       'B-42 Inkrement 3, der EINGRIFF (2026-09-08). Diese Datei liest kein ' +
       'Geraet, sie SCHREIBT eines: sie schickt einer laufenden Kreuzschiene ' +
-      'genau die Kreuzpunkte, ueber die der gewaehlte Weg laeuft. Was in den ' +
+      'oder einem Mischer genau die Kreuzpunkte, ueber die der gewaehlte Weg ' +
+      'laeuft — seit S-2 ueber `switcher:send` und damit ueber einen Treiber ' +
+      'je Protokoll statt ueber den Videohub-Kanal. Was in den ' +
       'Projekt-Store geht, ist ausschliesslich der BELEG darueber ' +
       '(`recordHubSwitch` -> `project.hubSwitches`), angehaengt und nie ' +
       'ersetzt — samt der gescheiterten Versuche, weil „wer hat geschaltet?" ' +
@@ -252,5 +297,30 @@ describe('die Messung selbst', () => {
     // `MultiviewerLayoutView` liest den ATEM und fasst den Store nicht an;
     // sie gehoert nicht in die Liste und darf sie nicht aufblaehen.
     expect(measured()).not.toContain('components/Atem/MultiviewerLayoutView.tsx')
+  })
+
+  it('jede Bruecken-Domaene ist eingeordnet — Geraet oder nicht', () => {
+    // DIE LUECKE, DIE S-2 AUFGEDECKT HAT. Der Waechter hing an einer
+    // handgeschriebenen Domaenen-Liste, und `switcher` fehlte darin: die
+    // Datei, die aus dem Plan heraus schaltet, war fuer ihn unsichtbar,
+    // sobald sie vom `videohub`- auf den `switcher`-Kanal wechselte.
+    //
+    // Die Regex zu verbreitern haette die Zahl der eingeordneten Dateien
+    // verdreifacht und dabei Datei-I/O und Kollaboration mit hineingezogen —
+    // die haben mit „ein Geraete-Befund wird zur Absicht" nichts zu tun. Also
+    // bleibt die Liste, aber sie ist jetzt BELEGT: beide Listen zusammen
+    // muessen die Bruecke vollstaendig abdecken. Wer eine Domaene anlegt,
+    // ordnet sie ein — zwei Zeilen — statt sie durchrutschen zu lassen.
+    const preload = readFileSync(resolve(__dirname, '..', 'src', 'main', 'preload.cts'), 'utf8')
+    const domaenen = [...preload.matchAll(/^ {2}([a-zA-Z]+): \{$/gm)].map((m) => m[1]).sort()
+    expect(domaenen.length).toBeGreaterThanOrEqual(15)
+    const eingeordnet = [...GERAETE_DOMAENEN, ...SONSTIGE_DOMAENEN].sort()
+    expect(eingeordnet).toEqual(domaenen)
+  })
+
+  it('der Schalt-Weg zaehlt als Geraete-Weg', () => {
+    // Er SCHREIBT sogar an ein Geraet — das ist die folgenreichere Richtung.
+    expect(GERAETE_DOMAENEN as readonly string[]).toContain('switcher')
+    expect(measured()).toContain('components/Canvas/HubSwitchDialog.tsx')
   })
 })
