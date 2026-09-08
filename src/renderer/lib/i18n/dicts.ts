@@ -2340,6 +2340,10 @@ export const en: Dict = {
   'export.devicebom.noType': '(no catalogue type)',
   'export.devicebom.noTypeTitle':
     'No catalogue type — the model name here is only the device name. Assigning a catalogue type turns the coverage into a fact.',
+  // ADR-002 — die Plan-Haelfte des Auswegs aus „(ohne Katalog-Typ)".
+  'export.devicebom.assign': 'Assign type…',
+  'export.devicebom.assignTitle':
+    'Writes the catalogue type onto every device in this row. Stock coverage then matches on the catalogue identity instead of the name.',
   'export.devicebom.short': '— {n} missing',
   // Bedarf 80 — die Zahl traegt ihre Qualifizierung mit.
   'export.devicebom.committed': '(of {stock} · {n} checked out)',

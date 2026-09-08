@@ -64,6 +64,21 @@ export interface PlanBomRow {
   /** Katalog-Identität des Bedarfs. Zusammen mit `itemId` ist das alles, was
    *  eine Bestätigung braucht: die Identität auf die Position schreiben. */
   deviceTypeId?: string
+  /** Die Plan-Geraete dieser Zeile, denen ein Katalog-Typ zugewiesen werden
+   *  darf — leer, wo es keine gibt (Rack-Innenleben, Zusatz-Bedarfe).
+   *
+   *  ADR-002 nannte als naechsten Schritt einen Knopf, „der einem Plan-Geraet
+   *  den Katalog-Typ zuweist". Die andere Haelfte — die Bestaetigung eines
+   *  Vorschlags auf der LAGER-Position — steht seit `useTypBestaetigen`; diese
+   *  hier fehlte, und ohne die Ids kann die Tabelle sie nicht bauen: sie kennt
+   *  bis dahin nur einen Modellnamen, nicht die Geraete dahinter.
+   *
+   *  Es sind ALLE Geraete der Zeile, nicht eines: Der Bedarf ist der Typ,
+   *  gezaehlt („dreimal URSA Broadcast G2"). Wer die Zuweisung auf ein Geraet
+   *  beschraenkte, zerlegte die Zeile beim naechsten Aufbau in eine gedeckte
+   *  und zwei geratene — und genau diese Aufspaltung ist es, gegen die der
+   *  Resolver drei Ausgaenge hat. */
+  typeTargetIds: string[]
 }
 
 export interface PlanBom {
@@ -137,6 +152,7 @@ const rowOf = (
       ? { reason: [line.reason, rackHinweis].filter(Boolean).join(' ') }
       : {}),
     modelIsDeviceName: line.demand.labelIsDeviceName,
+    typeTargetIds: line.demand.typeTargetIds,
     ...(line.itemId ? { itemId: line.itemId } : {}),
     ...(line.demand.deviceTypeId ? { deviceTypeId: line.demand.deviceTypeId } : {}),
   }
