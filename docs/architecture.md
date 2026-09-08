@@ -5,7 +5,7 @@ Invarianten der App. Sie ist die Pflicht-Lektüre, bevor strukturelle Änderunge
 gemacht werden. Für die interaktive Modul-Übersicht siehe [`app-structure.html`](./app-structure.html),
 für einen Wettbewerber-Vergleich [`comparison.html`](./comparison.html).
 
-Stand: v9.0.1 · ~555 TS/TSX-Module · ~165.6k LOC
+Stand: v9.0.1 · ~566 TS/TSX-Module · ~167.5k LOC
 
 ---
 
@@ -122,6 +122,51 @@ isoliert testbar ist.
    (Multi-Delete, Paste, Drag-End-Batch) gibt es `projectHistory.transact(fn)`.
 5. **Slices mutieren über `set(state => ...)`** — niemals lokal cachen oder
    Side-Effects am Render-Pfad triggern.
+
+#### 3.1b · `liveStore` — die BEOBACHTUNGS-Spur des Canvas
+
+Seit 2026-09-08 gibt es neben `projectStore` (Absicht) einen zweiten,
+**nicht persistierten** Store für das, was Mischer und Router gerade tun.
+Er ist die Renderer-Seite derselben Trennung, die `lib/asBuilt.ts` seit E-4
+für die Dokumente führt.
+
+**Warum nicht im `projectStore`.** Dort liefe eine Ablesung durch Undo/Redo,
+durch die Autospeicherung und in die `.cableplan`-Datei. Eine Beobachtung,
+die als Absicht gespeichert wird, ist genau der Fehler, den ADR-003 benennt
+— und `cable#647` hat gezeigt, wie er sich anfühlt: ein Status-Read hat die
+geplante Kreuzschiene still durch das ersetzt, was der Hub im Moment tat.
+
+**Die Regel, die daran hängt** (`lib/signalAnimation.ts`): der Canvas kennt
+zwei Betriebsarten und keine dritte.
+
+| Lage | Anzeige |
+|---|---|
+| kein Kontakt | Schema |
+| Kontakt älter als 5 s | Schema |
+| Kontakt frisch, über DIESE Strecke nichts bekannt | Schema — **nicht** „aus" |
+| Meldung frisch | der gemeldete Zustand |
+
+Der dritte Fall ist der, den man beim Bauen übersieht. Eine Kante als tot zu
+zeichnen, weil niemand sie gemessen hat, ist eine Aussage über ein
+ungemessenes Kabel.
+
+**Was die Bewegung bedeutet, und was nicht.** Der Zustand ändert nicht die
+Farbe — die gehört dem Layer und ist die Legende, nach der der Plan gedruckt
+wird. Der Zustand trägt die Bewegung. Einzige Ausnahme ist `down`
+(gedämpft), und die gibt es nur mit Beleg.
+
+**Zwei Einspeiser, zwei Hälften.** `useAtemTallyFeed` meldet Tally (1 s,
+über die offene IPC-Verbindung), `useVideohubLinkFeed` meldet Kreuzpunkte
+(2 s, weil `videohub:read-state` je Aufruf eine TCP-Verbindung zu einem
+Gerät im Signalweg öffnet). Fällt einer aus, räumt er **nur seine eigene
+Hälfte** — ein toter Router ist kein toter Mischer, und wer alles leerte,
+schickte den Nutzer zum falschen Gerät.
+
+**Die Grenze des Routers, ausdrücklich:** ein Videohub meldet Kreuzpunkte
+und **nichts** über anliegendes Signal. Deshalb gibt es `routed` als eigenen
+Zustand neben `carrying`. Der Kreuzpunkt steht auch dann, wenn upstream die
+Kamera aus ist; ihn als „Signal liegt an" zu zeigen machte aus einer
+Router-Einstellung eine Aussage über die Anlage.
 
 ### 3.2 · Komponenten
 
@@ -325,6 +370,12 @@ gehören hier rein, nicht in einzelne Komponenten.
 | Stream-Keys der Ausspielziele | OS-Credential-Store via `keytar`, Account `stream-key:<ziel-id>` | OS-eigen |
 | Sync-Lock | `<shared-pfad>/.cable-planner-sync.lock` | JSON (TTL 2h) |
 | Kategorie-Übersetzungen | `localStorage[categoryTranslations]` | JSON-Map |
+| **Beobachtungen (Tally, Kreuzpunkte)** | **nirgends — `liveStore`, nur im Speicher** | — |
+
+Die letzte Zeile steht hier, weil sie eine Entscheidung ist und kein
+Versäumnis: was die Anlage vor einer Stunde tat, weiß diese App nach einem
+Neustart nicht mehr, und das ist die richtige Aussage. Ein persistierter
+Beobachtungsstand sähe beim nächsten Öffnen aus wie ein aktueller.
 
 ---
 
@@ -531,6 +582,15 @@ Das Wichtigste in Listenform. Niemals brechen ohne expliziten Architektur-Review
     beim Laden wird sie nachgefragt, nicht aus der Datei geglaubt. Der Grund
     ist der Weg der Datei — eine `.avplan` wandert per Mail, liegt in Dropbox
     und geht in den Mobile- wie in den Web-Viewer.
+14. **Der Canvas behauptet keinen Anlagenzustand ohne frischen Beleg.** Eine
+    Animation, die aussieht wie fließendes Signal, IST eine Aussage über die
+    Anlage; niemand liest daneben eine Zahl. Ohne frische Beobachtung zeigt
+    der Canvas das **Schema** und sagt das auch (`FlowModeChip`) — und
+    „nichts bekannt" ist ausdrücklich nicht dasselbe wie „aus". Beobachtungen
+    liegen im `liveStore` und nie im Projekt. Wer eine dritte Quelle
+    anschließt, hält sich an dieselbe Grenze: melden, was das Gerät WIRKLICH
+    sagt (`routed` ist nicht `carrying`), mit Zeitstempel, und beim Ausfall
+    nur die eigene Hälfte räumen.
 
 ---
 
@@ -594,7 +654,7 @@ optionales Cloud-Backend (`y-websocket`, Auth/Permissions) bleiben offen.
 `vitest` ist eingerichtet (`npm test` / `npm run test:watch`); dazu kommen
 gezielte Node-Checks (`npm run test:crdt`, `npm run test:signaling`), ein
 UI-Smoke-Skript (`npm run ui:smoke`) und ein headless Drag-/Interaktions-Test
-(`npm run test:drag`, treibt den Renderer via Playwright). Bei ~165.6k LOC
+(`npm run test:drag`, treibt den Renderer via Playwright). Bei ~167.5k LOC
 bleibt der Ausbau der Abdeckung wichtig — empfohlene Schwerpunkte:
 - Snapshot-Tests auf `healProjectPositions` mit echten
   Beispiel-Projekt-JSONs.
