@@ -15,8 +15,10 @@
  *
  * Der Rueckkanal: entgegen einer frueheren Fassung dieses Kommentars hat
  * der Server sehr wohl Schreib-Endpunkte — POST /checks (Haekchen),
- * POST /cables (neu angelegte Kabel) und POST /pending-changes
- * (Feld-Rueckmeldungen). Alle drei aendern das Projekt am Desktop.
+ * POST /cables (neu angelegte Kabel), POST /pending-changes
+ * (Feld-Rueckmeldungen) und POST /pattern-checks (die Sichtpruefung vom
+ * Pruefbild-Rundgang, B-42 Inkrement 2b). Alle vier aendern das Projekt
+ * am Desktop.
  * Jeder von ihnen verlangt das Token aus der QR-Code-URL (`authed`),
  * und `stripSecrets` entfernt Passwoerter/Schluessel, bevor das Projekt
  * das Geraet verlaesst. Der Weg ist also abgesichert — aber er ist da,
@@ -466,7 +468,7 @@ export const MobileShareDialog = () => {
               {writeMode === 'read-only'
                 ? t(
                     'mobile.dialog.writeMode.readHint',
-                    'Die drei Schreibwege sind geschlossen — das Handy bekommt auf jeden Schreibversuch eine Absage. Den Plan ändert die Person am Rechner.',
+                    'Die Schreibwege sind geschlossen — das Handy bekommt auf jeden Schreibversuch eine Absage. Den Plan ändert die Person am Rechner.',
                   )
                 : t(
                     'mobile.dialog.writeMode.contributeHint',
