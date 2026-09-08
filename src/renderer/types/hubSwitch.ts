@@ -72,6 +72,24 @@ export interface HubSwitch {
    */
   protocol?: import('./switcherControl').ControlProtocol
   /**
+   * WOHIN der Befehl ging: an die Anlage oder an einen Pruefstand (S-5).
+   *
+   * Fehlt bei Eintraegen aus der Zeit vor dem Feld — und das waren
+   * ausnahmslos Eingriffe an der Anlage, weil es einen Pruefstand nicht gab.
+   * Gelesen wird das Fehlen deshalb als `'device'`; eine Migration, die den
+   * Wert nachtruege, behauptete etwas ueber Dateien, die sie nicht kennt,
+   * waehrend die Auslassung selbst die Tatsache ist. Dieselbe Ueberlegung
+   * wie bei `protocol` darueber.
+   *
+   * WARUM ER UEBERHAUPT IM BELEG STEHT. Die Frage, die diesen Datensatz
+   * braucht, kommt spaeter und von jemand anderem: „wer hat den Ausgang
+   * umgeschaltet?" Eine Probe am Emulator saehe dort sonst aus wie ein
+   * Eingriff an der laufenden Anlage — gleiche Uhrzeit, gleicher
+   * Geraetename, gleiche Nummern —, und wer den liest, sucht die Ursache an
+   * einer Stelle, an der nie jemand war.
+   */
+  target?: import('./switcherControl').ControlTarget
+  /**
    * Was gesendet wurde, in einer Zeile — der Block-Inhalt beim Videohub, der
    * Aufruf mit Argumenten beim ATEM. Das ist die Angabe, die den Eintrag
    * nach einem Gerätetausch noch lesbar macht: Nummern allein sagen nichts
@@ -177,6 +195,8 @@ export const hubSwitchZeilen = (
   befehl: string
   wer: string
   ergebnis: string
+  /** „Anlage" oder „Prüfstand" — siehe `HubSwitch.target`. */
+  ziel: string
 }[] =>
   switches.map((s) => ({
     zeitpunkt: s.at,
@@ -186,4 +206,8 @@ export const hubSwitchZeilen = (
     befehl: s.befehl ?? '',
     wer: s.by ?? '',
     ergebnis: s.ok ? 'angenommen' : `abgelehnt: ${s.message ?? ''}`.trim(),
+    // Auf dem BLATT, nicht nur im Datensatz. Ein Eingriffs-Protokoll, das
+    // eine Probe am Pruefstand nicht als solche ausweist, ist genau die
+    // falsche Auskunft, wegen der jemand an der Anlage sucht.
+    ziel: s.target === 'simulator' ? 'Prüfstand' : 'Anlage',
   }))

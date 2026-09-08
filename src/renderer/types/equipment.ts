@@ -565,6 +565,14 @@ export interface EquipmentItem {
    *  bekaeme sonst einen Videohub-Befehl auf Port 9990, und was dort in
    *  Wahrheit horcht, weiss niemand (ADR-002). Ohne Angabe wird nichts
    *  gesendet, und die Oberflaeche sagt, dass sie fehlt. */
+  /**
+   * WOHIN gesteuert wird: an die Anlage oder an einen Pruefstand (S-5).
+   *
+   * Fehlt = Anlage. Das ist die vorsichtigere Lesart, und sie ist zugleich
+   * die Tatsache ueber alle Projekte, die vor diesem Feld entstanden sind:
+   * einen Pruefstand gab es dort nicht.
+   */
+  controlTarget?: import('./switcherControl').ControlTarget
   controlProtocol?: import('./switcherControl').ControlProtocol
   /** Abweichender Steuer-Port. Ohne Angabe gilt der des Protokolls; wo das
    *  Protokoll den Port selbst festlegt (ATEM), wird das Feld ignoriert. */

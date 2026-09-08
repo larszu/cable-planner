@@ -36,6 +36,65 @@
 export type ControlProtocol = 'videohub' | 'atem' | 'text' | 'companion'
 
 /**
+ * WOHIN der Befehl geht: an die Anlage oder an einen Prüfstand (S-5).
+ *
+ * ═══════════════════════════════════════════════════════════════════════
+ * WARUM DAS EIN EIGENES FELD IST UND NICHT AUS DER ADRESSE FOLGT
+ * ═══════════════════════════════════════════════════════════════════════
+ *
+ * Ein Emulator hört auf einer IP wie jedes andere Gerät. Von aussen ist
+ * `10.0.0.5` nicht von `127.0.0.1` zu unterscheiden — jedenfalls nicht
+ * verlässlich: ein Prüfstand kann im selben Netz stehen, und ein echter
+ * Mischer kann über einen Tunnel auf `localhost` liegen. Aus der Adresse zu
+ * schliessen, was am anderen Ende hängt, wäre derselbe Fehler wie der
+ * Namensabgleich, den ADR-002 verbietet. Also wird es ERKLÄRT.
+ *
+ * ═══════════════════════════════════════════════════════════════════════
+ * WAS DARAN HÄNGT: DER BELEG
+ * ═══════════════════════════════════════════════════════════════════════
+ *
+ * `project.hubSwitches` beantwortet „wer hat geschaltet?" — nach einer
+ * Sendung, in der etwas Falsches im Bild war, von jemandem, der nicht dabei
+ * war. Ein Eintrag aus einer Probe am Emulator sieht dort heute aus wie ein
+ * Eingriff an der laufenden Anlage: gleiche Uhrzeit, gleicher Gerätename,
+ * gleiche Nummern. Wer den später liest, sucht die Ursache an einer Stelle,
+ * an der nie jemand war.
+ *
+ * Deshalb fährt das Ziel bis auf das Blatt mit. Es ist dieselbe Trennung,
+ * die ADR-003 zwischen Beobachtung und Absicht zieht — hier zwischen einem
+ * Eingriff und einer Probe.
+ */
+export type ControlTarget =
+  /** Die laufende Anlage. Vorgabe, wenn nichts erklärt ist. */
+  | 'device'
+  /** Ein Emulator/Prüfstand, der das Protokoll spricht. Kein Signal dahinter. */
+  | 'simulator'
+
+export const CONTROL_TARGET_LABEL = {
+  device: 'Anlage',
+  simulator: 'Prüfstand (Emulator)',
+} satisfies Record<ControlTarget, string>
+
+/**
+ * Der Satz, der VOR dem Senden dabeisteht.
+ *
+ * Beim Prüfstand ist er die eigentliche Auskunft: was dort quittiert, ist
+ * ein Programm und kein Mischer, und hinter dem geschalteten Ausgang liegt
+ * kein Bild. Wer das verwechselt, hält eine gelungene Probe für eine
+ * geprüfte Anlage.
+ */
+export const CONTROL_TARGET_HINWEIS = {
+  device: 'Der Befehl geht an das Gerät im Netz. Was danach anders ist, ist die Anlage.',
+  simulator:
+    'Der Befehl geht an einen Emulator. Er quittiert wie ein Mischer, aber hinter dem geschalteten Ausgang liegt kein Signal — die Probe zeigt, dass der Befehl richtig gebaut ist, und nichts darüber hinaus.',
+} satisfies Record<ControlTarget, string>
+
+export const CONTROL_TARGETS = Object.keys(CONTROL_TARGET_LABEL) as ControlTarget[]
+
+export const istControlTarget = (v: unknown): v is ControlTarget =>
+  typeof v === 'string' && Object.prototype.hasOwnProperty.call(CONTROL_TARGET_LABEL, v)
+
+/**
  * Was ein ANSCHLUSS im Protokoll ist.
  *
  * Ein Videohub kennt nur „Eingang" und „Ausgang". Ein Mischer nicht: sein
@@ -155,7 +214,7 @@ export const istControlProtocol = (v: unknown): v is ControlProtocol =>
  * Argumenten. Die beiden sind NICHT dasselbe, und die Oberfläche sagt das:
  * ein „gesendeter Text" für ein Binärprotokoll wäre eine Erfindung.
  */
-export type ControlAction =
+export type ControlActionBody =
   | {
       protocol: 'companion'
       equipmentId: string
@@ -206,6 +265,19 @@ export type ControlAction =
       art: 'aufruf'
       befehle: AtemBefehl[]
     }
+
+/**
+ * Ein fertiger Befehl MIT seinem Ziel (S-5).
+ *
+ * Das Ziel steht nicht in den einzelnen Bauteilen oben, sondern wird an
+ * EINER Stelle angeheftet: in `controlActions`, aus `device.controlTarget`.
+ * Das ist Absicht. Bei fünfzehn Bauplätzen — vier Protokolle, jedes mit
+ * mehreren Rückgabepunkten — wäre ein vergessener still auf „Anlage"
+ * gefallen, und genau das ist die Verwechslung, gegen die dieses Feld
+ * gebaut ist. So gibt es nur einen Ort, an dem es vergessen werden kann,
+ * und dort ist es ein Übersetzungsfehler.
+ */
+export type ControlAction = ControlActionBody & { target: ControlTarget }
 
 /** Ein einzelner ATEM-Befehl, so wie ihn die Bibliothek kennt. */
 export type AtemBefehl =
