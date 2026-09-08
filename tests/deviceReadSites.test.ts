@@ -134,6 +134,34 @@ const CLASSIFIED: Site[] = [
       'tat.',
   },
   {
+    file: 'hooks/useVideohubLinkFeed.ts',
+    verdict: 'getrennt',
+    reason:
+      'Der Kreuzpunkt-Zustand des Routers fuer die Kanten-Anzeige im Canvas ' +
+      '(2026-09-08). Dieselbe Bauform wie `useAtemTallyFeed`: er liest den ' +
+      'Plan (Hub-Geraet, Kabel) und den Router und schreibt in keinen von ' +
+      'beiden — das Ergebnis geht in den nicht persistierten `liveStore`. ' +
+      'Dazu die Grenze, die `videohubLinks` einhaelt: der Hub meldet ' +
+      'Kreuzpunkte und NICHTS ueber anliegendes Signal, also liefert er ' +
+      '`routed` und nie `carrying`. Was der Hub tut, ist eine Beobachtung; ' +
+      'was im Plan steht, eine Absicht — derselbe Satz, den ' +
+      '`VideohubExportDialog` schon traegt.',
+  },
+  {
+    file: 'hooks/useAtemTallyFeed.ts',
+    verdict: 'getrennt',
+    reason:
+      'Der Mischer-Zustand fuer die Tally-Anzeige im Canvas (2026-09-08). Er ' +
+      'liest den Plan (fuer die Zuordnung Eingang -> Geraet ueber ' +
+      '`buildTallyMap`) und den Mischer — und schreibt in KEINEN von beiden. ' +
+      'Das Ergebnis geht in `liveStore`, einen eigenen, nicht persistierten ' +
+      'Store ohne Historie. Genau darum gibt es ihn: im `projectStore` liefe ' +
+      'eine Ablesung durch Undo/Redo, die Autospeicherung und in die ' +
+      'Projektdatei — eine Beobachtung, die als Absicht gespeichert wird, ist ' +
+      'der Fehler, den ADR-003 und E-4 benennen. Die Trennung ist hier also ' +
+      'nicht nachtraeglich hergestellt, sondern die Bauform.',
+  },
+  {
     file: 'components/Atem/AtemDialog.tsx',
     verdict: 'liest-nur',
     reason:

@@ -97,6 +97,22 @@ const summarizeState = () => {
     }
   })
 
+  // Was gerade auf Sendung ist — je Mix-Effect. Bis 2026-09-08 stand das hier
+  // nicht: der Renderer konnte den Mischer nach Namen, Multiviewer und
+  // Audio fragen, aber nicht danach, WELCHE Quelle er zeigt. Genau das
+  // braucht die Tally-Anzeige im Canvas.
+  //
+  // Als LISTE je ME und nicht als ein Paar: ein Mischer mit zwei ME hat zwei
+  // Programme, und eines davon zum "dem" Programm zu erklaeren waere eine
+  // Behauptung darueber, welches der Regie wichtig ist. Wer nur eines
+  // braucht, nimmt Index 0 — das ist dann seine Entscheidung.
+  const mixEffectStates = (state.video?.mixEffects ?? []).map((me, index) => ({
+    index,
+    programInput: me?.programInput,
+    previewInput: me?.previewInput,
+    inTransition: me?.transitionPosition?.inTransition ?? false,
+  }))
+
   return {
     productIdentifier: state.info?.productIdentifier ?? '',
     model: state.info?.model,
@@ -105,6 +121,7 @@ const summarizeState = () => {
     auxiliaries: state.info?.capabilities?.auxilliaries,
     inputs,
     multiViewers,
+    mixEffectStates,
   }
 }
 

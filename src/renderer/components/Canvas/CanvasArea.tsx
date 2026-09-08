@@ -62,6 +62,9 @@ import {
 import { createDemoProject } from '../../lib/demoProject'
 import { CanvasSearch } from './CanvasSearch'
 import { format, useTranslation } from '../../lib/i18n'
+import { useAtemTallyFeed } from '../../hooks/useAtemTallyFeed'
+import { useVideohubLinkFeed } from '../../hooks/useVideohubLinkFeed'
+import { styleForLayer } from '../../lib/cableLayers'
 
 const nodeTypes = { equipment: EquipmentNode, location: LocationFrameNode }
 const edgeTypes = { cable: CableEdge }
@@ -96,6 +99,12 @@ const ViewportStateSync = ({
 
 const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
   const t = useTranslation()
+  // Der Mischer-Zustand als Beobachtung. Er haengt am Canvas, weil der Canvas
+  // ihn zeigt — nicht an `App`, wo er auch dann liefe, wenn niemand hinsieht.
+  useAtemTallyFeed()
+  // Der Kreuzpunkt-Zustand des Routers. Zweite Quelle neben dem Mischer; sie
+  // meldet ihre eigene Haelfte ab, wenn sie ausfaellt.
+  useVideohubLinkFeed()
   // #515 — stabile ID dieser CanvasArea-Instanz für die A*-Router-Registry.
   // Haupt- und Rack-Canvas teilen die Komponente, aber nicht die Instanz;
   // die ID hält ihre Router im Stack auseinander (siehe setCableRouter).
@@ -494,10 +503,16 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         const lengthColor = cableColorMode === 'byLength' ? colorByLength(item.length) : null
         // In byLength mode, cables with no matching length rule get a neutral grey so they're
         // visually distinct from manually-colored cables and easy to spot.
+        // `byLayer` faerbt NUR die Darstellung; `item.color` bleibt
+        // unangetastet. Ein Modus, der die gespeicherte Farbe ueberschreibt,
+        // nimmt dem Nutzer eine Angabe weg, um eine andere zu zeigen — und
+        // beim Zurueckschalten waere sie fort.
         const strokeColor =
           cableColorMode === 'byLength'
             ? (lengthColor ? lengthColor.color : '#64748b')
-            : item.color
+            : cableColorMode === 'byLayer'
+              ? styleForLayer(item.layer).color
+              : item.color
         const dashArray = item.dashed
           ? '6 4'
           : cableColorMode === 'byLength' && lengthColor?.dashArray

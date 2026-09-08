@@ -86,6 +86,15 @@ interface PersistedSettings {
    *  Projekte. Das zugehörige Token liegt im OS-Schlüsselbund, niemals
    *  hier. Leerer String = NetBox nicht konfiguriert. */
   netboxUrl: string
+  /**
+   * Bewegte Darstellung im Canvas (Signalfluss auf den Kanten).
+   *
+   * Vorgabe AN, aber `prefers-reduced-motion` des Systems gewinnt darueber —
+   * die Auswertung steht in `useReducedMotion`, nicht hier: diese Einstellung
+   * sagt, was der Nutzer WILL, die Systemeinstellung, was er VERTRAEGT. Beides
+   * in ein Feld zu ziehen hiesse, das eine mit dem anderen zu ueberschreiben.
+   */
+  canvasMotion: boolean
 }
 
 const defaults: PersistedSettings = {
@@ -97,6 +106,7 @@ const defaults: PersistedSettings = {
   onboardingDone: false,
   userSchema: {},
   netboxUrl: '',
+  canvasMotion: true,
 }
 
 const load = (): PersistedSettings => {
@@ -127,6 +137,11 @@ const load = (): PersistedSettings => {
         typeof parsed.onboardingDone === 'boolean' ? parsed.onboardingDone : true,
       userSchema: sanitizeUserSchema(parsed.userSchema),
       netboxUrl: typeof parsed.netboxUrl === 'string' ? parsed.netboxUrl : defaults.netboxUrl,
+      // Bestehende Installationen kennen das Feld nicht — sie bekommen die
+      // Vorgabe AN. Das ist keine Aenderung ihrer Entscheidung, sondern die
+      // erste: die Bewegung gab es vorher nicht.
+      canvasMotion:
+        typeof parsed.canvasMotion === 'boolean' ? parsed.canvasMotion : defaults.canvasMotion,
     }
   } catch {
     return defaults
@@ -152,6 +167,7 @@ const snapshot = (s: PersistedSettings): PersistedSettings => ({
   onboardingDone: s.onboardingDone,
   userSchema: s.userSchema,
   netboxUrl: s.netboxUrl,
+  canvasMotion: s.canvasMotion,
 })
 
 interface SettingsState {
@@ -167,6 +183,7 @@ interface SettingsState {
   onboardingDone: boolean
   userSchema: UserSchemaMap
   netboxUrl: string
+  canvasMotion: boolean
   setHasToken: (value: boolean) => void
   setTokenStatus: (value: string) => void
   setAutosaveIntervalMs: (value: number) => void
@@ -183,6 +200,8 @@ interface SettingsState {
   setUserSchema: (map: UserSchemaMap) => void
   /** #597 — Basis-URL der NetBox-Instanz setzen (leer = nicht konfiguriert). */
   setNetboxUrl: (value: string) => void
+  /** Bewegte Darstellung im Canvas ein-/ausschalten. */
+  setCanvasMotion: (value: boolean) => void
 }
 
 const initial = load()
@@ -199,6 +218,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   editorName: initial.editorName,
   enabledModules: initial.enabledModules,
   onboardingDone: initial.onboardingDone,
+  canvasMotion: initial.canvasMotion,
   userSchema: initial.userSchema,
   netboxUrl: initial.netboxUrl,
   setHasToken: (value) => set({ hasToken: value }),
@@ -223,6 +243,11 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     set((state) => {
       persist(snapshot({ ...state, editorName: value }))
       return { editorName: value }
+    }),
+  setCanvasMotion: (value) =>
+    set((state) => {
+      persist(snapshot({ ...state, canvasMotion: value }))
+      return { canvasMotion: value }
     }),
   setModuleEnabled: (id, value) =>
     set((state) => {

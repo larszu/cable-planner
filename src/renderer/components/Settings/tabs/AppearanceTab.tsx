@@ -311,7 +311,7 @@ export const AppearanceTab = () => {
         title={t('settings.appearance.cableColor', 'Kabelfarbe')}
         description={t(
           'settings.appearance.cableColorDesc',
-          'Manuell = pro Kabel im Properties-Panel; nach Länge = Längen-basierte Farbcodierung.',
+          'Manuell = pro Kabel im Properties-Panel; nach Länge = Längen-Farbcodierung; nach Gewerk = die Layer-Legende (Video/Audio/Control/Netz/Strom). Die am Kabel gespeicherte Farbe bleibt in jedem Modus erhalten.',
         )}
       >
         <div className="flex gap-1">
@@ -336,6 +336,21 @@ export const AppearanceTab = () => {
             }`}
           >
             {t('settings.appearance.cableColor.byLength', 'Nach Länge')}
+          </button>
+          {/* Die Layer-Farben gab es bis 2026-09-08 nur an den Legenden-Chips:
+              der Plan versprach eine Codierung, die er nicht einlöste. Als
+              eigener Modus und nicht als Vorgabe — wer Kabel von Hand
+              eingefärbt hat, soll sie nicht beim nächsten Start anders sehen. */}
+          <button
+            type="button"
+            onClick={() => setCableColorMode('byLayer')}
+            className={`flex-1 rounded px-3 py-1 text-cp-xs ${
+              cableColorMode === 'byLayer'
+                ? 'bg-sky-700 text-white'
+                : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'
+            }`}
+          >
+            {t('settings.appearance.cableColor.byLayer', 'Nach Gewerk')}
           </button>
         </div>
       </SettingsCard>

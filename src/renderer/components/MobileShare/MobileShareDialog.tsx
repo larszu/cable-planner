@@ -27,7 +27,7 @@
  * closes (Electron tears down the http server with the process).
  */
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Smartphone, Clipboard, Check, Radio } from 'lucide-react'
 import QRCode from 'qrcode'
 import { Icon } from '../shared/Icon'
@@ -35,7 +35,8 @@ import { ModalShell } from '../shared/ModalShell'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
 import { cablePlannerApi, hasDesktopBridge } from '../../lib/bridge'
-import { useTranslation } from '../../lib/i18n'
+import { format, useTranslation } from '../../lib/i18n'
+import { anlagenZugangscodes } from '../../lib/anlagenZugangscodes'
 import { PanelHint } from '../shared/PanelHint'
 
 interface WithheldAddress {
@@ -109,12 +110,32 @@ export const MobileShareDialog = () => {
    * am Plan mitschreibt.
    */
   const [writeMode, setWriteModeState] = useState<'read-only' | 'contribute'>('read-only')
+  /**
+   * E-3 — der Zugriff auf die Anlagen-Zugangscodes.
+   *
+   * Wie `writeMode` kommt der Zustand VOM SERVER; der Token dagegen kommt
+   * EINMAL beim Einschalten und wird hier gehalten, bis der Dialog schliesst.
+   * Es gibt bewusst keinen Weg, ihn spaeter nachzuschlagen: ein Geheimnis,
+   * das man jederzeit aufrufen kann, wandert in jeden Screenshot dieses
+   * Dialogs. Wer ihn verliert, schaltet aus und wieder ein — und macht damit
+   * zugleich den alten ungueltig, was richtig ist.
+   */
+  const [pinAn, setPinAn] = useState(false)
+  const [pinToken, setPinToken] = useState('')
+  const [pinAnzahl, setPinAnzahl] = useState(0)
 
   useEffect(() => {
     let lebt = true
     void cablePlannerApi.mobileShare.getWriteMode().then((r) => {
       if (lebt) setWriteModeState(r.writeMode)
     })
+    if (hasDesktopBridge) {
+      void cablePlannerApi.mobileShare.pincodeStatus().then((r) => {
+        if (!lebt) return
+        setPinAn(r.on)
+        setPinAnzahl(r.count)
+      })
+    }
     return () => {
       lebt = false
     }
@@ -125,6 +146,23 @@ export const MobileShareDialog = () => {
   // anders gebildet wird, geht beim naechsten Umbau auseinander. `webcal://`
   // statt `http://`, weil das am Handy das Abo oeffnet statt eine Datei zu
   // laden — genau der Unterschied, den der Bedarf verlangt.
+  /**
+   * E-3 — die Codes aus dem Roh-Dokument des Herstellers. Sie werden hier
+   * GELESEN und nirgends abgelegt: von hier gehen sie ueber genau einen
+   * IPC-Aufruf in den Hauptprozess und leben dort im Speicher, solange der
+   * Schalter an ist.
+   */
+  //
+  // Der Selektor gibt das ROH-DOKUMENT zurueck und nicht die fertige Liste:
+  // `anlagenZugangscodes` baut bei jedem Aufruf ein neues Array, und ein
+  // zustand-Selektor mit neuer Identitaet je Aufruf laesst
+  // `useSyncExternalStore` bei JEDEM Render einen neuen Zustand sehen. Dieser
+  // Dialog haengt dauerhaft in `App.tsx` (auch geschlossen), also traf das die
+  // ganze App: der Canvas kam nicht mehr zur Ruhe, und „Beispielprojekt laden"
+  // tat nichts mehr. Gefunden vom UI-Overflow-Lauf, nicht von den Unit-Tests.
+  const basePreset = useProjectStore((st) => st.project.greengoConfig?.basePreset)
+  const codes = useMemo(() => anlagenZugangscodes(basePreset), [basePreset])
+
   const hatSchichten = useProjectStore(
     (st) => (st.project.crewPlan?.entries.length ?? 0) > 0,
   )
@@ -437,11 +475,73 @@ export const MobileShareDialog = () => {
             </p>
           </div>
 
+          {/* E-3 — die Anlagen-Zugangscodes, hinter einem eigenen Token. */}
+          <div className="flex flex-col gap-1 rounded border border-cp-border-muted p-2">
+            <label className="flex items-center gap-2 text-cp-xs font-medium text-cp-text">
+              <input
+                type="checkbox"
+                checked={pinAn}
+                disabled={codes.length === 0}
+                onChange={async () => {
+                  const an = !pinAn
+                  const r = await cablePlannerApi.mobileShare.setPincodeAccess(an)
+                  setPinAn(an)
+                  setPinToken(r.token)
+                  const st = an
+                    ? await cablePlannerApi.mobileShare.setPincodes(codes)
+                    : { count: 0 }
+                  setPinAnzahl(st.count)
+                }}
+              />
+              {t('mobile.dialog.pincode', 'Anlagen-Zugangscodes abrufbar machen')}
+            </label>
+            {codes.length === 0 ? (
+              <p className="text-[11px] text-cp-text-muted">
+                {t(
+                  'mobile.dialog.pincode.none',
+                  'Dieses Projekt trägt keine Intercom-Konfiguration mit Zugangscodes.',
+                )}
+              </p>
+            ) : pinAn && pinToken ? (
+              <>
+                <p className="text-[11px] text-cp-text-muted">
+                  {t(
+                    'mobile.dialog.pincode.hint',
+                    'Diesen Code am Handy eingeben. Er steht NICHT im QR-Code — wer nur den Link hat, kommt nicht an die Zugangsdaten.',
+                  )}
+                </p>
+                <code className="select-all rounded bg-cp-surface-2 px-2 py-1 font-mono text-cp-base tracking-widest text-cp-text">
+                  {pinToken}
+                </code>
+                <p className="text-[11px] text-cp-text-muted">
+                  {format(
+                    t(
+                      'mobile.dialog.pincode.count',
+                      '{n} Code(s) hinterlegt. Jeder Abruf steht im Dokument-Register — mit Zeitpunkt, nicht mit dem Wert.',
+                    ),
+                    { n: pinAnzahl },
+                  )}
+                </p>
+              </>
+            ) : (
+              <p className="text-[11px] text-cp-text-muted">
+                {format(
+                  t(
+                    'mobile.dialog.pincode.offHint',
+                    'Aus. {n} Code(s) stünden bereit — sie verlassen den Rechner erst, wenn der Schalter an ist.',
+                  ),
+                  { n: codes.length },
+                )}
+              </p>
+            )}
+          </div>
+
           <details className="text-[11px] text-cp-text-muted">
             <summary className="cursor-pointer hover:text-cp-text-secondary">{t('mobile.dialog.securityHeading', 'Hinweise zur Sicherheit')}</summary>
             <ul className="mt-1 list-inside list-disc space-y-1">
               <li>{t('mobile.dialog.security.writeBack', 'Ob das Handy zurückschreiben darf, entscheidet die Einstellung darüber. Steht sie auf „Häkchen und Kabel zurückschicken“, kann jeder mit dem QR-Code den Plan ändern.')}</li>
               <li>{t('mobile.dialog.security.token', 'Jeder Schreibweg verlangt das Token aus dem QR-Code. Passwörter und Schlüssel werden aus dem Projekt entfernt, bevor es das Gerät verlässt.')}</li>
+              <li>{t('mobile.dialog.security.pincode', 'Die Anlagen-Zugangscodes gehen NIE im Projekt mit. Sie liegen nur im Speicher der Desktop-App und nur, solange der Schalter oben an ist; abgerufen werden sie über einen zweiten Code, der nicht im QR-Code steht.')}</li>
               <li>{t('mobile.dialog.security.bind', 'Der Server bindet auf das lokale Netzwerk (0.0.0.0). Wenn unklar ist, wer im Netz hängt, lieber stoppen.')}</li>
               <li>{t('mobile.dialog.security.autostop', 'Beim Schließen der Desktop-App stoppt auch der Server automatisch.')}</li>
             </ul>
