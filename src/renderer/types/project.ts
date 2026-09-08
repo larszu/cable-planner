@@ -193,6 +193,22 @@ export interface CablePlannerProject {
   checkState?: {
     ports: Record<string, boolean>
     cables: Record<string, boolean>
+    /** B-9 — WANN dieser Stand hereinkam (ISO). Gesetzt von `setCheckState`,
+     *  also in dem Moment, in dem der Desktop die Meldung des Handys
+     *  entgegennimmt.
+     *
+     *  Das ist nicht die Sekunde, in der jemand auf der Leiter getippt hat —
+     *  die kennt dieser Plan nicht und soll sie auch nicht behaupten. Es ist
+     *  der fruehestmoegliche Zeitpunkt, den er WEISS, und genau darum steht
+     *  er hier: das As-built-Blatt verlangt zu jeder Ablesung einen
+     *  Zeitpunkt, und ein Haken ohne Zeitpunkt ist keine Ablesung, sondern
+     *  eine Behauptung (`lib/asBuilt.ts`).
+     *
+     *  Optional und OHNE Default in `healProjectPositions`: eine Zeit zu
+     *  erfinden waere schlimmer als keine zu haben. Ein Projekt aus der Zeit
+     *  vor diesem Feld hat Haken, deren Alter niemand kennt — und das
+     *  As-built-Blatt sagt dann „nicht nachgesehen" statt „stimmt". */
+    receivedAt?: string
   }
   /** v7.9.3 — Lock-Status des Projekts:
    *   - 'editing' (Default): voll bearbeitbar

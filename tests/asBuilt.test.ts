@@ -7,6 +7,7 @@ import {
   asBuiltSummary,
   asBuiltTable,
   asBuiltVerdict,
+  fromCabling,
   fromCrosspoints,
   fromLiveComparison,
   fromNetworkReport,
@@ -16,8 +17,11 @@ import {
 } from '../src/renderer/lib/asBuilt'
 import type { LiveComparison } from '../src/renderer/lib/atemLiveCompare'
 import type { ReconcileReport } from '../src/renderer/lib/networkReconcile'
+import type { Cable } from '../src/renderer/types/cable'
+import type { EquipmentItem } from '../src/renderer/types/equipment'
 import libQuelle from '../src/renderer/lib/asBuilt.ts?raw'
 import dialogQuelle from '../src/renderer/components/Network/ReconcileDialog.tsx?raw'
+import sliceQuelle from '../src/renderer/store/slices/mobileSyncSlice.ts?raw'
 
 // ---------------------------------------------------------------------------
 // „Wie geplant" gegen „wie gebaut" (Bedarf 126, P4).
@@ -308,6 +312,160 @@ describe('mergeEntries', () => {
   })
 })
 
+// ── 5b. Die fuenfte Quelle: die Verkabelung (B-9) ──────────────────────────
+
+const port = (id: string, name: string) => ({ id, name })
+
+const geraet = (id: string, name: string, ports: string[]): EquipmentItem =>
+  ({
+    id,
+    name,
+    category: 'test',
+    inputs: ports.map((p) => port(`${id}-${p}`, p)),
+    outputs: [],
+  }) as unknown as EquipmentItem
+
+const kabel = (over: Partial<Cable> = {}): Cable =>
+  ({
+    id: 'k1',
+    name: '',
+    type: 'BNC',
+    length: 5,
+    color: '#fff',
+    fromEquipmentId: 'a',
+    fromPortId: 'a-Out 1',
+    toEquipmentId: 'b',
+    toPortId: 'b-In 1',
+    notes: '',
+    ...over,
+  }) as unknown as Cable
+
+const rig: EquipmentItem[] = [geraet('a', 'Kamera 1', ['Out 1']), geraet('b', 'ATEM', ['In 1'])]
+
+describe('fromCabling — was kein Geraet beantworten kann', () => {
+  it('fuehrt eine geplante Verbindung OHNE Haken als „nicht nachgesehen"', () => {
+    // Der Kern der Regel: der Plan will das Kabel, aber niemand war dran.
+    // „stimmt" waere hier eine Behauptung ueber die Wirklichkeit.
+    const zeilen = fromCabling([kabel()], rig, { ports: {}, cables: {}, receivedAt: jetzt })
+    expect(zeilen).toHaveLength(1)
+    expect(asBuiltVerdict(zeilen[0])).toBe('not-verified')
+    expect(zeilen[0].planned).toBe('ja')
+  })
+
+  it('macht aus einem Haken eine Uebereinstimmung', () => {
+    const zeilen = fromCabling([kabel()], rig, {
+      ports: {},
+      cables: { k1: true },
+      receivedAt: jetzt,
+    })
+    expect(asBuiltVerdict(zeilen[0])).toBe('match')
+    expect(zeilen[0].at).toBe(jetzt)
+    expect(zeilen[0].source).toBe('field-check')
+  })
+
+  it('nennt die Verbindung beim Namen, sonst bei ihren beiden Enden', () => {
+    const ohneNamen = fromCabling([kabel()], rig, undefined)
+    expect(ohneNamen[0].subject).toBe('Kamera 1 · Out 1 → ATEM · In 1')
+    const mitNamen = fromCabling([kabel({ name: 'CAM1-PGM' })], rig, undefined)
+    expect(mitNamen[0].subject).toBe('CAM1-PGM')
+  })
+
+  it('meldet einen Haken an einem Kabel, das der Plan nicht mehr kennt', () => {
+    // DER Fall, der die Arbeit traegt: der Plan hat sich geaendert, nachdem
+    // die Crew losgezogen ist. Draussen steckt das Kabel weiterhin.
+    const zeilen = fromCabling([], rig, {
+      ports: {},
+      cables: { 'weg-1': true },
+      receivedAt: jetzt,
+    })
+    expect(zeilen).toHaveLength(1)
+    expect(asBuiltVerdict(zeilen[0])).toBe('unexpected')
+    expect(zeilen[0].subject).toContain('weg-1')
+  })
+
+  it('meldet einen Haken an einem Port, den der Plan nicht erklaert', () => {
+    const zeilen = fromCabling([], rig, {
+      ports: { 'a|a-Out 1': true },
+      cables: {},
+      receivedAt: jetzt,
+    })
+    const portZeile = zeilen.find((z) => z.field === 'Port gesteckt')
+    expect(portZeile?.subject).toBe('Kamera 1 · Out 1')
+    expect(asBuiltVerdict(portZeile!)).toBe('unexpected')
+  })
+
+  it('fuehrt einen abgehakten Port MIT Kabelende als Uebereinstimmung', () => {
+    const zeilen = fromCabling([kabel()], rig, {
+      ports: { 'a|a-Out 1': true },
+      cables: {},
+      receivedAt: jetzt,
+    })
+    const portZeile = zeilen.find((z) => z.field === 'Port gesteckt')
+    expect(asBuiltVerdict(portZeile!)).toBe('match')
+  })
+
+  it('fuehrt NICHT abgehakte Ports gar nicht auf', () => {
+    // Sonst stuende jede Luecke zweimal auf dem Blatt — einmal als Kabel und
+    // einmal je Ende —, und die Zahl unter dem Blatt waere doppelt so gross
+    // wie die Zahl der offenen Punkte.
+    const zeilen = fromCabling([kabel()], rig, { ports: {}, cables: {}, receivedAt: jetzt })
+    expect(zeilen.filter((z) => z.field === 'Port gesteckt')).toHaveLength(0)
+  })
+
+  it('macht aus einem Haken OHNE Zeitpunkt keine Ablesung', () => {
+    // Ein Projekt aus der Zeit vor `receivedAt`. Die Haken sind da, ihr Alter
+    // kennt niemand — also ist nichts nachgesehen.
+    const zeilen = fromCabling([kabel()], rig, { ports: {}, cables: { k1: true } })
+    expect(asBuiltVerdict(zeilen[0])).toBe('not-verified')
+    expect(zeilen[0].actual).toBeUndefined()
+  })
+
+  it('macht aus `false` kein „fehlt"', () => {
+    // Der Haken ist binaer und kennt kein „nein"; `false` heisst „noch nicht
+    // abgehakt". Eine `missing`-Zeile daraus waere eine Ablesung, die
+    // niemand gemacht hat.
+    const zeilen = fromCabling([kabel()], rig, {
+      ports: {},
+      cables: { k1: false },
+      receivedAt: jetzt,
+    })
+    expect(asBuiltVerdict(zeilen[0])).toBe('not-verified')
+  })
+
+  it('kommt ohne checkState zurecht', () => {
+    const zeilen = fromCabling([kabel()], rig, undefined)
+    expect(zeilen).toHaveLength(1)
+    expect(asBuiltVerdict(zeilen[0])).toBe('not-verified')
+  })
+
+  it('haelt eine lesbare Ueberschrift fuer die neue Quelle bereit', () => {
+    expect(READING_SOURCE_LABEL['field-check']).toBeTruthy()
+  })
+})
+
+describe('der Haken traegt seinen Zeitpunkt', () => {
+  it('gestempelt wird beim EMPFANG, nicht beim Lesen', () => {
+    // Wer den Zeitpunkt setzen darf, kann „nachgesehen" behaupten, ohne
+    // nachgesehen zu haben. Deshalb faellt er im Slice an, der die Meldung
+    // des Handys entgegennimmt — und nirgends sonst.
+    expect(sliceQuelle).toContain('receivedAt: new Date().toISOString()')
+    expect(sliceQuelle.match(/receivedAt: new Date/g) ?? []).toHaveLength(1)
+  })
+
+  it('bleibt stehen, wenn der Planer EINEN Haken zuruecknimmt', () => {
+    // Ein zurueckgenommener Haken macht die Meldung nicht ungeschehen; die
+    // uebrigen stammen weiter aus derselben Ablesung.
+    expect(sliceQuelle).toContain('checkState: { ...cur, ports: nextPorts, cables: cur.cables }')
+    expect(sliceQuelle).toContain('checkState: { ...cur, ports: cur.ports, cables: nextCables }')
+  })
+
+  it('faellt weg, wenn ALLE Haken geloescht werden', () => {
+    // Ein stehengebliebener Zeitpunkt gaebe einem leeren Stand ein Alter,
+    // das er nicht hat.
+    expect(sliceQuelle).toContain('checkState: { ports: {}, cables: {} }')
+  })
+})
+
 // ── 6. Die Oberflaeche ─────────────────────────────────────────────────────
 
 describe('der Abgleich-Dialog', () => {
@@ -316,12 +474,38 @@ describe('der Abgleich-Dialog', () => {
     // sich wie eine vollstaendige Pruefung — genau der Zustand, den der
     // Bedarf beklagt („post has no record").
     expect(dialogQuelle).toContain('unverifiedEntries(')
-    expect(dialogQuelle).toContain('mergeEntries(geplant, report ? fromNetworkReport(report) : [])')
+    // Nicht auf die Zeilenumbrueche festgenagelt: geprueft wird, dass BEIDE
+    // Seiten in denselben `mergeEntries`-Aufruf gehen — die geplanten
+    // Gegenstaende und der Bericht. Ein Waechter, der an einer Umformatierung
+    // rot wird, wird irgendwann geaendert statt gelesen.
+    const zusammenfuehrung = dialogQuelle.slice(
+      dialogQuelle.indexOf('return mergeEntries('),
+      dialogQuelle.indexOf('const asBuiltStand'),
+    )
+    expect(zusammenfuehrung).toContain('geplant')
+    expect(zusammenfuehrung).toContain('fromNetworkReport(report)')
   })
 
   it('nennt die Deckung in Zahlen, statt nur die Abweichungen zu zeigen', () => {
     expect(dialogQuelle).toContain('asBuiltSummary(asBuilt)')
     expect(dialogQuelle).toContain("t('asBuilt.count'")
+  })
+
+  it('nimmt die Verkabelung auf DASSELBE Blatt (B-9)', () => {
+    // Ein zweites „As-built (Kabel)"-Dokument waere die Vervielfachung, gegen
+    // die dieses Modul gebaut ist: die Post haette zwei Blaetter und muesste
+    // sie selbst zusammenlegen.
+    expect(dialogQuelle).toContain('fromCabling(cables, equipment, checkState)')
+    expect(dialogQuelle).not.toContain('asBuiltTable(kabelBlatt)')
+  })
+
+  it('liest den Zeitpunkt aus dem Plan, statt ihn zu stellen', () => {
+    // Der Dialog weiss nicht, wann jemand abgehakt hat.
+    const abschnitt = dialogQuelle.slice(
+      dialogQuelle.indexOf('const asBuilt = useMemo'),
+      dialogQuelle.indexOf('const asBuiltStand'),
+    )
+    expect(abschnitt).not.toContain('new Date(')
   })
 })
 
