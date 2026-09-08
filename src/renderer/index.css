@@ -790,3 +790,40 @@ button:disabled,
   padding: 10px 12px;
   border-bottom: 1px solid var(--cp-accent);
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * B-44 — Bedienelemente, die erst beim Darueberfahren erscheinen.
+ *
+ * Rueckmeldung des Eigentuemers, 2026-09-08: „Die ganze Anwendung ist auch
+ * noch nicht touch optimiert."
+ *
+ * GEMESSEN: drei Bedienreihen (Bibliotheks-Eintrag, Rack-Karte, Gruppen-Karte)
+ * stehen auf `opacity-0` und werden erst durch `group-hover` sichtbar. Auf
+ * einem Zeigegeraet ohne Hover gibt es kein Darueberfahren — dort sind
+ * „Bearbeiten" und „Loeschen" schlicht NICHT VORHANDEN. Das ist keine
+ * Geschmacksfrage: eine Funktion ohne Zugang ist keine Funktion.
+ *
+ * Die Regel steht hier und nicht in den drei Dateien, weil sie eine Regel ist
+ * und keine Gestaltung: `@media (pointer: coarse)` beantwortet genau die
+ * Frage, um die es geht — kann dieses Geraet ueberhaupt schweben?
+ *
+ * `:focus-within` bleibt drin, weil die Reihe auch per Tastatur erreichbar
+ * sein muss: wer sich mit Tab hineinbewegt, sieht sonst nichts.
+ * ═══════════════════════════════════════════════════════════════════════ */
+.cp-hover-actions {
+  opacity: 0;
+  transition: opacity 150ms;
+}
+
+.group:hover .cp-hover-actions,
+.group:focus-within .cp-hover-actions,
+.cp-hover-actions:focus-within {
+  opacity: 1;
+}
+
+@media (pointer: coarse) {
+  /* Kein Hover moeglich — also immer sichtbar. */
+  .cp-hover-actions {
+    opacity: 1;
+  }
+}

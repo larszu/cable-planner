@@ -9,6 +9,7 @@ import { useProjectStore } from '../../store/projectStore'
 import { format, useTranslation } from '../../lib/i18n'
 import { CategorySelect } from '../shared/CategorySelect'
 import { useDialogA11y } from '../../hooks/useDialogA11y'
+import { useBackdropClose } from '../../hooks/useBackdropClose'
 
 const connectorOptions: ConnectorType[] = [
   'XLR',
@@ -87,6 +88,13 @@ export const NewRentmanDeviceWizard = ({
   // Phase 3 der UI-Pruefung. Vor dem bedingten Ausstieg, weil Haken nicht
   // bedingt laufen duerfen; `open` schaltet stattdessen ihre Wirkung.
   const { panelRef, titleId, dialogProps } = useDialogA11y(open, onCancel)
+
+  // B-44 — der Assistent haelt Eingaben ueber mehrere Seiten. Wer auf
+  // Seite drei steht, verliert bei einem Fehlklick daneben alles davor.
+  const backdrop = useBackdropClose(onCancel, {
+    schutz: () => index > 0 || name.trim().length > 0 || groups.length > 0,
+    frage: t('rentmanWizard.closeUnsaved', 'Assistenten abbrechen und Eingaben verwerfen?'),
+  })
 
   if (!open || !current) return null
 
@@ -185,7 +193,10 @@ export const NewRentmanDeviceWizard = ({
   const isLast = index + 1 >= items.length
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 p-6">
+    <div
+      {...backdrop}
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 p-6"
+    >
       <div
         ref={panelRef}
         aria-labelledby={titleId}

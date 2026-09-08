@@ -5,6 +5,7 @@ import type { InternalCableDraft, RackPlacementDraft } from './rackBuilderTypes'
 import { PanelHint } from '../shared/PanelHint'
 import { rackWireFindings } from '../../lib/rackWireChecks'
 import { useDialogA11y } from '../../hooks/useDialogA11y'
+import { useBackdropClose } from '../../hooks/useBackdropClose'
 
 /** v7.8.5+ — Wire-Dialog-Overlay fuer die Rack-interne Verkabelung.
  *
@@ -38,6 +39,9 @@ export const RackInternalWireOverlay = ({
   // Phase 3 der UI-Pruefung: Escape, Fokus-Falle und Fokus-Rueckgabe aus dem
   // Haken. Vor dem bedingten Ausstieg, weil Haken nicht bedingt laufen.
   const { panelRef, titleId, dialogProps } = useDialogA11y(open, onClose)
+
+  // B-44 — der Hintergrund schliesst, aus derselben Quelle wie ueberall.
+  const backdrop = useBackdropClose(onClose)
 
   if (!open) return null
 
@@ -75,7 +79,10 @@ export const RackInternalWireOverlay = ({
   })()
 
   return (
-    <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/70 p-2 sm:p-6">
+    <div
+      {...backdrop}
+      className="fixed inset-0 z-[80] flex items-center justify-center bg-black/70 p-2 sm:p-6"
+    >
       <div
         ref={panelRef}
         aria-labelledby={titleId}

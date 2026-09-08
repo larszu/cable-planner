@@ -13,6 +13,7 @@ import {
   sendebereit,
 } from '../../lib/controlActions'
 import { useTranslation } from '../../lib/i18n'
+import { useBackdropClose } from '../../hooks/useBackdropClose'
 
 /**
  * „Diesen Weg schalten" — der Eingriff am Gerät (B-42 Ink. 3 / S-2).
@@ -120,8 +121,14 @@ export function HubSwitchDialog({ onClose }: { onClose: () => void }) {
     setLaeuft(false)
   }
 
+  // B-44 — der Hintergrund schliesst, aus derselben Quelle wie ueberall.
+  const backdrop = useBackdropClose(onClose)
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6">
+    <div
+      {...backdrop}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6"
+    >
       <div
         ref={panelRef}
         aria-labelledby={titleId}

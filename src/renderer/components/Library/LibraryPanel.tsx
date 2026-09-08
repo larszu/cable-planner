@@ -49,6 +49,7 @@ import { defaultGroup, buildPorts } from './libraryPanelHelpers'
 import type { PortGroupDraft } from './libraryPanelHelpers'
 import { PanelHint } from '../shared/PanelHint'
 import { useDialogA11y } from '../../hooks/useDialogA11y'
+import { useBackdropClose } from '../../hooks/useBackdropClose'
 
 
 
@@ -675,6 +676,16 @@ export const LibraryPanel = () => {
     titleId: netBoxTitleId,
     dialogProps: netBoxProps,
   } = useDialogA11y(showNetBoxDialog, () => setShowNetBoxDialog(false))
+
+  // B-44 — die beiden Unter-Dialoge des Bibliotheks-Panels schliessen jetzt
+  // auch auf dem Hintergrund. Der NetBox-Dialog ist eine Auswahl und haelt
+  // keinen Entwurf; der Anlegen-Dialog haelt einen, und deshalb fragt er.
+  const netBoxBackdrop = useBackdropClose(() => setShowNetBoxDialog(false))
+  const seedBackdrop = useBackdropClose(() => setSeedPreset(null))
+  const anlegenBackdrop = useBackdropClose(() => setShowCreateDialog(false), {
+    schutz: () => name.trim() !== 'Custom Device',
+    frage: t('library.closeUnsaved', 'Anlegen abbrechen und Eingaben verwerfen?'),
+  })
   const {
     panelRef: anlegenRef,
     titleId: anlegenTitleId,
@@ -895,7 +906,10 @@ export const LibraryPanel = () => {
       )}
 
       {showNetBoxDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6">
+        <div
+          {...netBoxBackdrop}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6"
+        >
           <div
             ref={netBoxRef}
             aria-labelledby={netBoxTitleId}
@@ -1023,7 +1037,10 @@ export const LibraryPanel = () => {
       )}
 
       {showCreateDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6">
+        <div
+          {...anlegenBackdrop}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6"
+        >
           <div
             ref={anlegenRef}
             aria-labelledby={anlegenTitleId}
@@ -1346,7 +1363,10 @@ export const LibraryPanel = () => {
       )}
 
       {netBoxConflict && (
-        <div className="fixed inset-0 z-[75] flex items-center justify-center bg-black/70 p-6">
+        <div
+          {...seedBackdrop}
+          className="fixed inset-0 z-[75] flex items-center justify-center bg-black/70 p-6"
+        >
           <div
             ref={dubletteRef}
             aria-labelledby={dubletteTitleId}

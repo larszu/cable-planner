@@ -1081,7 +1081,7 @@ export const MenuBar = ({
           >
             <span className="truncate font-medium">{projectName}</span>
             {onEditProjectMeta && (
-              <span className="text-cp-text-faint opacity-0 transition-opacity group-hover:opacity-100">
+              <span className="text-cp-text-faint cp-hover-actions">
                 <Icon icon={Pencil} size="xs" />
               </span>
             )}

@@ -26,6 +26,7 @@ import { promptDialog } from '../../lib/promptDialog'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
 import { format, useTranslation } from '../../lib/i18n'
+import { useLongPress } from '../../hooks/useLongPress'
 
 export const LayerVisibilityChips = () => {
   const t = useTranslation()
@@ -66,6 +67,25 @@ export const LayerVisibilityChips = () => {
     addCustomLayer(name)
   }
 
+
+  // B-44 — das Entfernen eines eigenen Layers haengt bisher am Rechtsklick,
+  // und den gibt es auf einem Tablet nicht. Die Aktion steht deshalb einmal
+  // hier und wird von beiden Wegen gerufen; zwei Fassungen derselben
+  // Rueckfrage waeren die Defektform `zwei-rechnungen`.
+  const bindeLangenDruck = useLongPress()
+  const langerDruck = (layer: string) => bindeLangenDruck(() => entfernen(layer))
+
+  const entfernen = (layer: string) => {
+    void (async () => {
+      const ok = await confirmDialog(
+        format(t('canvas.layerChips.removeCustom', 'Custom-Layer "{layer}" entfernen?'), {
+          layer,
+        }),
+        { destructive: true, okLabel: t('common.delete', 'Löschen') },
+      )
+      if (ok) removeCustomLayer(layer)
+    })()
+  }
   return (
     <div className="relative flex items-center gap-1">
       <span
@@ -137,16 +157,11 @@ export const LayerVisibilityChips = () => {
             onClick={() => setLayerVisibility(layer, !visible)}
             onContextMenu={(e) => {
               e.preventDefault()
-              void (async () => {
-                const ok = await confirmDialog(
-                  format(t('canvas.layerChips.removeCustom', 'Custom-Layer "{layer}" entfernen?'), {
-                    layer,
-                  }),
-                  { destructive: true, okLabel: t('common.delete', 'Löschen') },
-                )
-                if (ok) removeCustomLayer(layer)
-              })()
+              entfernen(layer)
             }}
+            /* B-44 — derselbe Weg fuer Geraete ohne Rechtsklick. Der Haken
+               bricht ab, sobald der Zeiger wandert: dann war es ein Zug. */
+            {...langerDruck(layer)}
             title={format(
               t('canvas.layerChips.customTitle', '{layer} (custom) — Rechtsklick zum Entfernen'),
               { layer },

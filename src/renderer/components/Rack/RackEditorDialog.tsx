@@ -34,6 +34,7 @@ import { EquipmentNode } from '../Canvas/EquipmentNode'
 import { CableEdge } from '../Canvas/CableEdge'
 import { PanelHint } from '../shared/PanelHint'
 import { useDialogA11y } from '../../hooks/useDialogA11y'
+import { useBackdropClose } from '../../hooks/useBackdropClose'
 
 const nodeTypes = { equipment: EquipmentNode }
 const edgeTypes = { cable: CableEdge }
@@ -221,12 +222,20 @@ export const RackEditorDialog = () => {
   const { panelRef, titleId, dialogProps } = useDialogA11y(slot.open, close, {
     ref: containerRef,
   })
+  // B-44 — dieser Dialog konnte es schon; jetzt kann er es aus DERSELBEN
+  // Quelle wie alle anderen. Die Bedingung `e.target === e.currentTarget`
+  // stand hier woertlich noch einmal — zwei Fassungen derselben Regel, von
+  // denen eine spaeter um den Entwurfs-Schutz erweitert worden waere und die
+  // andere nicht. Ohne Schutz: der Rack-Editor schreibt jede Aenderung sofort
+  // in den Store, es gibt keinen Entwurf.
+  const backdrop = useBackdropClose(close)
+
   if (!slot.open || !slot.rackInstanceId) return null
 
   return (
     <div
+      {...backdrop}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
-      onMouseDown={(e) => e.target === e.currentTarget && close()}
     >
       <div
         ref={panelRef}

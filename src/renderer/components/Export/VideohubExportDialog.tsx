@@ -43,6 +43,7 @@ import {
   type PortLabels,
 } from '../../lib/salvoSheet'
 import { toCsv } from '../../lib/csv'
+import { useBackdropClose } from '../../hooks/useBackdropClose'
 
 // #237 — Stop-Words die im Smart-Routing nicht zum Score beitragen.
 // "out"/"in" matched sonst auf praktisch jeden Port-Namen weil beide
@@ -912,8 +913,14 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
     await sendBlock(block, 'Labels+Routing-Push')
   }
 
+  // B-44 — der Hintergrund schliesst, aus derselben Quelle wie ueberall.
+  const backdrop = useBackdropClose(onClose)
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6">
+    <div
+      {...backdrop}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6"
+    >
       <div
         ref={panelRef}
         aria-labelledby={titleId}
