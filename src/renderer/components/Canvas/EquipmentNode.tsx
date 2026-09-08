@@ -31,6 +31,8 @@ type EquipmentNodeData = EquipmentItem & {
 import { EQUIPMENT_LAYOUT } from '../../lib/layoutConstants'
 import { useTally } from '../../hooks/useCanvasFlow'
 import { useLampLevel } from '../../hooks/useCircuit'
+import { useErwartetesBild } from '../../hooks/usePattern'
+import { testPatternDataUri } from '../../lib/testPattern'
 import { useCircuitStore, istSchaltbar } from '../../store/circuitStore'
 import { CIRCUIT_KIND_INFO } from '../../types/circuit'
 const HEADER_HEIGHT = EQUIPMENT_LAYOUT.HEADER_HEIGHT
@@ -59,6 +61,10 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
   // Schaltbild-Geraet oder Anzeige aus), `-1` = brennt nicht, 0..100 = brennt.
   const lampLevel = useLampLevel(id)
   const circuitOverlay = useUiStore((s) => s.circuitOverlay)
+  // Pruefbild: welchen NAMEN muesste das Bild hier tragen? `null` = der Plan
+  // sieht hier nichts vor. Ausdruecklich keine Aussage darueber, ob dort ein
+  // Bild ankommt — diese App hat keinen Videoeingang.
+  const erwartetesBild = useErwartetesBild(id)
   const schalte = useCircuitStore((s) => s.schalte)
   const stellung = useCircuitStore((s) => (data.circuitKind ? s.sim.positions[id] : undefined))
   const t = useTranslation()
@@ -809,6 +815,56 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
           >
             {data.ipAddress}
             {data.subnetMask ? ` /${data.subnetMask}` : ''}
+          </div>
+        )}
+
+        {/*
+          DAS MINI-MONITOR-FELD — und die Beschriftung daran ist Pflicht.
+
+          Was hier steht, ist die ERWARTUNG aus dem Plan: „nach dem geplanten
+          Kreuzpunkt muesste hier dieses Bild stehen". Es ist ausdruecklich
+          kein Videobild und keine Bestaetigung. Diese App hat keinen
+          Videoeingang — sie kann kein Bild sehen, und eines vorzutaeuschen
+          waere die teuerste Sorte Falschaussage: man erkennt Balken, haelt
+          sie fuer eine Rueckmeldung und hat in Wahrheit den Plan zweimal
+          gelesen (Invariante 14).
+
+          DER NAME IST DER INHALT. Farbbalken allein beantworten nichts —
+          zwei vertauschte Kreuzpunkte sehen mit Balken auf beiden Wegen
+          richtig aus. Steht auf dem echten Monitor ein anderer Name als
+          hier, ist die Vertauschung gefunden.
+        */}
+        {erwartetesBild !== null && (
+          <div style={{ marginTop: 4 }}>
+            <div
+              style={{
+                fontSize: 9,
+                letterSpacing: '0.04em',
+                textTransform: 'uppercase',
+                color: isLight ? '#a16207' : '#fbbf24',
+                lineHeight: '12px',
+              }}
+            >
+              {t('canvas.pattern.expected', 'Erwartung laut Plan')}
+            </div>
+            <img
+              src={testPatternDataUri({ name: erwartetesBild, breite: 320 })}
+              alt={format(
+                t('canvas.pattern.expectedAlt', 'Erwartetes Prüfbild: {name}'),
+                { name: erwartetesBild },
+              )}
+              title={t(
+                'canvas.pattern.expectedTitle',
+                'Was der Plan hier vorsieht — kein Videobild. Diese App sieht nicht, was wirklich ankommt.',
+              )}
+              draggable={false}
+              style={{
+                display: 'block',
+                width: '100%',
+                borderRadius: 3,
+                border: `1px dashed ${isLight ? '#a16207' : '#fbbf24'}`,
+              }}
+            />
           </div>
         )}
       </div>
