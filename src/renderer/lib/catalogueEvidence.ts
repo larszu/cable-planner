@@ -44,6 +44,7 @@ import { BROADCAST_TOOLS_CATALOG } from './broadcastToolsCatalog'
 import { CAMERA_CATALOG } from './cameraCatalog'
 import { GREENGO_CATALOG } from './greengoCatalog'
 import { LYNX_CATALOG } from './lynxCatalog'
+import { MEDIA_STATION_CATALOG } from './mediaStationCatalog'
 import { MIC_CATALOG } from './micCatalog'
 import { MISC_CATALOG } from './miscCatalog'
 import { MONITOR_CATALOG } from './monitorCatalog'
@@ -81,6 +82,7 @@ export const CATALOGUES: ReadonlyArray<{ name: string; entries: readonly Evidenc
   { name: 'camera', entries: CAMERA_CATALOG },
   { name: 'greengo', entries: GREENGO_CATALOG },
   { name: 'lynx', entries: LYNX_CATALOG },
+  { name: 'mediaStation', entries: MEDIA_STATION_CATALOG },
   { name: 'mic', entries: MIC_CATALOG },
   { name: 'misc', entries: MISC_CATALOG },
   { name: 'monitor', entries: MONITOR_CATALOG },

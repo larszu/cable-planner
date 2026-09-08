@@ -68,7 +68,11 @@ describe('Initiative 11 — trägt diese Katalog-Zeile ein Datenblatt?', () => {
       }
     }
     // Die Zahl aus dem Scoping-Papier — gegen den Baum gehalten, nicht geglaubt.
-    expect(kommentare).toBe(253)
+    // 253 + 1: `mediaStationCatalog` ist mit EINEM belegten Eintrag dazugekommen
+    // (die Medien-Station als Plan-Endpunkt). Sein Beleg ist das Repo der
+    // Station selbst — bei einem Geraet, dessen Hersteller dieses Projekt ist,
+    // IST das Repo das Datenblatt und keine Verlegenheitsangabe.
+    expect(kommentare).toBe(254)
   })
 
   it('2. die Abdeckung wird gerechnet', () => {
@@ -76,8 +80,8 @@ describe('Initiative 11 — trägt diese Katalog-Zeile ein Datenblatt?', () => {
     // Die Summen stammen aus derselben Rechnung wie die Zeilen.
     expect(bericht.entries).toBe(bericht.perCatalogue.reduce((s, c) => s + c.entries, 0))
     expect(bericht.sourced + bericht.unsourced).toBe(bericht.entries)
-    expect(bericht.sourced).toBe(253)
-    expect(bericht.entries).toBe(412)
+    expect(bericht.sourced).toBe(254)
+    expect(bericht.entries).toBe(413)
 
     // Die sechs Kataloge ohne Beleg sind genau die, die B-11 nennt — und die
     // Liste wird GERECHNET, nicht aufgezählt: trägt einer von ihnen morgen
@@ -94,7 +98,7 @@ describe('Initiative 11 — trägt diese Katalog-Zeile ein Datenblatt?', () => {
     // das ist der Zweck: die Abdeckung soll nicht lautlos sinken koennen.
     const vollstaendig = [
       'aja', 'audio', 'avNetwork', 'broadcastTools', 'lynx',
-      'mic', 'ross', 'switcher', 'wirelessAudio',
+      'mediaStation', 'mic', 'ross', 'switcher', 'wirelessAudio',
     ]
     const bericht = evidenceReport()
     for (const name of vollstaendig) {

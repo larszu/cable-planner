@@ -27,6 +27,7 @@ import { BROADCAST_TOOLS_CATALOG } from './broadcastToolsCatalog'
 import { AUDIO_CATALOG } from './audioCatalog'
 import { WIRELESS_AUDIO_CATALOG } from './wirelessAudioCatalog'
 import { MIC_CATALOG } from './micCatalog'
+import { MEDIA_STATION_CATALOG } from './mediaStationCatalog'
 
 export interface DeviceTypeInfo {
   /** Datenblatt-Template (inkl. deviceTypeId). */
@@ -125,6 +126,9 @@ const buildRegistry = (): Map<string, DeviceTypeInfo> => {
     put(e.deviceTypeId, { template: { ...e.template, deviceTypeId: e.deviceTypeId } })
   }
   for (const e of MIC_CATALOG) {
+    put(e.deviceTypeId, { template: { ...e.template, deviceTypeId: e.deviceTypeId } })
+  }
+  for (const e of MEDIA_STATION_CATALOG) {
     put(e.deviceTypeId, { template: { ...e.template, deviceTypeId: e.deviceTypeId } })
   }
   for (const e of AVNETWORK_CATALOG) {
