@@ -318,6 +318,10 @@ export interface CablePlannerProject {
    *  jemand mit Strom arbeitet. Jede Norm traegt ihre `herkunft` im Klartext
    *  (dieselbe Regel wie bei den Protokoll-Vorlagen, Invariante 18).
    *  Optional -> alte Projekte heilen zu []. */
+  /** E-23 — ob und wo dieses PROJEKT auf OSC lauscht. Aus als Vorgabe, und
+   *  je Projekt: eine App-weite Einstellung erbte ein zweites Projekt mit,
+   *  und dann lauschte ein Port, den fuer dieses Projekt niemand wollte. */
+  oscLauscher?: import('./showControl').OscLauscherConfig
   farbnormen?: import('./conductor').Farbnorm[]
   /** B-45 — die Anschluss: welche Leitungen zusammen einen Anschluss bilden
    *  und welche Leiter er haben MUSS. Powerlock zieht man je Leiter einzeln;

@@ -172,6 +172,8 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   Ausgegeben: 'Wann der Container ausgegeben wurde.',
   'Ausgegeben an': 'An wen die beschädigte Einheit zuletzt ausgegeben war.',
   'Backup von': 'Für welches Ziel dieses Ziel der Ausweichweg ist.',
+  'Show-Control':
+    'Unter welcher OSC-Adresse oder Companion-Position dieses Ziel bedient wird. Der Plan BENENNT sie und druckt sie — er schickt nichts. Bei einer Companion-Position steht dabei, dass deren Schnittstelle ab Werk aus ist: sonst zeigte das Blatt einen Weg, den es beim Kunden nicht gibt.',
   // Das Stunden- und Auslagenblatt (Bedarfe 40/41/83). „Person" und „Art"
   // stehen schon oben; die sieben hier kommen mit diesem Blatt dazu.
   Firma:

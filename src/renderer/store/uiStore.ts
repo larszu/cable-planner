@@ -821,6 +821,9 @@ interface UiState extends PersistedUiState {
   /** B-45 — Farbnormen und Anschluss. */
   adernOpen: boolean
   setAdernOpen: (open: boolean) => void
+  /** E-23 — die Mitschrift eingehender OSC-Nachrichten. */
+  oscOpen: boolean
+  setOscOpen: (open: boolean) => void
   /** Bedarf 21 — Plan gegen Vorgefundenes. */
   reconcileOpen: boolean
   setReconcileOpen: (open: boolean) => void
@@ -1353,6 +1356,8 @@ export const useUiStore = create<UiState>((set) => ({
   setDeliveryOpen: (open) => set({ deliveryOpen: open }),
   adernOpen: false,
   setAdernOpen: (open) => set({ adernOpen: open }),
+  oscOpen: false,
+  setOscOpen: (open) => set({ oscOpen: open }),
   reconcileOpen: false,
   setReconcileOpen: (open) => set({ reconcileOpen: open }),
   atemMvLayout: { open: false },

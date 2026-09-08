@@ -221,6 +221,30 @@ export const deliveryIssueText = (i: DeliveryIssue): string => {
  * Mail und liegt danach im Postfach von vier Leuten. Was drinsteht, ist die
  * Tatsache, DASS einer hinterlegt ist.
  */
+/**
+ * Die Show-Control-Zelle fuer das Blatt (E-23).
+ *
+ * ZWEI DINGE STEHEN HIER, UND DAS ZWEITE IST EINE AUFLAGE AUS DER RECHERCHE:
+ * wo eine COMPANION-Position steht, schreibt das Blatt dazu, dass deren
+ * Schnittstelle opt-in ist. Ohne diesen Zusatz zeigt der Plan einen Weg, den
+ * es beim Kunden nicht gibt — die Schnittstelle ist in Companion
+ * standardmaessig aus, und niemand sieht das der Positionsangabe an.
+ */
+export const showControlText = (
+  sc: DeliveryDestination['showControl'],
+): string => {
+  if (!sc) return ''
+  const teile: string[] = []
+  if (sc.oscAdresse?.trim()) teile.push(`OSC ${sc.oscAdresse.trim()}`)
+  if (sc.companionSeite !== undefined && sc.companionPlatz !== undefined) {
+    teile.push(
+      `Companion Seite ${sc.companionSeite} Platz ${sc.companionPlatz} ` +
+        '(Schnittstelle dort einschalten — sie ist ab Werk aus)',
+    )
+  }
+  return teile.join(' · ')
+}
+
 export function deliveryTable(destinations: DeliveryDestination[]): CsvTable {
   const report = checkDelivery(destinations)
   const byDest = new Map<string, DeliveryIssue[]>()
@@ -240,6 +264,10 @@ export function deliveryTable(destinations: DeliveryDestination[]): CsvTable {
       'Keyframe',
       'Audio',
       'Backup von',
+      // E-23 — der Plan BENENNT die Show-Control-Adresse und druckt sie. Er
+      // verschickt nichts; sie steht hier als Konfiguration, damit sie jemand
+      // am Pult eintragen kann.
+      'Show-Control',
       'Befund',
     ],
     rows: destinations.map((d): CsvCell[] => [
@@ -253,6 +281,7 @@ export function deliveryTable(destinations: DeliveryDestination[]): CsvTable {
       `${d.encoding.keyframeSec} s`,
       `${d.encoding.audioCodec} ${d.encoding.audioSampleRate} Hz ${d.encoding.audioBitrateKbps} kbit/s`,
       d.backupOfId ? (nameById.get(d.backupOfId) ?? d.backupOfId) : '',
+      showControlText(d.showControl),
       (byDest.get(d.id) ?? []).map(deliveryIssueText).join('; '),
     ]),
   }

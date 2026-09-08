@@ -220,8 +220,15 @@ describe('CSV', () => {
     // aktuell nachweisen.
     const table = deliveryTable([ziel('Allein', { ingestUrl: '', hasStreamKey: false })])
     expect(table.headers[0]).toBe('Ziel')
-    expect(String(table.rows[0][10])).toContain('Keine Ingest-URL')
-    expect(String(table.rows[0][10])).toContain('Kein Stream-Key hinterlegt')
+    // Die Spalte wird ueber die UEBERSCHRIFT gegriffen und nicht ueber ihre
+    // Nummer. Die erste Fassung stand auf `rows[0][10]` und fiel um, als eine
+    // Spalte davor dazukam (E-23) — obwohl an der Aussage nichts falsch war.
+    // Ein Waechter, der an einer richtigen Aenderung rot wird, wird geaendert
+    // statt gelesen.
+    const befund = table.headers.indexOf('Befund')
+    expect(befund).toBeGreaterThanOrEqual(0)
+    expect(String(table.rows[0][befund])).toContain('Keine Ingest-URL')
+    expect(String(table.rows[0][befund])).toContain('Kein Stream-Key hinterlegt')
   })
 
   it('greift die Ziele auch aus einem Projekt', () => {
