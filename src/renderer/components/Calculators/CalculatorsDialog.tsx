@@ -834,7 +834,7 @@ const PowerTab = () => {
             <div className="mb-1 mt-1 text-[10px] text-cp-text-muted">
               {t('calc.phasePinHint', 'Phase wählen = fest zuordnen; „Auto" = der Balancer verteilt automatisch.')}
             </div>
-            <table className="w-full text-cp-xs">
+            <table className="block overflow-x-auto w-full text-cp-xs">
               <thead className="text-cp-text-faint">
                 <tr>
                   <th className="text-left">{t('calc.col.device', 'Gerät')}</th>

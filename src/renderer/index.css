@@ -821,6 +821,20 @@ button:disabled,
   opacity: 1;
 }
 
+/* B-44 Teil 3 — ein Bedienelement, das es NUR auf einem groben Zeiger gibt.
+   Gegenstueck zu `.cp-hover-actions`: dort wird etwas Verstecktes sichtbar,
+   hier kommt etwas hinzu, das die Maus nicht braucht.
+
+   Der Fall, fuer den es gebaut ist: am Kabel-Wegpunkt sitzt das Loeschen auf
+   dem Rechtsklick, und auf demselben `pointerdown` sitzt das ZIEHEN. Ein
+   langer Druck waere dort der falsche Weg — wer den Punkt anfasst und einen
+   Moment zoegert, haette ihn geloescht. Also ein sichtbarer kleiner Griff
+   daneben, und nur dort, wo es keinen Rechtsklick gibt. */
+.cp-coarse-only { display: none; }
+@media (pointer: coarse) {
+  .cp-coarse-only { display: inline; }
+}
+
 @media (pointer: coarse) {
   /* Kein Hover moeglich — also immer sichtbar. */
   .cp-hover-actions {

@@ -30,7 +30,7 @@ export const PowerConsumptionSection = ({ equipment }: { equipment: EquipmentIte
         : '–'
   return (
     <SortableSection id="power" title={t('power.title', 'Stromverbrauch')} subtitle={summary}>
-      <div className="grid grid-cols-3 gap-2 text-cp-xs">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-cp-xs">
         <label className="block">
           <span className="mb-1 block text-cp-text-muted">{t('power.voltage', 'Spannung (V)')}</span>
           <input

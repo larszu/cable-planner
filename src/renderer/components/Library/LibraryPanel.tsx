@@ -1050,7 +1050,7 @@ export const LibraryPanel = () => {
             <h3 id={anlegenTitleId} className="mb-3 text-cp-xl font-semibold">
               {t('library.create.title', 'Eigenes Gerät anlegen')}
             </h3>
-            <div className="mb-3 grid grid-cols-3 gap-2 text-cp-base">
+            <div className="mb-3 grid grid-cols-1 sm:grid-cols-3 gap-2 text-cp-base">
               <label className="block">
                 {t('common.name', 'Name')}
                 <input

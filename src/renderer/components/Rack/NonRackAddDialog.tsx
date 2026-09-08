@@ -146,7 +146,7 @@ export const NonRackAddDialog = ({
 
         {mode === 'shelf' && (
           <div className="mb-3 space-y-2">
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               <label className="block">
                 <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('rack.nonRack.widthMm', 'Breite (mm)')}</span>
                 <input

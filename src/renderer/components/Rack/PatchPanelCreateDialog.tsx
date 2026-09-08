@@ -294,7 +294,7 @@ export const PatchPanelCreateDialog = ({ open, onClose, onCreated }: PatchPanelC
               {adapterMode && ` ${t('rack.patchPanel.perPortAdapterNote', 'Bei Adapter-Patchblende sind Front- und Rear-Connector unabhängig wählbar.')}`}
             </div>
             <div className="max-h-[40vh] overflow-y-auto rounded border border-cp-border-muted">
-              <table className="w-full text-cp-xs">
+              <table className="block overflow-x-auto w-full text-cp-xs">
                 <thead className="sticky top-0 bg-cp-surface-2 text-cp-text-muted">
                   <tr>
                     <th className="px-2 py-1 text-left">#</th>
