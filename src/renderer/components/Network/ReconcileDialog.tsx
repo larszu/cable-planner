@@ -20,6 +20,7 @@ import {
 import {
   asBuiltSummary,
   asBuiltTable,
+  fromCabling,
   fromNetworkReport,
   mergeEntries,
   unverifiedEntries,
@@ -46,6 +47,8 @@ export const ReconcileDialog = () => {
   const open = useUiStore((s) => s.reconcileOpen)
   const setOpen = useUiStore((s) => s.setReconcileOpen)
   const equipment = useProjectStore((s) => s.project.equipment)
+  const cables = useProjectStore((s) => s.project.cables)
+  const checkState = useProjectStore((s) => s.project.checkState)
   const projectName = useProjectStore((s) => s.project.metadata.name)
 
   const [scan, setScan] = useState<NetworkScan | null>(null)
@@ -72,8 +75,22 @@ export const ReconcileDialog = () => {
         .map((e) => ({ subject: e.name, field: 'IP-Adresse', planned: e.ipAddress })),
       'network-scan',
     )
-    return mergeEntries(geplant, report ? fromNetworkReport(report) : [])
-  }, [equipment, report])
+    // B-9 — die Verkabelung gehoert auf DASSELBE Blatt.
+    //
+    // Ein zweites „As-built (Kabel)"-Dokument waere genau die Vervielfachung,
+    // gegen die dieses Modul gebaut ist: die Post haette dann zwei Blaetter
+    // und muesste sie selbst zusammenlegen. `mergeEntries` haelt sie
+    // auseinander, weil das FELD Teil des Schluessels ist — „IP-Adresse" und
+    // „Verbindung gesteckt" kollidieren nicht.
+    //
+    // Der Zeitpunkt kommt aus `checkState.receivedAt` und nicht von hier: der
+    // Dialog weiss nicht, wann jemand abgehakt hat, und darf es nicht raten.
+    return mergeEntries(
+      geplant,
+      report ? fromNetworkReport(report) : [],
+      fromCabling(cables, equipment, checkState),
+    )
+  }, [equipment, report, cables, checkState])
 
   const asBuiltStand = useMemo(() => asBuiltSummary(asBuilt), [asBuilt])
 

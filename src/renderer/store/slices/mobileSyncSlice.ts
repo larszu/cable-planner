@@ -33,7 +33,21 @@ export type MobileSyncSlice = Pick<
 export const createMobileSyncSlice: StateCreator<ProjectState, [], [], MobileSyncSlice> = (set) => ({
   setCheckState: (checks) =>
     set((state) => {
-      const updated = { ...state.project, checkState: checks }
+      // B-9 — HIER faellt der Zeitpunkt an, und nirgends sonst.
+      //
+      // Diese Funktion laeuft, wenn das Handy `POST /checks` geschickt hat
+      // (App.tsx, `onChecksUpdate`) — nicht in einer Schleife, nicht beim
+      // Rendern. Der Stempel ist damit die Ankunft der Meldung, und das ist
+      // der einzige Zeitpunkt, den dieser Plan ueber die Haken wissen kann.
+      //
+      // Er steht hier statt beim Aufrufer, weil ein Zeitpunkt, den der
+      // Aufrufer mitgeben duerfte, kein Beleg mehr waere: das As-built-Blatt
+      // liest ihn als „nachgesehen am", und wer ihn setzen kann, kann
+      // „nachgesehen" behaupten, ohne nachgesehen zu haben.
+      const updated = {
+        ...state.project,
+        checkState: { ...checks, receivedAt: new Date().toISOString() },
+      }
       scheduleProjectAutosave(updated)
       return { project: updated }
     }),
@@ -45,9 +59,12 @@ export const createMobileSyncSlice: StateCreator<ProjectState, [], [], MobileSyn
       if (!cur.ports[key]) return state
       const nextPorts = { ...cur.ports }
       delete nextPorts[key]
+      // `receivedAt` bleibt stehen: der Planer hat EINEN Haken zurueckgenommen,
+      // nicht die Meldung des Handys ungeschehen gemacht. Die uebrigen Haken
+      // stammen weiterhin aus derselben Ablesung.
       const updated = {
         ...state.project,
-        checkState: { ports: nextPorts, cables: cur.cables },
+        checkState: { ...cur, ports: nextPorts, cables: cur.cables },
       }
       scheduleProjectAutosave(updated)
       return { project: updated }
@@ -61,7 +78,7 @@ export const createMobileSyncSlice: StateCreator<ProjectState, [], [], MobileSyn
       delete nextCables[cableId]
       const updated = {
         ...state.project,
-        checkState: { ports: cur.ports, cables: nextCables },
+        checkState: { ...cur, ports: cur.ports, cables: nextCables },
       }
       scheduleProjectAutosave(updated)
       return { project: updated }
@@ -76,6 +93,9 @@ export const createMobileSyncSlice: StateCreator<ProjectState, [], [], MobileSyn
       ) {
         return state
       }
+      // Hier faellt `receivedAt` WEG — und zwar absichtlich. Nach „alle Haken
+      // loeschen" ist nichts mehr abgelesen; ein stehengebliebener Zeitpunkt
+      // wuerde einem leeren Stand ein Alter geben, das er nicht hat.
       const updated = {
         ...state.project,
         checkState: { ports: {}, cables: {} },
