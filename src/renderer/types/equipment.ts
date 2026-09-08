@@ -844,6 +844,22 @@ export interface EquipmentItem {
    */
   adapter?: AdapterSpec
   /**
+   * B-47 — das virtuelle EDID: welche Formate dieses Geraet als SENKE
+   * annimmt, in welchen Farbtiefen, Farbraeumen und Dynamik-Fassungen.
+   *
+   * Neben `resolution` und nicht statt seiner: `resolution` ist eine
+   * Zeichenkette fuer die Anzeige („3840x2160"), mit der nichts gerechnet
+   * wird. Aus ihr die Faehigkeiten abzuleiten waere derselbe Fehlschluss wie
+   * ein Namensabgleich — zwei Monitore mit derselben Aufloesung koennen
+   * verschiedene Bildwiederholraten, Farbtiefen und HDR-Fassungen annehmen,
+   * und die falsche Antwort ist ein gruener Haken auf einer schwarzen
+   * Strecke.
+   *
+   * Nicht gesetzt heisst „nicht erklaert" und ausdruecklich weder „kann
+   * alles" noch „kann nichts". Der Plan sagt genau das (Invariante 21).
+   */
+  senkenprofil?: import('./displayCapability').Senkenprofil
+  /**
    * B-46 — was dieses Geraet ERKLAERTERMASSEN kann, als freie Merkmale.
    *
    * Der Fall: „USB-C auf DisplayPort" arbeitet nur an einem Anschluss mit

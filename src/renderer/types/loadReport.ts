@@ -67,6 +67,7 @@ export type LoadDropKind =
   | 'farbnorm'
   | 'anschlussListe'
   | 'ader'
+  | 'senkenprofil'
   /**
    * B-42 — eine Sichtpruefung vom Pruefbild-Rundgang, deren Ankunftsort oder
    * Quelle es nicht mehr gibt.

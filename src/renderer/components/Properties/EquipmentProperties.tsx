@@ -21,6 +21,7 @@ import { DimensionsSection } from './sections/DimensionsSection'
 import { PowerConsumptionSection } from './sections/PowerConsumptionSection'
 import { CircuitSection } from './sections/CircuitSection'
 import { AdapterSection } from './sections/AdapterSection'
+import { SinkProfileSection } from './sections/SinkProfileSection'
 import { SwitchingSection } from './sections/SwitchingSection'
 import { DisplayPropertiesBlock } from './sections/DisplayPropertiesBlock'
 import { CategoryPropsSection } from './sections/CategoryPropsSection'
@@ -164,6 +165,7 @@ export const EquipmentProperties = () => {
           wann zieht es ueberhaupt. */}
       <CircuitSection equipment={equipment} />
       <AdapterSection equipment={equipment} />
+      <SinkProfileSection equipment={equipment} />
       <SwitchingSection equipment={equipment} />
 
       {/* #216/#422 — Physische Dimensionen (Breite/Höhe/Tiefe in mm). Eine

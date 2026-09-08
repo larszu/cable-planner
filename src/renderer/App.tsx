@@ -175,6 +175,7 @@ const DROP_ART: Record<LoadDropKind, [key: string, de: string]> = {
   'farbnorm': ['app.loadReport.farbnorm', 'Farbnorm ohne Herkunft'],
   'anschlussListe': ['app.loadReport.anschlussListe', 'Adernbündel'],
   'ader': ['app.loadReport.ader', 'Ader-Angaben einer Leitung'],
+  'senkenprofil': ['app.loadReport.senkenprofil', 'Formatprofil ohne Herkunft'],
   'pattern-check': ['app.loadReport.patternCheck', 'Sichtprüfung vom Prüfbild-Rundgang'],
   'hub-switch': ['app.loadReport.hubSwitch', 'Schaltvorgang an einer Kreuzschiene'],
   'crosspoint': ['app.loadReport.crosspoint', 'Zeile der geplanten Schaltung'],
