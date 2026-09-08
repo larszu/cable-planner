@@ -26,6 +26,7 @@ import {
   unverifiedEntries,
 } from '../../lib/asBuilt'
 import { PanelHint } from '../shared/PanelHint'
+import { useDialogA11y } from '../../hooks/useDialogA11y'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Plan gegen Vorgefundenes (Bedarf 21).
@@ -94,6 +95,10 @@ export const ReconcileDialog = () => {
 
   const asBuiltStand = useMemo(() => asBuiltSummary(asBuilt), [asBuilt])
 
+  // Phase 3 der UI-Pruefung: Escape, Fokus-Falle und Fokus-Rueckgabe aus dem
+  // Haken. Vor dem bedingten Ausstieg, weil Haken nicht bedingt laufen.
+  const { panelRef, titleId, dialogProps } = useDialogA11y(open, () => setOpen(false))
+
   if (!open) return null
 
   const load = async () => {
@@ -159,9 +164,14 @@ export const ReconcileDialog = () => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-      <div className="flex max-h-[88vh] w-full max-w-4xl flex-col overflow-hidden rounded-lg border border-cp-border bg-cp-surface-1 shadow-xl">
+      <div
+        ref={panelRef}
+        aria-labelledby={titleId}
+        {...dialogProps}
+        className="flex max-h-[88vh] w-full max-w-4xl flex-col overflow-hidden rounded-lg border border-cp-border bg-cp-surface-1 shadow-xl"
+      >
         <div className="flex items-center justify-between border-b border-cp-border px-4 py-2.5">
-          <h2 className="text-cp-base font-semibold text-cp-text">
+          <h2 id={titleId} className="text-cp-base font-semibold text-cp-text">
             {t('reconcile.title', 'Plan gegen Vorgefundenes')}
           </h2>
           <button

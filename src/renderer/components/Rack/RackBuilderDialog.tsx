@@ -50,6 +50,7 @@ import {
   DEFAULT_ROW_HEIGHT, DRAFT_KEY, parseUnits, toPlacement, normalizeDraft,
   formatRackUnits, draftFromPreset,
 } from './rackBuilderHelpers'
+import { useDialogA11y } from '../../hooks/useDialogA11y'
 
 export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onSave }: RackBuilderDialogProps) => {
   const t = useTranslation()
@@ -585,13 +586,31 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
     onClose()
   }
 
+  // Phase 3 der UI-Pruefung — mit EINER Abweichung: `closeOnEscape: false`.
+  //
+  // Dieser Dialog hat seit v7.9.9 eine eigene Escape-Behandlung, und die kann
+  // der Haken nicht ersetzen: sie fragt bei ungesicherten Aenderungen nach
+  // (`closeWithConfirm`) und schweigt, solange ein Unter-Dialog offen ist.
+  // Ein zweites Escape daneben wuerde genau daran vorbei schliessen — also
+  // nimmt der Haken hier nur Fokus-Falle und Fokus-Rueckgabe, und das
+  // Schliessen bleibt, wo die Ruecksicht steht.
+  // `aria-label` statt `aria-labelledby`: die Ueberschrift lebt in
+  // `RackBuilderHeader`, und ein `aria-labelledby`, das auf nichts zeigt, ist
+  // schlechter als keins — der Screenreader liest dann gar nichts vor.
+  const { panelRef, dialogProps } = useDialogA11y(open, onClose, {
+    closeOnEscape: false,
+    ref: containerRef,
+  })
+
   if (!open) return null
 
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/70 p-2 sm:p-6">
       <div
-        ref={containerRef}
+        ref={panelRef}
         style={containerStyle}
+        aria-label={t('rack.newRack', 'Neues Rack')}
+        {...dialogProps}
         // v7.9.2 — responsive: kein fixes 1400px max-width, sondern
         // 100vw mit Padding. Verhindert horizontal-Scroll auf Laptops.
         className="flex max-h-[96vh] w-[min(1400px,calc(100vw-1rem))] flex-col overflow-hidden rounded border border-cp-border bg-cp-surface-1 p-3 text-cp-text shadow-2xl sm:p-4"

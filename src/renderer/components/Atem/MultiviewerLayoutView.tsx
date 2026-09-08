@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { cablePlannerApi, type AtemStateSummary, type AtemMultiviewer } from '../../lib/bridge'
 import { useTranslation } from '../../lib/i18n'
+import { useDialogA11y } from '../../hooks/useDialogA11y'
 
 interface MultiviewerLayoutViewProps {
   onClose: () => void
@@ -244,6 +245,8 @@ const MultiviewerPanel = ({ mv }: { mv: AtemMultiviewer }) => {
 }
 
 export const MultiviewerLayoutView = ({ onClose }: MultiviewerLayoutViewProps) => {
+  // Phase 3 der UI-Pruefung: Escape, Fokus-Falle und Fokus-Rueckgabe aus dem
+  // Haken. Die Ansicht wird bedingt gemontiert und kennt kein `open`.
   const t = useTranslation()
   const [state, setState] = useState<AtemStateSummary | null>(null)
   const [connected, setConnected] = useState(false)
@@ -279,12 +282,19 @@ export const MultiviewerLayoutView = ({ onClose }: MultiviewerLayoutViewProps) =
     (mv): mv is AtemMultiviewer => mv !== null && mv !== undefined,
   )
 
+  const { panelRef, titleId, dialogProps } = useDialogA11y(true, onClose)
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-      <div className="flex max-h-[95vh] w-full max-w-6xl flex-col rounded border border-cp-surface-5 bg-cp-surface-1 text-cp-text">
+      <div
+        ref={panelRef}
+        aria-labelledby={titleId}
+        {...dialogProps}
+        className="flex max-h-[95vh] w-full max-w-6xl flex-col rounded border border-cp-surface-5 bg-cp-surface-1 text-cp-text"
+      >
         <header className="flex items-center justify-between border-b border-cp-border px-4 py-2">
           <div>
-            <h2 className="text-cp-xl font-semibold text-sky-300">
+            <h2 id={titleId} className="text-cp-xl font-semibold text-sky-300">
               {t('atem.mvLayout.title', 'Multiviewer Layout (Live)')}
             </h2>
             {state && (

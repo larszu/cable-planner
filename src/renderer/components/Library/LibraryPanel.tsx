@@ -48,6 +48,7 @@ const connectorOptions = ALL_CONNECTOR_TYPES
 import { defaultGroup, buildPorts } from './libraryPanelHelpers'
 import type { PortGroupDraft } from './libraryPanelHelpers'
 import { PanelHint } from '../shared/PanelHint'
+import { useDialogA11y } from '../../hooks/useDialogA11y'
 
 
 
@@ -658,6 +659,33 @@ export const LibraryPanel = () => {
     }
   }
 
+  // Phase 3 der UI-Pruefung. Das Panel selbst ist kein Modal; die drei
+  // Ueberlagerungen darin sind es, und keine hatte Escape oder Fokus-Falle.
+  // Je eine eigene Falle, weil sie nacheinander stehen und nicht ineinander.
+  // Die Haken stehen VOR den bedingten Ausstiegen unten — Haken duerfen nicht
+  // bedingt laufen; ihre Wirkung schaltet der jeweilige Zustand.
+  //
+  // Auseinandergenommen und nicht als Objekt behalten: `ref={netBoxRef}`
+  // liest waehrend des Renderns eine Eigenschaft eines Ref-Traegers, und
+  // `react-hooks/refs` macht daraus einen Fehler. Der Zugriff ist harmlos,
+  // die Regel ist es nicht — und eine Regel zu unterdruecken, um eine
+  // Schreibweise zu behalten, ist der schlechtere Handel.
+  const {
+    panelRef: netBoxRef,
+    titleId: netBoxTitleId,
+    dialogProps: netBoxProps,
+  } = useDialogA11y(showNetBoxDialog, () => setShowNetBoxDialog(false))
+  const {
+    panelRef: anlegenRef,
+    titleId: anlegenTitleId,
+    dialogProps: anlegenProps,
+  } = useDialogA11y(showCreateDialog, () => setShowCreateDialog(false))
+  const {
+    panelRef: dubletteRef,
+    titleId: dubletteTitleId,
+    dialogProps: dubletteProps,
+  } = useDialogA11y(!!netBoxConflict, () => setNetBoxConflict(null))
+
   // #427 — In separates OS-Fenster ausgelagert: im Hauptfenster NICHT rendern
   // (sonst doppelt offen). In-flow Platzhalter besetzt die (0px) Grid-Spalte,
   // damit die nachfolgenden Grid-Kinder nicht verrutschen.
@@ -868,10 +896,15 @@ export const LibraryPanel = () => {
 
       {showNetBoxDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6">
-          <div className="max-h-[90vh] w-full max-w-3xl overflow-auto rounded border border-cp-border bg-cp-surface-1 p-4">
+          <div
+            ref={netBoxRef}
+            aria-labelledby={netBoxTitleId}
+            {...netBoxProps}
+            className="max-h-[90vh] w-full max-w-3xl overflow-auto rounded border border-cp-border bg-cp-surface-1 p-4"
+          >
             <div className="mb-3 flex items-start justify-between gap-3">
               <div>
-                <h3 className="text-cp-xl font-semibold">{t('library.netbox.title', 'NetBox Import')}</h3>
+                <h3 id={netBoxTitleId} className="text-cp-xl font-semibold">{t('library.netbox.title', 'NetBox Import')}</h3>
                 <PanelHint
                   className="mt-1 text-cp-xs text-cp-text-muted"
                   text={t(
@@ -991,8 +1024,13 @@ export const LibraryPanel = () => {
 
       {showCreateDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6">
-          <div className="max-h-[90vh] w-full max-w-2xl overflow-auto rounded border border-cp-border bg-cp-surface-1 p-4">
-            <h3 className="mb-3 text-cp-xl font-semibold">
+          <div
+            ref={anlegenRef}
+            aria-labelledby={anlegenTitleId}
+            {...anlegenProps}
+            className="max-h-[90vh] w-full max-w-2xl overflow-auto rounded border border-cp-border bg-cp-surface-1 p-4"
+          >
+            <h3 id={anlegenTitleId} className="mb-3 text-cp-xl font-semibold">
               {t('library.create.title', 'Eigenes Gerät anlegen')}
             </h3>
             <div className="mb-3 grid grid-cols-3 gap-2 text-cp-base">
@@ -1309,8 +1347,13 @@ export const LibraryPanel = () => {
 
       {netBoxConflict && (
         <div className="fixed inset-0 z-[75] flex items-center justify-center bg-black/70 p-6">
-          <div className="w-full max-w-xl rounded border border-amber-600 bg-cp-surface-1 p-4 text-cp-text">
-            <h3 className="mb-2 text-cp-xl font-semibold text-amber-300">{t('library.duplicate.title', 'Gerät existiert bereits')}</h3>
+          <div
+            ref={dubletteRef}
+            aria-labelledby={dubletteTitleId}
+            {...dubletteProps}
+            className="w-full max-w-xl rounded border border-amber-600 bg-cp-surface-1 p-4 text-cp-text"
+          >
+            <h3 id={dubletteTitleId} className="mb-2 text-cp-xl font-semibold text-amber-300">{t('library.duplicate.title', 'Gerät existiert bereits')}</h3>
             <p className="mb-3 text-cp-base text-cp-text-secondary">
               {format(
                 t('library.netbox.duplicateIntro', '{name} ist bereits in der lokalen Library. Wahlen, wie importiert werden soll.'),
