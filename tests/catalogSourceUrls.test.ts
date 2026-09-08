@@ -34,8 +34,21 @@ import { join, resolve } from 'node:path'
 
 const LIB = resolve(__dirname, '..', 'src', 'renderer', 'lib')
 
+/**
+ * Kataloge, die AUSDRUECKLICH keinen Hersteller-Beleg fuehren.
+ *
+ * Sie sind keine Luecke in der Recherche, sondern eine andere Sorte Inhalt:
+ * generische BAUFORMEN statt Produkte (B-52). Eine 6-fach-Steckdosenleiste
+ * hat kein Datenblatt; ihr eines anzudichten waere schlimmer als keins.
+ *
+ * Die Liste ist erklaert und nicht abgeleitet: wer hier einen Hersteller-
+ * Katalog eintraegt, versteckt eine echte Luecke — deshalb prueft der Test
+ * unten, dass in diesen Dateien wirklich keine `manufacturerUrl` steht.
+ */
+const GENERISCHE_KATALOGE = new Set(['passiveCatalog.ts'])
+
 const catalogs = (): string[] =>
-  readdirSync(LIB).filter((f) => /Catalog\.ts$/.test(f))
+  readdirSync(LIB).filter((f) => /Catalog\.ts$/.test(f) && !GENERISCHE_KATALOGE.has(f))
 
 /** `// Quelle: <url>` — die Zeile, die den Beleg bisher allein trug. */
 const QUELLE = /^\s*\/\/\s*Quelle:\s*(\S+)\s*$/
@@ -162,6 +175,20 @@ describe('was der Test NICHT behauptet', () => {
       'ubiquitiCatalog.ts',
       'wirelessCatalog.ts',
     ])
+  })
+
+  it('nennt die generischen Kataloge und laesst sie nicht als Luecke zaehlen', () => {
+    // Der Unterschied, den die Zahl oben sonst verwischt: diese Dateien
+    // fuehren keinen Beleg, WEIL sie keinen Hersteller behaupten. Wer sie in
+    // die Luecken-Liste stellte, schickte jemanden auf die Suche nach dem
+    // Datenblatt einer Steckdosenleiste.
+    expect([...GENERISCHE_KATALOGE].sort()).toEqual(['passiveCatalog.ts'])
+    for (const f of GENERISCHE_KATALOGE) {
+      const quelle = readFileSync(join(LIB, f), 'utf8')
+      // Und die Ausnahme darf nicht missbraucht werden: steht hier doch eine
+      // Hersteller-Angabe, ist es ein Hersteller-Katalog und gehoert oben hin.
+      expect(quelle).not.toMatch(/manufacturerUrl\s*:/)
+    }
   })
 })
 
