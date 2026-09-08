@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
 import { format, useTranslation } from '../../lib/i18n'
 import { useDialogA11y } from '../../hooks/useDialogA11y'
+import { useBackdropClose } from '../../hooks/useBackdropClose'
 
 interface CropRect {
   x: number
@@ -277,6 +278,13 @@ export const RackImageCropDialog = ({
     ref: containerRef,
   })
 
+  // B-44 — ein zurechtgezogener Ausschnitt ist Arbeit. Gefragt wird, sobald
+  // er nicht mehr der voreingestellte ist.
+  const backdrop = useBackdropClose(onCancel, {
+    schutz: () => zoom !== 1 || activeHandle !== null,
+    frage: t('rackCrop.closeUnsaved', 'Bildausschnitt verwerfen?'),
+  })
+
   if (!open || !imageSrc) return null
 
   const finalizeCrop = () => {
@@ -312,6 +320,7 @@ export const RackImageCropDialog = ({
 
   return (
     <div
+      {...backdrop}
       className="fixed inset-0 z-[90] flex items-center justify-center bg-black/75 p-4 outline-none"
       tabIndex={-1}
       onKeyDown={onKeyDown}

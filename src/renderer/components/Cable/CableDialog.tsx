@@ -30,6 +30,7 @@ import {
   type VideoFormatId,
 } from '../../types/videoFormat'
 import { CUSTOM_CABLE_SPEC_ID, makeCustomCableSpec } from './customCableSpec'
+import { useBackdropClose } from '../../hooks/useBackdropClose'
 
 export interface CableDialogProps {
   fromPort?: Port
@@ -267,8 +268,19 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
     })
   }
 
+  // B-44 — der Dialog legt ein Kabel an; bis zum Klick auf „Anlegen" ist
+  // nichts geschrieben. Gefragt wird, sobald der Nutzer etwas an der
+  // Vorbelegung geaendert hat — beim unberuehrten Dialog nicht.
+  const backdrop = useBackdropClose(onCancel, {
+    schutz: () => specId !== initialSpecId || length !== 1 || notes.trim().length > 0,
+    frage: t('cableDialog.closeUnsaved', 'Kabel-Eingaben verwerfen?'),
+  })
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6">
+    <div
+      {...backdrop}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6"
+    >
       <div
         ref={panelRef}
         aria-labelledby={titleId}

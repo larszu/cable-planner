@@ -32,6 +32,7 @@ import {
 import { format, useTranslation } from '../../lib/i18n'
 import { Icon } from '../shared/Icon'
 import { getEquipmentById } from '../../lib/equipmentSelectors'
+import { useBackdropClose } from '../../hooks/useBackdropClose'
 
 /**
  * Issue #45 — ATEM Audio editor.
@@ -201,6 +202,9 @@ export const AtemAudioRouterDialog = () => {
   const { panelRef, titleId, dialogProps } = useDialogA11y(open, close, {
     ref: containerRef,
   })
+
+  // B-44 — der Hintergrund schliesst, aus derselben Quelle wie ueberall.
+  const backdrop = useBackdropClose(close)
 
   if (!open || !equipment) return null
 
@@ -428,7 +432,10 @@ export const AtemAudioRouterDialog = () => {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+    <div
+      {...backdrop}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+    >
       <div
         ref={panelRef}
         style={containerStyle}

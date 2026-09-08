@@ -15,6 +15,7 @@ import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Position } from 'reactflow'
 import { useTranslation, format } from '../../lib/i18n'
+import { useLongPress } from '../../hooks/useLongPress'
 
 export interface NetInfoRow {
   label: string
@@ -177,6 +178,11 @@ export const OffPageConnectorSymbol = ({
     setPopover({ screenX: clientX, screenY: clientY, rows: info.rows })
   }
 
+
+  // B-44 — das Netz-Infofenster haengt bisher am Rechtsklick, und den gibt es
+  // auf einem Tablet nicht.
+  const bindeLangenDruck = useLongPress()
+  const langerDruck = bindeLangenDruck((p) => openNetInfo(p.clientX, p.clientY))
   return (
     <>
       <div
@@ -195,9 +201,14 @@ export const OffPageConnectorSymbol = ({
           e.stopPropagation()
           openNetInfo(e.clientX, e.clientY)
         }}
+        /* B-44 — derselbe Weg fuer Geraete ohne Rechtsklick. Der Haken bricht
+           ab, sobald der Zeiger wandert; das eigene `onPointerDown` unten
+           bleibt unberuehrt, weil beide auf demselben Ereignis sitzen duerfen
+           und der lange Druck sich beim ersten Zug selbst zuruecknimmt. */
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
         onPointerDown={(e) => {
+          langerDruck.onPointerDown(e)
           if (e.button !== 0) return
           e.stopPropagation()
           // Merkt sich, ob der Druck auf dem Pfeil begann: ohne Bewegung =
@@ -207,6 +218,7 @@ export const OffPageConnectorSymbol = ({
           e.currentTarget.setPointerCapture(e.pointerId)
         }}
         onPointerMove={(e) => {
+          langerDruck.onPointerMove(e)
           const d = dragRef.current
           if (!d) return
           const sdx = e.clientX - d.sx
@@ -217,6 +229,7 @@ export const OffPageConnectorSymbol = ({
           onDragMove({ x: d.ox + sdx / z, y: d.oy + sdy / z })
         }}
         onPointerUp={(e) => {
+          langerDruck.onPointerUp()
           const d = dragRef.current
           dragRef.current = null
           if (e.currentTarget.hasPointerCapture(e.pointerId)) {

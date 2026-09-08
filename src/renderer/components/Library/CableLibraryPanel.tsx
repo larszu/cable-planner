@@ -29,6 +29,7 @@ import { videoFormatById, pickCableStandardForFormat } from '../../types/videoFo
 import { confirmDialog } from '../../lib/confirmDialog'
 import { promptDialog } from '../../lib/promptDialog'
 import { format, useTranslation } from '../../lib/i18n'
+import { useBackdropClose } from '../../hooks/useBackdropClose'
 
 /** v7.8.6 — Editor dialog for creating / editing custom cable specs.
  *  Lives at the bottom of this file. Pure controlled form, no store
@@ -90,6 +91,12 @@ const CableTypeEditor = ({
   // laufen, `open` schaltet stattdessen ihre Wirkung.
   const { panelRef, titleId, dialogProps } = useDialogA11y(open, onCancel)
 
+  // B-44 — der Kabeltyp-Editor haelt einen Entwurf, bis „Speichern"
+  // gedrueckt ist. Ein Fehlklick daneben darf ihn nicht wegwerfen.
+  const backdrop = useBackdropClose(onCancel, {
+    schutz: () => name.trim().length > 0 || notes.trim().length > 0,
+  })
+
   if (!open) return null
 
   const trimmedName = name.trim()
@@ -115,7 +122,10 @@ const CableTypeEditor = ({
   }
 
   return (
-    <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/70 p-4">
+    <div
+      {...backdrop}
+      className="fixed inset-0 z-[80] flex items-center justify-center bg-black/70 p-4"
+    >
       <div
         ref={panelRef}
         aria-labelledby={titleId}

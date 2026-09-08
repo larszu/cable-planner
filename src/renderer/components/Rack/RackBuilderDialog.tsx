@@ -51,6 +51,7 @@ import {
   formatRackUnits, draftFromPreset,
 } from './rackBuilderHelpers'
 import { useDialogA11y } from '../../hooks/useDialogA11y'
+import { useBackdropClose } from '../../hooks/useBackdropClose'
 
 export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onSave }: RackBuilderDialogProps) => {
   const t = useTranslation()
@@ -602,10 +603,21 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
     ref: containerRef,
   })
 
+  // B-44 — hier ist der Schutz der ganze Punkt: wer zwanzig Hoeheneinheiten
+  // bestueckt hat, darf sie nicht durch einen Fehlklick daneben verlieren.
+  // Gefragt wird nur, wenn wirklich etwas im Entwurf steht.
+  const backdrop = useBackdropClose(onClose, {
+    schutz: () => draft.placements.length > 0 || draft.internalCables.length > 0,
+    frage: t('rackBuilder.closeUnsaved', 'Rack-Entwurf verwerfen?'),
+  })
+
   if (!open) return null
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/70 p-2 sm:p-6">
+    <div
+      {...backdrop}
+      className="fixed inset-0 z-[70] flex items-center justify-center bg-black/70 p-2 sm:p-6"
+    >
       <div
         ref={panelRef}
         style={containerStyle}

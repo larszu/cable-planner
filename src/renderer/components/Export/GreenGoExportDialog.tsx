@@ -28,6 +28,7 @@ import { exportDeviceConfig } from '../../lib/deviceConfigExport'
 import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 import { useTranslation, format } from '../../lib/i18n'
 import { useDialogA11y } from '../../hooks/useDialogA11y'
+import { useBackdropClose } from '../../hooks/useBackdropClose'
 
 interface Props {
   onClose: () => void
@@ -376,8 +377,18 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
     else onClose()
   })
 
+  // Und der Import-Ueberlagerung: sie haelt ein ZUORDNUNGS-Ergebnis, das
+  // erst beim Uebernehmen wirkt — deshalb mit Rueckfrage.
+  const importBackdrop = useBackdropClose(() => setImportResult(null), {
+    schutz: () => true,
+    frage: t('greengo.importOverlay.close', 'Import verwerfen?'),
+  })
+  // B-44 — der Hintergrund schliesst, aus derselben Quelle wie ueberall.
+  const backdrop = useBackdropClose(onClose)
+
   return (
     <div
+      {...backdrop}
       ref={panelRef}
       aria-label={t('greengo.title', 'GreenGo Intercom-Planung')}
       {...dialogProps}
@@ -904,7 +915,10 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
 
       {/* ══════ IMPORT MAPPING OVERLAY ══════ */}
       {importResult && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 p-4">
+        <div
+          {...importBackdrop}
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 p-4"
+        >
           <div className="flex max-h-[88vh] w-full max-w-3xl flex-col overflow-hidden rounded border border-emerald-700 bg-cp-surface-1 text-cp-text shadow-2xl">
 
             {/* Header */}

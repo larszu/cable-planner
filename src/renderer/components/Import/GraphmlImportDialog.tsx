@@ -40,6 +40,7 @@ export interface GraphmlImportDialogProps {
 import type { GraphmlDocument } from '../../lib/graphml/types'
 import { GraphmlViewer } from './GraphmlViewer'
 import { useDialogA11y } from '../../hooks/useDialogA11y'
+import { useBackdropClose } from '../../hooks/useBackdropClose'
 
 type Stage =
   | { kind: 'empty' }
@@ -137,6 +138,14 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
   // Haken nicht bedingt aufgerufen werden duerfen — `open` geht als Parameter
   // hinein und schaltet die Wirkung.
   const { panelRef, titleId, dialogProps } = useDialogA11y(open, onClose)
+
+  // B-44 — der Hintergrund schliesst. Mit Rueckfrage, weil dieser Dialog
+  // eine eingelesene Datei samt Zuordnung haelt: sie wegzuwerfen heisst,
+  // die Datei noch einmal zu suchen und noch einmal zuzuordnen.
+  const backdrop = useBackdropClose(onClose, {
+    schutz: () => true,
+    frage: t('graphml.closeUnsaved', 'Import verwerfen?'),
+  })
 
   if (!open) return null
 
@@ -672,7 +681,10 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6">
+    <div
+      {...backdrop}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6"
+    >
       <div
         ref={panelRef}
         aria-labelledby={titleId}

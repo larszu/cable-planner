@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { cablePlannerApi, type AtemStateSummary, type AtemMultiviewer } from '../../lib/bridge'
 import { useTranslation } from '../../lib/i18n'
 import { useDialogA11y } from '../../hooks/useDialogA11y'
+import { useBackdropClose } from '../../hooks/useBackdropClose'
 
 interface MultiviewerLayoutViewProps {
   onClose: () => void
@@ -284,8 +285,14 @@ export const MultiviewerLayoutView = ({ onClose }: MultiviewerLayoutViewProps) =
 
   const { panelRef, titleId, dialogProps } = useDialogA11y(true, onClose)
 
+  // B-44 — der Hintergrund schliesst, aus derselben Quelle wie ueberall.
+  const backdrop = useBackdropClose(onClose)
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+    <div
+      {...backdrop}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+    >
       <div
         ref={panelRef}
         aria-labelledby={titleId}

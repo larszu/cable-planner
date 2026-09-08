@@ -22,6 +22,7 @@ import { createDemoProject } from '../../lib/demoProject'
 import { useTranslation } from '../../lib/i18n'
 import { Icon } from '../shared/Icon'
 import { useDialogA11y } from '../../hooks/useDialogA11y'
+import { useBackdropClose } from '../../hooks/useBackdropClose'
 
 interface Command {
   id: string
@@ -130,6 +131,10 @@ export const CommandPalette = () => {
     closeOnEscape: false,
   })
 
+  // B-44 — der Hintergrund schliesst. Eine Palette haelt nichts fest;
+  // die Eingabe ist die Suche und nicht der Inhalt.
+  const backdrop = useBackdropClose(() => setOpen(false))
+
   if (!open) return null
 
   const runCmd = (c: Command) => {
@@ -155,6 +160,7 @@ export const CommandPalette = () => {
 
   return (
     <div
+      {...backdrop}
       className="fixed inset-0 z-[60] flex items-start justify-center bg-black/60 p-4 pt-[12vh]"
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) close()
