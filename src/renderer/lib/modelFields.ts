@@ -189,6 +189,7 @@ export const INSTANCE_FIELDS = [
   'controlProtocol',
   'controlPort',
   'controlText',
+  'controlCompanion',
   'notes',
 
   // Herkunft dieses Exemplars

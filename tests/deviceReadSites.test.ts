@@ -120,6 +120,31 @@ type Verdict =
   | 'additiv'
   /** Liest den Store nur, schreibt nicht hinein. */
   | 'liest-nur'
+  /**
+   * Der gelesene Wert landet im Plan — aber ausdruecklich als NOTIZ.
+   *
+   * S-4 (2026-09-08) hat den ersten Fall dieser Art gebracht, und er ist
+   * keiner der drei bisherigen: `SwitchingSection` holt bei Companion die
+   * Liste der dort eingerichteten Verbindungen, und wer eine davon anklickt,
+   * schreibt ihren Namen ins Geraet. Das ist weder `getrennt` (der Wert
+   * landet sehr wohl im Plan) noch `additiv` (ein zweiter Klick ersetzt den
+   * ersten).
+   *
+   * Was es zulaessig macht, ist etwas anderes: das Feld STEUERT NICHTS. Kein
+   * Befehl, keine Adresse, kein Kreuzpunkt haengt daran — es steht in der
+   * Oberflaeche als Merkzettel, welche Companion-Verbindung zu der
+   * Schaltflaeche gehoert, und die Oberflaeche schreibt daneben, dass
+   * Companion das nicht prueft. Faellt die Notiz falsch aus, weil jemand die
+   * Schaltflaeche in Companion umgebaut hat, ist sie falsch beschriftet und
+   * sonst nichts.
+   *
+   * Diese Einordnung ist deshalb an eine Bedingung geknuepft, und ein Test
+   * unten haelt sie fest: sobald ein Notiz-Feld irgendwo in die
+   * Befehls-Bildung geraet, ist es keine Notiz mehr — dann faellt der Test,
+   * und die Datei braucht eine andere Einordnung oder das Feld eine andere
+   * Behandlung.
+   */
+  | 'notiz'
 
 interface Site {
   file: string
@@ -180,6 +205,26 @@ const CLASSIFIED: Site[] = [
       'Geraete behalten jede manuelle Nacharbeit. Dass dabei `portsUnknown` ' +
       'faellt, ist richtig: es fiel, WEIL echte Ports gelesen wurden — genau ' +
       'die Bedingung, unter der die Unbekannt-Markierung nicht mehr gilt.',
+  },
+  {
+    file: 'components/Properties/sections/SwitchingSection.tsx',
+    verdict: 'notiz',
+    reason:
+      'S-4 (2026-09-08), Companion. Die Datei liest ein Fremdsystem — ' +
+      '`switcher.companionConnections` fragt eine laufende Companion-Instanz, ' +
+      'welche Geraete dort eingerichtet sind — und ein Klick auf einen Eintrag ' +
+      'schreibt `connectionLabel`/`connectionModule` ins Geraet. Der Wert ' +
+      'landet also im Plan, und das ist Absicht: ohne ihn steht im Dialog nur ' +
+      '„Seite 1, Zeile 2, Spalte 3" und niemand weiss mehr, wofuer die ' +
+      'Schaltflaeche gebaut war. Zulaessig ist es, weil das Feld NICHTS ' +
+      'steuert: die Schrittfolge in `companionSchritte` liest ausschliesslich ' +
+      'Knopf-Koordinaten, Variablennamen und Nummern: die Notiz kommt darin ' +
+      'nicht vor. Sie ist ein Merkzettel, keine Zusicherung, und die ' +
+      'Oberflaeche sagt genau das daneben — Companion prueft sie nicht, und ' +
+      'wer die Schaltflaeche dort umbaut, macht die Zeile falsch, ohne dass ' +
+      'sich am Gesendeten etwas aendert. Alles Uebrige, was diese Datei in den ' +
+      'Plan schreibt (Protokoll, Adressen, Vorlage, Variablen), ist erklaerte ' +
+      'Eingabe des Nutzers und kein abgelesener Wert.',
   },
   {
     file: 'components/Settings/tabs/IntegrationsTab.tsx',
@@ -316,6 +361,28 @@ describe('die Messung selbst', () => {
     expect(domaenen.length).toBeGreaterThanOrEqual(15)
     const eingeordnet = [...GERAETE_DOMAENEN, ...SONSTIGE_DOMAENEN].sort()
     expect(eingeordnet).toEqual(domaenen)
+  })
+
+  it('die Companion-Notiz steuert nichts — sonst waere sie keine', () => {
+    // Die Bedingung, unter der `notiz` ueberhaupt eine zulaessige Einordnung
+    // ist, als negative Zusicherung: die beiden Felder duerfen ueberall
+    // vorkommen, wo etwas ANGEZEIGT wird, und nirgends, wo ein Befehl
+    // entsteht. Das ist per Quelltext-Suche belegbar, weil es eine Abwesenheit
+    // ist — die Anwesenheit eines Aufrufs waere es nicht.
+    const befehlsbildung = [
+      join(RENDERER, 'lib', 'companionControl.ts'),
+      join(RENDERER, 'lib', 'controlActions.ts'),
+    ]
+    for (const datei of befehlsbildung) {
+      const src = readFileSync(datei, 'utf8')
+      // Die Deklaration im Interface ist erlaubt; jede LESENDE Verwendung
+      // nicht. Deshalb faellt die Feld-Definition (`connectionLabel?:`) raus
+      // und alles andere zaehlt.
+      const verwendungen = [...src.matchAll(/connection(Label|Module)(\??:)?/g)].filter(
+        (m) => m[2] !== '?:',
+      )
+      expect(verwendungen, `${datei} baut mit der Notiz einen Befehl`).toEqual([])
+    }
   })
 
   it('der Schalt-Weg zaehlt als Geraete-Weg', () => {
