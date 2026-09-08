@@ -20,6 +20,7 @@ import { useTranslation } from '../../lib/i18n'
 import { DimensionsSection } from './sections/DimensionsSection'
 import { PowerConsumptionSection } from './sections/PowerConsumptionSection'
 import { CircuitSection } from './sections/CircuitSection'
+import { AdapterSection } from './sections/AdapterSection'
 import { SwitchingSection } from './sections/SwitchingSection'
 import { DisplayPropertiesBlock } from './sections/DisplayPropertiesBlock'
 import { CategoryPropsSection } from './sections/CategoryPropsSection'
@@ -162,6 +163,7 @@ export const EquipmentProperties = () => {
           beides dieselbe Frage von zwei Seiten ist — wie viel zieht es, und
           wann zieht es ueberhaupt. */}
       <CircuitSection equipment={equipment} />
+      <AdapterSection equipment={equipment} />
       <SwitchingSection equipment={equipment} />
 
       {/* #216/#422 — Physische Dimensionen (Breite/Höhe/Tiefe in mm). Eine

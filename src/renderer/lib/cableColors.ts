@@ -86,6 +86,7 @@ export const DEFAULT_CONNECTOR_TYPE_COLORS: Record<ConnectorType, string> = {
   'Mini-XLR': '#0ea5e9',
   'HD-BNC': '#fb923c',
   'Mini-HDMI': '#c084fc',
+  'Micro-HDMI': '#c084fc',
   'F-Connector': '#a16207',
   GG45: '#15803d',
   Kleeblatt: '#1e293b',

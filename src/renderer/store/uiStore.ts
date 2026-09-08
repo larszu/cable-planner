@@ -424,6 +424,13 @@ const defaults: PersistedUiState = {
     // wohin weiter. Bestandsnutzer bekommen den Eintrag ueber die
     // Vollstaendigkeits-Schleife weiter unten nachgetragen.
     'switching',
+    // Der Adapter (B-46) hinter der Schaltung: beides beantwortet dieselbe
+    // Frage -- was gibt dieses Geraet weiter, und unter welcher Bedingung.
+    // Bestandsnutzer bekommen den Eintrag ueber die
+    // Vollstaendigkeits-Schleife weiter unten nachgetragen; ohne sie waere
+    // die Sektion fuer jeden unerreichbar, der die App schon einmal
+    // geoeffnet hat.
+    'adapter',
     'dimensions',
     'display',
     'network-config',

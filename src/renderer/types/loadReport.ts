@@ -63,6 +63,7 @@ export type LoadDropKind =
    * dunkel bleibt.
    */
   | 'equipment-circuit'
+  | 'equipment-adapter'
   /**
    * B-42 — eine Sichtpruefung vom Pruefbild-Rundgang, deren Ankunftsort oder
    * Quelle es nicht mehr gibt.
