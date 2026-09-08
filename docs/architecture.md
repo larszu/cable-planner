@@ -206,6 +206,50 @@ Umsortieren (derselbe Befund wie B-33).
 Sicherheitsnachweis. Der Rückleiter fehlt absichtlich — ein
 Wechselschaltungs-Plan zeigt den geschalteten Außenleiter.
 
+#### 3.1d · `patternStore` — die PRÜFBILD-Erwartung
+
+Die dritte nicht persistierte Spur, und sie beantwortet die Frage, die bei
+jeder Inbetriebnahme zuerst kommt: **wo kommt was an?**
+
+Der Ablauf ist der aus der Praxis: eine Quelle bekommt ein Prüfbild, jemand
+geht die Monitore ab. Was diese App dazu beiträgt, sind zwei Dinge — und die
+Grenze dazwischen ist die ganze Entscheidung:
+
+| | |
+|---|---|
+| **SOLL** | Was der Plan vorsieht: `lib/patternRouting.ts` rechnet ab der Quelle über Blenden, Verteiler und den GEPLANTEN Kreuzpunkt der Kreuzschiene. Braucht keine Anlage, keine Verbindung, keinen Strom |
+| **IST** | Was jemand vor dem Monitor gesehen hat. Steht hier **nicht** und wird nicht behauptet |
+
+**Die App hat keinen Videoeingang.** Sie sieht kein Bild und kann keines
+sehen. Das Feld auf der Geräte-Karte ist deshalb die **Erwartung** und
+ausdrücklich beschriftet: „Erwartung laut Plan". Ein Mini-Monitor, der so
+täte, wäre die teuerste Sorte Falschaussage — man erkennt Farbbalken, hält
+sie für eine Rückmeldung und hat in Wahrheit den Plan zweimal gelesen.
+
+**Warum der NAME auf dem Bild der eigentliche Inhalt ist.** Farbbalken allein
+beantworten nichts: zwei vertauschte Kreuzpunkte sehen mit Balken auf beiden
+Wegen völlig richtig aus. Steht auf dem Monitor „KAMERA 3", wo der Plan
+„KAMERA 1" vorsieht, ist die Vertauschung in dem Moment gefunden, in dem
+jemand hinsieht — ohne Messgerät und ohne zweiten Techniker am Funk.
+`lib/testPattern.ts` erzeugt das Bild, `patternRouting` sagt, wo es stehen
+müsste.
+
+**Gerechnet wird mit `signalChains`** — derselben Traversierung, die die
+Patchliste und die Mehr-Ebenen-Ansicht benutzen. Ein zweiter Weg durch
+dieselbe Kreuzschiene wäre die Defektform `zwei-rechnungen`: er liefe beim
+nächsten Sonderfall auseinander, und dann widersprächen sich zwei Ansichten
+desselben Plans.
+
+**Die offenen Wege stehen gleichberechtigt daneben.** „Von hier weiss der
+Plan nicht weiter" ist bei einer Inbetriebnahme die nützlichere Auskunft als
+eine kurze Liste, die vollständig aussieht — genau dort steht der Monitor,
+an dem später niemand versteht, warum kein Bild kommt.
+
+**Noch nicht gebaut, und mit Absicht getrennt:** die Rückmeldung („stimmt" /
+„falsches Bild, es steht X drauf" / „kein Bild"). Sie ist eine Beobachtung
+mit Zeitpunkt und gehört damit ins Projekt — wie `TallyCheck` und anders als
+die Wahl der Quelle.
+
 ### 3.2 · Komponenten
 
 `src/renderer/components/` ist in 27 Subdomänen aufgeteilt:
@@ -410,6 +454,7 @@ gehören hier rein, nicht in einzelne Komponenten.
 | Kategorie-Übersetzungen | `localStorage[categoryTranslations]` | JSON-Map |
 | **Beobachtungen (Tally, Kreuzpunkte)** | **nirgends — `liveStore`, nur im Speicher** | — |
 | **Schalterstellungen im Schaltbild** | **nirgends — `circuitStore`, nur im Speicher** | — |
+| **Gewählte Prüfbild-Quelle** | **nirgends — `patternStore`, nur im Speicher** | — |
 
 Die letzten beiden Zeilen stehen hier, weil sie Entscheidungen sind und
 keine Versäumnisse. Was die Anlage vor einer Stunde tat, weiß diese App nach
@@ -642,6 +687,16 @@ Das Wichtigste in Listenform. Niemals brechen ohne expliziten Architektur-Review
     „was wäre wenn" auf der Kreuzschiene — trennt genauso: das Ergebnis darf
     gerechnet und gezeigt werden, die Eingabe dafür wird nicht gespeichert,
     und die Ansicht sagt, dass sie gerechnet ist.
+16. **Ein BILD auf dem Plan ist die gefährlichste Behauptung von allen.** Ein
+    Vorschaufeld auf einer Geräte-Karte sieht aus wie eine Rückmeldung von
+    diesem Gerät, und Farbbalken sehen überzeugend nach „Signal ist da" aus.
+    Diese App hat **keinen Videoeingang** — was sie zeigt, ist die Erwartung
+    aus dem Plan und trägt diese Beschriftung am Feld selbst, nicht nur im
+    Streifen. Wer ein weiteres Vorschaufeld baut, hält sich daran: entweder
+    es kommt aus einer belegten Quelle mit Zeitstempel, oder es ist als
+    Erwartung beschriftet. Es gibt keine dritte Möglichkeit, und „sieht man
+    doch" ist keine — die ganze Schwierigkeit ist, dass man es eben nicht
+    sieht.
 
 ---
 

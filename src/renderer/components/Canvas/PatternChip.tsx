@@ -1,0 +1,157 @@
+import { useMemo } from 'react'
+import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
+import { stampForRows } from '../../lib/documentStamp'
+import { usePatternStore } from '../../store/patternStore'
+import { usePatternOverview, usePatternRouting } from '../../hooks/usePattern'
+import { patternPruefzeilen, patternRouting } from '../../lib/patternRouting'
+import { testPatternSvg } from '../../lib/testPattern'
+import { useTranslation, format } from '../../lib/i18n'
+
+/**
+ * Das Prüfbild — welche Quelle trägt es, und wo müsste es ankommen.
+ *
+ * DER STREIFEN IST PFLICHT UND NICHT ZIERDE, aus demselben Grund wie
+ * `FlowModeChip` und `CircuitChip`: auf den Geräte-Karten stehen dann
+ * Prüfbilder, und ein Bild auf einem Plan sieht aus wie eine Rückmeldung.
+ * Hier steht, dass es eine ERWARTUNG ist — und dass diese App nicht sieht,
+ * was wirklich ankommt.
+ *
+ * ER NENNT AUCH DIE OFFENEN WEGE. Ein Plan, der von einer Quelle aus an drei
+ * Stellen nicht weiterweiss, ist für eine Inbetriebnahme die wichtigere
+ * Auskunft als die sieben Wege, die er kennt: an genau diesen drei Monitoren
+ * versteht später niemand, warum kein Bild kommt.
+ */
+export function PatternChip() {
+  const t = useTranslation()
+  const project = useProjectStore((s) => s.project)
+  const equipment = project.equipment
+  const quelleId = usePatternStore((s) => s.quelleId)
+  const waehle = usePatternStore((s) => s.waehle)
+  const { quellName, ziele, offen } = usePatternOverview()
+  const routing = usePatternRouting()
+
+  // Als Quelle kommt in Frage, was einen Ausgang hat. Kein Namensabgleich,
+  // keine Kategorie-Liste: ein Gerät ohne Ausgang kann nichts einspeisen,
+  // und alles andere ist die Entscheidung des Nutzers.
+  const quellen = useMemo(
+    () =>
+      equipment
+        .filter((e) => e.outputs.length > 0)
+        .map((e) => ({ id: e.id, name: e.name }))
+        .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })),
+    [equipment],
+  )
+
+  const speichern = (name: string, inhalt: string, typ: string) => {
+    const blob = new Blob([inhalt], { type: typ })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = name
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  const bildSpeichern = () => {
+    if (!quellName) return
+    // ADR-004: das Bild traegt den Dokument-Stempel. Wozu — jemand
+    // fotografiert einen Monitor, auf dem das Bild steht, und schickt das
+    // Foto. Ohne Stempel ist das ein Beweis fuer „irgendwann"; mit Stempel
+    // sagt es, aus welchem Planstand die Erwartung kam. Genau diese Frage
+    // stellt sich zwei Wochen spaeter, wenn der Plan sich geaendert hat.
+    const stempel = stampForRows(
+      project,
+      (p) => ({
+        headers: ['Gerät', 'Anschluss', 'Weg', 'Hinweis'],
+        rows: patternPruefzeilen(patternRouting(p, quelleId ?? undefined)).map((z) => [
+          z.geraet,
+          z.anschluss,
+          z.weg,
+          z.hinweis,
+        ]),
+      }),
+      new Date(),
+    )
+    speichern(
+      `testbild-${quellName.replace(/[^\w.-]+/g, '_')}.svg`,
+      testPatternSvg({
+        name: quellName,
+        zeile2: format(t('canvas.pattern.line2', '{n} Ankunftsorte laut Plan'), { n: ziele }),
+        zeile3: `${stempel.project}${stempel.revision ? ` · ${stempel.revision}` : ''} · ${stempel.fingerprint}${stempel.drifted ? ' *' : ''}`,
+      }),
+      'image/svg+xml',
+    )
+  }
+
+  const blattSpeichern = () => {
+    const zeilen = patternPruefzeilen(routing)
+    const kopf = ['Gerät', 'Anschluss', 'Weg', 'Hinweis']
+    const csv = [kopf, ...zeilen.map((z) => [z.geraet, z.anschluss, z.weg, z.hinweis])]
+      .map((r) => r.map((f) => `"${f.replace(/"/g, '""')}"`).join(';'))
+      .join('\r\n')
+    speichern(`testbild-liste-${quellName.replace(/[^\w.-]+/g, '_')}.csv`, csv, 'text/csv')
+  }
+
+  return (
+    <span className="flex items-center gap-1">
+      <label className="flex items-center gap-1.5 rounded-full border border-cp-border px-2 py-0.5 text-[11px] text-cp-text-secondary">
+        <span
+          aria-hidden
+          className="inline-block h-1.5 w-1.5 rounded-full"
+          style={{ background: quelleId ? '#fbbf24' : 'var(--cp-text-faint, #64748b)' }}
+        />
+        <span>{t('canvas.pattern.label', 'Prüfbild')}</span>
+        <select
+          className="bg-transparent text-cp-text outline-none"
+          value={quelleId ?? ''}
+          onChange={(e) => waehle(e.target.value || null)}
+          title={t(
+            'canvas.pattern.pickTitle',
+            'Eine Quelle wählen: der Plan zeigt dann an jedem Ankunftsort, welches Bild dort stehen müsste. Das ist die Erwartung — diese App sieht nicht, was wirklich ankommt.',
+          )}
+        >
+          <option value="">{t('canvas.pattern.none', 'keine')}</option>
+          {quellen.map((q) => (
+            <option key={q.id} value={q.id}>
+              {q.name}
+            </option>
+          ))}
+        </select>
+        {quelleId && (
+          <span className="tabular-nums text-cp-text-muted">{`· ${ziele}`}</span>
+        )}
+        {quelleId && offen > 0 && (
+          <span className="tabular-nums text-cp-warn">
+            {format(t('canvas.pattern.open', '· {n} offen'), { n: offen })}
+          </span>
+        )}
+      </label>
+      {quelleId && (
+        <>
+          <button
+            type="button"
+            onClick={bildSpeichern}
+            title={t(
+              'canvas.pattern.saveImageTitle',
+              'Das Bild als SVG sichern — für den Mediaplayer, den Standbild-Speicher des Mischers oder einen Laptop am Ausgang. Diese App speist nichts ein.',
+            )}
+            className="av-focus rounded-full border border-cp-border px-2 py-0.5 text-[11px] text-cp-text-secondary hover:bg-cp-surface-3"
+          >
+            {t('canvas.pattern.saveImage', 'Bild sichern')}
+          </button>
+          <button
+            type="button"
+            onClick={blattSpeichern}
+            title={t(
+              'canvas.pattern.saveSheetTitle',
+              'Die Liste zum Abgehen — mit den Wegen, die der Plan nicht zu Ende kennt, und ihrem Grund.',
+            )}
+            className="av-focus rounded-full border border-cp-border px-2 py-0.5 text-[11px] text-cp-text-secondary hover:bg-cp-surface-3"
+          >
+            {t('canvas.pattern.saveSheet', 'Prüfblatt')}
+          </button>
+        </>
+      )}
+    </span>
+  )
+}

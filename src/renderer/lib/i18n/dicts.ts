@@ -3404,6 +3404,23 @@ export const en: Dict = {
     'CALCULATED, not measured: this is how the circuit behaves with the switch positions as set. The positions are not part of the plan.',
   'canvas.circuit.resetTitle':
     'All switches back to their default. The plan does not change — it never carried the positions.',
+  // Pruefbild — die Erwartung aus dem Plan, kein Videobild.
+  'canvas.pattern.label': 'Test pattern',
+  'canvas.pattern.none': 'none',
+  'canvas.pattern.open': '· {n} open',
+  'canvas.pattern.line2': '{n} arrival points per plan',
+  'canvas.pattern.expected': 'Expected per plan',
+  'canvas.pattern.expectedAlt': 'Expected test pattern: {name}',
+  'canvas.pattern.expectedTitle':
+    'What the plan expects here — not a video image. This app cannot see what actually arrives.',
+  'canvas.pattern.pickTitle':
+    'Pick a source: the plan then shows, at every arrival point, which image should be there. That is the expectation — this app cannot see what actually arrives.',
+  'canvas.pattern.saveImage': 'Save image',
+  'canvas.pattern.saveImageTitle':
+    'Save the image as SVG — for a media player, the switcher stills store, or a laptop on an output. This app feeds nothing in.',
+  'canvas.pattern.saveSheet': 'Check sheet',
+  'canvas.pattern.saveSheetTitle':
+    'The walk-around list — including the paths the plan cannot follow to the end, and why.',
   // Schaltbild-Angaben am Geraet (Eigenschaften-Panel).
   'circuit.title': 'Circuit (mains)',
   'circuit.kind': 'Role in the circuit',

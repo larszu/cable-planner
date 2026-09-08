@@ -205,9 +205,36 @@ const forwardFrom = (
  * Genau darum geht es im Issue — die MEHRSTUFIGEN Wege sind die, die man aus
  * den Einzelzeilen nicht mehr zusammenbekommt.
  */
+/**
+ * Zuschnitt der Suche.
+ *
+ * Beide Vorgaben halten das bisherige Verhalten, damit die vorhandenen
+ * Aufrufer (Patchliste, Mehr-Ebenen-Ansicht) unveraendert bleiben.
+ */
+export interface ChainOptions {
+  /**
+   * Nur Wege, die an DIESEM Geraet beginnen.
+   *
+   * Wozu: „wo landet das Pruefbild von Kamera 1" ist dieselbe Traversierung,
+   * nur mit einem Startpunkt. Sie ein zweites Mal zu schreiben waere die
+   * Defektform `zwei-rechnungen` — zwei Wege durch dieselbe Kreuzschiene, die
+   * beim naechsten Sonderfall auseinanderlaufen.
+   */
+  vonEquipmentId?: string
+  /**
+   * Auch direkte Verbindungen (ohne Zwischenebene) zurueckgeben.
+   *
+   * Fuer die Mehr-Ebenen-Ansicht bleiben sie draussen — sie stehen schon in
+   * der Patchliste. Fuer die Frage „wo kommt es an" gehoeren sie dazu: ein
+   * Monitor direkt am Mischer ist ein Ankunftsort wie jeder andere.
+   */
+  auchDirekte?: boolean
+}
+
 export const signalChains = (
   equipment: readonly EquipmentItem[],
   cables: readonly Cable[],
+  opts: ChainOptions = {},
 ): SignalChain[] => {
   const eqById = new Map(equipment.map((e) => [e.id, e]))
   const portById = new Map<string, Port>()
@@ -262,7 +289,7 @@ export const signalChains = (
 
     const finish = (end: ChainEnd, endNote: string) => {
       const levels = steps.filter((s) => s.through !== null).length
-      if (levels === 0) return
+      if (levels === 0 && !opts.auchDirekte) return
       out.push({
         id: steps.map((s) => s.cableId).join('>'),
         steps,
@@ -303,7 +330,16 @@ export const signalChains = (
   }
 
   for (const c of cables) {
-    if (continuation.has(c.id)) continue
+    if (opts.vonEquipmentId !== undefined) {
+      // Mit gesetztem Startgeraet zaehlt NUR der Startpunkt, und die
+      // Fortsetzungs-Sperre gilt nicht: ein Kabel aus diesem Geraet heraus
+      // ist ein gueltiger Anfang, auch wenn es anderswo die Fortsetzung
+      // eines laengeren Weges ist. Ohne diese Ausnahme faenden wir vom
+      // Mischer aus keinen einzigen Weg, sobald etwas in ihn hineinfuehrt.
+      if (c.fromEquipmentId !== opts.vonEquipmentId) continue
+    } else if (continuation.has(c.id)) {
+      continue
+    }
     walk([stepOf(c)], new Set([c.id]))
   }
 
