@@ -19,7 +19,7 @@
 //     verschwindet, sieht am Handy aus wie ein Netzfehler — und dann drückt
 //     der Field-Tech noch dreimal.
 //
-//  4. ALLE DREI SCHREIBWEGE GEHEN DURCH DIESELBE PRÜFUNG. Drei eigene
+//  4. ALLE SCHREIBWEGE GEHEN DURCH DIESELBE PRÜFUNG. Eigene
 //     Vergleiche wären drei Gelegenheiten, einen zu vergessen.
 //
 //  5. DIE FREIGABE ZIEHT DIE SHOW MIT. Wer das Projekt tauscht und die
@@ -101,7 +101,7 @@ describe('Bedarf 127 — welche Show hängt an dieser Freigabe?', () => {
     }
   })
 
-  it('4. alle drei Schreibwege gehen durch dieselbe Prüfung', () => {
+  it('4. alle Schreibwege gehen durch dieselbe Prüfung', () => {
     const server = ohneKommentare('../src/main/services/mobileShareServer.ts')
     // Die eine Pruefung.
     expect(server).toMatch(/const showOk = \(parsed: Record<string, unknown>\): boolean =>/)
@@ -111,8 +111,8 @@ describe('Bedarf 127 — welche Show hängt an dieser Freigabe?', () => {
     expect(server).toMatch(/res\.statusCode = 409/)
     // Und jeder der drei Wege fragt sie — VOR dem Weiterreichen.
     const wege = server.match(/if \(!showOk\(parsed\)\) return/g) ?? []
-    expect(wege).toHaveLength(3)
-    for (const cb of ['onChecksUpdate', 'onCableAdded', 'onPendingChange']) {
+    expect(wege).toHaveLength(4)
+    for (const cb of ['onChecksUpdate', 'onCableAdded', 'onPendingChange', 'onPatternCheck']) {
       const vorher = server.indexOf('if (!showOk(parsed)) return', server.indexOf(cb) - 4000)
       expect(vorher, cb).toBeGreaterThan(-1)
       expect(vorher).toBeLessThan(server.indexOf(`state.${cb}?.`))

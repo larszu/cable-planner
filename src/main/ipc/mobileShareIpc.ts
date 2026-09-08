@@ -8,6 +8,8 @@ import {
   setMobileShareAllowBeyondLan,
   setMobileShareProject,
   setMobileShareCrewCalendar,
+  setMobileSharePatternPlan,
+  setMobileSharePatternCheckHandler,
   setMobileShareWriteMode,
   mobileShareWriteMode,
   setMobileShareChecksHandler,
@@ -85,6 +87,17 @@ export const registerMobileShareIpc = () => {
 
   // Feld-Rückkanal — Mobile-User hat eine Korrektur/ein Problem gemeldet.
   // Broadcast an alle Renderer; ProjectStore legt sie in die Review-Queue.
+  // B-42 Inkrement 2b — der Rundgang hat etwas gemeldet. Broadcast an alle
+  // Renderer; dort stempelt `recordPatternCheck` den Zeitpunkt und lehnt ab,
+  // was auf ein unbekanntes Geraet zeigt. Der Server kennt das Projekt nicht
+  // und soll es auch nicht kennen.
+  setMobileSharePatternCheckHandler((check) => {
+    for (const win of BrowserWindow.getAllWindows()) {
+      if (win.isDestroyed()) continue
+      win.webContents.send('mobileShare:patternCheck', check)
+    }
+  })
+
   setMobileSharePendingChangeHandler((change) => {
     for (const win of BrowserWindow.getAllWindows()) {
       if (win.isDestroyed()) continue
@@ -112,6 +125,14 @@ export const registerMobileShareIpc = () => {
   // ihn nur; die Rechnung steht in `renderer/lib/crewCalendar.ts`.
   ipcMain.handle('mobileShare:setCrewCalendar', (_event, ics: unknown) => {
     setMobileShareCrewCalendar(typeof ics === 'string' ? ics : null)
+    return { ok: true }
+  })
+  // B-42 Inkrement 2b — der Pruefbild-Plan kommt FERTIG aus dem Renderer,
+  // aus demselben Grund wie der Crew-Kalender darueber: die Ableitung laeuft
+  // ueber `signalChains`, und `main` soll keine zweite Vorstellung davon
+  // haben, wo ein Bild ankommt.
+  ipcMain.handle('mobileShare:setPatternPlan', (_event, json: unknown) => {
+    setMobileSharePatternPlan(typeof json === 'string' ? json : null)
     return { ok: true }
   })
   // BEDARF 109 — lesen viele, schreiben einer. Der Modus gilt sofort, auch
