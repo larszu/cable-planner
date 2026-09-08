@@ -54,9 +54,31 @@
 export interface HubSwitch {
   /** Zeitpunkt (ISO). Kommt von der Uhr des Aufrufers, nie aus der Ableitung. */
   at: string
-  /** Die Kreuzschiene (Geräte-Id). */
+  /** Die Kreuzschiene oder der Mischer (Geräte-Id). */
   equipmentId: string
-  /** 0-basiert wie im Protokoll. */
+  /**
+   * Welches Protokoll gesprochen wurde (S-2).
+   *
+   * Fehlt bei Einträgen aus der Zeit, als es nur den Videohub gab — und
+   * genau das waren sie. `videohubSwitch` liest das Fehlen deshalb als
+   * „Videohub" und nicht als „unbekannt": eine Migration, die den Wert
+   * nachträgt, behauptete etwas über Dateien, die sie nicht kennt, während
+   * die Auslassung selbst die Tatsache ist.
+   *
+   * Warum es überhaupt zählt: die Anzeige zählt beim Videohub ab 1 (Ausgang
+   * 0 im Protokoll heisst „Ausgang 1" am Gerät), beim ATEM nicht — dort ist
+   * Eingang 1 schon die Quelle 1. Ohne diese Angabe stünde im Protokoll
+   * irgendwann „Quelle 2", wo der Mischer 1 bekommen hat.
+   */
+  protocol?: import('./switcherControl').ControlProtocol
+  /**
+   * Was gesendet wurde, in einer Zeile — der Block-Inhalt beim Videohub, der
+   * Aufruf mit Argumenten beim ATEM. Das ist die Angabe, die den Eintrag
+   * nach einem Gerätetausch noch lesbar macht: Nummern allein sagen nichts
+   * mehr, wenn die Anschlüsse anders zählen.
+   */
+  befehl?: string
+  /** 0-basiert wie im jeweiligen Protokoll. Beim ATEM: Bus und Quellen-Nummer. */
   output: number
   input: number
   /** Die Namen, wie sie beim Bestätigen auf dem Schirm standen. */
@@ -125,16 +147,43 @@ export const normaliseHubSwitches = (
   return raus
 }
 
+/**
+ * Wie eine Protokoll-Nummer auf dem Blatt steht.
+ *
+ * Beim Videohub zählt die Anzeige ab 1: Ausgang 0 im Protokoll ist der, auf
+ * dem am Gerät „1" steht. Beim ATEM NICHT — dort ist Eingang 1 bereits die
+ * Quelle 1, und ein aufaddiertes Eins machte aus Kamera 1 die Kamera 2.
+ *
+ * Ein fehlendes `protocol` heisst „Videohub": so waren alle Einträge, die
+ * geschrieben wurden, bevor es ein zweites Protokoll gab.
+ */
+const nummer = (wert: number, protocol: HubSwitch['protocol']): string =>
+  protocol === undefined || protocol === 'videohub' ? String(wert + 1) : String(wert)
+
+const feld = (wert: number, name: string, protocol: HubSwitch['protocol']): string => {
+  const n = nummer(wert, protocol)
+  return name.trim() ? `${n} (${name.trim()})` : n
+}
+
 /** Eine Zeile für das Eingriffs-Protokoll auf Papier. */
 export const hubSwitchZeilen = (
   switches: readonly HubSwitch[],
   geraeteName: (id: string) => string,
-): { zeitpunkt: string; geraet: string; ausgang: string; eingang: string; wer: string; ergebnis: string }[] =>
+): {
+  zeitpunkt: string
+  geraet: string
+  ausgang: string
+  eingang: string
+  befehl: string
+  wer: string
+  ergebnis: string
+}[] =>
   switches.map((s) => ({
     zeitpunkt: s.at,
     geraet: geraeteName(s.equipmentId),
-    ausgang: s.outputName.trim() ? `${s.output + 1} (${s.outputName.trim()})` : String(s.output + 1),
-    eingang: s.inputName.trim() ? `${s.input + 1} (${s.inputName.trim()})` : String(s.input + 1),
+    ausgang: feld(s.output, s.outputName, s.protocol),
+    eingang: feld(s.input, s.inputName, s.protocol),
+    befehl: s.befehl ?? '',
     wer: s.by ?? '',
     ergebnis: s.ok ? 'angenommen' : `abgelehnt: ${s.message ?? ''}`.trim(),
   }))

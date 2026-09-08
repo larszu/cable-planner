@@ -3452,6 +3452,42 @@ export const en: Dict = {
   'canvas.hubSwitch.sending': 'sending …',
   'canvas.hubSwitch.close': 'Close',
   'app.loadReport.hubSwitch': 'router switching action',
+  'app.loadReport.crosspoint': 'planned switching entry',
+  'switching.title': 'Switching (signal path)',
+  'switching.summaryCount': '{n} of {total} outputs',
+  'switching.summaryNone': 'cannot switch',
+  'switching.unset': 'not planned',
+  'switching.protocol': 'Control protocol',
+  'switching.protocolNone': 'none \u2014 nothing will be sent',
+  'switching.protocolHint':
+    'Without a protocol nothing is sent to this device. Which one a device speaks cannot be read off its name \u2014 a device called \u201cVideohub spare\u201d would otherwise get a Videohub command, and nobody knows what is really listening there.',
+  'switching.addresses': 'Numbers on the device',
+  'switching.roleNone': 'not entered',
+  'switching.addressPlaceholder': 'No.',
+  'switching.addressHint':
+    'Without a number nothing is sent to this port. On the ATEM the source number of an input is read off the switcher, an aux output counts in its own row, and program/preview carry the mix-effect number. The position in the list does not tell you.',
+  'canvas.hubSwitch.sentText': 'Sent verbatim:',
+  'canvas.hubSwitch.sentCalls': 'Commands sent (not a text protocol):',
+  'canvas.hubSwitch.sentDeclared': 'Sent (control characters named, from your command line):',
+  'switching.textTemplate': 'Command line (from the device manual)',
+  'switching.textStart': 'Line start',
+  'switching.textEnd': 'Line end',
+  'switching.textBase': 'Counts from',
+  'switching.textNumbers': 'Numbers',
+  'switching.textNumbersPos': 'position in the list',
+  'switching.textNumbersDecl': 'entered per port',
+  'switching.textLevel': 'Level',
+  'switching.textAck': 'Ack',
+  'switching.textAckNone': 'none',
+  'switching.textPort': 'Port',
+  'switching.textProbe': 'This is what would go out (output 1, input 2):',
+  'switching.textPresets': 'Apply template:',
+  'switching.textHint':
+    'The templates are a starting point, not an assurance \u2014 their provenance is in the tooltip, and they belong checked against the manual. Before sending, the switching dialog shows the text once more verbatim; control characters are named there, because an invisible STX is the difference between \u201cunderstood\u201d and \u201cno answer\u201d.',
+  'switching.notSwitchable':
+    'This device has no inputs and outputs at the same time and therefore cannot switch anything. The section stays visible so it is clear that nothing is missing.',
+  'switching.hint':
+    'Per output: which input sits on it. This is the plan\u2019s intent, not the state read back from the device \u2014 without an entry the signal path ends here, and that is the more honest answer than a guessed continuation.',
   'canvas.pattern.saveSheetTitle':
     'The walk-around list — including the paths the plan cannot follow to the end, and why.',
   // Schaltbild-Angaben am Geraet (Eigenschaften-Panel).

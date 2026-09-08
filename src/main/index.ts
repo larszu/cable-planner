@@ -10,6 +10,7 @@ import { openExternalProject, registerProjectIpc } from './ipc/projectIpc.js'
 import { findProjectPathInArgv, setPendingLaunchPath } from './services/fileOpenService.js'
 import { registerAtemIpc } from './ipc/atemIpc.js'
 import { registerVideohubIpc } from './ipc/videohubIpc.js'
+import { registerSwitcherIpc } from './ipc/switcherIpc.js'
 import { registerLogIpc } from './ipc/logIpc.js'
 import { registerDocumentLogIpc } from './ipc/documentLogIpc.js'
 import { registerReceiptIpc } from './ipc/receiptIpc.js'
@@ -342,6 +343,7 @@ app.whenReady().then(async () => {
   registerProjectIpc()
   registerAtemIpc()
   registerVideohubIpc()
+  registerSwitcherIpc()
   registerLogIpc()
   registerDocumentLogIpc()
   registerReceiptIpc()

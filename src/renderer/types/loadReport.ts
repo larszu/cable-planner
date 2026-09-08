@@ -82,6 +82,15 @@ export type LoadDropKind =
    * schickt die Suche in die Irre — teurer als eine fehlende Zeile.
    */
   | 'hub-switch'
+  /**
+   * S-1 — eine Zeile der geplanten Schaltung, die auf einen Anschluss zeigt,
+   * den es am Geraet nicht (mehr) gibt.
+   *
+   * Warum sie faellt: sie ist ein WEITERWEG. Im Signalweg endete er stumm an
+   * einem geloeschten Anschluss; im Schaltbefehl wuerde daraus eine geratene
+   * Nummer an eine laufende Anlage.
+   */
+  | 'crosspoint'
   /** Initiative 9 — ein Ausspielziel, das die Normalisierung nicht bestanden
    *  hat. Dieselbe Regel wie bei der Rolle: ein Ziel, das still verschwindet,
    *  nimmt die Ingest-URL und den Verweis auf seinen Stream-Key mit, und der
