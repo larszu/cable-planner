@@ -135,6 +135,11 @@ export const CABLE_FIELD_CLASS: Record<string, FieldClass> = {
   // Darstellung. `offPage` sagt es im eigenen Docstring: „Die Verbindung
   // bleibt logisch/datentechnisch dieselbe — nur die Darstellung entfaellt."
   color: 'cosmetic',
+  // E-1 — der Beleg der VERBINDUNG. `bookkeeping` wie beim Geraet: Er sagt,
+  // woher die Zeile stammt, und aendert nichts an dem, was gebaut wird. Ein
+  // Plan-Vergleich, der ihn als inhaltliche Aenderung meldete, faerbte jede
+  // Uebernahme eines generierten Plans rot.
+  specSource: 'bookkeeping',
   routing: 'cosmetic',
   strokeWidth: 'cosmetic',
   dashed: 'cosmetic',

@@ -622,17 +622,27 @@ export interface EquipmentItem {
    *  - `weightKg` — Properties über `categorySchemas.ts` (Kategorie-Feld
    *    „Eigengewicht"), dazu `AnalysisDialog`, `LocationBomDialog`
    *    (Logistik-Zeile), `InventoryDialog`, CSV-Import.
-   *  - `powerWatts` — NICHTS. Geschrieben von Rentman-Import und
-   *    Template-Merge, persistiert, gediffed, gecacht, aber von keiner
-   *    Anzeige und keiner Summe gelesen.
+   *  - `powerWatts` — SEIT E-8 (2026-09-08) die dritte Stufe der
+   *    Leistungskette (`wattsWithSource` in `lib/equipmentSelectors.ts`).
+   *    Bis dahin: geschrieben von Rentman-Import und Template-Merge,
+   *    persistiert, gediffed, gecacht — und von keiner Anzeige und keiner
+   *    Summe gelesen.
    *
-   *  Die Leistungskette nimmt bewusst `powerConsumptionWatts` (#76) und den
-   *  Modus-Wert, nicht dieses Feld: `effectiveWatts` in
-   *  `lib/equipmentSelectors.ts`, festgehalten in
-   *  `tests/effektiveLeistung.test.ts`. Ob `powerWatts` dazugehören soll, ist
-   *  eine Eigentümer-Entscheidung (B-15 / E-8 im Suite-Backlog) — es würde die
-   *  Zahlen bestehender Projekte verändern. Diese Korrektur nimmt sie nicht
-   *  vorweg, sie beschreibt nur den Stand richtig. */
+   *  DIE KETTE, und warum sie so herum steht: Modus → `powerConsumptionWatts`
+   *  (#76) → `powerWatts` → V × A. Der geplante Wert schlägt den importierten,
+   *  weil wer geplant hat, entschieden hat. Der importierte schlägt V × A,
+   *  weil er eine genannte Zahl ist und V × A eine Rechnung aus zwei Feldern,
+   *  die oft Typenschild-Nennwerte tragen.
+   *
+   *  Hier stand, die Aufnahme sei eine Eigentümer-Entscheidung, weil sie „die
+   *  Zahlen bestehender Projekte verändern" würde. Sie tut es — und genau das
+   *  war der Grund, sie zu treffen: Ein Gerät, dessen Leistung im Projekt
+   *  steht und das mit 0 W in die Summe geht, fällt aus Phasenverteilung und
+   *  Überlast-Warnung heraus. Die Änderung ist eine Berichtigung.
+   *
+   *  Bedingung, die zur Entscheidung gehört: die Zahl kommt nie ohne ihre
+   *  Herkunft heraus. `wattsWithSource` gibt beides zurück, und der
+   *  Stromrechner zeigt die Herkunft in derselben Zeile wie die Zahl. */
   powerWatts?: number
   weightKg?: number
   /** #354 — Optionaler Stückpreis bzw. Tagesmietpreis in EUR. Wird im

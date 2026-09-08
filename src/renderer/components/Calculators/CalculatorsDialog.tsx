@@ -16,7 +16,7 @@ import { AlertTriangle, Download, Calculator, BatteryCharging } from 'lucide-rea
 import { useTranslation } from '../../lib/i18n'
 import { Icon } from '../shared/Icon'
 import { downloadBlob } from '../../lib/downloadBlob'
-import { effectiveWatts } from '../../lib/equipmentSelectors'
+import { wattsWithSource, type WattsSource } from '../../lib/equipmentSelectors'
 import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 import { bandwidthMbpsForStandard, linkCapacityMbpsForStandard } from '../../types/cableSpec'
 import { powerStandardById, POWER_SUPPLY_PRESETS } from '../../types/powerStandard'
@@ -348,12 +348,32 @@ interface DeviceAssignment {
   pinned?: boolean
 }
 
+// E-8 — die Herkunft der Leistungszahl, als Tabelle statt als Kette.
+// `satisfies Record<WattsSource, …>` macht eine neue Quelle ohne Beschriftung
+// zum Typfehler; eine Kette mit Default haette sie stumm als „geplant"
+// ausgegeben, und das ist die eine Auskunft, die nicht raten darf.
+const WATTS_QUELLE: Record<WattsSource, [key: string, de: string]> = {
+  mode: ['calc.watts.mode', 'Modus'],
+  planned: ['calc.watts.planned', 'geplant'],
+  imported: ['calc.watts.imported', 'importiert'],
+  derived: ['calc.watts.derived', 'aus V×A'],
+  none: ['calc.watts.none', 'ohne Angabe'],
+} satisfies Record<WattsSource, [string, string]>
+
+const wattsQuelleLabel = (
+  t: (key: string, fallback?: string) => string,
+  source: WattsSource | undefined,
+): string => (source ? t(...WATTS_QUELLE[source]) : '')
+
 interface PhaseDevice {
   id?: string
   name: string
   watts: number
   /** Feste Phase (1..n) oder undefined = automatisch verteilen. */
   pinnedPhase?: number
+  /** E-8 — woher die Zahl kommt. Eine Summe aus zwei Quellen ohne Herkunft
+   *  ist genau die Zahl, an der jemand eine Verteilung zusagt. */
+  source?: WattsSource
 }
 
 /** Greedy bin-packing across N phases. Devices sorted by W desc;
@@ -433,11 +453,11 @@ const PowerTab = () => {
     let missingDevices = 0
     const devices: PhaseDevice[] = []
     for (const e of equipment) {
-      const w = effectiveWatts(e)
+      const { watts: w, source } = wattsWithSource(e)
       if (w > 0) {
         totalW += w
         countedDevices += 1
-        devices.push({ id: e.id, name: e.name, watts: w, pinnedPhase: e.powerPhase })
+        devices.push({ id: e.id, name: e.name, watts: w, pinnedPhase: e.powerPhase, source })
       } else {
         missingDevices += 1
       }
@@ -1162,9 +1182,16 @@ const PowerTab = () => {
           </summary>
           <ul className="px-3 py-2 text-cp-xs">
             {totals.devices.slice(0, 12).map((d) => (
-              <li key={d.name} className="flex justify-between border-b border-cp-border-muted py-0.5">
+              <li key={d.name} className="flex justify-between gap-2 border-b border-cp-border-muted py-0.5">
                 <span className="truncate">{d.name}</span>
-                <span className="font-mono text-cp-text-muted">{d.watts} W</span>
+                <span className="flex shrink-0 items-baseline gap-1.5">
+                  {/* E-8 — die Herkunft steht IN DERSELBEN ZEILE wie die Zahl,
+                      nicht in einer Fussnote. Wer die Liste liest, liest sie
+                      wegen der Zahlen; eine Herkunft daneben wird gelesen, eine
+                      darunter nicht. */}
+                  <span className="text-cp-text-faint">{wattsQuelleLabel(t, d.source)}</span>
+                  <span className="font-mono text-cp-text-muted">{d.watts} W</span>
+                </span>
               </li>
             ))}
           </ul>

@@ -87,26 +87,57 @@ export const effectiveDeviceResources = (
  * `drawingChecks.ts` behauptete im Kopf sogar ausdruecklich, seine Helfer
  * seien "bewusst die GLEICHEN wie im AnalysisDialog" -- sie waren es nicht.
  *
- * REIHENFOLGE. Modus vor Geraete-Wert vor V x A. Der Modus-Wert gewinnt,
- * weil das Feld im Editor "Leistung (W) in diesem Modus" heisst: wer ihn
- * setzt, erwartet ihn in der Stromrechnung.
+ * REIHENFOLGE. Modus vor Geraete-Wert vor Import vor V x A. Der Modus-Wert
+ * gewinnt, weil das Feld im Editor "Leistung (W) in diesem Modus" heisst: wer
+ * ihn setzt, erwartet ihn in der Stromrechnung.
  *
- * NICHT in der Kette: `item.powerWatts`. Das ist ein zweites, getrennt
- * dokumentiertes Feld (Rentman-Engineering-Daten, #167) und wird heute von
- * keiner Summe gelesen. Es hier aufzunehmen wuerde die Zahlen bestehender
- * Projekte veraendern -- das ist eine Eigentuemer-Entscheidung, keine
- * Aufraeumarbeit. Siehe B-15 im Backlog der Suite.
+ * `item.powerWatts` IST SEIT E-8 (2026-09-08) IN DER KETTE. Hier stand, das
+ * sei eine Eigentuemer-Entscheidung, weil die Aufnahme "die Zahlen bestehender
+ * Projekte veraendern" wuerde. Die Entscheidung ist gefallen, und mit ihr die
+ * Einsicht, die den Einwand aufloest: Eine Lastrechnung, die eine BEKANNTE
+ * Zahl ignoriert, ist nicht vorsichtig, sondern falsch — sie meldet 0 W fuer
+ * ein Geraet, dessen Leistung im Projekt steht, und ein Geraet mit 0 W faellt
+ * aus Summe, Phasenverteilung und Ueberlast-Warnung heraus. Die Aenderung ist
+ * eine BERICHTIGUNG, kein Schaden.
+ *
+ * ZWEI BEDINGUNGEN GEHOEREN ZUR ENTSCHEIDUNG, und sie sind hier gebaut:
+ *
+ *  1. `powerConsumptionWatts` behaelt den Vorrang vor `powerWatts`. Das eine
+ *     ist die geplante Angabe, das andere die importierte; wer geplant hat,
+ *     hat entschieden.
+ *  2. Die Zahl kommt nie ohne ihre HERKUNFT heraus (`wattsWithSource`). Eine
+ *     Summe aus zwei Quellen ohne Herkunft ist genau die Zahl, an der jemand
+ *     eine Verteilung zusagt.
+ *
+ * V x A steht NACH dem Import: der Import ist eine genannte Zahl, V x A eine
+ * Rechnung aus zwei anderen Feldern, die oft Typenschild-Nennwerte sind.
  */
-export const effectiveWatts = (item: EquipmentItem): number => {
+
+/** Woher die Leistung eines Geraets stammt. `none` = keine Angabe, 0 W. */
+export type WattsSource = 'mode' | 'planned' | 'imported' | 'derived' | 'none'
+
+export interface WattsReading {
+  watts: number
+  source: WattsSource
+}
+
+/** Die Leistung MIT ihrer Herkunft — die Engstelle, aus der `effectiveWatts` fliesst. */
+export const wattsWithSource = (item: EquipmentItem): WattsReading => {
   const modePower = item.activeModeId
     ? item.modes?.find((m) => m.id === item.activeModeId)?.powerWatts
     : undefined
-  return (
-    modePower ??
-    item.powerConsumptionWatts ??
-    (item.voltage && item.currentAmps ? item.voltage * item.currentAmps : 0)
-  )
+  if (modePower != null) return { watts: modePower, source: 'mode' }
+  if (item.powerConsumptionWatts != null) {
+    return { watts: item.powerConsumptionWatts, source: 'planned' }
+  }
+  if (item.powerWatts != null) return { watts: item.powerWatts, source: 'imported' }
+  if (item.voltage && item.currentAmps) {
+    return { watts: item.voltage * item.currentAmps, source: 'derived' }
+  }
+  return { watts: 0, source: 'none' }
 }
+
+export const effectiveWatts = (item: EquipmentItem): number => wattsWithSource(item).watts
 
 /**
  * Helper fuer den haeufigen Pattern "Port aus dem Equipment ueber Port-ID

@@ -14,6 +14,24 @@ export interface CableWaypoint {
 export interface Cable {
   id: string
   name: string
+  /**
+   * E-1 (2026-09-08) — woher diese VERBINDUNG stammt, wenn nicht aus der
+   * Hand des Planers. Gleiche Form wie `EquipmentItem.specSource`: Feld →
+   * { value, source }.
+   *
+   * WARUM EIN KABEL DAS BRAUCHT, UND ZWAR MEHR ALS EIN PORT. Ein erfundener
+   * Port ist eine Behauptung ueber ein Geraet; eine erfundene Verbindung ist
+   * eine Behauptung ueber die ANLAGE. Sie geht in die Kabelliste, die jemand
+   * mit ins Lager nimmt, in die Laengenberechnung und in den Signalfluss —
+   * und sie sieht dort aus wie eine, die jemand gesteckt hat. Genau der
+   * Zustand, den ADR-003 verbietet: unbestaetigt als Tatsache zeigen.
+   *
+   * Der Schluessel ist das Feld, dessen Herkunft gemeint ist. Heute setzt nur
+   * die Plan-Erzeugung `connection` — „diese Verbindung als solche stammt vom
+   * Modell". Wer spaeter eine geratene LAENGE oder einen geratenen Typ
+   * kennzeichnen will, nimmt `length` bzw. `type` und muss nichts umbauen.
+   */
+  specSource?: Record<string, { value: string; source: string }>
   type: CableType
   length: number
   color: string

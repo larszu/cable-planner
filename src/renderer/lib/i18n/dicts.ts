@@ -636,6 +636,10 @@ export const en: Dict = {
   'cable.warn.converterSuggest': 'Matching converters from your library:',
   'cable.warn.converterNone':
     'No matching converter in the library. Add one via "+ Device" or Rentman import.',
+  // E-1 — eine Verbindung, die ein Modell erfunden hat.
+  'cable.specSource.title': 'This connection is not evidenced',
+  'cable.specSource.body':
+    'Origin: {source}. Check it against the installation before rigging — it appears on the cable list as it stands.',
   'cable.click.placeholder': 'Click a cable to see properties.',
 
   // Location properties
@@ -1111,28 +1115,6 @@ export const en: Dict = {
   // ColorField (shared color picker)
   'colorField.resetTitle': 'Reset colour',
   'colorField.resetBtn': '✕ Reset',
-
-  // PrintDialog
-  'print.title': 'Print',
-  'print.noneSelected': 'No device selected',
-  'print.selectionCount': '{count} device(s) selected',
-  'print.busy': 'Generating PDF…',
-  'print.startJobs': 'Start {count} print jobs',
-  'print.openDialog': 'Open printer dialog',
-  'print.downloadMany': 'Download {count} PDFs',
-  'print.downloadOne': 'Download patch-sheet PDF',
-  'print.osHint.title': 'OS printer hint',
-  'print.osHint.body':
-    "When printing, your operating system's print dialog opens — there you can pick the printer, paper size (A4 / A3 / Letter), orientation and copy count.",
-  'print.osHint.exports': 'Plan exports as PDF / PNG / JPEG are now under',
-  'print.osHint.exportsPath': 'File → Export plan',
-  'print.devices.title': 'Per device (patch sheet)',
-  'print.devices.body':
-    'Select individual devices and generate an A4/A3 patch list with all ports + connected cables — to stick on the device.',
-  'print.devices.searchPlaceholder': 'Search (name, category, subtitle)…',
-  'print.devices.selectAll': 'Select all',
-  'print.devices.deselectAll': 'Deselect all',
-  'print.devices.filtered': '(filtered)',
 
   // Device mode picker (multi-mode devices, e.g. ATEM, Pixelhue, Tessera)
   'modes.intro':
@@ -2652,18 +2634,6 @@ export const en: Dict = {
     'Newly added devices start with this color (Properties → device color can change it individually). Empty: uses the theme body color.',
   'settings.eqColors.resetX': '✕ Reset',
 
-  // Canvas — TitleBlock
-  'canvas.titleBlock.unnamed': 'Untitled project',
-  'canvas.titleBlock.projectNo': 'Project no.',
-  'canvas.titleBlock.client': 'Client',
-  'canvas.titleBlock.contractor': 'Contractor',
-  'canvas.titleBlock.planner': 'Planner',
-  'canvas.titleBlock.created': 'Created',
-  'canvas.titleBlock.modified': 'Modified',
-  'canvas.titleBlock.showTitle': 'Show plan signature',
-  'canvas.titleBlock.signatureBtn': 'Signature',
-  'canvas.titleBlock.collapseTitle': 'Collapse signature',
-  'canvas.titleBlock.noLogo': 'no logo',
 
   // Canvas — LayerVisibilityChips
   'canvas.layerChips.layerStripTitle':
@@ -2933,6 +2903,12 @@ export const en: Dict = {
   'calc.euColorTitle': 'EU colour code (DIN VDE 0293-308)',
   'calc.greedyExplain':
     'Greedy distribution: sorted by power, each device on the currently least-loaded phase. With symmetric loads three-phase draws only {amps} A per phase; imbalance raises the highest phase current. Target: every phase < 85% load + imbalance < 20%.',
+  // E-8 — die Herkunft der Leistungszahl, in derselben Zeile wie die Zahl.
+  'calc.watts.mode': 'mode',
+  'calc.watts.planned': 'planned',
+  'calc.watts.imported': 'imported',
+  'calc.watts.derived': 'from V×A',
+  'calc.watts.none': 'no figure',
   'calc.topConsumers': 'Top consumers',
 
   // #378 — Bulk cable connect dialog
@@ -3512,18 +3488,6 @@ export const en: Dict = {
   'rackInstance.heShort': 'U',
   // PortList SDI caps title
   'ports.sdi.caps': 'SDI capabilities (port-specific)',
-  // Print dialog body details
-  'print.dialogHint.tag': 'Note',
-  'print.dialogHint.body':
-    'In the printer dialog you choose printer, paper format + number of copies. With "Individual PDFs" multiple print jobs are triggered (one per device).',
-  'print.format.label': 'Format',
-  'print.format.a4': 'A4 (default)',
-  'print.format.a3': 'A3 (more ports / page)',
-  'print.output.label': 'Output',
-  'print.output.combined': 'One combined PDF',
-  'print.output.individual': 'Individual PDFs per device',
-  'print.devices.noneInProject': 'No devices in the project.',
-  'print.devices.noMatch': 'No device matches the search "{q}".',
   // ExportDialog – section descriptions, format hints, BOM strings
   'export.desc.plan':
     'Download or print the canvas plan as PDF. PDF with title block — print-ready. Also PNG/JPEG for email/Slack.',
@@ -5604,10 +5568,6 @@ export const en: Dict = {
   'lifecycle.testStd': 'Standard/limit',
   'lifecycle.warranty': 'Warranty until',
   'patchList.sheetName': 'Patch list',
-  'print.action.download': 'Download as PDF',
-  'print.action.label': 'Action',
-  'print.action.print': 'Print to printer (system dialog)',
-  'print.devices.portCableCount': '{ports} ports · {cables} cables',
   'project.locbom.pdfCableFallback': 'Cable',
   'project.locbom.pdfDevices': 'Devices',
   'project.locbom.pdfExternalConnections': 'External connections',
