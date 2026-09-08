@@ -43,6 +43,22 @@ export type AtemBefehl =
  */
 export type ControlAction =
   | {
+      protocol: 'companion'
+      equipmentId: string
+      equipmentName: string
+      host: string
+      port: number
+      vorschau: string
+      art: 'companion'
+      /** Die Aufrufe in der Reihenfolge, in der sie gehen MUESSEN. */
+      schritte: {
+        method: 'POST'
+        pfad: string
+        zweck: string
+        abbruchBeiFehler: true
+      }[]
+    }
+  | {
       protocol: 'text'
       equipmentId: string
       equipmentName: string

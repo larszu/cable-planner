@@ -2,8 +2,10 @@ import type { ControlAction, ControlResult, SwitcherDriver } from './types.js'
 import { videohubDriver } from './videohubDriver.js'
 import { atemDriver } from './atemDriver.js'
 import { textDriver } from './textDriver.js'
+import { companionDriver } from './companionDriver.js'
 
 export type { ControlAction, ControlResult, SwitcherDriver } from './types.js'
+export { companionConnections } from './companionDriver.js'
 
 /**
  * Die Treiber-Tabelle.
@@ -18,6 +20,7 @@ const TREIBER = {
   videohub: videohubDriver,
   atem: atemDriver,
   text: textDriver,
+  companion: companionDriver,
 } satisfies Record<ControlAction['protocol'], SwitcherDriver>
 
 export const sendControlAction = async (action: ControlAction): Promise<ControlResult> => {

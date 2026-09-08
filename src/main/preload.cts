@@ -182,6 +182,13 @@ contextBridge.exposeInMainWorld('cablePlanner', {
   switcher: {
     send: (action: unknown) =>
       ipcRenderer.invoke('switcher:send', action) as Promise<{ ok: boolean; message: string }>,
+    /** S-4 — welche Geraete stehen in dieser Companion-Instanz? Ein LESEN. */
+    companionConnections: (params: { host: string; port: number }) =>
+      ipcRenderer.invoke('switcher:companionConnections', params) as Promise<{
+        ok: boolean
+        message: string
+        connections: unknown
+      }>,
   },
   videohub: {
     sendRouting: (params: { host: string; port: number; block: string }) =>

@@ -51,6 +51,12 @@ import {
   renderTextCommand,
   type TextKreuzpunkt,
 } from './textProtocol'
+import {
+  CompanionFehler,
+  companionSchritte,
+  companionVorschau,
+  type CompanionKreuzpunkt,
+} from './companionControl'
 
 export interface ControlHindernis {
   equipmentId: string
@@ -291,6 +297,88 @@ const textAction = (
   }
 }
 
+/**
+ * Der Befehl ueber Bitfocus Companion.
+ *
+ * Hier steht KEINE Protokollkenntnis — Companion hat sie, in rund
+ * fuenfhundert gepflegten Modulen. Was hier steht, ist die Uebersetzung
+ * Anschluss -> Nummer und die REIHENFOLGE der drei Aufrufe: erst beide
+ * Variablen, dann der Druck. Schlaegt eine Variable fehl, darf der Druck
+ * nicht passieren — sonst feuert die Schaltflaeche mit den Werten von
+ * vorhin und schaltet den VORIGEN Kreuzpunkt.
+ */
+const companionAction = (
+  device: EquipmentItem,
+  punkte: readonly HubKreuzpunkt[],
+): ControlAction | ControlHindernis => {
+  const host = device.ipAddress?.trim() ?? ''
+  if (!host) {
+    return {
+      equipmentId: device.id,
+      equipmentName: device.name,
+      grund: `Für „${device.name}" ist keine Companion-Adresse hinterlegt (Eigenschaften des Geräts, Feld IP-Adresse).`,
+    }
+  }
+  const config = device.controlCompanion
+  if (!config) {
+    return {
+      equipmentId: device.id,
+      equipmentName: device.name,
+      grund: `Für „${device.name}" ist keine Companion-Schaltfläche eingetragen (Eigenschaften → Schaltung).`,
+    }
+  }
+  const kreuz: CompanionKreuzpunkt[] = []
+  for (const k of punkte) {
+    const outputIndex = portIndex(device.outputs, k.outputPortId)
+    const inputIndex = portIndex(device.inputs, k.inputPortId)
+    if (outputIndex < 0 || inputIndex < 0) {
+      return {
+        equipmentId: device.id,
+        equipmentName: device.name,
+        grund: `„${device.name}": der Anschluss „${outputIndex < 0 ? k.outputName : k.inputName}" gehört nicht mehr zum Gerät.`,
+      }
+    }
+    const outAddr = device.outputs[outputIndex].control?.address
+    const inAddr = device.inputs[inputIndex].control?.address
+    if (config.nummern === 'declared' && (outAddr === undefined || inAddr === undefined)) {
+      return {
+        equipmentId: device.id,
+        equipmentName: device.name,
+        grund: `„${device.name}": dem Anschluss „${outAddr === undefined ? k.outputName : k.inputName}" fehlt die Nummer am Gerät (Anschlüsse → Steuerung).`,
+      }
+    }
+    kreuz.push({
+      outputIndex,
+      inputIndex,
+      ...(outAddr !== undefined ? { outputAddress: outAddr } : {}),
+      ...(inAddr !== undefined ? { inputAddress: inAddr } : {}),
+    })
+  }
+  let schritte
+  try {
+    schritte = companionSchritte(config, kreuz)
+  } catch (e) {
+    return {
+      equipmentId: device.id,
+      equipmentName: device.name,
+      grund:
+        e instanceof CompanionFehler
+          ? `„${device.name}": ${e.message}`
+          : `„${device.name}": die Companion-Aufrufe lassen sich nicht bilden.`,
+    }
+  }
+  return {
+    protocol: 'companion',
+    equipmentId: device.id,
+    equipmentName: device.name,
+    host,
+    port: device.controlPort ?? PROTOCOL_INFO.companion.defaultPort,
+    art: 'companion',
+    vorschau: companionVorschau(schritte),
+    schritte,
+  }
+}
+
 const istHindernis = (v: ControlAction | ControlHindernis): v is ControlHindernis =>
   Object.prototype.hasOwnProperty.call(v, 'grund')
 
@@ -334,7 +422,9 @@ export const controlActions = (
         ? videohubAction(device, punkte)
         : protokoll === 'atem'
           ? atemAction(device, punkte)
-          : textAction(device, punkte)
+          : protokoll === 'companion'
+            ? companionAction(device, punkte)
+            : textAction(device, punkte)
     if (istHindernis(ergebnis)) hindernisse.push(ergebnis)
     else actions.push(ergebnis)
   }
@@ -374,10 +464,11 @@ export const actionKlartext = (
       return `${ziel} auf ${quelle} — ${atemBefehlText(b)}`
     })
   }
-  // Text-Protokoll: die App kennt die Bedeutung der Zeile NICHT — sie kennt
-  // nur die Anschluesse. Also nennt der Satz die Anschluesse, und die Zeile
-  // selbst steht darunter in der Vorschau. Eine erfundene Deutung („setzt
-  // Ausgang 3") waere eine Behauptung ueber ein fremdes Protokoll.
+  // Text-Protokoll und Companion: die App kennt die Bedeutung der Zeile bzw.
+  // der fremden Aktion NICHT — sie kennt nur die Anschluesse. Also nennt der
+  // Satz die Anschluesse, und was wirklich rausgeht, steht darunter in der
+  // Vorschau. Eine erfundene Deutung („setzt Ausgang 3") waere eine
+  // Behauptung ueber ein Protokoll, das hier niemand gelesen hat.
   return meine.map((k) => `„${k.outputName}" auf „${k.inputName}"`)
 }
 
@@ -437,7 +528,7 @@ export const eintraegeFuerAction = (
     ok: ergebnis.ok,
     ...(ergebnis.message ? { message: ergebnis.message } : {}),
   }
-  if (action.protocol === 'text') {
+  if (action.protocol === 'text' || action.protocol === 'companion') {
     return meine.map((k) => ({
       ...gemeinsam,
       // Beim erklaerten Text-Protokoll kennt die App die Nummern des Geraets

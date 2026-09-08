@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useProjectStore } from '../../../store/projectStore'
 import { useTranslation, format } from '../../../lib/i18n'
 import type { EquipmentItem } from '../../../types/equipment'
@@ -9,6 +10,13 @@ import {
   type ControlProtocol,
   type ControlRole,
 } from '../../../types/switcherControl'
+import {
+  LEERE_COMPANION_KONFIG,
+  leseVerbindungen,
+  type CompanionConfig,
+  type CompanionVerbindung,
+} from '../../../lib/companionControl'
+import { cablePlannerApi } from '../../../lib/bridge'
 import {
   LEERE_TEXT_KONFIG,
   TEXT_VORLAGEN,
@@ -78,12 +86,57 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
   // einzutragen. Beim Videohub ist die Position die Nummer — ein Feld dafuer
   // waere eine Einladung, sie zu verstellen.
   const textKonfig = equipment.controlText
+  const companionKonfig = equipment.controlCompanion
   const istText = protokoll === 'text'
+  const istCompanion = protokoll === 'companion'
   // Beim Text-Protokoll entscheidet die Konfiguration selbst, woher die
   // Nummern kommen — `PROTOCOL_INFO` kann das nicht wissen.
   const brauchtAdressen = istText
     ? textKonfig?.nummern === 'declared'
-    : info?.adressen === 'declared'
+    : istCompanion
+      ? companionKonfig?.nummern === 'declared'
+      : info?.adressen === 'declared'
+
+  const [verbindungen, setVerbindungen] = useState<CompanionVerbindung[]>([])
+  const [verbindungenFehler, setVerbindungenFehler] = useState('')
+  const [verbindungenLaufen, setVerbindungenLaufen] = useState(false)
+
+  // Ein LESEN und kein Eingriff: es fragt Companion, welche Geraete dort
+  // eingerichtet sind. Deshalb ohne Bestaetigung — und deshalb hier und
+  // nicht im Schalt-Dialog.
+  const holeVerbindungen = async () => {
+    setVerbindungenLaufen(true)
+    setVerbindungenFehler('')
+    try {
+      const antwort = await cablePlannerApi.switcher.companionConnections({
+        host: equipment.ipAddress?.trim() ?? '',
+        port: equipment.controlPort ?? 8000,
+      })
+      if (!antwort.ok) {
+        setVerbindungen([])
+        setVerbindungenFehler(antwort.message)
+        return
+      }
+      const liste = leseVerbindungen(antwort.connections)
+      setVerbindungen(liste)
+      if (liste.length === 0) {
+        setVerbindungenFehler(
+          t('switching.companionEmpty', 'Companion antwortet, hat aber keine Verbindung eingerichtet.'),
+        )
+      }
+    } catch (e) {
+      setVerbindungen([])
+      setVerbindungenFehler(e instanceof Error ? e.message : String(e))
+    } finally {
+      setVerbindungenLaufen(false)
+    }
+  }
+
+  const setzeCompanion = (patch: Partial<CompanionConfig>) => {
+    updateEquipment(equipment.id, {
+      controlCompanion: { ...LEERE_COMPANION_KONFIG, ...companionKonfig, ...patch },
+    })
+  }
 
   const setzeText = (patch: Partial<TextProtocolConfig>) => {
     updateEquipment(equipment.id, {
@@ -224,6 +277,227 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
               </label>
             ))}
           </div>
+
+          {istCompanion && (
+            <div className="mt-3 space-y-2">
+              <PanelHint
+                className="text-cp-xs text-cp-text-muted"
+                text={t(
+                  'switching.companionHow',
+                  'So wird es eingerichtet: in Companion eine Schaltfläche anlegen, deren Aktion die Route des Geräts setzt, und in dieser Aktion Ausgang und Eingang auf zwei Custom-Variablen legen (Schreibweise $(internal:custom_NAME)). Hier stehen dann die Lage der Schaltfläche und die beiden Variablennamen — der Plan setzt sie und drückt.',
+                )}
+              />
+
+              <div className="flex flex-wrap items-end gap-2 text-cp-xs">
+                <label>
+                  <span className="mb-1 block text-cp-text-muted">
+                    {t('switching.companionHost', 'Companion (IP)')}
+                  </span>
+                  <input
+                    className="w-32 rounded border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
+                    value={equipment.ipAddress ?? ''}
+                    placeholder="127.0.0.1"
+                    onChange={(e) => updateEquipment(equipment.id, { ipAddress: e.target.value })}
+                  />
+                </label>
+                <label>
+                  <span className="mb-1 block text-cp-text-muted">
+                    {t('switching.textPort', 'Port')}
+                  </span>
+                  <input
+                    type="number"
+                    className="w-20 rounded border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
+                    value={equipment.controlPort ?? ''}
+                    placeholder="8000"
+                    onChange={(e) => {
+                      const n = parseInt(e.target.value, 10)
+                      updateEquipment(equipment.id, {
+                        controlPort: Number.isInteger(n) && n > 0 ? n : undefined,
+                      })
+                    }}
+                  />
+                </label>
+                <button
+                  type="button"
+                  onClick={() => void holeVerbindungen()}
+                  disabled={verbindungenLaufen}
+                  className="av-focus rounded border border-cp-border px-2 py-1 hover:bg-cp-surface-3 disabled:opacity-40"
+                >
+                  {verbindungenLaufen
+                    ? t('switching.companionLoading', 'fragt …')
+                    : t('switching.companionFetch', 'Verbindungen abrufen')}
+                </button>
+              </div>
+
+              {verbindungenFehler && (
+                <div className="text-cp-xs text-cp-warn">{verbindungenFehler}</div>
+              )}
+              {verbindungen.length > 0 && (
+                <div className="text-cp-xs">
+                  <div className="mb-1 text-cp-text-muted">
+                    {t('switching.companionFound', 'In dieser Companion eingerichtet:')}
+                  </div>
+                  <ul className="space-y-0.5">
+                    {verbindungen.map((v) => (
+                      <li key={v.id} className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setzeCompanion({
+                              connectionLabel: v.label,
+                              connectionModule: v.moduleId,
+                            })
+                          }
+                          className="av-focus rounded border border-cp-border px-1.5 py-0.5 hover:bg-cp-surface-3"
+                        >
+                          {t('switching.companionNote', 'notieren')}
+                        </button>
+                        <span className="truncate">
+                          {v.label}{' '}
+                          <span className="text-cp-text-faint">
+                            ({v.moduleId}
+                            {v.enabled ? '' : t('switching.companionOff', ', aus')})
+                          </span>
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              <div className="flex flex-wrap items-end gap-2 text-cp-xs">
+                <label>
+                  <span className="mb-1 block text-cp-text-muted">
+                    {t('switching.companionPage', 'Seite')}
+                  </span>
+                  <input
+                    type="number"
+                    min={1}
+                    className="w-16 rounded border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
+                    value={companionKonfig?.knopf.page ?? 1}
+                    onChange={(e) =>
+                      setzeCompanion({
+                        knopf: {
+                          ...(companionKonfig?.knopf ?? LEERE_COMPANION_KONFIG.knopf),
+                          page: parseInt(e.target.value, 10) || 1,
+                        },
+                      })
+                    }
+                  />
+                </label>
+                <label>
+                  <span className="mb-1 block text-cp-text-muted">
+                    {t('switching.companionRow', 'Zeile')}
+                  </span>
+                  <input
+                    type="number"
+                    min={0}
+                    className="w-16 rounded border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
+                    value={companionKonfig?.knopf.row ?? 0}
+                    onChange={(e) =>
+                      setzeCompanion({
+                        knopf: {
+                          ...(companionKonfig?.knopf ?? LEERE_COMPANION_KONFIG.knopf),
+                          row: parseInt(e.target.value, 10) || 0,
+                        },
+                      })
+                    }
+                  />
+                </label>
+                <label>
+                  <span className="mb-1 block text-cp-text-muted">
+                    {t('switching.companionColumn', 'Spalte')}
+                  </span>
+                  <input
+                    type="number"
+                    min={0}
+                    className="w-16 rounded border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
+                    value={companionKonfig?.knopf.column ?? 0}
+                    onChange={(e) =>
+                      setzeCompanion({
+                        knopf: {
+                          ...(companionKonfig?.knopf ?? LEERE_COMPANION_KONFIG.knopf),
+                          column: parseInt(e.target.value, 10) || 0,
+                        },
+                      })
+                    }
+                  />
+                </label>
+              </div>
+
+              <div className="flex flex-wrap items-end gap-2 text-cp-xs">
+                <label>
+                  <span className="mb-1 block text-cp-text-muted">
+                    {t('switching.companionVarOut', 'Variable Ausgang')}
+                  </span>
+                  <input
+                    className="w-32 rounded border border-cp-border bg-cp-surface-2 px-1 py-1 font-mono text-cp-text"
+                    value={companionKonfig?.varOut ?? ''}
+                    placeholder="cp_out"
+                    onChange={(e) => setzeCompanion({ varOut: e.target.value })}
+                  />
+                </label>
+                <label>
+                  <span className="mb-1 block text-cp-text-muted">
+                    {t('switching.companionVarIn', 'Variable Eingang')}
+                  </span>
+                  <input
+                    className="w-32 rounded border border-cp-border bg-cp-surface-2 px-1 py-1 font-mono text-cp-text"
+                    value={companionKonfig?.varIn ?? ''}
+                    placeholder="cp_in"
+                    onChange={(e) => setzeCompanion({ varIn: e.target.value })}
+                  />
+                </label>
+                <label>
+                  <span className="mb-1 block text-cp-text-muted">
+                    {t('switching.textBase', 'Zählt ab')}
+                  </span>
+                  <select
+                    className="rounded border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
+                    value={String(companionKonfig?.basis ?? 1)}
+                    onChange={(e) => setzeCompanion({ basis: e.target.value === '0' ? 0 : 1 })}
+                  >
+                    <option value="0">0</option>
+                    <option value="1">1</option>
+                  </select>
+                </label>
+                <label>
+                  <span className="mb-1 block text-cp-text-muted">
+                    {t('switching.textNumbers', 'Nummern')}
+                  </span>
+                  <select
+                    className="rounded border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
+                    value={companionKonfig?.nummern ?? 'position'}
+                    onChange={(e) =>
+                      setzeCompanion({
+                        nummern: e.target.value === 'declared' ? 'declared' : 'position',
+                      })
+                    }
+                  >
+                    <option value="position">
+                      {t('switching.textNumbersPos', 'Position in der Liste')}
+                    </option>
+                    <option value="declared">
+                      {t('switching.textNumbersDecl', 'je Anschluss eingetragen')}
+                    </option>
+                  </select>
+                </label>
+              </div>
+
+              {companionKonfig?.connectionLabel && (
+                <div className="text-cp-xs text-cp-text-muted">
+                  {t('switching.companionNoted', 'Notiert:')}{' '}
+                  {companionKonfig.connectionLabel}
+                  {companionKonfig.connectionModule ? ` (${companionKonfig.connectionModule})` : ''}
+                  {' — '}
+                  {t(
+                    'switching.companionNoteWarn',
+                    'nur eine Notiz. Was die Schaltfläche wirklich tut, steht in Companion; wer sie dort umbaut, macht diese Zeile falsch.',
+                  )}
+                </div>
+              )}
+            </div>
+          )}
 
           {istText && (
             <div className="mt-3 space-y-2">
