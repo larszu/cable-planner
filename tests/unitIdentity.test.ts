@@ -74,7 +74,18 @@ describe('das Lager muss sich nicht fuer eine Identitaet entscheiden', () => {
     // `updateUnit` ist der einzige Weg, Stammfelder einer bestehenden Einheit
     // zu aendern. Fehlt `houseRef` in seiner Signatur, laesst sich das Feld
     // zwar anlegen, aber nie korrigieren.
-    expect(storeQuelle).toMatch(/updateUnit:[^\n]*'serial' \| 'houseRef'/)
+    //
+    // GEPRUEFT WIRD DER TYP, NICHT DIE ZEILENUMBRUECHE. Die erste Fassung
+    // verlangte `serial' | 'houseRef` in DERSELBEN Zeile — und wurde rot, als
+    // die Signatur mit Bedarf 118 um zwei Felder wuchs und der Formatierer sie
+    // umbrach. Die Regel war weiter erfuellt; der Waechter mass die
+    // Formatierung. Jetzt liest er die Deklaration bis zu ihrem Ende.
+    const deklaration = storeQuelle.slice(
+      storeQuelle.indexOf('updateUnit: ('),
+      storeQuelle.indexOf('removeUnit:'),
+    )
+    expect(deklaration).toContain("'houseRef'")
+    expect(deklaration).toContain("'serial'")
   })
 })
 
@@ -311,7 +322,11 @@ describe('der Bestandsdialog', () => {
 
   it('stellt die Befunde ueber die Liste', () => {
     const befundBlock = dialogQuelle.indexOf('identitaetsBefunde.length > 0')
-    const liste = dialogQuelle.indexOf('units.length === 0')
+    // Der Anker ist der LISTEN-Zweig und nicht bloss `units.length === 0`:
+    // seit Bedarf 118 steht dieselbe Bedingung weiter oben noch einmal, als
+    // `disabled` an den Export-Knoepfen. Der Waechter hat damals die erste
+    // Fundstelle gemessen statt die Liste.
+    const liste = dialogQuelle.indexOf('units.length === 0 ? (')
     expect(befundBlock).toBeGreaterThan(0)
     expect(befundBlock).toBeLessThan(liste)
   })

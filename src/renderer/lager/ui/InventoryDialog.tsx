@@ -97,6 +97,13 @@ import {
 } from '../lib/storageTree'
 import { resolveInventoryCode } from '../lib/inventoryScan'
 import { serializeInventory, parseInventory } from '../lib/inventoryPortable'
+import {
+  carnetDatenblatt,
+  eingabeAusGeld,
+  geldAusEingabe,
+  versicherungsListe,
+  versicherungsTabelle,
+} from '../lib/insuranceSchedule'
 import { isBarcodeScannerSupported } from '../../lib/barcodeScanner'
 import { ScannerModal } from './ScannerModal'
 import { derivePackList, packListToText, packListTotalCount } from '../lib/packList'
@@ -691,6 +698,17 @@ export const InventoryDialog = ({ open, onClose }: InventoryDialogProps) => {
                       />
                     </label>
                   )}
+                  {/* BEDARF 118 — Ursprungsland fuers Carnet-Datenblatt. Am
+                      ARTIKEL, weil es eine Eigenschaft des Modells ist. */}
+                  <label className="block">
+                    {t('inventory.origin', 'Ursprungsland')}
+                    <input
+                      value={form.ursprungsland ?? ''}
+                      onChange={(e) => setForm({ ...form, ursprungsland: e.target.value })}
+                      placeholder={t('inventory.originPh', 'z. B. DE, JP, US')}
+                      className={inputCls}
+                    />
+                  </label>
                   <label className="block">
                     {t('inventory.code', 'Code (QR/Barcode)')}
                     <input value={form.code ?? ''} onChange={(e) => setForm({ ...form, code: e.target.value })} placeholder={t('inventory.codePh', 'z.B. INV-00123')} className={inputCls} />
@@ -1497,7 +1515,35 @@ const SetsTab = () => {
 }
 
 // ── Einheiten-Tab (Serialisierung + Zustand + Historie) ──────────────────────
-type UnitFormState = InventoryUnitInput & { id?: string }
+/**
+ * Bedarf 118 — die Geld-Felder stehen als TEXT im Formular und nicht als
+ * `Geldbetrag`. Wer „12," getippt hat, ist mitten in einer Eingabe; ein
+ * Zwischenstand, der sofort zu einer Zahl gemacht wird, springt unter den
+ * Fingern zurueck. Umgewandelt wird beim Speichern, an genau einer Stelle
+ * (`geldAusEingabe`).
+ */
+/**
+ * Eine Tabelle als CSV herunterladen.
+ *
+ * Auf Modulebene und nicht in einem der Reiter: seit Bedarf 118 braucht ihn
+ * auch der Einheiten-Reiter, und eine zweite Fassung derselben Zeile waere
+ * die Stelle, an der eines Tages der eine Reiter mit Semikolon und der
+ * andere mit Komma trennt.
+ */
+const csv = (
+  name: string,
+  table: { headers: string[]; rows: (string | number | null | undefined)[][] },
+) => downloadBlob(name, toCsv(table.headers, table.rows), 'text/csv')
+
+type UnitFormState = InventoryUnitInput & {
+  id?: string
+  kaufBetrag?: string
+  kaufWaehrung?: string
+  kaufAm?: string
+  versBetrag?: string
+  versWaehrung?: string
+  versStand?: string
+}
 
 interface UnitsTabProps {
   codeCell: (code?: string, codeType?: InventoryCodeType) => React.ReactNode
@@ -1541,6 +1587,11 @@ const UnitsTab = ({ codeCell }: UnitsTabProps) => {
 
   const handleSave = () => {
     if (!form || !form.itemId) return
+    // BEDARF 118 — ohne Waehrung kein Betrag. `geldAusEingabe` sagt das, und
+    // zwar an EINER Stelle fuer beide Werte; ein Betrag ohne Kuerzel wird
+    // nicht gespeichert statt stillschweigend zu „EUR" zu werden.
+    const kauf = geldAusEingabe(form.kaufBetrag ?? '', form.kaufWaehrung ?? '')
+    const vers = geldAusEingabe(form.versBetrag ?? '', form.versWaehrung ?? '')
     const payload: InventoryUnitInput = {
       itemId: form.itemId,
       serial: form.serial?.trim() || undefined,
@@ -1550,8 +1601,19 @@ const UnitsTab = ({ codeCell }: UnitsTabProps) => {
       locationId: form.locationId || undefined,
       condition: form.condition ?? 'ok',
       notes: form.notes?.trim() || undefined,
+      anschaffung: kauf ? { betrag: kauf, am: form.kaufAm?.trim() || undefined } : undefined,
+      versicherungswert: vers ? { betrag: vers, stand: form.versStand?.trim() || undefined } : undefined,
     }
-    if (form.id) updateUnit(form.id, { serial: payload.serial, houseRef: payload.houseRef, code: payload.code, codeType: payload.codeType, notes: payload.notes })
+    if (form.id)
+      updateUnit(form.id, {
+        serial: payload.serial,
+        houseRef: payload.houseRef,
+        code: payload.code,
+        codeType: payload.codeType,
+        notes: payload.notes,
+        anschaffung: payload.anschaffung,
+        versicherungswert: payload.versicherungswert,
+      })
     else addUnit(payload)
     setForm(null)
   }
@@ -1571,15 +1633,52 @@ const UnitsTab = ({ codeCell }: UnitsTabProps) => {
         <span className="text-cp-text-muted">
           {t('inventory.unitsHint', 'Serialisierte Einzel-Einheiten — eigene Seriennr./Code, Zustand und Historie (Bewegungen, Reparaturen).')}
         </span>
-        <button
-          type="button"
-          disabled={items.length === 0}
-          onClick={() => setForm({ itemId: items[0]?.id ?? '', condition: 'ok' })}
-          className="flex items-center gap-1 rounded bg-emerald-700 px-2.5 py-1.5 enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          <Plus size={14} />
-          {t('inventory.addUnit', 'Einheit')}
-        </button>
+        <div className="flex items-center gap-2">
+          {/* BEDARF 118 — die zwei Blaetter, die der Freiberufler sonst von Hand
+              aus seiner Tabelle abschreibt. Der Lieferschein ist NICHT dabei:
+              den gibt es als Ausgabeschein und Quittung im Ausgaben-Reiter, und
+              ein zweiter waere eine zweite Fassung desselben Belegs. */}
+          <button
+            type="button"
+            disabled={units.length === 0}
+            onClick={() =>
+              csv(
+                'versicherungsliste.csv',
+                versicherungsTabelle(
+                  versicherungsListe(units, (u) => itemById.get(u.itemId)?.model ?? u.itemId),
+                ),
+              )
+            }
+            title={t(
+              'inventory.insuranceHint',
+              'Versicherungsliste: Werte je Einheit, Summe je Währung — und die Einheiten ohne angegebenen Wert namentlich darunter.',
+            )}
+            className="flex items-center gap-1 rounded bg-cp-surface-4 px-2.5 py-1.5 enabled:hover:bg-cp-surface-5 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <Download size={13} /> {t('inventory.insuranceList', 'Versicherung')}
+          </button>
+          <button
+            type="button"
+            disabled={units.length === 0}
+            onClick={() => csv('carnet-datenblatt.csv', carnetDatenblatt(units, (u) => itemById.get(u.itemId)))}
+            title={t(
+              'inventory.carnetHint',
+              'Carnet-Datenblatt: die Spalten, die eine Carnet-Position braucht — zum Übertragen ins Formular der Handelskammer. Kein Carnet.',
+            )}
+            className="flex items-center gap-1 rounded bg-cp-surface-4 px-2.5 py-1.5 enabled:hover:bg-cp-surface-5 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <Download size={13} /> {t('inventory.carnetSheet', 'Carnet')}
+          </button>
+          <button
+            type="button"
+            disabled={items.length === 0}
+            onClick={() => setForm({ itemId: items[0]?.id ?? '', condition: 'ok' })}
+            className="flex items-center gap-1 rounded bg-emerald-700 px-2.5 py-1.5 enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <Plus size={14} />
+            {t('inventory.addUnit', 'Einheit')}
+          </button>
+        </div>
       </div>
 
       {form && (
@@ -1624,6 +1723,55 @@ const UnitsTab = ({ codeCell }: UnitsTabProps) => {
                 <option value="qr">{t('inventory.qr', 'QR-Code')}</option>
                 <option value="barcode">{t('inventory.barcode', 'Barcode')}</option>
               </select>
+            </label>
+            {/* BEDARF 118 — die beiden Werte, aus denen Versicherungsliste und
+                Carnet-Datenblatt entstehen. Sie stehen NEBENEINANDER und werden
+                nicht auseinander gerechnet: ein Zeitwert waere eine Abschreibung
+                nach einer Regel, die der Versicherer bestimmt und diese Anwendung
+                nicht kennt. */}
+            <label className="block">
+              {t('inventory.purchase', 'Anschaffungspreis')}
+              <input
+                inputMode="decimal"
+                value={form.kaufBetrag ?? ''}
+                onChange={(e) => setForm({ ...form, kaufBetrag: e.target.value })}
+                className={inputCls}
+              />
+            </label>
+            <label className="block">
+              {t('inventory.purchaseCurrency', 'Währung')}
+              <input
+                value={form.kaufWaehrung ?? ''}
+                onChange={(e) => setForm({ ...form, kaufWaehrung: e.target.value })}
+                placeholder={t('inventory.currencyPh', 'z. B. EUR')}
+                className={inputCls}
+              />
+            </label>
+            <label className="block">
+              {t('inventory.purchaseDate', 'Gekauft am')}
+              <input type="date" value={form.kaufAm ?? ''} onChange={(e) => setForm({ ...form, kaufAm: e.target.value })} className={inputCls} />
+            </label>
+            <label className="block">
+              {t('inventory.insuredValue', 'Versicherungswert')}
+              <input
+                inputMode="decimal"
+                value={form.versBetrag ?? ''}
+                onChange={(e) => setForm({ ...form, versBetrag: e.target.value })}
+                className={inputCls}
+              />
+            </label>
+            <label className="block">
+              {t('inventory.insuredCurrency', 'Währung')}
+              <input
+                value={form.versWaehrung ?? ''}
+                onChange={(e) => setForm({ ...form, versWaehrung: e.target.value })}
+                placeholder={t('inventory.currencyPh', 'z. B. EUR')}
+                className={inputCls}
+              />
+            </label>
+            <label className="block">
+              {t('inventory.insuredAsOf', 'Wert-Stand')}
+              <input type="date" value={form.versStand ?? ''} onChange={(e) => setForm({ ...form, versStand: e.target.value })} className={inputCls} />
             </label>
             <label className="block md:col-span-2">
               {t('inventory.notes', 'Notiz')}
@@ -1724,7 +1872,17 @@ const UnitsTab = ({ codeCell }: UnitsTabProps) => {
                   <button type="button" onClick={() => setOpenHistory(openHistory === u.id ? null : u.id)} className="rounded p-1 text-cp-text-muted hover:bg-cp-surface-4 hover:text-cp-text" title={t('inventory.history', 'Historie')}>
                     <ClipboardList size={13} />
                   </button>
-                  <button type="button" onClick={() => setForm({ ...u })} className="rounded p-1 text-cp-text-muted hover:bg-cp-surface-4 hover:text-cp-text" title={t('common.edit', 'Bearbeiten')}>
+                  <button type="button" onClick={() =>
+                      setForm({
+                        ...u,
+                        kaufBetrag: eingabeAusGeld(u.anschaffung?.betrag),
+                        kaufWaehrung: u.anschaffung?.betrag.waehrung ?? '',
+                        kaufAm: u.anschaffung?.am ?? '',
+                        versBetrag: eingabeAusGeld(u.versicherungswert?.betrag),
+                        versWaehrung: u.versicherungswert?.betrag.waehrung ?? '',
+                        versStand: u.versicherungswert?.stand ?? '',
+                      })
+                    } className="rounded p-1 text-cp-text-muted hover:bg-cp-surface-4 hover:text-cp-text" title={t('common.edit', 'Bearbeiten')}>
                     <Pencil size={13} />
                   </button>
                   <button type="button" onClick={() => handleDelete(u)} className="rounded p-1 text-cp-text-muted hover:bg-red-900/50 hover:text-red-300" title={t('common.delete', 'Löschen')}>
@@ -2249,9 +2407,6 @@ const CheckoutTab = () => {
         return CUSTODY_START_REFUSAL_TEXT[r]
     }
   }
-
-  const csv = (name: string, table: { headers: string[]; rows: (string | number | null | undefined)[][] }) =>
-    downloadBlob(name, toCsv(table.headers, table.rows), 'text/csv')
 
   return (
     <div className="space-y-3">

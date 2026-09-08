@@ -286,6 +286,16 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
     'Die Seriennummer des Herstellers. Sie zählt außerhalb des Hauses — Versicherung, Sub-Vermietung, Wartung.',
   Hausreferenz:
     'Die Nummer, unter der dieses Haus die Einheit führt. Sie klebt auf dem Case und ist die, die der Lagerist ruft.',
+  Anschaffungspreis:
+    'Was diese Einheit gekostet hat. Eine Tatsache mit Kaufdatum — sie ändert sich nie und wird nie fortgeschrieben.',
+  Versicherungswert:
+    'Wofür diese Einheit versichert ist. Eine eigene Angabe, NICHT aus dem Anschaffungspreis abgeschrieben: nach welcher Regel abgewertet wird, entscheidet der Versicherer.',
+  Stand:
+    'Wann der Versicherungswert zuletzt so gemeldet wurde. Ohne ihn ist der Wert einer ohne Zeitpunkt — und niemand darf ihn für aktuell halten.',
+  'Gewicht (kg)':
+    'Das Gewicht des Artikels, wie es am Modell hinterlegt ist. Für das Carnet-Datenblatt gebraucht; ohne Angabe steht dort „nicht angegeben".',
+  Ursprungsland:
+    'Das Ursprungsland des Modells (ISO 3166-1, „DE", „JP"). Eine Carnet-Position verlangt es; die Anwendung leitet es aus nichts ab.',
   'Im Plan': 'Was der Plan an dieser Stelle vorsieht — die Soll-Seite des Abgleichs.',
   'Ingest-URL': 'Die Adresse, an die gesendet wird. Ohne Stream-Key — der steht nie in einer Datei.',
   IP: 'Die IP-Adresse der Schnittstelle.',
