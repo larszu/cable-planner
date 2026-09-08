@@ -65,6 +65,17 @@ export const MODEL_FIELDS = [
   'isConverter',
   'isDistributionAmp',
   'isPatchPanel',
+  // B-46 — die Adapter-Angaben. MODELL und nicht Exemplar: ein
+  // „Micro-HDMI auf HDMI, einweg, passiv" ist in jedem Plan derselbe. Die
+  // Angaben ins Exemplar zu legen hiesse, sie bei jedem Herausziehen aus
+  // der Bibliothek neu eintragen zu muessen — und wer das vergisst, bekommt
+  // `unbekannt` und damit keinen Befund dort, wo einer hingehoert.
+  'adapter',
+  // B-46 — was das Geraet erklaertermassen kann („DisplayPort Alternate
+  // Mode"). Ebenfalls MODELL: jedes Exemplar desselben Rechners kann
+  // dasselbe. Genau deshalb ist es in der Bibliothek EINMAL einzutragen und
+  // gilt dann fuer jedes Geraet, das daraus entsteht.
+  'kann',
   'tallyRole',
   'tcRole',
   'embedderRole',

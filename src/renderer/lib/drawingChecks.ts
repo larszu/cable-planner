@@ -22,6 +22,7 @@ import { networkAddress } from './subnet'
 import { effectiveWatts } from './equipmentSelectors'
 import { deriveDrumChannels } from './drumMicing'
 import { labelTargetIssues } from './labelDerivation'
+import { beurteileAdapter } from '../types/adapter'
 
 export type CheckSeverity = 'error' | 'warning' | 'info'
 
@@ -676,6 +677,62 @@ export const runDrawingChecks = (
   // sonst erst auf dem Multiviewer auf. Die Ableitung liegt in
   // `labelDerivation.ts` und ist ohne Store/React testbar.
   findings.push(...labelTargetIssues({ equipment, cables, sourceIdentities }))
+
+  // — Check 21: Adapter — passt er an dieser Stelle? (B-46) ------------------
+  //
+  // Der gefährliche Fall aus dem Wunsch des Eigentümers ist nicht der Adapter,
+  // der fehlt — der fällt beim Aufbau auf. Es ist der, den der Plan als
+  // „passt" zeichnet, obwohl die Quelle es nicht kann: „USB-C auf
+  // DisplayPort" arbeitet nur an einem Anschluss mit
+  // DisplayPort-Alternate-Mode, und zwei USB-C-Buchsen sehen gleich aus.
+  //
+  // Deshalb DREI Ausgänge und nicht zwei. Ein Adapter, dessen Angaben fehlen,
+  // ergibt einen `info`-Befund („nicht erklärt") und keinen Fehler — aber er
+  // ergibt eben auch nicht nichts. Nichts hiesse auf dem Blatt „geprüft und in
+  // Ordnung", und genau das ist er nicht.
+  for (const geraet of equipment) {
+    if (!geraet.adapter) continue
+    const hinein = cables.filter((c) => c.toEquipmentId === geraet.id)
+    const hinaus = cables.filter((c) => c.fromEquipmentId === geraet.id)
+
+    // Ohne beide Seiten gibt es keine Lage zu beurteilen. Das ist ein eigener
+    // Befund und kein „nicht erklärt": hier fehlt kein Feld, hier fehlt ein
+    // Kabel.
+    if (hinein.length === 0 || hinaus.length === 0) {
+      findings.push({
+        id: `adapter-unverkabelt:${geraet.id}`,
+        severity: 'warning',
+        category: 'Adapter',
+        message: `${geraet.name}: Adapter ${geraet.adapter.von} ↔ ${geraet.adapter.nach} hängt nur an einer Seite — der Weg geht hier nicht weiter.`,
+        equipmentId: geraet.id,
+      })
+      continue
+    }
+
+    for (const rein of hinein) {
+      const quellPort = portById.get(rein.fromPortId)
+      const quellGeraet = equipment.find((e) => e.id === rein.fromEquipmentId)
+      for (const raus of hinaus) {
+        const senkePort = portById.get(raus.toPortId)
+        const urteil = beurteileAdapter(geraet.adapter, {
+          quelleSteckt: quellPort?.connectorType,
+          senkeSteckt: senkePort?.connectorType,
+          // Der Standard des ANKOMMENDEN Kabels ist der, der durch muss.
+          verlangt: rein.standard,
+          quelleKann: quellGeraet?.kann,
+        })
+        if (urteil.art === 'passt') continue
+        findings.push({
+          id: `adapter-${urteil.art}:${geraet.id}:${rein.id}:${raus.id}`,
+          severity: urteil.art === 'passt-nicht' ? 'error' : 'info',
+          category: 'Adapter',
+          message: `${geraet.name}: ${urteil.text}`,
+          equipmentId: geraet.id,
+          cableId: rein.id,
+        })
+      }
+    }
+  }
 
   // Sortierung: error → warning → info, innerhalb stabil nach category.
   const rank: Record<CheckSeverity, number> = { error: 0, warning: 1, info: 2 }

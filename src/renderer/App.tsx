@@ -170,6 +170,7 @@ const DROP_ART: Record<LoadDropKind, [key: string, de: string]> = {
   'tally-position': ['app.loadReport.tallyPosition', 'Tally-Position'],
   'address-range': ['app.loadReport.addressRange', 'Adressbereich'],
   'equipment-circuit': ['app.loadReport.equipmentCircuit', 'Schaltbild-Bauart eines Geräts'],
+  'equipment-adapter': ['app.loadReport.equipmentAdapter', 'Adapter-Angaben eines Geräts'],
   'pattern-check': ['app.loadReport.patternCheck', 'Sichtprüfung vom Prüfbild-Rundgang'],
   'hub-switch': ['app.loadReport.hubSwitch', 'Schaltvorgang an einer Kreuzschiene'],
   'crosspoint': ['app.loadReport.crosspoint', 'Zeile der geplanten Schaltung'],

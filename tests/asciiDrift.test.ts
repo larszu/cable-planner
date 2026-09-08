@@ -85,6 +85,7 @@ const HARMLOS = new Set(
     // Deutsch mit echter Vokalfolge — kein Umlaut dahinter
     'neu', 'neue', 'neuer', 'neues', 'neuen', 'neuerdings', 'aktuell', 'aktuelle',
     'aktuellen', 'aktueller', 'aktuelles', 'aktuellste', 'quelle', 'quellen',
+    'quellgerät', 'quellgeräte', 'quellgeräts',
     'quell', 'signalquelle', 'produktionsquelle', 'steuer', 'steuern', 'steuert',
     'steuersatz', 'steuersätze', 'steuerbetrag', 'mehrwertsteuer', 'umsatzsteuer',
     'steuerbar', 'steuerbare', 'steuerbaren', 'steuerbares',
