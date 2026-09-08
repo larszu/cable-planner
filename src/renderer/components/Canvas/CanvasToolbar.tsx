@@ -5,6 +5,7 @@ import { useCanvasProjectStore as useProjectStore } from '../../store/projectSto
 import { LENGTH_COLOR_RULES } from '../../lib/cableColors'
 import { LayerVisibilityChips } from './LayerVisibilityChips'
 import { FlowModeChip } from './FlowModeChip'
+import { CircuitChip } from './CircuitChip'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { computeEquipmentLayout } from '../../lib/equipmentLayout'
@@ -754,6 +755,7 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
           Layer-Legende, weil beide dasselbe beantworten: wonach ist dieses
           Bild zu lesen. */}
       <FlowModeChip />
+      <CircuitChip />
       <span style={dividerStyle} />
       {/* v7.9.67 / #177 — der Schutz gegen versehentliches Verschieben, je
           Objektart (Rahmen / Geräte / Kabel).

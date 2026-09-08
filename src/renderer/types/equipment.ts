@@ -71,6 +71,7 @@ export const ALL_CONNECTOR_TYPES: ConnectorType[] = [
 import type { SignalStandard } from './cableSpec'
 import type { SdiCapabilities } from './videoFormat'
 import type { InstallStatus, ServiceRecord } from './lifecycle'
+import type { CircuitKind } from '../lib/circuitSolver'
 
 export interface Port {
   id: string
@@ -100,6 +101,19 @@ export interface Port {
    *  ATEM-Input ist. Wird ignoriert wenn der ATEM live verbunden ist
    *  (dann gewinnt die echte state.inputs-Liste). */
   atemSourceId?: number
+  /**
+   * Klemmennummer im Schaltbild (2026-09-08).
+   *
+   * Eine Wechselschaltung unterscheidet Klemme 1 von Klemme 2 — vertauscht
+   * man sie, brennt die Leuchte bei genau den umgekehrten
+   * Schalterstellungen. Sie aus der REIHENFOLGE der Ports abzuleiten waere
+   * eine stille Umverdrahtung bei jedem Umsortieren (derselbe Befund wie
+   * B-33 fuer die Port-Nummerierung), deshalb steht sie am Port.
+   *
+   * Ohne Angabe gilt Klemme 0. Welche Nummern eine Bauart kennt, steht in
+   * `CIRCUIT_KIND_INFO` (`types/circuit.ts`).
+   */
+  circuitTerminal?: number
   type: string
   connectorType: ConnectorType
   /** Optional side override on the node (default comes from input/output + mirror). */
@@ -437,6 +451,20 @@ export interface EquipmentItem {
    *  hier nur die rohen Werte, damit sie mit Projekt-Datei und Library-Template
    *  mitwandern. Optional — Bestands-Geräte haben es nicht. */
   categoryProps?: Record<string, string | number | boolean>
+  /**
+   * Schaltbild-Bauart dieses Geräts (Strom-Schaltbild, 2026-09-08).
+   *
+   * ANGEGEBEN, NIE GERATEN. Ohne dieses Feld ist das Gerät für den
+   * Schaltbild-Rechner nicht vorhanden — es taucht weder als Leuchte noch
+   * als Klemmstelle auf. Aus der Kategorie zu schliessen („Leuchte" →
+   * `lamp`) wäre der Namensabgleich, gegen den ADR-001/ADR-002 stehen, und
+   * hier faellt er in die gefaehrliche Richtung: eine „Wandleuchte" bekaeme
+   * keinen Knoten, und der Rechner saegte „brennt nicht" — was aussieht wie
+   * eine Antwort und in Wahrheit heisst „niemand hat es angegeben".
+   *
+   * Begruendung ausfuehrlich in `types/circuit.ts`.
+   */
+  circuitKind?: CircuitKind
   /** Optional network-device config (switches, routers). */
   vlans?: VlanDef[]
   managementVlanId?: number

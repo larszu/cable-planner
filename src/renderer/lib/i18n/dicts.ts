@@ -3392,6 +3392,31 @@ export const en: Dict = {
   'canvas.flow.systemReduced': 'Your system has motion turned off; the view stays still.',
   'canvas.flow.toggleOff': 'Click: turn motion off.',
   'canvas.flow.toggleOn': 'Click: turn motion on.',
+  // Schaltbild (Strom) im Canvas — GERECHNET, nicht gemessen.
+  'canvas.circuit.label': 'Circuit',
+  'canvas.circuit.empty': '· nothing declared',
+  'canvas.circuit.reset': 'Reset switches',
+  'canvas.circuit.offTitle':
+    'Show the circuit: which luminaires are lit, switch positions, and which lines are live.',
+  'canvas.circuit.emptyTitle':
+    'No device in the plan carries a circuit role. It is declared in the properties panel and never guessed from the category.',
+  'canvas.circuit.onTitle':
+    'CALCULATED, not measured: this is how the circuit behaves with the switch positions as set. The positions are not part of the plan.',
+  'canvas.circuit.resetTitle':
+    'All switches back to their default. The plan does not change — it never carried the positions.',
+  // Schaltbild-Angaben am Geraet (Eigenschaften-Panel).
+  'circuit.title': 'Circuit (mains)',
+  'circuit.kind': 'Role in the circuit',
+  'circuit.none': 'none',
+  'circuit.noneHint':
+    'Without a role this device does not exist for the circuit — it is calculated neither as a luminaire nor as a junction. That is not the same as "off".',
+  'circuit.terminals': 'Terminals of this role',
+  'circuit.terminalDefault': 'Terminal 0',
+  'circuit.terminalN': 'Terminal {n}',
+  'circuit.noPorts':
+    'This device has no connectors. Without them no line can be attached, and the circuit stays empty at this point.',
+  'circuit.terminalHint':
+    'The terminal belongs to the connector, not to its position in the list — reordering does not rewire the circuit.',
   // E-3 — die Anlagen-Zugangscodes hinter einem eigenen Code.
   'mobile.dialog.pincode': 'Make system access codes retrievable',
   'mobile.dialog.pincode.none': 'This project carries no intercom configuration with access codes.',

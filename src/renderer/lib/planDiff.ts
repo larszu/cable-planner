@@ -234,6 +234,12 @@ export const EQUIPMENT_FIELD_CLASS: Record<string, FieldClass> = {
   voltage: 'substantive',
   currentAmps: 'substantive',
   powerPhase: 'substantive',
+  // Schaltbild (2026-09-08). SUBSTANTIELL: ob ein Geraet ein Wechselschalter
+  // oder eine Leuchte ist, entscheidet, welche Leuchte bei welcher Stellung
+  // brennt — eine Aenderung daran entwertet jedes Blatt, auf dem die
+  // Schaltung steht. Die Schalterstellung selbst taucht hier gar nicht auf:
+  // sie steht nicht im Projekt.
+  circuitKind: 'substantive',
 
   // Bild/Display als Geraetedaten (nicht Darstellung).
   resolution: 'substantive',
