@@ -2,7 +2,8 @@ import { useMemo } from 'react'
 import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
 import { stampForRows } from '../../lib/documentStamp'
 import { usePatternStore } from '../../store/patternStore'
-import { usePatternOverview, usePatternRouting } from '../../hooks/usePattern'
+import { usePatternBefunde, usePatternOverview, usePatternRouting, usePatternSumme } from '../../hooks/usePattern'
+import { diagnoseZeilen } from '../../lib/patternDiagnose'
 import { patternPruefzeilen, patternRouting } from '../../lib/patternRouting'
 import { testPatternSvg } from '../../lib/testPattern'
 import { useTranslation, format } from '../../lib/i18n'
@@ -29,6 +30,8 @@ export function PatternChip() {
   const waehle = usePatternStore((s) => s.waehle)
   const { quellName, ziele, offen } = usePatternOverview()
   const routing = usePatternRouting()
+  const summe = usePatternSumme()
+  const befunde = usePatternBefunde()
 
   // Als Quelle kommt in Frage, was einen Ausgang hat. Kein Namensabgleich,
   // keine Kategorie-Liste: ein Gerät ohne Ausgang kann nichts einspeisen,
@@ -92,6 +95,21 @@ export function PatternChip() {
     speichern(`testbild-liste-${quellName.replace(/[^\w.-]+/g, '_')}.csv`, csv, 'text/csv')
   }
 
+  // Das ABNAHME-Blatt: was jemand gesehen hat, nicht was der Plan vorsieht.
+  // Die ungeprueften Orte stehen mit drin — ein Blatt, das nur die geprueften
+  // zeigt, sieht nach abgeschlossener Abnahme aus, sobald jemand drei von
+  // zwoelf Monitoren angesehen hat.
+  const abnahmeSpeichern = () => {
+    const kopf = ['Gerät', 'Anschluss', 'Befund', 'Gesehen', 'Zeitpunkt']
+    const csv = [
+      kopf,
+      ...diagnoseZeilen(befunde).map((z) => [z.geraet, z.anschluss, z.befund, z.gesehen, z.zeitpunkt]),
+    ]
+      .map((r) => r.map((f) => `"${f.replace(/"/g, '""')}"`).join(';'))
+      .join('\r\n')
+    speichern(`abnahme-${quellName.replace(/[^\w.-]+/g, '_')}.csv`, csv, 'text/csv')
+  }
+
   return (
     <span className="flex items-center gap-1">
       <label className="flex items-center gap-1.5 rounded-full border border-cp-border px-2 py-0.5 text-[11px] text-cp-text-secondary">
@@ -125,6 +143,18 @@ export function PatternChip() {
             {format(t('canvas.pattern.open', '· {n} offen'), { n: offen })}
           </span>
         )}
+        {/* Die Abnahme-Zahlen. „Vertauscht" steht vorn und getrennt, weil es
+            als einziger Befund SAGT, was zu tun ist. */}
+        {quelleId && summe.vertauscht > 0 && (
+          <span className="tabular-nums text-cp-danger">
+            {format(t('canvas.pattern.swapped', '· {n} vertauscht'), { n: summe.vertauscht })}
+          </span>
+        )}
+        {quelleId && summe.ungeprueft > 0 && (
+          <span className="tabular-nums text-cp-text-muted">
+            {format(t('canvas.pattern.unchecked', '· {n} ungeprüft'), { n: summe.ungeprueft })}
+          </span>
+        )}
       </label>
       {quelleId && (
         <>
@@ -149,6 +179,17 @@ export function PatternChip() {
             className="av-focus rounded-full border border-cp-border px-2 py-0.5 text-[11px] text-cp-text-secondary hover:bg-cp-surface-3"
           >
             {t('canvas.pattern.saveSheet', 'Prüfblatt')}
+          </button>
+          <button
+            type="button"
+            onClick={abnahmeSpeichern}
+            title={t(
+              'canvas.pattern.saveAcceptanceTitle',
+              'Was gesehen wurde, mit Zeitpunkt — und die Orte, an denen noch niemand hingesehen hat.',
+            )}
+            className="av-focus rounded-full border border-cp-border px-2 py-0.5 text-[11px] text-cp-text-secondary hover:bg-cp-surface-3"
+          >
+            {t('canvas.pattern.saveAcceptance', 'Abnahme')}
           </button>
         </>
       )}

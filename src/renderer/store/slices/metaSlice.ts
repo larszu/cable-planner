@@ -42,6 +42,7 @@ export type MetaSlice = Pick<
   | 'setMicPlot'
   | 'setTallyPosition'
   | 'recordTallyCheck'
+  | 'recordPatternCheck'
   | 'setNetworkSegments'
   | 'applyNaming'
 >
@@ -195,6 +196,33 @@ export const createMetaSlice: StateCreator<ProjectState, [], [], MetaSlice> = (s
           )
         : [...bisher, { identityId, transport: 'unknown' as const, checks: [check] }]
       const updated = { ...state.project, tallyPositions: naechste }
+      scheduleProjectAutosave(updated)
+      return { project: updated }
+    })
+    return absage
+  },
+  // B-42 — die Sichtpruefung vom Pruefbild-Rundgang, ebenfalls ANGEHAENGT.
+  //
+  // Dieselbe Regel wie bei `recordTallyCheck` und aus demselben Grund: eine
+  // Pruefung, die die vorige ueberschreibt, loescht die Auskunft „gestern
+  // ging es, heute nicht". Der Zeitpunkt kommt fertig herein.
+  //
+  // Abgelehnt wird, was auf ein Geraet zeigt, das es nicht (mehr) gibt: ein
+  // solcher Datensatz stuende im Abnahme-Blatt als gepruefter Ankunftsort
+  // und zeigte ins Leere. Die QUELLE wird mitgeprueft, aus demselben Grund —
+  // ohne sie ist nicht mehr feststellbar, welches Bild erwartet wurde.
+  recordPatternCheck: (check) => {
+    let absage: 'unknown-equipment' | undefined
+    set((state) => {
+      const ids = new Set(state.project.equipment.map((e) => e.id))
+      if (!ids.has(check.equipmentId) || !ids.has(check.quelleId)) {
+        absage = 'unknown-equipment'
+        return {}
+      }
+      const updated = {
+        ...state.project,
+        patternChecks: [check, ...(state.project.patternChecks ?? [])],
+      }
       scheduleProjectAutosave(updated)
       return { project: updated }
     })
