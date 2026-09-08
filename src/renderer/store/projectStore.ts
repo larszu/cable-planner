@@ -474,6 +474,8 @@ export interface ProjectState {
   /** v7.9.3 — Mobile-Viewer Check-State setzen (vom POST /checks-IPC).
    *  Komplettes Objekt-Replace damit gelöschte Checks (false → kein
    *  key) auch übernommen werden. */
+  /** B-9 — `receivedAt` setzt der Slice selbst; der Aufrufer liefert nur die
+   *  Haken. Wer den Zeitpunkt mitgeben duerfte, koennte ihn faelschen. */
   setCheckState: (checks: { ports: Record<string, boolean>; cables: Record<string, boolean> }) => void
   /** Einzelnen Port-Check (Mobile-Haeckchen) im Canvas entfernen.
    *  User-Request: "man muss die haken an den ports die man mobil

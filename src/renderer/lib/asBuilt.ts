@@ -31,6 +31,20 @@
 // deshalb NICHTS neu — es nimmt, was die vier schon liefern, und bringt es in
 // EINE Zeilenform mit EINEM Urteil.
 //
+// ─── UND EINE FÜNFTE, DIE ES NOCH NICHT GAB (B-9) ──────────────────────────
+//
+// Die vier befragen GERÄTE. Keines von ihnen weiss, ob ein Kabel steckt.
+// Genau das war B-9s Befund: für den Gerätezustand existiert der Abgleich,
+// für die VERKABELUNG gibt es die Datenspur (`checkState.ports`) und keine
+// Gegenüberstellung.
+//
+// `fromCabling` ist deshalb der einzige Zubringer, der etwas RECHNET statt
+// zu übersetzen — und das ist kein Bruch der Regel darüber, sondern ihr
+// Grund: eine zweite Rechnung wäre eine zweite Wahrheit, eine ERSTE ist
+// schlicht die Antwort auf eine Frage, die bis hierher niemand gestellt hat.
+// Es gibt kein `cablingReconcile`, das sie schon beantwortet hätte; die Haken
+// vom Handy standen als Häkchen im Canvas und gingen in kein Dokument ein.
+//
 // ─── DIE REGEL, DIE DAS BLATT TRÄGT ────────────────────────────────────────
 //
 // OHNE ABLESUNG GIBT ES KEIN „STIMMT". Eine Zeile, zu der kein Gerät befragt
@@ -57,7 +71,8 @@ import type { LiveComparison } from './atemLiveCompare'
 import { allDeltas } from './atemLiveCompare'
 import type { ReconcileReport } from './networkReconcile'
 import { salvoChanges } from './salvoSheet'
-import type { VideohubCrosspoints } from '../types/equipment'
+import type { EquipmentItem, VideohubCrosspoints } from '../types/equipment'
+import type { Cable } from '../types/cable'
 import type { CsvTable } from './csv'
 
 /** Woher eine Ablesung stammt. */
@@ -70,6 +85,8 @@ export type ReadingSource =
   | 'videohub'
   /** Die Vermietungs-Software. */
   | 'erp'
+  /** B-9 — der Haken vom Handy: was der Field-Tech vor Ort abgehakt hat. */
+  | 'field-check'
   /** Von Hand eingetragen, weil niemand das Gerät befragen kann. */
   | 'manual'
 
@@ -78,6 +95,7 @@ export const READING_SOURCE_LABEL: Readonly<Record<ReadingSource, string>> = {
   atem: 'Mischer',
   videohub: 'Router',
   erp: 'Vermietung',
+  'field-check': 'Aufbau vor Ort',
   manual: 'von Hand',
 }
 
@@ -274,6 +292,146 @@ export function fromCrosspoints(
     if (c.to !== undefined) entry.actual = String(c.to + 1)
     return entry
   })
+}
+
+/**
+ * B-9 — die FÜNFTE Quelle: der Aufbau selbst.
+ *
+ *   > Für die **Verkabelung** gibt es die Datenspur (`checkState.ports`), aber
+ *   > keine Gegenüberstellung Soll-Kabel gegen gesteckte Ports.
+ *
+ * Die vier Quellen darüber befragen GERÄTE. Keine von ihnen weiss, ob ein
+ * Kabel steckt — ein Mischer meldet seine Kreuzpunkte, nicht sein SDI-Blech.
+ * Der einzige, der es weiss, ist der Mensch auf der Leiter, und der hat es
+ * längst gemeldet: `checkState` trägt seit v7.9.3 genau diese Haken, gesetzt
+ * über `POST /checks` vom Handy. Sie standen bis hierher nur als Häkchen am
+ * Port im Canvas und gingen in kein einziges Dokument ein.
+ *
+ * ─── DIE OFFENE FRAGE VON B-9, UND WARUM SIE KEINE MEHR IST ────────────────
+ *
+ * B-9 fragte: „Wo wohnt der As-built-Zustand — eigene Spur je Feld, oder
+ * Plan-Überschreiben mit Revisionen? Entscheidet, ob `Provenance` einen
+ * fünften Wert braucht."
+ *
+ * Beantwortet hat die Frage dieses Modul, bevor sie gestellt wurde: der
+ * As-built-Zustand wohnt in einer EIGENEN SPUR (`AsBuiltEntry` mit
+ * `ReadingSource`), das Blatt stellt Absicht und Beobachtung nebeneinander,
+ * und in den Plan zurück schreibt es nichts. Deshalb braucht `Provenance`
+ * keinen fünften Wert: `Provenance` sagt, woher eine Angabe IM PLAN stammt,
+ * und eine Ablesung wird nie eine Angabe im Plan. Die Verkabelung fügt sich
+ * hier ohne Sonderweg ein — sie war schlicht die einzige der fünf Quellen,
+ * die noch niemand angeschlossen hatte.
+ *
+ * ─── WELCHE URTEILE HIER ÜBERHAUPT ENTSTEHEN KÖNNEN ────────────────────────
+ *
+ * Der Haken ist BINÄR und kennt kein „nein". `false` heisst „noch nicht
+ * abgehakt", nicht „nicht gesteckt" — das Handy setzt und löscht denselben
+ * Wert. Daraus eine `missing`-Zeile zu machen wäre eine Ablesung, die
+ * niemand gemacht hat. Diese Quelle liefert deshalb nur:
+ *
+ *   `match`         Plan will die Verbindung, jemand hat sie abgehakt.
+ *   `not-verified`  Plan will sie, niemand war dran.
+ *   `unexpected`    Abgehakt ist etwas, das der Plan nicht (mehr) kennt.
+ *
+ * `unexpected` ist der Fall, der die Arbeit trägt: er entsteht, wenn der Plan
+ * sich geändert hat, NACHDEM die Crew losgezogen ist. Ein Kabel, das aus dem
+ * Plan geflogen ist, während sein Haken stehenblieb, steckt draussen immer
+ * noch.
+ *
+ * ─── DER ZEITPUNKT ─────────────────────────────────────────────────────────
+ *
+ * `receivedAt` kommt aus `checkState` und ist die Ankunft der Meldung
+ * (`mobileSyncSlice.setCheckState`). Fehlt er — Projekt aus der Zeit vor dem
+ * Feld —, dann trägt KEINE Zeile hier einen Zeitpunkt, und das Blatt sagt
+ * durchgehend „nicht nachgesehen". Das ist die richtige Auskunft: Haken,
+ * deren Alter niemand kennt, sind keine Ablesung.
+ */
+export function fromCabling(
+  cables: readonly Cable[],
+  equipment: readonly EquipmentItem[],
+  checkState:
+    | { ports: Record<string, boolean>; cables: Record<string, boolean>; receivedAt?: string }
+    | undefined,
+): AsBuiltEntry[] {
+  const at = checkState?.receivedAt
+  const hakenKabel = checkState?.cables ?? {}
+  const hakenPorts = checkState?.ports ?? {}
+
+  const eqById = new Map(equipment.map((e) => [e.id, e]))
+  const portName = (deviceId: string, portId: string): string | undefined => {
+    const device = eqById.get(deviceId)
+    if (!device) return undefined
+    const port = [...device.inputs, ...device.outputs].find((p) => p.id === portId)
+    if (!port) return undefined
+    return `${device.name} · ${port.name}`
+  }
+
+  const kabelName = (c: Cable): string => {
+    if (c.name.trim()) return c.name.trim()
+    const von = portName(c.fromEquipmentId, c.fromPortId) ?? c.fromPortId
+    const nach = portName(c.toEquipmentId, c.toPortId) ?? c.toPortId
+    return `${von} → ${nach}`
+  }
+
+  const zeilen: AsBuiltEntry[] = []
+
+  // (a) Jede geplante Verbindung — abgehakt oder nicht.
+  for (const c of cables) {
+    const eintrag: AsBuiltEntry = {
+      subject: kabelName(c),
+      field: 'Verbindung gesteckt',
+      planned: 'ja',
+      source: 'field-check',
+    }
+    if (hakenKabel[c.id] === true && at) {
+      eintrag.actual = 'ja'
+      eintrag.at = at
+    }
+    zeilen.push(eintrag)
+  }
+
+  // (b) Haken an Kabeln, die der Plan nicht mehr kennt.
+  const kabelIds = new Set(cables.map((c) => c.id))
+  for (const [id, gesetzt] of Object.entries(hakenKabel)) {
+    if (!gesetzt || kabelIds.has(id) || !at) continue
+    zeilen.push({
+      subject: `Kabel ${id}`,
+      field: 'Verbindung gesteckt',
+      actual: 'ja',
+      source: 'field-check',
+      at,
+    })
+  }
+
+  // (c) Ports — NUR die abgehakten.
+  //
+  // Ein Port trägt seinen Soll-Zustand schon in seinem Kabel; eine zweite
+  // „noch nicht abgehakt"-Zeile je Ende verdoppelte bloss die Lücke, die die
+  // Kabelzeile (a) bereits meldet. Wo ein Haken sitzt, trägt der Port dagegen
+  // etwas Eigenes bei: dass jemand ihn angefasst hat — und, wenn der Plan
+  // dort kein Kabelende führt, dass der Plan das nicht erklärt.
+  const geplanteEnden = new Set<string>()
+  for (const c of cables) {
+    geplanteEnden.add(`${c.fromEquipmentId}|${c.fromPortId}`)
+    geplanteEnden.add(`${c.toEquipmentId}|${c.toPortId}`)
+  }
+  for (const [key, gesetzt] of Object.entries(hakenPorts)) {
+    if (!gesetzt || !at) continue
+    const trenner = key.indexOf('|')
+    const deviceId = trenner < 0 ? key : key.slice(0, trenner)
+    const portId = trenner < 0 ? '' : key.slice(trenner + 1)
+    const eintrag: AsBuiltEntry = {
+      subject: portName(deviceId, portId) ?? key,
+      field: 'Port gesteckt',
+      actual: 'ja',
+      source: 'field-check',
+      at,
+    }
+    if (geplanteEnden.has(key)) eintrag.planned = 'ja'
+    zeilen.push(eintrag)
+  }
+
+  return zeilen
 }
 
 /**
