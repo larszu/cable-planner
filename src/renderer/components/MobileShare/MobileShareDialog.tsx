@@ -27,7 +27,7 @@
  * closes (Electron tears down the http server with the process).
  */
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Smartphone, Clipboard, Check, Radio } from 'lucide-react'
 import QRCode from 'qrcode'
 import { Icon } from '../shared/Icon'
@@ -129,11 +129,13 @@ export const MobileShareDialog = () => {
     void cablePlannerApi.mobileShare.getWriteMode().then((r) => {
       if (lebt) setWriteModeState(r.writeMode)
     })
-    void cablePlannerApi.mobileShare.pincodeStatus().then((r) => {
-      if (!lebt) return
-      setPinAn(r.on)
-      setPinAnzahl(r.count)
-    })
+    if (hasDesktopBridge) {
+      void cablePlannerApi.mobileShare.pincodeStatus().then((r) => {
+        if (!lebt) return
+        setPinAn(r.on)
+        setPinAnzahl(r.count)
+      })
+    }
     return () => {
       lebt = false
     }
@@ -150,7 +152,16 @@ export const MobileShareDialog = () => {
    * IPC-Aufruf in den Hauptprozess und leben dort im Speicher, solange der
    * Schalter an ist.
    */
-  const codes = useProjectStore((st) => anlagenZugangscodes(st.project.greengoConfig?.basePreset))
+  //
+  // Der Selektor gibt das ROH-DOKUMENT zurueck und nicht die fertige Liste:
+  // `anlagenZugangscodes` baut bei jedem Aufruf ein neues Array, und ein
+  // zustand-Selektor mit neuer Identitaet je Aufruf laesst
+  // `useSyncExternalStore` bei JEDEM Render einen neuen Zustand sehen. Dieser
+  // Dialog haengt dauerhaft in `App.tsx` (auch geschlossen), also traf das die
+  // ganze App: der Canvas kam nicht mehr zur Ruhe, und „Beispielprojekt laden"
+  // tat nichts mehr. Gefunden vom UI-Overflow-Lauf, nicht von den Unit-Tests.
+  const basePreset = useProjectStore((st) => st.project.greengoConfig?.basePreset)
+  const codes = useMemo(() => anlagenZugangscodes(basePreset), [basePreset])
 
   const hatSchichten = useProjectStore(
     (st) => (st.project.crewPlan?.entries.length ?? 0) > 0,
