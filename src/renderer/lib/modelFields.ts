@@ -183,6 +183,11 @@ export const INSTANCE_FIELDS = [
   // Modell — sie zeigt auf Anschluss-Ids DIESES Geraets. In eine Bibliothek
   // uebernommen zeigte sie auf Anschluesse, die es dort nicht gibt.
   'plannedCrosspoints',
+  // Protokoll und Steuer-Port beschreiben, wie DIESES Geraet erreicht wird —
+  // dieselbe Einordnung wie `ipAddress`. In eine Bibliothek uebernommen
+  // richteten sie einen Befehl an das Exemplar, von dem abgeschrieben wurde.
+  'controlProtocol',
+  'controlPort',
   'notes',
 
   // Herkunft dieses Exemplars

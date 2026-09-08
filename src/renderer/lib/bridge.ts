@@ -312,6 +312,12 @@ type CablePlannerApi = {
       Array<{ name: string; ip: string; port: number; model?: string }>
     >
   }
+  /** S-2 — Mischer und Kreuzschienen schalten. */
+  switcher: {
+    send: (
+      action: import('../types/switcherControl').ControlAction,
+    ) => Promise<{ ok: boolean; message: string }>
+  }
   videohub: {
     sendRouting: (params: { host: string; port: number; block: string }) => Promise<{ ok: boolean; message: string }>
     readState: (params: { host: string; port: number }) => Promise<{
@@ -945,6 +951,15 @@ const webFallbackApi: CablePlannerApi = {
     },
     onEvent: () => () => {},
     discover: async () => [],
+  },
+  switcher: {
+    // Im Browser gibt es kein Netz zum Geraet. Die Antwort sagt das, statt
+    // stumm nichts zu tun — ein stiller Fehlschlag beim Schalten ist
+    // schlimmer als ein lauter.
+    send: async () => ({
+      ok: false,
+      message: 'Schalten erfordert die Desktop-App.',
+    }),
   },
   videohub: {
     sendRouting: async () => ({

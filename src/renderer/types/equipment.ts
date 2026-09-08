@@ -114,6 +114,25 @@ export interface Port {
    * `CIRCUIT_KIND_INFO` (`types/circuit.ts`).
    */
   circuitTerminal?: number
+  /**
+   * Die Adresse dieses Anschlusses IM STEUER-PROTOKOLL des Geraets (S-2).
+   *
+   * Nur noetig, wo das Protokoll sie nicht selbst festlegt. Beim Videohub tut
+   * es das: „VIDEO OUTPUT ROUTING: <output> <input>" zaehlt beides 0-basiert
+   * ueber die Anschluesse des Geraets, also ist die Position die Nummer, und
+   * dieses Feld bleibt leer.
+   *
+   * Beim Mischer nicht. Der ATEM spricht Quellen-Nummern (Eingang 1 ist 1,
+   * ein Mediaplayer 3010, ein Aux-Ausgang 8001 aufwaerts) und Busse
+   * (Programm ueber den Mix-Effect, Aux ueber eine eigene Zaehlung). Sie aus
+   * der Reihenfolge zu erraten ergaebe einen Befehl an den falschen Bus —
+   * derselbe Fehler, den `circuitTerminal` oben fuer die Klemmen verhindert,
+   * nur dass er hier an eine laufende Anlage geht.
+   *
+   * Ohne Angabe wird fuer dieses Protokoll NICHT gesendet, und die
+   * Oberflaeche nennt den Anschluss, dem die Nummer fehlt.
+   */
+  control?: import('./switcherControl').PortControl
   type: string
   connectorType: ConnectorType
   /** Optional side override on the node (default comes from input/output + mirror). */
@@ -539,6 +558,17 @@ export interface EquipmentItem {
    *  Zeile auf einen geloeschten Anschluss wird beim Laden verworfen, weil
    *  daraus im Schaltbefehl eine geratene Nummer wuerde. */
   plannedCrosspoints?: PlannedCrosspoints
+  /** S-2 — WELCHES Protokoll dieses Geraet spricht, wenn aus dem Plan heraus
+   *  geschaltet wird. DEKLARIERT, nie aus dem Namen erkannt: `detectDeviceKind`
+   *  raet die Geraeteart aus dem Namen, und fuer eine Beschriftung ist das in
+   *  Ordnung — fuer einen BEFEHL nicht. Ein Geraet namens „Videohub Ersatz"
+   *  bekaeme sonst einen Videohub-Befehl auf Port 9990, und was dort in
+   *  Wahrheit horcht, weiss niemand (ADR-002). Ohne Angabe wird nichts
+   *  gesendet, und die Oberflaeche sagt, dass sie fehlt. */
+  controlProtocol?: import('./switcherControl').ControlProtocol
+  /** Abweichender Steuer-Port. Ohne Angabe gilt der des Protokolls; wo das
+   *  Protokoll den Port selbst festlegt (ATEM), wird das Feld ignoriert. */
+  controlPort?: number
   /** ADR-001 — Rolle, die dieses Geraet realisiert („Kamera 1"). Zeigt auf
    *  `CablePlannerProject.sourceIdentities`. Mehrere Geraete duerfen dieselbe
    *  Rolle tragen: das Haupt-/Backup-Paar ist EINE Rolle, nicht zwei. */

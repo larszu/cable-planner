@@ -7,12 +7,19 @@ import {
 } from '../src/renderer/lib/videohubCrosspoint'
 import { buildVideohubRoutingCommand } from '../src/renderer/lib/exportVideohub'
 import {
-  auftragHindernis,
-  eintraegeFuerAuftrag,
-  hubAuftraege,
+  actionKlartext,
+  atemBefehlText,
+  controlActions,
+  eintraegeFuerAction,
   schaltbareWege,
   sendebereit,
-} from '../src/renderer/lib/hubSwitchPlan'
+} from '../src/renderer/lib/controlActions'
+import { PROTOCOL_INFO } from '../src/renderer/types/switcherControl'
+import switcherTypesSrc from '../src/main/services/switcherControl/types.ts?raw'
+import rendererTypesSrc from '../src/renderer/types/switcherControl.ts?raw'
+import atemDriverSrc from '../src/main/services/switcherControl/atemDriver.ts?raw'
+import videohubDriverSrc from '../src/main/services/switcherControl/videohubDriver.ts?raw'
+import indexSrc from '../src/main/services/switcherControl/index.ts?raw'
 import {
   kreuzpunkteDerKette,
   patternRouting,
@@ -182,6 +189,51 @@ const anlage = (): CablePlannerProject =>
     canvasState: { x: 0, y: 0, zoom: 1 },
   }) as unknown as CablePlannerProject
 
+/** Dieselbe Anlage, aber mit erklaertem Protokoll — sonst wird nichts gesendet. */
+const mitProtokoll = (): CablePlannerProject => {
+  const p = anlage()
+  for (const e of p.equipment) {
+    if (e.id.startsWith('hub')) e.controlProtocol = 'videohub'
+  }
+  return p
+}
+
+/**
+ * Ein ATEM: zwei Eingaenge mit Quellen-Nummern, ein Aux und der Programm-Bus.
+ * Kamera 1 haengt an Eingang 1 (Quelle 1), der Aux geht an den Monitor.
+ */
+const mitMischer = (over: { adressen?: boolean } = {}): CablePlannerProject => {
+  const adressen = over.adressen ?? true
+  const inPort = (id: string, address: number) =>
+    adressen
+      ? ({ ...port(id), control: { role: 'input' as const, address } })
+      : port(id)
+  const outPort = (id: string, role: 'program' | 'aux', address: number) =>
+    adressen ? ({ ...port(id), control: { role, address } }) : port(id)
+  return {
+    metadata: { name: 'Test', description: '', createdAt: '', updatedAt: '' },
+    equipment: [
+      eq('cam1', { name: 'Kamera 1', outputs: [port('c1out')] }),
+      eq('cam2', { name: 'Kamera 2', outputs: [port('c2out')] }),
+      eq('mix', {
+        name: 'ATEM Mini Extreme',
+        ipAddress: '10.0.0.9',
+        controlProtocol: 'atem',
+        inputs: [inPort('x_in0', 1), inPort('x_in1', 2)],
+        outputs: [outPort('x_pgm', 'program', 0), outPort('x_aux1', 'aux', 0)],
+        plannedCrosspoints: { x_aux1: 'x_in0' },
+      }),
+      eq('mon1', { name: 'Monitor Regie', inputs: [port('m1in')] }),
+    ],
+    cables: [
+      kabel('k1', ['cam1', 'c1out'], ['mix', 'x_in0']),
+      kabel('k2', ['cam2', 'c2out'], ['mix', 'x_in1']),
+      kabel('k3', ['mix', 'x_aux1'], ['mon1', 'm1in']),
+    ],
+    canvasState: { x: 0, y: 0, zoom: 1 },
+  } as unknown as CablePlannerProject
+}
+
 describe('Die Kreuzpunkte werden abgelesen, nicht neu gesucht', () => {
   const routing = patternRouting(anlage(), 'cam1')
   const weg = routing.ziele.find((z) => z.equipmentId === 'mon1')
@@ -191,10 +243,15 @@ describe('Die Kreuzpunkte werden abgelesen, nicht neu gesucht', () => {
     expect(weg!.kreuzpunkte.map((k) => k.equipmentId)).toEqual(['hubA', 'hubB'])
   })
 
-  it('die Nummern stammen aus den Anschlusslisten der Geraete', () => {
+  it('sie tragen ANSCHLUESSE, keine Protokollnummern', () => {
+    // Die Uebersetzung Anschluss -> Adresse gehoert dorthin, wo das Protokoll
+    // bekannt ist. Stuenden hier Indizes, waeren sie eine stille Festlegung
+    // auf den Videohub — und beim Mischer der Befehl an den falschen Bus.
     const [a, b] = weg!.kreuzpunkte
-    expect(a).toMatchObject({ input: 0, output: 0, ipAddress: '10.0.0.5' })
-    expect(b).toMatchObject({ input: 0, output: 1, ipAddress: '10.0.0.6' })
+    expect(a).toMatchObject({ inputPortId: 'a_in0', outputPortId: 'a_out0', ipAddress: '10.0.0.5' })
+    expect(b).toMatchObject({ inputPortId: 'b_in0', outputPortId: 'b_out1', ipAddress: '10.0.0.6' })
+    expect(a).not.toHaveProperty('input')
+    expect(a).not.toHaveProperty('output')
   })
 
   it('ein Weg ohne Kreuzschiene hat nichts zu schalten', () => {
@@ -279,53 +336,182 @@ describe('Ein Auftrag je Kreuzschiene', () => {
   const routing = patternRouting(anlage(), 'cam1')
   const weg = routing.ziele.find((z) => z.equipmentId === 'mon1')!
 
-  it('zwei Kreuzschienen ergeben zwei Auftraege, in der Reihenfolge des Wegs', () => {
-    const auftraege = hubAuftraege(weg.kreuzpunkte)
-    expect(auftraege.map((a) => a.equipmentId)).toEqual(['hubA', 'hubB'])
+  it('zwei Kreuzschienen ergeben zwei Befehle, in der Reihenfolge des Wegs', () => {
+    const plan = controlActions(mitProtokoll(), weg.kreuzpunkte)
+    expect(plan.hindernisse).toEqual([])
+    expect(plan.actions.map((a) => a.equipmentId)).toEqual(['hubA', 'hubB'])
   })
 
-  it('kein Auftrag nennt einen fremden Ausgang', () => {
+  it('kein Befehl nennt einen fremden Ausgang', () => {
     // DIE eigentliche Zusicherung, am ganzen Weg statt am Baustein: Hub B hat
     // laut Modell 80 Ausgaenge, der Weg braucht einen. Genau einer steht drin.
-    const auftraege = hubAuftraege(weg.kreuzpunkte)
-    for (const a of auftraege) {
-      const zeilen = a.block.trim().split('\n').slice(1)
-      expect(zeilen).toHaveLength(1)
+    const plan = controlActions(mitProtokoll(), weg.kreuzpunkte)
+    for (const a of plan.actions) {
+      expect(a.vorschau.trim().split('\n').slice(1)).toHaveLength(1)
     }
-    expect(auftraege[1].block).toBe('VIDEO OUTPUT ROUTING:\n1 0\n\n')
+    expect(plan.actions[1].vorschau).toBe('VIDEO OUTPUT ROUTING:\n1 0\n\n')
   })
 
   it('zweimal dieselbe Kreuzschiene ergibt einen Auftrag mit zwei Zeilen', () => {
-    const k = (over: Partial<HubKreuzpunkt>): HubKreuzpunkt => ({
-      equipmentId: 'hubA',
-      equipmentName: 'Hub A',
-      ipAddress: '10.0.0.5',
-      input: 0,
-      inputName: 'in',
-      output: 0,
-      outputName: 'out',
-      ...over,
-    })
-    const auftraege = hubAuftraege([k({}), k({ input: 1, output: 3 })])
-    expect(auftraege).toHaveLength(1)
-    expect(auftraege[0].block.trim().split('\n').slice(1)).toEqual(['0 0', '3 1'])
-    expect(auftraege[0].klartext).toHaveLength(2)
-  })
-
-  it('eine fehlende Adresse wird BENANNT, nicht nur ausgegraut', () => {
-    const auftraege = hubAuftraege([
+    const p = anlage()
+    const hubA = p.equipment.find((e) => e.id === 'hubA')!
+    hubA.controlProtocol = 'videohub'
+    hubA.outputs = [port('a_out0'), port('a_out1'), port('a_out2'), port('a_out3')]
+    const punkte: HubKreuzpunkt[] = [
       {
         equipmentId: 'hubA',
         equipmentName: 'Hub A',
-        ipAddress: '',
-        input: 0,
-        inputName: 'in',
-        output: 0,
-        outputName: 'out',
+        ipAddress: '10.0.0.5',
+        inputPortId: 'a_in0',
+        inputName: 'in0',
+        outputPortId: 'a_out0',
+        outputName: 'out0',
       },
-    ])
-    expect(auftragHindernis(auftraege[0])).toMatch(/Hub A/)
-    expect(auftragHindernis(auftraege[0])).toMatch(/IP-Adresse/)
+      {
+        equipmentId: 'hubA',
+        equipmentName: 'Hub A',
+        ipAddress: '10.0.0.5',
+        inputPortId: 'a_in1',
+        inputName: 'in1',
+        outputPortId: 'a_out3',
+        outputName: 'out3',
+      },
+    ]
+    const plan = controlActions(p, punkte)
+    expect(plan.actions).toHaveLength(1)
+    const a = plan.actions[0]
+    expect(a.protocol).toBe('videohub')
+    expect(a.vorschau.trim().split('\n').slice(1)).toEqual(['0 0', '3 1'])
+    expect(actionKlartext(a, punkte)).toHaveLength(2)
+  })
+
+  it('eine fehlende Adresse wird BENANNT, nicht nur ausgegraut', () => {
+    const p = mitProtokoll()
+    p.equipment.find((e) => e.id === 'hubA')!.ipAddress = ''
+    const plan = controlActions(p, weg.kreuzpunkte)
+    expect(plan.hindernisse[0].grund).toMatch(/IP-Adresse/)
+  })
+
+  it('ein Geraet ohne erklaertes Protokoll bekommt keinen Befehl, sondern einen Satz', () => {
+    // ADR-002: welches Protokoll ein Geraet spricht, steht nicht im Namen. Ein
+    // Geraet „Videohub Ersatz" bekaeme sonst einen Videohub-Befehl auf 9990.
+    const plan = controlActions(anlage(), weg.kreuzpunkte)
+    expect(plan.actions).toEqual([])
+    expect(plan.hindernisse).toHaveLength(2)
+    expect(plan.hindernisse[0].grund).toMatch(/Steuer-Protokoll/)
+  })
+})
+
+describe('Der ATEM spricht seine eigenen Nummern', () => {
+  it('der Aux-Weg ergibt setAuxSource mit Bus und Quelle', () => {
+    const p = mitMischer()
+    const routing = patternRouting(p, 'cam1')
+    const weg = routing.ziele.find((z) => z.equipmentId === 'mon1')!
+    const plan = controlActions(p, weg.kreuzpunkte)
+    expect(plan.hindernisse).toEqual([])
+    const a = plan.actions[0]
+    expect(a.protocol).toBe('atem')
+    expect(a).toMatchObject({ art: 'aufruf', host: '10.0.0.9' })
+    expect(a.protocol === 'atem' && a.befehle).toEqual([{ kind: 'aux', bus: 0, source: 1 }])
+    expect(a.vorschau).toBe('setAuxSource(1, Aux 1)')
+  })
+
+  it('OHNE eingetragene Nummern wird NICHT gesendet — und der Grund nennt den Anschluss', () => {
+    // Die Position in der Liste als Nummer zu nehmen ergaebe einen Befehl an
+    // den falschen Bus, und der ginge an eine laufende Anlage.
+    const p = mitMischer({ adressen: false })
+    const routing = patternRouting(p, 'cam1')
+    const weg = routing.ziele.find((z) => z.equipmentId === 'mon1')!
+    const plan = controlActions(p, weg.kreuzpunkte)
+    expect(plan.actions).toEqual([])
+    expect(plan.hindernisse[0].grund).toMatch(/Quellen-Nummer/)
+  })
+
+  it('fehlt nur die Ausgangs-Rolle, sagt der Grund genau das', () => {
+    const p = mitMischer()
+    const mix = p.equipment.find((e) => e.id === 'mix')!
+    mix.outputs = mix.outputs.map((o) =>
+      o.id === 'x_aux1' ? (({ control: _weg, ...rest }) => rest)(o) : o,
+    )
+    const routing = patternRouting(p, 'cam1')
+    const weg = routing.ziele.find((z) => z.equipmentId === 'mon1')!
+    const plan = controlActions(p, weg.kreuzpunkte)
+    expect(plan.actions).toEqual([])
+    expect(plan.hindernisse[0].grund).toMatch(/Programm, Vorschau oder ein Aux/)
+  })
+
+  it('die Vorschau nennt AUFRUFE und behauptet keinen gesendeten Text', () => {
+    // Der ATEM spricht kein Text-Protokoll. Ein erfundener Textblock waere
+    // genau die Sorte Behauptung, gegen die der ganze Weg gebaut ist.
+    expect(atemBefehlText({ kind: 'program', me: 0, source: 3 })).toBe('changeProgramInput(3, ME 1)')
+    expect(atemBefehlText({ kind: 'preview', me: 1, source: 2 })).toBe('changePreviewInput(2, ME 2)')
+    expect(atemBefehlText({ kind: 'aux', bus: 2, source: 8 })).toBe('setAuxSource(8, Aux 3)')
+    expect(atemBefehlText({ kind: 'cut', me: 0 })).toBe('cut(ME 1)')
+  })
+
+  it('das Protokoll sagt selbst, dass seine Nummern erklaert werden muessen', () => {
+    expect(PROTOCOL_INFO.atem.adressen).toBe('declared')
+    expect(PROTOCOL_INFO.videohub.adressen).toBe('index')
+    // Und der ATEM hat keinen einstellbaren Port — die Bibliothek legt ihn fest.
+    expect(PROTOCOL_INFO.atem).not.toHaveProperty('defaultPort')
+    expect(PROTOCOL_INFO.videohub.defaultPort).toBe(9990)
+  })
+})
+
+describe('Die Treiber senden nur, was der Befehl sagt', () => {
+  const atemDriver = ohneKommentare(atemDriverSrc)
+  const videohubDriver = ohneKommentare(videohubDriverSrc)
+
+  it('der Videohub-Treiber baut den Block NICHT neu', () => {
+    // Ein zweiter Bauer waere die Defektform `zwei-rechnungen` — mit einer
+    // laufenden Anlage als Schauplatz. Er sendet, was der Renderer geprueft hat.
+    expect(videohubDriver).not.toMatch(/VIDEO OUTPUT ROUTING:/)
+    expect(videohubDriver).not.toMatch(/buildVideohubRoutingCommand|buildCrosspointCommand/)
+    expect(videohubDriver).toMatch(/socket\.write\(vorschau\)/)
+  })
+
+  it('der ATEM-Treiber benutzt die EINE Sitzung, nicht eine eigene Verbindung', () => {
+    // Eine zweite Verbindung zum selben Mischer ginge am Connect-Lock vorbei,
+    // und der Fehler waere ein sporadischer.
+    expect(atemDriver).toMatch(/from '\.\.\/atemSession\.js'/)
+    expect(atemDriver).not.toMatch(/new Atem\(/)
+  })
+
+  it('der ATEM-Treiber sendet an die Adresse des BEFEHLS, nicht an die verbundene', () => {
+    // Stillschweigend an den gerade verbundenen Mischer zu senden waere ein
+    // Befehl an das FALSCHE Geraet.
+    expect(atemDriver).toMatch(/atemStatus\(\)\.ip !== host/)
+  })
+
+  it('kein Treiber wiederholt einen Schaltbefehl', () => {
+    // Ein wiederholter Schaltbefehl ist kein harmloser Doppelklick: zwischen
+    // den Versuchen kann jemand anders geschaltet haben.
+    for (const src of [atemDriver, videohubDriver]) {
+      expect(src).not.toMatch(/retry|versuch\s*<|for \(let v = 0/i)
+    }
+  })
+
+  it('jedes Protokoll aus dem Typ hat einen Treiber', () => {
+    // `satisfies Record<…>` im Modul haelt es zur Bauzeit; hier steht, dass
+    // die beiden Seiten dieselbe Liste meinen.
+    const treiber = ohneKommentare(indexSrc)
+    for (const k of Object.keys(PROTOCOL_INFO)) {
+      expect(treiber, k).toMatch(new RegExp(`${k}: `))
+    }
+  })
+
+  it('die Befehls-Form ist auf beiden Seiten der Bruecke dieselbe', () => {
+    // Der Hauptprozess baut gegen eine eigene tsconfig und darf nicht in den
+    // Renderer-Baum hineinreichen; die Form steht deshalb zweimal. Dass sie
+    // gleich bleibt, haelt dieser Waechter — sonst faellt es erst auf, wenn
+    // ein Feld beim Geraet fehlt.
+    const felder = /protocol|equipmentId|equipmentName|host|port|vorschau|art|punkte|befehle/g
+    const haupt = (ohneKommentare(switcherTypesSrc).match(felder) ?? []).sort()
+    const rend = (ohneKommentare(rendererTypesSrc).match(felder) ?? []).sort()
+    for (const f of new Set(haupt)) expect(rend, f).toContain(f)
+    for (const f of ['punkte', 'befehle', 'vorschau', 'art']) {
+      expect(haupt, f).toContain(f)
+    }
   })
 })
 
@@ -342,87 +528,84 @@ describe('Der Eingriff steht im Projekt und aendert den Plan nicht', () => {
 
   it('der Dialog benutzt nicht den vollstaendigen Routing-Bauer', () => {
     expect(dialog).not.toMatch(/buildVideohubRoutingCommand/)
-    expect(dialog).toMatch(/hubAuftraege\(/)
+    expect(dialog).toMatch(/controlActions\(/)
   })
 
   it('der Haken muss gesetzt sein, bevor gesendet werden kann', () => {
     // Am VERHALTEN, nicht an der Form des Ausdrucks: ein Waechter, der
     // `hindernisse.length === 0 && verstanden` im Quelltext sucht, wird bei
     // einer richtigen Umstellung rot und dann geaendert statt gelesen.
-    const auftraege = hubAuftraege([
-      {
-        equipmentId: 'hubA',
-        equipmentName: 'Hub A',
-        ipAddress: '10.0.0.5',
-        input: 0,
-        inputName: 'in',
-        output: 0,
-        outputName: 'out',
-      },
-    ])
-    expect(sendebereit(auftraege, false)).toBe(false)
-    expect(sendebereit(auftraege, true)).toBe(true)
-    expect(sendebereit([], true)).toBe(false)
-    const ohneIp = hubAuftraege([
-      {
-        equipmentId: 'hubA',
-        equipmentName: 'Hub A',
-        ipAddress: '',
-        input: 0,
-        inputName: 'in',
-        output: 0,
-        outputName: 'out',
-      },
-    ])
-    expect(sendebereit(ohneIp, true)).toBe(false)
+    const p = mitProtokoll()
+    const weg = patternRouting(p, 'cam1').ziele.find((z) => z.equipmentId === 'mon1')!
+    const plan = controlActions(p, weg.kreuzpunkte)
+    expect(sendebereit(plan, false)).toBe(false)
+    expect(sendebereit(plan, true)).toBe(true)
+    expect(sendebereit({ actions: [], hindernisse: [] }, true)).toBe(false)
+    // Ein Hindernis sperrt, auch wenn es daneben Befehle gaebe.
+    const ohneIp = mitProtokoll()
+    ohneIp.equipment.find((e) => e.id === 'hubA')!.ipAddress = ''
+    const planOhne = controlActions(ohneIp, weg.kreuzpunkte)
+    expect(planOhne.actions.length).toBeGreaterThan(0)
+    expect(sendebereit(planOhne, true)).toBe(false)
     // …und der Dialog fragt tatsaechlich danach, statt selbst zu entscheiden.
-    expect(dialog).toMatch(/sendebereit\(auftraege, verstanden\)/)
+    expect(dialog).toMatch(/sendebereit\(plan, verstanden\)/)
   })
 
-  it('der gesendete Text steht sichtbar im Dialog', () => {
+  it('der gesendete Befehl steht sichtbar im Dialog — und wird richtig benannt', () => {
     // Wer einen Befehl an eine laufende Anlage bestaetigt, soll ihn lesen
-    // koennen und nicht nur seine Beschreibung.
-    expect(dialog).toMatch(/\{a\.block\}/)
+    // koennen. Die Ueberschrift unterscheidet Text-Protokoll und Aufrufe:
+    // ein „wortwoertlich gesendet" ueber einem Binaerprotokoll waere gelogen.
+    expect(dialog).toMatch(/\{a\.vorschau\}/)
+    expect(dialog).toMatch(/a\.art === 'text'/)
+    expect(dialog).toMatch(/sentCalls/)
   })
 
   it('auch der gescheiterte Versuch wird aufgezeichnet', () => {
     // Am VERHALTEN: wer nur Erfolge aufzeichnet, liest spaeter eine Anlage,
     // an der nie jemand etwas versucht hat.
-    const auftrag = hubAuftraege([
-      {
-        equipmentId: 'hubA',
-        equipmentName: 'Hub A',
-        ipAddress: '10.0.0.5',
-        input: 1,
-        inputName: 'Kamera 2',
-        output: 2,
-        outputName: 'Regie',
-      },
-    ])[0]
-    const raus = eintraegeFuerAuftrag(
-      auftrag,
+    const p = mitProtokoll()
+    const weg = patternRouting(p, 'cam1').ziele.find((z) => z.equipmentId === 'mon1')!
+    const plan = controlActions(p, weg.kreuzpunkte)
+    const raus = eintraegeFuerAction(
+      plan.actions[0],
+      weg.kreuzpunkte,
       { ok: false, message: 'timeout' },
-      { at: '2026-09-08T10:00:00.000Z', quelleId: 'cam2', by: '  Lars  ' },
+      { at: '2026-09-08T10:00:00.000Z', quelleId: 'cam1', by: '  Lars  ' },
     )
     expect(raus).toHaveLength(1)
     expect(raus[0]).toMatchObject({
       at: '2026-09-08T10:00:00.000Z',
       equipmentId: 'hubA',
-      output: 2,
-      input: 1,
-      outputName: 'Regie',
-      inputName: 'Kamera 2',
-      quelleId: 'cam2',
+      protocol: 'videohub',
+      output: 0,
+      input: 0,
+      quelleId: 'cam1',
       by: 'Lars',
       ok: false,
       message: 'timeout',
+      befehl: '0 0',
     })
     // Ein Name aus lauter Leerzeichen wird nicht zu einem Pruefer.
-    const ohneNamen = eintraegeFuerAuftrag(auftrag, { ok: true }, { at: 'x', by: '   ' })
+    const ohneNamen = eintraegeFuerAction(plan.actions[0], weg.kreuzpunkte, { ok: true }, { at: 'x', by: '   ' })
     expect(ohneNamen[0]).not.toHaveProperty('by')
     expect(ohneNamen[0]).not.toHaveProperty('message')
     // …und der Dialog geht tatsaechlich durch diese Funktion.
-    expect(dialog).toMatch(/eintraegeFuerAuftrag\(/)
+    expect(dialog).toMatch(/eintraegeFuerAction\(/)
+  })
+
+  it('der ATEM-Eintrag traegt sein Protokoll und den Aufruf', () => {
+    // Ohne `protocol` zaehlte das Blatt spaeter ab 1 und machte aus Quelle 1
+    // die Quelle 2.
+    const p = mitMischer()
+    const weg = patternRouting(p, 'cam1').ziele.find((z) => z.equipmentId === 'mon1')!
+    const plan = controlActions(p, weg.kreuzpunkte)
+    const raus = eintraegeFuerAction(plan.actions[0], weg.kreuzpunkte, { ok: true }, { at: 'x' })
+    expect(raus[0]).toMatchObject({
+      protocol: 'atem',
+      output: 0,
+      input: 1,
+      befehl: 'setAuxSource(1, Aux 1)',
+    })
   })
 
   it('der Zeitpunkt kommt vom Aufrufer, nicht aus dem Store', () => {
@@ -444,7 +627,7 @@ describe('Der Eingriff steht im Projekt und aendert den Plan nicht', () => {
     )
   })
 
-  it('der Knopf erscheint nur, wenn ueberhaupt eine Kreuzschiene im Weg liegt', () => {
+  it('der Knopf erscheint nur, wenn ueberhaupt ein schaltendes Geraet im Weg liegt', () => {
     // Am VERHALTEN. Ein Quelltext-Scan auf die Bedingung waere gruen
     // geblieben, haette jemand `schaltbar` auf `true` festgenagelt — und
     // genau das ist der Fehler, der weh taete: ein Knopf, hinter dem eine

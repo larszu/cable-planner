@@ -3457,6 +3457,17 @@ export const en: Dict = {
   'switching.summaryCount': '{n} of {total} outputs',
   'switching.summaryNone': 'cannot switch',
   'switching.unset': 'not planned',
+  'switching.protocol': 'Control protocol',
+  'switching.protocolNone': 'none \u2014 nothing will be sent',
+  'switching.protocolHint':
+    'Without a protocol nothing is sent to this device. Which one a device speaks cannot be read off its name \u2014 a device called \u201cVideohub spare\u201d would otherwise get a Videohub command, and nobody knows what is really listening there.',
+  'switching.addresses': 'Numbers on the device',
+  'switching.roleNone': 'not entered',
+  'switching.addressPlaceholder': 'No.',
+  'switching.addressHint':
+    'Without a number nothing is sent to this port. On the ATEM the source number of an input is read off the switcher, an aux output counts in its own row, and program/preview carry the mix-effect number. The position in the list does not tell you.',
+  'canvas.hubSwitch.sentText': 'Sent verbatim:',
+  'canvas.hubSwitch.sentCalls': 'Commands sent (not a text protocol):',
   'switching.notSwitchable':
     'This device has no inputs and outputs at the same time and therefore cannot switch anything. The section stays visible so it is clear that nothing is missing.',
   'switching.hint':

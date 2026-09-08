@@ -8,6 +8,7 @@ import {
 import { signalChains, PASS_THROUGH_LABEL, type PassThroughKind } from '../src/renderer/lib/signalChain'
 import type { Cable } from '../src/renderer/types/cable'
 import type { EquipmentItem, Port } from '../src/renderer/types/equipment'
+import { istControlProtocol, istControlRole } from '../src/renderer/types/switcherControl'
 import projectStoreSrc from '../src/renderer/store/projectStore.ts?raw'
 import sectionSrc from '../src/renderer/components/Properties/sections/SwitchingSection.tsx?raw'
 
@@ -266,5 +267,33 @@ describe('Die Sektion traegt ein, statt zu raten', () => {
     // zeigte einen vollstaendigen Weg zu einem Monitor, an dem etwas anderes
     // steht.
     expect(src).not.toMatch(/test\(|match\(|toLowerCase\(\)\.includes/)
+  })
+})
+
+describe('Ein unbekannter Steuer-Wert faellt beim Laden', () => {
+  // Warum er nicht stehenbleibt: die Oberflaeche schluege in
+  // `PROTOCOL_INFO[wert]` ins Leere — und schlimmer, ein spaeterer Stand
+  // koennte denselben Namen anders belegen und einen Befehl an ein Geraet
+  // schicken, das ihn nie erklaert bekam.
+  it('die Heilung ist verdrahtet, fuer Protokoll und Anschluss-Rolle', () => {
+    const src = ohneKommentare(projectStoreSrc)
+    expect(src).toMatch(/!istControlProtocol\(item\.controlProtocol\)/)
+    expect(src).toMatch(/istControlRole\(c\.role\) && Number\.isInteger\(c\.address\)/)
+  })
+
+  it('die Praedikate erkennen genau die bekannten Werte', () => {
+    // Die Bedingung selbst, direkt geprueft: ueber `healProjectPositions`
+    // waere nur ein Quelltext-Scan moeglich, und der beweist keine
+    // Erreichbarkeit.
+    expect(istControlProtocol('atem')).toBe(true)
+    expect(istControlProtocol('videohub')).toBe(true)
+    expect(istControlProtocol('rosstalk')).toBe(false)
+    expect(istControlProtocol(undefined)).toBe(false)
+    expect(istControlRole('aux')).toBe(true)
+    expect(istControlRole('program')).toBe(true)
+    expect(istControlRole('bus')).toBe(false)
+    // Nicht auf geerbte Eigenschaften hereinfallen.
+    expect(istControlProtocol('toString')).toBe(false)
+    expect(istControlRole('constructor')).toBe(false)
   })
 })

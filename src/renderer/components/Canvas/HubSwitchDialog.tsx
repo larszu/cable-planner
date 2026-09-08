@@ -6,17 +6,16 @@ import { usePatternStore } from '../../store/patternStore'
 import { usePatternRouting } from '../../hooks/usePattern'
 import { cablePlannerApi } from '../../lib/bridge'
 import {
-  auftragHindernis,
-  eintraegeFuerAuftrag,
-  hubAuftraege,
+  actionKlartext,
+  controlActions,
+  eintraegeFuerAction,
   schaltbareWege,
   sendebereit,
-  type HubAuftrag,
-} from '../../lib/hubSwitchPlan'
+} from '../../lib/controlActions'
 import { useTranslation } from '../../lib/i18n'
 
 /**
- * „Diesen Weg schalten" — der Eingriff an der Kreuzschiene (B-42, Ink. 3).
+ * „Diesen Weg schalten" — der Eingriff am Gerät (B-42 Ink. 3 / S-2).
  *
  * ═══════════════════════════════════════════════════════════════════════
  * WARUM DAS HIER EIN DIALOG IST UND KEIN KNOPF AM KNOTEN
@@ -28,10 +27,8 @@ import { useTranslation } from '../../lib/i18n'
  * anderen kleinen Knöpfen wird irgendwann versehentlich getroffen, und was
  * dann passiert, sieht man erst auf dem Monitor im Nebenraum.
  *
- * Deshalb: eigener Dialog, die Folgen im Klartext, der tatsächlich gesendete
- * Text sichtbar, und ein Haken, den man setzen muss. Der Haken ist keine
- * Zierde — er ist die Stelle, an der jemand merkt, dass „Ausgang 3" der
- * Sendeausgang ist.
+ * Deshalb: eigener Dialog, die Folgen im Klartext, die tatsächlichen Befehle
+ * sichtbar, und ein Haken, den man setzen muss.
  *
  * ═══════════════════════════════════════════════════════════════════════
  * WAS GESCHALTET WIRD — UND WAS AUSDRÜCKLICH NICHT
@@ -39,23 +36,29 @@ import { useTranslation } from '../../lib/i18n'
  *
  * Gesendet werden GENAU die Kreuzpunkte, über die der gewählte Weg läuft.
  * Nicht das ganze geplante Routing des Geräts: das setzte auch jeden
- * Ausgang, über den in diesem Moment niemand nachgedacht hat.
- * `buildCrosspointCommand` hat deshalb kein `totalOutputs` und keinen
- * Default; ein nicht genannter Ausgang kommt im Block nicht vor und bleibt
- * an der Kreuzschiene unangetastet.
+ * Ausgang, über den in diesem Moment niemand nachgedacht hat (Invariante 17).
  *
  * DER PLAN WIRD NICHT ANGEFASST. Auch nicht „zur Sicherheit gleichziehen".
- * Der Plan ist die Absicht, die Kreuzschiene ein Zustand; zöge das Senden
- * den Plan mit, gäbe es hinterher keine Abweichung mehr zu sehen — und
- * genau die zu sehen ist der Grund, warum der Plan neben der Anlage steht
- * (ADR-001).
+ * Der Plan ist die Absicht, das Gerät ein Zustand; zöge das Senden den Plan
+ * mit, gäbe es hinterher keine Abweichung mehr zu sehen — und genau die zu
+ * sehen ist der Grund, warum der Plan neben der Anlage steht (ADR-001).
  *
  * WAS BLEIBT, ist ein Eintrag je Kreuzpunkt in `project.hubSwitches`: wer
- * wann was geschaltet hat, auch wenn es scheiterte. Nach einer Sendung, in
- * der etwas Falsches im Bild war, ist das die einzige Spur.
+ * wann was geschaltet hat, auch wenn es scheiterte.
+ *
+ * ═══════════════════════════════════════════════════════════════════════
+ * „GESENDETER TEXT" GIBT ES NUR, WO ES IHN GIBT
+ * ═══════════════════════════════════════════════════════════════════════
+ *
+ * Der Videohub spricht ein Text-Protokoll — dort steht der Block wortwörtlich
+ * im Dialog. Der ATEM nicht; gesendet wird über die Bibliothek. Dort stehen
+ * die AUFRUFE mit ihren Argumenten, und die Überschrift sagt, was man liest.
+ * Ein erfundener Textblock für ein Binärprotokoll wäre genau die Sorte
+ * Behauptung, gegen die dieser Dialog gebaut ist.
  */
 export function HubSwitchDialog({ onClose }: { onClose: () => void }) {
   const t = useTranslation()
+  const project = useProjectStore((s) => s.project)
   const routing = usePatternRouting()
   const quelleId = usePatternStore((s) => s.quelleId)
   const recordHubSwitch = useProjectStore((s) => s.recordHubSwitch)
@@ -64,64 +67,50 @@ export function HubSwitchDialog({ onClose }: { onClose: () => void }) {
   const [zielId, setZielId] = useState<string>('')
   const [verstanden, setVerstanden] = useState(false)
   const [wer, setWer] = useState('')
-  const [port, setPort] = useState('9990')
   const [laeuft, setLaeuft] = useState(false)
   const [meldungen, setMeldungen] = useState<{ ok: boolean; text: string }[]>([])
 
-  // Nur Wege, auf denen es überhaupt etwas zu schalten gibt. Ein Weg ohne
-  // Kreuzschiene ist fest verkabelt — dort ist „schalten" keine Möglichkeit,
-  // und ihn trotzdem anzubieten hiesse, eine Wirkung zu versprechen.
   const wege = useMemo(() => schaltbareWege(routing.ziele), [routing.ziele])
   const gewaehlt = wege.find((z) => z.id === zielId)
-  const auftraege: HubAuftrag[] = useMemo(
-    () => (gewaehlt ? hubAuftraege(gewaehlt.kreuzpunkte) : []),
-    [gewaehlt],
+  const plan = useMemo(
+    () => controlActions(project, gewaehlt?.kreuzpunkte ?? []),
+    [project, gewaehlt],
   )
-  const hindernisse = auftraege.map(auftragHindernis).filter((h): h is string => h !== null)
+  const bereit = sendebereit(plan, verstanden)
 
   const schalten = async () => {
-    if (!sendebereit(auftraege, verstanden)) return
-    const portNum = parseInt(port, 10)
-    if (!Number.isInteger(portNum) || portNum <= 0) {
-      setMeldungen([{ ok: false, text: t('canvas.hubSwitch.badPort', 'Ungültiger Port.') }])
-      return
-    }
+    if (!sendebereit(plan, verstanden) || !gewaehlt) return
     setLaeuft(true)
     setMeldungen([])
     const gesammelt: { ok: boolean; text: string }[] = []
-    for (const auftrag of auftraege) {
+    for (const action of plan.actions) {
       let ok = false
       let message: string
       try {
-        const antwort = await cablePlannerApi.videohub.sendRouting({
-          host: auftrag.ipAddress,
-          port: portNum,
-          block: auftrag.block,
-        })
+        const antwort = await cablePlannerApi.switcher.send(action)
         ok = antwort.ok
         message = antwort.message
       } catch (e) {
         message = e instanceof Error ? e.message : String(e)
       }
-      // Der Zeitpunkt kommt HIER, einmal je Auftrag — der Store nimmt keine
+      // Der Zeitpunkt kommt HIER, einmal je Befehl — der Store nimmt keine
       // Uhr. WELCHE Eintraege daraus werden, entscheidet
-      // `eintraegeFuerAuftrag`; dort ist am Verhalten geprueft, dass auch der
+      // `eintraegeFuerAction`; dort ist am Verhalten geprueft, dass auch der
       // gescheiterte Versuch einen bekommt.
       const at = new Date().toISOString()
-      for (const eintrag of eintraegeFuerAuftrag(
-        auftrag,
+      for (const eintrag of eintraegeFuerAction(
+        action,
+        gewaehlt.kreuzpunkte,
         { ok, message },
         { at, ...(quelleId ? { quelleId } : {}), ...(wer ? { by: wer } : {}) },
       )) {
         recordHubSwitch(eintrag)
       }
-      gesammelt.push({ ok, text: `${auftrag.equipmentName}: ${message || (ok ? 'OK' : 'Fehler')}` })
+      gesammelt.push({ ok, text: `${action.equipmentName}: ${message || (ok ? 'OK' : 'Fehler')}` })
     }
     setMeldungen(gesammelt)
     setLaeuft(false)
   }
-
-  const bereit = sendebereit(auftraege, verstanden)
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6">
@@ -135,9 +124,6 @@ export function HubSwitchDialog({ onClose }: { onClose: () => void }) {
           {t('canvas.hubSwitch.title', 'Weg schalten')}
         </h3>
 
-        {/* Der erste Satz steht, der Rest klappt auf — dieselbe Regel wie
-            ueberall: die Begruendung gehoert dorthin, wo jemand sie sucht.
-            Der WARNENDE Satz ist hier der erste und bleibt deshalb sichtbar. */}
         <PanelHint
           className="mb-3 rounded border border-cp-danger/50 bg-cp-danger/10 p-2 text-[12px] text-cp-text-secondary"
           text={t(
@@ -150,7 +136,7 @@ export function HubSwitchDialog({ onClose }: { onClose: () => void }) {
           <p className="text-[12px] text-cp-text-muted">
             {t(
               'canvas.hubSwitch.nothing',
-              'Auf keinem Weg dieser Quelle liegt eine Kreuzschiene — es gibt nichts zu schalten.',
+              'Auf keinem Weg dieser Quelle liegt ein schaltendes Gerät — es gibt nichts zu schalten.',
             )}
           </p>
         ) : (
@@ -178,53 +164,47 @@ export function HubSwitchDialog({ onClose }: { onClose: () => void }) {
             {gewaehlt && (
               <div className="mt-3 space-y-3">
                 <div className="text-[11px] text-cp-text-muted">{gewaehlt.weg}</div>
-                {auftraege.map((a) => (
+                {plan.actions.map((a) => (
                   <div key={a.equipmentId} className="rounded border border-cp-border p-2">
                     <div className="text-[12px] font-semibold">{a.equipmentName}</div>
                     <ul className="mt-1 list-disc pl-5 text-[12px]">
-                      {a.klartext.map((zeile, i) => (
+                      {actionKlartext(a, gewaehlt.kreuzpunkte).map((zeile, i) => (
                         <li key={i}>{zeile}</li>
                       ))}
                     </ul>
-                    {/* Der tatsaechlich gesendete Text, wortwoertlich. Wer
-                        einen Befehl an eine laufende Anlage bestaetigt, soll
-                        ihn lesen koennen und nicht nur seine Beschreibung. */}
-                    <pre className="mt-2 overflow-x-auto rounded bg-cp-surface-3 p-2 text-[11px] leading-tight">
-                      {a.block}
+                    {/* Die Ueberschrift sagt, WAS man liest. Beim Videohub ist
+                        es der wortwoertlich gesendete Text, beim ATEM sind es
+                        die Aufrufe — ein erfundener Textblock fuer ein
+                        Binaerprotokoll waere eine Behauptung. */}
+                    <div className="mt-2 text-[11px] text-cp-text-muted">
+                      {a.art === 'text'
+                        ? t('canvas.hubSwitch.sentText', 'Wortwörtlich gesendet:')
+                        : t('canvas.hubSwitch.sentCalls', 'Gesendete Befehle (kein Text-Protokoll):')}
+                    </div>
+                    <pre className="mt-1 overflow-x-auto rounded bg-cp-surface-3 p-2 text-[11px] leading-tight">
+                      {a.vorschau}
                     </pre>
                     <div className="mt-1 text-[11px] text-cp-text-muted">
-                      {a.ipAddress
-                        ? `${a.ipAddress}:${port}`
-                        : t('canvas.hubSwitch.noIp', 'keine IP-Adresse hinterlegt')}
+                      {a.art === 'text' ? `${a.host}:${a.port}` : a.host}
                     </div>
                   </div>
                 ))}
 
-                {hindernisse.map((h, i) => (
-                  <div key={i} className="text-[12px] text-cp-warn">
-                    {h}
+                {plan.hindernisse.map((h) => (
+                  <div key={h.equipmentId} className="text-[12px] text-cp-warn">
+                    {h.grund}
                   </div>
                 ))}
 
-                <div className="flex flex-wrap items-center gap-3">
-                  <label className="text-[12px]">
-                    {t('canvas.hubSwitch.port', 'Port')}
-                    <input
-                      value={port}
-                      onChange={(e) => setPort(e.target.value)}
-                      className="ml-1 w-20 rounded border border-cp-border bg-cp-surface-3 px-1 py-0.5"
-                    />
-                  </label>
-                  <label className="text-[12px]">
-                    {t('canvas.hubSwitch.by', 'Wer schaltet')}
-                    <input
-                      value={wer}
-                      onChange={(e) => setWer(e.target.value)}
-                      placeholder={t('canvas.hubSwitch.byPlaceholder', 'Name (optional)')}
-                      className="ml-1 rounded border border-cp-border bg-cp-surface-3 px-1 py-0.5"
-                    />
-                  </label>
-                </div>
+                <label className="text-[12px]">
+                  {t('canvas.hubSwitch.by', 'Wer schaltet')}
+                  <input
+                    value={wer}
+                    onChange={(e) => setWer(e.target.value)}
+                    placeholder={t('canvas.hubSwitch.byPlaceholder', 'Name (optional)')}
+                    className="ml-1 rounded border border-cp-border bg-cp-surface-3 px-1 py-0.5"
+                  />
+                </label>
 
                 <label className="flex items-start gap-2 text-[12px]">
                   <input
