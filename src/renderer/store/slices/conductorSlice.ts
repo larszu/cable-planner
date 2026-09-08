@@ -19,7 +19,10 @@ import type { Anschluss, Farbnorm } from '../../types/conductor'
  * dann „keine Norm gewaehlt" statt still eine geloeschte zu benutzen.
  * Hier zusaetzlich aufzuraeumen waere eine zweite Fassung derselben Regel.
  */
-export type ConductorSlice = Pick<ProjectState, 'setFarbnormen' | 'setAnschluss'>
+export type ConductorSlice = Pick<
+  ProjectState,
+  'setFarbnormen' | 'setAnschluss' | 'setOscLauscher'
+>
 
 export const createConductorSlice: StateCreator<ProjectState, [], [], ConductorSlice> = (set) => ({
   setFarbnormen: (farbnormen: Farbnorm[]) =>
@@ -32,6 +35,16 @@ export const createConductorSlice: StateCreator<ProjectState, [], [], ConductorS
   setAnschluss: (anschlussListe: Anschluss[]) =>
     set((state) => {
       const updated = { ...state.project, anschlussListe }
+      scheduleProjectAutosave(updated)
+      return { project: updated }
+    }),
+
+  // E-23 — der Lauscher gehoert zum PROJEKT und nicht zur App. Eine App-weite
+  // Einstellung erbte ein zweites Projekt mit, und dann lauschte ein Port,
+  // den fuer dieses Projekt niemand wollte (Auflage 2 aus E-23).
+  setOscLauscher: (oscLauscher) =>
+    set((state) => {
+      const updated = { ...state.project, oscLauscher }
       scheduleProjectAutosave(updated)
       return { project: updated }
     }),

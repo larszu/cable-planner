@@ -119,6 +119,16 @@ export interface DeliveryDestination {
    */
   backupOfId?: string
   /**
+   * E-23 — wo dieses Ziel im Show-Control-Sinn liegt.
+   *
+   * Der Plan BENENNT die Adresse und DRUCKT sie; er verschickt nichts. Sie
+   * steht auf dem Blatt als Konfiguration, damit sie jemand am Pult
+   * eintragen kann — dieselbe Rolle wie eine IP-Adresse im Netzplan.
+   *
+   * Nicht gesetzt heisst „hier ist keine benannt" und nicht „geht nicht".
+   */
+  showControl?: import('./showControl').ShowControlZiel
+  /**
    * Das GERAET im Plan, das dieses Ziel beliefert (Bedarf 32).
    *
    * Bis hierher endete der Signalfluss am Encoder-Eingang: das Ziel-Register

@@ -264,6 +264,25 @@ contextBridge.exposeInMainWorld('cablePlanner', {
     reveal: (projectPath: string | undefined, storedAs: string) =>
       ipcRenderer.invoke('receipt:reveal', projectPath, storedAs) as Promise<boolean>,
   },
+  /**
+   * E-23 — der eingehende OSC-Lauscher.
+   *
+   * `start` gibt IMMER einen Zustand zurueck, auch wenn nicht gebunden werden
+   * konnte: aus einem stillen `undefined` liest jemand „laeuft wohl", und
+   * genau das ist die Entwarnung, die E-23 ausschliesst.
+   */
+  showControl: {
+    start: (config: { aktiv: boolean; adresse: string; port: number }) =>
+      ipcRenderer.invoke('showControl:start', config) as Promise<unknown>,
+    stop: () => ipcRenderer.invoke('showControl:stop') as Promise<unknown>,
+    state: () => ipcRenderer.invoke('showControl:state') as Promise<unknown>,
+    clear: () => ipcRenderer.invoke('showControl:clear') as Promise<unknown>,
+    onUpdate: (cb: (payload: unknown) => void) => {
+      const handler = (_e: unknown, payload: unknown) => cb(payload)
+      ipcRenderer.on('showControl:update', handler)
+      return () => ipcRenderer.removeListener('showControl:update', handler)
+    },
+  },
   logs: {
     rendererError: (payload: { message: string; stack?: string; source?: string }) =>
       ipcRenderer.send('logs:renderer-error', payload),

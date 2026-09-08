@@ -70,7 +70,7 @@ strukturellen Änderungen.** Hier nur das Nötigste zum schnellen Einstieg:
 **IPC:** Alle Channels sind domain-präfixiert (`project:*`, `library:*`,
 `atem:*`, `videohub:*`, `sync:*`, `mobileShare:*`, `credentials:*`, `rentman:*`,
 `netbox:*`, `graphml:*`, `print:*`, `logs:*`, `signaling:*`, `collabDiscovery:*`,
-`documentLog:*`, `streamKey:*`, `receipt:*`). Definition in `src/main/ipc/<domain>Ipc.ts`,
+`documentLog:*`, `streamKey:*`, `receipt:*`, `showControl:*`). Definition in `src/main/ipc/<domain>Ipc.ts`,
 Aufruf via `window.cablePlanner.<domain>.<action>`. Ein Channel = eine Domäne.
 Pfad-Validierung passiert **immer in main**, nie im Renderer.
 
