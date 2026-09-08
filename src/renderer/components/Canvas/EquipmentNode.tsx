@@ -30,6 +30,9 @@ type EquipmentNodeData = EquipmentItem & {
 // geändert wurde.
 import { EQUIPMENT_LAYOUT } from '../../lib/layoutConstants'
 import { useTally } from '../../hooks/useCanvasFlow'
+import { useLampLevel } from '../../hooks/useCircuit'
+import { useCircuitStore, istSchaltbar } from '../../store/circuitStore'
+import { CIRCUIT_KIND_INFO } from '../../types/circuit'
 const HEADER_HEIGHT = EQUIPMENT_LAYOUT.HEADER_HEIGHT
 const HEADER_HEIGHT_WITH_IP = EQUIPMENT_LAYOUT.HEADER_HEIGHT_WITH_IP
 const PORT_ROW = EQUIPMENT_LAYOUT.PORT_ROW
@@ -52,6 +55,12 @@ const resolvePortSide = (
 export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeData>) => {
   // Tally aus dem Mischer — `null`, solange nichts bekannt ist.
   const tally = useTally(id)
+  // Schaltbild: Helligkeit dieser Leuchte. `null` = keine Aussage (kein
+  // Schaltbild-Geraet oder Anzeige aus), `-1` = brennt nicht, 0..100 = brennt.
+  const lampLevel = useLampLevel(id)
+  const circuitOverlay = useUiStore((s) => s.circuitOverlay)
+  const schalte = useCircuitStore((s) => s.schalte)
+  const stellung = useCircuitStore((s) => (data.circuitKind ? s.sim.positions[id] : undefined))
   const t = useTranslation()
   const pendingCable = useUiStore((s) => s.pendingCable)
   const startPendingCable = useUiStore((s) => s.startPendingCable)
@@ -568,10 +577,24 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
         // `null` heisst KEINE Aussage und faerbt nichts. Eine Kamera, die
         // der Mischer nicht kennt, darf nicht aussehen wie eine, von der
         // bekannt ist, dass sie frei ist.
+        //
+        // DIE BRENNENDE LEUCHTE ist ein SCHEIN nach aussen, kein Ring: sie
+        // ist eine andere Art Aussage als Tally (ein gerechneter Zustand
+        // statt einer Meldung), und zwei gleich aussehende Ringe uebereinander
+        // waeren zwei Behauptungen an derselben Stelle. Die Staerke folgt der
+        // Helligkeit — ein auf null gefahrener Dimmer glimmt gerade noch, und
+        // das ist der Unterschied zu „aus", den `lit: true, levelPct: 0`
+        // ausdrueckt.
+        //
+        // `lampLevel === null` faerbt nichts. Ein dunkles Symbol an einem
+        // Geraet, ueber das niemand etwas gesagt hat, waere eine Behauptung.
         boxShadow: [
           isLight ? '0 2px 6px rgba(0,0,0,0.12)' : '0 2px 6px rgba(0,0,0,0.4)',
           tally === 'program' ? '0 0 0 3px #ef4444' : '',
           tally === 'preview' ? '0 0 0 3px #22c55e' : '',
+          lampLevel !== null && lampLevel >= 0
+            ? `0 0 ${8 + Math.round(lampLevel * 0.16)}px ${2 + Math.round(lampLevel * 0.04)}px rgba(250, 204, 21, ${0.35 + lampLevel * 0.0055})`
+            : '',
         ]
           .filter(Boolean)
           .join(', '),
@@ -587,6 +610,59 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
         borderRadius: '5px 5px 0 0',
       }}>
         <div style={{ fontWeight: 600, lineHeight: '16px', display: 'flex', alignItems: 'center', gap: 4, minWidth: 0 }}>
+          {/*
+            Schaltbild-Marke. Sie steht NUR, wenn die Anzeige eingeschaltet ist
+            und das Geraet eine angegebene Bauart hat — nicht als stiller
+            Dauer-Beisatz an jedem Geraet.
+
+            Bei einer schaltbaren Bauart ist sie zugleich der Schalter, und
+            zwar der einzige: hier zu klicken aendert den `circuitStore` und
+            NICHT den Plan. Ein Umlegen ist Ausprobieren, kein Planen — es geht
+            deshalb weder in Undo/Redo noch in die Projektdatei.
+          */}
+          {circuitOverlay && data.circuitKind && (() => {
+            const info = CIRCUIT_KIND_INFO[data.circuitKind]
+            const schaltbar = istSchaltbar(data.circuitKind)
+            const gezeigt = stellung ?? (data.circuitKind === 'feed' ? 1 : undefined)
+            return (
+              <span
+                role={schaltbar ? 'button' : undefined}
+                tabIndex={schaltbar ? 0 : undefined}
+                onClick={(e) => {
+                  if (!schaltbar || !data.circuitKind) return
+                  e.stopPropagation()
+                  schalte(id, data.circuitKind)
+                }}
+                onKeyDown={(e) => {
+                  if (!schaltbar || !data.circuitKind) return
+                  if (e.key !== 'Enter' && e.key !== ' ') return
+                  e.preventDefault()
+                  e.stopPropagation()
+                  schalte(id, data.circuitKind)
+                }}
+                className="nodrag"
+                style={{
+                  background: schaltbar ? '#1d4ed8' : '#334155',
+                  color: '#fff',
+                  fontSize: 9,
+                  fontWeight: 700,
+                  borderRadius: 3,
+                  padding: '0 3px',
+                  lineHeight: '13px',
+                  flexShrink: 0,
+                  cursor: schaltbar ? 'pointer' : 'default',
+                }}
+                title={
+                  schaltbar
+                    ? `${info.label} — Stellung ${gezeigt ?? '?'} (klicken zum Umlegen; der Plan bleibt unberührt)`
+                    : info.label
+                }
+              >
+                {info.label.slice(0, 1).toUpperCase()}
+                {gezeigt !== undefined ? gezeigt : ''}
+              </span>
+            )
+          })()}
           {rentmanEnabled && (
             data.rentmanId && !data.rentmanRemoved ? (
               <span
