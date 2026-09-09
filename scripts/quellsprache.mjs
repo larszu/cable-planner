@@ -250,10 +250,19 @@ export const sichtbareTexte = (quelle, jsx) => {
  */
 export const MIX_GRENZE = 0
 
-/** Ungewickelter sichtbarer Text in der jeweils anderen Sprache. */
+/**
+ * Ungewickelter sichtbarer Text in der jeweils anderen Sprache.
+ *
+ * Gibt AUSSERDEM zurueck, wie viel sichtbarer Text ueberhaupt geprueft wurde.
+ * Die Zahl steht in der Ausgabe, damit die Null darueber zu deuten ist — als
+ * Angabe, nicht als Schwelle: sie faellt, je mehr gewickelt wird, und waere
+ * als Untergrenze deshalb nach dem zweiten Nachziehen nur noch Zierrat. Dass
+ * das Muster ueberhaupt findet, belegt die feste Probe im CLI-Teil.
+ */
 export const messeSprachmix = (wurzel, quellsprache) => {
   const ziel = quellsprache === 'de' ? 'en' : 'de'
   const funde = []
+  let gesehen = 0
   for (const datei of dateien(wurzel)) {
     const rel = relative(wurzel, datei).split(sep).join('/')
     // Das Woerterbuch ist per Definition in der anderen Sprache, Tests sind
@@ -261,10 +270,11 @@ export const messeSprachmix = (wurzel, quellsprache) => {
     // niemand.
     if (rel.includes('i18n') || rel.includes('__tests__') || rel.includes('.test.')) continue
     for (const roh of sichtbareTexte(readFileSync(datei, 'utf8'), datei.endsWith('.tsx'))) {
+      gesehen += 1
       if (klassifiziere(roh) === ziel) funde.push({ datei: rel, text: roh.slice(0, 100) })
     }
   }
-  return funde
+  return { funde, gesehen }
 }
 
 // CLI: `node scripts/quellsprache.mjs <wurzel> <sprache>`
@@ -289,10 +299,60 @@ if (process.argv[1] && process.argv[1].endsWith('quellsprache.mjs')) {
     process.exit(1)
   }
 
-  const mix = messeSprachmix(wurzel, sprache)
+  // ── Die Gegenprobe zum Messwerkzeug selbst — an fester Probe, nicht am Repo.
+  //
+  // WARUM NICHT AM REPO. Der naheliegende Weg waere eine Untergrenze auf der
+  // Zahl der gefundenen Texte („mindestens N"). Der Wert davon faellt aber
+  // genau dann, wenn die Arbeit gelingt: je mehr gewickelt ist, desto weniger
+  // ungewickelter Text bleibt uebrig. Eine solche Schwelle muesste bei jedem
+  // Fortschritt nachgezogen werden und waere nach dem zweiten Nachziehen nur
+  // noch Zierrat.
+  //
+  // Die Probe dagegen ist unabhaengig von der Repo-Groesse und haelt genau die
+  // Fehlformen fest, die diesen Zaehler Zeit gekostet haben: der Kommentar als
+  // Literal, das Vergleichs-`>` als Tag-Ende, die Rueckfrage im Backtick. Ohne
+  // sie waere ein kaputtes Muster die gefaehrlichste Art gruen: es findet
+  // nichts, und Nichts sieht hier aus wie ein Ergebnis.
+  const PROBE = [
+    '<button title="Delete this cable">',
+    '<span>Not connected yet</span>',
+    'window.confirm(`Delete "${name}" and its ${n} shots?`)',
+    // Die beiden Kommentar-Zeilen tragen mit Absicht Muster, die OHNE den
+    // Kommentarfilter treffen wuerden — eine ohne waere wirkungslos: was kein
+    // `>` und kein `title=` enthaelt, findet der Zaehler ohnehin nicht, und die
+    // Probe belegte dann nichts.
+    '// title="Legacy tooltip, no longer shown"',
+    '/* <b>Old markup left in a comment</b> */',
+    'if (a.length > 2) return b < c',
+    'const n = a>b ? 1 : 2; const m = c<d',
+    "t('cable.remove', 'Delete this cable')",
+  ].join('\n')
+
+  // Sortiert verglichen: in welcher Reihenfolge Attribute, Rueckfragen und
+  // Textknoten herausfallen, ist eine Eigenschaft der Schleifen und keine
+  // Zusicherung — ein Waechter, der bei einer umgestellten Schleife anschlaegt,
+  // meldet Fehlalarme.
+  const gefunden = sichtbareTexte(PROBE, true).slice().sort()
+  const erwartet = [
+    'Delete "${name}" and its ${n} shots?',
+    'Delete this cable',
+    'Not connected yet',
+  ].sort()
+  if (gefunden.length !== erwartet.length || erwartet.some((e, i) => gefunden[i] !== e)) {
+    console.error(
+      '\nDie Probe des Sprachmix-Musters schlaegt fehl.\n' +
+        `  erwartet: ${JSON.stringify(erwartet)}\n` +
+        `  gefunden: ${JSON.stringify(gefunden)}\n` +
+        'Das Muster findet entweder echte Beschriftungen nicht mehr oder wieder ' +
+        'Kommentare und Quelltext. Beides macht die Zahl unten wertlos.',
+    )
+    process.exit(1)
+  }
+
+  const { funde: mix, gesehen } = messeSprachmix(wurzel, sprache)
   console.log(
     `Sprachmix: ${mix.length} ungewickelte Zeichenkette(n) in der anderen Sprache ` +
-      `(Grenze ${MIX_GRENZE}).`,
+      `(Grenze ${MIX_GRENZE}, ${gesehen} sichtbare Texte geprueft).`,
   )
   if (mix.length > MIX_GRENZE) {
     console.error(`\n${mix.length - MIX_GRENZE} mehr als erlaubt:`)
