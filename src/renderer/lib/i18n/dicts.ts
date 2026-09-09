@@ -1673,7 +1673,7 @@ export const en: Dict = {
   'mobile.dialog.startServer': 'Start LAN server',
   'mobile.dialog.securityHeading': 'Security notes',
   'mobile.dialog.security.writeBack':
-    'The phone does not only read: checks, newly added cables and field feedback flow back into the project. Whoever has the QR code can change the plan.',
+    'Whether the phone may write back is decided by the setting above. If it is set to \u201csend checks and cables back\u201d, anyone with the QR code can change the plan.',
   'mobile.dialog.security.token':
     'Every write path requires the token from the QR code. Passwords and keys are stripped from the project before it leaves the device.',
   'mobile.dialog.security.bind':

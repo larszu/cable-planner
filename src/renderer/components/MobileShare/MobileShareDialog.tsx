@@ -541,7 +541,7 @@ export const MobileShareDialog = () => {
           <details className="text-[11px] text-cp-text-muted">
             <summary className="cursor-pointer hover:text-cp-text-secondary">{t('mobile.dialog.securityHeading', 'Security notes')}</summary>
             <ul className="mt-1 list-inside list-disc space-y-1">
-              <li>{t('mobile.dialog.security.writeBack', 'The phone does not only read: checks, newly added cables and field feedback flow back into the project. Whoever has the QR code can change the plan.')}</li>
+              <li>{t('mobile.dialog.security.writeBack', 'Whether the phone may write back is decided by the setting above. If it is set to \u201csend checks and cables back\u201d, anyone with the QR code can change the plan.')}</li>
               <li>{t('mobile.dialog.security.token', 'Every write path requires the token from the QR code. Passwords and keys are stripped from the project before it leaves the device.')}</li>
               <li>{t('mobile.dialog.security.pincode', 'The system access codes NEVER travel with the project. They live only in the desktop app\'s memory and only while the switch above is on; they are retrieved with a second code that is not part of the QR code.')}</li>
               <li>{t('mobile.dialog.security.bind', 'The server binds to the local network (0.0.0.0). If it is unclear who is on the network, prefer stopping it.')}</li>
