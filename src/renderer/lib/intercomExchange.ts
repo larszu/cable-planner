@@ -20,6 +20,7 @@ import {
   INTERCOM_FORMAT_VERSION,
   type IntercomChannel,
   type IntercomExchangeFile,
+  type IntercomKeyPosition,
   type IntercomStation,
 } from '../types/intercomExchange'
 
@@ -56,6 +57,30 @@ export const toIntercomExchange = (
       .filter((gid) => bekannt.has(gid))
       .map((gid) => ({ channelId: channelId(gid), talk: true, listen: true })),
     ...(u.equipmentId ? { equipmentId: u.equipmentId } : {}),
+    // Format-Version 2: die Tastenbelegung.
+    //
+    // `undefined` bleibt `undefined` und `[]` bleibt `[]` — die beiden zu
+    // verwechseln (etwa mit `u.keys?.length`) waere genau der Fehler, gegen
+    // den `GreenGoUser.keys` seinen Absatz hat: eine leergeraeumte Karte
+    // saehe aus wie eine nie gesehene, und beim naechsten Import staende die
+    // alte Belegung wieder da.
+    //
+    // Eine Taste auf eine Gruppe, die es nicht gibt, faellt weg — dieselbe
+    // Regel wie eine Zugehoerigkeit ins Leere zwei Zeilen darueber. Eine
+    // Taste ohne Konferenz waere in der Datei ein Verweis ins Nichts.
+    ...(u.keys === undefined
+      ? {}
+      : {
+          keys: u.keys
+            .filter((k) => bekannt.has(k.groupId))
+            .map(
+              (k): IntercomKeyPosition => ({
+                page: k.page,
+                button: k.button,
+                channelId: channelId(k.groupId),
+              }),
+            ),
+        }),
   }))
 
   return {
@@ -107,7 +132,32 @@ export const parseIntercomExchange = (text: string): IntercomExchangeFile | null
     systemName: typeof f.systemName === 'string' ? f.systemName : 'Intercom',
     description: typeof f.description === 'string' ? f.description : undefined,
     channels: f.channels.filter((c): c is IntercomChannel => !!c && typeof c.id === 'string'),
-    stations: f.stations.filter((s): s is IntercomStation => !!s && typeof s.id === 'string'),
+    stations: f.stations
+      .filter((s): s is IntercomStation => !!s && typeof s.id === 'string')
+      // Format-Version 2. Gelesen wird die Belegung nur, wo sie eine LISTE
+      // ist; steht dort etwas anderes, gilt sie als nicht genannt statt als
+      // leer. Und eine unlesbare Taste faellt weg, statt mit einer geratenen
+      // Zahl weiterzureisen: eine Seite 0 oder eine halbe Taste ist kein
+      // Platz auf einem Geraet, und wer sie rundet, erfindet eine Taste, auf
+      // die dann jemand drueckt.
+      .map((s) => {
+        if (!Array.isArray(s.keys)) {
+          const { keys: _weg, ...ohne } = s
+          return ohne as IntercomStation
+        }
+        return {
+          ...s,
+          keys: s.keys.filter(
+            (k): k is IntercomKeyPosition =>
+              !!k &&
+              typeof k.channelId === 'string' &&
+              Number.isInteger(k.page) &&
+              k.page >= 1 &&
+              Number.isInteger(k.button) &&
+              k.button >= 1,
+          ),
+        }
+      }),
     vendor: (f.vendor as Record<string, unknown> | undefined) ?? undefined,
     derivedFrom: typeof f.derivedFrom === 'string' ? f.derivedFrom : undefined,
   }
@@ -152,6 +202,21 @@ export const fromIntercomExchange = (file: IntercomExchangeFile): GreenGoConfig 
         .map((m) => gruppenNr.get(m.channelId))
         .filter((n): n is number => typeof n === 'number'),
       ...(s.equipmentId ? { equipmentId: s.equipmentId } : {}),
+      // Format-Version 2. Die Kanal-Kennungen werden auf die HIER neu
+      // vergebenen Gruppen-Nummern abgebildet (siehe Kopfkommentar zur
+      // Neunummerierung); eine Taste auf einen Kanal, den die Datei nicht
+      // fuehrt, faellt weg statt auf Gruppe 0 zu zeigen.
+      ...(s.keys === undefined
+        ? {}
+        : {
+            keys: s.keys
+              .map((k) => ({ ...k, groupId: gruppenNr.get(k.channelId) }))
+              .filter(
+                (k): k is { page: number; button: number; channelId: string; groupId: number } =>
+                  typeof k.groupId === 'number',
+              )
+              .map((k) => ({ page: k.page, button: k.button, groupId: k.groupId })),
+          }),
     }
   })
 
