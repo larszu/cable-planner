@@ -89,6 +89,15 @@ export type ReadingSource =
   | 'field-check'
   /** Von Hand eingetragen, weil niemand das Gerät befragen kann. */
   | 'manual'
+  /**
+   * E-23 — der zurückgelesene Companion-Variablenstand.
+   *
+   * Sechste Quelle für dieses Blatt statt sechstes Blatt: was aus Companion
+   * zurückkommt, ist eine Ablesung wie jede andere hier und gehört in
+   * dieselbe Spur. Der Weg dorthin steht in `lib/companionVariablen.ts` —
+   * ein Import, ausdrücklich kein Poller.
+   */
+  | 'companion'
 
 export const READING_SOURCE_LABEL: Readonly<Record<ReadingSource, string>> = {
   'network-scan': 'Netz-Scan',
@@ -97,6 +106,7 @@ export const READING_SOURCE_LABEL: Readonly<Record<ReadingSource, string>> = {
   erp: 'Vermietung',
   'field-check': 'Aufbau vor Ort',
   manual: 'von Hand',
+  companion: 'Companion-Variable',
 }
 
 /** Das Urteil einer Zeile. */

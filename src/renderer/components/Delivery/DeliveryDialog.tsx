@@ -8,6 +8,7 @@ import { downloadBlob } from '../../lib/downloadBlob'
 import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 import { csvFromTable, stampForRows } from '../../lib/documentStamp'
 import { checkDelivery, deliveryTable, deliveryTableForProject, type DeliveryIssue } from '../../lib/deliveryParity'
+import { COMPANION_SCHNITTSTELLE_HINWEIS } from '../../lib/companionVariablen'
 import { srtLatencyAdvice, uplinkBudget } from '../../lib/transportParams'
 import {
   ENCODERS,
@@ -1523,10 +1524,7 @@ export const DeliveryDialog = () => {
                     </div>
                     {d.showControl?.companionSeite !== undefined && (
                       <div className="mt-1 text-cp-xs text-cp-text-muted">
-                        {t(
-                          'delivery.osc.companionOptIn',
-                          'Companions Schnittstelle ist ab Werk aus — sie muss dort eingeschaltet werden. Ohne diesen Hinweis zeigt das Blatt einen Weg, den es beim Kunden nicht gibt.',
-                        )}
+                        {t('delivery.osc.companionOptIn', COMPANION_SCHNITTSTELLE_HINWEIS)}
                       </div>
                     )}
 
