@@ -10,7 +10,7 @@ import { useTranslation, format } from '../../lib/i18n'
 import { Icon } from '../shared/Icon'
 import { colorForConnector } from '../../lib/cableColors'
 import { defaultIconForEquipment } from '../../lib/deviceKind'
-import { findGreenGoUserForEquipment } from '../../lib/greengoSync'
+import { findIntercomStationForEquipment } from '../../lib/greengoSync'
 import { rackBandColor } from '../../lib/rackBandColors'
 import { portDisplayLabel, genderSymbol } from '../../lib/portLabel'
 import {
@@ -106,12 +106,13 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
   // Mobile-Haken-Entfernung (User-Request: "im normalen canvas auch wieder
   // loeschen koennen"). Klick aufs ✓ entfernt den Check fuer diesen Port.
   const clearPortCheck = useProjectStore((s) => s.clearPortCheck)
-  // Issue #56: GreenGo beltpack name is the canvas-visible identifier
-  // for intercom devices. Reads from project.greengoConfig.users —
-  // same source the EquipmentProperties beltpack section and the GG
-  // dialog write to, so all three views stay in sync.
-  const greengoConfig = useProjectStore((s) => s.project.greengoConfig)
-  const greengoUser = findGreenGoUserForEquipment(id, greengoConfig)
+  // Issue #56: der Name der Sprechstelle ist die auf dem Canvas sichtbare
+  // Kennung eines Intercom-Geraets. Gelesen wird der SLOT (`project.intercom`)
+  // — dieselbe Quelle, in die die Eigenschaften-Leiste und der Intercom-Dialog
+  // schreiben, damit alle drei Sichten denselben Stand zeigen. Nicht die
+  // Green-GO-Projektion: die entstuende hier je Geraet und Render neu.
+  const intercom = useProjectStore((s) => s.project.intercom)
+  const greengoUser = findIntercomStationForEquipment(id, intercom)
   // Issue #68: if the user hovers an edge, we want to light up the
   // port handles on both endpoints. Resolve the hovered cable's source
   // and target port IDs that live on THIS device, so the handle
@@ -801,9 +802,9 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
               fontWeight: 600,
               marginTop: 1,
             }}
-            title={`GreenGo Beltpack #${greengoUser.user.id}${greengoUser.groupNames.length > 0 ? ` · ${t('eqNode.greengoGroups', 'Gruppen')}: ${greengoUser.groupNames.join(', ')}` : ''}`}
+            title={`${t('eqNode.intercomStation', 'Sprechstelle')}${greengoUser.number !== undefined ? ` #${greengoUser.number}` : ''}${greengoUser.channelNames.length > 0 ? ` · ${t('eqNode.greengoGroups', 'Gruppen')}: ${greengoUser.channelNames.join(', ')}` : ''}`}
           >
-            <Icon icon={Headphones} size="xs" className="mr-1 inline-block align-text-bottom" />{greengoUser.user.name}
+            <Icon icon={Headphones} size="xs" className="mr-1 inline-block align-text-bottom" />{greengoUser.station.name}
           </div>
         )}
         {data.ipAddress && (

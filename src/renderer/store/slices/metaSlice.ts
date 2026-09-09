@@ -3,6 +3,7 @@ import type { CablePlannerProject } from '../../types/project'
 import { touchProject } from '../projectStoreHelpers'
 import { scheduleProjectAutosave } from '../projectAutosave'
 import { applyNamingScheme } from '../../lib/namingScheme'
+import { planFromGreengo, withVendorNumbers } from '../../lib/intercomPlan'
 import type { ProjectState } from '../projectStore'
 
 /**
@@ -30,6 +31,7 @@ export type MetaSlice = Pick<
   | 'setSelection'
   | 'setSelectedTemplateName'
   | 'updateGreenGoConfig'
+  | 'updateIntercomPlan'
   | 'setDrumKit'
   | 'setWirelessRig'
   | 'setMulticastConfig'
@@ -103,9 +105,28 @@ export const createMetaSlice: StateCreator<ProjectState, [], [], MetaSlice> = (s
       selectedCableId: undefined,
       selectedLocationId: undefined,
     }),
+  /**
+   * Green-GO hinein, SLOT heraus (E-2, Schritt 1).
+   *
+   * Der Name bleibt, weil die Aufrufer Green-GO sprechen: der Intercom-Dialog,
+   * die Preset-Bibliothek und die Beltpack-Leiste arbeiten alle auf einer
+   * `GreenGoConfig`. Was sich geaendert hat, ist das Ziel — geschrieben wird
+   * der herstellerneutrale Slot, nicht mehr die Hersteller-Konfiguration.
+   *
+   * `planFromGreengo` schreibt die Anlagen-Nummern dabei fest, statt sie beim
+   * naechsten Export neu zu vergeben (ADR-002).
+   */
   updateGreenGoConfig: (config) =>
     set((state) => {
-      const updated = { ...state.project, greengoConfig: config }
+      const updated = { ...state.project, intercom: planFromGreengo(config) }
+      scheduleProjectAutosave(updated)
+      return { project: updated }
+    }),
+
+  /** Den Slot direkt setzen — fuer Aufrufer, die schon neutral denken. */
+  updateIntercomPlan: (plan) =>
+    set((state) => {
+      const updated = { ...state.project, intercom: withVendorNumbers(plan) }
       scheduleProjectAutosave(updated)
       return { project: updated }
     }),

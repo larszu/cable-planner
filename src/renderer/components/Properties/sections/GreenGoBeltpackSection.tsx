@@ -39,18 +39,18 @@ export const GreenGoBeltpackSection = ({ equipmentId }: { equipmentId: string })
       <summary className="flex items-center gap-1 px-2 py-1.5 text-[10px] uppercase tracking-wide text-emerald-300 hover:text-emerald-200 [&::-webkit-details-marker]:hidden">
         <span className="text-emerald-400/70">{open ? '▾' : '▸'}</span>
         <span className="flex-1">{t('props.greengo.beltpack', 'Beltpack')}</span>
-        {info?.groupNames && info.groupNames.length > 0 && (
+        {info?.channelNames && info.channelNames.length > 0 && (
           <span
             className="font-normal normal-case text-emerald-400/80"
             title={format(t('props.greengo.groupsTitle', 'Gruppen: {names}'), {
-              names: info.groupNames.join(', '),
+              names: info.channelNames.join(', '),
             })}
           >
             {format(
-              info.groupNames.length === 1
+              info.channelNames.length === 1
                 ? t('props.greengo.groupCountOne', '{n} Gruppe')
                 : t('props.greengo.groupCountMany', '{n} Gruppen'),
-              { n: info.groupNames.length },
+              { n: info.channelNames.length },
             )}
           </span>
         )}
@@ -60,7 +60,7 @@ export const GreenGoBeltpackSection = ({ equipmentId }: { equipmentId: string })
         <span className="mb-1 block text-emerald-200/70">{t('props.greengo.name', 'Name')}</span>
         <input
           type="text"
-          value={info?.user.name ?? ''}
+          value={info?.station.name ?? ''}
           disabled={!info}
           placeholder={info ? '' : t('props.greengo.assignFirst', 'Erst zuordnen ↓')}
           onChange={(event) => rename(event.target.value)}
@@ -76,7 +76,7 @@ export const GreenGoBeltpackSection = ({ equipmentId }: { equipmentId: string })
           {t('props.greengo.userSlot', 'Zugewiesener User-Slot')}
         </span>
         <select
-          value={info?.user.id ?? ''}
+          value={info?.number ?? ''}
           onChange={(event) => {
             const v = event.target.value
             assignUser(v === '' ? null : Number(v))
@@ -95,9 +95,9 @@ export const GreenGoBeltpackSection = ({ equipmentId }: { equipmentId: string })
           })}
         </select>
       </label>
-      {info?.groupNames && info.groupNames.length > 0 && (
+      {info?.channelNames && info.channelNames.length > 0 && (
         <div className="mt-2 flex flex-wrap gap-1 text-[10px]">
-          {info.groupNames.map((g) => (
+          {info.channelNames.map((g) => (
             <span
               key={g}
               className="rounded bg-emerald-700/40 px-1.5 py-0.5 text-emerald-100"

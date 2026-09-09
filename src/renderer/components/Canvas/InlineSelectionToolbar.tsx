@@ -47,7 +47,7 @@ export const InlineSelectionToolbar = () => {
   const { flowToScreenPosition, setNodes } = useReactFlow()
 
   const equipment = useProjectStore((s) => s.project.equipment)
-  const greengo = useProjectStore((s) => s.project.greengoConfig)
+  const intercom = useProjectStore((s) => s.project.intercom)
   const updateEquipment = useProjectStore((s) => s.updateEquipment)
   const deleteSelected = useProjectStore((s) => s.deleteSelected)
   const addLocationAroundEquipment = useProjectStore((s) => s.addLocationAroundEquipment)
@@ -87,7 +87,7 @@ export const InlineSelectionToolbar = () => {
     const items: AlignItem[] = equipment
       .filter((e) => ids.includes(e.id))
       .map((item) => {
-        const { width, height } = computeEquipmentLayout(item, greengo)
+        const { width, height } = computeEquipmentLayout(item, intercom)
         return { id: item.id, x: item.x, y: item.y, w: width, h: height }
       })
     const moves = computeAlignedPositions(items, mode, { snap, singleSelectionBounds: null })

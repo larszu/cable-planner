@@ -163,7 +163,7 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
   const canvasState = useProjectStore((state) => state.project.canvasState)
   const updateEquipment = useProjectStore((state) => state.updateEquipment)
   const equipmentList = useProjectStore((state) => state.project.equipment)
-  const greengoConfig = useProjectStore((state) => state.project.greengoConfig)
+  const intercom = useProjectStore((state) => state.project.intercom)
   // v7.9.3 — Plan-Lock-Status: 'editing' | 'finalized' | 'viewer'.
   // Toolbar-Button toggelt editing↔finalized; viewer-Modus wird nur
   // durch .cpviewer-Import gesetzt und kann nicht zurück.
@@ -212,7 +212,7 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
   // (snapUp-Breite + Header inkl. Subtitle/Beltpack). Vorher: ungesnappte
   // Store-Breite + vereinfachter Header → Versatz bei breiten Geräten.
   const measuredSize = (item: (typeof equipmentList)[number]) => {
-    const { width, height } = computeEquipmentLayout(item, greengoConfig)
+    const { width, height } = computeEquipmentLayout(item, intercom)
     return { w: width, h: height }
   }
 

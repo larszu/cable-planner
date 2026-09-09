@@ -162,7 +162,7 @@ export const MobileShareDialog = () => {
   // Dialog haengt dauerhaft in `App.tsx` (auch geschlossen), also traf das die
   // ganze App: der Canvas kam nicht mehr zur Ruhe, und „Beispielprojekt laden"
   // tat nichts mehr. Gefunden vom UI-Overflow-Lauf, nicht von den Unit-Tests.
-  const basePreset = useProjectStore((st) => st.project.greengoConfig?.basePreset)
+  const basePreset = useProjectStore((st) => st.project.intercom?.vendor?.greengo?.basePreset)
   const codes = useMemo(() => anlagenZugangscodes(basePreset), [basePreset])
 
   const hatSchichten = useProjectStore(
