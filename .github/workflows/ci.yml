@@ -136,6 +136,18 @@ jobs:
       # vorher 32). Die Zahl ist gedeckelt, damit sie nicht still zurueckwaechst.
       - name: Jedes Bedienelement hat einen Namen
         run: xvfb-run -a npm run ui:labels
+      # Vierter Lauf im selben Job, wieder aus demselben Grund: dieselbe
+      # gebaute App und derselbe X-Server. Er beantwortet die Frage, die
+      # B-44 Teil 2 ausdruecklich OFFEN gelassen hat -- „wie viele
+      # Bedienelemente liegen unter der 44-px-Marke?" -- und zwar am
+      # gerenderten Element statt an Klassennamen. Gemessen sind es 89 von
+      # 93; die Zahl ist gedeckelt, damit sie nicht still weiterwaechst.
+      #
+      # Der Lauf misst ZWEIMAL: einmal mit Maus, einmal mit nachgebildetem
+      # Finger (`pointer: coarse`). Nur der zweite sieht die Griffe, die es
+      # allein fuer den groben Zeiger gibt.
+      - name: Trefferflaechen sind gross genug fuer einen Finger
+        run: xvfb-run -a npm run ui:targets
       - name: Screenshots bei Fehlschlag
         if: failure()
         uses: actions/upload-artifact@v6
