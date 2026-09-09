@@ -3435,6 +3435,22 @@ export const en: Dict = {
     'CALCULATED, not measured: this is how the circuit behaves with the switch positions as set. The positions are not part of the plan.',
   'canvas.circuit.resetTitle':
     'All switches back to their default. The plan does not change — it never carried the positions.',
+  // Verdrahtungs-Vorschlaege (#666).
+  'canvas.circuit.suggest': 'Suggestions',
+  'canvas.circuit.suggestTitle':
+    'Why the circuit does not do what it should — and which wire would change that. Every suggestion is computed through and brings its own truth table; nothing is entered without a click.',
+  'canvas.circuit.suggest.title': 'Wiring suggestions',
+  'canvas.circuit.suggest.lead':
+    'COMPUTED, not measured. Every suggestion has been tried out: it is listed only because the circuit does what it should in every switch position with it. The table beside it shows that.',
+  'canvas.circuit.suggest.nothing': 'Nothing to report.',
+  'canvas.circuit.suggest.capped': 'The search was limited: ',
+  'canvas.circuit.suggest.apply': 'Add wire',
+  'canvas.circuit.suggest.blocked': 'cannot be added',
+  'canvas.circuit.suggest.showTable': 'Show truth table',
+  'canvas.circuit.suggest.hideTable': 'Hide truth table',
+  'canvas.circuit.suggest.cableName': 'Wire (suggested)',
+  'canvas.circuit.suggest.cableNote': 'Added from a computed wiring suggestion.',
+  'canvas.circuit.suggest.done': '{n} wire(s) added.',
   // Pruefbild — die Erwartung aus dem Plan, kein Videobild.
   'canvas.pattern.label': 'Test pattern',
   'canvas.pattern.none': 'none',
