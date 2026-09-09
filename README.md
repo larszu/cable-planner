@@ -39,6 +39,21 @@
 
 ---
 
+## The web page
+
+Every push to the default branch builds this repo's page from
+`.github/workflows/pages.yml` and publishes it:
+
+**https://larszu.github.io/cable-planner/**
+
+The workflow **asks the Pages API before it configures anything.** With no
+Pages site it still builds — that is a real check — and skips only the
+publishing step, with a warning and the one missing step in the run summary.
+A run that must stay red for a click nobody made teaches people to ignore red.
+
+Measured 2026-09-09: **published** — the `deploy` job ran and succeeded.
+
+---
 ## ✨ Overview
 
 **CablePlanner** is free-to-use **broadcast cable planning software** for designing and visualizing **SDI signal flow**, **ATEM multiviewer** layouts and **Blackmagic Videohub routing** on a node-based canvas. It runs **fully offline** on macOS and Windows, so every audio, video and data run is documented before you ever pull cable on site.
