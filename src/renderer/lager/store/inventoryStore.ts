@@ -22,6 +22,8 @@ import type {
   Geldbetrag,
   Anschaffung,
   Versicherungswert,
+  Frist,
+  FristArt,
 } from '../types/inventory'
 import { normaliseFaultEvent } from '../lib/faultHistory'
 import { deriveDemand } from '../lib/inventoryCoverage'
@@ -295,6 +297,45 @@ const healVersicherungswert = (raw: unknown): Versicherungswert | undefined => {
   return { betrag, ...(typeof r.stand === 'string' && r.stand.trim() ? { stand: r.stand.trim() } : {}) }
 }
 
+const FRIST_ARTEN: FristArt[] = ['dguv-v3', 'kalibrierung', 'wartung', 'akku', 'sonstige']
+
+/**
+ * Fristen heilen (B-65). Dieselbe Regel wie im Lager-Werkzeug: ein Termin
+ * ohne jede Zeitangabe ist kein Termin und faellt weg; eine unbekannte
+ * `art` wird `sonstige` und wird NICHT verworfen — dass ein neuerer Stand
+ * eine Sorte kennt, die dieser nicht kennt, ist kein Grund, einen
+ * eingetragenen Prueftermin zu loeschen.
+ */
+const healFristen = (raw: unknown): Frist[] | undefined => {
+  if (!Array.isArray(raw)) return undefined
+  const out: Frist[] = []
+  for (const e of raw) {
+    if (!e || typeof e !== 'object') continue
+    const f = e as Partial<Frist>
+    const faellig = typeof f.faellig === 'string' && f.faellig.trim() ? f.faellig.trim() : undefined
+    const zuletzt = typeof f.zuletzt === 'string' && f.zuletzt.trim() ? f.zuletzt.trim() : undefined
+    const intervallMonate =
+      typeof f.intervallMonate === 'number' && f.intervallMonate > 0
+        ? Math.round(f.intervallMonate)
+        : undefined
+    if (!faellig && !(zuletzt && intervallMonate)) continue
+    const art: FristArt =
+      typeof f.art === 'string' && (FRIST_ARTEN as string[]).includes(f.art)
+        ? (f.art as FristArt)
+        : 'sonstige'
+    out.push({
+      art,
+      ...(typeof f.bezeichnung === 'string' && f.bezeichnung.trim()
+        ? { bezeichnung: f.bezeichnung.trim() }
+        : {}),
+      ...(zuletzt ? { zuletzt } : {}),
+      ...(intervallMonate ? { intervallMonate } : {}),
+      ...(faellig ? { faellig } : {}),
+    })
+  }
+  return out.length > 0 ? out : undefined
+}
+
 const healUnit = (raw: unknown): InventoryUnit | null => {
   if (!raw || typeof raw !== 'object') return null
   const r = raw as Partial<InventoryUnit>
@@ -350,6 +391,11 @@ const healUnit = (raw: unknown): InventoryUnit | null => {
     // (siehe `inventoryPortable.ts`).
     anschaffung: healAnschaffung(r.anschaffung),
     versicherungswert: healVersicherungswert(r.versicherungswert),
+    // B-65 — die Pruef-Fristen des Lager-Werkzeugs. Der Planer bearbeitet
+    // sie nicht, darf sie aber auch nicht wegwerfen: genau hier ginge sie
+    // sonst still verloren, und ein Export aus dem Planer kaeme im Lager
+    // ohne eine einzige Frist an.
+    fristen: healFristen(r.fristen),
     history,
     createdAt: typeof r.createdAt === 'string' ? r.createdAt : now,
     updatedAt: typeof r.updatedAt === 'string' ? r.updatedAt : now,

@@ -101,6 +101,43 @@ export interface Versicherungswert {
   stand?: string
 }
 
+/**
+ * Was an einer Einheit turnusmaessig faellig ist (B-65).
+ *
+ * GEPFLEGT WIRD DAS IM LAGER-WERKZEUG (`inventory-planner`, Block
+ * „Fristen"), nicht hier. Der Typ steht trotzdem in diesem Repo, und der
+ * Grund ist derselbe wie bei `mindestmenge`: `healUnit` weiter unten baut
+ * jede Einheit Feld fuer Feld neu auf. Ein Feld, das der Typ nicht kennt,
+ * laese der Planer aus einer `avplan-inventory`-Datei ein und schriebe es
+ * beim Export STILL weg — und die Fristen-Ampel im Lager saehe danach ein
+ * Lager ohne eine einzige Pruef-Frist. Sie wuerde dabei nicht schweigen,
+ * sondern das Gegenteil sagen: „nichts faellig".
+ *
+ * Ein generischer Termin und nicht drei Felder: ein Termin ist immer
+ * dieselbe Sache — ein Datum, ab dem etwas nicht mehr gilt. Woran es
+ * haengt, sagt `art`.
+ */
+export type FristArt = 'dguv-v3' | 'kalibrierung' | 'wartung' | 'akku' | 'sonstige'
+
+export interface Frist {
+  art: FristArt
+  /** Freitext, wenn `art` es nicht sagt (bei `sonstige` das Einzige). */
+  bezeichnung?: string
+  /** Wann sie zuletzt erledigt wurde (ISO-Datum). */
+  zuletzt?: string
+  /** Abstand bis zur naechsten, in Monaten. */
+  intervallMonate?: number
+  /**
+   * Der naechste Termin (ISO-Datum).
+   *
+   * Steht hier eines, gilt es. Steht keines, leitet das Lager-Werkzeug aus
+   * `zuletzt` + `intervallMonate` eines ab und sagt in der Zeile, dass es
+   * gerechnet ist. Fehlt beides, gibt es keinen Termin — und es wird
+   * keiner geraten.
+   */
+  faellig?: string
+}
+
 export interface InventoryItem {
   id: string
   /** Modell-/Artikelname (Pflicht, Anzeigename). */
@@ -414,6 +451,13 @@ export interface InventoryUnit {
   anschaffung?: Anschaffung
   /** Bedarf 118 — wofür sie versichert ist. Siehe `Versicherungswert`. */
   versicherungswert?: Versicherungswert
+  /**
+   * B-65 — was an dieser Einheit turnusmaessig faellig ist. Siehe `Frist`.
+   *
+   * An der EINHEIT und nicht am Artikel: geprueft, kalibriert und mit einer
+   * Plakette beklebt wird das einzelne Geraet.
+   */
+  fristen?: Frist[]
   /** Freie Notiz. */
   notes?: string
   /** Append-only Historie (Bewegungen, Zustandswechsel). */
