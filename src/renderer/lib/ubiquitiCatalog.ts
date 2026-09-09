@@ -1,10 +1,16 @@
 import type { EquipmentTemplate, Port } from '../types/equipment'
 
-// Ubiquiti EdgeRouter / EdgeSwitch / UniFi Switch templates based on the
-// official datasheets / ui.com spec pages. Matched by name substrings so
-// Rentman items like "Ubiquiti EdgeSwitch ES-24-500W" resolve to this
-// template during import, and they're also seeded into the library so the
+// Ubiquiti EdgeRouter / EdgeSwitch / UniFi Switch templates. Matched by name
+// substrings so Rentman items like "Ubiquiti EdgeSwitch ES-24-500W" resolve to
+// this template during import, and they're also seeded into the library so the
 // user can drag them onto the canvas without Rentman.
+//
+// BELEGLAGE: kein Datenblatt-Link je Eintrag (B-11).
+// Bis 2026-09-09 stand hier „based on the official datasheets / ui.com spec
+// pages". Keiner der 40 Einträge hinterlegt eine. Es ist der größte
+// beleglose Katalog des Repos, und der Satz war der überzeugendste — er
+// nannte sogar die Domäne.
+// `tests/katalogBeleglage.test.ts` hält es fest.
 
 const port = (name: string, connectorType: Port['connectorType'] = 'Ethernet/RJ45'): Port => ({
   id: '',

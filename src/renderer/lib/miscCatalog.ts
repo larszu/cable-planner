@@ -6,6 +6,11 @@ import type { RecordingCapability } from './recording'
 // Decimator SDI/HDMI converters, AJA recorders/scalers, Miranda frame sync,
 // TC Electronics metering, Yamaha studio monitors.
 // Verified against a professional rental-house Rentman inventory (April 2026).
+//
+// BELEGLAGE: kein Datenblatt-Link je Eintrag (B-11).
+// Die Rentman-Prüfung oben ist eine echte Quelle und bleibt stehen — sie sagt
+// nur etwas anderes: dass es die Geräte so GIBT, nicht dass die Port-Zahlen
+// stimmen. Für die 22 Einträge ist kein Hersteller-Beleg hinterlegt.
 
 const port = (name: string, connectorType: Port['connectorType'] = 'BNC'): Port => ({
   id: '',

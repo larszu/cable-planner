@@ -1,9 +1,18 @@
 import type { EquipmentTemplate, Port } from '../types/equipment'
 import type { RecordingCapability } from './recording'
 
-// Known Blackmagic Design device templates with port counts taken from the
-// official datasheets. Matched by name substrings so Rentman items like
-// "Blackmagic Smart Videohub 40x40 12G" get the proper ports assigned on import.
+// Known Blackmagic Design device templates. Matched by name substrings so
+// Rentman items like "Blackmagic Smart Videohub 40x40 12G" get the proper
+// ports assigned on import.
+//
+// BELEGLAGE: kein Datenblatt-Link je Eintrag (B-11).
+// Bis 2026-09-09 stand hier „port counts taken from the official
+// datasheets". Keiner der 32 Einträge hinterlegt eines. Die Zahlen mögen
+// von dort stammen — nachsehen kann es von hier aus niemand, und genau
+// diese Prüfbarkeit behauptete der alte Satz. Was darunter an einzelnen
+// Feldern „laut Datenblatt" sagt, ist durch diese Zeile eingeordnet.
+// `tests/katalogBeleglage.test.ts` hält beide Richtungen fest: sind die
+// Belege nachgetragen, muss diese Zeile wieder verschwinden.
 
 const port = (name: string, connectorType: Port['connectorType'] = 'BNC'): Port => ({
   id: '',

@@ -1,5 +1,10 @@
 import type { EquipmentTemplate, Port } from '../types/equipment'
 
+// BELEGLAGE: kein Datenblatt-Link je Eintrag (B-11).
+// Der Kopf behauptete kein Datenblatt — er sagte aber auch nicht, dass keines
+// hinterlegt ist, und ein leeres Feld sieht aus wie „hat gerade niemand
+// nachgetragen". Neun Einträge, null Belege.
+//
 // GreenGo intercom equipment templates for rental catalog matching.
 // GreenGo is a fully IP-based intercom system — all devices connect via
 // standard Ethernet. The MCX/MCXD provide analog program I/O via XLR-3.
