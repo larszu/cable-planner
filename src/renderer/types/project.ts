@@ -297,6 +297,20 @@ export interface CablePlannerProject {
    * Optional → alte Projekte heilen zu einem leeren Plan.
    */
   micPlot?: import('./micAssignment').MicPlot
+  /**
+   * Bedarf 10 — der GELESENE Ablauf plus die Zuordnung „welche Position macht
+   * in welchem Abschnitt was".
+   *
+   * Der Ablauf gehoert der Redaktion, nicht diesem Programm — der Bedarf sagt
+   * ausdruecklich „do not build a rundown editor". Was hier steht, ist die
+   * Kopie mit ihrer Herkunft (`source`, `revision`, `importedAt`) plus die
+   * Zuordnung, die kein Ablauf-System kennt, weil es die Kamerapositionen
+   * nicht kennt. Begruendung im Kopf von `types/rundown.ts`.
+   *
+   * Optional → alte Projekte laden sauber. `undefined` heisst „kein Ablauf
+   * eingelesen" und ist etwas anderes als ein Ablauf ohne Abschnitte.
+   */
+  rundown?: import('./rundown').RundownPlan
   /** ADR-001 — Signalquellen als Rollen („Kamera 1"), an denen die Anker
    *  haengen, die keine Runtime besitzt (heute: die TSL-UMD-Adresse). Geraete
    *  verweisen ueber `EquipmentItem.sourceIdentityId` darauf. Optional → alte

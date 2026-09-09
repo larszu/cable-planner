@@ -43,6 +43,8 @@ import { portDisplayLabel } from '../renderer/lib/portLabel'
 import { keepScreenAwake } from '../renderer/lib/wakeLock'
 import type { CablePlannerProject } from '../renderer/types/project'
 import { PatternWalk } from './PatternWalk'
+import { aenderungen, positionsKarte } from '../renderer/lib/rundownCard'
+import type { RundownPlan } from '../renderer/types/rundown'
 
 /** Deep-Link beim Laden: `?lookup=cable/C-0001` oder `#cable/C-0001` /
  *  `#C-0001`. Wird einmalig nach dem Projekt-Load aufgelöst und springt
@@ -242,6 +244,50 @@ const loadCachedProject = (showId: string | null = lastShow()): { cachedAt: stri
 }
 
 const portKey = (deviceId: string, portId: string) => `${deviceId}|${portId}`
+
+// ── BEDARF 10: meine Position und der Stand, den ich zuletzt gesehen habe ────
+//
+// Beides gehoert AUF DIESES GERAET und nicht ins Projekt: „welche Kamera bin
+// ich" ist eine Eigenschaft des Handys am Platz, und „was habe ich zuletzt
+// gesehen" erst recht. Im Projekt gefuehrt haetten alle Kameras denselben
+// Aenderungsbalken — und der leuchtete fuer niemanden richtig.
+const POSITION_KEY = (showId: string) => `cable-planner-mobile:position:${showId}`
+const GESEHEN_KEY = (showId: string, sourceId: string) =>
+  `cable-planner-mobile:rundown-seen:${showId}:${sourceId}`
+
+const ladePosition = (showId: string): string | null => {
+  try {
+    return localStorage.getItem(POSITION_KEY(showId))
+  } catch {
+    return null
+  }
+}
+
+const merkePosition = (showId: string, sourceId: string | null): void => {
+  try {
+    if (sourceId) localStorage.setItem(POSITION_KEY(showId), sourceId)
+    else localStorage.removeItem(POSITION_KEY(showId))
+  } catch {
+    /* Privater Modus. Dann eben nicht gemerkt. */
+  }
+}
+
+const ladeGesehen = (showId: string, sourceId: string): RundownPlan | null => {
+  try {
+    const roh = localStorage.getItem(GESEHEN_KEY(showId, sourceId))
+    return roh ? (JSON.parse(roh) as RundownPlan) : null
+  } catch {
+    return null
+  }
+}
+
+const merkeGesehen = (showId: string, sourceId: string, plan: RundownPlan): void => {
+  try {
+    localStorage.setItem(GESEHEN_KEY(showId, sourceId), JSON.stringify(plan))
+  } catch {
+    /* Quota. Dann zeigt der Balken beim naechsten Mal wieder alles. */
+  }
+}
 
 const ProjectPicker = ({
   onLoad,
@@ -1041,6 +1087,190 @@ const QrFindOverlay = ({
   )
 }
 
+/**
+ * BEDARF 10 — die Karte fuer EINEN Kameraplatz, mit dem Aenderungsbalken.
+ *
+ *   > The current rundown, live, at the camera — with changes VISIBLY MARKED.
+ *
+ * Der Beleg beschreibt Buendel gedruckter Ablaufplaene, die bei jeder Aenderung
+ * neu gedruckt und neu gemailt werden; am Produktionstag wird der Ausdruck von
+ * Hand annotiert, alles Uebrige kommt per Zuruf ueber die Kommandoanlage.
+ *
+ * DER BALKEN VERGLEICHT GEGEN DAS, WAS ICH ZULETZT GESEHEN HABE — nicht gegen
+ * die vorletzte Fassung und nicht gegen irgendeinen Stand aus dem Projekt.
+ * Deshalb liegt der Vergleichsstand auf diesem Geraet: er gehoert zu diesem
+ * Platz und zu dieser Person. Beim ersten Oeffnen gibt es keinen, und dann
+ * steht kein Balken da statt „alles neu" — eine Falschmeldung waere schlimmer
+ * als keine Meldung, und beim ersten Blick ist ohnehin alles neu.
+ *
+ * QUITTIEREN IST EIN GRIFF UND KEIN NEBENEFFEKT. Das Oeffnen der Ansicht setzt
+ * den Vergleichsstand NICHT: wer nur kurz nachsieht, ohne die Aenderungen
+ * gelesen zu haben, haette sie sonst weggeklickt, ohne es zu merken.
+ */
+const AblaufKarte = ({
+  project,
+  showId,
+}: {
+  project: CablePlannerProject
+  showId: string
+}) => {
+  const rundown = project.rundown
+  const identities = project.sourceIdentities ?? []
+  const [sourceId, setSourceId] = useState<string | null>(() => ladePosition(showId))
+  const [gesehen, setGesehen] = useState<RundownPlan | null>(() => {
+    const gemerkt = ladePosition(showId)
+    return gemerkt ? ladeGesehen(showId, gemerkt) : null
+  })
+
+  const waehle = (id: string | null) => {
+    setSourceId(id)
+    merkePosition(showId, id)
+    setGesehen(id ? ladeGesehen(showId, id) : null)
+  }
+
+  const karte = useMemo(
+    () => (rundown && sourceId ? positionsKarte(rundown, sourceId) : null),
+    [rundown, sourceId],
+  )
+  const diff = useMemo(
+    () => (rundown && gesehen && sourceId ? aenderungen(gesehen, rundown, sourceId) : null),
+    [rundown, gesehen, sourceId],
+  )
+  const artFuer = (segmentId: string) =>
+    diff?.zeilen.find((z) => z.segmentId === segmentId)?.art
+
+  if (!rundown) return null
+
+  return (
+    <div className="mt-2 space-y-2">
+      <label className="block text-[11px] text-cp-text-secondary">
+        <span className="mb-1 block">Mein Platz</span>
+        <select
+          value={sourceId ?? ''}
+          onChange={(e) => waehle(e.target.value || null)}
+          className="w-full rounded border border-cp-border bg-cp-surface-1 px-2 py-1 text-xs text-cp-text"
+        >
+          <option value="">— Position wählen —</option>
+          {identities.map((i) => (
+            <option key={i.id} value={i.id}>
+              {i.name}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      {!sourceId && (
+        <p className="text-[11px] text-cp-text-muted">
+          Wähle deine Kameraposition. Ohne sie kann diese Ansicht nicht sagen, was DIR aufgetragen
+          ist — und eine Liste aller Aufträge wäre am Platz unbrauchbar.
+        </p>
+      )}
+
+      {karte && (
+        <>
+          <div className="rounded border border-cp-border-muted bg-cp-surface-1 px-2 py-1 text-[11px] text-cp-text-muted">
+            {karte.source}
+            {karte.revision ? ` · ${karte.revision}` : ''} · {karte.mitAuftrag}/
+            {karte.zeilen.length} mit Auftrag
+          </div>
+
+          {/* Der Balken. Er steht NUR da, wenn es einen Vergleichsstand gibt
+              und wirklich etwas anders ist. */}
+          {diff && !diff.unveraendert && (
+            <div className="rounded border border-amber-500/50 bg-amber-500/10 px-2 py-1 text-[11px] text-amber-200">
+              Seit deinem letzten Blick:{' '}
+              {[
+                diff.geaendert > 0 ? `${diff.geaendert} geändert` : null,
+                diff.neu > 0 ? `${diff.neu} neu` : null,
+                diff.entfallen > 0 ? `${diff.entfallen} entfallen` : null,
+                diff.verschoben > 0 ? `${diff.verschoben} verschoben` : null,
+              ]
+                .filter(Boolean)
+                .join(' · ')}
+              <button
+                type="button"
+                onClick={() => {
+                  merkeGesehen(showId, sourceId!, rundown)
+                  setGesehen(rundown)
+                }}
+                className="ml-2 rounded bg-cp-surface-3 px-2 py-0.5 text-cp-text"
+              >
+                gesehen
+              </button>
+            </div>
+          )}
+          {!gesehen && (
+            <p className="text-[11px] text-cp-text-muted">
+              Noch kein Vergleichsstand auf diesem Gerät — beim ersten Blick gibt es nichts zu
+              markieren.{' '}
+              <button
+                type="button"
+                onClick={() => {
+                  merkeGesehen(showId, sourceId!, rundown)
+                  setGesehen(rundown)
+                }}
+                className="rounded bg-cp-surface-3 px-2 py-0.5 text-cp-text"
+              >
+                Diesen Stand merken
+              </button>
+            </p>
+          )}
+
+          <ul className="flex flex-col gap-1">
+            {karte.zeilen.map((z) => {
+              const art = artFuer(z.segment.id)
+              return (
+                <li
+                  key={z.segment.id}
+                  className={`rounded border px-2 py-1 ${
+                    art === 'anders' || art === 'neu'
+                      ? 'border-amber-500/50 bg-amber-500/10'
+                      : 'border-cp-border-muted bg-cp-surface-1'
+                  }`}
+                >
+                  <div className="flex items-baseline gap-2">
+                    <span className="font-mono text-[11px] text-cp-text-muted">
+                      {z.segment.number ?? z.position}
+                    </span>
+                    <span className="text-xs text-cp-text">{z.segment.title}</span>
+                    {art === 'neu' && <span className="text-[10px] text-amber-300">neu</span>}
+                    {art === 'anders' && (
+                      <span className="text-[10px] text-amber-300">geändert</span>
+                    )}
+                  </div>
+                  {/* Kein Auftrag heisst NICHT „frei" — siehe
+                      `lib/rundownCard.ts`. Der Unterschied entscheidet, ob
+                      jemand die Kamera stehen laesst oder nachfragt. */}
+                  <div
+                    className={`text-xs ${z.coverage ? 'text-cp-text' : 'text-cp-text-faint italic'}`}
+                  >
+                    {z.coverage ? z.coverage.shot : 'kein Auftrag eingetragen'}
+                  </div>
+                  {z.coverage?.note && (
+                    <div className="text-[11px] text-cp-text-muted">{z.coverage.note}</div>
+                  )}
+                </li>
+              )
+            })}
+            {/* Entfallene Abschnitte stehen UNTEN und nicht gar nicht: wer sie
+                auf dem Ausdruck hat, muss sie streichen koennen. */}
+            {diff?.zeilen
+              .filter((z) => z.art === 'entfallen')
+              .map((z) => (
+                <li
+                  key={`weg-${z.segmentId}`}
+                  className="rounded border border-cp-danger/40 bg-cp-surface-1 px-2 py-1 text-[11px] text-cp-danger line-through"
+                >
+                  entfallen: {gesehen?.segments.find((s) => s.id === z.segmentId)?.title ?? z.segmentId}
+                </li>
+              ))}
+          </ul>
+        </>
+      )}
+    </div>
+  )
+}
+
 const ProjectView = ({
   project,
   online,
@@ -1076,6 +1306,8 @@ const ProjectView = ({
   })
   const [filter, setFilter] = useState('')
   const [onlyOpen, setOnlyOpen] = useState(false)
+  // Bedarf 10 — der Reiter erscheint nur, wenn ein Ablauf eingelesen ist.
+  const hatAblauf = (project.rundown?.segments.length ?? 0) > 0
 
   useEffect(() => {
     saveChecks(speicherKey, checks)
@@ -1114,7 +1346,10 @@ const ProjectView = ({
   }, [online, showId, checks])
 
   // #180 — Zwei Betriebsmodi: Patchliste (Default) + Planansicht.
-  const [viewMode, setViewMode] = useState<'list' | 'plan'>('list')
+  // BEDARF 10 — ein dritter kommt dazu, aber nur, wenn es einen Ablauf gibt:
+  // ein leerer Reiter am Kameraplatz ist Laerm, und wo der Ablauf fehlt, ist
+  // das am Rechner zu sehen und nicht hier.
+  const [viewMode, setViewMode] = useState<'list' | 'plan' | 'ablauf'>('list')
   const [planSelectedId, setPlanSelectedId] = useState<string | null>(null)
   const [showAddCable, setShowAddCable] = useState(false)
   // User-Request: wenn schon eine Geraete-Karte aufgeklappt ist, soll
@@ -1299,20 +1534,26 @@ const ProjectView = ({
             </div>
           </div>
         </div>
-        {/* #180 — Modus-Umschalter: Patchliste ↔ Plan */}
-        <div className="mt-2 grid grid-cols-2 gap-1 rounded bg-cp-surface-1 p-0.5">
-          {(['list', 'plan'] as const).map((m) => (
-            <button
-              key={m}
-              type="button"
-              onClick={() => setViewMode(m)}
-              className={`rounded px-2 py-1 text-[11px] font-medium ${
-                viewMode === m ? 'bg-cp-accent text-white' : 'text-cp-text-secondary hover:bg-cp-surface-3'
-              }`}
-            >
-              {m === 'list' ? 'Patchliste' : 'Plan'}
-            </button>
-          ))}
+        {/* #180 — Modus-Umschalter: Patchliste ↔ Plan ↔ (Bedarf 10) Ablauf */}
+        <div
+          className={`mt-2 grid gap-1 rounded bg-cp-surface-1 p-0.5 ${
+            hatAblauf ? 'grid-cols-3' : 'grid-cols-2'
+          }`}
+        >
+          {(hatAblauf ? (['list', 'plan', 'ablauf'] as const) : (['list', 'plan'] as const)).map(
+            (m) => (
+              <button
+                key={m}
+                type="button"
+                onClick={() => setViewMode(m)}
+                className={`rounded px-2 py-1 text-[11px] font-medium ${
+                  viewMode === m ? 'bg-cp-accent text-white' : 'text-cp-text-secondary hover:bg-cp-surface-3'
+                }`}
+              >
+                {m === 'list' ? 'Patchliste' : m === 'plan' ? 'Plan' : 'Ablauf'}
+              </button>
+            ),
+          )}
         </div>
         {viewMode === 'list' && (
         <div className="mt-2 flex items-center gap-2">
@@ -1432,7 +1673,11 @@ const ProjectView = ({
           onClose={() => setWalkOpen(false)}
         />
       )}
-      {viewMode === 'list' ? (
+      {viewMode === 'ablauf' ? (
+        // BEDARF 10 — eigener Zweig und nicht der `else` der Planansicht:
+        // sonst zeichnete der Ablauf-Reiter den Plan darunter mit.
+        <AblaufKarte project={project} showId={speicherKey} />
+      ) : viewMode === 'list' ? (
         <div className="space-y-2 pb-8">
           {filteredDevices.length === 0 ? (
             <div className="rounded border border-dashed border-cp-border bg-cp-surface-1 p-6 text-center text-xs text-cp-text-faint">

@@ -42,6 +42,7 @@ export type MetaSlice = Pick<
   | 'setNamingScheme'
   | 'setRecordNaming'
   | 'setMicPlot'
+  | 'setRundown'
   | 'setTallyPosition'
   | 'recordTallyCheck'
   | 'recordPatternCheck'
@@ -152,6 +153,19 @@ export const createMetaSlice: StateCreator<ProjectState, [], [], MetaSlice> = (s
   setMicPlot: (plot) =>
     set((state) => {
       const updated = { ...state.project, micPlot: plot }
+      scheduleProjectAutosave(updated)
+      return { project: updated }
+    }),
+  // BEDARF 10 — der gelesene Ablauf samt Zuordnung.
+  //
+  // EIN Setter fuer beides, Abschnitte UND Zuordnung, und das ist hier keine
+  // Bequemlichkeit: eine Zuordnung zeigt auf einen Abschnitt. Zwei Setter
+  // liessen den Zustand zu, in dem die neuen Abschnitte schon da sind und die
+  // Zuordnung noch auf die alten zeigt — und `normaliseRundown` verwirft
+  // Zuordnungen ins Leere, also waeren sie beim naechsten Laden still weg.
+  setRundown: (rundown) =>
+    set((state) => {
+      const updated = { ...state.project, rundown }
       scheduleProjectAutosave(updated)
       return { project: updated }
     }),
