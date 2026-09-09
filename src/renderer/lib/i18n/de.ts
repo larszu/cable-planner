@@ -3963,7 +3963,7 @@ export const de: Dict = {
   'recStorage.minutes': 'Minuten',
   'recStorage.perChannel': 'Pro Kanal',
   'recStorage.rawCapacity': 'roh',
-  'recStorage.redMirror': 'Mirror (×2)',
+  'recStorage.redMirror': 'Spiegelung (×2)',
   'recStorage.redNone': 'Keine (JBOD)',
   'recStorage.redundancy': 'Redundanz',
   'recStorage.sizing': 'Array-Dimensionierung',
