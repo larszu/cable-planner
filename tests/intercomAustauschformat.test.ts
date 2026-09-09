@@ -195,3 +195,137 @@ describe('Der Vertrag ist eingefroren', () => {
     expect(parseIntercomExchange('null')).toBeNull()
   })
 })
+
+describe('Format-Version 2 — die Tastenbelegung reist mit', () => {
+  // Die Belegung ist eine Regie-Entscheidung und keine Folge der
+  // Zugehoerigkeit. Sie ueberlebt den Weg ueber die Datei nur, wenn drei
+  // Dinge stimmen: die Version geht mit, „nichts gesagt" und „leer" bleiben
+  // unterscheidbar, und eine Taste ins Leere wird nicht erfunden.
+  const mitTasten = (): GreenGoConfig => ({
+    systemName: 'Show',
+    description: '',
+    multicastAddress: '239.1.160.1',
+    sampleRate: 48000,
+    groups: [
+      { id: 1, name: 'PGM' },
+      { id: 2, name: 'Ton' },
+    ],
+    users: [
+      {
+        id: 1,
+        name: 'Regie',
+        groupIds: [1, 2],
+        keys: [
+          { page: 1, button: 1, groupId: 1 },
+          { page: 1, button: 2, groupId: 2 },
+        ],
+      },
+      // Ausdruecklich leer: die Karte ist gesehen und geraeumt.
+      { id: 2, name: 'Kamera 1', groupIds: [1], keys: [] },
+      // Nie eine Karte gesehen.
+      { id: 3, name: 'Ton', groupIds: [2] },
+    ],
+  })
+
+  it('nennt Version 2', () => {
+    expect(INTERCOM_FORMAT_VERSION).toBe(2)
+    expect(toIntercomExchange(mitTasten()).version).toBe(2)
+  })
+
+  it('schreibt die Belegung mit der neutralen Kanal-Kennung', () => {
+    const f = toIntercomExchange(mitTasten())
+    expect(f.stations[0].keys).toEqual([
+      { page: 1, button: 1, channelId: 'ch-1' },
+      { page: 1, button: 2, channelId: 'ch-2' },
+    ])
+  })
+
+  it('haelt „leer" und „nichts gesagt" auseinander', () => {
+    const f = toIntercomExchange(mitTasten())
+    // Leer bleibt leer -- sonst stuende die entfernte Belegung beim naechsten
+    // Import wieder da.
+    expect(f.stations[1].keys).toEqual([])
+    expect(f.stations[2].keys).toBeUndefined()
+    expect('keys' in f.stations[2]).toBe(false)
+  })
+
+  it('laesst eine Taste auf eine Gruppe, die es nicht gibt, weg', () => {
+    const cfg = mitTasten()
+    cfg.users[0].keys = [
+      { page: 1, button: 1, groupId: 1 },
+      { page: 1, button: 3, groupId: 99 },
+    ]
+    const f = toIntercomExchange(cfg)
+    expect(f.stations[0].keys).toEqual([{ page: 1, button: 1, channelId: 'ch-1' }])
+  })
+
+  it('liest die Belegung zurueck, mit den neu vergebenen Nummern', () => {
+    const zurueck = fromIntercomExchange(toIntercomExchange(mitTasten()))
+    expect(zurueck.users[0].keys).toEqual([
+      { page: 1, button: 1, groupId: 1 },
+      { page: 1, button: 2, groupId: 2 },
+    ])
+    expect(zurueck.users[1].keys).toEqual([])
+    expect(zurueck.users[2].keys).toBeUndefined()
+  })
+
+  it('verwirft beim Lesen eine unlesbare Taste, statt sie zu runden', () => {
+    // Eine Seite 0 oder eine halbe Taste ist kein Platz auf einem Geraet.
+    const roh = JSON.stringify({
+      format: 'avplan-intercom',
+      version: 2,
+      systemName: 'Show',
+      channels: [{ id: 'ch-1', name: 'PGM' }],
+      stations: [
+        {
+          id: 'st-1',
+          name: 'Regie',
+          memberships: [{ channelId: 'ch-1', talk: true, listen: true }],
+          keys: [
+            { page: 1, button: 1, channelId: 'ch-1' },
+            { page: 0, button: 1, channelId: 'ch-1' },
+            { page: 1, button: 2.5, channelId: 'ch-1' },
+            { page: 1, button: 2 },
+          ],
+        },
+      ],
+    })
+    const gelesen = parseIntercomExchange(roh)
+    expect(gelesen?.stations[0].keys).toEqual([{ page: 1, button: 1, channelId: 'ch-1' }])
+  })
+
+  it('nimmt eine keys-Angabe, die keine Liste ist, als „nichts gesagt"', () => {
+    const roh = JSON.stringify({
+      format: 'avplan-intercom',
+      version: 2,
+      systemName: 'Show',
+      channels: [{ id: 'ch-1', name: 'PGM' }],
+      stations: [{ id: 'st-1', name: 'Regie', memberships: [], keys: 'egal' }],
+    })
+    const gelesen = parseIntercomExchange(roh)
+    expect(gelesen?.stations[0].keys).toBeUndefined()
+    expect('keys' in gelesen!.stations[0]).toBe(false)
+  })
+
+  it('laesst eine Taste auf einen Kanal, den die Datei nicht fuehrt, weg', () => {
+    const roh = JSON.stringify({
+      format: 'avplan-intercom',
+      version: 2,
+      systemName: 'Show',
+      channels: [{ id: 'ch-1', name: 'PGM' }],
+      stations: [
+        {
+          id: 'st-1',
+          name: 'Regie',
+          memberships: [],
+          keys: [
+            { page: 1, button: 1, channelId: 'ch-1' },
+            { page: 1, button: 2, channelId: 'ch-weg' },
+          ],
+        },
+      ],
+    })
+    const cfg = fromIntercomExchange(parseIntercomExchange(roh)!)
+    expect(cfg.users[0].keys).toEqual([{ page: 1, button: 1, groupId: 1 }])
+  })
+})
