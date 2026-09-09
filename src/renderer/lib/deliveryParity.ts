@@ -29,6 +29,7 @@
 import type { CsvCell, CsvTable } from './csv'
 import type { DeliveryDestination, EncodingProfile } from '../types/delivery'
 import { platformByKey } from '../types/delivery'
+import { COMPANION_SCHNITTSTELLE_HINWEIS } from './companionVariablen'
 
 export type DeliveryIssueKind =
   /** Backup weicht in einem der sechs Pflichtfelder ab. */
@@ -225,10 +226,25 @@ export const deliveryIssueText = (i: DeliveryIssue): string => {
  * Die Show-Control-Zelle fuer das Blatt (E-23).
  *
  * ZWEI DINGE STEHEN HIER, UND DAS ZWEITE IST EINE AUFLAGE AUS DER RECHERCHE:
- * wo eine COMPANION-Position steht, schreibt das Blatt dazu, dass deren
- * Schnittstelle opt-in ist. Ohne diesen Zusatz zeigt der Plan einen Weg, den
- * es beim Kunden nicht gibt — die Schnittstelle ist in Companion
- * standardmaessig aus, und niemand sieht das der Positionsangabe an.
+ * wo eine COMPANION-Position steht, schreibt das Blatt dazu, wie es um deren
+ * Schnittstelle steht. Ohne diesen Zusatz zeigt der Plan einen Weg, den es
+ * beim Kunden vielleicht nicht gibt, und niemand sieht das der
+ * Positionsangabe an.
+ *
+ * DIE ERSTE FASSUNG DIESES ZUSATZES WAR ZU GROB. Sie sagte „die
+ * Schnittstelle ist ab Werk aus" — pauschal. Nachgesehen am 2026-09-09 in
+ * `companion/lib/Data/UserConfig.ts` stimmt das nur zur Haelfte:
+ *
+ *   • `http_api_enabled: true`   — der SCHALT-Weg aus S-4 ist ab Werk AN
+ *   • `tcp_enabled: false`       — der LESE-Weg ist ab Werk aus
+ *   • und eine hochgezogene Installation bekommt TCP EINGESCHALTET, nur auf
+ *     dem alten Port 51234 statt 16759
+ *
+ * Wer den Satz auf „ist aus" zurueckkuerzt, schickt jemanden an den falschen
+ * Schalter — und wer „ab Werk an" daraus macht, an gar keinen. Der Text steht
+ * deshalb an EINER Stelle (`lib/companionVariablen.ts`) und wird hier nur
+ * eingesetzt; `tests/companionVariablen.test.ts` haelt fest, dass beide Ports
+ * und beide Wege darin vorkommen.
  */
 export const showControlText = (
   sc: DeliveryDestination['showControl'],
@@ -239,7 +255,7 @@ export const showControlText = (
   if (sc.companionSeite !== undefined && sc.companionPlatz !== undefined) {
     teile.push(
       `Companion Seite ${sc.companionSeite} Platz ${sc.companionPlatz} ` +
-        '(Schnittstelle dort einschalten — sie ist ab Werk aus)',
+        `(${COMPANION_SCHNITTSTELLE_HINWEIS})`,
     )
   }
   return teile.join(' · ')

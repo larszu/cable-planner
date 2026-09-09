@@ -6,6 +6,7 @@ import { useProjectStore } from '../../store/projectStore'
 import { useTranslation } from '../../lib/i18n'
 import { ModalShell } from '../shared/ModalShell'
 import { PanelHint } from '../shared/PanelHint'
+import { CompanionStandSection } from './CompanionStandSection'
 import { Icon } from '../shared/Icon'
 import {
   LAUSCHER_LAGE_LABEL,
@@ -207,6 +208,12 @@ export const OscEmpfangPanel = () => {
           ))}
         </ul>
       )}
+
+      {/* Die ZWEITE Quelle (E-23). Sie steht bewusst unter der Mitschrift und
+          nicht daneben: sie kommt nicht ueber den Draht, sondern aus einer
+          Sitzung, die jemand gefuehrt hat — und traegt deshalb den Zeitpunkt
+          des ABLESENS statt den des Empfangs. */}
+      <CompanionStandSection />
     </ModalShell>
   )
 }
