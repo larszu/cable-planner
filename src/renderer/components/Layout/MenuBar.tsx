@@ -52,6 +52,7 @@ import {
   Users,
   ZoomIn,
   ZoomOut,
+  ListOrdered,
 } from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import {
@@ -869,6 +870,16 @@ export const MenuBar = ({
             note={t('app.menu.tools.wirelessRig.note', 'Frequenzen, Sender, Empfänger im Spektrum')}
           >
             {t('app.menu.tools.wirelessRig', 'Funkstrecken / Gesang…')}
+          </MenuItem>
+          {/* BEDARF 10 — der Ablauf wird eingelesen, nicht hier gefuehrt.
+              Steht unter „Planen" und nicht unter „Ausgeben": die Zuordnung
+              entsteht vor der Show, die Karte am Kameraplatz liest sie. */}
+          <MenuItem
+            onClick={() => useUiStore.getState().setRundownOpen(true)}
+            icon={<Icon icon={ListOrdered} size="sm" />}
+            note={t('app.menu.tools.rundown.note', 'Abschnitte einlesen, Aufträge je Kameraposition')}
+          >
+            {t('app.menu.tools.rundown', 'Ablauf und Kamera-Aufträge…')}
           </MenuItem>
           <MenuItem
             onClick={() => useUiStore.getState().setDeliveryOpen(true)}

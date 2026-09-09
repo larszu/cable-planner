@@ -823,6 +823,9 @@ interface UiState extends PersistedUiState {
   setDrumMicingOpen: (open: boolean) => void
   /** Wireless-Rig-Dialog (Funkstrecken-Kanalplan). */
   wirelessRigOpen: boolean
+  /** Bedarf 10 — Ablauf einlesen und Kamera-Auftraege zuordnen. */
+  rundownOpen: boolean
+  setRundownOpen: (open: boolean) => void
   setWirelessRigOpen: (open: boolean) => void
   /** Initiative 9 — Register der Ausspielziele. */
   deliveryOpen: boolean
@@ -1363,6 +1366,8 @@ export const useUiStore = create<UiState>((set) => ({
   setDrumMicingOpen: (open) => set({ drumMicingOpen: open }),
   wirelessRigOpen: false,
   setWirelessRigOpen: (open) => set({ wirelessRigOpen: open }),
+  rundownOpen: false,
+  setRundownOpen: (open) => set({ rundownOpen: open }),
   deliveryOpen: false,
   setDeliveryOpen: (open) => set({ deliveryOpen: open }),
   adernOpen: false,
