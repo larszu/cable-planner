@@ -1,7 +1,9 @@
+import { useState } from 'react'
 import { useUiStore } from '../../store/uiStore'
 import { useCircuitStore } from '../../store/circuitStore'
 import { useCircuitOverview } from '../../hooks/useCircuit'
 import { useTranslation } from '../../lib/i18n'
+import { CircuitSuggestDialog } from './CircuitSuggestDialog'
 
 /**
  * Das Schaltbild — an oder aus, und was es gerade sagt.
@@ -24,6 +26,7 @@ export function CircuitChip() {
   const setAn = useUiStore((s) => s.setCircuitOverlay)
   const zuruecksetzen = useCircuitStore((s) => s.zuruecksetzen)
   const { brennen, leuchten, ohneBauart, knoten } = useCircuitOverview()
+  const [vorschlaegeOffen, setVorschlaegeOffen] = useState(false)
 
   const titel = !an
     ? t(
@@ -80,6 +83,20 @@ export function CircuitChip() {
           {t('canvas.circuit.reset', 'Schalter zurück')}
         </button>
       )}
+      {an && knoten > 0 && (
+        <button
+          type="button"
+          onClick={() => setVorschlaegeOffen(true)}
+          title={t(
+            'canvas.circuit.suggestTitle',
+            'Warum tut die Schaltung nicht, was sie soll — und welche Ader würde es ändern. Jeder Vorschlag ist durchgerechnet und bringt seine Wahrheitstafel mit; eingetragen wird nur auf Knopfdruck.',
+          )}
+          className="av-focus rounded-full border border-cp-border px-2 py-0.5 text-[11px] text-cp-text-secondary hover:bg-cp-surface-3"
+        >
+          {t('canvas.circuit.suggest', 'Vorschläge')}
+        </button>
+      )}
+      <CircuitSuggestDialog open={vorschlaegeOffen} onClose={() => setVorschlaegeOffen(false)} />
     </span>
   )
 }
