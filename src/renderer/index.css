@@ -657,6 +657,88 @@ button:disabled,
   opacity: 0.5;
 }
 
+/* ── Schieberegler: 24 px Trefferflaeche (WCAG 2.2 SC 2.5.8) ────────────────
+ *
+ * Nutzer-Meldung 2026-09-09: „Passe auch die Ui von allen slidern an sodass
+ * man sie gut bedienen kann."
+ *
+ * GEMESSEN VORHER: fuer `input[type="range"]` stand in diesem Stilblatt
+ * NICHTS. Die fuenf Regler der App (Strichstaerke, Beschriftungs-Position,
+ * Port-Schriftgroesse, Hintergrund-Deckkraft, Bild-Zoom im Rack-Zuschnitt)
+ * trugen das Standardaussehen des Browsers — in WebKit rund 16 px hoch, mit
+ * einem Griff, der auf einem Trackpad kaum zu fassen ist. WCAG 2.2,
+ * Erfolgskriterium 2.5.8 („Target Size (Minimum)", Stufe AA), nennt 24 px als
+ * Mindestmass fuer eine Trefferflaeche.
+ *
+ * WAS SICH AENDERT, und warum in dieser Reihenfolge:
+ *
+ *  1. Das ELEMENT wird 24 px hoch — nicht die Bahn. Die Bahn bleibt schmal
+ *     (6 px) und wird in die Mitte gezeichnet; die restlichen 18 px sind
+ *     unsichtbare Trefferflaeche. Ein dicker Balken waere die naheliegende
+ *     und falsche Loesung: die Regler sitzen hier in `flex items-center`-
+ *     Zeilen neben Beschriftungen, und ein 24 px hoher Balken sprengt jede
+ *     davon.
+ *  2. Der Griff wird 18 px und bleibt ECKIG. ADR-007 legt „keine Rundungen"
+ *     fest; ein runder Griff waere in dieser Oberflaeche ein Fremdkoerper.
+ *  3. `touch-action: manipulation` nimmt die 300-ms-Wartezeit auf Doppeltipp
+ *     weg. Ohne sie fuehlt sich jeder Regler auf einem Tablet traege an, und
+ *     zwar unabhaengig von seiner Groesse.
+ *  4. Ein eigener Fokusring mit 3 px Abstand. Die allgemeine Input-Regel
+ *     weiter oben zeichnet ihn mit `outline-offset: -1px`, also INNEN — an
+ *     einem Element, dessen sichtbarer Teil nur 6 px hoch ist, verschwindet
+ *     er unter der Bahn.
+ *
+ * Die Farben kommen aus den `--cp-*`-Tokens, kippen also im Light-Theme von
+ * selbst mit. Firefox braucht seine eigenen Pseudo-Elemente; ohne sie bliebe
+ * es dort beim Standardaussehen, und die Messung staende nur fuer einen
+ * Browser. */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 24px;            /* Trefferflaeche, nicht Bahnhoehe */
+  background: transparent; /* die Bahn zeichnen die Pseudo-Elemente */
+  cursor: pointer;
+  touch-action: manipulation;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 6px;
+  background: var(--cp-surface-3);
+  border: 1px solid var(--cp-border);
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  background: var(--cp-accent);
+  border: 2px solid var(--cp-surface-3);
+  /* Der Griff sitzt auf der Bahn, nicht daneben: (6 px Bahn - 18 px Griff)
+     / 2 = -6 px, plus 1 px Rahmen der Bahn. */
+  margin-top: -7px;
+  cursor: pointer;
+}
+input[type="range"]::-moz-range-track {
+  height: 6px;
+  background: var(--cp-surface-3);
+  border: 1px solid var(--cp-border);
+}
+input[type="range"]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  background: var(--cp-accent);
+  border: 2px solid var(--cp-surface-3);
+  border-radius: 0;
+  cursor: pointer;
+}
+input[type="range"]:focus-visible {
+  outline: 2px solid var(--cp-signal);
+  outline-offset: 3px;
+}
+input[type="range"]:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
 /* ── Themed scrollbars (UX audit #54) ───────────────────────────────────────
  * Previously the app shipped default OS scrollbars, which look out of place on
  * the dark canvas and differ per platform. These are theme-aware via the
