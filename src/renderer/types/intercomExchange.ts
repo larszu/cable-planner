@@ -30,12 +30,21 @@
 export const INTERCOM_FORMAT = 'avplan-intercom'
 
 /**
- * Version 1. Erhoehen, sobald ein Feld dazukommt, dessen Fehlen beim
- * Re-Export etwas LOESCHT — dieselbe Regel wie beim portablen Lager
+ * Erhoehen, sobald ein Feld dazukommt, dessen Fehlen beim Re-Export etwas
+ * LOESCHT — dieselbe Regel wie beim portablen Lager
  * (`inventoryPortable.ts`), und aus demselben Grund: eine Versionsnummer,
  * die nur mitzaehlt, sagt einem Leser nichts.
+ *
+ * VERSION 2 (2026-09-09): die TASTENBELEGUNG (`IntercomStation.keys`). Genau
+ * der Fall, fuer den diese Regel geschrieben ist — ein v1-Leser kennt das
+ * Feld nicht, nimmt die Datei an und laesst die Belegung fallen. Die
+ * Ablehnung einer zu neuen Version auf der Gegenseite gehoert deshalb zur
+ * Erweiterung dazu; sie ist in `Broadcast-intercom/packages/shared`
+ * (`INTERCOM_PLAN_VERSION`) in derselben Sitzung mitgehoben worden. Wer nur
+ * eine Seite aktualisiert, bekommt eine ehrliche Fehlermeldung statt einer
+ * halben Uebernahme.
  */
-export const INTERCOM_FORMAT_VERSION = 1
+export const INTERCOM_FORMAT_VERSION = 2
 
 /** Eine Konferenz / ein Kanal ("PGM", "CAM", "Ton"). */
 export interface IntercomChannel {
@@ -55,6 +64,25 @@ export interface IntercomMembership {
   listen: boolean
 }
 
+/**
+ * Eine Taste auf der Sprechstelle: welche Konferenz liegt auf welchem Platz.
+ *
+ * Format-Version 2. Die Belegung ist eine REGIE-ENTSCHEIDUNG und keine Folge
+ * der Zugehoerigkeit — wer auf drei Konferenzen haengt, hat dadurch noch
+ * keine Reihenfolge. Sie steht deshalb neben `memberships` und nicht darin,
+ * genau wie `GreenGoUser.keys` neben `groupIds` steht.
+ *
+ * Seite und Taste zaehlen ab 1 und werden nicht beschnitten: Green-GO
+ * schreibt zwei Seiten, gesehen wurden mehr, und was der Plan nicht
+ * versteht, veraendert er nicht.
+ */
+export interface IntercomKeyPosition {
+  page: number
+  button: number
+  /** Die Konferenz auf dieser Taste — die neutrale Kennung, keine Nummer. */
+  channelId: string
+}
+
 /** Eine Sprechstelle / Rolle ("Regie", "Kamera 1"). */
 export interface IntercomStation {
   id: string
@@ -69,6 +97,22 @@ export interface IntercomStation {
    * das Format beschreibt einen PLAN, keine Inventur.
    */
   equipmentId?: string
+  /**
+   * Die Tastenbelegung, wenn der Plan sie fuehrt (Format-Version 2).
+   *
+   * DREI ZUSTAENDE, NICHT ZWEI — und der Unterschied ist der Grund fuer das
+   * Fragezeichen:
+   *
+   *   `undefined` — der Plan weiss ueber die Belegung dieser Stelle nichts.
+   *   `[]`        — der Plan kennt die Karte, und sie ist leer.
+   *   Eintraege   — so liegt sie.
+   *
+   * Das ist wortgleich die Unterscheidung aus `GreenGoUser.keys`, und sie
+   * muss ueber die Datei ueberleben: wer sie hier auf „leer oder nicht"
+   * verkuerzt, laesst die Belegung, die jemand gerade entfernt hat, beim
+   * naechsten Import wieder auferstehen.
+   */
+  keys?: IntercomKeyPosition[]
 }
 
 export interface IntercomExchangeFile {
