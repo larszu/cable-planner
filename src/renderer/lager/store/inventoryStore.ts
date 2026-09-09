@@ -121,6 +121,14 @@ const healItem = (raw: unknown): InventoryItem | null => {
     deviceTypeId:
       typeof r.deviceTypeId === 'string' && r.deviceTypeId.trim() ? r.deviceTypeId : undefined,
     quantity: typeof r.quantity === 'number' && r.quantity >= 0 ? Math.round(r.quantity) : 0,
+    // B-65 -- die Mindestmenge des Lager-Werkzeugs muss die Heilung
+    // ueberleben. Der Planer bearbeitet sie nicht, aber er darf sie auch
+    // nicht wegwerfen: genau hier ginge sie sonst still verloren, und ein
+    // Export aus dem Planer kaeme im Lager ohne Mindestmengen an.
+    mindestmenge:
+      typeof r.mindestmenge === 'number' && r.mindestmenge >= 0
+        ? Math.round(r.mindestmenge)
+        : undefined,
     rentPricePerDay:
       typeof r.rentPricePerDay === 'number' && r.rentPricePerDay >= 0 ? r.rentPricePerDay : undefined,
     stockLocation: typeof r.stockLocation === 'string' ? r.stockLocation : undefined,
