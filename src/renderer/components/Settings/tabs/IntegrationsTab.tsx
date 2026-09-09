@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { X, Eye, EyeOff } from 'lucide-react'
 import { Icon } from '../../shared/Icon'
 import { cablePlannerApi } from '../../../lib/bridge'
@@ -21,6 +21,7 @@ import {
   loadGreenGoPresets,
   saveGreenGoPreset,
 } from '../../../lib/greengoSync'
+import { greengoFromPlan } from '../../../lib/intercomPlan'
 import { SettingsCard } from '../SettingsCard'
 
 /**
@@ -173,13 +174,22 @@ const AiProvidersCard = () => {
 
 /**
  * Global library of GreenGo Intercom presets. Stored in localStorage —
- * survives across projects, separate from the per-project
- * greengoConfig. Lets the user keep a "house template" config and
+ * survives across projects, separate from the per-project intercom slot
+ * (`project.intercom`, E-2). Lets the user keep a "house template" config and
  * apply it to new projects with one click (issue #56).
+ *
+ * Die Bibliothek fuehrt weiterhin `GreenGoConfig` und nicht den Slot: ein
+ * Preset ist eine Green-GO-Vorlage, und ein schon gespeichertes darf durch den
+ * Umbau nicht unlesbar werden. Beim Anwenden geht es ueber
+ * `updateGreenGoConfig` und damit durch dieselbe Uebersetzung wie alles
+ * andere.
  */
 const GreenGoPresetsCard = () => {
   const t = useTranslation()
-  const greengoConfig = useProjectStore((s) => s.project.greengoConfig)
+  // Wie im Export-Dialog: einmal je Slot-Aenderung projizieren, nicht je
+  // Render (E-2).
+  const slot = useProjectStore((s) => s.project.intercom)
+  const greengoConfig = useMemo(() => (slot ? greengoFromPlan(slot) : undefined), [slot])
   const updateGreenGoConfig = useProjectStore((s) => s.updateGreenGoConfig)
   const [presets, setPresets] = useState(() => loadGreenGoPresets())
   const refreshPresets = () => setPresets(loadGreenGoPresets())

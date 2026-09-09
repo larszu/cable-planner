@@ -366,7 +366,7 @@ CablePlannerProject
 ├── locations: LocationFrame[]          # Räume / Bereiche (Rahmen mit Inhalt)
 ├── canvasState: { viewport, ... }      # Pan/Zoom
 ├── annotations: ProjectAnnotation[]    # Notizen / Markups
-├── greengoConfig?: GreenGoConfig       # Intercom-Setup
+├── intercom?: IntercomPlan             # Intercom-Slot (E-2); GreenGoConfig ist seine Projektion
 ├── checkState?                         # Mobile-View-Häkchen
 ├── mode: 'editing' | 'finalized' | 'viewer'
 ├── sourceIdentities?: SourceIdentity[] # ADR-001 — Rollen („Kamera 1")

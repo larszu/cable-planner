@@ -1,58 +1,96 @@
-// Bidirectional sync between the GreenGo planner config in the project
-// store and the equipment properties / canvas labels (issue #56).
+// Die Bruecke zwischen dem Intercom-Slot des Projekts und den
+// Geraete-Eigenschaften / Canvas-Beschriftungen (Issue #56).
 //
-// Single source of truth: `project.greengoConfig.users` — each user has
-// an `equipmentId` pointing at the cable-planner device that physically
-// hosts that beltpack/station. We provide:
+// ═══════════════════════════════════════════════════════════════════════════
+// WAS SICH MIT E-2 GEAENDERT HAT
+// ═══════════════════════════════════════════════════════════════════════════
 //
-//   - findGreenGoUserForEquipment()  — look up the user assigned to a
-//     given device, plus the list of groups they belong to.
-//   - useGreenGoBeltpack()           — React hook returning the user
-//     and a renaming callback. Used by EquipmentProperties.
-//   - upsertEquipmentBeltpackName()  — atomic update applied by both
-//     the equipment-properties UI and the GreenGo dialog.
-//   - global preset slot helpers     — load/save named presets to
-//     localStorage so the user can keep a library of standard intercom
-//     configs independent of any single project.
+// Hier stand: „Single source of truth: `project.greengoConfig.users`". Das ist
+// sie nicht mehr — seit E-2 fuehrt das Projekt den herstellerneutralen Slot
+// (`project.intercom`), und `GreenGoConfig` ist seine Ausgabe-Projektion.
+//
+// DIE NACHSCHLAGE GEHT DESHALB DIREKT AUF DEN SLOT und nicht ueber die
+// Projektion. Der Unterschied ist kein Stilfrage: `greengoFromPlan` baut bei
+// jedem Aufruf ein neues Objekt. Auf dem Canvas laeuft diese Nachschlage
+// einmal je Geraet und Render — die Projektion dort einzusetzen hiesse, bei
+// jedem Frame die ganze Anlage neu zu bauen, und der zustand-Vergleich saehe
+// jedes Mal etwas Neues. Genau diese Defektform steht in `EquipmentNode`
+// dokumentiert („Previously this selector built a fresh Set every call").
+//
+// Was hier bereitsteht:
+//
+//   - findIntercomStationForEquipment() — die Sprechstelle an einem Geraet,
+//     samt Anlagen-Nummer und Konferenz-Namen.
+//   - useGreenGoBeltpack()              — React-Hook mit Umbenennen und
+//     Zuordnen. Der Hook arbeitet auf der PROJEKTION, weil die
+//     Eigenschaften-Leiste Green-GO-Begriffe zeigt; er baut sie einmal je
+//     Slot-Aenderung und nicht je Render.
+//   - Preset-Slots                      — benannte Konfigurationen im
+//     localStorage, projektunabhaengig.
 
 import { useCallback, useMemo } from 'react'
-import type { GreenGoConfig, GreenGoUser } from '../types/greengo'
+import type { GreenGoConfig } from '../types/greengo'
+import type { IntercomPlan, IntercomPlanStation } from '../types/intercomPlan'
+import { greengoFromPlan } from './intercomPlan'
 import { useProjectStore } from '../store/projectStore'
 import { STORAGE_KEYS } from './storageKeys'
 
 const PRESETS_KEY = STORAGE_KEYS.greengoPresets
 
-export interface GreenGoBeltpackInfo {
-  user: GreenGoUser
-  /** Group entries the user belongs to. Sorted by group id. */
-  groupNames: string[]
+export interface IntercomStationInfo {
+  station: IntercomPlanStation
+  /**
+   * Die Anlagen-Nummer, wie sie auf dem Beltpack steht — aus dem
+   * `vendor`-Block, also DEKLARIERT und nicht aus der Listenposition
+   * abgeleitet (ADR-002). Fehlt sie, hat der Slot fuer diese Stelle noch
+   * keine; dann wird auch keine angezeigt statt eine zu erfinden.
+   */
+  number?: number
+  /** Namen der Konferenzen, an denen die Stelle haengt. Sortiert. */
+  channelNames: string[]
 }
 
-export const findGreenGoUserForEquipment = (
+export const findIntercomStationForEquipment = (
   equipmentId: string,
-  config: GreenGoConfig | undefined,
-): GreenGoBeltpackInfo | null => {
-  if (!config) return null
-  const user = config.users.find((u) => u.equipmentId === equipmentId)
-  if (!user) return null
-  const groupNames = (user.groupIds ?? [])
-    .map((gid) => config.groups.find((g) => g.id === gid)?.name)
+  plan: IntercomPlan | undefined,
+): IntercomStationInfo | null => {
+  if (!plan) return null
+  const station = plan.stations.find((s) => s.equipmentId === equipmentId)
+  if (!station) return null
+  const name = new Map(plan.channels.map((c) => [c.id, c.name]))
+  const channelNames = station.memberships
+    // Eine Zugehoerigkeit ohne Sprechen UND ohne Hoeren ist keine — sie hier
+    // aufzuzaehlen behauptete auf dem Canvas eine Verbindung, die es nicht
+    // gibt.
+    .filter((m) => m.talk || m.listen)
+    .map((m) => name.get(m.channelId))
     .filter((n): n is string => !!n)
     .sort()
-  return { user, groupNames }
+  return {
+    station,
+    ...(typeof plan.vendor?.greengo?.stationNumbers?.[station.id] === 'number'
+      ? { number: plan.vendor.greengo.stationNumbers[station.id] }
+      : {}),
+    channelNames,
+  }
 }
 
-/** React hook bundling the lookup + a renaming callback. The callback
- *  patches `project.greengoConfig.users[*].name` (and `displayName` if
- *  set) so the GreenGo dialog and the canvas pick up the new name
- *  immediately. */
+/** React-Hook: Nachschlage plus Umbenennen und Zuordnen. Beides schreibt
+ *  ueber `updateGreenGoConfig` in den Slot zurueck, sodass Dialog, Canvas und
+ *  Eigenschaften-Leiste denselben Stand sehen. */
 export const useGreenGoBeltpack = (equipmentId: string) => {
-  const config = useProjectStore((s) => s.project.greengoConfig)
+  const plan = useProjectStore((s) => s.project.intercom)
   const updateGreenGoConfig = useProjectStore((s) => s.updateGreenGoConfig)
 
+  // EINMAL JE SLOT-AENDERUNG, nicht je Render. Der Selektor liefert den Slot
+  // selbst — ein stabiler Verweis —, und die Projektion entsteht dahinter im
+  // `useMemo`. Andersherum (Projektion im Selektor) baute jeder Render ein
+  // neues Objekt, und zustand hielte jeden fuer eine Aenderung.
+  const config = useMemo(() => (plan ? greengoFromPlan(plan) : undefined), [plan])
+
   const info = useMemo(
-    () => findGreenGoUserForEquipment(equipmentId, config),
-    [equipmentId, config],
+    () => findIntercomStationForEquipment(equipmentId, plan),
+    [equipmentId, plan],
   )
 
   const rename = useCallback(

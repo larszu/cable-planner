@@ -59,7 +59,7 @@ export const AnnotationCanvasOverlay = () => {
   const t = useTranslation()
   const annotations = useProjectStore((s) => s.project.annotations) ?? EMPTY
   const equipment = useProjectStore((s) => s.project.equipment)
-  const greengoConfig = useProjectStore((s) => s.project.greengoConfig)
+  const intercom = useProjectStore((s) => s.project.intercom)
   const updateAnnotation = useProjectStore((s) => s.updateAnnotation)
   const snapToGrid = useUiStore((s) => s.snapToGrid)
   const gridSize = useUiStore((s) => s.gridSize)
@@ -87,7 +87,7 @@ export const AnnotationCanvasOverlay = () => {
         if (anchor.type === 'device') {
           const eq = getEquipmentById(equipment, anchor.deviceId)
           if (!eq) return null
-          const layout = computeEquipmentLayout(eq, greengoConfig)
+          const layout = computeEquipmentLayout(eq, intercom)
           return {
             annotation: a,
             flow: { x: eq.x + layout.width - 8, y: eq.y + 4 },
@@ -96,7 +96,7 @@ export const AnnotationCanvasOverlay = () => {
         if (anchor.type === 'port') {
           const eq = getEquipmentById(equipment, anchor.deviceId)
           if (!eq) return null
-          const layout = computeEquipmentLayout(eq, greengoConfig)
+          const layout = computeEquipmentLayout(eq, intercom)
           const pos =
             layout.portPos(anchor.portId, 'source') ?? layout.portPos(anchor.portId, 'target')
           if (!pos) return null
@@ -107,7 +107,7 @@ export const AnnotationCanvasOverlay = () => {
       .filter(
         (x): x is { annotation: ProjectAnnotation; flow: { x: number; y: number } } => !!x,
       )
-  }, [annotations, equipment, greengoConfig])
+  }, [annotations, equipment, intercom])
 
   if (positions.length === 0) return null
   if (!annotationsVisible) return null

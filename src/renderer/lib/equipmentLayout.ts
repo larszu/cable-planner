@@ -8,8 +8,8 @@
 // "middle" of wide devices instead of at the actual handle.
 
 import type { EquipmentItem, Port } from '../types/equipment'
-import type { GreenGoConfig } from '../types/greengo'
-import { findGreenGoUserForEquipment } from './greengoSync'
+import type { IntercomPlan } from '../types/intercomPlan'
+import { findIntercomStationForEquipment } from './greengoSync'
 import { EQUIPMENT_LAYOUT } from './layoutConstants'
 
 // v7.9.23 — Layout-Konstanten zentralisiert in lib/layoutConstants.ts.
@@ -51,7 +51,7 @@ const resolveSide = (
  *  Auto-Expand auf intrinsic width für lange Port-Labels. */
 export const computeEquipmentLayout = (
   eq: EquipmentItem,
-  greengoConfig?: GreenGoConfig,
+  intercom?: IntercomPlan,
 ): EquipmentLayout => {
   const inputs = eq.inputs ?? []
   const outputs = eq.outputs ?? []
@@ -60,7 +60,7 @@ export const computeEquipmentLayout = (
   // Header height: identical formula as EquipmentNode.tsx.
   // v7.9.26 — Optionale Header-Zeilen sind gridSize-aligned (11 px)
   // statt 14, damit Port-Y-Positionen auf Dot-Reihen landen.
-  const greengoUser = findGreenGoUserForEquipment(eq.id, greengoConfig)
+  const greengoUser = findIntercomStationForEquipment(eq.id, intercom)
   const EXTRA_HEADER_LINE = EQUIPMENT_LAYOUT.GRID_SIZE
   const beltpackLine = greengoUser ? EXTRA_HEADER_LINE : 0
   const headerHeight =

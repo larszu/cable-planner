@@ -52,7 +52,7 @@ export const PendingCableOverlay = () => {
   // bei breiteren Geräten landete der Startpunkt der gestrichelten
   // Linie mitten im Gerät statt am Port (User-Bug "startpunkt der
   // gelben gestrichelten linie ist aktuell immer die geräte mitte").
-  const layout = computeEquipmentLayout(node, project.greengoConfig)
+  const layout = computeEquipmentLayout(node, project.intercom)
   const pos = layout.portPos(
     port.id,
     pendingCable.handleType === 'source' ? 'source' : 'target',
