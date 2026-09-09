@@ -6117,14 +6117,3 @@ export const en: Dict = {
   'catalog.videoFormat.2160p50.notes':
     'UHD standard. 12G-SDI preferred, Quad-Link 3G as alternative (4 cables).',
 }
-
-/**
- * German entries — kept minimal because German is the source language
- * (`t(key, 'Deutsche Form')` patterns supply the German fallback inline).
- *
- * The exception is **catalog-content keys** (`catalog.cable.*.notes`,
- * `catalog.videoFormat.*.notes`): they are referenced from data files
- * where no inline German fallback is reachable, so the German text
- * lives here. EN counterparts in the `en` dict below override per
- * language.
- */
