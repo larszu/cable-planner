@@ -68,7 +68,7 @@ const RENDERER = resolve(__dirname, '..', 'src', 'renderer')
  * eine neue anlegt, muss sie einordnen — zwei Zeilen — statt sie stillschweigend
  * durchrutschen zu lassen.
  */
-const GERAETE_DOMAENEN = ['atem', 'videohub', 'switcher', 'netbox', 'rentman'] as const
+const GERAETE_DOMAENEN = ['atem', 'videohub', 'switcher', 'netbox', 'rentman', 'tally'] as const
 
 /**
  * Die uebrigen Domaenen — ausdruecklich KEINE Geraete-Wege.
@@ -194,6 +194,18 @@ const CLASSIFIED: Site[] = [
       'die Kreuzschiene ein Zustand, und zoege das Senden den Plan mit, gaebe ' +
       'es hinterher keine Abweichung mehr zu sehen (ADR-001). ' +
       '`tests/hubSwitch.test.ts` haelt das als negative Zusicherung fest.',
+  },
+  {
+    file: 'components/Export/ExportDialog.tsx',
+    verdict: 'getrennt',
+    reason:
+      'B-6 / E-7: `tally.read` holt die Geraeteliste, die GERADE auf dem Pi steht — ' +
+      'ausschliesslich, um zu zeigen, welche Rollen ein Schreibvorgang dort ' +
+      'loeschen wuerde. Der gelesene Stand liegt in `piGelesen` (Komponenten-' +
+      'Zustand) und wird nach dem Senden verworfen; kein Zweig schreibt ihn in ' +
+      'den Plan. Die Richtung ist ohnehin die umgekehrte: der Plan besitzt die ' +
+      'Rollenliste, der Pi die Verdrahtung. Ein Weg vom Pi IN den Plan waere ' +
+      'genau der Befund-als-Absicht, gegen den dieser Waechter steht.',
   },
   {
     file: 'components/Export/VideohubExportDialog.tsx',

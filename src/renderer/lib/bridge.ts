@@ -13,6 +13,22 @@ import { downloadBlob } from './downloadBlob'
  * Netzwerktechnik statt in einer Entscheidung, die diese Anwendung getroffen
  * hat.
  */
+/**
+ * B-6 — die Antwort des Tally-Pi, wie sie aus main zurueckkommt.
+ *
+ * `error` ist gesetzt, WANN IMMER `ok` false ist, und nie leer. Ein
+ * Fehlschlag ohne Grund waere fuer den Nutzer dasselbe wie kein Fehlschlag:
+ * er saehe „ging nicht" und wuesste nicht, ob die Adresse falsch ist, der Pi
+ * aus, oder die Karte abgelehnt wurde.
+ */
+export interface PiAntwort {
+  ok: boolean
+  status?: number
+  json?: unknown
+  text?: string
+  error?: string
+}
+
 export interface MobileShareInfo {
   port: number
   urls: string[]
@@ -221,6 +237,21 @@ type CablePlannerApi = {
     onUpdate: (
       cb: (payload: { zustand: LauscherZustand; meldungen: OscEmpfang[] }) => void,
     ) => () => void
+  }
+  /**
+   * B-6 / E-7 — der Direktweg zum Tally-Pi.
+   *
+   * `read` und `write` getrennt: der Schreibvorgang loescht auf dem Pi jede
+   * Rolle, die der Plan nicht nennt. Wer ihn ausloest, soll vorher gesehen
+   * haben, was verschwindet.
+   *
+   * Beide antworten IMMER mit `{ ok }` und im Fehlerfall mit `error` — nie
+   * mit `undefined`. Aus einem stillen Ergebnis liest jemand „ist auf dem
+   * Pi", und das ist der Glaube, gegen den dieser Weg gebaut ist.
+   */
+  tally: {
+    read: (adresse: string) => Promise<PiAntwort>
+    write: (adresse: string, devices: unknown[]) => Promise<PiAntwort>
   }
   project: {
     newProject: () => Promise<void>
@@ -687,6 +718,24 @@ const webFallbackApi: CablePlannerApi = {
     state: async () => ({ zustand: { lage: 'aus' as const }, meldungen: [] }),
     clear: async () => ({ zustand: { lage: 'aus' as const }, meldungen: [] }),
     onUpdate: () => () => {},
+  },
+  /**
+   * B-6 im Browser: kein Weg zum Pi, und das wird GESAGT.
+   *
+   * `guide_server.py` schickt keine CORS-Kopfzeilen — ein `fetch` von hier
+   * scheiterte am Preflight, und mit `no-cors` waere er abgeschickt, aber
+   * unlesbar. Das ist der schlimmste Fall: der Nutzer glaubte, die Karte sei
+   * auf dem Pi. Deshalb wird hier gar nicht erst gesendet, sondern geantwortet.
+   */
+  tally: {
+    read: async () => ({
+      ok: false,
+      error: 'Der Weg zum Tally-Pi braucht die Desktop-App — im Browser lässt der Pi keine Anfrage zu.',
+    }),
+    write: async () => ({
+      ok: false,
+      error: 'Der Weg zum Tally-Pi braucht die Desktop-App — im Browser lässt der Pi keine Anfrage zu.',
+    }),
   },
   streamKey: {
     get: async (id: string) => localStorage.getItem(STREAM_KEY_WEB_PREFIX + id),

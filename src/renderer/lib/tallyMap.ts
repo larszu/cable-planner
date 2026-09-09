@@ -312,3 +312,70 @@ export const toTallyPiDevices = (map: TallyMap): TallyPiDevice[] => {
       return { id, name: r.name, input: r.switcher!.input }
     })
 }
+
+// ───────────────────────────────────────────────────────────────────────────
+// B-6 / E-7 — WAS DER DIREKTWEG AUF DEM PI ANRICHTET, BEVOR ER ES TUT.
+//
+// `merge_tally_config` auf dem Pi behaelt jedes FELD, das der Post nicht
+// nennt (ATEM-Adresse, GPIO-Pins) — aber jedes GERAET, das er nicht nennt,
+// verschwindet. Das ist die richtige Semantik: der Plan besitzt die
+// Rollenliste. Es ist trotzdem eine Wirkung, die niemand ungefragt ausloesen
+// soll, denn mit dem Geraet geht auch seine Verdrahtung.
+//
+// Diese Rechnung ist die Vorschau darauf. Sie steht hier und nicht im Dialog,
+// weil eine Rechnung im Knopf niemand nachrechnen kann.
+// ───────────────────────────────────────────────────────────────────────────
+
+/** Was ein Schreibvorgang an der Geraeteliste des Pi aendern wuerde. */
+export interface PiVergleich {
+  /** Rollen, die auf dem Pi stehen und im Plan fehlen — die verschwinden. */
+  verschwinden: { id: string; name: string; hatVerdrahtung: boolean }[]
+  /** Rollen, die der Plan mitbringt und der Pi noch nicht hat. */
+  neu: string[]
+  /** Rollen, die es auf beiden Seiten gibt. */
+  bleiben: number
+}
+
+/** Die Felder, die drueben dem Pi gehoeren (`PI_OWNED_DEVICE_FIELDS`). */
+const PI_FELDER = ['out_gpio', 'out_trigger', 'in_gpio', 'in_edge', 'in_action', 'me', 'aux'] as const
+
+/**
+ * Die Geraeteliste des Pi mit der aus dem Plan vergleichen.
+ *
+ * `rohe` ist die Antwort von `GET /tally-config` — ungeprueft, wie sie vom
+ * Netz kommt. Alles, was nicht wie eine Geraeteliste aussieht, ergibt einen
+ * leeren Vergleich statt eines Fehlers: „der Pi hat noch nichts" und „der Pi
+ * hat geantwortet, aber anders" fuehren beide dazu, dass nichts verschwindet,
+ * und genau das ist die Auskunft, auf die es hier ankommt.
+ *
+ * `hatVerdrahtung` unterscheidet die beiden Faelle, die verschieden schwer
+ * wiegen: eine Rolle ohne Pin verschwinden zu lassen kostet einen Eintrag,
+ * eine MIT Pin kostet die Verkabelung einer Lampe.
+ */
+export const vergleicheMitPi = (rohe: unknown, plan: TallyPiDevice[]): PiVergleich => {
+  const roh = rohe as { devices?: unknown } | null | undefined
+  const piListe = Array.isArray(roh?.devices) ? roh.devices : []
+  const imPlan = new Set(plan.map((d) => d.id))
+  const aufPi = new Set<string>()
+  const verschwinden: PiVergleich['verschwinden'] = []
+
+  for (const eintrag of piListe) {
+    if (!eintrag || typeof eintrag !== 'object') continue
+    const d = eintrag as Record<string, unknown>
+    const id = typeof d.id === 'string' ? d.id : ''
+    if (!id) continue
+    aufPi.add(id)
+    if (imPlan.has(id)) continue
+    verschwinden.push({
+      id,
+      name: typeof d.name === 'string' && d.name ? d.name : id,
+      hatVerdrahtung: PI_FELDER.some((f) => d[f] !== undefined && d[f] !== null),
+    })
+  }
+
+  return {
+    verschwinden,
+    neu: plan.filter((d) => !aufPi.has(d.id)).map((d) => d.id),
+    bleiben: plan.filter((d) => aufPi.has(d.id)).length,
+  }
+}
