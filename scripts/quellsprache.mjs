@@ -164,6 +164,109 @@ export const messeQuellsprache = (wurzel) => {
 export const abweichungen = (messung, quellsprache) =>
   messung.stellen.filter((s) => s.sprache !== quellsprache)
 
+// ── Sprachmix: sichtbarer Text, der GAR NICHT gewickelt ist (B-61/B-63) ────
+//
+// Die Messung oben sieht nur die Fallbacks in `t()`. Beschriftungen, die
+// niemand gewickelt hat, sieht sie nicht — und genau die sind der Sprachmix,
+// den E-17 fuer `sony-camera-bridge` als Fehler benannt hat: wer die andere
+// Sprache waehlt, bekommt eine Oberflaeche, in der ein Teil umschaltet und
+// der Rest stehenbleibt.
+//
+// ZWEI FEHLER DES LAUFS IM `sony-camera-bridge` SIND HIER VERMIEDEN, weil sie
+// drueben Geld gekostet haben:
+//   1. Er sah Kommentare fuer Literale. Kommentare werden vor dem Messen
+//      entfernt.
+//   2. Er sah nur Attribute, nicht den JSX-Text. Hier wird beides gelesen.
+
+/** Kommentare raus — sie folgen der Repo-Konvention, nicht der Oberflaeche. */
+const ohneKommentare = (text) =>
+  text.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/^\s*\/\/.*$/gm, ' ')
+
+const SICHTBARE_ATTRIBUTE =
+  /\b(?:title|aria-label|placeholder|label|alt|summary|submitLabel|hint)=(?:"([^"]{4,})"|\{\s*'((?:[^'\\]|\\.){4,}?)'\s*\})/g
+
+/**
+ * JSX-Textknoten — und zwar NUR die.
+ *
+ * Die erste Fassung war `/>([^<>{}]{4,})</g`. Sie trifft in einer .tsx-Datei
+ * auch CODE: `>` und `<` sind Vergleichsoperatoren, und dazwischen steht dann
+ * ein Stueck Quelltext (`if (clipped.length > 2)`, `arr.filter(n => n.id)`).
+ * Gemessen mit dem lockeren Muster: 35 solche Fehltreffer im cable-planner,
+ * 12 im light-planner — ausnahmslos Code, kein einziger echter Fund.
+ *
+ * ZWEI BEDINGUNGEN MACHEN DARAUS EIN TAG-MUSTER:
+ *   • Das `>` muss ein Tag-Ende sein: davor ein Bezeichner, ein
+ *     Anfuehrungszeichen, eine geschweifte Klammer oder ein Schraegstrich —
+ *     nie ein Leerzeichen, `=`, `<` oder `!`. Damit fallen `a > b`, `=>` und
+ *     `<=` heraus.
+ *   • Das schliessende `<` muss ein Tag beginnen: `</` oder `<Buchstabe`.
+ * Was danach noch durchkommt, sind Generics (`useState<Foo>(null)`); die
+ * faengt `NACH_CODE`.
+ */
+const JSX_TEXT = /[^\s=<!>]>([^<>{}]{4,})<[/A-Za-z]/g
+
+/**
+ * Was ein JSX-Textknoten NIE enthaelt, ein Code-Schnipsel dagegen fast immer.
+ * Greift ausschliesslich auf JSX-Text, nicht auf Attribute: dort steht
+ * durchaus ein `=` in der Oberflaeche („Shift = frei, Mausrad = Stufe").
+ */
+const NACH_CODE = /[;=]|\b(?:const|let|var|function|await|async)\b/
+
+/**
+ * Auch das Template-Literal, nicht nur die Anfuehrungszeichen. Eine Rueckfrage
+ * mit eingesetztem Namen steht praktisch immer im Backtick — ausgerechnet die
+ * Form also, die eine erste Fassung nicht kannte (gefunden ueber den
+ * `dialogs:native`-Waechter der Suite, nicht ueber diesen Lauf).
+ */
+const RUFE =
+  /\b(?:alert|confirm|prompt)\(\s*(?:(['"])((?:[^\\]|\\.){4,}?)\1|`((?:[^`\\]|\\.){4,}?)`)/g
+
+/** Sichtbarer Text einer Datei, der NICHT in einem `t()`-Fallback steht. */
+export const sichtbareTexte = (quelle, jsx) => {
+  const text = ohneKommentare(quelle).replace(fallbackMuster(), ' ')
+  const raus = []
+  for (const m of text.matchAll(SICHTBARE_ATTRIBUTE)) raus.push(m[1] ?? m[2])
+  for (const m of text.matchAll(RUFE)) raus.push(m[2] ?? m[3])
+  if (jsx) {
+    for (const m of text.matchAll(JSX_TEXT)) {
+      const t = m[1].trim()
+      if (t && !t.startsWith('{') && !NACH_CODE.test(t)) raus.push(t)
+    }
+  }
+  return raus
+}
+
+/**
+ * Die Obergrenze, nicht das Ziel.
+ *
+ * GEMESSEN am 2026-09-09 mit dem strengen JSX-Muster: NULL. Das ist ein
+ * Ergebnis und keine Selbstverstaendlichkeit — die offene Frage aus B-63 war
+ * genau diese, und sie war bis dahin nicht gemessen, sondern vermutet.
+ *
+ * Sie darf SINKEN und nicht steigen: wer eine englische Beschriftung
+ * hinzufuegt, faellt durch; wer uebersetzt und die Zahl stehen laesst,
+ * ebenfalls. Auf null bedeutet: JEDE neue Zeichenkette in der anderen
+ * Sprache faellt sofort auf.
+ */
+export const MIX_GRENZE = 0
+
+/** Ungewickelter sichtbarer Text in der jeweils anderen Sprache. */
+export const messeSprachmix = (wurzel, quellsprache) => {
+  const ziel = quellsprache === 'de' ? 'en' : 'de'
+  const funde = []
+  for (const datei of dateien(wurzel)) {
+    const rel = relative(wurzel, datei).split(sep).join('/')
+    // Das Woerterbuch ist per Definition in der anderen Sprache, Tests sind
+    // keine Oberflaeche. Eine Zahl, die niemand auf null bringen kann, liest
+    // niemand.
+    if (rel.includes('i18n') || rel.includes('__tests__') || rel.includes('.test.')) continue
+    for (const roh of sichtbareTexte(readFileSync(datei, 'utf8'), datei.endsWith('.tsx'))) {
+      if (klassifiziere(roh) === ziel) funde.push({ datei: rel, text: roh.slice(0, 100) })
+    }
+  }
+  return funde
+}
+
 // CLI: `node scripts/quellsprache.mjs <wurzel> <sprache>`
 if (process.argv[1] && process.argv[1].endsWith('quellsprache.mjs')) {
   const [, , wurzel, sprache] = process.argv
@@ -182,6 +285,31 @@ if (process.argv[1] && process.argv[1].endsWith('quellsprache.mjs')) {
       `\n${falsch.length} Fallback(s) nicht in der Quellsprache „${sprache}". ` +
         'Entweder die Zeile uebersetzen oder — wenn die Quellsprache wirklich ' +
         'wechseln soll — die Deklaration in package.json UND CLAUDE.md aendern.',
+    )
+    process.exit(1)
+  }
+
+  const mix = messeSprachmix(wurzel, sprache)
+  console.log(
+    `Sprachmix: ${mix.length} ungewickelte Zeichenkette(n) in der anderen Sprache ` +
+      `(Grenze ${MIX_GRENZE}).`,
+  )
+  if (mix.length > MIX_GRENZE) {
+    console.error(`\n${mix.length - MIX_GRENZE} mehr als erlaubt:`)
+    for (const f of mix.slice(0, 40)) console.error(`  ${f.datei}: ${f.text}`)
+    if (mix.length > 40) console.error(`  … und ${mix.length - 40} weitere`)
+    console.error(
+      '\nEntweder wickeln und uebersetzen — oder, wenn es wirklich so bleiben ' +
+        'soll, MIX_GRENZE mit Begruendung anheben. Das Anheben ist die Ausnahme; ' +
+        'das Senken ist der Normalfall.',
+    )
+    process.exit(1)
+  }
+  if (mix.length < MIX_GRENZE) {
+    console.error(
+      `\nDie Grenze steht auf ${MIX_GRENZE}, gemessen sind ${mix.length}. ` +
+        'MIX_GRENZE auf den neuen Wert setzen — eine Grenze ueber dem Ist deckt ' +
+        'ab morgen wieder Zuwachs.',
     )
     process.exit(1)
   }
