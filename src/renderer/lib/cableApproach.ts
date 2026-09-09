@@ -327,3 +327,191 @@ export const legeAnfahrt = (a: Anfahrt): Point[] => {
   // fehlende Kante der groessere Schaden.
   return letzter
 }
+
+
+/* ════════════════════════════════════════════════════════════════════════
+   DIE KETTE, AN DER DER NUTZER ANFASST
+   ════════════════════════════════════════════════════════════════════════
+
+   ─── WAS GEMELDET WURDE (Nutzer, 2026-09-09) ─────────────────────────────
+
+   „Das manuelle Kabel verschieben im Cable planner canvas ist schlechter
+   geworden."
+
+   ─── WAS GEMESSEN WURDE ──────────────────────────────────────────────────
+
+   Nicht das Ziehen selbst — die Geometrie darunter. `CableWaypoints` legte
+   seine Greif-Zonen auf `[Quelle, ...cable.waypoints, Ziel]`. Seit B-48
+   (2026-09-08) wird aber nicht mehr dieser Streckenzug gezeichnet, sondern
+   der von `legeAnfahrt`: mit Stummeln an beiden Enden und mit Ecken, die
+   `rechtwinkligMachen` dazwischenschiebt. Beides sind seither ZWEI
+   verschiedene Streckenzuege, und angefasst wurde der unsichtbare.
+
+   Ueber die Matrix aus 4x4 Anschlussseiten und 49 Ziellagen (784 Faelle,
+   dieselbe Matrix wie oben) gemessen:
+
+     gezeichnete Abschnitte gesamt              3324
+     davon ohne deckungsgleiche Greif-Zone      3292   (99 %)
+     Faelle mit mindestens einer solchen Luecke  784   (alle)
+     Greif-Zonen, unter denen kein Strich liegt  180
+
+   Der Nutzer fasste also fast immer ins Leere, und an 180 Stellen lag ein
+   Griff dort, wo gar nichts zu sehen war. Das ist der ganze Befund; am
+   Zieh-Code selbst war nichts falsch.
+
+   ─── WAS DIESE DREI FUNKTIONEN ZUSICHERN ─────────────────────────────────
+
+   `greifKette` macht aus dem gezeichneten Streckenzug die Kette, die der
+   Nutzer sieht: kollineare Zwischenpunkte fallen weg, damit eine gerade
+   Linie EIN Griff ist und nicht zwei, die sich gegeneinander verschieben
+   lassen. Die beiden Stummel-Punkte sind davon ausgenommen — sie bleiben
+   stehen, auch wenn sie gerade auf der Linie liegen.
+
+   Dass sie bleiben, ist der Punkt, an dem sich das Ziehen mit B-48
+   vertraegt. `legeAnfahrt` setzt den Stummel bei JEDEM Zeichnen wieder —
+   wer den ersten Abschnitt quer zoege, bekaeme die Kehrtwende zurueck, die
+   B-48 gerade beseitigt hat. Mit dem Stummel als eigenem Kettenglied ist
+   der erste Abschnitt genau der Stummel (18 px, nicht zu ziehen), und der
+   erste ziehbare Abschnitt beginnt hinter ihm. Die Ecke wandert dorthin,
+   wo sie hingehoert, und der Weg bleibt kehrtwendenfrei.
+
+   Zurueckgeschrieben wird die Kette ohne ihre beiden Enden — das sind die
+   neuen `cable.waypoints`. Der Rundlauf ist geschlossen: `legeAnfahrt`
+   setzt Quelle, Stummel und Ziel wieder davor und dahinter, `straffe`
+   wirft die doppelten Stummel weg, und heraus kommt derselbe Streckenzug,
+   den der Nutzer gerade gezogen hat. `tests/kabelGriff.test.ts` haelt das
+   ueber dieselbe Matrix fest.
+*/
+
+export type Achse = 'waagerecht' | 'senkrecht' | 'schraeg'
+
+/** Ab wann ein Abschnitt als schraeg gilt. */
+export const ACHSEN_TOLERANZ = 3
+
+export const abschnittAchse = (p: Point, q: Point): Achse => {
+  if (Math.abs(q.y - p.y) < ACHSEN_TOLERANZ) return 'waagerecht'
+  if (Math.abs(q.x - p.x) < ACHSEN_TOLERANZ) return 'senkrecht'
+  return 'schraeg'
+}
+
+const gleicherFleck = (a: Point, b: Point): boolean =>
+  Math.abs(a.x - b.x) < 1 && Math.abs(a.y - b.y) < 1
+
+/**
+ * Der gezeichnete Streckenzug, auf seine sichtbaren Ecken reduziert.
+ *
+ * Ein Zwischenpunkt faellt weg, wenn der Abschnitt davor und der dahinter
+ * auf derselben Achse liegen — er ist dann keine Ecke, sondern ein Punkt
+ * mitten auf einer geraden Linie. Zwei Griffe auf einer Linie waeren die
+ * zweite Art, das Ziehen unberechenbar zu machen: der Nutzer zieht die eine
+ * Haelfte weg und die andere bleibt stehen.
+ *
+ * `geschuetzt` bleibt stehen, auch wenn es gerade auf der Linie liegt.
+ */
+export const greifKette = (
+  punkte: readonly Point[],
+  geschuetzt: readonly Point[] = [],
+): Point[] => {
+  if (punkte.length < 3) return punkte.map((p) => ({ ...p }))
+  let kette = punkte.map((p) => ({ ...p }))
+  let veraendert = true
+  while (veraendert) {
+    veraendert = false
+    const naechste: Point[] = [kette[0]]
+    for (let i = 1; i < kette.length - 1; i += 1) {
+      const vor = kette[i - 1]
+      const hier = kette[i]
+      const nach = kette[i + 1]
+      const bewahren = geschuetzt.some((g) => gleicherFleck(g, hier))
+      const waagerecht =
+        Math.abs(vor.y - hier.y) < ACHSEN_TOLERANZ && Math.abs(hier.y - nach.y) < ACHSEN_TOLERANZ
+      const senkrecht =
+        Math.abs(vor.x - hier.x) < ACHSEN_TOLERANZ && Math.abs(hier.x - nach.x) < ACHSEN_TOLERANZ
+      if (!bewahren && (waagerecht || senkrecht)) veraendert = true
+      else naechste.push(hier)
+    }
+    naechste.push(kette[kette.length - 1])
+    kette = naechste
+  }
+  return kette
+}
+
+/**
+ * Einen Abschnitt der Greifkette an den Zeiger schieben.
+ *
+ * Waagerecht heisst: der Zeiger bestimmt das neue y BEIDER Endpunkte;
+ * senkrecht das neue x. Ein schraeger Abschnitt (nur bei `straight`-Kabeln)
+ * wandert um den Versatz mit.
+ *
+ * Liegt der Abschnitt an einem der beiden festen Enden — Quelle oder Ziel
+ * haengen am Anschluss und koennen nicht mit —, wird dort eine Ecke
+ * eingeschoben statt das Ende zu bewegen.
+ */
+export const schiebeAbschnitt = (
+  kette: readonly Point[],
+  index: number,
+  zeiger: Point,
+  versatz: Point = { x: 0, y: 0 },
+): Point[] => {
+  if (index < 0 || index + 1 >= kette.length) return kette.map((p) => ({ ...p }))
+  const achse = abschnittAchse(kette[index], kette[index + 1])
+  const setz = (p: Point): Point =>
+    achse === 'waagerecht'
+      ? { x: p.x, y: zeiger.y }
+      : achse === 'senkrecht'
+        ? { x: zeiger.x, y: p.y }
+        : { x: p.x + versatz.x, y: p.y + versatz.y }
+  const amAnfang = index === 0
+  const amEnde = index + 1 === kette.length - 1
+  return straffe([
+    ...kette.slice(0, index).map((p) => ({ ...p })),
+    ...(amAnfang ? [{ ...kette[0] }] : []),
+    setz(kette[index]),
+    setz(kette[index + 1]),
+    ...(amEnde ? [{ ...kette[kette.length - 1] }] : []),
+    ...kette.slice(index + 2).map((p) => ({ ...p })),
+  ])
+}
+
+/**
+ * Eine Ecke der Greifkette an den Zeiger schieben.
+ *
+ * Die beiden Nachbar-Ecken gehen auf ihrer geteilten Achse mit, damit die
+ * Abschnitte rechtwinklig bleiben. Ist ein Nachbar die Quelle oder das Ziel,
+ * geht er nicht mit — dann wird stattdessen die Ecke selbst auf dessen Achse
+ * festgehalten.
+ */
+export const schiebeEcke = (
+  kette: readonly Point[],
+  index: number,
+  zeiger: Point,
+): Point[] => {
+  const neu = kette.map((p) => ({ ...p }))
+  if (index <= 0 || index >= kette.length - 1) return neu
+  const vor = kette[index - 1]
+  const nach = kette[index + 1]
+  const vorFest = index - 1 === 0
+  const nachFest = index + 1 === kette.length - 1
+  const ein = abschnittAchse(vor, kette[index])
+  const aus = abschnittAchse(kette[index], nach)
+  let x = zeiger.x
+  let y = zeiger.y
+  if (vorFest) {
+    if (ein === 'waagerecht') y = vor.y
+    else if (ein === 'senkrecht') x = vor.x
+  }
+  if (nachFest) {
+    if (aus === 'waagerecht') y = nach.y
+    else if (aus === 'senkrecht') x = nach.x
+  }
+  neu[index] = { x, y }
+  if (!vorFest) {
+    if (ein === 'waagerecht') neu[index - 1] = { ...vor, y }
+    else if (ein === 'senkrecht') neu[index - 1] = { ...vor, x }
+  }
+  if (!nachFest) {
+    if (aus === 'waagerecht') neu[index + 1] = { ...nach, y }
+    else if (aus === 'senkrecht') neu[index + 1] = { ...nach, x }
+  }
+  return neu
+}

@@ -18,7 +18,7 @@ import {
 import { useUiStore } from '../../store/uiStore'
 import { CableWaypoints } from './CableWaypoints'
 import { computeObstacleAwareWaypoints, pathIsBlocked, type Rect } from '../../lib/cableRouting'
-import { legeAnfahrt, type Anschlussseite } from '../../lib/cableApproach'
+import { legeAnfahrt, stummel, type Anschlussseite } from '../../lib/cableApproach'
 import { computeEquipmentLayout } from '../../lib/equipmentLayout'
 import { isCableVisibleByLayer } from '../../lib/cableLayers'
 import { netKeyOf, netEndpoints } from '../../lib/offPageNet'
@@ -371,6 +371,25 @@ export const CableEdge = ({
           jitter: collisionShiftOn ? midlineJitter(cable.id) : 0,
           meide: meideRechtecke,
         })
+      : []
+  // Nutzer-Meldung 2026-09-09: „Das manuelle Kabel verschieben im Cable
+  // planner canvas ist schlechter geworden."
+  //
+  // Seit B-48 wird `gezeichneterWeg` gezeichnet und nicht mehr
+  // `[Quelle, ...waypoints, Ziel]` — `CableWaypoints` legte seine Greif-Zonen
+  // aber weiter auf den zweiten. Gemessen ueber die Matrix aus 4x4
+  // Anschlussseiten und 49 Ziellagen: 3292 von 3324 gezeichneten Abschnitten
+  // hatten keine deckungsgleiche Greif-Zone, und 180 Greif-Zonen lagen dort,
+  // wo gar kein Strich war. Deshalb geht jetzt der gezeichnete Weg selbst
+  // hinunter, samt der beiden Stummel-Punkte: die duerfen beim Einkuerzen der
+  // Kette nicht wegfallen, weil `legeAnfahrt` sie bei jedem Zeichnen wieder
+  // setzt (siehe `greifKette` in `cableApproach.ts`).
+  const stummelPunkte =
+    cable && (cable.routing ?? 'orthogonal') === 'orthogonal'
+      ? [
+          stummel({ x: sourceX, y: sourceY }, anschlussseite(sourcePosition)),
+          stummel({ x: targetX, y: targetY }, anschlussseite(targetPosition)),
+        ]
       : []
   // Nutzer-Meldung 2026-09-07: „das Kabel automatisch Routen funktioniert
   // nicht sauber." Der Rechenfehler steckte in `cableRouting.ts` und ist dort
@@ -908,6 +927,8 @@ export const CableEdge = ({
           source={{ x: sourceX, y: sourceY }}
           target={{ x: targetX, y: targetY }}
           renderWaypoints={orthogonalWaypoints}
+          renderPath={gezeichneterWeg}
+          stummelPunkte={stummelPunkte}
           exportThemeOverride={data?.exportThemeOverride}
         />
       )}
