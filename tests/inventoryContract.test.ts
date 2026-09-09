@@ -1,16 +1,28 @@
 // ───────────────────────────────────────────────────────────────────────────
 // Drift-Guard fuer das portable Lager-Format `avplan-inventory`.
 //
-// Das Format ist in ALLEN DREI Apps (cable / multicam / light) byte-identisch
+// Das Format ist in JEDEM Repo, das ein Lager anfasst, byte-identisch
 // dupliziert, damit ein Lager app-uebergreifend importierbar bleibt. Diese
 // Datei friert den Wire-Contract ein: Format-Marker, Versionsnummer, Envelope-
 // Shape und die Feld-Namen jeder Entitaet. Aendert jemand das Schema in EINEM
 // Repo, schlaegt dessen Guard fehl.
 //
+// ES SIND NICHT MEHR DREI (korrigiert 2026-09-09). Hier stand „in ALLEN DREI
+// Apps (cable / multicam / light)", und die Liste ist seit dem Lager-Schnitt
+// (ADR-006) unvollstaendig: `inventory-planner` ist dazugekommen und ist
+// inzwischen das Werkzeug, in dem der Bestand WIRKLICH gepflegt wird. Eine
+// Liste, die genau das Repo auslaesst, in dem die Aenderung entsteht, schickt
+// den naechsten Mitwirkenden an drei Stellen und an der vierten vorbei.
+//
 // !!! Wenn dieser Contract bewusst geaendert wird:
 //   1. INVENTORY_FORMAT_VERSION erhoehen (Abwaertskompatibilitaet beachten),
-//   2. die identische Aenderung in ALLEN DREI Repos nachziehen
-//      (cable tests/, multicam src/__tests__/, light scripts/),
+//   2. die identische Aenderung in ALLEN VIER Repos nachziehen:
+//        cable-planner      tests/inventoryContract.test.ts
+//        multicam-planner   src/__tests__/inventoryContract.test.ts
+//        light-planner      scripts/inventory-contract-check.ts
+//        inventory-planner  src/domain/lib/inventoryPortable.ts
+//                           (dort friert bisher nur die Version ein, nicht
+//                            die Feldliste -- eigener Vorgang)
 //   3. die eingefrorenen Key-Listen unten anpassen.
 // ───────────────────────────────────────────────────────────────────────────
 import { describe, it, expect } from 'vitest'
@@ -28,9 +40,9 @@ import type { InventoryItem, StorageNode, InventorySet, InventoryUnit } from '..
 // Eingefrorener Contract — MUSS in allen drei Repos identisch sein.
 const CONTRACT = {
   format: 'avplan-inventory',
-  version: 4,
+  version: 5,
   envelopeKeys: ['app', 'exportedAt', 'format', 'items', 'nodes', 'sets', 'units', 'version'],
-  itemKeys: ['category', 'code', 'codeType', 'createdAt', 'deviceTypeId', 'dimensions', 'id', 'locationId', 'manufacturer', 'materialKinds', 'model', 'notes', 'ownership', 'quantity', 'rentPricePerDay', 'returnDue', 'stockLocation', 'supplier', 'updatedAt', 'ursprungsland'],
+  itemKeys: ['category', 'code', 'codeType', 'createdAt', 'deviceTypeId', 'dimensions', 'id', 'locationId', 'manufacturer', 'materialKinds', 'mindestmenge', 'model', 'notes', 'ownership', 'quantity', 'rentPricePerDay', 'returnDue', 'stockLocation', 'supplier', 'updatedAt', 'ursprungsland'],
   nodeKeys: ['code', 'codeType', 'createdAt', 'dimensions', 'id', 'kind', 'name', 'notes', 'parentId', 'updatedAt'],
   setKeys: ['components', 'createdAt', 'id', 'name', 'notes', 'updatedAt'],
   unitKeys: ['anschaffung', 'code', 'codeType', 'condition', 'createdAt', 'history', 'houseRef', 'id', 'itemId', 'locationId', 'notes', 'serial', 'updatedAt', 'versicherungswert'],
@@ -53,6 +65,10 @@ const item: InventoryItem = {
   dimensions: { widthMm: 50, heightMm: 20, depthMm: 200, weightKg: 0.3 },
   // Bedarf 118 — fuers Carnet-Datenblatt.
   ursprungsland: 'JP',
+  // B-65 — die Mindestmenge des Hauses. Sie MUSS den Round-Trip ueberleben:
+  // eine Datei, die sie unterwegs verliert, laesst das Lager wie eines
+  // aussehen, in dem alles reicht.
+  mindestmenge: 20,
   materialKinds: ['rental'], notes: 'x', createdAt: 't', updatedAt: 't',
 }
 const node: StorageNode = {

@@ -123,6 +123,23 @@ export interface InventoryItem {
   deviceTypeId?: string
   /** Gesamtmenge im Bestand. */
   quantity: number
+  /**
+   * Mindestmenge -- ab wann das Haus nachbestellt oder sub-hired (B-65).
+   *
+   * GEPFLEGT WIRD SIE IM LAGER-WERKZEUG (`inventory-planner`), nicht hier.
+   * Sie steht trotzdem in diesem Typ, und der Grund ist der einzige, der
+   * zaehlt: `healItem` weiter unten baut jeden Artikel Feld fuer Feld neu
+   * auf. Ein Feld, das dieser Typ nicht kennt, laese der Planer aus einer
+   * `avplan-inventory`-Datei ein und schriebe sie beim Export STILL ohne es
+   * zurueck. Der Lagerist saehe danach eine Kachel „Unter Ziel" auf 0 --
+   * ohne Fehlermeldung, ohne Anlass zur Nachfrage, und ohne dass jemals
+   * jemand seine Mindestmengen geloescht haette.
+   *
+   * OPTIONAL, UND DAS IST DER PUNKT. Fehlt die Angabe, ist der Artikel
+   * UNBEWERTET und nicht „bei null". Eine 0 waere die Aussage „darf leer
+   * sein", und die trifft jemand ausdruecklich.
+   */
+  mindestmenge?: number
   /** Mietpreis pro Tag (Kalkulation, Phase 5). */
   rentPricePerDay?: number
   /** Lagerort (z. B. "Regal A3"). */
