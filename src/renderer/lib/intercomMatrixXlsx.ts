@@ -125,7 +125,7 @@ const detectLayout = (rows: Cell[][]): MatrixLayout | { error: string } => {
   const headerCells = rows[sectionHeaderRow] ?? []
   const sections = findSectionsInRow(headerCells)
   if (sections.length === 0) {
-    return { error: tr('intercomXlsx.noSections', 'Keine Spalten-Sektionen unterhalb der Header gefunden.') }
+    return { error: tr('intercomXlsx.noSections', 'No column sections found below the headers.') }
   }
   // ID row sits immediately below the header row; label row directly
   // after it. Some templates may have one extra spacer row between
@@ -183,13 +183,13 @@ export const parseIntercomMatrixXlsx = async (
     workbook = XLSX.read(data, { type: 'array' })
   } catch (err) {
     return {
-      error: format(tr('intercomXlsx.readError', 'XLSX konnte nicht gelesen werden: {msg}'), {
+      error: format(tr('intercomXlsx.readError', 'Could not read the XLSX: {msg}'), {
         msg: (err as Error).message,
       }),
     }
   }
   const sheetName = workbook.SheetNames[0]
-  if (!sheetName) return { error: tr('intercomXlsx.noSheet', 'Keine Tabelle in der Datei gefunden.') }
+  if (!sheetName) return { error: tr('intercomXlsx.noSheet', 'No sheet found in the file.') }
   const sheet = workbook.Sheets[sheetName]
   // Get raw cell values as strings; XLSX returns a 2D array.
   const rows: Cell[][] = XLSX.utils.sheet_to_json(sheet, {
@@ -197,7 +197,7 @@ export const parseIntercomMatrixXlsx = async (
     raw: false,
     defval: '',
   }) as Cell[][]
-  if (rows.length === 0) return { error: tr('intercomXlsx.emptySheet', 'Die erste Tabelle ist leer.') }
+  if (rows.length === 0) return { error: tr('intercomXlsx.emptySheet', 'The first sheet is empty.') }
 
   const layoutOrError = detectLayout(rows)
   if ('error' in layoutOrError) return layoutOrError

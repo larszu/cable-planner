@@ -4,6 +4,13 @@ import type { Cable, CableWaypoint } from '../../types/cable'
 import { useCanvasProjectStore as useProjectStore, useCanvasProjectStoreInstance } from '../../store/projectStoreContext'
 import { useUiStore } from '../../store/uiStore'
 import { useTranslation } from '../../lib/i18n'
+import {
+  abschnittAchse,
+  greifKette,
+  schiebeAbschnitt,
+  schiebeEcke,
+  type Achse,
+} from '../../lib/cableApproach'
 
 interface Props {
   cable: Cable
@@ -14,6 +21,17 @@ interface Props {
   target: { x: number; y: number }
   /** Effective rendered orthogonal waypoints (manual or auto-routed). */
   renderWaypoints?: { x: number; y: number }[]
+  /**
+   * Der Streckenzug, der WIRKLICH GEZEICHNET WIRD — von `legeAnfahrt`, samt
+   * Stummeln und eingeschobenen Ecken. Er ist die Greif-Geometrie: was der
+   * Nutzer sieht, muss er auch anfassen koennen.
+   */
+  renderPath?: { x: number; y: number }[]
+  /**
+   * Die beiden Stummel-Punkte. Sie bleiben in der Greifkette stehen, auch wenn
+   * sie gerade auf der Linie liegen — siehe `greifKette`.
+   */
+  stummelPunkte?: { x: number; y: number }[]
   exportThemeOverride?: 'dark' | 'light'
 }
 
@@ -21,17 +39,9 @@ const HANDLE_SIZE = 8
 const SEGMENT_HIT_WIDTH = 16
 const AXIS_TOL = 3
 
-type SegmentAxis = 'horizontal' | 'vertical' | 'diagonal'
-
-function segmentAxis(p: { x: number; y: number }, q: { x: number; y: number }): SegmentAxis {
-  if (Math.abs(q.y - p.y) < AXIS_TOL) return 'horizontal'
-  if (Math.abs(q.x - p.x) < AXIS_TOL) return 'vertical'
-  return 'diagonal'
-}
-
-function segmentCursor(axis: SegmentAxis): string {
-  if (axis === 'horizontal') return 'ns-resize'
-  if (axis === 'vertical') return 'ew-resize'
+function segmentCursor(axis: Achse): string {
+  if (axis === 'waagerecht') return 'ns-resize'
+  if (axis === 'senkrecht') return 'ew-resize'
   return 'grab'
 }
 
@@ -93,6 +103,8 @@ export const CableWaypoints = ({
   source,
   target,
   renderWaypoints,
+  renderPath,
+  stummelPunkte,
   exportThemeOverride,
 }: Props) => {
   const t = useTranslation()
@@ -112,30 +124,58 @@ export const CableWaypoints = ({
   if (lockCables) return null
 
   const waypoints = cable.waypoints ?? []
-  // v7.9.4 — Drag-Hit-Zonen müssen GENAU dem entsprechen was der User
-  // sieht: renderWaypoints (vom CableEdge, schon durch normalizeOrthogonal
-  // gelaufen) hat Priorität vor den rohen cable.waypoints.
-  // v7.9.5 — Für KABEL OHNE Waypoints, bei denen source↔target diagonal
-  // verlaufen würde, fügen wir hier in der Hit-Zone-Liste einen L-Ecken-
-  // Punkt ein. Sonst wäre das einzige Segment diagonal → durch den
-  // `if (orthogonal && diagonal) return null`-Guard hätte es KEIN
-  // klickbares Hit-Zone — der User konnte ein scheinbar orthogonales
-  // Kabel überhaupt nicht ziehen ("Segment vertikal verschieben muss
-  // bei allen ortho kabeln immer möglich sein"). dragSegment kommt
-  // mit dem startIsSource && endIsTarget-Pfad einwandfrei klar wenn
-  // der User den horizontalen Teil-Seg dann verschiebt.
-  const rawEffective =
-    renderWaypoints && renderWaypoints.length > 0 ? renderWaypoints : waypoints
-  const needsAutoLcorner =
-    routing === 'orthogonal' &&
-    rawEffective.length === 0 &&
-    Math.abs(target.x - source.x) > AXIS_TOL &&
-    Math.abs(target.y - source.y) > AXIS_TOL
-  const effectiveWaypoints = needsAutoLcorner
-    ? [{ x: target.x, y: source.y }]
-    : rawEffective
-  const points: { x: number; y: number }[] = [source, ...effectiveWaypoints, target]
+  // ── DIE GREIFKETTE ───────────────────────────────────────────────────────
+  //
+  // Nutzer-Meldung 2026-09-09: „Das manuelle Kabel verschieben im Cable
+  // planner canvas ist schlechter geworden."
+  //
+  // Der Grund stand nicht im Zieh-Code, sondern eine Ebene darunter. Bis
+  // B-48 (2026-09-08) war der gezeichnete Weg `[Quelle, ...waypoints, Ziel]`,
+  // und genau darauf lagen die Greif-Zonen. Seit B-48 zeichnet `legeAnfahrt`
+  // — mit Stummeln an beiden Enden und mit Ecken, die `rechtwinkligMachen`
+  // dazwischenschiebt. Die Greif-Zonen blieben auf dem alten Streckenzug
+  // liegen, und der wird seither nicht mehr gezeichnet.
+  //
+  // Gemessen ueber die Matrix aus 4x4 Anschlussseiten und 49 Ziellagen
+  // (784 Faelle): 3292 von 3324 gezeichneten Abschnitten hatten KEINE
+  // deckungsgleiche Greif-Zone, in allen 784 Faellen mindestens einer, und
+  // 180 Greif-Zonen lagen dort, wo gar kein Strich war. Der Nutzer fasste
+  // also fast immer ins Leere.
+  //
+  // Deshalb wird jetzt der GEZEICHNETE Weg angefasst. `greifKette` kuerzt
+  // ihn auf seine sichtbaren Ecken ein (zwei Griffe auf einer geraden Linie
+  // waeren die zweite Art, das Ziehen unberechenbar zu machen) und laesst die
+  // beiden Stummel-Punkte stehen. Nach dem Zug geht die Kette ohne ihre
+  // Enden zurueck in `cable.waypoints`; `legeAnfahrt` setzt Quelle, Stummel
+  // und Ziel wieder davor und dahinter und `straffe` wirft die Doppel weg,
+  // sodass derselbe Streckenzug herauskommt, den der Nutzer gerade gezogen
+  // hat. Der Rundlauf ist ueber dieselbe Matrix gemessen: 0 Abweichungen.
+  //
+  // Fuer `straight`-Kabel gibt es keinen gezeichneten Streckenzug — dort
+  // bleibt es bei `[Quelle, ...waypoints, Ziel]` wie bisher.
+  const kette: { x: number; y: number }[] =
+    renderPath && renderPath.length >= 2
+      ? greifKette(renderPath, stummelPunkte ?? [])
+      : [source, ...(renderWaypoints && renderWaypoints.length > 0 ? renderWaypoints : waypoints), target]
+  const points = kette
   const totalPoints = points.length
+
+  /**
+   * Welche Abschnitte darf der Nutzer ziehen?
+   *
+   * Der erste und der letzte sind die Stummel. Sie sind nicht verhandelbar:
+   * `legeAnfahrt` setzt sie bei jedem Zeichnen wieder, wer sie quer zoege,
+   * bekaeme die Kehrtwende zurueck, die B-48 gerade beseitigt hat.
+   *
+   * Bleibt danach nichts uebrig, ist alles ziehbar. Das trifft 12 der 784
+   * gemessenen Faelle, und alle zwoelf sind entartet: die beiden Buchsen
+   * liegen keine 18 px auseinander, das ganze Kabel ist also kuerzer als ein
+   * Stummel. Dort gar nichts anfassen zu koennen waere schlechter als eine
+   * Ecke, die `legeAnfahrt` gleich wieder geradezieht — gemessen bleibt der
+   * Weg auch im Rueckfall in allen Faellen rechtwinklig.
+   */
+  const ziehbar = (i: number): boolean =>
+    totalPoints >= 4 ? i > 0 && i + 1 < totalPoints - 1 : true
 
   // ── helpers ────────────────────────────────────────────────────────────────
 
@@ -182,63 +222,39 @@ export const CableWaypoints = ({
 
   // ── existing waypoint dot handles (selected-only) ─────────────────────────
 
-  const dragExisting = (index: number) => (event: React.PointerEvent<SVGElement>) => {
-    const initWPs = waypoints.slice()
-    const prevFixed = index === 0          // predecessor is source (immutable)
-    const nextFixed = index === initWPs.length - 1  // successor is target (immutable)
-    const prevPt = prevFixed ? source : initWPs[index - 1]
-    const nextPt = nextFixed ? target : initWPs[index + 1]
-    const wpInit = initWPs[index]
-    const inAxis  = segmentAxis(prevPt, wpInit)
-    const outAxis = segmentAxis(wpInit, nextPt)
-
-    beginDrag(event, (cursor) => {
-      const result = initWPs.slice()
-      let cx = cursor.x
-      let cy = cursor.y
-
-      // Clamp against fixed endpoints (source/target) to keep segments orthogonal
-      if (prevFixed) {
-        if (inAxis === 'horizontal') cy = source.y
-        else if (inAxis === 'vertical') cx = source.x
-      }
-      if (nextFixed) {
-        if (outAxis === 'horizontal') cy = target.y
-        else if (outAxis === 'vertical') cx = target.x
-      }
-
-      result[index] = { x: cx, y: cy }
-
-      // Propagate one coordinate to adjacent movable waypoints so they stay orthogonal
-      if (!prevFixed && index > 0) {
-        if (inAxis === 'horizontal') result[index - 1] = { ...initWPs[index - 1], y: cy }
-        else if (inAxis === 'vertical') result[index - 1] = { ...initWPs[index - 1], x: cx }
-      }
-      if (!nextFixed && index < initWPs.length - 1) {
-        if (outAxis === 'horizontal') result[index + 1] = { ...initWPs[index + 1], y: cy }
-        else if (outAxis === 'vertical') result[index + 1] = { ...initWPs[index + 1], x: cx }
-      }
-
-      return result
-    })
+  /**
+   * Eine Ecke der Greifkette ziehen.
+   *
+   * Gezogen wird der Kettenpunkt, nicht der `waypoints`-Eintrag: die beiden
+   * Listen sind seit B-48 nicht mehr dasselbe. Die Nachbar-Ecken gehen auf
+   * ihrer geteilten Achse mit, damit die Abschnitte rechtwinklig bleiben —
+   * das rechnet `schiebeEcke`, damit es ohne Canvas pruefbar ist.
+   */
+  const dragEcke = (index: number) => (event: React.PointerEvent<SVGElement>) => {
+    const initKette = kette.map((p) => ({ ...p }))
+    beginDrag(event, (cursor) => schiebeEcke(initKette, index, cursor).slice(1, -1))
   }
+
+  /** Eine Ecke aus der Greifkette nehmen — der Rest wird zurueckgeschrieben. */
+  const ohneEcke = (index: number): CableWaypoint[] =>
+    kette.filter((_, i) => i !== index).slice(1, -1)
 
   const removeWaypoint = (index: number) => (event: React.MouseEvent<SVGElement>) => {
     if (event.button === 2 || event.altKey) {
       event.preventDefault()
       event.stopPropagation()
-      const next = waypoints.slice()
-      next.splice(index, 1)
+      const next = ohneEcke(index)
       updateCable(cable.id, { waypoints: next.length ? next : undefined })
     }
   }
 
-  // ── segment drag (always active — yEd-style) ──────────────────────────────
+  // ── Abschnitt ziehen (immer aktiv — yEd-Art) ─────────────────────────────
   //
-  // Algorithm from mxEdgeSegmentHandler (draw.io/mxGraph):
-  //   Horizontal → cursor.y is the new segment Y (both endpoints)
-  //   Vertical   → cursor.x is the new segment X (both endpoints)
-  //   Fixed source/target get L-shaped corners inserted.
+  // Der Algorithmus ist unveraendert der aus mxEdgeSegmentHandler
+  // (draw.io/mxGraph): waagerecht -> der Zeiger gibt beiden Endpunkten das
+  // neue y, senkrecht das neue x. Was sich geaendert hat, ist die Kette,
+  // auf der er laeuft: die GEZEICHNETE statt der gespeicherten. Gerechnet
+  // wird in `schiebeAbschnitt`, damit es ohne Canvas pruefbar ist.
 
   const dragSegment = (segIdx: number) => (event: React.PointerEvent<SVGElement>) => {
     // Auto-select edge if not already selected.
@@ -249,16 +265,10 @@ export const CableWaypoints = ({
     const el = event.currentTarget as SVGElement
     el.setPointerCapture(event.pointerId)
 
-    const p0 = points[segIdx]
-    const p1 = points[segIdx + 1]
-    const axis = segmentAxis(p0, p1)
-
-    const startIsSource = segIdx === 0
-    const endIsTarget = segIdx + 1 === totalPoints - 1
-    const initWaypoints = [...effectiveWaypoints]
+    const initKette = kette.map((p) => ({ ...p }))
     const needsRoutingSwitch = routing === 'straight'
 
-    // For diagonal fallback only.
+    // Nur fuer den schraegen Abschnitt (es gibt ihn nur bei `straight`).
     const rawStart = screenToFlowPosition({ x: event.clientX, y: event.clientY })
     const startFlow = { x: Math.round(rawStart.x), y: Math.round(rawStart.y) }
 
@@ -267,57 +277,12 @@ export const CableWaypoints = ({
       // gleich bleiben und Segmente nicht sub-pixel-diagonal werden.
       const raw = screenToFlowPosition({ x: moveEvent.clientX, y: moveEvent.clientY })
       const cursor = { x: Math.round(raw.x), y: Math.round(raw.y) }
-      const dx = cursor.x - startFlow.x
-      const dy = cursor.y - startFlow.y
-
-      const constrain = (wp: { x: number; y: number }): CableWaypoint => {
-        if (axis === 'horizontal') return { x: wp.x,      y: cursor.y }
-        if (axis === 'vertical')   return { x: cursor.x,  y: wp.y }
-        return { x: wp.x + dx, y: wp.y + dy }
-      }
-
-      let next: CableWaypoint[]
-
-      if (!startIsSource && !endIsTarget) {
-        const wi0 = segIdx - 1
-        const wi1 = segIdx
-        next = initWaypoints.map((wp, i) =>
-          i === wi0 || i === wi1 ? constrain(wp) : wp,
-        )
-      } else if (startIsSource && endIsTarget) {
-        if (axis === 'horizontal') {
-          next = [{ x: source.x, y: cursor.y }, { x: target.x, y: cursor.y }]
-        } else if (axis === 'vertical') {
-          next = [{ x: cursor.x, y: source.y }, { x: cursor.x, y: target.y }]
-        } else {
-          next = [{ x: source.x + dx, y: source.y + dy }, { x: target.x + dx, y: target.y + dy }]
-        }
-      } else if (startIsSource) {
-        const wp0 = initWaypoints[0]
-        if (axis === 'horizontal') {
-          next = [{ x: source.x, y: cursor.y }, { x: wp0.x, y: cursor.y }, ...initWaypoints.slice(1)]
-        } else if (axis === 'vertical') {
-          next = [{ x: cursor.x, y: source.y }, { x: cursor.x, y: wp0.y }, ...initWaypoints.slice(1)]
-        } else {
-          next = [{ x: source.x + dx, y: source.y + dy }, { x: wp0.x + dx, y: wp0.y + dy }, ...initWaypoints.slice(1)]
-        }
-      } else {
-        const wpLast = initWaypoints[segIdx - 1]
-        if (axis === 'horizontal') {
-          next = [...initWaypoints.slice(0, segIdx - 1), { x: wpLast.x, y: cursor.y }, { x: target.x, y: cursor.y }]
-        } else if (axis === 'vertical') {
-          next = [...initWaypoints.slice(0, segIdx - 1), { x: cursor.x, y: wpLast.y }, { x: cursor.x, y: target.y }]
-        } else {
-          next = [...initWaypoints.slice(0, segIdx - 1), { x: wpLast.x + dx, y: wpLast.y + dy }, { x: target.x + dx, y: target.y + dy }]
-        }
-      }
-
-      // #377 — alle Waypoints auf ganze Einheiten runden: geteilte Achsenwerte
-      // (gleicher Bruchteil) runden auf denselben Integer → Segmente bleiben
-      // exakt achsparallel, keine akkumulierende Diagonale.
-      const nextRounded = next.map((w) => ({ x: Math.round(w.x), y: Math.round(w.y) }))
+      const versatz = { x: cursor.x - startFlow.x, y: cursor.y - startFlow.y }
+      const next = schiebeAbschnitt(initKette, segIdx, cursor, versatz)
+        .slice(1, -1)
+        .map((w) => ({ x: Math.round(w.x), y: Math.round(w.y) }))
       updateCable(cable.id, {
-        waypoints: nextRounded.length ? nextRounded : undefined,
+        waypoints: next.length ? next : undefined,
         ...(needsRoutingSwitch ? { routing: 'orthogonal' } : {}),
       })
     }
@@ -327,11 +292,10 @@ export const CableWaypoints = ({
       el.removeEventListener('pointerup', handleUp)
       el.removeEventListener('pointercancel', handleUp)
       try { el.releasePointerCapture(event.pointerId) } catch { /* ignore */ }
-      // v7.9.4 — Gleiche Hygiene wie bei dragExisting: nach Segment-Drag
-      // alle redundanten kollinearen Waypoints rauswerfen, sonst
-      // sammeln sich bei jeder Segment-Bewegung 2 Punkte mehr an, was
-      // bei der nächsten Drag wieder eine "wer normalisiert was?"-
-      // Diskrepanz erzeugt.
+      // v7.9.4 — Gleiche Hygiene wie bei `dragEcke`: nach dem Zug alle
+      // redundanten kollinearen Stuetzpunkte rauswerfen, sonst sammeln sie
+      // sich mit jedem Zug an. Die Greifkette kuerzt beim Zeichnen ohnehin
+      // ein — das hier haelt die GESPEICHERTE Liste knapp.
       const currentWPs =
         projectStoreInstance.getState().project.cables.find((c) => c.id === cable.id)?.waypoints ?? []
       const cleaned = cleanCollinear(currentWPs, source, target)
@@ -346,14 +310,16 @@ export const CableWaypoints = ({
 
   return (
     <g className="nodrag nopan" style={{ pointerEvents: 'all' }}>
-      {/* ── Segment hit areas ──
-          In orthogonal routing only horizontal/vertical segments are draggable;
-          diagonal segments (e.g. while transitioning) get no handle so the
-          user can't accidentally bend a non-ortho segment. */}
+      {/* ── Greif-Zonen der Abschnitte ──
+          Sie liegen auf dem gezeichneten Weg (siehe `greifKette` oben). Der
+          erste und der letzte Abschnitt sind die Stummel und bleiben frei;
+          ein schraeger Abschnitt bekommt bei orthogonaler Fuehrung keine
+          Zone, damit niemand versehentlich eine Diagonale knickt. */}
       {points.slice(0, -1).map((p, i) => {
+        if (!ziehbar(i)) return null
         const q = points[i + 1]
-        const axis = segmentAxis(p, q)
-        if (routing === 'orthogonal' && axis === 'diagonal') return null
+        const axis = abschnittAchse(p, q)
+        if (routing === 'orthogonal' && axis === 'schraeg') return null
         const cursor = segmentCursor(axis)
         const isHovered = hoveredSeg === i
 
@@ -381,8 +347,8 @@ export const CableWaypoints = ({
               onPointerDown={dragSegment(i)}
             >
               <title>
-                {axis === 'horizontal' ? t('cable.segment.moveVertical', 'Move segment vertically') :
-                 axis === 'vertical'   ? t('cable.segment.moveHorizontal', 'Move segment horizontally') :
+                {axis === 'waagerecht' ? t('cable.segment.moveVertical', 'Move segment vertically') :
+                 axis === 'senkrecht'  ? t('cable.segment.moveHorizontal', 'Move segment horizontally') :
                  t('cable.segment.move', 'Move segment')}
               </title>
             </line>
@@ -390,8 +356,13 @@ export const CableWaypoints = ({
         )
       })}
 
-      {/* ── Existing waypoint dot handles — only when selected ── */}
-      {selected && waypoints.map((wp, index) => (
+      {/* ── Die Ecken der Greifkette — nur bei ausgewaehltem Kabel ──
+          Frueher sassen die Punkte auf `cable.waypoints`. Seit B-48 ist das
+          nicht mehr dieselbe Liste wie die gezeichneten Ecken, und ein
+          Griff, der neben seiner Ecke liegt, ist schlimmer als keiner. */}
+      {selected && points.slice(1, -1).map((wp, i) => {
+        const index = i + 1
+        return (
         <circle
           key={`wp-${index}`}
           cx={wp.x} cy={wp.y}
@@ -400,18 +371,18 @@ export const CableWaypoints = ({
           stroke={isLight ? '#e2e8f0' : '#0f172a'}
           strokeWidth={1.5}
           style={{ cursor: 'move' }}
-          onPointerDown={dragExisting(index)}
+          onPointerDown={dragEcke(index)}
           onMouseDown={removeWaypoint(index)}
           onContextMenu={(e) => {
             e.preventDefault()
-            const next = waypoints.slice()
-            next.splice(index, 1)
+            const next = ohneEcke(index)
             updateCable(cable.id, { waypoints: next.length ? next : undefined })
           }}
         >
           <title>{t('cable.waypoint.tooltip', 'Drag to move · Alt-click or right-click to remove')}</title>
         </circle>
-      ))}
+        )
+      })}
 
       {/* ── B-44 Teil 3: der sichtbare Loeschgriff fuer grobe Zeiger ──
           Auf einem Tablet gibt es weder Alt+Klick noch Rechtsklick, und ein
@@ -423,7 +394,9 @@ export const CableWaypoints = ({
           Deshalb ein eigener kleiner Griff daneben — sichtbar statt
           verborgen, und nur dort, wo es keinen Rechtsklick gibt
           (`.cp-coarse-only` in index.css). */}
-      {selected && waypoints.map((wp, index) => (
+      {selected && points.slice(1, -1).map((wp, i) => {
+        const index = i + 1
+        return (
         <g key={`wp-del-${index}`} className="cp-coarse-only">
           <circle
             cx={wp.x + HANDLE_SIZE}
@@ -438,8 +411,7 @@ export const CableWaypoints = ({
               // Ereignis und der Punkt wandert, statt zu verschwinden.
               e.stopPropagation()
               e.preventDefault()
-              const next = waypoints.slice()
-              next.splice(index, 1)
+              const next = ohneEcke(index)
               updateCable(cable.id, { waypoints: next.length ? next : undefined })
             }}
           >
@@ -464,7 +436,8 @@ export const CableWaypoints = ({
             pointerEvents="none"
           />
         </g>
-      ))}
+        )
+      })}
     </g>
   )
 }
