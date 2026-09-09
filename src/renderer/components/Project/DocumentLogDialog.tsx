@@ -7,11 +7,16 @@ import { useTranslation } from '../../lib/i18n'
 import { cablePlannerApi } from '../../lib/bridge'
 import { confirmDialog } from '../../lib/confirmDialog'
 import {
-  reviewLog,
   reviewSummary,
   type DocumentLogFile,
   type ReviewedEntry,
 } from '../../lib/documentLog'
+import {
+  OHNE_EMPFAENGER,
+  empfaengerStaende,
+  type BlattStand,
+} from '../../lib/recipientDigest'
+import { planDiffSummary } from '../../lib/planDiff'
 
 /**
  * Roadmap-Initiative 5 — die Vorwaerts-Frage, endlich mit beiden Haelften.
@@ -27,6 +32,17 @@ import {
  * am Reserve-Aufschlag), ist weder das eine noch das andere. Ihn als „aktuell"
  * zu fuehren waere eine Freigabe, die niemand gegeben hat; das ist dieselbe
  * Regel wie in `changeImpact`.
+ *
+ * BEDARF 11 — NACH EMPFAENGERN GETRENNT, seit 2026-09-09. Der Bedarf sagt
+ * „different people end up on different versions"; eine Liste ueber alle
+ * Blaetter beantwortet das nicht, weil sie die Trennung einebnet, um die es
+ * geht. Die Ansicht fragt deshalb `empfaengerStaende` und zeigt je Empfaenger
+ * seine eigenen Blaetter — und, wo der Plan von damals als Revision noch
+ * existiert, WAS sich seither geaendert hat.
+ *
+ * Wo er nicht mehr existiert, steht das da und kein Vergleich. Ein Blatt mit
+ * einem Vergleich gegen die falsche Fassung waere schlimmer als eines ohne:
+ * es klaenge nach einer Auskunft.
  */
 export interface DocumentLogDialogProps {
   open: boolean
@@ -61,7 +77,11 @@ export const DocumentLogDialog = ({ open, onClose }: DocumentLogDialogProps) => 
     if (open) void load()
   }, [open])
 
-  const entries = log ? reviewLog(log, project, filePath) : []
+  // EINE Rechnung. `empfaengerStaende` ruft `reviewLog` selbst; ein zweiter
+  // Aufruf hier gaebe dieselbe Liste ein zweites Mal — und die zweite waere
+  // die, die irgendwann anders sortiert oder anders gefiltert ist.
+  const staende = log ? empfaengerStaende(log, project, filePath) : []
+  const entries: ReviewedEntry[] = staende.flatMap((e) => e.blaetter.map((b) => b.entry))
   const otherProjects = log ? log.entries.length - entries.length : 0
 
   const onClear = async () => {
@@ -76,6 +96,54 @@ export const DocumentLogDialog = ({ open, onClose }: DocumentLogDialogProps) => 
     )
       return
     setLog((await cablePlannerApi.documentLog.clear()) as DocumentLogFile)
+  }
+
+  /**
+   * BEDARF 11 — die Spalte, um die es geht. Drei Auskuenfte, und keine davon
+   * darf wie eine der anderen aussehen:
+   *
+   *   * Der Vergleich gegen die Fassung, aus der das Blatt gedruckt wurde.
+   *   * „ueberholt, aber die Fassung von damals ist nicht mehr da" — das ist
+   *     heilbar (Revision festschreiben) und wird deshalb so gesagt.
+   *   * „der Stand dieses Dokuments ist gar nicht reproduzierbar" — das ist
+   *     nicht heilbar, und wer es mit dem Fall darueber verwechselt, sucht
+   *     nach einer Revision, die nichts aendern wuerde.
+   */
+  const seitdem = (b: BlattStand) => {
+    if (b.diff) {
+      return (
+        <span>
+          {planDiffSummary(b.diff)}
+          {b.revisionLabel && (
+            <span className="text-cp-text-muted">
+              {' '}
+              ({t('doclog.since.rev', 'gegen')} {b.revisionLabel})
+            </span>
+          )}
+        </span>
+      )
+    }
+    if (b.ohneVergleich === 'keine-passende-revision') {
+      return (
+        <span className="text-cp-text-muted">
+          {t(
+            'doclog.since.noRevision',
+            'Die Fassung von damals ist nicht festgeschrieben — nur dass das Blatt überholt ist.',
+          )}
+        </span>
+      )
+    }
+    if (b.ohneVergleich === 'stand-nicht-reproduzierbar') {
+      return (
+        <span className="text-cp-text-muted">
+          {t(
+            'doclog.since.notReproducible',
+            'Der Stand dieses Dokuments lässt sich aus dem Plan allein nicht nachrechnen.',
+          )}
+        </span>
+      )
+    }
+    return <span className="text-cp-text-muted">—</span>
   }
 
   const fmt = (iso: string): string => {
@@ -150,39 +218,63 @@ export const DocumentLogDialog = ({ open, onClose }: DocumentLogDialogProps) => 
           </p>
         )}
 
-        {entries.length > 0 && (
-          <table className="block overflow-x-auto w-full text-cp-xs">
-            <thead className="text-cp-text-secondary">
-              <tr>
-                <th className="px-2 py-1 text-left">{t('doclog.col.doc', 'Dokument')}</th>
-                <th className="px-2 py-1 text-left">{t('doclog.col.when', 'Ausgegeben')}</th>
-                <th className="px-2 py-1 text-left">{t('doclog.col.stand', 'Stand auf dem Blatt')}</th>
-                <th className="px-2 py-1 text-left">{t('doclog.col.status', 'Gilt noch?')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {entries.map((e, i) => (
-                <tr key={`${e.docId}-${e.emittedAt}-${i}`} className="border-t border-cp-border-muted">
-                  <td className="px-2 py-1">{e.label}</td>
-                  <td className="px-2 py-1 text-cp-text-secondary">{fmt(e.emittedAt)}</td>
-                  <td className="px-2 py-1 font-mono">
-                    #{e.stand}
-                    {e.status === 'superseded' && e.standNow && (
-                      <span className="text-cp-text-muted"> {'->'} #{e.standNow}</span>
-                    )}
-                  </td>
-                  <td className={`px-2 py-1 ${STATUS_STYLE[e.status]}`}>
-                    {e.status === 'superseded'
-                      ? t('doclog.superseded', 'überholt — neu ausgeben')
-                      : e.status === 'unknown'
-                        ? t('doclog.unknown', 'nicht beurteilbar')
-                        : t('doclog.current', 'aktuell')}
-                  </td>
+        {staende.map((empfaenger) => (
+          <section key={empfaenger.recipient || '__ohne'} className="space-y-1">
+            <h4 className="flex flex-wrap items-baseline gap-2 text-cp-xs">
+              <span className="font-medium text-cp-text">
+                {empfaenger.recipient === OHNE_EMPFAENGER
+                  ? t('doclog.noRecipient', 'Empfänger nicht genannt')
+                  : empfaenger.recipient}
+              </span>
+              <span className="text-cp-text-muted">
+                {empfaenger.blaetter.length} ·{' '}
+                {empfaenger.superseded > 0
+                  ? `${empfaenger.superseded} ${t('doclog.stale', 'überholt')}`
+                  : t('doclog.allCurrent', 'alle aktuell')}
+                {empfaenger.superseded > 0 &&
+                  ` · ${empfaenger.mitVergleich} ${t('doclog.withDiff', 'mit Vergleich')}`}
+              </span>
+            </h4>
+            <table className="block overflow-x-auto w-full text-cp-xs">
+              <thead className="text-cp-text-secondary">
+                <tr>
+                  <th className="px-2 py-1 text-left">{t('doclog.col.doc', 'Dokument')}</th>
+                  <th className="px-2 py-1 text-left">{t('doclog.col.when', 'Ausgegeben')}</th>
+                  <th className="px-2 py-1 text-left">{t('doclog.col.stand', 'Stand auf dem Blatt')}</th>
+                  <th className="px-2 py-1 text-left">{t('doclog.col.status', 'Gilt noch?')}</th>
+                  <th className="px-2 py-1 text-left">
+                    {t('doclog.col.since', 'Was sich seitdem geändert hat')}
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+              </thead>
+              <tbody>
+                {empfaenger.blaetter.map((b, i) => (
+                  <tr
+                    key={`${b.entry.docId}-${b.entry.emittedAt}-${i}`}
+                    className="border-t border-cp-border-muted"
+                  >
+                    <td className="px-2 py-1">{b.entry.label}</td>
+                    <td className="px-2 py-1 text-cp-text-secondary">{fmt(b.entry.emittedAt)}</td>
+                    <td className="px-2 py-1 font-mono">
+                      #{b.entry.stand}
+                      {b.entry.status === 'superseded' && b.entry.standNow && (
+                        <span className="text-cp-text-muted"> {'->'} #{b.entry.standNow}</span>
+                      )}
+                    </td>
+                    <td className={`px-2 py-1 ${STATUS_STYLE[b.entry.status]}`}>
+                      {b.entry.status === 'superseded'
+                        ? t('doclog.superseded', 'überholt — neu ausgeben')
+                        : b.entry.status === 'unknown'
+                          ? t('doclog.unknown', 'nicht beurteilbar')
+                          : t('doclog.current', 'aktuell')}
+                    </td>
+                    <td className="px-2 py-1">{seitdem(b)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </section>
+        ))}
 
         {/* Die beiden Dinge, die ein Register verschweigen könnte — und dann
             vollständig aussähe. */}

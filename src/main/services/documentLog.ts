@@ -48,6 +48,8 @@ export interface DocumentLogEntry {
   project: string
   /** Pfad des Projekts, falls bekannt. Ordnet den Eintrag eindeutig zu. */
   projectPath?: string
+  /** Bedarf 11 — wer das Blatt bekommen hat. Freitext; fehlt, wenn ungenannt. */
+  recipient?: string
 }
 
 export interface DocumentLog {

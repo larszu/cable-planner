@@ -6,6 +6,7 @@ import type { Cable } from '../src/renderer/types/cable'
 import type { EquipmentItem } from '../src/renderer/types/equipment'
 import docsDialogSrc from '../src/renderer/components/Export/InstallationDocsDialog.tsx?raw'
 import serviceSrc from '../src/main/services/documentLog.ts?raw'
+import recorderSrc from '../src/renderer/lib/documentLog.ts?raw'
 
 // ---------------------------------------------------------------------------
 // Roadmap-Initiative 5, letztes Stueck — das Register der ausgegebenen
@@ -150,7 +151,35 @@ describe('was das Register nicht verschweigen darf', () => {
   it('schreibt keinen Eintrag ohne Stand', () => {
     // Ein Eintrag ohne Stand koennte nie beantworten, ob er noch gilt — er
     // waere eine Protokoll-Zeile, die wie eine Aussage aussieht.
-    expect(docsDialogSrc).toContain('recordEmission(project, suffix, filePath)')
+    //
+    // 2026-09-09 GENAUER GEFASST. Hier stand die Zeichenkette
+    // `recordEmission(project, suffix, filePath)` aus dem Doku-Dialog — als
+    // Stellvertreter fuer diese Regel. Der misst sie nicht: die Regel steht in
+    // `recordEmission` selbst, und der Aufruf im Dialog sagt darueber nichts.
+    // Bedarf 11 gab dem Aufruf ein viertes Argument (den Empfaenger), und der
+    // Guard wurde an einer richtigen Aenderung rot, ohne dass die zugesicherte
+    // Regel auch nur beruehrt worden waere.
+    //
+    // Jetzt wird die Regel selbst gemessen: der Aufzeichner holt den Stand und
+    // kehrt ohne ihn um, bevor irgendetwas geschrieben wird.
+    const ohneKommentare = recorderSrc
+      .split('\n')
+      .filter((z) => !/^\s*(\/\/|\*|\/\*)/.test(z))
+      .join('\n')
+    expect(ohneKommentare).toMatch(/const stand = currentStand\(docId, project\)/)
+    expect(ohneKommentare).toMatch(/if \(!stand\)\s*\{?\s*\n?\s*return/)
+    // Und die Umkehr steht VOR dem Schreiben, nicht danach.
+    expect(ohneKommentare.indexOf('if (!stand)')).toBeLessThan(
+      ohneKommentare.indexOf('documentLog.append'),
+    )
+  })
+
+  it('geht durch EINE Engstelle im Doku-Dialog', () => {
+    // Der Grund steht im Dialog selbst: ein Protokoll, das an sechs Stellen
+    // geschrieben wird, hat spaetestens beim siebten Dokument eine Luecke —
+    // und eine Luecke in einem Register sieht aus wie „nicht ausgegeben".
+    const aufrufe = docsDialogSrc.match(/recordEmission\(/g) ?? []
+    expect(aufrufe).toHaveLength(1)
   })
 })
 
