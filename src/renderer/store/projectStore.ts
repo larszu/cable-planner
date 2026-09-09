@@ -61,6 +61,8 @@ import { wirelessAudioTemplates } from '../lib/wirelessAudioCatalog'
 import { micTemplates } from '../lib/micCatalog'
 import { upsertCachedRentmanTemplate } from '../lib/rentmanTemplateCache'
 import type { GreenGoConfig } from '../types/greengo'
+import type { IntercomPlan } from '../types/intercomPlan'
+import { planFromGreengo } from '../lib/intercomPlan'
 
 type CableDraft = Pick<Cable, 'name' | 'type' | 'length' | 'color' | 'notes'> &
   Partial<Pick<Cable, 'cableSpecId' | 'standard' | 'needsConverter'>>
@@ -469,6 +471,7 @@ export interface ProjectState {
   renameGroupPreset: (id: string, newName: string) => void
   /** Save or replace the GreenGo intercom planning config in the project. */
   updateGreenGoConfig: (config: GreenGoConfig) => void
+  updateIntercomPlan: (plan: IntercomPlan) => void
   /** Drum-Mikrofonierung — den Drum-Kit-Plan setzen (undefined = entfernen). */
   setDrumKit: (plan: import('../types/drumKit').DrumKitPlan | undefined) => void
   setWirelessRig: (plan: import('../types/wirelessRig').WirelessRigPlan | undefined) => void
@@ -953,8 +956,32 @@ const healProjectPositions = (
     micPlotGeheilt.performers.length || micPlotGeheilt.sessions.length || micPlotGeheilt.assignments.length
       ? micPlotGeheilt
       : undefined
+  // ─── E-2, Schritt 1: der Intercom-Slot ───────────────────────────────────
+  //
+  // Bis hierher stand die Green-GO-Konfiguration im Projekt und war seine
+  // Wahrheit. Seit E-2 fuehrt das Projekt den herstellerneutralen Slot; ein
+  // Projekt aus der Zeit davor traegt `greengoConfig` und wird hier
+  // umgestellt.
+  //
+  // DIE UMSTELLUNG PASSIERT BEIM LADEN UND NICHT BEIM SPEICHERN, weil sonst
+  // ein Projekt, das nur geoeffnet und angesehen wurde, mit der alten Form
+  // weiterlebt — und die Oberflaeche liest sie nicht mehr. Der Nutzer saehe
+  // seine Sprechstellen verschwinden.
+  //
+  // `greengoConfig` wird dabei ENTFERNT und nicht daneben stehen gelassen.
+  // Beides zu fuehren waere genau die zweite Wahrheit, gegen die dieser Umbau
+  // geschrieben ist: der naechste Leser griffe auf das Feld, das er kennt,
+  // und die beiden liefen auseinander.
+  const alteGreengoConfig = (project as { greengoConfig?: GreenGoConfig }).greengoConfig
+  const intercom =
+    project.intercom ?? (alteGreengoConfig ? planFromGreengo(alteGreengoConfig) : undefined)
+  const ohneAltesFeld = (({ greengoConfig: _weg, ...rest }) => rest)(
+    project as CablePlannerProject & { greengoConfig?: GreenGoConfig },
+  ) as CablePlannerProject
+
   return {
-    ...project,
+    ...ohneAltesFeld,
+    ...(intercom ? { intercom } : {}),
     equipment: project.equipment.map((item) => {
       item = clearDanglingIdentity(item, identityIds)
 

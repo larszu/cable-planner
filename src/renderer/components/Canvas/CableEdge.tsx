@@ -286,7 +286,7 @@ export const CableEdge = ({
   const unterSpannung = useEdgeEnergised(cable?.id)
   const deleteCable = useProjectStore((state) => state.deleteCable)
   const equipment = useProjectStore((state) => state.project.equipment)
-  const greengoConfig = useProjectStore((state) => state.project.greengoConfig)
+  const intercom = useProjectStore((state) => state.project.intercom)
   // #221 — Off-Page-Connector: Selektion, Netz-Highlight & RF-Navigation.
   const setSelection = useProjectStore((state) => state.setSelection)
   const selectedCableId = useProjectStore((state) => state.selectedCableId)
@@ -326,7 +326,7 @@ export const CableEdge = ({
       // #501-Folgefix — gleiche Geometrie-Quelle wie der Renderer, damit die
       // Obstacle-Boxen fürs Kabel-Umfahren exakt den gerenderten Geräten
       // entsprechen (vorher veraltete 62/48/8-Kopie ohne snapUp-Breite).
-      const { width, height } = computeEquipmentLayout(item, greengoConfig)
+      const { width, height } = computeEquipmentLayout(item, intercom)
       rects.push({ x: item.x, y: item.y, width, height })
       ids.push(item.id)
     }

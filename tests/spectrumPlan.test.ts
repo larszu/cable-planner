@@ -8,6 +8,7 @@ import {
   spectrumTable,
 } from '../src/renderer/lib/spectrumPlan'
 import { deriveRig } from '../src/renderer/lib/wirelessRig'
+import { planFromGreengo } from '../src/renderer/lib/intercomPlan'
 import { DOCUMENT_LABELS, DOCUMENT_STANDS } from '../src/renderer/lib/documentRegistry'
 import type { CablePlannerProject } from '../src/renderer/types/project'
 import analyseQuelle from '../src/renderer/components/Analysis/AnalysisDialog.tsx?raw'
@@ -123,13 +124,16 @@ describe('Bedarf 95 — wer traegt Beltpack 7', () => {
     const p = projekt({
       equipment: [geraet('bp7', 'Beltpack 7'), geraet('base', 'Basis')],
       cables: [funk('l1', 'Comms 7', 'bp7', 'base', '470 MHz')],
-      greengoConfig: {
+      // Ueber `planFromGreengo` statt handgebaut: so prueft der Test
+      // nebenbei mit, dass die Uebersetzung in den Slot den Traeger-Namen
+      // ueberhaupt mitnimmt (E-2, Schritt 1).
+      intercom: planFromGreengo({
         systemName: 'S',
         multicastAddress: '239.1.160.1',
         sampleRate: 48000,
         groups: [],
         users: [{ id: 7, name: 'Followspot 1', groupIds: [], equipmentId: 'bp7' }],
-      },
+      }),
     } as never)
     expect(collectTransmitters(p).entries[0].carrier).toBe('Followspot 1')
   })
@@ -138,7 +142,7 @@ describe('Bedarf 95 — wer traegt Beltpack 7', () => {
     const p = projekt({
       equipment: [geraet('bp', 'Beltpack'), geraet('base', 'Basis')],
       cables: [funk('l1', 'Comms', 'bp', 'base', '470 MHz')],
-      greengoConfig: {
+      intercom: planFromGreengo({
         systemName: 'S',
         multicastAddress: '239.1.160.1',
         sampleRate: 48000,
@@ -147,7 +151,7 @@ describe('Bedarf 95 — wer traegt Beltpack 7', () => {
           { id: 1, name: 'Schicht A', groupIds: [], equipmentId: 'bp' },
           { id: 2, name: 'Schicht B', groupIds: [], equipmentId: 'bp' },
         ],
-      },
+      }),
     } as never)
     expect(collectTransmitters(p).entries[0].carrier).toBe('Schicht A, Schicht B')
   })

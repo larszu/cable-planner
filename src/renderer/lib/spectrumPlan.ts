@@ -133,11 +133,11 @@ export function collectTransmitters(project: CablePlannerProject): {
   // an Geraete gebunden. Ein Geraet kann mehreren zugeordnet sein; dann
   // stehen beide da, statt einen zu waehlen.
   const traegerOf = new Map<string, string[]>()
-  for (const u of project.greengoConfig?.users ?? []) {
-    if (!u.equipmentId) continue
-    const name = (u.displayName || u.name || '').trim()
+  for (const s of project.intercom?.stations ?? []) {
+    if (!s.equipmentId) continue
+    const name = (s.shortName || s.name || '').trim()
     if (!name) continue
-    traegerOf.set(u.equipmentId, [...(traegerOf.get(u.equipmentId) ?? []), name])
+    traegerOf.set(s.equipmentId, [...(traegerOf.get(s.equipmentId) ?? []), name])
   }
 
   for (const c of project.wirelessRig?.channels ?? []) {

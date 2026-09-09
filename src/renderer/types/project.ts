@@ -1,6 +1,6 @@
 import type { Cable } from './cable'
 import type { EquipmentItem } from './equipment'
-import type { GreenGoConfig } from './greengo'
+import type { IntercomPlan } from './intercomPlan'
 import type { LocationFrame } from './location'
 import type { VenueAnswer } from './venueAnswer'
 import type { VideoFormatId } from './videoFormat'
@@ -183,8 +183,24 @@ export interface CablePlannerProject {
   cables: Cable[]
   canvasState: CanvasState
   locations?: LocationFrame[]
-  /** GreenGo intercom planning configuration (users, groups, system settings). */
-  greengoConfig?: GreenGoConfig
+  /**
+   * Der Intercom-Slot (E-2, Schritt 1).
+   *
+   * HIER STAND `greengoConfig?: GreenGoConfig` — die Konfiguration EINES
+   * Herstellers als Wahrheit des Projekts. Wer die Anlage bei Riedel oder
+   * Clear-Com aufbaute, fing damit bei null an, obwohl der fachliche Inhalt
+   * derselbe ist: welche Konferenzen es gibt, wer auf welcher spricht, wer
+   * nur mithoert, welche Konferenz auf welcher Taste liegt.
+   *
+   * Seit E-2 fuehrt das Projekt den herstellerneutralen Slot, und
+   * `GreenGoConfig` ist seine Ausgabe-Projektion (`lib/intercomPlan.ts`).
+   * Alte Projekte werden beim Laden umgestellt — siehe `healProjectPositions`.
+   *
+   * Was der Slot NICHT traegt: alles, was der Plan schon weiss. Geraet, Port
+   * und Rolle stehen dort als Verweis ueber `equipmentId` und nie als Kopie
+   * (ADR-001).
+   */
+  intercom?: IntercomPlan
   /** v7.9.3 — Aufbau-Status: welche Ports / Kabel der Field-Tech bereits
    *  physikalisch gesteckt hat. Wird vom Mobile-Viewer (handy.html) via
    *  POST /checks zurückgespielt und im Haupt-Canvas als kleines Häkchen

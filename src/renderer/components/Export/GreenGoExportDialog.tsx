@@ -5,6 +5,7 @@ import { useProjectStore } from '../../store/projectStore'
 import type { GreenGoConfig, GreenGoGroup, GreenGoUser } from '../../types/greengo'
 import { defaultGreenGoConfig } from '../../types/greengo'
 import { buildGg5File } from '../../lib/exportGreengo'
+import { greengoFromPlan } from '../../lib/intercomPlan'
 import { withGroupIds } from '../../lib/greengoKeys'
 import {
   fromIntercomExchange,
@@ -44,11 +45,17 @@ const MAX_GROUPS = 9
 export const GreenGoExportDialog = ({ onClose }: Props) => {
   const t = useTranslation()
   const equipment = useProjectStore((s) => s.project.equipment)
-  const savedConfig = useProjectStore((s) => s.project.greengoConfig)
+  // DER DIALOG SPRICHT GREEN-GO, das Projekt fuehrt den neutralen Slot
+  // (E-2). Die Projektion entsteht EINMAL beim Oeffnen — der Dialog arbeitet
+  // danach auf seiner eigenen Kopie und schreibt beim Speichern zurueck, wo
+  // sie wieder in den Slot uebersetzt wird. Bei jedem Render zu projizieren
+  // waere dieselbe Defektform, die `MobileShareDialog` in seinem Kommentar
+  // beschreibt: ein Selektor mit neuer Identitaet je Aufruf.
+  const slot = useProjectStore((s) => s.project.intercom)
   const updateGreenGoConfig = useProjectStore((s) => s.updateGreenGoConfig)
 
   const [config, setConfig] = useState<GreenGoConfig>(
-    () => savedConfig ?? defaultGreenGoConfig(),
+    () => (slot ? greengoFromPlan(slot) : defaultGreenGoConfig()),
   )
 
   const [activeTab, setActiveTab] = useState<'matrix' | 'users' | 'groups' | 'system'>('matrix')

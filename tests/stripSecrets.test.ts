@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { OPAQUE_KEYS, SECRET_KEYS, stripSecrets } from '../src/main/util/stripSecrets'
 import greengoTypesSrc from '../src/renderer/types/greengo.ts?raw'
+import intercomPlanTypesSrc from '../src/renderer/types/intercomPlan.ts?raw'
 import projectIpcSrc from '../src/main/ipc/projectIpc.ts?raw'
 import mobileShareSrc from '../src/main/services/mobileShareServer.ts?raw'
 import equipmentTypesSrc from '../src/renderer/types/equipment.ts?raw'
@@ -66,30 +67,48 @@ describe('die Ausgaenge, die das Haus verlassen', () => {
 
   // Zweiter Befund, dieselbe Regel, andere Sorte Feld. `SECRET_KEYS` streicht
   // nach Namen — bei einem eingelesenen Hersteller-Dokument kennen wir die
-  // Namen nicht. `GreenGoConfig.basePreset` haelt die Anlagen-Konfiguration
-  // unveraendert, samt `ConfigPassword`, `AdminPassword`, `TechPincode` und
+  // Namen nicht. Das Roh-Preset haelt die Anlagen-Konfiguration unveraendert,
+  // samt `ConfigPassword`, `AdminPassword`, `TechPincode` und
   // `Security.Pincode`. Keiner dieser Namen steht in `SECRET_KEYS`: die
   // Geraete-Zugangsdaten wurden gestrichen, die der Intercom-Anlage gingen mit.
+  //
+  // SEIT E-2 LIEGT ES TIEFER. Das Preset stand in `project.greengoConfig`;
+  // jetzt in `project.intercom.vendor.greengo`. Dass die Regel das ueberlebt,
+  // ist kein Zufall — `stripSecrets` streicht rekursiv nach Feldnamen und
+  // nicht nach Pfad. Genau das prueft die Fixture hier, indem sie die neue
+  // Verschachtelung nachbaut: waere die Regel je an einen Pfad gebunden
+  // worden, ginge das Anlagen-Passwort seit dem Umbau wieder mit.
   describe('fremde Roh-Dokumente', () => {
     const mitPreset = () => ({
       metadata: { name: 'Anlage' },
-      greengoConfig: {
+      intercom: {
         systemName: 'Produktion',
-        users: [{ id: 1, name: 'Regie', groupIds: [1] }],
-        basePreset: {
-          System: {
-            ConfigPassword: 'a1b2c3d4-e5f6-0000-1111-222233334444',
-            AdminPassword: '9988-7766-5544-3322',
-            TechPincode: '4711',
+        channels: [{ id: 'ch-1', name: 'PGM' }],
+        stations: [
+          { id: 'st-1', name: 'Regie', memberships: [{ channelId: 'ch-1', talk: true, listen: true }] },
+        ],
+        vendor: {
+          greengo: {
+            multicastAddress: '239.1.160.1',
+            sampleRate: 48000,
+            stationNumbers: { 'st-1': 1 },
+            channelNumbers: { 'ch-1': 1 },
+            basePreset: {
+              System: {
+                ConfigPassword: 'a1b2c3d4-e5f6-0000-1111-222233334444',
+                AdminPassword: '9988-7766-5544-3322',
+                TechPincode: '4711',
+              },
+              Security: { Pincode: '0815' },
+            },
           },
-          Security: { Pincode: '0815' },
         },
       },
     })
 
     it('das Roh-Dokument verlaesst den Rechner nicht', () => {
-      const out = stripSecrets(mitPreset()) as Record<string, Record<string, unknown>>
-      expect(out.greengoConfig.basePreset).toBeUndefined()
+      const out = stripSecrets(mitPreset()) as Record<string, Record<string, Record<string, Record<string, unknown>>>>
+      expect(out.intercom.vendor.greengo.basePreset).toBeUndefined()
     })
 
     it('kein einziges der Anlagen-Geheimnisse steht noch im Ergebnis', () => {
@@ -105,16 +124,26 @@ describe('die Ausgaenge, die das Haus verlassen', () => {
       // Gestrichen wird das fremde Dokument, nicht die Planung. Sonst waere
       // die Mobile-Ansicht um Information aermer, die kein Geheimnis ist.
       const out = stripSecrets(mitPreset()) as Record<string, Record<string, unknown>>
-      expect(out.greengoConfig.systemName).toBe('Produktion')
-      expect(out.greengoConfig.users).toEqual([{ id: 1, name: 'Regie', groupIds: [1] }])
+      expect(out.intercom.systemName).toBe('Produktion')
+      expect(out.intercom.channels).toEqual([{ id: 'ch-1', name: 'PGM' }])
+      expect((out.intercom.stations as { name: string }[])[0].name).toBe('Regie')
     })
 
     it('der Typ sagt selbst, dass dort Passwoerter liegen', () => {
       // Der Grund steht nicht nur in diesem Test: `GreenGoConfig.basePreset`
       // kuendigt es im eigenen Kommentar an. Faellt der Hinweis weg, faellt
       // dieser Test — dann ist zu pruefen, ob das Feld noch opak sein muss.
-      expect(greengoTypesSrc).toContain('basePreset')
-      expect(greengoTypesSrc).toMatch(/PASSWOERTER|Passw/)
+      // BEIDE Typen, seit E-2: `GreenGoConfig` fuehrt das Feld weiter (der
+      // Export arbeitet auf der Projektion), und der Slot fuehrt es im
+      // `vendor`-Block. Nur einen zu pruefen liesse zu, dass der Hinweis am
+      // anderen still verschwindet.
+      for (const [was, src] of [
+        ['types/greengo.ts', greengoTypesSrc],
+        ['types/intercomPlan.ts', intercomPlanTypesSrc],
+      ] as const) {
+        expect(src, was).toContain('basePreset')
+        expect(src, was).toMatch(/PASSWOERTER|Passw|Roh-Dokument/)
+      }
       expect(OPAQUE_KEYS.has('basePreset')).toBe(true)
     })
   })

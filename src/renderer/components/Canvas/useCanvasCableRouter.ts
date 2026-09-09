@@ -31,8 +31,8 @@ export function useCanvasCableRouter(
       // Port-Side-Bucketing, snapUp-Breite). Vorher stand hier eine veraltete
       // Kopie (HEADER 62/48, PADDING 8, Port-Y über Array-Index statt Slot),
       // wodurch A*-geroutete Kabel von den echten Handles abwichen.
-      const greengoConfig = projectStoreInstance.getState().project.greengoConfig
-      const layout = computeEquipmentLayout(eq, greengoConfig)
+      const intercom = projectStoreInstance.getState().project.intercom
+      const layout = computeEquipmentLayout(eq, intercom)
       const handleAt = (
         portId: string,
         type: 'source' | 'target',
