@@ -54,7 +54,7 @@ const wirdImportiert = (pfad: string): boolean => {
 /**
  * Die Schluessel, die eine Datei ruft.
  *
- * ZWEI FORMEN, und die zweite fehlte hier. Funktions-Komponenten rufen
+ * DREI FORMEN, und zwei davon fehlten hier. Funktions-Komponenten rufen
  * `t('key', …)`; KLASSEN-Komponenten koennen keinen Hook benutzen und rufen
  * stattdessen `translate(lang, 'key', …)`. Der `ErrorBoundary` ist so eine —
  * und mit dem Muster von vorher galten seine zehn Schluessel als „von
@@ -63,9 +63,19 @@ const wirdImportiert = (pfad: string): boolean => {
  * Aufgefallen ist das erst bei der Sprachdrehung (E-28), weil vorher kein
  * Test in diese Richtung fragte. Der blinde Fleck war aber die ganze Zeit da:
  * ein fehlender Schluessel im Absturz-Schirm waere nicht gemeldet worden.
+ *
+ * DIE DRITTE FORM kam am 2026-09-09 dazu, beim Vendorieren: `tr('key', …)`
+ * ist der Uebersetzer fuer Module ohne React (`lib/intercomMatrixXlsx.ts`,
+ * `lib/importGreengo.ts`). `\bt\(` trifft ihn nicht — hinter dem `t` steht
+ * ein `r`. Die Folge war ein Fehlalarm in die andere Richtung: sechs
+ * deutsche Eintraege galten als „von niemandem gerufen", obwohl sie
+ * Import-Fehlermeldungen uebersetzen. Derselbe blinde Fleck sass in
+ * `scripts/quellsprache.mjs` und hat dort sechs deutsche Fallbacks durch die
+ * Sprachdrehung gelassen.
  */
 const aufrufe = (s: string): string[] => [
   ...[...s.matchAll(/\bt\(\s*'([^']+)'/g)].map((m) => m[1]),
+  ...[...s.matchAll(/\btr\(\s*'([^']+)'/g)].map((m) => m[1]),
   ...[...s.matchAll(/\btranslate\(\s*[A-Za-z_$][\w$]*\s*,\s*'([^']+)'/g)].map((m) => m[1]),
 ]
 

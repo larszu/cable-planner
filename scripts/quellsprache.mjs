@@ -90,8 +90,27 @@ export const klassifiziere = (roh) => {
 }
 
 /**
- * Das Muster, an dem ein Fallback-Text erkannt wird: `t('key', '…')` und
- * `translate(lang, 'key', '…')`, beide Anfuehrungszeichen.
+ * Das Muster, an dem ein Fallback-Text erkannt wird: `t('key', '…')`,
+ * `tr('key', '…')` und `translate(lang, 'key', '…')`, beide
+ * Anfuehrungszeichen.
+ *
+ * `tr` FEHLTE HIER, und das war ein blinder Fleck mit Folgen (gemessen
+ * 2026-09-09). `tr` ist der Uebersetzer ausserhalb von React — Module wie
+ * `lib/intercomMatrixXlsx.ts` und `lib/importGreengo.ts` rufen ihn, weil dort
+ * kein Hook laufen kann. Der Ausdruck kannte nur `t` und `translate`; `\bt\(`
+ * trifft `tr(` nicht, weil hinter dem `t` ein `r` steht. Sechs deutsche
+ * Fallbacks sind so durch die Sprachdrehung (E-28) hindurchgegangen und der
+ * Waechter blieb dabei auf 0.
+ *
+ * Der Schaden ist nicht theoretisch: es sind FEHLERMELDUNGEN beim Import.
+ * Ein englischer Nutzer, dessen XLSX nicht gelesen werden kann, bekam die
+ * Begruendung auf Deutsch — also genau dann, wenn er sie am dringendsten
+ * braucht.
+ *
+ * Der Anker `(?=\s*[,)])` am Ende ist die zweite Korrektur desselben Tages.
+ * Ohne ihn hoert der Ausdruck am ersten schliessenden Anfuehrungszeichen auf
+ * und liest von `t('k', 'Teil eins ' + 'Teil zwei')` nur die erste Haelfte —
+ * eine zweite Haelfte in der anderen Sprache waere unsichtbar geblieben.
  *
  * Als FUNKTION, weil ein `/g`-Ausdruck seinen Suchstand mitschleppt und ein
  * geteiltes Exemplar bei der zweiten Datei mitten im Text weitersuchen wuerde.
@@ -104,7 +123,7 @@ export const klassifiziere = (roh) => {
  * Musters sind die Defektform `zwei-rechnungen` im Kleinen.
  */
 export const fallbackMuster = () =>
-  /\b(?:t|translate)\(\s*(?:[A-Za-z]+\s*,\s*)?(['"])[^'"]+\1\s*,\s*(['"])((?:[^\\]|\\.)*?)\2/g
+  /\b(?:t|tr|translate)\(\s*(?:[A-Za-z]+\s*,\s*)?(['"])[^'"]+\1\s*,\s*(['"])((?:[^\\]|\\.)*?)\2(?=\s*[,)])/g
 
 const dateien = (dir) =>
   readdirSync(dir).flatMap((eintrag) => {

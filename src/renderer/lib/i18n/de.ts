@@ -5323,4 +5323,10 @@ export const de: Dict = {
     'Kein Benutzer ist einer Gruppe zugeordnet — bitte prüfen ob die Matrix-Markierungen ("x") korrekt erkannt wurden.',
   'intercomXlsx.noUsers':
     'Keine Benutzer erkannt — prüfe die Benutzer-Zeilen unterhalb der Spaltenköpfe.',
+  'intercomXlsx.emptySheet': 'Die erste Tabelle ist leer.',
+  'intercomXlsx.noSections': 'Keine Spalten-Sektionen unterhalb der Header gefunden.',
+  'intercomXlsx.noSheet': 'Keine Tabelle in der Datei gefunden.',
+  'intercomXlsx.readError': 'XLSX konnte nicht gelesen werden: {msg}',
+  'pendingCable.suggestionItemTitle': 'Bei Mausposition platzieren und Verbindung herstellen ({category})',
+  'pendingCable.suggestionsTitle': 'Schnelle Vorschläge ({connector})',
 }

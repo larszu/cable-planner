@@ -70,8 +70,8 @@ export const useProject = () => {
             body: translate(
               lang,
               'project.open.notAPlan',
-              'The file could be read but contains no equipment and cable list. Nothing was loaded — the open project is unchanged.' +
-                'Es wurde nichts geladen — das offene Projekt bleibt unverändert.',
+              'The file could be read but contains no equipment and cable list. ' +
+                'Nothing was loaded — the open project is unchanged.',
             ),
             tone: 'warning',
           },
@@ -105,9 +105,9 @@ export const useProject = () => {
           translate(
             lang,
             'project.viewerName.prompt',
-            'Viewer file — enter name\n\nYou are opening a viewer file for review. Please enter your name — it will be attached to all annotations you create in this session.' +
-              'Du öffnest eine Viewer-Datei zum Begutachten. Bitte gib deinen Namen ' +
-              'ein — er wird allen Anmerkungen angeheftet, die du in dieser Session erstellst.',
+            'Viewer file — enter name\n\n' +
+              'You are opening a viewer file for review. Please enter your name — it ' +
+              'will be attached to all annotations you create in this session.',
           ),
           oldAuthor,
         ))?.trim()
