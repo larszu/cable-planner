@@ -24,7 +24,7 @@ export const TemplateProperties = () => {
   if (!template) {
     return (
       <div className="text-cp-xs text-cp-text-muted">
-        {t('template.noneSelected', 'Keine Vorlage ausgewählt.')}
+        {t('template.noneSelected', 'No template selected.')}
       </div>
     )
   }
@@ -50,12 +50,12 @@ export const TemplateProperties = () => {
   const handleDelete = async () => {
     if (
       !(await confirmDialog(
-        format(t('template.action.deleteConfirm', 'Vorlage "{name}" löschen?'), {
+        format(t('template.action.deleteConfirm', 'Delete template "{name}"?'), {
           name: template.name,
         }),
         {
           destructive: true,
-          okLabel: t('confirm.delete', 'Löschen'),
+          okLabel: t('confirm.delete', 'Delete'),
         },
       ))
     )
@@ -68,12 +68,12 @@ export const TemplateProperties = () => {
     <div className="space-y-3 text-cp-xs">
       <div className="flex items-center justify-between">
         <span className="text-cp-text-muted text-[10px] uppercase tracking-wide">
-          {t('template.title', 'Vorlage')}
+          {t('template.title', 'Template')}
         </span>
         {template.rentmanSource && (
           <span
             className="rounded bg-orange-700 px-1.5 py-0.5 text-[10px] font-bold text-white"
-            title={format(t('template.rentmanSourceTitle', 'Importiert aus Rentman-Projekt {source}'), { source: template.rentmanSource })}
+            title={format(t('template.rentmanSourceTitle', 'Imported from Rentman project {source}'), { source: template.rentmanSource })}
           >
             R
           </span>
@@ -91,23 +91,23 @@ export const TemplateProperties = () => {
 
       <label className="block">
         <span className="mb-1 block text-cp-text-secondary">
-          {t('template.field.category', 'Kategorie')}
+          {t('template.field.category', 'Category')}
         </span>
         <CategorySelect value={category} onChange={setCategory} />
       </label>
 
       <div className="rounded bg-cp-surface-1 p-2 space-y-1">
         <div className="flex justify-between">
-          <span className="text-cp-text-muted">{t('template.field.inputs', 'Eingänge')}</span>
+          <span className="text-cp-text-muted">{t('template.field.inputs', 'Inputs')}</span>
           <span className="text-cp-text-bright">{template.inputs.length}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-cp-text-muted">{t('template.field.outputs', 'Ausgänge')}</span>
+          <span className="text-cp-text-muted">{t('template.field.outputs', 'Outputs')}</span>
           <span className="text-cp-text-bright">{template.outputs.length}</span>
         </div>
         {template.rentmanId && (
           <div className="flex justify-between">
-            <span className="text-cp-text-muted">{t('template.rentmanIdLabel', 'Rentman-ID')}</span>
+            <span className="text-cp-text-muted">{t('template.rentmanIdLabel', 'Rentman ID')}</span>
             <span className="text-cp-text-muted truncate max-w-[120px]" title={template.rentmanId}>
               {template.rentmanId}
             </span>
@@ -120,7 +120,7 @@ export const TemplateProperties = () => {
         onClick={handleSave}
         className="w-full rounded bg-emerald-700 px-2 py-1 text-white hover:bg-emerald-600"
       >
-        {t('common.save', 'Speichern')}
+        {t('common.save', 'Save')}
       </button>
 
       <button
@@ -128,7 +128,7 @@ export const TemplateProperties = () => {
         onClick={handlePlace}
         className="w-full rounded bg-sky-700 px-2 py-1 text-white hover:bg-sky-600"
       >
-        {t('template.action.place', 'Als Gerät platzieren')}
+        {t('template.action.place', 'Place on canvas')}
       </button>
 
       <button
@@ -136,7 +136,7 @@ export const TemplateProperties = () => {
         onClick={handleDelete}
         className="w-full rounded bg-red-700 px-2 py-1 text-white hover:bg-red-600"
       >
-        {t('template.action.delete', 'Vorlage löschen')}
+        {t('template.action.delete', 'Delete template')}
       </button>
     </div>
   )

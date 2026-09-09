@@ -69,7 +69,7 @@ export const WirelessRigDialog = () => {
 
   const addChannel = () => {
     const n = plan.channels.length + 1
-    commit({ ...plan, channels: [...plan.channels, { id: nextId(), label: `${t('wireless.channel', 'Kanal')} ${n}` }] })
+    commit({ ...plan, channels: [...plan.channels, { id: nextId(), label: `${t('wireless.channel', 'Channel')} ${n}` }] })
   }
   const updateChannel = (id: string, patch: Partial<WirelessChannel>) =>
     commit({ ...plan, channels: plan.channels.map((c) => (c.id === id ? { ...c, ...patch } : c)) })
@@ -88,13 +88,13 @@ export const WirelessRigDialog = () => {
   const compatBadge = (compat: string) => {
     if (compat === 'ok')
       return (
-        <span className="flex items-center gap-1 text-emerald-500" title={t('wireless.compatOk', 'kompatibel')}>
+        <span className="flex items-center gap-1 text-emerald-500" title={t('wireless.compatOk', 'compatible')}>
           <Check size={13} />
         </span>
       )
     if (compat === 'incompatible')
       return (
-        <span className="flex items-center gap-1 text-cp-danger" title={t('wireless.compatBad', 'Body und Mic passen nicht zusammen')}>
+        <span className="flex items-center gap-1 text-cp-danger" title={t('wireless.compatBad', 'body and mic do not fit together')}>
           <AlertTriangle size={13} />
         </span>
       )
@@ -114,13 +114,13 @@ export const WirelessRigDialog = () => {
       >
         <header className="flex shrink-0 items-center justify-between border-b border-cp-border-muted px-4 py-2.5">
           <h2 id={titleId} className="flex items-center gap-2 text-cp-lg font-semibold">
-            <Radio size={18} /> {t('wireless.title', 'Funkstrecken / Gesang')}
+            <Radio size={18} /> {t('wireless.title', 'Wireless / vocals')}
           </h2>
           <button
             type="button"
             onClick={() => setOpen(false)}
             className="rounded px-2 py-1 text-cp-text-muted hover:bg-cp-surface-2 hover:text-cp-text"
-            aria-label={t('common.close', 'Schließen')}
+            aria-label={t('common.close', 'Close')}
           >
             <X size={18} />
           </button>
@@ -133,19 +133,19 @@ export const WirelessRigDialog = () => {
             onClick={addChannel}
             className="flex items-center gap-1 rounded bg-emerald-700 px-2.5 py-1.5 text-cp-xs hover:bg-emerald-600"
           >
-            <Plus size={14} /> {t('wireless.addChannel', 'Kanal')}
+            <Plus size={14} /> {t('wireless.addChannel', 'Channel')}
           </button>
           <span className="rounded bg-cp-surface-3 px-2 py-1 text-cp-xs text-cp-text-secondary">
-            {format(t('wireless.summary', '{n} Kanäle'), { n: derivation.channelCount })}
+            {format(t('wireless.summary', '{n} channels'), { n: derivation.channelCount })}
           </span>
           {derivation.incompatibleCount > 0 && (
             <span className="flex items-center gap-1 rounded bg-cp-danger/20 px-2 py-1 text-cp-xs text-cp-danger">
-              <AlertTriangle size={12} /> {format(t('wireless.incompat', '{n} inkompatibel'), { n: derivation.incompatibleCount })}
+              <AlertTriangle size={12} /> {format(t('wireless.incompat', '{n} incompatible'), { n: derivation.incompatibleCount })}
             </span>
           )}
           {derivation.rfConflicts.length > 0 && (
             <span className="flex items-center gap-1 rounded bg-cp-warn/20 px-2 py-1 text-cp-xs text-cp-warn">
-              <AlertTriangle size={12} /> {format(t('wireless.rfConflicts', '{n} RF-Konflikte'), { n: derivation.rfConflicts.length })}
+              <AlertTriangle size={12} /> {format(t('wireless.rfConflicts', '{n} RF conflicts'), { n: derivation.rfConflicts.length })}
             </span>
           )}
         </div>
@@ -153,18 +153,18 @@ export const WirelessRigDialog = () => {
         <div className="flex min-h-0 flex-1 flex-col overflow-auto p-4 text-cp-sm">
           {plan.channels.length === 0 ? (
             <div className="rounded border border-dashed border-cp-border py-12 text-center text-cp-text-muted">
-              {t('wireless.empty', 'Noch keine Kanäle. Lege einen Kanal an und weise Body + Kapsel/Headset zu.')}
+              {t('wireless.empty', 'No channels yet. Add a channel and assign body + capsule/headset.')}
             </div>
           ) : (
             <div className="overflow-x-auto rounded border border-cp-border">
               <table className="w-full border-collapse text-left">
                 <thead className="bg-cp-surface-2 text-cp-text-muted">
                   <tr>
-                    <th className="px-2 py-1.5 font-medium">{t('wireless.channel', 'Kanal')}</th>
-                    <th className="px-2 py-1.5 font-medium">{t('wireless.body', 'Sender (Body)')}</th>
-                    <th className="px-2 py-1.5 font-medium">{t('wireless.mic', 'Kapsel / Headset')}</th>
-                    <th className="px-2 py-1.5 text-center font-medium" title={t('wireless.compat', 'Kompatibilität')}>✓</th>
-                    <th className="px-2 py-1.5 font-medium">{t('wireless.freq', 'Frequenz (MHz)')}</th>
+                    <th className="px-2 py-1.5 font-medium">{t('wireless.channel', 'Channel')}</th>
+                    <th className="px-2 py-1.5 font-medium">{t('wireless.body', 'Transmitter (body)')}</th>
+                    <th className="px-2 py-1.5 font-medium">{t('wireless.mic', 'Capsule / headset')}</th>
+                    <th className="px-2 py-1.5 text-center font-medium" title={t('wireless.compat', 'Compatibility')}>✓</th>
+                    <th className="px-2 py-1.5 font-medium">{t('wireless.freq', 'Frequency (MHz)')}</th>
                     <th className="px-2 py-1.5"></th>
                   </tr>
                 </thead>
@@ -187,13 +187,13 @@ export const WirelessRigDialog = () => {
                             onChange={(e) => updateChannel(channel.id, { bodyDeviceTypeId: e.target.value || undefined, micDeviceTypeId: undefined })}
                             className={`${inputCls} w-48`}
                           >
-                            <option value="">{t('wireless.pickBody', '— Body wählen —')}</option>
-                            <optgroup label={t('wireless.handheld', 'Handsender')}>
+                            <option value="">{t('wireless.pickBody', '— pick body —')}</option>
+                            <optgroup label={t('wireless.handheld', 'Handheld transmitters')}>
                               {bodies.filter((b) => b.role === 'handheldBody').map((b) => (
                                 <option key={b.deviceTypeId} value={b.deviceTypeId}>{b.name}</option>
                               ))}
                             </optgroup>
-                            <optgroup label={t('wireless.bodypack', 'Taschensender')}>
+                            <optgroup label={t('wireless.bodypack', 'Bodypack transmitters')}>
                               {bodies.filter((b) => b.role === 'bodypackBody').map((b) => (
                                 <option key={b.deviceTypeId} value={b.deviceTypeId}>{b.name}</option>
                               ))}
@@ -207,11 +207,11 @@ export const WirelessRigDialog = () => {
                             onChange={(e) => updateChannel(channel.id, { micDeviceTypeId: e.target.value || undefined })}
                             className={`${inputCls} w-56 disabled:opacity-50`}
                           >
-                            <option value="">{t('wireless.pickMic', '— kompatible wählen —')}</option>
+                            <option value="">{t('wireless.pickMic', '— pick compatible —')}</option>
                             {/* Aktuelle (evtl. inkompatible) Zuordnung sichtbar halten. */}
                             {channel.micDeviceTypeId && !micOptions.some((m) => m.deviceTypeId === channel.micDeviceTypeId) && (
                               <option value={channel.micDeviceTypeId}>
-                                {wirelessById(channel.micDeviceTypeId)?.name ?? '?'} ({t('wireless.incompatShort', 'inkompatibel')})
+                                {wirelessById(channel.micDeviceTypeId)?.name ?? '?'} ({t('wireless.incompatShort', 'incompatible')})
                               </option>
                             )}
                             {micOptions.map((m) => (
@@ -240,7 +240,7 @@ export const WirelessRigDialog = () => {
                             type="button"
                             onClick={() => removeChannel(channel.id)}
                             className="rounded p-1 text-cp-text-muted hover:bg-red-900/50 hover:text-red-300"
-                            title={t('common.delete', 'Löschen')}
+                            title={t('common.delete', 'Delete')}
                           >
                             <Trash2 size={13} />
                           </button>
@@ -257,13 +257,13 @@ export const WirelessRigDialog = () => {
           {derivation.rfConflicts.length > 0 && (
             <div className="mt-4">
               <div className="mb-1 flex items-center gap-2 text-cp-xs font-semibold uppercase tracking-wide text-cp-text-secondary">
-                <AlertTriangle size={13} className="text-cp-warn" /> {t('wireless.rfTitle', 'RF-Koordination — Konflikte')}
+                <AlertTriangle size={13} className="text-cp-warn" /> {t('wireless.rfTitle', 'RF coordination — conflicts')}
               </div>
               <ul className="space-y-1 rounded border border-cp-warn/40 bg-cp-warn/5 p-2 text-cp-xs">
                 {derivation.rfConflicts.map((c, i) => (
                   <li key={i} className="flex gap-2">
                     <span className="rounded bg-cp-surface-3 px-1.5 py-0.5 text-[10px] text-cp-text-muted">
-                      {c.kind === 'spacing' ? t('wireless.kindSpacing', 'Abstand') : c.kind === 'imd3-2tx' ? 'IMD3·2' : 'IMD3·3'}
+                      {c.kind === 'spacing' ? t('wireless.kindSpacing', 'spacing') : c.kind === 'imd3-2tx' ? 'IMD3·2' : 'IMD3·3'}
                     </span>
                     <span className="text-cp-text-secondary">{c.message}</span>
                   </li>
@@ -271,7 +271,7 @@ export const WirelessRigDialog = () => {
               </ul>
               <PanelHint
                 className="mt-1 text-[11px] text-cp-text-muted"
-                text={t('wireless.rfHint', 'Geprüft: Trägerabstand + Intermodulation 3. Ordnung (2- und 3-Sender). Grundkoordination wie in Wireless Workbench — kein Ersatz für einen Spektrum-Scan vor Ort.')}
+                text={t('wireless.rfHint', 'Checked: carrier spacing + 3rd-order intermodulation (2- and 3-transmitter). Basic coordination like Wireless Workbench — not a substitute for an on-site spectrum scan.')}
               />
             </div>
           )}

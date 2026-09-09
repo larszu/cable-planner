@@ -78,14 +78,14 @@ export const PanelWindowMenu = ({
           if (draggedRef.current) return
           setOffen((v) => !v)
         }}
-        title={`${titel} — ${t('panel.window.title', 'abdocken, herausziehen oder in ein eigenes Fenster')}`}
+        title={`${titel} — ${t('panel.window.title', 'undock, drag out or move to its own window')}`}
         aria-haspopup="menu"
         aria-expanded={offen}
         className="flex h-7 shrink-0 items-center gap-1 rounded-full border border-cp-border bg-cp-surface-1 px-2 text-cp-xs text-cp-text-secondary transition-all hover:border-sky-500 hover:bg-cp-surface-2 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
         style={{ touchAction: 'none' }}
       >
         <Icon icon={PictureInPicture2} size="xs" />
-        <span>{t('panel.window.button', 'Fenster')}</span>
+        <span>{t('panel.window.button', 'Window')}</span>
         <span className="text-[9px] leading-none">{offen ? '▴' : '▾'}</span>
       </button>
       {offen && (
@@ -103,7 +103,7 @@ export const PanelWindowMenu = ({
             }}
           >
             <Icon icon={PictureInPicture2} size="xs" />
-            {t('panel.window.undock', 'Abdocken (schwebend)')}
+            {t('panel.window.undock', 'Undock (floating)')}
           </button>
           <button
             type="button"
@@ -115,13 +115,13 @@ export const PanelWindowMenu = ({
             }}
           >
             <Icon icon={ExternalLink} size="xs" />
-            {t('panel.window.popout', 'In eigenes Fenster')}
+            {t('panel.window.popout', 'Open in its own window')}
           </button>
           {/* Der dritte Weg steht nur da, weil er sonst unauffindbar waere:
               den Knopf selbst kann man ziehen. Das ist keine Wiederholung des
               ersten Eintrags — es ist die Bedienung, die niemand raet. */}
           <p className="mt-1 border-t border-cp-border-muted px-2 pt-1.5 text-[10px] text-cp-text-muted">
-            {t('panel.window.dragHint', 'Der Knopf lässt sich auch ziehen.')}
+            {t('panel.window.dragHint', 'The button can also be dragged.')}
           </p>
         </div>
       )}

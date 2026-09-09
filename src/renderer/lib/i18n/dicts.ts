@@ -1673,7 +1673,7 @@ export const en: Dict = {
   'mobile.dialog.startServer': 'Start LAN server',
   'mobile.dialog.securityHeading': 'Security notes',
   'mobile.dialog.security.writeBack':
-    'The phone does not only read: checks, newly added cables and field feedback flow back into the project. Whoever has the QR code can change the plan.',
+    'Whether the phone may write back is decided by the setting above. If it is set to \u201csend checks and cables back\u201d, anyone with the QR code can change the plan.',
   'mobile.dialog.security.token':
     'Every write path requires the token from the QR code. Passwords and keys are stripped from the project before it leaves the device.',
   'mobile.dialog.security.bind':
@@ -6128,102 +6128,3 @@ export const en: Dict = {
  * lives here. EN counterparts in the `en` dict below override per
  * language.
  */
-export const de: Dict = {
-  // Cable catalog notes
-  'catalog.cable.xlr-3pin-audio.notes':
-    'Symmetrisches Analog-Audio oder AES3 (digital). Steckrichtung: männlich → weiblich.',
-  'catalog.cable.sdi-3g.notes':
-    'Für SD/HD/3G geeignet. 75-Ω-Koax verwenden (Belden 1694A oder vergleichbar).',
-  'catalog.cable.sdi-6g.notes':
-    '6G braucht hochwertigeres Koax; mit 3G nur über einen Down-Converter mischen.',
-  'catalog.cable.sdi-12g.notes':
-    '4K-taugliches 12G-Koax verwenden (z. B. Belden 4694R). Herunterskalieren auf 3G braucht einen Scaler/Converter.',
-  'catalog.cable.hdmi-2.0.notes':
-    'Passives Kupfer nur bis ca. 10 m; für längere Strecken optisches HDMI verwenden.',
-  'catalog.cable.hdmi-2.1.notes':
-    'Erfordert Ultra-High-Speed-Kabel; zusammen mit einem HDMI-1.4-Gerät fällt die Strecke auf 1.4 zurück.',
-  'catalog.cable.cat6a.notes': 'Nötig für 10GBASE-T über die vollen 100 m.',
-  'catalog.cable.fiber-sm-lc.notes':
-    'Singlemode (gelber Mantel). Lange Strecken (>300 m).',
-  'catalog.cable.fiber-mm-lc.notes':
-    'Multimode (aquafarbener Mantel). Kurze Wege im Rack oder in der Halle.',
-  'catalog.cable.iec-230v.notes': 'Standard-Gerätenetzkabel (Kaltgerätekabel).',
-  'catalog.cable.powercon-tru1.notes':
-    'Verriegelnder Strom-Steckverbinder für den Tourbetrieb. Nicht mit klassischem powerCON (grau/blau) mischen.',
-  'catalog.cable.thunderbolt-3.notes':
-    'USB-C Stecker, passiv bis 2 m. Aktives TB3-Kabel bis ~50 cm. Vorwärtskompatibel mit Thunderbolt 4.',
-  'catalog.cable.thunderbolt-4.notes':
-    'Gleiche Bandbreite wie TB3, aber striktere Zertifizierung (2× DP 1.4, 40Gbps, 100W PD).',
-  'catalog.cable.ltc-bnc.notes':
-    'LTC Longitudinal-Timecode (SMPTE 12M): ein Signal im Audioband, verteilt über 75Ω-Koax (BNC) oder symmetrisch per XLR / LEMO in Kameras und Recorder. Ein Master-Clock bzw. Sync-Generator liefert Genlock und Timecode meist gemeinsam.',
-  'catalog.cable.madi-bnc.notes':
-    'MADI AES10 über 75Ω-Koax. Bis 64 ch bei 48 kHz oder 56 ch bei 96 kHz.',
-  'catalog.cable.aes3id-bnc.notes':
-    'AES3id: AES3-Digitalaudio über 75Ω-Koax unsymmetrisch (BNC) — die BNC-Variante von AES/EBU. Ein Stereopaar pro Koax, größere Reichweite als symmetrisches AES3 über XLR. Verbreitet an Routern und Broadcast-Geräten.',
-  'catalog.cable.dvb-asi.notes':
-    'DVB-ASI: MPEG-Transportstrom über 75Ω-Koax (BNC), bis 270 Mbit/s. Verbindung zwischen Encoder/Mux/Modulator/Playout in Kopfstellen und Ü-Wagen.',
-  'catalog.cable.madi-optical.notes':
-    'MADI AES10 über optische Faser. Lange Reichweite, galvanisch getrennt.',
-  'catalog.cable.smpte-297.notes':
-    'SMPTE ST 297: serielles digitales Video (SDI) optisch über Glasfaser übertragen. Kein Strom — eine reine optische SDI-Strecke mit großer Reichweite.',
-  'catalog.cable.smpte-304m-lemo.notes':
-    'SMPTE-304M-Hybrid-Kamerakabel mit LEMO 3K.93C (auch LEMO 311) — EBU/Broadcast-Standard für Fiber-+-Kupfer-Hybrid an Studiokameras.',
-  'catalog.cable.smpte-304m-dragonfly.notes':
-    'SMPTE-304M-Hybrid-Kamerakabel mit Neutrik opticalCON Dragonfly — robuste Touring-/Stage-Variante, via Adapter kompatibel zu LEMO 3K.93C.',
-  'catalog.cable.triax-dh.notes':
-    'Damar & Hagen Triax — analoges Single-Coax für HDTV-Kameras (Video + Interkom + Talkback + Strom). Mechanisch NICHT mit Fischer-Triax kompatibel.',
-  'catalog.cable.triax-fischer.notes':
-    'Fischer Triax — analoges Single-Coax für HDTV-Kameras (Alternative zu Damar & Hagen). Gleiche Signale, anderer Stecker.',
-  'catalog.cable.smpte-304m.notes':
-    'SMPTE 311M Hybrid-Glasfaser-Kamerakabel (304M-Stecker, z. B. LEMO 3K.93C): 2 Singlemode-Fasern + Power- und Steueradern. Das ist Glasfaser, KEIN Triax.',
-  'catalog.cable.triax-camera.notes':
-    'Triaxiales (koaxiales) Kamerakabel für Studio-/EB-Kameras: überträgt Video, Rückweg, Interkom/Talkback, Genlock und Strom über ein Triax — analog, getrennt von den SMPTE-Glasfaser-Kamerakabeln.',
-  'catprops.title': 'Fachdaten',
-  'catalog.cable.ndi-cat6a.notes':
-    'NDI / NDI-HX über normales Gigabit-Ethernet. NDI und Dante auf getrennten VLANs/Links halten, um Überlast zu vermeiden.',
-  'catalog.cable.dante-cat6.notes':
-    'Dante / AES67 Audio-over-IP. Benötigt PTP-Clocking; QoS/DSCP auf Managed Switches empfohlen.',
-  'catalog.cable.stream-uplink-cat6.notes':
-    'Ausspielweg nach draußen: SRT (Beitrag, mit Retransmit-Reserve), RTMP (Plattform-Ingest) oder HLS (Ausspiel-Leiter). Physisch dasselbe Cat6 wie jeder andere Link — getrennt geführt, damit das Netz-Budget den Uplink als Ausspielung zeigt und nicht als weitere Produktionsquelle. Die Budget-Zahlen sind Richtwerte für einen 1080p50-Weg.',
-  'catalog.cable.st2110-fiber.notes':
-    'SMPTE ST 2110 (-20 Video / -30 Audio / -40 ANC) über Faser. Benötigt PTP-Grandmaster; typ. 10/25/100 GbE.',
-  'catalog.cable.blackburst-bnc.notes':
-    'Referenz-Sync (Black Burst / Tri-Level) über 75Ω-Koax. Von einem Sync-Generator verteilen; jedes genlock-fähige Gerät versorgen.',
-  'catalog.cable.wordclock-bnc.notes':
-    'Word Clock für Digital-Audio. Daisy-Chain mit 75Ω-Abschluss am Ende; ein Master-Clock pro Domäne.',
-  'catalog.cable.ptp-cat6.notes':
-    'PTP (IEEE 1588) Timing für ST 2110 / AES67. Ein Grandmaster je PTP-Domäne; Boundary-Clocks auf Switches aktivieren.',
-  'catalog.cable.serial-rs422.notes':
-    'Serielle Gerätesteuerung. RS-232 ~15 m Punkt-zu-Punkt; RS-422/485 differenziell bis ~1200 m (VTR Sony 9-Pin, PTZ/VISCA, Router-/Matrix-Steuerung).',
-  'catalog.cable.vga-de15.notes':
-    'Analoges RGBHV-Computer-/Projektorbild über 15-pol D-Sub. Kurz halten; Qualität fällt jenseits ~10-15 m.',
-  'catalog.cable.dvi-cable.notes':
-    'DVI-D (digital), DVI-A (analog) oder DVI-I (beides). Passiv-Kupfer ~5 m; Single- vs. Dual-Link bestimmt die Maximalauflösung.',
-  'catalog.cable.dsub-db25-audio.notes':
-    'DB25-Mehrkanal-Audio nach AES59 ("TASCAM"-Belegung): 8 symmetrisch analog oder 4 AES3-Paare auf einem Stecker.',
-  'catalog.cable.dmx-5pin.notes':
-    'DMX512-A / RDM Licht-Steuerung, 512 Kanäle je Universum. 5-pol XLR ist Standard; letztes Gerät mit 120Ω terminieren.',
-  'catalog.cable.artnet-sacn.notes':
-    'Art-Net / sACN (E1.31): viele DMX-Universen über Ethernet. Dediziertes/Managed-Netz nutzen; sACN per Multicast.',
-  'catalog.cable.composite-cinch.notes':
-    'Composite-Video (CVBS/FBAS) über eine Leitung — Cinch/RCA oder 75Ω-BNC. Legacy/Consumer, ein Bild.',
-  'catalog.cable.s-video.notes':
-    'S-Video (Y/C): getrenntes Luma und Chroma über Mini-DIN-4 — besser als Composite, Legacy.',
-  'catalog.cable.component-ypbpr.notes':
-    'Analoges Component YPbPr über drei Leitungen (Cinch oder BNC). Überträgt HD analog; in modernen Anlagen Legacy.',
-  'catalog.cable.tally-gpi.notes':
-    'Tally (rot = On-Air/PGM, grün = Preview) und GPI/GPO-Kontaktschlüsse für Record-Trigger, Cues, Lampen. Oft D-Sub oder Klemmen.',
-  'catalog.cable.hdbaset-cat6a.notes':
-    'HDBaseT: Video (bis 4K), Audio, Steuerung (RS-232/IR), Ethernet und Strom (PoH) über ein Cat6/6a bis ~100 m.',
-  'catalog.cable.hdmi-aoc.notes':
-    'Active Optical HDMI: integrierte Glasfaser überträgt HDMI weit über Passiv-Kupfer hinaus (~100 m). Gerichtet (Quelle → Senke), nicht bidirektional.',
-  'catalog.cable.dp-aoc.notes':
-    'Active Optical DisplayPort für lange Strecken (~50 m) jenseits der ~3 m Passiv-Grenze. Gerichtet, Quelle → Senke.',
-  'catalog.cable.usbc-aoc.notes':
-    'Active Optical USB-C (USB 3.x / DP-Alt-Mode-Video) für ~30 m. Gerichtet; Bus-Power auf AOC eingeschränkt.',
-  // Video format catalog notes
-  'catalog.videoFormat.1080p50.notes':
-    'Hauptstandard. Level A empfohlen; Level B bei älteren Geräten.',
-  'catalog.videoFormat.2160p50.notes':
-    'UHD-Standard. 12G-SDI bevorzugt, Quad-Link 3G als Alternative (4 Kabel).',
-}

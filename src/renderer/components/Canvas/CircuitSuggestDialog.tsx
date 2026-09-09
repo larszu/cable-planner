@@ -94,13 +94,13 @@ export function CircuitSuggestDialog({ open, onClose }: Props) {
   const eintragen = (v: PlanVorschlag) => {
     const stat = addCablesBulk(
       v.kanten.map((k) => ({
-        name: t('canvas.circuit.suggest.cableName', 'Ader (Vorschlag)'),
+        name: t('canvas.circuit.suggest.cableName', 'Wire (suggested)'),
         type: k.steckertyp,
         length: 0,
         color: '#94a3b8',
         notes: t(
           'canvas.circuit.suggest.cableNote',
-          'Aus einem nachgerechneten Verdrahtungs-Vorschlag eingetragen.',
+          'Added from a computed wiring suggestion.',
         ),
         fromEquipmentId: k.fromEquipmentId,
         fromPortId: k.fromPortId,
@@ -110,7 +110,7 @@ export function CircuitSuggestDialog({ open, onClose }: Props) {
     )
     setMeldung(
       stat.skipped === 0
-        ? t('canvas.circuit.suggest.done', '{n} Ader(n) eingetragen.').replace(
+        ? t('canvas.circuit.suggest.done', '{n} wire(s) added.').replace(
             '{n}',
             String(stat.created),
           )
@@ -133,14 +133,14 @@ export function CircuitSuggestDialog({ open, onClose }: Props) {
       >
         <header className="flex items-center justify-between border-b border-cp-border px-4 py-2">
           <h2 id={titleId} className="text-cp-lg font-semibold">
-            {t('canvas.circuit.suggest.title', 'Verdrahtungs-Vorschläge')}
+            {t('canvas.circuit.suggest.title', 'Wiring suggestions')}
           </h2>
           <button
             type="button"
             onClick={onClose}
             className="av-focus rounded bg-cp-surface-3 px-3 py-1 text-cp-xs hover:bg-cp-surface-2"
           >
-            {t('common.close', 'Schließen')}
+            {t('common.close', 'Close')}
           </button>
         </header>
 
@@ -148,7 +148,7 @@ export function CircuitSuggestDialog({ open, onClose }: Props) {
           <PanelHint
             text={t(
               'canvas.circuit.suggest.lead',
-              'GERECHNET, nicht gemessen. Jeder Vorschlag ist durchprobiert worden: er steht hier nur, weil die Schaltung mit ihm in jeder Schalterstellung tut, was sie soll. Die Tafel daneben zeigt es.',
+              'COMPUTED, not measured. Every suggestion has been tried out: it is listed only because the circuit does what it should in every switch position with it. The table beside it shows that.',
             )}
           />
 
@@ -162,7 +162,7 @@ export function CircuitSuggestDialog({ open, onClose }: Props) {
 
           {befunde.length === 0 && vorschlaege.length === 0 && (
             <p className="text-cp-text-secondary">
-              {t('canvas.circuit.suggest.nothing', 'Nichts zu beanstanden.')}
+              {t('canvas.circuit.suggest.nothing', 'Nothing to report.')}
             </p>
           )}
 
@@ -179,7 +179,7 @@ export function CircuitSuggestDialog({ open, onClose }: Props) {
 
           {!vollstaendig && grund && (
             <p className="mb-4 rounded border border-cp-border bg-cp-surface-2 px-3 py-2 text-[12px] text-cp-text-secondary">
-              {t('canvas.circuit.suggest.capped', 'Die Suche wurde begrenzt: ')}
+              {t('canvas.circuit.suggest.capped', 'The search was limited: ')}
               {grund}
             </p>
           )}
@@ -194,11 +194,11 @@ export function CircuitSuggestDialog({ open, onClose }: Props) {
                     onClick={() => eintragen(v)}
                     className="av-focus rounded bg-cp-accent px-3 py-1 text-cp-xs text-cp-bg"
                   >
-                    {t('canvas.circuit.suggest.apply', 'Ader eintragen')}
+                    {t('canvas.circuit.suggest.apply', 'Add wire')}
                   </button>
                 ) : (
                   <span className="text-[11px] text-cp-warn">
-                    {t('canvas.circuit.suggest.blocked', 'nicht eintragbar')}
+                    {t('canvas.circuit.suggest.blocked', 'cannot be added')}
                   </span>
                 )}
               </div>
@@ -211,8 +211,8 @@ export function CircuitSuggestDialog({ open, onClose }: Props) {
                 className="av-focus mt-1 text-[11px] text-cp-text-muted underline"
               >
                 {offen === i
-                  ? t('canvas.circuit.suggest.hideTable', 'Wahrheitstafel ausblenden')
-                  : t('canvas.circuit.suggest.showTable', 'Wahrheitstafel zeigen')}
+                  ? t('canvas.circuit.suggest.hideTable', 'Hide truth table')
+                  : t('canvas.circuit.suggest.showTable', 'Show truth table')}
               </button>
               {offen === i && <Tafel zeilen={v.wahrheitstafel} />}
             </div>

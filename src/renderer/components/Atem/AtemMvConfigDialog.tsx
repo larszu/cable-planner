@@ -180,10 +180,10 @@ const MvLayoutPicker = ({
           onClick={() => onToggleQuadrant(q.idx)}
           title={
             quadrants[q.idx] === 'big'
-              ? format(t('atem.mv.quadBigTitle', '{name}: aktuell 1 großes Fenster — Klick: in 4 kleine teilen'), { name: q.name })
-              : format(t('atem.mv.quadSmallTitle', '{name}: aktuell 4 kleine Fenster — Klick: zu 1 großem zusammenfassen'), { name: q.name })
+              ? format(t('atem.mv.quadBigTitle', '{name}: currently 1 large window — click: split into 4 small'), { name: q.name })
+              : format(t('atem.mv.quadSmallTitle', '{name}: currently 4 small windows — click: merge into 1 large'), { name: q.name })
           }
-          aria-label={format(t('atem.mv.quadToggleAria', 'Quadrant {name} umschalten'), { name: q.name })}
+          aria-label={format(t('atem.mv.quadToggleAria', 'Toggle quadrant {name}'), { name: q.name })}
           className="group absolute cursor-pointer outline-none transition-all hover:bg-sky-500/25 hover:ring-2 hover:ring-sky-400 focus-visible:bg-sky-500/30 focus-visible:ring-2 focus-visible:ring-sky-400"
           style={{
             width: '50%',
@@ -464,8 +464,8 @@ const SourcePicker = ({
           autoFocus
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          placeholder={t('common.search', 'Suche…')}
-          aria-label={t('common.search', 'Suche…')}
+          placeholder={t('common.search', 'Search…')}
+          aria-label={t('common.search', 'Search…')}
           className="mb-1 w-full rounded border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-xs"
         />
         <div className="flex gap-1">
@@ -484,7 +484,7 @@ const SourcePicker = ({
             }}
             className="flex-1 rounded bg-emerald-700 px-2 py-1 text-cp-xs hover:bg-emerald-600"
           >
-            {t('common.apply', 'Übernehmen')}
+            {t('common.apply', 'Apply')}
           </button>
         </div>
       </div>
@@ -540,8 +540,8 @@ const CapabilitiesPanel = ({
     { value: 2, label: 'Top-Right Small' },
     { value: 4, label: 'Bottom-Left Small' },
     { value: 8, label: 'Bottom-Right Small' },
-    { value: MV_LAYOUT.Grid16Small, label: t('atem.mv.layout.grid16Small', 'Grid (16 klein)') },
-    { value: MV_LAYOUT.Quad4Big, label: t('atem.mv.layout.quad4Big', 'Quad (4 groß)') },
+    { value: MV_LAYOUT.Grid16Small, label: t('atem.mv.layout.grid16Small', 'Grid (16 small)') },
+    { value: MV_LAYOUT.Quad4Big, label: t('atem.mv.layout.quad4Big', 'Quad (4 big)') },
   ]
   const toggleLayout = (val: number) => {
     const set = new Set(caps.supportedLayouts)
@@ -558,11 +558,11 @@ const CapabilitiesPanel = ({
       >
         <span>{open ? '▾' : '▸'}</span>
         <span>
-          {t('atem.mv.capabilities', 'Modell-Capabilities:')} <span className="text-cp-text-secondary">{equipmentName}</span> ·{' '}
+          {t('atem.mv.capabilities', 'Model capabilities:')} <span className="text-cp-text-secondary">{equipmentName}</span> ·{' '}
           {caps.mvCount} MV{caps.mvCount === 1 ? '' : 's'} ·{' '}
-          {format(t('atem.mv.layoutsCount', '{n} Layouts'), { n: caps.supportedLayouts.length })}{' '}
+          {format(t('atem.mv.layoutsCount', '{n} layouts'), { n: caps.supportedLayouts.length })}{' '}
           {hasOverride && (
-            <span className="rounded bg-amber-900/60 px-1 text-amber-200">{t('atem.mv.manual', 'manuell')}</span>
+            <span className="rounded bg-amber-900/60 px-1 text-amber-200">{t('atem.mv.manual', 'manual')}</span>
           )}
         </span>
       </button>
@@ -572,7 +572,7 @@ const CapabilitiesPanel = ({
             className="text-cp-text-faint"
             text={t(
               'atem.mv.layoutsHint',
-              'Heuristik basierend auf dem Geräte-Namen. Falls dein Modell ein Layout unterstützt das die Heuristik nicht erkennt (oder umgekehrt), Häkchen hier setzen — die Auswahl überschreibt das Default und bleibt beim Projekt.',
+              'Heuristic based on device name. If your model supports a layout the heuristic does not detect (or vice-versa), check the boxes here — the selection overrides the default and is kept with the project.',
             )}
           />
           <div className="flex flex-wrap gap-1">
@@ -597,7 +597,7 @@ const CapabilitiesPanel = ({
           </div>
           <div className="flex items-center gap-2">
             <label className="flex items-center gap-1">
-              <span>{t('atem.mv.mvCount', 'MV-Anzahl:')}</span>
+              <span>{t('atem.mv.mvCount', 'MV count:')}</span>
               <input
                 type="number"
                 min={0}
@@ -613,7 +613,7 @@ const CapabilitiesPanel = ({
               />
             </label>
             <label className="flex items-center gap-1">
-              <span>{t('atem.mv.maxWindows', 'Max Fenster:')}</span>
+              <span>{t('atem.mv.maxWindows', 'Max windows:')}</span>
               <input
                 type="number"
                 min={0}
@@ -633,9 +633,9 @@ const CapabilitiesPanel = ({
                 type="button"
                 onClick={() => onOverride(undefined)}
                 className="ml-auto rounded bg-amber-900/60 px-2 py-0.5 text-amber-200 hover:bg-amber-800/70"
-                title={t('atem.mv.removeOverride', 'Override entfernen — wieder Auto-Erkennung verwenden')}
+                title={t('atem.mv.removeOverride', 'Remove override — back to auto-detection')}
               >
-                {t('atem.mv.resetOverride', 'Override zurücksetzen')}
+                {t('atem.mv.resetOverride', 'Reset override')}
               </button>
             )}
           </div>
@@ -676,12 +676,12 @@ const AtemMvDevicePicker = () => {
         <div className="flex items-center justify-between border-b border-cp-border px-4 py-2">
           <h2 id={titleId} className="flex items-center gap-2 text-cp-base font-semibold text-cp-text-bright">
             <Icon icon={Monitor} size="sm" />
-            {t('atemMv.picker.title', 'ATEM Multiviewer — Gerät wählen')}
+            {t('atemMv.picker.title', 'ATEM multiviewer — pick device')}
           </h2>
           <button
             onClick={close}
             className="text-cp-text-muted hover:text-cp-text-bright"
-            aria-label={t('common.close', 'Schließen')}
+            aria-label={t('common.close', 'Close')}
           >
             ×
           </button>
@@ -691,13 +691,13 @@ const AtemMvDevicePicker = () => {
             <p className="text-cp-text-muted">
               {t(
                 'atemMv.picker.empty',
-                'Kein ATEM-Mischer im Plan. Lege zuerst einen ATEM aus der Bibliothek an — danach ist hier seine Multiviewer-Konfiguration wählbar.',
+                'No ATEM mixer in the plan. Add an ATEM from the library first — its multiviewer config will then be selectable here.',
               )}
             </p>
           ) : (
             <>
               <p className="mb-2 text-[11px] text-cp-text-muted">
-                {t('atemMv.picker.intro', 'Welchen ATEM-Mischer-Multiviewer möchtest du konfigurieren?')}
+                {t('atemMv.picker.intro', 'Which ATEM mixer multiviewer do you want to configure?')}
               </p>
               <ul className="space-y-1">
                 {atemDevices.map((e) => (
@@ -955,7 +955,7 @@ export const AtemMvConfigDialog = () => {
     // „warm" ist (v. a. unter Electron). Robust: bis zu 3 Versuche mit kurzer
     // Pause; Erfolg/Fehler sichtbar als Status statt nur in der Konsole.
     const opts = { backgroundColor: '#0f172a', cacheBust: true, pixelRatio: 2 } as const
-    setStatus(t('atem.mv.status.pngBusy', 'Exportiere PNG …'))
+    setStatus(t('atem.mv.status.pngBusy', 'Exporting PNG …'))
     let dataUrl = ''
     let lastErr: unknown = null
     for (let attempt = 0; attempt < 3; attempt++) {
@@ -969,7 +969,7 @@ export const AtemMvConfigDialog = () => {
     }
     if (!dataUrl || dataUrl.length <= 1000) {
       console.error('PNG export failed:', lastErr)
-      setStatus(t('atem.mv.status.pngFail', 'PNG-Export fehlgeschlagen — bitte erneut versuchen.'))
+      setStatus(t('atem.mv.status.pngFail', 'PNG export failed — please try again.'))
       return
     }
     const a = document.createElement('a')
@@ -977,22 +977,22 @@ export const AtemMvConfigDialog = () => {
     const safeName = (equipment.name || 'MV').replace(/[^\w.-]+/g, '_')
     a.download = `mv-layout_${safeName}_mv${activeMv + 1}.png`
     a.click()
-    setStatus(t('atem.mv.status.pngOk', 'MV-Layout als PNG exportiert.'))
+    setStatus(t('atem.mv.status.pngOk', 'MV layout exported as PNG.'))
   }
 
   const handleApply = async () => {
     try {
-      setStatus(t('atem.mv.status.transmitting', 'Übertrage an ATEM…'))
+      setStatus(t('atem.mv.status.transmitting', 'Transmitting to ATEM…'))
       const result = await cablePlannerApi.atem.applyMvConfig(config)
       setStatus(
-        format(t('atem.mv.status.transmitted', 'An ATEM übertragen ({n} Fenster).'), {
+        format(t('atem.mv.status.transmitted', 'Transmitted to ATEM ({n} windows).'), {
           n: result.applied,
         }),
       )
       updateEquipment(equipment.id, { atemMvConfig: config })
     } catch (err) {
       setStatus(
-        format(t('atem.mv.status.error', 'Fehler: {msg}'), { msg: (err as Error).message }),
+        format(t('atem.mv.status.error', 'Error: {msg}'), { msg: (err as Error).message }),
       )
     }
   }
@@ -1005,11 +1005,11 @@ export const AtemMvConfigDialog = () => {
    */
   const handleReadFromAtem = async () => {
     try {
-      setStatus(t('atem.mv.status.reading', 'Lese vom ATEM …'))
+      setStatus(t('atem.mv.status.reading', 'Reading from ATEM…'))
       const result = await cablePlannerApi.atem.readMvConfig()
       const incoming = result.multiViewers
       if (!incoming || incoming.length === 0) {
-        setStatus(t('atem.mv.status.empty', 'ATEM hat keine MV-Konfiguration geliefert.'))
+        setStatus(t('atem.mv.status.empty', 'ATEM returned no MV configuration.'))
         return
       }
       const totalWindows = incoming.reduce((s, m) => s + m.windows.length, 0)
@@ -1036,14 +1036,14 @@ export const AtemMvConfigDialog = () => {
       )
       setLiveReadAt(new Date().toISOString())
       setStatus(
-        format(t('atem.mv.status.loaded', 'Vom ATEM gelesen: {mv} MV, {windows} Fenster.'), {
+        format(t('atem.mv.status.loaded', 'Read from ATEM: {mv} MV, {windows} windows.'), {
           mv: incoming.length,
           windows: totalWindows,
         }),
       )
     } catch (err) {
       setStatus(
-        format(t('atem.mv.status.error', 'Fehler: {msg}'), { msg: (err as Error).message }),
+        format(t('atem.mv.status.error', 'Error: {msg}'), { msg: (err as Error).message }),
       )
     }
   }
@@ -1062,21 +1062,21 @@ export const AtemMvConfigDialog = () => {
       format(
         t(
           'atem.mv.live.adoptConfirm',
-          'Gelesenen Stand übernehmen? {changed} von {total} Fenster-Zuweisungen weichen ab. Danach steht im Plan, was der Switcher gerade tut.',
+          'Adopt the reading? {changed} of {total} window assignments differ. Afterwards the plan states what the switcher is currently doing.',
         ),
         { changed, total: mvAssignments(live).length },
       ),
-      { okLabel: t('atem.mv.live.adoptOk', 'Übernehmen') },
+      { okLabel: t('atem.mv.live.adoptOk', 'Adopt') },
     )
     if (!ok) {
-      setStatus(t('atem.mv.status.cancelled', 'Übernahme abgebrochen.'))
+      setStatus(t('atem.mv.status.cancelled', 'Pull cancelled.'))
       return
     }
     setConfig({ multiViewers: live })
     setActiveMv((prev) => Math.max(0, Math.min(prev, live.length - 1)))
     setLive(null)
     setLiveReadAt('')
-    setStatus(t('atem.mv.live.adopted', 'Gelesener Stand in den Plan übernommen.'))
+    setStatus(t('atem.mv.live.adopted', 'Reading adopted into the plan.'))
   }
 
   const mv = config.multiViewers[activeMv]
@@ -1188,14 +1188,14 @@ export const AtemMvConfigDialog = () => {
       >
         <div className="flex items-center justify-between border-b border-cp-border px-4 py-2">
           <h2 id={editorTitleId} className="text-cp-base font-semibold text-cp-text">
-            {format(t('atem.mv.dialogTitle', 'Multiviewer-Layout · {name}'), { name: equipment.name })}
+            {format(t('atem.mv.dialogTitle', 'Multiviewer layout · {name}'), { name: equipment.name })}
           </h2>
           <button
             type="button"
             onClick={close}
             className="rounded bg-cp-surface-2 px-2 py-1 text-cp-xs hover:bg-cp-surface-4"
           >
-            {t('common.close', 'Schließen')}
+            {t('common.close', 'Close')}
           </button>
         </div>
 
@@ -1220,7 +1220,7 @@ export const AtemMvConfigDialog = () => {
               onClick={addMv}
               disabled={config.multiViewers.length >= 4}
               className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5 disabled:opacity-50"
-              title={t('atem.mv.addMv', 'Multiviewer hinzufügen')}
+              title={t('atem.mv.addMv', 'Add multiviewer')}
             >
               +
             </button>
@@ -1229,13 +1229,13 @@ export const AtemMvConfigDialog = () => {
               onClick={removeMv}
               disabled={config.multiViewers.length <= 1}
               className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5 disabled:opacity-50"
-              title={t('atem.mv.removeMv', 'Letzten Multiviewer entfernen')}
+              title={t('atem.mv.removeMv', 'Remove last multiviewer')}
             >
               −
             </button>
           </div>
           <span className="ml-auto text-[10px] text-cp-text-muted">
-            {format(t('atem.mv.windowHint', '{n} MV — Klick auf ein Fenster ändert die Quelle.'), { n: config.multiViewers.length })}
+            {format(t('atem.mv.windowHint', '{n} MV — click a window to change its source.'), { n: config.multiViewers.length })}
           </span>
         </div>
 
@@ -1245,17 +1245,17 @@ export const AtemMvConfigDialog = () => {
             <div className="flex flex-wrap items-center gap-2">
               <Icon icon={Monitor} size="sm" className="text-cp-accent" />
               <span className="font-medium text-cp-text">
-                {t('atem.mv.live.title', 'Vom Switcher gelesen')}
+                {t('atem.mv.live.title', 'Read from the switcher')}
               </span>
               <span className="text-cp-text-muted">
                 {liveReadAt ? new Date(liveReadAt).toLocaleTimeString() : ''}
               </span>
               <span className={hasDifference(comparison) ? 'text-cp-warn' : 'text-cp-text-muted'}>
                 {hasDifference(comparison)
-                  ? format(t('atem.mv.live.differs', '{n} Fenster weichen vom Plan ab'), {
+                  ? format(t('atem.mv.live.differs', '{n} windows differ from the plan'), {
                       n: allDeltas(comparison).length,
                     })
-                  : t('atem.mv.live.matches', 'Plan und Gerät stimmen überein')}
+                  : t('atem.mv.live.matches', 'Plan and device agree')}
               </span>
               <button
                 type="button"
@@ -1263,10 +1263,10 @@ export const AtemMvConfigDialog = () => {
                 className="ml-auto rounded-cp-control bg-cp-accent px-3 py-1 text-cp-accent-text hover:opacity-90"
                 title={t(
                   'atem.mv.live.adoptTitle',
-                  'Den gelesenen Stand als neuen Plan übernehmen — ersetzt die bisherige Absicht.',
+                  'Adopt the reading as the new plan — this replaces the previous intent.',
                 )}
               >
-                {t('atem.mv.live.adopt', 'In den Plan übernehmen')}
+                {t('atem.mv.live.adopt', 'Adopt into the plan')}
               </button>
               <button
                 type="button"
@@ -1275,9 +1275,9 @@ export const AtemMvConfigDialog = () => {
                   setLiveReadAt('')
                 }}
                 className="rounded bg-cp-surface-4 px-3 py-1 hover:bg-cp-surface-5"
-                title={t('atem.mv.live.discardTitle', 'Den gelesenen Stand verwerfen — der Plan bleibt, wie er ist.')}
+                title={t('atem.mv.live.discardTitle', 'Discard the reading — the plan stays as it is.')}
               >
-                {t('atem.mv.live.discard', 'Befund verwerfen')}
+                {t('atem.mv.live.discard', 'Discard reading')}
               </button>
             </div>
             {hasDifference(comparison) && (
@@ -1286,11 +1286,11 @@ export const AtemMvConfigDialog = () => {
                   <li key={d.key}>
                     <span className="text-cp-text-muted">{d.label}:</span>{' '}
                     {d.planned === undefined
-                      ? t('atem.mv.live.notPlanned', 'nicht geplant')
+                      ? t('atem.mv.live.notPlanned', 'not planned')
                       : `#${d.planned}`}
                     {' -> '}
                     {d.confirmed === undefined
-                      ? t('atem.mv.live.notReported', 'nicht gemeldet')
+                      ? t('atem.mv.live.notReported', 'not reported')
                       : `#${d.confirmed}`}
                   </li>
                 ))}
@@ -1318,8 +1318,8 @@ export const AtemMvConfigDialog = () => {
                 canvasPortNames={canvasPortNames}
               />
               <span className="text-[10px] text-cp-text-muted">
-                {t('atem.mv.quadrantHint1', 'Klick auf einen Quadranten:')}<br />
-                {t('atem.mv.quadrantHint2', 'groß ↔ 4 kleine')}
+                {t('atem.mv.quadrantHint1', 'Click on a quadrant:')}<br />
+                {t('atem.mv.quadrantHint2', 'big ↔ 4 small')}
               </span>
             </div>
           </div>
@@ -1364,12 +1364,12 @@ export const AtemMvConfigDialog = () => {
         <div className="flex items-center justify-between border-t border-cp-border px-4 py-2">
           <span className="text-[11px] text-cp-text-muted">
             {savedFlash ? (
-              <span className="font-semibold text-emerald-400">✓ {t('atem.mv.saved', 'Gespeichert')}</span>
+              <span className="font-semibold text-emerald-400">✓ {t('atem.mv.saved', 'Saved')}</span>
             ) : (
               status ||
               (connected
-                ? t('atem.mv.connectedReady', 'ATEM verbunden — direkt übertragbar.')
-                : t('atem.mv.notConnected', 'ATEM nicht verbunden.'))
+                ? t('atem.mv.connectedReady', 'ATEM connected — ready to push.')
+                : t('atem.mv.notConnected', 'ATEM not connected.'))
             )}
           </span>
           <div className="flex gap-2">
@@ -1377,16 +1377,16 @@ export const AtemMvConfigDialog = () => {
               type="button"
               onClick={() => void handleExportPng()}
               className="rounded bg-indigo-700 px-3 py-1 text-cp-xs hover:bg-indigo-600"
-              title={t('atem.mv.savePng', 'Aktuelles MV-Layout als PNG speichern')}
+              title={t('atem.mv.savePng', 'Save current MV layout as PNG')}
             >
-              {t('atem.mv.asPng', 'Als PNG')}
+              {t('atem.mv.asPng', 'As PNG')}
             </button>
             <button
               type="button"
               onClick={handleSave}
               className="rounded bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
             >
-              {t('atem.mv.saveDraft', 'Zwischenspeichern')}
+              {t('atem.mv.saveDraft', 'Save draft')}
             </button>
             {/* #288 — Live-MV-Setup vom ATEM holen. */}
             <button
@@ -1396,11 +1396,11 @@ export const AtemMvConfigDialog = () => {
               className="rounded bg-sky-700 px-3 py-1 text-cp-xs enabled:hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-50"
               title={
                 connected
-                  ? t('atem.mv.readFromTitle', 'Multiviewer-Setup vom verbundenen ATEM auslesen und in die Anzeige übernehmen.')
-                  : t('atem.mv.notConnectedTitle', 'ATEM nicht verbunden — erst im ATEM-Dialog verbinden.')
+                  ? t('atem.mv.readFromTitle', 'Read the multiviewer setup from the connected ATEM and use it in this view.')
+                  : t('atem.mv.notConnectedTitle', 'ATEM not connected — connect in the ATEM dialog first.')
               }
             >
-              <Icon icon={Download} size="xs" className="mr-1 inline-block align-text-bottom" />{t('atem.mv.readFromBtn', 'Vom ATEM laden')}
+              <Icon icon={Download} size="xs" className="mr-1 inline-block align-text-bottom" />{t('atem.mv.readFromBtn', 'Load from ATEM')}
             </button>
             <button
               type="button"
@@ -1409,11 +1409,11 @@ export const AtemMvConfigDialog = () => {
               className="rounded bg-emerald-700 px-3 py-1 text-cp-xs enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
               title={
                 connected
-                  ? t('atem.mv.applyTitle', 'Konfiguration an ATEM übertragen')
-                  : t('atem.mv.notConnectedTitle', 'ATEM nicht verbunden — erst im ATEM-Dialog verbinden.')
+                  ? t('atem.mv.applyTitle', 'Push configuration to ATEM')
+                  : t('atem.mv.notConnectedTitle', 'ATEM not connected — connect in the ATEM dialog first.')
               }
             >
-              {t('atem.mv.applyBtn', 'An ATEM übertragen')}
+              {t('atem.mv.applyBtn', 'Push to ATEM')}
             </button>
           </div>
         </div>

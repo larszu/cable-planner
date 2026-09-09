@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import ts from 'typescript'
+// @ts-expect-error — reines JS-Modul ohne Typen
+import { klassifiziere } from '../scripts/quellsprache.mjs'
 
 // ── Meldungstexte in richtigem Deutsch ─────────────────────────────────────
 //
@@ -201,7 +203,23 @@ const scanne = (): { befunde: Befund[]; literale: number } => {
         // und bekommt die geschweifte Klammer im Dialog zu sehen — der
         // Uebersetzungs-Eintrag im en-Dict war genau so kaputtgegangen.
         const ohnePlatzhalter = text.replace(/\{[^}]*\}/g, ' ')
-        if (!erlaubt.has(text.toLowerCase()) && !KENNUNGEN.has(text.trim()) && !istSchluessel(text)) {
+        // NUR AUF DEUTSCHEM TEXT, und das ist seit E-28 (2026-09-09) der
+        // Unterschied zwischen einem Waechter und einem Fehlalarm-Generator.
+        //
+        // Dieser Lauf sucht UMLAUT-ERSATZFORMEN: „ue" fuer „ü", „oe" fuer
+        // „ö". Solange Deutsch die Quellsprache war, war jedes „ue" im
+        // Quelltext verdaechtig. Seit der Drehung ist der Quelltext
+        // ENGLISCH — und dort ist „ue" ein voellig normaler Buchstabenlauf:
+        // Guest, value, question, issue, queue, true, due, continue, blue,
+        // argue. Gemessen: von zwoelf gepruefen englischen Alltagswoertern
+        // treffen ZEHN das Muster.
+        //
+        // Der Schaden ist deshalb nicht verschwunden, er ist UMGEZOGEN: er
+        // sitzt jetzt im deutschen Woerterbuch. Dort greift der Lauf
+        // weiterhin, weil `klassifiziere` deutsche Zeilen erkennt — und dort
+        // ist ein „ue" wieder das, was es war.
+        const istDeutsch = klassifiziere(ohnePlatzhalter) === 'de'
+        if (istDeutsch && !erlaubt.has(text.toLowerCase()) && !KENNUNGEN.has(text.trim()) && !istSchluessel(text)) {
           for (const wort of ohnePlatzhalter.match(/[A-Za-zÄÖÜäöüß]+/g) ?? []) {
             // Auf dem WORT in seiner Schreibweise, nicht auf der Kleinform:
             // `toEquipmentId` traegt „oE" ueber eine camelCase-Grenze hinweg,

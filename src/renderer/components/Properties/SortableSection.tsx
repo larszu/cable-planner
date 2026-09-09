@@ -45,9 +45,9 @@ export const SortableSection = ({
         <span
           {...attributes}
           {...listeners}
-          title={t('props.section.dragTitle', 'Sektion ziehen, um Reihenfolge zu ändern (geräteübergreifend persistiert).')}
+          title={t('props.section.dragTitle', 'Drag section to change order (persists across devices).')}
           className="-my-1 inline-flex h-5 w-5 cursor-grab items-center justify-center rounded text-cp-lg leading-none text-cp-text-muted hover:bg-cp-surface-4/40 hover:text-cp-text-bright active:cursor-grabbing"
-          aria-label={t('props.section.dragAria', 'Sektion verschieben')}
+          aria-label={t('props.section.dragAria', 'Move section')}
           role="button"
           onClick={(e) => e.preventDefault()}
         >

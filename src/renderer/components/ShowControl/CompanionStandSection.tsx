@@ -76,7 +76,7 @@ export const CompanionStandSection = () => {
   return (
     <div className="mt-5 border-t border-cp-border-muted pt-3">
       <div className="mb-1 text-cp-xs font-semibold text-cp-text">
-        {t('companion.title', 'Companion-Variablenstand zurücklesen')}
+        {t('companion.title', 'Read back Companion variable values')}
       </div>
       <PanelHint
         className="mb-2 text-cp-xs text-cp-text-muted"
@@ -87,7 +87,7 @@ export const CompanionStandSection = () => {
         <div className="rounded border border-cp-border-muted bg-cp-surface-2 p-3 text-cp-xs text-cp-text-muted">
           {t(
             'companion.noVars',
-            'Kein Gerät im Plan wird über Companion geschaltet — es gibt keine Variable, die sich zurücklesen liesse.',
+            'No device in the plan is switched through Companion — there is no variable to read back.',
           )}
         </div>
       ) : (
@@ -95,7 +95,7 @@ export const CompanionStandSection = () => {
           <div className="mb-1 text-cp-xs text-cp-text-muted">
             {t(
               'companion.commandsHint',
-              'Diese Zeilen in die Companion-Steuerung tippen (TCP, eine Zeile je Befehl) und die Antworten zurückbringen:',
+              'Type these lines into the Companion control API (TCP, one line per command) and bring the answers back:',
             )}
           </div>
           <pre className="mb-2 max-h-32 overflow-auto rounded border border-cp-border bg-cp-surface-2 p-2 text-cp-xs text-cp-text-secondary">
@@ -104,7 +104,7 @@ export const CompanionStandSection = () => {
 
           <label className="block text-cp-xs">
             <span className="mb-1 block text-cp-text-muted">
-              {t('companion.paste', 'Antworten hier einfügen')}
+              {t('companion.paste', 'Paste the answers here')}
             </span>
             <textarea
               className="h-20 w-full rounded border border-cp-border bg-cp-surface-2 px-2 py-1 font-mono text-cp-xs"
@@ -118,7 +118,7 @@ export const CompanionStandSection = () => {
             className="mt-1 rounded bg-cp-surface-3 px-2 py-1 text-cp-xs hover:bg-cp-surface-4"
             onClick={lesen}
           >
-            {t('companion.read', 'Als Ablesung übernehmen')}
+            {t('companion.read', 'Take as a reading')}
           </button>
 
           {problem && (
@@ -138,11 +138,11 @@ export const CompanionStandSection = () => {
                     <span className="font-mono">{a.variable}</span>
                     {' — '}
                     {a.antwort.fehler
-                      ? t('companion.notRead', 'nicht abgelesen') + `: ${a.antwort.fehler}`
-                      : (a.antwort.wert ?? t('companion.noValue', 'ohne Wert'))}
+                      ? t('companion.notRead', 'not read') + `: ${a.antwort.fehler}`
+                      : (a.antwort.wert ?? t('companion.noValue', 'no value'))}
                     <span className="text-cp-text-faint">
                       {' '}
-                      · {t('companion.readAt', 'abgelesen')} {a.gelesenAm.slice(11, 19)}
+                      · {t('companion.readAt', 'read at')} {a.gelesenAm.slice(11, 19)}
                     </span>
                   </li>
                 ))}
@@ -151,7 +151,7 @@ export const CompanionStandSection = () => {
                 className="mt-1 text-cp-xs text-cp-text-muted"
                 text={t(
                   'companion.noPlanSide',
-                  'Das ist eine Ablesung von eben, kein Zustand von jetzt — und sie steht ohne Plan-Seite da: der Plan hält nicht fest, welchen Wert er zuletzt in diese Variable geschrieben hat.',
+                  'This is a reading from a moment ago, not a state right now — and it stands without a plan side: the plan does not record which value it last wrote into this variable.',
                 )}
               />
             </>
@@ -159,7 +159,7 @@ export const CompanionStandSection = () => {
         </>
       )}
       <div className="mt-1 text-cp-xs text-cp-text-faint">
-        {t('companion.source', 'Protokoll-Angaben nachgesehen in')} {COMPANION_API.gelesen}
+        {t('companion.source', 'Protocol details looked up in')} {COMPANION_API.gelesen}
       </div>
     </div>
   )

@@ -22,7 +22,7 @@ export const ModulesTab = () => {
         className="text-cp-base text-cp-text-secondary"
         text={t(
           'settings.modules.intro',
-          'Schalte Funktionsbereiche ein oder aus, um die Oberfläche auf deinen Anwendungsfall zuzuschneiden. Das betrifft nur die Sichtbarkeit — gespeicherte Projektdaten bleiben immer vollständig erhalten.',
+          'Turn feature areas on or off to tailor the interface to your use case. This only affects visibility — saved project data is always kept in full.',
         )}
       />
       {MODULES.map((m) => (
@@ -37,7 +37,7 @@ export const ModulesTab = () => {
               checked={enabledModules[m.id]}
               onChange={(e) => setModuleEnabled(m.id, e.target.checked)}
             />
-            {t('settings.modules.enable', 'Modul aktiviert')}
+            {t('settings.modules.enable', 'Module enabled')}
           </label>
         </SettingsCard>
       ))}

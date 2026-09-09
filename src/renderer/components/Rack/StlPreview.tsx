@@ -68,7 +68,7 @@ export const StlPreview = ({ stlDataUri, size = 96 }: Props) => {
         background: 'linear-gradient(180deg, #1e293b 0%, #0f172a 100%)',
         border: '1px solid #334155',
       }}
-      title={t('rack.stlPreviewTitle', 'STL-Vorschau (rotiert automatisch)')}
+      title={t('rack.stlPreviewTitle', 'STL preview (auto-rotates)')}
     >
       <Canvas
         camera={{ position: [1.5, 1.2, 1.8], fov: 45 }}

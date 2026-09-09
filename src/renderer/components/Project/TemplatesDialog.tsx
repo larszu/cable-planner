@@ -51,7 +51,7 @@ export const TemplatesDialog = () => {
   const desc = (tpl: ProjectTemplate) => (tpl.descKey ? t(tpl.descKey, tpl.description) : tpl.description)
 
   const stats = (tpl: ProjectTemplate) =>
-    format(t('templates.stats', '{eq} Geräte · {cab} Kabel · {loc} Standorte'), {
+    format(t('templates.stats', '{eq} devices · {cab} cables · {loc} locations'), {
       eq: tpl.project.equipment.length,
       cab: tpl.project.cables.length,
       loc: tpl.project.locations?.length ?? 0,
@@ -64,13 +64,13 @@ export const TemplatesDialog = () => {
       (useProjectStore.getState().project.locations?.length ?? 0) > 0
     if (hasContent) {
       const ok = await confirmDialog(
-        t('templates.confirmReplace.title', 'Aktuelles Projekt verwerfen?'),
+        t('templates.confirmReplace.title', 'Discard current project?'),
         {
           body: t(
             'templates.confirmReplace.body',
-            'Die Vorlage ersetzt das aktuelle Projekt. Ungespeicherte Änderungen gehen verloren.',
+            'The template replaces the current project. Unsaved changes will be lost.',
           ),
-          okLabel: t('templates.confirmReplace.ok', 'Vorlage laden'),
+          okLabel: t('templates.confirmReplace.ok', 'Load template'),
           destructive: true,
         },
       )
@@ -85,22 +85,22 @@ export const TemplatesDialog = () => {
       projectVenue(useProjectStore.getState().project),
     )
     if (bericht.state === 'elsewhere') {
-      const weiter = await confirmDialog(t('templates.carryTitle', 'Antworten aus einem anderen Haus'), {
+      const weiter = await confirmDialog(t('templates.carryTitle', 'Answers from a different venue'), {
         body: bericht.text,
-        okLabel: t('templates.carryOk', 'Trotzdem laden'),
+        okLabel: t('templates.carryOk', 'Load anyway'),
       })
       if (!weiter) return
     }
     const name = await promptDialog(
-      t('templates.namePrompt', 'Name des neuen Projekts'),
+      t('templates.namePrompt', 'Name of the new project'),
       label(tpl),
     )
     if (name === null) return
     loadProject(instantiateTemplate(tpl, name))
     projectHistory.reset()
     close()
-    void infoDialog(t('templates.loadedTitle', 'Vorlage geladen'), {
-      body: format(t('templates.loadedBody', 'Neues Projekt „{name}“ aus Vorlage erstellt.'), { name }),
+    void infoDialog(t('templates.loadedTitle', 'Template loaded'), {
+      body: format(t('templates.loadedBody', 'New project “{name}” created from template.'), { name }),
       tone: 'success',
     })
   }
@@ -113,7 +113,7 @@ export const TemplatesDialog = () => {
   const saveCurrent = async () => {
     const current = useProjectStore.getState().project
     const name = await promptDialog(
-      t('templates.saveNamePrompt', 'Name der Vorlage'),
+      t('templates.saveNamePrompt', 'Template name'),
       current.metadata.name && current.metadata.name !== 'Untitled Project'
         ? current.metadata.name
         : '',
@@ -132,8 +132,8 @@ export const TemplatesDialog = () => {
     }
     saveUserTemplate(name, current.metadata.description ?? '', current, scope)
     setUserTemplates(loadUserTemplates())
-    void infoDialog(t('templates.savedTitle', 'Als Vorlage gespeichert'), {
-      body: format(t('templates.savedBody', 'Vorlage „{name}“ gespeichert.'), { name }),
+    void infoDialog(t('templates.savedTitle', 'Saved as template'), {
+      body: format(t('templates.savedBody', 'Template “{name}” saved.'), { name }),
       tone: 'success',
     })
   }
@@ -147,7 +147,7 @@ export const TemplatesDialog = () => {
   const promoteCurrent = async () => {
     const current = useProjectStore.getState().project
     const name = await promptDialog(
-      t('templates.promoteNamePrompt', 'Name der Vorlage (aus dem As-Built)'),
+      t('templates.promoteNamePrompt', 'Template name (from the as-built)'),
       current.metadata.name && current.metadata.name !== 'Untitled Project' ? current.metadata.name : '',
     )
     if (name === null) return
@@ -163,19 +163,19 @@ export const TemplatesDialog = () => {
       // Die Ablehnung ist der Punkt: auf den Live-Plan auszuweichen ergaebe
       // eine Vorlage mit dem Wort „wie gebaut" darauf, die den Angebotsstand
       // traegt (Bedarf 84).
-      void infoDialog(t('templates.promoteNoneTitle', 'Kein As-Built festgeschrieben'), {
+      void infoDialog(t('templates.promoteNoneTitle', 'No as-built committed'), {
         body: t(
           'templates.promoteNoneBody',
-          'Es ist nichts als „wie gebaut" festgeschrieben. Schreibe zuerst eine As-Built-Revision fest — sonst wäre die Vorlage der Plan von vor dem Aufbau, nur mit einem anderen Namen.',
+          'Nothing is committed as \u201cas built\u201d. Commit an as-built revision first \u2014 otherwise the template would be the plan from before load-in, only under another name.',
         ),
         tone: 'warning',
       })
       return
     }
     setUserTemplates(loadUserTemplates())
-    void infoDialog(t('templates.savedTitle', 'Als Vorlage gespeichert'), {
+    void infoDialog(t('templates.savedTitle', 'Saved as template'), {
       body: format(
-        t('templates.promotedBody', 'Vorlage „{name}“ aus dem As-Built „{from}“ erstellt.'),
+        t('templates.promotedBody', 'Template \u201c{name}\u201d created from the as-built \u201c{from}\u201d.'),
         { name, from: res.from ?? '' },
       ),
       tone: 'success',
@@ -184,8 +184,8 @@ export const TemplatesDialog = () => {
 
   const removeTemplate = async (tpl: ProjectTemplate) => {
     const ok = await confirmDialog(
-      format(t('templates.confirmDelete', 'Vorlage „{name}“ löschen?'), { name: tpl.name }),
-      { destructive: true, okLabel: t('common.delete', 'Löschen') },
+      format(t('templates.confirmDelete', 'Delete template “{name}”?'), { name: tpl.name }),
+      { destructive: true, okLabel: t('common.delete', 'Delete') },
     )
     if (!ok) return
     deleteUserTemplate(tpl.id)
@@ -210,7 +210,7 @@ export const TemplatesDialog = () => {
           erst nach dem Laden. */}
       {tpl.venue && (
         <div className="text-[10px] text-[var(--cp-text-muted)]">
-          {format(t('templates.venue', 'Haus-Vorlage: {venue} · {n} Antworten'), {
+          {format(t('templates.venue', 'Venue template: {venue} \u00b7 {n} answers'), {
             venue: tpl.venue,
             n: tpl.project.metadata?.venueAnswers?.length ?? 0,
           })}
@@ -228,22 +228,22 @@ export const TemplatesDialog = () => {
               : 'text-amber-300/90'
           }`}
         >
-          {format(t('templates.basis', 'Grundlage: {basis}'), {
+          {format(t('templates.basis', 'Basis: {basis}'), {
             basis: JOB_BASIS_LABEL[tpl.basis],
           })}
         </div>
       )}
       <div className="mt-auto flex items-center justify-between gap-2 pt-1">
         <Button variant="success" size="sm" onClick={() => void applyTemplate(tpl)}>
-          {t('templates.use', 'Verwenden')}
+          {t('templates.use', 'Use')}
         </Button>
         {!tpl.builtin && (
           <Button
             variant="ghost"
             size="sm"
             onClick={() => void removeTemplate(tpl)}
-            aria-label={t('common.delete', 'Löschen')}
-            title={t('common.delete', 'Löschen')}
+            aria-label={t('common.delete', 'Delete')}
+            title={t('common.delete', 'Delete')}
             leftIcon={Trash2}
             className="!px-1.5 hover:text-red-400"
           />
@@ -258,7 +258,7 @@ export const TemplatesDialog = () => {
       onClose={close}
       maxWidth="3xl"
       titleIcon={<Icon icon={LayoutTemplate} size="md" />}
-      title={t('templates.title', 'Neu aus Vorlage')}
+      title={t('templates.title', 'New from template')}
     >
       <div className="space-y-4 p-1 text-cp-base">
         <div className="flex items-center justify-between gap-2">
@@ -266,7 +266,7 @@ export const TemplatesDialog = () => {
             className="text-cp-xs text-[var(--cp-text-muted)]"
             text={t(
               'templates.intro',
-              'Mitgelieferte Show-Setups oder eigene gespeicherte Vorlagen als Startpunkt. Lädt eine Kopie — das bestehende Projekt wird erst nach Bestätigung ersetzt.',
+              'Bundled show setups or your own saved templates as a starting point. Loads a copy — the existing project is only replaced after you confirm.',
             )}
           />
           <Button
@@ -276,7 +276,7 @@ export const TemplatesDialog = () => {
             leftIcon={Save}
             className="shrink-0"
           >
-            {t('templates.saveCurrent', 'Aktuelles Projekt als Vorlage')}
+            {t('templates.saveCurrent', 'Save current project as template')}
           </Button>
           {/* BEDARF 75 — der Bauzustand als Startpunkt der nächsten Show.
               Immer sichtbar, auch ohne As-Built: ein Knopf, der verschwindet,
@@ -289,17 +289,17 @@ export const TemplatesDialog = () => {
             className="shrink-0"
             title={
               hasAsBuilt
-                ? t('templates.promoteHint', 'Nimmt den festgeschriebenen As-Built-Stand, nicht den aktuellen Plan')
-                : t('templates.promoteNoneTitle', 'Kein As-Built festgeschrieben')
+                ? t('templates.promoteHint', 'Takes the committed as-built state, not the current plan')
+                : t('templates.promoteNoneTitle', 'No as-built committed')
             }
           >
-            {t('templates.promote', 'As-Built als Vorlage')}
+            {t('templates.promote', 'As-built as template')}
           </Button>
         </div>
 
         <div>
           <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--cp-text-faint)]">
-            {t('templates.builtinHeading', 'Mitgelieferte Vorlagen')}
+            {t('templates.builtinHeading', 'Bundled templates')}
           </div>
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {builtins.map(card)}
@@ -308,11 +308,11 @@ export const TemplatesDialog = () => {
 
         <div>
           <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--cp-text-faint)]">
-            {t('templates.userHeading', 'Eigene Vorlagen')}
+            {t('templates.userHeading', 'My templates')}
           </div>
           {userTemplates.length === 0 ? (
             <p className="text-cp-xs text-[var(--cp-text-faint)]">
-              {t('templates.userEmpty', 'Noch keine eigenen Vorlagen. Speichere ein Projekt über „Aktuelles Projekt als Vorlage“.')}
+              {t('templates.userEmpty', 'No templates yet. Save a project via “Save current project as template”.')}
             </p>
           ) : (
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">

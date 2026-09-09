@@ -31,16 +31,16 @@ export function CircuitChip() {
   const titel = !an
     ? t(
         'canvas.circuit.offTitle',
-        'Schaltbild einblenden: brennende Leuchten, Schalterstellungen und Leitungen unter Spannung.',
+        'Show the circuit: which luminaires are lit, switch positions, and which lines are live.',
       )
     : knoten === 0
       ? t(
           'canvas.circuit.emptyTitle',
-          'Kein Gerät im Plan trägt eine Schaltbild-Bauart. Sie wird in den Eigenschaften angegeben und nicht aus der Kategorie geraten.',
+          'No device in the plan carries a circuit role. It is declared in the properties panel and never guessed from the category.',
         )
       : t(
           'canvas.circuit.onTitle',
-          'GERECHNET, nicht gemessen: so verhält sich die Schaltung bei den eingestellten Schalterstellungen. Die Stellungen stehen nicht im Plan.',
+          'CALCULATED, not measured: this is how the circuit behaves with the switch positions as set. The positions are not part of the plan.',
         )
 
   return (
@@ -59,12 +59,12 @@ export function CircuitChip() {
           className="inline-block h-1.5 w-1.5 rounded-full"
           style={{ background: an && brennen > 0 ? '#facc15' : 'var(--cp-text-faint, #64748b)' }}
         />
-        <span>{t('canvas.circuit.label', 'Schaltbild')}</span>
+        <span>{t('canvas.circuit.label', 'Circuit')}</span>
         {an && knoten > 0 && (
           <span className="tabular-nums text-cp-text-muted">{`· ${brennen}/${leuchten}`}</span>
         )}
         {an && knoten === 0 && (
-          <span className="text-cp-text-muted">{t('canvas.circuit.empty', '· nichts angegeben')}</span>
+          <span className="text-cp-text-muted">{t('canvas.circuit.empty', '· nothing declared')}</span>
         )}
         {an && ohneBauart > 0 && (
           <span className="tabular-nums text-cp-warn">{`· ${ohneBauart} ohne Bauart`}</span>
@@ -76,11 +76,11 @@ export function CircuitChip() {
           onClick={zuruecksetzen}
           title={t(
             'canvas.circuit.resetTitle',
-            'Alle Schalter zurück auf die Vorgabe. Der Plan ändert sich dadurch nicht — er hat die Stellungen nie getragen.',
+            'All switches back to their default. The plan does not change — it never carried the positions.',
           )}
           className="av-focus rounded-full border border-cp-border px-2 py-0.5 text-[11px] text-cp-text-secondary hover:bg-cp-surface-3"
         >
-          {t('canvas.circuit.reset', 'Schalter zurück')}
+          {t('canvas.circuit.reset', 'Reset switches')}
         </button>
       )}
       {an && knoten > 0 && (
@@ -89,11 +89,11 @@ export function CircuitChip() {
           onClick={() => setVorschlaegeOffen(true)}
           title={t(
             'canvas.circuit.suggestTitle',
-            'Warum tut die Schaltung nicht, was sie soll — und welche Ader würde es ändern. Jeder Vorschlag ist durchgerechnet und bringt seine Wahrheitstafel mit; eingetragen wird nur auf Knopfdruck.',
+            'Why the circuit does not do what it should — and which wire would change that. Every suggestion is computed through and brings its own truth table; nothing is entered without a click.',
           )}
           className="av-focus rounded-full border border-cp-border px-2 py-0.5 text-[11px] text-cp-text-secondary hover:bg-cp-surface-3"
         >
-          {t('canvas.circuit.suggest', 'Vorschläge')}
+          {t('canvas.circuit.suggest', 'Suggestions')}
         </button>
       )}
       <CircuitSuggestDialog open={vorschlaegeOffen} onClose={() => setVorschlaegeOffen(false)} />

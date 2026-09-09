@@ -105,7 +105,7 @@ export const TallyPreShowPanel = () => {
       <div className="flex items-center gap-2">
         <Icon icon={Lightbulb} size="xs" />
         <span className="text-cp-xs font-semibold text-cp-text-secondary">
-          {t('tallyPos.title', 'Vor-Show-Prüfung: Weg, Lampe, und was zu sehen war')}
+          {t('tallyPos.title', 'Pre-show check: path, lamp, and what was seen')}
         </span>
         <button
           type="button"
@@ -113,7 +113,7 @@ export const TallyPreShowPanel = () => {
           className="ml-auto inline-flex items-center gap-1 rounded border border-cp-border px-2 py-0.5 text-cp-xs hover:bg-cp-surface-3"
         >
           <Icon icon={Download} size="xs" />
-          {t('tallyPos.export', 'Vor-Show-Liste')}
+          {t('tallyPos.export', 'Pre-show list')}
         </button>
       </div>
 
@@ -121,7 +121,7 @@ export const TallyPreShowPanel = () => {
         className="text-cp-xs text-cp-text-muted"
         text={t(
           'tallyPos.hint',
-          'Der Plan sagt nie, dass ein Tally funktioniert — er hält fest, was jemand gesehen hat, und wann. Eine Position ohne Prüfung heißt „nicht geprüft", nicht „in Ordnung".',
+          'The plan never claims a tally works \u2014 it records what someone saw, and when. A position without a check reads \u201Cnot checked\u201D, not \u201Cfine\u201D.',
         )}
       />
 
@@ -130,12 +130,12 @@ export const TallyPreShowPanel = () => {
           <thead>
             <tr className="text-left text-cp-text-secondary">
               <th className="px-1 py-1">{t('tallyPos.col.role', 'Position')}</th>
-              <th className="px-1 py-1">{t('tallyPos.col.transport', 'Weg')}</th>
-              <th className="px-1 py-1">{t('tallyPos.col.endpoint', 'Adresse')}</th>
-              <th className="px-1 py-1">{t('tallyPos.col.lamp', 'Lampe')}</th>
-              <th className="px-1 py-1">{t('tallyPos.col.program', 'Programm')}</th>
-              <th className="px-1 py-1">{t('tallyPos.col.preview', 'Vorschau')}</th>
-              <th className="px-1 py-1">{t('tallyPos.col.verdict', 'Zuletzt')}</th>
+              <th className="px-1 py-1">{t('tallyPos.col.transport', 'Path')}</th>
+              <th className="px-1 py-1">{t('tallyPos.col.endpoint', 'Address')}</th>
+              <th className="px-1 py-1">{t('tallyPos.col.lamp', 'Lamp')}</th>
+              <th className="px-1 py-1">{t('tallyPos.col.program', 'Program')}</th>
+              <th className="px-1 py-1">{t('tallyPos.col.preview', 'Preview')}</th>
+              <th className="px-1 py-1">{t('tallyPos.col.verdict', 'Last')}</th>
               <th className="px-1 py-1" />
             </tr>
           </thead>
@@ -167,7 +167,7 @@ export const TallyPreShowPanel = () => {
                     <input
                       value={pos?.endpoint ?? ''}
                       onChange={(ev) => setTallyPosition(rolle.id, { endpoint: ev.target.value })}
-                      placeholder={t('tallyPos.endpointPh', 'IP / Pin / Quelle')}
+                      placeholder={t('tallyPos.endpointPh', 'IP / pin / source')}
                       className="w-28 rounded border border-cp-border bg-cp-surface-1 px-1 py-0.5 font-mono"
                     />
                   </td>
@@ -175,7 +175,7 @@ export const TallyPreShowPanel = () => {
                     <input
                       value={pos?.lamp ?? ''}
                       onChange={(ev) => setTallyPosition(rolle.id, { lamp: ev.target.value })}
-                      placeholder={t('tallyPos.lampPh', 'Kamerakopf')}
+                      placeholder={t('tallyPos.lampPh', 'camera head')}
                       className="w-28 rounded border border-cp-border bg-cp-surface-1 px-1 py-0.5"
                     />
                   </td>
@@ -234,7 +234,7 @@ export const TallyPreShowPanel = () => {
                       disabled={e.onProgram === 'not-checked' && e.onPreview === 'not-checked'}
                       className="rounded bg-emerald-700 px-2 py-0.5 hover:bg-emerald-600 disabled:opacity-40"
                     >
-                      {t('tallyPos.record', 'gesehen')}
+                      {t('tallyPos.record', 'seen')}
                     </button>
                   </td>
                 </tr>
@@ -262,7 +262,7 @@ export const TallyPreShowPanel = () => {
 
       <p className="text-cp-xs text-cp-text-faint">
         {format(
-          t('tallyPos.count', '{checked} von {total} Positionen geprüft.'),
+          t('tallyPos.count', '{checked} of {total} positions checked.'),
           {
             checked: rollen.filter((r) => tallyVerdict(byId.get(r.id)) !== 'unchecked').length,
             total: rollen.length,

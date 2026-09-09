@@ -67,13 +67,13 @@ export const RackBuilderDialogExportMenu = ({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        title={t('rack.exportTitle', 'Rack exportieren (PNG / STL / .cpgroup)')}
+        title={t('rack.exportTitle', 'Export rack (PNG / STL / .cpgroup)')}
         className="flex h-8 items-center gap-1 rounded border border-cp-border bg-cp-surface-2 px-3 text-cp-xs text-cp-text-secondary hover:border-sky-500/50 hover:bg-sky-900/30 hover:text-sky-200"
       >
         <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
           <path d="M8 1 L8 10 M4 7 L8 11 L12 7 M2 13 L14 13" />
         </svg>
-        {t('rack.exportBtn', 'Exportieren')}<Icon icon={ChevronDown} size="xs" className="ml-1 inline-block align-text-bottom" />
+        {t('rack.exportBtn', 'Export')}<Icon icon={ChevronDown} size="xs" className="ml-1 inline-block align-text-bottom" />
       </button>
       {open && (
         <div
@@ -90,9 +90,9 @@ export const RackBuilderDialogExportMenu = ({
             }}
             className="flex w-full flex-col items-start gap-0.5 border-b border-cp-border-muted px-3 py-2 text-left text-cp-text-bright hover:bg-cp-surface-2"
           >
-            <span className="font-semibold"><Icon icon={Camera} size="xs" className="mr-1 inline-block align-text-bottom" />{t('rack.export.png2d', '2D als PNG')}</span>
+            <span className="font-semibold"><Icon icon={Camera} size="xs" className="mr-1 inline-block align-text-bottom" />{t('rack.export.png2d', '2D as PNG')}</span>
             <span className="text-[10px] text-cp-text-muted">
-              {t('rack.export.png2dDesc', 'Aktuelle Front/Rear/Both-Ansicht als Bild')}
+              {t('rack.export.png2dDesc', 'Current front/rear/both view as image')}
             </span>
           </button>
           <button
@@ -101,7 +101,7 @@ export const RackBuilderDialogExportMenu = ({
               setOpen(false)
               const refs = canvas3DRefs.current
               if (!refs) {
-                await infoDialog(t('rack.export.no3dInit', '3D-Tab muss zuerst geöffnet worden sein um die 3D-Szene zu initialisieren.'), { tone: 'warning' })
+                await infoDialog(t('rack.export.no3dInit', '3D tab must be opened first to initialise the 3D scene.'), { tone: 'warning' })
                 return
               }
               await exportRack3DAsPngs(refs.gl, refs.scene, refs.camera, {
@@ -113,9 +113,9 @@ export const RackBuilderDialogExportMenu = ({
             }}
             className="flex w-full flex-col items-start gap-0.5 border-b border-cp-border-muted px-3 py-2 text-left text-cp-text-bright hover:bg-cp-surface-2"
           >
-            <span className="font-semibold"><Icon icon={Camera} size="xs" className="mr-1 inline-block align-text-bottom" />{t('rack.export.png3d', '3D aus 4 Perspektiven')}</span>
+            <span className="font-semibold"><Icon icon={Camera} size="xs" className="mr-1 inline-block align-text-bottom" />{t('rack.export.png3d', '3D from 4 perspectives')}</span>
             <span className="text-[10px] text-cp-text-muted">
-              {t('rack.export.png3dDesc', 'PNG: Front · Rear · Iso · Top (1× pro Datei)')}
+              {t('rack.export.png3dDesc', 'PNG: front · rear · iso · top (1× per file)')}
             </span>
           </button>
           <button
@@ -125,16 +125,16 @@ export const RackBuilderDialogExportMenu = ({
               const refs = canvas3DRefs.current
               if (!refs) {
                 // Dieser Handler ist nicht async (der PNG-Export daneben schon).
-                void infoDialog(t('rack.export.no3dInit', '3D-Tab muss zuerst geöffnet worden sein um die 3D-Szene zu initialisieren.'), { tone: 'warning' })
+                void infoDialog(t('rack.export.no3dInit', '3D tab must be opened first to initialise the 3D scene.'), { tone: 'warning' })
                 return
               }
               exportRackAsStl(refs.scene, rackName || 'rack')
             }}
             className="flex w-full flex-col items-start gap-0.5 border-b border-cp-border-muted px-3 py-2 text-left text-cp-text-bright hover:bg-cp-surface-2"
           >
-            <span className="font-semibold"><Icon icon={Box} size="xs" className="mr-1 inline-block align-text-bottom" />{t('rack.export.stl', '3D als STL')}</span>
+            <span className="font-semibold"><Icon icon={Box} size="xs" className="mr-1 inline-block align-text-bottom" />{t('rack.export.stl', '3D as STL')}</span>
             <span className="text-[10px] text-cp-text-muted">
-              {t('rack.export.stlDesc', 'Komplettes Rack als binäres STL (3D-Druck, CAD)')}
+              {t('rack.export.stlDesc', 'Complete rack as binary STL (3D printing, CAD)')}
             </span>
           </button>
           <button
@@ -153,9 +153,9 @@ export const RackBuilderDialogExportMenu = ({
             }}
             className="flex w-full flex-col items-start gap-0.5 px-3 py-2 text-left text-cp-text-bright hover:bg-cp-surface-2"
           >
-            <span className="font-semibold"><Icon icon={Save} size="xs" className="mr-1 inline-block align-text-bottom" />{t('rack.export.cpgroup', '.cpgroup herunterladen')}</span>
+            <span className="font-semibold"><Icon icon={Save} size="xs" className="mr-1 inline-block align-text-bottom" />{t('rack.export.cpgroup', 'Download .cpgroup')}</span>
             <span className="text-[10px] text-cp-text-muted">
-              {t('rack.export.cpgroupDesc', 'Komplettes Rack inkl. STL + Fotos zum Cross-PC-Transfer')}
+              {t('rack.export.cpgroupDesc', 'Complete rack incl. STL + photos for cross-PC transfer')}
             </span>
           </button>
         </div>

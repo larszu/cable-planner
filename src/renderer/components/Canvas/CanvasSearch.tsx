@@ -74,17 +74,17 @@ export const CanvasSearch = () => {
   const feldName = (f: LookupField): string =>
     ({
       name: t('canvas.search.f.name', 'Name'),
-      shortName: t('canvas.search.f.shortName', 'Kurzname'),
+      shortName: t('canvas.search.f.shortName', 'Short name'),
       ip: t('canvas.search.f.ip', 'IP'),
       mac: t('canvas.search.f.mac', 'MAC'),
       vlan: t('canvas.search.f.vlan', 'VLAN'),
-      assetTag: t('canvas.search.f.assetTag', 'Inventar-Nr.'),
-      serial: t('canvas.search.f.serial', 'Seriennummer'),
-      qrId: t('canvas.search.f.qrId', 'Etiketten-Code'),
-      switchPort: t('canvas.search.f.switchPort', 'Switch-Port'),
-      category: t('canvas.search.f.category', 'Kategorie'),
-      subtitle: t('canvas.search.f.subtitle', 'Untertitel'),
-      notes: t('canvas.search.f.notes', 'Notiz'),
+      assetTag: t('canvas.search.f.assetTag', 'Asset no.'),
+      serial: t('canvas.search.f.serial', 'Serial number'),
+      qrId: t('canvas.search.f.qrId', 'Label code'),
+      switchPort: t('canvas.search.f.switchPort', 'Switch port'),
+      category: t('canvas.search.f.category', 'Category'),
+      subtitle: t('canvas.search.f.subtitle', 'Subtitle'),
+      notes: t('canvas.search.f.notes', 'Note'),
     })[f]
 
   const goTo = (id: string) => {
@@ -174,8 +174,8 @@ export const CanvasSearch = () => {
       onPointerDown={startDrag}
       onClick={(e) => e.stopPropagation()}
       className="cursor-grab text-cp-text-faint hover:text-cp-text active:cursor-grabbing"
-      title={t('canvas.search.move', 'Suchleiste verschieben')}
-      aria-label={t('canvas.search.move', 'Suchleiste verschieben')}
+      title={t('canvas.search.move', 'Move search bar')}
+      aria-label={t('canvas.search.move', 'Move search bar')}
       // Zieh-Griff, kein Knopf — siehe `ui:labels`.
       data-cp-drag-handle=""
     >
@@ -198,10 +198,10 @@ export const CanvasSearch = () => {
             requestAnimationFrame(() => inputRef.current?.focus())
           }}
           className="flex items-center gap-2 text-cp-xs text-cp-text-muted hover:text-cp-text"
-          title={t('canvas.search.open', 'Gerät suchen (Strg+F)')}
+          title={t('canvas.search.open', 'Find device (Ctrl+F)')}
         >
           <Icon icon={Search} size="sm" />
-          {t('canvas.search.placeholder', 'Gerät suchen…')}
+          {t('canvas.search.placeholder', 'Find device…')}
         </button>
       </div>
     )
@@ -223,14 +223,14 @@ export const CanvasSearch = () => {
           onKeyDown={(e) => {
             if (e.key === 'Enter' && results[0]) goTo(results[0].id)
           }}
-          placeholder={t('canvas.search.placeholder', 'Gerät suchen…')}
+          placeholder={t('canvas.search.placeholder', 'Find device…')}
           className="flex-1 bg-transparent text-cp-sm text-cp-text outline-none placeholder:text-cp-text-faint"
         />
         <button
           type="button"
           onClick={() => setOpen(false)}
           className="text-cp-text-muted hover:text-cp-text"
-          aria-label={t('common.close', 'Schließen')}
+          aria-label={t('common.close', 'Close')}
         >
           <Icon icon={X} size="sm" />
         </button>
@@ -239,7 +239,7 @@ export const CanvasSearch = () => {
         <ul className="max-h-64 overflow-y-auto py-1">
           {results.length === 0 ? (
             <li className="px-cp-3 py-cp-2 text-cp-xs text-cp-text-faint">
-              {t('canvas.search.none', 'Keine Treffer')}
+              {t('canvas.search.none', 'No matches')}
             </li>
           ) : (
             results.map((a) => {
@@ -268,7 +268,7 @@ export const CanvasSearch = () => {
                     )}
                     {a.dependents.length > 0 && (
                       <span className="mt-0.5 block truncate text-cp-xs text-cp-text-faint">
-                        {t('canvas.search.depends', '{n} daran: {liste}')
+                        {t('canvas.search.depends', '{n} attached: {liste}')
                           .replace('{n}', String(a.dependents.length))
                           .replace(
                             '{liste}',

@@ -58,7 +58,7 @@ const Kette = ({ chain }: { chain: SignalChain }) => {
       </div>
       <div className={`mt-0.5 text-cp-xs ${ENDE_TON[chain.end]}`}>
         {chain.end === 'ziel'
-          ? t('analysis.chain.endTarget', 'Endgerät erreicht')
+          ? t('analysis.chain.endTarget', 'End device reached')
           : chain.endNote}
       </div>
     </li>
@@ -78,24 +78,24 @@ export const ChainTab = () => {
       <PanelHint
         text={t(
           'analysis.chain.hint',
-          'Wege über mindestens eine Zwischenebene — Patchfeld, Wandler, Verteiler, geschaltete Kreuzschiene. Direkte Verbindungen stehen in der Patchliste und fehlen hier absichtlich. Wo ein Weg nicht am Endgerät endet, steht der Grund dabei: geraten wird nichts.',
+          'Paths crossing at least one intermediate stage — patch panel, converter, distribution amp, switched router crosspoint. Direct connections live in the patch list and are deliberately absent here. Where a path does not reach an end device, the reason is stated: nothing is guessed.',
         )}
       />
       {chains.length === 0 ? (
         <p className="text-cp-xs text-cp-text-muted">
           {t(
             'analysis.chain.none',
-            'Kein mehrstufiger Weg im Plan. Ein Gerät wird zum Patchfeld über die Kategorie „Patchfelder" oder das Häkchen in „Darstellung & Flags".',
+            'No multi-stage path in this plan. A device becomes a patch panel through the category „Patchfelder“ or the checkbox under „Display & flags“.',
           )}
         </p>
       ) : (
         <>
           <p className="text-cp-xs text-cp-text-secondary">
-            {chains.length} {t('analysis.chain.count', 'mehrstufige Wege')}
+            {chains.length} {t('analysis.chain.count', 'multi-stage paths')}
             {offen > 0 && (
               <span className="text-cp-warn">
                 {' '}
-                &middot; {offen} {t('analysis.chain.openCount', 'ohne erreichtes Endgerät')}
+                &middot; {offen} {t('analysis.chain.openCount', 'without a reached end device')}
               </span>
             )}
           </p>

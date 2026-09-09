@@ -173,15 +173,15 @@ export const AtemAudioRouterDialog = () => {
     if (!live) return
     const changed = comparison ? allDeltas(comparison).length : 0
     if (
-      !(await confirmDialog(t('atem.audio.live.adoptConfirm', 'Gelesenen Stand in den Plan übernehmen?'), {
+      !(await confirmDialog(t('atem.audio.live.adoptConfirm', 'Adopt the reading into the plan?'), {
         body: format(
           t(
             'atem.audio.live.adoptBody',
-            'Der Plan übernimmt {n} abweichende Zuweisungen vom Switcher. Danach steht im Plan, was das Gerät gerade tut — die bisherige Absicht ist damit ersetzt.',
+            'The plan adopts {n} differing assignments from the switcher. Afterwards the plan states what the device is currently doing — the previous intent is replaced.',
           ),
           { n: changed },
         ),
-        okLabel: t('atem.audio.live.adoptOk', 'Übernehmen'),
+        okLabel: t('atem.audio.live.adoptOk', 'Adopt'),
       }))
     )
       return
@@ -227,7 +227,7 @@ export const AtemAudioRouterDialog = () => {
           setErrorMsg(e instanceof Error ? e.message : String(e))
         }
       }
-      reader.onerror = () => setErrorMsg(t('atem.audio.readFileError', 'Konnte Datei nicht lesen.'))
+      reader.onerror = () => setErrorMsg(t('atem.audio.readFileError', 'Could not read file.'))
       reader.readAsText(file)
     }
     input.click()
@@ -268,10 +268,10 @@ export const AtemAudioRouterDialog = () => {
   // Umweg über das Profile-XML.
   const handleReadFromAtem = async () => {
     if (!atemConnected) {
-      await infoDialog(t('atem.audio.notConnectedTitle', 'ATEM nicht verbunden'), {
+      await infoDialog(t('atem.audio.notConnectedTitle', 'ATEM not connected'), {
         body: t(
           'atem.audio.notConnectedBody',
-          'Verbinde dich zuerst mit dem ATEM (Hauptdialog "ATEM Mischer").',
+          'Connect to the ATEM first (main dialog "ATEM mixer").',
         ),
         tone: 'warning',
       })
@@ -282,10 +282,10 @@ export const AtemAudioRouterDialog = () => {
     try {
       const reading = await cablePlannerApi.atem.readAudioConfig()
       if (!reading || (!reading.matrix && !reading.classicMixer)) {
-        await infoDialog(t('atem.audio.noAudioDataTitle', 'Keine Audio-Daten'), {
+        await infoDialog(t('atem.audio.noAudioDataTitle', 'No audio data'), {
           body: t(
             'atem.audio.noAudioDataBody',
-            'Der verbundene ATEM hat weder eine Routing-Matrix noch einen Classic-Mixer im State. Manche Mini-Modelle haben gar kein editierbares Audio-Routing.',
+            'The connected ATEM has neither a routing matrix nor a classic mixer in its state. Some Mini models have no editable audio routing at all.',
           ),
           tone: 'warning',
         })
@@ -300,21 +300,21 @@ export const AtemAudioRouterDialog = () => {
       setLive(reading)
       setLiveReadAt(new Date().toISOString())
       setActiveTab('matrix')
-      await infoDialog(t('atem.audio.loadedTitle', 'Audio-Config vom ATEM gelesen'), {
+      await infoDialog(t('atem.audio.loadedTitle', 'Audio config read from ATEM'), {
         body: [
           reading.matrix
             ? format(
-                t('atem.audio.loadedMatrix', 'Matrix: {outputs} Outputs × {sources} Sources'),
+                t('atem.audio.loadedMatrix', 'Matrix: {outputs} outputs × {sources} sources'),
                 { outputs: reading.matrix.outputs.length, sources: reading.matrix.sources.length },
               )
             : null,
           reading.classicMixer
-            ? format(t('atem.audio.loadedClassic', 'Classic-Mixer: {inputs} Inputs'), {
+            ? format(t('atem.audio.loadedClassic', 'Classic mixer: {inputs} inputs'), {
                 inputs: reading.classicMixer.inputs.length,
               })
             : null,
           reading.inputLabels
-            ? format(t('atem.audio.loadedLabels', 'Input-Labels: {count}'), {
+            ? format(t('atem.audio.loadedLabels', 'Input labels: {count}'), {
                 count: Object.keys(reading.inputLabels).length,
               })
             : null,
@@ -331,23 +331,23 @@ export const AtemAudioRouterDialog = () => {
   const handlePushToAtem = async () => {
     if (!draft) return
     if (!atemConnected) {
-      await infoDialog(t('atem.audio.notConnectedTitle', 'ATEM nicht verbunden'), {
+      await infoDialog(t('atem.audio.notConnectedTitle', 'ATEM not connected'), {
         body: t(
           'atem.audio.notConnectedBody',
-          'Verbinde dich zuerst mit dem ATEM (Hauptdialog "ATEM Mischer").',
+          'Connect to the ATEM first (main dialog "ATEM mixer").',
         ),
         tone: 'warning',
       })
       return
     }
     const confirmed = await confirmDialog(
-      t('atem.audio.sendConfirmTitle', 'Audio-Konfiguration an ATEM senden?'),
+      t('atem.audio.sendConfirmTitle', 'Send audio configuration to ATEM?'),
       {
         body: t(
           'atem.audio.sendConfirmBody',
-          'Die geladene Routing-Matrix / Classic-Mixer-Werte werden direkt an den verbundenen Switcher geschickt. Änderungen sind sofort wirksam und werden NICHT als Startup-State persistiert — dazu musst du in ATEM Software Control "Save Startup State" aufrufen.',
+          'The loaded routing matrix / classic-mixer values are sent directly to the connected switcher. Changes take effect immediately and are NOT persisted as startup state — for that you must call "Save Startup State" in ATEM Software Control.',
         ),
-        okLabel: t('atem.audio.sendOk', 'Senden'),
+        okLabel: t('atem.audio.sendOk', 'Send'),
       },
     )
     if (!confirmed) return
@@ -370,11 +370,11 @@ export const AtemAudioRouterDialog = () => {
             )
           : undefined,
       })
-      await infoDialog(t('atem.audio.sentTitle', 'Konfiguration gesendet'), {
+      await infoDialog(t('atem.audio.sentTitle', 'Configuration sent'), {
         body: format(
           t(
             'atem.audio.sentBody',
-            'Matrix: {matrix} · Classic: {classic} · Labels: {labels}\n\nNicht vergessen: in ATEM Software Control "Save Startup State" um die Werte persistent zu machen.',
+            'Matrix: {matrix} · Classic: {classic} · Labels: {labels}\n\nDon\'t forget: trigger "Save Startup State" in ATEM Software Control to make the values persistent.',
           ),
           {
             matrix: result.matrixApplied,
@@ -449,7 +449,7 @@ export const AtemAudioRouterDialog = () => {
         >
           <div>
             <h2 id={titleId} className="text-cp-xl font-semibold">
-              {t('atem.audio.title', 'ATEM Audio-Konfiguration')} — {equipment.name}
+              {t('atem.audio.title', 'ATEM audio configuration')} — {equipment.name}
             </h2>
             <div className="text-[11px] text-slate-400">
               {summarise(draft, t)}
@@ -460,7 +460,7 @@ export const AtemAudioRouterDialog = () => {
             onClick={close}
             className="rounded bg-slate-700 px-3 py-1 text-cp-xs hover:bg-slate-600"
           >
-            {t('common.close', 'Schließen')}
+            {t('common.close', 'Close')}
           </button>
         </header>
 
@@ -472,10 +472,10 @@ export const AtemAudioRouterDialog = () => {
             className="rounded bg-sky-700 px-3 py-1 hover:bg-sky-600 disabled:opacity-50"
             title={t(
               'atem.audio.action.loadXmlTitle',
-              'ATEM Profile-XML laden — die Audio-Sektion(en) werden in den Editor übernommen',
+              'Load ATEM Profile XML — the audio section(s) will be imported into the editor',
             )}
           >
-            <Icon icon={FolderOpen} size="xs" className="mr-1 inline-block align-text-bottom" />{t('atem.audio.action.loadXml', 'XML laden')}
+            <Icon icon={FolderOpen} size="xs" className="mr-1 inline-block align-text-bottom" />{t('atem.audio.action.loadXml', 'Load XML')}
           </button>
           <button
             type="button"
@@ -484,10 +484,10 @@ export const AtemAudioRouterDialog = () => {
             className="rounded bg-emerald-700 px-3 py-1 hover:bg-emerald-600 disabled:opacity-50"
             title={t(
               'atem.audio.action.saveXmlTitle',
-              'Patched Profile-XML herunterladen (alle Nicht-Audio-Sektionen bleiben unverändert)',
+              'Download patched Profile XML (all non-audio sections stay unchanged)',
             )}
           >
-            <Icon icon={Save} size="xs" className="mr-1 inline-block align-text-bottom" />{t('atem.audio.action.saveXml', 'XML speichern')}
+            <Icon icon={Save} size="xs" className="mr-1 inline-block align-text-bottom" />{t('atem.audio.action.saveXml', 'Save XML')}
           </button>
           {/* v7.9.52 — OpenSwitcher-style Live-Direct-Pfad. Sichtbar nur
               wenn Desktop-Bridge verfügbar; Aktiv nur wenn ATEM gerade
@@ -503,11 +503,11 @@ export const AtemAudioRouterDialog = () => {
                 className="rounded bg-purple-700 px-3 py-1 hover:bg-purple-600 disabled:opacity-50"
                 title={
                   atemConnected
-                    ? t('atem.audio.readLiveTitle', 'Live-State vom verbundenen ATEM lesen (Matrix + Classic-Mixer + Labels)')
-                    : t('atem.audio.readOfflineTitle', 'ATEM nicht verbunden — im Haupt-Dialog "ATEM Mischer" verbinden')
+                    ? t('atem.audio.readLiveTitle', 'Read live state from the connected ATEM (matrix + classic mixer + labels)')
+                    : t('atem.audio.readOfflineTitle', 'ATEM not connected — connect in the main "ATEM Switcher" dialog')
                 }
               >
-                <Icon icon={Plug} size="xs" className="mr-1 inline-block align-text-bottom" />{atemConnected ? t('atem.audio.readFromAtem', 'Vom ATEM lesen') : t('atem.audio.readOffline', 'Lesen (offline)')}
+                <Icon icon={Plug} size="xs" className="mr-1 inline-block align-text-bottom" />{atemConnected ? t('atem.audio.readFromAtem', 'Read from ATEM') : t('atem.audio.readOffline', 'Read (offline)')}
               </button>
               <button
                 type="button"
@@ -516,11 +516,11 @@ export const AtemAudioRouterDialog = () => {
                 className="rounded bg-orange-700 px-3 py-1 hover:bg-orange-600 disabled:opacity-50"
                 title={
                   atemConnected
-                    ? t('atem.audio.pushLiveTitle', 'Aktuelle Konfiguration direkt an den ATEM senden (kein XML-Umweg)')
-                    : t('atem.audio.readOfflineTitle', 'ATEM nicht verbunden — im Haupt-Dialog "ATEM Mischer" verbinden')
+                    ? t('atem.audio.pushLiveTitle', 'Send current configuration directly to the ATEM (no XML detour)')
+                    : t('atem.audio.readOfflineTitle', 'ATEM not connected — connect in the main "ATEM Switcher" dialog')
                 }
               >
-                <Icon icon={Upload} size="xs" className="mr-1 inline-block align-text-bottom" />{atemConnected ? t('atem.audio.pushToAtem', 'An ATEM senden') : t('atem.audio.pushOffline', 'Senden (offline)')}
+                <Icon icon={Upload} size="xs" className="mr-1 inline-block align-text-bottom" />{atemConnected ? t('atem.audio.pushToAtem', 'Send to ATEM') : t('atem.audio.pushOffline', 'Send (offline)')}
               </button>
             </>
           )}
@@ -528,14 +528,14 @@ export const AtemAudioRouterDialog = () => {
             <>
               <span className="ml-2 text-slate-500">|</span>
               <span className="rounded bg-sky-800 px-3 py-1 text-white">
-                <Icon icon={SlidersHorizontal} size="xs" className="mr-1 inline-block align-text-bottom" />{t('atem.audio.tab.matrix', 'Routing-Matrix')} ({draft.matrix.outputs.length}×{draft.matrix.sources.length})
+                <Icon icon={SlidersHorizontal} size="xs" className="mr-1 inline-block align-text-bottom" />{t('atem.audio.tab.matrix', 'Routing matrix')} ({draft.matrix.outputs.length}×{draft.matrix.sources.length})
               </span>
               {draft.classicMixer && (
                 <span
                   className="text-[10px] text-slate-400"
-                  title={t('atem.audio.classicReadOnly', 'Das geladene XML enthält zusätzlich eine klassische AudioMixer-Sektion. Sie wird beim Speichern unverändert mit zurück ins XML geschrieben, ist aber hier nicht editierbar.')}
+                  title={t('atem.audio.classicReadOnly', 'The loaded XML also contains a classic AudioMixer section. It is round-tripped on save but is not editable here.')}
                 >
-                  {t('atem.audio.classicSectionBadge', '+ AudioMixer-Sektion (read-only, round-trip)')}
+                  {t('atem.audio.classicSectionBadge', '+ AudioMixer section (read-only, round-trip)')}
                 </span>
               )}
             </>
@@ -558,7 +558,7 @@ export const AtemAudioRouterDialog = () => {
             <div className="flex flex-wrap items-center gap-2">
               <Icon icon={Plug} size="sm" className="text-purple-300" />
               <span className="font-medium text-purple-200">
-                {t('atem.audio.live.title', 'Vom Switcher gelesen')}
+                {t('atem.audio.live.title', 'Read from the switcher')}
               </span>
               <span className="text-slate-400">
                 {liveReadAt ? new Date(liveReadAt).toLocaleTimeString() : ''}
@@ -567,13 +567,13 @@ export const AtemAudioRouterDialog = () => {
               <span className={hasDifference(comparison) ? 'text-amber-300' : 'text-emerald-300'}>
                 {hasDifference(comparison)
                   ? format(
-                      t('atem.audio.live.differs', '{n} Abweichungen zum Plan'),
+                      t('atem.audio.live.differs', '{n} differences from the plan'),
                       { n: allDeltas(comparison).length },
                     )
-                  : t('atem.audio.live.matches', 'Plan und Gerät stimmen überein')}
+                  : t('atem.audio.live.matches', 'Plan and device agree')}
               </span>
               <span className="text-slate-500">
-                {format(t('atem.audio.live.agreeing', '{n} gleich'), {
+                {format(t('atem.audio.live.agreeing', '{n} identical'), {
                   n: comparison.agreeing,
                 })}
               </span>
@@ -583,10 +583,10 @@ export const AtemAudioRouterDialog = () => {
                 className="ml-auto rounded bg-purple-700 px-3 py-1 hover:bg-purple-600"
                 title={t(
                   'atem.audio.live.adoptTitle',
-                  'Den gelesenen Stand als neuen Plan übernehmen — ersetzt die bisherige Absicht.',
+                  'Adopt the reading as the new plan — this replaces the previous intent.',
                 )}
               >
-                {t('atem.audio.live.adopt', 'In den Plan übernehmen')}
+                {t('atem.audio.live.adopt', 'Adopt into the plan')}
               </button>
               <button
                 type="button"
@@ -595,9 +595,9 @@ export const AtemAudioRouterDialog = () => {
                   setLiveReadAt('')
                 }}
                 className="rounded bg-slate-700 px-3 py-1 hover:bg-slate-600"
-                title={t('atem.audio.live.discardTitle', 'Den gelesenen Stand verwerfen — der Plan bleibt, wie er ist.')}
+                title={t('atem.audio.live.discardTitle', 'Discard the reading — the plan stays as it is.')}
               >
-                {t('atem.audio.live.discard', 'Befund verwerfen')}
+                {t('atem.audio.live.discard', 'Discard reading')}
               </button>
             </div>
             {hasDifference(comparison) && (
@@ -606,11 +606,11 @@ export const AtemAudioRouterDialog = () => {
                   <li key={d.key}>
                     <span className="text-slate-400">{d.label}:</span>{' '}
                     <span className="text-sky-300">
-                      {sourceName(d.planned, t('atem.audio.live.notPlanned', 'nicht geplant'))}
+                      {sourceName(d.planned, t('atem.audio.live.notPlanned', 'not planned'))}
                     </span>
                     {' -> '}
                     <span className="text-amber-300">
-                      {sourceName(d.confirmed, t('atem.audio.live.notMentioned', 'nicht gemeldet'))}
+                      {sourceName(d.confirmed, t('atem.audio.live.notMentioned', 'not reported'))}
                     </span>
                   </li>
                 ))}
@@ -633,7 +633,7 @@ export const AtemAudioRouterDialog = () => {
               <p>
                 {t(
                   'atem.audio.classicOnly',
-                  'Dieses XML enthält nur eine klassische AudioMixer-Sektion und keine Routing-Matrix. Die Sektion wird beim Speichern unverändert zurückgeschrieben (Round-Trip), ist aber im Editor nicht editierbar. Lege bei Bedarf via "Matrix manuell" oben eine neue Crosspoint-Matrix an — beide Sektionen koexistieren dann im XML.',
+                  'This XML only contains a classic AudioMixer section, no routing matrix. The section is written back unchanged on save (round trip), but is not editable in the editor. If needed, create a fresh crosspoint matrix via "Matrix manual" above — both sections coexist in the XML.',
                 )}
               </p>
               <button
@@ -641,18 +641,18 @@ export const AtemAudioRouterDialog = () => {
                 onClick={handleCreateMatrix}
                 className="mt-3 rounded bg-sky-700 px-3 py-1 text-cp-xs text-white hover:bg-sky-600"
               >
-                <Icon icon={SlidersHorizontal} size="xs" className="mr-1 inline-block align-text-bottom" />{t('atem.audio.createMatrixManual', 'Matrix manuell anlegen')}
+                <Icon icon={SlidersHorizontal} size="xs" className="mr-1 inline-block align-text-bottom" />{t('atem.audio.createMatrixManual', 'Create matrix manually')}
               </button>
             </div>
           ) : (
             <div className="m-auto text-cp-base text-slate-400">
               {format(
-                t('atem.audio.noSection', 'Kein {section} im geladenen Profil. Wechsel den Tab oder lade ein Profil mit dieser Sektion.'),
+                t('atem.audio.noSection', 'No {section} in the loaded profile. Switch the tab or load a profile that has this section.'),
                 {
                   section:
                     activeTab === 'matrix'
-                      ? t('atem.audio.sectionRouting', 'Routing')
-                      : t('atem.audio.sectionClassicMixer', 'Klassischer Mixer'),
+                      ? t('atem.audio.sectionRouting', 'routing')
+                      : t('atem.audio.sectionClassicMixer', 'classic mixer'),
                 },
               )}
             </div>
@@ -663,7 +663,7 @@ export const AtemAudioRouterDialog = () => {
           <span className="mr-auto text-slate-500">
             {t(
               'atem.audio.footer',
-              'Nicht-destruktiv: nur Audio-Attribute werden geändert, alle anderen Profile-Sektionen bleiben erhalten.',
+              'Non-destructive: only audio attributes are changed; every other profile section is preserved.',
             )}
           </span>
           <button
@@ -671,7 +671,7 @@ export const AtemAudioRouterDialog = () => {
             onClick={close}
             className="rounded bg-slate-700 px-3 py-1 hover:bg-slate-600"
           >
-            {t('common.cancel', 'Abbrechen')}
+            {t('common.cancel', 'Cancel')}
           </button>
           <button
             type="button"
@@ -680,10 +680,10 @@ export const AtemAudioRouterDialog = () => {
             className="rounded bg-emerald-700 px-3 py-1 hover:bg-emerald-600 disabled:opacity-50"
             title={t(
               'atem.audio.action.saveProjectTitle',
-              'Konfiguration im Projekt persistieren (überlebt Reload).',
+              'Persist routing in the project (survives reload).',
             )}
           >
-            {t('atem.audio.action.saveProject', 'Im Projekt speichern')}
+            {t('atem.audio.action.saveProject', 'Save in project')}
           </button>
         </footer>
       </div>
@@ -698,7 +698,7 @@ const summarise = (
   if (!draft) {
     return t(
       'atem.audio.empty.summary',
-      'Lade ein ATEM Profile-XML — Editor erkennt automatisch ob Crosspoint-Matrix oder Klassischer Mixer.',
+      'Load an ATEM profile XML — the editor automatically detects whether it is a crosspoint matrix or a classic mixer.',
     )
   }
   const parts: string[] = []
@@ -708,7 +708,7 @@ const summarise = (
       format(
         t(
           'atem.audio.summary',
-          'Matrix: {sources} Quellen × {outputs} Outputs · {routed} aktive Routings',
+          'Matrix: {sources} sources × {outputs} outputs · {routed} active routings',
         ),
         { sources: draft.matrix.sources.length, outputs: draft.matrix.outputs.length, routed },
       ),
@@ -722,13 +722,13 @@ const summarise = (
       format(
         t(
           'atem.audio.summaryClassic',
-          'Classic Mixer: {count} Inputs · {live} aktiv (On / AFV)',
+          'Classic mixer: {count} inputs · {live} active (On / AFV)',
         ),
         { count: draft.classicMixer.inputs.length, live },
       ),
     )
   }
-  return parts.join(' · ') || t('atem.audio.detected', 'Audio-Sektion erkannt.')
+  return parts.join(' · ') || t('atem.audio.detected', 'Audio section detected.')
 }
 
 const EmptyState = ({
@@ -745,12 +745,12 @@ const EmptyState = ({
   <div className="m-auto max-w-md text-center text-cp-base text-slate-400">
     <div className="mb-2 flex justify-center"><Icon icon={SlidersHorizontal} size={28} /></div>
     <div className="mb-3 text-cp-lg font-semibold text-slate-200">
-      {t('atem.audio.welcomeTitle', 'ATEM Audio-Routing')}
+      {t('atem.audio.welcomeTitle', 'ATEM audio routing')}
     </div>
     <p className="mb-3">
       {t(
         'atem.audio.welcomeIntro',
-        'Lade ein bestehendes ATEM Profile-XML — oder fang manuell mit der Crosspoint-Matrix an. Beim Speichern erzeugen wir ein gültiges Profile-XML, das du direkt im ATEM Software Control importieren kannst.',
+        'Load an existing ATEM profile XML — or start manually with the crosspoint matrix. On save we produce a valid profile XML you can import straight into ATEM Software Control.',
       )}
     </p>
     <div className="flex flex-wrap items-center justify-center gap-2">
@@ -759,24 +759,24 @@ const EmptyState = ({
         onClick={onLoad}
         className="rounded bg-sky-700 px-4 py-2 text-cp-base hover:bg-sky-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
       >
-        <Icon icon={FolderOpen} size="xs" className="mr-1 inline-block align-text-bottom" />{t('atem.audio.loadProfileXml', 'Profile-XML laden')}
+        <Icon icon={FolderOpen} size="xs" className="mr-1 inline-block align-text-bottom" />{t('atem.audio.loadProfileXml', 'Load profile XML')}
       </button>
       <button
         type="button"
         onClick={onCreateMatrix}
-        title={t('atem.audio.freshMatrix', 'Frische Crosspoint-Matrix mit den ATEM-Standard-Eingängen + 8 Output-Bussen.')}
+        title={t('atem.audio.freshMatrix', 'Fresh crosspoint matrix with the ATEM default inputs + 8 output busses.')}
         className="rounded border border-slate-700 bg-slate-800 px-4 py-2 text-cp-base text-slate-100 hover:border-sky-600 hover:bg-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
       >
-        <Icon icon={SlidersHorizontal} size="xs" className="mr-1 inline-block align-text-bottom" />{t('atem.audio.matrixManual', 'Matrix manuell')}
+        <Icon icon={SlidersHorizontal} size="xs" className="mr-1 inline-block align-text-bottom" />{t('atem.audio.matrixManual', 'Matrix manual')}
       </button>
     </div>
     <p className="mt-3 text-[10px] text-slate-400">
       {format(
         t(
           'atem.audio.welcomeFooter',
-          'Für {name}. 24 Standard-Quellen × 8 Output-Busse; Quellen + Outputs + Mappings danach frei bearbeiten.',
+          'For {name}. 24 standard sources × 8 output buses; sources + outputs + mappings can be edited freely afterwards.',
         ),
-        { name: equipmentName || t('atem.audio.currentDevice', 'das aktuelle Gerät') },
+        { name: equipmentName || t('atem.audio.currentDevice', 'the current device') },
       )}
     </p>
   </div>
@@ -837,7 +837,7 @@ const ChannelPicker = ({
           {format(
             t(
               'atem.audio.picker.toggleLabel',
-              '{label} ein-/ausblenden — abgewählte Einträge fallen aus Filter, Liste und Matrix.',
+              '{label} show / hide — deselected entries drop from the filter, list and matrix.',
             ),
             { label },
           )}
@@ -848,7 +848,7 @@ const ChannelPicker = ({
             onClick={() => onSetAll([])}
             className="rounded bg-slate-800 px-2 py-0.5 text-[11px] hover:bg-slate-700"
           >
-            {t('atem.audio.picker.showAll', 'Alle zeigen')}
+            {t('atem.audio.picker.showAll', 'Show all')}
           </button>
           <button
             type="button"
@@ -856,14 +856,14 @@ const ChannelPicker = ({
             className="rounded bg-slate-800 px-2 py-0.5 text-[11px] hover:bg-slate-700"
             disabled={allExcluded}
           >
-            {t('atem.audio.picker.hideAll', 'Alle ausblenden')}
+            {t('atem.audio.picker.hideAll', 'Hide all')}
           </button>
           <button
             type="button"
             onClick={onClose}
             className="rounded bg-slate-800 px-2 py-0.5 text-[11px] hover:bg-slate-700"
           >
-            {t('common.close', 'Schließen')}
+            {t('common.close', 'Close')}
           </button>
         </div>
       </div>
@@ -891,7 +891,7 @@ const ChannelPicker = ({
                       ? 'bg-amber-900/40 text-amber-200'
                       : 'bg-sky-900/40 text-sky-200'
                 }`}
-                title={format(t('atem.audio.groupToggleTitle', '{key} — komplette Gruppe an-/abhaken'), { key })}
+                title={format(t('atem.audio.groupToggleTitle', '{key} — toggle whole group on/off'), { key })}
               >
                 <Icon icon={allHidden ? Square : someHidden ? SquareMinus : SquareCheck} size="xs" className="mr-1 inline-block align-text-bottom" />{key}
               </button>
@@ -1015,9 +1015,9 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
 
   const clearAllOutputs = async () => {
     if (
-      !(await confirmDialog(t('atem.audio.resetAllConfirm', 'Alle Routings auf "No Audio" zurücksetzen?'), {
+      !(await confirmDialog(t('atem.audio.resetAllConfirm', 'Reset all routings to "No Audio"?'), {
         destructive: true,
-        okLabel: t('common.reset', 'Zurücksetzen'),
+        okLabel: t('common.reset', 'Reset'),
       }))
     )
       return
@@ -1037,51 +1037,51 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
           type="text"
           value={filterSources}
           onChange={(e) => setFilterSources(e.target.value)}
-          placeholder={t('atem.audio.filterSourcesPlaceholder', 'Quellen filtern…')}
-          title={t('atem.audio.filterSourcesTitle', 'Substring-Filter für Audio-Quellen (Zeilen)')}
-          aria-label={t('atem.audio.filterSourcesAria', 'Quellen filtern')}
+          placeholder={t('atem.audio.filterSourcesPlaceholder', 'Filter sources…')}
+          title={t('atem.audio.filterSourcesTitle', 'Substring filter for audio sources (rows)')}
+          aria-label={t('atem.audio.filterSourcesAria', 'Filter sources')}
           className="rounded border border-slate-700 bg-slate-900 px-2 py-1 text-cp-xs"
         />
         <input
           type="text"
           value={filterOutputs}
           onChange={(e) => setFilterOutputs(e.target.value)}
-          placeholder={t('atem.audio.filterOutputsPlaceholder', 'Outputs filtern…')}
-          title={t('atem.audio.filterOutputsTitle', 'Substring-Filter für Audio-Outputs (Spalten)')}
-          aria-label={t('atem.audio.filterOutputsAria', 'Outputs filtern')}
+          placeholder={t('atem.audio.filterOutputsPlaceholder', 'Filter outputs…')}
+          title={t('atem.audio.filterOutputsTitle', 'Substring filter for audio outputs (columns)')}
+          aria-label={t('atem.audio.filterOutputsAria', 'Filter outputs')}
           className="rounded border border-slate-700 bg-slate-900 px-2 py-1 text-cp-xs"
         />
         <button
           type="button"
           onClick={() => setShowSourcePicker((v) => !v)}
-          title={t('atem.audio.sourcesCheckTitle', 'Quellen einzeln an-/abhaken (z. B. MADI, Mic, Tape …)')}
+          title={t('atem.audio.sourcesCheckTitle', 'Check sources individually (e.g. MADI, Mic, Tape …)')}
           className={`rounded border px-3 py-1 ${
             excludedSourceIds.size > 0
               ? 'border-sky-600 bg-sky-900/40 text-sky-200'
               : 'border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700'
           }`}
         >
-          {t('atem.audio.sourcePicker', 'Quellen-Auswahl')}
+          {t('atem.audio.sourcePicker', 'Source picker')}
           {excludedSourceIds.size > 0 && (
             <span className="ml-1 text-[10px] text-sky-300">
-              ({excludedSourceIds.size} {t('atem.audio.hidden', 'versteckt')})
+              ({excludedSourceIds.size} {t('atem.audio.hidden', 'hidden')})
             </span>
           )}
         </button>
         <button
           type="button"
           onClick={() => setShowOutputPicker((v) => !v)}
-          title={t('atem.audio.outputsCheckTitle', 'Outputs einzeln an-/abhaken (z. B. Out 5/6, 7/8 weglassen)')}
+          title={t('atem.audio.outputsCheckTitle', 'Check outputs individually (e.g. skip Out 5/6, 7/8)')}
           className={`rounded border px-3 py-1 ${
             excludedOutputIds.size > 0
               ? 'border-sky-600 bg-sky-900/40 text-sky-200'
               : 'border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700'
           }`}
         >
-          {t('atem.audio.outputPicker', 'Outputs-Auswahl')}
+          {t('atem.audio.outputPicker', 'Output picker')}
           {excludedOutputIds.size > 0 && (
             <span className="ml-1 text-[10px] text-sky-300">
-              ({excludedOutputIds.size} {t('atem.audio.hidden', 'versteckt')})
+              ({excludedOutputIds.size} {t('atem.audio.hidden', 'hidden')})
             </span>
           )}
         </button>
@@ -1090,19 +1090,19 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
           onClick={clearAllOutputs}
           className="rounded bg-slate-700 px-3 py-1 hover:bg-slate-600"
         >
-          {t('atem.audio.resetAllBtn', 'Alle Routings zurücksetzen')}
+          {t('atem.audio.resetAllBtn', 'Reset all routings')}
         </button>
         <span className="ml-2 text-slate-500">
-          {visibleSources.length} × {visibleOutputs.length} {t('atem.audio.visible', 'sichtbar')}
+          {visibleSources.length} × {visibleOutputs.length} {t('atem.audio.visible', 'visible')}
           {cellCount.toLocaleString() !== ''
-            ? ` · ${cellCount.toLocaleString()} ${t('atem.audio.crosspoints', 'Crosspoints')}`
+            ? ` · ${cellCount.toLocaleString()} ${t('atem.audio.crosspoints', 'crosspoints')}`
             : ''}
         </span>
       </div>
 
       {showSourcePicker && (
         <ChannelPicker
-          label={t('atem.audio.sourcesLabel', 'Quellen')}
+          label={t('atem.audio.sourcesLabel', 'Sources')}
           items={matrix.sources}
           excluded={excludedSourceIds}
           onToggle={(id) => toggleSetMember(setExcludedSourceIds, excludedSourceIds, id)}
@@ -1130,7 +1130,7 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
             {format(
               t(
                 'atem.audio.tooLargeWarn',
-                '{count} sichtbare Crosspoints können das Rendering verlangsamen. Über die Quellen-/Outputs-Auswahl eingrenzen oder trotzdem anzeigen lassen — die Warnung bleibt dann für diese Sitzung aus.',
+                '{count} visible crosspoints may slow down the rendering. Narrow down via the source/output pickers or render anyway — the warning then stays off for this session.',
               ),
               { count: cellCount.toLocaleString() },
             )}
@@ -1140,7 +1140,7 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
             onClick={() => setRenderAnyway(true)}
             className="mt-3 rounded bg-amber-700 px-3 py-1 text-cp-xs text-amber-50 hover:bg-amber-600"
           >
-            {t('atem.audio.renderAnyway', 'Trotzdem anzeigen')}
+            {t('atem.audio.renderAnyway', 'Render anyway')}
           </button>
         </div>
       ) : (
@@ -1215,7 +1215,7 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
                 return (
                   <tr key={s.id}>
                     <th
-                      title={format(t('atem.audio.sourceRowTitle', '{name} (id {id}) — {count} Output(s)'), { name: s.name, id: s.id, count: routedToCount })}
+                      title={format(t('atem.audio.sourceRowTitle', '{name} (id {id}) — {count} output(s)'), { name: s.name, id: s.id, count: routedToCount })}
                       style={{
                         width: SIDE_WIDTH,
                         minWidth: SIDE_WIDTH,
@@ -1262,7 +1262,7 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
                           key={o.id}
                           title={
                             isRouted
-                              ? format(t('atem.audio.cellRoutedTitle', '{src} → {out} — Klick zum Entfernen'), { src: s.name, out: o.name })
+                              ? format(t('atem.audio.cellRoutedTitle', '{src} → {out} — click to remove'), { src: s.name, out: o.name })
                               : `${s.name} → ${o.name}`
                           }
                           onClick={() =>

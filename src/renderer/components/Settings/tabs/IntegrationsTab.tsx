@@ -66,10 +66,10 @@ const AiProvidersCard = () => {
 
   return (
     <SettingsCard
-      title={t('settings.integrations.ai', 'AI-Provider (KI-Port-Vorschläge)')}
+      title={t('settings.integrations.ai', 'AI provider (AI port suggestions)')}
       description={t(
         'settings.integrations.aiDesc',
-        'Aktiver Provider für die AI-Buttons im Geräte-Wizard und in der Rentman-Library. Jeder Provider hat seinen eigenen API-Key. Alle Keys werden nur lokal im Browser-localStorage gespeichert.',
+        'Active provider for the AI buttons in the device wizard and the Rentman library. Each provider has its own API key. All keys are stored only locally in the browser localStorage.',
       )}
     >
       <div className="space-y-3">
@@ -101,7 +101,7 @@ const AiProvidersCard = () => {
                 )}
                 {isSelected && (
                   <span className="ml-auto rounded bg-sky-900/40 px-1.5 py-0.5 text-[10px] text-sky-300">
-                    {t('settings.integrations.ai.active', 'Aktiv')}
+                    {t('settings.integrations.ai.active', 'Active')}
                   </span>
                 )}
               </label>
@@ -124,8 +124,8 @@ const AiProvidersCard = () => {
                   type="button"
                   onClick={() => setRevealed((r) => ({ ...r, [id]: !r[id] }))}
                   className="rounded bg-cp-surface-2 px-2 py-1 text-cp-text-muted hover:bg-cp-surface-4"
-                  title={revealed[id] ? t('common.hide', 'Verbergen') : t('common.show', 'Anzeigen')}
-                  aria-label={revealed[id] ? t('common.hide', 'Verbergen') : t('common.show', 'Anzeigen')}
+                  title={revealed[id] ? t('common.hide', 'Hide') : t('common.show', 'Show')}
+                  aria-label={revealed[id] ? t('common.hide', 'Hide') : t('common.show', 'Show')}
                 >
                   <Icon icon={revealed[id] ? Eye : EyeOff} size="sm" />
                 </button>
@@ -134,14 +134,14 @@ const AiProvidersCard = () => {
                   onClick={() => handleSave(id)}
                   className="rounded bg-sky-600 px-3 py-1 text-cp-xs hover:bg-sky-500"
                 >
-                  {t('common.save', 'Speichern')}
+                  {t('common.save', 'Save')}
                 </button>
                 {hasKey && (
                   <button
                     type="button"
                     onClick={() => handleClear(id)}
                     className="rounded bg-cp-surface-2 px-2 py-1 text-cp-xs text-cp-text-muted hover:bg-red-700 hover:text-white"
-                    title={t('settings.integrations.gemini.deleteTitle', 'Key löschen')}
+                    title={t('settings.integrations.gemini.deleteTitle', 'Delete key')}
                   >
                     <Icon icon={X} size="sm" />
                   </button>
@@ -157,12 +157,12 @@ const AiProvidersCard = () => {
                   rel="noopener noreferrer"
                   className="underline hover:text-cp-text-secondary"
                 >
-                  {t('settings.integrations.ai.createKey', 'Key erstellen')} ↗
+                  {t('settings.integrations.ai.createKey', 'Create key')} ↗
                 </a>
               </div>
               {saved[id] && (
                 <div className="mt-1 text-[10px] text-emerald-300">
-                  ✓ {t('settings.integrations.ai.saved', 'gespeichert')}
+                  ✓ {t('settings.integrations.ai.saved', 'saved')}
                 </div>
               )}
             </div>
@@ -198,10 +198,10 @@ const GreenGoPresetsCard = () => {
 
   return (
     <SettingsCard
-      title={t('settings.greengo.title', 'GreenGo Intercom Presets')}
+      title={t('settings.greengo.title', 'GreenGo intercom presets')}
       description={t(
         'settings.greengo.desc',
-        'Globale Bibliothek wiederverwendbarer Intercom-Konfigurationen. Speichere die aktuelle Projekt-Konfiguration als benannten Preset und lade ihn später in jedes neue Projekt — Beltpack-Namen, Gruppen und Routing inklusive.',
+        'Global library of reusable intercom configurations. Save the current project configuration as a named preset and load it later into any new project — beltpack names, groups and routing included.',
       )}
     >
       <div className="flex flex-wrap items-center gap-2">
@@ -211,7 +211,7 @@ const GreenGoPresetsCard = () => {
           onClick={async () => {
             if (!greengoConfig) return
             const name = await promptDialog(
-              t('settings.greengo.savePromptTitle', 'Name des Presets:'),
+              t('settings.greengo.savePromptTitle', 'Preset name:'),
               greengoConfig.systemName || 'Intercom-Setup',
             )
             if (!name) return
@@ -222,15 +222,15 @@ const GreenGoPresetsCard = () => {
           title={
             usableConfig
               ? undefined
-              : t('settings.greengo.saveDisabled', 'Aktuelles Projekt hat noch keine GreenGo-Konfiguration')
+              : t('settings.greengo.saveDisabled', 'Current project has no GreenGo configuration yet')
           }
         >
-          {t('settings.greengo.save', 'Aktuelle Konfiguration als Preset speichern')}
+          {t('settings.greengo.save', 'Save current configuration as preset')}
         </button>
       </div>
       {presets.length === 0 ? (
         <div className="mt-2 text-[11px] text-cp-text-muted">
-          {t('settings.greengo.empty', 'Noch keine Presets gespeichert.')}
+          {t('settings.greengo.empty', 'No presets saved yet.')}
         </div>
       ) : (
         <ul className="mt-3 space-y-1">
@@ -242,7 +242,7 @@ const GreenGoPresetsCard = () => {
               <div className="min-w-0 flex-1 truncate">
                 <span className="font-medium text-emerald-100">{p.name}</span>
                 <span className="ml-2 text-[10px] text-emerald-400/60">
-                  {p.config.users.length} {t('settings.greengo.usersWord', 'User')} · {p.config.groups.length} {t('settings.greengo.groupsWord', 'Gruppen')} ·{' '}
+                  {p.config.users.length} {t('settings.greengo.usersWord', 'users')} · {p.config.groups.length} {t('settings.greengo.groupsWord', 'groups')} ·{' '}
                   {new Date(p.savedAt).toLocaleDateString()}
                 </span>
               </div>
@@ -251,13 +251,13 @@ const GreenGoPresetsCard = () => {
                   type="button"
                   onClick={async () => {
                     const ok = await confirmDialog(
-                      t('settings.greengo.applyTitle', 'Preset anwenden?'),
+                      t('settings.greengo.applyTitle', 'Apply preset?'),
                       {
                         body: t(
                           'settings.greengo.applyBody',
-                          'Die aktuelle GreenGo-Konfiguration im Projekt wird durch das Preset ersetzt. Equipment-Zuordnungen aus dem Preset, die im aktuellen Projekt nicht existieren, werden ignoriert.',
+                          'The current GreenGo configuration in the project will be replaced by the preset. Equipment assignments from the preset that do not exist in the current project are ignored.',
                         ),
-                        okLabel: t('settings.greengo.applyConfirm', 'Übernehmen'),
+                        okLabel: t('settings.greengo.applyConfirm', 'Apply'),
                       },
                     )
                     if (!ok) return
@@ -265,19 +265,19 @@ const GreenGoPresetsCard = () => {
                   }}
                   className="rounded bg-emerald-700 px-2 py-0.5 text-[11px] text-white hover:bg-emerald-600"
                 >
-                  {t('settings.greengo.apply', 'Laden')}
+                  {t('settings.greengo.apply', 'Load')}
                 </button>
                 <button
                   type="button"
                   onClick={async () => {
                     const ok = await confirmDialog(
-                      t('settings.greengo.deleteTitle', 'Preset löschen?'),
+                      t('settings.greengo.deleteTitle', 'Delete preset?'),
                       {
                         body: format(
-                          t('settings.greengo.deleteBody', 'Preset "{name}" wirklich löschen?'),
+                          t('settings.greengo.deleteBody', 'Really delete preset "{name}"?'),
                           { name: p.name },
                         ),
-                        okLabel: t('settings.greengo.deleteConfirm', 'Löschen'),
+                        okLabel: t('settings.greengo.deleteConfirm', 'Delete'),
                         destructive: true,
                       },
                     )
@@ -287,7 +287,7 @@ const GreenGoPresetsCard = () => {
                   }}
                   className="rounded bg-cp-surface-2 px-2 py-0.5 text-[11px] text-cp-text-secondary hover:bg-red-700 hover:text-white"
                 >
-                  {t('settings.greengo.delete', 'Löschen')}
+                  {t('settings.greengo.delete', 'Delete')}
                 </button>
               </div>
             </li>
@@ -338,17 +338,17 @@ const TallyPiCard = () => {
     setLaeuft(false)
     setProbe(
       antwort.ok
-        ? t('settings.integrations.tallyPi.ok', 'Der Pi antwortet.')
-        : (antwort.error ?? t('settings.integrations.tallyPi.fail', 'Keine Antwort.')),
+        ? t('settings.integrations.tallyPi.ok', 'The Pi answers.')
+        : (antwort.error ?? t('settings.integrations.tallyPi.fail', 'No answer.')),
     )
   }
 
   return (
     <SettingsCard
-      title={t('settings.integrations.tallyPi.title', 'Tally-Pi (Direktweg)')}
+      title={t('settings.integrations.tallyPi.title', 'Tally-Pi (direct path)')}
       description={t(
         'settings.integrations.tallyPi.desc',
-        'Schickt die Tally-Karte aus dem Export-Dialog direkt an den Pi, statt eine Datei herunterzuladen, die jemand von Hand kopiert. Die Datei bleibt daneben bestehen — sie ist der Weg, der ohne Netz zum Pi funktioniert. Der Pi behält dabei seine Verdrahtung; Rollen, die im Plan fehlen, verschwinden dort.',
+        'Sends the tally map straight from the export dialog to the Pi instead of downloading a file for someone to copy by hand. The file stays alongside it — it is the way that works without a network path to the Pi. The Pi keeps its wiring; roles missing from the plan disappear there.',
       )}
     >
       <label className="flex items-center gap-2 text-cp-base">
@@ -359,9 +359,9 @@ const TallyPiCard = () => {
           className="h-4 w-4 accent-sky-500"
         />
         <span>
-          {t('settings.integrations.tallyPi.enable', 'Direktweg zum Tally-Pi erlauben')}{' '}
+          {t('settings.integrations.tallyPi.enable', 'Allow the direct path to the tally-pi')}{' '}
           <span className="text-[10px] text-cp-text-muted">
-            ({tallyPiDirekt ? t('common.on', 'ein') : t('common.off', 'aus')})
+            ({tallyPiDirekt ? t('common.on', 'on') : t('common.off', 'off')})
           </span>
         </span>
       </label>
@@ -370,7 +370,7 @@ const TallyPiCard = () => {
         <>
           <label className="mt-3 block text-cp-base">
             <span className="mb-1 block text-cp-text-secondary">
-              {t('settings.integrations.tallyPi.url', 'Adresse des Pi')}
+              {t('settings.integrations.tallyPi.url', 'Address of the Pi')}
             </span>
             <input
               value={adresse}
@@ -387,7 +387,7 @@ const TallyPiCard = () => {
               disabled={laeuft || adresse.trim() === ''}
               className="rounded border border-cp-border px-3 py-1.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-3 disabled:opacity-40"
             >
-              {t('settings.integrations.tallyPi.test', 'Verbindung prüfen')}
+              {t('settings.integrations.tallyPi.test', 'Check the connection')}
             </button>
             {probe && <span className="text-cp-xs text-cp-text-muted">{probe}</span>}
           </div>
@@ -395,7 +395,7 @@ const TallyPiCard = () => {
             className="mt-2 text-cp-xs text-cp-text-muted"
             text={t(
               'settings.integrations.tallyPi.noToken',
-              'Der Pi verlangt für diesen Weg keinen Nachweis — er prüft an seinen Schreib-Wegen nichts. Wer ihn erreicht, kann ihn beschreiben. Das ist eine Eigenschaft des Pi und keine Einstellung hier; nutze den Direktweg nur in einem Netz, dem du das zutraust.',
+              'The Pi asks for no credential on this path — it checks nothing on its write endpoints. Whoever can reach it can write to it. That is a property of the Pi and not a setting here; use the direct path only on a network you trust that far.',
             )}
           />
         </>
@@ -445,7 +445,7 @@ const NetboxCard = ({ onClose }: { onClose: () => void }) => {
       }
       setUrl(result.url)
       setNetboxUrl(result.url)
-      setStatus(t('settings.integrations.netbox.urlSaved', 'URL gespeichert.'))
+      setStatus(t('settings.integrations.netbox.urlSaved', 'URL saved.'))
     } finally {
       setBusy(false)
     }
@@ -459,8 +459,8 @@ const NetboxCard = ({ onClose }: { onClose: () => void }) => {
       setToken('')
       setStatus(
         stored
-          ? t('settings.integrations.netbox.tokenSaved', 'Token sicher im Schlüsselbund gespeichert.')
-          : t('settings.integrations.netbox.tokenCleared', 'Token gelöscht.'),
+          ? t('settings.integrations.netbox.tokenSaved', 'Token stored securely in the keychain.')
+          : t('settings.integrations.netbox.tokenCleared', 'Token deleted.'),
       )
     } catch (error) {
       setStatus(error instanceof Error ? error.message : String(error))
@@ -475,7 +475,7 @@ const NetboxCard = ({ onClose }: { onClose: () => void }) => {
       await cablePlannerApi.netbox.deleteToken()
       setHasToken(false)
       setToken('')
-      setStatus(t('settings.integrations.netbox.tokenCleared', 'Token gelöscht.'))
+      setStatus(t('settings.integrations.netbox.tokenCleared', 'Token deleted.'))
     } finally {
       setBusy(false)
     }
@@ -494,10 +494,10 @@ const NetboxCard = ({ onClose }: { onClose: () => void }) => {
   return (
     <>
       <SettingsCard
-        title={t('settings.integrations.netboxToggle.title', 'NetBox-Integration')}
+        title={t('settings.integrations.netboxToggle.title', 'NetBox integration')}
         description={t(
           'settings.integrations.netboxToggle.desc',
-          'Wenn aktiv: Menüeintrag und Import-Dialog für die eigene NetBox-Instanz erscheinen. Aus NetBox geplante Sites und Racks lassen sich damit als Kabelplan übernehmen.',
+          'When enabled: menu entry and import dialog for your own NetBox instance appear. Sites and racks planned in NetBox can then be pulled in as a cable plan.',
         )}
       >
         <label className="flex items-center gap-2 text-cp-base">
@@ -508,9 +508,9 @@ const NetboxCard = ({ onClose }: { onClose: () => void }) => {
             className="h-4 w-4 accent-sky-500"
           />
           <span>
-            {t('settings.integrations.netboxToggle.label', 'NetBox-Integration aktivieren')}{' '}
+            {t('settings.integrations.netboxToggle.label', 'Enable NetBox integration')}{' '}
             <span className="text-[10px] text-cp-text-muted">
-              ({netboxEnabled ? t('common.on', 'ein') : t('common.off', 'aus')})
+              ({netboxEnabled ? t('common.on', 'on') : t('common.off', 'off')})
             </span>
           </span>
         </label>
@@ -521,11 +521,11 @@ const NetboxCard = ({ onClose }: { onClose: () => void }) => {
           title={t('settings.integrations.netbox', 'NetBox API')}
           description={t(
             'settings.integrations.netboxDesc',
-            'Basis-URL deiner NetBox-Instanz plus ein API-Token mit Leserechten. Das Token wird im Betriebssystem-Schlüsselbund verschlüsselt gespeichert (nie im Projektfile) und verlässt den Hauptprozess nicht.',
+            'Base URL of your NetBox instance plus an API token with read access. The token is stored encrypted in the OS keychain (never in the project file) and never leaves the main process.',
           )}
         >
           <label className="block text-cp-base">
-            {t('settings.integrations.netbox.url', 'Instanz-URL')}
+            {t('settings.integrations.netbox.url', 'Instance URL')}
             <div className="mt-1 flex gap-2">
               <input
                 type="url"
@@ -542,13 +542,13 @@ const NetboxCard = ({ onClose }: { onClose: () => void }) => {
                 onClick={() => void saveUrl()}
                 className="rounded bg-sky-600 px-3 py-1 text-cp-base hover:bg-sky-500 disabled:opacity-50"
               >
-                {t('common.save', 'Speichern')}
+                {t('common.save', 'Save')}
               </button>
             </div>
           </label>
 
           <label className="mt-2 block text-cp-base">
-            {t('settings.integrations.netbox.token', 'API-Token')}
+            {t('settings.integrations.netbox.token', 'API token')}
             <input
               type="password"
               value={token}
@@ -556,8 +556,8 @@ const NetboxCard = ({ onClose }: { onClose: () => void }) => {
               className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2 font-mono text-cp-xs"
               placeholder={
                 hasToken
-                  ? t('settings.integrations.netbox.tokenStoredPlaceholder', 'Token hinterlegt — zum Ersetzen neues einfügen')
-                  : t('settings.integrations.netbox.tokenPlaceholder', 'API-Token einfügen')
+                  ? t('settings.integrations.netbox.tokenStoredPlaceholder', 'Token stored — paste a new one to replace it')
+                  : t('settings.integrations.netbox.tokenPlaceholder', 'Paste API token')
               }
               autoComplete="off"
             />
@@ -574,11 +574,11 @@ const NetboxCard = ({ onClose }: { onClose: () => void }) => {
               <span className="font-semibold">
                 {t('settings.integrations.netbox.status', 'Status:')}
               </span>{' '}
-              {status || t('settings.integrations.netbox.statusIdle', 'Noch nicht getestet.')}
+              {status || t('settings.integrations.netbox.statusIdle', 'Not tested yet.')}
             </div>
             <div className="text-cp-text-faint">
-              {t('settings.integrations.netbox.tokenStored', 'Token gespeichert:')}{' '}
-              {hasToken ? t('common.yes', 'Ja') : t('common.no', 'Nein')}
+              {t('settings.integrations.netbox.tokenStored', 'Token stored:')}{' '}
+              {hasToken ? t('common.yes', 'Yes') : t('common.no', 'No')}
             </div>
           </div>
 
@@ -589,7 +589,7 @@ const NetboxCard = ({ onClose }: { onClose: () => void }) => {
               onClick={() => void saveToken()}
               className="rounded bg-sky-600 px-3 py-1 text-cp-base hover:bg-sky-500 disabled:opacity-50"
             >
-              {t('settings.integrations.netbox.saveToken', 'Token speichern')}
+              {t('settings.integrations.netbox.saveToken', 'Save token')}
             </button>
             <button
               type="button"
@@ -597,7 +597,7 @@ const NetboxCard = ({ onClose }: { onClose: () => void }) => {
               onClick={() => void testConnection()}
               className="rounded bg-emerald-600 px-3 py-1 text-cp-base hover:bg-emerald-500 disabled:opacity-50"
             >
-              {t('settings.integrations.netbox.test', 'Verbindung testen')}
+              {t('settings.integrations.netbox.test', 'Test connection')}
             </button>
             <button
               type="button"
@@ -605,7 +605,7 @@ const NetboxCard = ({ onClose }: { onClose: () => void }) => {
               onClick={() => void removeToken()}
               className="rounded bg-red-600 px-3 py-1 text-cp-base hover:bg-red-500 disabled:opacity-50"
             >
-              {t('settings.integrations.netbox.deleteToken', 'Token löschen')}
+              {t('settings.integrations.netbox.deleteToken', 'Delete token')}
             </button>
             <button
               type="button"
@@ -616,16 +616,16 @@ const NetboxCard = ({ onClose }: { onClose: () => void }) => {
               }}
               className="rounded bg-orange-700 px-3 py-1 text-cp-base font-semibold text-white hover:bg-orange-600 disabled:opacity-50"
             >
-              {t('settings.integrations.netbox.import', 'Site/Rack importieren…')}
+              {t('settings.integrations.netbox.import', 'Import site/rack…')}
             </button>
           </div>
 
           <div className="mt-2 text-[11px] text-cp-text-muted">
-            {t('settings.integrations.netbox.apiHint', 'Genutzte API:')}{' '}
+            {t('settings.integrations.netbox.apiHint', 'API used:')}{' '}
             <code>/api/dcim/…</code>{' '}
             {t(
               'settings.integrations.netbox.apiHint2',
-              '— nur lesend. Die Endpunkt-Referenz deiner Instanz liegt unter /api/schema/swagger-ui/.',
+              '— read only. The endpoint reference for your instance lives at /api/schema/swagger-ui/.',
             )}
           </div>
         </SettingsCard>
@@ -654,8 +654,8 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
       setToken(stored ?? '')
       setTokenStatus(
         stored
-          ? t('settings.integrations.rentman.statusLoaded', 'Token aus sicherem Speicher geladen.')
-          : t('settings.integrations.rentman.statusNone', 'Kein Token konfiguriert'),
+          ? t('settings.integrations.rentman.statusLoaded', 'Token loaded from secure storage.')
+          : t('settings.integrations.rentman.statusNone', 'No token configured'),
       )
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -667,10 +667,10 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
       await cablePlannerApi.credentials.saveToken(token)
       setHasToken(true)
       setTokenStatus(
-        t('settings.integrations.rentman.statusSaved', 'Token sicher gespeichert.'),
+        t('settings.integrations.rentman.statusSaved', 'Token saved securely.'),
       )
     } catch (error) {
-      setTokenStatus(error instanceof Error ? error.message : t('settings.integrations.rentman.saveFailed', 'Konnte Token nicht speichern'))
+      setTokenStatus(error instanceof Error ? error.message : t('settings.integrations.rentman.saveFailed', 'Could not save token'))
     } finally {
       setBusy(false)
     }
@@ -692,7 +692,7 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
       await cablePlannerApi.credentials.deleteToken()
       setToken('')
       setHasToken(false)
-      setTokenStatus(t('settings.integrations.rentman.statusDeleted', 'Token gelöscht.'))
+      setTokenStatus(t('settings.integrations.rentman.statusDeleted', 'Token deleted.'))
     } finally {
       setBusy(false)
     }
@@ -705,10 +705,10 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
           Integration mit einem Klick aus-/anschalten — dann verschwinden
           alle Rentman-Buttons, Tabs, Status-Badges und Library-Spalten. */}
       <SettingsCard
-        title={t('settings.integrations.rentmanToggle.title', 'Rentman-Integration')}
+        title={t('settings.integrations.rentmanToggle.title', 'Rentman integration')}
         description={t(
           'settings.integrations.rentmanToggle.desc',
-          'Wenn aktiv: Library-Tab, Menü-Einträge und Status-Anzeigen für Rentman erscheinen. Ausgeschaltet zeigt der Cable Planner nur lokale Geräte/Kabel — alle Rentman-Funktionen werden ausgeblendet.',
+          'When active, the Library tab, menu entries and status badges for Rentman appear. When off, Cable Planner only shows local devices/cables — all Rentman features are hidden.',
         )}
       >
         <label className="flex items-center gap-2 text-cp-base">
@@ -719,9 +719,9 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
             className="h-4 w-4 accent-sky-500"
           />
           <span>
-            {t('settings.integrations.rentmanToggle.label', 'Rentman-Integration aktivieren')}{' '}
+            {t('settings.integrations.rentmanToggle.label', 'Enable Rentman integration')}{' '}
             <span className="text-[10px] text-cp-text-muted">
-              ({rentmanEnabled ? t('common.on', 'ein') : t('common.off', 'aus')})
+              ({rentmanEnabled ? t('common.on', 'on') : t('common.off', 'off')})
             </span>
           </span>
         </label>
@@ -733,11 +733,11 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
         title={t('settings.integrations.rentman', 'Rentman API')}
         description={t(
           'settings.integrations.rentmanDesc',
-          'Bearer-Token aus deinem Rentman-Account. Wird mit dem Betriebssystem-Schlüsselbund verschlüsselt gespeichert (nie im Projektfile).',
+          'Bearer token from your Rentman account. Encrypted via the OS keychain (never in the project file).',
         )}
       >
         <label className="block text-cp-base">
-          {t('settings.integrations.rentman.token', 'API-Token')}
+          {t('settings.integrations.rentman.token', 'API token')}
           <input
             type="password"
             value={token}
@@ -745,7 +745,7 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
             className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2 font-mono text-cp-xs"
             placeholder={t(
               'settings.integrations.rentman.tokenPlaceholder',
-              'Bearer-Token einfügen',
+              'Paste bearer token',
             )}
             autoComplete="off"
           />
@@ -764,8 +764,8 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
             {tokenStatus}
           </div>
           <div className="text-cp-text-faint">
-            {t('settings.integrations.rentman.tokenStored', 'Token gespeichert:')}{' '}
-            {hasToken ? t('common.yes', 'Ja') : t('common.no', 'Nein')}
+            {t('settings.integrations.rentman.tokenStored', 'Token stored:')}{' '}
+            {hasToken ? t('common.yes', 'Yes') : t('common.no', 'No')}
           </div>
         </div>
         <div className="mt-2 flex flex-wrap gap-2">
@@ -775,7 +775,7 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
             onClick={saveToken}
             className="rounded bg-sky-600 px-3 py-1 text-cp-base hover:bg-sky-500 disabled:opacity-50"
           >
-            {t('settings.integrations.rentman.save', 'Token speichern')}
+            {t('settings.integrations.rentman.save', 'Save token')}
           </button>
           <button
             type="button"
@@ -783,7 +783,7 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
             onClick={testToken}
             className="rounded bg-emerald-600 px-3 py-1 text-cp-base hover:bg-emerald-500 disabled:opacity-50"
           >
-            {t('settings.integrations.rentman.test', 'Verbindung testen')}
+            {t('settings.integrations.rentman.test', 'Test connection')}
           </button>
           <button
             type="button"
@@ -791,22 +791,22 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
             onClick={removeToken}
             className="rounded bg-red-600 px-3 py-1 text-cp-base hover:bg-red-500 disabled:opacity-50"
           >
-            {t('settings.integrations.rentman.delete', 'Token löschen')}
+            {t('settings.integrations.rentman.delete', 'Delete token')}
           </button>
         </div>
         <div className="mt-2 text-[11px] text-cp-text-muted">
-          {t('settings.integrations.rentman.endpoint', 'Endpunkt:')}{' '}
+          {t('settings.integrations.rentman.endpoint', 'Endpoint:')}{' '}
           <code>https://api.rentman.net</code>
         </div>
       </SettingsCard>
 
       <SettingsCard
-        title={t('settings.integrations.linkedRentman', 'Verknüpftes Rentman-Projekt')}
+        title={t('settings.integrations.linkedRentman', 'Linked Rentman project')}
       >
         {metadata.rentmanProjectId ? (
           <div className="space-y-2">
             <div className="text-cp-xs text-cp-text-muted">
-              {t('settings.integrations.linkedRentman.current', 'Aktuell verknüpft mit ')}
+              {t('settings.integrations.linkedRentman.current', 'Currently linked to ')}
               <span className="text-orange-300">
                 {metadata.rentmanProjectName ?? `Projekt #${metadata.rentmanProjectId}`}
               </span>
@@ -823,7 +823,7 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
             >
               {t(
                 'settings.integrations.linkedRentman.choose',
-                'Anderes Rentman-Projekt wählen…',
+                'Choose another Rentman project…',
               )}
             </button>
           </div>
@@ -832,7 +832,7 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
             <div className="text-cp-xs text-cp-text-faint">
               {t(
                 'settings.integrations.linkedRentman.none',
-                'Noch kein Rentman-Projekt mit diesem Cable-Planner-Projekt verknüpft.',
+                'No Rentman project linked to this Cable Planner project yet.',
               )}
             </div>
             <button
@@ -845,13 +845,13 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
               className="rounded bg-orange-700 px-3 py-1 text-cp-base font-semibold text-white hover:bg-orange-600 disabled:opacity-50"
               title={
                 hasToken
-                  ? t('settings.integrations.linkedRentman.titleSelect', 'Rentman-Projekt auswählen')
-                  : t('settings.integrations.linkedRentman.titleNeedToken', 'Erst Token speichern')
+                  ? t('settings.integrations.linkedRentman.titleSelect', 'Pick Rentman project')
+                  : t('settings.integrations.linkedRentman.titleNeedToken', 'Save token first')
               }
             >
               {t(
                 'settings.integrations.linkedRentman.link',
-                'Mit Rentman-Projekt verknüpfen…',
+                'Link to a Rentman project…',
               )}
             </button>
           </div>

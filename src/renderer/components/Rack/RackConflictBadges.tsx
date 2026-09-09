@@ -24,13 +24,13 @@ export const RackConflictBadges = ({
     <div className="sticky top-0 z-20 mb-3 rounded border border-red-700/60 bg-red-900/40 px-3 py-2 text-cp-xs text-red-100 shadow-lg backdrop-blur-sm">
       {saveError && (
         <div className="mb-2 flex items-start gap-2">
-          <span className="font-semibold">{t('rack.saveBlocked', 'Speichern blockiert:')}</span>
+          <span className="font-semibold">{t('rack.saveBlocked', 'Saving blocked:')}</span>
           <span className="whitespace-pre-wrap flex-1">{saveError}</span>
           <button
             type="button"
             onClick={onDismissSaveError}
             className="rounded bg-red-800/80 px-1.5 text-[10px] hover:bg-red-700"
-            title={t('common.hide', 'Ausblenden')}
+            title={t('common.hide', 'Hide')}
           >
             ×
           </button>
@@ -39,7 +39,7 @@ export const RackConflictBadges = ({
       {conflicts.length > 0 && (
         <>
           <div className="font-semibold">
-            {format(t('rack.conflicts', 'Konflikte ({count})'), { count: conflicts.length })}
+            {format(t('rack.conflicts', 'Conflicts ({count})'), { count: conflicts.length })}
           </div>
           <ul className="mt-1 list-disc space-y-1 pl-4">
             {conflicts.map((issue, index) => (

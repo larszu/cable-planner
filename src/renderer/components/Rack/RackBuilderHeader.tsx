@@ -37,7 +37,7 @@ export const RackBuilderHeader = ({
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
           <h3 className="truncate text-cp-xl font-semibold text-cp-text">
-            {editingId ? rackName || t('rack.unnamedRack', '(unbenanntes Rack)') : t('rack.newRack', 'Neues Rack')}
+            {editingId ? rackName || t('rack.unnamedRack', '(unnamed rack)') : t('rack.newRack', 'New rack')}
           </h3>
           <span
             className={`shrink-0 rounded px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide ${
@@ -46,26 +46,26 @@ export const RackBuilderHeader = ({
                 : 'bg-emerald-900/60 text-emerald-200'
             }`}
           >
-            {editingId ? t('rack.badge.edit', 'Bearbeiten') : t('rack.badge.new', 'Neu')}
+            {editingId ? t('rack.badge.edit', 'Editing') : t('rack.badge.new', 'New')}
           </span>
           {dirty && (
             <span
               className="flex shrink-0 items-center gap-1 rounded bg-amber-900/40 px-1.5 py-0.5 text-[11px] font-semibold text-amber-200"
-              title={t('rack.unsavedTitle', 'Ungespeicherte Änderungen')}
+              title={t('rack.unsavedTitle', 'Unsaved changes')}
             >
               <span className="inline-block h-1.5 w-1.5 rounded-full bg-amber-400" />
-              {t('rack.unsavedLabel', 'Ungespeichert')}
+              {t('rack.unsavedLabel', 'Unsaved')}
             </span>
           )}
         </div>
         <p className="mt-0.5 text-[11px] text-cp-text-muted">
           {t(
             'rack.subtitle',
-            '2D Rack Builder · Geräte aus Library hinzufügen, HE-Position per Drag, Verkabelung intern',
+            '2D rack builder · Add devices from the library, drag for U position, internal cabling',
           )}
           <span className="ml-2 hidden sm:inline">
             <kbd className="rounded border border-cp-border bg-cp-surface-2 px-1 text-[10px]">Esc</kbd>{' '}
-            {t('rack.closeShortcut', 'schließen')}
+            {t('rack.closeShortcut', 'close')}
           </span>
         </p>
       </div>
@@ -73,8 +73,8 @@ export const RackBuilderHeader = ({
       <button
         type="button"
         onClick={onClose}
-        aria-label={t('common.close', 'Schließen')}
-        title={t('rack.closeTitle', 'Schließen (Esc)')}
+        aria-label={t('common.close', 'Close')}
+        title={t('rack.closeTitle', 'Close (Esc)')}
         className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-cp-border bg-cp-surface-2 text-cp-text-secondary transition-colors hover:border-red-500/50 hover:bg-red-900/30 hover:text-red-300"
       >
         <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">

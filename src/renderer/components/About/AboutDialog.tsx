@@ -36,7 +36,7 @@ export const AboutDialog = () => {
     <ModalShell
       open={open}
       onClose={close}
-      title={t('about.title', 'Über Cable Planner')}
+      title={t('about.title', 'About Cable Planner')}
       titleIcon={<Icon icon={Info} size="sm" />}
       maxWidth="md"
       draggableKey="cable-planner:modal-pos:about"
@@ -64,7 +64,7 @@ export const AboutDialog = () => {
           <dd className="font-mono text-cp-text">{buildDateLocal}</dd>
           {APP_AUTHOR && (
             <>
-              <dt className="text-cp-text-faint">{t('about.author', 'Autor')}</dt>
+              <dt className="text-cp-text-faint">{t('about.author', 'Author')}</dt>
               <dd className="text-cp-text">{APP_AUTHOR}</dd>
             </>
           )}
@@ -79,14 +79,14 @@ export const AboutDialog = () => {
               {APP_REPO_URL.replace(/^https?:\/\//, '')}
             </a>
           </dd>
-          <dt className="text-cp-text-faint">{t('about.platform', 'Plattform')}</dt>
+          <dt className="text-cp-text-faint">{t('about.platform', 'Platform')}</dt>
           <dd className="text-cp-text">
             Electron + React + ReactFlow + Vite + Tailwind
           </dd>
         </dl>
 
         <div className="rounded border border-cp-border-muted bg-cp-surface-3/40 p-3 text-[11px] text-cp-text-muted">
-          {t('about.issueHint', 'Issues + Feature-Wünsche bitte direkt auf GitHub melden.')}
+          {t('about.issueHint', 'Please report issues + feature requests directly on GitHub.')}
         </div>
       </div>
     </ModalShell>

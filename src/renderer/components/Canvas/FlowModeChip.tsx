@@ -30,12 +30,12 @@ export function FlowModeChip() {
 
   const sekunden = ageMs === null ? null : Math.round(ageMs / 1000)
   const titel = live
-    ? t('canvas.flow.liveTitle', 'Beobachteter Zustand aus Mischer/Router.')
+    ? t('canvas.flow.liveTitle', 'Observed state from the switcher/router.')
     : ageMs === null
-      ? t('canvas.flow.schemaTitle', 'Der geplante Weg. Es besteht keine Verbindung zu einer Anlage.')
+      ? t('canvas.flow.schemaTitle', 'The planned path. There is no connection to a live system.')
       : t(
           'canvas.flow.fellBackTitle',
-          'Die Live-Verbindung ist abgerissen — gezeigt wird wieder der geplante Weg.',
+          'The live connection dropped — showing the planned path again.',
         )
 
   return (
@@ -44,10 +44,10 @@ export function FlowModeChip() {
       onClick={() => setMotion(!gewuenscht)}
       title={`${titel} ${
         systemReduziert
-          ? t('canvas.flow.systemReduced', 'Das System hat Bewegung abgestellt; die Anzeige bleibt ruhig.')
+          ? t('canvas.flow.systemReduced', 'Your system has motion turned off; the view stays still.')
           : gewuenscht
-            ? t('canvas.flow.toggleOff', 'Klick: Bewegung ausschalten.')
-            : t('canvas.flow.toggleOn', 'Klick: Bewegung einschalten.')
+            ? t('canvas.flow.toggleOff', 'Click: turn motion off.')
+            : t('canvas.flow.toggleOn', 'Click: turn motion on.')
       }`}
       className="av-focus flex items-center gap-1.5 rounded-full border border-cp-border px-2 py-0.5 text-[11px] text-cp-text-secondary hover:bg-cp-surface-3"
     >
@@ -56,17 +56,17 @@ export function FlowModeChip() {
         className="inline-block h-1.5 w-1.5 rounded-full"
         style={{ background: live ? 'var(--cp-ok, #22c55e)' : 'var(--cp-text-faint, #64748b)' }}
       />
-      <span>{live ? t('canvas.flow.live', 'Live') : t('canvas.flow.schema', 'Schema')}</span>
+      <span>{live ? t('canvas.flow.live', 'Live') : t('canvas.flow.schema', 'Schematic')}</span>
       {live && sekunden !== null && (
         <span className="tabular-nums text-cp-text-muted">{`· ${sekunden} s`}</span>
       )}
       {!live && sekunden !== null && (
         <span className="text-cp-text-muted">
-          {t('canvas.flow.lostContact', '· Verbindung weg')}
+          {t('canvas.flow.lostContact', '· connection lost')}
         </span>
       )}
       {!motion && (
-        <span className="text-cp-text-muted">{t('canvas.flow.still', '· ruhig')}</span>
+        <span className="text-cp-text-muted">{t('canvas.flow.still', '· still')}</span>
       )}
     </button>
   )

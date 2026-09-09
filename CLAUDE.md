@@ -133,18 +133,26 @@ Pfad-Validierung passiert **immer in main**, nie im Renderer.
 - **Keine Emojis im Code** außer auf expliziten Wunsch.
 - **Version lebt nur in `package.json`** — überall sonst via `__APP_VERSION__`
   (Vite-Define) gelesen, nirgends hardcoden.
-- **Quellsprache: `de`** (E-20, entschieden 2026-09-08). Maschinenlesbar steht
-  sie in `package.json` unter `avplan.sourceLanguage`; diese Zeile und das Feld
-  müssen übereinstimmen, `tests/quellsprache.test.ts` hält beides fest.
-  Die Quellsprache ist der Text, der im JSX steht und bei fehlendem Schlüssel
-  erscheint — sie später zu drehen heisst, jede Zeichenkette erneut anzufassen.
-  **Sie ist eine Eigenschaft dieses Repos, nicht der Suite:** `light-planner`
-  ist ebenfalls deutsch-quellig, `multicam-planner` und `sony-camera-bridge`
-  sind englisch-quellig. Wer hier englische Fallbacks einträgt, „vereinheitlicht"
-  nicht, sondern bricht die Konvention — der Wächter sagt es.
-- **i18n:** Deutsche Strings sind Quell-Sprache, immer als Fallback:
-  `t(key, 'Deutsche Form')`. EN-Übersetzung im `en`-Dict in
-  `src/renderer/lib/i18n.ts`. Class-Komponenten nutzen `translate(lang, key, fallback)`.
+- **Quellsprache: `en`** (E-28, entschieden 2026-09-09 vom Eigentümer —
+  **hebt E-17/E-20 auf**). Maschinenlesbar steht sie in `package.json` unter
+  `avplan.sourceLanguage`; diese Zeile und das Feld müssen übereinstimmen,
+  `tests/quellsprache.test.ts` hält beides fest.
+  **Sie gilt für ALLE Repos der Suite, nicht mehr je Repo.** Vorher war sie
+  eine Eigenschaft des einzelnen Repos: dieses und `light-planner` waren
+  deutsch-quellig, `multicam-planner` und `sony-camera-bridge` englisch —
+  ein Mitwirkender schrieb also je nach Repo an einer anderen Stelle.
+  Deutsch ist jetzt die erste Übersetzung, weitere Sprachen der Zielgruppe
+  folgen. Wer hier deutsche Fallbacks einträgt, bricht die Konvention — der
+  Wächter sagt es.
+- **i18n:** Englische Strings sind Quell-Sprache, immer als Fallback:
+  `t(key, 'English text')`. Übersetzungen je Sprache in einer eigenen Datei
+  unter `src/renderer/lib/i18n/` (heute `de.ts`), eingetragen in der Registry
+  in `src/renderer/lib/i18n.ts`. Eine weitere Sprache ist eine Datei und ein
+  Eintrag — **keine Zeile Logik.** Class-Komponenten nutzen
+  `translate(lang, key, fallback)`.
+  Sätze NIE aus mehreren `t()`-Aufrufen zusammensetzen: die Wortstellung
+  gehört zur Sprache. Ein Schlüssel, ein ganzer Satz, Platzhalter über
+  `format()`.
 - **Theming (#449):** neue Komponenten nutzen die semantischen Farb-Utilities
   (`bg-cp-surface-1/2/3`, `bg-cp-bg`, `border-cp-border(-muted)`,
   `text-cp-text/-secondary/-muted/-faint`, `(bg|text|border)-cp-accent/-warn/-danger`),

@@ -56,7 +56,7 @@ export const MicPlotPanel = () => {
     () => (unitId: string) => {
       const u = units.find((x) => x.id === unitId)
       // Bedarf 107 — die Haus-Sicht: der Lagerist ruft die Hausreferenz.
-      return u ? unitLabel(u, 'house') : t('micPlot.packGone', 'Einheit entfernt')
+      return u ? unitLabel(u, 'house') : t('micPlot.packGone', 'Unit removed')
     },
     [units, t],
   )
@@ -123,7 +123,7 @@ export const MicPlotPanel = () => {
     <div className="mt-4 border-t border-cp-border-muted pt-3">
       <div className="mb-2 flex flex-wrap items-center gap-2">
         <span className="flex items-center gap-1.5 text-cp-xs font-semibold uppercase tracking-wide text-cp-text-secondary">
-          <Users size={13} /> {t('micPlot.title', 'Mic-Plot — wer trägt welche Strecke')}
+          <Users size={13} /> {t('micPlot.title', 'Mic plot — who wears which channel')}
         </span>
         <select
           value={aktuelle?.id ?? ''}
@@ -131,7 +131,7 @@ export const MicPlotPanel = () => {
           aria-label={t('micPlot.session', 'Session')}
           className={inputCls}
         >
-          {sessions.length === 0 && <option value="">{t('micPlot.noSession', '— keine Session —')}</option>}
+          {sessions.length === 0 && <option value="">{t('micPlot.noSession', '— no session —')}</option>}
           {sessions.map((s) => (
             <option key={s.id} value={s.id}>
               {[s.date, s.label].filter(Boolean).join(' · ') || s.id}
@@ -151,12 +151,12 @@ export const MicPlotPanel = () => {
           disabled={!vorige}
           title={t(
             'micPlot.carryHint',
-            'Die Zuordnungen der vorigen Session als Vorschlag übernehmen. Der Akku-Zeitpunkt wird NICHT übernommen — der von gestern ist der einzige Wert, der mit Sicherheit falsch ist.',
+            'Take the previous session\u2019s assignments as a proposal. The battery timestamp is NOT carried over \u2014 yesterday\u2019s is the one value that is certainly wrong.',
           )}
           className="rounded bg-cp-surface-3 px-2 py-1 text-cp-xs hover:bg-cp-surface-4 disabled:opacity-40"
         >
           <CopyPlus size={12} className="mr-1 inline" />
-          {t('micPlot.carry', 'Aus voriger übernehmen')}
+          {t('micPlot.carry', 'Carry over from previous')}
         </button>
         <button
           type="button"
@@ -165,7 +165,7 @@ export const MicPlotPanel = () => {
           className="rounded bg-purple-700 px-2 py-1 text-cp-xs hover:bg-purple-600 disabled:opacity-40"
         >
           <Download size={12} className="mr-1 inline" />
-          {t('micPlot.export', 'Session-Blatt')}
+          {t('micPlot.export', 'Session sheet')}
         </button>
       </div>
 
@@ -186,7 +186,7 @@ export const MicPlotPanel = () => {
         <p className="text-cp-xs text-cp-text-muted">
           {t(
             'micPlot.empty',
-            'Noch keine Session. Der Kanalplan oben gehört der Produktion; wer welche Strecke trägt, ändert sich je Vorstellung — dafür ist dieser Abschnitt.',
+            'No session yet. The channel plan above belongs to the production; who wears which channel changes per performance \u2014 that is what this section is for.',
           )}
         </p>
       ) : (
@@ -195,10 +195,10 @@ export const MicPlotPanel = () => {
             <thead className="text-cp-text-secondary">
               <tr>
                 <th className="px-2 py-1 text-left">{t('micPlot.person', 'Person')}</th>
-                <th className="px-2 py-1 text-left">{t('micPlot.role', 'Funktion')}</th>
-                <th className="px-2 py-1 text-left">{t('micPlot.channel', 'Kanal')}</th>
-                <th className="px-2 py-1 text-left">{t('micPlot.pack', 'Sender')}</th>
-                <th className="px-2 py-1 text-left">{t('micPlot.battery', 'Akku eingelegt')}</th>
+                <th className="px-2 py-1 text-left">{t('micPlot.role', 'Role')}</th>
+                <th className="px-2 py-1 text-left">{t('micPlot.channel', 'Channel')}</th>
+                <th className="px-2 py-1 text-left">{t('micPlot.pack', 'Transmitter')}</th>
+                <th className="px-2 py-1 text-left">{t('micPlot.battery', 'Battery fitted')}</th>
                 <th className="px-2 py-1" />
               </tr>
             </thead>
@@ -231,7 +231,7 @@ export const MicPlotPanel = () => {
                       <input
                         value={p?.role ?? ''}
                         onChange={(e) => patchPerson({ role: e.target.value })}
-                        placeholder={t('micPlot.rolePh', 'z. B. Moderation')}
+                        placeholder={t('micPlot.rolePh', 'e.g. presenter')}
                         className={`${inputCls} w-32`}
                       />
                     </td>
@@ -245,7 +245,7 @@ export const MicPlotPanel = () => {
                             sichtbar — still auf einen anderen zu springen wäre
                             eine stumme Umbuchung. */}
                         {!rig?.channels.some((c) => c.id === a.channelId) && (
-                          <option value={a.channelId}>{t('micPlot.channelGone', 'Kanal entfernt')}</option>
+                          <option value={a.channelId}>{t('micPlot.channelGone', 'Channel removed')}</option>
                         )}
                         {(rig?.channels ?? []).map((c) => (
                           <option key={c.id} value={c.id}>
@@ -261,7 +261,7 @@ export const MicPlotPanel = () => {
                         onChange={(e) => patch({ packUnitId: e.target.value || undefined })}
                         className={inputCls}
                       >
-                        <option value="">{t('micPlot.packNone', '— nicht benannt —')}</option>
+                        <option value="">{t('micPlot.packNone', '— not named —')}</option>
                         {units.map((u) => (
                           <option key={u.id} value={u.id}>
                             {unitLabel(u, 'house')}
@@ -280,7 +280,7 @@ export const MicPlotPanel = () => {
                       >
                         {a.batteryFittedAt
                           ? new Date(a.batteryFittedAt).toLocaleTimeString()
-                          : t('micPlot.batterySet', 'jetzt')}
+                          : t('micPlot.batterySet', 'now')}
                       </button>
                     </td>
                     <td className="px-2 py-1">
@@ -295,7 +295,7 @@ export const MicPlotPanel = () => {
                           })
                         }
                         className="rounded p-1 text-cp-text-muted hover:bg-red-900/50 hover:text-red-300"
-                        title={t('common.delete', 'Löschen')}
+                        title={t('common.delete', 'Delete')}
                       >
                         <Trash2 size={13} />
                       </button>
@@ -312,7 +312,7 @@ export const MicPlotPanel = () => {
             title={
               rig?.channels.length
                 ? undefined
-                : t('micPlot.needChannel', 'Erst einen Kanal im Rig-Plan anlegen — die Zuordnung zeigt auf ihn.')
+                : t('micPlot.needChannel', 'Create a channel in the rig plan first \u2014 the assignment points at it.')
             }
             className="mt-2 rounded bg-cp-surface-3 px-2 py-1 text-cp-xs hover:bg-cp-surface-4 disabled:opacity-40"
           >

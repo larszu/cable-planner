@@ -23,7 +23,7 @@ export const RentmanSyncBadge = ({ equipment }: { equipment: EquipmentItem }) =>
     return (
       <div className="flex items-center gap-1.5 rounded border border-red-700/50 bg-red-900/20 px-2 py-1 text-[11px] text-red-300">
         <Icon icon={AlertTriangle} size="sm" />
-        <span>{t('props.rentmanBadge.removed', 'In Rentman nicht mehr vorhanden!')}</span>
+        <span>{t('props.rentmanBadge.removed', 'No longer present in Rentman!')}</span>
       </div>
     )
   }
@@ -31,14 +31,14 @@ export const RentmanSyncBadge = ({ equipment }: { equipment: EquipmentItem }) =>
     return (
       <div className="flex items-center gap-1.5 rounded border border-orange-700/50 bg-orange-900/20 px-2 py-1 text-[11px] text-orange-300">
         <span className="rounded bg-orange-700 px-1 font-bold text-white">R</span>
-        {format(t('props.rentmanBadge.id', 'Rentman-ID: {id}'), { id: equipment.rentmanId })}
+        {format(t('props.rentmanBadge.id', 'Rentman ID: {id}'), { id: equipment.rentmanId })}
       </div>
     )
   }
   return (
     <div className="flex items-center gap-1.5 rounded border border-amber-700/40 bg-amber-900/10 px-2 py-1 text-[11px] text-amber-400">
       <Icon icon={AlertTriangle} size="sm" />
-      <span>{t('props.rentmanBadge.notTracked', 'Nicht im Rentman-Plan erfasst')}</span>
+      <span>{t('props.rentmanBadge.notTracked', 'Not tracked in Rentman plan')}</span>
     </div>
   )
 }

@@ -110,7 +110,7 @@ describe('exportStagePlotSvg — was die Unterzeile behauptet', () => {
 // Melde-Fix — deshalb hier nur die Zusage geradegerueckt.
 describe('der Vektor-PDF-Hinweis nennt auch, was fehlt', () => {
   it('sagt im deutschen Fallback, dass der Titelblock fehlt', () => {
-    expect(exportDialogSrc).toContain('Ohne Titelblock')
+    expect(exportDialogSrc).toContain('No title block')
     expect(exportDialogSrc).toContain('Stand-Fingerprint')
   })
 

@@ -34,10 +34,10 @@ const complexityFor = (
 ): { label: string; tone: string } => {
   const score = devices + cables
   if (score >= 200) return { label: t('statusbar.complexity.xl', 'XL'), tone: 'bg-purple-700 text-purple-100' }
-  if (score >= 80) return { label: t('statusbar.complexity.large', 'Groß'), tone: 'bg-amber-600 text-amber-50' }
-  if (score >= 30) return { label: t('statusbar.complexity.medium', 'Mittel'), tone: 'bg-sky-700 text-sky-50' }
-  if (score >= 8) return { label: t('statusbar.complexity.small', 'Klein'), tone: 'bg-emerald-700 text-emerald-50' }
-  return { label: t('statusbar.complexity.new', 'Neu'), tone: 'bg-cp-surface-4 text-cp-text-bright' }
+  if (score >= 80) return { label: t('statusbar.complexity.large', 'Large'), tone: 'bg-amber-600 text-amber-50' }
+  if (score >= 30) return { label: t('statusbar.complexity.medium', 'Medium'), tone: 'bg-sky-700 text-sky-50' }
+  if (score >= 8) return { label: t('statusbar.complexity.small', 'Small'), tone: 'bg-emerald-700 text-emerald-50' }
+  return { label: t('statusbar.complexity.new', 'New'), tone: 'bg-cp-surface-4 text-cp-text-bright' }
 }
 
 /** #471 — Macht eine laufende Live-Session im Haupt-UI sichtbar. Klick öffnet
@@ -51,7 +51,7 @@ const CollabStatusBadge = () => {
     <button
       type="button"
       onClick={() => useUiStore.getState().openSettings('sync')}
-      title={t('statusbar.collab.title', 'Live-Kollaboration aktiv — Klick für Teilnehmer & Einladung')}
+      title={t('statusbar.collab.title', 'Live collaboration active — click for participants & invite')}
       className="flex items-center gap-1 whitespace-nowrap rounded bg-emerald-700/80 px-1.5 py-0.5 text-cp-xs font-medium text-emerald-50 hover:bg-emerald-600"
     >
       <span className="inline-block h-2 w-2 rounded-full bg-emerald-300" />
@@ -92,11 +92,11 @@ const AufgabenBadge = () => {
       className="inline-flex shrink-0 items-center gap-1 rounded bg-red-700 px-1.5 py-0.5 text-cp-xs font-bold text-red-50 hover:bg-red-600"
       title={t(
         'statusbar.todo.title',
-        'Überfällig oder heute fällig: Rückgaben, Ausgaben, Stunden, Belege, Kosten. Klick öffnet die Analysen auf „Was ansteht".',
+        'Overdue or due today: returns, check-outs, hours, receipts, costs. Click opens the analyses on "What is due".',
       )}
     >
       <Icon icon={AlertCircle} size="xs" />
-      {format(t('statusbar.todo.counts', 'Fällig {count}'), { count: dringend })}
+      {format(t('statusbar.todo.counts', 'Due {count}'), { count: dringend })}
     </button>
   )
 }
@@ -172,9 +172,9 @@ export const StatusBar = ({
       <div className="flex min-w-0 items-center gap-3 overflow-hidden">
         <span className="truncate font-medium text-[var(--cp-text)]">{projectName}</span>
         <span className="text-[var(--cp-text-faint)]" aria-hidden="true">|</span>
-        <span className="whitespace-nowrap">{format(t('statusbar.equipment', '{count} Geräte'), { count: equipmentCount })}</span>
-        <span className="whitespace-nowrap">{format(t('statusbar.cables', '{count} Kabel'), { count: cableCount })}</span>
-        <span className="hidden whitespace-nowrap lg:inline">{format(t('statusbar.locations', '{count} Rahmen'), { count: locationCount })}</span>
+        <span className="whitespace-nowrap">{format(t('statusbar.equipment', '{count} devices'), { count: equipmentCount })}</span>
+        <span className="whitespace-nowrap">{format(t('statusbar.cables', '{count} cables'), { count: cableCount })}</span>
+        <span className="hidden whitespace-nowrap lg:inline">{format(t('statusbar.locations', '{count} frames'), { count: locationCount })}</span>
         {packedCount !== undefined && equipmentCount > 0 && (
           <span
             className={`hidden shrink-0 items-center gap-1 whitespace-nowrap xl:inline-flex ${
@@ -184,10 +184,10 @@ export const StatusBar = ({
                   ? 'text-amber-300'
                   : 'text-cp-text-faint'
             }`}
-            title={t('statusbar.packedTitle', "Geräte, die in den Eigenschaften als 'gepackt' markiert sind")}
+            title={t('statusbar.packedTitle', 'Devices marked as "packed" in their properties')}
           >
             <Icon icon={Check} size="xs" />
-            {format(t('statusbar.packed', '{packed}/{total} gepackt'), {
+            {format(t('statusbar.packed', '{packed}/{total} packed'), {
               packed: packedCount,
               total: equipmentCount,
             })}
@@ -197,7 +197,7 @@ export const StatusBar = ({
           className={`shrink-0 rounded px-1.5 py-0.5 text-cp-xs font-bold ${complexity.tone}`}
           title={t(
             'statusbar.complexity.title',
-            'Komplexität: heuristisch aus (Geräte + Kabel)-Anzahl. Hilft beim Einschätzen von Übersichtlichkeit + Performance.',
+            'Complexity: heuristic from (devices + cables) count. Helps gauge readability + performance.',
           )}
         >
           {complexity.label}
@@ -206,7 +206,7 @@ export const StatusBar = ({
           type="button"
           onClick={() => togglePlanCheck()}
           className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-cp-xs font-bold ${checkTone}`}
-          title={t('statusbar.planCheck.title', 'Plan-Check öffnen: Live-Validierung (Fehler/Warnungen)')}
+          title={t('statusbar.planCheck.title', 'Open plan check: live validation (errors/warnings)')}
         >
           <Icon icon={checkIcon} size="xs" />
           {errorCount > 0 || warningCount > 0
@@ -220,11 +220,11 @@ export const StatusBar = ({
             className="inline-flex shrink-0 items-center gap-1 rounded bg-amber-600 px-1.5 py-0.5 text-cp-xs font-bold text-amber-50"
             title={t(
               'statusbar.network.title',
-              'Netz-Befunde: fehlende oder doppelte Adressen, Masken, Segmente. Klick öffnet die Analysen auf dem Netzwerk-Reiter.',
+              'Network findings: missing or duplicate addresses, masks, segments. Click opens the analyses on the network tab.',
             )}
           >
             <Icon icon={AlertTriangle} size="xs" />
-            {format(t('statusbar.network.counts', 'Netz {count}'), { count: netzBefunde })}
+            {format(t('statusbar.network.counts', 'Network {count}'), { count: netzBefunde })}
           </button>
         )}
         <AufgabenBadge />
@@ -238,7 +238,7 @@ export const StatusBar = ({
             {t('statusbar.rentman.label', 'Rentman:')}{' '}
             {rentmanProjectName ??
               (hasToken
-                ? t('statusbar.rentman.tokenReady', 'Token bereit')
+                ? t('statusbar.rentman.tokenReady', 'Token ready')
                 : t('statusbar.rentman.standalone', 'Standalone'))}
           </span>
         )}
@@ -249,7 +249,7 @@ export const StatusBar = ({
           type="button"
           onClick={() => useUiStore.getState().openAboutDialog()}
           className="rounded bg-[var(--cp-surface-2)] px-1.5 py-0.5 font-mono text-cp-xs text-[var(--cp-text-muted)] hover:bg-[var(--cp-border)] hover:text-[var(--cp-text)]"
-          title={t('statusbar.aboutTitle', 'Über Cable Planner')}
+          title={t('statusbar.aboutTitle', 'About Cable Planner')}
         >
           v{APP_VERSION}
         </button>

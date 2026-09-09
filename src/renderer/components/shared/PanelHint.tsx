@@ -53,7 +53,7 @@ export const PanelHint = ({ text, className }: { text: string; className?: strin
         onClick={() => setOffen((v) => !v)}
         className="underline decoration-dotted underline-offset-2 hover:text-cp-text"
       >
-        {offen ? t('common.less', 'weniger') : t('common.more', 'mehr')}
+        {offen ? t('common.less', 'less') : t('common.more', 'more')}
       </button>
     </p>
   )

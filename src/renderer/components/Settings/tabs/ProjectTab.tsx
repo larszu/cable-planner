@@ -80,8 +80,8 @@ const LibraryExportSection = () => {
       const text = await file.text()
       const data = JSON.parse(text) as LibraryExportFile
       if (data?.type !== 'cable-planner-library') {
-        await infoDialog(t('settings.project.libImport.badFormatTitle', 'Falsches Dateiformat'), {
-          body: t('settings.project.libImport.badFormatBody', 'Diese Datei ist keine cable-planner-Library.'),
+        await infoDialog(t('settings.project.libImport.badFormatTitle', 'Wrong file format'), {
+          body: t('settings.project.libImport.badFormatBody', 'This file is not a cable-planner library.'),
           tone: 'error',
         })
         return
@@ -108,11 +108,11 @@ const LibraryExportSection = () => {
         }
         setGroupPresets(Array.from(byId.values()))
       }
-      await infoDialog(t('settings.project.libImport.okTitle', 'Library importiert'), {
+      await infoDialog(t('settings.project.libImport.okTitle', 'Library imported'), {
         body:
-          `${bericht.added.length} ${t('settings.project.libImport.templatesWord', 'Geräte-Templates')} · ` +
-          `${data.groupPresets?.length ?? 0} ${t('settings.project.libImport.presetsWord', 'Gruppen-Presets')}\n\n` +
-          t('settings.project.libImport.okBody', 'Nur neue Einträge wurden hinzugefügt — vorhandene Templates bleiben unverändert.') +
+          `${bericht.added.length} ${t('settings.project.libImport.templatesWord', 'device templates')} · ` +
+          `${data.groupPresets?.length ?? 0} ${t('settings.project.libImport.presetsWord', 'group presets')}\n\n` +
+          t('settings.project.libImport.okBody', 'Only new entries were added — existing templates remain unchanged.') +
           // Was NICHT angelegt wurde, mit Namen. „Vorhandene bleiben
           // unveraendert" allein sagt nicht, WELCHE und WIE VIELE — und wer
           // die Datei geschickt hat, will genau das wissen.
@@ -121,14 +121,14 @@ const LibraryExportSection = () => {
               format(
                 t(
                   'settings.project.libImport.skipped',
-                  'Nicht angelegt: {n} bereits vorhandene(r) Name(n){namen}{ohneName}',
+                  'Not created: {n} name(s) that already existed{namen}{ohneName}',
                 ),
                 {
                   n: bericht.skipped.length,
                   namen: bericht.skipped.length > 0 ? ` — ${bericht.skipped.slice(0, 12).join(', ')}` : '',
                   ohneName:
                     bericht.unnamed > 0
-                      ? format(t('settings.project.libImport.unnamed', ' · {n} ohne Namen'), {
+                      ? format(t('settings.project.libImport.unnamed', ' · {n} without a name'), {
                           n: bericht.unnamed,
                         })
                       : '',
@@ -138,7 +138,7 @@ const LibraryExportSection = () => {
         tone: 'success',
       })
     } catch (err) {
-      await infoDialog(t('settings.project.libImport.failTitle', 'Import fehlgeschlagen'), {
+      await infoDialog(t('settings.project.libImport.failTitle', 'Import failed'), {
         body: err instanceof Error ? err.message : String(err),
         tone: 'error',
       })
@@ -152,7 +152,7 @@ const LibraryExportSection = () => {
       title={t('settings.project.libExport.title', 'Library Export / Import (#122)')}
       description={t(
         'settings.project.libExport.desc',
-        'Sichere deine eigenen Geräte-Templates, Gruppen und Rack-Presets als JSON-Datei. Beim Import werden bestehende Einträge mit gleichem Namen NICHT überschrieben (merge-by-name).',
+        'Save your own device templates, groups and rack presets as a JSON file. On import, existing entries with the same name are NOT overwritten (merge-by-name).',
       )}
     >
       <div className="flex flex-wrap items-center gap-2 text-cp-xs text-cp-text-bright">
@@ -160,15 +160,15 @@ const LibraryExportSection = () => {
           type="button"
           onClick={handleExport}
           className="rounded bg-emerald-700 px-3 py-1.5 hover:bg-emerald-600"
-          title={`${customLibrary.length} ${t('settings.project.libExport.devicesWord', 'Geräte')} + ${groupPresets.length} ${t('settings.project.libExport.groupsWord', 'Gruppen')} ${t('settings.project.libExport.exportVerb', 'exportieren')}`}
+          title={`${customLibrary.length} ${t('settings.project.libExport.devicesWord', 'devices')} + ${groupPresets.length} ${t('settings.project.libExport.groupsWord', 'groups')} ${t('settings.project.libExport.exportVerb', 'export')}`}
         >
-          <Icon icon={Download} size="xs" className="mr-1 inline-block align-text-bottom" />{t('settings.project.libExport.exportBtn', 'Library exportieren')} ({customLibrary.length} {t('settings.project.libExport.devicesWord', 'Geräte')}, {groupPresets.length} {t('settings.project.libExport.groupsWord', 'Gruppen')})
+          <Icon icon={Download} size="xs" className="mr-1 inline-block align-text-bottom" />{t('settings.project.libExport.exportBtn', 'Export library')} ({customLibrary.length} {t('settings.project.libExport.devicesWord', 'devices')}, {groupPresets.length} {t('settings.project.libExport.groupsWord', 'groups')})
         </button>
         <label className="rounded bg-sky-700 px-3 py-1.5 cursor-pointer hover:bg-sky-600">
           {importBusy ? (
-            <><Icon icon={Loader2} size="xs" className="mr-1 inline-block align-text-bottom animate-spin" />{t('settings.project.libExport.importing', 'Importiere…')}</>
+            <><Icon icon={Loader2} size="xs" className="mr-1 inline-block align-text-bottom animate-spin" />{t('settings.project.libExport.importing', 'Importing…')}</>
           ) : (
-            <><Icon icon={Upload} size="xs" className="mr-1 inline-block align-text-bottom" />{t('settings.project.libExport.importBtn', 'Library importieren…')}</>
+            <><Icon icon={Upload} size="xs" className="mr-1 inline-block align-text-bottom" />{t('settings.project.libExport.importBtn', 'Import library…')}</>
           )}
           <input
             type="file"
@@ -209,10 +209,10 @@ const CableNumberingSection = () => {
 
   return (
     <SettingsCard
-      title={t('settings.project.numbering.title', 'Kabelnummerierung')}
+      title={t('settings.project.numbering.title', 'Cable numbering')}
       description={t(
         'settings.project.numbering.desc',
-        'Automatische, kollisionsfreie Kabel-IDs nach festem Schema — sichtbar auf dem Canvas, in der Patchliste und auf den Etiketten.',
+        'Automatic, collision-free cable IDs from a fixed scheme — shown on the canvas, in the patch list and on the labels.',
       )}
     >
       <div className="space-y-2 text-cp-xs text-cp-text-bright">
@@ -222,11 +222,11 @@ const CableNumberingSection = () => {
             checked={eff.enabled}
             onChange={(e) => patch({ enabled: e.target.checked })}
           />
-          {t('settings.project.numbering.enabled', 'Neuen Kabeln automatisch eine Nummer geben')}
+          {t('settings.project.numbering.enabled', 'Auto-assign a number to new cables')}
         </label>
         <div className="grid grid-cols-2 gap-2">
           <label className="block">
-            <span className="mb-1 block text-cp-text-muted">{t('settings.project.numbering.prefix', 'Präfix')}</span>
+            <span className="mb-1 block text-cp-text-muted">{t('settings.project.numbering.prefix', 'Prefix')}</span>
             <input
               type="text"
               value={eff.prefix}
@@ -236,7 +236,7 @@ const CableNumberingSection = () => {
             />
           </label>
           <label className="block">
-            <span className="mb-1 block text-cp-text-muted">{t('settings.project.numbering.separator', 'Trennzeichen')}</span>
+            <span className="mb-1 block text-cp-text-muted">{t('settings.project.numbering.separator', 'Separator')}</span>
             <input
               type="text"
               value={eff.separator}
@@ -247,7 +247,7 @@ const CableNumberingSection = () => {
             />
           </label>
           <label className="block">
-            <span className="mb-1 block text-cp-text-muted">{t('settings.project.numbering.padding', 'Stellen')}</span>
+            <span className="mb-1 block text-cp-text-muted">{t('settings.project.numbering.padding', 'Digits')}</span>
             <input
               type="number"
               min={1}
@@ -258,7 +258,7 @@ const CableNumberingSection = () => {
             />
           </label>
           <label className="block">
-            <span className="mb-1 block text-cp-text-muted">{t('settings.project.numbering.start', 'Start-Nummer')}</span>
+            <span className="mb-1 block text-cp-text-muted">{t('settings.project.numbering.start', 'Start number')}</span>
             <input
               type="number"
               min={0}
@@ -274,11 +274,11 @@ const CableNumberingSection = () => {
             checked={eff.perLayer}
             onChange={(e) => patch({ perLayer: e.target.checked })}
           />
-          {t('settings.project.numbering.perLayer', 'Eigener Zähler je Layer (V/A/N/P …)')}
+          {t('settings.project.numbering.perLayer', 'Separate counter per layer (V/A/N/P …)')}
         </label>
         <div className="flex items-center justify-between gap-2 pt-1">
           <span className="text-cp-text-muted">
-            {t('settings.project.numbering.example', 'Beispiel')}:{' '}
+            {t('settings.project.numbering.example', 'Example')}:{' '}
             <span className="font-mono text-sky-300">{cableNumberExample(eff)}</span>
           </span>
           <button
@@ -287,12 +287,12 @@ const CableNumberingSection = () => {
             disabled={cableCount === 0}
             className="rounded bg-sky-700 px-3 py-1.5 hover:bg-sky-600 disabled:opacity-50"
           >
-            {t('settings.project.numbering.renumber', 'Alle Kabel neu nummerieren')} ({cableCount})
+            {t('settings.project.numbering.renumber', 'Renumber all cables')} ({cableCount})
           </button>
         </div>
         {doneCount !== null && (
           <p className="text-[11px] text-emerald-400">
-            {format(t('settings.project.numbering.done', '{n} Kabel neu nummeriert.'), { n: doneCount })}
+            {format(t('settings.project.numbering.done', '{n} cables renumbered.'), { n: doneCount })}
           </p>
         )}
       </div>
@@ -325,17 +325,17 @@ const LengthEstimationSection = () => {
 
   return (
     <SettingsCard
-      title={t('settings.project.lengthEst.title', 'Kabellängen schätzen')}
+      title={t('settings.project.lengthEst.title', 'Estimate cable lengths')}
       description={t(
         'settings.project.lengthEst.desc',
-        'Schätzt die Kabellängen aus der Canvas-Distanz der Geräte (Luftlinie × Maßstab + Reserve). Überschreibt vorhandene Längen.',
+        'Estimates cable lengths from the on-canvas distance between devices (straight line × scale + slack). Overwrites existing lengths.',
       )}
     >
       <div className="space-y-2 text-cp-xs text-cp-text-bright">
         <div className="grid grid-cols-2 gap-2">
           <label className="block">
             <span className="mb-1 block text-cp-text-muted">
-              {t('settings.project.lengthEst.scale', 'Meter pro 100 px')}
+              {t('settings.project.lengthEst.scale', 'Metres per 100 px')}
             </span>
             <input
               type="number"
@@ -348,7 +348,7 @@ const LengthEstimationSection = () => {
           </label>
           <label className="block">
             <span className="mb-1 block text-cp-text-muted">
-              {t('settings.project.lengthEst.slack', 'Reserve (%)')}
+              {t('settings.project.lengthEst.slack', 'Slack (%)')}
             </span>
             <input
               type="number"
@@ -366,7 +366,7 @@ const LengthEstimationSection = () => {
             checked={eff.roundUp}
             onChange={(e) => patch({ roundUp: e.target.checked })}
           />
-          {t('settings.project.lengthEst.roundUp', 'Auf ganze Meter aufrunden')}
+          {t('settings.project.lengthEst.roundUp', 'Round up to whole metres')}
         </label>
         <div className="flex items-center justify-end pt-1">
           <button
@@ -375,12 +375,12 @@ const LengthEstimationSection = () => {
             disabled={cableCount === 0}
             className="rounded bg-sky-700 px-3 py-1.5 hover:bg-sky-600 disabled:opacity-50"
           >
-            {t('settings.project.lengthEst.run', 'Längen jetzt schätzen')} ({cableCount})
+            {t('settings.project.lengthEst.run', 'Estimate lengths now')} ({cableCount})
           </button>
         </div>
         {doneCount !== null && (
           <p className="text-[11px] text-emerald-400">
-            {format(t('settings.project.lengthEst.done', '{n} Kabellängen aktualisiert.'), { n: doneCount })}
+            {format(t('settings.project.lengthEst.done', '{n} cable lengths updated.'), { n: doneCount })}
           </p>
         )}
       </div>
@@ -402,16 +402,16 @@ const PlanDefaultsSection = () => {
   const updateProjectMetadata = useProjectStore((s) => s.updateProjectMetadata)
   return (
     <SettingsCard
-      title={t('settings.project.defaults.title', 'Plan-Standards')}
+      title={t('settings.project.defaults.title', 'Plan defaults')}
       description={t(
         'settings.project.defaults.desc',
-        'Technische Vorgaben für diesen Plan, je nach Gewerk. Das Video-Format steuert die SDI-Standardverkabelung, der Strom-/Netz-Standard die Spannung im Stromrechner (Watt ↔ Ampere).',
+        'Technical defaults for this plan, by discipline. The video format drives the default SDI cabling; the power/mains standard sets the voltage used by the power calculator (watts ↔ amps).',
       )}
     >
       <div className="grid grid-cols-1 gap-3 text-cp-xs text-cp-text-bright sm:grid-cols-2">
         <label className="block">
           <span className="mb-1 block text-cp-text-muted">
-            {t('settings.project.defaults.video', 'Video-Format (SDI)')}
+            {t('settings.project.defaults.video', 'Video format (SDI)')}
           </span>
           <select
             value={videoFormat ?? DEFAULT_VIDEO_FORMAT}
@@ -427,7 +427,7 @@ const PlanDefaultsSection = () => {
         </label>
         <label className="block">
           <span className="mb-1 block text-cp-text-muted">
-            {t('settings.project.defaults.power', 'Strom-/Netz-Standard')}
+            {t('settings.project.defaults.power', 'Power / mains standard')}
           </span>
           <select
             value={powerStandard ?? DEFAULT_POWER_STANDARD}
@@ -445,7 +445,7 @@ const PlanDefaultsSection = () => {
         </label>
         <label className="block">
           <span className="mb-1 block text-cp-text-muted">
-            {t('settings.project.defaults.lighting', 'Licht-Steuerung (Default)')}
+            {t('settings.project.defaults.lighting', 'Lighting control (default)')}
           </span>
           <select
             value={lightingControl ?? 'dmx512'}
@@ -494,21 +494,21 @@ export const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
       <p className="text-cp-xs text-cp-text-muted">
         {t(
           'settings.project.intro',
-          'Projekt-Metadaten — werden mit der Cable-Planner-Datei gespeichert.',
+          'Project metadata — saved with the Cable Planner file.',
         )}
       </p>
       <label className="block text-cp-base">
-        {t('settings.project.name', 'Projektname')}
+        {t('settings.project.name', 'Project name')}
         <input
           type="text"
           value={draftMeta.name}
           onChange={(e) => setDraftMeta({ ...draftMeta, name: e.target.value })}
           className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2 text-cp-base"
-          placeholder={t('settings.project.name', 'Projektname')}
+          placeholder={t('settings.project.name', 'Project name')}
         />
       </label>
       <label className="block text-cp-base">
-        {t('settings.project.description', 'Beschreibung')}
+        {t('settings.project.description', 'Description')}
         <textarea
           value={draftMeta.description ?? ''}
           onChange={(e) => setDraftMeta({ ...draftMeta, description: e.target.value })}
@@ -516,51 +516,51 @@ export const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
           className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2 text-cp-base"
           placeholder={t(
             'settings.project.descriptionPlaceholder',
-            'Optionale Projektbeschreibung',
+            'Optional project description',
           )}
         />
       </label>
       <div className="grid grid-cols-2 gap-2">
         <label className="block text-cp-base">
-          {t('settings.project.client', 'Auftraggeber (Kunde)')}
+          {t('settings.project.client', 'Client')}
           <input
             type="text"
             value={draftMeta.client ?? ''}
             onChange={(e) => setDraftMeta({ ...draftMeta, client: e.target.value })}
             className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2 text-cp-base"
-            placeholder={t('settings.project.clientPlaceholder', 'Endkunde')}
+            placeholder={t('settings.project.clientPlaceholder', 'End customer')}
           />
         </label>
         <label className="block text-cp-base">
-          {t('settings.project.contractor', 'Auftragnehmer')}
+          {t('settings.project.contractor', 'Contractor')}
           <input
             type="text"
             value={draftMeta.contractor ?? ''}
             onChange={(e) => setDraftMeta({ ...draftMeta, contractor: e.target.value })}
             className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2 text-cp-base"
-            placeholder={t('settings.project.contractorPlaceholder', 'Ausführende Firma')}
+            placeholder={t('settings.project.contractorPlaceholder', 'Executing company')}
           />
         </label>
       </div>
       <div className="grid grid-cols-2 gap-2">
         <label className="block text-cp-base">
-          {t('settings.project.author', 'Autor')}
+          {t('settings.project.author', 'Author')}
           <input
             type="text"
             value={draftMeta.author ?? ''}
             onChange={(e) => setDraftMeta({ ...draftMeta, author: e.target.value })}
             className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2 text-cp-base"
-            placeholder={t('settings.project.authorPlaceholder', 'Dein Name')}
+            placeholder={t('settings.project.authorPlaceholder', 'Your name')}
           />
         </label>
         <label className="block text-cp-base">
-          {t('settings.project.number', 'Projekt-Nr.')}
+          {t('settings.project.number', 'Project no.')}
           <input
             type="text"
             value={draftMeta.projectNumber ?? ''}
             onChange={(e) => setDraftMeta({ ...draftMeta, projectNumber: e.target.value })}
             className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2 text-cp-base"
-            placeholder={t('settings.project.numberPlaceholder', 'z. B. 2026-042')}
+            placeholder={t('settings.project.numberPlaceholder', 'e.g. 2026-042')}
           />
         </label>
       </div>
@@ -568,18 +568,18 @@ export const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
       <PlanDefaultsSection />
 
       <SettingsCard
-        title={t('settings.project.logos', 'Bauplan-Signatur (Logos)')}
+        title={t('settings.project.logos', 'Plan signature (logos)')}
         description={t(
           'settings.project.logosHint',
-          'Logos werden als Daten-URI in der Projektdatei gespeichert (PDF-Export & Canvas-Signatur).',
+          'Logos are stored as data URI in the project file (PDF export & canvas signature).',
         )}
       >
         <div className="grid grid-cols-2 gap-3">
           {(['companyLogo', 'clientLogo'] as const).map((field) => {
             const label =
               field === 'companyLogo'
-                ? t('settings.project.logo.contractor', 'Auftragnehmer')
-                : t('settings.project.logo.client', 'Kunde')
+                ? t('settings.project.logo.contractor', 'Contractor')
+                : t('settings.project.logo.client', 'Client')
             const current = draftMeta[field]
             return (
               <div key={field} className="flex flex-col items-center gap-2">
@@ -596,14 +596,14 @@ export const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
                     onClick={() => pickLogo(field)}
                     className="flex-1 rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
                   >
-                    {t('common.choose', 'Wählen…')}
+                    {t('common.choose', 'Choose…')}
                   </button>
                   {current && (
                     <button
                       type="button"
                       onClick={() => setDraftMeta((prev) => ({ ...prev, [field]: undefined }))}
-                      title={t('common.remove', 'Entfernen')}
-                      aria-label={t('common.remove', 'Entfernen')}
+                      title={t('common.remove', 'Remove')}
+                      aria-label={t('common.remove', 'Remove')}
                       className="rounded bg-cp-surface-2 px-2 py-1 text-cp-xs text-cp-text-muted hover:bg-red-700 hover:text-white"
                     >
                       <Icon icon={X} size="sm" />
@@ -616,7 +616,7 @@ export const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
         </div>
       </SettingsCard>
 
-      <SettingsCard title={t('settings.project.linkedRentman', 'Verknüpftes Rentman-Projekt')}>
+      <SettingsCard title={t('settings.project.linkedRentman', 'Linked Rentman project')}>
         {metadata.rentmanProjectId ? (
           <div className="text-cp-xs text-cp-text-muted">
             <span className="text-orange-300">
@@ -628,7 +628,7 @@ export const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
           <div className="text-cp-xs text-cp-text-faint">
             {t(
               'settings.project.notLinked',
-              'Kein Rentman-Projekt verknüpft. Verknüpfung im Tab „Integrationen" herstellen.',
+              'No Rentman project linked. Link via the “Integrations” tab.',
             )}
           </div>
         )}
@@ -645,14 +645,14 @@ export const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
           onClick={() => setDraftMeta(metadata)}
           className="rounded bg-cp-surface-4 px-3 py-1 text-cp-base hover:bg-cp-surface-5"
         >
-          {t('common.reset', 'Zurücksetzen')}
+          {t('common.reset', 'Reset')}
         </button>
         <button
           type="button"
           onClick={persistMeta}
           className="rounded bg-emerald-600 px-3 py-1 text-cp-base hover:bg-emerald-500"
         >
-          {t('common.save', 'Speichern')}
+          {t('common.save', 'Save')}
         </button>
       </div>
     </div>

@@ -259,11 +259,11 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
         category === 'internal'
       const lockReason =
         category === 'mediaplayer'
-          ? t('atem.dialog.lockReason.mediaplayer', 'Mediaplayer-Slot — Default-Label vom ATEM (zeigt Clip-/Still-Name)')
+          ? t('atem.dialog.lockReason.mediaplayer', 'Media player slot — default label from the ATEM (shows clip/still name)')
           : category === 'audio-input'
-            ? t('atem.dialog.lockReason.audioInput', 'Audio-Input — wird nicht aus Canvas-Port-Namen überschrieben')
+            ? t('atem.dialog.lockReason.audioInput', 'Audio input — not overwritten from canvas port names')
             : category === 'internal'
-              ? t('atem.dialog.lockReason.internal', 'Interne Quelle (Black/Bars/Color/SuperSource) — Default-Label behalten')
+              ? t('atem.dialog.lockReason.internal', 'Internal source (Black/Bars/Color/SuperSource) — keep default label')
               : undefined
       return {
         inputId: input.inputId,
@@ -319,7 +319,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
     <ModalShell
       open
       onClose={onClose}
-      title={t('atem.dialog.title', 'ATEM Live Integration')}
+      title={t('atem.dialog.title', 'ATEM live integration')}
       maxWidth="3xl"
       scrollBody={false}
     >
@@ -327,7 +327,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
         <div className="border-b border-cp-border px-4 py-3">
           <div className="flex items-end gap-2">
             <label className="flex-1 text-cp-xs">
-              <span className="mb-1 block text-cp-text-secondary">{t('atem.dialog.ipLabel', 'ATEM IP-Adresse')}</span>
+              <span className="mb-1 block text-cp-text-secondary">{t('atem.dialog.ipLabel', 'ATEM IP address')}</span>
               <input
                 value={ip}
                 onChange={(event) => setIp(event.target.value)}
@@ -342,10 +342,10 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
                 onClick={discover}
                 disabled={discovering || status === 'connecting'}
                 className="rounded bg-purple-700 px-3 py-2 text-cp-base hover:bg-purple-600 disabled:opacity-50"
-                title={t('atem.dialog.discoverTitle', 'ATEM-Switcher per mDNS (Bonjour) im lokalen Netzwerk suchen')}
+                title={t('atem.dialog.discoverTitle', 'Discover ATEM switchers on the local network via mDNS (Bonjour)')}
               >
                 <Icon icon={Search} size="xs" className="mr-1 inline-block align-text-bottom" />
-                {discovering ? t('atem.dialog.searching', 'Suche…') : t('atem.dialog.search', 'Suchen')}
+                {discovering ? t('atem.dialog.searching', 'Searching…') : t('atem.dialog.search', 'Search')}
               </button>
             )}
             {status !== 'connected' && (
@@ -355,7 +355,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
                 disabled={status === 'connecting' || !ip.trim()}
                 className="rounded bg-sky-700 px-3 py-2 text-cp-base hover:bg-sky-600 disabled:opacity-50"
               >
-                {status === 'connecting' ? t('atem.dialog.connecting', 'Verbinde…') : t('atem.dialog.connect', 'Verbinden')}
+                {status === 'connecting' ? t('atem.dialog.connecting', 'Connecting…') : t('atem.dialog.connect', 'Connect')}
               </button>
             )}
             {status === 'connected' && (
@@ -364,7 +364,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
                 onClick={disconnect}
                 className="rounded bg-cp-surface-4 px-3 py-2 text-cp-base hover:bg-cp-surface-5"
               >
-                {t('atem.dialog.disconnect', 'Trennen')}
+                {t('atem.dialog.disconnect', 'Disconnect')}
               </button>
             )}
             {status === 'connected' && (
@@ -372,7 +372,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
                 type="button"
                 onClick={openAtemMvLayout}
                 className="rounded bg-emerald-700 px-3 py-2 text-cp-base hover:bg-emerald-600"
-                title={t('atem.dialog.mvLive', 'Multiviewer-Layout live anzeigen')}
+                title={t('atem.dialog.mvLive', 'Show multiviewer layout live')}
               >
                 MV Layout →
               </button>
@@ -386,13 +386,13 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
                 <div className="rounded border border-dashed border-cp-border bg-cp-surface-3/40 p-2 text-[11px] text-cp-text-muted">
                   {t(
                     'atem.dialog.noneFound',
-                    'Kein ATEM-Switcher per mDNS im lokalen Netzwerk gefunden. (Manche Modelle / Firewall-Setups blocken mDNS — dann IP manuell eingeben.)',
+                    'No ATEM switcher found via mDNS on the local network. (Some models / firewall setups block mDNS — enter the IP manually then.)',
                   )}
                 </div>
               ) : (
                 <div className="space-y-1">
                   <div className="text-[10px] uppercase tracking-wide text-cp-text-muted">
-                    {format(t('atem.dialog.foundCount', 'Gefunden ({n}) — Klick übernimmt die IP:'), {
+                    {format(t('atem.dialog.foundCount', 'Found ({n}) — click to take the IP:'), {
                       n: discovered.length,
                     })}
                   </div>
@@ -435,7 +435,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
           <div className="flex-1 overflow-auto px-4 py-3">
             <div className="mb-2 flex items-center justify-between">
               <h3 className="text-cp-xs font-semibold uppercase tracking-wide text-cp-text-secondary">
-                {t('atem.dialog.inputNames', 'Input-Namen')} ({rows.length})
+                {t('atem.dialog.inputNames', 'Input names')} ({rows.length})
               </h3>
               <button
                 type="button"
@@ -444,18 +444,18 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
                 className="rounded bg-emerald-700 px-3 py-1 text-cp-xs hover:bg-emerald-600 disabled:opacity-50"
               >
                 {pushing
-                  ? t('atem.dialog.sending', 'Sende…')
-                  : format(t('atem.dialog.sendChanges', '{n} Änderungen senden'), { n: dirtyCount })}
+                  ? t('atem.dialog.sending', 'Sending…')
+                  : format(t('atem.dialog.sendChanges', 'Send {n} changes'), { n: dirtyCount })}
               </button>
             </div>
             <table className="w-full table-fixed text-cp-xs">
               <thead className="text-left text-cp-text-muted">
                 <tr>
                   <th className="w-12 py-1">ID</th>
-                  <th className="w-20 py-1">{t('atem.col.type', 'Typ')}</th>
+                  <th className="w-20 py-1">{t('atem.col.type', 'Type')}</th>
                   <th className="w-1/4 py-1">{t('atem.col.live', 'Live (long / short)')}</th>
-                  <th className="py-1">{t('atem.col.newLong', 'Neu Long (max 20)')}</th>
-                  <th className="w-24 py-1">{t('atem.col.newShort', 'Neu Short (4)')}</th>
+                  <th className="py-1">{t('atem.col.newLong', 'New long (max 20)')}</th>
+                  <th className="w-24 py-1">{t('atem.col.newShort', 'New short (4)')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -533,16 +533,16 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
               className="mt-3 text-[11px] text-cp-text-muted"
               text={t(
                 'atem.dialog.changesNote',
-                'Hinweis: Änderungen gehen direkt an den Switcher (RAM). Damit sie einen Reboot überleben, in der Blackmagic ATEM Software „Save Startup State" auslösen. Audio-Eingänge (XLR/RJ45-Talkback), Mediaplayer und interne Quellen sind gesperrt — der ATEM verwaltet die selbst.',
+                'Heads-up: changes go directly to the switcher (RAM). To survive a reboot, trigger "Save Startup State" in the Blackmagic ATEM Software. Audio inputs (XLR/RJ45 talkback), media players and internal sources are locked — the ATEM manages those itself.',
               )}
             />
           </div>
         )}
 
         <details className="border-t border-cp-border px-4 py-2 text-[11px]">
-          <summary className="cursor-pointer text-cp-text-muted">{t('atem.eventLog', 'Event-Log')} ({events.length})</summary>
+          <summary className="cursor-pointer text-cp-text-muted">{t('atem.eventLog', 'Event log')} ({events.length})</summary>
           <pre className="mt-2 max-h-40 overflow-auto rounded bg-cp-surface-3 p-2 font-mono text-[10px] text-cp-text-secondary">
-            {events.join('\n') || t('atem.dialog.noEvents', '(noch keine Events)')}
+            {events.join('\n') || t('atem.dialog.noEvents', '(no events yet)')}
           </pre>
         </details>
       </div>

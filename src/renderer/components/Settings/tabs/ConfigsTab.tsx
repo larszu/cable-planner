@@ -106,26 +106,26 @@ export const ConfigsTab = () => {
     try {
       const parsed = JSON.parse(file.content) as { version?: number; library?: DeviceConfigEntry[] }
       if (!parsed.library || !Array.isArray(parsed.library)) {
-        await infoDialog(t('settings.configs.invalidBundleTitle', 'Ungültiges Konfigurations-Bundle'), {
+        await infoDialog(t('settings.configs.invalidBundleTitle', 'Invalid configuration bundle'), {
           body: t(
             'settings.configs.invalidBundleBody',
-            'Die Datei enthält kein cable-planner-Konfigurations-Bundle.',
+            'The file does not contain a cable-planner configuration bundle.',
           ),
           tone: 'error',
         })
         return
       }
       const replace = await confirmDialog(
-        format(t('settings.configs.loadCount', '{n} Konfigurationen laden'), {
+        format(t('settings.configs.loadCount', 'Load {n} configurations'), {
           n: parsed.library.length,
         }),
         {
           body: t(
             'settings.configs.replaceOrAppend',
-            '"Ersetzen" = bestehende Bibliothek wird überschrieben.\n"Anhängen" = neue Konfigurationen werden hinzugefügt, bestehende bleiben.',
+            '"Replace" = existing library is overwritten.\n"Append" = new configurations are added, existing ones kept.',
           ),
-          okLabel: t('settings.configs.replace', 'Ersetzen'),
-          cancelLabel: t('settings.configs.append', 'Anhängen'),
+          okLabel: t('settings.configs.replace', 'Replace'),
+          cancelLabel: t('settings.configs.append', 'Append'),
           destructive: true,
         },
       )
@@ -141,7 +141,7 @@ export const ConfigsTab = () => {
         }
       }
     } catch (err) {
-      await infoDialog(t('settings.configs.importErrorTitle', 'Fehler beim Import'), {
+      await infoDialog(t('settings.configs.importErrorTitle', 'Import error'), {
         body: err instanceof Error ? err.message : String(err),
         tone: 'error',
       })
@@ -154,15 +154,15 @@ export const ConfigsTab = () => {
         className="text-cp-xs text-cp-text-muted"
         text={t(
           'settings.configs.intro',
-          'Globale Bibliothek von Geräte-Konfigurationen (ATEM, Videohub, GreenGo). Lade Dateien hier hoch, lade sie als Datei wieder herunter, oder weise einer canvas-Gerät die passende Config zu (im Properties-Panel des Geräts).',
+          'Global library of device configurations (ATEM, Videohub, GreenGo). Upload files here, download them again as a file, or assign the matching config to a canvas device (in the device properties panel).',
         )}
       />
 
       <SettingsCard
-        title={t('settings.configs.upload.title', 'Neue Konfiguration hochladen')}
+        title={t('settings.configs.upload.title', 'Upload new configuration')}
         description={t(
           'settings.configs.upload.desc',
-          'XML / JSON / TXT / .gg5 — der Typ wird aus dem Dateinamen geraten und kann unten geändert werden.',
+          'XML / JSON / TXT / .gg5 — the type is guessed from the file name and can be changed below.',
         )}
       >
         <div className="flex flex-wrap gap-2">
@@ -172,7 +172,7 @@ export const ConfigsTab = () => {
             className="inline-flex items-center gap-1.5 rounded bg-sky-700 px-3 py-1 text-cp-xs text-white hover:bg-sky-600"
           >
             <Icon icon={Upload} size="xs" />
-            {t('settings.configs.pickFile', 'Datei wählen…')}
+            {t('settings.configs.pickFile', 'Choose file…')}
           </button>
           <button
             type="button"
@@ -181,27 +181,27 @@ export const ConfigsTab = () => {
             className="inline-flex items-center gap-1.5 rounded bg-emerald-700 px-3 py-1 text-cp-xs text-white hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Icon icon={Save} size="xs" />
-            {t('settings.configs.exportBundle', 'Bibliothek als JSON exportieren')}
+            {t('settings.configs.exportBundle', 'Export library as JSON')}
           </button>
           <button
             type="button"
             onClick={() => void handleImportBundle()}
             className="rounded bg-amber-700 px-3 py-1 text-cp-xs text-white hover:bg-amber-600"
           >
-            {t('settings.configs.importBundle', '⤵ JSON-Bibliothek importieren…')}
+            {t('settings.configs.importBundle', '⤵ Import JSON library…')}
           </button>
         </div>
       </SettingsCard>
 
       <SettingsCard
-        title={t('settings.configs.library.title', 'Konfigurations-Bibliothek')}
+        title={t('settings.configs.library.title', 'Configuration library')}
         description={
           library.length === 0
             ? t(
                 'settings.configs.library.empty',
-                'Noch keine Konfigurationen hochgeladen.',
+                'No configurations uploaded yet.',
               )
-            : format(t('settings.configs.entriesCount', '{n} Einträge'), { n: library.length })
+            : format(t('settings.configs.entriesCount', '{n} entries'), { n: library.length })
         }
       >
         <div className="mb-2 flex flex-wrap gap-1">
@@ -218,7 +218,7 @@ export const ConfigsTab = () => {
                 }`}
               >
                 {k === 'all' ? (
-                  format(t('settings.configs.filterAll', 'Alle ({n})'), { n: library.length })
+                  format(t('settings.configs.filterAll', 'All ({n})'), { n: library.length })
                 ) : (
                   <>
                     <Icon icon={CONFIG_KIND_ICON[k]} size="xs" />
@@ -235,12 +235,12 @@ export const ConfigsTab = () => {
           <div className="rounded border border-dashed border-cp-border p-4 text-center text-[11px] text-cp-text-muted">
             {t(
               'settings.configs.emptyHint',
-              'Lade die erste Konfigurationsdatei hoch — sie wird hier gelistet und kann anschließend einem Gerät auf dem Canvas zugeordnet werden.',
+              'Upload your first configuration file — it will be listed here and can then be assigned to a device on the canvas.',
             )}
           </div>
         ) : grouped.size === 0 ? (
           <div className="rounded border border-dashed border-cp-border p-4 text-center text-[11px] text-cp-text-muted">
-            {t('settings.configs.noFilterMatch', 'Kein Eintrag passt zum gewählten Filter.')}
+            {t('settings.configs.noFilterMatch', 'No entry matches the selected filter.')}
           </div>
         ) : (
           <ul className="space-y-2">
@@ -291,10 +291,10 @@ export const ConfigsTab = () => {
                           className="rounded border border-cp-border bg-cp-surface-1 px-1 py-0.5 text-[11px] text-cp-text-bright"
                           title={t(
                             'settings.configs.assignTitle',
-                            'Gerät auf dem Canvas, dem diese Konfiguration zugeordnet ist',
+                            'Device on the canvas this configuration is assigned to',
                           )}
                         >
-                          <option value="">{t('settings.configs.unassigned', '(unzugeordnet)')}</option>
+                          <option value="">{t('settings.configs.unassigned', '(unassigned)')}</option>
                           {equipment.map((eq) => (
                             <option key={eq.id} value={eq.id}>
                               {eq.name}
@@ -306,7 +306,7 @@ export const ConfigsTab = () => {
                           title={format(
                             t(
                               'settings.configs.fileMeta',
-                              'Originaldatei: {fileName}\nHochgeladen: {savedAt}\n{chars} Zeichen',
+                              'Original file: {fileName}\nUploaded: {savedAt}\n{chars} characters',
                             ),
                             {
                               fileName: entry.fileName,
@@ -322,7 +322,7 @@ export const ConfigsTab = () => {
                             type="button"
                             onClick={() => downloadConfig(entry)}
                             className="rounded bg-cp-surface-4 px-2 py-0.5 text-[11px] text-cp-text hover:bg-cp-surface-5"
-                            title={t('settings.configs.downloadTitle', 'Originaldatei herunterladen')}
+                            title={t('settings.configs.downloadTitle', 'Download original file')}
                           >
                             <Icon icon={Download} size="xs" />
                           </button>
@@ -331,15 +331,15 @@ export const ConfigsTab = () => {
                             onClick={async () => {
                               if (
                                 await confirmDialog(
-                                  format(t('settings.configs.confirmDelete', 'Konfiguration "{name}" löschen?'), {
+                                  format(t('settings.configs.confirmDelete', 'Delete configuration "{name}"?'), {
                                     name: entry.name,
                                   }),
                                   {
                                     body: t(
                                       'settings.configs.deleteHint',
-                                      'Die Datei selbst auf der Festplatte bleibt unverändert.',
+                                      'The file on disk is not modified.',
                                     ),
-                                    okLabel: t('common.delete', 'Löschen'),
+                                    okLabel: t('common.delete', 'Delete'),
                                     destructive: true,
                                   },
                                 )
@@ -348,7 +348,7 @@ export const ConfigsTab = () => {
                               }
                             }}
                             className="rounded bg-cp-surface-2 px-2 py-0.5 text-[11px] text-cp-text-secondary hover:bg-red-700 hover:text-white"
-                            title={t('settings.configs.removeTitle', 'Aus Bibliothek entfernen')}
+                            title={t('settings.configs.removeTitle', 'Remove from library')}
                           >
                             <Icon icon={X} size="sm" />
                           </button>

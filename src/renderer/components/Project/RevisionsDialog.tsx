@@ -49,13 +49,13 @@ export const RevisionsDialog = () => {
 
   const restore = async (id: string, revLabel: string) => {
     const ok = await confirmDialog(
-      t('revisions.restoreConfirm', 'Diesen Stand wiederherstellen?'),
+      t('revisions.restoreConfirm', 'Restore this state?'),
       {
         body: t(
           'revisions.restoreBody',
-          'Der aktuelle Plan wird durch die Revision „{label}" ersetzt. Die Revisions-Historie bleibt erhalten.',
+          'The current plan will be replaced by revision "{label}". The revision history is kept.',
         ).replace('{label}', revLabel),
-        okLabel: t('revisions.restore', 'Wiederherstellen'),
+        okLabel: t('revisions.restore', 'Restore'),
       },
     )
     if (ok) restoreRevision(id)
@@ -63,13 +63,13 @@ export const RevisionsDialog = () => {
 
   const remove = async (id: string, revLabel: string) => {
     const ok = await confirmDialog(
-      t('revisions.deleteConfirm', 'Revision löschen?'),
+      t('revisions.deleteConfirm', 'Delete revision?'),
       {
-        body: t('revisions.deleteBody', 'Revision „{label}" wird endgültig entfernt.').replace(
+        body: t('revisions.deleteBody', 'Revision "{label}" will be removed permanently.').replace(
           '{label}',
           revLabel,
         ),
-        okLabel: t('revisions.delete', 'Löschen'),
+        okLabel: t('revisions.delete', 'Delete'),
         destructive: true,
       },
     )
@@ -83,7 +83,7 @@ export const RevisionsDialog = () => {
     <ModalShell
       open={open}
       onClose={close}
-      title={t('revisions.title', 'Revisionen & Snapshots')}
+      title={t('revisions.title', 'Revisions & snapshots')}
       titleIcon={<Icon icon={History} size="sm" />}
       maxWidth="2xl"
       draggableKey="cable-planner:modal-pos:revisions"
@@ -92,19 +92,19 @@ export const RevisionsDialog = () => {
         {/* Festschreiben */}
         <div className="rounded border border-cp-border bg-cp-surface-1/40 p-2">
           <div className="mb-1.5 text-cp-xs font-semibold text-cp-text-secondary">
-            {t('revisions.commitTitle', 'Aktuellen Stand festschreiben')}
+            {t('revisions.commitTitle', 'Commit current state')}
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <input
               value={label}
               onChange={(e) => setLabel(e.target.value)}
-              placeholder={t('revisions.labelPlaceholder', 'Label (z.B. "A", "Rev 2")')}
+              placeholder={t('revisions.labelPlaceholder', 'Label (e.g. "A", "Rev 2")')}
               className="w-32 rounded border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs"
             />
             <input
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              placeholder={t('revisions.notePlaceholder', 'Notiz: was hat sich geändert?')}
+              placeholder={t('revisions.notePlaceholder', 'Note: what changed?')}
               className="flex-1 rounded border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs"
             />
             <label className="flex items-center gap-1 text-cp-xs text-cp-text-secondary">
@@ -113,7 +113,7 @@ export const RevisionsDialog = () => {
                 checked={asBuilt}
                 onChange={(e) => setAsBuilt(e.target.checked)}
               />
-              {t('revisions.asBuilt', 'As-Built')}
+              {t('revisions.asBuilt', 'As-built')}
             </label>
             <button
               type="button"
@@ -121,7 +121,7 @@ export const RevisionsDialog = () => {
               className="inline-flex items-center gap-1 rounded bg-emerald-700 px-3 py-1 text-cp-xs hover:bg-emerald-600"
             >
               <Icon icon={Camera} size="xs" />
-              {t('revisions.commit', 'Festschreiben')}
+              {t('revisions.commit', 'Commit')}
             </button>
           </div>
         </div>
@@ -129,7 +129,7 @@ export const RevisionsDialog = () => {
         {/* Liste */}
         {sorted.length === 0 ? (
           <p className="py-6 text-center text-cp-xs text-cp-text-faint">
-            {t('revisions.empty', 'Noch keine Revisionen festgeschrieben.')}
+            {t('revisions.empty', 'No revisions committed yet.')}
           </p>
         ) : (
           <ul className="divide-y divide-cp-surface-2/60">
@@ -146,13 +146,13 @@ export const RevisionsDialog = () => {
                   <span className="text-cp-text-secondary">{rev.note || '—'}</span>
                   <span className="ml-2 text-cp-text-faint">{fmtDate(rev.createdAt)}</span>
                   {rev.asBuilt && (
-                    <span className="ml-1 text-amber-400">· {t('revisions.asBuiltTag', 'As-Built')}</span>
+                    <span className="ml-1 text-amber-400">· {t('revisions.asBuiltTag', 'As-built')}</span>
                   )}
                 </span>
                 <button
                   type="button"
                   onClick={() => void restore(rev.id, rev.label)}
-                  title={t('revisions.restore', 'Wiederherstellen')}
+                  title={t('revisions.restore', 'Restore')}
                   className="inline-flex items-center gap-1 rounded bg-sky-700 px-2 py-1 hover:bg-sky-600"
                 >
                   <Icon icon={RotateCcw} size="xs" />
@@ -160,7 +160,7 @@ export const RevisionsDialog = () => {
                 <button
                   type="button"
                   onClick={() => void remove(rev.id, rev.label)}
-                  title={t('revisions.delete', 'Löschen')}
+                  title={t('revisions.delete', 'Delete')}
                   className="inline-flex items-center gap-1 rounded bg-red-900/60 px-2 py-1 hover:bg-red-800"
                 >
                   <Icon icon={Trash2} size="xs" />
@@ -172,7 +172,7 @@ export const RevisionsDialog = () => {
         <p className="text-[10px] text-cp-text-muted">
           {t(
             'revisions.footerHint',
-            'Eine Revision speichert einen vollständigen Snapshot des Plans. Beim Wiederherstellen bleibt die Historie erhalten.',
+            'A revision stores a full snapshot of the plan. Restoring keeps the history.',
           )}
         </p>
       </div>

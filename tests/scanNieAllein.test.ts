@@ -124,7 +124,7 @@ describe('die Handeingabe haengt an keiner Kamera-Bedingung', () => {
     // Wenn die Kamera nicht darf oder nicht kann, muss dort stehen, was
     // stattdessen geht — eine Fehlermeldung ohne Ausweg schickt den Nutzer
     // zurueck an den Anfang.
-    expect(lies('src/renderer/lager/ui/ScannerModal.tsx')).toContain('manuelle Eingabe')
+    expect(lies('src/renderer/lager/ui/ScannerModal.tsx')).toContain('Use manual entry')
     expect(lies('src/mobile/MobileApp.tsx')).toContain('füge den Code unten ein')
   })
 })

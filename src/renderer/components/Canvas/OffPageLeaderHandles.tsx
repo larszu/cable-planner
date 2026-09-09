@@ -66,7 +66,7 @@ export const OffPageLeaderHandles = ({
         <div
           key={`wp-${i}`}
           className="nodrag nopan"
-          title={t('offPage.waypoint.hint', 'Ziehen: verschieben · Doppelklick: löschen')}
+          title={t('offPage.waypoint.hint', 'Drag: move · Double-click: delete')}
           onPointerDown={(e) => {
             if (e.button !== 0) return
             e.stopPropagation()
@@ -122,7 +122,7 @@ export const OffPageLeaderHandles = ({
           <div
             key={`add-${idx}`}
             className="nodrag nopan"
-            title={t('offPage.waypoint.add', 'Wegpunkt hinzufügen')}
+            title={t('offPage.waypoint.add', 'Add waypoint')}
             onPointerDown={(e) => e.stopPropagation()}
             onClick={(e) => {
               e.stopPropagation()

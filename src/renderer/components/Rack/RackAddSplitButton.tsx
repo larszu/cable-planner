@@ -29,7 +29,7 @@ export const RackAddSplitButton = ({
   primaryLabel,
 }: Props) => {
   const t = useTranslation()
-  const resolvedLabel = primaryLabel ?? t('rackAdd.primaryLabel', '+ Ins Rack')
+  const resolvedLabel = primaryLabel ?? t('rackAdd.primaryLabel', '+ To rack')
   const [open, setOpen] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
 
@@ -58,7 +58,7 @@ export const RackAddSplitButton = ({
           type="button"
           onClick={onAddFull}
           className="bg-emerald-600 px-2.5 py-1.5 text-[11px] font-semibold text-white transition hover:bg-emerald-500"
-          title={t('rackAdd.fullDepthTitle', 'Gerät full-depth (vorne + hinten) ins Rack hinzufügen')}
+          title={t('rackAdd.fullDepthTitle', 'Add device full-depth (front + rear) to the rack')}
         >
           {resolvedLabel}
         </button>
@@ -70,7 +70,7 @@ export const RackAddSplitButton = ({
           }`}
           aria-expanded={open}
           aria-haspopup="menu"
-          title={t('rackAdd.mountOptionsTitle', 'Mount-Optionen (Vorne / Hinten)')}
+          title={t('rackAdd.mountOptionsTitle', 'Mount options (front / rear)')}
         >
           ▾
         </button>
@@ -94,8 +94,8 @@ export const RackAddSplitButton = ({
               <rect x="2" y="3" width="12" height="3" fill="#22c55e" />
             </svg>
             <div className="flex flex-col">
-              <span className="font-semibold text-emerald-300">{t('rackAdd.frontOnly', 'Nur vorne')}</span>
-              <span className="text-[11px] text-cp-text-muted">{t('rackAdd.frontMount', 'Front-Mount')}</span>
+              <span className="font-semibold text-emerald-300">{t('rackAdd.frontOnly', 'Front only')}</span>
+              <span className="text-[11px] text-cp-text-muted">{t('rackAdd.frontMount', 'Front-mount')}</span>
             </div>
           </button>
           <button
@@ -111,8 +111,8 @@ export const RackAddSplitButton = ({
               <rect x="2" y="3" width="12" height="10" rx="1" fill="#64748b" />
             </svg>
             <div className="flex flex-col">
-              <span className="font-semibold text-cp-text">{t('rackAdd.fullDepth', 'Full-Depth')}</span>
-              <span className="text-[11px] text-cp-text-muted">{t('rackAdd.fullDepthSub', 'vorne + hinten (Default)')}</span>
+              <span className="font-semibold text-cp-text">{t('rackAdd.fullDepth', 'Full-depth')}</span>
+              <span className="text-[11px] text-cp-text-muted">{t('rackAdd.fullDepthSub', 'front + rear (default)')}</span>
             </div>
           </button>
           <button
@@ -129,8 +129,8 @@ export const RackAddSplitButton = ({
               <rect x="2" y="10" width="12" height="3" fill="#a855f7" />
             </svg>
             <div className="flex flex-col">
-              <span className="font-semibold text-purple-300">{t('rackAdd.rearOnly', 'Nur hinten')}</span>
-              <span className="text-[11px] text-cp-text-muted">{t('rackAdd.rearMount', 'Rear-Mount (z.B. Patchblende)')}</span>
+              <span className="font-semibold text-purple-300">{t('rackAdd.rearOnly', 'Rear only')}</span>
+              <span className="text-[11px] text-cp-text-muted">{t('rackAdd.rearMount', 'Rear-mount (e.g. patch panel)')}</span>
             </div>
           </button>
         </div>

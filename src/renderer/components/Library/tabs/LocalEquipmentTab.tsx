@@ -141,23 +141,23 @@ export const LocalEquipmentTab = ({
             onKeyDown={(e) => {
               if (e.key === 'Escape') setLibrarySearch('')
             }}
-            placeholder={t('library.search.placeholder', 'Suchen…')}
-            aria-label={t('library.search.placeholder', 'Suchen…')}
+            placeholder={t('library.search.placeholder', 'Search…')}
+            aria-label={t('library.search.placeholder', 'Search…')}
             className="w-full rounded border border-cp-border bg-cp-surface-1 py-1 pl-7 pr-12 text-cp-xs text-cp-text placeholder-slate-500"
           />
           {librarySearch ? (
             <button
               type="button"
               onClick={() => setLibrarySearch('')}
-              title={t('library.search.clear', 'Suche löschen')}
-              aria-label={t('library.search.clear', 'Suche löschen')}
+              title={t('library.search.clear', 'Clear search')}
+              aria-label={t('library.search.clear', 'Clear search')}
               className="absolute right-1 top-1/2 -translate-y-1/2 rounded px-1 py-0.5 text-cp-xs text-cp-text-faint hover:bg-cp-surface-4 hover:text-cp-text-bright"
             >
               <Icon icon={X} size="sm" />
             </button>
           ) : (
             <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[11px] uppercase tracking-wider text-cp-text-muted">
-              {t('library.search.shortcut', 'Strg+F')}
+              {t('library.search.shortcut', 'Ctrl+F')}
             </span>
           )}
         </div>
@@ -225,7 +225,7 @@ export const LocalEquipmentTab = ({
             ref={newGroupInputRef}
             value={newGroupName}
             onChange={(e) => setNewGroupName(e.target.value)}
-            placeholder={t('library.newCategoryPlaceholder', 'Kategoriename…')}
+            placeholder={t('library.newCategoryPlaceholder', 'Category name…')}
             className="flex-1 rounded border border-cp-surface-5 bg-cp-surface-1 p-1.5 text-cp-xs"
           />
           <button
@@ -238,7 +238,7 @@ export const LocalEquipmentTab = ({
             type="button"
             onClick={() => setShowNewGroup(false)}
             className="rounded bg-cp-surface-4 px-2 text-cp-xs hover:bg-cp-surface-5"
-            aria-label={t('common.close', 'Schließen')}
+            aria-label={t('common.close', 'Close')}
           >
             <Icon icon={X} size="sm" />
           </button>
@@ -274,13 +274,13 @@ export const LocalEquipmentTab = ({
               return (
                 <div className="mt-4 rounded border border-cp-border-muted bg-cp-surface-3/60 p-4 text-center text-cp-xs text-cp-text-muted">
                   <div className="mb-2 font-semibold text-cp-text-secondary">
-                    {t('library.empty.title', 'Keine Geräte gefunden')}
+                    {t('library.empty.title', 'No devices found')}
                   </div>
                   <div className="mb-3 text-[11px] text-cp-text-muted">
                     {format(
                       t(
                         'library.empty.body',
-                        'Kein Treffer für „{q}". Versuche einen anderen Suchbegriff oder lösche das Suchfeld.',
+                        'No match for "{q}". Try a different search term or clear the search field.',
                       ),
                       { q: librarySearch },
                     )}
@@ -290,7 +290,7 @@ export const LocalEquipmentTab = ({
                     onClick={() => setLibrarySearch('')}
                     className="rounded bg-cp-surface-4 px-3 py-1 text-[11px] text-cp-text hover:bg-cp-surface-5"
                   >
-                    {t('library.empty.clearSearch', 'Suche zurücksetzen')}
+                    {t('library.empty.clearSearch', 'Clear search')}
                   </button>
                 </div>
               )
@@ -361,7 +361,7 @@ export const LocalEquipmentTab = ({
                       // #309 — Bilinguale Bearbeitung
                       const existing = categoryTranslations[cat] ?? {}
                       const result = await bilingualCategoryDialog(
-                        t('library.renameCategory', 'Kategorie umbenennen'),
+                        t('library.renameCategory', 'Rename category'),
                         {
                           de: existing.de ?? (lang === 'de' ? cat : undefined),
                           en: existing.en ?? (lang === 'en' ? cat : undefined),
@@ -376,8 +376,8 @@ export const LocalEquipmentTab = ({
                       }
                     }}
                     className="hidden rounded bg-cp-surface-4/80 px-1.5 py-0.5 text-[10px] font-normal normal-case text-cp-text-bright hover:bg-cp-surface-5 group-hover/cat:block"
-                    title={t('library.renameCategory', 'Kategorie umbenennen')}
-                    aria-label={t('library.renameCategory', 'Kategorie umbenennen')}
+                    title={t('library.renameCategory', 'Rename category')}
+                    aria-label={t('library.renameCategory', 'Rename category')}
                   >
                     <Icon icon={Pencil} size="xs" />
                   </button>
@@ -392,8 +392,8 @@ export const LocalEquipmentTab = ({
                     {visibleItems.length === 0 ? (
                       <div className="px-1 py-1 text-[11px] italic text-cp-text-muted">
                         {searchQuery
-                          ? format(t('library.empty.search', 'Keine Treffer für "{query}"'), { query: librarySearch })
-                          : t('library.empty.dragHere', 'Gerät hierher ziehen zum Verschieben')}
+                          ? format(t('library.empty.search', 'No matches for "{query}"'), { query: librarySearch })
+                          : t('library.empty.dragHere', 'Drag a device here to move it')}
                       </div>
                     ) : (
                       visibleItems
@@ -419,8 +419,8 @@ export const LocalEquipmentTab = ({
                             type="button"
                             onClick={() => setSelectedTemplateName(item.name)}
                             className="absolute right-7 top-1 hidden rounded bg-cp-surface-5 px-1 py-0.5 text-[10px] hover:bg-slate-500 group-hover/item:block"
-                            title={t('library.template.editTitle', 'Vorlage bearbeiten (Name, Kategorie)')}
-                            aria-label={t('library.template.editTitle', 'Vorlage bearbeiten (Name, Kategorie)')}
+                            title={t('library.template.editTitle', 'Edit template (name, category)')}
+                            aria-label={t('library.template.editTitle', 'Edit template (name, category)')}
                           >
                             <Icon icon={Pencil} size="xs" />
                           </button>

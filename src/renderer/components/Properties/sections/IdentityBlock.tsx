@@ -41,12 +41,12 @@ export const IdentityBlock = ({ equipment }: { equipment: EquipmentItem }) => {
           Refresh-Button setzt den Override auf den Auto-Vorschlag. */}
       <label className="block">
         <span className="mb-1 block text-cp-text-secondary">
-          {t('eq.field.shortName', 'Short-Name')}{' '}
+          {t('eq.field.shortName', 'Short name')}{' '}
           <span className="text-cp-text-faint">
             ({t('common.optional', 'optional')},{' '}
             {t(
               'eq.field.shortNameHint',
-              'für Port-/Endpoint-Labels — z.B. "ATEM8K" statt "ATEM Constellation 8K"',
+              'for port/endpoint labels — e.g. "ATEM8K" instead of "ATEM Constellation 8K"',
             )}
             )
           </span>
@@ -54,7 +54,7 @@ export const IdentityBlock = ({ equipment }: { equipment: EquipmentItem }) => {
         <div className="flex gap-1">
           <input
             value={equipment.shortName ?? ''}
-            placeholder={autoSuggestion || t('eq.field.shortNamePlaceholder', 'Kurzform…')}
+            placeholder={autoSuggestion || t('eq.field.shortNamePlaceholder', 'Short form…')}
             onChange={(event) =>
               updateEquipment(equipment.id, {
                 shortName: event.target.value || undefined,
@@ -70,8 +70,8 @@ export const IdentityBlock = ({ equipment }: { equipment: EquipmentItem }) => {
             disabled={!autoSuggestion}
             title={
               autoSuggestion
-                ? `${t('eq.field.shortNameAuto', 'Aus Namen neu generieren')} (${autoSuggestion})`
-                : t('eq.field.shortNameAutoEmpty', 'Kein Vorschlag — Name pflegen.')
+                ? `${t('eq.field.shortNameAuto', 'Regenerate from name')} (${autoSuggestion})`
+                : t('eq.field.shortNameAutoEmpty', 'No suggestion — please set a name.')
             }
             className="shrink-0 rounded border border-cp-border bg-cp-surface-2 px-2 text-cp-xs text-cp-text-bright hover:bg-cp-surface-4 disabled:cursor-not-allowed disabled:opacity-50"
           >
@@ -80,7 +80,7 @@ export const IdentityBlock = ({ equipment }: { equipment: EquipmentItem }) => {
         </div>
         {!equipment.shortName?.trim() && autoSuggestion && (
           <p className="mt-1 text-[10px] text-cp-text-muted">
-            {t('eq.field.shortNameAutoUsed', 'Verwendet automatisch:')}{' '}
+            {t('eq.field.shortNameAutoUsed', 'Automatically using:')}{' '}
             <span className="font-mono text-cp-text-muted">{autoSuggestion}</span>
           </p>
         )}
@@ -88,14 +88,14 @@ export const IdentityBlock = ({ equipment }: { equipment: EquipmentItem }) => {
 
       <label className="block">
         <span className="mb-1 block text-cp-text-secondary">
-          {t('eq.field.subtitle', 'Untertitel')}{' '}
+          {t('eq.field.subtitle', 'Subtitle')}{' '}
           <span className="text-cp-text-faint">
-            ({t('common.optional', 'optional')}, {t('eq.field.subtitleHint', 'z.B. "PGM Monitor"')})
+            ({t('common.optional', 'optional')}, {t('eq.field.subtitleHint', 'optional, e.g. "PGM monitor"')})
           </span>
         </span>
         <input
           value={equipment.subtitle ?? ''}
-          placeholder={t('eq.field.subtitlePlaceholder', 'Untertitel…')}
+          placeholder={t('eq.field.subtitlePlaceholder', 'Subtitle…')}
           onChange={(event) => updateEquipment(equipment.id, { subtitle: event.target.value || undefined })}
           className="w-full rounded border border-cp-border bg-cp-surface-1 p-2"
         />
@@ -134,7 +134,7 @@ const DeviceTypePicker = ({ equipment }: { equipment: EquipmentItem }) => {
     <div className="rounded border border-cp-border-muted bg-cp-surface-1/40 p-2">
       <div className="mb-1 flex items-baseline justify-between gap-2">
         <span className="text-cp-text-secondary">
-          {t('eq.field.deviceType', 'Katalog-Typ')}
+          {t('eq.field.deviceType', 'Catalogue type')}
         </span>
         {current ? (
           <button
@@ -142,7 +142,7 @@ const DeviceTypePicker = ({ equipment }: { equipment: EquipmentItem }) => {
             onClick={() => updateEquipment(equipment.id, { deviceTypeId: undefined })}
             className="text-cp-xs text-cp-text-muted hover:text-cp-text"
           >
-            {t('eq.field.deviceTypeClear', 'lösen')}
+            {t('eq.field.deviceTypeClear', 'clear')}
           </button>
         ) : null}
       </div>
@@ -153,7 +153,7 @@ const DeviceTypePicker = ({ equipment }: { equipment: EquipmentItem }) => {
         <p className="mb-1 text-cp-text-muted">
           {t(
             'eq.field.deviceTypeNone',
-            'Kein Katalog-Typ — Lager-Deckung und Stückliste können dieses Gerät nur über den Namen erraten.',
+            'No catalogue type — inventory coverage and the BOM can only guess this device from its name.',
           )}
         </p>
       )}
@@ -161,7 +161,7 @@ const DeviceTypePicker = ({ equipment }: { equipment: EquipmentItem }) => {
       <input
         value={filter}
         onChange={(event) => setFilter(event.target.value)}
-        placeholder={t('eq.field.deviceTypeFilter', 'Katalog durchsuchen…')}
+        placeholder={t('eq.field.deviceTypeFilter', 'Search the catalogue…')}
         className="mb-1 w-full rounded border border-cp-border bg-cp-surface-1 p-1.5 text-cp-xs"
       />
       <select
@@ -171,7 +171,7 @@ const DeviceTypePicker = ({ equipment }: { equipment: EquipmentItem }) => {
         }
         className="w-full rounded border border-cp-border bg-cp-surface-1 p-1.5 text-cp-xs"
       >
-        <option value="">{t('eq.field.deviceTypeUnset', '— keiner —')}</option>
+        <option value="">{t('eq.field.deviceTypeUnset', '— none —')}</option>
         {matches.map((c) => (
           <option key={c.id} value={c.id}>
             {c.category ? `${c.name} · ${c.category}` : c.name}
@@ -179,14 +179,14 @@ const DeviceTypePicker = ({ equipment }: { equipment: EquipmentItem }) => {
         ))}
       </select>
       <p className="mt-1 text-cp-xs text-cp-text-faint">
-        {format(t('eq.field.deviceTypeCount', '{n} von {total} Typen'), {
+        {format(t('eq.field.deviceTypeCount', '{n} of {total} types'), {
           n: matches.length,
           total: all.length,
         })}
         {' — '}
         {t(
           'eq.field.deviceTypeScope',
-          'setzt nur die Identität; Ports, Maße und Leistung bleiben unverändert.',
+          'sets the identity only; ports, dimensions and power stay unchanged.',
         )}
       </p>
     </div>

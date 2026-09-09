@@ -173,14 +173,14 @@ export const NetboxImportDialog = ({ open, onClose }: { open: boolean; onClose: 
     <ModalShell
       open={open}
       onClose={onClose}
-      title={t('netbox.import.title', 'NetBox-Import')}
+      title={t('netbox.import.title', 'NetBox import')}
       titleIcon={<Icon icon={Server} size="md" />}
       maxWidth="2xl"
       draggableKey="cable-planner:modal-pos:netbox-import"
       footer={
         <div className="flex flex-wrap items-center justify-between gap-2">
           <span className="text-cp-xs text-cp-text-muted">
-            {configured ? netboxUrl : t('netbox.notConfigured', 'Keine NetBox-URL konfiguriert')}
+            {configured ? netboxUrl : t('netbox.notConfigured', 'No NetBox URL configured')}
           </span>
           <div className="flex gap-2">
             {phase === 'preview' && (
@@ -189,7 +189,7 @@ export const NetboxImportDialog = ({ open, onClose }: { open: boolean; onClose: 
                 onClick={() => setPhase('choose')}
                 className="rounded bg-cp-surface-2 px-3 py-1 text-cp-base hover:bg-cp-surface-3"
               >
-                {t('common.back', 'Zurück')}
+                {t('common.back', 'Back')}
               </button>
             )}
             <button
@@ -197,7 +197,7 @@ export const NetboxImportDialog = ({ open, onClose }: { open: boolean; onClose: 
               onClick={onClose}
               className="rounded bg-cp-surface-2 px-3 py-1 text-cp-base hover:bg-cp-surface-3"
             >
-              {t('common.cancel', 'Abbrechen')}
+              {t('common.cancel', 'Cancel')}
             </button>
             {phase === 'choose' ? (
               <button
@@ -207,8 +207,8 @@ export const NetboxImportDialog = ({ open, onClose }: { open: boolean; onClose: 
                 className="rounded bg-sky-600 px-3 py-1 text-cp-base font-semibold text-white hover:bg-sky-500 disabled:opacity-50"
               >
                 {busy
-                  ? t('netbox.import.loading', 'Lade aus NetBox…')
-                  : t('netbox.import.preview', 'Vorschau erstellen')}
+                  ? t('netbox.import.loading', 'Loading from NetBox…')
+                  : t('netbox.import.preview', 'Build preview')}
               </button>
             ) : (
               <button
@@ -218,7 +218,7 @@ export const NetboxImportDialog = ({ open, onClose }: { open: boolean; onClose: 
                 className="rounded bg-emerald-600 px-3 py-1 text-cp-base font-semibold text-white hover:bg-emerald-500 disabled:opacity-50"
               >
                 <Icon icon={Download} size="sm" />{' '}
-                {t('netbox.import.apply', 'In Projekt übernehmen')}
+                {t('netbox.import.apply', 'Add to project')}
               </button>
             )}
           </div>
@@ -229,7 +229,7 @@ export const NetboxImportDialog = ({ open, onClose }: { open: boolean; onClose: 
         <div className="rounded border border-amber-700/50 bg-amber-900/20 p-3 text-cp-base text-amber-200">
           {t(
             'netbox.import.needsConfig',
-            'Bitte zuerst unter Einstellungen → Integrationen → NetBox die Instanz-URL und ein API-Token hinterlegen.',
+            'Please configure the instance URL and an API token first under Settings → Integrations → NetBox.',
           )}
         </div>
       ) : phase === 'choose' ? (
@@ -238,7 +238,7 @@ export const NetboxImportDialog = ({ open, onClose }: { open: boolean; onClose: 
             className="text-cp-base text-cp-text-secondary"
             text={t(
               'netbox.import.intro',
-              'Wähle eine Site oder ein einzelnes Rack. Geräte, Ports und Verbindungen werden gelesen und als Kabelplan angelegt. Der Abgleich fügt immer nur hinzu — bereits vorhandene Geräte und Kabel bleiben mit allen Anpassungen erhalten.',
+              'Pick a site or a single rack. Devices, ports and connections are read and laid out as a cable plan. The sync only ever adds — devices and cables already in the plan keep all their edits.',
             )}
           />
 
@@ -253,7 +253,7 @@ export const NetboxImportDialog = ({ open, onClose }: { open: boolean; onClose: 
                 }}
                 className="flex-1 rounded border border-cp-border bg-cp-surface-3 p-2 text-cp-base"
               >
-                <option value="">{t('netbox.import.sitePlaceholder', '— Site wählen —')}</option>
+                <option value="">{t('netbox.import.sitePlaceholder', '— pick a site —')}</option>
                 {sites.map((site) => (
                   <option key={site.id} value={site.id}>
                     {site.name ?? site.display ?? `Site ${site.id}`}
@@ -266,8 +266,8 @@ export const NetboxImportDialog = ({ open, onClose }: { open: boolean; onClose: 
                 disabled={busy}
                 onClick={() => void loadSites()}
                 className="rounded bg-cp-surface-2 px-2 py-1 text-cp-text-muted hover:bg-cp-surface-4 disabled:opacity-50"
-                title={t('netbox.import.reload', 'Neu laden')}
-                aria-label={t('netbox.import.reload', 'Neu laden')}
+                title={t('netbox.import.reload', 'Reload')}
+                aria-label={t('netbox.import.reload', 'Reload')}
               >
                 <Icon icon={RefreshCw} size="sm" />
               </button>
@@ -283,7 +283,7 @@ export const NetboxImportDialog = ({ open, onClose }: { open: boolean; onClose: 
               className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2 text-cp-base disabled:opacity-50"
             >
               <option value="">
-                {t('netbox.import.wholeSite', '— ganze Site importieren —')}
+                {t('netbox.import.wholeSite', '— import the whole site —')}
               </option>
               {racks.map((rack) => (
                 <option key={rack.id} value={rack.id}>
@@ -296,7 +296,7 @@ export const NetboxImportDialog = ({ open, onClose }: { open: boolean; onClose: 
 
           <fieldset className="space-y-2 rounded border border-cp-border bg-cp-surface-3/40 p-3">
             <legend className="px-1 text-cp-xs text-cp-text-muted">
-              {t('netbox.import.options', 'Optionen')}
+              {t('netbox.import.options', 'Options')}
             </legend>
             <label className="flex items-start gap-2 text-cp-base">
               <input
@@ -306,11 +306,11 @@ export const NetboxImportDialog = ({ open, onClose }: { open: boolean; onClose: 
                 className="mt-1 accent-sky-500"
               />
               <span>
-                {t('netbox.import.onlyConnected', 'Nur verkabelte Ports importieren')}
+                {t('netbox.import.onlyConnected', 'Only import cabled ports')}
                 <span className="block text-cp-xs text-cp-text-muted">
                   {t(
                     'netbox.import.onlyConnectedHint',
-                    'Empfohlen: ein 48-Port-Switch bringt sonst 48 unbenutzte Ports mit auf den Plan.',
+                    'Recommended: otherwise a 48-port switch drags 48 unused ports onto the plan.',
                   )}
                 </span>
               </span>
@@ -322,7 +322,7 @@ export const NetboxImportDialog = ({ open, onClose }: { open: boolean; onClose: 
                 onChange={(e) => setIncludeCables(e.target.checked)}
                 className="accent-sky-500"
               />
-              {t('netbox.import.includeCables', 'Verbindungen importieren')}
+              {t('netbox.import.includeCables', 'Import connections')}
             </label>
             <label className="flex items-center gap-2 text-cp-base">
               <input
@@ -331,7 +331,7 @@ export const NetboxImportDialog = ({ open, onClose }: { open: boolean; onClose: 
                 onChange={(e) => setCreateRackFrames(e.target.checked)}
                 className="accent-sky-500"
               />
-              {t('netbox.import.rackFrames', 'Rahmen je Rack anlegen')}
+              {t('netbox.import.rackFrames', 'Create a frame per rack')}
             </label>
           </fieldset>
 
@@ -340,7 +340,7 @@ export const NetboxImportDialog = ({ open, onClose }: { open: boolean; onClose: 
               {format(
                 t(
                   'netbox.import.linked',
-                  'Dieses Projekt ist mit {scope} „{name}" verknüpft. Letzter Abgleich: {when}.',
+                  'This project is linked to {scope} "{name}". Last sync: {when}.',
                 ),
                 {
                   scope: metadata.netboxScope === 'rack' ? 'Rack' : 'Site',
@@ -367,22 +367,22 @@ export const NetboxImportDialog = ({ open, onClose }: { open: boolean; onClose: 
 
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
             <PreviewStat
-              label={t('netbox.preview.newDevices', 'Neue Geräte')}
+              label={t('netbox.preview.newDevices', 'New devices')}
               value={plan.newEquipment.length}
               accent
             />
             <PreviewStat
-              label={t('netbox.preview.newCables', 'Neue Verbindungen')}
+              label={t('netbox.preview.newCables', 'New connections')}
               value={plan.newCables.length}
               accent
             />
             <PreviewStat
-              label={t('netbox.preview.newPorts', 'Neue Ports an Bestand')}
+              label={t('netbox.preview.newPorts', 'New ports on existing devices')}
               value={addedPortCount}
               accent={addedPortCount > 0}
             />
             <PreviewStat
-              label={t('netbox.preview.unchanged', 'Unverändert')}
+              label={t('netbox.preview.unchanged', 'Unchanged')}
               value={plan.unchangedDeviceIds.length + plan.unchangedCableIds.length}
             />
           </div>
@@ -391,7 +391,7 @@ export const NetboxImportDialog = ({ open, onClose }: { open: boolean; onClose: 
             {format(
               t(
                 'netbox.preview.source',
-                'In NetBox: {devices} Geräte, {cables} Verbindungen, {ports} Ports — davon {imported} übernommen.',
+                'In NetBox: {devices} devices, {cables} connections, {ports} ports — {imported} of them imported.',
               ),
               {
                 devices: plan.stats.devicesInNetbox,
@@ -406,7 +406,7 @@ export const NetboxImportDialog = ({ open, onClose }: { open: boolean; onClose: 
             <div className="rounded border border-emerald-700/50 bg-emerald-900/20 p-2 text-cp-base text-emerald-200">
               {t(
                 'netbox.preview.upToDate',
-                'Der Plan ist bereits auf dem Stand von NetBox — es gibt nichts hinzuzufügen.',
+                'The plan already matches NetBox — there is nothing to add.',
               )}
             </div>
           )}
@@ -417,7 +417,7 @@ export const NetboxImportDialog = ({ open, onClose }: { open: boolean; onClose: 
               {format(
                 t(
                   'netbox.preview.stale',
-                  '{devices} Geräte und {cables} Verbindungen im Plan gibt es in NetBox nicht mehr. Sie bleiben unangetastet — bitte manuell prüfen.',
+                  '{devices} devices and {cables} connections in the plan no longer exist in NetBox. They are left untouched — please review manually.',
                 ),
                 { devices: plan.staleDeviceIds.length, cables: plan.staleCableIds.length },
               )}
@@ -427,7 +427,7 @@ export const NetboxImportDialog = ({ open, onClose }: { open: boolean; onClose: 
           {plan.skipped.length > 0 && (
             <details className="rounded border border-cp-border bg-cp-surface-3/40 p-2">
               <summary className="cursor-pointer text-cp-xs text-cp-text-secondary">
-                {format(t('netbox.preview.skipped', '{count} übersprungene Objekte'), {
+                {format(t('netbox.preview.skipped', '{count} skipped objects'), {
                   count: plan.skipped.length,
                 })}
               </summary>
@@ -444,7 +444,7 @@ export const NetboxImportDialog = ({ open, onClose }: { open: boolean; onClose: 
           {plan.newEquipment.length > 0 && (
             <details className="rounded border border-cp-border bg-cp-surface-3/40 p-2" open>
               <summary className="cursor-pointer text-cp-xs text-cp-text-secondary">
-                {t('netbox.preview.deviceList', 'Geräte, die angelegt werden')}
+                {t('netbox.preview.deviceList', 'Devices that will be created')}
               </summary>
               <ul className="mt-2 max-h-48 space-y-1 overflow-y-auto text-cp-xs">
                 {plan.newEquipment.map((item) => (

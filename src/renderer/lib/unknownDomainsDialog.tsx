@@ -71,12 +71,12 @@ const UnknownDomainsDialog = ({ slots, freeTargets, onDone }: Props) => {
     <div style={MODAL_BACKDROP} onMouseDown={backdropMouseDown(cancel)}>
       <div style={{ ...MODAL_CARD, maxWidth: 560 }} role="dialog" aria-modal="true">
         <div style={{ marginBottom: 8, fontSize: 14, fontWeight: 600 }}>
-          {t('avplan.unknown.title', 'Diese Datei enthält unbekannte Bereiche')}
+          {t('avplan.unknown.title', 'This file contains unknown sections')}
         </div>
         <div style={{ marginBottom: 12, fontSize: 13, color: '#cbd5e1' }}>
           {t(
             'avplan.unknown.body',
-            'Die Datei bringt Bereiche mit, die diese App nicht kennt — vermutlich aus einer neueren Fassung oder einem anderen Gewerk. Sie werden standardmäßig unverändert mitgeführt und stehen beim nächsten Export wieder in der Datei.',
+            'The file carries sections this app does not know — probably from a newer build or another trade. By default they are carried through unchanged and will be in the file again on the next export.',
           )}
         </div>
 
@@ -102,7 +102,7 @@ const UnknownDomainsDialog = ({ slots, freeTargets, onDone }: Props) => {
                     checked={decision.kind === 'keep'}
                     onChange={() => set(slot, { kind: 'keep' })}
                   />
-                  {t('avplan.unknown.keep', 'Mitführen (unverändert, bleibt beim Export erhalten)')}
+                  {t('avplan.unknown.keep', 'Carry through (unchanged, preserved on export)')}
                 </label>
 
                 {freeTargets.length > 0 && (
@@ -113,7 +113,7 @@ const UnknownDomainsDialog = ({ slots, freeTargets, onDone }: Props) => {
                       checked={decision.kind === 'assign'}
                       onChange={() => set(slot, { kind: 'assign', target: freeTargets[0] })}
                     />
-                    {t('avplan.unknown.assign', 'Übernehmen als')}
+                    {t('avplan.unknown.assign', 'Take over as')}
                     <select
                       disabled={decision.kind !== 'assign'}
                       value={decision.kind === 'assign' ? decision.target : freeTargets[0]}
@@ -136,7 +136,7 @@ const UnknownDomainsDialog = ({ slots, freeTargets, onDone }: Props) => {
                     checked={decision.kind === 'discard'}
                     onChange={() => set(slot, { kind: 'discard' })}
                   />
-                  {t('avplan.unknown.discard', 'Verwerfen')}
+                  {t('avplan.unknown.discard', 'Discard')}
                 </label>
               </div>
             )
@@ -147,14 +147,14 @@ const UnknownDomainsDialog = ({ slots, freeTargets, onDone }: Props) => {
           <div style={{ marginBottom: 12, fontSize: 12, color: '#94a3b8' }}>
             {t(
               'avplan.unknown.noTargets',
-              'Kein bekannter Bereich ist frei — Übernehmen steht deshalb nicht zur Wahl.',
+              'No known section is free — taking over is therefore not offered.',
             )}
           </div>
         )}
 
         <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
           <button type="button" onClick={cancel} style={MODAL_BUTTON_SECONDARY}>
-            {t('avplan.unknown.keepAll', 'Alle mitführen')}
+            {t('avplan.unknown.keepAll', 'Carry all through')}
           </button>
           <button
             type="button"

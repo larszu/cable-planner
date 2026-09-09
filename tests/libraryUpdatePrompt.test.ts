@@ -135,7 +135,7 @@ describe('der Prompt geht durch die richtige Aktion und sagt, was passiert', () 
   it('nennt die Kabel-Folge, bevor geklickt wird', () => {
     // Ein Kabel, das keinen passenden Port mehr findet, wird entfernt. Das
     // muss vor dem Klick dastehen, nicht danach.
-    expect(appSrc).toContain('Findet ein Kabel keinen passenden Port mehr, wird es entfernt.')
+    expect(appSrc).toContain('no longer finds a matching port is removed.')
     expect(dictsSrc).toContain('A cable that no longer finds a matching port is removed.')
   })
 

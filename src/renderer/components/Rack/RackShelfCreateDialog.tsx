@@ -49,16 +49,16 @@ export const RackShelfCreateDialog = ({ open, onClose, onCreated }: Props) => {
     <ModalShell
       open={open}
       onClose={onClose}
-      title={t('rack.shelf.title', 'Rack-Shelf anlegen')}
+      title={t('rack.shelf.title', 'Create rack shelf')}
       maxWidth="md"
       zIndex={200}
       footer={
         <div className="flex justify-end gap-2">
           <Button variant="secondary" onClick={onClose}>
-            {t('common.cancel', 'Abbrechen')}
+            {t('common.cancel', 'Cancel')}
           </Button>
           <Button variant="success" onClick={handleCreate}>
-            {t('rack.shelf.create', 'Shelf erstellen')}
+            {t('rack.shelf.create', 'Create shelf')}
           </Button>
         </div>
       }
@@ -74,7 +74,7 @@ export const RackShelfCreateDialog = ({ open, onClose, onCreated }: Props) => {
           </label>
           <div className="grid grid-cols-2 gap-2">
             <label className="block">
-              <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('rack.shelf.heightUnits', 'Höhe (HE)')}</span>
+              <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('rack.shelf.heightUnits', 'Height (U)')}</span>
               <input
                 type="number"
                 min={1}
@@ -85,7 +85,7 @@ export const RackShelfCreateDialog = ({ open, onClose, onCreated }: Props) => {
               />
             </label>
             <label className="block">
-              <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('rack.shelf.depth', 'Tiefe (mm)')}</span>
+              <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('rack.shelf.depth', 'Depth (mm)')}</span>
               <input
                 type="number"
                 min={150}
@@ -100,7 +100,7 @@ export const RackShelfCreateDialog = ({ open, onClose, onCreated }: Props) => {
             </label>
           </div>
           <div className="rounded border border-cp-border-muted bg-cp-surface-3/50 p-2 text-[11px] text-cp-text-muted">
-            {t('rack.shelf.tip', 'Tipp: Lege das Shelf auf den gewünschten HE-Slot, danach platziere beliebige Non-19"-Items mit demselben Start-HE — sie erscheinen optisch auf dem Shelf.')}
+            {t('rack.shelf.tip', 'Tip: place the shelf at the desired U slot, then put non-19" items at the same starting U — they appear visually on the shelf.')}
           </div>
         </div>
     </ModalShell>

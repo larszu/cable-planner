@@ -268,7 +268,7 @@ describe('Erreichbarkeit im Lager-Dialog', () => {
   it('laesst das Rueckgabedatum eintragen — nur bei fremdem Material', () => {
     expect(inventarQuelle).toContain("returnDue: form.returnDue?.trim() || undefined")
     expect(inventarQuelle).toContain("form.ownership === 'rented' || form.ownership === 'subhire'")
-    expect(inventarQuelle).toContain("t('inventory.returnDue', 'Rückgabe bis')")
+    expect(inventarQuelle).toContain("t('inventory.returnDue', 'Return by')")
   })
 
   it('zeigt die Rueckgabe-Liste', () => {

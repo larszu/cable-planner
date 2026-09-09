@@ -38,17 +38,17 @@ export const DeviceToolsSection = ({ equipment }: { equipment: EquipmentItem }) 
     greengo: () => useUiStore.getState().openGreenGoExport(),
   }
   const beschriftung: Record<DeviceToolId, string> = {
-    'atem-mv': t('app.menu.tools.atemMv', 'ATEM Multiviewer-Layout…'),
-    'atem-audio': t('app.menu.tools.atemAudio', 'ATEM Audio-Routing…'),
-    'atem-labels': t('app.menu.tools.atemLabels', 'ATEM Input-Labels…'),
-    videohub: t('app.menu.tools.videohub', 'Videohub-Routing/Labels…'),
-    greengo: t('app.menu.tools.greengo', 'GreenGo-Intercom…'),
+    'atem-mv': t('app.menu.tools.atemMv', 'ATEM multiviewer layout…'),
+    'atem-audio': t('app.menu.tools.atemAudio', 'ATEM audio routing…'),
+    'atem-labels': t('app.menu.tools.atemLabels', 'ATEM input labels…'),
+    videohub: t('app.menu.tools.videohub', 'Videohub routing / labels…'),
+    greengo: t('app.menu.tools.greengo', 'GreenGo intercom…'),
   }
 
   return (
     <section className="mb-3 rounded border border-cp-border bg-cp-surface-2/40 p-2">
       <div className="mb-1.5 text-cp-xs font-semibold uppercase tracking-wide text-cp-text-muted">
-        {t('props.deviceTools.title', 'Werkzeuge für dieses Gerät')}
+        {t('props.deviceTools.title', 'Tools for this device')}
       </div>
       <div className="flex flex-col gap-1">
         {werkzeuge.map((id) => (

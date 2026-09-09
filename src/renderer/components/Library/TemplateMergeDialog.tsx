@@ -117,13 +117,13 @@ export const TemplateMergeDialog = ({
     <ModalShell
       open={open}
       onClose={onCancel}
-      title={t('templateMerge.title', 'Geräte zusammenführen')}
+      title={t('templateMerge.title', 'Merge devices')}
       maxWidth="4xl"
       zIndex={80}
       footer={
         <div className="flex justify-end gap-2">
           <Button variant="secondary" onClick={onCancel}>
-            {t('common.cancel', 'Abbrechen')}
+            {t('common.cancel', 'Cancel')}
           </Button>
           <Button
             variant="success"
@@ -131,15 +131,15 @@ export const TemplateMergeDialog = ({
               const merged = buildMergedTemplate()
               if (!merged) return
               if (!category) {
-                void infoDialog(t('templateMerge.needCategoryTitle', 'Kategorie wählen'), {
-                  body: t('templateMerge.needCategoryBody', 'Bitte Zielkategorie auswählen.'),
+                void infoDialog(t('templateMerge.needCategoryTitle', 'Choose category'), {
+                  body: t('templateMerge.needCategoryBody', 'Please select a target category.'),
                   tone: 'warning',
                 })
                 return
               }
               if (merged.inputs.length === 0 && merged.outputs.length === 0) {
-                void infoDialog(t('templateMerge.needPortTitle', 'Port wählen'), {
-                  body: t('templateMerge.needPortBody', 'Bitte mindestens einen Port auswählen.'),
+                void infoDialog(t('templateMerge.needPortTitle', 'Choose port'), {
+                  body: t('templateMerge.needPortBody', 'Please select at least one port.'),
                   tone: 'warning',
                 })
                 return
@@ -147,7 +147,7 @@ export const TemplateMergeDialog = ({
               onConfirm(merged)
             }}
           >
-            {t('templateMerge.save', 'Merge speichern')}
+            {t('templateMerge.save', 'Save merge')}
           </Button>
         </div>
       }
@@ -156,7 +156,7 @@ export const TemplateMergeDialog = ({
         {format(
           t(
             'templateMerge.intro',
-            'Wählen, welche Inputs/Outputs aus Lokal und {label} übernommen werden.',
+            'Pick which inputs/outputs to take from Local and {label}.',
           ),
           { label: incomingLabel },
         )}
@@ -164,13 +164,13 @@ export const TemplateMergeDialog = ({
 
       <div className="mb-3 grid grid-cols-1 sm:grid-cols-3 gap-2 text-cp-xs">
           <label className="block">
-            {t('templateMerge.targetCategory', 'Zielkategorie')}
+            {t('templateMerge.targetCategory', 'Target category')}
             <select
               value={category}
               onChange={(event) => setCategory(event.target.value)}
               className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2"
             >
-              <option value="">{t('templateMerge.pleaseSelect', 'Bitte wählen...')}</option>
+              <option value="">{t('templateMerge.pleaseSelect', 'Please select…')}</option>
               {categoryOptions.map((cat) => (
                 <option key={cat} value={cat}>
                   {cat}
@@ -179,11 +179,11 @@ export const TemplateMergeDialog = ({
             </select>
           </label>
           <div className="rounded border border-cp-border bg-cp-surface-3/50 p-2">
-            <div className="text-cp-text-muted">{t('templateMerge.selectedPorts', 'Gewählte Ports')}</div>
+            <div className="text-cp-text-muted">{t('templateMerge.selectedPorts', 'Selected ports')}</div>
             <div className="mt-1 text-cp-base font-semibold text-cp-text">{selectedCount}</div>
           </div>
           <div className="rounded border border-cp-border bg-cp-surface-3/50 p-2">
-            <div className="text-cp-text-muted">{t('templateMerge.preview', 'Vorschau')}</div>
+            <div className="text-cp-text-muted">{t('templateMerge.preview', 'Preview')}</div>
             <div className="mt-1 text-cp-base font-semibold text-cp-text">
               {format(t('templateMerge.previewCounts', '{in} In / {out} Out'), {
                 in: selectedTemplatePreview.inputs,
@@ -196,7 +196,7 @@ export const TemplateMergeDialog = ({
         <div className="grid grid-cols-2 gap-3">
           <div className="rounded border border-cp-border bg-cp-surface-3/50 p-2">
             <div className="mb-2 text-cp-xs font-semibold uppercase tracking-wide text-cp-text-muted">
-              {t('templateMerge.local', 'Lokal')}
+              {t('templateMerge.local', 'Local')}
             </div>
             <div className="mb-1 text-[11px] text-cp-text-muted">{localTemplate.name}</div>
             <div className="space-y-2">

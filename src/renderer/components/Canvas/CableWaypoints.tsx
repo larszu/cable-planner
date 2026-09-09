@@ -381,9 +381,9 @@ export const CableWaypoints = ({
               onPointerDown={dragSegment(i)}
             >
               <title>
-                {axis === 'horizontal' ? t('cable.segment.moveVertical', 'Segment vertikal verschieben') :
-                 axis === 'vertical'   ? t('cable.segment.moveHorizontal', 'Segment horizontal verschieben') :
-                 t('cable.segment.move', 'Segment verschieben')}
+                {axis === 'horizontal' ? t('cable.segment.moveVertical', 'Move segment vertically') :
+                 axis === 'vertical'   ? t('cable.segment.moveHorizontal', 'Move segment horizontally') :
+                 t('cable.segment.move', 'Move segment')}
               </title>
             </line>
           </g>
@@ -409,7 +409,7 @@ export const CableWaypoints = ({
             updateCable(cable.id, { waypoints: next.length ? next : undefined })
           }}
         >
-          <title>{t('cable.waypoint.tooltip', 'Ziehen zum Verschieben · Alt+Klick oder Rechtsklick zum Entfernen')}</title>
+          <title>{t('cable.waypoint.tooltip', 'Drag to move · Alt-click or right-click to remove')}</title>
         </circle>
       ))}
 
@@ -443,7 +443,7 @@ export const CableWaypoints = ({
               updateCable(cable.id, { waypoints: next.length ? next : undefined })
             }}
           >
-            <title>{t('cable.waypoint.remove', 'Wegpunkt entfernen')}</title>
+            <title>{t('cable.waypoint.remove', 'Remove waypoint')}</title>
           </circle>
           <line
             x1={wp.x + HANDLE_SIZE - 3}

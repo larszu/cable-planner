@@ -119,7 +119,7 @@ export const PacketSection = () => {
 
       <div className="flex flex-wrap items-center gap-3 text-cp-xs">
         <label className="flex items-center gap-1.5">
-          {t('packet.paper', 'Papier')}
+          {t('packet.paper', 'Paper')}
           <select value={paper} onChange={(e) => setPaper(e.target.value as PaperSize)} className={selectCls}>
             <option value="A4">A4</option>
             <option value="Letter">Letter</option>
@@ -130,23 +130,23 @@ export const PacketSection = () => {
             die im Graustufendruck zu einem grauen Kästchen wird, ist keine
             Information mehr. Der NAME steht in beiden Modi da. */}
         <label className="flex items-center gap-1.5">
-          {t('packet.colour', 'Farbe')}
+          {t('packet.colour', 'Colour')}
           <select
             value={colour}
             onChange={(e) => setColour(e.target.value as ColourMode)}
             title={t(
               'packet.colourHint',
-              'Farbfelder werden nur im Farbmodus gedruckt. Der Name der Gruppe steht in BEIDEN Modi da — ein graues Kästchen auf der Fotokopie unterscheidet zwei Gruppen nicht mehr.',
+              'Colour swatches are printed in colour mode only. The name of the group is shown in BOTH modes \u2014 a grey box on a photocopy no longer tells two groups apart.',
             )}
             className={selectCls}
           >
-            <option value="colour">{t('packet.colour.colour', 'farbig')}</option>
-            <option value="mono">{t('packet.colour.mono', 'schwarzweiß')}</option>
+            <option value="colour">{t('packet.colour.colour', 'colour')}</option>
+            <option value="mono">{t('packet.colour.mono', 'black and white')}</option>
           </select>
         </label>
         <label className="flex items-center gap-1.5">
           <input type="checkbox" checked={glossary} onChange={(e) => setGlossary(e.target.checked)} />
-          {t('packet.glossary', 'Spaltenlexikon mitdrucken')}
+          {t('packet.glossary', 'Print column glossary')}
         </label>
         <button
           type="button"
@@ -155,7 +155,7 @@ export const PacketSection = () => {
           className="ml-auto inline-flex items-center gap-1.5 rounded bg-emerald-700 px-3 py-1 text-cp-xs hover:bg-emerald-600 disabled:opacity-40"
         >
           <Icon icon={Printer} size="xs" />
-          {t('packet.print', 'Stapel drucken')}
+          {t('packet.print', 'Print packet')}
         </button>
       </div>
 
@@ -168,7 +168,7 @@ export const PacketSection = () => {
             <li key={u.title} className="flex items-start gap-1.5">
               <Icon icon={AlertTriangle} size="xs" />
               <span>
-                {t('packet.undescribed', '„{sheet}“: {cols} ohne Erklärung im Lexikon.')
+                {t('packet.undescribed', '\u201C{sheet}\u201D: {cols} not explained in the glossary.')
                   .replace('{sheet}', u.title)
                   .replace('{cols}', u.columns.join(', '))}
               </span>

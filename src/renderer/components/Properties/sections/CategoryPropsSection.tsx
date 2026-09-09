@@ -150,7 +150,7 @@ export const CategoryPropsSection = ({ equipment }: { equipment: EquipmentItem }
       <summary className="flex items-center gap-1 px-2 py-1.5 text-[11px] uppercase tracking-wide text-cp-text-muted hover:text-cp-text-bright [&::-webkit-details-marker]:hidden">
         <span className="text-cp-text-faint">{open ? '▾' : '▸'}</span>
         <span className="flex-1">
-          {t('catprops.title', 'Fachdaten')} — {equipment.category}
+          {t('catprops.title', 'Specs')} — {equipment.category}
         </span>
       </summary>
       <div className="grid grid-cols-2 gap-2 px-2 pb-2">

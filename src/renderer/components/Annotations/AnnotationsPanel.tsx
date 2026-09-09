@@ -175,7 +175,7 @@ export const AnnotationsPanel = ({
               }`}
             >
               {s === 'all'
-                ? t('annotations.status.all', 'alle')
+                ? t('annotations.status.all', 'all')
                 : t(`annotations.status.${s}`, STATUS_LABEL[s])}
             </button>
           ))}
@@ -189,8 +189,8 @@ export const AnnotationsPanel = ({
               rows={3}
               placeholder={
                 currentAuthor
-                  ? format(t('annotations.placeholderAs', 'Anmerkung als {name}…'), { name: currentAuthor })
-                  : t('annotations.placeholderEmpty', 'Anmerkung… (Name wird einmalig abgefragt)')
+                  ? format(t('annotations.placeholderAs', 'Annotation as {name}…'), { name: currentAuthor })
+                  : t('annotations.placeholderEmpty', 'Annotation… (name will be asked once)')
               }
               className="w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs"
             />
@@ -216,7 +216,7 @@ export const AnnotationsPanel = ({
                 }}
                 className="flex-1 rounded bg-emerald-600 px-2 py-1 text-cp-xs hover:bg-emerald-500"
               >
-                {t('annotations.add', 'Hinzufügen')}
+                {t('annotations.add', 'Add')}
               </button>
               <button
                 type="button"
@@ -226,7 +226,7 @@ export const AnnotationsPanel = ({
                 }}
                 className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
               >
-                {t('annotations.cancel', 'Abbruch')}
+                {t('annotations.cancel', 'Cancel')}
               </button>
             </div>
           </div>
@@ -236,7 +236,7 @@ export const AnnotationsPanel = ({
             onClick={() => setCreating(true)}
             className="w-full rounded bg-sky-700 px-2 py-1 text-cp-xs text-white hover:bg-sky-600"
           >
-            {t('annotations.new', '+ Neue Anmerkung')}
+            {t('annotations.new', '+ New annotation')}
           </button>
         )}
       </div>
@@ -246,7 +246,7 @@ export const AnnotationsPanel = ({
           <p className="text-[11px] text-cp-text-muted">
             {t(
               'annotations.empty',
-              'Noch keine Anmerkungen. Klicke „+ Neue Anmerkung" oder mache einen Rechtsklick auf ein Gerät / Kabel.',
+              'No annotations yet. Click “+ New annotation” or right-click a device / cable.',
             )}
           </p>
         ) : (
@@ -299,7 +299,7 @@ export const AnnotationsPanel = ({
                         }
                       }}
                       className="cursor-grab rounded border border-cp-border bg-cp-surface-3/40 p-2 text-cp-xs active:cursor-grabbing"
-                      title={t('annotations.dragTitle', 'Ziehen, um diese Anmerkung auf dem Canvas zu platzieren oder einem Gerät zuzuweisen')}
+                      title={t('annotations.dragTitle', 'Drag to place this annotation on the canvas or attach it to a device')}
                     >
                       <div className="mb-1 flex items-center justify-between gap-2">
                         <span
@@ -332,7 +332,7 @@ export const AnnotationsPanel = ({
                         <p
                           className="cursor-text whitespace-pre-wrap break-words"
                           onClick={() => setEditingId(a.id)}
-                          title={t('annotations.clickToEdit', 'Klicken zum Bearbeiten')}
+                          title={t('annotations.clickToEdit', 'Click to edit')}
                         >
                           {a.text}
                         </p>
@@ -350,14 +350,14 @@ export const AnnotationsPanel = ({
                           }
                           className="rounded border border-cp-border bg-cp-surface-1 px-1 py-0.5 text-[10px]"
                         >
-                          <option value="open">{t('annotations.status.open', 'offen')}</option>
-                          <option value="built">{t('annotations.status.built', 'gebaut')}</option>
-                          <option value="resolved">{t('annotations.status.resolved', 'erledigt')}</option>
+                          <option value="open">{t('annotations.status.open', 'open')}</option>
+                          <option value="built">{t('annotations.status.built', 'built')}</option>
+                          <option value="resolved">{t('annotations.status.resolved', 'resolved')}</option>
                         </select>
                         {/* #462 — Tastatur-Alternative zum Ziehen: platziert die
                             Anmerkung in der sichtbaren Canvas-Mitte (freier
                             Anker). Fein-Positionierung danach per Drag. */}
-                        <Tooltip label={t('annotations.placeCenter', 'Auf Canvas-Mitte platzieren (Tastatur-Alternative zum Ziehen)')}>
+                        <Tooltip label={t('annotations.placeCenter', 'Place at canvas centre (keyboard alternative to dragging)')}>
                           <button
                             type="button"
                             onClick={() => {
@@ -370,22 +370,22 @@ export const AnnotationsPanel = ({
                               }
                             }}
                             className="inline-flex items-center gap-1 rounded bg-cp-surface-2 px-1.5 py-0.5 text-[10px] text-cp-text-bright hover:bg-cp-surface-4"
-                            aria-label={t('annotations.placeCenter', 'Auf Canvas-Mitte platzieren (Tastatur-Alternative zum Ziehen)')}
+                            aria-label={t('annotations.placeCenter', 'Place at canvas centre (keyboard alternative to dragging)')}
                           >
                             <Icon icon={MapPin} size="xs" />
                           </button>
                         </Tooltip>
-                        <Tooltip label={t('annotations.delete', 'Anmerkung löschen')}>
+                        <Tooltip label={t('annotations.delete', 'Delete annotation')}>
                           <button
                             type="button"
                             onClick={async () => {
-                              if (await confirmDialog(t('annotations.deleteConfirm', 'Anmerkung löschen?'), {
-                                okLabel: t('common.delete', 'Löschen'),
+                              if (await confirmDialog(t('annotations.deleteConfirm', 'Delete annotation?'), {
+                                okLabel: t('common.delete', 'Delete'),
                                 destructive: true,
                               })) removeAnnotation(a.id)
                             }}
                             className="rounded bg-red-900/60 px-1 py-0.5 text-[10px] text-red-200 hover:bg-red-800"
-                            aria-label={t('annotations.delete', 'Anmerkung löschen')}
+                            aria-label={t('annotations.delete', 'Delete annotation')}
                           >
                             ×
                           </button>
@@ -405,7 +405,7 @@ export const AnnotationsPanel = ({
   const headerTitle = (
     <span className="flex flex-col">
       <span className="text-cp-base font-semibold text-cp-text">
-        <Icon icon={MessageSquare} size="sm" /> {t('annotations.title', 'Anmerkungen')} ({annotations.length})
+        <Icon icon={MessageSquare} size="sm" /> {t('annotations.title', 'Annotations')} ({annotations.length})
       </span>
       {viewerSession && (
         <span className="text-[10px] text-cp-text-muted">
@@ -447,7 +447,7 @@ export const AnnotationsPanel = ({
       <header className="flex items-center justify-between gap-2 border-b border-cp-border-muted px-3 py-2">
         <div className="flex min-w-0 flex-col">
           <h3 className="truncate text-cp-base font-semibold">
-            <Icon icon={MessageSquare} size="sm" /> {t('annotations.title', 'Anmerkungen')} ({annotations.length})
+            <Icon icon={MessageSquare} size="sm" /> {t('annotations.title', 'Annotations')} ({annotations.length})
           </h3>
           {viewerSession && (
             <span className="text-[10px] text-cp-text-muted">
@@ -462,7 +462,7 @@ export const AnnotationsPanel = ({
               entfällt das (#427) — dort gibt es nur Schließen. */}
           {!inPopout && (
             <PanelWindowMenu
-              titel={t('annotations.title', 'Anmerkungen')}
+              titel={t('annotations.title', 'Annotations')}
               onPointerDown={tearOff.onPointerDown}
               draggedRef={tearOff.draggedRef}
               onUndock={() => setFloating(true)}
@@ -474,7 +474,7 @@ export const AnnotationsPanel = ({
             onClick={onClose}
             className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
           >
-            {t('common.close', 'Schließen')}
+            {t('common.close', 'Close')}
           </button>
         </div>
       </header>
