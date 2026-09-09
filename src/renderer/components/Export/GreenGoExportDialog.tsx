@@ -5,6 +5,7 @@ import { useProjectStore } from '../../store/projectStore'
 import type { GreenGoConfig, GreenGoGroup, GreenGoUser } from '../../types/greengo'
 import { defaultGreenGoConfig } from '../../types/greengo'
 import { buildGg5File } from '../../lib/exportGreengo'
+import { withGroupIds } from '../../lib/greengoKeys'
 import {
   fromIntercomExchange,
   parseIntercomExchange,
@@ -224,7 +225,13 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
     const groupIds = user.groupIds.includes(groupId)
       ? user.groupIds.filter((g) => g !== groupId)
       : [...user.groupIds, groupId]
-    updateUser(userId, { groupIds })
+    // Ueber `withGroupIds`, damit die Taste einer abgewaehlten Gruppe
+    // mitgeht — sonst stuende sie in der Oberflaeche nicht mehr und auf dem
+    // Beltpack doch.
+    setConfig((c) => ({
+      ...c,
+      users: c.users.map((u) => (u.id === userId ? withGroupIds(u, groupIds) : u)),
+    }))
   }
 
   // ── group helpers ─────────────────────────────────────────────────────────
@@ -249,10 +256,7 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
     setConfig((c) => ({
       ...c,
       groups: c.groups.filter((g) => g.id !== id),
-      users: c.users.map((u) => ({
-        ...u,
-        groupIds: u.groupIds.filter((gid) => gid !== id),
-      })),
+      users: c.users.map((u) => withGroupIds(u, u.groupIds.filter((gid) => gid !== id))),
     }))
 
   // ── export ────────────────────────────────────────────────────────────────

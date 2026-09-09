@@ -6,6 +6,53 @@
  *  - Groups → communication channels / talk groups (CAM, PGM, …)
  */
 
+/**
+ * Eine Taste auf der Sprechstelle — Seite, Position, Gruppe (E-2, Schritt 2).
+ *
+ * ═══════════════════════════════════════════════════════════════════════════
+ * WARUM DAS EIN EIGENES FELD IST UND NICHT AUS `groupIds` FOLGT
+ * ═══════════════════════════════════════════════════════════════════════════
+ *
+ * Bis hierher kannte der Plan die Tastenpositionen nicht. `groupIds` ist eine
+ * MENGE von Gruppen; der Importeur las `ButtonFunctions` nur als Rückfallweg,
+ * um diese Menge zu füllen, und warf die Positionen dabei weg. Der Generator
+ * erfand sie beim Export neu — positionsweise aus der Array-Reihenfolge.
+ *
+ * Auf einem Beltpack ist das die Tastenbelegung. Der Verlust fällt nicht am
+ * Bildschirm auf, sondern in der Probe: PGM lag auf Taste 5, und nach dem
+ * ersten Speichern liegt es auf Taste 1.
+ *
+ * `mergeButtonFunctions` hat das bisher aufgefangen, indem es die Positionen
+ * aus dem Roh-Preset nie anfasste — richtig, solange der Plan sie nicht kennt.
+ * Jetzt kennt er sie, und der Schutz wandert vom Roh-Dokument ins Modell.
+ *
+ * ═══════════════════════════════════════════════════════════════════════════
+ * ZWEI TATSACHEN, NICHT EINE — DESHALB BLEIBT `groupIds` STEHEN
+ * ═══════════════════════════════════════════════════════════════════════════
+ *
+ * „Diese Station gehört zu Gruppe 3" und „Gruppe 3 liegt auf Taste 5" sind
+ * verschiedene Angaben, und die zweite folgt nicht aus der ersten. Eine
+ * Zugehörigkeit ohne Taste ist ein realer Zustand: `mergeButtonFunctions`
+ * kennt ihn seit jeher („Karte voll — lieber nichts verdrängen"). `groupIds`
+ * aus `keys` zu berechnen wäre deshalb keine Vereinfachung, sondern der
+ * Verlust genau dieses Falls.
+ *
+ * Was gilt: jede Gruppe auf einer Taste MUSS in `groupIds` stehen. Umgekehrt
+ * nicht. `tests/greengoTasten.test.ts` hält beide Richtungen fest.
+ */
+export interface GreenGoKey {
+  /**
+   * Seite der Tastenkarte, 1-basiert. Green-GO schreibt zwei; weitere
+   * Seiten wurden gesehen und werden unverändert mitgeführt, statt sie auf
+   * zwei zu beschneiden — was der Plan nicht versteht, verändert er nicht.
+   */
+  page: number
+  /** Tastenposition auf dieser Seite, 1-basiert (Green-GO: 1–18). */
+  button: number
+  /** Die Gruppe, die auf dieser Taste liegt. */
+  groupId: number
+}
+
 export interface GreenGoUser {
   /** 1-based user slot number (1–12 for standard 12-user systems). */
   id: number
@@ -15,6 +62,23 @@ export interface GreenGoUser {
   color?: number
   /** IDs of groups this user can talk/listen to. */
   groupIds: number[]
+  /**
+   * Die Tastenbelegung dieser Sprechstelle (E-2, Schritt 2). Siehe
+   * `GreenGoKey` — sie ist eine eigene Tatsache und keine Ableitung aus
+   * `groupIds`.
+   *
+   * Fehlt sie, weiss der Plan über die Positionen nichts: ein Projekt aus der
+   * Zeit davor, oder eine Konfiguration, die nie aus einem Preset kam. Dann
+   * gilt weiter, was vorher immer galt — die Positionen kommen aus dem
+   * Roh-Preset und werden nicht angefasst.
+   *
+   * EINE LEERE LISTE IST ETWAS ANDERES ALS KEINE. `[]` heisst: der Plan kennt
+   * die Karte, und sie ist leer — der Export räumt sie dann auch auf der
+   * Anlage. `undefined` heisst: er hat nie eine gesehen. Die beiden zu
+   * verwechseln (etwa mit `keys?.length`) lässt die Belegung, die der Nutzer
+   * gerade entfernt hat, im Preset stehen.
+   */
+  keys?: GreenGoKey[]
   /** Cable-planner equipment ID of the assigned physical device (optional). */
   equipmentId?: string
 }

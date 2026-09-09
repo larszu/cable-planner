@@ -162,15 +162,21 @@ describe('Generator-Weg: ohne Preset bleibt alles wie bisher', () => {
   })
 })
 
-describe('die Tastenkarte ueberlebt den Export', () => {
+describe('die Tastenkarte ueberlebt den Export, wenn der Plan sie nicht kennt', () => {
   // Der letzte verbliebene Datenverlust im Editor-Weg — und der einzige, vor
   // dem der Import-Hinweis nicht warnte, weil `ButtonFunctions` in
   // `READ_USER_FIELDS` steht und `unreadFields` es deshalb nie meldet.
   //
-  // Der Plan kennt keine Tastenpositionen: `GreenGoUser` fuehrt nur
-  // `groupIds`, eine Menge. Der Export erfand die Positionen aus der
-  // Array-Reihenfolge neu und setzte Seite 2 auf Nullen. Auf einem Beltpack
-  // ist das die Tastenbelegung; es faellt in der Probe auf, nicht am Schirm.
+  // Der Export erfand die Positionen aus der Array-Reihenfolge neu und setzte
+  // Seite 2 auf Nullen. Auf einem Beltpack ist das die Tastenbelegung; es
+  // faellt in der Probe auf, nicht am Schirm.
+  //
+  // SEIT E-2 IST DAS DER EINE VON ZWEI FAELLEN. Der Plan kann die Positionen
+  // inzwischen kennen (`GreenGoUser.keys`) und schreibt sie dann auch —
+  // `tests/greengoTasten.test.ts` haelt diese Haelfte fest. Die Stationen
+  // hier haben bewusst KEINE `keys`: so sieht ein Projekt aus der Zeit davor
+  // aus, und fuer das gilt unveraendert weiter, was hier steht. Wer die
+  // Zeilen mit `keys` ausstattet, prueft nicht mehr diesen Fall.
 
   const users = (raw: unknown) =>
     (JSON.parse(buildGg5File(raw as GreenGoConfig)) as Record<string, any>).Users
@@ -182,7 +188,7 @@ describe('die Tastenkarte ueberlebt den Export', () => {
     expect(out['1'].ButtonFunctions['1']).toEqual({ '1': 9, '2': 4, '3': 7, '4': 0, '5': 0, '6': 0 })
   })
 
-  it('fasst Seite 2 nicht an — der Plan weiss von ihr nichts', () => {
+  it('fasst Seite 2 nicht an — dieser Plan weiss von ihr nichts', () => {
     const config = configFrom(anlage())
     const out = users({ ...config, users: [{ id: 1, name: 'BPX Regie', groupIds: [9, 4, 7] }] })
     expect(out['1'].ButtonFunctions['2']).toEqual({ '1': 2, '2': 0, '3': 0 })

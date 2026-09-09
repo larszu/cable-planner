@@ -8,7 +8,7 @@
  * cable-planner GreenGoConfig format.
  */
 
-import type { GreenGoConfig, GreenGoGroup, GreenGoUser } from '../types/greengo'
+import type { GreenGoConfig, GreenGoGroup, GreenGoUser, GreenGoKey } from '../types/greengo'
 import { translate } from './i18n'
 import { useUiStore } from '../store/uiStore'
 
@@ -298,17 +298,60 @@ export const parseGg5File = (jsonText: string): Gg5ParseOutcome => {
     // Group IDs from the membership map (built from groups)
     let groupIds = Array.from(userGroupMap.get(id) ?? [])
 
-    // Fallback: parse button functions if membership map empty
-    if (groupIds.length === 0) {
-      const bf = u['ButtonFunctions']
-      if (bf && typeof bf === 'object') {
-        const page1 = (bf['1'] ?? {}) as Record<string, unknown>
-        for (const v of Object.values(page1)) {
-          const gid = Number(v)
-          if (!isNaN(gid) && gid > 0) groupIds.push(gid)
+    // ─── DIE TASTENBELEGUNG (E-2, Schritt 2) ────────────────────────────────
+    //
+    // Bis hierher wurde `ButtonFunctions` nur als RUECKFALLWEG gelesen, um
+    // `groupIds` zu fuellen, wenn die Mitglieder-Karte leer blieb — und die
+    // POSITIONEN dabei weggeworfen. Auf einem Beltpack ist das die
+    // Tastenbelegung; der Verlust faellt nicht am Bildschirm auf, sondern in
+    // der Probe.
+    //
+    // Jetzt wird sie IMMER gelesen, nicht nur im Rueckfall, und mit Seite und
+    // Position. Die Struktur steht im Export nebenan (`exportGreengo.ts`:
+    // `{ Seite: { Taste: GruppenId } }`, 18 Tasten, zwei Seiten) — sie ist
+    // abgelesen und nicht geraten.
+    //
+    // WEITERE SEITEN WERDEN MITGELESEN. Green-GO schreibt zwei; taucht eine
+    // dritte auf, kommt sie mit ins Modell statt beschnitten zu werden. Das
+    // ist seit Schritt 3 keine Hoeflichkeit mehr, sondern noetig: was hier
+    // nicht ins Modell kommt, schreibt der Export spaeter auch nicht zurueck.
+    const keys: GreenGoKey[] = []
+    const bf = u['ButtonFunctions']
+    if (bf && typeof bf === 'object') {
+      for (const [seiteRoh, tastenRoh] of Object.entries(bf as Record<string, unknown>)) {
+        const page = Number(seiteRoh)
+        if (!Number.isInteger(page) || page < 1) continue
+        if (!tastenRoh || typeof tastenRoh !== 'object') continue
+        for (const [tasteRoh, wert] of Object.entries(tastenRoh as Record<string, unknown>)) {
+          const button = Number(tasteRoh)
+          const groupId = Number(wert)
+          // 0 heisst „unbelegt" — eine Taste ohne Gruppe ist keine Belegung
+          // und wird nicht als eine gefuehrt.
+          if (!Number.isInteger(button) || button < 1) continue
+          if (!Number.isInteger(groupId) || groupId <= 0) continue
+          keys.push({ page, button, groupId })
         }
-        groupIds = [...new Set(groupIds)]
       }
+      keys.sort((a, b) => a.page - b.page || a.button - b.button)
+    }
+
+    // EINE GRUPPE AUF EINER TASTE IST EINE ZUGEHOERIGKEIT.
+    //
+    // Hier stand ein RUECKFALL: die Tasten wurden nur gelesen, wenn die
+    // Mitglieder-Karte leer blieb. Das liess einen Widerspruch in der Datei
+    // stehen — Gruppe 5 liegt auf einer Taste dieser Station, aber ihre
+    // Mitgliederliste kennt die Station nicht. Wer die Taste drueckt, spricht
+    // trotzdem in Gruppe 5; die Belegung ist die handfestere der beiden
+    // Angaben.
+    //
+    // Jetzt die VEREINIGUNG, und der alte Rueckfall ist ihr Entartungsfall:
+    // ist die Mitglieder-Karte leer, kommt genau das heraus, was vorher der
+    // Rueckfall lieferte. Damit gilt die Zusage aus `types/greengo.ts` von
+    // selbst — jede Gruppe auf einer Taste steht in `groupIds` — statt bloss
+    // gehofft zu werden. Umgekehrt gilt sie nicht: eine Zugehoerigkeit ohne
+    // Taste bleibt eine.
+    if (keys.length > 0) {
+      groupIds = [...new Set([...groupIds, ...keys.map((k) => k.groupId)])]
     }
 
     users.push({
@@ -317,6 +360,7 @@ export const parseGg5File = (jsonText: string): Gg5ParseOutcome => {
       ...(displayName ? { displayName } : {}),
       ...(color !== undefined ? { color } : {}),
       groupIds,
+      ...(keys.length > 0 ? { keys } : {}),
     })
 
     const hint = detectDeviceType(name)
