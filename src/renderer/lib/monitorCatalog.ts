@@ -1,9 +1,15 @@
 import type { EquipmentTemplate, Port } from '../types/equipment'
 import type { RecordingCapability } from './recording'
 
-// Broadcast monitor / monitor-recorder templates sourced from official datasheets.
-// Matched by name substrings so Rentman items resolve to the correct port layout
-// on import. All templates are also seeded into the built-in library.
+// Broadcast monitor / monitor-recorder templates. Matched by name substrings
+// so Rentman items resolve to the correct port layout on import. All templates
+// are also seeded into the built-in library.
+//
+// BELEGLAGE: kein Datenblatt-Link je Eintrag (B-11).
+// Bis 2026-09-09 stand hier „sourced from official datasheets". Keiner der
+// 36 Einträge hinterlegt eines. Bei Monitoren trifft das die Port-Belegung —
+// also genau das, wofür dieser Katalog beim Import gelesen wird.
+// `tests/katalogBeleglage.test.ts` hält es fest.
 
 const port = (name: string, connectorType: Port['connectorType'] = 'BNC'): Port => ({
   id: '',
