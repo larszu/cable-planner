@@ -30,11 +30,23 @@ name: Deploy Web (GitHub Pages)
 # standen, sind abgearbeitet und stehen deshalb nicht mehr da; was bleibt, ist
 # der Grund, warum sie noetig waren.
 #
-# Wird Pages je wieder abgeschaltet, faellt dieser Workflow in denselben
-# Dauer-Rotzustand zurueck. Dann gehoert er wieder auf `workflow_dispatch`
-# allein — nicht geloescht: die Einladungs-Links der Kollaboration
-# (`collabInvite.ts` haengt `#join=…` an die Adresse, unter der die App laeuft)
-# brauchen eine gehostete Seite, sonst zeigen sie ins Leere.
+# HIER STAND: „Wird Pages je wieder abgeschaltet, faellt dieser Workflow in
+# denselben Dauer-Rotzustand zurueck. Dann gehoert er wieder auf
+# `workflow_dispatch` allein." Das war eine Anleitung an einen Menschen, die
+# ein Mensch im Ernstfall nicht liest — er sieht nur eine rote Spalte und
+# weiss nicht, warum. Inzwischen erledigt der Lauf es selbst: er FRAGT die
+# Pages-API, bevor er `configure-pages` aufruft. Ist keine Site da, wird
+# trotzdem gebaut (das ist eine echte Pruefung), das Veroeffentlichen
+# entfaellt mit einer Warnung und einer Anleitung in der
+# Lauf-Zusammenfassung. Der Push-Trigger kann deshalb stehenbleiben, egal
+# wie die Einstellung gerade steht.
+#
+# Dieselbe Form tragen seit dem 2026-09-09 alle neun Pages-Workflows der
+# Suite; dieser war der letzte mit der alten.
+#
+# Geloescht wird er auch dann nicht: die Einladungs-Links der Kollaboration
+# (`collabInvite.ts` haengt `#join=…` an die Adresse, unter der die App
+# laeuft) brauchen eine gehostete Seite, sonst zeigen sie ins Leere.
 
 on:
   push:
@@ -61,6 +73,8 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      seite-aktiv: ${{ steps.pages-status.outputs.aktiv }}
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
@@ -73,19 +87,70 @@ jobs:
       - run: sudo apt-get update && sudo apt-get install -y libsecret-1-dev
       - run: npm ci
       - run: npm run build:renderer
+      - name: Ist Pages in diesem Repo aktiviert?
+        id: pages-status
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -u
+          # 200 = Site existiert. 404 = nicht aktiviert (die Freigabe ist
+          # seit dem 2026-09-07 gesetzt; ein 404 hiesse also, jemand hat sie
+          # zurueckgenommen). 000 = die Frage kam gar nicht durch; das ist
+          # KEIN "nicht aktiviert", und die Ausgabe sagt es getrennt.
+          #
+          # Der Fehlschlag wird am EXIT-CODE abgefangen, nicht mit `|| echo`:
+          # curl schreibt bei einem Verbindungsfehler selbst schon "000" nach
+          # stdout, ein angehaengtes zweites machte daraus "000000".
+          code="$(curl -sS -o /dev/null -w '%{http_code}' \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/pages")" || code=000
+          echo "GET /repos/$GITHUB_REPOSITORY/pages -> HTTP $code"
+          if [ "$code" = "200" ]; then
+            echo "aktiv=true" >> "$GITHUB_OUTPUT"
+            echo "Pages ist aktiviert — es wird veroeffentlicht."
+            exit 0
+          fi
+          echo "aktiv=false" >> "$GITHUB_OUTPUT"
+          if [ "$code" = "000" ]; then
+            grund="Die Pages-API war nicht erreichbar (HTTP 000). Ob die Site existiert, ist damit UNBEKANNT — nicht widerlegt."
+          else
+            grund="Fuer dieses Repo ist keine Pages-Site angelegt (HTTP $code). Sie war es seit dem 2026-09-07 — jemand hat die Freigabe also zurueckgenommen."
+          fi
+          echo "::warning title=Nicht veroeffentlicht::$grund Der Build ist durchgelaufen, das Deploy wurde uebersprungen."
+          {
+            echo "## Nicht veroeffentlicht"
+            echo
+            echo "$grund"
+            echo
+            echo "Der Build ist durchgelaufen — es fehlt nur die Freigabe, und die kann"
+            echo "kein Workflow erteilen: der \`GITHUB_TOKEN\` darf keine Pages-Site anlegen"
+            echo "(\"Resource not accessible by integration\")."
+            echo
+            echo "**So wird die Seite wieder live:** Repo-Einstellungen -> Pages -> *Source*"
+            echo "auf **GitHub Actions** stellen. Ab dann veroeffentlicht jeder Push auf main"
+            echo "von selbst — an dieser Datei ist nichts zu aendern."
+            echo
+            echo "Solange sie fehlt, zeigen die Einladungs-Links der Kollaboration"
+            echo "(\`collabInvite.ts\`) ins Leere."
+          } >> "$GITHUB_STEP_SUMMARY"
+
       # Ohne `enablement: true`, und das bleibt so: der GITHUB_TOKEN darf
       # keine Pages-Site anlegen ("Resource not accessible by integration").
-      # Die Site ist seit dem 2026-09-07 in den Repo-Einstellungen aktiviert;
-      # sollte dieser Schritt je wieder mit 404 enden, ist sie abgeschaltet
-      # worden — kein Bug, sondern die fehlende Freigabe, und dann gilt der
-      # Hinweis im Kopf dieser Datei.
-      - uses: actions/configure-pages@v6
-      - uses: actions/upload-pages-artifact@v5
+      - name: Pages konfigurieren
+        if: steps.pages-status.outputs.aktiv == 'true'
+        uses: actions/configure-pages@v6
+      - name: Seite hochladen
+        if: steps.pages-status.outputs.aktiv == 'true'
+        uses: actions/upload-pages-artifact@v5
         with:
           path: dist/renderer
 
   deploy:
     needs: build
+    if: needs.build.outputs.seite-aktiv == 'true'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
