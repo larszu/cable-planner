@@ -66,7 +66,7 @@ export const AdernDialog = () => {
         // anlegt, bekaeme dieselbe Id — und die Anschluss zeigten auf die
         // neue, als haetten sie sie gewaehlt.
         id: `norm-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
-        name: t('adern.norm.newName', 'Neue Farbnorm'),
+        name: t('adern.norm.newName', 'New colour standard'),
         herkunft: '',
         farben: {},
       },
@@ -80,7 +80,7 @@ export const AdernDialog = () => {
       ...anschluss,
       {
         id: `anschluss-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
-        name: t('adern.anschluss.newName', 'Neuer Anschluss'),
+        name: t('adern.anschluss.newName', 'New connection'),
         soll: [],
       },
     ])
@@ -97,7 +97,7 @@ export const AdernDialog = () => {
     <ModalShell
       open={open}
       onClose={() => setOpen(false)}
-      title={t('adern.title', 'Adern, Farbnormen und Anschlüsse')}
+      title={t('adern.title', 'Conductors, colour standards and connections')}
       maxWidth="3xl"
     >
       <div className="mb-3 flex flex-wrap gap-1">
@@ -113,8 +113,8 @@ export const AdernDialog = () => {
             }`}
           >
             {k === 'normen'
-              ? t('adern.tab.normen', 'Farbnormen')
-              : t('adern.tab.anschluss', 'Anschlüsse (Bündel)')}
+              ? t('adern.tab.normen', 'Colour standards')
+              : t('adern.tab.anschluss', 'Connections (bundles)')}
           </button>
         ))}
       </div>
@@ -125,14 +125,14 @@ export const AdernDialog = () => {
             className="mb-3 text-cp-xs text-cp-text-muted"
             text={t(
               'adern.norm.hint',
-              'Es ist keine Norm eingebaut, und das ist Absicht: welche Farbzuordnung für diese Anlage gilt, steht nicht im Programm. Eine geratene Vorgabe sähe aus wie eine geprüfte Angabe und färbte jede Ader. Tragen Sie die Norm ein, die hier gilt — und woher sie stammt.',
+              'No standard is built in, and that is deliberate: which colour assignment applies to this installation is not something the program knows. A guessed default would look like a checked entry and would colour every conductor. Enter the standard that applies here — and where it comes from.',
             )}
           />
           {farbnormen.length === 0 && (
             <div className="mb-3 rounded border border-cp-border-muted bg-cp-surface-2 p-3 text-cp-xs text-cp-text-muted">
               {t(
                 'adern.norm.empty',
-                'Noch keine Farbnorm eingetragen. Ohne eine bleiben die Adernfarben ungeprüft — der Plan-Check sagt das, statt sie stillschweigend als richtig zu zeigen.',
+                'No colour standard entered yet. Without one the conductor colours stay unchecked — the plan check says so instead of quietly showing them as correct.',
               )}
             </div>
           )}
@@ -144,33 +144,33 @@ export const AdernDialog = () => {
                     className="min-w-0 flex-1 rounded border border-cp-border bg-cp-surface-1 px-2 py-1 text-cp-base"
                     value={n.name}
                     onChange={(e) => aendereNorm(n.id, { name: e.target.value })}
-                    aria-label={t('adern.norm.name', 'Name der Norm')}
+                    aria-label={t('adern.norm.name', 'Name of the standard')}
                   />
                   <button
                     type="button"
                     className="rounded bg-red-700 px-2 py-1 text-cp-xs hover:bg-red-600"
                     onClick={async () => {
                       if (
-                        await confirmDialog(t('adern.norm.confirmDelete', 'Farbnorm löschen?'), {
+                        await confirmDialog(t('adern.norm.confirmDelete', 'Delete colour standard?'), {
                           body: t(
                             'adern.norm.confirmDeleteBody',
-                            'Bündel, die sie gewählt haben, stehen danach ohne Norm da — ihre Adernfarben sind dann nicht mehr geprüft.',
+                            'Bundles that chose it are then left without a standard — their conductor colours are no longer checked.',
                           ),
                           destructive: true,
-                          okLabel: t('common.delete', 'Löschen'),
+                          okLabel: t('common.delete', 'Delete'),
                         })
                       ) {
                         setFarbnormen(farbnormen.filter((x) => x.id !== n.id))
                       }
                     }}
-                    aria-label={t('common.delete', 'Löschen')}
+                    aria-label={t('common.delete', 'Delete')}
                   >
                     <Icon icon={Trash2} size="xs" />
                   </button>
                 </div>
                 <label className="mt-2 block text-cp-xs">
                   <span className="mb-1 block text-cp-text-muted">
-                    {t('adern.norm.herkunft', 'Herkunft (Pflicht)')}
+                    {t('adern.norm.herkunft', 'Source (required)')}
                   </span>
                   <input
                     className={`w-full rounded border bg-cp-surface-1 px-2 py-1 text-cp-base ${
@@ -179,7 +179,7 @@ export const AdernDialog = () => {
                     value={n.herkunft}
                     placeholder={t(
                       'adern.norm.herkunftPlaceholder',
-                      'Woher stammt diese Zuordnung? Regelwerk, Ausgabe, Seite — oder „Hausstandard, festgelegt von …"',
+                      'Where does this assignment come from? Regulation, edition, page — or "house standard, set by …"',
                     )}
                     onChange={(e) => aendereNorm(n.id, { herkunft: e.target.value })}
                   />
@@ -189,7 +189,7 @@ export const AdernDialog = () => {
                     className="mt-1 text-cp-xs text-cp-danger"
                     text={t(
                       'adern.norm.herkunftMissing',
-                      'Ohne Herkunft wird diese Norm beim nächsten Laden verworfen — sie stünde sonst in der Auswahl, ohne dass jemand nachlesen kann, ob sie hier gilt.',
+                      'Without a source this standard is discarded on the next load — it would otherwise sit in the list without anyone being able to check whether it applies here.',
                     )}
                   />
                 )}
@@ -200,7 +200,7 @@ export const AdernDialog = () => {
                       <input
                         className="w-full rounded border border-cp-border bg-cp-surface-1 px-2 py-1"
                         value={n.farben[r] ?? ''}
-                        placeholder={t('adern.norm.colourPlaceholder', 'Farbe')}
+                        placeholder={t('adern.norm.colourPlaceholder', 'Colour')}
                         onChange={(e) =>
                           aendereNorm(n.id, {
                             farben: { ...n.farben, [r]: e.target.value || undefined },
@@ -218,7 +218,7 @@ export const AdernDialog = () => {
             onClick={neueNorm}
             className="mt-3 flex items-center gap-1 rounded bg-emerald-700 px-2 py-1 text-cp-xs hover:bg-emerald-600"
           >
-            <Icon icon={Plus} size="xs" /> {t('adern.norm.add', 'Farbnorm eintragen')}
+            <Icon icon={Plus} size="xs" /> {t('adern.norm.add', 'Enter colour standard')}
           </button>
         </>
       ) : (
@@ -227,7 +227,7 @@ export const AdernDialog = () => {
             className="mb-3 text-cp-xs text-cp-text-muted"
             text={t(
               'adern.anschluss.hint',
-              'Ein Anschluss, den man je Leiter einzeln zieht: fünf Leitungen bilden einen 400-A-Anschluss. Tragen Sie ein, welche Leiter er haben muss — nur dann kann der Plan merken, dass die vierte fehlt.',
+              'A connection pulled one conductor at a time: five lines make up one 400 A connection. Enter which conductors it must have — only then can the plan notice that the fourth is missing.',
             )}
           />
           <div className="space-y-3">
@@ -238,7 +238,7 @@ export const AdernDialog = () => {
                     className="min-w-0 flex-1 rounded border border-cp-border bg-cp-surface-1 px-2 py-1 text-cp-base"
                     value={b.name}
                     onChange={(e) => aendereAnschluss(b.id, { name: e.target.value })}
-                    aria-label={t('adern.anschluss.name', 'Name des Anschlusses')}
+                    aria-label={t('adern.anschluss.name', 'Name of the connection')}
                   />
                   <button
                     type="button"
@@ -246,27 +246,27 @@ export const AdernDialog = () => {
                     onClick={async () => {
                       if (
                         await confirmDialog(
-                          t('adern.anschluss.confirmDelete', 'Anschluss löschen?'),
+                          t('adern.anschluss.confirmDelete', 'Delete connection?'),
                           {
                             body: t(
                               'adern.anschluss.confirmDeleteBody',
-                              'Die Leitungen bleiben; sie gehören danach zu keinem Anschluss mehr, und die Prüfung auf fehlende Adern entfällt für sie.',
+                              'The lines remain; afterwards they belong to no connection, and the check for missing conductors no longer applies to them.',
                             ),
                             destructive: true,
-                            okLabel: t('common.delete', 'Löschen'),
+                            okLabel: t('common.delete', 'Delete'),
                           },
                         )
                       ) {
                         setAnschluss(anschluss.filter((x) => x.id !== b.id))
                       }
                     }}
-                    aria-label={t('common.delete', 'Löschen')}
+                    aria-label={t('common.delete', 'Delete')}
                   >
                     <Icon icon={Trash2} size="xs" />
                   </button>
                 </div>
                 <div className="mt-2 text-cp-xs text-cp-text-muted">
-                  {t('adern.anschluss.soll', 'Diese Leiter muss der Anschluss haben')}
+                  {t('adern.anschluss.soll', 'These conductors the connection must have')}
                 </div>
                 <div className="mt-1 flex flex-wrap gap-2">
                   {LEITER_ROLLEN.map((r) => (
@@ -282,7 +282,7 @@ export const AdernDialog = () => {
                 </div>
                 <label className="mt-2 block text-cp-xs">
                   <span className="mb-1 block text-cp-text-muted">
-                    {t('adern.anschluss.norm', 'Farbnorm für diesen Anschluss')}
+                    {t('adern.anschluss.norm', 'Colour standard for this connection')}
                   </span>
                   <select
                     className="w-full rounded border border-cp-border bg-cp-surface-1 px-2 py-1"
@@ -291,7 +291,7 @@ export const AdernDialog = () => {
                       aendereAnschluss(b.id, { farbnormId: e.target.value || undefined })
                     }
                   >
-                    <option value="">{t('adern.anschluss.normNone', 'keine gewählt')}</option>
+                    <option value="">{t('adern.anschluss.normNone', 'none chosen')}</option>
                     {farbnormen.map((n) => (
                       <option key={n.id} value={n.id}>
                         {n.name}
@@ -301,14 +301,14 @@ export const AdernDialog = () => {
                 </label>
                 <label className="mt-2 block text-cp-xs">
                   <span className="mb-1 block text-cp-text-muted">
-                    {t('adern.anschluss.notiz', 'Notiz (z. B. Steckverbinder-Kodierung)')}
+                    {t('adern.anschluss.notiz', 'Note (e.g. connector coding)')}
                   </span>
                   <input
                     className="w-full rounded border border-cp-border bg-cp-surface-1 px-2 py-1"
                     value={b.notiz ?? ''}
                     placeholder={t(
                       'adern.anschluss.notizPlaceholder',
-                      'Die Kodierung steht im Herstellerdokument — hier eintragen, nicht raten.',
+                      'The coding is in the manufacturer document — enter it here, do not guess it.',
                     )}
                     onChange={(e) => aendereAnschluss(b.id, { notiz: e.target.value || undefined })}
                   />
@@ -321,7 +321,7 @@ export const AdernDialog = () => {
             onClick={neuerAnschluss}
             className="mt-3 flex items-center gap-1 rounded bg-emerald-700 px-2 py-1 text-cp-xs hover:bg-emerald-600"
           >
-            <Icon icon={Plus} size="xs" /> {t('adern.anschluss.add', 'Anschluss anlegen')}
+            <Icon icon={Plus} size="xs" /> {t('adern.anschluss.add', 'Add connection')}
           </button>
         </>
       )}

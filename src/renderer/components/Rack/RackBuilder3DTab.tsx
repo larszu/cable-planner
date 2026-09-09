@@ -63,7 +63,7 @@ export const RackBuilder3DTab = ({
   return (
     <>
       <div className="mb-2 flex items-center gap-1 text-[10px]">
-        <span className="text-cp-text-faint">{t('rack.view.label', 'Ansicht:')}</span>
+        <span className="text-cp-text-faint">{t('rack.view.label', 'View:')}</span>
         {(['all', 'free', 'released'] as const).map((m) => (
           <button
             key={m}
@@ -76,16 +76,16 @@ export const RackBuilder3DTab = ({
             }`}
             title={
               m === 'all'
-                ? t('rack.view.allTitle', 'Alle Geräte + freie Ports + Patchblenden')
+                ? t('rack.view.allTitle', 'All devices + free ports + patch panels')
                 : m === 'free'
-                  ? t('rack.view.freeTitle', 'Nur Geräte mit freien Ports + Patchblenden')
-                  : t('rack.view.releasedTitle', 'Nur freigegebene: Patchblenden + extern verkabelbare Geräte')
+                  ? t('rack.view.freeTitle', 'Only devices with free ports + patch panels')
+                  : t('rack.view.releasedTitle', 'Only released: patch panels + externally cablable devices')
             }
           >
             {m === 'all'
-              ? t('rack.view.all', 'Alle')
+              ? t('rack.view.all', 'All')
               : m === 'free'
-                ? t('rack.view.free', 'Freie Ports')
+                ? t('rack.view.free', 'Free ports')
                 : t('rack.view.released', 'Released')}
           </button>
         ))}
@@ -259,7 +259,7 @@ export const RackBuilder3DTab = ({
         </div>
       ) : (
         <div className="rounded border border-dashed border-cp-border bg-cp-surface-3/40 p-8 text-center text-cp-xs text-cp-text-faint">
-          {t('rack.view.empty', 'Erst Geräte ins Rack legen, dann erscheint die 3D-Ansicht.')}
+          {t('rack.view.empty', 'Add devices to the rack first, then the 3D view appears.')}
         </div>
       )}
     </>

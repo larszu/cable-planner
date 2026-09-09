@@ -936,7 +936,7 @@ export const CableEdge = ({
             }}
             title={t(
               'canvas.cableEdge.blockedPath',
-              'Dieser Kabelweg läuft durch ein Gerät — es gibt hier keine freie Führung. Gerät verschieben oder den Weg von Hand legen.',
+              'This cable path runs through a device — there is no clear route here. Move a device or draw the path by hand.',
             )}
           >
             !

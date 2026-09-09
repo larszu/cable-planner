@@ -248,7 +248,7 @@ export const OffPageConnectorSymbol = ({
         title={format(
           t(
             'offPage.symbolTitle',
-            'Netz „{net}" → {to} · Klick: auswählen · Pfeil: zum Gegenstück springen · Ziehen: verschieben · Rechtsklick: Netz-Info',
+            'Net “{net}” → {to} · Click: select · Arrow: jump to counterpart · Drag: move · Right-click: net info',
           ),
           { net: netName, to: counterpart },
         )}
@@ -346,7 +346,7 @@ export const OffPageConnectorSymbol = ({
             >
               <div style={{ fontWeight: 700 }}>{netName}</div>
               <div style={{ fontSize: 11, color: isLight ? '#64748b' : '#94a3b8' }}>
-                {format(t('offPage.endpointCount', '{n} Endpunkte im Netz'), {
+                {format(t('offPage.endpointCount', '{n} endpoints in net'), {
                   n: popover.rows.length,
                 })}
               </div>
@@ -410,7 +410,7 @@ export const OffPageConnectorSymbol = ({
                   cursor: 'pointer',
                 }}
               >
-                {t('offPage.resolve', 'Off-Page auflösen (Linie anzeigen)')}
+                {t('offPage.resolve', 'Resolve off-page (show line)')}
               </button>
             </div>
           </div>,

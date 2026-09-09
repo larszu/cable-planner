@@ -70,16 +70,16 @@ export function PatternCheckRow({ equipmentId }: { equipmentId: string }) {
       <div style={{ fontSize: 9, lineHeight: '12px', color: farbe }}>{befund.text}</div>
       <div style={{ display: 'flex', gap: 3, marginTop: 2, flexWrap: 'wrap' }}>
         <button type="button" style={knopf} onClick={() => melde('stimmt')}>
-          {t('canvas.pattern.check.ok', 'stimmt')}
+          {t('canvas.pattern.check.ok', 'correct')}
         </button>
         <button type="button" style={knopf} onClick={() => setNameOffen((v) => !v)}>
-          {t('canvas.pattern.check.wrong', 'anderes Bild…')}
+          {t('canvas.pattern.check.wrong', 'different image…')}
         </button>
         <button type="button" style={knopf} onClick={() => melde('kein-bild')}>
-          {t('canvas.pattern.check.none', 'kein Bild')}
+          {t('canvas.pattern.check.none', 'no image')}
         </button>
         <button type="button" style={knopf} onClick={() => melde('kein-monitor')}>
-          {t('canvas.pattern.check.noMonitor', 'kein Monitor')}
+          {t('canvas.pattern.check.noMonitor', 'no monitor')}
         </button>
       </div>
       {nameOffen && (
@@ -92,7 +92,7 @@ export function PatternCheckRow({ equipmentId }: { equipmentId: string }) {
               if (e.key === 'Enter' && name.trim()) melde('falsches-bild', name.trim())
               if (e.key === 'Escape') setNameOffen(false)
             }}
-            placeholder={t('canvas.pattern.check.seenPlaceholder', 'Welcher Name steht drauf?')}
+            placeholder={t('canvas.pattern.check.seenPlaceholder', 'Which name is on it?')}
             style={{
               flex: 1,
               minWidth: 0,
@@ -111,7 +111,7 @@ export function PatternCheckRow({ equipmentId }: { equipmentId: string }) {
             disabled={!name.trim()}
             onClick={() => melde('falsches-bild', name.trim())}
           >
-            {t('canvas.pattern.check.save', 'merken')}
+            {t('canvas.pattern.check.save', 'record')}
           </button>
         </div>
       )}

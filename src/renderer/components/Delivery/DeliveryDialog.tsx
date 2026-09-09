@@ -185,31 +185,31 @@ export const DeliveryDialog = () => {
     switch (i.kind) {
       case 'backup-mismatch':
         return format(
-          t('delivery.issue.backupMismatch', 'Backup weicht ab: {field} ist {actual}, muss {expected} sein'),
+          t('delivery.issue.backupMismatch', 'Backup differs: {field} is {actual}, must be {expected}'),
           { field: String(i.field), actual: i.actual ?? '', expected: i.expected ?? '' },
         )
       case 'backup-orphan':
-        return t('delivery.issue.backupOrphan', 'Backup-Zeiger führt ins Leere')
+        return t('delivery.issue.backupOrphan', 'Backup pointer leads nowhere')
       case 'backup-cycle':
-        return t('delivery.issue.backupCycle', 'Backup-Zeiger laufen im Kreis')
+        return t('delivery.issue.backupCycle', 'Backup pointers form a cycle')
       case 'no-backup':
-        return t('delivery.issue.noBackup', 'Kein Ausweichweg')
+        return t('delivery.issue.noBackup', 'No fallback path')
       case 'missing-url':
-        return t('delivery.issue.missingUrl', 'Keine Ingest-URL')
+        return t('delivery.issue.missingUrl', 'No ingest URL')
       case 'missing-key':
-        return t('delivery.issue.missingKey', 'Kein Stream-Key hinterlegt')
+        return t('delivery.issue.missingKey', 'No stream key stored')
       case 'over-platform-bitrate':
         return format(
-          t('delivery.issue.overBitrate', 'Bitrate {actual} über der Plattform-Grenze {expected}'),
+          t('delivery.issue.overBitrate', 'Bitrate {actual} above the platform limit {expected}'),
           { actual: i.actual ?? '', expected: i.expected ?? '' },
         )
       case 'keyframe-mismatch':
-        return format(t('delivery.issue.keyframe', 'Keyframe-Abstand {actual}, verlangt ist {expected}'), {
+        return format(t('delivery.issue.keyframe', 'Keyframe interval {actual}, required is {expected}'), {
           actual: i.actual ?? '',
           expected: i.expected ?? '',
         })
       case 'needs-port-forward':
-        return t('delivery.issue.portForward', 'SRT-Listener: Portfreigabe nötig')
+        return t('delivery.issue.portForward', 'SRT listener: port forward required')
     }
   }
 
@@ -220,22 +220,22 @@ export const DeliveryDialog = () => {
     switch (f.kind) {
       case 'too-many-destinations':
         return format(
-          t('delivery.encoder.tooMany', '{n} gleichzeitige Ziele, das Werkzeug führt {max}'),
+          t('delivery.encoder.tooMany', '{n} simultaneous destinations, the tool handles {max}'),
           { n: f.values?.[0] ?? '', max: f.values?.[1] ?? '' },
         )
       case 'per-destination-quality-unsupported':
         return t(
           'delivery.encoder.noPerDestination',
-          'Der Plan verlangt je Ziel eine eigene Qualität — dieses Werkzeug sendet allen dieselbe',
+          'The plan asks for per-destination quality \u2014 this tool sends all of them the same',
         )
       case 'per-destination-quality-unknown':
         return t(
           'delivery.encoder.perDestinationUnknown',
-          'Der Plan verlangt je Ziel eine eigene Qualität — ob dieses Werkzeug das kann, ist ungeklärt',
+          'The plan asks for per-destination quality \u2014 whether this tool can do that is unresolved',
         )
       case 'must-match-differs':
         return format(
-          t('delivery.encoder.mustMatch', '{field} muss über alle Ziele gleich sein, ist aber {values}'),
+          t('delivery.encoder.mustMatch', '{field} must match across all destinations, but is {values}'),
           { field: String(f.field ?? ''), values: (f.values ?? []).join(' / ') },
         )
     }
@@ -247,24 +247,24 @@ export const DeliveryDialog = () => {
   const chainFindingLabel = (f: ChainFinding): string => {
     switch (f.kind) {
       case 'no-encoder':
-        return t('delivery.chain.noEncoder', 'Kein Encoder im Plan benannt')
+        return t('delivery.chain.noEncoder', 'No encoder named in the plan')
       case 'encoder-gone':
-        return t('delivery.chain.encoderGone', 'Benanntes Gerät steht nicht mehr im Plan')
+        return t('delivery.chain.encoderGone', 'The named device is no longer in the plan')
       case 'encoder-unfed':
         return format(
-          t('delivery.chain.encoderUnfed', '{device} hat an keinem Programm-Eingang ein Kabel'),
+          t('delivery.chain.encoderUnfed', '{device} has no cable on any programme input'),
           { device: f.values?.[0] ?? '' },
         )
       case 'feed-ambiguous':
         return format(
-          t('delivery.chain.feedAmbiguous', 'Mehrere verkabelte Programm-Eingänge: {ports}'),
+          t('delivery.chain.feedAmbiguous', 'Several cabled programme inputs: {ports}'),
           { ports: (f.values ?? []).join(' / ') },
         )
       case 'backup-shares-encoder':
         return format(
           t(
             'delivery.chain.backupSharesEncoder',
-            'Backup läuft über dasselbe Gerät wie der Primärweg ({device})',
+            'Backup runs through the same device as the primary path ({device})',
           ),
           { device: f.values?.[0] ?? '' },
         )
@@ -278,7 +278,7 @@ export const DeliveryDialog = () => {
     if (c.source) {
       parts.push(
         c.source.hops > 0
-          ? `${c.source.name} ${format(t('delivery.path.hops', '(über {n})'), { n: c.source.hops })}`
+          ? `${c.source.name} ${format(t('delivery.path.hops', '(via {n})'), { n: c.source.hops })}`
           : c.source.name,
       )
     }
@@ -289,7 +289,7 @@ export const DeliveryDialog = () => {
   }
 
   const addDestination = () => {
-    add({ name: t('delivery.newName', 'Neues Ziel'), platform: 'custom', encoding: { ...DEFAULT_ENCODING } })
+    add({ name: t('delivery.newName', 'New destination'), platform: 'custom', encoding: { ...DEFAULT_ENCODING } })
   }
 
   const saveKey = async (d: DeliveryDestination) => {
@@ -497,7 +497,7 @@ export const DeliveryDialog = () => {
       >
         <div className="flex items-center justify-between border-b border-cp-border px-4 py-2.5">
           <h2 id={titleId} className="flex items-center gap-2 text-cp-base font-semibold text-cp-text">
-            <Radio size={16} /> {t('delivery.title', 'Ausspielung')}
+            <Radio size={16} /> {t('delivery.title', 'Delivery')}
           </h2>
           <div className="flex items-center gap-2">
             <button type="button" onClick={exportCsv} className="flex items-center gap-1 rounded border border-cp-border px-2 py-1 text-cp-sm text-cp-text-secondary hover:text-cp-text">
@@ -506,23 +506,23 @@ export const DeliveryDialog = () => {
             <button
               type="button"
               onClick={exportRunOfShow}
-              title={t('delivery.runOfShowHint', 'Ein Blatt für den Showtag — Stream-Keys stehen darauf nur als Verweis auf den Schlüsselbund')}
+              title={t('delivery.runOfShowHint', 'One sheet for show day \u2014 stream keys appear on it only as a reference to the keychain')}
               className="flex items-center gap-1 rounded border border-cp-border px-2 py-1 text-cp-sm text-cp-text-secondary hover:text-cp-text"
             >
-              <FileText size={13} /> {t('delivery.runOfShow', 'Ablaufblatt')}
+              <FileText size={13} /> {t('delivery.runOfShow', 'Run sheet')}
             </button>
             <button
               type="button"
               onClick={exportPath}
               title={t(
                 'delivery.path.hint',
-                'Der Weg vom Programm-Signal bis zur Plattform — Quelle, Encoder, Transport, Ziel',
+                'The path from the programme feed to the platform — source, encoder, transport, destination',
               )}
               className="flex items-center gap-1 rounded border border-cp-border px-2 py-1 text-cp-sm text-cp-text-secondary hover:text-cp-text"
             >
-              <Route size={13} /> {t('delivery.path.title', 'Ausspielweg')}
+              <Route size={13} /> {t('delivery.path.title', 'Delivery path')}
             </button>
-            <button type="button" onClick={() => setOpen(false)} aria-label={t('common.close', 'Schließen')} className="text-cp-text-muted hover:text-cp-text">
+            <button type="button" onClick={() => setOpen(false)} aria-label={t('common.close', 'Close')} className="text-cp-text-muted hover:text-cp-text">
               <X size={18} />
             </button>
           </div>
@@ -533,7 +533,7 @@ export const DeliveryDialog = () => {
             className="mb-3 text-cp-sm leading-snug text-cp-text-secondary"
             text={t(
               'delivery.intro',
-              'Wohin gesendet wird, mit welchen Parametern, und welcher Weg der Ausweichweg ist. Der Stream-Key liegt im Schlüsselbund des Rechners, nie in der Projektdatei — eine .avplan geht per Mail.',
+              'Where the show is sent, with which parameters, and which path is the fallback. The stream key lives in this machine\u2019s keychain, never in the project file \u2014 an .avplan travels by e-mail.',
             )}
           />
 
@@ -545,7 +545,7 @@ export const DeliveryDialog = () => {
             <div className="mb-4 rounded border border-cp-border-muted bg-cp-surface-2 p-2.5">
               <div className="mb-1.5 flex flex-wrap items-center gap-2 text-cp-sm">
                 <span className="font-medium text-cp-text">
-                  {t('delivery.archive.title', 'Unabhängige Archiv-Aufzeichnung')}
+                  {t('delivery.archive.title', 'Independent archive recording')}
                 </span>
                 <select
                   value={archive.answer}
@@ -562,15 +562,15 @@ export const DeliveryDialog = () => {
                         : {}),
                     })
                   }}
-                  aria-label={t('delivery.archive.answer', 'Antwort')}
+                  aria-label={t('delivery.archive.answer', 'Answer')}
                   className={inputCls}
                 >
                   <option value="not-stated">
-                    {t('delivery.archive.notStated', '— noch nicht beantwortet —')}
+                    {t('delivery.archive.notStated', '\u2014 not answered yet \u2014')}
                   </option>
-                  <option value="device">{t('delivery.archive.onDevice', 'auf diesem Gerät')}</option>
+                  <option value="device">{t('delivery.archive.onDevice', 'on this device')}</option>
                   <option value="none-by-choice">
-                    {t('delivery.archive.none', 'bewusst keine')}
+                    {t('delivery.archive.none', 'deliberately none')}
                   </option>
                 </select>
                 {archive.answer === 'device' && (
@@ -585,10 +585,10 @@ export const DeliveryDialog = () => {
                           : {}),
                       })
                     }
-                    aria-label={t('delivery.archive.device', 'Aufzeichnendes Gerät')}
+                    aria-label={t('delivery.archive.device', 'Recording device')}
                     className={inputCls}
                   >
-                    <option value="">{t('delivery.archive.pick', '— Gerät wählen —')}</option>
+                    <option value="">{t('delivery.archive.pick', '\u2014 pick a device \u2014')}</option>
                     {encoderChoices.map((e) => (
                       <option key={e.id} value={e.id}>
                         {e.name}
@@ -610,10 +610,10 @@ export const DeliveryDialog = () => {
                     }
                     placeholder={
                       archive.answer === 'none-by-choice'
-                        ? t('delivery.archive.whyPh', 'Warum keine? (Webinar ohne Nachverwertung …)')
-                        : t('delivery.archive.notePh', 'Anmerkung (Medium, Kartenwechsel …)')
+                        ? t('delivery.archive.whyPh', 'Why none? (webinar with no re-use \u2026)')
+                        : t('delivery.archive.notePh', 'Note (medium, card swap \u2026)')
                     }
-                    aria-label={t('delivery.archive.note', 'Anmerkung')}
+                    aria-label={t('delivery.archive.note', 'Note')}
                     className={`${inputCls} min-w-0 flex-1`}
                   />
                 )}
@@ -622,7 +622,7 @@ export const DeliveryDialog = () => {
                   onClick={exportArchive}
                   className="flex items-center gap-1 rounded border border-cp-border px-2 py-1 text-cp-sm text-cp-text-secondary hover:text-cp-text"
                 >
-                  <FileText size={13} /> {t('delivery.archive.export', 'Blatt')}
+                  <FileText size={13} /> {t('delivery.archive.export', 'Sheet')}
                 </button>
               </div>
               {archive.findings.length > 0 && (
@@ -645,42 +645,42 @@ export const DeliveryDialog = () => {
             <div className="mb-4 rounded border border-cp-border-muted bg-cp-surface-2 p-2.5">
               <div className="mb-1.5 flex flex-wrap items-center gap-2 text-cp-sm">
                 <span className="font-medium text-cp-text">
-                  {t('delivery.event.title', 'Angaben zur Veranstaltung')}
+                  {t('delivery.event.title', 'Event details')}
                 </span>
                 <button
                   type="button"
                   onClick={exportEventMetadata}
                   title={t(
                     'delivery.event.exportHint',
-                    'Ein Blatt zum Abtippen — je Ziel eine Zeile mit Titel, Beginn und Sichtbarkeit',
+                    'A sheet to type from \u2014 one row per destination with title, start and visibility',
                   )}
                   className="flex items-center gap-1 rounded border border-cp-border px-2 py-1 text-cp-sm text-cp-text-secondary hover:text-cp-text"
                 >
-                  <FileText size={13} /> {t('delivery.event.export', 'Blatt')}
+                  <FileText size={13} /> {t('delivery.event.export', 'Sheet')}
                 </button>
               </div>
               <div className="mb-2 grid grid-cols-2 gap-2">
                 <input
                   value={meta.plan.event.title ?? ''}
                   onChange={(e) => patchEvent({ title: e.target.value || undefined })}
-                  placeholder={t('delivery.event.titlePh', 'Titel der Veranstaltung')}
-                  aria-label={t('delivery.event.titleLabel', 'Titel')}
+                  placeholder={t('delivery.event.titlePh', 'Event title')}
+                  aria-label={t('delivery.event.titleLabel', 'Title')}
                   className={inputCls}
                 />
                 <select
                   value={meta.plan.event.privacy}
                   onChange={(e) => patchEvent({ privacy: e.target.value as EventPrivacy })}
-                  aria-label={t('delivery.event.privacy', 'Sichtbarkeit')}
+                  aria-label={t('delivery.event.privacy', 'Visibility')}
                   className={inputCls}
                 >
                   <option value="not-stated">
-                    {t('delivery.event.privacy.notStated', '— Sichtbarkeit nicht angegeben —')}
+                    {t('delivery.event.privacy.notStated', '\u2014 visibility not stated \u2014')}
                   </option>
-                  <option value="public">{t('delivery.event.privacy.public', 'öffentlich')}</option>
+                  <option value="public">{t('delivery.event.privacy.public', 'public')}</option>
                   <option value="unlisted">
-                    {t('delivery.event.privacy.unlisted', 'nicht gelistet')}
+                    {t('delivery.event.privacy.unlisted', 'unlisted')}
                   </option>
-                  <option value="private">{t('delivery.event.privacy.private', 'privat')}</option>
+                  <option value="private">{t('delivery.event.privacy.private', 'private')}</option>
                 </select>
                 {/* Ein `datetime-local`-Feld stünde hier nahe — und wäre genau
                     der Fehler aus dem Bedarf: es liefert „2026-09-12T19:00"
@@ -690,22 +690,22 @@ export const DeliveryDialog = () => {
                 <input
                   value={meta.plan.event.scheduledStart ?? ''}
                   onChange={(e) => patchEvent({ scheduledStart: e.target.value || undefined })}
-                  placeholder={t('delivery.event.startPh', 'Beginn, z. B. 2026-09-12T19:00+02:00')}
-                  aria-label={t('delivery.event.start', 'Geplanter Beginn')}
+                  placeholder={t('delivery.event.startPh', 'Start, e.g. 2026-09-12T19:00+02:00')}
+                  aria-label={t('delivery.event.start', 'Scheduled start')}
                   className={inputCls}
                 />
                 <input
                   value={meta.plan.event.timezone ?? ''}
                   onChange={(e) => patchEvent({ timezone: e.target.value || undefined })}
-                  placeholder={t('delivery.event.tzPh', 'Angesagt in, z. B. Europe/Berlin')}
-                  aria-label={t('delivery.event.tz', 'Zeitzone')}
+                  placeholder={t('delivery.event.tzPh', 'Announced in, e.g. Europe/Berlin')}
+                  aria-label={t('delivery.event.tz', 'Time zone')}
                   className={inputCls}
                 />
                 <input
                   value={meta.plan.event.thumbnailRef ?? ''}
                   onChange={(e) => patchEvent({ thumbnailRef: e.target.value || undefined })}
-                  placeholder={t('delivery.event.thumbPh', 'Vorschaubild — Dateiname, nicht das Bild')}
-                  aria-label={t('delivery.event.thumb', 'Vorschaubild')}
+                  placeholder={t('delivery.event.thumbPh', 'Thumbnail \u2014 file name, not the image')}
+                  aria-label={t('delivery.event.thumb', 'Thumbnail')}
                   className={inputCls}
                 />
                 <input
@@ -718,16 +718,16 @@ export const DeliveryDialog = () => {
                         .filter(Boolean),
                     })
                   }
-                  placeholder={t('delivery.event.tagsPh', 'Schlagworte, durch Komma getrennt')}
-                  aria-label={t('delivery.event.tags', 'Schlagworte')}
+                  placeholder={t('delivery.event.tagsPh', 'Tags, comma separated')}
+                  aria-label={t('delivery.event.tags', 'Tags')}
                   className={inputCls}
                 />
               </div>
               <textarea
                 value={meta.plan.event.description ?? ''}
                 onChange={(e) => patchEvent({ description: e.target.value || undefined })}
-                placeholder={t('delivery.event.descPh', 'Beschreibungstext für die Plattform-Formulare')}
-                aria-label={t('delivery.event.desc', 'Beschreibung')}
+                placeholder={t('delivery.event.descPh', 'Description text for the platform forms')}
+                aria-label={t('delivery.event.desc', 'Description')}
                 rows={2}
                 className={`${inputCls} mb-2 w-full`}
               />
@@ -735,7 +735,7 @@ export const DeliveryDialog = () => {
                 <span className="text-cp-xs text-cp-text-muted">
                   {t(
                     'delivery.event.overrides',
-                    'Bewusste Abweichungen je Ziel — leer heißt „gilt wie am Projekt".',
+                    'Deliberate deviations per destination \u2014 empty means \u201csame as the project\u201d.',
                   )}
                 </span>
                 {meta.resolved.map((r) => (
@@ -748,8 +748,8 @@ export const DeliveryDialog = () => {
                       onChange={(e) =>
                         patchOverride(r.destinationId, { title: e.target.value || undefined })
                       }
-                      placeholder={t('delivery.event.ovTitlePh', 'abweichender Titel')}
-                      aria-label={`${t('delivery.event.ovTitle', 'Abweichender Titel')} — ${r.destinationName}`}
+                      placeholder={t('delivery.event.ovTitlePh', 'deviating title')}
+                      aria-label={`${t('delivery.event.ovTitle', 'Deviating title')} — ${r.destinationName}`}
                       className={`${inputCls} min-w-0 flex-1`}
                     />
                     <input
@@ -757,8 +757,8 @@ export const DeliveryDialog = () => {
                       onChange={(e) =>
                         patchOverride(r.destinationId, { reason: e.target.value || undefined })
                       }
-                      placeholder={t('delivery.event.ovReasonPh', 'warum abweichend?')}
-                      aria-label={`${t('delivery.event.ovReason', 'Begründung')} — ${r.destinationName}`}
+                      placeholder={t('delivery.event.ovReasonPh', 'why deviating?')}
+                      aria-label={`${t('delivery.event.ovReason', 'Reason')} — ${r.destinationName}`}
                       className={`${inputCls} min-w-0 flex-1`}
                     />
                   </div>
@@ -783,7 +783,7 @@ export const DeliveryDialog = () => {
             <div className="mb-4 rounded border border-cp-border-muted bg-cp-surface-2 p-2.5">
               <div className="mb-1.5 flex flex-wrap items-center gap-2 text-cp-sm">
                 <span className="font-medium text-cp-text">
-                  {t('delivery.record.title', 'Sendebericht')}
+                  {t('delivery.record.title', 'Transmission record')}
                 </span>
                 {/* Woraus der Bericht spricht — derselbe Zustand wie bei der
                     Übergabe (Bedarf 84). Er steht hier und nicht nur in den
@@ -797,26 +797,32 @@ export const DeliveryDialog = () => {
                   onClick={addTransmissionEvent}
                   className="flex items-center gap-1 rounded border border-cp-border px-2 py-1 text-cp-sm text-cp-text-secondary hover:text-cp-text"
                 >
-                  <Plus size={13} /> {t('delivery.record.add', 'Eintrag')}
+                  <Plus size={13} /> {t('delivery.record.add', 'Entry')}
                 </button>
                 <button
                   type="button"
                   onClick={exportTransmission}
                   title={t(
                     'delivery.record.exportHint',
-                    'Der Verlauf als Blatt — jede Zeile trägt, woher die Angabe stammt. Dieser Plan misst nichts.',
+                    'The sequence as a sheet \u2014 every row states where the statement came from. This plan measures nothing.',
                   )}
                   className="flex items-center gap-1 rounded border border-cp-border px-2 py-1 text-cp-sm text-cp-text-secondary hover:text-cp-text"
                 >
-                  <FileText size={13} /> {t('delivery.record.export', 'Blatt')}
+                  <FileText size={13} /> {t('delivery.record.export', 'Sheet')}
                 </button>
               </div>
-              <p className="mb-2 text-cp-xs leading-snug text-cp-text-muted">
-                {t(
+              {/* PanelHint statt <p>: der Satz ist mit der englischen Fassung
+                  ueber die 140-Zeichen-Grenze gewachsen, ab der `hinweisLaenge`
+                  die einheitliche Form verlangt. Die deutsche Fassung lag knapp
+                  darunter — die Regel galt also schon vorher, sie war nur nicht
+                  ausgeloest. */}
+              <PanelHint
+                className="mb-2 text-cp-xs leading-snug text-cp-text-muted"
+                text={t(
                   'delivery.record.hint',
-                  'Was die Sendung getan hat, soweit jemand es aufgeschrieben hat. Keine Messung: Zeitpunkt und Herkunft trägt der Mensch ein, der dabei war.',
+                  'What the transmission did, as far as somebody wrote it down. Not a measurement: the time and the origin are entered by the person who was there.',
                 )}
-              </p>
+              />
               {sendung.events.length > 0 && (
                 <div className="mb-2 flex flex-col gap-1">
                   {sendung.events.map((e) => (
@@ -825,7 +831,7 @@ export const DeliveryDialog = () => {
                         value={e.at}
                         onChange={(ev) => patchTransmissionEvent(e.id, { at: ev.target.value })}
                         placeholder={t('delivery.record.atPh', '2026-09-12T19:04+02:00')}
-                        aria-label={t('delivery.record.at', 'Zeitpunkt')}
+                        aria-label={t('delivery.record.at', 'Time')}
                         className={`${inputCls} w-[13rem]`}
                       />
                       <select
@@ -835,7 +841,7 @@ export const DeliveryDialog = () => {
                             kind: ev.target.value as TransmissionEventKind,
                           })
                         }
-                        aria-label={t('delivery.record.kind', 'Was')}
+                        aria-label={t('delivery.record.kind', 'What')}
                         className={inputCls}
                       >
                         {Object.keys(TRANSMISSION_EVENT_LABEL).map((k) => (
@@ -851,10 +857,10 @@ export const DeliveryDialog = () => {
                             destinationId: ev.target.value || undefined,
                           })
                         }
-                        aria-label={t('delivery.record.dest', 'Ziel')}
+                        aria-label={t('delivery.record.dest', 'Destination')}
                         className={inputCls}
                       >
-                        <option value="">{t('delivery.record.whole', '— ganze Sendung —')}</option>
+                        <option value="">{t('delivery.record.whole', '\u2014 whole transmission \u2014')}</option>
                         {list.map((d) => (
                           <option key={d.id} value={d.id}>
                             {d.name}
@@ -871,7 +877,7 @@ export const DeliveryDialog = () => {
                             source: ev.target.value as TransmissionSource,
                           })
                         }
-                        aria-label={t('delivery.record.source', 'Herkunft')}
+                        aria-label={t('delivery.record.source', 'Origin')}
                         className={inputCls}
                       >
                         {Object.keys(TRANSMISSION_SOURCE_LABEL).map((k) => (
@@ -887,21 +893,21 @@ export const DeliveryDialog = () => {
                             observedBy: ev.target.value || undefined,
                           })
                         }
-                        placeholder={t('delivery.record.byPh', 'von wem?')}
-                        aria-label={t('delivery.record.by', 'Beobachtet von')}
+                        placeholder={t('delivery.record.byPh', 'by whom?')}
+                        aria-label={t('delivery.record.by', 'Observed by')}
                         className={`${inputCls} w-[8rem]`}
                       />
                       <input
                         value={e.text}
                         onChange={(ev) => patchTransmissionEvent(e.id, { text: ev.target.value })}
-                        placeholder={t('delivery.record.textPh', 'Was war zu sehen?')}
-                        aria-label={t('delivery.record.text', 'Beschreibung')}
+                        placeholder={t('delivery.record.textPh', 'What was visible?')}
+                        aria-label={t('delivery.record.text', 'Description')}
                         className={`${inputCls} min-w-0 flex-1`}
                       />
                       <button
                         type="button"
                         onClick={() => removeTransmissionEvent(e.id)}
-                        aria-label={t('delivery.record.remove', 'Eintrag entfernen')}
+                        aria-label={t('delivery.record.remove', 'Remove entry')}
                         className="text-cp-text-muted hover:text-cp-danger"
                       >
                         <Trash2 size={13} />
@@ -915,9 +921,9 @@ export const DeliveryDialog = () => {
                 onChange={(e) => patchRecord(sendung.events, e.target.value)}
                 placeholder={t(
                   'delivery.record.summaryPh',
-                  'Zusammenfassung für den Kunden — bewusst von Hand, nicht erzeugt',
+                  'Summary for the client \u2014 written by hand on purpose, not generated',
                 )}
-                aria-label={t('delivery.record.summary', 'Zusammenfassung')}
+                aria-label={t('delivery.record.summary', 'Summary')}
                 rows={2}
                 className={`${inputCls} mb-2 w-full`}
               />
@@ -949,25 +955,25 @@ export const DeliveryDialog = () => {
             <div className="mb-4 rounded border border-cp-border-muted bg-cp-surface-2 p-2.5">
               <div className="mb-1.5 flex flex-wrap items-center gap-2 text-cp-sm">
                 <span className="font-medium text-cp-text">
-                  {t('delivery.fb.title', 'Ausweichverhalten (Sicherheitsnetz)')}
+                  {t('delivery.fb.title', 'Fallback behaviour (safety net)')}
                 </span>
                 <button
                   type="button"
                   onClick={exportFallback}
                   className="ml-auto flex items-center gap-1 rounded border border-cp-border px-2 py-1 text-cp-sm text-cp-text-secondary hover:text-cp-text"
                 >
-                  <FileText size={13} /> {t('delivery.fb.export', 'Blatt')}
+                  <FileText size={13} /> {t('delivery.fb.export', 'Sheet')}
                 </button>
                 <button
                   type="button"
                   onClick={exportSkeleton}
                   title={t(
                     'delivery.fb.skeletonHint',
-                    'Gerüst zum Abtippen, keine einspielbare Konfiguration — das NOALBS-Schema hängt an deiner Version',
+                    'A skeleton to copy by hand, not a config to load \u2014 the NOALBS schema depends on the version you run',
                   )}
                   className="flex items-center gap-1 rounded border border-cp-border px-2 py-1 text-cp-sm text-cp-text-secondary hover:text-cp-text"
                 >
-                  <Download size={13} /> {t('delivery.fb.skeleton', 'Gerüst')}
+                  <Download size={13} /> {t('delivery.fb.skeleton', 'Skeleton')}
                 </button>
               </div>
 
@@ -975,24 +981,24 @@ export const DeliveryDialog = () => {
                 className="mb-2 text-cp-xs text-cp-text-muted"
                 text={t(
                   'delivery.fb.intro',
-                  'Der teure Fehler ist nicht das Netz, das nicht auslöst — es ist das Netz, das grundlos auslöst und die Show auf eine Tafel parkt, während die Strecke läuft. Szenennamen stehen im Encoder, im Wächter und im Kopf des Operators; hier stehen sie einmal, und der Abgleich kostet nichts.',
+                  'The expensive failure is not the net that never fires \u2014 it is the net that fires for no reason and parks the show on a slate while the stream is fine. Scene names live in the encoder, in the watchdog and in the operator\u2019s head; here they live once, and comparing them costs nothing.',
                 )}
               />
 
               <div className="mb-2 flex flex-wrap items-end gap-2 text-cp-sm">
                 <label className="flex flex-col gap-0.5">
                   <span className="text-cp-xs text-cp-text-muted">
-                    {t('delivery.fb.watcher', 'Wächter läuft auf')}
+                    {t('delivery.fb.watcher', 'Watchdog runs on')}
                   </span>
                   <select
                     value={fallback.plan.watcherEquipmentId ?? ''}
                     onChange={(e) =>
                       patchFallback({ watcherEquipmentId: e.target.value || undefined })
                     }
-                    aria-label={t('delivery.fb.watcher', 'Wächter läuft auf')}
+                    aria-label={t('delivery.fb.watcher', 'Watchdog runs on')}
                     className={inputCls}
                   >
-                    <option value="">{t('delivery.fb.watcherNone', '— nicht benannt —')}</option>
+                    <option value="">{t('delivery.fb.watcherNone', '\u2014 not stated \u2014')}</option>
                     {encoderChoices.map((e) => (
                       <option key={e.id} value={e.id}>
                         {e.name}
@@ -1002,13 +1008,13 @@ export const DeliveryDialog = () => {
                 </label>
                 <label className="flex flex-1 flex-col gap-0.5">
                   <span className="text-cp-xs text-cp-text-muted">
-                    {t('delivery.fb.stats', 'Statistik-Quelle, wie der Wächter sie sieht')}
+                    {t('delivery.fb.stats', 'Stats source, as the watchdog sees it')}
                   </span>
                   <input
                     value={fallback.plan.statsUrl ?? ''}
                     onChange={(e) => patchFallback({ statsUrl: e.target.value || undefined })}
                     placeholder="http://10.0.0.20/stat"
-                    aria-label={t('delivery.fb.stats', 'Statistik-Quelle, wie der Wächter sie sieht')}
+                    aria-label={t('delivery.fb.stats', 'Stats source, as the watchdog sees it')}
                     className={`${inputCls} w-full`}
                   />
                 </label>
@@ -1018,7 +1024,7 @@ export const DeliveryDialog = () => {
                 <label className="flex flex-1 flex-col gap-0.5">
                   <span className="text-cp-xs text-cp-text-muted">
                     {format(
-                      t('delivery.fb.scenes', 'Szenen im Encoder ({n} hinterlegt)'),
+                      t('delivery.fb.scenes', 'Scenes in the encoder ({n} on file)'),
                       { n: String(fallback.plan.scenes.length) },
                     )}
                   </span>
@@ -1027,9 +1033,9 @@ export const DeliveryDialog = () => {
                     onChange={(e) => setSceneDraft(e.target.value)}
                     placeholder={t(
                       'delivery.fb.scenesPh',
-                      'Namen einfügen, durch Komma oder Zeilenumbruch getrennt',
+                      'Paste names, separated by comma or newline',
                     )}
-                    aria-label={t('delivery.fb.scenes', 'Szenen im Encoder')}
+                    aria-label={t('delivery.fb.scenes', 'Scenes in the encoder ({n} on file)')}
                     className={`${inputCls} w-full`}
                   />
                 </label>
@@ -1038,7 +1044,7 @@ export const DeliveryDialog = () => {
                   onClick={applyScenes}
                   className="rounded border border-cp-border px-2 py-1.5 text-cp-sm text-cp-text-secondary hover:text-cp-text"
                 >
-                  {t('delivery.fb.scenesApply', 'Übernehmen')}
+                  {t('delivery.fb.scenesApply', 'Apply')}
                 </button>
               </div>
               {fallback.plan.scenes.length > 0 && (
@@ -1060,7 +1066,7 @@ export const DeliveryDialog = () => {
                           className="rounded border border-cp-border px-2 py-0.5 text-cp-text-secondary hover:text-cp-text"
                         >
                           <Plus size={11} className="inline" />{' '}
-                          {t('delivery.fb.protect', 'Absichern')}
+                          {t('delivery.fb.protect', 'Protect')}
                         </button>
                       </li>
                     )
@@ -1075,7 +1081,7 @@ export const DeliveryDialog = () => {
                         <button
                           type="button"
                           onClick={() => removeRule(rule.id)}
-                          aria-label={t('delivery.fb.remove', 'Regel entfernen')}
+                          aria-label={t('delivery.fb.remove', 'Remove rule')}
                           className="text-cp-text-muted hover:text-cp-danger"
                         >
                           <Trash2 size={13} />
@@ -1084,8 +1090,8 @@ export const DeliveryDialog = () => {
                       <div className="flex flex-wrap gap-2 text-cp-xs">
                         {(
                           [
-                            ['sceneNormal', t('delivery.fb.sceneNormal', 'Normalbetrieb')],
-                            ['sceneLow', t('delivery.fb.sceneLow', 'Niedrige Bitrate')],
+                            ['sceneNormal', t('delivery.fb.sceneNormal', 'Normal')],
+                            ['sceneLow', t('delivery.fb.sceneLow', 'Low bitrate')],
                             ['sceneOffline', t('delivery.fb.sceneOffline', 'Offline')],
                           ] as const
                         ).map(([feld, label]) => (
@@ -1101,7 +1107,7 @@ export const DeliveryDialog = () => {
                         ))}
                         <label className="flex flex-col gap-0.5">
                           <span className="text-cp-text-muted">
-                            {t('delivery.fb.low', 'Schwelle niedrig')}
+                            {t('delivery.fb.low', 'Low threshold')}
                           </span>
                           <input
                             type="number"
@@ -1110,13 +1116,13 @@ export const DeliveryDialog = () => {
                             onChange={(e) =>
                               patchRule(rule.id, { lowKbps: Number(e.target.value) || undefined })
                             }
-                            aria-label={`${d.name} — ${t('delivery.fb.low', 'Schwelle niedrig')}`}
+                            aria-label={`${d.name} — ${t('delivery.fb.low', 'Low threshold')}`}
                             className={`${inputCls} w-24`}
                           />
                         </label>
                         <label className="flex flex-col gap-0.5">
                           <span className="text-cp-text-muted">
-                            {t('delivery.fb.offline', 'Schwelle offline')}
+                            {t('delivery.fb.offline', 'Offline threshold')}
                           </span>
                           <input
                             type="number"
@@ -1125,7 +1131,7 @@ export const DeliveryDialog = () => {
                             onChange={(e) =>
                               patchRule(rule.id, { offlineKbps: Number(e.target.value) || undefined })
                             }
-                            aria-label={`${d.name} — ${t('delivery.fb.offline', 'Schwelle offline')}`}
+                            aria-label={`${d.name} — ${t('delivery.fb.offline', 'Offline threshold')}`}
                             className={`${inputCls} w-24`}
                           />
                         </label>
@@ -1162,7 +1168,7 @@ export const DeliveryDialog = () => {
                 className={`${inputCls} w-20`}
               />
               <span className={budget.fits ? 'text-cp-text-secondary' : 'text-cp-danger'}>
-                {format(t('delivery.budget', '{planned} kbit/s geplant, {usable} kbit/s nutzbar'), {
+                {format(t('delivery.budget', '{planned} kbit/s planned, {usable} kbit/s usable'), {
                   planned: report.primaryKbps,
                   usable: budget.usable.value,
                 })}
@@ -1180,7 +1186,7 @@ export const DeliveryDialog = () => {
           {feasibility.some((f) => f.findings.length > 0) && (
             <div className="mb-4 rounded border border-cp-warn/40 bg-cp-surface-2 p-2.5">
               <h3 className="mb-1.5 flex items-center gap-1.5 text-cp-sm font-medium text-cp-text">
-                <Cpu size={14} /> {t('delivery.encoder.title', 'Encoder-Machbarkeit')}
+                <Cpu size={14} /> {t('delivery.encoder.title', 'Encoder feasibility')}
               </h3>
               <ul className="flex flex-col gap-2">
                 {feasibility
@@ -1203,7 +1209,7 @@ export const DeliveryDialog = () => {
                                   gemeint ist. */}
                               {f.deviceId && (
                                 <span className="ml-1 text-cp-text-secondary">
-                                  {format(t('delivery.encoder.onDevice', 'auf {device}'), {
+                                  {format(t('delivery.encoder.onDevice', 'on {device}'), {
                                     device: deviceName(f.deviceId),
                                   })}
                                 </span>
@@ -1223,7 +1229,7 @@ export const DeliveryDialog = () => {
 
           {list.length === 0 ? (
             <p className="py-6 text-center text-cp-sm text-cp-text-muted">
-              {t('delivery.empty', 'Noch kein Ausspielziel. Lege eins an.')}
+              {t('delivery.empty', 'No delivery destination yet. Add one.')}
             </p>
           ) : (
             <ul className="flex flex-col gap-3">
@@ -1237,7 +1243,7 @@ export const DeliveryDialog = () => {
                       <input
                         value={d.name}
                         onChange={(e) => update(d.id, { name: e.target.value })}
-                        aria-label={t('delivery.col.name', 'Ziel')}
+                        aria-label={t('delivery.col.name', 'Destination')}
                         className={`${inputCls} min-w-[10rem] flex-1 font-medium`}
                       />
                       <select
@@ -1250,7 +1256,7 @@ export const DeliveryDialog = () => {
                             ...(p?.ingestUrl ? { ingestUrl: p.ingestUrl } : {}),
                           })
                         }}
-                        aria-label={t('delivery.col.platform', 'Plattform')}
+                        aria-label={t('delivery.col.platform', 'Platform')}
                         className={inputCls}
                       >
                         {DELIVERY_PLATFORMS.map((p) => (
@@ -1270,14 +1276,14 @@ export const DeliveryDialog = () => {
                       <select
                         value={d.encoderEquipmentId ?? ''}
                         onChange={(e) => update(d.id, { encoderEquipmentId: e.target.value || undefined })}
-                        aria-label={t('delivery.path.encoder', 'Encoder im Plan')}
+                        aria-label={t('delivery.path.encoder', 'Encoder in the plan')}
                         title={t(
                           'delivery.path.encoderHint',
-                          'Welches Gerät des Plans dieses Ziel beliefert — daraus leitet sich der Ausspielweg ab',
+                          'Which device of the plan feeds this destination — the delivery path is derived from it',
                         )}
                         className={inputCls}
                       >
-                        <option value="">{t('delivery.path.noEncoder', '— kein Encoder benannt —')}</option>
+                        <option value="">{t('delivery.path.noEncoder', '— no encoder named —')}</option>
                         {encoderChoices.map((e) => (
                           <option key={e.id} value={e.id}>{e.name}</option>
                         ))}
@@ -1287,28 +1293,28 @@ export const DeliveryDialog = () => {
                         {d.encoderEquipmentId &&
                           !encoderChoices.some((e) => e.id === d.encoderEquipmentId) && (
                             <option value={d.encoderEquipmentId}>
-                              {t('delivery.path.encoderGoneOption', '(Gerät nicht mehr im Plan)')}
+                              {t('delivery.path.encoderGoneOption', '(device no longer in the plan)')}
                             </option>
                           )}
                       </select>
                       <select
                         value={d.backupOfId ?? ''}
                         onChange={(e) => update(d.id, { backupOfId: e.target.value || undefined })}
-                        aria-label={t('delivery.col.backupOf', 'Backup von')}
+                        aria-label={t('delivery.col.backupOf', 'Backup of')}
                         className={inputCls}
                       >
-                        <option value="">{t('delivery.notABackup', '— eigener Weg —')}</option>
+                        <option value="">{t('delivery.notABackup', '\u2014 own path \u2014')}</option>
                         {list.filter((o) => o.id !== d.id).map((o) => (
                           <option key={o.id} value={o.id}>
-                            {format(t('delivery.backupOfOption', 'Backup von {name}'), { name: o.name })}
+                            {format(t('delivery.backupOfOption', 'Backup of {name}'), { name: o.name })}
                           </option>
                         ))}
                       </select>
                       <button
                         type="button"
                         onClick={() => remove(d.id)}
-                        aria-label={t('delivery.remove', 'Ziel entfernen')}
-                        title={t('delivery.removeHint', 'Entfernt das Ziel und seinen Stream-Key aus dem Schlüsselbund')}
+                        aria-label={t('delivery.remove', 'Remove destination')}
+                        title={t('delivery.removeHint', 'Removes the destination and its stream key from the keychain')}
                         className="text-cp-text-faint hover:text-cp-danger"
                       >
                         <Trash2 size={15} />
@@ -1319,8 +1325,8 @@ export const DeliveryDialog = () => {
                       <input
                         value={d.ingestUrl ?? ''}
                         onChange={(e) => update(d.id, { ingestUrl: e.target.value })}
-                        placeholder={t('delivery.col.ingest', 'Ingest-URL')}
-                        aria-label={t('delivery.col.ingest', 'Ingest-URL')}
+                        placeholder={t('delivery.col.ingest', 'Ingest URL')}
+                        aria-label={t('delivery.col.ingest', 'Ingest URL')}
                         className={`${inputCls} min-w-[14rem] flex-1`}
                       />
                       <input
@@ -1329,16 +1335,16 @@ export const DeliveryDialog = () => {
                         onChange={(e) => setKeyDraft((s) => ({ ...s, [d.id]: e.target.value }))}
                         placeholder={
                           d.hasStreamKey
-                            ? t('delivery.keyStored', 'Key hinterlegt — zum Ersetzen tippen')
-                            : t('delivery.keyEmpty', 'Stream-Key')
+                            ? t('delivery.keyStored', 'Key stored \u2014 type to replace')
+                            : t('delivery.keyEmpty', 'Stream key')
                         }
-                        aria-label={t('delivery.col.key', 'Stream-Key')}
+                        aria-label={t('delivery.col.key', 'Stream key')}
                         className={`${inputCls} min-w-[12rem] flex-1`}
                       />
                       <button
                         type="button"
                         onClick={() => void revealKey(d)}
-                        aria-label={t('delivery.reveal', 'Key anzeigen')}
+                        aria-label={t('delivery.reveal', 'Show key')}
                         className="text-cp-text-faint hover:text-cp-text"
                       >
                         {revealed[d.id] ? <EyeOff size={15} /> : <Eye size={15} />}
@@ -1348,15 +1354,15 @@ export const DeliveryDialog = () => {
                         onClick={() => void saveKey(d)}
                         className="rounded border border-cp-border px-2 py-1 text-cp-sm text-cp-text-secondary hover:text-cp-text"
                       >
-                        {t('delivery.saveKey', 'Key speichern')}
+                        {t('delivery.saveKey', 'Save key')}
                       </button>
                     </div>
 
                     <div className="mb-1 flex flex-wrap items-center gap-2 text-cp-sm">
                       {(
                         [
-                          ['width', t('delivery.enc.width', 'Breite')],
-                          ['height', t('delivery.enc.height', 'Höhe')],
+                          ['width', t('delivery.enc.width', 'Width')],
+                          ['height', t('delivery.enc.height', 'Height')],
                           ['fps', t('delivery.enc.fps', 'fps')],
                           ['videoBitrateKbps', t('delivery.enc.videoBitrate', 'Video kbit/s')],
                           ['keyframeSec', t('delivery.enc.keyframe', 'Keyframe s')],
@@ -1381,7 +1387,7 @@ export const DeliveryDialog = () => {
                         </label>
                       ))}
                       <label className="flex items-center gap-1 text-cp-text-muted">
-                        {t('delivery.enc.videoCodec', 'Video-Codec')}
+                        {t('delivery.enc.videoCodec', 'Video codec')}
                         <select
                           value={d.encoding.videoCodec}
                           onChange={(e) =>
@@ -1389,7 +1395,7 @@ export const DeliveryDialog = () => {
                               encoding: { ...d.encoding, videoCodec: e.target.value as 'H.264' | 'HEVC' | 'AV1' },
                             })
                           }
-                          aria-label={t('delivery.enc.videoCodec', 'Video-Codec')}
+                          aria-label={t('delivery.enc.videoCodec', 'Video codec')}
                           className={inputCls}
                         >
                           <option>H.264</option>
@@ -1402,7 +1408,7 @@ export const DeliveryDialog = () => {
                     {d.transport === 'SRT' && (
                       <div className="mb-1 flex flex-wrap items-center gap-2 text-cp-sm">
                         <label className="flex items-center gap-1 text-cp-text-muted">
-                          {t('delivery.srt.mode', 'SRT-Modus')}
+                          {t('delivery.srt.mode', 'SRT mode')}
                           <select
                             value={d.srt?.mode ?? 'caller'}
                             onChange={(e) =>
@@ -1410,7 +1416,7 @@ export const DeliveryDialog = () => {
                                 srt: { ...(d.srt ?? {}), mode: e.target.value as 'caller' | 'listener' | 'rendezvous' },
                               })
                             }
-                            aria-label={t('delivery.srt.mode', 'SRT-Modus')}
+                            aria-label={t('delivery.srt.mode', 'SRT mode')}
                             className={inputCls}
                           >
                             <option value="caller">caller</option>
@@ -1419,7 +1425,7 @@ export const DeliveryDialog = () => {
                           </select>
                         </label>
                         <label className="flex items-center gap-1 text-cp-text-muted">
-                          {t('delivery.srt.rtt', 'gemessene RTT (ms)')}
+                          {t('delivery.srt.rtt', 'measured RTT (ms)')}
                           <input
                             type="number"
                             min={0}
@@ -1432,7 +1438,7 @@ export const DeliveryDialog = () => {
                                 },
                               })
                             }
-                            aria-label={t('delivery.srt.rtt', 'gemessene RTT (ms)')}
+                            aria-label={t('delivery.srt.rtt', 'measured RTT (ms)')}
                             className={`${inputCls} w-24`}
                           />
                         </label>
@@ -1440,7 +1446,7 @@ export const DeliveryDialog = () => {
                           <div className="w-full text-cp-xs text-cp-text-muted">
                             {advice.fromRtt && (
                               <div>
-                                {format(t('delivery.srt.fromRtt', 'aus RTT: {v} ms — {formula} ({source})'), {
+                                {format(t('delivery.srt.fromRtt', 'from RTT: {v} ms \u2014 {formula} ({source})'), {
                                   v: advice.fromRtt.value,
                                   formula: advice.fromRtt.formula,
                                   source: advice.fromRtt.source,
@@ -1448,7 +1454,7 @@ export const DeliveryDialog = () => {
                               </div>
                             )}
                             <div>
-                              {format(t('delivery.srt.fixed', 'fester Praxiswert: {low}–{high} ms ({source})'), {
+                              {format(t('delivery.srt.fixed', 'fixed practical value: {low}\u2013{high} ms ({source})'), {
                                 low: advice.fixed.low.value,
                                 high: advice.fixed.high.value,
                                 source: advice.fixed.low.source,
@@ -1469,7 +1475,7 @@ export const DeliveryDialog = () => {
                     <div className="mt-1.5 grid grid-cols-1 gap-1.5 sm:grid-cols-3">
                       <label className="block text-cp-xs">
                         <span className="mb-0.5 block text-cp-text-muted">
-                          {t('delivery.osc.address', 'OSC-Adresse')}
+                          {t('delivery.osc.address', 'OSC address')}
                         </span>
                         <input
                           className="w-full rounded border border-cp-border bg-cp-surface-2 px-2 py-1"
@@ -1487,7 +1493,7 @@ export const DeliveryDialog = () => {
                       </label>
                       <label className="block text-cp-xs">
                         <span className="mb-0.5 block text-cp-text-muted">
-                          {t('delivery.osc.page', 'Companion-Seite')}
+                          {t('delivery.osc.page', 'Companion page')}
                         </span>
                         <input
                           type="number"
@@ -1505,7 +1511,7 @@ export const DeliveryDialog = () => {
                       </label>
                       <label className="block text-cp-xs">
                         <span className="mb-0.5 block text-cp-text-muted">
-                          {t('delivery.osc.bank', 'Companion-Platz')}
+                          {t('delivery.osc.bank', 'Companion bank')}
                         </span>
                         <input
                           type="number"
@@ -1573,10 +1579,10 @@ export const DeliveryDialog = () => {
             onClick={addDestination}
             className="flex items-center gap-1 rounded border border-cp-border px-2.5 py-1 text-cp-sm text-cp-text-secondary hover:text-cp-text"
           >
-            <Plus size={14} /> {t('delivery.add', 'Ziel hinzufügen')}
+            <Plus size={14} /> {t('delivery.add', 'Add destination')}
           </button>
           <span className="text-cp-xs text-cp-text-muted">
-            {format(t('delivery.summary', '{n} Ziele, {i} Befunde'), { n: list.length, i: report.issues.length })}
+            {format(t('delivery.summary', '{n} destinations, {i} findings'), { n: list.length, i: report.issues.length })}
           </span>
         </div>
       </div>

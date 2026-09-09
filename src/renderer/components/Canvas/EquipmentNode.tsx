@@ -710,7 +710,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
                   display: 'inline-flex',
                   alignItems: 'center',
                 }}
-                title={t('eqNode.rentmanRemoved', 'In Rentman nicht mehr vorhanden!')}
+                title={t('eqNode.rentmanRemoved', 'No longer in Rentman!')}
               >
                 <Icon icon={AlertTriangle} size={12} />
               </span>
@@ -724,7 +724,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
                   flexShrink: 0,
                   opacity: 0.7,
                 }}
-                title={t('eqNode.noRentman', 'Kein Rentman-Eintrag')}
+                title={t('eqNode.noRentman', 'No Rentman entry')}
               />
             )
           )}
@@ -762,7 +762,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
                 lineHeight: '13px',
               }}
               title={format(
-                t('eqNode.verified', 'Verifiziert von {n}: {names}'),
+                t('eqNode.verified', 'Verified by {n}: {names}'),
                 { n: data.verifiedBy!.length, names: data.verifiedBy!.join(', ') },
               )}
             >
@@ -783,7 +783,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
                 display: 'inline-flex',
                 alignItems: 'center',
               }}
-              title={t('eqNode.packed', 'Gepackt — bereit zum Versand')}
+              title={t('eqNode.packed', 'Packed — ready to ship')}
             >
               <Icon icon={Check} size={12} />
             </span>
@@ -802,7 +802,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
               fontWeight: 600,
               marginTop: 1,
             }}
-            title={`${t('eqNode.intercomStation', 'Sprechstelle')}${greengoUser.number !== undefined ? ` #${greengoUser.number}` : ''}${greengoUser.channelNames.length > 0 ? ` · ${t('eqNode.greengoGroups', 'Gruppen')}: ${greengoUser.channelNames.join(', ')}` : ''}`}
+            title={`${t('eqNode.intercomStation', 'Intercom station')}${greengoUser.number !== undefined ? ` #${greengoUser.number}` : ''}${greengoUser.channelNames.length > 0 ? ` · ${t('eqNode.greengoGroups', 'Groups')}: ${greengoUser.channelNames.join(', ')}` : ''}`}
           >
             <Icon icon={Headphones} size="xs" className="mr-1 inline-block align-text-bottom" />{greengoUser.station.name}
           </div>
@@ -855,17 +855,17 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
                 lineHeight: '12px',
               }}
             >
-              {t('canvas.pattern.expected', 'Erwartung laut Plan')}
+              {t('canvas.pattern.expected', 'Expected per plan')}
             </div>
             <img
               src={testPatternDataUri({ name: erwartetesBild, breite: 320 })}
               alt={format(
-                t('canvas.pattern.expectedAlt', 'Erwartetes Prüfbild: {name}'),
+                t('canvas.pattern.expectedAlt', 'Expected test pattern: {name}'),
                 { name: erwartetesBild },
               )}
               title={t(
                 'canvas.pattern.expectedTitle',
-                'Was der Plan hier vorsieht — kein Videobild. Diese App sieht nicht, was wirklich ankommt.',
+                'What the plan expects here — not a video image. This app cannot see what actually arrives.',
               )}
               draggable={false}
               style={{
@@ -926,7 +926,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
             role="button"
             tabIndex={isProjectLocked || isRackInternal ? -1 : 0}
             onKeyDown={handlePortKeyDown(port.id, 'input')}
-            aria-label={`${port.name} · ${port.connectorType} — ${t('eqNode.portConnectHint', 'Enter verbindet')}`}
+            aria-label={`${port.name} · ${port.connectorType} — ${t('eqNode.portConnectHint', 'Enter to connect')}`}
             style={{
               position: 'absolute',
               top,
@@ -955,9 +955,9 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
             <span
               title={
                 isRackInternal
-                  ? format(t('eqNode.portRackInternal', '{port} · {type} — Rack-intern verkabelt'), { port: port.name, type: port.connectorType })
+                  ? format(t('eqNode.portRackInternal', '{port} · {type} — wired internally in rack'), { port: port.name, type: port.connectorType })
                   : isPlugged
-                    ? format(t('eqNode.portPluggedOnSite', '{port} · {type} — vor Ort gesteckt'), { port: port.name, type: port.connectorType })
+                    ? format(t('eqNode.portPluggedOnSite', '{port} · {type} — plugged on site'), { port: port.name, type: port.connectorType })
                     : `${port.name} · ${port.connectorType}`
               }
               style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', pointerEvents: 'none' }}
@@ -984,8 +984,8 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
                     alignItems: 'center',
                     verticalAlign: 'middle',
                   }}
-                  title={t('eqNode.mobileChecked', 'Vor Ort gesteckt (Mobile-Viewer) — Klick entfernt den Haken')}
-                  aria-label={t('eqNode.mobileChecked', 'Vor Ort gesteckt (Mobile-Viewer) — Klick entfernt den Haken')}
+                  title={t('eqNode.mobileChecked', 'Checked on site (mobile viewer) — click removes the check')}
+                  aria-label={t('eqNode.mobileChecked', 'Checked on site (mobile viewer) — click removes the check')}
                 >
                   <Icon icon={Check} size="xs" />
                 </span>
@@ -1086,7 +1086,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
             role="button"
             tabIndex={isProjectLocked || isRackInternal ? -1 : 0}
             onKeyDown={handlePortKeyDown(port.id, 'output')}
-            aria-label={`${port.name} · ${port.connectorType} — ${t('eqNode.portConnectHint', 'Enter verbindet')}`}
+            aria-label={`${port.name} · ${port.connectorType} — ${t('eqNode.portConnectHint', 'Enter to connect')}`}
             style={{
               position: 'absolute',
               top,
@@ -1115,9 +1115,9 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
             <span
               title={
                 isRackInternal
-                  ? format(t('eqNode.portRackInternal', '{port} · {type} — Rack-intern verkabelt'), { port: port.name, type: port.connectorType })
+                  ? format(t('eqNode.portRackInternal', '{port} · {type} — wired internally in rack'), { port: port.name, type: port.connectorType })
                   : isPlugged
-                    ? format(t('eqNode.portPluggedOnSite', '{port} · {type} — vor Ort gesteckt'), { port: port.name, type: port.connectorType })
+                    ? format(t('eqNode.portPluggedOnSite', '{port} · {type} — plugged on site'), { port: port.name, type: port.connectorType })
                     : `${port.name} · ${port.connectorType}`
               }
               style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', pointerEvents: 'none' }}
@@ -1144,8 +1144,8 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
                     alignItems: 'center',
                     verticalAlign: 'middle',
                   }}
-                  title={t('eqNode.mobileChecked', 'Vor Ort gesteckt (Mobile-Viewer) — Klick entfernt den Haken')}
-                  aria-label={t('eqNode.mobileChecked', 'Vor Ort gesteckt (Mobile-Viewer) — Klick entfernt den Haken')}
+                  title={t('eqNode.mobileChecked', 'Checked on site (mobile viewer) — click removes the check')}
+                  aria-label={t('eqNode.mobileChecked', 'Checked on site (mobile viewer) — click removes the check')}
                 >
                   <Icon icon={Check} size="xs" />
                 </span>
@@ -1281,7 +1281,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
               by: headerHeight + bPl.slot * PORT_ROW + PORT_ROW / 2,
               bSide: bPl.side,
               color: c.color ?? '#94a3b8',
-              label: `${t('eqNode.internalPrefix', 'Intern')}: ${snap.items[c.fromItemIndex]?.name ?? '?'}:${c.fromPortName} ↔ ${snap.items[c.toItemIndex]?.name ?? '?'}:${c.toPortName}`,
+              label: `${t('eqNode.internalPrefix', 'Internal')}: ${snap.items[c.fromItemIndex]?.name ?? '?'}:${c.fromPortName} ↔ ${snap.items[c.toItemIndex]?.name ?? '?'}:${c.toPortName}`,
             })
           }
           return (

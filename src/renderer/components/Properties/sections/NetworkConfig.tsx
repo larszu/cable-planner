@@ -59,7 +59,7 @@ export const NetworkConfig = ({ equipmentId, item, allPorts, kind }: NetworkConf
     <>
       <fieldset className="rounded border border-cyan-700 bg-cyan-950/30 p-2">
         <legend className="px-1 text-[11px] uppercase tracking-wide text-cyan-300">
-          {kind === 'router' ? t('net.routerConfig', 'Router Config') : t('net.switchConfig', 'Switch Config')}
+          {kind === 'router' ? t('net.routerConfig', 'Router config') : t('net.switchConfig', 'Switch config')}
         </legend>
         <div className="grid grid-cols-2 gap-2">
           <label className="block">
@@ -129,7 +129,7 @@ export const NetworkConfig = ({ equipmentId, item, allPorts, kind }: NetworkConf
           </button>
         </div>
         {vlans.length === 0 && (
-          <div className="text-[11px] text-cp-text-muted">{t('net.noVlans', 'Keine VLANs definiert.')}</div>
+          <div className="text-[11px] text-cp-text-muted">{t('net.noVlans', 'No VLANs defined.')}</div>
         )}
         <ul className="space-y-1">
           {vlans.map((v, i) => (
@@ -145,13 +145,13 @@ export const NetworkConfig = ({ equipmentId, item, allPorts, kind }: NetworkConf
                 value={v.name}
                 onChange={(event) => updateVlan(i, { name: event.target.value })}
                 className="flex-1 rounded border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
-                placeholder={t('net.vlanNamePlaceholder', 'Name (z.B. Production)')}
+                placeholder={t('net.vlanNamePlaceholder', 'Name (e.g. Production)')}
               />
               <input
                 value={v.notes ?? ''}
                 onChange={(event) => updateVlan(i, { notes: event.target.value })}
                 className="flex-1 rounded border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
-                placeholder={t('net.vlanNotePlaceholder', 'Notiz')}
+                placeholder={t('net.vlanNotePlaceholder', 'Note')}
               />
               <button
                 type="button"

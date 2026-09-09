@@ -122,13 +122,13 @@ export const SourceIdentitySection = ({ equipment }: { equipment: EquipmentItem 
   return (
     <SortableSection
       id="source-identity"
-      title={t('sourceIdentity.title', 'Signalquelle (Rolle)')}
+      title={t('sourceIdentity.title', 'Signal source (role)')}
       subtitle={
         bound
           ? bound.umdAddress !== undefined
             ? `${bound.name} · UMD ${bound.umdAddress}`
             : bound.name
-          : t('sourceIdentity.unbound', 'nicht zugewiesen')
+          : t('sourceIdentity.unbound', 'not assigned')
       }
     >
       <div className="flex flex-col gap-2">
@@ -136,27 +136,27 @@ export const SourceIdentitySection = ({ equipment }: { equipment: EquipmentItem 
           className="text-cp-text-muted"
           text={t(
             'sourceIdentity.hint',
-            'Die Rolle überlebt den Gerätetausch: „Kamera 1" bleibt „Kamera 1", auch wenn die Havarie-Kamera einspringt. An ihr hängt die Tally-/UMD-Adresse.',
+            'The role outlives the device swap: "Camera 1" stays "Camera 1" even when the spare camera steps in. The tally/UMD address hangs on it.',
           )}
         />
 
         <label className="block">
           <span className="mb-1 block text-cp-text-secondary">
-            {t('sourceIdentity.role', 'Rolle')}
+            {t('sourceIdentity.role', 'Role')}
           </span>
           <select
             value={equipment.sourceIdentityId ?? ''}
             onChange={(event) => onPickRole(event.target.value)}
             className="w-full rounded border border-cp-border bg-cp-surface-1 p-2"
           >
-            <option value="">{t('sourceIdentity.none', '— keine —')}</option>
+            <option value="">{t('sourceIdentity.none', '— none —')}</option>
             {list.map((s) => (
               <option key={s.id} value={s.id}>
                 {s.name}
               </option>
             ))}
             <option value={NEW_ROLE}>
-              {t('sourceIdentity.create', 'Neue Rolle aus Gerätename anlegen…')}
+              {t('sourceIdentity.create', 'Create new role from device name…')}
             </option>
           </select>
         </label>
@@ -166,7 +166,7 @@ export const SourceIdentitySection = ({ equipment }: { equipment: EquipmentItem 
             <div className="grid grid-cols-2 gap-2">
               <label className="block">
                 <span className="mb-1 block text-cp-text-secondary">
-                  {t('sourceIdentity.name', 'Redaktioneller Name')}
+                  {t('sourceIdentity.name', 'Editorial name')}
                 </span>
                 <input
                   value={nameText}
@@ -181,7 +181,7 @@ export const SourceIdentitySection = ({ equipment }: { equipment: EquipmentItem 
               </label>
               <label className="block">
                 <span className="mb-1 block text-cp-text-secondary">
-                  {t('sourceIdentity.number', 'Nummer')}
+                  {t('sourceIdentity.number', 'Number')}
                 </span>
                 <input
                   type="number"
@@ -217,7 +217,7 @@ export const SourceIdentitySection = ({ equipment }: { equipment: EquipmentItem 
                       {format(
                         t(
                           'rename.lands',
-                          '„{old}“ → „{new}“ ändert {n} Stellen in den abgeleiteten Blättern — eine Änderung, kein Nachtippen.',
+                          '\u201C{old}\u201D \u2192 \u201C{new}\u201D changes {n} places in the derived sheets \u2014 one edit, no re-typing.',
                         ),
                         { old: impact.oldName, new: impact.newName, n: impact.landings.length },
                       )}
@@ -242,7 +242,7 @@ export const SourceIdentitySection = ({ equipment }: { equipment: EquipmentItem 
                         {format(
                           t(
                             'rename.swallowed',
-                            '{n} Ziel(e) speichern danach denselben Text wie vorher — dort kommt die Umbenennung nicht an.',
+                            '{n} target(s) will store the same text as before \u2014 the rename does not arrive there.',
                           ),
                           { n: verschluckt.length },
                         )}
@@ -255,7 +255,7 @@ export const SourceIdentitySection = ({ equipment }: { equipment: EquipmentItem 
                         {format(
                           t(
                             'rename.stragglers',
-                            'Der alte Name steht abgetippt in {n} Feld(ern) ({where}) — die folgen NICHT mit.',
+                            'The old name is typed out in {n} field(s) ({where}) \u2014 those do NOT follow.',
                           ),
                           {
                             n: impact.stragglers.length,
@@ -276,14 +276,14 @@ export const SourceIdentitySection = ({ equipment }: { equipment: EquipmentItem 
                     disabled={Boolean(impact.refusal)}
                     className="rounded bg-emerald-700 px-2 py-1 hover:bg-emerald-600 disabled:opacity-40"
                   >
-                    {t('rename.apply', 'Umbenennen')}
+                    {t('rename.apply', 'Rename')}
                   </button>
                   <button
                     type="button"
                     onClick={() => setNameDraft(null)}
                     className="rounded border border-cp-border px-2 py-1 hover:bg-cp-surface-3"
                   >
-                    {t('rename.discard', 'Verwerfen')}
+                    {t('rename.discard', 'Discard')}
                   </button>
                 </div>
               </div>
@@ -292,7 +292,7 @@ export const SourceIdentitySection = ({ equipment }: { equipment: EquipmentItem 
             <label className="block">
               <span className="mb-1 block text-cp-text-secondary">
                 {format(
-                  t('sourceIdentity.umd', 'TSL-UMD-Adresse ({min}–{max})'),
+                  t('sourceIdentity.umd', 'TSL UMD address ({min}–{max})'),
                   { min: UMD_ADDRESS_MIN, max: UMD_ADDRESS_MAX },
                 )}
               </span>
@@ -315,7 +315,7 @@ export const SourceIdentitySection = ({ equipment }: { equipment: EquipmentItem 
                   if (parsed !== undefined) updateSourceIdentity(bound.id, { umdAddress: parsed })
                 }}
                 onBlur={() => setUmdDraft(null)}
-                placeholder={t('sourceIdentity.umdPlaceholder', 'z. B. 1')}
+                placeholder={t('sourceIdentity.umdPlaceholder', 'e.g. 1')}
                 className={`w-full rounded border bg-cp-surface-1 p-2 font-mono ${
                   umdRejected ? 'border-cp-warn' : 'border-cp-border'
                 }`}
@@ -327,7 +327,7 @@ export const SourceIdentitySection = ({ equipment }: { equipment: EquipmentItem 
                 {format(
                   t(
                     'sourceIdentity.umdRejected',
-                    'Nicht übernommen: TSL UMD v3.1 kennt nur ganze Adressen von {min} bis {max}.',
+                    'Not applied: TSL UMD v3.1 only knows whole addresses from {min} to {max}.',
                   ),
                   { min: UMD_ADDRESS_MIN, max: UMD_ADDRESS_MAX },
                 )}
@@ -339,7 +339,7 @@ export const SourceIdentitySection = ({ equipment }: { equipment: EquipmentItem 
                 {format(
                   t(
                     'sourceIdentity.umdClash',
-                    'Adresse {address} ist schon vergeben an {names} — beide Displays zeigen denselben Text.',
+                    'Address {address} is already taken by {names} — both displays show the same text.',
                   ),
                   {
                     address: bound.umdAddress ?? '',
@@ -354,7 +354,7 @@ export const SourceIdentitySection = ({ equipment }: { equipment: EquipmentItem 
                 {format(
                   t(
                     'sourceIdentity.siblings',
-                    'Dieselbe Rolle tragen außerdem: {names}. Das ist gewollt bei Haupt-/Backup-Paaren.',
+                    'The same role is also carried by: {names}. That is intended for main/backup pairs.',
                   ),
                   { names: siblings.map((e) => e.name).join(', ') },
                 )}
@@ -366,7 +366,7 @@ export const SourceIdentitySection = ({ equipment }: { equipment: EquipmentItem 
               onClick={() => removeSourceIdentity(bound.id)}
               className="self-start rounded border border-cp-border px-2 py-1 text-cp-text-secondary hover:bg-cp-surface-3"
             >
-              {t('sourceIdentity.remove', 'Rolle löschen (löst alle Bindungen)')}
+              {t('sourceIdentity.remove', 'Delete role (releases all bindings)')}
             </button>
           </>
         )}

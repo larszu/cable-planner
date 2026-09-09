@@ -24,8 +24,8 @@ export const LibrarySaveSection = ({ equipment }: { equipment: EquipmentItem }) 
   return (
     <SortableSection
       id="library"
-      title={t('libSave.title', 'Bibliothek')}
-      subtitle={t('libSave.subtitle', 'als Vorlage speichern')}
+      title={t('libSave.title', 'Library')}
+      subtitle={t('libSave.subtitle', 'save as template')}
     >
       <div className="flex flex-col gap-1">
         <button
@@ -33,20 +33,20 @@ export const LibrarySaveSection = ({ equipment }: { equipment: EquipmentItem }) 
           onClick={async () => {
             const ok = existing
               ? await confirmDialog(
-                  format(t('libSave.overwriteConfirm', '"{name}" überschreiben?'), { name: equipment.name }),
+                  format(t('libSave.overwriteConfirm', 'Overwrite "{name}"?'), { name: equipment.name }),
                   {
                     body: t(
                       'libSave.overwriteBody',
-                      'Existiert bereits in der Bibliothek. Mit den aktuellen Einstellungen dieses Geräts überschreiben?',
+                      "Already exists in the library. Overwrite with the current device's settings?",
                     ),
-                    okLabel: t('libSave.overwriteOk', 'Überschreiben'),
+                    okLabel: t('libSave.overwriteOk', 'Overwrite'),
                     destructive: true,
                   },
                 )
               : await confirmDialog(
-                  format(t('libSave.saveConfirm', '"{name}" speichern?'), { name: equipment.name }),
+                  format(t('libSave.saveConfirm', 'Save "{name}"?'), { name: equipment.name }),
                   {
-                    body: t('libSave.saveBody', 'Als neue Standard-Vorlage in der Bibliothek speichern.'),
+                    body: t('libSave.saveBody', 'Save as a new default template in the library.'),
                   },
                 )
             if (ok) {
@@ -56,29 +56,29 @@ export const LibrarySaveSection = ({ equipment }: { equipment: EquipmentItem }) 
           className="w-full rounded bg-amber-700 px-2 py-1 text-cp-xs hover:bg-amber-600"
           title={t(
             'libSave.btnTitle',
-            'Speichert das aktuelle Gerät (Ports, Netzwerk, SDI-Caps, MV-Config …) als Vorlage in der Bibliothek.',
+            'Saves the current device (ports, network, SDI caps, MV config …) as a library template.',
           )}
         >
           {existing
-            ? t('libSave.btnOverwrite', 'Als Standard-Vorlage überschreiben ↺')
-            : t('libSave.btnSave', 'Als neue Standard-Vorlage speichern ✚')}
+            ? t('libSave.btnOverwrite', 'Overwrite default template ↺')
+            : t('libSave.btnSave', 'Save as new default template ✚')}
         </button>
         <button
           type="button"
           onClick={async () => {
             const suggestion = `${equipment.name} (Custom)`
             const input = await promptDialog(
-              t('libSave.newPrompt', 'Als neues Gerät in der Bibliothek speichern.\nName:'),
+              t('libSave.newPrompt', 'Save as a new device in the library.\nName:'),
               suggestion,
             )
             if (!input) return
             const trimmed = input.trim()
             if (!trimmed) return
             if (customLibrary.some((entry) => entry.name === trimmed)) {
-              await infoDialog(format(t('libSave.exists', '"{name}" existiert bereits'), { name: trimmed }), {
+              await infoDialog(format(t('libSave.exists', '"{name}" already exists'), { name: trimmed }), {
                 body: t(
                   'libSave.existsBody',
-                  'Bitte einen anderen Namen wählen oder die bestehende Vorlage überschreiben.',
+                  'Please choose a different name or overwrite the existing template.',
                 ),
                 tone: 'warning',
               })
@@ -89,10 +89,10 @@ export const LibrarySaveSection = ({ equipment }: { equipment: EquipmentItem }) 
           className="w-full rounded bg-emerald-700 px-2 py-1 text-cp-xs hover:bg-emerald-600"
           title={t(
             'libSave.newBtnTitle',
-            'Erstellt eine neue Vorlage unter anderem Namen — bestehende bleibt unverändert.',
+            'Creates a new template under a different name — the existing one stays unchanged.',
           )}
         >
-          {t('libSave.newBtn', 'Als neues Gerät in Library speichern ✚')}
+          {t('libSave.newBtn', 'Save as new device in library ✚')}
         </button>
       </div>
     </SortableSection>

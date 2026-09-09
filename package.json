@@ -9,7 +9,7 @@
   },
   "license": "UNLICENSED",
   "avplan": {
-    "sourceLanguage": "de"
+    "sourceLanguage": "en"
   },
   "homepage": "https://larszu.github.io/cable-planner/",
   "repository": {
@@ -52,7 +52,7 @@
     "build:preload": "tsc -p tsconfig.preload.json",
     "build:renderer": "vite build",
     "lint": "eslint .",
-    "lang:check": "node scripts/quellsprache.mjs src/renderer de",
+    "lang:check": "node scripts/quellsprache.mjs src/renderer en",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",

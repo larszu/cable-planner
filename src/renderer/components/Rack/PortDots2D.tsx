@@ -134,7 +134,7 @@ export const PortDots2D = ({
               setDragOverride(null)
             }}
             onClick={(e) => e.stopPropagation()}
-            title={`${port.name} · ${port.connectorType}\n${t('rack.portDots.dragHint', '(ziehen zum Verschieben auf das Panel-Foto)')}`}
+            title={`${port.name} · ${port.connectorType}\n${t('rack.portDots.dragHint', '(drag to reposition on the panel photo)')}`}
             className={`pointer-events-auto absolute flex -translate-x-1/2 -translate-y-1/2 cursor-grab items-center justify-center active:cursor-grabbing ${
               symEntry ? '' : 'rounded-full border-2 border-white/80 shadow-md'
             }`}

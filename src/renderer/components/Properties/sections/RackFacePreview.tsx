@@ -23,9 +23,9 @@ export const RackFacePreview = ({
   return (
     <fieldset className="rounded border border-cp-border p-2">
       <legend className="px-1 text-[11px] uppercase tracking-wide text-cp-text-muted">
-        {t('rackFace.title', '2D Rack-Vorschau')}
+        {t('rackFace.title', '2D rack preview')}
       </legend>
-      <div className="mb-2 text-[11px] text-cp-text-muted">{format(t('rackFace.subtitle', '19" Rack · {he} HE · Front/Rear mit Port-Marker'), { he: equipment.rackUnits })}</div>
+      <div className="mb-2 text-[11px] text-cp-text-muted">{format(t('rackFace.subtitle', '19" rack · {he} U · front/rear with port markers'), { he: equipment.rackUnits })}</div>
       <div className="rounded border border-cp-border bg-cp-surface-3 p-3">
         <div className={`mx-auto grid w-full max-w-[760px] gap-2 ${viewMode === 'both' ? 'grid-cols-2' : 'grid-cols-1'}`}>
           {(viewMode === 'both' ? ['front', 'rear'] : [viewMode]).map((side) => {

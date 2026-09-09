@@ -123,7 +123,7 @@ export const ModalShell = ({
             type="button"
             onClick={onClose}
             className="inline-flex items-center justify-center rounded-cp-control px-2 py-1 text-cp-text-muted hover:bg-cp-surface-2 hover:text-cp-text"
-            aria-label={t('common.close', 'Schließen')}
+            aria-label={t('common.close', 'Close')}
           >
             <Icon icon={X} size="md" />
           </button>

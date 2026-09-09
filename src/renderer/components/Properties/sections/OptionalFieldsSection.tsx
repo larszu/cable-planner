@@ -37,7 +37,7 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
   const toggleVerify = async () => {
     const name =
       (projectAuthor ?? '').trim() ||
-      (await promptDialog(t('verify.namePrompt', 'Dein Name (für die Geräte-Verifizierung):')))?.trim()
+      (await promptDialog(t('verify.namePrompt', 'Your name (for device verification):')))?.trim()
     if (!name) return
     const next = verifiedBy.includes(name)
       ? verifiedBy.filter((n) => n !== name)
@@ -46,7 +46,7 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
   }
 
   return (
-    <SortableSection id="optional" title={t('opt.title', 'Optionale Felder')} subtitle={t('opt.subtitle', 'Hersteller-Link, Referenzbild, Icon, Mietpreis, Verifizierung')}>
+    <SortableSection id="optional" title={t('opt.title', 'Optional fields')} subtitle={t('opt.subtitle', 'Manufacturer link, reference image, icon, rental price')}>
       <div className="space-y-3">
         {/* #580 — Geräte-Verifizierung: bestätigen, dass die eingetragenen
             Ports/Daten korrekt sind. Zeigt die Zahl der Bestätigungen. */}
@@ -57,16 +57,16 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
                 <span
                   className="inline-flex items-center gap-1 rounded bg-emerald-900/60 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-200"
                   title={format(
-                    t('verify.byTitle', 'Verifiziert von: {names}'),
+                    t('verify.byTitle', 'Verified by: {names}'),
                     { names: verifiedBy.join(', ') },
                   )}
                 >
-                  ✓ {format(t('verify.count', '{n}× verifiziert'), { n: verifiedBy.length })}
+                  ✓ {format(t('verify.count', '{n}× verified'), { n: verifiedBy.length })}
                 </span>
               )}
               {verifiedBy.length === 0 && (
                 <span className="text-[11px] text-cp-text-muted">
-                  {t('verify.none', 'Noch nicht verifiziert')}
+                  {t('verify.none', 'Not verified yet')}
                 </span>
               )}
             </span>
@@ -74,13 +74,13 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
               type="button"
               onClick={() => void toggleVerify()}
               className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
-              title={t('verify.buttonTitle', 'Bestätigen, dass die Ports/Daten dieses Geräts korrekt sind')}
+              title={t('verify.buttonTitle', 'Confirm that this device\'s ports/data are correct')}
             >
-              {t('verify.button', 'Als korrekt verifizieren')}
+              {t('verify.button', 'Verify as correct')}
             </button>
           </div>
           <p className="text-[10px] text-cp-text-faint">
-            {t('verify.hint', 'Bestätigt, dass die Ports stimmen. Beim Teilen von Bibliotheken summieren sich die Bestätigungen mehrerer Nutzer.')}
+            {t('verify.hint', 'Confirms the ports are correct. When sharing libraries, confirmations from multiple users add up.')}
           </p>
         </div>
 
@@ -89,10 +89,10 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
         <div className="grid grid-cols-[1fr_70px] gap-2">
           <label className="block">
             <span className="mb-1 block text-cp-text-secondary">
-              {t('eq.field.rentPrice', 'Mietpreis / Tag')}
+              {t('eq.field.rentPrice', 'Rental price / day')}
               {equipment.rentmanId && (
                 <span className="ml-1 rounded bg-emerald-900/60 px-1 text-[10px] text-emerald-200">
-                  {t('eq.field.rentPriceRentman', 'aus Rentman')}
+                  {t('eq.field.rentPriceRentman', 'from Rentman')}
                 </span>
               )}
             </span>
@@ -101,7 +101,7 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
               min={0}
               step="0.01"
               value={equipment.rentPricePerDay ?? ''}
-              placeholder={t('eq.field.rentPricePlaceholder', 'z. B. 45.00')}
+              placeholder={t('eq.field.rentPricePlaceholder', 'e.g. 45.00')}
               onChange={(event) => {
                 const v = event.target.value
                 updateEquipment(equipment.id, {
@@ -112,7 +112,7 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
             />
           </label>
           <label className="block">
-            <span className="mb-1 block text-cp-text-secondary">{t('eq.field.rentCurrency', 'Wäh.')}</span>
+            <span className="mb-1 block text-cp-text-secondary">{t('eq.field.rentCurrency', 'Cur.')}</span>
             <input
               type="text"
               maxLength={6}
@@ -129,9 +129,9 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
 
         <label className="block">
           <span className="mb-1 block text-cp-text-secondary">
-            {t('eq.field.manufacturerUrl', 'Hersteller-Link')}{' '}
+            {t('eq.field.manufacturerUrl', 'Manufacturer link')}{' '}
             <span className="text-cp-text-faint">
-              ({t('common.optional', 'optional')}, {t('eq.field.manufacturerUrlHint', 'für Datenblatt-Aufruf')})
+              ({t('common.optional', 'optional')}, {t('eq.field.manufacturerUrlHint', 'optional, for datasheet access')})
             </span>
           </span>
           <div className="flex gap-1">
@@ -150,9 +150,9 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
                 target="_blank"
                 rel="noopener noreferrer"
                 className="rounded bg-sky-700 px-2 py-1 text-cp-xs hover:bg-sky-600"
-                title={t('eq.field.manufacturerUrlOpenTitle', 'In externem Browser öffnen')}
+                title={t('eq.field.manufacturerUrlOpenTitle', 'Open in external browser')}
               >
-                {t('eq.field.manufacturerUrlOpen', 'Öffnen ↗')}
+                {t('eq.field.manufacturerUrlOpen', 'Open ↗')}
               </a>
             )}
           </div>
@@ -177,7 +177,7 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
               {format(
                 t(
                   'eq.field.manufacturerUrlNoSource',
-                  'Der Katalog-Typ {name} führt kein Datenblatt — dieser Eintrag ist unbelegt.',
+                  'Catalog type {name} carries no datasheet — this entry is unsourced.',
                 ),
                 { name: inheritedName ?? '' },
               )}
@@ -187,7 +187,7 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
             <div className="mt-1 flex items-center gap-1 text-cp-xs">
               <span className="text-cp-text-muted">
                 {format(
-                  t('eq.field.manufacturerUrlInherited', 'Aus Katalog-Typ {name}:'),
+                  t('eq.field.manufacturerUrlInherited', 'From catalog type {name}:'),
                   { name: inheritedName ?? '' },
                 )}
               </span>
@@ -196,9 +196,9 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
                 target="_blank"
                 rel="noopener noreferrer"
                 className="truncate text-cp-accent hover:underline"
-                title={t('eq.field.manufacturerUrlOpenTitle', 'In externem Browser öffnen')}
+                title={t('eq.field.manufacturerUrlOpenTitle', 'Open in external browser')}
               >
-                {t('eq.field.manufacturerUrlOpen', 'Öffnen ↗')}
+                {t('eq.field.manufacturerUrlOpen', 'Open ↗')}
               </a>
             </div>
           )}
@@ -206,9 +206,9 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
 
         <label className="block">
           <span className="mb-1 block text-cp-text-secondary">
-            {t('eq.field.priceEUR', 'Preis / Miete (€)')}{' '}
+            {t('eq.field.priceEUR', 'Price / rental (€)')}{' '}
             <span className="text-cp-text-faint">
-              ({t('common.optional', 'optional')}, {t('eq.field.priceEURHint', 'für Angebots-Export')})
+              ({t('common.optional', 'optional')}, {t('eq.field.priceEURHint', 'for quote export')})
             </span>
           </span>
           <input
@@ -216,7 +216,7 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
             min={0}
             step={0.01}
             value={equipment.priceEUR ?? ''}
-            placeholder={t('eq.field.priceEURPlaceholder', 'z. B. 1200')}
+            placeholder={t('eq.field.priceEURPlaceholder', 'e.g. 1200')}
             onChange={(event) =>
               updateEquipment(equipment.id, {
                 priceEUR: event.target.value ? Math.max(0, Number(event.target.value)) : undefined,
@@ -228,8 +228,8 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
 
         <label className="block">
           <span className="mb-1 block text-cp-text-secondary">
-            {t('eq.field.refImage', 'Referenzbild')}{' '}
-            <span className="text-cp-text-faint">({t('eq.field.refImageHint', 'z. B. Port-Belegung')})</span>
+            {t('eq.field.refImage', 'Reference image')}{' '}
+            <span className="text-cp-text-faint">({t('eq.field.refImageHint', 'e.g. port layout')})</span>
           </span>
           <div className="flex items-start gap-2">
             {equipment.imageUrl ? (
@@ -238,13 +238,13 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block max-h-24 max-w-[120px] overflow-hidden rounded border border-cp-border"
-                title={t('eq.field.refImageFullsize', 'In voller Größe öffnen')}
+                title={t('eq.field.refImageFullsize', 'Open at full size')}
               >
                 <img src={equipment.imageUrl} alt="" className="max-h-24 max-w-[120px] object-contain" />
               </a>
             ) : (
               <div className="flex h-24 w-[120px] items-center justify-center rounded border border-dashed border-cp-border text-[10px] text-cp-text-muted">
-                {t('eq.field.refImageNone', 'Kein Bild')}
+                {t('eq.field.refImageNone', 'No image')}
               </div>
             )}
             <div className="flex flex-col gap-1">
@@ -257,8 +257,8 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
                 className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
               >
                 {equipment.imageUrl
-                  ? t('eq.field.refImageReplace', 'Ersetzen…')
-                  : t('common.choose', 'Auswählen…')}
+                  ? t('eq.field.refImageReplace', 'Replace…')
+                  : t('common.choose', 'Choose…')}
               </button>
               {equipment.imageUrl && (
                 <button
@@ -266,7 +266,7 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
                   onClick={() => updateEquipment(equipment.id, { imageUrl: undefined })}
                   className="rounded bg-cp-surface-2 px-2 py-1 text-cp-xs text-cp-text-muted hover:bg-red-700 hover:text-white"
                 >
-                  {t('common.remove', 'Entfernen')}
+                  {t('common.remove', 'Remove')}
                 </button>
               )}
             </div>
@@ -277,7 +277,7 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
           <span className="mb-1 block text-cp-text-secondary">
             {t('opt.iconLabel', 'Icon')}{' '}
             <span className="text-cp-text-faint">
-              ({t('opt.iconHint', 'Glyph oder Emoji, max 2 Zeichen — leer = automatisch')})
+              ({t('opt.iconHint', 'Glyph or emoji, max 2 characters — empty = automatic')})
             </span>
           </span>
           <div className="flex flex-wrap items-center gap-1">
@@ -311,7 +311,7 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
                 type="button"
                 onClick={() => updateEquipment(equipment.id, { icon: undefined })}
                 className="rounded bg-cp-surface-4 px-1.5 py-1 text-[10px] hover:bg-cp-surface-5"
-                title={t('opt.iconAutoTitle', 'Auf automatisch zurücksetzen')}
+                title={t('opt.iconAutoTitle', 'Reset to automatic')}
               >
                 auto
               </button>

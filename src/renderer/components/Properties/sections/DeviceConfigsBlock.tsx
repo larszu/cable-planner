@@ -27,7 +27,7 @@ export const DeviceConfigsBlock = ({ equipmentId }: { equipmentId: string }) => 
     >
       <summary className="flex items-center gap-1 px-2 py-1.5 text-[10px] uppercase tracking-wide text-cp-text-muted hover:text-cp-text-bright [&::-webkit-details-marker]:hidden">
         <span className="text-cp-text-faint">{open ? '▾' : '▸'}</span>
-        <span className="flex-1">{t('props.deviceConfigs.title', 'Konfigurationen')}</span>
+        <span className="flex-1">{t('props.deviceConfigs.title', 'Configurations')}</span>
         {!open && assigned.length > 0 && (
           <span className="rounded bg-cp-surface-4/60 px-1 text-[11px] normal-case text-cp-text-bright">
             {assigned.length}
@@ -37,7 +37,7 @@ export const DeviceConfigsBlock = ({ equipmentId }: { equipmentId: string }) => 
       <div className="px-2 pb-2">
       {assigned.length === 0 ? (
         <div className="text-[11px] text-cp-text-muted">
-          {t('props.deviceConfigs.none', 'Keine Konfiguration zugeordnet.')}
+          {t('props.deviceConfigs.none', 'No configuration assigned.')}
         </div>
       ) : (
         <ul className="mb-2 space-y-1">
@@ -51,9 +51,9 @@ export const DeviceConfigsBlock = ({ equipmentId }: { equipmentId: string }) => 
                 type="button"
                 onClick={() => updateDeviceConfig(e.id, { equipmentId: undefined })}
                 className="rounded bg-cp-surface-2 px-1.5 py-0.5 text-[10px] text-cp-text-secondary hover:bg-red-700 hover:text-white"
-                title={t('props.deviceConfigs.unassignTitle', 'Zuordnung lösen (Datei bleibt in der Bibliothek)')}
+                title={t('props.deviceConfigs.unassignTitle', 'Detach assignment (file remains in library)')}
               >
-                {t('props.deviceConfigs.unassign', 'Lösen')}
+                {t('props.deviceConfigs.unassign', 'Detach')}
               </button>
             </li>
           ))}
@@ -68,7 +68,7 @@ export const DeviceConfigsBlock = ({ equipmentId }: { equipmentId: string }) => 
           className="w-full rounded border border-cp-border bg-cp-surface-3 p-1 text-[11px]"
         >
           <option value="">
-            {t('props.deviceConfigs.assignExisting', '+ Vorhandene Konfiguration zuordnen…')}
+            {t('props.deviceConfigs.assignExisting', '+ Assign existing configuration…')}
           </option>
           {unassigned.map((e) => (
             <option key={e.id} value={e.id}>
@@ -80,7 +80,7 @@ export const DeviceConfigsBlock = ({ equipmentId }: { equipmentId: string }) => 
       <div className="mt-1 text-[10px] text-cp-text-muted">
         {t(
           'props.deviceConfigs.hint',
-          'Neue Konfigurationen über Einstellungen → Konfigurationen hochladen.',
+          'Upload new configurations in Settings → Configurations.',
         )}
       </div>
       </div>

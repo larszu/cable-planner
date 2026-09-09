@@ -22,10 +22,10 @@ const CableEndpointLabelsCard = () => {
   const setShowCableEndpointLabels = useUiStore((s) => s.setShowCableEndpointLabels)
   return (
     <SettingsCard
-      title={t('settings.editing.endpointLabels', 'Endpoint-Labels an Kabelenden')}
+      title={t('settings.editing.endpointLabels', 'Endpoint labels at cable ends')}
       description={t(
         'settings.editing.endpointLabelsDesc',
-        'Zeigt an jedem Kabelende ein kleines Label das anzeigt, wohin das andere Ende geht — am Source-Ende "→ Ziel-Gerät · Ziel-Port", am Target-Ende "← Quell-Gerät · Quell-Port". Hilft beim Verfolgen von Kabeln ohne ihnen visuell folgen zu müssen.',
+        'Shows a small label at each cable end indicating where the other end goes — at the source end "→ target device · target port", at the target end "← source device · source port". Helps trace cables without following them visually.',
       )}
     >
       <label className="flex items-center gap-2 text-cp-base text-cp-text-bright">
@@ -34,11 +34,11 @@ const CableEndpointLabelsCard = () => {
           checked={showCableEndpointLabels}
           onChange={(e) => setShowCableEndpointLabels(e.target.checked)}
         />
-        {t('settings.editing.endpointLabelsLabel', 'Endpoint-Labels einblenden')}
+        {t('settings.editing.endpointLabelsLabel', 'Show endpoint labels')}
       </label>
       <PanelHint
         className="mt-2 text-[11px] text-cp-text-muted"
-        text={t('settings.editing.endpointLabelsNote', 'Default aus — gibt zusätzlichen Visual-Noise. Wirkt zusammen mit dem globalen "Alle Labels ausblenden"-Toggle und respektiert per-Kabel labelPosition=\'none\'.')}
+        text={t('settings.editing.endpointLabelsNote', 'Off by default — adds extra visual noise. Works together with the global "Hide all labels" toggle and respects per-cable labelPosition=\'none\'.')}
       />
     </SettingsCard>
   )
@@ -55,10 +55,10 @@ const CableInheritTypeCard = () => {
   const setInheritCableTypeFromPort = useUiStore((s) => s.setInheritCableTypeFromPort)
   return (
     <SettingsCard
-      title={t('settings.editing.cableInherit', 'Kabel-Typ folgt Port-Connector')}
+      title={t('settings.editing.cableInherit', 'Cable type follows port connector')}
       description={t(
         'settings.editing.cableInheritDesc',
-        'Wenn ein Port-Connector geändert wird (z.B. BNC -> XLR), übernehmen verbundene Kabel automatisch den neuen Typ. Gilt auch beim Umstecken auf einen Port mit anderem Connector. Kabel mit Konverter-Hinweis (needsConverter) bleiben unberührt.',
+        'When a port connector is changed (e.g. BNC -> XLR), connected cables automatically adopt the new type. Also applies when re-plugging to a port with a different connector. Cables with a converter hint (needsConverter) stay untouched.',
       )}
     >
       <label className="flex items-center gap-2 text-cp-base text-cp-text-bright">
@@ -67,13 +67,13 @@ const CableInheritTypeCard = () => {
           checked={inheritCableTypeFromPort}
           onChange={(e) => setInheritCableTypeFromPort(e.target.checked)}
         />
-        {t('settings.editing.cableInheritLabel', 'Kabel-Typ aus Port-Connector ableiten')}
+        {t('settings.editing.cableInheritLabel', 'Derive cable type from port connector')}
       </label>
       <PanelHint
         className="mt-2 text-[11px] text-cp-text-muted"
         text={t(
           'settings.editing.cableInheritNote',
-          'Default an: meistens sollen Kabel den physischen Anschluss-Typ ihrer Ports widerspiegeln. Abschalten, wenn Kabel-Typen unabhängig von Port-Typen verwaltet werden sollen.',
+          'On by default: cables should usually reflect the physical connector type of their ports. Turn off if cable types are managed independently of port types.',
         )}
       />
     </SettingsCard>
@@ -90,10 +90,10 @@ const CableReconnectOptionsCard = () => {
   const setSwapLabelsOnReconnect = useUiStore((s) => s.setSwapLabelsOnReconnect)
   return (
     <SettingsCard
-      title={t('settings.editing.labelSwap', 'Label mit Kabel mit-wandern')}
+      title={t('settings.editing.labelSwap', 'Label travels with the cable')}
       description={t(
         'settings.editing.labelSwapDesc',
-        'Beim Umstecken eines Kabels übernimmt der neue Port den User-Namen vom alten Port. Der alte Port fällt auf seinen Template-default zurück. Spart Copy-Paste vom Label.',
+        'When re-plugging a cable, the new port adopts the user name from the old port. The old port falls back to its template default. Saves copy-pasting the label.',
       )}
     >
       <label className="flex items-center gap-2 text-cp-base text-cp-text-bright">
@@ -102,13 +102,13 @@ const CableReconnectOptionsCard = () => {
           checked={swapLabelsOnReconnect}
           onChange={(e) => setSwapLabelsOnReconnect(e.target.checked)}
         />
-        {t('settings.editing.labelSwapLabel', 'Beim Reconnect Port-Labels mit-tauschen')}
+        {t('settings.editing.labelSwapLabel', 'Swap port labels on reconnect')}
       </label>
       <PanelHint
         className="mt-2 text-[11px] text-cp-text-muted"
         text={t(
           'settings.editing.labelSwapNote',
-          'Aus Sicherheit per default aus — sonst würden Test-Umsteckungen ungewollt Labels umbenennen. Wirkt nur bei Ports, die einen vom User editierten Namen haben (sonst gibts nichts zu tauschen).',
+          'Off by default for safety — otherwise test re-plugging would unintentionally rename labels. Only affects ports with a user-edited name (nothing to swap otherwise).',
         )}
       />
     </SettingsCard>
@@ -127,10 +127,10 @@ const CableVisualOptionsCard = () => {
   const setOrthogonalCollisionShift = useUiStore((s) => s.setOrthogonalCollisionShift)
   return (
     <SettingsCard
-      title={t('settings.editing.cableVisuals', 'Kabel-Darstellung')}
+      title={t('settings.editing.cableVisuals', 'Cable rendering')}
       description={t(
         'settings.editing.cableVisualsDesc',
-        'Visuelle Hilfen für orthogonal verlegte Kabel (yEd-ähnliche Brücken bei Kreuzungen und automatische Versetzung sich überlagernder Mittellinien).',
+        'Visual aids for orthogonally routed cables (yEd-like bridges at crossings and automatic offset of overlapping center lines).',
       )}
     >
       <label className="mb-2 flex items-center gap-2 text-cp-base text-cp-text-bright">
@@ -141,7 +141,7 @@ const CableVisualOptionsCard = () => {
         />
         {t(
           'settings.editing.cableBumps',
-          'Kreuzungs-Brücken auf orthogonalen Kabeln',
+          'Crossing bridges on orthogonal cables',
         )}
       </label>
       <label className="flex items-center gap-2 text-cp-base text-cp-text-bright">
@@ -152,7 +152,7 @@ const CableVisualOptionsCard = () => {
         />
         {t(
           'settings.editing.collisionShift',
-          'Mittellinien automatisch versetzen wenn Kabel sich überlagern',
+          'Automatically offset center lines when cables overlap',
         )}
       </label>
     </SettingsCard>
@@ -175,10 +175,10 @@ export const EditingTab = () => {
   return (
     <div className="space-y-3">
       <SettingsCard
-        title={t('settings.editing.routing', 'Standard-Kabelführung')}
+        title={t('settings.editing.routing', 'Default cable routing')}
         description={t(
           'settings.editing.routingDesc',
-          'Welche Form neue Kabel auf dem Canvas haben sollen. Per Kabel überschreibbar.',
+          'Shape used for new cables on the canvas. Overridable per cable.',
         )}
       >
         <RoutingToggle value={defaultRouting} onChange={setDefaultRouting} />
@@ -191,11 +191,11 @@ export const EditingTab = () => {
                 format(
                   t(
                     'settings.editing.routing.applyAllConfirm',
-                    'Routing aller {count} bestehenden Kabel auf "{routing}" setzen?',
+                    'Set routing of all {count} existing cables to "{routing}"?',
                   ),
                   { count: cables.length, routing: defaultRouting },
                 ),
-                { okLabel: t('common.apply', 'Anwenden') },
+                { okLabel: t('common.apply', 'Apply') },
               ))
             )
               return
@@ -206,15 +206,15 @@ export const EditingTab = () => {
           className="mt-2 w-full rounded bg-cp-surface-2 px-2 py-1 text-[11px] text-cp-text-secondary hover:bg-cp-surface-4 disabled:opacity-50"
         >
           {format(
-            t('settings.editing.routing.applyAll', 'Auf alle bestehenden Kabel anwenden ({count})'),
+            t('settings.editing.routing.applyAll', 'Apply to all existing cables ({count})'),
             { count: cables.length },
           )}
         </button>
       </SettingsCard>
 
       <SettingsCard
-        title={t('settings.editing.grid', 'Raster (Grid)')}
-        description={t('settings.editing.gridDesc', 'Snap-to-Grid und Rastergröße in Pixeln.')}
+        title={t('settings.editing.grid', 'Grid')}
+        description={t('settings.editing.gridDesc', 'Snap-to-grid and grid size in pixels.')}
       >
         <label className="flex items-center gap-2 text-cp-base text-cp-text-bright">
           <input
@@ -222,10 +222,10 @@ export const EditingTab = () => {
             checked={snapToGrid}
             onChange={(e) => setSnapToGrid(e.target.checked)}
           />
-          {t('settings.editing.snapLabel', 'Geräte am Raster einrasten')}
+          {t('settings.editing.snapLabel', 'Snap equipment to grid')}
         </label>
         <label className="mt-2 block text-cp-base text-cp-text-secondary">
-          {t('settings.editing.gridSize', 'Rastergröße (Pixel)')}
+          {t('settings.editing.gridSize', 'Grid size (pixels)')}
           <input
             type="number"
             min={2}
@@ -238,10 +238,10 @@ export const EditingTab = () => {
       </SettingsCard>
 
       <SettingsCard
-        title={t('settings.editing.inlineToolbar', 'Inline-Auswahl-Toolbar')}
+        title={t('settings.editing.inlineToolbar', 'Inline selection toolbar')}
         description={t(
           'settings.editing.inlineToolbarDesc',
-          'Schwebende Schnellaktionen (Ausrichten, Duplizieren, Rahmen, Löschen) direkt neben der Auswahl auf dem Canvas.',
+          'Floating quick actions (align, duplicate, frame, delete) right next to the selection on the canvas.',
         )}
       >
         <label className="flex items-center gap-2 text-cp-base text-cp-text-bright">
@@ -250,7 +250,7 @@ export const EditingTab = () => {
             checked={inlineToolbarEnabled}
             onChange={(e) => setInlineToolbarEnabled(e.target.checked)}
           />
-          {t('settings.editing.inlineToolbarLabel', 'Inline-Toolbar bei Auswahl anzeigen')}
+          {t('settings.editing.inlineToolbarLabel', 'Show inline toolbar on selection')}
         </label>
       </SettingsCard>
 

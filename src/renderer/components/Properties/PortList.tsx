@@ -91,8 +91,8 @@ const SortablePortItem = ({ port, children }: SortablePortItemProps) => {
         <button
           type="button"
           className="mt-1 cursor-grab rounded border border-cp-border bg-cp-surface-3 px-1.5 py-1 text-[11px] text-cp-text-muted hover:bg-cp-surface-1 active:cursor-grabbing"
-          title={t('ports.dragHandle', 'Port-Reihenfolge ändern')}
-          aria-label={format(t('ports.reorderAria', 'Reihenfolge ändern: {name}'), { name: port.name })}
+          title={t('ports.dragHandle', 'Reorder port')}
+          aria-label={format(t('ports.reorderAria', 'Reorder: {name}'), { name: port.name })}
           {...attributes}
           {...listeners}
         >
@@ -139,7 +139,7 @@ const CollapsibleSdiCaps = ({
     >
       <summary className="flex items-center gap-1 p-1.5 text-[10px] font-semibold uppercase tracking-wide text-amber-300 hover:text-amber-200 [&::-webkit-details-marker]:hidden">
         <span className="text-amber-400/70">{open ? '▾' : '▸'}</span>
-        <span className="flex-1">{t('ports.sdi.caps', 'SDI-Fähigkeiten (port-spezifisch)')}</span>
+        <span className="flex-1">{t('ports.sdi.caps', 'SDI capabilities (port-specific)')}</span>
         {!open && badge && (
           <span className="rounded bg-amber-900/50 px-1 text-[11px] normal-case text-amber-200">
             {badge}
@@ -245,12 +245,12 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
     )
     if (freeBncPorts.length === 0) {
       await infoDialog(
-        format(t('quadLink.incompleteTitle', 'Quad-Link Set {g} unvollständig'), { g }),
+        format(t('quadLink.incompleteTitle', 'Quad-Link set {g} incomplete'), { g }),
         {
           body: format(
             t(
               'quadLink.incompleteBody',
-              'Hat nur {have}/4 Ports. Keine weiteren freien BNC-Ports verfügbar — bitte zuerst BNC-Ports hinzufügen oder bestehende freigeben.',
+              'Only has {have}/4 ports. No more free BNC ports available — please add BNC ports first or free up existing ones.',
             ),
             { have: String(haveCount) },
           ),
@@ -260,16 +260,16 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
       return
     }
     const ok = await confirmDialog(
-      format(t('quadLink.fillTitle', 'Quad-Link Set {g} ergänzen?'), { g }),
+      format(t('quadLink.fillTitle', 'Fill quad-link set {g}?'), { g }),
       {
         body: format(
           t(
             'quadLink.fillBody',
-            'Aktuell {have}/4 Ports. {add} weitere freie BNC-Ports automatisch dem Set zuweisen?',
+            'Currently {have}/4 ports. Assign {add} more free BNC ports automatically to the set?',
           ),
           { have: String(haveCount), add: String(Math.min(needed, freeBncPorts.length)) },
         ),
-        okLabel: t('quadLink.okFill', 'Ja, ergänzen'),
+        okLabel: t('quadLink.okFill', 'Yes, fill'),
       },
     )
     if (!ok) return
@@ -301,16 +301,16 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
       const needed = 4 - haveCount
       if (needed > 0 && freeBncPorts.length > 0) {
         const ok = await confirmDialog(
-          format(t('quadLink.createTitle', 'Quad-Link Set {id} anlegen?'), { id: newId }),
+          format(t('quadLink.createTitle', 'Create quad-link set {id}?'), { id: newId }),
           {
             body: format(
               t(
                 'quadLink.createBody',
-                '1/4 Ports gesetzt. {add} weitere freie BNC-Ports automatisch dem Set zuweisen?',
+                '1/4 ports set. Assign {add} more free BNC ports automatically to the set?',
               ),
               { add: String(Math.min(needed, freeBncPorts.length)) },
             ),
-            okLabel: t('quadLink.okFill', 'Ja, ergänzen'),
+            okLabel: t('quadLink.okFill', 'Yes, fill'),
           },
         )
         if (ok) {
@@ -323,12 +323,12 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
         }
       } else if (needed > 0) {
         await infoDialog(
-          format(t('quadLink.createdTitle', 'Quad-Link Set {id} angelegt'), { id: newId }),
+          format(t('quadLink.createdTitle', 'Quad-link set {id} created'), { id: newId }),
           {
             body: format(
               t(
                 'quadLink.createdBody',
-                'Hat aktuell {have}/4 Ports. Bitte weitere BNC-Ports anlegen und ebenfalls dem Set zuweisen.',
+                'Currently has {have}/4 ports. Please add more BNC ports and assign them to the set.',
               ),
               { have: String(haveCount) },
             ),
@@ -367,12 +367,12 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
     )
     if (freeBncPorts.length === 0) {
       await infoDialog(
-        format(t('dualLink.incompleteTitle', 'Dual-Link Set {g} unvollständig'), { g }),
+        format(t('dualLink.incompleteTitle', 'Dual-link set {g} incomplete'), { g }),
         {
           body: format(
             t(
               'dualLink.incompleteBody',
-              'Hat nur {have}/2 Ports. Keine weiteren freien BNC-Ports verfügbar — bitte zuerst BNC-Ports hinzufügen oder bestehende freigeben.',
+              'Only has {have}/2 ports. No more free BNC ports available — add BNC ports first or free up existing ones.',
             ),
             { have: String(haveCount) },
           ),
@@ -382,16 +382,16 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
       return
     }
     const ok = await confirmDialog(
-      format(t('dualLink.fillTitle', 'Dual-Link Set {g} ergänzen?'), { g }),
+      format(t('dualLink.fillTitle', 'Fill dual-link set {g}?'), { g }),
       {
         body: format(
           t(
             'dualLink.fillBody',
-            'Aktuell {have}/2 Ports. {add} weiteren freien BNC-Port automatisch dem Set zuweisen?',
+            'Currently {have}/2 ports. Automatically assign {add} more free BNC port to the set?',
           ),
           { have: String(haveCount), add: String(Math.min(needed, freeBncPorts.length)) },
         ),
-        okLabel: t('dualLink.okFill', 'Ja, ergänzen'),
+        okLabel: t('dualLink.okFill', 'Yes, fill'),
       },
     )
     if (!ok) return
@@ -419,16 +419,16 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
       const needed = 2 - haveCount
       if (needed > 0 && freeBncPorts.length > 0) {
         const ok = await confirmDialog(
-          format(t('dualLink.createTitle', 'Dual-Link Set {id} anlegen?'), { id: newId }),
+          format(t('dualLink.createTitle', 'Create dual-link set {id}?'), { id: newId }),
           {
             body: format(
               t(
                 'dualLink.createBody',
-                '1/2 Ports gesetzt. {add} weiteren freien BNC-Port automatisch dem Set zuweisen?',
+                '1/2 ports set. Automatically assign {add} more free BNC port to the set?',
               ),
               { add: String(Math.min(needed, freeBncPorts.length)) },
             ),
-            okLabel: t('dualLink.okFill', 'Ja, ergänzen'),
+            okLabel: t('dualLink.okFill', 'Yes, fill'),
           },
         )
         if (ok) {
@@ -441,12 +441,12 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
         }
       } else if (needed > 0) {
         await infoDialog(
-          format(t('dualLink.createdTitle', 'Dual-Link Set {id} angelegt'), { id: newId }),
+          format(t('dualLink.createdTitle', 'Dual-link set {id} created'), { id: newId }),
           {
             body: format(
               t(
                 'dualLink.createdBody',
-                'Hat aktuell {have}/2 Ports. Bitte einen weiteren BNC-Port anlegen und ebenfalls dem Set zuweisen.',
+                'Currently has {have}/2 ports. Please add another BNC port and assign it to the set too.',
               ),
               { have: String(haveCount) },
             ),
@@ -493,13 +493,13 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
           onClick={addPort}
           className="rounded bg-cp-surface-4 px-2 py-0.5 text-[11px] hover:bg-cp-surface-5"
         >
-          {t('ports.add', '+ Hinzufügen')}
+          {t('ports.add', '+ Port')}
         </button>
       </div>
-      {ports.length === 0 && <div className="text-[11px] text-cp-text-muted">{t('ports.none', 'Keine')}</div>}
+      {ports.length === 0 && <div className="text-[11px] text-cp-text-muted">{t('ports.none', 'None')}</div>}
       {duplicatePortNumbers.length > 0 && (
         <div className="mb-2 rounded border border-amber-700 bg-amber-950/40 px-2 py-1 text-[11px] text-amber-200">
-          {format(t('ports.duplicateNumbers', 'Doppelte Port-Nummern: {nums} — für Beschriftung/Patchliste mehrdeutig.'), {
+          {format(t('ports.duplicateNumbers', 'Duplicate port numbers: {nums} — ambiguous for labels / patch list.'), {
             nums: duplicatePortNumbers.join(', '),
           })}
         </div>
@@ -522,20 +522,20 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                   })
                 }}
                 placeholder={String(portIdx + 1)}
-                title={format(t('ports.numberTitle', 'Anzeige-Nummer (Default {n}). Leer = automatisch.'), { n: portIdx + 1 })}
+                title={format(t('ports.numberTitle', 'Display number (default {n}). Empty = automatic.'), { n: portIdx + 1 })}
                 className="w-12 shrink-0 rounded border border-cp-border bg-cp-surface-3 p-1 text-center text-cp-xs tabular-nums"
               />
               <input
                 value={port.name}
                 onChange={(event) => updatePort(port.id, { name: event.target.value })}
-                placeholder={t('ports.namePlaceholder', 'Port-Name')}
+                placeholder={t('ports.namePlaceholder', 'Port name')}
                 className="flex-1 rounded border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
               />
-              <Tooltip label={t('ports.remove', 'Port entfernen')}>
+              <Tooltip label={t('ports.remove', 'Remove port')}>
                 <button
                   type="button"
                   onClick={() => removePort(port.id)}
-                  aria-label={t('ports.remove', 'Port entfernen')}
+                  aria-label={t('ports.remove', 'Remove port')}
                   className="rounded bg-red-900/60 px-2 py-1 text-[11px] hover:bg-red-800"
                 >
                   ×
@@ -550,7 +550,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                   onChange={async (event) => {
                     const v = event.target.value
                     if (v === '__new__') {
-                      const name = (await promptDialog(t('ports.newConnectorPrompt', 'Neuer Stecker-Typ (z.B. "Speakon NL4"):')))?.trim()
+                      const name = (await promptDialog(t('ports.newConnectorPrompt', 'New connector type (e.g. "Speakon NL4"):')))?.trim()
                       if (name) {
                         addCustomConnectorType(name)
                         updatePort(port.id, { connectorType: name as ConnectorType, type: name })
@@ -570,7 +570,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                       {customConnectorTypes.includes(type as string) ? ' (' + t('ports.customSuffix', 'custom') + ')' : ''}
                     </option>
                   ))}
-                  <option value="__new__">+ {t('ports.newConnectorType', 'Neuer Stecker-Typ…')}</option>
+                  <option value="__new__">+ {t('ports.newConnectorType', 'New connector type…')}</option>
                 </select>
               </div>
               <div className="flex items-stretch gap-0.5">
@@ -580,7 +580,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                   onChange={async (event) => {
                     const v = event.target.value
                     if (v === '__new__') {
-                      const name = (await promptDialog(t('ports.newStandardPrompt', 'Neuer Signal-Standard (z.B. "Dante Primary"):')))?.trim()
+                      const name = (await promptDialog(t('ports.newStandardPrompt', 'New signal standard (e.g. "Dante Primary"):')))?.trim()
                       if (name) {
                         addCustomSignalStandard(name)
                         updatePort(port.id, { standard: name as SignalStandard })
@@ -600,7 +600,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                       {customSignalStandards.includes(std as string) ? ' (' + t('ports.customSuffix', 'custom') + ')' : ''}
                     </option>
                   ))}
-                  <option value="__new__">+ {t('ports.newStandard', 'Neuer Standard…')}</option>
+                  <option value="__new__">+ {t('ports.newStandard', 'New standard…')}</option>
                 </select>
               </div>
             </div>
@@ -611,15 +611,15 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                 ATEM-/Videohub-Export bevorzugt. */}
             <div className="mt-1">
               <input
-                aria-label={t('ports.aria.contentLabel', 'Inhalt / Funktion')}
+                aria-label={t('ports.aria.contentLabel', 'Content / function')}
                 value={port.contentLabel ?? ''}
                 onChange={(event) => {
                   const v = event.target.value
                   updatePort(port.id, { contentLabel: v ? v : undefined })
                 }}
-                placeholder={t('ports.contentLabelPlaceholder', 'Inhalt / Funktion (z.B. PGM, PVW, MV1, Cam1) — optional')}
+                placeholder={t('ports.contentLabelPlaceholder', 'Content / function (e.g. PGM, PVW, MV1, Cam1) — optional')}
                 className="w-full rounded border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
-                title={t('ports.contentLabelTitle', "Was geht durch diesen Port? Trennt 'Inhalt' (PGM/PVW) vom Hardware-Standard (SDI 3G/12G).")}
+                title={t('ports.contentLabelTitle', "What goes through this port? Separates 'content' (PGM/PVW) from the hardware standard (SDI 3G/12G).")}
               />
             </div>
             <div className="mt-1 grid grid-cols-2 gap-1">
@@ -634,12 +634,12 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                   })
                 }
                 className="w-full rounded border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
-                title={t('ports.directionTitle', 'Richtung - bidirektional ist z.B. für Netzwerk-/RJ45-Ports sinnvoll')}
+                title={t('ports.directionTitle', 'Direction — bidirectional is useful for network/RJ45 ports.')}
               >
-                <option value="">{t('ports.direction.auto', 'Richtung (auto)')}</option>
-                <option value="in">{t('ports.direction.in', 'Nur Input')}</option>
-                <option value="out">{t('ports.direction.out', 'Nur Output')}</option>
-                <option value="bidirectional">{t('ports.direction.bi', 'Bidirektional (z.B. Netzwerk)')}</option>
+                <option value="">{t('ports.direction.auto', 'Direction (auto)')}</option>
+                <option value="in">{t('ports.direction.in', 'Input only')}</option>
+                <option value="out">{t('ports.direction.out', 'Output only')}</option>
+                <option value="bidirectional">{t('ports.direction.bi', 'Bidirectional (e.g. network)')}</option>
               </select>
               <select
                 aria-label={t('ports.aria.side', 'Port side')}
@@ -650,11 +650,11 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                   })
                 }
                 className="w-full rounded border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
-                title={t('ports.sideTitle', 'Port-Seite am Gerät: Auto nutzt Input/Output + globale Spiegelung')}
+                title={t('ports.sideTitle', 'Port side on the device: auto uses input/output + global mirroring')}
               >
-                <option value="">{t('ports.side.auto', 'Seite (auto)')}</option>
-                <option value="left">{t('ports.side.left', 'Links')}</option>
-                <option value="right">{t('ports.side.right', 'Rechts')}</option>
+                <option value="">{t('ports.side.auto', 'Side (auto)')}</option>
+                <option value="left">{t('ports.side.left', 'Left')}</option>
+                <option value="right">{t('ports.side.right', 'Right')}</option>
               </select>
             </div>
             {/* #410 — Steckverbinder-Geschlecht (male/female). Optional. */}
@@ -670,11 +670,11 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                   })
                 }
                 className="w-full rounded border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
-                title={t('ports.genderTitle', 'Steckverbinder-Geschlecht (für die Kabel-Konfektion)')}
+                title={t('ports.genderTitle', 'Connector gender (for cable assembly)')}
               >
-                <option value="">{t('ports.gender.none', 'Geschlecht (–)')}</option>
-                <option value="male">{t('ports.gender.male', '♂ Male / Stecker')}</option>
-                <option value="female">{t('ports.gender.female', '♀ Female / Buchse')}</option>
+                <option value="">{t('ports.gender.none', 'Gender (–)')}</option>
+                <option value="male">{t('ports.gender.male', '♂ Male / plug')}</option>
+                <option value="female">{t('ports.gender.female', '♀ Female / socket')}</option>
               </select>
             </div>
             {showAtemSourceId && (
@@ -693,8 +693,8 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                       atemSourceId: v === '' ? undefined : Math.max(0, Number(v) || 0),
                     })
                   }}
-                  placeholder={t('ports.atemSourceIdPlaceholder', 'z.B. 8001 für AUX 1')}
-                  title={t('ports.atemSourceIdTitle', 'Source-ID die im MV-Config-Dialog adressiert wird. AUX = 8001+, PGM = 10010, PVW = 10011, ME 2 PGM = 10020 …. Bei Inputs leer lassen für idx+1-Default.')}
+                  placeholder={t('ports.atemSourceIdPlaceholder', 'e.g. 8001 for AUX 1')}
+                  title={t('ports.atemSourceIdTitle', 'Source ID addressed in the MV-Config dialog. AUX = 8001+, PGM = 10010, PVW = 10011, ME 2 PGM = 10020 …. Leave empty on inputs for idx+1 default.')}
                   className="w-32 rounded border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
                 />
                 <span className="text-[10px] text-cp-text-muted">
@@ -709,39 +709,39 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                   <input
                     value={port.sfpType ?? ''}
                     onChange={(event) => updatePort(port.id, { sfpType: event.target.value || undefined })}
-                    placeholder={t('ports.sfp.typePlaceholder', 'Formfaktor (SFP+)')}
+                    placeholder={t('ports.sfp.typePlaceholder', 'Form factor (SFP+)')}
                     className="rounded border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
-                    title={t('ports.sfp.typeTitle', 'SFP-Formfaktor: SFP, SFP+, SFP28, QSFP+')}
+                    title={t('ports.sfp.typeTitle', 'SFP form factor: SFP, SFP+, SFP28, QSFP+')}
                   />
                   <input
                     value={port.sfpStandard ?? ''}
                     onChange={(event) => updatePort(port.id, { sfpStandard: event.target.value || undefined })}
                     placeholder={t('ports.sfp.standardPlaceholder', 'Standard (10G-LR)')}
                     className="rounded border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
-                    title={t('ports.sfp.standardTitle', 'Transceiver-Standard: 1G-SX, 1G-LX, 10G-SR, 10G-LR, 25G-SR …')}
+                    title={t('ports.sfp.standardTitle', 'Transceiver standard: 1G-SX, 1G-LX, 10G-SR, 10G-LR, 25G-SR …')}
                   />
                   <input
                     value={port.sfpWavelength ?? ''}
                     onChange={(event) => updatePort(port.id, { sfpWavelength: event.target.value || undefined })}
-                    placeholder={t('ports.sfp.wavelengthPlaceholder', 'Wellenlänge nm (1310)')}
+                    placeholder={t('ports.sfp.wavelengthPlaceholder', 'Wavelength nm (1310)')}
                     className="rounded border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
-                    title={t('ports.sfp.wavelengthTitle', 'Wellenlänge in nm: 850, 1310, 1550')}
+                    title={t('ports.sfp.wavelengthTitle', 'Wavelength in nm: 850, 1310, 1550')}
                   />
                   <input
                     value={port.sfpVendor ?? ''}
                     onChange={(event) => updatePort(port.id, { sfpVendor: event.target.value || undefined })}
-                    placeholder={t('ports.sfp.vendorPlaceholder', 'Hersteller (Cisco)')}
+                    placeholder={t('ports.sfp.vendorPlaceholder', 'Vendor (Cisco)')}
                     className="rounded border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
-                    title={t('ports.sfp.vendorTitle', 'Modulhersteller: Cisco, Aruba, Ubiquiti, FS.com …')}
+                    title={t('ports.sfp.vendorTitle', 'Module vendor: Cisco, Aruba, Ubiquiti, FS.com …')}
                   />
                   {/* #362 — Optischer Steckverbinder + Faserklasse (LWL-Detail). */}
                   <select
                     value={port.fiberConnector ?? ''}
                     onChange={(event) => updatePort(port.id, { fiberConnector: event.target.value || undefined })}
                     className="rounded border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
-                    title={t('ports.fiber.connectorTitle', 'Optischer Steckverbinder')}
+                    title={t('ports.fiber.connectorTitle', 'Optical connector type')}
                   >
-                    <option value="">{t('ports.fiber.connectorPlaceholder', 'Stecker (LC/SC/…)')}</option>
+                    <option value="">{t('ports.fiber.connectorPlaceholder', 'Connector (LC/SC/…)')}</option>
                     {['LC', 'SC', 'ST', 'FC', 'E2000', 'MPO-MTP', 'opticalCON', 'LEMO'].map((c) => (
                       <option key={c} value={c}>{c}</option>
                     ))}
@@ -750,9 +750,9 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                     value={port.fiberClass ?? ''}
                     onChange={(event) => updatePort(port.id, { fiberClass: event.target.value || undefined })}
                     className="rounded border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
-                    title={t('ports.fiber.classTitle', 'Faserklasse: OM1–OM5 (Multimode), OS1/OS2 (Singlemode)')}
+                    title={t('ports.fiber.classTitle', 'Fibre class: OM1–OM5 (multimode), OS1/OS2 (singlemode)')}
                   >
-                    <option value="">{t('ports.fiber.classPlaceholder', 'Faserklasse (OM/OS)')}</option>
+                    <option value="">{t('ports.fiber.classPlaceholder', 'Fibre class (OM/OS)')}</option>
                     {['OM1', 'OM2', 'OM3', 'OM4', 'OM5', 'OS1', 'OS2'].map((c) => (
                       <option key={c} value={c}>{c}</option>
                     ))}
@@ -814,7 +814,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                     </>
                   )}
                   <label className="col-span-2 block">
-                    <span className="text-cp-text-muted">{t('ports.sdi.maxSingleLink', 'Max Single-Link')}</span>
+                    <span className="text-cp-text-muted">{t('ports.sdi.maxSingleLink', 'Max single-link')}</span>
                     <select
                       value={port.sdiCaps?.maxSingleLink ?? ''}
                       onChange={(e) =>
@@ -829,7 +829,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                       }
                       className="mt-0.5 w-full rounded border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
                     >
-                      <option value="">({t('ports.sdi.deviceDefault', 'Geräte-Default')})</option>
+                      <option value="">({t('ports.sdi.deviceDefault', 'Device default')})</option>
                       <option value="SDI-HD">SDI-HD (1.5G)</option>
                       <option value="SDI-3G">SDI-3G</option>
                       <option value="SDI-6G">SDI-6G</option>
@@ -840,7 +840,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                 <div className="mt-1 text-[11px] text-cp-text-muted">
                   {t(
                     'ports.sdi.overrideHint',
-                    'Überschreibt die Geräte-SDI-Fähigkeiten für diesen Port. Leer = Default vom Gerät.',
+                    'Overrides the device SDI capabilities for this port. Empty = device default.',
                   )}
                 </div>
                 {(() => {
@@ -849,17 +849,17 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                   const ok = count === 4
                   return (
                     <div className="mt-1.5 flex items-center gap-1 text-[10px]">
-                      <span className="text-cp-text-muted">{t('ports.sdi.quadSet', 'Quad-Link Set:')}</span>
+                      <span className="text-cp-text-muted">{t('ports.sdi.quadSet', 'Quad-link set:')}</span>
                       <select
                         value={g ?? ''}
                         onChange={(e) => void assignQuadGroup(port.id, e.target.value)}
                         className="rounded border border-cp-border bg-cp-surface-3 px-1 py-0.5 text-[10px]"
                       >
-                        <option value="">{t('ports.set.none', '— Kein —')}</option>
+                        <option value="">{t('ports.set.none', '— None —')}</option>
                         {existingQuadGroups.map((gid) => (
                           <option key={gid} value={gid}>{gid}</option>
                         ))}
-                        <option value="__new__">{t('ports.set.new', '+ Neues Set…')}</option>
+                        <option value="__new__">{t('ports.set.new', '+ New set…')}</option>
                       </select>
                       {g && (
                         <>
@@ -870,8 +870,8 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                                 : 'bg-amber-900/60 text-amber-300'
                             }`}
                             title={ok
-                              ? t('quadLink.complete', 'Set komplett')
-                              : t('quadLink.incomplete', 'Set unvollständig — 4 Ports nötig')}
+                              ? t('quadLink.complete', 'Set complete')
+                              : t('quadLink.incomplete', 'Set incomplete — 4 ports required')}
                           >
                             {count}/4
                           </span>
@@ -880,7 +880,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                               type="button"
                               onClick={() => void autoFillQuadGroup(g, port.id)}
                               className="rounded bg-sky-800 px-1 py-0.5 text-[11px] text-sky-100 hover:bg-sky-700"
-                              title={t('ports.quadAuto', 'Freie BNC-Ports automatisch dem Set zuweisen')}
+                              title={t('ports.quadAuto', 'Auto-assign free BNC ports to this set')}
                             >
                               auto-fill
                             </button>
@@ -896,17 +896,17 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                   const ok = count === 2
                   return (
                     <div className="mt-1 flex items-center gap-1 text-[10px]">
-                      <span className="text-cp-text-muted">{t('ports.sdi.dualSet', 'Dual-Link Set:')}</span>
+                      <span className="text-cp-text-muted">{t('ports.sdi.dualSet', 'Dual-link set:')}</span>
                       <select
                         value={g ?? ''}
                         onChange={(e) => void assignDualGroup(port.id, e.target.value)}
                         className="rounded border border-cp-border bg-cp-surface-3 px-1 py-0.5 text-[10px]"
                       >
-                        <option value="">{t('ports.set.none', '— Kein —')}</option>
+                        <option value="">{t('ports.set.none', '— None —')}</option>
                         {existingDualGroups.map((gid) => (
                           <option key={gid} value={gid}>{gid}</option>
                         ))}
-                        <option value="__new__">{t('ports.set.new', '+ Neues Set…')}</option>
+                        <option value="__new__">{t('ports.set.new', '+ New set…')}</option>
                       </select>
                       {g && (
                         <>
@@ -917,8 +917,8 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                                 : 'bg-amber-900/60 text-amber-300'
                             }`}
                             title={ok
-                              ? t('dualLink.complete', 'Set komplett')
-                              : t('dualLink.incomplete', 'Set unvollständig — 2 Ports nötig')}
+                              ? t('dualLink.complete', 'Set complete')
+                              : t('dualLink.incomplete', 'Set incomplete — 2 ports required')}
                           >
                             {count}/2
                           </span>
@@ -927,7 +927,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                               type="button"
                               onClick={() => void autoFillDualGroup(g, port.id)}
                               className="rounded bg-sky-800 px-1 py-0.5 text-[11px] text-sky-100 hover:bg-sky-700"
-                              title={t('ports.dualAuto', 'Freie BNC-Ports automatisch dem Set zuweisen')}
+                              title={t('ports.dualAuto', 'Auto-assign free BNC ports to this set')}
                             >
                               auto-fill
                             </button>

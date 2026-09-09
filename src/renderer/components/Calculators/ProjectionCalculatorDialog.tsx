@@ -131,9 +131,9 @@ const ProjectionCalcCore = () => {
   return (
     <div className="space-y-3 text-cp-text-bright">
       <div className="flex gap-1">
-        {tabBtn('throw', t('calc.projection.tab.throw', 'Projektionsabstand'))}
-        {tabBtn('screen', t('calc.projection.tab.screen', 'Bildgröße & Sitzabstand'))}
-        {tabBtn('led', t('calc.projection.tab.led', 'LED-Wall'))}
+        {tabBtn('throw', t('calc.projection.tab.throw', 'Throw distance'))}
+        {tabBtn('screen', t('calc.projection.tab.screen', 'Image size & viewing'))}
+        {tabBtn('led', t('calc.projection.tab.led', 'LED wall'))}
       </div>
 
       {tab === 'throw' && (
@@ -141,17 +141,17 @@ const ProjectionCalcCore = () => {
           <p className="text-cp-xs text-cp-text-muted">
             {t(
               'calc.projection.throw.intro',
-              'Projektionsabstand = Throw-Ratio × Bildbreite. Die Throw-Ratio steht im Datenblatt des Objektivs (z. B. 1.2–1.8).',
+              'Throw distance = throw ratio × image width. The throw ratio is in the lens datasheet (e.g. 1.2–1.8).',
             )}
           </p>
           <div className="grid grid-cols-2 gap-3">
-            <NumField label={t('calc.projection.throwRatio', 'Throw-Ratio')} value={throwRatio} onChange={setThrowRatio} step={0.05} />
-            <NumField label={t('calc.projection.imageWidth', 'Bildbreite')} value={imageWidth} onChange={setImageWidth} suffix="m" />
+            <NumField label={t('calc.projection.throwRatio', 'Throw ratio')} value={throwRatio} onChange={setThrowRatio} step={0.05} />
+            <NumField label={t('calc.projection.imageWidth', 'Image width')} value={imageWidth} onChange={setImageWidth} suffix="m" />
           </div>
-          <Result label={t('calc.projection.throwDistance', 'Projektionsabstand (Objektiv → Bild)')} value={`${throwDistance.toFixed(2)} m`} />
+          <Result label={t('calc.projection.throwDistance', 'Throw distance (lens → image)')} value={`${throwDistance.toFixed(2)} m`} />
           <div className="grid grid-cols-2 gap-3 pt-1">
-            <NumField label={t('calc.projection.roomDepth', 'Verfügbare Tiefe')} value={roomDepth} onChange={setRoomDepth} suffix="m" />
-            <Result label={t('calc.projection.maxWidth', 'Max. Bildbreite im Raum')} value={`${maxWidthForRoom.toFixed(2)} m`} />
+            <NumField label={t('calc.projection.roomDepth', 'Available depth')} value={roomDepth} onChange={setRoomDepth} suffix="m" />
+            <Result label={t('calc.projection.maxWidth', 'Max. image width in room')} value={`${maxWidthForRoom.toFixed(2)} m`} />
           </div>
         </div>
       )}
@@ -159,9 +159,9 @@ const ProjectionCalcCore = () => {
       {tab === 'screen' && (
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-3">
-            <NumField label={t('calc.projection.diagonal', 'Diagonale')} value={diagonalIn} onChange={setDiagonalIn} step={1} suffix="″" />
+            <NumField label={t('calc.projection.diagonal', 'Diagonal')} value={diagonalIn} onChange={setDiagonalIn} step={1} suffix="″" />
             <label className="block">
-              <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('calc.projection.aspect', 'Seitenverhältnis')}</span>
+              <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('calc.projection.aspect', 'Aspect ratio')}</span>
               <select
                 value={aspectId}
                 onChange={(e) => setAspectId(e.target.value)}
@@ -174,13 +174,13 @@ const ProjectionCalcCore = () => {
             </label>
           </div>
           <div className="space-y-1.5">
-            <Result label={t('calc.projection.dimensions', 'Bildfläche (B × H)')} value={`${screen.w.toFixed(2)} × ${screen.h.toFixed(2)} m`} />
-            <Result label={t('calc.projection.area', 'Fläche')} value={`${screen.area.toFixed(2)} m²`} />
-            <Result label={t('calc.projection.viewThx', 'Min. Sitzabstand (THX 36°)')} value={`${screen.thx.toFixed(2)} m`} />
-            <Result label={t('calc.projection.viewSmpte', 'Optimaler Sitzabstand (SMPTE 30°)')} value={`${screen.smpte.toFixed(2)} m`} />
+            <Result label={t('calc.projection.dimensions', 'Image area (W × H)')} value={`${screen.w.toFixed(2)} × ${screen.h.toFixed(2)} m`} />
+            <Result label={t('calc.projection.area', 'Area')} value={`${screen.area.toFixed(2)} m²`} />
+            <Result label={t('calc.projection.viewThx', 'Min. viewing distance (THX 36°)')} value={`${screen.thx.toFixed(2)} m`} />
+            <Result label={t('calc.projection.viewSmpte', 'Optimal viewing distance (SMPTE 30°)')} value={`${screen.smpte.toFixed(2)} m`} />
           </div>
           <p className="text-[11px] text-cp-text-muted">
-            {t('calc.projection.screen.note', 'Sitzabstände nach horizontalem Blickwinkel: THX empfiehlt max. 36°, SMPTE EG-18 ca. 30°.')}
+            {t('calc.projection.screen.note', 'Viewing distances by horizontal field of view: THX recommends max. 36°, SMPTE EG-18 about 30°.')}
           </p>
         </div>
       )}
@@ -188,19 +188,19 @@ const ProjectionCalcCore = () => {
       {tab === 'led' && (
         <div className="space-y-3">
           <p className="text-cp-xs text-cp-text-muted">
-            {t('calc.projection.led.intro', 'Auflösung einer LED-Wand aus Pixel-Pitch und physischer Größe.')}
+            {t('calc.projection.led.intro', 'Resolution of an LED wall from pixel pitch and physical size.')}
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <NumField label={t('calc.projection.pitch', 'Pixel-Pitch')} value={pitch} onChange={setPitch} step={0.1} suffix="mm" />
-            <NumField label={t('calc.projection.ledWidth', 'Breite')} value={ledW} onChange={setLedW} suffix="m" />
-            <NumField label={t('calc.projection.ledHeight', 'Höhe')} value={ledH} onChange={setLedH} suffix="m" />
+            <NumField label={t('calc.projection.pitch', 'Pixel pitch')} value={pitch} onChange={setPitch} step={0.1} suffix="mm" />
+            <NumField label={t('calc.projection.ledWidth', 'Width')} value={ledW} onChange={setLedW} suffix="m" />
+            <NumField label={t('calc.projection.ledHeight', 'Height')} value={ledH} onChange={setLedH} suffix="m" />
           </div>
           <div className="space-y-1.5">
-            <Result label={t('calc.projection.resolution', 'Auflösung')} value={`${led.pxW} × ${led.pxH} px`} />
-            <Result label={t('calc.projection.totalPixels', 'Pixel gesamt')} value={`${led.total.toLocaleString()} (${led.mp.toFixed(1)} MP)`} />
+            <Result label={t('calc.projection.resolution', 'Resolution')} value={`${led.pxW} × ${led.pxH} px`} />
+            <Result label={t('calc.projection.totalPixels', 'Total pixels')} value={`${led.total.toLocaleString()} (${led.mp.toFixed(1)} MP)`} />
           </div>
           <p className="text-[11px] text-cp-text-muted">
-            {t('calc.projection.led.note', 'Faustregel Mindest-Betrachtungsabstand (m) ≈ Pixel-Pitch (mm). Bei 2.6 mm also ab ~2.6 m ohne sichtbares Pixelraster.')}
+            {t('calc.projection.led.note', 'Rule of thumb min. viewing distance (m) ≈ pixel pitch (mm). At 2.6 mm, ~2.6 m before the pixel grid shows.')}
           </p>
         </div>
       )}
@@ -216,7 +216,7 @@ export const ProjectionCalculatorDialog = () => {
     <ModalShell
       open={open}
       onClose={close}
-      title={t('calc.projection.title', 'Projektion & Display')}
+      title={t('calc.projection.title', 'Projection & display')}
       maxWidth="xl"
       draggableKey="cable-planner:modal-pos:projection-calc"
     >

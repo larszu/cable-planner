@@ -77,7 +77,7 @@ const ConfirmDialog = ({ title, options, onDone }: Props) => {
         )}
         <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
           <button type="button" onClick={() => onDone(false)} style={MODAL_BUTTON_SECONDARY}>
-            {options.cancelLabel ?? t('common.cancel', 'Abbrechen')}
+            {options.cancelLabel ?? t('common.cancel', 'Cancel')}
           </button>
           <button
             ref={okRef}

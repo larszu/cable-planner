@@ -128,14 +128,14 @@ export const useBackdropClose = (
       }
       void (async () => {
         const ok = await confirmDialog(
-          frage ?? t('common.closeUnsaved', 'Dialog schließen und Eingaben verwerfen?'),
+          frage ?? t('common.closeUnsaved', 'Close dialog and discard your input?'),
           {
             body: t(
               'common.closeUnsavedBody',
-              'Was hier noch nicht übernommen wurde, geht dabei verloren.',
+              'Anything not yet applied here will be lost.',
             ),
-            okLabel: t('common.closeDiscard', 'Verwerfen'),
-            cancelLabel: t('common.closeKeep', 'Weiter bearbeiten'),
+            okLabel: t('common.closeDiscard', 'Discard'),
+            cancelLabel: t('common.closeKeep', 'Keep editing'),
             destructive: true,
           },
         )

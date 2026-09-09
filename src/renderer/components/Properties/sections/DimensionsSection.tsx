@@ -26,16 +26,16 @@ export const DimensionsSection = ({ equipment }: { equipment: EquipmentItem }) =
     return Math.round(n)
   }
   return (
-    <SortableSection id="dimensions" title={t('dims.title', 'Dimensionen')} subtitle={summary}>
+    <SortableSection id="dimensions" title={t('dims.title', 'Dimensions')} subtitle={summary}>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-cp-xs">
         <label className="block">
-          <span className="mb-1 block text-cp-text-muted">{t('dims.width', 'Breite (mm)')}</span>
+          <span className="mb-1 block text-cp-text-muted">{t('dims.width', 'Width (mm)')}</span>
           <input
             type="number"
             min={0}
             step={1}
             value={wMm ?? ''}
-            placeholder={t('dims.widthPlaceholder', 'z. B. 482')}
+            placeholder={t('dims.widthPlaceholder', 'e.g. 482')}
             onChange={(e) =>
               updateEquipment(equipment.id, { widthMm: parseMm(e.target.value) })
             }
@@ -43,13 +43,13 @@ export const DimensionsSection = ({ equipment }: { equipment: EquipmentItem }) =
           />
         </label>
         <label className="block">
-          <span className="mb-1 block text-cp-text-muted">{t('dims.height', 'Höhe (mm)')}</span>
+          <span className="mb-1 block text-cp-text-muted">{t('dims.height', 'Height (mm)')}</span>
           <input
             type="number"
             min={0}
             step={1}
             value={hMm ?? ''}
-            placeholder={t('dims.heightPlaceholder', 'z. B. 44')}
+            placeholder={t('dims.heightPlaceholder', 'e.g. 44')}
             onChange={(e) =>
               updateEquipment(equipment.id, { heightMm: parseMm(e.target.value) })
             }
@@ -57,13 +57,13 @@ export const DimensionsSection = ({ equipment }: { equipment: EquipmentItem }) =
           />
         </label>
         <label className="block">
-          <span className="mb-1 block text-cp-text-muted">{t('dims.depth', 'Tiefe (mm)')}</span>
+          <span className="mb-1 block text-cp-text-muted">{t('dims.depth', 'Depth (mm)')}</span>
           <input
             type="number"
             min={0}
             step={1}
             value={dMm ?? ''}
-            placeholder={t('dims.depthPlaceholder', 'z. B. 400')}
+            placeholder={t('dims.depthPlaceholder', 'e.g. 400')}
             onChange={(e) =>
               updateEquipment(equipment.id, { depthMm: parseMm(e.target.value) })
             }
@@ -75,7 +75,7 @@ export const DimensionsSection = ({ equipment }: { equipment: EquipmentItem }) =
         className="mt-2 text-[10px] text-cp-text-muted"
         text={t(
           'dims.hint',
-          'Physische Aussenmaße. 19" Rack-Gerät: 1 HE = 44.45 mm, Standard-Breite 482 mm, typische Tiefe 400-600 mm. Wird vom 3D-Rack-Renderer + Logistik-Tools genutzt.',
+          'Physical outer dimensions. 19" rack device: 1 U = 44.45 mm, standard width 482 mm, typical depth 400-600 mm. Used by the 3D rack renderer + logistics tools.',
         )}
       />
     </SortableSection>

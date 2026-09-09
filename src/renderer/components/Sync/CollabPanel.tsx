@@ -25,13 +25,13 @@ const statusLabel = (
 ): string => {
   switch (status) {
     case 'on':
-      return t('collab.status.on', 'Verbunden — Änderungen werden live geteilt')
+      return t('collab.status.on', 'Connected — changes are shared live')
     case 'connecting':
-      return t('collab.status.connecting', 'Verbinde…')
+      return t('collab.status.connecting', 'Connecting…')
     case 'error':
-      return t('collab.status.error', 'Fehler')
+      return t('collab.status.error', 'Error')
     default:
-      return t('collab.status.off', 'Aus')
+      return t('collab.status.off', 'Off')
   }
 }
 
@@ -89,7 +89,7 @@ export const CollabPanel = () => {
   // Link, eine kurze Kopfzeile gibt Kontext.
   const copyInvite = () => {
     const link = buildInviteLink({ mode, room, signaling, password, host: name })
-    const text = `${t('collab.invite.linkHead', 'Cable-Planner Live-Session beitreten:')}\n${link}`
+    const text = `${t('collab.invite.linkHead', 'Join the Cable Planner live session:')}\n${link}`
     void navigator.clipboard?.writeText(text).then(
       () => {
         setCopied(true)
@@ -117,13 +117,13 @@ export const CollabPanel = () => {
     if (
       hasLocalPlan &&
       !(await confirmDialog(
-        t('collab.join.replaceTitle', 'Lokalen Plan durch den Plan des Hosts ersetzen?'),
+        t('collab.join.replaceTitle', 'Replace your local plan with the host’s plan?'),
         {
           body: t(
             'collab.join.replaceConfirm',
-            'Beitreten lädt den Plan des Hosts und ersetzt deinen aktuellen Plan. Fortfahren?',
+            'Joining loads the host’s plan and replaces your current plan. Continue?',
           ),
-          okLabel: t('collab.join.replaceOk', 'Beitreten und ersetzen'),
+          okLabel: t('collab.join.replaceOk', 'Join and replace'),
           destructive: true,
         },
       ))
@@ -137,7 +137,7 @@ export const CollabPanel = () => {
     <section className="space-y-3 rounded-cp-control border border-[var(--cp-border)] bg-[var(--cp-surface-2)] p-4">
       <div className="flex items-center justify-between gap-2">
         <h3 className="text-cp-sm font-semibold text-[var(--cp-text)]">
-          {t('collab.title', 'Live-Kollaboration (Beta)')}
+          {t('collab.title', 'Live collaboration (beta)')}
         </h3>
         <span className="flex items-center gap-1.5 text-cp-xs">
           <span
@@ -152,27 +152,27 @@ export const CollabPanel = () => {
         className="text-cp-xs text-[var(--cp-text-muted)]"
         text={t(
           'collab.desc',
-          'Mehrere Planer bearbeiten denselben Plan in Echtzeit. Änderungen werden ohne Server zusammengeführt (CRDT) — auch nach kurzzeitiger Trennung.',
+          'Multiple planners edit the same plan in real time. Changes merge without a server (CRDT) — even after a brief disconnect.',
         )}
       />
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <label className="space-y-1">
           <span className="block text-cp-xs text-[var(--cp-text-muted)]">
-            {t('collab.name', 'Dein Anzeigename')}
+            {t('collab.name', 'Your display name')}
           </span>
           <input
             type="text"
             className="w-full rounded border border-[var(--cp-border)] bg-[var(--cp-surface-3)] px-2 py-1 text-cp-xs"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder={t('collab.name.placeholder', 'z. B. Lars')}
+            placeholder={t('collab.name.placeholder', 'e.g. Lars')}
           />
         </label>
 
         <label className="space-y-1">
           <span className="block text-cp-xs text-[var(--cp-text-muted)]">
-            {t('collab.mode', 'Modus')}
+            {t('collab.mode', 'Mode')}
           </span>
           <select
             className="w-full rounded border border-[var(--cp-border)] bg-[var(--cp-surface-3)] px-2 py-1 text-cp-xs disabled:opacity-50"
@@ -181,17 +181,17 @@ export const CollabPanel = () => {
             onChange={(e) => setMode(e.target.value as CollabMode)}
           >
             <option value="broadcast">
-              {t('collab.mode.broadcast', 'Dieses Gerät (mehrere Fenster)')}
+              {t('collab.mode.broadcast', 'This device (multiple windows)')}
             </option>
             <option value="webrtc">
-              {t('collab.mode.webrtc', 'Netzwerk (LAN/WAN, P2P)')}
+              {t('collab.mode.webrtc', 'Network (LAN/WAN, P2P)')}
             </option>
           </select>
         </label>
 
         <label className="space-y-1">
           <span className="block text-cp-xs text-[var(--cp-text-muted)]">
-            {t('collab.room', 'Raumname')}
+            {t('collab.room', 'Room name')}
           </span>
           <input
             type="text"
@@ -199,14 +199,14 @@ export const CollabPanel = () => {
             value={room}
             disabled={active}
             onChange={(e) => setRoom(e.target.value)}
-            placeholder={t('collab.room.placeholder', 'z. B. show-2026')}
+            placeholder={t('collab.room.placeholder', 'e.g. show-2026')}
           />
         </label>
 
         {mode === 'webrtc' && (
           <label className="space-y-1">
             <span className="block text-cp-xs text-[var(--cp-text-muted)]">
-              {t('collab.signaling', 'Signaling-Server')}
+              {t('collab.signaling', 'Signaling server')}
             </span>
             <input
               type="text"
@@ -223,7 +223,7 @@ export const CollabPanel = () => {
                 disabled={active}
                 onChange={(e) => setLocalOnly(e.target.checked)}
               />
-              {t('collab.localOnly', 'Nur lokal (kein Remote-Relay, nichts verlässt das LAN)')}
+              {t('collab.localOnly', 'Local only (no remote relay, nothing leaves the LAN)')}
             </label>
           </label>
         )}
@@ -231,7 +231,7 @@ export const CollabPanel = () => {
         {mode === 'webrtc' && (
           <label className="space-y-1">
             <span className="block text-cp-xs text-[var(--cp-text-muted)]">
-              {t('collab.password', 'Raum-Passwort')}
+              {t('collab.password', 'Room password')}
               <span className="text-[var(--cp-text-faint)]"> ({t('collab.optional', 'optional')})</span>
             </span>
             <input
@@ -241,7 +241,7 @@ export const CollabPanel = () => {
               value={password}
               disabled={active}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder={t('collab.password.placeholder', 'verschlüsselt den Raum')}
+              placeholder={t('collab.password.placeholder', 'encrypts the room')}
             />
           </label>
         )}
@@ -253,7 +253,7 @@ export const CollabPanel = () => {
         {mode === 'webrtc' && (
           <label className="space-y-1">
             <span className="block text-cp-xs text-[var(--cp-text-muted)]">
-              {t('collab.ice', 'STUN-/TURN-Server')}
+              {t('collab.ice', 'STUN/TURN servers')}
               <span className="text-[var(--cp-text-faint)]"> ({t('collab.optional', 'optional')})</span>
             </span>
             <textarea
@@ -269,12 +269,12 @@ export const CollabPanel = () => {
             <span className="block text-cp-xs text-[var(--cp-text-faint)]">
               {t(
                 'collab.ice.hint',
-                'Eine Zeile je Server: URL|Benutzer|Passwort. Nur nötig, wenn die Gegenstelle in einem anderen Netz sitzt. Die Zugangsdaten bleiben auf diesem Rechner — sie stehen nicht im Einladungslink.',
+                'One server per line: URL|user|password. Only needed when the other side sits in a different network. The credentials stay on this machine — they are not part of the invite link.',
               )}
             </span>
             {iceFehler.length > 0 && (
               <span className="block text-cp-xs text-[var(--cp-danger)]">
-                {t('collab.ice.invalid', 'Nicht verwertbar:')} {iceFehler.join(' · ')}
+                {t('collab.ice.invalid', 'Not usable:')} {iceFehler.join(' · ')}
               </span>
             )}
           </label>
@@ -286,7 +286,7 @@ export const CollabPanel = () => {
         <div className="space-y-2 rounded-cp-card border border-[var(--cp-border-muted)] bg-[var(--cp-surface-3)] p-2.5">
           <div className="flex items-center justify-between gap-2">
             <span className="text-cp-xs font-medium text-[var(--cp-text)]">
-              {t('collab.discover.title', 'Sessions im Netzwerk')}
+              {t('collab.discover.title', 'Sessions on the network')}
             </span>
             <button
               type="button"
@@ -295,15 +295,15 @@ export const CollabPanel = () => {
               className="rounded-cp-control border border-[var(--cp-border)] bg-[var(--cp-surface-1)] px-2 py-1 text-cp-xs text-[var(--cp-text-secondary)] hover:border-sky-500 hover:text-sky-300 disabled:opacity-50"
             >
               {discovering
-                ? t('collab.discover.searching', 'Suche läuft…')
-                : t('collab.discover.search', 'Im Netzwerk suchen')}
+                ? t('collab.discover.searching', 'Searching…')
+                : t('collab.discover.search', 'Search the network')}
             </button>
           </div>
 
           <p className="text-[11px] text-[var(--cp-text-muted)]">
             {t(
               'collab.discover.adoptHint',
-              'Beitreten übernimmt den Plan des Hosts (ersetzt deinen aktuellen Plan).',
+              'Joining adopts the host’s plan (replaces your current plan).',
             )}
           </p>
 
@@ -324,7 +324,7 @@ export const CollabPanel = () => {
                     onClick={() => void onJoin(s)}
                     className="shrink-0 rounded-cp-control bg-[var(--cp-accent,#3b82f6)] px-2 py-1 text-cp-xs font-medium text-white hover:opacity-90"
                   >
-                    {t('collab.discover.join', 'Beitreten')}
+                    {t('collab.discover.join', 'Join')}
                   </button>
                 </li>
               ))}
@@ -334,9 +334,9 @@ export const CollabPanel = () => {
               {hasDesktopBridge
                 ? t(
                     'collab.discover.empty',
-                    'Noch keine offene Session gefunden. „Im Netzwerk suchen" durchsucht das lokale Netz nach laufenden Cable-Planner-Sessions.',
+                    'No open session found yet. "Search the network" scans the local network for running Cable Planner sessions.',
                   )
-                : t('collab.discover.desktopOnly', 'Netzwerk-Suche ist nur in der Desktop-App verfügbar.')}
+                : t('collab.discover.desktopOnly', 'Network search is only available in the desktop app.')}
             </p>
           )}
         </div>
@@ -348,14 +348,14 @@ export const CollabPanel = () => {
           <div className="flex items-center justify-between gap-2">
             <span className="text-cp-xs font-medium text-[var(--cp-text)]">
               {peers.length === 1
-                ? t('collab.peers.aloneTitle', 'Nur du im Raum')
-                : `${peers.length} ${t('collab.peers.inRoom', 'im Raum')}`}
+                ? t('collab.peers.aloneTitle', 'Only you in the room')
+                : `${peers.length} ${t('collab.peers.inRoom', 'in the room')}`}
             </span>
             <div className="flex -space-x-1.5">
               {peers.slice(0, 8).map((p) => (
                 <span
                   key={p.id}
-                  title={p.self ? `${p.name} (${t('collab.peers.you', 'du')})` : p.name}
+                  title={p.self ? `${p.name} (${t('collab.peers.you', 'you')})` : p.name}
                   className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-[var(--cp-surface-3)] text-[11px] font-bold text-white"
                   style={{ backgroundColor: p.color }}
                 >
@@ -368,7 +368,7 @@ export const CollabPanel = () => {
             <p className="text-[11px] text-[var(--cp-text-muted)]">
               {t(
                 'collab.peers.aloneHint',
-                'Andere treten bei, indem sie denselben Raumnamen verwenden:',
+                'Others join by using the same room name:',
               )}{' '}
               <code className="rounded bg-[var(--cp-surface-1)] px-1 font-mono text-[var(--cp-text)]">{room}</code>
             </p>
@@ -378,7 +378,7 @@ export const CollabPanel = () => {
             onClick={copyInvite}
             className="rounded border border-[var(--cp-border)] bg-[var(--cp-surface-1)] px-2 py-1 text-cp-xs text-[var(--cp-text-secondary)] hover:border-sky-500 hover:text-sky-300"
           >
-            {copied ? t('collab.invite.copied', 'Kopiert ✓') : t('collab.invite.copy', 'Einladung kopieren')}
+            {copied ? t('collab.invite.copied', 'Copied ✓') : t('collab.invite.copy', 'Copy invite')}
           </button>
         </div>
       )}
@@ -388,7 +388,7 @@ export const CollabPanel = () => {
           className="text-cp-xs text-[var(--cp-warning,#f59e0b)]"
           text={t(
             'collab.webrtc.hint',
-            'Netzwerk-Modus nutzt WebRTC + einen Signaling-Server zum Finden der Peers. Im reinen LAN einen eigenen Server eintragen (sonst öffentliche y-webrtc-Server).',
+            'Network mode uses WebRTC + a signaling server to find peers. On a pure LAN, configure your own server if needed.',
           )}
         />
       )}
@@ -398,14 +398,14 @@ export const CollabPanel = () => {
           className="rounded-cp-control border border-[var(--cp-danger,#ef4444)] bg-[color-mix(in_srgb,var(--cp-danger,#ef4444)_12%,transparent)] px-2 py-1.5 text-cp-xs text-[var(--cp-danger,#ef4444)]"
           text={t(
             'collab.webrtc.noPassword',
-            'Ohne Raum-Passwort ist der Raum unverschlüsselt: jeder, der Raumname und Signaling-Server kennt (oder die Session im LAN findet), kann das gesamte Projekt mitlesen. Setze ein Passwort und teile es nur mit deinem Team.',
+            'Without a room password the room is unencrypted: anyone who knows the room name and signaling server (or finds the session on the LAN) can read the entire project. Set a password and share it only with your team.',
           )}
         />
       )}
 
       {error && (
         <p className="text-cp-xs text-[var(--cp-danger,#ef4444)]">
-          {t('collab.error.prefix', 'Fehler:')} {error}
+          {t('collab.error.prefix', 'Error:')} {error}
         </p>
       )}
 
@@ -416,7 +416,7 @@ export const CollabPanel = () => {
             className="rounded bg-[var(--cp-danger,#ef4444)] px-3 py-1 text-cp-xs font-medium text-white hover:opacity-90"
             onClick={() => stop()}
           >
-            {t('collab.stop', 'Verlassen')}
+            {t('collab.stop', 'Leave')}
           </button>
         ) : (
           <button
@@ -425,7 +425,7 @@ export const CollabPanel = () => {
             disabled={!room.trim()}
             onClick={() => void start()}
           >
-            {t('collab.start', 'Session starten')}
+            {t('collab.start', 'Start session')}
           </button>
         )}
       </div>

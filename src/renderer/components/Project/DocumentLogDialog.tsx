@@ -86,10 +86,10 @@ export const DocumentLogDialog = ({ open, onClose }: DocumentLogDialogProps) => 
 
   const onClear = async () => {
     if (
-      !(await confirmDialog(t('doclog.clear.confirm', 'Register leeren?'), {
+      !(await confirmDialog(t('doclog.clear.confirm', 'Clear the register?'), {
         body: t(
           'doclog.clear.body',
-          'Die Liste der ausgegebenen Dokumente wird gelöscht — auch die anderer Projekte. Die Ausdrucke selbst sind davon nicht betroffen.',
+          'The list of documents handed out will be deleted — including other projects. The printouts themselves are not affected.',
         ),
         destructive: true,
       }))
@@ -117,7 +117,7 @@ export const DocumentLogDialog = ({ open, onClose }: DocumentLogDialogProps) => 
           {b.revisionLabel && (
             <span className="text-cp-text-muted">
               {' '}
-              ({t('doclog.since.rev', 'gegen')} {b.revisionLabel})
+              ({t('doclog.since.rev', 'against')} {b.revisionLabel})
             </span>
           )}
         </span>
@@ -128,7 +128,7 @@ export const DocumentLogDialog = ({ open, onClose }: DocumentLogDialogProps) => 
         <span className="text-cp-text-muted">
           {t(
             'doclog.since.noRevision',
-            'Die Fassung von damals ist nicht festgeschrieben — nur dass das Blatt überholt ist.',
+            'The version of that time was never committed - only that the sheet is superseded.',
           )}
         </span>
       )
@@ -138,7 +138,7 @@ export const DocumentLogDialog = ({ open, onClose }: DocumentLogDialogProps) => 
         <span className="text-cp-text-muted">
           {t(
             'doclog.since.notReproducible',
-            'Der Stand dieses Dokuments lässt sich aus dem Plan allein nicht nachrechnen.',
+            "This document's stand cannot be recomputed from the plan alone.",
           )}
         </span>
       )
@@ -155,7 +155,7 @@ export const DocumentLogDialog = ({ open, onClose }: DocumentLogDialogProps) => 
     <ModalShell
       open={open}
       onClose={onClose}
-      title={t('doclog.title', 'Ausgegebene Dokumente')}
+      title={t('doclog.title', 'Documents handed out')}
       maxWidth="4xl"
       draggableKey="cable-planner:modal-pos:document-log"
       footer={
@@ -163,7 +163,7 @@ export const DocumentLogDialog = ({ open, onClose }: DocumentLogDialogProps) => 
           <span className="text-cp-text-muted">
             {t(
               'doclog.footer',
-              'Das Register liegt neben der App, nicht im Projekt — es hält fest, was auf diesem Rechner ausgegeben wurde, und reist nicht mit dem Plan mit.',
+              'The register lives next to the app, not in the project — it records what was handed out on this machine and does not travel with the plan.',
             )}
           </span>
           <div className="flex gap-2">
@@ -177,7 +177,7 @@ export const DocumentLogDialog = ({ open, onClose }: DocumentLogDialogProps) => 
               className="flex items-center gap-1 rounded bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5 disabled:opacity-50"
             >
               <Icon icon={RefreshCw} size="sm" />
-              {t('common.refresh', 'Aktualisieren')}
+              {t('common.refresh', 'Refresh')}
             </button>
             <button
               type="button"
@@ -185,14 +185,14 @@ export const DocumentLogDialog = ({ open, onClose }: DocumentLogDialogProps) => 
               className="flex items-center gap-1 rounded bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
             >
               <Icon icon={Trash2} size="sm" />
-              {t('doclog.clear', 'Register leeren')}
+              {t('doclog.clear', 'Clear register')}
             </button>
             <button
               type="button"
               onClick={onClose}
               className="rounded bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
             >
-              {t('common.close', 'Schließen')}
+              {t('common.close', 'Close')}
             </button>
           </div>
         </div>
@@ -204,7 +204,7 @@ export const DocumentLogDialog = ({ open, onClose }: DocumentLogDialogProps) => 
           {entries.length > 0 && (
             <span className="text-cp-text-muted">
               {' '}
-              · {entries.length} {t('doclog.entries', 'Einträge zu diesem Projekt')}
+              · {entries.length} {t('doclog.entries', 'entries for this project')}
             </span>
           )}
         </div>
@@ -213,7 +213,7 @@ export const DocumentLogDialog = ({ open, onClose }: DocumentLogDialogProps) => 
           <p className="text-cp-xs text-cp-text-muted">
             {t(
               'doclog.empty',
-              'Für dieses Projekt wurde noch nichts ausgegeben — oder die Ausgaben stammen von einem anderen Rechner.',
+              'Nothing has been handed out for this project yet — or the exports came from another machine.',
             )}
           </p>
         )}
@@ -223,27 +223,27 @@ export const DocumentLogDialog = ({ open, onClose }: DocumentLogDialogProps) => 
             <h4 className="flex flex-wrap items-baseline gap-2 text-cp-xs">
               <span className="font-medium text-cp-text">
                 {empfaenger.recipient === OHNE_EMPFAENGER
-                  ? t('doclog.noRecipient', 'Empfänger nicht genannt')
+                  ? t('doclog.noRecipient', 'Recipient not named')
                   : empfaenger.recipient}
               </span>
               <span className="text-cp-text-muted">
                 {empfaenger.blaetter.length} ·{' '}
                 {empfaenger.superseded > 0
-                  ? `${empfaenger.superseded} ${t('doclog.stale', 'überholt')}`
-                  : t('doclog.allCurrent', 'alle aktuell')}
+                  ? `${empfaenger.superseded} ${t('doclog.stale', 'superseded')}`
+                  : t('doclog.allCurrent', 'all current')}
                 {empfaenger.superseded > 0 &&
-                  ` · ${empfaenger.mitVergleich} ${t('doclog.withDiff', 'mit Vergleich')}`}
+                  ` · ${empfaenger.mitVergleich} ${t('doclog.withDiff', 'with a comparison')}`}
               </span>
             </h4>
             <table className="block overflow-x-auto w-full text-cp-xs">
               <thead className="text-cp-text-secondary">
                 <tr>
-                  <th className="px-2 py-1 text-left">{t('doclog.col.doc', 'Dokument')}</th>
-                  <th className="px-2 py-1 text-left">{t('doclog.col.when', 'Ausgegeben')}</th>
-                  <th className="px-2 py-1 text-left">{t('doclog.col.stand', 'Stand auf dem Blatt')}</th>
-                  <th className="px-2 py-1 text-left">{t('doclog.col.status', 'Gilt noch?')}</th>
+                  <th className="px-2 py-1 text-left">{t('doclog.col.doc', 'Document')}</th>
+                  <th className="px-2 py-1 text-left">{t('doclog.col.when', 'Handed out')}</th>
+                  <th className="px-2 py-1 text-left">{t('doclog.col.stand', 'Revision on the sheet')}</th>
+                  <th className="px-2 py-1 text-left">{t('doclog.col.status', 'Still valid?')}</th>
                   <th className="px-2 py-1 text-left">
-                    {t('doclog.col.since', 'Was sich seitdem geändert hat')}
+                    {t('doclog.col.since', 'What changed since')}
                   </th>
                 </tr>
               </thead>
@@ -263,10 +263,10 @@ export const DocumentLogDialog = ({ open, onClose }: DocumentLogDialogProps) => 
                     </td>
                     <td className={`px-2 py-1 ${STATUS_STYLE[b.entry.status]}`}>
                       {b.entry.status === 'superseded'
-                        ? t('doclog.superseded', 'überholt — neu ausgeben')
+                        ? t('doclog.superseded', 'superseded — hand out again')
                         : b.entry.status === 'unknown'
-                          ? t('doclog.unknown', 'nicht beurteilbar')
-                          : t('doclog.current', 'aktuell')}
+                          ? t('doclog.unknown', 'cannot tell')
+                          : t('doclog.current', 'current')}
                     </td>
                     <td className="px-2 py-1">{seitdem(b)}</td>
                   </tr>
@@ -281,13 +281,13 @@ export const DocumentLogDialog = ({ open, onClose }: DocumentLogDialogProps) => 
         {log && log.dropped > 0 && (
           <p className="flex items-start gap-2 rounded border border-cp-warn/40 bg-cp-surface-2 p-2 text-cp-xs text-cp-warn">
             <Icon icon={AlertTriangle} size="sm" />
-            {t('doclog.dropped', 'Ältere Einträge sind aus dem Register gefallen:')}{' '}
+            {t('doclog.dropped', 'Older entries have fallen out of the register:')}{' '}
             {log.dropped}
           </p>
         )}
         {otherProjects > 0 && (
           <p className="text-cp-xs text-cp-text-muted">
-            {t('doclog.otherProjects', 'Weitere Einträge gehören zu anderen Projekten:')}{' '}
+            {t('doclog.otherProjects', 'Further entries belong to other projects:')}{' '}
             {otherProjects}
           </p>
         )}

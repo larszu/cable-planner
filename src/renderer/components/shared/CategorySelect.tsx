@@ -52,7 +52,7 @@ export const CategorySelect = ({
   const categoryTranslations = useProjectStore((s) => s.categoryTranslations)
   const lang = useUiStore((s) => s.language)
   const t = useTranslation()
-  const resolvedPromptTitle = promptTitle ?? t('category.newPrompt', 'Neue Kategorie')
+  const resolvedPromptTitle = promptTitle ?? t('category.newPrompt', 'New category')
 
   const canonicals = Array.from(
     new Set(
@@ -92,7 +92,7 @@ export const CategorySelect = ({
           {opt.label}
         </option>
       ))}
-      {!noCreate && <option value="__new__">{t('category.new', '+ Neue Kategorie…')}</option>}
+      {!noCreate && <option value="__new__">{t('category.new', '+ New category…')}</option>}
     </select>
   )
 }

@@ -37,10 +37,10 @@ const CustomPaletteCard = () => {
   }
   return (
     <SettingsCard
-      title={t('settings.customPalette.title', 'Custom-Palette')}
+      title={t('settings.customPalette.title', 'Custom palette')}
       description={t(
         'settings.customPalette.desc',
-        'Eigene Farben für Canvas-Hintergrund und Raster — überschreibt die Theme-Defaults (dark/light). Wirkt nur auf den Canvas; Dialoge bleiben themed.',
+        'Custom colors for canvas background and grid — overrides the theme defaults (dark/light). Affects only the canvas; dialogs stay themed.',
       )}
     >
       <label className="mb-2 flex items-center gap-2 text-cp-base text-cp-text-bright">
@@ -49,14 +49,14 @@ const CustomPaletteCard = () => {
           checked={enabled}
           onChange={(e) => setPalette(e.target.checked ? current : null)}
         />
-        {t('settings.customPalette.enable', 'Eigene Palette aktivieren')}
+        {t('settings.customPalette.enable', 'Enable custom palette')}
       </label>
       {enabled && (
         <div className="grid grid-cols-3 gap-3 text-cp-xs">
           {(
             [
-              { key: 'canvasBg', label: t('settings.customPalette.bg', 'Hintergrund') },
-              { key: 'gridColor', label: t('settings.customPalette.grid', 'Raster-Strich') },
+              { key: 'canvasBg', label: t('settings.customPalette.bg', 'Background') },
+              { key: 'gridColor', label: t('settings.customPalette.grid', 'Grid stroke') },
               // `accent` stand hier als dritter Regler -- und wurde von NICHTS
               // gelesen. Jeder Konsument der Palette tippt genau zwei Felder
               // (`{ canvasBg, gridColor }`): CanvasArea, exportBackground,
@@ -162,10 +162,10 @@ export const AppearanceTab = () => {
   return (
     <div className="space-y-3">
       <SettingsCard
-        title={t('settings.appearance.language', 'Sprache')}
+        title={t('settings.appearance.language', 'Language')}
         description={t(
           'settings.appearance.languageDesc',
-          'UI-Sprache. Umstellen wirkt sofort. Tief verschachtelte Dialoge sind teilweise noch nur deutsch — siehe Hinweis unten.',
+          'UI language. Switching is instant. Some deeply nested dialogs are still German-only — see the i18n coverage note.',
         )}
       >
         <div className="flex gap-1">
@@ -193,7 +193,7 @@ export const AppearanceTab = () => {
           className="mt-2 text-[10px] text-cp-text-muted"
           text={t(
             'settings.appearance.coverage',
-            'Aktuell übersetzt: Einstellungen, Top-Level-Menüs und gemeinsame Buttons. Properties-Panels, Bibliothek, Rentman, ATEM und Export-Dialoge bleiben einstweilen deutsch.',
+            'Translation coverage: comprehensive (1650+ keys). All menus, toolbars, properties panels (incl. PortList, all 17 sub-sections), library, all dialogs (Cable, ATEM ×3, Videohub, GreenGo, Rentman ×5, Rack builder + sub-dialogs, Print, Export, Mobile share, GraphML import, Onboarding tour, About) and shared widgets are language-aware. Strings not yet translated fall through to the German source.',
           )}
         />
       </SettingsCard>
@@ -202,7 +202,7 @@ export const AppearanceTab = () => {
         title={t('settings.appearance.theme', 'Theme')}
         description={t(
           'settings.appearance.themeDesc',
-          'Hintergrundfarbe des Canvas. Auf Dunkel optimiert; hell ist für PDF-Export oder helles Umgebungslicht.',
+          'Canvas background colour. Optimised for dark; light is intended for PDF export or bright environments.',
         )}
       >
         <div className="flex gap-1">
@@ -219,11 +219,11 @@ export const AppearanceTab = () => {
             >
               {mode === 'dark' ? (
                 <>
-                  <Icon icon={Moon} size="xs" /> {t('settings.appearance.theme.dark', 'Dunkel')}
+                  <Icon icon={Moon} size="xs" /> {t('settings.appearance.theme.dark', 'Dark')}
                 </>
               ) : (
                 <>
-                  <Icon icon={Sun} size="xs" /> {t('settings.appearance.theme.light', 'Hell')}
+                  <Icon icon={Sun} size="xs" /> {t('settings.appearance.theme.light', 'Light')}
                 </>
               )}
             </button>
@@ -235,10 +235,10 @@ export const AppearanceTab = () => {
 
       {/* #291 — Globaler Slider fuer Port-Label-Schriftgroessen. */}
       <SettingsCard
-        title={t('settings.appearance.portLabelSize', 'Port-Label-Schriftgröße')}
+        title={t('settings.appearance.portLabelSize', 'Port label font size')}
         description={t(
           'settings.appearance.portLabelSizeDesc',
-          'Schriftgröße der Input-/Output-Beschriftungen auf den Geräte-Karten. Default 11 px. Größer = besser lesbar beim Heraus-Zoomen, aber Geräte werden breiter.',
+          'Font size of the input/output labels on the device cards. Default 11 px. Larger = easier to read when zoomed out, but devices get wider.',
         )}
       >
         <label className="flex items-center gap-3">
@@ -259,7 +259,7 @@ export const AppearanceTab = () => {
             onClick={() => setPortLabelFontSize(11)}
             disabled={portLabelFontSize === 11}
             className="rounded bg-cp-surface-2 px-2 py-0.5 text-[11px] text-cp-text-secondary hover:bg-cp-surface-4 disabled:opacity-50"
-            title={t('settings.fontSize.reset', 'Auf Default 11 px zurücksetzen')}
+            title={t('settings.fontSize.reset', 'Reset to default 11 px')}
           >
             ↺
           </button>
@@ -267,10 +267,10 @@ export const AppearanceTab = () => {
       </SettingsCard>
 
       <SettingsCard
-        title={t('settings.appearance.ports', 'Port-Farben')}
+        title={t('settings.appearance.ports', 'Port colours')}
         description={t(
           'settings.appearance.portsDesc',
-          'Steuert, wie Anschluss-Punkte auf Geräten eingefärbt sind.',
+          'Controls how port handles on equipment are coloured.',
         )}
       >
         <div className="flex gap-1">
@@ -284,10 +284,10 @@ export const AppearanceTab = () => {
             }`}
             title={t(
               'settings.appearance.ports.byDirectionTitle',
-              'Cyan = Eingang, Grün = Ausgang, Lila = bidirektional',
+              'Cyan = input, green = output, purple = bidirectional',
             )}
           >
-            {t('settings.appearance.ports.byDirection', 'Nach Richtung (Standard)')}
+            {t('settings.appearance.ports.byDirection', 'By direction (default)')}
           </button>
           <button
             type="button"
@@ -299,19 +299,19 @@ export const AppearanceTab = () => {
             }`}
             title={t(
               'settings.appearance.ports.byTypeTitle',
-              'SDI=amber, HDMI=violett, Ethernet=grün, Glasfaser=gelb …',
+              'SDI = amber, HDMI = violet, Ethernet = green, fibre = yellow…',
             )}
           >
-            {t('settings.appearance.ports.byType', 'Nach Steckertyp')}
+            {t('settings.appearance.ports.byType', 'By connector type')}
           </button>
         </div>
       </SettingsCard>
 
       <SettingsCard
-        title={t('settings.appearance.cableColor', 'Kabelfarbe')}
+        title={t('settings.appearance.cableColor', 'Cable colour')}
         description={t(
           'settings.appearance.cableColorDesc',
-          'Manuell = pro Kabel im Properties-Panel; nach Länge = Längen-Farbcodierung; nach Gewerk = die Layer-Legende (Video/Audio/Control/Netz/Strom). Die am Kabel gespeicherte Farbe bleibt in jedem Modus erhalten.',
+          'Manual = per cable in the properties panel; by length = length-based colour coding; by discipline = the layer legend (video/audio/control/network/power). The colour stored on the cable is kept in every mode.',
         )}
       >
         <div className="flex gap-1">
@@ -324,7 +324,7 @@ export const AppearanceTab = () => {
                 : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'
             }`}
           >
-            {t('settings.appearance.cableColor.manual', 'Manuell')}
+            {t('settings.appearance.cableColor.manual', 'Manual')}
           </button>
           <button
             type="button"
@@ -335,7 +335,7 @@ export const AppearanceTab = () => {
                 : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'
             }`}
           >
-            {t('settings.appearance.cableColor.byLength', 'Nach Länge')}
+            {t('settings.appearance.cableColor.byLength', 'By length')}
           </button>
           {/* Die Layer-Farben gab es bis 2026-09-08 nur an den Legenden-Chips:
               der Plan versprach eine Codierung, die er nicht einlöste. Als
@@ -350,16 +350,16 @@ export const AppearanceTab = () => {
                 : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'
             }`}
           >
-            {t('settings.appearance.cableColor.byLayer', 'Nach Gewerk')}
+            {t('settings.appearance.cableColor.byLayer', 'By discipline')}
           </button>
         </div>
       </SettingsCard>
 
       <SettingsCard
-        title={t('settings.appearance.arrows', 'Pfeile auf Kabeln')}
+        title={t('settings.appearance.arrows', 'Arrows on cables')}
         description={t(
           'settings.appearance.arrowsDesc',
-          'Standard für neu gezeichnete Kabel. Per Kabel im Properties-Panel überschreibbar.',
+          'Default for newly drawn cables. Overridable per cable in the properties panel.',
         )}
       >
         <label className="flex items-center gap-2 text-cp-base text-cp-text-bright">
@@ -370,16 +370,16 @@ export const AppearanceTab = () => {
           />
           {t(
             'settings.appearance.arrows.label',
-            'Pfeil am Ziel-Ende anzeigen (Signalflussrichtung)',
+            'Show arrow at the target end (signal flow direction)',
           )}
         </label>
       </SettingsCard>
 
       <SettingsCard
-        title={t('settings.connections.title', 'Verbindungs-Warnungen')}
+        title={t('settings.connections.title', 'Connection warnings')}
         description={t(
           'settings.connections.overrideDesc',
-          'Steckertyp-Konflikt erzeugt normalerweise eine Bestätigungs-Abfrage. Mit Override wird die Verbindung trotzdem ohne Rückfrage angelegt (als Adapter/Konverter markiert).',
+          'A connector-type conflict normally triggers a confirmation prompt. With override the connection is created anyway without asking (marked as adapter/converter).',
         )}
       >
         <label className="flex items-center gap-2 text-cp-base text-cp-text-bright">
@@ -390,34 +390,34 @@ export const AppearanceTab = () => {
           />
           {t(
             'settings.connections.override.label',
-            'Beliebige Inputs und Outputs ohne Warnung verbinden',
+            'Connect any inputs and outputs without warning',
           )}
         </label>
       </SettingsCard>
 
       <SettingsCard
-        title={t('settings.canvasBg.title', 'Canvas-Hintergrund')}
+        title={t('settings.canvasBg.title', 'Canvas background')}
         description={t(
           'settings.canvasBg.desc',
-          'Muster + Deckkraft des Canvas-Rasters. Bei großen Plänen reduziert eine niedrige Deckkraft die visuelle Unruhe. Rastergröße kommt aus dem Canvas-Toolbar oben.',
+          'Pattern + opacity of the canvas grid. For large plans a low opacity reduces visual clutter. Grid size comes from the canvas toolbar at the top.',
         )}
       >
         <div className="flex flex-wrap items-center gap-3 text-cp-base text-cp-text-bright">
           <label className="flex items-center gap-2">
-            <span className="text-cp-xs text-cp-text-muted">{t('settings.canvasBg.variant', 'Muster')}</span>
+            <span className="text-cp-xs text-cp-text-muted">{t('settings.canvasBg.variant', 'Pattern')}</span>
             <select
               value={bgVariant}
               onChange={(e) => setBgVariant(e.target.value as 'dots' | 'lines' | 'cross' | 'none')}
               className="rounded border border-cp-border bg-cp-surface-1 p-1 text-cp-xs"
             >
-              <option value="dots">{t('settings.canvasBg.variant.dots', 'Punkte')}</option>
-              <option value="lines">{t('settings.canvasBg.variant.lines', 'Linien')}</option>
-              <option value="cross">{t('settings.canvasBg.variant.cross', 'Kreuze')}</option>
-              <option value="none">{t('settings.canvasBg.variant.none', 'Kein Raster')}</option>
+              <option value="dots">{t('settings.canvasBg.variant.dots', 'Dots')}</option>
+              <option value="lines">{t('settings.canvasBg.variant.lines', 'Lines')}</option>
+              <option value="cross">{t('settings.canvasBg.variant.cross', 'Crosses')}</option>
+              <option value="none">{t('settings.canvasBg.variant.none', 'No grid')}</option>
             </select>
           </label>
           <label className="flex items-center gap-2">
-            <span className="text-cp-xs text-cp-text-muted">{t('settings.canvasBg.opacity', 'Deckkraft')}</span>
+            <span className="text-cp-xs text-cp-text-muted">{t('settings.canvasBg.opacity', 'Opacity')}</span>
             <input
               type="range"
               min={0}
@@ -436,18 +436,18 @@ export const AppearanceTab = () => {
         {/* v7.7.1 — Custom canvas background image upload (Issue #71). */}
         <div className="mt-4 border-t border-cp-border-muted pt-3">
           <div className="mb-2 text-cp-xs font-semibold uppercase tracking-wide text-cp-text-muted">
-            {t('settings.canvasBg.imageTitle', 'Eigenes Hintergrundbild')}
+            {t('settings.canvasBg.imageTitle', 'Custom background image')}
           </div>
           <div className="mb-2 text-[11px] text-cp-text-muted">
             {t(
               'settings.canvasBg.imageDesc',
-              'Lade ein eigenes Bild als Canvas-Hintergrund — getrennt für Dark- und Light-Mode. Das Rastermuster (Punkte/Linien/Kreuze) wird darüber gezeichnet.',
+              'Load your own image as the canvas background — separately for dark and light mode. The grid pattern (dots/lines/crosses) is drawn on top.',
             )}
           </div>
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             {([
-              ['dark', t('settings.canvasBg.darkImage', 'Dark-Mode-Bild'), canvasBgImageDark] as const,
-              ['light', t('settings.canvasBg.lightImage', 'Light-Mode-Bild'), canvasBgImageLight] as const,
+              ['dark', t('settings.canvasBg.darkImage', 'Dark-mode image'), canvasBgImageDark] as const,
+              ['light', t('settings.canvasBg.lightImage', 'Light-mode image'), canvasBgImageLight] as const,
             ]).map(([theme, label, current]) => (
               <div key={theme} className="rounded border border-cp-border-muted bg-cp-surface-3/40 p-2">
                 <div className="mb-1 text-[11px] font-semibold text-cp-text-secondary">{label}</div>
@@ -467,14 +467,14 @@ export const AppearanceTab = () => {
                         }}
                         className="flex-1 rounded bg-cp-surface-4 px-2 py-1 text-[11px] hover:bg-cp-surface-5"
                       >
-                        {t('settings.canvasBg.replace', 'Ersetzen…')}
+                        {t('settings.canvasBg.replace', 'Replace…')}
                       </button>
                       <button
                         type="button"
                         onClick={() => setCanvasBgImage(theme, null)}
                         className="rounded bg-red-900/60 px-2 py-1 text-[11px] text-red-200 hover:bg-red-800"
-                        title={t('settings.canvasBg.remove', 'Bild entfernen')}
-                        aria-label={t('settings.canvasBg.remove', 'Bild entfernen')}
+                        title={t('settings.canvasBg.remove', 'Remove image')}
+                        aria-label={t('settings.canvasBg.remove', 'Remove image')}
                       >
                         <Icon icon={X} size="sm" />
                       </button>
@@ -489,22 +489,22 @@ export const AppearanceTab = () => {
                     }}
                     className="w-full rounded border border-dashed border-cp-border bg-cp-surface-1 px-2 py-4 text-[11px] text-cp-text-muted hover:border-cp-surface-5 hover:text-cp-text-bright"
                   >
-                    {t('settings.canvasBg.upload', '+ Bild hochladen…')}
+                    {t('settings.canvasBg.upload', '+ Upload image…')}
                   </button>
                 )}
               </div>
             ))}
           </div>
           <label className="mt-3 flex items-center gap-2 text-cp-xs text-cp-text-secondary">
-            <span className="text-cp-text-muted">{t('settings.canvasBg.fit', 'Skalierung')}</span>
+            <span className="text-cp-text-muted">{t('settings.canvasBg.fit', 'Scaling')}</span>
             <select
               value={canvasBgImageFit}
               onChange={(e) => setCanvasBgImageFit(e.target.value as 'cover' | 'contain' | 'tile')}
               className="rounded border border-cp-border bg-cp-surface-1 p-1 text-cp-xs"
             >
-              <option value="cover">{t('settings.canvasBg.fit.cover', 'Cover (füllt komplett, beschneidet)')}</option>
-              <option value="contain">{t('settings.canvasBg.fit.contain', 'Contain (vollständig sichtbar, mit Rand)')}</option>
-              <option value="tile">{t('settings.canvasBg.fit.tile', 'Kacheln (wiederholt)')}</option>
+              <option value="cover">{t('settings.canvasBg.fit.cover', 'Cover (fills completely, crops)')}</option>
+              <option value="contain">{t('settings.canvasBg.fit.contain', 'Contain (fully visible, with margin)')}</option>
+              <option value="tile">{t('settings.canvasBg.fit.tile', 'Tile (repeated)')}</option>
             </select>
           </label>
         </div>
@@ -513,10 +513,10 @@ export const AppearanceTab = () => {
       <CustomPaletteCard />
 
       <SettingsCard
-        title={t('settings.connectorColors.title', 'Steckertyp-Farben')}
+        title={t('settings.connectorColors.title', 'Connector-type colors')}
         description={t(
           'settings.connectorColors.desc',
-          'Eigene Farbe pro Stecker-Typ — nur sichtbar wenn "Ports nach Typ" oben aktiv ist. Leeres Feld setzt zurück auf Standard.',
+          'Custom color per connector type — only visible when "Ports by type" is active above. An empty field resets to default.',
         )}
       >
         <div className="grid grid-cols-2 gap-x-3 gap-y-2 text-cp-base md:grid-cols-3">
@@ -544,7 +544,7 @@ export const AppearanceTab = () => {
                     type="button"
                     onClick={() => setConnectorTypeColor(name, null)}
                     className="rounded bg-cp-surface-4 px-1 py-0.5 text-[10px] text-cp-text-secondary hover:bg-cp-surface-5"
-                    title={t('settings.colors.resetDefault', 'Auf Default zurücksetzen')}
+                    title={t('settings.colors.resetDefault', 'Reset to default')}
                   >
                     ↺
                   </button>
@@ -559,21 +559,21 @@ export const AppearanceTab = () => {
             onClick={() => resetConnectorTypeColors()}
             className="rounded bg-cp-surface-2 px-2 py-1 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-4"
           >
-            {t('settings.connectorColors.resetAll', 'Alle zurücksetzen')}
+            {t('settings.connectorColors.resetAll', 'Reset all')}
           </button>
         </div>
       </SettingsCard>
 
       <SettingsCard
-        title={t('settings.categoryColors.title', 'Geräte-Farben pro Kategorie')}
+        title={t('settings.categoryColors.title', 'Device colors per category')}
         description={t(
           'settings.categoryColors.desc',
-          'Default-Farbe je Kategorie (z.B. Monitore=blau). Gilt für alle Geräte dieser Kategorie ohne eigene Farbe. Eine pro Gerät gesetzte Farbe gewinnt weiterhin.',
+          'Default color per category (e.g. monitors=blue). Applies to all devices of that category without their own color. A color set per device still wins.',
         )}
       >
         {allKnownCategories.length === 0 ? (
           <div className="text-[11px] text-cp-text-muted">
-            {t('settings.categoryColors.empty', 'Noch keine Kategorien bekannt. Wird gefüllt sobald Geräte im Plan oder in der Library Kategorien haben.')}
+            {t('settings.categoryColors.empty', 'No categories known yet. Populated as soon as devices in the plan or library have categories.')}
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-x-3 gap-y-2 text-cp-base md:grid-cols-3">
@@ -594,7 +594,7 @@ export const AppearanceTab = () => {
                       type="button"
                       onClick={() => setCategoryColor(cat, null)}
                       className="rounded bg-cp-surface-4 px-1 py-0.5 text-[10px] text-cp-text-secondary hover:bg-cp-surface-5"
-                      title={t('settings.colors.resetDefault', 'Auf Default zurücksetzen')}
+                      title={t('settings.colors.resetDefault', 'Reset to default')}
                     >
                       ↺
                     </button>
@@ -611,7 +611,7 @@ export const AppearanceTab = () => {
               onClick={() => resetCategoryColors()}
               className="rounded bg-cp-surface-2 px-2 py-1 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-4"
             >
-              {t('settings.categoryColors.resetAll', 'Alle zurücksetzen')}
+              {t('settings.categoryColors.resetAll', 'Reset all')}
             </button>
           </div>
         )}

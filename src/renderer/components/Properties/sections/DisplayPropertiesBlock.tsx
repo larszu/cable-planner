@@ -52,7 +52,7 @@ export const DisplayPropertiesBlock = ({ equipment }: { equipment: EquipmentItem
       <div className="px-2 pb-2">
       <div className="grid grid-cols-2 gap-2">
         <label className="block">
-          <span className="mb-1 block text-cp-text-secondary">{t('display.resolution', 'Auflösung')}</span>
+          <span className="mb-1 block text-cp-text-secondary">{t('display.resolution', 'Resolution')}</span>
           <input
             list="display-resolution-options"
             value={equipment.resolution ?? ''}
@@ -69,7 +69,7 @@ export const DisplayPropertiesBlock = ({ equipment }: { equipment: EquipmentItem
           </datalist>
         </label>
         <label className="block">
-          <span className="mb-1 block text-cp-text-secondary">{t('display.diagonal', 'Diagonale (Zoll)')}</span>
+          <span className="mb-1 block text-cp-text-secondary">{t('display.diagonal', 'Diagonal (inches)')}</span>
           <input
             type="number"
             min={1}

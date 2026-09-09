@@ -43,7 +43,7 @@ export const WelcomeDialog = ({ open, onNew, onOpen, onClose }: WelcomeDialogPro
     <ModalShell
       open={open}
       onClose={onClose}
-      title={t('project.welcome.title', 'Willkommen beim Cable Planner')}
+      title={t('project.welcome.title', 'Welcome to Cable Planner')}
       maxWidth="lg"
       zIndex={60}
       closeOnBackdrop={false}
@@ -55,10 +55,10 @@ export const WelcomeDialog = ({ open, onNew, onOpen, onClose }: WelcomeDialogPro
             className="rounded bg-cp-surface-2 px-3 py-1 text-cp-xs text-cp-text-muted hover:bg-cp-surface-4 hover:text-cp-text-bright"
             title={t(
               'project.welcome.laterTitle',
-              'Ohne Auswahl fortfahren — bitte denke daran, manuell zu speichern.',
+              'Continue without choosing — remember to save manually.',
             )}
           >
-            {t('project.welcome.later', 'Später entscheiden')}
+            {t('project.welcome.later', 'Decide later')}
           </button>
         </div>
       }
@@ -66,7 +66,7 @@ export const WelcomeDialog = ({ open, onNew, onOpen, onClose }: WelcomeDialogPro
       <p className="mb-3 text-cp-xs text-cp-text-muted">
         {t(
           'project.welcome.intro',
-          'Lege ein neues Projekt an oder öffne ein bestehendes, damit deine Arbeit zuverlässig gespeichert wird.',
+          'Create a new project or open an existing one so your work is saved reliably.',
         )}
       </p>
 
@@ -82,10 +82,10 @@ export const WelcomeDialog = ({ open, onNew, onOpen, onClose }: WelcomeDialogPro
           <Icon icon={FileText} size="lg" className="mt-0.5 text-emerald-400" />
           <span className="flex-1">
             <span className="block text-cp-base font-semibold">
-              {t('project.welcome.newTitle', 'Neues Projekt')}
+              {t('project.welcome.newTitle', 'New project')}
             </span>
             <span className="block text-[11px] text-cp-text-muted">
-              {t('project.welcome.newSubtitle', 'Mit Projektname, Auftraggeber und Planer starten.')}
+              {t('project.welcome.newSubtitle', 'Start with project name, client and planner.')}
             </span>
           </span>
         </button>
@@ -101,12 +101,12 @@ export const WelcomeDialog = ({ open, onNew, onOpen, onClose }: WelcomeDialogPro
           <Icon icon={FolderOpen} size="lg" className="mt-0.5 text-sky-400" />
           <span className="flex-1">
             <span className="block text-cp-base font-semibold">
-              {t('project.welcome.openTitle', 'Projekt öffnen…')}
+              {t('project.welcome.openTitle', 'Open project…')}
             </span>
             <span className="block text-[11px] text-cp-text-muted">
-              {t('project.welcome.openSubtitle1', 'Eine vorhandene')}{' '}
+              {t('project.welcome.openSubtitle1', 'Load an existing')}{' '}
               <code className="rounded bg-cp-surface-3 px-1">.cableplan</code>
-              {t('project.welcome.openSubtitle2', '-Datei laden.')}
+              {t('project.welcome.openSubtitle2', ' file.')}
             </span>
           </span>
         </button>
@@ -114,7 +114,7 @@ export const WelcomeDialog = ({ open, onNew, onOpen, onClose }: WelcomeDialogPro
         {recents.length > 0 && (
           <div className="pt-2">
             <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-cp-text-muted">
-              {t('project.welcome.recents', 'Zuletzt verwendet')}
+              {t('project.welcome.recents', 'Recently used')}
             </div>
             <div className="max-h-32 space-y-1 overflow-auto">
               {recents.slice(0, 6).map((path) => (
@@ -131,7 +131,7 @@ export const WelcomeDialog = ({ open, onNew, onOpen, onClose }: WelcomeDialogPro
             <p className="mt-1 text-[10px] text-cp-text-muted">
               {t(
                 'project.welcome.recentsHint',
-                'Klick „Projekt öffnen…“ und wähle eine der Dateien im Datei-Dialog.',
+                'Click "Open project…" and choose one of the files in the file picker.',
               )}
             </p>
           </div>

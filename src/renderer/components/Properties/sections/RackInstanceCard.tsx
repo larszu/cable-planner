@@ -19,13 +19,13 @@ export const RackInstanceCard = ({ equipment }: { equipment: EquipmentItem }) =>
   return (
     <div className="rounded border border-cyan-700 bg-cyan-950/30 p-2">
       <div className="mb-1 text-[10px] uppercase tracking-wide text-cyan-300">
-        {t('rackInstance.label', 'Rack-Instanz')} · {equipment.rackInstanceLabel ?? t('rackInstance.fallback', 'Rack')}
+        {t('rackInstance.label', 'Rack instance')} · {equipment.rackInstanceLabel ?? t('rackInstance.fallback', 'Rack')}
       </div>
       <PanelHint
         className="mb-2 text-[10px] text-cp-text-muted"
         text={t(
           'rackInstance.intro',
-          'Dieses Gerät gehört zu einer Rack-Instanz. Der Rack-Editor zeigt eine gefilterte Sub-Canvas mit nur diesem Rack — Änderungen an der Position werden beim Loslassen auf ganze HU gerundet.',
+          'This device belongs to a rack instance. The rack editor shows a filtered sub-canvas with this rack only — position changes are rounded to whole U on release.',
         )}
       />
       <button
@@ -33,14 +33,14 @@ export const RackInstanceCard = ({ equipment }: { equipment: EquipmentItem }) =>
         onClick={() => openRackEditor(equipment.rackInstanceId!)}
         className="inline-flex w-full items-center justify-center gap-1.5 rounded bg-cyan-700 px-2 py-1 text-cp-xs text-white hover:bg-cyan-600"
       >
-        <Icon icon={Server} size="xs" /> {t('rackInstance.openEditor', 'Rack-Editor öffnen')}
+        <Icon icon={Server} size="xs" /> {t('rackInstance.openEditor', 'Open rack editor')}
       </button>
       {typeof equipment.rackInstanceStartUnit === 'number' && (
         <div className="mt-1 text-[10px] text-cp-text-muted">
-          {format(t('rackInstance.position', 'Position: ab HU {start}'), {
+          {format(t('rackInstance.position', 'Position: from U {start}'), {
             start: equipment.rackInstanceStartUnit + 1,
           })}
-          {equipment.rackUnits ? ` (${equipment.rackUnits} ${t('rackInstance.heShort', 'HE')})` : ''}
+          {equipment.rackUnits ? ` (${equipment.rackUnits} ${t('rackInstance.heShort', 'U')})` : ''}
         </div>
       )}
     </div>

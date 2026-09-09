@@ -103,12 +103,12 @@ export const InlineSelectionToolbar = () => {
     'flex h-7 w-7 items-center justify-center rounded text-cp-text-secondary hover:bg-cp-surface-2 hover:text-cp-text'
 
   const alignButtons: Array<{ mode: AlignMode; icon: typeof Copy; label: string }> = [
-    { mode: 'left', icon: AlignHorizontalJustifyStart, label: t('inlineToolbar.alignLeft', 'Links ausrichten') },
-    { mode: 'center-h', icon: AlignHorizontalJustifyCenter, label: t('inlineToolbar.alignCenterH', 'Horizontal zentrieren') },
-    { mode: 'right', icon: AlignHorizontalJustifyEnd, label: t('inlineToolbar.alignRight', 'Rechts ausrichten') },
-    { mode: 'top', icon: AlignVerticalJustifyStart, label: t('inlineToolbar.alignTop', 'Oben ausrichten') },
-    { mode: 'center-v', icon: AlignVerticalJustifyCenter, label: t('inlineToolbar.alignCenterV', 'Vertikal zentrieren') },
-    { mode: 'bottom', icon: AlignVerticalJustifyEnd, label: t('inlineToolbar.alignBottom', 'Unten ausrichten') },
+    { mode: 'left', icon: AlignHorizontalJustifyStart, label: t('inlineToolbar.alignLeft', 'Align left') },
+    { mode: 'center-h', icon: AlignHorizontalJustifyCenter, label: t('inlineToolbar.alignCenterH', 'Align horizontal centers') },
+    { mode: 'right', icon: AlignHorizontalJustifyEnd, label: t('inlineToolbar.alignRight', 'Align right') },
+    { mode: 'top', icon: AlignVerticalJustifyStart, label: t('inlineToolbar.alignTop', 'Align top') },
+    { mode: 'center-v', icon: AlignVerticalJustifyCenter, label: t('inlineToolbar.alignCenterV', 'Align vertical centers') },
+    { mode: 'bottom', icon: AlignVerticalJustifyEnd, label: t('inlineToolbar.alignBottom', 'Align bottom') },
   ]
 
   return (
@@ -118,7 +118,7 @@ export const InlineSelectionToolbar = () => {
       onMouseDown={(e) => e.stopPropagation()}
       onClick={(e) => e.stopPropagation()}
       role="toolbar"
-      aria-label={t('inlineToolbar.label', 'Auswahl-Werkzeuge')}
+      aria-label={t('inlineToolbar.label', 'Selection tools')}
     >
       {multiEq &&
         alignButtons.map(({ mode, icon, label }) => (
@@ -131,8 +131,8 @@ export const InlineSelectionToolbar = () => {
           <button
             type="button"
             className={btn}
-            title={t('inlineToolbar.distributeH', 'Horizontal verteilen')}
-            aria-label={t('inlineToolbar.distributeH', 'Horizontal verteilen')}
+            title={t('inlineToolbar.distributeH', 'Distribute horizontally')}
+            aria-label={t('inlineToolbar.distributeH', 'Distribute horizontally')}
             onClick={() => doAlign('distribute-h')}
           >
             <Icon icon={AlignHorizontalDistributeCenter} size="xs" />
@@ -140,8 +140,8 @@ export const InlineSelectionToolbar = () => {
           <button
             type="button"
             className={btn}
-            title={t('inlineToolbar.distributeV', 'Vertikal verteilen')}
-            aria-label={t('inlineToolbar.distributeV', 'Vertikal verteilen')}
+            title={t('inlineToolbar.distributeV', 'Distribute vertically')}
+            aria-label={t('inlineToolbar.distributeV', 'Distribute vertically')}
             onClick={() => doAlign('distribute-v')}
           >
             <Icon icon={AlignVerticalDistributeCenter} size="xs" />
@@ -154,8 +154,8 @@ export const InlineSelectionToolbar = () => {
           <button
             type="button"
             className={btn}
-            title={t('inlineToolbar.duplicate', 'Duplizieren')}
-            aria-label={t('inlineToolbar.duplicate', 'Duplizieren')}
+            title={t('inlineToolbar.duplicate', 'Duplicate')}
+            aria-label={t('inlineToolbar.duplicate', 'Duplicate')}
             onClick={() => triggerCanvasDuplicate()}
           >
             <Icon icon={Copy} size="xs" />
@@ -163,8 +163,8 @@ export const InlineSelectionToolbar = () => {
           <button
             type="button"
             className={btn}
-            title={t('inlineToolbar.frame', 'Rahmen um Auswahl')}
-            aria-label={t('inlineToolbar.frame', 'Rahmen um Auswahl')}
+            title={t('inlineToolbar.frame', 'Frame around selection')}
+            aria-label={t('inlineToolbar.frame', 'Frame around selection')}
             onClick={() => addLocationAroundEquipment(ids)}
           >
             <Icon icon={SquareDashed} size="xs" />
@@ -174,8 +174,8 @@ export const InlineSelectionToolbar = () => {
       <button
         type="button"
         className={`${btn} hover:bg-red-900/40 hover:text-red-300`}
-        title={t('inlineToolbar.delete', 'Löschen')}
-        aria-label={t('inlineToolbar.delete', 'Löschen')}
+        title={t('inlineToolbar.delete', 'Delete')}
+        aria-label={t('inlineToolbar.delete', 'Delete')}
         onClick={() => deleteSelected()}
       >
         <Icon icon={Trash2} size="xs" />

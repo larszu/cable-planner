@@ -150,8 +150,8 @@ export const AnnotationCanvasOverlay = () => {
             <div
               title={
                 isFree
-                  ? t('annotations.overlay.titleFree', 'Klick = Text anzeigen · Ziehen = Position')
-                  : t('annotations.overlay.titleAnchored', 'Klick = Text anzeigen')
+                  ? t('annotations.overlay.titleFree', 'Click = show text · Drag = position')
+                  : t('annotations.overlay.titleAnchored', 'Click = show text')
               }
               onPointerDown={(e) => {
                 e.stopPropagation()
@@ -244,7 +244,7 @@ export const AnnotationCanvasOverlay = () => {
             {isExpanded && (
               <div
                 role="dialog"
-                aria-label={format(t('annotations.overlay.cardAria', 'Anmerkung von {name}'), { name: annotation.author })}
+                aria-label={format(t('annotations.overlay.cardAria', 'Annotation by {name}'), { name: annotation.author })}
                 style={{
                   position: 'absolute',
                   left: cardOnRight ? screen.x + 18 : screen.x - 258,
@@ -291,7 +291,7 @@ export const AnnotationCanvasOverlay = () => {
                   <button
                     type="button"
                     onClick={() => setExpandedId(null)}
-                    title={t('common.close', 'Schließen')}
+                    title={t('common.close', 'Close')}
                     style={{
                       background: '#334155',
                       color: '#e2e8f0',
@@ -314,7 +314,7 @@ export const AnnotationCanvasOverlay = () => {
                     overflowY: 'auto',
                   }}
                 >
-                  {annotation.text || <em style={{ color: '#64748b' }}>{t('annotations.overlay.empty', '(leer)')}</em>}
+                  {annotation.text || <em style={{ color: '#64748b' }}>{t('annotations.overlay.empty', '(empty)')}</em>}
                 </div>
                 <div
                   style={{
@@ -325,7 +325,7 @@ export const AnnotationCanvasOverlay = () => {
                 >
                   {new Date(annotation.createdAt).toLocaleString()}
                   {annotation.anchor.type !== 'free' && (
-                    <span> · {t('annotations.pinnedTo', 'gepinnt an')} {annotation.anchor.type === 'device' ? t('annotations.anchor.device', 'Gerät') : t('annotations.anchor.port', 'Port')}</span>
+                    <span> · {t('annotations.pinnedTo', 'pinned to')} {annotation.anchor.type === 'device' ? t('annotations.anchor.device', 'device') : t('annotations.anchor.port', 'port')}</span>
                   )}
                 </div>
               </div>

@@ -92,7 +92,7 @@ export const LocationFrameNode = memo(({ id, data, selected }: NodeProps<Locatio
           setSelection(undefined, undefined, id)
         }}
         title={locked
-          ? format(t('locationFrame.lockedTitle', '{name} (gesperrt — Klick auf Schloss zum Entsperren)'), { name: data.name })
+          ? format(t('locationFrame.lockedTitle', '{name} (locked — click the lock to unlock)'), { name: data.name })
           : data.name}
       >
         <button
@@ -103,7 +103,7 @@ export const LocationFrameNode = memo(({ id, data, selected }: NodeProps<Locatio
             e.stopPropagation()
             updateLocation(id, { positionLocked: !locked })
           }}
-          title={locked ? t('locationFrame.unlock', 'Location entsperren') : t('locationFrame.lock', 'Location sperren (kein Verschieben/Resizen, aber Settings noch erreichbar)')}
+          title={locked ? t('locationFrame.unlock', 'Unlock location') : t('locationFrame.lock', 'Lock location (no moving/resizing, but settings still reachable)')}
           style={{
             background: 'transparent',
             border: 'none',

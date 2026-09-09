@@ -56,12 +56,12 @@ const CredentialChoiceDialog = ({ count, destination, onDone }: Props) => {
     <div style={MODAL_BACKDROP} onMouseDown={backdropMouseDown(() => onDone(null))}>
       <div style={{ ...MODAL_CARD, maxWidth: 520 }} role="dialog" aria-modal="true">
         <div style={{ marginBottom: 8, fontSize: 14, fontWeight: 600 }}>
-          {t('cred.title', 'Zugangsdaten mitgeben?')}
+          {t('cred.title', 'Include credentials?')}
         </div>
         <div style={{ marginBottom: 16, fontSize: 13, color: '#cbd5e1' }}>
           {count === 1
-            ? t('cred.body.one', 'Ein Eintrag trägt Benutzername oder Passwort eines Geräts.')
-            : t('cred.body.many', 'Einträge tragen Benutzername oder Passwort eines Geräts.').replace(
+            ? t('cred.body.one', 'One entry carries a device username or password.')
+            : t('cred.body.many', '{n} entries carry a device username or password.').replace(
                 '{n}',
                 String(count),
               )}{' '}
@@ -69,21 +69,21 @@ const CredentialChoiceDialog = ({ count, destination, onDone }: Props) => {
         </div>
         <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
           <button type="button" onClick={() => onDone(null)} style={MODAL_BUTTON_SECONDARY}>
-            {t('common.cancel', 'Abbrechen')}
+            {t('common.cancel', 'Cancel')}
           </button>
           <button
             type="button"
             onClick={() => onDone('include')}
             style={MODAL_BUTTON_SECONDARY}
           >
-            {t('cred.include', 'Mitgeben')}
+            {t('cred.include', 'Include')}
           </button>
           <button
             type="button"
             onClick={() => onDone('strip')}
             style={modalButtonPrimary('#10b981')}
           >
-            {t('cred.strip', 'Ohne Zugangsdaten')}
+            {t('cred.strip', 'Without credentials')}
           </button>
         </div>
       </div>

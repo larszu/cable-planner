@@ -43,8 +43,8 @@ export const NetworkAccessSection = ({ equipment }: { equipment: EquipmentItem }
   return (
     <SortableSection
       id="network"
-      title={t('netAccess.title', 'Network & Access')}
-      subtitle={t('netAccess.subtitle', 'IP · MAC · S/N · Login')}
+      title={t('netAccess.title', 'Network & access')}
+      subtitle={t('netAccess.subtitle', 'IP · MAC · S/N · login')}
       defaultOpen
     >
       <div className="grid grid-cols-2 gap-2">
@@ -60,7 +60,7 @@ export const NetworkAccessSection = ({ equipment }: { equipment: EquipmentItem }
           />
         </label>
         <label className="block">
-          <span className="mb-1 block text-cp-text-secondary">{t('eq.field.serial', 'Seriennummer')}</span>
+          <span className="mb-1 block text-cp-text-secondary">{t('eq.field.serial', 'Serial number')}</span>
           <input
             value={equipment.serialNumber ?? ''}
             onChange={(event) =>
@@ -77,7 +77,7 @@ export const NetworkAccessSection = ({ equipment }: { equipment: EquipmentItem }
         {anchors.length > 0 && (
           <label className="block">
             <span className="mb-1 block text-cp-text-secondary">
-              {t('eq.field.unit', 'Einheit aus dem Bestand')}
+              {t('eq.field.unit', 'Unit from stock')}
             </span>
             <select
               value={equipment.inventoryUnitId ?? ''}
@@ -88,7 +88,7 @@ export const NetworkAccessSection = ({ equipment }: { equipment: EquipmentItem }
               }
               className="w-full rounded border border-cp-border bg-cp-surface-1 p-2"
             >
-              <option value="">{t('eq.field.unitNone', '— nicht benannt —')}</option>
+              <option value="">{t('eq.field.unitNone', '\u2014 not stated \u2014')}</option>
               {units.map((u) => (
                 <option key={u.id} value={u.id}>
                   {einheitZeile(u)}
@@ -99,25 +99,25 @@ export const NetworkAccessSection = ({ equipment }: { equipment: EquipmentItem }
               <span className="mt-1 block text-cp-xs text-cp-text-muted">
                 {t(
                   'eq.field.unitHint',
-                  'Dieser Platz trägt eine Netz-Identität. Ohne benannte Einheit ist ein Tausch gegen eine baugleiche Kiste unsichtbar — der eingebrannte Geräte-Name wandert mit.',
+                  'This slot carries a network identity. Without a named unit a swap for an identical box is invisible \u2014 the burned-in device name travels with it.',
                 )}
               </span>
             )}
           </label>
         )}
         <label className="block">
-          <span className="mb-1 block text-cp-text-secondary">{t('eq.field.subnet', 'Subnet Mask')}</span>
+          <span className="mb-1 block text-cp-text-secondary">{t('eq.field.subnet', 'Subnet mask')}</span>
           <input
             value={equipment.subnetMask ?? ''}
             onChange={(event) =>
               updateEquipment(equipment.id, { subnetMask: event.target.value })
             }
-            placeholder={t('eq.field.subnetPlaceholder', '255.255.255.0 oder /24')}
+            placeholder={t('eq.field.subnetPlaceholder', '255.255.255.0 or /24')}
             className="w-full rounded border border-cp-border bg-cp-surface-1 p-2 font-mono"
           />
         </label>
         <label className="block">
-          <span className="mb-1 block text-cp-text-secondary">{t('eq.field.mac', 'MAC-Adresse')}</span>
+          <span className="mb-1 block text-cp-text-secondary">{t('eq.field.mac', 'MAC address')}</span>
           <input
             value={equipment.macAddress ?? ''}
             onChange={(event) =>
@@ -155,13 +155,13 @@ export const NetworkAccessSection = ({ equipment }: { equipment: EquipmentItem }
               onClick={() => setShowPassword((v) => !v)}
               aria-label={
                 showPassword
-                  ? t('eq.field.passwordHide', 'Passwort verbergen')
-                  : t('eq.field.passwordShow', 'Passwort anzeigen')
+                  ? t('eq.field.passwordHide', 'Hide password')
+                  : t('eq.field.passwordShow', 'Show password')
               }
               title={
                 showPassword
-                  ? t('eq.field.passwordHide', 'Passwort verbergen')
-                  : t('eq.field.passwordShow', 'Passwort anzeigen')
+                  ? t('eq.field.passwordHide', 'Hide password')
+                  : t('eq.field.passwordShow', 'Show password')
               }
               className="absolute inset-y-0 right-0 flex items-center px-2 text-cp-text-muted hover:text-cp-text-bright"
             >

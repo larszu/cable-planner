@@ -90,7 +90,7 @@ export const PlanCompareDialog = ({ open, onClose }: PlanCompareDialogProps) => 
         setError(
           t(
             'compare.error.notAPlan',
-            'Diese Datei enthält keinen lesbaren Plan (Geräte- und Kabel-Liste fehlen).',
+            'This file does not contain a readable plan (equipment and cable lists are missing).',
           ),
         )
         return
@@ -137,7 +137,7 @@ export const PlanCompareDialog = ({ open, onClose }: PlanCompareDialogProps) => 
     <ModalShell
       open={open}
       onClose={onClose}
-      title={t('compare.title', 'Plan-Stände vergleichen')}
+      title={t('compare.title', 'Compare plan revisions')}
       maxWidth="4xl"
       draggableKey="cable-planner:modal-pos:plan-compare"
       footer={
@@ -145,7 +145,7 @@ export const PlanCompareDialog = ({ open, onClose }: PlanCompareDialogProps) => 
           <span className="text-cp-text-muted">
             {t(
               'compare.footer',
-              'Der geöffnete Plan gilt als der neuere Stand. Nichts wird geladen oder überschrieben.',
+              'The open plan counts as the newer revision. Nothing is loaded or overwritten.',
             )}
           </span>
           <div className="flex gap-2">
@@ -156,7 +156,7 @@ export const PlanCompareDialog = ({ open, onClose }: PlanCompareDialogProps) => 
                 className="flex items-center gap-1 rounded bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
               >
                 <Icon icon={FileDown} size="sm" />
-                {t('compare.exportCsv', 'Als CSV exportieren')}
+                {t('compare.exportCsv', 'Export as CSV')}
               </button>
             )}
             <button
@@ -164,7 +164,7 @@ export const PlanCompareDialog = ({ open, onClose }: PlanCompareDialogProps) => 
               onClick={onClose}
               className="rounded bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
             >
-              {t('common.close', 'Schließen')}
+              {t('common.close', 'Close')}
             </button>
           </div>
         </div>
@@ -179,12 +179,12 @@ export const PlanCompareDialog = ({ open, onClose }: PlanCompareDialogProps) => 
             className="flex items-center gap-2 rounded-cp-control bg-cp-accent px-3 py-1.5 text-cp-xs text-cp-accent-text disabled:opacity-50"
           >
             <Icon icon={FolderOpen} size="sm" />
-            {t('compare.pick', 'Vergleichs-Datei wählen…')}
+            {t('compare.pick', 'Choose comparison file…')}
           </button>
           {revisions.length > 0 && (
             <label className="flex items-center gap-2 text-cp-xs text-cp-text-secondary">
               <Icon icon={History} size="sm" />
-              <span>{t('compare.orRevision', 'oder festgeschriebene Revision:')}</span>
+              <span>{t('compare.orRevision', 'or committed revision:')}</span>
               <select
                 value={other?.origin === 'revision' ? other.label : ''}
                 onChange={(e) => {
@@ -195,7 +195,7 @@ export const PlanCompareDialog = ({ open, onClose }: PlanCompareDialogProps) => 
                 }}
                 className="rounded border border-cp-border-muted bg-cp-surface-2 px-2 py-1 text-cp-xs text-cp-text"
               >
-                <option value="">{t('compare.chooseRevision', '— wählen —')}</option>
+                <option value="">{t('compare.chooseRevision', '— choose —')}</option>
                 {[...revisions].reverse().map((r) => (
                   <option
                     key={r.id}
@@ -212,8 +212,8 @@ export const PlanCompareDialog = ({ open, onClose }: PlanCompareDialogProps) => 
         {other && (
           <p className="truncate text-cp-xs text-cp-text-secondary" title={other.label}>
             {other.origin === 'revision'
-              ? t('compare.fromRevision', 'Früherer Stand: Revision')
-              : t('compare.fromFile', 'Früherer Stand: Datei')}{' '}
+              ? t('compare.fromRevision', 'Earlier revision: revision')
+              : t('compare.fromFile', 'Earlier revision: file')}{' '}
             <span className="font-mono">{other.label}</span>
           </p>
         )}
@@ -230,7 +230,7 @@ export const PlanCompareDialog = ({ open, onClose }: PlanCompareDialogProps) => 
             className="text-cp-xs text-cp-text-muted"
             text={t(
               'compare.hint',
-              'Wähle eine zweite Projektdatei — etwa den Stand, den ein Kollege zurückgeschickt hat — oder eine festgeschriebene Revision aus diesem Projekt. Beides wird nur gelesen und nicht geöffnet.',
+              'Pick a second project file — for example the revision a colleague sent back — or a committed revision from this project. Either is only read, never opened.',
             )}
           />
         )}
@@ -241,14 +241,14 @@ export const PlanCompareDialog = ({ open, onClose }: PlanCompareDialogProps) => 
               <div>
                 <div className="text-cp-text-muted">
                   {other.origin === 'revision'
-                    ? t('compare.standBeforeRevision', 'Stand der gewählten Revision')
-                    : t('compare.standBefore', 'Stand der gewählten Datei')}
+                    ? t('compare.standBeforeRevision', 'Revision of the chosen commit')
+                    : t('compare.standBefore', 'Revision of the chosen file')}
                 </div>
                 <div className="font-mono">#{planFingerprint(other.project)}</div>
               </div>
               <div>
                 <div className="text-cp-text-muted">
-                  {t('compare.standAfter', 'Stand des geöffneten Plans')}
+                  {t('compare.standAfter', 'Revision of the open plan')}
                 </div>
                 <div className="font-mono">#{planFingerprint(project)}</div>
               </div>
@@ -265,17 +265,17 @@ export const PlanCompareDialog = ({ open, onClose }: PlanCompareDialogProps) => 
             {/* Erst die Blätter — das ist die Frage, die Arbeit auslöst. */}
             <section>
               <h3 className="mb-1 text-cp-xs font-semibold text-cp-text-secondary">
-                {t('compare.documents', 'Dokumente')}
+                {t('compare.documents', 'Documents')}
               </h3>
               <ul className="space-y-0.5 text-cp-xs">
                 {impact.documents.map((d) => (
                   <li key={d.docId} className="flex items-baseline gap-2">
                     <span className={`w-28 shrink-0 ${VERDICT_STYLE[d.verdict]}`}>
                       {d.verdict === 'invalidated'
-                        ? t('compare.verdict.invalidated', 'überholt')
+                        ? t('compare.verdict.invalidated', 'superseded')
                         : d.verdict === 'unknown'
-                          ? t('compare.verdict.unknown', 'nicht beurteilbar')
-                          : t('compare.verdict.unaffected', 'unverändert')}
+                          ? t('compare.verdict.unknown', 'cannot tell')
+                          : t('compare.verdict.unaffected', 'unchanged')}
                     </span>
                     <span>{d.label}</span>
                     {d.reason && <span className="text-cp-text-muted">— {d.reason}</span>}
@@ -286,11 +286,11 @@ export const PlanCompareDialog = ({ open, onClose }: PlanCompareDialogProps) => 
 
             <section>
               <h3 className="mb-1 text-cp-xs font-semibold text-cp-text-secondary">
-                {t('compare.changes', 'Unterschiede')}
+                {t('compare.changes', 'Differences')}
               </h3>
               {diff.entities.length === 0 ? (
                 <p className="text-cp-xs text-cp-text-muted">
-                  {t('compare.noEntities', 'Keine Unterschiede an Geräten oder Kabeln.')}
+                  {t('compare.noEntities', 'No differences in equipment or cables.')}
                 </p>
               ) : (
                 <ul className="space-y-1 text-cp-xs">
@@ -298,10 +298,10 @@ export const PlanCompareDialog = ({ open, onClose }: PlanCompareDialogProps) => 
                     <li key={`${e.kind}-${e.id}`}>
                       <span className="font-medium">
                         {e.change === 'removed'
-                          ? t('compare.change.removed', 'entfällt')
+                          ? t('compare.change.removed', 'gone')
                           : e.change === 'added'
-                            ? t('compare.change.added', 'neu')
-                            : t('compare.change.modified', 'geändert')}
+                            ? t('compare.change.added', 'new')
+                            : t('compare.change.modified', 'changed')}
                         {': '}
                         {e.label}
                       </span>
@@ -315,13 +315,13 @@ export const PlanCompareDialog = ({ open, onClose }: PlanCompareDialogProps) => 
                                   {' — '}
                                   {t(
                                     'compare.sensitiveChanged',
-                                    'geändert (Zugangsdaten werden nicht angezeigt)',
+                                    'changed (credentials are not shown)',
                                   )}
                                 </>
                               ) : f.before === undefined ? (
                                 <>
                                   {' — '}
-                                  {t('compare.unclassifiedChanged', 'geändert (unbekanntes Feld)')}
+                                  {t('compare.unclassifiedChanged', 'changed (unknown field)')}
                                 </>
                               ) : (
                                 <>
@@ -343,7 +343,7 @@ export const PlanCompareDialog = ({ open, onClose }: PlanCompareDialogProps) => 
             {diff.sections.length > 0 && (
               <section>
                 <h3 className="mb-1 text-cp-xs font-semibold text-cp-text-secondary">
-                  {t('compare.sections', 'Weitere Projekt-Bereiche (nicht aufgeschlüsselt)')}
+                  {t('compare.sections', 'Other project areas (not itemised)')}
                 </h3>
                 <ul className="space-y-0.5 text-cp-xs text-cp-text-secondary">
                   {diff.sections.map((s) => (
@@ -359,7 +359,7 @@ export const PlanCompareDialog = ({ open, onClose }: PlanCompareDialogProps) => 
               <p className="rounded border border-cp-border-muted bg-cp-surface-2 p-2 text-cp-xs text-cp-text-secondary">
                 {t(
                   'compare.recreationHint',
-                  'Gleicher Name in Ab- und Zugang — vermutlich neu angelegt statt geändert. Dieser Vergleich kann das nicht unterscheiden:',
+                  'Same name in both the removed and the added list — probably re-created rather than edited. This comparison cannot tell them apart:',
                 )}{' '}
                 {diff.recreationHints.join(', ')}
               </p>
@@ -370,7 +370,7 @@ export const PlanCompareDialog = ({ open, onClose }: PlanCompareDialogProps) => 
                 <Icon icon={AlertTriangle} size="sm" />
                 {t(
                   'compare.unclassified',
-                  'Felder ohne Klassifizierung — als Änderung gemeldet, aber ohne Werte:',
+                  'Fields without a classification — reported as changed, but without values:',
                 )}{' '}
                 {diff.unclassified.join(', ')}
               </p>

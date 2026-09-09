@@ -24,56 +24,56 @@ const stepsForLang = (
   t: (key: string, fallback?: string) => string,
 ): TourStep[] => [
   {
-    title: t('onboarding.steps.welcome.title', 'Willkommen im Cable Planner'),
+    title: t('onboarding.steps.welcome.title', 'Welcome to Cable Planner'),
     body: t(
       'onboarding.steps.welcome.body',
-      'Eine kurze Tour zeigt dir, wo du die wichtigsten Funktionen findest. Du kannst sie jederzeit über das Hilfe-Menü oben rechts wieder öffnen.',
+      'A short tour shows where the main features live. You can re-open it any time from the Help menu in the top right.',
     ),
   },
   {
-    title: t('onboarding.steps.file.title', 'Datei-Menü oben links'),
+    title: t('onboarding.steps.file.title', 'File menu (top left)'),
     body: t(
       'onboarding.steps.file.body',
-      'Über „Datei" legst du Projekte an, öffnest gespeicherte Dateien und sicherst Änderungen. Die Projekt-Metadaten bearbeitest du dort über „Projekt-Eigenschaften".',
+      'Use "File" to create projects, open saved files and persist changes. Project metadata is editable from "Project properties" there.',
     ),
   },
   {
-    title: t('onboarding.steps.export.title', 'Export-Menü'),
+    title: t('onboarding.steps.export.title', 'Export menu'),
     body: t(
       'onboarding.steps.export.body',
-      'Im „Export"-Menü findest du den PDF-Plan-Export, die Kabel-Stückliste sowie zwei Rentman-Aktionen: PDF an Rentman anhängen und Kabel an Rentman senden.',
+      'The "Export" menu hosts PDF plan export, the cable BOM and two Rentman actions: attach PDF to Rentman and send cables to Rentman.',
     ),
     hint: t(
       'onboarding.steps.export.hint',
-      'Die Rentman-Einträge sind nur aktiv, wenn ein Rentman-Projekt verknüpft ist.',
+      'The Rentman entries are only active if a Rentman project is linked.',
     ),
   },
   {
-    title: t('onboarding.steps.settings.title', 'Einstellungen → Rentman'),
+    title: t('onboarding.steps.settings.title', 'Settings → Rentman'),
     body: t(
       'onboarding.steps.settings.body',
-      'Token speichern, Verbindung testen und Rentman-Projekt verknüpfen oder wechseln machst du in den Einstellungen im Tab „Rentman API".',
+      'Save the token, test the connection and link/switch Rentman projects from the "Rentman API" tab in Settings.',
     ),
   },
   {
-    title: t('onboarding.steps.library.title', 'Bibliothek links'),
+    title: t('onboarding.steps.library.title', 'Library on the left'),
     body: t(
       'onboarding.steps.library.body',
-      'Die linke Spalte enthält Equipment, Kabel-Library und Gruppen. Im Equipment-Tab kannst du zwischen lokalen und aus Rentman importierten Geräten umschalten.',
+      'The left column holds equipment, cable library and groups. In the Equipment tab you can switch between local and Rentman-imported devices.',
     ),
   },
   {
-    title: t('onboarding.steps.properties.title', 'Eigenschaften rechts'),
+    title: t('onboarding.steps.properties.title', 'Properties on the right'),
     body: t(
       'onboarding.steps.properties.body',
-      'Wenn du ein Element auf der Canvas auswählst, erscheinen rechts die Details und Werkzeuge zur Bearbeitung.',
+      'Selecting an item on the canvas opens its details and editing tools on the right.',
     ),
   },
   {
-    title: t('onboarding.steps.cablePlan.title', 'Kabel-Plan & Warnung'),
+    title: t('onboarding.steps.cablePlan.title', 'Cable plan & warnings'),
     body: t(
       'onboarding.steps.cablePlan.body',
-      'Importierst du Kabelmengen aus Rentman, warnt der Cable Planner beim Verkabeln, sobald du mehr Kabel verbaust als vorhanden sind. Über „Kabel an Rentman senden" gleichst du fertige Mengen zurück.',
+      'If you import cable quantities from Rentman, Cable Planner warns when you wire more cables than available. "Send cables to Rentman" syncs back the assembled totals.',
     ),
   },
 ]
@@ -108,7 +108,7 @@ export const OnboardingTour = ({ open, onClose }: OnboardingTourProps) => {
       onClose={finish}
       title={
         <span className="text-[11px] uppercase tracking-wider text-cp-text-muted">
-          {format(t('onboarding.header', 'Erste-Schritte-Tour · Schritt {step} / {total}'), {
+          {format(t('onboarding.header', 'Getting-started tour · step {step} / {total}'), {
             step: step + 1,
             total: STEPS.length,
           })}
@@ -122,7 +122,7 @@ export const OnboardingTour = ({ open, onClose }: OnboardingTourProps) => {
             onClick={finish}
             className="text-cp-xs text-cp-text-faint hover:text-cp-text-secondary"
           >
-            {t('onboarding.end', 'Tour beenden')}
+            {t('onboarding.end', 'End tour')}
           </button>
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1">
@@ -145,7 +145,7 @@ export const OnboardingTour = ({ open, onClose }: OnboardingTourProps) => {
               disabled={step === 0}
               className="rounded bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {t('onboarding.back', 'Zurück')}
+              {t('onboarding.back', 'Back')}
             </button>
             {isLast ? (
               <button
@@ -153,7 +153,7 @@ export const OnboardingTour = ({ open, onClose }: OnboardingTourProps) => {
                 onClick={finish}
                 className="rounded bg-orange-600 px-3 py-1 text-cp-xs font-semibold text-white hover:bg-orange-500"
               >
-                {t('onboarding.start', "Los geht's")}
+                {t('onboarding.start', "Let's go")}
               </button>
             ) : (
               <button
@@ -161,7 +161,7 @@ export const OnboardingTour = ({ open, onClose }: OnboardingTourProps) => {
                 onClick={() => setStep((index) => Math.min(STEPS.length - 1, index + 1))}
                 className="rounded bg-orange-600 px-3 py-1 text-cp-xs font-semibold text-white hover:bg-orange-500"
               >
-                {t('onboarding.next', 'Weiter')}
+                {t('onboarding.next', 'Next')}
               </button>
             )}
           </div>
@@ -173,7 +173,7 @@ export const OnboardingTour = ({ open, onClose }: OnboardingTourProps) => {
         <p className="text-cp-base leading-relaxed text-cp-text-secondary">{current.body}</p>
         {current.hint && (
           <div className="rounded border border-cp-border-muted bg-cp-surface-3/40 px-2 py-1 text-[11px] text-cp-text-muted">
-            {t('onboarding.tip', 'Tipp:')} {current.hint}
+            {t('onboarding.tip', 'Tip:')} {current.hint}
           </div>
         )}
       </div>

@@ -124,7 +124,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
       setVerbindungen(liste)
       if (liste.length === 0) {
         setVerbindungenFehler(
-          t('switching.companionEmpty', 'Companion antwortet, hat aber keine Verbindung eingerichtet.'),
+          t('switching.companionEmpty', 'Companion answers, but has no connection configured.'),
         )
       }
     } catch (e) {
@@ -194,16 +194,16 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
   }
 
   const summary = schaltbar
-    ? format(t('switching.summaryCount', '{n} von {total} Ausgängen'), {
+    ? format(t('switching.summaryCount', '{n} of {total} outputs'), {
         n: gesetzt,
         total: equipment.outputs.length,
       })
-    : t('switching.summaryNone', 'nicht schaltbar')
+    : t('switching.summaryNone', 'cannot switch')
 
   return (
     <SortableSection
       id="switching"
-      title={t('switching.title', 'Schaltung (Signalweg)')}
+      title={t('switching.title', 'Switching (signal path)')}
       subtitle={summary}
     >
       {!schaltbar ? (
@@ -211,7 +211,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
           className="text-cp-xs text-cp-text-muted"
           text={t(
             'switching.notSwitchable',
-            'Dieses Gerät hat keine Ein- und Ausgänge zugleich und kann deshalb nichts schalten. Die Sektion bleibt sichtbar, damit klar ist, dass hier nichts fehlt.',
+            'This device has no inputs and outputs at the same time and therefore cannot switch anything. The section stays visible so it is clear that nothing is missing.',
           )}
         />
       ) : (
@@ -220,7 +220,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
               nicht bekannt, WELCHE Nummern gebraucht werden. */}
           <label className="mb-2 block text-cp-xs">
             <span className="mb-1 block text-cp-text-muted">
-              {t('switching.protocol', 'Steuer-Protokoll')}
+              {t('switching.protocol', 'Control protocol')}
             </span>
             <select
               className="w-full rounded border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-text"
@@ -233,7 +233,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
                 })
               }
             >
-              <option value="">{t('switching.protocolNone', 'keins — es wird nicht gesendet')}</option>
+              <option value="">{t('switching.protocolNone', 'none \u2014 nothing will be sent')}</option>
               {CONTROL_PROTOCOLS.map((k) => (
                 <option key={k} value={k}>
                   {PROTOCOL_INFO[k].label}
@@ -250,7 +250,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
             <>
               <label className="mb-2 block text-cp-xs">
                 <span className="mb-1 block text-cp-text-muted">
-                  {t('switching.target', 'Ziel')}
+                  {t('switching.target', 'Target')}
                 </span>
                 <select
                   className="w-full rounded border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-text"
@@ -285,7 +285,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
                 ? info.hinweis
                 : t(
                     'switching.protocolHint',
-                    'Ohne Protokoll wird an dieses Gerät nichts gesendet. Welches ein Gerät spricht, lässt sich nicht am Namen ablesen — ein Gerät namens „Videohub Ersatz" bekäme sonst einen Videohub-Befehl, und was dort in Wahrheit horcht, weiss niemand.',
+                    'Without a protocol nothing is sent to this device. Which one a device speaks cannot be read off its name \u2014 a device called \u201cVideohub spare\u201d would otherwise get a Videohub command, and nobody knows what is really listening there.',
                   )
             }
           />
@@ -293,7 +293,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
             className="mb-2 text-cp-xs text-cp-text-muted"
             text={t(
               'switching.hint',
-              'Je Ausgang: welcher Eingang liegt darauf. Das ist die Absicht des Plans, nicht der gelesene Zustand des Geräts — ohne Eintrag endet der Signalweg hier, und das ist die ehrlichere Auskunft als ein geratener Weiterweg.',
+              'Per output: which input sits on it. This is the plan\u2019s intent, not the state read back from the device \u2014 without an entry the signal path ends here, and that is the more honest answer than a guessed continuation.',
             )}
           />
           <div className="space-y-1">
@@ -307,7 +307,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
                   value={kreuzpunkte.get(out.id) ?? ''}
                   onChange={(e) => setze(out.id, e.target.value)}
                 >
-                  <option value="">{t('switching.unset', 'nicht geplant')}</option>
+                  <option value="">{t('switching.unset', 'not planned')}</option>
                   {equipment.inputs.map((inp) => (
                     <option key={inp.id} value={inp.id}>
                       {portDisplayLabel(inp)}
@@ -324,7 +324,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
                 className="text-cp-xs text-cp-text-muted"
                 text={t(
                   'switching.companionHow',
-                  'So wird es eingerichtet: in Companion eine Schaltfläche anlegen, deren Aktion die Route des Geräts setzt, und in dieser Aktion Ausgang und Eingang auf zwei Custom-Variablen legen (Schreibweise $(internal:custom_NAME)). Hier stehen dann die Lage der Schaltfläche und die beiden Variablennamen — der Plan setzt sie und drückt.',
+                  'How to set this up: in Companion create one button whose action sets the device\u2019s route, and in that action point output and input at two custom variables (written $(internal:custom_NAME)). Here you enter where that button sits and the two variable names \u2014 the plan sets them and presses.',
                 )}
               />
 
@@ -364,8 +364,8 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
                   className="av-focus rounded border border-cp-border px-2 py-1 hover:bg-cp-surface-3 disabled:opacity-40"
                 >
                   {verbindungenLaufen
-                    ? t('switching.companionLoading', 'fragt …')
-                    : t('switching.companionFetch', 'Verbindungen abrufen')}
+                    ? t('switching.companionLoading', 'asking \u2026')
+                    : t('switching.companionFetch', 'Fetch connections')}
                 </button>
               </div>
 
@@ -375,7 +375,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
               {verbindungen.length > 0 && (
                 <div className="text-cp-xs">
                   <div className="mb-1 text-cp-text-muted">
-                    {t('switching.companionFound', 'In dieser Companion eingerichtet:')}
+                    {t('switching.companionFound', 'Configured in this Companion:')}
                   </div>
                   <ul className="space-y-0.5">
                     {verbindungen.map((v) => (
@@ -390,13 +390,13 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
                           }
                           className="av-focus rounded border border-cp-border px-1.5 py-0.5 hover:bg-cp-surface-3"
                         >
-                          {t('switching.companionNote', 'notieren')}
+                          {t('switching.companionNote', 'note')}
                         </button>
                         <span className="truncate">
                           {v.label}{' '}
                           <span className="text-cp-text-faint">
                             ({v.moduleId}
-                            {v.enabled ? '' : t('switching.companionOff', ', aus')})
+                            {v.enabled ? '' : t('switching.companionOff', ', off')})
                           </span>
                         </span>
                       </li>
@@ -408,7 +408,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
               <div className="flex flex-wrap items-end gap-2 text-cp-xs">
                 <label>
                   <span className="mb-1 block text-cp-text-muted">
-                    {t('switching.companionPage', 'Seite')}
+                    {t('switching.companionPage', 'Page')}
                   </span>
                   <input
                     type="number"
@@ -427,7 +427,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
                 </label>
                 <label>
                   <span className="mb-1 block text-cp-text-muted">
-                    {t('switching.companionRow', 'Zeile')}
+                    {t('switching.companionRow', 'Row')}
                   </span>
                   <input
                     type="number"
@@ -446,7 +446,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
                 </label>
                 <label>
                   <span className="mb-1 block text-cp-text-muted">
-                    {t('switching.companionColumn', 'Spalte')}
+                    {t('switching.companionColumn', 'Column')}
                   </span>
                   <input
                     type="number"
@@ -468,7 +468,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
               <div className="flex flex-wrap items-end gap-2 text-cp-xs">
                 <label>
                   <span className="mb-1 block text-cp-text-muted">
-                    {t('switching.companionVarOut', 'Variable Ausgang')}
+                    {t('switching.companionVarOut', 'Output variable')}
                   </span>
                   <input
                     className="w-32 rounded border border-cp-border bg-cp-surface-2 px-1 py-1 font-mono text-cp-text"
@@ -479,7 +479,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
                 </label>
                 <label>
                   <span className="mb-1 block text-cp-text-muted">
-                    {t('switching.companionVarIn', 'Variable Eingang')}
+                    {t('switching.companionVarIn', 'Input variable')}
                   </span>
                   <input
                     className="w-32 rounded border border-cp-border bg-cp-surface-2 px-1 py-1 font-mono text-cp-text"
@@ -490,7 +490,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
                 </label>
                 <label>
                   <span className="mb-1 block text-cp-text-muted">
-                    {t('switching.textBase', 'Zählt ab')}
+                    {t('switching.textBase', 'Counts from')}
                   </span>
                   <select
                     className="rounded border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
@@ -503,7 +503,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
                 </label>
                 <label>
                   <span className="mb-1 block text-cp-text-muted">
-                    {t('switching.textNumbers', 'Nummern')}
+                    {t('switching.textNumbers', 'Numbers')}
                   </span>
                   <select
                     className="rounded border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
@@ -515,10 +515,10 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
                     }
                   >
                     <option value="position">
-                      {t('switching.textNumbersPos', 'Position in der Liste')}
+                      {t('switching.textNumbersPos', 'position in the list')}
                     </option>
                     <option value="declared">
-                      {t('switching.textNumbersDecl', 'je Anschluss eingetragen')}
+                      {t('switching.textNumbersDecl', 'entered per port')}
                     </option>
                   </select>
                 </label>
@@ -526,13 +526,13 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
 
               {companionKonfig?.connectionLabel && (
                 <div className="text-cp-xs text-cp-text-muted">
-                  {t('switching.companionNoted', 'Notiert:')}{' '}
+                  {t('switching.companionNoted', 'Noted:')}{' '}
                   {companionKonfig.connectionLabel}
                   {companionKonfig.connectionModule ? ` (${companionKonfig.connectionModule})` : ''}
                   {' — '}
                   {t(
                     'switching.companionNoteWarn',
-                    'nur eine Notiz. Was die Schaltfläche wirklich tut, steht in Companion; wer sie dort umbaut, macht diese Zeile falsch.',
+                    'a note only. What the button really does lives in Companion; whoever rebuilds it there makes this line wrong.',
                   )}
                 </div>
               )}
@@ -543,7 +543,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
             <div className="mt-3 space-y-2">
               <label className="block text-cp-xs">
                 <span className="mb-1 block text-cp-text-muted">
-                  {t('switching.textTemplate', 'Befehlszeile (aus dem Handbuch des Geräts)')}
+                  {t('switching.textTemplate', 'Command line (from the device manual)')}
                 </span>
                 <input
                   className="w-full rounded border border-cp-border bg-cp-surface-2 px-2 py-1 font-mono text-cp-text"
@@ -556,7 +556,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
               <div className="flex flex-wrap items-end gap-2 text-cp-xs">
                 <label>
                   <span className="mb-1 block text-cp-text-muted">
-                    {t('switching.textStart', 'Zeilenanfang')}
+                    {t('switching.textStart', 'Line start')}
                   </span>
                   <select
                     className="rounded border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
@@ -572,7 +572,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
                 </label>
                 <label>
                   <span className="mb-1 block text-cp-text-muted">
-                    {t('switching.textEnd', 'Zeilenende')}
+                    {t('switching.textEnd', 'Line end')}
                   </span>
                   <select
                     className="rounded border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
@@ -588,7 +588,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
                 </label>
                 <label>
                   <span className="mb-1 block text-cp-text-muted">
-                    {t('switching.textBase', 'Zählt ab')}
+                    {t('switching.textBase', 'Counts from')}
                   </span>
                   <select
                     className="rounded border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
@@ -601,7 +601,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
                 </label>
                 <label>
                   <span className="mb-1 block text-cp-text-muted">
-                    {t('switching.textNumbers', 'Nummern')}
+                    {t('switching.textNumbers', 'Numbers')}
                   </span>
                   <select
                     className="rounded border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
@@ -611,16 +611,16 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
                     }
                   >
                     <option value="position">
-                      {t('switching.textNumbersPos', 'Position in der Liste')}
+                      {t('switching.textNumbersPos', 'position in the list')}
                     </option>
                     <option value="declared">
-                      {t('switching.textNumbersDecl', 'je Anschluss eingetragen')}
+                      {t('switching.textNumbersDecl', 'entered per port')}
                     </option>
                   </select>
                 </label>
                 <label>
                   <span className="mb-1 block text-cp-text-muted">
-                    {t('switching.textLevel', 'Ebene')}
+                    {t('switching.textLevel', 'Level')}
                   </span>
                   <input
                     className="w-14 rounded border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
@@ -630,12 +630,12 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
                 </label>
                 <label>
                   <span className="mb-1 block text-cp-text-muted">
-                    {t('switching.textAck', 'Quittung')}
+                    {t('switching.textAck', 'Ack')}
                   </span>
                   <input
                     className="w-20 rounded border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
                     value={textKonfig?.quittung ?? ''}
-                    placeholder={t('switching.textAckNone', 'keine')}
+                    placeholder={t('switching.textAckNone', 'none')}
                     onChange={(e) => setzeText({ quittung: e.target.value })}
                   />
                 </label>
@@ -660,7 +660,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
               {probe && (
                 <div className="text-cp-xs">
                   <span className="text-cp-text-muted">
-                    {t('switching.textProbe', 'So ginge es raus (Ausgang 1, Eingang 2):')}
+                    {t('switching.textProbe', 'This is what would go out (output 1, input 2):')}
                   </span>{' '}
                   <code className="rounded bg-cp-surface-3 px-1">{probe}</code>
                 </div>
@@ -671,7 +671,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
                   geprueftes Wissen und ginge als Befehl raus. */}
               <div className="flex flex-wrap items-center gap-1 text-cp-xs">
                 <span className="text-cp-text-muted">
-                  {t('switching.textPresets', 'Vorlage übernehmen:')}
+                  {t('switching.textPresets', 'Apply template:')}
                 </span>
                 {TEXT_VORLAGEN.map((v) => (
                   <button
@@ -694,7 +694,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
                 className="text-cp-xs text-cp-text-muted"
                 text={t(
                   'switching.textHint',
-                  'Die Vorlagen sind ein Startpunkt und keine Zusicherung — ihre Herkunft steht im Tooltip, und sie gehören gegen das Handbuch geprüft. Vor dem Senden zeigt der Schalt-Dialog den Text noch einmal wortwörtlich; Steuerzeichen stehen dort benannt, weil ein unsichtbares STX der Unterschied zwischen „verstanden" und „keine Antwort" ist.',
+                  'The templates are a starting point, not an assurance \u2014 their provenance is in the tooltip, and they belong checked against the manual. Before sending, the switching dialog shows the text once more verbatim; control characters are named there, because an invisible STX is the difference between \u201cunderstood\u201d and \u201cno answer\u201d.',
                 )}
               />
             </div>
@@ -703,7 +703,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
           {brauchtAdressen && (
             <div className="mt-3">
               <div className="mb-1 text-cp-xs text-cp-text-muted">
-                {t('switching.addresses', 'Nummern am Gerät')}
+                {t('switching.addresses', 'Numbers on the device')}
               </div>
               <div className="space-y-1">
                 {[...equipment.inputs, ...equipment.outputs].map((p) => {
@@ -725,7 +725,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
                             : setzeAdresse(p.id, null)
                         }
                       >
-                        <option value="">{t('switching.roleNone', 'nicht eingetragen')}</option>
+                        <option value="">{t('switching.roleNone', 'not entered')}</option>
                         {erlaubt.map((r) => (
                           <option key={r} value={r}>
                             {CONTROL_ROLE_LABEL[r]}
@@ -737,7 +737,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
                         min={0}
                         className="w-20 rounded border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
                         value={p.control?.address ?? ''}
-                        placeholder={t('switching.addressPlaceholder', 'Nr.')}
+                        placeholder={t('switching.addressPlaceholder', 'No.')}
                         onChange={(e) => {
                           const n = parseInt(e.target.value, 10)
                           setzeAdresse(p.id, Number.isInteger(n) && n >= 0 ? { address: n } : null)
@@ -751,7 +751,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
                 className="mt-1 text-cp-xs text-cp-text-muted"
                 text={t(
                   'switching.addressHint',
-                  'Ohne Nummer wird an diesen Anschluss nicht gesendet. Beim ATEM ist die Quellen-Nummer eines Eingangs am Mischer abzulesen, ein Aux-Ausgang zählt in seiner eigenen Reihe, und Programm bzw. Vorschau tragen die Nummer des Mix-Effects. Die Position in der Liste sagt sie nicht.',
+                  'Without a number nothing is sent to this port. On the ATEM the source number of an input is read off the switcher, an aux output counts in its own row, and program/preview carry the mix-effect number. The position in the list does not tell you.',
                 )}
               />
             </div>

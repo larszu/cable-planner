@@ -50,7 +50,7 @@ export const AdvancedTab = () => {
       en: existing.en ?? (lang === 'en' ? cat : undefined),
     }
     const result = await bilingualCategoryDialog(
-      t('settings.advanced.categories.renamePrompt', 'Kategorie umbenennen'),
+      t('settings.advanced.categories.renamePrompt', 'Rename category'),
       initial,
     )
     if (!result || !result.canonical) return
@@ -66,7 +66,7 @@ export const AdvancedTab = () => {
 
   const handleAdd = async () => {
     const result = await bilingualCategoryDialog(
-      t('settings.advanced.categories.addPrompt', 'Neue Kategorie'),
+      t('settings.advanced.categories.addPrompt', 'New category'),
     )
     if (!result || !result.canonical) return
     addKnownCategories([result.canonical])
@@ -78,8 +78,8 @@ export const AdvancedTab = () => {
   const clearCache = async (key: string, label: string) => {
     if (
       !(await confirmDialog(
-        format(t('settings.advanced.caches.confirm', '{label} leeren?'), { label }),
-        { destructive: true, okLabel: t('settings.advanced.caches.confirmBtn', 'Leeren') },
+        format(t('settings.advanced.caches.confirm', 'Clear {label}?'), { label }),
+        { destructive: true, okLabel: t('settings.advanced.caches.confirmBtn', 'Clear') },
       ))
     )
       return
@@ -87,11 +87,11 @@ export const AdvancedTab = () => {
       localStorage.removeItem(key)
       await infoDialog(
         format(
-          t('settings.advanced.caches.cleared', '{label} geleert.'),
+          t('settings.advanced.caches.cleared', '{label} cleared. Will be reloaded on next start.'),
           { label },
         ),
         {
-          body: t('settings.advanced.caches.cleared.body', 'Beim nächsten Start wird neu geladen.'),
+          body: t('settings.advanced.caches.cleared.body', 'The next start will reload from scratch.'),
           tone: 'success',
         },
       )
@@ -118,9 +118,9 @@ export const AdvancedTab = () => {
       !(await confirmDialog(
         t(
           'settings.advanced.caches.welcomeConfirm',
-          'Willkommens-Dialog beim nächsten Start wieder anzeigen?',
+          'Show the welcome dialog on next start?',
         ),
-        { okLabel: t('common.reset', 'Zurücksetzen') },
+        { okLabel: t('common.reset', 'Reset') },
       ))
     )
       return
@@ -133,11 +133,11 @@ export const AdvancedTab = () => {
         title={t('settings.advanced.autosave', 'Autosave')}
         description={t(
           'settings.advanced.autosaveDesc',
-          'Wie oft das aktuelle Projekt automatisch in localStorage gespeichert wird. Standard: 400 ms.',
+          'How often the current project is automatically saved to localStorage. Default: 400 ms.',
         )}
       >
         <label className="block text-cp-base text-cp-text-secondary">
-          {t('settings.advanced.autosaveInterval', 'Autosave-Intervall (ms)')}
+          {t('settings.advanced.autosaveInterval', 'Autosave interval (ms)')}
           <input
             type="number"
             min={100}
@@ -151,10 +151,10 @@ export const AdvancedTab = () => {
       </SettingsCard>
 
       <SettingsCard
-        title={t('settings.advanced.categories', 'Kategorienverwaltung')}
+        title={t('settings.advanced.categories', 'Category management')}
         description={t(
           'settings.advanced.categoriesDesc',
-          'Bibliothek-Kategorien umbenennen oder neue anlegen. Beim Umbenennen wandern alle zugeordneten Vorlagen mit.',
+          'Rename library categories or add new ones. When renaming, all assigned templates move along.',
         )}
       >
         <div className="max-h-56 overflow-auto rounded border border-cp-border-muted bg-cp-surface-3/50">
@@ -162,12 +162,12 @@ export const AdvancedTab = () => {
             <thead className="sticky top-0 bg-cp-surface-1 text-cp-text-muted">
               <tr>
                 <th className="px-2 py-1 text-left">
-                  {t('settings.advanced.categories.col.name', 'Kategorie')}
+                  {t('settings.advanced.categories.col.name', 'Category')}
                 </th>
                 <th className="px-2 py-1 text-right">
-                  {t('settings.advanced.categories.col.count', 'Vorlagen')}
+                  {t('settings.advanced.categories.col.count', 'Templates')}
                 </th>
-                <th className="px-2 py-1" aria-label={t('settings.advanced.actionsAria', 'Aktionen')} />
+                <th className="px-2 py-1" aria-label={t('settings.advanced.actionsAria', 'Actions')} />
               </tr>
             </thead>
             <tbody>
@@ -189,7 +189,7 @@ export const AdvancedTab = () => {
                         onClick={() => handleRename(cat)}
                         className="rounded bg-cp-surface-4 px-2 py-0.5 text-[10px] hover:bg-cp-surface-5"
                       >
-                        {t('common.rename', 'Umbenennen')}
+                        {t('common.rename', 'Rename')}
                       </button>
                     </td>
                   </tr>
@@ -198,7 +198,7 @@ export const AdvancedTab = () => {
               {allCategories.length === 0 && (
                 <tr>
                   <td colSpan={3} className="px-2 py-3 text-center text-cp-text-faint">
-                    {t('settings.advanced.categories.empty', 'Noch keine Kategorien.')}
+                    {t('settings.advanced.categories.empty', 'No categories yet.')}
                   </td>
                 </tr>
               )}
@@ -210,50 +210,50 @@ export const AdvancedTab = () => {
           onClick={handleAdd}
           className="mt-2 rounded bg-emerald-700 px-3 py-1 text-cp-xs hover:bg-emerald-600"
         >
-          {t('settings.advanced.categories.addBtn', '+ Neue Kategorie')}
+          {t('settings.advanced.categories.addBtn', '+ New category')}
         </button>
       </SettingsCard>
 
       <SettingsCard
-        title={t('settings.advanced.caches', 'Caches & Lokale Daten')}
+        title={t('settings.advanced.caches', 'Caches & local data')}
         description={t(
           'settings.advanced.cachesDesc',
-          'Cache-Inhalte werden bei Bedarf neu geladen. Daten gehen nicht verloren — nur die Performance-Caches.',
+          'Cache contents are reloaded on demand. Your data is safe — only performance caches are cleared.',
         )}
       >
         <div className="grid grid-cols-1 gap-1">
           <button
             type="button"
             onClick={() =>
-              clearCache('cable-planner:rentmanTemplateCache:v1', t('settings.advanced.caches.rentmanLabel', 'Rentman-Template-Cache'))
+              clearCache('cable-planner:rentmanTemplateCache:v1', t('settings.advanced.caches.rentmanLabel', 'Rentman template cache'))
             }
             className="rounded bg-cp-surface-4 px-3 py-1 text-cp-xs text-left hover:bg-cp-surface-5"
           >
-            {t('settings.advanced.caches.rentman', 'Rentman-Template-Cache leeren')}
+            {t('settings.advanced.caches.rentman', 'Clear Rentman template cache')}
           </button>
           {/* v7.6.0 — NetBox import removed; cache entry will not be populated. */}
           <button
             type="button"
-            onClick={() => clearCache('cable-planner:web:recents', t('settings.advanced.caches.webLabel', 'Web-Suchverlauf'))}
+            onClick={() => clearCache('cable-planner:web:recents', t('settings.advanced.caches.webLabel', 'Web search history'))}
             className="rounded bg-cp-surface-4 px-3 py-1 text-cp-xs text-left hover:bg-cp-surface-5"
           >
-            {t('settings.advanced.caches.web', 'Web-Suchverlauf leeren')}
+            {t('settings.advanced.caches.web', 'Clear web search history')}
           </button>
           <button
             type="button"
             onClick={resetWelcome}
             className="rounded bg-cp-surface-4 px-3 py-1 text-cp-xs text-left hover:bg-cp-surface-5"
           >
-            {t('settings.advanced.caches.welcome', 'Willkommens-Dialog beim nächsten Start zeigen')}
+            {t('settings.advanced.caches.welcome', 'Show welcome dialog on next start')}
           </button>
         </div>
       </SettingsCard>
 
       <SettingsCard
-        title={t('settings.advanced.export', 'Datenexport')}
+        title={t('settings.advanced.export', 'Data export')}
         description={t(
           'settings.advanced.exportDesc',
-          'Lokal gespeicherte Cable-Planner-Daten als JSON exportieren — z. B. zum Übertragen auf eine andere Maschine.',
+          'Export Cable Planner data stored locally as JSON — e.g. to migrate to another machine.',
         )}
       >
         <button
@@ -261,7 +261,7 @@ export const AdvancedTab = () => {
           onClick={exportAllData}
           className="rounded bg-amber-700 px-3 py-1 text-cp-xs hover:bg-amber-600"
         >
-          {t('settings.advanced.exportBtn', 'Alle localStorage-Daten exportieren')}
+          {t('settings.advanced.exportBtn', 'Export all localStorage data')}
         </button>
       </SettingsCard>
     </div>

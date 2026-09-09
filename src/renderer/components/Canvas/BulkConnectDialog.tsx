@@ -121,7 +121,7 @@ const BulkConnectDialogInner = () => {
       // suchte der Guard ausschliesslich nach `window.alert(`.
       void infoDialog(
         format(
-          t('bulk.resultSkipped', '{created} Kabel angelegt, {skipped} übersprungen (Ziel-Port belegt oder ungültig).'),
+          t('bulk.resultSkipped', '{created} cables created, {skipped} skipped (target port occupied or invalid).'),
           { created: result.created, skipped: result.skipped },
         ),
         { tone: 'warning' },
@@ -134,7 +134,7 @@ const BulkConnectDialogInner = () => {
     <ModalShell
       open
       onClose={close}
-      title={t('bulk.title', '🔗 Mehrere Kabel verbinden')}
+      title={t('bulk.title', '🔗 Connect multiple cables')}
       maxWidth="2xl"
       footer={
         <div className="flex justify-end gap-2">
@@ -143,7 +143,7 @@ const BulkConnectDialogInner = () => {
             onClick={close}
             className="rounded bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
           >
-            {t('common.cancel', 'Abbrechen')}
+            {t('common.cancel', 'Cancel')}
           </button>
           <button
             type="button"
@@ -151,7 +151,7 @@ const BulkConnectDialogInner = () => {
             disabled={!fromEq || !toEq || planned.length === 0}
             className="rounded bg-emerald-600 px-3 py-1 text-cp-xs text-white hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {format(t('bulk.create', '{n} Kabel erstellen'), { n: planned.length })}
+            {format(t('bulk.create', 'Create {n} cables'), { n: planned.length })}
           </button>
         </div>
       }
@@ -160,7 +160,7 @@ const BulkConnectDialogInner = () => {
         <p className="text-[11px] text-cp-text-muted">
           {t(
             'bulk.intro',
-            'Erstellt N Kabel auf einmal: Quelle-Port i → Ziel-Port i. Belegte Ziel-Ports werden übersprungen.',
+            'Creates N cables at once: source port i → target port i. Occupied target ports are skipped.',
           )}
         </p>
 
@@ -168,10 +168,10 @@ const BulkConnectDialogInner = () => {
           {/* Quelle */}
           <fieldset className="rounded border border-cp-border p-2">
             <legend className="px-1 text-[11px] uppercase tracking-wide text-cp-text-muted">
-              {t('bulk.source', 'Quelle')}
+              {t('bulk.source', 'Source')}
             </legend>
             <label className="block">
-              <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('bulk.device', 'Gerät')}</span>
+              <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('bulk.device', 'Device')}</span>
               <select
                 value={fromEqId}
                 onChange={(e) => setFromEqId(e.target.value)}
@@ -186,7 +186,7 @@ const BulkConnectDialogInner = () => {
               </select>
             </label>
             <label className="mt-2 block">
-              <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('bulk.side', 'Seite')}</span>
+              <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('bulk.side', 'Side')}</span>
               <select
                 value={fromSide}
                 onChange={(e) => setFromSide(e.target.value as 'outputs' | 'inputs')}
@@ -199,7 +199,7 @@ const BulkConnectDialogInner = () => {
             <label className="mt-2 block">
               <span className="mb-1 block text-cp-xs text-cp-text-muted">
                 {format(
-                  t('bulk.startFrom', 'Start-{side} (1..{total})'),
+                  t('bulk.startFrom', 'Start {side} (1..{total})'),
                   { side: fromSide === 'outputs' ? 'Output' : 'Input', total: fromPorts.length },
                 )}
               </span>
@@ -217,10 +217,10 @@ const BulkConnectDialogInner = () => {
           {/* Ziel */}
           <fieldset className="rounded border border-cp-border p-2">
             <legend className="px-1 text-[11px] uppercase tracking-wide text-cp-text-muted">
-              {t('bulk.target', 'Ziel')}
+              {t('bulk.target', 'Target')}
             </legend>
             <label className="block">
-              <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('bulk.device', 'Gerät')}</span>
+              <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('bulk.device', 'Device')}</span>
               <select
                 value={toEqId}
                 onChange={(e) => setToEqId(e.target.value)}
@@ -235,7 +235,7 @@ const BulkConnectDialogInner = () => {
               </select>
             </label>
             <label className="mt-2 block">
-              <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('bulk.side', 'Seite')}</span>
+              <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('bulk.side', 'Side')}</span>
               <select
                 value={toSide}
                 onChange={(e) => setToSide(e.target.value as 'inputs' | 'outputs')}
@@ -248,7 +248,7 @@ const BulkConnectDialogInner = () => {
             <label className="mt-2 block">
               <span className="mb-1 block text-cp-xs text-cp-text-muted">
                 {format(
-                  t('bulk.startTo', 'Start-{side} (1..{total})'),
+                  t('bulk.startTo', 'Start {side} (1..{total})'),
                   { side: toSide === 'inputs' ? 'Input' : 'Output', total: toPorts.length },
                 )}
               </span>
@@ -267,7 +267,7 @@ const BulkConnectDialogInner = () => {
         {/* Anzahl + Kabel-Spec + Laenge */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <label className="block">
-            <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('bulk.count', 'Anzahl Kabel')}</span>
+            <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('bulk.count', 'Cable count')}</span>
             <input
               type="number"
               min={1}
@@ -278,7 +278,7 @@ const BulkConnectDialogInner = () => {
             />
           </label>
           <label className="col-span-2 block">
-            <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('bulk.spec', 'Kabel-Typ')}</span>
+            <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('bulk.spec', 'Cable type')}</span>
             <select
               value={cableSpecId}
               onChange={(e) => setCableSpecId(e.target.value)}
@@ -294,7 +294,7 @@ const BulkConnectDialogInner = () => {
         </div>
 
         <label className="block">
-          <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('bulk.length', 'Länge pro Kabel (m)')}</span>
+          <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('bulk.length', 'Length per cable (m)')}</span>
           <input
             type="number"
             min={0}
@@ -308,14 +308,14 @@ const BulkConnectDialogInner = () => {
         {/* Preview */}
         <div className="rounded border border-cp-border bg-cp-surface-3/40 p-2">
           <div className="mb-1 text-[10px] uppercase tracking-wide text-cp-text-muted">
-            {format(t('bulk.preview', 'Vorschau ({n}/{plan} Kabel)'), {
+            {format(t('bulk.preview', 'Preview ({n}/{plan} cables)'), {
               n: planned.length,
               plan: count,
             })}
           </div>
           {planned.length === 0 ? (
             <p className="text-[11px] text-cp-text-muted">
-              {t('bulk.previewEmpty', 'Wähle Quelle/Ziel und Port-Bereich.')}
+              {t('bulk.previewEmpty', 'Pick source/target and port range.')}
             </p>
           ) : (
             <ul className="max-h-32 space-y-0.5 overflow-auto text-[11px] text-cp-text-secondary">
@@ -331,7 +331,7 @@ const BulkConnectDialogInner = () => {
           )}
           {planWillSkip && (
             <p className="mt-1 text-[10px] text-amber-400">
-              {t('bulk.willSkip', '⚠ Anzahl überschreitet verfügbare Ports — überzählige werden ausgelassen.')}
+              {t('bulk.willSkip', '⚠ Count exceeds available ports — extras are skipped.')}
             </p>
           )}
         </div>

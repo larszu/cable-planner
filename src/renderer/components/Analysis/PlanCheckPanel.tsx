@@ -78,7 +78,7 @@ export const PlanCheckPanel = () => {
     <ModalShell
       open={open}
       onClose={close}
-      title={t('planCheck.title', 'Plan-Check')}
+      title={t('planCheck.title', 'Plan check')}
       titleIcon="🩺"
       maxWidth="2xl"
       draggableKey="cable-planner:modal-pos:plancheck"
@@ -96,14 +96,14 @@ export const PlanCheckPanel = () => {
             <Icon icon={Info} size="xs" /> {infoCount}
           </span>
           <span className="ml-auto text-cp-text-faint">
-            {format(t('planCheck.summary', '{count} Hinweise'), { count: findings.length })}
+            {format(t('planCheck.summary', '{count} findings'), { count: findings.length })}
           </span>
         </div>
         <div className="flex-1 overflow-auto py-1">
           {findings.length === 0 ? (
             <div className="flex flex-col items-center gap-2 py-10 text-emerald-400">
               <Icon icon={CheckCircle2} size="lg" />
-              <span className="text-cp-base">{t('planCheck.allClear', 'Keine Auffälligkeiten gefunden.')}</span>
+              <span className="text-cp-base">{t('planCheck.allClear', 'No issues found.')}</span>
             </div>
           ) : (
             <ul className="divide-y divide-cp-surface-2/60">
@@ -135,7 +135,7 @@ export const PlanCheckPanel = () => {
         <p className="border-t border-cp-border-muted py-1.5 text-[10px] text-cp-text-muted">
           {t(
             'planCheck.footerHint',
-            'Live-Validierung des Plans. Klick auf einen Hinweis selektiert das betroffene Element.',
+            'Live plan validation. Click a finding to select the affected element.',
           )}
         </p>
       </div>

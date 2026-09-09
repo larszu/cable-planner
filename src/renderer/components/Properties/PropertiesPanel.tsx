@@ -48,13 +48,13 @@ export const PropertiesPanel = () => {
     ? project.locations?.find((item) => item.id === selectedLocationId)
     : undefined
   const title = selectedEquipment
-    ? format(t('inspector.title.equipment', 'Gerät: {name}'), { name: selectedEquipment.name })
+    ? format(t('inspector.title.equipment', 'Device: {name}'), { name: selectedEquipment.name })
     : selectedCable
-      ? format(t('inspector.title.cable', 'Kabel: {name}'), { name: selectedCable.name })
+      ? format(t('inspector.title.cable', 'Cable: {name}'), { name: selectedCable.name })
       : selectedLocation
-        ? format(t('inspector.title.location', 'Rahmen: {name}'), { name: selectedLocation.name })
+        ? format(t('inspector.title.location', 'Frame: {name}'), { name: selectedLocation.name })
         : selectedTemplateName
-          ? format(t('inspector.title.template', 'Vorlage: {name}'), { name: selectedTemplateName })
+          ? format(t('inspector.title.template', 'Template: {name}'), { name: selectedTemplateName })
           : t('inspector.title', 'Inspector')
 
   const body = (
@@ -68,42 +68,42 @@ export const PropertiesPanel = () => {
           <div className="space-y-3 text-cp-xs text-cp-text-muted">
             <div className="rounded border border-cp-border-muted bg-cp-surface-1/50 p-3">
               <div className="mb-1 font-semibold text-cp-text-bright">
-                {t('inspector.nothingSelected', 'Nichts ausgewählt')}
+                {t('inspector.nothingSelected', 'Nothing selected')}
               </div>
               <div>
                 {t(
                   'inspector.nothingSelectedBody',
-                  'Wähle ein Gerät, Kabel, Rahmen oder eine Library-Vorlage aus.',
+                  'Pick a device, cable, frame or library template.',
                 )}
               </div>
             </div>
             <div className="rounded border border-cp-border-muted bg-cp-surface-1/40 p-3">
               <div className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-cp-text-muted">
-                {t('inspector.hints.title', 'Schnelle Orientierung')}
+                {t('inspector.hints.title', 'Quick orientation')}
               </div>
               <div className="space-y-1">
                 <div>
                   •{' '}
                   {t(
                     'inspector.hints.placeFromLibrary',
-                    'Geräte links aus der Library auf den Canvas setzen.',
+                    'Drop devices from the library on the canvas.',
                   )}
                 </div>
                 <div>
-                  • {t('inspector.hints.connectPorts', 'Ports verbinden, um Kabel zu erstellen.')}
+                  • {t('inspector.hints.connectPorts', 'Connect ports to create cables.')}
                 </div>
                 <div>
                   •{' '}
                   {t(
                     'inspector.hints.saveGroup',
-                    'Mehrere Geräte auswählen und im Canvas als Gruppe speichern.',
+                    'Select multiple devices and save them as a group from the canvas.',
                   )}
                 </div>
                 <div>
                   •{' '}
                   {t(
                     'inspector.hints.rentmanLocation',
-                    'Rentman-Aktionen findest du im Equipment-Tab unter Rentman.',
+                    'Rentman actions live in the Equipment tab under Rentman.',
                   )}
                 </div>
               </div>
@@ -127,7 +127,7 @@ export const PropertiesPanel = () => {
           <span className="flex flex-col">
             <span className="text-cp-base font-semibold text-cp-text">{title}</span>
             <span className="text-[10px] uppercase tracking-wide text-cp-text-muted">
-              {t('inspector.subtitle', 'Eigenschaften')}
+              {t('inspector.subtitle', 'Properties')}
             </span>
           </span>
         }
@@ -153,8 +153,8 @@ export const PropertiesPanel = () => {
         <button
           type="button"
           onClick={toggle}
-          title={t('inspector.collapse.show', 'Eigenschaften einblenden')}
-          aria-label={t('inspector.collapse.show', 'Eigenschaften einblenden')}
+          title={t('inspector.collapse.show', 'Show properties')}
+          aria-label={t('inspector.collapse.show', 'Show properties')}
           className="mt-2 flex h-7 w-7 items-center justify-center rounded-full border border-cp-border bg-cp-surface-1 text-cp-text-secondary shadow-sm transition-all hover:border-sky-500 hover:bg-cp-surface-2 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
         >
           <span className="text-cp-lg leading-none">‹</span>
@@ -162,11 +162,11 @@ export const PropertiesPanel = () => {
         <button
           type="button"
           onClick={toggle}
-          aria-label={t('inspector.collapse.show', 'Eigenschaften einblenden')}
+          aria-label={t('inspector.collapse.show', 'Show properties')}
           className="mt-3 flex-1 self-stretch text-[10px] font-semibold uppercase tracking-[0.18em] text-cp-text-muted transition-colors hover:text-cp-text-secondary focus-visible:outline-none focus-visible:text-sky-300"
           style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}
         >
-          {t('inspector.subtitle', 'Eigenschaften')}
+          {t('inspector.subtitle', 'Properties')}
         </button>
       </aside>
     )
@@ -178,12 +178,12 @@ export const PropertiesPanel = () => {
         <div className="min-w-0">
           <h2 className="truncate text-cp-base font-semibold">{title}</h2>
           <div className="mt-0.5 text-[10px] uppercase tracking-wide text-cp-text-muted">
-            {t('inspector.subtitle', 'Eigenschaften')}
+            {t('inspector.subtitle', 'Properties')}
           </div>
         </div>
         <div className={`flex shrink-0 items-center gap-1 ${inPopout ? 'hidden' : ''}`}>
           <PanelWindowMenu
-            titel={t('inspector.subtitle', 'Eigenschaften')}
+            titel={t('inspector.subtitle', 'Properties')}
             onPointerDown={tearOff.onPointerDown}
             draggedRef={tearOff.draggedRef}
             onUndock={() => {
@@ -195,8 +195,8 @@ export const PropertiesPanel = () => {
           <button
             type="button"
             onClick={toggle}
-            title={t('inspector.collapse.hide', 'Eigenschaften ausblenden')}
-            aria-label={t('inspector.collapse.hide', 'Eigenschaften ausblenden')}
+            title={t('inspector.collapse.hide', 'Hide properties')}
+            aria-label={t('inspector.collapse.hide', 'Hide properties')}
             className="flex h-7 w-7 items-center justify-center rounded-full border border-cp-border bg-cp-surface-1 text-cp-text-secondary transition-all hover:border-sky-500 hover:bg-cp-surface-2 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
           >
             <span className="text-cp-lg leading-none">›</span>

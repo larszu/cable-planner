@@ -174,15 +174,15 @@ export const ConnectorPicker = ({
                 autoFocus
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder={t('connector.picker.search', 'Stecker suchen…')}
-                aria-label={t('connector.picker.search', 'Stecker suchen…')}
+                placeholder={t('connector.picker.search', 'Search connector…')}
+                aria-label={t('connector.picker.search', 'Search connector…')}
                 className="w-full bg-transparent text-cp-base text-cp-text-bright outline-none placeholder:text-cp-text-dim"
               />
             </div>
             <div className="flex-1 overflow-y-auto p-2">
               {filteredGroups.length === 0 && (
                 <div className="px-2 py-6 text-center text-cp-xs text-cp-text-faint">
-                  {t('connector.picker.noResults', 'Kein Stecker gefunden')}
+                  {t('connector.picker.noResults', 'No connector found')}
                 </div>
               )}
               {filteredGroups.map((g) => (

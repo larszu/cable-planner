@@ -174,11 +174,11 @@ export const MenuBar = ({
         const items = cameraListToEquipment(parseCameraList(await file.text()))
         useProjectStore.getState().importEquipment(items)
         await infoDialog(
-          `${items.length} ${t('app.menu.file.importCamerasDone', 'MultiCam-Kamera(s) als Equipment importiert.')}`,
+          `${items.length} ${t('app.menu.file.importCamerasDone', 'MultiCam camera(s) imported as equipment.')}`,
         )
       } catch {
         await infoDialog(
-          t('app.menu.file.importCamerasError', 'Kamera-Import fehlgeschlagen — keine gültige MultiCam-Kameraliste.'),
+          t('app.menu.file.importCamerasError', 'Camera import failed — not a valid MultiCam camera list.'),
           { tone: 'error' },
         )
       }
@@ -205,7 +205,7 @@ export const MenuBar = ({
         withCredentials,
         t(
           'cred.dest.avplan',
-          'Die .avplan geht an andere Gewerke. Ohne Zugangsdaten verliert ein Rück-Import in diese App sie allerdings.',
+          'The .avplan goes to other trades. Without credentials, re-importing it into this app loses them.',
         ),
       )
       if (answer === null) return
@@ -257,7 +257,7 @@ export const MenuBar = ({
         useProjectStore.getState().loadProject({ ...base, avForeign: foreign })
       } catch {
         await infoDialog(
-          t('app.menu.file.importAvplanError', 'Import fehlgeschlagen — keine gültige .avplan-Datei.'),
+          t('app.menu.file.importAvplanError', 'Import failed — not a valid .avplan file.'),
           { tone: 'error' },
         )
       }
@@ -281,13 +281,13 @@ export const MenuBar = ({
     // Der Import sagt seit jeher, was er nicht uebernehmen konnte; der Export
     // sagte nichts. Jetzt sagt er es auch.
     if (ambiguousLabels.length > 0) {
-      await infoDialog(t('sourceMap.export.ambiguousTitle', 'Karte geschrieben — mit einer Einschränkung'), {
+      await infoDialog(t('sourceMap.export.ambiguousTitle', 'Map written — with one limitation'), {
         bodyNode: (
           <div className="flex flex-col gap-2 text-cp-xs text-cp-text-secondary">
             <span>
               {t(
                 'sourceMap.export.ambiguousIntro',
-                'Diese Rollen haben mehr als ein Gerät. Die Datei trägt die Ziel-Beschriftung nur EINMAL je Rolle — in ihr steht die des zuletzt gelesenen Geräts, nicht die aller:',
+                'These roles have more than one device. The file carries the target label only ONCE per role — it holds the label of the device read last, not of all of them:',
               )}
             </span>
             <ul className="flex list-disc flex-col gap-1 pl-4">
@@ -311,21 +311,21 @@ export const MenuBar = ({
     // saehe eine unvollstaendige Datei und keinen Grund.
     if (unresolvedRouters.length > 0) {
       await infoDialog(
-        t('sourceMap.export.routerTitle', 'Karte geschrieben — ohne Mischer-Eingang'),
+        t('sourceMap.export.routerTitle', 'Map written — without a switcher input'),
         {
           bodyNode: (
             <div className="flex flex-col gap-2 text-cp-xs text-cp-text-secondary">
               <span>
                 {t(
                   'sourceMap.export.routerIntro',
-                  'Diese Rollen erreichen einen Router, aber der Kreuzpunkt zum Mischer ist nicht geplant. Welchen Mischer-Eingang das Tally schaltet, ist damit offen — die Datei trägt für sie keine Eingangsnummer. Kreuzpunkt im Videohub-Export setzen:',
+                  'These roles reach a router, but the crosspoint to the switcher is not planned. Which switcher input the tally follows is therefore open — the file carries no input number for them. Set the crosspoint in the Videohub export:',
                 )}
               </span>
               <ul className="flex list-disc flex-col gap-1 pl-4">
                 {unresolvedRouters.map((r) => (
                   <li key={`${r.name}-${r.router}-${r.input}`}>
                     <span className="font-semibold">{r.name}</span>
-                    {` → ${r.router} · ${t('sourceMap.export.routerInput', 'Eingang')} ${r.input}`}
+                    {` → ${r.router} · ${t('sourceMap.export.routerInput', 'input')} ${r.input}`}
                   </li>
                 ))}
               </ul>
@@ -347,22 +347,22 @@ export const MenuBar = ({
         // Luecken, und alles andere muss der Mensch sehen statt es zu ahnen.
         const lines: string[] = []
         if (result.added.length > 0) {
-          lines.push(format(t('sourceMap.report.added', 'Neu angelegt: {names}'), { names: result.added.join(', ') }))
+          lines.push(format(t('sourceMap.report.added', 'Newly created: {names}'), { names: result.added.join(', ') }))
         }
         if (result.filled.length > 0) {
-          lines.push(format(t('sourceMap.report.filled', 'Ergänzt: {fields}'), { fields: result.filled.join(', ') }))
+          lines.push(format(t('sourceMap.report.filled', 'Filled in: {fields}'), { fields: result.filled.join(', ') }))
         }
         for (const c of result.conflicts) {
           lines.push(
             format(
-              t('sourceMap.report.conflict', 'Nicht übernommen — {name} · {field}: hier „{mine}“, in der Datei „{theirs}“.'),
+              t('sourceMap.report.conflict', 'Not applied — {name} · {field}: here "{mine}", in the file "{theirs}".'),
               { name: c.name, field: c.field, mine: c.mine, theirs: c.theirs },
             ),
           )
         }
         for (const r of result.rejected) {
           lines.push(
-            format(t('sourceMap.report.rejected', 'Verworfen — {name} · {field} = {value}: {reason}.'), {
+            format(t('sourceMap.report.rejected', 'Discarded — {name} · {field} = {value}: {reason}.'), {
               name: r.name,
               field: r.field,
               value: r.value,
@@ -373,15 +373,15 @@ export const MenuBar = ({
         if (result.unrepresented.length > 0) {
           lines.push(
             format(
-              t('sourceMap.report.unrepresented', 'Kein Feld dafür in dieser App — bleibt nur in der Datei: {fields}'),
+              t('sourceMap.report.unrepresented', 'No field for this in this app — stays in the file only: {fields}'),
               { fields: result.unrepresented.join(', ') },
             ),
           )
         }
         if (lines.length === 0) {
-          lines.push(t('sourceMap.report.nothing', 'Nichts zu tun — die Karte sagt dasselbe wie der Plan.'))
+          lines.push(t('sourceMap.report.nothing', 'Nothing to do — the map says what the plan already says.'))
         }
-        await infoDialog(t('sourceMap.report.title', 'Identitäts-Karte importiert'), {
+        await infoDialog(t('sourceMap.report.title', 'Identity map imported'), {
           bodyNode: (
             <ul className="flex list-disc flex-col gap-1 pl-4 text-cp-xs text-cp-text-secondary">
               {lines.map((line, idx) => (
@@ -392,7 +392,7 @@ export const MenuBar = ({
         })
       } catch (err) {
         await infoDialog(
-          format(t('sourceMap.importError', 'Import fehlgeschlagen: {message}'), {
+          format(t('sourceMap.importError', 'Import failed: {message}'), {
             message: err instanceof Error ? err.message : String(err),
           }),
           { tone: 'error' },
@@ -405,11 +405,11 @@ export const MenuBar = ({
   const avForeign = useProjectStore((s) => s.project.avForeign)
   const handleViewForeign = async () => {
     const sum = summarizeForeign(avForeign)
-    await infoDialog(t('app.menu.file.viewForeignTitle', 'Verknüpfte Venue-Planung (nur Ansicht)'), {
+    await infoDialog(t('app.menu.file.viewForeignTitle', 'Linked venue plan (view only)'), {
       bodyNode: (
         <div className="flex flex-col gap-2 text-cp-xs text-cp-text-secondary">
           <div>
-            {t('app.menu.file.viewForeignRoom', 'Raum')}:{' '}
+            {t('app.menu.file.viewForeignRoom', 'Room')}:{' '}
             <b className="text-cp-text">{sum.venueName || '—'}</b> · {sum.counts.walls} Wände ·{' '}
             {sum.counts.persons} Personen · {sum.counts.stage} Bühne
           </div>
@@ -444,37 +444,37 @@ export const MenuBar = ({
     try {
       const r = await cablePlannerApi.updater.check()
       if (!r.ok) {
-        await infoDialog(t('app.menu.help.updateUnavailable', 'Update-Prüfung nicht möglich'), {
+        await infoDialog(t('app.menu.help.updateUnavailable', 'Update check unavailable'), {
           tone: 'warning',
           body: t(
             'app.menu.help.updateUnavailableBody',
-            'Updates sind nur in der installierten Desktop-Version verfügbar.',
+            'Updates are only available in the installed desktop version.',
           ),
         })
         return
       }
       if (r.available) {
-        await infoDialog(t('app.menu.help.updateAvailable', 'Update verfügbar'), {
+        await infoDialog(t('app.menu.help.updateAvailable', 'Update available'), {
           tone: 'success',
           body: format(
             t(
               'app.menu.help.updateAvailableBody',
-              'Version {latest} wird im Hintergrund geladen und beim Beenden installiert. Sobald der Download fertig ist, fragt die App nach einem Neustart.',
+              'Version {latest} is downloading in the background and will install on quit. Once the download finishes, the app will offer a restart.',
             ),
             { latest: r.latest ?? '' },
           ),
         })
       } else {
-        await infoDialog(t('app.menu.help.updateCurrent', 'Aktuelle Version'), {
+        await infoDialog(t('app.menu.help.updateCurrent', 'You are up to date'), {
           tone: 'info',
           body: format(
-            t('app.menu.help.updateCurrentBody', 'Du verwendest bereits die neueste Version ({current}).'),
+            t('app.menu.help.updateCurrentBody', 'You are already on the latest version ({current}).'),
             { current: r.current },
           ),
         })
       }
     } catch {
-      await infoDialog(t('app.menu.help.updateError', 'Update-Prüfung fehlgeschlagen'), { tone: 'error' })
+      await infoDialog(t('app.menu.help.updateError', 'Update check failed'), { tone: 'error' })
     }
   }
 
@@ -484,13 +484,13 @@ export const MenuBar = ({
     if (!hasDesktopBridge) return
     return cablePlannerApi.updater.onStatus((s) => {
       if (s.state === 'downloaded') {
-        void confirmDialog(t('app.menu.help.updateReady', 'Update bereit'), {
+        void confirmDialog(t('app.menu.help.updateReady', 'Update ready'), {
           body: format(
-            t('app.menu.help.updateReadyBody', 'Version {version} ist geladen. Jetzt neu starten und aktualisieren?'),
+            t('app.menu.help.updateReadyBody', 'Version {version} has been downloaded. Restart now to update?'),
             { version: s.version ?? '' },
           ),
-          okLabel: t('app.menu.help.updateRestart', 'Jetzt neu starten'),
-          cancelLabel: t('common.later', 'Später'),
+          okLabel: t('app.menu.help.updateRestart', 'Restart now'),
+          cancelLabel: t('common.later', 'Later'),
         }).then((yes) => {
           if (yes) void cablePlannerApi.updater.quitAndInstall()
         })
@@ -553,33 +553,33 @@ export const MenuBar = ({
         </span>
         <span className="hidden text-cp-text-dimmer lg:inline">│</span>
 
-        <Menu label={t('app.menu.file', 'Datei')}>
-          <MenuItem onClick={onNewProject} icon={<Icon icon={FileText} size="sm" />} shortcut={t('shortcut.ctrlN', 'Strg+N')}>
-            {t('app.menu.file.new', 'Neues Projekt')}
+        <Menu label={t('app.menu.file', 'File')}>
+          <MenuItem onClick={onNewProject} icon={<Icon icon={FileText} size="sm" />} shortcut={t('shortcut.ctrlN', 'Ctrl+N')}>
+            {t('app.menu.file.new', 'New project')}
           </MenuItem>
           <MenuItem onClick={() => useUiStore.getState().openTemplates()} icon={<Icon icon={Clapperboard} size="sm" />}>
-            {t('app.menu.file.newFromTemplate', 'Neu aus Vorlage…')}
+            {t('app.menu.file.newFromTemplate', 'New from template…')}
           </MenuItem>
-          <MenuItem onClick={onOpenProject} icon={<Icon icon={FolderOpen} size="sm" />} shortcut={t('shortcut.ctrlO', 'Strg+O')}>
-            {t('app.menu.file.open', 'Öffnen…')}
+          <MenuItem onClick={onOpenProject} icon={<Icon icon={FolderOpen} size="sm" />} shortcut={t('shortcut.ctrlO', 'Ctrl+O')}>
+            {t('app.menu.file.open', 'Open…')}
           </MenuItem>
           <MenuSep />
-          <MenuItem onClick={onSaveProject} icon={<Icon icon={Save} size="sm" />} shortcut={t('shortcut.ctrlS', 'Strg+S')}>
-            {t('app.menu.file.save', 'Speichern')}
+          <MenuItem onClick={onSaveProject} icon={<Icon icon={Save} size="sm" />} shortcut={t('shortcut.ctrlS', 'Ctrl+S')}>
+            {t('app.menu.file.save', 'Save')}
           </MenuItem>
-          <MenuItem onClick={onSaveProjectAs} icon={<Icon icon={SaveAll} size="sm" />} shortcut={t('shortcut.ctrlShiftS', 'Strg+Umsch+S')}>
-            {t('app.menu.file.saveAs', 'Speichern unter…')}
+          <MenuItem onClick={onSaveProjectAs} icon={<Icon icon={SaveAll} size="sm" />} shortcut={t('shortcut.ctrlShiftS', 'Ctrl+Shift+S')}>
+            {t('app.menu.file.saveAs', 'Save as…')}
           </MenuItem>
           {onOpenGraphmlImport && (
             <>
               <MenuSep />
               <MenuItem onClick={onOpenGraphmlImport} icon={<Icon icon={Ruler} size="sm" />}>
-                {t('app.menu.file.importGraphml', 'yEd / GraphML importieren…')}
+                {t('app.menu.file.importGraphml', 'Import yEd / GraphML…')}
               </MenuItem>
             </>
           )}
           <MenuItem onClick={() => cameraImportRef.current?.click()} icon={<Icon icon={ImportIcon} size="sm" />}>
-            {t('app.menu.file.importCameras', 'MultiCam-Kameras importieren…')}
+            {t('app.menu.file.importCameras', 'Import MultiCam cameras…')}
           </MenuItem>
           {/* VERSCHOBEN 2026-09-07 aus dem Werkzeuge-Menue. Ein Import gehoert
               dorthin, wo die anderen Importe stehen — yEd, MultiCam, .avplan
@@ -587,37 +587,37 @@ export const MenuBar = ({
               NetBox standen als einzige woanders. Wer eine Datei einlesen
               will, sucht unter „Datei", nicht unter „Werkzeuge". */}
           <MenuItem onClick={() => useUiStore.getState().openCsvImport()} icon={<Icon icon={ImportIcon} size="sm" />}>
-            {t('app.menu.tools.csvImport', 'Equipment aus CSV importieren…')}
+            {t('app.menu.tools.csvImport', 'Import equipment from CSV…')}
           </MenuItem>
           {/* Rentman-Import nur wenn die Integration aktiv ist (standardmäßig
               aus; Aktivierung in den Einstellungen → Integrationen). */}
           {rentmanEnabled && (
             <MenuItem onClick={() => useUiStore.getState().openRentmanImport()} icon={<Icon icon={Users} size="sm" />}>
-              {t('app.menu.tools.rentmanImport', 'Rentman-Import…')}
+              {t('app.menu.tools.rentmanImport', 'Rentman import…')}
             </MenuItem>
           )}
           {/* #597 — NetBox-Import, ebenfalls nur bei aktivem Modul. */}
           {netboxEnabled && (
             <MenuItem onClick={() => useUiStore.getState().openNetboxImport()} icon={<Icon icon={Server} size="sm" />}>
-              {t('app.menu.tools.netboxImport', 'NetBox-Import…')}
+              {t('app.menu.tools.netboxImport', 'NetBox import…')}
             </MenuItem>
           )}
           <MenuSep />
           <MenuItem onClick={() => void handleExportAvplan()} icon={<Icon icon={Upload} size="sm" />}>
-            {t('app.menu.file.exportAvplan', 'Gesamtprojekt exportieren (.avplan)…')}
+            {t('app.menu.file.exportAvplan', 'Export whole project (.avplan)…')}
           </MenuItem>
           <MenuItem onClick={() => avplanImportRef.current?.click()} icon={<Icon icon={ImportIcon} size="sm" />}>
-            {t('app.menu.file.importAvplan', 'Gesamtprojekt importieren (.avplan)…')}
+            {t('app.menu.file.importAvplan', 'Import whole project (.avplan)…')}
           </MenuItem>
           <MenuItem onClick={handleExportSourceMap} icon={<Icon icon={Upload} size="sm" />}>
-            {t('app.menu.file.exportSourceMap', 'Identitäts-Karte exportieren (.avsourcemap)…')}
+            {t('app.menu.file.exportSourceMap', 'Export identity map (.avsourcemap)…')}
           </MenuItem>
           <MenuItem onClick={() => sourceMapImportRef.current?.click()} icon={<Icon icon={ImportIcon} size="sm" />}>
-            {t('app.menu.file.importSourceMap', 'Identitäts-Karte importieren (.avsourcemap)…')}
+            {t('app.menu.file.importSourceMap', 'Import identity map (.avsourcemap)…')}
           </MenuItem>
           {hasForeign(avForeign) && (
             <MenuItem onClick={handleViewForeign} icon={<Icon icon={Eye} size="sm" />}>
-              {t('app.menu.file.viewForeign', 'Verknüpfte Venue-Planung ansehen…')}
+              {t('app.menu.file.viewForeign', 'View linked venue plan…')}
             </MenuItem>
           )}
           <MenuSep />
@@ -632,13 +632,13 @@ export const MenuBar = ({
               den Plan verlassen. Sie gehoeren neben „Exportieren & Drucken",
               nicht in eine Werkzeug-Liste, in der man sie nicht sucht. */}
           <MenuItem onClick={() => useUiStore.getState().openPatchList()} icon={<Icon icon={Cable} size="sm" />}
-            note={t('app.menu.tools.patchList.note', 'Wer hängt an welchem Ein- und Ausgang')}
+            note={t('app.menu.tools.patchList.note', 'Who sits on which input and output')}
           >
-            {t('app.menu.tools.patchList', 'Patch-Liste…')}
+            {t('app.menu.tools.patchList', 'Patch list…')}
           </MenuItem>
           {festinstallationModule && (
             <MenuItem onClick={() => useUiStore.getState().openInstallDocs()} icon={<Icon icon={PackageCheck} size="sm" />}>
-              {t('app.menu.tools.installDocs', 'Festinstallation: Doku & Übergabe…')}
+              {t('app.menu.tools.installDocs', 'Fixed install: docs & handover…')}
             </MenuItem>
           )}
           <MenuItem
@@ -652,32 +652,32 @@ export const MenuBar = ({
             }}
             icon={<Icon icon={ImageIcon} size="sm" />}
           
-            note={t('app.menu.tools.stagePlot.note', 'Bühnenaufsicht als Ein-Seiten-Blatt')}
+            note={t('app.menu.tools.stagePlot.note', 'Stage top view as a one-page sheet')}
           >
-            {t('app.menu.tools.stagePlot', 'Stage-Plot (SVG)…')}
+            {t('app.menu.tools.stagePlot', 'Stage plot (SVG)…')}
           </MenuItem>
           {onOpenExportDialog ? (
             <MenuItem onClick={onOpenExportDialog} icon={<Icon icon={Upload} size="sm" />}>
-              {t('app.menu.file.export', 'Exportieren & Drucken…')}
+              {t('app.menu.file.export', 'Export & Print…')}
             </MenuItem>
           ) : (
             <>
               <MenuItem onClick={onExportPdf} icon={<Icon icon={FileDown} size="sm" />}>
-                {t('app.menu.file.exportPdf', 'Plan als PDF exportieren…')}
+                {t('app.menu.file.exportPdf', 'Export plan as PDF…')}
               </MenuItem>
               {onExportPng && (
                 <MenuItem onClick={onExportPng} icon={<Icon icon={ImageIcon} size="sm" />}>
-                  {t('app.menu.file.exportPng', 'Plan als PNG exportieren…')}
+                  {t('app.menu.file.exportPng', 'Export plan as PNG…')}
                 </MenuItem>
               )}
               {onExportJpeg && (
                 <MenuItem onClick={onExportJpeg} icon={<Icon icon={ImageIcon} size="sm" />}>
-                  {t('app.menu.file.exportJpeg', 'Plan als JPEG exportieren…')}
+                  {t('app.menu.file.exportJpeg', 'Export plan as JPEG…')}
                 </MenuItem>
               )}
               {onOpenCableBom && (
                 <MenuItem onClick={onOpenCableBom} icon={<Icon icon={Calculator} size="sm" />}>
-                  {t('app.menu.file.cableBom', 'Kabel-Stückliste (BOM) exportieren…')}
+                  {t('app.menu.file.cableBom', 'Export cable list (BOM)…')}
                 </MenuItem>
               )}
             </>
@@ -693,19 +693,19 @@ export const MenuBar = ({
           {(onExportViewer || onImportAnnotations) && <MenuSep />}
           {onExportViewer && (
             <MenuItem onClick={onExportViewer} icon={<Icon icon={Eye} size="sm" />}>
-              {t('app.menu.file.exportViewer', 'Als Viewer-Datei exportieren…')}
+              {t('app.menu.file.exportViewer', 'Export as viewer file…')}
             </MenuItem>
           )}
           {onImportAnnotations && (
             <MenuItem onClick={onImportAnnotations} icon={<Icon icon={MessageSquare} size="sm" />}>
-              {t('app.menu.file.importAnnotations', 'Anmerkungen aus Viewer-Datei importieren…')}
+              {t('app.menu.file.importAnnotations', 'Import annotations from viewer file…')}
             </MenuItem>
           )}
           {/* Roadmap-Initiative 5 — steht bewusst neben dem Viewer-Rueckweg:
               es ist derselbe Vorgang, „eine zweite Datei kommt zurueck". */}
           {onOpenPlanCompare && (
             <MenuItem onClick={onOpenPlanCompare} icon={<Icon icon={GitCompare} size="sm" />}>
-              {t('app.menu.file.planCompare', 'Plan-Stände vergleichen…')}
+              {t('app.menu.file.planCompare', 'Compare plan revisions…')}
             </MenuItem>
           )}
           {/* Dieselbe Frage aus der anderen Richtung: der Vergleich haelt zwei
@@ -713,7 +713,7 @@ export const MenuBar = ({
               Blaetter gegen den offenen Plan. */}
           {onOpenDocumentLog && (
             <MenuItem onClick={onOpenDocumentLog} icon={<Icon icon={History} size="sm" />}>
-              {t('app.menu.file.documentLog', 'Ausgegebene Dokumente…')}
+              {t('app.menu.file.documentLog', 'Documents handed out…')}
             </MenuItem>
           )}
           {/* v7.9.4 — Rentman-Menü-Einträge nur wenn die Integration
@@ -725,10 +725,10 @@ export const MenuBar = ({
               icon={<Icon icon={Paperclip} size="sm" />}
             >
               {hasRentmanLink
-                ? t('app.menu.file.attachRentman', 'Plan an Rentman anhängen…')
+                ? t('app.menu.file.attachRentman', 'Attach plan to Rentman…')
                 : t(
                     'app.menu.file.attachRentmanDisabled',
-                    'Plan an Rentman anhängen (kein Projekt verknüpft)',
+                    'Attach plan to Rentman (no project linked)',
                   )}
             </MenuItem>
           )}
@@ -738,16 +738,16 @@ export const MenuBar = ({
               icon={<Icon icon={Plug} size="sm" />}
             >
               {hasRentmanLink
-                ? t('app.menu.file.cablesRentman', 'Kabel an Rentman senden…')
+                ? t('app.menu.file.cablesRentman', 'Send cables to Rentman…')
                 : t(
                     'app.menu.file.cablesRentmanDisabled',
-                    'Kabel an Rentman senden (kein Projekt verknüpft)',
+                    'Send cables to Rentman (no project linked)',
                   )}
             </MenuItem>
           )}
         </Menu>
 
-        <Menu label={t('app.menu.edit', 'Bearbeiten')}>
+        <Menu label={t('app.menu.edit', 'Edit')}>
           {/* #340 — Standard-Edit-Aktionen auch im Menü (vorher nur Icon-
               Buttons/Shortcuts). Undo/Redo über projectHistory, Löschen/
               Auswahl-aufheben über die (globale) Projekt-Store-Selection. */}
@@ -755,48 +755,48 @@ export const MenuBar = ({
             onClick={() => projectHistory.undo()}
             disabled={!canUndo}
             icon={<Icon icon={Undo2} size="sm" />}
-            shortcut={t('shortcut.ctrlZ', 'Strg+Z')}
+            shortcut={t('shortcut.ctrlZ', 'Ctrl+Z')}
           >
-            {t('app.menu.edit.undo', 'Rückgängig')}
+            {t('app.menu.edit.undo', 'Undo')}
           </MenuItem>
           <MenuItem
             onClick={() => projectHistory.redo()}
             disabled={!canRedo}
             icon={<Icon icon={Redo2} size="sm" />}
-            shortcut={t('shortcut.ctrlY', 'Strg+Y')}
+            shortcut={t('shortcut.ctrlY', 'Ctrl+Y')}
           >
-            {t('app.menu.edit.redo', 'Wiederherstellen')}
+            {t('app.menu.edit.redo', 'Redo')}
           </MenuItem>
           <MenuSep />
           <MenuItem
             onClick={() => triggerCanvasDuplicate()}
             icon={<Icon icon={Copy} size="sm" />}
-            shortcut={t('shortcut.ctrlD', 'Strg+D')}
+            shortcut={t('shortcut.ctrlD', 'Ctrl+D')}
           >
-            {t('app.menu.edit.duplicate', 'Duplizieren')}
+            {t('app.menu.edit.duplicate', 'Duplicate')}
           </MenuItem>
           <MenuItem
             onClick={() => useProjectStore.getState().deleteSelected()}
-            shortcut={t('shortcut.del', 'Entf')}
+            shortcut={t('shortcut.del', 'Del')}
           >
-            {t('app.menu.edit.delete', 'Auswahl löschen')}
+            {t('app.menu.edit.delete', 'Delete selection')}
           </MenuItem>
           <MenuItem
             onClick={() => triggerCanvasSelectAll()}
             icon={<Icon icon={BoxSelect} size="sm" />}
-            shortcut={t('shortcut.ctrlA', 'Strg+A')}
+            shortcut={t('shortcut.ctrlA', 'Ctrl+A')}
           >
-            {t('app.menu.edit.selectAll', 'Alles auswählen')}
+            {t('app.menu.edit.selectAll', 'Select all')}
           </MenuItem>
           <MenuItem
             onClick={() => useProjectStore.getState().setSelection()}
             shortcut={t('shortcut.esc', 'Esc')}
           >
-            {t('app.menu.edit.clearSelection', 'Auswahl aufheben')}
+            {t('app.menu.edit.clearSelection', 'Clear selection')}
           </MenuItem>
         </Menu>
 
-        <Menu label={t('app.menu.tools', 'Werkzeuge')}>
+        <Menu label={t('app.menu.tools', 'Tools')}>
           {/* NEU GRUPPIERT 2026-09-07, auf Zuruf des Nutzers: „im Werkzeug-Menü
               sind viele unübersichtliche Tools."
 
@@ -819,57 +819,57 @@ export const MenuBar = ({
 
               Die zwei uebrigen bleiben hier: sie haben in den Analysen keine
               Tabelle, neben die sie gehoerten. */}
-          <MenuSectionHeader>{t('app.menu.tools.group.calc', 'Berechnen')}</MenuSectionHeader>
+          <MenuSectionHeader>{t('app.menu.tools.group.calc', 'Calculate')}</MenuSectionHeader>
           <MenuItem
             onClick={() => useUiStore.getState().openRecordingStorageCalc()}
             icon={<Icon icon={HardDrive} size="sm" />}
           >
-            {t('app.menu.tools.recStorage', 'Recording-Speicherplatz berechnen…')}
+            {t('app.menu.tools.recStorage', 'Calculate recording storage…')}
           </MenuItem>
           <MenuItem
             onClick={() => useUiStore.getState().openProjectionCalc()}
             icon={<Icon icon={MonitorPlay} size="sm" />}
           >
-            {t('app.menu.tools.projection', 'Projektion & Display…')}
+            {t('app.menu.tools.projection', 'Projection & display…')}
           </MenuItem>
 
-          <MenuSectionHeader>{t('app.menu.tools.group.check', 'Prüfen')}</MenuSectionHeader>
+          <MenuSectionHeader>{t('app.menu.tools.group.check', 'Check')}</MenuSectionHeader>
           <MenuItem
             onClick={() => useUiStore.getState().openAnalysis()}
             icon={<Icon icon={BarChart3} size="sm" />}
-            note={t('app.menu.tools.analysis.note', 'Gewicht, Netzwerk, Redundanz, Kabelwege')}
+            note={t('app.menu.tools.analysis.note', 'Weight, network, redundancy, cable runs')}
           >
-            {t('app.menu.tools.analysis', 'Analysen…')}
+            {t('app.menu.tools.analysis', 'Analyses (weight/network/redundancy)…')}
           </MenuItem>
           <MenuItem
             onClick={() => useUiStore.getState().openPlanCheck()}
             icon={<Icon icon={ClipboardCheck} size="sm" />}
-            note={t('app.menu.tools.planCheck.note', 'Findet Lücken und Widersprüche im Plan')}
+            note={t('app.menu.tools.planCheck.note', 'Finds gaps and contradictions in the plan')}
           >
-            {t('app.menu.tools.planCheck', 'Plan-Check…')}
+            {t('app.menu.tools.planCheck', 'Plan check…')}
           </MenuItem>
           <MenuItem
             onClick={() => useUiStore.getState().setReconcileOpen(true)}
             icon={<Icon icon={ClipboardCheck} size="sm" />}
-            note={t('app.menu.tools.reconcile.note', 'Vergleicht den Plan mit dem, was vor Ort steht')}
+            note={t('app.menu.tools.reconcile.note', 'Compares the plan with what is on site')}
           >
-            {t('app.menu.tools.reconcile', 'Plan gegen Vorgefundenes…')}
+            {t('app.menu.tools.reconcile', 'Plan vs. found…')}
           </MenuItem>
 
-          <MenuSectionHeader>{t('app.menu.tools.group.plan', 'Planen')}</MenuSectionHeader>
+          <MenuSectionHeader>{t('app.menu.tools.group.plan', 'Plan')}</MenuSectionHeader>
           <MenuItem
             onClick={() => useUiStore.getState().setDrumMicingOpen(true)}
             icon={<Icon icon={Drum} size="sm" />}
-            note={t('app.menu.tools.drumMicing.note', 'Mikrofone am Schlagzeug setzen und benennen')}
+            note={t('app.menu.tools.drumMicing.note', 'Place and name microphones on the kit')}
           >
-            {t('app.menu.tools.drumMicing', 'Drum-Mikrofonierung…')}
+            {t('app.menu.tools.drumMicing', 'Drum micing…')}
           </MenuItem>
           <MenuItem
             onClick={() => useUiStore.getState().setWirelessRigOpen(true)}
             icon={<Icon icon={Radio} size="sm" />}
-            note={t('app.menu.tools.wirelessRig.note', 'Frequenzen, Sender, Empfänger im Spektrum')}
+            note={t('app.menu.tools.wirelessRig.note', 'Frequencies, transmitters, receivers in the spectrum')}
           >
-            {t('app.menu.tools.wirelessRig', 'Funkstrecken / Gesang…')}
+            {t('app.menu.tools.wirelessRig', 'Wireless / vocals…')}
           </MenuItem>
           {/* BEDARF 10 — der Ablauf wird eingelesen, nicht hier gefuehrt.
               Steht unter „Planen" und nicht unter „Ausgeben": die Zuordnung
@@ -877,122 +877,122 @@ export const MenuBar = ({
           <MenuItem
             onClick={() => useUiStore.getState().setRundownOpen(true)}
             icon={<Icon icon={ListOrdered} size="sm" />}
-            note={t('app.menu.tools.rundown.note', 'Abschnitte einlesen, Aufträge je Kameraposition')}
+            note={t('app.menu.tools.rundown.note', 'Read in segments, assign a shot per camera position')}
           >
-            {t('app.menu.tools.rundown', 'Ablauf und Kamera-Aufträge…')}
+            {t('app.menu.tools.rundown', 'Rundown and camera assignments…')}
           </MenuItem>
           <MenuItem
             onClick={() => useUiStore.getState().setDeliveryOpen(true)}
             icon={<Icon icon={Radio} size="sm" />}
-            note={t('app.menu.tools.delivery.note', 'Wohin gesendet wird, mit welchen Parametern')}
+            note={t('app.menu.tools.delivery.note', 'Where it goes out, with which parameters')}
           >
-            {t('app.menu.tools.delivery', 'Ausspielung (Streaming-Ziele)…')}
+            {t('app.menu.tools.delivery', 'Delivery (streaming destinations)…')}
           </MenuItem>
           <MenuItem
             onClick={() => useUiStore.getState().setAdernOpen(true)}
             icon={<Icon icon={Cable} size="sm" />}
             note={t(
               'app.menu.tools.adern.note',
-              'Farbnormen und Anschlüsse, die man je Leiter einzeln zieht',
+              'Colour standards and connections pulled one conductor at a time',
             )}
           >
-            {t('app.menu.tools.adern', 'Adern und Farbnormen…')}
+            {t('app.menu.tools.adern', 'Conductors and colour standards…')}
           </MenuItem>
           <MenuItem
             onClick={() => useUiStore.getState().setOscOpen(true)}
             icon={<Icon icon={Radio} size="sm" />}
             note={t(
               'app.menu.tools.osc.note',
-              'Was hereinkam — eine Mitschrift, kein Anlagenzustand',
+              'What came in — a transcript, not a system state',
             )}
           >
-            {t('app.menu.tools.osc', 'Empfangene Show-Control-Nachrichten…')}
+            {t('app.menu.tools.osc', 'Received show-control messages…')}
           </MenuItem>
 
-          <MenuSectionHeader>{t('app.menu.tools.group.build', 'Erstellen & verwalten')}</MenuSectionHeader>
+          <MenuSectionHeader>{t('app.menu.tools.group.build', 'Create & manage')}</MenuSectionHeader>
           <MenuItem
             onClick={() => useUiStore.getState().openBulkConnect()}
             icon={<Icon icon={Cable} size="sm" />}
           
-            note={t('app.menu.tools.bulkConnect.note', 'Viele Ports in einem Zug verkabeln')}
+            note={t('app.menu.tools.bulkConnect.note', 'Cable many ports in one go')}
           >
-            {t('app.menu.tools.bulkConnect', 'Mehrere Kabel verbinden…')}
+            {t('app.menu.tools.bulkConnect', 'Connect multiple cables…')}
           </MenuItem>
           <MenuItem
             onClick={() => useUiStore.getState().triggerNewRackBuilder()}
             icon={<Icon icon={Server} size="sm" />}
           >
-            {t('app.menu.tools.newRack', 'Neues Rack erstellen…')}
+            {t('app.menu.tools.newRack', 'Create new rack…')}
           </MenuItem>
           <MenuItem
             onClick={() => useUiStore.getState().triggerRackBuilderFromSelection([])}
             icon={<Icon icon={Server} size="sm" />}
           
-            note={t('app.menu.tools.rackBuilder.note', 'Bestehende Racks bestücken und bearbeiten')}
+            note={t('app.menu.tools.rackBuilder.note', 'Populate and edit existing racks')}
           >
-            {t('app.menu.tools.rackBuilder', 'Rack-Builder…')}
+            {t('app.menu.tools.rackBuilder', 'Rack builder…')}
           </MenuItem>
           <MenuItem onClick={() => useUiStore.getState().openAiPlanGen()} icon={<Icon icon={Sparkles} size="sm" />}
-            note={t('app.menu.tools.aiPlanGen.note', 'Erzeugt einen Entwurf aus einer Beschreibung')}
+            note={t('app.menu.tools.aiPlanGen.note', 'Generates a draft from a description')}
           >
-            {t('app.menu.tools.aiPlanGen', 'KI-Plan generieren…')}
+            {t('app.menu.tools.aiPlanGen', 'Generate AI plan…')}
           </MenuItem>
           <MenuItem onClick={() => useUiStore.getState().openRevisions()} icon={<Icon icon={History} size="sm" />}
-            note={t('app.menu.tools.revisions.note', 'Stände sichern und vergleichen')}
+            note={t('app.menu.tools.revisions.note', 'Save and compare states')}
           >
-            {t('app.menu.tools.revisions', 'Revisionen & Snapshots…')}
+            {t('app.menu.tools.revisions', 'Revisions & snapshots…')}
           </MenuItem>
           {rentalModule && (
             <MenuItem onClick={() => useUiStore.getState().openInventory()} icon={<Icon icon={Boxes} size="sm" />}>
-              {t('app.menu.tools.inventory', 'Lager / Bestand…')}
+              {t('app.menu.tools.inventory', 'Inventory / stock…')}
             </MenuItem>
           )}
 
           {hatGeraeteWerkzeuge && (
-            <MenuSectionHeader>{t('app.menu.tools.group.deviceConfig', 'Geräte-Konfiguration')}</MenuSectionHeader>
+            <MenuSectionHeader>{t('app.menu.tools.group.deviceConfig', 'Device configuration')}</MenuSectionHeader>
           )}
           {geraeteWerkzeuge.includes('atem-mv') && (
             <MenuItem onClick={() => useUiStore.getState().openAtemMvConfig()} icon={<Icon icon={Monitor} size="sm" />}>
-              {t('app.menu.tools.atemMv', 'ATEM Multiviewer-Layout…')}
+              {t('app.menu.tools.atemMv', 'ATEM multiviewer layout…')}
             </MenuItem>
           )}
           {geraeteWerkzeuge.includes('atem-audio') && (
             <MenuItem onClick={() => useUiStore.getState().openAtemAudioConfig()} icon={<Icon icon={SlidersHorizontal} size="sm" />}>
-              {t('app.menu.tools.atemAudio', 'ATEM Audio-Routing…')}
+              {t('app.menu.tools.atemAudio', 'ATEM audio routing…')}
             </MenuItem>
           )}
           {geraeteWerkzeuge.includes('atem-labels') && (
             <MenuItem onClick={() => useUiStore.getState().openAtemDialog()} icon={<Icon icon={Tag} size="sm" />}>
-              {t('app.menu.tools.atemLabels', 'ATEM Input-Labels…')}
+              {t('app.menu.tools.atemLabels', 'ATEM input labels…')}
             </MenuItem>
           )}
           {geraeteWerkzeuge.includes('videohub') && (
             <MenuItem onClick={() => useUiStore.getState().openVideohubExport()} icon={<Icon icon={Shuffle} size="sm" />}>
-              {t('app.menu.tools.videohub', 'Videohub-Routing/Labels…')}
+              {t('app.menu.tools.videohub', 'Videohub routing / labels…')}
             </MenuItem>
           )}
           {geraeteWerkzeuge.includes('greengo') && (
             <MenuItem onClick={() => useUiStore.getState().openGreenGoExport()} icon={<Icon icon={Headphones} size="sm" />}>
-              {t('app.menu.tools.greengo', 'GreenGo-Intercom…')}
+              {t('app.menu.tools.greengo', 'GreenGo intercom…')}
             </MenuItem>
           )}
 
         </Menu>
 
-        <Menu label={t('app.menu.view', 'Ansicht')}>
+        <Menu label={t('app.menu.view', 'View')}>
           {/* #341 — Zoom-Aktionen + View-Toggles (Toolbar-redundant);
               Häkchen zeigt den aktuellen Zustand beim erneuten Öffnen. */}
           <MenuItem onClick={() => triggerCanvasFitView()} icon={<Icon icon={Maximize} size="sm" />}>
-            {t('app.menu.view.fit', 'Einpassen')}
+            {t('app.menu.view.fit', 'Fit to view')}
           </MenuItem>
           <MenuItem onClick={() => triggerCanvasResetZoom()} icon={<Icon icon={Scan} size="sm" />}>
             {t('app.menu.view.zoom100', 'Zoom 100 %')}
           </MenuItem>
           <MenuItem onClick={() => triggerCanvasZoomIn()} icon={<Icon icon={ZoomIn} size="sm" />}>
-            {t('app.menu.view.zoomIn', 'Vergrößern')}
+            {t('app.menu.view.zoomIn', 'Zoom in')}
           </MenuItem>
           <MenuItem onClick={() => triggerCanvasZoomOut()} icon={<Icon icon={ZoomOut} size="sm" />}>
-            {t('app.menu.view.zoomOut', 'Verkleinern')}
+            {t('app.menu.view.zoomOut', 'Zoom out')}
           </MenuItem>
           {/* #427 — Vollbild: Canvas ueber den ganzen Monitor (per OS-Maximize
               auch ueber mehrere Monitore strecken). Fullscreen-API. */}
@@ -1005,7 +1005,7 @@ export const MenuBar = ({
             }}
             icon={<Icon icon={Maximize2} size="sm" />}
           >
-            {t('app.menu.view.fullscreen', 'Vollbild')}
+            {t('app.menu.view.fullscreen', 'Fullscreen')}
           </MenuItem>
           <MenuSep />
           <MenuItem
@@ -1016,31 +1016,31 @@ export const MenuBar = ({
             }}
             icon={canvasTheme === 'light' ? <Icon icon={Check} size="sm" /> : null}
           >
-            {t('app.menu.view.light', 'Helles Design')}
+            {t('app.menu.view.light', 'Light theme')}
           </MenuItem>
           <MenuItem
             onClick={() => useUiStore.getState().setFollowSystemTheme(!followSystemTheme)}
             icon={followSystemTheme ? <Icon icon={Check} size="sm" /> : null}
           >
-            {t('app.menu.view.followSystem', 'System-Theme folgen')}
+            {t('app.menu.view.followSystem', 'Follow system theme')}
           </MenuItem>
           <MenuItem
             onClick={() => useUiStore.getState().setSnapToGrid(!snapToGrid)}
             icon={snapToGrid ? <Icon icon={Check} size="sm" /> : null}
           >
-            {t('app.menu.view.snap', 'Am Raster ausrichten')}
+            {t('app.menu.view.snap', 'Snap to grid')}
           </MenuItem>
           <MenuItem
             onClick={() => useUiStore.getState().setHideAllCableLabels(!hideAllCableLabels)}
             icon={hideAllCableLabels ? <Icon icon={Check} size="sm" /> : null}
           >
-            {t('app.menu.view.hideLabels', 'Kabel-Labels ausblenden')}
+            {t('app.menu.view.hideLabels', 'Hide cable labels')}
           </MenuItem>
           <MenuItem
             onClick={() => useUiStore.getState().setOffPageShowNames(!offPageShowNames)}
             icon={offPageShowNames ? <Icon icon={Check} size="sm" /> : null}
           >
-            {t('app.menu.view.offPageNames', 'Off-Page-Namen anzeigen')}
+            {t('app.menu.view.offPageNames', 'Show off-page names')}
           </MenuItem>
           <MenuItem
             onClick={() =>
@@ -1048,7 +1048,7 @@ export const MenuBar = ({
             }
             icon={cableColorMode === 'byLength' ? <Icon icon={Check} size="sm" /> : null}
           >
-            {t('app.menu.view.colorByLength', 'Kabelfarbe nach Länge')}
+            {t('app.menu.view.colorByLength', 'Color cables by length')}
           </MenuItem>
           <MenuItem
             onClick={() =>
@@ -1056,47 +1056,47 @@ export const MenuBar = ({
             }
             icon={cableColorMode === 'byLayer' ? <Icon icon={Check} size="sm" /> : null}
           >
-            {t('app.menu.view.colorByLayer', 'Kabelfarbe nach Gewerk')}
+            {t('app.menu.view.colorByLayer', 'Color cables by discipline')}
           </MenuItem>
           <MenuSep />
           <MenuItem
             onClick={() => useUiStore.getState().setAnnotationsPanelOpen(!annotationsPanelOpen)}
             icon={annotationsPanelOpen ? <Icon icon={Check} size="sm" /> : null}
           >
-            {t('app.menu.view.annotations', 'Anmerkungen-Panel')}
+            {t('app.menu.view.annotations', 'Annotations panel')}
           </MenuItem>
         </Menu>
 
-        <Menu label={t('app.menu.help', 'Hilfe')}>
+        <Menu label={t('app.menu.help', 'Help')}>
           <MenuItem
             onClick={() => window.dispatchEvent(new CustomEvent('cp:open-command-palette'))}
             icon={<Icon icon={Command} size="sm" />}
-            shortcut={t('shortcut.ctrlK', 'Strg+K')}
+            shortcut={t('shortcut.ctrlK', 'Ctrl+K')}
           >
-            {t('app.menu.help.commandPalette', 'Befehlspalette…')}
+            {t('app.menu.help.commandPalette', 'Command palette…')}
           </MenuItem>
           <MenuItem
             onClick={() => window.dispatchEvent(new CustomEvent('cp:open-shortcuts-help'))}
             icon={<Icon icon={Keyboard} size="sm" />}
             shortcut="?"
           >
-            {t('app.menu.help.shortcuts', 'Tastaturkürzel…')}
+            {t('app.menu.help.shortcuts', 'Keyboard shortcuts…')}
           </MenuItem>
           {onOpenTour && (
             <MenuItem onClick={onOpenTour} icon={<Icon icon={Lightbulb} size="sm" />}>
-              {t('app.menu.help.tour', 'Erste-Schritte-Tour…')}
+              {t('app.menu.help.tour', 'Getting-started tour…')}
             </MenuItem>
           )}
           {hasDesktopBridge && (
             <MenuItem onClick={handleCheckUpdates} icon={<Icon icon={RefreshCw} size="sm" />}>
-              {t('app.menu.help.checkUpdates', 'Auf Updates prüfen…')}
+              {t('app.menu.help.checkUpdates', 'Check for updates…')}
             </MenuItem>
           )}
           <MenuItem
             onClick={() => useUiStore.getState().openAboutDialog()}
             icon={<Icon icon={Info} size="sm" />}
           >
-            {t('app.menu.help.about', 'Über Cable Planner…')}
+            {t('app.menu.help.about', 'About Cable Planner…')}
           </MenuItem>
         </Menu>
       </div>
@@ -1108,7 +1108,7 @@ export const MenuBar = ({
             onClick={onEditProjectMeta}
             disabled={!onEditProjectMeta}
             className="group flex max-w-[42ch] items-center gap-1 truncate rounded px-2 py-0.5 text-cp-text-bright hover:bg-cp-surface-2 hover:text-white disabled:cursor-default disabled:hover:bg-transparent"
-            title={onEditProjectMeta ? t('app.editProjectMeta', 'Projektdaten bearbeiten') : projectName}
+            title={onEditProjectMeta ? t('app.editProjectMeta', 'Edit project metadata') : projectName}
           >
             <span className="truncate font-medium">{projectName}</span>
             {onEditProjectMeta && (
@@ -1127,8 +1127,8 @@ export const MenuBar = ({
             type="button"
             onClick={() => projectHistory.undo()}
             disabled={!canUndo}
-            title={t('app.undo', 'Rückgängig (Strg+Z)')}
-            aria-label={t('app.undo', 'Rückgängig (Strg+Z)')}
+            title={t('app.undo', 'Undo (Ctrl+Z)')}
+            aria-label={t('app.undo', 'Undo (Ctrl+Z)')}
             className="px-2 py-1 text-cp-text-bright hover:bg-cp-surface-2 disabled:cursor-not-allowed disabled:text-cp-text-dim disabled:hover:bg-transparent"
           >
             <Icon icon={Undo2} size="sm" />
@@ -1138,8 +1138,8 @@ export const MenuBar = ({
             type="button"
             onClick={() => projectHistory.redo()}
             disabled={!canRedo}
-            title={t('app.redo', 'Wiederherstellen (Strg+Y)')}
-            aria-label={t('app.redo', 'Wiederherstellen (Strg+Y)')}
+            title={t('app.redo', 'Redo (Ctrl+Y)')}
+            aria-label={t('app.redo', 'Redo (Ctrl+Y)')}
             className="px-2 py-1 text-cp-text-bright hover:bg-cp-surface-2 disabled:cursor-not-allowed disabled:text-cp-text-dim disabled:hover:bg-transparent"
           >
             <Icon icon={Redo2} size="sm" />
@@ -1151,10 +1151,10 @@ export const MenuBar = ({
             type="button"
             onClick={() => useUiStore.getState().openMobileShare()}
             className="inline-flex items-center gap-1 rounded bg-cp-surface-2 px-2 py-1 text-cp-text hover:bg-cp-surface-4"
-            aria-label={t('app.mobileShare.ariaLabel', 'Handy-Zugriff')}
+            aria-label={t('app.mobileShare.ariaLabel', 'Phone access')}
             title={t(
               'app.mobileShare.title',
-              'Handy-Zugriff: kleiner LAN-Server + QR-Code, damit das Handy den Mobile-Viewer öffnen kann.',
+              'Phone access: a small LAN server + QR code so a phone can open the mobile viewer.',
             )}
           >
             <Icon icon={Smartphone} size="sm" />
@@ -1164,17 +1164,17 @@ export const MenuBar = ({
                 dieselbe Form wie der Einstellungen-Knopf daneben: Wort ab
                 `lg`, darunter nur das Symbol, damit die Kopfleiste auf
                 schmalen Fenstern nicht bricht. */}
-            <span className="hidden lg:inline">{t('app.mobileShare.ariaLabel', 'Handy-Zugriff')}</span>
+            <span className="hidden lg:inline">{t('app.mobileShare.ariaLabel', 'Phone access')}</span>
           </button>
         )}
         <button
           type="button"
           onClick={onOpenSettings}
           className="inline-flex items-center gap-1 rounded bg-cp-surface-2 px-2 py-1 text-cp-text hover:bg-cp-surface-4"
-          title={t('settings.title', 'Einstellungen')}
+          title={t('settings.title', 'Settings')}
         >
           <Icon icon={Settings} size="sm" />
-          <span className="hidden lg:inline">{t('settings.title', 'Einstellungen')}</span>
+          <span className="hidden lg:inline">{t('settings.title', 'Settings')}</span>
         </button>
       </div>
     </header>

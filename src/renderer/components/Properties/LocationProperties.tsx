@@ -40,7 +40,7 @@ export const LocationProperties = () => {
 
       <div className="grid grid-cols-2 gap-2">
         <label className="block">
-          {t('location.field.width', 'Breite')}
+          {t('location.field.width', 'Width')}
           <input
             type="number"
             value={Math.round(location.width)}
@@ -51,7 +51,7 @@ export const LocationProperties = () => {
           />
         </label>
         <label className="block">
-          {t('location.field.height', 'Höhe')}
+          {t('location.field.height', 'Height')}
           <input
             type="number"
             value={Math.round(location.height)}
@@ -65,16 +65,16 @@ export const LocationProperties = () => {
 
       <div className="grid grid-cols-2 gap-2">
         <label className="block">
-          {t('location.field.floor', 'Stockwerk')}
+          {t('location.field.floor', 'Floor')}
           <input
             value={location.floor ?? ''}
-            placeholder={t('location.field.floorPlaceholder', 'z.B. EG, 1.OG')}
+            placeholder={t('location.field.floorPlaceholder', 'e.g. ground floor, 1st')}
             onChange={(e) => updateLocation(location.id, { floor: e.target.value })}
             className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-1.5"
           />
         </label>
         <ColorField
-          label={t('location.field.color', 'Farbe')}
+          label={t('location.field.color', 'Colour')}
           value={location.color}
           onChange={(color) => updateLocation(location.id, { color })}
         />
@@ -82,7 +82,7 @@ export const LocationProperties = () => {
 
       <div>
         <label className="block">
-          {t('location.field.notes', 'Notizen')}
+          {t('location.field.notes', 'Notes')}
           <textarea
             value={location.notes ?? ''}
             onChange={(e) => updateLocation(location.id, { notes: e.target.value })}
@@ -103,27 +103,27 @@ export const LocationProperties = () => {
           className="w-full rounded bg-amber-700 px-2 py-1 text-cp-xs hover:bg-amber-600"
           title={t(
             'location.action.bomTitle',
-            'Stückliste der Geräte und Kabel im Rahmen — als PDF exportierbar',
+            'List of devices and cables in the frame — exportable as PDF',
           )}
         >
           <Icon icon={ClipboardList} size="xs" className="mr-1 inline-block align-text-bottom" />
-          {t('location.action.bom', 'Stückliste exportieren')}
+          {t('location.action.bom', 'Export BOM')}
         </button>
         <button
           type="button"
           onClick={async () => {
             if (
               await confirmDialog(
-                format(t('location.confirm.deleteFrame', 'Rahmen "{name}" löschen?'), {
+                format(t('location.confirm.deleteFrame', 'Delete frame "{name}"?'), {
                   name: location.name,
                 }),
                 {
                   body: t(
                     'location.confirm.deleteFrameBody',
-                    'Geräte darin bleiben auf dem Canvas.',
+                    'Devices inside stay on the canvas.',
                   ),
                   destructive: true,
-                  okLabel: t('confirm.delete', 'Löschen'),
+                  okLabel: t('confirm.delete', 'Delete'),
                 },
               )
             ) {
@@ -133,10 +133,10 @@ export const LocationProperties = () => {
           className="w-full rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
           title={t(
             'location.action.deleteFrameTitle',
-            'Entfernt nur den Rahmen — Geräte darin bleiben auf dem Canvas.',
+            'Removes only the frame — devices inside stay on the canvas.',
           )}
         >
-          {t('location.action.deleteFrame', 'Nur Rahmen löschen')}
+          {t('location.action.deleteFrame', 'Delete frame only')}
         </button>
         <button
           type="button"
@@ -144,16 +144,16 @@ export const LocationProperties = () => {
             if (
               await confirmDialog(
                 format(
-                  t('location.confirm.deleteAll', 'Rahmen "{name}" UND Inhalt löschen?'),
+                  t('location.confirm.deleteAll', 'Delete frame "{name}" AND its contents?'),
                   { name: location.name },
                 ),
                 {
                   body: t(
                     'location.confirm.deleteAllBody',
-                    'Alle Geräte im Rahmen samt deren Kabel werden mitgelöscht.',
+                    'All devices in the frame and their cables are deleted as well.',
                   ),
                   destructive: true,
-                  okLabel: t('confirm.deleteAll', 'Alles löschen'),
+                  okLabel: t('confirm.deleteAll', 'Delete all'),
                 },
               )
             ) {
@@ -162,7 +162,7 @@ export const LocationProperties = () => {
           }}
           className="w-full rounded bg-red-700 px-2 py-1 text-cp-xs hover:bg-red-600"
         >
-          {t('location.action.deleteAll', 'Rahmen + Inhalt löschen')}
+          {t('location.action.deleteAll', 'Delete frame + contents')}
         </button>
       </div>
 
@@ -170,7 +170,7 @@ export const LocationProperties = () => {
         className="text-[10px] italic text-cp-text-muted"
         text={t(
           'location.tip',
-          'Tipp: Der Rahmen bewegt sich standardmäßig unabhängig. Aktiviere „Geräte mitnehmen", wenn alle enthaltenen Geräte beim Verschieben des Rahmens mitwandern sollen.',
+          'Tip: the frame moves independently by default. Enable "Take devices along" to move all contained devices with the frame.',
         )}
       />
     </div>

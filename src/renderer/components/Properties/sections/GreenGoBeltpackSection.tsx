@@ -22,7 +22,7 @@ export const GreenGoBeltpackSection = ({ equipmentId }: { equipmentId: string })
       <div className="mb-2 text-[10px] text-emerald-300/60">
         {t(
           'props.greengo.noConfig',
-          'Keine GreenGo-Konfiguration im Projekt. Öffne den Intercom-Planer oder lade ein Preset, um Beltpacks zu definieren.',
+          'No GreenGo configuration in the project. Open the Intercom planner or load a preset to define beltpacks.',
         )}
       </div>
     )
@@ -42,14 +42,14 @@ export const GreenGoBeltpackSection = ({ equipmentId }: { equipmentId: string })
         {info?.channelNames && info.channelNames.length > 0 && (
           <span
             className="font-normal normal-case text-emerald-400/80"
-            title={format(t('props.greengo.groupsTitle', 'Gruppen: {names}'), {
+            title={format(t('props.greengo.groupsTitle', 'Groups: {names}'), {
               names: info.channelNames.join(', '),
             })}
           >
             {format(
               info.channelNames.length === 1
-                ? t('props.greengo.groupCountOne', '{n} Gruppe')
-                : t('props.greengo.groupCountMany', '{n} Gruppen'),
+                ? t('props.greengo.groupCountOne', '{n} group')
+                : t('props.greengo.groupCountMany', '{n} groups'),
               { n: info.channelNames.length },
             )}
           </span>
@@ -62,18 +62,18 @@ export const GreenGoBeltpackSection = ({ equipmentId }: { equipmentId: string })
           type="text"
           value={info?.station.name ?? ''}
           disabled={!info}
-          placeholder={info ? '' : t('props.greengo.assignFirst', 'Erst zuordnen ↓')}
+          placeholder={info ? '' : t('props.greengo.assignFirst', 'Assign first ↓')}
           onChange={(event) => rename(event.target.value)}
           className="w-full rounded border border-emerald-700 bg-emerald-950 p-1 text-cp-xs text-emerald-50 disabled:opacity-50"
           title={t(
             'props.greengo.nameTitle',
-            'Änderungen werden sofort in den Intercom-Plan und das .gg5-Export geschrieben',
+            'Changes are written immediately to the intercom plan and .gg5 export',
           )}
         />
       </label>
       <label className="mt-2 block">
         <span className="mb-1 block text-emerald-200/70">
-          {t('props.greengo.userSlot', 'Zugewiesener User-Slot')}
+          {t('props.greengo.userSlot', 'Assigned user slot')}
         </span>
         <select
           value={info?.number ?? ''}
@@ -83,13 +83,13 @@ export const GreenGoBeltpackSection = ({ equipmentId }: { equipmentId: string })
           }}
           className="w-full rounded border border-emerald-700 bg-emerald-950 p-1 text-cp-xs text-emerald-50"
         >
-          <option value="">{t('props.greengo.noSlot', '(kein Slot zugewiesen)')}</option>
+          <option value="">{t('props.greengo.noSlot', '(no slot assigned)')}</option>
           {config.users.map((u) => {
             const takenBy = u.equipmentId && u.equipmentId !== equipmentId
             return (
               <option key={u.id} value={u.id}>
                 {u.id}. {u.name}
-                {takenBy ? t('props.greengo.assignedOther', ' (anderem Gerät zugewiesen)') : ''}
+                {takenBy ? t('props.greengo.assignedOther', ' (assigned to another device)') : ''}
               </option>
             )
           })}
@@ -101,7 +101,7 @@ export const GreenGoBeltpackSection = ({ equipmentId }: { equipmentId: string })
             <span
               key={g}
               className="rounded bg-emerald-700/40 px-1.5 py-0.5 text-emerald-100"
-              title={t('props.greengo.groupChipTitle', 'Gruppen werden im Intercom-Planer bearbeitet')}
+              title={t('props.greengo.groupChipTitle', 'Groups are edited in the intercom planner')}
             >
               {g}
             </span>

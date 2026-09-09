@@ -183,14 +183,14 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
     // damit das ";"-Feld-Trennzeichen nicht greift.
     const lines = [
       [
-        t('export.bom.csv.type', 'Typ'),
-        t('export.bom.csv.rentmanName', 'Rentman-Name'),
-        t('export.bom.csv.lengthM', 'Länge (m)'),
-        t('export.bom.csv.built', 'Verbaut'),
-        t('export.bom.csv.totalM', 'Gesamt (m)'),
-        t('export.bom.csv.rentmanPlanned', 'Rentman geplant'),
-        t('export.bom.csv.diff', 'Differenz'),
-        t('export.bom.csv.paths', 'Wege'),
+        t('export.bom.csv.type', 'Type'),
+        t('export.bom.csv.rentmanName', 'Rentman name'),
+        t('export.bom.csv.lengthM', 'Length (m)'),
+        t('export.bom.csv.built', 'Installed'),
+        t('export.bom.csv.totalM', 'Total (m)'),
+        t('export.bom.csv.rentmanPlanned', 'Rentman planned'),
+        t('export.bom.csv.diff', 'Difference'),
+        t('export.bom.csv.paths', 'Paths'),
       ].join(';'),
     ]
     for (const r of rows) {
@@ -210,7 +210,7 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
     // Schlusszeile: Gesamtlänge über alle Typen (Bestellmenge).
     lines.push(
       [
-        t('bom.cable.total', 'Gesamt'),
+        t('bom.cable.total', 'Total'),
         '',
         '',
         String(rows.reduce((s, r) => s + r.built, 0)),
@@ -234,7 +234,7 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
     const margin = 32
     pdf.setFontSize(14)
     pdf.setTextColor(15)
-    pdf.text(sanitizeForPdf(t('export.bom.pdfHeading', 'Kabel-Stückliste')), margin, margin + 4)
+    pdf.text(sanitizeForPdf(t('export.bom.pdfHeading', 'Cable BOM')), margin, margin + 4)
     pdf.setFontSize(10)
     pdf.setTextColor(60)
     pdf.text(sanitizeForPdf(project.metadata.name || '-'), margin, margin + 22)
@@ -248,11 +248,11 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
     pdf.setTextColor(15)
     pdf.setFontSize(9)
     ;[
-      t('export.bom.csv.type', 'Typ'),
-      t('export.bom.csv.lengthM', 'Länge (m)'),
-      t('export.bom.csv.built', 'Verbaut'),
+      t('export.bom.csv.type', 'Type'),
+      t('export.bom.csv.lengthM', 'Length (m)'),
+      t('export.bom.csv.built', 'Installed'),
       t('export.bom.col.rentman', 'Rentman'),
-      t('export.bom.csv.diff', 'Differenz'),
+      t('export.bom.csv.diff', 'Difference'),
     ].forEach((h, i) => {
       pdf.text(sanitizeForPdf(h), colX[i] + 2, headerY)
     })
@@ -300,7 +300,7 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
     <ModalShell
       open={open}
       onClose={onClose}
-      title={t('bom.cable.title', 'Kabel-Stückliste')}
+      title={t('bom.cable.title', 'Cable bill of materials')}
       maxWidth="4xl"
       draggableKey="cable-planner:modal-pos:cable-bom"
       scrollBody={false}
@@ -308,8 +308,8 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
         <div className="flex items-center justify-between text-[11px]">
           <span className="text-cp-text-muted">
             {draftPlan
-              ? t('bom.cable.draftPending', 'Nicht gespeicherte Änderungen an der Rentman-Planung.')
-              : t('bom.cable.draftSaved', 'Rentman-Planung wird im Projekt gespeichert.')}
+              ? t('bom.cable.draftPending', 'Unsaved changes to the Rentman plan.')
+              : t('bom.cable.draftSaved', 'Rentman plan is saved in the project.')}
           </span>
           <div className="flex gap-2">
             {draftPlan && (
@@ -318,7 +318,7 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
                 onClick={discardPlan}
                 className="rounded bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
               >
-                {t('bom.cable.discard', 'Verwerfen')}
+                {t('bom.cable.discard', 'Discard')}
               </button>
             )}
             <button
@@ -327,7 +327,7 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
               disabled={!draftPlan}
               className="rounded bg-emerald-700 px-3 py-1 text-cp-xs enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {t('bom.cable.savePlan', 'Rentman-Planung speichern')}
+              {t('bom.cable.savePlan', 'Save Rentman plan')}
             </button>
             <button
               type="button"
@@ -339,11 +339,11 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
                 onClose()
                 openRentmanCableExport()
               }}
-              title={t('bom.cable.syncRentmanTitle', 'Schliesst diesen Dialog und öffnet den Rentman-Cable-Export mit den aktuellen Buckets vorbefüllt.')}
+              title={t('bom.cable.syncRentmanTitle', 'Closes this dialog and opens the Rentman cable export prefilled with the current buckets.')}
               className="inline-flex items-center gap-1.5 rounded bg-orange-700 px-3 py-1 text-cp-xs font-semibold hover:bg-orange-600"
             >
               <Icon icon={Package} size="xs" />
-              {t('bom.cable.syncRentman', 'Mit Rentman synchronisieren →')}
+              {t('bom.cable.syncRentman', 'Sync with Rentman →')}
             </button>
           </div>
         </div>
@@ -351,20 +351,20 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
     >
       <div className="flex h-full min-h-0 flex-col -mx-4 -my-3">
         <div className="flex items-center gap-2 border-b border-cp-border-muted px-4 py-2 text-[11px] text-cp-text-muted">
-          <span>{t('bom.cable.groupedNote', 'Gruppiert nach Typ & Länge.')}</span>
+          <span>{t('bom.cable.groupedNote', 'Grouped by type & length.')}</span>
           <span>
-            {t('bom.cable.builtCables', 'Verbaute Kabel:')} <b className="text-cp-text-bright">{project.cables.length}</b>
+            {t('bom.cable.builtCables', 'Built cables:')} <b className="text-cp-text-bright">{project.cables.length}</b>
           </span>
           {rows.some((r) => r.diff < 0) && (
             <span className="ml-2 inline-flex items-center gap-1 rounded bg-red-900/50 px-2 py-0.5 font-semibold text-red-300">
               <Icon icon={AlertTriangle} size="xs" />
-              {format(t('bom.cable.missingTypes', '{count} Kabeltype(n) fehlen'), { count: rows.filter((r) => r.diff < 0).length })}
+              {format(t('bom.cable.missingTypes', '{count} cable type(s) missing'), { count: rows.filter((r) => r.diff < 0).length })}
             </span>
           )}
           {rows.length > 0 && rows.every((r) => r.diff >= 0) && rows.some((r) => r.planned > 0) && (
             <span className="ml-2 inline-flex items-center gap-1 rounded bg-emerald-900/50 px-2 py-0.5 font-semibold text-emerald-300">
               <Icon icon={Check} size="xs" />
-              {t('bom.cable.allCovered', 'Alle geplanten Mengen abgedeckt')}
+              {t('bom.cable.allCovered', 'All planned quantities covered')}
             </span>
           )}
           <div className="ml-auto flex gap-2">
@@ -389,21 +389,21 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
           <table className="w-full text-cp-xs">
             <thead className="sticky top-0 bg-cp-surface-3 text-cp-text-secondary">
               <tr>
-                <th className="px-3 py-2 text-left">{t('bom.cable.col.type', 'Typ')}</th>
-                <th className="px-3 py-2 text-right">{t('bom.cable.col.length', 'Länge (m)')}</th>
-                <th className="px-3 py-2 text-right">{t('bom.cable.col.built', 'Verbaut')}</th>
-                <th className="px-3 py-2 text-right">{t('bom.cable.col.totalM', 'Gesamt (m)')}</th>
-                <th className="px-3 py-2 text-right">{t('bom.cable.col.planned', 'Rentman geplant')}</th>
-                <th className="px-3 py-2 text-right">{t('bom.cable.col.diff', 'Differenz')}</th>
+                <th className="px-3 py-2 text-left">{t('bom.cable.col.type', 'Type')}</th>
+                <th className="px-3 py-2 text-right">{t('bom.cable.col.length', 'Length (m)')}</th>
+                <th className="px-3 py-2 text-right">{t('bom.cable.col.built', 'Built')}</th>
+                <th className="px-3 py-2 text-right">{t('bom.cable.col.totalM', 'Total (m)')}</th>
+                <th className="px-3 py-2 text-right">{t('bom.cable.col.planned', 'Rentman planned')}</th>
+                <th className="px-3 py-2 text-right">{t('bom.cable.col.diff', 'Difference')}</th>
                 {/* #292 — Pfade dieses Buckets (Cam1@Bühne → Mischer@FOH). */}
-                <th className="px-3 py-2 text-left">{t('bom.cable.col.paths', 'Wege')}</th>
+                <th className="px-3 py-2 text-left">{t('bom.cable.col.paths', 'Paths')}</th>
               </tr>
             </thead>
             <tbody>
               {rows.length === 0 && (
                 <tr>
                   <td className="px-3 py-4 text-center text-cp-text-faint" colSpan={7}>
-                    {t('bom.cable.noCables', 'Keine Kabel im Projekt.')}
+                    {t('bom.cable.noCables', 'No cables in the project.')}
                   </td>
                 </tr>
               )}
@@ -425,7 +425,7 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
                       <div className="mt-0.5 text-[10px] text-orange-300/80">
                         <span
                           className="rounded bg-orange-700/30 px-1 py-0 font-mono text-[11px] text-orange-200"
-                          title={t('bom.cable.rentmanLinkedTitle', 'Verknüpfter Rentman-Equipment-Name')}
+                          title={t('bom.cable.rentmanLinkedTitle', 'Linked Rentman equipment name')}
                         >
                           R
                         </span>{' '}
@@ -435,7 +435,7 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
                     {!r.rentmanName && r.rentmanId && (
                       <div
                         className="mt-0.5 text-[10px] text-cp-text-muted"
-                        title={t('bom.cable.rentmanMissingTitle', 'Verknüpft, aber Rentman-Template lokal nicht gefunden')}
+                        title={t('bom.cable.rentmanMissingTitle', 'Linked, but Rentman template not found locally')}
                       >
                         R #{r.rentmanId}
                       </div>
@@ -467,10 +467,10 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
                     }`}
                     title={
                       r.diff === 0
-                        ? t('bom.cable.diff.zeroTitle', 'Verbaut = geplant')
+                        ? t('bom.cable.diff.zeroTitle', 'Built = planned')
                         : r.diff > 0
-                          ? t('bom.cable.diff.posTitle', 'Mehr verbaut als geplant')
-                          : t('bom.cable.diff.negTitle', 'Weniger verbaut als geplant')
+                          ? t('bom.cable.diff.posTitle', 'More built than planned')
+                          : t('bom.cable.diff.negTitle', 'Fewer built than planned')
                     }
                   >
                     {fmtSignFixed(r.diff)}
@@ -492,7 +492,7 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
                             className="cursor-help text-[10px] text-cp-text-muted"
                             title={r.paths.slice(3).join('\n')}
                           >
-                            {format(t('bom.cable.morePaths', '+{count} weitere'), { count: r.paths.length - 3 })}
+                            {format(t('bom.cable.morePaths', '+{count} more'), { count: r.paths.length - 3 })}
                           </div>
                         )}
                       </div>
@@ -505,7 +505,7 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
               <tfoot className="sticky bottom-0 bg-cp-surface-3">
                 <tr className="border-t-2 border-cp-border font-semibold text-cp-text-bright">
                   <td className="px-3 py-2 text-left" colSpan={2}>
-                    {t('bom.cable.total', 'Gesamt')}
+                    {t('bom.cable.total', 'Total')}
                   </td>
                   <td className="px-3 py-2 text-right font-mono">
                     {rows.reduce((s, r) => s + r.built, 0)}

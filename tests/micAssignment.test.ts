@@ -450,7 +450,7 @@ describe('die Oberflaeche', () => {
 
   it('bietet das Uebernehmen an und nennt den Akku als Ausnahme', () => {
     expect(panelQuelle).toContain("t('micPlot.carry'")
-    expect(panelQuelle).toContain('Der Akku-Zeitpunkt wird NICHT übernommen')
+    expect(panelQuelle).toContain('The battery timestamp is NOT carried over')
   })
 
   it('haelt einen entfernten Kanal sichtbar, statt still umzubuchen', () => {

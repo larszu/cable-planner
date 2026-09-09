@@ -84,12 +84,12 @@ const BilingualCategoryPrompt = ({ title, initial, onDone }: Props) => {
   }[] = (
     lang === 'de'
       ? [
-          { key: 'de', label: t('category.bilingual.de', 'Deutsch'), placeholder: 'z. B. Kamera', value: de, set: setDe, ref: firstInputRef },
-          { key: 'en', label: t('category.bilingual.en', 'Englisch'), placeholder: 'e.g. Camera', value: en, set: setEn, ref: secondInputRef },
+          { key: 'de', label: t('category.bilingual.de', 'German'), placeholder: 'z. B. Kamera', value: de, set: setDe, ref: firstInputRef },
+          { key: 'en', label: t('category.bilingual.en', 'English'), placeholder: 'e.g. Camera', value: en, set: setEn, ref: secondInputRef },
         ]
       : [
-          { key: 'en', label: t('category.bilingual.en', 'Englisch'), placeholder: 'e.g. Camera', value: en, set: setEn, ref: firstInputRef },
-          { key: 'de', label: t('category.bilingual.de', 'Deutsch'), placeholder: 'z. B. Kamera', value: de, set: setDe, ref: secondInputRef },
+          { key: 'en', label: t('category.bilingual.en', 'English'), placeholder: 'e.g. Camera', value: en, set: setEn, ref: firstInputRef },
+          { key: 'de', label: t('category.bilingual.de', 'German'), placeholder: 'z. B. Kamera', value: de, set: setDe, ref: secondInputRef },
         ]
   )
 
@@ -106,7 +106,7 @@ const BilingualCategoryPrompt = ({ title, initial, onDone }: Props) => {
         <div style={{ marginBottom: 10, fontSize: 11, color: '#94a3b8', lineHeight: 1.4 }}>
           {t(
             'category.bilingual.hint',
-            'Beide Sprachen ausfüllen — beim Umschalten der UI-Sprache wird der jeweilige Name angezeigt. Leer lassen ist OK, dann fällt die Anzeige auf die andere Sprache zurück.',
+            'Fill in both languages — when switching the UI language the matching label is shown. Leaving one empty is fine; the display falls back to the other language then.',
           )}
         </div>
         {fields.map((field, idx) => (
@@ -139,7 +139,7 @@ const BilingualCategoryPrompt = ({ title, initial, onDone }: Props) => {
         ))}
         <div style={{ marginTop: 12, display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
           <button type="button" onClick={() => onDone(null)} style={MODAL_BUTTON_SECONDARY}>
-            {t('common.cancel', 'Abbrechen')}
+            {t('common.cancel', 'Cancel')}
           </button>
           <button type="submit" style={modalButtonPrimary('#10b981')}>
             {t('common.ok', 'OK')}

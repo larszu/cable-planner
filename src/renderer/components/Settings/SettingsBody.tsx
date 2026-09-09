@@ -126,7 +126,7 @@ export const SettingsBody = ({ onClose, initialSection, headerProps, titleId, he
     <>
       <aside className="flex shrink-0 flex-row gap-1 overflow-x-auto border-b border-cp-border-muted bg-cp-surface-3/40 p-3 sm:w-52 sm:flex-col sm:overflow-x-visible sm:overflow-y-auto sm:border-b-0 sm:border-r">
         <h3 className="mb-2 hidden px-2 text-cp-xs font-semibold uppercase tracking-wider text-cp-text-faint sm:block">
-          {t('settings.section', 'Einstellungen')}
+          {t('settings.section', 'Settings')}
         </h3>
         {(Object.keys(TAB_ICONS) as SettingsSection[]).map((id) => navItem(id))}
       </aside>
@@ -145,7 +145,7 @@ export const SettingsBody = ({ onClose, initialSection, headerProps, titleId, he
               type="button"
               onClick={onClose}
               className="inline-flex items-center justify-center rounded px-2 py-1 text-[var(--cp-text-muted)] hover:bg-[var(--cp-surface-2)] hover:text-[var(--cp-text)]"
-              aria-label={t('common.close', 'Schließen')}
+              aria-label={t('common.close', 'Close')}
             >
               <Icon icon={X} size="md" />
             </button>

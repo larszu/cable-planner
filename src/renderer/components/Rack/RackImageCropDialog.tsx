@@ -282,7 +282,7 @@ export const RackImageCropDialog = ({
   // er nicht mehr der voreingestellte ist.
   const backdrop = useBackdropClose(onCancel, {
     schutz: () => zoom !== 1 || activeHandle !== null,
-    frage: t('rackCrop.closeUnsaved', 'Bildausschnitt verwerfen?'),
+    frage: t('rackCrop.closeUnsaved', 'Discard image crop?'),
   })
 
   if (!open || !imageSrc) return null
@@ -340,15 +340,15 @@ export const RackImageCropDialog = ({
             <h3 id={titleId} className="text-cp-xl font-semibold">
               {format(
                 side === 'front'
-                  ? t('rackCrop.titleFront', 'Front Grafik zuschneiden ({units} HE)')
-                  : t('rackCrop.titleRear', 'Rear Grafik zuschneiden ({units} HE)'),
+                  ? t('rackCrop.titleFront', 'Crop front graphic ({units} RU)')
+                  : t('rackCrop.titleRear', 'Crop rear graphic ({units} RU)'),
                 { units: rackUnits },
               )}
             </h3>
             <p className="mt-0.5 text-cp-xs text-cp-text-muted">
               {t(
                 'rackCrop.hint',
-                'Mausrad zoomt · Ecken & Kanten ziehen zum Skalieren · Shift = Aspekt halten · Pfeiltasten nudgen · R = Reset',
+                'Mouse wheel zooms · Drag corners & edges to resize · Shift = keep aspect · Arrow keys nudge · R = reset',
               )}
             </p>
           </div>
@@ -357,7 +357,7 @@ export const RackImageCropDialog = ({
             onClick={onCancel}
             className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
           >
-            {t('rackCrop.close', 'Schliessen')}
+            {t('rackCrop.close', 'Close')}
           </button>
         </div>
 
@@ -373,7 +373,7 @@ export const RackImageCropDialog = ({
                 value={zoom}
                 onChange={(event) => setZoom(Number(event.target.value) || 1)}
                 className="flex-1"
-                title={t('rackCrop.scrollHint', 'Mausrad oder + / - tut dasselbe')}
+                title={t('rackCrop.scrollHint', 'Scroll wheel or + / - do the same')}
               />
               <span className="w-12 text-right tabular-nums">{zoom.toFixed(2)}x</span>
               <label className="ml-2 flex items-center gap-1 text-[11px]">
@@ -382,7 +382,7 @@ export const RackImageCropDialog = ({
                   checked={aspectLock}
                   onChange={(event) => setAspectLock(event.target.checked)}
                 />
-                {t('rackCrop.lockAspect', 'Aspekt fixieren')}
+                {t('rackCrop.lockAspect', 'Lock aspect')}
               </label>
             </div>
             <div
@@ -458,7 +458,7 @@ export const RackImageCropDialog = ({
           <div className="space-y-2 rounded border border-cp-border bg-cp-surface-3/40 p-2 text-cp-xs">
             <div className="flex items-center justify-between">
               <span className="text-[11px] uppercase tracking-wide text-cp-text-muted">
-                {t('rackCrop.presets', 'Schnittvorlagen')}
+                {t('rackCrop.presets', 'Crop presets')}
               </span>
               <button
                 type="button"
@@ -467,7 +467,7 @@ export const RackImageCropDialog = ({
                   setZoom(1)
                 }}
                 className="rounded bg-cp-surface-4 px-2 py-0.5 text-[10px] hover:bg-cp-surface-5"
-                title={t('rackCrop.resetTitle', 'Crop und Zoom zurücksetzen (R)')}
+                title={t('rackCrop.resetTitle', 'Reset crop and zoom (R)')}
               >
                 {t('rackCrop.reset', '⟲ Reset')}
               </button>
@@ -479,7 +479,7 @@ export const RackImageCropDialog = ({
                   type="button"
                   onClick={() => setCrop(defaultCrop(he, imgAspect))}
                   className={`rounded px-2 py-1 ${he === rackUnits ? 'bg-cyan-700 hover:bg-cyan-600' : 'bg-cp-surface-4 hover:bg-cp-surface-5'}`}
-                  title={format(t('rackCrop.presetTitle', 'Vorlage {n} HE Aspekt'), { n: he })}
+                  title={format(t('rackCrop.presetTitle', 'Template {n} RU aspect'), { n: he })}
                 >
                   {he}HE
                 </button>
@@ -488,7 +488,7 @@ export const RackImageCropDialog = ({
 
             <div className="mt-3 rounded border border-cp-border-muted bg-cp-surface-1/60 p-2">
               <div className="mb-1 text-[10px] uppercase tracking-wide text-cp-text-muted">
-                {t('rackCrop.manualValues', 'Manuelle Werte (0–1)')}
+                {t('rackCrop.manualValues', 'Manual values (0–1)')}
               </div>
               <div className="grid grid-cols-2 gap-1.5">
                 <label className="block text-[11px]">
@@ -522,7 +522,7 @@ export const RackImageCropDialog = ({
                   />
                 </label>
                 <label className="block text-[11px]">
-                  {t('rackCrop.width', 'Breite')}
+                  {t('rackCrop.width', 'Width')}
                   <input
                     type="number"
                     step="0.01"
@@ -537,7 +537,7 @@ export const RackImageCropDialog = ({
                   />
                 </label>
                 <label className="block text-[11px]">
-                  {t('rackCrop.height', 'Höhe')}
+                  {t('rackCrop.height', 'Height')}
                   <input
                     type="number"
                     step="0.01"
@@ -556,17 +556,17 @@ export const RackImageCropDialog = ({
 
             <div className="rounded border border-cp-border-muted bg-cp-surface-1/60 p-2 text-[11px] text-cp-text-muted">
               <div>
-                {t('rackCrop.targetAspect', 'Ziel-Aspekt:')}{' '}
+                {t('rackCrop.targetAspect', 'Target aspect:')}{' '}
                 <span className="tabular-nums text-cp-text-bright">{targetAspect.toFixed(2)}:1</span>
               </div>
               <div>
-                {t('rackCrop.currentAspect', 'Aktueller Crop-Aspekt:')}{' '}
+                {t('rackCrop.currentAspect', 'Current crop aspect:')}{' '}
                 <span className="tabular-nums text-cp-text-bright">
                   {(crop.width / Math.max(0.001, crop.height)).toFixed(2)}:1
                 </span>
               </div>
               <div>
-                {t('rackCrop.liveHe', 'Live HE:')}{' '}
+                {t('rackCrop.liveHe', 'Live RU:')}{' '}
                 <span className="tabular-nums text-cp-text-bright">{liveHe.toFixed(2)}</span>
               </div>
             </div>
@@ -575,10 +575,10 @@ export const RackImageCropDialog = ({
 
         <div className="flex justify-end gap-2">
           <button type="button" onClick={onCancel} className="rounded bg-cp-surface-4 px-3 py-1 text-cp-base hover:bg-cp-surface-5">
-            {t('common.cancel', 'Abbrechen')}
+            {t('common.cancel', 'Cancel')}
           </button>
           <button type="button" onClick={finalizeCrop} className="rounded bg-emerald-600 px-3 py-1 text-cp-base hover:bg-emerald-500">
-            {t('rackCrop.confirm', 'Zuschnitt übernehmen')}
+            {t('rackCrop.confirm', 'Apply crop')}
           </button>
         </div>
       </div>

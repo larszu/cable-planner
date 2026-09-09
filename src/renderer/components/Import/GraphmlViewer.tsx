@@ -293,7 +293,7 @@ export const GraphmlViewer = ({ document, highlightNodes, className }: GraphmlVi
         {format(
           t(
             'graphmlViewer.statusBar',
-            'Mausrad zoomt · Ziehen verschiebt · {nodes} Nodes · {edges} Edges',
+            'Mouse wheel zooms · Drag pans · {nodes} nodes · {edges} edges',
           ),
           { nodes: document.nodes.length, edges: document.edges.length },
         )}

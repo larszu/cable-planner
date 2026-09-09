@@ -26,19 +26,19 @@ export const GroupsTab = () => {
   return (
     <div className="flex flex-1 min-h-0 flex-col">
       <div className="mb-2 flex flex-wrap items-center justify-between gap-y-1 gap-x-2">
-        <h2 className="text-cp-base font-semibold">{t('library.tabs.groups.title', 'Gerätegruppen')}</h2>
+        <h2 className="text-cp-base font-semibold">{t('library.tabs.groups.title', 'Device groups')}</h2>
         <span className="text-[10px] text-cp-text-muted">
-          {t('library.tabs.groups.subtitle', 'Mehrere Geräte + Kabel als Vorlage')}
+          {t('library.tabs.groups.subtitle', 'Multiple devices + cables as a template')}
         </span>
       </div>
       {groupPresets.length === 0 ? (
         <div className="flex-1 flex flex-col items-center justify-center gap-2 text-cp-xs text-cp-text-faint text-center p-4">
           <span className="text-2xl">⧉</span>
-          <span>{t('library.tabs.groups.empty', 'Noch keine Gruppen gespeichert.')}</span>
+          <span>{t('library.tabs.groups.empty', 'No groups saved yet.')}</span>
           <span>
-            {t('library.tabs.groups.hint1', 'Wähle auf dem Canvas ≥ 2 Geräte aus und klicke')}{' '}
-            <b>{t('library.tabs.groups.hintBtn', 'Als Gruppe')}</b>{' '}
-            {t('library.tabs.groups.hint2', 'in der Canvas-Toolbar.')}
+            {t('library.tabs.groups.hint1', 'Select ≥ 2 devices on the canvas and click')}{' '}
+            <b>{t('library.tabs.groups.hintBtn', 'As group')}</b>{' '}
+            {t('library.tabs.groups.hint2', 'in the canvas toolbar.')}
           </span>
         </div>
       ) : (
@@ -73,19 +73,19 @@ export const GroupsTab = () => {
                       onCardClick={() => placeGroupPreset(preset.id, cx, cy)}
                       clickTitle={t(
                         'library.tabs.groups.clickTitle',
-                        'Klick = auf Canvas platzieren · Drag&Drop = an Drop-Position platzieren',
+                        'Click = place on canvas · Drag&Drop = place at drop position',
                       )}
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0 flex-1">
                           <div className="truncate font-medium text-cp-text">{preset.name}</div>
                           <div className="mt-0.5 text-[10px] text-cp-text-muted">
-                            {format(t('library.tabs.groups.counts', '{items} Geräte · {cables} Kabel'), {
+                            {format(t('library.tabs.groups.counts', '{items} devices · {cables} cables'), {
                               items: preset.items.length,
                               cables: preset.cables.length,
                             })}
                             {totalRackUnits > 0
-                              ? format(t('library.tabs.groups.rackUnits', ' · {n} HE'), {
+                              ? format(t('library.tabs.groups.rackUnits', ' · {n} RU'), {
                                   n: totalRackUnits,
                                 })
                               : ''}
@@ -102,7 +102,7 @@ export const GroupsTab = () => {
                             onClick={async (event) => {
                               event.stopPropagation()
                               const newName = await promptDialog(
-                                t('library.tabs.groups.renamePrompt', 'Neuer Name der Vorlage:'),
+                                t('library.tabs.groups.renamePrompt', 'New template name:'),
                                 preset.name,
                               )
                               if (!newName) return
@@ -119,7 +119,7 @@ export const GroupsTab = () => {
                                   format(
                                     t(
                                       'library.tabs.groups.renameConflict',
-                                      'Es existiert bereits eine Vorlage namens "{name}". Bitte einen anderen Namen wählen.',
+                                      'A template named "{name}" already exists. Please choose a different name.',
                                     ),
                                     { name: trimmed },
                                   ),
@@ -130,8 +130,8 @@ export const GroupsTab = () => {
                               renameGroupPreset(preset.id, trimmed)
                             }}
                             className="rounded bg-cp-surface-4 px-1 text-[11px] text-cp-text-secondary hover:bg-cp-surface-5"
-                            title={t('library.tabs.groups.renameTitle', 'Vorlage umbenennen')}
-                            aria-label={t('library.tabs.groups.renameAria', 'Umbenennen')}
+                            title={t('library.tabs.groups.renameTitle', 'Rename template')}
+                            aria-label={t('library.tabs.groups.renameAria', 'Rename')}
                           >
                             <Icon icon={Pencil} size="xs" />
                           </button>
@@ -144,9 +144,9 @@ export const GroupsTab = () => {
                             className="rounded bg-cp-surface-4 px-1 text-[11px] text-cp-text-secondary hover:bg-cp-surface-5"
                             title={t(
                               'library.tabs.groups.exportTitle',
-                              'Als Datei exportieren (Kopie in den Downloads-Ordner)',
+                              'Export as file (copy to Downloads folder)',
                             )}
-                            aria-label={t('library.tabs.groups.exportAria', 'Exportieren')}
+                            aria-label={t('library.tabs.groups.exportAria', 'Export')}
                           >
                             <Icon icon={Download} size="xs" />
                           </button>
@@ -156,12 +156,12 @@ export const GroupsTab = () => {
                               event.stopPropagation()
                               if (
                                 await confirmDialog(
-                                  format(t('library.tabs.groups.confirmDelete', 'Gruppe "{name}" löschen?'), {
+                                  format(t('library.tabs.groups.confirmDelete', 'Delete group "{name}"?'), {
                                     name: preset.name,
                                   }),
                                   {
                                     destructive: true,
-                                    okLabel: t('common.delete', 'Löschen'),
+                                    okLabel: t('common.delete', 'Delete'),
                                   },
                                 )
                               ) {
@@ -169,8 +169,8 @@ export const GroupsTab = () => {
                               }
                             }}
                             className="rounded bg-red-700 px-1 text-[10px] hover:bg-red-600"
-                            title={t('library.tabs.groups.deleteTitle', 'Gruppe aus Library entfernen')}
-                            aria-label={t('common.delete', 'Löschen')}
+                            title={t('library.tabs.groups.deleteTitle', 'Remove group from library')}
+                            aria-label={t('common.delete', 'Delete')}
                           >
                             ×
                           </button>

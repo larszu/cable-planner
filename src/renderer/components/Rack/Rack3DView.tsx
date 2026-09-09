@@ -1193,16 +1193,16 @@ export const Rack3DView = ({
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-          <span style={{ width: 10, height: 10, background: '#64748b', display: 'inline-block' }} /> {t('rack3d.legend.fullDepth', 'Full-Depth')}
+          <span style={{ width: 10, height: 10, background: '#64748b', display: 'inline-block' }} /> {t('rack3d.legend.fullDepth', 'Full-depth')}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-          <span style={{ width: 10, height: 10, background: '#22c55e', display: 'inline-block' }} /> {t('rack3d.legend.frontMount', 'Front-Mount')}
+          <span style={{ width: 10, height: 10, background: '#22c55e', display: 'inline-block' }} /> {t('rack3d.legend.frontMount', 'Front mount')}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-          <span style={{ width: 10, height: 10, background: '#a855f7', display: 'inline-block' }} /> {t('rack3d.legend.rearMount', 'Rear-Mount')}
+          <span style={{ width: 10, height: 10, background: '#a855f7', display: 'inline-block' }} /> {t('rack3d.legend.rearMount', 'Rear mount')}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-          <span style={{ width: 10, height: 10, background: '#38bdf8', display: 'inline-block' }} /> {t('rack3d.legend.selected', 'Ausgewählt')}
+          <span style={{ width: 10, height: 10, background: '#38bdf8', display: 'inline-block' }} /> {t('rack3d.legend.selected', 'Selected')}
         </div>
       </div>
       <div
@@ -1219,8 +1219,8 @@ export const Rack3DView = ({
           lineHeight: 1.4,
         }}
       >
-        <Icon icon={Mouse} size="xs" className="mr-1 inline-block align-text-bottom" />{t('rack3d.help.mouse', 'Drehen: links · Pannen: rechts · Zoom: scroll')}<br />
-        <Icon icon={Keyboard} size="xs" className="mr-1 inline-block align-text-bottom" />{t('rack3d.help.heightLabel', 'Höhe:')} <kbd style={{ background: kbdBg, padding: '0 3px', borderRadius: 2 }}>Shift</kbd> {t('rack3d.help.up', 'hoch')} · <kbd style={{ background: kbdBg, padding: '0 3px', borderRadius: 2 }}>Space</kbd> {t('rack3d.help.down', 'runter')}
+        <Icon icon={Mouse} size="xs" className="mr-1 inline-block align-text-bottom" />{t('rack3d.help.mouse', 'Rotate: left · Pan: right · Zoom: scroll')}<br />
+        <Icon icon={Keyboard} size="xs" className="mr-1 inline-block align-text-bottom" />{t('rack3d.help.heightLabel', 'Height:')} <kbd style={{ background: kbdBg, padding: '0 3px', borderRadius: 2 }}>Shift</kbd> {t('rack3d.help.up', 'up')} · <kbd style={{ background: kbdBg, padding: '0 3px', borderRadius: 2 }}>Space</kbd> {t('rack3d.help.down', 'down')}
       </div>
     </div>
   )

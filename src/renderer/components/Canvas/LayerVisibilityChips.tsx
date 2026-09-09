@@ -60,7 +60,7 @@ export const LayerVisibilityChips = () => {
 
   const handleAddCustom = async () => {
     const name = (await promptDialog(
-      t('canvas.layerChips.customLayerPrompt', 'Custom-Layer anlegen (z.B. "intercom", "lighting")'),
+      t('canvas.layerChips.customLayerPrompt', 'Create custom layer (e.g. "intercom", "lighting")'),
       '',
     ))?.trim()
     if (!name) return
@@ -78,10 +78,10 @@ export const LayerVisibilityChips = () => {
   const entfernen = (layer: string) => {
     void (async () => {
       const ok = await confirmDialog(
-        format(t('canvas.layerChips.removeCustom', 'Custom-Layer "{layer}" entfernen?'), {
+        format(t('canvas.layerChips.removeCustom', 'Remove custom layer "{layer}"?'), {
           layer,
         }),
-        { destructive: true, okLabel: t('common.delete', 'Löschen') },
+        { destructive: true, okLabel: t('common.delete', 'Delete') },
       )
       if (ok) removeCustomLayer(layer)
     })()
@@ -92,10 +92,10 @@ export const LayerVisibilityChips = () => {
         className={`select-none text-[9px] uppercase tracking-wider ${isLight ? 'text-slate-400' : 'text-slate-400'}`}
         title={t(
           'canvas.layerChips.layerStripTitle',
-          'Layer-Sichtbarkeit (nur Kabel werden gefiltert, Geräte bleiben)',
+          'Layer visibility (only cables are filtered, devices stay)',
         )}
       >
-        {t('canvas.layerChips.layers', 'Ebenen')}
+        {t('canvas.layerChips.layers', 'Layers')}
       </span>
       {(STANDARD_LAYERS as readonly StandardLayer[]).map((layer) => {
         const style = LAYER_STYLES[layer]
@@ -109,14 +109,14 @@ export const LayerVisibilityChips = () => {
             title={format(
               t(
                 'canvas.layerChips.chipTitle',
-                '{label} — {count} Kabel · {state}',
+                '{label} — {count} cables · {state}',
               ),
               {
                 label: style.label,
                 count,
                 state: visible
-                  ? t('canvas.layerChips.visibleHide', 'sichtbar (klick: ausblenden)')
-                  : t('canvas.layerChips.hiddenShow', 'ausgeblendet (klick: einblenden)'),
+                  ? t('canvas.layerChips.visibleHide', 'visible (click to hide)')
+                  : t('canvas.layerChips.hiddenShow', 'hidden (click to show)'),
               },
             )}
             className="inline-flex h-6 items-center gap-1 rounded-full border px-2 text-[10px] font-medium transition"
@@ -163,7 +163,7 @@ export const LayerVisibilityChips = () => {
                bricht ab, sobald der Zeiger wandert: dann war es ein Zug. */
             {...langerDruck(layer)}
             title={format(
-              t('canvas.layerChips.customTitle', '{layer} (custom) — Rechtsklick zum Entfernen'),
+              t('canvas.layerChips.customTitle', '{layer} (custom) — right-click to remove'),
               { layer },
             )}
             className="inline-flex h-6 items-center gap-1 rounded-full border px-2 text-[10px] font-medium transition"
@@ -190,7 +190,7 @@ export const LayerVisibilityChips = () => {
       <button
         type="button"
         onClick={() => setMenuOpen((v) => !v)}
-        title={t('canvas.layerChips.menuTitle', 'Layer-Verwaltung (Custom anlegen / alle zurücksetzen)')}
+        title={t('canvas.layerChips.menuTitle', 'Layer management (create custom / reset all)')}
         aria-haspopup="menu"
         aria-expanded={menuOpen}
         className={`inline-flex h-6 items-center gap-1 rounded-full border px-2 text-[11px] transition ${
@@ -199,7 +199,7 @@ export const LayerVisibilityChips = () => {
             : 'border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700'
         }`}
       >
-        <span>{t('canvas.layerChips.menuButton', 'Ebenen')}</span>
+        <span>{t('canvas.layerChips.menuButton', 'Layers')}</span>
         <span aria-hidden="true">⋯</span>
       </button>
       {menuOpen && (
@@ -220,7 +220,7 @@ export const LayerVisibilityChips = () => {
             }`}
           >
             <span>➕</span>
-            <span>{t('canvas.layerChips.addCustom', 'Custom-Layer anlegen…')}</span>
+            <span>{t('canvas.layerChips.addCustom', 'Create custom layer…')}</span>
           </button>
           <button
             type="button"
@@ -235,7 +235,7 @@ export const LayerVisibilityChips = () => {
             style={{ opacity: allOn ? 0.5 : 1 }}
           >
             <Icon icon={Eye} size="xs" />
-            <span>{t('canvas.layerChips.resetAll', 'Alle Ebenen wieder einblenden')}</span>
+            <span>{t('canvas.layerChips.resetAll', 'Show all layers again')}</span>
           </button>
         </div>
       )}

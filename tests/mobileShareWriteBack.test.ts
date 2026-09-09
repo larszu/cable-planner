@@ -222,6 +222,6 @@ describe('mobileShare: Dialog und Handy sagen dasselbe wie der Server', () => {
 
   it('der Sicherheits-Hinweis behauptet nicht mehr, es werde immer geschrieben', () => {
     const dlg = read(DIALOG)
-    expect(dlg).toContain('entscheidet die Einstellung darüber')
+    expect(dlg).toContain('is decided by the setting above')
   })
 })

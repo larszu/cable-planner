@@ -117,23 +117,23 @@ export const ReplaceDeviceSection = ({ equipment }: { equipment: EquipmentItem }
       format(
         t(
           'replaceDevice.confirm.body',
-          'Aktuell {connected} verkabelte Verbindung(en). Beim Ersetzen werden:',
+          'Currently {connected} cable connection(s). When replacing:',
         ),
         { connected: connectedCables },
       ) +
-      `\n• ${format(t('replaceDevice.confirm.inMapped', '{n} Eingang-Port(s) gemappt'), { n: inPrev.mapped })}` +
-      `\n• ${format(t('replaceDevice.confirm.outMapped', '{n} Ausgang-Port(s) gemappt'), { n: outPrev.mapped })}` +
+      `\n• ${format(t('replaceDevice.confirm.inMapped', '{n} input port(s) mapped'), { n: inPrev.mapped })}` +
+      `\n• ${format(t('replaceDevice.confirm.outMapped', '{n} output port(s) mapped'), { n: outPrev.mapped })}` +
       (lost > 0
-        ? `\n⚠ ${format(t('replaceDevice.confirm.lost', '{n} Kabel verlieren ihren Port und werden gelöscht'), { n: lost })}`
+        ? `\n⚠ ${format(t('replaceDevice.confirm.lost', '{n} cable(s) lose their port and will be deleted'), { n: lost })}`
         : '')
     const ok = await confirmDialog(
       format(
-        t('replaceDevice.confirm.title', '{from} ersetzen durch {to}?'),
+        t('replaceDevice.confirm.title', 'Replace {from} with {to}?'),
         { from: equipment.name, to: template.name },
       ),
       {
         body,
-        okLabel: t('replaceDevice.confirm.ok', 'Ersetzen'),
+        okLabel: t('replaceDevice.confirm.ok', 'Replace'),
         destructive: lost > 0,
       },
     )
@@ -145,8 +145,8 @@ export const ReplaceDeviceSection = ({ equipment }: { equipment: EquipmentItem }
   return (
     <SortableSection
       id="replace-device"
-      title={t('replaceDevice.title', 'Gerät ersetzen')}
-      subtitle={t('replaceDevice.subtitle', 'Verkabelung erhalten')}
+      title={t('replaceDevice.title', 'Replace device')}
+      subtitle={t('replaceDevice.subtitle', 'Preserve cabling')}
     >
       {!open ? (
         <button
@@ -155,10 +155,10 @@ export const ReplaceDeviceSection = ({ equipment }: { equipment: EquipmentItem }
           className="w-full rounded bg-sky-700 px-2 py-1 text-cp-xs text-white hover:bg-sky-600"
           title={t(
             'replaceDevice.btnTitle',
-            'Aktuelles Gerät durch ein anderes Library-Template tauschen — Ports werden anhand Connector-Typ + Label gemappt, Kabel bleiben (wo möglich) erhalten.',
+            'Swap the current device for another library template — ports are mapped by connector type + label, cables are preserved where possible.',
           )}
         >
-          ↔ {t('replaceDevice.btn', 'Anderes Gerät wählen…')}
+          ↔ {t('replaceDevice.btn', 'Choose another device…')}
         </button>
       ) : (
         <div className="space-y-2">
@@ -167,8 +167,8 @@ export const ReplaceDeviceSection = ({ equipment }: { equipment: EquipmentItem }
               type="text"
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
-              placeholder={t('replaceDevice.searchPlaceholder', 'Suchen (Name, Kategorie, Hersteller)…')}
-              aria-label={t('replaceDevice.searchPlaceholder', 'Suchen (Name, Kategorie, Hersteller)…')}
+              placeholder={t('replaceDevice.searchPlaceholder', 'Search (name, category, manufacturer)…')}
+              aria-label={t('replaceDevice.searchPlaceholder', 'Search (name, category, manufacturer)…')}
               className="flex-1 rounded border border-cp-border bg-cp-surface-3 p-1.5 text-cp-xs"
             />
             <button
@@ -184,7 +184,7 @@ export const ReplaceDeviceSection = ({ equipment }: { equipment: EquipmentItem }
             onChange={(e) => setCategoryFilter(e.target.value)}
             className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5 text-cp-xs"
           >
-            <option value="">{t('replaceDevice.allCategories', '— Alle Kategorien —')}</option>
+            <option value="">{t('replaceDevice.allCategories', '— All categories —')}</option>
             {categories.map((c) => (
               <option key={c.value} value={c.value}>
                 {c.label}
@@ -194,7 +194,7 @@ export const ReplaceDeviceSection = ({ equipment }: { equipment: EquipmentItem }
           <div className="max-h-56 overflow-auto rounded border border-cp-border-muted">
             {filtered.length === 0 ? (
               <div className="px-2 py-3 text-center text-[11px] text-cp-text-muted">
-                {t('replaceDevice.noMatches', 'Keine Treffer.')}
+                {t('replaceDevice.noMatches', 'No matches.')}
               </div>
             ) : (
               <ul>
@@ -220,7 +220,7 @@ export const ReplaceDeviceSection = ({ equipment }: { equipment: EquipmentItem }
                         {lost > 0 ? (
                           <span
                             className="rounded bg-amber-900/60 px-1.5 py-0.5 text-[11px] font-bold text-amber-200"
-                            title={format(t('replaceDevice.lostBadgeTitle', '{n} Verbindung(en) würden verloren gehen'), { n: lost })}
+                            title={format(t('replaceDevice.lostBadgeTitle', '{n} connection(s) would be lost'), { n: lost })}
                           >
                             -{lost}
                           </span>

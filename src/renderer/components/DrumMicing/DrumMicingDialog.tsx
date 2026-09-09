@@ -147,18 +147,18 @@ export const DrumMicingDialog = () => {
       const liste = dropped.map((d) => `${d.zoneLabel}: ${d.what}`).join(', ')
       const ok = await confirmDialog(
         format(
-          t('drum.preset.dropTitle', '{n} gesetzte Mikrofone gehen verloren'),
+          t('drum.preset.dropTitle', '{n} placed microphones will be lost'),
           { n: String(dropped.length) },
         ),
         {
           body: format(
             t(
               'drum.preset.dropBody',
-              'Die Technik „{tech}" kennt diese Zonen nicht: {liste}. Danach hat der Plan {rows} Mikrofone.',
+              'The \u201c{tech}\u201d technique does not know these zones: {liste}. Afterwards the plan holds {rows} microphones.',
             ),
             { tech: DRUM_TECHNIQUES[tech].label.de, liste, rows: String(placements.length) },
           ),
-          okLabel: t('drum.preset.dropOk', 'Trotzdem anwenden'),
+          okLabel: t('drum.preset.dropOk', 'Apply anyway'),
           destructive: true,
         },
       )
@@ -225,13 +225,13 @@ export const DrumMicingDialog = () => {
       >
         <header className="flex shrink-0 items-center justify-between border-b border-cp-border-muted px-4 py-2.5">
           <h2 id={titleId} className="text-cp-lg font-semibold">
-            {t('drum.title', 'Drum-Mikrofonierung')}
+            {t('drum.title', 'Drum micing')}
           </h2>
           <button
             type="button"
             onClick={() => setOpen(false)}
             className="rounded px-2 py-1 text-cp-text-muted hover:bg-cp-surface-2 hover:text-cp-text"
-            aria-label={t('common.close', 'Schließen')}
+            aria-label={t('common.close', 'Close')}
           >
             <X size={18} />
           </button>
@@ -239,7 +239,7 @@ export const DrumMicingDialog = () => {
 
         {/* Technik-Presets */}
         <div className="flex shrink-0 flex-wrap items-center gap-2 border-b border-cp-border-muted px-4 py-2 text-cp-sm">
-          <span className="text-cp-text-secondary">{t('drum.technique', 'Technik')}:</span>
+          <span className="text-cp-text-secondary">{t('drum.technique', 'Technique')}:</span>
           {(Object.keys(DRUM_TECHNIQUES) as (keyof typeof DRUM_TECHNIQUES)[]).map((key) => (
             <button
               key={key}
@@ -264,14 +264,14 @@ export const DrumMicingDialog = () => {
             }`}
           >
             {editKit ? <Check size={12} /> : <Wrench size={12} />}
-            {editKit ? t('drum.editDone', 'Kit fertig') : t('drum.editKit', 'Kit bearbeiten')}
+            {editKit ? t('drum.editDone', 'Kit done') : t('drum.editKit', 'Edit kit')}
           </button>
           <button
             type="button"
             onClick={clearAll}
             className="rounded border border-cp-border-muted px-2 py-1 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-2"
           >
-            {t('drum.clear', 'Alle Mics entfernen')}
+            {t('drum.clear', 'Remove all mics')}
           </button>
         </div>
 
@@ -321,7 +321,7 @@ export const DrumMicingDialog = () => {
               })}
             </svg>
             <p className="mt-2 text-center text-cp-xs text-cp-text-faint">
-              {t('drum.hint', 'Zone anklicken → rechts Mikrofon zuweisen. Presets oben setzen einen Startpunkt.')}
+              {t('drum.hint', 'Click a zone → assign a microphone on the right. The presets at the top set a starting point.')}
             </p>
           </div>
 
@@ -331,10 +331,10 @@ export const DrumMicingDialog = () => {
             {editKit && (
               <div className="border-b border-cp-border-muted p-3">
                 <h3 className="mb-2 text-cp-xs font-semibold uppercase tracking-wide text-cp-text-muted">
-                  {t('drum.kitEdit', 'Kit zusammenstellen')}
+                  {t('drum.kitEdit', 'Assemble kit')}
                 </h3>
                 <p className="mb-2 text-cp-xs text-cp-text-faint">
-                  {t('drum.kitEditHint', 'Zonen im Bild per Drag verschieben. Unten hinzufügen/umbenennen/löschen.')}
+                  {t('drum.kitEditHint', 'Drag the zones in the image to move them. Add, rename or delete them below.')}
                 </p>
                 <div className="mb-2 space-y-1">
                   {plan.zones.map((z) => (
@@ -345,7 +345,7 @@ export const DrumMicingDialog = () => {
                         onChange={(e) => renameZone(z.id, e.target.value)}
                         className="w-full rounded border border-cp-border bg-cp-surface-1 p-1 text-cp-xs"
                       />
-                      <button type="button" onClick={() => removeZone(z.id)} className="shrink-0 text-cp-danger" title={t('common.delete', 'Löschen')}>
+                      <button type="button" onClick={() => removeZone(z.id)} className="shrink-0 text-cp-danger" title={t('common.delete', 'Delete')}>
                         <Trash2 size={13} />
                       </button>
                     </div>
@@ -393,7 +393,7 @@ export const DrumMicingDialog = () => {
                     </button>
                   </div>
                   {micsForZone(selectedZone).length === 0 && (
-                    <p className="text-cp-xs text-cp-text-faint">{t('drum.noMic', 'Noch kein Mikrofon auf dieser Zone.')}</p>
+                    <p className="text-cp-xs text-cp-text-faint">{t('drum.noMic', 'No microphone on this zone yet.')}</p>
                   )}
                   {micsForZone(selectedZone).map((m) => {
                     const resolved = m.micDeviceTypeId ? micById.get(m.micDeviceTypeId) : undefined
@@ -406,7 +406,7 @@ export const DrumMicingDialog = () => {
                             onChange={(e) => setMicModel(m.id, e.target.value)}
                             className="w-full rounded border border-cp-border bg-cp-surface-1 p-1 text-cp-xs"
                           >
-                            <option value="">{t('drum.pickMic', '— Mikrofon wählen —')}</option>
+                            <option value="">{t('drum.pickMic', '— pick microphone —')}</option>
                             {micTemplates.map((tmpl) => (
                               <option key={tmpl.deviceTypeId} value={tmpl.deviceTypeId}>
                                 {tmpl.name}
@@ -419,7 +419,7 @@ export const DrumMicingDialog = () => {
                         </div>
                         {phantom && (
                           <div className="mt-1 flex items-center gap-1 text-[10px] text-amber-500">
-                            <Zap size={10} /> {t('drum.phantom', '48V Phantom nötig')}
+                            <Zap size={10} /> {t('drum.phantom', '48V phantom required')}
                           </div>
                         )}
                       </div>
@@ -427,33 +427,33 @@ export const DrumMicingDialog = () => {
                   })}
                 </>
               ) : (
-                <p className="text-cp-xs text-cp-text-faint">{t('drum.selectZone', 'Zone im Kit anklicken.')}</p>
+                <p className="text-cp-xs text-cp-text-faint">{t('drum.selectZone', 'Click a zone in the kit.')}</p>
               )}
             </div>
 
             {/* Ableitungen */}
             <div className="p-3">
               <h3 className="mb-2 text-cp-xs font-semibold uppercase tracking-wide text-cp-text-muted">
-                {t('drum.summary', 'Kanalliste & Bedarf')}
+                {t('drum.summary', 'Channel list & requirements')}
               </h3>
               <div className="mb-2 flex flex-wrap gap-2 text-cp-xs">
                 <span className="rounded bg-cp-surface-2 px-2 py-0.5 text-cp-text-secondary">
-                  {derivation.channelCount} {t('drum.channels', 'Kanäle')}
+                  {derivation.channelCount} {t('drum.channels', 'Channels')}
                 </span>
                 <span className="flex items-center gap-1 rounded bg-amber-500/15 px-2 py-0.5 text-amber-500">
                   <Zap size={11} /> {derivation.phantomCount}× 48V
                 </span>
                 {derivation.unknownCount > 0 && (
                   <span className="flex items-center gap-1 rounded bg-cp-warn/15 px-2 py-0.5 text-cp-warn">
-                    <AlertTriangle size={11} /> {derivation.unknownCount} {t('drum.unknown', 'ohne Mic')}
+                    <AlertTriangle size={11} /> {derivation.unknownCount} {t('drum.unknown', 'no mic')}
                   </span>
                 )}
                 {derivation.splRiskCount > 0 && (
                   <span
                     className="flex items-center gap-1 rounded bg-cp-danger/15 px-2 py-0.5 text-cp-danger"
-                    title={t('drum.splHint', 'Max SPL < 140 dB an Kick/Snare — ein Snare-Schlag kann 156 dB überschreiten (DPA).')}
+                    title={t('drum.splHint', 'Max SPL < 140 dB on kick/snare — a single snare hit can exceed 156 dB (DPA).')}
                   >
-                    <AlertTriangle size={11} /> {derivation.splRiskCount}× {t('drum.spl', 'SPL grenzwertig')}
+                    <AlertTriangle size={11} /> {derivation.splRiskCount}× {t('drum.spl', 'SPL borderline')}
                   </span>
                 )}
               </div>
@@ -464,7 +464,7 @@ export const DrumMicingDialog = () => {
                       <td className="py-0.5 pr-1 text-cp-text-faint">{c.channel}</td>
                       <td className="py-0.5 pr-1 text-cp-text-secondary">{c.label}</td>
                       <td className="py-0.5 text-cp-text">
-                        {c.micUnknown ? <span className="text-cp-warn">{t('drum.pending', '(Mic offen)')}</span> : c.micName}
+                        {c.micUnknown ? <span className="text-cp-warn">{t('drum.pending', '(mic open)')}</span> : c.micName}
                       </td>
                       <td className="py-0.5 text-right">
                         {c.splRisk && <AlertTriangle size={11} className="inline text-cp-danger" />}
@@ -476,7 +476,7 @@ export const DrumMicingDialog = () => {
                   {derivation.channels.length === 0 && (
                     <tr>
                       <td colSpan={4} className="py-2 text-cp-text-faint">
-                        {t('drum.emptyList', 'Noch keine Mikrofone platziert.')}
+                        {t('drum.emptyList', 'No microphones placed yet.')}
                       </td>
                     </tr>
                   )}
@@ -488,14 +488,14 @@ export const DrumMicingDialog = () => {
                 <div className="mt-3">
                   <div className="mb-1 flex items-center justify-between">
                     <h3 className="text-cp-xs font-semibold uppercase tracking-wide text-cp-text-muted">
-                      {t('drum.bom', 'Materialliste')}
+                      {t('drum.bom', 'Bill of materials')}
                     </h3>
                     <button
                       type="button"
                       onClick={copyBom}
                       className="rounded border border-cp-border-muted px-2 py-0.5 text-[10px] text-cp-text-secondary hover:bg-cp-surface-2"
                     >
-                      {copied ? t('drum.copied', 'kopiert ✓') : t('drum.copy', 'kopieren')}
+                      {copied ? t('drum.copied', 'copied ✓') : t('drum.copy', 'copy')}
                     </button>
                   </div>
                   <table className="w-full text-cp-xs">
