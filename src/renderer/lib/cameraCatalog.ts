@@ -1,8 +1,15 @@
 import type { EquipmentTemplate, Port } from '../types/equipment'
 
-// Camera templates sourced from official datasheets / manufacturer spec pages.
-// Covers Sony PXW/PMW cinema line, Blackmagic URSA / Pocket / Studio Camera,
-// and Canon EOS Cinema range commonly found in broadcast/event rental inventories.
+// Camera templates covering the Sony PXW/PMW cinema line, Blackmagic URSA /
+// Pocket / Studio Camera, and the Canon EOS Cinema range commonly found in
+// broadcast/event rental inventories.
+//
+// BELEGLAGE: kein Datenblatt-Link je Eintrag (B-11).
+// Bis 2026-09-09 stand hier „sourced from official datasheets / manufacturer
+// spec pages". Keiner der 20 Einträge hinterlegt eine solche Seite. Der Satz
+// las sich wie ein Beleg und war keiner — wer eine Auflösung oder einen
+// Anschluss nachprüfen wollte, hörte bei ihm auf zu suchen.
+// `tests/katalogBeleglage.test.ts` hält es fest.
 
 const port = (name: string, connectorType: Port['connectorType'] = 'BNC'): Port => ({
   id: '',
