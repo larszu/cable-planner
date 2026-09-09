@@ -87,6 +87,7 @@ import { normaliseCrewPlan } from '../lib/labourCost'
 import { normaliseNamingScheme } from '../lib/namingScheme'
 import { normaliseRecordNaming } from '../lib/recordNaming'
 import { normaliseMicPlot } from '../lib/micAssignment'
+import { normaliseRundown } from '../lib/rundownCard'
 import { normaliseTallyPositions } from '../lib/tallyPosition'
 import { normaliseNetworkSegments } from '../lib/networkSegments'
 import { normaliseAddressLayers } from '../lib/addressTemplate'
@@ -491,6 +492,8 @@ export interface ProjectState {
   ) => void
   /** Bedarf 114 — Personen, Sessions und ihre Strecken-Zuordnungen. */
   setMicPlot: (plot: import('../types/micAssignment').MicPlot | undefined) => void
+  /** Bedarf 10 — Ablauf und Zuordnung zusammen. `undefined` loescht den Slot. */
+  setRundown: (rundown: import('../types/rundown').RundownPlan | undefined) => void
   applyNaming: (scheme: import('../types/namingScheme').NamingScheme) => void
   /** v7.9.3 — Mobile-Viewer Check-State setzen (vom POST /checks-IPC).
    *  Komplettes Objekt-Replace damit gelöschte Checks (false → kein
@@ -956,6 +959,13 @@ const healProjectPositions = (
     micPlotGeheilt.performers.length || micPlotGeheilt.sessions.length || micPlotGeheilt.assignments.length
       ? micPlotGeheilt
       : undefined
+  // Bedarf 10 — der gelesene Ablauf. Dieselbe Regel wie beim Mic-Plot:
+  // `undefined` heisst „kein Ablauf eingelesen", und das ist etwas anderes als
+  // ein eingelesener Ablauf ohne Abschnitte. `normaliseRundown` verwirft
+  // ausserdem Zuordnungen auf Abschnitte, die es nicht mehr gibt — sie
+  // koennten nie angezeigt werden und saehen in der Datei aus wie erteilte
+  // Auftraege.
+  const rundown = normaliseRundown(project.rundown)
   // ─── E-2, Schritt 1: der Intercom-Slot ───────────────────────────────────
   //
   // Bis hierher stand die Green-GO-Konfiguration im Projekt und war seine
@@ -1306,6 +1316,8 @@ const healProjectPositions = (
     recordNaming,
     // Bedarf 114 — dito: `undefined` heisst „keine Zuordnungen gefuehrt".
     micPlot,
+    // Bedarf 10 — dito: `undefined` heisst „kein Ablauf eingelesen".
+    rundown,
     // ADR-003 — Rentman-Zaehler: gesendet ist nicht bestaetigt.
     metadata: {
       ...healRentmanCableMap(project.metadata),
