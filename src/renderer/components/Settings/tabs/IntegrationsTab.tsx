@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { X, Eye, EyeOff } from 'lucide-react'
 import { Icon } from '../../shared/Icon'
+import { PanelHint } from '../../shared/PanelHint'
 import { cablePlannerApi } from '../../../lib/bridge'
 import { useSettingsStore, useModule } from '../../../store/settingsStore'
 import { useProjectStore } from '../../../store/projectStore'
@@ -292,6 +293,112 @@ const GreenGoPresetsCard = () => {
             </li>
           ))}
         </ul>
+      )}
+    </SettingsCard>
+  )
+}
+
+/**
+ * B-6 / E-7 — DAS ZIEL FUER DEN DIREKTWEG ZUM TALLY-PI.
+ *
+ * Die Entscheidung sagt beides, mit Rangfolge: „Die Datei bleibt der
+ * Vorgabeweg; der Direktweg kommt als ausdrücklich einzuschaltendes Ziel
+ * dazu." Deshalb steht der Schalter VOR der Adresse und ist aus, bis jemand
+ * ihn umlegt — auch bei bestehenden Installationen, die schon eine Adresse
+ * haetten.
+ *
+ * WARUM HIER KEIN TOKEN-FELD STEHT. `guide_server.py` prueft an seinen
+ * Schreib-Endpunkten nichts — kein `Authorization`, kein eigener Kopf, und
+ * seine eigene Bedienseite schreibt ueber dieselben offenen Wege. Ein Feld
+ * „Token" behauptete einen Schutz, den es nicht gibt; wer es ausfuellte,
+ * hielte den Weg fuer gesichert. Der Schutz des Pi ist ein eigener Punkt und
+ * eine Entscheidung ueber seine ganze HTTP-Flaeche, nicht ueber diesen einen
+ * Aufruf.
+ *
+ * Die Adresse gehoert der INSTALLATION, nicht dem Projekt: eine `.avplan`
+ * wandert per Mail und geht in den Web-Viewer, und eine LAN-Adresse darin
+ * waere die Anlagenkarte eines fremden Hauses in einer herumgereichten Datei.
+ */
+const TallyPiCard = () => {
+  const t = useTranslation()
+  const tallyPiUrl = useSettingsStore((s) => s.tallyPiUrl)
+  const tallyPiDirekt = useSettingsStore((s) => s.tallyPiDirekt)
+  const setTallyPiUrl = useSettingsStore((s) => s.setTallyPiUrl)
+  const setTallyPiDirekt = useSettingsStore((s) => s.setTallyPiDirekt)
+  const [adresse, setAdresse] = useState(tallyPiUrl)
+  const [probe, setProbe] = useState<string | null>(null)
+  const [laeuft, setLaeuft] = useState(false)
+
+  const pruefen = async () => {
+    setLaeuft(true)
+    setProbe(null)
+    // Geprueft wird durch LESEN, nicht durch Schreiben: ein „Verbindung
+    // testen", das etwas hinterlaesst, ist kein Test.
+    const antwort = await cablePlannerApi.tally.read(adresse.trim())
+    setLaeuft(false)
+    setProbe(
+      antwort.ok
+        ? t('settings.integrations.tallyPi.ok', 'Der Pi antwortet.')
+        : (antwort.error ?? t('settings.integrations.tallyPi.fail', 'Keine Antwort.')),
+    )
+  }
+
+  return (
+    <SettingsCard
+      title={t('settings.integrations.tallyPi.title', 'Tally-Pi (Direktweg)')}
+      description={t(
+        'settings.integrations.tallyPi.desc',
+        'Schickt die Tally-Karte aus dem Export-Dialog direkt an den Pi, statt eine Datei herunterzuladen, die jemand von Hand kopiert. Die Datei bleibt daneben bestehen — sie ist der Weg, der ohne Netz zum Pi funktioniert. Der Pi behält dabei seine Verdrahtung; Rollen, die im Plan fehlen, verschwinden dort.',
+      )}
+    >
+      <label className="flex items-center gap-2 text-cp-base">
+        <input
+          type="checkbox"
+          checked={tallyPiDirekt}
+          onChange={(e) => setTallyPiDirekt(e.target.checked)}
+          className="h-4 w-4 accent-sky-500"
+        />
+        <span>
+          {t('settings.integrations.tallyPi.enable', 'Direktweg zum Tally-Pi erlauben')}{' '}
+          <span className="text-[10px] text-cp-text-muted">
+            ({tallyPiDirekt ? t('common.on', 'ein') : t('common.off', 'aus')})
+          </span>
+        </span>
+      </label>
+
+      {tallyPiDirekt && (
+        <>
+          <label className="mt-3 block text-cp-base">
+            <span className="mb-1 block text-cp-text-secondary">
+              {t('settings.integrations.tallyPi.url', 'Adresse des Pi')}
+            </span>
+            <input
+              value={adresse}
+              onChange={(e) => setAdresse(e.target.value)}
+              onBlur={() => setTallyPiUrl(adresse.trim())}
+              placeholder="http://10.0.0.42:8080"
+              className="w-full rounded border border-cp-border bg-cp-surface-1 p-2"
+            />
+          </label>
+          <div className="mt-2 flex items-center gap-2">
+            <button
+              type="button"
+              onClick={pruefen}
+              disabled={laeuft || adresse.trim() === ''}
+              className="rounded border border-cp-border px-3 py-1.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-3 disabled:opacity-40"
+            >
+              {t('settings.integrations.tallyPi.test', 'Verbindung prüfen')}
+            </button>
+            {probe && <span className="text-cp-xs text-cp-text-muted">{probe}</span>}
+          </div>
+          <PanelHint
+            className="mt-2 text-cp-xs text-cp-text-muted"
+            text={t(
+              'settings.integrations.tallyPi.noToken',
+              'Der Pi verlangt für diesen Weg keinen Nachweis — er prüft an seinen Schreib-Wegen nichts. Wer ihn erreicht, kann ihn beschreiben. Das ist eine Eigenschaft des Pi und keine Einstellung hier; nutze den Direktweg nur in einem Netz, dem du das zutraust.',
+            )}
+          />
+        </>
       )}
     </SettingsCard>
   )
@@ -755,6 +862,9 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
 
       {/* #597 — NetBox-Instanz (Toggle + URL + Token). */}
       <NetboxCard onClose={onClose} />
+
+      {/* B-6 / E-7 — Ziel fuer den Direktweg zum Tally-Pi. */}
+      <TallyPiCard />
 
       {/* v7.9.86 / #197 — Multi-AI-Provider Card (Gemini / Claude / OpenAI). */}
       <AiProvidersCard />

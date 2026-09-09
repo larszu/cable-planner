@@ -283,6 +283,21 @@ contextBridge.exposeInMainWorld('cablePlanner', {
       return () => ipcRenderer.removeListener('showControl:update', handler)
     },
   },
+  /**
+   * B-6 / E-7 — der Direktweg zum Tally-Pi. Lesen und Schreiben getrennt:
+   * der Schreibvorgang loescht Rollen, die der Plan nicht nennt, und wer das
+   * ausloest, soll vorher gesehen haben, was verschwindet.
+   *
+   * Die Adresse wird hier NICHT geprueft — das passiert in main
+   * (`tallyPushService.pruefeZiel`), wie es die Repo-Regel verlangt. Eine
+   * zweite Pruefung hier waere die zweite Wahrheit: sie liefe irgendwann
+   * auseinander, und die im Renderer waere die nachgiebigere.
+   */
+  tally: {
+    read: (adresse: string) => ipcRenderer.invoke('tally:read', adresse) as Promise<unknown>,
+    write: (adresse: string, devices: unknown[]) =>
+      ipcRenderer.invoke('tally:write', adresse, devices) as Promise<unknown>,
+  },
   logs: {
     rendererError: (payload: { message: string; stack?: string; source?: string }) =>
       ipcRenderer.send('logs:renderer-error', payload),

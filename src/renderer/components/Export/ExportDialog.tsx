@@ -43,7 +43,9 @@ import { printPdfBlob } from '../../lib/printPdfBlob'
 import { sanitizeForPdf } from '../../lib/sanitizeForPdf'
 import { downloadBlob } from '../../lib/downloadBlob'
 import { exportDeviceConfig } from '../../lib/deviceConfigExport'
-import { buildTallyMap, tallyMapCsv, toTallyPiDevices } from '../../lib/tallyMap'
+import { buildTallyMap, tallyMapCsv, toTallyPiDevices, vergleicheMitPi, type PiVergleich } from '../../lib/tallyMap'
+import { cablePlannerApi } from '../../lib/bridge'
+import { useSettingsStore } from '../../store/settingsStore'
 import { TallyPreShowPanel } from '../Tally/TallyPreShowPanel'
 import { toCsv } from '../../lib/csv'
 import {
@@ -1437,6 +1439,47 @@ const TallySection = () => {
       'text/csv;charset=utf-8',
     )
   }
+  // B-6 / E-7 — der Direktweg. Er ist AUSDRUECKLICH einzuschalten und braucht
+  // eine Adresse; ohne beides steht dieser Block gar nicht da. Die Datei
+  // daneben bleibt der Vorgabeweg und verschwindet nicht.
+  const piUrl = useSettingsStore((st) => st.tallyPiUrl)
+  const piDirekt = useSettingsStore((st) => st.tallyPiDirekt)
+  const [piGelesen, setPiGelesen] = useState<{ adresse: string; vergleich: PiVergleich } | null>(null)
+  const [piMeldung, setPiMeldung] = useState<{ ton: 'ok' | 'fehler'; text: string } | null>(null)
+  const [piLaeuft, setPiLaeuft] = useState(false)
+
+  const piLesen = async () => {
+    setPiLaeuft(true)
+    setPiMeldung(null)
+    const antwort = await cablePlannerApi.tally.read(piUrl)
+    setPiLaeuft(false)
+    if (!antwort.ok) {
+      setPiGelesen(null)
+      setPiMeldung({ ton: 'fehler', text: antwort.error ?? 'Der Pi hat nicht geantwortet.' })
+      return
+    }
+    setPiGelesen({ adresse: piUrl, vergleich: vergleicheMitPi(antwort.json, toTallyPiDevices(map)) })
+  }
+
+  const piSenden = async () => {
+    setPiLaeuft(true)
+    setPiMeldung(null)
+    const antwort = await cablePlannerApi.tally.write(piUrl, toTallyPiDevices(map))
+    setPiLaeuft(false)
+    if (!antwort.ok) {
+      setPiMeldung({ ton: 'fehler', text: antwort.error ?? 'Der Pi hat die Karte nicht angenommen.' })
+      return
+    }
+    // Nach dem Schreiben ist der gelesene Stand veraltet. Ihn stehen zu
+    // lassen hiesse, beim naechsten Klick eine Vorschau zu zeigen, die es so
+    // nicht mehr gibt — und der zweite Sendeknopf waere ohne neuen Blick frei.
+    setPiGelesen(null)
+    setPiMeldung({
+      ton: 'ok',
+      text: t('export.tally.piSent', 'Die Tally-Karte steht auf dem Pi.'),
+    })
+  }
+
   const downloadTallyPi = () => {
     // BEDARF 43 — die Geraetedatei fuer den Pi geht mit Herkunfts-Blatt raus.
     exportDeviceConfig(
@@ -1550,6 +1593,78 @@ const TallySection = () => {
           {t('export.tally.pi', 'tally-pi-Geräte (JSON)')}
         </button>
       </div>
+
+      {/* B-6 / E-7 — der Direktweg. Er steht NEBEN der Datei und nicht an
+          ihrer Stelle: die Datei ist der Vorgabeweg und der einzige, der ohne
+          Netz zum Pi funktioniert. Sichtbar wird er nur, wenn er in den
+          Einstellungen eingeschaltet UND eine Adresse hinterlegt ist. */}
+      {piDirekt && piUrl.trim() !== '' && map.rows.length > 0 && (
+        <div className="rounded border border-cp-border bg-cp-surface-2 p-3">
+          <div className="mb-2 flex items-center gap-2 text-cp-xs text-cp-text-secondary">
+            <Icon icon={Lightbulb} size="sm" />
+            {format(t('export.tally.piDirect', 'Direkt an den Pi: {url}'), { url: piUrl })}
+          </div>
+          <PanelHint
+            className="mb-2 text-cp-xs text-cp-text-muted"
+            text={t(
+              'export.tally.piDirect.hint',
+              'Der Pi behält seine Verdrahtung — ATEM-Adresse und GPIO-Pins schickt der Plan nicht mit. Rollen dagegen, die im Plan fehlen, verschwinden dort samt ihrer Pin-Zuordnung. Deshalb erst lesen, dann senden.',
+            )}
+          />
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={piLesen}
+              disabled={piLaeuft}
+              className="rounded border border-cp-border px-3 py-1.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-3 disabled:opacity-40"
+            >
+              {t('export.tally.piRead', 'Pi lesen')}
+            </button>
+            <button
+              type="button"
+              onClick={piSenden}
+              // ERST LESEN, DANN SENDEN — und zwar von DIESER Adresse. Wer
+              // die Adresse nach dem Lesen aendert, hat den Stand eines
+              // anderen Pi gesehen, und die Vorschau gilt nicht mehr.
+              disabled={piLaeuft || piGelesen === null || piGelesen.adresse !== piUrl}
+              className="rounded bg-cp-accent px-3 py-1.5 text-cp-xs text-white disabled:opacity-40"
+            >
+              {t('export.tally.piSend', 'An den Pi senden')}
+            </button>
+            {piLaeuft && <Spinner />}
+          </div>
+          {piGelesen && piGelesen.adresse === piUrl && (
+            <ul className="mt-2 flex flex-col gap-1 text-cp-xs">
+              <li className="text-cp-text-muted">
+                {format(
+                  t('export.tally.piDiff', '{bleiben} bleiben, {neu} kommen dazu'),
+                  { bleiben: piGelesen.vergleich.bleiben, neu: piGelesen.vergleich.neu.length },
+                )}
+              </li>
+              {piGelesen.vergleich.verschwinden.map((v) => (
+                <li key={v.id} className={v.hatVerdrahtung ? 'text-cp-danger' : 'text-cp-warn'}>
+                  {format(
+                    v.hatVerdrahtung
+                      ? t(
+                          'export.tally.piGoneWired',
+                          '{name} verschwindet vom Pi — samt seiner GPIO-Zuordnung',
+                        )
+                      : t('export.tally.piGone', '{name} verschwindet vom Pi'),
+                    { name: v.name },
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+          {piMeldung && (
+            <p
+              className={`mt-2 text-cp-xs ${piMeldung.ton === 'ok' ? 'text-cp-text-secondary' : 'text-cp-danger'}`}
+            >
+              {piMeldung.text}
+            </p>
+          )}
+        </div>
+      )}
     </div>
   )
 }

@@ -2365,6 +2365,28 @@ export const en: Dict = {
   'export.tally.piTitle':
     'The part of tally.json the plan owns: id, name, input. ATEM IP and GPIO pins stay with the box.',
 
+  // B-6 / E-7 — the direct path to the tally-pi. The file stays the default
+  // way; this is the target you switch on deliberately.
+  'export.tally.piDirect': 'Straight to the Pi: {url}',
+  'export.tally.piDirect.hint':
+    'The Pi keeps its wiring — the plan does not send the ATEM address or GPIO pins. Roles missing from the plan, however, disappear there along with their pin assignment. So read first, then send.',
+  'export.tally.piRead': 'Read the Pi',
+  'export.tally.piSend': 'Send to the Pi',
+  'export.tally.piSent': 'The tally map is on the Pi.',
+  'export.tally.piDiff': '{bleiben} stay, {neu} are added',
+  'export.tally.piGone': '{name} disappears from the Pi',
+  'export.tally.piGoneWired': '{name} disappears from the Pi — along with its GPIO assignment',
+  'settings.integrations.tallyPi.title': 'Tally-Pi (direct path)',
+  'settings.integrations.tallyPi.desc':
+    'Sends the tally map straight from the export dialog to the Pi instead of downloading a file for someone to copy by hand. The file stays alongside it — it is the way that works without a network path to the Pi. The Pi keeps its wiring; roles missing from the plan disappear there.',
+  'settings.integrations.tallyPi.enable': 'Allow the direct path to the tally-pi',
+  'settings.integrations.tallyPi.url': 'Address of the Pi',
+  'settings.integrations.tallyPi.test': 'Check the connection',
+  'settings.integrations.tallyPi.ok': 'The Pi answers.',
+  'settings.integrations.tallyPi.fail': 'No answer.',
+  'settings.integrations.tallyPi.noToken':
+    'The Pi asks for no credential on this path — it checks nothing on its write endpoints. Whoever can reach it can write to it. That is a property of the Pi and not a setting here; use the direct path only on a network you trust that far.',
+
   // ADR-001 — Identitaets-Karte (.avsourcemap)
   'app.menu.file.exportSourceMap': 'Export identity map (.avsourcemap)…',
   'app.menu.file.importSourceMap': 'Import identity map (.avsourcemap)…',

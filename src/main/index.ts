@@ -15,6 +15,7 @@ import { registerLogIpc } from './ipc/logIpc.js'
 import { registerDocumentLogIpc } from './ipc/documentLogIpc.js'
 import { registerReceiptIpc } from './ipc/receiptIpc.js'
 import { registerShowControlIpc } from './ipc/showControlIpc.js'
+import { registerTallyIpc } from './ipc/tallyIpc.js'
 import { registerSyncIpc } from './ipc/syncIpc.js'
 import { registerGraphmlIpc } from './ipc/graphmlIpc.js'
 import { registerMobileShareIpc } from './ipc/mobileShareIpc.js'
@@ -349,6 +350,7 @@ app.whenReady().then(async () => {
   registerDocumentLogIpc()
   registerReceiptIpc()
   registerShowControlIpc()
+  registerTallyIpc()
   registerSyncIpc()
   registerGraphmlIpc()
   registerMobileShareIpc()

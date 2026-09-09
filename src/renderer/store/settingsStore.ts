@@ -95,6 +95,25 @@ interface PersistedSettings {
    * in ein Feld zu ziehen hiesse, das eine mit dem anderen zu ueberschreiben.
    */
   canvasMotion: boolean
+  /**
+   * B-6 / E-7 — Adresse des Tally-Pi (z. B. http://10.0.0.42:8080).
+   *
+   * Pro INSTALLATION, nicht pro Projekt — und das ist keine Formsache: eine
+   * `.avplan` wandert per Mail, liegt in Dropbox und geht in den Web-Viewer.
+   * Eine LAN-Adresse darin waere die Anlagenkarte eines fremden Hauses in
+   * einer Datei, die herumgereicht wird. Leerer String = kein Ziel.
+   */
+  tallyPiUrl: string
+  /**
+   * B-6 / E-7 — der Direktweg ist AUSDRUECKLICH EINZUSCHALTEN.
+   *
+   * Die Entscheidung sagt beides mit Rangfolge: „Die Datei bleibt der
+   * Vorgabeweg; der Direktweg kommt als ausdrücklich einzuschaltendes Ziel
+   * dazu." Deshalb `false` als Vorgabe. Ein Knopf, der ungefragt in ein Geraet
+   * im Produktionsnetz schreibt, waere genau das Gegenteil dessen, was hier
+   * entschieden wurde — und der Schreibvorgang loescht drueben Rollen.
+   */
+  tallyPiDirekt: boolean
 }
 
 const defaults: PersistedSettings = {
@@ -107,6 +126,8 @@ const defaults: PersistedSettings = {
   userSchema: {},
   netboxUrl: '',
   canvasMotion: true,
+  tallyPiUrl: '',
+  tallyPiDirekt: false,
 }
 
 const load = (): PersistedSettings => {
@@ -142,6 +163,13 @@ const load = (): PersistedSettings => {
       // erste: die Bewegung gab es vorher nicht.
       canvasMotion:
         typeof parsed.canvasMotion === 'boolean' ? parsed.canvasMotion : defaults.canvasMotion,
+      tallyPiUrl: typeof parsed.tallyPiUrl === 'string' ? parsed.tallyPiUrl : defaults.tallyPiUrl,
+      // Bestehende Installationen bekommen den Direktweg AUS — auch die, die
+      // eine Adresse eingetragen haetten. Ein gespeichertes Feld, das beim
+      // ersten Start nach dem Update auf AN steht, waere eine Entscheidung,
+      // die niemand getroffen hat, mit Wirkung auf ein Geraet im Netz.
+      tallyPiDirekt:
+        typeof parsed.tallyPiDirekt === 'boolean' ? parsed.tallyPiDirekt : defaults.tallyPiDirekt,
     }
   } catch {
     return defaults
@@ -168,6 +196,8 @@ const snapshot = (s: PersistedSettings): PersistedSettings => ({
   userSchema: s.userSchema,
   netboxUrl: s.netboxUrl,
   canvasMotion: s.canvasMotion,
+  tallyPiUrl: s.tallyPiUrl,
+  tallyPiDirekt: s.tallyPiDirekt,
 })
 
 interface SettingsState {
@@ -184,6 +214,8 @@ interface SettingsState {
   userSchema: UserSchemaMap
   netboxUrl: string
   canvasMotion: boolean
+  tallyPiUrl: string
+  tallyPiDirekt: boolean
   setHasToken: (value: boolean) => void
   setTokenStatus: (value: string) => void
   setAutosaveIntervalMs: (value: number) => void
@@ -202,6 +234,8 @@ interface SettingsState {
   setNetboxUrl: (value: string) => void
   /** Bewegte Darstellung im Canvas ein-/ausschalten. */
   setCanvasMotion: (value: boolean) => void
+  setTallyPiUrl: (value: string) => void
+  setTallyPiDirekt: (value: boolean) => void
 }
 
 const initial = load()
@@ -221,6 +255,8 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   canvasMotion: initial.canvasMotion,
   userSchema: initial.userSchema,
   netboxUrl: initial.netboxUrl,
+  tallyPiUrl: initial.tallyPiUrl,
+  tallyPiDirekt: initial.tallyPiDirekt,
   setHasToken: (value) => set({ hasToken: value }),
   setTokenStatus: (value) => set({ tokenStatus: value }),
   setAutosaveIntervalMs: (value) =>
@@ -248,6 +284,16 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     set((state) => {
       persist(snapshot({ ...state, canvasMotion: value }))
       return { canvasMotion: value }
+    }),
+  setTallyPiUrl: (value) =>
+    set((state) => {
+      persist(snapshot({ ...state, tallyPiUrl: value }))
+      return { tallyPiUrl: value }
+    }),
+  setTallyPiDirekt: (value) =>
+    set((state) => {
+      persist(snapshot({ ...state, tallyPiDirekt: value }))
+      return { tallyPiDirekt: value }
     }),
   setModuleEnabled: (id, value) =>
     set((state) => {
