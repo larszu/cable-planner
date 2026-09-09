@@ -44,7 +44,21 @@ export const INVENTORY_FORMAT = 'avplan-inventory'
 // Version weigert sich ein aelterer Stand stattdessen zu lesen. Aeltere
 // Dateien (v1-v3) lesen wir unveraendert weiter; ihre Einheiten haben schlicht
 // keine Werte.
-export const INVENTORY_FORMAT_VERSION = 4
+// Version 5 (B-65): `InventoryItem.mindestmenge` -- ab wann das Haus
+// nachbestellt oder sub-hired. Gepflegt wird sie im Lager-Werkzeug
+// (`inventory-planner`); hier steht sie, damit der Planer sie nicht
+// wegwirft. Dieselbe Begruendung wie bei 2, 3 und 4: `healItem` baut JEDEN
+// Artikel Feld fuer Feld neu auf, ein Stand ohne dieses Feld laese eine
+// Datei mit gepflegten Mindestmengen ein und schriebe sie still ohne sie
+// zurueck. Die Kachel „Unter Ziel" im Lager stuende danach auf 0 und haette
+// ueber nichts recht -- die teuerste Form des Verlusts: keine Fehlermeldung,
+// sondern eine gruene Zahl.
+//
+// Mit der erhoehten Version weigert sich ein aelterer Stand stattdessen zu
+// lesen. Aeltere Dateien (v1-v4) lesen wir unveraendert weiter; ihre Artikel
+// haben schlicht keine Mindestmenge, und das ist nicht 0, sondern
+// UNBEWERTET.
+export const INVENTORY_FORMAT_VERSION = 5
 
 export interface InventorySnapshot {
   items: InventoryItem[]
