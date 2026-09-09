@@ -3609,7 +3609,25 @@ export const en: Dict = {
   'delivery.osc.page': 'Companion page',
   'delivery.osc.bank': 'Companion bank',
   'delivery.osc.companionOptIn':
-    "Companion's interface is off by default — it has to be switched on there. Without this note the sheet shows a path that does not exist at the customer.",
+    'Companion: switching goes through the HTTP API (on by default); reading values back goes through the TCP control API (off by default on a fresh install, port 16759; an upgraded install has it on, port 51234). Check on site, do not assume.',
+  // E-23, zweite Quelle: der zurueckgelesene Companion-Variablenstand. Die
+  // Woerter halten dieselbe Grenze wie die OSC-Mitschrift — „read back",
+  // „reading", „at 14:22:07", nirgends „status" oder „current".
+  'companion.title': 'Read back Companion variable values',
+  'companion.optIn':
+    'Companion: switching goes through the HTTP API (on by default); reading values back goes through the TCP control API (off by default on a fresh install, port 16759; an upgraded install has it on, port 51234). Check on site, do not assume.',
+  'companion.noVars':
+    'No device in the plan is switched through Companion — there is no variable to read back.',
+  'companion.commandsHint':
+    'Type these lines into the Companion control API (TCP, one line per command) and bring the answers back:',
+  'companion.paste': 'Paste the answers here',
+  'companion.read': 'Take as a reading',
+  'companion.notRead': 'not read',
+  'companion.noValue': 'no value',
+  'companion.readAt': 'read at',
+  'companion.noPlanSide':
+    'This is a reading from a moment ago, not a state right now — and it stands without a plan side: the plan does not record which value it last wrote into this variable.',
+  'companion.source': 'Protocol details looked up in',
   'app.menu.tools.osc': 'Received show-control messages…',
   'app.menu.tools.osc.note': 'What came in — a transcript, not a system state',
   'osc.title': 'Received show-control messages',
