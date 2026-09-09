@@ -79,6 +79,15 @@ export const InstallationDocsDialog = () => {
   const [busy, setBusy] = useState(false)
   const [info, setInfo] = useState('')
   const [overwriteLabels, setOverwriteLabels] = useState(false)
+  /**
+   * BEDARF 11 — an wen dieses Blatt geht.
+   *
+   * Freitext und nicht Pflicht: der Bedarf spricht von Abteilungen, und
+   * welche es gibt, weiss dieses Programm nicht. Wer nichts eintraegt, gibt
+   * trotzdem aus — der Eintrag steht dann im Register unter „nicht genannt",
+   * sichtbar und nicht verschwiegen.
+   */
+  const [recipient, setRecipient] = useState('')
 
   // BEDARF 84 — woraus naechstes Jahr geplant wuerde. Steht GANZ OBEN in
   // diesem Dialog: hier wird die Uebergabe gebaut, und wer sie baut, muss
@@ -102,7 +111,7 @@ export const InstallationDocsDialog = () => {
    */
   const save = (content: string, suffix: string, ext: string, mime: string) => {
     downloadBlob(buildExportFilenameWithSuffix(baseName, suffix, ext), content, mime)
-    void recordEmission(project, suffix, filePath)
+    void recordEmission(project, suffix, filePath, recipient)
   }
 
   const exports: ExportRow[] = useMemo(
@@ -358,6 +367,22 @@ export const InstallationDocsDialog = () => {
             <Icon icon={ClipboardList} size="sm" />
             {t('docs.exports', 'Listen & Übergabe-Dokumente')}
           </h3>
+          {/* BEDARF 11 — an wen. Steht bei den Ausgaben und nicht bei der
+              Bearbeiter-Identitaet: das ist eine andere Frage. „Bearbeiter"
+              sagt, wer den Plan gemacht hat; „Empfaenger" sagt, wer das Blatt
+              in die Hand bekommt — und nur die zweite beantwortet spaeter
+              „was hat sich seit DEINEM Ausdruck geaendert". */}
+          <label className="mb-2 block text-cp-xs text-cp-text-secondary">
+            <span className="mb-1 block">
+              {t('docs.recipient', 'Empfänger dieses Blattes (Abteilung oder Person)')}
+            </span>
+            <input
+              value={recipient}
+              onChange={(e) => setRecipient(e.target.value)}
+              placeholder={t('docs.recipient.placeholder', 'z. B. Kamera, Ton, Bühne — leer lassen geht auch')}
+              className="w-full rounded border border-cp-border bg-cp-surface-1 p-2"
+            />
+          </label>
           <label className="mb-2 flex items-center gap-2 text-cp-xs text-cp-text-secondary">
             {t('docs.reserve', 'Reserve-Aufschlag für Stückliste (%)')}
             <input

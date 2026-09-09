@@ -34,6 +34,16 @@ export interface DocumentLogRecord {
   emittedAt: string
   project: string
   projectPath?: string
+  /**
+   * BEDARF 11 — wer das Blatt bekommen hat (Abteilung, Rolle oder Name).
+   *
+   * Freitext und keine Aufzaehlung: welche Abteilungen es gibt, weiss dieses
+   * Programm nicht, und eine feste Liste draengte die Haelfte der Faelle in
+   * „Sonstige" — womit die Trennung wieder weg waere, um die es geht.
+   * Fehlt das Feld, ist der Empfaenger nicht genannt; das ist etwas anderes
+   * als „an niemanden".
+   */
+  recipient?: string
 }
 
 export interface DocumentLogFile {

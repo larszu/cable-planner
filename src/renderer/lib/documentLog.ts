@@ -32,6 +32,13 @@ export const recordEmission = async (
   project: CablePlannerProject,
   docId: string,
   projectPath?: string,
+  /**
+   * BEDARF 11 — an wen. Leer oder fehlend heisst „nicht genannt": der Eintrag
+   * wird trotzdem geschrieben, denn ein ausgegebenes Blatt ohne bekannten
+   * Empfaenger ist die gefaehrlichste Zeile des Registers und nicht die
+   * unwichtigste.
+   */
+  recipient?: string,
 ): Promise<void> => {
   // Der Stand, der auf DIESEM Blatt steht. Fuer `kabel-bom` gibt es keinen,
   // weil sein Inhalt am Reserve-Aufschlag haengt — `currentStand` liefert
@@ -51,6 +58,7 @@ export const recordEmission = async (
       emittedAt: new Date().toISOString(),
       project: project.metadata?.name ?? '',
       ...(projectPath ? { projectPath } : {}),
+      ...(recipient?.trim() ? { recipient: recipient.trim() } : {}),
     })
   } catch {
     /* Das Register ist Beiwerk zur Ausgabe, nicht ihre Bedingung. */
