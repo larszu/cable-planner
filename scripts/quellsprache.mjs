@@ -164,6 +164,119 @@ export const messeQuellsprache = (wurzel) => {
 export const abweichungen = (messung, quellsprache) =>
   messung.stellen.filter((s) => s.sprache !== quellsprache)
 
+// ── Sprachmix: sichtbarer Text, der GAR NICHT gewickelt ist (B-61/B-63) ────
+//
+// Die Messung oben sieht nur die Fallbacks in `t()`. Beschriftungen, die
+// niemand gewickelt hat, sieht sie nicht — und genau die sind der Sprachmix,
+// den E-17 fuer `sony-camera-bridge` als Fehler benannt hat: wer die andere
+// Sprache waehlt, bekommt eine Oberflaeche, in der ein Teil umschaltet und
+// der Rest stehenbleibt.
+//
+// ZWEI FEHLER DES LAUFS IM `sony-camera-bridge` SIND HIER VERMIEDEN, weil sie
+// drueben Geld gekostet haben:
+//   1. Er sah Kommentare fuer Literale. Kommentare werden vor dem Messen
+//      entfernt.
+//   2. Er sah nur Attribute, nicht den JSX-Text. Hier wird beides gelesen.
+
+/** Kommentare raus — sie folgen der Repo-Konvention, nicht der Oberflaeche. */
+const ohneKommentare = (text) =>
+  text.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/^\s*\/\/.*$/gm, ' ')
+
+const SICHTBARE_ATTRIBUTE =
+  /\b(?:title|aria-label|placeholder|label|alt|summary|submitLabel|hint)=(?:"([^"]{4,})"|\{\s*'((?:[^'\\]|\\.){4,}?)'\s*\})/g
+
+/**
+ * JSX-Textknoten — und zwar NUR die.
+ *
+ * Die erste Fassung war `/>([^<>{}]{4,})</g`. Sie trifft in einer .tsx-Datei
+ * auch CODE: `>` und `<` sind Vergleichsoperatoren, und dazwischen steht dann
+ * ein Stueck Quelltext (`if (clipped.length > 2)`, `arr.filter(n => n.id)`).
+ * Gemessen mit dem lockeren Muster: 35 solche Fehltreffer im cable-planner,
+ * 12 im light-planner — ausnahmslos Code, kein einziger echter Fund.
+ *
+ * ZWEI BEDINGUNGEN MACHEN DARAUS EIN TAG-MUSTER:
+ *   • Das `>` muss ein Tag-Ende sein: davor ein Bezeichner, ein
+ *     Anfuehrungszeichen, eine geschweifte Klammer oder ein Schraegstrich —
+ *     nie ein Leerzeichen, `=`, `<` oder `!`. Damit fallen `a > b`, `=>` und
+ *     `<=` heraus.
+ *   • Das schliessende `<` muss ein Tag beginnen: `</` oder `<Buchstabe`.
+ * Was danach noch durchkommt, sind Generics (`useState<Foo>(null)`); die
+ * faengt `NACH_CODE`.
+ */
+const JSX_TEXT = /[^\s=<!>]>([^<>{}]{4,})<[/A-Za-z]/g
+
+/**
+ * Was ein JSX-Textknoten NIE enthaelt, ein Code-Schnipsel dagegen fast immer.
+ * Greift ausschliesslich auf JSX-Text, nicht auf Attribute: dort steht
+ * durchaus ein `=` in der Oberflaeche („Shift = frei, Mausrad = Stufe").
+ */
+const NACH_CODE = /[;=]|\b(?:const|let|var|function|await|async)\b/
+
+/**
+ * Auch das Template-Literal, nicht nur die Anfuehrungszeichen. Eine Rueckfrage
+ * mit eingesetztem Namen steht praktisch immer im Backtick — ausgerechnet die
+ * Form also, die eine erste Fassung nicht kannte (gefunden ueber den
+ * `dialogs:native`-Waechter der Suite, nicht ueber diesen Lauf).
+ */
+const RUFE =
+  /\b(?:alert|confirm|prompt)\(\s*(?:(['"])((?:[^\\]|\\.){4,}?)\1|`((?:[^`\\]|\\.){4,}?)`)/g
+
+/** Sichtbarer Text einer Datei, der NICHT in einem `t()`-Fallback steht. */
+export const sichtbareTexte = (quelle, jsx) => {
+  const text = ohneKommentare(quelle).replace(fallbackMuster(), ' ')
+  const raus = []
+  for (const m of text.matchAll(SICHTBARE_ATTRIBUTE)) raus.push(m[1] ?? m[2])
+  for (const m of text.matchAll(RUFE)) raus.push(m[2] ?? m[3])
+  if (jsx) {
+    for (const m of text.matchAll(JSX_TEXT)) {
+      const t = m[1].trim()
+      if (t && !t.startsWith('{') && !NACH_CODE.test(t)) raus.push(t)
+    }
+  }
+  return raus
+}
+
+/**
+ * Die Obergrenze, nicht das Ziel.
+ *
+ * GEMESSEN am 2026-09-09 mit dem strengen JSX-Muster: NULL. Das ist ein
+ * Ergebnis und keine Selbstverstaendlichkeit — die offene Frage aus B-63 war
+ * genau diese, und sie war bis dahin nicht gemessen, sondern vermutet.
+ *
+ * Sie darf SINKEN und nicht steigen: wer eine englische Beschriftung
+ * hinzufuegt, faellt durch; wer uebersetzt und die Zahl stehen laesst,
+ * ebenfalls. Auf null bedeutet: JEDE neue Zeichenkette in der anderen
+ * Sprache faellt sofort auf.
+ */
+export const MIX_GRENZE = 0
+
+/**
+ * Ungewickelter sichtbarer Text in der jeweils anderen Sprache.
+ *
+ * Gibt AUSSERDEM zurueck, wie viel sichtbarer Text ueberhaupt geprueft wurde.
+ * Die Zahl steht in der Ausgabe, damit die Null darueber zu deuten ist — als
+ * Angabe, nicht als Schwelle: sie faellt, je mehr gewickelt wird, und waere
+ * als Untergrenze deshalb nach dem zweiten Nachziehen nur noch Zierrat. Dass
+ * das Muster ueberhaupt findet, belegt die feste Probe im CLI-Teil.
+ */
+export const messeSprachmix = (wurzel, quellsprache) => {
+  const ziel = quellsprache === 'de' ? 'en' : 'de'
+  const funde = []
+  let gesehen = 0
+  for (const datei of dateien(wurzel)) {
+    const rel = relative(wurzel, datei).split(sep).join('/')
+    // Das Woerterbuch ist per Definition in der anderen Sprache, Tests sind
+    // keine Oberflaeche. Eine Zahl, die niemand auf null bringen kann, liest
+    // niemand.
+    if (rel.includes('i18n') || rel.includes('__tests__') || rel.includes('.test.')) continue
+    for (const roh of sichtbareTexte(readFileSync(datei, 'utf8'), datei.endsWith('.tsx'))) {
+      gesehen += 1
+      if (klassifiziere(roh) === ziel) funde.push({ datei: rel, text: roh.slice(0, 100) })
+    }
+  }
+  return { funde, gesehen }
+}
+
 // CLI: `node scripts/quellsprache.mjs <wurzel> <sprache>`
 if (process.argv[1] && process.argv[1].endsWith('quellsprache.mjs')) {
   const [, , wurzel, sprache] = process.argv
@@ -182,6 +295,81 @@ if (process.argv[1] && process.argv[1].endsWith('quellsprache.mjs')) {
       `\n${falsch.length} Fallback(s) nicht in der Quellsprache „${sprache}". ` +
         'Entweder die Zeile uebersetzen oder — wenn die Quellsprache wirklich ' +
         'wechseln soll — die Deklaration in package.json UND CLAUDE.md aendern.',
+    )
+    process.exit(1)
+  }
+
+  // ── Die Gegenprobe zum Messwerkzeug selbst — an fester Probe, nicht am Repo.
+  //
+  // WARUM NICHT AM REPO. Der naheliegende Weg waere eine Untergrenze auf der
+  // Zahl der gefundenen Texte („mindestens N"). Der Wert davon faellt aber
+  // genau dann, wenn die Arbeit gelingt: je mehr gewickelt ist, desto weniger
+  // ungewickelter Text bleibt uebrig. Eine solche Schwelle muesste bei jedem
+  // Fortschritt nachgezogen werden und waere nach dem zweiten Nachziehen nur
+  // noch Zierrat.
+  //
+  // Die Probe dagegen ist unabhaengig von der Repo-Groesse und haelt genau die
+  // Fehlformen fest, die diesen Zaehler Zeit gekostet haben: der Kommentar als
+  // Literal, das Vergleichs-`>` als Tag-Ende, die Rueckfrage im Backtick. Ohne
+  // sie waere ein kaputtes Muster die gefaehrlichste Art gruen: es findet
+  // nichts, und Nichts sieht hier aus wie ein Ergebnis.
+  const PROBE = [
+    '<button title="Delete this cable">',
+    '<span>Not connected yet</span>',
+    'window.confirm(`Delete "${name}" and its ${n} shots?`)',
+    // Die beiden Kommentar-Zeilen tragen mit Absicht Muster, die OHNE den
+    // Kommentarfilter treffen wuerden — eine ohne waere wirkungslos: was kein
+    // `>` und kein `title=` enthaelt, findet der Zaehler ohnehin nicht, und die
+    // Probe belegte dann nichts.
+    '// title="Legacy tooltip, no longer shown"',
+    '/* <b>Old markup left in a comment</b> */',
+    'if (a.length > 2) return b < c',
+    'const n = a>b ? 1 : 2; const m = c<d',
+    "t('cable.remove', 'Delete this cable')",
+  ].join('\n')
+
+  // Sortiert verglichen: in welcher Reihenfolge Attribute, Rueckfragen und
+  // Textknoten herausfallen, ist eine Eigenschaft der Schleifen und keine
+  // Zusicherung — ein Waechter, der bei einer umgestellten Schleife anschlaegt,
+  // meldet Fehlalarme.
+  const gefunden = sichtbareTexte(PROBE, true).slice().sort()
+  const erwartet = [
+    'Delete "${name}" and its ${n} shots?',
+    'Delete this cable',
+    'Not connected yet',
+  ].sort()
+  if (gefunden.length !== erwartet.length || erwartet.some((e, i) => gefunden[i] !== e)) {
+    console.error(
+      '\nDie Probe des Sprachmix-Musters schlaegt fehl.\n' +
+        `  erwartet: ${JSON.stringify(erwartet)}\n` +
+        `  gefunden: ${JSON.stringify(gefunden)}\n` +
+        'Das Muster findet entweder echte Beschriftungen nicht mehr oder wieder ' +
+        'Kommentare und Quelltext. Beides macht die Zahl unten wertlos.',
+    )
+    process.exit(1)
+  }
+
+  const { funde: mix, gesehen } = messeSprachmix(wurzel, sprache)
+  console.log(
+    `Sprachmix: ${mix.length} ungewickelte Zeichenkette(n) in der anderen Sprache ` +
+      `(Grenze ${MIX_GRENZE}, ${gesehen} sichtbare Texte geprueft).`,
+  )
+  if (mix.length > MIX_GRENZE) {
+    console.error(`\n${mix.length - MIX_GRENZE} mehr als erlaubt:`)
+    for (const f of mix.slice(0, 40)) console.error(`  ${f.datei}: ${f.text}`)
+    if (mix.length > 40) console.error(`  … und ${mix.length - 40} weitere`)
+    console.error(
+      '\nEntweder wickeln und uebersetzen — oder, wenn es wirklich so bleiben ' +
+        'soll, MIX_GRENZE mit Begruendung anheben. Das Anheben ist die Ausnahme; ' +
+        'das Senken ist der Normalfall.',
+    )
+    process.exit(1)
+  }
+  if (mix.length < MIX_GRENZE) {
+    console.error(
+      `\nDie Grenze steht auf ${MIX_GRENZE}, gemessen sind ${mix.length}. ` +
+        'MIX_GRENZE auf den neuen Wert setzen — eine Grenze ueber dem Ist deckt ' +
+        'ab morgen wieder Zuwachs.',
     )
     process.exit(1)
   }
