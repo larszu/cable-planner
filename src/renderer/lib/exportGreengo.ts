@@ -61,17 +61,53 @@ const defaultAudioProfile2 = () => ({
   MainLevel: { Value: '--', min: -40, max: 12 },
 })
 
-/** Build 18-button function map. Buttons that map to a group get the group ID,
- * remaining buttons are 0 (unassigned). */
-const buildButtonFunctions = (groupIds: number[]): Record<string, Record<string, number>> => {
-  const page = (assignedIds: number[]): Record<string, number> => {
-    const result: Record<string, number> = {}
-    for (let i = 1; i <= 18; i++) {
-      result[String(i)] = assignedIds[i - 1] ?? 0
-    }
-    return result
+/**
+ * Die Tastenkarte einer Station aus dem Plan bauen (E-2, Schritt 3).
+ *
+ * ZWEI WISSENSSTAENDE, EINE RECHNUNG. Kennt der Plan die Tastenpositionen
+ * (`user.keys`, seit E-2 Schritt 2), kommen sie von dort. Kennt er sie nicht,
+ * fuellt sich die Karte von Taste 1 an in Array-Reihenfolge — genau das, was
+ * dieser Bauer frueher IMMER tat. Das ist jetzt kein eigener Zweig mehr,
+ * sondern der Entartungsfall derselben Rechnung: ohne `keys` liegt nichts,
+ * also ist jede Taste frei, also fuellt die Schleife unten sie der Reihe nach.
+ *
+ * Eine Gruppe in `groupIds` OHNE Taste ist ein realer Zustand (siehe
+ * `types/greengo.ts`) und bekommt die erste freie Taste der ersten Seite. Ist
+ * die Karte voll, bleibt sie ohne — verdraengt wird nichts.
+ */
+const buildButtonFunctions = (user: GreenGoUser): Record<string, Record<string, number>> => {
+  const leereSeite = (): Record<string, number> => {
+    const seite: Record<string, number> = {}
+    for (let i = 1; i <= 18; i++) seite[String(i)] = 0
+    return seite
   }
-  return { '1': page(groupIds), '2': page([]) }
+  // Seite 1 und 2 gibt es immer — eine .gg5 ohne sie waere unvollstaendig.
+  const seiten: Record<string, Record<string, number>> = { '1': leereSeite(), '2': leereSeite() }
+  for (const k of user.keys ?? []) {
+    if (!Number.isInteger(k.page) || k.page < 1) continue
+    if (!Number.isInteger(k.button) || k.button < 1) continue
+    if (!Number.isInteger(k.groupId) || k.groupId <= 0) continue
+    const nr = String(k.page)
+    if (!seiten[nr]) seiten[nr] = leereSeite()
+    // Eine Taste jenseits der 18 wird MITGEFUEHRT statt beschnitten: sie kam
+    // aus einem Preset, das mehr Tasten kennt, als dieses Modell annimmt.
+    seiten[nr][String(k.button)] = k.groupId
+  }
+  const platziert = new Set<number>()
+  for (const seite of Object.values(seiten)) {
+    for (const gid of Object.values(seite)) if (gid > 0) platziert.add(gid)
+  }
+  const frei = Object.keys(seiten['1'])
+    .filter((taste) => seiten['1'][taste] === 0)
+    .sort((a, b) => Number(a) - Number(b))
+  for (const gid of user.groupIds) {
+    if (!Number.isInteger(gid) || gid <= 0 || platziert.has(gid)) continue
+    const taste = frei.shift()
+    if (taste === undefined) break // Karte voll.
+    seiten['1'][taste] = gid
+    platziert.add(gid)
+  }
+  return seiten
 }
 
 const buildButtonStatus = (): Record<string, Record<string, number>> => {
@@ -133,7 +169,7 @@ const buildUser = (user: GreenGoUser): Record<string, unknown> => ({
     Buzzer: 1,
   },
   ScriptSettings: { Id: '--', status: '--' },
-  ButtonFunctions: buildButtonFunctions(user.groupIds),
+  ButtonFunctions: buildButtonFunctions(user),
   AudioProfile: {
     '1': defaultAudioProfile1(),
     '2': defaultAudioProfile2(),
@@ -248,18 +284,34 @@ const USER_FIELDS_FROM_PLAN = ['myId', 'Name', 'DisplayName', 'Color'] as const
  * Import-Hinweis nicht warnt: das Feld steht in `READ_USER_FIELDS`, also
  * meldet `unreadFields` es per Konstruktion nie als ungelesen.
  *
- * WARUM DER PLAN HIER NICHT ENTSCHEIDEN DARF. Er kennt die Tastenpositionen
- * gar nicht. `GreenGoUser` fuehrt nur `groupIds` — eine MENGE von Gruppen.
- * Der Parser liest `ButtonFunctions` auch nur als Rueckfallweg, um diese
- * Menge zu fuellen (`importGreengo.ts:302-311`), und wirft die Positionen
- * dabei weg. Der Generator erfand sie beim Export neu, positionsweise aus der
- * Array-Reihenfolge, und setzte Seite 2 auf lauter Nullen.
+ * WARUM DER PLAN LANGE NICHT ENTSCHEIDEN DURFTE. Er kannte die
+ * Tastenpositionen gar nicht. `GreenGoUser` fuehrte nur `groupIds` — eine
+ * MENGE von Gruppen; der Parser las `ButtonFunctions` nur als Rueckfallweg,
+ * um diese Menge zu fuellen, und warf die Positionen dabei weg. Der Generator
+ * erfand sie beim Export neu, positionsweise aus der Array-Reihenfolge, und
+ * setzte Seite 2 auf lauter Nullen.
  *
  * Auf einem Beltpack ist das die Tastenbelegung. Der Verlust faellt nicht am
  * Bildschirm auf, sondern in der Probe.
  *
- * Das ist ADR-005 Regel 2 woertlich: eine Projektion darf nicht ueberschreiben,
- * was sie nicht modelliert.
+ * WAS SICH GEAENDERT HAT (E-2, Schritt 2+3). Der Plan kennt sie jetzt:
+ * `GreenGoUser.keys` traegt Seite, Position und Gruppe, der Import liest sie
+ * ueber alle Seiten. Damit greift ADR-005 Regel 2 — „eine Projektion darf
+ * nicht ueberschreiben, was sie nicht modelliert" — fuer dieses Feld nicht
+ * mehr: es IST jetzt modelliert.
+ *
+ * Es bleibt trotzdem in dieser dritten Kategorie und wandert nicht nach
+ * `USER_FIELDS_FROM_PLAN`, denn beides kommt weiter vor:
+ *
+ *   * Ein Projekt aus der Zeit vor E-2 hat keine `keys`. Fuer dessen
+ *     Stationen gilt die alte Regel unveraendert weiter — Positionen aus dem
+ *     Preset, nie neu vergeben.
+ *   * Und selbst wo der Plan die Karte kennt, kennt er nicht jeden Wert
+ *     darauf: eine Taste, die etwas anderes traegt als eine Gruppen-Nummer,
+ *     bleibt unangetastet stehen.
+ *
+ * Welche der beiden Regeln fuer eine Station gilt, entscheidet nicht diese
+ * Liste, sondern `mergeRulesFor` — an der Station, die gerade dran ist.
  */
 const USER_FIELDS_MERGED_FROM_PLAN = ['ButtonFunctions'] as const
 
@@ -280,59 +332,169 @@ const GROUP_FIELDS_FROM_PLAN = ['myId', 'Name', 'Color', 'members'] as const
  * liesse. Eine geloeschte faellt weg.
  */
 /**
- * Die Tastenkarte fortschreiben, ohne die Positionen anzufassen.
+ * Die Tastenkarte fortschreiben — und `planKenntPositionen` entscheidet, WIE.
  *
- * Was der Plan beitragen kann, ist ausschliesslich die MENGE der Gruppen. Also:
- *  - Positionen kommen aus dem Preset und werden nie neu vergeben.
- *  - Eine Gruppe, die der Plan neu kennt und die auf keiner Taste liegt,
- *    kommt auf die erste freie Taste (Wert 0) der ersten Seite.
- *  - Eine Gruppe, die der Plan nicht mehr kennt, wird auf ihrer Taste auf 0
- *    gesetzt — die Taste bleibt, die Belegung geht.
- *  - Jede weitere Seite bleibt unberuehrt. Der Plan weiss von ihr nichts.
+ * ═══════════════════════════════════════════════════════════════════════════
+ * DER SCHALTER IST DER GANZE PUNKT (E-2, Schritt 3)
+ * ═══════════════════════════════════════════════════════════════════════════
+ *
+ * Hier stand bis E-2: „Positionen kommen aus dem Preset und werden nie neu
+ * vergeben." Das war richtig, SOLANGE der Plan die Positionen nicht kannte:
+ * ein Export, der sie aus der Array-Reihenfolge neu erfindet, verschiebt auf
+ * dem Beltpack die Tasten unter den Fingern des Nutzers. Der Schutz sass
+ * damals notgedrungen hier, im Roh-Dokument, weil das Modell nichts hatte,
+ * woran er sonst haette haengen koennen.
+ *
+ * Seit Schritt 2 hat es das: `GreenGoUser.keys`. Der Schutz wandert damit vom
+ * Roh-Dokument ins Modell, und diese Funktion darf endlich schreiben, was der
+ * Plan weiss. Sie darf es aber nur DANN — und deshalb ist der Wissensstand
+ * ein Argument und keine Annahme:
+ *
+ *   `planKenntPositionen = false` (Projekt von vor E-2, oder eine Station,
+ *   die nie aus einem Preset kam): unveraendert die alte Regel. Nur Seite 1
+ *   wird angefasst, Positionen bleiben, eine entfallene Gruppe wird auf ihrer
+ *   Taste 0, eine neue kommt auf die erste freie.
+ *
+ *   `planKenntPositionen = true`: die Karte des Plans IST die Karte. Er hat
+ *   sie aus genau diesem Preset gelesen und fuehrt sie seither mit; wer im
+ *   Plan eine Taste verschiebt, will sie verschoben haben. Das gilt fuer alle
+ *   Seiten, nicht nur die erste — Seite 2 ist dem Plan nicht laenger fremd.
+ *
+ * ═══════════════════════════════════════════════════════════════════════════
+ * WAS AUCH DANN NICHT ANGETASTET WIRD
+ * ═══════════════════════════════════════════════════════════════════════════
+ *
+ * Eine Taste, deren Wert dieses Modell nicht als Gruppen-Nummer lesen kann,
+ * bleibt Wert fuer Wert stehen. Der Import filtert beim Lesen auf ganze Zahlen
+ * > 0; alles andere — ein `'--'`, ein Objekt, eine Sonderfunktion, die eine
+ * spaetere Firmware dort ablegt — hat er nie gesehen und darf der Export
+ * folglich nicht ueberschreiben. Genau der Rest von ADR-005 Regel 2, der
+ * weiter gilt.
+ *
+ * Und die letzte Regel bleibt in BEIDEN Faellen: eine Gruppe, die der Plan
+ * kennt und die auf keiner Taste liegt, bekommt die erste freie Taste der
+ * ersten Seite; ist keine frei, bleibt sie ohne. Verdraengt wird nie etwas.
  */
-export const mergeButtonFunctions = (preset: unknown, fresh: unknown): unknown => {
+export const mergeButtonFunctions = (
+  preset: unknown,
+  fresh: unknown,
+  planKenntPositionen = false,
+): unknown => {
   if (!preset || typeof preset !== 'object') return fresh
   const pages = preset as Record<string, unknown>
-  const freshPage1 =
-    fresh && typeof fresh === 'object'
-      ? (((fresh as Record<string, unknown>)['1'] ?? {}) as Record<string, unknown>)
-      : {}
-  // Die Gruppen, die der Plan heute vorsieht.
-  const planGroups = new Set(
-    Object.values(freshPage1)
-      .map((v) => Number(v))
-      .filter((n) => !Number.isNaN(n) && n > 0),
-  )
-  const page1 = { ...((pages['1'] ?? {}) as Record<string, unknown>) }
-  const stillThere = new Set<number>()
-  for (const [button, value] of Object.entries(page1)) {
-    const gid = Number(value)
-    if (Number.isNaN(gid) || gid <= 0) continue
-    if (planGroups.has(gid)) stillThere.add(gid)
-    else page1[button] = 0
+  const alsSeite = (v: unknown): Record<string, unknown> =>
+    v && typeof v === 'object' ? (v as Record<string, unknown>) : {}
+  const freshPages = alsSeite(fresh)
+
+  /**
+   * Versteht dieses Modell den Wert als Tastenbelegung? `0` heisst unbelegt
+   * und zaehlt dazu; `'--'` oder ein Objekt nicht — die bleiben stehen.
+   */
+  const lesbar = (v: unknown): boolean => {
+    if (typeof v === 'number') return Number.isInteger(v) && v >= 0
+    if (typeof v !== 'string' || !v.trim()) return false
+    const n = Number(v)
+    return Number.isInteger(n) && n >= 0
   }
-  // Neue Gruppen auf freie Tasten, in aufsteigender Tastenreihenfolge.
+  const gid = (v: unknown): number => (lesbar(v) ? Number(v) : 0)
+
+  // Die Gruppen, die der Plan heute fuer diese Station vorsieht — ueber ALLE
+  // Seiten der frisch gebauten Karte. Nur Seite 1 zu lesen hiesse, eine Gruppe
+  // auf Seite 2 fuer unbekannt zu halten und sie unten ein zweites Mal zu
+  // platzieren.
+  const planGroups = new Set<number>()
+  for (const seite of Object.values(freshPages)) {
+    for (const wert of Object.values(alsSeite(seite))) {
+      const g = gid(wert)
+      if (g > 0) planGroups.add(g)
+    }
+  }
+
+  const out: Record<string, unknown> = { ...pages }
+
+  if (planKenntPositionen) {
+    for (const nr of new Set([...Object.keys(pages), ...Object.keys(freshPages)])) {
+      const roh = pages[nr]
+      if (!roh || typeof roh !== 'object') {
+        // Eine Seite, die es im Preset nicht gibt: die des Plans ganz.
+        out[nr] = alsSeite(freshPages[nr])
+        continue
+      }
+      const alt = alsSeite(roh)
+      const neu = alsSeite(freshPages[nr])
+      const seite: Record<string, unknown> = {}
+      for (const [taste, wert] of Object.entries(alt)) {
+        seite[taste] = lesbar(wert) ? gid(neu[taste]) : wert
+      }
+      for (const [taste, wert] of Object.entries(neu)) {
+        if (!(taste in seite) && gid(wert) > 0) seite[taste] = gid(wert)
+      }
+      out[nr] = seite
+    }
+  } else {
+    // Die alte Regel: nur Seite 1, nur die Menge, Positionen unangetastet.
+    const seite = { ...alsSeite(out['1']) }
+    for (const [taste, wert] of Object.entries(seite)) {
+      if (!lesbar(wert)) continue
+      const g = gid(wert)
+      if (g > 0 && !planGroups.has(g)) seite[taste] = 0
+    }
+    out['1'] = seite
+  }
+
+  // Gruppen ohne Taste auf die erste freie Taste der ersten Seite. „Schon
+  // platziert" wird ueber ALLE Seiten geprueft — sonst bekaeme eine Gruppe,
+  // die auf Seite 2 liegt, auf Seite 1 eine zweite Taste.
+  const platziert = new Set<number>()
+  for (const seite of Object.values(out)) {
+    for (const wert of Object.values(alsSeite(seite))) {
+      const g = gid(wert)
+      if (g > 0) platziert.add(g)
+    }
+  }
+  const page1 = { ...alsSeite(out['1']) }
   const frei = Object.keys(page1)
-    .filter((b) => Number(page1[b]) === 0)
+    .filter((taste) => lesbar(page1[taste]) && gid(page1[taste]) === 0)
     .sort((a, b) => Number(a) - Number(b))
-  for (const gid of planGroups) {
-    if (stillThere.has(gid)) continue
+  for (const g of planGroups) {
+    if (platziert.has(g)) continue
     const taste = frei.shift()
     if (taste === undefined) break // Karte voll — lieber nichts verdraengen.
-    page1[taste] = gid
+    page1[taste] = g
+    platziert.add(g)
   }
-  return { ...pages, '1': page1 }
+  out['1'] = page1
+  return out
 }
 
-const MERGE_RULES: Record<string, (preset: unknown, fresh: unknown) => unknown> = {
-  ButtonFunctions: mergeButtonFunctions,
-}
+type MergeRule = (preset: unknown, fresh: unknown, key: string) => unknown
+
+/**
+ * Die Zusammenfuehr-Regeln fuer die Stationen DIESES Plans.
+ *
+ * Eine Funktion und keine Konstante, weil die Regel fuer `ButtonFunctions`
+ * von der einzelnen Station abhaengt: kennt der Plan ihre Tastenpositionen
+ * (`keys`), schreibt er sie; kennt er sie nicht, bleiben sie im Preset. Die
+ * Entscheidung faellt hier, weil hier beides zusammenkommt — der Schluessel
+ * der Sektion und der Plan, in dem die Station steht.
+ */
+const mergeRulesFor = (config: GreenGoConfig): Record<string, MergeRule> => ({
+  ButtonFunctions: (preset, fresh, key) => {
+    const user = config.users.find((u) => String(u.id) === key)
+    // `!== undefined` und nicht `.length > 0`: eine LEERE Karte ist auch
+    // eine gelesene. Wer hier auf die Laenge prueft, faellt bei der Station,
+    // deren letzte Taste geraeumt wurde, auf die alte Regel zurueck — und die
+    // Belegung, die der Nutzer gerade entfernt hat, bliebe im Preset stehen.
+    return mergeButtonFunctions(preset, fresh, user?.keys !== undefined)
+  },
+})
 
 const mergeKeyedSection = (
   presetSection: unknown,
   built: Record<string, unknown>,
   fieldsFromPlan: readonly string[],
   mergedFields: readonly string[] = [],
+  rules: Record<string, MergeRule> = {},
 ): Record<string, unknown> => {
   const previous =
     presetSection && typeof presetSection === 'object'
@@ -353,8 +515,8 @@ const mergeKeyedSection = (
     }
     // Die dritte Kategorie: zusammenfuehren statt ersetzen.
     for (const field of mergedFields) {
-      const rule = MERGE_RULES[field]
-      if (rule) merged[field] = rule(merged[field], (fresh as Record<string, unknown>)[field])
+      const rule = rules[field]
+      if (rule) merged[field] = rule(merged[field], (fresh as Record<string, unknown>)[field], key)
     }
     out[key] = merged
   }
@@ -391,6 +553,7 @@ const mergeIntoPreset = (
     usersSection,
     USER_FIELDS_FROM_PLAN,
     USER_FIELDS_MERGED_FROM_PLAN,
+    mergeRulesFor(config),
   )
   out.Groups = mergeKeyedSection(out.Groups, groupsSection, GROUP_FIELDS_FROM_PLAN)
   return out
