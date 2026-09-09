@@ -31,6 +31,12 @@ const sanitize = (raw: unknown): DocumentLogEntry | null => {
     emittedAt,
     project: str(e.project) ?? '',
     ...(str(e.projectPath) ? { projectPath: str(e.projectPath) } : {}),
+    // Bedarf 11. Die Erlaubnis-Liste ist der Grund, warum sie hier steht:
+    // ein Feld, das der Renderer schickt und `sanitize` nicht kennt, faellt
+    // STILL weg — der Eintrag wird geschrieben, sieht vollstaendig aus und
+    // hat den Empfaenger verloren. `tests/registerEmpfaenger.test.ts` haelt
+    // die drei Stellen (Typ, Dienst, Erlaubnis-Liste) zusammen.
+    ...(str(e.recipient) ? { recipient: str(e.recipient) } : {}),
   }
 }
 
