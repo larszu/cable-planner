@@ -118,7 +118,7 @@ const detectLayout = (rows: Cell[][]): MatrixLayout | { error: string } => {
     return {
       error: tr(
         'intercomXlsx.noMatrixDetected',
-        'Konnte keine Intercom-Matrix erkennen — es fehlt eine Zeile mit den Spaltenüberschriften "Equipment", "Gruppen" und "User".',
+        'No intercom matrix detected — missing a row with the column headers "Equipment", "Groups" and "User".',
       ),
     }
   }
@@ -298,16 +298,16 @@ export const parseIntercomMatrixXlsx = async (
 
   // Sanity warnings
   if (groups.length === 0) {
-    warnings.push(tr('intercomXlsx.noGroups', 'Keine Gruppen erkannt — prüfe die "Gruppen"-Spalten im Sheet.'))
+    warnings.push(tr('intercomXlsx.noGroups', 'No groups detected — check the "Groups" columns in the sheet.'))
   }
   if (users.length === 0) {
-    warnings.push(tr('intercomXlsx.noUsers', 'Keine Benutzer erkannt — prüfe die Benutzer-Zeilen unterhalb der Spaltenköpfe.'))
+    warnings.push(tr('intercomXlsx.noUsers', 'No users detected — check the user rows below the column headers.'))
   }
   if (users.length > 0 && users.every((u) => u.groupIds.length === 0)) {
     warnings.push(
       tr(
         'intercomXlsx.noUserGroups',
-        'Kein Benutzer ist einer Gruppe zugeordnet — bitte prüfen ob die Matrix-Markierungen ("x") korrekt erkannt wurden.',
+        'No user is assigned to a group — please verify the matrix "x" marks were recognised.',
       ),
     )
   }

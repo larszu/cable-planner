@@ -811,12 +811,18 @@ export const DeliveryDialog = () => {
                   <FileText size={13} /> {t('delivery.record.export', 'Sheet')}
                 </button>
               </div>
-              <p className="mb-2 text-cp-xs leading-snug text-cp-text-muted">
-                {t(
+              {/* PanelHint statt <p>: der Satz ist mit der englischen Fassung
+                  ueber die 140-Zeichen-Grenze gewachsen, ab der `hinweisLaenge`
+                  die einheitliche Form verlangt. Die deutsche Fassung lag knapp
+                  darunter — die Regel galt also schon vorher, sie war nur nicht
+                  ausgeloest. */}
+              <PanelHint
+                className="mb-2 text-cp-xs leading-snug text-cp-text-muted"
+                text={t(
                   'delivery.record.hint',
                   'What the transmission did, as far as somebody wrote it down. Not a measurement: the time and the origin are entered by the person who was there.',
                 )}
-              </p>
+              />
               {sendung.events.length > 0 && (
                 <div className="mb-2 flex flex-col gap-1">
                   {sendung.events.map((e) => (

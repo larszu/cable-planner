@@ -5305,4 +5305,22 @@ export const de: Dict = {
     'Companion: der SCHALT-Weg läuft über die HTTP-API (ab Werk an), das ZURÜCKLESEN über die TCP-Steuerung (bei einer Neuinstallation ab Werk aus, Port 16759; eine hochgezogene Installation hat sie an, auf Port 51234). Vor Ort nachsehen, nicht annehmen.',
   'flags.patchPanelByCategory':
     'Die Kategorie „Patchfelder" weist dieses Gerät bereits als Patchfeld aus.',
+
+  // ── `tr()`-Aufrufstellen (E-28) ─────────────────────────────────────────
+  //
+  // Drei Module nennen den Uebersetzer `tr` statt `t` — zwei, weil sie
+  // ausserhalb von React laufen und keinen Hook haben. Das Tausch-Werkzeug
+  // kannte nur `t(` und `translate(` und ist an ihnen vorbeigelaufen;
+  // gefunden hat sie ein Test, der auf den englischen Fehlertext prueft.
+  'importGg5.emptyFile':
+    'Keine Benutzer oder Gruppen in der Datei gefunden. Ist es eine gültige GreenGo 5.x .gg5-Datei?',
+  'importGg5.invalidFormat': 'Ungültiges .gg5-Format (kein Objekt).',
+  'importGg5.invalidJson': 'Keine gültige JSON-Datei.',
+  'intercomXlsx.noGroups': 'Keine Gruppen erkannt — prüfe die "Gruppen"-Spalten im Sheet.',
+  'intercomXlsx.noMatrixDetected':
+    'Konnte keine Intercom-Matrix erkennen — es fehlt eine Zeile mit den Spaltenüberschriften "Equipment", "Gruppen" und "User".',
+  'intercomXlsx.noUserGroups':
+    'Kein Benutzer ist einer Gruppe zugeordnet — bitte prüfen ob die Matrix-Markierungen ("x") korrekt erkannt wurden.',
+  'intercomXlsx.noUsers':
+    'Keine Benutzer erkannt — prüfe die Benutzer-Zeilen unterhalb der Spaltenköpfe.',
 }

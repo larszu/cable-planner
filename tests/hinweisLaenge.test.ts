@@ -64,8 +64,19 @@ const suche = (): { funde: Fund[]; absaetze: number } => {
         }
         ts.forEachChild(node, sammle)
         const eltern = node.parent?.getText ? node.parent.getText(sf).slice(0, 200) : ''
+        // Ein Leerzustand darf lang sein: er steht allein auf der Flaeche und
+        // erklaert, warum dort nichts ist.
+        //
+        // DAS MUSTER WAR DEUTSCH und ist mit E-28 (2026-09-09) leergelaufen:
+        // „Kein/Keine/Noch kein" trifft im englischen Quelltext nichts mehr.
+        // Vier Leerzustaende wurden dadurch als zu lange Absaetze gemeldet,
+        // obwohl sich an ihnen nichts geaendert hatte ausser der Sprache.
+        // Beide Formen stehen jetzt hier — die deutsche bleibt, weil dieselbe
+        // Pruefung auch die deutsche Fassung in `i18n/de.ts` treffen koennte.
         const leerzustand =
-          /text-center|m-auto/.test(eltern) || /^(Kein|Keine|Noch kein)/.test(text)
+          /text-center|m-auto/.test(eltern) ||
+          /^(Kein|Keine|Noch kein)/.test(text) ||
+          /^(No |None|Nothing|Not yet|Nobody)/.test(text)
         if (text.length >= GRENZE && !leerzustand && !ZUSAMMENGESETZT.has(kurz)) {
           funde.push({
             datei: kurz,
