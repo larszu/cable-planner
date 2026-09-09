@@ -42,7 +42,7 @@ export const PlusMenu = ({
         type="button"
         onClick={() => setOpen((v) => !v)}
         className="flex h-7 items-center gap-0.5 rounded bg-emerald-700 px-2 text-cp-xs hover:bg-emerald-600"
-        title={t('library.menus.plusTitle', 'Neues Gerät oder neue Kategorie anlegen')}
+        title={t('library.menus.plusTitle', 'Create new device or category')}
         aria-haspopup="menu"
         aria-expanded={open}
       >
@@ -63,7 +63,7 @@ export const PlusMenu = ({
             }}
             className="block w-full px-3 py-1.5 text-left hover:bg-cp-surface-2"
           >
-            {t('library.menus.newDevice', 'Neues Gerät…')}
+            {t('library.menus.newDevice', 'New device…')}
           </button>
           <button
             type="button"
@@ -74,7 +74,7 @@ export const PlusMenu = ({
             }}
             className="block w-full px-3 py-1.5 text-left hover:bg-cp-surface-2"
           >
-            {t('library.menus.newCategory', 'Neue Kategorie…')}
+            {t('library.menus.newCategory', 'New category…')}
           </button>
           <div className="my-1 border-t border-cp-border-muted" />
           <button
@@ -85,9 +85,9 @@ export const PlusMenu = ({
               onImportFile()
             }}
             className="block w-full px-3 py-1.5 text-left hover:bg-cp-surface-2"
-            title={t('library.menus.importFileTitle', '.cpdevice oder .cpgroup-Datei importieren')}
+            title={t('library.menus.importFileTitle', 'Import .cpdevice or .cpgroup file')}
           >
-            {t('library.menus.importFile', 'Datei importieren…')}
+            {t('library.menus.importFile', 'Import file…')}
           </button>
           {hasFolder && (
             <button
@@ -98,9 +98,9 @@ export const PlusMenu = ({
                 onOpenFolder()
               }}
               className="block w-full px-3 py-1.5 text-left hover:bg-cp-surface-2"
-              title={t('library.menus.openFolderTitle', 'Library-Ordner im Datei-Manager öffnen')}
+              title={t('library.menus.openFolderTitle', 'Open library folder in file manager')}
             >
-              {t('library.menus.openFolder', 'Bibliotheks-Ordner öffnen…')}
+              {t('library.menus.openFolder', 'Open library folder…')}
             </button>
           )}
         </div>
@@ -157,7 +157,7 @@ export const LibraryFiltersMenu = ({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        title={t('library.menus.filterTitle', 'Filter und Ansichtsoptionen')}
+        title={t('library.menus.filterTitle', 'Filter and view options')}
         aria-haspopup="menu"
         aria-expanded={open}
         className="flex h-7 items-center justify-center gap-0.5 rounded border border-cp-border bg-cp-surface-1 px-1.5 text-cp-text-muted hover:bg-cp-surface-2 hover:text-cp-text-bright"
@@ -188,18 +188,18 @@ export const LibraryFiltersMenu = ({
               {allCollapsed ? '▸' : '▾'}
             </span>
             {allCollapsed
-              ? t('library.menus.expandAll', 'Alle Kategorien ausklappen')
-              : t('library.menus.collapseAll', 'Alle Kategorien einklappen')}
+              ? t('library.menus.expandAll', 'Expand all categories')
+              : t('library.menus.collapseAll', 'Collapse all categories')}
           </button>
           <div className="my-1 border-t border-cp-border-muted" />
           <div className="px-3 py-1 text-[10px] uppercase tracking-wider text-cp-text-muted">
-            {t('library.menus.sorting', 'Sortierung')}
+            {t('library.menus.sorting', 'Sorting')}
           </div>
           {(
             [
-              { value: 'manual' as const, label: t('library.menus.sortManual', 'Manuell (Drag&Drop)') },
-              { value: 'asc' as const, label: t('library.menus.sortAsc', 'Alphabetisch A → Z') },
-              { value: 'desc' as const, label: t('library.menus.sortDesc', 'Alphabetisch Z → A') },
+              { value: 'manual' as const, label: t('library.menus.sortManual', 'Manual (drag & drop)') },
+              { value: 'asc' as const, label: t('library.menus.sortAsc', 'Alphabetical A → Z') },
+              { value: 'desc' as const, label: t('library.menus.sortDesc', 'Alphabetical Z → A') },
             ]
           ).map((opt) => (
             <button
@@ -225,7 +225,7 @@ export const LibraryFiltersMenu = ({
             className="block w-full px-3 py-1.5 text-left hover:bg-cp-surface-2"
           >
             <span className="mr-2 inline-flex w-4 justify-center"><Icon icon={showHidden ? SquareCheck : Square} size="xs" /></span>
-            {t('library.menus.showHidden', 'Versteckte zeigen')}
+            {t('library.menus.showHidden', 'Show hidden')}
             {hiddenCount > 0 ? ` (${hiddenCount})` : ''}
           </button>
           <button
@@ -236,7 +236,7 @@ export const LibraryFiltersMenu = ({
             className="block w-full px-3 py-1.5 text-left hover:bg-cp-surface-2"
           >
             <span className="mr-2 inline-flex w-4 justify-center"><Icon icon={showEmpty ? SquareCheck : Square} size="xs" /></span>
-            {t('library.menus.showEmpty', 'Leere Kategorien zeigen')}
+            {t('library.menus.showEmpty', 'Show empty categories')}
           </button>
           <div className="my-1 border-t border-cp-border-muted" />
           <button
@@ -245,11 +245,11 @@ export const LibraryFiltersMenu = ({
             aria-checked={onlyOwned}
             disabled={ownedAvailable === 0 && !onlyOwned}
             onClick={() => setOnlyOwned(!onlyOwned)}
-            title={t('inventory.onlyOwnedHint', 'Nur Geräte zeigen, die eigenem Lager-Material entsprechen (nach Modell)')}
+            title={t('inventory.onlyOwnedHint', 'Show only equipment that matches owned inventory (by model)')}
             className="block w-full px-3 py-1.5 text-left hover:bg-cp-surface-2 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <span className="mr-2 inline-flex w-4 justify-center"><Icon icon={onlyOwned ? SquareCheck : Square} size="xs" /></span>
-            {t('inventory.onlyOwned', 'Nur eigenes Material')}
+            {t('inventory.onlyOwned', 'Only own material')}
             {ownedAvailable > 0 ? ` (${ownedAvailable})` : ''}
           </button>
         </div>

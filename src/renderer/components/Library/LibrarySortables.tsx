@@ -50,8 +50,8 @@ export const SortableCategorySection = ({
         <span
           {...attributes}
           {...listeners}
-          aria-label={t('library.sortables.categoryAria', 'Kategorie verschieben')}
-          title={t('library.sortables.dragTitle', 'Per Drag&Drop verschieben')}
+          aria-label={t('library.sortables.categoryAria', 'Move category')}
+          title={t('library.sortables.dragTitle', 'Move via drag & drop')}
           // Ein Zieh-Griff, kein Knopf: er loest nichts aus, er verschiebt.
           // `ui:labels` zaehlt ihn deshalb nicht unter den symbolgleichen
           // Knoepfen mit — ein Wort daneben zu schreiben, waere Ballast an
@@ -149,8 +149,8 @@ export const SortablePresetCard = ({
       <span
         {...attributes}
         {...listeners}
-        aria-label={t('library.sortables.moveAria', 'Verschieben')}
-        title={t('library.sortables.dragTitle', 'Per Drag&Drop verschieben')}
+        aria-label={t('library.sortables.moveAria', 'Move')}
+        title={t('library.sortables.dragTitle', 'Move via drag & drop')}
         role="button"
         tabIndex={0}
         className="absolute left-0.5 top-0.5 z-10 flex h-5 w-3 cursor-grab items-center justify-center text-cp-text-faint hover:text-cp-text-bright active:cursor-grabbing"

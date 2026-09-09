@@ -336,11 +336,11 @@ export default function App() {
         format(
           t(
             'collab.invite.joinConfirm',
-            'Zur Live-Session „{room}" beitreten? Dein aktueller Plan wird durch den des Hosts ersetzt.',
+            'Join live session “{room}”? Your current plan will be replaced by the host’s.',
           ),
           { room: invite.host ? `${invite.room} · ${invite.host}` : invite.room },
         ),
-        { okLabel: t('collab.discover.join', 'Beitreten') },
+        { okLabel: t('collab.discover.join', 'Join') },
       )
       if (!ok) return
       await useCollabStore.getState().start({ adopt: true })
@@ -481,15 +481,15 @@ export default function App() {
       if (outdated.length === 0) return
       const lines = outdated.slice(0, 12).map((o) => {
         const kindLabel = o.refKind === 'device'
-          ? t('app.libUpdate.kindDevice', 'Gerät')
-          : t('app.libUpdate.kindGroup', 'Rack/Gruppe')
+          ? t('app.libUpdate.kindDevice', 'Device')
+          : t('app.libUpdate.kindGroup', 'Rack/Group')
         return `• ${o.equipmentName} (${kindLabel}: ${o.refName}) — v${o.storedFileVersion} → v${o.currentFileVersion}`
       })
       const more = outdated.length > lines.length
-        ? '\n' + format(t('app.libUpdate.moreLines', '…und {n} weitere'), { n: outdated.length - lines.length })
+        ? '\n' + format(t('app.libUpdate.moreLines', '…and {n} more'), { n: outdated.length - lines.length })
         : ''
       const ok = await confirmDialog(
-        format(t('app.libUpdate.title', '{n} Library-Item(s) im Projekt sind veraltet:'), {
+        format(t('app.libUpdate.title', '{n} library item(s) in this project are out of date:'), {
           n: outdated.length,
         }),
         {
@@ -497,9 +497,9 @@ export default function App() {
             `${lines.join('\n')}${more}\n\n` +
             t(
               'app.libUpdate.body',
-              'Im Bibliotheks-Ordner liegt eine neuere Version. Auf die aktuellen Library-Stände aktualisieren?\n\nÜbernommen wird, was den Gerätetyp beschreibt: Kategorie, Ports, Rack-Maße, Bild und Symbol. Alles, was zum einzelnen Gerät gehört, bleibt — Name, Notizen, Position, Farbe, Netzwerk-Adresse und Zugangsdaten, Seriennummer, Status.\n\nKabel werden auf die neuen Ports mitgezogen (nach Steckertyp und Beschriftung). Findet ein Kabel keinen passenden Port mehr, wird es entfernt.\n\nRack/Gruppen-Updates müssen aktuell manuell neu platziert werden.',
+              'A newer version is in the library folder. Update to the current library state?\n\nWhat gets adopted is what describes the device type: category, ports, rack dimensions, image and icon. Everything belonging to the individual device stays — name, notes, position, colour, network address and credentials, serial number, status.\n\nCables are carried over to the new ports (matched by connector type and label). A cable that no longer finds a matching port is removed.\n\nRack/group updates currently have to be replaced manually.',
             ),
-          okLabel: t('app.libUpdate.okBtn', 'Aktualisieren'),
+          okLabel: t('app.libUpdate.okBtn', 'Update'),
         },
       )
       if (!ok) return
@@ -543,15 +543,15 @@ export default function App() {
       }
       const skipped = outdated.length - applied
       if (applied > 0 || skipped > 0) {
-        await infoDialog(t('app.libUpdate.doneTitle', 'Update fertig'), {
+        await infoDialog(t('app.libUpdate.doneTitle', 'Update done'), {
           body:
-            format(t('app.libUpdate.doneAppliedBody', '{n} Gerät(e) aktualisiert.'), { n: applied }) +
+            format(t('app.libUpdate.doneAppliedBody', '{n} device(s) updated.'), { n: applied }) +
             (skipped > 0
               ? '\n' +
                 format(
                   t(
                     'app.libUpdate.doneSkippedBody',
-                    '{n} Rack-/Gruppen-Eintrag/-Einträge übersprungen — bitte bei Bedarf von Hand neu platzieren.',
+                    '{n} rack/group item(s) skipped — please re-place manually if needed.',
                   ),
                   { n: skipped },
                 )
@@ -837,13 +837,13 @@ export default function App() {
       (project.locations?.length ?? 0) > 0
     if (hasContent) {
       const ok = await confirmDialog(
-        t('app.newProject.confirmTitle', 'Neues Projekt anlegen?'),
+        t('app.newProject.confirmTitle', 'Create new project?'),
         {
           body: t(
             'app.newProject.confirm',
-            'Aktuelles Projekt verwerfen und neues Projekt anlegen?\n\nUngespeicherte Änderungen gehen verloren.',
+            'Discard current project and create a new one?\n\nUnsaved changes will be lost.',
           ),
-          okLabel: t('app.newProject.confirmOk', 'Neues Projekt'),
+          okLabel: t('app.newProject.confirmOk', 'New project'),
           destructive: true,
         },
       )
@@ -900,11 +900,11 @@ export default function App() {
     } catch (error) {
       console.error(`${imgFormat.toUpperCase()} export failed:`, error)
       await infoDialog(
-        format(t('app.export.imageFailedTitle', '{fmt}-Export fehlgeschlagen'), {
+        format(t('app.export.imageFailedTitle', '{fmt} export failed'), {
           fmt: imgFormat.toUpperCase(),
         }),
         {
-          body: error instanceof Error ? error.message : t('app.error.unknown', 'Unbekannter Fehler'),
+          body: error instanceof Error ? error.message : t('app.error.unknown', 'Unknown error'),
           tone: 'error',
         },
       )
@@ -922,19 +922,19 @@ export default function App() {
     try {
       const path = await cablePlannerApi.project.exportViewer(project)
       if (path) {
-        await infoDialog(t('app.viewerExport.okTitle', 'Viewer-Datei gespeichert'), {
+        await infoDialog(t('app.viewerExport.okTitle', 'Viewer file saved'), {
           body:
             `${path}\n\n` +
             t(
               'app.viewerExport.okBody',
-              'Sende sie an deine Reviewer/Helfer. Beim Öffnen werden sie nach ihrem Namen gefragt — Anmerkungen sind dann automatisch attributiert.',
+              'Send it to your reviewers/helpers. On opening they are asked for their name — annotations are then auto-attributed.',
             ),
           tone: 'success',
         })
       }
     } catch (error) {
       console.error('Viewer export failed:', error)
-      await infoDialog(t('app.viewerExport.failTitle', 'Viewer-Export fehlgeschlagen'), {
+      await infoDialog(t('app.viewerExport.failTitle', 'Viewer export failed'), {
         body: (error as Error).message,
         tone: 'error',
       })
@@ -947,7 +947,7 @@ export default function App() {
   const handleImportAnnotations = async () => {
     if (!hasDesktopBridge) {
       await infoDialog(
-        t('app.annotationsImport.needDesktop', 'Annotations-Re-Import erfordert die Desktop-App.'),
+        t('app.annotationsImport.needDesktop', 'Annotations re-import requires the desktop app.'),
         { tone: 'warning' },
       )
       return
@@ -961,13 +961,13 @@ export default function App() {
       import('./types/project').ProjectAnnotation
     >
     const { added, updated } = useProjectStore.getState().mergeAnnotationsFromViewerFile(incoming)
-    await infoDialog(t('app.annotationsImport.okTitle', 'Annotations importiert'), {
+    await infoDialog(t('app.annotationsImport.okTitle', 'Annotations imported'), {
       body:
-        format(t('app.annotationsImport.okBodyImported', '{n} neue Anmerkung(en) importiert.'), {
+        format(t('app.annotationsImport.okBodyImported', '{n} new annotation(s) imported.'), {
           n: added,
         }) +
         '\n' +
-        format(t('app.annotationsImport.okBodyUpdated', '{n} aus Prüfer-Änderungen aktualisiert.'), {
+        format(t('app.annotationsImport.okBodyUpdated', '{n} updated from reviewer changes.'), {
           n: updated,
         }),
       tone: 'success',
@@ -1143,19 +1143,19 @@ export default function App() {
     const meta = project.metadata
     const linkedId = meta.rentmanProjectId
     if (!linkedId) {
-      await infoDialog(t('app.rentman.notLinkedTitle', 'Kein Rentman-Projekt verknüpft'), {
-        body: t('app.rentman.notLinkedBody', 'Bitte zuerst in den Einstellungen verknüpfen.'),
+      await infoDialog(t('app.rentman.notLinkedTitle', 'No Rentman project linked'), {
+        body: t('app.rentman.notLinkedBody', 'Please link one in the settings first.'),
         tone: 'warning',
       })
       return
     }
     const targetName =
       meta.rentmanProjectName ??
-      format(t('app.rentman.fallbackProject', 'Projekt #{id}'), { id: String(linkedId) })
+      format(t('app.rentman.fallbackProject', 'Project #{id}'), { id: String(linkedId) })
     if (
       !(await confirmDialog(
         format(
-          t('app.rentman.attachPdfConfirm', 'Aktuellen Plan als PDF an Rentman-Projekt "{name}" anhängen?'),
+          t('app.rentman.attachPdfConfirm', 'Attach the current plan as PDF to the Rentman project "{name}"?'),
           { name: targetName },
         ),
       ))
@@ -1179,9 +1179,9 @@ export default function App() {
       const fileName = `${baseName}_${stamp}.pdf`
       await addProjectFile(linkedId, fileName, bytes, 'application/pdf')
       recordPlanEmission()
-      await infoDialog(t('app.rentman.attachedTitle', 'An Rentman angehängt'), {
+      await infoDialog(t('app.rentman.attachedTitle', 'Attached to Rentman'), {
         body: format(
-          t('app.rentman.attachedBody', '{file} wurde dem Projekt "{name}" als Anhang hinzugefügt.'),
+          t('app.rentman.attachedBody', '{file} was attached to project "{name}".'),
           { file: fileName, name: targetName },
         ),
         tone: 'success',
@@ -1189,7 +1189,7 @@ export default function App() {
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
       console.error('PDF upload to Rentman failed:', err)
-      await infoDialog(t('app.rentman.uploadFailedTitle', 'Fehler beim PDF-Upload'), { body: msg, tone: 'error' })
+      await infoDialog(t('app.rentman.uploadFailedTitle', 'PDF upload failed'), { body: msg, tone: 'error' })
     }
   }
 
@@ -1225,15 +1225,15 @@ export default function App() {
         const list = conflicts
           .map((c) => `• ${c.name || `${c.type} ${c.length} m`}`)
           .join('\n')
-        const replace = await confirmDialog(t('app.portConflict.title', 'Port bereits belegt'), {
+        const replace = await confirmDialog(t('app.portConflict.title', 'Port already in use'), {
           body:
-            t('app.portConflict.intro', 'An mindestens einem der Ports steckt bereits ein Kabel:') +
+            t('app.portConflict.intro', 'At least one of the ports already has a cable connected:') +
             `\n\n${list}\n\n` +
             t(
               'app.portConflict.body',
-              '"Ersetzen" = bestehendes Kabel löschen und neue Verbindung anlegen.\n"Abbrechen" = neue Verbindung verwerfen, alles bleibt wie es ist.',
+              '"Replace" = remove the existing cable and create the new connection.\n"Cancel" = discard the new connection, everything stays as it is.',
             ),
-          okLabel: t('app.portConflict.okReplace', 'Ersetzen'),
+          okLabel: t('app.portConflict.okReplace', 'Replace'),
           destructive: true,
         })
         if (!replace) {
@@ -1523,24 +1523,24 @@ export default function App() {
             <div className="w-full max-w-md rounded border border-amber-700 bg-cp-surface-1 text-cp-text shadow-2xl">
               <header className="border-b border-cp-border px-4 py-2">
                 <h2 className="text-cp-base font-semibold text-amber-300">
-                  {t('app.portConflict.title', 'Port bereits belegt')}
+                  {t('app.portConflict.title', 'Port already in use')}
                 </h2>
               </header>
               <div className="px-4 py-3 text-cp-base">
                 <p className="mb-2">
-                  {t('app.portConflict.targetPortLabel', 'Der Ziel-Port')}{' '}
+                  {t('app.portConflict.targetPortLabel', 'The target port')}{' '}
                   <span className="font-mono text-amber-200">
                     {targetEq?.name ?? '?'} · {targetPort?.name ?? '?'}
                   </span>{' '}
-                  {t('app.portConflict.alreadyConnectedBy', 'ist bereits über')}{' '}
+                  {t('app.portConflict.alreadyConnectedBy', 'is already connected by')}{' '}
                   <strong>
                     {conflictingCables.length === 1
-                      ? t('app.portConflict.oneCable', '1 Kabel')
-                      : format(t('app.portConflict.nCables', '{n} Kabel'), {
+                      ? t('app.portConflict.oneCable', '1 cable')
+                      : format(t('app.portConflict.nCables', '{n} cables'), {
                           n: conflictingCables.length,
                         })}
                   </strong>{' '}
-                  {t('app.portConflict.connected', 'belegt:')}
+                  {t('app.portConflict.connected', 'in use:')}
                 </p>
                 <ul className="mb-3 max-h-32 space-y-1 overflow-auto rounded border border-cp-border bg-cp-surface-3 p-2 text-cp-xs">
                   {conflictingCables.map((c) => {
@@ -1562,7 +1562,7 @@ export default function App() {
                 <p className="text-[12px] text-cp-text-muted">
                   {t(
                     'app.portConflict.hint',
-                    '„Ersetzen" entfernt die obige(n) Verbindung(en) und legt das neue Kabel an. „Abbrechen" verwirft den Connect-Versuch.',
+                    '"Replace" removes the above connection(s) and creates the new cable. "Cancel" discards the connect attempt.',
                   )}
                 </p>
               </div>
@@ -1572,14 +1572,14 @@ export default function App() {
                   onClick={cancelPortConflict}
                   className="rounded bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
                 >
-                  {t('common.cancel', 'Abbrechen')}
+                  {t('common.cancel', 'Cancel')}
                 </button>
                 <button
                   type="button"
                   onClick={resolvePortConflictByReplace}
                   className="rounded bg-amber-700 px-3 py-1 text-cp-xs font-semibold hover:bg-amber-600"
                 >
-                  {t('app.portConflict.okReplace', 'Ersetzen')}
+                  {t('app.portConflict.okReplace', 'Replace')}
                 </button>
               </footer>
             </div>
@@ -1600,7 +1600,7 @@ export default function App() {
             <div className="text-cp-sm font-semibold text-cp-warn">
               {t(
                 'app.loadReport.title',
-                'Beim Laden konnten nicht alle Datensätze übernommen werden',
+                'Some records could not be loaded',
               )}
             </div>
             <button
@@ -1624,7 +1624,7 @@ export default function App() {
           <div className="mt-2 text-[11px] text-cp-text-muted">
             {t(
               'app.loadReport.hint',
-              'Geräte, die auf diese Rollen zeigten, haben ihre Zuordnung verloren — darunter die TSL-Adresse für Tally. Speichern überschreibt die Datei mit diesem Stand.',
+              'Devices that pointed at these roles lost their assignment — including the TSL address used for tally. Saving overwrites the file with this state.',
             )}
           </div>
         </div>
@@ -1643,7 +1643,7 @@ export default function App() {
             <div className="text-cp-sm font-semibold text-cp-warn">
               {t(
                 'app.mobileDrop.title',
-                'Vom Handy gesendete Kabel wurden nicht übernommen',
+                'Cables sent from a phone were not taken over',
               )}
             </div>
             <button
@@ -1657,23 +1657,23 @@ export default function App() {
           <ul className="max-h-40 space-y-0.5 overflow-y-auto text-[11px] text-cp-text-secondary">
             {lastMobileDrop.drops.slice(0, 20).map((d, i) => (
               <li key={`${d.reason}-${d.label}-${i}`}>
-                {t('app.mobileDrop.cable', 'Kabel')}
+                {t('app.mobileDrop.cable', 'Cable')}
                 {d.label ? ` „${d.label}"` : ''}
                 {' — '}
                 {d.reason === 'plan-locked'
-                  ? t('app.mobileDrop.planLocked', 'Plan ist gesperrt oder finalisiert')
+                  ? t('app.mobileDrop.planLocked', 'the plan is locked or finalized')
                   : d.reason === 'equipment-gone'
-                    ? t('app.mobileDrop.equipmentGone', 'Gerät gibt es im Plan nicht mehr')
+                    ? t('app.mobileDrop.equipmentGone', 'that device is no longer in the plan')
                     : d.reason === 'port-gone'
-                      ? t('app.mobileDrop.portGone', 'Port gibt es an diesem Gerät nicht mehr')
-                      : t('app.mobileDrop.duplicate', 'diese Verbindung steht schon im Plan')}
+                      ? t('app.mobileDrop.portGone', 'that port no longer exists on this device')
+                      : t('app.mobileDrop.duplicate', 'this connection is already in the plan')}
               </li>
             ))}
           </ul>
           <div className="mt-2 text-[11px] text-cp-text-muted">
             {t(
               'app.mobileDrop.hint',
-              'Das Handy hat dem Techniker nur „gesendet" gemeldet — von der Ablehnung weiss es nichts. Wer draussen steht, wartet also womöglich auf ein Kabel, das nie im Plan ankommt.',
+              'The phone only reported "sent" to the technician — it cannot know about the rejection. Someone out on site may be waiting for a cable that never reaches the plan.',
             )}
           </div>
         </div>
@@ -1683,7 +1683,7 @@ export default function App() {
           <div className="w-[420px] max-w-[90vw] rounded-cp-card border border-cp-border bg-cp-surface-1 p-5 text-cp-text shadow-2xl">
             <div className="mb-3 flex items-center gap-3">
               <div className="h-3 w-3 animate-pulse rounded-full bg-sky-400" />
-              <h2 className="text-cp-base font-semibold">{t('app.pdfProgress.title', 'PDF wird erstellt…')}</h2>
+              <h2 className="text-cp-base font-semibold">{t('app.pdfProgress.title', 'PDF is being created…')}</h2>
             </div>
             <div className="mb-3 h-1.5 w-full overflow-hidden rounded bg-cp-surface-2">
               <div className="h-full w-full origin-left animate-pulse bg-sky-500" />
@@ -1693,7 +1693,7 @@ export default function App() {
               <div className="mt-1 text-[11px] text-cp-text-muted">{pdfProgress.detail}</div>
             )}
             <div className="mt-3 text-[10px] text-cp-text-muted">
-              {t('app.pdfProgress.hint', 'Bei großen Plänen können einige Sekunden vergehen. Bitte nicht abbrechen.')}
+              {t('app.pdfProgress.hint', 'Large plans may take a few seconds. Please do not cancel.')}
             </div>
           </div>
         </div>
@@ -1726,7 +1726,7 @@ const PdfExportDialog = ({
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4">
       <div className="w-full max-w-md rounded-cp-card border border-cp-border bg-cp-surface-1 p-4 shadow-2xl">
-        <h2 className="mb-3 text-cp-base font-semibold text-cp-text">{t('pdfExport.title', 'Plan als PDF exportieren')}</h2>
+        <h2 className="mb-3 text-cp-base font-semibold text-cp-text">{t('pdfExport.title', 'Export plan as PDF')}</h2>
         <div className="space-y-3">
           {/* Layer-Sichtbarkeit — uebernimmt die Chip-Komponente aus
               der Canvas-Toolbar. Same store, daher synchronisiert sich
@@ -1735,7 +1735,7 @@ const PdfExportDialog = ({
               anderen Chips deaktiviert. */}
           <fieldset className="rounded border border-cp-border p-3">
             <legend className="px-1 text-[11px] uppercase tracking-wide text-cp-text-muted">
-              {t('pdfExport.layers.title', 'Ebenen (im PDF enthalten)')}
+              {t('pdfExport.layers.title', 'Layers (included in PDF)')}
             </legend>
             <div className="-mx-1 flex flex-wrap gap-1">
               <LayerVisibilityChips />
@@ -1743,13 +1743,13 @@ const PdfExportDialog = ({
             <p className="mt-2 text-[10px] text-cp-text-muted">
               {t(
                 'pdfExport.layers.hint',
-                'Klick auf einen Chip schaltet die Ebene für Canvas UND PDF um. Beispiel: nur Video drucken ⇒ alle anderen Chips ausschalten.',
+                'Click on a chip to toggle the layer for canvas AND PDF. Example: only print video ⇒ disable all other chips.',
               )}
             </p>
           </fieldset>
           <fieldset className="rounded border border-cp-border p-3">
             <legend className="px-1 text-[11px] uppercase tracking-wide text-cp-text-muted">
-              {t('pdfExport.bg.title', 'Hintergrund')}
+              {t('pdfExport.bg.title', 'Background')}
             </legend>
             <label className="mb-2 flex cursor-pointer items-center gap-2 text-cp-xs text-cp-text-bright">
               <input
@@ -1758,7 +1758,7 @@ const PdfExportDialog = ({
                 checked={theme === 'light'}
                 onChange={() => onThemeChange('light')}
               />
-              {t('pdfExport.bg.light', 'Hell')}
+              {t('pdfExport.bg.light', 'Light')}
             </label>
             <label className="flex cursor-pointer items-center gap-2 text-cp-xs text-cp-text-bright">
               <input
@@ -1767,7 +1767,7 @@ const PdfExportDialog = ({
                 checked={theme === 'dark'}
                 onChange={() => onThemeChange('dark')}
               />
-              {t('pdfExport.bg.dark', 'Dunkel')}
+              {t('pdfExport.bg.dark', 'Dark')}
             </label>
           </fieldset>
           {/* v7.9.97 — Vektor-PDF Beta. Default aus, damit alle
@@ -1776,7 +1776,7 @@ const PdfExportDialog = ({
               keine Pixelung beim Zoom. */}
           <fieldset className="rounded border border-cp-border p-3">
             <legend className="px-1 text-[11px] uppercase tracking-wide text-cp-text-muted">
-              {t('pdfExport.render.title', 'Render-Modus')}
+              {t('pdfExport.render.title', 'Render mode')}
             </legend>
             <label className="mb-2 flex cursor-pointer items-start gap-2 text-cp-xs text-cp-text-bright">
               <input
@@ -1786,11 +1786,11 @@ const PdfExportDialog = ({
                 onChange={() => onVectorChange(false)}
               />
               <span>
-                {t('pdfExport.render.raster', 'Raster (klassisch)')}
+                {t('pdfExport.render.raster', 'Raster (classic)')}
                 <span className="block text-[10px] text-cp-text-muted">
                   {t(
                     'pdfExport.render.rasterHint',
-                    'JPEG-Snapshot des Canvas. Zuverlässig, aber unscharf bei großem Zoom in der PDF.',
+                    'JPEG snapshot of the canvas. Reliable, but blurry at high zoom in the PDF.',
                   )}
                 </span>
               </span>
@@ -1803,11 +1803,11 @@ const PdfExportDialog = ({
                 onChange={() => onVectorChange(true)}
               />
               <span>
-                {t('pdfExport.render.vector', 'Vektor')}
+                {t('pdfExport.render.vector', 'Vector')}
                 <span className="block text-[10px] text-cp-text-muted">
                   {t(
                     'pdfExport.render.vectorHint',
-                    'Chromium printToPDF. Text bleibt selektierbar & scharf bei jedem Zoom. Kleinere Dateigröße.',
+                    'Chromium printToPDF. Text stays selectable & sharp at any zoom. Smaller file size.',
                   )}
                 </span>
               </span>
@@ -1820,14 +1820,14 @@ const PdfExportDialog = ({
             onClick={onClose}
             className="rounded border border-cp-border bg-cp-surface-2 px-3 py-1.5 text-cp-xs text-cp-text hover:bg-cp-surface-4"
           >
-            {t('common.cancel', 'Abbrechen')}
+            {t('common.cancel', 'Cancel')}
           </button>
           <button
             type="button"
             onClick={onExport}
             className="rounded bg-sky-700 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-sky-600"
           >
-            {t('pdfExport.exportBtn', 'PDF exportieren')}
+            {t('pdfExport.exportBtn', 'Export PDF')}
           </button>
         </div>
       </div>
@@ -1973,7 +1973,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
       ? format(
           t(
             'cable.lengthWarning',
-            'Länge überschreitet empfohlenes Maximum von {max} m für {name}.',
+            'Length exceeds recommended maximum of {max} m for {name}.',
           ),
           { max: selected.maxLengthMeters, name: selected.name },
         )
@@ -2126,7 +2126,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
                   type="number"
                   min={0}
                   value={maxRange ?? ''}
-                  placeholder={t('cable.field.maxReachPlaceholder', 'z.B. 100')}
+                  placeholder={t('cable.field.maxReachPlaceholder', 'e.g. 100')}
                   onChange={(e) => {
                     const v = e.target.value
                     setMaxRange(v === '' ? undefined : Number(v))
@@ -2136,7 +2136,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
               </label>
             ) : (
               <label className="block">
-                {t('cable.field.lengthM', 'Länge (m)')}
+                {t('cable.field.lengthM', 'Length (m)')}
                 <input
                   type="number"
                   min={0}
@@ -2147,7 +2147,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
               </label>
             )}
             <label className="block">
-              {t('cable.field.color', 'Farbe')}
+              {t('cable.field.color', 'Colour')}
               <input
                 type="color"
                 value={color}
@@ -2172,9 +2172,9 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
             <div className="border-t border-cp-border p-2">
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <div className="mb-0.5 text-[10px] text-cp-text-muted">{t('cable.fromDeviceShort', 'Von Gerät')}</div>
+                  <div className="mb-0.5 text-[10px] text-cp-text-muted">{t('cable.fromDeviceShort', 'From device')}</div>
                   <select
-                    aria-label={t('cable.aria.fromDevice', 'Quell-Gerät')}
+                    aria-label={t('cable.aria.fromDevice', 'Source device')}
                     value={fromEquipmentId}
                     onChange={(e) => onSelectFromEquipment(e.target.value)}
                     className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5 text-cp-xs"
@@ -2187,7 +2187,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
                   </select>
                   <div className="mt-1 text-[10px] text-cp-text-muted">Port</div>
                   <select
-                    aria-label={t('cable.aria.fromPort', 'Quell-Port')}
+                    aria-label={t('cable.aria.fromPort', 'Source port')}
                     value={fromPortId}
                     onChange={(e) => setFromPortId(e.target.value)}
                     className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5 text-cp-xs"
@@ -2204,9 +2204,9 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
                   </select>
                 </div>
                 <div>
-                  <div className="mb-0.5 text-[10px] text-cp-text-muted">{t('cable.toDeviceShort', 'Nach Gerät')}</div>
+                  <div className="mb-0.5 text-[10px] text-cp-text-muted">{t('cable.toDeviceShort', 'To device')}</div>
                   <select
-                    aria-label={t('cable.aria.toDevice', 'Ziel-Gerät')}
+                    aria-label={t('cable.aria.toDevice', 'Target device')}
                     value={toEquipmentId}
                     onChange={(e) => onSelectToEquipment(e.target.value)}
                     className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5 text-cp-xs"
@@ -2219,7 +2219,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
                   </select>
                   <div className="mt-1 text-[10px] text-cp-text-muted">Port</div>
                   <select
-                    aria-label={t('cable.aria.toPort', 'Ziel-Port')}
+                    aria-label={t('cable.aria.toPort', 'Target port')}
                     value={toPortId}
                     onChange={(e) => setToPortId(e.target.value)}
                     className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5 text-cp-xs"
@@ -2240,19 +2240,19 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
               {fromConflict && (
                 <div className="mt-2 flex items-center gap-1.5 rounded bg-amber-900/50 px-2 py-1 text-[11px] text-amber-100">
                   <Icon icon={AlertTriangle} size="xs" />
-                  {format(t('cable.create.warn.fromBusy', 'Quell-Port ist bereits durch Kabel „{name}" belegt.'), { name: fromConflict.name })}
+                  {format(t('cable.create.warn.fromBusy', 'Source port is already in use by cable "{name}".'), { name: fromConflict.name })}
                 </div>
               )}
               {toConflict && (
                 <div className="mt-1 flex items-center gap-1.5 rounded bg-amber-900/50 px-2 py-1 text-[11px] text-amber-100">
                   <Icon icon={AlertTriangle} size="xs" />
-                  {format(t('cable.create.warn.toBusy', 'Ziel-Port ist bereits durch Kabel „{name}" belegt.'), { name: toConflict.name })}
+                  {format(t('cable.create.warn.toBusy', 'Target port is already in use by cable "{name}".'), { name: toConflict.name })}
                 </div>
               )}
               {sameEndpoints && (
                 <div className="mt-1 flex items-center gap-1.5 rounded bg-red-900/50 px-2 py-1 text-[11px] text-red-100">
                   <Icon icon={AlertTriangle} size="xs" />
-                  {t('cable.create.warn.samePort', 'Quelle und Ziel zeigen auf denselben Port.')}
+                  {t('cable.create.warn.samePort', 'Source and target point to the same port.')}
                 </div>
               )}
             </div>

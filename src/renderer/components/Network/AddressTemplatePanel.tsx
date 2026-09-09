@@ -81,37 +81,37 @@ export const AddressTemplatePanel = ({ projectName }: { projectName: string }) =
   const inputCls = 'rounded border border-cp-border bg-cp-surface-1 px-1 py-0.5 text-cp-xs'
 
   const LAYER_LABEL: Record<AddressLayerKind, string> = {
-    standing: t('addrTpl.layer.standing', 'stehender Plan'),
-    venue: t('addrTpl.layer.venue', 'Haus'),
+    standing: t('addrTpl.layer.standing', 'standing plan'),
+    venue: t('addrTpl.layer.venue', 'venue'),
   }
   const KIND_LABEL: Record<AddressRangeKind, string> = {
-    container: t('addrTpl.kind.container', 'Klammer'),
-    assignable: t('addrTpl.kind.assignable', 'vergebbar'),
+    container: t('addrTpl.kind.container', 'container'),
+    assignable: t('addrTpl.kind.assignable', 'assignable'),
   }
 
   return (
     <div className="rounded border border-cp-border bg-cp-surface-2 p-2 text-cp-xs">
       <div className="mb-1 flex flex-wrap items-center gap-2">
         <span className="font-semibold text-cp-text-secondary">
-          {t('addrTpl.title', 'Adressbereiche (stehender Plan + Haus-Ebene)')}
+          {t('addrTpl.title', 'Address ranges (standing plan + venue overlay)')}
         </span>
         <button
           type="button"
           onClick={() =>
-            addAddressLayer({ name: t('addrTpl.newStanding', 'Wagen'), kind: 'standing' })
+            addAddressLayer({ name: t('addrTpl.newStanding', 'Truck'), kind: 'standing' })
           }
           className="inline-flex items-center gap-1 rounded border border-cp-border px-2 py-0.5 hover:bg-cp-surface-3"
         >
           <Icon icon={Plus} size="xs" />
-          {t('addrTpl.addStanding', 'stehende Ebene')}
+          {t('addrTpl.addStanding', 'standing layer')}
         </button>
         <button
           type="button"
-          onClick={() => addAddressLayer({ name: t('addrTpl.newVenue', 'Haus'), kind: 'venue' })}
+          onClick={() => addAddressLayer({ name: t('addrTpl.newVenue', 'Venue'), kind: 'venue' })}
           className="inline-flex items-center gap-1 rounded border border-cp-border px-2 py-0.5 hover:bg-cp-surface-3"
         >
           <Icon icon={Layers} size="xs" />
-          {t('addrTpl.addVenue', 'Haus-Ebene')}
+          {t('addrTpl.addVenue', 'venue layer')}
         </button>
         <button
           type="button"
@@ -119,20 +119,20 @@ export const AddressTemplatePanel = ({ projectName }: { projectName: string }) =
           className="ml-auto inline-flex items-center gap-1 rounded border border-cp-border px-2 py-0.5 hover:bg-cp-surface-3"
         >
           <Icon icon={Download} size="xs" />
-          {t('addrTpl.export', 'Bereiche')}
+          {t('addrTpl.export', 'Ranges')}
         </button>
       </div>
 
       <PanelHint
         text={t(
           'addrTpl.hint',
-          'Die Haus-Ebene ersetzt einen stehenden Bereich mit demselben Schlüssel und lässt alle anderen stehen. Vergeben wird nichts von allein — der Umzug wird vorgeschlagen und einzeln übernommen.',
+          'The venue layer replaces a standing range carrying the same key and leaves all others in force. Nothing is assigned on its own \u2014 the move is proposed and adopted one interface at a time.',
         )}
       />
 
       {layers.length === 0 ? (
         <p className="text-cp-text-muted">
-          {t('addrTpl.empty', 'Noch keine Ebene angelegt.')}
+          {t('addrTpl.empty', 'No layer created yet.')}
         </p>
       ) : (
         layers.map((l) => (
@@ -144,7 +144,7 @@ export const AddressTemplatePanel = ({ projectName }: { projectName: string }) =
               <input
                 value={l.name}
                 onChange={(e) => updateAddressLayer(l.id, { name: e.target.value })}
-                placeholder={t('addrTpl.layerNamePh', 'Übertragungswagen 2')}
+                placeholder={t('addrTpl.layerNamePh', 'OB truck 2')}
                 className={`w-52 ${inputCls}`}
               />
               <input
@@ -165,12 +165,12 @@ export const AddressTemplatePanel = ({ projectName }: { projectName: string }) =
                 className="inline-flex items-center gap-1 rounded border border-cp-border px-2 py-0.5 hover:bg-cp-surface-3"
               >
                 <Icon icon={Plus} size="xs" />
-                {t('addrTpl.addRange', 'Bereich')}
+                {t('addrTpl.addRange', 'Range')}
               </button>
               <button
                 type="button"
                 onClick={() => removeAddressLayer(l.id)}
-                title={t('addrTpl.removeLayer', 'Ebene entfernen')}
+                title={t('addrTpl.removeLayer', 'Remove layer')}
                 className="ml-auto rounded border border-cp-border px-1 py-0.5 hover:bg-cp-surface-3"
               >
                 <Icon icon={Trash2} size="xs" />
@@ -179,17 +179,17 @@ export const AddressTemplatePanel = ({ projectName }: { projectName: string }) =
 
             {l.ranges.length === 0 ? (
               <p className="text-cp-text-muted">
-                {t('addrTpl.noRanges', 'Noch kein Bereich in dieser Ebene.')}
+                {t('addrTpl.noRanges', 'No range in this layer yet.')}
               </p>
             ) : (
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="text-left text-cp-text-secondary">
-                    <th className="px-1 py-1">{t('addrTpl.col.key', 'Schlüssel')}</th>
-                    <th className="px-1 py-1">{t('addrTpl.col.name', 'Bereich')}</th>
+                    <th className="px-1 py-1">{t('addrTpl.col.key', 'Key')}</th>
+                    <th className="px-1 py-1">{t('addrTpl.col.name', 'Range')}</th>
                     <th className="px-1 py-1">{t('addrTpl.col.cidr', 'CIDR')}</th>
-                    <th className="px-1 py-1">{t('addrTpl.col.kind', 'Art')}</th>
-                    <th className="px-1 py-1">{t('addrTpl.col.role', 'Zweck')}</th>
+                    <th className="px-1 py-1">{t('addrTpl.col.kind', 'Kind')}</th>
+                    <th className="px-1 py-1">{t('addrTpl.col.role', 'Purpose')}</th>
                     <th className="px-1 py-1">{t('addrTpl.col.vlan', 'VLAN')}</th>
                     <th className="px-1 py-1" />
                   </tr>
@@ -209,7 +209,7 @@ export const AddressTemplatePanel = ({ projectName }: { projectName: string }) =
                         <input
                           value={r.name}
                           onChange={(e) => updateAddressRange(l.id, r.id, { name: e.target.value })}
-                          placeholder={t('addrTpl.namePh', 'Steuerung')}
+                          placeholder={t('addrTpl.namePh', 'Control')}
                           className={`w-28 ${inputCls}`}
                         />
                       </td>
@@ -273,7 +273,7 @@ export const AddressTemplatePanel = ({ projectName }: { projectName: string }) =
                         <button
                           type="button"
                           onClick={() => removeAddressRange(l.id, r.id)}
-                          title={t('addrTpl.removeRange', 'Bereich entfernen')}
+                          title={t('addrTpl.removeRange', 'Remove range')}
                           className="rounded border border-cp-border px-1 py-0.5 hover:bg-cp-surface-3"
                         >
                           <Icon icon={Trash2} size="xs" />
@@ -291,7 +291,7 @@ export const AddressTemplatePanel = ({ projectName }: { projectName: string }) =
       {geltend.length > 0 && (
         <>
           <p className="mb-1 mt-2 font-semibold text-cp-text-secondary">
-            {t('addrTpl.resolved', 'Was nach der Überlagerung gilt')}
+            {t('addrTpl.resolved', 'What is in force after the overlay')}
           </p>
           <ul className="mb-2 flex flex-col gap-0.5">
             {geltend.map((r) => (
@@ -303,7 +303,7 @@ export const AddressTemplatePanel = ({ projectName }: { projectName: string }) =
                 </span>
                 {r.replaces && (
                   <span className="text-cp-warn">
-                    {format(t('addrTpl.replaces', 'ersetzt {name} ({cidr})'), {
+                    {format(t('addrTpl.replaces', 'replaces {name} ({cidr})'), {
                       name: r.replaces.name,
                       cidr: r.replaces.cidr,
                     })}
@@ -318,7 +318,7 @@ export const AddressTemplatePanel = ({ projectName }: { projectName: string }) =
       {vorschlaege.length > 0 && (
         <>
           <p className="mb-1 font-semibold text-cp-text-secondary">
-            {t('addrTpl.proposals', 'Umzugs-Vorschläge (einzeln übernehmen)')}
+            {t('addrTpl.proposals', 'Re-address proposals (adopt one at a time)')}
           </p>
           <ul className="mb-2 flex max-h-40 flex-col gap-0.5 overflow-auto">
             {vorschlaege.map((v) => (
@@ -336,7 +336,7 @@ export const AddressTemplatePanel = ({ projectName }: { projectName: string }) =
                       onClick={() => applyReaddress(v.equipmentId, v.nicId, v.to!, v.mask!)}
                       className="rounded border border-cp-border px-2 py-0.5 hover:bg-cp-surface-3"
                     >
-                      {t('addrTpl.apply', 'übernehmen')}
+                      {t('addrTpl.apply', 'adopt')}
                     </button>
                   </>
                 ) : (

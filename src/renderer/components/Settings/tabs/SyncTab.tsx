@@ -34,7 +34,7 @@ const SharedLibrarySyncSection = ({ syncPath }: { syncPath: string }) => {
         withCredentials,
         t(
           'cred.dest.sharedLib',
-          'Sie würden in den geteilten Ordner geschrieben und wären für das ganze Team lesbar.',
+          'They would be written to the shared folder and readable by the whole team.',
         ),
       )
       if (answer === null) return // abgebrochen: gar nicht synchronisieren
@@ -50,19 +50,19 @@ const SharedLibrarySyncSection = ({ syncPath }: { syncPath: string }) => {
   }
 
   const errorText = (r: LibrarySyncResult): string => {
-    if (r.error === 'no-path') return t('settings.sharedLib.errNoPath', 'Kein Sync-Verzeichnis gesetzt.')
-    if (r.error === 'desktop-only') return t('settings.sync.desktopOnly', 'Netzwerk-Sync ist nur in der Desktop-App verfügbar.')
+    if (r.error === 'no-path') return t('settings.sharedLib.errNoPath', 'No sync directory set.')
+    if (r.error === 'desktop-only') return t('settings.sync.desktopOnly', 'Network sync is only available in the desktop app.')
     if (r.error === 'locked')
-      return format(t('settings.sharedLib.errLocked', 'Gesperrt von {who} — später erneut versuchen.'), { who: r.lockedBy ?? '?' })
-    return `${t('collab.error.prefix', 'Fehler:')} ${r.error}`
+      return format(t('settings.sharedLib.errLocked', 'Locked by {who} — try again later.'), { who: r.lockedBy ?? '?' })
+    return `${t('collab.error.prefix', 'Error:')} ${r.error}`
   }
 
   return (
     <SettingsCard
-      title={t('settings.sharedLib.title', 'Gemeinsame Bibliothek (Workgroup)')}
+      title={t('settings.sharedLib.title', 'Shared library (workgroup)')}
       description={t(
         'settings.sharedLib.desc',
-        'Gleicht Geräte-Templates, Gruppen und Kategorien mit der Datei cable-planner.library.json im Sync-Verzeichnis ab. Merge nach Name — lokale Templates werden nie überschrieben.',
+        'Syncs device templates, groups and categories with cable-planner.library.json in the sync directory. Merge by name — local templates are never overwritten.',
       )}
     >
       <div className="flex flex-wrap items-center gap-2 text-cp-xs text-cp-text-secondary">
@@ -73,12 +73,12 @@ const SharedLibrarySyncSection = ({ syncPath }: { syncPath: string }) => {
           className="rounded bg-sky-700 px-3 py-1.5 hover:bg-sky-600 disabled:opacity-50"
         >
           {busy
-            ? t('settings.sharedLib.syncing', 'Synchronisiere…')
-            : t('settings.sharedLib.syncNow', 'Bibliothek jetzt synchronisieren')}
+            ? t('settings.sharedLib.syncing', 'Syncing…')
+            : t('settings.sharedLib.syncNow', 'Sync library now')}
         </button>
         {!syncPath.trim() && (
           <span className="text-[11px] text-cp-text-muted">
-            {t('settings.sharedLib.needPath', 'Erst oben ein Sync-Verzeichnis setzen.')}
+            {t('settings.sharedLib.needPath', 'Set a sync directory above first.')}
           </span>
         )}
       </div>
@@ -88,12 +88,12 @@ const SharedLibrarySyncSection = ({ syncPath }: { syncPath: string }) => {
             <div className="space-y-0.5">
               <p className="text-emerald-400">
                 {format(
-                  t('settings.sharedLib.okPull', 'Geladen: {d} Geräte, {g} Gruppen, {c} Kategorien.'),
+                  t('settings.sharedLib.okPull', 'Pulled: {d} devices, {g} groups, {c} categories.'),
                   { d: res.pulledDevices, g: res.pulledGroups, c: res.pulledCategories },
                 )}
               </p>
               <p className="text-emerald-400">
-                {format(t('settings.sharedLib.okPush', 'Geteilt: {d} Geräte, {g} Gruppen.'), {
+                {format(t('settings.sharedLib.okPush', 'Shared: {d} devices, {g} groups.'), {
                   d: res.pushedDevices,
                   g: res.pushedGroups,
                 })}
@@ -101,7 +101,7 @@ const SharedLibrarySyncSection = ({ syncPath }: { syncPath: string }) => {
               {res.conflicts.length > 0 && (
                 <p className="text-amber-300">
                   {format(
-                    t('settings.sharedLib.conflicts', '{n} Namens-Konflikt(e) — lokale Version behalten: {names}'),
+                    t('settings.sharedLib.conflicts', '{n} name conflict(s) — kept local version: {names}'),
                     { n: res.conflicts.length, names: res.conflicts.slice(0, 6).join(', ') },
                   )}
                 </p>
@@ -135,7 +135,7 @@ export const SyncTab = () => {
         <div className="rounded border border-amber-700/50 bg-amber-900/20 p-2 text-cp-xs text-amber-300">
           {t(
             'settings.sync.desktopOnly',
-            'Netzwerk-Sync ist nur in der Desktop-App verfügbar.',
+            'Network sync is only available in the desktop app.',
           )}
         </div>
       )}
@@ -143,27 +143,27 @@ export const SyncTab = () => {
         className="text-cp-xs text-cp-text-muted"
         text={t(
           'settings.sync.intro',
-          'Gemeinsames Verzeichnis (FTP-Laufwerk, Netzwerkpfad oder lokaler Ordner), in dem Projekt, Bibliothek und Presets als JSON-Dateien geteilt werden.',
+          'Shared directory (mapped FTP drive, network path or local folder) where project, library and presets are exchanged as JSON files.',
         )}
       />
       <label className="block text-cp-base text-cp-text-secondary">
-        {t('settings.sync.path', 'Sync-Verzeichnis')}
+        {t('settings.sync.path', 'Sync directory')}
         <input
           type="text"
           value={draftSyncPath}
           onChange={(e) => setDraftSyncPath(e.target.value)}
           className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2 font-mono text-cp-xs"
-          placeholder={t('settings.sync.pathPlaceholder', 'Z:\\Projekte\\CablePlanner oder \\\\server\\share\\cable-planner')}
+          placeholder={t('settings.sync.pathPlaceholder', 'Z:\\Projekte\\CablePlanner or \\\\server\\share\\cable-planner')}
         />
       </label>
       <label className="block text-cp-base text-cp-text-secondary">
-        {t('settings.sync.user', 'Benutzername (für Lock-Anzeige)')}
+        {t('settings.sync.user', 'User name (for lock display)')}
         <input
           type="text"
           value={draftSyncUser}
           onChange={(e) => setDraftSyncUser(e.target.value)}
           className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2 text-cp-base"
-          placeholder={t('settings.sync.userPlaceholder', 'z. B. Max Mustermann')}
+          placeholder={t('settings.sync.userPlaceholder', 'e.g. Max Mustermann')}
         />
       </label>
       <div className="flex justify-end gap-2 pt-1">
@@ -175,7 +175,7 @@ export const SyncTab = () => {
           }}
           className="rounded bg-cp-surface-4 px-3 py-1 text-cp-base hover:bg-cp-surface-5"
         >
-          {t('common.reset', 'Zurücksetzen')}
+          {t('common.reset', 'Reset')}
         </button>
         <button
           type="button"
@@ -185,29 +185,29 @@ export const SyncTab = () => {
           }}
           className="rounded bg-emerald-600 px-3 py-1 text-cp-base hover:bg-emerald-500"
         >
-          {t('common.save', 'Speichern')}
+          {t('common.save', 'Save')}
         </button>
       </div>
       <SharedLibrarySyncSection syncPath={sharedSyncPath} />
 
-      <SettingsCard title={t('settings.sync.notes', 'Hinweise')}>
+      <SettingsCard title={t('settings.sync.notes', 'Notes')}>
         <ul className="list-inside list-disc space-y-1 text-cp-xs text-cp-text-muted">
           <li>
             {t(
               'settings.sync.notes.push',
-              'Push schreibt: cable-planner.project.json, .library.json, .presets.json',
+              'Push writes: cable-planner.project.json, .library.json, .presets.json',
             )}
           </li>
           <li>
             {t(
               'settings.sync.notes.pull',
-              'Pull lädt diese Dateien aus dem Verzeichnis in den aktuellen Stand.',
+              'Pull loads these files from the directory into the current state.',
             )}
           </li>
           <li>
             {t(
               'settings.sync.notes.lock',
-              'Ein Lock-File (.cable-planner-sync.lock) verhindert gleichzeitiges Überschreiben (2 h TTL).',
+              'A lock file (.cable-planner-sync.lock) prevents simultaneous overwrites (2 h TTL).',
             )}
           </li>
         </ul>

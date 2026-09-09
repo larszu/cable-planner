@@ -52,13 +52,13 @@ export const ActionTab = () => {
       <PanelHint
         text={t(
           'analysis.action.hint',
-          'Diese Seite sagt, was ansteht — sie bearbeitet nichts. Jede Zeile kommt aus der Stelle, die sie meldet: Crew, Kosten, Belege, Lager. Was hier fehlt, fehlt auch dort; hier entsteht keine zweite Rechnung.',
+          'This page tells you what is due — it edits nothing. Every line comes from the place that reports it: crew, costs, receipts, warehouse. What is missing here is missing there too; no second derivation happens on this page.',
         )}
       />
 
       {items.length === 0 ? (
         <p className="text-cp-xs text-cp-text-muted">
-          {t('analysis.action.none', 'Nichts offen — es gibt zu diesem Stand nichts zu melden.')}
+          {t('analysis.action.none', 'Nothing open — there is nothing to report on this state.')}
         </p>
       ) : (
         <>
@@ -74,10 +74,10 @@ export const ActionTab = () => {
           <table className="block overflow-x-auto w-full border-collapse text-cp-xs">
             <thead>
               <tr className="border-b border-cp-border text-left text-cp-text-secondary">
-                <th className="py-1 pr-2">{t('analysis.action.when', 'Termin')}</th>
-                <th className="py-1 pr-2">{t('analysis.action.urgency', 'Stand')}</th>
-                <th className="py-1 pr-2">{t('analysis.action.source', 'Quelle')}</th>
-                <th className="py-1 pr-2">{t('analysis.action.what', 'Was')}</th>
+                <th className="py-1 pr-2">{t('analysis.action.when', 'Due')}</th>
+                <th className="py-1 pr-2">{t('analysis.action.urgency', 'State')}</th>
+                <th className="py-1 pr-2">{t('analysis.action.source', 'Source')}</th>
+                <th className="py-1 pr-2">{t('analysis.action.what', 'What')}</th>
               </tr>
             </thead>
             <tbody>
@@ -99,7 +99,7 @@ export const ActionTab = () => {
             </tbody>
           </table>
           <p className="text-cp-xs text-cp-text-muted">
-            {format(t('analysis.action.count', '{n} Zeilen, sortiert nach Dringlichkeit.'), {
+            {format(t('analysis.action.count', '{n} lines, sorted by urgency.'), {
               n: items.length,
             })}
           </p>

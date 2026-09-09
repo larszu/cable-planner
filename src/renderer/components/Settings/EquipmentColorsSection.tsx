@@ -16,18 +16,18 @@ export const EquipmentColorsSection = () => {
   const defaultDeviceColor = useUiStore((s) => s.defaultDeviceColor)
   const setDefaultDeviceColor = useUiStore((s) => s.setDefaultDeviceColor)
   const roles: Array<{ key: keyof typeof equipmentColors.light; label: string; hint: string }> = [
-    { key: 'body', label: t('settings.eqColors.body', 'Karten-Body'), hint: t('settings.eqColors.bodyHint', 'Hintergrund der Geräte-Karte') },
-    { key: 'header', label: t('settings.eqColors.header', 'Header-Strip'), hint: t('settings.eqColors.headerHint', 'Strip oben mit Name + IP') },
-    { key: 'border', label: t('settings.eqColors.border', 'Rand'), hint: t('settings.eqColors.borderHint', '1-px Border um die Karte') },
-    { key: 'text', label: t('settings.eqColors.text', 'Haupttext'), hint: t('settings.eqColors.textHint', 'Geräte-Name + Port-Labels') },
-    { key: 'subtext', label: t('settings.eqColors.subtext', 'Sekundär-Text'), hint: t('settings.eqColors.subtextHint', 'Kategorie, IP, Connector-Typen') },
+    { key: 'body', label: t('settings.eqColors.body', 'Card body'), hint: t('settings.eqColors.bodyHint', 'Background of the device card') },
+    { key: 'header', label: t('settings.eqColors.header', 'Header strip'), hint: t('settings.eqColors.headerHint', 'Top strip with name + IP') },
+    { key: 'border', label: t('settings.eqColors.border', 'Border'), hint: t('settings.eqColors.borderHint', '1px border around the card') },
+    { key: 'text', label: t('settings.eqColors.text', 'Main text'), hint: t('settings.eqColors.textHint', 'Device name + port labels') },
+    { key: 'subtext', label: t('settings.eqColors.subtext', 'Secondary text'), hint: t('settings.eqColors.subtextHint', 'Category, IP, connector types') },
   ]
   return (
     <SettingsCard
-      title={t('settings.eqColors.title', 'Geräte-Karten-Farben')}
+      title={t('settings.eqColors.title', 'Device card colors')}
       description={t(
         'settings.eqColors.description',
-        'Hintergrund/Text/Rand für Equipment-Knoten — pro Theme separat anpassbar. Defaults sind so gewählt dass die Karten klar vom Canvas-Hintergrund abstehen. Einzelne Geräte können in den Properties zusätzlich eine individuelle Farbe bekommen.',
+        'Background/text/border for equipment nodes — adjustable per theme. Defaults are chosen so the cards stand out from the canvas background. Individual devices can have their own color in Properties.',
       )}
     >
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
@@ -37,14 +37,14 @@ export const EquipmentColorsSection = () => {
               <h4 className="flex items-center gap-1 text-cp-xs font-semibold text-cp-text-bright">
                 <Icon icon={theme === 'light' ? Sun : Moon} size="xs" />
                 {theme === 'light'
-                  ? t('settings.eqColors.themeLight', 'Hell')
-                  : t('settings.eqColors.themeDark', 'Dunkel')}
+                  ? t('settings.eqColors.themeLight', 'Light')
+                  : t('settings.eqColors.themeDark', 'Dark')}
               </h4>
               <button
                 type="button"
                 onClick={() => resetEquipmentColors(theme)}
                 className="rounded bg-cp-surface-4 px-2 py-0.5 text-[10px] hover:bg-cp-surface-5"
-                title={t('settings.eqColors.resetTitle', 'Auf Default zurücksetzen')}
+                title={t('settings.eqColors.resetTitle', 'Reset to default')}
               >
                 {t('settings.eqColors.reset', '↺ Reset')}
               </button>
@@ -74,19 +74,19 @@ export const EquipmentColorsSection = () => {
       <div className="mt-2 text-[10px] text-cp-text-muted">
         {t(
           'settings.eqColors.note',
-          'Hinweis: Geräte mit eigener Farbe (Properties → Gerätefarbe) überschreiben den Body-Wert weiterhin individuell.',
+          'Note: Devices with their own color (Properties → device color) still override the body value individually.',
         )}
       </div>
       {/* v7.9.63 / #172 — Default-Farbe für NEU hinzugefügte Geräte. */}
       <div className="mt-3 flex items-center justify-between gap-2 rounded border border-cp-border bg-cp-surface-3/40 p-2">
         <div>
           <div className="text-cp-xs font-semibold text-cp-text-bright">
-            {t('settings.eqColors.defaultDeviceColor', 'Standard-Gerätefarbe')}
+            {t('settings.eqColors.defaultDeviceColor', 'Default device color')}
           </div>
           <div className="text-[10px] text-cp-text-muted">
             {t(
               'settings.eqColors.defaultDeviceColorHint',
-              'Neu hinzugefügte Geräte starten mit dieser Farbe (Properties → Gerätefarbe lässt sich danach individuell ändern). Wenn leer: nutzt die Theme-Body-Farbe.',
+              'Newly added devices start with this color (Properties → device color can change it individually). Empty: uses the theme body color.',
             )}
           </div>
         </div>

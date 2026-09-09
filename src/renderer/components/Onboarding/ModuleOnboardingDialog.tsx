@@ -42,7 +42,7 @@ export const ModuleOnboardingDialog = () => {
       onClose={skip}
       maxWidth="lg"
       titleIcon={<Icon icon={Blocks} size="sm" />}
-      title={t('onboarding.title', 'Willkommen — wofür nutzt du Cable-Planner?')}
+      title={t('onboarding.title', 'Welcome — what do you use Cable Planner for?')}
       footer={
         <div className="flex items-center justify-between gap-2">
           <button
@@ -50,7 +50,7 @@ export const ModuleOnboardingDialog = () => {
             onClick={skip}
             className="rounded px-3 py-1 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-2"
           >
-            {t('onboarding.skip', 'Später entscheiden')}
+            {t('onboarding.skip', 'Decide later')}
           </button>
           <button
             type="button"
@@ -58,7 +58,7 @@ export const ModuleOnboardingDialog = () => {
             disabled={selected.length === 0}
             className="rounded bg-emerald-700 px-3 py-1 text-cp-xs enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {t('onboarding.confirm', 'Loslegen')}
+            {t('onboarding.confirm', 'Get started')}
           </button>
         </div>
       }
@@ -68,7 +68,7 @@ export const ModuleOnboardingDialog = () => {
           className="text-cp-text-secondary"
           text={t(
             'onboarding.intro',
-            'Wähle einen oder mehrere Anwendungsfälle — passende Funktionsmodule werden aktiviert. Du kannst alles jederzeit unter Einstellungen → Module ändern.',
+            'Pick one or more use cases — matching feature modules get enabled. You can change everything later under Settings → Modules.',
           )}
         />
         <div className="grid gap-2 sm:grid-cols-3">

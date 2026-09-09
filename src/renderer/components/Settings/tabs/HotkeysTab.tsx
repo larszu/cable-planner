@@ -46,18 +46,18 @@ const HotkeyRow = ({
         }`}
         title={
           capturing
-            ? t('settings.hotkeys.captureTitle', 'Taste oder Tasten-Kombination drücken…')
-            : t('settings.hotkeys.clickToCapture', 'Klicken und Taste(n) drücken')
+            ? t('settings.hotkeys.captureTitle', 'Press a key or key combination…')
+            : t('settings.hotkeys.clickToCapture', 'Click and press key(s)')
         }
       >
-        {capturing ? t('settings.hotkeys.pressKey', 'Taste drücken…') : combo || '—'}
+        {capturing ? t('settings.hotkeys.pressKey', 'Press key…') : combo || '—'}
       </button>
       <button
         type="button"
         onClick={() => onChange('')}
         className="rounded bg-cp-surface-2 px-1.5 py-0.5 text-[10px] text-cp-text-muted hover:bg-red-700 hover:text-white"
-        title={t('settings.hotkeys.clear', 'Hotkey leeren')}
-        aria-label={t('settings.hotkeys.clear', 'Hotkey leeren')}
+        title={t('settings.hotkeys.clear', 'Clear hotkey')}
+        aria-label={t('settings.hotkeys.clear', 'Clear hotkey')}
       >
         <Icon icon={X} size="sm" />
       </button>
@@ -77,14 +77,14 @@ export const HotkeysTab = () => {
         className="text-cp-xs text-cp-text-muted"
         text={t(
           'settings.hotkeys.intro',
-          'Tastenkürzel können hier frei belegt werden. Klicke auf eine Combo-Zelle und drücke die gewünschten Tasten — Ctrl/Shift/Alt + Buchstabe oder Funktionstaste.',
+          'Keyboard shortcuts can be freely assigned here. Click a combo cell and press the desired keys — Ctrl/Shift/Alt + letter or function key.',
         )}
       />
       <SettingsCard
-        title={t('settings.hotkeys.title', 'Aktive Tastenkürzel')}
+        title={t('settings.hotkeys.title', 'Active keyboard shortcuts')}
         description={t(
           'settings.hotkeys.desc',
-          'Format: Ctrl+Shift+S. Leere Felder deaktivieren den Hotkey. Doppel-Belegungen sind erlaubt — der zuerst gefundene Hotkey gewinnt.',
+          'Format: Ctrl+Shift+S. Empty fields disable the hotkey. Duplicate assignments are allowed — the first matching hotkey wins.',
         )}
       >
         <ul className="space-y-1">
@@ -103,7 +103,7 @@ export const HotkeysTab = () => {
             onClick={resetHotkeys}
             className="rounded bg-cp-surface-2 px-3 py-1 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-4"
           >
-            {t('settings.hotkeys.reset', 'Auf Standard zurücksetzen')}
+            {t('settings.hotkeys.reset', 'Reset to default')}
           </button>
         </div>
       </SettingsCard>

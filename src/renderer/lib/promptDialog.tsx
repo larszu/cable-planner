@@ -83,7 +83,7 @@ const PromptDialog = ({ title, defaultValue, onDone }: Props) => {
             onClick={() => onDone(null)}
             style={MODAL_BUTTON_SECONDARY}
           >
-            {t('common.cancel', 'Abbrechen')}
+            {t('common.cancel', 'Cancel')}
           </button>
           <button type="submit" style={modalButtonPrimary('#10b981')}>
             {t('common.ok', 'OK')}

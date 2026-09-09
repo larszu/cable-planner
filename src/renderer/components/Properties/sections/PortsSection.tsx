@@ -52,7 +52,7 @@ export const PortsSection = ({ equipment }: { equipment: EquipmentItem }) => {
   return (
     <SortableSection
       id="ports"
-      title={t('portsSection.title', 'Inputs & Outputs')}
+      title={t('portsSection.title', 'Inputs & outputs')}
       subtitle={`${equipment.inputs.length} ${t('portsSection.in', 'In')} · ${equipment.outputs.length} ${t('portsSection.out', 'Out')}`}
       defaultOpen
     >
@@ -61,7 +61,7 @@ export const PortsSection = ({ equipment }: { equipment: EquipmentItem }) => {
           <div className="rounded border border-cp-warn/40 bg-cp-warn/10 px-2 py-1.5 text-[11px] text-cp-text-secondary">
             {t(
               'ports.unknown',
-              'Port-Belegung unbekannt (kein Datenblatt-Match beim Import). Reale Anschlüsse unten ergänzen — es wurden bewusst keine erfunden.',
+              'Port layout unknown (no datasheet match on import). Add the real connectors below — none were fabricated.',
             )}
             {/* ADR-003 Inkrement 2 — derselbe Zustand wie die Rentman-Spalte,
                 nur in der anderen Auspraegung: hier steht gar kein Wert, und
@@ -85,7 +85,7 @@ export const PortsSection = ({ equipment }: { equipment: EquipmentItem }) => {
           className="flex items-center gap-2 px-1 text-[11px] text-cp-text-secondary"
           title={t(
             'ports.flipTitle',
-            'Inputs werden rechts, Outputs werden links am Geräte-Knoten gerendert.',
+            'Inputs render on the right, outputs on the left of the device node.',
           )}
         >
           <input
@@ -95,7 +95,7 @@ export const PortsSection = ({ equipment }: { equipment: EquipmentItem }) => {
               updateEquipment(equipment.id, { portsFlipped: event.target.checked || undefined })
             }
           />
-          {t('ports.flip', 'Ports spiegeln (Inputs rechts, Outputs links)')}
+          {t('ports.flip', 'Flip ports (inputs on right, outputs on left)')}
         </label>
         <details open className="rounded border border-cp-border-muted bg-cp-surface-3/30">
           <summary className="cursor-pointer select-none px-2 py-1 text-cp-xs font-semibold text-cp-text-secondary hover:text-cp-text">

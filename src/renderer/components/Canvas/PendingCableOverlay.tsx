@@ -108,7 +108,7 @@ export const PendingCableOverlay = () => {
           pointerEvents: 'none',
         }}
       >
-        {t('pendingCable.banner', 'Kabel zeichnen: Klick auf Canvas für Knick, Klick auf Port zum Beenden, Esc zum Abbrechen.')}
+        {t('pendingCable.banner', 'Draw cable: click the canvas for a bend, click a port to finish, Esc to cancel.')}
       </div>
       <PendingCableSuggestions
         sourcePortConnector={port.connectorType}

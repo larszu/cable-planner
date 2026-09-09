@@ -118,8 +118,8 @@ export const InstallationDocsDialog = () => {
     () => [
       {
         key: 'pull',
-        label: t('docs.pullList', 'Pull-/Verlege-Liste'),
-        hint: t('docs.pullList.hint', 'Je Kabel: Von→Nach, Länge, Trasse, Status (CSV)'),
+        label: t('docs.pullList', 'Pull/run list'),
+        hint: t('docs.pullList.hint', 'Per cable: from→to, length, pathway, status (CSV)'),
         build: () => ({
           content: pullListCsv(project, stampForRows(project, pullListTable, new Date())),
           suffix: 'pull-liste',
@@ -129,8 +129,8 @@ export const InstallationDocsDialog = () => {
       },
       {
         key: 'term',
-        label: t('docs.terminationList', 'Termination-Liste'),
-        hint: t('docs.terminationList.hint', 'Je Kabelende: Gerät, Port, Steckverbinder (CSV)'),
+        label: t('docs.terminationList', 'Termination list'),
+        hint: t('docs.terminationList.hint', 'Per cable end: device, port, connector (CSV)'),
         build: () => ({
           content: terminationListCsv(
             project,
@@ -143,8 +143,8 @@ export const InstallationDocsDialog = () => {
       },
       {
         key: 'sched',
-        label: t('docs.cableSchedule', 'Kabel-Schedule (Register)'),
-        hint: t('docs.cableSchedule.hint', 'Master-Register aller Kabel (CSV)'),
+        label: t('docs.cableSchedule', 'Cable schedule (register)'),
+        hint: t('docs.cableSchedule.hint', 'Master register of all cables (CSV)'),
         build: () => ({
           content: cableScheduleCsv(
             project,
@@ -157,8 +157,8 @@ export const InstallationDocsDialog = () => {
       },
       {
         key: 'bom',
-        label: t('docs.cableBom', 'Kabel-Stückliste + Reserve'),
-        hint: t('docs.cableBom.hint', 'Aggregiert nach Typ/Länge inkl. Reserve-Aufschlag (CSV)'),
+        label: t('docs.cableBom', 'Cable BOM + reserve'),
+        hint: t('docs.cableBom.hint', 'Aggregated by type/length incl. reserve markup (CSV)'),
         build: () => ({
           content: cableBomCsv(
             project,
@@ -172,8 +172,8 @@ export const InstallationDocsDialog = () => {
       },
       {
         key: 'asset',
-        label: t('docs.assetRegister', 'Asset-Register'),
-        hint: t('docs.assetRegister.hint', 'Geräte: Asset-Tag, Standort, Serie, Garantie, Service (CSV)'),
+        label: t('docs.assetRegister', 'Asset register'),
+        hint: t('docs.assetRegister.hint', 'Devices: asset tag, location, serial, warranty, service (CSV)'),
         build: () => ({
           content: assetRegisterCsv(
             project,
@@ -186,8 +186,8 @@ export const InstallationDocsDialog = () => {
       },
       {
         key: 'handover',
-        label: t('docs.handover', 'Übergabe-Dokument'),
-        hint: t('docs.handover.hint', 'Betreiber-Übersicht: Umfang, Status, BOM, Assets (Markdown)'),
+        label: t('docs.handover', 'Handover document'),
+        hint: t('docs.handover.hint', 'Operator overview: scope, status, BOM, assets (Markdown)'),
         build: () => ({
           content: buildHandoverManifest(
             project,
@@ -206,8 +206,8 @@ export const InstallationDocsDialog = () => {
     const res = assignDocIds()
     setInfo(
       res.cables + res.equipment === 0
-        ? t('docs.ids.none', 'Alle Elemente haben bereits eine ID.')
-        : t('export.docs.idsAssigned', '{cables} Kabel-IDs, {equipment} Geräte-IDs vergeben.')
+        ? t('docs.ids.none', 'All elements already have an ID.')
+        : t('export.docs.idsAssigned', 'Assigned {cables} cable IDs, {equipment} device IDs.')
             .replace('{cables}', String(res.cables))
             .replace('{equipment}', String(res.equipment)),
     )
@@ -237,7 +237,7 @@ export const InstallationDocsDialog = () => {
         items.push({ id, label: id, sub: e.name, kind: 'equipment' })
       }
       if (items.length === 0) {
-        setInfo(t('docs.qr.empty', 'Keine Elemente vorhanden.'))
+        setInfo(t('docs.qr.empty', 'No elements present.'))
         setBusy(false)
         return
       }
@@ -272,10 +272,10 @@ export const InstallationDocsDialog = () => {
         blob,
         'application/pdf',
       )
-      setInfo(t('export.docs.labelsCreated', '{n} Etiketten erzeugt.').replace('{n}', String(items.length)))
+      setInfo(t('export.docs.labelsCreated', 'Created {n} labels.').replace('{n}', String(items.length)))
     } catch (err) {
       setInfo(
-        t('export.docs.error', 'Fehler: {msg}').replace(
+        t('export.docs.error', 'Error: {msg}').replace(
           '{msg}',
           err instanceof Error ? err.message : String(err),
         ),
@@ -298,7 +298,7 @@ export const InstallationDocsDialog = () => {
     <ModalShell
       open={open}
       onClose={close}
-      title={t('docs.title', 'Festinstallation — Doku & Übergabe')}
+      title={t('docs.title', 'Fixed install — docs & handover')}
       titleIcon={<Icon icon={PackageCheck} size="md" />}
       maxWidth="3xl"
       draggableKey="cable-planner:modal-pos:install-docs"
@@ -317,7 +317,7 @@ export const InstallationDocsDialog = () => {
         >
           <div className="mb-1 flex flex-wrap items-baseline gap-2">
             <span className="font-medium text-cp-text">
-              {t('docs.job.title', 'Grundlage dieser Übergabe')}
+              {t('docs.job.title', 'Basis of this handover')}
             </span>
             <span
               className={
@@ -332,7 +332,7 @@ export const InstallationDocsDialog = () => {
             className="text-cp-xs text-cp-text-muted"
             text={t(
               'docs.job.intro',
-              'Nächstes Jahr wird dieselbe Veranstaltung aus dieser Datei geplant. Trägt sie den Plan von vor dem Aufbau, wird jede Änderung vor Ort ein zweites Mal gefunden.',
+              'Next year the same event will be planned from this file. If it carries the plan from before load-in, every on-site change gets rediscovered.',
             )}
           />
           {job.findings.length > 0 && (
@@ -350,12 +350,12 @@ export const InstallationDocsDialog = () => {
         <section className="rounded border border-cp-border bg-cp-surface-2/40 p-3">
           <label className="block">
             <span className="mb-1 block text-cp-text-secondary">
-              {t('docs.editor', 'Bearbeiter (Autor für Änderungsprotokoll & Service)')}
+              {t('docs.editor', 'Editor (author for changelog & service)')}
             </span>
             <input
               value={editorName}
               onChange={(e) => setEditorName(e.target.value)}
-              placeholder={t('docs.editor.placeholder', 'z. B. Lars Z. / Firma XY')}
+              placeholder={t('docs.editor.placeholder', 'e.g. Lars Z. / Company XY')}
               className="w-full rounded border border-cp-border bg-cp-surface-1 p-2"
             />
           </label>
@@ -365,7 +365,7 @@ export const InstallationDocsDialog = () => {
         <section>
           <h3 className="mb-2 flex items-center gap-1.5 font-semibold text-cp-text-bright">
             <Icon icon={ClipboardList} size="sm" />
-            {t('docs.exports', 'Listen & Übergabe-Dokumente')}
+            {t('docs.exports', 'Lists & handover documents')}
           </h3>
           {/* BEDARF 11 — an wen. Steht bei den Ausgaben und nicht bei der
               Bearbeiter-Identitaet: das ist eine andere Frage. „Bearbeiter"
@@ -374,17 +374,17 @@ export const InstallationDocsDialog = () => {
               „was hat sich seit DEINEM Ausdruck geaendert". */}
           <label className="mb-2 block text-cp-xs text-cp-text-secondary">
             <span className="mb-1 block">
-              {t('docs.recipient', 'Empfänger dieses Blattes (Abteilung oder Person)')}
+              {t('docs.recipient', 'Recipient of this sheet (department or person)')}
             </span>
             <input
               value={recipient}
               onChange={(e) => setRecipient(e.target.value)}
-              placeholder={t('docs.recipient.placeholder', 'z. B. Kamera, Ton, Bühne — leer lassen geht auch')}
+              placeholder={t('docs.recipient.placeholder', 'e.g. Camera, Audio, Stage - leaving it empty is fine')}
               className="w-full rounded border border-cp-border bg-cp-surface-1 p-2"
             />
           </label>
           <label className="mb-2 flex items-center gap-2 text-cp-xs text-cp-text-secondary">
-            {t('docs.reserve', 'Reserve-Aufschlag für Stückliste (%)')}
+            {t('docs.reserve', 'Reserve markup for BOM (%)')}
             <input
               type="number"
               min={0}
@@ -419,12 +419,12 @@ export const InstallationDocsDialog = () => {
         <section className="rounded border border-cp-border bg-cp-surface-2/40 p-3">
           <h3 className="mb-2 flex items-center gap-1.5 font-semibold text-cp-text-bright">
             <Icon icon={QrCode} size="sm" />
-            {t('docs.qr', 'QR-/Asset-IDs & Etiketten')}
+            {t('docs.qr', 'QR/asset IDs & labels')}
           </h3>
           <p className="mb-2 text-cp-xs text-cp-text-muted">
             {t(
               'docs.qr.hint',
-              'Vergibt kurzen, stabilen IDs an Kabel/Geräte ohne ID und druckt QR-Etiketten, die das physische Label mit dem Datensatz verknüpfen.',
+              'Assigns short, stable IDs to cables/devices without one and prints QR labels linking the physical label to the record.',
             )}
           </p>
           <div className="flex flex-wrap gap-2">
@@ -433,7 +433,7 @@ export const InstallationDocsDialog = () => {
               onClick={onAssignIds}
               className="inline-flex items-center gap-1.5 rounded bg-cp-surface-4 px-3 py-1.5 hover:bg-cp-surface-5"
             >
-              <Icon icon={Tag} size="sm" /> {t('docs.qr.assign', 'QR-/Asset-IDs vergeben')}
+              <Icon icon={Tag} size="sm" /> {t('docs.qr.assign', 'Assign QR/asset IDs')}
             </button>
             <button
               type="button"
@@ -441,7 +441,7 @@ export const InstallationDocsDialog = () => {
               onClick={onQrLabelsPdf}
               className="inline-flex items-center gap-1.5 rounded bg-cp-surface-4 px-3 py-1.5 hover:bg-cp-surface-5 disabled:opacity-50"
             >
-              <Icon icon={QrCode} size="sm" /> {t('docs.qr.pdf', 'QR-Etiketten (PDF)')}
+              <Icon icon={QrCode} size="sm" /> {t('docs.qr.pdf', 'QR labels (PDF)')}
             </button>
           </div>
           <div className="mt-2 flex flex-wrap items-center gap-2 border-t border-cp-border pt-2">
@@ -451,14 +451,14 @@ export const InstallationDocsDialog = () => {
                 const n = applySourceDestLabels({ overwrite: overwriteLabels })
                 setInfo(
                   n === 0
-                    ? t('docs.label.none', 'Keine Labels geändert (alle benannt — ggf. „überschreiben" aktivieren).')
-                    : t('export.docs.labelsFromSourceDest', '{n} Kabel-Labels aus Quelle→Ziel erzeugt.').replace('{n}', String(n)),
+                    ? t('docs.label.none', 'No labels changed (all named — enable "overwrite" if needed).')
+                    : t('export.docs.labelsFromSourceDest', 'Created {n} cable labels from source→destination.').replace('{n}', String(n)),
                 )
               }}
               className="inline-flex items-center gap-1.5 rounded bg-cp-surface-4 px-3 py-1.5 hover:bg-cp-surface-5"
             >
               <Icon icon={Tag} size="sm" />{' '}
-              {t('docs.label.sourceDest', 'Kabel-Labels „Quelle → Ziel" (AVIXA F501.01)')}
+              {t('docs.label.sourceDest', 'Cable labels "source → destination" (AVIXA F501.01)')}
             </button>
             <label className="flex items-center gap-1.5 text-cp-xs text-cp-text-secondary">
               <input
@@ -466,7 +466,7 @@ export const InstallationDocsDialog = () => {
                 checked={overwriteLabels}
                 onChange={(e) => setOverwriteLabels(e.target.checked)}
               />
-              {t('docs.label.overwrite', 'vorhandene Namen überschreiben')}
+              {t('docs.label.overwrite', 'overwrite existing names')}
             </label>
           </div>
         </section>
@@ -480,7 +480,7 @@ export const InstallationDocsDialog = () => {
           <div className="mb-2 flex items-center justify-between">
             <h3 className="flex items-center gap-1.5 font-semibold text-cp-text-bright">
               <Icon icon={Inbox} size="sm" />
-              {t('docs.pending', 'Feld-Rückmeldungen')}{' '}
+              {t('docs.pending', 'Field feedback')}{' '}
               <span className={pending.length > 0 ? 'text-cp-accent' : 'text-cp-text-muted'}>
                 ({pending.length})
               </span>
@@ -490,7 +490,7 @@ export const InstallationDocsDialog = () => {
             <p className="text-cp-xs text-cp-text-muted">
               {t(
                 'docs.pending.empty',
-                'Keine offenen Meldungen. Korrekturen/Probleme aus dem Mobile-Companion landen hier zum Übernehmen.',
+                'No open reports. Corrections/issues from the mobile companion arrive here to apply.',
               )}
             </p>
           ) : (
@@ -502,10 +502,10 @@ export const InstallationDocsDialog = () => {
                 >
                   <span className="mt-0.5 shrink-0 rounded bg-cp-surface-3 px-1.5 py-0.5 text-[10px] uppercase text-cp-text-secondary">
                     {p.target?.type === 'cable'
-                      ? t('docs.pending.cable', 'Kabel')
+                      ? t('docs.pending.cable', 'Cable')
                       : p.target?.type === 'equipment'
-                        ? t('docs.pending.equipment', 'Gerät')
-                        : t('docs.pending.note', 'Notiz')}
+                        ? t('docs.pending.equipment', 'Device')
+                        : t('docs.pending.note', 'Note')}
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="block break-words text-cp-text">{p.summary}</span>
@@ -521,7 +521,7 @@ export const InstallationDocsDialog = () => {
                   <button
                     type="button"
                     onClick={() => applyPendingChange(p.id)}
-                    title={t('docs.pending.apply', 'Übernehmen (mergt + protokolliert)')}
+                    title={t('docs.pending.apply', 'Apply (merges + logs)')}
                     className="shrink-0 rounded p-1 text-cp-accent hover:bg-cp-surface-2"
                   >
                     <Icon icon={Check} size="xs" />
@@ -529,7 +529,7 @@ export const InstallationDocsDialog = () => {
                   <button
                     type="button"
                     onClick={() => rejectPendingChange(p.id)}
-                    title={t('docs.pending.reject', 'Verwerfen')}
+                    title={t('docs.pending.reject', 'Discard')}
                     className="shrink-0 rounded p-1 text-cp-danger hover:bg-cp-surface-2"
                   >
                     <Icon icon={X} size="xs" />
@@ -545,7 +545,7 @@ export const InstallationDocsDialog = () => {
           <div className="mb-2 flex items-center justify-between">
             <h3 className="flex items-center gap-1.5 font-semibold text-cp-text-bright">
               <Icon icon={History} size="sm" />
-              {t('docs.changelog', 'Änderungsprotokoll')}{' '}
+              {t('docs.changelog', 'Changelog')}{' '}
               <span className="text-cp-text-muted">({(project.changelog ?? []).length})</span>
             </h3>
             {(project.changelog ?? []).length > 0 && (
@@ -554,13 +554,13 @@ export const InstallationDocsDialog = () => {
                 onClick={() => clearChangelog()}
                 className="inline-flex items-center gap-1 rounded px-2 py-1 text-cp-xs text-cp-danger hover:bg-cp-surface-2"
               >
-                <Icon icon={Trash2} size="xs" /> {t('docs.changelog.clear', 'Leeren')}
+                <Icon icon={Trash2} size="xs" /> {t('docs.changelog.clear', 'Clear')}
               </button>
             )}
           </div>
           {changelog.length === 0 ? (
             <p className="text-cp-xs text-cp-text-muted">
-              {t('docs.changelog.empty', 'Noch keine Einträge. Status-/Service-Änderungen werden hier protokolliert.')}
+              {t('docs.changelog.empty', 'No entries yet. Status/service changes are logged here.')}
             </p>
           ) : (
             <ul className="max-h-48 space-y-1 overflow-y-auto text-cp-xs">

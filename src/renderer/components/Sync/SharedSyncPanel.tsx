@@ -60,14 +60,14 @@ export function SharedSyncPanel() {
   if (!hasDesktopBridge) return null
   if (!syncPath) return null
 
-  const user = syncUser || t('sync.unknownUser', 'Unbekannt')
+  const user = syncUser || t('sync.unknownUser', 'Unknown')
 
   const withLock = async (action: () => Promise<void>) => {
     const lockResult = await cablePlannerApi.sync.acquireLock(syncPath, user)
     if (!lockResult.ok) {
       setStatus({
         kind: 'locked',
-        message: format(t('sync.lockedBy', 'Verzeichnis ist gesperrt von: {who}'), { who: lockResult.lockedBy ?? t('sync.unknownUser', 'Unbekannt') }),
+        message: format(t('sync.lockedBy', 'Directory is locked by: {who}'), { who: lockResult.lockedBy ?? t('sync.unknownUser', 'Unknown') }),
         lockedBy: lockResult.lockedBy,
       })
       return
@@ -110,7 +110,7 @@ export function SharedSyncPanel() {
         traeger,
         t(
           'cred.dest.sharedSync',
-          'in den geteilten Ordner — jeder im Team, der Pull drückt, bekommt die Datei.',
+          'into the shared folder — everyone on the team who hits Pull gets the file.',
         ),
       )
       // Abbruch heisst abbrechen, nicht „dann eben mitschicken".
@@ -136,7 +136,7 @@ export function SharedSyncPanel() {
         )
         setStatus({
           kind: 'ok',
-          message: format(t('sync.pushOk', 'Push erfolgreich ({user})'), { user }),
+          message: format(t('sync.pushOk', 'Push successful ({user})'), { user }),
           lastAction: 'Push',
           lastAt: new Date().toLocaleTimeString(),
         })
@@ -144,7 +144,7 @@ export function SharedSyncPanel() {
     } catch (err) {
       setStatus({
         kind: 'error',
-        message: err instanceof Error ? err.message : t('sync.pushFailed', 'Push fehlgeschlagen'),
+        message: err instanceof Error ? err.message : t('sync.pushFailed', 'Push failed'),
       })
     } finally {
       setBusy(false)
@@ -168,7 +168,7 @@ export function SharedSyncPanel() {
       ])
 
       if (!projectRaw && !libraryRaw && !presetsRaw) {
-        setStatus({ kind: 'error', message: t('sync.noFiles', 'Keine Sync-Dateien im Verzeichnis gefunden.') })
+        setStatus({ kind: 'error', message: t('sync.noFiles', 'No sync files found in the directory.') })
         return
       }
 
@@ -186,7 +186,7 @@ export function SharedSyncPanel() {
       }
 
       const loaded = [
-        projectRaw && t('sync.part.project', 'Projekt'),
+        projectRaw && t('sync.part.project', 'Project'),
         libraryRaw && t('sync.part.library', 'Library'),
         presetsRaw && t('sync.part.presets', 'Presets'),
       ]
@@ -194,14 +194,14 @@ export function SharedSyncPanel() {
         .join(', ')
       setStatus({
         kind: 'ok',
-        message: format(t('sync.pullOk', 'Pull erfolgreich: {loaded}'), { loaded }),
+        message: format(t('sync.pullOk', 'Pull successful: {loaded}'), { loaded }),
         lastAction: 'Pull',
         lastAt: new Date().toLocaleTimeString(),
       })
     } catch (err) {
       setStatus({
         kind: 'error',
-        message: err instanceof Error ? err.message : t('sync.pullFailed', 'Pull fehlgeschlagen'),
+        message: err instanceof Error ? err.message : t('sync.pullFailed', 'Pull failed'),
       })
     } finally {
       setBusy(false)
@@ -219,7 +219,7 @@ export function SharedSyncPanel() {
     <div className="flex items-center gap-1">
       <button
         type="button"
-        title={format(t('sync.pushTitle', 'Push auf: {path}'), { path: syncPath })}
+        title={format(t('sync.pushTitle', 'Push to: {path}'), { path: syncPath })}
         disabled={busy}
         onClick={() => { void handlePush() }}
         className="flex items-center gap-1 rounded bg-sky-700 px-2 py-1 text-cp-xs text-white hover:bg-sky-600 disabled:opacity-50"
@@ -229,7 +229,7 @@ export function SharedSyncPanel() {
       </button>
       <button
         type="button"
-        title={format(t('sync.pullTitle', 'Pull von: {path}'), { path: syncPath })}
+        title={format(t('sync.pullTitle', 'Pull from: {path}'), { path: syncPath })}
         disabled={busy}
         onClick={() => { void handlePull() }}
         className="flex items-center gap-1 rounded bg-cp-surface-4 px-2 py-1 text-cp-xs text-white hover:bg-cp-surface-5 disabled:opacity-50"

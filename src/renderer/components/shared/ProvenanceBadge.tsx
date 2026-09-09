@@ -36,10 +36,10 @@ export const ProvenanceBadge = ({ provenance, field, title }: ProvenanceBadgePro
 
   const label =
     provenance === 'unknown'
-      ? t('prov.unknown', 'unbestätigt')
+      ? t('prov.unknown', 'unconfirmed')
       : provenance === 'commanded'
-        ? t('prov.commanded', 'gesendet')
-        : t('prov.confirmed', 'bestätigt')
+        ? t('prov.commanded', 'sent')
+        : t('prov.confirmed', 'confirmed')
 
   const reason = title ?? (field ? provenanceReason(field) : undefined)
 

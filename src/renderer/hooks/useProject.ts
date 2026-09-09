@@ -65,12 +65,12 @@ export const useProject = () => {
       if (!looksLikeProject(result.data)) {
         const lang = useUiStore.getState().language
         await infoDialog(
-          translate(lang, 'project.open.notAPlanTitle', 'Diese Datei ist kein Cable-Planner-Projekt'),
+          translate(lang, 'project.open.notAPlanTitle', 'This file is not a Cable Planner project'),
           {
             body: translate(
               lang,
               'project.open.notAPlan',
-              'Die Datei ließ sich lesen, enthält aber keine Geräte- und Kabel-Liste. ' +
+              'The file could be read but contains no equipment and cable list. Nothing was loaded — the open project is unchanged.' +
                 'Es wurde nichts geladen — das offene Projekt bleibt unverändert.',
             ),
             tone: 'warning',
@@ -105,7 +105,7 @@ export const useProject = () => {
           translate(
             lang,
             'project.viewerName.prompt',
-            'Viewer-Datei — Name eingeben\n\n' +
+            'Viewer file — enter name\n\nYou are opening a viewer file for review. Please enter your name — it will be attached to all annotations you create in this session.' +
               'Du öffnest eine Viewer-Datei zum Begutachten. Bitte gib deinen Namen ' +
               'ein — er wird allen Anmerkungen angeheftet, die du in dieser Session erstellst.',
           ),
@@ -118,11 +118,11 @@ export const useProject = () => {
           }
           ;(incoming as unknown as Record<string, unknown>).mode = 'viewer'
         } else {
-          await infoDialog(translate(lang, 'project.viewerName.missingTitle', 'Name fehlt'), {
+          await infoDialog(translate(lang, 'project.viewerName.missingTitle', 'Name missing'), {
             body: translate(
               lang,
               'project.viewerName.missingBody',
-              'Ohne Namen können keine Anmerkungen gemacht werden. Die Datei wird nicht geladen.',
+              'Without a name no annotations can be made. The file will not be loaded.',
             ),
             tone: 'warning',
           })

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import dictsSrc from '../src/renderer/lib/i18n/dicts.ts?raw'
+import deSrc from '../src/renderer/lib/i18n/de.ts?raw'
 import { stripComments } from './support/stripComments'
 
 // WAS HIER GEFUNDEN WURDE (2026-09-04).
@@ -50,8 +51,23 @@ const wirdImportiert = (pfad: string): boolean => {
   return false
 }
 
-const aufrufe = (s: string): string[] =>
-  [...s.matchAll(/\bt\(\s*'([^']+)'/g)].map((m) => m[1])
+/**
+ * Die Schluessel, die eine Datei ruft.
+ *
+ * ZWEI FORMEN, und die zweite fehlte hier. Funktions-Komponenten rufen
+ * `t('key', …)`; KLASSEN-Komponenten koennen keinen Hook benutzen und rufen
+ * stattdessen `translate(lang, 'key', …)`. Der `ErrorBoundary` ist so eine —
+ * und mit dem Muster von vorher galten seine zehn Schluessel als „von
+ * niemandem gerufen".
+ *
+ * Aufgefallen ist das erst bei der Sprachdrehung (E-28), weil vorher kein
+ * Test in diese Richtung fragte. Der blinde Fleck war aber die ganze Zeit da:
+ * ein fehlender Schluessel im Absturz-Schirm waere nicht gemeldet worden.
+ */
+const aufrufe = (s: string): string[] => [
+  ...[...s.matchAll(/\bt\(\s*'([^']+)'/g)].map((m) => m[1]),
+  ...[...s.matchAll(/\btranslate\(\s*[A-Za-z_$][\w$]*\s*,\s*'([^']+)'/g)].map((m) => m[1]),
+]
 
 /**
  * Die Schluessel eines Dict-Abschnitts — in BEIDEN Anfuehrungsformen.
@@ -67,10 +83,12 @@ const keysOf = (teil: string): Set<string> =>
   ])
 
 const roh = stripComments(dictsSrc)
-const vonEn = roh.indexOf('export const en: Dict = {')
-const vonDe = roh.indexOf('export const de: Dict = {')
-const englisch = keysOf(roh.slice(vonEn, vonDe))
-const deutsch = keysOf(roh.slice(vonDe))
+// Seit E-28 (2026-09-09) liegt die QUELLSPRACHE in `dicts.ts` (`en`) und die
+// Uebersetzung in einer eigenen Datei je Sprache (`i18n/de.ts`). Vorher lagen
+// beide in `dicts.ts` untereinander, und dieser Test schnitt sie an der Grenze
+// `export const de` auseinander.
+const englisch = keysOf(roh.slice(roh.indexOf('export const en: Dict = {')))
+const deutsch = keysOf(deSrc)
 
 const erreichbar = new Set<string>()
 const totUebersetzt: Array<[string, number]> = []
@@ -84,39 +102,50 @@ for (const [pfad, s] of code) {
 
 describe('i18n — die erreichbare Oberflaeche', () => {
   it('findet beide Woerterbuecher', () => {
-    expect(vonEn, 'en-Dict nicht gefunden').toBeGreaterThanOrEqual(0)
-    expect(vonDe, 'de-Dict nicht gefunden').toBeGreaterThan(vonEn)
     // Untergrenze: findet der Schneider die Woerterbuecher nicht mehr, soll
     // der Test das sagen statt reihenweise Fehltreffer zu melden.
-    expect(englisch.size, 'Zu wenige englische Schluessel — Muster passt nicht mehr').toBeGreaterThan(3000)
+    expect(englisch.size, 'Zu wenige Quell-Schluessel — Muster passt nicht mehr').toBeGreaterThan(3000)
+    expect(deutsch.size, 'Zu wenige deutsche Schluessel — Muster passt nicht mehr').toBeGreaterThan(3000)
   })
 
-  it('hat fuer jeden erreichbaren Schluessel eine englische Fassung', () => {
-    const fehlend = [...erreichbar].filter((k) => !englisch.has(k)).sort()
+  it('hat fuer jeden erreichbaren Schluessel eine deutsche Fassung', () => {
+    // GEDREHT MIT E-28. Vorher wurde die englische Fassung eingefordert, weil
+    // Deutsch die Quelle war; jetzt ist es umgekehrt. Die Frage ist dieselbe
+    // geblieben — was hier fehlt, sieht der Nutzer in der ANDEREN Sprache.
+    const fehlend = [...erreichbar].filter((k) => !deutsch.has(k)).sort()
     expect(
       fehlend,
-      `Ohne englische Fassung, obwohl die Stelle gerendert wird: ${fehlend.slice(0, 12).join(', ')}` +
+      `Ohne deutsche Fassung, obwohl die Stelle gerendert wird: ${fehlend.slice(0, 12).join(', ')}` +
         `${fehlend.length > 12 ? ` … (+${fehlend.length - 12})` : ''}. Der Sprachschalter ist ` +
-        'erreichbar — was hier fehlt, sieht ein englischer Nutzer auf Deutsch.',
+        'erreichbar — was hier fehlt, sieht ein deutscher Nutzer auf Englisch.',
     ).toEqual([])
   })
 
-  it('haelt kein deutsches Dict-Eintrag ohne englisches Gegenstueck', () => {
-    // DIE FORM DES FEHLERS, nicht sein Wortlaut. Deutsch ist Quellsprache und
-    // steht an der Aufrufstelle; ein `de`-Eintrag ist eine Ueberschreibung.
-    // Eine Ueberschreibung, die es NUR auf Deutsch gibt, ist genau das, was
-    // 451 fehlabgelegte englische Zeilen ausmachte — sie standen im de-Dict
-    // und in keinem en-Dict.
+  it('haelt keinen deutschen Eintrag, den niemand benutzt', () => {
+    // GEDREHT MIT E-28, und die Frage musste dabei neu gestellt werden.
+    //
+    // Vorher hiess sie: „gibt es zu jedem de-Eintrag einen en-Eintrag?" Das
+    // war richtig, solange Deutsch die QUELLE war — ein `de`-Eintrag war dann
+    // eine Ueberschreibung ohne Not, und genau so lagen 451 englische Zeilen
+    // im falschen Woerterbuch.
+    //
+    // Jetzt ist Deutsch die UEBERSETZUNG, und die Quelle steht nicht mehr
+    // vollstaendig im Woerterbuch: die meisten englischen Texte stehen als
+    // Fallback an der Aufrufstelle. Ein deutscher Eintrag ist deshalb genau
+    // dann ueberfluessig, wenn ihn NIEMAND ruft — weder ueber einen
+    // erreichbaren `t()`-Aufruf noch ueber das Quell-Woerterbuch.
     //
     // Bewusst nicht am Text geprueft: „ist dieser Wert deutsch?" ist bei
     // Fachbegriffen (Truss, Gain, Patch) nicht entscheidbar. Die Ablageform
     // ist es.
-    const ohneEnglisch = [...deutsch].filter((k) => !englisch.has(k)).sort()
+    const benutzt = new Set([...englisch, ...erreichbar])
+    const verwaist = [...deutsch].filter((k) => !benutzt.has(k)).sort()
     expect(
-      ohneEnglisch,
-      `Nur im de-Dict, ohne englische Fassung: ${ohneEnglisch.slice(0, 12).join(', ')}. ` +
-        'Entweder gehoert der Eintrag ins en-Dict, oder er ist ueberfluessig — der ' +
-        'deutsche Text steht ohnehin als Fallback an der Aufrufstelle.',
+      verwaist,
+      `Deutsche Eintraege, die niemand ruft: ${verwaist.slice(0, 12).join(', ')}` +
+        `${verwaist.length > 12 ? ` … (+${verwaist.length - 12})` : ''}. Entweder ist ` +
+        'die Aufrufstelle weggefallen, oder der Schluessel ist vertippt — in beiden ' +
+        'Faellen uebersetzt hier jemand ins Leere.',
     ).toEqual([])
   })
 

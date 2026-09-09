@@ -163,7 +163,7 @@ export const ExportDialog = ({
       >
         <aside className="flex shrink-0 flex-row gap-1 overflow-x-auto border-b border-cp-border-muted bg-cp-surface-3/40 p-3 sm:w-52 sm:flex-col sm:overflow-x-visible sm:overflow-y-auto sm:border-b-0 sm:border-r">
           <h3 className="mb-2 hidden px-2 text-cp-xs font-semibold uppercase tracking-wider text-cp-text-faint sm:block">
-            {t('export.title', 'Exportieren & Drucken')}
+            {t('export.title', 'Export & print')}
           </h3>
           {(Object.keys(SECTION_LABEL) as Section[]).map((id) => (
             <button
@@ -193,7 +193,7 @@ export const ExportDialog = ({
               onClick={onClose}
               className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
             >
-              {t('common.close', 'Schließen')}
+              {t('common.close', 'Close')}
             </button>
           </header>
           {/* v7.9.4 — Body als flex-col OHNE eigenes overflow-auto.
@@ -288,11 +288,11 @@ const PlanSection = ({
   }
 
   const FORMAT_OPTIONS = [
-    { value: 'pdf' as const, icon: FileText, label: 'PDF', hint: t('export.format.pdfHint', 'Vektor mit Titelblock, druckbar') },
-    { value: 'png' as const, icon: ImageIcon, label: 'PNG', hint: t('export.format.pngHint', 'Transparent möglich, scharf') },
-    { value: 'jpeg' as const, icon: ImageIcon, label: 'JPEG', hint: t('export.format.jpegHint', 'Kleiner, gut für E-Mail') },
-    { value: 'svg' as const, icon: ImageIcon, label: 'SVG', hint: t('export.format.svgHint', 'Skalierbar, für Web/Weiterverarbeitung') },
-    { value: 'dxf' as const, icon: FileText, label: 'DXF', hint: t('export.format.dxfHint', 'CAD/Plotter — Geräte, Kabel & Text auf Layern') },
+    { value: 'pdf' as const, icon: FileText, label: 'PDF', hint: t('export.format.pdfHint', 'Vector with title block, printable') },
+    { value: 'png' as const, icon: ImageIcon, label: 'PNG', hint: t('export.format.pngHint', 'Transparent possible, sharp') },
+    { value: 'jpeg' as const, icon: ImageIcon, label: 'JPEG', hint: t('export.format.jpegHint', 'Smaller, good for email') },
+    { value: 'svg' as const, icon: ImageIcon, label: 'SVG', hint: t('export.format.svgHint', 'Scalable, for web / further processing') },
+    { value: 'dxf' as const, icon: FileText, label: 'DXF', hint: t('export.format.dxfHint', 'CAD/plotter — devices, cables & text on layers') },
   ]
 
   return (
@@ -338,7 +338,7 @@ const PlanSection = ({
       {format === 'pdf' && (
         <>
           <fieldset className="space-y-1">
-            <legend className="mb-1 text-cp-xs font-semibold text-cp-text-secondary">{t('export.pdfTheme', 'PDF-Thema')}</legend>
+            <legend className="mb-1 text-cp-xs font-semibold text-cp-text-secondary">{t('export.pdfTheme', 'PDF theme')}</legend>
             <label className="flex items-center gap-2 text-cp-xs">
               <input
                 type="radio"
@@ -346,7 +346,7 @@ const PlanSection = ({
                 checked={pdfTheme === 'dark'}
                 onChange={() => setPdfTheme('dark')}
               />
-              <span className="inline-flex items-center gap-1"><Icon icon={Moon} size="xs" /> {t('export.theme.darkLabel', 'Dunkles Thema (wie Canvas)')}</span>
+              <span className="inline-flex items-center gap-1"><Icon icon={Moon} size="xs" /> {t('export.theme.darkLabel', 'Dark theme (like canvas)')}</span>
             </label>
             <label className="flex items-center gap-2 text-cp-xs">
               <input
@@ -355,7 +355,7 @@ const PlanSection = ({
                 checked={pdfTheme === 'light'}
                 onChange={() => setPdfTheme('light')}
               />
-              <span className="inline-flex items-center gap-1"><Icon icon={Sun} size="xs" /> {t('export.theme.lightLabel', 'Helles Thema (für Ausdruck empfohlen)')}</span>
+              <span className="inline-flex items-center gap-1"><Icon icon={Sun} size="xs" /> {t('export.theme.lightLabel', 'Light theme (recommended for print)')}</span>
             </label>
           </fieldset>
           {/* Bedarf 128 — der Ausdruck fuer den Tisch. Nachgerechnet: die
@@ -374,7 +374,7 @@ const PlanSection = ({
               onChange={(e) => setPdfMonochrom(e.target.checked)}
             />
             <span>
-              {t('export.monochrome', 'Monochrom sicher (Ebene im Klartext, eine Strichfarbe)')}
+              {t('export.monochrome', 'Monochrome-safe (layer spelled out, one line colour)')}
             </span>
           </label>
           {/* v7.9.97 — Render-Modus: Raster (klassisch) vs Vektor (Beta).
@@ -382,7 +382,7 @@ const PlanSection = ({
               Text, scharf bei jedem Zoom, kleinere Dateigröße. Default
               ist Raster damit nichts am bestehenden Workflow bricht. */}
           <fieldset className="space-y-1">
-            <legend className="mb-1 text-cp-xs font-semibold text-cp-text-secondary">{t('export.renderMode', 'Render-Modus')}</legend>
+            <legend className="mb-1 text-cp-xs font-semibold text-cp-text-secondary">{t('export.renderMode', 'Render mode')}</legend>
             <label className="flex cursor-pointer items-start gap-2 text-cp-xs">
               <input
                 type="radio"
@@ -392,11 +392,11 @@ const PlanSection = ({
                 className="mt-0.5"
               />
               <span>
-                <span className="flex items-center gap-1"><Icon icon={Camera} size="xs" /> {t('export.render.raster', 'Raster (klassisch)')}</span>
+                <span className="flex items-center gap-1"><Icon icon={Camera} size="xs" /> {t('export.render.raster', 'Raster (classic)')}</span>
                 <span className="block text-[10px] text-cp-text-muted">
                   {t(
                     'export.render.rasterHint',
-                    'JPEG-Snapshot. Zuverlässig, aber Text wird unscharf bei großem Zoom in der PDF.',
+                    'JPEG snapshot. Reliable, but text blurs at high zoom in the PDF.',
                   )}
                 </span>
               </span>
@@ -410,7 +410,7 @@ const PlanSection = ({
                 className="mt-0.5"
               />
               <span>
-                <span className="flex items-center gap-1"><Icon icon={Sparkles} size="xs" /> {t('export.render.vector', 'Vektor')}</span>
+                <span className="flex items-center gap-1"><Icon icon={Sparkles} size="xs" /> {t('export.render.vector', 'Vector')}</span>
                 <span className="block text-[10px] text-cp-text-muted">
                   {/* ADR-005, Regel 4 — hier standen nur die Vorteile. Der
                       Vektor-Pfad klont das Canvas-DOM und druckt es via
@@ -420,7 +420,7 @@ const PlanSection = ({
                       waehlt, muss beide Seiten kennen. */}
                   {t(
                     'export.render.vectorHint',
-                    'Chromium printToPDF. Text bleibt selektierbar & scharf bei jedem Zoom. Kleinere Dateigröße. Ohne Titelblock — Revision, Stand-Fingerprint und QR-Code stehen nur im Raster-PDF.',
+                    'Chromium printToPDF. Text stays selectable & sharp at any zoom. Smaller file size. No title block — revision, state fingerprint and QR code are in the raster PDF only.',
                   )}
                 </span>
               </span>
@@ -431,26 +431,26 @@ const PlanSection = ({
           {pdfVector && (
             <fieldset className="space-y-1">
               <legend className="mb-1 text-cp-xs font-semibold text-cp-text-secondary">
-                {t('export.pageSize', 'Page-Size')}
+                {t('export.pageSize', 'Page size')}
               </legend>
               <select
                 value={pdfPageSize}
                 onChange={(e) => setPdfPageSize(e.target.value as PdfPageSizeOpt)}
                 className="w-full rounded border border-cp-border bg-cp-surface-1 px-2 py-1 text-cp-xs text-cp-text"
               >
-                <option value="auto">{t('export.page.auto', 'Auto — A0 Landscape (kompatibel mit allen Viewern)')}</option>
+                <option value="auto">{t('export.page.auto', 'Auto — A0 landscape (compatible with all viewers)')}</option>
                 <option value="a4">A4 Landscape (297×210 mm)</option>
                 <option value="a3">A3 Landscape (420×297 mm)</option>
                 <option value="a2">A2 Landscape (594×420 mm)</option>
                 <option value="a1">A1 Landscape (841×594 mm)</option>
                 <option value="a0">A0 Landscape (1189×841 mm)</option>
                 <option value="a0plus">A0+ Plotter (1682×1189 mm)</option>
-                <option value="original">{t('export.page.original', 'Original — volle Canvas-Größe für Plotter')}</option>
+                <option value="original">{t('export.page.original', 'Original — full canvas size for plotter')}</option>
               </select>
               <p className="text-[10px] text-cp-text-muted">
                 {pdfPageSize === 'original'
-                  ? t('export.page.originalHint', 'Achtung: Edge / Preview zeigen Pages über A0 manchmal weiss an. Acrobat + Plotter-Software drucken trotzdem.')
-                  : t('export.page.scaleHint', 'Canvas wird vektoriell auf die Page-Größe skaliert. Text bleibt scharf.')}
+                  ? t('export.page.originalHint', 'Heads-up: Edge / Preview sometimes display pages above A0 as white. Acrobat + plotter software print them anyway.')
+                  : t('export.page.scaleHint', 'Canvas is scaled vectorially to the page size. Text stays sharp.')}
               </p>
             </fieldset>
           )}
@@ -460,20 +460,20 @@ const PlanSection = ({
               Chips ausschalten, exportieren, Chips wieder einschalten. */}
           <fieldset className="space-y-1">
             <legend className="mb-1 text-cp-xs font-semibold text-cp-text-secondary">
-              {t('export.layersInPdf', 'Ebenen (im PDF enthalten)')}
+              {t('export.layersInPdf', 'Layers (included in PDF)')}
             </legend>
             <div className="-mx-1 flex flex-wrap gap-1">
               <LayerVisibilityChips />
             </div>
             <p className="text-[10px] text-cp-text-muted">
-              {t('export.layersHint', 'Klick auf einen Chip schaltet die Ebene für Canvas UND PDF um.')}
+              {t('export.layersHint', 'Click a chip to toggle that layer for canvas AND PDF.')}
             </p>
           </fieldset>
         </>
       )}
 
       <div className="rounded border border-cp-border-muted bg-cp-surface-3/40 p-2 text-[11px] text-cp-text-muted">
-        {t('export.savedAs', 'Wird gespeichert als')} <code className="rounded bg-cp-surface-2 px-1 py-0.5">{projectName || 'cable-planner'}</code>
+        {t('export.savedAs', 'Saved as')} <code className="rounded bg-cp-surface-2 px-1 py-0.5">{projectName || 'cable-planner'}</code>
       </div>
       </div>
 
@@ -487,15 +487,15 @@ const PlanSection = ({
           disabled={busy || format !== 'pdf'}
           title={
             format === 'pdf'
-              ? t('export.printPdfTitle', 'Plan-PDF im OS-Druckdialog öffnen')
+              ? t('export.printPdfTitle', 'Open plan PDF in OS print dialog')
               : t(
                   'export.printOnlyPdf',
-                  'Drucken funktioniert nur mit Format PDF — bei PNG/JPEG einfach herunterladen.',
+                  'Printing only works with the PDF format — for PNG/JPEG just download.',
                 )
           }
           className="rounded bg-indigo-700 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-indigo-600 disabled:opacity-50"
         >
-          <span className="inline-flex items-center gap-1"><Icon icon={Printer} size="xs" /> {t('export.printBtn', 'Drucken')}</span>
+          <span className="inline-flex items-center gap-1"><Icon icon={Printer} size="xs" /> {t('export.printBtn', 'Print')}</span>
         </button>
         <button
           type="button"
@@ -505,8 +505,8 @@ const PlanSection = ({
         >
           {busy && <Spinner size="xs" />}
           {busy
-            ? t('export.processing', 'Verarbeite…')
-            : t('export.downloadAs', 'Als {fmt} herunterladen').replace('{fmt}', format.toUpperCase())}
+            ? t('export.processing', 'Processing…')
+            : t('export.downloadAs', 'Download as {fmt}').replace('{fmt}', format.toUpperCase())}
         </button>
       </div>
     </div>
@@ -574,9 +574,9 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
   }
 
   const actionLabel: Record<PatchAction, string> = {
-    individual: t('export.patch.actionIndividual', 'Einzel-PDFs'),
-    batch: t('export.patch.actionBatch', 'Sammel-PDF'),
-    print: t('export.printBtn', 'Drucken'),
+    individual: t('export.patch.actionIndividual', 'Individual PDFs'),
+    batch: t('export.patch.actionBatch', 'Batch PDF'),
+    print: t('export.printBtn', 'Print'),
   }
 
   return (
@@ -596,25 +596,25 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
           onClose()
         }}
         className="flex w-full items-center justify-between rounded border border-emerald-700/60 bg-emerald-950/30 px-3 py-2 text-left text-cp-xs text-emerald-100 hover:border-emerald-500 hover:bg-emerald-900/40"
-        title={t('export.patch.compactTitle', 'Kompakte Patchliste: alle Kabel auf einer Liste, sortiert nach Quell-Gerät — zum Ausdrucken für den Techniker im Feld.')}
+        title={t('export.patch.compactTitle', 'Compact patch list: all cables on one list, sorted by source device — to print for the on-site technician.')}
       >
         <span>
-          <span className="inline-flex items-center gap-1 font-semibold"><Icon icon={CableIcon} size="xs" /> {t('export.patch.openPatchList', 'Patchliste öffnen…')}</span>
+          <span className="inline-flex items-center gap-1 font-semibold"><Icon icon={CableIcon} size="xs" /> {t('export.patch.openPatchList', 'Open patch list…')}</span>
           <span className="ml-2 text-emerald-300/70">
-            {t('export.patch.compactSub', 'Eine Zeile pro Kabel, sortiert nach Quell-Gerät')}
+            {t('export.patch.compactSub', 'One line per cable, sorted by source device')}
           </span>
         </span>
         <span className="text-emerald-300">→</span>
       </button>
 
       <div className="mb-1 text-[11px] text-cp-text-muted">
-        {t('export.patch.perDeviceHint', '— oder pro-Gerät Patch-Sheet erzeugen:')}
+        {t('export.patch.perDeviceHint', '— or create one patch sheet per device:')}
       </div>
 
       <div>
         <div className="mb-1 flex items-center justify-between">
           <span className="text-cp-xs font-semibold text-cp-text-secondary">
-            {t('export.patch.devicesCount', 'Geräte')} ({selectedIds.size} / {filtered.length})
+            {t('export.patch.devicesCount', 'Devices')} ({selectedIds.size} / {filtered.length})
           </span>
           <button
             type="button"
@@ -622,16 +622,16 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
             className="rounded bg-cp-surface-2 px-2 py-0.5 text-[10px] hover:bg-cp-surface-4"
           >
             {selectedIds.size === filtered.length
-              ? t('export.patch.deselectAll', 'Alle abwählen')
-              : t('export.patch.selectAll', 'Alle wählen')}
+              ? t('export.patch.deselectAll', 'Deselect all')
+              : t('export.patch.selectAll', 'Select all')}
           </button>
         </div>
         <input
           type="text"
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          placeholder={t('export.patch.filterPlaceholder', 'Filtern…')}
-          aria-label={t('export.patch.filterPlaceholder', 'Filtern…')}
+          placeholder={t('export.patch.filterPlaceholder', 'Filter…')}
+          aria-label={t('export.patch.filterPlaceholder', 'Filter…')}
           className="mb-2 w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs"
         />
         <div className="max-h-64 space-y-0.5 overflow-y-auto rounded border border-cp-border-muted bg-cp-surface-3/50 p-1">
@@ -661,7 +661,7 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
           })}
           {filtered.length === 0 && (
             <div className="px-2 py-3 text-center text-[11px] text-cp-text-muted">
-              {t('export.patch.noDevices', 'Keine Geräte im Projekt.')}
+              {t('export.patch.noDevices', 'No devices in the project.')}
             </div>
           )}
         </div>
@@ -678,34 +678,34 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
             onClick={() => setPendingAction('individual')}
             disabled={busy || selectedIds.size === 0}
             className="rounded bg-cp-surface-4 px-3 py-1.5 text-cp-xs hover:bg-cp-surface-5 disabled:opacity-50"
-            title={t('export.patch.perDevice', 'Eine PDF pro selektiertem Gerät')}
+            title={t('export.patch.perDevice', 'One PDF per selected device')}
           >
-            {t('export.patch.individualPdf', 'Einzel-PDF ({n})').replace('{n}', String(selectedIds.size))}
+            {t('export.patch.individualPdf', 'Individual PDF ({n})').replace('{n}', String(selectedIds.size))}
           </button>
           <button
             type="button"
             onClick={() => setPendingAction('batch')}
             disabled={busy || selectedIds.size === 0}
             className="rounded bg-cp-surface-4 px-3 py-1.5 text-cp-xs hover:bg-cp-surface-5 disabled:opacity-50"
-            title={t('export.patch.batchPdf', 'Eine Sammel-PDF — ein Gerät pro Seite')}
+            title={t('export.patch.batchPdf', 'Batch PDF — one device per page')}
           >
-            {t('export.patch.combinedPdf', 'Sammel-PDF ({n})').replace('{n}', String(selectedIds.size))}
+            {t('export.patch.combinedPdf', 'Combined PDF ({n})').replace('{n}', String(selectedIds.size))}
           </button>
           <button
             type="button"
             onClick={() => setPendingAction('print')}
             disabled={busy || selectedIds.size === 0}
             className="rounded bg-indigo-700 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-indigo-600 disabled:opacity-50"
-            title={t('export.patch.osPrint', 'Patch-Sheet(s) im OS-Druckdialog öffnen')}
+            title={t('export.patch.osPrint', 'Open patch sheet(s) in OS print dialog')}
           >
-            <span className="inline-flex items-center gap-1"><Icon icon={Printer} size="xs" /> {t('export.printBtn', 'Drucken')}</span>
+            <span className="inline-flex items-center gap-1"><Icon icon={Printer} size="xs" /> {t('export.printBtn', 'Print')}</span>
           </button>
         </div>
       ) : (
         <div className="flex flex-wrap items-center justify-end gap-2 rounded border border-sky-700/60 bg-sky-950/40 px-3 py-2">
           <span className="mr-auto text-cp-xs text-cp-text-secondary">
             <span className="font-semibold text-sky-200">{actionLabel[pendingAction]}</span>
-            {' '}— {t('export.patch.pickPaper', 'Papier-Format wählen:')}
+            {' '}— {t('export.patch.pickPaper', 'Pick paper format:')}
           </span>
           <button
             type="button"
@@ -729,7 +729,7 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
             onClick={() => setPendingAction(null)}
             className="rounded bg-cp-surface-4 px-3 py-1.5 text-cp-xs text-cp-text-bright hover:bg-cp-surface-5 disabled:opacity-50"
           >
-            {t('export.patch.cancel', 'Abbrechen')}
+            {t('export.patch.cancel', 'Cancel')}
           </button>
         </div>
       )}
@@ -799,8 +799,8 @@ const RackGroupSection = ({ onClose }: { onClose: () => void }) => {
           type="text"
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          placeholder={t('export.rack.filterPlaceholder', 'Racks/Gruppen filtern…')}
-          aria-label={t('export.rack.filterPlaceholder', 'Racks/Gruppen filtern…')}
+          placeholder={t('export.rack.filterPlaceholder', 'Filter racks/groups…')}
+          aria-label={t('export.rack.filterPlaceholder', 'Filter racks/groups…')}
           className="flex-1 rounded border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs"
         />
         <label className="flex items-center gap-1 text-cp-xs text-cp-text-secondary">
@@ -818,7 +818,7 @@ const RackGroupSection = ({ onClose }: { onClose: () => void }) => {
 
       {filtered.length === 0 ? (
         <div className="rounded border border-dashed border-cp-border p-6 text-center text-cp-xs text-cp-text-muted">
-          {t('export.rack.empty', 'Keine gespeicherten Racks oder Gruppen vorhanden. Wähle Geräte auf dem Canvas aus und nutze „Als Rack speichern" / „Gruppe speichern".')}
+          {t('export.rack.empty', 'No saved racks or groups yet. Select devices on the canvas and use "Save as rack" / "Save group".')}
         </div>
       ) : (
         <div className="min-h-0 flex-1 space-y-1 overflow-y-auto rounded border border-cp-border-muted bg-cp-surface-3/50 p-1">
@@ -832,10 +832,10 @@ const RackGroupSection = ({ onClose }: { onClose: () => void }) => {
                 <span className="font-medium">{p.name}</span>
                 <span className="ml-2 text-cp-text-faint">
                   {p.rack
-                    ? t('export.rack.rackBadge', 'Rack · {n} HE').replace('{n}', String(p.rack.totalUnits))
-                    : t('export.rack.groupBadge', 'Gruppe')}
+                    ? t('export.rack.rackBadge', 'Rack · {n} U').replace('{n}', String(p.rack.totalUnits))
+                    : t('export.rack.groupBadge', 'Group')}
                   {' · '}
-                  {t('export.rack.itemCount', '{n} Geräte').replace('{n}', String(p.items.length))}
+                  {t('export.rack.itemCount', '{n} devices').replace('{n}', String(p.items.length))}
                 </span>
               </span>
               <button
@@ -853,7 +853,7 @@ const RackGroupSection = ({ onClose }: { onClose: () => void }) => {
                 className="rounded bg-cp-surface-4 px-2 py-1 text-[11px] hover:bg-cp-surface-5 disabled:opacity-50"
               >
                 <Icon icon={Printer} size="xs" className="mr-1 inline-block align-text-bottom" />
-                {t('export.rack.print', 'Drucken')}
+                {t('export.rack.print', 'Print')}
               </button>
             </div>
           ))}
@@ -964,13 +964,13 @@ const BomSection = () => {
     // v7.9.117 — Rentman-Name als eigene Spalte fuer den Abgleich.
     const lines = [
       [
-        t('export.bom.csv.type', 'Typ'),
-        t('export.bom.csv.rentmanName', 'Rentman-Name'),
-        t('export.bom.csv.lengthM', 'Länge (m)'),
-        t('export.bom.csv.built', 'Verbaut'),
-        t('export.bom.csv.totalM', 'Gesamt (m)'),
-        t('export.bom.csv.rentmanPlanned', 'Rentman geplant'),
-        t('export.bom.csv.diff', 'Differenz'),
+        t('export.bom.csv.type', 'Type'),
+        t('export.bom.csv.rentmanName', 'Rentman name'),
+        t('export.bom.csv.lengthM', 'Length (m)'),
+        t('export.bom.csv.built', 'Installed'),
+        t('export.bom.csv.totalM', 'Total (m)'),
+        t('export.bom.csv.rentmanPlanned', 'Rentman planned'),
+        t('export.bom.csv.diff', 'Difference'),
       ].join(';'),
     ]
     for (const r of rows) {
@@ -988,7 +988,7 @@ const BomSection = () => {
     }
     lines.push(
       [
-        t('bom.cable.total', 'Gesamt'),
+        t('bom.cable.total', 'Total'),
         '',
         '',
         String(rows.reduce((s, r) => s + r.built, 0)),
@@ -1011,7 +1011,7 @@ const BomSection = () => {
     const margin = 32
     pdf.setFontSize(14)
     pdf.setTextColor(15)
-    pdf.text(sanitizeForPdf(t('export.bom.pdfHeading', 'Kabel-Stückliste')), margin, margin + 4)
+    pdf.text(sanitizeForPdf(t('export.bom.pdfHeading', 'Cable BOM')), margin, margin + 4)
     pdf.setFontSize(10)
     pdf.setTextColor(60)
     pdf.text(sanitizeForPdf(project.metadata.name || '-'), margin, margin + 22)
@@ -1026,11 +1026,11 @@ const BomSection = () => {
     pdf.setTextColor(15)
     pdf.setFontSize(9)
     ;[
-      t('export.bom.csv.type', 'Typ'),
-      t('export.bom.csv.lengthM', 'Länge (m)'),
-      t('export.bom.csv.built', 'Verbaut'),
+      t('export.bom.csv.type', 'Type'),
+      t('export.bom.csv.lengthM', 'Length (m)'),
+      t('export.bom.csv.built', 'Installed'),
       t('export.bom.col.rentman', 'Rentman'),
-      t('export.bom.csv.diff', 'Differenz'),
+      t('export.bom.csv.diff', 'Difference'),
     ].forEach((h, i) => {
       pdf.text(sanitizeForPdf(h), colX[i] + 2, headerY)
     })
@@ -1074,7 +1074,7 @@ const BomSection = () => {
     const pageWidth = pdf.internal.pageSize.getWidth()
     const margin = 32
     pdf.setFontSize(14)
-    pdf.text(sanitizeForPdf(t('export.bom.pdfHeading', 'Kabel-Stückliste')), margin, margin + 4)
+    pdf.text(sanitizeForPdf(t('export.bom.pdfHeading', 'Cable BOM')), margin, margin + 4)
     pdf.setFontSize(10)
     pdf.setTextColor(60)
     pdf.text(sanitizeForPdf(project.metadata.name || '-'), margin, margin + 22)
@@ -1089,11 +1089,11 @@ const BomSection = () => {
     pdf.setTextColor(15)
     pdf.setFontSize(9)
     ;[
-      t('export.bom.csv.type', 'Typ'),
-      t('export.bom.csv.lengthM', 'Länge (m)'),
-      t('export.bom.csv.built', 'Verbaut'),
+      t('export.bom.csv.type', 'Type'),
+      t('export.bom.csv.lengthM', 'Length (m)'),
+      t('export.bom.csv.built', 'Installed'),
       t('export.bom.col.rentman', 'Rentman'),
-      t('export.bom.csv.diff', 'Differenz'),
+      t('export.bom.csv.diff', 'Difference'),
     ].forEach((h, i) => {
       pdf.text(sanitizeForPdf(h), colX[i] + 2, headerY)
     })
@@ -1138,13 +1138,13 @@ const BomSection = () => {
           → bleiben IMMER sichtbar, egal wie groß der Dialog ist. */}
       <div className="flex shrink-0 flex-wrap items-center gap-2 text-[11px] text-cp-text-muted">
         <span>
-          {t('export.installedCables', 'Verbaute Kabel:')}{' '}
+          {t('export.installedCables', 'Installed cables:')}{' '}
           <b className="text-cp-text-bright">{project.cables.length}</b>
         </span>
         {rows.some((r) => r.diff < 0) && (
           <span className="inline-flex items-center gap-1 rounded bg-red-900/50 px-2 py-0.5 font-semibold text-red-300">
             <Icon icon={AlertTriangle} size="sm" />
-            {format(t('export.missingTypes', '{count} Kabeltype(n) fehlen'), {
+            {format(t('export.missingTypes', '{count} cable type(s) missing'), {
               count: rows.filter((r) => r.diff < 0).length,
             })}
           </span>
@@ -1152,7 +1152,7 @@ const BomSection = () => {
         {rows.length > 0 && rows.every((r) => r.diff >= 0) && rows.some((r) => r.planned > 0) && (
           <span className="inline-flex items-center gap-1 rounded bg-emerald-900/50 px-2 py-0.5 font-semibold text-emerald-300">
             <Icon icon={Check} size="sm" />
-            {t('export.allCovered', 'Alle geplanten Mengen abgedeckt')}
+            {t('export.allCovered', 'All planned quantities covered')}
           </span>
         )}
       </div>
@@ -1161,19 +1161,19 @@ const BomSection = () => {
         <table className="w-full text-cp-xs">
           <thead className="sticky top-0 bg-cp-surface-3 text-cp-text-secondary">
             <tr>
-              <th className="px-3 py-2 text-left">{t('export.bom.col.type', 'Typ')}</th>
-              <th className="px-3 py-2 text-right">{t('export.bom.col.length', 'Länge (m)')}</th>
-              <th className="px-3 py-2 text-right">{t('export.bom.col.installed', 'Verbaut')}</th>
-              <th className="px-3 py-2 text-right">{t('bom.cable.col.totalM', 'Gesamt (m)')}</th>
-              <th className="px-3 py-2 text-right">{t('export.bom.col.rentmanPlanned', 'Rentman geplant')}</th>
-              <th className="px-3 py-2 text-right">{t('export.bom.col.diff', 'Differenz')}</th>
+              <th className="px-3 py-2 text-left">{t('export.bom.col.type', 'Type')}</th>
+              <th className="px-3 py-2 text-right">{t('export.bom.col.length', 'Length (m)')}</th>
+              <th className="px-3 py-2 text-right">{t('export.bom.col.installed', 'Installed')}</th>
+              <th className="px-3 py-2 text-right">{t('bom.cable.col.totalM', 'Total (m)')}</th>
+              <th className="px-3 py-2 text-right">{t('export.bom.col.rentmanPlanned', 'Rentman planned')}</th>
+              <th className="px-3 py-2 text-right">{t('export.bom.col.diff', 'Diff')}</th>
             </tr>
           </thead>
           <tbody>
             {rows.length === 0 && (
               <tr>
                 <td className="px-3 py-4 text-center text-cp-text-faint" colSpan={6}>
-                  {t('export.bom.noCables', 'Keine Kabel im Projekt.')}
+                  {t('export.bom.noCables', 'No cables in the project.')}
                 </td>
               </tr>
             )}
@@ -1212,10 +1212,10 @@ const BomSection = () => {
                   }`}
                   title={
                     r.diff === 0
-                      ? t('export.bom.diffEqual', 'Verbaut = geplant')
+                      ? t('export.bom.diffEqual', 'Installed = planned')
                       : r.diff > 0
-                        ? t('export.bom.diffMore', 'Mehr verbaut als geplant')
-                        : t('export.bom.diffLess', 'Weniger verbaut als geplant')
+                        ? t('export.bom.diffMore', 'More installed than planned')
+                        : t('export.bom.diffLess', 'Less installed than planned')
                   }
                 >
                   {fmtSignFixed(r.diff)}
@@ -1226,7 +1226,7 @@ const BomSection = () => {
           {rows.length > 0 && (
             <tfoot className="sticky bottom-0 bg-cp-surface-3">
               <tr className="border-t-2 border-cp-border font-semibold text-cp-text-bright">
-                <td className="px-3 py-2 text-left" colSpan={2}>{t('bom.cable.total', 'Gesamt')}</td>
+                <td className="px-3 py-2 text-left" colSpan={2}>{t('bom.cable.total', 'Total')}</td>
                 <td className="px-3 py-2 text-right font-mono">{rows.reduce((s, r) => s + r.built, 0)}</td>
                 <td className="px-3 py-2 text-right font-mono text-emerald-300">
                   {Number(rows.reduce((s, r) => s + r.built * r.length, 0).toFixed(1))} m
@@ -1242,7 +1242,7 @@ const BomSection = () => {
       {layerSummary.length > 0 && (
         <div className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-cp-text-muted">
           <span className="font-semibold uppercase tracking-wide text-cp-text-faint">
-            {t('export.bom.byLayer', 'Je Gewerk')}:
+            {t('export.bom.byLayer', 'By discipline')}:
           </span>
           {layerSummary.map((l) => (
             <span key={l.layer}>
@@ -1256,7 +1256,7 @@ const BomSection = () => {
       {connectorSummary.length > 0 && (
         <div className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-cp-text-muted">
           <span className="font-semibold uppercase tracking-wide text-cp-text-faint">
-            {t('export.bom.connectors', 'Steckverbinder (Enden)')}:
+            {t('export.bom.connectors', 'Connectors (ends)')}:
           </span>
           {connectorSummary.map((c) => (
             <span key={c.type}>
@@ -1270,8 +1270,8 @@ const BomSection = () => {
       <div className="flex shrink-0 items-center justify-between text-[11px]">
         <span className="text-cp-text-muted">
           {draftPlan
-            ? t('export.bom.rentmanDirty', 'Nicht gespeicherte Änderungen an der Rentman-Planung.')
-            : t('export.bom.rentmanClean', 'Rentman-Planung wird im Projekt gespeichert.')}
+            ? t('export.bom.rentmanDirty', 'Unsaved changes to the Rentman plan.')
+            : t('export.bom.rentmanClean', 'Rentman plan is saved with the project.')}
         </span>
         <div className="flex gap-2">
           {draftPlan && (
@@ -1280,7 +1280,7 @@ const BomSection = () => {
               onClick={discardPlan}
               className="rounded bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
             >
-              {t('common.discard', 'Verwerfen')}
+              {t('common.discard', 'Discard')}
             </button>
           )}
           <button
@@ -1289,7 +1289,7 @@ const BomSection = () => {
             disabled={!draftPlan}
             className="rounded bg-emerald-700 px-3 py-1 text-cp-xs enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {t('export.bom.savePlan', 'Rentman-Planung speichern')}
+            {t('export.bom.savePlan', 'Save Rentman plan')}
           </button>
         </div>
       </div>
@@ -1303,25 +1303,25 @@ const BomSection = () => {
           type="button"
           onClick={exportCsv}
           className="rounded bg-cp-surface-4 px-3 py-1.5 text-cp-xs hover:bg-cp-surface-5"
-          title={t('export.bom.csvTitle', 'Tabelle als CSV (UTF-8 mit BOM für Excel) herunterladen')}
+          title={t('export.bom.csvTitle', 'Download table as CSV (UTF-8 with BOM for Excel)')}
         >
-          {t('export.bom.csv', 'Als CSV herunterladen')}
+          {t('export.bom.csv', 'Download as CSV')}
         </button>
         <button
           type="button"
           onClick={exportPdf}
           className="rounded bg-emerald-600 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-emerald-500"
-          title={t('export.bom.pdfTitle', 'Tabelle als PDF herunterladen')}
+          title={t('export.bom.pdfTitle', 'Download table as PDF')}
         >
-          {t('export.bom.pdf', 'Als PDF herunterladen')}
+          {t('export.bom.pdf', 'Download as PDF')}
         </button>
         <button
           type="button"
           onClick={printPdf}
           className="rounded bg-indigo-700 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-indigo-600"
-          title={t('export.bom.osPrint', 'Kabel-Stückliste im OS-Druckdialog öffnen')}
+          title={t('export.bom.osPrint', 'Open cable BOM in OS print dialog')}
         >
-          <span className="inline-flex items-center gap-1"><Icon icon={Printer} size="xs" /> {t('export.printBtn', 'Drucken')}</span>
+          <span className="inline-flex items-center gap-1"><Icon icon={Printer} size="xs" /> {t('export.printBtn', 'Print')}</span>
         </button>
       </div>
     </div>
@@ -1379,7 +1379,7 @@ const MvSheetPanel = ({ map }: { map: ReturnType<typeof buildTallyMap> }) => {
     <div className="shrink-0 rounded border border-cp-border bg-cp-surface-2 p-2">
       <div className="mb-1 flex flex-wrap items-center gap-2">
         <span className="text-cp-xs font-semibold text-cp-text-secondary">
-          {t('mv.sheet.title', 'Multiviewer-Bild (wer steht in welchem Fenster)')}
+          {t('mv.sheet.title', 'Multiviewer layout (who is in which window)')}
         </span>
         {geraete.map((e) => (
           <button
@@ -1397,7 +1397,7 @@ const MvSheetPanel = ({ map }: { map: ReturnType<typeof buildTallyMap> }) => {
         className="text-cp-xs text-cp-text-muted"
         text={t(
           'mv.sheet.hint',
-          'Die Namen kommen aus denselben Rollen wie Tally und UMD — nicht aus einer zweiten, von Hand geführten Liste. Der Mischer speichert sein Bild binär; dieses Blatt kann auch die Kamera-Crew lesen.',
+          'The names come from the same roles as tally and UMD \u2014 not from a second, hand-kept list. The switcher stores its layout as a binary file; this sheet can be read by the camera crew too.',
         )}
       />
       {befunde.length > 0 && (
@@ -1476,7 +1476,7 @@ const TallySection = () => {
     setPiGelesen(null)
     setPiMeldung({
       ton: 'ok',
-      text: t('export.tally.piSent', 'Die Tally-Karte steht auf dem Pi.'),
+      text: t('export.tally.piSent', 'The tally map is on the Pi.'),
     })
   }
 
@@ -1497,7 +1497,7 @@ const TallySection = () => {
         <p className="rounded border border-cp-border bg-cp-surface-2 p-3 text-cp-xs text-cp-text-secondary">
           {t(
             'export.tally.empty',
-            'Noch keine Signalquellen-Rollen im Plan. Eine Rolle wird am Gerät in den Eigenschaften unter „Signalquelle (Rolle)" vergeben — sie trägt Name, Nummer und UMD-Adresse und überlebt den Gerätetausch.',
+            'No signal-source roles in the plan yet. A role is assigned on the device under "Signal source (role)" in the properties — it carries name, number and UMD address, and outlives the device swap.',
           )}
         </p>
       ) : (
@@ -1505,11 +1505,11 @@ const TallySection = () => {
           <table className="w-full border-collapse text-cp-xs">
             <thead className="sticky top-0 bg-cp-surface-3">
               <tr className="text-left text-cp-text-secondary">
-                <th className="px-2 py-1.5">{t('export.tally.col.no', 'Nr.')}</th>
-                <th className="px-2 py-1.5">{t('export.tally.col.role', 'Rolle')}</th>
-                <th className="px-2 py-1.5">{t('export.tally.col.devices', 'Gerät(e)')}</th>
-                <th className="px-2 py-1.5">{t('export.tally.col.switcher', 'Mischer')}</th>
-                <th className="px-2 py-1.5">{t('export.tally.col.input', 'Eingang')}</th>
+                <th className="px-2 py-1.5">{t('export.tally.col.no', 'No.')}</th>
+                <th className="px-2 py-1.5">{t('export.tally.col.role', 'Role')}</th>
+                <th className="px-2 py-1.5">{t('export.tally.col.devices', 'Device(s)')}</th>
+                <th className="px-2 py-1.5">{t('export.tally.col.switcher', 'Switcher')}</th>
+                <th className="px-2 py-1.5">{t('export.tally.col.input', 'Input')}</th>
                 <th className="px-2 py-1.5">{t('export.tally.col.umd', 'UMD')}</th>
               </tr>
             </thead>
@@ -1554,7 +1554,7 @@ const TallySection = () => {
         <div className="max-h-40 shrink-0 overflow-auto rounded border border-cp-border bg-cp-surface-2 p-2">
           <p className="mb-1 text-cp-xs font-semibold text-cp-text-secondary">
             {format(
-              t('export.tally.issues', 'Prüfung: {errors} Fehler, {warnings} Hinweise'),
+              t('export.tally.issues', 'Validation: {errors} errors, {warnings} notes'),
               { errors: errors.length, warnings: warnings.length },
             )}
           </p>
@@ -1578,7 +1578,7 @@ const TallySection = () => {
           disabled={map.rows.length === 0}
           className="rounded bg-sky-700 px-3 py-1.5 text-cp-xs text-white hover:bg-sky-600 disabled:opacity-40"
         >
-          {t('export.tally.csv', 'Tally-Karte als CSV')}
+          {t('export.tally.csv', 'Tally map as CSV')}
         </button>
         <button
           type="button"
@@ -1587,10 +1587,10 @@ const TallySection = () => {
           className="rounded border border-cp-border px-3 py-1.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-3 disabled:opacity-40"
           title={t(
             'export.tally.piTitle',
-            'Der Teil der tally.json, den der Plan besitzt: id, name, input. ATEM-IP und GPIO-Pins bleiben an der Box.',
+            'The part of tally.json the plan owns: id, name, input. ATEM IP and GPIO pins stay with the box.',
           )}
         >
-          {t('export.tally.pi', 'tally-pi-Geräte (JSON)')}
+          {t('export.tally.pi', 'tally-pi devices (JSON)')}
         </button>
       </div>
 
@@ -1602,13 +1602,13 @@ const TallySection = () => {
         <div className="rounded border border-cp-border bg-cp-surface-2 p-3">
           <div className="mb-2 flex items-center gap-2 text-cp-xs text-cp-text-secondary">
             <Icon icon={Lightbulb} size="sm" />
-            {format(t('export.tally.piDirect', 'Direkt an den Pi: {url}'), { url: piUrl })}
+            {format(t('export.tally.piDirect', 'Straight to the Pi: {url}'), { url: piUrl })}
           </div>
           <PanelHint
             className="mb-2 text-cp-xs text-cp-text-muted"
             text={t(
               'export.tally.piDirect.hint',
-              'Der Pi behält seine Verdrahtung — ATEM-Adresse und GPIO-Pins schickt der Plan nicht mit. Rollen dagegen, die im Plan fehlen, verschwinden dort samt ihrer Pin-Zuordnung. Deshalb erst lesen, dann senden.',
+              'The Pi keeps its wiring — the plan does not send the ATEM address or GPIO pins. Roles missing from the plan, however, disappear there along with their pin assignment. So read first, then send.',
             )}
           />
           <div className="flex flex-wrap items-center gap-2">
@@ -1618,7 +1618,7 @@ const TallySection = () => {
               disabled={piLaeuft}
               className="rounded border border-cp-border px-3 py-1.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-3 disabled:opacity-40"
             >
-              {t('export.tally.piRead', 'Pi lesen')}
+              {t('export.tally.piRead', 'Read the Pi')}
             </button>
             <button
               type="button"
@@ -1629,7 +1629,7 @@ const TallySection = () => {
               disabled={piLaeuft || piGelesen === null || piGelesen.adresse !== piUrl}
               className="rounded bg-cp-accent px-3 py-1.5 text-cp-xs text-white disabled:opacity-40"
             >
-              {t('export.tally.piSend', 'An den Pi senden')}
+              {t('export.tally.piSend', 'Send to the Pi')}
             </button>
             {piLaeuft && <Spinner />}
           </div>
@@ -1637,7 +1637,7 @@ const TallySection = () => {
             <ul className="mt-2 flex flex-col gap-1 text-cp-xs">
               <li className="text-cp-text-muted">
                 {format(
-                  t('export.tally.piDiff', '{bleiben} bleiben, {neu} kommen dazu'),
+                  t('export.tally.piDiff', '{bleiben} stay, {neu} are added'),
                   { bleiben: piGelesen.vergleich.bleiben, neu: piGelesen.vergleich.neu.length },
                 )}
               </li>
@@ -1647,9 +1647,9 @@ const TallySection = () => {
                     v.hatVerdrahtung
                       ? t(
                           'export.tally.piGoneWired',
-                          '{name} verschwindet vom Pi — samt seiner GPIO-Zuordnung',
+                          '{name} disappears from the Pi — along with its GPIO assignment',
                         )
-                      : t('export.tally.piGone', '{name} verschwindet vom Pi'),
+                      : t('export.tally.piGone', '{name} disappears from the Pi'),
                     { name: v.name },
                   )}
                 </li>
@@ -1744,19 +1744,19 @@ const DeviceBomSection = () => {
     <div className="flex min-h-0 flex-1 flex-col gap-3">
       {bom.rows.length === 0 ? (
         <p className="rounded border border-cp-border bg-cp-surface-2 p-3 text-cp-xs text-cp-text-secondary">
-          {t('export.devicebom.empty', 'Noch keine Geräte im Plan.')}
+          {t('export.devicebom.empty', 'No devices in the plan yet.')}
         </p>
       ) : (
         <>
           <div className="flex shrink-0 flex-wrap gap-3 text-cp-xs">
             <span className="text-cp-text-secondary">
-              {format(t('export.devicebom.matched', '{n} gedeckt'), { n: bom.matched })}
+              {format(t('export.devicebom.matched', '{n} covered'), { n: bom.matched })}
             </span>
             <span className={bom.proposed > 0 ? 'text-cp-warn' : 'text-cp-text-muted'}>
-              {format(t('export.devicebom.proposed', '{n} Vorschläge'), { n: bom.proposed })}
+              {format(t('export.devicebom.proposed', '{n} proposals'), { n: bom.proposed })}
             </span>
             <span className={bom.unmatched > 0 ? 'text-cp-danger' : 'text-cp-text-muted'}>
-              {format(t('export.devicebom.unmatched', '{n} nicht im Lager'), { n: bom.unmatched })}
+              {format(t('export.devicebom.unmatched', '{n} not in stock'), { n: bom.unmatched })}
             </span>
           </div>
 
@@ -1764,11 +1764,11 @@ const DeviceBomSection = () => {
             <table className="w-full border-collapse text-cp-xs">
               <thead className="sticky top-0 bg-cp-surface-3">
                 <tr className="text-left text-cp-text-secondary">
-                  <th className="px-2 py-1.5">{t('export.devicebom.col.qty', 'Menge')}</th>
-                  <th className="px-2 py-1.5">{t('export.devicebom.col.model', 'Modell')}</th>
-                  <th className="px-2 py-1.5">{t('export.devicebom.col.state', 'Deckung')}</th>
-                  <th className="px-2 py-1.5">{t('export.devicebom.col.stock', 'Bestand')}</th>
-                  <th className="px-2 py-1.5">{t('export.devicebom.col.location', 'Lagerort')}</th>
+                  <th className="px-2 py-1.5">{t('export.devicebom.col.qty', 'Qty')}</th>
+                  <th className="px-2 py-1.5">{t('export.devicebom.col.model', 'Model')}</th>
+                  <th className="px-2 py-1.5">{t('export.devicebom.col.state', 'Coverage')}</th>
+                  <th className="px-2 py-1.5">{t('export.devicebom.col.stock', 'Stock')}</th>
+                  <th className="px-2 py-1.5">{t('export.devicebom.col.location', 'Location')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -1782,10 +1782,10 @@ const DeviceBomSection = () => {
                           className="ml-1 text-cp-text-muted"
                           title={t(
                             'export.devicebom.noTypeTitle',
-                            'Ohne Katalog-Typ — der Modellname ist hier nur der Gerätename. Einen Katalog-Typ zuweisen macht die Deckung zur Tatsache.',
+                            'No catalogue type — the model name here is only the device name. Assigning a catalogue type turns the coverage into a fact.',
                           )}
                         >
-                          {t('export.devicebom.noType', '(ohne Katalog-Typ)')}
+                          {t('export.devicebom.noType', '(no catalogue type)')}
                         </span>
                       )}
                       {/* Der Ausweg aus „(ohne Katalog-Typ)": ein Griff, der
@@ -1810,11 +1810,11 @@ const DeviceBomSection = () => {
                           className="ml-2 max-w-[14rem] rounded border border-cp-border bg-cp-surface-1 px-1 py-0.5 text-[10px] text-cp-text-secondary"
                           title={t(
                             'export.devicebom.assignTitle',
-                            'Schreibt den Katalog-Typ auf alle Geräte dieser Zeile. Danach deckt der Lager-Abgleich über die Katalog-Identität statt über den Namen.',
+                            'Writes the catalogue type onto every device in this row. Stock coverage then matches on the catalogue identity instead of the name.',
                           )}
                         >
                           <option value="">
-                            {t('export.devicebom.assign', 'Typ zuweisen…')}
+                            {t('export.devicebom.assign', 'Assign type…')}
                           </option>
                           {katalogTypen.map((c) => (
                             <option key={c.id} value={c.id}>
@@ -1828,7 +1828,7 @@ const DeviceBomSection = () => {
                       {outcomeLabel(row.outcome)}
                       {row.short !== undefined && row.short > 0 && (
                         <span className="ml-1 text-cp-danger">
-                          {format(t('export.devicebom.short', '— {n} fehlen'), { n: row.short })}
+                          {format(t('export.devicebom.short', '— {n} missing'), { n: row.short })}
                         </span>
                       )}
                       {/* Der Ausweg aus dem Vorschlag: ein Klick schreibt die
@@ -1844,10 +1844,10 @@ const DeviceBomSection = () => {
                           className="ml-2 rounded border border-cp-border px-1.5 py-0.5 text-[10px] font-normal text-cp-text-secondary hover:bg-cp-surface-3"
                           title={t(
                             'export.devicebom.confirmTitle',
-                            'Schreibt die Katalog-Identität dauerhaft auf diese Lager-Position. Danach ist die Deckung eine Tatsache und muss nie wieder über den Namen geraten werden.',
+                            'Writes the catalogue identity permanently onto this inventory position. The coverage is then a fact and never has to be guessed from the name again.',
                           )}
                         >
-                          {t('export.devicebom.confirm', 'Bestätigen')}
+                          {t('export.devicebom.confirm', 'Confirm')}
                         </button>
                       )}
                     </td>
@@ -1861,7 +1861,7 @@ const DeviceBomSection = () => {
                       {row.committed !== undefined && row.committed > 0 && (
                         <span className="ml-1 font-sans text-cp-warn" title={row.commitmentNote}>
                           {format(
-                            t('export.devicebom.committed', '(von {stock} · {n} auf Ausgabe)'),
+                            t('export.devicebom.committed', '(of {stock} · {n} checked out)'),
                             { stock: row.stock ?? '?', n: row.committed },
                           )}
                         </span>
@@ -1883,7 +1883,7 @@ const DeviceBomSection = () => {
           disabled={bom.rows.length === 0}
           className="rounded bg-sky-700 px-3 py-1.5 text-cp-xs text-white hover:bg-sky-600 disabled:opacity-40"
         >
-          {t('export.devicebom.csv', 'Stückliste als CSV')}
+          {t('export.devicebom.csv', 'Device BOM as CSV')}
         </button>
         <button
           type="button"
@@ -1892,10 +1892,10 @@ const DeviceBomSection = () => {
           className="rounded border border-cp-border px-3 py-1.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-3 disabled:opacity-40"
           title={t(
             'export.devicebom.pickTitle',
-            'Nur sicher Gedecktes, nach Lagerort sortiert. Vorschläge stehen bewusst nicht drin — wer kommissioniert, soll nicht unterwegs entscheiden müssen.',
+            'Only what is certainly covered, sorted by storage location. Proposals are deliberately left out — whoever picks should not have to decide on the way.',
           )}
         >
-          {t('export.devicebom.pick', 'Kommissionier-Liste (CSV)')}
+          {t('export.devicebom.pick', 'Pick list (CSV)')}
         </button>
       </div>
     </div>

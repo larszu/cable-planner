@@ -155,7 +155,7 @@ export const ModeEditorDialog = ({
     <ModalShell
       open={open}
       onClose={onCancel}
-      title={isEditing ? t('modeEditor.titleEdit', 'Modus bearbeiten') : t('modeEditor.titleNew', 'Neuer Betriebsmodus')}
+      title={isEditing ? t('modeEditor.titleEdit', 'Edit mode') : t('modeEditor.titleNew', 'New operating mode')}
       maxWidth="2xl"
       zIndex={60}
       footer={
@@ -165,7 +165,7 @@ export const ModeEditorDialog = ({
             onClick={onCancel}
             className="rounded bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
           >
-            {t('common.cancel', 'Abbrechen')}
+            {t('common.cancel', 'Cancel')}
           </button>
           <button
             type="button"
@@ -173,7 +173,7 @@ export const ModeEditorDialog = ({
             disabled={!canSave}
             className="rounded bg-emerald-600 px-3 py-1 text-cp-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
           >
-            {isEditing ? t('common.save', 'Speichern') : t('modeEditor.createBtn', 'Modus anlegen')}
+            {isEditing ? t('common.save', 'Save') : t('modeEditor.createBtn', 'Create mode')}
           </button>
         </div>
       }
@@ -187,50 +187,50 @@ export const ModeEditorDialog = ({
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder={t('modeEditor.namePlaceholder', 'z.B. "12G Single-Link", "4K-Modus", "Workshop-Layout"')}
+                placeholder={t('modeEditor.namePlaceholder', 'e.g. "12G Single-Link", "4K mode", "Workshop layout"')}
                 autoFocus
                 className="mt-0.5 w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-text"
               />
               {nameConflict && (
                 <span className="mt-0.5 flex items-center gap-1 text-[10px] text-amber-400">
                   <Icon icon={AlertTriangle} size="xs" />
-                  {t('modeEditor.nameConflict', 'Modus mit diesem Namen existiert bereits.')}
+                  {t('modeEditor.nameConflict', 'A mode with this name already exists.')}
                 </span>
               )}
             </label>
             <label className="block">
-              <span className="text-cp-text-muted">{t('modeEditor.descLabel', 'Beschreibung (optional)')}</span>
+              <span className="text-cp-text-muted">{t('modeEditor.descLabel', 'Description (optional)')}</span>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={2}
-                placeholder={t('modeEditor.descPlaceholder', 'z.B. Begrenzt Outputs auf 2 für 4K-Modus (weniger Ressourcen)')}
+                placeholder={t('modeEditor.descPlaceholder', 'e.g. limits outputs to 2 in 4K mode (lower resource use)')}
                 className="mt-0.5 w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-text"
               />
             </label>
             {/* #124 — optionale Ressourcen-Werte pro Modus */}
             <div className="grid grid-cols-2 gap-2">
               <label className="block">
-                <span className="text-cp-text-muted">{t('modeEditor.powerWatts', 'Leistung (W) in diesem Modus')}</span>
+                <span className="text-cp-text-muted">{t('modeEditor.powerWatts', 'Power (W) in this mode')}</span>
                 <input
                   type="number"
                   min={0}
                   step={1}
                   value={powerWatts}
                   onChange={(e) => setPowerWatts(e.target.value)}
-                  placeholder={t('modeEditor.resourcePlaceholder', 'optional — überschreibt Gerätewert')}
+                  placeholder={t('modeEditor.resourcePlaceholder', 'optional — overrides device value')}
                   className="mt-0.5 w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1 font-mono text-cp-text"
                 />
               </label>
               <label className="block">
-                <span className="text-cp-text-muted">{t('modeEditor.weightKg', 'Gewicht (kg) in diesem Modus')}</span>
+                <span className="text-cp-text-muted">{t('modeEditor.weightKg', 'Weight (kg) in this mode')}</span>
                 <input
                   type="number"
                   min={0}
                   step="0.1"
                   value={weightKg}
                   onChange={(e) => setWeightKg(e.target.value)}
-                  placeholder={t('modeEditor.resourcePlaceholder', 'optional — überschreibt Gerätewert')}
+                  placeholder={t('modeEditor.resourcePlaceholder', 'optional — overrides device value')}
                   className="mt-0.5 w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1 font-mono text-cp-text"
                 />
               </label>
@@ -240,7 +240,7 @@ export const ModeEditorDialog = ({
           <div className="mt-4 flex items-center justify-between">
             <div className="text-[10px] text-cp-text-muted">
               {format(
-                t('modeEditor.portCount', '{count} Port(s) in diesem Modus'),
+                t('modeEditor.portCount', '{count} port(s) in this mode'),
                 { count: totalPortCount },
               )}
             </div>
@@ -248,9 +248,9 @@ export const ModeEditorDialog = ({
               type="button"
               onClick={seedFromCurrent}
               className="rounded bg-cp-surface-4 px-2 py-1 text-[11px] hover:bg-cp-surface-5"
-              title={t('modeEditor.seedTitle', 'Übernimmt das AKTUELLE Port-Layout des Geräts als Startpunkt.')}
+              title={t('modeEditor.seedTitle', "Adopt the device's CURRENT port layout as a starting point.")}
             >
-              <Icon icon={Download} size="xs" className="mr-1 inline-block align-text-bottom" />{t('modeEditor.seedBtn', 'Aus aktuellem Geräte-Layout übernehmen')}
+              <Icon icon={Download} size="xs" className="mr-1 inline-block align-text-bottom" />{t('modeEditor.seedBtn', 'Adopt current device layout')}
             </button>
           </div>
 
@@ -282,7 +282,7 @@ export const ModeEditorDialog = ({
                 </div>
                 {list.length === 0 ? (
                   <div className="rounded border border-dashed border-cp-border p-3 text-center text-[10px] text-cp-text-muted">
-                    {format(t('modeEditor.emptySide', 'Keine {kind} in diesem Modus.'), { kind: label.toLowerCase() })}
+                    {format(t('modeEditor.emptySide', 'No {kind} in this mode.'), { kind: label.toLowerCase() })}
                   </div>
                 ) : (
                   <ul className="space-y-1">
@@ -295,7 +295,7 @@ export const ModeEditorDialog = ({
                           type="text"
                           value={p.name}
                           onChange={(e) => updatePort(side, p.id, { name: e.target.value })}
-                          placeholder={t('ports.namePlaceholder', 'Port-Name')}
+                          placeholder={t('ports.namePlaceholder', 'Port name')}
                           className="flex-1 rounded border border-cp-border bg-cp-surface-3 px-1.5 py-0.5 text-[11px]"
                         />
                         <select
@@ -317,8 +317,8 @@ export const ModeEditorDialog = ({
                           type="button"
                           onClick={() => removePort(side, p.id)}
                           className="rounded px-1 py-0.5 text-[11px] text-red-400 hover:bg-red-900/40"
-                          title={t('modeEditor.removePort', 'Port entfernen')}
-                          aria-label={t('modeEditor.removePort', 'Port entfernen')}
+                          title={t('modeEditor.removePort', 'Remove port')}
+                          aria-label={t('modeEditor.removePort', 'Remove port')}
                         >
                           <Icon icon={X} size="sm" />
                         </button>

@@ -258,6 +258,21 @@ export class ErrorBoundary extends Component<Props, State> {
 
   render() {
     if (this.state.error) {
+      // KEIN Hook: eine Klassen-Komponente hat keinen. Die Sprache kommt
+      // deshalb direkt aus dem Store — und zwar erst HIER, im Fehlerfall.
+      // Wer sie im Konstruktor liest, friert sie beim Erzeugen ein und zeigt
+      // nach einem Sprachwechsel die alte.
+      //
+      // Und mit `try`, weil dies der ABSTURZ-SCHIRM ist: wenn der Store selbst
+      // das Kaputte war, darf die Uebersetzung nicht die einzige Seite
+      // mitreissen, die dem Nutzer noch sagt, was los ist. Faellt sie aus,
+      // steht dort die Quellsprache — unschoen, aber lesbar.
+      let lang: 'de' | 'en' = 'en'
+      try {
+        lang = useUiStore.getState().language
+      } catch {
+        /* Quellsprache ist besser als ein zweiter Absturz. */
+      }
       const err = this.state.error
       const diagnostic = this.state.errorInfo
         ? this.buildDiagnostic(err, this.state.errorInfo)
@@ -271,7 +286,7 @@ export class ErrorBoundary extends Component<Props, State> {
           fontFamily: 'system-ui, sans-serif',
           overflow: 'auto',
         }}>
-          <h1 style={{ color: '#fca5a5', marginBottom: 12 }}>Cable Planner – Fehler beim Start</h1>
+          <h1 style={{ color: '#fca5a5', marginBottom: 12 }}>{translate(lang, 'errorBoundary.title', 'Cable Planner – error on startup')}</h1>
           {this.state.autoRecovered && (
             <div style={{
               marginBottom: 12,
@@ -282,29 +297,27 @@ export class ErrorBoundary extends Component<Props, State> {
               color: '#a7f3d0',
             }}>
               <div style={{ fontWeight: 600, marginBottom: 6 }}>
-                Boot-Loop erkannt — UI-Einstellungen wurden automatisch zurückgesetzt.
+                {translate(lang, 'errorBoundary.bootLoop', 'Boot loop detected — UI settings were reset automatically.')}
               </div>
               <div style={{ fontSize: 13, lineHeight: 1.5 }}>
-                ✅ <strong>Deine Projekt-Daten sind sicher</strong>: das Autosave,
-                die lokale Library, gespeicherte Gruppen und Rack-Entwürfe wurden
-                NICHT gelöscht.
+                ✅ <strong>{translate(lang, 'errorBoundary.dataSafeHead', 'Your project data is safe')}</strong>
+                {translate(lang, 'errorBoundary.dataSafeBody', ': the autosave, the local library, saved groups and rack drafts were NOT deleted.')}
                 {this.state.projectBackedUp && (
                   <> Zusätzlich wurde eine Sicherheitskopie des Autosaves angelegt
                   (<code>cable-planner:projectBackup:&lt;Zeit&gt;</code> in localStorage).</>
                 )}
                 <br />
-                Die App lädt in 2 s neu — du landest direkt wieder in deinem Projekt.
+                {translate(lang, 'errorBoundary.reloading', 'The app reloads in 2 s — you land straight back in your project.')}
               </div>
             </div>
           )}
           <p style={{ marginBottom: 8 }}>
-            Ein unerwarteter Fehler ist aufgetreten. Details wurden in
+            {translate(lang, 'errorBoundary.unexpected', 'An unexpected error occurred. Details were written to')}
             <code style={{ margin: '0 4px' }}>%APPDATA%\cable-planner\renderer-error.log</code>
-            gespeichert.
+            {translate(lang, 'errorBoundary.saved', '.')}
           </p>
           <p style={{ marginBottom: 8, fontSize: 13, color: '#94a3b8' }}>
-            Bitte den vollständigen Text unten kopieren und an den Entwickler
-            weitergeben — das hilft, den Bug endgültig zu finden.
+            {translate(lang, 'errorBoundary.pleaseCopy', 'Please copy the full text below and pass it to the developer — that helps track the bug down for good.')}
           </p>
           <pre style={{
             background: '#1e293b',
@@ -355,20 +368,19 @@ export class ErrorBoundary extends Component<Props, State> {
                 gap: 6,
               }}
             >
-              <Icon icon={RotateCcw} size="sm" /> Nur neu laden (nichts löschen)
+              <Icon icon={RotateCcw} size="sm" /> {translate(lang, 'errorBoundary.reloadOnly', 'Reload only (delete nothing)')}
             </button>
             <button
               type="button"
               onClick={async () => {
-                const lang = useUiStore.getState().language
                 if (
-                  !(await confirmDialog(translate(lang, 'errorBoundary.resetTitle', 'Lokale Daten zurücksetzen?'), {
+                  !(await confirmDialog(translate(lang, 'errorBoundary.resetTitle', 'Reset local data?'), {
                     body: translate(
                       lang,
                       'errorBoundary.resetBody',
-                      'Eine Sicherheitskopie deines Projekts wird vorher angelegt (cable-planner:projectBackup:<Zeit> in localStorage).\n\nSoll wirklich zurückgesetzt und neu geladen werden?',
+                      'A safety backup of your project will be created first (cable-planner:projectBackup:<time> in localStorage).\n\nReally reset and reload?',
                     ),
-                    okLabel: translate(lang, 'common.reset', 'Zurücksetzen'),
+                    okLabel: translate(lang, 'common.reset', 'Reset'),
                     destructive: true,
                   }))
                 ) {
@@ -389,7 +401,7 @@ export class ErrorBoundary extends Component<Props, State> {
                 gap: 6,
               }}
             >
-              <Icon icon={Trash2} size="sm" /> Lokale Daten zurücksetzen (mit Backup)
+              <Icon icon={Trash2} size="sm" /> {translate(lang, 'errorBoundary.resetLocal', 'Reset local data (with backup)')}
             </button>
           </div>
         </div>

@@ -34,49 +34,49 @@ export const ShortcutsHelp = () => {
     }
   }, [])
 
-  const mod = isMac ? '⌘' : t('shortcut.mod', 'Strg')
-  const shift = isMac ? '⇧' : t('shortcut.shift', 'Umsch')
+  const mod = isMac ? '⌘' : t('shortcut.mod', 'Ctrl')
+  const shift = isMac ? '⇧' : t('shortcut.shift', 'Shift')
 
   const groups: { title: string; items: [string, string][] }[] = [
     {
-      title: t('shortcutsHelp.file', 'Datei'),
+      title: t('shortcutsHelp.file', 'File'),
       items: [
-        [`${mod}+N`, t('shortcutsHelp.new', 'Neues Projekt')],
-        [`${mod}+O`, t('shortcutsHelp.open', 'Projekt öffnen')],
-        [`${mod}+S`, t('shortcutsHelp.save', 'Speichern')],
-        [`${mod}+${shift}+S`, t('shortcutsHelp.saveAs', 'Speichern unter')],
+        [`${mod}+N`, t('shortcutsHelp.new', 'New project')],
+        [`${mod}+O`, t('shortcutsHelp.open', 'Open project')],
+        [`${mod}+S`, t('shortcutsHelp.save', 'Save')],
+        [`${mod}+${shift}+S`, t('shortcutsHelp.saveAs', 'Save as')],
       ],
     },
     {
-      title: t('shortcutsHelp.edit', 'Bearbeiten'),
+      title: t('shortcutsHelp.edit', 'Edit'),
       items: [
-        [`${mod}+Z`, t('shortcutsHelp.undo', 'Rückgängig')],
-        [`${mod}+Y`, t('shortcutsHelp.redo', 'Wiederholen')],
-        [`${mod}+C`, t('shortcutsHelp.copy', 'Kopieren')],
-        [`${mod}+V`, t('shortcutsHelp.paste', 'Einfügen')],
-        [`${mod}+D`, t('shortcutsHelp.duplicate', 'Duplizieren')],
-        [`${mod}+A`, t('shortcutsHelp.selectAll', 'Alles auswählen')],
-        [t('shortcut.del', 'Entf'), t('shortcutsHelp.delete', 'Auswahl löschen')],
-        [t('shortcut.esc', 'Esc'), t('shortcutsHelp.escape', 'Abwählen / Abbrechen')],
+        [`${mod}+Z`, t('shortcutsHelp.undo', 'Undo')],
+        [`${mod}+Y`, t('shortcutsHelp.redo', 'Redo')],
+        [`${mod}+C`, t('shortcutsHelp.copy', 'Copy')],
+        [`${mod}+V`, t('shortcutsHelp.paste', 'Paste')],
+        [`${mod}+D`, t('shortcutsHelp.duplicate', 'Duplicate')],
+        [`${mod}+A`, t('shortcutsHelp.selectAll', 'Select all')],
+        [t('shortcut.del', 'Del'), t('shortcutsHelp.delete', 'Delete selection')],
+        [t('shortcut.esc', 'Esc'), t('shortcutsHelp.escape', 'Deselect / cancel')],
       ],
     },
     {
-      title: t('shortcutsHelp.canvas', 'Canvas & Navigation'),
+      title: t('shortcutsHelp.canvas', 'Canvas & navigation'),
       items: [
-        [`${mod}+K`, t('shortcutsHelp.palette', 'Befehlspalette')],
-        [`${mod}+F`, t('shortcutsHelp.find', 'Gerät suchen')],
-        [`${mod}++`, t('shortcutsHelp.quickAdd', 'Neues Gerät an Mausposition')],
-        ['↑ ↓ ← →', t('shortcutsHelp.nudge', 'Gerät verschieben (Umsch = große Schritte)')],
-        ['?', t('shortcutsHelp.help', 'Diese Übersicht anzeigen')],
+        [`${mod}+K`, t('shortcutsHelp.palette', 'Command palette')],
+        [`${mod}+F`, t('shortcutsHelp.find', 'Find device')],
+        [`${mod}++`, t('shortcutsHelp.quickAdd', 'New device at cursor')],
+        ['↑ ↓ ← →', t('shortcutsHelp.nudge', 'Move device (Shift = larger steps)')],
+        ['?', t('shortcutsHelp.help', 'Show this overview')],
       ],
     },
     {
-      title: t('shortcutsHelp.panels', 'Panels & Ansicht'),
+      title: t('shortcutsHelp.panels', 'Panels & view'),
       items: [
-        [`${mod}+B`, t('shortcutsHelp.toggleLibrary', 'Library ein-/ausblenden')],
-        [`${mod}+I`, t('shortcutsHelp.toggleProperties', 'Eigenschaften ein-/ausblenden')],
-        ['P', t('shortcutsHelp.jumpToPatches', 'Patch-Liste öffnen')],
-        ['A', t('shortcutsHelp.toggleArrows', 'Pfeil-Anzeige umschalten')],
+        [`${mod}+B`, t('shortcutsHelp.toggleLibrary', 'Show/hide library')],
+        [`${mod}+I`, t('shortcutsHelp.toggleProperties', 'Show/hide properties')],
+        ['P', t('shortcutsHelp.jumpToPatches', 'Open patch list')],
+        ['A', t('shortcutsHelp.toggleArrows', 'Toggle arrow display')],
       ],
     },
   ]
@@ -85,7 +85,7 @@ export const ShortcutsHelp = () => {
     <ModalShell
       open={open}
       onClose={() => setOpen(false)}
-      title={t('shortcutsHelp.title', 'Tastaturkürzel')}
+      title={t('shortcutsHelp.title', 'Keyboard shortcuts')}
       titleIcon="⌨️"
       maxWidth="lg"
     >

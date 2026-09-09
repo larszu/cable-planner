@@ -58,29 +58,29 @@ const VenueScopeDialog = ({ count, venue, onDone }: Props) => {
     <div style={MODAL_BACKDROP} onMouseDown={backdropMouseDown(() => onDone(null))}>
       <div style={{ ...MODAL_CARD, maxWidth: 560 }} role="dialog" aria-modal="true">
         <div style={{ marginBottom: 8, fontSize: 14, fontWeight: 600 }}>
-          {t('tplScope.title', 'Vorlage an dieses Haus binden?')}
+          {t('tplScope.title', 'Bind this template to the venue?')}
         </div>
         <div style={{ marginBottom: 16, fontSize: 13, color: '#cbd5e1' }}>
           {t(
             'tplScope.body',
-            '{n} ortsgebundene Angaben hängen an diesem Projekt — die Antworten der Haus-IT und die Adresse{venue}. Eine neutrale Vorlage lässt sie weg; eine Haus-Vorlage nimmt sie mit und merkt sich, für welches Haus sie gelten.',
+            '{n} venue-bound entries hang on this project \u2014 the venue IT answers and the address{venue}. A neutral template leaves them out; a venue template takes them along and remembers which venue they apply to.',
           )
             .replace('{n}', String(count))
             .replace('{venue}', venue ? ` (${venue})` : '')}
         </div>
         <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
           <button type="button" onClick={() => onDone(null)} style={MODAL_BUTTON_SECONDARY}>
-            {t('common.cancel', 'Abbrechen')}
+            {t('common.cancel', 'Cancel')}
           </button>
           <button type="button" onClick={() => onDone('venue')} style={MODAL_BUTTON_SECONDARY}>
-            {t('tplScope.venue', 'Für dieses Haus')}
+            {t('tplScope.venue', 'For this venue')}
           </button>
           <button
             type="button"
             onClick={() => onDone('neutral')}
             style={modalButtonPrimary('#10b981')}
           >
-            {t('tplScope.neutral', 'Neutral (nur die Form)')}
+            {t('tplScope.neutral', 'Neutral (shape only)')}
           </button>
         </div>
       </div>

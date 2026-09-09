@@ -146,14 +146,14 @@ export const EquipmentChecklist = ({
                 onClick={() => onSetAll(true)}
                 className="rounded bg-cp-surface-4 px-2 py-1 hover:bg-cp-surface-5"
               >
-                {t('rentman.checklist.selectAll', 'Alle auswählen')}
+                {t('rentman.checklist.selectAll', 'Select all')}
               </button>
               <button
                 type="button"
                 onClick={() => onSetAll(false)}
                 className="rounded bg-cp-surface-4 px-2 py-1 hover:bg-cp-surface-5"
               >
-                {t('rentman.checklist.deselectAll', 'Alle abwählen')}
+                {t('rentman.checklist.deselectAll', 'Deselect all')}
               </button>
             </>
           )}
@@ -164,14 +164,14 @@ export const EquipmentChecklist = ({
                 onClick={expandAll}
                 className="rounded bg-cp-surface-4 px-2 py-1 hover:bg-cp-surface-5"
               >
-                {t('rentman.checklist.expandAll', 'Alle Sets ausklappen')}
+                {t('rentman.checklist.expandAll', 'Expand all sets')}
               </button>
               <button
                 type="button"
                 onClick={collapseAll}
                 className="rounded bg-cp-surface-4 px-2 py-1 hover:bg-cp-surface-5"
               >
-                {t('rentman.checklist.collapseAll', 'Alle Sets einklappen')}
+                {t('rentman.checklist.collapseAll', 'Collapse all sets')}
               </button>
             </>
           )}
@@ -199,7 +199,7 @@ export const EquipmentChecklist = ({
                   <div key={item.id} className="flex items-center gap-2 rounded bg-cp-surface-1/30 px-2 py-1 text-cp-xs">
                     <span className="w-5" />
                     <span className="shrink-0 rounded bg-cp-surface-2 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-cp-text-muted">
-                      {t('rentman.checklist.kind.comment', 'Kommentar')}
+                      {t('rentman.checklist.kind.comment', 'Comment')}
                     </span>
                     <span className="flex-1 italic text-cp-text-muted">{item.name}</span>
                   </div>
@@ -213,8 +213,8 @@ export const EquipmentChecklist = ({
                         type="button"
                         onClick={() => toggleExpand(item.id)}
                         className="w-5 rounded bg-cp-surface-2 text-[10px] leading-none hover:bg-cp-surface-4"
-                        aria-label={isOpen ? t('rentman.checklist.setCollapse', 'Set einklappen') : t('rentman.checklist.setExpand', 'Set ausklappen')}
-                        title={isOpen ? t('rentman.checklist.setCollapse', 'Set einklappen') : t('rentman.checklist.setExpand', 'Set ausklappen')}
+                        aria-label={isOpen ? t('rentman.checklist.setCollapse', 'Collapse set') : t('rentman.checklist.setExpand', 'Expand set')}
+                        title={isOpen ? t('rentman.checklist.setCollapse', 'Collapse set') : t('rentman.checklist.setExpand', 'Expand set')}
                       >
                         {isOpen ? '▾' : '▸'}
                       </button>
@@ -233,14 +233,14 @@ export const EquipmentChecklist = ({
                           const n = children!.length
                           if (item.kind === 'physical')
                             return (
-                              <span className="ml-2 rounded bg-amber-900/60 px-1.5 py-0.5 text-[10px] font-medium text-amber-200" title={t('rentman.checklist.kind.physicalTitle', 'Physische Kombination — eine Bestandseinheit. Default: als 1 Gerät (oder Rack).')}>
-                                {format(t('rentman.checklist.kind.physical', 'Physische Kombi · {n}'), { n })}
+                              <span className="ml-2 rounded bg-amber-900/60 px-1.5 py-0.5 text-[10px] font-medium text-amber-200" title={t('rentman.checklist.kind.physicalTitle', 'Physical combination — one stock unit. Default: as 1 device (or rack).')}>
+                                {format(t('rentman.checklist.kind.physical', 'Physical combi · {n}'), { n })}
                               </span>
                             )
                           if (item.kind === 'virtual')
                             return (
-                              <span className="ml-2 rounded bg-violet-900/60 px-1.5 py-0.5 text-[10px] font-medium text-violet-200" title={t('rentman.checklist.kind.virtualTitle', 'Virtuelle Kombination — loses Bündel; meist ist nur das Hauptgerät relevant.')}>
-                                {format(t('rentman.checklist.kind.virtual', 'Virtuelle Kombi · {n}'), { n })}
+                              <span className="ml-2 rounded bg-violet-900/60 px-1.5 py-0.5 text-[10px] font-medium text-violet-200" title={t('rentman.checklist.kind.virtualTitle', 'Virtual combination — loose bundle; usually only the main device matters.')}>
+                                {format(t('rentman.checklist.kind.virtual', 'Virtual combi · {n}'), { n })}
                               </span>
                             )
                           return (
@@ -258,9 +258,9 @@ export const EquipmentChecklist = ({
                               onSetMainOnly(item.id)
                             }}
                             className="ml-2 rounded bg-sky-700/60 px-1.5 py-0.5 text-[10px] font-medium text-sky-100 hover:bg-sky-600/60"
-                            title={t('rentman.checklist.mainOnlyTitle', 'Nur das Hauptgerät dieser Kombination importieren — Zubehör (Kabel/Akku/Stativ …) wird übersprungen.')}
+                            title={t('rentman.checklist.mainOnlyTitle', 'Import only the main device of this combination — accessories (cables/battery/tripod …) are skipped.')}
                           >
-                            {t('rentman.checklist.mainOnly', '+ nur Hauptgerät')}
+                            {t('rentman.checklist.mainOnly', '+ main device only')}
                           </button>
                         )}
                         {isSet && onSetAsRack && (
@@ -278,12 +278,12 @@ export const EquipmentChecklist = ({
                             }`}
                             title={t(
                               'rentman.checklist.asRackTitle',
-                              'Diese Kombination beim Import als Rack übernehmen (Inhalte behalten ihre Rentman-IDs).',
+                              'Import this combination as a rack (contents keep their Rentman IDs).',
                             )}
                           >
                             {rackSetIds?.has(item.id)
-                              ? t('rentman.checklist.asRackOn', '✓ als Rack')
-                              : t('rentman.checklist.asRackOff', '+ als Rack')}
+                              ? t('rentman.checklist.asRackOn', '✓ as rack')
+                              : t('rentman.checklist.asRackOff', '+ as rack')}
                           </button>
                         )}
                         {item.templateMatch && (() => {
@@ -303,9 +303,9 @@ export const EquipmentChecklist = ({
                             return (
                               <span
                                 className="ml-2 rounded bg-emerald-800/60 px-1.5 py-0.5 text-[10px] font-medium text-emerald-200"
-                                title={format(t('rentman.checklist.badge.linkedTitle', 'Bereits in lokaler Bibliothek per Rentman-ID verknüpft mit "{name}". Re-Import aktualisiert nur Metadaten (Kategorie, Projekt-Link) — die lokale Port-Konfiguration bleibt erhalten.'), { name: item.templateMatch })}
+                                title={format(t('rentman.checklist.badge.linkedTitle', 'Already linked in the local library via Rentman ID to "{name}". Re-import only refreshes metadata (category, project link) — the local port configuration is preserved.'), { name: item.templateMatch })}
                               >
-                                {t('rentman.checklist.badge.linked', '✓ verknüpft')}
+                                {t('rentman.checklist.badge.linked', '✓ linked')}
                               </span>
                             )
                           }
@@ -313,9 +313,9 @@ export const EquipmentChecklist = ({
                             return (
                               <span
                                 className="ml-2 rounded bg-amber-800/60 px-1.5 py-0.5 text-[10px] font-medium text-amber-100"
-                                title={format(t('rentman.checklist.badge.nameOnlyTitle', 'Lokales Template "{name}" hat denselben Namen aber keinen Rentman-ID. Beim Import erscheint ein Konflikt-Dialog — Default ist die lokale Version (mit Ports) zu behalten und nur die Rentman-ID anzuhängen.'), { name: item.templateMatch })}
+                                title={format(t('rentman.checklist.badge.nameOnlyTitle', 'Local template "{name}" has the same name but no Rentman ID. On import a conflict dialog appears — default is to keep the local version (with ports) and only attach the Rentman ID.'), { name: item.templateMatch })}
                               >
-                                <><Icon icon={Zap} size="xs" className="mr-1 inline-block align-text-bottom" />{t('rentman.checklist.badge.nameOnly', 'schon in Lib')}</>
+                                <><Icon icon={Zap} size="xs" className="mr-1 inline-block align-text-bottom" />{t('rentman.checklist.badge.nameOnly', 'in library')}</>
                               </span>
                             )
                           }
@@ -323,9 +323,9 @@ export const EquipmentChecklist = ({
                             return (
                               <span
                                 className="ml-2 rounded bg-cp-surface-4/60 px-1.5 py-0.5 text-[10px] font-medium text-cp-text-bright"
-                                title={format(t('rentman.checklist.badge.catalogTitle', 'Match aus eingebautem Katalog ("{name}"). Wird beim Import automatisch als Template übernommen.'), { name: item.templateMatch })}
+                                title={format(t('rentman.checklist.badge.catalogTitle', 'Match from built-in catalog ("{name}"). Will be adopted as a template automatically on import.'), { name: item.templateMatch })}
                               >
-                                {t('rentman.checklist.badge.catalog', '⊕ Katalog')}
+                                {t('rentman.checklist.badge.catalog', '⊕ catalog')}
                               </span>
                             )
                           }
@@ -333,7 +333,7 @@ export const EquipmentChecklist = ({
                           return (
                             <span
                               className="ml-2 rounded bg-emerald-800/60 px-1.5 py-0.5 text-[10px] font-medium text-emerald-200"
-                              title={format(t('rentman.checklist.badge.fallbackTitle', 'Wird automatisch mit Vorlage "{name}" befüllt'), { name: item.templateMatch })}
+                              title={format(t('rentman.checklist.badge.fallbackTitle', 'Auto-filled with template "{name}"'), { name: item.templateMatch })}
                             >
                               ✓ {item.templateMatch}
                             </span>
@@ -352,7 +352,7 @@ export const EquipmentChecklist = ({
                           return (
                             <span
                               className="rounded bg-sky-800/60 px-1.5 py-0.5 text-[10px] text-sky-100"
-                              title={t('rentman.checklist.linkedTitle', 'Verknüpft mit lokalem Gerät — wird beim Import nicht doppelt angelegt')}
+                              title={t('rentman.checklist.linkedTitle', 'Linked to a local device — will not be created as a duplicate on import')}
                             >
                               <Icon icon={Link} size="xs" className="mr-1 inline-block align-text-bottom" />{linkedDevice.name}
                             </span>
@@ -365,9 +365,9 @@ export const EquipmentChecklist = ({
                               if (e.target.value) onLinkExisting(item.id, e.target.value)
                             }}
                             className="rounded border border-cp-border bg-cp-surface-1 px-1 py-0.5 text-[10px] text-cp-text-secondary"
-                            title={t('rentman.checklist.linkSelectTitle', 'Mit existierendem Gerät verknüpfen')}
+                            title={t('rentman.checklist.linkSelectTitle', 'Link to an existing local device')}
                           >
-                            <option value="">{t('rentman.checklist.linkPlaceholder', 'Verknüpfen…')}</option>
+                            <option value="">{t('rentman.checklist.linkPlaceholder', 'Link…')}</option>
                             {linkableEquipment.map((e) => (
                               <option key={e.id} value={e.id}>{e.name}</option>
                             ))}
@@ -380,9 +380,9 @@ export const EquipmentChecklist = ({
                         type="button"
                         onClick={() => onSetAllChildren(item.id, !allChildrenChecked)}
                         className="rounded bg-cp-surface-4 px-1.5 py-0.5 text-[10px] hover:bg-cp-surface-5"
-                        title={allChildrenChecked ? t('rentman.checklist.deselectChildren', 'Alle Kinder abwählen') : t('rentman.checklist.selectChildren', 'Alle Kinder auswählen')}
+                        title={allChildrenChecked ? t('rentman.checklist.deselectChildren', 'Deselect all children') : t('rentman.checklist.selectChildren', 'Select all children')}
                       >
-                        <span className="inline-flex items-center gap-1"><Icon icon={allChildrenChecked ? Square : SquareCheck} size="xs" />{allChildrenChecked ? t('rentman.checklist.childrenAllOff', 'alle') : t('rentman.checklist.childrenAllOn', 'alle')}</span>
+                        <span className="inline-flex items-center gap-1"><Icon icon={allChildrenChecked ? Square : SquareCheck} size="xs" />{allChildrenChecked ? t('rentman.checklist.childrenAllOff', 'all') : t('rentman.checklist.childrenAllOn', 'all')}</span>
                       </button>
                     )}
                   </div>

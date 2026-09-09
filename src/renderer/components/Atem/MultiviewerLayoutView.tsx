@@ -302,7 +302,7 @@ export const MultiviewerLayoutView = ({ onClose }: MultiviewerLayoutViewProps) =
         <header className="flex items-center justify-between border-b border-cp-border px-4 py-2">
           <div>
             <h2 id={titleId} className="text-cp-xl font-semibold text-sky-300">
-              {t('atem.mvLayout.title', 'Multiviewer Layout (Live)')}
+              {t('atem.mvLayout.title', 'Multiviewer layout (live)')}
             </h2>
             {state && (
               <p className="text-[11px] text-cp-text-muted">
@@ -317,14 +317,14 @@ export const MultiviewerLayoutView = ({ onClose }: MultiviewerLayoutViewProps) =
               onClick={() => void refresh()}
               className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
             >
-              {t('atem.mvLayout.refresh', '↻ Aktualisieren')}
+              {t('atem.mvLayout.refresh', '↻ Refresh')}
             </button>
             <button
               type="button"
               onClick={onClose}
               className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
             >
-              {t('atem.mvLayout.close', '✕ Schließen')}
+              {t('atem.mvLayout.close', '✕ Close')}
             </button>
           </div>
         </header>
@@ -334,7 +334,7 @@ export const MultiviewerLayoutView = ({ onClose }: MultiviewerLayoutViewProps) =
             <div className="rounded border border-amber-700 bg-amber-900/30 p-3 text-cp-xs text-amber-200">
               {t(
                 'atem.mvLayout.notConnected',
-                'Keine Verbindung zu einem ATEM. Zuerst im ATEM-Dialog verbinden, dann diese Ansicht öffnen.',
+                'Not connected to an ATEM. Connect in the ATEM dialog first, then open this view.',
               )}
             </div>
           )}
@@ -344,7 +344,7 @@ export const MultiviewerLayoutView = ({ onClose }: MultiviewerLayoutViewProps) =
 
           {connected && mvs.length === 0 && (
             <div className="text-cp-xs text-cp-text-muted">
-              {t('atem.mvLayout.noMv', 'Der verbundene ATEM meldet keine Multiviewer.')}
+              {t('atem.mvLayout.noMv', 'The connected ATEM reports no multiviewers.')}
             </div>
           )}
 
@@ -364,9 +364,9 @@ export const MultiviewerLayoutView = ({ onClose }: MultiviewerLayoutViewProps) =
 
         <footer className="flex flex-wrap items-center gap-4 border-t border-cp-border px-4 py-2 text-[11px] text-cp-text-secondary">
           <span className="font-semibold uppercase tracking-wider text-cp-text-muted">
-            {t('atem.mvLayout.legend', 'Legende')}
+            {t('atem.mvLayout.legend', 'Legend')}
           </span>
-          <LegendSwatch label={t('atem.mvLayout.camera', 'Kamera')} category="camera" />
+          <LegendSwatch label={t('atem.mvLayout.camera', 'Camera')} category="camera" />
           <LegendSwatch label={t('atem.mvLayout.gfx', 'GFX')} category="gfx" />
           <LegendSwatch label={t('atem.mvLayout.support', 'Support')} category="support" />
           <LegendSwatch label={t('atem.mvLayout.aux', 'AUX')} category="aux" />

@@ -95,10 +95,21 @@ describe('die Quellsprache ist gemessen', () => {
 
   it('misst ueberhaupt etwas — sonst waere die Ruhe oben wertlos', () => {
     // Die Gegenprobe zur Gegenprobe. Ein kaputtes Muster faende null Stellen
-    // und der Test darueber bliebe gruen. Die Zahl ist bewusst weit unter dem
-    // Ist-Stand (2202 am 2026-09-08): sie soll einen Totalausfall fangen, nicht
-    // bei jeder Umformulierung anschlagen.
-    expect(messung.de + messung.en).toBeGreaterThan(1500)
+    // und der Test darueber bliebe gruen. Die Zahl liegt bewusst weit unter
+    // dem Ist-Stand: sie soll einen Totalausfall fangen, nicht bei jeder
+    // Umformulierung anschlagen.
+    //
+    // DIE SCHWELLE IST MIT E-28 GESUNKEN, von 1500 auf 1000, und der Grund
+    // gehoert dazu: die Messung zaehlt 2202 (deutsch, 2026-09-08) gegen 1268
+    // (englisch, 2026-09-09) — bei GLEICHEM Bestand von 4576 Schluesseln.
+    // Das liegt am Klassifizierer, nicht am Repo: Deutsch traegt Umlaute und
+    // eine laengere Stoppwortliste, ist also haeufiger erkennbar. Englisch
+    // faellt oefter unter „ohne Merkmal".
+    //
+    // Wer diese Zahl spaeter wieder anhebt, muss sie messen — sie aus dem
+    // alten Stand fortzuschreiben hiesse, eine deutsche Kennzahl an eine
+    // englische Oberflaeche zu halten.
+    expect(messung.de + messung.en).toBeGreaterThan(1000)
   })
 })
 

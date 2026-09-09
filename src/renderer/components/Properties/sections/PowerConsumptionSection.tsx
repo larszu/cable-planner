@@ -29,16 +29,16 @@ export const PowerConsumptionSection = ({ equipment }: { equipment: EquipmentIte
         ? `~${Math.round(computedW)} W`
         : '–'
   return (
-    <SortableSection id="power" title={t('power.title', 'Stromverbrauch')} subtitle={summary}>
+    <SortableSection id="power" title={t('power.title', 'Power consumption')} subtitle={summary}>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-cp-xs">
         <label className="block">
-          <span className="mb-1 block text-cp-text-muted">{t('power.voltage', 'Spannung (V)')}</span>
+          <span className="mb-1 block text-cp-text-muted">{t('power.voltage', 'Voltage (V)')}</span>
           <input
             type="number"
             min={0}
             step={1}
             value={v ?? ''}
-            placeholder={t('power.voltagePlaceholder', 'z. B. 230')}
+            placeholder={t('power.voltagePlaceholder', 'e.g. 230')}
             onChange={(e) => {
               const nextV = e.target.value ? Math.max(0, Number(e.target.value)) : undefined
               // Recompute W only when both V and A are present AND
@@ -61,13 +61,13 @@ export const PowerConsumptionSection = ({ equipment }: { equipment: EquipmentIte
           />
         </label>
         <label className="block">
-          <span className="mb-1 block text-cp-text-muted">{t('power.current', 'Stromstärke (A)')}</span>
+          <span className="mb-1 block text-cp-text-muted">{t('power.current', 'Current (A)')}</span>
           <input
             type="number"
             min={0}
             step={0.01}
             value={a ?? ''}
-            placeholder={t('power.currentPlaceholder', 'z. B. 1.5')}
+            placeholder={t('power.currentPlaceholder', 'e.g. 1.5')}
             onChange={(e) => {
               const nextA = e.target.value ? Math.max(0, Number(e.target.value)) : undefined
               const oldProduct =
@@ -86,9 +86,9 @@ export const PowerConsumptionSection = ({ equipment }: { equipment: EquipmentIte
         </label>
         <label className="block">
           <span className="mb-1 block text-cp-text-muted">
-            {t('power.watts', 'Leistung (W)')}
+            {t('power.watts', 'Power (W)')}
             {computedW !== undefined && (
-              <span className="ml-1 inline-flex text-emerald-400/70" title={t('power.wattsComputed', 'Aus V × A berechnet')}>
+              <span className="ml-1 inline-flex text-emerald-400/70" title={t('power.wattsComputed', 'Computed from V × A')}>
                 <Icon icon={Zap} size="xs" />
               </span>
             )}
@@ -111,7 +111,7 @@ export const PowerConsumptionSection = ({ equipment }: { equipment: EquipmentIte
               })
             }
             className="w-full rounded border border-cp-border bg-cp-surface-1 p-2 font-mono"
-            title={t('power.wattsTitle', 'Datenblatt-Wert. V × A wird vorgeschlagen, kann hier überschrieben werden.')}
+            title={t('power.wattsTitle', 'Datasheet value. V × A is suggested; can be overridden here.')}
           />
         </label>
       </div>
@@ -119,7 +119,7 @@ export const PowerConsumptionSection = ({ equipment }: { equipment: EquipmentIte
         className="mt-2 text-[10px] text-cp-text-muted"
         text={t(
           'power.formulaHint',
-          'Wenn Spannung und Stromstärke gesetzt sind, wird die Leistung automatisch berechnet (P = U × I). Werkzeuge → Stromverbrauch summiert das Leistungs-Feld über alle Geräte.',
+          'When voltage and current are set, power is computed automatically (P = U × I). Tools → power consumption sums the power field across all devices.',
         )}
       />
     </SortableSection>

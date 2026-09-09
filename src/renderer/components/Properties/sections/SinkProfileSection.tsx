@@ -53,11 +53,11 @@ export const SinkProfileSection = ({ equipment }: { equipment: EquipmentItem }) 
     liste.includes(wert) ? liste.filter((x) => x !== wert) : [...liste, wert]
 
   const summary = profil
-    ? t('sink.summaryN', '{n} Format(e) erklärt').replace('{n}', String(profil.formate.length))
-    : t('sink.none', 'nicht erklärt')
+    ? t('sink.summaryN', '{n} format(s) declared').replace('{n}', String(profil.formate.length))
+    : t('sink.none', 'not declared')
 
   return (
-    <SortableSection id="sink-profile" title={t('sink.title', 'Formatprofil (Senke)')} subtitle={summary}>
+    <SortableSection id="sink-profile" title={t('sink.title', 'Format profile (sink)')} subtitle={summary}>
       <label className="flex items-center gap-2 text-cp-xs">
         <input
           type="checkbox"
@@ -69,7 +69,7 @@ export const SinkProfileSection = ({ equipment }: { equipment: EquipmentItem }) 
           }
         />
         <span className="text-cp-text-secondary">
-          {t('sink.declare', 'Für dieses Gerät ist erklärt, welche Formate es annimmt')}
+          {t('sink.declare', 'For this device it is declared which formats it accepts')}
         </span>
       </label>
 
@@ -78,14 +78,14 @@ export const SinkProfileSection = ({ equipment }: { equipment: EquipmentItem }) 
           className="mt-2 text-cp-xs text-cp-text-muted"
           text={t(
             'sink.noneHint',
-            'Ohne Profil sagt der Plan „nicht erklärt" statt „passt" — er behauptet nicht, dass das Bild ankommt, und auch nicht, dass es das nicht tut.',
+            'Without a profile the plan says "not declared" instead of "fits" — it neither claims the picture arrives nor that it does not.',
           )}
         />
       ) : (
         <>
           <label className="mt-3 block text-cp-xs">
             <span className="mb-1 block text-cp-text-muted">
-              {t('sink.herkunft', 'Herkunft (Pflicht)')}
+              {t('sink.herkunft', 'Source (required)')}
             </span>
             <input
               className={`w-full rounded border bg-cp-surface-2 px-2 py-1 text-cp-text ${
@@ -94,7 +94,7 @@ export const SinkProfileSection = ({ equipment }: { equipment: EquipmentItem }) 
               value={profil.herkunft}
               placeholder={t(
                 'sink.herkunftPlaceholder',
-                'Handbuch, Seite … · am Gerät ausgelesen am … · vom Hersteller bestätigt',
+                'Manual, page … · read from the device on … · confirmed by the manufacturer',
               )}
               onChange={(e) => setze({ herkunft: e.target.value })}
             />
@@ -104,7 +104,7 @@ export const SinkProfileSection = ({ equipment }: { equipment: EquipmentItem }) 
               className="mt-1 text-cp-xs text-cp-danger"
               text={t(
                 'sink.herkunftMissing',
-                'Ohne Herkunft wird das Profil beim nächsten Laden verworfen. „Aus dem Handbuch, Seite 41" und „hat der Kollege mal gesagt" sind zwei verschiedene Auskünfte — die Anzeige zeigt beide gleich.',
+                'Without a source the profile is discarded on the next load. "From the manual, page 41" and "a colleague once said so" are two different answers — the display shows them the same.',
               )}
             />
           )}
@@ -131,7 +131,7 @@ export const SinkProfileSection = ({ equipment }: { equipment: EquipmentItem }) 
                     onClick={() =>
                       setze({ formate: profil.formate.filter((_, j) => j !== i) })
                     }
-                    aria-label={t('common.delete', 'Löschen')}
+                    aria-label={t('common.delete', 'Delete')}
                   >
                     ×
                   </button>
@@ -203,11 +203,11 @@ export const SinkProfileSection = ({ equipment }: { equipment: EquipmentItem }) 
             className="mt-2 text-cp-xs text-cp-text-muted"
             text={t(
               'sink.emptyAxisHint',
-              'Eine leere Zeile heisst „dazu ist nichts erklärt": der Plan urteilt darüber nicht und sagt „offen". Ein Häkchen zu setzen ist eine Zusicherung — setzen Sie es nur, wo Sie es belegen können.',
+              'An empty row means "nothing is declared about this": the plan does not judge it and says "open". Ticking a box is an assurance — tick it only where you can back it up.',
             )}
           />
           <label className="mt-3 block text-cp-xs">
-            <span className="mb-1 block text-cp-text-muted">{t('sink.notiz', 'Notiz')}</span>
+            <span className="mb-1 block text-cp-text-muted">{t('sink.notiz', 'Note')}</span>
             <input
               className="w-full rounded border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-text"
               value={profil.notiz ?? ''}

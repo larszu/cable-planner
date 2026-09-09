@@ -33,7 +33,7 @@ export const RacksTab = ({ onCreateRack, onEditRack }: RacksTabProps) => {
         <div className="min-w-0">
           <h2 className="text-cp-base font-semibold">{t('library.tabs.racks.title', '2D Rack Builder')}</h2>
           <div className="text-[10px] text-cp-text-muted">
-            {t('library.tabs.racks.subtitle', 'Rack-Slots in HE, als platzierbare Gruppe gespeichert')}
+            {t('library.tabs.racks.subtitle', 'Rack slots in RU, saved as a placeable group')}
           </div>
         </div>
         <button
@@ -41,14 +41,14 @@ export const RacksTab = ({ onCreateRack, onEditRack }: RacksTabProps) => {
           onClick={onCreateRack}
           className="rounded bg-emerald-700 px-2 py-1 text-cp-xs hover:bg-emerald-600"
         >
-          {t('library.tabs.racks.new', '+ Neues Rack')}
+          {t('library.tabs.racks.new', '+ New rack')}
         </button>
       </div>
 
       {groupPresets.filter((preset) => !!preset.rack).length === 0 ? (
         <div className="flex-1 flex flex-col items-center justify-center gap-2 text-cp-xs text-cp-text-faint text-center p-4">
           <span className="text-2xl">▥</span>
-          <span>{t('library.tabs.racks.empty', 'Noch kein Rack-Layout gespeichert.')}</span>
+          <span>{t('library.tabs.racks.empty', 'No rack layout saved yet.')}</span>
         </div>
       ) : (
         (() => {
@@ -81,14 +81,14 @@ export const RacksTab = ({ onCreateRack, onEditRack }: RacksTabProps) => {
                       onCardClick={() => insertBlackBoxRack(preset.id, cx, cy)}
                       clickTitle={t(
                         'library.tabs.racks.clickTitle',
-                        'Klick = als Black-Box auf Canvas platzieren · Drag&Drop = an Drop-Position platzieren',
+                        'Click = place as black box on canvas · Drag&Drop = place at drop position',
                       )}
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0 flex-1">
                           <div className="truncate font-medium text-cp-text">{preset.name}</div>
                           <div className="mt-0.5 text-[10px] text-cp-text-muted">
-                            {format(t('library.tabs.racks.counts', '{items} Geräte · {units} HE · {cables} Kabel'), {
+                            {format(t('library.tabs.racks.counts', '{items} devices · {units} RU · {cables} cables'), {
                               items: preset.items.length,
                               units: totalUnits,
                               cables: preset.cables.length,
@@ -110,8 +110,8 @@ export const RacksTab = ({ onCreateRack, onEditRack }: RacksTabProps) => {
                               onEditRack(preset.id)
                             }}
                             className="rounded bg-cp-surface-4 px-1 py-0.5 text-[11px] hover:bg-cp-surface-5"
-                            title={t('library.tabs.racks.editTitle', 'Im 2D-Rack-Builder bearbeiten')}
-                            aria-label={t('library.tabs.racks.editAria', 'Bearbeiten')}
+                            title={t('library.tabs.racks.editTitle', 'Edit in the 2D rack builder')}
+                            aria-label={t('library.tabs.racks.editAria', 'Edit')}
                           >
                             <Icon icon={Pencil} size="xs" />
                           </button>
@@ -124,9 +124,9 @@ export const RacksTab = ({ onCreateRack, onEditRack }: RacksTabProps) => {
                             className="rounded bg-cp-surface-4 px-1 py-0.5 text-[11px] text-cp-text-secondary hover:bg-cp-surface-5"
                             title={t(
                               'library.tabs.racks.exportTitle',
-                              'Als Datei exportieren (Kopie in den Downloads-Ordner)',
+                              'Export as file (copy to Downloads folder)',
                             )}
-                            aria-label={t('library.tabs.racks.exportAria', 'Exportieren')}
+                            aria-label={t('library.tabs.racks.exportAria', 'Export')}
                           >
                             <Icon icon={Download} size="xs" />
                           </button>
@@ -136,12 +136,12 @@ export const RacksTab = ({ onCreateRack, onEditRack }: RacksTabProps) => {
                               event.stopPropagation()
                               if (
                                 await confirmDialog(
-                                  format(t('library.tabs.racks.confirmDelete', 'Rack "{name}" löschen?'), {
+                                  format(t('library.tabs.racks.confirmDelete', 'Delete rack "{name}"?'), {
                                     name: preset.name,
                                   }),
                                   {
                                     destructive: true,
-                                    okLabel: t('common.delete', 'Löschen'),
+                                    okLabel: t('common.delete', 'Delete'),
                                   },
                                 )
                               ) {
@@ -149,8 +149,8 @@ export const RacksTab = ({ onCreateRack, onEditRack }: RacksTabProps) => {
                               }
                             }}
                             className="rounded bg-red-700 px-1 text-[10px] hover:bg-red-600"
-                            title={t('library.tabs.racks.deleteTitle', 'Rack aus Library entfernen')}
-                            aria-label={t('common.delete', 'Löschen')}
+                            title={t('library.tabs.racks.deleteTitle', 'Remove rack from library')}
+                            aria-label={t('common.delete', 'Delete')}
                           >
                             <Icon icon={X} size="xs" />
                           </button>

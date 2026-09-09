@@ -246,7 +246,7 @@ export const MobileShareDialog = () => {
     <ModalShell
       open={open}
       onClose={close}
-      title={t('mobile.dialog.heading', 'Handy-Zugriff')}
+      title={t('mobile.dialog.heading', 'Mobile access')}
       titleIcon={<Icon icon={Smartphone} size="sm" />}
       maxWidth="md"
       draggableKey="cable-planner:modal-pos:mobile-share"
@@ -254,15 +254,15 @@ export const MobileShareDialog = () => {
         <div className="space-y-3 text-cp-base">
           {!hasDesktopBridge && (
             <div className="rounded border border-amber-700 bg-amber-950/40 p-3 text-cp-xs text-amber-200">
-              {t('mobile.dialog.desktopOnly1', 'Diese Funktion benötigt die Desktop-App (Electron). Im Web-Browser ist der Mobile-Viewer als statisches HTML im')}{' '}
+              {t('mobile.dialog.desktopOnly1', 'This feature requires the desktop app (Electron). In the web browser the mobile viewer is reachable as static HTML in')}{' '}
               <code className="rounded bg-cp-surface-2 px-1">dist/renderer/mobile.html</code>{' '}
-              {t('mobile.dialog.desktopOnly2', 'erreichbar.')}
+              {t('mobile.dialog.desktopOnly2', '.')}
             </div>
           )}
 
           <PanelHint
             className="text-cp-xs text-cp-text-muted"
-            text={t('mobile.dialog.description', 'Startet einen kleinen Web-Server im lokalen Netzwerk. Scanne den QR-Code mit dem Handy → der Mobile-Viewer öffnet sich im Browser und lädt das aktuelle Projekt. Der Server stoppt automatisch beim Schließen der App oder über den Stop-Button.')}
+            text={t('mobile.dialog.description', 'Starts a small web server on the local network. Scan the QR code with the phone → the mobile viewer opens in the browser and loads the current project. The server stops automatically when the app closes or via the Stop button.')}
           />
 
           {status.running ? (
@@ -274,17 +274,17 @@ export const MobileShareDialog = () => {
                     fertig wird: „niemand hat nachgesehen" statt „da ist
                     nichts". Der Zustand wird jetzt benannt. */}
                 {qrDataUrl ? (
-                  <img src={qrDataUrl} alt={t('mobile.dialog.qrAlt', 'QR-Code')} className="rounded bg-white p-2" />
+                  <img src={qrDataUrl} alt={t('mobile.dialog.qrAlt', 'QR code')} className="rounded bg-white p-2" />
                 ) : status.urls.length === 0 ? (
                   <div className="flex h-[240px] w-[240px] items-center justify-center rounded border border-cp-border bg-cp-surface-2 p-3 text-center text-cp-xs text-cp-text-secondary">
-                    {t('mobile.dialog.noAddress', 'Keine Adresse freigegeben — der Server läuft, aber es gibt kein lokales Netz, unter dem er erreichbar wäre.')}
+                    {t('mobile.dialog.noAddress', 'No address shared — the server is running, but there is no local network it could be reached on.')}
                   </div>
                 ) : (
                   <div className="h-[240px] w-[240px] animate-pulse rounded bg-cp-surface-2" />
                 )}
                 <div className="w-full">
                   <div className="text-[10px] uppercase tracking-wide text-emerald-300">
-                    {t('mobile.dialog.activeUrl', 'Aktive URL')}
+                    {t('mobile.dialog.activeUrl', 'Active URL')}
                   </div>
                   <div className="flex items-center gap-1">
                     <input
@@ -297,7 +297,7 @@ export const MobileShareDialog = () => {
                       type="button"
                       onClick={() => void copyUrl()}
                       className="rounded bg-cp-surface-4 px-2 py-1 text-[10px] hover:bg-cp-surface-5"
-                      title={t('mobile.dialog.copyToClipboard', 'In die Zwischenablage kopieren')}
+                      title={t('mobile.dialog.copyToClipboard', 'Copy to clipboard')}
                     >
                       <Icon icon={copied ? Check : Clipboard} size="xs" />
                     </button>
@@ -315,7 +315,7 @@ export const MobileShareDialog = () => {
               {crewFeedUrl && (
                 <div className="w-full">
                   <div className="text-[10px] uppercase tracking-wide text-sky-300">
-                    {t('mobile.dialog.crewFeed', 'Crew-Kalender abonnieren')}
+                    {t('mobile.dialog.crewFeed', 'Subscribe to the crew calendar')}
                   </div>
                   <div className="flex items-center gap-1">
                     <input
@@ -328,7 +328,7 @@ export const MobileShareDialog = () => {
                       type="button"
                       onClick={() => void navigator.clipboard?.writeText(crewFeedUrl)}
                       className="rounded bg-cp-surface-4 px-2 py-1 text-[10px] hover:bg-cp-surface-5"
-                      title={t('mobile.dialog.copyToClipboard', 'In die Zwischenablage kopieren')}
+                      title={t('mobile.dialog.copyToClipboard', 'Copy to clipboard')}
                     >
                       <Icon icon={Clipboard} size="xs" />
                     </button>
@@ -336,7 +336,7 @@ export const MobileShareDialog = () => {
                   <div className="mt-0.5 text-[10px] text-cp-text-muted">
                     {t(
                       'mobile.dialog.crewFeedHint',
-                      'Im Kalender als Abonnement eintragen — er holt sich den Stand selbst, statt zu veralten.',
+                      'Add it to your calendar as a subscription — it fetches the current state instead of going stale.',
                     )}
                   </div>
                 </div>
@@ -344,7 +344,7 @@ export const MobileShareDialog = () => {
               {status.urls.length > 1 && (
                 <div>
                   <div className="mb-1 text-[10px] uppercase tracking-wide text-cp-text-muted">
-                    {t('mobile.dialog.altUrls', 'Alternative LAN-Adressen (falls eine nicht erreichbar ist)')}
+                    {t('mobile.dialog.altUrls', 'Alternative LAN addresses (in case one is unreachable)')}
                   </div>
                   <div className="flex flex-wrap gap-1">
                     {status.urls.map((u) => (
@@ -378,7 +378,7 @@ export const MobileShareDialog = () => {
               {status.withheld.length > 0 && (
                 <div className="rounded border border-amber-700 bg-amber-950/40 p-2">
                   <div className="mb-1 text-[10px] uppercase tracking-wide text-amber-300">
-                    {t('mobile.dialog.withheldTitle', 'Nicht freigegeben')}
+                    {t('mobile.dialog.withheldTitle', 'Not shared')}
                   </div>
                   <div className="mb-1 flex flex-wrap gap-1">
                     {status.withheld.map((w) => (
@@ -399,7 +399,7 @@ export const MobileShareDialog = () => {
                     onClick={() => void handleAllowBeyondLan()}
                     className="mt-1 rounded border border-amber-600 px-2 py-0.5 text-[10px] text-amber-200 hover:bg-amber-900/60"
                   >
-                    {t('mobile.dialog.allowBeyondLan', 'Trotzdem freigeben (nur für diese Sitzung)')}
+                    {t('mobile.dialog.allowBeyondLan', 'Share anyway (this session only)')}
                   </button>
                 </div>
               )}
@@ -407,9 +407,9 @@ export const MobileShareDialog = () => {
                 <span className="text-[11px] text-cp-text-muted">
                   {t('mobile.dialog.portLabel', 'Port')} {status.port} ·{' '}
                   {status.hasProject ? (
-                    <span className="text-emerald-300">{t('mobile.dialog.projectSynced', 'Projekt synchronisiert')}</span>
+                    <span className="text-emerald-300">{t('mobile.dialog.projectSynced', 'Project synced')}</span>
                   ) : (
-                    <span className="text-amber-300">{t('mobile.dialog.noProject', 'Kein Projekt geladen')}</span>
+                    <span className="text-amber-300">{t('mobile.dialog.noProject', 'No project loaded')}</span>
                   )}
                 </span>
                 <button
@@ -426,7 +426,7 @@ export const MobileShareDialog = () => {
             <div className="flex flex-col items-center gap-3 rounded border border-cp-border bg-cp-surface-3/40 p-6 text-center">
               <Icon icon={Radio} size={28} className="text-cp-text-faint" />
               <p className="text-cp-xs text-cp-text-muted">
-                {t('mobile.dialog.stopped', 'Server ist gestoppt. Klicke unten, um den LAN-Server zu starten.')}
+                {t('mobile.dialog.stopped', 'Server is stopped. Click below to start the LAN server.')}
               </p>
               <button
                 type="button"
@@ -434,7 +434,7 @@ export const MobileShareDialog = () => {
                 disabled={busy || !hasDesktopBridge}
                 className="rounded bg-sky-700 px-4 py-2 text-cp-base text-white hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {busy ? t('mobile.dialog.starting', 'Starte…') : t('mobile.dialog.startServer', 'LAN-Server starten')}
+                {busy ? t('mobile.dialog.starting', 'Starting…') : t('mobile.dialog.startServer', 'Start LAN server')}
               </button>
             </div>
           )}
@@ -442,7 +442,7 @@ export const MobileShareDialog = () => {
           <div className="flex flex-col gap-1 rounded border border-cp-border-muted p-2">
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-cp-xs font-medium text-cp-text">
-                {t('mobile.dialog.writeMode', 'Rückmeldungen vom Handy')}
+                {t('mobile.dialog.writeMode', 'Feedback from the phone')}
               </span>
               {(['read-only', 'contribute'] as const).map((m) => (
                 <label key={m} className="flex items-center gap-1 text-cp-xs">
@@ -459,8 +459,8 @@ export const MobileShareDialog = () => {
                     }}
                   />
                   {m === 'read-only'
-                    ? t('mobile.dialog.writeMode.read', 'Nur lesen')
-                    : t('mobile.dialog.writeMode.contribute', 'Häkchen und Kabel zurückschicken')}
+                    ? t('mobile.dialog.writeMode.read', 'Read only')
+                    : t('mobile.dialog.writeMode.contribute', 'Send back ticks and cables')}
                 </label>
               ))}
             </div>
@@ -468,11 +468,11 @@ export const MobileShareDialog = () => {
               {writeMode === 'read-only'
                 ? t(
                     'mobile.dialog.writeMode.readHint',
-                    'Die Schreibwege sind geschlossen — das Handy bekommt auf jeden Schreibversuch eine Absage. Den Plan ändert die Person am Rechner.',
+                    'The three write routes are closed — the phone is refused on every write attempt. The plan is changed by the person at the desk.',
                   )
                 : t(
                     'mobile.dialog.writeMode.contributeHint',
-                    'Häkchen, neu angelegte Kabel und Feld-Rückmeldungen gehen zurück ins Projekt. Wer den QR-Code hat, kann den Plan ändern.',
+                    'Ticks, cables added on site and field reports go back into the project. Anyone with the QR code can change the plan.',
                   )}
             </p>
           </div>
@@ -495,13 +495,13 @@ export const MobileShareDialog = () => {
                   setPinAnzahl(st.count)
                 }}
               />
-              {t('mobile.dialog.pincode', 'Anlagen-Zugangscodes abrufbar machen')}
+              {t('mobile.dialog.pincode', 'Make system access codes retrievable')}
             </label>
             {codes.length === 0 ? (
               <p className="text-[11px] text-cp-text-muted">
                 {t(
                   'mobile.dialog.pincode.none',
-                  'Dieses Projekt trägt keine Intercom-Konfiguration mit Zugangscodes.',
+                  'This project carries no intercom configuration with access codes.',
                 )}
               </p>
             ) : pinAn && pinToken ? (
@@ -509,7 +509,7 @@ export const MobileShareDialog = () => {
                 <p className="text-[11px] text-cp-text-muted">
                   {t(
                     'mobile.dialog.pincode.hint',
-                    'Diesen Code am Handy eingeben. Er steht NICHT im QR-Code — wer nur den Link hat, kommt nicht an die Zugangsdaten.',
+                    'Type this code on the phone. It is NOT part of the QR code — whoever only has the link cannot reach the access data.',
                   )}
                 </p>
                 <code className="select-all rounded bg-cp-surface-2 px-2 py-1 font-mono text-cp-base tracking-widest text-cp-text">
@@ -519,7 +519,7 @@ export const MobileShareDialog = () => {
                   {format(
                     t(
                       'mobile.dialog.pincode.count',
-                      '{n} Code(s) hinterlegt. Jeder Abruf steht im Dokument-Register — mit Zeitpunkt, nicht mit dem Wert.',
+                      '{n} code(s) held. Every retrieval is recorded in the document register — with a timestamp, not with the value.',
                     ),
                     { n: pinAnzahl },
                   )}
@@ -530,7 +530,7 @@ export const MobileShareDialog = () => {
                 {format(
                   t(
                     'mobile.dialog.pincode.offHint',
-                    'Aus. {n} Code(s) stünden bereit — sie verlassen den Rechner erst, wenn der Schalter an ist.',
+                    'Off. {n} code(s) would be available — they leave this machine only once the switch is on.',
                   ),
                   { n: codes.length },
                 )}
@@ -539,13 +539,13 @@ export const MobileShareDialog = () => {
           </div>
 
           <details className="text-[11px] text-cp-text-muted">
-            <summary className="cursor-pointer hover:text-cp-text-secondary">{t('mobile.dialog.securityHeading', 'Hinweise zur Sicherheit')}</summary>
+            <summary className="cursor-pointer hover:text-cp-text-secondary">{t('mobile.dialog.securityHeading', 'Security notes')}</summary>
             <ul className="mt-1 list-inside list-disc space-y-1">
-              <li>{t('mobile.dialog.security.writeBack', 'Ob das Handy zurückschreiben darf, entscheidet die Einstellung darüber. Steht sie auf „Häkchen und Kabel zurückschicken“, kann jeder mit dem QR-Code den Plan ändern.')}</li>
-              <li>{t('mobile.dialog.security.token', 'Jeder Schreibweg verlangt das Token aus dem QR-Code. Passwörter und Schlüssel werden aus dem Projekt entfernt, bevor es das Gerät verlässt.')}</li>
-              <li>{t('mobile.dialog.security.pincode', 'Die Anlagen-Zugangscodes gehen NIE im Projekt mit. Sie liegen nur im Speicher der Desktop-App und nur, solange der Schalter oben an ist; abgerufen werden sie über einen zweiten Code, der nicht im QR-Code steht.')}</li>
-              <li>{t('mobile.dialog.security.bind', 'Der Server bindet auf das lokale Netzwerk (0.0.0.0). Wenn unklar ist, wer im Netz hängt, lieber stoppen.')}</li>
-              <li>{t('mobile.dialog.security.autostop', 'Beim Schließen der Desktop-App stoppt auch der Server automatisch.')}</li>
+              <li>{t('mobile.dialog.security.writeBack', 'The phone does not only read: checks, newly added cables and field feedback flow back into the project. Whoever has the QR code can change the plan.')}</li>
+              <li>{t('mobile.dialog.security.token', 'Every write path requires the token from the QR code. Passwords and keys are stripped from the project before it leaves the device.')}</li>
+              <li>{t('mobile.dialog.security.pincode', 'The system access codes NEVER travel with the project. They live only in the desktop app\'s memory and only while the switch above is on; they are retrieved with a second code that is not part of the QR code.')}</li>
+              <li>{t('mobile.dialog.security.bind', 'The server binds to the local network (0.0.0.0). If it is unclear who is on the network, prefer stopping it.')}</li>
+              <li>{t('mobile.dialog.security.autostop', 'When the desktop app closes the server stops automatically.')}</li>
             </ul>
           </details>
         </div>

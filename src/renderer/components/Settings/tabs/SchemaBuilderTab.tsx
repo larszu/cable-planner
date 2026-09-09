@@ -103,16 +103,16 @@ export const SchemaBuilderTab = () => {
   const addField = () => {
     const key = draft.key || keyFromLabel(draft.labelDe)
     if (!key) {
-      setError(t('schemaBuilder.err.key', 'Bitte einen Feld-Namen angeben.'))
+      setError(t('schemaBuilder.err.key', 'Please enter a field name.'))
       return
     }
     // Kollision mit Built-in-Key oder existierendem User-Feld verhindern.
     if (builtIn.some((f) => f.key === key) || userFields.some((f) => f.key === key)) {
-      setError(t('schemaBuilder.err.dupe', 'Dieser Schlüssel existiert in der Kategorie bereits.'))
+      setError(t('schemaBuilder.err.dupe', 'This key already exists in the category.'))
       return
     }
     if ((draft.type === 'select' || draft.type === 'polar-pattern') && draft.options.filter((o) => o.value.trim()).length === 0) {
-      setError(t('schemaBuilder.err.opts', 'Auswahl-Felder brauchen mindestens eine Option.'))
+      setError(t('schemaBuilder.err.opts', 'Choice fields need at least one option.'))
       return
     }
     const field: CategoryFieldDef = {
@@ -161,17 +161,17 @@ export const SchemaBuilderTab = () => {
   return (
     <div className="space-y-3">
       <SettingsCard
-        title={t('schemaBuilder.title', 'Kategorien & Felder')}
+        title={t('schemaBuilder.title', 'Categories & fields')}
         description={t(
           'schemaBuilder.desc',
-          'Lege eigene Fachfelder (z. B. Pickup-Pattern) und Kategorien an. Sie erscheinen automatisch in den Geräte-Eigenschaften und in BOM/Export. Built-in-Felder sind gesperrt.',
+          'Create your own domain fields (e.g. pickup pattern) and categories. They appear automatically in the device properties and in BOM/export. Built-in fields are locked.',
         )}
       >
         {/* Kategorie-Wahl + Neu-Anlage */}
         <div className="mb-3 flex flex-wrap items-end gap-2">
           <label className="block">
             <span className="mb-1 block text-cp-xs text-cp-text-secondary">
-              {t('schemaBuilder.category', 'Kategorie')}
+              {t('schemaBuilder.category', 'Category')}
             </span>
             <select value={category} onChange={(e) => setCategory(e.target.value)} className={inputCls}>
               {allCategories.map((c) => (
@@ -187,9 +187,9 @@ export const SchemaBuilderTab = () => {
         <div className="mb-3 flex flex-wrap items-end gap-2 rounded border border-cp-border-muted bg-cp-surface-2/40 p-2">
           <label className="block">
             <span className="mb-1 block text-cp-xs text-cp-text-faint">
-              {t('schemaBuilder.newCatDe', 'Neue Kategorie (DE)')}
+              {t('schemaBuilder.newCatDe', 'New category (DE)')}
             </span>
-            <input value={newCatDe} onChange={(e) => setNewCatDe(e.target.value)} className={inputCls} placeholder="z. B. Funkstrecken-Zubehör" />
+            <input value={newCatDe} onChange={(e) => setNewCatDe(e.target.value)} className={inputCls} placeholder={t('schema.catPh', 'e.g. radio-link accessories')} />
           </label>
           <label className="block">
             <span className="mb-1 block text-cp-xs text-cp-text-faint">{t('schemaBuilder.newCatEn', 'Name (EN)')}</span>
@@ -201,7 +201,7 @@ export const SchemaBuilderTab = () => {
             disabled={!newCatDe.trim()}
             className="flex items-center gap-1 rounded bg-sky-700 px-2 py-1.5 text-cp-xs text-white hover:bg-sky-600 disabled:opacity-40"
           >
-            <Plus size={13} /> {t('schemaBuilder.addCat', 'Kategorie anlegen')}
+            <Plus size={13} /> {t('schemaBuilder.addCat', 'Create category')}
           </button>
         </div>
 
@@ -222,34 +222,34 @@ export const SchemaBuilderTab = () => {
               <span className="text-cp-text-faint">{typeLabel(f.type)}</span>
               {f.unit ? <span className="text-cp-text-faint">· {f.unit}</span> : null}
               <span className="font-mono text-[10px] text-cp-text-faint">{f.key}</span>
-              <button type="button" onClick={() => removeField(f.key)} className="text-cp-danger hover:text-cp-danger/80" title={t('common.delete', 'Löschen')}>
+              <button type="button" onClick={() => removeField(f.key)} className="text-cp-danger hover:text-cp-danger/80" title={t('common.delete', 'Delete')}>
                 <Trash2 size={13} />
               </button>
             </div>
           ))}
           {builtIn.length === 0 && userFields.length === 0 && (
             <p className="px-1 py-2 text-cp-xs text-cp-text-faint">
-              {t('schemaBuilder.empty', 'Diese Kategorie hat noch keine Felder. Lege unten das erste an.')}
+              {t('schemaBuilder.empty', 'This category has no fields yet. Create the first one below.')}
             </p>
           )}
         </div>
       </SettingsCard>
 
       {/* Feld-Editor */}
-      <SettingsCard title={t('schemaBuilder.newField', 'Neues Feld')}>
+      <SettingsCard title={t('schemaBuilder.newField', 'New field')}>
         {!editing ? (
           <button
             type="button"
             onClick={() => setEditing(true)}
             className="flex items-center gap-1 rounded bg-cp-surface-2 px-2 py-1.5 text-cp-sm text-cp-text-secondary hover:bg-cp-surface-1"
           >
-            <Plus size={14} /> {t('schemaBuilder.addField', 'Feld hinzufügen')}
+            <Plus size={14} /> {t('schemaBuilder.addField', 'Add field')}
           </button>
         ) : (
           <div className="space-y-2">
             <div className="grid grid-cols-2 gap-2">
               <label className="block">
-                <span className="mb-1 block text-cp-xs text-cp-text-secondary">{t('schemaBuilder.labelDe', 'Bezeichnung (DE)')}</span>
+                <span className="mb-1 block text-cp-xs text-cp-text-secondary">{t('schemaBuilder.labelDe', 'Label (DE)')}</span>
                 <input
                   value={draft.labelDe}
                   onChange={(e) => setDraft({ ...draft, labelDe: e.target.value, key: draft.key || keyFromLabel(e.target.value) })}
@@ -262,11 +262,11 @@ export const SchemaBuilderTab = () => {
                 <input value={draft.labelEn} onChange={(e) => setDraft({ ...draft, labelEn: e.target.value })} className={inputCls} placeholder="Pickup pattern" />
               </label>
               <label className="block">
-                <span className="mb-1 block text-cp-xs text-cp-text-secondary">{t('schemaBuilder.key', 'Schlüssel')}</span>
+                <span className="mb-1 block text-cp-xs text-cp-text-secondary">{t('schemaBuilder.key', 'Key')}</span>
                 <input value={draft.key} onChange={(e) => setDraft({ ...draft, key: e.target.value.replace(/[^a-zA-Z0-9]/g, '') })} className={`${inputCls} font-mono`} placeholder="pickupPattern" />
               </label>
               <label className="block">
-                <span className="mb-1 block text-cp-xs text-cp-text-secondary">{t('schemaBuilder.type', 'Typ')}</span>
+                <span className="mb-1 block text-cp-xs text-cp-text-secondary">{t('schemaBuilder.type', 'Type')}</span>
                 <select value={draft.type} onChange={(e) => setDraft({ ...draft, type: e.target.value as CategoryFieldType })} className={inputCls}>
                   {FIELD_TYPES.map((ty) => (
                     <option key={ty.value} value={ty.value}>
@@ -278,11 +278,11 @@ export const SchemaBuilderTab = () => {
               {draft.type !== 'boolean' && draft.type !== 'polar-pattern' && (
                 <>
                   <label className="block">
-                    <span className="mb-1 block text-cp-xs text-cp-text-secondary">{t('schemaBuilder.unit', 'Einheit (optional)')}</span>
+                    <span className="mb-1 block text-cp-xs text-cp-text-secondary">{t('schemaBuilder.unit', 'Unit (optional)')}</span>
                     <input value={draft.unit} onChange={(e) => setDraft({ ...draft, unit: e.target.value })} className={inputCls} placeholder="dB, mm, Ω …" />
                   </label>
                   <label className="block">
-                    <span className="mb-1 block text-cp-xs text-cp-text-secondary">{t('schemaBuilder.placeholder', 'Platzhalter (optional)')}</span>
+                    <span className="mb-1 block text-cp-xs text-cp-text-secondary">{t('schemaBuilder.placeholder', 'Placeholder (optional)')}</span>
                     <input value={draft.placeholder} onChange={(e) => setDraft({ ...draft, placeholder: e.target.value })} className={inputCls} />
                   </label>
                 </>
@@ -292,7 +292,7 @@ export const SchemaBuilderTab = () => {
             {(draft.type === 'select' || draft.type === 'polar-pattern') && (
               <div className="rounded border border-cp-border-muted bg-cp-surface-2/40 p-2">
                 <div className="mb-1 flex items-center justify-between text-cp-xs text-cp-text-secondary">
-                  <span>{t('schemaBuilder.options', 'Auswahl-Optionen')}</span>
+                  <span>{t('schemaBuilder.options', 'Choice options')}</span>
                   <button
                     type="button"
                     onClick={() => setDraft({ ...draft, options: [...draft.options, { value: '', de: '', en: '' }] })}
@@ -349,10 +349,10 @@ export const SchemaBuilderTab = () => {
 
             <div className="flex gap-2">
               <button type="button" onClick={addField} className="rounded bg-sky-700 px-3 py-1.5 text-cp-sm text-white hover:bg-sky-600">
-                {t('schemaBuilder.save', 'Feld anlegen')}
+                {t('schemaBuilder.save', 'Create field')}
               </button>
               <button type="button" onClick={resetDraft} className="rounded bg-cp-surface-2 px-3 py-1.5 text-cp-sm text-cp-text-secondary hover:bg-cp-surface-1">
-                {t('common.cancel', 'Abbrechen')}
+                {t('common.cancel', 'Cancel')}
               </button>
             </div>
           </div>

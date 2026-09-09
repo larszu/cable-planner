@@ -173,7 +173,7 @@ export const RackLivePreview = ({
         bSide: b.side,
         color: c.color ?? '#94a3b8',
         label: format(
-          t('rackPreview.cableTooltip', 'Intern: {from}:{fromPort} ↔ {to}:{toPort}'),
+          t('rackPreview.cableTooltip', 'Internal: {from}:{fromPort} ↔ {to}:{toPort}'),
           { from: fromName, fromPort: c.fromPortName, to: toName, toPort: c.toPortName },
         ),
       })
@@ -186,7 +186,7 @@ export const RackLivePreview = ({
       <div className="rounded border border-dashed border-slate-700 bg-slate-950/40 p-3 text-center text-[10px] text-slate-400">
         {t(
           'rackPreview.empty',
-          'Keine Geräte im Rack — Preview erscheint sobald das erste Gerät zugewiesen ist.',
+          'No devices in rack — preview appears once the first device is assigned.',
         )}
       </div>
     )
@@ -203,10 +203,10 @@ export const RackLivePreview = ({
     <div>
       <div className="mb-1 flex items-center justify-between">
         <div className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
-          {t('rackPreview.headerLabel', 'Black-Box auf Canvas')}
+          {t('rackPreview.headerLabel', 'Black box on canvas')}
         </div>
         <div className="text-[10px] text-slate-400">
-          {format(t('rackPreview.counts', '{devices} Geräte · {cables} interne Kabel'), {
+          {format(t('rackPreview.counts', '{devices} devices · {cables} internal cables'), {
             devices: placements.length,
             cables: cables.length,
           })}
@@ -228,7 +228,7 @@ export const RackLivePreview = ({
             }}
             title={rackName}
           >
-            {(rackName || t('rack.unnamed', '(unbenannt)')).slice(0, 32)}
+            {(rackName || t('rack.unnamed', '(unnamed)')).slice(0, 32)}
             {(rackName || '').length > 32 ? '…' : ''}
           </div>
 

@@ -40,7 +40,7 @@ export const CsvImportDialog = () => {
       planCsvImport(
         parsed,
         customLibrary.map((tpl) => tpl.name),
-        t('csvImport.fallbackCategory', 'Importiert'),
+        t('csvImport.fallbackCategory', 'Imported'),
       ),
     [parsed, customLibrary, t],
   )
@@ -64,11 +64,12 @@ export const CsvImportDialog = () => {
     const bericht = addCustomTemplates(templates)
     close()
     setText('')
-    void infoDialog(t('csvImport.doneTitle', 'CSV importiert'), {
+    void infoDialog(t('csvImport.doneTitle', 'CSV imported'), {
       body: format(
         t(
           'csvImport.doneBody',
-          '{n} Gerät(e) neu angelegt. Unverändert geblieben: {vorhanden} bereits vorhandene(r) Name(n). Übersprungen: {ohneName} Zeile(n) ohne Namen.',
+          'Created {n} new device(s). Left unchanged: {vorhanden} name(s) that already existed. ' +
+    'Skipped: {ohneName} row(s) without a name.',
         ),
         {
           n: bericht.added.length,
@@ -95,18 +96,21 @@ export const CsvImportDialog = () => {
       onClose={close}
       maxWidth="3xl"
       titleIcon={<Icon icon={FileUp} size="md" />}
-      title={t('csvImport.title', 'Equipment aus CSV importieren')}
+      title={t('csvImport.title', 'Import equipment from CSV')}
     >
       <div className="space-y-3 p-1 text-cp-base">
         <PanelHint
           className="text-cp-xs text-[var(--cp-text-muted)]"
           text={t(
             'csvImport.intro',
-            'CSV einfügen oder Datei wählen. Erste Zeile = Spaltenüberschriften. Erkannte Spalten: Name, Kategorie, Leistung (W), Gewicht (kg), Seriennummer, IP, HE, Untertitel/Hersteller. Jede andere Spalte wandert in die Notizen — nichts fällt still weg. Import legt Library-Templates an (kein Überschreiben).',
+            'Paste CSV or pick a file. First row = column headers. Recognized columns: name, category, ' +
+    'power (W), weight (kg), serial number, IP, RU, subtitle/manufacturer. Every other column is ' +
+    'carried into the notes — nothing is dropped silently. Import creates library templates ' +
+    '(no overwrite).',
           )}
         />
         <label className="inline-flex cursor-pointer items-center gap-1 rounded bg-[var(--cp-surface-2)] px-2 py-1 text-cp-xs hover:bg-[var(--cp-surface-3)]">
-          <Icon icon={FileUp} size="xs" /> {t('csvImport.pickFile', 'CSV-Datei wählen…')}
+          <Icon icon={FileUp} size="xs" /> {t('csvImport.pickFile', 'Choose CSV file…')}
           <input
             type="file"
             accept=".csv,text/csv,text/plain"
@@ -118,13 +122,13 @@ export const CsvImportDialog = () => {
           value={text}
           onChange={(e) => setText(e.target.value)}
           rows={6}
-          placeholder={t('csvImport.placeholder', 'Name;Kategorie;Leistung;Gewicht;Seriennummer\nATEM Mini;Mischer;30;1.1;SN123')}
+          placeholder={t('csvImport.placeholder', 'Name;Category;Power;Weight;Serial number\nATEM Mini;Mixer;30;1.1;SN123')}
           className="w-full rounded border border-[var(--cp-border)] bg-[var(--cp-surface-3)] p-2 font-mono text-cp-xs"
         />
         {parsed.length > 1 && (
           <>
             <div className="text-cp-xs text-[var(--cp-text-faint)]">
-              {format(t('csvImport.detected', 'Erkannt: {rows} Zeile(n), zugeordnete Spalten: {fields}'), {
+              {format(t('csvImport.detected', 'Detected: {rows} row(s), mapped columns: {fields}'), {
                 rows: templates.length,
                 fields: mappedFields.join(', ') || '—',
               })}
@@ -139,7 +143,7 @@ export const CsvImportDialog = () => {
               <div className="rounded border border-[var(--cp-warn)]/40 bg-[var(--cp-surface-2)] p-2 text-cp-xs">
                 <div className="mb-1 flex items-center gap-1 font-medium text-[var(--cp-text)]">
                   <Icon icon={AlertTriangle} size="xs" />
-                  {t('csvImport.whatHappens', 'Was mit dem Rest passiert')}
+                  {t('csvImport.whatHappens', 'What happens to the rest')}
                 </div>
                 <ul className="flex list-disc flex-col gap-0.5 pl-4 text-[var(--cp-text-secondary)]">
                   {plan.unmapped.length > 0 && (
@@ -147,7 +151,7 @@ export const CsvImportDialog = () => {
                       {format(
                         t(
                           'csvImport.unmapped',
-                          'Nicht als Feld erkannt, wandert in die Notizen: {cols}',
+                          'Not recognised as a field, carried into the notes: {cols}',
                         ),
                         { cols: plan.unmapped.map((c) => c.header || `#${c.index + 1}`).join(', ') },
                       )}
@@ -158,7 +162,7 @@ export const CsvImportDialog = () => {
                       {format(
                         t(
                           'csvImport.duplicateCols',
-                          'Zweite Spalte auf dasselbe Feld — die erste gewinnt, diese wird zur Notiz: {cols}',
+                          'Second column on the same field — the first one wins, this one becomes a note: {cols}',
                         ),
                         {
                           cols: plan.duplicates
@@ -171,7 +175,7 @@ export const CsvImportDialog = () => {
                   {plan.rowsWithoutName.length > 0 && (
                     <li>
                       {format(
-                        t('csvImport.noName', '{n} Zeile(n) ohne Namen werden übersprungen: {rows}'),
+                        t('csvImport.noName', '{n} row(s) without a name will be skipped: {rows}'),
                         {
                           n: plan.rowsWithoutName.length,
                           rows: plan.rowsWithoutName.slice(0, 12).join(', '),
@@ -184,7 +188,7 @@ export const CsvImportDialog = () => {
                       {format(
                         t(
                           'csvImport.existing',
-                          '{n} Name(n) gibt es schon — sie bleiben unverändert, es wird nichts überschrieben: {names}',
+                          '{n} name(s) already exist — they stay unchanged, nothing is overwritten: {names}',
                         ),
                         {
                           n: plan.existing.length,
@@ -201,7 +205,7 @@ export const CsvImportDialog = () => {
                 <thead className="sticky top-0 bg-[var(--cp-surface-2)] text-left text-[var(--cp-text-muted)]">
                   <tr>
                     <th className="px-2 py-1">{t('csvImport.col.name', 'Name')}</th>
-                    <th className="px-2 py-1">{t('csvImport.col.category', 'Kategorie')}</th>
+                    <th className="px-2 py-1">{t('csvImport.col.category', 'Category')}</th>
                     <th className="px-2 py-1 text-right">W</th>
                     <th className="px-2 py-1 text-right">kg</th>
                     <th className="px-2 py-1">HE</th>
@@ -224,7 +228,7 @@ export const CsvImportDialog = () => {
         )}
         <div className="flex justify-end gap-2">
           <Button variant="secondary" size="sm" onClick={close}>
-            {t('common.cancel', 'Abbrechen')}
+            {t('common.cancel', 'Cancel')}
           </Button>
           <Button
             variant="success"
@@ -232,7 +236,7 @@ export const CsvImportDialog = () => {
             onClick={doImport}
             disabled={templates.length === 0}
           >
-            {format(t('csvImport.importBtn', '{n} importieren'), { n: templates.length })}
+            {format(t('csvImport.importBtn', 'Import {n}'), { n: templates.length })}
           </Button>
         </div>
       </div>

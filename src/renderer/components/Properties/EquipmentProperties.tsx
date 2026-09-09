@@ -98,7 +98,7 @@ export const EquipmentProperties = () => {
   const projectMode = useProjectStore((s) => s.project.mode ?? 'editing')
 
   if (!equipment) {
-    return <div className="text-cp-xs text-cp-text-muted">{t('inspector.selectEquipment', 'Wähle ein Gerät auf dem Canvas.')}</div>
+    return <div className="text-cp-xs text-cp-text-muted">{t('inspector.selectEquipment', 'Select an equipment node.')}</div>
   }
 
   const handleSectionDragEnd = (event: DragEndEvent) => {
@@ -123,8 +123,8 @@ export const EquipmentProperties = () => {
       {projectIsLocked && (
         <div className="rounded border border-amber-700/60 bg-amber-900/30 px-2 py-1.5 text-[11px] text-amber-200">
           {projectMode === 'viewer'
-            ? t('inspector.viewerLocked', 'Viewer-Modus — Felder können nicht bearbeitet werden.')
-            : t('inspector.finalizedLocked', 'Plan abgeschlossen — Felder gesperrt. Im Canvas-Banner „Bearbeitung freigeben" klicken.')}
+            ? t('inspector.viewerLocked', 'Viewer mode — fields cannot be edited.')
+            : t('inspector.finalizedLocked', 'Plan finalised — fields locked. Click "Re-enable editing" in the canvas banner.')}
         </div>
       )}
       <DeviceKindCards equipment={equipment} />
@@ -137,7 +137,7 @@ export const EquipmentProperties = () => {
 
       <RentmanSyncBadge equipment={equipment} />
       <label className="block">
-        <span className="mb-1 block text-cp-text-secondary">{t('eq.field.category', 'Kategorie')}</span>
+        <span className="mb-1 block text-cp-text-secondary">{t('eq.field.category', 'Category')}</span>
         <CategorySelect
           value={equipment.category}
           onChange={(category) => updateEquipment(equipment.id, { category })}

@@ -273,7 +273,7 @@ export const FloatingPanelShell = ({
           }}
         >
           <span className="rounded bg-sky-600/90 px-2 py-1 text-cp-xs font-medium text-white shadow-lg">
-            {t('panel.dropToDock', 'Loslassen zum Andocken')}
+            {t('panel.dropToDock', 'Release to dock')}
           </span>
         </div>
       )}
@@ -306,8 +306,8 @@ export const FloatingPanelShell = ({
               <button
                 type="button"
                 onClick={onPopout}
-                title={t('panel.popoutTitle', 'In separates Fenster auslagern (weiterer Monitor)')}
-                aria-label={t('panel.popout', 'Auslagern')}
+                title={t('panel.popoutTitle', 'Open in a separate window (other monitor)')}
+                aria-label={t('panel.popout', 'Pop out')}
                 className="inline-flex items-center gap-1 rounded-cp-control border border-[var(--cp-border)] bg-[var(--cp-surface-1)] px-2 py-0.5 text-cp-xs text-[var(--cp-text-secondary)] transition-colors hover:border-sky-500 hover:bg-[var(--cp-surface-2)] hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
               >
                 <Icon icon={ExternalLink} size="xs" />
@@ -316,11 +316,11 @@ export const FloatingPanelShell = ({
             <button
               type="button"
               onClick={onDock}
-              title={t('panel.dockTitle', 'Andocken (zurück zur Seiten-Spalte)')}
-              aria-label={t('panel.dock', 'Andocken')}
+              title={t('panel.dockTitle', 'Dock (back to side column)')}
+              aria-label={t('panel.dock', 'Dock')}
               className="inline-flex items-center gap-1 rounded-cp-control border border-[var(--cp-border)] bg-[var(--cp-surface-1)] px-2 py-0.5 text-cp-xs text-[var(--cp-text-secondary)] transition-colors hover:border-sky-500 hover:bg-[var(--cp-surface-2)] hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
             >
-              <Icon icon={Pin} size="xs" /> {t('panel.dock', 'Andocken')}
+              <Icon icon={Pin} size="xs" /> {t('panel.dock', 'Dock')}
             </button>
           </div>
         </header>
@@ -328,8 +328,8 @@ export const FloatingPanelShell = ({
         {/* #427 — Resize-Griff unten rechts (responsive). */}
         <div
           role="separator"
-          aria-label={t('panel.resize', 'Größe ändern')}
-          title={t('panel.resize', 'Größe ändern')}
+          aria-label={t('panel.resize', 'Resize')}
+          title={t('panel.resize', 'Resize')}
           onPointerDown={onResizePointerDown}
           onPointerMove={onResizePointerMove}
           onPointerUp={onResizePointerUp}

@@ -44,7 +44,7 @@ export const CameraControlsSection = ({ equipment }: { equipment: EquipmentItem 
     <details className="rounded border border-cp-border-muted">
       <summary className="cursor-pointer px-2 py-1 text-cp-xs font-medium text-cp-text">
         <Icon icon={Camera} size="xs" className="mr-1 inline" />
-        {t('props.cameraControls.title', 'Steuerbare Funktionen')}
+        {t('props.cameraControls.title', 'Controllable functions')}
       </summary>
       <div className="flex flex-col gap-1 px-2 pb-2 text-cp-xs">
         <p className="text-cp-text-muted">
@@ -52,7 +52,7 @@ export const CameraControlsSection = ({ equipment }: { equipment: EquipmentItem 
             ? eintrag.source
             : t(
                 'props.cameraControls.noSource',
-                'Zu diesem Modell liegt keine Fähigkeits-Aussage vor. „Nicht belegt" heißt nicht „geht nicht" — es heißt, dass niemand es nachgesehen hat.',
+                'No capability statement exists for this model. "Not on record" does not mean "does not work" — it means nobody has checked.',
               )}
         </p>
         <table className="block overflow-x-auto w-full border-collapse">

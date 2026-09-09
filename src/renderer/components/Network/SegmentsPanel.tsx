@@ -73,7 +73,7 @@ export const SegmentsPanel = ({ projectName }: { projectName: string }) => {
     <div className="rounded border border-cp-border bg-cp-surface-2 p-2 text-cp-xs">
       <div className="mb-1 flex flex-wrap items-center gap-2">
         <span className="font-semibold text-cp-text-secondary">
-          {t('segment.title', 'Segmente (VLAN, Zweck, Zeit, Weg hinein)')}
+          {t('segment.title', 'Segments (VLAN, purpose, timing, way in)')}
         </span>
         {fehlend.length > 0 && (
           <button
@@ -83,7 +83,7 @@ export const SegmentsPanel = ({ projectName }: { projectName: string }) => {
           >
             <Icon icon={Plus} size="xs" />
             {format(
-              t('segment.adopt', '{n} VLAN(s) aus dem Plan übernehmen'),
+              t('segment.adopt', 'Adopt {n} VLAN(s) from the plan'),
               { n: fehlend.length },
             )}
           </button>
@@ -94,7 +94,7 @@ export const SegmentsPanel = ({ projectName }: { projectName: string }) => {
           className="ml-auto inline-flex items-center gap-1 rounded border border-cp-border px-2 py-0.5 hover:bg-cp-surface-3"
         >
           <Icon icon={Download} size="xs" />
-          {t('segment.export', 'Segmente')}
+          {t('segment.export', 'Segments')}
         </button>
         <button
           type="button"
@@ -102,20 +102,20 @@ export const SegmentsPanel = ({ projectName }: { projectName: string }) => {
           className="inline-flex items-center gap-1 rounded border border-cp-border px-2 py-0.5 hover:bg-cp-surface-3"
         >
           <Icon icon={Download} size="xs" />
-          {t('segment.exportReach', 'Wer steht wo')}
+          {t('segment.exportReach', 'Who sits where')}
         </button>
       </div>
 
       <PanelHint
         text={t(
           'segment.hint',
-          'Eine VLAN-Nummer allein sagt niemandem, ob Dante dort hin darf. Der Zweck wird nicht geraten — er entscheidet, welche Schnittstelle hier falsch liegt.',
+          'A VLAN number alone tells nobody whether Dante may go there. The purpose is not guessed \u2014 it decides which interface is in the wrong place.',
         )}
       />
 
       {views.length === 0 ? (
         <p className="text-cp-text-muted">
-          {t('segment.empty', 'Noch keine VLAN-Id an einer Schnittstelle vergeben.')}
+          {t('segment.empty', 'No VLAN id assigned to an interface yet.')}
         </p>
       ) : (
         <table className="w-full border-collapse">
@@ -123,10 +123,10 @@ export const SegmentsPanel = ({ projectName }: { projectName: string }) => {
             <tr className="text-left text-cp-text-secondary">
               <th className="px-1 py-1">{t('segment.col.vlan', 'VLAN')}</th>
               <th className="px-1 py-1">{t('segment.col.name', 'Segment')}</th>
-              <th className="px-1 py-1">{t('segment.col.purpose', 'Zweck')}</th>
-              <th className="px-1 py-1">{t('segment.col.ptp', 'PTP-Domäne')}</th>
-              <th className="px-1 py-1">{t('segment.col.gateway', 'Weg hinein')}</th>
-              <th className="px-1 py-1">{t('segment.col.members', 'Schnittstellen')}</th>
+              <th className="px-1 py-1">{t('segment.col.purpose', 'Purpose')}</th>
+              <th className="px-1 py-1">{t('segment.col.ptp', 'PTP domain')}</th>
+              <th className="px-1 py-1">{t('segment.col.gateway', 'Way in')}</th>
+              <th className="px-1 py-1">{t('segment.col.members', 'Interfaces')}</th>
               <th className="px-1 py-1" />
             </tr>
           </thead>
@@ -143,7 +143,7 @@ export const SegmentsPanel = ({ projectName }: { projectName: string }) => {
                       className={`w-28 ${inputCls}`}
                     />
                   ) : (
-                    <span className="text-cp-warn">{t('segment.notKept', 'nicht hinterlegt')}</span>
+                    <span className="text-cp-warn">{t('segment.notKept', 'not recorded')}</span>
                   )}
                 </td>
                 <td className="px-1 py-1">
@@ -193,7 +193,7 @@ export const SegmentsPanel = ({ projectName }: { projectName: string }) => {
                       }
                       className={inputCls}
                     >
-                      <option value="">{t('segment.noGateway', 'nur direkt am Segment')}</option>
+                      <option value="">{t('segment.noGateway', 'reachable only from inside')}</option>
                       {equipment.map((e) => (
                         <option key={e.id} value={e.id}>
                           {e.name}
@@ -208,7 +208,7 @@ export const SegmentsPanel = ({ projectName }: { projectName: string }) => {
                     <button
                       type="button"
                       onClick={() => entfernen(v.vlanId)}
-                      title={t('segment.remove', 'Segment-Datensatz entfernen')}
+                      title={t('segment.remove', 'Remove segment record')}
                       className="rounded border border-cp-border px-1 py-0.5 hover:bg-cp-surface-3"
                     >
                       <Icon icon={Trash2} size="xs" />

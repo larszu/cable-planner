@@ -1591,16 +1591,16 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
       {mode === 'main' && project.equipment.length === 0 && (
         <div className="pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 px-6 text-center">
           <div className="text-cp-lg font-medium text-cp-text-secondary">
-            {t('canvas.empty.title', 'Noch keine Geräte im Plan')}
+            {t('canvas.empty.title', 'No devices yet')}
           </div>
           <div className="max-w-sm text-cp-sm text-cp-text-muted">
             {t(
               'canvas.empty.hint',
-              'Zieh ein Gerät aus der Bibliothek (links) auf die Fläche, um zu starten.',
+              'Drag a device from the library on the left onto the canvas to get started.',
             )}
           </div>
           <div className="mt-1 text-cp-xs text-cp-text-faint">
-            {t('canvas.empty.or', '— oder —')}
+            {t('canvas.empty.or', '— or —')}
           </div>
           <button
             type="button"
@@ -1612,7 +1612,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
               setTimeout(() => triggerCanvasFitView(), 80)
             }}
           >
-            {t('canvas.empty.loadDemo', 'Beispielprojekt laden')}
+            {t('canvas.empty.loadDemo', 'Load example project')}
           </button>
         </div>
       )}
@@ -1653,11 +1653,11 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
             {projectMode === 'viewer'
               ? t(
                   'canvas.area.viewerMode',
-                  'Viewer-Modus — Plan ist read-only. Änderungen nicht möglich.',
+                  'Viewer mode — plan is read-only. Changes are not possible.',
                 )
               : t(
                   'canvas.area.finalizedMode',
-                  'Plan ist abgeschlossen — Änderungen sind gesperrt.',
+                  'Plan is finalized — changes are locked.',
                 )}
           </span>
           {projectMode === 'finalized' && (
@@ -1666,13 +1666,13 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
               onClick={async () => {
                 if (
                   await confirmDialog(
-                    t('canvas.area.releaseConfirm', 'Planung wieder zur Bearbeitung freigeben?'),
+                    t('canvas.area.releaseConfirm', 'Re-open the plan for editing?'),
                     {
                       body: t(
                         'canvas.area.releaseBody',
-                        'Geräte, Kabel und Layout können dann wieder verändert werden.',
+                        'Devices, cables and layout can then be changed again.',
                       ),
-                      okLabel: t('canvas.area.release', 'Freigeben'),
+                      okLabel: t('canvas.area.release', 'Release'),
                     },
                   )
                 ) {
@@ -1689,7 +1689,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
                 cursor: 'pointer',
               }}
             >
-              {t('canvas.area.releaseBtn', 'Bearbeitung freigeben')}
+              {t('canvas.area.releaseBtn', 'Release for editing')}
             </button>
           )}
         </div>
@@ -1796,7 +1796,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
           if (node.type === 'location') {
             const current = (node.data as { name?: string }).name ?? ''
             const newName = await promptDialog(
-              t('canvas.area.renameLocation', 'Location umbenennen:'),
+              t('canvas.area.renameLocation', 'Rename location:'),
               current,
             )
             if (newName !== null && newName.trim()) {
@@ -1924,29 +1924,29 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         // das ist die nicht-destruktive Variante. Beides hinter einer
         // Bestätigung (destructive), analog zu LocationProperties.
         const remove = async () => {
-          const okLabel = t('confirm.delete', 'Löschen')
+          const okLabel = t('confirm.delete', 'Delete')
           const ok = isLocation
             ? await confirmDialog(
-                format(t('canvas.nodeMenu.confirmDeleteLocation', 'Rahmen "{name}" löschen?'), {
+                format(t('canvas.nodeMenu.confirmDeleteLocation', 'Delete frame "{name}"?'), {
                   name: target.name,
                 }),
                 {
                   body: t(
                     'canvas.nodeMenu.confirmDeleteLocationBody',
-                    'Nur der Rahmen wird gelöscht. Die enthaltenen Geräte bleiben auf dem Canvas.',
+                    'Only the frame is deleted. The devices inside stay on the canvas.',
                   ),
                   destructive: true,
                   okLabel,
                 },
               )
             : await confirmDialog(
-                format(t('canvas.nodeMenu.confirmDeleteEquipment', 'Gerät "{name}" löschen?'), {
+                format(t('canvas.nodeMenu.confirmDeleteEquipment', 'Delete device "{name}"?'), {
                   name: target.name,
                 }),
                 {
                   body: t(
                     'canvas.nodeMenu.confirmDeleteEquipmentBody',
-                    'Das Gerät und alle daran angeschlossenen Kabel werden gelöscht.',
+                    'The device and all cables connected to it will be deleted.',
                   ),
                   destructive: true,
                   okLabel,
@@ -2003,7 +2003,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
                     <rect x="3" y="2" width="10" height="12" rx="1" />
                     <path d="M3 5.5h10M3 9h10" />
                   </svg>
-                  <span>{t('canvas.nodeMenu.openRackEditor', 'Rack-Editor öffnen')}</span>
+                  <span>{t('canvas.nodeMenu.openRackEditor', 'Open rack editor')}</span>
                 </button>
                 <div style={{ height: 1, background: '#334155', margin: '4px 0' }} />
               </>
@@ -2033,8 +2033,8 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
               </svg>
               <span>
                 {isLocked
-                  ? t('canvas.area.unlockPosition', 'Position entsperren')
-                  : t('canvas.area.lockPosition', 'Position sperren')}
+                  ? t('canvas.area.unlockPosition', 'Unlock position')
+                  : t('canvas.area.lockPosition', 'Lock position')}
               </span>
             </button>
             <div style={{ height: 1, background: '#334155', margin: '4px 0' }} />
@@ -2062,8 +2062,8 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
               </svg>
               <span>
                 {isLocation
-                  ? t('canvas.nodeMenu.deleteLocation', 'Rahmen löschen')
-                  : t('canvas.nodeMenu.deleteEquipment', 'Gerät löschen')}
+                  ? t('canvas.nodeMenu.deleteLocation', 'Delete frame')
+                  : t('canvas.nodeMenu.deleteEquipment', 'Delete device')}
               </span>
             </button>
           </div>

@@ -88,10 +88,10 @@ export const NachweiseTab = () => {
   return (
     <div className="flex flex-col gap-3">
       <SettingsCard
-        title={t('nachweis.title', 'Nachweise')}
+        title={t('nachweis.title', 'Credentials')}
         description={t(
           'nachweis.intro',
-          'Qualifikationen, Versicherungen und Unterweisungen dieser Person — mit Frist. Sie gehören zu Ihnen und nicht zum Plan; in eine Projektdatei kommen sie nie.',
+          'Qualifications, insurance and safety briefings held by this person, with expiry dates. They belong to you, not to the plan — they never go into a project file.',
         )}
       >
         {speicherVoll && (
@@ -99,14 +99,14 @@ export const NachweiseTab = () => {
             className="mb-2 text-cp-xs text-red-400"
             text={t(
               'nachweis.storageFull',
-              'Der letzte Eintrag konnte nicht gespeichert werden — der Speicher ist voll. Er steht hier, wäre beim nächsten Start aber weg.',
+              'The last entry could not be saved — storage is full. It is shown here but would be gone on the next start.',
             )}
           />
         )}
 
         <div className="mb-2 flex items-center justify-between gap-2">
           <span className="text-cp-xs text-cp-text-muted">
-            {format(t('nachweis.count', '{n} Nachweise'), { n: nachweise.length })}
+            {format(t('nachweis.count', '{n} credentials'), { n: nachweise.length })}
           </span>
           <div className="flex items-center gap-2">
             <button
@@ -115,18 +115,18 @@ export const NachweiseTab = () => {
               onClick={packen}
               title={t(
                 'nachweis.packHint',
-                'Deckblatt fürs Nachweis-Paket: was beiliegt, bis wann es gilt, und was noch fehlt. Die Scans selbst legen Sie daneben — die Anwendung speichert sie nicht.',
+                'Cover sheet for the credential pack: what is enclosed, until when it is valid, and what is still missing. Put the scans next to it — the app does not store them.',
               )}
               className="flex items-center gap-1 rounded bg-cp-surface-4 px-2.5 py-1.5 text-cp-xs enabled:hover:bg-cp-surface-5 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              <Download size={13} /> {t('nachweis.pack', 'Deckblatt')}
+              <Download size={13} /> {t('nachweis.pack', 'Cover sheet')}
             </button>
             <button
               type="button"
               onClick={() => setForm(leer())}
               className="flex items-center gap-1 rounded bg-emerald-700 px-2.5 py-1.5 text-cp-xs hover:bg-emerald-600"
             >
-              <Plus size={14} /> {t('nachweis.add', 'Nachweis')}
+              <Plus size={14} /> {t('nachweis.add', 'Credential')}
             </button>
           </div>
         </div>
@@ -135,7 +135,7 @@ export const NachweiseTab = () => {
           <div className="mb-3 rounded border border-cp-accent/40 bg-cp-surface-2 p-3">
             <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
               <label className="block text-cp-xs">
-                {t('nachweis.art', 'Art')}
+                {t('nachweis.art', 'Kind')}
                 <select
                   value={form.art}
                   onChange={(e) => setForm({ ...form, art: e.target.value as NachweisArt })}
@@ -149,17 +149,17 @@ export const NachweiseTab = () => {
                 </select>
               </label>
               <label className="block text-cp-xs md:col-span-2">
-                {t('nachweis.bezeichnung', 'Bezeichnung')} <span className="text-red-400">*</span>
+                {t('nachweis.bezeichnung', 'Name')} <span className="text-red-400">*</span>
                 <input
                   autoFocus
                   value={form.bezeichnung}
                   onChange={(e) => setForm({ ...form, bezeichnung: e.target.value })}
-                  placeholder={t('nachweis.bezeichnungPh', 'z. B. Sachkundenachweis PSAgA')}
+                  placeholder={t('nachweis.bezeichnungPh', 'e.g. working-at-height certificate')}
                   className={inputCls}
                 />
               </label>
               <label className="block text-cp-xs">
-                {t('nachweis.aussteller', 'Aussteller')}
+                {t('nachweis.aussteller', 'Issued by')}
                 <input
                   value={form.aussteller ?? ''}
                   onChange={(e) => setForm({ ...form, aussteller: e.target.value })}
@@ -167,7 +167,7 @@ export const NachweiseTab = () => {
                 />
               </label>
               <label className="block text-cp-xs">
-                {t('nachweis.nummer', 'Nummer')}
+                {t('nachweis.nummer', 'Number')}
                 <input
                   value={form.nummer ?? ''}
                   onChange={(e) => setForm({ ...form, nummer: e.target.value })}
@@ -175,7 +175,7 @@ export const NachweiseTab = () => {
                 />
               </label>
               <label className="block text-cp-xs">
-                {t('nachweis.ausgestellt', 'Ausgestellt am')}
+                {t('nachweis.ausgestellt', 'Issued on')}
                 <input
                   type="date"
                   value={form.ausgestelltAm ?? ''}
@@ -184,7 +184,7 @@ export const NachweiseTab = () => {
                 />
               </label>
               <label className="block text-cp-xs">
-                {t('nachweis.gueltigBis', 'Gültig bis')}
+                {t('nachweis.gueltigBis', 'Valid until')}
                 <input
                   type="date"
                   value={form.gueltigBis ?? ''}
@@ -193,11 +193,11 @@ export const NachweiseTab = () => {
                 />
               </label>
               <label className="block text-cp-xs md:col-span-2">
-                {t('nachweis.datei', 'Dateiname des Scans')}
+                {t('nachweis.datei', 'Scan file name')}
                 <input
                   value={form.dateiName ?? ''}
                   onChange={(e) => setForm({ ...form, dateiName: e.target.value })}
-                  placeholder={t('nachweis.dateiPh', 'z. B. psaga-2026.pdf')}
+                  placeholder={t('nachweis.dateiPh', 'e.g. height-2026.pdf')}
                   className={inputCls}
                 />
               </label>
@@ -206,7 +206,7 @@ export const NachweiseTab = () => {
               className="mt-2 text-cp-xs text-cp-text-muted"
               text={t(
                 'nachweis.noExpiryHint',
-                'Ohne „Gültig bis" gilt der Nachweis nicht als unbefristet, sondern als „keine Frist angegeben" — und das steht auch so auf dem Deckblatt.',
+                'Without a “valid until” date the credential does not count as open-ended — it counts as “no expiry stated”, and the cover sheet says exactly that.',
               )}
             />
             <div className="mt-3 flex justify-end gap-2">
@@ -215,7 +215,7 @@ export const NachweiseTab = () => {
                 onClick={() => setForm(null)}
                 className="rounded bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
               >
-                {t('common.cancel', 'Abbrechen')}
+                {t('common.cancel', 'Cancel')}
               </button>
               <button
                 type="button"
@@ -223,7 +223,7 @@ export const NachweiseTab = () => {
                 onClick={speichern}
                 className="rounded bg-emerald-700 px-3 py-1 text-cp-xs enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {t('common.save', 'Speichern')}
+                {t('common.save', 'Save')}
               </button>
             </div>
           </div>
@@ -231,7 +231,7 @@ export const NachweiseTab = () => {
 
         {nachweise.length === 0 ? (
           <div className="rounded border border-dashed border-cp-border py-8 text-center text-cp-xs text-cp-text-muted">
-            {t('nachweis.empty', 'Noch keine Nachweise eingetragen.')}
+            {t('nachweis.empty', 'No credentials entered yet.')}
           </div>
         ) : (
           <ul className="flex flex-col gap-1">
@@ -254,7 +254,7 @@ export const NachweiseTab = () => {
                         {' '}
                         · {n.gueltigBis}
                         {tage !== undefined && tage >= 0
-                          ? format(t('nachweis.inDays', ' (in {n} Tagen)'), { n: tage })
+                          ? format(t('nachweis.inDays', ' (in {n} days)'), { n: tage })
                           : ''}
                       </span>
                     )}
@@ -264,12 +264,12 @@ export const NachweiseTab = () => {
                     onClick={() => setForm({ ...n })}
                     className="rounded px-1.5 py-0.5 text-cp-text-muted hover:bg-cp-surface-4 hover:text-cp-text"
                   >
-                    {t('common.edit', 'Bearbeiten')}
+                    {t('common.edit', 'Edit')}
                   </button>
                   <button
                     type="button"
                     onClick={() => removeNachweis(n.id)}
-                    title={t('common.delete', 'Löschen')}
+                    title={t('common.delete', 'Delete')}
                     className="rounded p-1 text-cp-text-muted hover:bg-cp-surface-4 hover:text-red-400"
                   >
                     <Trash2 size={13} />
@@ -282,10 +282,10 @@ export const NachweiseTab = () => {
       </SettingsCard>
 
       <SettingsCard
-        title={t('nachweis.warnTitle', 'Vorwarnzeit')}
+        title={t('nachweis.warnTitle', 'Advance warning')}
         description={t(
           'nachweis.warnIntro',
-          'Ab wie vielen Tagen vor Fristende gewarnt werden soll. Ohne Angabe wird nicht gewarnt — eine Vorgabe wäre eine Meinung darüber, wie lange eine Verlängerung dauert.',
+          'How many days before expiry to warn. With no figure, nothing is reported — a default would be an opinion about how long a renewal takes.',
         )}
       >
         <div className="flex items-center gap-2">
@@ -296,16 +296,16 @@ export const NachweiseTab = () => {
             onChange={(e) =>
               setVorwarnTage(e.target.value === '' ? undefined : Number(e.target.value))
             }
-            placeholder={t('nachweis.warnPh', 'keine Angabe')}
+            placeholder={t('nachweis.warnPh', 'not stated')}
             className="w-32 rounded border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-xs text-cp-text"
           />
-          <span className="text-cp-xs text-cp-text-muted">{t('nachweis.days', 'Tage')}</span>
+          <span className="text-cp-xs text-cp-text-muted">{t('nachweis.days', 'days')}</span>
         </div>
         {vorwarnTage !== undefined && (
           <div className="mt-2 text-cp-xs text-cp-text-secondary">
             {bald.length === 0
-              ? t('nachweis.noneSoon', 'Innerhalb dieser Frist läuft nichts ab.')
-              : format(t('nachweis.someSoon', '{n} laufen innerhalb dieser Frist ab: {liste}'), {
+              ? t('nachweis.noneSoon', 'Nothing expires within that window.')
+              : format(t('nachweis.someSoon', '{n} expire within that window: {liste}'), {
                   n: bald.length,
                   liste: bald.map((n) => n.bezeichnung).join(', '),
                 })}

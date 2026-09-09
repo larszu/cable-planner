@@ -134,13 +134,13 @@ const CableTypeEditor = ({
       >
         <div className="mb-3 flex items-center justify-between">
           <h3 id={titleId} className="text-cp-base font-semibold">
-            {isEditing ? t('cableLib.editor.editTitle', 'Kabeltyp bearbeiten') : t('cableLib.editor.newTitle', 'Neuer Kabeltyp')}
+            {isEditing ? t('cableLib.editor.editTitle', 'Edit cable type') : t('cableLib.editor.newTitle', 'New cable type')}
           </h3>
           <button
             type="button"
             onClick={onCancel}
             className="text-cp-text-faint hover:text-cp-text-bright"
-            aria-label={t('common.close', 'Schließen')}
+            aria-label={t('common.close', 'Close')}
           >
             <Icon icon={X} size="sm" />
           </button>
@@ -152,32 +152,32 @@ const CableTypeEditor = ({
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder={t('cableLib.namePlaceholder', 'z.B. CAT6a Patch 5m')}
+              placeholder={t('cableLib.namePlaceholder', 'e.g. CAT6a patch 5 m')}
               autoFocus
               className="mt-0.5 w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-text"
             />
             {conflictsWithExisting && (
               <span className="mt-0.5 flex items-center gap-1 text-[10px] text-amber-400">
                 <Icon icon={AlertTriangle} size="xs" className="shrink-0" />
-                {t('cableLib.nameExists', 'Name existiert bereits — Speichern überschreibt den vorhandenen Eintrag.')}
+                {t('cableLib.nameExists', 'Name already exists — saving overwrites the existing entry.')}
               </span>
             )}
           </label>
           <div className="grid grid-cols-2 gap-2">
             <label className="block">
               <span className="flex items-center justify-between text-cp-text-muted">
-                <span>{t('cableLib.connectorType', 'Stecker-Typ')}</span>
+                <span>{t('cableLib.connectorType', 'Connector type')}</span>
                 <button
                   type="button"
                   onClick={async () => {
-                    const n = (await promptDialog(t('cableLib.newConnectorTypePrompt', 'Neuer Stecker-Typ (z.B. "Speakon NL4"):')))?.trim()
+                    const n = (await promptDialog(t('cableLib.newConnectorTypePrompt', 'New connector type (e.g. "Speakon NL4"):')))?.trim()
                     if (n) {
                       addCustomConnectorType(n)
                       setConnectorType(n as ConnectorType)
                     }
                   }}
                   className="rounded bg-emerald-700 px-1.5 text-[11px] text-emerald-100 hover:bg-emerald-600"
-                  title={t('cableLib.addConnectorTitle', 'Neuen Stecker-Typ anlegen')}
+                  title={t('cableLib.addConnectorTitle', 'Add new connector type')}
                 >
                   +
                 </button>
@@ -196,7 +196,7 @@ const CableTypeEditor = ({
               </select>
             </label>
             <label className="block">
-              <span className="text-cp-text-muted">{t('cableLib.color', 'Kabel-Farbe')}</span>
+              <span className="text-cp-text-muted">{t('cableLib.color', 'Cable colour')}</span>
               <input
                 type="color"
                 value={color}
@@ -206,7 +206,7 @@ const CableTypeEditor = ({
             </label>
           </div>
           <div>
-            <span className="text-cp-text-muted">{t('cableLib.compatibleWith', 'Auch kompatibel mit (optional)')}</span>
+            <span className="text-cp-text-muted">{t('cableLib.compatibleWith', 'Also compatible with (optional)')}</span>
             <div className="mt-1 flex max-h-24 flex-wrap gap-1 overflow-auto rounded border border-cp-border bg-cp-surface-3 p-1.5">
               {allConnectorTypeOptions.filter((c) => c !== connectorType).map((c) => {
                 const on = compatible.includes(c)
@@ -233,18 +233,18 @@ const CableTypeEditor = ({
           </div>
           <div>
             <span className="flex items-center justify-between text-cp-text-muted">
-              <span>{t('cableLib.signalStandards', 'Signal-Standards')}</span>
+              <span>{t('cableLib.signalStandards', 'Signal standards')}</span>
               <button
                 type="button"
                 onClick={async () => {
-                  const n = (await promptDialog(t('cableLib.newSignalStandardPrompt', 'Neuer Signal-Standard (z.B. "Dante Primary"):')))?.trim()
+                  const n = (await promptDialog(t('cableLib.newSignalStandardPrompt', 'New signal standard (e.g. "Dante Primary"):')))?.trim()
                   if (n) {
                     addCustomSignalStandard(n)
                     setStandards((prev) => [...prev, n as SignalStandard])
                   }
                 }}
                 className="rounded bg-sky-700 px-1.5 text-[11px] text-sky-100 hover:bg-sky-600"
-                title={t('cableLib.addSignalStandardTitle', 'Neuen Signal-Standard anlegen')}
+                title={t('cableLib.addSignalStandardTitle', 'Add new signal standard')}
               >
                 {t('cableLib.addStandard', '+ Standard')}
               </button>
@@ -274,12 +274,12 @@ const CableTypeEditor = ({
             </div>
             {standards.length === 0 && (
               <span className="mt-0.5 block text-[10px] text-red-400">
-                {t('cableLib.pickAtLeastOneStandard', 'Mindestens einen Standard auswählen.')}
+                {t('cableLib.pickAtLeastOneStandard', 'Select at least one standard.')}
               </span>
             )}
           </div>
           <label className="block">
-            <span className="text-cp-text-muted">{t('cableLib.maxLength', 'Max. Länge (m) – optional')}</span>
+            <span className="text-cp-text-muted">{t('cableLib.maxLength', 'Max. length (m) — optional')}</span>
             <input
               type="number"
               min={0}
@@ -289,17 +289,17 @@ const CableTypeEditor = ({
                 const v = e.target.value
                 setMaxLength(v === '' ? '' : Math.max(0, Number(v)))
               }}
-              placeholder={t('cable.field.maxReachPlaceholder', 'z.B. 100')}
+              placeholder={t('cable.field.maxReachPlaceholder', 'e.g. 100')}
               className="mt-0.5 w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1"
             />
           </label>
           <label className="block">
-            <span className="text-cp-text-muted">{t('cableLib.note', 'Notiz (optional)')}</span>
+            <span className="text-cp-text-muted">{t('cableLib.note', 'Note (optional)')}</span>
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={2}
-              placeholder={t('cableLib.notePlaceholder', 'z.B. nur für indoor, geschirmt, …')}
+              placeholder={t('cableLib.notePlaceholder', 'e.g. indoor only, shielded, …')}
               className="mt-0.5 w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1"
             />
           </label>
@@ -310,7 +310,7 @@ const CableTypeEditor = ({
             onClick={onCancel}
             className="rounded bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
           >
-            {t('common.cancel', 'Abbrechen')}
+            {t('common.cancel', 'Cancel')}
           </button>
           <button
             type="button"
@@ -318,7 +318,7 @@ const CableTypeEditor = ({
             disabled={!canSave}
             className="rounded bg-emerald-600 px-3 py-1 text-cp-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
           >
-            {isEditing ? t('common.save', 'Speichern') : t('cableLib.create', 'Anlegen')}
+            {isEditing ? t('common.save', 'Save') : t('cableLib.create', 'Create')}
           </button>
         </div>
       </div>
@@ -374,8 +374,8 @@ const SortableCableGroup = ({
       <span
         {...attributes}
         {...listeners}
-        aria-label={t('cableLib.groupReorder', 'Gruppe verschieben')}
-        title={t('cableLib.groupReorderTitle', 'Per Drag&Drop verschieben')}
+        aria-label={t('cableLib.groupReorder', 'Move group')}
+        title={t('cableLib.groupReorderTitle', 'Drag & drop to reorder')}
         role="button"
         tabIndex={0}
         className="absolute left-0.5 top-0.5 z-10 flex h-5 w-3 cursor-grab items-center justify-center text-cp-text-faint hover:text-cp-text-bright active:cursor-grabbing"
@@ -517,31 +517,31 @@ export const CableLibraryPanel = () => {
     <div className="flex h-full min-h-0 flex-col">
       <div className="mb-2 flex flex-wrap items-center justify-between gap-y-1 gap-x-2">
         <div className="flex items-center gap-2">
-          <h2 className="text-cp-base font-semibold">{t('cableLib.title', 'Kabel-Library')}</h2>
-          <span className="text-[10px] text-cp-text-muted">{format(t('cableLib.installedCount', '{n} verbaut'), { n: cables.length })}</span>
+          <h2 className="text-cp-base font-semibold">{t('cableLib.title', 'Cable library')}</h2>
+          <span className="text-[10px] text-cp-text-muted">{format(t('cableLib.installedCount', '{n} installed'), { n: cables.length })}</span>
         </div>
         <button
           type="button"
           onClick={() => setEditing(undefined)}
           className="rounded bg-emerald-700 px-2 py-1 text-[11px] text-white hover:bg-emerald-600"
-          title={t('cableLib.newSpecTitle', 'Neuen Kabeltyp anlegen (eigenes Preset für die Library)')}
+          title={t('cableLib.newSpecTitle', 'Create new cable type (custom library preset)')}
         >
-          {t('cableLib.newSpec', '+ Neuer Kabeltyp')}
+          {t('cableLib.newSpec', '+ New cable type')}
         </button>
       </div>
       <p className="mb-2 text-[11px] text-cp-text-muted">
-        {t('cableLib.presetsInfo', 'Presets mit Stecker- und Signalinfos.')}
+        {t('cableLib.presetsInfo', 'Presets with connector and signal info.')}
         {customCableSpecs.length > 0 && (
           <> {format(
             customCableSpecs.length === 1
-              ? t('cableLib.customCountOne', '{n} eigener Kabeltyp.')
-              : t('cableLib.customCountMany', '{n} eigene Kabeltypen.'),
+              ? t('cableLib.customCountOne', '{n} custom cable type.')
+              : t('cableLib.customCountMany', '{n} custom cable types.'),
             { n: customCableSpecs.length },
           )}</>
         )}
         {preferredSdi && (
           <>
-            {' '}{t('cableLib.sdiRecommendation', 'SDI-Empfehlung:')} <span className="font-semibold text-emerald-400">{preferredSdi}</span>.
+            {' '}{t('cableLib.sdiRecommendation', 'SDI recommendation:')} <span className="font-semibold text-emerald-400">{preferredSdi}</span>.
           </>
         )}
       </p>
@@ -609,17 +609,17 @@ export const CableLibraryPanel = () => {
                           {isCustom && (
                             <span
                               className="rounded bg-violet-700/80 px-1 text-[11px] font-semibold uppercase text-violet-100"
-                              title={t('cableLib.customBadge', 'Eigener Kabeltyp (lokal angelegt)')}
+                              title={t('cableLib.customBadge', 'Custom cable type (created locally)')}
                             >
-                              {t('cableLib.customBadgeLabel', 'Eigen')}
+                              {t('cableLib.customBadgeLabel', 'Custom')}
                             </span>
                           )}
                           {!isCustom && cableSpecOverrides[cable.id] && (
                             <span
                               className="rounded bg-amber-700/70 px-1 text-[11px] font-semibold uppercase text-amber-100"
-                              title={t('cableLib.overrideBadge', 'Built-in Spec mit lokalem Override (Reset über Bearbeiten-Dialog)')}
+                              title={t('cableLib.overrideBadge', 'Built-in spec with local override (reset via edit dialog)')}
                             >
-                              {t('cableLib.overrideBadgeLabel', 'Angepasst')}
+                              {t('cableLib.overrideBadgeLabel', 'Modified')}
                             </span>
                           )}
                           {isRecommended && (
@@ -645,11 +645,11 @@ export const CableLibraryPanel = () => {
                             onClick={() => setEditing(cable)}
                             className="rounded bg-cp-surface-4 px-1.5 py-0.5 text-[10px] text-cp-text-bright hover:bg-cp-surface-5"
                             title={isCustom
-                              ? t('cableLib.edit', 'Kabeltyp bearbeiten')
-                              : t('cableLib.editOverride', 'Kabeltyp lokal anpassen (Override)')}
+                              ? t('cableLib.edit', 'Edit cable type')
+                              : t('cableLib.editOverride', 'Adjust cable type locally (override)')}
                             aria-label={isCustom
-                              ? t('cableLib.edit', 'Kabeltyp bearbeiten')
-                              : t('cableLib.editOverride', 'Kabeltyp lokal anpassen (Override)')}
+                              ? t('cableLib.edit', 'Edit cable type')
+                              : t('cableLib.editOverride', 'Adjust cable type locally (override)')}
                           >
                             <Icon icon={Pencil} size="xs" />
                           </button>
@@ -659,21 +659,21 @@ export const CableLibraryPanel = () => {
                               onClick={async () => {
                                 const ok = await confirmDialog(
                                   format(
-                                    t('cableLib.resetOverride.confirm', 'Override für "{name}" zurücksetzen?'),
+                                    t('cableLib.resetOverride.confirm', 'Reset override for "{name}"?'),
                                     { name: cable.name },
                                   ),
                                   {
                                     body: t(
                                       'cableLib.resetOverride.body',
-                                      'Die ursprünglichen Built-in-Werte werden wiederhergestellt.',
+                                      'The original built-in values will be restored.',
                                     ),
-                                    okLabel: t('cableLib.resetOverride.ok', 'Zurücksetzen'),
+                                    okLabel: t('cableLib.resetOverride.ok', 'Reset'),
                                   },
                                 )
                                 if (ok) clearCableSpecOverride(cable.id)
                               }}
                               className="rounded bg-amber-800/70 px-1.5 py-0.5 text-[10px] text-amber-100 hover:bg-amber-700"
-                              title={t('cableLib.removeOverride', 'Override entfernen (auf Default zurücksetzen)')}
+                              title={t('cableLib.removeOverride', 'Remove override (reset to default)')}
                             >
                               ↺
                             </button>
@@ -684,7 +684,7 @@ export const CableLibraryPanel = () => {
                               onClick={async () => {
                                 const ok = await confirmDialog(
                                   format(
-                                    t('cableLib.deleteSpec.confirm', 'Kabeltyp "{name}" löschen?'),
+                                    t('cableLib.deleteSpec.confirm', 'Delete cable type "{name}"?'),
                                     { name: cable.name },
                                   ),
                                   {
@@ -693,22 +693,22 @@ export const CableLibraryPanel = () => {
                                         ? format(
                                             t(
                                               'cableLib.deleteSpec.bodyInUse',
-                                              'Achtung: {n} verbaute Kabel referenzieren diesen Typ. Sie behalten ihren Stecker/Standard, verlieren aber die Spec-Verknüpfung.',
+                                              'Warning: {n} installed cables reference this type. They keep their connector/standard but lose the spec link.',
                                             ),
                                             { n: built },
                                           )
                                         : t(
                                             'cableLib.deleteSpec.bodyUnused',
-                                            'Verbaute Kabel sind nicht betroffen.',
+                                            'Installed cables are not affected.',
                                           ),
-                                    okLabel: t('common.delete', 'Löschen'),
+                                    okLabel: t('common.delete', 'Delete'),
                                     destructive: true,
                                   },
                                 )
                                 if (ok) removeCustomCableSpec(cable.id)
                               }}
                               className="rounded bg-red-900/60 px-1.5 py-0.5 text-[10px] text-red-200 hover:bg-red-800"
-                              title={t('cableLib.deleteSpec', 'Kabeltyp löschen')}
+                              title={t('cableLib.deleteSpec', 'Delete cable type')}
                             >
                               <Icon icon={X} size="sm" />
                             </button>

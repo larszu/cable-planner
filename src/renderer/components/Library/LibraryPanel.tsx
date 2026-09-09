@@ -233,7 +233,7 @@ export const LibraryPanel = () => {
   useEffect(() => {
     if (!pendingEmptyDeviceDrop) return
     // eslint-disable-next-line react-hooks/set-state-in-effect -- One-shot Store-Trigger (Empty-Device-Drop), danach clearen
-    setName(pendingEmptyDeviceDrop.name || t('library.create.defaultName', 'Neues Gerät'))
+    setName(pendingEmptyDeviceDrop.name || t('library.create.defaultName', 'New device'))
     if (pendingEmptyDeviceDrop.category) setCategory(pendingEmptyDeviceDrop.category)
     setPendingDropOnSave({ x: pendingEmptyDeviceDrop.x, y: pendingEmptyDeviceDrop.y })
     setShowCreateDialog(true)
@@ -345,15 +345,15 @@ export const LibraryPanel = () => {
     setSuggestInfo('')
     const hints = suggestPortGroups(name, category)
     if (hints.length === 0) {
-      setSuggestError(t('library.suggest.heuristic.noMatch', 'Keine Heuristik-Treffer für diesen Namen.'))
+      setSuggestError(t('library.suggest.heuristic.noMatch', 'No heuristic match for this name.'))
       return
     }
     setGroups(hintsToLocalDrafts(hints))
     setGroupsOrigin(
-      t('library.origin.heuristic', 'Heuristik aus Name und Kategorie — kein Datenblatt'),
+      t('library.origin.heuristic', 'Heuristic from name and category — not from a datasheet'),
     )
     setSuggestInfo(
-      format(t('library.suggest.heuristic.ok', '{n} Port-Gruppe(n) per Heuristik vorgeschlagen.'), {
+      format(t('library.suggest.heuristic.ok', '{n} port group(s) suggested via heuristic.'), {
         n: hints.length,
       }),
     )
@@ -365,25 +365,25 @@ export const LibraryPanel = () => {
     if (!getGeminiApiKey()) {
       setAiKeyDraft('')
       setAiSettingsOpen(true)
-      setSuggestError(t('library.suggest.ai.noKey', 'Kein Gemini-API-Key. Trage einen ein oder nutze Web/Heuristik.'))
+      setSuggestError(t('library.suggest.ai.noKey', 'No Gemini API key. Enter one or use web/heuristic.'))
       return
     }
     setAiLoading(true)
     try {
       const hints = await suggestFromAI(name, category)
       if (hints.length === 0) {
-        setSuggestError(t('library.suggest.ai.noPorts', 'Gemini lieferte keine Ports zurück.'))
+        setSuggestError(t('library.suggest.ai.noPorts', 'Gemini returned no ports.'))
         return
       }
       setGroups(hintsToLocalDrafts(hints))
-      setGroupsOrigin(t('library.origin.ai', 'KI-Vorschlag aus Name und Kategorie — kein Datenblatt'))
+      setGroupsOrigin(t('library.origin.ai', 'AI suggestion from name and category — not from a datasheet'))
       setSuggestInfo(
-        format(t('library.suggest.ai.ok', '{n} Port-Gruppe(n) von Gemini übernommen.'), {
+        format(t('library.suggest.ai.ok', '{n} port group(s) accepted from Gemini.'), {
           n: hints.length,
         }),
       )
     } catch (err) {
-      setSuggestError(err instanceof Error ? err.message : t('library.suggest.ai.error', 'Gemini-Aufruf fehlgeschlagen'))
+      setSuggestError(err instanceof Error ? err.message : t('library.suggest.ai.error', 'Gemini call failed'))
     } finally {
       setAiLoading(false)
     }
@@ -401,11 +401,11 @@ export const LibraryPanel = () => {
             ? format(
                 t(
                   'library.suggest.web.noPlugs',
-                  'Keine Stecker im {source}-Snippet erkannt. Hersteller + Modell präzisieren.',
+                  'No connectors detected in the {source} snippet. Refine manufacturer + model.',
                 ),
                 { source },
               )
-            : t('library.suggest.web.noHit', 'Kein Treffer im Web. Hersteller + Modell präzisieren.'),
+            : t('library.suggest.web.noHit', 'No hit on the web. Refine manufacturer + model.'),
         )
         return
       }
@@ -417,12 +417,12 @@ export const LibraryPanel = () => {
       // die Vorlage nicht einen halben Wikipedia-Artikel mitschleppt.
       setGroupsOrigin(
         format(
-          t('library.origin.web', 'Aus {source} abgeleitet (Stecker im Text gezählt): „{snippet}"'),
+          t('library.origin.web', 'Derived from {source} (connectors counted in the text): "{snippet}"'),
           { source, snippet: snippet.replace(/\s+/g, ' ').trim().slice(0, 160) },
         ),
       )
       setSuggestInfo(
-        format(t('library.suggest.web.ok', '{n} Port-Gruppe(n) aus {source} übernommen.'), {
+        format(t('library.suggest.web.ok', '{n} port group(s) accepted from {source}.'), {
           n: hints.length,
           source,
         }),
@@ -554,10 +554,10 @@ export const LibraryPanel = () => {
     if (!picked) return
     const parsed = parseLibraryItemFile(picked.content)
     if (!parsed) {
-      await infoDialog(t('library.import.unknownFileTitle', 'Datei nicht erkannt'), {
+      await infoDialog(t('library.import.unknownFileTitle', 'File not recognised'), {
         body: t(
           'library.import.unknownFileBody',
-          'Diese Datei ist kein gültiger .cpdevice- oder .cpgroup-Export.',
+          'This file is not a valid .cpdevice or .cpgroup export.',
         ),
         tone: 'error',
       })
@@ -569,16 +569,16 @@ export const LibraryPanel = () => {
       if (conflict) {
         const overwrite = await confirmDialog(
           format(
-            t('library.import.deviceExists', 'Ein Gerät mit dem Namen "{name}" existiert bereits.\n\nÜberschreiben?'),
+            t('library.import.deviceExists', 'A device named "{name}" already exists.\n\nOverwrite?'),
             { name: template.name },
           ),
-          { okLabel: t('common.overwrite', 'Überschreiben'), destructive: true },
+          { okLabel: t('common.overwrite', 'Overwrite'), destructive: true },
         )
         if (!overwrite) return
       }
       addCustomTemplate(template)
-      await infoDialog(t('library.import.deviceOkTitle', 'Gerät importiert'), {
-        body: format(t('library.import.deviceOkBody', '"{name}" wurde der Library hinzugefügt.'), {
+      await infoDialog(t('library.import.deviceOkTitle', 'Device imported'), {
+        body: format(t('library.import.deviceOkBody', '"{name}" was added to the library.'), {
           name: template.name,
         }),
         tone: 'success',
@@ -591,10 +591,10 @@ export const LibraryPanel = () => {
     if (nameConflict) {
       const overwrite = await confirmDialog(
         format(
-          t('library.import.groupExists', 'Eine Gruppe mit dem Namen "{name}" existiert bereits.\n\nÜberschreiben?'),
+          t('library.import.groupExists', 'A group named "{name}" already exists.\n\nOverwrite?'),
           { name: preset.name },
         ),
-        { okLabel: t('common.overwrite', 'Überschreiben'), destructive: true },
+        { okLabel: t('common.overwrite', 'Overwrite'), destructive: true },
       )
       if (!overwrite) return
       addGroupPreset({ ...preset, id: nameConflict.id })
@@ -606,12 +606,12 @@ export const LibraryPanel = () => {
     }
     const kindLabel = preset.rack
       ? t('library.import.kindRack', 'Rack')
-      : t('library.import.kindGroup', 'Gruppe')
-    await infoDialog(format(t('library.import.kindOkTitle', '{kind} importiert'), { kind: kindLabel }), {
+      : t('library.import.kindGroup', 'Group')
+    await infoDialog(format(t('library.import.kindOkTitle', '{kind} imported'), { kind: kindLabel }), {
       body: format(
         t(
           'library.import.kindOkBody',
-          '"{name}" wurde der Library hinzugefügt ({devices} Geräte, {cables} interne Kabel).',
+          '"{name}" was added to the library ({devices} devices, {cables} internal cables).',
         ),
         {
           name: preset.name,
@@ -629,7 +629,7 @@ export const LibraryPanel = () => {
       setNetBoxError(
         t(
           'library.netbox.pickCategoryError',
-          'Bitte eine bestehende Kategorie für diesen Import auswählen.',
+          'Please pick an existing category for this import.',
         ),
       )
       return
@@ -647,9 +647,9 @@ export const LibraryPanel = () => {
       addCustomTemplate(template)
       setNetBoxResults((current) => current.filter((entry) => entry.path !== item.path))
       await infoDialog(
-        format(t('library.netbox.importedTitle', '{name} importiert'), { name: template.name }),
+        format(t('library.netbox.importedTitle', '{name} imported'), { name: template.name }),
         {
-          body: t('library.netbox.importedBody', 'Aus NetBox in die Library übernommen.'),
+          body: t('library.netbox.importedBody', 'Imported from NetBox into the library.'),
           tone: 'success',
         },
       )
@@ -684,7 +684,7 @@ export const LibraryPanel = () => {
   const seedBackdrop = useBackdropClose(() => setSeedPreset(null))
   const anlegenBackdrop = useBackdropClose(() => setShowCreateDialog(false), {
     schutz: () => name.trim() !== 'Custom Device',
-    frage: t('library.closeUnsaved', 'Anlegen abbrechen und Eingaben verwerfen?'),
+    frage: t('library.closeUnsaved', 'Cancel creating and discard your input?'),
   })
   const {
     panelRef: anlegenRef,
@@ -710,8 +710,8 @@ export const LibraryPanel = () => {
         <button
           type="button"
           onClick={toggleCollapsed}
-          title={t('library.show', 'Library einblenden')}
-          aria-label={t('library.show', 'Library einblenden')}
+          title={t('library.show', 'Show library')}
+          aria-label={t('library.show', 'Show library')}
           className="mt-2 flex h-7 w-7 items-center justify-center rounded-full border border-cp-border bg-cp-surface-1 text-cp-text-secondary shadow-sm transition-all hover:border-sky-500 hover:bg-cp-surface-2 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
         >
           <span className="text-cp-lg leading-none">›</span>
@@ -719,7 +719,7 @@ export const LibraryPanel = () => {
         <button
           type="button"
           onClick={toggleCollapsed}
-          aria-label={t('library.show', 'Library einblenden')}
+          aria-label={t('library.show', 'Show library')}
           className="mt-3 flex-1 self-stretch text-[10px] font-semibold uppercase tracking-[0.18em] text-cp-text-muted transition-colors hover:text-cp-text-secondary focus-visible:outline-none focus-visible:text-sky-300"
           style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}
         >
@@ -760,8 +760,8 @@ export const LibraryPanel = () => {
           <button
             type="button"
             onClick={toggleCollapsed}
-            title={t('library.hide', 'Library ausblenden')}
-            aria-label={t('library.hide', 'Library ausblenden')}
+            title={t('library.hide', 'Hide library')}
+            aria-label={t('library.hide', 'Hide library')}
             className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-cp-border bg-cp-surface-1 text-cp-text-secondary transition-all hover:border-sky-500 hover:bg-cp-surface-2 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
           >
             <span className="text-cp-lg leading-none">‹</span>
@@ -769,7 +769,7 @@ export const LibraryPanel = () => {
         )}
         {!floating && !inPopout && (
           <PanelWindowMenu
-            titel={t('library.title', 'Bibliothek')}
+            titel={t('library.title', 'Library')}
             onPointerDown={tearOff.onPointerDown}
             draggedRef={tearOff.draggedRef}
             onUndock={() => {
@@ -785,8 +785,8 @@ export const LibraryPanel = () => {
         <TabButton
           active={tab === 'equipment'}
           onClick={() => setTab('equipment')}
-          label={t('library.tab.equipment', 'Geräte')}
-          title={t('library.tab.equipment', 'Geräte')}
+          label={t('library.tab.equipment', 'Equipment')}
+          title={t('library.tab.equipment', 'Equipment')}
           icon={
             <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
               <rect x="2" y="3" width="12" height="10" rx="1.5" />
@@ -799,8 +799,8 @@ export const LibraryPanel = () => {
         <TabButton
           active={tab === 'cables'}
           onClick={() => setTab('cables')}
-          label={t('library.tab.cables', 'Kabel')}
-          title={t('library.tab.cables', 'Kabel')}
+          label={t('library.tab.cables', 'Cables')}
+          title={t('library.tab.cables', 'Cables')}
           icon={
             <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
               <path d="M2 11 Q 5 5, 8 8 T 14 5" strokeLinecap="round" />
@@ -812,9 +812,9 @@ export const LibraryPanel = () => {
         <TabButton
           active={tab === 'groups'}
           onClick={() => setTab('groups')}
-          label={t('library.tab.groups', 'Gruppen')}
+          label={t('library.tab.groups', 'Groups')}
           count={groupPresets.length}
-          title={t('library.tab.groupsTitle', 'Gespeicherte Gerätegruppen (mehrere Geräte + Kabel als Vorlage)')}
+          title={t('library.tab.groupsTitle', 'Saved device groups (multiple devices + cables as a template)')}
           icon={
             <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
               <rect x="2" y="2" width="6" height="5" rx="0.8" />
@@ -828,7 +828,7 @@ export const LibraryPanel = () => {
           onClick={() => setTab('racks')}
           label={t('library.tab.racks', 'Racks')}
           count={groupPresets.filter((preset) => !!preset.rack).length}
-          title={t('library.tab.racksTitle', '2D Rack Builder und gespeicherte Rack-Layouts')}
+          title={t('library.tab.racksTitle', '2D rack builder and saved rack layouts')}
           icon={
             <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
               <rect x="3" y="2" width="10" height="12" rx="0.8" />
@@ -853,10 +853,10 @@ export const LibraryPanel = () => {
                   ? 'bg-sky-700 text-white'
                   : 'text-cp-text-secondary hover:bg-cp-surface-2'
               }`}
-              title={t('library.section.localTitle', 'Eigene und importierte Vorlagen, lokal in dieser Installation')}
+              title={t('library.section.localTitle', 'Custom and imported templates, local to this installation')}
             >
               <span className="mr-1 rounded bg-sky-900/80 px-1 text-[11px] font-bold text-sky-100">L</span>
-              {t('library.section.local', 'Lokal')}
+              {t('library.section.local', 'Local')}
               <span className="ml-1 text-[10px] text-cp-text-muted">
                 ({customLibrary.filter((t) => !t.rentmanSource).length})
               </span>
@@ -869,7 +869,7 @@ export const LibraryPanel = () => {
                   ? 'bg-orange-600 text-white'
                   : 'text-cp-text-secondary hover:bg-cp-surface-2'
               }`}
-              title={t('library.section.rentmanTitle', 'Aus Rentman importierte Geräte und Account-Katalog')}
+              title={t('library.section.rentmanTitle', 'Rentman-imported devices and account catalog')}
             >
               <span className="mr-1 rounded bg-orange-900/80 px-1 text-[11px] font-bold text-orange-100">R</span>
               Rentman
@@ -918,12 +918,12 @@ export const LibraryPanel = () => {
           >
             <div className="mb-3 flex items-start justify-between gap-3">
               <div>
-                <h3 id={netBoxTitleId} className="text-cp-xl font-semibold">{t('library.netbox.title', 'NetBox Import')}</h3>
+                <h3 id={netBoxTitleId} className="text-cp-xl font-semibold">{t('library.netbox.title', 'NetBox import')}</h3>
                 <PanelHint
                   className="mt-1 text-cp-xs text-cp-text-muted"
                   text={t(
                     'library.netbox.intro',
-                    'Importiert Geräte aus der NetBox device-type-library in die lokale Library. Nicht-destruktiv: bestehende Geräte auf dem Canvas bleiben unverändert.',
+                    'Imports devices from the NetBox device-type-library into the local library. Non-destructive: existing devices on the canvas remain unchanged.',
                   )}
                 />
               </div>
@@ -932,7 +932,7 @@ export const LibraryPanel = () => {
                 onClick={() => setShowNetBoxDialog(false)}
                 className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
               >
-                {t('common.close', 'Schließen')}
+                {t('common.close', 'Close')}
               </button>
             </div>
 
@@ -946,8 +946,8 @@ export const LibraryPanel = () => {
                     void handleSearchNetBox()
                   }
                 }}
-                placeholder={t('library.netbox.searchPlaceholder', 'z.B. blackmagic atem, cisco catalyst, yamaha ql5')}
-                aria-label={t('library.netbox.searchPlaceholder', 'z.B. blackmagic atem, cisco catalyst, yamaha ql5')}
+                placeholder={t('library.netbox.searchPlaceholder', 'e.g. blackmagic atem, cisco catalyst, yamaha ql5')}
+                aria-label={t('library.netbox.searchPlaceholder', 'e.g. blackmagic atem, cisco catalyst, yamaha ql5')}
                 className="flex-1 rounded border border-cp-border bg-cp-surface-3 p-2 text-cp-base"
               />
               <button
@@ -956,7 +956,7 @@ export const LibraryPanel = () => {
                 disabled={netBoxBusy || netBoxQuery.trim().length < 2}
                 className="rounded bg-cyan-700 px-3 py-2 text-cp-base font-semibold hover:bg-cyan-600 disabled:opacity-50"
               >
-                {netBoxBusy ? t('library.netbox.searching', 'Suche…') : t('library.netbox.search', 'Suchen')}
+                {netBoxBusy ? t('library.netbox.searching', 'Searching…') : t('library.netbox.search', 'Search')}
               </button>
               <button
                 type="button"
@@ -965,9 +965,9 @@ export const LibraryPanel = () => {
                   setNetBoxResults([])
                 }}
                 className="rounded bg-cp-surface-4 px-3 py-2 text-cp-base hover:bg-cp-surface-5"
-                title={t('library.netbox.refreshTitle', 'GitHub-Index neu laden')}
+                title={t('library.netbox.refreshTitle', 'Reload GitHub index')}
               >
-                {t('library.netbox.clearCache', 'Cache leeren')}
+                {t('library.netbox.clearCache', 'Clear cache')}
               </button>
             </div>
 
@@ -978,12 +978,12 @@ export const LibraryPanel = () => {
             )}
 
             <div className="mb-2 text-[11px] uppercase tracking-wide text-cp-text-muted">
-              {t('library.netbox.hits', 'Treffer')} {netBoxResults.length > 0 ? `(${netBoxResults.length})` : ''}
+              {t('library.netbox.hits', 'Hits')} {netBoxResults.length > 0 ? `(${netBoxResults.length})` : ''}
             </div>
             <div className="space-y-2">
               {netBoxResults.length === 0 ? (
                 <div className="rounded border border-cp-border bg-cp-surface-3/50 p-3 text-cp-xs text-cp-text-muted">
-                  {t('library.netbox.emptyHint', 'Hersteller + Modell suchen. Beispiel: „blackmagic atem", „yamaha ql5", „cisco catalyst 9300".')}
+                  {t('library.netbox.emptyHint', 'Search by manufacturer + model. Example: "blackmagic atem", "yamaha ql5", "cisco catalyst 9300".')}
                 </div>
               ) : (
                 netBoxResults.map((item) => {
@@ -999,7 +999,7 @@ export const LibraryPanel = () => {
                         </div>
                         <div className="truncate text-[11px] text-cp-text-muted">{item.path}</div>
                         <div className="mt-2 flex max-w-[340px] items-center gap-2">
-                          <span className="text-[11px] text-cp-text-muted">{t('library.netbox.categoryLabel', 'Kategorie:')}</span>
+                          <span className="text-[11px] text-cp-text-muted">{t('library.netbox.categoryLabel', 'Category:')}</span>
                           <select
                             value={netBoxCategoryByPath[item.path] ?? ''}
                             onChange={(event) =>
@@ -1010,7 +1010,7 @@ export const LibraryPanel = () => {
                             }
                             className="min-w-0 flex-1 rounded border border-cp-border bg-cp-surface-1 px-2 py-1 text-cp-xs"
                           >
-                            <option value="">{t('library.netbox.pickCategory', 'Bitte auswählen...')}</option>
+                            <option value="">{t('library.netbox.pickCategory', 'Please pick…')}</option>
                             {existingCategoryOptions.map((cat) => (
                               <option key={cat} value={cat}>
                                 {cat}
@@ -1025,7 +1025,7 @@ export const LibraryPanel = () => {
                         disabled={busy || !(netBoxCategoryByPath[item.path] ?? '').trim()}
                         className="rounded bg-emerald-700 px-3 py-1.5 text-cp-xs font-semibold hover:bg-emerald-600 disabled:opacity-50"
                       >
-                        {busy ? t('library.netbox.importing', 'Import…') : t('library.netbox.import', 'Importieren')}
+                        {busy ? t('library.netbox.importing', 'Importing…') : t('library.netbox.import', 'Import')}
                       </button>
                     </div>
                   )
@@ -1048,7 +1048,7 @@ export const LibraryPanel = () => {
             className="max-h-[90vh] w-full max-w-2xl overflow-auto rounded border border-cp-border bg-cp-surface-1 p-4"
           >
             <h3 id={anlegenTitleId} className="mb-3 text-cp-xl font-semibold">
-              {t('library.create.title', 'Eigenes Gerät anlegen')}
+              {t('library.create.title', 'Create your own device')}
             </h3>
             <div className="mb-3 grid grid-cols-1 sm:grid-cols-3 gap-2 text-cp-base">
               <label className="block">
@@ -1060,7 +1060,7 @@ export const LibraryPanel = () => {
                 />
               </label>
               <label className="block">
-                {t('library.create.category', 'Kategorie')}
+                {t('library.create.category', 'Category')}
                 <CategorySelect
                   value={category}
                   onChange={setCategory}
@@ -1068,14 +1068,14 @@ export const LibraryPanel = () => {
                 />
               </label>
               <label className="block">
-                {t('library.create.rackDevice', '19" Rack-Gerät')}
+                {t('library.create.rackDevice', '19" rack device')}
                 <label className="mt-2 flex items-center gap-2 text-cp-xs">
                   <input
                     type="checkbox"
                     checked={isRackDeviceDraft}
                     onChange={(event) => setIsRackDeviceDraft(event.target.checked)}
                   />
-                  <span>{t('library.create.isRack', 'Ist Rack-Gerät')}</span>
+                  <span>{t('library.create.isRack', 'Is a rack device')}</span>
                 </label>
                 {isRackDeviceDraft && (
                   <input
@@ -1084,7 +1084,7 @@ export const LibraryPanel = () => {
                     step={1}
                     value={rackUnitsDraft}
                     onChange={(event) => setRackUnitsDraft(event.target.value ? Number(event.target.value) : '')}
-                    placeholder={t('library.create.hePlaceholder', 'HE')}
+                    placeholder={t('library.create.hePlaceholder', 'U')}
                     className="mt-2 w-full rounded border border-cp-border bg-cp-surface-3 p-2"
                   />
                 )}
@@ -1094,7 +1094,7 @@ export const LibraryPanel = () => {
             <div className="mb-2 rounded border border-violet-800/60 bg-violet-950/30 p-2 text-cp-xs">
               <div className="mb-1 flex flex-wrap items-center justify-between gap-y-1 gap-x-2">
                 <span className="font-semibold text-violet-200">
-                  {t('library.suggest.heading', 'Auto-Vorschlag aus Geräte-Name')}
+                  {t('library.suggest.heading', 'Auto-suggest from device name')}
                 </span>
                 <button
                   type="button"
@@ -1103,9 +1103,9 @@ export const LibraryPanel = () => {
                     setAiSettingsOpen(true)
                   }}
                   className="text-[10px] text-violet-300 hover:underline"
-                  title={t('library.create.aiSettings', 'Gemini-API-Key konfigurieren')}
+                  title={t('library.create.aiSettings', 'AI settings')}
                 >
-                  <Icon icon={Settings} size="xs" className="mr-1 inline-block align-text-bottom" />{t('library.create.aiSettingsLabel', 'AI-Settings')}
+                  <Icon icon={Settings} size="xs" className="mr-1 inline-block align-text-bottom" />{t('library.create.aiSettingsLabel', 'AI settings')}
                 </button>
               </div>
               <div className="flex flex-wrap gap-1">
@@ -1113,27 +1113,27 @@ export const LibraryPanel = () => {
                   type="button"
                   onClick={handleHeuristicSuggest}
                   className="rounded bg-cp-surface-4 px-2 py-1 hover:bg-cp-surface-5"
-                  title={t('library.create.suggest.heuristicTitle', 'Aus eingebauten Heuristik-Mustern (Camera, ATEM, Konverter, ...)')}
+                  title={t('library.create.suggest.heuristicTitle', 'Built-in heuristic patterns (camera, ATEM, converter…)')}
                 >
-                  <Icon icon={Ruler} size="xs" className="mr-1 inline-block align-text-bottom" />{t('library.create.suggest.heuristic', 'Heuristik')}
+                  <Icon icon={Ruler} size="xs" className="mr-1 inline-block align-text-bottom" />{t('library.create.suggest.heuristic', 'Heuristic')}
                 </button>
                 <button
                   type="button"
                   disabled={webLoading}
                   onClick={handleWebSuggest}
                   className="rounded bg-emerald-700 px-2 py-1 hover:bg-emerald-600 disabled:opacity-50"
-                  title={t('library.create.suggest.webTitle', 'Wikipedia + DuckDuckGo Snippet (kein API-Key nötig)')}
+                  title={t('library.create.suggest.webTitle', 'Wikipedia + DuckDuckGo snippet (no API key required)')}
                 >
-                  {webLoading ? <span className="inline-flex items-center gap-1"><Spinner size="xs" /> {t('library.netbox.searching', 'Suche…')}</span> : <span className="inline-flex items-center gap-1"><Icon icon={Globe} size="xs" /> {t('library.create.suggest.web', 'Web')}</span>}
+                  {webLoading ? <span className="inline-flex items-center gap-1"><Spinner size="xs" /> {t('library.netbox.searching', 'Searching…')}</span> : <span className="inline-flex items-center gap-1"><Icon icon={Globe} size="xs" /> {t('library.create.suggest.web', 'Web')}</span>}
                 </button>
                 <button
                   type="button"
                   disabled={aiLoading}
                   onClick={handleAiSuggest}
                   className="rounded bg-violet-700 px-2 py-1 hover:bg-violet-600 disabled:opacity-50"
-                  title={t('library.create.suggest.geminiTitle', 'Gemini AI — braucht einen API-Key')}
+                  title={t('library.create.suggest.geminiTitle', 'Gemini AI — needs an API key')}
                 >
-                  {aiLoading ? <span className="inline-flex items-center gap-1"><Spinner size="xs" /> {t('library.create.suggest.asking', 'Frage…')}</span> : <span className="inline-flex items-center gap-1"><Icon icon={Sparkles} size="xs" /> {t('library.create.suggest.gemini', 'Gemini')}</span>}
+                  {aiLoading ? <span className="inline-flex items-center gap-1"><Spinner size="xs" /> {t('library.create.suggest.asking', 'Asking…')}</span> : <span className="inline-flex items-center gap-1"><Icon icon={Sparkles} size="xs" /> {t('library.create.suggest.gemini', 'Gemini')}</span>}
                 </button>
               </div>
               {suggestError && (
@@ -1146,7 +1146,7 @@ export const LibraryPanel = () => {
 
             {aiSettingsOpen && (
               <div className="mb-2 rounded border border-cp-border bg-cp-surface-3 p-2 text-cp-xs">
-                <div className="mb-1 font-semibold text-cp-text-bright">{t('library.create.aiKey.label', 'Gemini API-Key')}</div>
+                <div className="mb-1 font-semibold text-cp-text-bright">{t('library.create.aiKey.label', 'Gemini API key')}</div>
                 <div className="flex gap-1">
                   <input
                     type="password"
@@ -1164,18 +1164,18 @@ export const LibraryPanel = () => {
                     }}
                     className="rounded bg-emerald-700 px-2 py-1 hover:bg-emerald-600"
                   >
-                    {t('common.save', 'Speichern')}
+                    {t('common.save', 'Save')}
                   </button>
                   <button
                     type="button"
                     onClick={() => setAiSettingsOpen(false)}
                     className="rounded bg-cp-surface-4 px-2 py-1 hover:bg-cp-surface-5"
                   >
-                    {t('common.cancel', 'Abbrechen')}
+                    {t('common.cancel', 'Cancel')}
                   </button>
                 </div>
                 <div className="mt-1 text-[10px] text-cp-text-muted">
-                  {t('library.create.aiKey.hintPrefix', 'Gespeichert nur lokal in localStorage. Key bei')}{' '}
+                  {t('library.create.aiKey.hintPrefix', 'Stored locally in localStorage only. Create a key at')}{' '}
                   <a
                     href="https://aistudio.google.com/app/apikey"
                     target="_blank"
@@ -1184,14 +1184,14 @@ export const LibraryPanel = () => {
                   >
                     aistudio.google.com
                   </a>{' '}
-                  {t('library.create.aiKey.hintSuffix', 'erstellen.')}
+                  {t('library.create.aiKey.hintSuffix', '.')}
                 </div>
               </div>
             )}
 
             <div className="mb-2 flex flex-wrap items-center justify-between gap-y-1 gap-x-2">
               <div className="text-cp-base font-semibold">
-                {t('library.create.portGroups', 'Port-Gruppen')}
+                {t('library.create.portGroups', 'Port groups')}
               </div>
               <div className="flex flex-wrap gap-2 text-cp-xs">
                 <button
@@ -1199,14 +1199,14 @@ export const LibraryPanel = () => {
                   onClick={() => addGroup('in')}
                   className="rounded bg-sky-700 px-2 py-1 hover:bg-sky-600"
                 >
-                  {t('library.create.addInputGroup', '+ Input-Gruppe')}
+                  {t('library.create.addInputGroup', '+ Input group')}
                 </button>
                 <button
                   type="button"
                   onClick={() => addGroup('out')}
                   className="rounded bg-green-700 px-2 py-1 hover:bg-green-600"
                 >
-                  {t('library.create.addOutputGroup', '+ Output-Gruppe')}
+                  {t('library.create.addOutputGroup', '+ Output group')}
                 </button>
               </div>
             </div>
@@ -1261,14 +1261,14 @@ export const LibraryPanel = () => {
                     type="button"
                     onClick={() => removeGroup(group.id)}
                     className="rounded bg-red-700 px-2 py-1 hover:bg-red-600"
-                    title={t('library.create.removeGroup', 'Gruppe entfernen')}
+                    title={t('library.create.removeGroup', 'Remove group')}
                   >
                     ×
                   </button>
                 </div>
               ))}
               {groups.length === 0 && (
-                <div className="text-cp-xs text-cp-text-muted">{t('library.create.noPortGroups', 'Noch keine Port-Gruppen. Oben eine hinzufügen.')}</div>
+                <div className="text-cp-xs text-cp-text-muted">{t('library.create.noPortGroups', 'No port groups yet. Add one above.')}</div>
               )}
             </div>
 
@@ -1285,7 +1285,7 @@ export const LibraryPanel = () => {
                 }}
                 className="rounded bg-cp-surface-4 px-3 py-1 text-cp-base hover:bg-cp-surface-5"
               >
-                {t('common.cancel', 'Abbrechen')}
+                {t('common.cancel', 'Cancel')}
               </button>
               <button
                 type="button"
@@ -1293,10 +1293,10 @@ export const LibraryPanel = () => {
                 className="rounded bg-sky-600 px-3 py-1 text-cp-base hover:bg-sky-500"
                 title={t(
                   'library.create.saveTitle',
-                  'In die Bibliothek speichern (zur Wiederverwendung)',
+                  'Save to custom library for re-use',
                 )}
               >
-                {t('library.create.save', 'In Bibliothek speichern')}
+                {t('library.create.save', 'Save to library')}
               </button>
               <button
                 type="button"
@@ -1304,10 +1304,10 @@ export const LibraryPanel = () => {
                 className="rounded bg-emerald-600 px-3 py-1 text-cp-base hover:bg-emerald-500"
                 title={t(
                   'library.create.savePlaceTitle',
-                  'Speichern und gleich auf dem Canvas platzieren',
+                  'Save and drop one on the canvas',
                 )}
               >
-                {t('library.create.savePlace', 'Speichern + Platzieren')}
+                {t('library.create.savePlace', 'Save + place')}
               </button>
             </div>
           </div>
@@ -1373,15 +1373,15 @@ export const LibraryPanel = () => {
             {...dubletteProps}
             className="w-full max-w-xl rounded border border-amber-600 bg-cp-surface-1 p-4 text-cp-text"
           >
-            <h3 id={dubletteTitleId} className="mb-2 text-cp-xl font-semibold text-amber-300">{t('library.duplicate.title', 'Gerät existiert bereits')}</h3>
+            <h3 id={dubletteTitleId} className="mb-2 text-cp-xl font-semibold text-amber-300">{t('library.duplicate.title', 'Device already exists')}</h3>
             <p className="mb-3 text-cp-base text-cp-text-secondary">
               {format(
-                t('library.netbox.duplicateIntro', '{name} ist bereits in der lokalen Library. Wahlen, wie importiert werden soll.'),
+                t('library.netbox.duplicateIntro', '{name} is already in the local library. Choose how to import.'),
                 { name: netBoxConflict.incoming.name },
               )}
             </p>
             <div className="mb-3 rounded border border-cp-border bg-cp-surface-3/40 p-2 text-cp-xs text-cp-text-muted">
-              {t('library.netbox.localCount', 'Lokal')}: {netBoxConflict.existing.inputs.length} In / {netBoxConflict.existing.outputs.length} Out
+              {t('library.netbox.localCount', 'Local')}: {netBoxConflict.existing.inputs.length} In / {netBoxConflict.existing.outputs.length} Out
               <br />
               NetBox: {netBoxConflict.incoming.inputs.length} In / {netBoxConflict.incoming.outputs.length} Out
             </div>
@@ -1391,34 +1391,34 @@ export const LibraryPanel = () => {
                 onClick={() => setNetBoxConflict(null)}
                 className="rounded bg-cp-surface-4 px-3 py-1 text-cp-base hover:bg-cp-surface-5"
               >
-                {t('common.cancel', 'Abbrechen')}
+                {t('common.cancel', 'Cancel')}
               </button>
               <button
                 type="button"
                 onClick={async () => {
                   setNetBoxConflict(null)
-                  await infoDialog(t('library.netbox.keepLocalTitle', 'Lokale Version beibehalten'), {
-                    body: t('library.netbox.keepLocalBody', 'Die bestehende Library-Version bleibt unverändert.'),
+                  await infoDialog(t('library.netbox.keepLocalTitle', 'Kept local version'), {
+                    body: t('library.netbox.keepLocalBody', 'The existing library version stays unchanged.'),
                     tone: 'info',
                   })
                 }}
                 className="rounded bg-cp-surface-4 px-3 py-1 text-cp-base hover:bg-cp-surface-5"
               >
-                {t('library.netbox.keepLocalBtn', 'Lokal behalten')}
+                {t('library.netbox.keepLocalBtn', 'Keep local')}
               </button>
               <button
                 type="button"
                 onClick={async () => {
                   addCustomTemplate(netBoxConflict.incoming)
                   setNetBoxConflict(null)
-                  await infoDialog(t('library.netbox.replacedTitle', 'NetBox-Version übernommen'), {
-                    body: t('library.netbox.replacedBody', 'Die lokale Version wurde durch die NetBox-Version ersetzt.'),
+                  await infoDialog(t('library.netbox.replacedTitle', 'Replaced with NetBox version'), {
+                    body: t('library.netbox.replacedBody', 'The local version was replaced by the NetBox version.'),
                     tone: 'success',
                   })
                 }}
                 className="rounded bg-amber-700 px-3 py-1 text-cp-base hover:bg-amber-600"
               >
-                {t('common.overwrite', 'Überschreiben')}
+                {t('common.overwrite', 'Overwrite')}
               </button>
               <button
                 type="button"
@@ -1446,10 +1446,10 @@ export const LibraryPanel = () => {
         onConfirm={async (merged) => {
           addCustomTemplate(merged)
           setNetBoxMergePair(null)
-          await infoDialog(t('library.netbox.mergeSavedTitle', 'Merge gespeichert'), {
+          await infoDialog(t('library.netbox.mergeSavedTitle', 'Merge saved'), {
             body: t(
               'library.netbox.mergeSavedBody',
-              'Die zusammengeführte Version wurde in der Library gespeichert.',
+              'The merged version was saved in the library.',
             ),
             tone: 'success',
           })

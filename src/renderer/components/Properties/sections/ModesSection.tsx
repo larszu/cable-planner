@@ -13,13 +13,13 @@ export const ModesSection = ({ equipment }: { equipment: EquipmentItem }) => {
   const activeName = modes.find((m) => m.id === equipment.activeModeId)?.name
   const subtitle =
     modes.length === 0
-      ? t('props.modes.empty', 'keiner — anlegen unten')
-      : (activeName ?? format(t('props.modes.defined', '{n} definiert'), { n: modes.length }))
+      ? t('props.modes.empty', 'none — create below')
+      : (activeName ?? format(t('props.modes.defined', '{n} defined'), { n: modes.length }))
 
   return (
     <SortableSection
       id="modes"
-      title={t('props.modes.title', 'Betriebsmodi')}
+      title={t('props.modes.title', 'Operating modes')}
       subtitle={subtitle}
     >
       <DeviceModePicker equipment={equipment} />

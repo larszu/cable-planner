@@ -42,7 +42,7 @@ export const CableProperties = () => {
   if (!cable) {
     return (
       <div className="text-cp-xs text-cp-text-muted">
-        {t('cable.click.placeholder', 'Kabel anklicken um Eigenschaften zu sehen.')}
+        {t('cable.click.placeholder', 'Click a cable to see properties.')}
       </div>
     )
   }
@@ -97,13 +97,13 @@ export const CableProperties = () => {
       {verbindungsBeleg && (
         <div className="rounded border border-cp-warn/60 bg-cp-warn/10 px-2 py-1.5">
           <div className="font-medium text-cp-warn">
-            {t('cable.specSource.title', 'Diese Verbindung ist nicht belegt')}
+            {t('cable.specSource.title', 'This connection is not evidenced')}
           </div>
           <div className="mt-0.5 text-cp-text-secondary">
             {format(
               t(
                 'cable.specSource.body',
-                'Herkunft: {source}. Vor dem Aufbau gegen die Anlage prüfen — sie steht so auf der Kabelliste.',
+                'Origin: {source}. Check it against the installation before rigging — it appears on the cable list as it stands.',
               ),
               { source: verbindungsBeleg.source },
             )}
@@ -127,8 +127,8 @@ export const CableProperties = () => {
             type="button"
             onClick={() => openCableEdit(cable.id)}
             className="shrink-0 rounded bg-cp-surface-4 px-1.5 py-0.5 text-[10px] hover:bg-cp-surface-5"
-            title={t('cable.edit.typeStandard', 'Kabeltyp / Standard bearbeiten')}
-            aria-label={t('cable.edit.typeStandard', 'Kabeltyp / Standard bearbeiten')}
+            title={t('cable.edit.typeStandard', 'Edit cable type / standard')}
+            aria-label={t('cable.edit.typeStandard', 'Edit cable type / standard')}
           >
             <Icon icon={Pencil} size="xs" />
           </button>
@@ -140,7 +140,7 @@ export const CableProperties = () => {
           onClick={() => openCableEdit(cable.id)}
           className="inline-flex w-full items-center justify-center gap-1.5 rounded border border-dashed border-cp-surface-5 px-2 py-1 text-cp-text-muted hover:border-slate-400 hover:text-cp-text-bright"
         >
-          <Icon icon={Pencil} size="xs" /> {t('cable.action.setTypeStandard', 'Kabeltyp / Standard festlegen')}
+          <Icon icon={Pencil} size="xs" /> {t('cable.action.setTypeStandard', 'Set cable type / standard')}
         </button>
       )}
       {(() => {
@@ -155,14 +155,14 @@ export const CableProperties = () => {
         return (
           <div className="flex items-center gap-2 rounded border border-amber-700/50 bg-amber-950/30 px-2 py-1 text-[11px] text-amber-200">
             <span className="flex-1 leading-snug">
-              {t('cable.typeMismatch.prefix', 'Kabel-Typ')} <strong>{cable.type}</strong> {t('cable.typeMismatch.suffix', 'passt nicht zu den Ports')}
+              {t('cable.typeMismatch.prefix', 'Cable type')} <strong>{cable.type}</strong> {t('cable.typeMismatch.suffix', 'does not match the ports')}
               ({fromPort.connectorType} ↔ {toPort.connectorType}).
             </span>
             <button
               type="button"
               onClick={() => updateCable(cable.id, typePatch)}
               className="shrink-0 rounded bg-amber-700/40 px-1.5 py-0.5 font-medium hover:bg-amber-600/60"
-              title={format(t('cable.typeMismatch.setTitle', 'Kabel-Typ auf {type} setzen'), { type: typePatch.type })}
+              title={format(t('cable.typeMismatch.setTitle', 'Set cable type to {type}'), { type: typePatch.type })}
             >
               → {typePatch.type}
             </button>
@@ -184,21 +184,21 @@ export const CableProperties = () => {
             })
           }
           className="mt-1 text-[10px] text-cp-accent hover:underline"
-          title={t('cable.field.sourceDestTitle', 'Name aus Quelle → Ziel erzeugen (AVIXA F501.01)')}
+          title={t('cable.field.sourceDestTitle', 'Generate name from source → destination (AVIXA F501.01)')}
         >
-          ↳ {t('cable.field.sourceDest', 'aus Quelle → Ziel')}
+          ↳ {t('cable.field.sourceDest', 'from source → destination')}
         </button>
       </label>
       {/* v7.9.68 / #182 — Bei Wireless-Links macht "Länge" keinen Sinn;
           stattdessen "Max. Reichweite" eintragen. */}
       {cable.wireless ? (
         <label className="block">
-          <span className="mb-1 block text-cp-text-secondary">{t('cable.field.maxReach', 'Max. Reichweite (m)')}</span>
+          <span className="mb-1 block text-cp-text-secondary">{t('cable.field.maxReach', 'Max. reach (m)')}</span>
           <input
             type="number"
             min={0}
             value={cable.maxRange ?? ''}
-            placeholder={t('cable.field.maxReachPlaceholder', 'z.B. 100')}
+            placeholder={t('cable.field.maxReachPlaceholder', 'e.g. 100')}
             onChange={(event) => {
               const v = event.target.value
               updateCable(cable.id, { maxRange: v === '' ? undefined : Number(v) })
@@ -208,7 +208,7 @@ export const CableProperties = () => {
         </label>
       ) : (
         <label className="block">
-          <span className="mb-1 block text-cp-text-secondary">{t('cable.field.length', 'Länge (m)')}</span>
+          <span className="mb-1 block text-cp-text-secondary">{t('cable.field.length', 'Length (m)')}</span>
           <input
             type="number"
             min={0}
@@ -219,7 +219,7 @@ export const CableProperties = () => {
         </label>
       )}
       <ColorField
-        label={t('cable.field.color', 'Farbe')}
+        label={t('cable.field.color', 'Colour')}
         value={cable.color}
         onChange={(color) => updateCable(cable.id, { color })}
       />
@@ -229,14 +229,14 @@ export const CableProperties = () => {
           kein leerer "ungrouped"-Eintrag mehr. Wenn das Feld doch leer ist
           (legacy), behandelt isCableVisibleByLayer es wie 'other'. */}
       <label className="block">
-        <span className="mb-1 block text-cp-text-secondary">{t('cable.field.layer', 'Ebene (Layer)')}</span>
+        <span className="mb-1 block text-cp-text-secondary">{t('cable.field.layer', 'Layer')}</span>
         <select
           value={cable.layer ?? 'other'}
           onChange={(event) =>
             updateCable(cable.id, { layer: event.target.value || undefined })
           }
           className="w-full rounded border border-cp-border bg-cp-surface-1 p-2"
-          title={t('cable.field.layerTitle', 'Wirkt mit dem Layer-Filter in der Toolbar (Ebenen-Chips)')}
+          title={t('cable.field.layerTitle', 'Works with the layer filter in the toolbar (layer chips)')}
         >
           {STANDARD_LAYERS.map((l) => (
             <option key={l} value={l}>
@@ -260,7 +260,7 @@ export const CableProperties = () => {
       {festinstallationModule && (
       <details className="rounded border border-cp-border bg-cp-surface-3/40">
         <summary className="cursor-pointer select-none px-2 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-cp-text-muted hover:bg-cp-surface-2/40">
-          {t('lifecycle.cableSection', 'Festinstallation / Lebenszyklus')}
+          {t('lifecycle.cableSection', 'Fixed install / lifecycle')}
         </summary>
         <div className="space-y-2 border-t border-cp-border p-2">
           <label className="block">
@@ -275,7 +275,7 @@ export const CableProperties = () => {
               }
               className="w-full rounded border border-cp-border bg-cp-surface-1 p-2"
             >
-              <option value="">{t('lifecycle.statusNone', '— kein Status —')}</option>
+              <option value="">{t('lifecycle.statusNone', '— no status —')}</option>
               {INSTALL_STATUSES.map((s) => (
                 <option key={s} value={s}>
                   {t(`lifecycle.status.${s}`, INSTALL_STATUS_LABEL[s])}
@@ -285,7 +285,7 @@ export const CableProperties = () => {
           </label>
           <div className="grid grid-cols-2 gap-2">
             <label className="block">
-              <span className="mb-1 block text-cp-text-secondary">{t('lifecycle.pathway', 'Trasse / Pfad')}</span>
+              <span className="mb-1 block text-cp-text-secondary">{t('lifecycle.pathway', 'Pathway / route')}</span>
               <input
                 value={cable.pathway ?? ''}
                 onChange={(e) => updateCable(cable.id, { pathway: e.target.value || undefined })}
@@ -293,7 +293,7 @@ export const CableProperties = () => {
               />
             </label>
             <label className="block">
-              <span className="mb-1 block text-cp-text-secondary">{t('lifecycle.jacket', 'Mantel/Brandklasse')}</span>
+              <span className="mb-1 block text-cp-text-secondary">{t('lifecycle.jacket', 'Jacket/fire rating')}</span>
               <input
                 value={cable.jacketRating ?? ''}
                 placeholder="CM / CMR / CMP / LSZH"
@@ -323,14 +323,14 @@ export const CableProperties = () => {
           {/* Mess-/Test-Ergebnis */}
           <div className="rounded border border-cp-border-muted bg-cp-surface-1/40 p-1.5">
             <div className="mb-1 flex items-center justify-between">
-              <span className="text-[11px] text-cp-text-secondary">{t('lifecycle.test', 'Mess-/Test-Ergebnis')}</span>
+              <span className="text-[11px] text-cp-text-secondary">{t('lifecycle.test', 'Measurement/test result')}</span>
               {cable.testResult && (
                 <button
                   type="button"
                   onClick={() => setCableTestResult(cable.id, undefined)}
                   className="rounded px-1 py-0.5 text-[10px] text-cp-text-muted hover:bg-cp-surface-3"
                 >
-                  {t('common.clear', 'Löschen')}
+                  {t('common.clear', 'Clear')}
                 </button>
               )}
             </div>
@@ -352,7 +352,7 @@ export const CableProperties = () => {
                 }}
                 className="rounded border border-cp-border bg-cp-surface-1 p-1.5 text-[11px]"
               >
-                <option value="">{t('lifecycle.testNone', '— nicht getestet —')}</option>
+                <option value="">{t('lifecycle.testNone', '— not tested —')}</option>
                 <option value="pass">PASS</option>
                 <option value="fail">FAIL</option>
               </select>
@@ -360,7 +360,7 @@ export const CableProperties = () => {
                 type="number"
                 step="0.1"
                 value={cable.testResult?.marginDb ?? ''}
-                placeholder={t('lifecycle.margin', 'Marge dB')}
+                placeholder={t('lifecycle.margin', 'Margin dB')}
                 disabled={!cable.testResult}
                 onChange={(e) =>
                   cable.testResult &&
@@ -373,7 +373,7 @@ export const CableProperties = () => {
               />
               <input
                 value={cable.testResult?.standard ?? ''}
-                placeholder={t('lifecycle.testStd', 'Standard/Limit')}
+                placeholder={t('lifecycle.testStd', 'Standard/limit')}
                 disabled={!cable.testResult}
                 onChange={(e) =>
                   cable.testResult &&
@@ -386,7 +386,7 @@ export const CableProperties = () => {
               />
               <input
                 value={cable.testResult?.reportRef ?? ''}
-                placeholder={t('lifecycle.reportRef', 'Report-Datei')}
+                placeholder={t('lifecycle.reportRef', 'Report file')}
                 disabled={!cable.testResult}
                 onChange={(e) =>
                   cable.testResult &&
@@ -407,20 +407,20 @@ export const CableProperties = () => {
           ein Bündel. Datalist schlägt bereits vergebene Namen vor. */}
       <label className="block">
         <span className="mb-1 block text-cp-text-secondary">
-          {t('cable.field.multicore', 'Multicore / Snake')}{' '}
+          {t('cable.field.multicore', 'Multicore / snake')}{' '}
           <span className="text-cp-text-faint">({t('common.optional', 'optional')})</span>
         </span>
         <input
           list="cp-multicore-names"
           value={cable.multicoreName ?? ''}
-          placeholder={t('cable.field.multicorePlaceholder', 'z. B. "Snake-1", "FOH-Loom"')}
+          placeholder={t('cable.field.multicorePlaceholder', 'e.g. "Snake-1", "FOH-Loom"')}
           onChange={(event) =>
             updateCable(cable.id, { multicoreName: event.target.value.trim() || undefined })
           }
           className="w-full rounded border border-cp-border bg-cp-surface-1 p-2"
           title={t(
             'cable.field.multicoreTitle',
-            'Kabel mit gleichem Namen bilden ein physisches Bündel — die BOM zählt es als 1 Stück.',
+            'Cables sharing a name form one physical bundle — the BOM counts it as one item.',
           )}
         />
         <datalist id="cp-multicore-names">
@@ -443,19 +443,19 @@ export const CableProperties = () => {
           Leitungen fehlt. */}
       <details className="rounded border border-cp-border bg-cp-surface-3/40">
         <summary className="cursor-pointer select-none px-2 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-cp-text-muted hover:bg-cp-surface-2/40">
-          {t('adern.cableSection', 'Adern (Strom)')}
+          {t('adern.cableSection', 'Conductors (power)')}
         </summary>
         <div className="space-y-2 border-t border-cp-border p-2">
           <label className="block text-cp-xs">
             <span className="mb-1 block text-cp-text-secondary">
-              {t('adern.cable.anschluss', 'Gehört zum Anschluss')}
+              {t('adern.cable.anschluss', 'Belongs to connection')}
             </span>
             <select
               className="w-full rounded border border-cp-border bg-cp-surface-1 p-2"
               value={cable.anschlussId ?? ''}
               onChange={(e) => updateCable(cable.id, { anschlussId: e.target.value || undefined })}
             >
-              <option value="">{t('adern.cable.anschlussNone', 'zu keinem')}</option>
+              <option value="">{t('adern.cable.anschlussNone', 'to none')}</option>
               {(anschlussListe ?? []).map((b) => (
                 <option key={b.id} value={b.id}>
                   {b.name}
@@ -467,13 +467,13 @@ export const CableProperties = () => {
             <div className="text-cp-xs text-cp-text-muted">
               {t(
                 'adern.cable.noAnschluss',
-                'Noch kein Anschluss angelegt — unter „Werkzeuge → Adern und Farbnormen".',
+                'No connection created yet — under "Tools → Conductors and colour standards".',
               )}
             </div>
           )}
 
           <div className="text-cp-xs text-cp-text-secondary">
-            {t('adern.cable.adern', 'Leiter in dieser Leitung')}
+            {t('adern.cable.adern', 'Conductors in this line')}
           </div>
           {(cable.adern ?? []).map((a, i) => (
             <div key={a.id} className="flex flex-wrap items-center gap-1">
@@ -487,7 +487,7 @@ export const CableProperties = () => {
                     ),
                   })
                 }
-                aria-label={t('adern.cable.rolle', 'Leiter')}
+                aria-label={t('adern.cable.rolle', 'Conductor')}
               >
                 {LEITER_ROLLEN.map((r) => (
                   <option key={r} value={r}>
@@ -498,7 +498,7 @@ export const CableProperties = () => {
               <input
                 className="min-w-0 flex-1 rounded border border-cp-border bg-cp-surface-1 px-1 py-1 text-cp-xs"
                 value={a.farbe ?? ''}
-                placeholder={t('adern.cable.farbe', 'Farbe (leer = aus der Norm)')}
+                placeholder={t('adern.cable.farbe', 'Colour (empty = from the standard)')}
                 onChange={(e) =>
                   updateCable(cable.id, {
                     adern: (cable.adern ?? []).map((x, j) =>
@@ -506,12 +506,12 @@ export const CableProperties = () => {
                     ),
                   })
                 }
-                aria-label={t('adern.cable.farbe', 'Farbe (leer = aus der Norm)')}
+                aria-label={t('adern.cable.farbe', 'Colour (empty = from the standard)')}
               />
               <input
                 className="min-w-0 flex-1 rounded border border-cp-border bg-cp-surface-1 px-1 py-1 text-cp-xs"
                 value={a.abweichungsgrund ?? ''}
-                placeholder={t('adern.cable.grund', 'Grund, falls abweichend')}
+                placeholder={t('adern.cable.grund', 'Reason, if deviating')}
                 onChange={(e) =>
                   updateCable(cable.id, {
                     adern: (cable.adern ?? []).map((x, j) =>
@@ -519,7 +519,7 @@ export const CableProperties = () => {
                     ),
                   })
                 }
-                aria-label={t('adern.cable.grund', 'Grund, falls abweichend')}
+                aria-label={t('adern.cable.grund', 'Reason, if deviating')}
               />
               <button
                 type="button"
@@ -532,7 +532,7 @@ export const CableProperties = () => {
                         : undefined,
                   })
                 }
-                aria-label={t('common.delete', 'Löschen')}
+                aria-label={t('common.delete', 'Delete')}
               >
                 ×
               </button>
@@ -556,7 +556,7 @@ export const CableProperties = () => {
               })
             }
           >
-            {t('adern.cable.add', '+ Leiter')}
+            {t('adern.cable.add', '+ Conductor')}
           </button>
         </div>
       </details>
@@ -568,7 +568,7 @@ export const CableProperties = () => {
           checked={!!cable.isTieLine}
           onChange={(event) => updateCable(cable.id, { isTieLine: event.target.checked || undefined })}
         />
-        {t('cable.field.tieLine', 'Tie-Line / Festverbindung (permanent)')}
+        {t('cable.field.tieLine', 'Tie-line / permanent link')}
       </label>
 
       {/* #221 — Off-Page-/Pfeil-Connector. Statt einer Linie quer über den
@@ -588,14 +588,14 @@ export const CableProperties = () => {
             }}
           />
           <span className="font-semibold">
-            {t('cable.field.offPage', 'Off-Page-Verbindung (Pfeil-Connector)')}
+            {t('cable.field.offPage', 'Off-page connection (arrow connector)')}
           </span>
         </label>
         {cable.offPage && (
           <div className="pl-5 space-y-1">
             <label className="block">
               <span className="mb-0.5 block text-[10px] text-cp-text-muted">
-                {t('cable.field.netName', 'Netzname / Signalname')}
+                {t('cable.field.netName', 'Net / signal name')}
               </span>
               <input
                 list="cp-offpage-nets"
@@ -628,13 +628,13 @@ export const CableProperties = () => {
                     ? format(
                         t(
                           'cable.offPage.netPeers',
-                          '{n} weitere(s) Segment(e) im Netz „{net}" — werden logisch verbunden.',
+                          '{n} more segment(s) in net “{net}” — linked logically.',
                         ),
                         { n: peers, net: key ?? '' },
                       )
                     : t(
                         'cable.offPage.netSolo',
-                        'Erstes Segment. Ein zweites mit gleichem Netznamen verbindet sich automatisch.',
+                        'First segment. A second one with the same net name links automatically.',
                       )}
                 </p>
               )
@@ -648,7 +648,7 @@ export const CableProperties = () => {
       <details open className="rounded border border-cp-border bg-cp-surface-3/50">
         <summary className="cursor-pointer select-none px-2 py-1.5 text-[11px] text-cp-text-secondary hover:bg-cp-surface-2/40">
           <span className="font-semibold uppercase tracking-wide text-cp-text-muted">
-            {t('cable.field.connection', 'Verbindung')}
+            {t('cable.field.connection', 'Connection')}
           </span>
           <span className="ml-2 text-cp-text-secondary">
             {fromDev?.name ?? '?'} · {fromPort?.name ?? cable.fromPortId}
@@ -659,9 +659,9 @@ export const CableProperties = () => {
         <div className="border-t border-cp-border p-2">
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <div className="mb-0.5 text-[10px] text-cp-text-muted">{t('cable.fromDeviceShort', 'Von Gerät')}</div>
+              <div className="mb-0.5 text-[10px] text-cp-text-muted">{t('cable.fromDeviceShort', 'From device')}</div>
               <select
-                aria-label={t('cable.aria.fromDevice', 'Quell-Gerät')}
+                aria-label={t('cable.aria.fromDevice', 'Source device')}
                 value={cable.fromEquipmentId}
                 onChange={(e) => onSelectFromEquipment(e.target.value)}
                 className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5 text-cp-xs"
@@ -674,7 +674,7 @@ export const CableProperties = () => {
               </select>
               <div className="mt-1 text-[10px] text-cp-text-muted">{t('cable.portShort', 'Port')}</div>
               <select
-                aria-label={t('cable.aria.fromPort', 'Quell-Port')}
+                aria-label={t('cable.aria.fromPort', 'Source port')}
                 value={cable.fromPortId}
                 onChange={(e) => updateCable(cable.id, { fromPortId: e.target.value })}
                 className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5 text-cp-xs"
@@ -684,16 +684,16 @@ export const CableProperties = () => {
                   return (
                     <option key={p.id} value={p.id}>
                       {p._side === 'out' ? '⇢ ' : '⇠ '}
-                      {p.name} ({p.connectorType}){inUse ? ' • ' + t('cable.port.busy', 'belegt') : ''}
+                      {p.name} ({p.connectorType}){inUse ? ' • ' + t('cable.port.busy', 'in use') : ''}
                     </option>
                   )
                 })}
               </select>
             </div>
             <div>
-              <div className="mb-0.5 text-[10px] text-cp-text-muted">{t('cable.toDeviceShort', 'Nach Gerät')}</div>
+              <div className="mb-0.5 text-[10px] text-cp-text-muted">{t('cable.toDeviceShort', 'To device')}</div>
               <select
-                aria-label={t('cable.aria.toDevice', 'Ziel-Gerät')}
+                aria-label={t('cable.aria.toDevice', 'Target device')}
                 value={cable.toEquipmentId}
                 onChange={(e) => onSelectToEquipment(e.target.value)}
                 className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5 text-cp-xs"
@@ -706,7 +706,7 @@ export const CableProperties = () => {
               </select>
               <div className="mt-1 text-[10px] text-cp-text-muted">{t('cable.portShort', 'Port')}</div>
               <select
-                aria-label={t('cable.aria.toPort', 'Ziel-Port')}
+                aria-label={t('cable.aria.toPort', 'Target port')}
                 value={cable.toPortId}
                 onChange={(e) => updateCable(cable.id, { toPortId: e.target.value })}
                 className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5 text-cp-xs"
@@ -716,7 +716,7 @@ export const CableProperties = () => {
                   return (
                     <option key={p.id} value={p.id}>
                       {p._side === 'out' ? '⇢ ' : '⇠ '}
-                      {p.name} ({p.connectorType}){inUse ? ' • ' + t('cable.port.busy', 'belegt') : ''}
+                      {p.name} ({p.connectorType}){inUse ? ' • ' + t('cable.port.busy', 'in use') : ''}
                     </option>
                   )
                 })}
@@ -726,13 +726,13 @@ export const CableProperties = () => {
           {fromConflict && (
             <div className="mt-2 flex items-center gap-1 rounded bg-amber-900/50 px-2 py-1 text-[11px] text-amber-100">
               <Icon icon={AlertTriangle} size="xs" className="shrink-0" />
-              {format(t('cable.warn.fromBusy', 'Quell-Port bereits durch „{name}" belegt.'), { name: fromConflict.name })}
+              {format(t('cable.warn.fromBusy', 'Source port already in use by "{name}".'), { name: fromConflict.name })}
             </div>
           )}
           {toConflict && (
             <div className="mt-1 flex items-center gap-1 rounded bg-amber-900/50 px-2 py-1 text-[11px] text-amber-100">
               <Icon icon={AlertTriangle} size="xs" className="shrink-0" />
-              {format(t('cable.warn.toBusy', 'Ziel-Port bereits durch „{name}" belegt.'), { name: toConflict.name })}
+              {format(t('cable.warn.toBusy', 'Target port already in use by "{name}".'), { name: toConflict.name })}
             </div>
           )}
           {/* #48 Converter-Vorschlag: Connector-Typ-Mismatch erkennen und passende
@@ -776,7 +776,7 @@ export const CableProperties = () => {
             blendet das Label aus, kein 'ausblenden'-Toggle mehr noetig.
             Globaler Hide-Toggle gibt's zusaetzlich in der Toolbar. */}
         <div className="mb-1 flex items-center justify-between">
-          <span className="text-cp-text-secondary">{t('cable.field.labelPosition', 'Label Position')}</span>
+          <span className="text-cp-text-secondary">{t('cable.field.labelPosition', 'Label position')}</span>
         </div>
         {(() => {
           // Issue #234 — kein extra "Aus"-Button mehr. Wenn keine
@@ -787,7 +787,7 @@ export const CableProperties = () => {
           const activePos = cable.labelPosition ?? 'center'
           const positions = [
             { id: 'source' as const, label: '← ' + t('cable.label.start', 'Start') },
-            { id: 'center' as const, label: t('cable.label.center', 'Mitte') },
+            { id: 'center' as const, label: t('cable.label.center', 'Center') },
             { id: 'target' as const, label: t('cable.label.end', 'End') + ' →' },
           ]
           return (
@@ -811,7 +811,7 @@ export const CableProperties = () => {
                       }
                       title={
                         isActive
-                          ? `${p.label} — ${t('cable.label.clickToHide', 'Klick zum Ausblenden des Labels')}`
+                          ? `${p.label} — ${t('cable.label.clickToHide', 'Click to hide the label')}`
                           : `${p.label}`
                       }
                       className={`flex-1 rounded border px-2 py-1 text-cp-xs ${
@@ -827,7 +827,7 @@ export const CableProperties = () => {
               </div>
               {isHidden && (
                 <p className="mt-1 text-[10px] text-cp-text-muted">
-                  {t('cable.label.hiddenHint', 'Label ausgeblendet — Klick auf eine der drei Positionen zeigt es wieder an.')}
+                  {t('cable.label.hiddenHint', 'Label hidden — click one of the three positions to show it again.')}
                 </p>
               )}
               <div className={`mt-2 flex items-center gap-2 text-[11px] ${isHidden ? 'opacity-40' : ''}`}>
@@ -851,7 +851,7 @@ export const CableProperties = () => {
                     updateCable(cable.id, { labelT: Number(e.target.value) })
                   }
                   className="flex-1 accent-sky-500"
-                  title={t('cable.field.labelSliderTitle', 'Feinjustierung des Labels entlang des Kabels (0=Start, 1=Ende)')}
+                  title={t('cable.field.labelSliderTitle', 'Fine-tune label along the cable (0 = start, 1 = end)')}
                 />
                 <span className="w-10 text-right font-mono text-cp-text-muted">
                   {Math.round(
@@ -870,7 +870,7 @@ export const CableProperties = () => {
                     type="button"
                     onClick={() => updateCable(cable.id, { labelT: undefined })}
                     className="rounded bg-cp-surface-2 px-1 py-0.5 text-[10px] text-cp-text-muted hover:bg-cp-surface-4"
-                    title={t('cable.field.labelSliderReset', 'Slider zurücksetzen — Preset wieder aktiv')}
+                    title={t('cable.field.labelSliderReset', 'Reset slider — preset becomes active again')}
                   >
                     reset
                   </button>
@@ -886,13 +886,13 @@ export const CableProperties = () => {
           Toggle in Settings -> Editing. */}
       <div className="rounded border border-cp-border-muted bg-cp-surface-3/40 p-1.5">
         <div className="mb-1 flex items-center justify-between">
-          <span className="text-cp-text-secondary">{t('cable.field.endpointLabels', 'Endpoint-Labels (→ zum anderen Ende)')}</span>
+          <span className="text-cp-text-secondary">{t('cable.field.endpointLabels', 'Endpoint labels (→ pointing to the other end)')}</span>
         </div>
         <div className="flex gap-1">
           {[
-            { id: undefined, label: t('cable.endpointLabels.auto', 'Auto'), title: t('cable.endpointLabels.autoTitle', 'Folgt Settings → Editing → Endpoint-Labels einblenden') },
-            { id: 'show' as const, label: '✓ ' + t('cable.endpointLabels.show', 'Anzeigen'), title: t('cable.endpointLabels.showTitle', 'Immer anzeigen, unabhängig vom Settings-Toggle') },
-            { id: 'hide' as const, label: '✕ ' + t('cable.endpointLabels.hide', 'Ausblenden'), title: t('cable.endpointLabels.hideTitle', 'Immer ausblenden, unabhängig vom Settings-Toggle') },
+            { id: undefined, label: t('cable.endpointLabels.auto', 'Auto'), title: t('cable.endpointLabels.autoTitle', 'Follows Settings → Editing → Show endpoint labels') },
+            { id: 'show' as const, label: '✓ ' + t('cable.endpointLabels.show', 'Show'), title: t('cable.endpointLabels.showTitle', 'Always show, regardless of the settings toggle') },
+            { id: 'hide' as const, label: '✕ ' + t('cable.endpointLabels.hide', 'Hide'), title: t('cable.endpointLabels.hideTitle', 'Always hide, regardless of the settings toggle') },
           ].map((opt) => {
             const active = (cable.endpointLabels ?? undefined) === opt.id
             return (
@@ -929,7 +929,7 @@ export const CableProperties = () => {
             checked={cable.arrowStart ?? false}
             onChange={(event) => updateCable(cable.id, { arrowStart: event.target.checked })}
           />
-          {t('cable.field.arrowStart', 'Arrow')} ◄
+          {t('cable.field.arrowStart', 'Arrow ◄')} ◄
         </label>
         <label className="flex items-center gap-1">
           <input
@@ -937,18 +937,18 @@ export const CableProperties = () => {
             checked={cable.arrowEnd ?? true}
             onChange={(event) => updateCable(cable.id, { arrowEnd: event.target.checked })}
           />
-          {t('cable.field.arrowEnd', 'Arrow')} ►
+          {t('cable.field.arrowEnd', 'Arrow ►')} ►
         </label>
         <label
           className="flex items-center gap-1"
-          title={t('cable.field.bidirectionalTitle', 'Bidirektionales Kabel (z.B. USB, Ethernet, LWL) — Pfeile auf beiden Seiten')}
+          title={t('cable.field.bidirectionalTitle', 'Bidirectional cable (e.g. USB, Ethernet, fibre) — arrows on both sides')}
         >
           <input
             type="checkbox"
             checked={cable.bidirectional ?? false}
             onChange={(event) => updateCable(cable.id, { bidirectional: event.target.checked })}
           />
-          {t('cable.field.bidirectional', 'Bidirektional')} ⇌
+          {t('cable.field.bidirectional', 'Bidirectional cable')} ⇌
         </label>
       </div>
 
@@ -959,25 +959,25 @@ export const CableProperties = () => {
             checked={cable.wireless ?? false}
             onChange={(event) => updateCable(cable.id, { wireless: event.target.checked, dashed: event.target.checked ? true : cable.dashed })}
           />
-          <span className="font-semibold">{t('cable.field.wireless', 'Wireless Verbindung (kein Kabel)')}</span>
+          <span className="font-semibold">{t('cable.field.wireless', 'Wireless connection (no cable)')}</span>
         </label>
         {cable.wireless && (
           <div className="grid grid-cols-2 gap-2 pl-5">
             <label className="block">
-              <span className="mb-0.5 block text-[10px] text-cp-text-muted">{t('cable.field.frequencyLabel', 'Frequenz (z.B. 5.8 GHz)')}</span>
+              <span className="mb-0.5 block text-[10px] text-cp-text-muted">{t('cable.field.frequencyLabel', 'Frequency (e.g. 5.8 GHz)')}</span>
               <input
                 value={cable.frequency ?? ''}
                 onChange={(event) => updateCable(cable.id, { frequency: event.target.value || undefined })}
-                placeholder={t('cable.field.frequencyPlaceholder', 'z.B. 5.8 GHz, 600 MHz')}
+                placeholder={t('cable.field.frequencyPlaceholder', 'e.g. 5.8 GHz, 600 MHz')}
                 className="w-full rounded border border-cp-border bg-cp-surface-1 p-1.5 text-cp-xs"
               />
             </label>
             <label className="block">
-              <span className="mb-0.5 block text-[10px] text-cp-text-muted">{t('cable.field.channelLabel', 'Kanal / Channel')}</span>
+              <span className="mb-0.5 block text-[10px] text-cp-text-muted">{t('cable.field.channelLabel', 'Channel')}</span>
               <input
                 value={cable.wifiChannel ?? ''}
                 onChange={(event) => updateCable(cable.id, { wifiChannel: event.target.value || undefined })}
-                placeholder={t('cable.field.channelPlaceholder', 'z.B. 36, 6, 149')}
+                placeholder={t('cable.field.channelPlaceholder', 'e.g. 36, 6, 149')}
                 className="w-full rounded border border-cp-border bg-cp-surface-1 p-1.5 text-cp-xs"
               />
             </label>
@@ -1000,7 +1000,7 @@ export const CableProperties = () => {
         onClick={() => deleteCable(cable.id)}
         className="w-full rounded bg-red-700 px-2 py-1 text-white hover:bg-red-600"
       >
-        {t('cable.action.delete', 'Kabel löschen')}
+        {t('cable.action.delete', 'Delete cable')}
       </button>
     </div>
   )
@@ -1053,13 +1053,13 @@ const ConnectorMismatchHint = ({
       <div className="flex items-center gap-1">
         <Icon icon={AlertTriangle} size="xs" className="shrink-0" />
         {format(
-          t('cable.warn.connectorMismatch', 'Connector-Typen passen nicht: {from} ↔ {to}'),
+          t('cable.warn.connectorMismatch', 'Connector types differ: {from} ↔ {to}'),
           { from: fromPort.connectorType, to: toPort.connectorType },
         )}
       </div>
       {matches.length > 0 ? (
         <>
-          <div className="mt-1 text-amber-200">{t('cable.warn.converterSuggest', 'Passende Konverter aus deiner Library:')}</div>
+          <div className="mt-1 text-amber-200">{t('cable.warn.converterSuggest', 'Matching converters from your library:')}</div>
           <div className="mt-1 flex flex-wrap gap-1">
             {matches.slice(0, 8).map((tpl) => (
               <button
@@ -1117,7 +1117,7 @@ const ConnectorMismatchHint = ({
                 }}
                 className="rounded bg-amber-800/60 px-1.5 py-0.5 text-amber-100 hover:bg-amber-700/80"
                 title={format(
-                  t('cable.warn.converterInsertTitle', '{name} einfügen — splittet das Kabel automatisch'),
+                  t('cable.warn.converterInsertTitle', 'Insert {name} — automatically splits the cable'),
                   { name: tpl.name },
                 )}
               >
@@ -1130,7 +1130,7 @@ const ConnectorMismatchHint = ({
         <div className="mt-1 text-amber-200/70">
           {t(
             'cable.warn.converterNone',
-            'Kein passender Konverter in der Library. Eines z. B. via „+ Gerät" oder Rentman-Import anlegen.',
+            'No matching converter in the library. Add one via "+ Device" or Rentman import.',
           )}
         </div>
       )}

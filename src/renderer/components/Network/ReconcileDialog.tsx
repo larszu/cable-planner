@@ -118,7 +118,7 @@ export const ReconcileDialog = () => {
       setError(
         t(
           'reconcile.error.empty',
-          'In der Datei stand kein Gerät, das sich lesen lässt. Erwartet: eine ARP-/Neighbour-Ausgabe oder eine CSV mit einer Spalte Name, IP oder MAC.',
+          'No readable device in that file. Expected an ARP/neighbour dump or a CSV with a name, IP or MAC column.',
         ),
       )
       setScan(null)
@@ -147,19 +147,19 @@ export const ReconcileDialog = () => {
   const verdictText = (v: ReconcileVerdict): string => {
     switch (v) {
       case 'match':
-        return t('reconcile.v.match', 'stimmt')
+        return t('reconcile.v.match', 'matches')
       case 'address-mismatch':
-        return t('reconcile.v.address', 'Adresse weicht ab')
+        return t('reconcile.v.address', 'address differs')
       case 'name-mismatch':
-        return t('reconcile.v.name', 'Name weicht ab')
+        return t('reconcile.v.name', 'name differs')
       case 'renamed':
-        return t('reconcile.v.renamed', 'umbenannt (Kollisionsform)')
+        return t('reconcile.v.renamed', 'renamed (collision form)')
       case 'missing':
-        return t('reconcile.v.missing', 'nicht gefunden')
+        return t('reconcile.v.missing', 'not found')
       case 'unexpected':
-        return t('reconcile.v.unexpected', 'nicht im Plan')
+        return t('reconcile.v.unexpected', 'not in the plan')
       case 'ambiguous':
-        return t('reconcile.v.ambiguous', 'nicht eindeutig — keine Zuordnung')
+        return t('reconcile.v.ambiguous', 'not unique \u2014 no match made')
     }
   }
 
@@ -179,12 +179,12 @@ export const ReconcileDialog = () => {
       >
         <div className="flex items-center justify-between border-b border-cp-border px-4 py-2.5">
           <h2 id={titleId} className="text-cp-base font-semibold text-cp-text">
-            {t('reconcile.title', 'Plan gegen Vorgefundenes')}
+            {t('reconcile.title', 'Plan vs. found')}
           </h2>
           <button
             type="button"
             onClick={() => setOpen(false)}
-            aria-label={t('common.close', 'Schließen')}
+            aria-label={t('common.close', 'Close')}
             className="text-cp-text-muted hover:text-cp-text"
           >
             <Icon icon={X} size="sm" />
@@ -196,7 +196,7 @@ export const ReconcileDialog = () => {
             className="mb-3 text-cp-sm leading-snug text-cp-text-secondary"
             text={t(
               'reconcile.intro',
-              'Was vom LKW kam, unter welchen Namen und mit welchen Adressen — gegen das, was der Plan sagt. Der Plan fragt kein Gerät: du legst eine Datei ab (ARP-/Neighbour-Ausgabe oder CSV), und der Abgleich rechnet die Abweichung aus.',
+              'What came off the truck, under which names and with which addresses \u2014 against what the plan says. The plan asks no device: you supply a file (ARP/neighbour output or CSV) and the reconciliation computes the delta.',
             )}
           />
 
@@ -206,12 +206,12 @@ export const ReconcileDialog = () => {
               onClick={() => void load()}
               className="inline-flex items-center gap-1 rounded border border-cp-border px-2.5 py-1 text-cp-sm text-cp-text-secondary hover:text-cp-text"
             >
-              <Icon icon={FileUp} size="sm" /> {t('reconcile.load', 'Datei einlesen')}
+              <Icon icon={FileUp} size="sm" /> {t('reconcile.load', 'Load file')}
             </button>
             {report && (
               <>
                 <span className="text-cp-xs text-cp-text-muted">
-                  {format(t('reconcile.taken', '{source} · {when}'), {
+                  {format(t('reconcile.taken', '{source} \u00b7 {when}'), {
                     source: report.source,
                     when: new Date(report.takenAt).toLocaleString(),
                   })}
@@ -232,11 +232,11 @@ export const ReconcileDialog = () => {
               nachgesehen", und genau das ist die ehrliche Auskunft. */}
           <div className="flex flex-wrap items-center gap-2 border-t border-cp-border-muted pt-2 text-cp-xs">
             <span className="text-cp-text-secondary">
-              {t('asBuilt.title', 'As-Built-Blatt (wie geplant / wie gebaut)')}
+              {t('asBuilt.title', 'As-built sheet (as planned / as built)')}
             </span>
             <span className="text-cp-text-muted">
               {format(
-                t('asBuilt.count', '{verified} von {total} Angaben nachgesehen'),
+                t('asBuilt.count', '{verified} of {total} entries verified'),
                 { verified: asBuiltStand.verified, total: asBuiltStand.total },
               )}
             </span>
@@ -247,7 +247,7 @@ export const ReconcileDialog = () => {
               className="ml-auto inline-flex items-center gap-1 rounded border border-cp-border px-2 py-1 text-cp-text-secondary hover:text-cp-text disabled:opacity-40"
             >
               <Icon icon={Download} size="xs" />
-              {t('asBuilt.export', 'As-Built')}
+              {t('asBuilt.export', 'As-built')}
             </button>
           </div>
 
@@ -260,7 +260,7 @@ export const ReconcileDialog = () => {
 
           {!report ? (
             <p className="py-6 text-center text-cp-sm text-cp-text-muted">
-              {t('reconcile.empty', 'Noch keine Datei eingelesen.')}
+              {t('reconcile.empty', 'No file loaded yet.')}
             </p>
           ) : (
             <>
@@ -286,7 +286,7 @@ export const ReconcileDialog = () => {
                     {r.plannedIp && <span className="font-mono text-cp-text-muted">{r.plannedIp}</span>}
                     {r.found && r.found !== r.planned && (
                       <span className="text-cp-text-secondary">
-                        {format(t('reconcile.foundAs', 'gefunden als {name}'), { name: r.found })}
+                        {format(t('reconcile.foundAs', 'found as {name}'), { name: r.found })}
                       </span>
                     )}
                     {r.foundIp && r.foundIp !== r.plannedIp && (
@@ -294,7 +294,7 @@ export const ReconcileDialog = () => {
                     )}
                     {r.matchedBy && (
                       <span className="ml-auto text-[10px] text-cp-text-faint">
-                        {format(t('reconcile.matchedBy', 'über {basis}'), { basis: r.matchedBy.toUpperCase() })}
+                        {format(t('reconcile.matchedBy', 'via {basis}'), { basis: r.matchedBy.toUpperCase() })}
                       </span>
                     )}
                   </li>

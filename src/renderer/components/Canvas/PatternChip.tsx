@@ -90,7 +90,7 @@ export function PatternChip() {
       `testbild-${quellName.replace(/[^\w.-]+/g, '_')}.svg`,
       testPatternSvg({
         name: quellName,
-        zeile2: format(t('canvas.pattern.line2', '{n} Ankunftsorte laut Plan'), { n: ziele }),
+        zeile2: format(t('canvas.pattern.line2', '{n} arrival points per plan'), { n: ziele }),
         zeile3: `${stempel.project}${stempel.revision ? ` · ${stempel.revision}` : ''} · ${stempel.fingerprint}${stempel.drifted ? ' *' : ''}`,
       }),
       'image/svg+xml',
@@ -129,17 +129,17 @@ export function PatternChip() {
           className="inline-block h-1.5 w-1.5 rounded-full"
           style={{ background: quelleId ? '#fbbf24' : 'var(--cp-text-faint, #64748b)' }}
         />
-        <span>{t('canvas.pattern.label', 'Prüfbild')}</span>
+        <span>{t('canvas.pattern.label', 'Test pattern')}</span>
         <select
           className="bg-transparent text-cp-text outline-none"
           value={quelleId ?? ''}
           onChange={(e) => waehle(e.target.value || null)}
           title={t(
             'canvas.pattern.pickTitle',
-            'Eine Quelle wählen: der Plan zeigt dann an jedem Ankunftsort, welches Bild dort stehen müsste. Das ist die Erwartung — diese App sieht nicht, was wirklich ankommt.',
+            'Pick a source: the plan then shows, at every arrival point, which image should be there. That is the expectation — this app cannot see what actually arrives.',
           )}
         >
-          <option value="">{t('canvas.pattern.none', 'keine')}</option>
+          <option value="">{t('canvas.pattern.none', 'none')}</option>
           {quellen.map((q) => (
             <option key={q.id} value={q.id}>
               {q.name}
@@ -151,19 +151,19 @@ export function PatternChip() {
         )}
         {quelleId && offen > 0 && (
           <span className="tabular-nums text-cp-warn">
-            {format(t('canvas.pattern.open', '· {n} offen'), { n: offen })}
+            {format(t('canvas.pattern.open', '· {n} open'), { n: offen })}
           </span>
         )}
         {/* Die Abnahme-Zahlen. „Vertauscht" steht vorn und getrennt, weil es
             als einziger Befund SAGT, was zu tun ist. */}
         {quelleId && summe.vertauscht > 0 && (
           <span className="tabular-nums text-cp-danger">
-            {format(t('canvas.pattern.swapped', '· {n} vertauscht'), { n: summe.vertauscht })}
+            {format(t('canvas.pattern.swapped', '· {n} swapped'), { n: summe.vertauscht })}
           </span>
         )}
         {quelleId && summe.ungeprueft > 0 && (
           <span className="tabular-nums text-cp-text-muted">
-            {format(t('canvas.pattern.unchecked', '· {n} ungeprüft'), { n: summe.ungeprueft })}
+            {format(t('canvas.pattern.unchecked', '· {n} unchecked'), { n: summe.ungeprueft })}
           </span>
         )}
       </label>
@@ -174,33 +174,33 @@ export function PatternChip() {
             onClick={bildSpeichern}
             title={t(
               'canvas.pattern.saveImageTitle',
-              'Das Bild als SVG sichern — für den Mediaplayer, den Standbild-Speicher des Mischers oder einen Laptop am Ausgang. Diese App speist nichts ein.',
+              'Save the image as SVG — for a media player, the switcher stills store, or a laptop on an output. This app feeds nothing in.',
             )}
             className="av-focus rounded-full border border-cp-border px-2 py-0.5 text-[11px] text-cp-text-secondary hover:bg-cp-surface-3"
           >
-            {t('canvas.pattern.saveImage', 'Bild sichern')}
+            {t('canvas.pattern.saveImage', 'Save image')}
           </button>
           <button
             type="button"
             onClick={blattSpeichern}
             title={t(
               'canvas.pattern.saveSheetTitle',
-              'Die Liste zum Abgehen — mit den Wegen, die der Plan nicht zu Ende kennt, und ihrem Grund.',
+              'The walk-around list — including the paths the plan cannot follow to the end, and why.',
             )}
             className="av-focus rounded-full border border-cp-border px-2 py-0.5 text-[11px] text-cp-text-secondary hover:bg-cp-surface-3"
           >
-            {t('canvas.pattern.saveSheet', 'Prüfblatt')}
+            {t('canvas.pattern.saveSheet', 'Check sheet')}
           </button>
           <button
             type="button"
             onClick={abnahmeSpeichern}
             title={t(
               'canvas.pattern.saveAcceptanceTitle',
-              'Was gesehen wurde, mit Zeitpunkt — und die Orte, an denen noch niemand hingesehen hat.',
+              'What was actually seen, with timestamps — and the places nobody has looked at yet.',
             )}
             className="av-focus rounded-full border border-cp-border px-2 py-0.5 text-[11px] text-cp-text-secondary hover:bg-cp-surface-3"
           >
-            {t('canvas.pattern.saveAcceptance', 'Abnahme')}
+            {t('canvas.pattern.saveAcceptance', 'Sign-off')}
           </button>
           {schaltbar && (
             <button
@@ -208,11 +208,11 @@ export function PatternChip() {
               onClick={() => setSchaltenOffen(true)}
               title={t(
                 'canvas.pattern.switchTitle',
-                'Die Kreuzpunkte setzen, die der Plan für einen Weg vorsieht — ein Eingriff in die laufende Anlage. Es werden nur die Ausgänge dieses Wegs geschaltet, der Plan bleibt unverändert.',
+                'Set the crosspoints the plan foresees for one path — an intervention in the live installation. Only that path\u2019s outputs are switched; the plan itself stays unchanged.',
               )}
               className="av-focus rounded-full border border-cp-danger/60 px-2 py-0.5 text-[11px] text-cp-danger hover:bg-cp-surface-3"
             >
-              {t('canvas.pattern.switch', 'Weg schalten…')}
+              {t('canvas.pattern.switch', 'Switch path…')}
             </button>
           )}
         </>

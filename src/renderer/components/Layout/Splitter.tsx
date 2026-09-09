@@ -50,7 +50,7 @@ export const Splitter = ({ side, onResize }: SplitterProps) => {
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       className="h-full w-1 cursor-col-resize bg-cp-surface-2 hover:bg-sky-600"
-      title={t('splitter.resize', 'Spalte verbreitern')}
+      title={t('splitter.resize', 'Resize column')}
     />
   )
 }

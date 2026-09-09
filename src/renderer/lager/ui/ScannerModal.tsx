@@ -32,7 +32,7 @@ export const ScannerModal = ({ open, onClose, onDetect }: ScannerModalProps) => 
         else handleRef.current = h
       })
       .catch(() => {
-        if (!cancelled) setError(t('scanner.error', 'Kamera nicht verfügbar oder nicht freigegeben. Nutze die manuelle Eingabe.'))
+        if (!cancelled) setError(t('scanner.error', 'Camera unavailable or not permitted. Use manual entry.'))
       })
     return () => {
       cancelled = true
@@ -50,13 +50,13 @@ export const ScannerModal = ({ open, onClose, onDetect }: ScannerModalProps) => 
       <div className="flex w-full max-w-md flex-col overflow-hidden rounded-lg border border-cp-border bg-cp-bg shadow-2xl">
         <header className="flex items-center justify-between border-b border-cp-border-muted px-4 py-2.5">
           <h2 className="flex items-center gap-2 text-cp-md font-semibold">
-            <Camera size={16} /> {t('scanner.title', 'Code scannen')}
+            <Camera size={16} /> {t('scanner.title', 'Scan code')}
           </h2>
           <button
             type="button"
             onClick={onClose}
             className="rounded px-2 py-1 text-cp-text-muted hover:bg-cp-surface-2 hover:text-cp-text"
-            aria-label={t('common.close', 'Schließen')}
+            aria-label={t('common.close', 'Close')}
           >
             <X size={18} />
           </button>
@@ -74,7 +74,7 @@ export const ScannerModal = ({ open, onClose, onDetect }: ScannerModalProps) => 
           )}
         </div>
         <div className="px-4 py-2 text-center text-cp-xs text-cp-text-muted">
-          {t('scanner.hint', 'QR- oder Barcode in den Rahmen halten.')}
+          {t('scanner.hint', 'Hold a QR or barcode inside the frame.')}
         </div>
       </div>
     </div>

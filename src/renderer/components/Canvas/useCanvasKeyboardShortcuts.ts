@@ -88,8 +88,8 @@ export function useCanvasKeyboardShortcuts(deps: CanvasKeyboardShortcutsDeps): v
           event.preventDefault()
           ;(async () => {
             const name = (await promptDialog(
-              t('canvas.area.newDevicePromptTitle', 'Neues Gerät'),
-              t('canvas.area.newDevicePromptDefault', 'Neues Gerät'),
+              t('canvas.area.newDevicePromptTitle', 'New device'),
+              t('canvas.area.newDevicePromptDefault', 'New device'),
             ))?.trim()
             if (!name) return
             const pos = lastMousePosRef.current

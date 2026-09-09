@@ -3,9 +3,14 @@ import { useUiStore, type Language } from '../store/uiStore'
 /**
  * Cable Planner i18n.
  *
- * Coverage status: COMPREHENSIVE (~2050+ keys).
+ * SOURCE LANGUAGE: English (E-28, owner decision 2026-09-09). The English
+ * text sits inline as the fallback in `t('key', 'English text')`; every other
+ * language is a dictionary that overrides it. Missing keys show the English
+ * source, so wrapping a string can never break the UI.
  *
- * The English dictionary contains all user-visible strings in the application:
+ * Coverage status: COMPREHENSIVE (4576 keys with a German translation).
+ *
+ * The dictionaries cover all user-visible strings in the application:
  *
  *   ✓ Top-level chrome — App header, MenuBar (incl. shortcuts), StatusBar
  *   ✓ Settings — all 6 tabs (Project, Appearance, Editing, Integrations,
@@ -41,23 +46,37 @@ import { useUiStore, type Language } from '../store/uiStore'
  *     RackAddSplitButton, RackLivePreview
  *   ✓ Promptdialog / confirmDialog / infoDialog default labels
  *
- * Strings without a translation fall through to the German source string,
+ * Strings without a translation fall through to the English source string,
  * so anything not yet covered remains readable rather than showing
  * missing-key tokens.
  */
 
 
-import { type Dict, en, de } from './i18n/dicts'
+import { type Dict } from './i18n/dicts'
+import { de } from './i18n/de'
 
-const translations: Record<Language, Dict> = {
+/**
+ * Die Woerterbuecher — eine REGISTRY, keine Verzweigung.
+ *
+ * Englisch fehlt hier mit Absicht: es ist seit E-28 die QUELLSPRACHE und
+ * steht als Fallback im JSX. Ein Eintrag dafuer waere eine zweite Kopie
+ * derselben Texte, und zwei Kopien laufen auseinander.
+ *
+ * Eine weitere Sprache ist eine Datei neben `i18n/de.ts` und ein Eintrag
+ * hier — keine Zeile Logik. Genau das war der Grund fuer diese Form: vorher
+ * stand in `translate` ein fester Vergleich auf zwei Sprachen.
+ */
+const translations: Partial<Record<Language, Dict>> = {
   de,
-  en,
 }
 
 /**
- * Look up a translation. Falls back to the German source string (or the
- * key itself if no fallback is provided) so partial coverage doesn't break
- * the UI.
+ * Look up a translation. Falls back to the ENGLISH source string (or the key
+ * itself if no fallback is given) so partial coverage never breaks the UI.
+ *
+ * Until 2026-09-09 the fallback was German — E-28 turned the direction
+ * around: English is the source language of every repository in the suite,
+ * German is the first translation.
  */
 export function translate(lang: Language, key: string, fallback?: string): string {
   const dict = translations[lang]

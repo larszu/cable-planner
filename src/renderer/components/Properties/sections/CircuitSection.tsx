@@ -32,7 +32,7 @@ export const CircuitSection = ({ equipment }: { equipment: EquipmentItem }) => {
   const updateEquipment = useProjectStore((s) => s.updateEquipment)
   const kind = equipment.circuitKind
   const info = kind ? CIRCUIT_KIND_INFO[kind] : undefined
-  const summary = info ? info.label : t('circuit.none', 'keine')
+  const summary = info ? info.label : t('circuit.none', 'none')
 
   const alleAnschluesse = [...equipment.inputs, ...equipment.outputs]
 
@@ -48,9 +48,9 @@ export const CircuitSection = ({ equipment }: { equipment: EquipmentItem }) => {
   }
 
   return (
-    <SortableSection id="circuit" title={t('circuit.title', 'Schaltbild (Strom)')} subtitle={summary}>
+    <SortableSection id="circuit" title={t('circuit.title', 'Circuit (mains)')} subtitle={summary}>
       <label className="block text-cp-xs">
-        <span className="mb-1 block text-cp-text-muted">{t('circuit.kind', 'Bauart im Stromkreis')}</span>
+        <span className="mb-1 block text-cp-text-muted">{t('circuit.kind', 'Role in the circuit')}</span>
         <select
           className="w-full rounded border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-text"
           value={kind ?? ''}
@@ -60,7 +60,7 @@ export const CircuitSection = ({ equipment }: { equipment: EquipmentItem }) => {
             })
           }
         >
-          <option value="">{t('circuit.none', 'keine')}</option>
+          <option value="">{t('circuit.none', 'none')}</option>
           {CIRCUIT_KINDS.map((k) => (
             <option key={k} value={k}>
               {CIRCUIT_KIND_INFO[k].label}
@@ -74,7 +74,7 @@ export const CircuitSection = ({ equipment }: { equipment: EquipmentItem }) => {
           className="mt-2 text-cp-xs text-cp-text-muted"
           text={t(
             'circuit.noneHint',
-            'Ohne Bauart ist dieses Gerät für das Schaltbild nicht vorhanden — es wird weder als Leuchte noch als Klemmstelle gerechnet. Das ist nicht dasselbe wie „aus".',
+            'Without a role this device does not exist for the circuit — it is calculated neither as a luminaire nor as a junction. That is not the same as "off".',
           )}
         />
       )}
@@ -82,14 +82,14 @@ export const CircuitSection = ({ equipment }: { equipment: EquipmentItem }) => {
       {kind && info && info.klemmen.length > 0 && (
         <>
           <div className="mt-3 text-cp-xs text-cp-text-muted">
-            {t('circuit.terminals', 'Klemmen dieser Bauart')}: {info.klemmen.join(', ')}
+            {t('circuit.terminals', 'Terminals of this role')}: {info.klemmen.join(', ')}
           </div>
           {alleAnschluesse.length === 0 ? (
             <PanelHint
               className="mt-2 text-cp-xs text-cp-text-muted"
               text={t(
                 'circuit.noPorts',
-                'Dieses Gerät hat keine Anschlüsse. Ohne sie kann keine Leitung daran hängen, und das Schaltbild bleibt an dieser Stelle leer.',
+                'This device has no connectors. Without them no line can be attached, and the circuit stays empty at this point.',
               )}
             />
           ) : (
@@ -104,10 +104,10 @@ export const CircuitSection = ({ equipment }: { equipment: EquipmentItem }) => {
                       setzeKlemme(p.id, e.target.value === '' ? undefined : Number(e.target.value))
                     }
                   >
-                    <option value="">{t('circuit.terminalDefault', 'Klemme 0')}</option>
+                    <option value="">{t('circuit.terminalDefault', 'Terminal 0')}</option>
                     {info.klemmen.map((n) => (
                       <option key={n} value={n}>
-                        {t('circuit.terminalN', 'Klemme {n}').replace('{n}', String(n))}
+                        {t('circuit.terminalN', 'Terminal {n}').replace('{n}', String(n))}
                       </option>
                     ))}
                   </select>
@@ -119,7 +119,7 @@ export const CircuitSection = ({ equipment }: { equipment: EquipmentItem }) => {
             className="mt-2 text-cp-xs text-cp-text-muted"
             text={t(
               'circuit.terminalHint',
-              'Die Klemme hängt am Anschluss, nicht an seiner Position in der Liste — Umsortieren verdrahtet die Schaltung nicht um.',
+              'The terminal belongs to the connector, not to its position in the list — reordering does not rewire the circuit.',
             )}
           />
         </>

@@ -105,12 +105,12 @@ export const RecordingStorageCalcCore = ({
       <p className="text-[11px] text-cp-text-muted">
         {t(
           'recStorage.intro',
-          'Berechnet den Speicherplatzbedarf für eine Aufzeichnung: Codec-Bitrate × Dauer × Kanäle. Werte sind Richtwerte ohne Filesystem-Overhead.',
+          'Calculates the storage required for a recording: codec bitrate × duration × channels. Values are approximate without filesystem overhead.',
         )}
       </p>
 
       <label className="block">
-        <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('recStorage.codec', 'Codec / Bitrate-Preset')}</span>
+        <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('recStorage.codec', 'Codec / bitrate preset')}</span>
         <select
           value={codecId}
           onChange={(e) => setCodecId(e.target.value)}
@@ -118,7 +118,7 @@ export const RecordingStorageCalcCore = ({
         >
           {CODEC_PRESETS.map((c) => (
             <option key={c.id} value={c.id}>
-              {c.id === 'custom' ? t('recStorage.codecCustom', 'Custom (eigene Bitrate)') : c.label}
+              {c.id === 'custom' ? t('recStorage.codecCustom', 'Custom (own bitrate)') : c.label}
               {c.id === 'custom' ? '' : ` — ${c.mbps} Mbps`}
             </option>
           ))}
@@ -127,7 +127,7 @@ export const RecordingStorageCalcCore = ({
 
       {codecId === 'custom' && (
         <label className="block">
-          <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('recStorage.customMbps', 'Eigene Bitrate (Mbps)')}</span>
+          <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('recStorage.customMbps', 'Custom bitrate (Mbps)')}</span>
           <input
             type="number"
             min={1}
@@ -141,7 +141,7 @@ export const RecordingStorageCalcCore = ({
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
         <label className="block">
-          <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('recStorage.hours', 'Stunden')}</span>
+          <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('recStorage.hours', 'Hours')}</span>
           <input
             type="number"
             min={0}
@@ -152,7 +152,7 @@ export const RecordingStorageCalcCore = ({
           />
         </label>
         <label className="block">
-          <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('recStorage.minutes', 'Minuten')}</span>
+          <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('recStorage.minutes', 'Minutes')}</span>
           <input
             type="number"
             min={0}
@@ -163,7 +163,7 @@ export const RecordingStorageCalcCore = ({
           />
         </label>
         <label className="block">
-          <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('recStorage.channels', 'Kanäle')}</span>
+          <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('recStorage.channels', 'Channels')}</span>
           <input
             type="number"
             min={1}
@@ -175,7 +175,7 @@ export const RecordingStorageCalcCore = ({
           />
           {fixedChannels !== undefined && (
             <span className="mt-0.5 block text-[10px] text-cp-text-muted">
-              {t('recStorage.fixedFromDevice', 'aus Gerät übernommen')}
+              {t('recStorage.fixedFromDevice', 'taken from device')}
             </span>
           )}
         </label>
@@ -183,30 +183,30 @@ export const RecordingStorageCalcCore = ({
 
       <div className="rounded border border-emerald-700 bg-emerald-950/30 p-3">
         <dl className="grid grid-cols-[max-content_1fr] gap-x-3 gap-y-1 text-cp-xs">
-          <dt className="text-cp-text-faint">{t('recStorage.effectiveBitrate', 'Effektive Bitrate')}</dt>
+          <dt className="text-cp-text-faint">{t('recStorage.effectiveBitrate', 'Effective bitrate')}</dt>
           <dd className="font-mono text-cp-text-bright">{effectiveMbps} Mbps</dd>
-          <dt className="text-cp-text-faint">{t('recStorage.duration', 'Dauer')}</dt>
+          <dt className="text-cp-text-faint">{t('recStorage.duration', 'Duration')}</dt>
           <dd className="font-mono text-cp-text-bright">
             {hours}h {minutes}min ({totalDurationHours.toFixed(2)} h)
           </dd>
-          <dt className="text-cp-text-faint">{t('recStorage.perChannel', 'Pro Kanal')}</dt>
+          <dt className="text-cp-text-faint">{t('recStorage.perChannel', 'Per channel')}</dt>
           <dd className="font-mono text-cp-text-bright">{formatGb(result.perChannel)}</dd>
           <dt className="text-cp-text-faint font-semibold">
-            {t('recStorage.total', 'Gesamt')} ({channels}× {t('recStorage.channels', 'Kanäle')})
+            {t('recStorage.total', 'Total')} ({channels}× {t('recStorage.channels', 'Channels')})
           </dt>
           <dd className="font-mono text-cp-xl text-emerald-200">{formatGb(result.total)}</dd>
           {/* Schreib-Durchsatz: kann der Datenträger das mitschreiben? */}
-          <dt className="text-cp-text-faint">{t('recStorage.throughput', 'Schreibrate')}</dt>
+          <dt className="text-cp-text-faint">{t('recStorage.throughput', 'Write rate')}</dt>
           <dd className="font-mono text-cp-text-bright">
             {((effectiveMbps * channels) / 8).toFixed(0)} MB/s
             <span className="ml-2 text-[10px] text-cp-text-muted">
               {(effectiveMbps * channels) / 8 > 2000
-                ? t('recStorage.tpNvmeArray', '→ NVMe-RAID nötig')
+                ? t('recStorage.tpNvmeArray', '→ needs NVMe RAID')
                 : (effectiveMbps * channels) / 8 > 450
-                  ? t('recStorage.tpSsdArray', '→ SSD / HDD-RAID')
+                  ? t('recStorage.tpSsdArray', '→ SSD / HDD RAID')
                   : (effectiveMbps * channels) / 8 > 130
-                    ? t('recStorage.tpHdd', '→ einzelne HDD grenzwertig')
-                    : t('recStorage.tpOk', '→ unkritisch')}
+                    ? t('recStorage.tpHdd', '→ single HDD borderline')
+                    : t('recStorage.tpOk', '→ uncritical')}
             </span>
           </dd>
         </dl>
@@ -215,24 +215,24 @@ export const RecordingStorageCalcCore = ({
       {/* Array-Dimensionierung: wie viele Laufwerke brauche ich? */}
       <div className="rounded border border-sky-700 bg-sky-950/20 p-3">
         <div className="mb-2 text-[11px] uppercase tracking-wide text-cp-text-secondary">
-          {t('recStorage.sizing', 'Array-Dimensionierung')}
+          {t('recStorage.sizing', 'Array sizing')}
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
           <label className="block">
-            <span className="mb-1 block text-[10px] text-cp-text-muted">{t('recStorage.redundancy', 'Redundanz')}</span>
+            <span className="mb-1 block text-[10px] text-cp-text-muted">{t('recStorage.redundancy', 'Redundancy')}</span>
             <select
               value={redundancy}
               onChange={(e) => setRedundancy(e.target.value as typeof redundancy)}
               className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5 text-cp-xs"
             >
-              <option value="none">{t('recStorage.redNone', 'Keine (JBOD)')}</option>
+              <option value="none">{t('recStorage.redNone', 'None (JBOD)')}</option>
               <option value="raid5">RAID 5 (+1)</option>
               <option value="raid6">RAID 6 (+2)</option>
               <option value="mirror">{t('recStorage.redMirror', 'Mirror (×2)')}</option>
             </select>
           </label>
           <label className="block">
-            <span className="mb-1 block text-[10px] text-cp-text-muted">{t('recStorage.headroom', 'Reserve (%)')}</span>
+            <span className="mb-1 block text-[10px] text-cp-text-muted">{t('recStorage.headroom', 'Headroom (%)')}</span>
             <input
               type="number"
               min={0}
@@ -243,7 +243,7 @@ export const RecordingStorageCalcCore = ({
             />
           </label>
           <label className="block">
-            <span className="mb-1 block text-[10px] text-cp-text-muted">{t('recStorage.driveTb', 'Laufwerk (TB)')}</span>
+            <span className="mb-1 block text-[10px] text-cp-text-muted">{t('recStorage.driveTb', 'Drive (TB)')}</span>
             <input
               type="number"
               min={0.5}
@@ -255,13 +255,13 @@ export const RecordingStorageCalcCore = ({
           </label>
         </div>
         <dl className="mt-2 grid grid-cols-[max-content_1fr] gap-x-3 gap-y-1 text-cp-xs">
-          <dt className="text-cp-text-faint">{t('recStorage.usableNeeded', 'Nutzbedarf inkl. Reserve')}</dt>
+          <dt className="text-cp-text-faint">{t('recStorage.usableNeeded', 'Usable need incl. headroom')}</dt>
           <dd className="font-mono text-cp-text-bright">{sizing.usableNeededTb.toFixed(2)} TB</dd>
-          <dt className="text-cp-text-faint font-semibold">{t('recStorage.drivesNeeded', 'Laufwerke nötig')}</dt>
+          <dt className="text-cp-text-faint font-semibold">{t('recStorage.drivesNeeded', 'Drives needed')}</dt>
           <dd className="font-mono text-cp-xl text-sky-200">
             {sizing.totalDrives} × {driveTb} TB
             <span className="ml-2 text-[10px] text-cp-text-muted">
-              ({t('recStorage.rawCapacity', 'roh')} {sizing.rawTb.toFixed(1)} TB)
+              ({t('recStorage.rawCapacity', 'raw')} {sizing.rawTb.toFixed(1)} TB)
             </span>
           </dd>
         </dl>
@@ -269,12 +269,12 @@ export const RecordingStorageCalcCore = ({
 
       <details className="rounded border border-cp-border-muted bg-cp-surface-3/40">
         <summary className="cursor-pointer px-3 py-1.5 text-[11px] uppercase tracking-wide text-cp-text-muted">
-          {t('recStorage.formulaHeader', 'Formel')}
+          {t('recStorage.formulaHeader', 'Formula')}
         </summary>
         <code className="block px-3 py-2 text-[11px] text-cp-text-secondary">
-          {t('recStorage.formulaLine1', '(Mbps × 3600 s × Stunden) ÷ 8 ÷ 1024 = GB pro Kanal')}
+          {t('recStorage.formulaLine1', '(Mbps × 3600 s × hours) ÷ 8 ÷ 1024 = GB per channel')}
           <br />
-          {t('recStorage.formulaLine2', 'GB pro Kanal × Kanäle = Gesamt')}
+          {t('recStorage.formulaLine2', 'GB per channel × channels = total')}
         </code>
       </details>
     </div>
@@ -289,7 +289,7 @@ export const RecordingStorageCalculatorDialog = () => {
     <ModalShell
       open={open}
       onClose={close}
-      title={t('recStorage.title', '💾 Recording-Speicherplatz-Rechner')}
+      title={t('recStorage.title', '💾 Recording storage calculator')}
       titleIcon="🧮"
       maxWidth="2xl"
       draggableKey="cable-planner:modal-pos:rec-storage-calc"

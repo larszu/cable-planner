@@ -211,7 +211,7 @@ const CsvButton = ({ onClick }: { onClick: () => void }) => {
       onClick={onClick}
       className="inline-flex items-center gap-1 rounded bg-emerald-700 px-2 py-1 text-cp-xs font-medium text-white hover:bg-emerald-600"
     >
-      <Icon icon={Download} size="xs" /> {t('analysis.exportCsv', 'CSV exportieren')}
+      <Icon icon={Download} size="xs" /> {t('analysis.exportCsv', 'Export CSV')}
     </button>
   )
 }
@@ -227,7 +227,7 @@ const WeightTab = ({ projectName }: { projectName: string }) => {
     let missing = 0
     let anyPrice = false
     for (const e of equipment) {
-      const cat = e.category || t('analysis.uncategorized', 'Ohne Kategorie')
+      const cat = e.category || t('analysis.uncategorized', 'Uncategorized')
       const row = map.get(cat) ?? { count: 0, kg: 0, watts: 0, eur: 0 }
       row.count += 1
       row.kg += effectiveDeviceResources(e).weightKg ?? 0
@@ -262,15 +262,15 @@ const WeightTab = ({ projectName }: { projectName: string }) => {
   }, [equipment, t])
 
   const exportCsv = () => {
-    const priceHead = hasPrices ? [t('analysis.weight.eur', 'Wert (€)')] : []
+    const priceHead = hasPrices ? [t('analysis.weight.eur', 'Value (€)')] : []
     const priceCell = (eur: number) => (hasPrices ? [eur.toFixed(2)] : [])
     const rows: (string | number)[][] = [
       [
-        t('analysis.weight.category', 'Kategorie'),
-        t('analysis.weight.count', 'Anzahl'),
-        t('analysis.weight.kg', 'Gewicht (kg)'),
-        t('analysis.weight.watts', 'Leistung (W)'),
-        t('analysis.weight.btu', 'Wärme (BTU/h)'),
+        t('analysis.weight.category', 'Category'),
+        t('analysis.weight.count', 'Count'),
+        t('analysis.weight.kg', 'Weight (kg)'),
+        t('analysis.weight.watts', 'Power (W)'),
+        t('analysis.weight.btu', 'Heat (BTU/h)'),
         ...priceHead,
       ],
       ...byCategory.map((r) => [
@@ -282,7 +282,7 @@ const WeightTab = ({ projectName }: { projectName: string }) => {
         ...priceCell(r.eur),
       ]),
       [
-        t('analysis.total', 'Gesamt'),
+        t('analysis.total', 'Total'),
         totals.count,
         totals.kg.toFixed(1),
         Math.round(totals.watts),
@@ -297,23 +297,23 @@ const WeightTab = ({ projectName }: { projectName: string }) => {
     <div className="space-y-3 p-4 text-cp-base">
       <PanelHint className="mb-2 text-cp-xs text-[var(--cp-text-muted)]" text={t(
           'analysis.weight.intro',
-          'Gewicht (kg) und Wärmelast je Kategorie aus den Geräte-Eigenschaften. Wärme ≈ Leistung × 3,412 BTU/h.',
+          'Weight (kg) and heat load per category from device properties. Heat ≈ power × 3.412 BTU/h.',
         )} />
       <div>
         <RechnerLink
           onClick={() => useUiStore.getState().openPowerCalc()}
-          label={t('app.menu.tools.power', 'Stromverbrauch berechnen…')}
+          label={t('app.menu.tools.power', 'Calculate power consumption…')}
         />
       </div>
       <table className="block overflow-x-auto w-full text-cp-xs">
         <thead>
           <tr className="border-b border-[var(--cp-border)] text-left text-[var(--cp-text-muted)]">
-            <th className="py-1 pr-2">{t('analysis.weight.category', 'Kategorie')}</th>
-            <th className="py-1 pr-2 text-right">{t('analysis.weight.count', 'Anzahl')}</th>
-            <th className="py-1 pr-2 text-right">{t('analysis.weight.kg', 'Gewicht (kg)')}</th>
-            <th className="py-1 pr-2 text-right">{t('analysis.weight.watts', 'Leistung (W)')}</th>
-            <th className={`py-1 text-right ${hasPrices ? 'pr-2' : ''}`}>{t('analysis.weight.btu', 'Wärme (BTU/h)')}</th>
-            {hasPrices && <th className="py-1 text-right">{t('analysis.weight.eur', 'Wert (€)')}</th>}
+            <th className="py-1 pr-2">{t('analysis.weight.category', 'Category')}</th>
+            <th className="py-1 pr-2 text-right">{t('analysis.weight.count', 'Count')}</th>
+            <th className="py-1 pr-2 text-right">{t('analysis.weight.kg', 'Weight (kg)')}</th>
+            <th className="py-1 pr-2 text-right">{t('analysis.weight.watts', 'Power (W)')}</th>
+            <th className={`py-1 text-right ${hasPrices ? 'pr-2' : ''}`}>{t('analysis.weight.btu', 'Heat (BTU/h)')}</th>
+            {hasPrices && <th className="py-1 text-right">{t('analysis.weight.eur', 'Value (€)')}</th>}
           </tr>
         </thead>
         <tbody>
@@ -328,7 +328,7 @@ const WeightTab = ({ projectName }: { projectName: string }) => {
             </tr>
           ))}
           <tr className="font-semibold">
-            <td className="py-1 pr-2">{t('analysis.total', 'Gesamt')}</td>
+            <td className="py-1 pr-2">{t('analysis.total', 'Total')}</td>
             <td className="py-1 pr-2 text-right">{totals.count}</td>
             <td className="py-1 pr-2 text-right">{totals.kg.toFixed(1)}</td>
             <td className="py-1 pr-2 text-right">{Math.round(totals.watts)}</td>
@@ -339,7 +339,7 @@ const WeightTab = ({ projectName }: { projectName: string }) => {
       </table>
       {missingWeight > 0 && (
         <p className="text-cp-xs text-[var(--cp-text-faint)]">
-          {format(t('analysis.weight.missing', '{n} Gerät(e) ohne Gewichtsangabe — in den Eigenschaften ergänzen.'), {
+          {format(t('analysis.weight.missing', '{n} device(s) without a weight value — add it in the properties.'), {
             n: missingWeight,
           })}
         </p>
@@ -347,7 +347,7 @@ const WeightTab = ({ projectName }: { projectName: string }) => {
       {heaviest.length > 0 && (
         <div className="rounded border border-[var(--cp-border-muted)] bg-[var(--cp-surface-3)] p-2 text-cp-xs">
           <div className="mb-1 font-semibold text-[var(--cp-text-muted)]">
-            {t('analysis.weight.heaviest', 'Schwerste Geräte (Rigging/Transport)')}
+            {t('analysis.weight.heaviest', 'Heaviest devices (rigging/transport)')}
           </div>
           <ul className="space-y-0.5">
             {heaviest.map((d, i) => (
@@ -379,15 +379,15 @@ const WeightTab = ({ projectName }: { projectName: string }) => {
 const issueLabel = (t: ReturnType<typeof useTranslation>) => (issue: AddressIssue): string => {
   switch (issue.kind) {
     case 'missing-address':
-      return t('analysis.address.missing', 'Keine Adresse')
+      return t('analysis.address.missing', 'No address')
     case 'duplicate-address':
-      return `${t('analysis.address.duplicate', 'Adresse doppelt')}: ${(issue.others ?? []).join(', ')}`
+      return `${t('analysis.address.duplicate', 'Address used twice')}: ${(issue.others ?? []).join(', ')}`
     case 'missing-mask':
-      return t('analysis.address.noMask', 'Keine Maske (/24 angenommen)')
+      return t('analysis.address.noMask', 'No mask (/24 assumed)')
     case 'gateway-outside-subnet':
-      return t('analysis.address.gatewayOutside', 'Gateway ausserhalb des Subnetzes')
+      return t('analysis.address.gatewayOutside', 'Gateway outside the subnet')
     case 'network-or-broadcast-address':
-      return t('analysis.address.netOrBroadcast', 'Netz- oder Broadcast-Adresse')
+      return t('analysis.address.netOrBroadcast', 'Network or broadcast address')
   }
 }
 
@@ -452,7 +452,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
 
   const exportCsv = () => {
     const csvRows: (string | number)[][] = [
-      [t('analysis.network.device', 'Gerät'), 'IP', t('analysis.network.mgmtVlan', 'Mgmt-VLAN'), 'VLANs'],
+      [t('analysis.network.device', 'Device'), 'IP', t('analysis.network.mgmtVlan', 'Mgmt VLAN'), 'VLANs'],
       ...rows.map((r) => [r.name, r.ip, r.mgmtVlan, r.vlans]),
     ]
     downloadBlob(buildExportFilenameWithSuffix(projectName, 'netzwerk', 'csv'), toCsv(csvRows), 'text/csv')
@@ -581,23 +581,23 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
       case 'vlans':
         return t('analysis.venue.item.vlans', 'VLANs')
       case 'subnets':
-        return t('analysis.venue.item.subnets', 'Adressbereiche')
+        return t('analysis.venue.item.subnets', 'Address ranges')
       case 'ports':
-        return t('analysis.venue.item.ports', 'Netz-Ports')
+        return t('analysis.venue.item.ports', 'Network ports')
       case 'bandwidth':
-        return t('analysis.venue.item.bandwidth', 'Medien-Bandbreite')
+        return t('analysis.venue.item.bandwidth', 'Media bandwidth')
       case 'multicast':
-        return t('analysis.venue.item.multicast', 'Multicast-Standards')
+        return t('analysis.venue.item.multicast', 'Multicast standards')
       case 'poe':
         return t('analysis.venue.item.poe', 'PoE')
       case 'igmpQuerier':
-        return t('analysis.venue.item.igmpQuerier', 'IGMP-Querier')
+        return t('analysis.venue.item.igmpQuerier', 'IGMP querier')
       case 'dhcp':
         return t('analysis.venue.item.dhcp', 'DHCP')
       case 'qos':
         return t('analysis.venue.item.qos', 'QoS / DSCP')
       case 'jointTest':
-        return t('analysis.venue.item.jointTest', 'Gemeinsamer Testtermin')
+        return t('analysis.venue.item.jointTest', 'Joint test session')
       default:
         return key
     }
@@ -619,12 +619,12 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
 
   const stateLabel = (st: AnswerRowState): string =>
     ({
-      granted: t('analysis.venue.a.granted', 'genehmigt'),
-      partial: t('analysis.venue.a.partial', 'mit Auflage'),
-      refused: t('analysis.venue.a.refused', 'abgelehnt'),
-      pending: t('analysis.venue.a.pending', 'keine Antwort'),
-      elsewhere: t('analysis.venue.a.elsewhere', 'Antwort aus einem anderen Haus'),
-      stale: t('analysis.venue.a.stale', 'Antwort ohne Frage im Plan'),
+      granted: t('analysis.venue.a.granted', 'granted'),
+      partial: t('analysis.venue.a.partial', 'with a condition'),
+      refused: t('analysis.venue.a.refused', 'refused'),
+      pending: t('analysis.venue.a.pending', 'no answer yet'),
+      elsewhere: t('analysis.venue.a.elsewhere', 'answer from a different venue'),
+      stale: t('analysis.venue.a.stale', 'answer to a point the plan no longer raises'),
     })[st] ?? ANSWER_STATE_LABEL[st]
 
   const setzeAntwort = (key: string, status: VenueAnswerStatus) => {
@@ -694,13 +694,13 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
 
   const exportAddressPlan = () => {
     const csvRows = addressPlanTable(plan, label, [
-      t('analysis.network.device', 'Gerät'),
+      t('analysis.network.device', 'Device'),
       'IP',
-      t('analysis.address.mask', 'Maske'),
+      t('analysis.address.mask', 'Mask'),
       'Gateway',
-      t('analysis.network.subnets', 'Subnetze'),
-      t('analysis.address.evidence', 'Beleg'),
-      t('analysis.address.finding', 'Befund'),
+      t('analysis.network.subnets', 'Subnets'),
+      t('analysis.address.evidence', 'Evidence'),
+      t('analysis.address.finding', 'Finding'),
     ])
     downloadBlob(buildExportFilenameWithSuffix(projectName, 'adressplan', 'csv'), toCsv(csvRows), 'text/csv')
   }
@@ -708,17 +708,17 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
   return (
     <div className="space-y-3 p-4 text-cp-base">
       <p className="text-cp-xs text-[var(--cp-text-muted)]">
-        {t('analysis.network.intro', 'IP-/VLAN-Übersicht aller netzwerkfähigen Geräte mit Doppel-IP-Prüfung.')}
+        {t('analysis.network.intro', 'IP/VLAN overview of all network-capable devices with duplicate-IP detection.')}
       </p>
       <div>
         <RechnerLink
           onClick={() => useUiStore.getState().openBandwidthCalc()}
-          label={t('app.menu.tools.bandwidth', 'Bandbreite berechnen…')}
+          label={t('app.menu.tools.bandwidth', 'Calculate bandwidth…')}
         />
       </div>
       {duplicates.length > 0 && (
         <div className="rounded border border-red-700/60 bg-red-900/30 p-2 text-cp-xs text-red-200">
-          <div className="mb-1 font-semibold">{t('analysis.network.dupTitle', 'Doppelte IP-Adressen')}</div>
+          <div className="mb-1 font-semibold">{t('analysis.network.dupTitle', 'Duplicate IP addresses')}</div>
           <ul className="list-inside list-disc">
             {duplicates.map(([ip, names]) => (
               <li key={ip}>
@@ -731,7 +731,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
       {danteIssues.length > 0 && (
         <div className="rounded border border-amber-700/60 bg-amber-900/20 p-2 text-cp-xs text-amber-200">
           <div className="mb-1 font-semibold">
-            {t('analysis.network.danteTitle', 'Dante-/AES67-Namen prüfen (≤31 Zeichen, a–z/0–9/-)')}
+            {t('analysis.network.danteTitle', 'Check Dante/AES67 names (≤31 chars, a–z/0–9/-)')}
           </div>
           <ul className="list-inside list-disc">
             {danteIssues.map((x) => (
@@ -746,9 +746,9 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
       <table className="block overflow-x-auto w-full text-cp-xs">
         <thead>
           <tr className="border-b border-[var(--cp-border)] text-left text-[var(--cp-text-muted)]">
-            <th className="py-1 pr-2">{t('analysis.network.device', 'Gerät')}</th>
+            <th className="py-1 pr-2">{t('analysis.network.device', 'Device')}</th>
             <th className="py-1 pr-2">IP</th>
-            <th className="py-1 pr-2">{t('analysis.network.mgmtVlan', 'Mgmt-VLAN')}</th>
+            <th className="py-1 pr-2">{t('analysis.network.mgmtVlan', 'Mgmt VLAN')}</th>
             <th className="py-1">VLANs</th>
           </tr>
         </thead>
@@ -764,7 +764,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
           {rows.length === 0 && (
             <tr>
               <td colSpan={4} className="py-2 text-[var(--cp-text-faint)]">
-                {t('analysis.network.empty', 'Keine Geräte mit Netzwerk-Daten.')}
+                {t('analysis.network.empty', 'No devices with network data.')}
               </td>
             </tr>
           )}
@@ -772,7 +772,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
       </table>
       {vlanCounts.length > 0 && (
         <p className="text-cp-xs text-[var(--cp-text-faint)]">
-          {t('analysis.network.vlanSummary', 'Geräte je VLAN')}:{' '}
+          {t('analysis.network.vlanSummary', 'Devices per VLAN')}:{' '}
           {vlanCounts.map((v) => `VLAN ${v.id} (${v.count})`).join(' · ')}
         </p>
       )}
@@ -791,18 +791,18 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
       {subnets.length > 0 && (
         <div className="rounded border border-[var(--cp-border-muted)] bg-[var(--cp-surface-3)] p-2 text-cp-xs">
           <div className="mb-1 font-semibold text-[var(--cp-text-muted)]">
-            {t('analysis.network.subnets', 'Subnetze')} ({subnets.length})
+            {t('analysis.network.subnets', 'Subnets')} ({subnets.length})
           </div>
           <ul className="space-y-0.5">
             {subnets.map((s) => (
               <li key={s.cidr} className="flex flex-wrap items-baseline gap-x-2">
                 <span className="font-mono font-semibold">{s.cidr}</span>
                 <span className="text-[var(--cp-text-muted)]">
-                  {format(t('analysis.network.subnetCount', '{n} Geräte'), { n: s.names.length })}
+                  {format(t('analysis.network.subnetCount', '{n} devices'), { n: s.names.length })}
                 </span>
                 {s.assumed && (
-                  <span className="text-[10px] text-amber-300/80" title={t('analysis.network.subnetAssumedTitle', 'Keine Maske gesetzt — /24 angenommen')}>
-                    {t('analysis.network.subnetAssumed', '(/24 angenommen)')}
+                  <span className="text-[10px] text-amber-300/80" title={t('analysis.network.subnetAssumedTitle', 'No mask set — /24 assumed')}>
+                    {t('analysis.network.subnetAssumed', '(/24 assumed)')}
                   </span>
                 )}
                 <span className="text-[10px] text-[var(--cp-text-faint)]">
@@ -824,18 +824,18 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
         <div className="rounded border border-[var(--cp-border-muted)] bg-[var(--cp-surface-3)] p-2 text-cp-xs">
           <div className="mb-1 flex flex-wrap items-baseline gap-x-2">
             <span className="font-semibold text-[var(--cp-text-muted)]">
-              {t('analysis.address.title', 'Adressplan')}
+              {t('analysis.address.title', 'Address plan')}
             </span>
             <span className="text-[var(--cp-text-faint)]">
               {format(
-                t('analysis.address.coverage', '{done} von {total} Netzgeräten adressiert'),
+                t('analysis.address.coverage', '{done} of {total} networked devices addressed'),
                 { done: plan.networkedCount - plan.missing.length, total: plan.networkedCount },
               )}
             </span>
           </div>
           {plan.withIssues.length === 0 ? (
             <p className="text-[var(--cp-text-faint)]">
-              {t('analysis.address.clean', 'Kein offener Punkt: jedes Netzgerät hat Adresse, Maske und ein passendes Gateway.')}
+              {t('analysis.address.clean', 'Nothing open: every networked device has an address, a mask and a gateway that fits.')}
             </p>
           ) : (
             <ul className="space-y-0.5">
@@ -861,9 +861,9 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
       {portMaps.length > 0 && (
         <div className="rounded border border-[var(--cp-border)] p-2">
           <div className="mb-1 flex items-center justify-between">
-            <span className="font-semibold">{t('analysis.switchPorts.title', 'Switch-Port-Karte')}</span>
+            <span className="font-semibold">{t('analysis.switchPorts.title', 'Switch port map')}</span>
             <span className="text-cp-xs text-[var(--cp-text-muted)]">
-              {format(t('analysis.switchPorts.count', '{n} Switches'), { n: portMaps.length })}
+              {format(t('analysis.switchPorts.count', '{n} switches'), { n: portMaps.length })}
             </span>
           </div>
           {portMaps.map((m) => (
@@ -872,7 +872,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
                 <span className="text-cp-xs font-medium">{m.switchName}</span>
                 <div className="flex items-center gap-1">
                   <span className="text-[10px] text-[var(--cp-text-faint)]">
-                    {format(t('analysis.switchPorts.used', '{u} von {n} belegt'), {
+                    {format(t('analysis.switchPorts.used', '{u} of {n} occupied'), {
                       u: m.usedCount,
                       n: m.rows.length,
                     })}
@@ -889,12 +889,12 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
                     onClick={() => exportPortDescriptions(m)}
                     title={t(
                       'analysis.switchPorts.descHint',
-                      'Herstellerneutraler Text zum Einfügen. Der Plan schickt nichts an den Switch — lies, was du einfügst.',
+                      'Vendor-neutral text to paste. The plan sends nothing to the switch \u2014 read what you paste.',
                     )}
                     className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] px-1.5 py-0.5 text-[10px] hover:bg-[var(--cp-surface-2)]"
                   >
                     <Icon icon={Download} size="xs" />{' '}
-                    {t('analysis.switchPorts.descriptions', 'Beschriftung')}
+                    {t('analysis.switchPorts.descriptions', 'Descriptions')}
                   </button>
                 </div>
               </div>
@@ -903,7 +903,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
                   <li key={r.port} className="flex items-center gap-2 text-cp-xs">
                     <span className="w-14 shrink-0 font-mono text-[var(--cp-text-muted)]">{r.port}</span>
                     <span className={r.device ? '' : 'text-[var(--cp-text-faint)]'}>
-                      {r.device ?? t('analysis.switchPorts.free', 'frei')}
+                      {r.device ?? t('analysis.switchPorts.free', 'free')}
                     </span>
                     {r.nicLabel && (
                       <span className="text-[10px] text-[var(--cp-text-faint)]">{r.nicLabel}</span>
@@ -915,13 +915,13 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
                     {r.source && (
                       <span className="text-[10px] text-[var(--cp-text-faint)]">
                         {r.source === 'interface'
-                          ? t('analysis.switchPorts.fromNic', 'Schnittstelle')
-                          : t('analysis.switchPorts.fromCable', 'Kabel')}
+                          ? t('analysis.switchPorts.fromNic', 'interface')
+                          : t('analysis.switchPorts.fromCable', 'cable')}
                       </span>
                     )}
                     {r.conflict && (
                       <span className="text-amber-300/90">
-                        {format(t('analysis.switchPorts.conflict', 'Kabel sagt: {name}'), {
+                        {format(t('analysis.switchPorts.conflict', 'cable says: {name}'), {
                           name: r.conflict,
                         })}
                       </span>
@@ -939,7 +939,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
           sein eigenes Netz vor. */}
       <div className="rounded border border-[var(--cp-border)] p-2">
         <div className="mb-1 flex items-center justify-between">
-          <span className="font-semibold">{t('analysis.venue.title', 'Anforderung an die Haus-IT')}</span>
+          <span className="font-semibold">{t('analysis.venue.title', 'Request to the venue IT')}</span>
           <button
             type="button"
             onClick={exportVenueRequest}
@@ -950,14 +950,14 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
         </div>
         <PanelHint className="mb-1.5 text-cp-xs text-[var(--cp-text-muted)]" text={t(
           'analysis.venue.intro',
-          'Die Design-Literatur schreibt den Inhalt vor und einen gemeinsamen Testtermin, aber kein Dokument. Was der Plan weiß, steht mit Zahl da; was er nicht wissen kann, steht als Frage.',
+          'The design literature prescribes the content and a joint test session, but no document. What the plan knows is stated with a number; what it cannot know is stated as a question.',
         )} />
         {request.igmpConflict && (
           <div className="mb-1.5 rounded border border-amber-700/60 bg-amber-900/20 p-2 text-cp-xs text-amber-200">
             {format(
               t(
                 'analysis.venue.igmpConflict',
-                'Der Plan trägt beides: {audio} (Feldrat der Audio-Hersteller: IGMP-Snooping aus) und {video} (funktioniert ohne Multicast-Verwaltung nicht). Diese beiden Ratschläge schließen sich auf einem gemeinsamen Netz aus — das gehört vor den Aufbau, nicht in die Nacht.',
+                'The plan carries both: {audio} (audio vendors\u2019 field advice: turn IGMP snooping off) and {video} (does not work without multicast management). On a shared network those two pieces of advice are mutually exclusive \u2014 that belongs before the build, not into the night.',
               ),
               { audio: request.igmpConflict.audio.join(', '), video: request.igmpConflict.video.join(', ') },
             )}
@@ -999,7 +999,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
                     <input
                       value={antwort.note ?? ''}
                       onChange={(e) => setzeNotiz(i.key, e.target.value)}
-                      placeholder={t('analysis.venue.a.notePh', 'Auflage oder Umweg im Klartext')}
+                      placeholder={t('analysis.venue.a.notePh', 'condition or workaround, in plain words')}
                       className="min-w-0 flex-1 rounded border border-[var(--cp-border)] bg-transparent px-1.5 py-0.5 text-[10px] text-[var(--cp-text)] outline-none placeholder:text-[var(--cp-text-faint)]"
                     />
                   )}
@@ -1009,7 +1009,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
                     {format(
                       t(
                         'analysis.venue.a.elsewhereHint',
-                        'Diese Antwort wurde für {dort} gegeben, dieses Projekt steht in {hier}. Sie gilt hier nicht, bis jemand nachfragt.',
+                        'This answer was given for {dort}; this project is at {hier}. It does not apply here until somebody asks again.',
                       ),
                       { dort: antwort.venue ?? '?', hier: antwort.hier ?? '?' },
                     )}
@@ -1023,7 +1023,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
           <div className="mt-2 border-t border-[var(--cp-border-muted)] pt-2 text-[10px] text-[var(--cp-text-faint)]">
             {t(
               'analysis.venue.a.staleHead',
-              'Antworten zu Punkten, die der Plan nicht mehr stellt — Auskunft über das Haus, nicht Müll:',
+              'Answers to points the plan no longer raises — knowledge about the venue, not rubbish:',
             )}{' '}
             {answerRows
               .filter((r) => r.state === 'stale')
@@ -1034,7 +1034,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
         {offen.length > 0 && (
           <div className="mt-2 text-cp-xs text-amber-300/90">
             {format(
-              t('analysis.venue.a.open', '{n} Punkte, wegen derer noch einmal anzurufen ist: {liste}'),
+              t('analysis.venue.a.open', '{n} points to call back about: {liste}'),
               {
                 n: String(offen.length),
                 liste: offen.map((r) => venueItemLabel(r.key)).join(', '),
@@ -1050,19 +1050,19 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
       {ptp.needsPtp && (
         <div className="rounded-cp-panel border border-[var(--cp-border)] bg-[var(--cp-surface-1)] p-cp-3">
           <div className="mb-2 text-cp-sm font-semibold text-[var(--cp-text)]">
-            {t('analysis.ptp.title', 'Zeit (PTP)')}
+            {t('analysis.ptp.title', 'Timing (PTP)')}
           </div>
           <div className="mb-2 text-cp-xs text-[var(--cp-text-muted)]">
             {t(
               'analysis.ptp.intro',
-              'ST 2059-2 steht per Vorgabe auf Domäne 127, AES67 in der Praxis auf 0. Ein gemischter Aufbau auf einer gemeinsamen Domäne lässt eine der beiden Familien am falschen Medientakt hängen — und meldet dabei keinen Fehler.',
+              'ST 2059-2 defaults to domain 127, AES67 in practice to 0. A mixed rig on one shared domain leaves one of the two families on the wrong media clock \u2014 and reports no error while doing it.',
             )}
           </div>
           {ptp.domains.length === 0 ? (
             <div className="text-cp-xs text-amber-300/90">
               {t(
                 'analysis.ptp.none',
-                'Der Plan trägt PTP-abhängige Essenz, aber keine einzige Schnittstelle nennt eine Domäne. Die Felder stehen an der Schnittstelle im Geräte-Panel.',
+                'The plan carries PTP-dependent essence, but not one interface names a domain. The fields sit on the interface in the device panel.',
               )}
             </div>
           ) : (
@@ -1070,7 +1070,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
               {ptp.domains.map((d) => (
                 <li key={d.domain} className="flex flex-wrap items-baseline gap-2">
                   <span className="w-28 shrink-0 font-mono text-[var(--cp-text-muted)]">
-                    {t('analysis.ptp.domain', 'Domäne {n}').replace('{n}', String(d.domain))}
+                    {t('analysis.ptp.domain', 'Domain {n}').replace('{n}', String(d.domain))}
                   </span>
                   <span className="flex-1 text-[var(--cp-text)]">
                     {d.members.map((m) => m.label).join(', ')}
@@ -1078,7 +1078,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
                   <span className="shrink-0 text-[var(--cp-text-faint)]">
                     {d.grandmasters.length
                       ? d.grandmasters.join(', ')
-                      : t('analysis.ptp.noGm', 'keine Uhr benannt')}
+                      : t('analysis.ptp.noGm', 'no clock named')}
                   </span>
                 </li>
               ))}
@@ -1089,7 +1089,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
               {format(
                 t(
                   'analysis.ptp.withoutDomain',
-                  '{n} Geräte führen PTP-abhängige Essenz und nennen keine Domäne: {liste}',
+                  '{n} devices carry PTP-dependent essence and name no domain: {liste}',
                 ),
                 {
                   n: String(ptp.withoutDomain.length),
@@ -1128,20 +1128,20 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
         <div className="rounded-cp-panel border border-[var(--cp-border)] bg-[var(--cp-surface-1)] p-cp-3">
           <div className="mb-2 flex items-baseline justify-between gap-2">
             <div className="text-cp-sm font-semibold text-[var(--cp-text)]">
-              {t('analysis.asset.title', 'Welche Kiste füllt welchen Platz')}
+              {t('analysis.asset.title', 'Which box fills which slot')}
             </div>
             <button
               type="button"
               onClick={exportAsset}
               className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] px-2 py-0.5 text-cp-xs text-[var(--cp-text)] hover:bg-[var(--cp-surface-2)]"
             >
-              <Icon icon={Download} size="xs" /> {t('analysis.asset.export', 'Blatt')}
+              <Icon icon={Download} size="xs" /> {t('analysis.asset.export', 'Sheet')}
             </button>
           </div>
           <div className="mb-2 text-cp-xs text-[var(--cp-text-muted)]">
             {t(
               'analysis.asset.intro',
-              'Zwei baugleiche Stageboxen sind im Plan dasselbe Kästchen, im Lager zwei Einheiten und im Netz zwei verschiedene Geräte — jede mit eigenem eingebranntem Namen und eigener MAC. Ein Tausch am Ladetag fällt erst in der Probe auf. Hier werden nur Aufzeichnungen verglichen; was im Rack steht, weiß der Plan nicht.',
+              'Two identical stageboxes are one box on the plan, two units in the warehouse and two different devices on the network \u2014 each with its own burned-in name and its own MAC. A swap on load-in day only surfaces during rehearsal. Only records are compared here; what is actually in the rack, the plan does not know.',
             )}
           </div>
           <ul className="flex flex-col gap-0.5 text-cp-xs">
@@ -1156,7 +1156,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
                     r.unitId ? 'text-[var(--cp-text)]' : 'text-amber-300/90'
                   }`}
                 >
-                  {r.unitSerial ?? (r.unitId ? r.unitId : t('analysis.asset.none', 'nicht benannt'))}
+                  {r.unitSerial ?? (r.unitId ? r.unitId : t('analysis.asset.none', 'not stated'))}
                 </span>
               </li>
             ))}
@@ -1179,12 +1179,12 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
       {multicast.needsMulticast && (
         <div className="rounded-cp-panel border border-[var(--cp-border)] bg-[var(--cp-surface-1)] p-cp-3">
           <div className="mb-2 text-cp-sm font-semibold text-[var(--cp-text)]">
-            {t('analysis.mc.title', 'Multicast-Adressplan')}
+            {t('analysis.mc.title', 'Multicast address plan')}
           </div>
           <div className="mb-2 text-cp-xs text-[var(--cp-text-muted)]">
             {t(
               'analysis.mc.intro',
-              'Jede Essenz ist eine eigene Gruppe, und die Gruppe gehört dem Sender — fünf Empfänger an einer Kamera abonnieren eine, nicht fünf. Zwei Regeln sieht man einer Tabelle nicht an: Adresse und Port müssen zusammen eindeutig sein, und 32 Gruppen fallen auf dieselbe L2-Adresse. Die MAC steht deshalb im Blatt.',
+              'Every essence is its own group, and the group belongs to the sender \u2014 five receivers on one camera subscribe to one, not five. Two rules a table never shows: address and port must be unique together, and 32 groups collapse onto the same L2 address. That is why the MAC is on the sheet.',
             )}
           </div>
 
@@ -1203,7 +1203,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
             </label>
             <label className="flex flex-col gap-0.5">
               <span className="text-cp-xs text-[var(--cp-text-muted)]">
-                {t('analysis.mc.port', 'UDP-Port')}
+                {t('analysis.mc.port', 'UDP port')}
               </span>
               <input
                 value={portDraft}
@@ -1219,7 +1219,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
               disabled={!multicast.pool || multicast.open.length === 0}
               className="rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs font-medium text-[var(--cp-text)] hover:bg-[var(--cp-surface-2)] disabled:opacity-40"
             >
-              {format(t('analysis.mc.allocate', '{n} offene Beine vergeben'), {
+              {format(t('analysis.mc.allocate', 'Allocate {n} open legs'), {
                 n: String(multicast.open.length),
               })}
             </button>
@@ -1232,7 +1232,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
             <div className="mb-2 text-cp-xs text-[var(--cp-text-faint)]">
               {t(
                 'analysis.mc.noPool',
-                'Kein Pool erklärt — es wird nichts vergeben. Ein Pool mit /9 oder enger kann mit sich selbst nicht kollidieren; erst ein weiterer lässt das Bit los, das die 32 Gruppen auf eine MAC fallen lässt.',
+                'No pool declared \u2014 nothing is allocated. A pool of /9 or narrower cannot collide with itself; only a wider one frees the bit that drops 32 groups onto one MAC.',
               )}
             </div>
           )}
@@ -1255,7 +1255,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
                         a ? 'text-[var(--cp-text)]' : 'text-amber-300/90'
                       }`}
                     >
-                      {a ? a.address : t('analysis.mc.open', 'offen')}
+                      {a ? a.address : t('analysis.mc.open', 'open')}
                     </span>
                     <span className="w-40 shrink-0 font-mono text-[var(--cp-text-faint)]">
                       {a ? (multicastMac(a.address) ?? '') : ''}
@@ -1272,7 +1272,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
                 {format(
                   t(
                     'analysis.mc.stale',
-                    '{n} Vergabe(n) gehören zu Flüssen, die es nicht mehr gibt: {liste}',
+                    '{n} assignment(s) belong to flows that no longer exist: {liste}',
                   ),
                   {
                     n: String(multicast.stale.length),
@@ -1285,7 +1285,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
                 onClick={verwaisteEntfernen}
                 className="rounded border border-[var(--cp-border)] px-2 py-0.5 text-cp-xs text-[var(--cp-text)] hover:bg-[var(--cp-surface-2)]"
               >
-                {t('analysis.mc.dropStale', 'Verwaiste entfernen')}
+                {t('analysis.mc.dropStale', 'Remove orphaned')}
               </button>
             </div>
           )}
@@ -1317,11 +1317,11 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
       <div className="rounded-cp-panel border border-[var(--cp-border)] bg-[var(--cp-surface-1)] p-cp-3">
         <div className="mb-2 flex items-baseline justify-between gap-2">
           <div className="text-cp-sm font-semibold text-[var(--cp-text)]">
-            {t('analysis.crew.title', 'Netz-Merkblatt für die Crew')}
+            {t('analysis.crew.title', 'Network briefing sheet for the crew')}
           </div>
           {crew.askCount > 0 && (
             <div className="text-cp-xs text-amber-300/90">
-              {format(t('analysis.crew.ask', '{n} Punkte vor Ort zu klären'), {
+              {format(t('analysis.crew.ask', '{n} points to settle on site'), {
                 n: String(crew.askCount),
               })}
             </div>
@@ -1358,21 +1358,21 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
           onClick={exportRackDoor}
           className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs font-medium text-[var(--cp-text)] hover:bg-[var(--cp-surface-2)]"
         >
-          <Icon icon={Download} size="xs" /> {t('analysis.venue.rackDoor', 'Rack-Tür-Blatt')}
+          <Icon icon={Download} size="xs" /> {t('analysis.venue.rackDoor', 'Rack-door sheet')}
         </button>
         <button
           type="button"
           onClick={exportVenueAnswers}
           className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs font-medium text-[var(--cp-text)] hover:bg-[var(--cp-surface-2)]"
         >
-          <Icon icon={Download} size="xs" /> {t('analysis.venue.a.export', 'Frage und Antwort')}
+          <Icon icon={Download} size="xs" /> {t('analysis.venue.a.export', 'Question and answer')}
         </button>
         <button
           type="button"
           onClick={exportVlans}
           className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs font-medium text-[var(--cp-text)] hover:bg-[var(--cp-surface-2)]"
         >
-          <Icon icon={Download} size="xs" /> {t('analysis.venue.vlanTable', 'VLAN-Tabelle')}
+          <Icon icon={Download} size="xs" /> {t('analysis.venue.vlanTable', 'VLAN table')}
         </button>
         <button
           type="button"
@@ -1380,7 +1380,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
           disabled={ptp.domains.length === 0}
           className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs font-medium text-[var(--cp-text)] hover:bg-[var(--cp-surface-2)] disabled:opacity-40"
         >
-          <Icon icon={Download} size="xs" /> {t('analysis.ptp.export', 'Zeit-Plan (PTP)')}
+          <Icon icon={Download} size="xs" /> {t('analysis.ptp.export', 'Timing plan (PTP)')}
         </button>
         <button
           type="button"
@@ -1388,14 +1388,14 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
           disabled={!multicast.needsMulticast}
           className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs font-medium text-[var(--cp-text)] hover:bg-[var(--cp-surface-2)] disabled:opacity-40"
         >
-          <Icon icon={Download} size="xs" /> {t('analysis.mc.export', 'Multicast-Adressplan')}
+          <Icon icon={Download} size="xs" /> {t('analysis.mc.export', 'Multicast address plan')}
         </button>
         <button
           type="button"
           onClick={exportCrew}
           className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs font-medium text-[var(--cp-text)] hover:bg-[var(--cp-surface-2)]"
         >
-          <Icon icon={Download} size="xs" /> {t('analysis.crew.export', 'Netz-Merkblatt (Crew)')}
+          <Icon icon={Download} size="xs" /> {t('analysis.crew.export', 'Crew network sheet')}
         </button>
         <button
           type="button"
@@ -1403,7 +1403,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
           disabled={plan.networkedCount === 0}
           className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs font-medium text-[var(--cp-text)] hover:bg-[var(--cp-surface-2)] disabled:opacity-40"
         >
-          <Icon icon={Download} size="xs" /> {t('analysis.address.export', 'Adressplan als CSV')}
+          <Icon icon={Download} size="xs" /> {t('analysis.address.export', 'Address plan as CSV')}
         </button>
         <CsvButton onClick={exportCsv} />
       </div>
@@ -1458,8 +1458,8 @@ const RedundancyTab = ({ projectName }: { projectName: string }) => {
           name: e.name,
           reason:
             row.power === 0
-              ? t('analysis.redundancy.noPower', 'keine Strom-Anbindung im Plan')
-              : t('analysis.redundancy.singlePower', 'nur eine Strom-Anbindung (keine Netzteil-Redundanz)'),
+              ? t('analysis.redundancy.noPower', 'no power connection in the plan')
+              : t('analysis.redundancy.singlePower', 'only one power connection (no PSU redundancy)'),
         })
       }
       // #352 — ST 2110-7: Geräte im 2110-Pfad sollten zwei unabhängige
@@ -1468,7 +1468,7 @@ const RedundancyTab = ({ projectName }: { projectName: string }) => {
       if (row.st2110 && row.network <= 1) {
         out.push({
           name: e.name,
-          reason: t('analysis.redundancy.st2110', 'ST 2110 ohne 2110-7-Redundanz (nur ein Netzwerk-Pfad)'),
+          reason: t('analysis.redundancy.st2110', 'ST 2110 without 2110-7 redundancy (only one network path)'),
         })
       }
     }
@@ -1477,7 +1477,7 @@ const RedundancyTab = ({ projectName }: { projectName: string }) => {
 
   const exportCsv = () => {
     const rows: (string | number)[][] = [
-      [t('analysis.redundancy.device', 'Gerät'), t('analysis.redundancy.finding', 'Befund')],
+      [t('analysis.redundancy.device', 'Device'), t('analysis.redundancy.finding', 'Finding')],
       ...flagged.map((f) => [f.name, f.reason]),
     ]
     downloadBlob(buildExportFilenameWithSuffix(projectName, 'redundanz', 'csv'), toCsv(rows), 'text/csv')
@@ -1488,19 +1488,19 @@ const RedundancyTab = ({ projectName }: { projectName: string }) => {
       <p className="text-cp-xs text-[var(--cp-text-muted)]">
         {t(
           'analysis.redundancy.intro',
-          'Heuristik für mögliche Single-Points-of-Failure: Geräte mit Stromaufnahme, aber höchstens einer Strom-Anbindung (Layer „Power").',
+          'Heuristic for potential single points of failure: devices that draw power but have at most one power connection (layer "Power").',
         )}
       </p>
       {flagged.length === 0 ? (
         <p className="text-cp-xs text-emerald-300">
-          {t('analysis.redundancy.none', 'Keine offensichtlichen Single-Power-Feeds gefunden.')}
+          {t('analysis.redundancy.none', 'No obvious single power feeds found.')}
         </p>
       ) : (
         <table className="block overflow-x-auto w-full text-cp-xs">
           <thead>
             <tr className="border-b border-[var(--cp-border)] text-left text-[var(--cp-text-muted)]">
-              <th className="py-1 pr-2">{t('analysis.redundancy.device', 'Gerät')}</th>
-              <th className="py-1">{t('analysis.redundancy.finding', 'Befund')}</th>
+              <th className="py-1 pr-2">{t('analysis.redundancy.device', 'Device')}</th>
+              <th className="py-1">{t('analysis.redundancy.finding', 'Finding')}</th>
             </tr>
           </thead>
           <tbody>
@@ -1613,7 +1613,7 @@ const RfTab = ({ projectName }: { projectName: string }) => {
         const b = links[j]
         if (a.channel && a.channel === b.channel) {
           out.push(
-            format(t('analysis.rf.conflictChannel', '{a} ↔ {b}: gleicher Kanal {ch}'), {
+            format(t('analysis.rf.conflictChannel', '{a} ↔ {b}: same channel {ch}'), {
               a: a.name,
               b: b.name,
               ch: a.channel,
@@ -1655,12 +1655,12 @@ const RfTab = ({ projectName }: { projectName: string }) => {
   const exportCsv = () => {
     const rows: (string | number)[][] = [
       [
-        t('analysis.rf.link', 'Funkstrecke'),
-        t('analysis.rf.freq', 'Frequenz'),
+        t('analysis.rf.link', 'Wireless link'),
+        t('analysis.rf.freq', 'Frequency'),
         t('analysis.rf.band', 'Band'),
-        t('analysis.rf.channel', 'Kanal'),
-        t('analysis.rf.from', 'Von'),
-        t('analysis.rf.to', 'Nach'),
+        t('analysis.rf.channel', 'Channel'),
+        t('analysis.rf.from', 'From'),
+        t('analysis.rf.to', 'To'),
       ],
       ...links.map((l) => [
         l.name,
@@ -1689,14 +1689,14 @@ const RfTab = ({ projectName }: { projectName: string }) => {
     <div className="space-y-3 p-4 text-cp-base">
       <PanelHint className="mb-2 text-cp-xs text-[var(--cp-text-muted)]" text={t(
           'analysis.rf.intro',
-          'Alles, was im Plan funkt — Funkmikrofon-Rig UND Funkstrecken, in einer Rechnung. Konflikt-Heuristik: Frequenzabstand, 3.-Ordnung-Intermodulation (2·f₁−f₂, die häufigste Störquelle bei Funkmikros/IEM) und gleicher WLAN-Kanal. Die Tabelle unten zeigt nur die Funkstrecken, weil nur sie Band und Kanal tragen.',
+          'Everything that transmits in the plan \u2014 wireless mic rig AND radio links, in one calculation. Conflict heuristic: frequency spacing, 3rd-order intermodulation (2\u00b7f\u2081\u2212f\u2082, the most common interference source for wireless mics/IEM) and same Wi-Fi channel. The table below shows only the radio links, because only they carry band and channel.',
         )} />
       {/* BEDARF 95 — der Umfang der Rechnung steht ueber ihrem Ergebnis. Eine
           Intermodulations-Rechnung, die drei von acht Sendern nicht kennt,
           sagt „frei" und meint „ich habe nicht nachgesehen". */}
       <div className="rounded border border-[var(--cp-border)] bg-[var(--cp-surface-2)] p-2 text-cp-xs">
         {format(
-          t('analysis.rf.scope', '{n} Sender im Plan: {rig} aus dem Funkmikrofon-Rig, {link} als Funkstrecke.'),
+          t('analysis.rf.scope', '{n} transmitters in the plan: {rig} from the wireless mic rig, {link} as radio links.'),
           {
             n: String(spectrum.entries.length),
             rig: String(spectrum.entries.filter((e) => e.source === 'rig').length),
@@ -1706,7 +1706,7 @@ const RfTab = ({ projectName }: { projectName: string }) => {
         {spectrum.withoutFrequency.length > 0 && (
           <span className="ml-1 text-amber-300/90">
             {format(
-              t('analysis.rf.noFreq', '{n} ohne Frequenz — sie sind in KEINER Rechnung enthalten: {liste}'),
+              t('analysis.rf.noFreq', '{n} without a frequency \u2014 they are in NO calculation: {liste}'),
               {
                 n: String(spectrum.withoutFrequency.length),
                 liste: spectrum.withoutFrequency.join(', '),
@@ -1717,7 +1717,7 @@ const RfTab = ({ projectName }: { projectName: string }) => {
       </div>
       {channelConflicts.length > 0 && (
         <div className="rounded border border-red-700/60 bg-red-900/30 p-2 text-cp-xs text-red-200">
-          <div className="mb-1 font-semibold">{t('analysis.rf.conflictTitle', 'Mögliche RF-Konflikte')}</div>
+          <div className="mb-1 font-semibold">{t('analysis.rf.conflictTitle', 'Possible RF conflicts')}</div>
           <ul className="list-inside list-disc">
             {channelConflicts.map((c, i) => (
               <li key={i}>{c}</li>
@@ -1728,7 +1728,7 @@ const RfTab = ({ projectName }: { projectName: string }) => {
       {rfFindings.length > 0 && (
         <div className="rounded border border-amber-700/60 bg-amber-900/30 p-2 text-cp-xs text-amber-200">
           <div className="mb-1 font-semibold">
-            {t('analysis.rf.imTitle', 'Frequenz-Befunde über das ganze Spektrum')} ({rfFindings.length})
+            {t('analysis.rf.imTitle', 'Frequency findings across the whole spectrum')} ({rfFindings.length})
           </div>
           <ul className="list-inside list-disc">
             {rfFindings.slice(0, 20).map((f, i) => (
@@ -1736,7 +1736,7 @@ const RfTab = ({ projectName }: { projectName: string }) => {
             ))}
             {rfFindings.length > 20 && (
               <li className="text-amber-300/80">
-                {format(t('analysis.rf.imMore', '+{n} weitere'), { n: rfFindings.length - 20 })}
+                {format(t('analysis.rf.imMore', '+{n} more'), { n: rfFindings.length - 20 })}
               </li>
             )}
           </ul>
@@ -1746,7 +1746,7 @@ const RfTab = ({ projectName }: { projectName: string }) => {
       <div className="rounded border border-emerald-700/60 bg-emerald-950/20 p-2 text-cp-xs">
         <div className="mb-1.5 flex flex-wrap items-center gap-2">
           <span className="font-semibold text-[var(--cp-text-muted)]">
-            {t('analysis.rf.suggestTitle', 'Freie Frequenzen im Band')}
+            {t('analysis.rf.suggestTitle', 'Free frequencies in band')}
           </span>
           <select
             value={bandIdx}
@@ -1762,7 +1762,7 @@ const RfTab = ({ projectName }: { projectName: string }) => {
         </div>
         {suggestion.freqs.length === 0 ? (
           <span className="text-amber-300">
-            {t('analysis.rf.suggestNone', 'Keine konfliktfreie Frequenz gefunden (Band voll/überlappend).')}
+            {t('analysis.rf.suggestNone', 'No conflict-free frequency found (band full/overlapping).')}
           </span>
         ) : (
           <div className="flex flex-wrap gap-1.5">
@@ -1774,19 +1774,19 @@ const RfTab = ({ projectName }: { projectName: string }) => {
           </div>
         )}
         <p className="mt-1.5 text-[10px] text-[var(--cp-text-faint)]">
-          {t('analysis.rf.suggestNote', 'Frei von Belegung + 3.-Ordnung-Intermodulation (0,4 MHz Schutzabstand); Vorschläge untereinander kompatibel.')}
+          {t('analysis.rf.suggestNote', 'Free of occupancy + 3rd-order intermodulation (0.4 MHz guard); suggestions mutually compatible.')}
         </p>
       </div>
 
       <table className="block overflow-x-auto w-full text-cp-xs">
         <thead>
           <tr className="border-b border-[var(--cp-border)] text-left text-[var(--cp-text-muted)]">
-            <th className="py-1 pr-2">{t('analysis.rf.link', 'Funkstrecke')}</th>
-            <th className="py-1 pr-2">{t('analysis.rf.freq', 'Frequenz')}</th>
+            <th className="py-1 pr-2">{t('analysis.rf.link', 'Wireless link')}</th>
+            <th className="py-1 pr-2">{t('analysis.rf.freq', 'Frequency')}</th>
             <th className="py-1 pr-2">{t('analysis.rf.band', 'Band')}</th>
-            <th className="py-1 pr-2">{t('analysis.rf.channel', 'Kanal')}</th>
-            <th className="py-1 pr-2">{t('analysis.rf.from', 'Von')}</th>
-            <th className="py-1">{t('analysis.rf.to', 'Nach')}</th>
+            <th className="py-1 pr-2">{t('analysis.rf.channel', 'Channel')}</th>
+            <th className="py-1 pr-2">{t('analysis.rf.from', 'From')}</th>
+            <th className="py-1">{t('analysis.rf.to', 'To')}</th>
           </tr>
         </thead>
         <tbody>
@@ -1822,7 +1822,7 @@ const RfTab = ({ projectName }: { projectName: string }) => {
           {links.length === 0 && (
             <tr>
               <td colSpan={6} className="py-2 text-[var(--cp-text-faint)]">
-                {t('analysis.rf.empty', 'Keine Funkstrecken im Plan.')}
+                {t('analysis.rf.empty', 'No wireless links in the plan.')}
               </td>
             </tr>
           )}
@@ -1832,17 +1832,17 @@ const RfTab = ({ projectName }: { projectName: string }) => {
       {/* #344 — Referenz: gängige Hersteller-Frequenzbänder. */}
       <details className="rounded border border-[var(--cp-border-muted)] bg-[var(--cp-surface-3)]">
         <summary className="cursor-pointer px-3 py-1.5 text-[11px] uppercase tracking-wide text-[var(--cp-text-muted)]">
-          {t('analysis.rf.bandRef', 'Frequenzbänder (Sennheiser / Shure / …)')} ({RF_BANDS.length})
+          {t('analysis.rf.bandRef', 'Frequency bands (Sennheiser / Shure / …)')} ({RF_BANDS.length})
         </summary>
         <div className="px-3 py-2">
           <table className="block overflow-x-auto w-full text-cp-xs">
             <thead className="text-[var(--cp-text-faint)]">
               <tr className="text-left">
-                <th className="py-0.5 pr-2">{t('analysis.rf.bandMfr', 'Hersteller')}</th>
-                <th className="py-0.5 pr-2">{t('analysis.rf.bandLine', 'Serie')}</th>
+                <th className="py-0.5 pr-2">{t('analysis.rf.bandMfr', 'Manufacturer')}</th>
+                <th className="py-0.5 pr-2">{t('analysis.rf.bandLine', 'Series')}</th>
                 <th className="py-0.5 pr-2">{t('analysis.rf.band', 'Band')}</th>
                 <th className="py-0.5 pr-2 text-right">MHz</th>
-                <th className="py-0.5">{t('analysis.rf.bandNote', 'Hinweis')}</th>
+                <th className="py-0.5">{t('analysis.rf.bandNote', 'Note')}</th>
               </tr>
             </thead>
             <tbody>
@@ -1859,7 +1859,7 @@ const RfTab = ({ projectName }: { projectName: string }) => {
           </table>
           <PanelHint className="mt-2 text-[10px] text-[var(--cp-text-faint)]" text={t(
           'analysis.rf.bandDisclaimer',
-          'Gängige Nominalbereiche — Band-Buchstaben sind serien-/regionsabhängig. Immer gegen das aktuelle Datenblatt und die lokale Frequenzregulierung prüfen.',
+          'Common nominal ranges — band letters are series/region dependent. Always verify against the current datasheet and local frequency regulations.',
         )} />
         </div>
       </details>
@@ -1870,10 +1870,10 @@ const RfTab = ({ projectName }: { projectName: string }) => {
       <div className="rounded border border-[var(--cp-border)] p-2">
         <div className="mb-2 flex flex-wrap items-center gap-2 text-cp-xs">
           <span className="font-medium">
-            {t('scan.title', 'Spektrum-Scan vom Analyser')}
+            {t('scan.title', 'Spectrum scan from the analyser')}
           </span>
           <label className="cursor-pointer rounded border border-[var(--cp-border)] px-2 py-1 hover:bg-[var(--cp-surface-2)]">
-            {t('scan.import', '📈 Scan einlesen')}
+            {t('scan.import', '📈 Read scan')}
             <input
               type="file"
               accept=".csv,.txt"
@@ -1892,18 +1892,18 @@ const RfTab = ({ projectName }: { projectName: string }) => {
             <>
               <span className="text-[var(--cp-text-secondary)]">
                 {scan.fileName ? `${scan.fileName} · ` : ''}
-                {format(t('scan.points', '{n} Messpunkte'), { n: String(scan.points.length) })}
+                {format(t('scan.points', '{n} measurement points'), { n: String(scan.points.length) })}
                 {scanSpanne ? ` · ${scanSpanne.fromMhz}–${scanSpanne.toMhz} MHz` : ''}
               </span>
               <label className="flex items-center gap-1">
-                {t('scan.threshold', 'belegt ab (dBm)')}
+                {t('scan.threshold', 'occupied from (dBm)')}
                 <input
                   type="number"
                   value={schwelle}
                   onChange={(e) => setSchwelle(Number(e.target.value))}
                   title={t(
                     'scan.thresholdHint',
-                    'Was „belegt" heißt, hängt an Antenne, Vorverstärker und Abstand — keine dieser Angaben steht in der Datei. Deshalb ist die Schwelle ein Feld und kein Festwert.',
+                    'What \u201Coccupied\u201D means depends on antenna, preamp and distance \u2014 none of which is in the file. That is why the threshold is a field, not a fixed value.',
                   )}
                   className="w-20 rounded border border-[var(--cp-border)] bg-[var(--cp-surface-1)] px-1 py-0.5"
                 />
@@ -1919,7 +1919,7 @@ const RfTab = ({ projectName }: { projectName: string }) => {
                 }
                 className="rounded border border-[var(--cp-border)] px-2 py-1 hover:bg-[var(--cp-surface-2)]"
               >
-                {t('scan.exportCheck', 'Abgleich')}
+                {t('scan.exportCheck', 'Comparison')}
               </button>
             </>
           )}
@@ -1937,10 +1937,10 @@ const RfTab = ({ projectName }: { projectName: string }) => {
           <table className="block overflow-x-auto mt-2 w-full text-cp-xs">
             <thead className="text-[var(--cp-text-secondary)]">
               <tr>
-                <th className="px-2 py-1 text-left">{t('scan.what', 'Was funkt')}</th>
+                <th className="px-2 py-1 text-left">{t('scan.what', 'What transmits')}</th>
                 <th className="px-2 py-1 text-left">{t('scan.freq', 'MHz')}</th>
-                <th className="px-2 py-1 text-left">{t('scan.verdict', 'Urteil')}</th>
-                <th className="px-2 py-1 text-left">{t('scan.peak', 'Spitze (dBm)')}</th>
+                <th className="px-2 py-1 text-left">{t('scan.verdict', 'Verdict')}</th>
+                <th className="px-2 py-1 text-left">{t('scan.peak', 'Peak (dBm)')}</th>
               </tr>
             </thead>
             <tbody>
@@ -1970,7 +1970,7 @@ const RfTab = ({ projectName }: { projectName: string }) => {
           disabled={spectrum.entries.length === 0}
           className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs font-medium text-[var(--cp-text)] hover:bg-[var(--cp-surface-2)] disabled:opacity-40"
         >
-          <Icon icon={Download} size="xs" /> {t('analysis.rf.spectrumExport', 'Spektrum-Plan (alles, was funkt)')}
+          <Icon icon={Download} size="xs" /> {t('analysis.rf.spectrumExport', 'Spectrum plan (everything that transmits)')}
         </button>
         <CsvButton onClick={exportCsv} />
       </div>
@@ -2008,24 +2008,24 @@ const RunsTab = ({ projectName }: { projectName: string }) => {
           return format(
             t(
               'analysis.runs.stale',
-              'Länge {alt} m wurde geschätzt; seither um {px} px verschoben, die Schätzung ergäbe jetzt {neu} m',
+              'Length {alt} m was estimated; moved {px} px since, the estimate would now give {neu} m',
             ),
             { alt: f.values[0], neu: f.values[1], px: f.values[2] },
           )
         case 'over-max-length':
           return format(
-            t('analysis.runs.overMax', 'Länge {laenge} m über der Reichweite von {max} m ({typ})'),
+            t('analysis.runs.overMax', 'Length {laenge} m beyond the reach of {max} m ({typ})'),
             { laenge: f.values[0], max: f.values[1], typ: f.values[2] },
           )
         case 'endpoint-missing':
           return t(
             'analysis.runs.endpointMissing',
-            'Abgeleitete Länge, aber ein Endgerät fehlt — sie lässt sich nicht mehr nachrechnen',
+            'Derived length, but an end device is gone \u2014 it can no longer be recomputed',
           )
       }
     })()
     return f.services
-      ? `${kern} — ${format(t('analysis.runs.bundled', 'ein Strang, {n} Dienste: {liste}'), {
+      ? `${kern} — ${format(t('analysis.runs.bundled', 'one run, {n} services: {liste}'), {
           n: f.services.length,
           liste: f.services.join(', '),
         })}`
@@ -2044,12 +2044,12 @@ const RunsTab = ({ projectName }: { projectName: string }) => {
     <div className="space-y-3 p-4 text-cp-base">
       <PanelHint className="mb-2 text-cp-xs text-[var(--cp-text-muted)]" text={t(
           'analysis.runs.intro',
-          'Geschätzte Längen tragen ihre Herkunft. Wird ein Gerät verschoben, veraltet die Schätzung — hier steht es, statt still zu bleiben. Von Hand eingetragene Längen werden NICHT gegen die Luftlinie gehalten: ein echter Kabelweg wird verlegt, nicht gespannt.',
+          'Estimated lengths carry their origin. Move a device and the estimate goes stale \u2014 it is stated here instead of staying silent. Hand-entered lengths are NOT held against the straight line: a real cable run is laid, not stretched.',
         )} />
 
       {findings.length === 0 ? (
         <p className="text-cp-xs text-[var(--cp-text-muted)]">
-          {t('analysis.runs.none', 'Keine Befunde: keine überholte Schätzung, keine Länge über der Reichweite.')}
+          {t('analysis.runs.none', 'No findings: no stale estimate, no length beyond reach.')}
         </p>
       ) : (
         <>
@@ -2109,23 +2109,23 @@ const SheetTab = () => {
       case 'identified':
         switch (r.status) {
           case 'current':
-            return format(t('analysis.sheet.current', '{label}: Stand {stand} — aktuell'), {
+            return format(t('analysis.sheet.current', '{label}: state {stand} \u2014 current'), {
               label: r.label ?? '',
               stand: r.stand ?? '',
             })
           case 'stale':
             return format(
-              t('analysis.sheet.stale', '{label}: Stand {stand} — ÜBERHOLT, der Plan ist seither weiter'),
+              t('analysis.sheet.stale', '{label}: state {stand} \u2014 SUPERSEDED, the plan has moved on'),
               { label: r.label ?? '', stand: r.stand ?? '' },
             )
           default:
             return format(
-              t('analysis.sheet.unknown', '{label}: Stand {stand} — nicht beurteilbar ({grund})'),
+              t('analysis.sheet.unknown', '{label}: state {stand} \u2014 not judgeable ({grund})'),
               { label: r.label ?? '', stand: r.stand ?? '', grund: r.reason ?? '' },
             )
         }
       case 'matched-by-stand':
-        return format(t('analysis.sheet.matched', '{label}: aktuell (Stand {stand})'), {
+        return format(t('analysis.sheet.matched', '{label}: current (state {stand})'), {
           label: r.label ?? '',
           stand: r.stand ?? '',
         })
@@ -2133,14 +2133,14 @@ const SheetTab = () => {
         return format(
           t(
             'analysis.sheet.foreign',
-            'Stand {stand} gehört zu keinem Dokument dieses Plans — vermutlich ein überholter Ausdruck',
+            'State {stand} belongs to no document of this plan \u2014 most likely a superseded printout',
           ),
           { stand: r.stand ?? '' },
         )
       case 'unreadable':
         return t(
           'analysis.sheet.unreadable',
-          'Kein Dokument-Code und kein Stand — acht Zeichen vom Fuß des Blatts oder der ganze Code',
+          'Neither a document code nor a state \u2014 eight characters from the foot of the sheet, or the whole code',
         )
     }
   }
@@ -2158,7 +2158,7 @@ const SheetTab = () => {
     <div className="space-y-3 p-4 text-cp-base">
       <PanelHint className="mb-2 text-cp-xs text-[var(--cp-text-muted)]" text={t(
           'analysis.sheet.intro',
-          'Ein Blatt in der Hand: den Stand vom Fuß abtippen (acht Zeichen) oder den ganzen Dokument-Code einlesen. Die Antwort sagt, welches Dokument es ist und ob der Plan seither weiter ist.',
+          'A sheet in your hand: type the eight-character state from its foot, or read the whole document code. The answer says which document it is and whether the plan has moved on since.',
         )} />
 
       <div className="flex flex-wrap items-center gap-2">
@@ -2168,8 +2168,8 @@ const SheetTab = () => {
           onKeyDown={(e) => {
             if (e.key === 'Enter') pruefen()
           }}
-          placeholder={t('analysis.sheet.placeholder', '1a2b3c4d oder cableplanner://doc/…')}
-          aria-label={t('analysis.sheet.placeholder', '1a2b3c4d oder cableplanner://doc/…')}
+          placeholder={t('analysis.sheet.placeholder', '1a2b3c4d or cableplanner://doc/\u2026')}
+          aria-label={t('analysis.sheet.placeholder', '1a2b3c4d or cableplanner://doc/\u2026')}
           className="min-w-[16rem] flex-1 rounded border border-cp-border bg-cp-surface-3 p-1.5"
         />
         <button
@@ -2178,7 +2178,7 @@ const SheetTab = () => {
           disabled={!draft.trim()}
           className="rounded border border-cp-border px-2.5 py-1 text-cp-text-secondary hover:text-cp-text disabled:opacity-40"
         >
-          {t('analysis.sheet.check', 'Prüfen')}
+          {t('analysis.sheet.check', 'Check')}
         </button>
       </div>
 
@@ -2214,7 +2214,7 @@ const ClientTab = ({ projectName }: { projectName: string }) => {
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-cp-sm text-[var(--cp-text-secondary)]">
-          {t('analysis.client.basis', 'Grundlage des Blatts')}:
+          {t('analysis.client.basis', 'Basis of this sheet')}:
         </span>
         <span className="rounded border border-[var(--cp-border-muted)] px-1.5 py-0.5 text-cp-xs text-[var(--cp-text-secondary)]">
           {JOB_BASIS_LABEL[summary.basis]}
@@ -2224,11 +2224,11 @@ const ClientTab = ({ projectName }: { projectName: string }) => {
       <table className="block overflow-x-auto w-full text-cp-xs">
         <thead>
           <tr className="text-left text-[var(--cp-text-muted)]">
-            <th className="py-1">{t('analysis.client.area', 'Bereich')}</th>
-            <th>{t('analysis.client.metric', 'Kennzahl')}</th>
-            <th>{t('analysis.client.value', 'Wert')}</th>
-            <th>{t('analysis.client.share', 'Anteil')}</th>
-            <th>{t('analysis.client.source', 'Grundlage')}</th>
+            <th className="py-1">{t('analysis.client.area', 'Area')}</th>
+            <th>{t('analysis.client.metric', 'Metric')}</th>
+            <th>{t('analysis.client.value', 'Value')}</th>
+            <th>{t('analysis.client.share', 'Share')}</th>
+            <th>{t('analysis.client.source', 'Basis')}</th>
           </tr>
         </thead>
         <tbody>
@@ -2319,15 +2319,15 @@ const CostTab = ({ projectName }: { projectName: string }) => {
         <input
           value={kosten.plan.currency ?? ''}
           onChange={(e) => patch({ currency: e.target.value || undefined })}
-          placeholder={t('analysis.cost.currencyPh', 'Währung, z. B. EUR')}
-          aria-label={t('analysis.cost.currency', 'Währung')}
+          placeholder={t('analysis.cost.currencyPh', 'Currency, e.g. EUR')}
+          aria-label={t('analysis.cost.currency', 'Currency')}
           className={`${inp} w-[9rem]`}
         />
         <input
           value={kosten.plan.tolerancePercent ?? ''}
           onChange={(e) => patch({ tolerancePercent: numOrUndef(e.target.value) })}
-          placeholder={t('analysis.cost.tolerancePh', 'Toleranz in %')}
-          aria-label={t('analysis.cost.tolerance', 'Toleranz')}
+          placeholder={t('analysis.cost.tolerancePh', 'Tolerance in %')}
+          aria-label={t('analysis.cost.tolerance', 'Tolerance')}
           className={`${inp} w-[9rem]`}
         />
         <button
@@ -2335,7 +2335,7 @@ const CostTab = ({ projectName }: { projectName: string }) => {
           onClick={addLine}
           className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs"
         >
-          <Icon icon={Plus} size="xs" /> {t('analysis.cost.add', 'Position')}
+          <Icon icon={Plus} size="xs" /> {t('analysis.cost.add', 'Line')}
         </button>
         <CsvButton onClick={exportCsv} />
       </div>
@@ -2347,8 +2347,8 @@ const CostTab = ({ projectName }: { projectName: string }) => {
               <input
                 value={r.line.label}
                 onChange={(e) => patchLine(r.line.id, { label: e.target.value })}
-                placeholder={t('analysis.cost.labelPh', 'Position')}
-                aria-label={t('analysis.cost.label', 'Bezeichnung')}
+                placeholder={t('analysis.cost.labelPh', 'Line')}
+                aria-label={t('analysis.cost.label', 'Label')}
                 className={`${inp} min-w-0 flex-1`}
               />
               <select
@@ -2360,10 +2360,10 @@ const CostTab = ({ projectName }: { projectName: string }) => {
                       : { kind: 'free' },
                   })
                 }
-                aria-label={t('analysis.cost.anchor', 'Bezug im Plan')}
+                aria-label={t('analysis.cost.anchor', 'Anchor in the plan')}
                 className={inp}
               >
-                <option value="">{t('analysis.cost.free', '— ohne Bezug —')}</option>
+                <option value="">{t('analysis.cost.free', '\u2014 no anchor \u2014')}</option>
                 {project.equipment.map((eq) => (
                   <option key={eq.id} value={eq.id}>
                     {eq.name}
@@ -2373,15 +2373,15 @@ const CostTab = ({ projectName }: { projectName: string }) => {
               <input
                 value={r.line.estimate ?? ''}
                 onChange={(e) => patchLine(r.line.id, { estimate: numOrUndef(e.target.value) })}
-                placeholder={t('analysis.cost.estimatePh', 'Schätzung')}
-                aria-label={t('analysis.cost.estimate', 'Schätzung')}
+                placeholder={t('analysis.cost.estimatePh', 'Estimate')}
+                aria-label={t('analysis.cost.estimate', 'Estimate')}
                 className={`${inp} w-[6.5rem] tabular-nums`}
               />
               <input
                 value={r.line.actual ?? ''}
                 onChange={(e) => patchLine(r.line.id, { actual: numOrUndef(e.target.value) })}
-                placeholder={t('analysis.cost.actualPh', 'Ist')}
-                aria-label={t('analysis.cost.actual', 'Ist')}
+                placeholder={t('analysis.cost.actualPh', 'Actual')}
+                aria-label={t('analysis.cost.actual', 'Actual')}
                 className={`${inp} w-[6.5rem] tabular-nums`}
               />
               {/* Die Herkunft steht NEBEN der Zahl: aus dem ERP und aus dem
@@ -2391,7 +2391,7 @@ const CostTab = ({ projectName }: { projectName: string }) => {
                 onChange={(e) =>
                   patchLine(r.line.id, { actualSource: e.target.value as ActualSource })
                 }
-                aria-label={t('analysis.cost.source', 'Herkunft des Ist-Werts')}
+                aria-label={t('analysis.cost.source', 'Origin of the actual')}
                 className={inp}
               >
                 {Object.keys(ACTUAL_SOURCE_LABEL).map((k) => (
@@ -2402,7 +2402,7 @@ const CostTab = ({ projectName }: { projectName: string }) => {
               </select>
               <span className="w-[8rem] text-right text-cp-xs tabular-nums text-[var(--cp-text-secondary)]">
                 {r.delta === undefined
-                  ? t('analysis.cost.unknown', 'unbekannt')
+                  ? t('analysis.cost.unknown', 'unknown')
                   : `${r.delta > 0 ? '+' : ''}${Math.round(r.delta * 100) / 100}${
                       r.deltaPercent === undefined ? '' : ` (${r.deltaPercent} %)`
                     }`}
@@ -2410,7 +2410,7 @@ const CostTab = ({ projectName }: { projectName: string }) => {
               <button
                 type="button"
                 onClick={() => removeLine(r.line.id)}
-                aria-label={t('analysis.cost.remove', 'Position entfernen')}
+                aria-label={t('analysis.cost.remove', 'Remove line')}
                 className="text-[var(--cp-text-muted)] hover:text-[var(--cp-danger)]"
               >
                 <Icon icon={Trash2} size="xs" />
@@ -2418,13 +2418,13 @@ const CostTab = ({ projectName }: { projectName: string }) => {
             </div>
           ))}
           <div className="mt-1 flex flex-wrap items-center gap-2 border-t border-[var(--cp-border-muted)] pt-1 text-cp-xs">
-            <strong>{t('analysis.cost.total', 'Projektschätzung (gerechnet)')}</strong>
+            <strong>{t('analysis.cost.total', 'Project estimate (derived)')}</strong>
             <span className="tabular-nums">{Math.round(kosten.totals.estimate * 100) / 100}</span>
             <span className="text-[var(--cp-text-muted)]">
-              {t('analysis.cost.without', 'ohne Schätzung')}: {kosten.totals.linesWithoutEstimate}
+              {t('analysis.cost.without', 'without an estimate')}: {kosten.totals.linesWithoutEstimate}
             </span>
             <span className="text-[var(--cp-text-muted)]">
-              {t('analysis.cost.withoutActual', 'ohne Ist-Wert')}: {kosten.totals.linesWithoutActual}
+              {t('analysis.cost.withoutActual', 'without an actual')}: {kosten.totals.linesWithoutActual}
             </span>
           </div>
         </div>
@@ -2482,13 +2482,13 @@ const AufnahmeNamen = ({ projectName }: { projectName: string }) => {
   return (
     <div className="flex flex-col gap-2 border-t border-[var(--cp-border)] pt-3">
       <h3 className="text-cp-sm font-semibold text-[var(--cp-text)]">
-        {t('analysis.recordName.title', 'Aufnahmenamen')}
+        {t('analysis.recordName.title', 'Recording names')}
       </h3>
       <PanelHint
         className="text-cp-xs leading-snug text-[var(--cp-text-muted)]"
         text={t(
           'analysis.recordName.intro',
-          'Der Dateiname jeder Aufzeichnung, gebildet aus dem Plan statt an jeder Deck-Konfigurationsseite einzeln. Die Take-Nummer gilt für das ganze Projekt. Was hier als Befund steht, wird am Gerät zu einer leeren Karte — ein abgelehnter Name fällt am Deck nicht auf.',
+          'The filename of every recording, built from the plan instead of deck by deck on each config page. The take number applies to the whole project. What shows up here as a finding becomes an empty card at the device — a rejected name does not announce itself on the deck.',
         )}
       />
       <div className="flex flex-wrap items-center gap-2">
@@ -2510,13 +2510,13 @@ const AufnahmeNamen = ({ projectName }: { projectName: string }) => {
           />
         </label>
         <label className="flex items-center gap-1 text-cp-xs">
-          {t('analysis.recordName.separator', 'Trenner')}
+          {t('analysis.recordName.separator', 'Separator')}
           <input
             value={schema.separator}
             onChange={(e) =>
               setRecordNaming(normaliseRecordNaming({ ...schema, separator: e.target.value }))
             }
-            aria-label={t('analysis.recordName.separator', 'Trenner')}
+            aria-label={t('analysis.recordName.separator', 'Separator')}
             className={`${inp} w-12`}
           />
         </label>
@@ -2536,7 +2536,7 @@ const AufnahmeNamen = ({ projectName }: { projectName: string }) => {
           }
           className="rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs hover:bg-[var(--cp-surface-4)]"
         >
-          {t('analysis.recordName.export', 'Zettel fürs Deck (CSV)')}
+          {t('analysis.recordName.export', 'Sheet for the deck (CSV)')}
         </button>
       </div>
 
@@ -2544,17 +2544,17 @@ const AufnahmeNamen = ({ projectName }: { projectName: string }) => {
         <p className="text-cp-xs text-[var(--cp-text-muted)]">
           {t(
             'analysis.recordName.empty',
-            'Keine Rolle im Plan — ohne Rollen entsteht kein Aufnahmename.',
+            'No role in the plan — without roles there is no recording name.',
           )}
         </p>
       ) : (
         <table className="block overflow-x-auto w-full border-collapse text-cp-xs">
           <thead>
             <tr className="border-b border-[var(--cp-border)] text-left text-[var(--cp-text-secondary)]">
-              <th className="py-1 pr-2">{t('analysis.recordName.role', 'Rolle')}</th>
+              <th className="py-1 pr-2">{t('analysis.recordName.role', 'Role')}</th>
               <th className="py-1 pr-2">{t('analysis.recordName.recorder', 'Recorder')}</th>
-              <th className="py-1 pr-2">{t('analysis.recordName.channel', 'Kanal')}</th>
-              <th className="py-1 pr-2">{t('analysis.recordName.file', 'Dateiname')}</th>
+              <th className="py-1 pr-2">{t('analysis.recordName.channel', 'Channel')}</th>
+              <th className="py-1 pr-2">{t('analysis.recordName.file', 'Filename')}</th>
             </tr>
           </thead>
           <tbody>
@@ -2562,7 +2562,7 @@ const AufnahmeNamen = ({ projectName }: { projectName: string }) => {
               <tr key={r.roleId} className="border-b border-[var(--cp-border-muted)] align-top">
                 <td className="py-1 pr-2">{r.roleName}</td>
                 <td className="py-1 pr-2 text-[var(--cp-text-muted)]">
-                  {r.recorder ?? t('analysis.recordName.noRecorder', 'kein Recorder im Plan')}
+                  {r.recorder ?? t('analysis.recordName.noRecorder', 'no recorder in the plan')}
                 </td>
                 <td className="py-1 pr-2 tabular-nums">{r.channel ?? ''}</td>
                 <td className="py-1 pr-2">
@@ -2622,33 +2622,33 @@ const NamingTab = ({ projectName }: { projectName: string }) => {
     <div className="flex flex-col gap-3">
       <PanelHint className="text-cp-xs leading-snug text-[var(--cp-text-muted)]" text={t(
           'analysis.naming.intro',
-          'Namen aus einer Regel statt aus dem Gefühl. Der Umbenennungssatz ist ein Blatt zum Abtippen — kein Dante-Preset: dieses Schema hat diese Anwendung nie gesehen.',
+          'Names from a rule instead of from a feeling. The rename set is a sheet to type from \u2014 not a Dante preset: this application has never seen that schema.',
         )} />
       <div className="flex flex-wrap items-center gap-2">
         <input
           value={scheme.separator}
           onChange={(e) => patch({ separator: e.target.value })}
-          placeholder={t('analysis.naming.sepPh', 'Trenner')}
-          aria-label={t('analysis.naming.sep', 'Trennzeichen')}
+          placeholder={t('analysis.naming.sepPh', 'Separator')}
+          aria-label={t('analysis.naming.sep', 'Separator')}
           className={`${inp} w-[5rem]`}
         />
         <select
           value={scheme.caseMode}
           onChange={(e) => patch({ caseMode: e.target.value as NamingScheme['caseMode'] })}
-          aria-label={t('analysis.naming.case', 'Schreibweise')}
+          aria-label={t('analysis.naming.case', 'Case')}
           className={inp}
         >
-          <option value="as-is">{t('analysis.naming.case.asIs', 'wie erzeugt')}</option>
-          <option value="upper">{t('analysis.naming.case.upper', 'GROSS')}</option>
-          <option value="lower">{t('analysis.naming.case.lower', 'klein')}</option>
+          <option value="as-is">{t('analysis.naming.case.asIs', 'as generated')}</option>
+          <option value="upper">{t('analysis.naming.case.upper', 'UPPER')}</option>
+          <option value="lower">{t('analysis.naming.case.lower', 'lower')}</option>
         </select>
         <select
           value={scheme.categoryFilter ?? ''}
           onChange={(e) => patch({ categoryFilter: e.target.value || undefined })}
-          aria-label={t('analysis.naming.filter', 'Nur diese Kategorie')}
+          aria-label={t('analysis.naming.filter', 'Only this category')}
           className={inp}
         >
-          <option value="">{t('analysis.naming.allCategories', '— alle Kategorien —')}</option>
+          <option value="">{t('analysis.naming.allCategories', '\u2014 all categories \u2014')}</option>
           {kategorien.map((c) => (
             <option key={c} value={c}>
               {c}
@@ -2660,7 +2660,7 @@ const NamingTab = ({ projectName }: { projectName: string }) => {
           onClick={anwenden}
           className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs"
         >
-          {t('analysis.naming.apply', 'Anwenden')} ({bewertung.proposals.length})
+          {t('analysis.naming.apply', 'Apply')} ({bewertung.proposals.length})
         </button>
         <CsvButton onClick={exportCsv} />
       </div>
@@ -2670,9 +2670,9 @@ const NamingTab = ({ projectName }: { projectName: string }) => {
           {refusal === 'duplicates'
             ? t(
                 'analysis.naming.refusedDuplicates',
-                'Nicht angewandt: die Regel ergäbe doppelte Namen. Ein doppelter Name im Netz ist kein Schönheitsfehler.',
+                'Not applied: the rule would produce duplicate names. A duplicate name on the network is not a cosmetic flaw.',
               )
-            : t('analysis.naming.refusedNothing', 'Nicht angewandt: es gibt nichts zu ändern.')}
+            : t('analysis.naming.refusedNothing', 'Not applied: there is nothing to change.')}
         </p>
       )}
 
@@ -2680,9 +2680,9 @@ const NamingTab = ({ projectName }: { projectName: string }) => {
         <table className="block overflow-x-auto w-full text-cp-xs">
           <thead>
             <tr className="text-left text-[var(--cp-text-muted)]">
-              <th className="py-1">{t('analysis.naming.before', 'Alter Name')}</th>
-              <th>{t('analysis.naming.after', 'Neuer Name')}</th>
-              <th>{t('analysis.naming.chars', 'Zeichen')}</th>
+              <th className="py-1">{t('analysis.naming.before', 'Old name')}</th>
+              <th>{t('analysis.naming.after', 'New name')}</th>
+              <th>{t('analysis.naming.chars', 'Characters')}</th>
             </tr>
           </thead>
           <tbody>
@@ -2750,11 +2750,11 @@ const DanteTab = ({ projectName }: { projectName: string }) => {
     <div className="flex flex-col gap-3">
       <PanelHint className="text-cp-xs leading-snug text-[var(--cp-text-muted)]" text={t(
           'analysis.dante.intro',
-          'Die Subscription-Matrix als Blatt und als Vergleich. Diese Anwendung geht nicht ins Netz, abonniert nichts und benennt nichts um — sie liest die Tabelle, in die das Preset ohnehin konvertiert wird.',
+          'The subscription matrix as a sheet and as a comparison. This application does not go on the network, subscribes to nothing and renames nothing \u2014 it reads the table the preset is converted into anyway.',
         )} />
       <div className="flex flex-wrap items-center gap-2">
         <label className="cursor-pointer rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs">
-          {t('analysis.dante.import', 'Matrix einlesen')}
+          {t('analysis.dante.import', 'Read matrix')}
           <input
             type="file"
             accept=".csv,.txt"
@@ -2770,12 +2770,12 @@ const DanteTab = ({ projectName }: { projectName: string }) => {
         {aktuell && (
           <>
             <span className="text-cp-xs text-[var(--cp-text-secondary)]">
-              {t('analysis.dante.count', '{n} Empfangskanäle')
+              {t('analysis.dante.count', '{n} receive channels')
                 .replace('{n}', String(aktuell.subscriptions.length))}
             </span>
             {aktuell.unreadable > 0 && (
               <span className="text-cp-xs text-amber-300/90">
-                {t('analysis.dante.unreadable', '{n} Zeilen nicht lesbar').replace(
+                {t('analysis.dante.unreadable', '{n} lines not readable').replace(
                   '{n}',
                   String(aktuell.unreadable),
                 )}
@@ -2802,7 +2802,7 @@ const DanteTab = ({ projectName }: { projectName: string }) => {
                 }
                 className="rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs"
               >
-                {t('analysis.dante.exportDiff', 'Änderungen')}
+                {t('analysis.dante.exportDiff', 'Changes')}
               </button>
             )}
           </>
@@ -2812,7 +2812,7 @@ const DanteTab = ({ projectName }: { projectName: string }) => {
       {/* Zwei Stände, keine Änderung: das ist eine Aussage und wird gesagt. */}
       {patchB && unterschiede.length === 0 && (
         <p className="text-cp-xs text-[var(--cp-text-secondary)]">
-          {t('analysis.dante.noChange', 'Zwischen den beiden Ständen hat sich am Patch nichts geändert.')}
+          {t('analysis.dante.noChange', 'Nothing changed in the patch between the two states.')}
         </p>
       )}
       {unterschiede.length > 0 && (
@@ -2894,7 +2894,7 @@ const AnalysisDialogInner = () => {
       onClose={close}
       maxWidth="4xl"
       titleIcon={<Icon icon={BarChart3} size="md" />}
-      title={t('analysis.title', 'Analysen')}
+      title={t('analysis.title', 'Analyses')}
     >
       <div className="mb-3 flex gap-1 border-b border-[var(--cp-border)]">
         {TABS.map((tb) => (

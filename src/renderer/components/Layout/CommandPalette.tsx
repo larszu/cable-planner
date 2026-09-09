@@ -75,38 +75,38 @@ export const CommandPalette = () => {
     if (open) requestAnimationFrame(() => inputRef.current?.focus())
   }, [open])
 
-  const gEdit = t('app.menu.edit', 'Bearbeiten')
-  const gView = t('app.menu.view', 'Ansicht')
-  const gTools = t('app.menu.tools', 'Werkzeuge')
-  const gHelp = t('app.menu.help', 'Hilfe')
+  const gEdit = t('app.menu.edit', 'Edit')
+  const gView = t('app.menu.view', 'View')
+  const gTools = t('app.menu.tools', 'Tools')
+  const gHelp = t('app.menu.help', 'Help')
   const ui = () => useUiStore.getState()
 
   const commands = useMemo<Command[]>(
     () => [
-      { id: 'undo', group: gEdit, title: t('app.menu.edit.undo', 'Rückgängig'), run: () => projectHistory.undo() },
-      { id: 'redo', group: gEdit, title: t('app.menu.edit.redo', 'Wiederherstellen'), run: () => projectHistory.redo() },
-      { id: 'duplicate', group: gEdit, title: t('app.menu.edit.duplicate', 'Duplizieren'), run: () => triggerCanvasDuplicate() },
-      { id: 'selectAll', group: gEdit, title: t('app.menu.edit.selectAll', 'Alles auswählen'), run: () => triggerCanvasSelectAll() },
-      { id: 'fit', group: gView, title: t('app.menu.view.fit', 'Einpassen'), run: () => triggerCanvasFitView() },
-      { id: 'zoomIn', group: gView, title: t('palette.zoomIn', 'Vergrößern'), run: () => triggerCanvasZoomIn() },
-      { id: 'zoomOut', group: gView, title: t('palette.zoomOut', 'Verkleinern'), run: () => triggerCanvasZoomOut() },
-      { id: 'zoomReset', group: gView, title: t('palette.zoomReset', 'Zoom zurücksetzen (100%)'), run: () => triggerCanvasResetZoom() },
-      { id: 'planCheck', group: gTools, title: t('app.menu.tools.planCheck', 'Plan-Check…'), run: () => ui().openPlanCheck() },
-      { id: 'patchList', group: gTools, title: t('app.menu.tools.patchList', 'Patch-Liste…'), run: () => ui().openPatchList() },
-      { id: 'analysis', group: gTools, title: t('app.menu.tools.analysis', 'Analysen…'), run: () => ui().openAnalysis() },
-      { id: 'bulkConnect', group: gTools, title: t('app.menu.tools.bulkConnect', 'Mehrere Kabel verbinden…'), run: () => ui().openBulkConnect() },
-      { id: 'revisions', group: gTools, title: t('app.menu.tools.revisions', 'Revisionen & Snapshots…'), run: () => ui().openRevisions() },
-      { id: 'aiPlanGen', group: gTools, title: t('app.menu.tools.aiPlanGen', 'KI-Plan generieren…'), run: () => ui().openAiPlanGen() },
-      { id: 'csvImport', group: gTools, title: t('app.menu.tools.csvImport', 'Equipment aus CSV importieren…'), run: () => ui().openCsvImport() },
-      { id: 'bandwidth', group: gTools, title: t('app.menu.tools.bandwidth', 'Bandbreite berechnen…'), run: () => ui().openBandwidthCalc() },
-      { id: 'power', group: gTools, title: t('app.menu.tools.power', 'Stromverbrauch berechnen…'), run: () => ui().openPowerCalc() },
-      { id: 'recStorage', group: gTools, title: t('app.menu.tools.recStorage', 'Recording-Speicherplatz berechnen…'), run: () => ui().openRecordingStorageCalc() },
-      { id: 'projection', group: gTools, title: t('app.menu.tools.projection', 'Projektion & Display…'), run: () => ui().openProjectionCalc() },
-      { id: 'installDocs', group: gTools, title: t('app.menu.tools.installDocs', 'Festinstallation: Doku & Übergabe…'), run: () => ui().openInstallDocs() },
-      { id: 'loadDemo', group: gTools, title: t('canvas.empty.loadDemo', 'Beispielprojekt laden'), run: () => { useProjectStore.getState().loadProject(createDemoProject()); setTimeout(() => triggerCanvasFitView(), 80) } },
-      { id: 'settings', group: gHelp, title: t('palette.settings', 'Einstellungen…'), run: () => ui().openSettings() },
-      { id: 'shortcuts', group: gHelp, title: t('app.menu.help.shortcuts', 'Tastaturkürzel…'), run: () => window.dispatchEvent(new CustomEvent('cp:open-shortcuts-help')) },
-      { id: 'about', group: gHelp, title: t('app.menu.help.about', 'Über Cable Planner…'), run: () => ui().openAboutDialog() },
+      { id: 'undo', group: gEdit, title: t('app.menu.edit.undo', 'Undo'), run: () => projectHistory.undo() },
+      { id: 'redo', group: gEdit, title: t('app.menu.edit.redo', 'Redo'), run: () => projectHistory.redo() },
+      { id: 'duplicate', group: gEdit, title: t('app.menu.edit.duplicate', 'Duplicate'), run: () => triggerCanvasDuplicate() },
+      { id: 'selectAll', group: gEdit, title: t('app.menu.edit.selectAll', 'Select all'), run: () => triggerCanvasSelectAll() },
+      { id: 'fit', group: gView, title: t('app.menu.view.fit', 'Fit to view'), run: () => triggerCanvasFitView() },
+      { id: 'zoomIn', group: gView, title: t('palette.zoomIn', 'Zoom in'), run: () => triggerCanvasZoomIn() },
+      { id: 'zoomOut', group: gView, title: t('palette.zoomOut', 'Zoom out'), run: () => triggerCanvasZoomOut() },
+      { id: 'zoomReset', group: gView, title: t('palette.zoomReset', 'Reset zoom (100%)'), run: () => triggerCanvasResetZoom() },
+      { id: 'planCheck', group: gTools, title: t('app.menu.tools.planCheck', 'Plan check…'), run: () => ui().openPlanCheck() },
+      { id: 'patchList', group: gTools, title: t('app.menu.tools.patchList', 'Patch list…'), run: () => ui().openPatchList() },
+      { id: 'analysis', group: gTools, title: t('app.menu.tools.analysis', 'Analyses (weight/network/redundancy)…'), run: () => ui().openAnalysis() },
+      { id: 'bulkConnect', group: gTools, title: t('app.menu.tools.bulkConnect', 'Connect multiple cables…'), run: () => ui().openBulkConnect() },
+      { id: 'revisions', group: gTools, title: t('app.menu.tools.revisions', 'Revisions & snapshots…'), run: () => ui().openRevisions() },
+      { id: 'aiPlanGen', group: gTools, title: t('app.menu.tools.aiPlanGen', 'Generate AI plan…'), run: () => ui().openAiPlanGen() },
+      { id: 'csvImport', group: gTools, title: t('app.menu.tools.csvImport', 'Import equipment from CSV…'), run: () => ui().openCsvImport() },
+      { id: 'bandwidth', group: gTools, title: t('app.menu.tools.bandwidth', 'Calculate bandwidth…'), run: () => ui().openBandwidthCalc() },
+      { id: 'power', group: gTools, title: t('app.menu.tools.power', 'Calculate power consumption…'), run: () => ui().openPowerCalc() },
+      { id: 'recStorage', group: gTools, title: t('app.menu.tools.recStorage', 'Calculate recording storage…'), run: () => ui().openRecordingStorageCalc() },
+      { id: 'projection', group: gTools, title: t('app.menu.tools.projection', 'Projection & display…'), run: () => ui().openProjectionCalc() },
+      { id: 'installDocs', group: gTools, title: t('app.menu.tools.installDocs', 'Fixed install: docs & handover…'), run: () => ui().openInstallDocs() },
+      { id: 'loadDemo', group: gTools, title: t('canvas.empty.loadDemo', 'Load example project'), run: () => { useProjectStore.getState().loadProject(createDemoProject()); setTimeout(() => triggerCanvasFitView(), 80) } },
+      { id: 'settings', group: gHelp, title: t('palette.settings', 'Settings…'), run: () => ui().openSettings() },
+      { id: 'shortcuts', group: gHelp, title: t('app.menu.help.shortcuts', 'Keyboard shortcuts…'), run: () => window.dispatchEvent(new CustomEvent('cp:open-shortcuts-help')) },
+      { id: 'about', group: gHelp, title: t('app.menu.help.about', 'About Cable Planner…'), run: () => ui().openAboutDialog() },
     ],
     [t, gEdit, gView, gTools, gHelp],
   )
@@ -168,7 +168,7 @@ export const CommandPalette = () => {
     >
       <div
         ref={panelRef}
-        aria-label={t('palette.placeholder', 'Befehl suchen…')}
+        aria-label={t('palette.placeholder', 'Search command…')}
         {...dialogProps}
         className="w-full max-w-xl overflow-hidden rounded-cp-modal border border-cp-border bg-cp-surface-1 shadow-2xl"
       >
@@ -182,17 +182,17 @@ export const CommandPalette = () => {
               setActive(0)
             }}
             onKeyDown={onInputKey}
-            placeholder={t('palette.placeholder', 'Befehl suchen…')}
+            placeholder={t('palette.placeholder', 'Search command…')}
             className="flex-1 bg-transparent text-cp-base text-cp-text outline-none placeholder:text-cp-text-faint"
           />
           <kbd className="shrink-0 rounded-cp-control border border-cp-border bg-cp-surface-2 px-2 py-0.5 text-cp-xs text-cp-text-muted">
-            {isMac ? '⌘' : t('shortcut.mod', 'Strg')}+K
+            {isMac ? '⌘' : t('shortcut.mod', 'Ctrl')}+K
           </kbd>
         </div>
         <ul ref={listRef} className="max-h-[50vh] overflow-y-auto py-1">
           {filtered.length === 0 ? (
             <li className="px-cp-4 py-cp-3 text-cp-sm text-cp-text-faint">
-              {t('palette.empty', 'Keine Befehle gefunden')}
+              {t('palette.empty', 'No commands found')}
             </li>
           ) : (
             filtered.map((c, i) => (

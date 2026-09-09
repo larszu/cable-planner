@@ -45,7 +45,7 @@ export const AdapterSection = ({ equipment }: { equipment: EquipmentItem }) => {
 
   const summary = spec
     ? adapterBezeichnung(spec)
-    : t('adapter.none', 'kein Adapter')
+    : t('adapter.none', 'not an adapter')
 
   return (
     <SortableSection id="adapter" title={t('adapter.title', 'Adapter')} subtitle={summary}>
@@ -72,7 +72,7 @@ export const AdapterSection = ({ equipment }: { equipment: EquipmentItem }) => {
           }
         />
         <span className="text-cp-text-secondary">
-          {t('adapter.isAdapter', 'Dieses Gerät ist ein Adapter')}
+          {t('adapter.isAdapter', 'This device is an adapter')}
         </span>
       </label>
 
@@ -81,7 +81,7 @@ export const AdapterSection = ({ equipment }: { equipment: EquipmentItem }) => {
           className="mt-2 text-cp-xs text-cp-text-muted"
           text={t(
             'adapter.noneHint',
-            'Ein Adapter gehört als eigenes Gerät in den Plan — sonst steht er weder im Signalweg noch auf der Packliste, und am Aufbautag fehlt er.',
+            'An adapter belongs in the plan as a device of its own — otherwise it is neither in the signal path nor on the pick list, and it is missing on the build day.',
           )}
         />
       ) : (
@@ -89,7 +89,7 @@ export const AdapterSection = ({ equipment }: { equipment: EquipmentItem }) => {
           <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
             <label className="block text-cp-xs">
               <span className="mb-1 block text-cp-text-muted">
-                {t('adapter.von', 'Seite zur Quelle')}
+                {t('adapter.von', 'Side facing the source')}
               </span>
               <select
                 className="w-full rounded border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-text"
@@ -105,7 +105,7 @@ export const AdapterSection = ({ equipment }: { equipment: EquipmentItem }) => {
             </label>
             <label className="block text-cp-xs">
               <span className="mb-1 block text-cp-text-muted">
-                {t('adapter.nach', 'Seite zur Senke')}
+                {t('adapter.nach', 'Side facing the sink')}
               </span>
               <select
                 className="w-full rounded border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-text"
@@ -123,7 +123,7 @@ export const AdapterSection = ({ equipment }: { equipment: EquipmentItem }) => {
 
           <label className="mt-3 block text-cp-xs">
             <span className="mb-1 block text-cp-text-muted">
-              {t('adapter.richtung', 'Richtung')}
+              {t('adapter.richtung', 'Direction')}
             </span>
             <select
               className="w-full rounded border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-text"
@@ -144,7 +144,7 @@ export const AdapterSection = ({ equipment }: { equipment: EquipmentItem }) => {
 
           <label className="mt-3 block text-cp-xs">
             <span className="mb-1 block text-cp-text-muted">
-              {t('adapter.speisung', 'Speisung')}
+              {t('adapter.speisung', 'Power')}
             </span>
             <select
               className="w-full rounded border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-text"
@@ -165,7 +165,7 @@ export const AdapterSection = ({ equipment }: { equipment: EquipmentItem }) => {
 
           <label className="mt-3 block text-cp-xs">
             <span className="mb-1 block text-cp-text-muted">
-              {t('adapter.grenze', 'Lässt höchstens durch')}
+              {t('adapter.grenze', 'Passes at most')}
             </span>
             <select
               className="w-full rounded border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-text"
@@ -178,7 +178,7 @@ export const AdapterSection = ({ equipment }: { equipment: EquipmentItem }) => {
                 })
               }
             >
-              <option value="">{t('adapter.grenzeNone', 'nicht erklärt')}</option>
+              <option value="">{t('adapter.grenzeNone', 'not declared')}</option>
               {ALL_SIGNAL_STANDARDS.map((s) => (
                 <option key={s} value={s}>
                   {s}
@@ -190,19 +190,19 @@ export const AdapterSection = ({ equipment }: { equipment: EquipmentItem }) => {
             className="mt-1 text-cp-xs text-cp-text-muted"
             text={t(
               'adapter.grenzeHint',
-              'Zwei äusserlich gleiche HDMI-Adapter können 1.4 und 2.1 sein. Ohne Angabe prüft der Plan die Grenze nicht — er behauptet aber auch nicht, dass sie hält.',
+              'Two HDMI adapters that look alike can be 1.4 and 2.1. Without the entry the plan does not check the ceiling — but it does not claim it holds, either.',
             )}
           />
 
           <label className="mt-3 block text-cp-xs">
             <span className="mb-1 block text-cp-text-muted">
-              {t('adapter.setztVoraus', 'Setzt an der Quelle voraus')}
+              {t('adapter.setztVoraus', 'Requires at the source')}
             </span>
             <input
               type="text"
               className="w-full rounded border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-text"
               value={spec.setztVoraus ?? ''}
-              placeholder={t('adapter.setztVorausPlaceholder', 'z. B. DisplayPort Alternate Mode')}
+              placeholder={t('adapter.setztVorausPlaceholder', 'e.g. DisplayPort Alternate Mode')}
               onChange={(e) => setze({ setztVoraus: e.target.value || undefined })}
             />
           </label>
@@ -210,12 +210,12 @@ export const AdapterSection = ({ equipment }: { equipment: EquipmentItem }) => {
             className="mt-1 text-cp-xs text-cp-text-muted"
             text={t(
               'adapter.setztVorausHint',
-              'Steht hier etwas, muss das Quellgerät es unter „Kann" führen — sonst sagt der Plan-Check „nicht erklärt" statt „passt". Zwei USB-C-Buchsen sehen gleich aus; nur eine trägt ein Bild.',
+              'If something is entered here, the source device must list it under "Can" — otherwise the plan check says "open" instead of "fits". Two USB-C sockets look the same; only one carries a picture.',
             )}
           />
 
           <label className="mt-3 block text-cp-xs">
-            <span className="mb-1 block text-cp-text-muted">{t('adapter.notiz', 'Notiz')}</span>
+            <span className="mb-1 block text-cp-text-muted">{t('adapter.notiz', 'Note')}</span>
             <input
               type="text"
               className="w-full rounded border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-text"
@@ -228,7 +228,7 @@ export const AdapterSection = ({ equipment }: { equipment: EquipmentItem }) => {
 
       <label className="mt-4 block text-cp-xs">
         <span className="mb-1 block text-cp-text-muted">
-          {t('adapter.kann', 'Kann (erklärte Merkmale dieses Geräts)')}
+          {t('adapter.kann', 'Can (declared capabilities of this device)')}
         </span>
         <input
           type="text"
@@ -248,7 +248,7 @@ export const AdapterSection = ({ equipment }: { equipment: EquipmentItem }) => {
         className="mt-1 text-cp-xs text-cp-text-muted"
         text={t(
           'adapter.kannHint',
-          'Leer heisst „nicht erklärt" und nicht „kann nicht". Der Plan sagt dann genau das, statt einen grünen Haken auf eine Strecke zu setzen, die schwarz bleibt.',
+          'Empty means "not declared", not "cannot". The plan says exactly that, instead of putting a green tick on a path that stays black.',
         )}
       />
     </SortableSection>

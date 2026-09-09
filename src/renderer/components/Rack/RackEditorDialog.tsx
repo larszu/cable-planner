@@ -249,12 +249,12 @@ export const RackEditorDialog = () => {
           className="flex items-center justify-between border-b border-cp-border px-4 py-2 select-none"
         >
           <div>
-            <h2 id={titleId} className="text-cp-base font-semibold">{t('rackEditor.title', 'Rack-Editor')}</h2>
+            <h2 id={titleId} className="text-cp-base font-semibold">{t('rackEditor.title', 'Rack editor')}</h2>
             <PanelHint
               className="text-[10px] text-cp-text-muted"
               text={t(
                 'rackEditor.intro',
-                'Sub-Canvas pro Rack — Geräte sind im Hauptprojekt gespeichert, der Editor zeigt nur diese Rack-Instanz. Vertikal ziehen rastet auf HU-Linien ein.',
+                'Sub-canvas per rack — devices live in the main project, the editor only shows this rack instance. Vertical dragging snaps to U lines.',
               )}
             />
           </div>
@@ -263,7 +263,7 @@ export const RackEditorDialog = () => {
             onClick={close}
             className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
           >
-            {t('common.close', 'Schließen')}
+            {t('common.close', 'Close')}
           </button>
         </header>
         <div className="flex-1 min-h-0 bg-cp-surface-3">
@@ -274,7 +274,7 @@ export const RackEditorDialog = () => {
         <footer className="border-t border-cp-border px-4 py-2 text-[11px] text-cp-text-muted">
           {t(
             'rackEditor.footer',
-            'Tipp: HU-Position wird beim Loslassen automatisch auf die nächste ganze HU gerundet. Änderungen wirken sofort auf die Haupt-Canvas.',
+            'Tip: U position is rounded to the next whole U on release. Changes apply to the main canvas instantly.',
           )}
         </footer>
       </div>

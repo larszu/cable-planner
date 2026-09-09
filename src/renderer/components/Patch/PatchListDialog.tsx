@@ -326,18 +326,18 @@ export const PatchListDialog = () => {
       return gender ? `${base} ${gender}` : base
     }
     const header = [
-      t('patchList.col.number', 'Nr.'),
-      t('patchList.col.fromDevice', 'Von Gerät'),
-      t('patchList.col.fromPort', 'Von Port'),
-      t('patchList.col.toDevice', 'Nach Gerät'),
-      t('patchList.col.toPort', 'Nach Port'),
-      t('export.bom.csv.type', 'Typ'),
-      t('export.bom.csv.lengthM', 'Länge (m)'),
+      t('patchList.col.number', 'No.'),
+      t('patchList.col.fromDevice', 'From device'),
+      t('patchList.col.fromPort', 'From port'),
+      t('patchList.col.toDevice', 'To device'),
+      t('patchList.col.toPort', 'To port'),
+      t('export.bom.csv.type', 'Type'),
+      t('export.bom.csv.lengthM', 'Length (m)'),
       t('patchList.col.layer', 'Layer'),
       t('patchList.col.multicore', 'Multicore'),
-      t('patchList.col.color', 'Farbe'),
-      t('patchList.col.cableName', 'Kabelname'),
-      t('patchList.col.notes', 'Notizen'),
+      t('patchList.col.color', 'Colour'),
+      t('patchList.col.cableName', 'Cable name'),
+      t('patchList.col.notes', 'Notes'),
     ]
     const data = filtered.map((r) => [
       r.cableNumber,
@@ -368,7 +368,7 @@ export const PatchListDialog = () => {
       if (cell) cell.s = { font: { bold: true } }
     }
     const wb = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(wb, sheet, t('patchList.sheetName', 'Patchliste'))
+    XLSX.utils.book_append_sheet(wb, sheet, t('patchList.sheetName', 'Patch list'))
     const buf = XLSX.write(wb, { type: 'array', bookType: 'xlsx' }) as ArrayBuffer
     downloadBlob(
       buildExportFilenameWithSuffix(projectName || 'cable-planner', 'patchliste', 'xlsx'),
@@ -550,7 +550,7 @@ export const PatchListDialog = () => {
     <ModalShell
       open={open}
       onClose={close}
-      title={t('patchList.title', 'Patchliste')}
+      title={t('patchList.title', 'Patch list')}
       titleIcon={<Icon icon={CableIcon} size="sm" />}
       maxWidth="5xl"
       draggableKey="cable-planner:modal-pos:patchlist"
@@ -561,7 +561,7 @@ export const PatchListDialog = () => {
             className="text-[10px] text-cp-text-muted"
             text={t(
               'patchList.footerHint',
-              'Jedes Kabel als eigene Zeile, sortiert für die Patch-Reihenfolge auf dem Set. CSV-Export für Excel/Druck enthält die aktuell gefilterten Zeilen.',
+              'Each cable as its own row, sorted for patching order on set. CSV export for Excel/print contains the currently filtered rows.',
             )}
           />
           <div className="flex gap-1">
@@ -572,7 +572,7 @@ export const PatchListDialog = () => {
               className="inline-flex items-center gap-1.5 rounded bg-emerald-700 px-3 py-1 text-cp-xs hover:bg-emerald-600 disabled:opacity-50"
             >
               <Icon icon={Download} size="xs" />
-              {t('patchList.exportCsv', 'CSV exportieren')}
+              {t('patchList.exportCsv', 'Export CSV')}
             </button>
             <button
               type="button"
@@ -581,7 +581,7 @@ export const PatchListDialog = () => {
               className="inline-flex items-center gap-1.5 rounded bg-emerald-700 px-3 py-1 text-cp-xs hover:bg-emerald-600 disabled:opacity-50"
             >
               <Icon icon={Download} size="xs" />
-              {t('patchList.exportXlsx', 'XLSX exportieren')}
+              {t('patchList.exportXlsx', 'Export XLSX')}
             </button>
             <button
               type="button"
@@ -590,16 +590,16 @@ export const PatchListDialog = () => {
               className="inline-flex items-center gap-1.5 rounded bg-sky-700 px-3 py-1 text-cp-xs hover:bg-sky-600 disabled:opacity-50"
             >
               <Icon icon={Tag} size="xs" />
-              {t('patchList.exportLabels', 'Etiketten + QR (PDF)')}
+              {t('patchList.exportLabels', 'Labels + QR (PDF)')}
             </button>
             {/* #349 — Label-Drucker-CSV: Format waehlen, dann exportieren. */}
             <select
               value={labelCsvFormat}
               onChange={(e) => setLabelCsvFormat(e.target.value as LabelCsvFormat)}
-              title={t('patchList.labelCsvFormat', 'Etiketten-Drucker-Format')}
+              title={t('patchList.labelCsvFormat', 'Label-printer format')}
               className="rounded border border-cp-border bg-cp-surface-3 px-1 py-1 text-cp-xs"
             >
-              <option value="generic">{t('patchList.labelCsv.generic', 'Generisch (CSV)')}</option>
+              <option value="generic">{t('patchList.labelCsv.generic', 'Generic (CSV)')}</option>
               <option value="brother">{t('patchList.labelCsv.brother', 'Brother P-touch (TXT)')}</option>
               <option value="dymo">{t('patchList.labelCsv.dymo', 'Dymo (CSV)')}</option>
             </select>
@@ -609,7 +609,7 @@ export const PatchListDialog = () => {
               disabled={filtered.length === 0}
               className="rounded bg-sky-700 px-3 py-1 text-cp-xs hover:bg-sky-600 disabled:opacity-50"
             >
-              {t('patchList.exportLabelCsv', '🏷 Etiketten-CSV')}
+              {t('patchList.exportLabelCsv', '🏷 Label CSV')}
             </button>
             {/* Bedarf 37 — die fuenf Sichten auf dieselbe Kanalliste. Sichtbar,
                 sobald es Audio-Kanaele gibt; die Monitor-Sicht zusaetzlich nur,
@@ -620,30 +620,30 @@ export const PatchListDialog = () => {
                 <select
                   value={channelView}
                   onChange={(e) => setChannelView(e.target.value as ChannelViewId | 'owner')}
-                  title={t('channelList.view', 'Sicht auf die Kanalliste')}
-                  aria-label={t('channelList.view', 'Sicht auf die Kanalliste')}
+                  title={t('channelList.view', 'View of the channel list')}
+                  aria-label={t('channelList.view', 'View of the channel list')}
                   className="rounded border border-cp-border bg-cp-surface-3 px-1 py-1 text-cp-xs"
                 >
-                  <option value="band">{t('channelList.view.band', 'Band (Rider)')}</option>
-                  <option value="venue">{t('channelList.view.venue', 'Haus (Patch)')}</option>
-                  <option value="stage">{t('channelList.view.stage', 'Bühne (Position)')}</option>
-                  <option value="console">{t('channelList.view.console', 'Pult (Namen)')}</option>
+                  <option value="band">{t('channelList.view.band', 'Band (rider)')}</option>
+                  <option value="venue">{t('channelList.view.venue', 'Venue (patch)')}</option>
+                  <option value="stage">{t('channelList.view.stage', 'Stage (position)')}</option>
+                  <option value="console">{t('channelList.view.console', 'Console (names)')}</option>
                   {monitors.length > 0 && (
-                    <option value="monitor">{t('channelList.view.monitor', 'Monitor-Wege')}</option>
+                    <option value="monitor">{t('channelList.view.monitor', 'Monitor paths')}</option>
                   )}
                   {/* BEDARF 110 — wem welche Spalte gehört. */}
-                  <option value="owner">{t('channelList.view.owner', 'Haus / Band (wem gehört was)')}</option>
+                  <option value="owner">{t('channelList.view.owner', 'Venue / band (who owns what)')}</option>
                 </select>
                 <button
                   type="button"
                   onClick={() => exportChannelView(channelView)}
                   title={t(
                     'channelList.exportHint',
-                    'Dieselbe Kanalliste, für diesen Leser geschnitten. Die Monitor-Sicht zeigt Wege, nicht Mix-Inhalte — die kennt der Plan nicht.',
+                    'The same channel list, cut for this reader. The monitor view shows paths, not mix contents \u2014 the plan does not know those.',
                   )}
                   className="rounded bg-purple-700 px-3 py-1 text-cp-xs hover:bg-purple-600"
                 >
-                  {t('channelList.export', '🎚 Kanalliste')}
+                  {t('channelList.export', '🎚 Channel list')}
                 </button>
                 {/* BEDARF 92 — die Kanalliste aus der Datei lesen, die das
                     Pult ohnehin schreibt. Ein LESER, kein Schreiber: hier
@@ -654,10 +654,10 @@ export const PatchListDialog = () => {
                   className="cursor-pointer rounded border border-cp-border px-3 py-1 text-cp-xs text-cp-text-secondary hover:text-cp-text"
                   title={t(
                     'scene.importHint',
-                    'Szenendatei des Pults (X32/M32/WING) einlesen. Diese Anwendung schreibt nichts zurück ans Pult.',
+                    'Read the console scene file (X32/M32/WING). This application writes nothing back to the console.',
                   )}
                 >
-                  {t('scene.import', '🎛 Szene einlesen')}
+                  {t('scene.import', '\u{1F39B} Read scene file')}
                   <input
                     type="file"
                     accept=".scn,.txt,.snap,.shw"
@@ -706,11 +706,11 @@ export const PatchListDialog = () => {
           <div className="mb-2 rounded border border-cp-border-muted bg-cp-surface-2 p-2 text-cp-xs">
             <div className="mb-1.5 flex flex-wrap items-center gap-2">
               <span className="font-medium text-cp-text">
-                {t('scene.title', 'Szenendatei des Pults')}
+                {t('scene.title', 'Console scene file')}
               </span>
               <span className="text-cp-text-secondary">
                 {SCENE_FORMAT_LABEL[szeneAktuell.format]} ·{' '}
-                {t('scene.channelCount', '{n} Kanäle').replace(
+                {t('scene.channelCount', '{n} channels').replace(
                   '{n}',
                   String(szeneAktuell.channels.length),
                 )}
@@ -719,7 +719,7 @@ export const PatchListDialog = () => {
                   sonst aus wie ein Pult mit wenigen Kanälen. */}
               {szeneAktuell.unreadable > 0 && (
                 <span className="text-amber-300/90">
-                  {t('scene.unreadable', '{n} Zeilen nicht lesbar').replace(
+                  {t('scene.unreadable', '{n} lines not readable').replace(
                     '{n}',
                     String(szeneAktuell.unreadable),
                   )}
@@ -728,12 +728,12 @@ export const PatchListDialog = () => {
               <select
                 value={szeneMode}
                 onChange={(e) => setSzeneMode(e.target.value as MatchMode)}
-                aria-label={t('scene.matchMode', 'Zuordnung zum Plan')}
+                aria-label={t('scene.matchMode', 'Match to the plan')}
                 className="rounded border border-cp-border bg-cp-surface-3 px-1 py-0.5"
               >
-                <option value="by-name">{t('scene.byName', 'über den Namen')}</option>
+                <option value="by-name">{t('scene.byName', 'by name')}</option>
                 <option value="by-number">
-                  {t('scene.byNumber', 'über die Kanalnummer (nur wenn sie stimmt)')}
+                  {t('scene.byNumber', 'by channel number (only if it holds)')}
                 </option>
               </select>
               <button
@@ -747,7 +747,7 @@ export const PatchListDialog = () => {
                 }
                 className="rounded border border-cp-border px-2 py-0.5 text-cp-text-secondary hover:text-cp-text"
               >
-                {t('scene.exportList', 'Kanäle')}
+                {t('scene.exportList', 'Channels')}
               </button>
               <button
                 type="button"
@@ -760,7 +760,7 @@ export const PatchListDialog = () => {
                 }
                 className="rounded border border-cp-border px-2 py-0.5 text-cp-text-secondary hover:text-cp-text"
               >
-                {t('scene.exportMatch', 'Zuordnung')}
+                {t('scene.exportMatch', 'Match')}
               </button>
               {szeneDiff.length > 0 && (
                 <button
@@ -774,7 +774,7 @@ export const PatchListDialog = () => {
                   }
                   className="rounded border border-cp-border px-2 py-0.5 text-cp-text-secondary hover:text-cp-text"
                 >
-                  {t('scene.exportDiff', 'Änderungen')}
+                  {t('scene.exportDiff', 'Changes')}
                 </button>
               )}
             </div>
@@ -785,7 +785,7 @@ export const PatchListDialog = () => {
               <p className="text-cp-text-secondary">
                 {t(
                   'scene.noChange',
-                  'Zwischen den beiden Ständen hat sich an den Kanalnamen nichts geändert.',
+                  'Nothing changed in the channel names between the two states.',
                 )}
               </p>
             )}
@@ -808,18 +808,18 @@ export const PatchListDialog = () => {
           <input
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            placeholder={t('patchList.searchPlaceholder', 'Suchen (Gerät, Port, Typ, Farbe, Notiz …)')}
-            aria-label={t('patchList.searchPlaceholder', 'Suchen (Gerät, Port, Typ, Farbe, Notiz …)')}
+            placeholder={t('patchList.searchPlaceholder', 'Search (device, port, type, colour, note …)')}
+            aria-label={t('patchList.searchPlaceholder', 'Search (device, port, type, colour, note …)')}
             className="flex-1 rounded border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs"
           />
           {layers.length > 0 && (
             <select
               value={layerFilter}
               onChange={(e) => setLayerFilter(e.target.value)}
-              title={t('patchList.layerFilter', 'Nach Layer/Gewerk filtern')}
+              title={t('patchList.layerFilter', 'Filter by layer/discipline')}
               className="rounded border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs"
             >
-              <option value="">{t('patchList.allLayers', 'Alle Layer')}</option>
+              <option value="">{t('patchList.allLayers', 'All layers')}</option>
               {layers.map((l) => (
                 <option key={l} value={l}>
                   {l}
@@ -836,14 +836,14 @@ export const PatchListDialog = () => {
             <thead className="sticky top-0 bg-cp-surface-3 text-cp-text-muted">
               <tr>
                 {[
-                  { k: 'number' as const, label: t('patchList.col.number', 'Nr.') },
-                  { k: 'fromDevice' as const, label: t('patchList.col.fromDevice', 'Von Gerät') },
+                  { k: 'number' as const, label: t('patchList.col.number', 'No.') },
+                  { k: 'fromDevice' as const, label: t('patchList.col.fromDevice', 'From device') },
                   { k: 'fromDevice' as const, label: t('patchList.col.port', 'Port') },
-                  { k: 'toDevice' as const, label: t('patchList.col.toDevice', 'Nach Gerät') },
+                  { k: 'toDevice' as const, label: t('patchList.col.toDevice', 'To device') },
                   { k: 'toDevice' as const, label: t('patchList.col.port', 'Port') },
-                  { k: 'type' as const, label: t('export.bom.csv.type', 'Typ') },
-                  { k: 'length' as const, label: t('export.bom.csv.lengthM', 'Länge (m)') },
-                  { k: 'color' as const, label: t('patchList.col.color', 'Farbe') },
+                  { k: 'type' as const, label: t('export.bom.csv.type', 'Type') },
+                  { k: 'length' as const, label: t('export.bom.csv.lengthM', 'Length (m)') },
+                  { k: 'color' as const, label: t('patchList.col.color', 'Colour') },
                 ].map((col, i) => (
                   <th
                     key={`${col.k}-${i}`}
@@ -894,9 +894,9 @@ export const PatchListDialog = () => {
                     {rows.length === 0
                       ? t(
                           'patchList.empty.noCables',
-                          'Dieses Projekt hat noch keine Kabel. Verbinde Geräte auf dem Canvas, um eine Patchliste zu erzeugen.',
+                          'This project has no cables yet. Connect devices on the canvas to build a patch list.',
                         )
-                      : t('patchList.empty.noMatch', 'Keine Kabel passen zum Filter.')}
+                      : t('patchList.empty.noMatch', 'No cables match the filter.')}
                   </td>
                 </tr>
               )}

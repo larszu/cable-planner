@@ -54,8 +54,8 @@ export const SettingsDialog = ({ open, onClose, initialSection }: SettingsDialog
                 openPanelPopout('settings')
                 onClose()
               }}
-              title={t('panel.popoutTitle', 'In separates Fenster auslagern (weiterer Monitor)')}
-              aria-label={t('panel.popout', 'Auslagern')}
+              title={t('panel.popoutTitle', 'Open in a separate window (other monitor)')}
+              aria-label={t('panel.popout', 'Pop out')}
               className="inline-flex items-center justify-center rounded px-2 py-1 text-[var(--cp-text-muted)] hover:bg-[var(--cp-surface-2)] hover:text-sky-300"
             >
               <Icon icon={ExternalLink} size="sm" />
