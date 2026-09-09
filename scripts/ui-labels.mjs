@@ -79,11 +79,21 @@ console.log(`Messgrundlage: ${geraete} Geraet(e) auf der Flaeche`)
 /** Die Messung laeuft IM Fenster; hier steht nur, was sie zurueckgibt. */
 const namenlose = async () =>
   win.evaluate(() => {
+    // Sichtbar EINSCHLIESSLICH der Vorfahren. Die erste Fassung fragte nur
+    // das Element selbst — und uebersah damit genau den Fall, den es hier
+    // gibt: eine Bedienreihe mit `.cp-hover-actions` steht auf `opacity: 0`
+    // am BEHAELTER, ihre Knoepfe haben selbst `opacity: 1`. Sie galten als
+    // sichtbar, obwohl unter der Maus niemand sie sieht. Gefunden beim Bau
+    // von `ui-targets.mjs`, wo derselbe Fehler den zweiten Messdurchgang
+    // wertlos gemacht haette.
     const sichtbar = (el) => {
       const r = el.getBoundingClientRect()
       if (r.width < 2 || r.height < 2) return false
-      const st = getComputedStyle(el)
-      return st.visibility !== 'hidden' && st.display !== 'none' && Number(st.opacity) > 0.05
+      return el.checkVisibility({
+        opacityProperty: true,
+        visibilityProperty: true,
+        contentVisibilityAuto: true,
+      })
     }
     const beschriftet = (el) => {
       if (el.getAttribute('aria-hidden') === 'true') return true
