@@ -5,7 +5,8 @@ import { useUiStore } from '../../store/uiStore'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { promptDialog } from '../../lib/promptDialog'
 import { AlertTriangle, Check, XCircle } from 'lucide-react'
-import { format, useTranslation } from '../../lib/i18n'
+import { format, tr, useTranslation } from '../../lib/i18n'
+import { einsetzen } from '../../lib/platzhalter'
 import { Icon } from '../shared/Icon'
 import { connectorToCableType } from '../../lib/cableInheritance'
 import { ALL_CONNECTOR_TYPES } from '../../types/equipment'
@@ -22,6 +23,7 @@ import {
   pickHighestSdiStandard,
   type CableSpec,
   type SignalStandard,
+  type CompatibilityResult,
 } from '../../types/cableSpec'
 import {
   DEFAULT_VIDEO_FORMAT,
@@ -94,9 +96,15 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
     [customSignalStandards],
   )
   // Build list of cables ranked by compatibility with the two ports.
-  const ranked = useMemo((): Array<{ cable: CableSpec; level: 'ok' | 'warn' | 'error'; message: string }> => {
+  const ranked = useMemo((): Array<{ cable: CableSpec } & CompatibilityResult> => {
     if (!fromPort || !toPort) {
-      return fullCableCatalog.map((cable) => ({ cable, level: 'ok' as const, message: '' }))
+      return fullCableCatalog.map((cable) => ({
+        cable,
+        level: 'ok' as const,
+        schluessel: '',
+        werte: {},
+        message: '',
+      }))
     }
     return fullCableCatalog
       .map((cable) => ({
@@ -141,7 +149,13 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
   const [customStandard, setCustomStandard] = useState<SignalStandard>('Generic')
   const [customMaxLength, setCustomMaxLength] = useState<number | ''>('')
   const selectedEntry = specId === CUSTOM_CABLE_SPEC_ID
-    ? { cable: makeCustomCableSpec(customConnectorType, '#64748b'), level: 'ok' as const, message: '' }
+    ? {
+        cable: makeCustomCableSpec(customConnectorType, '#64748b'),
+        level: 'ok' as const,
+        schluessel: '',
+        werte: {},
+        message: '',
+      }
     : (ranked.find((item) => item.cable.id === specId) ?? ranked[0])
   const selected: CableSpec = selectedEntry.cable
 
@@ -203,13 +217,14 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
       balanceForConnector(selected.connectorType) === 'unbalanced' &&
       length > 10
     ) {
+      // Dieselbe Form wie die Urteile aus `types/cableSpec.ts`, damit die
+      // Anzeige unten EINEN Weg hat und keinen Sonderfall (#837).
       return {
         level: 'warn' as const,
-        message: format(
-          t(
-            'cable.balance.longUnbalanced',
-            'Long unbalanced analog audio run ({length} m). Hum/interference risk — prefer balanced (XLR) or keep under ~10 m.',
-          ),
+        schluessel: 'cable.balance.longUnbalanced',
+        werte: { length },
+        message: einsetzen(
+          'Long unbalanced analog audio run ({length} m). Hum/interference risk - prefer balanced (XLR) or keep under ~10 m.',
           { length },
         ),
       }
@@ -219,7 +234,12 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
 
   const connectorMismatch: 'ok' | 'warn' | 'error' =
     specId === CUSTOM_CABLE_SPEC_ID ? 'ok' : selectedEntry.level
-  const connectorMessage = specId === CUSTOM_CABLE_SPEC_ID ? '' : selectedEntry.message
+  // Die Urteile aus `types/cableSpec.ts` sind sprachfrei: sie tragen
+  // Schluessel und Werte, der englische Satz ist der Fallback (#837).
+  const connectorMessage =
+    specId === CUSTOM_CABLE_SPEC_ID
+      ? ''
+      : format(tr(selectedEntry.schluessel, selectedEntry.message), selectedEntry.werte)
 
   const needsConverter =
     connectorMismatch === 'warn' || sdiMismatch?.level === 'warn' || connectorMismatch === 'error'
@@ -524,19 +544,22 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
           {sdiMismatch?.level === 'warn' && (
             <div className="flex items-center gap-1.5 rounded bg-amber-900/50 p-2 text-amber-100">
               <Icon icon={AlertTriangle} size="sm" />
-              {sdiMismatch.message}
+              {format(tr(sdiMismatch.schluessel, sdiMismatch.message), sdiMismatch.werte)}
             </div>
           )}
           {impedanceMismatch?.level === 'warn' && (
             <div className="flex items-center gap-1.5 rounded bg-amber-900/50 p-2 text-amber-100">
               <Icon icon={AlertTriangle} size="sm" />
-              {impedanceMismatch.message}
+              {format(
+                tr(impedanceMismatch.schluessel, impedanceMismatch.message),
+                impedanceMismatch.werte,
+              )}
             </div>
           )}
           {balanceWarning?.level === 'warn' && (
             <div className="flex items-center gap-1.5 rounded bg-amber-900/50 p-2 text-amber-100">
               <Icon icon={AlertTriangle} size="sm" />
-              {balanceWarning.message}
+              {format(tr(balanceWarning.schluessel, balanceWarning.message), balanceWarning.werte)}
             </div>
           )}
           {lengthWarning && (

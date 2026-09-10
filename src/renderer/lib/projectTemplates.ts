@@ -96,7 +96,7 @@ export const buildBuiltinTemplates = (): ProjectTemplate[] => {
       builtin: true,
       nameKey: 'templates.builtin.obVan.name',
       descKey: 'templates.builtin.obVan.desc',
-      name: 'Ü-Wagen / OB-Van',
+      name: 'OB van',
       description: 'Übertragungswagen mit Bühne und FOH — getrennte Standort-Rahmen.',
       project: base('Ü-Wagen / OB-Van', 'Übertragungswagen-Setup', [
         frame('Ü-Wagen', 40, 40, 520, 360, '#38bdf8'),
@@ -120,7 +120,7 @@ export const buildBuiltinTemplates = (): ProjectTemplate[] => {
       builtin: true,
       nameKey: 'templates.builtin.liveStage.name',
       descKey: 'templates.builtin.liveStage.desc',
-      name: 'Live-Bühne',
+      name: 'Live stage',
       description: 'Bühne, FOH und Monitorwelt für Live-Events.',
       project: base('Live-Bühne', 'Live-Stage-Setup', [
         frame('Bühne', 40, 40, 640, 320, '#34d399'),

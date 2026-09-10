@@ -85,8 +85,8 @@ const blende = (name: string, n: number, connectorType: ConnectorType): Equipmen
   isPatchPanel: true,
   width: 240,
   height: 80,
-  inputs: ports('Rückseite', n, connectorType),
-  outputs: ports('Frontseite', n, connectorType),
+  inputs: ports('Rear', n, connectorType),
+  outputs: ports('Front', n, connectorType),
 })
 
 /** Eine Durchgangsbuchse: die Blende der Groesse 1. */
@@ -104,8 +104,8 @@ const leiste = (
   category: 'Power distribution',
   width: 240,
   height: 80,
-  inputs: ports('Einspeisung', 1, ein),
-  outputs: ports('Abgang', n, aus),
+  inputs: ports('Feed', 1, ein),
+  outputs: ports('Outlet', n, aus),
 })
 
 /**
@@ -124,7 +124,7 @@ const verteiler = (
   category: 'Power distribution',
   width: 240,
   height: 80,
-  inputs: ports('Einspeisung', 1, ein),
+  inputs: ports('Feed', 1, ein),
   outputs: abgaenge.flatMap((a) =>
     ports(a.name, a.n, a.connectorType, { absicherungA: a.absicherungA }),
   ),
@@ -178,9 +178,13 @@ export const passiveTemplates: EquipmentTemplate[] = [
   durchgang('Feed-through XLR', 'XLR'),
   durchgang('Feed-through RJ45', 'Ethernet/RJ45'),
 
-  leiste('Steckdosenleiste 6-fach', 6, 'Schuko 230V', 'Schuko 230V'),
-  leiste('Steckdosenleiste 8-fach', 8, 'Schuko 230V', 'Schuko 230V'),
-  leiste('IEC-Leiste 8-fach', 8, 'IEC 230V', 'IEC 230V'),
+  // Die Namen stehen in der QUELLSPRACHE (E-28) und sind zugleich die
+  // Kennung der Vorlage in der Bibliothek — wer sie aendert, traegt die alte
+  // Schreibweise in `lib/templateRenames.ts` nach, sonst steht sie beim
+  // naechsten Start doppelt in der Seitenleiste (#837).
+  leiste('Power strip 6-way', 6, 'Schuko 230V', 'Schuko 230V'),
+  leiste('Power strip 8-way', 8, 'Schuko 230V', 'Schuko 230V'),
+  leiste('IEC strip 8-way', 8, 'IEC 230V', 'IEC 230V'),
 
   powerlockSatz('Powerlock set 5x (L1/L2/L3/N/PE)'),
 

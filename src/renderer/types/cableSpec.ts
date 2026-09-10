@@ -1,4 +1,5 @@
 import type { ConnectorType } from './equipment'
+import { einsetzen, type Platzhalterwerte } from '../lib/platzhalter'
 
 /**
  * Signal sub-standards for the same physical connector (e.g. 3G vs 12G SDI on BNC).
@@ -777,6 +778,12 @@ export type CompatibilityLevel = 'ok' | 'warn' | 'error'
 export interface CompatibilityResult {
   level: CompatibilityLevel
   message: string
+  /**
+   * Schluessel und Werte dieses Satzes — uebersetzt wird beim Anzeigen, nicht
+   * hier (siehe Kopf von `types/adapter.ts`): `format(tr(b.schluessel, b.message), b.werte)`.
+   */
+  schluessel: string
+  werte: Platzhalterwerte
 }
 
 /**
@@ -797,18 +804,37 @@ export const checkCableCompatibility = (
   if (!fromOk || !toOk) {
     return {
       level: 'error',
-      message: `Cable "${cable.name}" (${cableConnector}) cannot connect ${from} to ${to}.`,
+      schluessel: 'cableSpec.cannotConnect',
+      werte: { cable: cable.name, connector: cableConnector, from, to },
+      message: einsetzen(
+          'Cable "{cable}" ({connector}) cannot connect {from} to {to}.',
+          { cable: cable.name, connector: cableConnector, from, to },
+        ),
     }
   }
 
   if (!connectorsAreDirectlyMating(from, to)) {
     return {
       level: 'warn',
-      message: `${from} and ${to} use similar signalling but need an adapter.`,
+      schluessel: 'cableSpec.needsAdapter',
+      werte: { from, to },
+      message: einsetzen(
+          '{from} and {to} use similar signalling but need an adapter.',
+          { from, to },
+        ),
     }
   }
 
-  return { level: 'ok', message: `${cable.name} matches ${from} ↔ ${to}.` }
+  return {
+    level: 'ok',
+    schluessel: 'cableSpec.matches',
+    werte: { cable: cable.name, from, to },
+    message: einsetzen('{cable} matches {from} ↔ {to}.', {
+      cable: cable.name,
+      from,
+      to,
+    }),
+  }
 }
 
 /**
@@ -821,7 +847,15 @@ export const checkSdiStandardMismatch = (
   const sdi = new Set<SignalStandard>(['SDI-SD', 'SDI-HD', 'SDI-3G', 'SDI-6G', 'SDI-12G'])
   if (!fromStandard || !toStandard) return null
   if (!sdi.has(fromStandard) || !sdi.has(toStandard)) return null
-  if (fromStandard === toStandard) return { level: 'ok', message: `${fromStandard} matched.` }
+  if (fromStandard === toStandard)
+    return {
+      level: 'ok',
+      schluessel: 'cableSpec.standardMatched',
+      werte: { standard: fromStandard },
+      message: einsetzen('{standard} matched.', {
+        standard: fromStandard,
+      }),
+    }
 
   const rank: Record<string, number> = {
     'SDI-SD': 1,
@@ -835,7 +869,12 @@ export const checkSdiStandardMismatch = (
   if (a !== b) {
     return {
       level: 'warn',
-      message: `SDI speed mismatch (${fromStandard} ↔ ${toStandard}). A scaler/converter is required.`,
+      schluessel: 'cableSpec.sdiSpeedMismatch',
+      werte: { from: fromStandard, to: toStandard },
+      message: einsetzen(
+          'SDI speed mismatch ({from} ↔ {to}). A scaler/converter is required.',
+          { from: fromStandard, to: toStandard },
+        ),
     }
   }
   return null
@@ -1011,7 +1050,12 @@ export const checkImpedanceMismatch = (
   if (a == null || b == null || a === b) return null
   return {
     level: 'warn',
-    message: `Impedance mismatch: ${a}Ω ↔ ${b}Ω. Reflections/return loss — use a matching cable/adapter.`,
+    schluessel: 'cableSpec.impedanceMismatch',
+    werte: { a, b },
+    message: einsetzen(
+        'Impedance mismatch: {a}Ω ↔ {b}Ω. Reflections/return loss - use a matching cable/adapter.',
+        { a, b },
+      ),
   }
 }
 
@@ -1063,6 +1107,11 @@ export const checkBalanceMismatch = (
   if (!a || !b || a === b) return null
   return {
     level: 'warn',
-    message: `Balanced ↔ unbalanced transition (${from} ↔ ${to}). Use a DI box / transformer to avoid hum and level loss.`,
+    schluessel: 'cableSpec.balanceMismatch',
+    werte: { from: from ?? '', to: to ?? '' },
+    message: einsetzen(
+        'Balanced ↔ unbalanced transition ({from} ↔ {to}). Use a DI box / transformer to avoid hum and level loss.',
+        { from: from ?? '', to: to ?? '' },
+      ),
   }
 }

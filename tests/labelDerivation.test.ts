@@ -269,7 +269,7 @@ describe('labelTargetIssues', () => {
       ]),
     ]
     const issues = labelTargetIssues({ equipment, cables: [] })
-    const collision = issues.find((i) => i.category === 'ATEM-Namenskollision')
+    const collision = issues.find((i) => i.category === 'ATEM name collision')
     expect(collision?.severity).toBe('error')
     expect(collision?.message).toContain('"Kamera 1"')
     expect(collision?.message).toContain('"Kamera 10"')
@@ -282,7 +282,7 @@ describe('labelTargetIssues', () => {
     // Multiviewer auf.
     const equipment = [atem([port('in1', '1 SDI 3G'), port('in2', '2 SDI 3G')])]
     const issues = labelTargetIssues({ equipment, cables: [] })
-    expect(issues.some((i) => i.category === 'ATEM-Namenskollision')).toBe(true)
+    expect(issues.some((i) => i.category === 'ATEM name collision')).toBe(true)
   })
 
   it('meldet Abschneiden allein NICHT — das ist der Normalfall', () => {
@@ -290,7 +290,7 @@ describe('labelTargetIssues', () => {
       atem([port('in1', 'In 1', { contentLabel: 'Weitwinkel Buehne' })]),
     ]
     const issues = labelTargetIssues({ equipment, cables: [] })
-    expect(issues.some((i) => i.category === 'ATEM-Namenskollision')).toBe(false)
+    expect(issues.some((i) => i.category === 'ATEM name collision')).toBe(false)
   })
 
   it('warnt vor einem Komma im Videohub-Label — es zerlegt die Labels.txt', () => {
@@ -300,7 +300,7 @@ describe('labelTargetIssues', () => {
       inputs: [port('vh-in1', 'In 1', { contentLabel: 'Kamera 1, links' })],
     })
     const issues = labelTargetIssues({ equipment: [vh], cables: [] })
-    const charset = issues.find((i) => i.category === 'Videohub-Zeichensatz')
+    const charset = issues.find((i) => i.category === 'Videohub character set')
     expect(charset?.severity).toBe('warning')
     expect(charset?.message).toContain('","')
   })
@@ -332,7 +332,7 @@ describe('labelTargetIssues — Dante', () => {
       eq({ id: 'b', name: 'pult-regie', ipAddress: '10.0.0.11' }),
     ]
     const issues = labelTargetIssues({ equipment, cables: [] })
-    const collision = issues.find((i) => i.category === 'Dante-Namenskollision')
+    const collision = issues.find((i) => i.category === 'Dante name collision')
     expect(collision?.severity).toBe('error')
     expect(collision?.message).toContain('"Pult Regie"')
   })
@@ -350,7 +350,7 @@ describe('labelTargetIssues — Dante', () => {
     // waere eine Warnung ueber den eigenen Rat.
     const equipment = [eq({ id: 'a', name: 'Pult Bühne 1', ipAddress: '10.0.0.10' })]
     const issues = labelTargetIssues({ equipment, cables: [] })
-    expect(issues.some((i) => i.category === 'Dante-Zeichensatz')).toBe(false)
+    expect(issues.some((i) => i.category === 'Dante character set')).toBe(false)
   })
 })
 
@@ -447,7 +447,7 @@ describe('runDrawingChecks — Verdrahtung', () => {
       ]),
     ]
     const { findings, errorCount } = runDrawingChecks({ equipment, cables: [] })
-    expect(findings.some((f) => f.category === 'ATEM-Namenskollision')).toBe(true)
+    expect(findings.some((f) => f.category === 'ATEM name collision')).toBe(true)
     expect(errorCount).toBeGreaterThan(0)
   })
 })
