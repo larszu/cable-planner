@@ -464,7 +464,7 @@ export const AtemAudioRouterDialog = () => {
           </button>
         </header>
 
-        <div className="flex flex-wrap items-center gap-2 border-b border-slate-700 bg-slate-950/40 px-4 py-2 text-cp-xs">
+        <div className="flex flex-wrap items-center gap-2 border-b border-cp-border bg-cp-surface-3/40 px-4 py-2 text-cp-xs">
           <button
             type="button"
             onClick={handleLoadXml}
@@ -831,7 +831,7 @@ const ChannelPicker = ({
 
   const allExcluded = items.length > 0 && items.every((it) => excluded.has(it.id))
   return (
-    <div className="border-b border-slate-800 bg-slate-950/60 px-4 py-2 text-cp-xs">
+    <div className="border-b border-cp-border bg-cp-surface-3/60 px-4 py-2 text-cp-xs">
       <div className="mb-1 flex items-center justify-between">
         <span className="text-slate-300">
           {format(
@@ -1032,7 +1032,7 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      <div className="flex flex-wrap items-center gap-2 border-b border-slate-800 bg-slate-950/30 px-4 py-2 text-cp-xs">
+      <div className="flex flex-wrap items-center gap-2 border-b border-cp-border bg-cp-surface-3/30 px-4 py-2 text-cp-xs">
         <input
           type="text"
           value={filterSources}
