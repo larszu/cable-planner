@@ -27,7 +27,7 @@ const writeCache = (cache: RentmanTemplateCache) => {
 
 const toTemplateFromEquipment = (item: EquipmentItem): EquipmentTemplate => ({
   name: item.name,
-  category: item.category || 'Sonstiges',
+  category: item.category || 'Other',
   // ADR-002/ADR-005 — die Katalog-Identitaet muss die Rekonstruktion ueberleben.
   // Ohne sie kommt ein Geraet aus dem Cache ohne deviceTypeId zurueck, und der
   // Rentman-Import faellt auf die Namens-Heuristiken darunter zurueck: aus einer

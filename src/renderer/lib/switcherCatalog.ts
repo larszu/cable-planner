@@ -91,12 +91,12 @@ export const SWITCHER_CATALOG: SwitcherEntry[] = [
       category: 'Video Mixer',
       inputs: [
         ...num('HDMI In', 8, 'HDMI'),
-        { id: '', name: 'Audio In (3.5mm)', type: 'Klinke', connectorType: 'Klinke' },
+        { id: '', name: 'Audio In (3.5mm)', type: 'Jack 3.5 mm', connectorType: 'Jack 3.5 mm' },
         { id: '', name: 'USB (Control)', type: 'USB', connectorType: 'USB' },
       ],
       outputs: [
         ...num('HDMI Out', 3, 'HDMI'),
-        { id: '', name: 'Phones (3.5mm)', type: 'Klinke', connectorType: 'Klinke' },
+        { id: '', name: 'Phones (3.5mm)', type: 'Jack 3.5 mm', connectorType: 'Jack 3.5 mm' },
       ],
       width: 260, height: 220,
     },

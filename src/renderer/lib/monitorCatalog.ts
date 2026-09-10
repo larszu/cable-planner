@@ -25,7 +25,7 @@ const hdmiOut = (n: string) => port(n, 'HDMI')
 const xlrIn  = (n: string) => port(n, 'XLR')
 const eth    = (n = 'Ethernet') => port(n, 'Ethernet/RJ45')
 
-const MON = 'Monitore'
+const MON = 'Monitors'
 
 interface MonitorEntry {
   /** Stabile Geraetetyp-Identitaet (GUID, GDTF/DIN-SPEC-15800-analog:

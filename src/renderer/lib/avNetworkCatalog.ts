@@ -46,7 +46,7 @@ export const AVNETWORK_CATALOG: AvNetworkEntry[] = [
     template: {
       manufacturerUrl: 'https://www.netgear.com/support/product/gsm4212p',
       name: 'Netgear M4250-10G2F-PoE+',
-      category: 'Netzwerk',
+      category: 'Networking',
       categoryProps: { poeBudgetW: 125 },
       inputs: [
         // keine
@@ -69,7 +69,7 @@ export const AVNETWORK_CATALOG: AvNetworkEntry[] = [
     template: {
       manufacturerUrl: 'https://support.netgear.com/support/product/gsm4230p',
       name: 'Netgear M4250-26G4F-PoE+',
-      category: 'Netzwerk',
+      category: 'Networking',
       categoryProps: { poeBudgetW: 300 },
       inputs: [
         // keine
@@ -92,7 +92,7 @@ export const AVNETWORK_CATALOG: AvNetworkEntry[] = [
     template: {
       manufacturerUrl: 'https://www.luminex.be/products/gigacore/',
       name: 'Luminex GigaCore 16Xt',
-      category: 'Netzwerk',
+      category: 'Networking',
       inputs: [
         // keine
       ],
@@ -116,7 +116,7 @@ export const AVNETWORK_CATALOG: AvNetworkEntry[] = [
       isConverter: true,
       inputs: [
         { id: '', name: 'HDMI In', type: 'HDMI', connectorType: 'HDMI' },
-        { id: '', name: 'Audio In/Out (3.5mm, Dante)', type: 'Klinke', connectorType: 'Klinke' },
+        { id: '', name: 'Audio In/Out (3.5mm, Dante)', type: 'Jack 3.5 mm', connectorType: 'Jack 3.5 mm' },
       ],
       outputs: [
         { id: '', name: 'NDI/PoE (RJ45)', type: 'Ethernet/RJ45', connectorType: 'Ethernet/RJ45', direction: 'bidirectional' as const },
@@ -137,7 +137,7 @@ export const AVNETWORK_CATALOG: AvNetworkEntry[] = [
       isConverter: true,
       inputs: [
         { id: '', name: 'NDI/PoE (RJ45)', type: 'Ethernet/RJ45', connectorType: 'Ethernet/RJ45', direction: 'bidirectional' as const },
-        { id: '', name: 'Audio In/Out (3.5mm, Dante)', type: 'Klinke', connectorType: 'Klinke' },
+        { id: '', name: 'Audio In/Out (3.5mm, Dante)', type: 'Jack 3.5 mm', connectorType: 'Jack 3.5 mm' },
       ],
       outputs: [
         { id: '', name: 'HDMI Out', type: 'HDMI', connectorType: 'HDMI' },
@@ -176,7 +176,7 @@ export const AVNETWORK_CATALOG: AvNetworkEntry[] = [
     template: {
       manufacturerUrl: 'https://www.luminex.be/products/gigacore/gigacore-10t/',
       name: 'Luminex GigaCore 10t',
-      category: 'Netzwerk',
+      category: 'Networking',
       inputs: [
         // keine
       ],
@@ -197,7 +197,7 @@ export const AVNETWORK_CATALOG: AvNetworkEntry[] = [
     template: {
       manufacturerUrl: 'https://www.luminex.be/products/gigacore/',
       name: 'Luminex GigaCore 26i',
-      category: 'Netzwerk',
+      category: 'Networking',
       inputs: [
         // keine
       ],

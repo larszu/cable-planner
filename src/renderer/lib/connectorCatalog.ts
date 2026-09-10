@@ -104,12 +104,31 @@ export interface ConnectorCatalogEntry {
 export const CONNECTOR_CATALOG: ConnectorCatalogEntry[] = [
   // ---- Audio ----
   { id: 'TT/Bantam', label: 'Bantam', category: 'audio', symbol: 'bantam' },
-  { id: 'TS Jack', label: 'TS Jack', category: 'audio', symbol: 'jack', poles: 2 },
-  { id: 'TRS Jack', label: 'TRS Jack', category: 'audio', symbol: 'jack', poles: 3 },
+  // #832 — Die drei Klinken-Eintraege tragen jetzt die Werte der
+  // `ConnectorType`-Union statt eigener freier Zeichenketten.
+  //
+  // WARUM DAS EINE KORREKTUR IST UND KEINE UMBENENNUNG: `TS Jack`,
+  // `TRS Jack` und `Mini Jack` waren eine ZWEITE Klinken-Sprache neben
+  // `Klinke`. Ein Port aus dem Patchblenden-Dialog trug `TRS Jack`, einer aus
+  // der Eigenschaften-Leiste `Klinke` — dieselbe Buchse, zwei Werte, und
+  // keine Farb-Legende, kein Kabel-Abgleich und keine Stueckliste brachte sie
+  // zusammen. Die Groesse fehlte beiden.
+  //
+  // Alte Werte migriert `LEGACY_CONNECTOR_RENAMES`; `Mini Jack` hiess
+  // dreipolig und wird deshalb `Jack 3.5 mm TRS`, nicht der generische Wert.
+  { id: 'Jack 6.35 mm TS', label: 'TS Jack 6,3 mm', category: 'audio', symbol: 'jack', poles: 2 },
+  { id: 'Jack 6.35 mm TRS', label: 'TRS Jack 6,3 mm', category: 'audio', symbol: 'jack', poles: 3 },
   { id: 'XLR 3 Male', label: 'XLR 3 Male', category: 'audio', symbol: 'xlr', pins: 3, gender: 'male' },
   { id: 'XLR 3 Female', label: 'XLR 3 Female', category: 'audio', symbol: 'xlr', pins: 3, gender: 'female' },
   { id: 'Combo XLR/Jack', label: 'Combo', category: 'audio', symbol: 'combo' },
-  { id: 'Mini Jack', label: 'Mini Jack', category: 'audio', symbol: 'jack', poles: 3, mini: true },
+  { id: 'Jack 3.5 mm TS', label: 'TS Jack 3,5 mm', category: 'audio', symbol: 'jack', poles: 2, mini: true },
+  { id: 'Jack 3.5 mm TRS', label: 'TRS Jack 3,5 mm', category: 'audio', symbol: 'jack', poles: 3, mini: true },
+  { id: 'Jack 3.5 mm TRRS', label: 'TRRS Jack 3,5 mm', category: 'audio', symbol: 'jack', poles: 4, mini: true },
+  { id: 'Jack 2.5 mm TRS', label: 'TRS Jack 2,5 mm', category: 'audio', symbol: 'jack', poles: 3, mini: true },
+  // Groesse bekannt, Beschaltung nicht — ohne `poles`, weil die Zahl genau
+  // das ist, was hier niemand gesagt hat.
+  { id: 'Jack 6.35 mm', label: 'Jack 6,3 mm', category: 'audio', symbol: 'jack' },
+  { id: 'Jack 3.5 mm', label: 'Jack 3,5 mm', category: 'audio', symbol: 'jack', mini: true },
   { id: 'speakON 2 Pole', label: 'speakON 2 Pole', category: 'audio', symbol: 'speakon', poles: 2 },
   { id: 'speakON 4 Pole', label: 'speakON 4 Pole', category: 'audio', symbol: 'speakon', poles: 4 },
   { id: 'Cinch/RCA', label: 'Phono', category: 'audio', symbol: 'phono' },

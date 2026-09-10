@@ -21,7 +21,7 @@ import { CSS } from '@dnd-kit/utilities'
 import { Tooltip } from '../shared/Tooltip'
 import { useUiStore } from '../../store/uiStore'
 import { ALL_CONNECTOR_TYPES } from '../../types/equipment'
-import type { ConnectorType, Port } from '../../types/equipment'
+import type { ConnectorType, Port, PortGroupKind } from '../../types/equipment'
 import { ALL_SIGNAL_STANDARDS, type SignalStandard } from '../../types/cableSpec'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { infoDialog } from '../../lib/infoDialog'
@@ -29,6 +29,7 @@ import { promptDialog } from '../../lib/promptDialog'
 import { effectivePortNumber, findDuplicatePortNumbers } from '../../lib/portNumbering'
 import { format, useTranslation } from '../../lib/i18n'
 import { Icon } from '../shared/Icon'
+import { PORT_GROUP_INFO, gruppenBefunde, naechsteGruppenId, portGruppen } from '../../lib/portGroups'
 
 /**
  * #306 — PortList + SortablePortItem + makePort aus EquipmentProperties
@@ -461,6 +462,12 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
     updatePort(portId, { dualLinkGroup: raw || undefined })
   }
 
+  // #832 — Die vorhandenen Gruppen DIESER Seite. Eine Gruppe ueber Ein- und
+  // Ausgaenge hinweg waere kein Anschluss, sondern eine Durchschleife; die
+  // Liste bietet deshalb nur an, was hier schon steht.
+  const vorhandeneGruppen = portGruppen(ports).map((g) => g.id)
+  const gruppenFehler = gruppenBefunde(ports)
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event
     if (!over || active.id === over.id) return
@@ -506,6 +513,46 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
           })}
         </div>
       )}
+      {/*
+        #832 — Der Widerspruch steht DORT, wo er entsteht, und wartet nicht auf
+        den Plan-Check. Eine halb markierte Stereo-Gruppe faellt beim Eintragen
+        auf; wer sie erst auf dem Blatt bemerkt, steht schon im Saal.
+
+        Gemeldet wird nur, was sich WIDERSPRICHT — nicht, was fehlt. Eine
+        Gruppe ohne Art ist vollstaendig („die gehoeren zusammen"), und wer
+        dafuer eine Warnung bekaeme, schaltete sie nach der dritten ab.
+      */}
+      {gruppenFehler.map((f, i) => (
+        <div
+          key={`${f.art}:${f.gruppe}:${i}`}
+          className="mb-2 rounded border border-amber-700 bg-amber-950/40 px-2 py-1 text-cp-xs text-amber-200"
+        >
+          {f.art === 'groesse' &&
+            format(
+              t(
+                'ports.group.sizeMismatch',
+                'Group "{group}": {is} of {expected} ports — the group says one connector, the plan shows another number.',
+              ),
+              { group: f.gruppe, is: String(f.ist), expected: String(f.erwartet) },
+            )}
+          {f.art === 'artenmix' &&
+            format(
+              t(
+                'ports.group.kindMismatch',
+                'Group "{group}" is declared as {kinds} at the same time — only one of them can be true.',
+              ),
+              { group: f.gruppe, kinds: f.arten.join(' / ') },
+            )}
+          {f.art === 'rolle-doppelt' &&
+            format(
+              t(
+                'ports.group.roleTwice',
+                'Group "{group}" has "{role}" twice — two left channels are not a stereo pair.',
+              ),
+              { group: f.gruppe, role: f.rolle },
+            )}
+        </div>
+      ))}
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <SortableContext items={ports.map((port) => port.id)} strategy={verticalListSortingStrategy}>
           <ul className="space-y-2">
@@ -762,6 +809,93 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                 </div>
               </div>
             )}
+            {/*
+              #832 — „Inputs und Outputs gruppieren. Z.b 2 Mono Klinken als ein
+              Stereo kennzeichnen."
+
+              Die Zeile steht bei JEDEM Port und nicht nur bei Audio: die
+              Gruppe sagt nichts ueber ein Signal, sondern „diese Buchsen
+              gehoeren zusammen". Das gilt fuer zwei Klinken genauso wie fuer
+              zwei Adern einer Steuerleitung.
+
+              Sie liegt AUSSERHALB von `CollapsibleSdiCaps` — der Kasten
+              erscheint nur bei BNC, und eine Klinken-Gruppe waere darin nicht
+              erreichbar.
+            */}
+            <div className="mt-1 flex flex-wrap items-center gap-1 text-cp-xs">
+              <span className="text-cp-text-muted">{t('ports.group.label', 'Group:')}</span>
+              <select
+                aria-label={t('ports.group.aria', 'Port group')}
+                value={port.portGroup ?? ''}
+                onChange={(event) => {
+                  const v = event.target.value
+                  if (v === '__new__') {
+                    updatePort(port.id, {
+                      portGroup: naechsteGruppenId(ports),
+                      portGroupKind: port.portGroupKind ?? 'stereo',
+                    })
+                    return
+                  }
+                  // Die Gruppe zu loeschen nimmt Art und Rolle MIT. Sie
+                  // beschreiben die Zugehoerigkeit; ohne sie stuenden sie am
+                  // Port und meinten nichts.
+                  updatePort(
+                    port.id,
+                    v
+                      ? { portGroup: v }
+                      : { portGroup: undefined, portGroupKind: undefined, portGroupRole: undefined },
+                  )
+                }}
+                className="rounded border border-cp-border bg-cp-surface-3 px-1 py-0.5 text-cp-xs"
+              >
+                <option value="">{t('ports.set.none', '— None —')}</option>
+                {vorhandeneGruppen.map((gid) => (
+                  <option key={gid} value={gid}>{gid}</option>
+                ))}
+                <option value="__new__">{t('ports.group.new', '+ New group…')}</option>
+              </select>
+              {port.portGroup && (
+                <>
+                  <select
+                    aria-label={t('ports.group.kindAria', 'Group kind')}
+                    value={port.portGroupKind ?? ''}
+                    onChange={(event) =>
+                      updatePort(port.id, {
+                        portGroupKind: (event.target.value || undefined) as
+                          | PortGroupKind
+                          | undefined,
+                      })
+                    }
+                    className="rounded border border-cp-border bg-cp-surface-3 px-1 py-0.5 text-cp-xs"
+                  >
+                    {/* Leer ist erlaubt und heisst „gehoeren zusammen, ohne
+                        zu sagen wie" — eine vollstaendige Aussage. */}
+                    <option value="">{t('ports.group.kindNone', '— not stated —')}</option>
+                    <option value="stereo">{t('ports.group.stereo', 'Stereo (L/R)')}</option>
+                    <option value="ms">{t('ports.group.ms', 'M/S')}</option>
+                    <option value="sum">{t('ports.group.sum', 'Sum (A/B)')}</option>
+                    <option value="bridge">{t('ports.group.bridge', 'Bridged (+/-)')}</option>
+                    <option value="powerlock">{t('ports.group.powerlock', 'Powerlock set (L1/L2/L3/N/PE)')}</option>
+                    <option value="sonstige">{t('ports.group.other', 'Other')}</option>
+                  </select>
+                  <select
+                    aria-label={t('ports.group.roleAria', 'Role in the group')}
+                    value={port.portGroupRole ?? ''}
+                    onChange={(event) =>
+                      updatePort(port.id, { portGroupRole: event.target.value || undefined })
+                    }
+                    className="rounded border border-cp-border bg-cp-surface-3 px-1 py-0.5 text-cp-xs"
+                  >
+                    <option value="">{t('ports.group.roleNone', '— role? —')}</option>
+                    {(port.portGroupKind ? PORT_GROUP_INFO[port.portGroupKind].rollen : []).map(
+                      (r) => (
+                        <option key={r} value={r}>{r}</option>
+                      ),
+                    )}
+                  </select>
+                </>
+              )}
+            </div>
             {port.connectorType === 'BNC' && (
               <CollapsibleSdiCaps
                 defaultOpen={

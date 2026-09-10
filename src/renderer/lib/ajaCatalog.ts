@@ -246,14 +246,14 @@ export const AJA_CATALOG: AjaEntry[] = [
       inputs: [
         { id: '', name: '3G-SDI In', type: 'BNC', connectorType: 'BNC' },
         { id: '', name: 'HDMI In', type: 'HDMI', connectorType: 'HDMI' },
-        { id: '', name: 'Analog Audio In (3.5mm)', type: 'Klinke', connectorType: 'Klinke' },
+        { id: '', name: 'Analog Audio In (3.5mm)', type: 'Jack 3.5 mm', connectorType: 'Jack 3.5 mm' },
         { id: '', name: 'LAN', type: 'Ethernet/RJ45', connectorType: 'Ethernet/RJ45' },
         { id: '', name: 'USB', type: 'USB', connectorType: 'USB' },
       ],
       outputs: [
         { id: '', name: '3G-SDI Out', type: 'BNC', connectorType: 'BNC' },
         { id: '', name: 'HDMI Out', type: 'HDMI', connectorType: 'HDMI' },
-        { id: '', name: 'Analog Audio Out (3.5mm)', type: 'Klinke', connectorType: 'Klinke' },
+        { id: '', name: 'Analog Audio Out (3.5mm)', type: 'Jack 3.5 mm', connectorType: 'Jack 3.5 mm' },
       ],
       width: 260, height: 140,
     },

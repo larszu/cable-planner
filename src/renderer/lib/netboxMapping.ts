@@ -103,7 +103,7 @@ const ROLE_CATEGORY_RULES: Array<{ match: RegExp; category: string }> = [
   { match: /video|sdi|encoder|decoder|matrix|scaler|converter/, category: 'Video' },
 ]
 
-const FALLBACK_CATEGORY = 'Sonstiges'
+const FALLBACK_CATEGORY = 'Other'
 
 // ---------------------------------------------------------------------------
 // Öffentliche Typen

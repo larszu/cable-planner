@@ -82,7 +82,20 @@ export const DEFAULT_CONNECTOR_TYPE_COLORS: Record<ConnectorType, string> = {
   DVI: '#6366f1',
   DB9: '#10b981',
   DB25: '#14b8a6',
+  // #832 — Die Klinken-Familie teilt EINE Farbe. Sie steht fuer „hier laeuft
+  // ein Klinken-Kabel", und das ist beim Blick auf den Plan die Frage; welche
+  // Groesse es ist, liest man am Port. Sechs Blautoene nebeneinander waeren
+  // sechs Farben, die niemand auseinanderhaelt, und die Farbe verlore genau
+  // die Aufgabe, die sie hat.
   Klinke: '#22d3ee',
+  'Jack 6.35 mm TS': '#22d3ee',
+  'Jack 6.35 mm TRS': '#22d3ee',
+  'Jack 3.5 mm TS': '#22d3ee',
+  'Jack 3.5 mm TRS': '#22d3ee',
+  'Jack 3.5 mm TRRS': '#22d3ee',
+  'Jack 2.5 mm TRS': '#22d3ee',
+  'Jack 6.35 mm': '#22d3ee',
+  'Jack 3.5 mm': '#22d3ee',
   'Mini-XLR': '#0ea5e9',
   'HD-BNC': '#fb923c',
   'Mini-HDMI': '#c084fc',

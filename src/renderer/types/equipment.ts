@@ -28,7 +28,61 @@ export type ConnectorType =
   | 'DVI'
   | 'DB9'
   | 'DB25'
+  /**
+   * Klinke ohne Angabe von Groesse und Beschaltung (#832).
+   *
+   * ─── WARUM DER GENERISCHE WERT BLEIBT ────────────────────────────────────
+   *
+   * Weil er eine Aussage traegt, die die Untertypen nicht traegen: „hier
+   * sitzt eine Klinke, und niemand hat gesagt, welche". Ein bestehender Plan
+   * mit `Klinke` sagt genau das — ihn auf `Jack 6.35 mm TRS` zu migrieren
+   * waere geraten, und die Zahl saehe danach aus wie eine Angabe des
+   * Datenblatts. Dieselbe Regel wie beim Gebaeude-Werkzeug: was nicht
+   * angegeben ist, wird nicht gerechnet.
+   *
+   * Neue Ports sollen einen der Untertypen bekommen. Der Plan-Check meldet
+   * den generischen Wert deshalb als „nicht naeher bestimmt", ohne ihn falsch
+   * zu nennen.
+   */
   | 'Klinke'
+  /**
+   * #832 — Klinke nach Groesse UND Beschaltung, wie der Eigentuemer es
+   * verlangt hat („klinke aufteilen in Mono (trs) Trrs usw. Und 3,5mm und
+   * 6,3mm usw.").
+   *
+   * BEIDE Merkmale gehoeren dazu, und keines allein reicht:
+   *   die GROESSE entscheidet, ob der Stecker ueberhaupt hineinpasst
+   *   die BESCHALTUNG entscheidet, was ankommt — TS ist unsymmetrisch/mono,
+   *   TRS je nach Geraet symmetrisch oder Stereo, TRRS traegt zusaetzlich ein
+   *   Mikrofon oder eine Steuerader
+   *
+   * Wer nur die Groesse fuehrt, steckt ein Mono-Kabel in einen symmetrischen
+   * Ausgang und sucht danach den Brumm.
+   */
+  | 'Jack 6.35 mm TS'
+  | 'Jack 6.35 mm TRS'
+  | 'Jack 3.5 mm TS'
+  | 'Jack 3.5 mm TRS'
+  | 'Jack 3.5 mm TRRS'
+  | 'Jack 2.5 mm TRS'
+  /**
+   * Groesse bekannt, Beschaltung nicht (#832).
+   *
+   * ─── EIN EIGENER ZUSTAND UND KEIN NOTBEHELF ──────────────────────────────
+   *
+   * „6,3-mm-Klinke, TS oder TRS steht nirgends" ist etwas anderes als
+   * „irgendeine Klinke" und etwas anderes als „6,3 mm TRS". Genau in diesem
+   * Zustand sind die Datenblatt-Angaben der Kataloge: „Line Out (6.3mm)",
+   * „Analog Audio In (3.5mm)" — die Groesse steht da, die Beschaltung nicht.
+   *
+   * Ohne diesen Wert haette man zwei Moeglichkeiten, und beide waeren
+   * schlechter: den Port bei `Klinke` lassen und die Groesse wegwerfen, die
+   * das Datenblatt nennt, oder eine Beschaltung dazuerfinden, die es nicht
+   * nennt. Die Groesse traegt schon die Antwort auf die Frage, die im Aufbau
+   * am haeufigsten gestellt wird — passt mein Stecker hinein.
+   */
+  | 'Jack 6.35 mm'
+  | 'Jack 3.5 mm'
   | 'Mini-XLR'
   | 'HD-BNC'
   | 'Mini-HDMI'
@@ -61,9 +115,25 @@ export type ConnectorType =
   | 'Micro-BNC'
   | 'Custom'
 
+/**
+ * Was eine Port-Gruppe IST (#832).
+ *
+ * `sonstige` steht mit drin und ist kein Notausgang: eine Anlage hat
+ * Paarungen, die keine Liste vorwegnimmt (zwei Adern einer Steuerleitung,
+ * Vor- und Ruecklauf einer Regelung). Sie mit einem Namen zu fuehren ist
+ * ehrlicher, als sie in `stereo` zu pressen.
+ */
+export type PortGroupKind = 'stereo' | 'ms' | 'sum' | 'bridge' | 'powerlock' | 'sonstige'
+
 /** All valid connector type values in display order. */
 export const ALL_CONNECTOR_TYPES: ConnectorType[] = [
-  'XLR', 'Mini-XLR', 'Klinke', 'BNC', 'HD-BNC', 'HDMI', 'Mini-HDMI', 'Micro-HDMI', 'Ethernet/RJ45', 'GG45', 'Fiber', 'SFP', 'SFP+', 'DIN',
+  'XLR', 'Mini-XLR',
+  // #832 — die Untertypen stehen VOR dem generischen `Klinke`, damit die
+  // bestimmte Angabe die naheliegende ist und die unbestimmte die Ausnahme.
+  'Jack 6.35 mm TS', 'Jack 6.35 mm TRS', 'Jack 6.35 mm',
+  'Jack 3.5 mm TS', 'Jack 3.5 mm TRS', 'Jack 3.5 mm TRRS', 'Jack 3.5 mm',
+  'Jack 2.5 mm TRS', 'Klinke',
+  'BNC', 'HD-BNC', 'HDMI', 'Mini-HDMI', 'Micro-HDMI', 'Ethernet/RJ45', 'GG45', 'Fiber', 'SFP', 'SFP+', 'DIN',
   'DisplayPort', 'VGA', 'DVI', 'USB', 'USB-C',
   'Triax', 'Triax (Damar & Hagen)', 'Triax (Fischer)',
   'LEMO 3K.93C (SMPTE 304M)', 'Neutrik Dragonfly (SMPTE 304M)',
@@ -183,6 +253,41 @@ export interface Port {
    *  Free text ID (z.B. 'DL-1'); UI warnt wenn eine Gruppe nicht genau
    *  2 Ports hat. Analog zu `quadLinkGroup`. */
   dualLinkGroup?: string
+  /**
+   * #832 — Ports, die zusammen EINEN Anschluss bilden.
+   *
+   * Woertlich aus der Meldung des Eigentuemers: „Inputs und Outputs
+   * gruppieren. Z.b 2 Mono Klinken als ein Stereo kennzeichnen."
+   *
+   * ─── WARUM NICHT `dualLinkGroup` MITBENUTZT WIRD ─────────────────────────
+   *
+   * Weil die beiden verschiedene Dinge behaupten. `quadLinkGroup` und
+   * `dualLinkGroup` tragen eine PROTOKOLL-Aussage: vier bzw. zwei BNC fuehren
+   * gemeinsam ein SDI-Bild nach SMPTE 425-5 / 372M. Das lesen die ATEM- und
+   * Videohub-Ausgaben, und dort haengt Verhalten daran.
+   *
+   * Diese Gruppe behauptet nichts ueber ein Protokoll. Sie sagt: „diese zwei
+   * Buchsen gehoeren zusammen, im Aufbau steckt man beide oder keine". Wer
+   * das in `dualLinkGroup` schriebe, meldete ein Stereo-Paar als SDI-
+   * Dual-Link — an eine Kreuzschiene, die es zu schalten versucht.
+   *
+   * ─── DREI FELDER, UND JEDES TRAEGT ETWAS, DAS DIE ANDEREN NICHT TRAGEN ───
+   *
+   * `portGroup`      die Zugehoerigkeit  (freie Id, wie bei den SDI-Gruppen)
+   * `portGroupKind`  was die Gruppe IST  (Stereo, M/S, Summe …)
+   * `portGroupRole`  welche Rolle DIESER Port darin hat (L, R, M, S …)
+   *
+   * Die Rolle steht am Port und nicht in der Reihenfolge der Liste. Das ist
+   * dieselbe Lehre wie B-33 (Port-Nummern) und wie die Klemmennummer oben:
+   * wer sie aus der Position ableitet, vertauscht links und rechts, sobald
+   * jemand die Liste umsortiert — und merkt es erst im Saal.
+   */
+  portGroup?: string
+  portGroupKind?: PortGroupKind
+  /** Rolle dieses Ports in seiner Gruppe. Kurz und frei: `L`, `R`, `M`, `S`,
+   *  `+`, `-`. Leer heisst „nicht gesagt" und ist erlaubt: eine Gruppe zu
+   *  benennen ist schon eine Angabe, auch ohne die Rollen. */
+  portGroupRole?: string
   /** v7.9.14 — Wenn dieses Equipment ein Black-Box-Rack ist, markiert
    *  jeder externe Port aus welchem internen Rack-Gerät er stammt
    *  (Index in rackInternalSnapshot.items). EquipmentNode nutzt diese
