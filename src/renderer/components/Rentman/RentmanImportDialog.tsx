@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Zap, Check, AlertTriangle, RotateCcw } from 'lucide-react'
+import { Zap, Check, AlertTriangle, RotateCcw, ChevronDown, ChevronRight} from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import { format, useTranslation } from '../../lib/i18n'
 import { infoDialog } from '../../lib/infoDialog'
@@ -1781,7 +1781,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
                   className="flex w-full items-center justify-between text-left"
                 >
                   <span className="text-cp-base font-semibold text-orange-200">
-                    {cablePlanOpen ? '▾ ' : '▸ '}
+                    <Icon icon={cablePlanOpen ? ChevronDown : ChevronRight} size="xs" className="mr-1 inline" />
                     {format(t('rentman.import.cablePlan.headingN', 'Cable quantities from Rentman ({count})'), { count: cableBuckets.length })}
                   </span>
                   <span className="text-cp-xs text-orange-300/70">

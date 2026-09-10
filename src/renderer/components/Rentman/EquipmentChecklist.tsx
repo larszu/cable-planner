@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Check, Zap, Link, Square, SquareCheck } from 'lucide-react'
+import { Check, Zap, Link, Square, SquareCheck, ChevronDown, ChevronRight} from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import { format, useTranslation } from '../../lib/i18n'
 
@@ -216,7 +216,7 @@ export const EquipmentChecklist = ({
                         aria-label={isOpen ? t('rentman.checklist.setCollapse', 'Collapse set') : t('rentman.checklist.setExpand', 'Expand set')}
                         title={isOpen ? t('rentman.checklist.setCollapse', 'Collapse set') : t('rentman.checklist.setExpand', 'Expand set')}
                       >
-                        {isOpen ? '▾' : '▸'}
+                        <Icon icon={isOpen ? ChevronDown : ChevronRight} size="xs" />
                       </button>
                     ) : (
                       <span className="w-5" />

@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react'
-import { Check } from 'lucide-react'
+import { Check, ChevronDown, ChevronRight, RefreshCw, Package, Search, Folder} from 'lucide-react'
 import { Icon } from '../../shared/Icon'
 import { useProjectStore } from '../../../store/projectStore'
 import { useUiStore } from '../../../store/uiStore'
@@ -249,7 +249,8 @@ export const RentmanTab = () => {
             className="mt-2 w-full rounded bg-orange-600 px-2 py-1.5 text-cp-xs font-semibold text-white hover:bg-orange-500"
             title={t('library.rentman.refreshTitle', 'Fetch the current equipment list from the linked Rentman project — new or changed items are shown in the dialog.')}
           >
-            🔄 {t('library.rentman.refreshAction', 'Refresh from Rentman / import new items')}
+            <Icon icon={RefreshCw} size="xs" className="mr-1 inline" />
+            {t('library.rentman.refreshAction', 'Refresh from Rentman / import new items')}
           </button>
           {(() => {
             // v7.9.70 / #171 — Re-Sync Button: zeigt nur wenn Canvas-Equipment
@@ -279,7 +280,8 @@ export const RentmanTab = () => {
                 className="mt-2 w-full rounded bg-orange-700/60 px-2 py-1 text-cp-xs text-orange-100 hover:bg-orange-700"
                 title={format(t('library.rentman.resyncTitle', '{n} Rentman devices on the canvas are not linked to library templates. Click to reconstruct the missing templates from the canvas data.'), { n: missing })}
               >
-                🔄 {format(t('library.rentman.resyncAction', 'Rebuild {n} missing library entries'), { n: missing })}
+                <Icon icon={RefreshCw} size="xs" className="mr-1 inline" />
+                {format(t('library.rentman.resyncAction', 'Rebuild {n} missing library entries'), { n: missing })}
               </button>
             )
           })()}
@@ -413,7 +415,7 @@ export const RentmanTab = () => {
             if (projectGroups.length === 0) {
               return (
                 <div className="flex flex-col items-center gap-2 p-3 text-center text-cp-xs text-cp-text-faint">
-                  <span className="text-2xl">📦</span>
+                  <Icon icon={Package} size="xl" />
                   <span>{t('library.rentman.noneImported', 'No Rentman devices imported yet.')}</span>
                 </div>
               )
@@ -421,7 +423,7 @@ export const RentmanTab = () => {
             if (visibleProjectGroups.length === 0) {
               return (
                 <div className="flex flex-col items-center gap-2 p-3 text-center text-cp-xs text-cp-text-faint">
-                  <span className="text-2xl">🔍</span>
+                  <Icon icon={Search} size="xl" />
                   <span>{format(t('library.rentman.noMatches', 'No matches for "{query}".'), { query: rentmanSearch })}</span>
                 </div>
               )
@@ -453,7 +455,7 @@ export const RentmanTab = () => {
                         }`}
                       >
                         <span className="flex min-w-0 items-center gap-1.5">
-                          <span className="text-cp-xs">{projectCollapsed ? '▶' : '▼'}</span>
+                          <Icon icon={projectCollapsed ? ChevronRight : ChevronDown} size="xs" />
                           {isLinked && (
                             <span className="rounded bg-orange-700 px-1 text-cp-xs font-bold text-white">AKTIV</span>
                           )}
@@ -478,7 +480,7 @@ export const RentmanTab = () => {
                                     className="flex w-full items-center justify-between gap-1 px-2 py-1 text-left text-cp-xs font-semibold uppercase tracking-wide text-cp-text-muted hover:text-cp-text-bright"
                                   >
                                     <span className="flex items-center gap-1">
-                                      <span>{categoryCollapsed ? '▶' : '▼'}</span>
+                                      <Icon icon={categoryCollapsed ? ChevronRight : ChevronDown} size="xs" />
                                       <span>{category}</span>
                                     </span>
                                     <span className="font-normal text-cp-text-dim">({categoryItems.length})</span>
@@ -559,7 +561,7 @@ export const RentmanTab = () => {
               className="flex flex-1 items-center gap-1 text-left text-cp-base font-semibold text-cp-text-bright hover:text-white"
               title={t('library.rentman.accountTitle', 'All equipment created in your Rentman account (account catalog), organized by the Rentman folder structure')}
             >
-              <span className="text-cp-xs">{rentmanCatalogCollapsed ? '▶' : '▼'}</span>
+              <Icon icon={rentmanCatalogCollapsed ? ChevronRight : ChevronDown} size="xs" />
               <span>{t('library.rentman.accountAll', 'All Rentman equipment (account catalog)')}</span>
               {rentmanCatalogLoaded && (
                 <span className="ml-1 rounded-full bg-cp-surface-2 px-1.5 text-cp-xs text-cp-text-muted">{rentmanCatalog.length}</span>
@@ -727,8 +729,8 @@ export const RentmanTab = () => {
                             style={{ paddingLeft: `${0.5 + depth * 0.75}rem` }}
                           >
                             <span className="flex items-center gap-1">
-                              <span>{collapsed ? '▶' : '▼'}</span>
-                              <span>📁</span>
+                              <Icon icon={collapsed ? ChevronRight : ChevronDown} size="xs" />
+                              <Icon icon={Folder} size="xs" />
                               <span>{folder.name}</span>
                             </span>
                             <span className="font-normal text-cp-text-faint">({total})</span>
@@ -787,7 +789,8 @@ export const RentmanTab = () => {
               className="mb-3 w-full rounded bg-orange-600 px-2 py-1.5 text-cp-xs font-semibold text-white hover:bg-orange-500"
               title={t('library.rentman.loadProjectTitle', 'Load the equipment list from the linked Rentman project now. New items can be imported directly.')}
             >
-              🔄 {t('library.rentman.refreshAction', 'Refresh from Rentman / import new items')}
+              <Icon icon={RefreshCw} size="xs" className="mr-1 inline" />
+              {t('library.rentman.refreshAction', 'Refresh from Rentman / import new items')}
             </button>
           )}
           {removed.length > 0 && (

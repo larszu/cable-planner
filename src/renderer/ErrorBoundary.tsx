@@ -1,5 +1,5 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react'
-import { ClipboardCopy, RotateCcw, Trash2 } from 'lucide-react'
+import { ClipboardCopy, RotateCcw, Trash2, CircleCheck} from 'lucide-react'
 import { cablePlannerApi } from './lib/bridge'
 import { confirmDialog } from './lib/confirmDialog'
 import { translate } from './lib/i18n'
@@ -300,7 +300,8 @@ export class ErrorBoundary extends Component<Props, State> {
                 {translate(lang, 'errorBoundary.bootLoop', 'Boot loop detected — UI settings were reset automatically.')}
               </div>
               <div style={{ fontSize: 13, lineHeight: 1.5 }}>
-                ✅ <strong>{translate(lang, 'errorBoundary.dataSafeHead', 'Your project data is safe')}</strong>
+                <Icon icon={CircleCheck} size="sm" className="mr-1 inline" />
+                <strong>{translate(lang, 'errorBoundary.dataSafeHead', 'Your project data is safe')}</strong>
                 {translate(lang, 'errorBoundary.dataSafeBody', ': the autosave, the local library, saved groups and rack drafts were NOT deleted.')}
                 {this.state.projectBackedUp && (
                   <> Zusätzlich wurde eine Sicherheitskopie des Autosaves angelegt

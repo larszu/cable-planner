@@ -11,7 +11,7 @@ import { useDraggablePosition } from '../../hooks/useDraggablePosition'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { computeEquipmentLayout } from '../../lib/equipmentLayout'
 import { computeAlignedPositions, type AlignMode, type AlignItem } from '../../lib/alignEquipment'
-import { Check, X } from 'lucide-react'
+import { Check, X, ChevronUp, ChevronDown} from 'lucide-react'
 import { useTranslation, format } from '../../lib/i18n'
 import { Icon } from '../shared/Icon'
 import { Tooltip } from '../shared/Tooltip'
@@ -1132,7 +1132,7 @@ const DefaultsMenu = ({
             title={t('toolbar.defaults.modified', 'At least one default has been changed')}
           />
         )}
-        <span style={{ fontSize: 9 }}>{open ? '▴' : '▾'}</span>
+        <Icon icon={open ? ChevronUp : ChevronDown} size={9} />
       </button>
       {open && (
         <div
@@ -1400,7 +1400,7 @@ const LockMenu = ({
             Oeffnen beantwortet ist. Bei null wird nichts gezeigt: eine „0"
             waere eine Angabe ueber nichts. */}
         {aktiv > 0 && <span style={{ fontVariantNumeric: 'tabular-nums' }}>{aktiv}/3</span>}
-        <span style={{ fontSize: 9 }}>{open ? '▴' : '▾'}</span>
+        <Icon icon={open ? ChevronUp : ChevronDown} size={9} />
       </button>
       {open && (
         <div

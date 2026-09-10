@@ -1,4 +1,4 @@
-import { Pencil, Download, X } from 'lucide-react'
+import { Pencil, Download, X, Server} from 'lucide-react'
 import { useProjectStore } from '../../../store/projectStore'
 import { Icon } from '../../shared/Icon'
 import { confirmDialog } from '../../../lib/confirmDialog'
@@ -47,7 +47,7 @@ export const RacksTab = ({ onCreateRack, onEditRack }: RacksTabProps) => {
 
       {groupPresets.filter((preset) => !!preset.rack).length === 0 ? (
         <div className="flex-1 flex flex-col items-center justify-center gap-2 text-cp-xs text-cp-text-faint text-center p-4">
-          <span className="text-2xl">▥</span>
+          <Icon icon={Server} size="xl" />
           <span>{t('library.tabs.racks.empty', 'No rack layout saved yet.')}</span>
         </div>
       ) : (

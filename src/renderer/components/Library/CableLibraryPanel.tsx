@@ -1,5 +1,5 @@
 import { useMemo, useState, type ReactNode } from 'react'
-import { AlertTriangle, X, Pencil } from 'lucide-react'
+import { AlertTriangle, X, Pencil, ChevronDown, ChevronRight} from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import {
   DndContext,
@@ -574,7 +574,11 @@ export const CableLibraryPanel = () => {
                     </span>
                   )}
                 </span>
-                <span className="text-cp-text-faint">{isOpen ? '▾' : '▸'}</span>
+                <Icon
+                  icon={isOpen ? ChevronDown : ChevronRight}
+                  size="xs"
+                  className="text-cp-text-faint"
+                />
               </button>
               {isOpen && (
                 <div className="space-y-1 border-t border-cp-border-muted p-1.5">

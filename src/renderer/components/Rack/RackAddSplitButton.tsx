@@ -1,3 +1,4 @@
+import { ChevronDown } from 'lucide-react'
 /**
  * v7.9.80 / #170 — Split-Button für den Rack-Builder Library-Add.
  *
@@ -14,6 +15,7 @@
  */
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from '../../lib/i18n'
+import { Icon } from '../shared/Icon'
 
 interface Props {
   onAddFull: () => void
@@ -72,7 +74,7 @@ export const RackAddSplitButton = ({
           aria-haspopup="menu"
           title={t('rackAdd.mountOptionsTitle', 'Mount options (front / rear)')}
         >
-          ▾
+          <Icon icon={ChevronDown} size="xs" />
         </button>
       </div>
       {open && (

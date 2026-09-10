@@ -12,7 +12,7 @@ import { useMemo, useState } from 'react'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
 import { ModalShell } from '../shared/ModalShell'
-import { AlertTriangle, Download, Calculator, BatteryCharging } from 'lucide-react'
+import { AlertTriangle, Download, Calculator, BatteryCharging, Pin} from 'lucide-react'
 import { useTranslation } from '../../lib/i18n'
 import { Icon } from '../shared/Icon'
 import { downloadBlob } from '../../lib/downloadBlob'
@@ -848,7 +848,7 @@ const PowerTab = () => {
                     <td className="truncate py-0.5">
                       {a.name}
                       {a.pinned && (
-                        <span className="ml-1 text-[11px] text-cp-text-muted" title={t('calc.phasePinned', 'Pinned')}>📌</span>
+                        <Icon icon={Pin} size={11} className="ml-1 inline text-cp-text-muted" label={t('calc.phasePinned', 'Pinned')} />
                       )}
                     </td>
                     <td className="text-right font-mono text-cp-text-muted">{a.watts}</td>

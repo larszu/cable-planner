@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Square, SquareCheck } from 'lucide-react'
+import { Square, SquareCheck, ChevronDown, ChevronRight} from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import { useTranslation } from '../../lib/i18n'
 
@@ -47,7 +47,7 @@ export const PlusMenu = ({
         aria-expanded={open}
       >
         <span className="text-cp-base leading-none">+</span>
-        <span className="text-[11px] leading-none">▾</span>
+        <Icon icon={ChevronDown} size={11} />
       </button>
       {open && (
         <div
@@ -170,7 +170,7 @@ export const LibraryFiltersMenu = ({
         <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
           <path d="M2 3h12l-4.5 5.5V13l-3-1.5V8.5L2 3z" strokeLinejoin="round" />
         </svg>
-        <span className="text-[9px] leading-none">▾</span>
+        <Icon icon={ChevronDown} size={9} />
       </button>
       {open && (
         <div
@@ -185,7 +185,7 @@ export const LibraryFiltersMenu = ({
             className="block w-full px-3 py-1.5 text-left hover:bg-cp-surface-2"
           >
             <span className="mr-2 inline-block w-4 text-center text-cp-text-muted">
-              {allCollapsed ? '▸' : '▾'}
+              <Icon icon={allCollapsed ? ChevronRight : ChevronDown} size="xs" />
             </span>
             {allCollapsed
               ? t('library.menus.expandAll', 'Expand all categories')

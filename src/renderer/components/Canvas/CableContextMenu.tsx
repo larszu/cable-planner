@@ -22,7 +22,7 @@
 //   • Kabel löschen
 
 import { useEffect, useRef, useState } from 'react'
-import { Pencil, Pin, X, Plus, Minus, RotateCcw, Navigation, CornerDownRight, Check, Milestone } from 'lucide-react'
+import { Pencil, Pin, X, Plus, Minus, RotateCcw, Navigation, CornerDownRight, Check, Milestone, ChevronDown, ChevronRight} from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import { useUiStore } from '../../store/uiStore'
 import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
@@ -337,7 +337,11 @@ export const CableContextMenu = () => {
       >
         {t('canvas.cableMenu.routing', 'Routing:')}{' '}
         <strong className="ml-1">{routingLabel(routing, t)}</strong>
-        <span className="ml-auto text-slate-500">{submenu === 'routing' ? '▾' : '▸'}</span>
+        <Icon
+          icon={submenu === 'routing' ? ChevronDown : ChevronRight}
+          size="xs"
+          className="ml-auto text-slate-500"
+        />
       </Item>
       {submenu === 'routing' && (
         <div className="border-l-2 border-sky-700 bg-cp-surface-3/50">
