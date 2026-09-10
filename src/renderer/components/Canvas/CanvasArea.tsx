@@ -59,7 +59,6 @@ import {
   triggerCanvasFitView,
   setCanvasCenterOnHandler,
 } from '../../lib/canvasViewport'
-import { createDemoProject } from '../../lib/demoProject'
 import { CanvasSearch } from './CanvasSearch'
 import { format, useTranslation } from '../../lib/i18n'
 import { useAtemTallyFeed } from '../../hooks/useAtemTallyFeed'
@@ -117,7 +116,9 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
   const projectVersion = useProjectStore((state) => state.projectVersion)
   const updateEquipment = useProjectStore((state) => state.updateEquipment)
   const addEquipment = useProjectStore((state) => state.addEquipment)
-  const loadProjectIntoStore = useProjectStore((state) => state.loadProject)
+  // #ux — das Beispiel bringt seine Rack-Vorlage mit; sonst steht die
+  // Rack-Karte einer frischen Installation leer (siehe `lib/demoRack.ts`).
+  const loadDemoProjectIntoStore = useProjectStore((state) => state.loadDemoProject)
   const pasteEquipment = useProjectStore((state) => state.pasteEquipment)
   const deleteEquipment = useProjectStore((state) => state.deleteEquipment)
   const deleteLocation = useProjectStore((state) => state.deleteLocation)
@@ -1607,7 +1608,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
             className="pointer-events-auto rounded-cp-control border border-cp-border bg-cp-surface-2 px-cp-4 py-cp-2 text-cp-sm font-medium text-cp-text hover:bg-cp-surface-3"
             onClick={() => {
               // Demo nur laden wenn wirklich leer (Empty-State) — kein Überschreiben.
-              loadProjectIntoStore(createDemoProject())
+              loadDemoProjectIntoStore()
               // Nach dem Neu-Mount der Nodes auf den Inhalt zoomen.
               setTimeout(() => triggerCanvasFitView(), 80)
             }}

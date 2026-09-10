@@ -42,6 +42,8 @@ import {
 } from '../lib/categoryTranslations'
 import { heileSteckertyp } from '../lib/connectorRenames'
 import { loadGroupPresets } from './groupPresetsPersist'
+import { createDemoProject } from '../lib/demoProject'
+import { DEMO_RACK_PRESET_ID, createDemoRackPreset } from '../lib/demoRack'
 import { scheduleProjectAutosave } from './projectAutosave'
 import { blackmagicTemplates } from '../lib/blackmagicCatalog'
 import { detectLayerForConnector } from '../lib/cableLayers'
@@ -251,6 +253,11 @@ export interface ProjectState {
   setRecentProjects: (items: string[]) => void
   setFilePath: (path?: string) => void
   loadProject: (project: CablePlannerProject, filePath?: string) => void
+  /**
+   * Das Beispielprojekt UND seine Rack-Vorlage — ein Aufruf, damit die beiden
+   * nicht an zwei Stellen getrennt gepflegt werden (siehe `lib/demoRack.ts`).
+   */
+  loadDemoProject: () => void
   /** #413 — Wendet einen remote (CRDT-)Stand von equipment/cables/locations
    *  auf das aktuelle Projekt an. Anders als loadProject: ersetzt NUR diese
    *  drei Collections (Metadaten, canvasState, Annotationen etc. bleiben),
@@ -1681,6 +1688,15 @@ const buildProjectStore = (
         customLibrary: healedLibrary,
       }
     }),
+  loadDemoProject: () => {
+    get().loadProject(createDemoProject())
+    // Die Rack-Vorlage kommt MIT dem Beispiel und nicht beim Start: eine
+    // Vorlage, die beim Start nachwaechst, kommt nach dem Loeschen wieder.
+    // Zweimal laden legt sie nicht doppelt an — die Kennung ist fest.
+    if (!get().groupPresets.some((p) => p.id === DEMO_RACK_PRESET_ID)) {
+      get().addGroupPreset(createDemoRackPreset())
+    }
+  },
   applyRemoteProject: (slice) =>
     set((state) => ({
       // Nur die drei kollaborativen Collections ersetzen; alles andere am
