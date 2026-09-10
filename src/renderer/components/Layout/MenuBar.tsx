@@ -1143,7 +1143,18 @@ export const MenuBar = ({
       </div>
 
       <div className="flex shrink-0 items-center gap-2">
-        <div className="flex items-center rounded border border-cp-border bg-cp-surface-1">
+        {/* AUF DEM TELEFON WEG (gemessen 2026-09-10, B-66). Die Kopfzeile ist
+            40 px hoch und bricht nicht um; passt ihr Inhalt nicht, schiebt die
+            linke Gruppe die rechte aus dem Bild — und dort steht der einzige
+            Weg in die Einstellungen. Gemessen auf 390 px: mit deutschen
+            Menue-Beschriftungen endete die rechte Gruppe bei Pixel 425.
+            Undo/Redo sind hier NUR eine Abkuerzung: dieselben beiden Punkte
+            stehen mitsamt Tastenkuerzel im Bearbeiten-Menue, das auf dem
+            Telefon ohnehin der Weg ist. Zwei 28-px-Knoepfe, die keinen Finger
+            tragen (Norm 44), gegen einen Einstellungen-Knopf, der ausserhalb
+            des Bildes liegt — die Rechnung ist eindeutig.
+            Erst ab `sm` (640 px) sind sie wieder da. */}
+        <div className="hidden items-center rounded border border-cp-border bg-cp-surface-1 sm:flex">
           <button
             type="button"
             onClick={() => projectHistory.undo()}
@@ -1287,7 +1298,14 @@ const Menu = ({ label, children }: MenuProps) => {
         }}
         aria-haspopup="menu"
         aria-expanded={open}
-        className={`rounded px-2 py-1 text-cp-text-bright hover:bg-cp-surface-2 ${open ? 'bg-cp-surface-2' : ''}`}
+        /* `px-1` unter `sm`, `px-2` darueber (B-66, gemessen 2026-09-10).
+           Die Kopfzeile bricht nicht um; was nicht hineinpasst, schiebt die
+           rechte Gruppe aus dem Bild, und dort steht der Einstellungen-Knopf.
+           Fuenf Menues mal 8 Pixel sind 40 Pixel — auf Deutsch fehlten 11.
+           Die Schrift bleibt gleich gross: schmaler wird der Abstand, nicht
+           das Wort. Ob es reicht, ist keine Meinung — `mobil:check` misst es
+           in JEDER ausgelieferten Sprache. */
+        className={`rounded px-1 py-1 text-cp-text-bright hover:bg-cp-surface-2 sm:px-2 ${open ? 'bg-cp-surface-2' : ''}`}
       >
         {label}
         <Icon icon={ChevronDown} size={11} className="ml-1 text-cp-text-muted" />
