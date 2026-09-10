@@ -212,7 +212,9 @@ describe('mobileShare: Dialog und Handy sagen dasselbe wie der Server', () => {
     const mob = read('src/mobile/MobileApp.tsx')
     expect(mob).toContain("writeMode === 'contribute' &&")
     // Und sagt es auch: die Häkchen bleiben dann lokal.
-    expect(mob).toContain('Nur lesen · Häkchen bleiben auf diesem Gerät')
+    // Der Schluessel, nicht der Satz: die deutsche Fassung steht seit E-28
+    // in `mobile/i18n.ts`, im Bauteil steht die englische Quelle.
+    expect(mob).toContain("'mobile.readonly.banner'")
   })
 
   it('das Handy fällt bei unbekanntem Wert auf „nur lesen" zurück', () => {

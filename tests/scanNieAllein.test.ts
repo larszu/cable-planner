@@ -98,9 +98,15 @@ describe('die Handeingabe haengt an keiner Kamera-Bedingung', () => {
     // Dort steht die Kamera in einem `canScan ? … : …`. Das Eingabefeld muss
     // DANEBEN stehen und nicht im Ja-Zweig — sonst ist der Hinweis „füge den
     // Code unten ein" eine Anleitung zu einem Feld, das es nicht gibt.
+    //
+    // GEPRUEFT WIRD DER SCHLUESSEL, NICHT DER TEXT. Die erste Fassung suchte
+    // die deutsche Zeichenkette; seit die Mobile-Ansicht durch `t()` laeuft
+    // (E-28), steht dort die englische Quelle und die deutsche Fassung im
+    // Woerterbuch. Ein Waechter, der an einer Uebersetzung rot wird, prueft
+    // die Sprache und nicht das, was er meint.
     const src = lies('src/mobile/MobileApp.tsx')
-    expect(src).toContain('placeholder="z.B. C-0001, A-0007 oder cableplanner://…"')
-    expect(regionHinter(src, '{canScan ? ')).not.toContain('placeholder="z.B. C-0001')
+    expect(src).toContain("t('mobile.lookup.placeholder'")
+    expect(regionHinter(src, '{canScan ? ')).not.toContain("t('mobile.lookup.placeholder'")
   })
 
   it('haelt sich das Scan-Overlay nicht ohne Kamera heraus', () => {
@@ -125,6 +131,8 @@ describe('die Handeingabe haengt an keiner Kamera-Bedingung', () => {
     // stattdessen geht — eine Fehlermeldung ohne Ausweg schickt den Nutzer
     // zurueck an den Anfang.
     expect(lies('src/renderer/lager/ui/ScannerModal.tsx')).toContain('Use manual entry')
-    expect(lies('src/mobile/MobileApp.tsx')).toContain('füge den Code unten ein')
+    // Auch hier der englische Quelltext statt der deutschen Uebersetzung:
+    // er steht im `t()`-Aufruf, die deutsche Fassung in `mobile/i18n.ts`.
+    expect(lies('src/mobile/MobileApp.tsx')).toContain('paste the code below')
   })
 })

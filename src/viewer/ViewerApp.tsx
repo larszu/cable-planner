@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import type { CablePlannerProject, ProjectAnnotation } from '../renderer/types/project'
 import { styleForLayer } from '../renderer/lib/cableLayers'
 import { stampForPlan } from '../renderer/lib/documentStamp'
+import { format, uebersetzer } from './i18n'
 
 // #143 — Zero-Install-Web-Viewer (Stage 1). Lädt eine .cpviewer/.json und
 // rendert den Plan read-only als SVG plus die Anmerkungen. Der Reviewer kann
@@ -32,6 +33,10 @@ import { stampForPlan } from '../renderer/lib/documentStamp'
 // mit dem Bildschirm vergleichen" — genau der Rückweg, den ein Freelancer
 // ohne Konto braucht. Er stand nur nicht auf dem, was er bekommt.
 
+// Ein Uebersetzer je Modul: die Sprache kommt aus dem Browser, der diese
+// Seite geoeffnet hat, und wechselt waehrend einer Sitzung nicht.
+const t = uebersetzer()
+
 const REVIEWER_KEY = 'cable-planner.viewer.reviewer'
 const annKey = (p: CablePlannerProject): string =>
   `cable-planner.viewer.ann::${p.metadata?.name ?? 'plan'}::${p.metadata?.createdAt ?? ''}`
@@ -40,7 +45,11 @@ const uid = (): string =>
   crypto.randomUUID?.() ?? `ann-${Date.now()}-${Math.random().toString(36).slice(2)}`
 
 const STATUS_ORDER: ProjectAnnotation['status'][] = ['open', 'built', 'resolved']
-const STATUS_LABEL: Record<string, string> = { open: 'Offen', built: 'Aufgebaut', resolved: 'Erledigt' }
+const STATUS_LABEL: Record<string, string> = {
+  open: t('viewer.status.open', 'Open'),
+  built: t('viewer.status.built', 'Built'),
+  resolved: t('viewer.status.resolved', 'Resolved'),
+}
 const STATUS_COLOR: Record<string, string> = { open: '#f59e0b', built: '#3b82f6', resolved: '#22c55e' }
 
 interface BBox { x: number; y: number; w: number; h: number }
@@ -213,16 +222,22 @@ export const ViewerApp = () => {
         u.hash = ''
         base = u.toString().replace(/\/$/, '')
       } catch {
-        throw new Error('Ungültige URL.')
+        throw new Error(t('viewer.err.badUrl', 'Invalid URL.'))
       }
       try { localStorage.setItem(REMOTE_KEY, raw) } catch { /* ignore */ }
       const sep = '?'
       const url = `${base}/project.json${token ? `${sep}t=${encodeURIComponent(token)}` : ''}`
       const res = await fetch(url, { cache: 'no-store', headers: token ? { 'X-CP-Token': token } : undefined })
-      if (!res.ok) throw new Error(`Server antwortete ${res.status}.`)
+      if (!res.ok) {
+        throw new Error(
+          format(t('viewer.err.serverStatus', 'The server answered {status}.'), {
+            status: res.status,
+          }),
+        )
+      }
       const parsed = (await res.json()) as CablePlannerProject
       if (!parsed || !Array.isArray(parsed.equipment) || !Array.isArray(parsed.cables)) {
-        throw new Error('Keine gültigen Plandaten empfangen.')
+        throw new Error(t('viewer.err.noPlanData', 'No valid plan data received.'))
       }
       let stored: ProjectAnnotation[] = []
       try {
@@ -232,7 +247,9 @@ export const ViewerApp = () => {
       setProject(parsed)
       setAnnotations(mergeAnn(parsed.annotations ?? [], stored))
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Remote-Laden fehlgeschlagen.')
+      setError(
+        e instanceof Error ? e.message : t('viewer.err.remoteFailed', 'Remote loading failed.'),
+      )
     } finally {
       setLoadingRemote(false)
     }
@@ -243,7 +260,9 @@ export const ViewerApp = () => {
       const text = await file.text()
       const parsed = JSON.parse(text) as CablePlannerProject
       if (!parsed || !Array.isArray(parsed.equipment) || !Array.isArray(parsed.cables)) {
-        throw new Error('Keine gültige Cable-Planner-Datei (.cpviewer / .json).')
+        throw new Error(
+          t('viewer.err.notAFile', 'Not a valid Cable Planner file (.cpviewer / .json).'),
+        )
       }
       let stored: ProjectAnnotation[] = []
       try {
@@ -254,7 +273,9 @@ export const ViewerApp = () => {
       setAnnotations(mergeAnn(parsed.annotations ?? [], stored))
       setError(null)
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Datei konnte nicht gelesen werden.')
+      setError(
+        e instanceof Error ? e.message : t('viewer.err.fileUnreadable', 'The file could not be read.'),
+      )
     }
   }
 
@@ -293,9 +314,11 @@ export const ViewerApp = () => {
     () => (project ? stampForPlan(project, new Date()) : null),
     [project],
   )
-  const standHinweis =
-    'Diese Ansicht ist eine Momentaufnahme. Ob sie noch gilt, beantwortet der ' +
-    'Planer: dort „Analyse → Blatt prüfen" mit dieser Zeichenfolge.'
+  const standHinweis = t(
+    'viewer.stampHint',
+    'This view is a snapshot. Whether it still applies is answered by the planner: ' +
+      'there, use "Analysis → Check sheet" with this string.',
+  )
 
   const downloadAnnotated = (): void => {
     // `stamp` statt einer zweiten Berechnung: eine zweite Ableitung derselben
@@ -321,22 +344,35 @@ export const ViewerApp = () => {
       <div className="flex min-h-screen items-center justify-center bg-cp-bg p-4 text-cp-text">
         <div className="w-full max-w-md rounded-lg border border-cp-border bg-cp-surface-1 p-6 shadow-2xl" onDragOver={(e) => e.preventDefault()} onDrop={onDrop}>
           <h1 className="mb-1 text-lg font-semibold">Cable Planner — Viewer</h1>
-          <p className="mb-4 text-sm text-cp-text-muted">Read-only-Ansicht eines Plans. Keine Installation nötig — Datei laden, prüfen und Anmerkungen setzen.</p>
-          <label className="mb-1 block text-xs text-cp-text-muted">Dein Name (für Anmerkungen)</label>
-          <input value={reviewer} onChange={(e) => setReviewerPersisted(e.target.value)} placeholder="z. B. Jan (Freelance-Cam)" className="mb-4 w-full rounded border border-cp-border bg-cp-surface-2 p-2 text-sm" />
+          <p className="mb-4 text-sm text-cp-text-muted">
+            {t(
+              'viewer.intro',
+              'Read-only view of a plan. No installation needed — load a file, review it and ' +
+                'add annotations.',
+            )}
+          </p>
+          <label className="mb-1 block text-xs text-cp-text-muted">
+            {t('viewer.yourName', 'Your name (for annotations)')}
+          </label>
+          <input value={reviewer} onChange={(e) => setReviewerPersisted(e.target.value)} placeholder={t('viewer.yourName.placeholder', 'e.g. Jan (freelance cam)')} className="mb-4 w-full rounded border border-cp-border bg-cp-surface-2 p-2 text-sm" />
           <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded border border-dashed border-cp-border bg-cp-surface-2/40 p-6 text-center text-sm text-cp-text-muted hover:border-cp-accent hover:text-cp-text">
-            <span className="font-medium">Plan-Datei hierher ziehen oder klicken</span>
-            <span className="text-xs">.cpviewer oder .json</span>
+            <span className="font-medium">{t('viewer.drop', 'Drag a plan file here or click')}</span>
+            <span className="text-xs">{t('viewer.drop.kinds', '.cpviewer or .json')}</span>
             <input type="file" accept=".cpviewer,.json,application/json" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) void loadFile(f) }} />
           </label>
 
           {/* Umschaltbar: Live vom Desktop laden (lokal ODER über Mobilfunk) */}
           <div className="mt-4 border-t border-cp-border-muted pt-3">
-            <div className="mb-1 text-xs font-medium text-cp-text-secondary">— oder live vom Desktop —</div>
+            <div className="mb-1 text-xs font-medium text-cp-text-secondary">
+              {t('viewer.orLive', '— or live from the desktop —')}
+            </div>
             <input
               value={remoteUrl}
               onChange={(e) => setRemoteUrl(e.target.value)}
-              placeholder="http://192.168.1.10:PORT/?t=…  (LAN)  ·  https://…  (Mobilfunk-Tunnel)"
+              placeholder={t(
+                'viewer.remote.placeholder',
+                'http://192.168.1.10:PORT/?t=…  (LAN)  ·  https://…  (mobile tunnel)',
+              )}
               className="w-full rounded border border-cp-border bg-cp-surface-2 p-2 text-xs"
             />
             <button
@@ -345,11 +381,17 @@ export const ViewerApp = () => {
               onClick={() => void loadRemote()}
               className="mt-2 w-full rounded bg-cp-accent px-3 py-1.5 text-xs font-medium text-white enabled:hover:opacity-90 disabled:opacity-50"
             >
-              {loadingRemote ? 'Lade…' : 'Live laden'}
+              {loadingRemote
+                ? t('viewer.remote.loading', 'Loading…')
+                : t('viewer.remote.load', 'Load live')}
             </button>
             <p className="mt-1 text-cp-xs text-cp-text-faint">
-              LAN: die vom Desktop angezeigte Adresse. Mobilfunk: deine öffentliche Tunnel-/Relay-URL
-              (siehe docs/self-hosted-relay.md). Nichts läuft über fremde Server.
+              {t(
+                'viewer.remote.hint',
+                'LAN: the address shown on the desktop. Mobile data: your own public ' +
+                  'tunnel/relay URL (see docs/self-hosted-relay.md). Nothing goes through ' +
+                  'third-party servers.',
+              )}
             </p>
           </div>
 
@@ -368,17 +410,31 @@ export const ViewerApp = () => {
           {/* Bedarf 1: der Stand des Geteilten. Ohne ihn ist diese Ansicht
               eine Momentaufnahme, die nicht sagt, welche. */}
           <p className="truncate text-cp-xs text-cp-text-faint" title={standHinweis}>
-            Stand <span className="font-mono">#{stamp.fingerprint}</span>
-            {stamp.revision && <> · {stamp.revision}{stamp.drifted && ' + Änderungen'}</>}
+            {t('viewer.stamp', 'Revision')} <span className="font-mono">#{stamp.fingerprint}</span>
+            {stamp.revision && (
+              <>
+                {' '}
+                · {stamp.revision}
+                {stamp.drifted && t('viewer.stamp.drifted', ' + changes')}
+              </>
+            )}
           </p>
         </div>
         <div className="flex shrink-0 items-center gap-2 text-xs text-cp-text-muted">
-          <span className="rounded bg-cp-surface-3 px-2 py-1">Plan read-only</span>
+          <span className="rounded bg-cp-surface-3 px-2 py-1">
+            {t('viewer.readOnly', 'Plan read-only')}
+          </span>
           {reviewer && <span className="hidden sm:inline">👤 {reviewer}</span>}
-          <button onClick={() => downloadAnnotated()} className="rounded bg-cp-accent px-2 py-1 font-medium text-white hover:opacity-90" title="Annotierte Datei (.cpviewer) herunterladen — im Hauptprogramm über „Annotierte Viewer-Datei zurücklesen…“ einlesen">
-            Annotierte Datei ↓
+          <button onClick={() => downloadAnnotated()} className="rounded bg-cp-accent px-2 py-1 font-medium text-white hover:opacity-90" title={t(
+            'viewer.download.title',
+            'Download the annotated file (.cpviewer) — read it back in the main program via ' +
+              '"Read back annotated viewer file…"',
+          )}>
+            {t('viewer.download', 'Annotated file ↓')}
           </button>
-          <button onClick={() => setProject(null)} className="rounded border border-cp-border px-2 py-1 hover:bg-cp-surface-3">Andere Datei…</button>
+          <button onClick={() => setProject(null)} className="rounded border border-cp-border px-2 py-1 hover:bg-cp-surface-3">
+            {t('viewer.otherFile', 'Other file…')}
+          </button>
         </div>
       </header>
       <div className="flex min-h-0 flex-1">
@@ -388,16 +444,25 @@ export const ViewerApp = () => {
             onClick={() => setAddMode((v) => !v)}
             className={`absolute left-3 top-3 rounded px-3 py-1.5 text-xs font-medium shadow-lg ${addMode ? 'bg-cp-accent text-white ring-2 ring-cp-accent/50' : 'bg-cp-surface-3 text-cp-text hover:bg-cp-surface-4'}`}
           >
-            {addMode ? 'Klicke in den Plan…' : '+ Anmerkung'}
+            {addMode
+              ? t('viewer.ann.clickPlan', 'Click in the plan…')
+              : t('viewer.ann.add', '+ Annotation')}
           </button>
         </div>
         <aside className="flex w-80 shrink-0 flex-col border-l border-cp-border bg-cp-surface-1">
           <div className="flex items-center justify-between border-b border-cp-border px-3 py-2 text-xs font-semibold uppercase tracking-wide text-cp-text-muted">
-            <span>Anmerkungen ({annotations.length})</span>
+            <span>
+              {format(t('viewer.ann.heading', 'Annotations ({n})'), { n: annotations.length })}
+            </span>
           </div>
           <div className="flex-1 overflow-auto p-2">
             {annotations.length === 0 ? (
-              <p className="p-2 text-xs text-cp-text-faint">Noch keine Anmerkungen. Klicke „+ Anmerkung" und dann in den Plan.</p>
+              <p className="p-2 text-xs text-cp-text-faint">
+                {t(
+                  'viewer.ann.empty',
+                  'No annotations yet. Click "+ Annotation" and then into the plan.',
+                )}
+              </p>
             ) : (
               <ul className="space-y-2">
                 {annotations.map((a, i) => {
@@ -422,14 +487,16 @@ export const ViewerApp = () => {
                       <textarea
                         value={a.text}
                         onChange={(e) => patchAnnotation(a.id, { text: e.target.value })}
-                        placeholder="Anmerkung…"
+                        placeholder={t('viewer.ann.placeholder', 'Annotation…')}
                         rows={2}
                         className="w-full resize-y rounded border border-cp-border-muted bg-cp-surface-1 p-1.5 text-xs text-cp-text"
                         onClick={(e) => e.stopPropagation()}
                       />
                       {mine && (
                         <div className="mt-1 flex justify-end">
-                          <button onClick={(e) => { e.stopPropagation(); removeAnnotation(a.id) }} className="rounded px-1.5 py-0.5 text-cp-xs text-cp-danger hover:bg-cp-danger/20">Löschen</button>
+                          <button onClick={(e) => { e.stopPropagation(); removeAnnotation(a.id) }} className="rounded px-1.5 py-0.5 text-cp-xs text-cp-danger hover:bg-cp-danger/20">
+                            {t('viewer.ann.delete', 'Delete')}
+                          </button>
                         </div>
                       )}
                     </li>
@@ -439,7 +506,11 @@ export const ViewerApp = () => {
             )}
           </div>
           <div className="border-t border-cp-border p-2 text-cp-xs text-cp-text-faint">
-            {project.equipment.length} Geräte · {project.cables.length} Kabel · {(project.locations ?? []).length} Standorte
+            {format(t('viewer.counts', '{devices} devices · {cables} cables · {locations} locations'), {
+              devices: project.equipment.length,
+              cables: project.cables.length,
+              locations: (project.locations ?? []).length,
+            })}
           </div>
         </aside>
       </div>

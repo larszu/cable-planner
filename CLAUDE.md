@@ -164,6 +164,18 @@ Pfad-Validierung passiert **immer in main**, nie im Renderer.
   Sätze NIE aus mehreren `t()`-Aufrufen zusammensetzen: die Wortstellung
   gehört zur Sprache. Ein Schlüssel, ein ganzer Satz, Platzhalter über
   `format()`.
+  **`src/mobile` und `src/viewer` haben ein EIGENES, kleines Wörterbuch**
+  (`src/mobile/i18n.ts`, `src/viewer/i18n.ts`) über dem gemeinsamen Werk in
+  `src/renderer/lib/i18nLite.ts`. Grund ist die Größe: `lib/i18n.ts`
+  importiert `de.ts` statisch (316 KB), der Mobile-Chunk ist 72 kB und wird
+  über das Hallen-WLAN auf ein Telefon geladen. Wer dort `lib/i18n`
+  importiert — auch mittelbar über ein Hilfsmodul — vervierfacht die Seite;
+  `tests/i18nEintrittspunkte.test.ts` folgt dem Importgraphen und sagt es.
+  Die Sprache kommt dort aus `navigator.language`, nicht aus dem
+  `uiStore` des Desktops.
+  **`npm run lang:check` deckt alle drei Browser-Ordner ab.** Der Umfang ist
+  keine Liste: derselbe Test liest die Ordner aus `tsconfig.app.json` und
+  besteht darauf, dass jeder im Skript vorkommt.
 - **Theming (#449):** neue Komponenten nutzen die semantischen Farb-Utilities
   (`bg-cp-surface-1/2/3`, `bg-cp-bg`, `border-cp-border(-muted)`,
   `text-cp-text/-secondary/-muted/-faint`, `(bg|text|border)-cp-accent/-warn/-danger`),
