@@ -1,8 +1,8 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react'
-import { ClipboardCopy, RotateCcw, Trash2, CircleCheck} from 'lucide-react'
+import { ClipboardCopy, RotateCcw, Trash2, CircleCheck } from 'lucide-react'
 import { cablePlannerApi } from './lib/bridge'
 import { confirmDialog } from './lib/confirmDialog'
-import { translate } from './lib/i18n'
+import { translate, format } from './lib/i18n'
 import { Icon } from './components/shared/Icon'
 import { useUiStore } from './store/uiStore'
 
@@ -304,8 +304,22 @@ export class ErrorBoundary extends Component<Props, State> {
                 <strong>{translate(lang, 'errorBoundary.dataSafeHead', 'Your project data is safe')}</strong>
                 {translate(lang, 'errorBoundary.dataSafeBody', ': the autosave, the local library, saved groups and rack drafts were NOT deleted.')}
                 {this.state.projectBackedUp && (
-                  <> Zusätzlich wurde eine Sicherheitskopie des Autosaves angelegt
-                  (<code>cable-planner:projectBackup:&lt;Zeit&gt;</code> in localStorage).</>
+                  // EIN Schluessel fuer den ganzen Satz. Der Speicher-Schluessel
+                  // steht als Platzhalter darin und nicht als eigenes <code>:
+                  // ein Satz, der aus zwei Bausteinen zusammengesetzt wird,
+                  // laesst sich nicht uebersetzen, ohne die Wortstellung der
+                  // Quellsprache mitzuschleppen.
+                  <>
+                    {' '}
+                    {format(
+                      translate(
+                        lang,
+                        'errorBoundary.projectBackedUp',
+                        'A safety copy of the autosave was also created ({key} in localStorage).',
+                      ),
+                      { key: 'cable-planner:projectBackup:<time>' },
+                    )}
+                  </>
                 )}
                 <br />
                 {translate(lang, 'errorBoundary.reloading', 'The app reloads in 2 s — you land straight back in your project.')}
