@@ -575,6 +575,12 @@ export const de: Dict = {
   'app.menu.file.saveAs': 'Speichern unter…',
   'app.menu.file.viewForeign': 'Verknüpfte Venue-Planung ansehen…',
   'app.menu.file.viewForeignRoom': 'Raum',
+  'app.connector.newPrompt': 'Neuer Stecker-Typ (z. B. „Speakon NL4“):',
+  'app.standard.newPrompt': 'Neuer Signal-Standard (z. B. „Madi 64ch“):',
+  'app.rentman.overBuiltTitle': 'Über Rentman-Plan hinaus',
+  'app.rentman.overBuiltBody':
+    'Es sind jetzt {built} x {type} {length} m verbaut, aber nur {planned} laut Rentman-Plan vorhanden. Bitte zusätzliche Kabel in Rentman buchen oder die Verkabelung anpassen.',
+  'app.viewer.desktopOnly': 'Der Viewer-Export braucht die Desktop-App.',
   'app.menu.file.viewForeignCameras': 'Kameras ({n})',
   'app.menu.file.viewForeignCounts': '{walls} Wände · {persons} Personen · {stage} Bühne',
   'app.menu.file.viewForeignFixtures': 'Lampen ({n})',
@@ -5287,6 +5293,8 @@ export const de: Dict = {
   'rundown.pastePh': '1\tBegrüßung\n2\tInterview\tGast kommt von links\n3\tMusik',
   'schema.catPh': 'z. B. Funkstrecken-Zubehör',
   'vhx.desktopOnly': '· nur in Desktop-App verfügbar',
+  'export.labelsImportBody': '{in} Eingänge und {out} Ausgänge neu beschriftet.',
+  'export.labelsImportWarnings': '{n} Zeilen wurden nicht erkannt:',
   'vhx.discover.found': 'Gefunden ({n}) — Klick übernimmt IP/Port',
   'vhx.push.heading':
     'An Videohub senden (TCP) — offline bearbeiten und pushen, sobald das richtige Netz da ist',

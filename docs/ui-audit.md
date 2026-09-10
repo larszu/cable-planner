@@ -586,6 +586,25 @@ nicht erst, wenn jemand eine halb übersetzte Seite meldet.
       eng. Der Satz ist jetzt **ein** Schlüssel mit Platzhalter statt eines
       Satzes plus eingebettetem `<code>`.
 
+      **Dritter Nachtrag: die eigenen Dialoge, nicht die des Browsers.**
+      Der Zähler kannte `alert`, `confirm` und `prompt` — Formen, die diese
+      App gar nicht mehr benutzt: der `dialogs:native`-Wächter der Suite
+      verbietet sie, an ihrer Stelle stehen `infoDialog`, `confirmDialog`
+      und `promptDialog` aus `renderer/lib/`. Die Liste war also eine Liste
+      der Formen, die es **nicht mehr gibt**, und ihre Null damit wertlos.
+      Dazu kommt `{ body: '…' }`: der Titel steht im ersten Argument, der
+      längere und wichtigere Fließtext in den Optionen.
+
+      Gemessen nach der Erweiterung: **fünf deutsche Rückfragen in
+      `App.tsx`** — darunter „Neuer Stecker-Typ (z. B. „Speakon NL4"):",
+      also eine **Eingabeaufforderung**, ohne deren Verständnis niemand
+      weitermacht. Zwei weitere fand dabei das Auge in
+      `VideohubExportDialog`: „⚠ {n} Zeilen nicht erkannt" und „{in} Inputs
+      · {out} Outputs neu beschriftet" — keine davon ist JSX-Text, Attribut
+      oder `t()`-Fallback, sondern eine gewöhnliche Zuweisung an eine
+      Variable, die später im Dialog landet. **Diese Form sieht der Zähler
+      weiterhin nicht**, und das steht hier, statt verschwiegen zu werden.
+
       **Der Preis ist benannt:** ein Lauf, der über `{` hinweggeht, endet öfter
       mitten im Ausdruck. `NACH_CODE` hat deshalb `return`, `null`, `typeof`,
       `??` und `if (` dazubekommen — `if` steht auf der **englischen**
