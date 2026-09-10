@@ -3459,7 +3459,9 @@ export const de: Dict = {
     'Chromium printToPDF. Text bleibt selektierbar & scharf bei jedem Zoom. Kleinere Dateigröße.',
   'pdfExport.title': 'Plan als PDF exportieren',
   'pendingCable.banner':
-    'Kabel zeichnen: Klick auf Canvas für Knick, Klick auf Port zum Beenden, Esc zum Abbrechen.',
+    'Kabel zeichnen: Tippen auf die Fläche setzt einen Knick, Tippen auf einen Port beendet.',
+  'pendingCable.cancel': 'Abbrechen',
+  'pendingCable.undoBend': 'Knick zurück',
   'planCheck.allClear': 'Keine Auffälligkeiten gefunden.',
   'planCheck.footerHint':
     'Live-Validierung des Plans. Klick auf einen Hinweis selektiert das betroffene Element.',

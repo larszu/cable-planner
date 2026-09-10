@@ -1045,6 +1045,15 @@ interface UiState extends PersistedUiState {
   } | null
   startPendingCable: (start: { nodeId: string; handleId: string; handleType: 'source' | 'target' }) => void
   addPendingWaypoint: (pt: { x: number; y: number }) => void
+  /**
+   * Undo the last bend the user placed (#834).
+   *
+   * A no-op when there is no bend left. It deliberately does NOT fall through
+   * to cancelling the cable: on a touch screen a mis-tap is common, and a
+   * "back" button that silently throws away the whole line once the last bend
+   * is gone would punish exactly the tap that was meant to correct one.
+   */
+  removeLastPendingWaypoint: () => void
   clearPendingCable: () => void
 }
 
@@ -1486,6 +1495,12 @@ export const useUiStore = create<UiState>((set) => ({
     set((state) =>
       state.pendingCable
         ? { pendingCable: { ...state.pendingCable, waypoints: [...state.pendingCable.waypoints, pt] } }
+        : state,
+    ),
+  removeLastPendingWaypoint: () =>
+    set((state) =>
+      state.pendingCable && state.pendingCable.waypoints.length > 0
+        ? { pendingCable: { ...state.pendingCable, waypoints: state.pendingCable.waypoints.slice(0, -1) } }
         : state,
     ),
   clearPendingCable: () => set({ pendingCable: null }),

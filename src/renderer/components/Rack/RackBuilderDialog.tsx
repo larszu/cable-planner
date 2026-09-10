@@ -1621,6 +1621,12 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
         onPlacementRenamed={(placementId, newName) => {
           updatePlacement(placementId, { name: newName })
         }}
+        onPlacementPortsChanged={(placementId, ports) => {
+          // #833 — Der Draft ist die einzige Stelle, an der ein Port-Name den
+          // Dialog ueberlebt: der Scratch-Store der Verkabelungs-Sicht hat
+          // keinen Autosave und faellt beim Schliessen weg.
+          updatePlacement(placementId, { inputs: ports.inputs, outputs: ports.outputs })
+        }}
         onPlacementMoved={(placementId, x, y) => {
           // v7.9.14 — Canvas-Position des Geräts im Internal-Canvas in den
           // Draft persistieren. Beim Save landet sie in
