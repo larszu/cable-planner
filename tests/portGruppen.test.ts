@@ -147,6 +147,36 @@ describe('Die nächste Gruppen-Id', () => {
   })
 })
 
+describe('Der Powerlock-Satz (#665)', () => {
+  const satz = (rollen: readonly string[]) =>
+    rollen.map((r) =>
+      port({ id: `p-${r}`, portGroup: 'PL-IN', portGroupKind: 'powerlock', portGroupRole: r }),
+    )
+
+  it('sind fünf Adern und nicht eine', () => {
+    // Sie als EINEN Port zu führen wäre bequem und falsch: auf dem Blatt
+    // stünde ein Kabel, wo fünf liegen, und die Stückliste zählte vier zu
+    // wenig.
+    expect(PORT_GROUP_INFO.powerlock.groesse).toBe(5)
+    expect(PORT_GROUP_INFO.powerlock.rollen).toEqual(['L1', 'L2', 'L3', 'N', 'PE'])
+  })
+
+  it('ein vollständiger Satz gibt nichts zurück', () => {
+    expect(gruppenBefunde(satz(['L1', 'L2', 'L3', 'N', 'PE']))).toEqual([])
+  })
+
+  it('ein Satz OHNE PE fällt auf', () => {
+    // Der Fall, um den es geht. Vier zu stecken und den fünften zu vergessen
+    // ist kein halber Anschluss.
+    expect(gruppenBefunde(satz(['L1', 'L2', 'L3', 'N']))).toContainEqual({
+      art: 'groesse',
+      gruppe: 'PL-IN',
+      erwartet: 5,
+      ist: 4,
+    })
+  })
+})
+
 describe('Jede Art nennt Rollen, die zu ihrer Größe passen', () => {
   it('so viele Rollen wie Mitglieder — oder gar keine', () => {
     // Sonst böte die Oberfläche eine Rolle an, die in keine Gruppe passt, und

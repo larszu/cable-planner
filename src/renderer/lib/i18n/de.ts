@@ -3479,6 +3479,7 @@ export const de: Dict = {
   'ports.group.ms': 'M/S',
   'ports.group.new': '+ Neue Gruppe …',
   'ports.group.other': 'Sonstige',
+  'ports.group.powerlock': 'Powerlock-Satz (L1/L2/L3/N/PE)',
   'ports.group.roleAria': 'Rolle in der Gruppe',
   'ports.group.roleNone': '— Rolle? —',
   'ports.group.roleTwice':

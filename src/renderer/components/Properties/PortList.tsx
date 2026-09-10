@@ -875,6 +875,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                     <option value="ms">{t('ports.group.ms', 'M/S')}</option>
                     <option value="sum">{t('ports.group.sum', 'Sum (A/B)')}</option>
                     <option value="bridge">{t('ports.group.bridge', 'Bridged (+/-)')}</option>
+                    <option value="powerlock">{t('ports.group.powerlock', 'Powerlock set (L1/L2/L3/N/PE)')}</option>
                     <option value="sonstige">{t('ports.group.other', 'Other')}</option>
                   </select>
                   <select

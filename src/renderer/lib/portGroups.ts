@@ -35,6 +35,11 @@ export const PORT_GROUP_INFO: Record<
   ms: { groesse: 2, rollen: ['M', 'S'] },
   sum: { groesse: 2, rollen: ['A', 'B'] },
   bridge: { groesse: 2, rollen: ['+', '-'] },
+  // #665 — Ein Powerlock-Satz ist FUENF einzelne Verbinder, die zusammen EINE
+  // Einspeisung bilden. Genau der Fall, den ein einzelnes Kabel nicht abbildet
+  // und den die Gruppe traegt: vier davon zu stecken und den fuenften zu
+  // vergessen ist kein halber Anschluss, sondern ein Fehler mit Folgen.
+  powerlock: { groesse: 5, rollen: ['L1', 'L2', 'L3', 'N', 'PE'] },
   sonstige: { rollen: [] },
 }
 

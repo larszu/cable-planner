@@ -130,6 +130,43 @@ const verteiler = (
   ),
 })
 
+/**
+ * Ein Powerlock-Satz (#665).
+ *
+ * ─── WARUM ER NICHT WIE EINE LEISTE AUSSIEHT ───────────────────────────────
+ *
+ * Eine Steckdosenleiste hat EINEN Eingang. Ein Powerlock-Satz hat fuenf
+ * einzelne Verbinder — L1, L2, L3, N, PE —, die zusammen EINE Einspeisung
+ * bilden. Sie als einen Port zu fuehren waere bequem und falsch: auf dem
+ * Blatt stuende ein Kabel, wo fuenf liegen, und die Stueckliste zaehlte vier
+ * zu wenig.
+ *
+ * Zusammengehalten werden sie ueber `portGroup` (#832) — mit Rollen, damit
+ * PE nicht in der Reihenfolge untergeht. Vier zu stecken und den fuenften zu
+ * vergessen ist kein halber Anschluss.
+ */
+const powerlockSatz = (name: string): EquipmentTemplate => {
+  const ADERN = ['L1', 'L2', 'L3', 'N', 'PE'] as const
+  const seite = (praefix: string, gruppe: string) =>
+    ADERN.map((rolle) => ({
+      id: '',
+      name: `${praefix} ${rolle}`,
+      type: 'Powerlock' as ConnectorType,
+      connectorType: 'Powerlock' as ConnectorType,
+      portGroup: gruppe,
+      portGroupKind: 'powerlock' as const,
+      portGroupRole: rolle,
+    }))
+  return {
+    name,
+    category: 'Power distribution',
+    width: 240,
+    height: 80,
+    inputs: seite('In', 'PL-IN'),
+    outputs: seite('Out', 'PL-OUT'),
+  }
+}
+
 export const passiveTemplates: EquipmentTemplate[] = [
   blende('Patch panel 12x BNC', 12, 'BNC'),
   blende('Patch panel 24x BNC', 24, 'BNC'),
@@ -144,6 +181,8 @@ export const passiveTemplates: EquipmentTemplate[] = [
   leiste('Steckdosenleiste 6-fach', 6, 'Schuko 230V', 'Schuko 230V'),
   leiste('Steckdosenleiste 8-fach', 8, 'Schuko 230V', 'Schuko 230V'),
   leiste('IEC-Leiste 8-fach', 8, 'IEC 230V', 'IEC 230V'),
+
+  powerlockSatz('Powerlock set 5x (L1/L2/L3/N/PE)'),
 
   verteiler('Distro CEE32', 'CEE32', [
     { name: 'Schuko', n: 6, connectorType: 'Schuko 230V', absicherungA: 16 },

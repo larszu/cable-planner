@@ -123,7 +123,7 @@ export type ConnectorType =
  * Vor- und Ruecklauf einer Regelung). Sie mit einem Namen zu fuehren ist
  * ehrlicher, als sie in `stereo` zu pressen.
  */
-export type PortGroupKind = 'stereo' | 'ms' | 'sum' | 'bridge' | 'sonstige'
+export type PortGroupKind = 'stereo' | 'ms' | 'sum' | 'bridge' | 'powerlock' | 'sonstige'
 
 /** All valid connector type values in display order. */
 export const ALL_CONNECTOR_TYPES: ConnectorType[] = [
