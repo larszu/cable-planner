@@ -22,6 +22,7 @@ import { PowerConsumptionSection } from './sections/PowerConsumptionSection'
 import { CircuitSection } from './sections/CircuitSection'
 import { AdapterSection } from './sections/AdapterSection'
 import { DmxSection } from './sections/DmxSection'
+import { HausSection } from './sections/HausSection'
 import { SinkProfileSection } from './sections/SinkProfileSection'
 import { SwitchingSection } from './sections/SwitchingSection'
 import { DisplayPropertiesBlock } from './sections/DisplayPropertiesBlock'
@@ -170,6 +171,7 @@ export const EquipmentProperties = () => {
           Namensabgleich liefern kann und die im Aufbau darueber entscheiden,
           ob ueberhaupt etwas ankommt. */}
       <DmxSection equipment={equipment} />
+      <HausSection equipment={equipment} />
       <SinkProfileSection equipment={equipment} />
       <SwitchingSection equipment={equipment} />
 

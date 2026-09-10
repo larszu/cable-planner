@@ -109,6 +109,10 @@ const HARMLOS = new Set(
     // gemeldet — die Silbengrenze faellt in „Ste-uer" mitten in ein „ue".
     // Dasselbe gilt fuer die uebrigen Zusammensetzungen mit „Steuer-", die
     // in dieser Liste noch fehlten.
+    // facility Issue #2 (2026-09-10): dieselbe Silbengrenze noch einmal —
+    // „Ste-ueradresse" und „Da-uerleistung". Beide sind richtiges Deutsch und
+    // heissen genau das, was das Gebaeude angibt.
+    'steueradresse', 'steueradressen', 'dauerleistung',
     'steuerzeichen', 'steuerbefehl', 'steuerbefehle', 'steuerprotokoll',
     'steuerprotokolle', 'steuerport', 'steuerweg', 'steuerwege',
     'frequenzen', 'frequenzgang', 'frequenzabstand', 'funkfrequenz',

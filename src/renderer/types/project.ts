@@ -3,6 +3,7 @@ import type { EquipmentItem } from './equipment'
 import type { IntercomPlan } from './intercomPlan'
 import type { LocationFrame } from './location'
 import type { VenueAnswer } from './venueAnswer'
+import type { HausAuskunft } from './hausAuskunft'
 import type { VideoFormatId } from './videoFormat'
 import type { PowerStandardId } from './powerStandard'
 import type { ChangeLogEntry, PendingChange } from './lifecycle'
@@ -148,6 +149,7 @@ export interface ProjectMetadata {
    * behaupten, die es hier nie gab.
    */
   venueAnswers?: VenueAnswer[]
+
   /** Festinstallation — Übergabe-/Abnahme-Datum (ISO). */
   handoverDate?: string
   /** Festinstallation — wartender Dienstleister / Servicekontakt. */
@@ -201,6 +203,21 @@ export interface CablePlannerProject {
    * (ADR-001).
    */
   intercom?: IntercomPlan
+  /**
+   * Die Auskunft des GEBAEUDES, gegen die geplant wurde
+   * (`larszu-facility-planner` Issue #2).
+   *
+   * Sie kommt als `.avfacility`-Datei herein und wird hier MITGESPEICHERT —
+   * nicht, weil der Plan das Haus verwaltet, sondern damit ein Plan von
+   * gestern noch sagen kann, worauf er sich stuetzte. Zwischen Export und
+   * Aufbau kann der Betreiber eine Dose stillgelegt haben; `gelesenAm` und
+   * `quelle` machen den Stand nachvollziehbar, statt ihn als heutigen
+   * Zustand auszugeben.
+   *
+   * READ-ONLY. Der Planer aendert sie nicht — der einzige Rueckweg zum
+   * Gebaeude ist `mangelMelden` im `facility-planner`.
+   */
+  hausAuskunft?: HausAuskunft
   /** v7.9.3 — Aufbau-Status: welche Ports / Kabel der Field-Tech bereits
    *  physikalisch gesteckt hat. Wird vom Mobile-Viewer (handy.html) via
    *  POST /checks zurückgespielt und im Haupt-Canvas als kleines Häkchen

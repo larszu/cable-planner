@@ -37,6 +37,7 @@ export type MetaSlice = Pick<
   | 'setMulticastConfig'
   | 'setFallbackPlan'
   | 'setEventMetadata'
+  | 'setHausAuskunft'
   | 'setTransmissionRecord'
   | 'setCostPlan'
   | 'setNamingScheme'
@@ -325,6 +326,16 @@ export const createMetaSlice: StateCreator<ProjectState, [], [], MetaSlice> = (s
   setEventMetadata: (plan) =>
     set((state) => {
       const updated = { ...state.project, eventMetadata: plan }
+      scheduleProjectAutosave(updated)
+      return { project: updated }
+    }),
+  // Die Auskunft des GEBAEUDES (facility Issue #2). Ein Setter fuer das ganze
+  // Objekt, aus demselben Grund wie oben: Punkte, Klinken und der Zeitpunkt
+  // gehoeren zusammen. Eine Auskunft, deren Punkte von heute und deren Datum
+  // von letzter Woche ist, waere schlimmer als keine.
+  setHausAuskunft: (auskunft) =>
+    set((state) => {
+      const updated = { ...state.project, hausAuskunft: auskunft }
       scheduleProjectAutosave(updated)
       return { project: updated }
     }),

@@ -361,6 +361,22 @@ export interface ProjectState {
   ) => string[]
   updateEquipment: (id: string, patch: Partial<EquipmentItem>) => void
   /**
+   * Die Auskunft des Gebaeudes uebernehmen (facility Issue #2).
+   *
+   * ERSETZT die bisherige, und zwar ganz. Zwei Gebaeude zusammenzufuehren
+   * waere die naheliegende Bequemlichkeit und die falsche: die Ids sind je
+   * Haus unabhaengig vergeben, und ein `p1` von hier ist nicht das `p1` von
+   * dort. Wer sie mischt, bekommt eine Dose mit der Absicherung einer
+   * anderen — und der Plan-Check schweigt dazu, weil beide Verweise ja
+   * aufloesen.
+   *
+   * `undefined` loescht sie. Die Verweise an den Geraeten bleiben stehen:
+   * sie sind die Absicht des Planers, und die verschwindet nicht, weil
+   * gerade keine Datei hinterlegt ist. Der Plan-Check schweigt dann
+   * vollstaendig (siehe `runDrawingChecks`), statt jedes Geraet zu melden.
+   */
+  setHausAuskunft: (auskunft: import('../types/hausAuskunft').HausAuskunft | undefined) => void
+  /**
    * #314 — Geraet auf dem Canvas durch ein anderes Library-Template
    * ersetzen. Ports werden anhand (connectorType, contentLabel/name,
    * dann positional) gemappt; Kabel die kein Mapping bekommen werden
