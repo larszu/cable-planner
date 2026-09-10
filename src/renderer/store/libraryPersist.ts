@@ -2,6 +2,7 @@ import type { EquipmentTemplate } from '../types/equipment'
 import { STORAGE_KEYS } from '../lib/storageKeys'
 import { syncDevicesToFolder } from '../lib/librarySync'
 import { LEGACY_CATEGORY_RENAMES } from '../lib/categoryTranslations'
+import { heileVorlagenName } from '../lib/templateRenames'
 import { heileSteckertyp } from '../lib/connectorRenames'
 
 /**
@@ -66,6 +67,11 @@ export const loadCustomLibrary = (): EquipmentTemplate[] => {
       }))
     return items.map((t) => ({
       ...t,
+      // #837 — der Name einer ausgelieferten Vorlage IST ihre Kennung: die
+      // Seed-Stufe in `projectStore` gleicht ueber `byName` ab. Ohne diese
+      // Zeile stuende nach dem Umbenennen die alte deutsche Vorlage neben der
+      // neuen englischen.
+      name: heileVorlagenName(t.name),
       ...(t.category && LEGACY_CATEGORY_RENAMES[t.category]
         ? { category: LEGACY_CATEGORY_RENAMES[t.category] }
         : {}),

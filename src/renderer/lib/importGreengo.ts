@@ -9,11 +9,7 @@
  */
 
 import type { GreenGoConfig, GreenGoGroup, GreenGoUser, GreenGoKey } from '../types/greengo'
-import { translate } from './i18n'
-import { useUiStore } from '../store/uiStore'
-
-const tr = (key: string, fallback: string) =>
-  translate(useUiStore.getState().language, key, fallback)
+import { tr } from './i18n'
 
 // ── Result types ─────────────────────────────────────────────────────────────
 

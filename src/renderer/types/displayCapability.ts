@@ -48,6 +48,7 @@
 // REIN: keine Uhr, kein Store, kein IO.
 // ───────────────────────────────────────────────────────────────────────────
 import { VIDEO_FORMATS, type VideoFormatId } from './videoFormat'
+import { einsetzen, type Platzhalterwerte } from '../lib/platzhalter'
 
 /** Bits je Farbkanal. */
 export type Farbtiefe = 8 | 10 | 12
@@ -119,6 +120,12 @@ export type BildUrteilArt = 'passt' | 'passt-nicht' | 'offen'
 export interface BildUrteil {
   art: BildUrteilArt
   text: string
+  /**
+   * Schluessel und Werte dieses Satzes — uebersetzt wird beim Anzeigen, nicht
+   * hier (siehe Kopf von `types/adapter.ts`): `format(tr(b.schluessel, b.text), b.werte)`.
+   */
+  schluessel: string
+  werte: Platzhalterwerte
 }
 
 /**
@@ -137,7 +144,12 @@ export const beurteileBild = (
   if (!profil) {
     return {
       art: 'offen',
-      text: `${senkenName}: es ist nicht erklärt, welche Formate dieses Gerät annimmt. Ob ${wunsch.formatId} ankommt, weiss der Plan nicht.`,
+      schluessel: 'display.noProfile',
+      werte: { sink: senkenName, format: wunsch.formatId },
+      text: einsetzen(
+          '{sink}: it is not stated which formats this device accepts. The plan does not know whether {format} arrives.',
+          { sink: senkenName, format: wunsch.formatId },
+        ),
     }
   }
 
@@ -145,7 +157,12 @@ export const beurteileBild = (
   if (!treffer) {
     return {
       art: 'passt-nicht',
-      text: `${senkenName} nimmt ${wunsch.formatId} nicht an — im erklärten Profil steht es nicht (${profil.formate.length} Format(e) erklärt).`,
+      schluessel: 'display.formatRejected',
+      werte: { sink: senkenName, format: wunsch.formatId, n: profil.formate.length },
+      text: einsetzen(
+          '{sink} does not accept {format} - it is not in the stated profile ({n} format(s) stated).',
+          { sink: senkenName, format: wunsch.formatId, n: profil.formate.length },
+        ),
     }
   }
 
@@ -163,7 +180,24 @@ export const beurteileBild = (
     if (!erklaert.includes(gewuenscht)) {
       return {
         art: 'passt-nicht',
-        text: `${senkenName} nimmt ${wunsch.formatId} an, aber nicht mit ${name} ${gewuenscht} — erklärt sind: ${erklaert.join(', ')}.`,
+        schluessel: 'display.propertyRejected',
+        werte: {
+            sink: senkenName,
+            format: wunsch.formatId,
+            property: name,
+            wanted: gewuenscht,
+            stated: erklaert.join(', '),
+          },
+        text: einsetzen(
+            '{sink} accepts {format}, but not with {property} {wanted} - stated are: {stated}.',
+            {
+            sink: senkenName,
+            format: wunsch.formatId,
+            property: name,
+            wanted: gewuenscht,
+            stated: erklaert.join(', '),
+          },
+          ),
       }
     }
   }
@@ -173,12 +207,25 @@ export const beurteileBild = (
     if (erklaert.length === 0) {
       return {
         art: 'offen',
-        text: `${senkenName} nimmt ${wunsch.formatId} an, aber zur ${name} ist nichts erklärt. Ob ${gewuenscht} ankommt, weiss der Plan nicht.`,
+        schluessel: 'display.propertyUnknown',
+        werte: { sink: senkenName, format: wunsch.formatId, property: name, wanted: gewuenscht },
+        text: einsetzen(
+            '{sink} accepts {format}, but nothing is stated about {property}. The plan does not know whether {wanted} arrives.',
+            { sink: senkenName, format: wunsch.formatId, property: name, wanted: gewuenscht },
+          ),
       }
     }
   }
 
-  return { art: 'passt', text: `${senkenName} nimmt ${wunsch.formatId} an.` }
+  return {
+    art: 'passt',
+    schluessel: 'display.accepted',
+    werte: { sink: senkenName, format: wunsch.formatId },
+    text: einsetzen('{sink} accepts {format}.', {
+      sink: senkenName,
+      format: wunsch.formatId,
+    }),
+  }
 }
 
 // ─── SCHEMA-HEILUNG ────────────────────────────────────────────────────────

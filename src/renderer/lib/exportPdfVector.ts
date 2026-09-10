@@ -22,8 +22,7 @@
 import type { ProjectMetadata } from '../types/project'
 import { composeExportBackground, type ExportBgVariant } from './exportBackground'
 import { buildExportFilename } from './exportFilename'
-import { translate } from './i18n'
-import { useUiStore } from '../store/uiStore'
+import { tr, format } from './i18n'
 
 /** v7.9.103 — Standard-Page-Sizes fuer Plotter-/Print-Workflows. 'auto'
  *  kappt auf A0-Landscape (Default, max. Viewer-Kompatibilitaet). 'original'
@@ -103,11 +102,7 @@ const computeNaturalBbox = (viewportEl: HTMLElement): BoundingBox => {
   )
   if (nodeEls.length === 0) {
     throw new Error(
-      translate(
-        useUiStore.getState().language,
-        'export.pdf.errNoDevices',
-        'Keine Geräte zum Exportieren vorhanden',
-      ),
+      tr('export.pdf.errNoDevices', 'No devices to export'),
     )
   }
   const parseTranslate = (el: HTMLElement): { x: number; y: number } => {
@@ -168,11 +163,7 @@ const computeNaturalBbox = (viewportEl: HTMLElement): BoundingBox => {
   }
   if (!isFinite(minX) || !isFinite(minY) || !isFinite(maxX) || !isFinite(maxY)) {
     throw new Error(
-      translate(
-        useUiStore.getState().language,
-        'export.errMeasureCanvas',
-        'Konnte den Inhalt des Canvas nicht vermessen',
-      ),
+      tr('export.errMeasureCanvas', 'The canvas content could not be measured'),
     )
   }
   const padding = 200
@@ -453,19 +444,15 @@ export const exportCanvasToPdfVector = async (
   const canvasEl = document.getElementById('cable-planner-canvas') as HTMLElement | null
   if (!canvasEl)
     throw new Error(
-      translate(useUiStore.getState().language, 'export.errCanvasNotFound', 'Canvas nicht gefunden'),
+      tr('export.errCanvasNotFound', 'Canvas not found'),
     )
   const viewportEl = canvasEl.querySelector('.react-flow__viewport') as HTMLElement | null
   if (!viewportEl)
     throw new Error(
-      translate(
-        useUiStore.getState().language,
-        'export.errViewportNotFound',
-        'ReactFlow-Viewport nicht gefunden',
-      ),
+      tr('export.errViewportNotFound', 'ReactFlow viewport not found'),
     )
 
-  onProgress('measure', 'Inhalt vermessen…')
+  onProgress('measure', tr('export.pdf.measuring', 'Measuring the content…'))
   const bbox = computeNaturalBbox(viewportEl)
 
   const themeDark = options?.backgroundTheme !== 'light'
@@ -479,7 +466,7 @@ export const exportCanvasToPdfVector = async (
   const bgFallback = composed.bgFallback
   const textColor = themeDark ? '#e2e8f0' : '#0f172a'
 
-  onProgress('styles', 'Stylesheets sammeln…')
+  onProgress('styles', tr('export.pdf.collectingStyles', 'Collecting stylesheets…'))
   const appCss = collectAllCss()
   if (appCss.length < 1000) {
     console.warn(
@@ -531,19 +518,30 @@ export const exportCanvasToPdfVector = async (
 
   onProgress(
     'capture',
-    `Canvas-DOM klonen (zoom ${(canvasScale * 100).toFixed(0)}%, Body ${bodyWidthPx}×${bodyHeightPx}px)…`,
+    format(
+      tr('export.pdf.cloning', 'Cloning the canvas DOM (zoom {zoom}%, body {w}×{h} px)…'),
+      { zoom: (canvasScale * 100).toFixed(0), w: bodyWidthPx, h: bodyHeightPx },
+    ),
   )
   const canvasClone = cloneCanvasForPrint(canvasEl, bbox)
   const canvasOuterHtml = canvasClone.outerHTML
   if (canvasOuterHtml.length < 1000) {
     throw new Error(
-      `Canvas-Clone ist verdächtig klein (${canvasOuterHtml.length} bytes) — Export abgebrochen.`,
+      format(
+        tr(
+          'export.pdf.cloneTooSmall',
+          'The canvas clone is suspiciously small ({bytes} bytes) - the export was aborted.',
+        ),
+        { bytes: canvasOuterHtml.length },
+      ),
     )
   }
 
   onProgress(
     'compose',
-    `Print-HTML bauen (${Math.round((appCss.length + canvasOuterHtml.length) / 1024)} KB)…`,
+    format(tr('export.pdf.composing', 'Building the print HTML ({kb} KB)…'), {
+      kb: Math.round((appCss.length + canvasOuterHtml.length) / 1024),
+    }),
   )
   const html = buildPrintHtml({
     appCss,
@@ -564,12 +562,12 @@ export const exportCanvasToPdfVector = async (
     themeDark,
   })
 
-  onProgress('render', `Chromium printToPDF…`)
+  onProgress('render', tr('export.pdf.rendering', 'Chromium printToPDF…'))
   const widthMicrons = Math.round(bodyWidthPx * PX_TO_MICRONS)
   const heightMicrons = Math.round(bodyHeightPx * PX_TO_MICRONS)
   const bytes = await handler({ html, widthMicrons, heightMicrons })
 
-  onProgress('save', 'Datei speichern…')
+  onProgress('save', tr('export.pdf.saving', 'Saving the file…'))
   if (!bytes || bytes.byteLength < 1000) {
     throw new Error(
       `printToPDF lieferte verdächtig wenig zurück (${bytes?.byteLength ?? 0} bytes).`,
@@ -585,5 +583,5 @@ export const exportCanvasToPdfVector = async (
   a.click()
   a.remove()
   URL.revokeObjectURL(url)
-  onProgress('done', 'Fertig.')
+  onProgress('done', tr('export.pdf.done', 'Done.'))
 }

@@ -38,11 +38,7 @@
 // "stream has been externalized"-Dev-Warnung.
 import type * as XLSXNs from 'xlsx-js-style'
 import type { GreenGoConfig, GreenGoGroup, GreenGoUser } from '../types/greengo'
-import { translate, format } from './i18n'
-import { useUiStore } from '../store/uiStore'
-
-const tr = (key: string, fallback: string) =>
-  translate(useUiStore.getState().language, key, fallback)
+import { tr, format } from './i18n'
 
 /** What a single cell can contain after we've stringified it. */
 type Cell = string

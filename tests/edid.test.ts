@@ -45,7 +45,7 @@ describe('Drei Urteile — und „nicht erklärt" ist keins von beiden anderen',
   it('ohne Profil: offen, nicht passt und nicht passt-nicht', () => {
     const u = beurteileBild(undefined, { formatId: '1080p50' }, 'Monitor 1')
     expect(u.art).toBe('offen')
-    expect(u.text).toContain('nicht erklärt')
+    expect(u.text).toContain('it is not stated')
   })
 
   it('Format im Profil: passt', () => {
