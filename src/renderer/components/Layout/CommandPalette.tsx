@@ -18,7 +18,8 @@ import {
   triggerCanvasSelectAll,
   triggerCanvasDuplicate,
 } from '../../lib/canvasViewport'
-import { useTranslation } from '../../lib/i18n'
+import { format, useTranslation } from '../../lib/i18n'
+import { infoDialog } from '../../lib/infoDialog'
 import { Icon } from '../shared/Icon'
 import { useDialogA11y } from '../../hooks/useDialogA11y'
 import { useBackdropClose } from '../../hooks/useBackdropClose'
@@ -102,6 +103,28 @@ export const CommandPalette = () => {
       { id: 'recStorage', group: gTools, title: t('app.menu.tools.recStorage', 'Calculate recording storage…'), run: () => ui().openRecordingStorageCalc() },
       { id: 'projection', group: gTools, title: t('app.menu.tools.projection', 'Projection & display…'), run: () => ui().openProjectionCalc() },
       { id: 'installDocs', group: gTools, title: t('app.menu.tools.installDocs', 'Fixed install: docs & handover…'), run: () => ui().openInstallDocs() },
+      {
+        id: 'dmxPatch',
+        group: gTools,
+        title: t('palette.dmxPatch', 'Assign DMX addresses…'),
+        run: () => {
+          const { vergeben, uebersprungen } = useProjectStore.getState().vergibDmxAdressen()
+          // Die Aktion sagt, was sie getan hat. Eine Automatik, die stumm
+          // laeuft, laesst den Nutzer raten, ob sie gegriffen hat — und
+          // „uebersprungen" ist hier die wichtigere Zahl: das sind die
+          // Geraete ohne Modus, deren Fussabdruck niemand kennt.
+          void infoDialog(t('palette.dmxPatchDone', 'DMX addresses assigned'), {
+            body: format(
+              t(
+                'palette.dmxPatchSummary',
+                '{n} devices got an address, {skipped} were skipped because no mode is set. The plan check lists every collision.',
+              ),
+              { n: vergeben, skipped: uebersprungen },
+            ),
+            tone: 'info',
+          })
+        },
+      },
       { id: 'loadDemo', group: gTools, title: t('canvas.empty.loadDemo', 'Load example project'), run: () => { useProjectStore.getState().loadDemoProject(); setTimeout(() => triggerCanvasFitView(), 80) } },
       { id: 'settings', group: gHelp, title: t('palette.settings', 'Settings…'), run: () => ui().openSettings() },
       { id: 'shortcuts', group: gHelp, title: t('app.menu.help.shortcuts', 'Keyboard shortcuts…'), run: () => window.dispatchEvent(new CustomEvent('cp:open-shortcuts-help')) },

@@ -21,6 +21,7 @@ import { DimensionsSection } from './sections/DimensionsSection'
 import { PowerConsumptionSection } from './sections/PowerConsumptionSection'
 import { CircuitSection } from './sections/CircuitSection'
 import { AdapterSection } from './sections/AdapterSection'
+import { DmxSection } from './sections/DmxSection'
 import { SinkProfileSection } from './sections/SinkProfileSection'
 import { SwitchingSection } from './sections/SwitchingSection'
 import { DisplayPropertiesBlock } from './sections/DisplayPropertiesBlock'
@@ -165,6 +166,10 @@ export const EquipmentProperties = () => {
           wann zieht es ueberhaupt. */}
       <CircuitSection equipment={equipment} />
       <AdapterSection equipment={equipment} />
+      {/* DMX direkt hinter dem Adapter: beides sind Angaben, die kein
+          Namensabgleich liefern kann und die im Aufbau darueber entscheiden,
+          ob ueberhaupt etwas ankommt. */}
+      <DmxSection equipment={equipment} />
       <SinkProfileSection equipment={equipment} />
       <SwitchingSection equipment={equipment} />
 

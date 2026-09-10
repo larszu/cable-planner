@@ -26,6 +26,7 @@ import { beurteileAdapter } from '../types/adapter'
 import { anschlussBefunde, type AnschlussLeitung } from '../types/conductor'
 import { beurteileBild } from '../types/displayCapability'
 import { gruppenBefunde } from './portGroups'
+import { pruefeAdressen, type DmxGeraet } from './dmx'
 import { tr, format } from './i18n'
 export type { CheckSeverity, CheckFinding } from '../types/checkFinding'
 import type { CheckSeverity, CheckFinding } from '../types/checkFinding'
@@ -1044,6 +1045,47 @@ export const runDrawingChecks = (
         })
       }
     }
+  }
+
+  // — Check 25: DMX-Adressen (Lampen, Moving Heads) ------------------------
+  //
+  // Gerechnet wird in `lib/dmx/` — demselben Code, den der light-planner als
+  // `@avplan/dmx-core` fuehrt. Zwei Rechnungen fuer dieselbe Buehne waeren
+  // genau die Defektform `zwei-rechnungen`, und sie faellt hier besonders
+  // teuer aus: der Kabelplan und der Lichtplan saehen beide richtig aus und
+  // meinten verschiedene Adressen.
+  //
+  // NUR GERAETE, DIE ETWAS ERKLAEREN. Angesprungen wird, wo ein DMX-Profil
+  // ODER eine Adresse steht. Aus der Kategorie zu schliessen („Licht" -> hat
+  // DMX) waere der Namensabgleich, gegen den ADR-002 steht — und er faellt
+  // hier in die falsche Richtung: eine konventionelle Stufenlinse am Dimmer
+  // hat keine Adresse und bekaeme trotzdem einen Befund.
+  const dmxGeraete: DmxGeraet[] = equipment
+    .filter((e) => e.dmxProfil || e.dmxAdresse !== undefined)
+    .map((e) => ({
+      id: e.id,
+      name: e.name,
+      profil: e.dmxProfil,
+      modusId: e.dmxModusId,
+      universe: e.dmxUniverse,
+      adresse: e.dmxAdresse,
+      adresseFestgesetzt: e.dmxAdresseFestgesetzt,
+      x: e.x,
+      y: e.y,
+    }))
+  const DMX_SCHWERE: Record<string, CheckSeverity> = {
+    fehler: 'error',
+    warnung: 'warning',
+    hinweis: 'info',
+  }
+  for (const b of pruefeAdressen(dmxGeraete)) {
+    findings.push({
+      id: `dmx-${b.art}:${b.geraetId}${b.anderesGeraetId ? `:${b.anderesGeraetId}` : ''}`,
+      severity: DMX_SCHWERE[b.schwere] ?? 'info',
+      category: 'DMX address',
+      message: format(tr(b.schluessel, b.text), b.werte),
+      equipmentId: b.geraetId,
+    })
   }
 
   // Sortierung: error → warning → info, innerhalb stabil nach category.

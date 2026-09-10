@@ -82,6 +82,17 @@ export const MODEL_FIELDS = [
   // Exemplar muesste man es bei jedem Herausziehen neu eintragen, und wer das
   // vergisst, bekommt „nicht erklaert" statt der Angabe, die es schon gab.
   'senkenprofil',
+  // DMX — die MODI eines Geraetetyps. MODELL und nicht Exemplar: welche
+  // Betriebsarten ein Robin MegaPointe kennt und wie viele Kanaele jede
+  // belegt, ist eine Eigenschaft des Geraets, nicht dieses einen Kopfes im
+  // Rig. Sie ins Exemplar zu legen hiesse, die Modusliste bei jedem
+  // Herausziehen aus der Bibliothek neu einzutippen — und wer das vergisst,
+  // bekommt „kein Modus" und damit keine Adresse.
+  //
+  // Die GEWAEHLTE Betriebsart (`dmxModusId`) steht dagegen unten bei den
+  // Exemplar-Feldern: welchen Modus DIESER Kopf faehrt, entscheidet der Rig,
+  // nicht der Hersteller.
+  'dmxProfil',
   'tallyRole',
   'tcRole',
   'embedderRole',
@@ -138,6 +149,20 @@ export const MODEL_FIELDS = [
  * Adresskonflikt, bei `assetTag` zwei Geraete mit derselben Inventarnummer.
  */
 export const INSTANCE_FIELDS = [
+  // DMX am EXEMPLAR — welcher Modus gefahren wird und wo das Geraet steht.
+  //
+  // Warum der Modus hier und nicht am Modell: in einem Rig laufen nicht
+  // zwangslaeufig alle Koepfe desselben Typs in derselben Betriebsart. Wer
+  // ihn ans Modell haengte, koennte zwei Modi im selben Plan nicht abbilden —
+  // und wuerde beim Umstellen eines Geraets still alle anderen mitziehen.
+  //
+  // `dmxAdresseFestgesetzt` gehoert dazu: es sagt, dass ein Mensch DIESE
+  // Adresse gesetzt hat. Am Modell waere das sinnlos — eine Adresse gibt es
+  // nur im Plan.
+  'dmxModusId',
+  'dmxUniverse',
+  'dmxAdresse',
+  'dmxAdresseFestgesetzt',
   'id',
 
   // Wo dieses Exemplar steht
