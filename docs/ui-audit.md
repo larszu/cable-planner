@@ -605,15 +605,46 @@ Z. 49–84) als nächsten einfachen Kandidaten.
 - Alle gelieferten Roh-Screenshots (`Screenshot (NNN).png`) nach der
   Verarbeitung aus dem Branch-Tree entfernt.
 
+### 2026-09-10 — die Aufnahme ist kein Mensch-Schritt mehr
+
+`npm run docs:shots` (`scripts/screenshots.mjs`) startet die App unter
+`xvfb-run`, lädt das eingebaute Beispielprojekt, stellt Sprache und Thema
+**fest** ein und nimmt die Slots auf. Aus dem Beispielprojekt heißt: keine
+Kundendaten, also **nichts zu schwärzen** — die sicherste Schwärzung ist die,
+die nicht nötig ist.
+
+Der Guide behauptete das Gegenteil („können nicht automatisch erzeugt
+werden"). Ein Satz, der eine Arbeit für unmöglich erklärt, sorgt zuverlässig
+dafür, dass sie liegenbleibt — **gemessen:** die eingecheckten Bilder stammen
+aus `v8.1.0-101`, die App steht bei `v9.0.1`. Dazwischen liegen die
+Sprachdrehung (E-28) und der Icon-Durchgang; auf `properties.png` ist deshalb
+eine deutsche Oberfläche mit Knöpfen zu sehen („Configure multiviewer layout
+→", „↻ auto"), die es so nicht mehr gibt.
+
+**Die Bilder sind trotzdem noch die alten — mit Grund.** Eine frische
+Aufnahme wurde gemacht und wieder verworfen: das Beispielprojekt ist deutsch
+benannt („Kamera 1", „Bildmischer", „Regie-Monitor"), und 12 der 64
+ausgelieferten Gerätekategorien ebenfalls („Funkstrecke", „Stromverteilung",
+„Sync/Referenz" …). Eine englische Oberfläche mit deutschen Inhalten ist
+nicht besser als ein altes Bild, nur anders falsch — und ein Titelbild
+schlechter zu machen, ist keine Verbesserung. Der Sprachmix in den
+ausgelieferten **Daten** ist als eigenes Issue erfasst (er hängt an einer
+Eigentümer-Entscheidung und an einer Schema-Migration, weil
+`equipment.category` in den Projektdateien der Nutzer steht). Danach
+`npm run docs:shots`.
+
 ### TODO (manueller Mensch-Schritt)
 
-- [ ] Restliche 3 Slots: `canvas.gif` (animierte Canvas-Demo), `rack-3d.png`
-      (3D-Rack-Ansicht), `patch-pdf.png` (Patch-Listen-PDF — der gelieferte
-      Shot enthält einen Personennamen im Routing-Text, daher offen gelassen;
-      neutral neu erzeugen oder die Namen schwärzen).
-- [ ] Für neue Bilder: Roh-PNGs nach `docs/screenshots/_raw/` legen + `node
-      docs/redact-screenshots.mjs` laufen lassen (oder aus neutralem
-      Demo-Projekt ohne Kundennamen frisch aufnehmen → keine Schwärzung nötig).
+- [ ] `canvas.gif` (animierte Canvas-Demo): braucht einen GIF-Encoder, den
+      dieser Container nicht hat (kein `ffmpeg`/`gifski`). Einzelbilder kann
+      `docs:shots` liefern, das Zusammensetzen nicht.
+- [ ] `rack-3d.png`: das Beispielprojekt enthält kein Rack („No rack layout
+      saved yet"), die 3D-Ansicht ist also nicht ohne vorheriges Bauen zu
+      zeigen. Entweder ein Rack ins Beispielprojekt oder ein zweites,
+      neutrales Demo-Projekt für die Aufnahme.
+- [ ] `patch-pdf.png`: der gelieferte Shot enthält einen Personennamen im
+      Routing-Text. Aus dem Beispielprojekt neu erzeugen, sobald dessen
+      Sprachmix behoben ist.
 - [ ] **Rohbilder aus `main`/Branch-History bereinigen**:
       `Screenshot (573).png` liegt in `main` (Commit `f5279e9`), die übrigen
       Rohbilder in der Branch-History (`a670c71`) — bei öffentlichem Repo ggf.
@@ -633,7 +664,7 @@ Alle 6 Phasen abgeschlossen, je ein Commit, gepusht auf
 | 3 Accessibility | `useDialogA11y` (role/aria-modal/Escape/Focus-Trap/Rückgabe); ModalShell + 3 Standalone + modalRoot + MenuBar | ✅ (restl. Dialoge als TODO) |
 | 4 i18n | `i18n-check.mjs` + 105 fehlende EN-Keys + String-Migration; DE/EN deckungsgleich | ✅ |
 | 5 Dekomposition | `RackBuilderDialog`-Modell → `rackBuilderModel.ts` (−250 Zeilen) | ✅ (tiefere JSX-Zerlegung als verifizierter Folgeschritt) |
-| 6 README | Hero + Galerie (6/9 Slots mit echten, geschwärzten Bildern) + Capture-/Redact-Tooling | ✅ (canvas.gif/rack-3d/patch-pdf offen) |
+| 6 README | Hero + Galerie (6/9 Slots) + Capture-/Redact-Tooling + **automatische Aufnahme** (`npm run docs:shots`) | ✅ (canvas.gif/rack-3d/patch-pdf offen; Bilder aus v8.1.0 — Auffrischen hängt am Sprachmix in den Demo-Daten) |
 
 **Verifikations-Endstand:** `npx tsc -p tsconfig.app.json --noEmit` = 0,
 `npm run build` grün, `npm run lint` = 124 Fehler / 18 Warnungen
