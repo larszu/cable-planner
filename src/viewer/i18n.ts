@@ -69,7 +69,7 @@ const de: Record<string, string> = {
   'viewer.readOnly': 'Plan read-only',
   'viewer.download.title':
     'Annotierte Datei (.cpviewer) herunterladen — im Hauptprogramm über „Annotierte Viewer-Datei zurücklesen…" einlesen',
-  'viewer.download': 'Annotierte Datei ↓',
+  'viewer.download': 'Annotierte Datei',
   'viewer.otherFile': 'Andere Datei…',
 
   // ── Anmerkungen ─────────────────────────────────────────────────────────

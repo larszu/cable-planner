@@ -42,17 +42,17 @@ const de: Record<string, string> = {
     'Hak Ports und Kabel ab während du sie steckst, oder trage fehlende Patches direkt vor Ort nach. Alles syncht live zum Desktop. Offline funktioniert auch — Häkchen werden beim Re-Connect übertragen.',
   'mobile.reload.titleCached': 'Letztes Projekt vom Host laden — Rückfall auf Cache vom {time}',
   'mobile.reload.title': 'Aktuell auf dem Desktop geöffnetes Projekt laden',
-  'mobile.reload.busy': '⏳ Lade…',
-  'mobile.reload.cached': '↻ Projekt erneut laden (Cache: {time})',
-  'mobile.reload.fresh': '↻ Projekt vom Desktop laden',
+  'mobile.reload.busy': 'Lade…',
+  'mobile.reload.cached': 'Projekt erneut laden (Cache: {time})',
+  'mobile.reload.fresh': 'Projekt vom Desktop laden',
   'mobile.or': 'oder',
-  'mobile.file.pick': '📂 Cable-Planner-Datei (.json) wählen…',
+  'mobile.file.pick': 'Cable-Planner-Datei (.json) wählen…',
   'mobile.paste.cancel': 'Einfügen abbrechen',
   'mobile.paste.open': 'Oder JSON einfügen…',
   'mobile.paste.load': 'Projekt laden',
 
   // ── Port-Liste ──────────────────────────────────────────────────────────
-  'mobile.port.goesTo': '→ geht zu',
+  'mobile.port.goesTo': 'geht zu',
   'mobile.port.via': 'über {path}',
   'mobile.port.openEnd': 'Offenes Ende',
   'mobile.port.occupied': ' • belegt',
@@ -137,9 +137,9 @@ const de: Record<string, string> = {
 
   // ── Verbindung (lokal / remote) ─────────────────────────────────────────
   'mobile.connection': 'Verbindung',
-  'mobile.conn.local': '🏠 Lokal',
-  'mobile.conn.localFull': '🏠 Lokal (LAN)',
-  'mobile.conn.remoteFull': '📶 Remote (Mobilfunk)',
+  'mobile.conn.local': 'Lokal',
+  'mobile.conn.localFull': 'Lokal (LAN)',
+  'mobile.conn.remoteFull': 'Remote (Mobilfunk)',
   'mobile.conn.urlLabel': 'Server-URL (dein Tunnel/Relay auf den Desktop, inkl. ?t=Token)',
   'mobile.host.placeholder': 'https://mein-desktop.example.com/?t=…',
   'mobile.conn.hint':
@@ -158,13 +158,13 @@ const de: Record<string, string> = {
   // ── Kabel vor Ort hinzufuegen ────────────────────────────────────────────
   'mobile.addCable.sendFailed': 'Konnte Kabel nicht senden: {error}. Verbindung zum Desktop prüfen.',
   'mobile.addCable.sendFailedShort': 'Konnte Kabel nicht senden.',
-  'mobile.addCable.heading': '📱 Kabel hinzufügen',
-  'mobile.addCable.sent': '✓ An den Desktop gesendet',
+  'mobile.addCable.heading': 'Kabel hinzufügen',
+  'mobile.addCable.sent': 'An den Desktop gesendet',
   'mobile.addCable.sentHint':
     'Ob es im Plan landet, entscheidet der Desktop — dort steht es dann mit 📱-Marker.',
   'mobile.addCable.badgeHint':
     'Wird im Plan mit 📱-Badge markiert, damit der Planer sieht dass das Kabel vor Ort nachgepflegt wurde.',
-  'mobile.addCable.send': '📤 An Desktop senden',
+  'mobile.addCable.send': 'An Desktop senden',
   'mobile.fromDevice': 'Von Gerät',
   'mobile.fromPort': 'Von Port',
   'mobile.toDevice': 'Zu Gerät',
@@ -174,7 +174,7 @@ const de: Record<string, string> = {
   'mobile.length': 'Länge (m)',
   'mobile.name.placeholder': "Auto: '<Typ> Gerät A → Gerät B'",
   'mobile.name.regenerate': 'Wieder automatisch aus Typ + Geräten generieren',
-  'mobile.name.reset': '↺ Auto-Name zurücksetzen',
+  'mobile.name.reset': 'Auto-Name zurücksetzen',
   'mobile.notes': 'Notizen (opt.)',
   'mobile.notes.placeholder': "Z.B. 'Notfall-Patch — bitte später ordentlich verlegen'",
   'mobile.cancel': 'Abbrechen',
@@ -186,8 +186,8 @@ const de: Record<string, string> = {
   'mobile.report.sendFailed':
     'Konnte Meldung nicht senden: {error}. Verbindung zum Desktop prüfen.',
   'mobile.report.sendFailedShort': 'Konnte Meldung nicht senden.',
-  'mobile.report.heading': '⚠ Meldung an Planer',
-  'mobile.report.sent': '✓ Meldung gesendet — erscheint am Desktop unter „Feld-Rückmeldungen"',
+  'mobile.report.heading': 'Meldung an Planer',
+  'mobile.report.sent': 'Meldung gesendet — erscheint am Desktop unter „Feld-Rückmeldungen"',
   'mobile.report.hint':
     'Wird NICHT direkt geändert — der Planer übernimmt oder verwirft deine Meldung am Desktop (landet dann im Änderungsprotokoll).',
   'mobile.report.kindNote': 'Notiz',
@@ -202,7 +202,7 @@ const de: Record<string, string> = {
   'mobile.report.notePlaceholder': 'Notiz für den Planer…',
   'mobile.report.yourName': 'Dein Name (optional)',
   'mobile.report.placeholder': 'für die Protokoll-Zuordnung',
-  'mobile.report.send': '📤 Meldung senden',
+  'mobile.report.send': 'Meldung senden',
 
   // ── Pruefbild-Rundgang (B-42) ────────────────────────────────────────────
   'mobile.walk.obsOk': 'stimmt',

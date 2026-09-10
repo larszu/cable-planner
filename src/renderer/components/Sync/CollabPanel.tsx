@@ -6,6 +6,8 @@
 // collabStore + lib/crdt/*; diese Komponente ist Anzeige + Steuerung.
 
 import { useMemo, useState } from 'react'
+import { Check } from 'lucide-react'
+import { Icon } from '../shared/Icon'
 import {
   useCollabStore,
   type CollabMode,
@@ -376,9 +378,10 @@ export const CollabPanel = () => {
           <button
             type="button"
             onClick={copyInvite}
-            className="rounded border border-[var(--cp-border)] bg-[var(--cp-surface-1)] px-2 py-1 text-cp-xs text-[var(--cp-text-secondary)] hover:border-sky-500 hover:text-sky-300"
+            className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] bg-[var(--cp-surface-1)] px-2 py-1 text-cp-xs text-[var(--cp-text-secondary)] hover:border-sky-500 hover:text-sky-300"
           >
-            {copied ? t('collab.invite.copied', 'Copied ✓') : t('collab.invite.copy', 'Copy invite')}
+            {copied && <Icon icon={Check} size="xs" />}
+            {copied ? t('collab.invite.copied', 'Copied') : t('collab.invite.copy', 'Copy invite')}
           </button>
         </div>
       )}

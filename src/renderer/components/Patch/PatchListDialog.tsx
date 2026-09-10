@@ -16,7 +16,7 @@ import { downloadBlob } from '../../lib/downloadBlob'
 import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 import { sanitizeForPdf } from '../../lib/sanitizeForPdf'
 import { portLabelPair, genderSymbol } from '../../lib/portLabel'
-import { Cable as CableIcon, Tag, Download } from 'lucide-react'
+import { Cable as CableIcon, Tag, Download, SlidersHorizontal } from 'lucide-react'
 import { ModalShell } from '../shared/ModalShell'
 import { Icon } from '../shared/Icon'
 import { useTranslation } from '../../lib/i18n'
@@ -607,9 +607,10 @@ export const PatchListDialog = () => {
               type="button"
               onClick={() => exportLabelCsv(labelCsvFormat)}
               disabled={filtered.length === 0}
-              className="rounded bg-sky-700 px-3 py-1 text-cp-xs hover:bg-sky-600 disabled:opacity-50"
+              className="inline-flex items-center gap-1 rounded bg-sky-700 px-3 py-1 text-cp-xs hover:bg-sky-600 disabled:opacity-50"
             >
-              {t('patchList.exportLabelCsv', '🏷 Label CSV')}
+              <Icon icon={Tag} size="xs" />
+              {t('patchList.exportLabelCsv', 'Label CSV')}
             </button>
             {/* Bedarf 37 — die fuenf Sichten auf dieselbe Kanalliste. Sichtbar,
                 sobald es Audio-Kanaele gibt; die Monitor-Sicht zusaetzlich nur,
@@ -641,9 +642,10 @@ export const PatchListDialog = () => {
                     'channelList.exportHint',
                     'The same channel list, cut for this reader. The monitor view shows paths, not mix contents \u2014 the plan does not know those.',
                   )}
-                  className="rounded bg-purple-700 px-3 py-1 text-cp-xs hover:bg-purple-600"
+                  className="inline-flex items-center gap-1 rounded bg-purple-700 px-3 py-1 text-cp-xs hover:bg-purple-600"
                 >
-                  {t('channelList.export', '🎚 Channel list')}
+                  <Icon icon={SlidersHorizontal} size="xs" />
+                  {t('channelList.export', 'Channel list')}
                 </button>
                 {/* BEDARF 92 — die Kanalliste aus der Datei lesen, die das
                     Pult ohnehin schreibt. Ein LESER, kein Schreiber: hier
@@ -651,13 +653,14 @@ export const PatchListDialog = () => {
                     eigentliche Nutzen — er ist die Änderungsliste aus der
                     Probe, die heute nur im Kopf von jemandem existiert. */}
                 <label
-                  className="cursor-pointer rounded border border-cp-border px-3 py-1 text-cp-xs text-cp-text-secondary hover:text-cp-text"
+                  className="inline-flex cursor-pointer items-center gap-1 rounded border border-cp-border px-3 py-1 text-cp-xs text-cp-text-secondary hover:text-cp-text"
                   title={t(
                     'scene.importHint',
                     'Read the console scene file (X32/M32/WING). This application writes nothing back to the console.',
                   )}
                 >
-                  {t('scene.import', '\u{1F39B} Read scene file')}
+                  <Icon icon={SlidersHorizontal} size="xs" />
+                  {t('scene.import', 'Read scene file')}
                   <input
                     type="file"
                     accept=".scn,.txt,.snap,.shw"

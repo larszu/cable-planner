@@ -1,4 +1,6 @@
 import { useState, useMemo } from 'react'
+import { ArrowRight, Calculator } from 'lucide-react'
+import { Icon } from '../shared/Icon'
 import { useUiStore } from '../../store/uiStore'
 import { useTranslation } from '../../lib/i18n'
 import { ModalShell } from '../shared/ModalShell'
@@ -199,14 +201,15 @@ export const RecordingStorageCalcCore = ({
           <dt className="text-cp-text-faint">{t('recStorage.throughput', 'Write rate')}</dt>
           <dd className="font-mono text-cp-text-bright">
             {((effectiveMbps * channels) / 8).toFixed(0)} MB/s
-            <span className="ml-2 text-cp-xs text-cp-text-muted">
+            <span className="ml-2 inline-flex items-center gap-1 text-cp-xs text-cp-text-muted">
+              <Icon icon={ArrowRight} size="xs" />
               {(effectiveMbps * channels) / 8 > 2000
-                ? t('recStorage.tpNvmeArray', '→ needs NVMe RAID')
+                ? t('recStorage.tpNvmeArray', 'needs NVMe RAID')
                 : (effectiveMbps * channels) / 8 > 450
-                  ? t('recStorage.tpSsdArray', '→ SSD / HDD RAID')
+                  ? t('recStorage.tpSsdArray', 'SSD / HDD RAID')
                   : (effectiveMbps * channels) / 8 > 130
-                    ? t('recStorage.tpHdd', '→ single HDD borderline')
-                    : t('recStorage.tpOk', '→ uncritical')}
+                    ? t('recStorage.tpHdd', 'single HDD borderline')
+                    : t('recStorage.tpOk', 'uncritical')}
             </span>
           </dd>
         </dl>
@@ -289,8 +292,8 @@ export const RecordingStorageCalculatorDialog = () => {
     <ModalShell
       open={open}
       onClose={close}
-      title={t('recStorage.title', '💾 Recording storage calculator')}
-      titleIcon="🧮"
+      title={t('recStorage.title', 'Recording storage calculator')}
+      titleIcon={<Icon icon={Calculator} size="sm" />}
       maxWidth="2xl"
       draggableKey="cable-planner:modal-pos:rec-storage-calc"
     >

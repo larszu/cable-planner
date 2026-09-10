@@ -1,4 +1,6 @@
+import { ExternalLink } from 'lucide-react'
 import { useCanvasProjectStore as useProjectStore } from '../../../store/projectStoreContext'
+import { Icon } from '../../shared/Icon'
 import { format, useTranslation } from '../../../lib/i18n'
 import { pickImageAsDataUri } from '../../../lib/readImageAsDataUri'
 import { promptDialog } from '../../../lib/promptDialog'
@@ -149,10 +151,11 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
                 href={equipment.manufacturerUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded bg-sky-700 px-2 py-1 text-cp-xs hover:bg-sky-600"
+                className="inline-flex items-center gap-1 rounded bg-sky-700 px-2 py-1 text-cp-xs hover:bg-sky-600"
                 title={t('eq.field.manufacturerUrlOpenTitle', 'Open in external browser')}
               >
-                {t('eq.field.manufacturerUrlOpen', 'Open ↗')}
+                {t('eq.field.manufacturerUrlOpen', 'Open')}
+                <Icon icon={ExternalLink} size="xs" />
               </a>
             )}
           </div>
@@ -195,10 +198,11 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
                 href={inheritedUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="truncate text-cp-accent hover:underline"
+                className="inline-flex items-center gap-1 truncate text-cp-accent hover:underline"
                 title={t('eq.field.manufacturerUrlOpenTitle', 'Open in external browser')}
               >
-                {t('eq.field.manufacturerUrlOpen', 'Open ↗')}
+                {t('eq.field.manufacturerUrlOpen', 'Open')}
+                <Icon icon={ExternalLink} size="xs" />
               </a>
             </div>
           )}

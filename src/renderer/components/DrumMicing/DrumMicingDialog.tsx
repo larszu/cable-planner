@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState } from 'react'
 import { X, Plus, Trash2, Zap, AlertTriangle, Wrench, Check } from 'lucide-react'
+import { Icon } from '../shared/Icon'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
 import { format, useTranslation } from '../../lib/i18n'
@@ -493,9 +494,10 @@ export const DrumMicingDialog = () => {
                     <button
                       type="button"
                       onClick={copyBom}
-                      className="rounded border border-cp-border-muted px-2 py-0.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-2"
+                      className="inline-flex items-center gap-1 rounded border border-cp-border-muted px-2 py-0.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-2"
                     >
-                      {copied ? t('drum.copied', 'copied ✓') : t('drum.copy', 'copy')}
+                      {copied && <Icon icon={Check} size="xs" />}
+                      {copied ? t('drum.copied', 'copied') : t('drum.copy', 'copy')}
                     </button>
                   </div>
                   <table className="w-full text-cp-xs">

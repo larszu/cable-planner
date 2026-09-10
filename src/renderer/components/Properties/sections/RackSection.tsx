@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { ArrowLeftRight } from 'lucide-react'
+import { Icon } from '../../shared/Icon'
 import { useCanvasProjectStore as useProjectStore } from '../../../store/projectStoreContext'
 import { pickImageAsDataUri } from '../../../lib/readImageAsDataUri'
 import { SortableSection } from '../SortableSection'
@@ -131,10 +133,11 @@ export const RackSection = ({ equipment }: { equipment: EquipmentItem }) => {
                       rearPanelCrop: equipment.frontPanelCrop,
                     })
                   }
-                  className="mt-2 w-full rounded border border-cp-surface-5 bg-cp-surface-2 px-2 py-1 text-cp-xs text-cp-text-bright hover:bg-cp-surface-4"
+                  className="mt-2 inline-flex w-full items-center justify-center gap-1 rounded border border-cp-surface-5 bg-cp-surface-2 px-2 py-1 text-cp-xs text-cp-text-bright hover:bg-cp-surface-4"
                   title={t('props.rack.swapTitle', 'Swap front and rear photos (including crop metadata)')}
                 >
-                  {t('props.rack.swap', '↔ Swap front/rear photo')}
+                  <Icon icon={ArrowLeftRight} size="xs" />
+                  {t('props.rack.swap', 'Swap front/rear photo')}
                 </button>
               )}
 

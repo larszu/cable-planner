@@ -6,7 +6,7 @@
 // klickbar → selektiert das betroffene Gerät/Kabel auf dem Canvas.
 
 import { useMemo } from 'react'
-import { AlertTriangle, AlertCircle, Info, CheckCircle2 } from 'lucide-react'
+import { AlertTriangle, AlertCircle, Info, CheckCircle2, Stethoscope } from 'lucide-react'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
 import { ModalShell } from '../shared/ModalShell'
@@ -79,7 +79,7 @@ export const PlanCheckPanel = () => {
       open={open}
       onClose={close}
       title={t('planCheck.title', 'Plan check')}
-      titleIcon="🩺"
+      titleIcon={<Icon icon={Stethoscope} size="sm" />}
       maxWidth="2xl"
       draggableKey="cable-planner:modal-pos:plancheck"
       scrollBody={false}

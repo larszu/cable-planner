@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { CablePlannerProject, ProjectAnnotation } from '../renderer/types/project'
 import { styleForLayer } from '../renderer/lib/cableLayers'
+import { Download, User } from 'lucide-react'
 import { stampForPlan } from '../renderer/lib/documentStamp'
+import { Icon } from '../renderer/components/shared/Icon'
 import { format, uebersetzer } from './i18n'
 
 // #143 — Zero-Install-Web-Viewer (Stage 1). Lädt eine .cpviewer/.json und
@@ -424,13 +426,19 @@ export const ViewerApp = () => {
           <span className="rounded bg-cp-surface-3 px-2 py-1">
             {t('viewer.readOnly', 'Plan read-only')}
           </span>
-          {reviewer && <span className="hidden sm:inline">👤 {reviewer}</span>}
-          <button onClick={() => downloadAnnotated()} className="rounded bg-cp-accent px-2 py-1 font-medium text-white hover:opacity-90" title={t(
+          {reviewer && (
+            <span className="hidden items-center gap-1 sm:inline-flex">
+              <Icon icon={User} size="xs" />
+              {reviewer}
+            </span>
+          )}
+          <button onClick={() => downloadAnnotated()} className="inline-flex items-center gap-1 rounded bg-cp-accent px-2 py-1 font-medium text-white hover:opacity-90" title={t(
             'viewer.download.title',
             'Download the annotated file (.cpviewer) — read it back in the main program via ' +
               '"Read back annotated viewer file…"',
           )}>
-            {t('viewer.download', 'Annotated file ↓')}
+            {t('viewer.download', 'Annotated file')}
+            <Icon icon={Download} size="xs" />
           </button>
           <button onClick={() => setProject(null)} className="rounded border border-cp-border px-2 py-1 hover:bg-cp-surface-3">
             {t('viewer.otherFile', 'Other file…')}

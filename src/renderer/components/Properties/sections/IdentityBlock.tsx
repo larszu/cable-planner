@@ -1,4 +1,6 @@
 import { useMemo, useState } from 'react'
+import { RotateCcw } from 'lucide-react'
+import { Icon } from '../../shared/Icon'
 import { useCanvasProjectStore as useProjectStore } from '../../../store/projectStoreContext'
 import { generateShortName } from '../../../lib/shortName'
 import { useTranslation, format } from '../../../lib/i18n'
@@ -73,9 +75,10 @@ export const IdentityBlock = ({ equipment }: { equipment: EquipmentItem }) => {
                 ? `${t('eq.field.shortNameAuto', 'Regenerate from name')} (${autoSuggestion})`
                 : t('eq.field.shortNameAutoEmpty', 'No suggestion — please set a name.')
             }
-            className="shrink-0 rounded border border-cp-border bg-cp-surface-2 px-2 text-cp-xs text-cp-text-bright hover:bg-cp-surface-4 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex shrink-0 items-center gap-1 rounded border border-cp-border bg-cp-surface-2 px-2 text-cp-xs text-cp-text-bright hover:bg-cp-surface-4 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {t('eq.field.shortNameAutoBtn', '↻ auto')}
+            <Icon icon={RotateCcw} size="xs" />
+            {t('eq.field.shortNameAutoBtn', 'auto')}
           </button>
         </div>
         {!equipment.shortName?.trim() && autoSuggestion && (

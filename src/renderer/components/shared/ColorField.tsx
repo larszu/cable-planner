@@ -10,6 +10,8 @@
 // vertikal+fullwidth, "inline" für die horizontale Variante mit
 // optionalem Reset-Button.
 
+import { X } from 'lucide-react'
+import { Icon } from './Icon'
 import { useTranslation } from '../../lib/i18n'
 
 interface ColorFieldProps {
@@ -53,10 +55,11 @@ export const ColorField = ({
             <button
               type="button"
               onClick={onReset}
-              className="rounded bg-cp-surface-4 px-1.5 py-0.5 text-cp-xs hover:bg-cp-surface-5"
+              className="inline-flex items-center gap-1 rounded bg-cp-surface-4 px-1.5 py-0.5 text-cp-xs hover:bg-cp-surface-5"
               title={t('colorField.resetTitle', 'Reset colour')}
             >
-              {t('colorField.resetBtn', '✕ Reset')}
+              <Icon icon={X} size="xs" />
+              {t('colorField.resetBtn', 'Reset')}
             </button>
           )}
         </div>

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Zap, Check, AlertTriangle } from 'lucide-react'
+import { Zap, Check, AlertTriangle, RotateCcw } from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import { format, useTranslation } from '../../lib/i18n'
 import { infoDialog } from '../../lib/infoDialog'
@@ -1413,9 +1413,10 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
                   type="button"
                   onClick={() => void fetchEquipment(selectedProjectId)}
                   disabled={loading}
-                  className="rounded px-2 py-0.5 text-cp-text-secondary hover:bg-cp-surface-2 disabled:opacity-50"
+                  className="inline-flex items-center gap-1 rounded px-2 py-0.5 text-cp-text-secondary hover:bg-cp-surface-2 disabled:opacity-50"
                 >
-                  {loading ? t('rentman.import.loadingShort', 'Loading…') : t('rentman.import.reloadSync', '↻ Reload & sync')}
+                  {!loading && <Icon icon={RotateCcw} size="xs" />}
+                  {loading ? t('rentman.import.loadingShort', 'Loading…') : t('rentman.import.reloadSync', 'Reload & sync')}
                 </button>
                 <button
                   type="button"
@@ -1443,10 +1444,11 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
                 type="button"
                 onClick={() => fetchEquipment(linkedProjectId)}
                 disabled={loading}
-                className="rounded bg-emerald-700 px-3 py-1 text-cp-base font-medium hover:bg-emerald-600 disabled:opacity-50"
+                className="inline-flex items-center gap-1 rounded bg-emerald-700 px-3 py-1 text-cp-base font-medium hover:bg-emerald-600 disabled:opacity-50"
                 title={format(t('rentman.import.refreshTitle', 'Reload quantities and devices for "{name}"'), { name: linkedProjectName ?? linkedProjectId })}
               >
-                {t('rentman.import.refresh', '↺ Refresh Rentman')}
+                <Icon icon={RotateCcw} size="xs" />
+                {t('rentman.import.refresh', 'Refresh Rentman')}
               </button>
             )}
             <span className="text-cp-xs text-cp-text-faint">
@@ -1516,9 +1518,10 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
               type="button"
               onClick={() => void fetchEquipment(selectedProjectId)}
               disabled={loading}
-              className="mt-1 w-full rounded bg-cp-surface-4 px-2 py-1 text-cp-xs text-cp-text-bright hover:bg-cp-surface-5 disabled:opacity-50"
+              className="mt-1 inline-flex w-full items-center justify-center gap-1 rounded bg-cp-surface-4 px-2 py-1 text-cp-xs text-cp-text-bright hover:bg-cp-surface-5 disabled:opacity-50"
             >
-              {loading ? t('rentman.import.loadingShort', 'Loading…') : t('rentman.import.reloadSync', '↻ Reload & sync')}
+              {!loading && <Icon icon={RotateCcw} size="xs" />}
+              {loading ? t('rentman.import.loadingShort', 'Loading…') : t('rentman.import.reloadSync', 'Reload & sync')}
             </button>
           )}
         </div>
@@ -1650,10 +1653,11 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
                 <div className="mb-2 flex flex-wrap items-center gap-1.5 text-cp-xs">
                   {linked > 0 && (
                     <span
-                      className="rounded bg-emerald-900/40 px-1.5 py-0.5 text-emerald-200"
+                      className="inline-flex items-center gap-1 rounded bg-emerald-900/40 px-1.5 py-0.5 text-emerald-200"
                       title={t('rentman.import.status.linkedTitle', 'Items with identical Rentman equipment ID in the local library — silent re-import, ports + custom data are preserved.')}
                     >
-                      {format(t('rentman.import.status.linked', '✓ {count} already linked'), { count: linked })}
+                      <Icon icon={Check} size="xs" />
+                      {format(t('rentman.import.status.linked', '{count} already linked'), { count: linked })}
                     </span>
                   )}
                   {conflicts > 0 && (
@@ -1872,8 +1876,9 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
 
             <div className="mt-3 flex items-center justify-between text-cp-base">
               {importResult !== null ? (
-                <span className="font-semibold text-emerald-400">
-                  {format(importResult === 1 ? t('rentman.import.resultOne', '✓ {count} device added to the library') : t('rentman.import.resultMany', '✓ {count} devices added to the library'), { count: importResult })}
+                <span className="inline-flex items-center gap-1 font-semibold text-emerald-400">
+                  <Icon icon={Check} size="sm" />
+                  {format(importResult === 1 ? t('rentman.import.resultOne', '{count} device added to the library') : t('rentman.import.resultMany', '{count} devices added to the library'), { count: importResult })}
                 </span>
               ) : (
                 <span className="text-cp-xs text-cp-text-muted">
