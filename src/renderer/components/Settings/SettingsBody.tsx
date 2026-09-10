@@ -6,7 +6,7 @@
 import { useState, type HTMLAttributes, type ReactNode } from 'react'
 import {
   ClipboardList, Palette, Pencil, Keyboard, Plug, Database, RefreshCw, Settings, Blocks, X, ListPlus,
-  BadgeCheck,
+  BadgeCheck, Cable,
   type LucideIcon,
 } from 'lucide-react'
 import { Icon } from '../shared/Icon'
@@ -21,6 +21,7 @@ import { AppearanceTab } from './tabs/AppearanceTab'
 import { IntegrationsTab } from './tabs/IntegrationsTab'
 import { SchemaBuilderTab } from './tabs/SchemaBuilderTab'
 import { NachweiseTab } from './tabs/NachweiseTab'
+import { CableTypesTab } from './tabs/CableTypesTab'
 import { useTranslation } from '../../lib/i18n'
 
 export type SettingsSection =
@@ -31,6 +32,7 @@ export type SettingsSection =
   | 'hotkeys'
   | 'integrations'
   | 'configs'
+  | 'cableTypes'
   | 'schema'
   | 'sync'
   | 'nachweise'
@@ -44,6 +46,7 @@ const TAB_ICONS: Record<SettingsSection, LucideIcon> = {
   hotkeys: Keyboard,
   integrations: Plug,
   configs: Database,
+  cableTypes: Cable,
   schema: ListPlus,
   sync: RefreshCw,
   nachweise: BadgeCheck,
@@ -58,6 +61,7 @@ const TAB_FALLBACK_LABEL: Record<SettingsSection, string> = {
   hotkeys: 'Hotkeys',
   integrations: 'Integrationen',
   configs: 'Konfigurationen',
+  cableTypes: 'Cable types',
   schema: 'Kategorien & Felder',
   sync: 'Netzwerk-Sync',
   nachweise: 'Nachweise',
@@ -72,6 +76,7 @@ const TAB_FALLBACK_TITLE: Record<SettingsSection, string> = {
   hotkeys: 'Tastenkürzel',
   integrations: 'Integrationen',
   configs: 'Geräte-Konfigurationen',
+  cableTypes: 'Cable types',
   schema: 'Kategorien & Felder (Feld-Builder)',
   sync: 'Netzwerk-Sync',
   nachweise: 'Nachweise (Qualifikationen, Versicherungen)',
@@ -163,6 +168,7 @@ export const SettingsBody = ({ onClose, initialSection, headerProps, titleId, he
           {section === 'hotkeys' && <HotkeysTab />}
           {section === 'integrations' && <IntegrationsTab onClose={onClose} />}
           {section === 'configs' && <ConfigsTab />}
+          {section === 'cableTypes' && <CableTypesTab />}
           {section === 'schema' && <SchemaBuilderTab />}
           {section === 'sync' && <SyncTab />}
           {section === 'nachweise' && <NachweiseTab />}
