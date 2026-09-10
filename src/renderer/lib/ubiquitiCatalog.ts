@@ -43,7 +43,7 @@ const withTypeId = (e: UbiquitiEntry): EquipmentTemplate => ({
   deviceTypeId: e.deviceTypeId,
 })
 
-const NET = 'Netzwerk'
+const NET = 'Networking'
 
 export const UBIQUITI_CATALOG: UbiquitiEntry[] = [
   // ---------- EdgeRouter ----------

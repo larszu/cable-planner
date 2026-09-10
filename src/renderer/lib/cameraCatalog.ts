@@ -25,7 +25,7 @@ const hdmiIn  = (n: string) => port(n, 'HDMI')
 const xlr     = (n: string) => port(n, 'XLR')
 const eth     = (n = 'Ethernet') => port(n, 'Ethernet/RJ45')
 
-const CAM = 'Kameras'
+const CAM = 'Cameras'
 
 interface CameraEntry {
   /** Stabile Geraetetyp-Identitaet (GDTF/DIN-SPEC-15800-analog: FixtureTypeID).

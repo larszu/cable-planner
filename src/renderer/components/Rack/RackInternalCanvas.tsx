@@ -39,6 +39,7 @@ import type {
 import type { Cable, CableType } from '../../types/cable'
 import type { CablePlannerProject } from '../../types/project'
 import type { SignalStandard } from '../../types/cableSpec'
+import { portsGleich } from '../../lib/portsGleich'
 
 export interface RackPlacementForCanvas {
   id: string
@@ -71,6 +72,26 @@ export interface RackInternalCanvasProps {
    *  Draft. Wird bei jeder x/y-Änderung eines Geräts gefeuert, damit
    *  der Draft die User-gesetzten Positionen persistiert. */
   onPlacementMoved?: (id: string, x: number, y: number) => void
+  /**
+   * #833 — Ports zurück in den Builder-Draft.
+   *
+   * Diese Sicht zeigt die ECHTEN `EquipmentProperties` in einem Scratch-Store,
+   * und der Placement-Sync lässt die Ports absichtlich in Ruhe („der User darf
+   * sie hier editieren"). Er durfte — nur ging die Änderung nirgendwo hin: der
+   * Scratch-Store hat keinen Autosave (`projectStore.ts`: „weder Autosave noch
+   * Rate-Guard"), und beim Schliessen des Overlays fällt er weg. Der neue Name
+   * stand im Feld, verschwand beim nächsten Öffnen, und genau das ist die
+   * Meldung „Neuer Name wird nicht automatisch gespeichert".
+   *
+   * Die Kabel brauchen keinen eigenen Rückweg: `extractGroupPresetCables`
+   * liest die Port-Namen bei jeder Änderung frisch aus dem Scratch-Projekt,
+   * `onCablesChanged` feuert im selben Abonnement — die interne Verkabelung
+   * trägt den neuen Namen also schon, bevor dieser Rückruf ankommt.
+   */
+  onPlacementPortsChanged?: (
+    id: string,
+    ports: { inputs: EquipmentItem['inputs']; outputs: EquipmentItem['outputs'] },
+  ) => void
 }
 
 const NODE_WIDTH = 280
@@ -258,6 +279,7 @@ export const RackInternalCanvas = ({
   onCablesChanged,
   onPlacementRenamed,
   onPlacementMoved,
+  onPlacementPortsChanged,
 }: RackInternalCanvasProps) => {
   // Scratch store nur einmal pro Mount initialisieren. Spätere
   // Placement-Updates aus dem Parent-Builder werden über einen
@@ -300,10 +322,25 @@ export const RackInternalCanvas = ({
         if (onPlacementMoved && (prevEq.x !== eq.x || prevEq.y !== eq.y)) {
           onPlacementMoved(eq.id, eq.x, eq.y)
         }
+        // #833 — Port-Sync. Referenz-Vergleich reicht nicht: `updateEquipment`
+        // baut die Listen bei JEDER Änderung neu, auch bei einem Zug am
+        // Gerät. Ein Rückruf je Drag-Frame schriebe den Draft dauernd um.
+        if (
+          onPlacementPortsChanged &&
+          !portsGleich(prevEq.inputs, eq.inputs, prevEq.outputs, eq.outputs)
+        ) {
+          onPlacementPortsChanged(eq.id, { inputs: eq.inputs, outputs: eq.outputs })
+        }
       }
     })
     return unsub
-  }, [scratchStore, onCablesChanged, onPlacementRenamed, onPlacementMoved])
+  }, [
+    scratchStore,
+    onCablesChanged,
+    onPlacementRenamed,
+    onPlacementMoved,
+    onPlacementPortsChanged,
+  ])
 
   // Cable-Erstellung: statt den CableDialog zu öffnen, direkt mit
   // sinnvollen Defaults anlegen. Connector-Type wird aus den

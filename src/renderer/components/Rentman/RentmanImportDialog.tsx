@@ -594,7 +594,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
   ): EquipmentTemplate => {
     const existingByName = customLibrary.find((t) => t.name === item.name)
     const cachedByRentmanId = item.equipmentId ? getCachedRentmanTemplate(item.equipmentId) : undefined
-    const assignedCategory = categoryByName[item.name] || item.category || 'Sonstiges'
+    const assignedCategory = categoryByName[item.name] || item.category || 'Other'
     const base =
       templatesByEquipmentId[item.equipmentId] ||
       cachedByRentmanId ||
@@ -691,7 +691,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
         ? customLibrary.find((t) => t.rentmanId === item.equipmentId)
         : undefined
       const existing = byRentmanId ?? customLibrary.find((t) => t.name === item.name)
-      const assignedCategory = categoryByName[item.name] || item.category || existing?.category || 'Sonstiges'
+      const assignedCategory = categoryByName[item.name] || item.category || existing?.category || 'Other'
 
       // Skip: user chose not to import this device at all.
       if (decision === 'skip') return
@@ -1175,7 +1175,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
                                     .filter((tpl) => tpl.name !== c.name)
                                     .map((tpl) => (
                                       <option key={tpl.name} value={tpl.name}>
-                                        {tpl.name} ({tpl.category || 'Sonstiges'})
+                                        {tpl.name} ({tpl.category || 'Other'})
                                       </option>
                                     ))}
                                 </select>

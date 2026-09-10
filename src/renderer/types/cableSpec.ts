@@ -729,11 +729,37 @@ export const cableCatalog: CableSpec[] = [
 /** Same physical connector families that can be connected directly without an adapter. */
 const CONNECTOR_FAMILIES: ConnectorType[][] = [
   ['IEC 230V', 'PowerCON', 'Schuko 230V', 'C7 Eurostecker'], // all 230V, but NOT directly compatible without adapter
+  // #832 — Alle Klinken sind EINE Familie: es gibt einen Adapter zwischen
+  // ihnen, und das ist genau die Aussage dieser Tabelle. Sie sind deshalb
+  // NICHT `DIRECTLY_MATING` — 3,5 mm passt nicht in 6,3 mm, und ein Werkzeug,
+  // das das durchgehen laesst, meldet eine Verbindung, die im Aufbau nicht
+  // zusammengeht.
+  [
+    'Klinke',
+    'Jack 6.35 mm TS',
+    'Jack 6.35 mm TRS',
+    'Jack 3.5 mm TS',
+    'Jack 3.5 mm TRS',
+    'Jack 3.5 mm TRRS',
+    'Jack 2.5 mm TRS',
+    'Jack 6.35 mm',
+    'Jack 3.5 mm',
+  ],
 ]
 
 /** Connectors that are physically identical and plug into each other directly. */
 const DIRECTLY_MATING: ConnectorType[][] = [
   // BNC and historic 'SDI' were separate entries; they are now unified under 'BNC'.
+  //
+  // #832 — Gleiche GROESSE steckt zusammen, unterschiedliche Beschaltung
+  // hindert nicht: ein TS-Stecker geht in eine TRS-Buchse (der Ring liegt
+  // dann auf Masse). Das ist mechanisch wahr und elektrisch folgenreich —
+  // die Folge meldet `checkBalanceMismatch`, nicht diese Tabelle.
+  ['Jack 6.35 mm TS', 'Jack 6.35 mm TRS', 'Jack 6.35 mm'],
+  ['Jack 3.5 mm TS', 'Jack 3.5 mm TRS', 'Jack 3.5 mm TRRS', 'Jack 3.5 mm'],
+  // `Klinke` steht in KEINER dieser Gruppen. Der generische Wert sagt nicht,
+  // welche Groesse gemeint ist; ihn mit einer bestimmten zusammenzustecken
+  // hiesse zu raten, welche.
 ]
 
 export const connectorsAreDirectlyMating = (a: ConnectorType, b: ConnectorType): boolean => {
@@ -991,8 +1017,28 @@ export const checkImpedanceMismatch = (
 
 /**
  * #380 — Symmetrie eines Audio-Anschlusses: balanced (XLR/Mini-XLR/TT-Bantam)
- * vs. unbalanced (Cinch/SCART). Klinke ist bewusst undefined (TRS=symm. /
- * TS=unsymm. mehrdeutig). undefined = nicht audio-symmetrie-relevant.
+ * vs. unbalanced (Cinch/SCART). undefined = nicht audio-symmetrie-relevant.
+ *
+ * ─── WAS SICH MIT #832 GEAENDERT HAT, UND WAS AUSDRUECKLICH NICHT ─────────
+ *
+ * Die Untertypen der Klinke beantworten die Frage NUR ZUR HAELFTE, und die
+ * Haelfte wird beantwortet:
+ *
+ *   TS   zwei Leiter — unsymmetrisch. Eindeutig, immer.
+ *   TRS  drei Leiter — symmetrisch ODER Stereo-unsymmetrisch. Am Line-Ausgang
+ *        eines Pults das eine, an einer Kopfhoererbuchse das andere. Der
+ *        Stecker sagt es nicht.
+ *   TRRS vier Leiter — Stereo plus Mikrofon oder Steuerader. Symmetrie ist
+ *        hier gar nicht die Frage.
+ *
+ * TS gibt deshalb `unbalanced` zurueck, TRS und TRRS weiter `undefined`. Das
+ * ist keine Luecke, sondern die Auskunft: „daraus folgt es nicht". Wer TRS
+ * pauschal als symmetrisch fuehrt, meldet an jeder Kopfhoererbuchse einen
+ * Symmetrie-Bruch, der keiner ist — und nach dem dritten Fehlalarm liest
+ * niemand mehr die echten.
+ *
+ * `Klinke` (ohne Angabe) bleibt `undefined`: dort ist nicht einmal die
+ * Leiterzahl gesagt.
  */
 export const balanceForConnector = (
   c: ConnectorType | undefined,
@@ -1000,6 +1046,7 @@ export const balanceForConnector = (
   if (!c) return undefined
   if (c === 'XLR' || c === 'Mini-XLR' || c === 'TT/Bantam') return 'balanced'
   if (c === 'Cinch/RCA' || c === 'SCART') return 'unbalanced'
+  if (c === 'Jack 6.35 mm TS' || c === 'Jack 3.5 mm TS') return 'unbalanced'
   return undefined
 }
 

@@ -107,7 +107,7 @@ export const LocalEquipmentTab = ({
   // einklappen (Default-collapsed). Laueft nur einmal.
   useEffect(() => {
     if (collapsedInitRef.current) return
-    const usedCats = new Set(customLibrary.map((t) => t.category || 'Sonstiges'))
+    const usedCats = new Set(customLibrary.map((t) => t.category || 'Other'))
     const allCats = new Set([...knownCategories, ...usedCats])
     if (allCats.size === 0) return
     collapsedInitRef.current = true
@@ -185,13 +185,13 @@ export const LocalEquipmentTab = ({
             if (allCollapsed) {
               setCollapsedCats(new Set())
             } else {
-              const usedCats = new Set(customLibrary.map((t) => t.category || 'Sonstiges'))
+              const usedCats = new Set(customLibrary.map((t) => t.category || 'Other'))
               const allCats = Array.from(new Set([...knownCategories, ...usedCats])).filter(Boolean)
               setCollapsedCats(new Set(allCats))
             }
           }}
           allCollapsed={(() => {
-            const usedCats = new Set(customLibrary.map((t) => t.category || 'Sonstiges'))
+            const usedCats = new Set(customLibrary.map((t) => t.category || 'Other'))
             const allCats = Array.from(new Set([...knownCategories, ...usedCats])).filter(Boolean)
             return allCats.length > 0 && allCats.every((cat) => collapsedCats.has(cat))
           })()}
@@ -247,7 +247,7 @@ export const LocalEquipmentTab = ({
 
       <div className="flex-1 min-h-0 space-y-1 overflow-auto">
         {(() => {
-          const usedCats = new Set(customLibrary.map((t) => t.category || 'Sonstiges'))
+          const usedCats = new Set(customLibrary.map((t) => t.category || 'Other'))
           // v7.9.5 — Kategorien-Order respektiert den User-gewaehlten Sort-Modus.
           const baseCats = Array.from(new Set([...knownCategories, ...usedCats])).filter(Boolean)
           const allCats =
@@ -263,7 +263,7 @@ export const LocalEquipmentTab = ({
                       .sort((a, b) => a.localeCompare(b))
                     return [...head, ...tail]
                   })()
-          if (allCats.length === 0) allCats.push('Sonstiges')
+          if (allCats.length === 0) allCats.push('Other')
           const searchQuery = librarySearch.trim().toLowerCase()
           // v7.9.5 — Globaler Empty-State wenn Suche projektweit nichts trifft.
           if (searchQuery) {
@@ -298,7 +298,7 @@ export const LocalEquipmentTab = ({
           }
           const sectionsList = allCats.map((cat) => {
             const items = customLibrary.filter(
-              (t) => (t.category || 'Sonstiges') === cat,
+              (t) => (t.category || 'Other') === cat,
             )
             const visibleItems = items
               .filter((t) => showHidden || !t.hidden)

@@ -2,6 +2,7 @@ import type { EquipmentTemplate } from '../types/equipment'
 import { STORAGE_KEYS } from '../lib/storageKeys'
 import { syncDevicesToFolder } from '../lib/librarySync'
 import { LEGACY_CATEGORY_RENAMES } from '../lib/categoryTranslations'
+import { heileSteckertyp } from '../lib/connectorRenames'
 
 /**
  * #308 — Persist-Helpers fuer Custom-Library + Known-Categories aus
@@ -52,11 +53,25 @@ export const loadCustomLibrary = (): EquipmentTemplate[] => {
     // Aufnahme-Lauf standen `Patch panels` und `Power distribution` je
     // zweimal untereinander. Zwei Zeilen mit demselben Namen sind
     // schlimmer als eine falsche — man sucht den Unterschied.
-    return items.map((t) =>
-      t.category && LEGACY_CATEGORY_RENAMES[t.category]
-        ? { ...t, category: LEGACY_CATEGORY_RENAMES[t.category] }
-        : t,
-    )
+    // #832 — dazu die Steckertypen der Ports. Eine Vorlage aus dem
+    // Patchblenden-Dialog trug `TRS Jack`; nach dem Einfuegen in den Plan
+    // heilt `healProjectPositions` sie, in der Bibliotheks-Seitenleiste stand
+    // sie aber weiter mit dem alten Wert — also mit einer anderen Farbe als
+    // dasselbe Geraet im Plan daneben.
+    const heilePorts = (ports: EquipmentTemplate['inputs']) =>
+      (ports ?? []).map((p) => ({
+        ...p,
+        connectorType: heileSteckertyp(p.connectorType),
+        type: heileSteckertyp(p.type),
+      }))
+    return items.map((t) => ({
+      ...t,
+      ...(t.category && LEGACY_CATEGORY_RENAMES[t.category]
+        ? { category: LEGACY_CATEGORY_RENAMES[t.category] }
+        : {}),
+      inputs: heilePorts(t.inputs),
+      outputs: heilePorts(t.outputs),
+    }))
   } catch {
     return []
   }

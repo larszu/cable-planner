@@ -1,4 +1,4 @@
-import type { GroupPreset } from '../../types/equipment'
+import type { EquipmentItem, GroupPreset } from '../../types/equipment'
 import { useTranslation } from '../../lib/i18n'
 import { RackInternalCanvas } from './RackInternalCanvas'
 import type { InternalCableDraft, RackPlacementDraft } from './rackBuilderTypes'
@@ -23,6 +23,11 @@ export interface RackInternalWireOverlayProps {
   onCablesChanged: (cables: InternalCableDraft[]) => void
   onPlacementRenamed: (placementId: string, newName: string) => void
   onPlacementMoved: (placementId: string, x: number, y: number) => void
+  /** #833 — Port-Aenderungen aus dieser Sicht zurueck in den Builder-Draft. */
+  onPlacementPortsChanged: (
+    placementId: string,
+    ports: { inputs: EquipmentItem['inputs']; outputs: EquipmentItem['outputs'] },
+  ) => void
 }
 
 export const RackInternalWireOverlay = ({
@@ -34,6 +39,7 @@ export const RackInternalWireOverlay = ({
   onCablesChanged,
   onPlacementRenamed,
   onPlacementMoved,
+  onPlacementPortsChanged,
 }: RackInternalWireOverlayProps) => {
   const t = useTranslation()
   // Phase 3 der UI-Pruefung: Escape, Fokus-Falle und Fokus-Rueckgabe aus dem
@@ -164,6 +170,7 @@ export const RackInternalWireOverlay = ({
             }}
             onPlacementRenamed={onPlacementRenamed}
             onPlacementMoved={onPlacementMoved}
+            onPlacementPortsChanged={onPlacementPortsChanged}
           />
         </div>
       </div>

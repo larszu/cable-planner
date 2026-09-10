@@ -53,7 +53,11 @@ export const detectLayerForConnector = (
   if (!connectorType) return 'other'
   const ct = String(connectorType).toLowerCase()
   if (ct === 'bnc' || ct === 'hdmi' || ct === 'displayport' || ct === 'triax' || ct === 'vga' || ct === 'dvi' || ct === 'hd-bnc' || ct === 'mini-hdmi' || ct === 'f-connector' || ct === 'cinch/rca' || ct === 'scart' || ct === 's-video' || ct === 'mini-bnc' || ct === 'micro-bnc') return 'video'
-  if (ct === 'xlr' || ct === 'din' || ct === 'db25' || ct === 'klinke' || ct === 'mini-xlr' || ct === 'tt/bantam') return 'audio'
+  // #832 — `ct.startsWith('jack ')` deckt alle Klinken-Untertypen mit EINER
+  // Zeile ab. Sechs Vergleiche nebeneinander waeren dieselbe Aussage sechsmal,
+  // und die siebte Groesse fiele beim naechsten Mal wieder in `other` — also
+  // in eine Ebene, in der niemand ein Audiokabel sucht.
+  if (ct === 'xlr' || ct === 'din' || ct === 'db25' || ct === 'klinke' || ct.startsWith('jack ') || ct === 'mini-xlr' || ct === 'tt/bantam') return 'audio'
   if (ct === 'ethernet/rj45' || ct === 'gg45') return 'network'
   // Fiber kann Video ODER Network sein — ohne weiteren Kontext: Video
   // (für 2110/SDI-Fiber häufiger als reines IT-LAN-Fiber).

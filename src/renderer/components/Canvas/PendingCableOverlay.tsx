@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react'
 import { useEffect, useMemo, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { useReactFlow, useViewport } from 'reactflow'
@@ -8,6 +9,24 @@ import { getEquipmentById } from '../../lib/equipmentSelectors'
 import { useTranslation, format } from '../../lib/i18n'
 
 /**
+ * Shared look of the two banner buttons (#834).
+ *
+ * `minHeight: 44` is not decoration: it is the smallest target a finger hits
+ * reliably (WCAG 2.5.5). A 20-px button next to a 12-px line of text reads as
+ * an escape hatch and behaves like a trap.
+ */
+const BANNER_BUTTON: CSSProperties = {
+  minHeight: 44,
+  padding: '0 12px',
+  background: 'rgba(251,191,36,0.15)',
+  color: '#fde68a',
+  border: '1px solid #f59e0b',
+  borderRadius: 4,
+  fontSize: 12,
+  cursor: 'pointer',
+}
+
+/**
  * Visual overlay that renders the in-progress cable while the user is
  * drawing it with click-to-place waypoints. Shows the dashed path from the
  * source port through all placed waypoints to the current mouse position.
@@ -15,6 +34,8 @@ import { useTranslation, format } from '../../lib/i18n'
 export const PendingCableOverlay = () => {
   const t = useTranslation()
   const pendingCable = useUiStore((s) => s.pendingCable)
+  const clearPendingCable = useUiStore((s) => s.clearPendingCable)
+  const removeLastPendingWaypoint = useUiStore((s) => s.removeLastPendingWaypoint)
   const project = useProjectStore((s) => s.project)
   const { flowToScreenPosition, screenToFlowPosition } = useReactFlow()
   const viewport = useViewport()
@@ -26,11 +47,15 @@ export const PendingCableOverlay = () => {
       setMouseFlow(null)
       return
     }
-    const handler = (event: MouseEvent) => {
+    // #834 — `pointermove` statt `mousemove`: das eine Ereignis deckt Maus,
+    // Finger und Stift ab. Mit `mousemove` allein blieb die gestrichelte
+    // Vorschau auf einem Touchscreen am Startpunkt kleben, weil dort ohne
+    // Zeiger auch kein Zeiger bewegt wird.
+    const handler = (event: PointerEvent) => {
       setMouseFlow(screenToFlowPosition({ x: event.clientX, y: event.clientY }))
     }
-    window.addEventListener('mousemove', handler)
-    return () => window.removeEventListener('mousemove', handler)
+    window.addEventListener('pointermove', handler)
+    return () => window.removeEventListener('pointermove', handler)
   }, [pendingCable, screenToFlowPosition])
 
   if (!pendingCable) return null
@@ -92,7 +117,19 @@ export const PendingCableOverlay = () => {
           return <circle key={i} cx={s.x} cy={s.y} r={4} fill="#fbbf24" />
         })}
       </svg>
+      {/*
+        #834 — Das Band war reiner Text mit `pointerEvents: 'none'` und nannte
+        als Ausweg nur „Esc". Auf einem Touchscreen gibt es keine Esc-Taste:
+        wer dort eine Linie anfing, kam nicht mehr heraus ausser ueber einen
+        zweiten Port, den er vielleicht gar nicht wollte.
+
+        Die beiden Knoepfe stehen fuer ALLE da und nicht nur fuer Touch —
+        dieselbe Lehre wie bei B-44 Teil 2: ein Weg, den nur eine Taste oeffnet,
+        ist fuer den halben Saal zu. Sie sind mit 44 px hoch genug fuer einen
+        Finger (WCAG 2.5.5).
+      */}
       <div
+        className="nodrag nopan"
         style={{
           position: 'fixed',
           top: 12,
@@ -105,10 +142,35 @@ export const PendingCableOverlay = () => {
           borderRadius: 6,
           fontSize: 12,
           zIndex: 50,
-          pointerEvents: 'none',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+          maxWidth: 'calc(100vw - 24px)',
+          flexWrap: 'wrap',
+          pointerEvents: 'auto',
         }}
+        // Ohne das setzt ReactFlow den Klick als Pane-Klick fort und legt
+        // ausgerechnet dort einen Knick ab, wo jemand abbrechen wollte.
+        onPointerDown={(e) => e.stopPropagation()}
       >
-        {t('pendingCable.banner', 'Draw cable: click the canvas for a bend, click a port to finish, Esc to cancel.')}
+        <span style={{ pointerEvents: 'none' }}>
+          {t('pendingCable.banner', 'Draw cable: tap the canvas for a bend, tap a port to finish.')}
+        </span>
+        <button
+          type="button"
+          onClick={() => removeLastPendingWaypoint()}
+          disabled={pendingCable.waypoints.length === 0}
+          style={{
+            ...BANNER_BUTTON,
+            opacity: pendingCable.waypoints.length === 0 ? 0.45 : 1,
+            cursor: pendingCable.waypoints.length === 0 ? 'default' : 'pointer',
+          }}
+        >
+          {t('pendingCable.undoBend', 'Undo bend')}
+        </button>
+        <button type="button" onClick={() => clearPendingCable()} style={BANNER_BUTTON}>
+          {t('pendingCable.cancel', 'Cancel')}
+        </button>
       </div>
       <PendingCableSuggestions
         sourcePortConnector={port.connectorType}
@@ -151,9 +213,12 @@ const PendingCableSuggestions = ({
   const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(null)
 
   useEffect(() => {
-    const handler = (e: MouseEvent) => setMousePos({ x: e.clientX, y: e.clientY })
-    window.addEventListener('mousemove', handler)
-    return () => window.removeEventListener('mousemove', handler)
+    // #834 — auch hier `pointermove`: sonst bleibt `mousePos` auf einem
+    // Touchscreen `null`, und `place()` steigt in der ersten Zeile aus. Der
+    // Vorschlag sah dann bedienbar aus und tat beim Tippen nichts.
+    const handler = (e: PointerEvent) => setMousePos({ x: e.clientX, y: e.clientY })
+    window.addEventListener('pointermove', handler)
+    return () => window.removeEventListener('pointermove', handler)
   }, [])
 
   const suggestions = useMemo(() => {
