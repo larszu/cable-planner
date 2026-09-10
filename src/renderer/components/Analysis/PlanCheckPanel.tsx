@@ -14,6 +14,7 @@ import { Icon } from '../shared/Icon'
 import { useTranslation, format } from '../../lib/i18n'
 import { runDrawingChecks, type CheckFinding, type CheckSeverity } from '../../lib/drawingChecks'
 import { triggerCanvasCenterOn } from '../../lib/canvasViewport'
+import { checkCategoryLabel } from '../../lib/checkCategoryLabel'
 
 const SEVERITY_META: Record<
   CheckSeverity,
@@ -122,7 +123,7 @@ export const PlanCheckPanel = () => {
                     >
                       <Icon icon={meta.icon} size="xs" className={`mt-0.5 shrink-0 ${meta.tone}`} />
                       <span className="min-w-0">
-                        <span className={`mr-1 font-semibold ${meta.tone}`}>{f.category}:</span>
+                        <span className={`mr-1 font-semibold ${meta.tone}`}>{checkCategoryLabel(f.category, t)}:</span>
                         <span className="text-cp-text-secondary">{f.message}</span>
                       </span>
                     </button>

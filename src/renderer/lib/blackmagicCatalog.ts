@@ -414,7 +414,7 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
     deviceTypeId: '65370da7-d825-4286-aa19-e268edce853c',
     template: {
       name: 'Blackmagic Mini Converter Sync Generator',
-      category: 'Sync/Referenz',
+      category: 'Sync/Reference',
       inputs: [],
       outputs: [
         port('HD Tri-Level Out 1', 'BNC'),
@@ -432,7 +432,7 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
     deviceTypeId: 'efa08d23-505b-44f8-9a45-3d778342d87a',
     template: {
       name: 'Blackmagic Smartscope Duo 4K2',
-      category: 'Monitore',
+      category: 'Monitors',
       inputs: [...sdiIn(2)],
       outputs: [],
       width: 220, height: 120,
@@ -446,7 +446,7 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
     deviceTypeId: 'db230d68-3b19-4160-b6dc-05c3d16ece11',
     template: {
       name: 'Blackmagic Micro Converter BiDirectional SDI/HDMI 12G',
-      category: 'Konverter',
+      category: 'Converter',
       inputs: [port('SDI In', 'BNC'), port('HDMI In', 'HDMI')],
       outputs: [port('SDI Out', 'BNC'), port('HDMI Out', 'HDMI')],
       width: 200, height: 140,
@@ -457,7 +457,7 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
     deviceTypeId: '9ceddbba-980f-4bc3-99c4-f9223dd0874c',
     template: {
       name: 'Blackmagic Micro Converter BiDirectional SDI/HDMI 3G',
-      category: 'Konverter',
+      category: 'Converter',
       inputs: [port('SDI In', 'BNC'), port('HDMI In', 'HDMI')],
       outputs: [port('SDI Out', 'BNC'), port('HDMI Out', 'HDMI')],
       width: 200, height: 140,
@@ -468,7 +468,7 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
     deviceTypeId: '93078cb6-4e8c-412c-b654-f5320fe53351',
     template: {
       name: 'Blackmagic Micro Converter SDI to HDMI 12G',
-      category: 'Konverter',
+      category: 'Converter',
       inputs: [port('SDI In', 'BNC')],
       outputs: [port('SDI Loop Out', 'BNC'), port('HDMI Out', 'HDMI')],
       width: 200, height: 140,
@@ -479,7 +479,7 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
     deviceTypeId: '7ef51e97-2e2e-441f-8b19-2943c0e04d4e',
     template: {
       name: 'Blackmagic Micro Converter SDI to HDMI 3G',
-      category: 'Konverter',
+      category: 'Converter',
       inputs: [port('SDI In', 'BNC')],
       outputs: [port('SDI Loop Out', 'BNC'), port('HDMI Out', 'HDMI')],
       width: 200, height: 140,
@@ -490,7 +490,7 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
     deviceTypeId: '69195cbd-170e-4489-b623-d7290db0c68b',
     template: {
       name: 'Blackmagic Micro Converter HDMI to SDI 12G',
-      category: 'Konverter',
+      category: 'Converter',
       inputs: [port('HDMI In', 'HDMI')],
       outputs: [port('SDI Out 1', 'BNC'), port('SDI Out 2', 'BNC')],
       width: 200, height: 140,
@@ -501,7 +501,7 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
     deviceTypeId: '65188048-59bf-46d5-8778-9d48795ccd36',
     template: {
       name: 'Blackmagic Micro Converter HDMI to SDI 3G',
-      category: 'Konverter',
+      category: 'Converter',
       inputs: [port('HDMI In', 'HDMI')],
       outputs: [port('SDI Out 1', 'BNC'), port('SDI Out 2', 'BNC')],
       width: 200, height: 140,
@@ -514,7 +514,7 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
     deviceTypeId: '42b1cf91-b11e-4680-87a1-889320cbcf3f',
     template: {
       name: 'Blackmagic Mini Converter Optical Fiber 12G',
-      category: 'Konverter',
+      category: 'Converter',
       inputs: [port('SDI In', 'BNC'), port('Optical In (LC)', 'Fiber')],
       outputs: [port('SDI Out', 'BNC'), port('Optical Out (LC)', 'Fiber')],
       width: 220, height: 140,
@@ -525,7 +525,7 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
     deviceTypeId: 'cdf1e76f-9e49-4dfe-89dc-17d5b4608401',
     template: {
       name: 'Blackmagic Mini Converter SDI Distribution 12G',
-      category: 'Konverter',
+      category: 'Converter',
       inputs: [port('SDI In', 'BNC')],
       outputs: sdiOut(8),
       width: 220, height: 220,
@@ -536,7 +536,7 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
     deviceTypeId: '61b65209-6ef5-4bf7-a312-5fa5aa7f69bb',
     template: {
       name: 'Blackmagic Mini Converter SDI to HDMI 6G',
-      category: 'Konverter',
+      category: 'Converter',
       inputs: [port('SDI In', 'BNC')],
       outputs: [
         port('SDI Loop Out', 'BNC'),
@@ -552,7 +552,7 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
     deviceTypeId: '84b2febe-8027-4533-9ad9-ba438c9540e3',
     template: {
       name: 'Blackmagic Mini Converter HDMI to SDI 6G',
-      category: 'Konverter',
+      category: 'Converter',
       inputs: [port('HDMI In', 'HDMI'), port('XLR Audio In 1', 'XLR'), port('XLR Audio In 2', 'XLR')],
       outputs: [port('SDI Out 1', 'BNC'), port('SDI Out 2', 'BNC')],
       width: 220, height: 180,

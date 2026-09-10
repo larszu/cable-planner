@@ -81,7 +81,7 @@ const ports = (
  */
 const blende = (name: string, n: number, connectorType: ConnectorType): EquipmentTemplate => ({
   name,
-  category: 'Patchblende',
+  category: 'Patch panels',
   isPatchPanel: true,
   width: 240,
   height: 80,
@@ -101,7 +101,7 @@ const leiste = (
   aus: ConnectorType,
 ): EquipmentTemplate => ({
   name,
-  category: 'Stromverteilung',
+  category: 'Power distribution',
   width: 240,
   height: 80,
   inputs: ports('Einspeisung', 1, ein),
@@ -121,7 +121,7 @@ const verteiler = (
   abgaenge: { name: string; n: number; connectorType: ConnectorType; absicherungA: number }[],
 ): EquipmentTemplate => ({
   name,
-  category: 'Stromverteilung',
+  category: 'Power distribution',
   width: 240,
   height: 80,
   inputs: ports('Einspeisung', 1, ein),
@@ -131,25 +131,25 @@ const verteiler = (
 })
 
 export const passiveTemplates: EquipmentTemplate[] = [
-  blende('Patchblende 12x BNC', 12, 'BNC'),
-  blende('Patchblende 24x BNC', 24, 'BNC'),
-  blende('Patchblende 48x BNC', 48, 'BNC'),
-  blende('Patchblende 24x RJ45', 24, 'Ethernet/RJ45'),
-  blende('Patchblende 24x XLR', 24, 'XLR'),
+  blende('Patch panel 12x BNC', 12, 'BNC'),
+  blende('Patch panel 24x BNC', 24, 'BNC'),
+  blende('Patch panel 48x BNC', 48, 'BNC'),
+  blende('Patch panel 24x RJ45', 24, 'Ethernet/RJ45'),
+  blende('Patch panel 24x XLR', 24, 'XLR'),
 
-  durchgang('Durchgangsbuchse BNC', 'BNC'),
-  durchgang('Durchgangsbuchse XLR', 'XLR'),
-  durchgang('Durchgangsbuchse RJ45', 'Ethernet/RJ45'),
+  durchgang('Feed-through BNC', 'BNC'),
+  durchgang('Feed-through XLR', 'XLR'),
+  durchgang('Feed-through RJ45', 'Ethernet/RJ45'),
 
   leiste('Steckdosenleiste 6-fach', 6, 'Schuko 230V', 'Schuko 230V'),
   leiste('Steckdosenleiste 8-fach', 8, 'Schuko 230V', 'Schuko 230V'),
   leiste('IEC-Leiste 8-fach', 8, 'IEC 230V', 'IEC 230V'),
 
-  verteiler('Verteiler CEE32', 'CEE32', [
+  verteiler('Distro CEE32', 'CEE32', [
     { name: 'Schuko', n: 6, connectorType: 'Schuko 230V', absicherungA: 16 },
     { name: 'CEE16', n: 2, connectorType: 'CEE16', absicherungA: 16 },
   ]),
-  verteiler('Verteiler CEE63', 'CEE63', [
+  verteiler('Distro CEE63', 'CEE63', [
     { name: 'CEE32', n: 2, connectorType: 'CEE32', absicherungA: 32 },
     { name: 'CEE16', n: 4, connectorType: 'CEE16', absicherungA: 16 },
     { name: 'Schuko', n: 6, connectorType: 'Schuko 230V', absicherungA: 16 },

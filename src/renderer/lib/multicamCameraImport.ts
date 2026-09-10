@@ -81,7 +81,7 @@ export function cameraListToEquipment(ex: CameraListExchange): EquipmentItem[] {
     const base = {
       id: c.id || '',
       name: c.label || tmpl?.name || 'Kamera',
-      category: 'Kameras',
+      category: 'Cameras',
       // Stabile Geraetetyp-ID durchreichen: bevorzugt die des aufgeloesten
       // Templates, sonst die vom Exporter mitgegebene (auch wenn unser Katalog
       // sie noch nicht kennt — Identitaet bekannt, Ports evtl. nicht).

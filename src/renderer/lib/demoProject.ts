@@ -35,7 +35,7 @@ export const createDemoProject = (): CablePlannerProject => {
 
   return {
     metadata: {
-      name: 'Beispiel: Kleines Studio-Setup',
+      name: 'Example: small studio setup',
       description:
         'Demo-Plan: 2 Kameras → Bildmischer → Multiviewer & Regie-Monitor. ' +
         'Zum Ausprobieren — einfach Geräte/Kabel anklicken oder löschen.',
@@ -48,8 +48,8 @@ export const createDemoProject = (): CablePlannerProject => {
     equipment: [
       {
         id: cam1,
-        name: 'Kamera 1',
-        category: 'Kameras',
+        name: 'Camera 1',
+        category: 'Cameras',
         inputs: [],
         outputs: [{ id: cam1Out, name: 'SDI Out', type: 'BNC', connectorType: 'BNC', direction: 'out' }],
         x: 80,
@@ -60,8 +60,8 @@ export const createDemoProject = (): CablePlannerProject => {
       },
       {
         id: cam2,
-        name: 'Kamera 2',
-        category: 'Kameras',
+        name: 'Camera 2',
+        category: 'Cameras',
         inputs: [],
         outputs: [{ id: cam2Out, name: 'SDI Out', type: 'BNC', connectorType: 'BNC', direction: 'out' }],
         x: 80,
@@ -72,8 +72,8 @@ export const createDemoProject = (): CablePlannerProject => {
       },
       {
         id: mix,
-        name: 'Bildmischer',
-        category: 'Mischer',
+        name: 'Vision mixer',
+        category: 'Mixer',
         inputs: [
           { id: mixIn1, name: 'In 1', type: 'BNC', connectorType: 'BNC', direction: 'in' },
           { id: mixIn2, name: 'In 2', type: 'BNC', connectorType: 'BNC', direction: 'in' },
@@ -93,7 +93,7 @@ export const createDemoProject = (): CablePlannerProject => {
       {
         id: mv,
         name: 'Multiviewer',
-        category: 'Monitor',
+        category: 'Monitors',
         inputs: [{ id: mvIn, name: 'SDI In', type: 'BNC', connectorType: 'BNC', direction: 'in' }],
         outputs: [],
         x: 880,
@@ -103,8 +103,8 @@ export const createDemoProject = (): CablePlannerProject => {
       },
       {
         id: mon,
-        name: 'Regie-Monitor',
-        category: 'Monitor',
+        name: 'Control room monitor',
+        category: 'Monitors',
         inputs: [{ id: monIn, name: 'SDI In', type: 'BNC', connectorType: 'BNC', direction: 'in' }],
         outputs: [],
         x: 880,
@@ -116,7 +116,7 @@ export const createDemoProject = (): CablePlannerProject => {
     cables: [
       {
         id: uuidv4(),
-        name: 'CAM 1 → Mischer',
+        name: 'CAM 1 → mixer',
         type: 'BNC',
         length: 12,
         color: '#3b82f6',
@@ -131,7 +131,7 @@ export const createDemoProject = (): CablePlannerProject => {
       },
       {
         id: uuidv4(),
-        name: 'CAM 2 → Mischer',
+        name: 'CAM 2 → mixer',
         type: 'BNC',
         length: 18,
         color: '#3b82f6',
@@ -146,7 +146,7 @@ export const createDemoProject = (): CablePlannerProject => {
       },
       {
         id: uuidv4(),
-        name: 'PGM → Regie-Monitor',
+        name: 'PGM → control room monitor',
         type: 'BNC',
         length: 6,
         color: '#ef4444',

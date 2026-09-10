@@ -46,7 +46,8 @@
 // ───────────────────────────────────────────────────────────────────────────
 
 import { _electron as electron } from 'playwright-core'
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { homedir } from 'node:os'
 import { join } from 'node:path'
 
 const WURZEL = process.cwd()
@@ -58,6 +59,22 @@ const BREITE = 1500
 const HOEHE = 950
 
 mkdirSync(ZIEL, { recursive: true })
+
+// ── Mit leerem Profil starten ──────────────────────────────────────────────
+//
+// Sonst nimmt der Lauf, was der letzte hinterlassen hat. Gemessen am
+// 2026-09-10: die Aufnahme zeigte das AUTOSAVE einer frueheren Sitzung —
+// „Beispiel: Kleines Studio-Setup" mit `Kamera 1` und `Bildmischer` —,
+// obwohl das Beispielprojekt im Code laengst englisch war (#822). Und die
+// Seitenleiste fuehrte `Patch panels` zweimal, weil eine alte Vorlage aus
+// `localStorage` noch den deutschen Kategorienamen trug.
+//
+// Ein Bildersatz, der von der letzten Sitzung abhaengt, sagt nichts ueber das
+// Produkt. Der Ordner geht deshalb weg, bevor Electron startet — dasselbe
+// Argument wie beim Festnageln von Sprache und Thema weiter unten, nur eine
+// Ebene tiefer.
+rmSync(join(homedir(), '.config', 'cable-planner'), { recursive: true, force: true })
+rmSync(join(homedir(), '.config', 'Cable Planner'), { recursive: true, force: true })
 
 const app = await electron.launch({
   args: ['.', '--no-sandbox', '--disable-gpu'],

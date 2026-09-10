@@ -21,7 +21,7 @@ describe('multicamCameraImport (Cable ← MultiCam)', () => {
   it('mappt Kameras auf Equipment der Kategorie "Kameras"', () => {
     const items = cameraListToEquipment(sample)
     expect(items).toHaveLength(2)
-    expect(items.every((e) => e.category === 'Kameras')).toBe(true)
+    expect(items.every((e) => e.category === 'Cameras')).toBe(true)
     expect(items[0].name).toBe('CAM 1')
     // Venue-Meter → Canvas-Pixel.
     expect(items[0].x).toBe(5 * 120)

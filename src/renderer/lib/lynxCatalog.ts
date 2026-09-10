@@ -43,7 +43,7 @@ export const LYNX_CATALOG: LynxEntry[] = [
     template: {
       manufacturerUrl: 'https://lynx-technik.com/p/cdh-1813/',
       name: 'Lynx Technik yellobrik CDH 1813',
-      category: 'Konverter',
+      category: 'Converter',
       isConverter: true,
       inputs: [
         { id: '', name: '3G-SDI In', type: 'BNC', connectorType: 'BNC' },
@@ -65,7 +65,7 @@ export const LYNX_CATALOG: LynxEntry[] = [
     template: {
       manufacturerUrl: 'https://lynx-technik.com/p/chd-1802/',
       name: 'Lynx Technik yellobrik CHD 1802',
-      category: 'Konverter',
+      category: 'Converter',
       isConverter: true,
       inputs: [
         { id: '', name: 'HDMI In', type: 'HDMI', connectorType: 'HDMI' },
@@ -85,7 +85,7 @@ export const LYNX_CATALOG: LynxEntry[] = [
     template: {
       manufacturerUrl: 'https://lynx-technik.com/p/otx-1812/',
       name: 'Lynx Technik yellobrik OTX 1812',
-      category: 'Konverter',
+      category: 'Converter',
       isConverter: true,
       inputs: [
         { id: '', name: '3G-SDI In', type: 'BNC', connectorType: 'BNC' },
@@ -106,7 +106,7 @@ export const LYNX_CATALOG: LynxEntry[] = [
     template: {
       manufacturerUrl: 'https://lynx-technik.com/p/orx-1802/',
       name: 'Lynx Technik yellobrik ORX 1802',
-      category: 'Konverter',
+      category: 'Converter',
       isConverter: true,
       inputs: [
         { id: '', name: 'Fiber In (LC)', type: 'Fiber', connectorType: 'Fiber' },
@@ -126,7 +126,7 @@ export const LYNX_CATALOG: LynxEntry[] = [
     template: {
       manufacturerUrl: 'https://lynx-technik.com/p/spg-1707/',
       name: 'Lynx Technik yellobrik SPG 1707',
-      category: 'Sync/Referenz',
+      category: 'Sync/Reference',
       inputs: [
         { id: '', name: 'Genlock Ref In', type: 'BNC', connectorType: 'BNC' },
       ],
@@ -167,7 +167,7 @@ export const LYNX_CATALOG: LynxEntry[] = [
     template: {
       manufacturerUrl: 'https://lynx-technik.com/p/gm-6825/',
       name: 'Lynx Technik greenMachine callisto+',
-      category: 'Konverter',
+      category: 'Converter',
       isConverter: true,
       inputs: [
         ...num('3G-SDI In', 2, 'BNC'),

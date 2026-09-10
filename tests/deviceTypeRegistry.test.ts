@@ -155,7 +155,7 @@ describe('detectDeviceKind / detectNetworkDevice — ID vor Heuristik', () => {
   it('Mikrofone tragen Fachdaten (Phantom/Richtcharakteristik) in categoryProps', () => {
     // Kondensator MUSS Phantomspeisung fuehren, Dynamiker keine.
     const km184 = matchMicTemplate('Neumann KM 184')
-    expect(km184?.category).toBe('Mikrofone')
+    expect(km184?.category).toBe('Microphones')
     expect(km184?.categoryProps?.powering).toBe('p48')
     expect(km184?.categoryProps?.polarPattern).toBe('cardioid')
     const sm57 = matchMicTemplate('Shure SM57')
