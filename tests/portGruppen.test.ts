@@ -52,12 +52,9 @@ describe('Was an einer Gruppe nicht stimmen kann', () => {
     const ports = ['a', 'b', 'c'].map((id) =>
       port({ id, portGroup: 'SP-1', portGroupKind: 'stereo' }),
     )
-    expect(gruppenBefunde(ports)).toContainEqual({
-      art: 'groesse',
-      gruppe: 'SP-1',
-      erwartet: 2,
-      ist: 3,
-    })
+    expect(gruppenBefunde(ports)).toContainEqual(
+      expect.objectContaining({ art: 'groesse', gruppe: 'SP-1', erwartet: 2, ist: 3 }),
+    )
   })
 
   it('meldet auch die Gruppe, der ein Mitglied FEHLT', () => {
@@ -65,12 +62,9 @@ describe('Was an einer Gruppe nicht stimmen kann', () => {
     // und wird unterbrochen. Auf dem Blatt steht danach ein Stereo-Anschluss
     // mit einem Kabel.
     const ports = [port({ id: 'a', portGroup: 'SP-1', portGroupKind: 'stereo' })]
-    expect(gruppenBefunde(ports)).toContainEqual({
-      art: 'groesse',
-      gruppe: 'SP-1',
-      erwartet: 2,
-      ist: 1,
-    })
+    expect(gruppenBefunde(ports)).toContainEqual(
+      expect.objectContaining({ art: 'groesse', gruppe: 'SP-1', erwartet: 2, ist: 1 }),
+    )
   })
 
   it('meldet zwei verschiedene Arten in derselben Gruppe', () => {
@@ -89,11 +83,9 @@ describe('Was an einer Gruppe nicht stimmen kann', () => {
       port({ id: 'a', portGroup: 'SP-1', portGroupKind: 'stereo', portGroupRole: 'L' }),
       port({ id: 'b', portGroup: 'SP-1', portGroupKind: 'stereo', portGroupRole: 'L' }),
     ]
-    expect(gruppenBefunde(ports)).toContainEqual({
-      art: 'rolle-doppelt',
-      gruppe: 'SP-1',
-      rolle: 'L',
-    })
+    expect(gruppenBefunde(ports)).toContainEqual(
+      expect.objectContaining({ art: 'rolle-doppelt', gruppe: 'SP-1', rolle: 'L' }),
+    )
   })
 
   it('schweigt bei einer vollständigen Stereo-Gruppe', () => {
@@ -168,12 +160,9 @@ describe('Der Powerlock-Satz (#665)', () => {
   it('ein Satz OHNE PE fällt auf', () => {
     // Der Fall, um den es geht. Vier zu stecken und den fünften zu vergessen
     // ist kein halber Anschluss.
-    expect(gruppenBefunde(satz(['L1', 'L2', 'L3', 'N']))).toContainEqual({
-      art: 'groesse',
-      gruppe: 'PL-IN',
-      erwartet: 5,
-      ist: 4,
-    })
+    expect(gruppenBefunde(satz(['L1', 'L2', 'L3', 'N']))).toContainEqual(
+      expect.objectContaining({ art: 'groesse', gruppe: 'PL-IN', erwartet: 5, ist: 4 }),
+    )
   })
 })
 

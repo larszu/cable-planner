@@ -19,6 +19,7 @@
 // dasselbe meinen, laufen auseinander.
 // ───────────────────────────────────────────────────────────────────────────
 import type { Port, PortGroupKind } from '../types/equipment'
+import { einsetzen, type Platzhalterwerte } from './platzhalter'
 
 /**
  * Wie viele Ports eine Gruppe dieser Art hat — und welche Rollen sie kennt.
@@ -74,10 +75,38 @@ export const portGruppen = (ports: readonly Port[]): PortGruppe[] => {
   return [...nachId.values()]
 }
 
-export type GruppenBefund =
-  | { art: 'groesse'; gruppe: string; erwartet: number; ist: number }
-  | { art: 'artenmix'; gruppe: string; arten: PortGroupKind[] }
-  | { art: 'rolle-doppelt'; gruppe: string; rolle: string }
+/**
+ * Der Satz zum Befund — sprachfrei, wie in `types/adapter.ts` und den anderen
+ * Urteils-Modulen seit #837.
+ *
+ * WARUM DAS MODUL NICHT SELBST UEBERSETZT: es wird an ZWEI Stellen gelesen —
+ * in der Eigenschaften-Leiste, wo `t()` aus dem Hook kommt, und im Plan-Check
+ * auf dem gedruckten Blatt. Ein `tr()` hier drin haette beide an die
+ * eingestellte Sprache gehaengt und jeden Test, der den Text prueft, auf einem
+ * deutschen Rechner rot gemacht — dasselbe Argument wie in
+ * `lib/checkCategoryLabel.ts`.
+ *
+ * ES IST AUCH DER GRUND, WARUM ES NUR EINE FASSUNG DES SATZES GIBT. Vorher
+ * stand er in `PortList.tsx` und sonst nirgends; der Plan-Check haette ihn
+ * zwangslaeufig ein zweites Mal formuliert, und zwei Fassungen desselben
+ * Befundes waeren beim naechsten Umbau auseinandergelaufen.
+ */
+export interface GruppenSatz {
+  /** Woerterbuch-Schluessel. */
+  schluessel: string
+  /** Der englische Satz mit eingesetzten Werten — Quelle und Fallback. */
+  text: string
+  /** Die Werte einzeln, damit die Uebersetzung sie neu einsetzen kann. */
+  werte: Platzhalterwerte
+}
+
+export type GruppenBefund = GruppenSatz &
+  (
+    | { art: 'groesse'; gruppe: string; erwartet: number; ist: number }
+    | { art: 'artenmix'; gruppe: string; arten: PortGroupKind[] }
+    | { art: 'rolle-doppelt'; gruppe: string; rolle: string }
+  )
+
 
 /**
  * Was an den Gruppen NICHT stimmen kann.
@@ -96,18 +125,56 @@ export const gruppenBefunde = (ports: readonly Port[]): GruppenBefund[] => {
   const befunde: GruppenBefund[] = []
   for (const g of portGruppen(ports)) {
     const arten = [...new Set(g.ports.map((p) => p.portGroupKind).filter(Boolean))] as PortGroupKind[]
-    if (arten.length > 1) befunde.push({ art: 'artenmix', gruppe: g.id, arten })
+    if (arten.length > 1) {
+      const werte = { group: g.id, kinds: arten.join(' / ') }
+      befunde.push({
+        art: 'artenmix',
+        gruppe: g.id,
+        arten,
+        schluessel: 'ports.group.kindMismatch',
+        text: einsetzen(
+          'Group "{group}" is declared as {kinds} at the same time — only one of them can be true.',
+          werte,
+        ),
+        werte,
+      })
+    }
 
     const erwartet = g.art ? PORT_GROUP_INFO[g.art].groesse : undefined
     if (erwartet !== undefined && g.ports.length !== erwartet) {
-      befunde.push({ art: 'groesse', gruppe: g.id, erwartet, ist: g.ports.length })
+      const werte = { group: g.id, is: g.ports.length, expected: erwartet }
+      befunde.push({
+        art: 'groesse',
+        gruppe: g.id,
+        erwartet,
+        ist: g.ports.length,
+        schluessel: 'ports.group.sizeMismatch',
+        text: einsetzen(
+          'Group "{group}": {is} of {expected} ports — the group says one connector, the plan shows another number.',
+          werte,
+        ),
+        werte,
+      })
     }
 
     const gesehen = new Set<string>()
     for (const p of g.ports) {
       const r = p.portGroupRole?.trim()
       if (!r) continue
-      if (gesehen.has(r)) befunde.push({ art: 'rolle-doppelt', gruppe: g.id, rolle: r })
+      if (gesehen.has(r)) {
+        const werte = { group: g.id, role: r }
+        befunde.push({
+          art: 'rolle-doppelt',
+          gruppe: g.id,
+          rolle: r,
+          schluessel: 'ports.group.roleTwice',
+          text: einsetzen(
+            'Group "{group}" has "{role}" twice — two left channels are not a stereo pair.',
+            werte,
+          ),
+          werte,
+        })
+      }
       gesehen.add(r)
     }
   }

@@ -288,6 +288,37 @@ export interface Port {
    *  `+`, `-`. Leer heisst „nicht gesagt" und ist erlaubt: eine Gruppe zu
    *  benennen ist schon eine Angabe, auch ohne die Rollen. */
   portGroupRole?: string
+  /**
+   * #838 — Dieser Name kommt vom Nutzer und wird nicht ueberschrieben.
+   *
+   * ─── WOGEGEN ER SCHUETZT ─────────────────────────────────────────────────
+   *
+   * `PortList.renameIfDefault` benennt einen Port um, sobald Steckertyp oder
+   * Standard wechseln UND der Name noch dem Vorgabe-Muster entspricht
+   * (`Input 1`, `In 3`, `Out 4`): aus `Input 1` wird `SDI 1`. Das ist die
+   * ausdrueckliche Entscheidung aus #175 und erspart das Umbenennen bei
+   * jedem Typwechsel.
+   *
+   * Ihr Preis faellt an genau einer Stelle an: WER EINEN PORT BEWUSST `In 5`
+   * NENNT, IST VON EINEM VORGABENAMEN NICHT ZU UNTERSCHEIDEN — und verliert
+   * ihn beim naechsten Steckertyp-Wechsel. Die Loesung war nicht, die Regel
+   * zu kippen (dann kaeme das Umbenennen bei jedem Typwechsel zurueck),
+   * sondern die fehlende Angabe nachzureichen: woher der Name stammt.
+   *
+   * ─── WARUM ES KEINE MIGRATION DAZU GIBT ──────────────────────────────────
+   *
+   * Weil sie luegen muesste. In einem alten Projekt steht am Port nur der
+   * Name, und ihm sieht niemand an, wer ihn geschrieben hat: `SDI 1` kann
+   * getippt sein ODER von `renameIfDefault` stammen — das Muster erzeugt
+   * genau solche Namen. Ein Migrationslauf, der jeden Nicht-Vorgabenamen als
+   * „vom Nutzer" markierte, traege eine Behauptung ins Projekt-File, die es
+   * nicht belegen kann.
+   *
+   * Fehlt das Feld, entscheidet weiter `isDefaultName` allein — also genau
+   * das Verhalten von vorher. Alte Projekte werden dadurch nicht schlechter,
+   * und der erste getippte Name setzt das Merkmal.
+   */
+  nameFromUser?: boolean
   /** v7.9.14 — Wenn dieses Equipment ein Black-Box-Rack ist, markiert
    *  jeder externe Port aus welchem internen Rack-Gerät er stammt
    *  (Index in rackInternalSnapshot.items). EquipmentNode nutzt diese
