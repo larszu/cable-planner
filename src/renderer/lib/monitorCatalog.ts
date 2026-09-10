@@ -1,15 +1,18 @@
 import type { EquipmentTemplate, Port } from '../types/equipment'
 import type { RecordingCapability } from './recording'
 
-// Broadcast monitor / monitor-recorder templates. Matched by name substrings
-// so Rentman items resolve to the correct port layout on import. All templates
-// are also seeded into the built-in library.
+// ───────────────────────────────────────────────────────────────────────────
+// Broadcast-Monitor-/Monitor-Recorder-Katalog. Matched by name substrings so
+// Rentman items resolve to the correct port layout on import; auch eingesät.
 //
-// BELEGLAGE: kein Datenblatt-Link je Eintrag (B-11).
-// Bis 2026-09-09 stand hier „sourced from official datasheets". Keiner der
-// 36 Einträge hinterlegt eines. Bei Monitoren trifft das die Port-Belegung —
-// also genau das, wofür dieser Katalog beim Import gelesen wird.
-// `tests/katalogBeleglage.test.ts` hält es fest.
+// Belege gegen die offiziellen Hersteller-Produktseiten, wo eine erreichbar
+// ist (Recherche 2026-09, Quellen-URL je Eintrag): Blackmagic Video Assist
+// (blackmagicdesign.com) und die SmallHD-Cine-Serie (smallhd.com), beide per
+// curl gegen die Fallbackseite geprüft. Die übrigen Einträge (Atomos, TVLogic,
+// Marshall V-LCD, JVC DT-V, NEC MultiSync, ältere SmallHD) sind eingestellt
+// oder liegen auf Domänen, die von hier nachweislich nicht erreichbar sind
+// (Atomos: 403 auf curl wie WebFetch). Sie bleiben ohne Beleg statt mit einer
+// geratenen Adresse — das ist die ehrliche Auskunft, kein Versäumnis.
 
 const port = (name: string, connectorType: Port['connectorType'] = 'BNC'): Port => ({
   id: '',
@@ -54,7 +57,9 @@ export const MONITOR_CATALOG: MonitorEntry[] = [
   {
     match: ['video assist', '7', '12g'],
     deviceTypeId: '8084865f-8629-4256-9ab9-afc426b1d3c8',
+    // Quelle: https://www.blackmagicdesign.com/products/blackmagicvideoassist
     template: {
+      manufacturerUrl: 'https://www.blackmagicdesign.com/products/blackmagicvideoassist',
       name: 'Blackmagic Video Assist 7" 12G HDR',
       category: MON,
       inputs:  [sdiIn('12G-SDI In'), hdmiIn('HDMI In'), xlrIn('XLR L In'), xlrIn('XLR R In')],
@@ -65,7 +70,9 @@ export const MONITOR_CATALOG: MonitorEntry[] = [
   {
     match: ['video assist', '5', '12g'],
     deviceTypeId: '67412da8-5f5f-40f6-94c8-dc5a7aa88afb',
+    // Quelle: https://www.blackmagicdesign.com/products/blackmagicvideoassist
     template: {
+      manufacturerUrl: 'https://www.blackmagicdesign.com/products/blackmagicvideoassist',
       name: 'Blackmagic Video Assist 5" 12G HDR',
       category: MON,
       inputs:  [sdiIn('12G-SDI In'), hdmiIn('HDMI In')],
@@ -76,7 +83,9 @@ export const MONITOR_CATALOG: MonitorEntry[] = [
   {
     match: ['video assist', '7', '3g'],
     deviceTypeId: '7f67f2bb-2ad0-43c2-8f88-91bef51fa46e',
+    // Quelle: https://www.blackmagicdesign.com/products/blackmagicvideoassist
     template: {
+      manufacturerUrl: 'https://www.blackmagicdesign.com/products/blackmagicvideoassist',
       name: 'Blackmagic Video Assist 7" 3G',
       category: MON,
       inputs:  [sdiIn('3G-SDI In'), hdmiIn('HDMI In'), xlrIn('XLR L In'), xlrIn('XLR R In')],
@@ -87,7 +96,9 @@ export const MONITOR_CATALOG: MonitorEntry[] = [
   {
     match: ['video assist', '5', '3g'],
     deviceTypeId: 'f928632f-7e91-4198-9031-f0d8a8146dad',
+    // Quelle: https://www.blackmagicdesign.com/products/blackmagicvideoassist
     template: {
+      manufacturerUrl: 'https://www.blackmagicdesign.com/products/blackmagicvideoassist',
       name: 'Blackmagic Video Assist 5" 3G',
       category: MON,
       inputs:  [sdiIn('3G-SDI In'), hdmiIn('HDMI In')],
@@ -260,7 +271,9 @@ export const MONITOR_CATALOG: MonitorEntry[] = [
   {
     match: ['smallhd', 'cine', '18'],
     deviceTypeId: 'aaf51407-a8ee-49b4-adf5-78d497eefa71',
+    // Quelle: https://smallhd.com/products/cine-18
     template: {
+      manufacturerUrl: 'https://smallhd.com/products/cine-18',
       name: 'SmallHD Cine 18',
       category: MON,
       inputs: [
@@ -277,7 +290,9 @@ export const MONITOR_CATALOG: MonitorEntry[] = [
   {
     match: ['smallhd', 'cine', '13'],
     deviceTypeId: '7318c360-c091-4508-a198-064f535db356',
+    // Quelle: https://smallhd.com/products/cine-13
     template: {
+      manufacturerUrl: 'https://smallhd.com/products/cine-13',
       name: 'SmallHD Cine 13',
       category: MON,
       inputs: [sdiIn('SDI In 1'), sdiIn('SDI In 2'), hdmiIn('HDMI In'), sdiIn('Ref In')],
@@ -289,7 +304,9 @@ export const MONITOR_CATALOG: MonitorEntry[] = [
   {
     match: ['smallhd', 'cine', '7'],
     deviceTypeId: '61e184b2-e14c-4fa9-9308-3c74adc53018',
+    // Quelle: https://smallhd.com/products/cine-7
     template: {
+      manufacturerUrl: 'https://smallhd.com/products/cine-7',
       name: 'SmallHD Cine 7',
       category: MON,
       inputs:  [sdiIn('SDI In'), hdmiIn('HDMI In')],
