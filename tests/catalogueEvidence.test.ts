@@ -73,7 +73,7 @@ describe('Initiative 11 — trägt diese Katalog-Zeile ein Datenblatt?', () => {
     // selbst). blackmagic ist 2026-09 mit 31 Belegen dazugekommen — der
     // Smartscope Duo 4K bleibt als einziger unbelegt (eingestellt, keine
     // Live-Produktseite).
-    expect(kommentare).toBe(292)
+    expect(kommentare).toBe(325)
   })
 
   it('2. die Abdeckung wird gerechnet', () => {
@@ -81,16 +81,16 @@ describe('Initiative 11 — trägt diese Katalog-Zeile ein Datenblatt?', () => {
     // Die Summen stammen aus derselben Rechnung wie die Zeilen.
     expect(bericht.entries).toBe(bericht.perCatalogue.reduce((s, c) => s + c.entries, 0))
     expect(bericht.sourced + bericht.unsourced).toBe(bericht.entries)
-    expect(bericht.sourced).toBe(292)
+    expect(bericht.sourced).toBe(325)
     expect(bericht.entries).toBe(413)
 
-    // Die vier Kataloge ohne Beleg sind genau die, die B-11 nennt — und die
+    // Die drei Kataloge ohne Beleg sind genau die, die B-11 nennt — und die
     // Liste wird GERECHNET, nicht aufgezählt: trägt einer von ihnen morgen
     // Belege nach, fällt er von selbst heraus.
     const ohne = bericht.perCatalogue.filter((c) => c.sourced === 0).map((c) => c.name)
-    expect(ohne).toEqual(['camera', 'misc', 'monitor', 'ubiquiti'])
+    expect(ohne).toEqual(['camera', 'misc', 'monitor'])
     expect(bericht.perCatalogue.filter((c) => c.sourced === 0)
-      .reduce((s, c) => s + c.entries, 0)).toBe(118)
+      .reduce((s, c) => s + c.entries, 0)).toBe(78)
   })
 
   it('3. die Ratsche: ein vollständig belegter Katalog bleibt es', () => {
