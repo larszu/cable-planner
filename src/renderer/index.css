@@ -343,15 +343,16 @@ body,
  * Glasflaeche nachjustieren wollte, las hier warum es die Regeln gibt,
  * aenderte die Zeile darunter — und sah nichts passieren.
  *
- * Die Regeln stehen jetzt an einer Stelle, und zwar hier: bei ihrer
- * Begruendung. Die Werte sind die WIRKSAMEN uebernommen, nicht die
- * kommentierten — was die App seit Monaten zeigt, ist der Ist-Zustand;
- * ihn nebenbei zu aendern waere eine unbestellte Aenderung am Aussehen. */
-[data-theme="light"] .bg-slate-950\/30   { background-color: rgba(240,244,248,0.3); }
-[data-theme="light"] .bg-slate-950\/40   { background-color: rgba(240,244,248,0.4); }
-[data-theme="light"] .bg-slate-950\/50   { background-color: rgba(240,244,248,0.5); }
-[data-theme="light"] .bg-slate-950\/60   { background-color: rgba(240,244,248,0.6); }
-[data-theme="light"] .bg-slate-900\/98   { background-color: rgba(234,239,245,0.98); }
+ * Die Regeln standen zuletzt an einer Stelle, und zwar hier: bei ihrer
+ * Begruendung.
+ *
+ * UND SIND SEIT 2026-09-10 GANZ WEG. Die fuenf Glasflaechen, die sie
+ * deckten, tragen jetzt `bg-cp-surface-*/NN` — Tailwind rechnet daraus
+ * selbst ein `color-mix` auf den Token, und der Token kippt pro Theme. Ein
+ * Remap-Eintrag hat damit niemanden mehr, und der Waechter
+ * (`tests/themeRemapEindeutig.test.ts`) hat genau das gemeldet, als die
+ * letzte Nutzung wegfiel. So soll er sich verhalten: die Liste schrumpft
+ * mit der Migration mit, statt Karteileichen anzusammeln. */
 /* Modal-Backdrop: im Light-Mode statt schwarz ein helles Grau mit
  * Transparenz, damit Modals "weiches Glas" auf hellem Hintergrund sind. */
 [data-theme="light"] .bg-black\/40       { background-color: rgba(15,23,42,0.15); }
