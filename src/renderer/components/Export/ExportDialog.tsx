@@ -328,7 +328,7 @@ const PlanSection = ({
               <Icon icon={opt.icon} size="sm" />
               <span className="flex-1">
                 <span className="block font-semibold text-cp-text">{opt.label}</span>
-                <span className="block text-[10px] text-cp-text-muted">{opt.hint}</span>
+                <span className="block text-cp-xs text-cp-text-muted">{opt.hint}</span>
               </span>
             </label>
           )
@@ -393,7 +393,7 @@ const PlanSection = ({
               />
               <span>
                 <span className="flex items-center gap-1"><Icon icon={Camera} size="xs" /> {t('export.render.raster', 'Raster (classic)')}</span>
-                <span className="block text-[10px] text-cp-text-muted">
+                <span className="block text-cp-xs text-cp-text-muted">
                   {t(
                     'export.render.rasterHint',
                     'JPEG snapshot. Reliable, but text blurs at high zoom in the PDF.',
@@ -411,7 +411,7 @@ const PlanSection = ({
               />
               <span>
                 <span className="flex items-center gap-1"><Icon icon={Sparkles} size="xs" /> {t('export.render.vector', 'Vector')}</span>
-                <span className="block text-[10px] text-cp-text-muted">
+                <span className="block text-cp-xs text-cp-text-muted">
                   {/* ADR-005, Regel 4 — hier standen nur die Vorteile. Der
                       Vektor-Pfad klont das Canvas-DOM und druckt es via
                       Chromium; einen Titelblock baut er nicht. Revision,
@@ -447,7 +447,7 @@ const PlanSection = ({
                 <option value="a0plus">A0+ Plotter (1682×1189 mm)</option>
                 <option value="original">{t('export.page.original', 'Original — full canvas size for plotter')}</option>
               </select>
-              <p className="text-[10px] text-cp-text-muted">
+              <p className="text-cp-xs text-cp-text-muted">
                 {pdfPageSize === 'original'
                   ? t('export.page.originalHint', 'Heads-up: Edge / Preview sometimes display pages above A0 as white. Acrobat + plotter software print them anyway.')
                   : t('export.page.scaleHint', 'Canvas is scaled vectorially to the page size. Text stays sharp.')}
@@ -465,14 +465,14 @@ const PlanSection = ({
             <div className="-mx-1 flex flex-wrap gap-1">
               <LayerVisibilityChips />
             </div>
-            <p className="text-[10px] text-cp-text-muted">
+            <p className="text-cp-xs text-cp-text-muted">
               {t('export.layersHint', 'Click a chip to toggle that layer for canvas AND PDF.')}
             </p>
           </fieldset>
         </>
       )}
 
-      <div className="rounded border border-cp-border-muted bg-cp-surface-3/40 p-2 text-[11px] text-cp-text-muted">
+      <div className="rounded border border-cp-border-muted bg-cp-surface-3/40 p-2 text-cp-xs text-cp-text-muted">
         {t('export.savedAs', 'Saved as')} <code className="rounded bg-cp-surface-2 px-1 py-0.5">{projectName || 'cable-planner'}</code>
       </div>
       </div>
@@ -607,7 +607,7 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
         <span className="text-emerald-300">→</span>
       </button>
 
-      <div className="mb-1 text-[11px] text-cp-text-muted">
+      <div className="mb-1 text-cp-xs text-cp-text-muted">
         {t('export.patch.perDeviceHint', '— or create one patch sheet per device:')}
       </div>
 
@@ -619,7 +619,7 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
           <button
             type="button"
             onClick={toggleAll}
-            className="rounded bg-cp-surface-2 px-2 py-0.5 text-[10px] hover:bg-cp-surface-4"
+            className="rounded bg-cp-surface-2 px-2 py-0.5 text-cp-xs hover:bg-cp-surface-4"
           >
             {selectedIds.size === filtered.length
               ? t('export.patch.deselectAll', 'Deselect all')
@@ -655,12 +655,12 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
                   }}
                 />
                 <span className="flex-1 truncate">{d.name}</span>
-                <span className="text-[10px] text-cp-text-muted">{d.category}</span>
+                <span className="text-cp-xs text-cp-text-muted">{d.category}</span>
               </label>
             )
           })}
           {filtered.length === 0 && (
-            <div className="px-2 py-3 text-center text-[11px] text-cp-text-muted">
+            <div className="px-2 py-3 text-center text-cp-xs text-cp-text-muted">
               {t('export.patch.noDevices', 'No devices in the project.')}
             </div>
           )}
@@ -842,7 +842,7 @@ const RackGroupSection = ({ onClose }: { onClose: () => void }) => {
                 type="button"
                 disabled={busy}
                 onClick={() => void run(p, 'pdf')}
-                className="rounded bg-sky-700 px-2 py-1 text-[11px] font-medium text-white hover:bg-sky-600 disabled:opacity-50"
+                className="rounded bg-sky-700 px-2 py-1 text-cp-xs font-medium text-white hover:bg-sky-600 disabled:opacity-50"
               >
                 {t('export.rack.pdf', 'PDF')}
               </button>
@@ -850,7 +850,7 @@ const RackGroupSection = ({ onClose }: { onClose: () => void }) => {
                 type="button"
                 disabled={busy}
                 onClick={() => void run(p, 'print')}
-                className="rounded bg-cp-surface-4 px-2 py-1 text-[11px] hover:bg-cp-surface-5 disabled:opacity-50"
+                className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5 disabled:opacity-50"
               >
                 <Icon icon={Printer} size="xs" className="mr-1 inline-block align-text-bottom" />
                 {t('export.rack.print', 'Print')}
@@ -1136,7 +1136,7 @@ const BomSection = () => {
       {/* v7.9.4 — Status-Zeile oben (shrink-0), Tabelle nimmt flex-1 mit
           eigenem overflow-auto, Footer + Action-Buttons sind shrink-0
           → bleiben IMMER sichtbar, egal wie groß der Dialog ist. */}
-      <div className="flex shrink-0 flex-wrap items-center gap-2 text-[11px] text-cp-text-muted">
+      <div className="flex shrink-0 flex-wrap items-center gap-2 text-cp-xs text-cp-text-muted">
         <span>
           {t('export.installedCables', 'Installed cables:')}{' '}
           <b className="text-cp-text-bright">{project.cables.length}</b>
@@ -1185,7 +1185,7 @@ const BomSection = () => {
                 <td className="px-3 py-1">
                   <span className="font-medium text-cp-text">{r.type}</span>
                   {r.sample && (
-                    <span className="ml-1 text-[10px] text-cp-text-muted">({r.sample.name})</span>
+                    <span className="ml-1 text-cp-xs text-cp-text-muted">({r.sample.name})</span>
                   )}
                 </td>
                 <td className="px-3 py-1 text-right font-mono">{r.length}</td>
@@ -1240,7 +1240,7 @@ const BomSection = () => {
 
       {/* Per-Gewerk-Zusammenfassung (Anzahl + Meter je Layer). */}
       {layerSummary.length > 0 && (
-        <div className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-cp-text-muted">
+        <div className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1 text-cp-xs text-cp-text-muted">
           <span className="font-semibold uppercase tracking-wide text-cp-text-faint">
             {t('export.bom.byLayer', 'By discipline')}:
           </span>
@@ -1254,7 +1254,7 @@ const BomSection = () => {
         </div>
       )}
       {connectorSummary.length > 0 && (
-        <div className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-cp-text-muted">
+        <div className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1 text-cp-xs text-cp-text-muted">
           <span className="font-semibold uppercase tracking-wide text-cp-text-faint">
             {t('export.bom.connectors', 'Connectors (ends)')}:
           </span>
@@ -1267,7 +1267,7 @@ const BomSection = () => {
       )}
 
       {/* Rentman-Planung-Save (shrink-0, pinned). */}
-      <div className="flex shrink-0 items-center justify-between text-[11px]">
+      <div className="flex shrink-0 items-center justify-between text-cp-xs">
         <span className="text-cp-text-muted">
           {draftPlan
             ? t('export.bom.rentmanDirty', 'Unsaved changes to the Rentman plan.')
@@ -1807,7 +1807,7 @@ const DeviceBomSection = () => {
                               typZuweisen(row.typeTargetIds, event.target.value)
                             }
                           }}
-                          className="ml-2 max-w-[14rem] rounded border border-cp-border bg-cp-surface-1 px-1 py-0.5 text-[10px] text-cp-text-secondary"
+                          className="ml-2 max-w-[14rem] rounded border border-cp-border bg-cp-surface-1 px-1 py-0.5 text-cp-xs text-cp-text-secondary"
                           title={t(
                             'export.devicebom.assignTitle',
                             'Writes the catalogue type onto every device in this row. Stock coverage then matches on the catalogue identity instead of the name.',
@@ -1841,7 +1841,7 @@ const DeviceBomSection = () => {
                           onClick={() =>
                             typBestaetigen(row.itemId!, row.deviceTypeId!)
                           }
-                          className="ml-2 rounded border border-cp-border px-1.5 py-0.5 text-[10px] font-normal text-cp-text-secondary hover:bg-cp-surface-3"
+                          className="ml-2 rounded border border-cp-border px-1.5 py-0.5 text-cp-xs font-normal text-cp-text-secondary hover:bg-cp-surface-3"
                           title={t(
                             'export.devicebom.confirmTitle',
                             'Writes the catalogue identity permanently onto this inventory position. The coverage is then a fact and never has to be guessed from the name again.',

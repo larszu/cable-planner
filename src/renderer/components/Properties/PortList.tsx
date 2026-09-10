@@ -90,7 +90,7 @@ const SortablePortItem = ({ port, children }: SortablePortItemProps) => {
       <div className="flex items-start gap-2">
         <button
           type="button"
-          className="mt-1 cursor-grab rounded border border-cp-border bg-cp-surface-3 px-1.5 py-1 text-[11px] text-cp-text-muted hover:bg-cp-surface-1 active:cursor-grabbing"
+          className="mt-1 cursor-grab rounded border border-cp-border bg-cp-surface-3 px-1.5 py-1 text-cp-xs text-cp-text-muted hover:bg-cp-surface-1 active:cursor-grabbing"
           title={t('ports.dragHandle', 'Reorder port')}
           aria-label={format(t('ports.reorderAria', 'Reorder: {name}'), { name: port.name })}
           {...attributes}
@@ -137,11 +137,11 @@ const CollapsibleSdiCaps = ({
       onToggle={(e) => setOpen(e.currentTarget.open)}
       className="mt-1 rounded border border-amber-900/60 bg-amber-950/20 [&_summary]:cursor-pointer"
     >
-      <summary className="flex items-center gap-1 p-1.5 text-[10px] font-semibold uppercase tracking-wide text-amber-300 hover:text-amber-200 [&::-webkit-details-marker]:hidden">
+      <summary className="flex items-center gap-1 p-1.5 text-cp-xs font-semibold uppercase tracking-wide text-amber-300 hover:text-amber-200 [&::-webkit-details-marker]:hidden">
         <span className="text-amber-400/70">{open ? '▾' : '▸'}</span>
         <span className="flex-1">{t('ports.sdi.caps', 'SDI capabilities (port-specific)')}</span>
         {!open && badge && (
-          <span className="rounded bg-amber-900/50 px-1 text-[11px] normal-case text-amber-200">
+          <span className="rounded bg-amber-900/50 px-1 text-cp-xs normal-case text-amber-200">
             {badge}
           </span>
         )}
@@ -491,14 +491,14 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
         <button
           type="button"
           onClick={addPort}
-          className="rounded bg-cp-surface-4 px-2 py-0.5 text-[11px] hover:bg-cp-surface-5"
+          className="rounded bg-cp-surface-4 px-2 py-0.5 text-cp-xs hover:bg-cp-surface-5"
         >
           {t('ports.add', '+ Port')}
         </button>
       </div>
-      {ports.length === 0 && <div className="text-[11px] text-cp-text-muted">{t('ports.none', 'None')}</div>}
+      {ports.length === 0 && <div className="text-cp-xs text-cp-text-muted">{t('ports.none', 'None')}</div>}
       {duplicatePortNumbers.length > 0 && (
-        <div className="mb-2 rounded border border-amber-700 bg-amber-950/40 px-2 py-1 text-[11px] text-amber-200">
+        <div className="mb-2 rounded border border-amber-700 bg-amber-950/40 px-2 py-1 text-cp-xs text-amber-200">
           {format(t('ports.duplicateNumbers', 'Duplicate port numbers: {nums} — ambiguous for labels / patch list.'), {
             nums: duplicatePortNumbers.join(', '),
           })}
@@ -536,7 +536,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                   type="button"
                   onClick={() => removePort(port.id)}
                   aria-label={t('ports.remove', 'Remove port')}
-                  className="rounded bg-red-900/60 px-2 py-1 text-[11px] hover:bg-red-800"
+                  className="rounded bg-red-900/60 px-2 py-1 text-cp-xs hover:bg-red-800"
                 >
                   ×
                 </button>
@@ -679,7 +679,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
             </div>
             {showAtemSourceId && (
               <div className="mt-1 flex items-center gap-1.5 rounded border border-emerald-900/60 bg-emerald-950/30 px-1.5 py-1">
-                <span className="text-[10px] font-semibold uppercase tracking-wide text-emerald-300">
+                <span className="text-cp-xs font-semibold uppercase tracking-wide text-emerald-300">
                   ATEM Source-ID
                 </span>
                 <input
@@ -697,14 +697,14 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                   title={t('ports.atemSourceIdTitle', 'Source ID addressed in the MV-Config dialog. AUX = 8001+, PGM = 10010, PVW = 10011, ME 2 PGM = 10020 …. Leave empty on inputs for idx+1 default.')}
                   className="w-32 rounded border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
                 />
-                <span className="text-[10px] text-cp-text-muted">
+                <span className="text-cp-xs text-cp-text-muted">
                   AUX 8001+ · PGM 10010 · PVW 10011
                 </span>
               </div>
             )}
             {(port.connectorType === 'Fiber' || port.connectorType === 'SFP' || port.connectorType === 'SFP+') && (
               <div className="mt-1 rounded border border-sky-900/60 bg-sky-950/30 p-1.5">
-                <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-sky-400">SFP-Modul</div>
+                <div className="mb-1 text-cp-xs font-semibold uppercase tracking-wide text-sky-400">SFP-Modul</div>
                 <div className="grid grid-cols-2 gap-1">
                   <input
                     value={port.sfpType ?? ''}
@@ -775,7 +775,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                   .filter(Boolean)
                   .join(' · ')}
               >
-                <div className="grid grid-cols-2 gap-1 text-[10px]">
+                <div className="grid grid-cols-2 gap-1 text-cp-xs">
                   {/* v7.9.63 / #176 — 3G Level A/B nur anzeigen wenn das
                       Port-Max tatsächlich SDI-3G ist. Für 6G/12G/HD sind die
                       Level-Optionen bedeutungslos und nur visueller Lärm. */}
@@ -837,7 +837,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                     </select>
                   </label>
                 </div>
-                <div className="mt-1 text-[11px] text-cp-text-muted">
+                <div className="mt-1 text-cp-xs text-cp-text-muted">
                   {t(
                     'ports.sdi.overrideHint',
                     'Overrides the device SDI capabilities for this port. Empty = device default.',
@@ -848,12 +848,12 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                   const count = g ? quadGroupCount(g) : 0
                   const ok = count === 4
                   return (
-                    <div className="mt-1.5 flex items-center gap-1 text-[10px]">
+                    <div className="mt-1.5 flex items-center gap-1 text-cp-xs">
                       <span className="text-cp-text-muted">{t('ports.sdi.quadSet', 'Quad-link set:')}</span>
                       <select
                         value={g ?? ''}
                         onChange={(e) => void assignQuadGroup(port.id, e.target.value)}
-                        className="rounded border border-cp-border bg-cp-surface-3 px-1 py-0.5 text-[10px]"
+                        className="rounded border border-cp-border bg-cp-surface-3 px-1 py-0.5 text-cp-xs"
                       >
                         <option value="">{t('ports.set.none', '— None —')}</option>
                         {existingQuadGroups.map((gid) => (
@@ -864,7 +864,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                       {g && (
                         <>
                           <span
-                            className={`rounded px-1 py-0.5 text-[11px] font-bold ${
+                            className={`rounded px-1 py-0.5 text-cp-xs font-bold ${
                               ok
                                 ? 'bg-emerald-900/60 text-emerald-300'
                                 : 'bg-amber-900/60 text-amber-300'
@@ -879,7 +879,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                             <button
                               type="button"
                               onClick={() => void autoFillQuadGroup(g, port.id)}
-                              className="rounded bg-sky-800 px-1 py-0.5 text-[11px] text-sky-100 hover:bg-sky-700"
+                              className="rounded bg-sky-800 px-1 py-0.5 text-cp-xs text-sky-100 hover:bg-sky-700"
                               title={t('ports.quadAuto', 'Auto-assign free BNC ports to this set')}
                             >
                               auto-fill
@@ -895,12 +895,12 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                   const count = g ? dualGroupCount(g) : 0
                   const ok = count === 2
                   return (
-                    <div className="mt-1 flex items-center gap-1 text-[10px]">
+                    <div className="mt-1 flex items-center gap-1 text-cp-xs">
                       <span className="text-cp-text-muted">{t('ports.sdi.dualSet', 'Dual-link set:')}</span>
                       <select
                         value={g ?? ''}
                         onChange={(e) => void assignDualGroup(port.id, e.target.value)}
-                        className="rounded border border-cp-border bg-cp-surface-3 px-1 py-0.5 text-[10px]"
+                        className="rounded border border-cp-border bg-cp-surface-3 px-1 py-0.5 text-cp-xs"
                       >
                         <option value="">{t('ports.set.none', '— None —')}</option>
                         {existingDualGroups.map((gid) => (
@@ -911,7 +911,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                       {g && (
                         <>
                           <span
-                            className={`rounded px-1 py-0.5 text-[11px] font-bold ${
+                            className={`rounded px-1 py-0.5 text-cp-xs font-bold ${
                               ok
                                 ? 'bg-emerald-900/60 text-emerald-300'
                                 : 'bg-amber-900/60 text-amber-300'
@@ -926,7 +926,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                             <button
                               type="button"
                               onClick={() => void autoFillDualGroup(g, port.id)}
-                              className="rounded bg-sky-800 px-1 py-0.5 text-[11px] text-sky-100 hover:bg-sky-700"
+                              className="rounded bg-sky-800 px-1 py-0.5 text-cp-xs text-sky-100 hover:bg-sky-700"
                               title={t('ports.dualAuto', 'Auto-assign free BNC ports to this set')}
                             >
                               auto-fill

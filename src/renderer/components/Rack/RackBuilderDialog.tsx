@@ -736,7 +736,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
               <div className="text-cp-xs font-semibold uppercase tracking-wide text-cp-text-muted">
                 {t('library.title', 'Library')}
               </div>
-              <span className="rounded bg-cp-surface-2 px-1.5 py-0.5 text-[10px] text-cp-text-muted">
+              <span className="rounded bg-cp-surface-2 px-1.5 py-0.5 text-cp-xs text-cp-text-muted">
                 {filteredTemplates.length} / {templates.length}
               </span>
             </div>
@@ -749,7 +749,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
               <button
                 type="button"
                 onClick={() => setPatchPanelDialogOpen(true)}
-                className="rounded border border-amber-700 bg-amber-900/30 px-2 py-1.5 text-[11px] font-semibold text-amber-200 hover:bg-amber-900/50"
+                className="rounded border border-amber-700 bg-amber-900/30 px-2 py-1.5 text-cp-xs font-semibold text-amber-200 hover:bg-amber-900/50"
                 title={t('rack.patchPanelTitle', 'Create new patch panel: height, port count, connector type')}
               >
                 {t('rack.patchPanelBtn', '+ Patch panel')}
@@ -757,7 +757,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
               <button
                 type="button"
                 onClick={() => setShelfDialogOpen(true)}
-                className="rounded border border-emerald-700 bg-emerald-900/30 px-2 py-1.5 text-[11px] font-semibold text-emerald-200 hover:bg-emerald-900/50"
+                className="rounded border border-emerald-700 bg-emerald-900/30 px-2 py-1.5 text-cp-xs font-semibold text-emerald-200 hover:bg-emerald-900/50"
                 title={t('rack.shelfTitle', 'Create rack shelf for non-19" gear')}
               >
                 {t('rack.shelfBtn', '+ Rack shelf')}
@@ -796,7 +796,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
               )}
             </div>
             <label
-              className="mb-2 flex items-center gap-1.5 text-[10px] text-cp-text-muted"
+              className="mb-2 flex items-center gap-1.5 text-cp-xs text-cp-text-muted"
               title={t(
                 'rack.showNonRackTitle',
                 'When active, templates that are not marked as 19" rack devices are also shown. Adding one will ask for the U height.',
@@ -812,7 +812,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
             </label>
             <div className="max-h-[58vh] space-y-1 overflow-auto">
               {filteredTemplates.length === 0 && (
-                <div className="rounded border border-dashed border-cp-border bg-cp-surface-3/40 p-4 text-center text-[11px] text-cp-text-muted">
+                <div className="rounded border border-dashed border-cp-border bg-cp-surface-3/40 p-4 text-center text-cp-xs text-cp-text-muted">
                   {query ? (
                     <>
                       {t('rack.noMatchesPre', 'No matches for')}{' '}
@@ -869,7 +869,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                           <span className="min-w-0 break-words font-medium leading-snug text-cp-text">{template.name}</span>
                           {placedCount > 0 && (
                             <span
-                              className="shrink-0 rounded bg-emerald-800/70 px-1 text-[8px] font-semibold uppercase text-emerald-200"
+                              className="shrink-0 rounded bg-emerald-800/70 px-1 text-cp-xs font-semibold uppercase text-emerald-200"
                               title={format(t('rack.placedCountTitle', '{count}× placed in rack'), { count: placedCount })}
                             >
                               ✓ {placedCount}×
@@ -877,14 +877,14 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                           )}
                           {!isRack && (
                             <span
-                              className="shrink-0 rounded bg-amber-800/60 px-1 text-[8px] font-semibold uppercase text-amber-200"
+                              className="shrink-0 rounded bg-amber-800/60 px-1 text-cp-xs font-semibold uppercase text-amber-200"
                               title={t('rack.notRackTitle', 'Not marked as 19" rack device — height will be asked on add.')}
                             >
                               No-HE
                             </span>
                           )}
                         </div>
-                        <div className="break-words text-[10px] text-cp-text-muted">{template.category}</div>
+                        <div className="break-words text-cp-xs text-cp-text-muted">{template.category}</div>
                       </div>
                       {/* v7.9.80 / #170 — Split-Button: Hauptaktion
                           "+ Hinzufügen" (Default = full-depth) + kleines
@@ -898,7 +898,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                         primaryLabel={placedCount > 0 ? t('rack.addMore', '+ Add more') : t('rack.addToRack', '+ Into rack')}
                       />
                     </div>
-                    <div className="mt-1 text-[10px] text-cp-text-muted">
+                    <div className="mt-1 text-cp-xs text-cp-text-muted">
                       {isRack ? `${parseUnits(template)} HE · ` : 'HE ? · '}
                       {template.inputs.length} In · {template.outputs.length} Out
                     </div>
@@ -923,7 +923,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                 {/* v7.9.73 / #170 — 2D/3D Tab-Toggle. 2D ist der bestehende
                     Front/Rear-Panel-Editor; 3D ist die neue Orbit-Ansicht
                     auf Basis von react-three-fiber. */}
-                <div className="ml-2 inline-flex overflow-hidden rounded-cp-control border border-cp-border text-[11px] font-medium">
+                <div className="ml-2 inline-flex overflow-hidden rounded-cp-control border border-cp-border text-cp-xs font-medium">
                   <button
                     type="button"
                     onClick={() => setViewTab('2d')}
@@ -968,7 +968,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                     <button
                       type="button"
                       onClick={() => setZoom(1)}
-                      className="min-w-[2.75rem] rounded px-1 text-center text-[11px] tabular-nums hover:bg-cp-surface-2"
+                      className="min-w-[2.75rem] rounded px-1 text-center text-cp-xs tabular-nums hover:bg-cp-surface-2"
                       title={t('rack.zoomFitTitle', 'Back to 100 % (auto-fit)')}
                     >
                       {Math.round(zoom * 100)}%
@@ -993,7 +993,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                     </button>
                   </div>
                 )}
-                <div className="hidden items-center gap-1.5 text-[10px] text-cp-text-muted sm:flex">
+                <div className="hidden items-center gap-1.5 text-cp-xs text-cp-text-muted sm:flex">
                   <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
                     <path d="M8 2 L8 14 M5 5 L8 2 L11 5 M5 11 L8 14 L11 11" />
                   </svg>
@@ -1006,7 +1006,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                 <div className="mb-2 text-3xl">▥</div>
                 <div className="mb-1 font-semibold text-cp-text-secondary">{t('rack.empty', 'Rack is empty')}</div>
                 <div>{t('rack.addFromLibraryHint', 'Add devices from the library on the left (button "+ Rack").')}</div>
-                <div className="mt-2 text-[10px]">
+                <div className="mt-2 text-cp-xs">
                   {t('rack.tipPrefix', 'Tip:')}{' '}
                   <span className="text-cp-text-muted">"{t('rack.showNonRack', 'Include non-rack devices')}"</span>{' '}
                   {t('rack.tipBody', 'enable when the desired device is missing.')}
@@ -1059,7 +1059,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
             {/* v7.9.80 / #170 — Front/Rear/Both-Toggle ist jetzt Teil der
                 2D-Rack-Spalte (war vorher als Select im Header). */}
             {viewTab === '2d' && (
-              <div className="mb-2 flex overflow-hidden rounded-cp-control border border-cp-border text-[11px]">
+              <div className="mb-2 flex overflow-hidden rounded-cp-control border border-cp-border text-cp-xs">
                 {([
                   ['front', t('rack.viewMode.front', 'Front'), RectangleVertical],
                   ['rear', t('rack.viewMode.rear', 'Rear'), FlipHorizontal2],
@@ -1086,7 +1086,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
             )}
             {/* #472 — Steckverbinder-Symbole im 2D- UND 3D-Rack ein-/ausblenden. */}
             {(viewTab === '2d' || viewTab === '3d') && (
-              <label className="mb-2 flex cursor-pointer items-center gap-1.5 text-[11px] text-cp-text-secondary">
+              <label className="mb-2 flex cursor-pointer items-center gap-1.5 text-cp-xs text-cp-text-secondary">
                 <input
                   type="checkbox"
                   checked={showConnectorSymbols}
@@ -1111,11 +1111,11 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
               {draft.viewMode === 'side' && (
                 <div className="rounded border border-cp-border-muted bg-cp-surface-3 p-2">
                   <div className="mb-2 flex items-center gap-2">
-                    <span className="inline-flex items-center gap-1 rounded bg-sky-900/50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-sky-200">
+                    <span className="inline-flex items-center gap-1 rounded bg-sky-900/50 px-1.5 py-0.5 text-cp-xs font-semibold uppercase tracking-wide text-sky-200">
                       <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: '#0ea5e9' }} />
                       Seitenansicht (Tiefe)
                     </span>
-                    <span className="text-[10px] text-cp-text-muted">
+                    <span className="text-cp-xs text-cp-text-muted">
                       Vorne ◀ {draft.depthMm ?? 800} mm ▶ Hinten
                     </span>
                   </div>
@@ -1137,7 +1137,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                               className="absolute left-0 right-0 border-t border-cp-border-muted/80"
                               style={{ top: idx * rowHeight, height: rowHeight }}
                             >
-                              <span className="absolute left-1 top-0.5 text-[9px] text-cp-text-muted">U{unit}</span>
+                              <span className="absolute left-1 top-0.5 text-cp-xs text-cp-text-muted">U{unit}</span>
                             </div>
                           )
                         })}
@@ -1167,7 +1167,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                             <div
                               key={`side-block-${item.id}`}
                               onClick={() => setSelectedPlacementId(item.id)}
-                              className={`absolute cursor-pointer overflow-hidden rounded border-2 text-[9px] text-white transition ${
+                              className={`absolute cursor-pointer overflow-hidden rounded border-2 text-cp-xs text-white transition ${
                                 isSelected ? 'border-amber-300 ring-1 ring-amber-400/40' : colorClass
                               }`}
                               style={{ top, height, left: leftPx, width: widthPx }}
@@ -1186,7 +1186,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                 <div key={side} className="rounded border border-cp-border-muted bg-cp-surface-3 p-2">
                   <div className="mb-2 flex items-center gap-2">
                     <span
-                      className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
+                      className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-cp-xs font-semibold uppercase tracking-wide ${
                         side === 'front'
                           ? 'bg-sky-900/50 text-sky-200'
                           : 'bg-purple-900/50 text-purple-200'
@@ -1270,7 +1270,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                           className="absolute left-0 right-0 border-t border-cp-border-muted/80"
                           style={{ top: index * rowHeight, height: rowHeight }}
                         >
-                          <span className="absolute left-1 top-0.5 text-[9px] text-cp-text-muted">U{unit}</span>
+                          <span className="absolute left-1 top-0.5 text-cp-xs text-cp-text-muted">U{unit}</span>
                         </div>
                       )
                     })}
@@ -1481,7 +1481,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                               className="pointer-events-none h-full w-full object-contain"
                             />
                           ) : (
-                            <div className="pointer-events-none flex h-full items-center justify-center px-2 text-center text-[10px] font-semibold text-sky-100">{item.name}</div>
+                            <div className="pointer-events-none flex h-full items-center justify-center px-2 text-center text-cp-xs font-semibold text-sky-100">{item.name}</div>
                           )}
                           {/* v7.9.78 / #170 — Port-Dots-Overlay im 2D
                               Rack-Editor. Front-Side zeigt inputs[],
@@ -1510,7 +1510,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                             side={side as 'front' | 'rear'}
                             showSymbols={showConnectorSymbols}
                           />
-                          <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-black/50 px-1 py-0.5 text-[9px] text-white">
+                          <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-black/50 px-1 py-0.5 text-cp-xs text-white">
                             {item.inputs.length} In · {item.outputs.length} Out
                           </div>
                         </div>
@@ -1557,7 +1557,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
               (PlacementPropertiesDialog am Ende der Component), das per
               Doppelklick auf ein Gerät im Rack aufgeht. Hier nur ein
               kleiner Hinweis statt der dauerhaft offenen Sidebar. */}
-          <div className="rounded border border-dashed border-cp-border bg-cp-surface-3/30 px-2 py-3 text-center text-[10px] text-cp-text-muted">
+          <div className="rounded border border-dashed border-cp-border bg-cp-surface-3/30 px-2 py-3 text-center text-cp-xs text-cp-text-muted">
             {t(
               'rack.propsHint',
               'Double-click a device in the rack → opens the properties popup (height, start RU, panel images, remove).',
