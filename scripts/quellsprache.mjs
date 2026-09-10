@@ -316,9 +316,33 @@ const NACH_CODE =
  * mit eingesetztem Namen steht praktisch immer im Backtick — ausgerechnet die
  * Form also, die eine erste Fassung nicht kannte (gefunden ueber den
  * `dialogs:native`-Waechter der Suite, nicht ueber diesen Lauf).
+ *
+ * ─── UND DIE EIGENEN DIALOGE, NICHT NUR DIE DES BROWSERS (2026-09-10) ──────
+ *
+ * `alert`, `confirm` und `prompt` benutzt diese App gar nicht mehr: der
+ * `dialogs:native`-Waechter der Suite verbietet sie, und an ihre Stelle sind
+ * `infoDialog`, `confirmDialog` und `promptDialog` aus `renderer/lib/`
+ * getreten. Die Liste hier war also eine Liste der Formen, die es NICHT MEHR
+ * GIBT — sie konnte nichts finden, und ihre Null war deshalb wertlos.
+ *
+ * Gemessen nach der Erweiterung: FUENF deutsche Rueckfragen in `App.tsx`,
+ * mitten in einem Repo mit Quellsprache `en` — darunter „Neuer Stecker-Typ
+ * (z.B. \"Speakon NL4\"):", also eine Eingabeaufforderung, ohne deren
+ * Verstaendnis niemand weitermacht.
  */
 const RUFE =
-  /\b(?:alert|confirm|prompt)\(\s*(?:(['"])((?:[^\\]|\\.){4,}?)\1|`((?:[^`\\]|\\.){4,}?)`)/g
+  /\b(?:alert|confirm|prompt|infoDialog|confirmDialog|promptDialog)\(\s*(?:(['"])((?:[^\\]|\\.){4,}?)\1|`((?:[^`\\]|\\.){4,}?)`)/g
+
+/**
+ * Der Fliesstext eines eigenen Dialogs: `{ body: '…' }`.
+ *
+ * Der Titel steht als erstes Argument (oben), der Rumpf in den Optionen — und
+ * der Rumpf ist der laengere und wichtigere Teil. Ohne diese Zeile faende der
+ * Zaehler die Ueberschrift „Über Rentman-Plan hinaus" und uebersaehe die drei
+ * Saetze darunter, die erklaeren, was zu tun ist.
+ */
+const RUMPF =
+  /\bbody:\s*(?:(['"])((?:[^\\]|\\.){4,}?)\1|`((?:[^`\\]|\\.){4,}?)`)/g
 
 /**
  * Die Einsetzungen aus einem Textknoten herausnehmen — und zwar VON INNEN.
@@ -349,6 +373,7 @@ export const sichtbareTexte = (quelle, jsx) => {
   const raus = []
   for (const m of text.matchAll(SICHTBARE_ATTRIBUTE)) raus.push(m[1] ?? m[2])
   for (const m of text.matchAll(RUFE)) raus.push(m[2] ?? m[3])
+  for (const m of text.matchAll(RUMPF)) raus.push(m[2] ?? m[3])
   if (jsx) {
     for (const m of text.matchAll(JSX_TEXT)) {
       const t = ohneAusdruecke(m[1])
@@ -440,6 +465,9 @@ if (process.argv[1] && process.argv[1].endsWith('quellsprache.mjs')) {
     '<button title="Delete this cable">',
     '<span>Not connected yet</span>',
     'window.confirm(`Delete "${name}" and its ${n} shots?`)',
+    // Die eigenen Dialoge — die einzigen, die es hier noch gibt.
+    "await promptDialog('New connector type, e.g. Speakon NL4:')",
+    "await infoDialog('Beyond the rental plan', { body: 'More cables built than booked.' })",
     // Die beiden Kommentar-Zeilen tragen mit Absicht Muster, die OHNE den
     // Kommentarfilter treffen wuerden — eine ohne waere wirkungslos: was kein
     // `>` und kein `title=` enthaelt, findet der Zaehler ohnehin nicht, und die
@@ -474,6 +502,9 @@ if (process.argv[1] && process.argv[1].endsWith('quellsprache.mjs')) {
     'with ${n} of them',
     'Sentence before the brace',
     'Inside a bare fragment',
+    'New connector type, e.g. Speakon NL4:',
+    'Beyond the rental plan',
+    'More cables built than booked.',
   ].sort()
   if (gefunden.length !== erwartet.length || erwartet.some((e, i) => gefunden[i] !== e)) {
     console.error(

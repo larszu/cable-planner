@@ -916,7 +916,10 @@ export default function App() {
   // Planner und werden beim ersten Mal nach ihrem Namen gefragt.
   const handleExportViewer = async () => {
     if (!hasDesktopBridge) {
-      await infoDialog('Viewer-Export erfordert die Desktop-App.', { tone: 'warning' })
+      await infoDialog(
+        t('app.viewer.desktopOnly', 'Exporting a viewer file needs the desktop app.'),
+        { tone: 'warning' },
+      )
       return
     }
     try {
@@ -1279,11 +1282,14 @@ export default function App() {
       .getState()
       .project.cables.filter((c) => c.type === draft.type && c.length === draft.length).length
     if (built > planned) {
-      await infoDialog('Über Rentman-Plan hinaus', {
-        body:
-          `Es sind jetzt ${built} x ${draft.type} ${draft.length} m verbaut, ` +
-          `aber nur ${planned} laut Rentman-Plan vorhanden. ` +
-          `Bitte zusätzliche Kabel in Rentman buchen oder die Verkabelung anpassen.`,
+      await infoDialog(t('app.rentman.overBuiltTitle', 'Beyond the rental plan'), {
+        body: format(
+          t(
+            'app.rentman.overBuiltBody',
+            '{built} x {type} {length} m are now built, but the rental plan lists only {planned}. Book the extra cables in Rentman or adjust the wiring.',
+          ),
+          { built, type: draft.type, length: draft.length, planned },
+        ),
         tone: 'warning',
       })
     }
@@ -2039,7 +2045,11 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
                   onChange={async (e) => {
                     const v = e.target.value
                     if (v === '__new__') {
-                      const name = (await promptDialog('Neuer Stecker-Typ (z.B. "Speakon NL4"):'))?.trim()
+                      const name = (
+                        await promptDialog(
+                          t('app.connector.newPrompt', 'New connector type (e.g. "Speakon NL4"):'),
+                        )
+                      )?.trim()
                       if (name) {
                         useUiStore.getState().addCustomConnectorType(name)
                         setCustomConnectorType(name as ConnectorType)
@@ -2066,7 +2076,11 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
                   onChange={async (e) => {
                     const v = e.target.value
                     if (v === '__new__') {
-                      const name = (await promptDialog('Neuer Signal-Standard (z.B. "Madi 64ch"):'))?.trim()
+                      const name = (
+                        await promptDialog(
+                          t('app.standard.newPrompt', 'New signal standard (e.g. "Madi 64ch"):'),
+                        )
+                      )?.trim()
                       if (name) {
                         useUiStore.getState().addCustomSignalStandard(name)
                         setCustomStandard(name as SignalStandard)
