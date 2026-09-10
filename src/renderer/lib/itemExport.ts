@@ -113,7 +113,7 @@ export const exportTemplateToFile = async (template: EquipmentTemplate): Promise
   const wahl = await nachZugangsdatenFragen(
     [template],
     'cred.dest.cpdevice',
-    'als .cpdevice-Datei — gedacht für USB-Stick, E-Mail oder Filesharing.',
+    'as a .cpdevice file — meant for a USB stick, e-mail or file sharing.',
   )
   if (wahl === 'ab') return
   const payload = deviceFilePayload(template, wahl === 'strip', new Date().toISOString())
@@ -128,7 +128,7 @@ export const exportPresetToFile = async (preset: GroupPreset): Promise<void> => 
   const wahl = await nachZugangsdatenFragen(
     preset.items ?? [preset],
     'cred.dest.cpgroup',
-    'als .cpgroup-Datei — gedacht für USB-Stick, E-Mail oder Filesharing.',
+    'as a .cpgroup file — meant for a USB stick, e-mail or file sharing.',
   )
   if (wahl === 'ab') return
   const payload = groupFilePayload(preset, wahl === 'strip', new Date().toISOString())

@@ -5556,4 +5556,75 @@ export const de: Dict = {
     '{names} liegen beide auf UMD-Adresse {address} — die Displays zeigen denselben Text, welcher gewinnt entscheidet die Paketreihenfolge.',
   'label.unit.bytes': 'Byte',
   'label.unit.chars': 'Zeichen',
+
+  // ── 2026-09-10: Saetze, die hinter einem Schluessel standen, ohne dass
+  //    `lang:check` sie sah. Gefunden vom erweiterten Waechter in
+  //    `tests/quellsaetzeDerUrteilsModule.test.ts` (zweite Form:
+  //    Schluessel-Literal, direkt gefolgt vom Satz).
+  'app.loadReport.venueAnswer': 'Antwort der Haus-IT',
+  'app.loadReport.metadataOverride': 'Abweichung der Veranstaltungsangaben',
+  'app.loadReport.transmissionEvent': 'Eintrag im Sendebericht',
+  'app.loadReport.crewEntry': 'Eintrag der Crew-Seite',
+  'app.loadReport.equipmentCircuit': 'Schaltbild-Bauart eines Geräts',
+  'app.loadReport.equipmentAdapter': 'Adapter-Angaben eines Geräts',
+  'app.loadReport.farbnorm': 'Farbnorm ohne Herkunft',
+  'app.loadReport.ader': 'Ader-Angaben einer Leitung',
+  'app.loadReport.senkenprofil': 'Formatprofil ohne Herkunft',
+  'app.loadReport.patternCheck': 'Sichtprüfung vom Prüfbild-Rundgang',
+  'app.loadReport.hubSwitch': 'Schaltvorgang an einer Kreuzschiene',
+  'app.loadReport.crosspoint': 'Zeile der geplanten Schaltung',
+  'app.loadReport.duplicateId': 'doppelte Id, der erste Eintrag gilt',
+  'app.loadReport.danglingRef': 'der Verweis zeigt ins Leere — das Ziel wurde gelöscht',
+  'app.loadReport.unknownValue': 'unbekannter Wert — die Datei stammt vermutlich aus einer anderen Fassung',
+  'rentman.checklist.qtyInProject': 'Stückzahl im Rentman-Projekt',
+  'cred.dest.cpdevice': 'als .cpdevice-Datei — gedacht für USB-Stick, E-Mail oder Filesharing.',
+  'cred.dest.cpgroup': 'als .cpgroup-Datei — gedacht für USB-Stick, E-Mail oder Filesharing.',
+  // ── DMX: Modi, Adressvergabe, Befunde (2026-09-10) ────────────────────────
+  'dmx.title': 'DMX',
+  'dmx.isDmxDevice': 'Dieses Gerät wird über DMX adressiert',
+  'dmx.noProfile': 'kein DMX',
+  'dmx.noMode': 'Modus nicht gewählt',
+  'dmx.summary': '{mode} · {ch} Kan. · {u}.{a}',
+  'dmx.manufacturer': 'Hersteller',
+  'dmx.model': 'Modell',
+  'dmx.modes': 'Modi',
+  'dmx.addMode': '+ Modus',
+  'dmx.modeDefaultName': 'Modus {n}',
+  'dmx.removeMode': 'Modus entfernen',
+  'dmx.useThisMode': 'Diesen Modus fahren',
+  'dmx.channelCount': 'Kanäle in diesem Modus',
+  'dmx.originTitle': 'Woher diese Kanalzahl stammt',
+  'dmx.origin.manual': 'Von Hand',
+  'dmx.origin.gdtf': 'GDTF-Datei',
+  'dmx.origin.console': 'Pult-Patch',
+  'dmx.origin.device': 'Am Gerät abgelesen',
+  'dmx.origin.estimated': 'Geschätzt',
+  'dmx.noModesHint':
+    'Es ist noch kein Modus angegeben, deshalb bekommt dieses Gerät keine Adresse. Ohne Modus ist der Fußabdruck unbekannt, und eine geratene Kanalzahl verschiebt jede folgende Adresse im Rig.',
+  'dmx.universe': 'Universe',
+  'dmx.address': 'Adresse',
+  'dmx.footprintUnknown': 'Fußabdruck unbekannt',
+  'dmx.footprintTo': '{ch} Kan. → {to}',
+  'dmx.pinned': 'Diese Adresse behalten — die Automatik überspringt sie',
+  'dmx.noModes':
+    'Für {name} sind keine DMX-Modi angegeben. Ohne Modus ist der Fußabdruck unbekannt, es wird also keine Adresse vergeben.',
+  'dmx.modeMissing':
+    '{name}: kein Modus gewählt. Das Profil kennt {n}; wähle einen, damit der Plan die Kanäle zählen kann.',
+  'dmx.modeUnknown':
+    '{name} steht auf einem Modus, den das Profil nicht mehr kennt ({mode}). Er wurde umbenannt oder entfernt.',
+  'dmx.modeTooLarge':
+    '{name} braucht in Modus {mode} {ch} Kanäle — mehr, als ein Universe fasst ({max}).',
+  'dmx.modeEstimated':
+    'Die Kanalzahl für {name} in Modus {mode} ist geschätzt und nicht abgelesen. Jede Adresse dahinter verschiebt sich, wenn die echte Zahl abweicht.',
+  'dmx.overlap':
+    '{a} ({aFrom}-{aTo}) und {b} ({bFrom}-{bTo}) überschneiden sich in Universe {u}. Beide reagieren auf dieselben Kanäle.',
+  'dmx.universeFull':
+    'In Universe {u} sind noch {rest} Kanäle frei, {name} braucht {ch}. Es beginnt in Universe {next} auf Adresse 1.',
+  'dmx.runsPastEnd':
+    '{name} beginnt in Universe {u} auf {addr} und braucht {ch} Kanäle — das läuft über Kanal {max} hinaus.',
+  'palette.dmxPatch': 'DMX-Adressen vergeben…',
+  'palette.dmxPatchDone': 'DMX-Adressen vergeben',
+  'palette.dmxPatchSummary':
+    '{n} Geräte haben eine Adresse bekommen, {skipped} wurden übersprungen, weil kein Modus gesetzt ist. Jede Überschneidung steht im Plan-Check.',
+  'check.category.dmx-address': 'DMX-Adresse',
 }

@@ -209,6 +209,19 @@ export const EQUIPMENT_FIELD_CLASS: Record<string, FieldClass> = {
   // B-47 — das Formatprofil. `substantive`: an ihm haengt, ob der Plan sagt,
   // dass das Bild ankommt. Wer es streicht, aendert die Aussage des Plans.
   senkenprofil: 'substantive',
+  // DMX. Alle fuenf `substantive`, und zwar ohne Ausnahme: an ihnen haengt,
+  // welches Geraet im Saal auf welchen Befehl reagiert.
+  //
+  // Wer beim Abgleich zweier Plaene eine geaenderte Adresse als Optik
+  // durchgehen liesse, uebersaehe genau den Fall, der teuer ist — dieselbe
+  // Buehne, zwei Zettel, und auf einem steht das Geraet drei Kanaele weiter.
+  // Auch der MODUS gehoert dazu: er aendert den Fussabdruck und damit jede
+  // Folgeadresse, ohne dass an ihr selbst etwas anders aussieht.
+  dmxProfil: 'substantive',
+  dmxModusId: 'substantive',
+  dmxUniverse: 'substantive',
+  dmxAdresse: 'substantive',
+  dmxAdresseFestgesetzt: 'substantive',
   // B-46 — die erklaerten Merkmale. Ebenfalls `substantive`: ob die Quelle den
   // Alternate-Mode kann, entscheidet ueber einen Befund am Adapter. Wer das
   // Merkmal streicht, aendert die Aussage des Plans, nicht sein Aussehen.

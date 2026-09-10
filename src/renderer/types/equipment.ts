@@ -653,6 +653,49 @@ export interface EquipmentItem {
    *  mitwandern. Optional — Bestands-Geräte haben es nicht. */
   categoryProps?: Record<string, string | number | boolean>
   /**
+   * DMX — Betriebsmodus, Universe und Startadresse dieses Geraets.
+   *
+   * ─── WARUM DAS NICHT IN `categoryProps` BLEIBT ───────────────────────────
+   *
+   * Dort standen bis 2026-09-10 zwei freie Felder, `dmxChannels` und
+   * `dmxAddress` (`lib/categorySchemas.ts`, Kategorie „Licht"). Beide tippt
+   * ein Mensch, und gerechnet wurde mit keinem von beiden — es gab weder eine
+   * Universe-Nummer noch eine Pruefung auf Ueberschneidung.
+   *
+   * Vor allem aber kannte `dmxChannels` KEINEN MODUS. Ein Moving Head hat
+   * nicht einen Fussabdruck, sondern je Modus einen: derselbe Robe-Kopf
+   * belegt in Mode 1 etwas anderes als in Mode 2. Wer im Pult den einen faehrt
+   * und im Plan mit der Zahl des anderen rechnet, bekommt ab dem ZWEITEN
+   * Geraet lauter falsche Adressen — und zwar um genau die Differenz der
+   * beiden Modi. Das faellt nicht beim Patchen auf, sondern wenn ein Geraet
+   * auf einen Befehl reagiert, der seinem Nachbarn galt.
+   *
+   * Die Modi stehen deshalb am PROFIL (`dmxProfil`), nicht als lose Zahl, und
+   * gerechnet wird in `lib/dmx/` — derselbe Code wie im light-planner, damit
+   * dieselbe Buehne in beiden Planern dieselben Adressen ergibt.
+   *
+   * Die beiden Alt-Felder bleiben lesbar: `healProjectPositions` uebernimmt
+   * `dmxAddress` als Startadresse in Universe 1 und `dmxChannels` als Modus
+   * mit der Herkunft `geschaetzt` — sichtbar als solcher, statt still zu
+   * einer belegten Zahl zu werden.
+   */
+  dmxProfil?: import('../lib/dmx/types').DmxProfil
+  /** Welcher Modus gefahren wird (Id aus `dmxProfil.modi`). */
+  dmxModusId?: string
+  /** Universe, 1-basiert. */
+  dmxUniverse?: number
+  /** Startadresse 1..512. */
+  dmxAdresse?: number
+  /**
+   * Diese Adresse hat ein Mensch gesetzt — die Automatik fasst sie nicht an.
+   *
+   * Dieselbe Bauform und derselbe Grund wie `Port.nameFromUser` (#838): eine
+   * von Hand gesetzte Adresse ist von einer vergebenen nicht zu
+   * unterscheiden, und still verschoben zu werden ist das, was im Saal am
+   * teuersten ist.
+   */
+  dmxAdresseFestgesetzt?: boolean
+  /**
    * Schaltbild-Bauart dieses Geräts (Strom-Schaltbild, 2026-09-08).
    *
    * ANGEGEBEN, NIE GERATEN. Ohne dieses Feld ist das Gerät für den

@@ -217,7 +217,7 @@ const buildCanvasPdf = async (
       translate(
         useUiStore.getState().language,
         'export.pdf.errNoDevices',
-        'Keine Geräte zum Exportieren vorhanden',
+        'No devices to export',
       ),
     )
   }
@@ -296,7 +296,7 @@ const buildCanvasPdf = async (
       translate(
         useUiStore.getState().language,
         'export.errMeasureCanvas',
-        'Konnte den Inhalt des Canvas nicht vermessen',
+        'Could not measure the canvas content',
       ),
     )
   }

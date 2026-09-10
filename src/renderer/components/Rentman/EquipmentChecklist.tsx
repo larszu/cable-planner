@@ -129,7 +129,7 @@ export const EquipmentChecklist = ({
       )
     }
     return (
-      <span className="rounded bg-cp-surface-4/60 px-1.5 py-0.5 text-cp-xs text-cp-text-muted" title={tBadge('rentman.checklist.qtyInProject', 'Stückzahl im Rentman-Projekt')}>
+      <span className="rounded bg-cp-surface-4/60 px-1.5 py-0.5 text-cp-xs text-cp-text-muted" title={tBadge('rentman.checklist.qtyInProject', 'Quantity in the Rentman project')}>
         ×{item.qty}
       </span>
     )

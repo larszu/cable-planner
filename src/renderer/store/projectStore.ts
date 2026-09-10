@@ -44,6 +44,7 @@ import { heileSteckertyp } from '../lib/connectorRenames'
 import { loadGroupPresets } from './groupPresetsPersist'
 import { createDemoProject } from '../lib/demoProject'
 import { DEMO_RACK_PRESET_ID, createDemoRackPreset } from '../lib/demoRack'
+import { vergibAdressen, type DmxGeraet } from '../lib/dmx'
 import { scheduleProjectAutosave } from './projectAutosave'
 import { blackmagicTemplates } from '../lib/blackmagicCatalog'
 import { detectLayerForConnector } from '../lib/cableLayers'
@@ -258,6 +259,19 @@ export interface ProjectState {
    * nicht an zwei Stellen getrennt gepflegt werden (siehe `lib/demoRack.ts`).
    */
   loadDemoProject: () => void
+  /**
+   * DMX-Adressen fuer alle Lampen im Plan vergeben (dicht gepackt, in
+   * Lesereihenfolge). Festgesetzte Adressen bleiben unangetastet; Konflikte
+   * werden NICHT umgangen, sondern vom Plan-Check gemeldet.
+   *
+   * Gibt zurueck, wie viele Geraete eine Adresse bekommen haben und wie viele
+   * uebersprungen wurden — der Aufrufer sagt es dem Nutzer, statt dass die
+   * Aktion stumm ablaeuft.
+   */
+  vergibDmxAdressen: (startUniverse?: number, startAdresse?: number) => {
+    vergeben: number
+    uebersprungen: number
+  }
   /** #413 — Wendet einen remote (CRDT-)Stand von equipment/cables/locations
    *  auf das aktuelle Projekt an. Anders als loadProject: ersetzt NUR diese
    *  drei Collections (Metadaten, canvasState, Annotationen etc. bleiben),
@@ -1033,6 +1047,54 @@ const healProjectPositions = (
         : undefined
       if (neueKategorie) item = { ...item, category: neueKategorie }
 
+      // DMX — die beiden freien Felder aus `categoryProps` in das Modell
+      // heben, das damit rechnen kann.
+      //
+      // Bis 2026-09-10 standen `dmxChannels` und `dmxAddress` als Freitext in
+      // `categoryProps` (Kategorie „Licht"). Sie wanderten mit der Projekt-
+      // Datei mit, aber niemand rechnete mit ihnen: keine Universe-Nummer,
+      // keine Ueberschneidungspruefung, und vor allem kein MODUS — dieselbe
+      // Zahl fuer einen Kopf, der je nach Betriebsart verschieden viel belegt.
+      //
+      // WAS HIER PASSIERT UND WAS NICHT: die Adresse wird als Startadresse in
+      // Universe 1 uebernommen (mehr sagt das alte Feld nicht her, und ein
+      // geratenes Universe waere schlimmer als keines). Die Kanalzahl wird ein
+      // Modus mit der Herkunft `geschaetzt` — SICHTBAR als Schaetzung, statt
+      // still zu einer belegten Zahl zu werden. Der Plan-Check meldet sie
+      // danach als das, was sie ist.
+      //
+      // Die Alt-Felder bleiben stehen. Sie zu loeschen hiesse, dem Nutzer
+      // etwas wegzunehmen, das er getippt hat, weil das Werkzeug es jetzt
+      // besser weiss.
+      const dmxAltAdresse = Number(item.categoryProps?.dmxAddress)
+      const dmxAltKanaele = Number(item.categoryProps?.dmxChannels)
+      if (item.dmxAdresse === undefined && Number.isFinite(dmxAltAdresse) && dmxAltAdresse >= 1) {
+        item = { ...item, dmxUniverse: item.dmxUniverse ?? 1, dmxAdresse: Math.floor(dmxAltAdresse) }
+      }
+      if (!item.dmxProfil && Number.isFinite(dmxAltKanaele) && dmxAltKanaele >= 1) {
+        item = {
+          ...item,
+          dmxProfil: {
+            // Das Geraet fuehrt weder Hersteller noch Modell als eigenes
+            // Feld — nur den Namen, den der Nutzer vergeben hat. Ihn hier in
+            // zwei zu zerlegen waere geraten; er steht deshalb als Modell da,
+            // und der Hersteller bleibt leer statt erfunden.
+            hersteller: '',
+            modell: item.name,
+            modi: [
+              {
+                id: 'alt',
+                name: 'Imported',
+                kanaele: Math.floor(dmxAltKanaele),
+                herkunft: 'geschaetzt',
+                beleg: 'categoryProps.dmxChannels (vor 2026-09-10)',
+              },
+            ],
+          },
+          dmxModusId: item.dmxModusId ?? 'alt',
+        }
+      }
+
       // #832 — Dieselbe Migration fuer die Steckertypen der Ports. Der
       // Patchblenden-Dialog schrieb `TS Jack` / `TRS Jack` / `Mini Jack` als
       // freie Zeichenketten, waehrend die Eigenschaften-Leiste `Klinke`
@@ -1695,6 +1757,46 @@ const buildProjectStore = (
     // Zweimal laden legt sie nicht doppelt an — die Kennung ist fest.
     if (!get().groupPresets.some((p) => p.id === DEMO_RACK_PRESET_ID)) {
       get().addGroupPreset(createDemoRackPreset())
+    }
+  },
+  vergibDmxAdressen: (startUniverse = 1, startAdresse = 1) => {
+    const alle = get().project.equipment
+    // Nur Geraete, die ueberhaupt DMX ERKLAEREN. Aus der Kategorie zu
+    // schliessen waere der Namensabgleich, gegen den ADR-002 steht — und eine
+    // konventionelle Stufenlinse am Dimmer bekaeme eine Adresse, die es an
+    // ihr nicht gibt.
+    const kandidaten: DmxGeraet[] = alle
+      .filter((e) => e.dmxProfil)
+      .map((e) => ({
+        id: e.id,
+        name: e.name,
+        profil: e.dmxProfil,
+        modusId: e.dmxModusId,
+        universe: e.dmxUniverse,
+        adresse: e.dmxAdresse,
+        adresseFestgesetzt: e.dmxAdresseFestgesetzt,
+        x: e.x,
+        y: e.y,
+      }))
+    const ergebnis = vergibAdressen(kandidaten, { startUniverse, startAdresse })
+    set((state) => ({
+      project: {
+        ...state.project,
+        equipment: state.project.equipment.map((e) => {
+          const neu = ergebnis.vergeben.get(e.id)
+          // Festgesetzte kommen aus der Vergabe mit ihrem eigenen Wert zurueck;
+          // sie hier trotzdem zu schreiben waere ein Schreibvorgang ohne
+          // Aenderung und faende sich als Schritt im Undo-Stapel wieder.
+          if (!neu || e.dmxAdresseFestgesetzt) return e
+          if (e.dmxUniverse === neu.universe && e.dmxAdresse === neu.adresse) return e
+          return { ...e, dmxUniverse: neu.universe, dmxAdresse: neu.adresse }
+        }),
+      },
+      projectVersion: state.projectVersion + 1,
+    }))
+    return {
+      vergeben: ergebnis.vergeben.size,
+      uebersprungen: kandidaten.length - ergebnis.vergeben.size,
     }
   },
   applyRemoteProject: (slice) =>

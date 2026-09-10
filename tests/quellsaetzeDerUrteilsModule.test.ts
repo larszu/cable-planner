@@ -64,6 +64,22 @@ const dateien = (dir: string): string[] =>
 const VORLAGE =
   /\beinsetzen\(\s*(?:\n\s*)?(?:'((?:[^'\\]|\\.)+?)'|"((?:[^"\\]|\\.)+?)"|`((?:[^`\\]|\\.)+?)`)/g
 
+/**
+ * Die ZWEITE Form: ein Woerterbuch-Schluessel, direkt gefolgt vom Satz.
+ *
+ * `lib/dmx/adressierung.ts` reicht beides an einen eigenen `befund()`-Bauer
+ * weiter, statt `einsetzen` mit einem Literal aufzurufen — das Muster oben
+ * sieht davon nichts. Gemessen beim Bau des Moduls (2026-09-10): sieben
+ * englische Saetze standen dort und waren fuer BEIDE Waechter unsichtbar,
+ * fuer `lang:check` wie fuer diesen Test.
+ *
+ * Entscheidbar ist es trotzdem: ein Schluessel sieht aus wie `'bereich.name'`,
+ * und was als naechstes Literal folgt, ist der Satz dazu. Kein Ermessen, keine
+ * Wortliste.
+ */
+const SCHLUESSEL_UND_SATZ =
+  /'([a-z][a-zA-Z0-9]*\.[a-zA-Z0-9.]+)',\s*(?:\n\s*)?(?:'((?:[^'\\]|\\.){12,}?)'|"((?:[^"\\]|\\.){12,}?)")/g
+
 const ohneKommentare = (text: string) =>
   text.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/^\s*\/\/.*$/gm, ' ')
 
@@ -81,6 +97,9 @@ const saetze = (): Fund[] => {
     const quelle = ohneKommentare(readFileSync(datei, 'utf8'))
     for (const m of quelle.matchAll(VORLAGE)) {
       gefunden.push({ datei: rel, satz: m[1] ?? m[2] ?? m[3] ?? '' })
+    }
+    for (const m of quelle.matchAll(SCHLUESSEL_UND_SATZ)) {
+      gefunden.push({ datei: rel, satz: m[2] ?? m[3] ?? '' })
     }
   }
   return gefunden
@@ -114,6 +133,9 @@ describe('Die Saetze der sprachfreien Urteils-Module', () => {
       'types/displayCapability.ts',
       'lib/labelDerivation.ts',
       'lib/portGroups.ts',
+      // Ueber die zweite Form gefunden — steht hier, damit ein Rueckfall auf
+      // ein Muster, das sie nicht mehr sieht, auffaellt.
+      'lib/dmx/adressierung.ts',
     ]) {
       expect(dateienMitSatz.has(modul), `${modul} liefert keinen Satz mehr`).toBe(true)
     }
