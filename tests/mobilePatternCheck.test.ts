@@ -10,6 +10,7 @@ import type { EquipmentItem, Port } from '../src/renderer/types/equipment'
 import type { PatternCheck } from '../src/renderer/types/patternCheck'
 import serverSrc from '../src/main/services/mobileShareServer.ts?raw'
 import walkSrc from '../src/mobile/PatternWalk.tsx?raw'
+import mobileWoerterbuch from '../src/mobile/i18n.ts?raw'
 import appSrc from '../src/renderer/App.tsx?raw'
 
 // ───────────────────────────────────────────────────────────────────────────
@@ -255,36 +256,54 @@ describe('Beide Listen der Beobachtungen bleiben gleich', () => {
   })
 })
 
+// ─── WAS HIER GEPRUEFT WIRD, SEIT DIE SEITE UEBERSETZT IST ────────────────
+//
+// Die Saetze standen bis 2026-09-10 als deutscher Text im Bauteil und wurden
+// hier woertlich gesucht. Seit E-28 laeuft die Mobile-Ansicht durch `t()`:
+// im Bauteil steht die englische Quelle, die deutsche Fassung in
+// `src/mobile/i18n.ts`.
+//
+// Gesucht wird deshalb der SCHLUESSEL im Bauteil und der SATZ im
+// Woerterbuch — beides, und mit Absicht. Nur den Schluessel zu pruefen
+// hiesse: es gibt eine Stelle, die irgendetwas anzeigt. Was dort steht, ist
+// aber der ganze Punkt dieser Datei (Invariante 16), und deshalb muss der
+// Satz weiter nachweisbar sein.
 describe('Das Telefon zeigt die Erwartung ALS Erwartung', () => {
   const src = ohneKommentare(walkSrc)
+  const woerterbuch = ohneKommentare(mobileWoerterbuch)
 
   it('der Satz steht ueber der Liste und nicht nur im Kommentar', () => {
     // Invariante 16: ein Telefon, das eine Erwartung wie eine Rueckmeldung
     // darstellt, ist die gefaehrlichste Sorte Anzeige — man liest „KAMERA 1",
     // haelt es fuer bestaetigt und hat den Plan zweimal gelesen.
-    expect(src).toMatch(/was laut Plan ankommen müsste/)
-    expect(src).toMatch(/sieht kein Bild/)
+    expect(src).toContain("'mobile.walk.disclaimer'")
+    expect(woerterbuch).toMatch(/was laut Plan ankommen müsste/)
+    expect(woerterbuch).toMatch(/sieht kein Bild/)
   })
 
   it('je Ankunftsort steht „laut Plan", nicht ein blosser Name', () => {
-    expect(src).toMatch(/Laut Plan müsste hier stehen/)
+    expect(src).toContain("'mobile.walk.expected'")
+    expect(woerterbuch).toMatch(/Laut Plan müsste hier stehen/)
   })
 
   it('der gesehene Name wird gefragt, nicht freigestellt', () => {
     // „Falsches Bild" allein ist ein Symptom; der Name macht daraus den Befund.
-    expect(src).toMatch(/Welcher Name steht drauf\?/)
+    expect(src).toContain("'mobile.walk.seenNamePlaceholder'")
+    expect(woerterbuch).toMatch(/Welcher Name steht drauf\?/)
     expect(src).toMatch(/melde\(stop, 'falsches-bild', gesehenerName\.trim\(\)\)/)
   })
 
   it('ein gescheiterter Versuch bleibt sichtbar', () => {
     // Der Techniker geht weiter, sobald er gedrueckt hat. Ein stiller
     // Fehlschlag hiesse: er glaubt, gemeldet zu haben.
-    expect(src).toMatch(/nicht angekommen/)
+    expect(src).toContain("'mobile.walk.notArrived'")
+    expect(woerterbuch).toMatch(/nicht angekommen/)
   })
 
   it('im Nur-Lesen-Modus sagt die Seite es, statt Knoepfe wegzulassen', () => {
     // Ein fehlender Knopf ohne Grund laesst den Nutzer die App fuer kaputt
     // halten (dieselbe Regel wie bei Bedarf 109 auf der Patchliste).
-    expect(src).toMatch(/Der Rückweg ist zu/)
+    expect(src).toContain("'mobile.walk.readOnly'")
+    expect(woerterbuch).toMatch(/Der Rückweg ist zu/)
   })
 })

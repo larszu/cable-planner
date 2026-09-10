@@ -40,7 +40,16 @@ const roh = {
     import: 'default',
     eager: true,
   }) as Record<string, string>),
-  ...(import.meta.glob('../src/mobile/**/*.ts', {
+  // `.tsx` GEHOERT DAZU, und zwar seit dem 2026-09-10 auch wirklich.
+  //
+  // Bis dahin stand hier `**/*.ts` — und die gesamte Oberflaeche der
+  // Mobile-Ansicht liegt in `.tsx` (`MobileApp.tsx`, `PatternWalk.tsx`).
+  // Der Guard sah von diesem Ordner also die Hilfsmodule und keinen einzigen
+  // Text, den jemand liest. Aufgefallen ist es erst, als die Beschriftungen
+  // ins Woerterbuch `mobile/i18n.ts` wanderten: dieselben Saetze, dieselbe
+  // Schreibweise, ploetzlich geprueft. Ein Glob, der die Endung der
+  // interessanten Dateien nicht kennt, ist die leiseste Form von blind.
+  ...(import.meta.glob('../src/mobile/**/*.{ts,tsx}', {
     query: '?raw',
     import: 'default',
     eager: true,
@@ -116,7 +125,7 @@ const HARMLOS = new Set(
     // Deutsch, und richtig geschrieben — „ue"/„ae"/„oe" ueber eine Silben-
     // oder Wortgrenze hinweg.
     'zuerst', 'neuere', 'neueren', 'neueste', 'querschnitt', 'dauer',
-    'störquelle', 'signalquelle', 'signalquellen', 'frequenzbänder',
+    'störquelle', 'signalquelle', 'signalquellen', 'prüfquelle', 'frequenzbänder',
     'frequenzregulierung', 'koexistieren', 'graues', 'visuell', 'visuelle',
     'virtuelle', 'individuelle', 'aktuellem', 'nachbauen', 'zuerste',
     'queueconnection', 'venuescopedialog', 'catalogueevidence',

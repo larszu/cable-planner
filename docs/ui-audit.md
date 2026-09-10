@@ -439,12 +439,22 @@ Begründung. Wer hier nachschlug, hätte deutsche Fallbacks eingetragen und
 den Wächter gegen sich gehabt, ohne zu verstehen warum. Begründungen, die
 auf eine andere Datei zeigen, gehören deshalb datiert.
 
-**Offen und ausdrücklich nicht in diesem Schritt erledigt:** `lang:check`
-prüft nur `src/renderer` (siehe `package.json`). `src/mobile` ist
-durchgehend deutsch beschriftet („Nur lesen · Häkchen bleiben auf diesem
-Gerät…") und wird von keiner Sprachprüfung angefasst — dieselbe Ordner-Lücke
-wie bei der Typprüfung, nur für Sprache. Das ist ein eigener Schnitt (die
-Mobile-Ansicht hat keine `t()`-Verdrahtung), kein Nebenbei.
+**Erledigt am 2026-09-10:** `lang:check` prüft jetzt alle drei Ordner, die
+im Browser laufen — `src/renderer`, `src/mobile`, `src/viewer`. Gemessen:
+0 deutsche Fallbacks, 0 ungewickelte Zeichenketten in der jeweils anderen
+Sprache, in allen dreien.
+
+Die Lücke war real und groß: **63 deutsche Zeichenketten in `src/mobile`,
+12 in `src/viewer`** — beide Ordner ohne jede `t()`-Verdrahtung, beide von
+keiner Prüfung angefasst. Der Wächter stand an einer Tür von dreien und
+meldete „0 Verstöße"; dieselbe Form wie bei der Typprüfung, die `src/mobile`
+nicht ansah.
+
+**Der Umfang ist jetzt keine Liste mehr, sondern eine Regel.**
+`tests/i18nEintrittspunkte.test.ts` liest die Browser-Ordner aus
+`tsconfig.app.json` und besteht darauf, dass jeder davon im `lang:check`-
+Skript vorkommt. Wer einen vierten Eintrittspunkt anlegt, wird dort rot —
+nicht erst, wenn jemand eine halb übersetzte Seite meldet.
 
 ### Phase 4 — erledigt
 
@@ -461,7 +471,7 @@ Mobile-Ansicht hat keine `t()`-Verdrahtung), kein Nebenbei.
 
 ### TODO (großflächiger Rest)
 
-- [ ] Flächendeckende Suche nach restlichen hartkodierten JSX-Texten /
+- [x] Flächendeckende Suche nach restlichen hartkodierten JSX-Texten /
       `placeholder` / `title` ohne `t()`.
       **2026-09-10, erster Schnitt: `src/renderer` ist sauber.** Der
       CableDialog trug fünf deutsche Roh-Beschriftungen („Kabel bearbeiten",
@@ -474,11 +484,37 @@ Mobile-Ansicht hat keine `t()`-Verdrahtung), kein Nebenbei.
       hatte die Zeilen gesehen und als „unklar" abgelegt. Die Liste trägt
       jetzt auch Inhaltswörter, gemessen gegen alle 4622 englischen Fallbacks:
       **kein einziger** würde durch sie fälschlich als deutsch gelten.
-      **Offen:** `src/viewer` (7 Stellen) und `src/mobile` (34) — beide haben
-      gar keine `t()`-Verdrahtung, und `lang:check` läuft nur auf
-      `src/renderer`. Jeder Ordner ist ein eigener Schnitt: erst verdrahten,
-      dann in den Prüfumfang aufnehmen. Der Umfang wächst mit der Migration
-      mit, statt eine Deckung zu behaupten, die es nicht gibt.
+      **2026-09-10, zweiter Schnitt: `src/mobile` und `src/viewer` sind
+      ebenfalls sauber.** Gemessen waren es nicht 34 und 7, sondern **63 und
+      12** — die frühere Zahl stammte aus einer Suche über Umlaute, die
+      kurze Beschriftungen ohne Umlaut („Von Port", „Plan read-only") nicht
+      sah. Beide Ordner sind verdrahtet und übersetzt; `lang:check` deckt sie
+      jetzt ab (siehe Phase 3).
+
+      **Sie bekommen ein eigenes, kleines Wörterbuch — mit Grund.**
+      `renderer/lib/i18n.ts` importiert `de.ts` statisch: 316 KB, 5276
+      Schlüssel. Der Mobile-Chunk ist 57 KB groß und wird über das
+      Hallen-WLAN auf ein Telefon geladen. Ein Import von dort hätte die
+      Seite vervierfacht, damit ein Handy Zeichenketten lädt, die es nie
+      zeigt. Das Werk (`spracheAusBrowser`, `format`) steht deshalb einmal in
+      `renderer/lib/i18nLite.ts`, die Wörterbücher je Seite in
+      `src/mobile/i18n.ts` (169 Schlüssel) und `src/viewer/i18n.ts` (33).
+      Gemessene Kosten: Mobile-Chunk 57 → 72 kB, Viewer 15,8 kB.
+      `tests/i18nEintrittspunkte.test.ts` folgt den Importen beider Seiten
+      durch den ganzen Baum und fällt, wenn `lib/i18n` wieder hereinkommt —
+      auch mittelbar über ein Hilfsmodul.
+
+      **Was `lang:check` NICHT sehen kann, und was deshalb dazukam:** ein
+      fehlender Schlüssel im Wörterbuch zeigt den englischen Fallback, und
+      der ist eine regelkonforme Zeichenkette. Gefunden wurde genau so ein
+      Fall nur, weil die gebaute Seite mit deutscher Spracheinstellung im
+      Browser offen war: „.cpviewer or .json" zwischen lauter deutschen
+      Zeilen, weil ich beim Eintragen geschätzt hatte, die Zeile sei in
+      beiden Sprachen gleich. Derselbe Test besteht jetzt darauf, dass jeder
+      benutzte Schlüssel entweder übersetzt oder in einer kurzen Liste
+      ausdrücklich als „in beiden Sprachen gleich" erklärt ist (heute sechs
+      Einträge: „Plan", „Name", „Problem", „optional…", „Name (optional)",
+      „📶 Remote").
 - [ ] In-`t()`-String-Glyphen aus Phase 1 (`⚠`/`✓`/`✕` in `cable.warn.*`,
       `bom.cable.missingTypes`, „✕ Reset" etc.) extrahieren + Icon im JSX.
 

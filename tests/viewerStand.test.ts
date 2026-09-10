@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import viewerQuelle from '../src/viewer/ViewerApp.tsx?raw'
+import viewerWoerterbuch from '../src/viewer/i18n.ts?raw'
 import { planFingerprint, stampForPlan } from '../src/renderer/lib/documentStamp'
 import type { CablePlannerProject, ProjectAnnotation } from '../src/renderer/types/project'
 
@@ -53,7 +54,11 @@ describe('der Stand steht auf dem, was geteilt wird', () => {
     // ab, muss es dabeistehen — sonst behauptet die Ansicht einen Stand, den
     // sie nicht hat. Dieselbe Regel wie in `stampLine`.
     expect(viewerQuelle).toContain('{stamp.revision}')
-    expect(viewerQuelle).toContain("stamp.drifted && ' + Änderungen'")
+    // Der Zusatz laeuft seit E-28 durch `t()`; der deutsche Text steht in
+    // `src/viewer/i18n.ts`. Geprueft wird beides — die Stelle im Bauteil und
+    // der Satz im Woerterbuch.
+    expect(viewerQuelle).toContain("stamp.drifted && t('viewer.stamp.drifted'")
+    expect(viewerWoerterbuch).toContain('+ Änderungen')
   })
 
   it('zeigt KEIN Druckdatum', () => {
@@ -74,7 +79,8 @@ describe('der Stand steht auf dem, was geteilt wird', () => {
     // Acht Hex-Zeichen ohne Hinweis sind ein Rätsel. Der Bedarf will, dass
     // jemand OHNE Konto feststellen kann, ob sein Plan noch gilt.
     expect(viewerQuelle).toContain('standHinweis')
-    expect(viewerQuelle).toMatch(/Blatt prüfen/)
+    expect(viewerQuelle).toContain("'viewer.stampHint'")
+    expect(viewerWoerterbuch).toMatch(/Blatt prüfen/)
   })
 })
 

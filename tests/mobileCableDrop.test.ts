@@ -117,6 +117,7 @@ describe('das Handy verspricht nicht mehr, was es nicht wissen kann', () => {
   })
 
   it('sagt stattdessen, was tatsaechlich passiert ist', () => {
-    expect(mobile).toContain('An den Desktop gesendet')
+    // Englische Quelle im Aufruf, deutsche Fassung im Woerterbuch (E-28).
+    expect(mobile).toContain('Sent to the desktop')
   })
 })

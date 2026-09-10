@@ -52,7 +52,7 @@
     "build:preload": "tsc -p tsconfig.preload.json",
     "build:renderer": "vite build",
     "lint": "eslint .",
-    "lang:check": "node scripts/quellsprache.mjs src/renderer en",
+    "lang:check": "node scripts/quellsprache.mjs src/renderer en && node scripts/quellsprache.mjs src/mobile en && node scripts/quellsprache.mjs src/viewer en",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
