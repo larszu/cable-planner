@@ -1,15 +1,17 @@
 import type { EquipmentTemplate, Port } from '../types/equipment'
 
-// BELEGLAGE: kein Datenblatt-Link je Eintrag (B-11).
-// Der Kopf behauptete kein Datenblatt — er sagte aber auch nicht, dass keines
-// hinterlegt ist, und ein leeres Feld sieht aus wie „hat gerade niemand
-// nachgetragen". Neun Einträge, null Belege.
+// ───────────────────────────────────────────────────────────────────────────
+// Green-GO-Katalog (IP-Intercom: Stationen, Beltpacks, DECT-Antenne).
+// Green-GO ist voll IP-basiert — alle Geräte hängen am Ethernet. MCX/MCXD
+// führen analoges Programm-I/O über XLR-3; das 5-polige XLR nur am Headset der
+// Beltpacks.
 //
-// GreenGo intercom equipment templates for rental catalog matching.
-// GreenGo is a fully IP-based intercom system — all devices connect via
-// standard Ethernet. The MCX/MCXD provide analog program I/O via XLR-3.
-// Belt packs connect to the network (wired via RJ45, wireless via DECT).
-// The 5-pin XLR (XLR-5) is used only for headset connections on beltpacks.
+// Belege gegen die offiziellen Produktseiten des Herstellers (greengocom.com,
+// Recherche 2026-09, Quellen-URL je Eintrag). Die Modellnamen folgen dem
+// Rentman-Bestand und weichen teils von der aktuellen X-Serie ab (MCXD →
+// Multichannel X Extension, Antenna X → Wireless Antenna) — die URL zeigt
+// jeweils auf das entsprechende Produkt. XTBB/XTBD werden in der aktuellen
+// Reihe nicht mehr geführt und bleiben ohne Beleg statt mit erfundener Adresse.
 
 const port = (
   name: string,
@@ -48,7 +50,9 @@ export const GREENGO_CATALOG: GreenGoEntry[] = [
   {
     match: ['greengo', 'mcxd'],
     deviceTypeId: '45db5d78-2270-4e5f-8b5e-da2212d15c33',
+    // Quelle: https://www.greengocom.com/products/mcxext
     template: {
+      manufacturerUrl: 'https://www.greengocom.com/products/mcxext',
       name: 'GreenGo MCXD',
       category: INTERCOM,
       inputs: [
@@ -73,7 +77,9 @@ export const GREENGO_CATALOG: GreenGoEntry[] = [
   {
     match: ['greengo', 'mcx'],
     deviceTypeId: '3f91811f-8b35-498c-8abe-9b7dcacd9658',
+    // Quelle: https://www.greengocom.com/products/mcx
     template: {
+      manufacturerUrl: 'https://www.greengocom.com/products/mcx',
       name: 'GreenGo MCX',
       category: INTERCOM,
       inputs: [
@@ -97,7 +103,9 @@ export const GREENGO_CATALOG: GreenGoEntry[] = [
   {
     match: ['greengo', 'bpx'],
     deviceTypeId: '6438a81a-49b3-48da-a1f2-476b71b040cc',
+    // Quelle: https://www.greengocom.com/products/bpx
     template: {
+      manufacturerUrl: 'https://www.greengocom.com/products/bpx',
       name: 'GreenGo BPX',
       category: INTERCOM,
       inputs: [
@@ -116,7 +124,9 @@ export const GREENGO_CATALOG: GreenGoEntry[] = [
   {
     match: ['greengo', 'bpxsp'],
     deviceTypeId: '278c8bd0-77d7-4ab2-80cf-c66b8440beb4',
+    // Quelle: https://www.greengocom.com/products/bpxsp
     template: {
+      manufacturerUrl: 'https://www.greengocom.com/products/bpxsp',
       name: 'GreenGo BPXSP',
       category: INTERCOM,
       inputs: [
@@ -139,7 +149,9 @@ export const GREENGO_CATALOG: GreenGoEntry[] = [
   {
     match: ['greengo', 'wbpx'],
     deviceTypeId: '3a3159c7-713a-4e9c-9441-3b6b62655f10',
+    // Quelle: https://www.greengocom.com/products/wbpx
     template: {
+      manufacturerUrl: 'https://www.greengocom.com/products/wbpx',
       name: 'GreenGo WBPX',
       category: INTERCOM,
       inputs: [],
@@ -152,7 +164,9 @@ export const GREENGO_CATALOG: GreenGoEntry[] = [
   {
     match: ['greengo', 'wireless beltpack'],
     deviceTypeId: '18772c9b-8d92-4e80-a7b2-d51ad09dc727',
+    // Quelle: https://www.greengocom.com/products/wbpx
     template: {
+      manufacturerUrl: 'https://www.greengocom.com/products/wbpx',
       name: 'GreenGo Wireless Beltpack X',
       category: INTERCOM,
       inputs: [],
@@ -204,7 +218,9 @@ export const GREENGO_CATALOG: GreenGoEntry[] = [
   {
     match: ['greengo', 'antenna'],
     deviceTypeId: '63bec60d-8447-4062-9ea0-1cf79b5bb493',
+    // Quelle: https://www.greengocom.com/products/waa
     template: {
+      manufacturerUrl: 'https://www.greengocom.com/products/waa',
       name: 'GreenGo Antenna X',
       category: INTERCOM,
       inputs: [
