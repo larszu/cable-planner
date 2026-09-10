@@ -273,28 +273,48 @@ Inline-Fallback in `ErrorBoundary`). → Token-Schicht einführen.
       UI-Skripte grün, `ui:overflow` prüft dabei 15 Dialoge. Der Sprung
       10 → 12px in dichten Tabellen ist der Punkt, an dem eine Migration
       Layout bricht — `npm test` sieht das nicht.
-- [ ] Translucente Glas-Flächen auf Alpha-Tokens (z. B. `color-mix`) heben —
-      aktuell bewusst als slate-Klassen belassen (Remap deckt Light ab).
-      **Nachgemessen 2026-09-10: der Posten ist klein geworden** — noch
-      11 Stellen, und die im TODO genannten Beispiele (`bg-slate-950/95`,
-      `bg-slate-900/80`) gibt es gar nicht mehr. Übrig sind `/30`, `/40`,
-      `/50`, `/60`, `bg-slate-900/98`, `bg-slate-800/90`, `bg-slate-400/50`
-      in `AtemAudioRouterDialog`, `RackLivePreview`, `CableContextMenu`
-      und `VideohubRoutingMatrix`.
-- [ ] Slate-Remapping in `index.css` schrittweise durch `--cp-*`-Tokens
-      ersetzen; Ziel: Opacity-Varianten-Liste schrumpfen.
-      **Nachgemessen 2026-09-10: die Liste ist nicht das Problem.**
-      207 Regeln, davon **204 mit echten Nutzern** — der Remap ist längst
-      auf das Legacy-Sicherheitsnetz geschrumpft, das sein Kopfkommentar
-      beschreibt. Die drei ohne Nutzer sind entfernt.
+- [x] Translucente Glas-Flächen auf Alpha-Tokens heben — **erledigt
+      2026-09-10.** Die im TODO genannten Beispiele (`bg-slate-950/95`,
+      `bg-slate-900/80`) gab es beim Nachmessen gar nicht mehr; übrig waren
+      neun klassenbasierte Stellen in `AtemAudioRouterDialog` (3),
+      `RackLivePreview` (3), `CableContextMenu` (2) und
+      `VideohubRoutingMatrix` (1).
+      **Kein `color-mix` von Hand nötig:** der Opacity-Modifier wirkt auf den
+      semantischen Utilities, `bg-cp-surface-3/40` kompiliert zu
+      `color-mix(in oklab, var(--cp-surface-3) 40%, transparent)`. Die
+      Migration ist damit ein Eins-zu-eins-Tausch mit **exakt gleicher
+      Deckung** — nur die Basisfarbe wechselt von Schiefer auf die
+      Marken-Palette.
+      `CableContextMenu` verliert dabei seinen `isLight`-Zweig ganz (vier
+      Stellen); die Datei führt keine eigene Farbtabelle mehr.
+      **Nicht migriert, mit Grund:** die Kreuzpunkt-Füllung der
+      Videohub-Matrix (`bg-slate-400/50`) ist eine Zustands-Farbe — sie sagt
+      „diese Verbindung ist geschaltet" und darf mit dem Theme nicht kippen.
+      Ebenso die dunklen Overlays in `Rack3DView` und das Amber-Banner in
+      `PendingCableOverlay`: beide liegen über einer eigenen dunklen Szene
+      bzw. sind Warnfarbe, nicht Fläche.
+- [x] Slate-Remapping in `index.css` schrittweise durch `--cp-*`-Tokens
+      ersetzen; Ziel: Opacity-Varianten-Liste schrumpfen. **Erledigt
+      2026-09-10, soweit es die Liste betrifft.**
+      **Nachgemessen: die Liste war nicht das Problem, für das der TODO sie
+      hielt.** 207 Regeln, davon 204 mit echten Nutzern — der Remap ist
+      längst das Legacy-Sicherheitsnetz, das sein Kopfkommentar beschreibt.
+      Die drei ohne Nutzer sind entfernt, und mit der Glas-Migration oben
+      fielen fünf weitere Regeln von selbst weg: `bg-slate-950/30|40|50|60`
+      und `bg-slate-900/98` hatten keinen Nutzer mehr.
+      **Der Wächter hat das gemeldet, nicht ein Mensch** — genau so soll er
+      sich verhalten: die Liste schrumpft mit der Migration mit, statt
+      Karteileichen anzusammeln.
       Was stattdessen gefunden wurde, steht als eigener Nebenbefund oben:
       vier Regeln waren doppelt deklariert, mit widersprüchlichen Werten.
       **Gehalten** von `tests/themeRemapEindeutig.test.ts`.
-      Offen bleibt der eigentliche Umbau auf Tokens — die verbliebenen
+      **Was bleibt, ist kein Rest, sondern der Zweck:** die verbliebenen
       Regeln decken die `isLight`-Canvas-/Print-Komponenten ab, die pro
-      Theme **manuell** unterschiedliche Shades wählen und sich deshalb
-      nicht auf einen auto-kippenden Token abbilden lassen. Das ist derselbe
-      Umbau wie der nächste Punkt und gehört mit ihm zusammen gemacht.
+      Theme **manuell** unterschiedliche Shades wählen (`EquipmentNode`
+      liest dafür sogar Nutzer-Einstellungen, siehe unten). Sie lassen sich
+      nicht auf einen auto-kippenden Token abbilden — das ist der Grund,
+      warum es das Sicherheitsnetz gibt, und nicht der Grund, es weiter
+      abzutragen.
 - [x] Inline-Style-Komponenten auf `var(--cp-*)` statt
       `canvasTheme`-Branching — **erledigt 2026-09-10 für `CanvasToolbar`
       und `CableEdge`.** Die Werkzeugleiste lief als einzige Fläche noch auf
