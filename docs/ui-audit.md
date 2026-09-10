@@ -825,11 +825,37 @@ Eigentümer-Entscheidung und an einer Schema-Migration, weil
       Beispielprojekt; ein zweiter Slot für dieselbe Sache, den nur ein
       Kundenplan füllen könnte, ist die schlechtere Hälfte. Zeile aus
       `docs/screenshots/README.md` entfernt.
-- [ ] **Rohbilder aus `main`/Branch-History bereinigen**:
-      `Screenshot (573).png` liegt in `main` (Commit `f5279e9`), die übrigen
-      Rohbilder in der Branch-History (`a670c71`) — bei öffentlichem Repo ggf.
-      History scrubben (die ungeschwärzten Bilder sind sonst über alte
-      Commits abrufbar).
+- [ ] **Rohbilder aus der History bereinigen** — offen, und nur der Eigentümer
+      kann es entscheiden: ein History-Scrub ändert veröffentlichte Commits.
+
+      **Nachgemessen am 2026-09-10**, weil dieser Punkt bis dahin Zahlen
+      nannte, die so nicht mehr stimmten:
+      * **`main` ist sauber.** In `origin/main` liegen heute nur die acht
+        Bilder aus `docs/screenshots/` plus `build/icon.png` und die drei
+        Suite-Mockups. `Screenshot (573).png`, das diese Zeile in `main`
+        verortete, ist dort nicht (mehr).
+      * **Ein Rohbild ist trotzdem aufgetaucht** — nicht hier, sondern in der
+        Suite: `apps/cable-planner/docs/screenshots/hero.png.png`, 1,4 MB,
+        doppelte Endung, von nirgends referenziert. Es ist ein **echter,
+        ungeschwärzter Kundenplan**: Projektname und Rentman-Zeile mit Kunden-
+        und Projektnamen im Klartext, dazu die Taskleiste des aufnehmenden
+        Rechners. (Die Kennungen stehen mit Absicht nicht in dieser Datei —
+        sie wäre sonst genau der Kanal, den sie beschreibt.)
+      * **Dasselbe Bild lag auch hier**, hinzugefügt in `955da7e` und entfernt
+        in `3da81ad`. Die Suite-Kopie hat die Löschung nie mitbekommen —
+        dieselbe Form, gegen die B-5 in der Suite steht: ein Fix in einem Repo,
+        den das andere nie bekommt.
+      * Aus dem Arbeitsbaum der Suite ist die Datei mit `suite#218` raus. **Aus
+        beiden Historien nicht**, und beide Repos sind öffentlich.
+      * Was ein Scrub allein nicht erledigt: GitHub hält alte Blobs auch nach
+        einem Rewrite noch vor, bis der Support sie räumt.
+      * **Der Klon in dieser Umgebung ist flach** (545 Commits). „Nicht in der
+        History gefunden" ist von hier aus deshalb kein Beleg — der Fund oben
+        ist einer, das Ausbleiben weiterer Funde nicht.
+
+      Gefunden hat es `tests/screenshotsAktuell.test.ts` bei seinem ersten Lauf
+      in der Suite: die Frage „steht dieses Bild im Stempel oder in `VON_HAND`?"
+      ist entscheidbar, und sie sieht auch, was niemand referenziert.
 
 ## Abschluss — Gesamtstatus
 
@@ -852,7 +878,9 @@ Alle 6 Phasen abgeschlossen, je ein Commit, gepusht auf
 `node docs/i18n-check.mjs` = 0 fehlende Keys.
 
 **Offene Hauptpunkte (manuell):** `canvas.gif` (kein GIF-Encoder im
-Container), History-Scrub der Rohbilder, sowie die je
+Container), der History-Scrub der Rohbilder — **eine Eigentümer-Entscheidung,
+und seit dem Fund in der Suite (`hero.png.png`, siehe oben) keine theoretische
+mehr** —, sowie die je
 Phase dokumentierten großflächigen Migrations-TODOs (Typo/Token-Rest,
 restliche Dialog-a11y, in-`t()`-Glyphen).
 
