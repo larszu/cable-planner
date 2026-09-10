@@ -262,8 +262,22 @@ const SICHTBARE_ATTRIBUTE =
  * abbrach, bevor das schliessende `<` erreicht war, fiel der ganze Satz
  * heraus. Ein Waechter, der an der Klammer HINTER dem Text scheitert, ist
  * schlimmer als keiner: die Null, die er meldet, liest sich wie ein Beleg.
+ *
+ * ─── UND DAS FRAGMENT IST AUCH EIN TAG (2026-09-10) ────────────────────────
+ *
+ * `[^\s=<!>]` verbot vor dem `>` ausdruecklich ein `<` — damit `<=` und
+ * `<Foo>` nicht als Tag-Ende durchgehen. Es verbot damit aber auch `<>`, und
+ * das ist das JSX-FRAGMENT: ein vollwertiges Element, dessen Kinder auf dem
+ * Bildschirm stehen wie die jedes anderen. Gefunden an einer Stelle, an der
+ * es besonders weh tut — `ErrorBoundary`, der Text, den jemand liest, wenn
+ * die App schon abgestuerzt ist:
+ *
+ *     <> Zusaetzlich wurde eine Sicherheitskopie des Autosaves angelegt
+ *
+ * `<>` kommt in TypeScript sonst nicht vor: `=>` faengt das `=`, ein Generic
+ * traegt vor dem `>` einen Bezeichner, und `a < b > c` hat Leerzeichen.
  */
-const JSX_TEXT = /[^\s=<!>]>([^<>]{4,})<[/A-Za-z]/g
+const JSX_TEXT = /(?:[^\s=<!>]|<)>([^<>]{4,})<[/A-Za-z]/g
 
 /**
  * Ein JSX-Ausdruck, der NUR aus einer Zeichenkette besteht: `{'…'}` oder
@@ -280,7 +294,7 @@ const JSX_TEXT = /[^\s=<!>]>([^<>]{4,})<[/A-Za-z]/g
  * Zaehler teuer gelernt nicht zu lesen.
  */
 const JSX_LITERAL =
-  /[^\s=<!>]>\s*\{\s*(?:`((?:[^`\\]|\\.){4,}?)`|'((?:[^'\\]|\\.){4,}?)')\s*\}/g
+  /(?:[^\s=<!>]|<)>\s*\{\s*(?:`((?:[^`\\]|\\.){4,}?)`|'((?:[^'\\]|\\.){4,}?)')\s*\}/g
 
 /**
  * Was ein JSX-Textknoten NIE enthaelt, ein Code-Schnipsel dagegen fast immer.
@@ -443,6 +457,8 @@ if (process.argv[1] && process.argv[1].endsWith('quellsprache.mjs')) {
     '<span>Front {draft.depthMm} mm rear</span>',
     '<span>{`with ${n} of them`}</span>',
     '<div>Sentence before the brace\n{!bridge && (\n<span>x</span>)}</div>',
+    // Das Fragment ist auch ein Tag — `<>` war bis 2026-09-10 ausgeschlossen.
+    '<>Inside a bare fragment<code>x</code></>',
   ].join('\n')
 
   // Sortiert verglichen: in welcher Reihenfolge Attribute, Rueckfragen und
@@ -457,6 +473,7 @@ if (process.argv[1] && process.argv[1].endsWith('quellsprache.mjs')) {
     'Front mm rear',
     'with ${n} of them',
     'Sentence before the brace',
+    'Inside a bare fragment',
   ].sort()
   if (gefunden.length !== erwartet.length || erwartet.some((e, i) => gefunden[i] !== e)) {
     console.error(

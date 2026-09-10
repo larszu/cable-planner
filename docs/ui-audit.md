@@ -573,6 +573,19 @@ nicht erst, wenn jemand eine halb übersetzte Seite meldet.
       jetzt `JSX_LITERAL`, und zwar nur für die **reine** Form: was um die
       Zeichenkette herum noch gerechnet wird, ist Code.
 
+      **Nachtrag desselben Tages: das Fragment ist auch ein Tag.**
+      `[^\s=<!>]` verbot vor dem `>` ausdrücklich ein `<` — damit `<=` und
+      `<Foo>` nicht als Tag-Ende durchgehen. Es verbot damit aber auch `<>`,
+      und das ist das **JSX-Fragment**: ein vollwertiges Element, dessen
+      Kinder auf dem Bildschirm stehen wie die jedes anderen. Gefunden an der
+      Stelle, an der es am meisten weh tut — `ErrorBoundary`, der Text, den
+      jemand liest, wenn die App schon abgestürzt ist: „Zusätzlich wurde eine
+      Sicherheitskopie des Autosaves angelegt (…)". `<>` kommt in TypeScript
+      sonst nicht vor (`=>` fängt das `=`, ein Generic trägt vor dem `>`
+      einen Bezeichner, `a < b > c` hat Leerzeichen), die Öffnung ist also
+      eng. Der Satz ist jetzt **ein** Schlüssel mit Platzhalter statt eines
+      Satzes plus eingebettetem `<code>`.
+
       **Der Preis ist benannt:** ein Lauf, der über `{` hinweggeht, endet öfter
       mitten im Ausdruck. `NACH_CODE` hat deshalb `return`, `null`, `typeof`,
       `??` und `if (` dazubekommen — `if` steht auf der **englischen**

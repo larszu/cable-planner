@@ -5294,6 +5294,8 @@ export const de: Dict = {
   'errorBoundary.bootLoop': 'Boot-Loop erkannt — UI-Einstellungen wurden automatisch zurückgesetzt.',
   'errorBoundary.dataSafeBody': ': das Autosave, die lokale Library, gespeicherte Gruppen und Rack-Entwürfe wurden NICHT gelöscht.',
   'errorBoundary.dataSafeHead': 'Deine Projekt-Daten sind sicher',
+  'errorBoundary.projectBackedUp':
+    'Zusätzlich wurde eine Sicherheitskopie des Autosaves angelegt ({key} in localStorage).',
   'errorBoundary.pleaseCopy': 'Bitte den vollständigen Text unten kopieren und an den Entwickler weitergeben — das hilft, den Bug endgültig zu finden.',
   'errorBoundary.reloadOnly': 'Nur neu laden (nichts löschen)',
   'errorBoundary.reloading': 'Die App lädt in 2 s neu — du landest direkt wieder in deinem Projekt.',
