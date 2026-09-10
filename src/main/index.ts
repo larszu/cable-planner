@@ -323,7 +323,22 @@ app.whenReady().then(async () => {
           ...details.responseHeaders,
           'Content-Security-Policy': [
             "default-src 'self'; " +
-              "script-src 'self'; " +
+              // `wasm-unsafe-eval` ist NICHT `unsafe-eval`: es erlaubt genau
+              // das Uebersetzen von WebAssembly und weiterhin kein `eval()`
+              // und keinen `new Function()` fuer JavaScript.
+              //
+              // Ohne diese Angabe schlaegt der Barcode-Decoder
+              // (`lib/barcodeScanner.ts`, zxing-wasm) beim ersten Scan fehl —
+              // gemessen im gepackten Fenster am 2026-09-10:
+              //
+              //   WebAssembly.instantiateStreaming(): Compiling or
+              //   instantiating WebAssembly module violates the following
+              //   Content Security policy directive …
+              //
+              // Und zwar erst beim SCAN, nicht beim Start: der Fehler haette
+              // die App durchlaufen und waere jemandem im Lager vor die Fuesse
+              // gefallen, nicht hier.
+              "script-src 'self' 'wasm-unsafe-eval'; " +
               "style-src 'self' 'unsafe-inline'; " +
               "img-src 'self' data: blob:; " +
               "font-src 'self' data:; " +
