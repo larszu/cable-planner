@@ -283,20 +283,20 @@ export const MobileShareDialog = () => {
                   <div className="h-[240px] w-[240px] animate-pulse rounded bg-cp-surface-2" />
                 )}
                 <div className="w-full">
-                  <div className="text-[10px] uppercase tracking-wide text-emerald-300">
+                  <div className="text-cp-xs uppercase tracking-wide text-emerald-300">
                     {t('mobile.dialog.activeUrl', 'Active URL')}
                   </div>
                   <div className="flex items-center gap-1">
                     <input
                       readOnly
                       value={selectedUrl}
-                      className="flex-1 rounded border border-cp-border bg-cp-surface-3 px-2 py-1 font-mono text-[11px] text-cp-text"
+                      className="flex-1 rounded border border-cp-border bg-cp-surface-3 px-2 py-1 font-mono text-cp-xs text-cp-text"
                       onFocus={(e) => e.target.select()}
                     />
                     <button
                       type="button"
                       onClick={() => void copyUrl()}
-                      className="rounded bg-cp-surface-4 px-2 py-1 text-[10px] hover:bg-cp-surface-5"
+                      className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
                       title={t('mobile.dialog.copyToClipboard', 'Copy to clipboard')}
                     >
                       <Icon icon={copied ? Check : Clipboard} size="xs" />
@@ -314,26 +314,26 @@ export const MobileShareDialog = () => {
                   ein Feed, der nichts traegt, liest sich als „hat frei". */}
               {crewFeedUrl && (
                 <div className="w-full">
-                  <div className="text-[10px] uppercase tracking-wide text-sky-300">
+                  <div className="text-cp-xs uppercase tracking-wide text-sky-300">
                     {t('mobile.dialog.crewFeed', 'Subscribe to the crew calendar')}
                   </div>
                   <div className="flex items-center gap-1">
                     <input
                       readOnly
                       value={crewFeedUrl}
-                      className="flex-1 rounded border border-cp-border bg-cp-surface-3 px-2 py-1 font-mono text-[11px] text-cp-text"
+                      className="flex-1 rounded border border-cp-border bg-cp-surface-3 px-2 py-1 font-mono text-cp-xs text-cp-text"
                       onFocus={(e) => e.target.select()}
                     />
                     <button
                       type="button"
                       onClick={() => void navigator.clipboard?.writeText(crewFeedUrl)}
-                      className="rounded bg-cp-surface-4 px-2 py-1 text-[10px] hover:bg-cp-surface-5"
+                      className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
                       title={t('mobile.dialog.copyToClipboard', 'Copy to clipboard')}
                     >
                       <Icon icon={Clipboard} size="xs" />
                     </button>
                   </div>
-                  <div className="mt-0.5 text-[10px] text-cp-text-muted">
+                  <div className="mt-0.5 text-cp-xs text-cp-text-muted">
                     {t(
                       'mobile.dialog.crewFeedHint',
                       'Add it to your calendar as a subscription — it fetches the current state instead of going stale.',
@@ -343,7 +343,7 @@ export const MobileShareDialog = () => {
               )}
               {status.urls.length > 1 && (
                 <div>
-                  <div className="mb-1 text-[10px] uppercase tracking-wide text-cp-text-muted">
+                  <div className="mb-1 text-cp-xs uppercase tracking-wide text-cp-text-muted">
                     {t('mobile.dialog.altUrls', 'Alternative LAN addresses (in case one is unreachable)')}
                   </div>
                   <div className="flex flex-wrap gap-1">
@@ -352,7 +352,7 @@ export const MobileShareDialog = () => {
                         key={u}
                         type="button"
                         onClick={() => setSelectedUrl(u)}
-                        className={`rounded border px-2 py-0.5 text-[10px] font-mono ${
+                        className={`rounded border px-2 py-0.5 text-cp-xs font-mono ${
                           u === selectedUrl
                             ? 'border-sky-500 bg-sky-900 text-white'
                             : 'border-cp-border bg-cp-surface-1 text-cp-text-secondary hover:border-sky-700'
@@ -377,34 +377,34 @@ export const MobileShareDialog = () => {
                   liest dabei, was er tut. */}
               {status.withheld.length > 0 && (
                 <div className="rounded border border-amber-700 bg-amber-950/40 p-2">
-                  <div className="mb-1 text-[10px] uppercase tracking-wide text-amber-300">
+                  <div className="mb-1 text-cp-xs uppercase tracking-wide text-amber-300">
                     {t('mobile.dialog.withheldTitle', 'Not shared')}
                   </div>
                   <div className="mb-1 flex flex-wrap gap-1">
                     {status.withheld.map((w) => (
                       <span
                         key={w.address}
-                        className="rounded border border-amber-700 bg-cp-surface-1 px-2 py-0.5 font-mono text-[10px] text-amber-200"
+                        className="rounded border border-amber-700 bg-cp-surface-1 px-2 py-0.5 font-mono text-cp-xs text-amber-200"
                       >
                         {w.address}
                       </span>
                     ))}
                   </div>
-                  <p className="text-[11px] leading-snug text-cp-text-secondary">
+                  <p className="text-cp-xs leading-snug text-cp-text-secondary">
                     {status.withheld[0].reason}
                   </p>
                   <button
                     type="button"
                     disabled={busy}
                     onClick={() => void handleAllowBeyondLan()}
-                    className="mt-1 rounded border border-amber-600 px-2 py-0.5 text-[10px] text-amber-200 hover:bg-amber-900/60"
+                    className="mt-1 rounded border border-amber-600 px-2 py-0.5 text-cp-xs text-amber-200 hover:bg-amber-900/60"
                   >
                     {t('mobile.dialog.allowBeyondLan', 'Share anyway (this session only)')}
                   </button>
                 </div>
               )}
               <div className="flex items-center justify-between">
-                <span className="text-[11px] text-cp-text-muted">
+                <span className="text-cp-xs text-cp-text-muted">
                   {t('mobile.dialog.portLabel', 'Port')} {status.port} ·{' '}
                   {status.hasProject ? (
                     <span className="text-emerald-300">{t('mobile.dialog.projectSynced', 'Project synced')}</span>
@@ -464,7 +464,7 @@ export const MobileShareDialog = () => {
                 </label>
               ))}
             </div>
-            <p className="text-[11px] text-cp-text-muted">
+            <p className="text-cp-xs text-cp-text-muted">
               {writeMode === 'read-only'
                 ? t(
                     'mobile.dialog.writeMode.readHint',
@@ -498,7 +498,7 @@ export const MobileShareDialog = () => {
               {t('mobile.dialog.pincode', 'Make system access codes retrievable')}
             </label>
             {codes.length === 0 ? (
-              <p className="text-[11px] text-cp-text-muted">
+              <p className="text-cp-xs text-cp-text-muted">
                 {t(
                   'mobile.dialog.pincode.none',
                   'This project carries no intercom configuration with access codes.',
@@ -506,7 +506,7 @@ export const MobileShareDialog = () => {
               </p>
             ) : pinAn && pinToken ? (
               <>
-                <p className="text-[11px] text-cp-text-muted">
+                <p className="text-cp-xs text-cp-text-muted">
                   {t(
                     'mobile.dialog.pincode.hint',
                     'Type this code on the phone. It is NOT part of the QR code — whoever only has the link cannot reach the access data.',
@@ -515,7 +515,7 @@ export const MobileShareDialog = () => {
                 <code className="select-all rounded bg-cp-surface-2 px-2 py-1 font-mono text-cp-base tracking-widest text-cp-text">
                   {pinToken}
                 </code>
-                <p className="text-[11px] text-cp-text-muted">
+                <p className="text-cp-xs text-cp-text-muted">
                   {format(
                     t(
                       'mobile.dialog.pincode.count',
@@ -526,7 +526,7 @@ export const MobileShareDialog = () => {
                 </p>
               </>
             ) : (
-              <p className="text-[11px] text-cp-text-muted">
+              <p className="text-cp-xs text-cp-text-muted">
                 {format(
                   t(
                     'mobile.dialog.pincode.offHint',
@@ -538,7 +538,7 @@ export const MobileShareDialog = () => {
             )}
           </div>
 
-          <details className="text-[11px] text-cp-text-muted">
+          <details className="text-cp-xs text-cp-text-muted">
             <summary className="cursor-pointer hover:text-cp-text-secondary">{t('mobile.dialog.securityHeading', 'Security notes')}</summary>
             <ul className="mt-1 list-inside list-disc space-y-1">
               <li>{t('mobile.dialog.security.writeBack', 'Whether the phone may write back is decided by the setting above. If it is set to \u201csend checks and cables back\u201d, anyone with the QR code can change the plan.')}</li>

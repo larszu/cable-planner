@@ -157,7 +157,7 @@ const CableTypeEditor = ({
               className="mt-0.5 w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-text"
             />
             {conflictsWithExisting && (
-              <span className="mt-0.5 flex items-center gap-1 text-[10px] text-amber-400">
+              <span className="mt-0.5 flex items-center gap-1 text-cp-xs text-amber-400">
                 <Icon icon={AlertTriangle} size="xs" className="shrink-0" />
                 {t('cableLib.nameExists', 'Name already exists — saving overwrites the existing entry.')}
               </span>
@@ -176,7 +176,7 @@ const CableTypeEditor = ({
                       setConnectorType(n as ConnectorType)
                     }
                   }}
-                  className="rounded bg-emerald-700 px-1.5 text-[11px] text-emerald-100 hover:bg-emerald-600"
+                  className="rounded bg-emerald-700 px-1.5 text-cp-xs text-emerald-100 hover:bg-emerald-600"
                   title={t('cableLib.addConnectorTitle', 'Add new connector type')}
                 >
                   +
@@ -219,7 +219,7 @@ const CableTypeEditor = ({
                         on ? prev.filter((x) => x !== c) : [...prev, c],
                       )
                     }
-                    className={`rounded px-1.5 py-0.5 text-[10px] ${
+                    className={`rounded px-1.5 py-0.5 text-cp-xs ${
                       on
                         ? 'bg-emerald-700 text-white'
                         : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'
@@ -243,7 +243,7 @@ const CableTypeEditor = ({
                     setStandards((prev) => [...prev, n as SignalStandard])
                   }
                 }}
-                className="rounded bg-sky-700 px-1.5 text-[11px] text-sky-100 hover:bg-sky-600"
+                className="rounded bg-sky-700 px-1.5 text-cp-xs text-sky-100 hover:bg-sky-600"
                 title={t('cableLib.addSignalStandardTitle', 'Add new signal standard')}
               >
                 {t('cableLib.addStandard', '+ Standard')}
@@ -261,7 +261,7 @@ const CableTypeEditor = ({
                         on ? prev.filter((x) => x !== s) : [...prev, s],
                       )
                     }
-                    className={`rounded px-1.5 py-0.5 text-[10px] ${
+                    className={`rounded px-1.5 py-0.5 text-cp-xs ${
                       on
                         ? 'bg-sky-700 text-white'
                         : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'
@@ -273,7 +273,7 @@ const CableTypeEditor = ({
               })}
             </div>
             {standards.length === 0 && (
-              <span className="mt-0.5 block text-[10px] text-red-400">
+              <span className="mt-0.5 block text-cp-xs text-red-400">
                 {t('cableLib.pickAtLeastOneStandard', 'Select at least one standard.')}
               </span>
             )}
@@ -518,18 +518,18 @@ export const CableLibraryPanel = () => {
       <div className="mb-2 flex flex-wrap items-center justify-between gap-y-1 gap-x-2">
         <div className="flex items-center gap-2">
           <h2 className="text-cp-base font-semibold">{t('cableLib.title', 'Cable library')}</h2>
-          <span className="text-[10px] text-cp-text-muted">{format(t('cableLib.installedCount', '{n} installed'), { n: cables.length })}</span>
+          <span className="text-cp-xs text-cp-text-muted">{format(t('cableLib.installedCount', '{n} installed'), { n: cables.length })}</span>
         </div>
         <button
           type="button"
           onClick={() => setEditing(undefined)}
-          className="rounded bg-emerald-700 px-2 py-1 text-[11px] text-white hover:bg-emerald-600"
+          className="rounded bg-emerald-700 px-2 py-1 text-cp-xs text-white hover:bg-emerald-600"
           title={t('cableLib.newSpecTitle', 'Create new cable type (custom library preset)')}
         >
           {t('cableLib.newSpec', '+ New cable type')}
         </button>
       </div>
-      <p className="mb-2 text-[11px] text-cp-text-muted">
+      <p className="mb-2 text-cp-xs text-cp-text-muted">
         {t('cableLib.presetsInfo', 'Presets with connector and signal info.')}
         {customCableSpecs.length > 0 && (
           <> {format(
@@ -561,9 +561,9 @@ export const CableLibraryPanel = () => {
               >
                 <span className="flex items-center gap-1.5">
                   {group}
-                  <span className="text-[10px] font-normal text-cp-text-muted">({specs.length})</span>
+                  <span className="text-cp-xs font-normal text-cp-text-muted">({specs.length})</span>
                   {groupBuilt > 0 && (
-                    <span className={`rounded px-1.5 py-0.5 text-[11px] font-bold ${
+                    <span className={`rounded px-1.5 py-0.5 text-cp-xs font-bold ${
                       groupPlanned > 0
                         ? groupBuilt >= groupPlanned
                           ? 'bg-emerald-900/60 text-emerald-300'
@@ -608,7 +608,7 @@ export const CableLibraryPanel = () => {
                           <span className="font-medium flex-1">{cable.name}</span>
                           {isCustom && (
                             <span
-                              className="rounded bg-violet-700/80 px-1 text-[11px] font-semibold uppercase text-violet-100"
+                              className="rounded bg-violet-700/80 px-1 text-cp-xs font-semibold uppercase text-violet-100"
                               title={t('cableLib.customBadge', 'Custom cable type (created locally)')}
                             >
                               {t('cableLib.customBadgeLabel', 'Custom')}
@@ -616,19 +616,19 @@ export const CableLibraryPanel = () => {
                           )}
                           {!isCustom && cableSpecOverrides[cable.id] && (
                             <span
-                              className="rounded bg-amber-700/70 px-1 text-[11px] font-semibold uppercase text-amber-100"
+                              className="rounded bg-amber-700/70 px-1 text-cp-xs font-semibold uppercase text-amber-100"
                               title={t('cableLib.overrideBadge', 'Built-in spec with local override (reset via edit dialog)')}
                             >
                               {t('cableLib.overrideBadgeLabel', 'Modified')}
                             </span>
                           )}
                           {isRecommended && (
-                            <span className="rounded bg-emerald-600 px-1 text-[11px] font-semibold uppercase text-white">
+                            <span className="rounded bg-emerald-600 px-1 text-cp-xs font-semibold uppercase text-white">
                               ✓
                             </span>
                           )}
                           {hasCount && (
-                            <span className={`rounded px-1.5 py-0.5 text-[11px] font-bold tabular-nums ${
+                            <span className={`rounded px-1.5 py-0.5 text-cp-xs font-bold tabular-nums ${
                               planned > 0
                                 ? built >= planned
                                   ? 'bg-emerald-900/60 text-emerald-300'
@@ -643,7 +643,7 @@ export const CableLibraryPanel = () => {
                           <button
                             type="button"
                             onClick={() => setEditing(cable)}
-                            className="rounded bg-cp-surface-4 px-1.5 py-0.5 text-[10px] text-cp-text-bright hover:bg-cp-surface-5"
+                            className="rounded bg-cp-surface-4 px-1.5 py-0.5 text-cp-xs text-cp-text-bright hover:bg-cp-surface-5"
                             title={isCustom
                               ? t('cableLib.edit', 'Edit cable type')
                               : t('cableLib.editOverride', 'Adjust cable type locally (override)')}
@@ -672,7 +672,7 @@ export const CableLibraryPanel = () => {
                                 )
                                 if (ok) clearCableSpecOverride(cable.id)
                               }}
-                              className="rounded bg-amber-800/70 px-1.5 py-0.5 text-[10px] text-amber-100 hover:bg-amber-700"
+                              className="rounded bg-amber-800/70 px-1.5 py-0.5 text-cp-xs text-amber-100 hover:bg-amber-700"
                               title={t('cableLib.removeOverride', 'Remove override (reset to default)')}
                             >
                               ↺
@@ -707,25 +707,25 @@ export const CableLibraryPanel = () => {
                                 )
                                 if (ok) removeCustomCableSpec(cable.id)
                               }}
-                              className="rounded bg-red-900/60 px-1.5 py-0.5 text-[10px] text-red-200 hover:bg-red-800"
+                              className="rounded bg-red-900/60 px-1.5 py-0.5 text-cp-xs text-red-200 hover:bg-red-800"
                               title={t('cableLib.deleteSpec', 'Delete cable type')}
                             >
                               <Icon icon={X} size="sm" />
                             </button>
                           )}
                         </div>
-                        <div className="mt-0.5 text-[11px] text-cp-text-muted">
+                        <div className="mt-0.5 text-cp-xs text-cp-text-muted">
                           {cable.connectorType}
                           {cable.compatibleConnectors?.length
                             ? ` (+ ${cable.compatibleConnectors.join(', ')})`
                             : ''}
                           {cable.maxLengthMeters ? ` · max ${cable.maxLengthMeters} m` : ''}
                         </div>
-                        <div className="text-[11px] text-cp-text-muted">
+                        <div className="text-cp-xs text-cp-text-muted">
                           {cable.standards.join(' · ')}
                         </div>
                         {cable.notes && (
-                          <div className="mt-1 rounded bg-cp-surface-1 p-1 text-[10px] italic text-cp-text-secondary">
+                          <div className="mt-1 rounded bg-cp-surface-1 p-1 text-cp-xs italic text-cp-text-secondary">
                             {cable.notes}
                           </div>
                         )}

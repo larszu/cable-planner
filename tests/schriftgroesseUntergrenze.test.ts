@@ -59,11 +59,13 @@ const UNTERGRENZE_PX = 12
  * dann ist die rote Zeile die Erinnerung, sie hier nachzuziehen.
  *
  * Bisherige Staende: 828 (nach `src/mobile`), 705 (nach GreenGoExportDialog,
- * CalculatorsDialog, CableProperties). Die Reihenfolge ist die nach Groesse:
- * die dichten Tabellen und Rechner-Raster zuerst, weil dort die kleinste
- * Schrift und die meiste Zahl zusammenkommen.
+ * CalculatorsDialog, CableProperties), 515 (nach den naechsten neun:
+ * RackBuilderDialog, RentmanTab, RackPlacementProperties, CableLibraryPanel,
+ * PortList, MobileShareDialog, App.tsx, ExportDialog, AnalysisDialog). Die
+ * Reihenfolge ist die nach Groesse: die dichten Tabellen und Rechner-Raster
+ * zuerst, weil dort die kleinste Schrift und die meiste Zahl zusammenkommen.
  */
-const BARRIERE = 705
+const BARRIERE = 515
 
 const dateien = (dir: string): string[] =>
   readdirSync(dir).flatMap((eintrag) => {
