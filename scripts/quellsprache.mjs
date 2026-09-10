@@ -345,7 +345,8 @@ const RUMPF =
   /\bbody:\s*(?:(['"])((?:[^\\]|\\.){4,}?)\1|`((?:[^`\\]|\\.){4,}?)`)/g
 
 /**
- * Die Einsetzungen aus einem Textknoten herausnehmen — und zwar VON INNEN.
+ * Die Einsetzungen und Entitaeten aus einem Textknoten herausnehmen — und zwar
+ * VON INNEN.
  *
  * `{sum.counts.walls}` ist ein Feldname und keine Beschriftung; bliebe er
  * stehen, meldete die Klassifizierung Englisch, wo Deutsch steht. Geschachtelt
@@ -357,7 +358,21 @@ const RUMPF =
  * der Text davor ist echt, alles danach ist Quelltext.
  */
 const ohneAusdruecke = (roh) => {
-  let text = roh
+  // DIE ENTITAET ZUERST, und sie ist der Grund fuer diesen Zusatz.
+  //
+  // `&amp;` traegt ein SEMIKOLON, und `NACH_CODE` haelt ein Semikolon fuer
+  // Quelltext. Ein Textknoten mit einem kaufmaennischen Und darin fiel damit
+  // vollstaendig heraus — nicht das Zeichen, der ganze Satz. Gefunden im
+  // light-planner an der Beschreibung im „Ueber"-Dialog:
+  //
+  //     Planung von Veranstaltungs- und Buehnenbeleuchtung – …, DMX-Patch
+  //     &amp; Export.
+  //
+  // Vier Zeilen deutscher Fliesstext in einem Repo mit Quellsprache `en`, und
+  // der Zaehler meldete daneben eine Null. Es ist dieselbe Bauform wie bei der
+  // geschweiften Klammer: ein Zeichen HINTER dem Text bringt den Lauf zu Fall,
+  // und was er dann nicht sieht, kann er auch nicht falsch nennen.
+  let text = roh.replace(/&(?:[A-Za-z][A-Za-z0-9]{1,9}|#\d{1,6}|#[Xx][0-9A-Fa-f]{1,6});/g, ' ')
   for (let i = 0; i < 8; i += 1) {
     const naechste = text.replace(/\{[^{}]*\}/g, ' ')
     if (naechste === text) break
@@ -487,6 +502,10 @@ if (process.argv[1] && process.argv[1].endsWith('quellsprache.mjs')) {
     '<div>Sentence before the brace\n{!bridge && (\n<span>x</span>)}</div>',
     // Das Fragment ist auch ein Tag — `<>` war bis 2026-09-10 ausgeschlossen.
     '<>Inside a bare fragment<code>x</code></>',
+    // Die HTML-Entitaet. `&amp;` traegt ein SEMIKOLON, und ein Semikolon hielt
+    // `NACH_CODE` fuer Quelltext — der ganze Satz fiel heraus, nicht nur das
+    // Zeichen (2026-09-10, gefunden im light-planner).
+    '<span>Plan &amp; export as PDF</span>',
   ].join('\n')
 
   // Sortiert verglichen: in welcher Reihenfolge Attribute, Rueckfragen und
@@ -502,6 +521,7 @@ if (process.argv[1] && process.argv[1].endsWith('quellsprache.mjs')) {
     'with ${n} of them',
     'Sentence before the brace',
     'Inside a bare fragment',
+    'Plan export as PDF',
     'New connector type, e.g. Speakon NL4:',
     'Beyond the rental plan',
     'More cables built than booked.',
