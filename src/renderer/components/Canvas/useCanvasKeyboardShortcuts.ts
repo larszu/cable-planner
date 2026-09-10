@@ -98,7 +98,7 @@ export function useCanvasKeyboardShortcuts(deps: CanvasKeyboardShortcutsDeps): v
               : { x: 200, y: 200 }
             addEquipment({
               name,
-              category: 'Sonstiges',
+              category: 'Other',
               inputs: [],
               outputs: [],
               x: flow.x,

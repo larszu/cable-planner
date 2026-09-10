@@ -69,7 +69,7 @@ const templateFromEquipment = (
 ): EquipmentTemplate => ({
   ...(pickModelFields(item as unknown as Record<string, unknown>) as Partial<EquipmentTemplate>),
   name: override.name ?? item.name,
-  category: (override.category || item.category || 'Sonstiges').trim() || 'Sonstiges',
+  category: (override.category || item.category || 'Other').trim() || 'Other',
   // ADR-002/ADR-005 — ein Template IST ein Geraetetyp; die stabile
   // Typ-Identitaet gehoert also zwingend mit. Sie hier fallenzulassen machte
   // aus einem Katalog-Geraet ein namentlich geratenes.
@@ -151,7 +151,7 @@ export const createTemplateSlice: StateCreator<ProjectState, [], [], TemplateSli
     }),
   setCustomTemplateCategory: (name, category) =>
     set((state) => {
-      const cat = category.trim() || 'Sonstiges'
+      const cat = category.trim() || 'Other'
       const next = state.customLibrary.map((t) =>
         t.name === name ? { ...t, category: cat } : t,
       )

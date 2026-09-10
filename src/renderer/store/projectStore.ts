@@ -1464,7 +1464,7 @@ const healRentmanLibraryFromProject = (
       // Vollständig synthetisieren aus dem Equipment-Snapshot.
       const synthesized: EquipmentTemplate = {
         name: eq.name,
-        category: eq.category || 'Sonstiges',
+        category: eq.category || 'Other',
         inputs: eq.inputs,
         outputs: eq.outputs,
         width: eq.width,

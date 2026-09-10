@@ -115,8 +115,8 @@ export const generatePlanFromPrompt = async (description: string): Promise<Gener
   const equipment: EquipmentItem[] = []
   const byName = new Map<string, EquipmentItem>()
   rawDevices.forEach((d, i) => {
-    const name = typeof d.name === 'string' && d.name.trim() ? d.name.trim() : `Gerät ${i + 1}`
-    const category = typeof d.category === 'string' && d.category.trim() ? d.category.trim() : 'Sonstiges'
+    const name = typeof d.name === 'string' && d.name.trim() ? d.name.trim() : `Device ${i + 1}`
+    const category = typeof d.category === 'string' && d.category.trim() ? d.category.trim() : 'Other'
     const inputs = asStringArray(d.inputs).map((n) => makePort(n, 'Custom'))
     const outputs = asStringArray(d.outputs).map((n) => makePort(n, 'Custom'))
     const item: EquipmentItem = {

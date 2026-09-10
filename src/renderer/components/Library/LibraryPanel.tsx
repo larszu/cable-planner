@@ -116,7 +116,7 @@ export const LibraryPanel = () => {
   // Hochgezogen über die Drop-/Seed-Effekte, damit der React-Compiler die
   // Setter vor ihrem Gebrauch im useEffect sieht (react-hooks/immutability).
   const [name, setName] = useState('Custom Device')
-  const [category, setCategory] = useState('Kameras')
+  const [category, setCategory] = useState('Cameras')
   const [tab, setTab] = useState<'equipment' | 'cables' | 'groups' | 'racks'>('equipment')
   // v7.9.105 / Issue #224 — Wenn der RackBuilder aus dem Canvas-Toolbar-
   // 'Rack bearbeiten'-Button geoeffnet wurde, merken wir uns die
@@ -448,7 +448,7 @@ export const LibraryPanel = () => {
 
   const resetDialog = () => {
     setName('Custom Device')
-    setCategory('Kameras')
+    setCategory('Cameras')
     setIsRackDeviceDraft(false)
     setRackUnitsDraft('')
     setGroups([defaultGroup('in'), defaultGroup('out')])
@@ -461,7 +461,7 @@ export const LibraryPanel = () => {
     const maxPorts = Math.max(inputs.length, outputs.length, 3)
     return {
       name: name.trim() || 'Custom Device',
-      category: category.trim() || 'Sonstiges',
+      category: category.trim() || 'Other',
       inputs,
       outputs,
       isRackDevice: isRackDeviceDraft,

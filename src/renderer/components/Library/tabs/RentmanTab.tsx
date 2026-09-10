@@ -330,7 +330,7 @@ export const RentmanTab = () => {
                 const projectIds = new Set(projectGroups.map((group) => group.id))
                 const categoryKeys = new Set<string>()
                 for (const group of projectGroups) {
-                  const categories = new Set(group.items.map((template) => template.category || 'Sonstiges'))
+                  const categories = new Set(group.items.map((template) => template.category || 'Other'))
                   for (const category of categories) categoryKeys.add(`${group.id}::${category}`)
                 }
                 const allCollapsed =
@@ -434,7 +434,7 @@ export const RentmanTab = () => {
                   const isLinked = group.id === linkedRentmanProjectId
                   const projectCollapsed = collapsedRentmanProjects.has(group.id)
                   const categories = Array.from(
-                    new Set(group.items.map((template) => template.category || 'Sonstiges')),
+                    new Set(group.items.map((template) => template.category || 'Other')),
                   ).sort()
                   return (
                     <section
@@ -471,7 +471,7 @@ export const RentmanTab = () => {
                             categories.map((category) => {
                               const categoryKey = `${group.id}::${category}`
                               const categoryCollapsed = collapsedRentmanCats.has(categoryKey)
-                              const categoryItems = group.items.filter((template) => (template.category || 'Sonstiges') === category)
+                              const categoryItems = group.items.filter((template) => (template.category || 'Other') === category)
                               return (
                                 <div key={categoryKey} className="rounded border border-cp-border-muted/80">
                                   <button
@@ -630,7 +630,7 @@ export const RentmanTab = () => {
                       const handleDragStart = (event: React.DragEvent<HTMLDivElement>) => {
                         const template = {
                           name: item.name,
-                          category: item.category || 'Sonstiges',
+                          category: item.category || 'Other',
                           rentmanId: item.id,
                           inputs: [],
                           outputs: [],

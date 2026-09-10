@@ -139,8 +139,11 @@ describe('netboxCategoryForRole', () => {
     expect(netboxCategoryForRole({ device_role: { slug: 'broadcast-camera' } })).toBe('Cameras')
   })
 
-  it('fällt ohne Rolle auf Sonstiges zurück', () => {
-    expect(netboxCategoryForRole({})).toBe('Sonstiges')
+  it('fällt ohne Rolle auf „Other" zurück', () => {
+    // Der Rückfall ist ausgelieferte DATEN: er landet unverändert als
+    // Kategorie in der Bibliothek des Nutzers. Er stand bis 2026-09-10 als
+    // `Sonstiges` da — ein Wert, den #822 längst auf `Other` umbenannt hatte.
+    expect(netboxCategoryForRole({})).toBe('Other')
   })
 })
 
