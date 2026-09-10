@@ -366,7 +366,24 @@ export default function App() {
   // was wir selbst eingeklappt haben — vom User manuell Eingeklapptes
   // bleibt unangetastet. Floating-Panels sind nie betroffen.
   const isNarrow = useIsNarrow()
-  const prevNarrowRef = useRef(isNarrow)
+  // ─── WARUM HIER `false` UND NICHT `isNarrow` STEHT ────────────────────
+  //
+  // Bis zum 2026-09-10 stand hier `useRef(isNarrow)`. Zusammen mit dem
+  // `if (isNarrow === prevNarrowRef.current) return` weiter unten hiess das:
+  // die Einklappung greift NUR beim Ueberschreiten der Schwelle — und beim
+  // ersten Rendern gibt es kein Ueberschreiten. Wer das Fenster auf dem
+  // Schreibtisch schmal zog, sah die Panels zusammenklappen; wer die Seite
+  // auf einem Telefon OEFFNETE, sah sie nicht.
+  //
+  // GEMESSEN (390x844, GitHub-Seite): das Haupt-Raster stand auf
+  // 129px Bibliothek | 125px Plan | 129px Eigenschaften. Der Plan war der
+  // schmalste Teil der Planungs-App, und die Kopfzeile der Eigenschaften
+  // ragte 17px ueber den rechten Rand hinaus.
+  //
+  // `false` als Startwert heisst: „zuletzt war es breit". Laedt die Seite
+  // schmal, ist das ein Uebergang und die Panels klappen ein. Laedt sie
+  // breit, ist es keiner und es passiert nichts — genau wie vorher.
+  const prevNarrowRef = useRef(false)
   const autoCollapsedRef = useRef({ library: false, properties: false })
   useEffect(() => {
     if (isNarrow === prevNarrowRef.current) return
@@ -1311,7 +1328,7 @@ export default function App() {
   }, [pendingConnection, project.equipment])
 
   return (
-    <div className="flex h-screen flex-col bg-cp-surface-1 text-cp-text">
+    <div className="flex h-dvh flex-col bg-cp-surface-1 text-cp-text">
       <MenuBar
         onNewProject={handleNewProject}
         onOpenProject={() => void openProject()}

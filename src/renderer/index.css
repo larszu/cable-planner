@@ -174,12 +174,91 @@ body,
   margin: 0;
 }
 
+/* ═══════════════════════════════════════════════════════════════════════
+ * Das Fenster selbst ist kein Scrollbereich (Nutzer-Meldung 2026-09-10:
+ * „Man kann das gesamte Fenster aus Versehen verschieben", zum Schirmbild
+ * der GitHub-Seite auf einem iPhone).
+ *
+ * Hier stand bis dahin NUR `height: 100%; margin: 0`. Auf dem Schreibtisch
+ * faellt das nicht auf: dort gibt es kein Gummiband und keine Kneif-Geste.
+ * Auf dem Telefon schon — und dann verschiebt sich die ganze Seite, waehrend
+ * die Anwendung selbst gar nichts davon mitbekommt. Zwei Dinge halten sie
+ * fest:
+ *
+ *  · `overflow: hidden` — die Anwendung ist so gross wie das Fenster, ein
+ *    Rest zum Scrollen darf gar nicht erst entstehen. Ohne das genuegt EIN
+ *    Pixel Ueberhang irgendwo, damit die Seite waagerecht wandert; genau so
+ *    sah das Schirmbild aus (Inhalt nach links geschoben, rechts schwarz).
+ *  · `overscroll-behavior: none` — nimmt das Gummiband weg. Ein Zug, den
+ *    kein Scrollbereich aufnimmt, endet damit im Nichts statt in einer
+ *    Verschiebung der ganzen Seite.
+ *
+ * WAS DAS NICHT LEISTET: die Kneif-Vergroesserung. Die haengt nicht am
+ * Ueberlauf, sondern an `touch-action` — siehe `.react-flow__renderer`
+ * weiter unten. Beide Haelften zusammen misst `npm run mobil:check`.
+ * ═══════════════════════════════════════════════════════════════════════ */
+/* Das Gummiband gilt fuer ALLE drei Einstiege: es nimmt nur das Ueberziehen
+ * am Ende weg (und das versehentliche Neuladen per Zug von oben), nicht das
+ * Scrollen selbst. Ein Rundgang, der seine Haken gesetzt hat, verliert sie
+ * damit nicht mehr an eine Handbewegung. */
+html,
+body {
+  overscroll-behavior: none;
+}
+
+/* Die Sperre selbst haengt an der Marke aus `index.html` — sie gilt NUR fuer
+ * die Vollbild-Anwendung. `mobile.html` und `viewer.html` laden dasselbe
+ * Stilblatt und sind scrollende Seiten; GEMESSEN am 2026-09-10: ohne diese
+ * Einschraenkung blieb die Mobil-Liste bei 3000 Pixel Inhalt auf
+ * `scrollY = 0` stehen — die Seite war nach dem ersten Bild zu Ende, ohne
+ * dass irgendetwas es gesagt haette. */
+html[data-cp-shell='app'],
+html[data-cp-shell='app'] body {
+  overflow: hidden;
+}
+
+/* Auf dem Telefon ist die sichtbare Hoehe nicht `100vh`: die Adressleiste
+ * faehrt ein und aus. `100vh` ist die GROSSE Fassung (Leiste weg) — mit ihr
+ * ragt die Fusszeile unter die eingeblendete Leiste, und genau das war auf
+ * dem Schirmbild die abgeschnittene Statuszeile. `100dvh` ist die jeweils
+ * geltende. Auf dem Schreibtisch sind beide dasselbe. */
+html[data-cp-shell='app'] #root {
+  height: 100dvh;
+}
+
 /* Safety net: ensure React Flow viewport has a concrete size so nodes are visible */
 .react-flow,
 .react-flow__renderer,
 .react-flow__viewport {
   width: 100%;
   height: 100%;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * Die Kneif-Geste gehoert dem Plan, nicht dem Browser.
+ *
+ * GEMESSEN am 2026-09-10 (390x844, Fingerbedienung, `mobil:check`): ein
+ * Kneifen mitten auf dem Plan vergroesserte die SEITE — `visualViewport`
+ * ging von 1.0 auf 2.0, der sichtbare Ausschnitt sprang um 98/250 Pixel
+ * zur Seite. Der Plan blieb, wie er war. Das ist die Nutzer-Meldung „man
+ * kann das gesamte Fenster aus Versehen verschieben", und sie hat nichts
+ * mit dem Scrollen zu tun: eine einmal vergroesserte Seite laesst sich
+ * danach mit einem Finger beliebig herumschieben.
+ *
+ * ReactFlow bringt fuer `zoomOnPinch` seinen eigenen Zeiger-Handler mit,
+ * aber sein Stilblatt setzt KEIN `touch-action`. Ohne das nimmt der
+ * Browser die Zwei-Finger-Geste vorweg — der Handler kommt gar nicht erst
+ * dran. Dieselbe Lehre steht im light-planner an `.plan-canvas`.
+ *
+ * WARUM `.react-flow__renderer` UND NICHT `.react-flow`: `touch-action`
+ * schneidet sich ueber die Vorfahren; ein Nachfahre kann nicht wieder
+ * aufmachen, was ein Vorfahre zugemacht hat. An `.react-flow` laegen
+ * Minimap und Steuerkreuz mit darunter (sie sind Geschwister des
+ * Renderers), und die brauchen ihre eigenen Gesten. Der Renderer traegt
+ * genau die Flaeche des Plans: Pane, Hintergrund, Knoten, Kanten.
+ * ═══════════════════════════════════════════════════════════════════════ */
+.react-flow__renderer {
+  touch-action: none;
 }
 
 /* v7.7.1 — Gradient lives on the canvas container itself, NOT on
@@ -866,9 +945,15 @@ input[type="range"]:disabled {
 .cp-statusbar {
   display: flex;
   align-items: center;
-  height: 24px;
+  /* `viewport-fit=cover` in der index.html laesst die Seite bis unter den
+   * Rundungs-/Griffbereich des Telefons laufen. Die Statuszeile ist das
+   * unterste Element — ohne die sichere Zone liegt ihre Schrift unter dem
+   * Home-Balken. Auf dem Schreibtisch ist `env(...)` schlicht 0. */
+  height: calc(24px + env(safe-area-inset-bottom));
+  padding-bottom: env(safe-area-inset-bottom);
   flex: none;
-  padding: 0 12px;
+  padding-left: 12px;
+  padding-right: 12px;
   background: var(--cp-surface-3);
   border-top: 1px solid var(--cp-border);
   font-size: 12px;

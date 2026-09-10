@@ -87,7 +87,16 @@ export const LayerVisibilityChips = () => {
     })()
   }
   return (
-    <div className="relative flex items-center gap-1">
+    /* GEMESSEN am 2026-09-10 (390x844): dieser Streifen lief ohne
+       `flex-wrap` bis Pixel 726 auf einer 390 Pixel breiten Anzeige — er
+       hing weit ueber die Werkzeugleiste hinaus, und die Leiste selbst
+       konnte nichts dagegen tun: SIE bricht um (`flexWrap` in
+       `CanvasToolbar.tsx`), aber ein einzelnes Flex-Kind bricht nicht von
+       allein. Auf dem Schirmbild des Nutzers endete die Reihe mitten im
+       Wort „Control". `min-w-0` gehoert dazu: ohne das darf das Kind unter
+       seine Inhaltsbreite gar nicht erst schrumpfen.
+       Der Ausdruck-Dialog setzt denselben Umbruch schon aussen herum. */
+    <div className="relative flex min-w-0 flex-wrap items-center gap-1">
       <span
         className={`select-none text-cp-xs uppercase tracking-wider ${isLight ? 'text-slate-400' : 'text-slate-400'}`}
         title={t(

@@ -42,8 +42,26 @@ describe('ADR-007 Abschnitt 6: der Rahmen steht fest', () => {
     expect(regel('cp-topbar')).toMatch(/height:\s*40px/)
   })
 
-  it('die Statusleiste ist 24 px hoch', () => {
-    expect(regel('cp-statusbar')).toMatch(/height:\s*24px/)
+  it('die Statusleiste ist 24 px hoch — plus die sichere Zone des Geraets', () => {
+    // ERWEITERT am 2026-09-10, nicht gelockert: geprueft werden jetzt ZWEI
+    // Dinge statt einem.
+    //
+    // Die Zahl aus ADR-007 steht unveraendert da. Dazu kommt die sichere
+    // Zone: `index.html` sagt `viewport-fit=cover`, die Seite laeuft also
+    // bis unter den Griffbereich des Telefons, und die Statusleiste ist das
+    // unterste Element. Mit flachen 24 px lag ihre Schrift dort unter dem
+    // Home-Balken — gemeldet am 2026-09-10 als „die Statuszeile ist
+    // abgeschnitten".
+    //
+    // `env(safe-area-inset-bottom)` ist ueberall dort 0, wo das Geraet
+    // nichts fuer sich beansprucht: auf dem Schreibtisch bleibt die Leiste
+    // also exakt 24 px, und das Rahmenmass von ADR-007 gilt unveraendert.
+    // Der zweite Ausdruck haelt fest, dass die Zone auch wirklich
+    // freigehalten und nicht nur dazugerechnet wird.
+    expect(regel('cp-statusbar')).toMatch(
+      /height:\s*calc\(24px \+ env\(safe-area-inset-bottom\)\)/,
+    )
+    expect(regel('cp-statusbar')).toMatch(/padding-bottom:\s*env\(safe-area-inset-bottom\)/)
   })
 
   it('beide sind unnachgiebig — sie schrumpfen nicht mit', () => {

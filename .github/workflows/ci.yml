@@ -148,6 +148,21 @@ jobs:
       # allein fuer den groben Zeiger gibt.
       - name: Trefferflaechen sind gross genug fuer einen Finger
         run: xvfb-run -a npm run ui:targets
+      # Fuenfter Lauf im selben Job, wieder aus demselben Grund: dieselbe
+      # gebaute Seite (`dist/renderer`). Er braucht KEINEN X-Server -- er
+      # startet ein eigenes Chromium headless in einem 390x844 grossen
+      # Fenster mit Fingerbedienung und misst, was ein Mensch am 2026-09-10
+      # gemeldet hat: „Man kann das gesamte Fenster aus Versehen
+      # verschieben." Die Elektron-Laeufe darueber sehen das nicht, weil sie
+      # im Schreibtisch-Format messen; genau dort war der Fehler unsichtbar.
+      #
+      # Gerufen wird der npm-Lauf und nicht das Skript direkt: er baut den
+      # Renderer vorher noch einmal. Das kostet drei Sekunden und macht den
+      # Schritt hier identisch mit dem, was ein Mensch am eigenen Rechner
+      # tippt -- ein Lauf, der in CI anders heisst als daheim, wird daheim
+      # nicht gefahren.
+      - name: Die App bleibt auf dem Telefon im Fenster
+        run: npm run mobil:check
       - name: Screenshots bei Fehlschlag
         if: failure()
         uses: actions/upload-artifact@v6
