@@ -825,12 +825,23 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
     setEquipment(device.id, { inputs: nextInputs, outputs: nextOutputs })
     const updatedIn = parsed.inputs.filter((x) => x).length
     const updatedOut = parsed.outputs.filter((x) => x).length
+    // Beide Saetze standen bis 2026-09-10 roh und auf Deutsch hier — in einem
+    // Repo mit Quellsprache `en`, und kein Waechter sah sie: es ist kein
+    // JSX-Text, kein Attribut und kein `t()`-Fallback, sondern eine ganz
+    // gewoehnliche Zuweisung an eine Variable, die spaeter im Dialog landet.
     const warningSummary =
       parsed.warnings.length > 0
-        ? `\n\n⚠ ${parsed.warnings.length} Zeilen nicht erkannt:\n${parsed.warnings.slice(0, 5).join('\n')}`
+        ? `\n\n${fmt(
+            t('export.labelsImportWarnings', '{n} lines were not recognised:'),
+            { n: parsed.warnings.length },
+          )}\n${parsed.warnings.slice(0, 5).join('\n')}`
         : ''
     await infoDialog(t('export.labelsImported', 'Labels.txt imported'), {
-      body: `${updatedIn} Inputs · ${updatedOut} Outputs neu beschriftet.${warningSummary}`,
+      body:
+        fmt(t('export.labelsImportBody', '{in} inputs and {out} outputs relabelled.'), {
+          in: updatedIn,
+          out: updatedOut,
+        }) + warningSummary,
       tone: 'success',
     })
   }
