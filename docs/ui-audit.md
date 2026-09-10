@@ -295,8 +295,34 @@ Inline-Fallback in `ErrorBoundary`). → Token-Schicht einführen.
       Theme **manuell** unterschiedliche Shades wählen und sich deshalb
       nicht auf einen auto-kippenden Token abbilden lassen. Das ist derselbe
       Umbau wie der nächste Punkt und gehört mit ihm zusammen gemacht.
-- [ ] Inline-Style-Komponenten (`CableEdge`, `CanvasToolbar`,
-      `EquipmentNode`) auf `var(--cp-*)` statt `canvasTheme`-Branching.
+- [x] Inline-Style-Komponenten auf `var(--cp-*)` statt
+      `canvasTheme`-Branching — **erledigt 2026-09-10 für `CanvasToolbar`
+      und `CableEdge`.** Die Werkzeugleiste lief als einzige Fläche noch auf
+      Tailwind-Schiefer (`#0f172a`, `#1e293b`, `#cbd5e1`), während die App
+      seit ADR-007 auf Zumpe Navy läuft; jede Farbänderung am Haus ging an
+      ihr vorbei. `isLight`-Verzweigungen: `CanvasToolbar` 18 → 2 (Deklaration
+      + Schlagschatten, der pro Theme legitim anders ist), `CableEdge` 11 → 5
+      (nur noch Durchreichen an Unterkomponenten).
+      Nachgemessen im echten Fenster in **beiden** Themes: dunkel
+      `#182948`/92 % auf `#e1ecef`, hell `#ffffff`/92 % auf `#1d324f`.
+      `color-mix` löst in Electron 42 (Chromium 140) auf, und `var(--cp-*)`
+      gilt auch beim PDF-Export, weil `App.tsx`
+      `document.documentElement.dataset.theme` auf
+      `pdfExportThemeOverride ?? canvasTheme` setzt.
+      **Zwei Sorten Farbe bleiben fest, und das ist keine Restarbeit:**
+      Zustands-Farben (`btnActiveBg` blau, der Lila-Rand „vom Handy
+      dazugekommen") sagen *was ist*, nicht *worauf es liegt* — sie dürfen
+      mit dem Theme nicht kippen. `--cp-accent` ist im Dunkel-Theme
+      Off-White; ein aktiver Knopf würde damit weiß statt blau.
+
+      **`EquipmentNode` gehört NICHT auf diese Liste — der TODO war falsch.**
+      Seine Farben sind keine Theme-Tokens, sondern **Nutzer-Daten**: #307
+      gibt in Einstellungen → Darstellung je Theme Body/Header/Border/Text/
+      Subtext frei, `uiStore.equipmentColors.{light,dark}` hält sie, und
+      einzelne Geräte haben zusätzlich ihre eigene Farbe aus den Properties.
+      `var(--cp-*)` kann das nicht ausdrücken; wer diesen Punkt „abarbeitet",
+      löscht ein Feature. Dass die Zeile hier als offenes Kästchen stand,
+      hat genau diesen Griff eingeladen.
 
 ## Phase 3 — Accessibility
 
