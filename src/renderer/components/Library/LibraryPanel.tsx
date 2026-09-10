@@ -45,7 +45,7 @@ import { CableLibraryPanel } from './CableLibraryPanel'
 
 const connectorOptions = ALL_CONNECTOR_TYPES
 
-import { defaultGroup, buildPorts } from './libraryPanelHelpers'
+import { defaultGroup, buildPorts, richtungWechseln } from './libraryPanelHelpers'
 import type { PortGroupDraft } from './libraryPanelHelpers'
 import { PanelHint } from '../shared/PanelHint'
 import { useDialogA11y } from '../../hooks/useDialogA11y'
@@ -1220,7 +1220,10 @@ export const LibraryPanel = () => {
                   <select
                     value={group.direction}
                     onChange={(event) =>
-                      updateGroup(group.id, { direction: event.target.value as 'in' | 'out' })
+                      // #832 — die Vorgabe-Beschriftung folgt der Richtung; eine
+                      // selbst vergebene bleibt stehen. Ohne das hiessen Ausgaenge
+                      // weiter „Input 1", „Input 2".
+                      updateGroup(group.id, richtungWechseln(group, event.target.value as 'in' | 'out'))
                     }
                     className="rounded border border-cp-border bg-cp-surface-1 p-1"
                   >
@@ -1231,9 +1234,20 @@ export const LibraryPanel = () => {
                     type="number"
                     min={1}
                     value={group.count}
-                    onChange={(event) =>
-                      updateGroup(group.id, { count: Number(event.target.value) })
-                    }
+                    onChange={(event) => {
+                      // #832 — Ein leeres Feld BLEIBT leer. `Number('')` ist 0,
+                      // und die 0 kam vorher sofort ins Feld zurueck: wer die 1
+                      // loeschte, um eine 12 zu tippen, sah eine 0 und danach
+                      // „012".
+                      const roh = event.target.value
+                      if (roh === '') {
+                        updateGroup(group.id, { count: '' })
+                        return
+                      }
+                      const n = Math.floor(Number(roh))
+                      if (!Number.isFinite(n)) return
+                      updateGroup(group.id, { count: Math.max(0, n) })
+                    }}
                     className="rounded border border-cp-border bg-cp-surface-1 p-1"
                   />
                   <select
@@ -1269,6 +1283,20 @@ export const LibraryPanel = () => {
               ))}
               {groups.length === 0 && (
                 <div className="text-cp-xs text-cp-text-muted">{t('library.create.noPortGroups', 'No port groups yet. Add one above.')}</div>
+              )}
+              {/*
+                #832 — Eine Gruppe ohne Anzahl verschwindet beim Speichern
+                lautlos: `buildPorts` baut null Ports daraus. Lautlos ist die
+                teure Eigenschaft — das Geraet landet ohne die Ports in der
+                Bibliothek, und man sucht sie in der Vorlage statt hier.
+              */}
+              {groups.some((g) => g.count === '' || g.count === 0) && (
+                <div className="rounded border border-amber-700 bg-amber-950/40 px-2 py-1 text-cp-xs text-amber-200">
+                  {t(
+                    'library.create.emptyCount',
+                    'A group has no count — it will produce no ports.',
+                  )}
+                </div>
               )}
             </div>
 

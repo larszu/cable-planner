@@ -71,7 +71,7 @@ export const WIRELESS_AUDIO_CATALOG: WirelessAudioEntry[] = [
       ],
       outputs: [
         { id: '', name: 'XLR Out', type: 'XLR', connectorType: 'XLR' },
-        { id: '', name: 'Line Out (6.3mm)', type: 'Klinke', connectorType: 'Klinke' },
+        { id: '', name: 'Line Out (6.3mm)', type: 'Jack 6.35 mm', connectorType: 'Jack 6.35 mm' },
       ],
       width: 260, height: 140,
     },
@@ -94,7 +94,7 @@ export const WIRELESS_AUDIO_CATALOG: WirelessAudioEntry[] = [
       ],
       outputs: [
         ...num('XLR Out', 2, 'XLR'),
-        ...num('Line Out 1-2 (6.3mm)', 2, 'Klinke'),
+        ...num('Line Out 1-2 (6.3mm)', 2, 'Jack 6.35 mm'),
       ],
       width: 260, height: 140,
     },
@@ -138,7 +138,7 @@ export const WIRELESS_AUDIO_CATALOG: WirelessAudioEntry[] = [
       ],
       outputs: [
         { id: '', name: 'XLR Out', type: 'XLR', connectorType: 'XLR' },
-        { id: '', name: 'Line Out (6.3mm)', type: 'Klinke', connectorType: 'Klinke' },
+        { id: '', name: 'Line Out (6.3mm)', type: 'Jack 6.35 mm', connectorType: 'Jack 6.35 mm' },
       ],
       width: 260, height: 140,
     },

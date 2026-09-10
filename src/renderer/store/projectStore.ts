@@ -40,6 +40,7 @@ import {
   loadCategoryTranslations,
   persistCategoryTranslations,
 } from '../lib/categoryTranslations'
+import { heileSteckertyp } from '../lib/connectorRenames'
 import { loadGroupPresets } from './groupPresetsPersist'
 import { scheduleProjectAutosave } from './projectAutosave'
 import { blackmagicTemplates } from '../lib/blackmagicCatalog'
@@ -1014,6 +1015,32 @@ const healProjectPositions = (
         ? LEGACY_CATEGORY_RENAMES[item.category]
         : undefined
       if (neueKategorie) item = { ...item, category: neueKategorie }
+
+      // #832 — Dieselbe Migration fuer die Steckertypen der Ports. Der
+      // Patchblenden-Dialog schrieb `TS Jack` / `TRS Jack` / `Mini Jack` als
+      // freie Zeichenketten, waehrend die Eigenschaften-Leiste `Klinke`
+      // vergab: dieselbe Buchse, zwei Werte, und weder Farb-Legende noch
+      // Kabel-Abgleich noch Stueckliste brachten sie zusammen.
+      //
+      // `Klinke` bleibt dabei UNANGETASTET. Der Wert sagt nicht, welche
+      // Groesse gemeint ist; ihn auf einen Untertyp zu heben hiesse, eine
+      // Angabe zu erfinden, die niemand gemacht hat.
+      const heilePorts = (ports: typeof item.inputs) => {
+        let veraendert = false
+        const neu = ports.map((p) => {
+          const typ = heileSteckertyp(p.connectorType)
+          const art = heileSteckertyp(p.type)
+          if (typ === p.connectorType && art === p.type) return p
+          veraendert = true
+          return { ...p, connectorType: typ, type: art }
+        })
+        return veraendert ? neu : ports
+      }
+      const neueEin = heilePorts(item.inputs)
+      const neueAus = heilePorts(item.outputs)
+      if (neueEin !== item.inputs || neueAus !== item.outputs) {
+        item = { ...item, inputs: neueEin, outputs: neueAus }
+      }
 
       // Schaltbild (Strom, 2026-09-08). Eine Bauart, die dieser Stand nicht
       // kennt, faellt WEG statt stehenzubleiben: der Rechner haette fuer sie

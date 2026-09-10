@@ -116,7 +116,7 @@ export const AVNETWORK_CATALOG: AvNetworkEntry[] = [
       isConverter: true,
       inputs: [
         { id: '', name: 'HDMI In', type: 'HDMI', connectorType: 'HDMI' },
-        { id: '', name: 'Audio In/Out (3.5mm, Dante)', type: 'Klinke', connectorType: 'Klinke' },
+        { id: '', name: 'Audio In/Out (3.5mm, Dante)', type: 'Jack 3.5 mm', connectorType: 'Jack 3.5 mm' },
       ],
       outputs: [
         { id: '', name: 'NDI/PoE (RJ45)', type: 'Ethernet/RJ45', connectorType: 'Ethernet/RJ45', direction: 'bidirectional' as const },
@@ -137,7 +137,7 @@ export const AVNETWORK_CATALOG: AvNetworkEntry[] = [
       isConverter: true,
       inputs: [
         { id: '', name: 'NDI/PoE (RJ45)', type: 'Ethernet/RJ45', connectorType: 'Ethernet/RJ45', direction: 'bidirectional' as const },
-        { id: '', name: 'Audio In/Out (3.5mm, Dante)', type: 'Klinke', connectorType: 'Klinke' },
+        { id: '', name: 'Audio In/Out (3.5mm, Dante)', type: 'Jack 3.5 mm', connectorType: 'Jack 3.5 mm' },
       ],
       outputs: [
         { id: '', name: 'HDMI Out', type: 'HDMI', connectorType: 'HDMI' },
