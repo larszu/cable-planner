@@ -7,10 +7,13 @@ import type { RecordingCapability } from './recording'
 // TC Electronics metering, Yamaha studio monitors.
 // Verified against a professional rental-house Rentman inventory (April 2026).
 //
-// BELEGLAGE: kein Datenblatt-Link je Eintrag (B-11).
-// Die Rentman-Prüfung oben ist eine echte Quelle und bleibt stehen — sie sagt
-// nur etwas anderes: dass es die Geräte so GIBT, nicht dass die Port-Zahlen
-// stimmen. Für die 22 Einträge ist kein Hersteller-Beleg hinterlegt.
+// Belege gegen die offiziellen Hersteller-Produktseiten, wo eine von hier
+// erreichbar ist (Recherche 2026-09, Quellen-URL je Eintrag): Rosendahl,
+// Decimator, AJA, Yamaha Pro Audio und Blackmagic Decklink — je Modell auf
+// Erreichbarkeit geprüft. Behringer X32 (behringer.com-URLs nachweislich
+// schwer, vgl. die Markertek-Ausnahme in audioCatalog), Miranda/Grass Valley,
+// TC Electronic, Jünger DAP8 und Sonnet bleiben ohne Beleg statt mit einer
+// geratenen Adresse.
 
 const port = (name: string, connectorType: Port['connectorType'] = 'BNC'): Port => ({
   id: '',
@@ -62,7 +65,9 @@ export const MISC_CATALOG: MiscEntry[] = [
   {
     match: ['rosendahl', 'nanosyncs', 'dds'],
     deviceTypeId: '05ddafe7-7f90-40df-895b-701c86927f6f',
+    // Quelle: https://www.rosendahl-studiotechnik.com/nanosyncs.html
     template: {
+      manufacturerUrl: 'https://www.rosendahl-studiotechnik.com/nanosyncs.html',
       name: 'Rosendahl nanosyncs DDS',
       category: SYNC,
       inputs: [
@@ -88,7 +93,9 @@ export const MISC_CATALOG: MiscEntry[] = [
   {
     match: ['rosendahl', 'nanosyncs', 'hd'],
     deviceTypeId: '7e663a57-fa24-4239-b093-8ad60c62039c',
+    // Quelle: https://www.rosendahl-studiotechnik.com/nanosyncs.html
     template: {
+      manufacturerUrl: 'https://www.rosendahl-studiotechnik.com/nanosyncs.html',
       name: 'Rosendahl nanosyncs HD',
       category: SYNC,
       inputs: [
@@ -116,7 +123,9 @@ export const MISC_CATALOG: MiscEntry[] = [
   {
     match: ['nanosync'],
     deviceTypeId: '284e7133-0c24-40cf-a701-3b3e5a025a39',
+    // Quelle: https://www.rosendahl-studiotechnik.com/nanosyncs.html
     template: {
+      manufacturerUrl: 'https://www.rosendahl-studiotechnik.com/nanosyncs.html',
       name: 'Nanosync',
       category: SYNC,
       inputs: [sdiIn('Ref In (BNC)')],
@@ -195,7 +204,9 @@ export const MISC_CATALOG: MiscEntry[] = [
   {
     match: ['decimator', 'md-cross'],
     deviceTypeId: '9fcfada5-8fc8-43bc-8eb4-9e0c6e9e1f99',
+    // Quelle: https://decimator.com/Products/MiniConverters/MD-CROSS/MD-CROSS.html
     template: {
+      manufacturerUrl: 'https://decimator.com/Products/MiniConverters/MD-CROSS/MD-CROSS.html',
       name: 'Decimator MD-Cross V2',
       category: VIDEO,
       inputs: [
@@ -215,7 +226,9 @@ export const MISC_CATALOG: MiscEntry[] = [
   {
     match: ['decimator', 'md-hx'],
     deviceTypeId: '58a5d7ab-3b87-4fdf-9156-db58f04fc600',
+    // Quelle: https://decimator.com/Products/MiniConverters/MD-HX/MD-HX.html
     template: {
+      manufacturerUrl: 'https://decimator.com/Products/MiniConverters/MD-HX/MD-HX.html',
       name: 'Decimator MD-HX',
       category: VIDEO,
       inputs: [
@@ -238,7 +251,9 @@ export const MISC_CATALOG: MiscEntry[] = [
     match: ['aja', 'kipro'],
     deviceTypeId: '17528d76-a3d0-4002-afee-e164d50509f0',
     records: 'per-device',
+    // Quelle: https://www.aja.com/products/ki-pro
     template: {
+      manufacturerUrl: 'https://www.aja.com/products/ki-pro',
       name: 'AJA KiPro Recorder',
       category: VIDEO,
       inputs: [
@@ -262,7 +277,9 @@ export const MISC_CATALOG: MiscEntry[] = [
   {
     match: ['aja', 'roi'],
     deviceTypeId: 'c3ecd98d-e10c-4797-a671-84721f38095a',
+    // Quelle: https://www.aja.com/products/roi
     template: {
+      manufacturerUrl: 'https://www.aja.com/products/roi',
       name: 'AJA ROI-DVI Scaler',
       category: VIDEO,
       inputs: [
@@ -329,7 +346,9 @@ export const MISC_CATALOG: MiscEntry[] = [
   {
     match: ['yamaha', 'msp3a'],
     deviceTypeId: '596f2276-e86e-421b-98d2-e773ad006689',
+    // Quelle: https://www.yamahaproaudio.com/products/speakers/msp3a/index.html
     template: {
+      manufacturerUrl: 'https://www.yamahaproaudio.com/products/speakers/msp3a/index.html',
       name: 'Yamaha MSP3A',
       category: AUDIO,
       inputs: [
@@ -346,7 +365,9 @@ export const MISC_CATALOG: MiscEntry[] = [
   {
     match: ['yamaha', 'msp3'],
     deviceTypeId: '22913e16-4812-4435-8136-019dbc778d4c',
+    // Quelle: https://www.yamahaproaudio.com/products/speakers/msp3/index.html
     template: {
+      manufacturerUrl: 'https://www.yamahaproaudio.com/products/speakers/msp3/index.html',
       name: 'Yamaha MSP3',
       category: AUDIO,
       inputs: [
@@ -436,7 +457,9 @@ export const MISC_CATALOG: MiscEntry[] = [
   {
     match: ['decimator', 'md-lx'],
     deviceTypeId: '7bfc5316-f5cd-40b5-98b1-176faff75484',
+    // Quelle: https://decimator.com/Products/MiniConverters/MD-LX/MD-LX.html
     template: {
+      manufacturerUrl: 'https://decimator.com/Products/MiniConverters/MD-LX/MD-LX.html',
       name: 'Decimator MD-LX',
       category: VIDEO,
       inputs: [sdiIn('SDI In (3G/HD/SD)'), hdmiIn('HDMI In')],
@@ -448,7 +471,9 @@ export const MISC_CATALOG: MiscEntry[] = [
   {
     match: ['decimator', 'dmon-12s'],
     deviceTypeId: '162a03cf-2ffd-4af5-bf3b-adf3b5ef0898',
+    // Quelle: https://decimator.com/Products/MultiViewers/DMON-12S%20MultiViewer/DMON-12S.html
     template: {
+      manufacturerUrl: 'https://decimator.com/Products/MultiViewers/DMON-12S%20MultiViewer/DMON-12S.html',
       name: 'Decimator DMON-12S 12G Multi-Viewer',
       category: VIDEO,
       inputs: [
@@ -464,7 +489,9 @@ export const MISC_CATALOG: MiscEntry[] = [
   {
     match: ['decimator', '12g cross'],
     deviceTypeId: '6f7aabc4-a35a-407d-a85b-3065fb3711d8',
+    // Quelle: https://decimator.com/Products/MiniConverters/12G-CROSS/12G-CROSS.html
     template: {
+      manufacturerUrl: 'https://decimator.com/Products/MiniConverters/12G-CROSS/12G-CROSS.html',
       name: 'Decimator 12G Cross Converter',
       category: VIDEO,
       inputs: [sdiIn('SDI In (12G/6G/3G/HD/SD)'), hdmiIn('HDMI In')],
@@ -508,7 +535,9 @@ export const MISC_CATALOG: MiscEntry[] = [
   {
     match: ['decklink', 'duo 2'],
     deviceTypeId: '9c1a3037-70ba-4cd7-b50d-7dcc1cc0eed2',
+    // Quelle: https://www.blackmagicdesign.com/products/decklink
     template: {
+      manufacturerUrl: 'https://www.blackmagicdesign.com/products/decklink',
       name: 'Blackmagic Decklink Duo 2',
       category: 'Converter',
       inputs: [sdiIn('SDI In 1'), sdiIn('SDI In 2'), sdiIn('SDI In 3'), sdiIn('SDI In 4')],
@@ -521,7 +550,9 @@ export const MISC_CATALOG: MiscEntry[] = [
   {
     match: ['decklink', 'quad 2'],
     deviceTypeId: '3453db03-4c07-4d3f-af40-34576266be6c',
+    // Quelle: https://www.blackmagicdesign.com/products/decklink
     template: {
+      manufacturerUrl: 'https://www.blackmagicdesign.com/products/decklink',
       name: 'Blackmagic Decklink Quad 2',
       category: 'Converter',
       inputs: [

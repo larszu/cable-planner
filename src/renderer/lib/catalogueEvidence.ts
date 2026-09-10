@@ -20,8 +20,10 @@
 //
 // Zwei Dinge, und beide sind hier gebaut:
 //
-//  1. DIE ABDECKUNG WIRD NICHT GERECHNET. 350 von 412 Einträgen tragen ein
-//     Datenblatt; die übrigen 62 liegen in einem Katalog. Diese Zahlen
+//  1. DIE ABDECKUNG WIRD NICHT GERECHNET. 364 von 412 Einträgen tragen ein
+//     Datenblatt; die übrigen 48 verteilen sich auf
+//     sonst belegte Kataloge — kein Katalog steht mehr ganz ohne Beleg (B-11
+//     abgeschlossen). Diese Zahlen
 //     standen als Prosa im Backlog (B-11) und nirgends im Code. Wer morgen
 //     dreißig Einträge ohne Beleg dazulegt, ändert die Zahl — und niemand
 //     merkt es. Ein Beleg-Anspruch, den nichts nachrechnet, ist eine
