@@ -120,13 +120,13 @@ export const CableProperties = () => {
           <div className="min-w-0 flex-1">
             <div className="font-medium text-cp-text-bright truncate">{spec.name}</div>
             {cable.standard && (
-              <div className="text-[10px] text-cp-text-muted">{cable.standard}</div>
+              <div className="text-cp-xs text-cp-text-muted">{cable.standard}</div>
             )}
           </div>
           <button
             type="button"
             onClick={() => openCableEdit(cable.id)}
-            className="shrink-0 rounded bg-cp-surface-4 px-1.5 py-0.5 text-[10px] hover:bg-cp-surface-5"
+            className="shrink-0 rounded bg-cp-surface-4 px-1.5 py-0.5 text-cp-xs hover:bg-cp-surface-5"
             title={t('cable.edit.typeStandard', 'Edit cable type / standard')}
             aria-label={t('cable.edit.typeStandard', 'Edit cable type / standard')}
           >
@@ -153,7 +153,7 @@ export const CableProperties = () => {
         const typePatch = cableTypePatchFromPorts(cable, equipment)
         if (!typePatch) return null
         return (
-          <div className="flex items-center gap-2 rounded border border-amber-700/50 bg-amber-950/30 px-2 py-1 text-[11px] text-amber-200">
+          <div className="flex items-center gap-2 rounded border border-amber-700/50 bg-amber-950/30 px-2 py-1 text-cp-xs text-amber-200">
             <span className="flex-1 leading-snug">
               {t('cable.typeMismatch.prefix', 'Cable type')} <strong>{cable.type}</strong> {t('cable.typeMismatch.suffix', 'does not match the ports')}
               ({fromPort.connectorType} ↔ {toPort.connectorType}).
@@ -183,7 +183,7 @@ export const CableProperties = () => {
               name: sourceDestLabel(cable, new Map(equipment.map((e) => [e.id, e]))),
             })
           }
-          className="mt-1 text-[10px] text-cp-accent hover:underline"
+          className="mt-1 text-cp-xs text-cp-accent hover:underline"
           title={t('cable.field.sourceDestTitle', 'Generate name from source → destination (AVIXA F501.01)')}
         >
           ↳ {t('cable.field.sourceDest', 'from source → destination')}
@@ -259,7 +259,7 @@ export const CableProperties = () => {
           Terminierung und Mess-/Test-Ergebnis. Nur bei aktivem Modul. */}
       {festinstallationModule && (
       <details className="rounded border border-cp-border bg-cp-surface-3/40">
-        <summary className="cursor-pointer select-none px-2 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-cp-text-muted hover:bg-cp-surface-2/40">
+        <summary className="cursor-pointer select-none px-2 py-1.5 text-cp-xs font-semibold uppercase tracking-wide text-cp-text-muted hover:bg-cp-surface-2/40">
           {t('lifecycle.cableSection', 'Fixed install / lifecycle')}
         </summary>
         <div className="space-y-2 border-t border-cp-border p-2">
@@ -323,12 +323,12 @@ export const CableProperties = () => {
           {/* Mess-/Test-Ergebnis */}
           <div className="rounded border border-cp-border-muted bg-cp-surface-1/40 p-1.5">
             <div className="mb-1 flex items-center justify-between">
-              <span className="text-[11px] text-cp-text-secondary">{t('lifecycle.test', 'Measurement/test result')}</span>
+              <span className="text-cp-xs text-cp-text-secondary">{t('lifecycle.test', 'Measurement/test result')}</span>
               {cable.testResult && (
                 <button
                   type="button"
                   onClick={() => setCableTestResult(cable.id, undefined)}
-                  className="rounded px-1 py-0.5 text-[10px] text-cp-text-muted hover:bg-cp-surface-3"
+                  className="rounded px-1 py-0.5 text-cp-xs text-cp-text-muted hover:bg-cp-surface-3"
                 >
                   {t('common.clear', 'Clear')}
                 </button>
@@ -350,7 +350,7 @@ export const CableProperties = () => {
                   }
                   setCableTestResult(cable.id, next)
                 }}
-                className="rounded border border-cp-border bg-cp-surface-1 p-1.5 text-[11px]"
+                className="rounded border border-cp-border bg-cp-surface-1 p-1.5 text-cp-xs"
               >
                 <option value="">{t('lifecycle.testNone', '— not tested —')}</option>
                 <option value="pass">PASS</option>
@@ -369,7 +369,7 @@ export const CableProperties = () => {
                     marginDb: e.target.value === '' ? undefined : Number(e.target.value),
                   })
                 }
-                className="rounded border border-cp-border bg-cp-surface-1 p-1.5 text-[11px] disabled:opacity-40"
+                className="rounded border border-cp-border bg-cp-surface-1 p-1.5 text-cp-xs disabled:opacity-40"
               />
               <input
                 value={cable.testResult?.standard ?? ''}
@@ -382,7 +382,7 @@ export const CableProperties = () => {
                     standard: e.target.value || undefined,
                   })
                 }
-                className="rounded border border-cp-border bg-cp-surface-1 p-1.5 text-[11px] disabled:opacity-40"
+                className="rounded border border-cp-border bg-cp-surface-1 p-1.5 text-cp-xs disabled:opacity-40"
               />
               <input
                 value={cable.testResult?.reportRef ?? ''}
@@ -395,7 +395,7 @@ export const CableProperties = () => {
                     reportRef: e.target.value || undefined,
                   })
                 }
-                className="rounded border border-cp-border bg-cp-surface-1 p-1.5 text-[11px] disabled:opacity-40"
+                className="rounded border border-cp-border bg-cp-surface-1 p-1.5 text-cp-xs disabled:opacity-40"
               />
             </div>
           </div>
@@ -442,7 +442,7 @@ export const CableProperties = () => {
           haben". Nur das Zweite kann merken, dass die vierte von fuenf
           Leitungen fehlt. */}
       <details className="rounded border border-cp-border bg-cp-surface-3/40">
-        <summary className="cursor-pointer select-none px-2 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-cp-text-muted hover:bg-cp-surface-2/40">
+        <summary className="cursor-pointer select-none px-2 py-1.5 text-cp-xs font-semibold uppercase tracking-wide text-cp-text-muted hover:bg-cp-surface-2/40">
           {t('adern.cableSection', 'Conductors (power)')}
         </summary>
         <div className="space-y-2 border-t border-cp-border p-2">
@@ -523,7 +523,7 @@ export const CableProperties = () => {
               />
               <button
                 type="button"
-                className="rounded bg-red-700 px-1.5 py-1 text-[10px] hover:bg-red-600"
+                className="rounded bg-red-700 px-1.5 py-1 text-cp-xs hover:bg-red-600"
                 onClick={() =>
                   updateCable(cable.id, {
                     adern:
@@ -575,7 +575,7 @@ export const CableProperties = () => {
           Plan wird an jedem Ende ein benanntes Connector-Symbol gezeichnet.
           Segmente mit gleichem Netznamen bilden ein gemeinsames Netz. */}
       <div className="rounded border border-cp-border bg-cp-surface-3/50 p-2 space-y-2">
-        <label className="flex items-center gap-2 text-[11px] text-cp-text-secondary cursor-pointer">
+        <label className="flex items-center gap-2 text-cp-xs text-cp-text-secondary cursor-pointer">
           <input
             type="checkbox"
             checked={!!cable.offPage}
@@ -594,7 +594,7 @@ export const CableProperties = () => {
         {cable.offPage && (
           <div className="pl-5 space-y-1">
             <label className="block">
-              <span className="mb-0.5 block text-[10px] text-cp-text-muted">
+              <span className="mb-0.5 block text-cp-xs text-cp-text-muted">
                 {t('cable.field.netName', 'Net / signal name')}
               </span>
               <input
@@ -623,7 +623,7 @@ export const CableProperties = () => {
               const peers = netPeerCount(cables, cable)
               const key = netKeyOf(cable)
               return (
-                <p className={`text-[10px] ${peers > 0 ? 'text-amber-300' : 'text-cp-text-muted'}`}>
+                <p className={`text-cp-xs ${peers > 0 ? 'text-amber-300' : 'text-cp-text-muted'}`}>
                   {peers > 0
                     ? format(
                         t(
@@ -646,7 +646,7 @@ export const CableProperties = () => {
       {/* Endpoint editor — inline accordion (open by default) so users can
           re-route a cable from the properties panel without opening a dialog. */}
       <details open className="rounded border border-cp-border bg-cp-surface-3/50">
-        <summary className="cursor-pointer select-none px-2 py-1.5 text-[11px] text-cp-text-secondary hover:bg-cp-surface-2/40">
+        <summary className="cursor-pointer select-none px-2 py-1.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-2/40">
           <span className="font-semibold uppercase tracking-wide text-cp-text-muted">
             {t('cable.field.connection', 'Connection')}
           </span>
@@ -659,7 +659,7 @@ export const CableProperties = () => {
         <div className="border-t border-cp-border p-2">
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <div className="mb-0.5 text-[10px] text-cp-text-muted">{t('cable.fromDeviceShort', 'From device')}</div>
+              <div className="mb-0.5 text-cp-xs text-cp-text-muted">{t('cable.fromDeviceShort', 'From device')}</div>
               <select
                 aria-label={t('cable.aria.fromDevice', 'Source device')}
                 value={cable.fromEquipmentId}
@@ -672,7 +672,7 @@ export const CableProperties = () => {
                   </option>
                 ))}
               </select>
-              <div className="mt-1 text-[10px] text-cp-text-muted">{t('cable.portShort', 'Port')}</div>
+              <div className="mt-1 text-cp-xs text-cp-text-muted">{t('cable.portShort', 'Port')}</div>
               <select
                 aria-label={t('cable.aria.fromPort', 'Source port')}
                 value={cable.fromPortId}
@@ -691,7 +691,7 @@ export const CableProperties = () => {
               </select>
             </div>
             <div>
-              <div className="mb-0.5 text-[10px] text-cp-text-muted">{t('cable.toDeviceShort', 'To device')}</div>
+              <div className="mb-0.5 text-cp-xs text-cp-text-muted">{t('cable.toDeviceShort', 'To device')}</div>
               <select
                 aria-label={t('cable.aria.toDevice', 'Target device')}
                 value={cable.toEquipmentId}
@@ -704,7 +704,7 @@ export const CableProperties = () => {
                   </option>
                 ))}
               </select>
-              <div className="mt-1 text-[10px] text-cp-text-muted">{t('cable.portShort', 'Port')}</div>
+              <div className="mt-1 text-cp-xs text-cp-text-muted">{t('cable.portShort', 'Port')}</div>
               <select
                 aria-label={t('cable.aria.toPort', 'Target port')}
                 value={cable.toPortId}
@@ -724,13 +724,13 @@ export const CableProperties = () => {
             </div>
           </div>
           {fromConflict && (
-            <div className="mt-2 flex items-center gap-1 rounded bg-amber-900/50 px-2 py-1 text-[11px] text-amber-100">
+            <div className="mt-2 flex items-center gap-1 rounded bg-amber-900/50 px-2 py-1 text-cp-xs text-amber-100">
               <Icon icon={AlertTriangle} size="xs" className="shrink-0" />
               {format(t('cable.warn.fromBusy', 'Source port already in use by "{name}".'), { name: fromConflict.name })}
             </div>
           )}
           {toConflict && (
-            <div className="mt-1 flex items-center gap-1 rounded bg-amber-900/50 px-2 py-1 text-[11px] text-amber-100">
+            <div className="mt-1 flex items-center gap-1 rounded bg-amber-900/50 px-2 py-1 text-cp-xs text-amber-100">
               <Icon icon={AlertTriangle} size="xs" className="shrink-0" />
               {format(t('cable.warn.toBusy', 'Target port already in use by "{name}".'), { name: toConflict.name })}
             </div>
@@ -826,11 +826,11 @@ export const CableProperties = () => {
                 })}
               </div>
               {isHidden && (
-                <p className="mt-1 text-[10px] text-cp-text-muted">
+                <p className="mt-1 text-cp-xs text-cp-text-muted">
                   {t('cable.label.hiddenHint', 'Label hidden — click one of the three positions to show it again.')}
                 </p>
               )}
-              <div className={`mt-2 flex items-center gap-2 text-[11px] ${isHidden ? 'opacity-40' : ''}`}>
+              <div className={`mt-2 flex items-center gap-2 text-cp-xs ${isHidden ? 'opacity-40' : ''}`}>
                 <span className="text-cp-text-faint">{t('cable.field.labelSlider', 'Slider:')}</span>
                 <input
                   type="range"
@@ -869,7 +869,7 @@ export const CableProperties = () => {
                   <button
                     type="button"
                     onClick={() => updateCable(cable.id, { labelT: undefined })}
-                    className="rounded bg-cp-surface-2 px-1 py-0.5 text-[10px] text-cp-text-muted hover:bg-cp-surface-4"
+                    className="rounded bg-cp-surface-2 px-1 py-0.5 text-cp-xs text-cp-text-muted hover:bg-cp-surface-4"
                     title={t('cable.field.labelSliderReset', 'Reset slider — preset becomes active again')}
                   >
                     reset
@@ -901,7 +901,7 @@ export const CableProperties = () => {
                 type="button"
                 title={opt.title}
                 onClick={() => updateCable(cable.id, { endpointLabels: opt.id })}
-                className={`flex-1 rounded px-1.5 py-1 text-[11px] ${
+                className={`flex-1 rounded px-1.5 py-1 text-cp-xs ${
                   active
                     ? 'bg-emerald-700/40 text-emerald-100 ring-1 ring-emerald-500'
                     : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'
@@ -953,7 +953,7 @@ export const CableProperties = () => {
       </div>
 
       <div className="rounded border border-cp-border bg-cp-surface-3/50 p-2 space-y-2">
-        <label className="flex items-center gap-2 text-[11px] text-cp-text-secondary cursor-pointer">
+        <label className="flex items-center gap-2 text-cp-xs text-cp-text-secondary cursor-pointer">
           <input
             type="checkbox"
             checked={cable.wireless ?? false}
@@ -964,7 +964,7 @@ export const CableProperties = () => {
         {cable.wireless && (
           <div className="grid grid-cols-2 gap-2 pl-5">
             <label className="block">
-              <span className="mb-0.5 block text-[10px] text-cp-text-muted">{t('cable.field.frequencyLabel', 'Frequency (e.g. 5.8 GHz)')}</span>
+              <span className="mb-0.5 block text-cp-xs text-cp-text-muted">{t('cable.field.frequencyLabel', 'Frequency (e.g. 5.8 GHz)')}</span>
               <input
                 value={cable.frequency ?? ''}
                 onChange={(event) => updateCable(cable.id, { frequency: event.target.value || undefined })}
@@ -973,7 +973,7 @@ export const CableProperties = () => {
               />
             </label>
             <label className="block">
-              <span className="mb-0.5 block text-[10px] text-cp-text-muted">{t('cable.field.channelLabel', 'Channel')}</span>
+              <span className="mb-0.5 block text-cp-xs text-cp-text-muted">{t('cable.field.channelLabel', 'Channel')}</span>
               <input
                 value={cable.wifiChannel ?? ''}
                 onChange={(event) => updateCable(cable.id, { wifiChannel: event.target.value || undefined })}
@@ -1049,7 +1049,7 @@ const ConnectorMismatchHint = ({
   const toDev = equipment.find((e) => e.id === toEquipmentId)
 
   return (
-    <div className="mt-2 rounded border border-amber-700/60 bg-amber-900/30 px-2 py-1.5 text-[11px] text-amber-100">
+    <div className="mt-2 rounded border border-amber-700/60 bg-amber-900/30 px-2 py-1.5 text-cp-xs text-amber-100">
       <div className="flex items-center gap-1">
         <Icon icon={AlertTriangle} size="xs" className="shrink-0" />
         {format(

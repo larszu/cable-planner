@@ -136,7 +136,7 @@ const BandwidthTab = () => {
   const fittingTier = SDI_TIERS.find((t) => mbps <= t.mbps)
   return (
     <div className="space-y-3 p-4 text-cp-base">
-      <PanelHint className="mb-2 text-[11px] text-cp-text-muted" text={t(
+      <PanelHint className="mb-2 text-cp-xs text-cp-text-muted" text={t(
           'calc.bandwidth.intro',
           'Gross data rate of a video stream (before compression) and the smallest SDI tier that carries it. Pixels × lines × fps × bits-per-pixel.',
         )} />
@@ -193,7 +193,7 @@ const BandwidthTab = () => {
         </label>
       </div>
       <div className="rounded border border-amber-700 bg-amber-950/30 p-3">
-        <div className="text-[10px] uppercase tracking-wide text-amber-300">{t('calc.dataRate', 'Data rate')}</div>
+        <div className="text-cp-xs uppercase tracking-wide text-amber-300">{t('calc.dataRate', 'Data rate')}</div>
         <div className="font-mono text-cp-xl text-amber-100">{mbps.toLocaleString(undefined, { maximumFractionDigits: 1 })} Mbps</div>
         <div className="mt-1 text-cp-xs text-amber-200">
           {fittingTier
@@ -207,7 +207,7 @@ const BandwidthTab = () => {
         </div>
       </div>
       <details className="rounded border border-cp-border-muted bg-cp-surface-3/40">
-        <summary className="cursor-pointer px-3 py-1.5 text-[11px] uppercase tracking-wide text-cp-text-muted">
+        <summary className="cursor-pointer px-3 py-1.5 text-cp-xs uppercase tracking-wide text-cp-text-muted">
           SDI-Tiers
         </summary>
         <ul className="space-y-0.5 px-3 py-2 text-cp-xs">
@@ -220,7 +220,7 @@ const BandwidthTab = () => {
         </ul>
       </details>
       <details className="rounded border border-cp-border-muted bg-cp-surface-3/40">
-        <summary className="cursor-pointer px-3 py-1.5 text-[11px] uppercase tracking-wide text-cp-text-muted">
+        <summary className="cursor-pointer px-3 py-1.5 text-cp-xs uppercase tracking-wide text-cp-text-muted">
           {t('calc.bandwidth.signalStds', 'IP / digital signal standards')}
         </summary>
         <ul className="space-y-0.5 px-3 py-2 text-cp-xs">
@@ -237,10 +237,10 @@ const BandwidthTab = () => {
       {netBudget.count > 0 && (
         <div className="rounded border border-sky-700 bg-sky-950/20 p-3">
           <div className="mb-2 flex items-center justify-between">
-            <div className="text-[11px] uppercase tracking-wide text-cp-text-secondary">
+            <div className="text-cp-xs uppercase tracking-wide text-cp-text-secondary">
               {t('calc.bandwidth.netBudget', 'Project network budget')}
             </div>
-            <div className="text-[10px] text-cp-text-muted">
+            <div className="text-cp-xs text-cp-text-muted">
               {netBudget.count} {t('calc.bandwidth.netLinks', 'IP signals')}
             </div>
           </div>
@@ -284,7 +284,7 @@ const BandwidthTab = () => {
               </dd>
             </dl>
           )}
-          <PanelHint className="mt-2 text-[10px] text-cp-text-muted" text={t(
+          <PanelHint className="mt-2 text-cp-xs text-cp-text-muted" text={t(
           'calc.bandwidth.netNote',
           'Sum of the gross bandwidths of all cables carrying an IP media signal (NDI, Dante/AES67, ST 2110). Ethernet cables do NOT count as load — what a line can carry is not a load it carries; their capacity is listed separately below. Rough figures; ST 2110-20 heavily format-dependent.',
         )} />
@@ -636,7 +636,7 @@ const PowerTab = () => {
 
   return (
     <div className="space-y-3 p-4 text-cp-base">
-      <p className="text-[11px] text-cp-text-muted">
+      <p className="text-cp-xs text-cp-text-muted">
         {t(
           'calc.power.intro1',
           'Sum of the consumption values in the device properties',
@@ -725,7 +725,7 @@ const PowerTab = () => {
 
       {/* Distro-Vergleich: welcher Anschluss trägt die Last? */}
       {totals.totalW > 0 && (
-        <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
+        <div className="flex flex-wrap items-center gap-1.5 text-cp-xs">
           <span className="font-semibold uppercase tracking-wide text-cp-text-faint">
             {t('calc.power.fitsOn', 'Fits on')}:
           </span>
@@ -752,13 +752,13 @@ const PowerTab = () => {
           } p-3`}
         >
           <div className="mb-2 flex items-center justify-between">
-            <div className="text-[11px] uppercase tracking-wide text-cp-text-secondary">
+            <div className="text-cp-xs uppercase tracking-wide text-cp-text-secondary">
               {t('calc.phaseDistribution', 'Phase distribution')} ({supply.label})
             </div>
-            <div className="text-[10px] text-cp-text-muted">
+            <div className="text-cp-xs text-cp-text-muted">
               {t('calc.imbalance', 'Imbalance')}: {maxImbalancePct}%
               {overloaded && (
-                <span className="ml-2 inline-flex items-center gap-1 rounded bg-red-700 px-1.5 py-0.5 text-[10px] text-white">
+                <span className="ml-2 inline-flex items-center gap-1 rounded bg-red-700 px-1.5 py-0.5 text-cp-xs text-white">
                   <Icon icon={AlertTriangle} size="xs" />
                   {t('calc.phaseOverload', 'Phase overloaded')}
                 </span>
@@ -775,7 +775,7 @@ const PowerTab = () => {
                   className={`rounded border ${PHASE_COLORS[PHASE_KEYS[idx]].border} ${PHASE_COLORS[PHASE_KEYS[idx]].bg} p-2`}
                 >
                   <div
-                    className={`flex items-center gap-1 text-[10px] uppercase tracking-wider ${PHASE_COLORS[PHASE_KEYS[idx]].text}`}
+                    className={`flex items-center gap-1 text-cp-xs uppercase tracking-wider ${PHASE_COLORS[PHASE_KEYS[idx]].text}`}
                   >
                     <span
                       className="inline-block h-2 w-2 rounded-full"
@@ -787,7 +787,7 @@ const PowerTab = () => {
                   <div className="font-mono text-cp-lg text-cp-text">
                     {watts.toFixed(0)} W
                   </div>
-                  <div className="font-mono text-[11px] text-cp-text-secondary">
+                  <div className="font-mono text-cp-xs text-cp-text-secondary">
                     {amps.toFixed(1)} A / {supply.perPhaseAmps} A
                   </div>
                   <div className="mt-1 h-1.5 overflow-hidden rounded bg-cp-surface-2">
@@ -802,7 +802,7 @@ const PowerTab = () => {
                       style={{ width: `${Math.min(100, fraction * 100)}%` }}
                     />
                   </div>
-                  <div className="mt-0.5 text-[10px] text-cp-text-muted">
+                  <div className="mt-0.5 text-cp-xs text-cp-text-muted">
                     {Math.round(fraction * 100)}% {t('calc.load', 'load')}
                   </div>
                 </div>
@@ -810,7 +810,7 @@ const PowerTab = () => {
             })}
           </div>
           {/* #345 — Neutralleiterstrom-Schätzung: klein = gut balanciert. */}
-          <div className="mt-2 flex items-center gap-2 rounded border border-sky-800 bg-sky-950/30 px-2 py-1.5 text-[11px]">
+          <div className="mt-2 flex items-center gap-2 rounded border border-sky-800 bg-sky-950/30 px-2 py-1.5 text-cp-xs">
             <span
               className="inline-block h-2 w-2 shrink-0 rounded-full"
               style={{ background: PHASE_COLORS.N.dot }}
@@ -819,7 +819,7 @@ const PowerTab = () => {
               {t('calc.neutralCurrent', 'Neutral (estimated)')}:
             </span>
             <span className="font-mono text-sky-200">{neutralAmps.toFixed(1)} A</span>
-            <span className="ml-auto text-[10px] text-cp-text-muted">
+            <span className="ml-auto text-cp-xs text-cp-text-muted">
               {neutralAmps < 0.05 * supply.perPhaseAmps
                 ? t('calc.neutralOk', 'well balanced')
                 : neutralAmps > 0.25 * supply.perPhaseAmps
@@ -828,10 +828,10 @@ const PowerTab = () => {
             </span>
           </div>
           <details className="mt-2">
-            <summary className="cursor-pointer text-[11px] uppercase tracking-wide text-cp-text-muted hover:text-cp-text-bright">
+            <summary className="cursor-pointer text-cp-xs uppercase tracking-wide text-cp-text-muted hover:text-cp-text-bright">
               {t('calc.devicesToPhase', 'Devices → Phase')} ({distribution.assignments.length})
             </summary>
-            <div className="mb-1 mt-1 text-[10px] text-cp-text-muted">
+            <div className="mb-1 mt-1 text-cp-xs text-cp-text-muted">
               {t('calc.phasePinHint', 'Pick a phase to pin a device; "Auto" lets the balancer distribute it.')}
             </div>
             <table className="block overflow-x-auto w-full text-cp-xs">
@@ -881,7 +881,7 @@ const PowerTab = () => {
               </tbody>
             </table>
           </details>
-          <div className="mt-2 flex flex-wrap items-center gap-3 text-[10px] text-cp-text-muted">
+          <div className="mt-2 flex flex-wrap items-center gap-3 text-cp-xs text-cp-text-muted">
             <span className="font-semibold uppercase tracking-wide text-cp-text-faint">
               {t('calc.euColorTitle', 'EU colour code (DIN VDE 0293-308)')}:
             </span>
@@ -896,13 +896,13 @@ const PowerTab = () => {
             ))}
           </div>
           <PanelHint
-            className="mt-2 text-[10px] text-cp-text-muted"
+            className="mt-2 text-cp-xs text-cp-text-muted"
             text={t(
               'calc.greedyExplain',
               'Greedy distribution: sorted by power, each device on the currently least-loaded phase. With symmetric loads three-phase draws only {amps} A per phase; imbalance raises the highest phase current. Target: every phase < 85% load + imbalance < 20%.',
             ).replace('{amps}', ampsThreePhase.toFixed(1))}
           />
-          <div className="mt-3 flex items-center justify-between text-[11px]">
+          <div className="mt-3 flex items-center justify-between text-cp-xs">
             <span className="text-cp-text-muted">
               {t('calc.power.heat', 'Heat (BTU/h)')}:{' '}
               <span className="font-mono text-cp-text-bright">{totalBtu}</span>
@@ -910,14 +910,14 @@ const PowerTab = () => {
             <button
               type="button"
               onClick={exportCsv}
-              className="inline-flex items-center gap-1 rounded bg-emerald-700 px-2 py-1 text-[11px] font-medium text-white hover:bg-emerald-600"
+              className="inline-flex items-center gap-1 rounded bg-emerald-700 px-2 py-1 text-cp-xs font-medium text-white hover:bg-emerald-600"
             >
               <Icon icon={Download} size="xs" /> {t('analysis.exportCsv', 'Export CSV')}
             </button>
             <button
               type="button"
               onClick={exportPdf}
-              className="inline-flex items-center gap-1 rounded bg-amber-700 px-2 py-1 text-[11px] font-medium text-white hover:bg-amber-600"
+              className="inline-flex items-center gap-1 rounded bg-amber-700 px-2 py-1 text-cp-xs font-medium text-white hover:bg-amber-600"
             >
               <Icon icon={Download} size="xs" /> {t('calc.power.exportPdf', 'PDF report')}
             </button>
@@ -928,14 +928,14 @@ const PowerTab = () => {
       {/* #345 ff. — USV / Notstrom-Puffer-Rechner. Nutzt die Gesamtlast der
           Geräte (oben) und schätzt USV-Größe + Pufferzeit. */}
       <details className="rounded border border-cp-border-muted bg-cp-surface-3/40" open={totals.totalW > 0}>
-        <summary className="flex cursor-pointer items-center gap-1.5 px-3 py-1.5 text-[11px] uppercase tracking-wide text-cp-text-muted">
+        <summary className="flex cursor-pointer items-center gap-1.5 px-3 py-1.5 text-cp-xs uppercase tracking-wide text-cp-text-muted">
           <Icon icon={BatteryCharging} size="xs" />
           {t('calc.ups.title', 'UPS / battery backup')}
         </summary>
         <div className="space-y-3 px-3 py-2">
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
             <label className="block">
-              <span className="mb-1 block text-[10px] text-cp-text-muted">
+              <span className="mb-1 block text-cp-xs text-cp-text-muted">
                 {t('calc.ups.va', 'UPS rating (VA)')}
               </span>
               <input
@@ -947,7 +947,7 @@ const PowerTab = () => {
               />
             </label>
             <label className="block">
-              <span className="mb-1 block text-[10px] text-cp-text-muted">
+              <span className="mb-1 block text-cp-xs text-cp-text-muted">
                 {t('calc.ups.pf', 'Power factor')}
               </span>
               <select
@@ -963,7 +963,7 @@ const PowerTab = () => {
               </select>
             </label>
             <div className="block">
-              <span className="mb-1 block text-[10px] text-cp-text-muted">
+              <span className="mb-1 block text-cp-xs text-cp-text-muted">
                 {t('calc.ups.capacity', 'Capacity (W)')}
               </span>
               <div className="rounded border border-cp-border-muted bg-cp-surface-1 px-2 py-1 font-mono text-cp-xs text-cp-text-bright">
@@ -974,7 +974,7 @@ const PowerTab = () => {
 
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
             <label className="block">
-              <span className="mb-1 block text-[10px] text-cp-text-muted">
+              <span className="mb-1 block text-cp-xs text-cp-text-muted">
                 {t('calc.ups.battV', 'Battery (V)')}
               </span>
               <input
@@ -986,7 +986,7 @@ const PowerTab = () => {
               />
             </label>
             <label className="block">
-              <span className="mb-1 block text-[10px] text-cp-text-muted">
+              <span className="mb-1 block text-cp-xs text-cp-text-muted">
                 {t('calc.ups.battAh', 'Capacity (Ah)')}
               </span>
               <input
@@ -998,7 +998,7 @@ const PowerTab = () => {
               />
             </label>
             <label className="block">
-              <span className="mb-1 block text-[10px] text-cp-text-muted">
+              <span className="mb-1 block text-cp-xs text-cp-text-muted">
                 {t('calc.ups.battCount', 'Battery count')}
               </span>
               <input
@@ -1010,7 +1010,7 @@ const PowerTab = () => {
               />
             </label>
             <label className="block">
-              <span className="mb-1 block text-[10px] text-cp-text-muted">
+              <span className="mb-1 block text-cp-xs text-cp-text-muted">
                 {t('calc.ups.usable', 'Usable (%)')}
               </span>
               <input
@@ -1040,7 +1040,7 @@ const PowerTab = () => {
                   {Math.round(upsLoadFraction * 100)}%
                 </span>
                 {upsOverloaded && (
-                  <span className="ml-2 inline-flex items-center gap-1 rounded bg-red-700 px-1.5 py-0.5 text-[10px] text-white">
+                  <span className="ml-2 inline-flex items-center gap-1 rounded bg-red-700 px-1.5 py-0.5 text-cp-xs text-white">
                     <Icon icon={AlertTriangle} size="xs" />
                     {t('calc.ups.overload', 'UPS overloaded')}
                   </span>
@@ -1061,7 +1061,7 @@ const PowerTab = () => {
                     : `${runtimeMin.toFixed(0)} min`}
               </dd>
             </dl>
-            <div className="mt-2 flex items-center gap-2 border-t border-cp-border-muted pt-2 text-[11px]">
+            <div className="mt-2 flex items-center gap-2 border-t border-cp-border-muted pt-2 text-cp-xs">
               <span className="text-cp-text-muted">{t('calc.ups.target', 'Target runtime')}</span>
               <input
                 type="number"
@@ -1076,7 +1076,7 @@ const PowerTab = () => {
               </span>
             </div>
           </div>
-          <PanelHint className="mb-2 text-[10px] text-cp-text-muted" text={t(
+          <PanelHint className="mb-2 text-cp-xs text-cp-text-muted" text={t(
           'calc.ups.note',
           'UPS capacity (W) = VA × power factor. Runtime ≈ usable battery energy / load. Linear approximation — real runtime depends on the discharge curve, battery age and temperature; check the manufacturer runtime chart when in doubt.',
         )} />
@@ -1085,13 +1085,13 @@ const PowerTab = () => {
 
       {/* #345 ff. — Spannungsfall auf der Zuleitung (Distro-Strecke). */}
       <details className="rounded border border-cp-border-muted bg-cp-surface-3/40">
-        <summary className="flex cursor-pointer items-center gap-1.5 px-3 py-1.5 text-[11px] uppercase tracking-wide text-cp-text-muted">
+        <summary className="flex cursor-pointer items-center gap-1.5 px-3 py-1.5 text-cp-xs uppercase tracking-wide text-cp-text-muted">
           {t('calc.vdrop.title', 'Voltage drop (feeder)')}
         </summary>
         <div className="space-y-3 px-3 py-2">
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
             <label className="block">
-              <span className="mb-1 block text-[10px] text-cp-text-muted">
+              <span className="mb-1 block text-cp-xs text-cp-text-muted">
                 {t('calc.vdrop.length', 'Cable length (m)')}
               </span>
               <input
@@ -1103,7 +1103,7 @@ const PowerTab = () => {
               />
             </label>
             <label className="block">
-              <span className="mb-1 block text-[10px] text-cp-text-muted">
+              <span className="mb-1 block text-cp-xs text-cp-text-muted">
                 {t('calc.vdrop.cross', 'Cross-section (mm²)')}
               </span>
               <select
@@ -1119,7 +1119,7 @@ const PowerTab = () => {
               </select>
             </label>
             <div className="block">
-              <span className="mb-1 block text-[10px] text-cp-text-muted">
+              <span className="mb-1 block text-cp-xs text-cp-text-muted">
                 {t('calc.vdrop.current', 'Load current')}
               </span>
               <div className="rounded border border-cp-border-muted bg-cp-surface-1 px-2 py-1 font-mono text-cp-xs text-cp-text-bright">
@@ -1154,7 +1154,7 @@ const PowerTab = () => {
                 >
                   {vdropPercent.toFixed(1)} %
                 </span>
-                <span className="ml-2 text-[10px] text-cp-text-muted">
+                <span className="ml-2 text-cp-xs text-cp-text-muted">
                   {vdropPercent > 5
                     ? t('calc.vdrop.bad', '> 5 % — increase cross-section')
                     : vdropPercent > 3
@@ -1168,7 +1168,7 @@ const PowerTab = () => {
               </dd>
             </dl>
           </div>
-          <PanelHint className="mb-2 text-[10px] text-cp-text-muted" text={t(
+          <PanelHint className="mb-2 text-cp-xs text-cp-text-muted" text={t(
           'calc.vdrop.note',
           'Copper, ρ ≈ 0.0175 Ω·mm²/m. 1-phase ΔU = 2·L·I·ρ/A, 3-phase ΔU = √3·L·I·ρ/A. Rule of thumb: ≤ 3 % at end devices. Load current = symmetric current incl. margin.',
         )} />
@@ -1177,7 +1177,7 @@ const PowerTab = () => {
 
       {totals.devices.length > 0 && (
         <details className="rounded border border-cp-border-muted bg-cp-surface-3/40">
-          <summary className="cursor-pointer px-3 py-1.5 text-[11px] uppercase tracking-wide text-cp-text-muted">
+          <summary className="cursor-pointer px-3 py-1.5 text-cp-xs uppercase tracking-wide text-cp-text-muted">
             {t('calc.topConsumers', 'Top consumers')}
           </summary>
           <ul className="px-3 py-2 text-cp-xs">

@@ -144,30 +144,30 @@ Gesamtzahl Unicode-Icon-Treffer im Scan: ~136 Dateien (inkl. Daten-Pfeile
 
 Hartkodierte Pixel-Schriftgrößen (Tailwind-Arbitrary-Values):
 
-| Klasse        | 2026-06-15 | 2026-09-10 |
-| ------------- | ---------: | ---------: |
-| `text-[10px]` |        336 |        423 |
-| `text-[11px]` |        256 |        390 |
-| `text-[9px]`  |         43 |         10 |
-| `text-[8px]`  |          5 |          5 |
-| `text-[12px]` |          4 |         20 |
-| `text-[13px]` |          2 |          2 |
+| Klasse        | Audit-Start<br>2026-06-15 | vor der Migration<br>2026-09-10 | heute |
+| ------------- | ------------------------: | ------------------------------: | ----: |
+| `text-[10px]` |                       336 |                             423 |   352 |
+| `text-[11px]` |                       256 |                             390 |   338 |
+| `text-[9px]`  |                        43 |                              10 |    10 |
+| `text-[8px]`  |                         5 |                               5 |     5 |
+| `text-[12px]` |                         4 |                              20 |    20 |
+| `text-[13px]` |                         2 |                               2 |     2 |
 
-**Die zweite Spalte ist der eigentliche Befund.** Unter 12px waren es beim
-ersten Commit dieses Audits 743 Stellen, heute sind es 828 — also 85 MEHR,
-nachdem hier aufgeschrieben stand, dass es weniger werden sollen. (Der
-Zwischenstand vor der Mobile-Migration weiter unten waren 881.)
+**Die mittlere Spalte ist der eigentliche Befund.** Unter 12px waren es beim
+ersten Commit dieses Audits 743 Stellen — und drei Monate spaeter 881, also
+138 MEHR, nachdem hier aufgeschrieben stand, dass es weniger werden sollen.
 
 Das ist keine Nachlaessigkeit einzelner Aenderungen, sondern die vorhersehbare
 Folge davon, dass die Grenze nur in Prosa stand: ein TODO in einer Datei
 bremst nichts, weil niemand es beim Schreiben einer neuen Komponente liest.
 Seit `tests/schriftgroesseUntergrenze.test.ts` ist es eine Ratsche — die Zahl
-darf sinken, nie steigen.
+darf sinken, nie steigen. Stand heute: **705**, in zwei Schritten von 881
+(erst `src/mobile`, dann die drei groessten Einzeldateien).
 
-Top-Dateien mit Sub-12px-Schrift (2026-09-10, nach der Mobile-Migration):
-`GreenGoExportDialog` (50), `CalculatorsDialog` (43), `CableProperties` (31),
+Top-Dateien mit Sub-12px-Schrift, was noch offen ist:
 `RentmanTab` (24), `RackPlacementProperties` (22), `RackBuilderDialog` (22),
-`CableLibraryPanel` (21), `PortList` / `MobileShareDialog` / `App.tsx` (je 20).
+`CableLibraryPanel` (21), `PortList` / `MobileShareDialog` / `App.tsx` (je 20),
+`ExportDialog` / `AnalysisDialog` (je 19).
 
 **Theming-Schuld:** `index.css` remappt die komplette Tailwind-Slate-Rampe
 (+ Dutzende Opacity-Varianten einzeln) für `[data-theme="light"]`. Fragil,
@@ -194,15 +194,23 @@ Inline-Fallback in `ErrorBoundary`). → Token-Schicht einführen.
 ### TODO (großflächiger Rest, NICHT Big-Bang)
 
 - [ ] `text-[10px]`/`text-[11px]`/`text-[9px]` flächendeckend auf
-      Typo-Skala migrieren (zentrale Shells in Phase 2 erledigt,
-      `src/mobile` komplett — Rest offen, v. a. Export-Dialoge,
-      Rechner und Properties). Fließtext-Mindestgröße 12px. (Rein
-      dekorative Micro-Glyphen wie MenuBar-Caret `▾` bleiben.)
+      Typo-Skala migrieren. Fließtext-Mindestgröße 12px. (Rein
+      dekorative Micro-Glyphen wie MenuBar-Caret `▾` und die
+      Pin-Markierung im Rechner bleiben.)
+      **Erledigt:** zentrale Shells (Phase 2), `src/mobile` komplett,
+      `GreenGoExportDialog`, `CalculatorsDialog`, `CableProperties`.
+      **Offen:** die Liste über der Tabelle, Reihenfolge nach Größe.
       **Gedeckelt** durch `tests/schriftgroesseUntergrenze.test.ts`:
-      Barriere 828, sinken erlaubt, steigen nicht.
+      Barriere 705, sinken erlaubt, steigen nicht.
       `src/mobile` steht dort zusätzlich auf 0 und muss es bleiben —
       eine reine Gesamtzahl saehe nicht, wenn ein migrierter Ordner
       zurueckfaellt, waehrend anderswo etwas migriert wird.
+      **Im echten Fenster nachgemessen** (Electron unter xvfb, 1280x800):
+      Bandbreiten-Rechner 66 sichtbare Elemente, Leistungs-Rechner 112,
+      Kabel-Eigenschaften 125, GreenGo-Dialog 49 — kein Überlauf, nichts
+      mehr unter 12px. Der Sprung 10 → 12px in dichten Tabellen ist der
+      Punkt, an dem eine Migration Layout brechen kann; `npm test` sieht
+      das nicht, `ui:overflow` öffnet diese Dialoge nicht.
 - [ ] Translucente Glas-Flächen (`bg-slate-950/95`, `bg-slate-900/80`,
       `bg-slate-950/40`) auf Alpha-Tokens (z. B. `color-mix`) heben —
       aktuell bewusst als slate-Klassen belassen (Remap deckt Light ab).
