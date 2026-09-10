@@ -162,10 +162,20 @@ describe('Wo ein Entwurf liegt, steht auch ein Schutz', () => {
    * Die sechs, die vor B-44 gar nichts hatten. Sie sind ausnahmslos Dialoge
    * mit Entwurf — deshalb ist der Schutz dort keine Kuer, und deshalb stehen
    * sie hier namentlich.
+   *
+   * `Library/CableLibraryPanel.tsx` stand hier bis zum 2026-09-10. Sie ist
+   * KEINE Streichung: der Kabeltyp-Editor, um den es ging, liegt seit #836 in
+   * `Cable/CableTypeEditor.tsx` — samt seinem `schutz`. Die Seitenleiste
+   * haelt seither keinen Entwurf mehr, sie oeffnet nur noch den Editor.
+   *
+   * Der Unterschied ist wichtig: eine Zeile aus dieser Liste zu nehmen, weil
+   * der Test rot wurde, waere genau der Griff, gegen den sie geschrieben ist.
+   * Sie darf nur mitwandern, wenn der Entwurf mitgewandert ist — und die
+   * Zusicherung darunter prueft, dass er am neuen Ort auch angekommen ist.
    */
   const MIT_ENTWURF = [
     'Cable/CableDialog.tsx',
-    'Library/CableLibraryPanel.tsx',
+    'Cable/CableTypeEditor.tsx',
     'Library/LibraryPanel.tsx',
     'Rack/RackBuilderDialog.tsx',
     'Rack/RackImageCropDialog.tsx',
@@ -183,5 +193,17 @@ describe('Wo ein Entwurf liegt, steht auch ein Schutz', () => {
         'ohne Rueckfrage. Das ist die Verschlimmbesserung, bei der die naechste ' +
         'Rueckmeldung „jetzt geht dauernd alles zu" lautet.',
     ).toEqual([])
+  })
+
+  it('die Kabel-Seitenleiste haelt wirklich keinen Entwurf mehr', () => {
+    // Die Gegenprobe zur Zeile oben. Ohne sie stuende die Streichung als
+    // Behauptung da, und niemand merkte es, wenn dort wieder ein Formular
+    // entstuende.
+    const quelle = readFileSync(join(COMPONENTS, 'Library', 'CableLibraryPanel.tsx'), 'utf8')
+    expect(
+      quelle,
+      'Die Kabel-Seitenleiste haelt wieder einen Backdrop-Dialog. Dann gehoert ' +
+        'sie zurueck in MIT_ENTWURF — mit einem `schutz`.',
+    ).not.toMatch(/useBackdropClose/)
   })
 })
