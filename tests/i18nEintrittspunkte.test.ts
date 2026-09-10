@@ -181,7 +181,7 @@ describe('Die kleinen Eintrittspunkte tragen kein Desktop-Woerterbuch', () => {
 /** Schluessel, deren deutsche Fassung Wort fuer Wort die englische ist. */
 const GLEICH_IN_BEIDEN: Record<string, string> = {
   'mobile.view.plan': 'Plan',
-  'mobile.conn.remote': '📶 Remote',
+  'mobile.conn.remote': 'Remote',
   'mobile.name': 'Name',
   'mobile.report.kindIssue': 'Problem',
   'mobile.report.optionalPlaceholder': 'optional…',

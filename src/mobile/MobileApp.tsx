@@ -23,7 +23,22 @@
  */
 
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { AlertTriangle, X, QrCode, Search } from 'lucide-react'
+import {
+  AlertTriangle,
+  ArrowRight,
+  Cable,
+  Check,
+  FolderOpen,
+  House,
+  Loader2,
+  RotateCcw,
+  Send,
+  Signal,
+  Smartphone,
+  X,
+  QrCode,
+  Search,
+} from 'lucide-react'
 import { Icon } from '../renderer/components/shared/Icon'
 import { styleForLayer } from '../renderer/lib/cableLayers'
 import {
@@ -380,7 +395,9 @@ const ProjectPicker = ({
   return (
     <div className="mx-auto max-w-md space-y-4 p-4">
       <header className="text-center">
-        <div className="text-2xl">🔌</div>
+        <div className="flex justify-center text-cp-text-secondary">
+          <Icon icon={Cable} size={28} />
+        </div>
         <h1 className="mt-1 text-lg font-semibold text-cp-text">
           Cable Planner — Mobile
         </h1>
@@ -397,7 +414,7 @@ const ProjectPicker = ({
         type="button"
         onClick={reloadFromHost}
         disabled={reloading}
-        className="w-full rounded bg-emerald-700 px-3 py-3 text-sm font-semibold text-white hover:bg-emerald-600 disabled:opacity-50"
+        className="inline-flex w-full items-center justify-center gap-2 rounded bg-emerald-700 px-3 py-3 text-sm font-semibold text-white hover:bg-emerald-600 disabled:opacity-50"
         title={
           cached
             ? format(
@@ -410,13 +427,14 @@ const ProjectPicker = ({
             : t('mobile.reload.title', 'Load the project currently open on the desktop')
         }
       >
+        <Icon icon={reloading ? Loader2 : RotateCcw} size="sm" className={reloading ? 'animate-spin' : undefined} />
         {reloading
-          ? t('mobile.reload.busy', '⏳ Loading…')
+          ? t('mobile.reload.busy', 'Loading…')
           : cached
-            ? format(t('mobile.reload.cached', '↻ Reload project (cache: {time})'), {
+            ? format(t('mobile.reload.cached', 'Reload project (cache: {time})'), {
                 time: new Date(cached.cachedAt).toLocaleString(),
               })
-            : t('mobile.reload.fresh', '↻ Load project from the desktop')}
+            : t('mobile.reload.fresh', 'Load project from the desktop')}
       </button>
       {reloadError && (
         <div className="flex items-center gap-1.5 rounded border border-amber-700 bg-amber-900/30 p-2 text-cp-xs text-amber-200">
@@ -434,8 +452,9 @@ const ProjectPicker = ({
           className="hidden"
           onChange={onFile}
         />
-        <span className="cursor-pointer">
-          {t('mobile.file.pick', '📂 Choose a Cable Planner file (.json)…')}
+        <span className="inline-flex cursor-pointer items-center justify-center gap-2">
+          <Icon icon={FolderOpen} size="sm" />
+          {t('mobile.file.pick', 'Choose a Cable Planner file (.json)…')}
         </span>
       </label>
       <div className="text-center">
@@ -930,8 +949,9 @@ const PortList = ({
                       and too small to be useful on a phone. */}
                   {cable && otherDevice && (
                     <span className="mt-1 block rounded bg-cp-accent/60 px-2 py-1 text-xs text-cp-accent">
-                      <span className="text-cp-xs uppercase tracking-wide text-cp-accent/80">
-                        {t('mobile.port.goesTo', '→ goes to')}
+                      <span className="inline-flex items-center gap-1 text-cp-xs uppercase tracking-wide text-cp-accent/80">
+                        <Icon icon={ArrowRight} size="xs" />
+                        {t('mobile.port.goesTo', 'goes to')}
                       </span>
                       <span className="ml-1 font-semibold text-white">
                         {otherDevice.name}
@@ -2096,9 +2116,10 @@ const ConnectionSettings = () => {
         className="fixed right-3 top-3 z-[300] flex items-center gap-1 rounded-full border border-cp-border bg-cp-surface-3/90 px-2.5 py-1 text-cp-xs text-cp-text shadow-lg backdrop-blur"
         title={t('mobile.connection', 'Connection')}
       >
+        <Icon icon={cfg.mode === 'remote' ? Signal : House} size="xs" />
         {cfg.mode === 'remote'
-          ? t('mobile.conn.remote', '📶 Remote')
-          : t('mobile.conn.local', '🏠 Local')}
+          ? t('mobile.conn.remote', 'Remote')
+          : t('mobile.conn.local', 'Local')}
       </button>
       {open && (
         <div className="fixed inset-0 z-[301] flex items-end justify-center bg-black/60 p-3" onClick={() => setOpen(false)}>
@@ -2110,16 +2131,18 @@ const ConnectionSettings = () => {
               <button
                 type="button"
                 onClick={() => setCfg({ ...cfg, mode: 'local' })}
-                className={`rounded px-2 py-1.5 text-xs font-medium ${cfg.mode === 'local' ? 'bg-cp-accent text-white' : 'text-cp-text-secondary hover:bg-cp-surface-3'}`}
+                className={`inline-flex items-center justify-center gap-1 rounded px-2 py-1.5 text-xs font-medium ${cfg.mode === 'local' ? 'bg-cp-accent text-white' : 'text-cp-text-secondary hover:bg-cp-surface-3'}`}
               >
-                {t('mobile.conn.localFull', '🏠 Local (LAN)')}
+                <Icon icon={House} size="xs" />
+                {t('mobile.conn.localFull', 'Local (LAN)')}
               </button>
               <button
                 type="button"
                 onClick={() => setCfg({ ...cfg, mode: 'remote' })}
-                className={`rounded px-2 py-1.5 text-xs font-medium ${cfg.mode === 'remote' ? 'bg-cp-accent text-white' : 'text-cp-text-secondary hover:bg-cp-surface-3'}`}
+                className={`inline-flex items-center justify-center gap-1 rounded px-2 py-1.5 text-xs font-medium ${cfg.mode === 'remote' ? 'bg-cp-accent text-white' : 'text-cp-text-secondary hover:bg-cp-surface-3'}`}
               >
-                {t('mobile.conn.remoteFull', '📶 Remote (mobile data)')}
+                <Icon icon={Signal} size="xs" />
+                {t('mobile.conn.remoteFull', 'Remote (mobile data)')}
               </button>
             </div>
             {cfg.mode === 'remote' && (
@@ -2485,8 +2508,9 @@ const AddCableModal = ({
     >
       <div className="w-full max-w-md rounded-t-lg border border-cp-border bg-cp-surface-1 text-cp-text shadow-2xl">
         <header className="flex items-center justify-between border-b border-cp-border px-3 py-2">
-          <h2 className="text-sm font-semibold">
-            {t('mobile.addCable.heading', '📱 Add cable')}
+          <h2 className="inline-flex items-center gap-2 text-sm font-semibold">
+            <Icon icon={Smartphone} size="sm" />
+            {t('mobile.addCable.heading', 'Add cable')}
           </h2>
           <button
             type="button"
@@ -2506,7 +2530,10 @@ const AddCableModal = ({
                   (Plan gesperrt, Gerät oder Port weg, Dublette). Ein
                   Versprechen im Futur von der Seite, die es nicht einlösen
                   kann. Jetzt steht hier nur, was tatsächlich passiert ist. */}
-              {t('mobile.addCable.sent', '✓ Sent to the desktop')}
+              <span className="inline-flex items-center gap-1">
+                <Icon icon={Check} size="sm" />
+                {t('mobile.addCable.sent', 'Sent to the desktop')}
+              </span>
               <div className="mt-1 text-cp-xs font-normal text-emerald-300/80">
                 {t(
                   'mobile.addCable.sentHint',
@@ -2655,13 +2682,14 @@ const AddCableModal = ({
                     onClick={() => {
                       setNameDirty(false)
                     }}
-                    className="mt-1 text-cp-xs text-cp-accent hover:underline"
+                    className="mt-1 inline-flex items-center gap-1 text-cp-xs text-cp-accent hover:underline"
                     title={t(
                       'mobile.name.regenerate',
                       'Generate again automatically from type + devices',
                     )}
                   >
-                    {t('mobile.name.reset', '↺ Reset auto name')}
+                    <Icon icon={RotateCcw} size="xs" />
+                    {t('mobile.name.reset', 'Reset auto name')}
                   </button>
                 )}
               </label>
@@ -2698,11 +2726,12 @@ const AddCableModal = ({
                   type="button"
                   onClick={submit}
                   disabled={!canSubmit}
-                  className="rounded bg-cp-accent px-3 py-1.5 text-xs font-medium text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="inline-flex items-center gap-1 rounded bg-cp-accent px-3 py-1.5 text-xs font-medium text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
                 >
+                  {!busy && <Icon icon={Send} size="xs" />}
                   {busy
                     ? t('mobile.sending', 'Sending…')
-                    : t('mobile.addCable.send', '📤 Send to the desktop')}
+                    : t('mobile.addCable.send', 'Send to the desktop')}
                 </button>
               </div>
             </>
@@ -2833,8 +2862,9 @@ const MobileReportModal = ({
     >
       <div className="w-full max-w-md rounded-t-lg border border-cp-border bg-cp-surface-1 text-cp-text shadow-2xl">
         <header className="flex items-center justify-between border-b border-cp-border px-3 py-2">
-          <h2 className="text-sm font-semibold">
-            {t('mobile.report.heading', '⚠ Report to the planner')}
+          <h2 className="inline-flex items-center gap-2 text-sm font-semibold">
+            <Icon icon={AlertTriangle} size="sm" />
+            {t('mobile.report.heading', 'Report to the planner')}
           </h2>
           <button
             type="button"
@@ -2847,10 +2877,13 @@ const MobileReportModal = ({
         <div className="space-y-3 p-3 text-xs">
           {done ? (
             <div className="rounded border border-emerald-700 bg-emerald-900/30 p-3 text-center text-emerald-200">
-              {t(
-                'mobile.report.sent',
-                '✓ Report sent — appears on the desktop under "Field feedback"',
-              )}
+              <span className="inline-flex items-center gap-1">
+                <Icon icon={Check} size="sm" />
+                {t(
+                  'mobile.report.sent',
+                  'Report sent — appears on the desktop under "Field feedback"',
+                )}
+              </span>
             </div>
           ) : (
             <>
@@ -2995,11 +3028,12 @@ const MobileReportModal = ({
                   type="button"
                   onClick={submit}
                   disabled={!canSubmit}
-                  className="rounded bg-amber-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-amber-500 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="inline-flex items-center gap-1 rounded bg-amber-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-amber-500 disabled:cursor-not-allowed disabled:opacity-40"
                 >
+                  {!busy && <Icon icon={Send} size="xs" />}
                   {busy
                     ? t('mobile.sending', 'Sending…')
-                    : t('mobile.report.send', '📤 Send report')}
+                    : t('mobile.report.send', 'Send report')}
                 </button>
               </div>
             </>

@@ -1,5 +1,5 @@
 ﻿import { useEffect, useMemo, useRef, useState } from 'react'
-import { X, SlidersHorizontal, List, Link, Wand2, ClipboardList, Search, Lock, Download, Loader2, Upload } from 'lucide-react'
+import { X, SlidersHorizontal, List, Link, Wand2, ClipboardList, Search, Lock, Download, Loader2, Upload, Tag } from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import { useProjectStore } from '../../store/projectStore'
 import {
@@ -1667,10 +1667,11 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
             <button
               type="button"
               onClick={handleExportLabelsPdf}
-              className="rounded bg-indigo-700 px-3 py-1 text-cp-base hover:bg-indigo-600"
+              className="inline-flex items-center gap-1 rounded bg-indigo-700 px-3 py-1 text-cp-base hover:bg-indigo-600"
               title={t('videohub.labelsPdfTitle', 'Generate printable label strips (Smart Control grid) as PDF — to print and cut out.')}
             >
-              {t('videohub.labelsPdf', '🏷 Labels PDF')}
+              <Icon icon={Tag} size="sm" />
+              {t('videohub.labelsPdf', 'Labels PDF')}
             </button>
           )}
         </div>

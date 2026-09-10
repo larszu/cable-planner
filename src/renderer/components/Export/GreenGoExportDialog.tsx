@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { Download, Upload, X, FileSpreadsheet } from 'lucide-react'
+import { ArrowRight, Download, Upload, X, FileSpreadsheet } from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import { useProjectStore } from '../../store/projectStore'
 import type { GreenGoConfig, GreenGoGroup, GreenGoUser } from '../../types/greengo'
@@ -154,7 +154,7 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
       const lines: string[] = []
       lines.push(
         format(
-          t('greengo.import.usersAndGroups', '✓ {users} users · {groups} groups imported from Excel.'),
+          t('greengo.import.usersAndGroups', '{users} users · {groups} groups imported from Excel.'),
           { users: result.config.users.length, groups: result.config.groups.length },
         ),
       )
@@ -1156,8 +1156,9 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
                   {t('greengo.importOverlay.cancel', 'Cancel')}
                 </button>
                 <button type="button" onClick={applyImport}
-                  className="rounded bg-emerald-600 px-3 py-1.5 text-cp-xs font-medium hover:bg-emerald-500">
-                  {t('greengo.importOverlay.apply', 'Apply →')}
+                  className="inline-flex items-center gap-1 rounded bg-emerald-600 px-3 py-1.5 text-cp-xs font-medium hover:bg-emerald-500">
+                  {t('greengo.importOverlay.apply', 'Apply')}
+                  <Icon icon={ArrowRight} size="xs" />
                 </button>
               </div>
             </div>

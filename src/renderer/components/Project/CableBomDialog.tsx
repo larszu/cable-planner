@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Package, AlertTriangle, Check } from 'lucide-react'
+import { Package, AlertTriangle, ArrowRight, Check } from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import { ModalShell } from '../shared/ModalShell'
 import jsPDF from 'jspdf'
@@ -343,7 +343,8 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
               className="inline-flex items-center gap-1.5 rounded bg-orange-700 px-3 py-1 text-cp-xs font-semibold hover:bg-orange-600"
             >
               <Icon icon={Package} size="xs" />
-              {t('bom.cable.syncRentman', 'Sync with Rentman →')}
+              {t('bom.cable.syncRentman', 'Sync with Rentman')}
+              <Icon icon={ArrowRight} size="xs" />
             </button>
           </div>
         </div>

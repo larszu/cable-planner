@@ -1,4 +1,4 @@
-import { SlidersHorizontal } from 'lucide-react'
+import { ArrowRight, SlidersHorizontal } from 'lucide-react'
 import { useUiStore } from '../../../store/uiStore'
 import { Icon } from '../../shared/Icon'
 import { GreenGoBeltpackSection } from './GreenGoBeltpackSection'
@@ -34,9 +34,10 @@ export const DeviceKindCards = ({ equipment }: { equipment: EquipmentItem }) => 
         <button
           type="button"
           onClick={() => openGreenGoExport()}
-          className="w-full rounded bg-emerald-700 px-2 py-1 text-cp-xs hover:bg-emerald-600"
+          className="inline-flex w-full items-center justify-center gap-1 rounded bg-emerald-700 px-2 py-1 text-cp-xs hover:bg-emerald-600"
         >
-          {t('props.deviceKind.greengoExport', 'Intercom planning / export .gg5 →')}
+          {t('props.deviceKind.greengoExport', 'Intercom planning / export .gg5')}
+          <Icon icon={ArrowRight} size="xs" />
         </button>
       </div>
     )
@@ -60,7 +61,8 @@ export const DeviceKindCards = ({ equipment }: { equipment: EquipmentItem }) => 
             className="inline-flex w-full items-center justify-center gap-1.5 rounded bg-purple-700 px-2 py-1 text-cp-xs font-semibold hover:bg-purple-600"
           >
             <Icon icon={SlidersHorizontal} size="xs" />
-            {t('props.deviceKind.videohubConfigure', 'Configure Videohub · Labels + Routing →')}
+            {t('props.deviceKind.videohubConfigure', 'Configure Videohub · Labels + Routing')}
+          <Icon icon={ArrowRight} size="xs" />
           </button>
         </div>
       </div>
@@ -77,32 +79,35 @@ export const DeviceKindCards = ({ equipment }: { equipment: EquipmentItem }) => 
           <button
             type="button"
             onClick={() => openAtemDialog(equipment.id)}
-            className="w-full rounded bg-sky-700 px-2 py-1 text-cp-xs hover:bg-sky-600"
+            className="inline-flex w-full items-center justify-center gap-1 rounded bg-sky-700 px-2 py-1 text-cp-xs hover:bg-sky-600"
             title={t('props.deviceKind.atemConnectTitle', 'Connects via UDP to the ATEM and transfers input names.')}
           >
-            {t('props.deviceKind.atemConnect', 'Connect ATEM / push setup →')}
+            {t('props.deviceKind.atemConnect', 'Connect ATEM / push setup')}
+          <Icon icon={ArrowRight} size="xs" />
           </button>
           <button
             type="button"
             onClick={() => openAtemMvConfig(equipment.id)}
-            className="w-full rounded bg-emerald-700 px-2 py-1 text-cp-xs hover:bg-emerald-600"
+            className="inline-flex w-full items-center justify-center gap-1 rounded bg-emerald-700 px-2 py-1 text-cp-xs hover:bg-emerald-600"
             title={t(
               'props.deviceKind.atemMvTitle',
               'Configure multiviewer layout offline. Pushed on next connect.',
             )}
           >
-            {t('props.deviceKind.atemMv', 'Configure multiviewer layout →')}
+            {t('props.deviceKind.atemMv', 'Configure multiviewer layout')}
+          <Icon icon={ArrowRight} size="xs" />
           </button>
           <button
             type="button"
             onClick={() => openAtemAudioConfig(equipment.id)}
-            className="w-full rounded bg-fuchsia-700 px-2 py-1 text-cp-xs hover:bg-fuchsia-600"
+            className="inline-flex w-full items-center justify-center gap-1 rounded bg-fuchsia-700 px-2 py-1 text-cp-xs hover:bg-fuchsia-600"
             title={t(
               'props.deviceKind.atemAudioTitle',
               'Plan ATEM audio router offline (matrix routing or classic mixer).',
             )}
           >
-            {t('props.deviceKind.atemAudio', 'Configure audio router →')}
+            {t('props.deviceKind.atemAudio', 'Configure audio router')}
+          <Icon icon={ArrowRight} size="xs" />
           </button>
         </div>
       </div>
