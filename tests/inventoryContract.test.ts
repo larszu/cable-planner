@@ -40,8 +40,8 @@ import type { InventoryItem, StorageNode, InventorySet, InventoryUnit } from '..
 // Eingefrorener Contract — MUSS in allen drei Repos identisch sein.
 const CONTRACT = {
   format: 'avplan-inventory',
-  version: 6,
-  envelopeKeys: ['app', 'exportedAt', 'format', 'items', 'nodes', 'sets', 'units', 'version'],
+  version: 7,
+  envelopeKeys: ['app', 'exportedAt', 'format', 'fristArten', 'items', 'nodes', 'sets', 'units', 'version'],
   itemKeys: ['category', 'code', 'codeType', 'createdAt', 'deviceTypeId', 'dimensions', 'id', 'locationId', 'manufacturer', 'materialKinds', 'mindestmenge', 'model', 'notes', 'ownership', 'quantity', 'rentPricePerDay', 'returnDue', 'stockLocation', 'supplier', 'updatedAt', 'ursprungsland'],
   nodeKeys: ['code', 'codeType', 'createdAt', 'dimensions', 'id', 'kind', 'name', 'notes', 'parentId', 'updatedAt'],
   setKeys: ['components', 'createdAt', 'id', 'name', 'notes', 'updatedAt'],
@@ -95,7 +95,19 @@ const unit: InventoryUnit = {
   fristen: [{ art: 'dguv-v3', zuletzt: '2026-03-09', intervallMonate: 12 }],
   createdAt: 't', updatedAt: 't',
 }
-const snapshot: InventorySnapshot = { items: [item], nodes: [node], sets: [set], units: [unit] }
+/**
+ * Eine selbst angelegte Fristart (Format-Version 7). Sie MUSS mitreisen:
+ * ohne sie kommt drueben ein Termin an, dessen Art niemand benennen kann.
+ */
+const eigeneArt = { id: 'anschlagmittel', name: 'Anschlagmittel', standardIntervallMonate: 12 }
+
+const snapshot: InventorySnapshot = {
+  items: [item],
+  nodes: [node],
+  sets: [set],
+  units: [unit],
+  fristArten: [eigeneArt],
+}
 
 const sortedKeys = (o: object) => Object.keys(o).sort()
 
