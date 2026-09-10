@@ -59,6 +59,7 @@ import { keepScreenAwake } from '../renderer/lib/wakeLock'
 import type { CablePlannerProject } from '../renderer/types/project'
 import { PatternWalk } from './PatternWalk'
 import { format, uebersetzer } from './i18n'
+import { WASM_TAKT_MS, cameraScanSupported, ladeDecoder } from './qrDecoder'
 import { aenderungen, positionsKarte } from '../renderer/lib/rundownCard'
 import type { RundownPlan } from '../renderer/types/rundown'
 
@@ -996,18 +997,10 @@ const PortList = ({
 // daher IMMER eine Texteingabe (gescannten Code einfügen / ID tippen) und
 // blenden den Live-Kamera-Scan nur ein, wenn der Context ihn erlaubt
 // (HTTPS/localhost/file:// + BarcodeDetector vorhanden).
-type BarcodeDetectorLike = {
-  detect: (src: CanvasImageSource) => Promise<Array<{ rawValue: string }>>
-}
-type BarcodeDetectorCtor = new (opts?: { formats?: string[] }) => BarcodeDetectorLike
-const getBarcodeDetector = (): BarcodeDetectorCtor | undefined =>
-  (window as unknown as { BarcodeDetector?: BarcodeDetectorCtor }).BarcodeDetector
-
-const cameraScanSupported = (): boolean =>
-  typeof window !== 'undefined' &&
-  window.isSecureContext === true &&
-  !!navigator.mediaDevices?.getUserMedia &&
-  !!getBarcodeDetector()
+// #821 — der Decoder liegt seit 2026-09-10 in `qrDecoder.ts`: nativ, wo es
+// `BarcodeDetector` gibt, sonst `zxing-wasm` NACHGELADEN. Bis dahin stand die
+// native API hier als Bedingung, und das machte den Scan auf jedem iPhone und
+// in jedem Desktop-Browser im LAN zu einem Nein.
 
 /** Vollbild-Overlay: Live-Kamera-Scan (wo möglich) + manuelle Eingabe. */
 const QrFindOverlay = ({
@@ -1020,6 +1013,10 @@ const QrFindOverlay = ({
   const videoRef = useRef<HTMLVideoElement>(null)
   const [text, setText] = useState('')
   const [camError, setCamError] = useState<string | null>(null)
+  // Der WASM-Rueckfall bringt 1,09 MB mit. Ein halbe-Sekunde-schwarzes
+  // Kamerabild sieht aus wie ein Defekt, deshalb steht der Ladezustand in der
+  // Oberflaeche statt verschluckt zu werden.
+  const [laedt, setLaedt] = useState(false)
   const canScan = cameraScanSupported()
 
   // Bedarf 69 — „the phone locks mid-scan and has to be double-tapped"
@@ -1035,24 +1032,8 @@ const QrFindOverlay = ({
     if (!canScan) return
     let stream: MediaStream | null = null
     let raf = 0
+    let timer = 0
     let cancelled = false
-    const Detector = getBarcodeDetector()
-    if (!Detector) return
-    const detector = new Detector({ formats: ['qr_code'] })
-    const tick = async () => {
-      if (cancelled || !videoRef.current) return
-      try {
-        const codes = await detector.detect(videoRef.current)
-        const hit = codes.find((c) => c.rawValue)?.rawValue
-        if (hit) {
-          onSubmit(hit)
-          return
-        }
-      } catch {
-        /* transienter Decode-Fehler — weiter pollen */
-      }
-      raf = requestAnimationFrame(() => void tick())
-    }
     const start = async () => {
       try {
         stream = await navigator.mediaDevices.getUserMedia({
@@ -1063,8 +1044,32 @@ const QrFindOverlay = ({
         if (!v) return
         v.srcObject = stream
         await v.play()
-        raf = requestAnimationFrame(() => void tick())
+        // ERST JETZT nachladen, nicht beim Seitenaufbau: wer die
+        // Mobile-Ansicht nur liest, zieht die 1,09 MB nie.
+        setLaedt(true)
+        const { decode, nativ } = await ladeDecoder()
+        if (cancelled) return
+        setLaedt(false)
+        const tick = async () => {
+          if (cancelled || !videoRef.current) return
+          try {
+            const hit = await decode(videoRef.current)
+            if (hit) {
+              onSubmit(hit)
+              return
+            }
+          } catch {
+            /* transienter Decode-Fehler — weiter pollen */
+          }
+          if (cancelled) return
+          // Der WASM-Weg laestet ein Telefon bei `rAF` voll aus und leert
+          // genau den Akku, der im Aufbau reichen muss.
+          if (nativ) raf = requestAnimationFrame(() => void tick())
+          else timer = window.setTimeout(() => void tick(), WASM_TAKT_MS)
+        }
+        void tick()
       } catch (e) {
+        setLaedt(false)
         setCamError((e as Error).message || t('mobile.qr.camUnavailable', 'Camera unavailable'))
       }
     }
@@ -1072,6 +1077,7 @@ const QrFindOverlay = ({
     return () => {
       cancelled = true
       cancelAnimationFrame(raf)
+      window.clearTimeout(timer)
       stream?.getTracks().forEach((t) => t.stop())
     }
     // onSubmit ist stabil (Parent-Closure pro Render); bewusst nur canScan.
@@ -1103,6 +1109,11 @@ const QrFindOverlay = ({
         <div className="relative mb-3 overflow-hidden rounded-lg border border-cp-border bg-black">
           <video ref={videoRef} className="h-56 w-full object-cover" muted playsInline />
           <div className="pointer-events-none absolute inset-0 m-auto h-40 w-40 rounded-lg border-2 border-cp-accent/80" />
+          {laedt && (
+            <div className="absolute inset-x-0 top-0 bg-cp-surface-1/90 px-2 py-1 text-cp-xs text-cp-text-secondary">
+              {t('mobile.qr.loadingDecoder', 'Loading the scanner…')}
+            </div>
+          )}
           {camError && (
             <div className="absolute inset-x-0 bottom-0 bg-amber-900/80 px-2 py-1 text-cp-xs text-amber-100">
               {camError}
