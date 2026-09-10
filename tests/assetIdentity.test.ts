@@ -14,7 +14,10 @@ import type { CheckoutRecord } from '../src/renderer/lager/types/checkout'
 import sectionQuelle from '../src/renderer/components/Properties/sections/NetworkAccessSection.tsx?raw'
 import analyseQuelle from '../src/renderer/components/Analysis/AnalysisDialog.tsx?raw'
 import diffQuelle from '../src/renderer/lib/planDiff.ts?raw'
-import dictsQuelle from '../src/renderer/lib/i18n/dicts.ts?raw'
+import {
+  meldungFehlenderSchluessel,
+  schluesselWirdBenutzt,
+} from './support/i18nAufrufe'
 
 // ---------------------------------------------------------------------------
 // Welche KISTE steht im Plan-Platz (Bedarf 78, P2).
@@ -373,7 +376,7 @@ describe('Erreichbarkeit und Einordnung des neuen Feldes', () => {
       'eq.field.unitNone',
       'eq.field.unitHint',
     ]) {
-      expect(dictsQuelle).toContain(`'${key}'`)
+      expect(schluesselWirdBenutzt(key), meldungFehlenderSchluessel(key)).toBe(true)
     }
   })
 })

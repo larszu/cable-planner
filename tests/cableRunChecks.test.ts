@@ -15,7 +15,10 @@ import quelle from '../src/renderer/lib/cableRunChecks.ts?raw'
 import sliceQuelle from '../src/renderer/store/slices/cableSlice.ts?raw'
 import storeQuelle from '../src/renderer/store/projectStore.ts?raw'
 import analyseQuelle from '../src/renderer/components/Analysis/AnalysisDialog.tsx?raw'
-import dictsQuelle from '../src/renderer/lib/i18n/dicts.ts?raw'
+import {
+  meldungFehlenderSchluessel,
+  schluesselWirdBenutzt,
+} from './support/i18nAufrufe'
 import { stripComments } from './support/stripComments'
 
 // ---------------------------------------------------------------------------
@@ -246,7 +249,7 @@ describe('Erreichbarkeit in der Analyse', () => {
       'analysis.runs.bundled',
     ]) {
       expect(analyseQuelle).toContain(`'${key}'`)
-      expect(dictsQuelle).toContain(`'${key}'`)
+      expect(schluesselWirdBenutzt(key), meldungFehlenderSchluessel(key)).toBe(true)
     }
   })
 

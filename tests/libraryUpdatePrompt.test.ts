@@ -1,7 +1,7 @@
 import { describe, expect, it, beforeEach } from 'vitest'
 import appSrc from '../src/renderer/App.tsx?raw'
 import librarySyncSrc from '../src/renderer/lib/librarySync.ts?raw'
-import dictsSrc from '../src/renderer/lib/i18n/dicts.ts?raw'
+import { rendererQuelltext } from './support/i18nAufrufe'
 import type { EquipmentItem, EquipmentTemplate } from '../src/renderer/types/equipment'
 
 // ADR-005, Inkrement 4, Regeln 1 und 2 — der Update-Prompt beim Projekt-Start.
@@ -136,11 +136,11 @@ describe('der Prompt geht durch die richtige Aktion und sagt, was passiert', () 
     // Ein Kabel, das keinen passenden Port mehr findet, wird entfernt. Das
     // muss vor dem Klick dastehen, nicht danach.
     expect(appSrc).toContain('no longer finds a matching port is removed.')
-    expect(dictsSrc).toContain('A cable that no longer finds a matching port is removed.')
+    expect(rendererQuelltext).toContain('A cable that no longer finds a matching port is removed.')
   })
 
   it('behauptet nicht mehr nur „Namen + Notizen bleiben"', () => {
     expect(appSrc).not.toContain('(Geräte-Namen + Notizen bleiben erhalten.')
-    expect(dictsSrc).not.toContain('(Device names + notes are kept.')
+    expect(rendererQuelltext).not.toContain('(Device names + notes are kept.')
   })
 })

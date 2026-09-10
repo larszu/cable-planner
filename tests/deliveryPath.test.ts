@@ -9,7 +9,10 @@ import { DOCUMENT_STANDS, DOCUMENT_LABELS } from '../src/renderer/lib/documentRe
 import type { Cable } from '../src/renderer/types/cable'
 import type { EquipmentItem, Port } from '../src/renderer/types/equipment'
 import dialogQuelle from '../src/renderer/components/Delivery/DeliveryDialog.tsx?raw'
-import dictsQuelle from '../src/renderer/lib/i18n/dicts.ts?raw'
+import {
+  meldungFehlenderSchluessel,
+  schluesselWirdBenutzt,
+} from './support/i18nAufrufe'
 import pfadQuelle from '../src/renderer/lib/deliveryPath.ts?raw'
 
 // ---------------------------------------------------------------------------
@@ -356,7 +359,7 @@ describe('Erreichbarkeit im Ausspiel-Dialog', () => {
       'delivery.encoder.onDevice',
     ]) {
       expect(dialogQuelle).toContain(`'${key}'`)
-      expect(dictsQuelle).toContain(`'${key}'`)
+      expect(schluesselWirdBenutzt(key), meldungFehlenderSchluessel(key)).toBe(true)
     }
   })
 })

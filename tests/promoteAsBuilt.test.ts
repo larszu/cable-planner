@@ -7,7 +7,10 @@ import {
 import type { CablePlannerProject, ProjectRevision } from '../src/renderer/types/project'
 import dialogQuelle from '../src/renderer/components/Project/TemplatesDialog.tsx?raw'
 import tplQuelle from '../src/renderer/lib/projectTemplates.ts?raw'
-import dictsQuelle from '../src/renderer/lib/i18n/dicts.ts?raw'
+import {
+  meldungFehlenderSchluessel,
+  schluesselWirdBenutzt,
+} from './support/i18nAufrufe'
 
 // ---------------------------------------------------------------------------
 // „Promote as-built to template" (Bedarf 75, P2).
@@ -183,7 +186,7 @@ describe('Erreichbarkeit', () => {
       'templates.promoteNoneBody',
       'templates.promotedBody',
     ]) {
-      expect(dictsQuelle).toContain(`'${key}'`)
+      expect(schluesselWirdBenutzt(key), meldungFehlenderSchluessel(key)).toBe(true)
     }
   })
 })

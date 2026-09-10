@@ -4,7 +4,10 @@ import type { DemandLine } from '../src/renderer/lager/lib/inventoryCoverage'
 import type { EquipmentItem } from '../src/renderer/types/equipment'
 import quelle from '../src/renderer/lager/lib/erpReconcile.ts?raw'
 import dialogQuelle from '../src/renderer/components/Rentman/RentmanImportDialog.tsx?raw'
-import dictsQuelle from '../src/renderer/lib/i18n/dicts.ts?raw'
+import {
+  meldungFehlenderSchluessel,
+  schluesselWirdBenutzt,
+} from './support/i18nAufrufe'
 
 // ---------------------------------------------------------------------------
 // Bedarf 28 -- der Abgleich gegen die ERP-Reservierung, in BEIDE Richtungen.
@@ -207,7 +210,9 @@ describe('Erreichbarkeit im Rentman-Dialog', () => {
 
   it('nennt die nicht gezaehlten Zeilen', () => {
     expect(dialogQuelle).toContain('erpReport.ignored.length')
-    expect(dictsQuelle).toContain("'rentman.diff.ignored'")
+    expect(schluesselWirdBenutzt('rentman.diff.ignored'), meldungFehlenderSchluessel('rentman.diff.ignored')).toBe(
+      true,
+    )
   })
 
   it('gibt das Blatt aus', () => {

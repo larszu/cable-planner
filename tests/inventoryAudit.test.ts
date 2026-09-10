@@ -2,7 +2,10 @@ import { describe, expect, it } from 'vitest'
 import { AUDIT_LABEL, auditRelocations, auditScan, auditTable } from '../src/renderer/lager/lib/inventoryAudit'
 import type { InventoryItem, InventoryUnit, StorageNode } from '../src/renderer/lager/types/inventory'
 import inventarQuelle from '../src/renderer/lager/ui/InventoryDialog.tsx?raw'
-import dictsQuelle from '../src/renderer/lib/i18n/dicts.ts?raw'
+import {
+  meldungFehlenderSchluessel,
+  schluesselWirdBenutzt,
+} from './support/i18nAufrufe'
 
 // ---------------------------------------------------------------------------
 // Inventur mit „am falschen Ort" als eigenem Ergebnis (Bedarf 66, P2 — plus
@@ -188,7 +191,7 @@ describe('Erreichbarkeit im Lager-Dialog', () => {
       'inventory.auditAdoptHint',
     ]) {
       expect(inventarQuelle).toContain(`'${key}'`)
-      expect(dictsQuelle).toContain(`'${key}'`)
+      expect(schluesselWirdBenutzt(key), meldungFehlenderSchluessel(key)).toBe(true)
     }
   })
 })
