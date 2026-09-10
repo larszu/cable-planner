@@ -53,7 +53,7 @@ export const DisplayFlagsSection = ({ equipment }: { equipment: EquipmentItem })
         {/* #419 — "Ports spiegeln" gehoert zur Inputs-&-Outputs-Sektion
             (siehe PortsSection); nicht mehr hier. */}
         <label
-          className="flex items-center gap-2 text-[11px] text-cp-text-secondary"
+          className="flex items-center gap-2 text-cp-xs text-cp-text-secondary"
           title={t('flags.packedTitle', 'Marks the device as packed. Shown as ✓ on the canvas and as a column in the device BOM.')}
         >
           <input
@@ -69,7 +69,7 @@ export const DisplayFlagsSection = ({ equipment }: { equipment: EquipmentItem })
             eindeutige 1-In/1-Out-Wandler relevant; bei mehrdeutigen
             Geraeten wird trotzdem ohne Pass-Through angezeigt. */}
         <label
-          className="flex items-center gap-2 text-[11px] text-cp-text-secondary"
+          className="flex items-center gap-2 text-cp-xs text-cp-text-secondary"
           title={t('flags.converterTitle', 'Converter marker: the patch list skips this device and shows the next real target directly. Useful for SDI-HDMI converters, format converters, embedders/de-embedders.')}
         >
           <input
@@ -87,7 +87,7 @@ export const DisplayFlagsSection = ({ equipment }: { equipment: EquipmentItem })
             (Buchse n hinten auf Buchse n vorn), dem Patchliste, Signalweg
             und Namens-Ableitung folgen. */}
         <label
-          className="flex items-center gap-2 text-[11px] text-cp-text-secondary"
+          className="flex items-center gap-2 text-cp-xs text-cp-text-secondary"
           title={
             ausKategorie
               ? t(
@@ -113,7 +113,7 @@ export const DisplayFlagsSection = ({ equipment }: { equipment: EquipmentItem })
           {t('flags.patchPanel', 'Patch panel (through-path follows the position)')}
         </label>
         <label
-          className="flex items-center gap-2 text-[11px] text-cp-text-secondary"
+          className="flex items-center gap-2 text-cp-xs text-cp-text-secondary"
           title={t('flags.daTitle', 'Distribution amplifier: one input is actively split to several outputs of the same source (1→N).')}
         >
           <input
@@ -129,7 +129,7 @@ export const DisplayFlagsSection = ({ equipment }: { equipment: EquipmentItem })
         </label>
         {/* #359/#360/#366 — Signal-Flow-Rollen (Timecode / Tally / Embedding). */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 border-t border-cp-border-muted pt-2">
-          <label className="block text-[10px]">
+          <label className="block text-cp-xs">
             <span className="mb-0.5 block text-cp-text-muted">{t('roles.tc', 'Timecode')}</span>
             <select
               value={equipment.tcRole ?? ''}
@@ -145,7 +145,7 @@ export const DisplayFlagsSection = ({ equipment }: { equipment: EquipmentItem })
               <option value="sink">{t('roles.sink', 'Sink')}</option>
             </select>
           </label>
-          <label className="block text-[10px]">
+          <label className="block text-cp-xs">
             <span className="mb-0.5 block text-cp-text-muted">{t('roles.tally', 'Tally')}</span>
             <select
               value={equipment.tallyRole ?? ''}
@@ -161,7 +161,7 @@ export const DisplayFlagsSection = ({ equipment }: { equipment: EquipmentItem })
               <option value="sink">{t('roles.sink', 'Sink')}</option>
             </select>
           </label>
-          <label className="block text-[10px]">
+          <label className="block text-cp-xs">
             <span className="mb-0.5 block text-cp-text-muted">{t('roles.embed', 'Embedding')}</span>
             <select
               value={equipment.embedderRole ?? ''}

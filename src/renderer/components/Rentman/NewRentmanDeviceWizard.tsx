@@ -310,7 +310,7 @@ export const NewRentmanDeviceWizard = ({
         {aiSettingsOpen && (
           <div className="mb-3 rounded border border-purple-700 bg-purple-950/40 p-3">
             <div className="mb-2 text-cp-xs font-semibold text-purple-200">{t('rentman.wizard.geminiKeyHeading', 'Gemini API key')}</div>
-            <p className="mb-2 text-[11px] text-cp-text-secondary">
+            <p className="mb-2 text-cp-xs text-cp-text-secondary">
               {t('rentman.wizard.geminiKeyHintPre', 'Free at')}{' '}
               <span className="font-mono text-cp-text-bright">aistudio.google.com/apikey</span>{' '}
               {t('rentman.wizard.geminiKeyHintPost', '(15 requests/min). Stored locally in browser storage.')}

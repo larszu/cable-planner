@@ -67,12 +67,12 @@ export const TemplateProperties = () => {
   return (
     <div className="space-y-3 text-cp-xs">
       <div className="flex items-center justify-between">
-        <span className="text-cp-text-muted text-[10px] uppercase tracking-wide">
+        <span className="text-cp-text-muted text-cp-xs uppercase tracking-wide">
           {t('template.title', 'Template')}
         </span>
         {template.rentmanSource && (
           <span
-            className="rounded bg-orange-700 px-1.5 py-0.5 text-[10px] font-bold text-white"
+            className="rounded bg-orange-700 px-1.5 py-0.5 text-cp-xs font-bold text-white"
             title={format(t('template.rentmanSourceTitle', 'Imported from Rentman project {source}'), { source: template.rentmanSource })}
           >
             R

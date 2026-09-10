@@ -204,7 +204,7 @@ export function HubSwitchDialog({ onClose }: { onClose: () => void }) {
 
             {gewaehlt && (
               <div className="mt-3 space-y-3">
-                <div className="text-[11px] text-cp-text-muted">{gewaehlt.weg}</div>
+                <div className="text-cp-xs text-cp-text-muted">{gewaehlt.weg}</div>
                 {plan.actions.map((a) => (
                   <div key={a.equipmentId} className="rounded border border-cp-border p-2">
                     <div className="text-[12px] font-semibold">{a.equipmentName}</div>
@@ -217,7 +217,7 @@ export function HubSwitchDialog({ onClose }: { onClose: () => void }) {
                         es der wortwoertlich gesendete Text, beim ATEM sind es
                         die Aufrufe — ein erfundener Textblock fuer ein
                         Binaerprotokoll waere eine Behauptung. */}
-                    <div className="mt-2 text-[11px] text-cp-text-muted">
+                    <div className="mt-2 text-cp-xs text-cp-text-muted">
                       {a.art === 'text'
                         ? t('canvas.hubSwitch.sentText', 'Sent verbatim:')
                         : a.art === 'text-vorlage'
@@ -232,10 +232,10 @@ export function HubSwitchDialog({ onClose }: { onClose: () => void }) {
                               )
                             : t('canvas.hubSwitch.sentCalls', 'Commands sent (not a text protocol):')}
                     </div>
-                    <pre className="mt-1 overflow-x-auto rounded bg-cp-surface-3 p-2 text-[11px] leading-tight">
+                    <pre className="mt-1 overflow-x-auto rounded bg-cp-surface-3 p-2 text-cp-xs leading-tight">
                       {a.vorschau}
                     </pre>
-                    <div className="mt-1 text-[11px] text-cp-text-muted">
+                    <div className="mt-1 text-cp-xs text-cp-text-muted">
                       {a.art === 'aufruf' ? a.host : `${a.host}:${a.port}`}
                     </div>
                   </div>

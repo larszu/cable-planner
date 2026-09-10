@@ -40,7 +40,7 @@ export const RackBuilderFooter = ({
   const t = useTranslation()
   return (
     <div className="mt-3 flex flex-wrap items-center justify-between gap-3 border-t border-cp-border-muted pt-3">
-      <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
+      <div className="flex flex-wrap items-center gap-1.5 text-cp-xs">
         <span className="inline-flex items-center gap-1 rounded bg-cp-surface-2 px-2 py-0.5 text-cp-text-secondary">
           <span className="text-cp-text-faint">{t('rack.devicesLabel', 'Devices:')}</span>
           <strong className="text-cp-text">{devicesCount}</strong>
@@ -72,7 +72,7 @@ export const RackBuilderFooter = ({
       </div>
 
       <div
-        className="flex items-center gap-1.5 text-[10px] text-cp-text-muted"
+        className="flex items-center gap-1.5 text-cp-xs text-cp-text-muted"
         title={
           dirty
             ? t('rack.autosaveActive', 'Autosave runs every few seconds')

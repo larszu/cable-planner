@@ -27,7 +27,7 @@ export const DeviceKindCards = ({ equipment }: { equipment: EquipmentItem }) => 
   if (deviceKind === 'greengo') {
     return (
       <div className="rounded border border-emerald-700 bg-emerald-900/30 p-2">
-        <div className="mb-1 text-[10px] uppercase tracking-wide text-emerald-300">
+        <div className="mb-1 text-cp-xs uppercase tracking-wide text-emerald-300">
           {t('props.deviceKind.greengo', 'GreenGo Intercom detected')}
         </div>
         <GreenGoBeltpackSection equipmentId={equipment.id} />
@@ -45,7 +45,7 @@ export const DeviceKindCards = ({ equipment }: { equipment: EquipmentItem }) => 
   if (deviceKind === 'videohub') {
     return (
       <div className="rounded border border-purple-700 bg-purple-900/30 p-2">
-        <div className="mb-1 text-[10px] uppercase tracking-wide text-purple-300">
+        <div className="mb-1 text-cp-xs uppercase tracking-wide text-purple-300">
           {t('props.deviceKind.videohub', 'Blackmagic Videohub detected')}
         </div>
         <div className="flex flex-col gap-1">
@@ -70,7 +70,7 @@ export const DeviceKindCards = ({ equipment }: { equipment: EquipmentItem }) => 
   if (deviceKind === 'atem') {
     return (
       <div className="rounded border border-sky-700 bg-sky-900/30 p-2">
-        <div className="mb-1 text-[10px] uppercase tracking-wide text-sky-300">
+        <div className="mb-1 text-cp-xs uppercase tracking-wide text-sky-300">
           {t('props.deviceKind.atem', 'Blackmagic ATEM detected')}
         </div>
         <div className="flex flex-col gap-1">
@@ -112,7 +112,7 @@ export const DeviceKindCards = ({ equipment }: { equipment: EquipmentItem }) => 
   if (deviceKind === 'multiviewer') {
     return (
       <div className="rounded border border-emerald-700 bg-emerald-900/30 p-2">
-        <div className="mb-1 text-[10px] uppercase tracking-wide text-emerald-300">
+        <div className="mb-1 text-cp-xs uppercase tracking-wide text-emerald-300">
           {t('props.deviceKind.multiviewer', 'Multiviewer detected')}
         </div>
         <button

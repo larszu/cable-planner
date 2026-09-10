@@ -91,7 +91,7 @@ export const RackBuilderDialogExportMenu = ({
             className="flex w-full flex-col items-start gap-0.5 border-b border-cp-border-muted px-3 py-2 text-left text-cp-text-bright hover:bg-cp-surface-2"
           >
             <span className="font-semibold"><Icon icon={Camera} size="xs" className="mr-1 inline-block align-text-bottom" />{t('rack.export.png2d', '2D as PNG')}</span>
-            <span className="text-[10px] text-cp-text-muted">
+            <span className="text-cp-xs text-cp-text-muted">
               {t('rack.export.png2dDesc', 'Current front/rear/both view as image')}
             </span>
           </button>
@@ -114,7 +114,7 @@ export const RackBuilderDialogExportMenu = ({
             className="flex w-full flex-col items-start gap-0.5 border-b border-cp-border-muted px-3 py-2 text-left text-cp-text-bright hover:bg-cp-surface-2"
           >
             <span className="font-semibold"><Icon icon={Camera} size="xs" className="mr-1 inline-block align-text-bottom" />{t('rack.export.png3d', '3D from 4 perspectives')}</span>
-            <span className="text-[10px] text-cp-text-muted">
+            <span className="text-cp-xs text-cp-text-muted">
               {t('rack.export.png3dDesc', 'PNG: front · rear · iso · top (1× per file)')}
             </span>
           </button>
@@ -133,7 +133,7 @@ export const RackBuilderDialogExportMenu = ({
             className="flex w-full flex-col items-start gap-0.5 border-b border-cp-border-muted px-3 py-2 text-left text-cp-text-bright hover:bg-cp-surface-2"
           >
             <span className="font-semibold"><Icon icon={Box} size="xs" className="mr-1 inline-block align-text-bottom" />{t('rack.export.stl', '3D as STL')}</span>
-            <span className="text-[10px] text-cp-text-muted">
+            <span className="text-cp-xs text-cp-text-muted">
               {t('rack.export.stlDesc', 'Complete rack as binary STL (3D printing, CAD)')}
             </span>
           </button>
@@ -154,7 +154,7 @@ export const RackBuilderDialogExportMenu = ({
             className="flex w-full flex-col items-start gap-0.5 px-3 py-2 text-left text-cp-text-bright hover:bg-cp-surface-2"
           >
             <span className="font-semibold"><Icon icon={Save} size="xs" className="mr-1 inline-block align-text-bottom" />{t('rack.export.cpgroup', 'Download .cpgroup')}</span>
-            <span className="text-[10px] text-cp-text-muted">
+            <span className="text-cp-xs text-cp-text-muted">
               {t('rack.export.cpgroupDesc', 'Complete rack incl. STL + photos for cross-PC transfer')}
             </span>
           </button>

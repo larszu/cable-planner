@@ -99,7 +99,7 @@ export const RackShelfCreateDialog = ({ open, onClose, onCreated }: Props) => {
               />
             </label>
           </div>
-          <div className="rounded border border-cp-border-muted bg-cp-surface-3/50 p-2 text-[11px] text-cp-text-muted">
+          <div className="rounded border border-cp-border-muted bg-cp-surface-3/50 p-2 text-cp-xs text-cp-text-muted">
             {t('rack.shelf.tip', 'Tip: place the shelf at the desired U slot, then put non-19" items at the same starting U — they appear visually on the shelf.')}
           </div>
         </div>

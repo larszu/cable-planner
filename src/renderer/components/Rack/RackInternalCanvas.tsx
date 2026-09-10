@@ -466,7 +466,7 @@ const RackSidePropertiesPane = () => {
     <aside className="flex h-full min-h-0 flex-col rounded border border-cp-border bg-cp-surface-3">
       <div className="border-b border-cp-border-muted px-3 py-2">
         <h3 className="truncate text-cp-xs font-semibold text-cp-text">{title}</h3>
-        <div className="mt-0.5 text-[9px] uppercase tracking-wide text-cp-text-muted">
+        <div className="mt-0.5 text-cp-xs uppercase tracking-wide text-cp-text-muted">
           {t('rack.inspector.scope', 'Properties (rack scope)')}
         </div>
       </div>
@@ -474,7 +474,7 @@ const RackSidePropertiesPane = () => {
         {selectedEquipmentId && <EquipmentProperties />}
         {selectedCableId && <CableProperties />}
         {!selectedEquipmentId && !selectedCableId && (
-          <div className="rounded border border-cp-border-muted bg-cp-surface-1/40 p-3 text-[11px] text-cp-text-muted">
+          <div className="rounded border border-cp-border-muted bg-cp-surface-1/40 p-3 text-cp-xs text-cp-text-muted">
             {t('rack.inspector.empty', 'Click a rack device or a connection in the canvas — its properties appear here.')}
           </div>
         )}

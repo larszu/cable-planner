@@ -213,7 +213,7 @@ export const SchemaBuilderTab = () => {
               <span className="flex-1">{f.label[lang] ?? f.label.de}</span>
               <span className="text-cp-text-faint">{typeLabel(f.type)}</span>
               {f.unit ? <span className="text-cp-text-faint">· {f.unit}</span> : null}
-              <span className="rounded bg-cp-surface-2 px-1 text-[10px] text-cp-text-faint">built-in</span>
+              <span className="rounded bg-cp-surface-2 px-1 text-cp-xs text-cp-text-faint">built-in</span>
             </div>
           ))}
           {userFields.map((f) => (
@@ -221,7 +221,7 @@ export const SchemaBuilderTab = () => {
               <span className="flex-1 text-cp-text">{f.label[lang] ?? f.label.de}</span>
               <span className="text-cp-text-faint">{typeLabel(f.type)}</span>
               {f.unit ? <span className="text-cp-text-faint">· {f.unit}</span> : null}
-              <span className="font-mono text-[10px] text-cp-text-faint">{f.key}</span>
+              <span className="font-mono text-cp-xs text-cp-text-faint">{f.key}</span>
               <button type="button" onClick={() => removeField(f.key)} className="text-cp-danger hover:text-cp-danger/80" title={t('common.delete', 'Delete')}>
                 <Trash2 size={13} />
               </button>

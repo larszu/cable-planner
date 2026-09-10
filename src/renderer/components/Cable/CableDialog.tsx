@@ -333,7 +333,7 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
 
           {specId === CUSTOM_CABLE_SPEC_ID && (
             <div className="rounded border border-cp-border bg-cp-surface-3/60 p-2">
-              <div className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-cp-text-muted">
+              <div className="mb-2 text-cp-xs font-semibold uppercase tracking-wide text-cp-text-muted">
                 {t('cable.customDefinition', 'Custom Cable Definition')}
               </div>
               <div className="grid grid-cols-2 gap-2">

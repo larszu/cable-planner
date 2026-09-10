@@ -25,32 +25,32 @@ export const DeviceConfigsBlock = ({ equipmentId }: { equipmentId: string }) => 
       onToggle={(e) => setOpen(e.currentTarget.open)}
       className="rounded border border-cp-border bg-cp-surface-1/40 [&_summary]:cursor-pointer"
     >
-      <summary className="flex items-center gap-1 px-2 py-1.5 text-[10px] uppercase tracking-wide text-cp-text-muted hover:text-cp-text-bright [&::-webkit-details-marker]:hidden">
+      <summary className="flex items-center gap-1 px-2 py-1.5 text-cp-xs uppercase tracking-wide text-cp-text-muted hover:text-cp-text-bright [&::-webkit-details-marker]:hidden">
         <span className="text-cp-text-faint">{open ? '▾' : '▸'}</span>
         <span className="flex-1">{t('props.deviceConfigs.title', 'Configurations')}</span>
         {!open && assigned.length > 0 && (
-          <span className="rounded bg-cp-surface-4/60 px-1 text-[11px] normal-case text-cp-text-bright">
+          <span className="rounded bg-cp-surface-4/60 px-1 text-cp-xs normal-case text-cp-text-bright">
             {assigned.length}
           </span>
         )}
       </summary>
       <div className="px-2 pb-2">
       {assigned.length === 0 ? (
-        <div className="text-[11px] text-cp-text-muted">
+        <div className="text-cp-xs text-cp-text-muted">
           {t('props.deviceConfigs.none', 'No configuration assigned.')}
         </div>
       ) : (
         <ul className="mb-2 space-y-1">
           {assigned.map((e) => (
-            <li key={e.id} className="flex items-center gap-2 rounded bg-cp-surface-3 px-2 py-1 text-[11px]">
+            <li key={e.id} className="flex items-center gap-2 rounded bg-cp-surface-3 px-2 py-1 text-cp-xs">
               <span className="flex-1 truncate" title={`${e.fileName} (${e.kind})`}>
                 {e.name}
               </span>
-              <span className="shrink-0 text-[10px] text-cp-text-muted">{e.kind}</span>
+              <span className="shrink-0 text-cp-xs text-cp-text-muted">{e.kind}</span>
               <button
                 type="button"
                 onClick={() => updateDeviceConfig(e.id, { equipmentId: undefined })}
-                className="rounded bg-cp-surface-2 px-1.5 py-0.5 text-[10px] text-cp-text-secondary hover:bg-red-700 hover:text-white"
+                className="rounded bg-cp-surface-2 px-1.5 py-0.5 text-cp-xs text-cp-text-secondary hover:bg-red-700 hover:text-white"
                 title={t('props.deviceConfigs.unassignTitle', 'Detach assignment (file remains in library)')}
               >
                 {t('props.deviceConfigs.unassign', 'Detach')}
@@ -65,7 +65,7 @@ export const DeviceConfigsBlock = ({ equipmentId }: { equipmentId: string }) => 
           onChange={(e) => {
             if (e.target.value) updateDeviceConfig(e.target.value, { equipmentId })
           }}
-          className="w-full rounded border border-cp-border bg-cp-surface-3 p-1 text-[11px]"
+          className="w-full rounded border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
         >
           <option value="">
             {t('props.deviceConfigs.assignExisting', '+ Assign existing configuration…')}
@@ -77,7 +77,7 @@ export const DeviceConfigsBlock = ({ equipmentId }: { equipmentId: string }) => 
           ))}
         </select>
       )}
-      <div className="mt-1 text-[10px] text-cp-text-muted">
+      <div className="mt-1 text-cp-xs text-cp-text-muted">
         {t(
           'props.deviceConfigs.hint',
           'Upload new configurations in Settings → Configurations.',

@@ -1050,7 +1050,7 @@ const LocationsTab = ({ dimsEditor, formatDims, codeCell }: LocationsTabProps) =
         >
           {container ? <Package size={13} className="shrink-0 text-cp-accent" /> : <Warehouse size={13} className="shrink-0 text-cp-text-muted" />}
           <span className="font-medium">{node.name}</span>
-          <span className="rounded bg-cp-surface-4 px-1.5 py-0.5 text-[10px] text-cp-text-muted">{kindLabel(node.kind)}</span>
+          <span className="rounded bg-cp-surface-4 px-1.5 py-0.5 text-cp-xs text-cp-text-muted">{kindLabel(node.kind)}</span>
           {node.code && codeCell(node.code, node.codeType)}
           {directItems.length > 0 && (
             <span className="text-cp-text-muted">
@@ -1247,7 +1247,7 @@ const LocationsTab = ({ dimsEditor, formatDims, codeCell }: LocationsTabProps) =
         {directItems.length > 0 && (
           <div style={{ marginLeft: depth * 16 + 22 }} className="mt-0.5 mb-0.5 flex flex-wrap gap-1">
             {directItems.map((it) => (
-              <span key={it.id} className="flex items-center gap-1 rounded bg-cp-surface-3 px-1.5 py-0.5 text-[10px] text-cp-text-secondary">
+              <span key={it.id} className="flex items-center gap-1 rounded bg-cp-surface-3 px-1.5 py-0.5 text-cp-xs text-cp-text-secondary">
                 <ChevronRight size={9} />
                 {it.quantity}× {it.model}
               </span>
@@ -1479,7 +1479,7 @@ const SetsTab = () => {
                   <div className="flex items-center gap-2 font-medium">
                     <Layers size={14} className="text-cp-text-muted" />
                     {s.name}
-                    <span className={`rounded px-1.5 py-0.5 text-[10px] ${avail > 0 ? 'bg-emerald-700/30 text-emerald-400' : 'bg-red-700/30 text-red-400'}`}>
+                    <span className={`rounded px-1.5 py-0.5 text-cp-xs ${avail > 0 ? 'bg-emerald-700/30 text-emerald-400' : 'bg-red-700/30 text-red-400'}`}>
                       {format(t('inventory.setAvailable', '{n}× buildable'), { n: avail })}
                     </span>
                   </div>
@@ -1817,14 +1817,14 @@ const UnitsTab = ({ codeCell }: UnitsTabProps) => {
                 {u.serial && <span className="text-cp-text-secondary">SN {u.serial}</span>}
                 {u.houseRef && <span className="text-cp-text-secondary">#{u.houseRef}</span>}
                 {u.code && codeCell(u.code, u.codeType)}
-                <span className={`rounded px-1.5 py-0.5 text-[10px] ${CONDITION_TONE[u.condition]}`}>{conditionLabel(u.condition)}</span>
+                <span className={`rounded px-1.5 py-0.5 text-cp-xs ${CONDITION_TONE[u.condition]}`}>{conditionLabel(u.condition)}</span>
                 {/* BEDARF 52 — der Verdacht steht NEBEN dem Zustand, nicht
                     darin. „defekt" ist eine Entscheidung, die jemand getroffen
                     hat; „3 offene Fehler" ist eine Zählung, und genau die lebte
                     bisher nur im Gedächtnis der Crew. */}
                 {openFaultsOf(u).length > 0 && (
                   <span
-                    className="rounded bg-amber-900/50 px-1.5 py-0.5 text-[10px] text-amber-200"
+                    className="rounded bg-amber-900/50 px-1.5 py-0.5 text-cp-xs text-amber-200"
                     title={affectedServices(u)
                       .map((x) => FAULT_SERVICE_LABEL[x])
                       .join(', ')}
@@ -1839,7 +1839,7 @@ const UnitsTab = ({ codeCell }: UnitsTabProps) => {
                 <select
                   value={u.condition}
                   onChange={(e) => setUnitCondition(u.id, e.target.value as UnitCondition)}
-                  className="rounded border border-cp-border bg-cp-surface-3 p-0.5 text-[10px]"
+                  className="rounded border border-cp-border bg-cp-surface-3 p-0.5 text-cp-xs"
                   title={t('inventory.setCondition', 'Change condition')}
                 >
                   {(['ok', 'defect', 'inRepair', 'retired'] as UnitCondition[]).map((c) => (
@@ -1855,7 +1855,7 @@ const UnitsTab = ({ codeCell }: UnitsTabProps) => {
                     const id = e.target.value || undefined
                     moveUnit(u.id, id, id ? nodePathLabel(nodes, id) : '')
                   }}
-                  className="min-w-0 flex-1 rounded border border-cp-border bg-cp-surface-3 p-0.5 text-[10px]"
+                  className="min-w-0 flex-1 rounded border border-cp-border bg-cp-surface-3 p-0.5 text-cp-xs"
                   title={t('inventory.moveUnit', 'Change location')}
                 >
                   <option value="">{t('inventory.noLocation', '— no location —')}</option>
@@ -1891,7 +1891,7 @@ const UnitsTab = ({ codeCell }: UnitsTabProps) => {
                 </div>
               </div>
               {openHistory === u.id && (
-                <ul className="border-t border-cp-border-muted px-3 py-1.5 text-[10px] text-cp-text-secondary">
+                <ul className="border-t border-cp-border-muted px-3 py-1.5 text-cp-xs text-cp-text-secondary">
                   {u.history.map((e, i) => (
                     <li key={i} className="flex gap-2">
                       <span className="tabular-nums text-cp-text-faint">{e.at.slice(0, 10)}</span>
@@ -1925,7 +1925,7 @@ const UnitsTab = ({ codeCell }: UnitsTabProps) => {
                 </ul>
               )}
               {faultFor === u.id && (
-                <div className="flex flex-wrap items-center gap-1.5 border-t border-cp-border-muted px-3 py-1.5 text-[10px]">
+                <div className="flex flex-wrap items-center gap-1.5 border-t border-cp-border-muted px-3 py-1.5 text-cp-xs">
                   <input
                     value={faultText}
                     onChange={(e) => setFaultText(e.target.value)}
@@ -2864,7 +2864,7 @@ const ReportsTab = () => {
 
   const kpi = (label: string, value: string | number) => (
     <div className="rounded border border-cp-border-muted bg-cp-surface-2 px-3 py-2">
-      <div className="text-[10px] uppercase tracking-wide text-cp-text-muted">{label}</div>
+      <div className="text-cp-xs uppercase tracking-wide text-cp-text-muted">{label}</div>
       <div className="text-cp-sm font-semibold tabular-nums text-cp-text">{value}</div>
     </div>
   )

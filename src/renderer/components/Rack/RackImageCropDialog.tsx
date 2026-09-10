@@ -376,7 +376,7 @@ export const RackImageCropDialog = ({
                 title={t('rackCrop.scrollHint', 'Scroll wheel or + / - do the same')}
               />
               <span className="w-12 text-right tabular-nums">{zoom.toFixed(2)}x</span>
-              <label className="ml-2 flex items-center gap-1 text-[11px]">
+              <label className="ml-2 flex items-center gap-1 text-cp-xs">
                 <input
                   type="checkbox"
                   checked={aspectLock}
@@ -434,7 +434,7 @@ export const RackImageCropDialog = ({
                     onPointerDown={(e) => handlePointerDown('move', e)}
                   >
                     {/* Live HE badge inside the crop box */}
-                    <div className="pointer-events-none absolute right-1 top-1 rounded bg-cyan-600/90 px-1.5 py-0.5 text-[10px] font-semibold text-white shadow">
+                    <div className="pointer-events-none absolute right-1 top-1 rounded bg-cyan-600/90 px-1.5 py-0.5 text-cp-xs font-semibold text-white shadow">
                       {aspectLock ? `${rackUnits} HE` : `\u2248 ${liveHe.toFixed(1)} HE`}
                     </div>
                     {/* Resize handles */}
@@ -457,7 +457,7 @@ export const RackImageCropDialog = ({
 
           <div className="space-y-2 rounded border border-cp-border bg-cp-surface-3/40 p-2 text-cp-xs">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] uppercase tracking-wide text-cp-text-muted">
+              <span className="text-cp-xs uppercase tracking-wide text-cp-text-muted">
                 {t('rackCrop.presets', 'Crop presets')}
               </span>
               <button
@@ -466,7 +466,7 @@ export const RackImageCropDialog = ({
                   setCrop(defaultCrop(rackUnits, imgAspect))
                   setZoom(1)
                 }}
-                className="rounded bg-cp-surface-4 px-2 py-0.5 text-[10px] hover:bg-cp-surface-5"
+                className="rounded bg-cp-surface-4 px-2 py-0.5 text-cp-xs hover:bg-cp-surface-5"
                 title={t('rackCrop.resetTitle', 'Reset crop and zoom (R)')}
               >
                 {t('rackCrop.reset', '⟲ Reset')}
@@ -487,11 +487,11 @@ export const RackImageCropDialog = ({
             </div>
 
             <div className="mt-3 rounded border border-cp-border-muted bg-cp-surface-1/60 p-2">
-              <div className="mb-1 text-[10px] uppercase tracking-wide text-cp-text-muted">
+              <div className="mb-1 text-cp-xs uppercase tracking-wide text-cp-text-muted">
                 {t('rackCrop.manualValues', 'Manual values (0–1)')}
               </div>
               <div className="grid grid-cols-2 gap-1.5">
-                <label className="block text-[11px]">
+                <label className="block text-cp-xs">
                   X
                   <input
                     type="number"
@@ -506,7 +506,7 @@ export const RackImageCropDialog = ({
                     className="mt-0.5 w-full rounded border border-cp-border bg-cp-surface-1 p-1 tabular-nums"
                   />
                 </label>
-                <label className="block text-[11px]">
+                <label className="block text-cp-xs">
                   Y
                   <input
                     type="number"
@@ -521,7 +521,7 @@ export const RackImageCropDialog = ({
                     className="mt-0.5 w-full rounded border border-cp-border bg-cp-surface-1 p-1 tabular-nums"
                   />
                 </label>
-                <label className="block text-[11px]">
+                <label className="block text-cp-xs">
                   {t('rackCrop.width', 'Width')}
                   <input
                     type="number"
@@ -536,7 +536,7 @@ export const RackImageCropDialog = ({
                     className="mt-0.5 w-full rounded border border-cp-border bg-cp-surface-1 p-1 tabular-nums"
                   />
                 </label>
-                <label className="block text-[11px]">
+                <label className="block text-cp-xs">
                   {t('rackCrop.height', 'Height')}
                   <input
                     type="number"
@@ -554,7 +554,7 @@ export const RackImageCropDialog = ({
               </div>
             </div>
 
-            <div className="rounded border border-cp-border-muted bg-cp-surface-1/60 p-2 text-[11px] text-cp-text-muted">
+            <div className="rounded border border-cp-border-muted bg-cp-surface-1/60 p-2 text-cp-xs text-cp-text-muted">
               <div>
                 {t('rackCrop.targetAspect', 'Target aspect:')}{' '}
                 <span className="tabular-nums text-cp-text-bright">{targetAspect.toFixed(2)}:1</span>

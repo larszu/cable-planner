@@ -157,7 +157,7 @@ const BulkConnectDialogInner = () => {
       }
     >
       <div className="space-y-3 p-4 text-cp-base">
-        <p className="text-[11px] text-cp-text-muted">
+        <p className="text-cp-xs text-cp-text-muted">
           {t(
             'bulk.intro',
             'Creates N cables at once: source port i → target port i. Occupied target ports are skipped.',
@@ -167,7 +167,7 @@ const BulkConnectDialogInner = () => {
         <div className="grid grid-cols-2 gap-3">
           {/* Quelle */}
           <fieldset className="rounded border border-cp-border p-2">
-            <legend className="px-1 text-[11px] uppercase tracking-wide text-cp-text-muted">
+            <legend className="px-1 text-cp-xs uppercase tracking-wide text-cp-text-muted">
               {t('bulk.source', 'Source')}
             </legend>
             <label className="block">
@@ -216,7 +216,7 @@ const BulkConnectDialogInner = () => {
 
           {/* Ziel */}
           <fieldset className="rounded border border-cp-border p-2">
-            <legend className="px-1 text-[11px] uppercase tracking-wide text-cp-text-muted">
+            <legend className="px-1 text-cp-xs uppercase tracking-wide text-cp-text-muted">
               {t('bulk.target', 'Target')}
             </legend>
             <label className="block">
@@ -307,18 +307,18 @@ const BulkConnectDialogInner = () => {
 
         {/* Preview */}
         <div className="rounded border border-cp-border bg-cp-surface-3/40 p-2">
-          <div className="mb-1 text-[10px] uppercase tracking-wide text-cp-text-muted">
+          <div className="mb-1 text-cp-xs uppercase tracking-wide text-cp-text-muted">
             {format(t('bulk.preview', 'Preview ({n}/{plan} cables)'), {
               n: planned.length,
               plan: count,
             })}
           </div>
           {planned.length === 0 ? (
-            <p className="text-[11px] text-cp-text-muted">
+            <p className="text-cp-xs text-cp-text-muted">
               {t('bulk.previewEmpty', 'Pick source/target and port range.')}
             </p>
           ) : (
-            <ul className="max-h-32 space-y-0.5 overflow-auto text-[11px] text-cp-text-secondary">
+            <ul className="max-h-32 space-y-0.5 overflow-auto text-cp-xs text-cp-text-secondary">
               {planned.slice(0, 12).map((p, i) => (
                 <li key={i} className="font-mono">
                   {p.from} → {p.to}
@@ -330,7 +330,7 @@ const BulkConnectDialogInner = () => {
             </ul>
           )}
           {planWillSkip && (
-            <p className="mt-1 text-[10px] text-amber-400">
+            <p className="mt-1 text-cp-xs text-amber-400">
               {t('bulk.willSkip', '⚠ Count exceeds available ports — extras are skipped.')}
             </p>
           )}

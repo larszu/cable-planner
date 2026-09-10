@@ -116,7 +116,7 @@ export const PowerConsumptionSection = ({ equipment }: { equipment: EquipmentIte
         </label>
       </div>
       <PanelHint
-        className="mt-2 text-[10px] text-cp-text-muted"
+        className="mt-2 text-cp-xs text-cp-text-muted"
         text={t(
           'power.formulaHint',
           'When voltage and current are set, power is computed automatically (P = U × I). Tools → power consumption sums the power field across all devices.',

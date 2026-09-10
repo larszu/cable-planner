@@ -153,7 +153,7 @@ export const ConnectorPicker = ({
             <ConnectorSymbol symbol="generic" size={size === 'sm' ? 22 : 28} />
           )}
         </span>
-        <span className={`flex-1 truncate ${size === 'sm' ? 'text-[11px]' : 'text-cp-base'}`}>
+        <span className={`flex-1 truncate ${size === 'sm' ? 'text-cp-xs' : 'text-cp-base'}`}>
           {connectorLabel(value)}
         </span>
         <ChevronDown size={14} className="shrink-0 text-cp-text-faint" />
@@ -188,7 +188,7 @@ export const ConnectorPicker = ({
               {filteredGroups.map((g) => (
                 <div key={g.category.id} className="mb-2 last:mb-0">
                   <div
-                    className="mb-1 flex items-center gap-1.5 px-1 text-[10px] font-semibold tracking-wide uppercase"
+                    className="mb-1 flex items-center gap-1.5 px-1 text-cp-xs font-semibold tracking-wide uppercase"
                     style={{ color: g.category.color }}
                   >
                     <span
@@ -213,7 +213,7 @@ export const ConnectorPicker = ({
                           }`}
                         >
                           <span style={{ color: connectorColor(e) }}>{tileSymbolFor(e)}</span>
-                          <span className="w-full truncate text-[11px] leading-tight text-cp-text-secondary">
+                          <span className="w-full truncate text-cp-xs leading-tight text-cp-text-secondary">
                             {e.label}
                           </span>
                         </button>

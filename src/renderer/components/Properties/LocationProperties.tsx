@@ -25,7 +25,7 @@ export const LocationProperties = () => {
   return (
     <div className="space-y-3 text-cp-xs">
       <div>
-        <div className="mb-1 text-[11px] uppercase tracking-wide text-cp-text-muted">
+        <div className="mb-1 text-cp-xs uppercase tracking-wide text-cp-text-muted">
           {t('location.title', 'Location')}
         </div>
         <label className="block">
@@ -167,7 +167,7 @@ export const LocationProperties = () => {
       </div>
 
       <PanelHint
-        className="text-[10px] italic text-cp-text-muted"
+        className="text-cp-xs italic text-cp-text-muted"
         text={t(
           'location.tip',
           'Tip: the frame moves independently by default. Enable "Take devices along" to move all contained devices with the frame.',

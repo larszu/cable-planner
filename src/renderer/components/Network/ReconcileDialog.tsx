@@ -293,7 +293,7 @@ export const ReconcileDialog = () => {
                       <span className="font-mono text-amber-300/90">{r.foundIp}</span>
                     )}
                     {r.matchedBy && (
-                      <span className="ml-auto text-[10px] text-cp-text-faint">
+                      <span className="ml-auto text-cp-xs text-cp-text-faint">
                         {format(t('reconcile.matchedBy', 'via {basis}'), { basis: r.matchedBy.toUpperCase() })}
                       </span>
                     )}

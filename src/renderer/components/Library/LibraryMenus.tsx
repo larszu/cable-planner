@@ -192,7 +192,7 @@ export const LibraryFiltersMenu = ({
               : t('library.menus.collapseAll', 'Collapse all categories')}
           </button>
           <div className="my-1 border-t border-cp-border-muted" />
-          <div className="px-3 py-1 text-[10px] uppercase tracking-wider text-cp-text-muted">
+          <div className="px-3 py-1 text-cp-xs uppercase tracking-wider text-cp-text-muted">
             {t('library.menus.sorting', 'Sorting')}
           </div>
           {(

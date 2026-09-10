@@ -291,7 +291,7 @@ const CableNumberingSection = () => {
           </button>
         </div>
         {doneCount !== null && (
-          <p className="text-[11px] text-emerald-400">
+          <p className="text-cp-xs text-emerald-400">
             {format(t('settings.project.numbering.done', '{n} cables renumbered.'), { n: doneCount })}
           </p>
         )}
@@ -379,7 +379,7 @@ const LengthEstimationSection = () => {
           </button>
         </div>
         {doneCount !== null && (
-          <p className="text-[11px] text-emerald-400">
+          <p className="text-cp-xs text-emerald-400">
             {format(t('settings.project.lengthEst.done', '{n} cable lengths updated.'), { n: doneCount })}
           </p>
         )}
@@ -587,7 +587,7 @@ export const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
                   {current ? (
                     <img src={current} alt={label} className="max-h-16 max-w-full object-contain" />
                   ) : (
-                    <span className="text-[10px] text-cp-text-muted">{label}</span>
+                    <span className="text-cp-xs text-cp-text-muted">{label}</span>
                   )}
                 </div>
                 <div className="flex w-full gap-1">

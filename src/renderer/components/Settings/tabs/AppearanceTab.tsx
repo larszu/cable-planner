@@ -81,7 +81,7 @@ const CustomPaletteCard = () => {
                 }
                 className="h-10 w-full cursor-pointer rounded border border-cp-border bg-cp-surface-1 p-1"
               />
-              <code className="mt-1 block text-[10px] text-cp-text-muted">
+              <code className="mt-1 block text-cp-xs text-cp-text-muted">
                 {current[field.key]}
               </code>
             </label>
@@ -190,7 +190,7 @@ export const AppearanceTab = () => {
           ))}
         </div>
         <PanelHint
-          className="mt-2 text-[10px] text-cp-text-muted"
+          className="mt-2 text-cp-xs text-cp-text-muted"
           text={t(
             'settings.appearance.coverage',
             'Translation coverage: comprehensive (1650+ keys). All menus, toolbars, properties panels (incl. PortList, all 17 sub-sections), library, all dialogs (Cable, ATEM ×3, Videohub, GreenGo, Rentman ×5, Rack builder + sub-dialogs, Print, Export, Mobile share, GraphML import, Onboarding tour, About) and shared widgets are language-aware. Strings not yet translated fall through to the German source.',
@@ -258,7 +258,7 @@ export const AppearanceTab = () => {
             type="button"
             onClick={() => setPortLabelFontSize(11)}
             disabled={portLabelFontSize === 11}
-            className="rounded bg-cp-surface-2 px-2 py-0.5 text-[11px] text-cp-text-secondary hover:bg-cp-surface-4 disabled:opacity-50"
+            className="rounded bg-cp-surface-2 px-2 py-0.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-4 disabled:opacity-50"
             title={t('settings.fontSize.reset', 'Reset to default 11 px')}
           >
             ↺
@@ -438,7 +438,7 @@ export const AppearanceTab = () => {
           <div className="mb-2 text-cp-xs font-semibold uppercase tracking-wide text-cp-text-muted">
             {t('settings.canvasBg.imageTitle', 'Custom background image')}
           </div>
-          <div className="mb-2 text-[11px] text-cp-text-muted">
+          <div className="mb-2 text-cp-xs text-cp-text-muted">
             {t(
               'settings.canvasBg.imageDesc',
               'Load your own image as the canvas background — separately for dark and light mode. The grid pattern (dots/lines/crosses) is drawn on top.',
@@ -450,7 +450,7 @@ export const AppearanceTab = () => {
               ['light', t('settings.canvasBg.lightImage', 'Light-mode image'), canvasBgImageLight] as const,
             ]).map(([theme, label, current]) => (
               <div key={theme} className="rounded border border-cp-border-muted bg-cp-surface-3/40 p-2">
-                <div className="mb-1 text-[11px] font-semibold text-cp-text-secondary">{label}</div>
+                <div className="mb-1 text-cp-xs font-semibold text-cp-text-secondary">{label}</div>
                 {current ? (
                   <>
                     <img
@@ -465,14 +465,14 @@ export const AppearanceTab = () => {
                           const dataUri = await pickImageAsDataUri()
                           if (dataUri) setCanvasBgImage(theme, dataUri)
                         }}
-                        className="flex-1 rounded bg-cp-surface-4 px-2 py-1 text-[11px] hover:bg-cp-surface-5"
+                        className="flex-1 rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
                       >
                         {t('settings.canvasBg.replace', 'Replace…')}
                       </button>
                       <button
                         type="button"
                         onClick={() => setCanvasBgImage(theme, null)}
-                        className="rounded bg-red-900/60 px-2 py-1 text-[11px] text-red-200 hover:bg-red-800"
+                        className="rounded bg-red-900/60 px-2 py-1 text-cp-xs text-red-200 hover:bg-red-800"
                         title={t('settings.canvasBg.remove', 'Remove image')}
                         aria-label={t('settings.canvasBg.remove', 'Remove image')}
                       >
@@ -487,7 +487,7 @@ export const AppearanceTab = () => {
                       const dataUri = await pickImageAsDataUri()
                       if (dataUri) setCanvasBgImage(theme, dataUri)
                     }}
-                    className="w-full rounded border border-dashed border-cp-border bg-cp-surface-1 px-2 py-4 text-[11px] text-cp-text-muted hover:border-cp-surface-5 hover:text-cp-text-bright"
+                    className="w-full rounded border border-dashed border-cp-border bg-cp-surface-1 px-2 py-4 text-cp-xs text-cp-text-muted hover:border-cp-surface-5 hover:text-cp-text-bright"
                   >
                     {t('settings.canvasBg.upload', '+ Upload image…')}
                   </button>
@@ -537,13 +537,13 @@ export const AppearanceTab = () => {
                 />
                 <span className="flex-1 truncate text-cp-xs">
                   {name}
-                  {isCustom && <span className="ml-1 text-[11px] text-cp-text-muted">(custom)</span>}
+                  {isCustom && <span className="ml-1 text-cp-xs text-cp-text-muted">(custom)</span>}
                 </span>
                 {override && (
                   <button
                     type="button"
                     onClick={() => setConnectorTypeColor(name, null)}
-                    className="rounded bg-cp-surface-4 px-1 py-0.5 text-[10px] text-cp-text-secondary hover:bg-cp-surface-5"
+                    className="rounded bg-cp-surface-4 px-1 py-0.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-5"
                     title={t('settings.colors.resetDefault', 'Reset to default')}
                   >
                     ↺
@@ -572,7 +572,7 @@ export const AppearanceTab = () => {
         )}
       >
         {allKnownCategories.length === 0 ? (
-          <div className="text-[11px] text-cp-text-muted">
+          <div className="text-cp-xs text-cp-text-muted">
             {t('settings.categoryColors.empty', 'No categories known yet. Populated as soon as devices in the plan or library have categories.')}
           </div>
         ) : (
@@ -593,7 +593,7 @@ export const AppearanceTab = () => {
                     <button
                       type="button"
                       onClick={() => setCategoryColor(cat, null)}
-                      className="rounded bg-cp-surface-4 px-1 py-0.5 text-[10px] text-cp-text-secondary hover:bg-cp-surface-5"
+                      className="rounded bg-cp-surface-4 px-1 py-0.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-5"
                       title={t('settings.colors.resetDefault', 'Reset to default')}
                     >
                       ↺

@@ -300,7 +300,7 @@ export const CollabPanel = () => {
             </button>
           </div>
 
-          <p className="text-[11px] text-[var(--cp-text-muted)]">
+          <p className="text-cp-xs text-[var(--cp-text-muted)]">
             {t(
               'collab.discover.adoptHint',
               'Joining adopts the host’s plan (replaces your current plan).',
@@ -356,7 +356,7 @@ export const CollabPanel = () => {
                 <span
                   key={p.id}
                   title={p.self ? `${p.name} (${t('collab.peers.you', 'you')})` : p.name}
-                  className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-[var(--cp-surface-3)] text-[11px] font-bold text-white"
+                  className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-[var(--cp-surface-3)] text-cp-xs font-bold text-white"
                   style={{ backgroundColor: p.color }}
                 >
                   {initials(p.name)}
@@ -365,7 +365,7 @@ export const CollabPanel = () => {
             </div>
           </div>
           {peers.length === 1 && (
-            <p className="text-[11px] text-[var(--cp-text-muted)]">
+            <p className="text-cp-xs text-[var(--cp-text-muted)]">
               {t(
                 'collab.peers.aloneHint',
                 'Others join by using the same room name:',

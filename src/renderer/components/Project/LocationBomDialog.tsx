@@ -340,7 +340,7 @@ export const LocationBomDialog = () => {
       draggableKey="cable-planner:modal-pos:location-bom"
     >
         <div className="text-cp-xs">
-          <div className="mb-3 flex flex-wrap items-center gap-2 text-[11px] text-cp-text-muted">
+          <div className="mb-3 flex flex-wrap items-center gap-2 text-cp-xs text-cp-text-muted">
             <span>
               {t('locbom.devices', 'Devices')}: <b className="text-cp-text-bright">{devices.length}</b>
             </span>
@@ -365,7 +365,7 @@ export const LocationBomDialog = () => {
               </span>
             )}
             <label
-              className="ml-auto flex items-center gap-1.5 text-[11px] text-cp-text-secondary"
+              className="ml-auto flex items-center gap-1.5 text-cp-xs text-cp-text-secondary"
               title={t('locbom.groupTitle', 'Groups identical cables (same type + length) on one row with a quantity — default for the parts list.')}
             >
               <input
@@ -376,7 +376,7 @@ export const LocationBomDialog = () => {
               {t('locbom.groupCables', 'Group cables')}
             </label>
             <label
-              className="flex items-center gap-1.5 text-[11px] text-cp-text-secondary"
+              className="flex items-center gap-1.5 text-cp-xs text-cp-text-secondary"
               title={t('locbom.includePlanTitle', 'Prepends a JPEG plan snippet of the location before the device list — recipients get the parts list and the plan in one document.')}
             >
               <input

@@ -168,7 +168,7 @@ export const AnnotationsPanel = ({
               key={s}
               type="button"
               onClick={() => setStatusFilter(s)}
-              className={`rounded px-2 py-0.5 text-[10px] ${
+              className={`rounded px-2 py-0.5 text-cp-xs ${
                 statusFilter === s
                   ? 'bg-sky-700 text-white'
                   : 'bg-cp-surface-2 text-cp-text-muted hover:bg-cp-surface-4'
@@ -243,7 +243,7 @@ export const AnnotationsPanel = ({
 
       <div className="flex-1 overflow-y-auto p-3">
         {grouped.length === 0 ? (
-          <p className="text-[11px] text-cp-text-muted">
+          <p className="text-cp-xs text-cp-text-muted">
             {t(
               'annotations.empty',
               'No annotations yet. Click “+ New annotation” or right-click a device / cable.',
@@ -252,7 +252,7 @@ export const AnnotationsPanel = ({
         ) : (
           grouped.map(([authorName, items]) => (
             <div key={authorName} className="mb-3">
-              <h4 className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-cp-text-muted">
+              <h4 className="mb-1 text-cp-xs font-semibold uppercase tracking-wide text-cp-text-muted">
                 {authorName} ({items.length})
               </h4>
               <ul className="space-y-1">
@@ -303,7 +303,7 @@ export const AnnotationsPanel = ({
                     >
                       <div className="mb-1 flex items-center justify-between gap-2">
                         <span
-                          className="rounded px-1 py-0.5 text-[11px] font-semibold"
+                          className="rounded px-1 py-0.5 text-cp-xs font-semibold"
                           style={{
                             background: STATUS_COLOR[a.status],
                             // #451 — Textfarbe luminanzbasiert: dunkler Text auf
@@ -315,7 +315,7 @@ export const AnnotationsPanel = ({
                         >
                           {t(`annotations.status.${a.status}`, STATUS_LABEL[a.status])}
                         </span>
-                        <span className="truncate text-[10px] text-cp-text-muted" title={a.createdAt}>
+                        <span className="truncate text-cp-xs text-cp-text-muted" title={a.createdAt}>
                           {new Date(a.createdAt).toLocaleString()}
                         </span>
                       </div>
@@ -337,7 +337,7 @@ export const AnnotationsPanel = ({
                           {a.text}
                         </p>
                       )}
-                      <div className="mt-1 text-[10px] text-cp-text-muted">
+                      <div className="mt-1 text-cp-xs text-cp-text-muted">
                         {ANCHOR_LABEL(a, deviceNames, cableNames)}
                       </div>
                       <div className="mt-1 flex gap-1">
@@ -348,7 +348,7 @@ export const AnnotationsPanel = ({
                               status: e.target.value as ProjectAnnotation['status'],
                             })
                           }
-                          className="rounded border border-cp-border bg-cp-surface-1 px-1 py-0.5 text-[10px]"
+                          className="rounded border border-cp-border bg-cp-surface-1 px-1 py-0.5 text-cp-xs"
                         >
                           <option value="open">{t('annotations.status.open', 'open')}</option>
                           <option value="built">{t('annotations.status.built', 'built')}</option>
@@ -369,7 +369,7 @@ export const AnnotationsPanel = ({
                                 setAnnotationsVisible(true)
                               }
                             }}
-                            className="inline-flex items-center gap-1 rounded bg-cp-surface-2 px-1.5 py-0.5 text-[10px] text-cp-text-bright hover:bg-cp-surface-4"
+                            className="inline-flex items-center gap-1 rounded bg-cp-surface-2 px-1.5 py-0.5 text-cp-xs text-cp-text-bright hover:bg-cp-surface-4"
                             aria-label={t('annotations.placeCenter', 'Place at canvas centre (keyboard alternative to dragging)')}
                           >
                             <Icon icon={MapPin} size="xs" />
@@ -384,7 +384,7 @@ export const AnnotationsPanel = ({
                                 destructive: true,
                               })) removeAnnotation(a.id)
                             }}
-                            className="rounded bg-red-900/60 px-1 py-0.5 text-[10px] text-red-200 hover:bg-red-800"
+                            className="rounded bg-red-900/60 px-1 py-0.5 text-cp-xs text-red-200 hover:bg-red-800"
                             aria-label={t('annotations.delete', 'Delete annotation')}
                           >
                             ×
@@ -408,7 +408,7 @@ export const AnnotationsPanel = ({
         <Icon icon={MessageSquare} size="sm" /> {t('annotations.title', 'Annotations')} ({annotations.length})
       </span>
       {viewerSession && (
-        <span className="text-[10px] text-cp-text-muted">
+        <span className="text-cp-xs text-cp-text-muted">
           {format(t('annotations.reviewer', 'Reviewer: {name}'), { name: viewerSession.author })}
         </span>
       )}
@@ -450,7 +450,7 @@ export const AnnotationsPanel = ({
             <Icon icon={MessageSquare} size="sm" /> {t('annotations.title', 'Annotations')} ({annotations.length})
           </h3>
           {viewerSession && (
-            <span className="text-[10px] text-cp-text-muted">
+            <span className="text-cp-xs text-cp-text-muted">
               {format(t('annotations.reviewer', 'Reviewer: {name}'), { name: viewerSession.author })}
             </span>
           )}

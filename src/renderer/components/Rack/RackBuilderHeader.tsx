@@ -40,7 +40,7 @@ export const RackBuilderHeader = ({
             {editingId ? rackName || t('rack.unnamedRack', '(unnamed rack)') : t('rack.newRack', 'New rack')}
           </h3>
           <span
-            className={`shrink-0 rounded px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide ${
+            className={`shrink-0 rounded px-1.5 py-0.5 text-cp-xs font-semibold uppercase tracking-wide ${
               editingId
                 ? 'bg-sky-900/60 text-sky-200'
                 : 'bg-emerald-900/60 text-emerald-200'
@@ -50,7 +50,7 @@ export const RackBuilderHeader = ({
           </span>
           {dirty && (
             <span
-              className="flex shrink-0 items-center gap-1 rounded bg-amber-900/40 px-1.5 py-0.5 text-[11px] font-semibold text-amber-200"
+              className="flex shrink-0 items-center gap-1 rounded bg-amber-900/40 px-1.5 py-0.5 text-cp-xs font-semibold text-amber-200"
               title={t('rack.unsavedTitle', 'Unsaved changes')}
             >
               <span className="inline-block h-1.5 w-1.5 rounded-full bg-amber-400" />
@@ -58,13 +58,13 @@ export const RackBuilderHeader = ({
             </span>
           )}
         </div>
-        <p className="mt-0.5 text-[11px] text-cp-text-muted">
+        <p className="mt-0.5 text-cp-xs text-cp-text-muted">
           {t(
             'rack.subtitle',
             '2D rack builder · Add devices from the library, drag for U position, internal cabling',
           )}
           <span className="ml-2 hidden sm:inline">
-            <kbd className="rounded border border-cp-border bg-cp-surface-2 px-1 text-[10px]">Esc</kbd>{' '}
+            <kbd className="rounded border border-cp-border bg-cp-surface-2 px-1 text-cp-xs">Esc</kbd>{' '}
             {t('rack.closeShortcut', 'close')}
           </span>
         </p>

@@ -179,7 +179,7 @@ export const AdvancedTab = () => {
                     <td className="px-2 py-1 text-cp-text">
                       {display}
                       {showCanonical && (
-                        <span className="ml-1 text-[10px] text-cp-text-muted">({cat})</span>
+                        <span className="ml-1 text-cp-xs text-cp-text-muted">({cat})</span>
                       )}
                     </td>
                     <td className="px-2 py-1 text-right text-cp-text-muted">{usageCount(cat)}</td>
@@ -187,7 +187,7 @@ export const AdvancedTab = () => {
                       <button
                         type="button"
                         onClick={() => handleRename(cat)}
-                        className="rounded bg-cp-surface-4 px-2 py-0.5 text-[10px] hover:bg-cp-surface-5"
+                        className="rounded bg-cp-surface-4 px-2 py-0.5 text-cp-xs hover:bg-cp-surface-5"
                       >
                         {t('common.rename', 'Rename')}
                       </button>

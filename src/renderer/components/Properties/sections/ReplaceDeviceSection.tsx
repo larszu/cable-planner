@@ -174,7 +174,7 @@ export const ReplaceDeviceSection = ({ equipment }: { equipment: EquipmentItem }
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="rounded bg-cp-surface-4 px-2 py-1 text-[11px] hover:bg-cp-surface-5"
+              className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
             >
               ✕
             </button>
@@ -193,7 +193,7 @@ export const ReplaceDeviceSection = ({ equipment }: { equipment: EquipmentItem }
           </select>
           <div className="max-h-56 overflow-auto rounded border border-cp-border-muted">
             {filtered.length === 0 ? (
-              <div className="px-2 py-3 text-center text-[11px] text-cp-text-muted">
+              <div className="px-2 py-3 text-center text-cp-xs text-cp-text-muted">
                 {t('replaceDevice.noMatches', 'No matches.')}
               </div>
             ) : (
@@ -213,19 +213,19 @@ export const ReplaceDeviceSection = ({ equipment }: { equipment: EquipmentItem }
                           <span className="block text-cp-xs font-medium text-cp-text">
                             {tpl.name}
                           </span>
-                          <span className="block text-[10px] text-cp-text-muted">
+                          <span className="block text-cp-xs text-cp-text-muted">
                             {categoryDisplay(tpl.category ?? '', lang, categoryTranslations)} · {tpl.inputs.length} in / {tpl.outputs.length} out
                           </span>
                         </span>
                         {lost > 0 ? (
                           <span
-                            className="rounded bg-amber-900/60 px-1.5 py-0.5 text-[11px] font-bold text-amber-200"
+                            className="rounded bg-amber-900/60 px-1.5 py-0.5 text-cp-xs font-bold text-amber-200"
                             title={format(t('replaceDevice.lostBadgeTitle', '{n} connection(s) would be lost'), { n: lost })}
                           >
                             -{lost}
                           </span>
                         ) : (
-                          <span className="rounded bg-emerald-900/60 px-1.5 py-0.5 text-[11px] font-bold text-emerald-200">
+                          <span className="rounded bg-emerald-900/60 px-1.5 py-0.5 text-cp-xs font-bold text-emerald-200">
                             ✓
                           </span>
                         )}

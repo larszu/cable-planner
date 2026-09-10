@@ -5,10 +5,11 @@ import { join, relative, sep } from 'node:path'
 // ---------------------------------------------------------------------------
 // Fliesstext faellt nicht unter 12px (UI-Pruefung, Phase 2).
 //
-// Der Befund steht in `docs/ui-audit.md` und ist als TODO formuliert:
+// Der Befund stand in `docs/ui-audit.md` und war als TODO formuliert:
 //
 //   > `text-[10px]`/`text-[11px]`/`text-[9px]` flaechendeckend auf Typo-Skala
-//   > migrieren … Fliesstext-Mindestgroesse 12px.
+//   > migrieren … Fliesstext-Mindestgroesse 12px. (Rein dekorative
+//   > Micro-Glyphen wie MenuBar-Caret `▾` bleiben.)
 //
 // ─── WARUM DIESER WAECHTER UEBERHAUPT EXISTIERT ────────────────────────────
 //
@@ -16,7 +17,7 @@ import { join, relative, sep } from 'node:path'
 // dieselbe Baumsuche, die hier laeuft:
 //
 //   * 743 Stellen beim ersten Commit des Audits (955da7e, 2026-06-15)
-//   * 881 Stellen bei HEAD dieses Zweiges (2026-09-10)
+//   * 881 Stellen drei Monate spaeter (2026-09-10)
 //
 // Also 138 Stellen MEHR, nachdem jemand aufgeschrieben hatte, dass es weniger
 // werden sollen. Ein TODO in einer Datei bremst nichts; niemand liest es beim
@@ -24,48 +25,44 @@ import { join, relative, sep } from 'node:path'
 // Aenderungen, sondern die vorhersehbare Folge davon, dass die Grenze nur in
 // Prosa stand.
 //
-// Dieser Test macht daraus eine Ratsche: die Zahl darf sinken, nie steigen.
-// Er ersetzt das TODO nicht, er traegt es — der Rest der Migration bleibt
-// Arbeit, aber sie kann nicht mehr lautlos zunichte gemacht werden.
+// Der Weg zurueck lief in vier Schritten — 881 → 828 (`src/mobile`) → 705
+// (die drei groessten Einzeldateien) → 515 (die naechsten neun) → 0.
+//
+// ─── VON DER RATSCHE ZUR REGEL ─────────────────────────────────────────────
+//
+// Solange noch hunderte Stellen offen waren, stand hier eine Zahl: die
+// Barriere durfte sinken, nie steigen. Das war die richtige Form fuer eine
+// laufende Migration und die falsche fuer eine fertige — eine Zahl sagt
+// nicht, WARUM eine Stelle bleiben darf, und wer eine neue anlegt, koennte
+// sie mit einer Migration anderswo verrechnen.
+//
+// Geprueft wird deshalb jetzt eine REGEL: jede verbliebene Stelle unter 12px
+// muss ein rein dekorativer Micro-Glyph sein. Das ist die Ausnahme, die das
+// Audit selbst nennt (MenuBar-Caret `▾`), und sie ist nachpruefbar statt
+// ermessensabhaengig — der sichtbare Text der Zeile darf keinen Buchstaben
+// und keine Ziffer enthalten. Ein Pfeil hat keine Lesbarkeitsuntergrenze,
+// ein Wort hat eine.
+//
+// Wer morgen einen neuen Caret braucht, bleibt gruen. Wer eine Beschriftung
+// auf 10px setzt, wird rot — und zwar sofort und ohne Verrechnung.
 //
 // ─── WAS GEMESSEN WIRD, UND WAS NICHT ──────────────────────────────────────
 //
-// Gemessen wird `text-[<n>px]` mit n < 12, ueber den GANZEN `src`-Baum. Nicht
+// Gemessen wird `text-[<n>px]` mit n < 12 ueber den GANZEN `src`-Baum. Nicht
 // ueber eine Liste von Dateien: dieselbe Lehre wie bei den Dialogen
-// (`dialogTastaturbedienung.test.ts`) — DIE DOMAENE IST DER ORDNER, NICHT EINE
-// LISTE IM WAECHTER. Wer morgen eine Komponente anlegt, faellt hier auf, ohne
-// dass jemand eine Liste pflegt.
+// (`dialogTastaturbedienung.test.ts`) — DIE DOMAENE IST DER ORDNER, NICHT
+// EINE LISTE IM WAECHTER.
 //
 // NICHT gemessen werden relative Groessen (`text-[0.85em]`, zwei Stellen).
 // Ob ein `em` unter 12px landet, haengt am Elternknoten und ist per Textsuche
-// nicht entscheidbar. Das hier ehrlich zu benennen ist besser, als eine
-// Zahl zu melden, die zwei Faelle stillschweigend auslaesst.
-//
-// Das Audit nimmt rein dekorative Micro-Glyphen (MenuBar-Caret `▾`) aus der
-// Migration aus — zu Recht, ein Pfeil hat keine Lesbarkeitsuntergrenze. Die
-// Ratsche zaehlt sie trotzdem mit, denn „ist das dekorativ?" laesst sich nicht
-// suchen, und ein Waechter mit einer Ermessensklausel prueft am Ende nichts.
-// Wer einen neuen Glyph braucht, migriert im selben Schritt eine Textstelle:
-// die Zahl bleibt dann gleich, und die Untergrenze bleibt gedeckt.
+// nicht entscheidbar. Das hier ehrlich zu benennen ist besser, als eine Zahl
+// zu melden, die zwei Faelle stillschweigend auslaesst.
 // ---------------------------------------------------------------------------
 
 const WURZEL = join(process.cwd(), 'src')
 
 /** Fliesstext-Untergrenze aus dem Audit. Was darunter liegt, zaehlt. */
 const UNTERGRENZE_PX = 12
-
-/**
- * Stand 2026-09-10, gemessen mit genau der Suche unten. Sinken darf die Zahl —
- * dann ist die rote Zeile die Erinnerung, sie hier nachzuziehen.
- *
- * Bisherige Staende: 828 (nach `src/mobile`), 705 (nach GreenGoExportDialog,
- * CalculatorsDialog, CableProperties), 515 (nach den naechsten neun:
- * RackBuilderDialog, RentmanTab, RackPlacementProperties, CableLibraryPanel,
- * PortList, MobileShareDialog, App.tsx, ExportDialog, AnalysisDialog). Die
- * Reihenfolge ist die nach Groesse: die dichten Tabellen und Rechner-Raster
- * zuerst, weil dort die kleinste Schrift und die meiste Zahl zusammenkommen.
- */
-const BARRIERE = 515
 
 const dateien = (dir: string): string[] =>
   readdirSync(dir).flatMap((eintrag) => {
@@ -76,63 +73,92 @@ const dateien = (dir: string): string[] =>
 
 const GROESSE = /text-\[(\d+(?:\.\d+)?)px\]/g
 
-/** Alle Fundstellen unter der Untergrenze, nach Datei. */
-const zuKlein = (): Map<string, number> => {
-  const treffer = new Map<string, number>()
-  for (const pfad of dateien(WURZEL)) {
-    const src = readFileSync(pfad, 'utf8')
-    let n = 0
-    for (const m of src.matchAll(GROESSE)) {
-      if (Number(m[1]) < UNTERGRENZE_PX) n += 1
-    }
-    if (n > 0) treffer.set(relative(WURZEL, pfad), n)
-  }
-  return treffer
+interface Fund {
+  datei: string
+  zeile: number
+  text: string
 }
 
-const summe = (m: Map<string, number>): number =>
-  [...m.values()].reduce((s, n) => s + n, 0)
+/**
+ * Eine reine Kommentarzeile ist keine Klasse.
+ *
+ * `index.css` erklaert in ihrem Kopf, wozu die Typo-Skala da ist, und nennt
+ * dabei `text-[10px]`/`text-[11px]` beim Namen — die erste Fassung dieses
+ * Waechters meldete genau diesen Satz als Verstoss. Wer eine Regel
+ * aufschreibt, soll sie nicht dadurch brechen, dass er sie aufschreibt.
+ */
+const nurKommentar = (z: string): boolean => /^\s*(\/\/|\/\*|\*)/.test(z)
+
+/** Jede Stelle unter der Untergrenze, mit ihrer Zeile. */
+const zuKlein = (): Fund[] => {
+  const funde: Fund[] = []
+  for (const pfad of dateien(WURZEL)) {
+    const zeilen = readFileSync(pfad, 'utf8').split('\n')
+    zeilen.forEach((z, i) => {
+      if (nurKommentar(z)) return
+      for (const m of z.matchAll(GROESSE)) {
+        if (Number(m[1]) < UNTERGRENZE_PX) {
+          funde.push({ datei: relative(WURZEL, pfad).split(sep).join('/'), zeile: i + 1, text: z })
+        }
+      }
+    })
+  }
+  return funde
+}
+
+/**
+ * Der sichtbare Text einer JSX-Zeile: erst die Laeufe zwischen `>` und `<`,
+ * und wenn die leer sind (weil dort ein Ausdruck steht), die Zeichenketten
+ * aus den geschweiften Klammern.
+ *
+ * Attribute bleiben aussen vor — `className="…"` und `title={t('…','Pinned')}`
+ * sind nichts, was jemand LIEST; sie wuerden jede Zeile mit Buchstaben
+ * fuellen und die Regel unbrauchbar machen.
+ */
+const sichtbarerText = (zeile: string): string[] => {
+  const laeufe = [...zeile.matchAll(/>([^<>{}]*)</g)].map((m) => m[1].trim()).filter(Boolean)
+  if (laeufe.length > 0) return laeufe
+  const inKlammern = [...zeile.matchAll(/\{[^}]*\}/g)].map((m) => m[0]).join(' ')
+  return [...inKlammern.matchAll(/'([^']*)'|"([^"]*)"/g)]
+    .map((m) => (m[1] ?? m[2] ?? '').trim())
+    .filter(Boolean)
+}
+
+/** Ein Glyph traegt keine Buchstaben und keine Ziffern. */
+const nurGlyph = (s: string): boolean => !/[\p{L}\p{N}]/u.test(s)
 
 describe('Fliesstext-Untergrenze 12px', () => {
   it('sieht ueberhaupt Dateien — sonst prueft der Test nichts', () => {
-    // Ohne diese Zusicherung waere die Ratsche auch dann gruen, wenn die
-    // Baumsuche nichts mehr findet: 0 <= 828 ist wahr. Ein Waechter, der bei
-    // kaputtem Muster gruen wird, ist schlechter als keiner — er behauptet
-    // eine Deckung, die es nicht gibt.
+    // Ohne diese Zusicherung waere die Regel auch dann erfuellt, wenn die
+    // Baumsuche nichts mehr findet: eine leere Menge erfuellt jede Regel.
+    // Ein Waechter, der bei kaputtem Muster gruen wird, ist schlechter als
+    // keiner — er behauptet eine Deckung, die es nicht gibt.
     expect(dateien(WURZEL).length).toBeGreaterThan(150)
   })
 
-  it('findet die bekannten Fundstellen — sonst passt das Muster nicht mehr', () => {
+  it('findet die bekannten Glyph-Stellen — sonst passt das Muster nicht mehr', () => {
     // Zweite Haelfte derselben Zusicherung: Dateien zu finden reicht nicht,
-    // das Muster muss auch greifen. Faellt der Wert auf 0, ist die Migration
-    // entweder fertig (dann darf diese Zeile weg) oder das Muster ist tot.
-    expect(summe(zuKlein())).toBeGreaterThan(0)
+    // das Muster muss auch greifen. Sechs dekorative Stellen sind heute da
+    // (vier Carets, ein Sortier-Dreieck, eine Pin-Markierung). Faellt der
+    // Wert auf 0, ist entweder auch die letzte Ausnahme weg — dann darf diese
+    // Zeile gehen — oder `GROESSE` trifft nicht mehr.
+    expect(zuKlein().length).toBeGreaterThan(0)
   })
 
-  it('die Ratsche: die Zahl steigt nicht', () => {
-    const treffer = zuKlein()
-    const jetzt = summe(treffer)
-    const groesste = [...treffer.entries()]
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 5)
-      .map(([datei, n]) => `${datei} (${n})`)
-      .join(', ')
+  it('jede Stelle unter 12px ist ein rein dekorativer Glyph', () => {
+    const mitText = zuKlein().filter((f) => {
+      const sichtbar = sichtbarerText(f.text)
+      if (sichtbar.length === 0) return true
+      return !sichtbar.every(nurGlyph)
+    })
+    const liste = mitText
+      .map((f) => `${f.datei}:${f.zeile} „${sichtbarerText(f.text).join(' ')}"`)
+      .join('\n  ')
     expect(
-      jetzt,
-      `Schriftgroessen unter ${UNTERGRENZE_PX}px: ${jetzt} statt hoechstens ${BARRIERE}. ` +
-        `Groesste Posten: ${groesste}. Neue Stellen nutzen die Typo-Skala ` +
-        `(text-cp-xs/-sm/-base/-lg) statt einer eigenen px-Angabe.`,
-    ).toBeLessThanOrEqual(BARRIERE)
-  })
-
-  it('die Mobile-Ansicht bleibt sauber', () => {
-    // Sie ist migriert (58 Stellen) und wird auf einem Telefon im dunklen
-    // Truck gelesen — dort tut die Untergrenze am meisten. Ohne diese Zeile
-    // koennte sie zurueckfallen, waehrend anderswo etwas migriert wird, und
-    // die Gesamtzahl bliebe gleich. Die Ratsche allein sieht das nicht.
-    const rueckfall = [...zuKlein().keys()].filter((d) => d.startsWith(`mobile${sep}`))
-    expect(rueckfall, `Mobile-Ansicht wieder unter der Untergrenze: ${rueckfall.join(', ')}`)
-      .toEqual([])
+      mitText,
+      `Text unter ${UNTERGRENZE_PX}px — die Typo-Skala nutzen ` +
+        `(text-cp-xs/-sm/-base/-lg) statt einer eigenen px-Angabe:\n  ${liste}`,
+    ).toEqual([])
   })
 })
 
@@ -142,11 +168,11 @@ describe('die Skala selbst', () => {
   it('faengt bei genau der Untergrenze an', () => {
     // WICHTIG, UND NICHT NUR EINE VERDOPPLUNG DES CSS.
     //
-    // Die Ratsche zaehlt nur eigene px-Angaben. Setzte jemand
+    // Die Regel oben prueft nur eigene px-Angaben. Setzte jemand
     // `--text-cp-xs` auf 0.625rem, waere jede Migration nach `text-cp-xs`
-    // ein Schritt UNTER die Untergrenze — und die Ratsche saehe dabei zu,
-    // wie ihre Zahl sinkt. Ein Waechter, der denselben Defekt hat wie das
-    // Gepruefte, ist auf diesem Defekt gruen.
+    // ein Schritt UNTER die Untergrenze — und der Waechter saehe zu, weil
+    // dort gar keine px-Angabe mehr steht. Ein Waechter, der denselben
+    // Defekt hat wie das Gepruefte, ist auf diesem Defekt gruen.
     const m = /--text-cp-xs:\s*([\d.]+)rem/.exec(css)
     expect(m, '--text-cp-xs nicht in index.css gefunden').not.toBeNull()
     expect(Number(m![1]) * 16).toBe(UNTERGRENZE_PX)
