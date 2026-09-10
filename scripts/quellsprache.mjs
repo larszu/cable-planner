@@ -52,6 +52,26 @@ const DEUTSCH = [
   'darf', 'soll', 'sollen', 'steht', 'gibt', 'sich', 'dieser', 'diese',
   'dieses', 'nach', 'bei', 'über', 'ueber', 'ohne', 'durch', 'gegen', 'sowie',
   'damit', 'wieder', 'immer', 'jede', 'jeder', 'jedes', 'alle', 'allen',
+  // ── 2026-09-10: Inhaltswoerter dazu, nicht nur Funktionswoerter ─────────
+  //
+  // WARUM. Die Liste bestand aus Bindewoertern, und die kommen in kurzen
+  // Beschriftungen nicht vor. „Kabel bearbeiten", „+ Neuer Stecker-Typ…",
+  // „Verbindung" standen deshalb als ROHER JSX-Text im Haupt-Dialog von
+  // `App.tsx` — mitten in einem Repo mit Quellsprache `en` — und der
+  // Sprachmix-Zaehler meldete trotzdem 0. Er hat sie gesehen und als
+  // „unklar" abgelegt, weil kein Wort auf der Liste stand.
+  //
+  // Es sind dieselbe Sorte Woerter wie oben: solche, die es im Englischen
+  // NICHT gibt. Gemessen gegen alle 4622 englischen Fallbacks in
+  // `src/renderer` — kein einziger wuerde durch sie faelschlich als deutsch
+  // gelten. Das ist die Bedingung, unter der eine Erweiterung hier
+  // hineindarf; eine, die richtige Zeilen rot macht, schaltet den Waechter
+  // ab statt ihn zu schaerfen.
+  'neuer', 'neue', 'neues', 'neuen', 'bearbeiten', 'speichern', 'abbrechen',
+  'verbindung', 'stecker', 'kabel', 'notizen', 'anmerkung', 'anmerkungen',
+  'einstellungen', 'ansicht', 'auswahl', 'vorlage', 'vorlagen', 'datei',
+  'dateien', 'suche', 'suchen', 'farbe', 'nummer', 'zeile', 'spalte',
+  'ordner',
 ]
 
 /** Woerter, die es nur im Englischen gibt. */
