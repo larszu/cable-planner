@@ -79,7 +79,7 @@ export const IdentityBlock = ({ equipment }: { equipment: EquipmentItem }) => {
           </button>
         </div>
         {!equipment.shortName?.trim() && autoSuggestion && (
-          <p className="mt-1 text-[10px] text-cp-text-muted">
+          <p className="mt-1 text-cp-xs text-cp-text-muted">
             {t('eq.field.shortNameAutoUsed', 'Automatically using:')}{' '}
             <span className="font-mono text-cp-text-muted">{autoSuggestion}</span>
           </p>

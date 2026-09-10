@@ -179,7 +179,7 @@ const ProjectionCalcCore = () => {
             <Result label={t('calc.projection.viewThx', 'Min. viewing distance (THX 36°)')} value={`${screen.thx.toFixed(2)} m`} />
             <Result label={t('calc.projection.viewSmpte', 'Optimal viewing distance (SMPTE 30°)')} value={`${screen.smpte.toFixed(2)} m`} />
           </div>
-          <p className="text-[11px] text-cp-text-muted">
+          <p className="text-cp-xs text-cp-text-muted">
             {t('calc.projection.screen.note', 'Viewing distances by horizontal field of view: THX recommends max. 36°, SMPTE EG-18 about 30°.')}
           </p>
         </div>
@@ -199,7 +199,7 @@ const ProjectionCalcCore = () => {
             <Result label={t('calc.projection.resolution', 'Resolution')} value={`${led.pxW} × ${led.pxH} px`} />
             <Result label={t('calc.projection.totalPixels', 'Total pixels')} value={`${led.total.toLocaleString()} (${led.mp.toFixed(1)} MP)`} />
           </div>
-          <p className="text-[11px] text-cp-text-muted">
+          <p className="text-cp-xs text-cp-text-muted">
             {t('calc.projection.led.note', 'Rule of thumb min. viewing distance (m) ≈ pixel pitch (mm). At 2.6 mm, ~2.6 m before the pixel grid shows.')}
           </p>
         </div>

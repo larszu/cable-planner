@@ -29,7 +29,7 @@ export const RackConflictBadges = ({
           <button
             type="button"
             onClick={onDismissSaveError}
-            className="rounded bg-red-800/80 px-1.5 text-[10px] hover:bg-red-700"
+            className="rounded bg-red-800/80 px-1.5 text-cp-xs hover:bg-red-700"
             title={t('common.hide', 'Hide')}
           >
             ×

@@ -36,7 +36,7 @@ export const TabButton = ({
     <span className="truncate">{label}</span>
     {count != null && count > 0 && (
       <span
-        className={`ml-1 rounded-full px-1 text-[10px] ${
+        className={`ml-1 rounded-full px-1 text-cp-xs ${
           active ? 'bg-sky-900/70 text-sky-100' : 'bg-cp-surface-1 text-cp-text-muted'
         }`}
       >

@@ -89,7 +89,7 @@ export const LayerVisibilityChips = () => {
   return (
     <div className="relative flex items-center gap-1">
       <span
-        className={`select-none text-[9px] uppercase tracking-wider ${isLight ? 'text-slate-400' : 'text-slate-400'}`}
+        className={`select-none text-cp-xs uppercase tracking-wider ${isLight ? 'text-slate-400' : 'text-slate-400'}`}
         title={t(
           'canvas.layerChips.layerStripTitle',
           'Layer visibility (only cables are filtered, devices stay)',
@@ -119,7 +119,7 @@ export const LayerVisibilityChips = () => {
                   : t('canvas.layerChips.hiddenShow', 'hidden (click to show)'),
               },
             )}
-            className="inline-flex h-6 items-center gap-1 rounded-full border px-2 text-[10px] font-medium transition"
+            className="inline-flex h-6 items-center gap-1 rounded-full border px-2 text-cp-xs font-medium transition"
             style={{
               borderColor: visible ? style.color : isLight ? '#cbd5e1' : '#334155',
               background: visible
@@ -132,11 +132,11 @@ export const LayerVisibilityChips = () => {
               textDecoration: visible ? 'none' : 'line-through',
             }}
           >
-            <span className="text-[11px]">{style.icon}</span>
+            <span className="text-cp-xs">{style.icon}</span>
             <span>{style.label}</span>
             {count > 0 && (
               <span
-                className="rounded-full px-1 text-[8px] font-semibold"
+                className="rounded-full px-1 text-cp-xs font-semibold"
                 style={{
                   background: visible ? `${style.color}55` : isLight ? '#cbd5e1' : '#334155',
                   color: visible ? '#fff' : isLight ? '#475569' : '#94a3b8',
@@ -166,7 +166,7 @@ export const LayerVisibilityChips = () => {
               t('canvas.layerChips.customTitle', '{layer} (custom) — right-click to remove'),
               { layer },
             )}
-            className="inline-flex h-6 items-center gap-1 rounded-full border px-2 text-[10px] font-medium transition"
+            className="inline-flex h-6 items-center gap-1 rounded-full border px-2 text-cp-xs font-medium transition"
             style={{
               borderColor: visible ? '#94a3b8' : isLight ? '#cbd5e1' : '#334155',
               background: visible
@@ -193,7 +193,7 @@ export const LayerVisibilityChips = () => {
         title={t('canvas.layerChips.menuTitle', 'Layer management (create custom / reset all)')}
         aria-haspopup="menu"
         aria-expanded={menuOpen}
-        className={`inline-flex h-6 items-center gap-1 rounded-full border px-2 text-[11px] transition ${
+        className={`inline-flex h-6 items-center gap-1 rounded-full border px-2 text-cp-xs transition ${
           isLight
             ? 'border-slate-300 bg-slate-100 text-slate-600 hover:bg-slate-200'
             : 'border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700'

@@ -136,11 +136,11 @@ const ChangeoverSheet = ({
   }
 
   const selCls =
-    'rounded border border-cyan-800/60 bg-cyan-950/40 px-1 py-0.5 text-[11px] text-cyan-100'
+    'rounded border border-cyan-800/60 bg-cyan-950/40 px-1 py-0.5 text-cp-xs text-cyan-100'
 
   return (
     <div className="mb-2 rounded border border-cyan-800/40 bg-cp-surface-2/40 p-2">
-      <div className="mb-1 flex flex-wrap items-center gap-1 text-[11px]">
+      <div className="mb-1 flex flex-wrap items-center gap-1 text-cp-xs">
         <span className="text-cyan-300">{t('salvo.changeover', 'Changeover from')}</span>
         <select value={vonId} onChange={(e) => setVonId(e.target.value)} className={selCls}>
           <option value="">{t('salvo.pick', '\u2014 pick a set \u2014')}</option>
@@ -184,7 +184,7 @@ const ChangeoverSheet = ({
       </div>
 
       {von && nach && (
-        <div className="text-[11px]">
+        <div className="text-cp-xs">
           {aenderungen.length === 0 ? (
             /* Ein leeres Blatt ist hier eine ANTWORT und kein Fehler: die
                beiden Saetze sind gleich, es ist nichts umzustecken. */
@@ -203,7 +203,7 @@ const ChangeoverSheet = ({
       )}
 
       {befunde.length > 0 && (
-        <ul className="mt-1 flex flex-col gap-0.5 text-[11px]">
+        <ul className="mt-1 flex flex-col gap-0.5 text-cp-xs">
           {befunde.map((b, idx) => (
             <li
               key={`${b.kind}:${b.subject}:${idx}`}
@@ -1301,13 +1301,13 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
             abhaengig). */}
         <div className="mb-3 rounded border border-cyan-700/40 bg-cyan-950/20 p-2">
           <div className="mb-2 flex items-center justify-between">
-            <div className="text-[10px] uppercase tracking-wide text-cyan-300">
+            <div className="text-cp-xs uppercase tracking-wide text-cyan-300">
               {t('export.salvosHeader', 'Salvos (routing snapshots)')}
             </div>
             <button
               type="button"
               onClick={() => void saveSalvo()}
-              className="rounded bg-cyan-700 px-2 py-0.5 text-[11px] text-white hover:bg-cyan-600"
+              className="rounded bg-cyan-700 px-2 py-0.5 text-cp-xs text-white hover:bg-cyan-600"
               title={t('videohub.saveSalvo', 'Save current routing as named snapshot')}
             >
               + {t('export.saveCurrentRouting', 'Save current routing')}
@@ -1328,7 +1328,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
             />
           )}
           {salvos.length === 0 ? (
-            <div className="text-[11px] text-cp-text-muted">
+            <div className="text-cp-xs text-cp-text-muted">
               {t('export.noSalvos', 'No salvos yet. Save the current crosspoint distribution and recall it later with one click.')}
             </div>
           ) : (
@@ -1336,7 +1336,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
               {salvos.map((s) => (
                 <div
                   key={s.id}
-                  className="flex items-center gap-1 rounded border border-cyan-800/60 bg-cyan-950/40 px-1.5 py-0.5 text-[11px]"
+                  className="flex items-center gap-1 rounded border border-cyan-800/60 bg-cyan-950/40 px-1.5 py-0.5 text-cp-xs"
                 >
                   <button
                     type="button"
@@ -1367,7 +1367,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
             Teilmengen (z.B. nur Labels nach Re-Labelling, ohne Routing
             zu touchen). */}
         <div className="mb-3 rounded border border-cp-surface-5 bg-cp-surface-2/60 p-2">
-          <div className="mb-2 text-[10px] uppercase tracking-wide text-cp-text-muted">
+          <div className="mb-2 text-cp-xs uppercase tracking-wide text-cp-text-muted">
             An Videohub senden (TCP) — offline editieren, hier pushen wenn online
             {!hasDesktopBridge && (
               <span className="ml-2 text-amber-400">{t('vhx.desktopOnly', '· desktop app only')}</span>
@@ -1459,7 +1459,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                 </div>
               ) : (
                 <div className="flex flex-col gap-1">
-                  <div className="mb-1 text-[10px] uppercase tracking-wide text-teal-300">
+                  <div className="mb-1 text-cp-xs uppercase tracking-wide text-teal-300">
                     Gefunden ({discovered.length}) — Klick übernimmt IP/Port
                   </div>
                   {discovered.map((d) => (
@@ -1476,7 +1476,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                       <span className="truncate font-semibold text-cp-text">
                         {d.name}
                         {d.model && (
-                          <span className="ml-1 text-[10px] font-normal text-cp-text-muted">
+                          <span className="ml-1 text-cp-xs font-normal text-cp-text-muted">
                             · {d.model}
                           </span>
                         )}
@@ -1522,7 +1522,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
             </button>
           </div>
           {hubState && (
-            <div className="mt-1.5 rounded border border-sky-700/40 bg-sky-950/30 p-1.5 text-[11px] text-sky-100">
+            <div className="mt-1.5 rounded border border-sky-700/40 bg-sky-950/30 p-1.5 text-cp-xs text-sky-100">
               <span className="font-semibold">{t('videohub.hubStatus', 'Hub status:')}</span>{' '}
               {hubState.modelName ?? t('export.unknown', 'Unknown')}{' '}
               {hubState.friendlyName && `("${hubState.friendlyName}")`}
@@ -1601,7 +1601,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
               Wechsel). Hilft beim Debuggen ("warum sagt Hub jetzt
               NAK"). Wird beim Dialog-Close vergessen. */}
           {activityLog.length > 0 && (
-            <details className="mt-2 text-[11px]">
+            <details className="mt-2 text-cp-xs">
               <summary className="cursor-pointer text-cp-text-muted hover:text-cp-text-bright">
                 Activity-Log ({activityLog.length})
               </summary>
@@ -1628,7 +1628,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
         <textarea
           readOnly
           value={preview}
-          className="flex-1 min-h-[150px] rounded border border-cp-border bg-cp-surface-3 p-2 font-mono text-[11px] text-cp-text-bright"
+          className="flex-1 min-h-[150px] rounded border border-cp-border bg-cp-surface-3 p-2 font-mono text-cp-xs text-cp-text-bright"
         />
 
         <div className="mt-3 flex justify-end gap-2">

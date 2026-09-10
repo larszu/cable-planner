@@ -141,7 +141,7 @@ export const DeviceModePicker = ({
   return (
     <div className="space-y-2 text-cp-xs">
       <PanelHint
-        className="text-[10px] text-cp-text-muted"
+        className="text-cp-xs text-cp-text-muted"
         text={t(
           'modes.intro',
           "Switches the device's port layout. Cables on ports that don't exist in the new mode stay in the project but need to be re-plugged.",
@@ -149,7 +149,7 @@ export const DeviceModePicker = ({
       />
       <div className="grid grid-cols-1 gap-1">
         {modes.length === 0 && (
-          <div className="rounded border border-dashed border-cp-border p-3 text-center text-[11px] text-cp-text-muted">
+          <div className="rounded border border-dashed border-cp-border p-3 text-center text-cp-xs text-cp-text-muted">
             {t(
               'modes.emptyState',
               'No modes defined yet. Edit ports above, then save the current layout via "+ from current layout".',
@@ -174,13 +174,13 @@ export const DeviceModePicker = ({
                 {m.name}
               </span>
               {m.description && (
-                <span className="text-[10px] text-cp-text-muted">{m.description}</span>
+                <span className="text-cp-xs text-cp-text-muted">{m.description}</span>
               )}
-              <span className="mt-1 text-[10px] text-cp-text-muted">
+              <span className="mt-1 text-cp-xs text-cp-text-muted">
                 {m.inputs.length} {t('modes.inShort', 'In')} · {m.outputs.length} {t('modes.outShort', 'Out')}
               </span>
             </button>
-            <div className="flex gap-1 border-t border-cp-border-muted bg-cp-surface-3/40 px-1 py-1 text-[10px]">
+            <div className="flex gap-1 border-t border-cp-border-muted bg-cp-surface-3/40 px-1 py-1 text-cp-xs">
               <button
                 type="button"
                 onClick={() => setEditorState({ mode: 'edit', modeId: m.id })}
@@ -232,7 +232,7 @@ export const DeviceModePicker = ({
         <button
           type="button"
           onClick={() => setEditorState({ mode: 'create' })}
-          className="w-full rounded border border-sky-700 bg-sky-900/30 px-2 py-1 text-[11px] text-sky-100 hover:bg-sky-800/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+          className="w-full rounded border border-sky-700 bg-sky-900/30 px-2 py-1 text-cp-xs text-sky-100 hover:bg-sky-800/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
           title={t(
             'modes.newEditorTitle',
             'Opens an editor where name, description and ports of the new mode can be configured (Issue #113).',
@@ -243,7 +243,7 @@ export const DeviceModePicker = ({
         <button
           type="button"
           onClick={createModeFromPorts}
-          className="w-full rounded border border-dashed border-emerald-700 bg-emerald-950/30 px-2 py-1 text-[11px] text-emerald-200 hover:bg-emerald-900/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+          className="w-full rounded border border-dashed border-emerald-700 bg-emerald-950/30 px-2 py-1 text-cp-xs text-emerald-200 hover:bg-emerald-900/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
           title={t(
             'modes.quickSaveTitle',
             "Saves the device's current port layout as a new mode (quick-save).",

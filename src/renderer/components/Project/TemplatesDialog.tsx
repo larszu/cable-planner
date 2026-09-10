@@ -204,12 +204,12 @@ export const TemplatesDialog = () => {
           <div className="text-cp-xs text-[var(--cp-text-muted)]">{desc(tpl)}</div>
         </div>
       </div>
-      <div className="text-[10px] text-[var(--cp-text-faint)]">{stats(tpl)}</div>
+      <div className="text-cp-xs text-[var(--cp-text-faint)]">{stats(tpl)}</div>
       {/* BEDARF 91 — aus welchem Haus. Steht auf der Karte, weil die
           Entscheidung „diese Vorlage oder die neutrale" hier faellt und nicht
           erst nach dem Laden. */}
       {tpl.venue && (
-        <div className="text-[10px] text-[var(--cp-text-muted)]">
+        <div className="text-cp-xs text-[var(--cp-text-muted)]">
           {format(t('templates.venue', 'Venue template: {venue} \u00b7 {n} answers'), {
             venue: tpl.venue,
             n: tpl.project.metadata?.venueAnswers?.length ?? 0,
@@ -222,7 +222,7 @@ export const TemplatesDialog = () => {
           derentwillen jemand sie aufmacht. */}
       {tpl.basis && (
         <div
-          className={`text-[10px] ${
+          className={`text-cp-xs ${
             tpl.basis === 'as-built'
               ? 'text-[var(--cp-text-muted)]'
               : 'text-amber-300/90'
@@ -298,7 +298,7 @@ export const TemplatesDialog = () => {
         </div>
 
         <div>
-          <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--cp-text-faint)]">
+          <div className="mb-1 text-cp-xs font-semibold uppercase tracking-wider text-[var(--cp-text-faint)]">
             {t('templates.builtinHeading', 'Bundled templates')}
           </div>
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
@@ -307,7 +307,7 @@ export const TemplatesDialog = () => {
         </div>
 
         <div>
-          <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--cp-text-faint)]">
+          <div className="mb-1 text-cp-xs font-semibold uppercase tracking-wider text-[var(--cp-text-faint)]">
             {t('templates.userHeading', 'My templates')}
           </div>
           {userTemplates.length === 0 ? (

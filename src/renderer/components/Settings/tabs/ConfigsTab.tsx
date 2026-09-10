@@ -211,7 +211,7 @@ export const ConfigsTab = () => {
                 key={k}
                 type="button"
                 onClick={() => setFilter(k)}
-                className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-[11px] ${
+                className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-cp-xs ${
                   filter === k
                     ? 'bg-sky-700 text-white'
                     : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'
@@ -232,21 +232,21 @@ export const ConfigsTab = () => {
         </div>
 
         {library.length === 0 ? (
-          <div className="rounded border border-dashed border-cp-border p-4 text-center text-[11px] text-cp-text-muted">
+          <div className="rounded border border-dashed border-cp-border p-4 text-center text-cp-xs text-cp-text-muted">
             {t(
               'settings.configs.emptyHint',
               'Upload your first configuration file — it will be listed here and can then be assigned to a device on the canvas.',
             )}
           </div>
         ) : grouped.size === 0 ? (
-          <div className="rounded border border-dashed border-cp-border p-4 text-center text-[11px] text-cp-text-muted">
+          <div className="rounded border border-dashed border-cp-border p-4 text-center text-cp-xs text-cp-text-muted">
             {t('settings.configs.noFilterMatch', 'No entry matches the selected filter.')}
           </div>
         ) : (
           <ul className="space-y-2">
             {Array.from(grouped.entries()).map(([kind, entries]) => (
               <li key={kind}>
-                <div className="mb-1 flex items-center gap-1 text-[10px] uppercase tracking-wide text-cp-text-muted">
+                <div className="mb-1 flex items-center gap-1 text-cp-xs uppercase tracking-wide text-cp-text-muted">
                   <Icon icon={CONFIG_KIND_ICON[kind]} size="xs" />
                   {t(`settings.configs.kind.${kind}`, CONFIG_KIND_LABEL[kind])}
                 </div>
@@ -273,7 +273,7 @@ export const ConfigsTab = () => {
                               kind: e.target.value as DeviceConfigKind,
                             })
                           }
-                          className="rounded border border-cp-border bg-cp-surface-1 px-1 py-0.5 text-[11px] text-cp-text-bright"
+                          className="rounded border border-cp-border bg-cp-surface-1 px-1 py-0.5 text-cp-xs text-cp-text-bright"
                         >
                           {(Object.keys(CONFIG_KIND_LABEL) as DeviceConfigKind[]).map((k) => (
                             <option key={k} value={k}>
@@ -288,7 +288,7 @@ export const ConfigsTab = () => {
                               equipmentId: e.target.value || undefined,
                             })
                           }
-                          className="rounded border border-cp-border bg-cp-surface-1 px-1 py-0.5 text-[11px] text-cp-text-bright"
+                          className="rounded border border-cp-border bg-cp-surface-1 px-1 py-0.5 text-cp-xs text-cp-text-bright"
                           title={t(
                             'settings.configs.assignTitle',
                             'Device on the canvas this configuration is assigned to',
@@ -302,7 +302,7 @@ export const ConfigsTab = () => {
                           ))}
                         </select>
                         <span
-                          className="hidden text-[10px] text-cp-text-muted sm:inline"
+                          className="hidden text-cp-xs text-cp-text-muted sm:inline"
                           title={format(
                             t(
                               'settings.configs.fileMeta',
@@ -321,7 +321,7 @@ export const ConfigsTab = () => {
                           <button
                             type="button"
                             onClick={() => downloadConfig(entry)}
-                            className="rounded bg-cp-surface-4 px-2 py-0.5 text-[11px] text-cp-text hover:bg-cp-surface-5"
+                            className="rounded bg-cp-surface-4 px-2 py-0.5 text-cp-xs text-cp-text hover:bg-cp-surface-5"
                             title={t('settings.configs.downloadTitle', 'Download original file')}
                           >
                             <Icon icon={Download} size="xs" />
@@ -347,7 +347,7 @@ export const ConfigsTab = () => {
                                 removeDeviceConfig(entry.id)
                               }
                             }}
-                            className="rounded bg-cp-surface-2 px-2 py-0.5 text-[11px] text-cp-text-secondary hover:bg-red-700 hover:text-white"
+                            className="rounded bg-cp-surface-2 px-2 py-0.5 text-cp-xs text-cp-text-secondary hover:bg-red-700 hover:text-white"
                             title={t('settings.configs.removeTitle', 'Remove from library')}
                           >
                             <Icon icon={X} size="sm" />

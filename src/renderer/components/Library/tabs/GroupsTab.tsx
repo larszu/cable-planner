@@ -27,7 +27,7 @@ export const GroupsTab = () => {
     <div className="flex flex-1 min-h-0 flex-col">
       <div className="mb-2 flex flex-wrap items-center justify-between gap-y-1 gap-x-2">
         <h2 className="text-cp-base font-semibold">{t('library.tabs.groups.title', 'Device groups')}</h2>
-        <span className="text-[10px] text-cp-text-muted">
+        <span className="text-cp-xs text-cp-text-muted">
           {t('library.tabs.groups.subtitle', 'Multiple devices + cables as a template')}
         </span>
       </div>
@@ -79,7 +79,7 @@ export const GroupsTab = () => {
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0 flex-1">
                           <div className="truncate font-medium text-cp-text">{preset.name}</div>
-                          <div className="mt-0.5 text-[10px] text-cp-text-muted">
+                          <div className="mt-0.5 text-cp-xs text-cp-text-muted">
                             {format(t('library.tabs.groups.counts', '{items} devices · {cables} cables'), {
                               items: preset.items.length,
                               cables: preset.cables.length,
@@ -90,7 +90,7 @@ export const GroupsTab = () => {
                                 })
                               : ''}
                           </div>
-                          <div className="mt-0.5 truncate text-[10px] text-cp-text-muted">
+                          <div className="mt-0.5 truncate text-cp-xs text-cp-text-muted">
                             {preset.items.map((i) => i.name).join(', ')}
                           </div>
                         </div>
@@ -129,7 +129,7 @@ export const GroupsTab = () => {
                               }
                               renameGroupPreset(preset.id, trimmed)
                             }}
-                            className="rounded bg-cp-surface-4 px-1 text-[11px] text-cp-text-secondary hover:bg-cp-surface-5"
+                            className="rounded bg-cp-surface-4 px-1 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-5"
                             title={t('library.tabs.groups.renameTitle', 'Rename template')}
                             aria-label={t('library.tabs.groups.renameAria', 'Rename')}
                           >
@@ -141,7 +141,7 @@ export const GroupsTab = () => {
                               event.stopPropagation()
                               void exportPresetToFile(preset)
                             }}
-                            className="rounded bg-cp-surface-4 px-1 text-[11px] text-cp-text-secondary hover:bg-cp-surface-5"
+                            className="rounded bg-cp-surface-4 px-1 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-5"
                             title={t(
                               'library.tabs.groups.exportTitle',
                               'Export as file (copy to Downloads folder)',
@@ -168,7 +168,7 @@ export const GroupsTab = () => {
                                 deleteGroupPreset(preset.id)
                               }
                             }}
-                            className="rounded bg-red-700 px-1 text-[10px] hover:bg-red-600"
+                            className="rounded bg-red-700 px-1 text-cp-xs hover:bg-red-600"
                             title={t('library.tabs.groups.deleteTitle', 'Remove group from library')}
                             aria-label={t('common.delete', 'Delete')}
                           >

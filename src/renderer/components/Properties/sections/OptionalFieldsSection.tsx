@@ -55,7 +55,7 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
             <span className="flex items-center gap-1.5 text-cp-text-secondary">
               {verifiedBy.length > 0 && (
                 <span
-                  className="inline-flex items-center gap-1 rounded bg-emerald-900/60 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-200"
+                  className="inline-flex items-center gap-1 rounded bg-emerald-900/60 px-1.5 py-0.5 text-cp-xs font-semibold text-emerald-200"
                   title={format(
                     t('verify.byTitle', 'Verified by: {names}'),
                     { names: verifiedBy.join(', ') },
@@ -65,7 +65,7 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
                 </span>
               )}
               {verifiedBy.length === 0 && (
-                <span className="text-[11px] text-cp-text-muted">
+                <span className="text-cp-xs text-cp-text-muted">
                   {t('verify.none', 'Not verified yet')}
                 </span>
               )}
@@ -79,7 +79,7 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
               {t('verify.button', 'Verify as correct')}
             </button>
           </div>
-          <p className="text-[10px] text-cp-text-faint">
+          <p className="text-cp-xs text-cp-text-faint">
             {t('verify.hint', 'Confirms the ports are correct. When sharing libraries, confirmations from multiple users add up.')}
           </p>
         </div>
@@ -91,7 +91,7 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
             <span className="mb-1 block text-cp-text-secondary">
               {t('eq.field.rentPrice', 'Rental price / day')}
               {equipment.rentmanId && (
-                <span className="ml-1 rounded bg-emerald-900/60 px-1 text-[10px] text-emerald-200">
+                <span className="ml-1 rounded bg-emerald-900/60 px-1 text-cp-xs text-emerald-200">
                   {t('eq.field.rentPriceRentman', 'from Rentman')}
                 </span>
               )}
@@ -243,7 +243,7 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
                 <img src={equipment.imageUrl} alt="" className="max-h-24 max-w-[120px] object-contain" />
               </a>
             ) : (
-              <div className="flex h-24 w-[120px] items-center justify-center rounded border border-dashed border-cp-border text-[10px] text-cp-text-muted">
+              <div className="flex h-24 w-[120px] items-center justify-center rounded border border-dashed border-cp-border text-cp-xs text-cp-text-muted">
                 {t('eq.field.refImageNone', 'No image')}
               </div>
             )}
@@ -310,7 +310,7 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
               <button
                 type="button"
                 onClick={() => updateEquipment(equipment.id, { icon: undefined })}
-                className="rounded bg-cp-surface-4 px-1.5 py-1 text-[10px] hover:bg-cp-surface-5"
+                className="rounded bg-cp-surface-4 px-1.5 py-1 text-cp-xs hover:bg-cp-surface-5"
                 title={t('opt.iconAutoTitle', 'Reset to automatic')}
               >
                 auto

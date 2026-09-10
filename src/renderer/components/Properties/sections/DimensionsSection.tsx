@@ -72,7 +72,7 @@ export const DimensionsSection = ({ equipment }: { equipment: EquipmentItem }) =
         </label>
       </div>
       <PanelHint
-        className="mt-2 text-[10px] text-cp-text-muted"
+        className="mt-2 text-cp-xs text-cp-text-muted"
         text={t(
           'dims.hint',
           'Physical outer dimensions. 19" rack device: 1 U = 44.45 mm, standard width 482 mm, typical depth 400-600 mm. Used by the 3D rack renderer + logistics tools.',

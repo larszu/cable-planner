@@ -107,7 +107,7 @@ export const OnboardingTour = ({ open, onClose }: OnboardingTourProps) => {
       open={open}
       onClose={finish}
       title={
-        <span className="text-[11px] uppercase tracking-wider text-cp-text-muted">
+        <span className="text-cp-xs uppercase tracking-wider text-cp-text-muted">
           {format(t('onboarding.header', 'Getting-started tour · step {step} / {total}'), {
             step: step + 1,
             total: STEPS.length,
@@ -172,7 +172,7 @@ export const OnboardingTour = ({ open, onClose }: OnboardingTourProps) => {
         <h2 className="text-cp-xl font-semibold text-cp-text">{current.title}</h2>
         <p className="text-cp-base leading-relaxed text-cp-text-secondary">{current.body}</p>
         {current.hint && (
-          <div className="rounded border border-cp-border-muted bg-cp-surface-3/40 px-2 py-1 text-[11px] text-cp-text-muted">
+          <div className="rounded border border-cp-border-muted bg-cp-surface-3/40 px-2 py-1 text-cp-xs text-cp-text-muted">
             {t('onboarding.tip', 'Tip:')} {current.hint}
           </div>
         )}

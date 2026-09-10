@@ -141,7 +141,7 @@ export const PlanCompareDialog = ({ open, onClose }: PlanCompareDialogProps) => 
       maxWidth="4xl"
       draggableKey="cable-planner:modal-pos:plan-compare"
       footer={
-        <div className="flex items-center justify-between gap-3 text-[11px]">
+        <div className="flex items-center justify-between gap-3 text-cp-xs">
           <span className="text-cp-text-muted">
             {t(
               'compare.footer',

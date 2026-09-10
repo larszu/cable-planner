@@ -308,11 +308,11 @@ export const DrumMicingDialog = () => {
                       strokeWidth={selected ? 3 : 1.5}
                       strokeDasharray={count > 0 ? undefined : '4 3'}
                     />
-                    <text x={cx} y={cy - r - 4} textAnchor="middle" className="fill-cp-text-secondary text-[9px]">
+                    <text x={cx} y={cy - r - 4} textAnchor="middle" className="fill-cp-text-secondary text-cp-xs">
                       {z.label}
                     </text>
                     {count > 0 && (
-                      <text x={cx} y={cy + 4} textAnchor="middle" className="fill-cp-text text-[11px] font-semibold">
+                      <text x={cx} y={cy + 4} textAnchor="middle" className="fill-cp-text text-cp-xs font-semibold">
                         {count > 1 ? `${count}×` : '●'}
                       </text>
                     )}
@@ -339,7 +339,7 @@ export const DrumMicingDialog = () => {
                 <div className="mb-2 space-y-1">
                   {plan.zones.map((z) => (
                     <div key={z.id} className="flex items-center gap-1">
-                      <span className="w-14 shrink-0 text-[10px] text-cp-text-faint">{ZONE_KIND_LABEL[z.kind]}</span>
+                      <span className="w-14 shrink-0 text-cp-xs text-cp-text-faint">{ZONE_KIND_LABEL[z.kind]}</span>
                       <input
                         value={z.label}
                         onChange={(e) => renameZone(z.id, e.target.value)}
@@ -418,7 +418,7 @@ export const DrumMicingDialog = () => {
                           </button>
                         </div>
                         {phantom && (
-                          <div className="mt-1 flex items-center gap-1 text-[10px] text-amber-500">
+                          <div className="mt-1 flex items-center gap-1 text-cp-xs text-amber-500">
                             <Zap size={10} /> {t('drum.phantom', '48V phantom required')}
                           </div>
                         )}
@@ -493,7 +493,7 @@ export const DrumMicingDialog = () => {
                     <button
                       type="button"
                       onClick={copyBom}
-                      className="rounded border border-cp-border-muted px-2 py-0.5 text-[10px] text-cp-text-secondary hover:bg-cp-surface-2"
+                      className="rounded border border-cp-border-muted px-2 py-0.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-2"
                     >
                       {copied ? t('drum.copied', 'copied ✓') : t('drum.copy', 'copy')}
                     </button>

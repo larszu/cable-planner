@@ -183,7 +183,7 @@ export const RackLivePreview = ({
 
   if (placements.length === 0) {
     return (
-      <div className="rounded border border-dashed border-slate-700 bg-slate-950/40 p-3 text-center text-[10px] text-slate-400">
+      <div className="rounded border border-dashed border-slate-700 bg-slate-950/40 p-3 text-center text-cp-xs text-slate-400">
         {t(
           'rackPreview.empty',
           'No devices in rack — preview appears once the first device is assigned.',
@@ -202,10 +202,10 @@ export const RackLivePreview = ({
   return (
     <div>
       <div className="mb-1 flex items-center justify-between">
-        <div className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+        <div className="text-cp-xs font-semibold uppercase tracking-wide text-slate-400">
           {t('rackPreview.headerLabel', 'Black box on canvas')}
         </div>
-        <div className="text-[10px] text-slate-400">
+        <div className="text-cp-xs text-slate-400">
           {format(t('rackPreview.counts', '{devices} devices · {cables} internal cables'), {
             devices: placements.length,
             cables: cables.length,
@@ -219,7 +219,7 @@ export const RackLivePreview = ({
         >
           {/* Header — gleicher Look wie EquipmentNode-Card-Header */}
           <div
-            className="border-b border-slate-700 bg-slate-800/90 px-2 text-[11px] font-semibold text-slate-100"
+            className="border-b border-slate-700 bg-slate-800/90 px-2 text-cp-xs font-semibold text-slate-100"
             style={{
               lineHeight: `${HEADER_HEIGHT - 6}px`,
               height: HEADER_HEIGHT,

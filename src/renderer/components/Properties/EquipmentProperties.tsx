@@ -121,7 +121,7 @@ export const EquipmentProperties = () => {
       style={{ border: 0, padding: 0, margin: 0, minWidth: 0 }}
     >
       {projectIsLocked && (
-        <div className="rounded border border-amber-700/60 bg-amber-900/30 px-2 py-1.5 text-[11px] text-amber-200">
+        <div className="rounded border border-amber-700/60 bg-amber-900/30 px-2 py-1.5 text-cp-xs text-amber-200">
           {projectMode === 'viewer'
             ? t('inspector.viewerLocked', 'Viewer mode — fields cannot be edited.')
             : t('inspector.finalizedLocked', 'Plan finalised — fields locked. Click "Re-enable editing" in the canvas banner.')}

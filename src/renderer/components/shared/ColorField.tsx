@@ -53,7 +53,7 @@ export const ColorField = ({
             <button
               type="button"
               onClick={onReset}
-              className="rounded bg-cp-surface-4 px-1.5 py-0.5 text-[10px] hover:bg-cp-surface-5"
+              className="rounded bg-cp-surface-4 px-1.5 py-0.5 text-cp-xs hover:bg-cp-surface-5"
               title={t('colorField.resetTitle', 'Reset colour')}
             >
               {t('colorField.resetBtn', '✕ Reset')}

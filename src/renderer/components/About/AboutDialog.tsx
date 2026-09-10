@@ -50,7 +50,7 @@ export const AboutDialog = () => {
           <Icon icon={Cable} size={28} className="text-cp-accent" />
           <div className="min-w-0">
             <div className="font-semibold text-cp-text">{t('app.title', 'Cable Planner')}</div>
-            <div className="text-[11px] text-cp-text-muted">{APP_DESCRIPTION}</div>
+            <div className="text-cp-xs text-cp-text-muted">{APP_DESCRIPTION}</div>
           </div>
           <div className="ml-auto shrink-0 rounded bg-emerald-700 px-2 py-1 font-mono text-cp-xs text-white">
             v{APP_VERSION}
@@ -85,7 +85,7 @@ export const AboutDialog = () => {
           </dd>
         </dl>
 
-        <div className="rounded border border-cp-border-muted bg-cp-surface-3/40 p-3 text-[11px] text-cp-text-muted">
+        <div className="rounded border border-cp-border-muted bg-cp-surface-3/40 p-3 text-cp-xs text-cp-text-muted">
           {t('about.issueHint', 'Please report issues + feature requests directly on GitHub.')}
         </div>
       </div>

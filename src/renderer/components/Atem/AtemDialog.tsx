@@ -383,7 +383,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
           {discoveryDone && status !== 'connected' && (
             <div className="mt-2">
               {discovered.length === 0 ? (
-                <div className="rounded border border-dashed border-cp-border bg-cp-surface-3/40 p-2 text-[11px] text-cp-text-muted">
+                <div className="rounded border border-dashed border-cp-border bg-cp-surface-3/40 p-2 text-cp-xs text-cp-text-muted">
                   {t(
                     'atem.dialog.noneFound',
                     'No ATEM switcher found via mDNS on the local network. (Some models / firewall setups block mDNS — enter the IP manually then.)',
@@ -391,7 +391,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
                 </div>
               ) : (
                 <div className="space-y-1">
-                  <div className="text-[10px] uppercase tracking-wide text-cp-text-muted">
+                  <div className="text-cp-xs uppercase tracking-wide text-cp-text-muted">
                     {format(t('atem.dialog.foundCount', 'Found ({n}) — click to take the IP:'), {
                       n: discovered.length,
                     })}
@@ -406,12 +406,12 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
                       <span className="font-medium text-cp-text">
                         {dev.name}
                         {dev.model && (
-                          <span className="ml-2 text-[10px] text-cp-text-muted">
+                          <span className="ml-2 text-cp-xs text-cp-text-muted">
                             ({dev.model})
                           </span>
                         )}
                       </span>
-                      <span className="font-mono text-[11px] text-purple-300">{dev.ip}</span>
+                      <span className="font-mono text-cp-xs text-purple-300">{dev.ip}</span>
                     </button>
                   ))}
                 </div>
@@ -419,7 +419,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
             </div>
           )}
           {status === 'connected' && state && (
-            <div className="mt-2 text-[11px] text-cp-text-muted">
+            <div className="mt-2 text-cp-xs text-cp-text-muted">
               {state.productIdentifier}
               {state.apiVersion ? ` · API ${state.apiVersion.major}.${state.apiVersion.minor}` : ''}
               {state.mixEffects ? ` · ${state.mixEffects} M/E` : ''}
@@ -468,7 +468,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
                     }`}
                   >
                     <td className="py-1 font-mono text-cp-text-muted">{row.inputId}</td>
-                    <td className="py-1 text-[10px] uppercase tracking-wide">
+                    <td className="py-1 text-cp-xs uppercase tracking-wide">
                       <span
                         className={
                           row.category === 'video-input'
@@ -530,7 +530,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
               </tbody>
             </table>
             <PanelHint
-              className="mt-3 text-[11px] text-cp-text-muted"
+              className="mt-3 text-cp-xs text-cp-text-muted"
               text={t(
                 'atem.dialog.changesNote',
                 'Heads-up: changes go directly to the switcher (RAM). To survive a reboot, trigger "Save Startup State" in the Blackmagic ATEM Software. Audio inputs (XLR/RJ45 talkback), media players and internal sources are locked — the ATEM manages those itself.',
@@ -539,9 +539,9 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
           </div>
         )}
 
-        <details className="border-t border-cp-border px-4 py-2 text-[11px]">
+        <details className="border-t border-cp-border px-4 py-2 text-cp-xs">
           <summary className="cursor-pointer text-cp-text-muted">{t('atem.eventLog', 'Event log')} ({events.length})</summary>
-          <pre className="mt-2 max-h-40 overflow-auto rounded bg-cp-surface-3 p-2 font-mono text-[10px] text-cp-text-secondary">
+          <pre className="mt-2 max-h-40 overflow-auto rounded bg-cp-surface-3 p-2 font-mono text-cp-xs text-cp-text-secondary">
             {events.join('\n') || t('atem.dialog.noEvents', '(no events yet)')}
           </pre>
         </details>

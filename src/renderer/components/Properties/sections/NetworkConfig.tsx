@@ -58,7 +58,7 @@ export const NetworkConfig = ({ equipmentId, item, allPorts, kind }: NetworkConf
   return (
     <>
       <fieldset className="rounded border border-cyan-700 bg-cyan-950/30 p-2">
-        <legend className="px-1 text-[11px] uppercase tracking-wide text-cyan-300">
+        <legend className="px-1 text-cp-xs uppercase tracking-wide text-cyan-300">
           {kind === 'router' ? t('net.routerConfig', 'Router config') : t('net.switchConfig', 'Switch config')}
         </legend>
         <div className="grid grid-cols-2 gap-2">
@@ -119,17 +119,17 @@ export const NetworkConfig = ({ equipmentId, item, allPorts, kind }: NetworkConf
 
       <fieldset className="rounded border border-cyan-700 bg-cyan-950/20 p-2">
         <div className="mb-2 flex items-center justify-between">
-          <span className="text-[11px] uppercase tracking-wide text-cyan-300">{t('net.vlans', 'VLANs')}</span>
+          <span className="text-cp-xs uppercase tracking-wide text-cyan-300">{t('net.vlans', 'VLANs')}</span>
           <button
             type="button"
             onClick={addVlan}
-            className="rounded bg-cyan-700 px-2 py-0.5 text-[11px] hover:bg-cyan-600"
+            className="rounded bg-cyan-700 px-2 py-0.5 text-cp-xs hover:bg-cyan-600"
           >
             {t('net.addVlan', '+ VLAN')}
           </button>
         </div>
         {vlans.length === 0 && (
-          <div className="text-[11px] text-cp-text-muted">{t('net.noVlans', 'No VLANs defined.')}</div>
+          <div className="text-cp-xs text-cp-text-muted">{t('net.noVlans', 'No VLANs defined.')}</div>
         )}
         <ul className="space-y-1">
           {vlans.map((v, i) => (
@@ -156,7 +156,7 @@ export const NetworkConfig = ({ equipmentId, item, allPorts, kind }: NetworkConf
               <button
                 type="button"
                 onClick={() => removeVlan(i)}
-                className="rounded bg-red-900/60 px-2 py-0.5 text-[11px] hover:bg-red-800"
+                className="rounded bg-red-900/60 px-2 py-0.5 text-cp-xs hover:bg-red-800"
               >
                 ×
               </button>
@@ -167,10 +167,10 @@ export const NetworkConfig = ({ equipmentId, item, allPorts, kind }: NetworkConf
 
       {kind === 'switch' && allPorts.length > 0 && (
         <fieldset className="rounded border border-cyan-700 bg-cyan-950/20 p-2">
-          <legend className="px-1 text-[11px] uppercase tracking-wide text-cyan-300">
+          <legend className="px-1 text-cp-xs uppercase tracking-wide text-cyan-300">
             {t('net.portToVlan', 'Port → VLAN')}
           </legend>
-          <div className="mb-1 grid grid-cols-[1fr_70px_120px] gap-1 text-[10px] text-cp-text-muted">
+          <div className="mb-1 grid grid-cols-[1fr_70px_120px] gap-1 text-cp-xs text-cp-text-muted">
             <span>{t('net.col.port', 'Port')}</span>
             <span>{t('net.col.untagged', 'Untagged')}</span>
             <span>{t('net.col.tagged', 'Tagged')}</span>
@@ -180,7 +180,7 @@ export const NetworkConfig = ({ equipmentId, item, allPorts, kind }: NetworkConf
               const assign = portVlans[p.id] ?? {}
               return (
                 <li key={p.id} className="grid grid-cols-[1fr_70px_120px] items-center gap-1">
-                  <span className="truncate text-[11px] text-cp-text-secondary" title={p.name}>
+                  <span className="truncate text-cp-xs text-cp-text-secondary" title={p.name}>
                     {p.name}
                   </span>
                   <input

@@ -270,7 +270,7 @@ export const CableContextMenu = () => {
       onContextMenu={(e) => e.preventDefault()}
     >
       <div
-        className={`border-b px-3 py-1.5 text-[10px] uppercase tracking-wide ${
+        className={`border-b px-3 py-1.5 text-cp-xs uppercase tracking-wide ${
           isLight ? 'border-slate-200 text-slate-500' : 'border-slate-800 text-slate-400'
         }`}
       >
@@ -356,7 +356,7 @@ export const CableContextMenu = () => {
       <Item onClick={toggleBumpForThisCable} icon={effectiveBumps ? <Icon icon={Check} size="xs" /> : null}>
         {t('canvas.cableMenu.bumps', 'Cable jumps for this cable')}
         {bumpStyle == null && (
-          <span className="ml-auto text-[10px] text-slate-400">
+          <span className="ml-auto text-cp-xs text-slate-400">
             {t('canvas.cableMenu.global', 'global')}
           </span>
         )}
@@ -366,7 +366,7 @@ export const CableContextMenu = () => {
           onClick={() => doUpdate({ bumpStyle: undefined })}
           icon=" "
         >
-          <span className="text-[11px] text-slate-400">
+          <span className="text-cp-xs text-slate-400">
             {t('canvas.cableMenu.removeOverride', 'Remove override (follow global)')}
           </span>
         </Item>

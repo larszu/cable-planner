@@ -251,7 +251,7 @@ export const RackEditorDialog = () => {
           <div>
             <h2 id={titleId} className="text-cp-base font-semibold">{t('rackEditor.title', 'Rack editor')}</h2>
             <PanelHint
-              className="text-[10px] text-cp-text-muted"
+              className="text-cp-xs text-cp-text-muted"
               text={t(
                 'rackEditor.intro',
                 'Sub-canvas per rack — devices live in the main project, the editor only shows this rack instance. Vertical dragging snaps to U lines.',
@@ -271,7 +271,7 @@ export const RackEditorDialog = () => {
             <RackEditorContent rackInstanceId={slot.rackInstanceId} />
           </ReactFlowProvider>
         </div>
-        <footer className="border-t border-cp-border px-4 py-2 text-[11px] text-cp-text-muted">
+        <footer className="border-t border-cp-border px-4 py-2 text-cp-xs text-cp-text-muted">
           {t(
             'rackEditor.footer',
             'Tip: U position is rounded to the next whole U on release. Changes apply to the main canvas instantly.',

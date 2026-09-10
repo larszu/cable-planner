@@ -500,7 +500,7 @@ export const InstallationDocsDialog = () => {
                   key={p.id}
                   className="flex items-start gap-2 rounded border border-cp-border-muted bg-cp-surface-1 px-2 py-1.5"
                 >
-                  <span className="mt-0.5 shrink-0 rounded bg-cp-surface-3 px-1.5 py-0.5 text-[10px] uppercase text-cp-text-secondary">
+                  <span className="mt-0.5 shrink-0 rounded bg-cp-surface-3 px-1.5 py-0.5 text-cp-xs uppercase text-cp-text-secondary">
                     {p.target?.type === 'cable'
                       ? t('docs.pending.cable', 'Cable')
                       : p.target?.type === 'equipment'

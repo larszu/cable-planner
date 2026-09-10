@@ -203,7 +203,7 @@ export const ProjectMetaDialog = ({
 
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <div className="mb-1 text-[11px] text-cp-text-muted">
+              <div className="mb-1 text-cp-xs text-cp-text-muted">
                 {t('project.meta.companyLogo', 'Company logo')}
               </div>
               {companyLogo ? (
@@ -216,7 +216,7 @@ export const ProjectMetaDialog = ({
                   <button
                     type="button"
                     onClick={() => setCompanyLogo(undefined)}
-                    className="rounded bg-red-900/60 px-2 py-1 text-[11px] hover:bg-red-800"
+                    className="rounded bg-red-900/60 px-2 py-1 text-cp-xs hover:bg-red-800"
                   >
                     {t('project.meta.removeLogo', 'Remove')}
                   </button>
@@ -237,13 +237,13 @@ export const ProjectMetaDialog = ({
               <button
                 type="button"
                 onClick={() => companyInputRef.current?.click()}
-                className="mt-1 rounded bg-cp-surface-4 px-2 py-1 text-[11px] hover:bg-cp-surface-5"
+                className="mt-1 rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
               >
                 {t('project.meta.chooseLogo', 'Choose logo…')}
               </button>
             </div>
             <div>
-              <div className="mb-1 text-[11px] text-cp-text-muted">
+              <div className="mb-1 text-cp-xs text-cp-text-muted">
                 {t('project.meta.clientLogo', 'Client logo')}
               </div>
               {clientLogo ? (
@@ -256,7 +256,7 @@ export const ProjectMetaDialog = ({
                   <button
                     type="button"
                     onClick={() => setClientLogo(undefined)}
-                    className="rounded bg-red-900/60 px-2 py-1 text-[11px] hover:bg-red-800"
+                    className="rounded bg-red-900/60 px-2 py-1 text-cp-xs hover:bg-red-800"
                   >
                     {t('project.meta.removeLogo', 'Remove')}
                   </button>
@@ -277,7 +277,7 @@ export const ProjectMetaDialog = ({
               <button
                 type="button"
                 onClick={() => clientInputRef.current?.click()}
-                className="mt-1 rounded bg-cp-surface-4 px-2 py-1 text-[11px] hover:bg-cp-surface-5"
+                className="mt-1 rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
               >
                 {t('project.meta.chooseLogo', 'Choose logo…')}
               </button>
@@ -285,7 +285,7 @@ export const ProjectMetaDialog = ({
           </div>
 
           <PanelHint
-            className="text-[10px] italic text-cp-text-muted"
+            className="text-cp-xs italic text-cp-text-muted"
             text={t(
               'project.meta.footnote',
               'These fields appear in the plan footer when exporting to PDF. Every save updates the "last modified" date automatically.',

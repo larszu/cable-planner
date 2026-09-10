@@ -192,7 +192,7 @@ export const ModeEditorDialog = ({
                 className="mt-0.5 w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-text"
               />
               {nameConflict && (
-                <span className="mt-0.5 flex items-center gap-1 text-[10px] text-amber-400">
+                <span className="mt-0.5 flex items-center gap-1 text-cp-xs text-amber-400">
                   <Icon icon={AlertTriangle} size="xs" />
                   {t('modeEditor.nameConflict', 'A mode with this name already exists.')}
                 </span>
@@ -238,7 +238,7 @@ export const ModeEditorDialog = ({
           </div>
 
           <div className="mt-4 flex items-center justify-between">
-            <div className="text-[10px] text-cp-text-muted">
+            <div className="text-cp-xs text-cp-text-muted">
               {format(
                 t('modeEditor.portCount', '{count} port(s) in this mode'),
                 { count: totalPortCount },
@@ -247,7 +247,7 @@ export const ModeEditorDialog = ({
             <button
               type="button"
               onClick={seedFromCurrent}
-              className="rounded bg-cp-surface-4 px-2 py-1 text-[11px] hover:bg-cp-surface-5"
+              className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
               title={t('modeEditor.seedTitle', "Adopt the device's CURRENT port layout as a starting point.")}
             >
               <Icon icon={Download} size="xs" className="mr-1 inline-block align-text-bottom" />{t('modeEditor.seedBtn', 'Adopt current device layout')}
@@ -267,7 +267,7 @@ export const ModeEditorDialog = ({
                 className="rounded border border-cp-border-muted bg-cp-surface-3/40 p-2"
               >
                 <div className="mb-2 flex items-center justify-between">
-                  <span className={`text-[11px] font-semibold ${
+                  <span className={`text-cp-xs font-semibold ${
                     accent === 'cyan' ? 'text-cyan-300' : 'text-emerald-300'
                   }`}>
                     {label} ({list.length})
@@ -275,13 +275,13 @@ export const ModeEditorDialog = ({
                   <button
                     type="button"
                     onClick={() => addPort(side)}
-                    className="rounded bg-cp-surface-2 px-2 py-0.5 text-[10px] text-cp-text-secondary hover:bg-cp-surface-4"
+                    className="rounded bg-cp-surface-2 px-2 py-0.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-4"
                   >
                     + {t('modeEditor.addPort', 'Port')}
                   </button>
                 </div>
                 {list.length === 0 ? (
-                  <div className="rounded border border-dashed border-cp-border p-3 text-center text-[10px] text-cp-text-muted">
+                  <div className="rounded border border-dashed border-cp-border p-3 text-center text-cp-xs text-cp-text-muted">
                     {format(t('modeEditor.emptySide', 'No {kind} in this mode.'), { kind: label.toLowerCase() })}
                   </div>
                 ) : (
@@ -296,7 +296,7 @@ export const ModeEditorDialog = ({
                           value={p.name}
                           onChange={(e) => updatePort(side, p.id, { name: e.target.value })}
                           placeholder={t('ports.namePlaceholder', 'Port name')}
-                          className="flex-1 rounded border border-cp-border bg-cp-surface-3 px-1.5 py-0.5 text-[11px]"
+                          className="flex-1 rounded border border-cp-border bg-cp-surface-3 px-1.5 py-0.5 text-cp-xs"
                         />
                         <select
                           value={p.connectorType}
@@ -305,7 +305,7 @@ export const ModeEditorDialog = ({
                               connectorType: e.target.value as ConnectorType,
                             })
                           }
-                          className="w-28 rounded border border-cp-border bg-cp-surface-3 px-1 py-0.5 text-[10px]"
+                          className="w-28 rounded border border-cp-border bg-cp-surface-3 px-1 py-0.5 text-cp-xs"
                         >
                           {ALL_CONNECTOR_TYPES.map((c) => (
                             <option key={c} value={c}>
@@ -316,7 +316,7 @@ export const ModeEditorDialog = ({
                         <button
                           type="button"
                           onClick={() => removePort(side, p.id)}
-                          className="rounded px-1 py-0.5 text-[11px] text-red-400 hover:bg-red-900/40"
+                          className="rounded px-1 py-0.5 text-cp-xs text-red-400 hover:bg-red-900/40"
                           title={t('modeEditor.removePort', 'Remove port')}
                           aria-label={t('modeEditor.removePort', 'Remove port')}
                         >

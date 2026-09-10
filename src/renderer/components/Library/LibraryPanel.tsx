@@ -720,7 +720,7 @@ export const LibraryPanel = () => {
           type="button"
           onClick={toggleCollapsed}
           aria-label={t('library.show', 'Show library')}
-          className="mt-3 flex-1 self-stretch text-[10px] font-semibold uppercase tracking-[0.18em] text-cp-text-muted transition-colors hover:text-cp-text-secondary focus-visible:outline-none focus-visible:text-sky-300"
+          className="mt-3 flex-1 self-stretch text-cp-xs font-semibold uppercase tracking-[0.18em] text-cp-text-muted transition-colors hover:text-cp-text-secondary focus-visible:outline-none focus-visible:text-sky-300"
           style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}
         >
           {t('library.title', 'Library')}
@@ -855,9 +855,9 @@ export const LibraryPanel = () => {
               }`}
               title={t('library.section.localTitle', 'Custom and imported templates, local to this installation')}
             >
-              <span className="mr-1 rounded bg-sky-900/80 px-1 text-[11px] font-bold text-sky-100">L</span>
+              <span className="mr-1 rounded bg-sky-900/80 px-1 text-cp-xs font-bold text-sky-100">L</span>
               {t('library.section.local', 'Local')}
-              <span className="ml-1 text-[10px] text-cp-text-muted">
+              <span className="ml-1 text-cp-xs text-cp-text-muted">
                 ({customLibrary.filter((t) => !t.rentmanSource).length})
               </span>
             </button>
@@ -871,9 +871,9 @@ export const LibraryPanel = () => {
               }`}
               title={t('library.section.rentmanTitle', 'Rentman-imported devices and account catalog')}
             >
-              <span className="mr-1 rounded bg-orange-900/80 px-1 text-[11px] font-bold text-orange-100">R</span>
+              <span className="mr-1 rounded bg-orange-900/80 px-1 text-cp-xs font-bold text-orange-100">R</span>
               Rentman
-              <span className="ml-1 text-[10px] text-cp-text-muted">
+              <span className="ml-1 text-cp-xs text-cp-text-muted">
                 ({customLibrary.filter((t) => t.rentmanSource).length})
               </span>
             </button>
@@ -977,7 +977,7 @@ export const LibraryPanel = () => {
               </div>
             )}
 
-            <div className="mb-2 text-[11px] uppercase tracking-wide text-cp-text-muted">
+            <div className="mb-2 text-cp-xs uppercase tracking-wide text-cp-text-muted">
               {t('library.netbox.hits', 'Hits')} {netBoxResults.length > 0 ? `(${netBoxResults.length})` : ''}
             </div>
             <div className="space-y-2">
@@ -997,9 +997,9 @@ export const LibraryPanel = () => {
                         <div className="truncate font-medium text-cp-text">
                           {item.manufacturer} {item.model}
                         </div>
-                        <div className="truncate text-[11px] text-cp-text-muted">{item.path}</div>
+                        <div className="truncate text-cp-xs text-cp-text-muted">{item.path}</div>
                         <div className="mt-2 flex max-w-[340px] items-center gap-2">
-                          <span className="text-[11px] text-cp-text-muted">{t('library.netbox.categoryLabel', 'Category:')}</span>
+                          <span className="text-cp-xs text-cp-text-muted">{t('library.netbox.categoryLabel', 'Category:')}</span>
                           <select
                             value={netBoxCategoryByPath[item.path] ?? ''}
                             onChange={(event) =>
@@ -1102,7 +1102,7 @@ export const LibraryPanel = () => {
                     setAiKeyDraft(getGeminiApiKey())
                     setAiSettingsOpen(true)
                   }}
-                  className="text-[10px] text-violet-300 hover:underline"
+                  className="text-cp-xs text-violet-300 hover:underline"
                   title={t('library.create.aiSettings', 'AI settings')}
                 >
                   <Icon icon={Settings} size="xs" className="mr-1 inline-block align-text-bottom" />{t('library.create.aiSettingsLabel', 'AI settings')}
@@ -1174,7 +1174,7 @@ export const LibraryPanel = () => {
                     {t('common.cancel', 'Cancel')}
                   </button>
                 </div>
-                <div className="mt-1 text-[10px] text-cp-text-muted">
+                <div className="mt-1 text-cp-xs text-cp-text-muted">
                   {t('library.create.aiKey.hintPrefix', 'Stored locally in localStorage only. Create a key at')}{' '}
                   <a
                     href="https://aistudio.google.com/app/apikey"

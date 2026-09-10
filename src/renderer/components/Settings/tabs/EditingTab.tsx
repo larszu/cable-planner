@@ -37,7 +37,7 @@ const CableEndpointLabelsCard = () => {
         {t('settings.editing.endpointLabelsLabel', 'Show endpoint labels')}
       </label>
       <PanelHint
-        className="mt-2 text-[11px] text-cp-text-muted"
+        className="mt-2 text-cp-xs text-cp-text-muted"
         text={t('settings.editing.endpointLabelsNote', 'Off by default — adds extra visual noise. Works together with the global "Hide all labels" toggle and respects per-cable labelPosition=\'none\'.')}
       />
     </SettingsCard>
@@ -70,7 +70,7 @@ const CableInheritTypeCard = () => {
         {t('settings.editing.cableInheritLabel', 'Derive cable type from port connector')}
       </label>
       <PanelHint
-        className="mt-2 text-[11px] text-cp-text-muted"
+        className="mt-2 text-cp-xs text-cp-text-muted"
         text={t(
           'settings.editing.cableInheritNote',
           'On by default: cables should usually reflect the physical connector type of their ports. Turn off if cable types are managed independently of port types.',
@@ -105,7 +105,7 @@ const CableReconnectOptionsCard = () => {
         {t('settings.editing.labelSwapLabel', 'Swap port labels on reconnect')}
       </label>
       <PanelHint
-        className="mt-2 text-[11px] text-cp-text-muted"
+        className="mt-2 text-cp-xs text-cp-text-muted"
         text={t(
           'settings.editing.labelSwapNote',
           'Off by default for safety — otherwise test re-plugging would unintentionally rename labels. Only affects ports with a user-edited name (nothing to swap otherwise).',
@@ -203,7 +203,7 @@ export const EditingTab = () => {
               if (c.routing !== defaultRouting) updateCable(c.id, { routing: defaultRouting })
             })
           }}
-          className="mt-2 w-full rounded bg-cp-surface-2 px-2 py-1 text-[11px] text-cp-text-secondary hover:bg-cp-surface-4 disabled:opacity-50"
+          className="mt-2 w-full rounded bg-cp-surface-2 px-2 py-1 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-4 disabled:opacity-50"
         >
           {format(
             t('settings.editing.routing.applyAll', 'Apply to all existing cables ({count})'),

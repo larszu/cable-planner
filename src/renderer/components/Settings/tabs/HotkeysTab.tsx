@@ -39,7 +39,7 @@ const HotkeyRow = ({
             setCapturing(false)
           }
         }}
-        className={`min-w-[120px] rounded border px-2 py-1 text-center font-mono text-[11px] ${
+        className={`min-w-[120px] rounded border px-2 py-1 text-center font-mono text-cp-xs ${
           capturing
             ? 'border-sky-500 bg-sky-950/60 text-sky-200'
             : 'border-cp-border bg-cp-surface-1 text-cp-text-secondary hover:border-cp-surface-5'
@@ -55,7 +55,7 @@ const HotkeyRow = ({
       <button
         type="button"
         onClick={() => onChange('')}
-        className="rounded bg-cp-surface-2 px-1.5 py-0.5 text-[10px] text-cp-text-muted hover:bg-red-700 hover:text-white"
+        className="rounded bg-cp-surface-2 px-1.5 py-0.5 text-cp-xs text-cp-text-muted hover:bg-red-700 hover:text-white"
         title={t('settings.hotkeys.clear', 'Clear hotkey')}
         aria-label={t('settings.hotkeys.clear', 'Clear hotkey')}
       >

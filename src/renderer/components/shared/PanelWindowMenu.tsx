@@ -120,7 +120,7 @@ export const PanelWindowMenu = ({
           {/* Der dritte Weg steht nur da, weil er sonst unauffindbar waere:
               den Knopf selbst kann man ziehen. Das ist keine Wiederholung des
               ersten Eintrags — es ist die Bedienung, die niemand raet. */}
-          <p className="mt-1 border-t border-cp-border-muted px-2 pt-1.5 text-[10px] text-cp-text-muted">
+          <p className="mt-1 border-t border-cp-border-muted px-2 pt-1.5 text-cp-xs text-cp-text-muted">
             {t('panel.window.dragHint', 'The button can also be dragged.')}
           </p>
         </div>

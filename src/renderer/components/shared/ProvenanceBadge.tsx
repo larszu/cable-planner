@@ -46,7 +46,7 @@ export const ProvenanceBadge = ({ provenance, field, title }: ProvenanceBadgePro
   return (
     <span
       title={reason}
-      className={`ml-1 inline-block rounded border px-1 text-[10px] leading-4 align-middle ${STYLE[provenance]}`}
+      className={`ml-1 inline-block rounded border px-1 text-cp-xs leading-4 align-middle ${STYLE[provenance]}`}
     >
       {label}
     </span>
