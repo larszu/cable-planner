@@ -43,12 +43,18 @@ import { portDisplayLabel } from '../renderer/lib/portLabel'
 import { keepScreenAwake } from '../renderer/lib/wakeLock'
 import type { CablePlannerProject } from '../renderer/types/project'
 import { PatternWalk } from './PatternWalk'
+import { format, uebersetzer } from './i18n'
 import { aenderungen, positionsKarte } from '../renderer/lib/rundownCard'
 import type { RundownPlan } from '../renderer/types/rundown'
 
 /** Deep-Link beim Laden: `?lookup=cable/C-0001` oder `#cable/C-0001` /
  *  `#C-0001`. Wird einmalig nach dem Projekt-Load aufgelöst und springt
  *  zum Element. Leerstring = kein Deep-Link. */
+// Ein Uebersetzer je Modul. Die Sprache kommt aus dem Telefon und wechselt
+// waehrend einer Sitzung nicht — ein Hook waere hier nur Zeremonie, und die
+// Klassen-freien Helfer weiter unten koennten ihn gar nicht rufen.
+const t = uebersetzer()
+
 const INITIAL_LOOKUP =
   typeof window !== 'undefined'
     ? window.location.hash.replace(/^#/, '') ||
@@ -311,13 +317,13 @@ const ProjectPicker = ({
       if (!info.ok) throw new Error(`share-info ${info.status}`)
       const meta = (await info.json()) as { ok: boolean; hasProject: boolean }
       if (!meta.ok || !meta.hasProject) {
-        throw new Error('Desktop teilt aktuell kein Projekt.')
+        throw new Error(t('mobile.err.noProject', 'The desktop is not sharing a project right now.'))
       }
       const res = await apiFetch('/project.json', { cache: 'no-store' })
       if (!res.ok) throw new Error(`project ${res.status}`)
       const data = (await res.json()) as CablePlannerProject
       if (!data || !Array.isArray(data.equipment)) {
-        throw new Error('Antwort hat falsches Format.')
+        throw new Error(t('mobile.err.badFormat', 'The response has the wrong format.'))
       }
       cacheProject(data)
       onLoad(data)
@@ -328,8 +334,14 @@ const ProjectPicker = ({
       } else {
         setReloadError(
           e instanceof Error
-            ? `Host nicht erreichbar (${e.message}). Datei wählen oder JSON einfügen.`
-            : 'Host nicht erreichbar.',
+            ? format(
+                t(
+                  'mobile.err.hostUnreachable',
+                  'Host unreachable ({error}). Choose a file or paste JSON.',
+                ),
+                { error: e.message },
+              )
+            : t('mobile.err.hostUnreachableShort', 'Host unreachable.'),
         )
       }
     } finally {
@@ -341,7 +353,12 @@ const ProjectPicker = ({
     try {
       const data = JSON.parse(text) as CablePlannerProject
       if (!data || !Array.isArray(data.equipment) || !Array.isArray(data.cables)) {
-        setError('Datei sieht nicht wie ein Cable-Planner-Projekt aus (fehlende equipment/cables).')
+        setError(
+          t(
+            'mobile.err.notAProject',
+            'This file does not look like a Cable Planner project (equipment/cables missing).',
+          ),
+        )
         return
       }
       onLoad(data)
@@ -355,7 +372,7 @@ const ProjectPicker = ({
     if (!file) return
     const reader = new FileReader()
     reader.onload = () => tryParse(typeof reader.result === 'string' ? reader.result : '')
-    reader.onerror = () => setError('Datei konnte nicht gelesen werden.')
+    reader.onerror = () => setError(t('mobile.err.fileUnreadable', 'The file could not be read.'))
     reader.readAsText(file)
     e.target.value = ''
   }
@@ -368,9 +385,12 @@ const ProjectPicker = ({
           Cable Planner — Mobile
         </h1>
         <p className="mt-1 text-xs text-cp-text-muted">
-          Hak Ports und Kabel ab während du sie steckst, oder trage fehlende
-          Patches direkt vor Ort nach. Alles syncht live zum Desktop. Offline
-          funktioniert auch — Häkchen werden beim Re-Connect übertragen.
+          {t(
+            'mobile.intro',
+            'Tick off ports and cables while you patch them, or add missing patches right ' +
+              'on site. Everything syncs live to the desktop. Offline works too — ticks are ' +
+              'transferred on reconnect.',
+          )}
         </p>
       </header>
       <button
@@ -380,15 +400,23 @@ const ProjectPicker = ({
         className="w-full rounded bg-emerald-700 px-3 py-3 text-sm font-semibold text-white hover:bg-emerald-600 disabled:opacity-50"
         title={
           cached
-            ? `Letztes Projekt vom Host laden — fallback auf Cache vom ${new Date(cached.cachedAt).toLocaleString()}`
-            : 'Aktuell auf dem Desktop geöffnetes Projekt laden'
+            ? format(
+                t(
+                  'mobile.reload.titleCached',
+                  'Load the latest project from the host — falls back to the cache from {time}',
+                ),
+                { time: new Date(cached.cachedAt).toLocaleString() },
+              )
+            : t('mobile.reload.title', 'Load the project currently open on the desktop')
         }
       >
         {reloading
-          ? '⏳ Lade…'
+          ? t('mobile.reload.busy', '⏳ Loading…')
           : cached
-            ? `↻ Projekt erneut laden (Cache: ${new Date(cached.cachedAt).toLocaleString()})`
-            : '↻ Projekt vom Desktop laden'}
+            ? format(t('mobile.reload.cached', '↻ Reload project (cache: {time})'), {
+                time: new Date(cached.cachedAt).toLocaleString(),
+              })
+            : t('mobile.reload.fresh', '↻ Load project from the desktop')}
       </button>
       {reloadError && (
         <div className="flex items-center gap-1.5 rounded border border-amber-700 bg-amber-900/30 p-2 text-cp-xs text-amber-200">
@@ -397,7 +425,7 @@ const ProjectPicker = ({
         </div>
       )}
       <div className="text-center text-cp-xs uppercase tracking-wider text-cp-text-faint">
-        oder
+        {t('mobile.or', 'or')}
       </div>
       <label className="block rounded border border-dashed border-cp-border bg-cp-surface-1 p-4 text-center text-sm text-cp-text-secondary">
         <input
@@ -406,7 +434,9 @@ const ProjectPicker = ({
           className="hidden"
           onChange={onFile}
         />
-        <span className="cursor-pointer">📂 Cable-Planner-Datei (.json) wählen…</span>
+        <span className="cursor-pointer">
+          {t('mobile.file.pick', '📂 Choose a Cable Planner file (.json)…')}
+        </span>
       </label>
       <div className="text-center">
         <button
@@ -414,7 +444,9 @@ const ProjectPicker = ({
           onClick={() => setPasteOpen((v) => !v)}
           className="text-xs text-cp-text-muted underline hover:text-cp-text"
         >
-          {pasteOpen ? 'Einfügen abbrechen' : 'Oder JSON einfügen…'}
+          {pasteOpen
+            ? t('mobile.paste.cancel', 'Cancel pasting')
+            : t('mobile.paste.open', 'Or paste JSON…')}
         </button>
       </div>
       {pasteOpen && (
@@ -431,7 +463,7 @@ const ProjectPicker = ({
             onClick={() => tryParse(pasted)}
             className="w-full rounded bg-cp-accent px-3 py-2 text-sm text-white hover:opacity-90"
           >
-            Projekt laden
+            {t('mobile.paste.load', 'Load project')}
           </button>
         </div>
       )}
@@ -778,9 +810,9 @@ const MobilePlanSvg = ({
       </svg>
       {/* #504 — Zoom-Buttons (für Geräte ohne Pinch und als sichtbarer Hinweis). */}
       <div className="absolute bottom-2 right-2 flex flex-col gap-1">
-        <button type="button" aria-label="Vergrößern" onClick={() => zoomButton(1.4)} className="h-9 w-9 rounded-full bg-cp-surface-3/90 text-lg font-bold text-cp-text shadow ring-1 ring-cp-border active:bg-cp-surface-4">+</button>
-        <button type="button" aria-label="Verkleinern" onClick={() => zoomButton(1 / 1.4)} className="h-9 w-9 rounded-full bg-cp-surface-3/90 text-lg font-bold text-cp-text shadow ring-1 ring-cp-border active:bg-cp-surface-4">−</button>
-        <button type="button" aria-label="Einpassen" onClick={() => zoomButton('fit')} className="h-9 w-9 rounded-full bg-cp-surface-3/90 text-base text-cp-text shadow ring-1 ring-cp-border active:bg-cp-surface-4">⤢</button>
+        <button type="button" aria-label={t('mobile.zoom.in', 'Zoom in')} onClick={() => zoomButton(1.4)} className="h-9 w-9 rounded-full bg-cp-surface-3/90 text-lg font-bold text-cp-text shadow ring-1 ring-cp-border active:bg-cp-surface-4">+</button>
+        <button type="button" aria-label={t('mobile.zoom.out', 'Zoom out')} onClick={() => zoomButton(1 / 1.4)} className="h-9 w-9 rounded-full bg-cp-surface-3/90 text-lg font-bold text-cp-text shadow ring-1 ring-cp-border active:bg-cp-surface-4">−</button>
+        <button type="button" aria-label={t('mobile.zoom.fit', 'Fit')} onClick={() => zoomButton('fit')} className="h-9 w-9 rounded-full bg-cp-surface-3/90 text-base text-cp-text shadow ring-1 ring-cp-border active:bg-cp-surface-4">⤢</button>
       </div>
     </div>
   )
@@ -899,7 +931,7 @@ const PortList = ({
                   {cable && otherDevice && (
                     <span className="mt-1 block rounded bg-cp-accent/60 px-2 py-1 text-xs text-cp-accent">
                       <span className="text-cp-xs uppercase tracking-wide text-cp-accent/80">
-                        → geht zu
+                        {t('mobile.port.goesTo', '→ goes to')}
                       </span>
                       <span className="ml-1 font-semibold text-white">
                         {otherDevice.name}
@@ -917,14 +949,16 @@ const PortList = ({
                       )}
                       {bridgeNames.length > 0 && (
                         <span className="mt-0.5 block text-cp-xs text-cp-accent/80">
-                          via {bridgeNames.join(' → ')}
+                          {format(t('mobile.port.via', 'via {path}'), {
+                            path: bridgeNames.join(' → '),
+                          })}
                         </span>
                       )}
                     </span>
                   )}
                   {cable && !otherDevice && (
                     <span className="mt-1 block text-cp-xs italic text-cp-text-faint">
-                      Offenes Ende
+                      {t('mobile.port.openEnd', 'Open end')}
                     </span>
                   )}
                 </span>
@@ -1011,7 +1045,7 @@ const QrFindOverlay = ({
         await v.play()
         raf = requestAnimationFrame(() => void tick())
       } catch (e) {
-        setCamError((e as Error).message || 'Kamera nicht verfügbar')
+        setCamError((e as Error).message || t('mobile.qr.camUnavailable', 'Camera unavailable'))
       }
     }
     void start()
@@ -1033,13 +1067,13 @@ const QrFindOverlay = ({
     <div className="fixed inset-0 z-50 flex flex-col bg-cp-bg/95 p-4">
       <div className="mb-3 flex items-center justify-between">
         <h2 className="flex items-center gap-2 text-sm font-semibold text-cp-text">
-          <Icon icon={QrCode} size="sm" /> QR / ID finden
+          <Icon icon={QrCode} size="sm" /> {t('mobile.qr.title', 'Find QR / ID')}
         </h2>
         <button
           type="button"
           onClick={onClose}
           className="rounded bg-cp-surface-3 p-1.5 text-cp-text-secondary hover:bg-cp-surface-4"
-          aria-label="Schließen"
+          aria-label={t('mobile.close', 'Close')}
         >
           <Icon icon={X} size="sm" />
         </button>
@@ -1057,9 +1091,11 @@ const QrFindOverlay = ({
         </div>
       ) : (
         <div className="mb-3 rounded border border-cp-border bg-cp-surface-1 px-3 py-2 text-cp-xs text-cp-text-muted">
-          Kamera-Scan hier nicht verfügbar (kein HTTPS/Secure-Context). Scanne das
-          Etikett mit der Kamera-App deines Geräts und füge den Code unten ein —
-          oder tippe die Kabel-/Asset-ID.
+          {t(
+            'mobile.qr.noScan',
+            'Camera scanning is unavailable here (no HTTPS/secure context). Scan the label ' +
+              'with your phone camera app and paste the code below — or type the cable/asset ID.',
+          )}
         </div>
       )}
 
@@ -1072,7 +1108,7 @@ const QrFindOverlay = ({
             if (e.key === 'Enter') submitText()
           }}
           autoFocus={!canScan}
-          placeholder="z.B. C-0001, A-0007 oder cableplanner://…"
+          placeholder={t('mobile.lookup.placeholder', 'e.g. C-0001, A-0007 or cableplanner://…')}
           className="flex-1 rounded border border-cp-border bg-cp-surface-1 px-2 py-2 text-sm text-cp-text"
         />
         <button
@@ -1080,7 +1116,7 @@ const QrFindOverlay = ({
           onClick={submitText}
           className="flex items-center gap-1 rounded bg-cp-accent px-3 py-2 text-xs text-white hover:opacity-90"
         >
-          <Icon icon={Search} size="sm" /> Finden
+          <Icon icon={Search} size="sm" /> {t('mobile.qr.find', 'Find')}
         </button>
       </div>
     </div>
@@ -1144,13 +1180,13 @@ const AblaufKarte = ({
   return (
     <div className="mt-2 space-y-2">
       <label className="block text-cp-xs text-cp-text-secondary">
-        <span className="mb-1 block">Mein Platz</span>
+        <span className="mb-1 block">{t('mobile.rundown.myPlace', 'My position')}</span>
         <select
           value={sourceId ?? ''}
           onChange={(e) => waehle(e.target.value || null)}
           className="w-full rounded border border-cp-border bg-cp-surface-1 px-2 py-1 text-xs text-cp-text"
         >
-          <option value="">— Position wählen —</option>
+          <option value="">{t('mobile.pos.choose', '— choose position —')}</option>
           {identities.map((i) => (
             <option key={i.id} value={i.id}>
               {i.name}
@@ -1161,8 +1197,11 @@ const AblaufKarte = ({
 
       {!sourceId && (
         <p className="text-cp-xs text-cp-text-muted">
-          Wähle deine Kameraposition. Ohne sie kann diese Ansicht nicht sagen, was DIR aufgetragen
-          ist — und eine Liste aller Aufträge wäre am Platz unbrauchbar.
+          {t(
+            'mobile.rundown.pickHint',
+            'Choose your camera position. Without it this view cannot say what YOU are ' +
+              'assigned — and a list of everyone else\'s assignments is useless on the floor.',
+          )}
         </p>
       )}
 
@@ -1170,20 +1209,29 @@ const AblaufKarte = ({
         <>
           <div className="rounded border border-cp-border-muted bg-cp-surface-1 px-2 py-1 text-cp-xs text-cp-text-muted">
             {karte.source}
-            {karte.revision ? ` · ${karte.revision}` : ''} · {karte.mitAuftrag}/
-            {karte.zeilen.length} mit Auftrag
+            {karte.revision ? ` · ${karte.revision}` : ''} ·{' '}
+            {format(t('mobile.rundown.withAssignment', '{done}/{total} with assignment'), {
+              done: karte.mitAuftrag,
+              total: karte.zeilen.length,
+            })}
           </div>
 
           {/* Der Balken. Er steht NUR da, wenn es einen Vergleichsstand gibt
               und wirklich etwas anders ist. */}
           {diff && !diff.unveraendert && (
             <div className="rounded border border-amber-500/50 bg-amber-500/10 px-2 py-1 text-cp-xs text-amber-200">
-              Seit deinem letzten Blick:{' '}
+              {t('mobile.rundown.sinceLast', 'Since your last look:')}{' '}
               {[
-                diff.geaendert > 0 ? `${diff.geaendert} geändert` : null,
-                diff.neu > 0 ? `${diff.neu} neu` : null,
-                diff.entfallen > 0 ? `${diff.entfallen} entfallen` : null,
-                diff.verschoben > 0 ? `${diff.verschoben} verschoben` : null,
+                diff.geaendert > 0
+                  ? format(t('mobile.rundown.changed', '{n} changed'), { n: diff.geaendert })
+                  : null,
+                diff.neu > 0 ? format(t('mobile.rundown.new', '{n} new'), { n: diff.neu }) : null,
+                diff.entfallen > 0
+                  ? format(t('mobile.rundown.dropped', '{n} dropped'), { n: diff.entfallen })
+                  : null,
+                diff.verschoben > 0
+                  ? format(t('mobile.rundown.moved', '{n} moved'), { n: diff.verschoben })
+                  : null,
               ]
                 .filter(Boolean)
                 .join(' · ')}
@@ -1195,14 +1243,16 @@ const AblaufKarte = ({
                 }}
                 className="ml-2 rounded bg-cp-surface-3 px-2 py-0.5 text-cp-text"
               >
-                gesehen
+                {t('mobile.rundown.seen', 'seen')}
               </button>
             </div>
           )}
           {!gesehen && (
             <p className="text-cp-xs text-cp-text-muted">
-              Noch kein Vergleichsstand auf diesem Gerät — beim ersten Blick gibt es nichts zu
-              markieren.{' '}
+              {t(
+                'mobile.rundown.noBaseline',
+                'No baseline on this device yet — there is nothing to mark on the first look.',
+              )}{' '}
               <button
                 type="button"
                 onClick={() => {
@@ -1211,7 +1261,7 @@ const AblaufKarte = ({
                 }}
                 className="rounded bg-cp-surface-3 px-2 py-0.5 text-cp-text"
               >
-                Diesen Stand merken
+                {t('mobile.rundown.rememberBaseline', 'Remember this revision')}
               </button>
             </p>
           )}
@@ -1233,9 +1283,15 @@ const AblaufKarte = ({
                       {z.segment.number ?? z.position}
                     </span>
                     <span className="text-xs text-cp-text">{z.segment.title}</span>
-                    {art === 'neu' && <span className="text-cp-xs text-amber-300">neu</span>}
+                    {art === 'neu' && (
+                      <span className="text-cp-xs text-amber-300">
+                        {t('mobile.rundown.tagNew', 'new')}
+                      </span>
+                    )}
                     {art === 'anders' && (
-                      <span className="text-cp-xs text-amber-300">geändert</span>
+                      <span className="text-cp-xs text-amber-300">
+                        {t('mobile.rundown.tagChanged', 'changed')}
+                      </span>
                     )}
                   </div>
                   {/* Kein Auftrag heisst NICHT „frei" — siehe
@@ -1244,7 +1300,9 @@ const AblaufKarte = ({
                   <div
                     className={`text-xs ${z.coverage ? 'text-cp-text' : 'text-cp-text-faint italic'}`}
                   >
-                    {z.coverage ? z.coverage.shot : 'kein Auftrag eingetragen'}
+                    {z.coverage
+                      ? z.coverage.shot
+                      : t('mobile.rundown.noShot', 'no assignment entered')}
                   </div>
                   {z.coverage?.note && (
                     <div className="text-cp-xs text-cp-text-muted">{z.coverage.note}</div>
@@ -1261,7 +1319,10 @@ const AblaufKarte = ({
                   key={`weg-${z.segmentId}`}
                   className="rounded border border-cp-danger/40 bg-cp-surface-1 px-2 py-1 text-cp-xs text-cp-danger line-through"
                 >
-                  entfallen: {gesehen?.segments.find((s) => s.id === z.segmentId)?.title ?? z.segmentId}
+                  {format(t('mobile.rundown.droppedItem', 'dropped: {title}'), {
+                    title:
+                      gesehen?.segments.find((s) => s.id === z.segmentId)?.title ?? z.segmentId,
+                  })}
                 </li>
               ))}
           </ul>
@@ -1412,24 +1473,50 @@ const ProjectView = ({
       setFocus(null)
       setLookupMsg(
         status === 'current'
-          ? { ok: true, text: `${label}: aktueller Stand` }
+          ? {
+              ok: true,
+              text: format(t('mobile.lookup.docCurrent', '{label}: current revision'), { label }),
+            }
           : status === 'stale'
-            ? { ok: false, text: `${label}: VERALTET — aktueller Stand #${now}` }
-            : { ok: false, text: `${label}: Stand nicht prüfbar` },
+            ? {
+                ok: false,
+                text: format(
+                  t('mobile.lookup.docStale', '{label}: OUTDATED — current revision #{stand}'),
+                  { label, stand: now ?? '?' },
+                ),
+              }
+            : {
+                ok: false,
+                text: format(
+                  t('mobile.lookup.docUnknown', '{label}: revision cannot be checked'),
+                  { label },
+                ),
+              },
       )
       return
     }
     const typed = findByStand(raw, project)
     if (typed) {
       setFocus(null)
-      setLookupMsg({ ok: true, text: `${typed.label}: aktueller Stand` })
+      setLookupMsg({
+        ok: true,
+        text: format(t('mobile.lookup.docCurrent', '{label}: current revision'), {
+          label: typed.label,
+        }),
+      })
       return
     }
     if (/^#?[0-9a-f]{8}$/i.test(raw.trim())) {
       // Acht Hex-Zeichen, aber kein Dokument passt: das Blatt ist veraltet.
       // Das ist eine Aussage und kein "nicht gefunden" — deshalb eigener Fall.
       setFocus(null)
-      setLookupMsg({ ok: false, text: `Stand ${raw.trim()} gehört zu keinem aktuellen Blatt` })
+      setLookupMsg({
+        ok: false,
+        text: format(
+          t('mobile.lookup.standOrphan', 'Revision {stand} does not belong to any current sheet'),
+          { stand: raw.trim() },
+        ),
+      })
       return
     }
 
@@ -1437,18 +1524,32 @@ const ProjectView = ({
     const match = ref ? lookupQrRef(ref, project.cables, project.equipment) : null
     if (!match) {
       setFocus(null)
-      setLookupMsg({ ok: false, text: `Kein Treffer für „${raw.slice(0, 40)}"` })
+      setLookupMsg({
+        ok: false,
+        text: format(t('mobile.lookup.noMatch', 'No match for "{raw}"'), {
+          raw: raw.slice(0, 40),
+        }),
+      })
       return
     }
     setViewMode('list')
     setFilter('')
     if (match.kind === 'equipment') {
       setFocus({ deviceId: match.item.id, nonce: Date.now() })
-      setLookupMsg({ ok: true, text: `Gerät: ${match.item.name}` })
+      setLookupMsg({
+        ok: true,
+        text: format(t('mobile.lookup.device', 'Device: {name}'), { name: match.item.name }),
+      })
     } else {
       const c = match.item
       setFocus({ deviceId: c.fromEquipmentId, portId: c.fromPortId, nonce: Date.now() })
-      setLookupMsg({ ok: true, text: `Kabel ${cableLabelId(c)}: ${c.name || c.type}` })
+      setLookupMsg({
+        ok: true,
+        text: format(t('mobile.lookup.cable', 'Cable {id}: {name}'), {
+          id: cableLabelId(c),
+          name: c.name || c.type,
+        }),
+      })
     }
   }
 
@@ -1536,14 +1637,18 @@ const ProjectView = ({
             type="button"
             onClick={onUnload}
             className="rounded bg-cp-surface-3 px-2 py-1 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-4"
-            title="Anderes Projekt laden"
+            title={t('mobile.header.otherProject', 'Load a different project')}
           >
             ◀
           </button>
           <div className="min-w-0 flex-1">
             <h1 className="truncate text-sm font-semibold text-cp-text">{projectName}</h1>
             <div className="text-cp-xs text-cp-text-muted">
-              {project.equipment.length} Geräte · {project.cables.length} Kabel ·{' '}
+              {format(t('mobile.header.counts', '{devices} devices · {cables} cables'), {
+                devices: project.equipment.length,
+                cables: project.cables.length,
+              })}{' '}
+              ·{' '}
               <span
                 className={
                   checkedPorts === totalPorts
@@ -1553,7 +1658,10 @@ const ProjectView = ({
                       : 'text-cp-text-faint'
                 }
               >
-                {checkedPorts}/{totalPorts} Ports gesteckt
+                {format(t('mobile.header.portsDone', '{done}/{total} ports patched'), {
+                  done: checkedPorts,
+                  total: totalPorts,
+                })}
               </span>
             </div>
           </div>
@@ -1574,7 +1682,11 @@ const ProjectView = ({
                   viewMode === m ? 'bg-cp-accent text-white' : 'text-cp-text-secondary hover:bg-cp-surface-3'
                 }`}
               >
-                {m === 'list' ? 'Patchliste' : m === 'plan' ? 'Plan' : 'Ablauf'}
+                {m === 'list'
+                  ? t('mobile.view.list', 'Patch list')
+                  : m === 'plan'
+                    ? t('mobile.view.plan', 'Plan')
+                    : t('mobile.view.rundown', 'Rundown')}
               </button>
             ),
           )}
@@ -1584,7 +1696,7 @@ const ProjectView = ({
           <input
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            placeholder="Suchen…"
+            placeholder={t('mobile.search', 'Search…')}
             className="flex-1 rounded border border-cp-border bg-cp-surface-1 px-2 py-1 text-xs text-cp-text"
           />
           <label className="flex items-center gap-1 text-cp-xs text-cp-text-secondary">
@@ -1593,13 +1705,13 @@ const ProjectView = ({
               checked={onlyOpen}
               onChange={(e) => setOnlyOpen(e.target.checked)}
             />
-            offen
+            {t('mobile.filter.open', 'open')}
           </label>
           <button
             type="button"
             onClick={() => setFindOpen(true)}
             className="flex items-center rounded bg-cp-surface-3 px-2 py-1 text-cp-xs text-cp-text hover:bg-cp-surface-4"
-            title="Per QR-Scan oder ID zu Kabel/Gerät springen"
+            title={t('mobile.find.title', 'Jump to a cable or device by QR scan or ID')}
           >
             <Icon icon={QrCode} size="xs" />
           </button>
@@ -1610,18 +1722,18 @@ const ProjectView = ({
             type="button"
             onClick={() => setWalkOpen(true)}
             className="rounded bg-cp-surface-3 px-2 py-1 text-cp-xs text-cp-text hover:bg-cp-surface-4"
-            title="Prüfbild-Rundgang: wo müsste welches Bild ankommen"
+            title={t('mobile.walk.title', 'Test-pattern walk: which image should arrive where')}
           >
-            Prüfbild
+            {t('mobile.walk.button', 'Pattern')}
           </button>
           {writeMode === 'contribute' && (
             <button
               type="button"
               onClick={() => setShowReport(true)}
               className="rounded bg-cp-surface-3 px-2 py-1 text-cp-xs text-amber-300 hover:bg-cp-surface-4"
-              title="Korrektur/Problem melden (Feld-Rückkanal)"
+              title={t('mobile.report.title', 'Report a correction or problem (field feedback)')}
             >
-              Meldung
+              {t('mobile.report.button', 'Report')}
             </button>
           )}
           {writeMode === 'contribute' && (
@@ -1629,9 +1741,9 @@ const ProjectView = ({
             type="button"
             onClick={() => setShowAddCable(true)}
             className="rounded bg-cp-accent px-2 py-1 text-cp-xs text-white hover:opacity-90"
-            title="Kabel vor Ort hinzufügen (Dropdowns)"
+            title={t('mobile.addCable.title', 'Add a cable on site (dropdowns)')}
           >
-            + Kabel
+            {t('mobile.addCable.button', '+ Cable')}
           </button>
           )}
         </div>
@@ -1656,8 +1768,13 @@ const ProjectView = ({
           <div className="mt-2 flex items-start gap-1.5 rounded border border-amber-700/60 bg-amber-900/30 px-2 py-1 text-cp-xs text-amber-200">
             <Icon icon={AlertTriangle} size="xs" className="mt-0.5 shrink-0" />
             <span>
-              Offline · Cache vom {cachedAt ? new Date(cachedAt).toLocaleString() : '?'} · Checks
-              werden bei Re-Connect synchronisiert
+              {format(
+                t(
+                  'mobile.offline.banner',
+                  'Offline · cache from {time} · ticks are synced on reconnect',
+                ),
+                { time: cachedAt ? new Date(cachedAt).toLocaleString() : '?' },
+              )}
             </span>
           </div>
         )}
@@ -1670,8 +1787,11 @@ const ProjectView = ({
           <div className="mt-2 flex items-start gap-1.5 rounded border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-xs text-cp-text-secondary">
             <Icon icon={AlertTriangle} size="xs" className="mt-0.5 shrink-0" />
             <span>
-              Nur lesen · Häkchen bleiben auf diesem Gerät und erreichen den Plan nicht · den Plan
-              ändert die Person am Rechner
+              {t(
+                'mobile.readonly.banner',
+                'Read only · ticks stay on this device and do not reach the plan · the person ' +
+                  'at the computer changes the plan',
+              )}
             </span>
           </div>
         )}
@@ -1705,7 +1825,7 @@ const ProjectView = ({
         <div className="space-y-2 pb-8">
           {filteredDevices.length === 0 ? (
             <div className="rounded border border-dashed border-cp-border bg-cp-surface-1 p-6 text-center text-xs text-cp-text-faint">
-              Keine Geräte passen zum Filter.
+              {t('mobile.list.noMatch', 'No devices match the filter.')}
             </div>
           ) : (
             filteredDevices.map((d) => (
@@ -1772,7 +1892,7 @@ const PlanModeView = ({
       <div className="min-h-0 flex-1 overflow-auto px-3 pb-8 pt-2">
         {!selected ? (
           <div className="rounded border border-dashed border-cp-border bg-cp-surface-1 p-5 text-center text-xs text-cp-text-faint">
-            Tippe ein Gerät im Plan an, um seine Patchliste zu sehen.
+            {t('mobile.plan.tapHint', 'Tap a device in the plan to see its patch list.')}
           </div>
         ) : (
           <div className="rounded border border-cp-border bg-cp-surface-1">
@@ -1841,21 +1961,26 @@ const Zugangscodes = () => {
     try {
       const r = await apiFetch('/pincodes', { headers: { 'X-CP-Pin-Token': code.trim() } })
       if (r.status === 404) {
-        setFehler('Nicht freigegeben. Am Planer muss jemand die Zugangscodes freigeben.')
+        setFehler(
+          t(
+            'mobile.pin.notShared',
+            'Not shared. Someone at the planner has to release the access codes.',
+          ),
+        )
         return
       }
       if (r.status === 403) {
-        setFehler('Falscher Code.')
+        setFehler(t('mobile.pin.wrongCode', 'Wrong code.'))
         return
       }
       if (!r.ok) {
-        setFehler(`Fehler ${r.status}.`)
+        setFehler(format(t('mobile.pin.error', 'Error {status}.'), { status: r.status }))
         return
       }
       const daten = (await r.json()) as { codes?: { label: string; value: string }[] }
       setCodes(daten.codes ?? [])
     } catch {
-      setFehler('Keine Verbindung zum Planer.')
+      setFehler(t('mobile.pin.noConnection', 'No connection to the planner.'))
     } finally {
       setLaeuft(false)
     }
@@ -1867,9 +1992,9 @@ const Zugangscodes = () => {
         type="button"
         onClick={() => setOffen(true)}
         className="fixed right-3 top-12 z-[300] flex items-center gap-1 rounded-full border border-cp-border bg-cp-surface-3/90 px-2.5 py-1 text-cp-xs text-cp-text shadow-lg backdrop-blur"
-        title="Anlagen-Zugangscodes"
+        title={t('mobile.pin.title', 'System access codes')}
       >
-        Zugangscodes
+        {t('mobile.pin.button', 'Access codes')}
       </button>
       {offen && (
         <div className="fixed inset-0 z-[301] flex items-end justify-center bg-black/60 p-3" onClick={schliessen}>
@@ -1877,12 +2002,17 @@ const Zugangscodes = () => {
             className="w-full max-w-md rounded-lg border border-cp-border bg-cp-surface-1 p-3 text-cp-text shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="mb-2 text-sm font-semibold">Anlagen-Zugangscodes</div>
+            <div className="mb-2 text-sm font-semibold">
+              {t('mobile.pin.title', 'System access codes')}
+            </div>
             {codes === null ? (
               <>
                 <p className="mb-2 text-cp-xs text-cp-text-muted">
-                  Der Code steht nicht im QR-Link. Er wird am Planer ausgegeben und einzeln
-                  weitergegeben.
+                  {t(
+                    'mobile.pin.hint',
+                    'The code is not in the QR link. It is issued at the planner and handed ' +
+                      'over separately.',
+                  )}
                 </p>
                 <input
                   type="text"
@@ -1892,13 +2022,13 @@ const Zugangscodes = () => {
                   spellCheck={false}
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
-                  placeholder="Code vom Planer"
+                  placeholder={t('mobile.pin.placeholder', 'Code from the planner')}
                   className="mb-2 w-full rounded border border-cp-border bg-cp-surface-2 px-2 py-1.5 font-mono text-sm tracking-widest"
                 />
                 {fehler && <div className="mb-2 text-cp-xs text-red-300">{fehler}</div>}
                 <div className="flex justify-end gap-2">
                   <button type="button" onClick={schliessen} className="rounded px-3 py-1.5 text-sm">
-                    Abbrechen
+                    {t('mobile.cancel', 'Cancel')}
                   </button>
                   <button
                     type="button"
@@ -1906,7 +2036,7 @@ const Zugangscodes = () => {
                     disabled={laeuft || code.trim() === ''}
                     className="rounded bg-sky-700 px-3 py-1.5 text-sm text-white disabled:opacity-50"
                   >
-                    {laeuft ? 'Hole…' : 'Anzeigen'}
+                    {laeuft ? t('mobile.pin.fetching', 'Fetching…') : t('mobile.pin.show', 'Show')}
                   </button>
                 </div>
               </>
@@ -1915,7 +2045,7 @@ const Zugangscodes = () => {
                 <ul className="mb-2 space-y-1.5">
                   {codes.length === 0 && (
                     <li className="text-cp-xs text-cp-text-muted">
-                      Freigegeben, aber es sind keine Codes hinterlegt.
+                      {t('mobile.pin.empty', 'Shared, but no codes are stored.')}
                     </li>
                   )}
                   {codes.map((c) => (
@@ -1926,11 +2056,14 @@ const Zugangscodes = () => {
                   ))}
                 </ul>
                 <p className="mb-2 text-cp-xs text-cp-text-muted">
-                  Dieser Abruf steht im Dokument-Register des Planers.
+                  {t(
+                    'mobile.pin.logged',
+                    'This retrieval is recorded in the planner document register.',
+                  )}
                 </p>
                 <div className="flex justify-end">
                   <button type="button" onClick={schliessen} className="rounded px-3 py-1.5 text-sm">
-                    Schließen
+                    {t('mobile.close', 'Close')}
                   </button>
                 </div>
               </>
@@ -1961,51 +2094,61 @@ const ConnectionSettings = () => {
         type="button"
         onClick={() => setOpen(true)}
         className="fixed right-3 top-3 z-[300] flex items-center gap-1 rounded-full border border-cp-border bg-cp-surface-3/90 px-2.5 py-1 text-cp-xs text-cp-text shadow-lg backdrop-blur"
-        title="Verbindung"
+        title={t('mobile.connection', 'Connection')}
       >
-        {cfg.mode === 'remote' ? '📶 Remote' : '🏠 Lokal'}
+        {cfg.mode === 'remote'
+          ? t('mobile.conn.remote', '📶 Remote')
+          : t('mobile.conn.local', '🏠 Local')}
       </button>
       {open && (
         <div className="fixed inset-0 z-[301] flex items-end justify-center bg-black/60 p-3" onClick={() => setOpen(false)}>
           <div className="w-full max-w-md rounded-lg border border-cp-border bg-cp-surface-1 p-3 text-cp-text shadow-2xl" onClick={(e) => e.stopPropagation()}>
-            <div className="mb-2 text-sm font-semibold">Verbindung</div>
+            <div className="mb-2 text-sm font-semibold">
+              {t('mobile.connection', 'Connection')}
+            </div>
             <div className="mb-3 grid grid-cols-2 gap-1 rounded bg-cp-bg p-0.5">
               <button
                 type="button"
                 onClick={() => setCfg({ ...cfg, mode: 'local' })}
                 className={`rounded px-2 py-1.5 text-xs font-medium ${cfg.mode === 'local' ? 'bg-cp-accent text-white' : 'text-cp-text-secondary hover:bg-cp-surface-3'}`}
               >
-                🏠 Lokal (LAN)
+                {t('mobile.conn.localFull', '🏠 Local (LAN)')}
               </button>
               <button
                 type="button"
                 onClick={() => setCfg({ ...cfg, mode: 'remote' })}
                 className={`rounded px-2 py-1.5 text-xs font-medium ${cfg.mode === 'remote' ? 'bg-cp-accent text-white' : 'text-cp-text-secondary hover:bg-cp-surface-3'}`}
               >
-                📶 Remote (Mobilfunk)
+                {t('mobile.conn.remoteFull', '📶 Remote (mobile data)')}
               </button>
             </div>
             {cfg.mode === 'remote' && (
               <label className="block text-xs text-cp-text-secondary">
-                Server-URL (dein Tunnel/Relay auf den Desktop, inkl. ?t=Token)
+                {t(
+                  'mobile.conn.urlLabel',
+                  'Server URL (your tunnel/relay to the desktop, including ?t=token)',
+                )}
                 <input
                   value={cfg.remoteUrl}
                   onChange={(e) => setCfg({ ...cfg, remoteUrl: e.target.value })}
-                  placeholder="https://mein-desktop.example.com/?t=…"
+                  placeholder={t('mobile.host.placeholder', 'https://my-desktop.example.com/?t=…')}
                   className="mt-1 w-full rounded border border-cp-border bg-cp-bg p-2 text-xs"
                 />
               </label>
             )}
             <p className="mt-2 text-cp-xs text-cp-text-faint">
-              Lokal: nur im selben WLAN. Remote: über mobile Daten via eigenem Tunnel/Relay
-              (siehe docs/self-hosted-relay.md). Nichts läuft über fremde Server.
+              {t(
+                'mobile.conn.hint',
+                'Local: same Wi-Fi only. Remote: over mobile data via your own tunnel/relay ' +
+                  '(see docs/self-hosted-relay.md). Nothing goes through third-party servers.',
+              )}
             </p>
             <div className="mt-3 flex justify-end gap-2">
               <button type="button" onClick={() => setOpen(false)} className="rounded bg-cp-surface-3 px-3 py-1 text-xs hover:bg-cp-surface-4">
-                Abbrechen
+                {t('mobile.cancel', 'Cancel')}
               </button>
               <button type="button" onClick={apply} className="rounded bg-emerald-700 px-3 py-1 text-xs hover:bg-emerald-600">
-                Übernehmen
+                {t('mobile.apply', 'Apply')}
               </button>
             </div>
           </div>
@@ -2146,22 +2289,27 @@ export const MobileApp = () => {
       {showSwitched && (
         <div className="mx-auto max-w-md p-2">
           <div className="rounded border border-amber-600 bg-amber-950/60 p-2 text-cp-xs text-amber-100">
-            <b>Am Desktop ist jetzt eine andere Show offen.</b> Dieser Plan bleibt
-            stehen — er gehört zu der Show, mit der diese Seite geladen wurde.
-            Häkchen und Meldungen gehen bis zum Neuladen nicht mehr durch.
+            <b>{t('mobile.showSwitched', 'A different show is now open on the desktop.')}</b>{' '}
+            {t(
+              'mobile.showSwitched.body',
+              'This plan stays as it is — it belongs to the show this page was loaded with. ' +
+                'Ticks and reports no longer get through until you reload.',
+            )}
             <button
               type="button"
               className="mt-1 block rounded border border-amber-500 px-2 py-0.5 text-cp-xs"
               onClick={() => window.location.reload()}
             >
-              Zur neuen Show wechseln (neu laden)
+              {t('mobile.showSwitched.reload', 'Switch to the new show (reload)')}
             </button>
           </div>
         </div>
       )}
       {!autoLoadAttempted ? (
         <div className="grid min-h-screen place-items-center p-4 text-xs text-cp-text-muted">
-          <div className="animate-pulse">Lade Projekt vom Desktop…</div>
+          <div className="animate-pulse">
+            {t('mobile.loading', 'Loading project from the desktop…')}
+          </div>
         </div>
       ) : project ? (
         <ProjectView
@@ -2176,8 +2324,13 @@ export const MobileApp = () => {
           <ProjectPicker onLoad={setProject} />
           {autoLoadError && (
             <div className="mx-auto mt-2 max-w-md rounded border border-amber-700 bg-amber-950 p-2 text-cp-xs text-amber-200">
-              Hinweis: Es lief offenbar ein Desktop-Share-Server, aber das Laden ist
-              fehlgeschlagen ({autoLoadError}).
+              {format(
+                t(
+                  'mobile.autoLoadError',
+                  'Note: a desktop share server appears to be running, but loading failed ({error}).',
+                ),
+                { error: autoLoadError },
+              )}
             </div>
           )}
         </>
@@ -2309,8 +2462,14 @@ const AddCableModal = ({
     } catch (e) {
       setErr(
         e instanceof Error
-          ? `Konnte Kabel nicht senden: ${e.message}. Verbindung zum Desktop prüfen.`
-          : 'Konnte Kabel nicht senden.',
+          ? format(
+              t(
+                'mobile.addCable.sendFailed',
+                'Could not send the cable: {error}. Check the connection to the desktop.',
+              ),
+              { error: e.message },
+            )
+          : t('mobile.addCable.sendFailedShort', 'Could not send the cable.'),
       )
     } finally {
       setBusy(false)
@@ -2326,7 +2485,9 @@ const AddCableModal = ({
     >
       <div className="w-full max-w-md rounded-t-lg border border-cp-border bg-cp-surface-1 text-cp-text shadow-2xl">
         <header className="flex items-center justify-between border-b border-cp-border px-3 py-2">
-          <h2 className="text-sm font-semibold">📱 Kabel hinzufügen</h2>
+          <h2 className="text-sm font-semibold">
+            {t('mobile.addCable.heading', '📱 Add cable')}
+          </h2>
           <button
             type="button"
             onClick={onClose}
@@ -2345,20 +2506,28 @@ const AddCableModal = ({
                   (Plan gesperrt, Gerät oder Port weg, Dublette). Ein
                   Versprechen im Futur von der Seite, die es nicht einlösen
                   kann. Jetzt steht hier nur, was tatsächlich passiert ist. */}
-              ✓ An den Desktop gesendet
+              {t('mobile.addCable.sent', '✓ Sent to the desktop')}
               <div className="mt-1 text-cp-xs font-normal text-emerald-300/80">
-                Ob es im Plan landet, entscheidet der Desktop — dort steht es
-                dann mit 📱-Marker.
+                {t(
+                  'mobile.addCable.sentHint',
+                  'Whether it lands in the plan is the desktop\'s decision — it then shows ' +
+                    'there with a 📱 marker.',
+                )}
               </div>
             </div>
           ) : (
             <>
               <p className="text-cp-xs italic text-cp-text-muted">
-                Wird im Plan mit 📱-Badge markiert, damit der Planer sieht dass das
-                Kabel vor Ort nachgepflegt wurde.
+                {t(
+                  'mobile.addCable.badgeHint',
+                  'Marked in the plan with a 📱 badge so the planner sees that this cable was ' +
+                    'added on site.',
+                )}
               </p>
               <label className="block">
-                <span className="mb-1 block text-cp-text-secondary">Von Gerät</span>
+                <span className="mb-1 block text-cp-text-secondary">
+                  {t('mobile.fromDevice', 'From device')}
+                </span>
                 <select
                   value={fromEqId}
                   onChange={(e) => {
@@ -2367,7 +2536,7 @@ const AddCableModal = ({
                   }}
                   className="w-full rounded border border-cp-border bg-cp-bg p-2"
                 >
-                  <option value="">— wählen —</option>
+                  <option value="">{t('mobile.choose', '— choose —')}</option>
                   {sortedEquipment.map((eq) => (
                     <option key={eq.id} value={eq.id}>
                       {eq.name}
@@ -2376,23 +2545,27 @@ const AddCableModal = ({
                 </select>
               </label>
               <label className="block">
-                <span className="mb-1 block text-cp-text-secondary">Von Port</span>
+                <span className="mb-1 block text-cp-text-secondary">
+                  {t('mobile.fromPort', 'From port')}
+                </span>
                 <select
                   value={fromPortId}
                   onChange={(e) => setFromPortId(e.target.value)}
                   disabled={!fromEq}
                   className="w-full rounded border border-cp-border bg-cp-bg p-2 disabled:opacity-40"
                 >
-                  <option value="">— wählen —</option>
+                  <option value="">{t('mobile.choose', '— choose —')}</option>
                   {fromPorts.map((p) => (
                     <option key={p.id} value={p.id}>
-                      {portDisplayLabel(p)} ({p.connectorType}){occupiedPortIds.has(p.id) ? ' • belegt' : ''}
+                      {portDisplayLabel(p)} ({p.connectorType}){occupiedPortIds.has(p.id) ? t('mobile.port.occupied', ' • occupied') : ''}
                     </option>
                   ))}
                 </select>
               </label>
               <label className="block">
-                <span className="mb-1 block text-cp-text-secondary">Zu Gerät</span>
+                <span className="mb-1 block text-cp-text-secondary">
+                  {t('mobile.toDevice', 'To device')}
+                </span>
                 <select
                   value={toEqId}
                   onChange={(e) => {
@@ -2401,7 +2574,7 @@ const AddCableModal = ({
                   }}
                   className="w-full rounded border border-cp-border bg-cp-bg p-2"
                 >
-                  <option value="">— wählen —</option>
+                  <option value="">{t('mobile.choose', '— choose —')}</option>
                   {sortedEquipment.map((eq) => (
                     <option key={eq.id} value={eq.id}>
                       {eq.name}
@@ -2410,30 +2583,34 @@ const AddCableModal = ({
                 </select>
               </label>
               <label className="block">
-                <span className="mb-1 block text-cp-text-secondary">Zu Port</span>
+                <span className="mb-1 block text-cp-text-secondary">
+                  {t('mobile.toPort', 'To port')}
+                </span>
                 <select
                   value={toPortId}
                   onChange={(e) => setToPortId(e.target.value)}
                   disabled={!toEq}
                   className="w-full rounded border border-cp-border bg-cp-bg p-2 disabled:opacity-40"
                 >
-                  <option value="">— wählen —</option>
+                  <option value="">{t('mobile.choose', '— choose —')}</option>
                   {toPorts.map((p) => (
                     <option key={p.id} value={p.id}>
-                      {portDisplayLabel(p)} ({p.connectorType}){occupiedPortIds.has(p.id) ? ' • belegt' : ''}
+                      {portDisplayLabel(p)} ({p.connectorType}){occupiedPortIds.has(p.id) ? t('mobile.port.occupied', ' • occupied') : ''}
                     </option>
                   ))}
                 </select>
               </label>
               <div className="grid grid-cols-2 gap-2">
                 <label className="block">
-                  <span className="mb-1 block text-cp-text-secondary">Typ</span>
+                  <span className="mb-1 block text-cp-text-secondary">
+                    {t('mobile.type', 'Type')}
+                  </span>
                   <select
                     value={cableType}
                     onChange={(e) => setCableType(e.target.value)}
                     className="w-full rounded border border-cp-border bg-cp-bg p-2"
                   >
-                    <option value="">— wählen —</option>
+                    <option value="">{t('mobile.choose', '— choose —')}</option>
                     {cableTypeOptions.map((t) => (
                       <option key={t} value={t}>
                         {t}
@@ -2442,13 +2619,15 @@ const AddCableModal = ({
                   </select>
                 </label>
                 <label className="block">
-                  <span className="mb-1 block text-cp-text-secondary">Länge (m)</span>
+                  <span className="mb-1 block text-cp-text-secondary">
+                    {t('mobile.length', 'Length (m)')}
+                  </span>
                   <select
                     value={length}
                     onChange={(e) => setLength(e.target.value)}
                     className="w-full rounded border border-cp-border bg-cp-bg p-2"
                   >
-                    <option value="">— wählen —</option>
+                    <option value="">{t('mobile.choose', '— choose —')}</option>
                     {lengthOptions.map((l) => (
                       <option key={l} value={l}>
                         {l} m
@@ -2458,14 +2637,16 @@ const AddCableModal = ({
                 </label>
               </div>
               <label className="block">
-                <span className="mb-1 block text-cp-text-secondary">Name</span>
+                <span className="mb-1 block text-cp-text-secondary">
+                  {t('mobile.name', 'Name')}
+                </span>
                 <input
                   value={name}
                   onChange={(e) => {
                     setName(e.target.value)
                     setNameDirty(true)
                   }}
-                  placeholder="Auto: '<Typ> Gerät A → Gerät B'"
+                  placeholder={t('mobile.name.placeholder', "Auto: '<type> device A → device B'")}
                   className="w-full rounded border border-cp-border bg-cp-bg p-2"
                 />
                 {nameDirty && (
@@ -2475,19 +2656,27 @@ const AddCableModal = ({
                       setNameDirty(false)
                     }}
                     className="mt-1 text-cp-xs text-cp-accent hover:underline"
-                    title="Wieder automatisch aus Typ + Geräten generieren"
+                    title={t(
+                      'mobile.name.regenerate',
+                      'Generate again automatically from type + devices',
+                    )}
                   >
-                    ↺ Auto-Name zurücksetzen
+                    {t('mobile.name.reset', '↺ Reset auto name')}
                   </button>
                 )}
               </label>
               <label className="block">
-                <span className="mb-1 block text-cp-text-secondary">Notizen (opt.)</span>
+                <span className="mb-1 block text-cp-text-secondary">
+                  {t('mobile.notes', 'Notes (opt.)')}
+                </span>
                 <textarea
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   rows={2}
-                  placeholder="Z.B. 'Notfall-Patch — bitte später ordentlich verlegen'"
+                  placeholder={t(
+                    'mobile.notes.placeholder',
+                    "e.g. 'Emergency patch — please route it properly later'",
+                  )}
                   className="w-full resize-none rounded border border-cp-border bg-cp-bg p-2"
                 />
               </label>
@@ -2503,7 +2692,7 @@ const AddCableModal = ({
                   onClick={onClose}
                   className="rounded bg-cp-surface-4 px-3 py-1.5 text-xs text-cp-text hover:bg-cp-surface-5"
                 >
-                  Abbrechen
+                  {t('mobile.cancel', 'Cancel')}
                 </button>
                 <button
                   type="button"
@@ -2511,7 +2700,9 @@ const AddCableModal = ({
                   disabled={!canSubmit}
                   className="rounded bg-cp-accent px-3 py-1.5 text-xs font-medium text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
                 >
-                  {busy ? 'Sende…' : '📤 An Desktop senden'}
+                  {busy
+                    ? t('mobile.sending', 'Sending…')
+                    : t('mobile.addCable.send', '📤 Send to the desktop')}
                 </button>
               </div>
             </>
@@ -2584,10 +2775,12 @@ const MobileReportModal = ({
         const parts: string[] = []
         if (lengthVal) {
           patch = { length: Number(lengthVal) }
-          parts.push(`Länge → ${Number(lengthVal)} m`)
+          parts.push(
+            format(t('mobile.report.lengthPart', 'length → {n} m'), { n: Number(lengthVal) }),
+          )
         }
         if (note.trim()) parts.push(note.trim())
-        summary = parts.join(' · ') || 'Kabel-Korrektur'
+        summary = parts.join(' · ') || t('mobile.report.cableEdit', 'Cable correction')
       } else {
         const dev = project.equipment.find((e) => e.id === deviceId)
         if (dev) target = { type: 'equipment', id: dev.id, name: dev.name }
@@ -2617,8 +2810,14 @@ const MobileReportModal = ({
     } catch (e) {
       setErr(
         e instanceof Error
-          ? `Konnte Meldung nicht senden: ${e.message}. Verbindung zum Desktop prüfen.`
-          : 'Konnte Meldung nicht senden.',
+          ? format(
+              t(
+                'mobile.report.sendFailed',
+                'Could not send the report: {error}. Check the connection to the desktop.',
+              ),
+              { error: e.message },
+            )
+          : t('mobile.report.sendFailedShort', 'Could not send the report.'),
       )
     } finally {
       setBusy(false)
@@ -2634,7 +2833,9 @@ const MobileReportModal = ({
     >
       <div className="w-full max-w-md rounded-t-lg border border-cp-border bg-cp-surface-1 text-cp-text shadow-2xl">
         <header className="flex items-center justify-between border-b border-cp-border px-3 py-2">
-          <h2 className="text-sm font-semibold">⚠ Meldung an Planer</h2>
+          <h2 className="text-sm font-semibold">
+            {t('mobile.report.heading', '⚠ Report to the planner')}
+          </h2>
           <button
             type="button"
             onClick={onClose}
@@ -2646,21 +2847,27 @@ const MobileReportModal = ({
         <div className="space-y-3 p-3 text-xs">
           {done ? (
             <div className="rounded border border-emerald-700 bg-emerald-900/30 p-3 text-center text-emerald-200">
-              ✓ Meldung gesendet — erscheint am Desktop unter „Feld-Rückmeldungen"
+              {t(
+                'mobile.report.sent',
+                '✓ Report sent — appears on the desktop under "Field feedback"',
+              )}
             </div>
           ) : (
             <>
               <p className="text-cp-xs italic text-cp-text-muted">
-                Wird NICHT direkt geändert — der Planer übernimmt oder verwirft deine
-                Meldung am Desktop (landet dann im Änderungsprotokoll).
+                {t(
+                  'mobile.report.hint',
+                  'Nothing is changed directly — the planner accepts or discards your report ' +
+                    'on the desktop (it then goes into the change log).',
+                )}
               </p>
 
               <div className="grid grid-cols-3 gap-1 rounded bg-cp-bg p-0.5">
                 {(
                   [
-                    ['cable-edit', 'Kabel-Korrektur'],
-                    ['issue', 'Problem'],
-                    ['note', 'Notiz'],
+                    ['cable-edit', t('mobile.report.cableEdit', 'Cable correction')],
+                    ['issue', t('mobile.report.kindIssue', 'Problem')],
+                    ['note', t('mobile.report.kindNote', 'Note')],
                   ] as const
                 ).map(([k, label]) => (
                   <button
@@ -2677,7 +2884,9 @@ const MobileReportModal = ({
               </div>
 
               <label className="block">
-                <span className="mb-1 block text-cp-text-secondary">Gerät (Kontext)</span>
+                <span className="mb-1 block text-cp-text-secondary">
+                  {t('mobile.device.context', 'Device (context)')}
+                </span>
                 <select
                   value={deviceId}
                   onChange={(e) => {
@@ -2686,7 +2895,7 @@ const MobileReportModal = ({
                   }}
                   className="w-full rounded border border-cp-border bg-cp-bg px-2 py-2 text-cp-text"
                 >
-                  <option value="">— wählen —</option>
+                  <option value="">{t('mobile.choose', '— choose —')}</option>
                   {project.equipment.map((d) => (
                     <option key={d.id} value={d.id}>
                       {d.name}
@@ -2698,13 +2907,15 @@ const MobileReportModal = ({
               {kind === 'cable-edit' && (
                 <>
                   <label className="block">
-                    <span className="mb-1 block text-cp-text-secondary">Kabel</span>
+                    <span className="mb-1 block text-cp-text-secondary">
+                      {t('mobile.cable', 'Cable')}
+                    </span>
                     <select
                       value={cableId}
                       onChange={(e) => setCableId(e.target.value)}
                       className="w-full rounded border border-cp-border bg-cp-bg px-2 py-2 text-cp-text"
                     >
-                      <option value="">— wählen —</option>
+                      <option value="">{t('mobile.choose', '— choose —')}</option>
                       {cablesForDevice.map((c) => (
                         <option key={c.id} value={c.id}>
                           {cableLabelId(c)} · {c.name || c.type}
@@ -2714,14 +2925,19 @@ const MobileReportModal = ({
                   </label>
                   <label className="block">
                     <span className="mb-1 block text-cp-text-secondary">
-                      Korrigierte Länge (m){selCable ? ` · aktuell ${selCable.length} m` : ''}
+                      {t('mobile.report.correctedLength', 'Corrected length (m)')}
+                      {selCable
+                        ? format(t('mobile.report.currentLength', ' · currently {n} m'), {
+                            n: selCable.length ?? '?',
+                          })
+                        : ''}
                     </span>
                     <input
                       type="number"
                       inputMode="decimal"
                       value={lengthVal}
                       onChange={(e) => setLengthVal(e.target.value)}
-                      placeholder="z.B. 7.5"
+                      placeholder={t('mobile.report.lengthPlaceholder', 'e.g. 7.5')}
                       className="w-full rounded border border-cp-border bg-cp-bg px-2 py-2 text-cp-text"
                     />
                   </label>
@@ -2730,7 +2946,9 @@ const MobileReportModal = ({
 
               <label className="block">
                 <span className="mb-1 block text-cp-text-secondary">
-                  {kind === 'cable-edit' ? 'Bemerkung (optional)' : 'Beschreibung'}
+                  {kind === 'cable-edit'
+                    ? t('mobile.report.remark', 'Remark (optional)')
+                    : t('mobile.report.description', 'Description')}
                 </span>
                 <textarea
                   value={note}
@@ -2738,21 +2956,23 @@ const MobileReportModal = ({
                   rows={3}
                   placeholder={
                     kind === 'issue'
-                      ? 'Was ist das Problem?'
+                      ? t('mobile.report.issuePlaceholder', 'What is the problem?')
                       : kind === 'note'
-                        ? 'Notiz für den Planer…'
-                        : 'optional…'
+                        ? t('mobile.report.notePlaceholder', 'Note for the planner…')
+                        : t('mobile.report.optionalPlaceholder', 'optional…')
                   }
                   className="w-full rounded border border-cp-border bg-cp-bg px-2 py-2 text-cp-text"
                 />
               </label>
 
               <label className="block">
-                <span className="mb-1 block text-cp-text-secondary">Dein Name (optional)</span>
+                <span className="mb-1 block text-cp-text-secondary">
+                  {t('mobile.report.yourName', 'Your name (optional)')}
+                </span>
                 <input
                   value={reporter}
                   onChange={(e) => setReporter(e.target.value)}
-                  placeholder="für die Protokoll-Zuordnung"
+                  placeholder={t('mobile.report.placeholder', 'for attributing the log entry')}
                   className="w-full rounded border border-cp-border bg-cp-bg px-2 py-2 text-cp-text"
                 />
               </label>
@@ -2769,7 +2989,7 @@ const MobileReportModal = ({
                   onClick={onClose}
                   className="rounded bg-cp-surface-4 px-3 py-1.5 text-xs text-cp-text hover:bg-cp-surface-5"
                 >
-                  Abbrechen
+                  {t('mobile.cancel', 'Cancel')}
                 </button>
                 <button
                   type="button"
@@ -2777,7 +2997,9 @@ const MobileReportModal = ({
                   disabled={!canSubmit}
                   className="rounded bg-amber-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-amber-500 disabled:cursor-not-allowed disabled:opacity-40"
                 >
-                  {busy ? 'Sende…' : '📤 Meldung senden'}
+                  {busy
+                    ? t('mobile.sending', 'Sending…')
+                    : t('mobile.report.send', '📤 Send report')}
                 </button>
               </div>
             </>
