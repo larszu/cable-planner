@@ -764,9 +764,25 @@ Eigentümer-Entscheidung und an einer Schema-Migration, weil
       saved yet"), die 3D-Ansicht ist also nicht ohne vorheriges Bauen zu
       zeigen. Entweder ein Rack ins Beispielprojekt oder ein zweites,
       neutrales Demo-Projekt für die Aufnahme.
+- [x] **Die Bilder sind aufgefrischt** (2026-09-10, gegen **v9.0.1** statt
+      v8.1.0-101). Möglich wurde das durch #822: Kategorien und Beispielprojekt
+      stehen jetzt in der Quellsprache, eine Aufnahme zeigt also nicht mehr
+      eine englische Oberfläche mit deutschen Inhalten.
+
+      **Zwei Defekte hat erst die Aufnahme gezeigt**, und beide sind behoben:
+      (a) Der Lauf nahm das **Autosave der letzten Sitzung** auf statt des
+      Beispielprojekts — das Titelbild hing damit davon ab, was jemand zuletzt
+      im Container gemacht hatte. `docs:shots` löscht das Profil jetzt vor dem
+      Start, dasselbe Argument wie beim Festnageln von Sprache und Thema.
+      (b) Die Bibliotheks-Seitenleiste führte `Patch panels` und
+      `Power distribution` **je zweimal**: eine Vorlage aus `localStorage`
+      trug noch den deutschen Kategorienamen, und `categoryDisplay` zeigte
+      beide unter demselben Namen. `loadCustomLibrary` migriert jetzt mit.
 - [ ] `patch-pdf.png`: der gelieferte Shot enthält einen Personennamen im
-      Routing-Text. Aus dem Beispielprojekt neu erzeugen, sobald dessen
-      Sprachmix behoben ist.
+      Routing-Text. `docs:shots` liefert die Patch-Liste inzwischen als
+      `patch-sheets.png` aus dem Beispielprojekt; der alte, geschwärzte
+      `patch-pdf.png` ist damit ersetzbar, sobald jemand entscheidet, ob der
+      PDF-Shot überhaupt noch einen eigenen Galerie-Platz braucht.
 - [ ] **Rohbilder aus `main`/Branch-History bereinigen**:
       `Screenshot (573).png` liegt in `main` (Commit `f5279e9`), die übrigen
       Rohbilder in der Branch-History (`a670c71`) — bei öffentlichem Repo ggf.

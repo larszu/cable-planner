@@ -1,0 +1,11 @@
+{
+  "version": "9.0.1",
+  "dateien": [
+    "bom.png",
+    "export.png",
+    "hero.png",
+    "patch-sheets.png",
+    "properties.png"
+  ],
+  "hinweis": "Automatisch erzeugt von scripts/screenshots.mjs aus dem eingebauten Beispielprojekt — keine Kundendaten, keine Schwaerzung noetig."
+}

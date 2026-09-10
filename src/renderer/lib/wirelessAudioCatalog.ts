@@ -43,7 +43,7 @@ export const WIRELESS_AUDIO_CATALOG: WirelessAudioEntry[] = [
     template: {
       manufacturerUrl: 'https://www.sennheiser.com/en-us/catalog/products/wireless-systems/ew-iem-g4',
       name: 'Sennheiser EW IEM G4 (SR)',
-      category: 'Funkstrecke',
+      category: 'Wireless',
       inputs: [
         ...num('Audio In L/R (Combo XLR/TRS)', 2, 'XLR'),
       ],
@@ -63,7 +63,7 @@ export const WIRELESS_AUDIO_CATALOG: WirelessAudioEntry[] = [
     template: {
       manufacturerUrl: 'https://www.sennheiser.com/en-us/catalog/products/wireless-systems/ew-500-g4',
       name: 'Sennheiser EW 500 G4 (EM 300-500)',
-      category: 'Funkstrecke',
+      category: 'Wireless',
       inputs: [
         { id: '', name: 'Antenne A', type: 'BNC', connectorType: 'BNC' },
         { id: '', name: 'Antenne B', type: 'BNC', connectorType: 'BNC' },
@@ -85,7 +85,7 @@ export const WIRELESS_AUDIO_CATALOG: WirelessAudioEntry[] = [
     template: {
       manufacturerUrl: 'https://www.sennheiser.com/en-us/catalog/products/wireless-systems/ew-dx-em-2-dante',
       name: 'Sennheiser EW-DX EM 2 Dante',
-      category: 'Funkstrecke',
+      category: 'Wireless',
       inputs: [
         { id: '', name: 'Antenne A', type: 'BNC', connectorType: 'BNC' },
         { id: '', name: 'Antenne B', type: 'BNC', connectorType: 'BNC' },
@@ -108,7 +108,7 @@ export const WIRELESS_AUDIO_CATALOG: WirelessAudioEntry[] = [
     template: {
       manufacturerUrl: 'https://www.sennheiser.com/en-us/catalog/products/wireless-systems/digital-6000',
       name: 'Sennheiser Digital 6000 (EM 6000)',
-      category: 'Funkstrecke',
+      category: 'Wireless',
       inputs: [
         { id: '', name: 'Antenne A', type: 'BNC', connectorType: 'BNC' },
         { id: '', name: 'Antenne B', type: 'BNC', connectorType: 'BNC' },
@@ -130,7 +130,7 @@ export const WIRELESS_AUDIO_CATALOG: WirelessAudioEntry[] = [
     template: {
       manufacturerUrl: 'https://www.shure.com/en-US/products/wireless-systems/qlx-d_digital_wireless',
       name: 'Shure QLXD4',
-      category: 'Funkstrecke',
+      category: 'Wireless',
       inputs: [
         { id: '', name: 'Antenne A', type: 'BNC', connectorType: 'BNC' },
         { id: '', name: 'Antenne B', type: 'BNC', connectorType: 'BNC' },
@@ -152,7 +152,7 @@ export const WIRELESS_AUDIO_CATALOG: WirelessAudioEntry[] = [
     template: {
       manufacturerUrl: 'https://www.shure.com/en-US/products/wireless-systems/ulx-d_digital_wireless/ulxd4q',
       name: 'Shure ULXD4Q',
-      category: 'Funkstrecke',
+      category: 'Wireless',
       inputs: [
         { id: '', name: 'Antenne A', type: 'BNC', connectorType: 'BNC' },
         { id: '', name: 'Antenne B', type: 'BNC', connectorType: 'BNC' },
@@ -174,7 +174,7 @@ export const WIRELESS_AUDIO_CATALOG: WirelessAudioEntry[] = [
     template: {
       manufacturerUrl: 'https://www.shure.com/en-US/products/in-ear-monitoring/psm1000/p10t',
       name: 'Shure PSM 1000 (P10T)',
-      category: 'Funkstrecke',
+      category: 'Wireless',
       inputs: [
         ...num('Audio In 1-4 (Combo XLR/TRS)', 4, 'XLR'),
         ...num('Network 1-2 (RJ45)', 2, 'Ethernet/RJ45', true),

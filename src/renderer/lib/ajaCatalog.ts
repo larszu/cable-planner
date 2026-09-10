@@ -219,7 +219,7 @@ export const AJA_CATALOG: AjaEntry[] = [
     template: {
       manufacturerUrl: 'https://www.aja.com/products/fs-hdr',
       name: 'AJA FS-HDR',
-      category: 'Konverter',
+      category: 'Converter',
       inputs: [
         ...num('3G-SDI In', 4, 'BNC'),
         { id: '', name: 'Ref In', type: 'BNC', connectorType: 'BNC' },

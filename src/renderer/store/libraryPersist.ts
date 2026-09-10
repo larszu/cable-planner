@@ -1,6 +1,7 @@
 import type { EquipmentTemplate } from '../types/equipment'
 import { STORAGE_KEYS } from '../lib/storageKeys'
 import { syncDevicesToFolder } from '../lib/librarySync'
+import { LEGACY_CATEGORY_RENAMES } from '../lib/categoryTranslations'
 
 /**
  * #308 — Persist-Helpers fuer Custom-Library + Known-Categories aus
@@ -17,33 +18,45 @@ const CUSTOM_LIB_KEY = STORAGE_KEYS.customLibrary
 const KNOWN_CATEGORIES_KEY = STORAGE_KEYS.knownCategories
 
 export const DEFAULT_CATEGORIES = [
-  'Kameras',
-  'Objektive',
-  'Stative',
-  'Licht',
+  'Cameras',
+  'Lenses',
+  'Tripods',
+  'Lighting',
   'Audio',
-  'Mikrofone',
-  'Mischpult',
+  'Microphones',
+  'Mixing console',
   'Video',
-  'Monitore',
+  'Monitors',
   'PC',
-  'Netzwerk',
-  'Kabel',
+  'Networking',
+  'Cables',
   // ISSUE #664 — „Patchbays als Geraetekategorie erstellen". Die Kategorie ist
   // der zweite Weg, ein Geraet als Blende auszuweisen (der erste ist das Flag
   // `isPatchPanel`); `patchPanel.ts` fuehrt beide zu EINER Antwort zusammen.
   // Neu hinzugefuegte Vorgabe-Kategorien erreichen auch bestehende Nutzer:
   // `loadKnownCategories` vereinigt Vorgabe und Gespeichertes.
-  'Patchfelder',
-  'Strom',
+  'Patch panels',
+  'Power',
   'Rigging',
-  'Sonstiges',
+  'Other',
 ]
 
 export const loadCustomLibrary = (): EquipmentTemplate[] => {
   try {
     const raw = localStorage.getItem(CUSTOM_LIB_KEY)
-    return raw ? (JSON.parse(raw) as EquipmentTemplate[]) : []
+    const items = raw ? (JSON.parse(raw) as EquipmentTemplate[]) : []
+    // #822 — dieselbe Umbenennung wie fuer `equipment.category` und
+    // `knownCategories`. Ohne sie fuehrt die Bibliotheks-Seitenleiste die
+    // Vorlagen mit altem deutschem Wert als EIGENE Gruppe, die dank
+    // `categoryDisplay` denselben Namen traegt wie die neue: gemessen im
+    // Aufnahme-Lauf standen `Patch panels` und `Power distribution` je
+    // zweimal untereinander. Zwei Zeilen mit demselben Namen sind
+    // schlimmer als eine falsche — man sucht den Unterschied.
+    return items.map((t) =>
+      t.category && LEGACY_CATEGORY_RENAMES[t.category]
+        ? { ...t, category: LEGACY_CATEGORY_RENAMES[t.category] }
+        : t,
+    )
   } catch {
     return []
   }
@@ -62,7 +75,12 @@ export const loadKnownCategories = (): string[] => {
   try {
     const raw = localStorage.getItem(KNOWN_CATEGORIES_KEY)
     const stored = raw ? (JSON.parse(raw) as string[]) : []
-    const set_ = new Set<string>([...DEFAULT_CATEGORIES, ...stored])
+    // #822 — dieselbe Umbenennung wie fuer `equipment.category`, hier fuer
+    // die Liste im Auswahlfeld. Ohne sie staende die alte deutsche Kategorie
+    // NEBEN der neuen englischen: der Nutzer saehe `Kameras` und `Cameras`
+    // untereinander und muesste raten, welche seine Geraete tragen.
+    const gewandelt = stored.map((c) => LEGACY_CATEGORY_RENAMES[c] ?? c)
+    const set_ = new Set<string>([...DEFAULT_CATEGORIES, ...gewandelt])
     return Array.from(set_).sort((a, b) => a.localeCompare(b))
   } catch {
     return [...DEFAULT_CATEGORIES]

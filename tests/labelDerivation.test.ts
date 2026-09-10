@@ -417,7 +417,7 @@ describe('Signalquellen-Rollen (Inkrement 2)', () => {
         { id: 'b', name: 'Kamera 2', umdAddress: 3 },
       ],
     })
-    const clash = issues.find((i) => i.category === 'UMD-Adresse doppelt')
+    const clash = issues.find((i) => i.category === 'Duplicate UMD address')
     expect(clash?.severity).toBe('error')
     expect(clash?.message).toContain('"Kamera 1"')
     expect(clash?.message).toContain('"Kamera 2"')

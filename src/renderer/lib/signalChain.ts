@@ -77,7 +77,7 @@ export type PassThroughKind =
 export const PASS_THROUGH_LABEL: Readonly<Record<PassThroughKind, string>> = {
   'patch-panel': 'Patchfeld',
   converter: 'Wandler',
-  'distribution-amp': 'Verteilverstärker',
+  'distribution-amp': 'Distribution amplifier',
   router: 'Kreuzschiene',
   mixer: 'Mischer',
   adapter: 'Adapter',

@@ -91,14 +91,14 @@ const OBJECT_TYPE_ORDER = [
 /** NetBox-Rollen-Slug (Substring) → Cable-Planner-Kategorie. Erster
  *  Treffer gewinnt, daher stehen spezifische Muster oben. */
 const ROLE_CATEGORY_RULES: Array<{ match: RegExp; category: string }> = [
-  { match: /camera|kamera/, category: 'Kameras' },
-  { match: /monitor|display|screen|beamer|projector/, category: 'Monitore' },
-  { match: /switch|router|firewall|access-?point|wlan|wifi|patch|network|netzwerk/, category: 'Netzwerk' },
-  { match: /pdu|ups|power|strom|usv/, category: 'Strom' },
-  { match: /mic|mikro/, category: 'Mikrofone' },
-  { match: /mixer|mischpult|console|desk/, category: 'Mischpult' },
+  { match: /camera|kamera/, category: 'Cameras' },
+  { match: /monitor|display|screen|beamer|projector/, category: 'Monitors' },
+  { match: /switch|router|firewall|access-?point|wlan|wifi|patch|network|netzwerk/, category: 'Networking' },
+  { match: /pdu|ups|power|strom|usv/, category: 'Power' },
+  { match: /mic|mikro/, category: 'Microphones' },
+  { match: /mixer|mischpult|console|desk/, category: 'Mixing console' },
   { match: /audio|dante|intercom/, category: 'Audio' },
-  { match: /light|licht|dmx|fixture/, category: 'Licht' },
+  { match: /light|licht|dmx|fixture/, category: 'Lighting' },
   { match: /server|storage|nas|workstation|pc|compute/, category: 'PC' },
   { match: /video|sdi|encoder|decoder|matrix|scaler|converter/, category: 'Video' },
 ]

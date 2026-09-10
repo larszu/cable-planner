@@ -53,7 +53,7 @@ describe('Check 22 — was fehlt, ist ein Fehler; was nicht erklärt ist, ein Hi
       anschlussListe: [anschluss],
       farbnormen: [norm],
     })
-    const f = findings.filter((x) => x.category === 'Adernbündel')
+    const f = findings.filter((x) => x.category === 'Wire bundle')
     expect(f).toHaveLength(1)
     expect(f[0].severity).toBe('error')
     expect(f[0].message).toContain('N')
@@ -66,7 +66,7 @@ describe('Check 22 — was fehlt, ist ein Fehler; was nicht erklärt ist, ein Hi
       anschlussListe: [{ ...anschluss, farbnormId: undefined }],
       farbnormen: [],
     })
-    const f = findings.filter((x) => x.category === 'Adernbündel')
+    const f = findings.filter((x) => x.category === 'Wire bundle')
     expect(f).toHaveLength(1)
     expect(f[0].severity).toBe('info')
   })
@@ -78,7 +78,7 @@ describe('Check 22 — was fehlt, ist ein Fehler; was nicht erklärt ist, ein Hi
       anschlussListe: [{ ...anschluss, farbnormId: undefined }],
       farbnormen: [],
     })
-    const f = findings.filter((x) => x.category === 'Adernbündel')
+    const f = findings.filter((x) => x.category === 'Wire bundle')
     expect(f).toHaveLength(2)
     expect(f[0].severity).toBe('error')
     expect(f[1].severity).toBe('info')
@@ -94,7 +94,7 @@ describe('Check 22 — was fehlt, ist ein Fehler; was nicht erklärt ist, ein Hi
       anschlussListe: [anschluss],
       farbnormen: [norm],
     })
-    const f = findings.filter((x) => x.category === 'Adernbündel')
+    const f = findings.filter((x) => x.category === 'Wire bundle')
     expect(f).toHaveLength(1)
     expect(f[0].severity).toBe('error')
     expect(f[0].cableId).toBe('c-N')
@@ -107,11 +107,11 @@ describe('Check 22 — was fehlt, ist ein Fehler; was nicht erklärt ist, ein Hi
       anschlussListe: [anschluss],
       farbnormen: [norm],
     })
-    expect(findings.filter((x) => x.category === 'Adernbündel')).toEqual([])
+    expect(findings.filter((x) => x.category === 'Wire bundle')).toEqual([])
   })
 
   it('ohne Anschlüsse im Projekt läuft der Check gar nicht an', () => {
     const { findings } = runDrawingChecks({ equipment: [], cables: alle() })
-    expect(findings.some((x) => x.category === 'Adernbündel')).toBe(false)
+    expect(findings.some((x) => x.category === 'Wire bundle')).toBe(false)
   })
 })

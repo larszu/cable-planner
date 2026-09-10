@@ -40,7 +40,7 @@ import type { EquipmentItem, Port } from '../types/equipment'
  * Weg, ein Geraet als Blende auszuweisen — der erste ist das Flag
  * `isPatchPanel`, das der Rack-Builder-Dialog setzt.
  */
-export const PATCH_PANEL_CATEGORY = 'Patchfelder'
+export const PATCH_PANEL_CATEGORY = 'Patch panels'
 
 /** Nur die Kategorie, ohne das Flag — die UI braucht beide Haelften getrennt. */
 export const categoryIsPatchPanel = (category: string | undefined): boolean =>

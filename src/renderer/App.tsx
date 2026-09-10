@@ -175,7 +175,7 @@ const DROP_ART: Record<LoadDropKind, [key: string, de: string]> = {
   'equipment-circuit': ['app.loadReport.equipmentCircuit', 'Schaltbild-Bauart eines Geräts'],
   'equipment-adapter': ['app.loadReport.equipmentAdapter', 'Adapter-Angaben eines Geräts'],
   'farbnorm': ['app.loadReport.farbnorm', 'Farbnorm ohne Herkunft'],
-  'anschlussListe': ['app.loadReport.anschlussListe', 'Adernbündel'],
+  'anschlussListe': ['app.loadReport.anschlussListe', 'Wire bundle'],
   'ader': ['app.loadReport.ader', 'Ader-Angaben einer Leitung'],
   'senkenprofil': ['app.loadReport.senkenprofil', 'Formatprofil ohne Herkunft'],
   'pattern-check': ['app.loadReport.patternCheck', 'Sichtprüfung vom Prüfbild-Rundgang'],

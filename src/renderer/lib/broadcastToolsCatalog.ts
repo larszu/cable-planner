@@ -84,7 +84,7 @@ export const BROADCAST_TOOLS_CATALOG: BroadcastToolsEntry[] = [
     template: {
       manufacturerUrl: 'https://decimator.com/Products/MiniConverters/MD-HX%20Miniature%20Converter/MD-HX.html',
       name: 'Decimator MD-HX',
-      category: 'Konverter',
+      category: 'Converter',
       isConverter: true,
       inputs: [
         { id: '', name: '3G-SDI In', type: 'BNC', connectorType: 'BNC' },
