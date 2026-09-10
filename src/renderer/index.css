@@ -329,11 +329,28 @@ body,
  * weil Tailwind sie als eigene Klassen mit rgb()-Werten generiert. Hier
  * explizit für die häufigsten Opacity-Varianten überschreiben damit die
  * Context-Menüs, Modal-Overlays und Sub-Karten im Light-Mode nicht
- * dunkel bleiben. */
-[data-theme="light"] .bg-slate-950\/30   { background-color: rgba(240,244,248,0.7); }
-[data-theme="light"] .bg-slate-950\/40   { background-color: rgba(240,244,248,0.7); }
-[data-theme="light"] .bg-slate-950\/50   { background-color: rgba(240,244,248,0.75); }
-[data-theme="light"] .bg-slate-950\/60   { background-color: rgba(240,244,248,0.8); }
+ * dunkel bleiben.
+ *
+ * DIE VIER `bg-slate-950/NN` STANDEN BIS 2026-09-10 ZWEIMAL HIER — einmal
+ * an dieser Stelle und einmal weiter unten unter „Opacity variants", mit
+ * ANDEREN Werten (0,7/0,7/0,75/0,8 gegen 0,3/0,4/0,5/0,6). Gleiche
+ * Spezifitaet, also gewann die spaetere; der Minifier hat die fruehere aus
+ * dem Build sogar ganz entfernt. Gemessen im Fenster: `bg-slate-950/50`
+ * rendert `rgba(240,244,248,0.5)`.
+ *
+ * Das war die schlimmere Haelfte des Defekts, nicht der Wert: die tote
+ * Fassung stand genau unter DIESER Begruendung. Wer den Light-Mode einer
+ * Glasflaeche nachjustieren wollte, las hier warum es die Regeln gibt,
+ * aenderte die Zeile darunter — und sah nichts passieren.
+ *
+ * Die Regeln stehen jetzt an einer Stelle, und zwar hier: bei ihrer
+ * Begruendung. Die Werte sind die WIRKSAMEN uebernommen, nicht die
+ * kommentierten — was die App seit Monaten zeigt, ist der Ist-Zustand;
+ * ihn nebenbei zu aendern waere eine unbestellte Aenderung am Aussehen. */
+[data-theme="light"] .bg-slate-950\/30   { background-color: rgba(240,244,248,0.3); }
+[data-theme="light"] .bg-slate-950\/40   { background-color: rgba(240,244,248,0.4); }
+[data-theme="light"] .bg-slate-950\/50   { background-color: rgba(240,244,248,0.5); }
+[data-theme="light"] .bg-slate-950\/60   { background-color: rgba(240,244,248,0.6); }
 [data-theme="light"] .bg-slate-900\/98   { background-color: rgba(234,239,245,0.98); }
 /* Modal-Backdrop: im Light-Mode statt schwarz ein helles Grau mit
  * Transparenz, damit Modals "weiches Glas" auf hellem Hintergrund sind. */
@@ -451,7 +468,6 @@ body,
 [data-theme="light"] .border-red-700\/60     { border-color: rgba(248,113,113,0.7); }
 [data-theme="light"] .border-orange-600\/60  { border-color: rgba(234,88,12,0.6); }
 [data-theme="light"] .border-orange-700\/50  { border-color: rgba(234,88,12,0.6); }
-[data-theme="light"] .border-orange-700\/60  { border-color: rgba(234,88,12,0.7); }
 [data-theme="light"] .border-orange-800\/60  { border-color: rgba(194,65,12,0.6); }
 [data-theme="light"] .border-orange-900\/40  { border-color: rgba(154,52,18,0.4); }
 [data-theme="light"] .border-sky-700         { border-color: #38bdf8; }
@@ -476,11 +492,9 @@ body,
 
 /* Focus variants */
 
-/* Opacity variants */
-[data-theme="light"] .bg-slate-950\/30  { background-color: rgba(240,244,248,0.3); }
-[data-theme="light"] .bg-slate-950\/40  { background-color: rgba(240,244,248,0.4); }
-[data-theme="light"] .bg-slate-950\/50  { background-color: rgba(240,244,248,0.5); }
-[data-theme="light"] .bg-slate-950\/60  { background-color: rgba(240,244,248,0.6); }
+/* Opacity variants — die `bg-slate-950/NN` stehen oben bei ihrer
+ * Begruendung; sie standen bis 2026-09-10 zusaetzlich hier und haben die
+ * dortigen Werte still ueberschrieben. */
 
 /* Opacity border variants */
 
@@ -504,7 +518,6 @@ body,
 [data-theme="light"] .text-amber-100     { color: #78350f; }
 [data-theme="light"] .text-amber-200     { color: #92400e; }
 [data-theme="light"] .text-amber-200\/70 { color: rgba(146,64,14,0.85); }
-[data-theme="light"] .border-amber-400   { border-color: #fbbf24; }
 [data-theme="light"] .border-amber-600   { border-color: #d97706; }
 [data-theme="light"] .border-amber-700\/60 { border-color: rgba(180,83,9,0.6); }
 [data-theme="light"] .border-amber-900\/60 { border-color: rgba(146,64,14,0.6); }
@@ -585,7 +598,6 @@ body,
 [data-theme="light"] .bg-sky-900\/40     { background-color: rgba(224,242,254,0.6); }
 [data-theme="light"] .bg-sky-950\/20     { background-color: rgba(240,249,255,0.55); }
 [data-theme="light"] .bg-sky-950\/30     { background-color: rgba(240,249,255,0.7); }
-[data-theme="light"] .bg-sky-950\/50     { background-color: rgba(240,249,255,0.85); }
 [data-theme="light"] .bg-sky-950\/60     { background-color: rgba(240,249,255,0.9); }
 [data-theme="light"] .text-sky-50        { color: #0c4a6e; }
 [data-theme="light"] .text-sky-200       { color: #075985; }
