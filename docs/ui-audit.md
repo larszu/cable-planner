@@ -462,8 +462,23 @@ Mobile-Ansicht hat keine `t()`-Verdrahtung), kein Nebenbei.
 ### TODO (großflächiger Rest)
 
 - [ ] Flächendeckende Suche nach restlichen hartkodierten JSX-Texten /
-      `placeholder` / `title` ohne `t()` (z. B. Teile von App-CableDialog,
-      CableDialog-Labels „Connector Type"/„Notizen", RackBuilder-Interna).
+      `placeholder` / `title` ohne `t()`.
+      **2026-09-10, erster Schnitt: `src/renderer` ist sauber.** Der
+      CableDialog trug fünf deutsche Roh-Beschriftungen („Kabel bearbeiten",
+      „+ Neuer Stecker-Typ…", „+ Neuer Signal-Standard…", „Verbindung",
+      „Notizen") — mitten in einem Repo mit Quellsprache `en`. Sie sind
+      gewickelt und übersetzt.
+      **Warum der Wächter sie nicht meldete:** `quellsprache.mjs` LIEST rohen
+      JSX-Text längst (`sichtbareTexte`), aber seine Wortliste bestand aus
+      Bindewörtern — und die kommen in kurzen Beschriftungen nicht vor. Er
+      hatte die Zeilen gesehen und als „unklar" abgelegt. Die Liste trägt
+      jetzt auch Inhaltswörter, gemessen gegen alle 4622 englischen Fallbacks:
+      **kein einziger** würde durch sie fälschlich als deutsch gelten.
+      **Offen:** `src/viewer` (7 Stellen) und `src/mobile` (34) — beide haben
+      gar keine `t()`-Verdrahtung, und `lang:check` läuft nur auf
+      `src/renderer`. Jeder Ordner ist ein eigener Schnitt: erst verdrahten,
+      dann in den Prüfumfang aufnehmen. Der Umfang wächst mit der Migration
+      mit, statt eine Deckung zu behaupten, die es nicht gibt.
 - [ ] In-`t()`-String-Glyphen aus Phase 1 (`⚠`/`✓`/`✕` in `cable.warn.*`,
       `bom.cable.missingTypes`, „✕ Reset" etc.) extrahieren + Icon im JSX.
 
