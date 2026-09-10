@@ -545,6 +545,42 @@ nicht erst, wenn jemand eine halb übersetzte Seite meldet.
       statt in Rot. Der Ton ist jetzt ein eigenes Feld im Zustand.
       (b) `StatusBar` rendete `<Icon icon={checkIcon} />` **und** ein `⚠` im
       Text daneben — dieselbe Aussage zweimal.
+- [x] **Der Sprachmix-Zähler brach an der geschweiften Klammer ab** —
+      2026-09-10 gefunden und behoben. `JSX_TEXT` in `scripts/quellsprache.mjs`
+      lautete `[^<>{}]{4,}`: ein Textknoten, in dem **irgendwo** eine Einsetzung
+      steht, war für den Zähler nicht vorhanden. Das ist nicht der Randfall, als
+      der es aussieht — es ist die häufigste Form, in der eine Beschriftung
+      geschrieben wird, sobald eine Zahl darin vorkommt.
+
+      **Der Schaden war die Null.** `lang:check` meldete für alle drei
+      Browser-Ordner „0 ungewickelte Zeichenkette(n) in der anderen Sprache",
+      und diese Null las sich wie ein Beleg. Gemessen mit dem geöffneten Muster:
+      **vier deutsche Beschriftungen** standen roh im JSX eines Repos mit
+      Quellsprache `en` — `An Videohub senden (TCP) …` und `Gefunden ({n}) —
+      Klick übernimmt IP/Port` (`VideohubExportDialog`), `· {n} ohne Bauart`
+      (`CircuitChip`), `· {n} Wände · {n} Personen · {n} Bühne` (`MenuBar`).
+      Drei weitere fand erst das Auge, weil sie kein Wort der Wortlisten tragen
+      (`Seitenansicht (Tiefe)`, `Vorne ◀ {n} mm ▶ Hinten`, `Kameras ({n})`).
+
+      **Drei Formen waren blind, nicht eine:**
+      (a) Einsetzung *im* Satz (`Gefunden ({discovered.length}) — …`);
+      (b) Einsetzung *hinter* dem Satz — bei `An Videohub senden …` folgt in
+      der nächsten Zeile bloß ein `{cond && (`, und das brach den Lauf ab,
+      bevor das schließende `<` erreicht war. Ein Wächter, der an der Klammer
+      **hinter** dem Text scheitert, ist schlimmer als keiner;
+      (c) der reine Ausdruck als Kind (`` {`· ${n} ohne Bauart`} ``) — kein
+      Textknoten, also auch mit geöffnetem Muster unsichtbar. Dafür gibt es
+      jetzt `JSX_LITERAL`, und zwar nur für die **reine** Form: was um die
+      Zeichenkette herum noch gerechnet wird, ist Code.
+
+      **Der Preis ist benannt:** ein Lauf, der über `{` hinweggeht, endet öfter
+      mitten im Ausdruck. `NACH_CODE` hat deshalb `return`, `null`, `typeof`,
+      `??` und `if (` dazubekommen — `if` steht auf der **englischen**
+      Wortliste, ein Bruchstück wie `(null) if (!hasDesktopBridge)` wäre in
+      einem deutsch-quelligen Repo als englische Beschriftung gemeldet worden.
+      Die feste Probe im CLI-Teil trägt die drei neuen Formen jetzt mit; ohne
+      sie fällt genau diese Härte beim nächsten Aufräumen still wieder heraus.
+
 - [ ] **Offen (gemessen, nicht geschätzt): 106 rohe Symbole im JSX in 47
       Dateien**, außerhalb jedes `t()`-Aufrufs (`<span>🔄</span>`,
       `★ Custom Cable…`, `{open ? '▾' : '▸'}`). Ein guter Teil davon ist

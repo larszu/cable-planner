@@ -241,15 +241,61 @@ const SICHTBARE_ATTRIBUTE =
  *   • Das schliessende `<` muss ein Tag beginnen: `</` oder `<Buchstabe`.
  * Was danach noch durchkommt, sind Generics (`useState<Foo>(null)`); die
  * faengt `NACH_CODE`.
+ *
+ * ─── DIE GESCHWEIFTE KLAMMER DARF NICHT MEHR ABBRECHEN (2026-09-10) ────────
+ *
+ * Bis heute stand hier `[^<>{}]`: ein Textknoten, in dem IRGENDWO eine
+ * Einsetzung steht, war unsichtbar. Das ist nicht der Randfall, als der es
+ * aussieht — es ist die haeufigste Form, in der eine Beschriftung ueberhaupt
+ * geschrieben wird, sobald eine Zahl darin vorkommt. Gemessen im
+ * cable-planner, alles roher deutscher Text in einem Repo mit Quellsprache
+ * `en`, und der Zaehler meldete trotzdem 0:
+ *
+ *     Vorne ◀ {draft.depthMm ?? 800} mm ▶ Hinten     RackBuilderDialog
+ *     Gefunden ({discovered.length}) — Klick …       VideohubExportDialog
+ *     · {sum.counts.walls} Waende · {…} Personen     MenuBar
+ *     An Videohub senden (TCP) — offline …          VideohubExportDialog
+ *
+ * Der letzte Fall zeigt, warum das Muster so und nicht nur „`{}` erlauben"
+ * lautet: dort steht gar keine Einsetzung IM Satz. Auf den Satz folgt bloss
+ * ein `{cond && (` in der naechsten Zeile — und weil das `{` den Lauf
+ * abbrach, bevor das schliessende `<` erreicht war, fiel der ganze Satz
+ * heraus. Ein Waechter, der an der Klammer HINTER dem Text scheitert, ist
+ * schlimmer als keiner: die Null, die er meldet, liest sich wie ein Beleg.
  */
-const JSX_TEXT = /[^\s=<!>]>([^<>{}]{4,})<[/A-Za-z]/g
+const JSX_TEXT = /[^\s=<!>]>([^<>]{4,})<[/A-Za-z]/g
+
+/**
+ * Ein JSX-Ausdruck, der NUR aus einer Zeichenkette besteht: `{'…'}` oder
+ * `` {`…`} `` als Kind eines Elements.
+ *
+ * Das ist kein Textknoten und faellt deshalb durch `JSX_TEXT` — dort wird die
+ * ganze Klammer als Ausdruck entfernt. Sichtbar ist es trotzdem, und im
+ * Template-Literal steht praktisch jede Beschriftung, die eine Zahl einsetzt:
+ *
+ *     <span>{`· ${ohneBauart} ohne Bauart`}</span>        CircuitChip
+ *
+ * Nur die REINE Form, nicht `{cond && '…'}` und nicht `{a + '…'}`: was um die
+ * Zeichenkette herum noch gerechnet wird, ist Code, und Code hat dieser
+ * Zaehler teuer gelernt nicht zu lesen.
+ */
+const JSX_LITERAL =
+  /[^\s=<!>]>\s*\{\s*(?:`((?:[^`\\]|\\.){4,}?)`|'((?:[^'\\]|\\.){4,}?)')\s*\}/g
 
 /**
  * Was ein JSX-Textknoten NIE enthaelt, ein Code-Schnipsel dagegen fast immer.
  * Greift ausschliesslich auf JSX-Text, nicht auf Attribute: dort steht
  * durchaus ein `=` in der Oberflaeche („Shift = frei, Mausrad = Stufe").
+ *
+ * Die zweite Haelfte kam mit der geoeffneten Klammer dazu (2026-09-10): seit
+ * ein Lauf ueber ein `{` hinweggeht, endet er oefter mitten im Ausdruck, und
+ * die Bruchstuecke sehen anders aus als vorher (`) : null`, `) return (`,
+ * `(null) if (!hasDesktopBridge)`, `x ?? y.closest`). `if` steht auf der
+ * englischen Wortliste — ein solches Bruchstueck waere in einem
+ * deutsch-quelligen Repo als englische Beschriftung gemeldet worden.
  */
-const NACH_CODE = /[;=]|\b(?:const|let|var|function|await|async)\b/
+const NACH_CODE =
+  /[;=]|\?\?|\b(?:const|let|var|function|await|async|return|typeof|null|undefined)\b|\bif\s*\(/
 
 /**
  * Auch das Template-Literal, nicht nur die Anfuehrungszeichen. Eine Rueckfrage
@@ -260,6 +306,29 @@ const NACH_CODE = /[;=]|\b(?:const|let|var|function|await|async)\b/
 const RUFE =
   /\b(?:alert|confirm|prompt)\(\s*(?:(['"])((?:[^\\]|\\.){4,}?)\1|`((?:[^`\\]|\\.){4,}?)`)/g
 
+/**
+ * Die Einsetzungen aus einem Textknoten herausnehmen — und zwar VON INNEN.
+ *
+ * `{sum.counts.walls}` ist ein Feldname und keine Beschriftung; bliebe er
+ * stehen, meldete die Klassifizierung Englisch, wo Deutsch steht. Geschachtelt
+ * wird es bei `` {`${a}`} ``, deshalb wiederholt: jeder Durchgang entfernt die
+ * innerste Ebene, bis nichts mehr faellt.
+ *
+ * Was danach noch eine Klammer traegt, ist ein ANGEFANGENER Ausdruck — der
+ * Fall `Text\n{cond && (` von oben. Ab dort wird abgeschnitten statt verworfen:
+ * der Text davor ist echt, alles danach ist Quelltext.
+ */
+const ohneAusdruecke = (roh) => {
+  let text = roh
+  for (let i = 0; i < 8; i += 1) {
+    const naechste = text.replace(/\{[^{}]*\}/g, ' ')
+    if (naechste === text) break
+    text = naechste
+  }
+  const klammer = text.search(/[{}]/)
+  return (klammer === -1 ? text : text.slice(0, klammer)).replace(/\s+/g, ' ').trim()
+}
+
 /** Sichtbarer Text einer Datei, der NICHT in einem `t()`-Fallback steht. */
 export const sichtbareTexte = (quelle, jsx) => {
   const text = ohneKommentare(quelle).replace(fallbackMuster(), ' ')
@@ -268,9 +337,10 @@ export const sichtbareTexte = (quelle, jsx) => {
   for (const m of text.matchAll(RUFE)) raus.push(m[2] ?? m[3])
   if (jsx) {
     for (const m of text.matchAll(JSX_TEXT)) {
-      const t = m[1].trim()
-      if (t && !t.startsWith('{') && !NACH_CODE.test(t)) raus.push(t)
+      const t = ohneAusdruecke(m[1])
+      if (t.length >= 4 && !NACH_CODE.test(t)) raus.push(t)
     }
+    for (const m of text.matchAll(JSX_LITERAL)) raus.push(m[1] ?? m[2])
   }
   return raus
 }
@@ -365,6 +435,14 @@ if (process.argv[1] && process.argv[1].endsWith('quellsprache.mjs')) {
     'if (a.length > 2) return b < c',
     'const n = a>b ? 1 : 2; const m = c<d',
     "t('cable.remove', 'Delete this cable')",
+    // ── Die drei Formen mit geschweifter Klammer (2026-09-10) ─────────────
+    //
+    // Sie sind der Grund, warum `JSX_TEXT` keine `{}` mehr ausschliesst, und
+    // ohne sie in der Probe faellt genau diese Haerte beim naechsten
+    // Aufraeumen still wieder heraus.
+    '<span>Front {draft.depthMm} mm rear</span>',
+    '<span>{`with ${n} of them`}</span>',
+    '<div>Sentence before the brace\n{!bridge && (\n<span>x</span>)}</div>',
   ].join('\n')
 
   // Sortiert verglichen: in welcher Reihenfolge Attribute, Rueckfragen und
@@ -376,6 +454,9 @@ if (process.argv[1] && process.argv[1].endsWith('quellsprache.mjs')) {
     'Delete "${name}" and its ${n} shots?',
     'Delete this cable',
     'Not connected yet',
+    'Front mm rear',
+    'with ${n} of them',
+    'Sentence before the brace',
   ].sort()
   if (gefunden.length !== erwartet.length || erwartet.some((e, i) => gefunden[i] !== e)) {
     console.error(

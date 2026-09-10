@@ -410,17 +410,37 @@ export const MenuBar = ({
         <div className="flex flex-col gap-2 text-cp-xs text-cp-text-secondary">
           <div>
             {t('app.menu.file.viewForeignRoom', 'Room')}:{' '}
-            <b className="text-cp-text">{sum.venueName || '—'}</b> · {sum.counts.walls} Wände ·{' '}
-            {sum.counts.persons} Personen · {sum.counts.stage} Bühne
+            <b className="text-cp-text">{sum.venueName || '—'}</b>
           </div>
           <div>
-            <div className="font-semibold text-cp-text">Kameras ({sum.cameras.length})</div>
+            {/* EIN Schluessel fuer den ganzen Satz, nicht drei aneinander-
+                gehaengte: die Wortstellung gehoert zur Sprache, und im
+                Deutschen steht die Zahl vor einem anderen Wort als hier. */}
+            {format(
+              t('app.menu.file.viewForeignCounts', '{walls} walls · {persons} persons · {stage} stage'),
+              {
+                walls: sum.counts.walls,
+                persons: sum.counts.persons,
+                stage: sum.counts.stage,
+              },
+            )}
+          </div>
+          <div>
+            <div className="font-semibold text-cp-text">
+              {format(t('app.menu.file.viewForeignCameras', 'Cameras ({n})'), {
+                n: sum.cameras.length,
+              })}
+            </div>
             {sum.cameras.length ? (
               <ul className="list-disc pl-4">{sum.cameras.map((c) => <li key={c.id}>{c.label}</li>)}</ul>
             ) : <div>—</div>}
           </div>
           <div>
-            <div className="font-semibold text-cp-text">Lampen ({sum.fixtures.length})</div>
+            <div className="font-semibold text-cp-text">
+              {format(t('app.menu.file.viewForeignFixtures', 'Fixtures ({n})'), {
+                n: sum.fixtures.length,
+              })}
+            </div>
             {sum.fixtures.length ? (
               <ul className="list-disc pl-4">{sum.fixtures.map((f) => (
                 <li key={f.id}>
