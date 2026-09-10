@@ -1,4 +1,6 @@
+import { Check } from 'lucide-react'
 import { useTranslation, format } from '../../lib/i18n'
+import { Icon } from '../shared/Icon'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { pickImageAsDataUri } from '../../lib/readImageAsDataUri'
 import { ModalShell } from '../shared/ModalShell'
@@ -264,10 +266,15 @@ export const RackPlacementProperties = ({
               <StlPreview stlDataUri={selectedPlacement.stlDataUri} size={120} />
             </div>
           )}
-          <span className="mt-1 block text-cp-xs text-cp-text-muted">
-            {selectedPlacement.stlDataUri
-              ? t('rack.stl.loaded', '✓ STL loaded — rendered in the 3D tab and saved permanently with the device (library + project).')
-              : t('rack.stl.noStl', 'Without STL the device is rendered as a box with front/rear photo.')}
+          <span className="mt-1 flex items-start gap-1 text-cp-xs text-cp-text-muted">
+            {selectedPlacement.stlDataUri ? (
+              <>
+                <Icon icon={Check} size="xs" className="mt-0.5 shrink-0" />
+                {t('rack.stl.loaded', 'STL loaded — rendered in the 3D tab and saved permanently with the device (library + project).')}
+              </>
+            ) : (
+              t('rack.stl.noStl', 'Without STL the device is rendered as a box with front/rear photo.')
+            )}
           </span>
         </div>
         {(() => {

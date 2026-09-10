@@ -15,7 +15,7 @@
 //      Then click "Importieren" to commit.
 
 import { useMemo, useState } from 'react'
-import { AlertTriangle, X, Ruler, Map, Library } from 'lucide-react'
+import { AlertTriangle, X, Ruler, Map, Library, RotateCcw } from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import { cablePlannerApi } from '../../lib/bridge'
 import { parseGraphmlText } from '../../lib/graphml/parser'
@@ -366,10 +366,11 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
             <button
               type="button"
               onClick={reset}
-              className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
+              className="inline-flex items-center gap-1 rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
               title={t('graphml.dialog.pickOther', 'Pick another file')}
             >
-              {t('graphml.dialog.otherFile', '↻ Another file')}
+              <Icon icon={RotateCcw} size="xs" />
+              {t('graphml.dialog.otherFile', 'Another file')}
             </button>
           </div>
           <div className="mt-2 flex flex-wrap items-center gap-3 text-cp-xs text-cp-text-secondary">

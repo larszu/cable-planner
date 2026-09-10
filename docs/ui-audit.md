@@ -515,8 +515,44 @@ nicht erst, wenn jemand eine halb übersetzte Seite meldet.
       ausdrücklich als „in beiden Sprachen gleich" erklärt ist (heute sechs
       Einträge: „Plan", „Name", „Problem", „optional…", „Name (optional)",
       „📶 Remote").
-- [ ] In-`t()`-String-Glyphen aus Phase 1 (`⚠`/`✓`/`✕` in `cable.warn.*`,
+- [x] In-`t()`-String-Glyphen aus Phase 1 (`⚠`/`✓`/`✕` in `cable.warn.*`,
       `bom.cable.missingTypes`, „✕ Reset" etc.) extrahieren + Icon im JSX.
+      **2026-09-10 erledigt: 71 → 6.** Gemessen waren es 71 Fallbacks, die mit
+      einem Symbol anfingen oder aufhörten — „✕ Reset", „↻ Refresh",
+      „✓ linked", „Apply →", „📂 Choose a file…", „🏷 Labels PDF". Sie sind
+      jetzt `<Icon icon={…} />` im JSX; das Symbol ist aus dem Fallback **und**
+      aus jedem Wörterbuch verschwunden.
+
+      **Der Grund steht in `Icon.tsx` selbst** („Emojis rendern je
+      Plattform/Font inkonsistent") und gilt für eine Zeichenkette genauso wie
+      für ein JSX-Kind. Dazu kommt einer, der nur Übersetzungen betrifft: das
+      Symbol stand in jedem Wörterbuch noch einmal. Wer das Icon ändert, hätte
+      es in jeder Sprache ändern müssen — ein Icon ist keine Sprache.
+
+      **Sechs Stellen bleiben, mit Begründung je Eintrag** in
+      `tests/glyphenNichtImText.test.ts`: `♂`/`♀` an der Steckerbauart (die
+      Kennzeichnung am Stecker selbst), `◄`/`►` in der Pfeilspitzen-Auswahl und
+      `↓`/`↑` in der Sortier-Auswahl — dort ist das Symbol der **Wert**, nicht
+      seine Verzierung. Symbole mitten im Satz („from source → destination",
+      „Settings → Rentman") bleiben ebenfalls: der Pfeil ist dort ein Wort, und
+      ihn herauszulösen hieße, den Satz aus zwei `t()`-Aufrufen zusammenzusetzen.
+
+      **Zwei Funde nebenbei, die kein TODO genannt hatte:**
+      (a) `RentmanCableExportDialog` färbte seine Fehlerzeile über
+      `status.startsWith('Fehler')` — eine Verzweigung auf **übersetzten Text**.
+      Seit E-28 steht dort `Error: …`, die Fehlerzeile rendete also für jeden,
+      der die Oberfläche nicht auf Deutsch stellt, in der ruhigen Textfarbe
+      statt in Rot. Der Ton ist jetzt ein eigenes Feld im Zustand.
+      (b) `StatusBar` rendete `<Icon icon={checkIcon} />` **und** ein `⚠` im
+      Text daneben — dieselbe Aussage zweimal.
+- [ ] **Offen (gemessen, nicht geschätzt): 106 rohe Symbole im JSX in 47
+      Dateien**, außerhalb jedes `t()`-Aufrufs (`<span>🔄</span>`,
+      `★ Custom Cable…`, `{open ? '▾' : '▸'}`). Ein guter Teil davon ist
+      legitim — die Caret-Dreiecke der Menüs, die Richtungspfeile des
+      Off-Page-Symbols, ein Zustandspunkt —, und genau deshalb ist es ein
+      eigener Schnitt mit eigener Urteilsarbeit und keine Fortsetzung dieses
+      hier. Der Wächter sagt in seinem Kopf ausdrücklich, dass er sie nicht
+      sieht.
 
 ## Phase 5 — Komponenten-Dekomposition (RISIKO)
 

@@ -62,7 +62,7 @@ export const GreenGoBeltpackSection = ({ equipmentId }: { equipmentId: string })
           type="text"
           value={info?.station.name ?? ''}
           disabled={!info}
-          placeholder={info ? '' : t('props.greengo.assignFirst', 'Assign first ↓')}
+          placeholder={info ? '' : t('props.greengo.assignFirst', 'Assign first')}
           onChange={(event) => rename(event.target.value)}
           className="w-full rounded border border-emerald-700 bg-emerald-950 p-1 text-cp-xs text-emerald-50 disabled:opacity-50"
           title={t(

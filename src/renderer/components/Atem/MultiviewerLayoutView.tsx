@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react'
+import { RotateCcw, X } from 'lucide-react'
+import { Icon } from '../shared/Icon'
 import { cablePlannerApi, type AtemStateSummary, type AtemMultiviewer } from '../../lib/bridge'
 import { useTranslation } from '../../lib/i18n'
 import { useDialogA11y } from '../../hooks/useDialogA11y'
@@ -315,16 +317,18 @@ export const MultiviewerLayoutView = ({ onClose }: MultiviewerLayoutViewProps) =
             <button
               type="button"
               onClick={() => void refresh()}
-              className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
+              className="inline-flex items-center gap-1 rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
             >
-              {t('atem.mvLayout.refresh', '↻ Refresh')}
+              <Icon icon={RotateCcw} size="xs" />
+              {t('atem.mvLayout.refresh', 'Refresh')}
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
+              className="inline-flex items-center gap-1 rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
             >
-              {t('atem.mvLayout.close', '✕ Close')}
+              <Icon icon={X} size="xs" />
+              {t('atem.mvLayout.close', 'Close')}
             </button>
           </div>
         </header>

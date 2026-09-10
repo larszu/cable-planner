@@ -210,7 +210,7 @@ export const StatusBar = ({
         >
           <Icon icon={checkIcon} size="xs" />
           {errorCount > 0 || warningCount > 0
-            ? format(t('statusbar.planCheck.counts', '{errors}⚠'), { errors: errorCount + warningCount })
+            ? format(t('statusbar.planCheck.counts', '{errors}'), { errors: errorCount + warningCount })
             : t('statusbar.planCheck.ok', 'OK')}
         </button>
         {netzBefunde > 0 && (

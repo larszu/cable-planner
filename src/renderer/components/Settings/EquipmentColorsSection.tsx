@@ -1,4 +1,4 @@
-import { Moon, Sun } from 'lucide-react'
+import { Moon, RotateCcw, Sun, X } from 'lucide-react'
 import { useUiStore } from '../../store/uiStore'
 import { SettingsCard } from './SettingsCard'
 import { Icon } from '../shared/Icon'
@@ -43,10 +43,11 @@ export const EquipmentColorsSection = () => {
               <button
                 type="button"
                 onClick={() => resetEquipmentColors(theme)}
-                className="rounded bg-cp-surface-4 px-2 py-0.5 text-cp-xs hover:bg-cp-surface-5"
+                className="inline-flex items-center gap-1 rounded bg-cp-surface-4 px-2 py-0.5 text-cp-xs hover:bg-cp-surface-5"
                 title={t('settings.eqColors.resetTitle', 'Reset to default')}
               >
-                {t('settings.eqColors.reset', '↺ Reset')}
+                <Icon icon={RotateCcw} size="xs" />
+                {t('settings.eqColors.reset', 'Reset')}
               </button>
             </div>
             <div className="space-y-1.5">
@@ -101,9 +102,10 @@ export const EquipmentColorsSection = () => {
             <button
               type="button"
               onClick={() => setDefaultDeviceColor(undefined)}
-              className="rounded bg-cp-surface-4 px-2 py-0.5 text-cp-xs hover:bg-cp-surface-5"
+              className="inline-flex items-center gap-1 rounded bg-cp-surface-4 px-2 py-0.5 text-cp-xs hover:bg-cp-surface-5"
             >
-              {t('settings.eqColors.resetX', '✕ Reset')}
+              <Icon icon={X} size="xs" />
+              {t('settings.eqColors.resetX', 'Reset')}
             </button>
           )}
         </div>

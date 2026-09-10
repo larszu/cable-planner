@@ -1,4 +1,6 @@
+import { Plus, RotateCcw } from 'lucide-react'
 import { useCanvasProjectStore as useProjectStore } from '../../../store/projectStoreContext'
+import { Icon } from '../../shared/Icon'
 import { confirmDialog } from '../../../lib/confirmDialog'
 import { promptDialog } from '../../../lib/promptDialog'
 import { infoDialog } from '../../../lib/infoDialog'
@@ -53,15 +55,16 @@ export const LibrarySaveSection = ({ equipment }: { equipment: EquipmentItem }) 
               saveEquipmentAsTemplate(equipment.id)
             }
           }}
-          className="w-full rounded bg-amber-700 px-2 py-1 text-cp-xs hover:bg-amber-600"
+          className="inline-flex w-full items-center justify-center gap-1 rounded bg-amber-700 px-2 py-1 text-cp-xs hover:bg-amber-600"
           title={t(
             'libSave.btnTitle',
             'Saves the current device (ports, network, SDI caps, MV config …) as a library template.',
           )}
         >
+          <Icon icon={existing ? RotateCcw : Plus} size="xs" />
           {existing
-            ? t('libSave.btnOverwrite', 'Overwrite default template ↺')
-            : t('libSave.btnSave', 'Save as new default template ✚')}
+            ? t('libSave.btnOverwrite', 'Overwrite default template')
+            : t('libSave.btnSave', 'Save as new default template')}
         </button>
         <button
           type="button"
@@ -86,13 +89,14 @@ export const LibrarySaveSection = ({ equipment }: { equipment: EquipmentItem }) 
             }
             saveEquipmentAsNewTemplate(equipment.id, trimmed, equipment.category)
           }}
-          className="w-full rounded bg-emerald-700 px-2 py-1 text-cp-xs hover:bg-emerald-600"
+          className="inline-flex w-full items-center justify-center gap-1 rounded bg-emerald-700 px-2 py-1 text-cp-xs hover:bg-emerald-600"
           title={t(
             'libSave.newBtnTitle',
             'Creates a new template under a different name — the existing one stays unchanged.',
           )}
         >
-          {t('libSave.newBtn', 'Save as new device in library ✚')}
+          <Icon icon={Plus} size="xs" />
+          {t('libSave.newBtn', 'Save as new device in library')}
         </button>
       </div>
     </SortableSection>

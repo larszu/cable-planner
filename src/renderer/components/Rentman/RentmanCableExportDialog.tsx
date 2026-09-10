@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { ProvenanceBadge } from '../shared/ProvenanceBadge'
-import { X } from 'lucide-react'
+import { Check, X } from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import { ModalShell } from '../shared/ModalShell'
 import { Spinner } from '../shared/Spinner'
@@ -67,7 +67,19 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
   const [catalogLoading, setCatalogLoading] = useState(false)
   const [catalogError, setCatalogError] = useState<string | null>(null)
   const [busyKey, setBusyKey] = useState<string | null>(null)
-  const [statusByKey, setStatusByKey] = useState<Record<string, string>>({})
+  /**
+   * Zeilen-Status: Text UND Ton — und der Ton als eigenes Feld.
+   *
+   * Er wurde bis 2026-09-10 aus dem TEXT gelesen (`status.startsWith('Fehler')`).
+   * Das ging, solange die Quellsprache Deutsch war; seit E-28 steht dort
+   * `Error: …`, und die Fehlerzeile rendete fuer jeden, der die Oberflaeche
+   * nicht auf Deutsch stellt, in der ruhigen Textfarbe statt in Rot. Eine
+   * Verzweigung auf uebersetzten Text ist immer eine Sprachannahme im Code;
+   * die haelt bis zur ersten Uebersetzung.
+   */
+  const [statusByKey, setStatusByKey] = useState<
+    Record<string, { text: string; ton: 'lauf' | 'ok' | 'fehler' }>
+  >({})
   const [pickerKey, setPickerKey] = useState<string | null>(null)
   const [pickerQuery, setPickerQuery] = useState('')
 
@@ -221,7 +233,10 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
     if (!bucket.mappedId) return baseMap
     if (bucket.delta <= 0) return baseMap
     setBusyKey(bucket.key)
-    setStatusByKey((prev) => ({ ...prev, [bucket.key]: t('rentman.cableExport.sending', 'Sending to Rentman…') }))
+    setStatusByKey((prev) => ({
+      ...prev,
+      [bucket.key]: { text: t('rentman.cableExport.sending', 'Sending to Rentman…'), ton: 'lauf' },
+    }))
     // Bei Fehler bleibt die Karte, wie sie war — die schon gebuchten Eimer
     // der vorigen Runden duerfen dabei nicht verlorengehen.
     let carried: RentmanCableMap | undefined = baseMap
@@ -236,7 +251,13 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
       ])
       if (result.failed.length > 0) {
         const msg = result.failed[0]?.error ?? t('rentman.cableExport.unknownError', 'Unknown error')
-        setStatusByKey((prev) => ({ ...prev, [bucket.key]: format(t('rentman.cableExport.errorFormat', 'Error: {msg}'), { msg }) }))
+        setStatusByKey((prev) => ({
+        ...prev,
+        [bucket.key]: {
+          text: format(t('rentman.cableExport.errorFormat', 'Error: {msg}'), { msg }),
+          ton: 'fehler',
+        },
+      }))
         return carried
       }
       const current = baseMap ?? useProjectStore.getState().project.metadata.rentmanCableMap
@@ -252,11 +273,20 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
           : t('rentman.cableExport.groupRestricted', ' (no group — plan restriction)')
       setStatusByKey((prev) => ({
         ...prev,
-        [bucket.key]: format(t('rentman.cableExport.sentSuccess', '✓ {count} sent to Rentman{note}.'), { count: bucket.delta, note: groupNote }),
+        [bucket.key]: {
+          text: format(t('rentman.cableExport.sentSuccess', '{count} sent to Rentman{note}.'), { count: bucket.delta, note: groupNote }),
+          ton: 'ok',
+        },
       }))
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
-      setStatusByKey((prev) => ({ ...prev, [bucket.key]: format(t('rentman.cableExport.errorFormat', 'Error: {msg}'), { msg }) }))
+      setStatusByKey((prev) => ({
+        ...prev,
+        [bucket.key]: {
+          text: format(t('rentman.cableExport.errorFormat', 'Error: {msg}'), { msg }),
+          ton: 'fehler',
+        },
+      }))
     } finally {
       setBusyKey(null)
     }
@@ -557,11 +587,12 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
                       )}
                       {status && (
                         <div
-                          className={`mt-1 text-cp-xs ${
-                            status.startsWith('Fehler') ? 'text-red-400' : 'text-cp-text-muted'
+                          className={`mt-1 flex items-center gap-1 text-cp-xs ${
+                            status.ton === 'fehler' ? 'text-red-400' : 'text-cp-text-muted'
                           }`}
                         >
-                          {status}
+                          {status.ton === 'ok' && <Icon icon={Check} size="xs" />}
+                          {status.text}
                         </div>
                       )}
                     </td>

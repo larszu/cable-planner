@@ -1,4 +1,6 @@
 import { useState, type ReactNode } from 'react'
+import { Check } from 'lucide-react'
+import { Icon } from '../../shared/Icon'
 import { useProjectStore } from '../../../store/projectStore'
 import { useUiStore } from '../../../store/uiStore'
 import { useRentman } from '../../../hooks/useRentman'
@@ -614,8 +616,9 @@ export const RentmanTab = () => {
                       )
                     if (filtered.length === 0) {
                       return (
-                        <div className="rounded border border-emerald-700/40 bg-emerald-900/10 p-2 text-center text-cp-xs text-emerald-300">
-                          {t('library.rentman.allImported', '✓ All available Rentman devices are already imported.')}
+                        <div className="flex items-center justify-center gap-1 rounded border border-emerald-700/40 bg-emerald-900/10 p-2 text-center text-cp-xs text-emerald-300">
+                          <Icon icon={Check} size="xs" />
+                          {t('library.rentman.allImported', 'All available Rentman devices are already imported.')}
                         </div>
                       )
                     }
@@ -802,8 +805,9 @@ export const RentmanTab = () => {
             </div>
           )}
           {untracked.length === 0 ? (
-            <div className="rounded border border-emerald-700/40 bg-emerald-900/10 p-2 text-center text-cp-xs text-emerald-400">
-              {t('library.rentman.allHaveId', '✓ All canvas devices have a Rentman ID.')}
+            <div className="flex items-center justify-center gap-1 rounded border border-emerald-700/40 bg-emerald-900/10 p-2 text-center text-cp-xs text-emerald-400">
+              <Icon icon={Check} size="xs" />
+              {t('library.rentman.allHaveId', 'All canvas devices have a Rentman ID.')}
             </div>
           ) : (
             <div className="space-y-1">

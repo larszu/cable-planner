@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Zap, Link, Square, SquareCheck } from 'lucide-react'
+import { Check, Zap, Link, Square, SquareCheck } from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import { format, useTranslation } from '../../lib/i18n'
 
@@ -281,9 +281,14 @@ export const EquipmentChecklist = ({
                               'Import this combination as a rack (contents keep their Rentman IDs).',
                             )}
                           >
-                            {rackSetIds?.has(item.id)
-                              ? t('rentman.checklist.asRackOn', '✓ as rack')
-                              : t('rentman.checklist.asRackOff', '+ as rack')}
+                            {rackSetIds?.has(item.id) ? (
+                              <span className="inline-flex items-center gap-1">
+                                <Icon icon={Check} size="xs" />
+                                {t('rentman.checklist.asRackOn', 'as rack')}
+                              </span>
+                            ) : (
+                              t('rentman.checklist.asRackOff', '+ as rack')
+                            )}
                           </button>
                         )}
                         {item.templateMatch && (() => {
@@ -302,10 +307,11 @@ export const EquipmentChecklist = ({
                           if (kind === 'rentmanId') {
                             return (
                               <span
-                                className="ml-2 rounded bg-emerald-800/60 px-1.5 py-0.5 text-cp-xs font-medium text-emerald-200"
+                                className="ml-2 inline-flex items-center gap-1 rounded bg-emerald-800/60 px-1.5 py-0.5 text-cp-xs font-medium text-emerald-200"
                                 title={format(t('rentman.checklist.badge.linkedTitle', 'Already linked in the local library via Rentman ID to "{name}". Re-import only refreshes metadata (category, project link) — the local port configuration is preserved.'), { name: item.templateMatch })}
                               >
-                                {t('rentman.checklist.badge.linked', '✓ linked')}
+                                <Icon icon={Check} size="xs" />
+                                {t('rentman.checklist.badge.linked', 'linked')}
                               </span>
                             )
                           }

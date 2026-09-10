@@ -1,4 +1,6 @@
 import { useMemo, useState } from 'react'
+import { AlertTriangle, Link } from 'lucide-react'
+import { Icon } from '../shared/Icon'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
 import { projectHistory } from '../../store/projectHistory'
@@ -134,7 +136,8 @@ const BulkConnectDialogInner = () => {
     <ModalShell
       open
       onClose={close}
-      title={t('bulk.title', '🔗 Connect multiple cables')}
+      title={t('bulk.title', 'Connect multiple cables')}
+      titleIcon={<Icon icon={Link} size="sm" />}
       maxWidth="2xl"
       footer={
         <div className="flex justify-end gap-2">
@@ -330,8 +333,9 @@ const BulkConnectDialogInner = () => {
             </ul>
           )}
           {planWillSkip && (
-            <p className="mt-1 text-cp-xs text-amber-400">
-              {t('bulk.willSkip', '⚠ Count exceeds available ports — extras are skipped.')}
+            <p className="mt-1 flex items-start gap-1 text-cp-xs text-amber-400">
+              <Icon icon={AlertTriangle} size="xs" className="mt-0.5 shrink-0" />
+              {t('bulk.willSkip', 'Count exceeds available ports — extras are skipped.')}
             </p>
           )}
         </div>

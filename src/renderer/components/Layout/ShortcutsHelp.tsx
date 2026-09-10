@@ -4,6 +4,8 @@
 // Geräte-Suche) in einem Overlay. Öffnet mit "?" (Shift+/) und über das
 // Hilfe-Menü (CustomEvent 'cp:open-shortcuts-help'). Mac zeigt ⌘/⇧ statt Strg/Umsch.
 import { useEffect, useState } from 'react'
+import { Keyboard } from 'lucide-react'
+import { Icon } from '../shared/Icon'
 import { ModalShell } from '../shared/ModalShell'
 import { useTranslation } from '../../lib/i18n'
 
@@ -86,7 +88,7 @@ export const ShortcutsHelp = () => {
       open={open}
       onClose={() => setOpen(false)}
       title={t('shortcutsHelp.title', 'Keyboard shortcuts')}
-      titleIcon="⌨️"
+      titleIcon={<Icon icon={Keyboard} size="sm" />}
       maxWidth="lg"
     >
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

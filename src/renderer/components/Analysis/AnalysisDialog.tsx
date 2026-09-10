@@ -11,7 +11,7 @@
 // Calculators (dort bereits implementiert) — hier nicht dupliziert.
 
 import { useMemo, useState } from 'react'
-import { BarChart3, Calculator, Download, Plus, Trash2 } from 'lucide-react'
+import { BarChart3, Calculator, Download, FileInput, Plus, Trash2 } from 'lucide-react'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
 import { ModalShell } from '../shared/ModalShell'
@@ -1872,8 +1872,9 @@ const RfTab = ({ projectName }: { projectName: string }) => {
           <span className="font-medium">
             {t('scan.title', 'Spectrum scan from the analyser')}
           </span>
-          <label className="cursor-pointer rounded border border-[var(--cp-border)] px-2 py-1 hover:bg-[var(--cp-surface-2)]">
-            {t('scan.import', '📈 Read scan')}
+          <label className="inline-flex cursor-pointer items-center gap-1 rounded border border-[var(--cp-border)] px-2 py-1 hover:bg-[var(--cp-surface-2)]">
+            <Icon icon={FileInput} size="xs" />
+            {t('scan.import', 'Read scan')}
             <input
               type="file"
               accept=".csv,.txt"
