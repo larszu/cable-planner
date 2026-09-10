@@ -762,8 +762,27 @@ Eigentümer-Entscheidung und an einer Schema-Migration, weil
       `docs:shots` liefern, das Zusammensetzen nicht.
 - [x] `rack-3d.png`: **das Beispiel bringt jetzt ein Rack mit** (2026-09-10,
       `lib/demoRack.ts`) — ein 12-HE-Rack mit Patchblende, Mischer,
-      Multiviewer und IEC-Leiste plus drei internen Verbindungen. Die
-      Aufnahme ist damit ohne vorheriges Bauen möglich.
+      Multiviewer und IEC-Leiste plus drei internen Verbindungen. **Das Bild
+      ist aufgenommen** und liegt unter `docs/screenshots/rack-3d.png`;
+      `docs:shots` erzeugt es bei jedem Lauf mit.
+
+      **Der zweite Grund lag im Aufnahme-Lauf selbst**, und er war nirgends
+      notiert: `scripts/screenshots.mjs` startete Electron mit
+      `--disable-gpu`. Der Schalter macht WebGL unbenutzbar —
+      `canvas.getContext('webgl')` gibt `null` zurück, das Canvas bleibt auf
+      seiner Vorgabegrösse (300×150), die Fläche ist schwarz. Nachgemessen;
+      mit `--use-gl=swiftshader` meldet sich `ANGLE (Google, Vulkan 1.3.0
+      (SwiftShader Device (Subzero)), SwiftShader driver)`, und das Rack steht
+      da. Der Lauf nimmt den Weg eines Nutzers: Bibliothek → Reiter „Racks" →
+      Stift → Reiter „3D"; ein Bild, das über eine Abkürzung in den Store
+      entsteht, belegt nicht, dass die Bedienung dorthin führt.
+
+      **Was dabei auffiel und bewusst so bleibt:** die Gerätenamen stehen im
+      3D-Bild doppelt. Das ist Absicht (`Rack3DView.tsx`: Label vorne UND
+      hinten, sonst ist beim Drehen um 180° die Beschriftung weg) und fällt
+      nur in der Vorgabe-Kameraposition als Überlappung auf. `occlude`
+      probiert — es macht beide Label halbtransparent und überlappt
+      weiterhin, also verworfen.
 
       **Der Befund war größer als die fehlende Aufnahme.** Rack-Vorlagen
       kommen ausschliesslich aus `localStorage`
@@ -798,11 +817,14 @@ Eigentümer-Entscheidung und an einer Schema-Migration, weil
       `Power distribution` **je zweimal**: eine Vorlage aus `localStorage`
       trug noch den deutschen Kategorienamen, und `categoryDisplay` zeigte
       beide unter demselben Namen. `loadCustomLibrary` migriert jetzt mit.
-- [ ] `patch-pdf.png`: der gelieferte Shot enthält einen Personennamen im
-      Routing-Text. `docs:shots` liefert die Patch-Liste inzwischen als
-      `patch-sheets.png` aus dem Beispielprojekt; der alte, geschwärzte
-      `patch-pdf.png` ist damit ersetzbar, sobald jemand entscheidet, ob der
-      PDF-Shot überhaupt noch einen eigenen Galerie-Platz braucht.
+- [x] `patch-pdf.png` **als Slot gestrichen** (2026-09-10). Nachgesehen, bevor
+      entschieden wurde: die Datei ist in `main` nicht vorhanden und war es
+      nie (`git log --all -- docs/screenshots/patch-pdf.png` ist leer) — der
+      Personenname im Routing-Text stand im gelieferten Shot, nicht im Repo.
+      `docs:shots` liefert die Patch-Liste als `patch-sheets.png` aus dem
+      Beispielprojekt; ein zweiter Slot für dieselbe Sache, den nur ein
+      Kundenplan füllen könnte, ist die schlechtere Hälfte. Zeile aus
+      `docs/screenshots/README.md` entfernt.
 - [ ] **Rohbilder aus `main`/Branch-History bereinigen**:
       `Screenshot (573).png` liegt in `main` (Commit `f5279e9`), die übrigen
       Rohbilder in der Branch-History (`a670c71`) — bei öffentlichem Repo ggf.
@@ -822,15 +844,15 @@ Alle 6 Phasen abgeschlossen, je ein Commit, gepusht auf
 | 3 Accessibility | `useDialogA11y` (role/aria-modal/Escape/Focus-Trap/Rückgabe); ModalShell + 3 Standalone + modalRoot + MenuBar | ✅ (restl. Dialoge als TODO) |
 | 4 i18n | `i18n-check.mjs` + 105 fehlende EN-Keys + String-Migration; DE/EN deckungsgleich | ✅ |
 | 5 Dekomposition | `RackBuilderDialog`-Modell → `rackBuilderModel.ts` (−250 Zeilen) | ✅ (tiefere JSX-Zerlegung als verifizierter Folgeschritt) |
-| 6 README | Hero + Galerie (6/9 Slots) + Capture-/Redact-Tooling + **automatische Aufnahme** (`npm run docs:shots`) | ✅ (canvas.gif/rack-3d/patch-pdf offen; Bilder aus v8.1.0 — Auffrischen hängt am Sprachmix in den Demo-Daten) |
+| 6 README | Hero + Galerie (7/8 Slots) + Capture-/Redact-Tooling + **automatische Aufnahme** (`npm run docs:shots`) | ✅ (nur `canvas.gif` offen — kein GIF-Encoder im Container; Bilder gegen v9.0.1, `rack-3d.png` seit 2026-09-10 dabei) |
 
 **Verifikations-Endstand:** `npx tsc -p tsconfig.app.json --noEmit` = 0,
 `npm run build` grün, `npm run lint` = 124 Fehler / 18 Warnungen
 (**3 Fehler unter** dem 127er-Baseline, **0 neu eingeführt**),
 `node docs/i18n-check.mjs` = 0 fehlende Keys.
 
-**Offene Hauptpunkte (manuell):** restliche Screenshots (`canvas.gif`,
-`rack-3d.png`, `patch-pdf.png`), History-Scrub der Rohbilder, sowie die je
+**Offene Hauptpunkte (manuell):** `canvas.gif` (kein GIF-Encoder im
+Container), History-Scrub der Rohbilder, sowie die je
 Phase dokumentierten großflächigen Migrations-TODOs (Typo/Token-Rest,
 restliche Dialog-a11y, in-`t()`-Glyphen).
 
