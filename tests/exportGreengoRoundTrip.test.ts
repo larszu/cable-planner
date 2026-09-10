@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { buildGg5File } from '../src/renderer/lib/exportGreengo'
 import { isParseError, parseGg5File } from '../src/renderer/lib/importGreengo'
 import dialogSrc from '../src/renderer/components/Export/GreenGoExportDialog.tsx?raw'
-import dictsSrc from '../src/renderer/lib/i18n/dicts.ts?raw'
+import { rendererQuelltext } from './support/i18nAufrufe'
 import type { GreenGoConfig } from '../src/renderer/types/greengo'
 
 // ADR-005, Inkrement 4, Regel 4 — eine Zusage muss pruefbar sein.
@@ -118,6 +118,6 @@ describe('der Dialog exportiert die leere Konfiguration gar nicht erst', () => {
 
   it('sagt statt zu schweigen, was fehlt', () => {
     expect(dialogSrc).toContain('greengo.export.blocked')
-    expect(dictsSrc).toContain('Without at least one station or group')
+    expect(rendererQuelltext).toContain('Without at least one station or group')
   })
 })

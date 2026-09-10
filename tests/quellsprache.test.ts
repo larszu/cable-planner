@@ -76,12 +76,12 @@ describe('die Quellsprache ist gemessen', () => {
   })
 
   it('das Woerterbuch faellt nicht hinein — ohne Ausnahmeliste', () => {
-    // WARUM DAS HIER STEHT. Das `en`-Dict ist voller englischer Zeilen, und das
-    // ist richtig so: es ist die Uebersetzung. Die naheliegende Loesung waere
-    // eine Ausnahmeliste — und die waere unverdient, denn gemessen aendert sie
-    // nichts (2202/0/2697 mit wie ohne). Sie saehe aus wie ein Schutz und
-    // deckte nichts ab, und der Naechste traegt einen Pfad ein, der doch etwas
-    // verdeckt.
+    // WARUM DAS HIER STEHT. Das Woerterbuch ist voller Zeilen in der anderen
+    // Sprache, und das ist richtig so: es IST die Uebersetzung. Die
+    // naheliegende Loesung waere eine Ausnahmeliste — und die waere
+    // unverdient, denn gemessen aendert sie nichts (2202/0/2697 mit wie
+    // ohne). Sie saehe aus wie ein Schutz und deckte nichts ab, und der
+    // Naechste traegt einen Pfad ein, der doch etwas verdeckt.
     //
     // Was das Woerterbuch wirklich heraushaelt, ist seine FORM: es ist ein
     // Objekt-Literal und kein Aufruf. Genau das steht hier als negative
@@ -89,8 +89,14 @@ describe('die Quellsprache ist gemessen', () => {
     // Geprueft mit DEMSELBEN Muster, das auch misst — nicht mit einem zweiten
     // daneben. Die erste Fassung hier war breiter und schlug auf einem
     // KOMMENTAR an, in dem `translate('de', k, fallback)` als Beispiel steht.
-    const dicts = readFileSync(resolve(RENDERER, 'lib', 'i18n', 'dicts.ts'), 'utf8')
-    expect([...dicts.matchAll(fallbackMuster())]).toEqual([])
+    //
+    // GEPRUEFT WIRD SEIT 2026-09-10 `i18n/de.ts` (#820). Vorher stand hier
+    // `i18n/dicts.ts` — der tote `en`-Export, den seit E-28 niemand mehr
+    // laedt. Ein Waechter auf einer Datei, die nicht mehr existiert, waere
+    // beim naechsten Lauf rot geworden; einer auf einer Datei, die niemand
+    // laedt, war schon vorher wertlos.
+    const woerterbuch = readFileSync(resolve(RENDERER, 'lib', 'i18n', 'de.ts'), 'utf8')
+    expect([...woerterbuch.matchAll(fallbackMuster())]).toEqual([])
   })
 
   it('misst ueberhaupt etwas — sonst waere die Ruhe oben wertlos', () => {

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { exportStagePlotSvg } from '../src/renderer/lib/exportStagePlot'
 import exportDialogSrc from '../src/renderer/components/Export/ExportDialog.tsx?raw'
-import dictsSrc from '../src/renderer/lib/i18n/dicts.ts?raw'
+import { rendererQuelltext } from './support/i18nAufrufe'
 import type { CablePlannerProject } from '../src/renderer/types/project'
 import type { EquipmentItem } from '../src/renderer/types/equipment'
 import type { Cable } from '../src/renderer/types/cable'
@@ -115,8 +115,8 @@ describe('der Vektor-PDF-Hinweis nennt auch, was fehlt', () => {
   })
 
   it('sagt es auch auf Englisch', () => {
-    expect(dictsSrc).toContain('No title block')
-    expect(dictsSrc).toContain('state fingerprint')
+    expect(rendererQuelltext).toContain('No title block')
+    expect(rendererQuelltext).toContain('state fingerprint')
   })
 })
 

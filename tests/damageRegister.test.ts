@@ -4,7 +4,10 @@ import { closeCheckout } from '../src/renderer/lager/lib/containerCheckout'
 import type { CheckoutLine, CheckoutRecord } from '../src/renderer/lager/types/checkout'
 import inventarQuelle from '../src/renderer/lager/ui/InventoryDialog.tsx?raw'
 import storeQuelle from '../src/renderer/lager/store/checkoutStore.ts?raw'
-import dictsQuelle from '../src/renderer/lib/i18n/dicts.ts?raw'
+import {
+  meldungFehlenderSchluessel,
+  schluesselWirdBenutzt,
+} from './support/i18nAufrufe'
 
 // ---------------------------------------------------------------------------
 // Schaden mit Zuordnung (Bedarf 68, P2).
@@ -244,7 +247,7 @@ describe('Erreichbarkeit im Lager-Dialog', () => {
       'inventory.checkout.damageTally',
     ]) {
       expect(inventarQuelle).toContain(`'${key}'`)
-      expect(dictsQuelle).toContain(`'${key}'`)
+      expect(schluesselWirdBenutzt(key), meldungFehlenderSchluessel(key)).toBe(true)
     }
   })
 })

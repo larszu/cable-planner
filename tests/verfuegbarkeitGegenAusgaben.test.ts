@@ -6,7 +6,10 @@ import type { CheckoutRecord } from '../src/renderer/lager/types/checkout'
 import type { EquipmentItem } from '../src/renderer/types/equipment'
 import type { InventoryItem, InventoryUnit, StorageNode } from '../src/renderer/lager/types/inventory'
 import exportQuelle from '../src/renderer/components/Export/ExportDialog.tsx?raw'
-import dictsQuelle from '../src/renderer/lib/i18n/dicts.ts?raw'
+import {
+  meldungFehlenderSchluessel,
+  schluesselWirdBenutzt,
+} from './support/i18nAufrufe'
 
 // ---------------------------------------------------------------------------
 // „Bestand" ist nicht „verfuegbar" (Bedarf 80, P2).
@@ -245,6 +248,8 @@ describe('Erreichbarkeit im Export-Dialog', () => {
     // Tooltip: der Tooltip traegt zusaetzlich die Vorgaenge.
     expect(exportQuelle).toContain("t('export.devicebom.committed'")
     expect(exportQuelle).toContain('title={row.commitmentNote}')
-    expect(dictsQuelle).toContain("'export.devicebom.committed'")
+    expect(schluesselWirdBenutzt('export.devicebom.committed'), meldungFehlenderSchluessel('export.devicebom.committed')).toBe(
+      true,
+    )
   })
 })

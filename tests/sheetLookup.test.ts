@@ -7,7 +7,10 @@ import type { Cable } from '../src/renderer/types/cable'
 import type { EquipmentItem } from '../src/renderer/types/equipment'
 import quelle from '../src/renderer/lib/sheetLookup.ts?raw'
 import analyseQuelle from '../src/renderer/components/Analysis/AnalysisDialog.tsx?raw'
-import dictsQuelle from '../src/renderer/lib/i18n/dicts.ts?raw'
+import {
+  meldungFehlenderSchluessel,
+  schluesselWirdBenutzt,
+} from './support/i18nAufrufe'
 
 // ---------------------------------------------------------------------------
 // Bedarf 27 -- der Rueckweg vom Papier.
@@ -177,7 +180,7 @@ describe('Erreichbarkeit — der Grund, warum es diese Datei gibt', () => {
   it('nennt die Eingabeform, statt sie raten zu lassen', () => {
     for (const key of ['analysis.sheet.intro', 'analysis.sheet.placeholder']) {
       expect(analyseQuelle).toContain(`'${key}'`)
-      expect(dictsQuelle).toContain(`'${key}'`)
+      expect(schluesselWirdBenutzt(key), meldungFehlenderSchluessel(key)).toBe(true)
     }
   })
 })

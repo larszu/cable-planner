@@ -25,7 +25,7 @@
 // `lib/i18n.ts` unter ihrem Kuerzel eintragen. Keine Zeile Logik.
 // ───────────────────────────────────────────────────────────────────────────
 
-import type { Dict } from './dicts'
+import type { Dict } from './dict'
 
 export const de: Dict = {
   'about.author': 'Autor',

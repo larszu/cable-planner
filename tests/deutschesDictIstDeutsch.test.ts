@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import dictSrc from '../src/renderer/lib/i18n/dicts.ts?raw'
 import deSrc from '../src/renderer/lib/i18n/de.ts?raw'
+import { cableCatalog } from '../src/renderer/types/cableSpec'
+import { VIDEO_FORMATS } from '../src/renderer/types/videoFormat'
 
 // Das deutsche Woerterbuch enthielt englische Texte -- und zwar nicht
 // irgendwo, sondern bei den Kabel-Notizen. Die landen NICHT nur in der
@@ -19,13 +20,26 @@ import deSrc from '../src/renderer/lib/i18n/de.ts?raw'
 // Wert im de-Dict darf mit seinem en-Gegenstueck identisch sein, es sei denn,
 // er steht ausdruecklich auf der Ausnahmeliste.
 
-// SEIT E-28 (2026-09-09) liegen Quelle und Uebersetzung in ZWEI Dateien:
-// `dicts.ts` traegt die englische Quellsprache, `i18n/de.ts` die deutsche
-// Uebersetzung. Vorher standen beide untereinander in `dicts.ts`, und dieser
-// Test schnitt sie an der Zeile `export const de` auseinander. Die Frage
-// bleibt dieselbe — sie wird nur ueber zwei Dateien gestellt.
-const lines = dictSrc.split('\n')
+// SEIT E-28 (2026-09-09) liegen Quelle und Uebersetzung getrennt. Erst in
+// zwei Dateien (`dicts.ts` englisch, `i18n/de.ts` deutsch), seit #829 gar
+// nicht mehr in einem Woerterbuch: die englische Quelle der Katalog-Notizen
+// steht als `notesSource` NEBEN ihrem Schluessel im Katalog selbst.
+//
+// Der Grund war ein Defekt, kein Umbau: `CableDialog` loeste
+// `t(spec.notesKey, '')` mit LEEREM Rueckfall auf, und weil Englisch seit
+// E-28 bewusst nicht in der Registry steht, bekam jede Sprache ausser
+// Deutsch dort nichts — geschrieben in `Cable.notes`, also in die
+// Projektdatei. Die Frage dieses Tests bleibt dieselbe; sie wird nur an der
+// Stelle gestellt, an der die Quelle jetzt wirklich liegt.
 const deLines = deSrc.split('\n')
+
+/** Die englische Quelle je Katalog-Schluessel — aus dem Katalog, nicht aus
+ *  einem Woerterbuch. */
+const quelle = new Map<string, string>(
+  [...cableCatalog, ...VIDEO_FORMATS]
+    .filter((e) => e.notesKey && e.notesSource)
+    .map((e) => [e.notesKey as string, e.notesSource as string]),
+)
 
 /** Sammelt Schluessel -> Wert aus einem Abschnitt (Wert darf in der naechsten Zeile stehen). */
 const parse = (region: string[]): Map<string, string> => {
@@ -53,13 +67,13 @@ const nurKatalog = (m: Map<string, string>) =>
   new Map([...m].filter(([k]) => k.startsWith('catalog.')))
 
 describe('das deutsche Woerterbuch ist deutsch', () => {
-  it('findet beide Woerterbuecher (sonst prueft der Test nichts)', () => {
-    expect(parse(lines).size, 'Quell-Woerterbuch leer').toBeGreaterThan(20)
+  it('findet Quelle und Uebersetzung (sonst prueft der Test nichts)', () => {
+    expect(quelle.size, 'Keine Katalog-Quelltexte gefunden').toBeGreaterThan(20)
     expect(parse(deLines).size, 'de-Woerterbuch leer').toBeGreaterThan(20)
   })
 
   it('kein deutscher Wert ist eine woertliche Kopie des englischen', () => {
-    const en = parse(lines)
+    const en = quelle
     const de = nurKatalog(parse(deLines))
 
     // NUR DIE KATALOG-SCHLUESSEL, und das ist seit E-28 eine Einschraenkung
@@ -80,8 +94,8 @@ describe('das deutsche Woerterbuch ist deutsch', () => {
     //
     // Der Schaden, gegen den er gebaut ist, sitzt weiterhin genau hier: was
     // unter `catalog.` steht, schreibt `CableDialog.tsx` ueber
-    // `t(spec.notesKey, '')` in `Cable.notes` — also in die Projektdatei des
-    // Nutzers und nicht nur auf den Schirm.
+    // `t(spec.notesKey, spec.notesSource)` in `Cable.notes` — also in die
+    // Projektdatei des Nutzers und nicht nur auf den Schirm.
     const kopien: string[] = []
     for (const [key, deVal] of de) {
       if (GLEICH_ERLAUBT.has(key)) continue

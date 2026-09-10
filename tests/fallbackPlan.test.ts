@@ -15,7 +15,10 @@ import dialogQuelle from '../src/renderer/components/Delivery/DeliveryDialog.tsx
 import registerQuelle from '../src/renderer/lib/documentRegistry.ts?raw'
 import storeQuelle from '../src/renderer/store/projectStore.ts?raw'
 import metaQuelle from '../src/renderer/store/slices/metaSlice.ts?raw'
-import dictsQuelle from '../src/renderer/lib/i18n/dicts.ts?raw'
+import {
+  meldungFehlenderSchluessel,
+  schluesselWirdBenutzt,
+} from './support/i18nAufrufe'
 
 // ---------------------------------------------------------------------------
 // Das Sicherheitsnetz, einmal erklaert (Bedarf 89, P2).
@@ -577,7 +580,7 @@ describe('Erreichbarkeit', () => {
       'delivery.fb.offline',
       'app.loadReport.fallbackRule',
     ]) {
-      expect(dictsQuelle).toContain(`'${key}'`)
+      expect(schluesselWirdBenutzt(key), meldungFehlenderSchluessel(key)).toBe(true)
     }
   })
 })

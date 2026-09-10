@@ -2,7 +2,10 @@ import { describe, expect, it } from 'vitest'
 import { carriedNotes, mapHeader, planCsvImport } from '../src/renderer/lib/csvImportPlan'
 import { parseCsv } from '../src/renderer/lib/csvParse'
 import dialogQuelle from '../src/renderer/components/Import/CsvImportDialog.tsx?raw'
-import dictsQuelle from '../src/renderer/lib/i18n/dicts.ts?raw'
+import {
+  meldungFehlenderSchluessel,
+  schluesselWirdBenutzt,
+} from './support/i18nAufrufe'
 
 // ---------------------------------------------------------------------------
 // Kein stiller Verlust beim Import (Bedarf 29, P1).
@@ -186,7 +189,7 @@ describe('Erreichbarkeit im Import-Dialog', () => {
       'csvImport.existing',
     ]) {
       expect(dialogQuelle).toContain(`'${key}'`)
-      expect(dictsQuelle).toContain(`'${key}'`)
+      expect(schluesselWirdBenutzt(key), meldungFehlenderSchluessel(key)).toBe(true)
     }
   })
 })

@@ -5,7 +5,10 @@ import type { EquipmentTemplate } from '../src/renderer/types/equipment'
 import csvQuelle from '../src/renderer/components/Import/CsvImportDialog.tsx?raw'
 import graphmlQuelle from '../src/renderer/components/Import/GraphmlImportDialog.tsx?raw'
 import projectTabQuelle from '../src/renderer/components/Settings/tabs/ProjectTab.tsx?raw'
-import dictsQuelle from '../src/renderer/lib/i18n/dicts.ts?raw'
+import {
+  meldungFehlenderSchluessel,
+  schluesselWirdBenutzt,
+} from './support/i18nAufrufe'
 
 // ---------------------------------------------------------------------------
 // Keine Mengen-Operation endet stumm (Bedarf 65, P2).
@@ -111,7 +114,7 @@ describe('alle drei Aufrufer melden das Ergebnis', () => {
       'graphml.dialog.libDoneBody',
       'graphml.dialog.libUnnamed',
     ]) {
-      expect(dictsQuelle).toContain(`'${key}'`)
+      expect(schluesselWirdBenutzt(key), meldungFehlenderSchluessel(key)).toBe(true)
     }
   })
 

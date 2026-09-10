@@ -13,7 +13,10 @@ import type { CablePlannerProject } from '../src/renderer/types/project'
 import dialogQuelle from '../src/renderer/components/Project/TemplatesDialog.tsx?raw'
 import tplQuelle from '../src/renderer/lib/projectTemplates.ts?raw'
 import scopeDialogQuelle from '../src/renderer/lib/venueScopeDialog.tsx?raw'
-import dictsQuelle from '../src/renderer/lib/i18n/dicts.ts?raw'
+import {
+  meldungFehlenderSchluessel,
+  schluesselWirdBenutzt,
+} from './support/i18nAufrufe'
 
 // ---------------------------------------------------------------------------
 // Was von einer Show in die naechste mitgeht (Bedarf 91, P2).
@@ -268,7 +271,7 @@ describe('Erreichbarkeit', () => {
       'templates.carryTitle',
       'templates.carryOk',
     ]) {
-      expect(dictsQuelle).toContain(`'${key}'`)
+      expect(schluesselWirdBenutzt(key), meldungFehlenderSchluessel(key)).toBe(true)
     }
   })
 })

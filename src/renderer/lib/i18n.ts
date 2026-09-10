@@ -52,7 +52,7 @@ import { useUiStore, type Language } from '../store/uiStore'
  */
 
 
-import { type Dict } from './i18n/dicts'
+import { type Dict } from './i18n/dict'
 import { de } from './i18n/de'
 
 /**
