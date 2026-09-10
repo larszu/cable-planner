@@ -18,7 +18,6 @@ import {
   triggerCanvasSelectAll,
   triggerCanvasDuplicate,
 } from '../../lib/canvasViewport'
-import { createDemoProject } from '../../lib/demoProject'
 import { useTranslation } from '../../lib/i18n'
 import { Icon } from '../shared/Icon'
 import { useDialogA11y } from '../../hooks/useDialogA11y'
@@ -103,7 +102,7 @@ export const CommandPalette = () => {
       { id: 'recStorage', group: gTools, title: t('app.menu.tools.recStorage', 'Calculate recording storage…'), run: () => ui().openRecordingStorageCalc() },
       { id: 'projection', group: gTools, title: t('app.menu.tools.projection', 'Projection & display…'), run: () => ui().openProjectionCalc() },
       { id: 'installDocs', group: gTools, title: t('app.menu.tools.installDocs', 'Fixed install: docs & handover…'), run: () => ui().openInstallDocs() },
-      { id: 'loadDemo', group: gTools, title: t('canvas.empty.loadDemo', 'Load example project'), run: () => { useProjectStore.getState().loadProject(createDemoProject()); setTimeout(() => triggerCanvasFitView(), 80) } },
+      { id: 'loadDemo', group: gTools, title: t('canvas.empty.loadDemo', 'Load example project'), run: () => { useProjectStore.getState().loadDemoProject(); setTimeout(() => triggerCanvasFitView(), 80) } },
       { id: 'settings', group: gHelp, title: t('palette.settings', 'Settings…'), run: () => ui().openSettings() },
       { id: 'shortcuts', group: gHelp, title: t('app.menu.help.shortcuts', 'Keyboard shortcuts…'), run: () => window.dispatchEvent(new CustomEvent('cp:open-shortcuts-help')) },
       { id: 'about', group: gHelp, title: t('app.menu.help.about', 'About Cable Planner…'), run: () => ui().openAboutDialog() },

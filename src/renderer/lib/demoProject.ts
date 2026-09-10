@@ -36,9 +36,13 @@ export const createDemoProject = (): CablePlannerProject => {
   return {
     metadata: {
       name: 'Example: small studio setup',
+      // QUELLSPRACHE (E-28). Diese Zeile stand bis 2026-09-10 auf Deutsch,
+      // waehrend `name` daneben schon englisch war — der Sprach-Waechter sieht
+      // sie nicht, weil sie DATEN ist und kein `t()`-Aufruf. Sie ist das
+      // Zweite, was ein neuer Nutzer liest.
       description:
-        'Demo-Plan: 2 Kameras → Bildmischer → Multiviewer & Regie-Monitor. ' +
-        'Zum Ausprobieren — einfach Geräte/Kabel anklicken oder löschen.',
+        'Demo plan: 2 cameras → vision mixer → multiviewer & control room ' +
+        'monitor. Made to be poked at — click or delete any device or cable.',
       createdAt: now,
       updatedAt: now,
       defaultVideoFormat: '1080p50',
