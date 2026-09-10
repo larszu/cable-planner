@@ -57,8 +57,13 @@ const UNTERGRENZE_PX = 12
 /**
  * Stand 2026-09-10, gemessen mit genau der Suche unten. Sinken darf die Zahl —
  * dann ist die rote Zeile die Erinnerung, sie hier nachzuziehen.
+ *
+ * Bisherige Staende: 828 (nach `src/mobile`), 705 (nach GreenGoExportDialog,
+ * CalculatorsDialog, CableProperties). Die Reihenfolge ist die nach Groesse:
+ * die dichten Tabellen und Rechner-Raster zuerst, weil dort die kleinste
+ * Schrift und die meiste Zahl zusammenkommen.
  */
-const BARRIERE = 828
+const BARRIERE = 705
 
 const dateien = (dir: string): string[] =>
   readdirSync(dir).flatMap((eintrag) => {
