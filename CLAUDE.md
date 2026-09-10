@@ -29,6 +29,7 @@ npx vitest run -t "Teil des Test-Namens"      # einzelner Test per Name
 npm run test:crdt                        # CRDT-Konvergenz (scripts/crdt-convergence-check.mjs)
 npm run test:signaling                   # Signaling-Relay (baut main vorher)
 npm run ui:smoke                         # UI-Smoke (scripts/ui-smoke.mjs)
+npm run mobil:check                      # 390x844 mit Finger: nichts ragt hinaus, das Fenster laesst sich nicht schieben
 npm run test:drag                        # Headless Drag-/Interaktions-Test (scripts/drag-test.mjs, braucht laufenden dev:renderer)
 npm run docs:stats                       # Doku-Kennzahlen (Version/Module/LOC/Slices/Subdomänen) neu berechnen + in Doku schreiben
 ```

@@ -218,6 +218,41 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
     return () => setViewportCenterGetter(null)
   }, [screenToFlowPosition])
 
+  // ═════════════════════════════════════════════════════════════════════
+  // Die Kneif-Geste gehoert dem Plan, nicht dem Browser (Nutzer-Meldung
+  // 2026-09-10: „Man kann das gesamte Fenster aus Versehen verschieben").
+  //
+  // Zwei Haelften, und nur zusammen halten sie:
+  //
+  //  1. `touch-action: none` am `.react-flow__renderer` (im Stilblatt).
+  //     Das deckt Chrome, Firefox und den Fingerbetrieb auf iOS ab. Ohne
+  //     es nimmt der Browser die Zwei-Finger-Geste VORWEG — ReactFlows
+  //     eigener Zeiger-Handler kommt dann gar nicht erst dran.
+  //  2. Safaris `gesture*`-Ereignisse. Die gibt es sonst nirgends, und ohne
+  //     sie vergroessert Safari auf dem Trackpad weiter die Seite — auch
+  //     dann, wenn `touch-action` steht: die Geste kommt dort nicht als
+  //     Beruehrung an. Dieselbe Stelle steht im light-planner und in
+  //     `src/mobile/MobileApp.tsx`; sie fehlte nur hier.
+  //
+  // Der Hoerer haengt am WRAPPER, nicht am Fenster: der Seiten-Zoom des
+  // Browsers wird NICHT global abgeschaltet (kein `user-scalable=no`). Er
+  // ist ein Zugaenglichkeits-Werkzeug und soll ueberall dort weiter
+  // funktionieren, wo Text steht — nur nicht ueber dem Plan, der seinen
+  // eigenen Zoom hat.
+  useEffect(() => {
+    const el = wrapperRef.current
+    if (!el) return
+    const stoppen = (e: Event) => e.preventDefault()
+    el.addEventListener('gesturestart', stoppen)
+    el.addEventListener('gesturechange', stoppen)
+    el.addEventListener('gestureend', stoppen)
+    return () => {
+      el.removeEventListener('gesturestart', stoppen)
+      el.removeEventListener('gesturechange', stoppen)
+      el.removeEventListener('gestureend', stoppen)
+    }
+  }, [])
+
   // Gemessene Canvas-Groesse fuer Zoom-to-fit nach Importen bereitstellen.
   // Lazy Getter statt ResizeObserver: der Wert wird nur beim Import gebraucht
   // und ist so garantiert frisch (inkl. aktueller Panel-Breiten), ohne bei

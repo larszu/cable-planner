@@ -174,7 +174,12 @@ export const PropertiesPanel = () => {
 
   return (
     <aside className="flex h-full min-h-0 flex-col border-l border-cp-border bg-cp-surface-3 text-cp-text">
-      <div className="flex items-start justify-between gap-2 border-b border-cp-border-muted px-3 py-2.5">
+      {/* `flex-wrap`: die Knopfgruppe rechts ist `shrink-0` (sie darf nicht
+          schmaler werden, sonst ueberlappen die Symbole). Auf einem schmalen
+          Panel — gemessen 129px auf einem 390px breiten Telefon — passt sie
+          dann nicht mehr neben den Titel und stand 17px ueber dem rechten
+          Bildrand. Mit Umbruch rutscht sie unter den Titel statt hinaus. */}
+      <div className="flex flex-wrap items-start justify-between gap-2 border-b border-cp-border-muted px-3 py-2.5">
         <div className="min-w-0">
           <h2 className="truncate text-cp-base font-semibold">{title}</h2>
           <div className="mt-0.5 text-cp-xs uppercase tracking-wide text-cp-text-muted">

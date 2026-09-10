@@ -57,6 +57,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "ui:smoke": "node scripts/ui-smoke.mjs",
+    "mobil:check": "npm run build:renderer && node scripts/mobil-grenze-check.mjs",
     "test:drag": "node scripts/drag-test.mjs",
     "docs:stats": "node scripts/update-doc-stats.mjs",
     "test:crdt": "node scripts/crdt-convergence-check.mjs",
