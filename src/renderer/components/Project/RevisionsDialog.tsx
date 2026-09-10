@@ -169,7 +169,7 @@ export const RevisionsDialog = () => {
             ))}
           </ul>
         )}
-        <p className="text-[10px] text-cp-text-muted">
+        <p className="text-cp-xs text-cp-text-muted">
           {t(
             'revisions.footerHint',
             'A revision stores a full snapshot of the plan. Restoring keeps the history.',

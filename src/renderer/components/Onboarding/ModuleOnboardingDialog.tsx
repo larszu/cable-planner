@@ -88,7 +88,7 @@ export const ModuleOnboardingDialog = () => {
               >
                 <div className="mb-1 flex items-center gap-2 font-semibold text-cp-text-bright">
                   <span
-                    className={`flex h-4 w-4 items-center justify-center rounded-sm border text-[10px] ${
+                    className={`flex h-4 w-4 items-center justify-center rounded-sm border text-cp-xs ${
                       on ? 'border-emerald-500 bg-emerald-600 text-white' : 'border-cp-border'
                     }`}
                   >

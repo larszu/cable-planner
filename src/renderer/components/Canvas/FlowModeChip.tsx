@@ -49,7 +49,7 @@ export function FlowModeChip() {
             ? t('canvas.flow.toggleOff', 'Click: turn motion off.')
             : t('canvas.flow.toggleOn', 'Click: turn motion on.')
       }`}
-      className="av-focus flex items-center gap-1.5 rounded-full border border-cp-border px-2 py-0.5 text-[11px] text-cp-text-secondary hover:bg-cp-surface-3"
+      className="av-focus flex items-center gap-1.5 rounded-full border border-cp-border px-2 py-0.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-3"
     >
       <span
         aria-hidden

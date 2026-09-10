@@ -18,11 +18,11 @@ export const RackInstanceCard = ({ equipment }: { equipment: EquipmentItem }) =>
 
   return (
     <div className="rounded border border-cyan-700 bg-cyan-950/30 p-2">
-      <div className="mb-1 text-[10px] uppercase tracking-wide text-cyan-300">
+      <div className="mb-1 text-cp-xs uppercase tracking-wide text-cyan-300">
         {t('rackInstance.label', 'Rack instance')} · {equipment.rackInstanceLabel ?? t('rackInstance.fallback', 'Rack')}
       </div>
       <PanelHint
-        className="mb-2 text-[10px] text-cp-text-muted"
+        className="mb-2 text-cp-xs text-cp-text-muted"
         text={t(
           'rackInstance.intro',
           'This device belongs to a rack instance. The rack editor shows a filtered sub-canvas with this rack only — position changes are rounded to whole U on release.',
@@ -36,7 +36,7 @@ export const RackInstanceCard = ({ equipment }: { equipment: EquipmentItem }) =>
         <Icon icon={Server} size="xs" /> {t('rackInstance.openEditor', 'Open rack editor')}
       </button>
       {typeof equipment.rackInstanceStartUnit === 'number' && (
-        <div className="mt-1 text-[10px] text-cp-text-muted">
+        <div className="mt-1 text-cp-xs text-cp-text-muted">
           {format(t('rackInstance.position', 'Position: from U {start}'), {
             start: equipment.rackInstanceStartUnit + 1,
           })}

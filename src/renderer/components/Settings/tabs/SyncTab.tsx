@@ -77,13 +77,13 @@ const SharedLibrarySyncSection = ({ syncPath }: { syncPath: string }) => {
             : t('settings.sharedLib.syncNow', 'Sync library now')}
         </button>
         {!syncPath.trim() && (
-          <span className="text-[11px] text-cp-text-muted">
+          <span className="text-cp-xs text-cp-text-muted">
             {t('settings.sharedLib.needPath', 'Set a sync directory above first.')}
           </span>
         )}
       </div>
       {res && (
-        <div className="mt-2 text-[11px]">
+        <div className="mt-2 text-cp-xs">
           {res.ok ? (
             <div className="space-y-0.5">
               <p className="text-emerald-400">

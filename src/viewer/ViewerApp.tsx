@@ -347,7 +347,7 @@ export const ViewerApp = () => {
             >
               {loadingRemote ? 'Lade…' : 'Live laden'}
             </button>
-            <p className="mt-1 text-[11px] text-cp-text-faint">
+            <p className="mt-1 text-cp-xs text-cp-text-faint">
               LAN: die vom Desktop angezeigte Adresse. Mobilfunk: deine öffentliche Tunnel-/Relay-URL
               (siehe docs/self-hosted-relay.md). Nichts läuft über fremde Server.
             </p>
@@ -367,7 +367,7 @@ export const ViewerApp = () => {
           {project.metadata?.description && <p className="truncate text-xs text-cp-text-muted">{project.metadata.description}</p>}
           {/* Bedarf 1: der Stand des Geteilten. Ohne ihn ist diese Ansicht
               eine Momentaufnahme, die nicht sagt, welche. */}
-          <p className="truncate text-[11px] text-cp-text-faint" title={standHinweis}>
+          <p className="truncate text-cp-xs text-cp-text-faint" title={standHinweis}>
             Stand <span className="font-mono">#{stamp.fingerprint}</span>
             {stamp.revision && <> · {stamp.revision}{stamp.drifted && ' + Änderungen'}</>}
           </p>
@@ -407,13 +407,13 @@ export const ViewerApp = () => {
                     <li key={a.id} className={`rounded border p-2 text-xs ${sel ? 'border-cp-accent bg-cp-surface-2' : 'border-cp-border-muted bg-cp-surface-2/40'}`} onClick={() => setSelectedId(a.id)}>
                       <div className="mb-1 flex items-center justify-between gap-2">
                         <span className="flex items-center gap-1.5 font-medium text-cp-text-secondary">
-                          <span className="inline-flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-bold text-slate-900" style={{ backgroundColor: STATUS_COLOR[a.status] ?? '#64748b' }}>{i + 1}</span>
+                          <span className="inline-flex h-4 w-4 items-center justify-center rounded-full text-cp-xs font-bold text-slate-900" style={{ backgroundColor: STATUS_COLOR[a.status] ?? '#64748b' }}>{i + 1}</span>
                           {a.author || '—'}
                         </span>
                         <select
                           value={a.status}
                           onChange={(e) => patchAnnotation(a.id, { status: e.target.value as ProjectAnnotation['status'] })}
-                          className="rounded border border-cp-border bg-cp-surface-1 px-1 py-0.5 text-[10px]"
+                          className="rounded border border-cp-border bg-cp-surface-1 px-1 py-0.5 text-cp-xs"
                           onClick={(e) => e.stopPropagation()}
                         >
                           {STATUS_ORDER.map((s) => <option key={s} value={s}>{STATUS_LABEL[s]}</option>)}
@@ -429,7 +429,7 @@ export const ViewerApp = () => {
                       />
                       {mine && (
                         <div className="mt-1 flex justify-end">
-                          <button onClick={(e) => { e.stopPropagation(); removeAnnotation(a.id) }} className="rounded px-1.5 py-0.5 text-[10px] text-cp-danger hover:bg-cp-danger/20">Löschen</button>
+                          <button onClick={(e) => { e.stopPropagation(); removeAnnotation(a.id) }} className="rounded px-1.5 py-0.5 text-cp-xs text-cp-danger hover:bg-cp-danger/20">Löschen</button>
                         </div>
                       )}
                     </li>
@@ -438,7 +438,7 @@ export const ViewerApp = () => {
               </ul>
             )}
           </div>
-          <div className="border-t border-cp-border p-2 text-[10px] text-cp-text-faint">
+          <div className="border-t border-cp-border p-2 text-cp-xs text-cp-text-faint">
             {project.equipment.length} Geräte · {project.cables.length} Kabel · {(project.locations ?? []).length} Standorte
           </div>
         </aside>

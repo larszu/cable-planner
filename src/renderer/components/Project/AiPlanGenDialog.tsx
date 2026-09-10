@@ -85,7 +85,7 @@ export const AiPlanGenDialog = () => {
           />
         </label>
         <div className="flex items-center justify-between gap-2">
-          <span className="text-[10px] text-cp-text-muted">
+          <span className="text-cp-xs text-cp-text-muted">
             {t('aiPlan.reviewHint', 'A preview is shown — nothing is inserted without confirmation.')}
           </span>
           <button
@@ -114,7 +114,7 @@ export const AiPlanGenDialog = () => {
                 c: plan.cables.length,
               })}
             </div>
-            <ul className="max-h-40 overflow-auto text-[11px] text-cp-text-secondary">
+            <ul className="max-h-40 overflow-auto text-cp-xs text-cp-text-secondary">
               {plan.equipment.map((e) => (
                 <li key={e.id}>
                   • {e.name} <span className="text-cp-text-faint">[{e.category}]</span>
@@ -122,7 +122,7 @@ export const AiPlanGenDialog = () => {
               ))}
             </ul>
             {plan.warnings.length > 0 && (
-              <ul className="mt-1 list-inside list-disc text-[10px] text-amber-300">
+              <ul className="mt-1 list-inside list-disc text-cp-xs text-amber-300">
                 {plan.warnings.map((w, i) => (
                   <li key={i}>{w}</li>
                 ))}

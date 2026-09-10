@@ -127,7 +127,7 @@ export const SinkProfileSection = ({ equipment }: { equipment: EquipmentItem }) 
                   </select>
                   <button
                     type="button"
-                    className="rounded bg-red-700 px-1.5 py-1 text-[10px] hover:bg-red-600"
+                    className="rounded bg-red-700 px-1.5 py-1 text-cp-xs hover:bg-red-600"
                     onClick={() =>
                       setze({ formate: profil.formate.filter((_, j) => j !== i) })
                     }

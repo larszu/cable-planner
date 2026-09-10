@@ -62,7 +62,7 @@ export const RackBuilder3DTab = ({
 
   return (
     <>
-      <div className="mb-2 flex items-center gap-1 text-[10px]">
+      <div className="mb-2 flex items-center gap-1 text-cp-xs">
         <span className="text-cp-text-faint">{t('rack.view.label', 'View:')}</span>
         {(['all', 'free', 'released'] as const).map((m) => (
           <button

@@ -262,7 +262,7 @@ export const WirelessRigDialog = () => {
               <ul className="space-y-1 rounded border border-cp-warn/40 bg-cp-warn/5 p-2 text-cp-xs">
                 {derivation.rfConflicts.map((c, i) => (
                   <li key={i} className="flex gap-2">
-                    <span className="rounded bg-cp-surface-3 px-1.5 py-0.5 text-[10px] text-cp-text-muted">
+                    <span className="rounded bg-cp-surface-3 px-1.5 py-0.5 text-cp-xs text-cp-text-muted">
                       {c.kind === 'spacing' ? t('wireless.kindSpacing', 'spacing') : c.kind === 'imd3-2tx' ? 'IMD3·2' : 'IMD3·3'}
                     </span>
                     <span className="text-cp-text-secondary">{c.message}</span>
@@ -270,7 +270,7 @@ export const WirelessRigDialog = () => {
                 ))}
               </ul>
               <PanelHint
-                className="mt-1 text-[11px] text-cp-text-muted"
+                className="mt-1 text-cp-xs text-cp-text-muted"
                 text={t('wireless.rfHint', 'Checked: carrier spacing + 3rd-order intermodulation (2- and 3-transmitter). Basic coordination like Wireless Workbench — not a substitute for an on-site spectrum scan.')}
               />
             </div>

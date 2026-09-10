@@ -73,7 +73,7 @@ export const ProjectSelector = ({ projects, selectedProjectId, onSelect }: Proje
               })()}
             </span>
             {project.status && (
-              <span className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] ${active ? 'bg-sky-700 text-sky-50' : 'bg-cp-surface-2 text-cp-text-muted'}`}>
+              <span className={`shrink-0 rounded px-1.5 py-0.5 text-cp-xs ${active ? 'bg-sky-700 text-sky-50' : 'bg-cp-surface-2 text-cp-text-muted'}`}>
                 {project.status}
               </span>
             )}

@@ -159,7 +159,7 @@ export const DocumentLogDialog = ({ open, onClose }: DocumentLogDialogProps) => 
       maxWidth="4xl"
       draggableKey="cable-planner:modal-pos:document-log"
       footer={
-        <div className="flex items-center justify-between gap-3 text-[11px]">
+        <div className="flex items-center justify-between gap-3 text-cp-xs">
           <span className="text-cp-text-muted">
             {t(
               'doclog.footer',

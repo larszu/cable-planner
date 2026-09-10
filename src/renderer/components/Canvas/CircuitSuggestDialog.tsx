@@ -40,7 +40,7 @@ const Tafel = ({ zeilen }: { zeilen: readonly TafelZeile[] }) => {
   if (schalter.length === 0) return null
   return (
     <div className="mt-1 overflow-x-auto">
-      <table className="text-[11px] tabular-nums">
+      <table className="text-cp-xs tabular-nums">
         <thead>
           <tr className="text-cp-text-muted">
             {schalter.map((id) => (
@@ -197,7 +197,7 @@ export function CircuitSuggestDialog({ open, onClose }: Props) {
                     {t('canvas.circuit.suggest.apply', 'Add wire')}
                   </button>
                 ) : (
-                  <span className="text-[11px] text-cp-warn">
+                  <span className="text-cp-xs text-cp-warn">
                     {t('canvas.circuit.suggest.blocked', 'cannot be added')}
                   </span>
                 )}
@@ -208,7 +208,7 @@ export function CircuitSuggestDialog({ open, onClose }: Props) {
               <button
                 type="button"
                 onClick={() => setOffen(offen === i ? null : i)}
-                className="av-focus mt-1 text-[11px] text-cp-text-muted underline"
+                className="av-focus mt-1 text-cp-xs text-cp-text-muted underline"
               >
                 {offen === i
                   ? t('canvas.circuit.suggest.hideTable', 'Hide truth table')

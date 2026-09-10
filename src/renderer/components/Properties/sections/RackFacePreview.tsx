@@ -22,17 +22,17 @@ export const RackFacePreview = ({
 
   return (
     <fieldset className="rounded border border-cp-border p-2">
-      <legend className="px-1 text-[11px] uppercase tracking-wide text-cp-text-muted">
+      <legend className="px-1 text-cp-xs uppercase tracking-wide text-cp-text-muted">
         {t('rackFace.title', '2D rack preview')}
       </legend>
-      <div className="mb-2 text-[11px] text-cp-text-muted">{format(t('rackFace.subtitle', '19" rack · {he} U · front/rear with port markers'), { he: equipment.rackUnits })}</div>
+      <div className="mb-2 text-cp-xs text-cp-text-muted">{format(t('rackFace.subtitle', '19" rack · {he} U · front/rear with port markers'), { he: equipment.rackUnits })}</div>
       <div className="rounded border border-cp-border bg-cp-surface-3 p-3">
         <div className={`mx-auto grid w-full max-w-[760px] gap-2 ${viewMode === 'both' ? 'grid-cols-2' : 'grid-cols-1'}`}>
           {(viewMode === 'both' ? ['front', 'rear'] : [viewMode]).map((side) => {
             const imageUrl = side === 'front' ? equipment.frontPanelImageUrl : equipment.rearPanelImageUrl
             return (
               <div key={side} className="rounded border border-cp-surface-5 bg-gradient-to-b from-cp-surface-2 to-cp-surface-1 px-4 py-3 shadow-inner">
-                <div className="mb-3 flex items-center justify-between text-[10px] uppercase tracking-[0.2em] text-cp-text-muted">
+                <div className="mb-3 flex items-center justify-between text-cp-xs uppercase tracking-[0.2em] text-cp-text-muted">
                   <span>{side === 'front' ? t('rackFace.front', 'Front') : t('rackFace.rear', 'Rear')}</span>
                   <span>{equipment.rackUnits} HE</span>
                 </div>
@@ -47,7 +47,7 @@ export const RackFacePreview = ({
                   ) : (
                     <>
                       <div className="truncate text-cp-base font-semibold text-cp-text">{equipment.name}</div>
-                      <div className="truncate text-[11px] text-cp-text-muted">{equipment.category}</div>
+                      <div className="truncate text-cp-xs text-cp-text-muted">{equipment.category}</div>
                     </>
                   )}
                 </div>
@@ -56,7 +56,7 @@ export const RackFacePreview = ({
                     const input = equipment.inputs[index]
                     const output = equipment.outputs[index]
                     return (
-                      <div key={`${equipment.id}-${side}-rack-row-${index}`} className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 text-[11px]">
+                      <div key={`${equipment.id}-${side}-rack-row-${index}`} className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 text-cp-xs">
                         <div className="min-w-0 rounded border border-cp-border bg-cp-surface-1/70 px-2 py-1 text-right text-cp-text-bright">
                           {input ? (
                             <span className="block truncate">

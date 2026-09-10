@@ -192,7 +192,7 @@ const MvLayoutPicker = ({
             left: q.col === 1 ? 0 : '50%',
           }}
         >
-          <span className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 text-center text-[10px] font-bold uppercase tracking-wider text-sky-100 opacity-60 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
+          <span className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 text-center text-cp-xs font-bold uppercase tracking-wider text-sky-100 opacity-60 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
             {quadrants[q.idx] === 'big' ? '1 → 4' : '4 → 1'}
           </span>
         </button>
@@ -491,7 +491,7 @@ const SourcePicker = ({
       <div className="p-1 text-cp-xs">
         {grouped.map(([group, items]) => (
           <div key={group} className="mb-1">
-            <div className="px-1 py-0.5 text-[10px] uppercase tracking-wider text-cp-text-muted">
+            <div className="px-1 py-0.5 text-cp-xs uppercase tracking-wider text-cp-text-muted">
               {group}
             </div>
             {items.map((item) => (
@@ -504,7 +504,7 @@ const SourcePicker = ({
                 }`}
               >
                 <span className="truncate">{item.label}</span>
-                <span className="ml-2 text-[10px] text-cp-text-muted">{item.id}</span>
+                <span className="ml-2 text-cp-xs text-cp-text-muted">{item.id}</span>
               </button>
             ))}
           </div>
@@ -550,7 +550,7 @@ const CapabilitiesPanel = ({
     onOverride({ ...caps, supportedLayouts: Array.from(set).sort((a, b) => a - b) })
   }
   return (
-    <div className="border-t border-cp-border-muted bg-cp-surface-3/40 px-3 py-1.5 text-[10px] text-cp-text-muted">
+    <div className="border-t border-cp-border-muted bg-cp-surface-3/40 px-3 py-1.5 text-cp-xs text-cp-text-muted">
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
@@ -583,7 +583,7 @@ const CapabilitiesPanel = ({
                   key={l.value}
                   type="button"
                   onClick={() => toggleLayout(l.value)}
-                  className={`rounded px-2 py-0.5 text-[10px] ${
+                  className={`rounded px-2 py-0.5 text-cp-xs ${
                     on
                       ? 'bg-sky-900 text-sky-200'
                       : 'bg-cp-surface-2 text-cp-text-faint hover:bg-cp-surface-4'
@@ -696,7 +696,7 @@ const AtemMvDevicePicker = () => {
             </p>
           ) : (
             <>
-              <p className="mb-2 text-[11px] text-cp-text-muted">
+              <p className="mb-2 text-cp-xs text-cp-text-muted">
                 {t('atemMv.picker.intro', 'Which ATEM mixer multiviewer do you want to configure?')}
               </p>
               <ul className="space-y-1">
@@ -1127,12 +1127,12 @@ export const AtemMvConfigDialog = () => {
         title={`${quad.name} groß: ${label} (ID ${sid}) — klicken zum Ändern`}
       >
         {role !== 'other' && (
-          <div className="absolute left-1 top-0 text-[11px] font-semibold uppercase tracking-wider opacity-70">
+          <div className="absolute left-1 top-0 text-cp-xs font-semibold uppercase tracking-wider opacity-70">
             {role.toUpperCase()}
           </div>
         )}
-        <div className="truncate px-1 text-[11px] font-medium leading-tight">{label}</div>
-        <div className="truncate px-1 text-[11px] opacity-60">ID {sid}</div>
+        <div className="truncate px-1 text-cp-xs font-medium leading-tight">{label}</div>
+        <div className="truncate px-1 text-cp-xs opacity-60">ID {sid}</div>
       </button>
     )
   }
@@ -1168,8 +1168,8 @@ export const AtemMvConfigDialog = () => {
         className="group relative flex flex-col items-center justify-center overflow-hidden border border-cp-surface-1/40 text-center hover:brightness-95"
         title={`${quad.name} klein #${cellIdx + 1}: ${label} (ID ${sid}) — klicken zum Ändern`}
       >
-        <div className="truncate px-1 text-[10px] font-medium leading-tight">{label}</div>
-        <div className="truncate px-1 text-[8px] opacity-60">{sid}</div>
+        <div className="truncate px-1 text-cp-xs font-medium leading-tight">{label}</div>
+        <div className="truncate px-1 text-cp-xs opacity-60">{sid}</div>
       </button>
     )
   }
@@ -1234,7 +1234,7 @@ export const AtemMvConfigDialog = () => {
               −
             </button>
           </div>
-          <span className="ml-auto text-[10px] text-cp-text-muted">
+          <span className="ml-auto text-cp-xs text-cp-text-muted">
             {format(t('atem.mv.windowHint', '{n} MV — click a window to change its source.'), { n: config.multiViewers.length })}
           </span>
         </div>
@@ -1281,7 +1281,7 @@ export const AtemMvConfigDialog = () => {
               </button>
             </div>
             {hasDifference(comparison) && (
-              <ul className="mt-1.5 max-h-20 space-y-0.5 overflow-y-auto font-mono text-[10px] text-cp-text-secondary">
+              <ul className="mt-1.5 max-h-20 space-y-0.5 overflow-y-auto font-mono text-cp-xs text-cp-text-secondary">
                 {allDeltas(comparison).map((d) => (
                   <li key={d.key}>
                     <span className="text-cp-text-muted">{d.label}:</span>{' '}
@@ -1309,7 +1309,7 @@ export const AtemMvConfigDialog = () => {
         {mv && (
           <div className="flex flex-wrap items-center gap-4 border-b border-cp-border-muted px-3 py-2">
             <div className="flex items-center gap-2">
-              <span className="text-[11px] text-cp-text-secondary">{t('atem.mv.layoutLabel', 'Layout')}</span>
+              <span className="text-cp-xs text-cp-text-secondary">{t('atem.mv.layoutLabel', 'Layout')}</span>
               <MvLayoutPicker
                 quadrants={quadrants}
                 windows={Array.isArray(mv.windows) ? mv.windows : []}
@@ -1317,7 +1317,7 @@ export const AtemMvConfigDialog = () => {
                 onToggleQuadrant={toggleQuadrant}
                 canvasPortNames={canvasPortNames}
               />
-              <span className="text-[10px] text-cp-text-muted">
+              <span className="text-cp-xs text-cp-text-muted">
                 {t('atem.mv.quadrantHint1', 'Click on a quadrant:')}<br />
                 {t('atem.mv.quadrantHint2', 'big ↔ 4 small')}
               </span>
@@ -1362,7 +1362,7 @@ export const AtemMvConfigDialog = () => {
         />
 
         <div className="flex items-center justify-between border-t border-cp-border px-4 py-2">
-          <span className="text-[11px] text-cp-text-muted">
+          <span className="text-cp-xs text-cp-text-muted">
             {savedFlash ? (
               <span className="font-semibold text-emerald-400">✓ {t('atem.mv.saved', 'Saved')}</span>
             ) : (

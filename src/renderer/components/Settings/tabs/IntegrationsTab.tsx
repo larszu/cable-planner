@@ -95,12 +95,12 @@ const AiProvidersCard = () => {
                 />
                 <span className="font-semibold">{config.label}</span>
                 {hasKey && (
-                  <span className="rounded bg-emerald-900/40 px-1.5 py-0.5 text-[10px] text-emerald-300">
+                  <span className="rounded bg-emerald-900/40 px-1.5 py-0.5 text-cp-xs text-emerald-300">
                     ✓ Key
                   </span>
                 )}
                 {isSelected && (
-                  <span className="ml-auto rounded bg-sky-900/40 px-1.5 py-0.5 text-[10px] text-sky-300">
+                  <span className="ml-auto rounded bg-sky-900/40 px-1.5 py-0.5 text-cp-xs text-sky-300">
                     {t('settings.integrations.ai.active', 'Active')}
                   </span>
                 )}
@@ -147,7 +147,7 @@ const AiProvidersCard = () => {
                   </button>
                 )}
               </div>
-              <div className="mt-1 flex items-center justify-between text-[10px] text-cp-text-muted">
+              <div className="mt-1 flex items-center justify-between text-cp-xs text-cp-text-muted">
                 <span>
                   Model: <span className="font-mono">{config.defaultModel}</span>
                 </span>
@@ -161,7 +161,7 @@ const AiProvidersCard = () => {
                 </a>
               </div>
               {saved[id] && (
-                <div className="mt-1 text-[10px] text-emerald-300">
+                <div className="mt-1 text-cp-xs text-emerald-300">
                   ✓ {t('settings.integrations.ai.saved', 'saved')}
                 </div>
               )}
@@ -229,7 +229,7 @@ const GreenGoPresetsCard = () => {
         </button>
       </div>
       {presets.length === 0 ? (
-        <div className="mt-2 text-[11px] text-cp-text-muted">
+        <div className="mt-2 text-cp-xs text-cp-text-muted">
           {t('settings.greengo.empty', 'No presets saved yet.')}
         </div>
       ) : (
@@ -241,7 +241,7 @@ const GreenGoPresetsCard = () => {
             >
               <div className="min-w-0 flex-1 truncate">
                 <span className="font-medium text-emerald-100">{p.name}</span>
-                <span className="ml-2 text-[10px] text-emerald-400/60">
+                <span className="ml-2 text-cp-xs text-emerald-400/60">
                   {p.config.users.length} {t('settings.greengo.usersWord', 'users')} · {p.config.groups.length} {t('settings.greengo.groupsWord', 'groups')} ·{' '}
                   {new Date(p.savedAt).toLocaleDateString()}
                 </span>
@@ -263,7 +263,7 @@ const GreenGoPresetsCard = () => {
                     if (!ok) return
                     updateGreenGoConfig(p.config)
                   }}
-                  className="rounded bg-emerald-700 px-2 py-0.5 text-[11px] text-white hover:bg-emerald-600"
+                  className="rounded bg-emerald-700 px-2 py-0.5 text-cp-xs text-white hover:bg-emerald-600"
                 >
                   {t('settings.greengo.apply', 'Load')}
                 </button>
@@ -285,7 +285,7 @@ const GreenGoPresetsCard = () => {
                     deleteGreenGoPreset(p.id)
                     refreshPresets()
                   }}
-                  className="rounded bg-cp-surface-2 px-2 py-0.5 text-[11px] text-cp-text-secondary hover:bg-red-700 hover:text-white"
+                  className="rounded bg-cp-surface-2 px-2 py-0.5 text-cp-xs text-cp-text-secondary hover:bg-red-700 hover:text-white"
                 >
                   {t('settings.greengo.delete', 'Delete')}
                 </button>
@@ -360,7 +360,7 @@ const TallyPiCard = () => {
         />
         <span>
           {t('settings.integrations.tallyPi.enable', 'Allow the direct path to the tally-pi')}{' '}
-          <span className="text-[10px] text-cp-text-muted">
+          <span className="text-cp-xs text-cp-text-muted">
             ({tallyPiDirekt ? t('common.on', 'on') : t('common.off', 'off')})
           </span>
         </span>
@@ -509,7 +509,7 @@ const NetboxCard = ({ onClose }: { onClose: () => void }) => {
           />
           <span>
             {t('settings.integrations.netboxToggle.label', 'Enable NetBox integration')}{' '}
-            <span className="text-[10px] text-cp-text-muted">
+            <span className="text-cp-xs text-cp-text-muted">
               ({netboxEnabled ? t('common.on', 'on') : t('common.off', 'off')})
             </span>
           </span>
@@ -620,7 +620,7 @@ const NetboxCard = ({ onClose }: { onClose: () => void }) => {
             </button>
           </div>
 
-          <div className="mt-2 text-[11px] text-cp-text-muted">
+          <div className="mt-2 text-cp-xs text-cp-text-muted">
             {t('settings.integrations.netbox.apiHint', 'API used:')}{' '}
             <code>/api/dcim/…</code>{' '}
             {t(
@@ -720,7 +720,7 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
           />
           <span>
             {t('settings.integrations.rentmanToggle.label', 'Enable Rentman integration')}{' '}
-            <span className="text-[10px] text-cp-text-muted">
+            <span className="text-cp-xs text-cp-text-muted">
               ({rentmanEnabled ? t('common.on', 'on') : t('common.off', 'off')})
             </span>
           </span>
@@ -794,7 +794,7 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
             {t('settings.integrations.rentman.delete', 'Delete token')}
           </button>
         </div>
-        <div className="mt-2 text-[11px] text-cp-text-muted">
+        <div className="mt-2 text-cp-xs text-cp-text-muted">
           {t('settings.integrations.rentman.endpoint', 'Endpoint:')}{' '}
           <code>https://api.rentman.net</code>
         </div>

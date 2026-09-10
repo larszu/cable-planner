@@ -487,6 +487,6 @@ const PreviewStat = ({
     }`}
   >
     <div className="text-cp-xl font-semibold">{value}</div>
-    <div className="text-[10px] leading-tight">{label}</div>
+    <div className="text-cp-xs leading-tight">{label}</div>
   </div>
 )

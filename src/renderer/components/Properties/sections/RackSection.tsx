@@ -53,7 +53,7 @@ export const RackSection = ({ equipment }: { equipment: EquipmentItem }) => {
           </label>
 
           {!equipment.isRackDevice && (
-            <div className="rounded border border-cp-border-muted bg-cp-surface-1/50 p-2 text-[11px] text-cp-text-muted">
+            <div className="rounded border border-cp-border-muted bg-cp-surface-1/50 p-2 text-cp-xs text-cp-text-muted">
               {t(
                 'props.rack.disabledHint',
                 'Rack fields only appear when the device is marked as a 19" rack device.',
@@ -139,7 +139,7 @@ export const RackSection = ({ equipment }: { equipment: EquipmentItem }) => {
               )}
 
               {equipment.netboxPath && (
-                <div className="mt-2 text-[10px] text-cp-text-muted">
+                <div className="mt-2 text-cp-xs text-cp-text-muted">
                   {format(t('props.rack.netboxSource', 'Source: NetBox device-type-library · {path}'), {
                     path: equipment.netboxPath,
                   })}

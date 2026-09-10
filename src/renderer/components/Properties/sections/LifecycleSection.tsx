@@ -72,7 +72,7 @@ export const LifecycleSection = ({ equipment }: { equipment: EquipmentItem }) =>
 
   return (
     <details className="rounded border border-cp-border bg-cp-surface-3/40">
-      <summary className="flex cursor-pointer select-none items-center gap-1.5 px-2 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-cp-text-muted hover:bg-cp-surface-2/40">
+      <summary className="flex cursor-pointer select-none items-center gap-1.5 px-2 py-1.5 text-cp-xs font-semibold uppercase tracking-wide text-cp-text-muted hover:bg-cp-surface-2/40">
         <Icon icon={Wrench} size="xs" />
         {t('lifecycle.section', 'Lifecycle / maintenance')}
       </summary>
@@ -205,7 +205,7 @@ export const LifecycleSection = ({ equipment }: { equipment: EquipmentItem }) =>
         {/* Service-Historie — nur bei aktivem Festinstallations-Modul. */}
         {festinstallationModule && (
         <div>
-          <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-cp-text-muted">
+          <div className="mb-1 text-cp-xs font-semibold uppercase tracking-wide text-cp-text-muted">
             {t('lifecycle.history', 'Service history')} ({history.length})
           </div>
           {history.length > 0 && (
@@ -213,7 +213,7 @@ export const LifecycleSection = ({ equipment }: { equipment: EquipmentItem }) =>
               {[...history]
                 .sort((a, b) => b.date.localeCompare(a.date))
                 .map((r) => (
-                  <li key={r.id} className="flex items-start gap-1.5 rounded bg-cp-surface-1 px-2 py-1 text-[11px]">
+                  <li key={r.id} className="flex items-start gap-1.5 rounded bg-cp-surface-1 px-2 py-1 text-cp-xs">
                     <span className="shrink-0 font-mono text-cp-text-faint">
                       {new Date(r.date).toLocaleDateString('de-DE')}
                     </span>
@@ -237,7 +237,7 @@ export const LifecycleSection = ({ equipment }: { equipment: EquipmentItem }) =>
             <select
               value={kind}
               onChange={(e) => setKind(e.target.value as ServiceRecord['kind'])}
-              className="rounded border border-cp-border bg-cp-surface-1 p-1.5 text-[11px]"
+              className="rounded border border-cp-border bg-cp-surface-1 p-1.5 text-cp-xs"
             >
               {SERVICE_KINDS.map((k) => (
                 <option key={k} value={k}>
@@ -252,12 +252,12 @@ export const LifecycleSection = ({ equipment }: { equipment: EquipmentItem }) =>
                 if (e.key === 'Enter') onAdd()
               }}
               placeholder={t('lifecycle.history.placeholder', 'What was done?')}
-              className="min-w-0 flex-1 rounded border border-cp-border bg-cp-surface-1 p-1.5 text-[11px]"
+              className="min-w-0 flex-1 rounded border border-cp-border bg-cp-surface-1 p-1.5 text-cp-xs"
             />
             <button
               type="button"
               onClick={onAdd}
-              className="inline-flex shrink-0 items-center gap-1 rounded bg-cp-surface-4 px-2 py-1.5 text-[11px] hover:bg-cp-surface-5"
+              className="inline-flex shrink-0 items-center gap-1 rounded bg-cp-surface-4 px-2 py-1.5 text-cp-xs hover:bg-cp-surface-5"
             >
               <Icon icon={Plus} size="xs" /> {t('common.add', 'Add')}
             </button>

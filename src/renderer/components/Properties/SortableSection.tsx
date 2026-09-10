@@ -38,7 +38,7 @@ export const SortableSection = ({
         transition,
       }}
     >
-      <summary className="flex items-center gap-2 px-2 py-1.5 text-[11px] uppercase tracking-wide text-cp-text-muted hover:text-cp-text-bright">
+      <summary className="flex items-center gap-2 px-2 py-1.5 text-cp-xs uppercase tracking-wide text-cp-text-muted hover:text-cp-text-bright">
         {/* #421 — Drag-Handle deutlicher: groesseres ⠿-Glyph, hellere Farbe,
             breitere Klickflaeche; sichtbar auf jeder Sektion damit klar ist,
             dass die Reihenfolge per Drag&Drop am Handle aenderbar ist. */}
@@ -55,7 +55,7 @@ export const SortableSection = ({
         </span>
         <span className="flex-1">{title}</span>
         {subtitle && (
-          <span className="normal-case text-[10px] text-cp-text-muted">{subtitle}</span>
+          <span className="normal-case text-cp-xs text-cp-text-muted">{subtitle}</span>
         )}
       </summary>
       <div className="border-t border-cp-border-muted p-2">{children}</div>

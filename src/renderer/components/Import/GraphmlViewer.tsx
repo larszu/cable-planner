@@ -282,14 +282,14 @@ export const GraphmlViewer = ({ document, highlightNodes, className }: GraphmlVi
         <button
           type="button"
           onClick={resetView}
-          className="rounded px-1.5 text-[10px] hover:bg-cp-surface-4"
+          className="rounded px-1.5 text-cp-xs hover:bg-cp-surface-4"
           aria-label={t('graphmlViewer.reset', 'Reset')}
         >
           {t('graphmlViewer.reset', 'Reset')}
         </button>
-        <span className="ml-1 text-[10px] text-cp-text-muted">{Math.round(view.zoom * 100)}%</span>
+        <span className="ml-1 text-cp-xs text-cp-text-muted">{Math.round(view.zoom * 100)}%</span>
       </div>
-      <div className="pointer-events-none absolute bottom-2 left-3 text-[10px] text-cp-text-muted">
+      <div className="pointer-events-none absolute bottom-2 left-3 text-cp-xs text-cp-text-muted">
         {format(
           t(
             'graphmlViewer.statusBar',

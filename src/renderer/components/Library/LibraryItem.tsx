@@ -120,7 +120,7 @@ export const LibraryItem = ({
           )}
           {isFromActiveRentman && (
             <span
-              className="mr-1 rounded bg-orange-600 px-1 text-[11px] font-bold text-white"
+              className="mr-1 rounded bg-orange-600 px-1 text-cp-xs font-bold text-white"
               title={format(
                 t('library.item.badgeActiveRentman', 'From active Rentman project{suffix}'),
                 { suffix: item.rentmanProjectName ? `: ${item.rentmanProjectName}` : '' },
@@ -131,7 +131,7 @@ export const LibraryItem = ({
           )}
           {isFromOtherRentman && (
             <span
-              className="mr-1 rounded bg-cp-surface-5 px-1 text-[11px] font-bold text-cp-text-bright"
+              className="mr-1 rounded bg-cp-surface-5 px-1 text-cp-xs font-bold text-cp-text-bright"
               title={format(
                 t('library.item.badgeOtherRentman', 'From Rentman project{suffix}'),
                 { suffix: item.rentmanProjectName ? `: ${item.rentmanProjectName}` : '' },
@@ -142,7 +142,7 @@ export const LibraryItem = ({
           )}
           {!item.rentmanSource && (
             <span
-              className="mr-1 rounded bg-sky-800/80 px-1 text-[11px] font-bold text-sky-100"
+              className="mr-1 rounded bg-sky-800/80 px-1 text-cp-xs font-bold text-sky-100"
               title={t('library.item.badgeLocal', 'Local device (not from Rentman)')}
             >
               L
@@ -172,7 +172,7 @@ export const LibraryItem = ({
                 event.stopPropagation()
                 onToggleFavorite()
               }}
-              className={`rounded px-1 text-[11px] ${
+              className={`rounded px-1 text-cp-xs ${
                 item.favorite
                   ? 'bg-amber-700 text-amber-100 hover:bg-amber-600'
                   : 'bg-cp-surface-4 text-cp-text-secondary hover:bg-cp-surface-5'
@@ -201,7 +201,7 @@ export const LibraryItem = ({
                 event.stopPropagation()
                 onToggleHidden()
               }}
-              className={`rounded px-1 text-[11px] ${
+              className={`rounded px-1 text-cp-xs ${
                 item.hidden
                   ? 'bg-cp-surface-5 text-cp-text-bright hover:bg-slate-500'
                   : 'bg-cp-surface-4 text-cp-text-secondary hover:bg-cp-surface-5'
@@ -229,7 +229,7 @@ export const LibraryItem = ({
                 event.stopPropagation()
                 onExport()
               }}
-              className="rounded bg-cp-surface-4 px-1 text-[11px] text-cp-text-secondary hover:bg-cp-surface-5"
+              className="rounded bg-cp-surface-4 px-1 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-5"
               aria-label={t('library.item.exportAria', 'Export')}
             >
               <Icon icon={Download} size="xs" />
@@ -259,7 +259,7 @@ export const LibraryItem = ({
                 event.stopPropagation()
                 onLinkPorts()
               }}
-              className="rounded bg-emerald-700 px-1 text-[11px] text-emerald-100 hover:bg-emerald-600"
+              className="rounded bg-emerald-700 px-1 text-cp-xs text-emerald-100 hover:bg-emerald-600"
               aria-label={t('library.item.linkAria', 'Link')}
             >
               <Icon icon={Link} size="xs" />
@@ -274,7 +274,7 @@ export const LibraryItem = ({
                 event.stopPropagation()
                 onRemove()
               }}
-              className="rounded bg-red-700 px-1 text-[10px] hover:bg-red-600"
+              className="rounded bg-red-700 px-1 text-cp-xs hover:bg-red-600"
               aria-label={t('library.item.removeTitle', 'Remove from library')}
             >
               ×

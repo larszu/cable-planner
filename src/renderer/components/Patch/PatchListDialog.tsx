@@ -558,7 +558,7 @@ export const PatchListDialog = () => {
       footer={
         <div className="flex items-center justify-between">
           <PanelHint
-            className="text-[10px] text-cp-text-muted"
+            className="text-cp-xs text-cp-text-muted"
             text={t(
               'patchList.footerHint',
               'Each cable as its own row, sorted for patching order on set. CSV export for Excel/print contains the currently filtered rows.',
@@ -827,7 +827,7 @@ export const PatchListDialog = () => {
               ))}
             </select>
           )}
-          <span className="text-[11px] text-cp-text-muted">
+          <span className="text-cp-xs text-cp-text-muted">
             {filtered.length} / {rows.length}
           </span>
         </div>
@@ -859,19 +859,19 @@ export const PatchListDialog = () => {
             <tbody>
               {filtered.map((r) => (
                 <tr key={r.cableId} className="border-t border-cp-border-muted hover:bg-cp-surface-1">
-                  <td className="px-2 py-1 font-mono text-[11px] text-sky-300">{r.cableNumber}</td>
+                  <td className="px-2 py-1 font-mono text-cp-xs text-sky-300">{r.cableNumber}</td>
                   <td className="px-2 py-1 font-medium text-cp-text">{r.fromDevice}</td>
                   <td className="px-2 py-1 text-cp-text-secondary">
                     {r.fromPort}
                     {r.fromPortSub && (
-                      <div className="text-[10px] text-cp-text-muted">{r.fromPortSub}</div>
+                      <div className="text-cp-xs text-cp-text-muted">{r.fromPortSub}</div>
                     )}
                   </td>
                   <td className="px-2 py-1 font-medium text-cp-text">{r.toDevice}</td>
                   <td className="px-2 py-1 text-cp-text-secondary">
                     {r.toPort}
                     {r.toPortSub && (
-                      <div className="text-[10px] text-cp-text-muted">{r.toPortSub}</div>
+                      <div className="text-cp-xs text-cp-text-muted">{r.toPortSub}</div>
                     )}
                   </td>
                   <td className="px-2 py-1 text-cp-text-secondary">{r.type}</td>

@@ -58,7 +58,7 @@ export const PortsSection = ({ equipment }: { equipment: EquipmentItem }) => {
     >
       <div className="space-y-2">
         {equipment.portsUnknown && equipment.inputs.length === 0 && equipment.outputs.length === 0 && (
-          <div className="rounded border border-cp-warn/40 bg-cp-warn/10 px-2 py-1.5 text-[11px] text-cp-text-secondary">
+          <div className="rounded border border-cp-warn/40 bg-cp-warn/10 px-2 py-1.5 text-cp-xs text-cp-text-secondary">
             {t(
               'ports.unknown',
               'Port layout unknown (no datasheet match on import). Add the real connectors below — none were fabricated.',
@@ -82,7 +82,7 @@ export const PortsSection = ({ equipment }: { equipment: EquipmentItem }) => {
             mehr zu "Darstellung & Flags"), weil es die Seiten-Zuordnung der
             Inputs/Outputs am Canvas-Knoten umdreht. */}
         <label
-          className="flex items-center gap-2 px-1 text-[11px] text-cp-text-secondary"
+          className="flex items-center gap-2 px-1 text-cp-xs text-cp-text-secondary"
           title={t(
             'ports.flipTitle',
             'Inputs render on the right, outputs on the left of the device node.',
