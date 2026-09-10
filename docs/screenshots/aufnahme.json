@@ -5,7 +5,8 @@
     "export.png",
     "hero.png",
     "patch-sheets.png",
-    "properties.png"
+    "properties.png",
+    "rack-3d.png"
   ],
   "hinweis": "Automatisch erzeugt von scripts/screenshots.mjs aus dem eingebauten Beispielprojekt — keine Kundendaten, keine Schwaerzung noetig."
 }

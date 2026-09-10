@@ -67,11 +67,10 @@ nachträglich geschwärzt werden.
 | --------------------- | ---------------------------------------- | --------------------------------- |
 | `hero.png`            | Canvas-Gesamtüberblick (Dark-Theme)      | PNG, ~1600×900 (16:9), < 600 KB   |
 | `canvas.gif`          | Kurze Canvas-Interaktion (Drag/Verbinden)| GIF, ~1200×750, < 4 MB, 6–10 s    |
-| `rack-3d.png`         | 3D-Rack-Ansicht im Rack-Builder          | PNG, ~1400×900                    |
+| `rack-3d.png`         | 3D-Rack-Ansicht im Rack-Builder (automatisch) | PNG, ~1400×900               |
 | `atem-multiview.png`  | ATEM-Multiview-Layout-Editor             | PNG, ~1400×900                    |
 | `export.png`          | „Exportieren & Drucken" — Plan-Tab        | PNG, ~1400×900                    |
 | `patch-sheets.png`    | Patch-Sheets-Tab (Geräteauswahl)         | PNG, ~1400×900                    |
-| `patch-pdf.png`       | Generiertes Patch-Listen-PDF (Inputs/Outputs) | PNG, ~1200×1600 (Hochformat)  |
 | `bom.png`             | Standort-Stückliste (BOM-Dialog)         | PNG, ~1400×900                    |
 | `properties.png`      | Eigenschaften-Panel (Gerät/Standort)     | PNG, ~1200×900                    |
 
@@ -85,11 +84,24 @@ Aus den im Chat gelieferten Aufnahmen passen (nach Schwärzung):
 - Canvas + Eigenschaften-Panel → **`hero.png`** (+ ggf. `properties.png`)
 - „Exportieren & Drucken" / Plan → **`export.png`**
 - Patch-Sheets-Dialog → **`patch-sheets.png`**
-- Patch-Listen-PDF → **`patch-pdf.png`**
 - Standort-Stückliste → **`bom.png`**
 
-Noch offen (keine Vorlage geliefert): **`canvas.gif`**, **`rack-3d.png`**,
-**`atem-multiview.png`** → frisch aus einem neutralen Demo-Projekt aufnehmen.
+**Stand 2026-09-10 — was `npm run docs:shots` selbst aufnimmt:** `hero.png`,
+`properties.png`, `export.png`, `patch-sheets.png`, `bom.png` und seit heute
+**`rack-3d.png`**. Die Liste steht maschinenlesbar in `aufnahme.json`; von Hand
+gepflegte Bilder daneben altern unbemerkt.
+
+`rack-3d.png` war zweimal blockiert, und beide Gruende sind gemessen und weg:
+das Beispielprojekt trug kein Rack (jetzt `lib/demoRack.ts`), und der
+Aufnahme-Lauf startete Electron mit `--disable-gpu` — damit gibt
+`canvas.getContext('webgl')` `null` zurueck, das Canvas bleibt auf 300x150 und
+die Flaeche schwarz. Mit SwiftShader rendert die Ansicht.
+
+Noch offen: **`canvas.gif`** (braucht einen GIF-Encoder, den dieser Container
+nicht hat) und **`atem-multiview.png`** (von Hand geliefert, nicht aus dem
+Beispiel aufgenommen). **`patch-pdf.png`** ist KEIN Slot mehr: die Datei war nie
+im Repo, der gelieferte Shot trug einen Personennamen im Routing-Text, und
+`patch-sheets.png` zeigt dieselbe Sache aus dem Beispielprojekt.
 
 ## GIF aufnehmen (canvas.gif)
 
