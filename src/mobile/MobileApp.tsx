@@ -391,12 +391,12 @@ const ProjectPicker = ({
             : '↻ Projekt vom Desktop laden'}
       </button>
       {reloadError && (
-        <div className="flex items-center gap-1.5 rounded border border-amber-700 bg-amber-900/30 p-2 text-[11px] text-amber-200">
+        <div className="flex items-center gap-1.5 rounded border border-amber-700 bg-amber-900/30 p-2 text-cp-xs text-amber-200">
           <Icon icon={AlertTriangle} size="xs" />
           {reloadError}
         </div>
       )}
-      <div className="text-center text-[10px] uppercase tracking-wider text-cp-text-faint">
+      <div className="text-center text-cp-xs uppercase tracking-wider text-cp-text-faint">
         oder
       </div>
       <label className="block rounded border border-dashed border-cp-border bg-cp-surface-1 p-4 text-center text-sm text-cp-text-secondary">
@@ -552,11 +552,11 @@ const DeviceCard = ({
     >
       <summary className="flex cursor-pointer items-center gap-2 px-3 py-2 text-sm">
         <span className="flex-1 truncate font-medium text-cp-text">{device.name}</span>
-        <span className="text-[10px] text-cp-text-muted">
+        <span className="text-cp-xs text-cp-text-muted">
           {device.category}
         </span>
         <span
-          className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] ${
+          className={`shrink-0 rounded px-1.5 py-0.5 text-cp-xs ${
             checkedPorts === totalPorts && totalPorts > 0
               ? 'bg-emerald-700 text-emerald-50'
               : 'bg-cp-surface-4 text-cp-text'
@@ -811,7 +811,7 @@ const PortList = ({
   if (ports.length === 0) return null
   return (
     <div className="mb-2 last:mb-0">
-      <div className="mb-1 text-[10px] uppercase tracking-wide text-cp-text-faint">{label}</div>
+      <div className="mb-1 text-cp-xs uppercase tracking-wide text-cp-text-faint">{label}</div>
       <ul className="space-y-1">
         {ports.map((p) => {
           const cable = cables.find(
@@ -883,11 +883,11 @@ const PortList = ({
                 <span className="flex-1 min-w-0 break-words">
                   <span className="flex flex-wrap items-baseline gap-x-2">
                     <span className="font-medium">{portDisplayLabel(p)}</span>
-                    <span className="text-[10px] text-cp-text-faint">
+                    <span className="text-cp-xs text-cp-text-faint">
                       {p.connectorType}
                     </span>
                     {cable && (
-                      <span className="text-[10px] text-cp-text-muted">
+                      <span className="text-cp-xs text-cp-text-muted">
                         {cable.type} · {cable.length} m
                       </span>
                     )}
@@ -898,7 +898,7 @@ const PortList = ({
                       and too small to be useful on a phone. */}
                   {cable && otherDevice && (
                     <span className="mt-1 block rounded bg-cp-accent/60 px-2 py-1 text-xs text-cp-accent">
-                      <span className="text-[10px] uppercase tracking-wide text-cp-accent/80">
+                      <span className="text-cp-xs uppercase tracking-wide text-cp-accent/80">
                         → geht zu
                       </span>
                       <span className="ml-1 font-semibold text-white">
@@ -909,21 +909,21 @@ const PortList = ({
                           <span className="mx-1 text-cp-accent">·</span>
                           <span>{portDisplayLabel(otherPort)}</span>
                           {otherPort.connectorType && (
-                            <span className="ml-1 text-[10px] text-cp-accent/80">
+                            <span className="ml-1 text-cp-xs text-cp-accent/80">
                               ({otherPort.connectorType})
                             </span>
                           )}
                         </>
                       )}
                       {bridgeNames.length > 0 && (
-                        <span className="mt-0.5 block text-[10px] text-cp-accent/80">
+                        <span className="mt-0.5 block text-cp-xs text-cp-accent/80">
                           via {bridgeNames.join(' → ')}
                         </span>
                       )}
                     </span>
                   )}
                   {cable && !otherDevice && (
-                    <span className="mt-1 block text-[11px] italic text-cp-text-faint">
+                    <span className="mt-1 block text-cp-xs italic text-cp-text-faint">
                       Offenes Ende
                     </span>
                   )}
@@ -1050,20 +1050,20 @@ const QrFindOverlay = ({
           <video ref={videoRef} className="h-56 w-full object-cover" muted playsInline />
           <div className="pointer-events-none absolute inset-0 m-auto h-40 w-40 rounded-lg border-2 border-cp-accent/80" />
           {camError && (
-            <div className="absolute inset-x-0 bottom-0 bg-amber-900/80 px-2 py-1 text-[11px] text-amber-100">
+            <div className="absolute inset-x-0 bottom-0 bg-amber-900/80 px-2 py-1 text-cp-xs text-amber-100">
               {camError}
             </div>
           )}
         </div>
       ) : (
-        <div className="mb-3 rounded border border-cp-border bg-cp-surface-1 px-3 py-2 text-[11px] text-cp-text-muted">
+        <div className="mb-3 rounded border border-cp-border bg-cp-surface-1 px-3 py-2 text-cp-xs text-cp-text-muted">
           Kamera-Scan hier nicht verfügbar (kein HTTPS/Secure-Context). Scanne das
           Etikett mit der Kamera-App deines Geräts und füge den Code unten ein —
           oder tippe die Kabel-/Asset-ID.
         </div>
       )}
 
-      <label className="mb-1 block text-[11px] text-cp-text-muted">Code / ID</label>
+      <label className="mb-1 block text-cp-xs text-cp-text-muted">Code / ID</label>
       <div className="flex items-center gap-2">
         <input
           value={text}
@@ -1143,7 +1143,7 @@ const AblaufKarte = ({
 
   return (
     <div className="mt-2 space-y-2">
-      <label className="block text-[11px] text-cp-text-secondary">
+      <label className="block text-cp-xs text-cp-text-secondary">
         <span className="mb-1 block">Mein Platz</span>
         <select
           value={sourceId ?? ''}
@@ -1160,7 +1160,7 @@ const AblaufKarte = ({
       </label>
 
       {!sourceId && (
-        <p className="text-[11px] text-cp-text-muted">
+        <p className="text-cp-xs text-cp-text-muted">
           Wähle deine Kameraposition. Ohne sie kann diese Ansicht nicht sagen, was DIR aufgetragen
           ist — und eine Liste aller Aufträge wäre am Platz unbrauchbar.
         </p>
@@ -1168,7 +1168,7 @@ const AblaufKarte = ({
 
       {karte && (
         <>
-          <div className="rounded border border-cp-border-muted bg-cp-surface-1 px-2 py-1 text-[11px] text-cp-text-muted">
+          <div className="rounded border border-cp-border-muted bg-cp-surface-1 px-2 py-1 text-cp-xs text-cp-text-muted">
             {karte.source}
             {karte.revision ? ` · ${karte.revision}` : ''} · {karte.mitAuftrag}/
             {karte.zeilen.length} mit Auftrag
@@ -1177,7 +1177,7 @@ const AblaufKarte = ({
           {/* Der Balken. Er steht NUR da, wenn es einen Vergleichsstand gibt
               und wirklich etwas anders ist. */}
           {diff && !diff.unveraendert && (
-            <div className="rounded border border-amber-500/50 bg-amber-500/10 px-2 py-1 text-[11px] text-amber-200">
+            <div className="rounded border border-amber-500/50 bg-amber-500/10 px-2 py-1 text-cp-xs text-amber-200">
               Seit deinem letzten Blick:{' '}
               {[
                 diff.geaendert > 0 ? `${diff.geaendert} geändert` : null,
@@ -1200,7 +1200,7 @@ const AblaufKarte = ({
             </div>
           )}
           {!gesehen && (
-            <p className="text-[11px] text-cp-text-muted">
+            <p className="text-cp-xs text-cp-text-muted">
               Noch kein Vergleichsstand auf diesem Gerät — beim ersten Blick gibt es nichts zu
               markieren.{' '}
               <button
@@ -1229,13 +1229,13 @@ const AblaufKarte = ({
                   }`}
                 >
                   <div className="flex items-baseline gap-2">
-                    <span className="font-mono text-[11px] text-cp-text-muted">
+                    <span className="font-mono text-cp-xs text-cp-text-muted">
                       {z.segment.number ?? z.position}
                     </span>
                     <span className="text-xs text-cp-text">{z.segment.title}</span>
-                    {art === 'neu' && <span className="text-[10px] text-amber-300">neu</span>}
+                    {art === 'neu' && <span className="text-cp-xs text-amber-300">neu</span>}
                     {art === 'anders' && (
-                      <span className="text-[10px] text-amber-300">geändert</span>
+                      <span className="text-cp-xs text-amber-300">geändert</span>
                     )}
                   </div>
                   {/* Kein Auftrag heisst NICHT „frei" — siehe
@@ -1247,7 +1247,7 @@ const AblaufKarte = ({
                     {z.coverage ? z.coverage.shot : 'kein Auftrag eingetragen'}
                   </div>
                   {z.coverage?.note && (
-                    <div className="text-[11px] text-cp-text-muted">{z.coverage.note}</div>
+                    <div className="text-cp-xs text-cp-text-muted">{z.coverage.note}</div>
                   )}
                 </li>
               )
@@ -1259,7 +1259,7 @@ const AblaufKarte = ({
               .map((z) => (
                 <li
                   key={`weg-${z.segmentId}`}
-                  className="rounded border border-cp-danger/40 bg-cp-surface-1 px-2 py-1 text-[11px] text-cp-danger line-through"
+                  className="rounded border border-cp-danger/40 bg-cp-surface-1 px-2 py-1 text-cp-xs text-cp-danger line-through"
                 >
                   entfallen: {gesehen?.segments.find((s) => s.id === z.segmentId)?.title ?? z.segmentId}
                 </li>
@@ -1275,11 +1275,35 @@ const ProjectView = ({
   project,
   online,
   cachedAt,
+  writeMode,
   onUnload,
 }: {
   project: CablePlannerProject
   online?: boolean
   cachedAt?: string | null
+  /**
+   * BEDARF 109 — darf dieses Handy schreiben? Die Antwort kommt aus
+   * `/share-info.json` und wird in `MobileApp` gehalten; hier gebraucht wird
+   * sie an vier Stellen (Meldung, +Kabel, der read-only-Hinweis und der
+   * Rundgang).
+   *
+   * SIE STAND HIER SEIT BEDARF 109 GAR NICHT ALS PROP, sondern wurde als
+   * freier Bezeichner gelesen — `writeMode === 'contribute'` griff also ins
+   * Modul-Scope und fand nichts. Ergebnis war kein falscher Knopf, sondern
+   * ein `ReferenceError` beim ersten Rendern mit Projekt: die Mobile-Ansicht
+   * war weiss, sobald ein Plan geladen wurde. Gemessen im Browser gegen
+   * `dist/renderer/mobile.html`.
+   *
+   * Warum das monatelang durchging, steht in `tsconfig.app.json`: `src/mobile`
+   * war in keinem der fuenf tsconfigs, und Vite transpiliert ohne
+   * Typpruefung. Der Ordner ist dort jetzt eingetragen — dieser Defekt ist
+   * damit der letzte seiner Art, der nur im Browser auffaellt.
+   *
+   * Kein Default: `read-only` faellt in `MobileApp` an, und ein zweiter
+   * Default hier waere eine zweite Wahrheit darueber, was ein Handy ohne
+   * Antwort vom Server darf.
+   */
+  writeMode: 'read-only' | 'contribute'
   onUnload: () => void
 }) => {
   const projectName = project.metadata?.name || 'cable-planner'
@@ -1511,14 +1535,14 @@ const ProjectView = ({
           <button
             type="button"
             onClick={onUnload}
-            className="rounded bg-cp-surface-3 px-2 py-1 text-[11px] text-cp-text-secondary hover:bg-cp-surface-4"
+            className="rounded bg-cp-surface-3 px-2 py-1 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-4"
             title="Anderes Projekt laden"
           >
             ◀
           </button>
           <div className="min-w-0 flex-1">
             <h1 className="truncate text-sm font-semibold text-cp-text">{projectName}</h1>
-            <div className="text-[10px] text-cp-text-muted">
+            <div className="text-cp-xs text-cp-text-muted">
               {project.equipment.length} Geräte · {project.cables.length} Kabel ·{' '}
               <span
                 className={
@@ -1546,7 +1570,7 @@ const ProjectView = ({
                 key={m}
                 type="button"
                 onClick={() => setViewMode(m)}
-                className={`rounded px-2 py-1 text-[11px] font-medium ${
+                className={`rounded px-2 py-1 text-cp-xs font-medium ${
                   viewMode === m ? 'bg-cp-accent text-white' : 'text-cp-text-secondary hover:bg-cp-surface-3'
                 }`}
               >
@@ -1563,7 +1587,7 @@ const ProjectView = ({
             placeholder="Suchen…"
             className="flex-1 rounded border border-cp-border bg-cp-surface-1 px-2 py-1 text-xs text-cp-text"
           />
-          <label className="flex items-center gap-1 text-[11px] text-cp-text-secondary">
+          <label className="flex items-center gap-1 text-cp-xs text-cp-text-secondary">
             <input
               type="checkbox"
               checked={onlyOpen}
@@ -1574,7 +1598,7 @@ const ProjectView = ({
           <button
             type="button"
             onClick={() => setFindOpen(true)}
-            className="flex items-center rounded bg-cp-surface-3 px-2 py-1 text-[11px] text-cp-text hover:bg-cp-surface-4"
+            className="flex items-center rounded bg-cp-surface-3 px-2 py-1 text-cp-xs text-cp-text hover:bg-cp-surface-4"
             title="Per QR-Scan oder ID zu Kabel/Gerät springen"
           >
             <Icon icon={QrCode} size="xs" />
@@ -1585,7 +1609,7 @@ const ProjectView = ({
           <button
             type="button"
             onClick={() => setWalkOpen(true)}
-            className="rounded bg-cp-surface-3 px-2 py-1 text-[11px] text-cp-text hover:bg-cp-surface-4"
+            className="rounded bg-cp-surface-3 px-2 py-1 text-cp-xs text-cp-text hover:bg-cp-surface-4"
             title="Prüfbild-Rundgang: wo müsste welches Bild ankommen"
           >
             Prüfbild
@@ -1594,7 +1618,7 @@ const ProjectView = ({
             <button
               type="button"
               onClick={() => setShowReport(true)}
-              className="rounded bg-cp-surface-3 px-2 py-1 text-[11px] text-amber-300 hover:bg-cp-surface-4"
+              className="rounded bg-cp-surface-3 px-2 py-1 text-cp-xs text-amber-300 hover:bg-cp-surface-4"
               title="Korrektur/Problem melden (Feld-Rückkanal)"
             >
               Meldung
@@ -1604,7 +1628,7 @@ const ProjectView = ({
           <button
             type="button"
             onClick={() => setShowAddCable(true)}
-            className="rounded bg-cp-accent px-2 py-1 text-[11px] text-white hover:opacity-90"
+            className="rounded bg-cp-accent px-2 py-1 text-cp-xs text-white hover:opacity-90"
             title="Kabel vor Ort hinzufügen (Dropdowns)"
           >
             + Kabel
@@ -1614,7 +1638,7 @@ const ProjectView = ({
         )}
         {lookupMsg && (
           <div
-            className={`mt-2 rounded px-2 py-1 text-[11px] ${
+            className={`mt-2 rounded px-2 py-1 text-cp-xs ${
               lookupMsg.ok
                 ? 'border border-cp-accent/60 bg-cp-accent/30 text-cp-accent'
                 : 'border border-amber-700/60 bg-amber-900/30 text-amber-200'
@@ -1629,7 +1653,7 @@ const ProjectView = ({
             Amber, damit der User weiß dass seine Checks gerade nur
             lokal sind und beim Re-Connect automatisch syncen. */}
         {online === false && (
-          <div className="mt-2 flex items-start gap-1.5 rounded border border-amber-700/60 bg-amber-900/30 px-2 py-1 text-[10px] text-amber-200">
+          <div className="mt-2 flex items-start gap-1.5 rounded border border-amber-700/60 bg-amber-900/30 px-2 py-1 text-cp-xs text-amber-200">
             <Icon icon={AlertTriangle} size="xs" className="mt-0.5 shrink-0" />
             <span>
               Offline · Cache vom {cachedAt ? new Date(cachedAt).toLocaleString() : '?'} · Checks
@@ -1643,7 +1667,7 @@ const ProjectView = ({
             aussieht wie am Desktop angekommen und es nicht ist, ist genau die
             Sorte Auskunft, wegen der jemand ein Kabel für gesteckt hält. */}
         {writeMode === 'read-only' && (
-          <div className="mt-2 flex items-start gap-1.5 rounded border border-cp-border bg-cp-surface-2 px-2 py-1 text-[10px] text-cp-text-secondary">
+          <div className="mt-2 flex items-start gap-1.5 rounded border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-xs text-cp-text-secondary">
             <Icon icon={AlertTriangle} size="xs" className="mt-0.5 shrink-0" />
             <span>
               Nur lesen · Häkchen bleiben auf diesem Gerät und erreichen den Plan nicht · den Plan
@@ -1754,7 +1778,7 @@ const PlanModeView = ({
           <div className="rounded border border-cp-border bg-cp-surface-1">
             <div className="flex items-center justify-between gap-2 border-b border-cp-border-muted px-3 py-2">
               <span className="truncate text-sm font-medium text-cp-text">{selected.name}</span>
-              <span className="shrink-0 text-[10px] text-cp-text-muted">{selected.category}</span>
+              <span className="shrink-0 text-cp-xs text-cp-text-muted">{selected.category}</span>
             </div>
             <DevicePortDetail
               device={selected}
@@ -1842,7 +1866,7 @@ const Zugangscodes = () => {
       <button
         type="button"
         onClick={() => setOffen(true)}
-        className="fixed right-3 top-12 z-[300] flex items-center gap-1 rounded-full border border-cp-border bg-cp-surface-3/90 px-2.5 py-1 text-[11px] text-cp-text shadow-lg backdrop-blur"
+        className="fixed right-3 top-12 z-[300] flex items-center gap-1 rounded-full border border-cp-border bg-cp-surface-3/90 px-2.5 py-1 text-cp-xs text-cp-text shadow-lg backdrop-blur"
         title="Anlagen-Zugangscodes"
       >
         Zugangscodes
@@ -1856,7 +1880,7 @@ const Zugangscodes = () => {
             <div className="mb-2 text-sm font-semibold">Anlagen-Zugangscodes</div>
             {codes === null ? (
               <>
-                <p className="mb-2 text-[11px] text-cp-text-muted">
+                <p className="mb-2 text-cp-xs text-cp-text-muted">
                   Der Code steht nicht im QR-Link. Er wird am Planer ausgegeben und einzeln
                   weitergegeben.
                 </p>
@@ -1871,7 +1895,7 @@ const Zugangscodes = () => {
                   placeholder="Code vom Planer"
                   className="mb-2 w-full rounded border border-cp-border bg-cp-surface-2 px-2 py-1.5 font-mono text-sm tracking-widest"
                 />
-                {fehler && <div className="mb-2 text-[11px] text-red-300">{fehler}</div>}
+                {fehler && <div className="mb-2 text-cp-xs text-red-300">{fehler}</div>}
                 <div className="flex justify-end gap-2">
                   <button type="button" onClick={schliessen} className="rounded px-3 py-1.5 text-sm">
                     Abbrechen
@@ -1890,18 +1914,18 @@ const Zugangscodes = () => {
               <>
                 <ul className="mb-2 space-y-1.5">
                   {codes.length === 0 && (
-                    <li className="text-[11px] text-cp-text-muted">
+                    <li className="text-cp-xs text-cp-text-muted">
                       Freigegeben, aber es sind keine Codes hinterlegt.
                     </li>
                   )}
                   {codes.map((c) => (
                     <li key={c.label} className="flex items-baseline justify-between gap-2">
-                      <span className="text-[11px] text-cp-text-muted">{c.label}</span>
+                      <span className="text-cp-xs text-cp-text-muted">{c.label}</span>
                       <code className="select-all font-mono text-base tracking-widest">{c.value}</code>
                     </li>
                   ))}
                 </ul>
-                <p className="mb-2 text-[11px] text-cp-text-muted">
+                <p className="mb-2 text-cp-xs text-cp-text-muted">
                   Dieser Abruf steht im Dokument-Register des Planers.
                 </p>
                 <div className="flex justify-end">
@@ -1936,7 +1960,7 @@ const ConnectionSettings = () => {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="fixed right-3 top-3 z-[300] flex items-center gap-1 rounded-full border border-cp-border bg-cp-surface-3/90 px-2.5 py-1 text-[11px] text-cp-text shadow-lg backdrop-blur"
+        className="fixed right-3 top-3 z-[300] flex items-center gap-1 rounded-full border border-cp-border bg-cp-surface-3/90 px-2.5 py-1 text-cp-xs text-cp-text shadow-lg backdrop-blur"
         title="Verbindung"
       >
         {cfg.mode === 'remote' ? '📶 Remote' : '🏠 Lokal'}
@@ -1972,7 +1996,7 @@ const ConnectionSettings = () => {
                 />
               </label>
             )}
-            <p className="mt-2 text-[11px] text-cp-text-faint">
+            <p className="mt-2 text-cp-xs text-cp-text-faint">
               Lokal: nur im selben WLAN. Remote: über mobile Daten via eigenem Tunnel/Relay
               (siehe docs/self-hosted-relay.md). Nichts läuft über fremde Server.
             </p>
@@ -2121,13 +2145,13 @@ export const MobileApp = () => {
           Der Wechsel ist ein Neuladen und damit eine Entscheidung. */}
       {showSwitched && (
         <div className="mx-auto max-w-md p-2">
-          <div className="rounded border border-amber-600 bg-amber-950/60 p-2 text-[11px] text-amber-100">
+          <div className="rounded border border-amber-600 bg-amber-950/60 p-2 text-cp-xs text-amber-100">
             <b>Am Desktop ist jetzt eine andere Show offen.</b> Dieser Plan bleibt
             stehen — er gehört zu der Show, mit der diese Seite geladen wurde.
             Häkchen und Meldungen gehen bis zum Neuladen nicht mehr durch.
             <button
               type="button"
-              className="mt-1 block rounded border border-amber-500 px-2 py-0.5 text-[11px]"
+              className="mt-1 block rounded border border-amber-500 px-2 py-0.5 text-cp-xs"
               onClick={() => window.location.reload()}
             >
               Zur neuen Show wechseln (neu laden)
@@ -2144,13 +2168,14 @@ export const MobileApp = () => {
           project={project}
           online={online}
           cachedAt={cachedAt}
+          writeMode={writeMode}
           onUnload={() => setProject(null)}
         />
       ) : (
         <>
           <ProjectPicker onLoad={setProject} />
           {autoLoadError && (
-            <div className="mx-auto mt-2 max-w-md rounded border border-amber-700 bg-amber-950 p-2 text-[11px] text-amber-200">
+            <div className="mx-auto mt-2 max-w-md rounded border border-amber-700 bg-amber-950 p-2 text-cp-xs text-amber-200">
               Hinweis: Es lief offenbar ein Desktop-Share-Server, aber das Laden ist
               fehlgeschlagen ({autoLoadError}).
             </div>
@@ -2321,14 +2346,14 @@ const AddCableModal = ({
                   Versprechen im Futur von der Seite, die es nicht einlösen
                   kann. Jetzt steht hier nur, was tatsächlich passiert ist. */}
               ✓ An den Desktop gesendet
-              <div className="mt-1 text-[10px] font-normal text-emerald-300/80">
+              <div className="mt-1 text-cp-xs font-normal text-emerald-300/80">
                 Ob es im Plan landet, entscheidet der Desktop — dort steht es
                 dann mit 📱-Marker.
               </div>
             </div>
           ) : (
             <>
-              <p className="text-[10px] italic text-cp-text-muted">
+              <p className="text-cp-xs italic text-cp-text-muted">
                 Wird im Plan mit 📱-Badge markiert, damit der Planer sieht dass das
                 Kabel vor Ort nachgepflegt wurde.
               </p>
@@ -2449,7 +2474,7 @@ const AddCableModal = ({
                     onClick={() => {
                       setNameDirty(false)
                     }}
-                    className="mt-1 text-[10px] text-cp-accent hover:underline"
+                    className="mt-1 text-cp-xs text-cp-accent hover:underline"
                     title="Wieder automatisch aus Typ + Geräten generieren"
                   >
                     ↺ Auto-Name zurücksetzen
@@ -2467,7 +2492,7 @@ const AddCableModal = ({
                 />
               </label>
               {err && (
-                <div className="flex items-center gap-1.5 rounded border border-red-700/60 bg-red-900/30 p-2 text-[11px] text-red-200">
+                <div className="flex items-center gap-1.5 rounded border border-red-700/60 bg-red-900/30 p-2 text-cp-xs text-red-200">
                   <Icon icon={AlertTriangle} size="xs" />
                   {err}
                 </div>
@@ -2625,7 +2650,7 @@ const MobileReportModal = ({
             </div>
           ) : (
             <>
-              <p className="text-[10px] italic text-cp-text-muted">
+              <p className="text-cp-xs italic text-cp-text-muted">
                 Wird NICHT direkt geändert — der Planer übernimmt oder verwirft deine
                 Meldung am Desktop (landet dann im Änderungsprotokoll).
               </p>
@@ -2642,7 +2667,7 @@ const MobileReportModal = ({
                     key={k}
                     type="button"
                     onClick={() => setKind(k)}
-                    className={`rounded px-2 py-1 text-[11px] font-medium ${
+                    className={`rounded px-2 py-1 text-cp-xs font-medium ${
                       kind === k ? 'bg-cp-accent text-white' : 'text-cp-text-secondary hover:bg-cp-surface-3'
                     }`}
                   >

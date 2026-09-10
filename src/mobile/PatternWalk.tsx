@@ -179,9 +179,9 @@ export function PatternWalk({ apiFetch, showId, schreibbar, onClose }: Props) {
             <span className="font-semibold text-cp-text">{stop.erwartung}</span>
           </div>
         )}
-        <div className="mt-1 text-[11px] text-cp-text-faint">{stop.weg}</div>
+        <div className="mt-1 text-cp-xs text-cp-text-faint">{stop.weg}</div>
         {stop.befund && (
-          <div className="mt-1 text-[11px] text-cp-text-muted">Zuletzt: {stop.befund}</div>
+          <div className="mt-1 text-cp-xs text-cp-text-muted">Zuletzt: {stop.befund}</div>
         )}
         {schreibbar ? (
           <>
@@ -222,11 +222,11 @@ export function PatternWalk({ apiFetch, showId, schreibbar, onClose }: Props) {
             )}
           </>
         ) : (
-          <div className="mt-2 text-[11px] text-cp-text-faint">
+          <div className="mt-2 text-cp-xs text-cp-text-faint">
             Der Rückweg ist zu — am Rechner unter „Freigabe" auf Mitschreiben stellen.
           </div>
         )}
-        {status && <div className="mt-1 text-[11px] text-cp-text-muted">{status}</div>}
+        {status && <div className="mt-1 text-cp-xs text-cp-text-muted">{status}</div>}
       </div>
     )
   }
@@ -246,7 +246,7 @@ export function PatternWalk({ apiFetch, showId, schreibbar, onClose }: Props) {
 
       {/* PFLICHT-BESCHRIFTUNG, nicht Zierde: was unten steht, ist der PLAN.
           Diese App sieht nicht, was auf dem Monitor steht (Invariante 16). */}
-      <p className="mb-2 rounded border border-cp-border bg-cp-surface-2 p-2 text-[11px] text-cp-text-secondary">
+      <p className="mb-2 rounded border border-cp-border bg-cp-surface-2 p-2 text-cp-xs text-cp-text-secondary">
         Unten steht, was laut Plan ankommen müsste — nicht, was ankommt. Diese
         App sieht kein Bild. Was Sie melden, ist das, was Sie auf dem Monitor
         sehen.

@@ -5,6 +5,34 @@
 > großflächigen Migrationen, die bewusst nicht im Big-Bang erledigt
 > werden.
 
+## Nebenbefund 2026-09-10: die Mobile-Ansicht war weiss
+
+Beim Nachmessen der Typo-Skala im Browser (`dist/renderer/mobile.html`, echtes
+Chromium, 390x844) warf die Seite beim Laden eines Projekts einen
+`ReferenceError: writeMode is not defined` und rendert gar nichts mehr.
+
+**Der Defekt:** `ProjectView` in `src/mobile/MobileApp.tsx` las `writeMode` an
+vier Stellen als freien Bezeichner. Der Zustand dazu lag in `MobileApp` und
+wurde nie als Prop durchgereicht. Drin seit Bedarf 109 (`d3ca31c`) — die ganze
+Schreibrechte-Anzeige des Handys („Nur lesen"-Hinweis, Meldung, + Kabel) hat
+seitdem nie funktioniert, weil die Ansicht vorher abstuerzte.
+
+**Warum es niemand gesehen hat, und das ist der eigentliche Befund:**
+`src/mobile` stand in **keinem der fuenf tsconfigs**. `tsconfig.app.json`
+nannte `src/renderer` und `src/viewer`; `build:renderer` ist `vite build`, und
+Vite transpiliert TypeScript ohne Typpruefung. Die Pruefung, die CLAUDE.md vor
+jedem Push verlangt, war also gruen — sie sah den Ordner nicht an. Eine
+Pruefung, die weniger prueft als ihr Name sagt, ist schlimmer als keine: sie
+wird geglaubt.
+
+**Behoben:** `writeMode` ist Prop, `src/mobile` steht in `tsconfig.app.json`,
+und `tests/typpruefungDecktSrc.test.ts` fragt `tsc --listFilesOnly` fuer jedes
+tsconfig, ob noch eine Quelldatei unter `src/` durchfaellt. Der Waechter liest
+die `include`-Muster ausdruecklich NICHT nach — die erste Fassung tat das und
+lag falsch (`src/main*.ts` deckt entgegen der Dokumentation auch
+`src/main/ipc/*.ts` mit ab, nachgemessen mit einer Wegwerfdatei). Wer die
+Regel nachbaut, prueft am Ende seine eigene Lesart.
+
 ## Baseline (vor Phase 0)
 
 | Check         | Ergebnis                                   |
@@ -116,19 +144,30 @@ Gesamtzahl Unicode-Icon-Treffer im Scan: ~136 Dateien (inkl. Daten-Pfeile
 
 Hartkodierte Pixel-Schriftgrößen (Tailwind-Arbitrary-Values):
 
-| Klasse        | Treffer |
-| ------------- | ------: |
-| `text-[10px]` |     336 |
-| `text-[11px]` |     256 |
-| `text-[9px]`  |      43 |
-| `text-[8px]`  |       5 |
-| `text-[12px]` |       4 |
-| `text-[13px]` |       2 |
+| Klasse        | 2026-06-15 | 2026-09-10 |
+| ------------- | ---------: | ---------: |
+| `text-[10px]` |        336 |        423 |
+| `text-[11px]` |        256 |        390 |
+| `text-[9px]`  |         43 |         10 |
+| `text-[8px]`  |          5 |          5 |
+| `text-[12px]` |          4 |         20 |
+| `text-[13px]` |          2 |          2 |
 
-Top-Dateien mit Sub-12px-Schrift: `RackBuilderDialog` (56),
-`GreenGoExportDialog` (43), `LibraryPanel` (42), `CableLibraryPanel` (21),
-`MobileApp` (20), `RentmanCableExportDialog` (18), `CableProperties` (18),
-`App.tsx` (16).
+**Die zweite Spalte ist der eigentliche Befund.** Unter 12px waren es beim
+ersten Commit dieses Audits 743 Stellen, heute sind es 828 — also 85 MEHR,
+nachdem hier aufgeschrieben stand, dass es weniger werden sollen. (Der
+Zwischenstand vor der Mobile-Migration weiter unten waren 881.)
+
+Das ist keine Nachlaessigkeit einzelner Aenderungen, sondern die vorhersehbare
+Folge davon, dass die Grenze nur in Prosa stand: ein TODO in einer Datei
+bremst nichts, weil niemand es beim Schreiben einer neuen Komponente liest.
+Seit `tests/schriftgroesseUntergrenze.test.ts` ist es eine Ratsche — die Zahl
+darf sinken, nie steigen.
+
+Top-Dateien mit Sub-12px-Schrift (2026-09-10, nach der Mobile-Migration):
+`GreenGoExportDialog` (50), `CalculatorsDialog` (43), `CableProperties` (31),
+`RentmanTab` (24), `RackPlacementProperties` (22), `RackBuilderDialog` (22),
+`CableLibraryPanel` (21), `PortList` / `MobileShareDialog` / `App.tsx` (je 20).
 
 **Theming-Schuld:** `index.css` remappt die komplette Tailwind-Slate-Rampe
 (+ Dutzende Opacity-Varianten einzeln) für `[data-theme="light"]`. Fragil,
@@ -155,10 +194,15 @@ Inline-Fallback in `ErrorBoundary`). → Token-Schicht einführen.
 ### TODO (großflächiger Rest, NICHT Big-Bang)
 
 - [ ] `text-[10px]`/`text-[11px]`/`text-[9px]` flächendeckend auf
-      Typo-Skala migrieren (zentrale Shells in Phase 2 erledigt, Rest
-      offen — v. a. RackBuilderDialog/LibraryPanel/Export-Dialoge).
-      Fließtext-Mindestgröße 12px. (Rein dekorative Micro-Glyphen wie
-      MenuBar-Caret `▾` bleiben.)
+      Typo-Skala migrieren (zentrale Shells in Phase 2 erledigt,
+      `src/mobile` komplett — Rest offen, v. a. Export-Dialoge,
+      Rechner und Properties). Fließtext-Mindestgröße 12px. (Rein
+      dekorative Micro-Glyphen wie MenuBar-Caret `▾` bleiben.)
+      **Gedeckelt** durch `tests/schriftgroesseUntergrenze.test.ts`:
+      Barriere 828, sinken erlaubt, steigen nicht.
+      `src/mobile` steht dort zusätzlich auf 0 und muss es bleiben —
+      eine reine Gesamtzahl saehe nicht, wenn ein migrierter Ordner
+      zurueckfaellt, waehrend anderswo etwas migriert wird.
 - [ ] Translucente Glas-Flächen (`bg-slate-950/95`, `bg-slate-900/80`,
       `bg-slate-950/40`) auf Alpha-Tokens (z. B. `color-mix`) heben —
       aktuell bewusst als slate-Klassen belassen (Remap deckt Light ab).
@@ -235,14 +279,39 @@ Rückfrage vorbei schließen.
 - Vollständiges `en`-Dict in `lib/i18n.ts`; Inline-Fallbacks deutsch
   (`t('key', 'Deutsche Form')`), `translations.de` bewusst leer.
 
-### Fallback-Sprache (Entscheidung)
+### Fallback-Sprache (Entscheidung) — ÜBERHOLT SEIT E-28
 
-Die Aufgabe empfahl **Englisch** als Fallback, aber **CLAUDE.md** legt
-verbindlich fest: *„Deutsche Strings = Quell-Sprache, immer als Fallback in
-`t(key, 'Deutsche Form')`. EN-Übersetzung im `en`-Dict."* CLAUDE.md
-überschreibt Defaults → **Deutsch bleibt einheitliche Fallback-Sprache**.
-Ein Umstellen aller `t()`-Fallbacks auf Englisch wäre zudem ein massiver,
-risikoreicher Eingriff entgegen der dokumentierten Projektkonvention.
+Dieser Abschnitt stand bis 2026-09-10 im Präsens da und sagte das Gegenteil
+der geltenden Konvention. **Er wird nicht gelöscht, sondern richtiggestellt**:
+gelöscht wäre nicht nachvollziehbar, warum die Fallbacks im Code aussehen, wie
+sie aussehen.
+
+**Was hier stand (Stand Phase 4):** Die Aufgabe empfahl Englisch als Fallback,
+aber CLAUDE.md lege verbindlich Deutsch als Quell-Sprache fest; ein Umstellen
+aller `t()`-Fallbacks wäre ein massiver, risikoreicher Eingriff entgegen der
+dokumentierten Projektkonvention.
+
+**Was heute gilt:** **E-28 (2026-09-09, vom Eigentümer entschieden) hebt
+E-17/E-20 auf.** Quellsprache ist `en` — für ALLE Repos der Suite, nicht mehr
+je Repo. Deutsch ist die erste Übersetzung. Der Eingriff, der hier als „massiv
+und riskant" abgelehnt wurde, ist gemacht: `t(key, 'English text')`,
+Übersetzungen je Sprache in `src/renderer/lib/i18n/`, gemessen von
+`npm run lang:check` (heute: 0 deutsche, 1281 englische Zeichenketten in
+`src/renderer`).
+
+**Die Lehre steht hier, nicht nur die Korrektur.** Ein Dokument, das eine
+Entscheidung mit „CLAUDE.md sagt X" begründet, wird falsch, wenn CLAUDE.md
+X ändert — und zwar lautlos, weil es weiter so aussieht wie eine gültige
+Begründung. Wer hier nachschlug, hätte deutsche Fallbacks eingetragen und
+den Wächter gegen sich gehabt, ohne zu verstehen warum. Begründungen, die
+auf eine andere Datei zeigen, gehören deshalb datiert.
+
+**Offen und ausdrücklich nicht in diesem Schritt erledigt:** `lang:check`
+prüft nur `src/renderer` (siehe `package.json`). `src/mobile` ist
+durchgehend deutsch beschriftet („Nur lesen · Häkchen bleiben auf diesem
+Gerät…") und wird von keiner Sprachprüfung angefasst — dieselbe Ordner-Lücke
+wie bei der Typprüfung, nur für Sprache. Das ist ein eigener Schnitt (die
+Mobile-Ansicht hat keine `t()`-Verdrahtung), kein Nebenbei.
 
 ### Phase 4 — erledigt
 
