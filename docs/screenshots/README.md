@@ -4,9 +4,35 @@ Dieser Ordner liefert die Bilder für die Bild-Sektionen im Haupt-README
 (Hero + Galerie). Die Slots im README zeigen aktuell **TODO: capture** und
 rendern erst, sobald die passend benannten Dateien hier liegen.
 
-> **Aufnahme = manueller Schritt.** Echte Screenshots/GIFs brauchen die
-> laufende GUI und können nicht automatisch erzeugt werden. Bitte keine
-> Fake-Bilder einchecken.
+> **Bitte keine Fake-Bilder einchecken.** Echte Aufnahmen brauchen die
+> laufende GUI — die läuft hier aber unter `xvfb-run`, genau wie für
+> `ui:smoke` und `ui:overflow`:
+>
+> ```bash
+> npm run build && npm run docs:shots
+> ```
+>
+> `scripts/screenshots.mjs` startet die App, lädt das eingebaute
+> Beispielprojekt, stellt Sprache und Thema fest ein und nimmt die Slots auf.
+> **Aus dem Beispielprojekt heißt: keine Kundendaten, also nichts zu
+> schwärzen** — die sicherste Schwärzung ist die, die nicht nötig ist.
+>
+> Hier stand bis 2026-09-10 das Gegenteil („können nicht automatisch erzeugt
+> werden"). Ein Satz, der eine Arbeit für unmöglich erklärt, sorgt
+> zuverlässig dafür, dass sie liegenbleibt: die eingecheckten Bilder stammen
+> aus **v8.1.0-101**, die App steht bei **v9.0.1**. Dazwischen liegen die
+> Sprachdrehung (E-28) und der Icon-Durchgang — auf `properties.png` ist
+> deshalb eine deutsche Oberfläche mit Knöpfen zu sehen („Configure
+> multiviewer layout →", „↻ auto"), die es so nicht mehr gibt.
+>
+> **Warum die Bilder trotzdem noch die alten sind:** das mitgelieferte
+> Beispielprojekt ist deutsch benannt („Kamera 1", „Bildmischer",
+> „Regie-Monitor"), und 12 der 64 ausgelieferten Gerätekategorien ebenfalls
+> („Funkstrecke", „Stromverteilung", „Sync/Referenz" …). Eine frische
+> Aufnahme zeigt daher eine englische Oberfläche mit deutschen Inhalten —
+> das ist nicht besser als ein altes Bild, nur anders falsch. Siehe Issue
+> zum Sprachmix in den ausgelieferten Daten; danach `docs:shots` laufen
+> lassen.
 
 ## ⚠️ Pflicht: Kundendaten schwärzen
 
