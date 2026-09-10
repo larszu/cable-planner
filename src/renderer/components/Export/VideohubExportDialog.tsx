@@ -1368,7 +1368,10 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
             zu touchen). */}
         <div className="mb-3 rounded border border-cp-surface-5 bg-cp-surface-2/60 p-2">
           <div className="mb-2 text-cp-xs uppercase tracking-wide text-cp-text-muted">
-            An Videohub senden (TCP) — offline editieren, hier pushen wenn online
+            {t(
+              'vhx.push.heading',
+              'Send to Videohub (TCP) — edit offline, push from here once online',
+            )}
             {!hasDesktopBridge && (
               <span className="ml-2 text-amber-400">{t('vhx.desktopOnly', '· desktop app only')}</span>
             )}
@@ -1460,7 +1463,10 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
               ) : (
                 <div className="flex flex-col gap-1">
                   <div className="mb-1 text-cp-xs uppercase tracking-wide text-teal-300">
-                    Gefunden ({discovered.length}) — Klick übernimmt IP/Port
+                    {fmt(
+                      t('vhx.discover.found', 'Found ({n}) — click to take over IP/port'),
+                      { n: discovered.length },
+                    )}
                   </div>
                   {discovered.map((d) => (
                     <button

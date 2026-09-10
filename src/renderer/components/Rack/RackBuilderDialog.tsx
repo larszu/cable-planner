@@ -1113,10 +1113,12 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                   <div className="mb-2 flex items-center gap-2">
                     <span className="inline-flex items-center gap-1 rounded bg-sky-900/50 px-1.5 py-0.5 text-cp-xs font-semibold uppercase tracking-wide text-sky-200">
                       <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: '#0ea5e9' }} />
-                      Seitenansicht (Tiefe)
+                      {t('rack.builder.sideView', 'Side view (depth)')}
                     </span>
                     <span className="text-cp-xs text-cp-text-muted">
-                      Vorne ◀ {draft.depthMm ?? 800} mm ▶ Hinten
+                      {format(t('rack.builder.frontRear', 'Front to rear: {mm} mm'), {
+                        mm: draft.depthMm ?? 800,
+                      })}
                     </span>
                   </div>
                   {(() => {

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useUiStore } from '../../store/uiStore'
 import { useCircuitStore } from '../../store/circuitStore'
 import { useCircuitOverview } from '../../hooks/useCircuit'
-import { useTranslation } from '../../lib/i18n'
+import { useTranslation, format } from '../../lib/i18n'
 import { CircuitSuggestDialog } from './CircuitSuggestDialog'
 
 /**
@@ -67,7 +67,11 @@ export function CircuitChip() {
           <span className="text-cp-text-muted">{t('canvas.circuit.empty', '· nothing declared')}</span>
         )}
         {an && ohneBauart > 0 && (
-          <span className="tabular-nums text-cp-warn">{`· ${ohneBauart} ohne Bauart`}</span>
+          <span className="tabular-nums text-cp-warn">
+            {format(t('canvas.circuit.withoutKind', '· {n} without a declared type'), {
+              n: ohneBauart,
+            })}
+          </span>
         )}
       </button>
       {an && knoten > 0 && (
