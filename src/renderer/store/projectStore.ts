@@ -51,6 +51,7 @@ import { cameraTemplates } from '../lib/cameraCatalog'
 import { miscTemplates } from '../lib/miscCatalog'
 import { mediaStationTemplates } from '../lib/mediaStationCatalog'
 import { passiveTemplates } from '../lib/passiveCatalog'
+import { heileVorlagenName } from '../lib/templateRenames'
 import { greengoTemplates } from '../lib/greengoCatalog'
 import { ajaTemplates } from '../lib/ajaCatalog'
 import { rossTemplates } from '../lib/rossCatalog'
@@ -132,7 +133,16 @@ const runLibraryMigration = () => {
     // migration gate. Entries the user saved under the same name are kept.
     const raw = localStorage.getItem(CUSTOM_LIB_KEY)
     const existing: EquipmentTemplate[] = raw ? JSON.parse(raw) : []
-    const byName = new Map(existing.map((t) => [t.name, t]))
+    // #837 — erst den heutigen Namen herstellen, dann abgleichen. Die
+    // Reihenfolge ist der ganze Punkt: wer zuerst abgleicht, findet die alte
+    // deutsche Vorlage nicht unter dem neuen Namen und legt sie ein zweites
+    // Mal an.
+    const byName = new Map(
+      existing.map((t) => {
+        const name = heileVorlagenName(t.name)
+        return [name, { ...t, name }] as const
+      }),
+    )
     let added = false
     for (const t of [...blackmagicTemplates, ...ubiquitiTemplates, ...monitorTemplates, ...cameraTemplates, ...miscTemplates, ...greengoTemplates, ...ajaTemplates, ...rossTemplates, ...lynxTemplates, ...switcherTemplates, ...avNetworkTemplates, ...broadcastToolsTemplates, ...audioTemplates, ...wirelessAudioTemplates, ...micTemplates, ...mediaStationTemplates, ...passiveTemplates]) {
       if (!byName.has(t.name)) {

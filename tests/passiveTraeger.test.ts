@@ -45,7 +45,7 @@ describe('Formen, keine Produkte', () => {
     const namen = passiveTemplates.map((t) => t.name).join(' | ')
     expect(namen).toMatch(/Patch panel/)
     expect(namen).toMatch(/Feed-through/)
-    expect(namen).toMatch(/Steckdosenleiste/)
+    expect(namen).toMatch(/Power strip/)
     expect(namen).toMatch(/Distro/)
   })
 })

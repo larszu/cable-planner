@@ -25,21 +25,10 @@ import { labelTargetIssues } from './labelDerivation'
 import { beurteileAdapter } from '../types/adapter'
 import { anschlussBefunde, type AnschlussLeitung } from '../types/conductor'
 import { beurteileBild } from '../types/displayCapability'
+import { tr, format } from './i18n'
+export type { CheckSeverity, CheckFinding } from '../types/checkFinding'
+import type { CheckSeverity, CheckFinding } from '../types/checkFinding'
 
-export type CheckSeverity = 'error' | 'warning' | 'info'
-
-export interface CheckFinding {
-  /** Stabile ID (Check-Typ + betroffenes Element) — als React-key nutzbar. */
-  id: string
-  severity: CheckSeverity
-  /** Kurzer Check-Typ als Gruppen-Label, z.B. "Doppelte IP". */
-  category: string
-  /** Menschlich lesbare Beschreibung des konkreten Fundes. */
-  message: string
-  /** Klick-Ziel: selektiert dieses Gerät bzw. Kabel auf dem Canvas. */
-  equipmentId?: string
-  cableId?: string
-}
 
 /** Frequenz-String („5.8 GHz", „600 MHz", „614") → MHz (oder null). */
 const parseFreqMHz = (s: string | undefined): number | null => {
@@ -139,10 +128,15 @@ export const runDrawingChecks = (
         id: `open-ports:${e.id}`,
         severity: 'info',
         category: 'Open ports',
-        message: `${e.name}: ${open.length} unverbundene Ports (${open
-          .slice(0, 4)
-          .map((p) => p.name)
-          .join(', ')}${open.length > 4 ? ' …' : ''})`,
+        message: format(tr('check.openPorts', '{name}: {n} unconnected ports ({ports})'), {
+          name: e.name,
+          n: open.length,
+          ports:
+            open
+              .slice(0, 4)
+              .map((p) => p.name)
+              .join(', ') + (open.length > 4 ? ' …' : ''),
+        }),
         equipmentId: e.id,
       })
     }
@@ -160,9 +154,14 @@ export const runDrawingChecks = (
         id: `connector-mismatch:${c.id}`,
         severity: 'warning',
         category: 'Connector mismatch',
-        message: `${c.cableNumber ? c.cableNumber + ' · ' : ''}${eqName(
-          c.fromEquipmentId,
-        )} (${from.connectorType}) → ${eqName(c.toEquipmentId)} (${to.connectorType})`,
+        message:
+          (c.cableNumber ? c.cableNumber + ' · ' : '') +
+          format(tr('check.connectorMismatch', '{from} ({fromType}) → {to} ({toType})'), {
+            from: eqName(c.fromEquipmentId),
+            fromType: from.connectorType,
+            to: eqName(c.toEquipmentId),
+            toType: to.connectorType,
+          }),
         cableId: c.id,
       })
     }
@@ -184,9 +183,15 @@ export const runDrawingChecks = (
           id: `dup-number:${c.id}`,
           severity: 'error',
           category: 'Duplicate cable number',
-          message: `Kabelnummer „${num}" ${group.length}× vergeben: ${eqName(
-            c.fromEquipmentId,
-          )} → ${eqName(c.toEquipmentId)}`,
+          message: format(
+            tr('check.duplicateCableNumber', 'Cable number "{num}" used {n}×: {from} → {to}'),
+            {
+              num,
+              n: group.length,
+              from: eqName(c.fromEquipmentId),
+              to: eqName(c.toEquipmentId),
+            },
+          ),
           cableId: c.id,
         })
       }
@@ -201,9 +206,12 @@ export const runDrawingChecks = (
         id: `missing-length:${c.id}`,
         severity: 'warning',
         category: 'Missing length',
-        message: `${c.cableNumber ? c.cableNumber + ' · ' : ''}${eqName(
-          c.fromEquipmentId,
-        )} → ${eqName(c.toEquipmentId)}: keine Länge gesetzt`,
+        message:
+          (c.cableNumber ? c.cableNumber + ' · ' : '') +
+          format(tr('check.missingLength', '{from} → {to}: no length set'), {
+            from: eqName(c.fromEquipmentId),
+            to: eqName(c.toEquipmentId),
+          }),
         cableId: c.id,
       })
     }
@@ -225,7 +233,10 @@ export const runDrawingChecks = (
           id: `dup-ip:${e.id}`,
           severity: 'error',
           category: 'Duplicate IP',
-          message: `IP ${ip} mehrfach: ${group.map((g) => g.name).join(', ')}`,
+          message: format(tr('check.duplicateIp', 'IP {ip} used more than once: {names}'), {
+            ip,
+            names: group.map((g) => g.name).join(', '),
+          }),
           equipmentId: e.id,
         })
       }
@@ -245,15 +256,19 @@ export const runDrawingChecks = (
         a.mhz != null && b.mhz != null && Math.abs(a.mhz - b.mhz) < RF_MIN_SPACING_MHZ
       if (sameChannel || closeFreq) {
         const why = sameChannel
-          ? `gleicher Kanal ${a.channel}`
-          : `Frequenzabstand < ${RF_MIN_SPACING_MHZ} MHz`
+          ? format(tr('check.rf.sameChannel', 'same channel {channel}'), { channel: a.channel ?? '' })
+          : format(tr('check.rf.tooClose', 'frequency spacing < {mhz} MHz'), {
+              mhz: RF_MIN_SPACING_MHZ,
+            })
         findings.push({
           id: `rf-conflict:${a.cable.id}:${b.cable.id}`,
           severity: 'warning',
           category: 'RF conflict',
-          message: `${eqName(a.cable.fromEquipmentId)} ⟷ ${eqName(
-            b.cable.fromEquipmentId,
-          )}: ${why}`,
+          message: format(tr('check.rfConflict', '{a} ⟷ {b}: {why}'), {
+            a: eqName(a.cable.fromEquipmentId),
+            b: eqName(b.cable.fromEquipmentId),
+            why,
+          }),
           cableId: a.cable.id,
         })
       }
@@ -274,7 +289,10 @@ export const runDrawingChecks = (
         id: `single-power:${e.id}`,
         severity: 'info',
         category: 'Single power',
-        message: `${e.name}: nur eine Strom-Anbindung (kein redundantes Netzteil)`,
+        message: format(
+          tr('check.singlePower', '{name}: only one power feed (no redundant PSU)'),
+          { name: e.name },
+        ),
         equipmentId: e.id,
       })
     }
@@ -288,7 +306,10 @@ export const runDrawingChecks = (
         id: `tc-no-source:${e.id}`,
         severity: 'warning',
         category: 'Timecode',
-        message: `${e.name}: TC-Senke, aber keine TC-Quelle (Generator) im Plan`,
+        message: format(
+          tr('check.tcNoSource', '{name}: timecode sink, but no timecode source (generator) in the plan'),
+          { name: e.name },
+        ),
         equipmentId: e.id,
       })
     }
@@ -302,7 +323,13 @@ export const runDrawingChecks = (
         id: `tally-no-source:${e.id}`,
         severity: 'warning',
         category: 'Tally',
-        message: `${e.name}: Tally-Senke, aber keine Tally-Quelle (Mischer/Tally-Hub) im Plan`,
+        message: format(
+          tr(
+            'check.tallyNoSource',
+            '{name}: tally sink, but no tally source (switcher/tally hub) in the plan',
+          ),
+          { name: e.name },
+        ),
         equipmentId: e.id,
       })
     }
@@ -315,7 +342,13 @@ export const runDrawingChecks = (
         id: `da-no-fanout:${e.id}`,
         severity: 'info',
         category: 'Distribution amplifier',
-        message: `${e.name}: als Verteilverstärker markiert, aber nur ${e.outputs.length} Ausgang/Ausgänge (1→N erwartet)`,
+        message: format(
+          tr(
+            'check.daNoFanout',
+            '{name}: marked as a distribution amplifier, but has only {n} output(s) (1→N expected)',
+          ),
+          { name: e.name, n: e.outputs.length },
+        ),
         equipmentId: e.id,
       })
     }
@@ -338,7 +371,11 @@ export const runDrawingChecks = (
         id: `impedance-mismatch:${c.id}`,
         severity: 'warning',
         category: 'Impedance mismatch',
-        message: `${eqName(c.fromEquipmentId)} → ${eqName(c.toEquipmentId)}: ${mismatch.message}`,
+        message: format(tr('check.onLink', '{from} → {to}: {what}'), {
+          from: eqName(c.fromEquipmentId),
+          to: eqName(c.toEquipmentId),
+          what: format(tr(mismatch.schluessel, mismatch.message), mismatch.werte),
+        }),
         cableId: c.id,
       })
     }
@@ -360,12 +397,26 @@ export const runDrawingChecks = (
     const a = fiberKind(from?.fiberClass)
     const b = fiberKind(to?.fiberClass)
     if (a && b && a !== b) {
-      const lbl = (k: 'mm' | 'sm') => (k === 'mm' ? 'Multimode' : 'Singlemode')
+      const lbl = (k: 'mm' | 'sm') =>
+        k === 'mm' ? tr('check.fibre.multimode', 'multimode') : tr('check.fibre.singlemode', 'singlemode')
       findings.push({
         id: `fiber-mismatch:${c.id}`,
         severity: 'warning',
         category: 'Fibre mismatch',
-        message: `${eqName(c.fromEquipmentId)} → ${eqName(c.toEquipmentId)}: ${from?.fiberClass} (${lbl(a)}) ↔ ${to?.fiberClass} (${lbl(b)}) — optisch inkompatibel`,
+        message: format(
+          tr(
+            'check.fibreMismatch',
+            '{from} → {to}: {aClass} ({aKind}) ↔ {bClass} ({bKind}) - optically incompatible',
+          ),
+          {
+            from: eqName(c.fromEquipmentId),
+            to: eqName(c.toEquipmentId),
+            aClass: from?.fiberClass ?? '',
+            aKind: lbl(a),
+            bClass: to?.fiberClass ?? '',
+            bKind: lbl(b),
+          },
+        ),
         cableId: c.id,
       })
     }
@@ -383,8 +434,10 @@ export const runDrawingChecks = (
       id: 'st2110-no-ptp',
       severity: 'info',
       category: 'Sync / PTP',
-      message:
-        'ST 2110 im Plan, aber kein PTP-Signal — PTP-Grandmaster (IEEE 1588) als Referenz nicht vergessen.',
+      message: tr(
+        'check.st2110NoPtp',
+        'ST 2110 is in the plan, but there is no PTP signal - do not forget a PTP grandmaster (IEEE 1588) as the reference.',
+      ),
     })
   }
   // #365 — ST 2110 braucht eine NMOS-Registry (IS-04 Discovery + IS-05
@@ -399,8 +452,10 @@ export const runDrawingChecks = (
         id: 'st2110-no-nmos',
         severity: 'info',
         category: 'NMOS',
-        message:
-          'ST 2110 im Plan — NMOS-Registry (IS-04 Discovery / IS-05 Connection Management) für Auffindbarkeit + Routing einplanen.',
+        message: tr(
+          'check.st2110NoNmos',
+          'ST 2110 is in the plan - plan an NMOS registry (IS-04 discovery / IS-05 connection management) for findability and routing.',
+        ),
       })
     }
   }
@@ -417,7 +472,13 @@ export const runDrawingChecks = (
       id: 'sdi-no-genlock',
       severity: 'info',
       category: 'Sync / Genlock',
-      message: `${sdiCount} SDI-Signale, aber keine Genlock-/Referenz-Verteilung (Blackburst/Tri-Level) — Sync prüfen.`,
+      message: format(
+        tr(
+          'check.sdiNoGenlock',
+          '{n} SDI signals, but no genlock/reference distribution (blackburst/tri-level) - check the sync.',
+        ),
+        { n: sdiCount },
+      ),
     })
   }
 
@@ -432,7 +493,19 @@ export const runDrawingChecks = (
         id: `cable-too-long:${c.id}`,
         severity: 'warning',
         category: 'Cable length',
-        message: `${eqName(c.fromEquipmentId)} → ${eqName(c.toEquipmentId)}: ${c.length} m überschreitet die passive ${c.standard}-Grenze (~${limit} m) — aktive Lösung (AOC/HDBaseT/Extender/LWL) nötig`,
+        message: format(
+          tr(
+            'check.cableTooLong',
+            '{from} → {to}: {len} m exceeds the passive {standard} limit (~{limit} m) - an active solution (AOC/HDBaseT/extender/fibre) is needed',
+          ),
+          {
+            from: eqName(c.fromEquipmentId),
+            to: eqName(c.toEquipmentId),
+            len: c.length,
+            standard: c.standard ?? '',
+            limit,
+          },
+        ),
         cableId: c.id,
       })
     }
@@ -457,8 +530,19 @@ export const runDrawingChecks = (
   }
   if (dmxLines > 0 || artnetLinks > 0) {
     const parts: string[] = []
-    if (dmxLines > 0) parts.push(`${dmxLines} DMX-Linien (≈ ${dmxLines} Universen, ${dmxLines * 512} Kanäle)`)
-    if (artnetLinks > 0) parts.push(`${artnetLinks} Art-Net/sACN-Links (mehrere Universen je Link)`)
+    if (dmxLines > 0)
+      parts.push(
+        format(tr('check.dmxLines', '{n} DMX lines (≈ {n} universes, {ch} channels)'), {
+          n: dmxLines,
+          ch: dmxLines * 512,
+        }),
+      )
+    if (artnetLinks > 0)
+      parts.push(
+        format(tr('check.artnetLinks', '{n} Art-Net/sACN links (several universes per link)'), {
+          n: artnetLinks,
+        }),
+      )
     findings.push({
       id: 'dmx-summary',
       severity: 'info',
@@ -507,7 +591,13 @@ export const runDrawingChecks = (
         id: `poe-over:${sw.id}`,
         severity: 'warning',
         category: 'PoE-Budget',
-        message: `${sw.name}: PoE-Last ${Math.round(load)} W an ${count} Geräten übersteigt das Budget (${budget} W)`,
+        message: format(
+          tr(
+            'check.poeOverBudget',
+            '{name}: a PoE load of {load} W across {count} devices exceeds the budget ({budget} W)',
+          ),
+          { name: sw.name, load: Math.round(load), count, budget },
+        ),
         equipmentId: sw.id,
       })
     }
@@ -525,7 +615,11 @@ export const runDrawingChecks = (
         id: `balance-mismatch:${c.id}`,
         severity: 'warning',
         category: 'Audio balanced/unbalanced',
-        message: `${eqName(c.fromEquipmentId)} → ${eqName(c.toEquipmentId)}: ${bal.message}`,
+        message: format(tr('check.onLink', '{from} → {to}: {what}'), {
+          from: eqName(c.fromEquipmentId),
+          to: eqName(c.toEquipmentId),
+          what: format(tr(bal.schluessel, bal.message), bal.werte),
+        }),
         cableId: c.id,
       })
     }
@@ -550,7 +644,19 @@ export const runDrawingChecks = (
           id: `dual-link:${e.id}:${grp}`,
           severity: 'warning',
           category: 'Dual-Link',
-          message: `${e.name}: Dual-Link-Set „${grp}" unvollständig — ${g.connected}/${g.total} Links verbunden (${g.names.join(', ')})`,
+          message: format(
+            tr(
+              'check.dualLinkIncomplete',
+              '{name}: dual-link set "{group}" incomplete - {connected}/{total} links connected ({ports})',
+            ),
+            {
+              name: e.name,
+              group: grp,
+              connected: g.connected,
+              total: g.total,
+              ports: g.names.join(', '),
+            },
+          ),
           equipmentId: e.id,
         })
       }
@@ -570,7 +676,13 @@ export const runDrawingChecks = (
         id: `fiber-conn:${c.id}`,
         severity: 'warning',
         category: 'Fibre connector',
-        message: `${eqName(c.fromEquipmentId)} → ${eqName(c.toEquipmentId)}: ${a} ↔ ${b} — optischer Steckertyp ungleich (Adapter/Hybrid-Patch nötig)`,
+        message: format(
+          tr(
+            'check.fibreConnectorMismatch',
+            '{from} → {to}: {a} ↔ {b} - different optical connector types (an adapter/hybrid patch is needed)',
+          ),
+          { from: eqName(c.fromEquipmentId), to: eqName(c.toEquipmentId), a, b },
+        ),
         cableId: c.id,
       })
     }
@@ -587,7 +699,13 @@ export const runDrawingChecks = (
         id: `ports-unknown:${e.id}`,
         severity: 'warning',
         category: 'Ports unknown',
-        message: `${e.name}: Port-Belegung unbekannt (kein Datenblatt-Match) — reale Anschlüsse aus dem Datenblatt ergänzen`,
+        message: format(
+          tr(
+            'check.portsUnknown',
+            '{name}: the port layout is unknown (no data-sheet match) - add the real connectors from the data sheet',
+          ),
+          { name: e.name },
+        ),
         equipmentId: e.id,
       })
     }
@@ -613,7 +731,16 @@ export const runDrawingChecks = (
         id: `ports-guessed:${e.id}`,
         severity: 'warning',
         category: 'Ports guessed',
-        message: `${e.name}: Ports stammen aus ${beleg ?? 'einer Quelle ohne Datenblatt'} — gegen die realen Anschlüsse prüfen`,
+        message: format(
+          tr(
+            'check.portsGuessed',
+            '{name}: the ports come from {source} - check them against the real connectors',
+          ),
+          {
+            name: e.name,
+            source: beleg ?? tr('check.portsGuessed.noSource', 'a source without a data sheet'),
+          },
+        ),
         equipmentId: e.id,
       })
     }
@@ -632,7 +759,13 @@ export const runDrawingChecks = (
         id: `gw-subnet:${e.id}`,
         severity: 'warning',
         category: 'Gateway/subnet',
-        message: `${e.name}: Gateway ${e.gateway} liegt nicht im Subnetz von ${e.ipAddress} (${mask}) — nicht erreichbar`,
+        message: format(
+          tr(
+            'check.gatewaySubnet',
+            '{name}: gateway {gateway} is not in the subnet of {ip} ({mask}) - unreachable',
+          ),
+          { name: e.name, gateway: e.gateway, ip: e.ipAddress, mask },
+        ),
         equipmentId: e.id,
       })
     }
@@ -657,7 +790,13 @@ export const runDrawingChecks = (
         id: 'drum-mic-inputs',
         severity: 'warning',
         category: 'Drum micing',
-        message: `Drum-Kit braucht ${d.channelCount} Mic-Inputs, aber nur ${micInputs} XLR-Eingänge im Plan — fehlende ${d.channelCount - micInputs} Kanäle einplanen (Stagebox/Preamps).`,
+        message: format(
+          tr(
+            'check.drumMicInputs',
+            'The drum kit needs {need} mic inputs, but the plan has only {have} XLR inputs - plan the missing {missing} channels (stagebox/preamps).',
+          ),
+          { need: d.channelCount, have: micInputs, missing: d.channelCount - micInputs },
+        ),
       })
     }
     if (d.phantomCount > 0) {
@@ -665,7 +804,13 @@ export const runDrawingChecks = (
         id: 'drum-phantom',
         severity: 'info',
         category: 'Drum micing',
-        message: `${d.phantomCount} Drum-Mic(s) brauchen 48V-Phantom — Preamps/Pult mit schaltbarer Phantomspeisung sicherstellen.`,
+        message: format(
+          tr(
+            'check.drumPhantom',
+            '{n} drum mic(s) need 48 V phantom - make sure the preamps/console can switch phantom power.',
+          ),
+          { n: d.phantomCount },
+        ),
       })
     }
     if (d.unknownCount > 0) {
@@ -673,7 +818,13 @@ export const runDrawingChecks = (
         id: 'drum-unknown-mics',
         severity: 'warning',
         category: 'Drum micing',
-        message: `${d.unknownCount} Drum-Kanal/Kanäle ohne zugeordnetes Mic-Modell — Phantom-/SPL-Bedarf nicht prüfbar, Modell zuweisen.`,
+        message: format(
+          tr(
+            'check.drumUnknownMics',
+            '{n} drum channel(s) without an assigned mic model - phantom/SPL needs cannot be checked, assign a model.',
+          ),
+          { n: d.unknownCount },
+        ),
       })
     }
     if (d.splRiskCount > 0) {
@@ -681,7 +832,13 @@ export const runDrawingChecks = (
         id: 'drum-spl-risk',
         severity: 'warning',
         category: 'Drum micing',
-        message: `${d.splRiskCount} Mic(s) an lauter Zone (Kick/Snare) mit grenzwertigem Max SPL (< ${140} dB) — Verzerrungsrisiko, Pad/robusteres Mic prüfen.`,
+        message: format(
+          tr(
+            'check.drumSplRisk',
+            '{n} mic(s) in a loud zone (kick/snare) with a marginal max SPL (< {db} dB) - risk of distortion, check a pad or a tougher mic.',
+          ),
+          { n: d.splRiskCount, db: 140 },
+        ),
       })
     }
   }
@@ -691,7 +848,15 @@ export const runDrawingChecks = (
   // Feldlaengen zugeschnitten. Zwei Namen, die danach gleich sind, faellt
   // sonst erst auf dem Multiviewer auf. Die Ableitung liegt in
   // `labelDerivation.ts` und ist ohne Store/React testbar.
-  findings.push(...labelTargetIssues({ equipment, cables, sourceIdentities }))
+  // Uebersetzt wird HIER und nicht drueben: `labelDerivation` ist sprachfrei,
+  // weil es im Importgraphen der Mobile-Ansicht liegt (#837).
+  for (const befund of labelTargetIssues({ equipment, cables, sourceIdentities })) {
+    findings.push(
+      befund.schluessel
+        ? { ...befund, message: format(tr(befund.schluessel, befund.message), befund.werte ?? {}) }
+        : befund,
+    )
+  }
 
   // — Check 21: Adapter — passt er an dieser Stelle? (B-46) ------------------
   //
@@ -718,7 +883,13 @@ export const runDrawingChecks = (
         id: `adapter-unverkabelt:${geraet.id}`,
         severity: 'warning',
         category: 'Adapter',
-        message: `${geraet.name}: Adapter ${geraet.adapter.von} ↔ ${geraet.adapter.nach} hängt nur an einer Seite — der Weg geht hier nicht weiter.`,
+        message: format(
+          tr(
+            'check.adapterHalfWired',
+            '{name}: the adapter {from} ↔ {to} is connected on one side only - the path stops here.',
+          ),
+          { name: geraet.name, from: geraet.adapter.von, to: geraet.adapter.nach },
+        ),
         equipmentId: geraet.id,
       })
       continue
@@ -741,7 +912,10 @@ export const runDrawingChecks = (
           id: `adapter-${urteil.art}:${geraet.id}:${rein.id}:${raus.id}`,
           severity: urteil.art === 'passt-nicht' ? 'error' : 'info',
           category: 'Adapter',
-          message: `${geraet.name}: ${urteil.text}`,
+          message: format(tr('check.onDevice', '{name}: {what}'), {
+            name: geraet.name,
+            what: format(tr(urteil.schluessel, urteil.text), urteil.werte),
+          }),
           equipmentId: geraet.id,
           cableId: rein.id,
         })
@@ -780,7 +954,7 @@ export const runDrawingChecks = (
         id: `anschluss-${b.art}:${b.anschlussId}${b.cableId ? `:${b.cableId}` : ''}:${b.text.length}`,
         severity: SCHWERE[b.art] ?? 'info',
         category: 'Wire bundle',
-        message: b.text,
+        message: format(tr(b.schluessel, b.text), b.werte),
         ...(b.cableId ? { cableId: b.cableId } : {}),
       })
     }
@@ -828,7 +1002,7 @@ export const runDrawingChecks = (
       id: `bild-${urteil.art}:${c.id}`,
       severity: urteil.art === 'passt-nicht' ? 'error' : 'info',
       category: 'Video format',
-      message: urteil.text,
+      message: format(tr(urteil.schluessel, urteil.text), urteil.werte),
       equipmentId: senke.id,
       cableId: c.id,
     })

@@ -43,13 +43,13 @@ import { useUiStore } from '../store/uiStore'
 const nachZugangsdatenFragen = async <T>(
   werte: readonly T[],
   zielKey: string,
-  zielDe: string,
+  zielEn: string,
 ): Promise<'ab' | 'roh' | 'strip'> => {
   const traeger = countCredentialBearers(werte)
   if (traeger === 0) return 'roh'
   const antwort = await credentialChoiceDialog(
     traeger,
-    translate(useUiStore.getState().language, zielKey, zielDe),
+    translate(useUiStore.getState().language, zielKey, zielEn),
   )
   if (antwort === null) return 'ab'
   return antwort === 'strip' ? 'strip' : 'roh'

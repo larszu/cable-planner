@@ -60,6 +60,8 @@
 // ───────────────────────────────────────────────────────────────────────────
 
 /** Welchen Leiter eine Ader fuehrt. */
+import { einsetzen, type Platzhalterwerte } from '../lib/platzhalter'
+
 export type LeiterRolle = 'L1' | 'L2' | 'L3' | 'N' | 'PE' | 'frei'
 
 export const LEITER_ROLLE_LABEL = {
@@ -173,6 +175,12 @@ export interface AnschlussBefund {
   /** Die betroffene Leitung, wo es eine gibt. */
   cableId?: string
   text: string
+  /**
+   * Schluessel und Werte dieses Satzes — uebersetzt wird beim Anzeigen, nicht
+   * hier (siehe Kopf von `types/adapter.ts`): `format(tr(b.schluessel, b.text), b.werte)`.
+   */
+  schluessel: string
+  werte: Platzhalterwerte
 }
 
 /** Was eine Leitung an das Anschluss meldet. */
@@ -214,7 +222,12 @@ export const anschlussBefunde = (
       befunde.push({
         art: 'ader-fehlt',
         anschlussId: anschluss.id,
-        text: `${anschluss.name}: ${rolle} ist geplant, aber in keiner Leitung dieses Bündels eingetragen.`,
+        schluessel: 'bundle.wireMissing',
+        werte: { name: anschluss.name, role: rolle },
+        text: einsetzen(
+            '{name}: {role} is planned but recorded in no wire of this bundle.',
+            { name: anschluss.name, role: rolle },
+          ),
       })
     }
   }
@@ -226,7 +239,12 @@ export const anschlussBefunde = (
       befunde.push({
         art: 'ader-doppelt',
         anschlussId: anschluss.id,
-        text: `${anschluss.name}: ${rolle} liegt ${anzahl}-mal im Bündel. Welche Leitung gilt?`,
+        schluessel: 'bundle.wireDuplicate',
+        werte: { name: anschluss.name, role: rolle, n: anzahl },
+        text: einsetzen(
+            '{name}: {role} is in the bundle {n} times. Which wire applies?',
+            { name: anschluss.name, role: rolle, n: anzahl },
+          ),
       })
     }
   }
@@ -238,7 +256,12 @@ export const anschlussBefunde = (
         art: 'leitung-stumm',
         anschlussId: anschluss.id,
         cableId: l.cableId,
-        text: `${anschluss.name}: „${l.bezeichnung}" gehört zum Bündel, trägt aber keine Ader-Angabe.`,
+        schluessel: 'bundle.wireMute',
+        werte: { name: anschluss.name, cable: l.bezeichnung },
+        text: einsetzen(
+            '{name}: "{cable}" belongs to the bundle but carries no conductor entry.',
+            { name: anschluss.name, cable: l.bezeichnung },
+          ),
       })
     }
   }
@@ -254,7 +277,26 @@ export const anschlussBefunde = (
             art: 'farbe-widerspricht',
             anschlussId: anschluss.id,
             cableId: l.cableId,
-            text: `${anschluss.name} · „${l.bezeichnung}": ${a.rolle} ist ${a.farbe}, die Norm „${norm.name}" sagt ${ausNorm}. Ohne Grund ist das ein Widerspruch, kein Sonderfall.`,
+            schluessel: 'bundle.colourContradiction',
+            werte: {
+                name: anschluss.name,
+                cable: l.bezeichnung,
+                role: a.rolle,
+                colour: a.farbe,
+                norm: norm.name,
+                expected: ausNorm,
+              },
+            text: einsetzen(
+                '{name} · "{cable}": {role} is {colour}, the standard "{norm}" says {expected}. Without a reason that is a contradiction, not a special case.',
+                {
+                name: anschluss.name,
+                cable: l.bezeichnung,
+                role: a.rolle,
+                colour: a.farbe,
+                norm: norm.name,
+                expected: ausNorm,
+              },
+              ),
           })
         }
       }
@@ -266,7 +308,12 @@ export const anschlussBefunde = (
     befunde.push({
       art: 'norm-offen',
       anschlussId: anschluss.id,
-      text: `${anschluss.name}: keine Farbnorm gewählt — die Adernfarben sind nicht geprüft. Welche Zuordnung für diese Anlage gilt, steht nicht im Programm.`,
+      schluessel: 'bundle.noColourStandard',
+      werte: { name: anschluss.name },
+      text: einsetzen(
+          '{name}: no colour standard chosen - the conductor colours are unchecked. Which mapping applies to this installation is not in the program.',
+          { name: anschluss.name },
+        ),
     })
   }
 

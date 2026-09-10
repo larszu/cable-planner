@@ -1,6 +1,12 @@
 // ---------------------------------------------------------------------------
 // Das Uebersetzer-Werk fuer die NEBEN-Eintrittspunkte (`src/mobile`,
-// `src/viewer`) — ohne Woerterbuch, ohne Store, ohne einen einzigen Import.
+// `src/viewer`) — ohne Woerterbuch und ohne Store.
+//
+// Ein einziger Import steht seit 2026-09-10 doch hier: `lib/platzhalter.ts`.
+// Die Datei hat selbst keine Importe und kein Woerterbuch — sie traegt nur die
+// Einsetz-Regel, die vorher zweimal dastand (hier und in `lib/i18n.ts`). Der
+// Grund fuer die Trennung der beiden Werke bleibt unberuehrt: `lib/i18n.ts`
+// zoege `de.ts` nach (316 KB), `platzhalter.ts` zieht gar nichts nach.
 //
 // ─── WOFUER DAS DA IST, UND WOFUER NICHT ───────────────────────────────────
 //
@@ -29,6 +35,8 @@
 // ---------------------------------------------------------------------------
 
 /** Quellsprache ist `en` (E-28); jede weitere Sprache ist ein Eintrag mehr. */
+import { einsetzen } from './platzhalter'
+
 export type Sprache = 'en' | 'de'
 
 /**
@@ -67,14 +75,12 @@ export const macheUebersetzer =
  * Werte in einen uebersetzten Satz einsetzen: `format(t('k', '{n} m'), {n: 5})`.
  *
  * Dieselbe Form wie `format()` in `lib/i18n.ts` — und absichtlich eine eigene
- * Zeile statt eines Imports von dort: der Import zoege `de.ts` nach und
- * braechte das ganze Desktop-Woerterbuch auf ein Telefon im Hallen-WLAN.
+ * Die Regel selbst steht in `lib/platzhalter.ts` und wird von dort geholt —
+ * NICHT aus `lib/i18n.ts`: der Import zoege `de.ts` nach und braechte das
+ * ganze Desktop-Woerterbuch auf ein Telefon im Hallen-WLAN.
  *
  * Ein unbekannter Platzhalter bleibt sichtbar stehen (`{foo}`) statt leer zu
  * werden. Eine Uebersetzung, die einen Platzhalter falsch schreibt, faellt
  * damit im Bild auf, statt still ein Wort zu verschlucken.
  */
-export const format = (
-  template: string,
-  values: Record<string, string | number>,
-): string => template.replace(/\{(\w+)\}/g, (_, k) => (k in values ? String(values[k]) : `{${k}}`))
+export const format = einsetzen

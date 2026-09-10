@@ -5427,4 +5427,132 @@ export const de: Dict = {
   'intercomXlsx.readError': 'XLSX konnte nicht gelesen werden: {msg}',
   'pendingCable.suggestionItemTitle': 'Bei Mausposition platzieren und Verbindung herstellen ({category})',
   'pendingCable.suggestionsTitle': 'Schnelle Vorschläge ({connector})',
+
+  // ── 2026-09-10: die Plan-Pruefung und der PDF-Export (#837) ───────────────
+  //
+  // Diese 69 Zeichenketten standen als ROHE deutsche Literale in `lib/` und
+  // `types/` — Meldungen des Plan-Checks, Urteile ueber Adapter, Adern und
+  // Bildformate, und die Fortschritts-Texte des Vektor-Exports. Sie erscheinen
+  // im Plan-Check-Panel UND auf gedruckten Blaettern; ein englischsprachiger
+  // Nutzer las neben einer englischen Spalte einen deutschen Satz.
+  //
+  // Der Sprach-Waechter sah davon nichts: er liest `t()`-Aufrufe, und das
+  // waren keine. Der deutsche Text hier ist Zeichen fuer Zeichen der, der
+  // vorher im Quelltext stand.
+  'adapter.directionUnknown':
+    'Hier steckt der Adapter umgekehrt ({nach} nach {von}). Ob er das kann, ist nicht eingetragen — die Richtung gehört ans Gerät.',
+  'adapter.doesNotFit': 'Adapter {von} ↔ {nach} passt nicht zwischen {quelle} und {senke}.',
+  'adapter.fits': 'Adapter {von} nach {nach} trägt an dieser Stelle.',
+  'adapter.noDirection':
+    'Die Richtung dieses Adapters ist nicht eingetragen. Der Plan sagt deshalb nicht, dass er hier trägt.',
+  'adapter.overStandard': 'Der Adapter lässt höchstens {max} durch; hier läuft {wanted}.',
+  'adapter.sourceRequirementUnknown':
+    'Dieser Adapter setzt „{needs}" an der Quelle voraus. Am Quellgerät ist das nicht eingetragen — ob es das kann, weiss der Plan nicht.',
+  'adapter.standardsIncomparable':
+    'Der Adapter ist mit {max} angegeben, hier läuft {wanted} — die beiden sind nicht gegeneinander zu messen.',
+  'adapter.wrongDirection':
+    'Dieser Adapter wandelt nur {von} nach {nach}. Hier steckt er umgekehrt und überträgt nichts.',
+  'bundle.colourContradiction':
+    '{name} · „{cable}": {role} ist {colour}, die Norm „{norm}" sagt {expected}. Ohne Grund ist das ein Widerspruch, kein Sonderfall.',
+  'bundle.noColourStandard':
+    '{name}: keine Farbnorm gewählt — die Adernfarben sind nicht geprüft. Welche Zuordnung für diese Anlage gilt, steht nicht im Programm.',
+  'bundle.wireDuplicate': '{name}: {role} liegt {n}-mal im Bündel. Welche Leitung gilt?',
+  'bundle.wireMissing': '{name}: {role} ist geplant, aber in keiner Leitung dieses Bündels eingetragen.',
+  'bundle.wireMute': '{name}: „{cable}" gehört zum Bündel, trägt aber keine Ader-Angabe.',
+  'cableSpec.balanceMismatch':
+    'Symmetrisch ↔ unsymmetrisch ({from} ↔ {to}). DI-Box / Übertrager verwenden, sonst Brummen und Pegelverlust.',
+  'cableSpec.cannotConnect': 'Kabel „{cable}" ({connector}) verbindet {from} nicht mit {to}.',
+  'cableSpec.impedanceMismatch':
+    'Impedanz-Sprung: {a}Ω ↔ {b}Ω. Reflexionen/Return-Loss — passendes Kabel oder Adapter verwenden.',
+  'cableSpec.matches': '{cable} passt zu {from} ↔ {to}.',
+  'cableSpec.needsAdapter': '{from} und {to} sind ähnlich, brauchen aber einen Adapter.',
+  'cableSpec.sdiSpeedMismatch':
+    'SDI-Geschwindigkeit passt nicht ({from} ↔ {to}). Ein Scaler/Konverter ist nötig.',
+  'cableSpec.standardMatched': '{standard} passt.',
+  // Drei Satz-Geruste ohne eigene Woerter: sie setzen Namen und ein bereits
+  // uebersetztes Urteil zusammen. Sie stehen trotzdem im Woerterbuch, weil die
+  // WORTSTELLUNG zur Sprache gehoert — eine Sprache, die den Namen hinten
+  // fuehrt, braucht hier eine andere Zeile und keine Code-Aenderung.
+  'check.connectorMismatch': '{from} ({fromType}) → {to} ({toType})',
+  'check.onDevice': '{name}: {what}',
+  'check.onLink': '{from} → {to}: {what}',
+  'check.rfConflict': '{a} ⟷ {b}: {why}',
+  'check.adapterHalfWired':
+    '{name}: Adapter {from} ↔ {to} hängt nur an einer Seite — der Weg geht hier nicht weiter.',
+  'check.artnetLinks': '{n} Art-Net/sACN-Links (mehrere Universen je Link)',
+  'check.cableTooLong':
+    '{from} → {to}: {len} m überschreitet die passive {standard}-Grenze (~{limit} m) — aktive Lösung (AOC/HDBaseT/Extender/LWL) nötig',
+  'check.daNoFanout':
+    '{name}: als Verteilverstärker markiert, aber nur {n} Ausgang/Ausgänge (1→N erwartet)',
+  'check.dmxLines': '{n} DMX-Linien (≈ {n} Universen, {ch} Kanäle)',
+  'check.drumMicInputs':
+    'Drum-Kit braucht {need} Mic-Inputs, aber nur {have} XLR-Eingänge im Plan — fehlende {missing} Kanäle einplanen (Stagebox/Preamps).',
+  'check.drumPhantom':
+    '{n} Drum-Mic(s) brauchen 48V-Phantom — Preamps/Pult mit schaltbarer Phantomspeisung sicherstellen.',
+  'check.drumSplRisk':
+    '{n} Mic(s) an lauter Zone (Kick/Snare) mit grenzwertigem Max SPL (< {db} dB) — Verzerrungsrisiko, Pad/robusteres Mic prüfen.',
+  'check.drumUnknownMics':
+    '{n} Drum-Kanal/Kanäle ohne zugeordnetes Mic-Modell — Phantom-/SPL-Bedarf nicht prüfbar, Modell zuweisen.',
+  'check.dualLinkIncomplete':
+    '{name}: Dual-Link-Set „{group}" unvollständig — {connected}/{total} Links verbunden ({ports})',
+  'check.duplicateCableNumber': 'Kabelnummer „{num}" {n}× vergeben: {from} → {to}',
+  'check.duplicateIp': 'IP {ip} mehrfach: {names}',
+  'check.fibre.multimode': 'Multimode',
+  'check.fibre.singlemode': 'Singlemode',
+  'check.fibreConnectorMismatch':
+    '{from} → {to}: {a} ↔ {b} — optischer Steckertyp ungleich (Adapter/Hybrid-Patch nötig)',
+  'check.fibreMismatch':
+    '{from} → {to}: {aClass} ({aKind}) ↔ {bClass} ({bKind}) — optisch inkompatibel',
+  'check.gatewaySubnet':
+    '{name}: Gateway {gateway} liegt nicht im Subnetz von {ip} ({mask}) — nicht erreichbar',
+  'check.missingLength': '{from} → {to}: keine Länge gesetzt',
+  'check.openPorts': '{name}: {n} unverbundene Ports ({ports})',
+  'check.poeOverBudget':
+    '{name}: PoE-Last {load} W an {count} Geräten übersteigt das Budget ({budget} W)',
+  'check.portsGuessed': '{name}: Ports stammen aus {source} — gegen die realen Anschlüsse prüfen',
+  'check.portsGuessed.noSource': 'einer Quelle ohne Datenblatt',
+  'check.portsUnknown':
+    '{name}: Port-Belegung unbekannt (kein Datenblatt-Match) — reale Anschlüsse aus dem Datenblatt ergänzen',
+  'check.rf.sameChannel': 'gleicher Kanal {channel}',
+  'check.rf.tooClose': 'Frequenzabstand < {mhz} MHz',
+  'check.sdiNoGenlock':
+    '{n} SDI-Signale, aber keine Genlock-/Referenz-Verteilung (Blackburst/Tri-Level) — Sync prüfen.',
+  'check.singlePower': '{name}: nur eine Strom-Anbindung (kein redundantes Netzteil)',
+  'check.st2110NoNmos':
+    'ST 2110 im Plan — NMOS-Registry (IS-04 Discovery / IS-05 Connection Management) für Auffindbarkeit + Routing einplanen.',
+  'check.st2110NoPtp':
+    'ST 2110 im Plan, aber kein PTP-Signal — PTP-Grandmaster (IEEE 1588) als Referenz nicht vergessen.',
+  'check.tallyNoSource': '{name}: Tally-Senke, aber keine Tally-Quelle (Mischer/Tally-Hub) im Plan',
+  'check.tcNoSource': '{name}: TC-Senke, aber keine TC-Quelle (Generator) im Plan',
+  'display.accepted': '{sink} nimmt {format} an.',
+  'display.formatRejected':
+    '{sink} nimmt {format} nicht an — im erklärten Profil steht es nicht ({n} Format(e) erklärt).',
+  'display.noProfile':
+    '{sink}: es ist nicht erklärt, welche Formate dieses Gerät annimmt. Ob {format} ankommt, weiss der Plan nicht.',
+  'display.propertyRejected':
+    '{sink} nimmt {format} an, aber nicht mit {property} {wanted} — erklärt sind: {stated}.',
+  'display.propertyUnknown':
+    '{sink} nimmt {format} an, aber zur {property} ist nichts erklärt. Ob {wanted} ankommt, weiss der Plan nicht.',
+  'export.errCanvasNotFound': 'Canvas nicht gefunden',
+  'export.errMeasureCanvas': 'Konnte den Inhalt des Canvas nicht vermessen',
+  'export.errViewportNotFound': 'ReactFlow-Viewport nicht gefunden',
+  'export.pdf.cloneTooSmall':
+    'Canvas-Clone ist verdächtig klein ({bytes} bytes) — Export abgebrochen.',
+  'export.pdf.cloning': 'Canvas-DOM klonen (zoom {zoom}%, Body {w}×{h} px)…',
+  'export.pdf.collectingStyles': 'Stylesheets sammeln…',
+  'export.pdf.composing': 'Print-HTML bauen ({kb} KB)…',
+  'export.pdf.done': 'Fertig.',
+  'export.pdf.errNoDevices': 'Keine Geräte zum Exportieren vorhanden',
+  'export.pdf.measuring': 'Inhalt vermessen…',
+  'export.pdf.rendering': 'Chromium printToPDF…',
+  'export.pdf.saving': 'Datei speichern…',
+  'label.affected': ' — betroffen: {where}.',
+  'label.category.charset': '{system}-Zeichensatz',
+  'label.category.nameCollision': '{system}-Namenskollision',
+  'label.charset': '„{raw}" enthält {chars} — im {system}-{field} nicht darstellbar ({where}).',
+  'label.nameCollision': '{names} werden im {system}-{field} beide zu „{value}"',
+  'label.umdAddressClash':
+    '{names} liegen beide auf UMD-Adresse {address} — die Displays zeigen denselben Text, welcher gewinnt entscheidet die Paketreihenfolge.',
+  'label.unit.bytes': 'Byte',
+  'label.unit.chars': 'Zeichen',
 }

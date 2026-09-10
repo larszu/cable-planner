@@ -55,6 +55,7 @@
 // ───────────────────────────────────────────────────────────────────────────
 import type { ConnectorType } from './equipment'
 import type { SignalStandard } from './cableSpec'
+import { einsetzen, type Platzhalterwerte } from '../lib/platzhalter'
 
 /** In welche Richtung der Adapter wandelt. */
 export type AdapterRichtung =
@@ -192,6 +193,21 @@ export type AdapterUrteilArt =
 
 export interface AdapterUrteil {
   art: AdapterUrteilArt
+  /**
+   * Der Woerterbuch-Schluessel dieses Satzes und die Werte darin.
+   *
+   * Uebersetzt wird NICHT hier: dieses Modul rechnet, und ein `tr()` haenge
+   * sein Ergebnis an die eingestellte Sprache — jeder Test auf einen Satz
+   * waere auf einem deutschen Rechner rot. Ausserdem zoege `lib/i18n.ts` das
+   * Woerterbuch `de.ts` (316 KB) in den Importgraphen jeder Seite, auch in den
+   * der Mobile-Ansicht.
+   *
+   * Wer anzeigt, schreibt `format(tr(u.schluessel, u.text), u.werte)`. Fehlt
+   * der Schluessel, greift `text` — der englische Satz mit bereits
+   * eingesetzten Werten, den `format` unveraendert laesst.
+   */
+  schluessel: string
+  werte: Platzhalterwerte
   /** Der Satz fuer die Anzeige. Bei 'passt' die Bestaetigung, sonst der Grund. */
   text: string
 }
@@ -231,7 +247,12 @@ export const beurteileAdapter = (spec: AdapterSpec, lage: AdapterLage): AdapterU
   if (!vorwaerts && !rueckwaerts) {
     return {
       art: 'passt-nicht',
-      text: `Adapter ${spec.von} ↔ ${spec.nach} passt nicht zwischen ${quelleSteckt ?? '?'} und ${senkeSteckt ?? '?'}.`,
+      schluessel: 'adapter.doesNotFit',
+      werte: { von: spec.von, nach: spec.nach, quelle: quelleSteckt ?? '?', senke: senkeSteckt ?? '?' },
+      text: einsetzen(
+          'The adapter {von} ↔ {nach} does not fit between {quelle} and {senke}.',
+          { von: spec.von, nach: spec.nach, quelle: quelleSteckt ?? '?', senke: senkeSteckt ?? '?' },
+        ),
     }
   }
 
@@ -240,13 +261,23 @@ export const beurteileAdapter = (spec: AdapterSpec, lage: AdapterLage): AdapterU
     if (spec.richtung === 'einweg') {
       return {
         art: 'passt-nicht',
-        text: `Dieser Adapter wandelt nur ${spec.von} nach ${spec.nach}. Hier steckt er umgekehrt und überträgt nichts.`,
+        schluessel: 'adapter.wrongDirection',
+        werte: { von: spec.von, nach: spec.nach },
+        text: einsetzen(
+            'This adapter only converts {von} to {nach}. Here it is plugged in the other way round and carries nothing.',
+            { von: spec.von, nach: spec.nach },
+          ),
       }
     }
     if (spec.richtung === 'unbekannt') {
       return {
         art: 'offen',
-        text: `Hier steckt der Adapter umgekehrt (${spec.nach} nach ${spec.von}). Ob er das kann, ist nicht eingetragen — die Richtung gehört ans Gerät.`,
+        schluessel: 'adapter.directionUnknown',
+        werte: { von: spec.von, nach: spec.nach },
+        text: einsetzen(
+            'Here the adapter is plugged in the other way round ({nach} to {von}). Whether it can do that is not recorded - the direction belongs on the device.',
+            { von: spec.von, nach: spec.nach },
+          ),
       }
     }
   }
@@ -257,13 +288,23 @@ export const beurteileAdapter = (spec: AdapterSpec, lage: AdapterLage): AdapterU
     if (wie === 'oberhalb') {
       return {
         art: 'passt-nicht',
-        text: `Der Adapter lässt höchstens ${spec.hoechsterStandard} durch; hier läuft ${verlangt}.`,
+        schluessel: 'adapter.overStandard',
+        werte: { max: spec.hoechsterStandard ?? '', wanted: verlangt ?? '' },
+        text: einsetzen(
+            'The adapter carries {max} at most; {wanted} runs here.',
+            { max: spec.hoechsterStandard ?? '', wanted: verlangt ?? '' },
+          ),
       }
     }
     if (wie === 'nicht-vergleichbar') {
       return {
         art: 'offen',
-        text: `Der Adapter ist mit ${spec.hoechsterStandard} angegeben, hier läuft ${verlangt} — die beiden sind nicht gegeneinander zu messen.`,
+        schluessel: 'adapter.standardsIncomparable',
+        werte: { max: spec.hoechsterStandard ?? '', wanted: verlangt ?? '' },
+        text: einsetzen(
+            'The adapter is rated for {max}, {wanted} runs here - the two cannot be measured against each other.',
+            { max: spec.hoechsterStandard ?? '', wanted: verlangt ?? '' },
+          ),
       }
     }
   }
@@ -276,7 +317,12 @@ export const beurteileAdapter = (spec: AdapterSpec, lage: AdapterLage): AdapterU
     if (!erklaert) {
       return {
         art: 'offen',
-        text: `Dieser Adapter setzt „${spec.setztVoraus}" an der Quelle voraus. Am Quellgerät ist das nicht eingetragen — ob es das kann, weiss der Plan nicht.`,
+        schluessel: 'adapter.sourceRequirementUnknown',
+        werte: { needs: spec.setztVoraus ?? '' },
+        text: einsetzen(
+            'This adapter requires "{needs}" at the source. That is not recorded on the source device - the plan does not know whether it can.',
+            { needs: spec.setztVoraus ?? '' },
+          ),
       }
     }
   }
@@ -285,13 +331,20 @@ export const beurteileAdapter = (spec: AdapterSpec, lage: AdapterLage): AdapterU
   if (spec.richtung === 'unbekannt') {
     return {
       art: 'offen',
-      text: 'Die Richtung dieses Adapters ist nicht eingetragen. Der Plan sagt deshalb nicht, dass er hier trägt.',
+      schluessel: 'adapter.noDirection',
+      werte: {},
+      text: 'The direction of this adapter is not recorded. The plan therefore does not claim that it carries here.',
     }
   }
 
   return {
     art: 'passt',
-    text: `Adapter ${spec.von} nach ${spec.nach} trägt an dieser Stelle.`,
+    schluessel: 'adapter.fits',
+    werte: { von: spec.von, nach: spec.nach },
+    text: einsetzen('The adapter {von} to {nach} carries at this point.', {
+      von: spec.von,
+      nach: spec.nach,
+    }),
   }
 }
 

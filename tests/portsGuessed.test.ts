@@ -199,6 +199,6 @@ describe('drawingChecks — die Meldung nennt die aufgezeichnete Quelle', () => 
     eq.specSource = { inputs: { value: '1 In / 0 Out', source: '' } }
     const { findings } = runDrawingChecks({ equipment: [eq], cables: [] })
     const f = findings.find((x) => x.id === 'ports-guessed:e9')
-    expect(f?.message).toContain('ohne Datenblatt')
+    expect(f?.message).toContain('without a data sheet')
   })
 })

@@ -54,6 +54,7 @@ import { useUiStore, type Language } from '../store/uiStore'
 
 import { type Dict } from './i18n/dict'
 import { de } from './i18n/de'
+import { einsetzen } from './platzhalter'
 
 /**
  * Die Woerterbuecher — eine REGISTRY, keine Verzweigung.
@@ -93,10 +94,36 @@ export function useTranslation() {
   return (key: string, fallback?: string) => translate(lang, key, fallback)
 }
 
-/** Convenience: inject runtime values into a translated string.
- *  e.g. format(t('foo', '{n} cables'), { n: 5 }) → '5 cables'. */
-export function format(template: string, values: Record<string, string | number>): string {
-  return template.replace(/\{(\w+)\}/g, (_, k) =>
-    k in values ? String(values[k]) : `{${k}}`,
-  )
+/**
+ * Der Uebersetzer AUSSERHALB von React — eine Kopie, nicht vier.
+ *
+ * Module wie `drawingChecks`, `importGreengo` oder `intercomMatrixXlsx` laufen
+ * ohne Komponente; dort gibt es keinen Hook. Bis 2026-09-10 half sich jedes
+ * mit denselben zwei Zeilen selbst:
+ *
+ *     const tr = (key, fallback) =>
+ *       translate(useUiStore.getState().language, key, fallback)
+ *
+ * Vier Kopien derselben Zeile sind fuer sich schon die Defektform
+ * `zwei-rechnungen` im Kleinen. Teuer wurde es aber an einer anderen Stelle:
+ * WER DIE SPRACHE INLINE HOLT, WIRD VOM SPRACH-WAECHTER NICHT GESEHEN.
+ * `fallbackMuster` in `scripts/quellsprache.mjs` erkennt `translate(lang, k,
+ * f)` nur, wenn das erste Argument ein BEZEICHNER ist; bei
+ * `translate(useUiStore.getState().language, …)` greift es nicht. Gemessen:
+ * `exportPdfVector.ts` trug so den deutschen Fallback „Canvas nicht gefunden"
+ * durch die Sprachdrehung E-28, und `lang:check` meldete daneben 0 Verstoesse.
+ *
+ * Mit dieser Fassung steht an jeder Aufrufstelle `tr('key', 'English')` —
+ * genau die Form, die der Waechter liest.
+ */
+export function tr(key: string, fallback: string): string {
+  return translate(useUiStore.getState().language, key, fallback)
 }
+
+/** Convenience: inject runtime values into a translated string.
+ *  e.g. format(t('foo', '{n} cables'), { n: 5 }) → '5 cables'.
+ *
+ *  Die Regel selbst steht in `lib/platzhalter.ts` — sie ist dieselbe fuer
+ *  Desktop, Mobile-Ansicht, Viewer und die Urteils-Module unter `types/`, und
+ *  seit 2026-09-10 steht sie deshalb nur noch einmal. */
+export const format = einsetzen

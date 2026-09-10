@@ -31,7 +31,7 @@
 import type { Cable } from '../types/cable'
 import type { EquipmentItem, Port } from '../types/equipment'
 import type { SourceIdentity } from '../types/sourceIdentity'
-import type { CheckFinding } from './drawingChecks'
+import type { CheckFinding } from '../types/checkFinding'
 import { detectDeviceKind, type DeviceKind } from './deviceKind'
 import { patchPanelCounterpart } from './patchPanel'
 import {
@@ -42,6 +42,12 @@ import {
 import { effectiveShortName } from './shortName'
 import { suggestDanteName } from './danteNaming'
 import { umdAddressClashes } from './sourceIdentity'
+// Sprachfrei mit Absicht: dieses Modul liegt ueber `postHandover` und
+// `documentRegistry` im Importgraphen der MOBILE-Ansicht. Ein Import von
+// `lib/i18n.ts` zoege `de.ts` (316 KB) auf ein Telefon im Hallen-WLAN —
+// `tests/i18nEintrittspunkte.test.ts` hat genau das gemeldet (#837). Die
+// Befunde tragen `schluessel` und `werte`; `drawingChecks.ts` uebersetzt.
+import { einsetzen } from './platzhalter'
 import {
   LABEL_TARGETS,
   collisionsForTarget,
@@ -641,10 +647,18 @@ export const labelTargetIssues = (input: LabelDerivationInput): CheckFinding[] =
       id: `umd-address-clash:${clash.address}`,
       severity: 'error',
       category: 'Duplicate UMD address',
-      message:
-        `${clash.identities.map((i) => `"${i.name}"`).join(' und ')} liegen ` +
-        `beide auf UMD-Adresse ${clash.address} — die Displays zeigen ` +
-        'denselben Text, welcher gewinnt entscheidet die Paketreihenfolge.',
+      schluessel: 'label.umdAddressClash',
+      werte: {
+        names: clash.identities.map((i) => `"${i.name}"`).join(' & '),
+        address: clash.address,
+      },
+      message: einsetzen(
+        '{names} both sit on UMD address {address} - the displays show the same text, and the packet order decides which one wins.',
+        {
+          names: clash.identities.map((i) => `"${i.name}"`).join(' & '),
+          address: clash.address,
+        },
+      ),
     })
   }
 
@@ -674,12 +688,36 @@ export const labelTargetIssues = (input: LabelDerivationInput): CheckFinding[] =
       issues.push({
         id: `label-collision:${targetId}:${collision.value}`,
         severity: 'error',
-        category: `${spec.system}-Namenskollision`,
-        message:
-          `${members.map((m) => `"${m.sourceText}"`).join(' und ')} werden im ` +
-          `${spec.system}-${spec.field} beide zu "${collision.value}"` +
-          (budget !== null ? ` (${budget} ${spec.budgetUnit === 'bytes' ? 'Byte' : 'Zeichen'})` : '') +
-          ` — betroffen: ${members.map((m) => m.where).join(', ')}.`,
+        category: einsetzen('{system} name collision', { system: spec.system }),
+        schluessel: 'label.nameCollision',
+        werte: {
+          names: members.map((m) => `"${m.sourceText}"`).join(' & '),
+          value: collision.value,
+          system: spec.system,
+          field: spec.field,
+          // Das Budget steht als FERTIGES Stueck in den Werten und nicht als
+          // zweiter Satz daneben: eine Sprache, die Zahl und Einheit anders
+          // stellt, aendert dann eine Woerterbuch-Zeile und keine Code-Zeile.
+          budget:
+            budget !== null
+              ? ` (${budget} ${spec.budgetUnit === 'bytes' ? 'bytes' : 'characters'})`
+              : '',
+          where: members.map((m) => m.where).join(', '),
+        },
+        message: einsetzen(
+          '{names} both become "{value}" in {system} {field}{budget} - affected: {where}.',
+          {
+            names: members.map((m) => `"${m.sourceText}"`).join(' & '),
+            value: collision.value,
+            system: spec.system,
+            field: spec.field,
+            budget:
+              budget !== null
+                ? ` (${budget} ${spec.budgetUnit === 'bytes' ? 'bytes' : 'characters'})`
+                : '',
+            where: members.map((m) => m.where).join(', '),
+          },
+        ),
         equipmentId: members[0].equipmentId,
       })
     }
@@ -691,10 +729,25 @@ export const labelTargetIssues = (input: LabelDerivationInput): CheckFinding[] =
       issues.push({
         id: `label-charset:${targetId}:${c.key}`,
         severity: 'warning',
-        category: `${spec.system}-Zeichensatz`,
-        message:
-          `"${f.raw}" enthält ${f.invalidChars.map((ch) => `"${ch}"`).join(', ')} — ` +
-          `im ${spec.system}-${spec.field} nicht darstellbar (${c.where}).`,
+        category: einsetzen('{system} character set', { system: spec.system }),
+        schluessel: 'label.charset',
+        werte: {
+          raw: f.raw,
+          chars: f.invalidChars.map((ch) => `"${ch}"`).join(', '),
+          system: spec.system,
+          field: spec.field,
+          where: c.where,
+        },
+        message: einsetzen(
+          '"{raw}" contains {chars} - not representable in {system} {field} ({where}).',
+          {
+            raw: f.raw,
+            chars: f.invalidChars.map((ch) => `"${ch}"`).join(', '),
+            system: spec.system,
+            field: spec.field,
+            where: c.where,
+          },
+        ),
         equipmentId: c.equipmentId,
       })
     }
