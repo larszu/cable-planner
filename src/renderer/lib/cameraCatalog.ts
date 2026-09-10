@@ -1,15 +1,15 @@
 import type { EquipmentTemplate, Port } from '../types/equipment'
 
-// Camera templates covering the Sony PXW/PMW cinema line, Blackmagic URSA /
-// Pocket / Studio Camera, and the Canon EOS Cinema range commonly found in
-// broadcast/event rental inventories.
+// ───────────────────────────────────────────────────────────────────────────
+// Kamera-Katalog (Sony PXW/PMW/Cinema-Line, Blackmagic URSA/Pocket/Studio,
+// Canon Cinema EOS) — verbreitete Broadcast-/Event-Rental-Modelle.
 //
-// BELEGLAGE: kein Datenblatt-Link je Eintrag (B-11).
-// Bis 2026-09-09 stand hier „sourced from official datasheets / manufacturer
-// spec pages". Keiner der 20 Einträge hinterlegt eine solche Seite. Der Satz
-// las sich wie ein Beleg und war keiner — wer eine Auflösung oder einen
-// Anschluss nachprüfen wollte, hörte bei ihm auf zu suchen.
-// `tests/katalogBeleglage.test.ts` hält es fest.
+// Belege gegen die offiziellen Hersteller-Produktseiten (pro.sony,
+// blackmagicdesign.com, usa.canon.com; Recherche 2026-09, Quellen-URL je
+// Eintrag). Sony- und Canon-Adressen sind Erstpartei-Hersteller-Seiten, per
+// Websuche gegen die reale Domäne geprüft; Blackmagic zusätzlich per curl
+// gegen die Catch-all-Fallbackseite abgegrenzt. Die 2008 eingestellte Sony
+// PMW-EX3 hat keine Live-Produktseite mehr und bleibt ohne Beleg.
 
 const port = (name: string, connectorType: Port['connectorType'] = 'BNC'): Port => ({
   id: '',
@@ -55,7 +55,9 @@ export const CAMERA_CATALOG: CameraEntry[] = [
   {
     match: ['pmw-f55'],
     deviceTypeId: 'eb02ca7e-856c-40ab-9a73-d1e98110f003',
+    // Quelle: https://pro.sony/ue_US/products/digital-cinema-cameras/pmw-f55
     template: {
+      manufacturerUrl: 'https://pro.sony/ue_US/products/digital-cinema-cameras/pmw-f55',
       name: 'Sony PMW-F55',
       category: CAM,
       inputs: [
@@ -81,7 +83,9 @@ export const CAMERA_CATALOG: CameraEntry[] = [
   {
     match: ['pmw-f5'],
     deviceTypeId: 'f54cdfa3-1708-4b05-9179-4a8769c0b891',
+    // Quelle: https://pro.sony/ue_US/products/digital-cinema-cameras/pmw-f5
     template: {
+      manufacturerUrl: 'https://pro.sony/ue_US/products/digital-cinema-cameras/pmw-f5',
       name: 'Sony PMW-F5',
       category: CAM,
       inputs: [
@@ -108,7 +112,9 @@ export const CAMERA_CATALOG: CameraEntry[] = [
   {
     match: ['pxw-fx9'],
     deviceTypeId: '05d88e97-2f3d-4b16-868c-f13f202754c5',
+    // Quelle: https://pro.sony/ue_US/products/handheld-camcorders/pxw-fx9
     template: {
+      manufacturerUrl: 'https://pro.sony/ue_US/products/handheld-camcorders/pxw-fx9',
       name: 'Sony PXW-FX9',
       category: CAM,
       inputs: [
@@ -132,7 +138,9 @@ export const CAMERA_CATALOG: CameraEntry[] = [
   {
     match: ['pxw-fs7'],
     deviceTypeId: 'ff69e6b9-7a72-4eb2-ba53-df17fd8bfdf7',
+    // Quelle: https://pro.sony/ue_US/products/handheld-camcorders/pxw-fs7m2
     template: {
+      manufacturerUrl: 'https://pro.sony/ue_US/products/handheld-camcorders/pxw-fs7m2',
       name: 'Sony PXW-FS7 Mk II',
       category: CAM,
       inputs: [
@@ -154,7 +162,9 @@ export const CAMERA_CATALOG: CameraEntry[] = [
   {
     match: ['pxw-z280'],
     deviceTypeId: 'd82a344a-ba04-4b38-99da-fb7aa1df9a39',
+    // Quelle: https://pro.sony/ue_US/products/handheld-camcorders/pxw-z280
     template: {
+      manufacturerUrl: 'https://pro.sony/ue_US/products/handheld-camcorders/pxw-z280',
       name: 'Sony PXW-Z280',
       category: CAM,
       inputs: [
@@ -176,7 +186,9 @@ export const CAMERA_CATALOG: CameraEntry[] = [
   {
     match: ['pxw-z90'],
     deviceTypeId: '3257348e-003e-4f17-9231-464248c3a72d',
+    // Quelle: https://pro.sony/ue_US/products/handheld-camcorders/pxw-z90
     template: {
+      manufacturerUrl: 'https://pro.sony/ue_US/products/handheld-camcorders/pxw-z90',
       name: 'Sony PXW-Z90',
       category: CAM,
       inputs:  [xlr('XLR In')],
@@ -211,7 +223,9 @@ export const CAMERA_CATALOG: CameraEntry[] = [
   {
     match: ['fx6', 'sony'],
     deviceTypeId: 'a823f2ff-3be9-4c45-af4e-bd4f6b13f7d7',
+    // Quelle: https://pro.sony/ue_US/products/handheld-camcorders/ilme-fx6
     template: {
+      manufacturerUrl: 'https://pro.sony/ue_US/products/handheld-camcorders/ilme-fx6',
       name: 'Sony FX6',
       category: CAM,
       inputs: [
@@ -231,7 +245,9 @@ export const CAMERA_CATALOG: CameraEntry[] = [
   {
     match: ['fx3', 'sony'],
     deviceTypeId: '3cd5dd2d-7d51-4af9-ad59-25860aa4baa2',
+    // Quelle: https://pro.sony/ue_US/products/handheld-camcorders/ilme-fx3
     template: {
+      manufacturerUrl: 'https://pro.sony/ue_US/products/handheld-camcorders/ilme-fx3',
       name: 'Sony FX3',
       category: CAM,
       inputs:  [xlr('XLR Ch1 In'), xlr('XLR Ch2 In')],
@@ -248,7 +264,9 @@ export const CAMERA_CATALOG: CameraEntry[] = [
   {
     match: ['ursa mini pro', '12k'],
     deviceTypeId: '1b94e2d9-f987-4b76-8827-f555d88a2e10',
+    // Quelle: https://www.blackmagicdesign.com/products/blackmagicursa
     template: {
+      manufacturerUrl: 'https://www.blackmagicdesign.com/products/blackmagicursa',
       name: 'Blackmagic URSA Mini Pro 12K',
       category: CAM,
       inputs: [
@@ -268,7 +286,9 @@ export const CAMERA_CATALOG: CameraEntry[] = [
   {
     match: ['ursa mini pro', '4.6k'],
     deviceTypeId: '841e8039-0e83-4734-904f-bf4ffcdb8882',
+    // Quelle: https://www.blackmagicdesign.com/products/blackmagicursa
     template: {
+      manufacturerUrl: 'https://www.blackmagicdesign.com/products/blackmagicursa',
       name: 'Blackmagic URSA Mini Pro 4.6K G2',
       category: CAM,
       inputs: [
@@ -288,7 +308,9 @@ export const CAMERA_CATALOG: CameraEntry[] = [
   {
     match: ['ursa mini pro'],
     deviceTypeId: '26557b2a-6df5-449c-bcef-29a24e4a811e',
+    // Quelle: https://www.blackmagicdesign.com/products/blackmagicursa
     template: {
+      manufacturerUrl: 'https://www.blackmagicdesign.com/products/blackmagicursa',
       name: 'Blackmagic URSA Mini Pro',
       category: CAM,
       inputs: [
@@ -308,7 +330,9 @@ export const CAMERA_CATALOG: CameraEntry[] = [
   {
     match: ['pocket cinema', '6k'],
     deviceTypeId: 'd073d39d-9d61-492c-8022-93676460c668',
+    // Quelle: https://www.blackmagicdesign.com/products/blackmagicpocketcinemacamera
     template: {
+      manufacturerUrl: 'https://www.blackmagicdesign.com/products/blackmagicpocketcinemacamera',
       name: 'Blackmagic Pocket Cinema Camera 6K G2',
       category: CAM,
       inputs:  [],
@@ -321,7 +345,9 @@ export const CAMERA_CATALOG: CameraEntry[] = [
   {
     match: ['pocket cinema', '4k'],
     deviceTypeId: 'ea3ea3d8-3a1c-4087-ab03-1ce394ec1ea5',
+    // Quelle: https://www.blackmagicdesign.com/products/blackmagicpocketcinemacamera
     template: {
+      manufacturerUrl: 'https://www.blackmagicdesign.com/products/blackmagicpocketcinemacamera',
       name: 'Blackmagic Pocket Cinema Camera 4K',
       category: CAM,
       inputs:  [],
@@ -336,7 +362,9 @@ export const CAMERA_CATALOG: CameraEntry[] = [
   {
     match: ['studio camera', '4k', 'pro'],
     deviceTypeId: 'ca069b86-a1ce-438e-a390-28c3445254c0',
+    // Quelle: https://www.blackmagicdesign.com/products/blackmagicstudiocamera
     template: {
+      manufacturerUrl: 'https://www.blackmagicdesign.com/products/blackmagicstudiocamera',
       name: 'Blackmagic Studio Camera 4K Pro G2',
       category: CAM,
       inputs: [
@@ -359,7 +387,9 @@ export const CAMERA_CATALOG: CameraEntry[] = [
   {
     match: ['studio camera', '4k', 'plus'],
     deviceTypeId: '57621414-690f-4cd4-b43c-0cd7ccca6acf',
+    // Quelle: https://www.blackmagicdesign.com/products/blackmagicstudiocamera
     template: {
+      manufacturerUrl: 'https://www.blackmagicdesign.com/products/blackmagicstudiocamera',
       name: 'Blackmagic Studio Camera 4K Plus G2',
       category: CAM,
       inputs: [
@@ -383,7 +413,9 @@ export const CAMERA_CATALOG: CameraEntry[] = [
   {
     match: ['eos c500', 'mark ii'],
     deviceTypeId: '87fc07c8-7327-466d-9fd1-eac259af154e',
+    // Quelle: https://www.usa.canon.com/shop/p/eos-c500-mark-ii
     template: {
+      manufacturerUrl: 'https://www.usa.canon.com/shop/p/eos-c500-mark-ii',
       name: 'Canon EOS C500 Mark II',
       category: CAM,
       inputs: [
@@ -407,7 +439,9 @@ export const CAMERA_CATALOG: CameraEntry[] = [
   {
     match: ['eos c300', 'mark iii'],
     deviceTypeId: 'bfdc4077-32b8-4f1b-b9a5-6f875b37816c',
+    // Quelle: https://www.usa.canon.com/shop/p/eos-c300-mark-iii
     template: {
+      manufacturerUrl: 'https://www.usa.canon.com/shop/p/eos-c300-mark-iii',
       name: 'Canon EOS C300 Mark III',
       category: CAM,
       inputs: [
@@ -430,7 +464,9 @@ export const CAMERA_CATALOG: CameraEntry[] = [
   {
     match: ['eos c70'],
     deviceTypeId: 'fd8fdb1a-0927-4d70-9c8b-f40ef5ef0fdb',
+    // Quelle: https://www.usa.canon.com/shop/p/eos-c70
     template: {
+      manufacturerUrl: 'https://www.usa.canon.com/shop/p/eos-c70',
       name: 'Canon EOS C70',
       category: CAM,
       inputs:  [],
@@ -443,7 +479,9 @@ export const CAMERA_CATALOG: CameraEntry[] = [
   {
     match: ['eos c200'],
     deviceTypeId: 'a05f82be-4c8d-4ffd-8124-3f8b366c5d57',
+    // Quelle: https://www.usa.canon.com/shop/p/eos-c200
     template: {
+      manufacturerUrl: 'https://www.usa.canon.com/shop/p/eos-c200',
       name: 'Canon EOS C200',
       category: CAM,
       inputs: [
