@@ -1,5 +1,5 @@
 ﻿import { useEffect, useMemo, useRef, useState } from 'react'
-import { X, SlidersHorizontal, List, Link, Wand2, ClipboardList, Search, Lock, Download, Loader2, Upload, Tag } from 'lucide-react'
+import { X, SlidersHorizontal, List, Link, Wand2, ClipboardList, Search, Lock, Download, Loader2, Upload, Tag, ChevronDown, ChevronRight} from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import { useProjectStore } from '../../store/projectStore'
 import {
@@ -1059,7 +1059,8 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
               onClick={() => setShowMatrix((m) => !m)}
               className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
             >
-              {showMatrix ? '▼' : '▶'} {t('export.routingView', 'Routing view')}
+              <Icon icon={showMatrix ? ChevronDown : ChevronRight} size="xs" className="mr-1 inline" />
+              {t('export.routingView', 'Routing view')}
             </button>
             {/* v7.9.129 — View-Mode-Switch: Matrix oder Liste */}
             {showMatrix && (

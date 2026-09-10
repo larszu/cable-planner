@@ -581,14 +581,54 @@ nicht erst, wenn jemand eine halb übersetzte Seite meldet.
       Die feste Probe im CLI-Teil trägt die drei neuen Formen jetzt mit; ohne
       sie fällt genau diese Härte beim nächsten Aufräumen still wieder heraus.
 
-- [ ] **Offen (gemessen, nicht geschätzt): 106 rohe Symbole im JSX in 47
-      Dateien**, außerhalb jedes `t()`-Aufrufs (`<span>🔄</span>`,
-      `★ Custom Cable…`, `{open ? '▾' : '▸'}`). Ein guter Teil davon ist
-      legitim — die Caret-Dreiecke der Menüs, die Richtungspfeile des
-      Off-Page-Symbols, ein Zustandspunkt —, und genau deshalb ist es ein
-      eigener Schnitt mit eigener Urteilsarbeit und keine Fortsetzung dieses
-      hier. Der Wächter sagt in seinem Kopf ausdrücklich, dass er sie nicht
-      sieht.
+- [x] **Rohe Symbole im JSX: 180 → 138 Stellen, 61 → 50 Dateien**
+      (2026-09-10, gemessen über dieselbe Baumsuche wie der Glyph-Wächter).
+      Zwei Klassen sind durch, und zwar die zwei, für die `Icon.tsx` genau
+      seinen Grund nennt („Emojis rendern je Plattform/Font inkonsistent"):
+
+      **(a) Alle 24 Aufklapp-Carets.** `{open ? '▾' : '▸'}`,
+      `{collapsed ? '▶' : '▼'}`, `{offen ? '▴' : '▾'}` und die
+      freistehenden `▾` in `MenuBar`, `LibraryMenus`, `RackAddSplitButton` —
+      jetzt `<Icon icon={open ? ChevronDown : ChevronRight} />`. Es waren
+      **fünf verschiedene Glyph-Paare für dieselbe Geste**; das allein ist der
+      Grund, warum ein Aufklapper je nach Dialog anders aussah.
+
+      **(b) 17 freistehende Emoji/Symbol-Kinder**: `🔄` (drei Mal, dieselbe
+      Aktualisieren-Aktion), `📦`, `🔍`, `📁` (zwei Mal), `▥` (zwei Mal),
+      `🪑`, `⏬`/`⏫` (fünf Mal), `✅`, `📌`, `◆`, `➕`.
+
+      **Ein Wächter ist dabei umgefallen, und das war richtig so.**
+      `tests/schriftgroesseUntergrenze.test.ts` sicherte zu, dass die
+      Baumsuche „mindestens eine" Stelle unter 12px findet — die sechs
+      dekorativen Micro-Glyphen, die es damals noch gab. Die sind jetzt
+      `<Icon />` und tragen ihre Größe als Zahl statt als CSS-Klasse, also
+      fand sie null. Der Kommentar dort hatte den Fall vorhergesehen und
+      benannt. Eine Zusicherung, die am Bestand hängt, geht mit dem letzten
+      Fund verloren: „keine Stelle unter 12px" wäre ab dann auch bei kaputtem
+      Muster erfüllt. Sie steht jetzt auf einer **festen Probe** — dieselbe
+      Form wie im Sprachmix-Zähler.
+- [ ] **Offen: 138 Stellen in 50 Dateien**, und der Rest ist keine
+      Fleißarbeit mehr, sondern Urteilsarbeit — drei Gruppen mit je eigenem
+      Grund:
+
+      **(1) Pfeile im Satz oder im Datensatz** (40× `→`, 11× `←`, 8× `↔`):
+      `${from} → ${to}` in einer Stückliste, ein Achsen-Label der
+      Routing-Matrix, der Zielhinweis einer Zeile. Das sind **Daten**, keine
+      Verzierung, und sie landen in CSV/PDF, wo kein SVG hinkann.
+
+      **(2) `<option>`-Kinder** (`◆ {l}` in `CableProperties`, `📦 ` in
+      `InventoryDialog`, `▼` im Videohub-Dialog): `<option>` nimmt nur Text.
+      Ein Icon dort ist technisch unmöglich, nicht bloß unerwünscht — wer die
+      Zeile „aufräumt", bekommt `[object Object]` in der Auswahlliste.
+
+      **(3) Symbole, die der Wert sind**: `♂`/`♀` an der Steckerbauart,
+      `◄`/`►` in der Pfeilspitzen-Auswahl, `▲` des Polardiagramms und die
+      elf `ICON_GLYPHS` in `OptionalFieldsSection` — Letztere stehen **im
+      Projekt-File**, sind also Nutzerdaten und nicht Darstellung.
+
+      Was danach noch bleibt (`✓ ✕ ✗ ⚠ ● ○ ↺`, ~40 Stellen), ist echter
+      Kandidat für Icons, aber jeweils mit Zustandsbedeutung im umgebenden
+      Markup — das ist der nächste Schnitt, nicht dieser.
 
 ## Phase 5 — Komponenten-Dekomposition (RISIKO)
 

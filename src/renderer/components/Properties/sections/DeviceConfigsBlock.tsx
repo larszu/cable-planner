@@ -1,6 +1,8 @@
+import { ChevronDown, ChevronRight } from 'lucide-react'
 import { useState } from 'react'
 import { useUiStore } from '../../../store/uiStore'
 import { useTranslation } from '../../../lib/i18n'
+import { Icon } from '../../shared/Icon'
 
 /**
  * #306 — Geräte-Konfigurations-Zuordnung (Issue #80). Liest die
@@ -26,7 +28,7 @@ export const DeviceConfigsBlock = ({ equipmentId }: { equipmentId: string }) => 
       className="rounded border border-cp-border bg-cp-surface-1/40 [&_summary]:cursor-pointer"
     >
       <summary className="flex items-center gap-1 px-2 py-1.5 text-cp-xs uppercase tracking-wide text-cp-text-muted hover:text-cp-text-bright [&::-webkit-details-marker]:hidden">
-        <span className="text-cp-text-faint">{open ? '▾' : '▸'}</span>
+        <Icon icon={open ? ChevronDown : ChevronRight} size="xs" className="text-cp-text-faint" />
         <span className="flex-1">{t('props.deviceConfigs.title', 'Configurations')}</span>
         {!open && assigned.length > 0 && (
           <span className="rounded bg-cp-surface-4/60 px-1 text-cp-xs normal-case text-cp-text-bright">

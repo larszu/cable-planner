@@ -16,7 +16,7 @@ import { downloadBlob } from '../../lib/downloadBlob'
 import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 import { sanitizeForPdf } from '../../lib/sanitizeForPdf'
 import { portLabelPair, genderSymbol } from '../../lib/portLabel'
-import { Cable as CableIcon, Tag, Download, SlidersHorizontal } from 'lucide-react'
+import { Cable as CableIcon, Tag, Download, SlidersHorizontal, ChevronUp} from 'lucide-react'
 import { ModalShell } from '../shared/ModalShell'
 import { Icon } from '../shared/Icon'
 import { useTranslation } from '../../lib/i18n'
@@ -854,7 +854,7 @@ export const PatchListDialog = () => {
                     onClick={() => setSortKey(col.k)}
                   >
                     {col.label}
-                    {sortKey === col.k && <span className="ml-1 text-[11px]">▲</span>}
+                    {sortKey === col.k && <Icon icon={ChevronUp} size={11} className="ml-1 inline" />}
                   </th>
                 ))}
               </tr>
