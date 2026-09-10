@@ -297,7 +297,16 @@ const healVersicherungswert = (raw: unknown): Versicherungswert | undefined => {
   return { betrag, ...(typeof r.stand === 'string' && r.stand.trim() ? { stand: r.stand.trim() } : {}) }
 }
 
-const FRIST_ARTEN: FristArt[] = ['dguv-v3', 'kalibrierung', 'wartung', 'akku', 'sonstige']
+/**
+ * Eine Art ohne Inhalt ist keine.
+ *
+ * Bis 2026-09-10 stand hier eine feste Liste, und alles ausserhalb wurde
+ * `sonstige`. Seit die Haeuser eigene Arten anlegen duerfen (Anschlagmittel,
+ * Leiterpruefung, Nebelfluid-Charge), macht dieselbe Zeile aus JEDER davon
+ * „Sonstige" -- der Termin bleibt auf der Liste, sein Grund nicht. Geprueft
+ * wird deshalb nur noch, ob ueberhaupt etwas dasteht.
+ */
+const istArt = (v: unknown): v is FristArt => typeof v === 'string' && v.trim().length > 0
 
 /**
  * Fristen heilen (B-65). Dieselbe Regel wie im Lager-Werkzeug: ein Termin
@@ -319,10 +328,10 @@ const healFristen = (raw: unknown): Frist[] | undefined => {
         ? Math.round(f.intervallMonate)
         : undefined
     if (!faellig && !(zuletzt && intervallMonate)) continue
-    const art: FristArt =
-      typeof f.art === 'string' && (FRIST_ARTEN as string[]).includes(f.art)
-        ? (f.art as FristArt)
-        : 'sonstige'
+    // Unbekannte Arten bleiben stehen, wie sie sind (Format-Version 7).
+    // Was die Anzeige nicht kennt, sagt sie -- „Sonstige" waere eine
+    // Behauptung an einer Stelle, an der eine Auskunft hingehoert.
+    const art: FristArt = istArt(f.art) ? f.art.trim() : 'sonstige'
     out.push({
       art,
       ...(typeof f.bezeichnung === 'string' && f.bezeichnung.trim()
