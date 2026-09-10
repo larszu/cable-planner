@@ -68,11 +68,12 @@ describe('Initiative 11 — trägt diese Katalog-Zeile ein Datenblatt?', () => {
       }
     }
     // Die Zahl aus dem Scoping-Papier — gegen den Baum gehalten, nicht geglaubt.
-    // 253 + 1: `mediaStationCatalog` ist mit EINEM belegten Eintrag dazugekommen
-    // (die Medien-Station als Plan-Endpunkt). Sein Beleg ist das Repo der
-    // Station selbst — bei einem Geraet, dessen Hersteller dieses Projekt ist,
-    // IST das Repo das Datenblatt und keine Verlegenheitsangabe.
-    expect(kommentare).toBe(254)
+    // 253 + 1 + 31: `mediaStationCatalog` trug EINEN belegten Eintrag bei (die
+    // Medien-Station als Plan-Endpunkt; ihr Beleg ist das Repo der Station
+    // selbst). blackmagic ist 2026-09 mit 31 Belegen dazugekommen — der
+    // Smartscope Duo 4K bleibt als einziger unbelegt (eingestellt, keine
+    // Live-Produktseite).
+    expect(kommentare).toBe(285)
   })
 
   it('2. die Abdeckung wird gerechnet', () => {
@@ -80,16 +81,16 @@ describe('Initiative 11 — trägt diese Katalog-Zeile ein Datenblatt?', () => {
     // Die Summen stammen aus derselben Rechnung wie die Zeilen.
     expect(bericht.entries).toBe(bericht.perCatalogue.reduce((s, c) => s + c.entries, 0))
     expect(bericht.sourced + bericht.unsourced).toBe(bericht.entries)
-    expect(bericht.sourced).toBe(254)
+    expect(bericht.sourced).toBe(285)
     expect(bericht.entries).toBe(413)
 
-    // Die sechs Kataloge ohne Beleg sind genau die, die B-11 nennt — und die
+    // Die fünf Kataloge ohne Beleg sind genau die, die B-11 nennt — und die
     // Liste wird GERECHNET, nicht aufgezählt: trägt einer von ihnen morgen
     // Belege nach, fällt er von selbst heraus.
     const ohne = bericht.perCatalogue.filter((c) => c.sourced === 0).map((c) => c.name)
-    expect(ohne).toEqual(['blackmagic', 'camera', 'greengo', 'misc', 'monitor', 'ubiquiti'])
+    expect(ohne).toEqual(['camera', 'greengo', 'misc', 'monitor', 'ubiquiti'])
     expect(bericht.perCatalogue.filter((c) => c.sourced === 0)
-      .reduce((s, c) => s + c.entries, 0)).toBe(159)
+      .reduce((s, c) => s + c.entries, 0)).toBe(127)
   })
 
   it('3. die Ratsche: ein vollständig belegter Katalog bleibt es', () => {
@@ -113,7 +114,11 @@ describe('Initiative 11 — trägt diese Katalog-Zeile ein Datenblatt?', () => {
 
   it('4. „kein Beleg" ist eine eigene Auskunft', () => {
     const mitBeleg = CATALOGUES.find((c) => c.name === 'aja')!.entries[0]
-    const ohneBeleg = CATALOGUES.find((c) => c.name === 'blackmagic')!.entries[0]
+    // Der Smartscope Duo 4K ist der einzige blackmagic-Eintrag ohne Beleg
+    // (eingestellt) — genau darum taugt er als „unsourced"-Beispiel.
+    const ohneBeleg = CATALOGUES.find((c) => c.name === 'blackmagic')!.entries.find(
+      (e) => !e.template.manufacturerUrl,
+    )!
 
     const a = evidenceForType(mitBeleg.deviceTypeId)
     expect(a.kind).toBe('sourced')

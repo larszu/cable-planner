@@ -117,9 +117,9 @@ describe('B-11 — der Kopf einer Katalog-Datei sagt seine Beleglage', () => {
     const ohne = bericht.perCatalogue.filter((c) => c.entries > 0 && c.sourced === 0)
     // Gegenprobe zur Prüfung selbst: gäbe es keinen einzigen belegloosen
     // Katalog, liefe die Schleife leer und bewiese nichts. Heute sind es
-    // sechs (B-11: 159 Einträge). Wird die Lücke geschlossen, fällt DIESE
+    // fünf (B-11: 128 Einträge — blackmagic ist 2026-09 belegt). Wird die Lücke geschlossen, fällt DIESE
     // Zeile zuerst — und dann gehört die ganze Datei weg, nicht die Zeile.
-    expect(ohne.length, 'kein belegloser Katalog mehr — dann ist B-11 erledigt').toBe(6)
+    expect(ohne.length, 'kein belegloser Katalog mehr — dann ist B-11 erledigt').toBe(5)
 
     for (const c of ohne) {
       const text = kopf(dateiFuer(c.name))
@@ -166,6 +166,6 @@ describe('B-11 — der Kopf einer Katalog-Datei sagt seine Beleglage', () => {
     // `catalogueEvidence.ts` nennt genau das als Grund für die Engstelle.
     expect(bericht.perCatalogue.map((c) => c.name)).toContain('blackmagic')
     expect(bericht.entries).toBe(bericht.sourced + bericht.unsourced)
-    expect(bericht.unsourced).toBe(159)
+    expect(bericht.unsourced).toBe(128)
   })
 })
