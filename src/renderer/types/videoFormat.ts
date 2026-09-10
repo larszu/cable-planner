@@ -55,9 +55,14 @@ export interface VideoFormat {
   preferredCable: SignalStandard
   /** Free-text notes (legacy / user-supplied). Built-in entries use `notesKey`. */
   notes?: string
-  /** Translation key for the built-in catalog. Resolved via `t(notesKey, '')`
-   *  so the description follows the active UI language. */
+  /**
+   * Translation key for the built-in catalog. Resolve it together with
+   * `notesSource` — der leere Fallback war der Defekt, siehe `cableSpec.ts`.
+   */
   notesKey?: string
+  /** The English source text for `notesKey` — the fallback for every
+   *  language that has no dictionary entry. */
+  notesSource?: string
 }
 
 export const VIDEO_FORMATS: VideoFormat[] = [
@@ -75,6 +80,8 @@ export const VIDEO_FORMATS: VideoFormat[] = [
     carriers: ['SDI-3G-A', 'SDI-3G-B', 'DualLink-HD'],
     preferredCable: 'SDI-3G',
     notesKey: 'catalog.videoFormat.1080p50.notes',
+    notesSource:
+      'Main standard. Level A recommended; Level B for older equipment.',
   },
   {
     id: '1080p60',
@@ -106,6 +113,8 @@ export const VIDEO_FORMATS: VideoFormat[] = [
     carriers: ['SDI-12G', 'QuadLink-3G-2SI', 'QuadLink-3G-SquareDivision'],
     preferredCable: 'SDI-12G',
     notesKey: 'catalog.videoFormat.2160p50.notes',
+    notesSource:
+      'UHD standard. 12G-SDI preferred, Quad-Link 3G as alternative (4 cables).',
   },
   {
     id: '2160p60',
