@@ -76,8 +76,27 @@ mkdirSync(ZIEL, { recursive: true })
 rmSync(join(homedir(), '.config', 'cable-planner'), { recursive: true, force: true })
 rmSync(join(homedir(), '.config', 'Cable Planner'), { recursive: true, force: true })
 
+// ── WebGL statt `--disable-gpu` ────────────────────────────────────────────
+//
+// Der Lauf startete bis zum 2026-09-10 mit `--disable-gpu`, und das hat die
+// halbe Anwendung unsichtbar gemacht: die 3D-Rack-Ansicht haengt an WebGL, und
+// mit dem Schalter gibt `canvas.getContext('webgl')` schlicht `null` zurueck.
+// Gemessen — mit `--disable-gpu` blieb das Canvas auf seiner Vorgabegroesse
+// (300x150) und die Flaeche schwarz; mit SwiftShader meldet sich
+// `ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero)), SwiftShader
+// driver)` und das Rack steht da.
+//
+// Es ist Software-Rendering; die 2D-Aufnahmen sehen unveraendert aus (die
+// Oberflaeche ist DOM). Was sich aendert, ist, dass ein Bild vom groessten
+// Brocken der Anwendung ueberhaupt entstehen kann.
 const app = await electron.launch({
-  args: ['.', '--no-sandbox', '--disable-gpu'],
+  args: [
+    '.',
+    '--no-sandbox',
+    '--use-gl=swiftshader',
+    '--enable-unsafe-swiftshader',
+    '--use-angle=swiftshader',
+  ],
   executablePath: join(WURZEL, 'node_modules', 'electron', 'dist', 'electron'),
   cwd: WURZEL,
 })
@@ -190,6 +209,43 @@ for (const [befehl, datei] of DIALOGE) {
   await win.waitForTimeout(700)
   await aufnehmen(datei, '[role="dialog"]')
   gemacht.push(datei)
+}
+await zu()
+
+// ── rack-3d.png — die 3D-Ansicht des Beispiel-Racks ────────────────────────
+//
+// Stand in `docs/ui-audit.md` als offen, woertlich: „das Beispielprojekt
+// enthaelt kein Rack […] die 3D-Ansicht ist also nicht ohne vorheriges Bauen
+// zu zeigen". Seit dem Beispiel-Rack (`lib/demoRack.ts`) enthaelt es eines,
+// und mit WebGL oben rendert es auch.
+//
+// DER WEG IST DER EINES NUTZERS: Bibliothek -> Reiter „Racks" -> Stift an der
+// Karte -> Reiter „3D". Kein Aufruf in den Store hinein — ein Bild, das ueber
+// eine Abkuerzung entsteht, belegt nicht, dass die Bedienung dorthin fuehrt.
+const rackReiter = win.getByRole('button', { name: /Racks/i })
+if (await rackReiter.count()) {
+  await rackReiter.first().click()
+  await win.waitForTimeout(800)
+  const stift = win.locator('button[title="Edit in the 2D rack builder"]')
+  if (await stift.count()) {
+    await stift.first().click()
+    await win.waitForTimeout(2500)
+    const dreiD = win.getByRole('button', { name: /^3D$/ })
+    if (await dreiD.count()) {
+      await dreiD.first().click()
+      // Three braucht unter SwiftShader spuerbar laenger als unter einer GPU.
+      await win.waitForTimeout(4000)
+      await aufnehmen('rack-3d.png', '[role="dialog"]')
+      gemacht.push('rack-3d.png')
+    } else {
+      console.log('  rack-3d.png: kein 3D-Reiter — uebersprungen')
+    }
+    await zu()
+  } else {
+    console.log('  rack-3d.png: keine Rack-Vorlage in der Bibliothek — uebersprungen')
+  }
+} else {
+  console.log('  rack-3d.png: kein Racks-Reiter — uebersprungen')
 }
 await zu()
 
