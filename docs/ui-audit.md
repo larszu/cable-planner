@@ -33,6 +33,39 @@ lag falsch (`src/main*.ts` deckt entgegen der Dokumentation auch
 `src/main/ipc/*.ts` mit ab, nachgemessen mit einer Wegwerfdatei). Wer die
 Regel nachbaut, prueft am Ende seine eigene Lesart.
 
+## Nebenbefund 2026-09-10 (dritter): vier Light-Regeln standen doppelt da
+
+`index.css` deklarierte vier Regeln **zweimal**, mit unterschiedlichen Werten:
+
+```
+Zeile 333:  .bg-slate-950\/30 { background-color: rgba(240,244,248,0.7); }
+Zeile 480:  .bg-slate-950\/30 { background-color: rgba(240,244,248,0.3); }
+```
+
+dazu `/40`, `/50` und `/60` in derselben Form. Gleiche Spezifität, also gewann
+die spätere; der Minifier hat die frühere aus dem Build sogar ganz entfernt
+(nachgesehen in `dist/renderer/assets/*.css`), und im Fenster gemessen rendert
+`bg-slate-950/50` tatsächlich `rgba(240,244,248,0.5)`.
+
+**Die schlimmere Hälfte war nicht der Wert, sondern wo die tote Fassung
+stand:** genau unter dem Kommentar, der erklärt, *warum* es diese Regeln gibt
+(„damit die Context-Menüs, Modal-Overlays und Sub-Karten im Light-Mode nicht
+dunkel bleiben"). Wer eine Glasfläche nachjustieren wollte, las dort die
+Begründung, änderte die Zeile darunter — und sah nichts passieren.
+
+Behoben: die Regeln stehen jetzt an **einer** Stelle, bei ihrer Begründung.
+Übernommen wurden die **wirksamen** Werte, nicht die kommentierten — was die
+App seit Monaten zeigt, ist der Ist-Zustand; ihn nebenbei zu ändern wäre eine
+unbestellte Änderung am Aussehen. Nachgemessen: die vier Klassen rendern nach
+dem Umbau byte-gleich wie vorher.
+
+Dazu drei Regeln für Klassen, die im ganzen Baum nicht vorkommen
+(`bg-sky-950/50`, `border-amber-400`, `border-orange-700/60`) — jeweils eine
+Ziffer neben einer, die es gibt. Ein Eintrag ohne Nutzer ist nicht bloß
+ungenutzt: er sieht beim Lesen aus wie eine Deckung, die es nicht gibt.
+
+`tests/themeRemapEindeutig.test.ts` hält beides fest.
+
 ## Nebenbefund 2026-09-10 (zweiter): drei Reiter fielen aus dem Analysen-Dialog
 
 Der Analysen-Dialog legt **dreizehn Reiter** in eine `flex`-Zeile, die nicht
@@ -240,11 +273,28 @@ Inline-Fallback in `ErrorBoundary`). → Token-Schicht einführen.
       UI-Skripte grün, `ui:overflow` prüft dabei 15 Dialoge. Der Sprung
       10 → 12px in dichten Tabellen ist der Punkt, an dem eine Migration
       Layout bricht — `npm test` sieht das nicht.
-- [ ] Translucente Glas-Flächen (`bg-slate-950/95`, `bg-slate-900/80`,
-      `bg-slate-950/40`) auf Alpha-Tokens (z. B. `color-mix`) heben —
+- [ ] Translucente Glas-Flächen auf Alpha-Tokens (z. B. `color-mix`) heben —
       aktuell bewusst als slate-Klassen belassen (Remap deckt Light ab).
+      **Nachgemessen 2026-09-10: der Posten ist klein geworden** — noch
+      11 Stellen, und die im TODO genannten Beispiele (`bg-slate-950/95`,
+      `bg-slate-900/80`) gibt es gar nicht mehr. Übrig sind `/30`, `/40`,
+      `/50`, `/60`, `bg-slate-900/98`, `bg-slate-800/90`, `bg-slate-400/50`
+      in `AtemAudioRouterDialog`, `RackLivePreview`, `CableContextMenu`
+      und `VideohubRoutingMatrix`.
 - [ ] Slate-Remapping in `index.css` schrittweise durch `--cp-*`-Tokens
       ersetzen; Ziel: Opacity-Varianten-Liste schrumpfen.
+      **Nachgemessen 2026-09-10: die Liste ist nicht das Problem.**
+      207 Regeln, davon **204 mit echten Nutzern** — der Remap ist längst
+      auf das Legacy-Sicherheitsnetz geschrumpft, das sein Kopfkommentar
+      beschreibt. Die drei ohne Nutzer sind entfernt.
+      Was stattdessen gefunden wurde, steht als eigener Nebenbefund oben:
+      vier Regeln waren doppelt deklariert, mit widersprüchlichen Werten.
+      **Gehalten** von `tests/themeRemapEindeutig.test.ts`.
+      Offen bleibt der eigentliche Umbau auf Tokens — die verbliebenen
+      Regeln decken die `isLight`-Canvas-/Print-Komponenten ab, die pro
+      Theme **manuell** unterschiedliche Shades wählen und sich deshalb
+      nicht auf einen auto-kippenden Token abbilden lassen. Das ist derselbe
+      Umbau wie der nächste Punkt und gehört mit ihm zusammen gemacht.
 - [ ] Inline-Style-Komponenten (`CableEdge`, `CanvasToolbar`,
       `EquipmentNode`) auf `var(--cp-*)` statt `canvasTheme`-Branching.
 
