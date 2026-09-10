@@ -19,7 +19,7 @@ import { RackInternalWireOverlay } from './RackInternalWireOverlay'
 import { RackPlacementProperties } from './RackPlacementProperties'
 import { Splitter } from '../Layout/Splitter'
 import { Icon } from '../shared/Icon'
-import { Box, Columns2, FlipHorizontal2, GalleryVerticalEnd, Maximize2, Minus, Plus, RectangleVertical, Square, Server} from 'lucide-react'
+import { Box, Columns2, FlipHorizontal2, GalleryVerticalEnd, Maximize2, Minus, Plus, RectangleVertical, Square, Server, Check} from 'lucide-react'
 import type {
   RackDraft,
   RackPlacementDraft,
@@ -872,7 +872,8 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                               className="shrink-0 rounded bg-emerald-800/70 px-1 text-cp-xs font-semibold uppercase text-emerald-200"
                               title={format(t('rack.placedCountTitle', '{count}× placed in rack'), { count: placedCount })}
                             >
-                              ✓ {placedCount}×
+                              <Icon icon={Check} size="xs" className="mr-1 inline" />
+                              {placedCount}×
                             </span>
                           )}
                           {!isRack && (

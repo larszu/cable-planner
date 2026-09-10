@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { ArrowRight, Download, Upload, X, FileSpreadsheet } from 'lucide-react'
+import { ArrowRight, Download, Upload, X, FileSpreadsheet, CircleDot, Circle} from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import { useProjectStore } from '../../store/projectStore'
 import type { GreenGoConfig, GreenGoGroup, GreenGoUser } from '../../types/greengo'
@@ -528,7 +528,7 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
                                         ? 'bg-emerald-600 text-white hover:bg-emerald-500'
                                         : 'bg-cp-surface-2 text-cp-text-dim hover:bg-cp-surface-4 hover:text-cp-text-secondary'
                                     }`}>
-                                    {active ? '●' : '○'}
+                                    <Icon icon={active ? CircleDot : Circle} size="xs" />
                                   </button>
                                 </td>
                               )

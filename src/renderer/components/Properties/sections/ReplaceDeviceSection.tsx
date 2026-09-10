@@ -1,3 +1,4 @@
+import { X, Check} from 'lucide-react'
 import { useState, useMemo } from 'react'
 import { useCanvasProjectStore as useProjectStore } from '../../../store/projectStoreContext'
 import { useUiStore } from '../../../store/uiStore'
@@ -11,6 +12,7 @@ import { blackmagicTemplates } from '../../../lib/blackmagicCatalog'
 import { SortableSection } from '../SortableSection'
 import type { EquipmentItem, EquipmentTemplate, Port } from '../../../types/equipment'
 import { resolvePortLabel } from '../../../lib/portLabel'
+import { Icon } from '../../shared/Icon'
 
 /**
  * #314 — "Gerät ersetzen…" — tauscht das aktuell ausgewaehlte Equipment
@@ -176,7 +178,7 @@ export const ReplaceDeviceSection = ({ equipment }: { equipment: EquipmentItem }
               onClick={() => setOpen(false)}
               className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
             >
-              ✕
+              <Icon icon={X} size="xs" />
             </button>
           </div>
           <select
@@ -226,7 +228,7 @@ export const ReplaceDeviceSection = ({ equipment }: { equipment: EquipmentItem }
                           </span>
                         ) : (
                           <span className="rounded bg-emerald-900/60 px-1.5 py-0.5 text-cp-xs font-bold text-emerald-200">
-                            ✓
+                            <Icon icon={Check} size="xs" />
                           </span>
                         )}
                       </button>

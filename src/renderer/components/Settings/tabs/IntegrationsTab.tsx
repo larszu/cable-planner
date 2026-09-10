@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { X, Eye, EyeOff } from 'lucide-react'
+import { X, Eye, EyeOff, Check} from 'lucide-react'
 import { Icon } from '../../shared/Icon'
 import { PanelHint } from '../../shared/PanelHint'
 import { cablePlannerApi } from '../../../lib/bridge'
@@ -96,7 +96,8 @@ const AiProvidersCard = () => {
                 <span className="font-semibold">{config.label}</span>
                 {hasKey && (
                   <span className="rounded bg-emerald-900/40 px-1.5 py-0.5 text-cp-xs text-emerald-300">
-                    ✓ Key
+                    <Icon icon={Check} size="xs" className="mr-1 inline" />
+                    {t('settings.integrations.keyStored', 'Key')}
                   </span>
                 )}
                 {isSelected && (
@@ -162,7 +163,8 @@ const AiProvidersCard = () => {
               </div>
               {saved[id] && (
                 <div className="mt-1 text-cp-xs text-emerald-300">
-                  ✓ {t('settings.integrations.ai.saved', 'saved')}
+                  <Icon icon={Check} size="xs" className="mr-1 inline" />
+                  {t('settings.integrations.ai.saved', 'saved')}
                 </div>
               )}
             </div>

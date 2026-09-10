@@ -639,7 +639,18 @@ nicht erst, wenn jemand eine halb übersetzte Seite meldet.
       Fund verloren: „keine Stelle unter 12px" wäre ab dann auch bei kaputtem
       Muster erfüllt. Sie steht jetzt auf einer **festen Probe** — dieselbe
       Form wie im Sprachmix-Zähler.
-- [ ] **Offen: 138 Stellen in 50 Dateien**, und der Rest ist keine
+- [x] **Dritter Schnitt: die Zustands-Symbole, 138 → 111 Stellen**
+      (2026-09-10). 26 weitere Stellen sind Icons: `↺` (sechs Zurücksetzen-
+      Knöpfe, `RotateCcw`), `✕` (vier Entfernen/Schließen, `X`), `✓` (elf
+      Bestätigungen, `Check`), `●`/`○` (vier Auswahlpunkte, `CircleDot`/
+      `Circle` bzw. `Dot`), `▦` (`Grid3x3`) und `⬆` (`Upload`).
+
+      **Ein Fund nebenbei:** `IntegrationsTab` zeigte „✓ Key" als **rohen
+      englischen Text** — kein `t()`, also auch keine Übersetzung. Der
+      Sprachmix-Zähler sah ihn nicht (er meldet nur die jeweils **andere**
+      Sprache), der Glyph-Durchgang schon. Jetzt
+      `settings.integrations.keyStored`.
+- [ ] **Offen: 111 Stellen in 42 Dateien**, und der Rest ist keine
       Fleißarbeit mehr, sondern Urteilsarbeit — drei Gruppen mit je eigenem
       Grund:
 
@@ -658,9 +669,12 @@ nicht erst, wenn jemand eine halb übersetzte Seite meldet.
       elf `ICON_GLYPHS` in `OptionalFieldsSection` — Letztere stehen **im
       Projekt-File**, sind also Nutzerdaten und nicht Darstellung.
 
-      Was danach noch bleibt (`✓ ✕ ✗ ⚠ ● ○ ↺`, ~40 Stellen), ist echter
-      Kandidat für Icons, aber jeweils mit Zustandsbedeutung im umgebenden
-      Markup — das ist der nächste Schnitt, nicht dieser.
+      Was danach noch bleibt, ist im Wesentlichen Gruppe (1): Pfeile in
+      Datensätzen und Exportzeilen. Von den Zustands-Symbolen sind noch die
+      übrig, die in einer **Zeichenkette** stecken statt im JSX
+      (`⚠ ${e.message}`, `level === 'ok' ? '✓' : …`, `' · ✓'`) — dort ist
+      ein Icon erst möglich, wenn der Aufrufer einen ReactNode annimmt, und
+      das ist eine Änderung an der Schnittstelle, nicht am Symbol.
 
 ## Phase 5 — Komponenten-Dekomposition (RISIKO)
 

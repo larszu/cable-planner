@@ -1,5 +1,7 @@
+import { RotateCcw } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { format, useTranslation } from '../../lib/i18n'
+import { Icon } from '../shared/Icon'
 
 /** Struktur fuer farb-kodierte Label-Rendering. Wenn ein Eintrag
  *  mehr als nur `port` enthaelt, rendert der Matrix-Header die Teile
@@ -344,7 +346,8 @@ export const VideohubRoutingMatrix = ({
             onClick={resetLayout}
             className="rounded bg-cp-surface-2 px-2 py-0.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-4"
           >
-            ↺ {t('export.resetLayout', 'Reset layout')}
+            <Icon icon={RotateCcw} size="xs" className="mr-1 inline" />
+            {t('export.resetLayout', 'Reset layout')}
           </button>
         )}
       </div>
