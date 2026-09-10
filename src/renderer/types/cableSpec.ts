@@ -147,11 +147,37 @@ export interface CableSpec {
   notes?: string
   /**
    * Built-in catalog entries use a translation key instead of an inline
-   * `notes` string. Consumers should resolve it via `t(spec.notesKey, '')`
-   * so the description follows the active UI language without changing the
-   * underlying portable spec definition.
+   * `notes` string, so the description follows the active UI language
+   * without changing the underlying portable spec definition.
+   *
+   * Always resolve it together with `notesSource` — see below.
    */
   notesKey?: string
+  /**
+   * The ENGLISH source text for `notesKey`, right next to the key.
+   *
+   * ─── WARUM DAS FELD UEBERHAUPT EXISTIERT ─────────────────────────────
+   *
+   * Weil der Aufruf sonst keinen Rueckfall hat. Bis 2026-09-10 stand in
+   * `CableDialog` woertlich `t(spec.notesKey, '')` — ein LEERER Fallback.
+   * Seit E-28 ist Englisch die Quellsprache und steht deshalb NICHT mehr
+   * als Woerterbuch in der Registry (`lib/i18n.ts` sagt das ausdruecklich).
+   * Fuer jede Sprache ausser Deutsch lieferte der Aufruf damit den leeren
+   * String.
+   *
+   * Das blieb nicht in der Anzeige: `CableDialog` schreibt das Ergebnis in
+   * `Cable.notes`, also in die PROJEKTDATEI. Ein englischer Nutzer bekam
+   * also nicht bloss eine leere Beschreibung zu sehen — er bekam sie leer
+   * in seine eigenen Daten geschrieben, waehrend ein deutscher Nutzer den
+   * Text hatte.
+   *
+   * Der uebliche Weg dieses Repos (`t(key, 'English text')`) war hier nicht
+   * gangbar: der Schluessel ist DYNAMISCH (`t(spec.notesKey, …)`), der Text
+   * kann also nicht an der Aufrufstelle stehen. Er steht deshalb hier, wo
+   * der Schluessel steht — dieselbe Zeile, dasselbe Objekt, und damit kann
+   * das eine nicht mehr ohne das andere wandern.
+   */
+  notesSource?: string
 }
 
 /**
@@ -168,6 +194,8 @@ export const cableCatalog: CableSpec[] = [
     maxLengthMeters: 100,
     color: '#38bdf8',
     notesKey: 'catalog.cable.xlr-3pin-audio.notes',
+    notesSource:
+      'Balanced analog audio or AES3 (digital). Gender: male → female.',
   },
   {
     id: 'sdi-3g',
@@ -177,6 +205,8 @@ export const cableCatalog: CableSpec[] = [
     maxLengthMeters: 100,
     color: '#f59e0b',
     notesKey: 'catalog.cable.sdi-3g.notes',
+    notesSource:
+      'Works for SD/HD/3G. Use 75Ω coax (Belden 1694A or similar).',
   },
   {
     id: 'sdi-6g',
@@ -186,6 +216,8 @@ export const cableCatalog: CableSpec[] = [
     maxLengthMeters: 70,
     color: '#f97316',
     notesKey: 'catalog.cable.sdi-6g.notes',
+    notesSource:
+      '6G needs higher-quality coax; mix with 3G only via down-converter.',
   },
   {
     id: 'sdi-12g',
@@ -195,6 +227,8 @@ export const cableCatalog: CableSpec[] = [
     maxLengthMeters: 50,
     color: '#ef4444',
     notesKey: 'catalog.cable.sdi-12g.notes',
+    notesSource:
+      'Use 4K-rated 12G coax (e.g. Belden 4694R). Downscale to 3G requires a scaler/converter.',
   },
   {
     id: 'hdmi-2.0',
@@ -204,6 +238,8 @@ export const cableCatalog: CableSpec[] = [
     maxLengthMeters: 10,
     color: '#a855f7',
     notesKey: 'catalog.cable.hdmi-2.0.notes',
+    notesSource:
+      'Passive copper limited to ~10 m; use optical HDMI for longer runs.',
   },
   {
     id: 'hdmi-2.1',
@@ -213,6 +249,8 @@ export const cableCatalog: CableSpec[] = [
     maxLengthMeters: 5,
     color: '#c084fc',
     notesKey: 'catalog.cable.hdmi-2.1.notes',
+    notesSource:
+      'Ultra-high speed cables required; pairing with HDMI 1.4 device limits to 1.4.',
   },
   {
     id: 'dp-1.4',
@@ -238,6 +276,8 @@ export const cableCatalog: CableSpec[] = [
     maxLengthMeters: 100,
     color: '#16a34a',
     notesKey: 'catalog.cable.cat6a.notes',
+    notesSource:
+      'Required for 10GBASE-T over full 100 m runs.',
   },
   {
     id: 'ndi-cat6a',
@@ -247,6 +287,8 @@ export const cableCatalog: CableSpec[] = [
     maxLengthMeters: 100,
     color: '#22c55e',
     notesKey: 'catalog.cable.ndi-cat6a.notes',
+    notesSource:
+      'NDI / NDI-HX over standard Gigabit Ethernet. Keep NDI and Dante on separate VLANs/links to avoid congestion.',
   },
   {
     id: 'dante-cat6',
@@ -256,6 +298,8 @@ export const cableCatalog: CableSpec[] = [
     maxLengthMeters: 100,
     color: '#14b8a6',
     notesKey: 'catalog.cable.dante-cat6.notes',
+    notesSource:
+      'Dante / AES67 audio-over-IP. Requires PTP clocking; QoS/DSCP recommended on managed switches.',
   },
   {
     // B-10 — die Ausspiel-Haelfte. Physisch dasselbe Cat6-Kabel wie
@@ -268,6 +312,8 @@ export const cableCatalog: CableSpec[] = [
     maxLengthMeters: 100,
     color: '#a855f7',
     notesKey: 'catalog.cable.stream-uplink-cat6.notes',
+    notesSource:
+      'Outbound stream leg: SRT (contribution, with retransmit reserve), RTMP (platform ingest) or HLS (delivery ladder). Physically the same Cat6 as any other link — kept separate so the network budget shows the uplink as delivery, not as another production source. The budget figures are guide values for one 1080p50 path.',
   },
   {
     id: 'st2110-fiber',
@@ -277,6 +323,8 @@ export const cableCatalog: CableSpec[] = [
     maxLengthMeters: 300,
     color: '#0ea5e9',
     notesKey: 'catalog.cable.st2110-fiber.notes',
+    notesSource:
+      'SMPTE ST 2110 (-20 video / -30 audio / -40 ANC) over fiber. Needs a PTP grandmaster; typically 10/25/100 GbE.',
   },
   {
     id: 'blackburst-bnc',
@@ -286,6 +334,8 @@ export const cableCatalog: CableSpec[] = [
     maxLengthMeters: 100,
     color: '#64748b',
     notesKey: 'catalog.cable.blackburst-bnc.notes',
+    notesSource:
+      'Reference sync (black burst / tri-level) over 75Ω coax. Distribute from one sync generator; feed every genlock-capable device.',
   },
   {
     id: 'wordclock-bnc',
@@ -295,6 +345,8 @@ export const cableCatalog: CableSpec[] = [
     maxLengthMeters: 50,
     color: '#94a3b8',
     notesKey: 'catalog.cable.wordclock-bnc.notes',
+    notesSource:
+      'Word clock for digital audio. Daisy-chain with 75Ω termination at the end; one master clock per domain.',
   },
   {
     id: 'ltc-bnc',
@@ -304,6 +356,8 @@ export const cableCatalog: CableSpec[] = [
     maxLengthMeters: 100,
     color: '#94a3b8',
     notesKey: 'catalog.cable.ltc-bnc.notes',
+    notesSource:
+      'LTC longitudinal timecode (SMPTE 12M): an audio-band signal distributed over 75Ω coax (BNC), or via balanced XLR / LEMO into cameras and recorders. A master clock or sync generator typically feeds genlock and timecode together.',
   },
   {
     id: 'ptp-cat6',
@@ -313,6 +367,8 @@ export const cableCatalog: CableSpec[] = [
     maxLengthMeters: 100,
     color: '#0891b2',
     notesKey: 'catalog.cable.ptp-cat6.notes',
+    notesSource:
+      'PTP (IEEE 1588) timing for ST 2110 / AES67. One grandmaster per PTP domain; enable boundary clocks on switches.',
   },
   {
     id: 'fiber-sm-lc',
@@ -322,6 +378,8 @@ export const cableCatalog: CableSpec[] = [
     maxLengthMeters: 10000,
     color: '#eab308',
     notesKey: 'catalog.cable.fiber-sm-lc.notes',
+    notesSource:
+      'Single-mode (yellow jacket). Long distance (>300 m).',
   },
   {
     id: 'fiber-mm-lc',
@@ -331,6 +389,8 @@ export const cableCatalog: CableSpec[] = [
     maxLengthMeters: 400,
     color: '#facc15',
     notesKey: 'catalog.cable.fiber-mm-lc.notes',
+    notesSource:
+      'Multi-mode (aqua jacket). Short haul in racks/venue.',
   },
   {
     id: 'usb3',
@@ -348,6 +408,8 @@ export const cableCatalog: CableSpec[] = [
     maxLengthMeters: 5,
     color: '#475569',
     notesKey: 'catalog.cable.iec-230v.notes',
+    notesSource:
+      'Standard device power cable ("kettle lead").',
   },
   {
     id: 'powercon-tru1',
@@ -357,6 +419,8 @@ export const cableCatalog: CableSpec[] = [
     maxLengthMeters: 25,
     color: '#0ea5e9',
     notesKey: 'catalog.cable.powercon-tru1.notes',
+    notesSource:
+      'Locking, touring-grade power. Do not mix with classic powerCON (grey/blue).',
   },
   {
     id: 'schuko-230v',
@@ -374,6 +438,8 @@ export const cableCatalog: CableSpec[] = [
     maxLengthMeters: 2,
     color: '#7c3aed',
     notesKey: 'catalog.cable.thunderbolt-3.notes',
+    notesSource:
+      'USB-C connector, passive up to 2 m. Active TB3 cable up to ~50 cm. Forward-compatible with Thunderbolt 4.',
   },
   {
     id: 'thunderbolt-4',
@@ -383,6 +449,8 @@ export const cableCatalog: CableSpec[] = [
     maxLengthMeters: 2,
     color: '#6d28d9',
     notesKey: 'catalog.cable.thunderbolt-4.notes',
+    notesSource:
+      'Same bandwidth as TB3 but stricter certification (2× DP 1.4, 40 Gbps, 100 W PD).',
   },
   {
     id: 'madi-bnc',
@@ -392,6 +460,8 @@ export const cableCatalog: CableSpec[] = [
     maxLengthMeters: 200,
     color: '#0891b2',
     notesKey: 'catalog.cable.madi-bnc.notes',
+    notesSource:
+      'MADI AES10 over 75Ω coax. Up to 64 ch at 48 kHz or 56 ch at 96 kHz.',
   },
   {
     id: 'aes3id-bnc',
@@ -401,6 +471,8 @@ export const cableCatalog: CableSpec[] = [
     maxLengthMeters: 100,
     color: '#0891b2',
     notesKey: 'catalog.cable.aes3id-bnc.notes',
+    notesSource:
+      'AES3id: AES3 digital audio over 75Ω unbalanced coax (BNC) — the BNC variant of AES/EBU. One stereo pair per coax, with longer reach than balanced AES3 over XLR. Common on routers and broadcast gear.',
   },
   {
     id: 'dvb-asi',
@@ -410,6 +482,8 @@ export const cableCatalog: CableSpec[] = [
     maxLengthMeters: 100,
     color: '#2563eb',
     notesKey: 'catalog.cable.dvb-asi.notes',
+    notesSource:
+      'DVB-ASI: MPEG transport stream over 75Ω coax (BNC), up to 270 Mbit/s. Encoder/mux/modulator/playout interconnect in headends and OB trucks.',
   },
   {
     id: 'madi-optical',
@@ -419,6 +493,8 @@ export const cableCatalog: CableSpec[] = [
     maxLengthMeters: 2000,
     color: '#06b6d4',
     notesKey: 'catalog.cable.madi-optical.notes',
+    notesSource:
+      'MADI AES10 over optical fibre. Long reach, galvanically isolated.',
   },
   {
     id: 'smpte-297',
@@ -428,6 +504,8 @@ export const cableCatalog: CableSpec[] = [
     maxLengthMeters: 10000,
     color: '#f59e0b',
     notesKey: 'catalog.cable.smpte-297.notes',
+    notesSource:
+      'SMPTE ST 297: serial digital video (SDI) transported optically over fibre. No power — a pure optical SDI link with long reach.',
   },
   // #376 — SMPTE 304M (Hybrid-Fiber-Kamerakabel) ist KEIN Triax. Triax ist
   // ein analog-orientiertes Single-Coax-System (Damar & Hagen, Fischer),
@@ -442,6 +520,8 @@ export const cableCatalog: CableSpec[] = [
     maxLengthMeters: 2000,
     color: '#d97706',
     notesKey: 'catalog.cable.smpte-304m-lemo.notes',
+    notesSource:
+      'SMPTE 304M hybrid camera cable with LEMO 3K.93C (also called LEMO 311) connector — EBU/broadcast-standard fibre + copper hybrid for studio cameras.',
   },
   {
     id: 'smpte-304m-dragonfly',
@@ -451,6 +531,8 @@ export const cableCatalog: CableSpec[] = [
     maxLengthMeters: 2000,
     color: '#b45309',
     notesKey: 'catalog.cable.smpte-304m-dragonfly.notes',
+    notesSource:
+      'SMPTE 304M hybrid camera cable with Neutrik opticalCON Dragonfly connector — ruggedised touring/stage variant compatible with LEMO 3K.93C via adapter.',
   },
   {
     id: 'triax-dh',
@@ -460,6 +542,8 @@ export const cableCatalog: CableSpec[] = [
     maxLengthMeters: 1500,
     color: '#a16207',
     notesKey: 'catalog.cable.triax-dh.notes',
+    notesSource:
+      'Damar & Hagen triax — analog single-coax for HDTV cameras. Carries video, intercom, talkback, power. Mechanically incompatible with Fischer triax.',
   },
   {
     id: 'triax-fischer',
@@ -469,6 +553,8 @@ export const cableCatalog: CableSpec[] = [
     maxLengthMeters: 1500,
     color: '#854d0e',
     notesKey: 'catalog.cable.triax-fischer.notes',
+    notesSource:
+      'Fischer triax — analog single-coax for HDTV cameras (alternative to Damar & Hagen). Same signals; different connector.',
   },
   {
     id: 'triax-camera',
@@ -478,6 +564,8 @@ export const cableCatalog: CableSpec[] = [
     maxLengthMeters: 300,
     color: '#b45309',
     notesKey: 'catalog.cable.triax-camera.notes',
+    notesSource:
+      'Triaxial (coaxial) camera cable for studio/OB cameras: carries video, return, intercom/talkback, genlock and power over one triax — analogue, distinct from the SMPTE fibre camera cables.',
   },
   {
     id: 'serial-rs422',
@@ -487,6 +575,8 @@ export const cableCatalog: CableSpec[] = [
     maxLengthMeters: 1200,
     color: '#fbbf24',
     notesKey: 'catalog.cable.serial-rs422.notes',
+    notesSource:
+      'Serial device control. RS-232 ~15 m point-to-point; RS-422/485 differential up to ~1200 m (VTR Sony 9-pin, PTZ/VISCA, router/matrix control).',
   },
   {
     id: 'vga-de15',
@@ -496,6 +586,8 @@ export const cableCatalog: CableSpec[] = [
     maxLengthMeters: 15,
     color: '#6366f1',
     notesKey: 'catalog.cable.vga-de15.notes',
+    notesSource:
+      'Analog RGBHV computer/projector video over 15-pin D-Sub. Keep runs short; quality drops past ~10-15 m.',
   },
   {
     id: 'dvi-cable',
@@ -505,6 +597,8 @@ export const cableCatalog: CableSpec[] = [
     maxLengthMeters: 5,
     color: '#818cf8',
     notesKey: 'catalog.cable.dvi-cable.notes',
+    notesSource:
+      'DVI-D (digital), DVI-A (analog) or DVI-I (both). Passive copper limited to ~5 m; single vs dual-link sets the max resolution.',
   },
   {
     id: 'dsub-db25-audio',
@@ -514,6 +608,8 @@ export const cableCatalog: CableSpec[] = [
     maxLengthMeters: 30,
     color: '#fb7185',
     notesKey: 'catalog.cable.dsub-db25-audio.notes',
+    notesSource:
+      'DB25 multi-channel audio per AES59 ("TASCAM" pinout): 8 balanced analog or 4 AES3 pairs on one connector.',
   },
   {
     id: 'dmx-5pin',
@@ -524,6 +620,8 @@ export const cableCatalog: CableSpec[] = [
     maxLengthMeters: 300,
     color: '#fb923c',
     notesKey: 'catalog.cable.dmx-5pin.notes',
+    notesSource:
+      'DMX512-A / RDM lighting control, 512 channels per universe. 5-pin XLR is the standard; terminate the last fixture with 120Ω.',
   },
   {
     id: 'artnet-sacn',
@@ -533,6 +631,8 @@ export const cableCatalog: CableSpec[] = [
     maxLengthMeters: 100,
     color: '#fdba74',
     notesKey: 'catalog.cable.artnet-sacn.notes',
+    notesSource:
+      'Art-Net / sACN (E1.31): many DMX universes over Ethernet. Use a dedicated/managed network; multicast for sACN.',
   },
   {
     id: 'composite-cinch',
@@ -543,6 +643,8 @@ export const cableCatalog: CableSpec[] = [
     maxLengthMeters: 50,
     color: '#eab308',
     notesKey: 'catalog.cable.composite-cinch.notes',
+    notesSource:
+      'Composite video (CVBS/FBAS) over one line — Cinch/RCA or 75Ω BNC. Legacy/consumer, single picture.',
   },
   {
     id: 's-video',
@@ -552,6 +654,8 @@ export const cableCatalog: CableSpec[] = [
     maxLengthMeters: 10,
     color: '#ca8a04',
     notesKey: 'catalog.cable.s-video.notes',
+    notesSource:
+      'S-Video (Y/C): separate luma and chroma over a mini-DIN-4 — better than composite, legacy.',
   },
   {
     id: 'component-ypbpr',
@@ -562,6 +666,8 @@ export const cableCatalog: CableSpec[] = [
     maxLengthMeters: 30,
     color: '#a16207',
     notesKey: 'catalog.cable.component-ypbpr.notes',
+    notesSource:
+      'Analog component YPbPr over three lines (Cinch or BNC). Carries HD analog; legacy in modern plants.',
   },
   {
     id: 'tally-gpi',
@@ -571,6 +677,8 @@ export const cableCatalog: CableSpec[] = [
     maxLengthMeters: 100,
     color: '#f59e0b',
     notesKey: 'catalog.cable.tally-gpi.notes',
+    notesSource:
+      'Tally (red = on-air/PGM, green = preview) and GPI/GPO contact closures for record triggers, cues, lamps. Often D-Sub or terminal blocks.',
   },
   {
     id: 'hdbaset-cat6a',
@@ -580,6 +688,8 @@ export const cableCatalog: CableSpec[] = [
     maxLengthMeters: 100,
     color: '#2dd4bf',
     notesKey: 'catalog.cable.hdbaset-cat6a.notes',
+    notesSource:
+      'HDBaseT: video (up to 4K), audio, control (RS-232/IR), Ethernet and power (PoH) over one Cat6/6a run up to ~100 m.',
   },
   {
     id: 'hdmi-aoc',
@@ -589,6 +699,8 @@ export const cableCatalog: CableSpec[] = [
     maxLengthMeters: 100,
     color: '#a855f7',
     notesKey: 'catalog.cable.hdmi-aoc.notes',
+    notesSource:
+      'Active Optical HDMI: integrated fibre carries HDMI far beyond passive copper (~100 m). Directional (source → sink); not bidirectional.',
   },
   {
     id: 'dp-aoc',
@@ -598,6 +710,8 @@ export const cableCatalog: CableSpec[] = [
     maxLengthMeters: 50,
     color: '#8b5cf6',
     notesKey: 'catalog.cable.dp-aoc.notes',
+    notesSource:
+      'Active Optical DisplayPort for long runs (~50 m) past the ~3 m passive limit. Directional, source → sink.',
   },
   {
     id: 'usbc-aoc',
@@ -607,6 +721,8 @@ export const cableCatalog: CableSpec[] = [
     maxLengthMeters: 30,
     color: '#7c3aed',
     notesKey: 'catalog.cable.usbc-aoc.notes',
+    notesSource:
+      'Active Optical USB-C (USB 3.x / DP-Alt-Mode video) for ~30 m runs. Directional; bus power is limited on AOC.',
   },
 ]
 
