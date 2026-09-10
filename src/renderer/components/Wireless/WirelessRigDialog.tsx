@@ -12,6 +12,7 @@ import { MicPlotPanel } from './MicPlotPanel'
 import { PanelHint } from '../shared/PanelHint'
 import { useDialogA11y } from '../../hooks/useDialogA11y'
 import { useBackdropClose } from '../../hooks/useBackdropClose'
+import { Icon } from '../shared/Icon'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Funkstrecken / Gesang — Kanalplan: je Kanal Body + kompatible Kapsel/Headset +
@@ -163,7 +164,9 @@ export const WirelessRigDialog = () => {
                     <th className="px-2 py-1.5 font-medium">{t('wireless.channel', 'Channel')}</th>
                     <th className="px-2 py-1.5 font-medium">{t('wireless.body', 'Transmitter (body)')}</th>
                     <th className="px-2 py-1.5 font-medium">{t('wireless.mic', 'Capsule / headset')}</th>
-                    <th className="px-2 py-1.5 text-center font-medium" title={t('wireless.compat', 'Compatibility')}>✓</th>
+                    <th className="px-2 py-1.5 text-center font-medium" title={t('wireless.compat', 'Compatibility')}>
+                      <Icon icon={Check} size="xs" label={t('wireless.compat', 'Compatibility')} />
+                    </th>
                     <th className="px-2 py-1.5 font-medium">{t('wireless.freq', 'Frequency (MHz)')}</th>
                     <th className="px-2 py-1.5"></th>
                   </tr>

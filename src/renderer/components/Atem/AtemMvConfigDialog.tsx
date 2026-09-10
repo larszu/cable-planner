@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { toPng } from 'html-to-image'
-import { Download, Square, SquareCheck, Monitor, ChevronDown, ChevronRight} from 'lucide-react'
+import { Download, Square, SquareCheck, Monitor, ChevronDown, ChevronRight, Check} from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
@@ -1364,7 +1364,10 @@ export const AtemMvConfigDialog = () => {
         <div className="flex items-center justify-between border-t border-cp-border px-4 py-2">
           <span className="text-cp-xs text-cp-text-muted">
             {savedFlash ? (
-              <span className="font-semibold text-emerald-400">✓ {t('atem.mv.saved', 'Saved')}</span>
+              <span className="inline-flex items-center gap-1 font-semibold text-emerald-400">
+                <Icon icon={Check} size="xs" />
+                {t('atem.mv.saved', 'Saved')}
+              </span>
             ) : (
               status ||
               (connected

@@ -7,7 +7,7 @@
  * Siehe `docs/modular-ui-concept.md`.
  */
 import { useState } from 'react'
-import { Blocks } from 'lucide-react'
+import { Blocks, Check} from 'lucide-react'
 import { useSettingsStore } from '../../store/settingsStore'
 import { useTranslation } from '../../lib/i18n'
 import { PRESETS, type PresetId } from '../../lib/modules'
@@ -92,7 +92,7 @@ export const ModuleOnboardingDialog = () => {
                       on ? 'border-emerald-500 bg-emerald-600 text-white' : 'border-cp-border'
                     }`}
                   >
-                    {on ? '✓' : ''}
+                    {on ? <Icon icon={Check} size="xs" /> : null}
                   </span>
                   {t(`onboarding.preset.${p.id}.label`, p.label)}
                 </div>

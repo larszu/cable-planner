@@ -1,5 +1,5 @@
 import { useMemo, useState, type ReactNode } from 'react'
-import { AlertTriangle, X, Pencil, ChevronDown, ChevronRight} from 'lucide-react'
+import { AlertTriangle, X, Pencil, ChevronDown, ChevronRight, RotateCcw, Check} from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import {
   DndContext,
@@ -628,7 +628,7 @@ export const CableLibraryPanel = () => {
                           )}
                           {isRecommended && (
                             <span className="rounded bg-emerald-600 px-1 text-cp-xs font-semibold uppercase text-white">
-                              ✓
+                              <Icon icon={Check} size="xs" />
                             </span>
                           )}
                           {hasCount && (
@@ -679,7 +679,7 @@ export const CableLibraryPanel = () => {
                               className="rounded bg-amber-800/70 px-1.5 py-0.5 text-cp-xs text-amber-100 hover:bg-amber-700"
                               title={t('cableLib.removeOverride', 'Remove override (reset to default)')}
                             >
-                              ↺
+                              <Icon icon={RotateCcw} size="xs" />
                             </button>
                           )}
                           {isCustom && (

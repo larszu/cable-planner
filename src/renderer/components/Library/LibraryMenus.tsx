@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Square, SquareCheck, ChevronDown, ChevronRight} from 'lucide-react'
+import { Square, SquareCheck, ChevronDown, ChevronRight, CircleDot, Circle} from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import { useTranslation } from '../../lib/i18n'
 
@@ -211,7 +211,7 @@ export const LibraryFiltersMenu = ({
               className="block w-full px-3 py-1.5 text-left hover:bg-cp-surface-2"
             >
               <span className="mr-2 inline-block w-4 text-center">
-                {sortMode === opt.value ? '●' : '○'}
+                <Icon icon={sortMode === opt.value ? CircleDot : Circle} size="xs" />
               </span>
               {opt.label}
             </button>

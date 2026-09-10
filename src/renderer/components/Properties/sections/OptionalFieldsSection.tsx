@@ -1,4 +1,4 @@
-import { ExternalLink } from 'lucide-react'
+import { ExternalLink, Check} from 'lucide-react'
 import { useCanvasProjectStore as useProjectStore } from '../../../store/projectStoreContext'
 import { Icon } from '../../shared/Icon'
 import { format, useTranslation } from '../../../lib/i18n'
@@ -63,7 +63,8 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
                     { names: verifiedBy.join(', ') },
                   )}
                 >
-                  ✓ {format(t('verify.count', '{n}× verified'), { n: verifiedBy.length })}
+                  <Icon icon={Check} size="xs" className="mr-1 inline" />
+                  {format(t('verify.count', '{n}× verified'), { n: verifiedBy.length })}
                 </span>
               )}
               {verifiedBy.length === 0 && (

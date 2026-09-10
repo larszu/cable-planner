@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react'
-import { Check, ChevronDown, ChevronRight, RefreshCw, Package, Search, Folder} from 'lucide-react'
+import { Check, ChevronDown, ChevronRight, RefreshCw, Package, Search, Folder, X} from 'lucide-react'
 import { Icon } from '../../shared/Icon'
 import { useProjectStore } from '../../../store/projectStore'
 import { useUiStore } from '../../../store/uiStore'
@@ -392,7 +392,7 @@ export const RentmanTab = () => {
                   title={t('library.search.clear', 'Clear search')}
                   className="absolute right-1 top-1/2 -translate-y-1/2 rounded px-1 py-0.5 text-cp-xs text-cp-text-faint hover:bg-cp-surface-4 hover:text-cp-text-bright"
                 >
-                  ✕
+                  <Icon icon={X} size="xs" />
                 </button>
               )}
             </div>

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Pencil, ArrowUp, Trash2 } from 'lucide-react'
+import { Pencil, ArrowUp, Trash2, Dot} from 'lucide-react'
 import { useProjectStore } from '../../../store/projectStore'
 import { Icon } from '../../shared/Icon'
 import { confirmDialog } from '../../../lib/confirmDialog'
@@ -170,7 +170,7 @@ export const DeviceModePicker = ({
               title={active === m.id ? t('modes.active', 'Active') : t('modes.activate', 'Activate')}
             >
               <span className="font-medium">
-                {active === m.id && <span className="mr-1 text-sky-300">●</span>}
+                {active === m.id && <Icon icon={Dot} size="sm" className="text-sky-300" />}
                 {m.name}
               </span>
               {m.description && (
