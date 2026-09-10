@@ -132,6 +132,10 @@ const BESTAND: Record<string, number> = {
  */
 const GEWICKELT = [
   'lib/drawingChecks.ts',
+  // #838 — kam mit dem Plan-Check fuer Port-Gruppen dazu. Der Satz zum Befund
+  // steht seither in `portGroups.ts` statt dreimal im JSX der
+  // Eigenschaften-Leiste; er traegt `schluessel` und `werte` wie die anderen.
+  'lib/portGroups.ts',
   'lib/labelDerivation.ts',
   'lib/exportPdfVector.ts',
   'types/cableSpec.ts',

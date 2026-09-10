@@ -1499,6 +1499,7 @@ export const de: Dict = {
   'check.category.single-power': 'Single-Power',
   'check.category.sync-genlock': 'Sync / Genlock',
   'check.category.sync-ptp': 'Sync / PTP',
+  'check.category.port-group': 'Port-Gruppe',
   'check.category.tally': 'Tally',
   'check.category.timecode': 'Timecode',
   'check.category.video-format': 'Bildformat',

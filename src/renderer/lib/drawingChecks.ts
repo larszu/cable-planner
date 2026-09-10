@@ -25,6 +25,7 @@ import { labelTargetIssues } from './labelDerivation'
 import { beurteileAdapter } from '../types/adapter'
 import { anschlussBefunde, type AnschlussLeitung } from '../types/conductor'
 import { beurteileBild } from '../types/displayCapability'
+import { gruppenBefunde } from './portGroups'
 import { tr, format } from './i18n'
 export type { CheckSeverity, CheckFinding } from '../types/checkFinding'
 import type { CheckSeverity, CheckFinding } from '../types/checkFinding'
@@ -1006,6 +1007,43 @@ export const runDrawingChecks = (
       equipmentId: senke.id,
       cableId: c.id,
     })
+  }
+
+  // — Check 24: Port-Gruppen, die sich widersprechen (#838) ------------------
+  //
+  // Der Rechner steht seit #832 in `lib/portGroups.ts` und meldete bis hierher
+  // NUR in die Eigenschaften-Leiste. Das ist die wichtigere Haelfte — wer eine
+  // halb markierte Stereo-Gruppe beim Eintragen sieht, korrigiert sie sofort.
+  // Sie erwischt aber nicht den Fall, der zaehlt: EINE GRUPPE, DIE VOR WOCHEN
+  // HALB ANGELEGT WURDE UND DEREN GERAET NIEMAND MEHR OEFFNET. Ein
+  // Powerlock-Satz ohne PE (`erwartet 5, ist 4`) ist genau so einer, und er
+  // gehoert auf das Blatt.
+  //
+  // JEDE SEITE FUER SICH. Eine Gruppe ueber Ein- und Ausgaenge hinweg waere
+  // kein Anschluss, sondern eine Durchschleife — dasselbe Argument wie in
+  // `portGruppen()` selbst, und es steht hier in der Aufrufform: zwei Laeufe,
+  // kein zusammengeschuetteter Array.
+  //
+  // DER SATZ KOMMT AUS DEM RECHNER, nicht von hier. Der Geraetename steht
+  // davor und nicht darin — genau wie bei Check 2 die Kabelnummer. So gibt es
+  // ihn einmal statt einmal je Anzeige, und `Eingaenge`/`Ausgaenge` bleiben
+  // Kennungen der Seite statt Satzteile, die eine Uebersetzung umstellen
+  // muesste.
+  for (const e of equipment) {
+    for (const seite of ['inputs', 'outputs'] as const) {
+      const vorsatz = `${e.name} · ${seite === 'inputs' ? 'IN' : 'OUT'} · `
+      for (const b of gruppenBefunde(e[seite])) {
+        findings.push({
+          id: `port-group-${b.art}:${e.id}:${seite}:${b.gruppe}${
+            b.art === 'rolle-doppelt' ? `:${b.rolle}` : ''
+          }`,
+          severity: 'warning',
+          category: 'Port group',
+          message: vorsatz + format(tr(b.schluessel, b.text), b.werte),
+          equipmentId: e.id,
+        })
+      }
+    }
   }
 
   // Sortierung: error → warning → info, innerhalb stabil nach category.

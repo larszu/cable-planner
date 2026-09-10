@@ -30,6 +30,7 @@ import { effectivePortNumber, findDuplicatePortNumbers } from '../../lib/portNum
 import { format, useTranslation } from '../../lib/i18n'
 import { Icon } from '../shared/Icon'
 import { PORT_GROUP_INFO, gruppenBefunde, naechsteGruppenId, portGruppen } from '../../lib/portGroups'
+import { vorschlagBeiVorgabename } from '../../lib/portDefaultName'
 
 /**
  * #306 — PortList + SortablePortItem + makePort aus EquipmentProperties
@@ -191,17 +192,12 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
   // ein passender Name vorgeschlagen (z.B. "SDI 1" statt "Input 1").
   // Hat der User schon einen Custom-Namen vergeben, wird er nicht
   // überschrieben.
-  const DEFAULT_NAME_PATTERN = /^(input|output|in|out)\s*\d*$/i
-  const isDefaultName = (name: string): boolean =>
-    DEFAULT_NAME_PATTERN.test(name.trim())
-  const renameIfDefault = (portId: string, prefix: string) => {
-    const port = ports.find((p) => p.id === portId)
-    if (!port || !isDefaultName(port.name)) return null
-    // Index aus dem aktuellen Default-Namen ziehen, sonst Index im Array.
-    const numMatch = port.name.match(/\d+/)
-    const idx = numMatch ? numMatch[0] : String(ports.indexOf(port) + 1)
-    return `${prefix} ${idx}`.trim()
-  }
+  // #838 — Die Regel steht jetzt in `lib/portDefaultName.ts`. Sie stand hier
+  // als Closure und war damit von keinem Test erreichbar — bei einer
+  // Entscheidung, die einem Nutzer seinen getippten Namen nehmen kann, ist
+  // das die falsche Stelle.
+  const renameIfDefault = (portId: string, prefix: string) =>
+    vorschlagBeiVorgabename(ports, portId, prefix)
 
   const updatePort = (portId: string, patch: Partial<Port>) => {
     // v7.9.63 / #175 — Auto-Rename ankoppeln. Wenn der User connectorType
@@ -527,30 +523,14 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
           key={`${f.art}:${f.gruppe}:${i}`}
           className="mb-2 rounded border border-amber-700 bg-amber-950/40 px-2 py-1 text-cp-xs text-amber-200"
         >
-          {f.art === 'groesse' &&
-            format(
-              t(
-                'ports.group.sizeMismatch',
-                'Group "{group}": {is} of {expected} ports — the group says one connector, the plan shows another number.',
-              ),
-              { group: f.gruppe, is: String(f.ist), expected: String(f.erwartet) },
-            )}
-          {f.art === 'artenmix' &&
-            format(
-              t(
-                'ports.group.kindMismatch',
-                'Group "{group}" is declared as {kinds} at the same time — only one of them can be true.',
-              ),
-              { group: f.gruppe, kinds: f.arten.join(' / ') },
-            )}
-          {f.art === 'rolle-doppelt' &&
-            format(
-              t(
-                'ports.group.roleTwice',
-                'Group "{group}" has "{role}" twice — two left channels are not a stereo pair.',
-              ),
-              { group: f.gruppe, role: f.rolle },
-            )}
+          {/*
+            #838 — EIN Satz, zwei Anzeigen. Er stand bis hierher dreimal als
+            `t(key, en)` in diesem JSX; der Plan-Check haette ihn ein viertes
+            Mal formuliert. Jetzt kommt er aus `portGroups.ts` und traegt
+            Schluessel, englischen Text und Werte mit sich — uebersetzt wird
+            dort, wo jemand hinsieht.
+          */}
+          {format(t(f.schluessel, f.text), f.werte)}
         </div>
       ))}
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
@@ -576,7 +556,19 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
               />
               <input
                 value={port.name}
-                onChange={(event) => updatePort(port.id, { name: event.target.value })}
+                onChange={(event) => {
+                  // #838 — Ein Name, den jemand tippt, ist ab hier seiner.
+                  //
+                  // Ein LEERES Feld setzt das Merkmal NICHT: wer alles
+                  // loescht, hat keinen Namen gewaehlt, sondern den alten
+                  // weggenommen — und stuende sonst mit einem geschuetzten
+                  // leeren Port da, den die Automatik nie wieder fuellt.
+                  const name = event.target.value
+                  updatePort(port.id, {
+                    name,
+                    ...(name.trim() ? { nameFromUser: true } : {}),
+                  })
+                }}
                 placeholder={t('ports.namePlaceholder', 'Port name')}
                 className="flex-1 rounded border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
               />
