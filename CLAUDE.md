@@ -42,8 +42,19 @@ wöchentliche KI-Auditor `docs-sync.yml`.
 
 Es gibt **fünf tsconfigs** — pro Prozess eine: `tsconfig.main.json` (main, ESM
 node16), `tsconfig.preload.json` (preload, **CommonJS**), `tsconfig.app.json`
-(renderer, der für `--noEmit`-Check), `tsconfig.node.json` (vite/build-Tools),
+(alles, was im Browser läuft — `src/renderer`, `src/viewer`, `src/mobile`; der
+für den `--noEmit`-Check), `tsconfig.node.json` (vite/build-Tools),
 `tsconfig.json` (Solution-Root).
+
+**Jeder Ordner unter `src/` gehört in genau eines davon.** `src/mobile` stand
+bis 2026-09-10 in keinem — und weil `build:renderer` schlicht `vite build` ist
+und Vite TypeScript nur transpiliert, war der oben verlangte `--noEmit`-Lauf
+gruen, obwohl er den Ordner gar nicht ansah. Darin überlebte monatelang ein
+freier Bezeichner (`writeMode` in `ProjectView`), der die Mobile-Ansicht beim
+Laden eines Projekts mit einem `ReferenceError` weiss machte.
+`tests/typpruefungDecktSrc.test.ts` fragt jetzt `tsc --listFilesOnly` für jedes
+tsconfig, ob noch eine Quelldatei durchfällt. Wer einen neuen Ordner anlegt,
+wird dort rot — nicht erst, wenn jemand den weissen Bildschirm meldet.
 
 ## Architektur (Big Picture)
 
