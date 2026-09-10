@@ -67,7 +67,8 @@
     "actions:check": "node scripts/actions-node-runtime.mjs",
     "ui:overflow": "node scripts/ui-overflow.mjs",
     "ui:labels": "node scripts/ui-labels.mjs",
-    "ui:targets": "node scripts/ui-targets.mjs"
+    "ui:targets": "node scripts/ui-targets.mjs",
+    "docs:shots": "node scripts/screenshots.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
