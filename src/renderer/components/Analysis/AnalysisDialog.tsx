@@ -801,11 +801,11 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
                   {format(t('analysis.network.subnetCount', '{n} devices'), { n: s.names.length })}
                 </span>
                 {s.assumed && (
-                  <span className="text-[10px] text-amber-300/80" title={t('analysis.network.subnetAssumedTitle', 'No mask set — /24 assumed')}>
+                  <span className="text-cp-xs text-amber-300/80" title={t('analysis.network.subnetAssumedTitle', 'No mask set — /24 assumed')}>
                     {t('analysis.network.subnetAssumed', '(/24 assumed)')}
                   </span>
                 )}
-                <span className="text-[10px] text-[var(--cp-text-faint)]">
+                <span className="text-cp-xs text-[var(--cp-text-faint)]">
                   {s.names.slice(0, 6).join(', ')}
                   {s.names.length > 6 ? ` +${s.names.length - 6}` : ''}
                 </span>
@@ -847,7 +847,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
                   {/* Der Beleg. Wer die Zeile fuer falsch haelt, soll sehen,
                       welcher Port sie ausgeloest hat. */}
                   {r.evidence && (
-                    <span className="text-[10px] text-[var(--cp-text-faint)]">{r.evidence}</span>
+                    <span className="text-cp-xs text-[var(--cp-text-faint)]">{r.evidence}</span>
                   )}
                 </li>
               ))}
@@ -871,7 +871,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
               <div className="mb-1 flex items-center justify-between">
                 <span className="text-cp-xs font-medium">{m.switchName}</span>
                 <div className="flex items-center gap-1">
-                  <span className="text-[10px] text-[var(--cp-text-faint)]">
+                  <span className="text-cp-xs text-[var(--cp-text-faint)]">
                     {format(t('analysis.switchPorts.used', '{u} of {n} occupied'), {
                       u: m.usedCount,
                       n: m.rows.length,
@@ -880,7 +880,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
                   <button
                     type="button"
                     onClick={() => exportPortMap(m)}
-                    className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] px-1.5 py-0.5 text-[10px] hover:bg-[var(--cp-surface-2)]"
+                    className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] px-1.5 py-0.5 text-cp-xs hover:bg-[var(--cp-surface-2)]"
                   >
                     <Icon icon={Download} size="xs" /> CSV
                   </button>
@@ -891,7 +891,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
                       'analysis.switchPorts.descHint',
                       'Vendor-neutral text to paste. The plan sends nothing to the switch \u2014 read what you paste.',
                     )}
-                    className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] px-1.5 py-0.5 text-[10px] hover:bg-[var(--cp-surface-2)]"
+                    className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] px-1.5 py-0.5 text-cp-xs hover:bg-[var(--cp-surface-2)]"
                   >
                     <Icon icon={Download} size="xs" />{' '}
                     {t('analysis.switchPorts.descriptions', 'Descriptions')}
@@ -906,14 +906,14 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
                       {r.device ?? t('analysis.switchPorts.free', 'free')}
                     </span>
                     {r.nicLabel && (
-                      <span className="text-[10px] text-[var(--cp-text-faint)]">{r.nicLabel}</span>
+                      <span className="text-cp-xs text-[var(--cp-text-faint)]">{r.nicLabel}</span>
                     )}
-                    {r.ipAddress && <span className="font-mono text-[10px]">{r.ipAddress}</span>}
+                    {r.ipAddress && <span className="font-mono text-cp-xs">{r.ipAddress}</span>}
                     {r.vlanId !== undefined && (
-                      <span className="text-[10px] text-[var(--cp-text-muted)]">VLAN {r.vlanId}</span>
+                      <span className="text-cp-xs text-[var(--cp-text-muted)]">VLAN {r.vlanId}</span>
                     )}
                     {r.source && (
-                      <span className="text-[10px] text-[var(--cp-text-faint)]">
+                      <span className="text-cp-xs text-[var(--cp-text-faint)]">
                         {r.source === 'interface'
                           ? t('analysis.switchPorts.fromNic', 'interface')
                           : t('analysis.switchPorts.fromCable', 'cable')}
@@ -975,7 +975,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
                   <span className="flex-1 text-amber-300/90">{i.why}</span>
                 )}
                 {i.source && (
-                  <span className="w-full pl-52 text-[10px] text-[var(--cp-text-faint)]">{i.source}</span>
+                  <span className="w-full pl-52 text-cp-xs text-[var(--cp-text-faint)]">{i.source}</span>
                 )}
                 {/* BEDARF 85 — die Antwort direkt an der Frage. Vier Knoepfe, weil
                     „mit Auflage" der haeufigste Ausgang ist und ein Ja/Nein-Kreuz
@@ -986,7 +986,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
                       key={st}
                       type="button"
                       onClick={() => setzeAntwort(i.key, st)}
-                      className={`rounded border px-1.5 py-0.5 text-[10px] ${
+                      className={`rounded border px-1.5 py-0.5 text-cp-xs ${
                         antwort?.answered === st || (st === 'pending' && !antwort?.answered)
                           ? 'border-[var(--cp-accent)] text-[var(--cp-accent)]'
                           : 'border-[var(--cp-border)] text-[var(--cp-text-faint)] hover:text-[var(--cp-text)]'
@@ -1000,12 +1000,12 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
                       value={antwort.note ?? ''}
                       onChange={(e) => setzeNotiz(i.key, e.target.value)}
                       placeholder={t('analysis.venue.a.notePh', 'condition or workaround, in plain words')}
-                      className="min-w-0 flex-1 rounded border border-[var(--cp-border)] bg-transparent px-1.5 py-0.5 text-[10px] text-[var(--cp-text)] outline-none placeholder:text-[var(--cp-text-faint)]"
+                      className="min-w-0 flex-1 rounded border border-[var(--cp-border)] bg-transparent px-1.5 py-0.5 text-cp-xs text-[var(--cp-text)] outline-none placeholder:text-[var(--cp-text-faint)]"
                     />
                   )}
                 </span>
                 {antwort?.state === 'elsewhere' && (
-                  <span className="w-full pl-52 text-[10px] text-amber-300/90">
+                  <span className="w-full pl-52 text-cp-xs text-amber-300/90">
                     {format(
                       t(
                         'analysis.venue.a.elsewhereHint',
@@ -1020,7 +1020,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
           })}
         </ul>
         {answerRows.some((r) => r.state === 'stale') && (
-          <div className="mt-2 border-t border-[var(--cp-border-muted)] pt-2 text-[10px] text-[var(--cp-text-faint)]">
+          <div className="mt-2 border-t border-[var(--cp-border-muted)] pt-2 text-cp-xs text-[var(--cp-text-faint)]">
             {t(
               'analysis.venue.a.staleHead',
               'Answers to points the plan no longer raises — knowledge about the venue, not rubbish:',
@@ -1773,7 +1773,7 @@ const RfTab = ({ projectName }: { projectName: string }) => {
             ))}
           </div>
         )}
-        <p className="mt-1.5 text-[10px] text-[var(--cp-text-faint)]">
+        <p className="mt-1.5 text-cp-xs text-[var(--cp-text-faint)]">
           {t('analysis.rf.suggestNote', 'Free of occupancy + 3rd-order intermodulation (0.4 MHz guard); suggestions mutually compatible.')}
         </p>
       </div>
@@ -1831,7 +1831,7 @@ const RfTab = ({ projectName }: { projectName: string }) => {
 
       {/* #344 — Referenz: gängige Hersteller-Frequenzbänder. */}
       <details className="rounded border border-[var(--cp-border-muted)] bg-[var(--cp-surface-3)]">
-        <summary className="cursor-pointer px-3 py-1.5 text-[11px] uppercase tracking-wide text-[var(--cp-text-muted)]">
+        <summary className="cursor-pointer px-3 py-1.5 text-cp-xs uppercase tracking-wide text-[var(--cp-text-muted)]">
           {t('analysis.rf.bandRef', 'Frequency bands (Sennheiser / Shure / …)')} ({RF_BANDS.length})
         </summary>
         <div className="px-3 py-2">
@@ -1852,12 +1852,12 @@ const RfTab = ({ projectName }: { projectName: string }) => {
                   <td className="py-0.5 pr-2 text-[var(--cp-text-muted)]">{b.line}</td>
                   <td className="py-0.5 pr-2 font-mono font-semibold">{b.band}</td>
                   <td className="py-0.5 pr-2 text-right font-mono">{b.fromMHz}–{b.toMHz}</td>
-                  <td className="py-0.5 text-[10px] text-[var(--cp-text-faint)]">{b.note ?? ''}</td>
+                  <td className="py-0.5 text-cp-xs text-[var(--cp-text-faint)]">{b.note ?? ''}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-          <PanelHint className="mt-2 text-[10px] text-[var(--cp-text-faint)]" text={t(
+          <PanelHint className="mt-2 text-cp-xs text-[var(--cp-text-faint)]" text={t(
           'analysis.rf.bandDisclaimer',
           'Common nominal ranges — band letters are series/region dependent. Always verify against the current datasheet and local frequency regulations.',
         )} />
@@ -2896,7 +2896,28 @@ const AnalysisDialogInner = () => {
       titleIcon={<Icon icon={BarChart3} size="md" />}
       title={t('analysis.title', 'Analyses')}
     >
-      <div className="mb-3 flex gap-1 border-b border-[var(--cp-border)]">
+      {/*
+        DREIZEHN REITER IN EINER ZEILE, DIE NICHT UMBRICHT — die letzten drei
+        („Kabelwege", „Signalwege", „Blatt pruefen") lagen VOLLSTAENDIG
+        ausserhalb des Dialogs. Gemessen im echten Fenster: 164 px, 98 px und
+        5 px ueber der rechten Kante, bei 1280x800 wie bei 1500x950. Nicht
+        sichtbar, nicht anklickbar — drei Auswertungen, die es fuer den
+        Nutzer nicht gab.
+
+        Derselbe Defekt wie der, aus dem `scripts/ui-overflow.mjs` entstanden
+        ist („Equipment kann man lesen, Cable schon nicht mehr"), nur eine
+        Ebene tiefer: der Waechter oeffnet keine Dialoge und sah ihn deshalb
+        nicht. Aufgefallen ist er beim Nachmessen der Schriftgroessen — und
+        er ist AELTER als diese Migration, nachgemessen gegen 776ed7c mit
+        identischen Zahlen.
+
+        `flex-wrap` und nicht `overflow-x-auto`: eine waagerecht scrollende
+        Reiterleiste versteckt die hinteren Reiter hinter einer Geste, die
+        niemand sucht. Umbrechen zeigt alle dreizehn, kostet eine zweite
+        Zeile und ist das Muster, das die Bibliothek fuer ihre Chip-Reihen
+        ohnehin schon nutzt.
+      */}
+      <div className="mb-3 flex flex-wrap gap-1 border-b border-[var(--cp-border)]">
         {TABS.map((tb) => (
           <button
             key={tb.id}

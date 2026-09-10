@@ -33,6 +33,31 @@ lag falsch (`src/main*.ts` deckt entgegen der Dokumentation auch
 `src/main/ipc/*.ts` mit ab, nachgemessen mit einer Wegwerfdatei). Wer die
 Regel nachbaut, prueft am Ende seine eigene Lesart.
 
+## Nebenbefund 2026-09-10 (zweiter): drei Reiter fielen aus dem Analysen-Dialog
+
+Der Analysen-Dialog legt **dreizehn Reiter** in eine `flex`-Zeile, die nicht
+umbricht. Die letzten drei — „Kabelwege", „Signalwege", „Blatt prüfen" — lagen
+**164 px, 98 px und 5 px über der rechten Kante**, bei 1280×800 wie bei
+1500×950. Nicht sichtbar, nicht anklickbar: drei Auswertungen, die es für den
+Nutzer nicht gab.
+
+Das ist wörtlich derselbe Befund, aus dem `scripts/ui-overflow.mjs` entstanden
+ist („da kann man Equipment lesen, aber Cable schon nicht mehr") — nur eine
+Ebene tiefer. **Der Wächter stand an der Tür:** er misst die stehende
+Oberfläche und die Menüs, aber ein Dialog ist zu, bis jemand ihn öffnet. Der
+Defekt war Monate alt (nachgemessen gegen `776ed7c`, identische Zahlen) und
+hat jede CI-Runde überlebt.
+
+Behoben mit `flex-wrap` — und nicht mit `overflow-x-auto`: eine waagerecht
+scrollende Reiterleiste versteckt die hinteren Reiter hinter einer Geste, die
+niemand sucht.
+
+**Der Wächter geht jetzt durch die Tür.** `ui-overflow.mjs` läuft die
+Befehlspalette Eintrag für Eintrag durch, öffnet jeden Dialog und misst ihn
+(heute 15 Dialoge, 0 Befunde). Die Liste führt die App: wer einen Dialog anlegt
+und in die Palette hängt, wird gemessen, ohne dass jemand eine zweite Liste
+pflegt — dieselbe Lehre wie bei `tests/dialogTastaturbedienung.test.ts`.
+
 ## Baseline (vor Phase 0)
 
 | Check         | Ergebnis                                   |
@@ -146,10 +171,10 @@ Hartkodierte Pixel-Schriftgrößen (Tailwind-Arbitrary-Values):
 
 | Klasse        | Audit-Start<br>2026-06-15 | vor der Migration<br>2026-09-10 | heute |
 | ------------- | ------------------------: | ------------------------------: | ----: |
-| `text-[10px]` |                       336 |                             423 |   352 |
-| `text-[11px]` |                       256 |                             390 |   338 |
-| `text-[9px]`  |                        43 |                              10 |    10 |
-| `text-[8px]`  |                         5 |                               5 |     5 |
+| `text-[10px]` |                       336 |                             423 |   252 |
+| `text-[11px]` |                       256 |                             390 |   255 |
+| `text-[9px]`  |                        43 |                              10 |     6 |
+| `text-[8px]`  |                         5 |                               5 |     2 |
 | `text-[12px]` |                         4 |                              20 |    20 |
 | `text-[13px]` |                         2 |                               2 |     2 |
 
@@ -161,13 +186,14 @@ Das ist keine Nachlaessigkeit einzelner Aenderungen, sondern die vorhersehbare
 Folge davon, dass die Grenze nur in Prosa stand: ein TODO in einer Datei
 bremst nichts, weil niemand es beim Schreiben einer neuen Komponente liest.
 Seit `tests/schriftgroesseUntergrenze.test.ts` ist es eine Ratsche — die Zahl
-darf sinken, nie steigen. Stand heute: **705**, in zwei Schritten von 881
-(erst `src/mobile`, dann die drei groessten Einzeldateien).
+darf sinken, nie steigen. Stand heute: **515**, in drei Schritten von 881
+(erst `src/mobile`, dann die drei groessten Einzeldateien, dann die naechsten
+neun).
 
-Top-Dateien mit Sub-12px-Schrift, was noch offen ist:
-`RentmanTab` (24), `RackPlacementProperties` (22), `RackBuilderDialog` (22),
-`CableLibraryPanel` (21), `PortList` / `MobileShareDialog` / `App.tsx` (je 20),
-`ExportDialog` / `AnalysisDialog` (je 19).
+Was noch offen ist, hat keinen grossen Posten mehr: der Rest verteilt sich auf
+rund hundert Dateien mit einstelligen bis niedrig zweistelligen Zahlen
+(`RentmanCableExportDialog` 18, `AtemMvConfigDialog` 16, `EquipmentChecklist`
+15, `VideohubExportDialog` 14, `IntegrationsTab` 13, dann der lange Schwanz).
 
 **Theming-Schuld:** `index.css` remappt die komplette Tailwind-Slate-Rampe
 (+ Dutzende Opacity-Varianten einzeln) für `[data-theme="light"]`. Fragil,
@@ -198,10 +224,13 @@ Inline-Fallback in `ErrorBoundary`). → Token-Schicht einführen.
       dekorative Micro-Glyphen wie MenuBar-Caret `▾` und die
       Pin-Markierung im Rechner bleiben.)
       **Erledigt:** zentrale Shells (Phase 2), `src/mobile` komplett,
-      `GreenGoExportDialog`, `CalculatorsDialog`, `CableProperties`.
-      **Offen:** die Liste über der Tabelle, Reihenfolge nach Größe.
+      `GreenGoExportDialog`, `CalculatorsDialog`, `CableProperties`,
+      `RackBuilderDialog`, `RentmanTab`, `RackPlacementProperties`,
+      `CableLibraryPanel`, `PortList`, `MobileShareDialog`, `App.tsx`,
+      `ExportDialog`, `AnalysisDialog`.
+      **Offen:** der lange Schwanz, Reihenfolge nach Größe.
       **Gedeckelt** durch `tests/schriftgroesseUntergrenze.test.ts`:
-      Barriere 705, sinken erlaubt, steigen nicht.
+      Barriere 515, sinken erlaubt, steigen nicht.
       `src/mobile` steht dort zusätzlich auf 0 und muss es bleiben —
       eine reine Gesamtzahl saehe nicht, wenn ein migrierter Ordner
       zurueckfaellt, waehrend anderswo etwas migriert wird.

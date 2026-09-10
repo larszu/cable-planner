@@ -360,6 +360,118 @@ for (let i = 0; i < kopfAnzahl; i++) {
 }
 console.log(`${kopfAnzahl} Menue(s) der Kopfleiste geprueft`)
 
+// ── 6. Die Dialoge ────────────────────────────────────────────────────────
+// WARUM ERST JETZT, UND WAS DAS GEKOSTET HAT. Die Punkte 1 bis 5 messen die
+// stehende Oberflaeche und die Menues. Ein Dialog ist beides nicht: er ist zu,
+// bis jemand ihn oeffnet, und deshalb hat dieser Guard ihn nie gesehen.
+//
+// Nachgemessen 2026-09-10: der Analysen-Dialog legt DREIZEHN Reiter in eine
+// flex-Zeile, die nicht umbricht. Die letzten drei — „Kabelwege",
+// „Signalwege", „Blatt pruefen" — lagen 164 px, 98 px und 5 px ueber der
+// rechten Kante, bei 1280x800 wie bei 1500x950. Nicht sichtbar, nicht
+// anklickbar. Genau der Befund, aus dem dieser Guard entstanden ist, nur eine
+// Ebene tiefer: er war seit Monaten da und niemand hat ihn gesehen, weil die
+// Messung an der Tuer stehen blieb.
+//
+// DIE LISTE DER DIALOGE FUEHRT DIE APP, NICHT DER WAECHTER. Durchgegangen
+// wird die Befehlspalette, Eintrag fuer Eintrag ueber die Pfeiltaste — sie
+// ist die Registratur, die ohnehin gepflegt wird. Wer morgen einen Dialog
+// anlegt und in die Palette haengt, wird hier gemessen, ohne dass jemand eine
+// zweite Liste nachzieht. (Dieselbe Lehre wie bei den Dialog-Tests in
+// `tests/dialogTastaturbedienung.test.ts`: die Domaene ist die Registratur,
+// nicht eine Aufzaehlung im Pruefer.)
+//
+// Eintraege, die keinen Dialog oeffnen — rueckgaengig, Zoom, Auswahl — fallen
+// von selbst heraus: dann steht danach kein zweiter Dialog offen. Die Palette
+// selbst wird markiert und ausgenommen; sie traegt `role="dialog"` und waere
+// sonst das, was gemessen wird.
+await win.setViewportSize(groessen[groessen.length - 1])
+await win.waitForTimeout(400)
+
+const paletteAuf = async () => {
+  await win.keyboard.press('Control+k')
+  await win.waitForTimeout(450)
+  return win.evaluate(() => {
+    const p = document.querySelector('[role="dialog"]')
+    if (!p) return 0
+    p.setAttribute('data-cp-palette', '1')
+    return p.querySelectorAll('ul > li > button').length
+  })
+}
+
+const zu = async () => {
+  for (let i = 0; i < 3; i++) {
+    if ((await win.locator('[role="dialog"]').count()) === 0) return
+    await win.keyboard.press('Escape').catch(() => {})
+    await win.waitForTimeout(250)
+  }
+}
+
+await zu()
+const befehle = await paletteAuf()
+await zu()
+if (befehle === 0) {
+  throw new Error(
+    'Befehlspalette liefert keine Eintraege — die Dialog-Messung waere leer und ' +
+      'damit gruen, ohne einen einzigen Dialog angesehen zu haben.',
+  )
+}
+
+let dialoge = 0
+for (let i = 0; i < befehle; i++) {
+  const gefunden = await paletteAuf()
+  if (gefunden === 0) { await zu(); continue }
+  for (let k = 0; k < i; k++) await win.keyboard.press('ArrowDown')
+  await win.waitForTimeout(120)
+  const name = await win.evaluate((idx) => {
+    const p = document.querySelector('[data-cp-palette]')
+    const b = p?.querySelectorAll('ul > li > button')[idx]
+    return b ? (b.textContent || '').trim().slice(0, 44) : `Eintrag ${idx + 1}`
+  }, i)
+  await win.keyboard.press('Enter')
+  await win.waitForTimeout(1100)
+
+  const d = await win.evaluate(() => {
+    const el = document.querySelector('[role="dialog"]:not([data-cp-palette])')
+    if (!el) return null
+    const kannScrollen = (x) => {
+      const st = getComputedStyle(x)
+      return /(auto|scroll)/.test(st.overflowX) || /(auto|scroll)/.test(st.overflowY)
+    }
+    const raus = []
+    let sichtbar = 0
+    for (const x of el.querySelectorAll('*')) {
+      const r = x.getBoundingClientRect()
+      if (r.width < 4 || r.height < 4) continue
+      sichtbar += 1
+      const p = x.parentElement
+      if (!p || kannScrollen(p)) continue
+      const pr = p.getBoundingClientRect()
+      if (pr.width < 40) continue
+      const ueber = Math.round(Math.max(r.right - pr.right, pr.left - r.left))
+      if (ueber > 2) {
+        raus.push({ ueber, text: (x.textContent || '').trim().slice(0, 24) || x.tagName.toLowerCase() })
+      }
+    }
+    return { sichtbar, raus: raus.sort((a, b) => b.ueber - a.ueber).slice(0, 5) }
+  })
+  await zu()
+  if (!d) continue
+  dialoge += 1
+  // Ein Dialog mit einer Handvoll Elementen ist eine Bestaetigungsfrage und
+  // kein Formular; dort ist nichts zu messen, und ihn mitzuzaehlen wuerde die
+  // Zahl unten aufblaehen.
+  if (d.sichtbar < 12) continue
+  for (const x of d.raus) {
+    console.error(
+      `✗ Dialog „${name}": „${x.text}" ragt ${x.ueber}px aus seinem Rahmen — ` +
+        'nicht sichtbar und nicht anklickbar',
+    )
+    befunde += 1
+  }
+}
+console.log(`${dialoge} Dialog(e) aus der Befehlspalette geprueft`)
+
 await app.close()
 console.log(`UI-Overflow fertig → ${OUT} (${befunde} Befund(e))`)
 process.exit(befunde > 0 ? 1 : 0)

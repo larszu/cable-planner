@@ -227,13 +227,13 @@ export const RentmanTab = () => {
     <div className="flex flex-1 min-h-0 flex-col gap-3 overflow-auto">
       {linkedRentmanProjectId ? (
         <div className="rounded border border-orange-600/60 bg-orange-900/20 p-2">
-          <div className="text-[10px] uppercase tracking-wider text-orange-300/80">
+          <div className="text-cp-xs uppercase tracking-wider text-orange-300/80">
             {t('library.rentman.currentLinkedProject', 'Currently linked Rentman project')}
           </div>
           <div className="mt-0.5 truncate text-cp-base font-semibold text-orange-200">
             {linkedRentmanProjectName ?? format(t('library.rentman.projectFallback', 'Project #{id}'), { id: linkedRentmanProjectId })}
           </div>
-          <div className="mt-1 flex flex-wrap gap-1 text-[10px] text-orange-100/80">
+          <div className="mt-1 flex flex-wrap gap-1 text-cp-xs text-orange-100/80">
             <span className="rounded bg-orange-950/50 px-1.5 py-0.5">{format(t('library.rentman.statImported', '{n} imported'), { n: linkedImportedCount })}</span>
             <span className="rounded bg-orange-950/50 px-1.5 py-0.5">{format(t('library.rentman.statNoId', '{n} without Rentman ID'), { n: untracked.length })}</span>
             {removed.length > 0 && (
@@ -274,7 +274,7 @@ export const RentmanTab = () => {
                     )
                   }
                 }}
-                className="mt-2 w-full rounded bg-orange-700/60 px-2 py-1 text-[11px] text-orange-100 hover:bg-orange-700"
+                className="mt-2 w-full rounded bg-orange-700/60 px-2 py-1 text-cp-xs text-orange-100 hover:bg-orange-700"
                 title={format(t('library.rentman.resyncTitle', '{n} Rentman devices on the canvas are not linked to library templates. Click to reconstruct the missing templates from the canvas data.'), { n: missing })}
               >
                 🔄 {format(t('library.rentman.resyncAction', 'Rebuild {n} missing library entries'), { n: missing })}
@@ -296,7 +296,7 @@ export const RentmanTab = () => {
         </div>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 rounded border border-cp-border-muted bg-cp-surface-1 p-0.5 text-[11px]">
+      <div className="grid grid-cols-1 sm:grid-cols-3 rounded border border-cp-border-muted bg-cp-surface-1 p-0.5 text-cp-xs">
         {([
           ['imported', t('library.rentman.view.imported', 'Imported')],
           ['catalog', t('library.rentman.view.catalog', 'Catalog')],
@@ -321,7 +321,7 @@ export const RentmanTab = () => {
         <div>
           <div className="mb-2 flex flex-wrap items-center justify-between gap-1">
             <h2 className="text-cp-base font-semibold">{t('library.rentman.imported', 'Imported Rentman devices')}</h2>
-            <div className="flex items-center gap-2 text-[10px] text-cp-text-muted">
+            <div className="flex items-center gap-2 text-cp-xs text-cp-text-muted">
               {(() => {
                 const projectIds = new Set(projectGroups.map((group) => group.id))
                 const categoryKeys = new Set<string>()
@@ -453,16 +453,16 @@ export const RentmanTab = () => {
                         <span className="flex min-w-0 items-center gap-1.5">
                           <span className="text-cp-xs">{projectCollapsed ? '▶' : '▼'}</span>
                           {isLinked && (
-                            <span className="rounded bg-orange-700 px-1 text-[11px] font-bold text-white">AKTIV</span>
+                            <span className="rounded bg-orange-700 px-1 text-cp-xs font-bold text-white">AKTIV</span>
                           )}
                           <span className="truncate text-cp-xs font-semibold">{group.name}</span>
                         </span>
-                        <span className="text-[10px] text-cp-text-muted">{format(t('library.rentman.devicesCount', '{n} devices'), { n: group.items.length })}</span>
+                        <span className="text-cp-xs text-cp-text-muted">{format(t('library.rentman.devicesCount', '{n} devices'), { n: group.items.length })}</span>
                       </button>
                       {!projectCollapsed && (
                         <div className="space-y-1 border-t border-cp-border-muted px-1 py-1">
                           {categories.length === 0 ? (
-                            <div className="px-2 py-1 text-[11px] italic text-cp-text-muted">{t('library.rentman.noneInCategory', 'No devices imported.')}</div>
+                            <div className="px-2 py-1 text-cp-xs italic text-cp-text-muted">{t('library.rentman.noneInCategory', 'No devices imported.')}</div>
                           ) : (
                             categories.map((category) => {
                               const categoryKey = `${group.id}::${category}`
@@ -473,7 +473,7 @@ export const RentmanTab = () => {
                                   <button
                                     type="button"
                                     onClick={() => toggleRentmanCat(categoryKey)}
-                                    className="flex w-full items-center justify-between gap-1 px-2 py-1 text-left text-[11px] font-semibold uppercase tracking-wide text-cp-text-muted hover:text-cp-text-bright"
+                                    className="flex w-full items-center justify-between gap-1 px-2 py-1 text-left text-cp-xs font-semibold uppercase tracking-wide text-cp-text-muted hover:text-cp-text-bright"
                                   >
                                     <span className="flex items-center gap-1">
                                       <span>{categoryCollapsed ? '▶' : '▼'}</span>
@@ -560,14 +560,14 @@ export const RentmanTab = () => {
               <span className="text-cp-xs">{rentmanCatalogCollapsed ? '▶' : '▼'}</span>
               <span>{t('library.rentman.accountAll', 'All Rentman equipment (account catalog)')}</span>
               {rentmanCatalogLoaded && (
-                <span className="ml-1 rounded-full bg-cp-surface-2 px-1.5 text-[10px] text-cp-text-muted">{rentmanCatalog.length}</span>
+                <span className="ml-1 rounded-full bg-cp-surface-2 px-1.5 text-cp-xs text-cp-text-muted">{rentmanCatalog.length}</span>
               )}
             </button>
             <button
               type="button"
               onClick={fetchRentmanCatalog}
               disabled={rentmanCatalogLoading}
-              className="rounded bg-orange-700 px-2 py-0.5 text-[11px] font-semibold text-white hover:bg-orange-600 disabled:opacity-50"
+              className="rounded bg-orange-700 px-2 py-0.5 text-cp-xs font-semibold text-white hover:bg-orange-600 disabled:opacity-50"
             >
               {rentmanCatalogLoading
                 ? '…'
@@ -580,10 +580,10 @@ export const RentmanTab = () => {
           {!rentmanCatalogCollapsed && (
             <>
               {rentmanCatalogError && (
-                <div className="mb-2 rounded border border-red-700/60 bg-red-900/30 px-2 py-1 text-[11px] text-red-200">{rentmanCatalogError}</div>
+                <div className="mb-2 rounded border border-red-700/60 bg-red-900/30 px-2 py-1 text-cp-xs text-red-200">{rentmanCatalogError}</div>
               )}
               {!rentmanCatalogLoaded && !rentmanCatalogLoading && !rentmanCatalogError && (
-                <div className="rounded border border-cp-border/60 bg-cp-surface-1/40 p-2 text-center text-[11px] text-cp-text-muted">
+                <div className="rounded border border-cp-border/60 bg-cp-surface-1/40 p-2 text-center text-cp-xs text-cp-text-muted">
                   {t(
                     'library.rentman.catalogNotLoaded',
                     'Not loaded yet. Click “Load catalog” to show your account’s entire Rentman catalog.',
@@ -614,7 +614,7 @@ export const RentmanTab = () => {
                       )
                     if (filtered.length === 0) {
                       return (
-                        <div className="rounded border border-emerald-700/40 bg-emerald-900/10 p-2 text-center text-[11px] text-emerald-300">
+                        <div className="rounded border border-emerald-700/40 bg-emerald-900/10 p-2 text-center text-cp-xs text-emerald-300">
                           {t('library.rentman.allImported', '✓ All available Rentman devices are already imported.')}
                         </div>
                       )
@@ -642,14 +642,14 @@ export const RentmanTab = () => {
                         >
                           <div className="min-w-0 flex-1">
                             <div className="truncate font-medium text-cp-text-bright">{item.name}</div>
-                            <div className="truncate text-[10px] text-cp-text-muted">{format(t('library.rentman.idLine', 'Rentman ID {id}'), { id: item.id })}</div>
+                            <div className="truncate text-cp-xs text-cp-text-muted">{format(t('library.rentman.idLine', 'Rentman ID {id}'), { id: item.id })}</div>
                           </div>
                           {linkedRentmanProjectId && (
                             <button
                               type="button"
                               onClick={() => handleAddCatalogItemToProject(item)}
                               disabled={busy}
-                              className="rounded bg-orange-700 px-2 py-0.5 text-[10px] font-semibold text-white hover:bg-orange-600 disabled:opacity-50"
+                              className="rounded bg-orange-700 px-2 py-0.5 text-cp-xs font-semibold text-white hover:bg-orange-600 disabled:opacity-50"
                             >
                               {busy ? '…' : t('library.rentman.addToProject', '+ Project')}
                             </button>
@@ -720,7 +720,7 @@ export const RentmanTab = () => {
                           <button
                             type="button"
                             onClick={() => toggleFolder(folderId)}
-                            className="flex w-full items-center justify-between gap-1 px-2 py-1 text-left text-[11px] font-semibold uppercase tracking-wide text-cp-text-secondary hover:text-cp-text"
+                            className="flex w-full items-center justify-between gap-1 px-2 py-1 text-left text-cp-xs font-semibold uppercase tracking-wide text-cp-text-secondary hover:text-cp-text"
                             style={{ paddingLeft: `${0.5 + depth * 0.75}rem` }}
                           >
                             <span className="flex items-center gap-1">
@@ -754,7 +754,7 @@ export const RentmanTab = () => {
                         {rootFolderIds.map((id) => renderFolder(id, 0))}
                         {orphans.length > 0 && (
                           <div className="rounded border border-cp-border-muted/80">
-                            <div className="px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-cp-text-muted">
+                            <div className="px-2 py-1 text-cp-xs font-semibold uppercase tracking-wide text-cp-text-muted">
                               {t('library.rentman.noFolder', 'No folder')} <span className="font-normal text-cp-text-dim">({orphans.length})</span>
                             </div>
                             <div className="space-y-1 px-2 pb-1">{orphans.map(renderItem)}</div>
@@ -774,7 +774,7 @@ export const RentmanTab = () => {
         <div>
           <div className="mb-2 flex items-center justify-between">
             <h2 className="text-cp-base font-semibold text-amber-300">{t('library.rentman.reconcile', 'Reconcile canvas ↔ Rentman')}</h2>
-            <span className="text-[10px] text-cp-text-muted">{format(t('library.rentman.notTracked', '{n} not tracked'), { n: untracked.length })}</span>
+            <span className="text-cp-xs text-cp-text-muted">{format(t('library.rentman.notTracked', '{n} not tracked'), { n: untracked.length })}</span>
           </div>
           {/* v7.9.128 — Auch im Sync-View ein prominenter Fetch-Knopf. */}
           {linkedRentmanProjectId && (
@@ -789,14 +789,14 @@ export const RentmanTab = () => {
           )}
           {removed.length > 0 && (
             <div className="mb-2 space-y-1">
-              <div className="mb-1 text-[10px] text-red-400">{t('library.rentman.removed', 'No longer in Rentman:')}</div>
+              <div className="mb-1 text-cp-xs text-red-400">{t('library.rentman.removed', 'No longer in Rentman:')}</div>
               {removed.map((equipment) => (
                 <div key={equipment.id} className="flex items-center justify-between rounded border border-red-700/50 bg-red-900/20 px-2 py-1 text-cp-xs">
                   <div>
                     <span className="font-medium text-cp-text">{equipment.name}</span>
-                    <span className="ml-1 text-[10px] text-cp-text-muted">{equipment.category}</span>
+                    <span className="ml-1 text-cp-xs text-cp-text-muted">{equipment.category}</span>
                   </div>
-                  <span className="text-[10px] text-red-400">{t('library.rentman.removedTag', 'removed')}</span>
+                  <span className="text-cp-xs text-red-400">{t('library.rentman.removedTag', 'removed')}</span>
                 </div>
               ))}
             </div>
@@ -811,9 +811,9 @@ export const RentmanTab = () => {
                 <div key={equipment.id} className="flex items-center justify-between rounded border border-amber-700/30 bg-amber-900/10 px-2 py-1 text-cp-xs">
                   <div>
                     <span className="font-medium text-cp-text">{equipment.name}</span>
-                    <span className="ml-1 text-[10px] text-cp-text-muted">{equipment.category}</span>
+                    <span className="ml-1 text-cp-xs text-cp-text-muted">{equipment.category}</span>
                   </div>
-                  <span className="text-[10px] text-amber-500">{t('library.rentman.noIdTag', 'no Rentman ID')}</span>
+                  <span className="text-cp-xs text-amber-500">{t('library.rentman.noIdTag', 'no Rentman ID')}</span>
                 </div>
               ))}
             </div>

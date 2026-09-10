@@ -1611,7 +1611,7 @@ export default function App() {
               {t('common.ok', 'OK')}
             </button>
           </div>
-          <ul className="max-h-40 space-y-0.5 overflow-y-auto text-[11px] text-cp-text-secondary">
+          <ul className="max-h-40 space-y-0.5 overflow-y-auto text-cp-xs text-cp-text-secondary">
             {lastLoadReport.drops.slice(0, 20).map((d, i) => (
               <li key={`${d.kind}-${d.label}-${i}`}>
                 {dropArtLabel(t, d.kind)}
@@ -1621,7 +1621,7 @@ export default function App() {
               </li>
             ))}
           </ul>
-          <div className="mt-2 text-[11px] text-cp-text-muted">
+          <div className="mt-2 text-cp-xs text-cp-text-muted">
             {t(
               'app.loadReport.hint',
               'Devices that pointed at these roles lost their assignment — including the TSL address used for tally. Saving overwrites the file with this state.',
@@ -1654,7 +1654,7 @@ export default function App() {
               {t('common.ok', 'OK')}
             </button>
           </div>
-          <ul className="max-h-40 space-y-0.5 overflow-y-auto text-[11px] text-cp-text-secondary">
+          <ul className="max-h-40 space-y-0.5 overflow-y-auto text-cp-xs text-cp-text-secondary">
             {lastMobileDrop.drops.slice(0, 20).map((d, i) => (
               <li key={`${d.reason}-${d.label}-${i}`}>
                 {t('app.mobileDrop.cable', 'Cable')}
@@ -1670,7 +1670,7 @@ export default function App() {
               </li>
             ))}
           </ul>
-          <div className="mt-2 text-[11px] text-cp-text-muted">
+          <div className="mt-2 text-cp-xs text-cp-text-muted">
             {t(
               'app.mobileDrop.hint',
               'The phone only reported "sent" to the technician — it cannot know about the rejection. Someone out on site may be waiting for a cable that never reaches the plan.',
@@ -1690,9 +1690,9 @@ export default function App() {
             </div>
             <div className="text-cp-xs text-cp-text-secondary">{pdfProgress.phase}</div>
             {pdfProgress.detail && (
-              <div className="mt-1 text-[11px] text-cp-text-muted">{pdfProgress.detail}</div>
+              <div className="mt-1 text-cp-xs text-cp-text-muted">{pdfProgress.detail}</div>
             )}
-            <div className="mt-3 text-[10px] text-cp-text-muted">
+            <div className="mt-3 text-cp-xs text-cp-text-muted">
               {t('app.pdfProgress.hint', 'Large plans may take a few seconds. Please do not cancel.')}
             </div>
           </div>
@@ -1734,13 +1734,13 @@ const PdfExportDialog = ({
               User z.B. nur die Video-Ebene drucken indem er alle
               anderen Chips deaktiviert. */}
           <fieldset className="rounded border border-cp-border p-3">
-            <legend className="px-1 text-[11px] uppercase tracking-wide text-cp-text-muted">
+            <legend className="px-1 text-cp-xs uppercase tracking-wide text-cp-text-muted">
               {t('pdfExport.layers.title', 'Layers (included in PDF)')}
             </legend>
             <div className="-mx-1 flex flex-wrap gap-1">
               <LayerVisibilityChips />
             </div>
-            <p className="mt-2 text-[10px] text-cp-text-muted">
+            <p className="mt-2 text-cp-xs text-cp-text-muted">
               {t(
                 'pdfExport.layers.hint',
                 'Click on a chip to toggle the layer for canvas AND PDF. Example: only print video ⇒ disable all other chips.',
@@ -1748,7 +1748,7 @@ const PdfExportDialog = ({
             </p>
           </fieldset>
           <fieldset className="rounded border border-cp-border p-3">
-            <legend className="px-1 text-[11px] uppercase tracking-wide text-cp-text-muted">
+            <legend className="px-1 text-cp-xs uppercase tracking-wide text-cp-text-muted">
               {t('pdfExport.bg.title', 'Background')}
             </legend>
             <label className="mb-2 flex cursor-pointer items-center gap-2 text-cp-xs text-cp-text-bright">
@@ -1775,7 +1775,7 @@ const PdfExportDialog = ({
               nutzen. Wenn an: Text bleibt im PDF als echter Text,
               keine Pixelung beim Zoom. */}
           <fieldset className="rounded border border-cp-border p-3">
-            <legend className="px-1 text-[11px] uppercase tracking-wide text-cp-text-muted">
+            <legend className="px-1 text-cp-xs uppercase tracking-wide text-cp-text-muted">
               {t('pdfExport.render.title', 'Render mode')}
             </legend>
             <label className="mb-2 flex cursor-pointer items-start gap-2 text-cp-xs text-cp-text-bright">
@@ -1787,7 +1787,7 @@ const PdfExportDialog = ({
               />
               <span>
                 {t('pdfExport.render.raster', 'Raster (classic)')}
-                <span className="block text-[10px] text-cp-text-muted">
+                <span className="block text-cp-xs text-cp-text-muted">
                   {t(
                     'pdfExport.render.rasterHint',
                     'JPEG snapshot of the canvas. Reliable, but blurry at high zoom in the PDF.',
@@ -1804,7 +1804,7 @@ const PdfExportDialog = ({
               />
               <span>
                 {t('pdfExport.render.vector', 'Vector')}
-                <span className="block text-[10px] text-cp-text-muted">
+                <span className="block text-cp-xs text-cp-text-muted">
                   {t(
                     'pdfExport.render.vectorHint',
                     'Chromium printToPDF. Text stays selectable & sharp at any zoom. Smaller file size.',
@@ -2161,7 +2161,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
               summary always visible (current routing); expand to change
               device/port on either side. */}
           <details open className="rounded border border-cp-border bg-cp-surface-3/50">
-            <summary className="cursor-pointer select-none px-2 py-1.5 text-[11px] text-cp-text-secondary hover:bg-cp-surface-2/40">
+            <summary className="cursor-pointer select-none px-2 py-1.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-2/40">
               <span className="font-semibold uppercase tracking-wide text-cp-text-muted">Verbindung</span>
               <span className="ml-2 text-cp-text-secondary">
                 {fromDev?.name ?? '?'} · {fromPort?.name ?? cable.fromPortId}
@@ -2172,7 +2172,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
             <div className="border-t border-cp-border p-2">
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <div className="mb-0.5 text-[10px] text-cp-text-muted">{t('cable.fromDeviceShort', 'From device')}</div>
+                  <div className="mb-0.5 text-cp-xs text-cp-text-muted">{t('cable.fromDeviceShort', 'From device')}</div>
                   <select
                     aria-label={t('cable.aria.fromDevice', 'Source device')}
                     value={fromEquipmentId}
@@ -2185,7 +2185,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
                       </option>
                     ))}
                   </select>
-                  <div className="mt-1 text-[10px] text-cp-text-muted">Port</div>
+                  <div className="mt-1 text-cp-xs text-cp-text-muted">Port</div>
                   <select
                     aria-label={t('cable.aria.fromPort', 'Source port')}
                     value={fromPortId}
@@ -2204,7 +2204,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
                   </select>
                 </div>
                 <div>
-                  <div className="mb-0.5 text-[10px] text-cp-text-muted">{t('cable.toDeviceShort', 'To device')}</div>
+                  <div className="mb-0.5 text-cp-xs text-cp-text-muted">{t('cable.toDeviceShort', 'To device')}</div>
                   <select
                     aria-label={t('cable.aria.toDevice', 'Target device')}
                     value={toEquipmentId}
@@ -2217,7 +2217,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
                       </option>
                     ))}
                   </select>
-                  <div className="mt-1 text-[10px] text-cp-text-muted">Port</div>
+                  <div className="mt-1 text-cp-xs text-cp-text-muted">Port</div>
                   <select
                     aria-label={t('cable.aria.toPort', 'Target port')}
                     value={toPortId}
@@ -2238,19 +2238,19 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
               </div>
 
               {fromConflict && (
-                <div className="mt-2 flex items-center gap-1.5 rounded bg-amber-900/50 px-2 py-1 text-[11px] text-amber-100">
+                <div className="mt-2 flex items-center gap-1.5 rounded bg-amber-900/50 px-2 py-1 text-cp-xs text-amber-100">
                   <Icon icon={AlertTriangle} size="xs" />
                   {format(t('cable.create.warn.fromBusy', 'Source port is already in use by cable "{name}".'), { name: fromConflict.name })}
                 </div>
               )}
               {toConflict && (
-                <div className="mt-1 flex items-center gap-1.5 rounded bg-amber-900/50 px-2 py-1 text-[11px] text-amber-100">
+                <div className="mt-1 flex items-center gap-1.5 rounded bg-amber-900/50 px-2 py-1 text-cp-xs text-amber-100">
                   <Icon icon={AlertTriangle} size="xs" />
                   {format(t('cable.create.warn.toBusy', 'Target port is already in use by cable "{name}".'), { name: toConflict.name })}
                 </div>
               )}
               {sameEndpoints && (
-                <div className="mt-1 flex items-center gap-1.5 rounded bg-red-900/50 px-2 py-1 text-[11px] text-red-100">
+                <div className="mt-1 flex items-center gap-1.5 rounded bg-red-900/50 px-2 py-1 text-cp-xs text-red-100">
                   <Icon icon={AlertTriangle} size="xs" />
                   {t('cable.create.warn.samePort', 'Source and target point to the same port.')}
                 </div>
