@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest'
-import dictsSrc from '../src/renderer/lib/i18n/dicts.ts?raw'
 import deSrc from '../src/renderer/lib/i18n/de.ts?raw'
 import { stripComments } from './support/stripComments'
 
@@ -92,12 +91,6 @@ const keysOf = (teil: string): Set<string> =>
     ...[...teil.matchAll(/^\s*"((?:[^"\\]|\\.)+)":/gm)].map((m) => m[1]),
   ])
 
-const roh = stripComments(dictsSrc)
-// Seit E-28 (2026-09-09) liegt die QUELLSPRACHE in `dicts.ts` (`en`) und die
-// Uebersetzung in einer eigenen Datei je Sprache (`i18n/de.ts`). Vorher lagen
-// beide in `dicts.ts` untereinander, und dieser Test schnitt sie an der Grenze
-// `export const de` auseinander.
-const englisch = keysOf(roh.slice(roh.indexOf('export const en: Dict = {')))
 const deutsch = keysOf(deSrc)
 
 const erreichbar = new Set<string>()
@@ -110,12 +103,30 @@ for (const [pfad, s] of code) {
   else totUebersetzt.push([pfad.replace('../src/renderer/', ''), ks.length])
 }
 
+/**
+ * Schluessel, die NICHT im Aufruf stehen, sondern als Konstante daneben.
+ *
+ * `notesKey: 'catalog.cable.sdi-12g.notes'` in `types/cableSpec.ts` wird
+ * spaeter ueber `t(spec.notesKey, spec.notesSource)` aufgeloest — der
+ * Schluessel ist genauso benutzt wie einer im Aufruf, nur eine Indirektion
+ * weiter. Gemessen sind das 48 Stueck, ausnahmslos `catalog.*`.
+ *
+ * BIS 2026-09-10 UEBERNAHM DAS DER TOTE `en`-EXPORT von `dicts.ts` (#820):
+ * die Deckung unten hiess `englisch ∪ erreichbar`, und weil im `en`-Dict
+ * jeder Schluessel stand, fielen die dynamischen darueber nicht auf. Der
+ * Export ist weg; die Frage wird jetzt am Quelltext gestellt statt an einer
+ * Datei, die niemand laedt.
+ */
+const alsKonstante = new Set(
+  [...deutsch].filter((k) => [...code.values()].some((s) => s.includes(`'${k}'`))),
+)
+
 describe('i18n — die erreichbare Oberflaeche', () => {
-  it('findet beide Woerterbuecher', () => {
+  it('findet Woerterbuch und Aufrufe', () => {
     // Untergrenze: findet der Schneider die Woerterbuecher nicht mehr, soll
     // der Test das sagen statt reihenweise Fehltreffer zu melden.
-    expect(englisch.size, 'Zu wenige Quell-Schluessel — Muster passt nicht mehr').toBeGreaterThan(3000)
     expect(deutsch.size, 'Zu wenige deutsche Schluessel — Muster passt nicht mehr').toBeGreaterThan(3000)
+    expect(erreichbar.size, 'Zu wenige Aufrufe — Muster passt nicht mehr').toBeGreaterThan(3000)
   })
 
   it('hat fuer jeden erreichbaren Schluessel eine deutsche Fassung', () => {
@@ -148,7 +159,7 @@ describe('i18n — die erreichbare Oberflaeche', () => {
     // Bewusst nicht am Text geprueft: „ist dieser Wert deutsch?" ist bei
     // Fachbegriffen (Truss, Gain, Patch) nicht entscheidbar. Die Ablageform
     // ist es.
-    const benutzt = new Set([...englisch, ...erreichbar])
+    const benutzt = new Set([...erreichbar, ...alsKonstante])
     const verwaist = [...deutsch].filter((k) => !benutzt.has(k)).sort()
     expect(
       verwaist,

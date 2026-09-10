@@ -15,7 +15,10 @@ import type { CablePlannerProject, ProjectRevision } from '../src/renderer/types
 import docsQuelle from '../src/renderer/components/Export/InstallationDocsDialog.tsx?raw'
 import tplDialogQuelle from '../src/renderer/components/Project/TemplatesDialog.tsx?raw'
 import tplQuelle from '../src/renderer/lib/projectTemplates.ts?raw'
-import dictsQuelle from '../src/renderer/lib/i18n/dicts.ts?raw'
+import {
+  meldungFehlenderSchluessel,
+  schluesselWirdBenutzt,
+} from './support/i18nAufrufe'
 
 // ---------------------------------------------------------------------------
 // Woraus naechstes Jahr geplant wird (Bedarf 84, P2).
@@ -306,7 +309,7 @@ describe('Erreichbarkeit', () => {
 
   it('hat fuer jeden neuen Text einen EN-Eintrag', () => {
     for (const key of ['docs.job.title', 'docs.job.intro', 'templates.basis']) {
-      expect(dictsQuelle).toContain(`'${key}'`)
+      expect(schluesselWirdBenutzt(key), meldungFehlenderSchluessel(key)).toBe(true)
     }
   })
 })

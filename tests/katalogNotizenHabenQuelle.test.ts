@@ -93,36 +93,11 @@ describe('Katalog-Notizen tragen ihre Quellsprache mit', () => {
     expect(quelle).not.toContain("t(spec.notesKey, '')")
   })
 
-  it('der deutsche Eintrag sagt etwas anderes als die Quelle', () => {
-    // GEGENPROBE gegen die naheliegende Fehlreparatur: `notesSource` mit dem
-    // DEUTSCHEN Text zu fuellen waere gruen und trotzdem falsch — dann saehe
-    // ein englischer Nutzer deutsche Notizen statt gar keiner.
-    //
-    // Geprueft wird gegen das deutsche Woerterbuch: wo es einen Eintrag zu
-    // demselben Schluessel gibt, muss er sich vom Quelltext unterscheiden.
-    // Dieselbe Form wie in `deutschesDictIstDeutsch.test.ts`, nur von der
-    // anderen Seite her gestellt.
-    const de = readFileSync(
-      join(process.cwd(), 'src', 'renderer', 'lib', 'i18n', 'de.ts'),
-      'utf8',
-    )
-    const deWerte = new Map<string, string>()
-    const zeilen = de.split('\n')
-    zeilen.forEach((z, i) => {
-      const m = /^\s*'(catalog\.[^']+)':\s*(.*)$/.exec(z)
-      if (!m) return
-      const roh = (m[2].trim() || (zeilen[i + 1] ?? '').trim()).replace(/,$/, '').trim()
-      if (roh.startsWith("'") && roh.endsWith("'")) deWerte.set(m[1], roh.slice(1, -1))
-    })
-    expect(deWerte.size, 'Kein deutscher Katalog-Eintrag gefunden — Muster passt nicht').toBeGreaterThan(20)
-
-    const gleich = EINTRAEGE.filter(
-      (e) => e.notesKey && e.notesSource && deWerte.get(e.notesKey) === e.notesSource,
-    ).map((e) => `${e.katalog}/${e.id}`)
-    expect(
-      gleich,
-      'Quelltext und deutsche Uebersetzung sind woertlich gleich — entweder ' +
-        `steht Deutsch im Quellfeld oder die Uebersetzung fehlt:\n  ${gleich.join('\n  ')}`,
-    ).toEqual([])
-  })
+  // DIE GEGENPROBE — „ist im Quellfeld versehentlich Deutsch gelandet?" —
+  // steht bewusst NICHT hier, sondern in `deutschesDictIstDeutsch.test.ts`.
+  // Dort wird dieselbe Frage seit dem Befund von damals gestellt (elf
+  // unuebersetzte Kabel-Notizen in den Projektdateien deutscher Nutzer), und
+  // dieser Test hat sie seit #829 an der neuen Quelle. Zwei Tests, die
+  // dasselbe rechnen, sind die Defektform `zwei-rechnungen`: sie laufen
+  // auseinander, und dann glaubt man dem falschen.
 })

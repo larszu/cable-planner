@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { autoMatchEquipment } from '../src/renderer/lib/importGreengo'
 import dialogSrc from '../src/renderer/components/Export/GreenGoExportDialog.tsx?raw'
-import dictsSrc from '../src/renderer/lib/i18n/dicts.ts?raw'
+import { rendererQuelltext } from './support/i18nAufrufe'
 import type { GreenGoUser } from '../src/renderer/types/greengo'
 
 // ADR-005, Inkrement 4, Regel 2 — was die Datei nicht sagt, darf sie nicht
@@ -110,7 +110,7 @@ describe('das Import-Overlay zeigt den Bericht', () => {
   })
 
   it('sagt es auch auf Englisch', () => {
-    expect(dictsSrc).toContain('hand-set mappings are preserved')
-    expect(dictsSrc).toContain('the mapping was guessed again')
+    expect(rendererQuelltext).toContain('hand-set mappings are preserved')
+    expect(rendererQuelltext).toContain('the mapping was guessed again')
   })
 })

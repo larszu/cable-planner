@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import {
+  meldungFehlenderSchluessel,
+  schluesselWirdBenutzt,
+} from './support/i18nAufrufe'
 
 // ADR-005, Inkrement 4 — Regel 4: eine Zusage muss pruefbar sein.
 //
@@ -79,12 +83,21 @@ describe('mobileShare: der Rueckkanal und was der Dialog darueber sagt', () => {
   })
 
   it('haelt die englische Fassung mit der deutschen gleichauf', () => {
-    const dicts = read('src/renderer/lib/i18n/dicts.ts')
-    expect(dicts).toContain("'mobile.dialog.security.writeBack'")
-    expect(dicts).toContain("'mobile.dialog.security.token'")
+    // GEPRUEFT WIRD DIE UEBERSETZUNG, NICHT DIE QUELLE (2026-09-10, #820).
+    //
+    // Hier stand `dicts.ts` — der `en`-Export, den seit E-28 niemand mehr
+    // laedt. Die englische Fassung steht inzwischen als Fallback an der
+    // Aufrufstelle; „gleichauf" heisst also: der Schluessel wird benutzt UND
+    // das deutsche Woerterbuch hat einen Eintrag dafuer.
+    const de = read('src/renderer/lib/i18n/de.ts')
+    for (const key of ['mobile.dialog.security.writeBack', 'mobile.dialog.security.token']) {
+      expect(schluesselWirdBenutzt(key), meldungFehlenderSchluessel(key)).toBe(true)
+      expect(de, `Ohne deutsche Fassung: ${key}`).toContain(`'${key}'`)
+    }
     // Der alte Schluessel darf nicht als Leiche zurueckbleiben — sonst
     // taucht die falsche Zusage bei der naechsten Uebersetzung wieder auf.
-    expect(dicts).not.toContain("'mobile.dialog.security.readOnly'")
+    expect(de).not.toContain("'mobile.dialog.security.readOnly'")
+    expect(schluesselWirdBenutzt('mobile.dialog.security.readOnly')).toBe(false)
   })
 })
 

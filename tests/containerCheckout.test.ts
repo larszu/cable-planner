@@ -16,7 +16,10 @@ import type { CheckoutLine, CheckoutRecord } from '../src/renderer/lager/types/c
 import type { InventoryItem, InventoryUnit, StorageNode } from '../src/renderer/lager/types/inventory'
 import quelle from '../src/renderer/lager/lib/containerCheckout.ts?raw'
 import dialogQuelle from '../src/renderer/lager/ui/InventoryDialog.tsx?raw'
-import dictsQuelle from '../src/renderer/lib/i18n/dicts.ts?raw'
+import {
+  meldungFehlenderSchluessel,
+  schluesselWirdBenutzt,
+} from './support/i18nAufrufe'
 import storeQuelle from '../src/renderer/lager/store/checkoutStore.ts?raw'
 import inventoryStoreQuelle from '../src/renderer/lager/store/inventoryStore.ts?raw'
 import keysQuelle from '../src/renderer/lib/storageKeys.ts?raw'
@@ -374,7 +377,7 @@ describe('Erreichbarkeit im Lager-Dialog', () => {
       'inventory.checkout.unknownNode',
     ]) {
       expect(dialogQuelle).toContain(`'${key}'`)
-      expect(dictsQuelle).toContain(`'${key}'`)
+      expect(schluesselWirdBenutzt(key), meldungFehlenderSchluessel(key)).toBe(true)
     }
     // Ausgeschriebener switch, kein `t(`inventory.checkout.${r}`)`: ein
     // dynamischer Schluessel ist fuer den Deckungs-Guard unsichtbar.
@@ -501,7 +504,7 @@ describe('der Scan-Rueckweg ist erreichbar', () => {
   it('meldet den fremden Code, statt ihn zu verschlucken', () => {
     for (const key of ['inventory.checkout.scanHit', 'inventory.checkout.scanMiss']) {
       expect(dialogQuelle).toContain(`'${key}'`)
-      expect(dictsQuelle).toContain(`'${key}'`)
+      expect(schluesselWirdBenutzt(key), meldungFehlenderSchluessel(key)).toBe(true)
     }
   })
 })

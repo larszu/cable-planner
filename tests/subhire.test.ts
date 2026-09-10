@@ -11,7 +11,10 @@ import { checkoutSheet, containerContents } from '../src/renderer/lager/lib/cont
 import { buildLabelSheetHtml, LABEL_SHEETS } from '../src/renderer/lib/labelSheets'
 import type { InventoryItem, InventoryUnit, StorageNode } from '../src/renderer/lager/types/inventory'
 import inventarQuelle from '../src/renderer/lager/ui/InventoryDialog.tsx?raw'
-import dictsQuelle from '../src/renderer/lib/i18n/dicts.ts?raw'
+import {
+  meldungFehlenderSchluessel,
+  schluesselWirdBenutzt,
+} from './support/i18nAufrufe'
 
 // ---------------------------------------------------------------------------
 // Fremdes Material traegt bis aufs Blatt (Bedarfe 67 und 82, beide P2).
@@ -297,7 +300,7 @@ describe('Erreichbarkeit im Lager-Dialog', () => {
       'inventory.supplierUnknown',
     ]) {
       expect(inventarQuelle).toContain(`'${key}'`)
-      expect(dictsQuelle).toContain(`'${key}'`)
+      expect(schluesselWirdBenutzt(key), meldungFehlenderSchluessel(key)).toBe(true)
     }
   })
 })

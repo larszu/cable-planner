@@ -8,7 +8,10 @@ import {
 } from '../src/renderer/lib/encoderFeasibility'
 import { DEFAULT_ENCODING, type DeliveryDestination } from '../src/renderer/types/delivery'
 import dialogQuelle from '../src/renderer/components/Delivery/DeliveryDialog.tsx?raw'
-import dictsQuelle from '../src/renderer/lib/i18n/dicts.ts?raw'
+import {
+  meldungFehlenderSchluessel,
+  schluesselWirdBenutzt,
+} from './support/i18nAufrufe'
 
 // ---------------------------------------------------------------------------
 // Kann der Encoder, was der Plan verlangt? (Bedarfe 33 und 36)
@@ -302,7 +305,7 @@ describe('Erreichbarkeit im Ausspiel-Dialog', () => {
       'delivery.encoder.mustMatch',
     ]) {
       expect(dialog).toContain(`'${key}'`)
-      expect(dictsQuelle).toContain(`'${key}'`)
+      expect(schluesselWirdBenutzt(key), meldungFehlenderSchluessel(key)).toBe(true)
     }
   })
 })
