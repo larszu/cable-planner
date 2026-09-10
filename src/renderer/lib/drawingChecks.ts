@@ -138,7 +138,7 @@ export const runDrawingChecks = (
       findings.push({
         id: `open-ports:${e.id}`,
         severity: 'info',
-        category: 'Offene Ports',
+        category: 'Open ports',
         message: `${e.name}: ${open.length} unverbundene Ports (${open
           .slice(0, 4)
           .map((p) => p.name)
@@ -159,7 +159,7 @@ export const runDrawingChecks = (
       findings.push({
         id: `connector-mismatch:${c.id}`,
         severity: 'warning',
-        category: 'Connector-Mismatch',
+        category: 'Connector mismatch',
         message: `${c.cableNumber ? c.cableNumber + ' · ' : ''}${eqName(
           c.fromEquipmentId,
         )} (${from.connectorType}) → ${eqName(c.toEquipmentId)} (${to.connectorType})`,
@@ -183,7 +183,7 @@ export const runDrawingChecks = (
         findings.push({
           id: `dup-number:${c.id}`,
           severity: 'error',
-          category: 'Doppelte Kabelnummer',
+          category: 'Duplicate cable number',
           message: `Kabelnummer „${num}" ${group.length}× vergeben: ${eqName(
             c.fromEquipmentId,
           )} → ${eqName(c.toEquipmentId)}`,
@@ -200,7 +200,7 @@ export const runDrawingChecks = (
       findings.push({
         id: `missing-length:${c.id}`,
         severity: 'warning',
-        category: 'Fehlende Länge',
+        category: 'Missing length',
         message: `${c.cableNumber ? c.cableNumber + ' · ' : ''}${eqName(
           c.fromEquipmentId,
         )} → ${eqName(c.toEquipmentId)}: keine Länge gesetzt`,
@@ -224,7 +224,7 @@ export const runDrawingChecks = (
         findings.push({
           id: `dup-ip:${e.id}`,
           severity: 'error',
-          category: 'Doppelte IP',
+          category: 'Duplicate IP',
           message: `IP ${ip} mehrfach: ${group.map((g) => g.name).join(', ')}`,
           equipmentId: e.id,
         })
@@ -250,7 +250,7 @@ export const runDrawingChecks = (
         findings.push({
           id: `rf-conflict:${a.cable.id}:${b.cable.id}`,
           severity: 'warning',
-          category: 'RF-Konflikt',
+          category: 'RF conflict',
           message: `${eqName(a.cable.fromEquipmentId)} ⟷ ${eqName(
             b.cable.fromEquipmentId,
           )}: ${why}`,
@@ -273,7 +273,7 @@ export const runDrawingChecks = (
       findings.push({
         id: `single-power:${e.id}`,
         severity: 'info',
-        category: 'Single-Power',
+        category: 'Single power',
         message: `${e.name}: nur eine Strom-Anbindung (kein redundantes Netzteil)`,
         equipmentId: e.id,
       })
@@ -314,7 +314,7 @@ export const runDrawingChecks = (
       findings.push({
         id: `da-no-fanout:${e.id}`,
         severity: 'info',
-        category: 'Verteilverstärker',
+        category: 'Distribution amplifier',
         message: `${e.name}: als Verteilverstärker markiert, aber nur ${e.outputs.length} Ausgang/Ausgänge (1→N erwartet)`,
         equipmentId: e.id,
       })
@@ -337,7 +337,7 @@ export const runDrawingChecks = (
       findings.push({
         id: `impedance-mismatch:${c.id}`,
         severity: 'warning',
-        category: 'Impedanz-Mismatch',
+        category: 'Impedance mismatch',
         message: `${eqName(c.fromEquipmentId)} → ${eqName(c.toEquipmentId)}: ${mismatch.message}`,
         cableId: c.id,
       })
@@ -364,7 +364,7 @@ export const runDrawingChecks = (
       findings.push({
         id: `fiber-mismatch:${c.id}`,
         severity: 'warning',
-        category: 'Faser-Mismatch',
+        category: 'Fibre mismatch',
         message: `${eqName(c.fromEquipmentId)} → ${eqName(c.toEquipmentId)}: ${from?.fiberClass} (${lbl(a)}) ↔ ${to?.fiberClass} (${lbl(b)}) — optisch inkompatibel`,
         cableId: c.id,
       })
@@ -431,7 +431,7 @@ export const runDrawingChecks = (
       findings.push({
         id: `cable-too-long:${c.id}`,
         severity: 'warning',
-        category: 'Kabellänge',
+        category: 'Cable length',
         message: `${eqName(c.fromEquipmentId)} → ${eqName(c.toEquipmentId)}: ${c.length} m überschreitet die passive ${c.standard}-Grenze (~${limit} m) — aktive Lösung (AOC/HDBaseT/Extender/LWL) nötig`,
         cableId: c.id,
       })
@@ -462,7 +462,7 @@ export const runDrawingChecks = (
     findings.push({
       id: 'dmx-summary',
       severity: 'info',
-      category: 'Licht / DMX',
+      category: 'Lighting / DMX',
       message: parts.join(' · '),
     })
   }
@@ -524,7 +524,7 @@ export const runDrawingChecks = (
       findings.push({
         id: `balance-mismatch:${c.id}`,
         severity: 'warning',
-        category: 'Audio sym/unsym',
+        category: 'Audio balanced/unbalanced',
         message: `${eqName(c.fromEquipmentId)} → ${eqName(c.toEquipmentId)}: ${bal.message}`,
         cableId: c.id,
       })
@@ -569,7 +569,7 @@ export const runDrawingChecks = (
       findings.push({
         id: `fiber-conn:${c.id}`,
         severity: 'warning',
-        category: 'LWL-Stecker',
+        category: 'Fibre connector',
         message: `${eqName(c.fromEquipmentId)} → ${eqName(c.toEquipmentId)}: ${a} ↔ ${b} — optischer Steckertyp ungleich (Adapter/Hybrid-Patch nötig)`,
         cableId: c.id,
       })
@@ -586,7 +586,7 @@ export const runDrawingChecks = (
       findings.push({
         id: `ports-unknown:${e.id}`,
         severity: 'warning',
-        category: 'Ports unbekannt',
+        category: 'Ports unknown',
         message: `${e.name}: Port-Belegung unbekannt (kein Datenblatt-Match) — reale Anschlüsse aus dem Datenblatt ergänzen`,
         equipmentId: e.id,
       })
@@ -612,7 +612,7 @@ export const runDrawingChecks = (
       findings.push({
         id: `ports-guessed:${e.id}`,
         severity: 'warning',
-        category: 'Ports geraten',
+        category: 'Ports guessed',
         message: `${e.name}: Ports stammen aus ${beleg ?? 'einer Quelle ohne Datenblatt'} — gegen die realen Anschlüsse prüfen`,
         equipmentId: e.id,
       })
@@ -631,7 +631,7 @@ export const runDrawingChecks = (
       findings.push({
         id: `gw-subnet:${e.id}`,
         severity: 'warning',
-        category: 'Gateway/Subnetz',
+        category: 'Gateway/subnet',
         message: `${e.name}: Gateway ${e.gateway} liegt nicht im Subnetz von ${e.ipAddress} (${mask}) — nicht erreichbar`,
         equipmentId: e.id,
       })
@@ -656,7 +656,7 @@ export const runDrawingChecks = (
       findings.push({
         id: 'drum-mic-inputs',
         severity: 'warning',
-        category: 'Drum-Mikrofonierung',
+        category: 'Drum micing',
         message: `Drum-Kit braucht ${d.channelCount} Mic-Inputs, aber nur ${micInputs} XLR-Eingänge im Plan — fehlende ${d.channelCount - micInputs} Kanäle einplanen (Stagebox/Preamps).`,
       })
     }
@@ -664,7 +664,7 @@ export const runDrawingChecks = (
       findings.push({
         id: 'drum-phantom',
         severity: 'info',
-        category: 'Drum-Mikrofonierung',
+        category: 'Drum micing',
         message: `${d.phantomCount} Drum-Mic(s) brauchen 48V-Phantom — Preamps/Pult mit schaltbarer Phantomspeisung sicherstellen.`,
       })
     }
@@ -672,7 +672,7 @@ export const runDrawingChecks = (
       findings.push({
         id: 'drum-unknown-mics',
         severity: 'warning',
-        category: 'Drum-Mikrofonierung',
+        category: 'Drum micing',
         message: `${d.unknownCount} Drum-Kanal/Kanäle ohne zugeordnetes Mic-Modell — Phantom-/SPL-Bedarf nicht prüfbar, Modell zuweisen.`,
       })
     }
@@ -680,7 +680,7 @@ export const runDrawingChecks = (
       findings.push({
         id: 'drum-spl-risk',
         severity: 'warning',
-        category: 'Drum-Mikrofonierung',
+        category: 'Drum micing',
         message: `${d.splRiskCount} Mic(s) an lauter Zone (Kick/Snare) mit grenzwertigem Max SPL (< ${140} dB) — Verzerrungsrisiko, Pad/robusteres Mic prüfen.`,
       })
     }
@@ -779,7 +779,7 @@ export const runDrawingChecks = (
       findings.push({
         id: `anschluss-${b.art}:${b.anschlussId}${b.cableId ? `:${b.cableId}` : ''}:${b.text.length}`,
         severity: SCHWERE[b.art] ?? 'info',
-        category: 'Adernbündel',
+        category: 'Wire bundle',
         message: b.text,
         ...(b.cableId ? { cableId: b.cableId } : {}),
       })
@@ -827,7 +827,7 @@ export const runDrawingChecks = (
     findings.push({
       id: `bild-${urteil.art}:${c.id}`,
       severity: urteil.art === 'passt-nicht' ? 'error' : 'info',
-      category: 'Bildformat',
+      category: 'Video format',
       message: urteil.text,
       equipmentId: senke.id,
       cableId: c.id,

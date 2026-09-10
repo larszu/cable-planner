@@ -510,7 +510,7 @@ export const MISC_CATALOG: MiscEntry[] = [
     deviceTypeId: '9c1a3037-70ba-4cd7-b50d-7dcc1cc0eed2',
     template: {
       name: 'Blackmagic Decklink Duo 2',
-      category: 'Konverter',
+      category: 'Converter',
       inputs: [sdiIn('SDI In 1'), sdiIn('SDI In 2'), sdiIn('SDI In 3'), sdiIn('SDI In 4')],
       outputs: [sdiOut('SDI Out 1'), sdiOut('SDI Out 2'), sdiOut('SDI Out 3'), sdiOut('SDI Out 4')],
       width: 240, height: 220,
@@ -523,7 +523,7 @@ export const MISC_CATALOG: MiscEntry[] = [
     deviceTypeId: '3453db03-4c07-4d3f-af40-34576266be6c',
     template: {
       name: 'Blackmagic Decklink Quad 2',
-      category: 'Konverter',
+      category: 'Converter',
       inputs: [
         sdiIn('SDI In 1'), sdiIn('SDI In 2'), sdiIn('SDI In 3'), sdiIn('SDI In 4'),
         sdiIn('SDI In 5'), sdiIn('SDI In 6'), sdiIn('SDI In 7'), sdiIn('SDI In 8'),

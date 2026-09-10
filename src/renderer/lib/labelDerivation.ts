@@ -640,7 +640,7 @@ export const labelTargetIssues = (input: LabelDerivationInput): CheckFinding[] =
     issues.push({
       id: `umd-address-clash:${clash.address}`,
       severity: 'error',
-      category: 'UMD-Adresse doppelt',
+      category: 'Duplicate UMD address',
       message:
         `${clash.identities.map((i) => `"${i.name}"`).join(' und ')} liegen ` +
         `beide auf UMD-Adresse ${clash.address} — die Displays zeigen ` +

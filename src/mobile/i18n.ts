@@ -66,6 +66,7 @@ const de: Record<string, string> = {
   // ── QR-/ID-Suche ────────────────────────────────────────────────────────
   'mobile.qr.title': 'QR / ID finden',
   'mobile.close': 'Schließen',
+  'mobile.qr.loadingDecoder': 'Scanner wird geladen…',
   'mobile.qr.camUnavailable': 'Kamera nicht verfügbar',
   'mobile.qr.noScan':
     'Kamera-Scan hier nicht verfügbar (kein HTTPS/Secure-Context). Scanne das Etikett mit der Kamera-App deines Geräts und füge den Code unten ein — oder tippe die Kabel-/Asset-ID.',

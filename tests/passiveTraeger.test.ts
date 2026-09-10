@@ -42,15 +42,15 @@ describe('Formen, keine Produkte', () => {
 
   it('deckt alle vier gefragten Bauformen ab', () => {
     const namen = passiveTemplates.map((t) => t.name).join(' | ')
-    expect(namen).toMatch(/Patchblende/)
-    expect(namen).toMatch(/Durchgangsbuchse/)
+    expect(namen).toMatch(/Patch panel/)
+    expect(namen).toMatch(/Feed-through/)
     expect(namen).toMatch(/Steckdosenleiste/)
-    expect(namen).toMatch(/Verteiler/)
+    expect(namen).toMatch(/Distro/)
   })
 })
 
 describe('Die Patchblende ist dieselbe wie im Rack-Builder', () => {
-  const blenden = passiveTemplates.filter((t) => t.name.startsWith('Patchblende'))
+  const blenden = passiveTemplates.filter((t) => t.name.startsWith('Patch panel'))
 
   it('laeuft durch dieselbe Erkennung', () => {
     // `isPatchPanelDevice` ist die EINE Stelle, die „ist das eine Blende?"
@@ -77,7 +77,7 @@ describe('Die Patchblende ist dieselbe wie im Rack-Builder', () => {
   })
 
   it('macht aus der Durchgangsbuchse eine Blende der Groesse 1', () => {
-    const d = passiveTemplates.filter((t) => t.name.startsWith('Durchgangsbuchse'))
+    const d = passiveTemplates.filter((t) => t.name.startsWith('Feed-through'))
     expect(d.length).toBeGreaterThan(0)
     for (const t of d) {
       expect(isPatchPanelDevice(t)).toBe(true)
@@ -89,7 +89,7 @@ describe('Die Patchblende ist dieselbe wie im Rack-Builder', () => {
 
 describe('Die Absicherung steht am Abgang und wird nicht geraten', () => {
   it('gibt jedem Verteiler-Abgang seine Ampere', () => {
-    const v = passiveTemplates.filter((t) => t.name.startsWith('Verteiler'))
+    const v = passiveTemplates.filter((t) => t.name.startsWith('Distro'))
     expect(v.length).toBeGreaterThan(0)
     for (const t of v) {
       for (const p of t.outputs) expect(p.absicherungA).toBeGreaterThan(0)

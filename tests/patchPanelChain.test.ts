@@ -32,7 +32,7 @@ const geraet = (over: Partial<EquipmentItem> & { id: string; name: string }): Eq
   }) as EquipmentItem
 
 /** n Ein- und n Ausgänge, gleich nummeriert — eine echte Blende. */
-const blende = (id: string, name: string, n: number, category = 'Patchfelder'): EquipmentItem =>
+const blende = (id: string, name: string, n: number, category = 'Patch panels'): EquipmentItem =>
   geraet({
     id,
     name,
@@ -112,7 +112,7 @@ describe('der Durchgang ist die Position, in beide Richtungen', () => {
     const schief = geraet({
       id: 'schief',
       name: 'Halbe Blende',
-      category: 'Patchfelder',
+      category: 'Patch panels',
       inputs: [port('s-in-1', 'In 1'), port('s-in-2', 'In 2')],
       outputs: [port('s-out-1', 'Out 1')],
     })

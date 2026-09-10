@@ -216,7 +216,7 @@ describe('Check 23 springt nur an, wo jemand etwas erklärt hat', () => {
       cables: [kabel({})],
       defaultVideoFormat: '2160p60',
     })
-    const f = findings.filter((x) => x.category === 'Bildformat')
+    const f = findings.filter((x) => x.category === 'Video format')
     expect(f).toHaveLength(1)
     expect(f[0].severity).toBe('error')
     expect(f[0].equipmentId).toBe('mon')
@@ -227,7 +227,7 @@ describe('Check 23 springt nur an, wo jemand etwas erklärt hat', () => {
       equipment: [eq({ id: 'src', name: 'Quelle' }), eq({ id: 'mon', name: 'Monitor 1' })],
       cables: [kabel({ videoFormat: '1080p50' })],
     })
-    const f = findings.filter((x) => x.category === 'Bildformat')
+    const f = findings.filter((x) => x.category === 'Video format')
     expect(f).toHaveLength(1)
     expect(f[0].severity).toBe('info')
   })
@@ -241,7 +241,7 @@ describe('Check 23 springt nur an, wo jemand etwas erklärt hat', () => {
       cables: [kabel({})],
       defaultVideoFormat: '1080p50',
     })
-    expect(findings.some((x) => x.category === 'Bildformat')).toBe(false)
+    expect(findings.some((x) => x.category === 'Video format')).toBe(false)
   })
 
   it('und die Kategorie entscheidet NICHT, ob geprüft wird', () => {
@@ -263,6 +263,6 @@ describe('Check 23 springt nur an, wo jemand etwas erklärt hat', () => {
       equipment: [eq({ id: 'src', name: 'Quelle' }), eq({ id: 'mon', name: 'Monitor 1', senkenprofil: profil })],
       cables: [kabel({ videoFormat: '1080p50' })],
     })
-    expect(findings.some((x) => x.category === 'Bildformat')).toBe(false)
+    expect(findings.some((x) => x.category === 'Video format')).toBe(false)
   })
 })

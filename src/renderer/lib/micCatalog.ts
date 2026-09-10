@@ -36,7 +36,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.shure.com/en-US/microphones/sm57',
       name: 'Shure SM57',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'cardioid', powering: 'none', capsule: 'handheld', micApplication: 'snare', proximityEffect: 'moderate', maxSplDb: 150, tonalCharacter: 'present', connectorOut: 'xlr' },
@@ -51,7 +51,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.shure.com/en-US/microphones/sm58',
       name: 'Shure SM58',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'cardioid', powering: 'none', capsule: 'handheld', micApplication: 'vocal', proximityEffect: 'moderate', maxSplDb: 150, tonalCharacter: 'present', connectorOut: 'xlr' },
@@ -66,7 +66,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.shure.com/en-US/microphones/beta_52a',
       name: 'Shure Beta 52A',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'super', powering: 'none', capsule: 'handheld', micApplication: 'kick', proximityEffect: 'strong', maxSplDb: 174, tonalCharacter: 'scooped', connectorOut: 'xlr' },
@@ -81,7 +81,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.shure.com/en-US/microphones/beta_91a',
       name: 'Shure Beta 91A',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'boundary', powering: 'p48', capsule: 'boundary', micApplication: 'kick', proximityEffect: 'none', maxSplDb: 155, tonalCharacter: 'scooped', connectorOut: 'xlr' },
@@ -96,7 +96,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.shure.com/en-US/microphones/beta_57a',
       name: 'Shure Beta 57A',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'super', powering: 'none', capsule: 'handheld', micApplication: 'snare', proximityEffect: 'strong', maxSplDb: 150, tonalCharacter: 'present', connectorOut: 'xlr' },
@@ -111,7 +111,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.shure.com/en-US/microphones/sm7b',
       name: 'Shure SM7B',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'cardioid', powering: 'none', capsule: 'largeDiaphragm', micApplication: 'broadcast', proximityEffect: 'moderate', tonalCharacter: 'warm', connectorOut: 'xlr' },
@@ -126,7 +126,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.sennheiser.com/en-us/catalog/products/microphones/md-421-ii',
       name: 'Sennheiser MD421-II',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'cardioid', powering: 'none', capsule: 'largeDiaphragm', micApplication: 'tom', proximityEffect: 'moderate', tonalCharacter: 'present', connectorOut: 'xlr' },
@@ -141,7 +141,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.sennheiser.com/en-us/catalog/products/microphones/e-604',
       name: 'Sennheiser e604',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'cardioid', powering: 'none', capsule: 'clip', micApplication: 'tom', proximityEffect: 'moderate', connectorOut: 'xlr' },
@@ -156,7 +156,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.sennheiser.com/en-us/catalog/products/microphones/e-602-ii',
       name: 'Sennheiser e602-II',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'cardioid', powering: 'none', capsule: 'handheld', micApplication: 'kick', proximityEffect: 'moderate', tonalCharacter: 'scooped', connectorOut: 'xlr' },
@@ -171,7 +171,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.sennheiser.com/en-us/catalog/products/microphones/e-906',
       name: 'Sennheiser e906',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'super', powering: 'none', capsule: 'handheld', micApplication: 'guitar', proximityEffect: 'strong', tonalCharacter: 'present', connectorOut: 'xlr' },
@@ -186,7 +186,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://audixusa.com/products/d6',
       name: 'Audix D6',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'cardioid', powering: 'none', capsule: 'handheld', micApplication: 'kick', proximityEffect: 'moderate', maxSplDb: 144, tonalCharacter: 'scooped', connectorOut: 'xlr' },
@@ -201,7 +201,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://audixusa.com/products/i5',
       name: 'Audix i5',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'cardioid', powering: 'none', capsule: 'handheld', micApplication: 'snare', proximityEffect: 'moderate', maxSplDb: 140, tonalCharacter: 'present', connectorOut: 'xlr' },
@@ -216,7 +216,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://audixusa.com/products/d2',
       name: 'Audix D2',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'hyper', powering: 'none', capsule: 'handheld', micApplication: 'tom', proximityEffect: 'strong', maxSplDb: 144, connectorOut: 'xlr' },
@@ -231,7 +231,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://audixusa.com/products/d4',
       name: 'Audix D4',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'hyper', powering: 'none', capsule: 'handheld', micApplication: 'tom', proximityEffect: 'strong', maxSplDb: 144, connectorOut: 'xlr' },
@@ -246,7 +246,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.beyerdynamic.com/m-88-tg.html',
       name: 'Beyerdynamic M 88 TG',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'hyper', powering: 'none', capsule: 'handheld', micApplication: 'kick', proximityEffect: 'strong', tonalCharacter: 'warm', connectorOut: 'xlr' },
@@ -261,7 +261,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.beyerdynamic.com/m-201-tg.html',
       name: 'Beyerdynamic M 201 TG',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'hyper', powering: 'none', capsule: 'smallDiaphragm', micApplication: 'instrument', proximityEffect: 'strong', tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -276,7 +276,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.electrovoice.com/product/re20/',
       name: 'Electro-Voice RE20',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'cardioid', powering: 'none', capsule: 'largeDiaphragm', micApplication: 'broadcast', proximityEffect: 'moderate', tonalCharacter: 'warm', connectorOut: 'xlr' },
@@ -291,7 +291,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.neumann.com/en-us/products/microphones/km-184/',
       name: 'Neumann KM 184',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'smallDiaphragm', micApplication: 'overhead', proximityEffect: 'moderate', maxSplDb: 138, tonalCharacter: 'bright', connectorOut: 'xlr' },
@@ -306,7 +306,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.akg.com/microphones/condenser-microphones/C451B.html',
       name: 'AKG C451 B',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'smallDiaphragm', micApplication: 'overhead', proximityEffect: 'moderate', maxSplDb: 155, tonalCharacter: 'bright', connectorOut: 'xlr' },
@@ -321,7 +321,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://rode.com/en-us/microphones/studio-condenser/nt5',
       name: 'Rode NT5',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'smallDiaphragm', micApplication: 'overhead', proximityEffect: 'moderate', maxSplDb: 143, tonalCharacter: 'bright', connectorOut: 'xlr' },
@@ -336,7 +336,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://seelectronics.com/se8-series/',
       name: 'sE Electronics sE8',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'smallDiaphragm', micApplication: 'overhead', proximityEffect: 'moderate', maxSplDb: 159, tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -351,7 +351,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.dpamicrophones.com/pencil/4011a-cardioid-microphone/',
       name: 'DPA 4011',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'smallDiaphragm', micApplication: 'overhead', proximityEffect: 'moderate', maxSplDb: 158, tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -366,7 +366,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.dpamicrophones.com/compact/2011-twin-diaphragm-cardioid-microphone/',
       name: 'DPA 2011',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'smallDiaphragm', micApplication: 'overhead', proximityEffect: 'moderate', maxSplDb: 153, tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -381,7 +381,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.shure.com/en-US/microphones/sm81',
       name: 'Shure SM81',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'smallDiaphragm', micApplication: 'overhead', proximityEffect: 'moderate', maxSplDb: 146, tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -396,7 +396,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.neumann.com/en-us/products/microphones/u-87-ai/',
       name: 'Neumann U 87 Ai',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'multi', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'vocal', proximityEffect: 'moderate', maxSplDb: 127, tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -411,7 +411,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.neumann.com/en-us/products/microphones/tlm-103/',
       name: 'Neumann TLM 103',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'vocal', proximityEffect: 'moderate', maxSplDb: 138, tonalCharacter: 'present', connectorOut: 'xlr' },
@@ -426,7 +426,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.akg.com/microphones/condenser-microphones/C414XLII.html',
       name: 'AKG C414 XLII',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'multi', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'instrument', proximityEffect: 'moderate', maxSplDb: 158, tonalCharacter: 'present', connectorOut: 'xlr' },
@@ -441,7 +441,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://rode.com/en-us/microphones/studio-condenser/nt1-5th-generation',
       name: 'Rode NT1 (5th Gen)',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'vocal', proximityEffect: 'moderate', maxSplDb: 132, tonalCharacter: 'warm', connectorOut: 'xlr' },
@@ -456,7 +456,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://royerlabs.com/r-121/',
       name: 'Royer R-121',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'ribbon', polarPattern: 'fig8', powering: 'none', capsule: 'largeDiaphragm', micApplication: 'guitar', proximityEffect: 'strong', maxSplDb: 135, tonalCharacter: 'warm', connectorOut: 'xlr' },
@@ -471,7 +471,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.aearibbonmics.com/products/r84/',
       name: 'AEA R84',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'ribbon', polarPattern: 'fig8', powering: 'none', capsule: 'largeDiaphragm', micApplication: 'room', proximityEffect: 'strong', maxSplDb: 165, tonalCharacter: 'vintage', connectorOut: 'xlr' },
@@ -486,7 +486,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.coleselectroacoustics.com/4038-studio-ribbon-microphone/',
       name: 'Coles 4038',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'ribbon', polarPattern: 'fig8', powering: 'none', capsule: 'largeDiaphragm', micApplication: 'overhead', proximityEffect: 'strong', maxSplDb: 125, tonalCharacter: 'vintage', connectorOut: 'xlr' },
@@ -501,7 +501,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.sennheiser.com/en-us/catalog/products/microphones/mkh-416-p48u3',
       name: 'Sennheiser MKH 416',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'shotgun', powering: 'p48', capsule: 'shotgun', micApplication: 'broadcast', proximityEffect: 'moderate', maxSplDb: 130, tonalCharacter: 'present', connectorOut: 'xlr' },
@@ -516,7 +516,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://rode.com/en-us/microphones/shotgun/ntg3',
       name: 'Rode NTG3',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'shotgun', powering: 'p48', capsule: 'shotgun', micApplication: 'broadcast', proximityEffect: 'moderate', maxSplDb: 130, tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -531,7 +531,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.sennheiser.com/en-us/catalog/products/microphones/mke-2',
       name: 'Sennheiser MKE 2',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'Mini-XLR', connectorType: 'Mini-XLR', gender: 'male' }],
       categoryProps: { transducer: 'electret', polarPattern: 'omni', powering: 'plugin', capsule: 'lavalier', micApplication: 'broadcast', proximityEffect: 'none', maxSplDb: 142, connectorOut: 'miniXlr' },
@@ -546,7 +546,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.dpamicrophones.com/lavalier/4060-series-miniature-omnidirectional-microphone/',
       name: 'DPA 4060',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'Mini-XLR', connectorType: 'Mini-XLR', gender: 'male' }],
       categoryProps: { transducer: 'electret', polarPattern: 'omni', powering: 'plugin', capsule: 'lavalier', micApplication: 'broadcast', proximityEffect: 'none', maxSplDb: 134, tonalCharacter: 'neutral', connectorOut: 'miniXlr' },
@@ -561,7 +561,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.crownaudio.com/en/products/pzm-30d',
       name: 'Crown PZM-30D',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'boundary', powering: 'p48', capsule: 'boundary', micApplication: 'room', proximityEffect: 'none', maxSplDb: 150, connectorOut: 'xlr' },
@@ -576,7 +576,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.shure.com/en-US/microphones/sm7db',
       name: 'Shure SM7dB',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'cardioid', powering: 'none', capsule: 'largeDiaphragm', micApplication: 'broadcast', proximityEffect: 'moderate', tonalCharacter: 'warm', connectorOut: 'xlr' },
@@ -591,7 +591,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.shure.com/en-US/microphones/beta_58a',
       name: 'Shure Beta 58A',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'super', powering: 'none', capsule: 'handheld', micApplication: 'vocal', proximityEffect: 'strong', tonalCharacter: 'present', connectorOut: 'xlr' },
@@ -606,7 +606,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.shure.com/en-US/microphones/beta_87a',
       name: 'Shure Beta 87A',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'super', powering: 'p48', capsule: 'handheld', micApplication: 'vocal', proximityEffect: 'strong', tonalCharacter: 'present', connectorOut: 'xlr' },
@@ -621,7 +621,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.shure.com/en-US/microphones/beta_87c',
       name: 'Shure Beta 87C',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'handheld', micApplication: 'vocal', proximityEffect: 'moderate', tonalCharacter: 'present', connectorOut: 'xlr' },
@@ -636,7 +636,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.shure.com/en-US/microphones/ksm9',
       name: 'Shure KSM9',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'multi', powering: 'p48', capsule: 'handheld', micApplication: 'vocal', proximityEffect: 'moderate', maxSplDb: 151, tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -651,7 +651,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.shure.com/en-US/microphones/ksm8',
       name: 'Shure KSM8 Dualdyne',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'cardioid', powering: 'none', capsule: 'handheld', micApplication: 'vocal', proximityEffect: 'moderate', tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -666,7 +666,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.shure.com/en-US/microphones/ksm32',
       name: 'Shure KSM32',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'vocal', proximityEffect: 'moderate', maxSplDb: 154, tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -681,7 +681,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.shure.com/en-US/microphones/ksm44a',
       name: 'Shure KSM44A',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'multi', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'vocal', proximityEffect: 'moderate', maxSplDb: 132, tonalCharacter: 'warm', connectorOut: 'xlr' },
@@ -696,7 +696,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.shure.com/en-US/microphones/ksm137',
       name: 'Shure KSM137',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'smallDiaphragm', micApplication: 'overhead', proximityEffect: 'moderate', maxSplDb: 170, tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -711,7 +711,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.shure.com/en-US/microphones/ksm141',
       name: 'Shure KSM141',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'multi', powering: 'p48', capsule: 'smallDiaphragm', micApplication: 'overhead', proximityEffect: 'moderate', maxSplDb: 170, tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -726,7 +726,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.shure.com/en-US/microphones/beta_98ad_c',
       name: 'Shure Beta 98A/C',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'clip', micApplication: 'tom', proximityEffect: 'moderate', connectorOut: 'xlr' },
@@ -741,7 +741,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.shure.com/en-US/microphones/beta_181',
       name: 'Shure Beta 181',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'multi', powering: 'p48', capsule: 'smallDiaphragm', micApplication: 'overhead', proximityEffect: 'moderate', maxSplDb: 155, tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -756,7 +756,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.shure.com/en-US/microphones/sm86',
       name: 'Shure SM86',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'handheld', micApplication: 'vocal', proximityEffect: 'moderate', maxSplDb: 147, tonalCharacter: 'present', connectorOut: 'xlr' },
@@ -771,7 +771,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.shure.com/en-US/microphones/super_55',
       name: 'Shure Super 55',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'super', powering: 'none', capsule: 'handheld', micApplication: 'vocal', proximityEffect: 'strong', tonalCharacter: 'vintage', connectorOut: 'xlr' },
@@ -786,7 +786,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.shure.com/en-US/microphones/beta_56a',
       name: 'Shure Beta 56A',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'super', powering: 'none', capsule: 'handheld', micApplication: 'snare', proximityEffect: 'strong', tonalCharacter: 'present', connectorOut: 'xlr' },
@@ -801,7 +801,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.shure.com/en-US/microphones/pga57',
       name: 'Shure PGA57',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'cardioid', powering: 'none', capsule: 'handheld', micApplication: 'snare', proximityEffect: 'moderate', tonalCharacter: 'present', connectorOut: 'xlr' },
@@ -816,7 +816,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.shure.com/en-US/microphones/mv7',
       name: 'Shure MV7 (XLR)',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'cardioid', powering: 'none', capsule: 'largeDiaphragm', micApplication: 'broadcast', proximityEffect: 'moderate', tonalCharacter: 'warm', connectorOut: 'xlr' },
@@ -831,7 +831,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.sennheiser.com/en-us/catalog/products/microphones/md-441-u',
       name: 'Sennheiser MD 441-U',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'super', powering: 'none', capsule: 'largeDiaphragm', micApplication: 'instrument', proximityEffect: 'strong', tonalCharacter: 'bright', connectorOut: 'xlr' },
@@ -846,7 +846,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.sennheiser.com/en-us/catalog/products/microphones/e-835',
       name: 'Sennheiser e835',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'cardioid', powering: 'none', capsule: 'handheld', micApplication: 'vocal', proximityEffect: 'moderate', tonalCharacter: 'present', connectorOut: 'xlr' },
@@ -861,7 +861,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.sennheiser.com/en-us/catalog/products/microphones/e-845',
       name: 'Sennheiser e845',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'super', powering: 'none', capsule: 'handheld', micApplication: 'vocal', proximityEffect: 'strong', tonalCharacter: 'present', connectorOut: 'xlr' },
@@ -876,7 +876,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.sennheiser.com/en-us/catalog/products/microphones/e-865',
       name: 'Sennheiser e865',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'super', powering: 'p48', capsule: 'handheld', micApplication: 'vocal', proximityEffect: 'strong', tonalCharacter: 'bright', connectorOut: 'xlr' },
@@ -891,7 +891,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.sennheiser.com/en-us/catalog/products/microphones/e-935',
       name: 'Sennheiser e935',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'cardioid', powering: 'none', capsule: 'handheld', micApplication: 'vocal', proximityEffect: 'moderate', tonalCharacter: 'present', connectorOut: 'xlr' },
@@ -906,7 +906,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.sennheiser.com/en-us/catalog/products/microphones/e-945',
       name: 'Sennheiser e945',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'super', powering: 'none', capsule: 'handheld', micApplication: 'vocal', proximityEffect: 'strong', tonalCharacter: 'present', connectorOut: 'xlr' },
@@ -921,7 +921,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.sennheiser.com/en-us/catalog/products/microphones/e-901',
       name: 'Sennheiser e901',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'boundary', powering: 'p48', capsule: 'boundary', micApplication: 'kick', proximityEffect: 'none', maxSplDb: 150, connectorOut: 'xlr' },
@@ -936,7 +936,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.sennheiser.com/en-us/catalog/products/microphones/e-902',
       name: 'Sennheiser e902',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'cardioid', powering: 'none', capsule: 'handheld', micApplication: 'kick', proximityEffect: 'moderate', tonalCharacter: 'scooped', connectorOut: 'xlr' },
@@ -951,7 +951,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.sennheiser.com/en-us/catalog/products/microphones/e-905',
       name: 'Sennheiser e905',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'super', powering: 'none', capsule: 'handheld', micApplication: 'snare', proximityEffect: 'strong', tonalCharacter: 'present', connectorOut: 'xlr' },
@@ -966,7 +966,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.sennheiser.com/en-us/catalog/products/microphones/e-908-b',
       name: 'Sennheiser e908 B',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'clip', micApplication: 'instrument', proximityEffect: 'moderate', connectorOut: 'xlr' },
@@ -981,7 +981,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.sennheiser.com/en-us/catalog/products/microphones/md-46',
       name: 'Sennheiser MD 46',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'cardioid', powering: 'none', capsule: 'handheld', micApplication: 'broadcast', proximityEffect: 'moderate', tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -996,7 +996,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.sennheiser.com/en-us/catalog/products/microphones/mk-4',
       name: 'Sennheiser MK 4',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'vocal', proximityEffect: 'moderate', maxSplDb: 140, tonalCharacter: 'warm', connectorOut: 'xlr' },
@@ -1011,7 +1011,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.sennheiser.com/en-us/catalog/products/microphones/mkh-8040',
       name: 'Sennheiser MKH 8040',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'smallDiaphragm', micApplication: 'overhead', proximityEffect: 'moderate', maxSplDb: 142, tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -1026,7 +1026,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.sennheiser.com/en-us/catalog/products/microphones/mkh-50-p48',
       name: 'Sennheiser MKH 50',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'super', powering: 'p48', capsule: 'smallDiaphragm', micApplication: 'broadcast', proximityEffect: 'strong', maxSplDb: 134, tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -1041,7 +1041,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.sennheiser.com/en-us/catalog/products/microphones/mkh-40-p48',
       name: 'Sennheiser MKH 40',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'smallDiaphragm', micApplication: 'instrument', proximityEffect: 'moderate', maxSplDb: 134, tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -1056,7 +1056,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.sennheiser.com/en-us/catalog/products/microphones/mke-600',
       name: 'Sennheiser MKE 600',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'shotgun', powering: 'battery', capsule: 'shotgun', micApplication: 'broadcast', proximityEffect: 'moderate', maxSplDb: 132, tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -1071,7 +1071,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.neumann.com/en-us/products/microphones/tlm-102/',
       name: 'Neumann TLM 102',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'vocal', proximityEffect: 'moderate', maxSplDb: 144, tonalCharacter: 'present', connectorOut: 'xlr' },
@@ -1086,7 +1086,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.neumann.com/en-us/products/microphones/tlm-107/',
       name: 'Neumann TLM 107',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'multi', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'vocal', proximityEffect: 'moderate', maxSplDb: 141, tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -1101,7 +1101,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.neumann.com/en-us/products/microphones/tlm-170-r/',
       name: 'Neumann TLM 170 R',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'multi', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'instrument', proximityEffect: 'moderate', maxSplDb: 144, tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -1116,7 +1116,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.neumann.com/en-us/products/microphones/km-185/',
       name: 'Neumann KM 185',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'hyper', powering: 'p48', capsule: 'smallDiaphragm', micApplication: 'overhead', proximityEffect: 'strong', maxSplDb: 138, tonalCharacter: 'bright', connectorOut: 'xlr' },
@@ -1131,7 +1131,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.neumann.com/en-us/products/microphones/u-47-fet/',
       name: 'Neumann U 47 fet',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'kick', proximityEffect: 'moderate', tonalCharacter: 'warm', connectorOut: 'xlr' },
@@ -1146,7 +1146,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.neumann.com/en-us/products/microphones/kms-105/',
       name: 'Neumann KMS 105',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'super', powering: 'p48', capsule: 'handheld', micApplication: 'vocal', proximityEffect: 'strong', maxSplDb: 150, tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -1161,7 +1161,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.neumann.com/en-us/products/microphones/kms-104/',
       name: 'Neumann KMS 104',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'handheld', micApplication: 'vocal', proximityEffect: 'moderate', maxSplDb: 150, tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -1176,7 +1176,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.neumann.com/en-us/products/microphones/m-149-tube/',
       name: 'Neumann M 149 Tube',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'multi', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'vocal', proximityEffect: 'moderate', maxSplDb: 120, tonalCharacter: 'vintage', connectorOut: 'xlr' },
@@ -1191,7 +1191,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.neumann.com/en-us/products/microphones/bcm-705/',
       name: 'Neumann BCM 705',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'hyper', powering: 'none', capsule: 'largeDiaphragm', micApplication: 'broadcast', proximityEffect: 'strong', tonalCharacter: 'present', connectorOut: 'xlr' },
@@ -1206,7 +1206,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.neumann.com/en-us/products/microphones/tlm-193/',
       name: 'Neumann TLM 193',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'vocal', proximityEffect: 'moderate', maxSplDb: 130, tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -1221,7 +1221,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.akg.com/microphones/condenser-microphones/C414XLS.html',
       name: 'AKG C414 XLS',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'multi', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'instrument', proximityEffect: 'moderate', maxSplDb: 158, tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -1236,7 +1236,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.akg.com/microphones/condenser-microphones/C214.html',
       name: 'AKG C214',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'instrument', proximityEffect: 'moderate', maxSplDb: 156, tonalCharacter: 'present', connectorOut: 'xlr' },
@@ -1251,7 +1251,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.akg.com/microphones/dynamic-microphones/D112MKII.html',
       name: 'AKG D112 MkII',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'cardioid', powering: 'none', capsule: 'largeDiaphragm', micApplication: 'kick', proximityEffect: 'moderate', maxSplDb: 160, tonalCharacter: 'scooped', connectorOut: 'xlr' },
@@ -1266,7 +1266,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.akg.com/microphones/dynamic-microphones/D12VR.html',
       name: 'AKG D12 VR',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'cardioid', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'kick', proximityEffect: 'moderate', maxSplDb: 164, tonalCharacter: 'vintage', connectorOut: 'xlr' },
@@ -1281,7 +1281,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.akg.com/microphones/dynamic-microphones/D5.html',
       name: 'AKG D5',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'super', powering: 'none', capsule: 'handheld', micApplication: 'vocal', proximityEffect: 'strong', maxSplDb: 147, tonalCharacter: 'present', connectorOut: 'xlr' },
@@ -1296,7 +1296,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.akg.com/microphones/dynamic-microphones/D40.html',
       name: 'AKG D40',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'cardioid', powering: 'none', capsule: 'handheld', micApplication: 'instrument', proximityEffect: 'moderate', tonalCharacter: 'present', connectorOut: 'xlr' },
@@ -1311,7 +1311,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.akg.com/microphones/condenser-microphones/C1000S.html',
       name: 'AKG C1000 S',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'battery', capsule: 'smallDiaphragm', micApplication: 'instrument', proximityEffect: 'moderate', maxSplDb: 137, tonalCharacter: 'bright', connectorOut: 'xlr' },
@@ -1326,7 +1326,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.akg.com/microphones/condenser-microphones/C3000.html',
       name: 'AKG C3000',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'vocal', proximityEffect: 'moderate', maxSplDb: 150, tonalCharacter: 'present', connectorOut: 'xlr' },
@@ -1341,7 +1341,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.akg.com/microphones/condenser-microphones/C12VR.html',
       name: 'AKG C12 VR',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'multi', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'vocal', proximityEffect: 'moderate', maxSplDb: 128, tonalCharacter: 'vintage', connectorOut: 'xlr' },
@@ -1356,7 +1356,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.akg.com/microphones/condenser-microphones/C519ML.html',
       name: 'AKG C519 ML',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'clip', micApplication: 'instrument', proximityEffect: 'moderate', connectorOut: 'xlr' },
@@ -1371,7 +1371,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://rode.com/en-us/microphones/studio-condenser/nt1-a',
       name: 'Rode NT1-A',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'vocal', proximityEffect: 'moderate', maxSplDb: 137, tonalCharacter: 'bright', connectorOut: 'xlr' },
@@ -1386,7 +1386,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://rode.com/en-us/microphones/studio-condenser/nt2-a',
       name: 'Rode NT2-A',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'multi', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'vocal', proximityEffect: 'moderate', maxSplDb: 147, tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -1401,7 +1401,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://rode.com/en-us/microphones/studio-condenser/ntk',
       name: 'Rode NTK',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'vocal', proximityEffect: 'moderate', maxSplDb: 158, tonalCharacter: 'warm', connectorOut: 'xlr' },
@@ -1416,7 +1416,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://rode.com/en-us/microphones/shotgun/ntg5',
       name: 'Rode NTG5',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'shotgun', powering: 'p48', capsule: 'shotgun', micApplication: 'broadcast', proximityEffect: 'moderate', maxSplDb: 131, tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -1431,7 +1431,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://rode.com/en-us/microphones/shotgun/ntg4-plus',
       name: 'Rode NTG4+',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'shotgun', powering: 'battery', capsule: 'shotgun', micApplication: 'broadcast', proximityEffect: 'moderate', maxSplDb: 131, tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -1446,7 +1446,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://rode.com/en-us/microphones/broadcast/broadcaster',
       name: 'Rode Broadcaster',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'broadcast', proximityEffect: 'moderate', maxSplDb: 142, tonalCharacter: 'present', connectorOut: 'xlr' },
@@ -1461,7 +1461,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://rode.com/en-us/microphones/broadcast/procaster',
       name: 'Rode Procaster',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'cardioid', powering: 'none', capsule: 'largeDiaphragm', micApplication: 'broadcast', proximityEffect: 'moderate', tonalCharacter: 'warm', connectorOut: 'xlr' },
@@ -1476,7 +1476,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://rode.com/en-us/microphones/broadcast/podmic',
       name: 'Rode PodMic',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'cardioid', powering: 'none', capsule: 'largeDiaphragm', micApplication: 'broadcast', proximityEffect: 'moderate', tonalCharacter: 'warm', connectorOut: 'xlr' },
@@ -1491,7 +1491,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://rode.com/en-us/microphones/studio-condenser/m5',
       name: 'Rode M5',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'smallDiaphragm', micApplication: 'overhead', proximityEffect: 'moderate', maxSplDb: 140, tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -1506,7 +1506,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.audio-technica.com/en-us/at4040',
       name: 'Audio-Technica AT4040',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'vocal', proximityEffect: 'moderate', maxSplDb: 155, tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -1521,7 +1521,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.audio-technica.com/en-us/at4050',
       name: 'Audio-Technica AT4050',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'multi', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'instrument', proximityEffect: 'moderate', maxSplDb: 149, tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -1536,7 +1536,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.audio-technica.com/en-us/at4033a',
       name: 'Audio-Technica AT4033',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'vocal', proximityEffect: 'moderate', maxSplDb: 145, tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -1551,7 +1551,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.audio-technica.com/en-us/at4047-svsm',
       name: 'Audio-Technica AT4047',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'vocal', proximityEffect: 'moderate', maxSplDb: 149, tonalCharacter: 'warm', connectorOut: 'xlr' },
@@ -1566,7 +1566,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.audio-technica.com/en-us/at2020',
       name: 'Audio-Technica AT2020',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'vocal', proximityEffect: 'moderate', maxSplDb: 144, tonalCharacter: 'present', connectorOut: 'xlr' },
@@ -1581,7 +1581,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.audio-technica.com/en-us/at2035',
       name: 'Audio-Technica AT2035',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'vocal', proximityEffect: 'moderate', maxSplDb: 158, tonalCharacter: 'present', connectorOut: 'xlr' },
@@ -1596,7 +1596,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.audio-technica.com/en-us/at4060a',
       name: 'Audio-Technica AT4060',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'vocal', proximityEffect: 'moderate', maxSplDb: 150, tonalCharacter: 'vintage', connectorOut: 'xlr' },
@@ -1611,7 +1611,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.audio-technica.com/en-us/at5040',
       name: 'Audio-Technica AT5040',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'vocal', proximityEffect: 'moderate', maxSplDb: 142, tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -1626,7 +1626,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.audio-technica.com/en-us/atm650',
       name: 'Audio-Technica ATM650',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'hyper', powering: 'none', capsule: 'handheld', micApplication: 'snare', proximityEffect: 'strong', tonalCharacter: 'present', connectorOut: 'xlr' },
@@ -1641,7 +1641,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.audio-technica.com/en-us/atm250',
       name: 'Audio-Technica ATM250',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'hyper', powering: 'none', capsule: 'handheld', micApplication: 'kick', proximityEffect: 'strong', tonalCharacter: 'scooped', connectorOut: 'xlr' },
@@ -1656,7 +1656,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.audio-technica.com/en-us/atm350a',
       name: 'Audio-Technica ATM350',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'clip', micApplication: 'instrument', proximityEffect: 'moderate', maxSplDb: 159, connectorOut: 'xlr' },
@@ -1671,7 +1671,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.audio-technica.com/en-us/bp40',
       name: 'Audio-Technica BP40',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'hyper', powering: 'none', capsule: 'largeDiaphragm', micApplication: 'broadcast', proximityEffect: 'strong', maxSplDb: 148, tonalCharacter: 'warm', connectorOut: 'xlr' },
@@ -1686,7 +1686,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.audio-technica.com/en-us/ae2500',
       name: 'Audio-Technica AE2500',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'kick', proximityEffect: 'moderate', maxSplDb: 148, connectorOut: 'xlr' },
@@ -1701,7 +1701,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.audio-technica.com/en-us/ae6100',
       name: 'Audio-Technica AE6100',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'hyper', powering: 'none', capsule: 'handheld', micApplication: 'vocal', proximityEffect: 'strong', tonalCharacter: 'present', connectorOut: 'xlr' },
@@ -1716,7 +1716,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.audio-technica.com/en-us/at8035',
       name: 'Audio-Technica AT8035',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'shotgun', powering: 'battery', capsule: 'shotgun', micApplication: 'broadcast', proximityEffect: 'moderate', maxSplDb: 126, tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -1731,7 +1731,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.dpamicrophones.com/pencil/4006a-omnidirectional-microphone/',
       name: 'DPA 4006A',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'omni', powering: 'p48', capsule: 'smallDiaphragm', micApplication: 'overhead', proximityEffect: 'none', maxSplDb: 143, tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -1746,7 +1746,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.dpamicrophones.com/pencil/4007a-omnidirectional-microphone/',
       name: 'DPA 4007',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'omni', powering: 'p48', capsule: 'smallDiaphragm', micApplication: 'overhead', proximityEffect: 'none', maxSplDb: 168, tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -1761,7 +1761,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.dpamicrophones.com/pencil/4015a-wide-cardioid-microphone/',
       name: 'DPA 4015',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'sub', powering: 'p48', capsule: 'smallDiaphragm', micApplication: 'overhead', proximityEffect: 'low', maxSplDb: 158, tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -1776,7 +1776,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.dpamicrophones.com/pencil/4018a-supercardioid-microphone/',
       name: 'DPA 4018',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'super', powering: 'p48', capsule: 'smallDiaphragm', micApplication: 'instrument', proximityEffect: 'strong', maxSplDb: 158, tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -1791,7 +1791,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.dpamicrophones.com/handheld/2028-vocal-microphone/',
       name: 'DPA 2028',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'super', powering: 'p48', capsule: 'handheld', micApplication: 'vocal', proximityEffect: 'strong', maxSplDb: 160, tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -1806,7 +1806,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.dpamicrophones.com/instrument/4099-instrument-microphone/',
       name: 'DPA 4099',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'Mini-XLR', connectorType: 'Mini-XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'super', powering: 'p48', capsule: 'clip', micApplication: 'instrument', proximityEffect: 'strong', maxSplDb: 142, tonalCharacter: 'neutral', connectorOut: 'miniXlr' },
@@ -1821,7 +1821,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.dpamicrophones.com/instrument/4055-kick-drum-microphone/',
       name: 'DPA 4055',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'kick', proximityEffect: 'moderate', maxSplDb: 165, tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -1836,7 +1836,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.dpamicrophones.com/headset/4066-omnidirectional-headset-microphone/',
       name: 'DPA 4066',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'Mini-XLR', connectorType: 'Mini-XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'omni', powering: 'plugin', capsule: 'lavalier', micApplication: 'broadcast', proximityEffect: 'none', maxSplDb: 144, tonalCharacter: 'neutral', connectorOut: 'miniXlr' },
@@ -1851,7 +1851,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.dpamicrophones.com/lavalier/6060-subminiature-microphone/',
       name: 'DPA 6060',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'Mini-XLR', connectorType: 'Mini-XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'omni', powering: 'plugin', capsule: 'lavalier', micApplication: 'broadcast', proximityEffect: 'none', maxSplDb: 144, tonalCharacter: 'neutral', connectorOut: 'miniXlr' },
@@ -1866,7 +1866,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.beyerdynamic.com/m-160.html',
       name: 'Beyerdynamic M 160',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'ribbon', polarPattern: 'hyper', powering: 'none', capsule: 'smallDiaphragm', micApplication: 'overhead', proximityEffect: 'strong', tonalCharacter: 'warm', connectorOut: 'xlr' },
@@ -1881,7 +1881,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.beyerdynamic.com/m-130.html',
       name: 'Beyerdynamic M 130',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'ribbon', polarPattern: 'fig8', powering: 'none', capsule: 'smallDiaphragm', micApplication: 'room', proximityEffect: 'strong', tonalCharacter: 'warm', connectorOut: 'xlr' },
@@ -1896,7 +1896,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.beyerdynamic.com/tg-v70.html',
       name: 'Beyerdynamic TG V70',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'hyper', powering: 'none', capsule: 'handheld', micApplication: 'vocal', proximityEffect: 'strong', tonalCharacter: 'warm', connectorOut: 'xlr' },
@@ -1911,7 +1911,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.beyerdynamic.com/tg-v90r.html',
       name: 'Beyerdynamic TG V90r',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'ribbon', polarPattern: 'hyper', powering: 'none', capsule: 'handheld', micApplication: 'vocal', proximityEffect: 'strong', tonalCharacter: 'vintage', connectorOut: 'xlr' },
@@ -1926,7 +1926,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.beyerdynamic.com/mc-930.html',
       name: 'Beyerdynamic MC 930',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'smallDiaphragm', micApplication: 'overhead', proximityEffect: 'moderate', maxSplDb: 143, tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -1941,7 +1941,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.beyerdynamic.com/tg-d57c.html',
       name: 'Beyerdynamic TG D57c',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'clip', micApplication: 'tom', proximityEffect: 'moderate', connectorOut: 'xlr' },
@@ -1956,7 +1956,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.electrovoice.com/product/re320/',
       name: 'Electro-Voice RE320',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'cardioid', powering: 'none', capsule: 'largeDiaphragm', micApplication: 'broadcast', proximityEffect: 'moderate', tonalCharacter: 'warm', connectorOut: 'xlr' },
@@ -1971,7 +1971,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.electrovoice.com/product/re27nd/',
       name: 'Electro-Voice RE27 N/D',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'cardioid', powering: 'none', capsule: 'largeDiaphragm', micApplication: 'broadcast', proximityEffect: 'moderate', tonalCharacter: 'warm', connectorOut: 'xlr' },
@@ -1986,7 +1986,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.electrovoice.com/product/re16/',
       name: 'Electro-Voice RE16',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'super', powering: 'none', capsule: 'handheld', micApplication: 'broadcast', proximityEffect: 'strong', tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -2001,7 +2001,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.electrovoice.com/product/nd46/',
       name: 'Electro-Voice ND46',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'super', powering: 'none', capsule: 'handheld', micApplication: 'instrument', proximityEffect: 'strong', tonalCharacter: 'present', connectorOut: 'xlr' },
@@ -2016,7 +2016,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.electrovoice.com/product/nd68/',
       name: 'Electro-Voice ND68',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'super', powering: 'none', capsule: 'handheld', micApplication: 'kick', proximityEffect: 'strong', tonalCharacter: 'scooped', connectorOut: 'xlr' },
@@ -2031,7 +2031,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.electrovoice.com/product/nd76/',
       name: 'Electro-Voice ND76',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'cardioid', powering: 'none', capsule: 'handheld', micApplication: 'vocal', proximityEffect: 'moderate', tonalCharacter: 'present', connectorOut: 'xlr' },
@@ -2046,7 +2046,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.electrovoice.com/product/nd44/',
       name: 'Electro-Voice ND44',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'cardioid', powering: 'none', capsule: 'handheld', micApplication: 'tom', proximityEffect: 'moderate', tonalCharacter: 'present', connectorOut: 'xlr' },
@@ -2061,7 +2061,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.electrovoice.com/product/635a/',
       name: 'Electro-Voice 635A',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'omni', powering: 'none', capsule: 'handheld', micApplication: 'broadcast', proximityEffect: 'none', tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -2076,7 +2076,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://telefunken-elektroakustik.com/m80',
       name: 'Telefunken M80',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'super', powering: 'none', capsule: 'handheld', micApplication: 'vocal', proximityEffect: 'strong', tonalCharacter: 'present', connectorOut: 'xlr' },
@@ -2091,7 +2091,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://telefunken-elektroakustik.com/m81',
       name: 'Telefunken M81',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'super', powering: 'none', capsule: 'handheld', micApplication: 'snare', proximityEffect: 'strong', tonalCharacter: 'present', connectorOut: 'xlr' },
@@ -2106,7 +2106,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://telefunken-elektroakustik.com/tf11-fet',
       name: 'Telefunken TF11',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'vocal', proximityEffect: 'moderate', maxSplDb: 130, tonalCharacter: 'warm', connectorOut: 'xlr' },
@@ -2121,7 +2121,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://telefunken-elektroakustik.com/u47',
       name: 'Telefunken U47',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'multi', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'vocal', proximityEffect: 'moderate', tonalCharacter: 'vintage', connectorOut: 'xlr' },
@@ -2136,7 +2136,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://telefunken-elektroakustik.com/ela-m-251e',
       name: 'Telefunken ELA M 251',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'multi', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'vocal', proximityEffect: 'moderate', tonalCharacter: 'vintage', connectorOut: 'xlr' },
@@ -2151,7 +2151,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://warmaudio.com/wa-47/',
       name: 'Warm Audio WA-47',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'multi', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'vocal', proximityEffect: 'moderate', maxSplDb: 140, tonalCharacter: 'vintage', connectorOut: 'xlr' },
@@ -2166,7 +2166,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://warmaudio.com/wa-87-r2/',
       name: 'Warm Audio WA-87 R2',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'multi', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'vocal', proximityEffect: 'moderate', maxSplDb: 125, tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -2181,7 +2181,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://warmaudio.com/wa-251/',
       name: 'Warm Audio WA-251',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'multi', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'vocal', proximityEffect: 'moderate', tonalCharacter: 'vintage', connectorOut: 'xlr' },
@@ -2196,7 +2196,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://warmaudio.com/wa-14/',
       name: 'Warm Audio WA-14',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'multi', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'instrument', proximityEffect: 'moderate', maxSplDb: 140, tonalCharacter: 'bright', connectorOut: 'xlr' },
@@ -2211,7 +2211,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.astonmics.com/EN/product/origin',
       name: 'Aston Origin',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'vocal', proximityEffect: 'moderate', maxSplDb: 127, tonalCharacter: 'present', connectorOut: 'xlr' },
@@ -2226,7 +2226,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.astonmics.com/EN/product/spirit',
       name: 'Aston Spirit',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'multi', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'vocal', proximityEffect: 'moderate', maxSplDb: 138, tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -2241,7 +2241,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.astonmics.com/EN/product/stealth',
       name: 'Aston Stealth',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'cardioid', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'broadcast', proximityEffect: 'moderate', tonalCharacter: 'warm', connectorOut: 'xlr' },
@@ -2256,7 +2256,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.lewitt-audio.com/microphones/lct/lct-440-pure',
       name: 'Lewitt LCT 440 Pure',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'vocal', proximityEffect: 'moderate', maxSplDb: 140, tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -2271,7 +2271,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.lewitt-audio.com/microphones/lct/lct-640-ts',
       name: 'Lewitt LCT 640 TS',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'multi', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'instrument', proximityEffect: 'moderate', maxSplDb: 130, tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -2286,7 +2286,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.lewitt-audio.com/microphones/mtp/mtp-550-dm',
       name: 'Lewitt MTP 550 DM',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'cardioid', powering: 'none', capsule: 'handheld', micApplication: 'vocal', proximityEffect: 'moderate', tonalCharacter: 'present', connectorOut: 'xlr' },
@@ -2301,7 +2301,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.lewitt-audio.com/microphones/dtp/dtp-640-rex',
       name: 'Lewitt DTP 640 REX',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'kick', proximityEffect: 'moderate', connectorOut: 'xlr' },
@@ -2316,7 +2316,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://earthworksaudio.com/vocal-microphones/sr40v/',
       name: 'Earthworks SR40V',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'hyper', powering: 'p48', capsule: 'handheld', micApplication: 'vocal', proximityEffect: 'strong', maxSplDb: 145, tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -2331,7 +2331,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://earthworksaudio.com/vocal-microphones/sr314/',
       name: 'Earthworks SR314',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'handheld', micApplication: 'vocal', proximityEffect: 'moderate', maxSplDb: 145, tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -2346,7 +2346,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://earthworksaudio.com/drum-microphones/dm20/',
       name: 'Earthworks DM20',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'hyper', powering: 'p48', capsule: 'clip', micApplication: 'tom', proximityEffect: 'strong', maxSplDb: 150, tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -2361,7 +2361,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://earthworksaudio.com/measurement-microphones/qtc40/',
       name: 'Earthworks QTC40',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'omni', powering: 'p48', capsule: 'smallDiaphragm', micApplication: 'overhead', proximityEffect: 'none', maxSplDb: 145, tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -2376,7 +2376,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://royerlabs.com/r-10/',
       name: 'Royer R-10',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'ribbon', polarPattern: 'fig8', powering: 'none', capsule: 'largeDiaphragm', micApplication: 'guitar', proximityEffect: 'strong', maxSplDb: 160, tonalCharacter: 'warm', connectorOut: 'xlr' },
@@ -2391,7 +2391,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://royerlabs.com/r-122-mkii/',
       name: 'Royer R-122 MKII',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'ribbon', polarPattern: 'fig8', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'room', proximityEffect: 'strong', maxSplDb: 135, tonalCharacter: 'warm', connectorOut: 'xlr' },
@@ -2406,7 +2406,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://royerlabs.com/sf-12/',
       name: 'Royer SF-12',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'ribbon', polarPattern: 'fig8', powering: 'none', capsule: 'largeDiaphragm', micApplication: 'overhead', proximityEffect: 'strong', maxSplDb: 130, tonalCharacter: 'warm', connectorOut: 'xlr' },
@@ -2421,7 +2421,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.aearibbonmics.com/products/r88/',
       name: 'AEA R88',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'ribbon', polarPattern: 'fig8', powering: 'none', capsule: 'largeDiaphragm', micApplication: 'room', proximityEffect: 'strong', maxSplDb: 141, tonalCharacter: 'vintage', connectorOut: 'xlr' },
@@ -2436,7 +2436,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.aearibbonmics.com/products/ku5a/',
       name: 'AEA KU5A',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'ribbon', polarPattern: 'super', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'broadcast', proximityEffect: 'strong', maxSplDb: 141, tonalCharacter: 'warm', connectorOut: 'xlr' },
@@ -2451,7 +2451,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.bluemic.com/en-us/products/bluebird-sl/',
       name: 'Blue Bluebird SL',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'vocal', proximityEffect: 'moderate', maxSplDb: 138, tonalCharacter: 'bright', connectorOut: 'xlr' },
@@ -2466,7 +2466,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.bluemic.com/en-us/products/baby-bottle-sl/',
       name: 'Blue Baby Bottle SL',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'vocal', proximityEffect: 'moderate', maxSplDb: 134, tonalCharacter: 'warm', connectorOut: 'xlr' },
@@ -2481,7 +2481,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.sennheiser.com/en-us/catalog/products/microphones/md-21-u',
       name: 'Sennheiser MD 21',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'omni', powering: 'none', capsule: 'handheld', micApplication: 'broadcast', proximityEffect: 'none', tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -2496,7 +2496,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.beyerdynamic.com/tg-d70.html',
       name: 'beyerdynamic TG D70',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'cardioid', powering: 'none', capsule: 'largeDiaphragm', micApplication: 'kick', proximityEffect: 'moderate', tonalCharacter: 'scooped', connectorOut: 'xlr' },
@@ -2511,7 +2511,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.sontronics.com/products/stc-3x',
       name: 'Sontronics STC-3X',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'multi', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'vocal', proximityEffect: 'moderate', maxSplDb: 130, tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -2526,7 +2526,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.sontronics.com/products/dm-1b',
       name: 'Sontronics DM-1B',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'kick', proximityEffect: 'moderate', connectorOut: 'xlr' },
@@ -2541,7 +2541,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://audixusa.com/products/om5',
       name: 'Audix OM5',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'hyper', powering: 'none', capsule: 'handheld', micApplication: 'vocal', proximityEffect: 'strong', tonalCharacter: 'present', connectorOut: 'xlr' },
@@ -2556,7 +2556,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://audixusa.com/products/om7',
       name: 'Audix OM7',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'hyper', powering: 'none', capsule: 'handheld', micApplication: 'vocal', proximityEffect: 'strong', tonalCharacter: 'present', connectorOut: 'xlr' },
@@ -2571,7 +2571,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://audixusa.com/products/f5',
       name: 'Audix f5',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'hyper', powering: 'none', capsule: 'handheld', micApplication: 'snare', proximityEffect: 'strong', tonalCharacter: 'present', connectorOut: 'xlr' },
@@ -2586,7 +2586,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://audixusa.com/products/adx51',
       name: 'Audix ADX51',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'smallDiaphragm', micApplication: 'overhead', proximityEffect: 'moderate', maxSplDb: 132, tonalCharacter: 'bright', connectorOut: 'xlr' },
@@ -2601,7 +2601,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://audixusa.com/products/scx25a',
       name: 'Audix SCX25A',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'overhead', proximityEffect: 'moderate', maxSplDb: 135, tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -2616,7 +2616,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://heilsound.com/product/pr-40/',
       name: 'Heil PR 40',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'cardioid', powering: 'none', capsule: 'largeDiaphragm', micApplication: 'broadcast', proximityEffect: 'moderate', tonalCharacter: 'warm', connectorOut: 'xlr' },
@@ -2631,7 +2631,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://heilsound.com/product/pr-30/',
       name: 'Heil PR 30',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'super', powering: 'none', capsule: 'largeDiaphragm', micApplication: 'instrument', proximityEffect: 'strong', tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -2646,7 +2646,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://heilsound.com/product/pr-48/',
       name: 'Heil PR 48',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'cardioid', powering: 'none', capsule: 'largeDiaphragm', micApplication: 'kick', proximityEffect: 'moderate', tonalCharacter: 'scooped', connectorOut: 'xlr' },
@@ -2661,7 +2661,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://miktekaudio.com/product/pm10/',
       name: 'Miktek PM10',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'dynamic', polarPattern: 'super', powering: 'none', capsule: 'handheld', micApplication: 'vocal', proximityEffect: 'strong', tonalCharacter: 'present', connectorOut: 'xlr' },
@@ -2676,7 +2676,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://austrian.audio/product/oc818/',
       name: 'Austrian Audio OC818',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'multi', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'vocal', proximityEffect: 'moderate', maxSplDb: 148, tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -2691,7 +2691,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://austrian.audio/product/oc18/',
       name: 'Austrian Audio OC18',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'vocal', proximityEffect: 'moderate', maxSplDb: 148, tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -2706,7 +2706,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://austrian.audio/product/od505/',
       name: 'Austrian Audio OD505',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'super', powering: 'p48', capsule: 'handheld', micApplication: 'vocal', proximityEffect: 'strong', maxSplDb: 150, tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -2721,7 +2721,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://slatedigital.com/ml-1/',
       name: 'Slate ML-1',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'vocal', proximityEffect: 'moderate', tonalCharacter: 'neutral', connectorOut: 'xlr' },
@@ -2736,7 +2736,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.mojaveaudio.com/products/ma-201fet/',
       name: 'Mojave MA-201 fet',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'vocal', proximityEffect: 'moderate', maxSplDb: 125, tonalCharacter: 'warm', connectorOut: 'xlr' },
@@ -2751,7 +2751,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.mojaveaudio.com/products/ma-300/',
       name: 'Mojave MA-300',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'multi', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'vocal', proximityEffect: 'moderate', maxSplDb: 120, tonalCharacter: 'vintage', connectorOut: 'xlr' },
@@ -2766,7 +2766,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.bockaudio.com/251.html',
       name: 'Bock Audio 251',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'multi', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'vocal', proximityEffect: 'moderate', tonalCharacter: 'vintage', connectorOut: 'xlr' },
@@ -2781,7 +2781,7 @@ export const MIC_CATALOG: MicEntry[] = [
     template: {
       manufacturerUrl: 'https://www.manley.com/microphones/mrefc',
       name: 'Manley Reference Cardioid',
-      category: 'Mikrofone',
+      category: 'Microphones',
       inputs: [],
       outputs: [{ id: '', name: 'Mic Out', type: 'XLR', connectorType: 'XLR', gender: 'male' }],
       categoryProps: { transducer: 'condenser', polarPattern: 'cardioid', powering: 'p48', capsule: 'largeDiaphragm', micApplication: 'vocal', proximityEffect: 'moderate', maxSplDb: 150, tonalCharacter: 'vintage', connectorOut: 'xlr' },

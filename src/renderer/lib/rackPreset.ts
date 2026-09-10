@@ -341,7 +341,7 @@ export const presetFromBlackBoxRack = (
     },
     items: snap.items.map((it, idx) => ({
       name: it.name,
-      category: 'Sonstiges',
+      category: 'Other',
       inputs: inputsByItem.get(idx) ?? [],
       outputs: outputsByItem.get(idx) ?? [],
       isRackDevice: true,

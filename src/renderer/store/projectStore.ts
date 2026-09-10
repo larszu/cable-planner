@@ -36,6 +36,7 @@ import {
   persistKnownCategories,
 } from './libraryPersist'
 import {
+  LEGACY_CATEGORY_RENAMES,
   loadCategoryTranslations,
   persistCategoryTranslations,
 } from '../lib/categoryTranslations'
@@ -994,6 +995,25 @@ const healProjectPositions = (
     ...(intercom ? { intercom } : {}),
     equipment: project.equipment.map((item) => {
       item = clearDanglingIdentity(item, identityIds)
+
+      // #822 — die Geraetekategorie von Deutsch auf die Quellsprache.
+      //
+      // Bis 2026-09-10 lieferte dieses Repo 12 deutsche Kategorien aus
+      // (`Kameras`, `Konverter`, `Patchblende`, `Stromverteilung`,
+      // `Funkstrecke`, `Sync/Referenz` …) und daneben englische (`Video`,
+      // `Networking`, `IP/NDI`). In der Bibliotheks-Seitenleiste standen
+      // beide untereinander. Seit E-28 ist Englisch die Quellsprache der
+      // Suite, und ausgelieferte Daten sind davon nicht ausgenommen.
+      //
+      // WARUM DAS EINE MIGRATION BRAUCHT UND KEIN UMBENENNEN REICHT:
+      // `equipment.category` steht in der PROJEKTDATEI des Nutzers. Ohne
+      // diese Zeile wuerde ein bestehender Plan seine Zuordnung verlieren —
+      // die Kategorie-Filter, die Stuecklisten-Gruppierung und
+      // `PATCH_PANEL_CATEGORY` griffen ins Leere, und zwar lautlos.
+      const neueKategorie = item.category
+        ? LEGACY_CATEGORY_RENAMES[item.category]
+        : undefined
+      if (neueKategorie) item = { ...item, category: neueKategorie }
 
       // Schaltbild (Strom, 2026-09-08). Eine Bauart, die dieser Stand nicht
       // kennt, faellt WEG statt stehenzubleiben: der Rechner haette fuer sie

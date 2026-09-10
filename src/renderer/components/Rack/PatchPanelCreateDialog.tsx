@@ -40,7 +40,7 @@ const COMMON_PORT_COUNTS = [12, 16, 24, 32, 48]
 
 export const PatchPanelCreateDialog = ({ open, onClose, onCreated }: PatchPanelCreateDialogProps) => {
   const t = useTranslation()
-  const [name, setName] = useState('Patchblende')
+  const [name, setName] = useState('Patch panel')
   const [heightUnits, setHeightUnits] = useState(1)
   const [portCount, setPortCount] = useState(24)
   // v7.9.77 / #170 — Adapter-Patchblende: Front und Rear können
@@ -85,8 +85,8 @@ export const PatchPanelCreateDialog = ({ open, onClose, onCreated }: PatchPanelC
     // outputs (Rear-Seite) bekommen unabhängige Connector-Typen.
     // Klassische Patchblende: frontConnector === rearConnector (= adapterMode false).
     const template: EquipmentTemplate = {
-      name: name.trim() || 'Patchblende',
-      category: adapterMode ? 'Patchblende (Adapter)' : 'Patchblende',
+      name: name.trim() || 'Patch panel',
+      category: adapterMode ? 'Patch panels (adapter)' : 'Patch panels',
       inputs: ports.map((p) => ({
         id: uuidv4(),
         name: `${p.label} (Front)`,

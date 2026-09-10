@@ -293,7 +293,7 @@ export const importNetBoxDeviceType = async (
 
   return {
     name: `${manufacturer} ${model}`.trim(),
-    category: 'Sonstiges',
+    category: 'Other',
     inputs,
     outputs,
     isRackDevice: rackUnits > 0,
