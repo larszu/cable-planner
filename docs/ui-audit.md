@@ -760,10 +760,30 @@ Eigentümer-Entscheidung und an einer Schema-Migration, weil
 - [ ] `canvas.gif` (animierte Canvas-Demo): braucht einen GIF-Encoder, den
       dieser Container nicht hat (kein `ffmpeg`/`gifski`). Einzelbilder kann
       `docs:shots` liefern, das Zusammensetzen nicht.
-- [ ] `rack-3d.png`: das Beispielprojekt enthält kein Rack („No rack layout
-      saved yet"), die 3D-Ansicht ist also nicht ohne vorheriges Bauen zu
-      zeigen. Entweder ein Rack ins Beispielprojekt oder ein zweites,
-      neutrales Demo-Projekt für die Aufnahme.
+- [x] `rack-3d.png`: **das Beispiel bringt jetzt ein Rack mit** (2026-09-10,
+      `lib/demoRack.ts`) — ein 12-HE-Rack mit Patchblende, Mischer,
+      Multiviewer und IEC-Leiste plus drei internen Verbindungen. Die
+      Aufnahme ist damit ohne vorheriges Bauen möglich.
+
+      **Der Befund war größer als die fehlende Aufnahme.** Rack-Vorlagen
+      kommen ausschliesslich aus `localStorage`
+      (`groupPresetsPersist.loadGroupPresets`: kein Eintrag → `[]`), also hat
+      eine frische Installation keine einzige. An `components/Rack/` hängt
+      aber die gesamte 3D-Ansicht samt `lib/exportRack.ts` — der grösste
+      einzelne Brocken der Anwendung. Wer die App zum ersten Mal öffnete,
+      konnte davon nichts sehen. Dieselbe Form wie B-65 in der Suite:
+      gebaute Rechenwerke ohne einen Weg hinein.
+
+      **Am Beispiel und nicht am Start**, denn eine Vorlage, die beim Start
+      nachwächst, kommt nach dem Löschen wieder. `loadDemoProject()` im
+      Store legt sie an, wenn `DEMO_RACK_PRESET_ID` fehlt; zweimal laden legt
+      nichts doppelt an.
+
+      **Nebenbefund derselben Klasse:** die `description` des
+      Beispielprojekts war deutsch, während der `name` daneben englisch war —
+      Daten, also für `lang:check` unsichtbar. `tests/beispielRack.test.ts`
+      prüft beides jetzt mit `klassifiziere()`, dazu die Kabel-Endpunkte, die
+      HE-Belegung und den Namen der Strom-Leiste gegen `passiveCatalog`.
 - [x] **Die Bilder sind aufgefrischt** (2026-09-10, gegen **v9.0.1** statt
       v8.1.0-101). Möglich wurde das durch #822: Kategorien und Beispielprojekt
       stehen jetzt in der Quellsprache, eine Aufnahme zeigt also nicht mehr
