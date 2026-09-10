@@ -978,18 +978,18 @@ export const CableEdge = ({
             style={{
               position: 'absolute',
               transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)`,
-              background: isLight ? 'rgba(241,245,249,0.92)' : 'rgba(15,23,42,0.85)',
-              color: isLight ? '#1e293b' : '#e2e8f0',
+              // Marken-Palette statt Schiefer (Phase 2, 2026-09-10): die
+              // Kabel-Beschriftung schwimmt auf der Zeichenflaeche und war
+              // die letzte Stelle, die ihr eigenes Grau mitbrachte.
+              background: 'color-mix(in srgb, var(--cp-surface-1) 90%, transparent)',
+              color: 'var(--cp-text)',
               // v7.9.56 — Mobil-hinzugefügte Kabel kriegen einen lila
               // Border statt slate, damit der Planer sie schon ohne das
               // 📱-Symbol im Text auf den ersten Blick erkennt.
-              border: `1px solid ${
-                cable?.addedFromMobile
-                  ? '#a855f7'
-                  : isLight
-                    ? '#94a3b8'
-                    : '#475569'
-              }`,
+              // Das Lila bleibt eine ZUSTANDS-Farbe und keine Flaeche: es
+              // sagt „vom Handy dazugekommen" und darf mit dem Theme nicht
+              // kippen. Nur der Normalfall geht auf die Palette.
+              border: `1px solid ${cable?.addedFromMobile ? '#a855f7' : 'var(--cp-text-faint)'}`,
               boxShadow: cable?.addedFromMobile
                 ? '0 0 0 1px rgba(168,85,247,0.25)'
                 : undefined,
@@ -1059,9 +1059,9 @@ export const CableEdge = ({
           const targetEndLabel = `← ${effectiveShortName(fromEq)} · ${fromPort.name}`
           const endpointStyle = {
             position: 'absolute' as const,
-            background: isLight ? 'rgba(241,245,249,0.85)' : 'rgba(15,23,42,0.78)',
-            color: isLight ? '#475569' : '#94a3b8',
-            border: `1px dashed ${isLight ? '#cbd5e1' : '#475569'}`,
+            background: 'color-mix(in srgb, var(--cp-surface-1) 85%, transparent)',
+            color: 'var(--cp-text-muted)',
+            border: '1px dashed var(--cp-border)',
             padding: '1px 4px',
             borderRadius: 3,
             fontSize: 9,

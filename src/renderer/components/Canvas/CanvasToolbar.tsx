@@ -264,19 +264,41 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
     commitPositions(newPositionById)
   }
 
-  // v7.9.5 — Unified design tokens für die Toolbar.
+  /**
+   * v7.9.5 — Unified design tokens fuer die Toolbar.
+   *
+   * SEIT 2026-09-10 AUF DER MARKEN-PALETTE statt auf Schiefer (Phase 2 der
+   * UI-Pruefung). Die Werte standen vorher als Paare hier, je einer pro
+   * Theme, und waren Tailwind-Slate: `#0f172a`, `#1e293b`, `#cbd5e1`. Die
+   * uebrige App laeuft seit ADR-007 auf Zumpe Navy — die Werkzeugleiste war
+   * damit die einzige Flaeche, die sichtbar aus der Palette fiel, und jede
+   * Farbaenderung am Haus ging an ihr vorbei.
+   *
+   * `var(--cp-*)` loest hier richtig auf, auch beim PDF-Export: `App.tsx`
+   * setzt `document.documentElement.dataset.theme` auf
+   * `pdfExportThemeOverride ?? canvasTheme`, das Attribut traegt also
+   * waehrend des Exports das Export-Theme. Nachgemessen in beiden Themes im
+   * echten Fenster.
+   *
+   * ZWEI STELLEN BLEIBEN ABSICHTLICH FEST:
+   *   `btnActiveBg`/`btnActiveText` sind eine ZUSTANDS-Farbe, keine
+   *   Flaeche — sie sagen „dieser Knopf ist an". `--cp-accent` ist im
+   *   Dunkel-Theme Off-White (#F6F5F0); ein aktiver Knopf wuerde damit
+   *   weiss statt blau, und das ist eine andere Entscheidung als „auf die
+   *   Palette heben".
+   */
   const T: ToolbarTokens = {
     // #463 — groessere Touch-/Klick-Ziele (war 28px, < komfortable Zielgroesse).
     iconBtnSize: 32,
-    bg: isLight ? 'rgba(248,250,252,0.92)' : 'rgba(15,23,42,0.92)',
-    border: isLight ? '#cbd5e1' : '#1f2937',
-    text: isLight ? '#1e293b' : '#e2e8f0',
-    textMuted: isLight ? '#64748b' : '#94a3b8',
+    bg: 'color-mix(in srgb, var(--cp-surface-1) 92%, transparent)',
+    border: 'var(--cp-border)',
+    text: 'var(--cp-text)',
+    textMuted: 'var(--cp-text-muted)',
     btnBg: 'transparent',
-    btnBgHover: isLight ? 'rgba(15,23,42,0.06)' : 'rgba(148,163,184,0.12)',
+    btnBgHover: 'color-mix(in srgb, var(--cp-text) 8%, transparent)',
     btnActiveBg: '#0284c7',
     btnActiveText: '#ffffff',
-    dividerColor: isLight ? '#e2e8f0' : '#1f2937',
+    dividerColor: 'var(--cp-border-muted)',
   }
   const dividerStyle: React.CSSProperties = {
     width: 1,
@@ -412,7 +434,6 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
         setCableColorMode={setCableColorMode}
         showLengthLegend={showLengthLegend}
         setShowLengthLegend={setShowLengthLegend}
-        isLight={isLight}
       />
 
       <span style={dividerStyle} />
@@ -590,7 +611,7 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
             style={{
               width: 140,
               height: T.iconBtnSize - 4,
-              background: isLight ? '#ffffff' : '#0f172a',
+              background: 'var(--cp-surface-3)',
               border: `1px solid ${T.border}`,
               color: T.text,
               padding: '0 6px',
@@ -828,7 +849,7 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
           padding: '0 10px',
           background:
             projectMode === 'viewer'
-              ? (isLight ? '#e2e8f0' : '#1e293b')
+              ? 'var(--cp-surface-2)'
               : projectMode === 'finalized'
                 ? '#0e7490'
                 : T.btnBg,
@@ -972,7 +993,7 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
                   height: 3,
                   background: r.color,
                   borderRadius: 2,
-                  border: `1px solid ${isLight ? '#94a3b8' : '#475569'}`,
+                  border: '1px solid var(--cp-text-faint)',
                   ...(r.dashArray
                     ? { backgroundImage: `repeating-linear-gradient(90deg,${r.color} 0 6px,transparent 6px 10px)`, backgroundColor: 'transparent' }
                     : {}),
@@ -1025,7 +1046,6 @@ const DefaultsMenu = ({
   setCableColorMode,
   showLengthLegend,
   setShowLengthLegend,
-  isLight,
 }: {
   T: {
     iconBtnSize: number
@@ -1055,7 +1075,6 @@ const DefaultsMenu = ({
   setCableColorMode: (v: 'manual' | 'byLength' | 'byLayer') => void
   showLengthLegend: boolean
   setShowLengthLegend: (v: boolean) => void
-  isLight: boolean
 }) => {
   const t = useTranslation()
   const [open, setOpen] = useState(false)
@@ -1151,7 +1170,7 @@ const DefaultsMenu = ({
                 style={{
                   flex: 1,
                   padding: 4,
-                  background: defaultRouting === opt.value ? T.btnActiveBg : (isLight ? '#f1f5f9' : '#1e293b'),
+                  background: defaultRouting === opt.value ? T.btnActiveBg : 'var(--cp-surface-2)',
                   color: defaultRouting === opt.value ? T.btnActiveText : T.text,
                   border: '1px solid transparent',
                   borderRadius: 4,
@@ -1174,7 +1193,7 @@ const DefaultsMenu = ({
               style={{
                 flex: 1,
                 padding: 4,
-                background: cableColorMode === 'manual' ? T.btnActiveBg : (isLight ? '#f1f5f9' : '#1e293b'),
+                background: cableColorMode === 'manual' ? T.btnActiveBg : 'var(--cp-surface-2)',
                 color: cableColorMode === 'manual' ? T.btnActiveText : T.text,
                 border: '1px solid transparent',
                 borderRadius: 4,
@@ -1190,7 +1209,7 @@ const DefaultsMenu = ({
               style={{
                 flex: 1,
                 padding: 4,
-                background: cableColorMode === 'byLength' ? T.btnActiveBg : (isLight ? '#f1f5f9' : '#1e293b'),
+                background: cableColorMode === 'byLength' ? T.btnActiveBg : 'var(--cp-surface-2)',
                 color: cableColorMode === 'byLength' ? T.btnActiveText : T.text,
                 border: '1px solid transparent',
                 borderRadius: 4,
@@ -1207,7 +1226,7 @@ const DefaultsMenu = ({
                 title={t('toolbar.defaults.cableColor.legend', 'Show length-colour legend')}
                 style={{
                   padding: '4px 6px',
-                  background: isLight ? '#f1f5f9' : '#1e293b',
+                  background: 'var(--cp-surface-2)',
                   color: T.textMuted,
                   border: '1px solid transparent',
                   borderRadius: 4,
