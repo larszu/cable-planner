@@ -1,4 +1,4 @@
-import { Check } from 'lucide-react'
+import { Check, Folder, Rows3, ArrowDownToLine, ArrowUpToLine} from 'lucide-react'
 import { useTranslation, format } from '../../lib/i18n'
 import { Icon } from '../shared/Icon'
 import { confirmDialog } from '../../lib/confirmDialog'
@@ -217,7 +217,7 @@ export const RackPlacementProperties = ({
               className="inline-flex cursor-pointer items-center gap-1 rounded border border-cp-surface-5 bg-sky-700 px-3 py-1 text-cp-xs font-semibold text-white hover:bg-sky-600"
               title={t('rack.stlUploadTitle', 'Upload STL file (.stl, max 5 MB) for this device')}
             >
-              <span>📁</span>
+              <Icon icon={Folder} size="xs" />
               <span>{selectedPlacement.stlDataUri
                 ? t('rack.stl.replace', 'Replace STL…')
                 : t('rack.stl.pick', 'Pick STL…')}</span>
@@ -314,7 +314,8 @@ export const RackPlacementProperties = ({
           return (
             <details className="rounded border border-emerald-800 bg-emerald-900/20 p-2" open>
               <summary className="cursor-pointer text-cp-xs font-semibold text-emerald-200">
-                🪑 {t('rack.shelfPos.title', 'Shelf position')}
+                <Icon icon={Rows3} size="xs" className="mr-1 inline" />
+                {t('rack.shelfPos.title', 'Shelf position')}
                 <span className="ml-1 text-emerald-400">
                   ({tpl.widthMm}×{tpl.heightMm}×{tpl.depthMm ?? 400} mm)
                 </span>
@@ -380,7 +381,8 @@ export const RackPlacementProperties = ({
               className="rounded bg-purple-900/40 px-2 py-1 text-purple-200 hover:bg-purple-900/60"
               title={t('rack.portsAllRear', 'All ports to the rear (default for classic server gear)')}
             >
-              ⏬ {t('rack.portsAllRearBtn', 'all to rear')}
+              <Icon icon={ArrowDownToLine} size="xs" className="mr-1 inline" />
+              {t('rack.portsAllRearBtn', 'all to rear')}
             </button>
             <button
               type="button"
@@ -412,7 +414,8 @@ export const RackPlacementProperties = ({
               className="rounded bg-green-900/40 px-2 py-1 text-green-200 hover:bg-green-900/60"
               title={t('rack.portsAllFront', 'All ports to the front (e.g. front-panel devices)')}
             >
-              ⏫ {t('rack.portsAllFrontBtn', 'all to front')}
+              <Icon icon={ArrowUpToLine} size="xs" className="mr-1 inline" />
+              {t('rack.portsAllFrontBtn', 'all to front')}
             </button>
           </div>
           <div className="mt-2 max-h-48 overflow-y-auto rounded border border-cp-border-muted">
@@ -480,9 +483,14 @@ export const RackPlacementProperties = ({
                       { side: side === 'front' ? t('rack.portSide.front', 'front') : t('rack.portSide.rear', 'rear') },
                     )}
                   >
+                    <Icon
+                      icon={side === 'front' ? ArrowUpToLine : ArrowDownToLine}
+                      size="xs"
+                      className="mr-1 inline"
+                    />
                     {side === 'front'
-                      ? '⏫ ' + t('rack.portSide.front', 'front')
-                      : '⏬ ' + t('rack.portSide.rear', 'rear')}
+                      ? t('rack.portSide.front', 'front')
+                      : t('rack.portSide.rear', 'rear')}
                   </button>
                 </div>
               )

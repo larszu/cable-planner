@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { toPng } from 'html-to-image'
-import { Download, Square, SquareCheck, Monitor } from 'lucide-react'
+import { Download, Square, SquareCheck, Monitor, ChevronDown, ChevronRight} from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
@@ -556,7 +556,7 @@ const CapabilitiesPanel = ({
         onClick={() => setOpen((o) => !o)}
         className="flex w-full items-center gap-2 text-left hover:text-cp-text-bright"
       >
-        <span>{open ? '▾' : '▸'}</span>
+        <Icon icon={open ? ChevronDown : ChevronRight} size="xs" />
         <span>
           {t('atem.mv.capabilities', 'Model capabilities:')} <span className="text-cp-text-secondary">{equipmentName}</span> ·{' '}
           {caps.mvCount} MV{caps.mvCount === 1 ? '' : 's'} ·{' '}

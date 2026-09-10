@@ -1,3 +1,4 @@
+import { ChevronDown, ChevronRight } from 'lucide-react'
 import { useMemo, useState, type ReactNode } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import {
@@ -27,6 +28,7 @@ import { infoDialog } from '../../lib/infoDialog'
 import { promptDialog } from '../../lib/promptDialog'
 import { effectivePortNumber, findDuplicatePortNumbers } from '../../lib/portNumbering'
 import { format, useTranslation } from '../../lib/i18n'
+import { Icon } from '../shared/Icon'
 
 /**
  * #306 — PortList + SortablePortItem + makePort aus EquipmentProperties
@@ -138,7 +140,7 @@ const CollapsibleSdiCaps = ({
       className="mt-1 rounded border border-amber-900/60 bg-amber-950/20 [&_summary]:cursor-pointer"
     >
       <summary className="flex items-center gap-1 p-1.5 text-cp-xs font-semibold uppercase tracking-wide text-amber-300 hover:text-amber-200 [&::-webkit-details-marker]:hidden">
-        <span className="text-amber-400/70">{open ? '▾' : '▸'}</span>
+        <Icon icon={open ? ChevronDown : ChevronRight} size="xs" className="text-amber-400/70" />
         <span className="flex-1">{t('ports.sdi.caps', 'SDI capabilities (port-specific)')}</span>
         {!open && badge && (
           <span className="rounded bg-amber-900/50 px-1 text-cp-xs normal-case text-amber-200">

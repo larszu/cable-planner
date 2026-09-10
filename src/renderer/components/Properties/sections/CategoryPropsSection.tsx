@@ -1,3 +1,4 @@
+import { ChevronDown, ChevronRight } from 'lucide-react'
 import { useState } from 'react'
 import { useProjectStore } from '../../../store/projectStore'
 import { useUiStore } from '../../../store/uiStore'
@@ -6,6 +7,7 @@ import type { EquipmentItem } from '../../../types/equipment'
 import { schemaForCategory, type CategoryFieldDef } from '../../../lib/categorySchemas'
 import type { Lang } from '../../../lib/categoryTranslations'
 import { PolarPatternDiagram } from '../../shared/PolarPatternDiagram'
+import { Icon } from '../../shared/Icon'
 
 const inputCls = 'w-full rounded border border-cp-border bg-cp-surface-1 p-2'
 
@@ -148,7 +150,7 @@ export const CategoryPropsSection = ({ equipment }: { equipment: EquipmentItem }
       className="rounded border border-cp-border [&_summary]:cursor-pointer"
     >
       <summary className="flex items-center gap-1 px-2 py-1.5 text-cp-xs uppercase tracking-wide text-cp-text-muted hover:text-cp-text-bright [&::-webkit-details-marker]:hidden">
-        <span className="text-cp-text-faint">{open ? '▾' : '▸'}</span>
+        <Icon icon={open ? ChevronDown : ChevronRight} size="xs" className="text-cp-text-faint" />
         <span className="flex-1">
           {t('catprops.title', 'Specs')} — {equipment.category}
         </span>

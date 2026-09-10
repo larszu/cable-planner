@@ -136,13 +136,37 @@ describe('Fliesstext-Untergrenze 12px', () => {
     expect(dateien(WURZEL).length).toBeGreaterThan(150)
   })
 
-  it('findet die bekannten Glyph-Stellen — sonst passt das Muster nicht mehr', () => {
+  it('greift auf eine feste Probe — sonst prueft die Regel nichts', () => {
     // Zweite Haelfte derselben Zusicherung: Dateien zu finden reicht nicht,
-    // das Muster muss auch greifen. Sechs dekorative Stellen sind heute da
-    // (vier Carets, ein Sortier-Dreieck, eine Pin-Markierung). Faellt der
-    // Wert auf 0, ist entweder auch die letzte Ausnahme weg — dann darf diese
-    // Zeile gehen — oder `GROESSE` trifft nicht mehr.
-    expect(zuKlein().length).toBeGreaterThan(0)
+    // das Muster muss auch greifen.
+    //
+    // BIS 2026-09-10 STAND HIER `zuKlein().length > 0` — gemessen am Repo.
+    // Damals waren noch sechs dekorative Stellen uebrig (vier Carets, ein
+    // Sortier-Dreieck, eine Pin-Markierung), und die Zeile darueber sagte
+    // ausdruecklich: faellt der Wert auf null, ist entweder die letzte
+    // Ausnahme weg oder `GROESSE` trifft nicht mehr. Genau das ist
+    // eingetreten — die sechs Stellen sind jetzt `<Icon />` und tragen ihre
+    // Groesse als Zahl, nicht als CSS-Klasse.
+    //
+    // Eine Zusicherung, die am Repo haengt, geht mit dem letzten Fund
+    // verloren: „keine Stelle unter 12px" waere ab dann auch bei kaputtem
+    // Muster erfuellt, und Nichts saehe aus wie ein Ergebnis. Die Probe ist
+    // deshalb FEST und unabhaengig vom Bestand — dieselbe Form wie im
+    // Sprachmix-Zaehler (`scripts/quellsprache.mjs`).
+    const PROBE = [
+      '<span className="text-[9px] leading-none">x</span>',
+      '<div className="text-[11px]">Hinweis</div>',
+      '<div className="text-[12px]">gerade noch erlaubt</div>',
+      '<div className="text-cp-xs">ueber die Skala</div>',
+    ]
+    const getroffen = PROBE.filter((z) =>
+      [...z.matchAll(GROESSE)].some((m) => Number(m[1]) < UNTERGRENZE_PX),
+    )
+    expect(getroffen).toEqual([PROBE[0], PROBE[1]])
+
+    // Und die Urteilsregel selbst: ein Glyph ist ohne Buchstabe und Ziffer.
+    expect(sichtbarerText(PROBE[1]).every(nurGlyph)).toBe(false)
+    expect(sichtbarerText('<span className="text-[9px]">▾</span>').every(nurGlyph)).toBe(true)
   })
 
   it('jede Stelle unter 12px ist ein rein dekorativer Glyph', () => {

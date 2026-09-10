@@ -19,7 +19,7 @@ import { RackInternalWireOverlay } from './RackInternalWireOverlay'
 import { RackPlacementProperties } from './RackPlacementProperties'
 import { Splitter } from '../Layout/Splitter'
 import { Icon } from '../shared/Icon'
-import { Box, Columns2, FlipHorizontal2, GalleryVerticalEnd, Maximize2, Minus, Plus, RectangleVertical, Square } from 'lucide-react'
+import { Box, Columns2, FlipHorizontal2, GalleryVerticalEnd, Maximize2, Minus, Plus, RectangleVertical, Square, Server} from 'lucide-react'
 import type {
   RackDraft,
   RackPlacementDraft,
@@ -1003,7 +1003,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
             </div>
             {draft.placements.length === 0 && (
               <div className="rounded border border-dashed border-cp-border bg-cp-surface-3/40 p-8 text-center text-cp-xs text-cp-text-faint">
-                <div className="mb-2 text-3xl">▥</div>
+                <div className="mb-2 flex justify-center"><Icon icon={Server} size={28} /></div>
                 <div className="mb-1 font-semibold text-cp-text-secondary">{t('rack.empty', 'Rack is empty')}</div>
                 <div>{t('rack.addFromLibraryHint', 'Add devices from the library on the left (button "+ Rack").')}</div>
                 <div className="mt-2 text-cp-xs">

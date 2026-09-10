@@ -53,6 +53,7 @@ import {
   ZoomIn,
   ZoomOut,
   ListOrdered,
+  ChevronDown,
 } from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import {
@@ -1289,7 +1290,7 @@ const Menu = ({ label, children }: MenuProps) => {
         className={`rounded px-2 py-1 text-cp-text-bright hover:bg-cp-surface-2 ${open ? 'bg-cp-surface-2' : ''}`}
       >
         {label}
-        <span className="ml-1 text-[11px] text-cp-text-muted" aria-hidden="true">▾</span>
+        <Icon icon={ChevronDown} size={11} className="ml-1 text-cp-text-muted" />
       </button>
       {open && (
         <div

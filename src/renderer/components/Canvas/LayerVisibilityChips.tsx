@@ -18,7 +18,7 @@
  *  - Tooltip erklärt was passiert
  */
 import { useState } from 'react'
-import { Eye } from 'lucide-react'
+import { Eye, Diamond, Plus} from 'lucide-react'
 import { useUiStore } from '../../store/uiStore'
 import { Icon } from '../shared/Icon'
 import { LAYER_STYLES, STANDARD_LAYERS, topLayer, type StandardLayer } from '../../lib/cableLayers'
@@ -179,7 +179,7 @@ export const LayerVisibilityChips = () => {
               textDecoration: visible ? 'none' : 'line-through',
             }}
           >
-            <span>◆</span>
+            <Icon icon={Diamond} size="xs" />
             <span>{layer}</span>
           </button>
         )
@@ -219,7 +219,7 @@ export const LayerVisibilityChips = () => {
               isLight ? 'border-slate-200 hover:bg-slate-100' : 'border-slate-800 hover:bg-slate-800'
             }`}
           >
-            <span>➕</span>
+            <Icon icon={Plus} size="xs" />
             <span>{t('canvas.layerChips.addCustom', 'Create custom layer…')}</span>
           </button>
           <button
