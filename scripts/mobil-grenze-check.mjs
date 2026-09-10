@@ -145,7 +145,7 @@ const browser = await chromium.launch({
 })
 
 /** Eine frische Seite im Telefon-Format, Erststart-Dialoge weggeraeumt. */
-const oeffnen = async (einstieg = '/') => {
+const oeffnen = async (einstieg = '/', sprache = 'en') => {
   const ctx = await browser.newContext({
     viewport: { width: BREITE, height: HOEHE },
     deviceScaleFactor: 3,
@@ -158,7 +158,7 @@ const oeffnen = async (einstieg = '/') => {
   // Die Erststart-Dialoge legen sich sonst ueber die Messung. Sie werden
   // NICHT weggeklickt, sondern vorher als „schon gesehen" hinterlegt: ein
   // Klick misst die Dialoge, und gemessen werden soll die App.
-  await ctx.addInitScript(() => {
+  await ctx.addInitScript((s) => {
     try {
       localStorage.setItem('cable-planner:welcomed', '1')
       localStorage.setItem('cable-planner.tour.seen.v1', '1')
@@ -166,10 +166,11 @@ const oeffnen = async (einstieg = '/') => {
         'cable-planner:settings',
         JSON.stringify({ onboardingDone: true }),
       )
+      localStorage.setItem('cable-planner:ui', JSON.stringify({ language: s }))
     } catch {
       /* ein Browser ohne Speicher zeigt die Dialoge — dann misst der Lauf sie mit */
     }
-  })
+  }, sprache)
   const seite = await ctx.newPage()
   await seite.goto(`http://127.0.0.1:${port}${einstieg}`, { waitUntil: 'domcontentloaded' })
   await seite.waitForTimeout(4000)
@@ -220,85 +221,150 @@ const messen = (seite) =>
     }
   })
 
+// Die Regeln 1 bis 6 gelten je Sprache — sie messen die gerenderte
+// Oberflaeche, und die haengt an der Laenge der Beschriftungen.
+const pruefe = (m, sprache) => {
+  const inSprache = (t) => `[${sprache}] ${t}`
+  // ── 1. Nichts ragt hinaus ────────────────────────────────────────────────
+  if (m.raus.length > 0) {
+    fehler.push(
+        inSprache(
+        `${m.raus.length} Element(e) ragen ueber die ${m.innerWidth} Pixel breite Anzeige hinaus:\n` +
+          m.raus
+            .slice(0, 8)
+            .map((r) => `      <${r.tag} class="${r.cls}"> ${r.links}..${r.rechts}`)
+            .join('\n'),
+      )
+    )
+  }
+
+  // ── 2. Das Dokument hat nichts zu scrollen ───────────────────────────────
+  if (m.docScrollWidth > m.innerWidth) {
+    fehler.push(
+        inSprache(
+        `Das Dokument ist ${m.docScrollWidth} Pixel breit bei ${m.innerWidth} Pixel Anzeige — ` +
+          'die Seite laesst sich waagerecht schieben.',
+      )
+    )
+  }
+  if (m.docScrollHeight > m.innerHeight) {
+    fehler.push(
+        inSprache(
+        `Das Dokument ist ${m.docScrollHeight} Pixel hoch bei ${m.innerHeight} Pixel Anzeige — ` +
+          'die Seite laesst sich senkrecht schieben, und die Statuszeile rutscht darunter.',
+      )
+    )
+  }
+
+  // ── 3. Die Sperre steht wirklich im berechneten Stil ─────────────────────
+  if (m.htmlOverflowX !== 'hidden' || m.bodyOverflowX !== 'hidden') {
+    fehler.push(
+        inSprache(
+        `\`overflow\` fehlt: html=${m.htmlOverflowX}, body=${m.bodyOverflowX}. ` +
+          'Ein Pixel Ueberhang genuegt dann, damit die ganze Seite wandert.',
+      )
+    )
+  }
+  if (m.htmlOverscroll !== 'none') {
+    fehler.push(
+        inSprache(
+        `\`overscroll-behavior\` steht auf "${m.htmlOverscroll}" statt "none" — ` +
+          'ein Zug, den kein Scrollbereich aufnimmt, verschiebt die Seite gummibandartig.',
+      )
+    )
+  }
+
+  // ── 4. Die Kneif-Geste gehoert dem Plan ──────────────────────────────────
+  if (m.rendererTouchAction === null) {
+    fehler.push(inSprache('`.react-flow__renderer` steht nicht im Dokument — dann misst Regel 4 nichts.'))
+  } else if (m.rendererTouchAction !== 'none') {
+    fehler.push(
+        inSprache(
+        `\`.react-flow__renderer\` hat \`touch-action: ${m.rendererTouchAction}\` statt \`none\`. ` +
+          'Der Browser nimmt die Zwei-Finger-Geste dann vorweg und vergroessert die SEITE; ' +
+          'ReactFlows eigener Zoom kommt gar nicht erst dran.',
+      )
+    )
+  }
+
+  // ── 5. Die Statuszeile steht im Bild ─────────────────────────────────────
+  if (m.statusUnten === null) {
+    fehler.push(inSprache('`.cp-statusbar` steht nicht im Dokument — dann misst Regel 5 nichts.'))
+  } else if (m.statusUnten > m.innerHeight + 1) {
+    fehler.push(
+        inSprache(
+        `Die Statuszeile endet bei ${m.statusUnten} Pixel, das Fenster bei ${m.innerHeight} — ` +
+          'sie ist abgeschnitten.',
+      )
+    )
+  }
+
+  // ── 6. Der Plan bekommt den Platz ────────────────────────────────────────
+  //
+  // Die Zahl ist kein Schoenheitswert: bei 129 Pixel Plan zwischen zwei
+  // gleich breiten Panels ist die Planungs-App auf dem Telefon unbenutzbar,
+  // und genau so lag sie vor dem 2026-09-10. Die Haelfte der Anzeige ist die
+  // unterste Schwelle, die noch etwas anderes heisst als „drei gleich breite
+  // Spalten".
+  const MINDEST_PLAN = Math.round(BREITE / 2)
+  if (m.planBreite < MINDEST_PLAN) {
+    fehler.push(
+        inSprache(
+        `Der Plan bekommt nur ${m.planBreite} von ${m.innerWidth} Pixel (Mindestmass ` +
+          `${MINDEST_PLAN}). Die Seiten-Panels klappen beim LADEN nicht ein — die ` +
+          'Einklappung reagiert dann nur auf das Ueberschreiten der Schwelle, und wer ' +
+          'die Seite auf einem Telefon oeffnet, ueberschreitet nichts.',
+      )
+    )
+  }
+}
+
 const fehler = []
-const { ctx, seite } = await oeffnen()
-const m = await messen(seite)
 
-// ── 1. Nichts ragt hinaus ────────────────────────────────────────────────
-if (m.raus.length > 0) {
-  fehler.push(
-    `${m.raus.length} Element(e) ragen ueber die ${m.innerWidth} Pixel breite Anzeige hinaus:\n` +
-      m.raus
-        .slice(0, 8)
-        .map((r) => `      <${r.tag} class="${r.cls}"> ${r.links}..${r.rechts}`)
-        .join('\n'),
-  )
-}
-
-// ── 2. Das Dokument hat nichts zu scrollen ───────────────────────────────
-if (m.docScrollWidth > m.innerWidth) {
-  fehler.push(
-    `Das Dokument ist ${m.docScrollWidth} Pixel breit bei ${m.innerWidth} Pixel Anzeige — ` +
-      'die Seite laesst sich waagerecht schieben.',
-  )
-}
-if (m.docScrollHeight > m.innerHeight) {
-  fehler.push(
-    `Das Dokument ist ${m.docScrollHeight} Pixel hoch bei ${m.innerHeight} Pixel Anzeige — ` +
-      'die Seite laesst sich senkrecht schieben, und die Statuszeile rutscht darunter.',
-  )
-}
-
-// ── 3. Die Sperre steht wirklich im berechneten Stil ─────────────────────
-if (m.htmlOverflowX !== 'hidden' || m.bodyOverflowX !== 'hidden') {
-  fehler.push(
-    `\`overflow\` fehlt: html=${m.htmlOverflowX}, body=${m.bodyOverflowX}. ` +
-      'Ein Pixel Ueberhang genuegt dann, damit die ganze Seite wandert.',
-  )
-}
-if (m.htmlOverscroll !== 'none') {
-  fehler.push(
-    `\`overscroll-behavior\` steht auf "${m.htmlOverscroll}" statt "none" — ` +
-      'ein Zug, den kein Scrollbereich aufnimmt, verschiebt die Seite gummibandartig.',
-  )
-}
-
-// ── 4. Die Kneif-Geste gehoert dem Plan ──────────────────────────────────
-if (m.rendererTouchAction === null) {
-  fehler.push('`.react-flow__renderer` steht nicht im Dokument — dann misst Regel 4 nichts.')
-} else if (m.rendererTouchAction !== 'none') {
-  fehler.push(
-    `\`.react-flow__renderer\` hat \`touch-action: ${m.rendererTouchAction}\` statt \`none\`. ` +
-      'Der Browser nimmt die Zwei-Finger-Geste dann vorweg und vergroessert die SEITE; ' +
-      'ReactFlows eigener Zoom kommt gar nicht erst dran.',
-  )
-}
-
-// ── 5. Die Statuszeile steht im Bild ─────────────────────────────────────
-if (m.statusUnten === null) {
-  fehler.push('`.cp-statusbar` steht nicht im Dokument — dann misst Regel 5 nichts.')
-} else if (m.statusUnten > m.innerHeight + 1) {
-  fehler.push(
-    `Die Statuszeile endet bei ${m.statusUnten} Pixel, das Fenster bei ${m.innerHeight} — ` +
-      'sie ist abgeschnitten.',
-  )
-}
-
-// ── 6. Der Plan bekommt den Platz ────────────────────────────────────────
+// ─── WARUM IN JEDER SPRACHE GEMESSEN WIRD ────────────────────────────────
 //
-// Die Zahl ist kein Schoenheitswert: bei 129 Pixel Plan zwischen zwei
-// gleich breiten Panels ist die Planungs-App auf dem Telefon unbenutzbar,
-// und genau so lag sie vor dem 2026-09-10. Die Haelfte der Anzeige ist die
-// unterste Schwelle, die noch etwas anderes heisst als „drei gleich breite
-// Spalten".
-const MINDEST_PLAN = Math.round(BREITE / 2)
-if (m.planBreite < MINDEST_PLAN) {
+// Die Kopfzeile ist 40 Pixel hoch und bricht nicht um. Ob ihr Inhalt
+// hineinpasst, haengt an der LAENGE der Beschriftungen — und die gehoert der
+// Sprache. Gemessen am 2026-09-10: auf Englisch endete die rechte Gruppe bei
+// Pixel 378 (passt), auf Deutsch bei 425 (passt nicht). Ein Lauf, der nur die
+// Quellsprache misst, haette „OK" gesagt und den Einstellungen-Knopf jedem
+// deutschsprachigen Nutzer trotzdem aus dem Bild geschoben.
+//
+// Der Umfang ist keine Liste: die Sprachen kommen aus der Registry in
+// `src/renderer/lib/i18n.ts`. Wer eine vierte Sprache eintraegt, wird hier
+// gemessen, ohne dass jemand diese Datei anfasst.
+const sprachen = (() => {
+  const quelle = readFileSync(join(WURZEL, 'src/renderer/lib/i18n.ts'), 'utf8')
+  const block = /const\s+translations[^=]*=\s*\{([\s\S]*?)\n\}/.exec(quelle)
+  // Eintraege stehen als Kurzform (`de,`) oder als Paar (`de: dict,`).
+  const gefunden = block
+    ? [...block[1].matchAll(/^\s*([a-z]{2})\s*[,:]/gm)].map((m) => m[1])
+    : []
+  // 'en' ist die Quellsprache und steht als Fallback im JSX, nicht im
+  // Woerterbuch — sie gehoert immer dazu.
+  return [...new Set(['en', ...gefunden])]
+})()
+if (sprachen.length < 2) {
   fehler.push(
-    `Der Plan bekommt nur ${m.planBreite} von ${m.innerWidth} Pixel (Mindestmass ` +
-      `${MINDEST_PLAN}). Die Seiten-Panels klappen beim LADEN nicht ein — die ` +
-      'Einklappung reagiert dann nur auf das Ueberschreiten der Schwelle, und wer ' +
-      'die Seite auf einem Telefon oeffnet, ueberschreitet nichts.',
+    `Nur ${sprachen.length} Sprache(n) gefunden (${sprachen.join(', ')}) — dann misst ` +
+      'die Sprach-Schleife nichts. Steht die Registry noch in ' +
+      '`src/renderer/lib/i18n.ts`?',
   )
+}
+
+// Gemessen wird in jeder Sprache; die letzte Messung traegt die Zahlen der
+// Abschlussmeldung.
+let m = null
+let ctx = null
+let seite = null
+for (const sprache of sprachen) {
+  if (ctx) await ctx.close()
+  const auf = await oeffnen('/', sprache)
+  ctx = auf.ctx
+  seite = auf.seite
+  m = await messen(seite)
+  for (const r of m.raus) r.sprache = sprache
+  pruefe(m, sprache)
 }
 
 // ── 7. Safaris `gesture*` (Quelltext, nicht Messung) ─────────────────────
@@ -380,7 +446,7 @@ if (fehler.length > 0) {
 }
 
 console.log(
-  `OK (${BREITE}x${HOEHE}, Fingerbedienung): kein Ueberhang, Dokument ` +
+  `OK (${BREITE}x${HOEHE}, Fingerbedienung, Sprache(n): ${sprachen.join(', ')}): kein Ueberhang, Dokument ` +
     `${m.docScrollWidth}x${m.docScrollHeight} = Fenster, \`overflow: hidden\` + ` +
     '`overscroll-behavior: none` gesetzt, `touch-action: none` am Plan-Renderer, ' +
     `Statuszeile bei ${m.statusUnten}, Plan ${m.planBreite} Pixel breit; ` +
