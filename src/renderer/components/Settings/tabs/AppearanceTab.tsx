@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { X, Moon, Sun } from 'lucide-react'
+import { X, Moon, Sun, RotateCcw} from 'lucide-react'
 import { Icon } from '../../shared/Icon'
 import { useUiStore } from '../../../store/uiStore'
 import { useProjectStore } from '../../../store/projectStore'
@@ -261,7 +261,7 @@ export const AppearanceTab = () => {
             className="rounded bg-cp-surface-2 px-2 py-0.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-4 disabled:opacity-50"
             title={t('settings.fontSize.reset', 'Reset to default 11 px')}
           >
-            ↺
+            <Icon icon={RotateCcw} size="xs" />
           </button>
         </label>
       </SettingsCard>
@@ -546,7 +546,7 @@ export const AppearanceTab = () => {
                     className="rounded bg-cp-surface-4 px-1 py-0.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-5"
                     title={t('settings.colors.resetDefault', 'Reset to default')}
                   >
-                    ↺
+                    <Icon icon={RotateCcw} size="xs" />
                   </button>
                 )}
               </label>
@@ -596,7 +596,7 @@ export const AppearanceTab = () => {
                       className="rounded bg-cp-surface-4 px-1 py-0.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-5"
                       title={t('settings.colors.resetDefault', 'Reset to default')}
                     >
-                      ↺
+                      <Icon icon={RotateCcw} size="xs" />
                     </button>
                   )}
                 </label>

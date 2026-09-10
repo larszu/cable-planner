@@ -1,4 +1,4 @@
-import { Check, Folder, Rows3, ArrowDownToLine, ArrowUpToLine} from 'lucide-react'
+import { Check, Folder, Rows3, ArrowDownToLine, ArrowUpToLine, X} from 'lucide-react'
 import { useTranslation, format } from '../../lib/i18n'
 import { Icon } from '../shared/Icon'
 import { confirmDialog } from '../../lib/confirmDialog'
@@ -257,7 +257,8 @@ export const RackPlacementProperties = ({
                 className="rounded border border-cp-surface-5 bg-cp-surface-4 px-2 py-1 text-cp-xs text-cp-text-bright hover:bg-cp-surface-5"
                 title={t('rack.stlRemoveTitle', 'Remove STL — device renders as a box again')}
               >
-                ✕ {t('common.remove', 'Remove')}
+                <Icon icon={X} size="xs" className="mr-1 inline" />
+                {t('common.remove', 'Remove')}
               </button>
             )}
           </div>
@@ -547,7 +548,7 @@ export const RackPlacementProperties = ({
                         className="rounded px-1.5 py-0.5 text-cp-xs text-red-400 hover:bg-red-900/40 hover:text-red-300"
                         title={t('rack.removeImage', 'Remove image')}
                       >
-                        ✕
+                        <Icon icon={X} size="xs" />
                       </button>
                     </div>
                   )}

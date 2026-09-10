@@ -27,8 +27,7 @@ import {
 } from '../../lib/atemLiveCompare'
 import {
   AlertTriangle, FolderOpen, Save, Plug, Upload, SlidersHorizontal,
-  Square, SquareCheck, SquareMinus,
-} from 'lucide-react'
+  Square, SquareCheck, SquareMinus, Dot} from 'lucide-react'
 import { format, useTranslation } from '../../lib/i18n'
 import { Icon } from '../shared/Icon'
 import { getEquipmentById } from '../../lib/equipmentSelectors'
@@ -1292,7 +1291,7 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
                                 fontSize: 11,
                               }}
                             >
-                              ●
+                              <Icon icon={Dot} size="sm" />
                             </span>
                           ) : outputHasOtherSource ? (
                             // #456 — Marker "Output anderweitig belegt": vorher

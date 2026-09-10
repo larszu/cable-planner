@@ -341,7 +341,8 @@ export const EquipmentChecklist = ({
                               className="ml-2 rounded bg-emerald-800/60 px-1.5 py-0.5 text-cp-xs font-medium text-emerald-200"
                               title={format(t('rentman.checklist.badge.fallbackTitle', 'Auto-filled with template "{name}"'), { name: item.templateMatch })}
                             >
-                              ✓ {item.templateMatch}
+                              <Icon icon={Check} size="xs" className="mr-1 inline" />
+                              {item.templateMatch}
                             </span>
                           )
                         })()}

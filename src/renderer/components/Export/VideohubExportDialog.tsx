@@ -1,5 +1,5 @@
 ﻿import { useEffect, useMemo, useRef, useState } from 'react'
-import { X, SlidersHorizontal, List, Link, Wand2, ClipboardList, Search, Lock, Download, Loader2, Upload, Tag, ChevronDown, ChevronRight} from 'lucide-react'
+import { X, SlidersHorizontal, List, Link, Wand2, ClipboardList, Search, Lock, Download, Loader2, Upload, Tag, ChevronDown, ChevronRight, RotateCcw, Grid3x3} from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import { useProjectStore } from '../../store/projectStore'
 import {
@@ -1086,7 +1086,8 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
                   }`}
                   title={t('videohub.matrixView', 'Crosspoint matrix')}
                 >
-                  ▦ {t('export.matrixToggle', 'Matrix')}
+                  <Icon icon={Grid3x3} size="xs" className="mr-1 inline" />
+                  {t('export.matrixToggle', 'Matrix')}
                 </button>
                 <button
                   type="button"
@@ -1180,7 +1181,8 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
               className="rounded bg-cp-surface-2 px-2 py-1 text-cp-xs hover:bg-cp-surface-4"
               title={t('videohub.resetDiag', 'Reset diagonal routing (output N → input N)')}
             >
-              ↺ {t('export.reset', 'Reset')}
+              <Icon icon={RotateCcw} size="xs" className="mr-1 inline" />
+              {t('export.reset', 'Reset')}
             </button>
           </div>
           {showMatrix && (() => {
@@ -1676,7 +1678,8 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
               className="rounded bg-sky-700 px-3 py-1 text-cp-base hover:bg-sky-600"
               title={t('export.importLabelsTitle', 'Import Labels.txt — write port names from a file (e.g. from Videohub Setup) onto this device.')}
             >
-              ⬆ {t('export.importLabels', 'Import Labels.txt')}
+              <Icon icon={Upload} size="xs" className="mr-1 inline" />
+              {t('export.importLabels', 'Import Labels.txt')}
             </button>
           )}
           {/* #502 — Druckbare Beschriftungs-Labels (Smart-Control-Raster) als
