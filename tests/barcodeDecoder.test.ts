@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
-import { join } from 'node:path'
+import { basename, dirname, join } from 'node:path'
+import { createRequire } from 'node:module'
 import { prepareZXingModule, readBarcodes } from 'zxing-wasm/reader'
 
 // ---------------------------------------------------------------------------
@@ -74,10 +75,41 @@ const alsBild = (text: string) => {
   return { data, width: breite, height: HOEHE, colorSpace: 'srgb' as const }
 }
 
+/**
+ * Die Paket-Wurzel aus einem aufgeloesten Einstiegspunkt.
+ *
+ * `resolve('zxing-wasm/package.json')` waere der direkte Weg und geht nicht:
+ * das Paket zaehlt in `exports` auf, was es herausgibt, und die
+ * `package.json` steht nicht darin. Aufgeloest wird deshalb der Einstieg, den
+ * der Test ohnehin importiert; von dort geht es aufwaerts bis zum Ordner mit
+ * dem Paketnamen.
+ */
+const paketWurzel = (einstieg: string): string => {
+  let dir = dirname(createRequire(import.meta.url).resolve(einstieg))
+  const name = einstieg.split('/')[0]
+  while (basename(dir) !== name) {
+    const oben = dirname(dir)
+    if (oben === dir) throw new Error(`Paketwurzel von ${einstieg} nicht gefunden`)
+    dir = oben
+  }
+  return dir
+}
+
+/**
+ * Der Pfad zur WASM-Datei wird AUFGELOEST und nicht zusammengesetzt.
+ *
+ * `join(process.cwd(), 'node_modules', …)` stimmt genau dann, wenn das Paket
+ * neben dem Arbeitsverzeichnis liegt. In einem npm-Workspace liegt es das
+ * nicht: dort wird nach oben gehoben, und der Test suchte eine Datei, die es
+ * an dieser Stelle nie gab — mit einer Fehlermeldung ueber einen fehlenden
+ * Pfad statt ueber einen fehlenden Decoder.
+ *
+ * Genau so ist es beim Vendorieren in `av-planner-suite` passiert. `resolve`
+ * beantwortet die Frage, die hier wirklich gestellt ist — „wo liegt das
+ * Paket, das ich gerade importiere" —, und beantwortet sie in beiden Layouts.
+ */
 const WASM = join(
-  process.cwd(),
-  'node_modules',
-  'zxing-wasm',
+  paketWurzel('zxing-wasm/reader'),
   'dist',
   'reader',
   'zxing_reader.wasm',
