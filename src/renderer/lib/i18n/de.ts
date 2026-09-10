@@ -5627,4 +5627,40 @@ export const de: Dict = {
   'palette.dmxPatchSummary':
     '{n} Geräte haben eine Adresse bekommen, {skipped} wurden übersprungen, weil kein Modus gesetzt ist. Jede Überschneidung steht im Plan-Check.',
   'check.category.dmx-address': 'DMX-Adresse',
+
+  // ── Die Auskunft des Gebaeudes (facility Issue #2, 2026-09-10) ────────────
+  'check.haus.punktFehlt':
+    '{name} ist auf einen Hausanschluss geplant, den die Gebäude-Auskunft vom {stand} nicht mehr führt. Bitte einen aktuellen wählen.',
+  'check.haus.gedimmt':
+    '{name} hängt an {punkt}, und das Haus gibt diese Dose als gedimmt an. Ein Schaltnetzteil am Dimmer fällt aus oder brennt.',
+  'check.haus.geschaltet':
+    '{name} hängt an {punkt}, und das Haus gibt diese Dose als geschaltet an. Wer den Schalter umlegt, nimmt das Gerät mit.',
+  'check.haus.klinkeFehlt':
+    '{name} benutzt eine Steueradresse, die die Gebäude-Auskunft vom {stand} nicht mehr führt. Was sie schalten würde, ist unbekannt.',
+  'check.haus.ueberlast':
+    'An {punkt} hängen {watt} W aus dem Plan; das Haus gibt {grenze} W Dauerleistung an.',
+  'check.category.house-outlet': 'Hausanschluss',
+  'check.category.house-control': 'Haussteuerung',
+
+  // ── Hausanschluss am Geraet (facility Issue #2) ───────────────────────────
+  'haus.title': 'Hausanschluss',
+  'haus.keineAuskunft': 'keine Gebäude-Datei',
+  'haus.nichtZugeordnet': 'nicht zugeordnet',
+  'haus.ladenHinweis':
+    'Das Gebäude-Werkzeug gibt das Haus als .avfacility-Datei aus: welche Anschlüsse es gibt, was sie hergeben, welche davon geschaltet oder gedimmt sind und welche Steueradressen der Show offenstehen. Hier geladen, kann der Plan-Check sie fragen.',
+  'haus.dateiLaden': 'Gebäude-Datei laden…',
+  'haus.dateiUnlesbar':
+    'Das ist keine Gebäude-Datei des Gebäude-Werkzeugs, oder sie stammt aus einer neueren Fassung. Es wurde nichts übernommen.',
+  'haus.stand': '{name} · gelesen {stand} aus {quelle}',
+  'haus.punkt': 'Hausanschluss',
+  'haus.keinPunkt': '— keiner —',
+  'haus.absicherung': 'Absicherung {a} A',
+  'haus.dauerleistung': '{w} W Dauerleistung',
+  'haus.keineDauerleistung': 'Dauerleistung nicht angegeben',
+  'haus.geschaltet': 'geschaltet',
+  'haus.gedimmt': 'gedimmt',
+  'haus.klinke': 'Steueradresse',
+  'haus.keineKlinke': '— keine —',
+  'haus.nurLesen': 'nur lesen — diese Adresse meldet, sie schaltet nicht',
+  'haus.schaltet': 'schaltet — was dabei passiert, sagt das Gebäude',
 }

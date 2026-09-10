@@ -222,6 +222,12 @@ export const EQUIPMENT_FIELD_CLASS: Record<string, FieldClass> = {
   dmxUniverse: 'substantive',
   dmxAdresse: 'substantive',
   dmxAdresseFestgesetzt: 'substantive',
+  // Die Verweise ins Gebaeude (facility Issue #2). `substantive`, weil an
+  // ihnen Befunde haengen: eine andere Dose kann geschaltet oder gedimmt
+  // sein, und die Last verteilt sich anders. Am Aussehen des Plans aendert
+  // sich dabei nichts — genau deshalb waere `cosmetic` hier gefaehrlich.
+  hausPunktId: 'substantive',
+  hausKlinkeId: 'substantive',
   // B-46 — die erklaerten Merkmale. Ebenfalls `substantive`: ob die Quelle den
   // Alternate-Mode kann, entscheidet ueber einen Befund am Adapter. Wer das
   // Merkmal streicht, aendert die Aussage des Plans, nicht sein Aussehen.

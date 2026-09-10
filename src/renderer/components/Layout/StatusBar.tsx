@@ -122,6 +122,9 @@ export const StatusBar = ({
   const anschlussListe = useProjectStore((s) => s.project.anschlussListe)
   const farbnormen = useProjectStore((s) => s.project.farbnormen)
   const defaultVideoFormat = useProjectStore((s) => s.project.metadata.defaultVideoFormat)
+  // Die Auskunft des Gebaeudes speist die Haus-Checks (facility Issue #2).
+  // Fehlt sie, schweigen sie vollstaendig.
+  const hausAuskunft = useProjectStore((s) => s.project.hausAuskunft)
   const networkSegments = useProjectStore((s) => s.project.networkSegments)
   const togglePlanCheck = useUiStore((s) => s.togglePlanCheck)
   // Memoisiert, weil die StatusBar bei jeder Viewport-Aenderung rendert, die
@@ -129,7 +132,7 @@ export const StatusBar = ({
   // den Kabelgraph). Abhaengigkeiten sind Store-Referenzen, wechseln also nur
   // bei echter Projekt-Aenderung.
   const { errorCount, warningCount } = useMemo(
-    () => runDrawingChecks({ equipment, cables, drumKit, sourceIdentities, anschlussListe, farbnormen, defaultVideoFormat }),
+    () => runDrawingChecks({ equipment, cables, drumKit, sourceIdentities, anschlussListe, farbnormen, defaultVideoFormat, hausAuskunft }),
     [equipment, cables, drumKit, sourceIdentities, anschlussListe, farbnormen, defaultVideoFormat],
   )
   // ── DIE NETZ-BEFUNDE, NEBEN DEN PLAN-CHECK (2026-09-07) ────────────────

@@ -79,6 +79,16 @@ export interface DrawingCheckInput {
   farbnormen?: import('../types/conductor').Farbnorm[]
   /** B-47 — das Format, das gilt, wo das Kabel keines nennt. */
   defaultVideoFormat?: import('../types/videoFormat').VideoFormatId
+  /**
+   * Die Auskunft des Gebaeudes, gegen die geplant wurde
+   * (`larszu-facility-planner` Issue #2).
+   *
+   * Fehlt sie, schweigen die Haus-Checks vollstaendig — sie melden dann NICHT
+   * „kein Gebaeude hinterlegt". Die allermeisten Plaene stehen in einer Halle,
+   * ueber die niemand eine Datei hat, und ein Befund, den man nicht beheben
+   * kann, ist die schnellste Art, eine Liste unlesbar zu machen.
+   */
+  hausAuskunft?: import('../types/hausAuskunft').HausAuskunft
 }
 
 export interface DrawingCheckResult {
@@ -101,6 +111,7 @@ export const runDrawingChecks = (
     anschlussListe,
     farbnormen,
     defaultVideoFormat,
+    hausAuskunft,
   }: DrawingCheckInput,
 ): DrawingCheckResult => {
   const findings: CheckFinding[] = []
@@ -1086,6 +1097,126 @@ export const runDrawingChecks = (
       message: format(tr(b.schluessel, b.text), b.werte),
       equipmentId: b.geraetId,
     })
+  }
+
+  // — Check 26: die Auskunft des Gebaeudes (facility-planner Issue #2) -------
+  //
+  // Der Plan verweist auf Anschlusspunkte und Steuerklinken des Hauses und
+  // kopiert deren Angaben NICHT. Diese Pruefungen sind das, was der Verweis
+  // wert ist: sie fragen die Auskunft, statt sich auf eine Abschrift zu
+  // verlassen, die inzwischen falsch sein koennte.
+  //
+  // Ohne hinterlegte Auskunft passiert hier gar nichts — kein „nicht
+  // geprueft", kein Hinweis. Wer in einer Halle plant, ueber die es keine
+  // Datei gibt, soll keine Liste bekommen, die er nicht abarbeiten kann.
+  if (hausAuskunft) {
+    const punktById = new Map(hausAuskunft.punkte.map((p) => [p.id, p]))
+    const klinkeById = new Map(hausAuskunft.klinken.map((k) => [k.id, k]))
+    const lastJePunkt = new Map<string, number>()
+
+    for (const e of equipment) {
+      if (e.hausPunktId) {
+        const punkt = punktById.get(e.hausPunktId)
+        if (!punkt) {
+          // Der teure Fall: das Haus hat eine neue Datei geschickt, und die
+          // Dose von damals steht nicht mehr drin. Stillschweigend weiter zu
+          // planen hiesse, eine Last auf einen Punkt zu legen, den es nicht
+          // mehr gibt.
+          findings.push({
+            id: `haus-punkt-fehlt:${e.id}`,
+            severity: 'error',
+            category: 'House outlet',
+            message: format(
+              tr(
+                'check.haus.punktFehlt',
+                '{name} is planned on a house outlet that the building statement of {stand} no longer lists. Pick a current one.',
+              ),
+              { name: e.name, stand: hausAuskunft.gelesenAm.slice(0, 10) },
+            ),
+            equipmentId: e.id,
+          })
+        } else {
+          if (punkt.gedimmt === true) {
+            findings.push({
+              id: `haus-gedimmt:${e.id}`,
+              severity: 'error',
+              category: 'House outlet',
+              message: format(
+                tr(
+                  'check.haus.gedimmt',
+                  '{name} hangs on {punkt}, and the building states that outlet is dimmed. A switching power supply on a dimmer either fails or burns.',
+                ),
+                { name: e.name, punkt: punkt.bezeichnung },
+              ),
+              equipmentId: e.id,
+            })
+          }
+          if (punkt.geschaltet === true) {
+            // WARNUNG und kein Fehler: geschaltet ist nicht verboten, es ist
+            // nur selten gemeint. Fuer die Saalbeleuchtung ist es richtig,
+            // fuer den Medienserver das Ende der Show.
+            findings.push({
+              id: `haus-geschaltet:${e.id}`,
+              severity: 'warning',
+              category: 'House outlet',
+              message: format(
+                tr(
+                  'check.haus.geschaltet',
+                  '{name} hangs on {punkt}, and the building states that outlet is switched. Whoever flips that switch takes the device with it.',
+                ),
+                { name: e.name, punkt: punkt.bezeichnung },
+              ),
+              equipmentId: e.id,
+            })
+          }
+          const watt = effectiveWatts(e)
+          if (watt > 0) lastJePunkt.set(punkt.id, (lastJePunkt.get(punkt.id) ?? 0) + watt)
+        }
+      }
+
+      if (e.hausKlinkeId && !klinkeById.has(e.hausKlinkeId)) {
+        findings.push({
+          id: `haus-klinke-fehlt:${e.id}`,
+          severity: 'error',
+          category: 'House control',
+          message: format(
+            tr(
+              'check.haus.klinkeFehlt',
+              '{name} uses a control address that the building statement of {stand} no longer lists. What it would switch is unknown.',
+            ),
+            { name: e.name, stand: hausAuskunft.gelesenAm.slice(0, 10) },
+          ),
+          equipmentId: e.id,
+        })
+      }
+    }
+
+    // Die Summe gegen die DAUERLEISTUNG — und nur, wenn das Haus sie angibt.
+    //
+    // Sie aus `absicherungA` zu rechnen waere die naheliegende Ergaenzung und
+    // die falsche: der Nennstrom ist die Ausloeseschwelle, nicht die
+    // Belastbarkeit. Leitungslaenge, Haeufung und Gleichzeitigkeit gehen ein,
+    // und keine dieser Zahlen steht im Plan. Wo das Haus schweigt, schweigt
+    // auch dieser Check — eine erfundene Grenze liest sich auf dem Blatt wie
+    // eine gemessene.
+    for (const [punktId, watt] of lastJePunkt) {
+      const punkt = punktById.get(punktId)
+      if (!punkt?.dauerleistungW) continue
+      if (watt > punkt.dauerleistungW) {
+        findings.push({
+          id: `haus-last:${punktId}`,
+          severity: 'error',
+          category: 'House outlet',
+          message: format(
+            tr(
+              'check.haus.ueberlast',
+              '{punkt} carries {watt} W of plan devices; the building states {grenze} W continuous.',
+            ),
+            { punkt: punkt.bezeichnung, watt: Math.round(watt), grenze: punkt.dauerleistungW },
+          ),
+        })
+      }
+    }
   }
 
   // Sortierung: error → warning → info, innerhalb stabil nach category.

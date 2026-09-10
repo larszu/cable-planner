@@ -163,6 +163,14 @@ export const INSTANCE_FIELDS = [
   'dmxUniverse',
   'dmxAdresse',
   'dmxAdresseFestgesetzt',
+
+  // An WELCHER Dose des Hauses dieses Exemplar haengt, und welche Klinke der
+  // Haussteuerung es benutzt (facility Issue #2). Am Modell waere beides
+  // sinnlos: „der Medienserver" haengt nirgends, DIESER Medienserver haengt
+  // an der Wanddose im Foyer. Wer es ans Modell haengte, zoege beim zweiten
+  // Geraet desselben Typs still die Dose des ersten mit.
+  'hausPunktId',
+  'hausKlinkeId',
   'id',
 
   // Wo dieses Exemplar steht

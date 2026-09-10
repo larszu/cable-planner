@@ -679,6 +679,32 @@ export interface EquipmentItem {
    * mit der Herkunft `geschaetzt` — sichtbar als solcher, statt still zu
    * einer belegten Zahl zu werden.
    */
+  /**
+   * An welchem Anschlusspunkt des HAUSES dieses Geraet haengt
+   * (`HausAuskunft.punkte[].id`).
+   *
+   * ─── WARUM EIN VERWEIS UND KEINE KOPIE ──────────────────────────────────
+   *
+   * Absicherung, Dauerleistung und „haengt an einem Lichtschalter" sind
+   * Auskuenfte des Hauses. Sie hier abzuschreiben hiesse, sie im Plan zu
+   * fuehren — und beim naechsten Export des Betreibers haette der Plan eine
+   * Zahl, die das Haus so nicht mehr sagt, ohne dass es jemandem auffaellt.
+   * Der Verweis dagegen zeigt entweder auf eine Auskunft oder ins Leere, und
+   * ins Leere zeigt der Plan-Check an.
+   *
+   * Dieselbe Regel wie bei `deviceTypeId` (ADR-002): eine Zuordnung ist eine
+   * ERKLAERUNG und kein Namensvergleich.
+   */
+  hausPunktId?: string
+  /**
+   * Welche Steuerklinke des Hauses dieses Geraet benutzt
+   * (`HausAuskunft.klinken[].id`).
+   *
+   * Beispiel: ein Medienserver, der zum Showstart ueber KNX das Saallicht
+   * dimmt. Was dabei passiert, steht in der `bedeutung` der Klinke — im Plan
+   * steht nur, DASS sie benutzt wird.
+   */
+  hausKlinkeId?: string
   dmxProfil?: import('../lib/dmx/types').DmxProfil
   /** Welcher Modus gefahren wird (Id aus `dmxProfil.modi`). */
   dmxModusId?: string
