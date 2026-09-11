@@ -179,7 +179,13 @@ export const PropertiesPanel = () => {
           Panel — gemessen 129px auf einem 390px breiten Telefon — passt sie
           dann nicht mehr neben den Titel und stand 17px ueber dem rechten
           Bildrand. Mit Umbruch rutscht sie unter den Titel statt hinaus. */}
-      <div className="flex flex-wrap items-start justify-between gap-2 border-b border-cp-border-muted px-3 py-2.5">
+      {/* Kopflinie im Akzent (ADR-007 Abschnitt 3: „die Kopfzeile jedes
+          Panels und jedes Dialogs"). Bis zum 2026-09-11 trugen sie hier
+          nur die Dialoge (`ModalShell`) und die Kommandopalette; die
+          Spalten hatten eine gedaempfte Linie wie jede Trennung im
+          Inneren. Damit sah der Kopf der Spalte aus wie ein Abschnitt
+          in ihr. */}
+      <div className="spaltenkopf flex flex-wrap items-start justify-between gap-2 border-b border-cp-accent px-3 py-2.5">
         <div className="min-w-0">
           <h2 className="truncate text-cp-base font-semibold">{title}</h2>
           <div className="mt-0.5 text-cp-xs uppercase tracking-wide text-cp-text-muted">

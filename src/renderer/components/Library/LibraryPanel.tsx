@@ -754,8 +754,19 @@ export const LibraryPanel = () => {
           Registers unabhängig von der Textlänge — die englischen Labels
           („Equipment", „Cables", „Groups", „Racks") sind zusammen 309 px
           breit und würden in einer Zeile genauso herausfallen. */}
+      {/* DIE SPALTE SAGT, WIE SIE HEISST (2026-09-11).
+          ADR-007 Abschnitt 6 verlangt fuer jede Spalte eine Kopfzeile mit
+          ihrem Namen und dem Griff darin. Die Bibliothek trug den Namen
+          bisher NUR im eingeklappten Zustand (senkrecht) und als
+          Vorlesetext des Fenster-Knopfes — offen stand ueber den vier
+          Registern nichts. Der Inspektor daneben fuehrt seinen Namen seit
+          jeher; zwei Spalten derselben App beantworteten dieselbe Frage
+          verschieden.
+          Die Zeile gibt es bereits (sie traegt Einklapp-Knopf und
+          Fenster-Menue); sie bekommt den Namen und die Kopflinie, statt dass
+          eine zweite Zeile Hoehe kostet. */}
       {(!floating && !inPopout) && (
-        <div className="mb-1 flex items-center gap-1 text-cp-xs">
+        <div className="spaltenkopf mb-1 flex items-center gap-1 border-b border-cp-accent pb-1 text-cp-xs">
         {!floating && !inPopout && (
           <button
             type="button"
@@ -779,6 +790,9 @@ export const LibraryPanel = () => {
             onPopout={() => openPanelPopout('library')}
           />
         )}
+        <span className="min-w-0 flex-1 truncate text-right text-cp-base font-semibold">
+          {t('library.title', 'Library')}
+        </span>
         </div>
       )}
       <div className="mb-2 grid grid-cols-2 gap-1 text-cp-xs">
