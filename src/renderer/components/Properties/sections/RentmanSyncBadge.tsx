@@ -21,7 +21,7 @@ export const RentmanSyncBadge = ({ equipment }: { equipment: EquipmentItem }) =>
 
   if (equipment.rentmanRemoved) {
     return (
-      <div className="flex items-center gap-1.5 rounded border border-red-700/50 bg-red-900/20 px-2 py-1 text-cp-xs text-red-300">
+      <div className="flex items-center gap-1.5 border border-red-700/50 bg-red-900/20 px-2 py-1 text-cp-xs text-red-300">
         <Icon icon={AlertTriangle} size="sm" />
         <span>{t('props.rentmanBadge.removed', 'No longer present in Rentman!')}</span>
       </div>
@@ -29,14 +29,14 @@ export const RentmanSyncBadge = ({ equipment }: { equipment: EquipmentItem }) =>
   }
   if (equipment.rentmanId) {
     return (
-      <div className="flex items-center gap-1.5 rounded border border-orange-700/50 bg-orange-900/20 px-2 py-1 text-cp-xs text-orange-300">
-        <span className="rounded bg-orange-700 px-1 font-bold text-white">R</span>
+      <div className="flex items-center gap-1.5 border border-orange-700/50 bg-orange-900/20 px-2 py-1 text-cp-xs text-orange-300">
+        <span className="bg-orange-700 px-1 font-bold text-white">R</span>
         {format(t('props.rentmanBadge.id', 'Rentman ID: {id}'), { id: equipment.rentmanId })}
       </div>
     )
   }
   return (
-    <div className="flex items-center gap-1.5 rounded border border-amber-700/40 bg-amber-900/10 px-2 py-1 text-cp-xs text-amber-400">
+    <div className="flex items-center gap-1.5 border border-amber-700/40 bg-amber-900/10 px-2 py-1 text-cp-xs text-amber-400">
       <Icon icon={AlertTriangle} size="sm" />
       <span>{t('props.rentmanBadge.notTracked', 'Not tracked in Rentman plan')}</span>
     </div>

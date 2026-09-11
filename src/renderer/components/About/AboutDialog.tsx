@@ -46,13 +46,13 @@ export const AboutDialog = () => {
           bg-emerald-700 (Versions-Badge) + hover:text-sky-300 bleiben: dafür
           gibt es (noch) keinen exakten Token. */}
       <div className="space-y-3 text-cp-base">
-        <div className="flex items-center gap-3 rounded border border-cp-border-muted bg-cp-surface-3/40 p-3">
+        <div className="flex items-center gap-3 border border-cp-border-muted bg-cp-surface-3/40 p-3">
           <Icon icon={Cable} size={28} className="text-cp-accent" />
           <div className="min-w-0">
             <div className="font-semibold text-cp-text">{t('app.title', 'Cable Planner')}</div>
             <div className="text-cp-xs text-cp-text-muted">{APP_DESCRIPTION}</div>
           </div>
-          <div className="ml-auto shrink-0 rounded bg-emerald-700 px-2 py-1 font-mono text-cp-xs text-white">
+          <div className="ml-auto shrink-0 bg-emerald-700 px-2 py-1 font-mono text-cp-xs text-white">
             v{APP_VERSION}
           </div>
         </div>
@@ -85,7 +85,7 @@ export const AboutDialog = () => {
           </dd>
         </dl>
 
-        <div className="rounded border border-cp-border-muted bg-cp-surface-3/40 p-3 text-cp-xs text-cp-text-muted">
+        <div className="border border-cp-border-muted bg-cp-surface-3/40 p-3 text-cp-xs text-cp-text-muted">
           {t('about.issueHint', 'Please report issues + feature requests directly on GitHub.')}
         </div>
       </div>

@@ -106,7 +106,7 @@ export const DmxSection = ({ equipment }: { equipment: EquipmentItem }) => {
                 value={profil.hersteller}
                 onChange={(e) => updateEquipment(equipment.id, { dmxProfil: { ...profil, hersteller: e.target.value } })}
                 placeholder="Robe"
-                className="mt-0.5 w-full rounded border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
+                className="mt-0.5 w-full border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
               />
             </label>
             <label className="text-cp-xs">
@@ -115,7 +115,7 @@ export const DmxSection = ({ equipment }: { equipment: EquipmentItem }) => {
                 value={profil.modell}
                 onChange={(e) => updateEquipment(equipment.id, { dmxProfil: { ...profil, modell: e.target.value } })}
                 placeholder="Robin MegaPointe"
-                className="mt-0.5 w-full rounded border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
+                className="mt-0.5 w-full border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
               />
             </label>
           </div>
@@ -124,7 +124,7 @@ export const DmxSection = ({ equipment }: { equipment: EquipmentItem }) => {
               Je Zeile Name, Kanalzahl und Herkunft. Die Herkunft steht NEBEN
               der Zahl und nicht in einem Untermenue: wer sie dort verstecken
               muesste, um Platz zu sparen, hat sie faktisch weggelassen. */}
-          <div className="rounded border border-cp-border p-2">
+          <div className="border border-cp-border p-2">
             <div className="mb-1 flex items-center justify-between">
               <span className="text-cp-xs font-semibold uppercase tracking-wide text-cp-text-secondary">
                 {t('dmx.modes', 'Modes')}
@@ -142,7 +142,7 @@ export const DmxSection = ({ equipment }: { equipment: EquipmentItem }) => {
                     },
                   ])
                 }
-                className="rounded bg-cp-surface-4 px-2 py-0.5 text-cp-xs hover:bg-cp-surface-5"
+                className="bg-cp-surface-4 px-2 py-0.5 text-cp-xs hover:bg-cp-surface-5"
               >
                 {t('dmx.addMode', '+ Mode')}
               </button>
@@ -170,7 +170,7 @@ export const DmxSection = ({ equipment }: { equipment: EquipmentItem }) => {
                   <input
                     value={m.name}
                     onChange={(e) => modusAendern(m.id, { name: e.target.value })}
-                    className="min-w-24 flex-1 rounded border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
+                    className="min-w-24 flex-1 border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
                   />
                   <input
                     type="number"
@@ -179,13 +179,13 @@ export const DmxSection = ({ equipment }: { equipment: EquipmentItem }) => {
                     value={m.kanaele}
                     onChange={(e) => modusAendern(m.id, { kanaele: Math.max(1, Math.floor(Number(e.target.value) || 1)) })}
                     title={t('dmx.channelCount', 'Channels in this mode')}
-                    className="w-16 rounded border border-cp-border bg-cp-surface-3 p-1 text-center text-cp-xs tabular-nums"
+                    className="w-16 border border-cp-border bg-cp-surface-3 p-1 text-center text-cp-xs tabular-nums"
                   />
                   <select
                     value={m.herkunft}
                     onChange={(e) => modusAendern(m.id, { herkunft: e.target.value as ModusHerkunft })}
                     title={t('dmx.originTitle', 'Where this channel count comes from')}
-                    className="rounded border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
+                    className="border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
                   >
                     {HERKUNFT_REIHE.map((h) => (
                       <option key={h} value={h}>
@@ -196,7 +196,7 @@ export const DmxSection = ({ equipment }: { equipment: EquipmentItem }) => {
                   <button
                     type="button"
                     onClick={() => setzeProfil(modi.filter((x) => x.id !== m.id))}
-                    className="rounded px-1 text-cp-xs text-cp-text-muted hover:text-cp-danger"
+                    className="px-1 text-cp-xs text-cp-text-muted hover:text-cp-danger"
                     title={t('dmx.removeMode', 'Remove mode')}
                   >
                     x
@@ -220,7 +220,7 @@ export const DmxSection = ({ equipment }: { equipment: EquipmentItem }) => {
                     dmxAdresseFestgesetzt: true,
                   })
                 }
-                className="mt-0.5 w-full rounded border border-cp-border bg-cp-surface-3 p-1 text-cp-xs tabular-nums"
+                className="mt-0.5 w-full border border-cp-border bg-cp-surface-3 p-1 text-cp-xs tabular-nums"
               />
             </label>
             <label className="text-cp-xs">
@@ -238,7 +238,7 @@ export const DmxSection = ({ equipment }: { equipment: EquipmentItem }) => {
                     dmxAdresseFestgesetzt: true,
                   })
                 }
-                className="mt-0.5 w-full rounded border border-cp-border bg-cp-surface-3 p-1 text-cp-xs tabular-nums"
+                className="mt-0.5 w-full border border-cp-border bg-cp-surface-3 p-1 text-cp-xs tabular-nums"
               />
             </label>
             <div className="text-cp-xs text-cp-text-muted">

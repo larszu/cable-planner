@@ -183,7 +183,7 @@ export const RackLivePreview = ({
 
   if (placements.length === 0) {
     return (
-      <div className="rounded border border-dashed border-cp-border bg-cp-surface-3/40 p-3 text-center text-cp-xs text-cp-text-muted">
+      <div className="border border-dashed border-cp-border bg-cp-surface-3/40 p-3 text-center text-cp-xs text-cp-text-muted">
         {t(
           'rackPreview.empty',
           'No devices in rack — preview appears once the first device is assigned.',
@@ -212,9 +212,9 @@ export const RackLivePreview = ({
           })}
         </div>
       </div>
-      <div className="flex items-start justify-center rounded border border-cp-border bg-cp-surface-3/60 p-3">
+      <div className="flex items-start justify-center border border-cp-border bg-cp-surface-3/60 p-3">
         <div
-          className="relative rounded border-2 border-slate-500 bg-slate-900 shadow-lg"
+          className="relative border-2 border-slate-500 bg-slate-900"
           style={{ width: BLACK_BOX_WIDTH, height: blackBoxHeight }}
         >
           {/*

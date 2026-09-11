@@ -45,7 +45,7 @@ export const DisplayPropertiesBlock = ({ equipment }: { equipment: EquipmentItem
     <details
       open={open}
       onToggle={(e) => setOpen(e.currentTarget.open)}
-      className="rounded border border-cp-border [&_summary]:cursor-pointer"
+      className="border border-cp-border [&_summary]:cursor-pointer"
     >
       <summary className="flex items-center gap-1 px-2 py-1.5 text-cp-xs uppercase tracking-wide text-cp-text-muted hover:text-cp-text-bright [&::-webkit-details-marker]:hidden">
         <Icon icon={open ? ChevronDown : ChevronRight} size="xs" className="text-cp-text-faint" />
@@ -62,7 +62,7 @@ export const DisplayPropertiesBlock = ({ equipment }: { equipment: EquipmentItem
               updateEquipment(equipment.id, { resolution: event.target.value || undefined })
             }
             placeholder="1920x1080"
-            className="w-full rounded border border-cp-border bg-cp-surface-1 p-2 font-mono"
+            className="w-full border border-cp-border bg-cp-surface-1 p-2 font-mono"
           />
           <datalist id="display-resolution-options">
             {RESOLUTION_PRESETS.map((r) => (
@@ -84,7 +84,7 @@ export const DisplayPropertiesBlock = ({ equipment }: { equipment: EquipmentItem
               })
             }}
             placeholder="27"
-            className="w-full rounded border border-cp-border bg-cp-surface-1 p-2"
+            className="w-full border border-cp-border bg-cp-surface-1 p-2"
           />
         </label>
       </div>

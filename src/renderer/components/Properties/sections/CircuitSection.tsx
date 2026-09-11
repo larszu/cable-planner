@@ -52,7 +52,7 @@ export const CircuitSection = ({ equipment }: { equipment: EquipmentItem }) => {
       <label className="block text-cp-xs">
         <span className="mb-1 block text-cp-text-muted">{t('circuit.kind', 'Role in the circuit')}</span>
         <select
-          className="w-full rounded border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-text"
+          className="w-full border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-text"
           value={kind ?? ''}
           onChange={(e) =>
             updateEquipment(equipment.id, {
@@ -98,7 +98,7 @@ export const CircuitSection = ({ equipment }: { equipment: EquipmentItem }) => {
                 <label key={p.id} className="flex items-center gap-2 text-cp-xs">
                   <span className="min-w-0 flex-1 truncate text-cp-text-secondary">{p.name}</span>
                   <select
-                    className="w-24 rounded border border-cp-border bg-cp-surface-2 px-1 py-0.5 text-cp-text"
+                    className="w-24 border border-cp-border bg-cp-surface-2 px-1 py-0.5 text-cp-text"
                     value={p.circuitTerminal ?? ''}
                     onChange={(e) =>
                       setzeKlemme(p.id, e.target.value === '' ? undefined : Number(e.target.value))

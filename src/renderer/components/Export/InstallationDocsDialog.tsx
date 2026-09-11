@@ -309,7 +309,7 @@ export const InstallationDocsDialog = () => {
             steht vor allem anderen, weil er über den Wert des ganzen Pakets
             entscheidet. */}
         <section
-          className={`rounded border p-3 ${
+          className={` border p-3 ${
             job.basis === 'as-built'
               ? 'border-cp-border bg-cp-surface-2/40'
               : 'border-amber-500/40 bg-amber-500/5'
@@ -347,7 +347,7 @@ export const InstallationDocsDialog = () => {
         </section>
 
         {/* Bearbeiter-Identität */}
-        <section className="rounded border border-cp-border bg-cp-surface-2/40 p-3">
+        <section className="border border-cp-border bg-cp-surface-2/40 p-3">
           <label className="block">
             <span className="mb-1 block text-cp-text-secondary">
               {t('docs.editor', 'Editor (author for changelog & service)')}
@@ -356,7 +356,7 @@ export const InstallationDocsDialog = () => {
               value={editorName}
               onChange={(e) => setEditorName(e.target.value)}
               placeholder={t('docs.editor.placeholder', 'e.g. Lars Z. / Company XY')}
-              className="w-full rounded border border-cp-border bg-cp-surface-1 p-2"
+              className="w-full border border-cp-border bg-cp-surface-1 p-2"
             />
           </label>
         </section>
@@ -380,7 +380,7 @@ export const InstallationDocsDialog = () => {
               value={recipient}
               onChange={(e) => setRecipient(e.target.value)}
               placeholder={t('docs.recipient.placeholder', 'e.g. Camera, Audio, Stage - leaving it empty is fine')}
-              className="w-full rounded border border-cp-border bg-cp-surface-1 p-2"
+              className="w-full border border-cp-border bg-cp-surface-1 p-2"
             />
           </label>
           <label className="mb-2 flex items-center gap-2 text-cp-xs text-cp-text-secondary">
@@ -391,7 +391,7 @@ export const InstallationDocsDialog = () => {
               max={100}
               value={reserve}
               onChange={(e) => setReserve(Math.max(0, Math.min(100, Number(e.target.value) || 0)))}
-              className="w-16 rounded border border-cp-border bg-cp-surface-1 p-1 text-right"
+              className="w-16 border border-cp-border bg-cp-surface-1 p-1 text-right"
             />
           </label>
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -403,7 +403,7 @@ export const InstallationDocsDialog = () => {
                   const r = row.build()
                   save(r.content, r.suffix, r.ext, r.mime)
                 }}
-                className="flex items-start gap-2 rounded border border-cp-border bg-cp-surface-1 p-2 text-left hover:bg-cp-surface-2"
+                className="flex items-start gap-2 border border-cp-border bg-cp-surface-1 p-2 text-left hover:bg-cp-surface-2"
               >
                 <Icon icon={Download} size="sm" className="mt-0.5 shrink-0 text-cp-accent" />
                 <span className="min-w-0">
@@ -416,7 +416,7 @@ export const InstallationDocsDialog = () => {
         </section>
 
         {/* QR / Etiketten */}
-        <section className="rounded border border-cp-border bg-cp-surface-2/40 p-3">
+        <section className="border border-cp-border bg-cp-surface-2/40 p-3">
           <h3 className="mb-2 flex items-center gap-1.5 font-semibold text-cp-text-bright">
             <Icon icon={QrCode} size="sm" />
             {t('docs.qr', 'QR/asset IDs & labels')}
@@ -431,7 +431,7 @@ export const InstallationDocsDialog = () => {
             <button
               type="button"
               onClick={onAssignIds}
-              className="inline-flex items-center gap-1.5 rounded bg-cp-surface-4 px-3 py-1.5 hover:bg-cp-surface-5"
+              className="inline-flex items-center gap-1.5 bg-cp-surface-4 px-3 py-1.5 hover:bg-cp-surface-5"
             >
               <Icon icon={Tag} size="sm" /> {t('docs.qr.assign', 'Assign QR/asset IDs')}
             </button>
@@ -439,7 +439,7 @@ export const InstallationDocsDialog = () => {
               type="button"
               disabled={busy}
               onClick={onQrLabelsPdf}
-              className="inline-flex items-center gap-1.5 rounded bg-cp-surface-4 px-3 py-1.5 hover:bg-cp-surface-5 disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 bg-cp-surface-4 px-3 py-1.5 hover:bg-cp-surface-5 disabled:opacity-50"
             >
               <Icon icon={QrCode} size="sm" /> {t('docs.qr.pdf', 'QR labels (PDF)')}
             </button>
@@ -455,7 +455,7 @@ export const InstallationDocsDialog = () => {
                     : t('export.docs.labelsFromSourceDest', 'Created {n} cable labels from source→destination.').replace('{n}', String(n)),
                 )
               }}
-              className="inline-flex items-center gap-1.5 rounded bg-cp-surface-4 px-3 py-1.5 hover:bg-cp-surface-5"
+              className="inline-flex items-center gap-1.5 bg-cp-surface-4 px-3 py-1.5 hover:bg-cp-surface-5"
             >
               <Icon icon={Tag} size="sm" />{' '}
               {t('docs.label.sourceDest', 'Cable labels "source → destination" (AVIXA F501.01)')}
@@ -472,11 +472,11 @@ export const InstallationDocsDialog = () => {
         </section>
 
         {info && (
-          <p className="rounded bg-cp-surface-2 px-2 py-1 text-cp-xs text-cp-text-secondary">{info}</p>
+          <p className="bg-cp-surface-2 px-2 py-1 text-cp-xs text-cp-text-secondary">{info}</p>
         )}
 
         {/* Feld-Rückkanal — vom Mobile-Companion gemeldete, noch offene Änderungen */}
-        <section className="rounded border border-cp-border bg-cp-surface-2/40 p-3">
+        <section className="border border-cp-border bg-cp-surface-2/40 p-3">
           <div className="mb-2 flex items-center justify-between">
             <h3 className="flex items-center gap-1.5 font-semibold text-cp-text-bright">
               <Icon icon={Inbox} size="sm" />
@@ -498,9 +498,9 @@ export const InstallationDocsDialog = () => {
               {pending.map((p) => (
                 <li
                   key={p.id}
-                  className="flex items-start gap-2 rounded border border-cp-border-muted bg-cp-surface-1 px-2 py-1.5"
+                  className="flex items-start gap-2 border border-cp-border-muted bg-cp-surface-1 px-2 py-1.5"
                 >
-                  <span className="mt-0.5 shrink-0 rounded bg-cp-surface-3 px-1.5 py-0.5 text-cp-xs uppercase text-cp-text-secondary">
+                  <span className="mt-0.5 shrink-0 bg-cp-surface-3 px-1.5 py-0.5 text-cp-xs uppercase text-cp-text-secondary">
                     {p.target?.type === 'cable'
                       ? t('docs.pending.cable', 'Cable')
                       : p.target?.type === 'equipment'
@@ -522,7 +522,7 @@ export const InstallationDocsDialog = () => {
                     type="button"
                     onClick={() => applyPendingChange(p.id)}
                     title={t('docs.pending.apply', 'Apply (merges + logs)')}
-                    className="shrink-0 rounded p-1 text-cp-accent hover:bg-cp-surface-2"
+                    className="shrink-0 p-1 text-cp-accent hover:bg-cp-surface-2"
                   >
                     <Icon icon={Check} size="xs" />
                   </button>
@@ -530,7 +530,7 @@ export const InstallationDocsDialog = () => {
                     type="button"
                     onClick={() => rejectPendingChange(p.id)}
                     title={t('docs.pending.reject', 'Discard')}
-                    className="shrink-0 rounded p-1 text-cp-danger hover:bg-cp-surface-2"
+                    className="shrink-0 p-1 text-cp-danger hover:bg-cp-surface-2"
                   >
                     <Icon icon={X} size="xs" />
                   </button>
@@ -552,7 +552,7 @@ export const InstallationDocsDialog = () => {
               <button
                 type="button"
                 onClick={() => clearChangelog()}
-                className="inline-flex items-center gap-1 rounded px-2 py-1 text-cp-xs text-cp-danger hover:bg-cp-surface-2"
+                className="inline-flex items-center gap-1 px-2 py-1 text-cp-xs text-cp-danger hover:bg-cp-surface-2"
               >
                 <Icon icon={Trash2} size="xs" /> {t('docs.changelog.clear', 'Clear')}
               </button>
@@ -565,7 +565,7 @@ export const InstallationDocsDialog = () => {
           ) : (
             <ul className="max-h-48 space-y-1 overflow-y-auto text-cp-xs">
               {changelog.map((e) => (
-                <li key={e.id} className="flex gap-2 rounded bg-cp-surface-1 px-2 py-1">
+                <li key={e.id} className="flex gap-2 bg-cp-surface-1 px-2 py-1">
                   <span className="shrink-0 font-mono text-cp-text-faint">
                     {new Date(e.ts).toLocaleString('de-DE', {
                       dateStyle: 'short',

@@ -154,7 +154,7 @@ export const ReplaceDeviceSection = ({ equipment }: { equipment: EquipmentItem }
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="w-full rounded bg-sky-700 px-2 py-1 text-cp-xs text-white hover:bg-sky-600"
+          className="w-full bg-sky-700 px-2 py-1 text-cp-xs text-white hover:bg-sky-600"
           title={t(
             'replaceDevice.btnTitle',
             'Swap the current device for another library template — ports are mapped by connector type + label, cables are preserved where possible.',
@@ -171,12 +171,12 @@ export const ReplaceDeviceSection = ({ equipment }: { equipment: EquipmentItem }
               onChange={(e) => setFilter(e.target.value)}
               placeholder={t('replaceDevice.searchPlaceholder', 'Search (name, category, manufacturer)…')}
               aria-label={t('replaceDevice.searchPlaceholder', 'Search (name, category, manufacturer)…')}
-              className="flex-1 rounded border border-cp-border bg-cp-surface-3 p-1.5 text-cp-xs"
+              className="flex-1 border border-cp-border bg-cp-surface-3 p-1.5 text-cp-xs"
             />
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
+              className="bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
             >
               <Icon icon={X} size="xs" />
             </button>
@@ -184,7 +184,7 @@ export const ReplaceDeviceSection = ({ equipment }: { equipment: EquipmentItem }
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5 text-cp-xs"
+            className="w-full border border-cp-border bg-cp-surface-3 p-1.5 text-cp-xs"
           >
             <option value="">{t('replaceDevice.allCategories', '— All categories —')}</option>
             {categories.map((c) => (
@@ -193,7 +193,7 @@ export const ReplaceDeviceSection = ({ equipment }: { equipment: EquipmentItem }
               </option>
             ))}
           </select>
-          <div className="max-h-56 overflow-auto rounded border border-cp-border-muted">
+          <div className="max-h-56 overflow-auto border border-cp-border-muted">
             {filtered.length === 0 ? (
               <div className="px-2 py-3 text-center text-cp-xs text-cp-text-muted">
                 {t('replaceDevice.noMatches', 'No matches.')}
@@ -221,13 +221,13 @@ export const ReplaceDeviceSection = ({ equipment }: { equipment: EquipmentItem }
                         </span>
                         {lost > 0 ? (
                           <span
-                            className="rounded bg-amber-900/60 px-1.5 py-0.5 text-cp-xs font-bold text-amber-200"
+                            className="bg-amber-900/60 px-1.5 py-0.5 text-cp-xs font-bold text-amber-200"
                             title={format(t('replaceDevice.lostBadgeTitle', '{n} connection(s) would be lost'), { n: lost })}
                           >
                             -{lost}
                           </span>
                         ) : (
-                          <span className="rounded bg-emerald-900/60 px-1.5 py-0.5 text-cp-xs font-bold text-emerald-200">
+                          <span className="bg-emerald-900/60 px-1.5 py-0.5 text-cp-xs font-bold text-emerald-200">
                             <Icon icon={Check} size="xs" />
                           </span>
                         )}

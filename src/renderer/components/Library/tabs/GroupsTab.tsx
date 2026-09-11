@@ -129,7 +129,7 @@ export const GroupsTab = () => {
                               }
                               renameGroupPreset(preset.id, trimmed)
                             }}
-                            className="rounded bg-cp-surface-4 px-1 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-5"
+                            className="bg-cp-surface-4 px-1 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-5"
                             title={t('library.tabs.groups.renameTitle', 'Rename template')}
                             aria-label={t('library.tabs.groups.renameAria', 'Rename')}
                           >
@@ -141,7 +141,7 @@ export const GroupsTab = () => {
                               event.stopPropagation()
                               void exportPresetToFile(preset)
                             }}
-                            className="rounded bg-cp-surface-4 px-1 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-5"
+                            className="bg-cp-surface-4 px-1 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-5"
                             title={t(
                               'library.tabs.groups.exportTitle',
                               'Export as file (copy to Downloads folder)',
@@ -168,7 +168,7 @@ export const GroupsTab = () => {
                                 deleteGroupPreset(preset.id)
                               }
                             }}
-                            className="rounded bg-red-700 px-1 text-cp-xs hover:bg-red-600"
+                            className="bg-red-700 px-1 text-cp-xs hover:bg-red-600"
                             title={t('library.tabs.groups.deleteTitle', 'Remove group from library')}
                             aria-label={t('common.delete', 'Delete')}
                           >

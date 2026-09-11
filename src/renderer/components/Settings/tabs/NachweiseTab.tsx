@@ -117,14 +117,14 @@ export const NachweiseTab = () => {
                 'nachweis.packHint',
                 'Cover sheet for the credential pack: what is enclosed, until when it is valid, and what is still missing. Put the scans next to it — the app does not store them.',
               )}
-              className="flex items-center gap-1 rounded bg-cp-surface-4 px-2.5 py-1.5 text-cp-xs enabled:hover:bg-cp-surface-5 disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex items-center gap-1 bg-cp-surface-4 px-2.5 py-1.5 text-cp-xs enabled:hover:bg-cp-surface-5 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Download size={13} /> {t('nachweis.pack', 'Cover sheet')}
             </button>
             <button
               type="button"
               onClick={() => setForm(leer())}
-              className="flex items-center gap-1 rounded bg-emerald-700 px-2.5 py-1.5 text-cp-xs hover:bg-emerald-600"
+              className="flex items-center gap-1 bg-emerald-700 px-2.5 py-1.5 text-cp-xs hover:bg-emerald-600"
             >
               <Plus size={14} /> {t('nachweis.add', 'Credential')}
             </button>
@@ -132,7 +132,7 @@ export const NachweiseTab = () => {
         </div>
 
         {form && (
-          <div className="mb-3 rounded border border-cp-accent/40 bg-cp-surface-2 p-3">
+          <div className="mb-3 border border-cp-accent/40 bg-cp-surface-2 p-3">
             <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
               <label className="block text-cp-xs">
                 {t('nachweis.art', 'Kind')}
@@ -213,7 +213,7 @@ export const NachweiseTab = () => {
               <button
                 type="button"
                 onClick={() => setForm(null)}
-                className="rounded bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
+                className="bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
               >
                 {t('common.cancel', 'Cancel')}
               </button>
@@ -221,7 +221,7 @@ export const NachweiseTab = () => {
                 type="button"
                 disabled={!form.bezeichnung.trim()}
                 onClick={speichern}
-                className="rounded bg-emerald-700 px-3 py-1 text-cp-xs enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
+                className="bg-emerald-700 px-3 py-1 text-cp-xs enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {t('common.save', 'Save')}
               </button>
@@ -230,7 +230,7 @@ export const NachweiseTab = () => {
         )}
 
         {nachweise.length === 0 ? (
-          <div className="rounded border border-dashed border-cp-border py-8 text-center text-cp-xs text-cp-text-muted">
+          <div className="border border-dashed border-cp-border py-8 text-center text-cp-xs text-cp-text-muted">
             {t('nachweis.empty', 'No credentials entered yet.')}
           </div>
         ) : (
@@ -241,9 +241,9 @@ export const NachweiseTab = () => {
               return (
                 <li
                   key={n.id}
-                  className="flex items-center gap-2 rounded border border-cp-border-muted bg-cp-surface-2 px-2 py-1 text-cp-xs"
+                  className="flex items-center gap-2 border border-cp-border-muted bg-cp-surface-2 px-2 py-1 text-cp-xs"
                 >
-                  <span className={`rounded px-1.5 py-0.5 ${LAGE_TON[lage]}`}>
+                  <span className={` px-1.5 py-0.5 ${LAGE_TON[lage]}`}>
                     {NACHWEIS_LAGE_LABEL[lage]}
                   </span>
                   <span className="min-w-0 flex-1 truncate">
@@ -262,7 +262,7 @@ export const NachweiseTab = () => {
                   <button
                     type="button"
                     onClick={() => setForm({ ...n })}
-                    className="rounded px-1.5 py-0.5 text-cp-text-muted hover:bg-cp-surface-4 hover:text-cp-text"
+                    className="px-1.5 py-0.5 text-cp-text-muted hover:bg-cp-surface-4 hover:text-cp-text"
                   >
                     {t('common.edit', 'Edit')}
                   </button>
@@ -270,7 +270,7 @@ export const NachweiseTab = () => {
                     type="button"
                     onClick={() => removeNachweis(n.id)}
                     title={t('common.delete', 'Delete')}
-                    className="rounded p-1 text-cp-text-muted hover:bg-cp-surface-4 hover:text-red-400"
+                    className="p-1 text-cp-text-muted hover:bg-cp-surface-4 hover:text-red-400"
                   >
                     <Trash2 size={13} />
                   </button>
@@ -297,7 +297,7 @@ export const NachweiseTab = () => {
               setVorwarnTage(e.target.value === '' ? undefined : Number(e.target.value))
             }
             placeholder={t('nachweis.warnPh', 'not stated')}
-            className="w-32 rounded border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-xs text-cp-text"
+            className="w-32 border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-xs text-cp-text"
           />
           <span className="text-cp-xs text-cp-text-muted">{t('nachweis.days', 'days')}</span>
         </div>

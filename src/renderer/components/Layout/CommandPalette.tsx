@@ -192,7 +192,7 @@ export const CommandPalette = () => {
         ref={panelRef}
         aria-label={t('palette.placeholder', 'Search command…')}
         {...dialogProps}
-        className="w-full max-w-xl overflow-hidden rounded-cp-modal border border-cp-border bg-cp-surface-1 shadow-2xl"
+        className="w-full max-w-xl overflow-hidden rounded-cp-modal border border-cp-border bg-cp-surface-1"
       >
         <div className="flex items-center gap-2 border-b border-cp-border px-cp-4 py-cp-3">
           <Icon icon={Search} size="sm" className="text-cp-text-muted" />

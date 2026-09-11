@@ -262,11 +262,11 @@ export const GraphmlViewer = ({ document, highlightNodes, className }: GraphmlVi
           })}
         </g>
       </svg>
-      <div className="absolute right-3 top-3 flex items-center gap-1 rounded bg-cp-surface-1/85 px-2 py-1 text-cp-xs text-cp-text-secondary backdrop-blur">
+      <div className="absolute right-3 top-3 flex items-center gap-1 bg-cp-surface-1/85 px-2 py-1 text-cp-xs text-cp-text-secondary backdrop-blur">
         <button
           type="button"
           onClick={() => setView((v) => ({ ...v, zoom: Math.min(20, v.zoom * 1.4) }))}
-          className="rounded px-1.5 hover:bg-cp-surface-4"
+          className="px-1.5 hover:bg-cp-surface-4"
           aria-label={t('graphmlViewer.zoomIn', 'Zoom in')}
         >
           ＋
@@ -274,7 +274,7 @@ export const GraphmlViewer = ({ document, highlightNodes, className }: GraphmlVi
         <button
           type="button"
           onClick={() => setView((v) => ({ ...v, zoom: Math.max(0.05, v.zoom / 1.4) }))}
-          className="rounded px-1.5 hover:bg-cp-surface-4"
+          className="px-1.5 hover:bg-cp-surface-4"
           aria-label={t('graphmlViewer.zoomOut', 'Zoom out')}
         >
           −
@@ -282,7 +282,7 @@ export const GraphmlViewer = ({ document, highlightNodes, className }: GraphmlVi
         <button
           type="button"
           onClick={resetView}
-          className="rounded px-1.5 text-cp-xs hover:bg-cp-surface-4"
+          className="px-1.5 text-cp-xs hover:bg-cp-surface-4"
           aria-label={t('graphmlViewer.reset', 'Reset')}
         >
           {t('graphmlViewer.reset', 'Reset')}

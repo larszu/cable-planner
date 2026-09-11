@@ -129,7 +129,7 @@ export const OnboardingTour = ({ open, onClose }: OnboardingTourProps) => {
               {STEPS.map((_, index) => (
                 <span
                   key={index}
-                  className={`h-1.5 w-4 rounded-full ${
+                  className={`h-1.5 w-4 ${
                     index === step
                       ? 'bg-orange-500'
                       : index < step
@@ -143,7 +143,7 @@ export const OnboardingTour = ({ open, onClose }: OnboardingTourProps) => {
               type="button"
               onClick={() => setStep((index) => Math.max(0, index - 1))}
               disabled={step === 0}
-              className="rounded bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5 disabled:cursor-not-allowed disabled:opacity-50"
+              className="bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {t('onboarding.back', 'Back')}
             </button>
@@ -151,7 +151,7 @@ export const OnboardingTour = ({ open, onClose }: OnboardingTourProps) => {
               <button
                 type="button"
                 onClick={finish}
-                className="rounded bg-orange-600 px-3 py-1 text-cp-xs font-semibold text-white hover:bg-orange-500"
+                className="bg-orange-600 px-3 py-1 text-cp-xs font-semibold text-white hover:bg-orange-500"
               >
                 {t('onboarding.start', "Let's go")}
               </button>
@@ -159,7 +159,7 @@ export const OnboardingTour = ({ open, onClose }: OnboardingTourProps) => {
               <button
                 type="button"
                 onClick={() => setStep((index) => Math.min(STEPS.length - 1, index + 1))}
-                className="rounded bg-orange-600 px-3 py-1 text-cp-xs font-semibold text-white hover:bg-orange-500"
+                className="bg-orange-600 px-3 py-1 text-cp-xs font-semibold text-white hover:bg-orange-500"
               >
                 {t('onboarding.next', 'Next')}
               </button>
@@ -172,7 +172,7 @@ export const OnboardingTour = ({ open, onClose }: OnboardingTourProps) => {
         <h2 className="text-cp-xl font-semibold text-cp-text">{current.title}</h2>
         <p className="text-cp-base leading-relaxed text-cp-text-secondary">{current.body}</p>
         {current.hint && (
-          <div className="rounded border border-cp-border-muted bg-cp-surface-3/40 px-2 py-1 text-cp-xs text-cp-text-muted">
+          <div className="border border-cp-border-muted bg-cp-surface-3/40 px-2 py-1 text-cp-xs text-cp-text-muted">
             {t('onboarding.tip', 'Tip:')} {current.hint}
           </div>
         )}

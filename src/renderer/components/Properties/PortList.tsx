@@ -89,12 +89,12 @@ const SortablePortItem = ({ port, children }: SortablePortItemProps) => {
         transform: CSS.Transform.toString(transform),
         transition,
       }}
-      className={`rounded border border-cp-border-muted bg-cp-surface-1 p-2 ${isDragging ? 'opacity-60 shadow-lg shadow-slate-950/50' : ''}`}
+      className={` border border-cp-border-muted bg-cp-surface-1 p-2 ${isDragging ? 'opacity-60' : ''}`}
     >
       <div className="flex items-start gap-2">
         <button
           type="button"
-          className="mt-1 cursor-grab rounded border border-cp-border bg-cp-surface-3 px-1.5 py-1 text-cp-xs text-cp-text-muted hover:bg-cp-surface-1 active:cursor-grabbing"
+          className="mt-1 cursor-grab border border-cp-border bg-cp-surface-3 px-1.5 py-1 text-cp-xs text-cp-text-muted hover:bg-cp-surface-1 active:cursor-grabbing"
           title={t('ports.dragHandle', 'Reorder port')}
           aria-label={format(t('ports.reorderAria', 'Reorder: {name}'), { name: port.name })}
           {...attributes}
@@ -139,13 +139,13 @@ const CollapsibleSdiCaps = ({
     <details
       open={open}
       onToggle={(e) => setOpen(e.currentTarget.open)}
-      className="mt-1 rounded border border-amber-900/60 bg-amber-950/20 [&_summary]:cursor-pointer"
+      className="mt-1 border border-amber-900/60 bg-amber-950/20 [&_summary]:cursor-pointer"
     >
       <summary className="flex items-center gap-1 p-1.5 text-cp-xs font-semibold uppercase tracking-wide text-amber-300 hover:text-amber-200 [&::-webkit-details-marker]:hidden">
         <Icon icon={open ? ChevronDown : ChevronRight} size="xs" className="text-amber-400/70" />
         <span className="flex-1">{t('ports.sdi.caps', 'SDI capabilities (port-specific)')}</span>
         {!open && badge && (
-          <span className="rounded bg-amber-900/50 px-1 text-cp-xs normal-case text-amber-200">
+          <span className="bg-amber-900/50 px-1 text-cp-xs normal-case text-amber-200">
             {badge}
           </span>
         )}
@@ -486,7 +486,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
   void effectivePortNumber
 
   return (
-    <div className="rounded border border-cp-border p-2">
+    <div className="border border-cp-border p-2">
       <div className="mb-2 flex items-center justify-between">
         {/* v7.9.63 / #185 — Wrapper-Details liefert eigene Headline mit
             Count; PortList-Title hier ausgeblendet damit's nicht doppelt
@@ -496,14 +496,14 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
         <button
           type="button"
           onClick={addPort}
-          className="rounded bg-cp-surface-4 px-2 py-0.5 text-cp-xs hover:bg-cp-surface-5"
+          className="bg-cp-surface-4 px-2 py-0.5 text-cp-xs hover:bg-cp-surface-5"
         >
           {t('ports.add', '+ Port')}
         </button>
       </div>
       {ports.length === 0 && <div className="text-cp-xs text-cp-text-muted">{t('ports.none', 'None')}</div>}
       {duplicatePortNumbers.length > 0 && (
-        <div className="mb-2 rounded border border-amber-700 bg-amber-950/40 px-2 py-1 text-cp-xs text-amber-200">
+        <div className="mb-2 border border-amber-700 bg-amber-950/40 px-2 py-1 text-cp-xs text-amber-200">
           {format(t('ports.duplicateNumbers', 'Duplicate port numbers: {nums} — ambiguous for labels / patch list.'), {
             nums: duplicatePortNumbers.join(', '),
           })}
@@ -521,7 +521,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
       {gruppenFehler.map((f, i) => (
         <div
           key={`${f.art}:${f.gruppe}:${i}`}
-          className="mb-2 rounded border border-amber-700 bg-amber-950/40 px-2 py-1 text-cp-xs text-amber-200"
+          className="mb-2 border border-amber-700 bg-amber-950/40 px-2 py-1 text-cp-xs text-amber-200"
         >
           {/*
             #838 — EIN Satz, zwei Anzeigen. Er stand bis hierher dreimal als
@@ -552,7 +552,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                 }}
                 placeholder={String(portIdx + 1)}
                 title={format(t('ports.numberTitle', 'Display number (default {n}). Empty = automatic.'), { n: portIdx + 1 })}
-                className="w-12 shrink-0 rounded border border-cp-border bg-cp-surface-3 p-1 text-center text-cp-xs tabular-nums"
+                className="w-12 shrink-0 border border-cp-border bg-cp-surface-3 p-1 text-center text-cp-xs tabular-nums"
               />
               <input
                 value={port.name}
@@ -570,14 +570,14 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                   })
                 }}
                 placeholder={t('ports.namePlaceholder', 'Port name')}
-                className="flex-1 rounded border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
+                className="flex-1 border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
               />
               <Tooltip label={t('ports.remove', 'Remove port')}>
                 <button
                   type="button"
                   onClick={() => removePort(port.id)}
                   aria-label={t('ports.remove', 'Remove port')}
-                  className="rounded bg-red-900/60 px-2 py-1 text-cp-xs hover:bg-red-800"
+                  className="bg-red-900/60 px-2 py-1 text-cp-xs hover:bg-red-800"
                 >
                   ×
                 </button>
@@ -603,7 +603,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                       type: v,
                     })
                   }}
-                  className="flex-1 rounded border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
+                  className="flex-1 border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
                 >
                   {allConnectorTypeOptions.map((type) => (
                     <option key={type} value={type}>
@@ -632,7 +632,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                       standard: v ? (v as SignalStandard) : undefined,
                     })
                   }}
-                  className="flex-1 rounded border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
+                  className="flex-1 border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
                 >
                   <option value="">-</option>
                   {allSignalStandardOptions.map((std) => (
@@ -659,7 +659,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                   updatePort(port.id, { contentLabel: v ? v : undefined })
                 }}
                 placeholder={t('ports.contentLabelPlaceholder', 'Content / function (e.g. PGM, PVW, MV1, Cam1) — optional')}
-                className="w-full rounded border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
+                className="w-full border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
                 title={t('ports.contentLabelTitle', "What goes through this port? Separates 'content' (PGM/PVW) from the hardware standard (SDI 3G/12G).")}
               />
             </div>
@@ -674,7 +674,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                       : undefined,
                   })
                 }
-                className="w-full rounded border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
+                className="w-full border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
                 title={t('ports.directionTitle', 'Direction — bidirectional is useful for network/RJ45 ports.')}
               >
                 <option value="">{t('ports.direction.auto', 'Direction (auto)')}</option>
@@ -690,7 +690,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                     side: event.target.value ? (event.target.value as 'left' | 'right') : undefined,
                   })
                 }
-                className="w-full rounded border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
+                className="w-full border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
                 title={t('ports.sideTitle', 'Port side on the device: auto uses input/output + global mirroring')}
               >
                 <option value="">{t('ports.side.auto', 'Side (auto)')}</option>
@@ -710,7 +710,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                       : undefined,
                   })
                 }
-                className="w-full rounded border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
+                className="w-full border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
                 title={t('ports.genderTitle', 'Connector gender (for cable assembly)')}
               >
                 <option value="">{t('ports.gender.none', 'Gender (–)')}</option>
@@ -719,7 +719,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
               </select>
             </div>
             {showAtemSourceId && (
-              <div className="mt-1 flex items-center gap-1.5 rounded border border-emerald-900/60 bg-emerald-950/30 px-1.5 py-1">
+              <div className="mt-1 flex items-center gap-1.5 border border-emerald-900/60 bg-emerald-950/30 px-1.5 py-1">
                 <span className="text-cp-xs font-semibold uppercase tracking-wide text-emerald-300">
                   ATEM Source-ID
                 </span>
@@ -736,7 +736,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                   }}
                   placeholder={t('ports.atemSourceIdPlaceholder', 'e.g. 8001 for AUX 1')}
                   title={t('ports.atemSourceIdTitle', 'Source ID addressed in the MV-Config dialog. AUX = 8001+, PGM = 10010, PVW = 10011, ME 2 PGM = 10020 …. Leave empty on inputs for idx+1 default.')}
-                  className="w-32 rounded border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
+                  className="w-32 border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
                 />
                 <span className="text-cp-xs text-cp-text-muted">
                   AUX 8001+ · PGM 10010 · PVW 10011
@@ -744,42 +744,42 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
               </div>
             )}
             {(port.connectorType === 'Fiber' || port.connectorType === 'SFP' || port.connectorType === 'SFP+') && (
-              <div className="mt-1 rounded border border-sky-900/60 bg-sky-950/30 p-1.5">
+              <div className="mt-1 border border-sky-900/60 bg-sky-950/30 p-1.5">
                 <div className="mb-1 text-cp-xs font-semibold uppercase tracking-wide text-sky-400">SFP-Modul</div>
                 <div className="grid grid-cols-2 gap-1">
                   <input
                     value={port.sfpType ?? ''}
                     onChange={(event) => updatePort(port.id, { sfpType: event.target.value || undefined })}
                     placeholder={t('ports.sfp.typePlaceholder', 'Form factor (SFP+)')}
-                    className="rounded border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
+                    className="border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
                     title={t('ports.sfp.typeTitle', 'SFP form factor: SFP, SFP+, SFP28, QSFP+')}
                   />
                   <input
                     value={port.sfpStandard ?? ''}
                     onChange={(event) => updatePort(port.id, { sfpStandard: event.target.value || undefined })}
                     placeholder={t('ports.sfp.standardPlaceholder', 'Standard (10G-LR)')}
-                    className="rounded border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
+                    className="border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
                     title={t('ports.sfp.standardTitle', 'Transceiver standard: 1G-SX, 1G-LX, 10G-SR, 10G-LR, 25G-SR …')}
                   />
                   <input
                     value={port.sfpWavelength ?? ''}
                     onChange={(event) => updatePort(port.id, { sfpWavelength: event.target.value || undefined })}
                     placeholder={t('ports.sfp.wavelengthPlaceholder', 'Wavelength nm (1310)')}
-                    className="rounded border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
+                    className="border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
                     title={t('ports.sfp.wavelengthTitle', 'Wavelength in nm: 850, 1310, 1550')}
                   />
                   <input
                     value={port.sfpVendor ?? ''}
                     onChange={(event) => updatePort(port.id, { sfpVendor: event.target.value || undefined })}
                     placeholder={t('ports.sfp.vendorPlaceholder', 'Vendor (Cisco)')}
-                    className="rounded border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
+                    className="border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
                     title={t('ports.sfp.vendorTitle', 'Module vendor: Cisco, Aruba, Ubiquiti, FS.com …')}
                   />
                   {/* #362 — Optischer Steckverbinder + Faserklasse (LWL-Detail). */}
                   <select
                     value={port.fiberConnector ?? ''}
                     onChange={(event) => updatePort(port.id, { fiberConnector: event.target.value || undefined })}
-                    className="rounded border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
+                    className="border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
                     title={t('ports.fiber.connectorTitle', 'Optical connector type')}
                   >
                     <option value="">{t('ports.fiber.connectorPlaceholder', 'Connector (LC/SC/…)')}</option>
@@ -790,7 +790,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                   <select
                     value={port.fiberClass ?? ''}
                     onChange={(event) => updatePort(port.id, { fiberClass: event.target.value || undefined })}
-                    className="rounded border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
+                    className="border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
                     title={t('ports.fiber.classTitle', 'Fibre class: OM1–OM5 (multimode), OS1/OS2 (singlemode)')}
                   >
                     <option value="">{t('ports.fiber.classPlaceholder', 'Fibre class (OM/OS)')}</option>
@@ -838,7 +838,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                       : { portGroup: undefined, portGroupKind: undefined, portGroupRole: undefined },
                   )
                 }}
-                className="rounded border border-cp-border bg-cp-surface-3 px-1 py-0.5 text-cp-xs"
+                className="border border-cp-border bg-cp-surface-3 px-1 py-0.5 text-cp-xs"
               >
                 <option value="">{t('ports.set.none', '— None —')}</option>
                 {vorhandeneGruppen.map((gid) => (
@@ -858,7 +858,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                           | undefined,
                       })
                     }
-                    className="rounded border border-cp-border bg-cp-surface-3 px-1 py-0.5 text-cp-xs"
+                    className="border border-cp-border bg-cp-surface-3 px-1 py-0.5 text-cp-xs"
                   >
                     {/* Leer ist erlaubt und heisst „gehoeren zusammen, ohne
                         zu sagen wie" — eine vollstaendige Aussage. */}
@@ -876,7 +876,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                     onChange={(event) =>
                       updatePort(port.id, { portGroupRole: event.target.value || undefined })
                     }
-                    className="rounded border border-cp-border bg-cp-surface-3 px-1 py-0.5 text-cp-xs"
+                    className="border border-cp-border bg-cp-surface-3 px-1 py-0.5 text-cp-xs"
                   >
                     <option value="">{t('ports.group.roleNone', '— role? —')}</option>
                     {(port.portGroupKind ? PORT_GROUP_INFO[port.portGroupKind].rollen : []).map(
@@ -955,7 +955,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                           },
                         })
                       }
-                      className="mt-0.5 w-full rounded border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
+                      className="mt-0.5 w-full border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
                     >
                       <option value="">({t('ports.sdi.deviceDefault', 'Device default')})</option>
                       <option value="SDI-HD">SDI-HD (1.5G)</option>
@@ -981,7 +981,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                       <select
                         value={g ?? ''}
                         onChange={(e) => void assignQuadGroup(port.id, e.target.value)}
-                        className="rounded border border-cp-border bg-cp-surface-3 px-1 py-0.5 text-cp-xs"
+                        className="border border-cp-border bg-cp-surface-3 px-1 py-0.5 text-cp-xs"
                       >
                         <option value="">{t('ports.set.none', '— None —')}</option>
                         {existingQuadGroups.map((gid) => (
@@ -992,7 +992,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                       {g && (
                         <>
                           <span
-                            className={`rounded px-1 py-0.5 text-cp-xs font-bold ${
+                            className={` px-1 py-0.5 text-cp-xs font-bold ${
                               ok
                                 ? 'bg-emerald-900/60 text-emerald-300'
                                 : 'bg-amber-900/60 text-amber-300'
@@ -1007,7 +1007,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                             <button
                               type="button"
                               onClick={() => void autoFillQuadGroup(g, port.id)}
-                              className="rounded bg-sky-800 px-1 py-0.5 text-cp-xs text-sky-100 hover:bg-sky-700"
+                              className="bg-sky-800 px-1 py-0.5 text-cp-xs text-sky-100 hover:bg-sky-700"
                               title={t('ports.quadAuto', 'Auto-assign free BNC ports to this set')}
                             >
                               auto-fill
@@ -1028,7 +1028,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                       <select
                         value={g ?? ''}
                         onChange={(e) => void assignDualGroup(port.id, e.target.value)}
-                        className="rounded border border-cp-border bg-cp-surface-3 px-1 py-0.5 text-cp-xs"
+                        className="border border-cp-border bg-cp-surface-3 px-1 py-0.5 text-cp-xs"
                       >
                         <option value="">{t('ports.set.none', '— None —')}</option>
                         {existingDualGroups.map((gid) => (
@@ -1039,7 +1039,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                       {g && (
                         <>
                           <span
-                            className={`rounded px-1 py-0.5 text-cp-xs font-bold ${
+                            className={` px-1 py-0.5 text-cp-xs font-bold ${
                               ok
                                 ? 'bg-emerald-900/60 text-emerald-300'
                                 : 'bg-amber-900/60 text-amber-300'
@@ -1054,7 +1054,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                             <button
                               type="button"
                               onClick={() => void autoFillDualGroup(g, port.id)}
-                              className="rounded bg-sky-800 px-1 py-0.5 text-cp-xs text-sky-100 hover:bg-sky-700"
+                              className="bg-sky-800 px-1 py-0.5 text-cp-xs text-sky-100 hover:bg-sky-700"
                               title={t('ports.dualAuto', 'Auto-assign free BNC ports to this set')}
                             >
                               auto-fill

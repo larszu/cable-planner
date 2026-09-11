@@ -189,7 +189,7 @@ const MultiviewerPanel = ({ mv }: { mv: AtemMultiviewer }) => {
   const pgmIndex = mv.programPreviewSwapped ? 0 : 1
   const prvIndex = mv.programPreviewSwapped ? 1 : 0
   return (
-    <div className="rounded border border-cp-surface-5 bg-cp-surface-3 p-2">
+    <div className="border border-cp-surface-5 bg-cp-surface-3 p-2">
       <div className="mb-1 text-center text-cp-xs font-semibold uppercase tracking-wider text-cp-text-secondary">
         MV {mv.index + 1}
       </div>
@@ -299,7 +299,7 @@ export const MultiviewerLayoutView = ({ onClose }: MultiviewerLayoutViewProps) =
         ref={panelRef}
         aria-labelledby={titleId}
         {...dialogProps}
-        className="flex max-h-[95vh] w-full max-w-6xl flex-col rounded border border-cp-surface-5 bg-cp-surface-1 text-cp-text"
+        className="flex max-h-[95vh] w-full max-w-6xl flex-col border border-cp-surface-5 bg-cp-surface-1 text-cp-text"
       >
         <header className="flex items-center justify-between border-b border-cp-border px-4 py-2">
           <div>
@@ -317,7 +317,7 @@ export const MultiviewerLayoutView = ({ onClose }: MultiviewerLayoutViewProps) =
             <button
               type="button"
               onClick={() => void refresh()}
-              className="inline-flex items-center gap-1 rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
+              className="inline-flex items-center gap-1 bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
             >
               <Icon icon={RotateCcw} size="xs" />
               {t('atem.mvLayout.refresh', 'Refresh')}
@@ -325,7 +325,7 @@ export const MultiviewerLayoutView = ({ onClose }: MultiviewerLayoutViewProps) =
             <button
               type="button"
               onClick={onClose}
-              className="inline-flex items-center gap-1 rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
+              className="inline-flex items-center gap-1 bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
             >
               <Icon icon={X} size="xs" />
               {t('atem.mvLayout.close', 'Close')}
@@ -335,7 +335,7 @@ export const MultiviewerLayoutView = ({ onClose }: MultiviewerLayoutViewProps) =
 
         <div className="flex-1 overflow-auto p-4">
           {!connected && (
-            <div className="rounded border border-amber-700 bg-amber-900/30 p-3 text-cp-xs text-amber-200">
+            <div className="border border-amber-700 bg-amber-900/30 p-3 text-cp-xs text-amber-200">
               {t(
                 'atem.mvLayout.notConnected',
                 'Not connected to an ATEM. Connect in the ATEM dialog first, then open this view.',
@@ -343,7 +343,7 @@ export const MultiviewerLayoutView = ({ onClose }: MultiviewerLayoutViewProps) =
             </div>
           )}
           {error && (
-            <div className="mt-2 rounded bg-red-900/50 p-2 text-cp-xs text-red-100">{error}</div>
+            <div className="mt-2 bg-red-900/50 p-2 text-cp-xs text-red-100">{error}</div>
           )}
 
           {connected && mvs.length === 0 && (
@@ -392,7 +392,7 @@ const LegendSwatch = ({
   return (
     <span className="inline-flex items-center gap-1">
       <span
-        className="inline-block h-3 w-5 rounded-sm"
+        className="inline-block h-3 w-5"
         style={{ background: style.bg, border: `1px solid ${style.border}` }}
       />
       {label}

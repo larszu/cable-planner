@@ -69,7 +69,7 @@ export const RackShelfCreateDialog = ({ open, onClose, onCreated }: Props) => {
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1.5"
+              className="w-full border border-cp-border bg-cp-surface-3 px-2 py-1.5"
             />
           </label>
           <div className="grid grid-cols-2 gap-2">
@@ -81,7 +81,7 @@ export const RackShelfCreateDialog = ({ open, onClose, onCreated }: Props) => {
                 max={6}
                 value={heightUnits}
                 onChange={(e) => setHeightUnits(Math.max(1, Math.min(6, Number(e.target.value) || 1)))}
-                className="w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1.5"
+                className="w-full border border-cp-border bg-cp-surface-3 px-2 py-1.5"
               />
             </label>
             <label className="block">
@@ -95,11 +95,11 @@ export const RackShelfCreateDialog = ({ open, onClose, onCreated }: Props) => {
                 onChange={(e) =>
                   setDepthMm(Math.max(150, Math.min(1200, Number(e.target.value) || 450)))
                 }
-                className="w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1.5"
+                className="w-full border border-cp-border bg-cp-surface-3 px-2 py-1.5"
               />
             </label>
           </div>
-          <div className="rounded border border-cp-border-muted bg-cp-surface-3/50 p-2 text-cp-xs text-cp-text-muted">
+          <div className="border border-cp-border-muted bg-cp-surface-3/50 p-2 text-cp-xs text-cp-text-muted">
             {t('rack.shelf.tip', 'Tip: place the shelf at the desired U slot, then put non-19" items at the same starting U — they appear visually on the shelf.')}
           </div>
         </div>

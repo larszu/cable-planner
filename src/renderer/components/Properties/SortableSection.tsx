@@ -29,8 +29,8 @@ export const SortableSection = ({
     <details
       ref={setNodeRef}
       open={defaultOpen}
-      className={`rounded border border-cp-border bg-cp-surface-1/40 [&_summary]:cursor-pointer ${
-        isDragging ? 'opacity-60 shadow-xl shadow-slate-950/50' : ''
+      className={` border border-cp-border bg-cp-surface-1/40 [&_summary]:cursor-pointer ${
+        isDragging ? 'opacity-60' : ''
       }`}
       style={{
         order: index < 0 ? 999 : index,
@@ -46,7 +46,7 @@ export const SortableSection = ({
           {...attributes}
           {...listeners}
           title={t('props.section.dragTitle', 'Drag section to change order (persists across devices).')}
-          className="-my-1 inline-flex h-5 w-5 cursor-grab items-center justify-center rounded text-cp-lg leading-none text-cp-text-muted hover:bg-cp-surface-4/40 hover:text-cp-text-bright active:cursor-grabbing"
+          className="-my-1 inline-flex h-5 w-5 cursor-grab items-center justify-center text-cp-lg leading-none text-cp-text-muted hover:bg-cp-surface-4/40 hover:text-cp-text-bright active:cursor-grabbing"
           aria-label={t('props.section.dragAria', 'Move section')}
           role="button"
           onClick={(e) => e.preventDefault()}

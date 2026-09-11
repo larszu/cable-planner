@@ -57,7 +57,7 @@ export const PowerConsumptionSection = ({ equipment }: { equipment: EquipmentIte
                 powerConsumptionWatts: wAutoMatched ? newProduct : w,
               })
             }}
-            className="w-full rounded border border-cp-border bg-cp-surface-1 p-2 font-mono"
+            className="w-full border border-cp-border bg-cp-surface-1 p-2 font-mono"
           />
         </label>
         <label className="block">
@@ -81,7 +81,7 @@ export const PowerConsumptionSection = ({ equipment }: { equipment: EquipmentIte
                 powerConsumptionWatts: wAutoMatched ? newProduct : w,
               })
             }}
-            className="w-full rounded border border-cp-border bg-cp-surface-1 p-2 font-mono"
+            className="w-full border border-cp-border bg-cp-surface-1 p-2 font-mono"
           />
         </label>
         <label className="block">
@@ -110,7 +110,7 @@ export const PowerConsumptionSection = ({ equipment }: { equipment: EquipmentIte
                   : undefined,
               })
             }
-            className="w-full rounded border border-cp-border bg-cp-surface-1 p-2 font-mono"
+            className="w-full border border-cp-border bg-cp-surface-1 p-2 font-mono"
             title={t('power.wattsTitle', 'Datasheet value. V × A is suggested; can be overridden here.')}
           />
         </label>

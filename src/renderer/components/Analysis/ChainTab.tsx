@@ -35,7 +35,7 @@ const Kette = ({ chain }: { chain: SignalChain }) => {
   const t = useTranslation()
   const erst = chain.steps[0]
   return (
-    <li className="rounded border border-cp-border-muted bg-cp-surface-2 p-2">
+    <li className="border border-cp-border-muted bg-cp-surface-2 p-2">
       <div className="flex flex-wrap items-baseline gap-x-1 gap-y-0.5 text-cp-xs">
         <span className="font-medium text-cp-text">{erst.fromEquipmentName}</span>
         <span className="text-cp-text-muted">{erst.fromPortName}</span>
@@ -49,7 +49,7 @@ const Kette = ({ chain }: { chain: SignalChain }) => {
             </span>
             <span className="text-cp-text-muted">{s.toPortName}</span>
             {s.through && (
-              <span className="rounded bg-cp-surface-3 px-1 text-cp-text-faint">
+              <span className="bg-cp-surface-3 px-1 text-cp-text-faint">
                 {PASS_THROUGH_LABEL[s.through]}
               </span>
             )}

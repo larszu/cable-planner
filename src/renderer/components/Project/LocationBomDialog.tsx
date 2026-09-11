@@ -390,7 +390,7 @@ export const LocationBomDialog = () => {
               type="button"
               onClick={() => { void exportPdf() }}
               disabled={busy}
-              className="rounded bg-amber-700 px-3 py-1 text-cp-xs hover:bg-amber-600 disabled:cursor-not-allowed disabled:opacity-50"
+              className="bg-amber-700 px-3 py-1 text-cp-xs hover:bg-amber-600 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {busy ? t('locbom.rendering', 'Rendering…') : t('locbom.exportPdf', 'Export PDF')}
             </button>

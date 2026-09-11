@@ -61,7 +61,7 @@ const NumField = ({
         min={min}
         step={step}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5 text-cp-base"
+        className="w-full border border-cp-border bg-cp-surface-3 p-1.5 text-cp-base"
       />
       {suffix && <span className="text-cp-xs text-cp-text-faint">{suffix}</span>}
     </div>
@@ -69,7 +69,7 @@ const NumField = ({
 )
 
 const Result = ({ label, value }: { label: string; value: string }) => (
-  <div className="flex items-baseline justify-between rounded border border-cp-border-muted bg-cp-surface-1/50 px-3 py-1.5">
+  <div className="flex items-baseline justify-between border border-cp-border-muted bg-cp-surface-1/50 px-3 py-1.5">
     <span className="text-cp-xs text-cp-text-muted">{label}</span>
     <span className="font-mono text-cp-base text-sky-300">{value}</span>
   </div>
@@ -120,7 +120,7 @@ const ProjectionCalcCore = () => {
     <button
       type="button"
       onClick={() => setTab(id)}
-      className={`flex-1 rounded px-2 py-1 text-cp-xs ${
+      className={`flex-1 px-2 py-1 text-cp-xs ${
         tab === id ? 'bg-sky-700 text-white' : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'
       }`}
     >
@@ -165,7 +165,7 @@ const ProjectionCalcCore = () => {
               <select
                 value={aspectId}
                 onChange={(e) => setAspectId(e.target.value)}
-                className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5 text-cp-base"
+                className="w-full border border-cp-border bg-cp-surface-3 p-1.5 text-cp-base"
               >
                 {ASPECTS.map((a) => (
                   <option key={a.id} value={a.id}>{a.label}</option>

@@ -72,7 +72,7 @@ export const HausSection = ({ equipment }: { equipment: EquipmentItem }) => {
           <button
             type="button"
             onClick={() => feld.current?.click()}
-            className="mt-2 rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
+            className="mt-2 bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
           >
             {t('haus.dateiLaden', 'Load building file…')}
           </button>
@@ -106,7 +106,7 @@ export const HausSection = ({ equipment }: { equipment: EquipmentItem }) => {
             <select
               value={equipment.hausPunktId ?? ''}
               onChange={(e) => updateEquipment(equipment.id, { hausPunktId: e.target.value || undefined })}
-              className="mt-0.5 w-full rounded border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
+              className="mt-0.5 w-full border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
             >
               <option value="">{t('haus.keinPunkt', '— none —')}</option>
               {auskunft.punkte.map((p) => (
@@ -138,7 +138,7 @@ export const HausSection = ({ equipment }: { equipment: EquipmentItem }) => {
             <select
               value={equipment.hausKlinkeId ?? ''}
               onChange={(e) => updateEquipment(equipment.id, { hausKlinkeId: e.target.value || undefined })}
-              className="mt-0.5 w-full rounded border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
+              className="mt-0.5 w-full border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
             >
               <option value="">{t('haus.keineKlinke', '— none —')}</option>
               {auskunft.klinken.map((k) => (

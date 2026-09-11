@@ -440,7 +440,7 @@ export const AtemAudioRouterDialog = () => {
         style={containerStyle}
         aria-labelledby={titleId}
         {...dialogProps}
-        className="flex h-full max-h-[92vh] w-full max-w-[95vw] flex-col rounded border border-slate-700 bg-slate-900 text-slate-100 shadow-2xl"
+        className="flex h-full max-h-[92vh] w-full max-w-[95vw] flex-col border border-slate-700 bg-slate-900 text-slate-100"
       >
         <header
           {...headerProps}
@@ -457,7 +457,7 @@ export const AtemAudioRouterDialog = () => {
           <button
             type="button"
             onClick={close}
-            className="rounded bg-slate-700 px-3 py-1 text-cp-xs hover:bg-slate-600"
+            className="bg-slate-700 px-3 py-1 text-cp-xs hover:bg-slate-600"
           >
             {t('common.close', 'Close')}
           </button>
@@ -468,7 +468,7 @@ export const AtemAudioRouterDialog = () => {
             type="button"
             onClick={handleLoadXml}
             disabled={busy}
-            className="rounded bg-sky-700 px-3 py-1 hover:bg-sky-600 disabled:opacity-50"
+            className="bg-sky-700 px-3 py-1 hover:bg-sky-600 disabled:opacity-50"
             title={t(
               'atem.audio.action.loadXmlTitle',
               'Load ATEM Profile XML — the audio section(s) will be imported into the editor',
@@ -480,7 +480,7 @@ export const AtemAudioRouterDialog = () => {
             type="button"
             onClick={handleSaveXml}
             disabled={!draft || busy}
-            className="rounded bg-emerald-700 px-3 py-1 hover:bg-emerald-600 disabled:opacity-50"
+            className="bg-emerald-700 px-3 py-1 hover:bg-emerald-600 disabled:opacity-50"
             title={t(
               'atem.audio.action.saveXmlTitle',
               'Download patched Profile XML (all non-audio sections stay unchanged)',
@@ -499,7 +499,7 @@ export const AtemAudioRouterDialog = () => {
                 type="button"
                 onClick={handleReadFromAtem}
                 disabled={!atemConnected || busy}
-                className="rounded bg-purple-700 px-3 py-1 hover:bg-purple-600 disabled:opacity-50"
+                className="bg-purple-700 px-3 py-1 hover:bg-purple-600 disabled:opacity-50"
                 title={
                   atemConnected
                     ? t('atem.audio.readLiveTitle', 'Read live state from the connected ATEM (matrix + classic mixer + labels)')
@@ -512,7 +512,7 @@ export const AtemAudioRouterDialog = () => {
                 type="button"
                 onClick={handlePushToAtem}
                 disabled={!atemConnected || !draft || busy}
-                className="rounded bg-orange-700 px-3 py-1 hover:bg-orange-600 disabled:opacity-50"
+                className="bg-orange-700 px-3 py-1 hover:bg-orange-600 disabled:opacity-50"
                 title={
                   atemConnected
                     ? t('atem.audio.pushLiveTitle', 'Send current configuration directly to the ATEM (no XML detour)')
@@ -526,7 +526,7 @@ export const AtemAudioRouterDialog = () => {
           {draft?.matrix && (
             <>
               <span className="ml-2 text-slate-500">|</span>
-              <span className="rounded bg-sky-800 px-3 py-1 text-white">
+              <span className="bg-sky-800 px-3 py-1 text-white">
                 <Icon icon={SlidersHorizontal} size="xs" className="mr-1 inline-block align-text-bottom" />{t('atem.audio.tab.matrix', 'Routing matrix')} ({draft.matrix.outputs.length}×{draft.matrix.sources.length})
               </span>
               {draft.classicMixer && (
@@ -579,7 +579,7 @@ export const AtemAudioRouterDialog = () => {
               <button
                 type="button"
                 onClick={() => void handleAdoptLive()}
-                className="ml-auto rounded bg-purple-700 px-3 py-1 hover:bg-purple-600"
+                className="ml-auto bg-purple-700 px-3 py-1 hover:bg-purple-600"
                 title={t(
                   'atem.audio.live.adoptTitle',
                   'Adopt the reading as the new plan — this replaces the previous intent.',
@@ -593,7 +593,7 @@ export const AtemAudioRouterDialog = () => {
                   setLive(null)
                   setLiveReadAt('')
                 }}
-                className="rounded bg-slate-700 px-3 py-1 hover:bg-slate-600"
+                className="bg-slate-700 px-3 py-1 hover:bg-slate-600"
                 title={t('atem.audio.live.discardTitle', 'Discard the reading — the plan stays as it is.')}
               >
                 {t('atem.audio.live.discard', 'Discard reading')}
@@ -638,7 +638,7 @@ export const AtemAudioRouterDialog = () => {
               <button
                 type="button"
                 onClick={handleCreateMatrix}
-                className="mt-3 rounded bg-sky-700 px-3 py-1 text-cp-xs text-white hover:bg-sky-600"
+                className="mt-3 bg-sky-700 px-3 py-1 text-cp-xs text-white hover:bg-sky-600"
               >
                 <Icon icon={SlidersHorizontal} size="xs" className="mr-1 inline-block align-text-bottom" />{t('atem.audio.createMatrixManual', 'Create matrix manually')}
               </button>
@@ -668,7 +668,7 @@ export const AtemAudioRouterDialog = () => {
           <button
             type="button"
             onClick={close}
-            className="rounded bg-slate-700 px-3 py-1 hover:bg-slate-600"
+            className="bg-slate-700 px-3 py-1 hover:bg-slate-600"
           >
             {t('common.cancel', 'Cancel')}
           </button>
@@ -676,7 +676,7 @@ export const AtemAudioRouterDialog = () => {
             type="button"
             onClick={handleSaveToProject}
             disabled={!draft}
-            className="rounded bg-emerald-700 px-3 py-1 hover:bg-emerald-600 disabled:opacity-50"
+            className="bg-emerald-700 px-3 py-1 hover:bg-emerald-600 disabled:opacity-50"
             title={t(
               'atem.audio.action.saveProjectTitle',
               'Persist routing in the project (survives reload).',
@@ -756,7 +756,7 @@ const EmptyState = ({
       <button
         type="button"
         onClick={onLoad}
-        className="rounded bg-sky-700 px-4 py-2 text-cp-base hover:bg-sky-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+        className="bg-sky-700 px-4 py-2 text-cp-base hover:bg-sky-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
       >
         <Icon icon={FolderOpen} size="xs" className="mr-1 inline-block align-text-bottom" />{t('atem.audio.loadProfileXml', 'Load profile XML')}
       </button>
@@ -764,7 +764,7 @@ const EmptyState = ({
         type="button"
         onClick={onCreateMatrix}
         title={t('atem.audio.freshMatrix', 'Fresh crosspoint matrix with the ATEM default inputs + 8 output busses.')}
-        className="rounded border border-slate-700 bg-slate-800 px-4 py-2 text-cp-base text-slate-100 hover:border-sky-600 hover:bg-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+        className="border border-slate-700 bg-slate-800 px-4 py-2 text-cp-base text-slate-100 hover:border-sky-600 hover:bg-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
       >
         <Icon icon={SlidersHorizontal} size="xs" className="mr-1 inline-block align-text-bottom" />{t('atem.audio.matrixManual', 'Matrix manual')}
       </button>
@@ -845,14 +845,14 @@ const ChannelPicker = ({
           <button
             type="button"
             onClick={() => onSetAll([])}
-            className="rounded bg-slate-800 px-2 py-0.5 text-cp-xs hover:bg-slate-700"
+            className="bg-slate-800 px-2 py-0.5 text-cp-xs hover:bg-slate-700"
           >
             {t('atem.audio.picker.showAll', 'Show all')}
           </button>
           <button
             type="button"
             onClick={() => onSetAll(items.map((i) => i.id))}
-            className="rounded bg-slate-800 px-2 py-0.5 text-cp-xs hover:bg-slate-700"
+            className="bg-slate-800 px-2 py-0.5 text-cp-xs hover:bg-slate-700"
             disabled={allExcluded}
           >
             {t('atem.audio.picker.hideAll', 'Hide all')}
@@ -860,7 +860,7 @@ const ChannelPicker = ({
           <button
             type="button"
             onClick={onClose}
-            className="rounded bg-slate-800 px-2 py-0.5 text-cp-xs hover:bg-slate-700"
+            className="bg-slate-800 px-2 py-0.5 text-cp-xs hover:bg-slate-700"
           >
             {t('common.close', 'Close')}
           </button>
@@ -883,7 +883,7 @@ const ChannelPicker = ({
                   }
                   onSetAll(Array.from(next))
                 }}
-                className={`mb-0.5 rounded px-2 py-0.5 text-left text-cp-xs font-semibold ${
+                className={`mb-0.5 px-2 py-0.5 text-left text-cp-xs font-semibold ${
                   allHidden
                     ? 'bg-slate-800 text-slate-500'
                     : someHidden
@@ -1039,7 +1039,7 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
           placeholder={t('atem.audio.filterSourcesPlaceholder', 'Filter sources…')}
           title={t('atem.audio.filterSourcesTitle', 'Substring filter for audio sources (rows)')}
           aria-label={t('atem.audio.filterSourcesAria', 'Filter sources')}
-          className="rounded border border-slate-700 bg-slate-900 px-2 py-1 text-cp-xs"
+          className="border border-slate-700 bg-slate-900 px-2 py-1 text-cp-xs"
         />
         <input
           type="text"
@@ -1048,13 +1048,13 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
           placeholder={t('atem.audio.filterOutputsPlaceholder', 'Filter outputs…')}
           title={t('atem.audio.filterOutputsTitle', 'Substring filter for audio outputs (columns)')}
           aria-label={t('atem.audio.filterOutputsAria', 'Filter outputs')}
-          className="rounded border border-slate-700 bg-slate-900 px-2 py-1 text-cp-xs"
+          className="border border-slate-700 bg-slate-900 px-2 py-1 text-cp-xs"
         />
         <button
           type="button"
           onClick={() => setShowSourcePicker((v) => !v)}
           title={t('atem.audio.sourcesCheckTitle', 'Check sources individually (e.g. MADI, Mic, Tape …)')}
-          className={`rounded border px-3 py-1 ${
+          className={` border px-3 py-1 ${
             excludedSourceIds.size > 0
               ? 'border-sky-600 bg-sky-900/40 text-sky-200'
               : 'border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700'
@@ -1071,7 +1071,7 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
           type="button"
           onClick={() => setShowOutputPicker((v) => !v)}
           title={t('atem.audio.outputsCheckTitle', 'Check outputs individually (e.g. skip Out 5/6, 7/8)')}
-          className={`rounded border px-3 py-1 ${
+          className={` border px-3 py-1 ${
             excludedOutputIds.size > 0
               ? 'border-sky-600 bg-sky-900/40 text-sky-200'
               : 'border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700'
@@ -1087,7 +1087,7 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
         <button
           type="button"
           onClick={clearAllOutputs}
-          className="rounded bg-slate-700 px-3 py-1 hover:bg-slate-600"
+          className="bg-slate-700 px-3 py-1 hover:bg-slate-600"
         >
           {t('atem.audio.resetAllBtn', 'Reset all routings')}
         </button>
@@ -1137,7 +1137,7 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
           <button
             type="button"
             onClick={() => setRenderAnyway(true)}
-            className="mt-3 rounded bg-amber-700 px-3 py-1 text-cp-xs text-amber-50 hover:bg-amber-600"
+            className="mt-3 bg-amber-700 px-3 py-1 text-cp-xs text-amber-50 hover:bg-amber-600"
           >
             {t('atem.audio.renderAnyway', 'Render anyway')}
           </button>

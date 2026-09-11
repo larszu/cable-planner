@@ -24,7 +24,7 @@ const HotkeyRow = ({
   const [capturing, setCapturing] = useState(false)
   const label = t(`hotkeys.action.${action}`, HOTKEY_ACTION_LABEL[action] ?? action)
   return (
-    <li className="flex items-center gap-2 rounded border border-cp-border-muted bg-cp-surface-3 px-2 py-1.5 text-cp-xs">
+    <li className="flex items-center gap-2 border border-cp-border-muted bg-cp-surface-3 px-2 py-1.5 text-cp-xs">
       <span className="flex-1 truncate text-cp-text-bright">{label}</span>
       <button
         type="button"
@@ -39,7 +39,7 @@ const HotkeyRow = ({
             setCapturing(false)
           }
         }}
-        className={`min-w-[120px] rounded border px-2 py-1 text-center font-mono text-cp-xs ${
+        className={`min-w-[120px] border px-2 py-1 text-center font-mono text-cp-xs ${
           capturing
             ? 'border-sky-500 bg-sky-950/60 text-sky-200'
             : 'border-cp-border bg-cp-surface-1 text-cp-text-secondary hover:border-cp-surface-5'
@@ -55,7 +55,7 @@ const HotkeyRow = ({
       <button
         type="button"
         onClick={() => onChange('')}
-        className="rounded bg-cp-surface-2 px-1.5 py-0.5 text-cp-xs text-cp-text-muted hover:bg-red-700 hover:text-white"
+        className="bg-cp-surface-2 px-1.5 py-0.5 text-cp-xs text-cp-text-muted hover:bg-red-700 hover:text-white"
         title={t('settings.hotkeys.clear', 'Clear hotkey')}
         aria-label={t('settings.hotkeys.clear', 'Clear hotkey')}
       >
@@ -101,7 +101,7 @@ export const HotkeysTab = () => {
           <button
             type="button"
             onClick={resetHotkeys}
-            className="rounded bg-cp-surface-2 px-3 py-1 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-4"
+            className="bg-cp-surface-2 px-3 py-1 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-4"
           >
             {t('settings.hotkeys.reset', 'Reset to default')}
           </button>

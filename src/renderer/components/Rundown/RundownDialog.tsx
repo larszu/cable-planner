@@ -98,7 +98,7 @@ export const RundownDialog = () => {
       draggableKey="cable-planner:modal-pos:rundown"
     >
       <div className="space-y-4 text-cp-sm">
-        <section className="rounded border border-cp-border bg-cp-surface-2/40 p-3">
+        <section className="border border-cp-border bg-cp-surface-2/40 p-3">
           <h3 className="mb-1 font-medium text-cp-text">
             {t('rundown.import', 'Read in the rundown')}
           </h3>
@@ -116,7 +116,7 @@ export const RundownDialog = () => {
                 value={quelle}
                 onChange={(e) => setQuelle(e.target.value)}
                 placeholder={t('rundown.source.placeholder', 'e.g. rundown.xlsx, mail of 9 Sept')}
-                className="w-full rounded border border-cp-border bg-cp-surface-1 p-2"
+                className="w-full border border-cp-border bg-cp-surface-1 p-2"
               />
             </label>
             <label className="block text-cp-xs text-cp-text-secondary">
@@ -125,7 +125,7 @@ export const RundownDialog = () => {
                 value={stand}
                 onChange={(e) => setStand(e.target.value)}
                 placeholder={t('rundown.revision.placeholder', 'e.g. v4, third draft')}
-                className="w-full rounded border border-cp-border bg-cp-surface-1 p-2"
+                className="w-full border border-cp-border bg-cp-surface-1 p-2"
               />
             </label>
           </div>
@@ -134,14 +134,14 @@ export const RundownDialog = () => {
             onChange={(e) => setText(e.target.value)}
             rows={6}
             placeholder={t('rundown.pastePh', '1\tWelcome\n2\tInterview\tGuest enters from the left\n3\tMusic')}
-            className="w-full rounded border border-cp-border bg-cp-surface-1 p-2 font-mono text-cp-xs"
+            className="w-full border border-cp-border bg-cp-surface-1 p-2 font-mono text-cp-xs"
           />
           <div className="mt-2 flex items-center gap-2">
             <button
               type="button"
               onClick={einlesen}
               disabled={text.trim() === ''}
-              className="rounded bg-cp-accent px-3 py-1 text-cp-xs text-white disabled:opacity-50"
+              className="bg-cp-accent px-3 py-1 text-cp-xs text-white disabled:opacity-50"
             >
               {t('rundown.read', 'Read in')}
             </button>
@@ -222,7 +222,7 @@ export const RundownDialog = () => {
                             value={auftrag(seg.id, i.id)}
                             onChange={(e) => setzeAuftrag(seg.id, i.id, e.target.value)}
                             placeholder="—"
-                            className="w-32 rounded border border-cp-border bg-cp-surface-1 px-1 py-0.5"
+                            className="w-32 border border-cp-border bg-cp-surface-1 px-1 py-0.5"
                           />
                         </td>
                       ))}

@@ -41,18 +41,18 @@ export const RackBuilderFooter = ({
   return (
     <div className="mt-3 flex flex-wrap items-center justify-between gap-3 border-t border-cp-border-muted pt-3">
       <div className="flex flex-wrap items-center gap-1.5 text-cp-xs">
-        <span className="inline-flex items-center gap-1 rounded bg-cp-surface-2 px-2 py-0.5 text-cp-text-secondary">
+        <span className="inline-flex items-center gap-1 bg-cp-surface-2 px-2 py-0.5 text-cp-text-secondary">
           <span className="text-cp-text-faint">{t('rack.devicesLabel', 'Devices:')}</span>
           <strong className="text-cp-text">{devicesCount}</strong>
         </span>
-        <span className="inline-flex items-center gap-1 rounded bg-cp-surface-2 px-2 py-0.5 text-cp-text-secondary">
+        <span className="inline-flex items-center gap-1 bg-cp-surface-2 px-2 py-0.5 text-cp-text-secondary">
           <span className="text-cp-text-faint">{t('rack.heOccupied', 'U occupied:')}</span>
           <strong className="text-cp-text">{occupiedUnits}</strong>
           <span className="text-cp-text-faint">/ {totalUnits}</span>
         </span>
         {internalCablesCount > 0 && (
           <span
-            className="inline-flex items-center gap-1 rounded bg-sky-900/60 px-2 py-0.5 text-sky-200"
+            className="inline-flex items-center gap-1 bg-sky-900/60 px-2 py-0.5 text-sky-200"
             title={t('rack.internalCablingTitle', 'Internal cabling in the rack')}
           >
             <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
@@ -63,7 +63,7 @@ export const RackBuilderFooter = ({
           </span>
         )}
         {conflictsCount > 0 && (
-          <span className="inline-flex items-center gap-1 rounded bg-red-900/60 px-2 py-0.5 text-red-200">
+          <span className="inline-flex items-center gap-1 bg-red-900/60 px-2 py-0.5 text-red-200">
             <Icon icon={AlertTriangle} size="xs" />
             <strong>{conflictsCount}</strong>
             <span>{t('rack.conflictsWord', 'Conflicts')}</span>
@@ -80,7 +80,7 @@ export const RackBuilderFooter = ({
         }
       >
         <span
-          className={`inline-block h-1.5 w-1.5 rounded-full ${
+          className={`inline-block h-1.5 w-1.5 ${
             dirty ? 'animate-pulse bg-amber-400' : 'bg-emerald-500'
           }`}
         />
@@ -92,7 +92,7 @@ export const RackBuilderFooter = ({
           type="button"
           onClick={onOpenInternalCanvas}
           disabled={internWireDisabled}
-          className="inline-flex items-center gap-1.5 rounded border border-sky-600/50 bg-sky-800/40 px-3 py-1.5 text-cp-xs font-medium text-sky-100 hover:bg-sky-700/60 disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 border border-sky-600/50 bg-sky-800/40 px-3 py-1.5 text-cp-xs font-medium text-sky-100 hover:bg-sky-700/60 disabled:opacity-50"
           title={t('rack.openInternalCanvas', 'Wire the rack devices internally — full canvas view')}
         >
           <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
@@ -103,14 +103,14 @@ export const RackBuilderFooter = ({
         <button
           type="button"
           onClick={onCancel}
-          className="rounded px-3 py-1.5 text-cp-xs text-cp-text-muted hover:bg-cp-surface-2 hover:text-cp-text-bright"
+          className="px-3 py-1.5 text-cp-xs text-cp-text-muted hover:bg-cp-surface-2 hover:text-cp-text-bright"
         >
           {t('common.cancel', 'Cancel')}
         </button>
         <button
           type="button"
           onClick={onSave}
-          className="inline-flex items-center gap-1.5 rounded bg-emerald-600 px-4 py-1.5 text-cp-base font-semibold text-white shadow-sm hover:bg-emerald-500 active:bg-emerald-700"
+          className="inline-flex items-center gap-1.5 bg-emerald-600 px-4 py-1.5 text-cp-base font-semibold text-white hover:bg-emerald-500 active:bg-emerald-700"
           title={
             editingId
               ? t('rack.saveEditTitle', 'Save changes to the rack')

@@ -106,7 +106,7 @@ export const AdernDialog = () => {
             key={k}
             type="button"
             onClick={() => setTab(k)}
-            className={`rounded px-3 py-1 text-cp-xs ${
+            className={` px-3 py-1 text-cp-xs ${
               tab === k
                 ? 'bg-cp-accent text-white'
                 : 'bg-cp-surface-3 text-cp-text-secondary hover:bg-cp-surface-4'
@@ -129,7 +129,7 @@ export const AdernDialog = () => {
             )}
           />
           {farbnormen.length === 0 && (
-            <div className="mb-3 rounded border border-cp-border-muted bg-cp-surface-2 p-3 text-cp-xs text-cp-text-muted">
+            <div className="mb-3 border border-cp-border-muted bg-cp-surface-2 p-3 text-cp-xs text-cp-text-muted">
               {t(
                 'adern.norm.empty',
                 'No colour standard entered yet. Without one the conductor colours stay unchecked — the plan check says so instead of quietly showing them as correct.',
@@ -138,17 +138,17 @@ export const AdernDialog = () => {
           )}
           <div className="space-y-3">
             {farbnormen.map((n) => (
-              <div key={n.id} className="rounded border border-cp-border bg-cp-surface-2 p-3">
+              <div key={n.id} className="border border-cp-border bg-cp-surface-2 p-3">
                 <div className="flex items-start gap-2">
                   <input
-                    className="min-w-0 flex-1 rounded border border-cp-border bg-cp-surface-1 px-2 py-1 text-cp-base"
+                    className="min-w-0 flex-1 border border-cp-border bg-cp-surface-1 px-2 py-1 text-cp-base"
                     value={n.name}
                     onChange={(e) => aendereNorm(n.id, { name: e.target.value })}
                     aria-label={t('adern.norm.name', 'Name of the standard')}
                   />
                   <button
                     type="button"
-                    className="rounded bg-red-700 px-2 py-1 text-cp-xs hover:bg-red-600"
+                    className="bg-red-700 px-2 py-1 text-cp-xs hover:bg-red-600"
                     onClick={async () => {
                       if (
                         await confirmDialog(t('adern.norm.confirmDelete', 'Delete colour standard?'), {
@@ -173,7 +173,7 @@ export const AdernDialog = () => {
                     {t('adern.norm.herkunft', 'Source (required)')}
                   </span>
                   <input
-                    className={`w-full rounded border bg-cp-surface-1 px-2 py-1 text-cp-base ${
+                    className={`w-full border bg-cp-surface-1 px-2 py-1 text-cp-base ${
                       n.herkunft.trim() ? 'border-cp-border' : 'border-cp-danger'
                     }`}
                     value={n.herkunft}
@@ -198,7 +198,7 @@ export const AdernDialog = () => {
                     <label key={r} className="block text-cp-xs">
                       <span className="mb-1 block text-cp-text-muted">{r}</span>
                       <input
-                        className="w-full rounded border border-cp-border bg-cp-surface-1 px-2 py-1"
+                        className="w-full border border-cp-border bg-cp-surface-1 px-2 py-1"
                         value={n.farben[r] ?? ''}
                         placeholder={t('adern.norm.colourPlaceholder', 'Colour')}
                         onChange={(e) =>
@@ -216,7 +216,7 @@ export const AdernDialog = () => {
           <button
             type="button"
             onClick={neueNorm}
-            className="mt-3 flex items-center gap-1 rounded bg-emerald-700 px-2 py-1 text-cp-xs hover:bg-emerald-600"
+            className="mt-3 flex items-center gap-1 bg-emerald-700 px-2 py-1 text-cp-xs hover:bg-emerald-600"
           >
             <Icon icon={Plus} size="xs" /> {t('adern.norm.add', 'Enter colour standard')}
           </button>
@@ -232,17 +232,17 @@ export const AdernDialog = () => {
           />
           <div className="space-y-3">
             {anschluss.map((b) => (
-              <div key={b.id} className="rounded border border-cp-border bg-cp-surface-2 p-3">
+              <div key={b.id} className="border border-cp-border bg-cp-surface-2 p-3">
                 <div className="flex items-start gap-2">
                   <input
-                    className="min-w-0 flex-1 rounded border border-cp-border bg-cp-surface-1 px-2 py-1 text-cp-base"
+                    className="min-w-0 flex-1 border border-cp-border bg-cp-surface-1 px-2 py-1 text-cp-base"
                     value={b.name}
                     onChange={(e) => aendereAnschluss(b.id, { name: e.target.value })}
                     aria-label={t('adern.anschluss.name', 'Name of the connection')}
                   />
                   <button
                     type="button"
-                    className="rounded bg-red-700 px-2 py-1 text-cp-xs hover:bg-red-600"
+                    className="bg-red-700 px-2 py-1 text-cp-xs hover:bg-red-600"
                     onClick={async () => {
                       if (
                         await confirmDialog(
@@ -285,7 +285,7 @@ export const AdernDialog = () => {
                     {t('adern.anschluss.norm', 'Colour standard for this connection')}
                   </span>
                   <select
-                    className="w-full rounded border border-cp-border bg-cp-surface-1 px-2 py-1"
+                    className="w-full border border-cp-border bg-cp-surface-1 px-2 py-1"
                     value={b.farbnormId ?? ''}
                     onChange={(e) =>
                       aendereAnschluss(b.id, { farbnormId: e.target.value || undefined })
@@ -304,7 +304,7 @@ export const AdernDialog = () => {
                     {t('adern.anschluss.notiz', 'Note (e.g. connector coding)')}
                   </span>
                   <input
-                    className="w-full rounded border border-cp-border bg-cp-surface-1 px-2 py-1"
+                    className="w-full border border-cp-border bg-cp-surface-1 px-2 py-1"
                     value={b.notiz ?? ''}
                     placeholder={t(
                       'adern.anschluss.notizPlaceholder',
@@ -319,7 +319,7 @@ export const AdernDialog = () => {
           <button
             type="button"
             onClick={neuerAnschluss}
-            className="mt-3 flex items-center gap-1 rounded bg-emerald-700 px-2 py-1 text-cp-xs hover:bg-emerald-600"
+            className="mt-3 flex items-center gap-1 bg-emerald-700 px-2 py-1 text-cp-xs hover:bg-emerald-600"
           >
             <Icon icon={Plus} size="xs" /> {t('adern.anschluss.add', 'Add connection')}
           </button>

@@ -139,12 +139,12 @@ export const ConnectorPicker = ({
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-label={ariaLabel}
-        className={`flex w-full items-center gap-2 rounded border border-cp-border bg-cp-surface-3 text-left text-cp-text-bright hover:border-slate-500 ${
+        className={`flex w-full items-center gap-2 border border-cp-border bg-cp-surface-3 text-left text-cp-text-bright hover:border-slate-500 ${
           size === 'sm' ? 'px-1.5 py-1' : 'px-2 py-1.5'
         }`}
       >
         <span
-          className="flex shrink-0 items-center justify-center rounded"
+          className="flex shrink-0 items-center justify-center"
           style={{ color: triggerColor }}
         >
           {selected ? (
@@ -165,7 +165,7 @@ export const ConnectorPicker = ({
           <div
             ref={popRef}
             role="dialog"
-            className="fixed z-[300] flex max-h-[360px] flex-col overflow-hidden rounded-cp-card border border-cp-border bg-cp-surface-1 shadow-2xl"
+            className="fixed z-[300] flex max-h-[360px] flex-col overflow-hidden rounded-cp-card border border-cp-border bg-cp-surface-1"
             style={{ left: pos.left, top: pos.top, width: pos.width }}
           >
             <div className="flex items-center gap-2 border-b border-cp-border-muted px-2 py-1.5">
@@ -192,7 +192,7 @@ export const ConnectorPicker = ({
                     style={{ color: g.category.color }}
                   >
                     <span
-                      className="inline-block h-2 w-2 rounded-full"
+                      className="inline-block h-2 w-2"
                       style={{ background: g.category.color }}
                     />
                     {t(`connector.cat.${g.category.id}`, g.category.de)}
@@ -206,7 +206,7 @@ export const ConnectorPicker = ({
                           type="button"
                           onClick={() => pick(e.id)}
                           title={e.label}
-                          className={`flex flex-col items-center gap-1 rounded border px-1 py-1.5 text-center transition ${
+                          className={`flex flex-col items-center gap-1 border px-1 py-1.5 text-center transition ${
                             active
                               ? 'border-sky-500 bg-sky-500/10'
                               : 'border-cp-border-muted bg-cp-surface-3/40 hover:border-cp-surface-5 hover:bg-cp-surface-2/60'

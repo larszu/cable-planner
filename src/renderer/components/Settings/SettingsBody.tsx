@@ -118,7 +118,7 @@ export const SettingsBody = ({ onClose, initialSection, headerProps, titleId, he
       key={id}
       type="button"
       onClick={() => setSection(id)}
-      className={`flex w-full items-center gap-2 rounded px-3 py-2 text-left text-cp-base ${
+      className={`flex w-full items-center gap-2 px-3 py-2 text-left text-cp-base ${
         section === id ? 'bg-sky-700 text-white' : 'text-cp-text-secondary hover:bg-cp-surface-2'
       }`}
     >
@@ -149,7 +149,7 @@ export const SettingsBody = ({ onClose, initialSection, headerProps, titleId, he
             <button
               type="button"
               onClick={onClose}
-              className="inline-flex items-center justify-center rounded px-2 py-1 text-[var(--cp-text-muted)] hover:bg-[var(--cp-surface-2)] hover:text-[var(--cp-text)]"
+              className="inline-flex items-center justify-center px-2 py-1 text-[var(--cp-text-muted)] hover:bg-[var(--cp-surface-2)] hover:text-[var(--cp-text)]"
               aria-label={t('common.close', 'Close')}
             >
               <Icon icon={X} size="md" />

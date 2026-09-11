@@ -108,7 +108,7 @@ export const OscEmpfangPanel = () => {
       />
 
       <div
-        className={`mb-3 rounded border p-2 text-cp-xs ${
+        className={`mb-3 border p-2 text-cp-xs ${
           zustand.lage === 'nicht-gebunden'
             ? 'border-cp-warn bg-cp-warn/10 text-cp-warn'
             : 'border-cp-border bg-cp-surface-2 text-cp-text-secondary'
@@ -145,7 +145,7 @@ export const OscEmpfangPanel = () => {
             {t('osc.address', 'Address to listen on')}
           </span>
           <input
-            className="w-full rounded border border-cp-border bg-cp-surface-2 px-2 py-1"
+            className="w-full border border-cp-border bg-cp-surface-2 px-2 py-1"
             value={config.adresse}
             placeholder={t('osc.addressPlaceholder', 'e.g. 10.0.0.20 — no default')}
             onChange={(e) => setConfig({ ...config, adresse: e.target.value })}
@@ -156,7 +156,7 @@ export const OscEmpfangPanel = () => {
           <span className="mb-1 block text-cp-text-muted">{t('osc.port', 'Port')}</span>
           <input
             type="number"
-            className="w-full rounded border border-cp-border bg-cp-surface-2 px-2 py-1"
+            className="w-full border border-cp-border bg-cp-surface-2 px-2 py-1"
             value={config.port}
             onChange={(e) => setConfig({ ...config, port: Number(e.target.value) })}
             onBlur={() => void anwenden(config)}
@@ -177,14 +177,14 @@ export const OscEmpfangPanel = () => {
         </span>
         <button
           type="button"
-          className="rounded bg-cp-surface-3 px-2 py-1 text-cp-xs hover:bg-cp-surface-4"
+          className="bg-cp-surface-3 px-2 py-1 text-cp-xs hover:bg-cp-surface-4"
           onClick={() => void bruecke?.clear().then(() => setMeldungen([]))}
         >
           {t('osc.clear', 'Clear')}
         </button>
       </div>
       {meldungen.length === 0 ? (
-        <div className="rounded border border-cp-border-muted bg-cp-surface-2 p-3 text-cp-xs text-cp-text-muted">
+        <div className="border border-cp-border-muted bg-cp-surface-2 p-3 text-cp-xs text-cp-text-muted">
           {t(
             'osc.empty',
             'Nothing received yet. That means: nothing arrived here — not that nothing was sent.',

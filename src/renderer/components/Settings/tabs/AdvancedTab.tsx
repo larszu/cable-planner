@@ -145,7 +145,7 @@ export const AdvancedTab = () => {
             step={100}
             value={autosaveIntervalMs}
             onChange={(e) => setAutosaveIntervalMs(Number(e.target.value) || 400)}
-            className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2"
+            className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-2"
           />
         </label>
       </SettingsCard>
@@ -157,7 +157,7 @@ export const AdvancedTab = () => {
           'Rename library categories or add new ones. When renaming, all assigned templates move along.',
         )}
       >
-        <div className="max-h-56 overflow-auto rounded border border-cp-border-muted bg-cp-surface-3/50">
+        <div className="max-h-56 overflow-auto border border-cp-border-muted bg-cp-surface-3/50">
           <table className="w-full text-cp-xs">
             <thead className="sticky top-0 bg-cp-surface-1 text-cp-text-muted">
               <tr>
@@ -187,7 +187,7 @@ export const AdvancedTab = () => {
                       <button
                         type="button"
                         onClick={() => handleRename(cat)}
-                        className="rounded bg-cp-surface-4 px-2 py-0.5 text-cp-xs hover:bg-cp-surface-5"
+                        className="bg-cp-surface-4 px-2 py-0.5 text-cp-xs hover:bg-cp-surface-5"
                       >
                         {t('common.rename', 'Rename')}
                       </button>
@@ -208,7 +208,7 @@ export const AdvancedTab = () => {
         <button
           type="button"
           onClick={handleAdd}
-          className="mt-2 rounded bg-emerald-700 px-3 py-1 text-cp-xs hover:bg-emerald-600"
+          className="mt-2 bg-emerald-700 px-3 py-1 text-cp-xs hover:bg-emerald-600"
         >
           {t('settings.advanced.categories.addBtn', '+ New category')}
         </button>
@@ -227,7 +227,7 @@ export const AdvancedTab = () => {
             onClick={() =>
               clearCache('cable-planner:rentmanTemplateCache:v1', t('settings.advanced.caches.rentmanLabel', 'Rentman template cache'))
             }
-            className="rounded bg-cp-surface-4 px-3 py-1 text-cp-xs text-left hover:bg-cp-surface-5"
+            className="bg-cp-surface-4 px-3 py-1 text-cp-xs text-left hover:bg-cp-surface-5"
           >
             {t('settings.advanced.caches.rentman', 'Clear Rentman template cache')}
           </button>
@@ -235,14 +235,14 @@ export const AdvancedTab = () => {
           <button
             type="button"
             onClick={() => clearCache('cable-planner:web:recents', t('settings.advanced.caches.webLabel', 'Web search history'))}
-            className="rounded bg-cp-surface-4 px-3 py-1 text-cp-xs text-left hover:bg-cp-surface-5"
+            className="bg-cp-surface-4 px-3 py-1 text-cp-xs text-left hover:bg-cp-surface-5"
           >
             {t('settings.advanced.caches.web', 'Clear web search history')}
           </button>
           <button
             type="button"
             onClick={resetWelcome}
-            className="rounded bg-cp-surface-4 px-3 py-1 text-cp-xs text-left hover:bg-cp-surface-5"
+            className="bg-cp-surface-4 px-3 py-1 text-cp-xs text-left hover:bg-cp-surface-5"
           >
             {t('settings.advanced.caches.welcome', 'Show welcome dialog on next start')}
           </button>
@@ -259,7 +259,7 @@ export const AdvancedTab = () => {
         <button
           type="button"
           onClick={exportAllData}
-          className="rounded bg-amber-700 px-3 py-1 text-cp-xs hover:bg-amber-600"
+          className="bg-amber-700 px-3 py-1 text-cp-xs hover:bg-amber-600"
         >
           {t('settings.advanced.exportBtn', 'Export all localStorage data')}
         </button>

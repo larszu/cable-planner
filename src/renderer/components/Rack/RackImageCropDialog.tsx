@@ -330,7 +330,7 @@ export const RackImageCropDialog = ({
         style={containerStyle}
         aria-labelledby={titleId}
         {...dialogProps}
-        className="max-h-[94vh] w-full max-w-5xl overflow-auto rounded border border-cp-border bg-cp-surface-1 p-4 text-cp-text shadow-2xl"
+        className="max-h-[94vh] w-full max-w-5xl overflow-auto border border-cp-border bg-cp-surface-1 p-4 text-cp-text"
       >
         <div
           {...headerProps}
@@ -355,14 +355,14 @@ export const RackImageCropDialog = ({
           <button
             type="button"
             onClick={onCancel}
-            className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
+            className="bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
           >
             {t('rackCrop.close', 'Close')}
           </button>
         </div>
 
         <div className="mb-3 grid grid-cols-1 gap-3 lg:grid-cols-[1fr_280px]">
-          <div className="rounded border border-cp-border bg-cp-surface-3/40 p-2">
+          <div className="border border-cp-border bg-cp-surface-3/40 p-2">
             <div className="mb-2 flex items-center gap-2 text-cp-xs text-cp-text-muted">
               <span>{t('rackCrop.zoom', 'Zoom')}</span>
               <input
@@ -387,7 +387,7 @@ export const RackImageCropDialog = ({
             </div>
             <div
               ref={scrollRef}
-              className="relative max-h-[70vh] overflow-auto rounded border border-cp-border"
+              className="relative max-h-[70vh] overflow-auto border border-cp-border"
               onWheel={onWheelZoom}
             >
               <div
@@ -434,7 +434,7 @@ export const RackImageCropDialog = ({
                     onPointerDown={(e) => handlePointerDown('move', e)}
                   >
                     {/* Live HE badge inside the crop box */}
-                    <div className="pointer-events-none absolute right-1 top-1 rounded bg-cyan-600/90 px-1.5 py-0.5 text-cp-xs font-semibold text-white shadow">
+                    <div className="pointer-events-none absolute right-1 top-1 bg-cyan-600/90 px-1.5 py-0.5 text-cp-xs font-semibold text-white">
                       {aspectLock ? `${rackUnits} HE` : `\u2248 ${liveHe.toFixed(1)} HE`}
                     </div>
                     {/* Resize handles */}
@@ -444,7 +444,7 @@ export const RackImageCropDialog = ({
                         <div
                           key={id}
                           onPointerDown={(e) => handlePointerDown(id, e)}
-                          className="absolute h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-sm border border-cyan-200 bg-cyan-400 hover:bg-cyan-300"
+                          className="absolute h-3 w-3 -translate-x-1/2 -translate-y-1/2 border border-cyan-200 bg-cyan-400 hover:bg-cyan-300"
                           style={{ left: def.left, top: def.top, cursor: def.cursor, touchAction: 'none' }}
                         />
                       )
@@ -455,7 +455,7 @@ export const RackImageCropDialog = ({
             </div>
           </div>
 
-          <div className="space-y-2 rounded border border-cp-border bg-cp-surface-3/40 p-2 text-cp-xs">
+          <div className="space-y-2 border border-cp-border bg-cp-surface-3/40 p-2 text-cp-xs">
             <div className="flex items-center justify-between">
               <span className="text-cp-xs uppercase tracking-wide text-cp-text-muted">
                 {t('rackCrop.presets', 'Crop presets')}
@@ -466,7 +466,7 @@ export const RackImageCropDialog = ({
                   setCrop(defaultCrop(rackUnits, imgAspect))
                   setZoom(1)
                 }}
-                className="rounded bg-cp-surface-4 px-2 py-0.5 text-cp-xs hover:bg-cp-surface-5"
+                className="bg-cp-surface-4 px-2 py-0.5 text-cp-xs hover:bg-cp-surface-5"
                 title={t('rackCrop.resetTitle', 'Reset crop and zoom (R)')}
               >
                 {t('rackCrop.reset', '⟲ Reset')}
@@ -478,7 +478,7 @@ export const RackImageCropDialog = ({
                   key={he}
                   type="button"
                   onClick={() => setCrop(defaultCrop(he, imgAspect))}
-                  className={`rounded px-2 py-1 ${he === rackUnits ? 'bg-cyan-700 hover:bg-cyan-600' : 'bg-cp-surface-4 hover:bg-cp-surface-5'}`}
+                  className={` px-2 py-1 ${he === rackUnits ? 'bg-cyan-700 hover:bg-cyan-600' : 'bg-cp-surface-4 hover:bg-cp-surface-5'}`}
                   title={format(t('rackCrop.presetTitle', 'Template {n} RU aspect'), { n: he })}
                 >
                   {he}HE
@@ -486,7 +486,7 @@ export const RackImageCropDialog = ({
               ))}
             </div>
 
-            <div className="mt-3 rounded border border-cp-border-muted bg-cp-surface-1/60 p-2">
+            <div className="mt-3 border border-cp-border-muted bg-cp-surface-1/60 p-2">
               <div className="mb-1 text-cp-xs uppercase tracking-wide text-cp-text-muted">
                 {t('rackCrop.manualValues', 'Manual values (0–1)')}
               </div>
@@ -503,7 +503,7 @@ export const RackImageCropDialog = ({
                       const value = clamp(Number(event.target.value) || 0, 0, 1 - crop.width)
                       setCrop((current) => ({ ...current, x: value }))
                     }}
-                    className="mt-0.5 w-full rounded border border-cp-border bg-cp-surface-1 p-1 tabular-nums"
+                    className="mt-0.5 w-full border border-cp-border bg-cp-surface-1 p-1 tabular-nums"
                   />
                 </label>
                 <label className="block text-cp-xs">
@@ -518,7 +518,7 @@ export const RackImageCropDialog = ({
                       const value = clamp(Number(event.target.value) || 0, 0, 1 - crop.height)
                       setCrop((current) => ({ ...current, y: value }))
                     }}
-                    className="mt-0.5 w-full rounded border border-cp-border bg-cp-surface-1 p-1 tabular-nums"
+                    className="mt-0.5 w-full border border-cp-border bg-cp-surface-1 p-1 tabular-nums"
                   />
                 </label>
                 <label className="block text-cp-xs">
@@ -533,7 +533,7 @@ export const RackImageCropDialog = ({
                       const width = clamp(Number(event.target.value) || MIN_SIZE, MIN_SIZE, 1)
                       setCrop((current) => ({ ...current, width, x: clamp(current.x, 0, 1 - width) }))
                     }}
-                    className="mt-0.5 w-full rounded border border-cp-border bg-cp-surface-1 p-1 tabular-nums"
+                    className="mt-0.5 w-full border border-cp-border bg-cp-surface-1 p-1 tabular-nums"
                   />
                 </label>
                 <label className="block text-cp-xs">
@@ -548,13 +548,13 @@ export const RackImageCropDialog = ({
                       const height = clamp(Number(event.target.value) || MIN_SIZE, MIN_SIZE, 1)
                       setCrop((current) => ({ ...current, height, y: clamp(current.y, 0, 1 - height) }))
                     }}
-                    className="mt-0.5 w-full rounded border border-cp-border bg-cp-surface-1 p-1 tabular-nums"
+                    className="mt-0.5 w-full border border-cp-border bg-cp-surface-1 p-1 tabular-nums"
                   />
                 </label>
               </div>
             </div>
 
-            <div className="rounded border border-cp-border-muted bg-cp-surface-1/60 p-2 text-cp-xs text-cp-text-muted">
+            <div className="border border-cp-border-muted bg-cp-surface-1/60 p-2 text-cp-xs text-cp-text-muted">
               <div>
                 {t('rackCrop.targetAspect', 'Target aspect:')}{' '}
                 <span className="tabular-nums text-cp-text-bright">{targetAspect.toFixed(2)}:1</span>
@@ -574,10 +574,10 @@ export const RackImageCropDialog = ({
         </div>
 
         <div className="flex justify-end gap-2">
-          <button type="button" onClick={onCancel} className="rounded bg-cp-surface-4 px-3 py-1 text-cp-base hover:bg-cp-surface-5">
+          <button type="button" onClick={onCancel} className="bg-cp-surface-4 px-3 py-1 text-cp-base hover:bg-cp-surface-5">
             {t('common.cancel', 'Cancel')}
           </button>
-          <button type="button" onClick={finalizeCrop} className="rounded bg-emerald-600 px-3 py-1 text-cp-base hover:bg-emerald-500">
+          <button type="button" onClick={finalizeCrop} className="bg-emerald-600 px-3 py-1 text-cp-base hover:bg-emerald-500">
             {t('rackCrop.confirm', 'Apply crop')}
           </button>
         </div>

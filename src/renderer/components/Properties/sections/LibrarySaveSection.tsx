@@ -55,7 +55,7 @@ export const LibrarySaveSection = ({ equipment }: { equipment: EquipmentItem }) 
               saveEquipmentAsTemplate(equipment.id)
             }
           }}
-          className="inline-flex w-full items-center justify-center gap-1 rounded bg-amber-700 px-2 py-1 text-cp-xs hover:bg-amber-600"
+          className="inline-flex w-full items-center justify-center gap-1 bg-amber-700 px-2 py-1 text-cp-xs hover:bg-amber-600"
           title={t(
             'libSave.btnTitle',
             'Saves the current device (ports, network, SDI caps, MV config …) as a library template.',
@@ -89,7 +89,7 @@ export const LibrarySaveSection = ({ equipment }: { equipment: EquipmentItem }) 
             }
             saveEquipmentAsNewTemplate(equipment.id, trimmed, equipment.category)
           }}
-          className="inline-flex w-full items-center justify-center gap-1 rounded bg-emerald-700 px-2 py-1 text-cp-xs hover:bg-emerald-600"
+          className="inline-flex w-full items-center justify-center gap-1 bg-emerald-700 px-2 py-1 text-cp-xs hover:bg-emerald-600"
           title={t(
             'libSave.newBtnTitle',
             'Creates a new template under a different name — the existing one stays unchanged.',

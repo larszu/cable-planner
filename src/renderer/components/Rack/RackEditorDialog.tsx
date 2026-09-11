@@ -242,7 +242,7 @@ export const RackEditorDialog = () => {
         style={containerStyle}
         aria-labelledby={titleId}
         {...dialogProps}
-        className="flex h-[80vh] w-full max-w-5xl flex-col overflow-hidden rounded border border-cp-border bg-cp-surface-1 text-cp-text shadow-2xl"
+        className="flex h-[80vh] w-full max-w-5xl flex-col overflow-hidden border border-cp-border bg-cp-surface-1 text-cp-text"
       >
         <header
           {...headerProps}
@@ -261,7 +261,7 @@ export const RackEditorDialog = () => {
           <button
             type="button"
             onClick={close}
-            className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
+            className="bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
           >
             {t('common.close', 'Close')}
           </button>

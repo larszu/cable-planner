@@ -143,7 +143,7 @@ export const CollabPanel = () => {
         </h3>
         <span className="flex items-center gap-1.5 text-cp-xs">
           <span
-            className="inline-block h-2 w-2 rounded-full"
+            className="inline-block h-2 w-2"
             style={{ backgroundColor: statusColor(status) }}
           />
           {statusLabel(status, t)}
@@ -165,7 +165,7 @@ export const CollabPanel = () => {
           </span>
           <input
             type="text"
-            className="w-full rounded border border-[var(--cp-border)] bg-[var(--cp-surface-3)] px-2 py-1 text-cp-xs"
+            className="w-full border border-[var(--cp-border)] bg-[var(--cp-surface-3)] px-2 py-1 text-cp-xs"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder={t('collab.name.placeholder', 'e.g. Lars')}
@@ -177,7 +177,7 @@ export const CollabPanel = () => {
             {t('collab.mode', 'Mode')}
           </span>
           <select
-            className="w-full rounded border border-[var(--cp-border)] bg-[var(--cp-surface-3)] px-2 py-1 text-cp-xs disabled:opacity-50"
+            className="w-full border border-[var(--cp-border)] bg-[var(--cp-surface-3)] px-2 py-1 text-cp-xs disabled:opacity-50"
             value={mode}
             disabled={active}
             onChange={(e) => setMode(e.target.value as CollabMode)}
@@ -197,7 +197,7 @@ export const CollabPanel = () => {
           </span>
           <input
             type="text"
-            className="w-full rounded border border-[var(--cp-border)] bg-[var(--cp-surface-3)] px-2 py-1 text-cp-xs disabled:opacity-50"
+            className="w-full border border-[var(--cp-border)] bg-[var(--cp-surface-3)] px-2 py-1 text-cp-xs disabled:opacity-50"
             value={room}
             disabled={active}
             onChange={(e) => setRoom(e.target.value)}
@@ -212,7 +212,7 @@ export const CollabPanel = () => {
             </span>
             <input
               type="text"
-              className="w-full rounded border border-[var(--cp-border)] bg-[var(--cp-surface-3)] px-2 py-1 text-cp-xs disabled:opacity-50"
+              className="w-full border border-[var(--cp-border)] bg-[var(--cp-surface-3)] px-2 py-1 text-cp-xs disabled:opacity-50"
               value={signaling}
               disabled={active || localOnly}
               onChange={(e) => setSignaling(e.target.value)}
@@ -239,7 +239,7 @@ export const CollabPanel = () => {
             <input
               type="password"
               autoComplete="off"
-              className="w-full rounded border border-[var(--cp-border)] bg-[var(--cp-surface-3)] px-2 py-1 text-cp-xs disabled:opacity-50"
+              className="w-full border border-[var(--cp-border)] bg-[var(--cp-surface-3)] px-2 py-1 text-cp-xs disabled:opacity-50"
               value={password}
               disabled={active}
               onChange={(e) => setPassword(e.target.value)}
@@ -262,7 +262,7 @@ export const CollabPanel = () => {
               rows={2}
               spellCheck={false}
               autoComplete="off"
-              className="w-full rounded border border-[var(--cp-border)] bg-[var(--cp-surface-3)] px-2 py-1 font-mono text-cp-xs disabled:opacity-50"
+              className="w-full border border-[var(--cp-border)] bg-[var(--cp-surface-3)] px-2 py-1 font-mono text-cp-xs disabled:opacity-50"
               value={iceServers}
               disabled={active}
               onChange={(e) => setIceServers(e.target.value)}
@@ -346,7 +346,7 @@ export const CollabPanel = () => {
 
       {/* #471 — wer ist im Raum + wie treten andere bei */}
       {active && (
-        <div className="space-y-2 rounded border border-[var(--cp-border-muted)] bg-[var(--cp-surface-3)] p-2.5">
+        <div className="space-y-2 border border-[var(--cp-border-muted)] bg-[var(--cp-surface-3)] p-2.5">
           <div className="flex items-center justify-between gap-2">
             <span className="text-cp-xs font-medium text-[var(--cp-text)]">
               {peers.length === 1
@@ -358,7 +358,7 @@ export const CollabPanel = () => {
                 <span
                   key={p.id}
                   title={p.self ? `${p.name} (${t('collab.peers.you', 'you')})` : p.name}
-                  className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-[var(--cp-surface-3)] text-cp-xs font-bold text-white"
+                  className="inline-flex h-5 w-5 items-center justify-center border border-[var(--cp-surface-3)] text-cp-xs font-bold text-white"
                   style={{ backgroundColor: p.color }}
                 >
                   {initials(p.name)}
@@ -372,13 +372,13 @@ export const CollabPanel = () => {
                 'collab.peers.aloneHint',
                 'Others join by using the same room name:',
               )}{' '}
-              <code className="rounded bg-[var(--cp-surface-1)] px-1 font-mono text-[var(--cp-text)]">{room}</code>
+              <code className="bg-[var(--cp-surface-1)] px-1 font-mono text-[var(--cp-text)]">{room}</code>
             </p>
           )}
           <button
             type="button"
             onClick={copyInvite}
-            className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] bg-[var(--cp-surface-1)] px-2 py-1 text-cp-xs text-[var(--cp-text-secondary)] hover:border-sky-500 hover:text-sky-300"
+            className="inline-flex items-center gap-1 border border-[var(--cp-border)] bg-[var(--cp-surface-1)] px-2 py-1 text-cp-xs text-[var(--cp-text-secondary)] hover:border-sky-500 hover:text-sky-300"
           >
             {copied && <Icon icon={Check} size="xs" />}
             {copied ? t('collab.invite.copied', 'Copied') : t('collab.invite.copy', 'Copy invite')}
@@ -416,7 +416,7 @@ export const CollabPanel = () => {
         {active ? (
           <button
             type="button"
-            className="rounded bg-[var(--cp-danger,#ef4444)] px-3 py-1 text-cp-xs font-medium text-white hover:opacity-90"
+            className="bg-[var(--cp-danger,#ef4444)] px-3 py-1 text-cp-xs font-medium text-white hover:opacity-90"
             onClick={() => stop()}
           >
             {t('collab.stop', 'Leave')}
@@ -424,7 +424,7 @@ export const CollabPanel = () => {
         ) : (
           <button
             type="button"
-            className="rounded bg-[var(--cp-accent,#3b82f6)] px-3 py-1 text-cp-xs font-medium text-white hover:opacity-90 disabled:opacity-50"
+            className="bg-[var(--cp-accent,#3b82f6)] px-3 py-1 text-cp-xs font-medium text-white hover:opacity-90 disabled:opacity-50"
             disabled={!room.trim()}
             onClick={() => void start()}
           >

@@ -40,7 +40,7 @@ export const RackBuilderHeader = ({
             {editingId ? rackName || t('rack.unnamedRack', '(unnamed rack)') : t('rack.newRack', 'New rack')}
           </h3>
           <span
-            className={`shrink-0 rounded px-1.5 py-0.5 text-cp-xs font-semibold uppercase tracking-wide ${
+            className={`shrink-0 px-1.5 py-0.5 text-cp-xs font-semibold uppercase tracking-wide ${
               editingId
                 ? 'bg-sky-900/60 text-sky-200'
                 : 'bg-emerald-900/60 text-emerald-200'
@@ -50,10 +50,10 @@ export const RackBuilderHeader = ({
           </span>
           {dirty && (
             <span
-              className="flex shrink-0 items-center gap-1 rounded bg-amber-900/40 px-1.5 py-0.5 text-cp-xs font-semibold text-amber-200"
+              className="flex shrink-0 items-center gap-1 bg-amber-900/40 px-1.5 py-0.5 text-cp-xs font-semibold text-amber-200"
               title={t('rack.unsavedTitle', 'Unsaved changes')}
             >
-              <span className="inline-block h-1.5 w-1.5 rounded-full bg-amber-400" />
+              <span className="inline-block h-1.5 w-1.5 bg-amber-400" />
               {t('rack.unsavedLabel', 'Unsaved')}
             </span>
           )}
@@ -64,7 +64,7 @@ export const RackBuilderHeader = ({
             '2D rack builder · Add devices from the library, drag for U position, internal cabling',
           )}
           <span className="ml-2 hidden sm:inline">
-            <kbd className="rounded border border-cp-border bg-cp-surface-2 px-1 text-cp-xs">Esc</kbd>{' '}
+            <kbd className="border border-cp-border bg-cp-surface-2 px-1 text-cp-xs">Esc</kbd>{' '}
             {t('rack.closeShortcut', 'close')}
           </span>
         </p>
@@ -75,7 +75,7 @@ export const RackBuilderHeader = ({
         onClick={onClose}
         aria-label={t('common.close', 'Close')}
         title={t('rack.closeTitle', 'Close (Esc)')}
-        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-cp-border bg-cp-surface-2 text-cp-text-secondary transition-colors hover:border-red-500/50 hover:bg-red-900/30 hover:text-red-300"
+        className="flex h-8 w-8 shrink-0 items-center justify-center border border-cp-border bg-cp-surface-2 text-cp-text-secondary transition-colors hover:border-red-500/50 hover:bg-red-900/30 hover:text-red-300"
       >
         <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M4 4 L12 12 M12 4 L4 12" />

@@ -133,7 +133,7 @@ export function HubSwitchDialog({ onClose }: { onClose: () => void }) {
         ref={panelRef}
         aria-labelledby={titleId}
         {...dialogProps}
-        className="flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded border border-cp-border bg-cp-surface-1 p-4 text-cp-text"
+        className="flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden border border-cp-border bg-cp-surface-1 p-4 text-cp-text"
       >
         <h3 id={titleId} className="mb-2 text-cp-lg font-semibold">
           {t('canvas.hubSwitch.title', 'Switch path')}
@@ -148,7 +148,7 @@ export function HubSwitchDialog({ onClose }: { onClose: () => void }) {
         */}
         {nurPruefstand ? (
           <PanelHint
-            className="mb-3 rounded border border-cp-accent/50 bg-cp-accent/10 p-2 text-[12px] text-cp-text-secondary"
+            className="mb-3 border border-cp-accent/50 bg-cp-accent/10 p-2 text-[12px] text-cp-text-secondary"
             text={t(
               'canvas.hubSwitch.warningSimulator',
               'The target is a test rig, not an installation. The emulator acknowledges like a switcher, but there is no signal behind the switched output \u2014 the trial shows that the command is built correctly, and nothing beyond that. The record notes that it was the test rig.',
@@ -156,7 +156,7 @@ export function HubSwitchDialog({ onClose }: { onClose: () => void }) {
           />
         ) : (
           <PanelHint
-            className="mb-3 rounded border border-cp-danger/50 bg-cp-danger/10 p-2 text-[12px] text-cp-text-secondary"
+            className="mb-3 border border-cp-danger/50 bg-cp-danger/10 p-2 text-[12px] text-cp-text-secondary"
             text={
               t(
                 'canvas.hubSwitch.warning',
@@ -191,7 +191,7 @@ export function HubSwitchDialog({ onClose }: { onClose: () => void }) {
                   setVerstanden(false)
                   setMeldungen([])
                 }}
-                className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2"
+                className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-2"
               >
                 <option value="">{t('canvas.hubSwitch.pickNone', 'please choose')}</option>
                 {wege.map((z) => (
@@ -206,7 +206,7 @@ export function HubSwitchDialog({ onClose }: { onClose: () => void }) {
               <div className="mt-3 space-y-3">
                 <div className="text-cp-xs text-cp-text-muted">{gewaehlt.weg}</div>
                 {plan.actions.map((a) => (
-                  <div key={a.equipmentId} className="rounded border border-cp-border p-2">
+                  <div key={a.equipmentId} className="border border-cp-border p-2">
                     <div className="text-[12px] font-semibold">{a.equipmentName}</div>
                     <ul className="mt-1 list-disc pl-5 text-[12px]">
                       {actionKlartext(a, gewaehlt.kreuzpunkte).map((zeile, i) => (
@@ -232,7 +232,7 @@ export function HubSwitchDialog({ onClose }: { onClose: () => void }) {
                               )
                             : t('canvas.hubSwitch.sentCalls', 'Commands sent (not a text protocol):')}
                     </div>
-                    <pre className="mt-1 overflow-x-auto rounded bg-cp-surface-3 p-2 text-cp-xs leading-tight">
+                    <pre className="mt-1 overflow-x-auto bg-cp-surface-3 p-2 text-cp-xs leading-tight">
                       {a.vorschau}
                     </pre>
                     <div className="mt-1 text-cp-xs text-cp-text-muted">
@@ -253,7 +253,7 @@ export function HubSwitchDialog({ onClose }: { onClose: () => void }) {
                     value={wer}
                     onChange={(e) => setWer(e.target.value)}
                     placeholder={t('canvas.hubSwitch.byPlaceholder', 'Name (optional)')}
-                    className="ml-1 rounded border border-cp-border bg-cp-surface-3 px-1 py-0.5"
+                    className="ml-1 border border-cp-border bg-cp-surface-3 px-1 py-0.5"
                   />
                 </label>
 
@@ -289,7 +289,7 @@ export function HubSwitchDialog({ onClose }: { onClose: () => void }) {
           <button
             type="button"
             onClick={onClose}
-            className="av-focus rounded border border-cp-border px-3 py-1 text-[12px] hover:bg-cp-surface-3"
+            className="av-focus border border-cp-border px-3 py-1 text-[12px] hover:bg-cp-surface-3"
           >
             {t('canvas.hubSwitch.close', 'Close')}
           </button>
@@ -297,7 +297,7 @@ export function HubSwitchDialog({ onClose }: { onClose: () => void }) {
             type="button"
             disabled={!bereit || laeuft}
             onClick={schalten}
-            className="av-focus rounded border border-cp-danger px-3 py-1 text-[12px] text-cp-danger disabled:opacity-40"
+            className="av-focus border border-cp-danger px-3 py-1 text-[12px] text-cp-danger disabled:opacity-40"
           >
             {laeuft
               ? t('canvas.hubSwitch.sending', 'sending …')

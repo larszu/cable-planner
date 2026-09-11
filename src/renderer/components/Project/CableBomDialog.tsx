@@ -316,7 +316,7 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
               <button
                 type="button"
                 onClick={discardPlan}
-                className="rounded bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
+                className="bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
               >
                 {t('bom.cable.discard', 'Discard')}
               </button>
@@ -325,7 +325,7 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
               type="button"
               onClick={savePlan}
               disabled={!draftPlan}
-              className="rounded bg-emerald-700 px-3 py-1 text-cp-xs enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
+              className="bg-emerald-700 px-3 py-1 text-cp-xs enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {t('bom.cable.savePlan', 'Save Rentman plan')}
             </button>
@@ -340,7 +340,7 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
                 openRentmanCableExport()
               }}
               title={t('bom.cable.syncRentmanTitle', 'Closes this dialog and opens the Rentman cable export prefilled with the current buckets.')}
-              className="inline-flex items-center gap-1.5 rounded bg-orange-700 px-3 py-1 text-cp-xs font-semibold hover:bg-orange-600"
+              className="inline-flex items-center gap-1.5 bg-orange-700 px-3 py-1 text-cp-xs font-semibold hover:bg-orange-600"
             >
               <Icon icon={Package} size="xs" />
               {t('bom.cable.syncRentman', 'Sync with Rentman')}
@@ -357,13 +357,13 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
             {t('bom.cable.builtCables', 'Built cables:')} <b className="text-cp-text-bright">{project.cables.length}</b>
           </span>
           {rows.some((r) => r.diff < 0) && (
-            <span className="ml-2 inline-flex items-center gap-1 rounded bg-red-900/50 px-2 py-0.5 font-semibold text-red-300">
+            <span className="ml-2 inline-flex items-center gap-1 bg-red-900/50 px-2 py-0.5 font-semibold text-red-300">
               <Icon icon={AlertTriangle} size="xs" />
               {format(t('bom.cable.missingTypes', '{count} cable type(s) missing'), { count: rows.filter((r) => r.diff < 0).length })}
             </span>
           )}
           {rows.length > 0 && rows.every((r) => r.diff >= 0) && rows.some((r) => r.planned > 0) && (
-            <span className="ml-2 inline-flex items-center gap-1 rounded bg-emerald-900/50 px-2 py-0.5 font-semibold text-emerald-300">
+            <span className="ml-2 inline-flex items-center gap-1 bg-emerald-900/50 px-2 py-0.5 font-semibold text-emerald-300">
               <Icon icon={Check} size="xs" />
               {t('bom.cable.allCovered', 'All planned quantities covered')}
             </span>
@@ -372,14 +372,14 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
             <button
               type="button"
               onClick={exportCsv}
-              className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
+              className="bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
             >
               {t('bom.cable.csv', 'CSV')}
             </button>
             <button
               type="button"
               onClick={exportPdf}
-              className="rounded bg-amber-700 px-2 py-1 text-cp-xs hover:bg-amber-600"
+              className="bg-amber-700 px-2 py-1 text-cp-xs hover:bg-amber-600"
             >
               {t('bom.cable.pdf', 'PDF')}
             </button>
@@ -425,7 +425,7 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
                     {r.rentmanName && (
                       <div className="mt-0.5 text-cp-xs text-orange-300/80">
                         <span
-                          className="rounded bg-orange-700/30 px-1 py-0 font-mono text-cp-xs text-orange-200"
+                          className="bg-orange-700/30 px-1 py-0 font-mono text-cp-xs text-orange-200"
                           title={t('bom.cable.rentmanLinkedTitle', 'Linked Rentman equipment name')}
                         >
                           R
@@ -455,7 +455,7 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
                       min={0}
                       value={r.planned}
                       onChange={(e) => setPlanned(r.key, Number(e.target.value))}
-                      className="w-16 rounded border border-cp-border bg-cp-surface-3 px-1 py-0.5 text-right font-mono"
+                      className="w-16 border border-cp-border bg-cp-surface-3 px-1 py-0.5 text-right font-mono"
                     />
                   </td>
                   <td

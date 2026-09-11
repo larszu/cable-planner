@@ -201,7 +201,7 @@ export const NewRentmanDeviceWizard = ({
         ref={panelRef}
         aria-labelledby={titleId}
         {...dialogProps}
-        className="max-h-[90vh] w-full max-w-3xl overflow-auto rounded border border-cp-border bg-cp-surface-1 p-4 text-cp-text"
+        className="max-h-[90vh] w-full max-w-3xl overflow-auto border border-cp-border bg-cp-surface-1 p-4 text-cp-text"
       >
         <div className="mb-3 flex items-center justify-between">
           <div>
@@ -217,7 +217,7 @@ export const NewRentmanDeviceWizard = ({
           <button
             type="button"
             onClick={onCancel}
-            className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
+            className="bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
           >
             {t('rentman.wizard.cancelImport', 'Cancel import')}
           </button>
@@ -229,7 +229,7 @@ export const NewRentmanDeviceWizard = ({
             <input
               value={name}
               onChange={(event) => setName(event.target.value)}
-              className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2"
+              className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-2"
             />
           </label>
           <label className="block">
@@ -238,7 +238,7 @@ export const NewRentmanDeviceWizard = ({
               <CategorySelect
                 value={category}
                 onChange={setCategory}
-                className="w-full rounded border border-cp-border bg-cp-surface-3 p-2"
+                className="w-full border border-cp-border bg-cp-surface-3 p-2"
               />
               <button
                 type="button"
@@ -247,7 +247,7 @@ export const NewRentmanDeviceWizard = ({
                   if (cat) addKnownCategories([cat])
                 }}
                 title={t('rentman.wizard.saveAsCategoryTitle', 'Save as new category')}
-                className="rounded bg-cp-surface-4 px-2 text-cp-xs hover:bg-cp-surface-5"
+                className="bg-cp-surface-4 px-2 text-cp-xs hover:bg-cp-surface-5"
               >
                 {t('rentman.wizard.addCategory', '+ Add')}
               </button>
@@ -262,7 +262,7 @@ export const NewRentmanDeviceWizard = ({
               type="button"
               onClick={handleWebSuggest}
               disabled={webLoading}
-              className="rounded bg-emerald-700 px-2 py-1 hover:bg-emerald-600 disabled:opacity-50"
+              className="bg-emerald-700 px-2 py-1 hover:bg-emerald-600 disabled:opacity-50"
               title={t('rentman.wizard.webSearchTitle', 'Search Wikipedia + DuckDuckGo (no key required)')}
             >
               {webLoading ? t('rentman.wizard.webBusy', 'Searching…') : <span className="inline-flex items-center gap-1"><Icon icon={Globe} size="xs" /> {t('rentman.wizard.webSearch', 'Web search (free)')}</span>}
@@ -271,7 +271,7 @@ export const NewRentmanDeviceWizard = ({
               type="button"
               onClick={handleAiSuggest}
               disabled={aiLoading}
-              className="rounded bg-purple-700 px-2 py-1 hover:bg-purple-600 disabled:opacity-50"
+              className="bg-purple-700 px-2 py-1 hover:bg-purple-600 disabled:opacity-50"
               title={t('rentman.wizard.aiTitle', 'Gemini AI (requires API key)')}
             >
               {aiLoading ? t('rentman.wizard.aiBusy', 'Asking AI…') : <span className="inline-flex items-center gap-1"><Icon icon={Sparkles} size="xs" /> {t('rentman.wizard.aiButton', 'AI (Gemini)')}</span>}
@@ -279,7 +279,7 @@ export const NewRentmanDeviceWizard = ({
             <button
               type="button"
               onClick={handleOpenAiSettings}
-              className="rounded bg-cp-surface-4 px-2 py-1 hover:bg-cp-surface-5"
+              className="bg-cp-surface-4 px-2 py-1 hover:bg-cp-surface-5"
               title={t('rentman.wizard.aiSettingsTitle', 'Configure Gemini API key')}
             >
               {t('rentman.wizard.aiSettings', 'AI settings')}
@@ -287,28 +287,28 @@ export const NewRentmanDeviceWizard = ({
             <button
               type="button"
               onClick={() => addGroup('in')}
-              className="rounded bg-sky-700 px-2 py-1 hover:bg-sky-600"
+              className="bg-sky-700 px-2 py-1 hover:bg-sky-600"
             >
               {t('rentman.wizard.addInputGroup', '+ Input group')}
             </button>
             <button
               type="button"
               onClick={() => addGroup('out')}
-              className="rounded bg-green-700 px-2 py-1 hover:bg-green-600"
+              className="bg-green-700 px-2 py-1 hover:bg-green-600"
             >
               {t('rentman.wizard.addOutputGroup', '+ Output group')}
             </button>
           </div>
         </div>
         {aiError && (
-          <div className="mb-2 rounded bg-red-900/50 p-2 text-cp-xs text-red-100">{aiError}</div>
+          <div className="mb-2 bg-red-900/50 p-2 text-cp-xs text-red-100">{aiError}</div>
         )}
         {webInfo && !aiError && (
-          <div className="mb-2 rounded bg-emerald-900/30 p-2 text-cp-xs text-emerald-100">{webInfo}</div>
+          <div className="mb-2 bg-emerald-900/30 p-2 text-cp-xs text-emerald-100">{webInfo}</div>
         )}
 
         {aiSettingsOpen && (
-          <div className="mb-3 rounded border border-purple-700 bg-purple-950/40 p-3">
+          <div className="mb-3 border border-purple-700 bg-purple-950/40 p-3">
             <div className="mb-2 text-cp-xs font-semibold text-purple-200">{t('rentman.wizard.geminiKeyHeading', 'Gemini API key')}</div>
             <p className="mb-2 text-cp-xs text-cp-text-secondary">
               {t('rentman.wizard.geminiKeyHintPre', 'Free at')}{' '}
@@ -320,14 +320,14 @@ export const NewRentmanDeviceWizard = ({
               value={apiKeyDraft}
               onChange={(event) => setApiKeyDraft(event.target.value)}
               placeholder={t('rentman.wizard.aiKeyPlaceholder', 'AIzaSy...')}
-              className="w-full rounded border border-cp-border bg-cp-surface-3 p-2 text-cp-xs"
+              className="w-full border border-cp-border bg-cp-surface-3 p-2 text-cp-xs"
               autoFocus
             />
             <div className="mt-2 flex justify-end gap-2">
               <button
                 type="button"
                 onClick={() => setAiSettingsOpen(false)}
-                className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
+                className="bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
               >
                 {t('common.cancel', 'Cancel')}
               </button>
@@ -338,14 +338,14 @@ export const NewRentmanDeviceWizard = ({
                   setApiKeyDraft('')
                   setAiSettingsOpen(false)
                 }}
-                className="rounded bg-red-700 px-2 py-1 text-cp-xs hover:bg-red-600"
+                className="bg-red-700 px-2 py-1 text-cp-xs hover:bg-red-600"
               >
                 {t('common.delete', 'Delete')}
               </button>
               <button
                 type="button"
                 onClick={handleSaveAiSettings}
-                className="rounded bg-emerald-600 px-2 py-1 text-cp-xs hover:bg-emerald-500"
+                className="bg-emerald-600 px-2 py-1 text-cp-xs hover:bg-emerald-500"
               >
                 {t('common.save', 'Save')}
               </button>
@@ -357,13 +357,13 @@ export const NewRentmanDeviceWizard = ({
           {groups.map((group) => (
             <div
               key={group.id}
-              className="grid grid-cols-[80px_70px_1fr_1fr_40px] items-center gap-2 rounded border border-cp-border bg-cp-surface-3 p-2 text-cp-xs"
+              className="grid grid-cols-[80px_70px_1fr_1fr_40px] items-center gap-2 border border-cp-border bg-cp-surface-3 p-2 text-cp-xs"
             >
               <select
                 aria-label={t('rentman.wizard.directionAria', 'Direction')}
                 value={group.direction}
                 onChange={(event) => updateGroup(group.id, { direction: event.target.value as 'in' | 'out' })}
-                className="rounded border border-cp-border bg-cp-surface-1 p-1"
+                className="border border-cp-border bg-cp-surface-1 p-1"
               >
                 <option value="in">{t('rentman.wizard.directionIn', 'Input')}</option>
                 <option value="out">{t('rentman.wizard.directionOut', 'Output')}</option>
@@ -374,13 +374,13 @@ export const NewRentmanDeviceWizard = ({
                 min={1}
                 value={group.count}
                 onChange={(event) => updateGroup(group.id, { count: Number(event.target.value) })}
-                className="rounded border border-cp-border bg-cp-surface-1 p-1"
+                className="border border-cp-border bg-cp-surface-1 p-1"
               />
               <select
                 aria-label={t('rentman.wizard.connectorTypeAria', 'Connector type')}
                 value={group.connectorType}
                 onChange={(event) => updateGroup(group.id, { connectorType: event.target.value as ConnectorType })}
-                className="rounded border border-cp-border bg-cp-surface-1 p-1"
+                className="border border-cp-border bg-cp-surface-1 p-1"
               >
                 {connectorOptions.map((item) => (
                   <option key={item} value={item}>
@@ -392,12 +392,12 @@ export const NewRentmanDeviceWizard = ({
                 value={group.label}
                 onChange={(event) => updateGroup(group.id, { label: event.target.value })}
                 placeholder={t('rentman.wizard.labelPrefixPlaceholder', 'Label prefix')}
-                className="rounded border border-cp-border bg-cp-surface-1 p-1"
+                className="border border-cp-border bg-cp-surface-1 p-1"
               />
               <button
                 type="button"
                 onClick={() => removeGroup(group.id)}
-                className="rounded bg-red-700 px-2 py-1 hover:bg-red-600"
+                className="bg-red-700 px-2 py-1 hover:bg-red-600"
                 title={t('rentman.wizard.removeGroupTitle', 'Remove group')}
               >
                 ×
@@ -413,7 +413,7 @@ export const NewRentmanDeviceWizard = ({
           <button
             type="button"
             onClick={handleExclude}
-            className="rounded bg-red-700 px-3 py-1 hover:bg-red-600"
+            className="bg-red-700 px-3 py-1 hover:bg-red-600"
             title={t('rentman.wizard.excludeTitle', 'Skip this device and do NOT import')}
           >
             {t('rentman.wizard.exclude', 'Do not import')}
@@ -421,7 +421,7 @@ export const NewRentmanDeviceWizard = ({
           <button
             type="button"
             onClick={handleSkip}
-            className="rounded bg-cp-surface-4 px-3 py-1 hover:bg-cp-surface-5"
+            className="bg-cp-surface-4 px-3 py-1 hover:bg-cp-surface-5"
             title={t('rentman.wizard.skipTitle', 'Import without creating a library entry (1 generic input + output)')}
           >
             {t('rentman.wizard.skip', 'Skip (generic)')}
@@ -429,7 +429,7 @@ export const NewRentmanDeviceWizard = ({
           <button
             type="button"
             onClick={handleSave}
-            className="rounded bg-emerald-600 px-3 py-1 hover:bg-emerald-500"
+            className="bg-emerald-600 px-3 py-1 hover:bg-emerald-500"
           >
             {isLast ? t('rentman.wizard.saveFinish', 'Save & finish') : t('rentman.wizard.saveNext', 'Save & next')}
           </button>

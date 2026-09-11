@@ -152,7 +152,7 @@ export const PacketSection = () => {
           type="button"
           onClick={drucken}
           disabled={blaetter.length === 0}
-          className="ml-auto inline-flex items-center gap-1.5 rounded bg-emerald-700 px-3 py-1 text-cp-xs hover:bg-emerald-600 disabled:opacity-40"
+          className="ml-auto inline-flex items-center gap-1.5 bg-emerald-700 px-3 py-1 text-cp-xs hover:bg-emerald-600 disabled:opacity-40"
         >
           <Icon icon={Printer} size="xs" />
           {t('packet.print', 'Print packet')}

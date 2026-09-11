@@ -147,7 +147,7 @@ export const CategoryPropsSection = ({ equipment }: { equipment: EquipmentItem }
     <details
       open={open}
       onToggle={(e) => setOpen(e.currentTarget.open)}
-      className="rounded border border-cp-border [&_summary]:cursor-pointer"
+      className="border border-cp-border [&_summary]:cursor-pointer"
     >
       <summary className="flex items-center gap-1 px-2 py-1.5 text-cp-xs uppercase tracking-wide text-cp-text-muted hover:text-cp-text-bright [&::-webkit-details-marker]:hidden">
         <Icon icon={open ? ChevronDown : ChevronRight} size="xs" className="text-cp-text-faint" />

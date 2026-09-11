@@ -92,7 +92,7 @@ export const AdapterSection = ({ equipment }: { equipment: EquipmentItem }) => {
                 {t('adapter.von', 'Side facing the source')}
               </span>
               <select
-                className="w-full rounded border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-text"
+                className="w-full border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-text"
                 value={spec.von}
                 onChange={(e) => setze({ von: e.target.value as ConnectorType })}
               >
@@ -108,7 +108,7 @@ export const AdapterSection = ({ equipment }: { equipment: EquipmentItem }) => {
                 {t('adapter.nach', 'Side facing the sink')}
               </span>
               <select
-                className="w-full rounded border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-text"
+                className="w-full border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-text"
                 value={spec.nach}
                 onChange={(e) => setze({ nach: e.target.value as ConnectorType })}
               >
@@ -126,7 +126,7 @@ export const AdapterSection = ({ equipment }: { equipment: EquipmentItem }) => {
               {t('adapter.richtung', 'Direction')}
             </span>
             <select
-              className="w-full rounded border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-text"
+              className="w-full border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-text"
               value={spec.richtung}
               onChange={(e) => setze({ richtung: e.target.value as AdapterRichtung })}
             >
@@ -147,7 +147,7 @@ export const AdapterSection = ({ equipment }: { equipment: EquipmentItem }) => {
               {t('adapter.speisung', 'Power')}
             </span>
             <select
-              className="w-full rounded border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-text"
+              className="w-full border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-text"
               value={spec.speisung}
               onChange={(e) => setze({ speisung: e.target.value as AdapterSpeisung })}
             >
@@ -168,7 +168,7 @@ export const AdapterSection = ({ equipment }: { equipment: EquipmentItem }) => {
               {t('adapter.grenze', 'Passes at most')}
             </span>
             <select
-              className="w-full rounded border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-text"
+              className="w-full border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-text"
               value={spec.hoechsterStandard ?? ''}
               onChange={(e) =>
                 setze({
@@ -200,7 +200,7 @@ export const AdapterSection = ({ equipment }: { equipment: EquipmentItem }) => {
             </span>
             <input
               type="text"
-              className="w-full rounded border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-text"
+              className="w-full border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-text"
               value={spec.setztVoraus ?? ''}
               placeholder={t('adapter.setztVorausPlaceholder', 'e.g. DisplayPort Alternate Mode')}
               onChange={(e) => setze({ setztVoraus: e.target.value || undefined })}
@@ -218,7 +218,7 @@ export const AdapterSection = ({ equipment }: { equipment: EquipmentItem }) => {
             <span className="mb-1 block text-cp-text-muted">{t('adapter.notiz', 'Note')}</span>
             <input
               type="text"
-              className="w-full rounded border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-text"
+              className="w-full border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-text"
               value={spec.notiz ?? ''}
               onChange={(e) => setze({ notiz: e.target.value || undefined })}
             />
@@ -232,7 +232,7 @@ export const AdapterSection = ({ equipment }: { equipment: EquipmentItem }) => {
         </span>
         <input
           type="text"
-          className="w-full rounded border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-text"
+          className="w-full border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-text"
           value={(equipment.kann ?? []).join(', ')}
           placeholder={t('adapter.kannPlaceholder', 'DisplayPort Alternate Mode, USB-PD')}
           onChange={(e) => {

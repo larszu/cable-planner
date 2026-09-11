@@ -53,7 +53,7 @@ export const VideohubRoutingList = ({
           return (
             <div
               key={oi}
-              className="flex items-center gap-2 rounded border border-cp-border-muted bg-cp-surface-1/40 px-2 py-1.5 hover:bg-cp-surface-2/50"
+              className="flex items-center gap-2 border border-cp-border-muted bg-cp-surface-1/40 px-2 py-1.5 hover:bg-cp-surface-2/50"
             >
               {/* Output-Nummer (mono, neutral) */}
               <span
@@ -77,7 +77,7 @@ export const VideohubRoutingList = ({
               <select
                 value={routedIdx}
                 onChange={(e) => onRoute(oi, parseInt(e.target.value, 10))}
-                className="flex-1 min-w-0 rounded border border-cp-border bg-cp-surface-3 px-2 py-1 text-[13px] text-cp-text-bright focus:border-sky-500 focus:outline-none"
+                className="flex-1 min-w-0 border border-cp-border bg-cp-surface-3 px-2 py-1 text-[13px] text-cp-text-bright focus:border-sky-500 focus:outline-none"
                 /* Ein Schluessel mit Platzhaltern statt drei zusammengesetzter
                    Stuecke: das Deutsche stellt das Verb ans Ende ("… waehlen"),
                    das Englische an den Anfang ("Select input for output …").

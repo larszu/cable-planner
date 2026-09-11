@@ -285,7 +285,7 @@ export const CanvasSearch = () => {
     return (
       <div
         ref={containerRef}
-        className={`pointer-events-auto absolute z-20 flex items-center gap-1 rounded-cp-control border border-cp-border bg-cp-surface-1 px-cp-2 py-cp-2 shadow-lg ${posClass}`}
+        className={`pointer-events-auto absolute z-20 flex items-center gap-1 rounded-cp-control border border-cp-border bg-cp-surface-1 px-cp-2 py-cp-2 ${posClass}`}
         style={posStyle}
       >
         {Grip}
@@ -309,7 +309,7 @@ export const CanvasSearch = () => {
   return (
     <div
       ref={containerRef}
-      className={`pointer-events-auto absolute z-20 w-80 rounded-cp-modal border border-cp-border bg-cp-surface-1 shadow-2xl ${posClass}`}
+      className={`pointer-events-auto absolute z-20 w-80 rounded-cp-modal border border-cp-border bg-cp-surface-1 ${posClass}`}
       style={posStyle}
     >
       <div className="flex items-center gap-2 border-b border-cp-border px-cp-3 py-cp-2">

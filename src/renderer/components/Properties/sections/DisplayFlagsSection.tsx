@@ -138,7 +138,7 @@ export const DisplayFlagsSection = ({ equipment }: { equipment: EquipmentItem })
                   tcRole: (event.target.value || undefined) as 'source' | 'sink' | undefined,
                 })
               }
-              className="w-full rounded border border-cp-border bg-cp-surface-3 p-1"
+              className="w-full border border-cp-border bg-cp-surface-3 p-1"
             >
               <option value="">—</option>
               <option value="source">{t('roles.source', 'Source')}</option>
@@ -154,7 +154,7 @@ export const DisplayFlagsSection = ({ equipment }: { equipment: EquipmentItem })
                   tallyRole: (event.target.value || undefined) as 'source' | 'sink' | undefined,
                 })
               }
-              className="w-full rounded border border-cp-border bg-cp-surface-3 p-1"
+              className="w-full border border-cp-border bg-cp-surface-3 p-1"
             >
               <option value="">—</option>
               <option value="source">{t('roles.source', 'Source')}</option>
@@ -173,7 +173,7 @@ export const DisplayFlagsSection = ({ equipment }: { equipment: EquipmentItem })
                     | undefined,
                 })
               }
-              className="w-full rounded border border-cp-border bg-cp-surface-3 p-1"
+              className="w-full border border-cp-border bg-cp-surface-3 p-1"
             >
               <option value="">—</option>
               <option value="embedder">{t('roles.embedder', 'Embedder')}</option>

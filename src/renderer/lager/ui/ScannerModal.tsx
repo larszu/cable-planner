@@ -47,7 +47,7 @@ export const ScannerModal = ({ open, onClose, onDetect }: ScannerModalProps) => 
 
   return (
     <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/70 p-4">
-      <div className="flex w-full max-w-md flex-col overflow-hidden rounded-lg border border-cp-border bg-cp-bg shadow-2xl">
+      <div className="flex w-full max-w-md flex-col overflow-hidden border border-cp-border bg-cp-bg">
         <header className="flex items-center justify-between border-b border-cp-border-muted px-4 py-2.5">
           <h2 className="flex items-center gap-2 text-cp-md font-semibold">
             <Camera size={16} /> {t('scanner.title', 'Scan code')}
@@ -55,7 +55,7 @@ export const ScannerModal = ({ open, onClose, onDetect }: ScannerModalProps) => 
           <button
             type="button"
             onClick={onClose}
-            className="rounded px-2 py-1 text-cp-text-muted hover:bg-cp-surface-2 hover:text-cp-text"
+            className="px-2 py-1 text-cp-text-muted hover:bg-cp-surface-2 hover:text-cp-text"
             aria-label={t('common.close', 'Close')}
           >
             <X size={18} />
@@ -65,7 +65,7 @@ export const ScannerModal = ({ open, onClose, onDetect }: ScannerModalProps) => 
           <video ref={videoRef} className="h-full w-full object-cover" muted playsInline />
           {/* Zielrahmen */}
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-            <div className="h-2/3 w-2/3 rounded-lg border-2 border-white/70" />
+            <div className="h-2/3 w-2/3 border-2 border-white/70" />
           </div>
           {error && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/80 p-4 text-center text-cp-sm text-cp-text-secondary">

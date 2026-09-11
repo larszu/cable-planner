@@ -70,7 +70,7 @@ export const SegmentsPanel = ({ projectName }: { projectName: string }) => {
   const inputCls = 'rounded border border-cp-border bg-cp-surface-1 px-1 py-0.5 text-cp-xs'
 
   return (
-    <div className="rounded border border-cp-border bg-cp-surface-2 p-2 text-cp-xs">
+    <div className="border border-cp-border bg-cp-surface-2 p-2 text-cp-xs">
       <div className="mb-1 flex flex-wrap items-center gap-2">
         <span className="font-semibold text-cp-text-secondary">
           {t('segment.title', 'Segments (VLAN, purpose, timing, way in)')}
@@ -79,7 +79,7 @@ export const SegmentsPanel = ({ projectName }: { projectName: string }) => {
           <button
             type="button"
             onClick={uebernehmen}
-            className="inline-flex items-center gap-1 rounded border border-cp-border px-2 py-0.5 hover:bg-cp-surface-3"
+            className="inline-flex items-center gap-1 border border-cp-border px-2 py-0.5 hover:bg-cp-surface-3"
           >
             <Icon icon={Plus} size="xs" />
             {format(
@@ -91,7 +91,7 @@ export const SegmentsPanel = ({ projectName }: { projectName: string }) => {
         <button
           type="button"
           onClick={() => laden('segmente', segmentTable(equipment, segments))}
-          className="ml-auto inline-flex items-center gap-1 rounded border border-cp-border px-2 py-0.5 hover:bg-cp-surface-3"
+          className="ml-auto inline-flex items-center gap-1 border border-cp-border px-2 py-0.5 hover:bg-cp-surface-3"
         >
           <Icon icon={Download} size="xs" />
           {t('segment.export', 'Segments')}
@@ -99,7 +99,7 @@ export const SegmentsPanel = ({ projectName }: { projectName: string }) => {
         <button
           type="button"
           onClick={() => laden('segment-zugang', segmentReachTable(equipment, segments))}
-          className="inline-flex items-center gap-1 rounded border border-cp-border px-2 py-0.5 hover:bg-cp-surface-3"
+          className="inline-flex items-center gap-1 border border-cp-border px-2 py-0.5 hover:bg-cp-surface-3"
         >
           <Icon icon={Download} size="xs" />
           {t('segment.exportReach', 'Who sits where')}
@@ -209,7 +209,7 @@ export const SegmentsPanel = ({ projectName }: { projectName: string }) => {
                       type="button"
                       onClick={() => entfernen(v.vlanId)}
                       title={t('segment.remove', 'Remove segment record')}
-                      className="rounded border border-cp-border px-1 py-0.5 hover:bg-cp-surface-3"
+                      className="border border-cp-border px-1 py-0.5 hover:bg-cp-surface-3"
                     >
                       <Icon icon={Trash2} size="xs" />
                     </button>

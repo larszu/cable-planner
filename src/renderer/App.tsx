@@ -1543,7 +1543,7 @@ export default function App() {
           : undefined
         return (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-            <div className="w-full max-w-md rounded border border-amber-700 bg-cp-surface-1 text-cp-text shadow-2xl">
+            <div className="w-full max-w-md border border-amber-700 bg-cp-surface-1 text-cp-text">
               <header className="border-b border-cp-border px-4 py-2">
                 <h2 className="text-cp-base font-semibold text-amber-300">
                   {t('app.portConflict.title', 'Port already in use')}
@@ -1565,7 +1565,7 @@ export default function App() {
                   </strong>{' '}
                   {t('app.portConflict.connected', 'in use:')}
                 </p>
-                <ul className="mb-3 max-h-32 space-y-1 overflow-auto rounded border border-cp-border bg-cp-surface-3 p-2 text-cp-xs">
+                <ul className="mb-3 max-h-32 space-y-1 overflow-auto border border-cp-border bg-cp-surface-3 p-2 text-cp-xs">
                   {conflictingCables.map((c) => {
                     const srcEq = getEquipmentById(project.equipment, c.fromEquipmentId)
                     const srcPort = srcEq
@@ -1593,14 +1593,14 @@ export default function App() {
                 <button
                   type="button"
                   onClick={cancelPortConflict}
-                  className="rounded bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
+                  className="bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
                 >
                   {t('common.cancel', 'Cancel')}
                 </button>
                 <button
                   type="button"
                   onClick={resolvePortConflictByReplace}
-                  className="rounded bg-amber-700 px-3 py-1 text-cp-xs font-semibold hover:bg-amber-600"
+                  className="bg-amber-700 px-3 py-1 text-cp-xs font-semibold hover:bg-amber-600"
                 >
                   {t('app.portConflict.okReplace', 'Replace')}
                 </button>
@@ -1617,7 +1617,7 @@ export default function App() {
       {hasDrops(lastLoadReport) && lastLoadReport && (
         <div
           role="status"
-          className="fixed bottom-4 left-1/2 z-[210] w-[560px] max-w-[92vw] -translate-x-1/2 rounded-cp-card border border-cp-warn/60 bg-cp-surface-1 p-4 shadow-2xl"
+          className="fixed bottom-4 left-1/2 z-[210] w-[560px] max-w-[92vw] -translate-x-1/2 rounded-cp-card border border-cp-warn/60 bg-cp-surface-1 p-4"
         >
           <div className="mb-1 flex items-start justify-between gap-3">
             <div className="text-cp-sm font-semibold text-cp-warn">
@@ -1629,7 +1629,7 @@ export default function App() {
             <button
               type="button"
               onClick={dismissLoadReport}
-              className="rounded bg-cp-surface-4 px-2 py-0.5 text-cp-xs hover:bg-cp-surface-5"
+              className="bg-cp-surface-4 px-2 py-0.5 text-cp-xs hover:bg-cp-surface-5"
             >
               {t('common.ok', 'OK')}
             </button>
@@ -1660,7 +1660,7 @@ export default function App() {
       {hasMobileDrops(lastMobileDrop) && lastMobileDrop && (
         <div
           role="status"
-          className="fixed bottom-4 left-1/2 z-[210] w-[560px] max-w-[92vw] -translate-x-1/2 rounded-cp-card border border-cp-warn/60 bg-cp-surface-1 p-4 shadow-2xl"
+          className="fixed bottom-4 left-1/2 z-[210] w-[560px] max-w-[92vw] -translate-x-1/2 rounded-cp-card border border-cp-warn/60 bg-cp-surface-1 p-4"
         >
           <div className="mb-1 flex items-start justify-between gap-3">
             <div className="text-cp-sm font-semibold text-cp-warn">
@@ -1672,7 +1672,7 @@ export default function App() {
             <button
               type="button"
               onClick={dismissMobileDrop}
-              className="rounded bg-cp-surface-4 px-2 py-0.5 text-cp-xs hover:bg-cp-surface-5"
+              className="bg-cp-surface-4 px-2 py-0.5 text-cp-xs hover:bg-cp-surface-5"
             >
               {t('common.ok', 'OK')}
             </button>
@@ -1703,12 +1703,12 @@ export default function App() {
       )}
       {pdfProgress.active && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="w-[420px] max-w-[90vw] rounded-cp-card border border-cp-border bg-cp-surface-1 p-5 text-cp-text shadow-2xl">
+          <div className="w-[420px] max-w-[90vw] rounded-cp-card border border-cp-border bg-cp-surface-1 p-5 text-cp-text">
             <div className="mb-3 flex items-center gap-3">
-              <div className="h-3 w-3 animate-pulse rounded-full bg-sky-400" />
+              <div className="h-3 w-3 animate-pulse bg-sky-400" />
               <h2 className="text-cp-base font-semibold">{t('app.pdfProgress.title', 'PDF is being created…')}</h2>
             </div>
-            <div className="mb-3 h-1.5 w-full overflow-hidden rounded bg-cp-surface-2">
+            <div className="mb-3 h-1.5 w-full overflow-hidden bg-cp-surface-2">
               <div className="h-full w-full origin-left animate-pulse bg-sky-500" />
             </div>
             <div className="text-cp-xs text-cp-text-secondary">{pdfProgress.phase}</div>
@@ -1748,7 +1748,7 @@ const PdfExportDialog = ({
   if (!open) return null
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4">
-      <div className="w-full max-w-md rounded-cp-card border border-cp-border bg-cp-surface-1 p-4 shadow-2xl">
+      <div className="w-full max-w-md rounded-cp-card border border-cp-border bg-cp-surface-1 p-4">
         <h2 className="mb-3 text-cp-base font-semibold text-cp-text">{t('pdfExport.title', 'Export plan as PDF')}</h2>
         <div className="space-y-3">
           {/* Layer-Sichtbarkeit — uebernimmt die Chip-Komponente aus
@@ -1756,7 +1756,7 @@ const PdfExportDialog = ({
               die Auswahl bidirektional mit dem Canvas. Damit kann der
               User z.B. nur die Video-Ebene drucken indem er alle
               anderen Chips deaktiviert. */}
-          <fieldset className="rounded border border-cp-border p-3">
+          <fieldset className="border border-cp-border p-3">
             <legend className="px-1 text-cp-xs uppercase tracking-wide text-cp-text-muted">
               {t('pdfExport.layers.title', 'Layers (included in PDF)')}
             </legend>
@@ -1770,7 +1770,7 @@ const PdfExportDialog = ({
               )}
             </p>
           </fieldset>
-          <fieldset className="rounded border border-cp-border p-3">
+          <fieldset className="border border-cp-border p-3">
             <legend className="px-1 text-cp-xs uppercase tracking-wide text-cp-text-muted">
               {t('pdfExport.bg.title', 'Background')}
             </legend>
@@ -1797,7 +1797,7 @@ const PdfExportDialog = ({
               bestehenden Workflows die bekannte Raster-Pipeline
               nutzen. Wenn an: Text bleibt im PDF als echter Text,
               keine Pixelung beim Zoom. */}
-          <fieldset className="rounded border border-cp-border p-3">
+          <fieldset className="border border-cp-border p-3">
             <legend className="px-1 text-cp-xs uppercase tracking-wide text-cp-text-muted">
               {t('pdfExport.render.title', 'Render mode')}
             </legend>
@@ -1841,14 +1841,14 @@ const PdfExportDialog = ({
           <button
             type="button"
             onClick={onClose}
-            className="rounded border border-cp-border bg-cp-surface-2 px-3 py-1.5 text-cp-xs text-cp-text hover:bg-cp-surface-4"
+            className="border border-cp-border bg-cp-surface-2 px-3 py-1.5 text-cp-xs text-cp-text hover:bg-cp-surface-4"
           >
             {t('common.cancel', 'Cancel')}
           </button>
           <button
             type="button"
             onClick={onExport}
-            className="rounded bg-sky-700 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-sky-600"
+            className="bg-sky-700 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-sky-600"
           >
             {t('pdfExport.exportBtn', 'Export PDF')}
           </button>
@@ -2033,7 +2033,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6"
       onMouseDown={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="w-full max-w-lg rounded border border-cp-border bg-cp-surface-1 p-4 text-cp-text">
+      <div className="w-full max-w-lg border border-cp-border bg-cp-surface-1 p-4 text-cp-text">
         <h3 className="mb-2 text-cp-xl font-semibold">{t('cable.edit.title', 'Edit cable')}</h3>
 
         <div className="space-y-2 text-cp-base">
@@ -2042,7 +2042,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
             <select
               value={specId}
               onChange={(e) => onSelectSpec(e.target.value)}
-              className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2"
+              className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-2"
             >
               <option value={CUSTOM_CABLE_SPEC_ID}>★ Custom Cable…</option>
               {fullCableCatalog.map((c) => (
@@ -2054,7 +2054,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
           </label>
 
           {specId === CUSTOM_CABLE_SPEC_ID && (
-            <div className="grid grid-cols-2 gap-2 rounded border border-cp-border bg-cp-surface-3/60 p-2">
+            <div className="grid grid-cols-2 gap-2 border border-cp-border bg-cp-surface-3/60 p-2">
               <label className="block">
                 Connector Type
                 <select
@@ -2075,7 +2075,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
                     }
                     setCustomConnectorType(v as ConnectorType)
                   }}
-                  className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2"
+                  className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-2"
                 >
                   {allConnectorOptions.map((type) => (
                     <option key={type} value={type}>
@@ -2109,7 +2109,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
                     setCustomStandard(next)
                     setStandard(next)
                   }}
-                  className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2"
+                  className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-2"
                 >
                   {allStandardOptions.map((item) => (
                     <option key={item} value={item}>
@@ -2129,7 +2129,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
               <select
                 value={standard ?? ''}
                 onChange={(e) => setStandard(e.target.value as SignalStandard)}
-                className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2"
+                className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-2"
               >
                 {selected.standards.map((s) => (
                   <option key={s} value={s}>
@@ -2145,7 +2145,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2"
+              className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-2"
             />
           </label>
 
@@ -2162,7 +2162,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
                     const v = e.target.value
                     setMaxRange(v === '' ? undefined : Number(v))
                   }}
-                  className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2"
+                  className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-2"
                 />
               </label>
             ) : (
@@ -2173,7 +2173,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
                   min={0}
                   value={length}
                   onChange={(e) => setLength(Number(e.target.value))}
-                  className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2"
+                  className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-2"
                 />
               </label>
             )}
@@ -2183,7 +2183,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
                 type="color"
                 value={color}
                 onChange={(e) => setColor(e.target.value)}
-                className="mt-1 h-10 w-full rounded border border-cp-border bg-cp-surface-3 p-1"
+                className="mt-1 h-10 w-full border border-cp-border bg-cp-surface-3 p-1"
               />
             </label>
           </div>
@@ -2191,7 +2191,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
           {/* Endpoint editor as collapsible accordion below color. Compact
               summary always visible (current routing); expand to change
               device/port on either side. */}
-          <details open className="rounded border border-cp-border bg-cp-surface-3/50">
+          <details open className="border border-cp-border bg-cp-surface-3/50">
             <summary className="cursor-pointer select-none px-2 py-1.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-2/40">
               <span className="font-semibold uppercase tracking-wide text-cp-text-muted">{t('cable.edit.connection', 'Connection')}</span>
               <span className="ml-2 text-cp-text-secondary">
@@ -2208,7 +2208,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
                     aria-label={t('cable.aria.fromDevice', 'Source device')}
                     value={fromEquipmentId}
                     onChange={(e) => onSelectFromEquipment(e.target.value)}
-                    className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5 text-cp-xs"
+                    className="w-full border border-cp-border bg-cp-surface-3 p-1.5 text-cp-xs"
                   >
                     {sortedEquipment.map((eq) => (
                       <option key={eq.id} value={eq.id}>
@@ -2221,7 +2221,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
                     aria-label={t('cable.aria.fromPort', 'Source port')}
                     value={fromPortId}
                     onChange={(e) => setFromPortId(e.target.value)}
-                    className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5 text-cp-xs"
+                    className="w-full border border-cp-border bg-cp-surface-3 p-1.5 text-cp-xs"
                   >
                     {portsOf(fromDev).map((p) => {
                       const inUse = !!portConflict(fromEquipmentId, p.id)
@@ -2240,7 +2240,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
                     aria-label={t('cable.aria.toDevice', 'Target device')}
                     value={toEquipmentId}
                     onChange={(e) => onSelectToEquipment(e.target.value)}
-                    className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5 text-cp-xs"
+                    className="w-full border border-cp-border bg-cp-surface-3 p-1.5 text-cp-xs"
                   >
                     {sortedEquipment.map((eq) => (
                       <option key={eq.id} value={eq.id}>
@@ -2253,7 +2253,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
                     aria-label={t('cable.aria.toPort', 'Target port')}
                     value={toPortId}
                     onChange={(e) => setToPortId(e.target.value)}
-                    className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5 text-cp-xs"
+                    className="w-full border border-cp-border bg-cp-surface-3 p-1.5 text-cp-xs"
                   >
                     {portsOf(toDev).map((p) => {
                       const inUse = !!portConflict(toEquipmentId, p.id)
@@ -2269,19 +2269,19 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
               </div>
 
               {fromConflict && (
-                <div className="mt-2 flex items-center gap-1.5 rounded bg-amber-900/50 px-2 py-1 text-cp-xs text-amber-100">
+                <div className="mt-2 flex items-center gap-1.5 bg-amber-900/50 px-2 py-1 text-cp-xs text-amber-100">
                   <Icon icon={AlertTriangle} size="xs" />
                   {format(t('cable.create.warn.fromBusy', 'Source port is already in use by cable "{name}".'), { name: fromConflict.name })}
                 </div>
               )}
               {toConflict && (
-                <div className="mt-1 flex items-center gap-1.5 rounded bg-amber-900/50 px-2 py-1 text-cp-xs text-amber-100">
+                <div className="mt-1 flex items-center gap-1.5 bg-amber-900/50 px-2 py-1 text-cp-xs text-amber-100">
                   <Icon icon={AlertTriangle} size="xs" />
                   {format(t('cable.create.warn.toBusy', 'Target port is already in use by cable "{name}".'), { name: toConflict.name })}
                 </div>
               )}
               {sameEndpoints && (
-                <div className="mt-1 flex items-center gap-1.5 rounded bg-red-900/50 px-2 py-1 text-cp-xs text-red-100">
+                <div className="mt-1 flex items-center gap-1.5 bg-red-900/50 px-2 py-1 text-cp-xs text-red-100">
                   <Icon icon={AlertTriangle} size="xs" />
                   {t('cable.create.warn.samePort', 'Source and target point to the same port.')}
                 </div>
@@ -2294,14 +2294,14 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2"
+              className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-2"
               rows={2}
             />
           </label>
         </div>
 
         {lengthWarning && (
-          <div className="mt-3 flex items-center gap-1.5 rounded bg-amber-900/50 p-2 text-cp-xs text-amber-100">
+          <div className="mt-3 flex items-center gap-1.5 bg-amber-900/50 p-2 text-cp-xs text-amber-100">
             <Icon icon={AlertTriangle} size="sm" />
             {lengthWarning}
           </div>
@@ -2311,7 +2311,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
           <button
             type="button"
             onClick={onClose}
-            className="rounded bg-cp-surface-4 px-3 py-1 hover:bg-cp-surface-5"
+            className="bg-cp-surface-4 px-3 py-1 hover:bg-cp-surface-5"
           >
             Abbrechen
           </button>
@@ -2319,7 +2319,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
             type="button"
             onClick={submit}
             disabled={!!sameEndpoints}
-            className="rounded bg-emerald-600 px-3 py-1 hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
+            className="bg-emerald-600 px-3 py-1 hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
           >
             Speichern
           </button>

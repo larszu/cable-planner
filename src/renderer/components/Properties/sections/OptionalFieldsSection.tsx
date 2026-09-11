@@ -52,12 +52,12 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
       <div className="space-y-3">
         {/* #580 — Geräte-Verifizierung: bestätigen, dass die eingetragenen
             Ports/Daten korrekt sind. Zeigt die Zahl der Bestätigungen. */}
-        <div className="rounded border border-cp-border-muted bg-cp-surface-1 p-2">
+        <div className="border border-cp-border-muted bg-cp-surface-1 p-2">
           <div className="mb-1 flex items-center justify-between">
             <span className="flex items-center gap-1.5 text-cp-text-secondary">
               {verifiedBy.length > 0 && (
                 <span
-                  className="inline-flex items-center gap-1 rounded bg-emerald-900/60 px-1.5 py-0.5 text-cp-xs font-semibold text-emerald-200"
+                  className="inline-flex items-center gap-1 bg-emerald-900/60 px-1.5 py-0.5 text-cp-xs font-semibold text-emerald-200"
                   title={format(
                     t('verify.byTitle', 'Verified by: {names}'),
                     { names: verifiedBy.join(', ') },
@@ -76,7 +76,7 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
             <button
               type="button"
               onClick={() => void toggleVerify()}
-              className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
+              className="bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
               title={t('verify.buttonTitle', 'Confirm that this device\'s ports/data are correct')}
             >
               {t('verify.button', 'Verify as correct')}
@@ -94,7 +94,7 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
             <span className="mb-1 block text-cp-text-secondary">
               {t('eq.field.rentPrice', 'Rental price / day')}
               {equipment.rentmanId && (
-                <span className="ml-1 rounded bg-emerald-900/60 px-1 text-cp-xs text-emerald-200">
+                <span className="ml-1 bg-emerald-900/60 px-1 text-cp-xs text-emerald-200">
                   {t('eq.field.rentPriceRentman', 'from Rentman')}
                 </span>
               )}
@@ -111,7 +111,7 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
                   rentPricePerDay: v === '' ? undefined : Math.max(0, Number(v) || 0),
                 })
               }}
-              className="w-full rounded border border-cp-border bg-cp-surface-1 p-2 font-mono"
+              className="w-full border border-cp-border bg-cp-surface-1 p-2 font-mono"
             />
           </label>
           <label className="block">
@@ -125,7 +125,7 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
                 const v = event.target.value.trim().toUpperCase().slice(0, 6)
                 updateEquipment(equipment.id, { rentCurrency: v || undefined })
               }}
-              className="w-full rounded border border-cp-border bg-cp-surface-1 p-2 text-center font-mono uppercase"
+              className="w-full border border-cp-border bg-cp-surface-1 p-2 text-center font-mono uppercase"
             />
           </label>
         </div>
@@ -145,14 +145,14 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
               onChange={(event) =>
                 updateEquipment(equipment.id, { manufacturerUrl: event.target.value || undefined })
               }
-              className="flex-1 rounded border border-cp-border bg-cp-surface-1 p-2"
+              className="flex-1 border border-cp-border bg-cp-surface-1 p-2"
             />
             {equipment.manufacturerUrl && (
               <a
                 href={equipment.manufacturerUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 rounded bg-sky-700 px-2 py-1 text-cp-xs hover:bg-sky-600"
+                className="inline-flex items-center gap-1 bg-sky-700 px-2 py-1 text-cp-xs hover:bg-sky-600"
                 title={t('eq.field.manufacturerUrlOpenTitle', 'Open in external browser')}
               >
                 {t('eq.field.manufacturerUrlOpen', 'Open')}
@@ -227,7 +227,7 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
                 priceEUR: event.target.value ? Math.max(0, Number(event.target.value)) : undefined,
               })
             }
-            className="w-full rounded border border-cp-border bg-cp-surface-1 p-2 font-mono"
+            className="w-full border border-cp-border bg-cp-surface-1 p-2 font-mono"
           />
         </label>
 
@@ -242,13 +242,13 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
                 href={equipment.imageUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block max-h-24 max-w-[120px] overflow-hidden rounded border border-cp-border"
+                className="block max-h-24 max-w-[120px] overflow-hidden border border-cp-border"
                 title={t('eq.field.refImageFullsize', 'Open at full size')}
               >
                 <img src={equipment.imageUrl} alt="" className="max-h-24 max-w-[120px] object-contain" />
               </a>
             ) : (
-              <div className="flex h-24 w-[120px] items-center justify-center rounded border border-dashed border-cp-border text-cp-xs text-cp-text-muted">
+              <div className="flex h-24 w-[120px] items-center justify-center border border-dashed border-cp-border text-cp-xs text-cp-text-muted">
                 {t('eq.field.refImageNone', 'No image')}
               </div>
             )}
@@ -259,7 +259,7 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
                   const dataUri = await pickImageAsDataUri()
                   if (dataUri) updateEquipment(equipment.id, { imageUrl: dataUri })
                 }}
-                className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
+                className="bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
               >
                 {equipment.imageUrl
                   ? t('eq.field.refImageReplace', 'Replace…')
@@ -269,7 +269,7 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
                 <button
                   type="button"
                   onClick={() => updateEquipment(equipment.id, { imageUrl: undefined })}
-                  className="rounded bg-cp-surface-2 px-2 py-1 text-cp-xs text-cp-text-muted hover:bg-red-700 hover:text-white"
+                  className="bg-cp-surface-2 px-2 py-1 text-cp-xs text-cp-text-muted hover:bg-red-700 hover:text-white"
                 >
                   {t('common.remove', 'Remove')}
                 </button>
@@ -293,7 +293,7 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
                 const v = event.target.value
                 updateEquipment(equipment.id, { icon: v.length === 0 ? undefined : v.slice(0, 2) })
               }}
-              className="w-20 rounded border border-cp-border bg-cp-surface-1 p-2 text-center text-cp-lg"
+              className="w-20 border border-cp-border bg-cp-surface-1 p-2 text-center text-cp-lg"
               maxLength={2}
             />
             {ICON_GLYPHS.map((g) => (
@@ -301,7 +301,7 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
                 key={g}
                 type="button"
                 onClick={() => updateEquipment(equipment.id, { icon: g })}
-                className={`rounded border px-1.5 py-1 text-cp-lg ${
+                className={` border px-1.5 py-1 text-cp-lg ${
                   equipment.icon === g
                     ? 'border-sky-500 bg-sky-700/30'
                     : 'border-cp-border bg-cp-surface-1 hover:bg-cp-surface-2'
@@ -315,7 +315,7 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
               <button
                 type="button"
                 onClick={() => updateEquipment(equipment.id, { icon: undefined })}
-                className="rounded bg-cp-surface-4 px-1.5 py-1 text-cp-xs hover:bg-cp-surface-5"
+                className="bg-cp-surface-4 px-1.5 py-1 text-cp-xs hover:bg-cp-surface-5"
                 title={t('opt.iconAutoTitle', 'Reset to automatic')}
               >
                 auto

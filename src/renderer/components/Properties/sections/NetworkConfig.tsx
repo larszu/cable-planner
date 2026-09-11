@@ -57,7 +57,7 @@ export const NetworkConfig = ({ equipmentId, item, allPorts, kind }: NetworkConf
 
   return (
     <>
-      <fieldset className="rounded border border-cyan-700 bg-cyan-950/30 p-2">
+      <fieldset className="border border-cyan-700 bg-cyan-950/30 p-2">
         <legend className="px-1 text-cp-xs uppercase tracking-wide text-cyan-300">
           {kind === 'router' ? t('net.routerConfig', 'Router config') : t('net.switchConfig', 'Switch config')}
         </legend>
@@ -73,7 +73,7 @@ export const NetworkConfig = ({ equipmentId, item, allPorts, kind }: NetworkConf
                 })
               }
               placeholder="1"
-              className="w-full rounded border border-cp-border bg-cp-surface-1 p-2 font-mono"
+              className="w-full border border-cp-border bg-cp-surface-1 p-2 font-mono"
             />
           </label>
           <label className="block">
@@ -82,7 +82,7 @@ export const NetworkConfig = ({ equipmentId, item, allPorts, kind }: NetworkConf
               value={item.gateway ?? ''}
               onChange={(event) => updateEquipment(equipmentId, { gateway: event.target.value })}
               placeholder="192.168.1.1"
-              className="w-full rounded border border-cp-border bg-cp-surface-1 p-2 font-mono"
+              className="w-full border border-cp-border bg-cp-surface-1 p-2 font-mono"
             />
           </label>
           <label className="block">
@@ -93,7 +93,7 @@ export const NetworkConfig = ({ equipmentId, item, allPorts, kind }: NetworkConf
                 updateEquipment(equipmentId, { dnsServers: event.target.value })
               }
               placeholder="1.1.1.1, 8.8.8.8"
-              className="w-full rounded border border-cp-border bg-cp-surface-1 p-2 font-mono"
+              className="w-full border border-cp-border bg-cp-surface-1 p-2 font-mono"
             />
           </label>
           <label className="block">
@@ -102,7 +102,7 @@ export const NetworkConfig = ({ equipmentId, item, allPorts, kind }: NetworkConf
               value={item.firmware ?? ''}
               onChange={(event) => updateEquipment(equipmentId, { firmware: event.target.value })}
               placeholder="v2.8.4"
-              className="w-full rounded border border-cp-border bg-cp-surface-1 p-2 font-mono"
+              className="w-full border border-cp-border bg-cp-surface-1 p-2 font-mono"
             />
           </label>
         </div>
@@ -112,18 +112,18 @@ export const NetworkConfig = ({ equipmentId, item, allPorts, kind }: NetworkConf
             value={item.mgmtUrl ?? ''}
             onChange={(event) => updateEquipment(equipmentId, { mgmtUrl: event.target.value })}
             placeholder="https://192.168.1.1/"
-            className="w-full rounded border border-cp-border bg-cp-surface-1 p-2 font-mono"
+            className="w-full border border-cp-border bg-cp-surface-1 p-2 font-mono"
           />
         </label>
       </fieldset>
 
-      <fieldset className="rounded border border-cyan-700 bg-cyan-950/20 p-2">
+      <fieldset className="border border-cyan-700 bg-cyan-950/20 p-2">
         <div className="mb-2 flex items-center justify-between">
           <span className="text-cp-xs uppercase tracking-wide text-cyan-300">{t('net.vlans', 'VLANs')}</span>
           <button
             type="button"
             onClick={addVlan}
-            className="rounded bg-cyan-700 px-2 py-0.5 text-cp-xs hover:bg-cyan-600"
+            className="bg-cyan-700 px-2 py-0.5 text-cp-xs hover:bg-cyan-600"
           >
             {t('net.addVlan', '+ VLAN')}
           </button>
@@ -138,25 +138,25 @@ export const NetworkConfig = ({ equipmentId, item, allPorts, kind }: NetworkConf
                 type="number"
                 value={v.id}
                 onChange={(event) => updateVlan(i, { id: Number(event.target.value) })}
-                className="w-16 rounded border border-cp-border bg-cp-surface-3 p-1 text-cp-xs font-mono"
+                className="w-16 border border-cp-border bg-cp-surface-3 p-1 text-cp-xs font-mono"
                 placeholder="ID"
               />
               <input
                 value={v.name}
                 onChange={(event) => updateVlan(i, { name: event.target.value })}
-                className="flex-1 rounded border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
+                className="flex-1 border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
                 placeholder={t('net.vlanNamePlaceholder', 'Name (e.g. Production)')}
               />
               <input
                 value={v.notes ?? ''}
                 onChange={(event) => updateVlan(i, { notes: event.target.value })}
-                className="flex-1 rounded border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
+                className="flex-1 border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
                 placeholder={t('net.vlanNotePlaceholder', 'Note')}
               />
               <button
                 type="button"
                 onClick={() => removeVlan(i)}
-                className="rounded bg-red-900/60 px-2 py-0.5 text-cp-xs hover:bg-red-800"
+                className="bg-red-900/60 px-2 py-0.5 text-cp-xs hover:bg-red-800"
               >
                 ×
               </button>
@@ -166,7 +166,7 @@ export const NetworkConfig = ({ equipmentId, item, allPorts, kind }: NetworkConf
       </fieldset>
 
       {kind === 'switch' && allPorts.length > 0 && (
-        <fieldset className="rounded border border-cyan-700 bg-cyan-950/20 p-2">
+        <fieldset className="border border-cyan-700 bg-cyan-950/20 p-2">
           <legend className="px-1 text-cp-xs uppercase tracking-wide text-cyan-300">
             {t('net.portToVlan', 'Port → VLAN')}
           </legend>
@@ -191,13 +191,13 @@ export const NetworkConfig = ({ equipmentId, item, allPorts, kind }: NetworkConf
                         untagged: event.target.value ? Number(event.target.value) : undefined,
                       })
                     }
-                    className="rounded border border-cp-border bg-cp-surface-3 p-1 text-cp-xs font-mono"
+                    className="border border-cp-border bg-cp-surface-3 p-1 text-cp-xs font-mono"
                     placeholder="—"
                   />
                   <input
                     value={assign.tagged ?? ''}
                     onChange={(event) => setPortVlan(p.id, { tagged: event.target.value })}
-                    className="rounded border border-cp-border bg-cp-surface-3 p-1 text-cp-xs font-mono"
+                    className="border border-cp-border bg-cp-surface-3 p-1 text-cp-xs font-mono"
                     placeholder="10,20,30"
                   />
                 </li>

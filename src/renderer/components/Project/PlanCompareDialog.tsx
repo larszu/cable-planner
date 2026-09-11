@@ -153,7 +153,7 @@ export const PlanCompareDialog = ({ open, onClose }: PlanCompareDialogProps) => 
               <button
                 type="button"
                 onClick={exportCsv}
-                className="flex items-center gap-1 rounded bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
+                className="flex items-center gap-1 bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
               >
                 <Icon icon={FileDown} size="sm" />
                 {t('compare.exportCsv', 'Export as CSV')}
@@ -162,7 +162,7 @@ export const PlanCompareDialog = ({ open, onClose }: PlanCompareDialogProps) => 
             <button
               type="button"
               onClick={onClose}
-              className="rounded bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
+              className="bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
             >
               {t('common.close', 'Close')}
             </button>
@@ -193,7 +193,7 @@ export const PlanCompareDialog = ({ open, onClose }: PlanCompareDialogProps) => 
                   )
                   if (rev) pickRevision(rev)
                 }}
-                className="rounded border border-cp-border-muted bg-cp-surface-2 px-2 py-1 text-cp-xs text-cp-text"
+                className="border border-cp-border-muted bg-cp-surface-2 px-2 py-1 text-cp-xs text-cp-text"
               >
                 <option value="">{t('compare.chooseRevision', '— choose —')}</option>
                 {[...revisions].reverse().map((r) => (
@@ -219,7 +219,7 @@ export const PlanCompareDialog = ({ open, onClose }: PlanCompareDialogProps) => 
         )}
 
         {error && (
-          <p className="flex items-start gap-2 rounded border border-cp-danger/40 bg-cp-surface-2 p-2 text-cp-xs text-cp-danger">
+          <p className="flex items-start gap-2 border border-cp-danger/40 bg-cp-surface-2 p-2 text-cp-xs text-cp-danger">
             <Icon icon={AlertTriangle} size="sm" />
             {error}
           </p>
@@ -237,7 +237,7 @@ export const PlanCompareDialog = ({ open, onClose }: PlanCompareDialogProps) => 
 
         {diff && impact && other && (
           <>
-            <div className="grid gap-2 rounded border border-cp-border-muted bg-cp-surface-2 p-3 text-cp-xs sm:grid-cols-2">
+            <div className="grid gap-2 border border-cp-border-muted bg-cp-surface-2 p-3 text-cp-xs sm:grid-cols-2">
               <div>
                 <div className="text-cp-text-muted">
                   {other.origin === 'revision'
@@ -356,7 +356,7 @@ export const PlanCompareDialog = ({ open, onClose }: PlanCompareDialogProps) => 
             )}
 
             {diff.recreationHints.length > 0 && (
-              <p className="rounded border border-cp-border-muted bg-cp-surface-2 p-2 text-cp-xs text-cp-text-secondary">
+              <p className="border border-cp-border-muted bg-cp-surface-2 p-2 text-cp-xs text-cp-text-secondary">
                 {t(
                   'compare.recreationHint',
                   'Same name in both the removed and the added list — probably re-created rather than edited. This comparison cannot tell them apart:',
@@ -366,7 +366,7 @@ export const PlanCompareDialog = ({ open, onClose }: PlanCompareDialogProps) => 
             )}
 
             {diff.unclassified.length > 0 && (
-              <p className="flex items-start gap-2 rounded border border-cp-warn/40 bg-cp-surface-2 p-2 text-cp-xs text-cp-warn">
+              <p className="flex items-start gap-2 border border-cp-warn/40 bg-cp-surface-2 p-2 text-cp-xs text-cp-warn">
                 <Icon icon={AlertTriangle} size="sm" />
                 {t(
                   'compare.unclassified',

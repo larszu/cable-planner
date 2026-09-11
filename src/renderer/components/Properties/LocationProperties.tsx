@@ -33,7 +33,7 @@ export const LocationProperties = () => {
           <input
             value={location.name}
             onChange={(e) => updateLocation(location.id, { name: e.target.value })}
-            className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-1.5"
+            className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-1.5"
           />
         </label>
       </div>
@@ -47,7 +47,7 @@ export const LocationProperties = () => {
             onChange={(e) =>
               updateLocation(location.id, { width: Math.max(40, Number(e.target.value) || 0) })
             }
-            className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-1.5"
+            className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-1.5"
           />
         </label>
         <label className="block">
@@ -58,7 +58,7 @@ export const LocationProperties = () => {
             onChange={(e) =>
               updateLocation(location.id, { height: Math.max(40, Number(e.target.value) || 0) })
             }
-            className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-1.5"
+            className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-1.5"
           />
         </label>
       </div>
@@ -70,7 +70,7 @@ export const LocationProperties = () => {
             value={location.floor ?? ''}
             placeholder={t('location.field.floorPlaceholder', 'e.g. ground floor, 1st')}
             onChange={(e) => updateLocation(location.id, { floor: e.target.value })}
-            className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-1.5"
+            className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-1.5"
           />
         </label>
         <ColorField
@@ -87,7 +87,7 @@ export const LocationProperties = () => {
             value={location.notes ?? ''}
             onChange={(e) => updateLocation(location.id, { notes: e.target.value })}
             rows={2}
-            className="mt-1 w-full resize-y rounded border border-cp-border bg-cp-surface-3 p-1.5"
+            className="mt-1 w-full resize-y border border-cp-border bg-cp-surface-3 p-1.5"
           />
         </label>
       </div>
@@ -100,7 +100,7 @@ export const LocationProperties = () => {
         <button
           type="button"
           onClick={() => openLocationBom(location.id)}
-          className="w-full rounded bg-amber-700 px-2 py-1 text-cp-xs hover:bg-amber-600"
+          className="w-full bg-amber-700 px-2 py-1 text-cp-xs hover:bg-amber-600"
           title={t(
             'location.action.bomTitle',
             'List of devices and cables in the frame — exportable as PDF',
@@ -130,7 +130,7 @@ export const LocationProperties = () => {
               deleteLocation(location.id)
             }
           }}
-          className="w-full rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
+          className="w-full bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
           title={t(
             'location.action.deleteFrameTitle',
             'Removes only the frame — devices inside stay on the canvas.',
@@ -160,7 +160,7 @@ export const LocationProperties = () => {
               deleteLocationWithContents(location.id)
             }
           }}
-          className="w-full rounded bg-red-700 px-2 py-1 text-cp-xs hover:bg-red-600"
+          className="w-full bg-red-700 px-2 py-1 text-cp-xs hover:bg-red-600"
         >
           {t('location.action.deleteAll', 'Delete frame + contents')}
         </button>

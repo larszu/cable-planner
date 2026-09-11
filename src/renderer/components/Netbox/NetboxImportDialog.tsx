@@ -187,7 +187,7 @@ export const NetboxImportDialog = ({ open, onClose }: { open: boolean; onClose: 
               <button
                 type="button"
                 onClick={() => setPhase('choose')}
-                className="rounded bg-cp-surface-2 px-3 py-1 text-cp-base hover:bg-cp-surface-3"
+                className="bg-cp-surface-2 px-3 py-1 text-cp-base hover:bg-cp-surface-3"
               >
                 {t('common.back', 'Back')}
               </button>
@@ -195,7 +195,7 @@ export const NetboxImportDialog = ({ open, onClose }: { open: boolean; onClose: 
             <button
               type="button"
               onClick={onClose}
-              className="rounded bg-cp-surface-2 px-3 py-1 text-cp-base hover:bg-cp-surface-3"
+              className="bg-cp-surface-2 px-3 py-1 text-cp-base hover:bg-cp-surface-3"
             >
               {t('common.cancel', 'Cancel')}
             </button>
@@ -204,7 +204,7 @@ export const NetboxImportDialog = ({ open, onClose }: { open: boolean; onClose: 
                 type="button"
                 disabled={busy || !configured || scopeId === null}
                 onClick={() => void buildPreview()}
-                className="rounded bg-sky-600 px-3 py-1 text-cp-base font-semibold text-white hover:bg-sky-500 disabled:opacity-50"
+                className="bg-sky-600 px-3 py-1 text-cp-base font-semibold text-white hover:bg-sky-500 disabled:opacity-50"
               >
                 {busy
                   ? t('netbox.import.loading', 'Loading from NetBox…')
@@ -215,7 +215,7 @@ export const NetboxImportDialog = ({ open, onClose }: { open: boolean; onClose: 
                 type="button"
                 disabled={busy || nothingToDo}
                 onClick={confirmImport}
-                className="rounded bg-emerald-600 px-3 py-1 text-cp-base font-semibold text-white hover:bg-emerald-500 disabled:opacity-50"
+                className="bg-emerald-600 px-3 py-1 text-cp-base font-semibold text-white hover:bg-emerald-500 disabled:opacity-50"
               >
                 <Icon icon={Download} size="sm" />{' '}
                 {t('netbox.import.apply', 'Add to project')}
@@ -226,7 +226,7 @@ export const NetboxImportDialog = ({ open, onClose }: { open: boolean; onClose: 
       }
     >
       {!configured ? (
-        <div className="rounded border border-amber-700/50 bg-amber-900/20 p-3 text-cp-base text-amber-200">
+        <div className="border border-amber-700/50 bg-amber-900/20 p-3 text-cp-base text-amber-200">
           {t(
             'netbox.import.needsConfig',
             'Please configure the instance URL and an API token first under Settings → Integrations → NetBox.',
@@ -251,7 +251,7 @@ export const NetboxImportDialog = ({ open, onClose }: { open: boolean; onClose: 
                   setSiteId(e.target.value ? Number(e.target.value) : null)
                   setRackId(null)
                 }}
-                className="flex-1 rounded border border-cp-border bg-cp-surface-3 p-2 text-cp-base"
+                className="flex-1 border border-cp-border bg-cp-surface-3 p-2 text-cp-base"
               >
                 <option value="">{t('netbox.import.sitePlaceholder', '— pick a site —')}</option>
                 {sites.map((site) => (
@@ -265,7 +265,7 @@ export const NetboxImportDialog = ({ open, onClose }: { open: boolean; onClose: 
                 type="button"
                 disabled={busy}
                 onClick={() => void loadSites()}
-                className="rounded bg-cp-surface-2 px-2 py-1 text-cp-text-muted hover:bg-cp-surface-4 disabled:opacity-50"
+                className="bg-cp-surface-2 px-2 py-1 text-cp-text-muted hover:bg-cp-surface-4 disabled:opacity-50"
                 title={t('netbox.import.reload', 'Reload')}
                 aria-label={t('netbox.import.reload', 'Reload')}
               >
@@ -280,7 +280,7 @@ export const NetboxImportDialog = ({ open, onClose }: { open: boolean; onClose: 
               value={rackId ?? ''}
               disabled={siteId === null}
               onChange={(e) => setRackId(e.target.value ? Number(e.target.value) : null)}
-              className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2 text-cp-base disabled:opacity-50"
+              className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-2 text-cp-base disabled:opacity-50"
             >
               <option value="">
                 {t('netbox.import.wholeSite', '— import the whole site —')}
@@ -294,7 +294,7 @@ export const NetboxImportDialog = ({ open, onClose }: { open: boolean; onClose: 
             </select>
           </label>
 
-          <fieldset className="space-y-2 rounded border border-cp-border bg-cp-surface-3/40 p-3">
+          <fieldset className="space-y-2 border border-cp-border bg-cp-surface-3/40 p-3">
             <legend className="px-1 text-cp-xs text-cp-text-muted">
               {t('netbox.import.options', 'Options')}
             </legend>
@@ -336,7 +336,7 @@ export const NetboxImportDialog = ({ open, onClose }: { open: boolean; onClose: 
           </fieldset>
 
           {linked && (
-            <div className="rounded border border-sky-700/50 bg-sky-900/20 p-2 text-cp-xs text-sky-200">
+            <div className="border border-sky-700/50 bg-sky-900/20 p-2 text-cp-xs text-sky-200">
               {format(
                 t(
                   'netbox.import.linked',
@@ -387,7 +387,7 @@ export const NetboxImportDialog = ({ open, onClose }: { open: boolean; onClose: 
             />
           </div>
 
-          <div className="rounded border border-cp-border bg-cp-surface-3/40 p-2 text-cp-xs text-cp-text-muted">
+          <div className="border border-cp-border bg-cp-surface-3/40 p-2 text-cp-xs text-cp-text-muted">
             {format(
               t(
                 'netbox.preview.source',
@@ -403,7 +403,7 @@ export const NetboxImportDialog = ({ open, onClose }: { open: boolean; onClose: 
           </div>
 
           {nothingToDo && (
-            <div className="rounded border border-emerald-700/50 bg-emerald-900/20 p-2 text-cp-base text-emerald-200">
+            <div className="border border-emerald-700/50 bg-emerald-900/20 p-2 text-cp-base text-emerald-200">
               {t(
                 'netbox.preview.upToDate',
                 'The plan already matches NetBox — there is nothing to add.',
@@ -412,7 +412,7 @@ export const NetboxImportDialog = ({ open, onClose }: { open: boolean; onClose: 
           )}
 
           {(plan.staleDeviceIds.length > 0 || plan.staleCableIds.length > 0) && (
-            <div className="rounded border border-amber-700/50 bg-amber-900/20 p-2 text-cp-xs text-amber-200">
+            <div className="border border-amber-700/50 bg-amber-900/20 p-2 text-cp-xs text-amber-200">
               <Icon icon={AlertTriangle} size="sm" />{' '}
               {format(
                 t(
@@ -425,7 +425,7 @@ export const NetboxImportDialog = ({ open, onClose }: { open: boolean; onClose: 
           )}
 
           {plan.skipped.length > 0 && (
-            <details className="rounded border border-cp-border bg-cp-surface-3/40 p-2">
+            <details className="border border-cp-border bg-cp-surface-3/40 p-2">
               <summary className="cursor-pointer text-cp-xs text-cp-text-secondary">
                 {format(t('netbox.preview.skipped', '{count} skipped objects'), {
                   count: plan.skipped.length,
@@ -442,7 +442,7 @@ export const NetboxImportDialog = ({ open, onClose }: { open: boolean; onClose: 
           )}
 
           {plan.newEquipment.length > 0 && (
-            <details className="rounded border border-cp-border bg-cp-surface-3/40 p-2" open>
+            <details className="border border-cp-border bg-cp-surface-3/40 p-2" open>
               <summary className="cursor-pointer text-cp-xs text-cp-text-secondary">
                 {t('netbox.preview.deviceList', 'Devices that will be created')}
               </summary>
@@ -462,7 +462,7 @@ export const NetboxImportDialog = ({ open, onClose }: { open: boolean; onClose: 
       ) : null}
 
       {error && (
-        <div className="mt-3 rounded border border-red-700/50 bg-red-900/20 p-2 text-cp-xs text-red-200">
+        <div className="mt-3 border border-red-700/50 bg-red-900/20 p-2 text-cp-xs text-red-200">
           {error}
         </div>
       )}
@@ -480,7 +480,7 @@ const PreviewStat = ({
   accent?: boolean
 }) => (
   <div
-    className={`rounded border p-2 text-center ${
+    className={` border p-2 text-center ${
       accent && value > 0
         ? 'border-emerald-700/50 bg-emerald-900/20 text-emerald-200'
         : 'border-cp-border bg-cp-surface-3/40 text-cp-text-muted'

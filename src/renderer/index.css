@@ -296,11 +296,23 @@ html[data-cp-shell='app'] #root {
   border-bottom: 1px solid #e2e8f0;
 }
 
-/* Red flash on nodes whose drag was rejected due to overlap */
+/* Rotes Aufblitzen an einem Knoten, dessen Zug wegen Ueberlappung abgelehnt
+ * wurde.
+ *
+ * DER RING BLEIBT, DER SCHLAGSCHATTEN GEHT (ADR-007 Abschnitt 3: „keine
+ * Schatten"). Beides stand hier in einer Zeile, und beides ist nicht
+ * dasselbe: der Ring ist die MELDUNG — er sagt, welcher Knoten gemeint ist —,
+ * der weiche Schlagschatten dahinter war Dekor. `outline` statt `box-shadow`
+ * geht hier nicht: die Animation soll die Staerke des Rings aendern, und ein
+ * `outline-width` laesst sich nicht so weich staffeln.
+ *
+ * Und der Ton ist jetzt das Signal der Marke statt eines eigenen Rot.
+ * `#ef4444` stammte aus der Zeit vor ADR-007; zwei Rottoene in einer
+ * Oberflaeche heissen, dass einer davon nichts bedeutet. */
 @keyframes overlap-flash {
-  0%   { box-shadow: 0 0 0 2px #ef4444, 0 2px 6px rgba(0,0,0,0.4); }
-  50%  { box-shadow: 0 0 0 4px #ef4444, 0 0 16px #ef444488; }
-  100% { box-shadow: 0 0 0 2px #ef4444, 0 2px 6px rgba(0,0,0,0.4); }
+  0%   { box-shadow: 0 0 0 2px var(--cp-signal); }
+  50%  { box-shadow: 0 0 0 4px var(--cp-signal); }
+  100% { box-shadow: 0 0 0 2px var(--cp-signal); }
 }
 .react-flow__node.overlap-flash {
   animation: overlap-flash 0.5s ease-in-out;
@@ -848,7 +860,10 @@ input[type="range"]:disabled {
 }
 ::-webkit-scrollbar-thumb {
   background-color: var(--cp-border);
-  border-radius: 8px;
+  /* Eckig wie alles andere (ADR-007 Abschnitt 3). Hier standen 8 px — die
+   * letzte harte Rundung im Stilblatt, und sie fiel niemandem auf, weil ein
+   * Rollbalken nicht wie Oberflaeche aussieht. Er ist aber einer. */
+  border-radius: 0;
   border: 2px solid transparent;
   background-clip: content-box;
 }

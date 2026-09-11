@@ -150,7 +150,7 @@ const BandwidthTab = () => {
                 RESOLUTION_PRESETS.find((r) => r.label === e.target.value) ?? RESOLUTION_PRESETS[1],
               )
             }
-            className="w-full rounded border border-cp-border bg-cp-surface-3 p-2"
+            className="w-full border border-cp-border bg-cp-surface-3 p-2"
           >
             {RESOLUTION_PRESETS.map((r) => (
               <option key={r.label} value={r.label}>
@@ -164,7 +164,7 @@ const BandwidthTab = () => {
           <select
             value={fps}
             onChange={(e) => setFps(Number(e.target.value))}
-            className="w-full rounded border border-cp-border bg-cp-surface-3 p-2"
+            className="w-full border border-cp-border bg-cp-surface-3 p-2"
           >
             {FPS_PRESETS.map((f) => (
               <option key={f} value={f}>
@@ -182,7 +182,7 @@ const BandwidthTab = () => {
                 SAMPLING_PRESETS.find((s) => s.label === e.target.value) ?? SAMPLING_PRESETS[2],
               )
             }
-            className="w-full rounded border border-cp-border bg-cp-surface-3 p-2"
+            className="w-full border border-cp-border bg-cp-surface-3 p-2"
           >
             {SAMPLING_PRESETS.map((s) => (
               <option key={s.label} value={s.label}>
@@ -192,7 +192,7 @@ const BandwidthTab = () => {
           </select>
         </label>
       </div>
-      <div className="rounded border border-amber-700 bg-amber-950/30 p-3">
+      <div className="border border-amber-700 bg-amber-950/30 p-3">
         <div className="text-cp-xs uppercase tracking-wide text-amber-300">{t('calc.dataRate', 'Data rate')}</div>
         <div className="font-mono text-cp-xl text-amber-100">{mbps.toLocaleString(undefined, { maximumFractionDigits: 1 })} Mbps</div>
         <div className="mt-1 text-cp-xs text-amber-200">
@@ -206,7 +206,7 @@ const BandwidthTab = () => {
               )}
         </div>
       </div>
-      <details className="rounded border border-cp-border-muted bg-cp-surface-3/40">
+      <details className="border border-cp-border-muted bg-cp-surface-3/40">
         <summary className="cursor-pointer px-3 py-1.5 text-cp-xs uppercase tracking-wide text-cp-text-muted">
           SDI-Tiers
         </summary>
@@ -219,7 +219,7 @@ const BandwidthTab = () => {
           ))}
         </ul>
       </details>
-      <details className="rounded border border-cp-border-muted bg-cp-surface-3/40">
+      <details className="border border-cp-border-muted bg-cp-surface-3/40">
         <summary className="cursor-pointer px-3 py-1.5 text-cp-xs uppercase tracking-wide text-cp-text-muted">
           {t('calc.bandwidth.signalStds', 'IP / digital signal standards')}
         </summary>
@@ -235,7 +235,7 @@ const BandwidthTab = () => {
 
       {/* #346 — Projekt-Netzwerk-Budget: Summe aller IP-/Netzwerk-Signale. */}
       {netBudget.count > 0 && (
-        <div className="rounded border border-sky-700 bg-sky-950/20 p-3">
+        <div className="border border-sky-700 bg-sky-950/20 p-3">
           <div className="mb-2 flex items-center justify-between">
             <div className="text-cp-xs uppercase tracking-wide text-cp-text-secondary">
               {t('calc.bandwidth.netBudget', 'Project network budget')}
@@ -641,7 +641,7 @@ const PowerTab = () => {
           'calc.power.intro1',
           'Sum of the consumption values in the device properties',
         )}{' '}
-        (<code className="rounded bg-cp-surface-2 px-1">{t('calc.power.wattsField', 'Power (W)')}</code>).{' '}
+        (<code className="bg-cp-surface-2 px-1">{t('calc.power.wattsField', 'Power (W)')}</code>).{' '}
         {t(
           'calc.power.intro2',
           'Devices without a value are not counted; add them in the Properties so the distribution is correct.',
@@ -653,7 +653,7 @@ const PowerTab = () => {
           <select
             value={rawSupply.id}
             onChange={(e) => setSupplyId(e.target.value as SupplyPresetId)}
-            className="w-full rounded border border-cp-border bg-cp-surface-3 p-2"
+            className="w-full border border-cp-border bg-cp-surface-3 p-2"
           >
             {supplies.map((p) => (
               <option key={p.id} value={p.id}>
@@ -669,12 +669,12 @@ const PowerTab = () => {
             min={0}
             value={marginPercent}
             onChange={(e) => setMarginPercent(Math.max(0, Number(e.target.value) || 0))}
-            className="w-full rounded border border-cp-border bg-cp-surface-3 p-2"
+            className="w-full border border-cp-border bg-cp-surface-3 p-2"
           />
         </label>
       </div>
 
-      <div className="rounded border border-emerald-700 bg-emerald-950/30 p-3">
+      <div className="border border-emerald-700 bg-emerald-950/30 p-3">
         <dl className="grid grid-cols-[max-content_1fr] gap-x-3 gap-y-1 text-cp-xs">
           <dt className="text-cp-text-faint">{t('calc.devicesCounted', 'Devices counted')}</dt>
           <dd className="font-mono text-cp-text-bright">
@@ -736,7 +736,7 @@ const PowerTab = () => {
               <span
                 key={p.id}
                 title={`${amps.toFixed(1)} A / ${p.perPhaseAmps} A`}
-                className={`rounded px-1.5 py-0.5 font-mono ${fits ? 'bg-emerald-900/50 text-emerald-200' : 'bg-red-950/40 text-red-300/70'}`}
+                className={` px-1.5 py-0.5 font-mono ${fits ? 'bg-emerald-900/50 text-emerald-200' : 'bg-red-950/40 text-red-300/70'}`}
               >
                 {fits ? '✓' : '✗'} {p.id.replace('powerlock-', 'PL').replace('cee', 'CEE').replace('schuko', 'Schuko')}
               </span>
@@ -747,7 +747,7 @@ const PowerTab = () => {
 
       {supply.phases === 3 && totals.devices.length > 0 && (
         <div
-          className={`rounded border ${
+          className={` border ${
             overloaded ? 'border-red-700 bg-red-950/30' : 'border-sky-700 bg-sky-950/20'
           } p-3`}
         >
@@ -758,7 +758,7 @@ const PowerTab = () => {
             <div className="text-cp-xs text-cp-text-muted">
               {t('calc.imbalance', 'Imbalance')}: {maxImbalancePct}%
               {overloaded && (
-                <span className="ml-2 inline-flex items-center gap-1 rounded bg-red-700 px-1.5 py-0.5 text-cp-xs text-white">
+                <span className="ml-2 inline-flex items-center gap-1 bg-red-700 px-1.5 py-0.5 text-cp-xs text-white">
                   <Icon icon={AlertTriangle} size="xs" />
                   {t('calc.phaseOverload', 'Phase overloaded')}
                 </span>
@@ -772,13 +772,13 @@ const PowerTab = () => {
               return (
                 <div
                   key={idx}
-                  className={`rounded border ${PHASE_COLORS[PHASE_KEYS[idx]].border} ${PHASE_COLORS[PHASE_KEYS[idx]].bg} p-2`}
+                  className={` border ${PHASE_COLORS[PHASE_KEYS[idx]].border} ${PHASE_COLORS[PHASE_KEYS[idx]].bg} p-2`}
                 >
                   <div
                     className={`flex items-center gap-1 text-cp-xs uppercase tracking-wider ${PHASE_COLORS[PHASE_KEYS[idx]].text}`}
                   >
                     <span
-                      className="inline-block h-2 w-2 rounded-full"
+                      className="inline-block h-2 w-2"
                       style={{ background: PHASE_COLORS[PHASE_KEYS[idx]].dot }}
                       title={`${t('calc.euColor', 'EU colour code')} L${idx + 1}`}
                     />
@@ -790,7 +790,7 @@ const PowerTab = () => {
                   <div className="font-mono text-cp-xs text-cp-text-secondary">
                     {amps.toFixed(1)} A / {supply.perPhaseAmps} A
                   </div>
-                  <div className="mt-1 h-1.5 overflow-hidden rounded bg-cp-surface-2">
+                  <div className="mt-1 h-1.5 overflow-hidden bg-cp-surface-2">
                     <div
                       className={`h-full ${
                         fraction > 1
@@ -810,9 +810,9 @@ const PowerTab = () => {
             })}
           </div>
           {/* #345 — Neutralleiterstrom-Schätzung: klein = gut balanciert. */}
-          <div className="mt-2 flex items-center gap-2 rounded border border-sky-800 bg-sky-950/30 px-2 py-1.5 text-cp-xs">
+          <div className="mt-2 flex items-center gap-2 border border-sky-800 bg-sky-950/30 px-2 py-1.5 text-cp-xs">
             <span
-              className="inline-block h-2 w-2 shrink-0 rounded-full"
+              className="inline-block h-2 w-2 shrink-0"
               style={{ background: PHASE_COLORS.N.dot }}
             />
             <span className="text-cp-text-secondary">
@@ -862,7 +862,7 @@ const PowerTab = () => {
                               powerPhase: v === 0 ? undefined : (v as 1 | 2 | 3),
                             })
                           }}
-                          className={`rounded border border-cp-border bg-cp-surface-3 py-0.5 pl-1 font-mono ${PHASE_COLORS[PHASE_KEYS[a.phase - 1]].text}`}
+                          className={` border border-cp-border bg-cp-surface-3 py-0.5 pl-1 font-mono ${PHASE_COLORS[PHASE_KEYS[a.phase - 1]].text}`}
                           title={t('calc.col.phase', 'Phase')}
                         >
                           <option value={0}>{t('calc.phaseAuto', 'Auto')} (L{a.phase})</option>
@@ -888,7 +888,7 @@ const PowerTab = () => {
             {(['L1', 'L2', 'L3', 'N', 'PE'] as const).map((key) => (
               <span key={key} className="flex items-center gap-1">
                 <span
-                  className="inline-block h-2 w-2 rounded-full"
+                  className="inline-block h-2 w-2"
                   style={{ background: PHASE_COLORS[key].dot }}
                 />
                 <span>{key}</span>
@@ -910,14 +910,14 @@ const PowerTab = () => {
             <button
               type="button"
               onClick={exportCsv}
-              className="inline-flex items-center gap-1 rounded bg-emerald-700 px-2 py-1 text-cp-xs font-medium text-white hover:bg-emerald-600"
+              className="inline-flex items-center gap-1 bg-emerald-700 px-2 py-1 text-cp-xs font-medium text-white hover:bg-emerald-600"
             >
               <Icon icon={Download} size="xs" /> {t('analysis.exportCsv', 'Export CSV')}
             </button>
             <button
               type="button"
               onClick={exportPdf}
-              className="inline-flex items-center gap-1 rounded bg-amber-700 px-2 py-1 text-cp-xs font-medium text-white hover:bg-amber-600"
+              className="inline-flex items-center gap-1 bg-amber-700 px-2 py-1 text-cp-xs font-medium text-white hover:bg-amber-600"
             >
               <Icon icon={Download} size="xs" /> {t('calc.power.exportPdf', 'PDF report')}
             </button>
@@ -927,7 +927,7 @@ const PowerTab = () => {
 
       {/* #345 ff. — USV / Notstrom-Puffer-Rechner. Nutzt die Gesamtlast der
           Geräte (oben) und schätzt USV-Größe + Pufferzeit. */}
-      <details className="rounded border border-cp-border-muted bg-cp-surface-3/40" open={totals.totalW > 0}>
+      <details className="border border-cp-border-muted bg-cp-surface-3/40" open={totals.totalW > 0}>
         <summary className="flex cursor-pointer items-center gap-1.5 px-3 py-1.5 text-cp-xs uppercase tracking-wide text-cp-text-muted">
           <Icon icon={BatteryCharging} size="xs" />
           {t('calc.ups.title', 'UPS / battery backup')}
@@ -943,7 +943,7 @@ const PowerTab = () => {
                 min={0}
                 value={upsVa}
                 onChange={(e) => setUpsVa(Math.max(0, Number(e.target.value) || 0))}
-                className="w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs"
+                className="w-full border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs"
               />
             </label>
             <label className="block">
@@ -953,7 +953,7 @@ const PowerTab = () => {
               <select
                 value={upsPf}
                 onChange={(e) => setUpsPf(Number(e.target.value))}
-                className="w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs"
+                className="w-full border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs"
               >
                 {[0.6, 0.7, 0.8, 0.9, 1.0].map((pf) => (
                   <option key={pf} value={pf}>
@@ -966,7 +966,7 @@ const PowerTab = () => {
               <span className="mb-1 block text-cp-xs text-cp-text-muted">
                 {t('calc.ups.capacity', 'Capacity (W)')}
               </span>
-              <div className="rounded border border-cp-border-muted bg-cp-surface-1 px-2 py-1 font-mono text-cp-xs text-cp-text-bright">
+              <div className="border border-cp-border-muted bg-cp-surface-1 px-2 py-1 font-mono text-cp-xs text-cp-text-bright">
                 {Math.round(upsCapacityW)} W
               </div>
             </div>
@@ -982,7 +982,7 @@ const PowerTab = () => {
                 min={0}
                 value={battV}
                 onChange={(e) => setBattV(Math.max(0, Number(e.target.value) || 0))}
-                className="w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs"
+                className="w-full border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs"
               />
             </label>
             <label className="block">
@@ -994,7 +994,7 @@ const PowerTab = () => {
                 min={0}
                 value={battAh}
                 onChange={(e) => setBattAh(Math.max(0, Number(e.target.value) || 0))}
-                className="w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs"
+                className="w-full border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs"
               />
             </label>
             <label className="block">
@@ -1006,7 +1006,7 @@ const PowerTab = () => {
                 min={1}
                 value={battCount}
                 onChange={(e) => setBattCount(Math.max(1, Number(e.target.value) || 1))}
-                className="w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs"
+                className="w-full border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs"
               />
             </label>
             <label className="block">
@@ -1021,13 +1021,13 @@ const PowerTab = () => {
                 onChange={(e) =>
                   setUsablePercent(Math.min(100, Math.max(1, Number(e.target.value) || 1)))
                 }
-                className="w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs"
+                className="w-full border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs"
               />
             </label>
           </div>
 
           <div
-            className={`rounded border p-3 ${
+            className={` border p-3 ${
               upsOverloaded ? 'border-red-700 bg-red-950/30' : 'border-sky-700 bg-sky-950/20'
             }`}
           >
@@ -1040,7 +1040,7 @@ const PowerTab = () => {
                   {Math.round(upsLoadFraction * 100)}%
                 </span>
                 {upsOverloaded && (
-                  <span className="ml-2 inline-flex items-center gap-1 rounded bg-red-700 px-1.5 py-0.5 text-cp-xs text-white">
+                  <span className="ml-2 inline-flex items-center gap-1 bg-red-700 px-1.5 py-0.5 text-cp-xs text-white">
                     <Icon icon={AlertTriangle} size="xs" />
                     {t('calc.ups.overload', 'UPS overloaded')}
                   </span>
@@ -1068,7 +1068,7 @@ const PowerTab = () => {
                 min={1}
                 value={targetMinutes}
                 onChange={(e) => setTargetMinutes(Math.max(1, Number(e.target.value) || 1))}
-                className="w-16 rounded border border-cp-border bg-cp-surface-3 px-1.5 py-0.5 text-cp-xs"
+                className="w-16 border border-cp-border bg-cp-surface-3 px-1.5 py-0.5 text-cp-xs"
               />
               <span className="text-cp-text-muted">min →</span>
               <span className="font-mono text-cp-text-bright">
@@ -1084,7 +1084,7 @@ const PowerTab = () => {
       </details>
 
       {/* #345 ff. — Spannungsfall auf der Zuleitung (Distro-Strecke). */}
-      <details className="rounded border border-cp-border-muted bg-cp-surface-3/40">
+      <details className="border border-cp-border-muted bg-cp-surface-3/40">
         <summary className="flex cursor-pointer items-center gap-1.5 px-3 py-1.5 text-cp-xs uppercase tracking-wide text-cp-text-muted">
           {t('calc.vdrop.title', 'Voltage drop (feeder)')}
         </summary>
@@ -1099,7 +1099,7 @@ const PowerTab = () => {
                 min={0}
                 value={runLength}
                 onChange={(e) => setRunLength(Math.max(0, Number(e.target.value) || 0))}
-                className="w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs"
+                className="w-full border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs"
               />
             </label>
             <label className="block">
@@ -1109,7 +1109,7 @@ const PowerTab = () => {
               <select
                 value={crossSection}
                 onChange={(e) => setCrossSection(Number(e.target.value))}
-                className="w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs"
+                className="w-full border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs"
               >
                 {[1.5, 2.5, 4, 6, 10, 16, 25, 35, 50].map((mm) => (
                   <option key={mm} value={mm}>
@@ -1122,13 +1122,13 @@ const PowerTab = () => {
               <span className="mb-1 block text-cp-xs text-cp-text-muted">
                 {t('calc.vdrop.current', 'Load current')}
               </span>
-              <div className="rounded border border-cp-border-muted bg-cp-surface-1 px-2 py-1 font-mono text-cp-xs text-cp-text-bright">
+              <div className="border border-cp-border-muted bg-cp-surface-1 px-2 py-1 font-mono text-cp-xs text-cp-text-bright">
                 {vdropCurrent.toFixed(1)} A
               </div>
             </div>
           </div>
           <div
-            className={`rounded border p-3 ${
+            className={` border p-3 ${
               vdropPercent > 5
                 ? 'border-red-700 bg-red-950/30'
                 : vdropPercent > 3
@@ -1176,7 +1176,7 @@ const PowerTab = () => {
       </details>
 
       {totals.devices.length > 0 && (
-        <details className="rounded border border-cp-border-muted bg-cp-surface-3/40">
+        <details className="border border-cp-border-muted bg-cp-surface-3/40">
           <summary className="cursor-pointer px-3 py-1.5 text-cp-xs uppercase tracking-wide text-cp-text-muted">
             {t('calc.topConsumers', 'Top consumers')}
           </summary>

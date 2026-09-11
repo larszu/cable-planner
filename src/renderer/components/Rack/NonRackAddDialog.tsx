@@ -100,7 +100,7 @@ export const NonRackAddDialog = ({
           <button
             type="button"
             onClick={() => setMode('rack')}
-            className={`rounded border p-3 text-left transition ${
+            className={` border p-3 text-left transition ${
               mode === 'rack'
                 ? 'border-sky-500 bg-sky-900/40 text-sky-100'
                 : 'border-cp-border bg-cp-surface-3/50 text-cp-text-muted hover:bg-cp-surface-1'
@@ -114,7 +114,7 @@ export const NonRackAddDialog = ({
           <button
             type="button"
             onClick={() => setMode('shelf')}
-            className={`rounded border p-3 text-left transition ${
+            className={` border p-3 text-left transition ${
               mode === 'shelf'
                 ? 'border-emerald-500 bg-emerald-900/40 text-emerald-100'
                 : 'border-cp-border bg-cp-surface-3/50 text-cp-text-muted hover:bg-cp-surface-1'
@@ -137,7 +137,7 @@ export const NonRackAddDialog = ({
                 max={20}
                 value={rackUnits}
                 onChange={(e) => setRackUnits(Math.max(1, Math.min(20, Number(e.target.value) || 1)))}
-                className="w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1.5"
+                className="w-full border border-cp-border bg-cp-surface-3 px-2 py-1.5"
                 autoFocus
               />
             </label>
@@ -156,7 +156,7 @@ export const NonRackAddDialog = ({
                   step={5}
                   value={widthMm}
                   onChange={(e) => setWidthMm(Number(e.target.value) || 0)}
-                  className="w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1.5"
+                  className="w-full border border-cp-border bg-cp-surface-3 px-2 py-1.5"
                   autoFocus
                 />
                 {/* v7.9.87 / #208 — Quick-Presets: 1/3, 1/2, 2/3 der
@@ -165,7 +165,7 @@ export const NonRackAddDialog = ({
                   <button
                     type="button"
                     onClick={() => setWidthMm(150)}
-                    className="flex-1 rounded bg-cp-surface-2 px-1 py-0.5 text-cp-xs text-cp-text-muted hover:bg-cp-surface-4"
+                    className="flex-1 bg-cp-surface-2 px-1 py-0.5 text-cp-xs text-cp-text-muted hover:bg-cp-surface-4"
                     title={t('rack.nonRack.widthPreset.third', '1/3 rack-mount width ≈ 150 mm')}
                   >
                     1/3
@@ -173,7 +173,7 @@ export const NonRackAddDialog = ({
                   <button
                     type="button"
                     onClick={() => setWidthMm(225)}
-                    className="flex-1 rounded bg-cp-surface-2 px-1 py-0.5 text-cp-xs text-cp-text-muted hover:bg-cp-surface-4"
+                    className="flex-1 bg-cp-surface-2 px-1 py-0.5 text-cp-xs text-cp-text-muted hover:bg-cp-surface-4"
                     title={t('rack.nonRack.widthPreset.half', '1/2 rack-mount width ≈ 225 mm')}
                   >
                     1/2
@@ -181,7 +181,7 @@ export const NonRackAddDialog = ({
                   <button
                     type="button"
                     onClick={() => setWidthMm(300)}
-                    className="flex-1 rounded bg-cp-surface-2 px-1 py-0.5 text-cp-xs text-cp-text-muted hover:bg-cp-surface-4"
+                    className="flex-1 bg-cp-surface-2 px-1 py-0.5 text-cp-xs text-cp-text-muted hover:bg-cp-surface-4"
                     title={t('rack.nonRack.widthPreset.twoThirds', '2/3 rack-mount width ≈ 300 mm')}
                   >
                     2/3
@@ -197,7 +197,7 @@ export const NonRackAddDialog = ({
                   step={5}
                   value={heightMm}
                   onChange={(e) => setHeightMm(Number(e.target.value) || 0)}
-                  className="w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1.5"
+                  className="w-full border border-cp-border bg-cp-surface-3 px-2 py-1.5"
                 />
               </label>
               <label className="block">
@@ -209,17 +209,17 @@ export const NonRackAddDialog = ({
                   step={5}
                   value={depthMm}
                   onChange={(e) => setDepthMm(Number(e.target.value) || 0)}
-                  className="w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1.5"
+                  className="w-full border border-cp-border bg-cp-surface-3 px-2 py-1.5"
                 />
               </label>
             </div>
-            <div className="rounded border border-cp-border-muted bg-cp-surface-3/50 p-2 text-cp-xs text-cp-text-muted">
+            <div className="border border-cp-border-muted bg-cp-surface-3/50 p-2 text-cp-xs text-cp-text-muted">
               {t('rack.nonRack.shelfTip', 'Place the device on an existing rack shelf by adding it at the same starting U. Dimensions are visualized in the 3D tab as real box size.')}
             </div>
           </div>
         )}
 
-        <label className="mb-3 flex items-start gap-2 rounded border border-cp-border-muted bg-cp-surface-3/40 p-2 text-cp-xs">
+        <label className="mb-3 flex items-start gap-2 border border-cp-border-muted bg-cp-surface-3/40 p-2 text-cp-xs">
           <input
             type="checkbox"
             checked={persistFlag}

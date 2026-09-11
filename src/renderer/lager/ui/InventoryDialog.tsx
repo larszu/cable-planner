@@ -431,7 +431,7 @@ export const InventoryDialog = ({ open, onClose }: InventoryDialogProps) => {
         value={dimOf(d, k) ?? ''}
         onChange={(e) => setK(k, e.target.value)}
         placeholder={ph}
-        className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5"
+        className="w-full border border-cp-border bg-cp-surface-3 p-1.5"
       />
     )
     return (
@@ -465,7 +465,7 @@ export const InventoryDialog = ({ open, onClose }: InventoryDialogProps) => {
             <button
               type="button"
               onClick={handleExport}
-              className="flex items-center gap-1 rounded bg-cp-surface-4 px-2.5 py-1 text-cp-xs hover:bg-cp-surface-5"
+              className="flex items-center gap-1 bg-cp-surface-4 px-2.5 py-1 text-cp-xs hover:bg-cp-surface-5"
               title={t('inventory.exportHint', 'Export inventory as a portable file (cross-app)')}
             >
               <Download size={13} /> {t('inventory.export', 'Export')}
@@ -473,7 +473,7 @@ export const InventoryDialog = ({ open, onClose }: InventoryDialogProps) => {
             <button
               type="button"
               onClick={() => importInputRef.current?.click()}
-              className="flex items-center gap-1 rounded bg-cp-surface-4 px-2.5 py-1 text-cp-xs hover:bg-cp-surface-5"
+              className="flex items-center gap-1 bg-cp-surface-4 px-2.5 py-1 text-cp-xs hover:bg-cp-surface-5"
               title={t('inventory.importHint', 'Import inventory from a portable file')}
             >
               <Upload size={13} /> {t('inventory.import', 'Import')}
@@ -481,7 +481,7 @@ export const InventoryDialog = ({ open, onClose }: InventoryDialogProps) => {
             <button
               type="button"
               onClick={onClose}
-              className="rounded bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
+              className="bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
             >
               {t('common.close', 'Close')}
             </button>
@@ -501,10 +501,10 @@ export const InventoryDialog = ({ open, onClose }: InventoryDialogProps) => {
                 if (e.key === 'Enter') handleScan()
               }}
               placeholder={t('inventory.scanPh', 'Scan / type code (item, location, unit)…')}
-              className="w-full rounded border border-cp-border bg-cp-surface-3 py-1.5 pl-7 pr-2"
+              className="w-full border border-cp-border bg-cp-surface-3 py-1.5 pl-7 pr-2"
             />
           </div>
-          <button type="button" onClick={() => handleScan()} className="flex items-center gap-1 rounded bg-cp-surface-4 px-2.5 py-1.5 hover:bg-cp-surface-5">
+          <button type="button" onClick={() => handleScan()} className="flex items-center gap-1 bg-cp-surface-4 px-2.5 py-1.5 hover:bg-cp-surface-5">
             <ScanLine size={13} />
             {t('inventory.scan', 'Resolve')}
           </button>
@@ -512,7 +512,7 @@ export const InventoryDialog = ({ open, onClose }: InventoryDialogProps) => {
             <button
               type="button"
               onClick={() => setCameraOpen(true)}
-              className="flex items-center gap-1 rounded bg-cp-surface-4 px-2.5 py-1.5 hover:bg-cp-surface-5"
+              className="flex items-center gap-1 bg-cp-surface-4 px-2.5 py-1.5 hover:bg-cp-surface-5"
               title={t('inventory.scanCamera', 'Scan with camera')}
             >
               <Camera size={13} />
@@ -520,7 +520,7 @@ export const InventoryDialog = ({ open, onClose }: InventoryDialogProps) => {
           )}
         </div>
         {scanResult && (
-          <div className="rounded border border-cp-border-muted bg-cp-surface-2 px-2 py-1 text-cp-text-secondary">{scanResult}</div>
+          <div className="border border-cp-border-muted bg-cp-surface-2 px-2 py-1 text-cp-text-secondary">{scanResult}</div>
         )}
 
         {/* Tabs */}
@@ -538,7 +538,7 @@ export const InventoryDialog = ({ open, onClose }: InventoryDialogProps) => {
               key={tb.id}
               type="button"
               onClick={() => setTab(tb.id)}
-              className={`flex items-center gap-1.5 rounded-t px-3 py-1.5 ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 ${
                 tab === tb.id ? 'bg-cp-surface-2 font-medium text-cp-text' : 'text-cp-text-muted hover:text-cp-text'
               }`}
             >
@@ -556,7 +556,7 @@ export const InventoryDialog = ({ open, onClose }: InventoryDialogProps) => {
                 nicht mehr gelesen, und dann faellt auch die echte Meldung
                 nicht mehr auf. */}
             {rueckgaben.length > 0 && (
-              <div className="rounded border border-cp-warn/40 bg-cp-surface-2 p-2.5 text-cp-sm">
+              <div className="border border-cp-warn/40 bg-cp-surface-2 p-2.5 text-cp-sm">
                 <div className="mb-1 flex items-center gap-1.5 font-medium text-cp-text">
                   <AlertTriangle size={14} />
                   {format(t('inventory.returnsTitle', 'Third-party gear: {n} item(s) to return'), {
@@ -595,12 +595,12 @@ export const InventoryDialog = ({ open, onClose }: InventoryDialogProps) => {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder={t('inventory.searchPh', 'Search…')}
-                className="min-w-[8rem] flex-1 rounded border border-cp-border bg-cp-surface-3 p-1.5"
+                className="min-w-[8rem] flex-1 border border-cp-border bg-cp-surface-3 p-1.5"
               />
               <button
                 type="button"
                 onClick={handleSeed}
-                className="flex items-center gap-1 rounded bg-cp-surface-4 px-2.5 py-1.5 hover:bg-cp-surface-5"
+                className="flex items-center gap-1 bg-cp-surface-4 px-2.5 py-1.5 hover:bg-cp-surface-5"
                 title={t('inventory.seedHint', 'Add the current plan’s devices as inventory items')}
               >
                 <PackagePlus size={14} />
@@ -609,7 +609,7 @@ export const InventoryDialog = ({ open, onClose }: InventoryDialogProps) => {
               <button
                 type="button"
                 onClick={() => setForm({ model: '', quantity: 1 })}
-                className="flex items-center gap-1 rounded bg-emerald-700 px-2.5 py-1.5 hover:bg-emerald-600"
+                className="flex items-center gap-1 bg-emerald-700 px-2.5 py-1.5 hover:bg-emerald-600"
               >
                 <Plus size={14} />
                 {t('inventory.add', 'Item')}
@@ -617,7 +617,7 @@ export const InventoryDialog = ({ open, onClose }: InventoryDialogProps) => {
             </div>
 
             {form && (
-              <div className="rounded border border-cp-accent/40 bg-cp-surface-2 p-3">
+              <div className="border border-cp-accent/40 bg-cp-surface-2 p-3">
                 <div className="mb-2 font-medium">
                   {form.id ? t('inventory.editTitle', 'Edit item') : t('inventory.newTitle', 'New item')}
                 </div>
@@ -722,7 +722,7 @@ export const InventoryDialog = ({ open, onClose }: InventoryDialogProps) => {
                   </label>
                   <div className="block">
                     {t('inventory.materialKind', 'Material type')}
-                    <div className="mt-1 flex gap-3 rounded border border-cp-border bg-cp-surface-3 p-1.5">
+                    <div className="mt-1 flex gap-3 border border-cp-border bg-cp-surface-3 p-1.5">
                       <label className="flex items-center gap-1">
                         <input type="checkbox" checked={!!form.materialKinds?.includes('rental')} onChange={() => setForm({ ...form, materialKinds: toggleMaterialKind(form, 'rental') })} />
                         {t('inventory.rental', 'Rental')}
@@ -743,14 +743,14 @@ export const InventoryDialog = ({ open, onClose }: InventoryDialogProps) => {
                   </label>
                 </div>
                 <div className="mt-3 flex justify-end gap-2">
-                  <button type="button" onClick={() => setForm(null)} className="rounded bg-cp-surface-4 px-3 py-1 hover:bg-cp-surface-5">
+                  <button type="button" onClick={() => setForm(null)} className="bg-cp-surface-4 px-3 py-1 hover:bg-cp-surface-5">
                     {t('common.cancel', 'Cancel')}
                   </button>
                   <button
                     type="button"
                     disabled={form.model.trim() === ''}
                     onClick={handleSave}
-                    className="rounded bg-emerald-700 px-3 py-1 enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="bg-emerald-700 px-3 py-1 enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {t('common.save', 'Save')}
                   </button>
@@ -759,13 +759,13 @@ export const InventoryDialog = ({ open, onClose }: InventoryDialogProps) => {
             )}
 
             {filtered.length === 0 ? (
-              <div className="rounded border border-dashed border-cp-border py-10 text-center text-cp-text-muted">
+              <div className="border border-dashed border-cp-border py-10 text-center text-cp-text-muted">
                 {items.length === 0
                   ? t('inventory.empty', 'No inventory items yet. Add some or import them from the plan.')
                   : t('inventory.noMatch', 'No items match the search.')}
               </div>
             ) : (
-              <div className="overflow-x-auto rounded border border-cp-border">
+              <div className="overflow-x-auto border border-cp-border">
                 <table className="w-full border-collapse text-left">
                   <thead className="bg-cp-surface-2 text-cp-text-muted">
                     <tr>
@@ -805,10 +805,10 @@ export const InventoryDialog = ({ open, onClose }: InventoryDialogProps) => {
                         </td>
                         <td className="px-2 py-1.5">
                           <div className="flex justify-end gap-1">
-                            <button type="button" onClick={() => setForm({ ...it })} className="rounded p-1 text-cp-text-muted hover:bg-cp-surface-4 hover:text-cp-text" title={t('common.edit', 'Edit')}>
+                            <button type="button" onClick={() => setForm({ ...it })} className="p-1 text-cp-text-muted hover:bg-cp-surface-4 hover:text-cp-text" title={t('common.edit', 'Edit')}>
                               <Pencil size={13} />
                             </button>
-                            <button type="button" onClick={() => handleDelete(it)} className="rounded p-1 text-cp-text-muted hover:bg-red-900/50 hover:text-red-300" title={t('common.delete', 'Delete')}>
+                            <button type="button" onClick={() => handleDelete(it)} className="p-1 text-cp-text-muted hover:bg-red-900/50 hover:text-red-300" title={t('common.delete', 'Delete')}>
                               <Trash2 size={13} />
                             </button>
                           </div>
@@ -1045,12 +1045,12 @@ const LocationsTab = ({ dimsEditor, formatDims, codeCell }: LocationsTabProps) =
     return (
       <div key={node.id}>
         <div
-          className="flex items-center gap-2 rounded border border-cp-border-muted bg-cp-surface-2 px-2 py-1.5"
+          className="flex items-center gap-2 border border-cp-border-muted bg-cp-surface-2 px-2 py-1.5"
           style={{ marginLeft: depth * 16 }}
         >
           {container ? <Package size={13} className="shrink-0 text-cp-accent" /> : <Warehouse size={13} className="shrink-0 text-cp-text-muted" />}
           <span className="font-medium">{node.name}</span>
-          <span className="rounded bg-cp-surface-4 px-1.5 py-0.5 text-cp-xs text-cp-text-muted">{kindLabel(node.kind)}</span>
+          <span className="bg-cp-surface-4 px-1.5 py-0.5 text-cp-xs text-cp-text-muted">{kindLabel(node.kind)}</span>
           {node.code && codeCell(node.code, node.codeType)}
           {directItems.length > 0 && (
             <span className="text-cp-text-muted">
@@ -1064,7 +1064,7 @@ const LocationsTab = ({ dimsEditor, formatDims, codeCell }: LocationsTabProps) =
                 <button
                   type="button"
                   onClick={() => handlePackListPrint(node)}
-                  className="rounded p-1 text-cp-text-muted hover:bg-cp-surface-4 hover:text-cp-text"
+                  className="p-1 text-cp-text-muted hover:bg-cp-surface-4 hover:text-cp-text"
                   title={t('inventory.packListPrint', 'Print pack list')}
                 >
                   <Printer size={13} />
@@ -1072,7 +1072,7 @@ const LocationsTab = ({ dimsEditor, formatDims, codeCell }: LocationsTabProps) =
                 <button
                   type="button"
                   onClick={() => handlePackList(node)}
-                  className="rounded p-1 text-cp-text-muted hover:bg-cp-surface-4 hover:text-cp-text"
+                  className="p-1 text-cp-text-muted hover:bg-cp-surface-4 hover:text-cp-text"
                   title={t('inventory.packList', 'Copy pack list (recursive)')}
                 >
                   <ClipboardList size={13} />
@@ -1085,7 +1085,7 @@ const LocationsTab = ({ dimsEditor, formatDims, codeCell }: LocationsTabProps) =
             <button
               type="button"
               onClick={() => setAuditNode(auditNode === node.id ? '' : node.id)}
-              className="rounded p-1 text-cp-text-muted hover:bg-cp-surface-4 hover:text-cp-text"
+              className="p-1 text-cp-text-muted hover:bg-cp-surface-4 hover:text-cp-text"
               title={t('inventory.auditStart', 'Stock-take at this location')}
             >
               <ScanLine size={13} />
@@ -1093,15 +1093,15 @@ const LocationsTab = ({ dimsEditor, formatDims, codeCell }: LocationsTabProps) =
             <button
               type="button"
               onClick={() => setForm({ name: '', kind: container ? 'case' : 'shelf', parentId: node.id })}
-              className="rounded p-1 text-cp-text-muted hover:bg-cp-surface-4 hover:text-cp-text"
+              className="p-1 text-cp-text-muted hover:bg-cp-surface-4 hover:text-cp-text"
               title={t('inventory.addChild', 'Add child node')}
             >
               <Plus size={13} />
             </button>
-            <button type="button" onClick={() => setForm({ ...node })} className="rounded p-1 text-cp-text-muted hover:bg-cp-surface-4 hover:text-cp-text" title={t('common.edit', 'Edit')}>
+            <button type="button" onClick={() => setForm({ ...node })} className="p-1 text-cp-text-muted hover:bg-cp-surface-4 hover:text-cp-text" title={t('common.edit', 'Edit')}>
               <Pencil size={13} />
             </button>
-            <button type="button" onClick={() => handleDelete(node)} className="rounded p-1 text-cp-text-muted hover:bg-red-900/50 hover:text-red-300" title={t('common.delete', 'Delete')}>
+            <button type="button" onClick={() => handleDelete(node)} className="p-1 text-cp-text-muted hover:bg-red-900/50 hover:text-red-300" title={t('common.delete', 'Delete')}>
               <Trash2 size={13} />
             </button>
           </div>
@@ -1114,7 +1114,7 @@ const LocationsTab = ({ dimsEditor, formatDims, codeCell }: LocationsTabProps) =
         {auditNode === node.id && (
           <div
             style={{ marginLeft: depth * 16 + 22 }}
-            className="mb-1 mt-1 rounded border border-cp-accent/40 bg-cp-surface-2 p-2"
+            className="mb-1 mt-1 border border-cp-accent/40 bg-cp-surface-2 p-2"
           >
             <div className="mb-1.5 flex flex-wrap items-center gap-2">
               <span className="font-medium text-cp-text">
@@ -1131,7 +1131,7 @@ const LocationsTab = ({ dimsEditor, formatDims, codeCell }: LocationsTabProps) =
                 }}
                 autoFocus
                 placeholder={t('inventory.auditPh', 'Scan a code — a location label switches the location')}
-                className="min-w-[14rem] flex-1 rounded border border-cp-border bg-cp-surface-3 px-2 py-1"
+                className="min-w-[14rem] flex-1 border border-cp-border bg-cp-surface-3 px-2 py-1"
               />
               <button
                 type="button"
@@ -1155,7 +1155,7 @@ const LocationsTab = ({ dimsEditor, formatDims, codeCell }: LocationsTabProps) =
                   'inventory.auditAdoptHint',
                   'Writes this location onto every object found in the wrong place — the records then follow what is actually here',
                 )}
-                className="rounded border border-cp-border px-2 py-1 text-cp-text-secondary hover:text-cp-text disabled:opacity-40"
+                className="border border-cp-border px-2 py-1 text-cp-text-secondary hover:text-cp-text disabled:opacity-40"
               >
                 {format(t('inventory.auditAdopt', 'Adopt location ({n})'), {
                   n: auditRelocations(auditHits).length,
@@ -1169,7 +1169,7 @@ const LocationsTab = ({ dimsEditor, formatDims, codeCell }: LocationsTabProps) =
                 ist das eigentliche Ergebnis einer Inventur, und ohne diese
                 Liste gab es dafuer keine Zeile. */}
             {auditErwartet.length > 0 && (
-              <details className="mb-1.5 rounded border border-cp-border-muted bg-cp-surface-3 px-2 py-1">
+              <details className="mb-1.5 border border-cp-border-muted bg-cp-surface-3 px-2 py-1">
                 <summary className="cursor-pointer text-cp-text-secondary">
                   {format(
                     // NICHT `inventory.auditExpected` — den Schluessel gibt
@@ -1194,7 +1194,7 @@ const LocationsTab = ({ dimsEditor, formatDims, codeCell }: LocationsTabProps) =
                             'inventory.auditPickHint',
                             'Record as \u201cit is here\u201d without a code \u2014 the sheet notes that it was ticked off, not scanned',
                           )}
-                          className="rounded border border-cp-border px-1.5 py-0.5 text-cp-text-secondary hover:text-cp-text disabled:opacity-40"
+                          className="border border-cp-border px-1.5 py-0.5 text-cp-text-secondary hover:text-cp-text disabled:opacity-40"
                         >
                           {offen
                             ? t('inventory.auditPick', 'here')
@@ -1247,7 +1247,7 @@ const LocationsTab = ({ dimsEditor, formatDims, codeCell }: LocationsTabProps) =
         {directItems.length > 0 && (
           <div style={{ marginLeft: depth * 16 + 22 }} className="mt-0.5 mb-0.5 flex flex-wrap gap-1">
             {directItems.map((it) => (
-              <span key={it.id} className="flex items-center gap-1 rounded bg-cp-surface-3 px-1.5 py-0.5 text-cp-xs text-cp-text-secondary">
+              <span key={it.id} className="flex items-center gap-1 bg-cp-surface-3 px-1.5 py-0.5 text-cp-xs text-cp-text-secondary">
                 <ChevronRight size={9} />
                 {it.quantity}× {it.model}
               </span>
@@ -1267,14 +1267,14 @@ const LocationsTab = ({ dimsEditor, formatDims, codeCell }: LocationsTabProps) =
         <span className="text-cp-text-muted">
           {t('inventory.locationsHint', 'Storage locations and cases — every node scannable, nestable at will (case in case in transport case).')}
         </span>
-        <button type="button" onClick={() => setForm({ name: '', kind: 'depot' })} className="flex items-center gap-1 rounded bg-emerald-700 px-2.5 py-1.5 hover:bg-emerald-600">
+        <button type="button" onClick={() => setForm({ name: '', kind: 'depot' })} className="flex items-center gap-1 bg-emerald-700 px-2.5 py-1.5 hover:bg-emerald-600">
           <Plus size={14} />
           {t('inventory.addNode', 'Location')}
         </button>
       </div>
 
       {form && (
-        <div className="rounded border border-cp-accent/40 bg-cp-surface-2 p-3">
+        <div className="border border-cp-accent/40 bg-cp-surface-2 p-3">
           <div className="mb-2 font-medium">
             {form.id ? t('inventory.editNode', 'Edit location') : t('inventory.newNode', 'New location')}
           </div>
@@ -1325,10 +1325,10 @@ const LocationsTab = ({ dimsEditor, formatDims, codeCell }: LocationsTabProps) =
             </div>
           </div>
           <div className="mt-3 flex justify-end gap-2">
-            <button type="button" onClick={() => setForm(null)} className="rounded bg-cp-surface-4 px-3 py-1 hover:bg-cp-surface-5">
+            <button type="button" onClick={() => setForm(null)} className="bg-cp-surface-4 px-3 py-1 hover:bg-cp-surface-5">
               {t('common.cancel', 'Cancel')}
             </button>
-            <button type="button" disabled={form.name.trim() === ''} onClick={handleSave} className="rounded bg-emerald-700 px-3 py-1 enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50">
+            <button type="button" disabled={form.name.trim() === ''} onClick={handleSave} className="bg-emerald-700 px-3 py-1 enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50">
               {t('common.save', 'Save')}
             </button>
           </div>
@@ -1336,7 +1336,7 @@ const LocationsTab = ({ dimsEditor, formatDims, codeCell }: LocationsTabProps) =
       )}
 
       {roots.length === 0 ? (
-        <div className="rounded border border-dashed border-cp-border py-10 text-center text-cp-text-muted">
+        <div className="border border-dashed border-cp-border py-10 text-center text-cp-text-muted">
           {t('inventory.locationsEmpty', 'No locations yet. Create depots, shelves and cases.')}
         </div>
       ) : (
@@ -1409,14 +1409,14 @@ const SetsTab = () => {
         <span className="text-cp-text-muted">
           {t('inventory.setsHint', 'Logical sets/kits — availability derived from the scarcest component.')}
         </span>
-        <button type="button" onClick={() => setForm({ name: '', components: [] })} className="flex items-center gap-1 rounded bg-emerald-700 px-2.5 py-1.5 hover:bg-emerald-600">
+        <button type="button" onClick={() => setForm({ name: '', components: [] })} className="flex items-center gap-1 bg-emerald-700 px-2.5 py-1.5 hover:bg-emerald-600">
           <Plus size={14} />
           {t('inventory.addSet', 'Set')}
         </button>
       </div>
 
       {form && (
-        <div className="rounded border border-cp-accent/40 bg-cp-surface-2 p-3">
+        <div className="border border-cp-accent/40 bg-cp-surface-2 p-3">
           <div className="mb-2 font-medium">{form.id ? t('inventory.editSet', 'Edit set') : t('inventory.newSet', 'New set')}</div>
           <label className="block max-w-sm">
             {t('inventory.setName', 'Set name')} <span className="text-red-400">*</span>
@@ -1429,9 +1429,9 @@ const SetsTab = () => {
             <ul className="mt-1 space-y-1">
               {(form.components ?? []).map((c) => (
                 <li key={c.itemId} className="flex items-center gap-2">
-                  <input type="number" min={1} value={c.quantity} onChange={(e) => setComponentQty(c.itemId, Number(e.target.value))} className="w-16 rounded border border-cp-border bg-cp-surface-3 p-1" />
+                  <input type="number" min={1} value={c.quantity} onChange={(e) => setComponentQty(c.itemId, Number(e.target.value))} className="w-16 border border-cp-border bg-cp-surface-3 p-1" />
                   <span className="flex-1 truncate">{itemById.get(c.itemId)?.model ?? t('inventory.unknownItem', '(deleted item)')}</span>
-                  <button type="button" onClick={() => removeComponent(c.itemId)} className="rounded p-0.5 text-cp-text-muted hover:bg-red-900/50 hover:text-red-300">
+                  <button type="button" onClick={() => removeComponent(c.itemId)} className="p-0.5 text-cp-text-muted hover:bg-red-900/50 hover:text-red-300">
                     <Trash2 size={12} />
                   </button>
                 </li>
@@ -1440,7 +1440,7 @@ const SetsTab = () => {
           )}
           {items.length > 0 && (
             <div className="mt-2 flex items-center gap-1.5">
-              <select value={pick} onChange={(e) => setPick(e.target.value)} className="min-w-0 flex-1 rounded border border-cp-border bg-cp-surface-3 p-1">
+              <select value={pick} onChange={(e) => setPick(e.target.value)} className="min-w-0 flex-1 border border-cp-border bg-cp-surface-3 p-1">
                 <option value="">{t('inventory.pickItem', 'Pick item…')}</option>
                 {items.map((it) => (
                   <option key={it.id} value={it.id}>
@@ -1448,17 +1448,17 @@ const SetsTab = () => {
                   </option>
                 ))}
               </select>
-              <button type="button" disabled={!pick} onClick={() => addComponent(pick)} className="flex items-center gap-1 rounded bg-cp-surface-4 px-2 py-1 enabled:hover:bg-cp-surface-5 disabled:cursor-not-allowed disabled:opacity-50">
+              <button type="button" disabled={!pick} onClick={() => addComponent(pick)} className="flex items-center gap-1 bg-cp-surface-4 px-2 py-1 enabled:hover:bg-cp-surface-5 disabled:cursor-not-allowed disabled:opacity-50">
                 <Plus size={13} />
                 {t('inventory.addComponent', 'Add')}
               </button>
             </div>
           )}
           <div className="mt-3 flex justify-end gap-2">
-            <button type="button" onClick={() => setForm(null)} className="rounded bg-cp-surface-4 px-3 py-1 hover:bg-cp-surface-5">
+            <button type="button" onClick={() => setForm(null)} className="bg-cp-surface-4 px-3 py-1 hover:bg-cp-surface-5">
               {t('common.cancel', 'Cancel')}
             </button>
-            <button type="button" disabled={form.name.trim() === ''} onClick={handleSave} className="rounded bg-emerald-700 px-3 py-1 enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50">
+            <button type="button" disabled={form.name.trim() === ''} onClick={handleSave} className="bg-emerald-700 px-3 py-1 enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50">
               {t('common.save', 'Save')}
             </button>
           </div>
@@ -1466,7 +1466,7 @@ const SetsTab = () => {
       )}
 
       {sets.length === 0 ? (
-        <div className="rounded border border-dashed border-cp-border py-10 text-center text-cp-text-muted">
+        <div className="border border-dashed border-cp-border py-10 text-center text-cp-text-muted">
           {t('inventory.setsEmpty', 'No sets yet. Bundle items into a kit.')}
         </div>
       ) : (
@@ -1474,20 +1474,20 @@ const SetsTab = () => {
           {sets.map((s) => {
             const avail = availabilityOfSet(items, s)
             return (
-              <div key={s.id} className="rounded border border-cp-border bg-cp-surface-2">
+              <div key={s.id} className="border border-cp-border bg-cp-surface-2">
                 <div className="flex items-center justify-between gap-2 border-b border-cp-border-muted px-3 py-2">
                   <div className="flex items-center gap-2 font-medium">
                     <Layers size={14} className="text-cp-text-muted" />
                     {s.name}
-                    <span className={`rounded px-1.5 py-0.5 text-cp-xs ${avail > 0 ? 'bg-emerald-700/30 text-emerald-400' : 'bg-red-700/30 text-red-400'}`}>
+                    <span className={` px-1.5 py-0.5 text-cp-xs ${avail > 0 ? 'bg-emerald-700/30 text-emerald-400' : 'bg-red-700/30 text-red-400'}`}>
                       {format(t('inventory.setAvailable', '{n}× buildable'), { n: avail })}
                     </span>
                   </div>
                   <div className="flex gap-1">
-                    <button type="button" onClick={() => setForm({ ...s })} className="rounded p-1 text-cp-text-muted hover:bg-cp-surface-4 hover:text-cp-text" title={t('common.edit', 'Edit')}>
+                    <button type="button" onClick={() => setForm({ ...s })} className="p-1 text-cp-text-muted hover:bg-cp-surface-4 hover:text-cp-text" title={t('common.edit', 'Edit')}>
                       <Pencil size={13} />
                     </button>
-                    <button type="button" onClick={() => handleDelete(s)} className="rounded p-1 text-cp-text-muted hover:bg-red-900/50 hover:text-red-300" title={t('common.delete', 'Delete')}>
+                    <button type="button" onClick={() => handleDelete(s)} className="p-1 text-cp-text-muted hover:bg-red-900/50 hover:text-red-300" title={t('common.delete', 'Delete')}>
                       <Trash2 size={13} />
                     </button>
                   </div>
@@ -1653,7 +1653,7 @@ const UnitsTab = ({ codeCell }: UnitsTabProps) => {
               'inventory.insuranceHint',
               'Insurance schedule: value per unit, one total per currency — and the units with no declared value listed by name underneath.',
             )}
-            className="flex items-center gap-1 rounded bg-cp-surface-4 px-2.5 py-1.5 enabled:hover:bg-cp-surface-5 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex items-center gap-1 bg-cp-surface-4 px-2.5 py-1.5 enabled:hover:bg-cp-surface-5 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Download size={13} /> {t('inventory.insuranceList', 'Insurance')}
           </button>
@@ -1665,7 +1665,7 @@ const UnitsTab = ({ codeCell }: UnitsTabProps) => {
               'inventory.carnetHint',
               'Carnet data sheet: the columns a carnet line needs, to copy into the chamber of commerce form. Not a carnet.',
             )}
-            className="flex items-center gap-1 rounded bg-cp-surface-4 px-2.5 py-1.5 enabled:hover:bg-cp-surface-5 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex items-center gap-1 bg-cp-surface-4 px-2.5 py-1.5 enabled:hover:bg-cp-surface-5 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Download size={13} /> {t('inventory.carnetSheet', 'Carnet')}
           </button>
@@ -1673,7 +1673,7 @@ const UnitsTab = ({ codeCell }: UnitsTabProps) => {
             type="button"
             disabled={items.length === 0}
             onClick={() => setForm({ itemId: items[0]?.id ?? '', condition: 'ok' })}
-            className="flex items-center gap-1 rounded bg-emerald-700 px-2.5 py-1.5 enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex items-center gap-1 bg-emerald-700 px-2.5 py-1.5 enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Plus size={14} />
             {t('inventory.addUnit', 'Unit')}
@@ -1682,7 +1682,7 @@ const UnitsTab = ({ codeCell }: UnitsTabProps) => {
       </div>
 
       {form && (
-        <div className="rounded border border-cp-accent/40 bg-cp-surface-2 p-3">
+        <div className="border border-cp-accent/40 bg-cp-surface-2 p-3">
           <div className="mb-2 font-medium">{form.id ? t('inventory.editUnit', 'Edit unit') : t('inventory.newUnit', 'New unit')}</div>
           <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
             <label className="block">
@@ -1779,10 +1779,10 @@ const UnitsTab = ({ codeCell }: UnitsTabProps) => {
             </label>
           </div>
           <div className="mt-3 flex justify-end gap-2">
-            <button type="button" onClick={() => setForm(null)} className="rounded bg-cp-surface-4 px-3 py-1 hover:bg-cp-surface-5">
+            <button type="button" onClick={() => setForm(null)} className="bg-cp-surface-4 px-3 py-1 hover:bg-cp-surface-5">
               {t('common.cancel', 'Cancel')}
             </button>
-            <button type="button" disabled={!form.itemId} onClick={handleSave} className="rounded bg-emerald-700 px-3 py-1 enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50">
+            <button type="button" disabled={!form.itemId} onClick={handleSave} className="bg-emerald-700 px-3 py-1 enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50">
               {t('common.save', 'Save')}
             </button>
           </div>
@@ -1802,7 +1802,7 @@ const UnitsTab = ({ codeCell }: UnitsTabProps) => {
         </ul>
       )}
       {units.length === 0 ? (
-        <div className="rounded border border-dashed border-cp-border py-10 text-center text-cp-text-muted">
+        <div className="border border-dashed border-cp-border py-10 text-center text-cp-text-muted">
           {items.length === 0
             ? t('inventory.unitsNoItems', 'Create items first, then you can serialize individual units.')
             : t('inventory.unitsEmpty', 'No units yet. Serialize individual copies of an item.')}
@@ -1810,21 +1810,21 @@ const UnitsTab = ({ codeCell }: UnitsTabProps) => {
       ) : (
         <div className="space-y-1">
           {units.map((u) => (
-            <div key={u.id} className="rounded border border-cp-border-muted bg-cp-surface-2">
+            <div key={u.id} className="border border-cp-border-muted bg-cp-surface-2">
               <div className="flex flex-wrap items-center gap-2 px-2 py-1.5">
                 <Tags size={13} className="shrink-0 text-cp-text-muted" />
                 <span className="font-medium">{itemById.get(u.itemId)?.model ?? t('inventory.unknownItem', '(deleted item)')}</span>
                 {u.serial && <span className="text-cp-text-secondary">SN {u.serial}</span>}
                 {u.houseRef && <span className="text-cp-text-secondary">#{u.houseRef}</span>}
                 {u.code && codeCell(u.code, u.codeType)}
-                <span className={`rounded px-1.5 py-0.5 text-cp-xs ${CONDITION_TONE[u.condition]}`}>{conditionLabel(u.condition)}</span>
+                <span className={` px-1.5 py-0.5 text-cp-xs ${CONDITION_TONE[u.condition]}`}>{conditionLabel(u.condition)}</span>
                 {/* BEDARF 52 — der Verdacht steht NEBEN dem Zustand, nicht
                     darin. „defekt" ist eine Entscheidung, die jemand getroffen
                     hat; „3 offene Fehler" ist eine Zählung, und genau die lebte
                     bisher nur im Gedächtnis der Crew. */}
                 {openFaultsOf(u).length > 0 && (
                   <span
-                    className="rounded bg-amber-900/50 px-1.5 py-0.5 text-cp-xs text-amber-200"
+                    className="bg-amber-900/50 px-1.5 py-0.5 text-cp-xs text-amber-200"
                     title={affectedServices(u)
                       .map((x) => FAULT_SERVICE_LABEL[x])
                       .join(', ')}
@@ -1839,7 +1839,7 @@ const UnitsTab = ({ codeCell }: UnitsTabProps) => {
                 <select
                   value={u.condition}
                   onChange={(e) => setUnitCondition(u.id, e.target.value as UnitCondition)}
-                  className="rounded border border-cp-border bg-cp-surface-3 p-0.5 text-cp-xs"
+                  className="border border-cp-border bg-cp-surface-3 p-0.5 text-cp-xs"
                   title={t('inventory.setCondition', 'Change condition')}
                 >
                   {(['ok', 'defect', 'inRepair', 'retired'] as UnitCondition[]).map((c) => (
@@ -1855,7 +1855,7 @@ const UnitsTab = ({ codeCell }: UnitsTabProps) => {
                     const id = e.target.value || undefined
                     moveUnit(u.id, id, id ? nodePathLabel(nodes, id) : '')
                   }}
-                  className="min-w-0 flex-1 rounded border border-cp-border bg-cp-surface-3 p-0.5 text-cp-xs"
+                  className="min-w-0 flex-1 border border-cp-border bg-cp-surface-3 p-0.5 text-cp-xs"
                   title={t('inventory.moveUnit', 'Change location')}
                 >
                   <option value="">{t('inventory.noLocation', '— no location —')}</option>
@@ -1866,10 +1866,10 @@ const UnitsTab = ({ codeCell }: UnitsTabProps) => {
                   ))}
                 </select>
                 <div className="ml-auto flex gap-1">
-                  <button type="button" onClick={() => setFaultFor(faultFor === u.id ? null : u.id)} className="rounded p-1 text-cp-text-muted hover:bg-cp-surface-4 hover:text-cp-text" title={t('inventory.reportFault', 'Report a fault')}>
+                  <button type="button" onClick={() => setFaultFor(faultFor === u.id ? null : u.id)} className="p-1 text-cp-text-muted hover:bg-cp-surface-4 hover:text-cp-text" title={t('inventory.reportFault', 'Report a fault')}>
                     <AlertTriangle size={13} />
                   </button>
-                  <button type="button" onClick={() => setOpenHistory(openHistory === u.id ? null : u.id)} className="rounded p-1 text-cp-text-muted hover:bg-cp-surface-4 hover:text-cp-text" title={t('inventory.history', 'History')}>
+                  <button type="button" onClick={() => setOpenHistory(openHistory === u.id ? null : u.id)} className="p-1 text-cp-text-muted hover:bg-cp-surface-4 hover:text-cp-text" title={t('inventory.history', 'History')}>
                     <ClipboardList size={13} />
                   </button>
                   <button type="button" onClick={() =>
@@ -1882,10 +1882,10 @@ const UnitsTab = ({ codeCell }: UnitsTabProps) => {
                         versWaehrung: u.versicherungswert?.betrag.waehrung ?? '',
                         versStand: u.versicherungswert?.stand ?? '',
                       })
-                    } className="rounded p-1 text-cp-text-muted hover:bg-cp-surface-4 hover:text-cp-text" title={t('common.edit', 'Edit')}>
+                    } className="p-1 text-cp-text-muted hover:bg-cp-surface-4 hover:text-cp-text" title={t('common.edit', 'Edit')}>
                     <Pencil size={13} />
                   </button>
-                  <button type="button" onClick={() => handleDelete(u)} className="rounded p-1 text-cp-text-muted hover:bg-red-900/50 hover:text-red-300" title={t('common.delete', 'Delete')}>
+                  <button type="button" onClick={() => handleDelete(u)} className="p-1 text-cp-text-muted hover:bg-red-900/50 hover:text-red-300" title={t('common.delete', 'Delete')}>
                     <Trash2 size={13} />
                   </button>
                 </div>
@@ -1931,7 +1931,7 @@ const UnitsTab = ({ codeCell }: UnitsTabProps) => {
                     onChange={(e) => setFaultText(e.target.value)}
                     placeholder={t('inventory.faultPh', 'What happened? (video lost from camera 3 \u2026)')}
                     aria-label={t('inventory.faultText', 'Fault description')}
-                    className="min-w-0 flex-1 rounded border border-cp-border bg-cp-surface-3 p-1"
+                    className="min-w-0 flex-1 border border-cp-border bg-cp-surface-3 p-1"
                   />
                   {(Object.keys(FAULT_SERVICE_LABEL) as FaultService[]).map((sv) => (
                     <label key={sv} className="flex items-center gap-0.5">
@@ -1955,7 +1955,7 @@ const UnitsTab = ({ codeCell }: UnitsTabProps) => {
                       setFaultServices([])
                       setFaultFor(null)
                     }}
-                    className="rounded border border-cp-border px-2 py-0.5 hover:bg-cp-surface-4"
+                    className="border border-cp-border px-2 py-0.5 hover:bg-cp-surface-4"
                   >
                     {t('inventory.faultSave', 'Record')}
                   </button>
@@ -2214,7 +2214,7 @@ const LabelsTab = () => {
         )}
       </div>
 
-      <div className="flex items-center justify-between rounded border border-cp-border-muted bg-cp-surface-2 px-3 py-2">
+      <div className="flex items-center justify-between border border-cp-border-muted bg-cp-surface-2 px-3 py-2">
         <span className="text-cp-text-secondary">
           {format(t('inventory.labelSummary', '{n} labels · {p} page(s)'), { n: specsCount, p: pages })}
         </span>
@@ -2222,7 +2222,7 @@ const LabelsTab = () => {
           type="button"
           disabled={busy || specsCount === 0}
           onClick={handlePrint}
-          className="flex items-center gap-1 rounded bg-emerald-700 px-3 py-1.5 enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex items-center gap-1 bg-emerald-700 px-3 py-1.5 enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <Printer size={14} />
           {busy ? t('inventory.labelBusy', 'Generating…') : t('inventory.labelPrint', 'Print')}
@@ -2419,7 +2419,7 @@ const CheckoutTab = () => {
       />
 
       {/* Ausgeben */}
-      <div className="rounded border border-cp-border bg-cp-surface-2 p-2.5">
+      <div className="border border-cp-border bg-cp-surface-2 p-2.5">
         <div className="mb-2 flex flex-wrap items-center gap-2">
           <select
             value={nodeId}
@@ -2428,7 +2428,7 @@ const CheckoutTab = () => {
               setRefusal(null)
             }}
             aria-label={t('inventory.checkout.container', 'Container')}
-            className="rounded border border-cp-border bg-cp-surface-3 p-1.5"
+            className="border border-cp-border bg-cp-surface-3 p-1.5"
           >
             <option value="">{t('inventory.checkout.pick', '\u2014 pick a container \u2014')}</option>
             {container.map((n) => (
@@ -2442,14 +2442,14 @@ const CheckoutTab = () => {
             onChange={(e) => setTo(e.target.value)}
             placeholder={t('inventory.checkout.to', 'To (person, truck, client)')}
             aria-label={t('inventory.checkout.to', 'To (person, truck, client)')}
-            className="min-w-[12rem] rounded border border-cp-border bg-cp-surface-3 p-1.5"
+            className="min-w-[12rem] border border-cp-border bg-cp-surface-3 p-1.5"
           />
           <input
             value={projectName}
             onChange={(e) => setProjectName(e.target.value)}
             placeholder={t('inventory.checkout.show', 'Show (optional)')}
             aria-label={t('inventory.checkout.show', 'Show (optional)')}
-            className="min-w-[10rem] rounded border border-cp-border bg-cp-surface-3 p-1.5"
+            className="min-w-[10rem] border border-cp-border bg-cp-surface-3 p-1.5"
           />
           <label className="flex items-center gap-1.5 text-cp-text-secondary">
             {t('inventory.checkout.outAt', 'Handed out on')}
@@ -2461,7 +2461,7 @@ const CheckoutTab = () => {
                 'inventory.checkout.outAtHint',
                 'Empty means now. A day in the past records a hand-out that has already happened.',
               )}
-              className="rounded border border-cp-border bg-cp-surface-3 p-1.5"
+              className="border border-cp-border bg-cp-surface-3 p-1.5"
             />
           </label>
           <label className="flex items-center gap-1.5 text-cp-text-secondary">
@@ -2470,14 +2470,14 @@ const CheckoutTab = () => {
               type="date"
               value={dueBack}
               onChange={(e) => setDueBack(e.target.value)}
-              className="rounded border border-cp-border bg-cp-surface-3 p-1.5"
+              className="border border-cp-border bg-cp-surface-3 p-1.5"
             />
           </label>
           <button
             type="button"
             onClick={ausgeben}
             disabled={!nodeId || !to.trim()}
-            className="flex items-center gap-1 rounded border border-cp-border px-2.5 py-1 text-cp-text-secondary hover:text-cp-text disabled:opacity-40"
+            className="flex items-center gap-1 border border-cp-border px-2.5 py-1 text-cp-text-secondary hover:text-cp-text disabled:opacity-40"
           >
             <Truck size={13} /> {t('inventory.checkout.doOut', 'Check out')}
           </button>
@@ -2503,7 +2503,7 @@ const CheckoutTab = () => {
       </div>
 
       {/* Offene Vorgaenge */}
-      <div className="rounded border border-cp-border">
+      <div className="border border-cp-border">
         <div className="flex items-center justify-between border-b border-cp-border-muted bg-cp-surface-2 px-2 py-1">
           <span className="font-medium">
             {format(t('inventory.checkout.openTitle', 'Out ({n})'), { n: offen.length })}
@@ -2550,13 +2550,13 @@ const CheckoutTab = () => {
                           setExtendDraft((d) => ({ ...d, [r.id]: e.target.value }))
                         }
                         aria-label={t('inventory.checkout.newDueBack', 'New return date')}
-                        className="rounded border border-cp-border bg-cp-surface-3 p-1"
+                        className="border border-cp-border bg-cp-surface-3 p-1"
                       />
                       <button
                         type="button"
                         onClick={() => verschiebe(r)}
                         disabled={!(extendDraft[r.id] ?? '').trim()}
-                        className="rounded border border-cp-border px-1.5 py-0.5 hover:text-cp-text disabled:opacity-40"
+                        className="border border-cp-border px-1.5 py-0.5 hover:text-cp-text disabled:opacity-40"
                       >
                         {t('inventory.checkout.moveDueBack', 'Move return date')}
                       </button>
@@ -2697,7 +2697,7 @@ const CheckoutTab = () => {
                                   }))
                                 }
                                 placeholder={t('inventory.checkout.damagePh', 'What is broken?')}
-                                className="flex-1 rounded border border-cp-border bg-cp-surface-3 px-1.5 py-1"
+                                className="flex-1 border border-cp-border bg-cp-surface-3 px-1.5 py-1"
                               />
                             </li>
                           )
@@ -2735,12 +2735,12 @@ const CheckoutTab = () => {
                     }}
                     placeholder={t('inventory.checkout.scanPlaceholder', 'Label code')}
                     aria-label={format(t('inventory.checkout.scanFor', 'Code for {node}'), { node: r.nodeLabel })}
-                    className="w-40 rounded border border-cp-border bg-cp-surface-3 p-1"
+                    className="w-40 border border-cp-border bg-cp-surface-3 p-1"
                   />
                   <button
                     type="button"
                     onClick={() => scanBack(r)}
-                    className="rounded border border-cp-border px-2 py-0.5 text-cp-text-secondary hover:text-cp-text"
+                    className="border border-cp-border px-2 py-0.5 text-cp-text-secondary hover:text-cp-text"
                   >
                     {t('inventory.checkout.scanCheck', 'Check')}
                   </button>
@@ -2769,7 +2769,7 @@ const CheckoutTab = () => {
       {/* Rueckgabe-Befunde — nur die mit Abweichung. Ein Blatt, auf dem auch
           die glatten Rueckgaben stehen, wird nicht gelesen. */}
       {zurueck.some((r) => r.in!.missing.length > 0 || r.in!.extra.length > 0) && (
-        <div className="rounded border border-cp-warn/40">
+        <div className="border border-cp-warn/40">
           <div className="flex items-center justify-between border-b border-cp-border-muted bg-cp-surface-2 px-2 py-1">
             <span className="flex items-center gap-1.5 font-medium">
               <AlertTriangle size={13} /> {t('inventory.checkout.discrepancy', 'Return findings')}
@@ -2811,7 +2811,7 @@ const CheckoutTab = () => {
           drei Vorfaellen eine Schuld macht, wird beim vierten nicht mehr
           gefuettert. */}
       {schaeden.length > 0 && (
-        <div className="rounded border border-cp-danger/40">
+        <div className="border border-cp-danger/40">
           <div className="flex items-center justify-between border-b border-cp-border-muted bg-cp-surface-2 px-2 py-1">
             <span className="flex items-center gap-1.5 font-medium">
               <AlertTriangle size={13} />
@@ -2863,14 +2863,14 @@ const ReportsTab = () => {
   const report = useMemo(() => buildInventoryReport(items, nodes, units), [items, nodes, units])
 
   const kpi = (label: string, value: string | number) => (
-    <div className="rounded border border-cp-border-muted bg-cp-surface-2 px-3 py-2">
+    <div className="border border-cp-border-muted bg-cp-surface-2 px-3 py-2">
       <div className="text-cp-xs uppercase tracking-wide text-cp-text-muted">{label}</div>
       <div className="text-cp-sm font-semibold tabular-nums text-cp-text">{value}</div>
     </div>
   )
 
   const breakdown = (title: string, rows: { key: string; items: number; units: number }[]) => (
-    <div className="rounded border border-cp-border">
+    <div className="border border-cp-border">
       <div className="border-b border-cp-border-muted bg-cp-surface-2 px-2 py-1 font-medium">{title}</div>
       {rows.length === 0 ? (
         <div className="px-2 py-1.5 text-cp-text-muted">—</div>
@@ -2898,7 +2898,7 @@ const ReportsTab = () => {
         {kpi(t('inventory.kpiValue', 'Rental vol./day (€)'), report.dailyRentalValue.toFixed(2))}
       </div>
       {report.itemsWithoutPrice > 0 && (
-        <div className="rounded border border-amber-600/40 bg-amber-600/10 px-2 py-1 text-amber-500">
+        <div className="border border-amber-600/40 bg-amber-600/10 px-2 py-1 text-amber-500">
           {format(t('inventory.reportNoPrice', '{n} items without rental price — rental volume incomplete.'), { n: report.itemsWithoutPrice })}
         </div>
       )}

@@ -69,7 +69,7 @@ export const RackBuilder3DTab = ({
             key={m}
             type="button"
             onClick={() => onSetRenderMode(m)}
-            className={`rounded px-2 py-0.5 ${
+            className={` px-2 py-0.5 ${
               renderMode === m
                 ? 'bg-purple-700 text-white'
                 : 'bg-cp-surface-2 text-cp-text-muted hover:bg-cp-surface-4'
@@ -93,7 +93,7 @@ export const RackBuilder3DTab = ({
       {placements.length > 0 ? (
         <div
           style={{ height: 'min(75vh, 800px)' }}
-          className="rounded border border-cp-border-muted bg-cp-surface-3"
+          className="border border-cp-border-muted bg-cp-surface-3"
           // v7.9.76 / #170 — Drag&Drop von Library-Cards auf die 3D-Canvas.
           // Da Raycast hier overkill wäre, nutzen wir smart-Placement:
           // Drop fügt das Gerät in den nächsten freien HE-Block ein.
@@ -258,7 +258,7 @@ export const RackBuilder3DTab = ({
           />
         </div>
       ) : (
-        <div className="rounded border border-dashed border-cp-border bg-cp-surface-3/40 p-8 text-center text-cp-xs text-cp-text-faint">
+        <div className="border border-dashed border-cp-border bg-cp-surface-3/40 p-8 text-center text-cp-xs text-cp-text-faint">
           {t('rack.view.empty', 'Add devices to the rack first, then the 3D view appears.')}
         </div>
       )}

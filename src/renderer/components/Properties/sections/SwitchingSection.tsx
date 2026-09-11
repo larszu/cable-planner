@@ -223,7 +223,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
               {t('switching.protocol', 'Control protocol')}
             </span>
             <select
-              className="w-full rounded border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-text"
+              className="w-full border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-text"
               value={protokoll ?? ''}
               onChange={(e) =>
                 updateEquipment(equipment.id, {
@@ -253,7 +253,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
                   {t('switching.target', 'Target')}
                 </span>
                 <select
-                  className="w-full rounded border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-text"
+                  className="w-full border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-text"
                   value={equipment.controlTarget ?? 'device'}
                   onChange={(e) =>
                     updateEquipment(equipment.id, {
@@ -303,7 +303,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
                   {portDisplayLabel(out)}
                 </span>
                 <select
-                  className="min-w-0 flex-1 rounded border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-text"
+                  className="min-w-0 flex-1 border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-text"
                   value={kreuzpunkte.get(out.id) ?? ''}
                   onChange={(e) => setze(out.id, e.target.value)}
                 >
@@ -334,7 +334,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
                     {t('switching.companionHost', 'Companion (IP)')}
                   </span>
                   <input
-                    className="w-32 rounded border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
+                    className="w-32 border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
                     value={equipment.ipAddress ?? ''}
                     placeholder="127.0.0.1"
                     onChange={(e) => updateEquipment(equipment.id, { ipAddress: e.target.value })}
@@ -346,7 +346,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
                   </span>
                   <input
                     type="number"
-                    className="w-20 rounded border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
+                    className="w-20 border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
                     value={equipment.controlPort ?? ''}
                     placeholder="8000"
                     onChange={(e) => {
@@ -361,7 +361,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
                   type="button"
                   onClick={() => void holeVerbindungen()}
                   disabled={verbindungenLaufen}
-                  className="av-focus rounded border border-cp-border px-2 py-1 hover:bg-cp-surface-3 disabled:opacity-40"
+                  className="av-focus border border-cp-border px-2 py-1 hover:bg-cp-surface-3 disabled:opacity-40"
                 >
                   {verbindungenLaufen
                     ? t('switching.companionLoading', 'asking \u2026')
@@ -388,7 +388,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
                               connectionModule: v.moduleId,
                             })
                           }
-                          className="av-focus rounded border border-cp-border px-1.5 py-0.5 hover:bg-cp-surface-3"
+                          className="av-focus border border-cp-border px-1.5 py-0.5 hover:bg-cp-surface-3"
                         >
                           {t('switching.companionNote', 'note')}
                         </button>
@@ -413,7 +413,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
                   <input
                     type="number"
                     min={1}
-                    className="w-16 rounded border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
+                    className="w-16 border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
                     value={companionKonfig?.knopf.page ?? 1}
                     onChange={(e) =>
                       setzeCompanion({
@@ -432,7 +432,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
                   <input
                     type="number"
                     min={0}
-                    className="w-16 rounded border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
+                    className="w-16 border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
                     value={companionKonfig?.knopf.row ?? 0}
                     onChange={(e) =>
                       setzeCompanion({
@@ -451,7 +451,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
                   <input
                     type="number"
                     min={0}
-                    className="w-16 rounded border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
+                    className="w-16 border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
                     value={companionKonfig?.knopf.column ?? 0}
                     onChange={(e) =>
                       setzeCompanion({
@@ -471,7 +471,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
                     {t('switching.companionVarOut', 'Output variable')}
                   </span>
                   <input
-                    className="w-32 rounded border border-cp-border bg-cp-surface-2 px-1 py-1 font-mono text-cp-text"
+                    className="w-32 border border-cp-border bg-cp-surface-2 px-1 py-1 font-mono text-cp-text"
                     value={companionKonfig?.varOut ?? ''}
                     placeholder="cp_out"
                     onChange={(e) => setzeCompanion({ varOut: e.target.value })}
@@ -482,7 +482,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
                     {t('switching.companionVarIn', 'Input variable')}
                   </span>
                   <input
-                    className="w-32 rounded border border-cp-border bg-cp-surface-2 px-1 py-1 font-mono text-cp-text"
+                    className="w-32 border border-cp-border bg-cp-surface-2 px-1 py-1 font-mono text-cp-text"
                     value={companionKonfig?.varIn ?? ''}
                     placeholder="cp_in"
                     onChange={(e) => setzeCompanion({ varIn: e.target.value })}
@@ -493,7 +493,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
                     {t('switching.textBase', 'Counts from')}
                   </span>
                   <select
-                    className="rounded border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
+                    className="border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
                     value={String(companionKonfig?.basis ?? 1)}
                     onChange={(e) => setzeCompanion({ basis: e.target.value === '0' ? 0 : 1 })}
                   >
@@ -506,7 +506,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
                     {t('switching.textNumbers', 'Numbers')}
                   </span>
                   <select
-                    className="rounded border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
+                    className="border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
                     value={companionKonfig?.nummern ?? 'position'}
                     onChange={(e) =>
                       setzeCompanion({
@@ -546,7 +546,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
                   {t('switching.textTemplate', 'Command line (from the device manual)')}
                 </span>
                 <input
-                  className="w-full rounded border border-cp-border bg-cp-surface-2 px-2 py-1 font-mono text-cp-text"
+                  className="w-full border border-cp-border bg-cp-surface-2 px-2 py-1 font-mono text-cp-text"
                   value={textKonfig?.vorlage ?? ''}
                   placeholder=".S{level}{out},{in}"
                   onChange={(e) => setzeText({ vorlage: e.target.value })}
@@ -559,7 +559,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
                     {t('switching.textStart', 'Line start')}
                   </span>
                   <select
-                    className="rounded border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
+                    className="border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
                     value={textKonfig?.anfang ?? 'none'}
                     onChange={(e) => setzeText({ anfang: e.target.value as ZeilenAnfang })}
                   >
@@ -575,7 +575,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
                     {t('switching.textEnd', 'Line end')}
                   </span>
                   <select
-                    className="rounded border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
+                    className="border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
                     value={textKonfig?.ende ?? 'cr'}
                     onChange={(e) => setzeText({ ende: e.target.value as ZeilenEnde })}
                   >
@@ -591,7 +591,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
                     {t('switching.textBase', 'Counts from')}
                   </span>
                   <select
-                    className="rounded border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
+                    className="border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
                     value={String(textKonfig?.basis ?? 1)}
                     onChange={(e) => setzeText({ basis: e.target.value === '0' ? 0 : 1 })}
                   >
@@ -604,7 +604,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
                     {t('switching.textNumbers', 'Numbers')}
                   </span>
                   <select
-                    className="rounded border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
+                    className="border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
                     value={textKonfig?.nummern ?? 'position'}
                     onChange={(e) =>
                       setzeText({ nummern: e.target.value === 'declared' ? 'declared' : 'position' })
@@ -623,7 +623,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
                     {t('switching.textLevel', 'Level')}
                   </span>
                   <input
-                    className="w-14 rounded border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
+                    className="w-14 border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
                     value={textKonfig?.level ?? ''}
                     onChange={(e) => setzeText({ level: e.target.value })}
                   />
@@ -633,7 +633,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
                     {t('switching.textAck', 'Ack')}
                   </span>
                   <input
-                    className="w-20 rounded border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
+                    className="w-20 border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
                     value={textKonfig?.quittung ?? ''}
                     placeholder={t('switching.textAckNone', 'none')}
                     onChange={(e) => setzeText({ quittung: e.target.value })}
@@ -645,7 +645,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
                   </span>
                   <input
                     type="number"
-                    className="w-20 rounded border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
+                    className="w-20 border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
                     value={equipment.controlPort ?? ''}
                     onChange={(e) => {
                       const n = parseInt(e.target.value, 10)
@@ -662,7 +662,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
                   <span className="text-cp-text-muted">
                     {t('switching.textProbe', 'This is what would go out (output 1, input 2):')}
                   </span>{' '}
-                  <code className="rounded bg-cp-surface-3 px-1">{probe}</code>
+                  <code className="bg-cp-surface-3 px-1">{probe}</code>
                 </div>
               )}
 
@@ -684,7 +684,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
                         controlPort: v.port,
                       })
                     }}
-                    className="av-focus rounded border border-cp-border px-1.5 py-0.5 hover:bg-cp-surface-3"
+                    className="av-focus border border-cp-border px-1.5 py-0.5 hover:bg-cp-surface-3"
                   >
                     {v.label}
                   </button>
@@ -717,7 +717,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
                         {portDisplayLabel(p)}
                       </span>
                       <select
-                        className="min-w-0 flex-1 rounded border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
+                        className="min-w-0 flex-1 border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
                         value={p.control?.role ?? ''}
                         onChange={(e) =>
                           e.target.value
@@ -735,7 +735,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
                       <input
                         type="number"
                         min={0}
-                        className="w-20 rounded border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
+                        className="w-20 border border-cp-border bg-cp-surface-2 px-1 py-1 text-cp-text"
                         value={p.control?.address ?? ''}
                         placeholder={t('switching.addressPlaceholder', 'No.')}
                         onChange={(e) => {

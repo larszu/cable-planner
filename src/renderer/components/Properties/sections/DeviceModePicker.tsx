@@ -149,7 +149,7 @@ export const DeviceModePicker = ({
       />
       <div className="grid grid-cols-1 gap-1">
         {modes.length === 0 && (
-          <div className="rounded border border-dashed border-cp-border p-3 text-center text-cp-xs text-cp-text-muted">
+          <div className="border border-dashed border-cp-border p-3 text-center text-cp-xs text-cp-text-muted">
             {t(
               'modes.emptyState',
               'No modes defined yet. Edit ports above, then save the current layout via "+ from current layout".',
@@ -159,7 +159,7 @@ export const DeviceModePicker = ({
         {modes.map((m) => (
           <div
             key={m.id}
-            className={`rounded border ${
+            className={` border ${
               active === m.id ? 'border-sky-500 bg-sky-900/40' : 'border-cp-border bg-cp-surface-1'
             }`}
           >
@@ -184,7 +184,7 @@ export const DeviceModePicker = ({
               <button
                 type="button"
                 onClick={() => setEditorState({ mode: 'edit', modeId: m.id })}
-                className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-sky-300 hover:bg-sky-900/30"
+                className="inline-flex items-center gap-1 px-1.5 py-0.5 text-sky-300 hover:bg-sky-900/30"
                 title={t('modes.editorTitle', 'Open mode in editor (name, description, ports in one place)')}
               >
                 <Icon icon={Pencil} size="xs" /> {t('modes.editor', 'Editor')}
@@ -192,7 +192,7 @@ export const DeviceModePicker = ({
               <button
                 type="button"
                 onClick={() => renameMode(m.id)}
-                className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-cp-text-secondary hover:bg-cp-surface-2"
+                className="inline-flex items-center gap-1 px-1.5 py-0.5 text-cp-text-secondary hover:bg-cp-surface-2"
                 title={t('modes.renameTitle', 'Rename mode')}
               >
                 <Icon icon={Pencil} size="xs" /> {t('modes.name', 'Name')}
@@ -200,7 +200,7 @@ export const DeviceModePicker = ({
               <button
                 type="button"
                 onClick={() => editDescription(m.id)}
-                className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-cp-text-secondary hover:bg-cp-surface-2"
+                className="inline-flex items-center gap-1 px-1.5 py-0.5 text-cp-text-secondary hover:bg-cp-surface-2"
                 title={t('modes.descTitle', 'Edit description')}
               >
                 <Icon icon={Pencil} size="xs" /> {t('modes.desc', 'Description')}
@@ -209,7 +209,7 @@ export const DeviceModePicker = ({
                 <button
                   type="button"
                   onClick={() => captureCurrentPortsToMode(m.id)}
-                  className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-emerald-300 hover:bg-emerald-900/30"
+                  className="inline-flex items-center gap-1 px-1.5 py-0.5 text-emerald-300 hover:bg-emerald-900/30"
                   title={t('modes.captureTitle', 'Adopt current port layout into this mode')}
                 >
                   <Icon icon={ArrowUp} size="xs" /> {t('modes.capture', 'Capture ports')}
@@ -218,7 +218,7 @@ export const DeviceModePicker = ({
               <button
                 type="button"
                 onClick={() => deleteMode(m.id)}
-                className="ml-auto rounded px-1.5 py-0.5 text-cp-text-muted hover:bg-red-700 hover:text-white"
+                className="ml-auto px-1.5 py-0.5 text-cp-text-muted hover:bg-red-700 hover:text-white"
                 title={t('modes.deleteTitle', 'Delete mode')}
                 aria-label={t('modes.deleteTitle', 'Delete mode')}
               >
@@ -232,7 +232,7 @@ export const DeviceModePicker = ({
         <button
           type="button"
           onClick={() => setEditorState({ mode: 'create' })}
-          className="w-full rounded border border-sky-700 bg-sky-900/30 px-2 py-1 text-cp-xs text-sky-100 hover:bg-sky-800/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+          className="w-full border border-sky-700 bg-sky-900/30 px-2 py-1 text-cp-xs text-sky-100 hover:bg-sky-800/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
           title={t(
             'modes.newEditorTitle',
             'Opens an editor where name, description and ports of the new mode can be configured (Issue #113).',
@@ -243,7 +243,7 @@ export const DeviceModePicker = ({
         <button
           type="button"
           onClick={createModeFromPorts}
-          className="w-full rounded border border-dashed border-emerald-700 bg-emerald-950/30 px-2 py-1 text-cp-xs text-emerald-200 hover:bg-emerald-900/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+          className="w-full border border-dashed border-emerald-700 bg-emerald-950/30 px-2 py-1 text-cp-xs text-emerald-200 hover:bg-emerald-900/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
           title={t(
             'modes.quickSaveTitle',
             "Saves the device's current port layout as a new mode (quick-save).",

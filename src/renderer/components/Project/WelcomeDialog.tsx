@@ -52,7 +52,7 @@ export const WelcomeDialog = ({ open, onNew, onOpen, onClose }: WelcomeDialogPro
           <button
             type="button"
             onClick={onClose}
-            className="rounded bg-cp-surface-2 px-3 py-1 text-cp-xs text-cp-text-muted hover:bg-cp-surface-4 hover:text-cp-text-bright"
+            className="bg-cp-surface-2 px-3 py-1 text-cp-xs text-cp-text-muted hover:bg-cp-surface-4 hover:text-cp-text-bright"
             title={t(
               'project.welcome.laterTitle',
               'Continue without choosing — remember to save manually.',
@@ -77,7 +77,7 @@ export const WelcomeDialog = ({ open, onNew, onOpen, onClose }: WelcomeDialogPro
             onNew()
             onClose()
           }}
-          className="flex w-full items-start gap-3 rounded border border-cp-border bg-cp-surface-2 px-3 py-2.5 text-left hover:border-emerald-500 hover:bg-cp-surface-4"
+          className="flex w-full items-start gap-3 border border-cp-border bg-cp-surface-2 px-3 py-2.5 text-left hover:border-emerald-500 hover:bg-cp-surface-4"
         >
           <Icon icon={FileText} size="lg" className="mt-0.5 text-emerald-400" />
           <span className="flex-1">
@@ -96,7 +96,7 @@ export const WelcomeDialog = ({ open, onNew, onOpen, onClose }: WelcomeDialogPro
             onOpen()
             onClose()
           }}
-          className="flex w-full items-start gap-3 rounded border border-cp-border bg-cp-surface-2 px-3 py-2.5 text-left hover:border-sky-500 hover:bg-cp-surface-4"
+          className="flex w-full items-start gap-3 border border-cp-border bg-cp-surface-2 px-3 py-2.5 text-left hover:border-sky-500 hover:bg-cp-surface-4"
         >
           <Icon icon={FolderOpen} size="lg" className="mt-0.5 text-sky-400" />
           <span className="flex-1">
@@ -105,7 +105,7 @@ export const WelcomeDialog = ({ open, onNew, onOpen, onClose }: WelcomeDialogPro
             </span>
             <span className="block text-cp-xs text-cp-text-muted">
               {t('project.welcome.openSubtitle1', 'Load an existing')}{' '}
-              <code className="rounded bg-cp-surface-3 px-1">.cableplan</code>
+              <code className="bg-cp-surface-3 px-1">.cableplan</code>
               {t('project.welcome.openSubtitle2', ' file.')}
             </span>
           </span>
@@ -120,7 +120,7 @@ export const WelcomeDialog = ({ open, onNew, onOpen, onClose }: WelcomeDialogPro
               {recents.slice(0, 6).map((path) => (
                 <div
                   key={path}
-                  className="flex items-center gap-2 rounded border border-cp-border-muted bg-cp-surface-3/40 px-2 py-1 text-cp-xs text-cp-text-muted"
+                  className="flex items-center gap-2 border border-cp-border-muted bg-cp-surface-3/40 px-2 py-1 text-cp-xs text-cp-text-muted"
                   title={path}
                 >
                   <Icon icon={Clock} size="sm" />

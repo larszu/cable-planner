@@ -52,9 +52,9 @@ const CollabStatusBadge = () => {
       type="button"
       onClick={() => useUiStore.getState().openSettings('sync')}
       title={t('statusbar.collab.title', 'Live collaboration active — click for participants & invite')}
-      className="flex items-center gap-1 whitespace-nowrap rounded bg-emerald-700/80 px-1.5 py-0.5 text-cp-xs font-medium text-emerald-50 hover:bg-emerald-600"
+      className="flex items-center gap-1 whitespace-nowrap bg-emerald-700/80 px-1.5 py-0.5 text-cp-xs font-medium text-emerald-50 hover:bg-emerald-600"
     >
-      <span className="inline-block h-2 w-2 rounded-full bg-emerald-300" />
+      <span className="inline-block h-2 w-2 bg-emerald-300" />
       {t('statusbar.collab.live', 'Live')} · {Math.max(peers.length, 1)}
     </button>
   )
@@ -89,7 +89,7 @@ const AufgabenBadge = () => {
     <button
       type="button"
       onClick={() => useUiStore.getState().openAnalysis('todo')}
-      className="inline-flex shrink-0 items-center gap-1 rounded bg-red-700 px-1.5 py-0.5 text-cp-xs font-bold text-red-50 hover:bg-red-600"
+      className="inline-flex shrink-0 items-center gap-1 bg-red-700 px-1.5 py-0.5 text-cp-xs font-bold text-red-50 hover:bg-red-600"
       title={t(
         'statusbar.todo.title',
         'Overdue or due today: returns, check-outs, hours, receipts, costs. Click opens the analyses on "What is due".',
@@ -197,7 +197,7 @@ export const StatusBar = ({
           </span>
         )}
         <span
-          className={`shrink-0 rounded px-1.5 py-0.5 text-cp-xs font-bold ${complexity.tone}`}
+          className={`shrink-0 px-1.5 py-0.5 text-cp-xs font-bold ${complexity.tone}`}
           title={t(
             'statusbar.complexity.title',
             'Complexity: heuristic from (devices + cables) count. Helps gauge readability + performance.',
@@ -208,7 +208,7 @@ export const StatusBar = ({
         <button
           type="button"
           onClick={() => togglePlanCheck()}
-          className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-cp-xs font-bold ${checkTone}`}
+          className={`inline-flex items-center gap-1 px-1.5 py-0.5 text-cp-xs font-bold ${checkTone}`}
           title={t('statusbar.planCheck.title', 'Open plan check: live validation (errors/warnings)')}
         >
           <Icon icon={checkIcon} size="xs" />
@@ -220,7 +220,7 @@ export const StatusBar = ({
           <button
             type="button"
             onClick={() => useUiStore.getState().openAnalysis('network')}
-            className="inline-flex shrink-0 items-center gap-1 rounded bg-amber-600 px-1.5 py-0.5 text-cp-xs font-bold text-amber-50"
+            className="inline-flex shrink-0 items-center gap-1 bg-amber-600 px-1.5 py-0.5 text-cp-xs font-bold text-amber-50"
             title={t(
               'statusbar.network.title',
               'Network findings: missing or duplicate addresses, masks, segments. Click opens the analyses on the network tab.',
@@ -251,7 +251,7 @@ export const StatusBar = ({
         <button
           type="button"
           onClick={() => useUiStore.getState().openAboutDialog()}
-          className="rounded bg-[var(--cp-surface-2)] px-1.5 py-0.5 font-mono text-cp-xs text-[var(--cp-text-muted)] hover:bg-[var(--cp-border)] hover:text-[var(--cp-text)]"
+          className="bg-[var(--cp-surface-2)] px-1.5 py-0.5 font-mono text-cp-xs text-[var(--cp-text-muted)] hover:bg-[var(--cp-border)] hover:text-[var(--cp-text)]"
           title={t('statusbar.aboutTitle', 'About Cable Planner')}
         >
           v{APP_VERSION}

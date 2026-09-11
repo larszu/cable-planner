@@ -153,7 +153,7 @@ const MvLayoutPicker = ({
   return (
     <div className="relative" style={{ width: 'min(240px, 70vw)', aspectRatio: '16 / 9' }}>
       <div
-        className="absolute inset-0 grid gap-[2px] rounded border border-cp-border bg-cp-surface-3 p-[2px]"
+        className="absolute inset-0 grid gap-[2px] border border-cp-border bg-cp-surface-3 p-[2px]"
         style={{ gridTemplateColumns: 'repeat(4, 1fr)', gridTemplateRows: 'repeat(4, 1fr)' }}
       >
         {QUADRANTS.map((q) => (
@@ -453,7 +453,7 @@ const SourcePicker = ({
     <div
       ref={ref}
       onClick={(e) => e.stopPropagation()}
-      className="fixed z-[60] max-h-[60vh] w-64 overflow-auto rounded border border-cp-surface-5 bg-cp-surface-1 shadow-2xl"
+      className="fixed z-[60] max-h-[60vh] w-64 overflow-auto border border-cp-surface-5 bg-cp-surface-1"
       style={{
         left: Math.min(anchor.x, window.innerWidth - 280),
         top: Math.min(anchor.y, window.innerHeight - 400),
@@ -466,7 +466,7 @@ const SourcePicker = ({
           onChange={(e) => setFilter(e.target.value)}
           placeholder={t('common.search', 'Search…')}
           aria-label={t('common.search', 'Search…')}
-          className="mb-1 w-full rounded border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-xs"
+          className="mb-1 w-full border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-xs"
         />
         <div className="flex gap-1">
           <input
@@ -474,7 +474,7 @@ const SourcePicker = ({
             value={custom}
             onChange={(e) => setCustom(e.target.value)}
             placeholder={t('atem.mv.idPlaceholder', 'ID')}
-            className="w-20 rounded border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-xs"
+            className="w-20 border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-xs"
           />
           <button
             type="button"
@@ -482,7 +482,7 @@ const SourcePicker = ({
               const n = Number(custom)
               if (!Number.isNaN(n)) onPick(n)
             }}
-            className="flex-1 rounded bg-emerald-700 px-2 py-1 text-cp-xs hover:bg-emerald-600"
+            className="flex-1 bg-emerald-700 px-2 py-1 text-cp-xs hover:bg-emerald-600"
           >
             {t('common.apply', 'Apply')}
           </button>
@@ -499,7 +499,7 @@ const SourcePicker = ({
                 key={`${group}-${item.id}`}
                 type="button"
                 onClick={() => onPick(item.id)}
-                className={`flex w-full items-center justify-between rounded px-2 py-1 text-left hover:bg-cp-surface-2 ${
+                className={`flex w-full items-center justify-between px-2 py-1 text-left hover:bg-cp-surface-2 ${
                   item.id === currentId ? 'bg-cp-surface-4 text-emerald-300' : 'text-cp-text-bright'
                 }`}
               >
@@ -562,7 +562,7 @@ const CapabilitiesPanel = ({
           {caps.mvCount} MV{caps.mvCount === 1 ? '' : 's'} ·{' '}
           {format(t('atem.mv.layoutsCount', '{n} layouts'), { n: caps.supportedLayouts.length })}{' '}
           {hasOverride && (
-            <span className="rounded bg-amber-900/60 px-1 text-amber-200">{t('atem.mv.manual', 'manual')}</span>
+            <span className="bg-amber-900/60 px-1 text-amber-200">{t('atem.mv.manual', 'manual')}</span>
           )}
         </span>
       </button>
@@ -583,7 +583,7 @@ const CapabilitiesPanel = ({
                   key={l.value}
                   type="button"
                   onClick={() => toggleLayout(l.value)}
-                  className={`rounded px-2 py-0.5 text-cp-xs ${
+                  className={` px-2 py-0.5 text-cp-xs ${
                     on
                       ? 'bg-sky-900 text-sky-200'
                       : 'bg-cp-surface-2 text-cp-text-faint hover:bg-cp-surface-4'
@@ -609,7 +609,7 @@ const CapabilitiesPanel = ({
                     mvCount: Math.max(0, Math.min(4, Number(e.target.value) || 0)),
                   })
                 }
-                className="w-12 rounded border border-cp-border bg-cp-surface-1 px-1 py-0.5"
+                className="w-12 border border-cp-border bg-cp-surface-1 px-1 py-0.5"
               />
             </label>
             <label className="flex items-center gap-1">
@@ -625,14 +625,14 @@ const CapabilitiesPanel = ({
                     maxWindowsPerMv: Math.max(0, Math.min(32, Number(e.target.value) || 0)),
                   })
                 }
-                className="w-14 rounded border border-cp-border bg-cp-surface-1 px-1 py-0.5"
+                className="w-14 border border-cp-border bg-cp-surface-1 px-1 py-0.5"
               />
             </label>
             {hasOverride && (
               <button
                 type="button"
                 onClick={() => onOverride(undefined)}
-                className="ml-auto rounded bg-amber-900/60 px-2 py-0.5 text-amber-200 hover:bg-amber-800/70"
+                className="ml-auto bg-amber-900/60 px-2 py-0.5 text-amber-200 hover:bg-amber-800/70"
                 title={t('atem.mv.removeOverride', 'Remove override — back to auto-detection')}
               >
                 {t('atem.mv.resetOverride', 'Reset override')}
@@ -670,7 +670,7 @@ const AtemMvDevicePicker = () => {
         ref={panelRef}
         aria-labelledby={titleId}
         {...dialogProps}
-        className="flex max-h-[80vh] w-[440px] max-w-[95vw] flex-col rounded-cp-card border border-cp-border bg-cp-surface-1 shadow-2xl"
+        className="flex max-h-[80vh] w-[440px] max-w-[95vw] flex-col rounded-cp-card border border-cp-border bg-cp-surface-1"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-cp-border px-4 py-2">
@@ -704,7 +704,7 @@ const AtemMvDevicePicker = () => {
                   <li key={e.id}>
                     <button
                       onClick={() => openAtemMvConfig(e.id)}
-                      className="flex w-full items-center gap-2 rounded border border-cp-border bg-cp-surface-2 px-3 py-2 text-left text-cp-text hover:bg-cp-surface-4"
+                      className="flex w-full items-center gap-2 border border-cp-border bg-cp-surface-2 px-3 py-2 text-left text-cp-text hover:bg-cp-surface-4"
                     >
                       <Icon icon={Monitor} size="sm" />
                       {e.name}
@@ -1183,7 +1183,7 @@ export const AtemMvConfigDialog = () => {
         ref={editorRef}
         aria-labelledby={editorTitleId}
         {...editorDialogProps}
-        className="flex max-h-[95vh] w-[960px] max-w-[95vw] flex-col rounded-cp-card border border-cp-border bg-cp-surface-1 shadow-2xl"
+        className="flex max-h-[95vh] w-[960px] max-w-[95vw] flex-col rounded-cp-card border border-cp-border bg-cp-surface-1"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-cp-border px-4 py-2">
@@ -1193,7 +1193,7 @@ export const AtemMvConfigDialog = () => {
           <button
             type="button"
             onClick={close}
-            className="rounded bg-cp-surface-2 px-2 py-1 text-cp-xs hover:bg-cp-surface-4"
+            className="bg-cp-surface-2 px-2 py-1 text-cp-xs hover:bg-cp-surface-4"
           >
             {t('common.close', 'Close')}
           </button>
@@ -1205,7 +1205,7 @@ export const AtemMvConfigDialog = () => {
               key={mvItem.index}
               type="button"
               onClick={() => setActiveMv(i)}
-              className={`rounded px-3 py-1 text-cp-xs ${
+              className={` px-3 py-1 text-cp-xs ${
                 i === activeMv
                   ? 'bg-sky-700 text-white'
                   : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'
@@ -1219,7 +1219,7 @@ export const AtemMvConfigDialog = () => {
               type="button"
               onClick={addMv}
               disabled={config.multiViewers.length >= 4}
-              className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5 disabled:opacity-50"
+              className="bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5 disabled:opacity-50"
               title={t('atem.mv.addMv', 'Add multiviewer')}
             >
               +
@@ -1228,7 +1228,7 @@ export const AtemMvConfigDialog = () => {
               type="button"
               onClick={removeMv}
               disabled={config.multiViewers.length <= 1}
-              className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5 disabled:opacity-50"
+              className="bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5 disabled:opacity-50"
               title={t('atem.mv.removeMv', 'Remove last multiviewer')}
             >
               −
@@ -1274,7 +1274,7 @@ export const AtemMvConfigDialog = () => {
                   setLive(null)
                   setLiveReadAt('')
                 }}
-                className="rounded bg-cp-surface-4 px-3 py-1 hover:bg-cp-surface-5"
+                className="bg-cp-surface-4 px-3 py-1 hover:bg-cp-surface-5"
                 title={t('atem.mv.live.discardTitle', 'Discard the reading — the plan stays as it is.')}
               >
                 {t('atem.mv.live.discard', 'Discard reading')}
@@ -1334,7 +1334,7 @@ export const AtemMvConfigDialog = () => {
           {mv && (
             <div className="relative w-full" style={{ aspectRatio: '16 / 9' }}>
               <div
-                className="absolute inset-0 grid gap-[2px] rounded border border-cp-border bg-cp-surface-3 p-1"
+                className="absolute inset-0 grid gap-[2px] border border-cp-border bg-cp-surface-3 p-1"
                 style={{
                   gridTemplateColumns: 'repeat(4, 1fr)',
                   gridTemplateRows: 'repeat(4, 1fr)',
@@ -1379,7 +1379,7 @@ export const AtemMvConfigDialog = () => {
             <button
               type="button"
               onClick={() => void handleExportPng()}
-              className="rounded bg-indigo-700 px-3 py-1 text-cp-xs hover:bg-indigo-600"
+              className="bg-indigo-700 px-3 py-1 text-cp-xs hover:bg-indigo-600"
               title={t('atem.mv.savePng', 'Save current MV layout as PNG')}
             >
               {t('atem.mv.asPng', 'As PNG')}
@@ -1387,7 +1387,7 @@ export const AtemMvConfigDialog = () => {
             <button
               type="button"
               onClick={handleSave}
-              className="rounded bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
+              className="bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
             >
               {t('atem.mv.saveDraft', 'Save draft')}
             </button>
@@ -1396,7 +1396,7 @@ export const AtemMvConfigDialog = () => {
               type="button"
               onClick={() => void handleReadFromAtem()}
               disabled={!connected}
-              className="rounded bg-sky-700 px-3 py-1 text-cp-xs enabled:hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-50"
+              className="bg-sky-700 px-3 py-1 text-cp-xs enabled:hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-50"
               title={
                 connected
                   ? t('atem.mv.readFromTitle', 'Read the multiviewer setup from the connected ATEM and use it in this view.')
@@ -1409,7 +1409,7 @@ export const AtemMvConfigDialog = () => {
               type="button"
               onClick={handleApply}
               disabled={!connected}
-              className="rounded bg-emerald-700 px-3 py-1 text-cp-xs enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
+              className="bg-emerald-700 px-3 py-1 text-cp-xs enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
               title={
                 connected
                   ? t('atem.mv.applyTitle', 'Push configuration to ATEM')

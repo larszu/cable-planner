@@ -140,7 +140,7 @@ export const CableTypeEditor = ({
         ref={panelRef}
         aria-labelledby={titleId}
         {...dialogProps}
-        className="w-full max-w-md rounded border border-cp-border bg-cp-surface-1 p-4 text-cp-text shadow-2xl"
+        className="w-full max-w-md border border-cp-border bg-cp-surface-1 p-4 text-cp-text"
       >
         <div className="mb-3 flex items-center justify-between">
           <h3 id={titleId} className="text-cp-base font-semibold">
@@ -164,7 +164,7 @@ export const CableTypeEditor = ({
               onChange={(e) => setName(e.target.value)}
               placeholder={t('cableLib.namePlaceholder', 'e.g. CAT6a patch 5 m')}
               autoFocus
-              className="mt-0.5 w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-text"
+              className="mt-0.5 w-full border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-text"
             />
             {conflictsWithExisting && (
               <span className="mt-0.5 flex items-center gap-1 text-cp-xs text-amber-400">
@@ -186,7 +186,7 @@ export const CableTypeEditor = ({
                       setConnectorType(n as ConnectorType)
                     }
                   }}
-                  className="rounded bg-emerald-700 px-1.5 text-cp-xs text-emerald-100 hover:bg-emerald-600"
+                  className="bg-emerald-700 px-1.5 text-cp-xs text-emerald-100 hover:bg-emerald-600"
                   title={t('cableLib.addConnectorTitle', 'Add new connector type')}
                 >
                   +
@@ -195,7 +195,7 @@ export const CableTypeEditor = ({
               <select
                 value={connectorType}
                 onChange={(e) => setConnectorType(e.target.value as ConnectorType)}
-                className="mt-0.5 w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1"
+                className="mt-0.5 w-full border border-cp-border bg-cp-surface-3 px-2 py-1"
               >
                 {allConnectorTypeOptions.map((c) => (
                   <option key={c} value={c}>
@@ -211,13 +211,13 @@ export const CableTypeEditor = ({
                 type="color"
                 value={color}
                 onChange={(e) => setColor(e.target.value)}
-                className="mt-0.5 h-7 w-full cursor-pointer rounded border border-cp-border bg-cp-surface-3 p-0.5"
+                className="mt-0.5 h-7 w-full cursor-pointer border border-cp-border bg-cp-surface-3 p-0.5"
               />
             </label>
           </div>
           <div>
             <span className="text-cp-text-muted">{t('cableLib.compatibleWith', 'Also compatible with (optional)')}</span>
-            <div className="mt-1 flex max-h-24 flex-wrap gap-1 overflow-auto rounded border border-cp-border bg-cp-surface-3 p-1.5">
+            <div className="mt-1 flex max-h-24 flex-wrap gap-1 overflow-auto border border-cp-border bg-cp-surface-3 p-1.5">
               {allConnectorTypeOptions.filter((c) => c !== connectorType).map((c) => {
                 const on = compatible.includes(c)
                 return (
@@ -229,7 +229,7 @@ export const CableTypeEditor = ({
                         on ? prev.filter((x) => x !== c) : [...prev, c],
                       )
                     }
-                    className={`rounded px-1.5 py-0.5 text-cp-xs ${
+                    className={` px-1.5 py-0.5 text-cp-xs ${
                       on
                         ? 'bg-emerald-700 text-white'
                         : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'
@@ -253,13 +253,13 @@ export const CableTypeEditor = ({
                     setStandards((prev) => [...prev, n as SignalStandard])
                   }
                 }}
-                className="rounded bg-sky-700 px-1.5 text-cp-xs text-sky-100 hover:bg-sky-600"
+                className="bg-sky-700 px-1.5 text-cp-xs text-sky-100 hover:bg-sky-600"
                 title={t('cableLib.addSignalStandardTitle', 'Add new signal standard')}
               >
                 {t('cableLib.addStandard', '+ Standard')}
               </button>
             </span>
-            <div className="mt-1 flex max-h-32 flex-wrap gap-1 overflow-auto rounded border border-cp-border bg-cp-surface-3 p-1.5">
+            <div className="mt-1 flex max-h-32 flex-wrap gap-1 overflow-auto border border-cp-border bg-cp-surface-3 p-1.5">
               {allSignalStandardOptions.map((s) => {
                 const on = standards.includes(s)
                 return (
@@ -271,7 +271,7 @@ export const CableTypeEditor = ({
                         on ? prev.filter((x) => x !== s) : [...prev, s],
                       )
                     }
-                    className={`rounded px-1.5 py-0.5 text-cp-xs ${
+                    className={` px-1.5 py-0.5 text-cp-xs ${
                       on
                         ? 'bg-sky-700 text-white'
                         : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'
@@ -300,7 +300,7 @@ export const CableTypeEditor = ({
                 setMaxLength(v === '' ? '' : Math.max(0, Number(v)))
               }}
               placeholder={t('cable.field.maxReachPlaceholder', 'e.g. 100')}
-              className="mt-0.5 w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1"
+              className="mt-0.5 w-full border border-cp-border bg-cp-surface-3 px-2 py-1"
             />
           </label>
           <label className="block">
@@ -310,7 +310,7 @@ export const CableTypeEditor = ({
               onChange={(e) => setNotes(e.target.value)}
               rows={2}
               placeholder={t('cableLib.notePlaceholder', 'e.g. indoor only, shielded, …')}
-              className="mt-0.5 w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1"
+              className="mt-0.5 w-full border border-cp-border bg-cp-surface-3 px-2 py-1"
             />
           </label>
         </div>
@@ -318,7 +318,7 @@ export const CableTypeEditor = ({
           <button
             type="button"
             onClick={onCancel}
-            className="rounded bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
+            className="bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
           >
             {t('common.cancel', 'Cancel')}
           </button>
@@ -326,7 +326,7 @@ export const CableTypeEditor = ({
             type="button"
             onClick={submit}
             disabled={!canSave}
-            className="rounded bg-emerald-600 px-3 py-1 text-cp-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
+            className="bg-emerald-600 px-3 py-1 text-cp-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
           >
             {isEditing ? t('common.save', 'Save') : t('cableLib.create', 'Create')}
           </button>

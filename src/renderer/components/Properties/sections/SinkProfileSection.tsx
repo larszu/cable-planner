@@ -88,7 +88,7 @@ export const SinkProfileSection = ({ equipment }: { equipment: EquipmentItem }) 
               {t('sink.herkunft', 'Source (required)')}
             </span>
             <input
-              className={`w-full rounded border bg-cp-surface-2 px-2 py-1 text-cp-text ${
+              className={`w-full border bg-cp-surface-2 px-2 py-1 text-cp-text ${
                 profil.herkunft.trim() ? 'border-cp-border' : 'border-cp-danger'
               }`}
               value={profil.herkunft}
@@ -111,10 +111,10 @@ export const SinkProfileSection = ({ equipment }: { equipment: EquipmentItem }) 
 
           <div className="mt-3 space-y-2">
             {profil.formate.map((f, i) => (
-              <div key={`${f.formatId}-${i}`} className="rounded border border-cp-border bg-cp-surface-2 p-2">
+              <div key={`${f.formatId}-${i}`} className="border border-cp-border bg-cp-surface-2 p-2">
                 <div className="flex items-center gap-2">
                   <select
-                    className="min-w-0 flex-1 rounded border border-cp-border bg-cp-surface-1 px-1 py-1 text-cp-xs"
+                    className="min-w-0 flex-1 border border-cp-border bg-cp-surface-1 px-1 py-1 text-cp-xs"
                     value={f.formatId}
                     onChange={(e) => setzeFormat(i, { formatId: e.target.value as VideoFormatId })}
                     aria-label={t('sink.format', 'Format')}
@@ -127,7 +127,7 @@ export const SinkProfileSection = ({ equipment }: { equipment: EquipmentItem }) 
                   </select>
                   <button
                     type="button"
-                    className="rounded bg-red-700 px-1.5 py-1 text-cp-xs hover:bg-red-600"
+                    className="bg-red-700 px-1.5 py-1 text-cp-xs hover:bg-red-600"
                     onClick={() =>
                       setze({ formate: profil.formate.filter((_, j) => j !== i) })
                     }
@@ -178,7 +178,7 @@ export const SinkProfileSection = ({ equipment }: { equipment: EquipmentItem }) 
 
           <button
             type="button"
-            className="mt-2 rounded bg-emerald-700 px-2 py-1 text-cp-xs hover:bg-emerald-600"
+            className="mt-2 bg-emerald-700 px-2 py-1 text-cp-xs hover:bg-emerald-600"
             onClick={() =>
               setze({
                 formate: [
@@ -209,7 +209,7 @@ export const SinkProfileSection = ({ equipment }: { equipment: EquipmentItem }) 
           <label className="mt-3 block text-cp-xs">
             <span className="mb-1 block text-cp-text-muted">{t('sink.notiz', 'Note')}</span>
             <input
-              className="w-full rounded border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-text"
+              className="w-full border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-text"
               value={profil.notiz ?? ''}
               onChange={(e) => setze({ notiz: e.target.value || undefined })}
             />

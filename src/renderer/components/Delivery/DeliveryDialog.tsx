@@ -493,21 +493,21 @@ export const DeliveryDialog = () => {
         ref={panelRef}
         aria-labelledby={titleId}
         {...dialogProps}
-        className="flex max-h-[88vh] w-full max-w-5xl flex-col overflow-hidden rounded-lg border border-cp-border bg-cp-surface-1 shadow-xl"
+        className="flex max-h-[88vh] w-full max-w-5xl flex-col overflow-hidden border border-cp-border bg-cp-surface-1"
       >
         <div className="flex items-center justify-between border-b border-cp-border px-4 py-2.5">
           <h2 id={titleId} className="flex items-center gap-2 text-cp-base font-semibold text-cp-text">
             <Radio size={16} /> {t('delivery.title', 'Delivery')}
           </h2>
           <div className="flex items-center gap-2">
-            <button type="button" onClick={exportCsv} className="flex items-center gap-1 rounded border border-cp-border px-2 py-1 text-cp-sm text-cp-text-secondary hover:text-cp-text">
+            <button type="button" onClick={exportCsv} className="flex items-center gap-1 border border-cp-border px-2 py-1 text-cp-sm text-cp-text-secondary hover:text-cp-text">
               <Download size={13} /> CSV
             </button>
             <button
               type="button"
               onClick={exportRunOfShow}
               title={t('delivery.runOfShowHint', 'One sheet for show day \u2014 stream keys appear on it only as a reference to the keychain')}
-              className="flex items-center gap-1 rounded border border-cp-border px-2 py-1 text-cp-sm text-cp-text-secondary hover:text-cp-text"
+              className="flex items-center gap-1 border border-cp-border px-2 py-1 text-cp-sm text-cp-text-secondary hover:text-cp-text"
             >
               <FileText size={13} /> {t('delivery.runOfShow', 'Run sheet')}
             </button>
@@ -518,7 +518,7 @@ export const DeliveryDialog = () => {
                 'delivery.path.hint',
                 'The path from the programme feed to the platform — source, encoder, transport, destination',
               )}
-              className="flex items-center gap-1 rounded border border-cp-border px-2 py-1 text-cp-sm text-cp-text-secondary hover:text-cp-text"
+              className="flex items-center gap-1 border border-cp-border px-2 py-1 text-cp-sm text-cp-text-secondary hover:text-cp-text"
             >
               <Route size={13} /> {t('delivery.path.title', 'Delivery path')}
             </button>
@@ -542,7 +542,7 @@ export const DeliveryDialog = () => {
               was die Aufzeichnung mitreißen könnte, und die Frage dort zu
               stellen wäre eine Warnung ohne Anlass. */}
           {list.length > 0 && (
-            <div className="mb-4 rounded border border-cp-border-muted bg-cp-surface-2 p-2.5">
+            <div className="mb-4 border border-cp-border-muted bg-cp-surface-2 p-2.5">
               <div className="mb-1.5 flex flex-wrap items-center gap-2 text-cp-sm">
                 <span className="font-medium text-cp-text">
                   {t('delivery.archive.title', 'Independent archive recording')}
@@ -620,7 +620,7 @@ export const DeliveryDialog = () => {
                 <button
                   type="button"
                   onClick={exportArchive}
-                  className="flex items-center gap-1 rounded border border-cp-border px-2 py-1 text-cp-sm text-cp-text-secondary hover:text-cp-text"
+                  className="flex items-center gap-1 border border-cp-border px-2 py-1 text-cp-sm text-cp-text-secondary hover:text-cp-text"
                 >
                   <FileText size={13} /> {t('delivery.archive.export', 'Sheet')}
                 </button>
@@ -642,7 +642,7 @@ export const DeliveryDialog = () => {
               auf der er getippt würde, und der Abschnitt wäre eine Frage ohne
               Anlass — dieselbe Regel wie beim Archiv und beim Sicherheitsnetz. */}
           {list.length > 0 && (
-            <div className="mb-4 rounded border border-cp-border-muted bg-cp-surface-2 p-2.5">
+            <div className="mb-4 border border-cp-border-muted bg-cp-surface-2 p-2.5">
               <div className="mb-1.5 flex flex-wrap items-center gap-2 text-cp-sm">
                 <span className="font-medium text-cp-text">
                   {t('delivery.event.title', 'Event details')}
@@ -654,7 +654,7 @@ export const DeliveryDialog = () => {
                     'delivery.event.exportHint',
                     'A sheet to type from \u2014 one row per destination with title, start and visibility',
                   )}
-                  className="flex items-center gap-1 rounded border border-cp-border px-2 py-1 text-cp-sm text-cp-text-secondary hover:text-cp-text"
+                  className="flex items-center gap-1 border border-cp-border px-2 py-1 text-cp-sm text-cp-text-secondary hover:text-cp-text"
                 >
                   <FileText size={13} /> {t('delivery.event.export', 'Sheet')}
                 </button>
@@ -780,7 +780,7 @@ export const DeliveryDialog = () => {
               ohne Ausspielung gab es keine Sendung, über die zu berichten
               wäre. */}
           {list.length > 0 && (
-            <div className="mb-4 rounded border border-cp-border-muted bg-cp-surface-2 p-2.5">
+            <div className="mb-4 border border-cp-border-muted bg-cp-surface-2 p-2.5">
               <div className="mb-1.5 flex flex-wrap items-center gap-2 text-cp-sm">
                 <span className="font-medium text-cp-text">
                   {t('delivery.record.title', 'Transmission record')}
@@ -789,13 +789,13 @@ export const DeliveryDialog = () => {
                     Übergabe (Bedarf 84). Er steht hier und nicht nur in den
                     Befunden, weil er entscheidet, ob „Abweichung" überhaupt
                     etwas heißen kann. */}
-                <span className="rounded border border-cp-border-muted px-1.5 py-0.5 text-cp-xs text-cp-text-secondary">
+                <span className="border border-cp-border-muted px-1.5 py-0.5 text-cp-xs text-cp-text-secondary">
                   {JOB_BASIS_LABEL[sendung.basis]}
                 </span>
                 <button
                   type="button"
                   onClick={addTransmissionEvent}
-                  className="flex items-center gap-1 rounded border border-cp-border px-2 py-1 text-cp-sm text-cp-text-secondary hover:text-cp-text"
+                  className="flex items-center gap-1 border border-cp-border px-2 py-1 text-cp-sm text-cp-text-secondary hover:text-cp-text"
                 >
                   <Plus size={13} /> {t('delivery.record.add', 'Entry')}
                 </button>
@@ -806,7 +806,7 @@ export const DeliveryDialog = () => {
                     'delivery.record.exportHint',
                     'The sequence as a sheet \u2014 every row states where the statement came from. This plan measures nothing.',
                   )}
-                  className="flex items-center gap-1 rounded border border-cp-border px-2 py-1 text-cp-sm text-cp-text-secondary hover:text-cp-text"
+                  className="flex items-center gap-1 border border-cp-border px-2 py-1 text-cp-sm text-cp-text-secondary hover:text-cp-text"
                 >
                   <FileText size={13} /> {t('delivery.record.export', 'Sheet')}
                 </button>
@@ -952,7 +952,7 @@ export const DeliveryDialog = () => {
               gibt: ohne Ausspielung gibt es nichts zu schützen, und der
               Abschnitt wäre eine Frage ohne Anlass. */}
           {list.length > 0 && (
-            <div className="mb-4 rounded border border-cp-border-muted bg-cp-surface-2 p-2.5">
+            <div className="mb-4 border border-cp-border-muted bg-cp-surface-2 p-2.5">
               <div className="mb-1.5 flex flex-wrap items-center gap-2 text-cp-sm">
                 <span className="font-medium text-cp-text">
                   {t('delivery.fb.title', 'Fallback behaviour (safety net)')}
@@ -960,7 +960,7 @@ export const DeliveryDialog = () => {
                 <button
                   type="button"
                   onClick={exportFallback}
-                  className="ml-auto flex items-center gap-1 rounded border border-cp-border px-2 py-1 text-cp-sm text-cp-text-secondary hover:text-cp-text"
+                  className="ml-auto flex items-center gap-1 border border-cp-border px-2 py-1 text-cp-sm text-cp-text-secondary hover:text-cp-text"
                 >
                   <FileText size={13} /> {t('delivery.fb.export', 'Sheet')}
                 </button>
@@ -971,7 +971,7 @@ export const DeliveryDialog = () => {
                     'delivery.fb.skeletonHint',
                     'A skeleton to copy by hand, not a config to load \u2014 the NOALBS schema depends on the version you run',
                   )}
-                  className="flex items-center gap-1 rounded border border-cp-border px-2 py-1 text-cp-sm text-cp-text-secondary hover:text-cp-text"
+                  className="flex items-center gap-1 border border-cp-border px-2 py-1 text-cp-sm text-cp-text-secondary hover:text-cp-text"
                 >
                   <Download size={13} /> {t('delivery.fb.skeleton', 'Skeleton')}
                 </button>
@@ -1042,7 +1042,7 @@ export const DeliveryDialog = () => {
                 <button
                   type="button"
                   onClick={applyScenes}
-                  className="rounded border border-cp-border px-2 py-1.5 text-cp-sm text-cp-text-secondary hover:text-cp-text"
+                  className="border border-cp-border px-2 py-1.5 text-cp-sm text-cp-text-secondary hover:text-cp-text"
                 >
                   {t('delivery.fb.scenesApply', 'Apply')}
                 </button>
@@ -1063,7 +1063,7 @@ export const DeliveryDialog = () => {
                         <button
                           type="button"
                           onClick={() => addRule(d.id)}
-                          className="rounded border border-cp-border px-2 py-0.5 text-cp-text-secondary hover:text-cp-text"
+                          className="border border-cp-border px-2 py-0.5 text-cp-text-secondary hover:text-cp-text"
                         >
                           <Plus size={11} className="inline" />{' '}
                           {t('delivery.fb.protect', 'Protect')}
@@ -1074,7 +1074,7 @@ export const DeliveryDialog = () => {
                   return (
                     <li
                       key={d.id}
-                      className="rounded border border-cp-border-muted bg-cp-surface-3 p-2"
+                      className="border border-cp-border-muted bg-cp-surface-3 p-2"
                     >
                       <div className="mb-1 flex items-center gap-2 text-cp-sm">
                         <span className="flex-1 font-medium text-cp-text">{d.name}</span>
@@ -1154,7 +1154,7 @@ export const DeliveryDialog = () => {
           )}
 
           {/* Uplink-Budget: die 40-%-Kopfraum-Regel, mit Rechnung daneben. */}
-          <div className="mb-4 rounded border border-cp-border-muted bg-cp-surface-2 p-2.5">
+          <div className="mb-4 border border-cp-border-muted bg-cp-surface-2 p-2.5">
             <div className="flex flex-wrap items-center gap-2 text-cp-sm">
               <label className="text-cp-text-secondary" htmlFor="uplink">
                 {t('delivery.uplink', 'Uplink (Mbit/s)')}
@@ -1184,7 +1184,7 @@ export const DeliveryDialog = () => {
               Primaerwegen ist die Frage gegenstandslos, und ein Kasten, der
               dann „alles in Ordnung" meldet, verlernt sich. */}
           {feasibility.some((f) => f.findings.length > 0) && (
-            <div className="mb-4 rounded border border-cp-warn/40 bg-cp-surface-2 p-2.5">
+            <div className="mb-4 border border-cp-warn/40 bg-cp-surface-2 p-2.5">
               <h3 className="mb-1.5 flex items-center gap-1.5 text-cp-sm font-medium text-cp-text">
                 <Cpu size={14} /> {t('delivery.encoder.title', 'Encoder feasibility')}
               </h3>
@@ -1238,7 +1238,7 @@ export const DeliveryDialog = () => {
                 const chain = chainById.get(d.id)
                 const advice = d.transport === 'SRT' ? srtLatencyAdvice(d.srt?.measuredRttMs) : null
                 return (
-                  <li key={d.id} className="rounded border border-cp-border bg-cp-surface-2 p-2.5">
+                  <li key={d.id} className="border border-cp-border bg-cp-surface-2 p-2.5">
                     <div className="mb-2 flex flex-wrap items-center gap-2">
                       <input
                         value={d.name}
@@ -1352,7 +1352,7 @@ export const DeliveryDialog = () => {
                       <button
                         type="button"
                         onClick={() => void saveKey(d)}
-                        className="rounded border border-cp-border px-2 py-1 text-cp-sm text-cp-text-secondary hover:text-cp-text"
+                        className="border border-cp-border px-2 py-1 text-cp-sm text-cp-text-secondary hover:text-cp-text"
                       >
                         {t('delivery.saveKey', 'Save key')}
                       </button>
@@ -1478,7 +1478,7 @@ export const DeliveryDialog = () => {
                           {t('delivery.osc.address', 'OSC address')}
                         </span>
                         <input
-                          className="w-full rounded border border-cp-border bg-cp-surface-2 px-2 py-1"
+                          className="w-full border border-cp-border bg-cp-surface-2 px-2 py-1"
                           value={d.showControl?.oscAdresse ?? ''}
                           placeholder="/stream/haupt/start"
                           onChange={(e) =>
@@ -1497,7 +1497,7 @@ export const DeliveryDialog = () => {
                         </span>
                         <input
                           type="number"
-                          className="w-full rounded border border-cp-border bg-cp-surface-2 px-2 py-1"
+                          className="w-full border border-cp-border bg-cp-surface-2 px-2 py-1"
                           value={d.showControl?.companionSeite ?? ''}
                           onChange={(e) =>
                             update(d.id, {
@@ -1515,7 +1515,7 @@ export const DeliveryDialog = () => {
                         </span>
                         <input
                           type="number"
-                          className="w-full rounded border border-cp-border bg-cp-surface-2 px-2 py-1"
+                          className="w-full border border-cp-border bg-cp-surface-2 px-2 py-1"
                           value={d.showControl?.companionPlatz ?? ''}
                           onChange={(e) =>
                             update(d.id, {
@@ -1577,7 +1577,7 @@ export const DeliveryDialog = () => {
           <button
             type="button"
             onClick={addDestination}
-            className="flex items-center gap-1 rounded border border-cp-border px-2.5 py-1 text-cp-sm text-cp-text-secondary hover:text-cp-text"
+            className="flex items-center gap-1 border border-cp-border px-2.5 py-1 text-cp-sm text-cp-text-secondary hover:text-cp-text"
           >
             <Plus size={14} /> {t('delivery.add', 'Add destination')}
           </button>

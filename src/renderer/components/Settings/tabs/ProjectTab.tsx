@@ -159,12 +159,12 @@ const LibraryExportSection = () => {
         <button
           type="button"
           onClick={handleExport}
-          className="rounded bg-emerald-700 px-3 py-1.5 hover:bg-emerald-600"
+          className="bg-emerald-700 px-3 py-1.5 hover:bg-emerald-600"
           title={`${customLibrary.length} ${t('settings.project.libExport.devicesWord', 'devices')} + ${groupPresets.length} ${t('settings.project.libExport.groupsWord', 'groups')} ${t('settings.project.libExport.exportVerb', 'export')}`}
         >
           <Icon icon={Download} size="xs" className="mr-1 inline-block align-text-bottom" />{t('settings.project.libExport.exportBtn', 'Export library')} ({customLibrary.length} {t('settings.project.libExport.devicesWord', 'devices')}, {groupPresets.length} {t('settings.project.libExport.groupsWord', 'groups')})
         </button>
-        <label className="rounded bg-sky-700 px-3 py-1.5 cursor-pointer hover:bg-sky-600">
+        <label className="bg-sky-700 px-3 py-1.5 cursor-pointer hover:bg-sky-600">
           {importBusy ? (
             <><Icon icon={Loader2} size="xs" className="mr-1 inline-block align-text-bottom animate-spin" />{t('settings.project.libExport.importing', 'Importing…')}</>
           ) : (
@@ -231,7 +231,7 @@ const CableNumberingSection = () => {
               type="text"
               value={eff.prefix}
               onChange={(e) => patch({ prefix: e.target.value })}
-              className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5"
+              className="w-full border border-cp-border bg-cp-surface-3 p-1.5"
               placeholder="C"
             />
           </label>
@@ -242,7 +242,7 @@ const CableNumberingSection = () => {
               value={eff.separator}
               maxLength={2}
               onChange={(e) => patch({ separator: e.target.value })}
-              className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5"
+              className="w-full border border-cp-border bg-cp-surface-3 p-1.5"
               placeholder="-"
             />
           </label>
@@ -254,7 +254,7 @@ const CableNumberingSection = () => {
               max={6}
               value={eff.padding}
               onChange={(e) => patch({ padding: Math.max(1, Math.min(6, Number(e.target.value) || 1)) })}
-              className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5"
+              className="w-full border border-cp-border bg-cp-surface-3 p-1.5"
             />
           </label>
           <label className="block">
@@ -264,7 +264,7 @@ const CableNumberingSection = () => {
               min={0}
               value={eff.start}
               onChange={(e) => patch({ start: Math.max(0, Number(e.target.value) || 0) })}
-              className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5"
+              className="w-full border border-cp-border bg-cp-surface-3 p-1.5"
             />
           </label>
         </div>
@@ -285,7 +285,7 @@ const CableNumberingSection = () => {
             type="button"
             onClick={handleRenumber}
             disabled={cableCount === 0}
-            className="rounded bg-sky-700 px-3 py-1.5 hover:bg-sky-600 disabled:opacity-50"
+            className="bg-sky-700 px-3 py-1.5 hover:bg-sky-600 disabled:opacity-50"
           >
             {t('settings.project.numbering.renumber', 'Renumber all cables')} ({cableCount})
           </button>
@@ -343,7 +343,7 @@ const LengthEstimationSection = () => {
               step={0.1}
               value={eff.metersPer100px}
               onChange={(e) => patch({ metersPer100px: Math.max(0.1, Number(e.target.value) || 0.1) })}
-              className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5"
+              className="w-full border border-cp-border bg-cp-surface-3 p-1.5"
             />
           </label>
           <label className="block">
@@ -356,7 +356,7 @@ const LengthEstimationSection = () => {
               max={200}
               value={eff.slackPercent}
               onChange={(e) => patch({ slackPercent: Math.max(0, Number(e.target.value) || 0) })}
-              className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5"
+              className="w-full border border-cp-border bg-cp-surface-3 p-1.5"
             />
           </label>
         </div>
@@ -373,7 +373,7 @@ const LengthEstimationSection = () => {
             type="button"
             onClick={handleEstimate}
             disabled={cableCount === 0}
-            className="rounded bg-sky-700 px-3 py-1.5 hover:bg-sky-600 disabled:opacity-50"
+            className="bg-sky-700 px-3 py-1.5 hover:bg-sky-600 disabled:opacity-50"
           >
             {t('settings.project.lengthEst.run', 'Estimate lengths now')} ({cableCount})
           </button>
@@ -416,7 +416,7 @@ const PlanDefaultsSection = () => {
           <select
             value={videoFormat ?? DEFAULT_VIDEO_FORMAT}
             onChange={(e) => setDefaultVideoFormat(e.target.value)}
-            className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5"
+            className="w-full border border-cp-border bg-cp-surface-3 p-1.5"
           >
             {VIDEO_FORMATS.map((f) => (
               <option key={f.id} value={f.id}>
@@ -434,7 +434,7 @@ const PlanDefaultsSection = () => {
             onChange={(e) =>
               updateProjectMetadata({ defaultPowerStandard: e.target.value as PowerStandardId })
             }
-            className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5"
+            className="w-full border border-cp-border bg-cp-surface-3 p-1.5"
           >
             {POWER_STANDARDS.map((s) => (
               <option key={s.id} value={s.id}>
@@ -454,7 +454,7 @@ const PlanDefaultsSection = () => {
                 defaultLightingControl: e.target.value as 'dmx512' | 'artnet' | 'sacn',
               })
             }
-            className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5"
+            className="w-full border border-cp-border bg-cp-surface-3 p-1.5"
           >
             <option value="dmx512">DMX512 / RDM (5-pin XLR)</option>
             <option value="artnet">Art-Net (Ethernet)</option>
@@ -503,7 +503,7 @@ export const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
           type="text"
           value={draftMeta.name}
           onChange={(e) => setDraftMeta({ ...draftMeta, name: e.target.value })}
-          className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2 text-cp-base"
+          className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-2 text-cp-base"
           placeholder={t('settings.project.name', 'Project name')}
         />
       </label>
@@ -513,7 +513,7 @@ export const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
           value={draftMeta.description ?? ''}
           onChange={(e) => setDraftMeta({ ...draftMeta, description: e.target.value })}
           rows={3}
-          className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2 text-cp-base"
+          className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-2 text-cp-base"
           placeholder={t(
             'settings.project.descriptionPlaceholder',
             'Optional project description',
@@ -527,7 +527,7 @@ export const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
             type="text"
             value={draftMeta.client ?? ''}
             onChange={(e) => setDraftMeta({ ...draftMeta, client: e.target.value })}
-            className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2 text-cp-base"
+            className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-2 text-cp-base"
             placeholder={t('settings.project.clientPlaceholder', 'End customer')}
           />
         </label>
@@ -537,7 +537,7 @@ export const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
             type="text"
             value={draftMeta.contractor ?? ''}
             onChange={(e) => setDraftMeta({ ...draftMeta, contractor: e.target.value })}
-            className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2 text-cp-base"
+            className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-2 text-cp-base"
             placeholder={t('settings.project.contractorPlaceholder', 'Executing company')}
           />
         </label>
@@ -549,7 +549,7 @@ export const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
             type="text"
             value={draftMeta.author ?? ''}
             onChange={(e) => setDraftMeta({ ...draftMeta, author: e.target.value })}
-            className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2 text-cp-base"
+            className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-2 text-cp-base"
             placeholder={t('settings.project.authorPlaceholder', 'Your name')}
           />
         </label>
@@ -559,7 +559,7 @@ export const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
             type="text"
             value={draftMeta.projectNumber ?? ''}
             onChange={(e) => setDraftMeta({ ...draftMeta, projectNumber: e.target.value })}
-            className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2 text-cp-base"
+            className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-2 text-cp-base"
             placeholder={t('settings.project.numberPlaceholder', 'e.g. 2026-042')}
           />
         </label>
@@ -583,7 +583,7 @@ export const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
             const current = draftMeta[field]
             return (
               <div key={field} className="flex flex-col items-center gap-2">
-                <div className="flex h-16 w-full items-center justify-center overflow-hidden rounded border border-cp-border bg-white/5">
+                <div className="flex h-16 w-full items-center justify-center overflow-hidden border border-cp-border bg-white/5">
                   {current ? (
                     <img src={current} alt={label} className="max-h-16 max-w-full object-contain" />
                   ) : (
@@ -594,7 +594,7 @@ export const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
                   <button
                     type="button"
                     onClick={() => pickLogo(field)}
-                    className="flex-1 rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
+                    className="flex-1 bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
                   >
                     {t('common.choose', 'Choose…')}
                   </button>
@@ -604,7 +604,7 @@ export const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
                       onClick={() => setDraftMeta((prev) => ({ ...prev, [field]: undefined }))}
                       title={t('common.remove', 'Remove')}
                       aria-label={t('common.remove', 'Remove')}
-                      className="rounded bg-cp-surface-2 px-2 py-1 text-cp-xs text-cp-text-muted hover:bg-red-700 hover:text-white"
+                      className="bg-cp-surface-2 px-2 py-1 text-cp-xs text-cp-text-muted hover:bg-red-700 hover:text-white"
                     >
                       <Icon icon={X} size="sm" />
                     </button>
@@ -643,14 +643,14 @@ export const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
         <button
           type="button"
           onClick={() => setDraftMeta(metadata)}
-          className="rounded bg-cp-surface-4 px-3 py-1 text-cp-base hover:bg-cp-surface-5"
+          className="bg-cp-surface-4 px-3 py-1 text-cp-base hover:bg-cp-surface-5"
         >
           {t('common.reset', 'Reset')}
         </button>
         <button
           type="button"
           onClick={persistMeta}
-          className="rounded bg-emerald-600 px-3 py-1 text-cp-base hover:bg-emerald-500"
+          className="bg-emerald-600 px-3 py-1 text-cp-base hover:bg-emerald-500"
         >
           {t('common.save', 'Save')}
         </button>
