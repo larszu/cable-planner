@@ -546,6 +546,8 @@ export const MenuBar = ({
   const offPageShowNames = useUiStore((s) => s.offPageShowNames)
   const cableColorMode = useUiStore((s) => s.cableColorMode)
   const annotationsPanelOpen = useUiStore((s) => s.annotationsPanelOpen)
+  const canvasSearchVisible = useUiStore((s) => s.canvasSearchVisible)
+  const canvasToolbarVisible = useUiStore((s) => s.canvasToolbarVisible)
   // Re-render whenever the projectHistory store changes so the undo/redo
   // buttons reflect the current canUndo/canRedo state. Keyboard shortcuts
   // (Strg+Z / Strg+Umsch+Z / Strg+Y) live in useUndoRedoShortcuts; these
@@ -1080,6 +1082,29 @@ export const MenuBar = ({
             {t('app.menu.view.colorByLayer', 'Color cables by discipline')}
           </MenuItem>
           <MenuSep />
+          {/* ── Die beiden schwebenden Leisten (Nutzer-Meldung 2026-09-11) ──
+              „Man muss ‚Gerät suchen' und die Leiste wo die Ebenen drauf
+              stehen auch schliessen können und über das ‚Ansicht' Menü in
+              der oberen Leiste auch wieder öffnen können."
+
+              Sie stehen hier und nicht in den Einstellungen, weil sie
+              dasselbe sind wie die Zeilen darunter und darüber: eine Sicht
+              an- oder ausschalten. Das Häkchen ist dabei der eigentliche
+              Dienst — eine geschlossene Leiste ist unsichtbar, und ohne
+              Häkchen wüsste niemand, ob sie fehlt oder ob es sie nie gab. */}
+          <MenuItem
+            onClick={() => useUiStore.getState().setCanvasSearchVisible(!canvasSearchVisible)}
+            icon={canvasSearchVisible ? <Icon icon={Check} size="sm" /> : null}
+            shortcut={t('shortcut.ctrlF', 'Ctrl+F')}
+          >
+            {t('app.menu.view.canvasSearch', 'Find device')}
+          </MenuItem>
+          <MenuItem
+            onClick={() => useUiStore.getState().setCanvasToolbarVisible(!canvasToolbarVisible)}
+            icon={canvasToolbarVisible ? <Icon icon={Check} size="sm" /> : null}
+          >
+            {t('app.menu.view.canvasToolbar', 'Canvas toolbar')}
+          </MenuItem>
           <MenuItem
             onClick={() => useUiStore.getState().setAnnotationsPanelOpen(!annotationsPanelOpen)}
             icon={annotationsPanelOpen ? <Icon icon={Check} size="sm" /> : null}

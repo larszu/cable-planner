@@ -409,6 +409,42 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
         </svg>
       </span>
 
+      {/* ── Schliessen (Nutzer-Meldung 2026-09-11) ────────────────────────
+          „Man muss … die Leiste wo die Ebenen drauf stehen auch schliessen
+          können und über das ‚Ansicht' Menü in der oberen Leiste auch wieder
+          öffnen können."
+
+          Diese Leiste schwebt ueber dem Plan und liess sich nur VERSCHIEBEN.
+          Auf einem vollen Plan ist Verschieben kein Ersatz fuers Wegraeumen:
+          sie verdeckt dann eben woanders etwas.
+
+          Der Knopf steht NEBEN dem Zieh-Griff und nicht am rechten Ende: die
+          Leiste umbricht (`flexWrap`), ihr rechtes Ende wandert also mit
+          Fensterbreite und Sprache. Ein Schliessen-Knopf, den man erst
+          suchen muss, ist keiner. */}
+      <button
+        type="button"
+        onClick={() => useUiStore.getState().setCanvasToolbarVisible(false)}
+        title={t('toolbar.close', 'Close toolbar (View menu brings it back)')}
+        aria-label={t('toolbar.close', 'Close toolbar (View menu brings it back)')}
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: T.iconBtnSize,
+          height: T.iconBtnSize,
+          background: 'none',
+          border: 'none',
+          color: T.textMuted,
+          cursor: 'pointer',
+          padding: 0,
+        }}
+      >
+        <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
+          <path d="M1.5 1.5 L9.5 9.5 M9.5 1.5 L1.5 9.5" />
+        </svg>
+      </button>
+
       <span style={dividerStyle} />
 
       {/* ── Gruppe 1: Defaults-Dropdown ─────────────────────────────

@@ -162,6 +162,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
   const projectMode = useProjectStore((s) => s.project.mode ?? 'editing')
   const projectIsLocked = projectMode === 'finalized' || projectMode === 'viewer'
   // v7.9.67 / #177 — Toolbar-Sperren für ganze Objektarten.
+  const canvasToolbarVisible = useUiStore((s) => s.canvasToolbarVisible)
   const lockFrames = useUiStore((s) => s.lockFrames)
   const lockEquipment = useUiStore((s) => s.lockEquipment)
   // #585 — Rack-Editor aus Doppelklick/Rechtsklick auf eine Rack-Black-Box.
@@ -1657,8 +1658,13 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
       {/* v7.9.12 — Toolbar wird auch im Rack-Mode gerendert, allerdings
           mit reduziertem Feature-Set (Frame/Group/Lock/Annotations
           ausgeblendet). Snap/Grid/Routing-Defaults/Align bleiben
-          weil sie auch im Rack-Sub-Canvas Sinn machen. */}
-      <CanvasToolbar mode={mode} />
+          weil sie auch im Rack-Sub-Canvas Sinn machen.
+
+          Seit 2026-09-11 laesst sie sich schliessen (Nutzer-Meldung). Hier
+          steht die Bedingung und nicht in der Komponente — anders als bei
+          der Suche, an der ein Tastenkuerzel haengt, das sie am Leben halten
+          muss. Die Leiste hat keines; sie kommt ueber Ansicht zurueck. */}
+      {canvasToolbarVisible && <CanvasToolbar mode={mode} />}
       {mode === 'main' && <AnnotationCanvasOverlay />}
       {/* v7.9.5 — Lock-Banner. Wenn projectMode='finalized' oder 'viewer'
           ist, zeigt eine prominente Leiste oben dass das Canvas

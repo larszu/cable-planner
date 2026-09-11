@@ -132,16 +132,20 @@ jobs:
       # Dritter Lauf im selben Job, aus demselben Grund: dieselbe gebaute App.
       # Er zaehlt, was der Nutzer am 2026-09-07 beschrieben hat -- „man erkennt
       # nicht auf den ersten Blick, was jedes Element verursacht": Knoepfe ohne
-      # Namen (heute null) und Knoepfe, die nur ein Symbol tragen (heute sechs,
+      # Namen (heute null) und Knoepfe, die nur ein Symbol tragen (heute acht,
       # vorher 32). Die Zahl ist gedeckelt, damit sie nicht still zurueckwaechst.
+      # Wer sie aendert, aendert sie in `scripts/ui-labels.mjs` -- dort steht
+      # die Begruendung je Knopf, und diese Zeile hier ist nur die Abschrift.
       - name: Jedes Bedienelement hat einen Namen
         run: xvfb-run -a npm run ui:labels
       # Vierter Lauf im selben Job, wieder aus demselben Grund: dieselbe
       # gebaute App und derselbe X-Server. Er beantwortet die Frage, die
       # B-44 Teil 2 ausdruecklich OFFEN gelassen hat -- „wie viele
       # Bedienelemente liegen unter der 44-px-Marke?" -- und zwar am
-      # gerenderten Element statt an Klassennamen. Gemessen sind es 89 von
-      # 93; die Zahl ist gedeckelt, damit sie nicht still weiterwaechst.
+      # gerenderten Element statt an Klassennamen. Gemessen sind es 91 von
+      # 95; die Zahl ist gedeckelt, damit sie nicht still weiterwaechst. Auch
+      # sie lebt in `scripts/ui-targets.mjs`, samt Begruendung -- hier steht
+      # eine Abschrift, und Abschriften veralten (diese tat es).
       #
       # Der Lauf misst ZWEIMAL: einmal mit Maus, einmal mit nachgebildetem
       # Finger (`pointer: coarse`). Nur der zweite sieht die Griffe, die es

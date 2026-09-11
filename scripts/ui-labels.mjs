@@ -29,6 +29,7 @@
  * `xvfb-run -a npm run ui:labels`.
  */
 import { _electron as electron } from 'playwright-core'
+import { erststartOverlayWeg } from './lib/erststartOverlay.mjs'
 import { mkdirSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -41,20 +42,12 @@ const win = await app.firstWindow({ timeout: 30000 })
 await win.waitForLoadState('domcontentloaded')
 await win.waitForTimeout(3500)
 
-// Erststart-Overlays wegklicken — dieselbe Schleife wie in `ui-smoke.mjs`,
-// und aus demselben Grund: CI hat immer ein frisches Profil.
-const abweisungen =
-  /End tour|Tour beenden|Beenden|Skip|Überspringen|Fertig|Decide later|Später|Schließen|Close/i
-for (let runde = 0; runde < 6; runde++) {
-  if ((await win.locator('.cp-modal-backdrop').count()) === 0) break
-  const b = win.getByRole('button', { name: abweisungen })
-  if (await b.count()) await b.first().click({ timeout: 1500 }).catch(() => {})
-  await win.keyboard.press('Escape').catch(() => {})
-  await win.waitForTimeout(400)
-}
-if ((await win.locator('.cp-modal-backdrop').count()) > 0) {
-  throw new Error('Erststart-Overlay liess sich nicht schliessen — Messung waere wertlos.')
-}
+// Erststart-Overlays wegklicken. Die Regel liegt in `lib/erststartOverlay.mjs`
+// und nicht mehr hier: sie stand bis 2026-09-11 in vier Laeufen abgeschrieben,
+// und ein Fehler darin ueberlebte in drei davon, nachdem der vierte repariert
+// war. Aus demselben Grund wie eh und je noetig: CI hat immer ein frisches
+// Profil, und ueber einem Overlay misst dieser Lauf nichts Brauchbares.
+await erststartOverlayWeg(win)
 
 // EIN LEERER PLAN MISST NICHTS. Mehrere schwebende Elemente — allen voran die
 // Geraete-Suche — werden erst gerendert, wenn Geraete existieren
@@ -193,19 +186,41 @@ for (const f of funde) {
 }
 
 /**
- * WAS UEBRIG BLEIBT, und warum es bleiben darf. Sechs Knoepfe tragen nur ein
- * Symbol, und alle sechs sind Zeichen, die ueberall dasselbe heissen:
+ * WAS UEBRIG BLEIBT, und warum es bleiben darf. Acht Knoepfe tragen nur ein
+ * Symbol, und alle acht sind Zeichen, die ueberall dasselbe heissen:
  *
  *   ‹  Bibliothek einklappen        ‹  Eigenschaften einklappen
  *   +  Neues Geraet / Kategorie     ⏷  Filter und Ansicht
  *   ↶  Rueckgaengig (Ctrl+Z)        ↷  Wiederholen (Ctrl+Y)
+ *   ×  Geraete-Suche schliessen     ×  Werkzeugleiste schliessen
  *
- * Die Zahl ist eine OBERGRENZE und keine Zielmarke: wer einen siebten
+ * DIE BEIDEN LETZTEN KAMEN AM 2026-09-11 DAZU (cable#852), und dieser Lauf
+ * hat sie gemeldet, wie er soll — 8 statt 6. Sie bleiben ohne Wort, und das
+ * ist hier die Begruendung, die die Regel oben verlangt:
+ *
+ *   Beide sitzen auf einer Leiste, die UEBER dem Plan schwebt, und beide
+ *   raeumen genau diese Leiste weg. Ein danebengeschriebenes „Schliessen"
+ *   verbraucht von der Flaeche, um die es bei der Aenderung ueberhaupt geht
+ *   — die Nutzer-Meldung lautete, dass die Leisten Platz wegnehmen. Ein
+ *   Wort gegen eben diesen Platz einzutauschen waere die Aenderung
+ *   rueckwaerts.
+ *
+ *   Sie sind trotzdem nicht stumm: beide tragen einen `title`, der nicht nur
+ *   „Schliessen" sagt, sondern den Weg zurueck nennt („Ansicht-Menue oder
+ *   Strg+F holt sie zurueck"). Das ist bei einer Sache, die nach dem Klick
+ *   unsichtbar ist, die eigentlich wichtige Auskunft, und die passt in kein
+ *   Knopf-Label.
+ *
+ *   Und der Weg zurueck steht ausgeschrieben im Ansicht-Menue, mit Haken.
+ *   Wer das Symbol nicht deutet, findet die Leiste dort in Worten wieder —
+ *   `tests/leistenSchliessen.test.ts` haelt das Paar fest.
+ *
+ * Die Zahl ist eine OBERGRENZE und keine Zielmarke: wer einen neunten
  * symbolgleichen Knopf anlegt, traegt ihn hier ein und sagt, warum er ohne
  * Wort auskommt. Ohne diese Grenze waechst die Zahl wieder still — sie war
  * schon einmal bei 32.
  */
-const BUDGET = 6
+const BUDGET = 8
 let befunde = funde.length
 if (nurSymbol.length > BUDGET) {
   console.error(

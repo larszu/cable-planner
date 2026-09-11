@@ -16,6 +16,7 @@
  * Menü-Erkennung ist sprach-unabhängig (über `aria-haspopup="menu"`).
  */
 import { _electron as electron } from 'playwright-core'
+import { erststartOverlayWeg } from './lib/erststartOverlay.mjs'
 import { mkdirSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -35,42 +36,12 @@ const shot = async (name) => {
 
 await shot('01-launch')
 
-// Erststart-Overlays (Welcome-Dialog / Onboarding-Tour) wegklicken, damit die
-// Menüleiste frei bedienbar ist.
-//
-// Vorher standen hier zwei feste Klickversuche und ein Escape, Fehler
-// verschluckt. Das genügte auf einem Profil, das die Tour schon gesehen hatte —
-// und CI hat IMMER ein frisches Profil. Gemessen 2026-09-05: mit gelöschtem
-// `~/.config/cable-planner` bleibt die Getting-Started-Tour (Schritt 1/7)
-// stehen, ihr `.cp-modal-backdrop` fängt jeden Klick ab, und der erste
-// Menü-Klick läuft 30 Sekunden in einen Timeout. Genau deshalb lief dieser
-// Lauf nie in CI: er kann dort in der alten Form gar nicht durchkommen.
-//
-// Jetzt wird auf den ZUSTAND geschleift statt auf eine feste Zahl von
-// Versuchen: solange ein Backdrop steht, wird weiter zugemacht. Ein Overlay,
-// das später dazukommt (das Dismissen des Welcome-Dialogs startet die Tour),
-// wird damit auch erwischt.
-const overlayWeg = async () => {
-  const abweisungen =
-    /End tour|Tour beenden|Beenden|Skip|Überspringen|Fertig|Decide later|Später|Schließen|Close/i
-  for (let runde = 0; runde < 6; runde++) {
-    if ((await win.locator('.cp-modal-backdrop').count()) === 0) return
-    const b = win.getByRole('button', { name: abweisungen })
-    if (await b.count()) await b.first().click({ timeout: 1500 }).catch(() => {})
-    await win.keyboard.press('Escape').catch(() => {})
-    await win.waitForTimeout(400)
-  }
-  const rest = await win.locator('.cp-modal-backdrop').count()
-  if (rest > 0) {
-    // Laut scheitern statt weiterlaufen: sonst folgt ein 30-Sekunden-Timeout
-    // beim ersten Menü-Klick, und der sagt nichts über die Ursache.
-    throw new Error(
-      `Erststart-Overlay liess sich nicht schliessen (${rest} Backdrop(s) offen). ` +
-        'Screenshot 01-launch.png zeigt, was steht.',
-    )
-  }
-}
-await overlayWeg()
+// Erststart-Overlays (Welcome-Dialog, Segment-Frage, Tour) wegklicken, damit
+// die Menueleiste frei bedienbar ist. Die Regel steht in EINER Datei — sie
+// stand bis 2026-09-11 viermal abgeschrieben hier, in `ui-labels.mjs`,
+// `ui-overflow.mjs` und `screenshots.mjs`, und genau so ueberlebte ein
+// Fehler in drei Abschriften, nachdem die vierte repariert war.
+await erststartOverlayWeg(win)
 await shot('02-main')
 
 // Top-Menüs öffnen — sprach-unabhängig über die Menü-Buttons.

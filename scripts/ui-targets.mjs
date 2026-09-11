@@ -56,6 +56,7 @@
  * Aufruf: `xvfb-run -a npm run ui:targets` (Linux/headless).
  */
 import { _electron as electron } from 'playwright-core'
+import { erststartOverlayWeg } from './lib/erststartOverlay.mjs'
 import { mkdirSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -68,20 +69,11 @@ const win = await app.firstWindow({ timeout: 30000 })
 await win.waitForLoadState('domcontentloaded')
 await win.waitForTimeout(3500)
 
-// Erststart-Overlays wegklicken — dieselbe Schleife wie in `ui-smoke.mjs` und
-// `ui-labels.mjs`, und aus demselben Grund: CI hat immer ein frisches Profil.
-const abweisungen =
-  /End tour|Tour beenden|Beenden|Skip|Überspringen|Fertig|Decide later|Später|Schließen|Close/i
-for (let runde = 0; runde < 6; runde++) {
-  if ((await win.locator('.cp-modal-backdrop').count()) === 0) break
-  const b = win.getByRole('button', { name: abweisungen })
-  if (await b.count()) await b.first().click({ timeout: 1500 }).catch(() => {})
-  await win.keyboard.press('Escape').catch(() => {})
-  await win.waitForTimeout(400)
-}
-if ((await win.locator('.cp-modal-backdrop').count()) > 0) {
-  throw new Error('Erststart-Overlay liess sich nicht schliessen — Messung waere wertlos.')
-}
+// Erststart-Overlays wegklicken. Die Regel liegt in `lib/erststartOverlay.mjs`
+// und nicht mehr hier — siehe den Kopf jener Datei: sie stand bis 2026-09-11
+// in FUENF Laeufen abgeschrieben, dieser war der fuenfte. Noetig ist sie wie
+// eh und je: CI hat immer ein frisches Profil.
+await erststartOverlayWeg(win)
 
 // EIN LEERER PLAN MISST NICHTS — derselbe Grund wie in `ui-labels.mjs`: die
 // schwebenden Bedienelemente entstehen erst, wenn Geraete da sind.
@@ -289,9 +281,32 @@ await app.close()
  * Deckel muss jeder, der eine neue kleine Flaeche anlegt, sie hier eintragen
  * und begruenden.
  *
+ * NEU GEMESSEN am 2026-09-11 (cable#852), gleiche Bedingungen:
+ * 95 Trefferflaechen, davon 50 unter 24 px und 91 unter 44 px.
+ *
+ *   unter44  89 -> 91, und das sind genau die zwei neuen Schliessen-Knoepfe
+ *            der schwebenden Leisten (Geraete-Suche, Werkzeugleiste). Der
+ *            Deckel steigt hier, mit Grund: beide sitzen auf einer Leiste,
+ *            die UEBER dem Plan schwebt, und beide raeumen genau diese
+ *            Leiste weg. 44 px je Knopf machten aus der schmalen Zeile
+ *            einen Block, der die Flaeche verdeckt, um derentwillen es den
+ *            Knopf gibt — die Nutzer-Meldung lautete, dass die Leisten
+ *            Platz wegnehmen.
+ *
+ *   unter24  54 -> 50, und DAS ist die eigentliche Nachricht dieser Runde:
+ *            die drei Kopfzeilen-Knoepfe der Suche (Griff, Einklappen,
+ *            Schliessen) trugen bis dahin die Groesse ihres Symbols, also
+ *            14 x 14 — die kleinsten Flaechen ausserhalb der Bibliothek.
+ *            Sie sind jetzt 24 x 24 bei unveraendertem Symbol. Der neue
+ *            Knopf hat den alten Missstand sichtbar gemacht.
+ *
+ * Der Deckel fuer `unter24` sinkt deshalb mit auf 50. Eine Obergrenze, die
+ * ueber dem Gemessenen stehenbleibt, ist Luft, in die es still
+ * zurueckwachsen kann.
+ *
  * WAS DIE ZAHLEN SAGEN, ausgeschrieben, damit niemand sie fuer eine
- * Bestandsmeldung haelt: 89 von 93 Bedienflaechen sind kleiner als die
- * Apple-Marke, und 54 unterschreiten die WCAG-NORM. Die kleinste ist
+ * Bestandsmeldung haelt: 91 von 95 Bedienflaechen sind kleiner als die
+ * Apple-Marke, und 50 unterschreiten die WCAG-NORM. Die kleinste ist
  * 12 x 20 px („Move category" in der Bibliothek). Diese Anwendung ist mit
  * dem Finger heute nicht bequem zu bedienen, und das steht ab jetzt als
  * Zahl da statt als Vermutung — das war der ganze Zweck von B-44s offenem
@@ -305,8 +320,8 @@ await app.close()
  * gehoert in eine eigene Runde.
  */
 const DECKEL = {
-  maus: { unter24: 54, unter44: 89 },
-  finger: { unter24: 54, unter44: 89 },
+  maus: { unter24: 50, unter44: 91 },
+  finger: { unter24: 50, unter44: 91 },
 }
 
 let befunde = 0
