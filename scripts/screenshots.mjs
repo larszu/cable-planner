@@ -46,6 +46,7 @@
 // ───────────────────────────────────────────────────────────────────────────
 
 import { _electron as electron } from 'playwright-core'
+import { erststartOverlayWeg } from './lib/erststartOverlay.mjs'
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { join } from 'node:path'
@@ -105,17 +106,19 @@ await win.setViewportSize({ width: BREITE, height: HOEHE })
 await win.waitForLoadState('domcontentloaded')
 await win.waitForTimeout(3500)
 
-/** Onboarding und Tour wegklicken — sie liegen sonst ueber jedem Bild. */
-const freiraeumen = async () => {
-  for (let r = 0; r < 6; r += 1) {
-    if ((await win.locator('.cp-modal-backdrop').count()) === 0) break
-    const b = win.getByRole('button', { name: /End tour|Skip|Close|Später|Decide later/i })
-    if (await b.count()) await b.first().click({ timeout: 1500 }).catch(() => {})
-    await win.keyboard.press('Escape').catch(() => {})
-    await win.waitForTimeout(400)
-  }
+// Onboarding und Tour wegklicken — sie liegen sonst ueber jedem Bild. Die
+// Regel liegt in `lib/erststartOverlay.mjs`; sie stand bis 2026-09-11 hier
+// abgeschrieben, mit einer eigenen, kuerzeren Abweisungs-Liste. Zwei
+// Fassungen derselben Frage sind `zwei-rechnungen`, und diese hier war die
+// aermere.
+//
+// `lautScheitern: false`: ein stehengebliebenes Overlay macht hier ein
+// haessliches Bild, keine falsche Messung — der Lauf soll die uebrigen Bilder
+// trotzdem schiessen.
+const restOverlays = await erststartOverlayWeg(win, { lautScheitern: false })
+if (restOverlays > 0) {
+  console.warn(`Achtung: ${restOverlays} Overlay(s) stehen noch — die Bilder zeigen sie mit.`)
 }
-await freiraeumen()
 
 const demo = win.getByRole('button', { name: /Load example project|Beispielprojekt laden/i })
 if (await demo.count()) {

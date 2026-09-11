@@ -224,6 +224,20 @@ export const CanvasSearch = () => {
     ? { left: pos.x, top: pos.y }
     : { top: toolbarBottom > 0 ? toolbarBottom + 8 : 12 }
 
+  /**
+   * Trefferflaeche der drei Kopfzeilen-Knoepfe: 24 x 24 (WCAG 2.2 AA), bei
+   * unveraendertem 14-px-Symbol. Vorher trugen sie die Groesse des Symbols
+   * selbst, also 14 x 14 — gemessen von `ui:targets` am 2026-09-11 als die
+   * kleinsten Flaechen ausserhalb der Seitenleiste.
+   *
+   * Die 44 px der Apple-Marke erreichen sie bewusst NICHT: diese Leiste
+   * schwebt ueber dem Plan, und 44 px je Knopf machten aus der schmalen
+   * Zeile einen Block, der genau die Flaeche verdeckt, um derentwillen es
+   * den Schliessen-Knopf ueberhaupt gibt. `ui-targets.mjs` fuehrt sie
+   * deshalb weiter unter „unter 44 px" — mit Begruendung an seinem Deckel.
+   */
+  const kopfKnopf = 'inline-flex h-6 w-6 items-center justify-center'
+
   // Ein Knopf, zwei Fundstellen (Pille und Panel) — und genau deshalb steht
   // er hier einmal: zwei Fassungen desselben Knopfes waeren die Defektform
   // `zwei-rechnungen`, hier mit einem Beschriftungs-Unterschied als Ausgang.
@@ -234,7 +248,7 @@ export const CanvasSearch = () => {
         e.stopPropagation()
         setVisible(false)
       }}
-      className="text-cp-text-faint hover:text-cp-text"
+      className={`${kopfKnopf} text-cp-text-faint hover:text-cp-text`}
       title={t(
         'canvas.search.close',
         'Close search (View menu or Ctrl+F brings it back)',
@@ -253,7 +267,7 @@ export const CanvasSearch = () => {
       type="button"
       onPointerDown={startDrag}
       onClick={(e) => e.stopPropagation()}
-      className="cursor-grab text-cp-text-faint hover:text-cp-text active:cursor-grabbing"
+      className={`${kopfKnopf} cursor-grab text-cp-text-faint hover:text-cp-text active:cursor-grabbing`}
       title={t('canvas.search.move', 'Move search bar')}
       aria-label={t('canvas.search.move', 'Move search bar')}
       // Zieh-Griff, kein Knopf — siehe `ui:labels`.
@@ -318,7 +332,7 @@ export const CanvasSearch = () => {
         <button
           type="button"
           onClick={() => setOpen(false)}
-          className="text-cp-text-muted hover:text-cp-text"
+          className={`${kopfKnopf} text-cp-text-muted hover:text-cp-text`}
           title={t('canvas.search.collapse', 'Collapse to a pill')}
           aria-label={t('canvas.search.collapse', 'Collapse to a pill')}
         >

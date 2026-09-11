@@ -12,6 +12,7 @@
  *   landen in CP_UI_SHOTS (Default /tmp/cp-drag-shots).
  */
 import { chromium } from 'playwright-core'
+import { erststartOverlayWeg } from './lib/erststartOverlay.mjs'
 import { mkdirSync } from 'node:fs'
 import { join } from 'node:path'
 
@@ -55,12 +56,24 @@ const shot = async (name) => {
 await page.goto(URL, { waitUntil: 'domcontentloaded' })
 await page.waitForTimeout(3000)
 
-for (const rx of [/Decide later|Später/i, /Skip|Überspringen|End tour|Beenden|Fertig|Los geht/i]) {
-  const b = page.getByRole('button', { name: rx })
-  if (await b.count()) await b.first().click({ timeout: 1500 }).catch(() => {})
-}
-await page.keyboard.press('Escape').catch(() => {})
-await page.waitForTimeout(400)
+// Erststart-Overlays wegklicken. Die Regel liegt in
+// `lib/erststartOverlay.mjs` und nicht mehr hier: sie stand bis 2026-09-11 in
+// SECHS Laeufen, und dieser war die eigenwilligste Fassung — zwei Regexe
+// hintereinander statt einer Schleife, kein Blick auf den Backdrop, also auch
+// kein Nachfassen, wenn das Abweisen des Welcome-Dialogs erst die Tour
+// startet.
+//
+// Dieser Lauf misst gegen den BROWSER (`dev:renderer`), nicht gegen Electron.
+// Das aendert am Wegraeumen nichts: die Overlays sind dieselben, und die
+// Bibliothek benutzt nur `evaluate`/`locator`/`keyboard`, die eine
+// Browser-`Page` genauso hat.
+//
+// `lautScheitern: false`: hier ist das Wegraeumen eine Vorbereitung und kein
+// Messwert. Bleibt etwas stehen, sagt es der Lauf und zieht sein eigentliches
+// Ziehen trotzdem durch — das faellt dann im Ergebnis auf, mit mehr Aussage
+// als ein Abbruch hier.
+const restOverlays = await erststartOverlayWeg(page, { lautScheitern: false })
+if (restOverlays > 0) log(`  · Achtung: ${restOverlays} Overlay(s) stehen noch`)
 await shot('01-start')
 
 // Beispielprojekt laden.
