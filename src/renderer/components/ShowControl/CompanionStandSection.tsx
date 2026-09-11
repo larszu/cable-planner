@@ -84,7 +84,7 @@ export const CompanionStandSection = () => {
       />
 
       {namen.length === 0 ? (
-        <div className="rounded border border-cp-border-muted bg-cp-surface-2 p-3 text-cp-xs text-cp-text-muted">
+        <div className="border border-cp-border-muted bg-cp-surface-2 p-3 text-cp-xs text-cp-text-muted">
           {t(
             'companion.noVars',
             'No device in the plan is switched through Companion — there is no variable to read back.',
@@ -98,7 +98,7 @@ export const CompanionStandSection = () => {
               'Type these lines into the Companion control API (TCP, one line per command) and bring the answers back:',
             )}
           </div>
-          <pre className="mb-2 max-h-32 overflow-auto rounded border border-cp-border bg-cp-surface-2 p-2 text-cp-xs text-cp-text-secondary">
+          <pre className="mb-2 max-h-32 overflow-auto border border-cp-border bg-cp-surface-2 p-2 text-cp-xs text-cp-text-secondary">
             {zeilen.join('\n')}
           </pre>
 
@@ -107,7 +107,7 @@ export const CompanionStandSection = () => {
               {t('companion.paste', 'Paste the answers here')}
             </span>
             <textarea
-              className="h-20 w-full rounded border border-cp-border bg-cp-surface-2 px-2 py-1 font-mono text-cp-xs"
+              className="h-20 w-full border border-cp-border bg-cp-surface-2 px-2 py-1 font-mono text-cp-xs"
               value={antwort}
               placeholder={'+OK "3"\n+OK "5"'}
               onChange={(e) => setAntwort(e.target.value)}
@@ -115,14 +115,14 @@ export const CompanionStandSection = () => {
           </label>
           <button
             type="button"
-            className="mt-1 rounded bg-cp-surface-3 px-2 py-1 text-cp-xs hover:bg-cp-surface-4"
+            className="mt-1 bg-cp-surface-3 px-2 py-1 text-cp-xs hover:bg-cp-surface-4"
             onClick={lesen}
           >
             {t('companion.read', 'Take as a reading')}
           </button>
 
           {problem && (
-            <div className="mt-2 rounded border border-cp-warn bg-cp-warn/10 p-2 text-cp-xs text-cp-warn">
+            <div className="mt-2 border border-cp-warn bg-cp-warn/10 p-2 text-cp-xs text-cp-warn">
               {problem}
             </div>
           )}

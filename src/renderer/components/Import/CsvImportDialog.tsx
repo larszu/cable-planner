@@ -109,7 +109,7 @@ export const CsvImportDialog = () => {
     '(no overwrite).',
           )}
         />
-        <label className="inline-flex cursor-pointer items-center gap-1 rounded bg-[var(--cp-surface-2)] px-2 py-1 text-cp-xs hover:bg-[var(--cp-surface-3)]">
+        <label className="inline-flex cursor-pointer items-center gap-1 bg-[var(--cp-surface-2)] px-2 py-1 text-cp-xs hover:bg-[var(--cp-surface-3)]">
           <Icon icon={FileUp} size="xs" /> {t('csvImport.pickFile', 'Choose CSV file…')}
           <input
             type="file"
@@ -123,7 +123,7 @@ export const CsvImportDialog = () => {
           onChange={(e) => setText(e.target.value)}
           rows={6}
           placeholder={t('csvImport.placeholder', 'Name;Category;Power;Weight;Serial number\nATEM Mini;Mixer;30;1.1;SN123')}
-          className="w-full rounded border border-[var(--cp-border)] bg-[var(--cp-surface-3)] p-2 font-mono text-cp-xs"
+          className="w-full border border-[var(--cp-border)] bg-[var(--cp-surface-3)] p-2 font-mono text-cp-xs"
         />
         {parsed.length > 1 && (
           <>
@@ -140,7 +140,7 @@ export const CsvImportDialog = () => {
                 nicht erkannten nichts — und Verschweigen sieht aus wie
                 „vollstaendig uebernommen". */}
             {etwasFaelltAuf && (
-              <div className="rounded border border-[var(--cp-warn)]/40 bg-[var(--cp-surface-2)] p-2 text-cp-xs">
+              <div className="border border-[var(--cp-warn)]/40 bg-[var(--cp-surface-2)] p-2 text-cp-xs">
                 <div className="mb-1 flex items-center gap-1 font-medium text-[var(--cp-text)]">
                   <Icon icon={AlertTriangle} size="xs" />
                   {t('csvImport.whatHappens', 'What happens to the rest')}
@@ -200,7 +200,7 @@ export const CsvImportDialog = () => {
                 </ul>
               </div>
             )}
-            <div className="max-h-48 overflow-auto rounded border border-[var(--cp-border-muted)]">
+            <div className="max-h-48 overflow-auto border border-[var(--cp-border-muted)]">
               <table className="w-full text-cp-xs">
                 <thead className="sticky top-0 bg-[var(--cp-surface-2)] text-left text-[var(--cp-text-muted)]">
                   <tr>

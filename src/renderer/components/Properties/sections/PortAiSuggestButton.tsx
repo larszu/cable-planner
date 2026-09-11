@@ -78,7 +78,7 @@ export const PortAiSuggestButton = ({
   const hasExisting = equipment.inputs.length > 0 || equipment.outputs.length > 0
 
   return (
-    <div className="rounded border border-purple-700/50 bg-purple-950/20 p-2">
+    <div className="border border-purple-700/50 bg-purple-950/20 p-2">
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-1 text-cp-xs font-semibold text-purple-200">
           <Icon icon={Sparkles} size="xs" /> {t('props.aiPorts.label', 'AI port suggestion')}
@@ -87,7 +87,7 @@ export const PortAiSuggestButton = ({
           type="button"
           onClick={handleAsk}
           disabled={busy}
-          className="rounded bg-purple-700 px-2 py-0.5 text-cp-xs font-medium text-white hover:bg-purple-600 disabled:opacity-50"
+          className="bg-purple-700 px-2 py-0.5 text-cp-xs font-medium text-white hover:bg-purple-600 disabled:opacity-50"
           title={format(
             t(
               'props.aiPorts.btnTitle',
@@ -100,7 +100,7 @@ export const PortAiSuggestButton = ({
         </button>
       </div>
       {error && (
-        <div className="mt-1 rounded bg-red-900/50 p-1.5 text-cp-xs text-red-100">{error}</div>
+        <div className="mt-1 bg-red-900/50 p-1.5 text-cp-xs text-red-100">{error}</div>
       )}
       {hints && hints.length > 0 && (
         <div className="mt-2 space-y-1">
@@ -135,7 +135,7 @@ export const PortAiSuggestButton = ({
                   )
                   if (ok) apply('replace')
                 }}
-                className="rounded bg-amber-700 px-2 py-0.5 text-cp-xs text-amber-100 hover:bg-amber-600"
+                className="bg-amber-700 px-2 py-0.5 text-cp-xs text-amber-100 hover:bg-amber-600"
                 title={t('props.aiPorts.replaceTitle', 'Removes current ports and applies the AI suggestion')}
               >
                 {t('props.aiPorts.replace', 'Replace')}
@@ -144,7 +144,7 @@ export const PortAiSuggestButton = ({
             <button
               type="button"
               onClick={() => apply('append')}
-              className="rounded bg-emerald-700 px-2 py-0.5 text-cp-xs text-emerald-100 hover:bg-emerald-600"
+              className="bg-emerald-700 px-2 py-0.5 text-cp-xs text-emerald-100 hover:bg-emerald-600"
               title={t('props.aiPorts.appendTitle', 'Appends the AI suggestion to the existing ports')}
             >
               {hasExisting
@@ -154,7 +154,7 @@ export const PortAiSuggestButton = ({
             <button
               type="button"
               onClick={() => setHints(null)}
-              className="rounded bg-cp-surface-4 px-2 py-0.5 text-cp-xs text-cp-text-bright hover:bg-cp-surface-5"
+              className="bg-cp-surface-4 px-2 py-0.5 text-cp-xs text-cp-text-bright hover:bg-cp-surface-5"
             >
               {t('props.aiPorts.discard', 'Discard')}
             </button>

@@ -74,7 +74,7 @@ const SortableCableGroup = ({
     position: 'relative',
   }
   return (
-    <div ref={setNodeRef} style={style} className="rounded border border-cp-border bg-cp-surface-1">
+    <div ref={setNodeRef} style={style} className="border border-cp-border bg-cp-surface-1">
       <span
         {...attributes}
         {...listeners}
@@ -238,7 +238,7 @@ export const CableLibraryPanel = () => {
         <button
           type="button"
           onClick={() => useUiStore.getState().openSettings('cableTypes')}
-          className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
+          className="bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
           title={t('cableLib.manageTitle', 'Cable types are managed in the settings')}
         >
           {t('cableLib.manage', 'Manage cable types…')}
@@ -278,7 +278,7 @@ export const CableLibraryPanel = () => {
                   {group}
                   <span className="text-cp-xs font-normal text-cp-text-muted">({specs.length})</span>
                   {groupBuilt > 0 && (
-                    <span className={`rounded px-1.5 py-0.5 text-cp-xs font-bold ${
+                    <span className={` px-1.5 py-0.5 text-cp-xs font-bold ${
                       groupPlanned > 0
                         ? groupBuilt >= groupPlanned
                           ? 'bg-emerald-900/60 text-emerald-300'
@@ -310,7 +310,7 @@ export const CableLibraryPanel = () => {
                     return (
                       <div
                         key={cable.id}
-                        className={`rounded border px-2 py-1.5 text-cp-xs ${
+                        className={` border px-2 py-1.5 text-cp-xs ${
                           isRecommended
                             ? 'border-emerald-500 bg-emerald-950/40'
                             : isCustom
@@ -321,13 +321,13 @@ export const CableLibraryPanel = () => {
                       >
                         <div className="flex items-center gap-2">
                           <span
-                            className="inline-block h-3 w-3 shrink-0 rounded-full"
+                            className="inline-block h-3 w-3 shrink-0"
                             style={{ backgroundColor: cable.color }}
                           />
                           <span className="font-medium flex-1">{cable.name}</span>
                           {isCustom && (
                             <span
-                              className="rounded bg-violet-700/80 px-1 text-cp-xs font-semibold uppercase text-violet-100"
+                              className="bg-violet-700/80 px-1 text-cp-xs font-semibold uppercase text-violet-100"
                               title={t('cableLib.customBadge', 'Custom cable type (created locally)')}
                             >
                               {t('cableLib.customBadgeLabel', 'Custom')}
@@ -335,19 +335,19 @@ export const CableLibraryPanel = () => {
                           )}
                           {!isCustom && cableSpecOverrides[cable.id] && (
                             <span
-                              className="rounded bg-amber-700/70 px-1 text-cp-xs font-semibold uppercase text-amber-100"
+                              className="bg-amber-700/70 px-1 text-cp-xs font-semibold uppercase text-amber-100"
                               title={t('cableLib.overrideBadge', 'Built-in spec with local override (reset via edit dialog)')}
                             >
                               {t('cableLib.overrideBadgeLabel', 'Modified')}
                             </span>
                           )}
                           {isRecommended && (
-                            <span className="rounded bg-emerald-600 px-1 text-cp-xs font-semibold uppercase text-white">
+                            <span className="bg-emerald-600 px-1 text-cp-xs font-semibold uppercase text-white">
                               <Icon icon={Check} size="xs" />
                             </span>
                           )}
                           {hasCount && (
-                            <span className={`rounded px-1.5 py-0.5 text-cp-xs font-bold tabular-nums ${
+                            <span className={` px-1.5 py-0.5 text-cp-xs font-bold tabular-nums ${
                               planned > 0
                                 ? built >= planned
                                   ? 'bg-emerald-900/60 text-emerald-300'
@@ -362,7 +362,7 @@ export const CableLibraryPanel = () => {
                           <button
                             type="button"
                             onClick={() => setEditing(cable)}
-                            className="rounded bg-cp-surface-4 px-1.5 py-0.5 text-cp-xs text-cp-text-bright hover:bg-cp-surface-5"
+                            className="bg-cp-surface-4 px-1.5 py-0.5 text-cp-xs text-cp-text-bright hover:bg-cp-surface-5"
                             title={isCustom
                               ? t('cableLib.edit', 'Edit cable type')
                               : t('cableLib.editOverride', 'Adjust cable type locally (override)')}
@@ -391,7 +391,7 @@ export const CableLibraryPanel = () => {
                                 )
                                 if (ok) clearCableSpecOverride(cable.id)
                               }}
-                              className="rounded bg-amber-800/70 px-1.5 py-0.5 text-cp-xs text-amber-100 hover:bg-amber-700"
+                              className="bg-amber-800/70 px-1.5 py-0.5 text-cp-xs text-amber-100 hover:bg-amber-700"
                               title={t('cableLib.removeOverride', 'Remove override (reset to default)')}
                             >
                               <Icon icon={RotateCcw} size="xs" />
@@ -426,7 +426,7 @@ export const CableLibraryPanel = () => {
                                 )
                                 if (ok) removeCustomCableSpec(cable.id)
                               }}
-                              className="rounded bg-red-900/60 px-1.5 py-0.5 text-cp-xs text-red-200 hover:bg-red-800"
+                              className="bg-red-900/60 px-1.5 py-0.5 text-cp-xs text-red-200 hover:bg-red-800"
                               title={t('cableLib.deleteSpec', 'Delete cable type')}
                             >
                               <Icon icon={X} size="sm" />
@@ -444,7 +444,7 @@ export const CableLibraryPanel = () => {
                           {cable.standards.join(' · ')}
                         </div>
                         {cable.notes && (
-                          <div className="mt-1 rounded bg-cp-surface-1 p-1 text-cp-xs italic text-cp-text-secondary">
+                          <div className="mt-1 bg-cp-surface-1 p-1 text-cp-xs italic text-cp-text-secondary">
                             {cable.notes}
                           </div>
                         )}

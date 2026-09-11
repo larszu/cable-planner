@@ -36,7 +36,7 @@ export const GreenGoBeltpackSection = ({ equipmentId }: { equipmentId: string })
     <details
       open={open}
       onToggle={(e) => setOpen(e.currentTarget.open)}
-      className="mb-2 rounded bg-emerald-950/40 [&_summary]:cursor-pointer"
+      className="mb-2 bg-emerald-950/40 [&_summary]:cursor-pointer"
     >
       <summary className="flex items-center gap-1 px-2 py-1.5 text-cp-xs uppercase tracking-wide text-emerald-300 hover:text-emerald-200 [&::-webkit-details-marker]:hidden">
         <Icon icon={open ? ChevronDown : ChevronRight} size="xs" className="text-emerald-400/70" />
@@ -66,7 +66,7 @@ export const GreenGoBeltpackSection = ({ equipmentId }: { equipmentId: string })
           disabled={!info}
           placeholder={info ? '' : t('props.greengo.assignFirst', 'Assign first')}
           onChange={(event) => rename(event.target.value)}
-          className="w-full rounded border border-emerald-700 bg-emerald-950 p-1 text-cp-xs text-emerald-50 disabled:opacity-50"
+          className="w-full border border-emerald-700 bg-emerald-950 p-1 text-cp-xs text-emerald-50 disabled:opacity-50"
           title={t(
             'props.greengo.nameTitle',
             'Changes are written immediately to the intercom plan and .gg5 export',
@@ -83,7 +83,7 @@ export const GreenGoBeltpackSection = ({ equipmentId }: { equipmentId: string })
             const v = event.target.value
             assignUser(v === '' ? null : Number(v))
           }}
-          className="w-full rounded border border-emerald-700 bg-emerald-950 p-1 text-cp-xs text-emerald-50"
+          className="w-full border border-emerald-700 bg-emerald-950 p-1 text-cp-xs text-emerald-50"
         >
           <option value="">{t('props.greengo.noSlot', '(no slot assigned)')}</option>
           {config.users.map((u) => {
@@ -102,7 +102,7 @@ export const GreenGoBeltpackSection = ({ equipmentId }: { equipmentId: string })
           {info.channelNames.map((g) => (
             <span
               key={g}
-              className="rounded bg-emerald-700/40 px-1.5 py-0.5 text-emerald-100"
+              className="bg-emerald-700/40 px-1.5 py-0.5 text-emerald-100"
               title={t('props.greengo.groupChipTitle', 'Groups are edited in the intercom planner')}
             >
               {g}

@@ -128,7 +128,7 @@ export const LayerVisibilityChips = () => {
                   : t('canvas.layerChips.hiddenShow', 'hidden (click to show)'),
               },
             )}
-            className="inline-flex h-6 items-center gap-1 rounded-full border px-2 text-cp-xs font-medium transition"
+            className="inline-flex h-6 items-center gap-1 border px-2 text-cp-xs font-medium transition"
             style={{
               borderColor: visible ? style.color : isLight ? '#cbd5e1' : '#334155',
               background: visible
@@ -145,7 +145,7 @@ export const LayerVisibilityChips = () => {
             <span>{style.label}</span>
             {count > 0 && (
               <span
-                className="rounded-full px-1 text-cp-xs font-semibold"
+                className="px-1 text-cp-xs font-semibold"
                 style={{
                   background: visible ? `${style.color}55` : isLight ? '#cbd5e1' : '#334155',
                   color: visible ? '#fff' : isLight ? '#475569' : '#94a3b8',
@@ -175,7 +175,7 @@ export const LayerVisibilityChips = () => {
               t('canvas.layerChips.customTitle', '{layer} (custom) — right-click to remove'),
               { layer },
             )}
-            className="inline-flex h-6 items-center gap-1 rounded-full border px-2 text-cp-xs font-medium transition"
+            className="inline-flex h-6 items-center gap-1 border px-2 text-cp-xs font-medium transition"
             style={{
               borderColor: visible ? '#94a3b8' : isLight ? '#cbd5e1' : '#334155',
               background: visible
@@ -202,7 +202,7 @@ export const LayerVisibilityChips = () => {
         title={t('canvas.layerChips.menuTitle', 'Layer management (create custom / reset all)')}
         aria-haspopup="menu"
         aria-expanded={menuOpen}
-        className={`inline-flex h-6 items-center gap-1 rounded-full border px-2 text-cp-xs transition ${
+        className={`inline-flex h-6 items-center gap-1 border px-2 text-cp-xs transition ${
           isLight
             ? 'border-slate-300 bg-slate-100 text-slate-600 hover:bg-slate-200'
             : 'border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700'
@@ -214,7 +214,7 @@ export const LayerVisibilityChips = () => {
       {menuOpen && (
         <div
           onMouseLeave={() => setMenuOpen(false)}
-          className={`absolute right-0 top-7 z-50 w-56 overflow-hidden rounded border text-cp-xs shadow-2xl ${
+          className={`absolute right-0 top-7 z-50 w-56 overflow-hidden border text-cp-xs ${
             isLight ? 'border-slate-300 bg-white text-slate-700' : 'border-slate-700 bg-slate-900 text-slate-200'
           }`}
         >

@@ -198,7 +198,7 @@ export const CrewTab = ({ projectName }: { projectName: string }) => {
         </button>
       </div>
 
-      <div className="flex flex-wrap gap-3 rounded border border-cp-border bg-cp-surface-2 p-2 text-cp-xs">
+      <div className="flex flex-wrap gap-3 border border-cp-border bg-cp-surface-2 p-2 text-cp-xs">
         <span>
           {t('analysis.crew.hours', 'Hours')}: <strong>{formatHours(abrechnung.hoursTotal)}</strong>
         </span>
@@ -236,7 +236,7 @@ export const CrewTab = ({ projectName }: { projectName: string }) => {
       </div>
 
       {befunde.length > 0 && (
-        <ul className="flex flex-col gap-0.5 rounded border border-amber-700/60 bg-amber-900/20 p-2 text-cp-xs text-amber-100">
+        <ul className="flex flex-col gap-0.5 border border-amber-700/60 bg-amber-900/20 p-2 text-cp-xs text-amber-100">
           {befunde.map((f, i) => (
             <li key={`${f.kind}-${f.refId}-${i}`}>
               <strong>{LABOUR_FINDING_LABEL[f.kind]}</strong> — {f.text}
@@ -257,7 +257,7 @@ export const CrewTab = ({ projectName }: { projectName: string }) => {
               onClick={() => removeCrewPerson(p.id)}
               title={t('analysis.crew.removePerson', 'Remove person with their rates and shifts')}
               aria-label={t('analysis.crew.removePerson', 'Remove person with their rates and shifts')}
-              className="rounded p-0.5 text-cp-text-muted hover:text-cp-danger"
+              className="p-0.5 text-cp-text-muted hover:text-cp-danger"
             >
               <Icon icon={Trash2} size="xs" />
             </button>
@@ -281,7 +281,7 @@ export const CrewTab = ({ projectName }: { projectName: string }) => {
               onClick={() => removeRateBand(b.id)}
               aria-label={t('analysis.crew.removeBand', 'Remove band')}
               title={t('analysis.crew.removeBand', 'Remove band')}
-              className="rounded p-0.5 text-cp-text-muted hover:text-cp-danger"
+              className="p-0.5 text-cp-text-muted hover:text-cp-danger"
             >
               <Icon icon={Trash2} size="xs" />
             </button>
@@ -366,7 +366,7 @@ export const CrewTab = ({ projectName }: { projectName: string }) => {
               onClick={() => removeCrewRate(r.id)}
               aria-label={t('analysis.crew.removeRate', 'Remove rate with its shifts')}
               title={t('analysis.crew.removeRate', 'Remove rate with its shifts')}
-              className="rounded p-0.5 text-cp-text-muted hover:text-cp-danger"
+              className="p-0.5 text-cp-text-muted hover:text-cp-danger"
             >
               <Icon icon={Trash2} size="xs" />
             </button>
@@ -468,7 +468,7 @@ export const CrewTab = ({ projectName }: { projectName: string }) => {
                 onClick={() => removeTimeEntry(e.id)}
                 aria-label={t('analysis.crew.removeEntry', 'Remove shift')}
                 title={t('analysis.crew.removeEntry', 'Remove shift')}
-                className="rounded p-0.5 text-cp-text-muted hover:text-cp-danger"
+                className="p-0.5 text-cp-text-muted hover:text-cp-danger"
               >
                 <Icon icon={Trash2} size="xs" />
               </button>
@@ -521,7 +521,7 @@ export const CrewTab = ({ projectName }: { projectName: string }) => {
               value={x.costLineId ?? ''}
               onChange={(e) => updateCrewExpense(x.id, { costLineId: e.target.value || undefined })}
               aria-label={t('analysis.crew.expenseCostLine', 'Cost line for this expense')}
-              className="rounded border border-cp-border bg-cp-surface-2 px-1 py-0.5 text-cp-xs"
+              className="border border-cp-border bg-cp-surface-2 px-1 py-0.5 text-cp-xs"
             >
               <option value="">{t('analysis.crew.expenseNoCostLine', '— no cost line —')}</option>
               {(costPlan?.lines ?? []).map((l) => (
@@ -540,7 +540,7 @@ export const CrewTab = ({ projectName }: { projectName: string }) => {
               onClick={() => removeCrewExpense(x.id)}
               aria-label={t('analysis.crew.removeExpense', 'Remove expense')}
               title={t('analysis.crew.removeExpense', 'Remove expense')}
-              className="rounded p-0.5 text-cp-text-muted hover:text-cp-danger"
+              className="p-0.5 text-cp-text-muted hover:text-cp-danger"
             >
               <Icon icon={Trash2} size="xs" />
             </button>
@@ -595,7 +595,7 @@ export const CrewTab = ({ projectName }: { projectName: string }) => {
                       ),
                     })
                   }}
-                  className="rounded border border-cp-border px-1.5 py-0.5 hover:bg-cp-surface-3"
+                  className="border border-cp-border px-1.5 py-0.5 hover:bg-cp-surface-3"
                 >
                   {t('analysis.crew.takeActual', 'Take as actual')}
                 </button>
@@ -678,7 +678,7 @@ export const CrewTab = ({ projectName }: { projectName: string }) => {
               onClick={() => removeApproval(a.id)}
               aria-label={t('analysis.crew.removeApproval', 'Remove approval')}
               title={t('analysis.crew.removeApproval', 'Remove approval')}
-              className="rounded p-0.5 text-cp-text-muted hover:text-cp-danger"
+              className="p-0.5 text-cp-text-muted hover:text-cp-danger"
             >
               <Icon icon={Trash2} size="xs" />
             </button>
@@ -743,7 +743,7 @@ const NeuePerson = ({ onAdd }: { onAdd: (name: string, company: string) => void 
           setName('')
           setCompany('')
         }}
-        className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs"
+        className="inline-flex items-center gap-1 border border-[var(--cp-border)] px-2 py-1 text-cp-xs"
       >
         <Icon icon={Plus} size="xs" /> {t('analysis.crew.addPerson', 'Person')}
       </button>
@@ -810,7 +810,7 @@ const NeuesBand = ({
           onAdd(label.trim(), v, b, Number(prozent.replace(',', '.')) || 0, nurSonntag ? ['sunday'] : [])
           setLabel('')
         }}
-        className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs"
+        className="inline-flex items-center gap-1 border border-[var(--cp-border)] px-2 py-1 text-cp-xs"
       >
         <Icon icon={Plus} size="xs" /> {t('analysis.crew.addBand', 'Band')}
       </button>
@@ -866,7 +866,7 @@ const NeuerSatz = ({
           setActivity('')
           setBetrag('')
         }}
-        className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs"
+        className="inline-flex items-center gap-1 border border-[var(--cp-border)] px-2 py-1 text-cp-xs"
       >
         <Icon icon={Plus} size="xs" /> {t('analysis.crew.addRate', 'Rate')}
       </button>
@@ -910,14 +910,14 @@ const BelegZelle = ({
         <button
           type="button"
           onClick={() => void cablePlannerApi.receipt.reveal(filePath, expense.receipt!.storedAs)}
-          className="rounded border border-cp-border px-1 py-0.5 hover:bg-cp-surface-3"
+          className="border border-cp-border px-1 py-0.5 hover:bg-cp-surface-3"
         >
           {t('analysis.crew.revealReceipt', 'Show in folder')}
         </button>
         <button
           type="button"
           onClick={() => onChange({ receipt: undefined })}
-          className="rounded border border-cp-border px-1 py-0.5 hover:bg-cp-surface-3"
+          className="border border-cp-border px-1 py-0.5 hover:bg-cp-surface-3"
         >
           {t('analysis.crew.detachReceipt', 'Detach receipt')}
         </button>
@@ -944,7 +944,7 @@ const BelegZelle = ({
           // Aenderung an einer Zahl, die jemand eingetragen hat.
           onChange({ receipt: erster.attachment })
         }}
-        className="rounded border border-cp-border px-1.5 py-0.5 hover:bg-cp-surface-3"
+        className="border border-cp-border px-1.5 py-0.5 hover:bg-cp-surface-3"
       >
         {t('analysis.crew.attachReceipt', 'Attach receipt')}
       </button>
@@ -978,7 +978,7 @@ const BelegEinlesen = ({
   const zeile = vorschlag ? expenseFromProposal(vorschlag, { personId: personId || undefined }) : null
 
   return (
-    <div className="flex flex-col gap-1 rounded border border-cp-border-muted p-1.5">
+    <div className="flex flex-col gap-1 border border-cp-border-muted p-1.5">
       <label className="text-cp-xs text-cp-text-secondary" htmlFor="beleg-text">
         {t('analysis.crew.pasteReceipt', 'Paste receipt text (till-slip mail, PDF text, typed)')}
       </label>
@@ -987,7 +987,7 @@ const BelegEinlesen = ({
         value={text}
         onChange={(e) => setText(e.target.value)}
         rows={3}
-        className="rounded border border-cp-border bg-cp-surface-2 p-1 text-cp-xs"
+        className="border border-cp-border bg-cp-surface-2 p-1 text-cp-xs"
       />
       {vorschlag && (
         <div className="flex flex-col gap-0.5 text-cp-xs">
@@ -1033,7 +1033,7 @@ const BelegEinlesen = ({
                     })
                     setText('')
                   }}
-                  className="rounded border border-cp-border px-1.5 py-0.5 hover:bg-cp-surface-3"
+                  className="border border-cp-border px-1.5 py-0.5 hover:bg-cp-surface-3"
                 >
                   {c.value.toFixed(2)}
                 </button>
@@ -1047,7 +1047,7 @@ const BelegEinlesen = ({
           value={personId}
           onChange={(e) => setPersonId(e.target.value)}
           aria-label={t('analysis.crew.expensePerson', 'Who paid')}
-          className="rounded border border-cp-border bg-cp-surface-2 px-1 py-0.5 text-cp-xs"
+          className="border border-cp-border bg-cp-surface-2 px-1 py-0.5 text-cp-xs"
         >
           <option value="">{t('analysis.crew.expenseNoPerson', '— Job —')}</option>
           {people.map((p) => (
@@ -1064,7 +1064,7 @@ const BelegEinlesen = ({
             onAdd(zeile.expense)
             setText('')
           }}
-          className="rounded border border-cp-border px-1.5 py-0.5 text-cp-xs hover:bg-cp-surface-3 disabled:opacity-40"
+          className="border border-cp-border px-1.5 py-0.5 text-cp-xs hover:bg-cp-surface-3 disabled:opacity-40"
         >
           {t('analysis.crew.addFromReceipt', 'Create expense from receipt')}
         </button>
@@ -1196,7 +1196,7 @@ const NeueAuslage = ({
           setBetrag('')
           setBeleg('')
         }}
-        className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs"
+        className="inline-flex items-center gap-1 border border-[var(--cp-border)] px-2 py-1 text-cp-xs"
       >
         <Icon icon={Plus} size="xs" /> {t('analysis.crew.addExpense', 'Expense')}
       </button>

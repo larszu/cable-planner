@@ -99,7 +99,7 @@ export const ProjectMetaDialog = ({
           <button
             type="button"
             onClick={onCancel}
-            className="rounded bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
+            className="bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
           >
             {t('common.cancel', 'Cancel')}
           </button>
@@ -107,7 +107,7 @@ export const ProjectMetaDialog = ({
             type="button"
             disabled={!canConfirm}
             onClick={handleConfirm}
-            className="rounded bg-emerald-700 px-3 py-1 text-cp-xs enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
+            className="bg-emerald-700 px-3 py-1 text-cp-xs enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {mode === 'new'
               ? t('project.meta.create', 'Create project')
@@ -124,7 +124,7 @@ export const ProjectMetaDialog = ({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder={t('project.meta.namePh', 'e.g. Studio 2 refit')}
-              className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-1.5"
+              className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-1.5"
             />
           </label>
 
@@ -135,7 +135,7 @@ export const ProjectMetaDialog = ({
                 value={contractor}
                 onChange={(e) => setContractor(e.target.value)}
                 placeholder={t('project.meta.contractorPh', 'Your Company Ltd')}
-                className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-1.5"
+                className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-1.5"
               />
             </label>
             <label className="block">
@@ -144,7 +144,7 @@ export const ProjectMetaDialog = ({
                 value={client}
                 onChange={(e) => setClient(e.target.value)}
                 placeholder={t('project.meta.clientPh', 'End customer')}
-                className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-1.5"
+                className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-1.5"
               />
             </label>
             <label className="block">
@@ -153,7 +153,7 @@ export const ProjectMetaDialog = ({
                 value={author}
                 onChange={(e) => setAuthor(e.target.value)}
                 placeholder={t('project.meta.authorPh', 'First name Last name')}
-                className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-1.5"
+                className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-1.5"
               />
             </label>
             <label className="block">
@@ -162,7 +162,7 @@ export const ProjectMetaDialog = ({
                 value={projectNumber}
                 onChange={(e) => setProjectNumber(e.target.value)}
                 placeholder={t('project.meta.projectNumberPh', 'e.g. 2026-042')}
-                className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-1.5"
+                className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-1.5"
               />
             </label>
           </div>
@@ -175,7 +175,7 @@ export const ProjectMetaDialog = ({
                 type="date"
                 value={eventStart}
                 onChange={(e) => setEventStart(e.target.value)}
-                className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-1.5"
+                className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-1.5"
               />
             </label>
             <label className="block">
@@ -185,7 +185,7 @@ export const ProjectMetaDialog = ({
                 value={eventEnd}
                 min={eventStart || undefined}
                 onChange={(e) => setEventEnd(e.target.value)}
-                className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-1.5"
+                className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-1.5"
               />
             </label>
           </div>
@@ -197,7 +197,7 @@ export const ProjectMetaDialog = ({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={2}
-              className="mt-1 w-full resize-y rounded border border-cp-border bg-cp-surface-3 p-1.5"
+              className="mt-1 w-full resize-y border border-cp-border bg-cp-surface-3 p-1.5"
             />
           </label>
 
@@ -211,12 +211,12 @@ export const ProjectMetaDialog = ({
                   <img
                     src={companyLogo}
                     alt={t('project.meta.companyLogo', 'Company logo')}
-                    className="h-12 w-auto rounded border border-cp-border bg-white p-1"
+                    className="h-12 w-auto border border-cp-border bg-white p-1"
                   />
                   <button
                     type="button"
                     onClick={() => setCompanyLogo(undefined)}
-                    className="rounded bg-red-900/60 px-2 py-1 text-cp-xs hover:bg-red-800"
+                    className="bg-red-900/60 px-2 py-1 text-cp-xs hover:bg-red-800"
                   >
                     {t('project.meta.removeLogo', 'Remove')}
                   </button>
@@ -237,7 +237,7 @@ export const ProjectMetaDialog = ({
               <button
                 type="button"
                 onClick={() => companyInputRef.current?.click()}
-                className="mt-1 rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
+                className="mt-1 bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
               >
                 {t('project.meta.chooseLogo', 'Choose logo…')}
               </button>
@@ -251,12 +251,12 @@ export const ProjectMetaDialog = ({
                   <img
                     src={clientLogo}
                     alt={t('project.meta.clientLogo', 'Client logo')}
-                    className="h-12 w-auto rounded border border-cp-border bg-white p-1"
+                    className="h-12 w-auto border border-cp-border bg-white p-1"
                   />
                   <button
                     type="button"
                     onClick={() => setClientLogo(undefined)}
-                    className="rounded bg-red-900/60 px-2 py-1 text-cp-xs hover:bg-red-800"
+                    className="bg-red-900/60 px-2 py-1 text-cp-xs hover:bg-red-800"
                   >
                     {t('project.meta.removeLogo', 'Remove')}
                   </button>
@@ -277,7 +277,7 @@ export const ProjectMetaDialog = ({
               <button
                 type="button"
                 onClick={() => clientInputRef.current?.click()}
-                className="mt-1 rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
+                className="mt-1 bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
               >
                 {t('project.meta.chooseLogo', 'Choose logo…')}
               </button>

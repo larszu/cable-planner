@@ -152,7 +152,7 @@ const RechnerLink = ({ onClick, label }: { onClick: () => void; label: string })
   <button
     type="button"
     onClick={onClick}
-    className="inline-flex items-center gap-1 rounded border border-cp-border bg-cp-surface-2 px-2 py-0.5 text-cp-xs text-cp-text hover:border-sky-500 hover:bg-cp-surface-3"
+    className="inline-flex items-center gap-1 border border-cp-border bg-cp-surface-2 px-2 py-0.5 text-cp-xs text-cp-text hover:border-sky-500 hover:bg-cp-surface-3"
   >
     <Icon icon={Calculator} size="xs" />
     {label}
@@ -209,7 +209,7 @@ const CsvButton = ({ onClick }: { onClick: () => void }) => {
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex items-center gap-1 rounded bg-emerald-700 px-2 py-1 text-cp-xs font-medium text-white hover:bg-emerald-600"
+      className="inline-flex items-center gap-1 bg-emerald-700 px-2 py-1 text-cp-xs font-medium text-white hover:bg-emerald-600"
     >
       <Icon icon={Download} size="xs" /> {t('analysis.exportCsv', 'Export CSV')}
     </button>
@@ -345,7 +345,7 @@ const WeightTab = ({ projectName }: { projectName: string }) => {
         </p>
       )}
       {heaviest.length > 0 && (
-        <div className="rounded border border-[var(--cp-border-muted)] bg-[var(--cp-surface-3)] p-2 text-cp-xs">
+        <div className="border border-[var(--cp-border-muted)] bg-[var(--cp-surface-3)] p-2 text-cp-xs">
           <div className="mb-1 font-semibold text-[var(--cp-text-muted)]">
             {t('analysis.weight.heaviest', 'Heaviest devices (rigging/transport)')}
           </div>
@@ -717,7 +717,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
         />
       </div>
       {duplicates.length > 0 && (
-        <div className="rounded border border-red-700/60 bg-red-900/30 p-2 text-cp-xs text-red-200">
+        <div className="border border-red-700/60 bg-red-900/30 p-2 text-cp-xs text-red-200">
           <div className="mb-1 font-semibold">{t('analysis.network.dupTitle', 'Duplicate IP addresses')}</div>
           <ul className="list-inside list-disc">
             {duplicates.map(([ip, names]) => (
@@ -729,7 +729,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
         </div>
       )}
       {danteIssues.length > 0 && (
-        <div className="rounded border border-amber-700/60 bg-amber-900/20 p-2 text-cp-xs text-amber-200">
+        <div className="border border-amber-700/60 bg-amber-900/20 p-2 text-cp-xs text-amber-200">
           <div className="mb-1 font-semibold">
             {t('analysis.network.danteTitle', 'Check Dante/AES67 names (≤31 chars, a–z/0–9/-)')}
           </div>
@@ -789,7 +789,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
 
       {/* #346 — IPAM: Subnetz-Übersicht. */}
       {subnets.length > 0 && (
-        <div className="rounded border border-[var(--cp-border-muted)] bg-[var(--cp-surface-3)] p-2 text-cp-xs">
+        <div className="border border-[var(--cp-border-muted)] bg-[var(--cp-surface-3)] p-2 text-cp-xs">
           <div className="mb-1 font-semibold text-[var(--cp-text-muted)]">
             {t('analysis.network.subnets', 'Subnets')} ({subnets.length})
           </div>
@@ -821,7 +821,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
           keine Adressen: woher Subnetze kommen, ist die offene
           Eigentuemer-Frage E-5. */}
       {plan.networkedCount > 0 && (
-        <div className="rounded border border-[var(--cp-border-muted)] bg-[var(--cp-surface-3)] p-2 text-cp-xs">
+        <div className="border border-[var(--cp-border-muted)] bg-[var(--cp-surface-3)] p-2 text-cp-xs">
           <div className="mb-1 flex flex-wrap items-baseline gap-x-2">
             <span className="font-semibold text-[var(--cp-text-muted)]">
               {t('analysis.address.title', 'Address plan')}
@@ -859,7 +859,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
           deutsche Praxis dafuer ist eine Excel-Mappe mit einem Reiter je
           Switch, und die ist die zweite Wahrheit neben dem Plan. */}
       {portMaps.length > 0 && (
-        <div className="rounded border border-[var(--cp-border)] p-2">
+        <div className="border border-[var(--cp-border)] p-2">
           <div className="mb-1 flex items-center justify-between">
             <span className="font-semibold">{t('analysis.switchPorts.title', 'Switch port map')}</span>
             <span className="text-cp-xs text-[var(--cp-text-muted)]">
@@ -880,7 +880,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
                   <button
                     type="button"
                     onClick={() => exportPortMap(m)}
-                    className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] px-1.5 py-0.5 text-cp-xs hover:bg-[var(--cp-surface-2)]"
+                    className="inline-flex items-center gap-1 border border-[var(--cp-border)] px-1.5 py-0.5 text-cp-xs hover:bg-[var(--cp-surface-2)]"
                   >
                     <Icon icon={Download} size="xs" /> CSV
                   </button>
@@ -891,7 +891,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
                       'analysis.switchPorts.descHint',
                       'Vendor-neutral text to paste. The plan sends nothing to the switch \u2014 read what you paste.',
                     )}
-                    className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] px-1.5 py-0.5 text-cp-xs hover:bg-[var(--cp-surface-2)]"
+                    className="inline-flex items-center gap-1 border border-[var(--cp-border)] px-1.5 py-0.5 text-cp-xs hover:bg-[var(--cp-surface-2)]"
                   >
                     <Icon icon={Download} size="xs" />{' '}
                     {t('analysis.switchPorts.descriptions', 'Descriptions')}
@@ -937,13 +937,13 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
           abgeleitet ist oder eine Frage: ein Blatt, das die DHCP-Reichweite
           des Hauses „ausfuellt", legt dem Administrator eine Behauptung ueber
           sein eigenes Netz vor. */}
-      <div className="rounded border border-[var(--cp-border)] p-2">
+      <div className="border border-[var(--cp-border)] p-2">
         <div className="mb-1 flex items-center justify-between">
           <span className="font-semibold">{t('analysis.venue.title', 'Request to the venue IT')}</span>
           <button
             type="button"
             onClick={exportVenueRequest}
-            className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs font-medium text-[var(--cp-text)] hover:bg-[var(--cp-surface-2)]"
+            className="inline-flex items-center gap-1 border border-[var(--cp-border)] px-2 py-1 text-cp-xs font-medium text-[var(--cp-text)] hover:bg-[var(--cp-surface-2)]"
           >
             <Icon icon={Download} size="xs" /> CSV
           </button>
@@ -953,7 +953,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
           'The design literature prescribes the content and a joint test session, but no document. What the plan knows is stated with a number; what it cannot know is stated as a question.',
         )} />
         {request.igmpConflict && (
-          <div className="mb-1.5 rounded border border-amber-700/60 bg-amber-900/20 p-2 text-cp-xs text-amber-200">
+          <div className="mb-1.5 border border-amber-700/60 bg-amber-900/20 p-2 text-cp-xs text-amber-200">
             {format(
               t(
                 'analysis.venue.igmpConflict',
@@ -986,7 +986,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
                       key={st}
                       type="button"
                       onClick={() => setzeAntwort(i.key, st)}
-                      className={`rounded border px-1.5 py-0.5 text-cp-xs ${
+                      className={` border px-1.5 py-0.5 text-cp-xs ${
                         antwort?.answered === st || (st === 'pending' && !antwort?.answered)
                           ? 'border-[var(--cp-accent)] text-[var(--cp-accent)]'
                           : 'border-[var(--cp-border)] text-[var(--cp-text-faint)] hover:text-[var(--cp-text)]'
@@ -1000,7 +1000,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
                       value={antwort.note ?? ''}
                       onChange={(e) => setzeNotiz(i.key, e.target.value)}
                       placeholder={t('analysis.venue.a.notePh', 'condition or workaround, in plain words')}
-                      className="min-w-0 flex-1 rounded border border-[var(--cp-border)] bg-transparent px-1.5 py-0.5 text-cp-xs text-[var(--cp-text)] outline-none placeholder:text-[var(--cp-text-faint)]"
+                      className="min-w-0 flex-1 border border-[var(--cp-border)] bg-transparent px-1.5 py-0.5 text-cp-xs text-[var(--cp-text)] outline-none placeholder:text-[var(--cp-text-faint)]"
                     />
                   )}
                 </span>
@@ -1048,7 +1048,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
           PTP-abhaengige Essenz traegt: ein reiner SDI-Aufbau braucht diesen
           Abschnitt nicht, und ihn dort leer anzuzeigen waere Rauschen. */}
       {ptp.needsPtp && (
-        <div className="rounded-cp-panel border border-[var(--cp-border)] bg-[var(--cp-surface-1)] p-cp-3">
+        <div className="border border-[var(--cp-border)] bg-[var(--cp-surface-1)] p-cp-3">
           <div className="mb-2 text-cp-sm font-semibold text-[var(--cp-text)]">
             {t('analysis.ptp.title', 'Timing (PTP)')}
           </div>
@@ -1125,7 +1125,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
           SDI-Aufbau gibt es keinen eingebrannten Geräte-Namen, der beim
           Tausch mitwandern könnte. */}
       {asset.hasAnchored && (
-        <div className="rounded-cp-panel border border-[var(--cp-border)] bg-[var(--cp-surface-1)] p-cp-3">
+        <div className="border border-[var(--cp-border)] bg-[var(--cp-surface-1)] p-cp-3">
           <div className="mb-2 flex items-baseline justify-between gap-2">
             <div className="text-cp-sm font-semibold text-[var(--cp-text)]">
               {t('analysis.asset.title', 'Which box fills which slot')}
@@ -1133,7 +1133,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
             <button
               type="button"
               onClick={exportAsset}
-              className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] px-2 py-0.5 text-cp-xs text-[var(--cp-text)] hover:bg-[var(--cp-surface-2)]"
+              className="inline-flex items-center gap-1 border border-[var(--cp-border)] px-2 py-0.5 text-cp-xs text-[var(--cp-text)] hover:bg-[var(--cp-surface-2)]"
             >
               <Icon icon={Download} size="xs" /> {t('analysis.asset.export', 'Sheet')}
             </button>
@@ -1177,7 +1177,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
           ueberhaupt Multicast-Essenz traegt: ein reiner SDI-Aufbau hat keine
           Gruppen, und ein leerer Abschnitt waere Rauschen. */}
       {multicast.needsMulticast && (
-        <div className="rounded-cp-panel border border-[var(--cp-border)] bg-[var(--cp-surface-1)] p-cp-3">
+        <div className="border border-[var(--cp-border)] bg-[var(--cp-surface-1)] p-cp-3">
           <div className="mb-2 text-cp-sm font-semibold text-[var(--cp-text)]">
             {t('analysis.mc.title', 'Multicast address plan')}
           </div>
@@ -1198,7 +1198,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
                 onChange={(e) => setPoolDraft(e.target.value)}
                 onBlur={rahmenUebernehmen}
                 placeholder="239.100.0.0/16"
-                className="w-44 rounded border border-[var(--cp-border)] bg-[var(--cp-surface-2)] px-2 py-1 font-mono text-cp-xs text-[var(--cp-text)]"
+                className="w-44 border border-[var(--cp-border)] bg-[var(--cp-surface-2)] px-2 py-1 font-mono text-cp-xs text-[var(--cp-text)]"
               />
             </label>
             <label className="flex flex-col gap-0.5">
@@ -1210,14 +1210,14 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
                 onChange={(e) => setPortDraft(e.target.value)}
                 onBlur={rahmenUebernehmen}
                 inputMode="numeric"
-                className="w-24 rounded border border-[var(--cp-border)] bg-[var(--cp-surface-2)] px-2 py-1 font-mono text-cp-xs text-[var(--cp-text)]"
+                className="w-24 border border-[var(--cp-border)] bg-[var(--cp-surface-2)] px-2 py-1 font-mono text-cp-xs text-[var(--cp-text)]"
               />
             </label>
             <button
               type="button"
               onClick={vergeben}
               disabled={!multicast.pool || multicast.open.length === 0}
-              className="rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs font-medium text-[var(--cp-text)] hover:bg-[var(--cp-surface-2)] disabled:opacity-40"
+              className="border border-[var(--cp-border)] px-2 py-1 text-cp-xs font-medium text-[var(--cp-text)] hover:bg-[var(--cp-surface-2)] disabled:opacity-40"
             >
               {format(t('analysis.mc.allocate', 'Allocate {n} open legs'), {
                 n: String(multicast.open.length),
@@ -1283,7 +1283,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
               <button
                 type="button"
                 onClick={verwaisteEntfernen}
-                className="rounded border border-[var(--cp-border)] px-2 py-0.5 text-cp-xs text-[var(--cp-text)] hover:bg-[var(--cp-surface-2)]"
+                className="border border-[var(--cp-border)] px-2 py-0.5 text-cp-xs text-[var(--cp-text)] hover:bg-[var(--cp-surface-2)]"
               >
                 {t('analysis.mc.dropStale', 'Remove orphaned')}
               </button>
@@ -1314,7 +1314,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
           passen und von jemandem gelesen werden, der gerade ein Kabel in der
           Hand hat. Was der Plan nicht weiss, steht als Frage drauf statt als
           Luecke — eine leere Zeile liest sich wie „gibt es nicht". */}
-      <div className="rounded-cp-panel border border-[var(--cp-border)] bg-[var(--cp-surface-1)] p-cp-3">
+      <div className="border border-[var(--cp-border)] bg-[var(--cp-surface-1)] p-cp-3">
         <div className="mb-2 flex items-baseline justify-between gap-2">
           <div className="text-cp-sm font-semibold text-[var(--cp-text)]">
             {t('analysis.crew.title', 'Network briefing sheet for the crew')}
@@ -1356,21 +1356,21 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
         <button
           type="button"
           onClick={exportRackDoor}
-          className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs font-medium text-[var(--cp-text)] hover:bg-[var(--cp-surface-2)]"
+          className="inline-flex items-center gap-1 border border-[var(--cp-border)] px-2 py-1 text-cp-xs font-medium text-[var(--cp-text)] hover:bg-[var(--cp-surface-2)]"
         >
           <Icon icon={Download} size="xs" /> {t('analysis.venue.rackDoor', 'Rack-door sheet')}
         </button>
         <button
           type="button"
           onClick={exportVenueAnswers}
-          className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs font-medium text-[var(--cp-text)] hover:bg-[var(--cp-surface-2)]"
+          className="inline-flex items-center gap-1 border border-[var(--cp-border)] px-2 py-1 text-cp-xs font-medium text-[var(--cp-text)] hover:bg-[var(--cp-surface-2)]"
         >
           <Icon icon={Download} size="xs" /> {t('analysis.venue.a.export', 'Question and answer')}
         </button>
         <button
           type="button"
           onClick={exportVlans}
-          className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs font-medium text-[var(--cp-text)] hover:bg-[var(--cp-surface-2)]"
+          className="inline-flex items-center gap-1 border border-[var(--cp-border)] px-2 py-1 text-cp-xs font-medium text-[var(--cp-text)] hover:bg-[var(--cp-surface-2)]"
         >
           <Icon icon={Download} size="xs" /> {t('analysis.venue.vlanTable', 'VLAN table')}
         </button>
@@ -1378,7 +1378,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
           type="button"
           onClick={exportPtp}
           disabled={ptp.domains.length === 0}
-          className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs font-medium text-[var(--cp-text)] hover:bg-[var(--cp-surface-2)] disabled:opacity-40"
+          className="inline-flex items-center gap-1 border border-[var(--cp-border)] px-2 py-1 text-cp-xs font-medium text-[var(--cp-text)] hover:bg-[var(--cp-surface-2)] disabled:opacity-40"
         >
           <Icon icon={Download} size="xs" /> {t('analysis.ptp.export', 'Timing plan (PTP)')}
         </button>
@@ -1386,14 +1386,14 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
           type="button"
           onClick={exportMulticast}
           disabled={!multicast.needsMulticast}
-          className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs font-medium text-[var(--cp-text)] hover:bg-[var(--cp-surface-2)] disabled:opacity-40"
+          className="inline-flex items-center gap-1 border border-[var(--cp-border)] px-2 py-1 text-cp-xs font-medium text-[var(--cp-text)] hover:bg-[var(--cp-surface-2)] disabled:opacity-40"
         >
           <Icon icon={Download} size="xs" /> {t('analysis.mc.export', 'Multicast address plan')}
         </button>
         <button
           type="button"
           onClick={exportCrew}
-          className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs font-medium text-[var(--cp-text)] hover:bg-[var(--cp-surface-2)]"
+          className="inline-flex items-center gap-1 border border-[var(--cp-border)] px-2 py-1 text-cp-xs font-medium text-[var(--cp-text)] hover:bg-[var(--cp-surface-2)]"
         >
           <Icon icon={Download} size="xs" /> {t('analysis.crew.export', 'Crew network sheet')}
         </button>
@@ -1401,7 +1401,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
           type="button"
           onClick={exportAddressPlan}
           disabled={plan.networkedCount === 0}
-          className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs font-medium text-[var(--cp-text)] hover:bg-[var(--cp-surface-2)] disabled:opacity-40"
+          className="inline-flex items-center gap-1 border border-[var(--cp-border)] px-2 py-1 text-cp-xs font-medium text-[var(--cp-text)] hover:bg-[var(--cp-surface-2)] disabled:opacity-40"
         >
           <Icon icon={Download} size="xs" /> {t('analysis.address.export', 'Address plan as CSV')}
         </button>
@@ -1694,7 +1694,7 @@ const RfTab = ({ projectName }: { projectName: string }) => {
       {/* BEDARF 95 — der Umfang der Rechnung steht ueber ihrem Ergebnis. Eine
           Intermodulations-Rechnung, die drei von acht Sendern nicht kennt,
           sagt „frei" und meint „ich habe nicht nachgesehen". */}
-      <div className="rounded border border-[var(--cp-border)] bg-[var(--cp-surface-2)] p-2 text-cp-xs">
+      <div className="border border-[var(--cp-border)] bg-[var(--cp-surface-2)] p-2 text-cp-xs">
         {format(
           t('analysis.rf.scope', '{n} transmitters in the plan: {rig} from the wireless mic rig, {link} as radio links.'),
           {
@@ -1716,7 +1716,7 @@ const RfTab = ({ projectName }: { projectName: string }) => {
         )}
       </div>
       {channelConflicts.length > 0 && (
-        <div className="rounded border border-red-700/60 bg-red-900/30 p-2 text-cp-xs text-red-200">
+        <div className="border border-red-700/60 bg-red-900/30 p-2 text-cp-xs text-red-200">
           <div className="mb-1 font-semibold">{t('analysis.rf.conflictTitle', 'Possible RF conflicts')}</div>
           <ul className="list-inside list-disc">
             {channelConflicts.map((c, i) => (
@@ -1726,7 +1726,7 @@ const RfTab = ({ projectName }: { projectName: string }) => {
         </div>
       )}
       {rfFindings.length > 0 && (
-        <div className="rounded border border-amber-700/60 bg-amber-900/30 p-2 text-cp-xs text-amber-200">
+        <div className="border border-amber-700/60 bg-amber-900/30 p-2 text-cp-xs text-amber-200">
           <div className="mb-1 font-semibold">
             {t('analysis.rf.imTitle', 'Frequency findings across the whole spectrum')} ({rfFindings.length})
           </div>
@@ -1743,7 +1743,7 @@ const RfTab = ({ projectName }: { projectName: string }) => {
         </div>
       )}
       {/* #344 — Freie-Frequenz-Vorschlag im gewählten Band. */}
-      <div className="rounded border border-emerald-700/60 bg-emerald-950/20 p-2 text-cp-xs">
+      <div className="border border-emerald-700/60 bg-emerald-950/20 p-2 text-cp-xs">
         <div className="mb-1.5 flex flex-wrap items-center gap-2">
           <span className="font-semibold text-[var(--cp-text-muted)]">
             {t('analysis.rf.suggestTitle', 'Free frequencies in band')}
@@ -1751,7 +1751,7 @@ const RfTab = ({ projectName }: { projectName: string }) => {
           <select
             value={bandIdx}
             onChange={(e) => setBandIdx(Number(e.target.value))}
-            className="rounded border border-[var(--cp-border)] bg-[var(--cp-surface-3)] px-1.5 py-0.5"
+            className="border border-[var(--cp-border)] bg-[var(--cp-surface-3)] px-1.5 py-0.5"
           >
             {RF_BANDS.map((b, i) => (
               <option key={i} value={i}>
@@ -1767,7 +1767,7 @@ const RfTab = ({ projectName }: { projectName: string }) => {
         ) : (
           <div className="flex flex-wrap gap-1.5">
             {suggestion.freqs.map((f) => (
-              <span key={f} className="rounded bg-emerald-700/40 px-2 py-0.5 font-mono text-emerald-100">
+              <span key={f} className="bg-emerald-700/40 px-2 py-0.5 font-mono text-emerald-100">
                 {f.toFixed(1)} MHz
               </span>
             ))}
@@ -1830,7 +1830,7 @@ const RfTab = ({ projectName }: { projectName: string }) => {
       </table>
 
       {/* #344 — Referenz: gängige Hersteller-Frequenzbänder. */}
-      <details className="rounded border border-[var(--cp-border-muted)] bg-[var(--cp-surface-3)]">
+      <details className="border border-[var(--cp-border-muted)] bg-[var(--cp-surface-3)]">
         <summary className="cursor-pointer px-3 py-1.5 text-cp-xs uppercase tracking-wide text-[var(--cp-text-muted)]">
           {t('analysis.rf.bandRef', 'Frequency bands (Sennheiser / Shure / …)')} ({RF_BANDS.length})
         </summary>
@@ -1867,12 +1867,12 @@ const RfTab = ({ projectName }: { projectName: string }) => {
       {/* BEDARF 112 — die Messung gegen den Plan. „Nicht gemessen" ist ein
           eigenes Urteil und keine Entwarnung: ein Scan von 470–608 MHz sagt
           ueber 614 MHz gar nichts. */}
-      <div className="rounded border border-[var(--cp-border)] p-2">
+      <div className="border border-[var(--cp-border)] p-2">
         <div className="mb-2 flex flex-wrap items-center gap-2 text-cp-xs">
           <span className="font-medium">
             {t('scan.title', 'Spectrum scan from the analyser')}
           </span>
-          <label className="inline-flex cursor-pointer items-center gap-1 rounded border border-[var(--cp-border)] px-2 py-1 hover:bg-[var(--cp-surface-2)]">
+          <label className="inline-flex cursor-pointer items-center gap-1 border border-[var(--cp-border)] px-2 py-1 hover:bg-[var(--cp-surface-2)]">
             <Icon icon={FileInput} size="xs" />
             {t('scan.import', 'Read scan')}
             <input
@@ -1906,7 +1906,7 @@ const RfTab = ({ projectName }: { projectName: string }) => {
                     'scan.thresholdHint',
                     'What \u201Coccupied\u201D means depends on antenna, preamp and distance \u2014 none of which is in the file. That is why the threshold is a field, not a fixed value.',
                   )}
-                  className="w-20 rounded border border-[var(--cp-border)] bg-[var(--cp-surface-1)] px-1 py-0.5"
+                  className="w-20 border border-[var(--cp-border)] bg-[var(--cp-surface-1)] px-1 py-0.5"
                 />
               </label>
               <button
@@ -1918,7 +1918,7 @@ const RfTab = ({ projectName }: { projectName: string }) => {
                     'text/csv;charset=utf-8',
                   )
                 }
-                className="rounded border border-[var(--cp-border)] px-2 py-1 hover:bg-[var(--cp-surface-2)]"
+                className="border border-[var(--cp-border)] px-2 py-1 hover:bg-[var(--cp-surface-2)]"
               >
                 {t('scan.exportCheck', 'Comparison')}
               </button>
@@ -1969,7 +1969,7 @@ const RfTab = ({ projectName }: { projectName: string }) => {
           type="button"
           onClick={exportSpectrum}
           disabled={spectrum.entries.length === 0}
-          className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs font-medium text-[var(--cp-text)] hover:bg-[var(--cp-surface-2)] disabled:opacity-40"
+          className="inline-flex items-center gap-1 border border-[var(--cp-border)] px-2 py-1 text-cp-xs font-medium text-[var(--cp-text)] hover:bg-[var(--cp-surface-2)] disabled:opacity-40"
         >
           <Icon icon={Download} size="xs" /> {t('analysis.rf.spectrumExport', 'Spectrum plan (everything that transmits)')}
         </button>
@@ -2058,7 +2058,7 @@ const RunsTab = ({ projectName }: { projectName: string }) => {
             <button
               type="button"
               onClick={exportCsv}
-              className="rounded border border-cp-border px-2 py-1 text-cp-xs text-cp-text-secondary hover:text-cp-text"
+              className="border border-cp-border px-2 py-1 text-cp-xs text-cp-text-secondary hover:text-cp-text"
             >
               CSV
             </button>
@@ -2069,9 +2069,9 @@ const RunsTab = ({ projectName }: { projectName: string }) => {
                 key={`${f.kind}-${f.cableId}`}
                 className={
                   f.kind === 'over-max-length'
-                    ? 'rounded border border-red-700/60 bg-red-900/30 p-2 text-cp-xs text-red-200'
-                    : 'rounded border border-amber-700/60 bg-amber-900/30 p-2 text-cp-xs text-amber-200'
-                }
+                    ? ' border border-red-700/60 bg-red-900/30 p-2 text-cp-xs text-red-200'
+                    : ' border border-amber-700/60 bg-amber-900/30 p-2 text-cp-xs text-amber-200'
+}
               >
                 <span className="font-semibold">{f.cableLabel}</span> — {text(f)}
                 {f.source && <span className="ml-1 opacity-70">({f.source})</span>}
@@ -2171,13 +2171,13 @@ const SheetTab = () => {
           }}
           placeholder={t('analysis.sheet.placeholder', '1a2b3c4d or cableplanner://doc/\u2026')}
           aria-label={t('analysis.sheet.placeholder', '1a2b3c4d or cableplanner://doc/\u2026')}
-          className="min-w-[16rem] flex-1 rounded border border-cp-border bg-cp-surface-3 p-1.5"
+          className="min-w-[16rem] flex-1 border border-cp-border bg-cp-surface-3 p-1.5"
         />
         <button
           type="button"
           onClick={pruefen}
           disabled={!draft.trim()}
-          className="rounded border border-cp-border px-2.5 py-1 text-cp-text-secondary hover:text-cp-text disabled:opacity-40"
+          className="border border-cp-border px-2.5 py-1 text-cp-text-secondary hover:text-cp-text disabled:opacity-40"
         >
           {t('analysis.sheet.check', 'Check')}
         </button>
@@ -2217,7 +2217,7 @@ const ClientTab = ({ projectName }: { projectName: string }) => {
         <span className="text-cp-sm text-[var(--cp-text-secondary)]">
           {t('analysis.client.basis', 'Basis of this sheet')}:
         </span>
-        <span className="rounded border border-[var(--cp-border-muted)] px-1.5 py-0.5 text-cp-xs text-[var(--cp-text-secondary)]">
+        <span className="border border-[var(--cp-border-muted)] px-1.5 py-0.5 text-cp-xs text-[var(--cp-text-secondary)]">
           {JOB_BASIS_LABEL[summary.basis]}
         </span>
         <CsvButton onClick={exportCsv} />
@@ -2334,7 +2334,7 @@ const CostTab = ({ projectName }: { projectName: string }) => {
         <button
           type="button"
           onClick={addLine}
-          className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs"
+          className="inline-flex items-center gap-1 border border-[var(--cp-border)] px-2 py-1 text-cp-xs"
         >
           <Icon icon={Plus} size="xs" /> {t('analysis.cost.add', 'Line')}
         </button>
@@ -2535,7 +2535,7 @@ const AufnahmeNamen = ({ projectName }: { projectName: string }) => {
               'text/csv',
             )
           }
-          className="rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs hover:bg-[var(--cp-surface-4)]"
+          className="border border-[var(--cp-border)] px-2 py-1 text-cp-xs hover:bg-[var(--cp-surface-4)]"
         >
           {t('analysis.recordName.export', 'Sheet for the deck (CSV)')}
         </button>
@@ -2659,7 +2659,7 @@ const NamingTab = ({ projectName }: { projectName: string }) => {
         <button
           type="button"
           onClick={anwenden}
-          className="inline-flex items-center gap-1 rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs"
+          className="inline-flex items-center gap-1 border border-[var(--cp-border)] px-2 py-1 text-cp-xs"
         >
           {t('analysis.naming.apply', 'Apply')} ({bewertung.proposals.length})
         </button>
@@ -2754,7 +2754,7 @@ const DanteTab = ({ projectName }: { projectName: string }) => {
           'The subscription matrix as a sheet and as a comparison. This application does not go on the network, subscribes to nothing and renames nothing \u2014 it reads the table the preset is converted into anyway.',
         )} />
       <div className="flex flex-wrap items-center gap-2">
-        <label className="cursor-pointer rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs">
+        <label className="cursor-pointer border border-[var(--cp-border)] px-2 py-1 text-cp-xs">
           {t('analysis.dante.import', 'Read matrix')}
           <input
             type="file"
@@ -2801,7 +2801,7 @@ const DanteTab = ({ projectName }: { projectName: string }) => {
                     'text/csv',
                   )
                 }
-                className="rounded border border-[var(--cp-border)] px-2 py-1 text-cp-xs"
+                className="border border-[var(--cp-border)] px-2 py-1 text-cp-xs"
               >
                 {t('analysis.dante.exportDiff', 'Changes')}
               </button>
@@ -2924,7 +2924,7 @@ const AnalysisDialogInner = () => {
             key={tb.id}
             type="button"
             onClick={() => setActive(tb.id)}
-            className={`rounded-t px-3 py-1.5 text-cp-xs ${
+            className={` px-3 py-1.5 text-cp-xs ${
               active === tb.id
                 ? 'bg-[var(--cp-surface-2)] font-semibold text-[var(--cp-text)]'
                 : 'text-[var(--cp-text-muted)] hover:text-[var(--cp-text)]'

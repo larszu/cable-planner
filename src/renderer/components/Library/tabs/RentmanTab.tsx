@@ -228,7 +228,7 @@ export const RentmanTab = () => {
   return (
     <div className="flex flex-1 min-h-0 flex-col gap-3 overflow-auto">
       {linkedRentmanProjectId ? (
-        <div className="rounded border border-orange-600/60 bg-orange-900/20 p-2">
+        <div className="border border-orange-600/60 bg-orange-900/20 p-2">
           <div className="text-cp-xs uppercase tracking-wider text-orange-300/80">
             {t('library.rentman.currentLinkedProject', 'Currently linked Rentman project')}
           </div>
@@ -236,17 +236,17 @@ export const RentmanTab = () => {
             {linkedRentmanProjectName ?? format(t('library.rentman.projectFallback', 'Project #{id}'), { id: linkedRentmanProjectId })}
           </div>
           <div className="mt-1 flex flex-wrap gap-1 text-cp-xs text-orange-100/80">
-            <span className="rounded bg-orange-950/50 px-1.5 py-0.5">{format(t('library.rentman.statImported', '{n} imported'), { n: linkedImportedCount })}</span>
-            <span className="rounded bg-orange-950/50 px-1.5 py-0.5">{format(t('library.rentman.statNoId', '{n} without Rentman ID'), { n: untracked.length })}</span>
+            <span className="bg-orange-950/50 px-1.5 py-0.5">{format(t('library.rentman.statImported', '{n} imported'), { n: linkedImportedCount })}</span>
+            <span className="bg-orange-950/50 px-1.5 py-0.5">{format(t('library.rentman.statNoId', '{n} without Rentman ID'), { n: untracked.length })}</span>
             {removed.length > 0 && (
-              <span className="rounded bg-red-950/50 px-1.5 py-0.5 text-red-200">{format(t('library.rentman.statRemoved', '{n} removed'), { n: removed.length })}</span>
+              <span className="bg-red-950/50 px-1.5 py-0.5 text-red-200">{format(t('library.rentman.statRemoved', '{n} removed'), { n: removed.length })}</span>
             )}
           </div>
           {/* v7.9.128 — Prominente "Aus Rentman aktualisieren"-Action. */}
           <button
             type="button"
             onClick={openRentmanImport}
-            className="mt-2 w-full rounded bg-orange-600 px-2 py-1.5 text-cp-xs font-semibold text-white hover:bg-orange-500"
+            className="mt-2 w-full bg-orange-600 px-2 py-1.5 text-cp-xs font-semibold text-white hover:bg-orange-500"
             title={t('library.rentman.refreshTitle', 'Fetch the current equipment list from the linked Rentman project — new or changed items are shown in the dialog.')}
           >
             <Icon icon={RefreshCw} size="xs" className="mr-1 inline" />
@@ -277,7 +277,7 @@ export const RentmanTab = () => {
                     )
                   }
                 }}
-                className="mt-2 w-full rounded bg-orange-700/60 px-2 py-1 text-cp-xs text-orange-100 hover:bg-orange-700"
+                className="mt-2 w-full bg-orange-700/60 px-2 py-1 text-cp-xs text-orange-100 hover:bg-orange-700"
                 title={format(t('library.rentman.resyncTitle', '{n} Rentman devices on the canvas are not linked to library templates. Click to reconstruct the missing templates from the canvas data.'), { n: missing })}
               >
                 <Icon icon={RefreshCw} size="xs" className="mr-1 inline" />
@@ -287,12 +287,12 @@ export const RentmanTab = () => {
           })()}
         </div>
       ) : (
-        <div className="rounded border border-cp-border bg-cp-surface-1/50 p-2 text-cp-xs text-cp-text-muted">
+        <div className="border border-cp-border bg-cp-surface-1/50 p-2 text-cp-xs text-cp-text-muted">
           <div className="mb-2">{t('library.rentman.noProjectLinked', 'No Rentman project linked.')}</div>
           <button
             type="button"
             onClick={openRentmanImport}
-            className="w-full rounded bg-orange-700 px-2 py-1.5 text-cp-xs font-semibold text-white hover:bg-orange-600"
+            className="w-full bg-orange-700 px-2 py-1.5 text-cp-xs font-semibold text-white hover:bg-orange-600"
             title={t('library.rentman.linkTitle', 'Select a Rentman project and link it to this plan file')}
           >
             {t('library.rentman.linkProject', 'Link Rentman project…')}
@@ -300,7 +300,7 @@ export const RentmanTab = () => {
         </div>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 rounded border border-cp-border-muted bg-cp-surface-1 p-0.5 text-cp-xs">
+      <div className="grid grid-cols-1 sm:grid-cols-3 border border-cp-border-muted bg-cp-surface-1 p-0.5 text-cp-xs">
         {([
           ['imported', t('library.rentman.view.imported', 'Imported')],
           ['catalog', t('library.rentman.view.catalog', 'Catalog')],
@@ -310,7 +310,7 @@ export const RentmanTab = () => {
             key={id}
             type="button"
             onClick={() => setRentmanView(id)}
-            className={`rounded px-2 py-1 font-medium ${
+            className={` px-2 py-1 font-medium ${
               rentmanView === id
                 ? 'bg-orange-700 text-white'
                 : 'text-cp-text-muted hover:bg-cp-surface-2 hover:text-cp-text-bright'
@@ -383,14 +383,14 @@ export const RentmanTab = () => {
                 }}
                 placeholder={t('library.rentmanSearchPlaceholder', 'Search Rentman devices…')}
                 aria-label={t('library.rentmanSearchPlaceholder', 'Search Rentman devices…')}
-                className="w-full rounded border border-cp-border bg-cp-surface-1 py-1 pl-7 pr-7 text-cp-xs text-cp-text placeholder-slate-500"
+                className="w-full border border-cp-border bg-cp-surface-1 py-1 pl-7 pr-7 text-cp-xs text-cp-text placeholder-slate-500"
               />
               {rentmanSearch && (
                 <button
                   type="button"
                   onClick={() => setRentmanSearch('')}
                   title={t('library.search.clear', 'Clear search')}
-                  className="absolute right-1 top-1/2 -translate-y-1/2 rounded px-1 py-0.5 text-cp-xs text-cp-text-faint hover:bg-cp-surface-4 hover:text-cp-text-bright"
+                  className="absolute right-1 top-1/2 -translate-y-1/2 px-1 py-0.5 text-cp-xs text-cp-text-faint hover:bg-cp-surface-4 hover:text-cp-text-bright"
                 >
                   <Icon icon={X} size="xs" />
                 </button>
@@ -439,7 +439,7 @@ export const RentmanTab = () => {
                   return (
                     <section
                       key={group.id}
-                      className={`rounded border ${
+                      className={` border ${
                         isLinked
                           ? 'border-orange-600/60 bg-orange-900/10'
                           : 'border-cp-border bg-cp-surface-1/40'
@@ -457,7 +457,7 @@ export const RentmanTab = () => {
                         <span className="flex min-w-0 items-center gap-1.5">
                           <Icon icon={projectCollapsed ? ChevronRight : ChevronDown} size="xs" />
                           {isLinked && (
-                            <span className="rounded bg-orange-700 px-1 text-cp-xs font-bold text-white">AKTIV</span>
+                            <span className="bg-orange-700 px-1 text-cp-xs font-bold text-white">AKTIV</span>
                           )}
                           <span className="truncate text-cp-xs font-semibold">{group.name}</span>
                         </span>
@@ -473,7 +473,7 @@ export const RentmanTab = () => {
                               const categoryCollapsed = collapsedRentmanCats.has(categoryKey)
                               const categoryItems = group.items.filter((template) => (template.category || 'Other') === category)
                               return (
-                                <div key={categoryKey} className="rounded border border-cp-border-muted/80">
+                                <div key={categoryKey} className="border border-cp-border-muted/80">
                                   <button
                                     type="button"
                                     onClick={() => toggleRentmanCat(categoryKey)}
@@ -564,14 +564,14 @@ export const RentmanTab = () => {
               <Icon icon={rentmanCatalogCollapsed ? ChevronRight : ChevronDown} size="xs" />
               <span>{t('library.rentman.accountAll', 'All Rentman equipment (account catalog)')}</span>
               {rentmanCatalogLoaded && (
-                <span className="ml-1 rounded-full bg-cp-surface-2 px-1.5 text-cp-xs text-cp-text-muted">{rentmanCatalog.length}</span>
+                <span className="ml-1 bg-cp-surface-2 px-1.5 text-cp-xs text-cp-text-muted">{rentmanCatalog.length}</span>
               )}
             </button>
             <button
               type="button"
               onClick={fetchRentmanCatalog}
               disabled={rentmanCatalogLoading}
-              className="rounded bg-orange-700 px-2 py-0.5 text-cp-xs font-semibold text-white hover:bg-orange-600 disabled:opacity-50"
+              className="bg-orange-700 px-2 py-0.5 text-cp-xs font-semibold text-white hover:bg-orange-600 disabled:opacity-50"
             >
               {rentmanCatalogLoading
                 ? '…'
@@ -584,10 +584,10 @@ export const RentmanTab = () => {
           {!rentmanCatalogCollapsed && (
             <>
               {rentmanCatalogError && (
-                <div className="mb-2 rounded border border-red-700/60 bg-red-900/30 px-2 py-1 text-cp-xs text-red-200">{rentmanCatalogError}</div>
+                <div className="mb-2 border border-red-700/60 bg-red-900/30 px-2 py-1 text-cp-xs text-red-200">{rentmanCatalogError}</div>
               )}
               {!rentmanCatalogLoaded && !rentmanCatalogLoading && !rentmanCatalogError && (
-                <div className="rounded border border-cp-border/60 bg-cp-surface-1/40 p-2 text-center text-cp-xs text-cp-text-muted">
+                <div className="border border-cp-border/60 bg-cp-surface-1/40 p-2 text-center text-cp-xs text-cp-text-muted">
                   {t(
                     'library.rentman.catalogNotLoaded',
                     'Not loaded yet. Click “Load catalog” to show your account’s entire Rentman catalog.',
@@ -602,7 +602,7 @@ export const RentmanTab = () => {
                     onChange={(event) => setRentmanCatalogQuery(event.target.value)}
                     placeholder={t('common.search', 'Search…')}
                     aria-label={t('common.search', 'Search…')}
-                    className="mb-2 w-full rounded border border-cp-border bg-cp-surface-1 px-2 py-1 text-cp-xs text-cp-text placeholder-slate-500"
+                    className="mb-2 w-full border border-cp-border bg-cp-surface-1 px-2 py-1 text-cp-xs text-cp-text placeholder-slate-500"
                   />
                   {(() => {
                     const importedIds = new Set(
@@ -618,7 +618,7 @@ export const RentmanTab = () => {
                       )
                     if (filtered.length === 0) {
                       return (
-                        <div className="flex items-center justify-center gap-1 rounded border border-emerald-700/40 bg-emerald-900/10 p-2 text-center text-cp-xs text-emerald-300">
+                        <div className="flex items-center justify-center gap-1 border border-emerald-700/40 bg-emerald-900/10 p-2 text-center text-cp-xs text-emerald-300">
                           <Icon icon={Check} size="xs" />
                           {t('library.rentman.allImported', 'All available Rentman devices are already imported.')}
                         </div>
@@ -643,7 +643,7 @@ export const RentmanTab = () => {
                           key={item.id}
                           draggable
                           onDragStart={handleDragStart}
-                          className="flex cursor-grab items-center justify-between gap-2 rounded border border-cp-border-muted bg-cp-surface-1/40 px-2 py-1.5 text-cp-xs"
+                          className="flex cursor-grab items-center justify-between gap-2 border border-cp-border-muted bg-cp-surface-1/40 px-2 py-1.5 text-cp-xs"
                         >
                           <div className="min-w-0 flex-1">
                             <div className="truncate font-medium text-cp-text-bright">{item.name}</div>
@@ -654,7 +654,7 @@ export const RentmanTab = () => {
                               type="button"
                               onClick={() => handleAddCatalogItemToProject(item)}
                               disabled={busy}
-                              className="rounded bg-orange-700 px-2 py-0.5 text-cp-xs font-semibold text-white hover:bg-orange-600 disabled:opacity-50"
+                              className="bg-orange-700 px-2 py-0.5 text-cp-xs font-semibold text-white hover:bg-orange-600 disabled:opacity-50"
                             >
                               {busy ? '…' : t('library.rentman.addToProject', '+ Project')}
                             </button>
@@ -721,7 +721,7 @@ export const RentmanTab = () => {
                         .sort((a, b) => a.name.localeCompare(b.name))
                       const childIds = childMap.get(folderId) ?? []
                       return (
-                        <div key={folderId} className="rounded border border-cp-border-muted/80">
+                        <div key={folderId} className="border border-cp-border-muted/80">
                           <button
                             type="button"
                             onClick={() => toggleFolder(folderId)}
@@ -758,7 +758,7 @@ export const RentmanTab = () => {
                       <div className="space-y-2">
                         {rootFolderIds.map((id) => renderFolder(id, 0))}
                         {orphans.length > 0 && (
-                          <div className="rounded border border-cp-border-muted/80">
+                          <div className="border border-cp-border-muted/80">
                             <div className="px-2 py-1 text-cp-xs font-semibold uppercase tracking-wide text-cp-text-muted">
                               {t('library.rentman.noFolder', 'No folder')} <span className="font-normal text-cp-text-dim">({orphans.length})</span>
                             </div>
@@ -786,7 +786,7 @@ export const RentmanTab = () => {
             <button
               type="button"
               onClick={openRentmanImport}
-              className="mb-3 w-full rounded bg-orange-600 px-2 py-1.5 text-cp-xs font-semibold text-white hover:bg-orange-500"
+              className="mb-3 w-full bg-orange-600 px-2 py-1.5 text-cp-xs font-semibold text-white hover:bg-orange-500"
               title={t('library.rentman.loadProjectTitle', 'Load the equipment list from the linked Rentman project now. New items can be imported directly.')}
             >
               <Icon icon={RefreshCw} size="xs" className="mr-1 inline" />
@@ -797,7 +797,7 @@ export const RentmanTab = () => {
             <div className="mb-2 space-y-1">
               <div className="mb-1 text-cp-xs text-red-400">{t('library.rentman.removed', 'No longer in Rentman:')}</div>
               {removed.map((equipment) => (
-                <div key={equipment.id} className="flex items-center justify-between rounded border border-red-700/50 bg-red-900/20 px-2 py-1 text-cp-xs">
+                <div key={equipment.id} className="flex items-center justify-between border border-red-700/50 bg-red-900/20 px-2 py-1 text-cp-xs">
                   <div>
                     <span className="font-medium text-cp-text">{equipment.name}</span>
                     <span className="ml-1 text-cp-xs text-cp-text-muted">{equipment.category}</span>
@@ -808,14 +808,14 @@ export const RentmanTab = () => {
             </div>
           )}
           {untracked.length === 0 ? (
-            <div className="flex items-center justify-center gap-1 rounded border border-emerald-700/40 bg-emerald-900/10 p-2 text-center text-cp-xs text-emerald-400">
+            <div className="flex items-center justify-center gap-1 border border-emerald-700/40 bg-emerald-900/10 p-2 text-center text-cp-xs text-emerald-400">
               <Icon icon={Check} size="xs" />
               {t('library.rentman.allHaveId', 'All canvas devices have a Rentman ID.')}
             </div>
           ) : (
             <div className="space-y-1">
               {untracked.map((equipment) => (
-                <div key={equipment.id} className="flex items-center justify-between rounded border border-amber-700/30 bg-amber-900/10 px-2 py-1 text-cp-xs">
+                <div key={equipment.id} className="flex items-center justify-between border border-amber-700/30 bg-amber-900/10 px-2 py-1 text-cp-xs">
                   <div>
                     <span className="font-medium text-cp-text">{equipment.name}</span>
                     <span className="ml-1 text-cp-xs text-cp-text-muted">{equipment.category}</span>

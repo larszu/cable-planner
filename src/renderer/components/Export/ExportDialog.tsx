@@ -159,7 +159,7 @@ export const ExportDialog = ({
         ref={panelRef}
         aria-labelledby={titleId}
         {...dialogProps}
-        className="flex h-[85vh] w-full max-w-5xl flex-col overflow-hidden rounded border border-cp-border bg-cp-surface-1 text-cp-text shadow-2xl outline-none sm:flex-row"
+        className="flex h-[85vh] w-full max-w-5xl flex-col overflow-hidden border border-cp-border bg-cp-surface-1 text-cp-text outline-none sm:flex-row"
       >
         <aside className="flex shrink-0 flex-row gap-1 overflow-x-auto border-b border-cp-border-muted bg-cp-surface-3/40 p-3 sm:w-52 sm:flex-col sm:overflow-x-visible sm:overflow-y-auto sm:border-b-0 sm:border-r">
           <h3 className="mb-2 hidden px-2 text-cp-xs font-semibold uppercase tracking-wider text-cp-text-faint sm:block">
@@ -170,7 +170,7 @@ export const ExportDialog = ({
               key={id}
               type="button"
               onClick={() => setSection(id)}
-              className={`flex items-center gap-2 rounded px-3 py-2 text-left text-cp-base ${
+              className={`flex items-center gap-2 px-3 py-2 text-left text-cp-base ${
                 section === id
                   ? 'bg-sky-700 text-white'
                   : 'text-cp-text-secondary hover:bg-cp-surface-2'
@@ -191,7 +191,7 @@ export const ExportDialog = ({
             <button
               type="button"
               onClick={onClose}
-              className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
+              className="bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
             >
               {t('common.close', 'Close')}
             </button>
@@ -311,7 +311,7 @@ const PlanSection = ({
           return (
             <label
               key={opt.value}
-              className={`flex cursor-pointer items-start gap-2 rounded border px-3 py-2 text-cp-xs ${
+              className={`flex cursor-pointer items-start gap-2 border px-3 py-2 text-cp-xs ${
                 selected
                   ? 'border-sky-500 bg-sky-900/30'
                   : 'border-cp-border bg-cp-surface-3 hover:border-cp-surface-5'
@@ -436,7 +436,7 @@ const PlanSection = ({
               <select
                 value={pdfPageSize}
                 onChange={(e) => setPdfPageSize(e.target.value as PdfPageSizeOpt)}
-                className="w-full rounded border border-cp-border bg-cp-surface-1 px-2 py-1 text-cp-xs text-cp-text"
+                className="w-full border border-cp-border bg-cp-surface-1 px-2 py-1 text-cp-xs text-cp-text"
               >
                 <option value="auto">{t('export.page.auto', 'Auto — A0 landscape (compatible with all viewers)')}</option>
                 <option value="a4">A4 Landscape (297×210 mm)</option>
@@ -472,8 +472,8 @@ const PlanSection = ({
         </>
       )}
 
-      <div className="rounded border border-cp-border-muted bg-cp-surface-3/40 p-2 text-cp-xs text-cp-text-muted">
-        {t('export.savedAs', 'Saved as')} <code className="rounded bg-cp-surface-2 px-1 py-0.5">{projectName || 'cable-planner'}</code>
+      <div className="border border-cp-border-muted bg-cp-surface-3/40 p-2 text-cp-xs text-cp-text-muted">
+        {t('export.savedAs', 'Saved as')} <code className="bg-cp-surface-2 px-1 py-0.5">{projectName || 'cable-planner'}</code>
       </div>
       </div>
 
@@ -493,7 +493,7 @@ const PlanSection = ({
                   'Printing only works with the PDF format — for PNG/JPEG just download.',
                 )
           }
-          className="rounded bg-indigo-700 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-indigo-600 disabled:opacity-50"
+          className="bg-indigo-700 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-indigo-600 disabled:opacity-50"
         >
           <span className="inline-flex items-center gap-1"><Icon icon={Printer} size="xs" /> {t('export.printBtn', 'Print')}</span>
         </button>
@@ -501,7 +501,7 @@ const PlanSection = ({
           type="button"
           onClick={handleExport}
           disabled={busy}
-          className="inline-flex items-center gap-1.5 rounded bg-emerald-600 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 bg-emerald-600 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
         >
           {busy && <Spinner size="xs" />}
           {busy
@@ -595,7 +595,7 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
           openPatchList()
           onClose()
         }}
-        className="flex w-full items-center justify-between rounded border border-emerald-700/60 bg-emerald-950/30 px-3 py-2 text-left text-cp-xs text-emerald-100 hover:border-emerald-500 hover:bg-emerald-900/40"
+        className="flex w-full items-center justify-between border border-emerald-700/60 bg-emerald-950/30 px-3 py-2 text-left text-cp-xs text-emerald-100 hover:border-emerald-500 hover:bg-emerald-900/40"
         title={t('export.patch.compactTitle', 'Compact patch list: all cables on one list, sorted by source device — to print for the on-site technician.')}
       >
         <span>
@@ -619,7 +619,7 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
           <button
             type="button"
             onClick={toggleAll}
-            className="rounded bg-cp-surface-2 px-2 py-0.5 text-cp-xs hover:bg-cp-surface-4"
+            className="bg-cp-surface-2 px-2 py-0.5 text-cp-xs hover:bg-cp-surface-4"
           >
             {selectedIds.size === filtered.length
               ? t('export.patch.deselectAll', 'Deselect all')
@@ -632,15 +632,15 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
           onChange={(e) => setFilter(e.target.value)}
           placeholder={t('export.patch.filterPlaceholder', 'Filter…')}
           aria-label={t('export.patch.filterPlaceholder', 'Filter…')}
-          className="mb-2 w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs"
+          className="mb-2 w-full border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs"
         />
-        <div className="max-h-64 space-y-0.5 overflow-y-auto rounded border border-cp-border-muted bg-cp-surface-3/50 p-1">
+        <div className="max-h-64 space-y-0.5 overflow-y-auto border border-cp-border-muted bg-cp-surface-3/50 p-1">
           {filtered.map((d) => {
             const on = selectedIds.has(d.id)
             return (
               <label
                 key={d.id}
-                className="flex cursor-pointer items-center gap-2 rounded px-2 py-1 text-cp-xs hover:bg-cp-surface-2"
+                className="flex cursor-pointer items-center gap-2 px-2 py-1 text-cp-xs hover:bg-cp-surface-2"
               >
                 <input
                   type="checkbox"
@@ -677,7 +677,7 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
             type="button"
             onClick={() => setPendingAction('individual')}
             disabled={busy || selectedIds.size === 0}
-            className="rounded bg-cp-surface-4 px-3 py-1.5 text-cp-xs hover:bg-cp-surface-5 disabled:opacity-50"
+            className="bg-cp-surface-4 px-3 py-1.5 text-cp-xs hover:bg-cp-surface-5 disabled:opacity-50"
             title={t('export.patch.perDevice', 'One PDF per selected device')}
           >
             {t('export.patch.individualPdf', 'Individual PDF ({n})').replace('{n}', String(selectedIds.size))}
@@ -686,7 +686,7 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
             type="button"
             onClick={() => setPendingAction('batch')}
             disabled={busy || selectedIds.size === 0}
-            className="rounded bg-cp-surface-4 px-3 py-1.5 text-cp-xs hover:bg-cp-surface-5 disabled:opacity-50"
+            className="bg-cp-surface-4 px-3 py-1.5 text-cp-xs hover:bg-cp-surface-5 disabled:opacity-50"
             title={t('export.patch.batchPdf', 'Batch PDF — one device per page')}
           >
             {t('export.patch.combinedPdf', 'Combined PDF ({n})').replace('{n}', String(selectedIds.size))}
@@ -695,14 +695,14 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
             type="button"
             onClick={() => setPendingAction('print')}
             disabled={busy || selectedIds.size === 0}
-            className="rounded bg-indigo-700 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-indigo-600 disabled:opacity-50"
+            className="bg-indigo-700 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-indigo-600 disabled:opacity-50"
             title={t('export.patch.osPrint', 'Open patch sheet(s) in OS print dialog')}
           >
             <span className="inline-flex items-center gap-1"><Icon icon={Printer} size="xs" /> {t('export.printBtn', 'Print')}</span>
           </button>
         </div>
       ) : (
-        <div className="flex flex-wrap items-center justify-end gap-2 rounded border border-sky-700/60 bg-sky-950/40 px-3 py-2">
+        <div className="flex flex-wrap items-center justify-end gap-2 border border-sky-700/60 bg-sky-950/40 px-3 py-2">
           <span className="mr-auto text-cp-xs text-cp-text-secondary">
             <span className="font-semibold text-sky-200">{actionLabel[pendingAction]}</span>
             {' '}— {t('export.patch.pickPaper', 'Pick paper format:')}
@@ -711,7 +711,7 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
             type="button"
             disabled={busy}
             onClick={() => void runAction(pendingAction, 'a4')}
-            className="rounded bg-emerald-600 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
+            className="bg-emerald-600 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
           >
             A4
           </button>
@@ -719,7 +719,7 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
             type="button"
             disabled={busy}
             onClick={() => void runAction(pendingAction, 'a3')}
-            className="rounded bg-emerald-600 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
+            className="bg-emerald-600 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
           >
             A3
           </button>
@@ -727,7 +727,7 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
             type="button"
             disabled={busy}
             onClick={() => setPendingAction(null)}
-            className="rounded bg-cp-surface-4 px-3 py-1.5 text-cp-xs text-cp-text-bright hover:bg-cp-surface-5 disabled:opacity-50"
+            className="bg-cp-surface-4 px-3 py-1.5 text-cp-xs text-cp-text-bright hover:bg-cp-surface-5 disabled:opacity-50"
           >
             {t('export.patch.cancel', 'Cancel')}
           </button>
@@ -801,14 +801,14 @@ const RackGroupSection = ({ onClose }: { onClose: () => void }) => {
           onChange={(e) => setFilter(e.target.value)}
           placeholder={t('export.rack.filterPlaceholder', 'Filter racks/groups…')}
           aria-label={t('export.rack.filterPlaceholder', 'Filter racks/groups…')}
-          className="flex-1 rounded border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs"
+          className="flex-1 border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs"
         />
         <label className="flex items-center gap-1 text-cp-xs text-cp-text-secondary">
           {t('export.rack.paper', 'Format')}
           <select
             value={paper}
             onChange={(e) => setPaper(e.target.value as PaperFormat)}
-            className="rounded border border-cp-border bg-cp-surface-3 px-1.5 py-1 text-cp-xs"
+            className="border border-cp-border bg-cp-surface-3 px-1.5 py-1 text-cp-xs"
           >
             <option value="a4">A4</option>
             <option value="a3">A3</option>
@@ -817,15 +817,15 @@ const RackGroupSection = ({ onClose }: { onClose: () => void }) => {
       </div>
 
       {filtered.length === 0 ? (
-        <div className="rounded border border-dashed border-cp-border p-6 text-center text-cp-xs text-cp-text-muted">
+        <div className="border border-dashed border-cp-border p-6 text-center text-cp-xs text-cp-text-muted">
           {t('export.rack.empty', 'No saved racks or groups yet. Select devices on the canvas and use "Save as rack" / "Save group".')}
         </div>
       ) : (
-        <div className="min-h-0 flex-1 space-y-1 overflow-y-auto rounded border border-cp-border-muted bg-cp-surface-3/50 p-1">
+        <div className="min-h-0 flex-1 space-y-1 overflow-y-auto border border-cp-border-muted bg-cp-surface-3/50 p-1">
           {filtered.map((p) => (
             <div
               key={p.id}
-              className="flex items-center gap-2 rounded px-2 py-1.5 text-cp-xs hover:bg-cp-surface-2"
+              className="flex items-center gap-2 px-2 py-1.5 text-cp-xs hover:bg-cp-surface-2"
             >
               <Icon icon={Server} size="xs" className="text-cp-text-faint" />
               <span className="min-w-0 flex-1 truncate">
@@ -842,7 +842,7 @@ const RackGroupSection = ({ onClose }: { onClose: () => void }) => {
                 type="button"
                 disabled={busy}
                 onClick={() => void run(p, 'pdf')}
-                className="rounded bg-sky-700 px-2 py-1 text-cp-xs font-medium text-white hover:bg-sky-600 disabled:opacity-50"
+                className="bg-sky-700 px-2 py-1 text-cp-xs font-medium text-white hover:bg-sky-600 disabled:opacity-50"
               >
                 {t('export.rack.pdf', 'PDF')}
               </button>
@@ -850,7 +850,7 @@ const RackGroupSection = ({ onClose }: { onClose: () => void }) => {
                 type="button"
                 disabled={busy}
                 onClick={() => void run(p, 'print')}
-                className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5 disabled:opacity-50"
+                className="bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5 disabled:opacity-50"
               >
                 <Icon icon={Printer} size="xs" className="mr-1 inline-block align-text-bottom" />
                 {t('export.rack.print', 'Print')}
@@ -1142,7 +1142,7 @@ const BomSection = () => {
           <b className="text-cp-text-bright">{project.cables.length}</b>
         </span>
         {rows.some((r) => r.diff < 0) && (
-          <span className="inline-flex items-center gap-1 rounded bg-red-900/50 px-2 py-0.5 font-semibold text-red-300">
+          <span className="inline-flex items-center gap-1 bg-red-900/50 px-2 py-0.5 font-semibold text-red-300">
             <Icon icon={AlertTriangle} size="sm" />
             {format(t('export.missingTypes', '{count} cable type(s) missing'), {
               count: rows.filter((r) => r.diff < 0).length,
@@ -1150,14 +1150,14 @@ const BomSection = () => {
           </span>
         )}
         {rows.length > 0 && rows.every((r) => r.diff >= 0) && rows.some((r) => r.planned > 0) && (
-          <span className="inline-flex items-center gap-1 rounded bg-emerald-900/50 px-2 py-0.5 font-semibold text-emerald-300">
+          <span className="inline-flex items-center gap-1 bg-emerald-900/50 px-2 py-0.5 font-semibold text-emerald-300">
             <Icon icon={Check} size="sm" />
             {t('export.allCovered', 'All planned quantities covered')}
           </span>
         )}
       </div>
 
-      <div className="min-h-0 flex-1 overflow-auto rounded border border-cp-border-muted bg-cp-surface-3/40">
+      <div className="min-h-0 flex-1 overflow-auto border border-cp-border-muted bg-cp-surface-3/40">
         <table className="w-full text-cp-xs">
           <thead className="sticky top-0 bg-cp-surface-3 text-cp-text-secondary">
             <tr>
@@ -1199,7 +1199,7 @@ const BomSection = () => {
                     min={0}
                     value={r.planned}
                     onChange={(e) => setPlanned(r.key, Number(e.target.value))}
-                    className="w-16 rounded border border-cp-border bg-cp-surface-3 px-1 py-0.5 text-right font-mono"
+                    className="w-16 border border-cp-border bg-cp-surface-3 px-1 py-0.5 text-right font-mono"
                   />
                 </td>
                 <td
@@ -1278,7 +1278,7 @@ const BomSection = () => {
             <button
               type="button"
               onClick={discardPlan}
-              className="rounded bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
+              className="bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
             >
               {t('common.discard', 'Discard')}
             </button>
@@ -1287,7 +1287,7 @@ const BomSection = () => {
             type="button"
             onClick={savePlan}
             disabled={!draftPlan}
-            className="rounded bg-emerald-700 px-3 py-1 text-cp-xs enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
+            className="bg-emerald-700 px-3 py-1 text-cp-xs enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {t('export.bom.savePlan', 'Save Rentman plan')}
           </button>
@@ -1302,7 +1302,7 @@ const BomSection = () => {
         <button
           type="button"
           onClick={exportCsv}
-          className="rounded bg-cp-surface-4 px-3 py-1.5 text-cp-xs hover:bg-cp-surface-5"
+          className="bg-cp-surface-4 px-3 py-1.5 text-cp-xs hover:bg-cp-surface-5"
           title={t('export.bom.csvTitle', 'Download table as CSV (UTF-8 with BOM for Excel)')}
         >
           {t('export.bom.csv', 'Download as CSV')}
@@ -1310,7 +1310,7 @@ const BomSection = () => {
         <button
           type="button"
           onClick={exportPdf}
-          className="rounded bg-emerald-600 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-emerald-500"
+          className="bg-emerald-600 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-emerald-500"
           title={t('export.bom.pdfTitle', 'Download table as PDF')}
         >
           {t('export.bom.pdf', 'Download as PDF')}
@@ -1318,7 +1318,7 @@ const BomSection = () => {
         <button
           type="button"
           onClick={printPdf}
-          className="rounded bg-indigo-700 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-indigo-600"
+          className="bg-indigo-700 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-indigo-600"
           title={t('export.bom.osPrint', 'Open cable BOM in OS print dialog')}
         >
           <span className="inline-flex items-center gap-1"><Icon icon={Printer} size="xs" /> {t('export.printBtn', 'Print')}</span>
@@ -1376,7 +1376,7 @@ const MvSheetPanel = ({ map }: { map: ReturnType<typeof buildTallyMap> }) => {
   }
 
   return (
-    <div className="shrink-0 rounded border border-cp-border bg-cp-surface-2 p-2">
+    <div className="shrink-0 border border-cp-border bg-cp-surface-2 p-2">
       <div className="mb-1 flex flex-wrap items-center gap-2">
         <span className="text-cp-xs font-semibold text-cp-text-secondary">
           {t('mv.sheet.title', 'Multiviewer layout (who is in which window)')}
@@ -1386,7 +1386,7 @@ const MvSheetPanel = ({ map }: { map: ReturnType<typeof buildTallyMap> }) => {
             key={e.id}
             type="button"
             onClick={() => laden(e)}
-            className="inline-flex items-center gap-1 rounded border border-cp-border px-2 py-0.5 text-cp-xs hover:bg-cp-surface-3"
+            className="inline-flex items-center gap-1 border border-cp-border px-2 py-0.5 text-cp-xs hover:bg-cp-surface-3"
           >
             <Icon icon={Download} size="xs" />
             {e.name}
@@ -1494,14 +1494,14 @@ const TallySection = () => {
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-3">
       {map.rows.length === 0 ? (
-        <p className="rounded border border-cp-border bg-cp-surface-2 p-3 text-cp-xs text-cp-text-secondary">
+        <p className="border border-cp-border bg-cp-surface-2 p-3 text-cp-xs text-cp-text-secondary">
           {t(
             'export.tally.empty',
             'No signal-source roles in the plan yet. A role is assigned on the device under "Signal source (role)" in the properties — it carries name, number and UMD address, and outlives the device swap.',
           )}
         </p>
       ) : (
-        <div className="min-h-0 flex-1 overflow-auto rounded border border-cp-border">
+        <div className="min-h-0 flex-1 overflow-auto border border-cp-border">
           <table className="w-full border-collapse text-cp-xs">
             <thead className="sticky top-0 bg-cp-surface-3">
               <tr className="text-left text-cp-text-secondary">
@@ -1551,7 +1551,7 @@ const TallySection = () => {
       <TallyPreShowPanel />
 
       {map.issues.length > 0 && (
-        <div className="max-h-40 shrink-0 overflow-auto rounded border border-cp-border bg-cp-surface-2 p-2">
+        <div className="max-h-40 shrink-0 overflow-auto border border-cp-border bg-cp-surface-2 p-2">
           <p className="mb-1 text-cp-xs font-semibold text-cp-text-secondary">
             {format(
               t('export.tally.issues', 'Validation: {errors} errors, {warnings} notes'),
@@ -1576,7 +1576,7 @@ const TallySection = () => {
           type="button"
           onClick={downloadCsv}
           disabled={map.rows.length === 0}
-          className="rounded bg-sky-700 px-3 py-1.5 text-cp-xs text-white hover:bg-sky-600 disabled:opacity-40"
+          className="bg-sky-700 px-3 py-1.5 text-cp-xs text-white hover:bg-sky-600 disabled:opacity-40"
         >
           {t('export.tally.csv', 'Tally map as CSV')}
         </button>
@@ -1584,7 +1584,7 @@ const TallySection = () => {
           type="button"
           onClick={downloadTallyPi}
           disabled={map.rows.length === 0}
-          className="rounded border border-cp-border px-3 py-1.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-3 disabled:opacity-40"
+          className="border border-cp-border px-3 py-1.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-3 disabled:opacity-40"
           title={t(
             'export.tally.piTitle',
             'The part of tally.json the plan owns: id, name, input. ATEM IP and GPIO pins stay with the box.',
@@ -1599,7 +1599,7 @@ const TallySection = () => {
           Netz zum Pi funktioniert. Sichtbar wird er nur, wenn er in den
           Einstellungen eingeschaltet UND eine Adresse hinterlegt ist. */}
       {piDirekt && piUrl.trim() !== '' && map.rows.length > 0 && (
-        <div className="rounded border border-cp-border bg-cp-surface-2 p-3">
+        <div className="border border-cp-border bg-cp-surface-2 p-3">
           <div className="mb-2 flex items-center gap-2 text-cp-xs text-cp-text-secondary">
             <Icon icon={Lightbulb} size="sm" />
             {format(t('export.tally.piDirect', 'Straight to the Pi: {url}'), { url: piUrl })}
@@ -1616,7 +1616,7 @@ const TallySection = () => {
               type="button"
               onClick={piLesen}
               disabled={piLaeuft}
-              className="rounded border border-cp-border px-3 py-1.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-3 disabled:opacity-40"
+              className="border border-cp-border px-3 py-1.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-3 disabled:opacity-40"
             >
               {t('export.tally.piRead', 'Read the Pi')}
             </button>
@@ -1627,7 +1627,7 @@ const TallySection = () => {
               // die Adresse nach dem Lesen aendert, hat den Stand eines
               // anderen Pi gesehen, und die Vorschau gilt nicht mehr.
               disabled={piLaeuft || piGelesen === null || piGelesen.adresse !== piUrl}
-              className="rounded bg-cp-accent px-3 py-1.5 text-cp-xs text-white disabled:opacity-40"
+              className="bg-cp-accent px-3 py-1.5 text-cp-xs text-white disabled:opacity-40"
             >
               {t('export.tally.piSend', 'Send to the Pi')}
             </button>
@@ -1743,7 +1743,7 @@ const DeviceBomSection = () => {
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-3">
       {bom.rows.length === 0 ? (
-        <p className="rounded border border-cp-border bg-cp-surface-2 p-3 text-cp-xs text-cp-text-secondary">
+        <p className="border border-cp-border bg-cp-surface-2 p-3 text-cp-xs text-cp-text-secondary">
           {t('export.devicebom.empty', 'No devices in the plan yet.')}
         </p>
       ) : (
@@ -1760,7 +1760,7 @@ const DeviceBomSection = () => {
             </span>
           </div>
 
-          <div className="min-h-0 flex-1 overflow-auto rounded border border-cp-border">
+          <div className="min-h-0 flex-1 overflow-auto border border-cp-border">
             <table className="w-full border-collapse text-cp-xs">
               <thead className="sticky top-0 bg-cp-surface-3">
                 <tr className="text-left text-cp-text-secondary">
@@ -1807,7 +1807,7 @@ const DeviceBomSection = () => {
                               typZuweisen(row.typeTargetIds, event.target.value)
                             }
                           }}
-                          className="ml-2 max-w-[14rem] rounded border border-cp-border bg-cp-surface-1 px-1 py-0.5 text-cp-xs text-cp-text-secondary"
+                          className="ml-2 max-w-[14rem] border border-cp-border bg-cp-surface-1 px-1 py-0.5 text-cp-xs text-cp-text-secondary"
                           title={t(
                             'export.devicebom.assignTitle',
                             'Writes the catalogue type onto every device in this row. Stock coverage then matches on the catalogue identity instead of the name.',
@@ -1841,7 +1841,7 @@ const DeviceBomSection = () => {
                           onClick={() =>
                             typBestaetigen(row.itemId!, row.deviceTypeId!)
                           }
-                          className="ml-2 rounded border border-cp-border px-1.5 py-0.5 text-cp-xs font-normal text-cp-text-secondary hover:bg-cp-surface-3"
+                          className="ml-2 border border-cp-border px-1.5 py-0.5 text-cp-xs font-normal text-cp-text-secondary hover:bg-cp-surface-3"
                           title={t(
                             'export.devicebom.confirmTitle',
                             'Writes the catalogue identity permanently onto this inventory position. The coverage is then a fact and never has to be guessed from the name again.',
@@ -1881,7 +1881,7 @@ const DeviceBomSection = () => {
           type="button"
           onClick={() => download('geraete-bom', planBomCsv(bom))}
           disabled={bom.rows.length === 0}
-          className="rounded bg-sky-700 px-3 py-1.5 text-cp-xs text-white hover:bg-sky-600 disabled:opacity-40"
+          className="bg-sky-700 px-3 py-1.5 text-cp-xs text-white hover:bg-sky-600 disabled:opacity-40"
         >
           {t('export.devicebom.csv', 'Device BOM as CSV')}
         </button>
@@ -1889,7 +1889,7 @@ const DeviceBomSection = () => {
           type="button"
           onClick={() => download('kommissionierliste', pickListCsv(bom))}
           disabled={bom.matched === 0}
-          className="rounded border border-cp-border px-3 py-1.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-3 disabled:opacity-40"
+          className="border border-cp-border px-3 py-1.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-3 disabled:opacity-40"
           title={t(
             'export.devicebom.pickTitle',
             'Only what is certainly covered, sorted by storage location. Proposals are deliberately left out — whoever picks should not have to decide on the way.',

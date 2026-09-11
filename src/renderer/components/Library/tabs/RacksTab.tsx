@@ -39,7 +39,7 @@ export const RacksTab = ({ onCreateRack, onEditRack }: RacksTabProps) => {
         <button
           type="button"
           onClick={onCreateRack}
-          className="rounded bg-emerald-700 px-2 py-1 text-cp-xs hover:bg-emerald-600"
+          className="bg-emerald-700 px-2 py-1 text-cp-xs hover:bg-emerald-600"
         >
           {t('library.tabs.racks.new', '+ New rack')}
         </button>
@@ -109,7 +109,7 @@ export const RacksTab = ({ onCreateRack, onEditRack }: RacksTabProps) => {
                               event.stopPropagation()
                               onEditRack(preset.id)
                             }}
-                            className="rounded bg-cp-surface-4 px-1 py-0.5 text-cp-xs hover:bg-cp-surface-5"
+                            className="bg-cp-surface-4 px-1 py-0.5 text-cp-xs hover:bg-cp-surface-5"
                             title={t('library.tabs.racks.editTitle', 'Edit in the 2D rack builder')}
                             aria-label={t('library.tabs.racks.editAria', 'Edit')}
                           >
@@ -121,7 +121,7 @@ export const RacksTab = ({ onCreateRack, onEditRack }: RacksTabProps) => {
                               event.stopPropagation()
                               void exportPresetToFile(preset)
                             }}
-                            className="rounded bg-cp-surface-4 px-1 py-0.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-5"
+                            className="bg-cp-surface-4 px-1 py-0.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-5"
                             title={t(
                               'library.tabs.racks.exportTitle',
                               'Export as file (copy to Downloads folder)',
@@ -148,7 +148,7 @@ export const RacksTab = ({ onCreateRack, onEditRack }: RacksTabProps) => {
                                 deleteGroupPreset(preset.id)
                               }
                             }}
-                            className="rounded bg-red-700 px-1 text-cp-xs hover:bg-red-600"
+                            className="bg-red-700 px-1 text-cp-xs hover:bg-red-600"
                             title={t('library.tabs.racks.deleteTitle', 'Remove rack from library')}
                             aria-label={t('common.delete', 'Delete')}
                           >

@@ -122,21 +122,21 @@ export const EquipmentChecklist = ({
           max={999}
           value={item.qty}
           onChange={(event) => onQtyChange(item.id, Number(event.target.value))}
-          className="w-14 rounded border border-cp-border bg-cp-surface-1 px-1 py-0.5 text-right text-cp-xs"
+          className="w-14 border border-cp-border bg-cp-surface-1 px-1 py-0.5 text-right text-cp-xs"
           aria-label={tBadge('rentman.checklist.qtyAria', 'Quantity')}
           title={tBadge('rentman.checklist.qtyTitle', 'How many to add')}
         />
       )
     }
     return (
-      <span className="rounded bg-cp-surface-4/60 px-1.5 py-0.5 text-cp-xs text-cp-text-muted" title={tBadge('rentman.checklist.qtyInProject', 'Quantity in the Rentman project')}>
+      <span className="bg-cp-surface-4/60 px-1.5 py-0.5 text-cp-xs text-cp-text-muted" title={tBadge('rentman.checklist.qtyInProject', 'Quantity in the Rentman project')}>
         ×{item.qty}
       </span>
     )
   }
 
   return (
-    <div className="max-h-72 space-y-3 overflow-auto rounded border border-cp-border p-2 text-cp-base">
+    <div className="max-h-72 space-y-3 overflow-auto border border-cp-border p-2 text-cp-base">
       {(onSetAll || hasAnySets) && (
         <div className="flex flex-wrap gap-2 border-b border-cp-border pb-2 text-cp-xs">
           {onSetAll && (
@@ -144,14 +144,14 @@ export const EquipmentChecklist = ({
               <button
                 type="button"
                 onClick={() => onSetAll(true)}
-                className="rounded bg-cp-surface-4 px-2 py-1 hover:bg-cp-surface-5"
+                className="bg-cp-surface-4 px-2 py-1 hover:bg-cp-surface-5"
               >
                 {t('rentman.checklist.selectAll', 'Select all')}
               </button>
               <button
                 type="button"
                 onClick={() => onSetAll(false)}
-                className="rounded bg-cp-surface-4 px-2 py-1 hover:bg-cp-surface-5"
+                className="bg-cp-surface-4 px-2 py-1 hover:bg-cp-surface-5"
               >
                 {t('rentman.checklist.deselectAll', 'Deselect all')}
               </button>
@@ -162,14 +162,14 @@ export const EquipmentChecklist = ({
               <button
                 type="button"
                 onClick={expandAll}
-                className="rounded bg-cp-surface-4 px-2 py-1 hover:bg-cp-surface-5"
+                className="bg-cp-surface-4 px-2 py-1 hover:bg-cp-surface-5"
               >
                 {t('rentman.checklist.expandAll', 'Expand all sets')}
               </button>
               <button
                 type="button"
                 onClick={collapseAll}
-                className="rounded bg-cp-surface-4 px-2 py-1 hover:bg-cp-surface-5"
+                className="bg-cp-surface-4 px-2 py-1 hover:bg-cp-surface-5"
               >
                 {t('rentman.checklist.collapseAll', 'Collapse all sets')}
               </button>
@@ -196,9 +196,9 @@ export const EquipmentChecklist = ({
               // importierbar (kein Häkchen), nur als Notiz anzeigen.
               if (item.kind === 'comment') {
                 return (
-                  <div key={item.id} className="flex items-center gap-2 rounded bg-cp-surface-1/30 px-2 py-1 text-cp-xs">
+                  <div key={item.id} className="flex items-center gap-2 bg-cp-surface-1/30 px-2 py-1 text-cp-xs">
                     <span className="w-5" />
-                    <span className="shrink-0 rounded bg-cp-surface-2 px-1.5 py-0.5 text-cp-xs font-medium uppercase tracking-wide text-cp-text-muted">
+                    <span className="shrink-0 bg-cp-surface-2 px-1.5 py-0.5 text-cp-xs font-medium uppercase tracking-wide text-cp-text-muted">
                       {t('rentman.checklist.kind.comment', 'Comment')}
                     </span>
                     <span className="flex-1 italic text-cp-text-muted">{item.name}</span>
@@ -212,7 +212,7 @@ export const EquipmentChecklist = ({
                       <button
                         type="button"
                         onClick={() => toggleExpand(item.id)}
-                        className="w-5 rounded bg-cp-surface-2 text-cp-xs leading-none hover:bg-cp-surface-4"
+                        className="w-5 bg-cp-surface-2 text-cp-xs leading-none hover:bg-cp-surface-4"
                         aria-label={isOpen ? t('rentman.checklist.setCollapse', 'Collapse set') : t('rentman.checklist.setExpand', 'Expand set')}
                         title={isOpen ? t('rentman.checklist.setCollapse', 'Collapse set') : t('rentman.checklist.setExpand', 'Expand set')}
                       >
@@ -233,18 +233,18 @@ export const EquipmentChecklist = ({
                           const n = children!.length
                           if (item.kind === 'physical')
                             return (
-                              <span className="ml-2 rounded bg-amber-900/60 px-1.5 py-0.5 text-cp-xs font-medium text-amber-200" title={t('rentman.checklist.kind.physicalTitle', 'Physical combination — one stock unit. Default: as 1 device (or rack).')}>
+                              <span className="ml-2 bg-amber-900/60 px-1.5 py-0.5 text-cp-xs font-medium text-amber-200" title={t('rentman.checklist.kind.physicalTitle', 'Physical combination — one stock unit. Default: as 1 device (or rack).')}>
                                 {format(t('rentman.checklist.kind.physical', 'Physical combi · {n}'), { n })}
                               </span>
                             )
                           if (item.kind === 'virtual')
                             return (
-                              <span className="ml-2 rounded bg-violet-900/60 px-1.5 py-0.5 text-cp-xs font-medium text-violet-200" title={t('rentman.checklist.kind.virtualTitle', 'Virtual combination — loose bundle; usually only the main device matters.')}>
+                              <span className="ml-2 bg-violet-900/60 px-1.5 py-0.5 text-cp-xs font-medium text-violet-200" title={t('rentman.checklist.kind.virtualTitle', 'Virtual combination — loose bundle; usually only the main device matters.')}>
                                 {format(t('rentman.checklist.kind.virtual', 'Virtual combi · {n}'), { n })}
                               </span>
                             )
                           return (
-                            <span className="ml-2 rounded bg-cp-surface-4/60 px-1.5 py-0.5 text-cp-xs text-cp-text-secondary">
+                            <span className="ml-2 bg-cp-surface-4/60 px-1.5 py-0.5 text-cp-xs text-cp-text-secondary">
                               {format(t('rentman.checklist.kind.set', 'Set · {n}'), { n })}
                             </span>
                           )
@@ -257,7 +257,7 @@ export const EquipmentChecklist = ({
                               e.stopPropagation()
                               onSetMainOnly(item.id)
                             }}
-                            className="ml-2 rounded bg-sky-700/60 px-1.5 py-0.5 text-cp-xs font-medium text-sky-100 hover:bg-sky-600/60"
+                            className="ml-2 bg-sky-700/60 px-1.5 py-0.5 text-cp-xs font-medium text-sky-100 hover:bg-sky-600/60"
                             title={t('rentman.checklist.mainOnlyTitle', 'Import only the main device of this combination — accessories (cables/battery/tripod …) are skipped.')}
                           >
                             {t('rentman.checklist.mainOnly', '+ main device only')}
@@ -271,7 +271,7 @@ export const EquipmentChecklist = ({
                               e.stopPropagation()
                               onSetAsRack(item.id, !rackSetIds?.has(item.id))
                             }}
-                            className={`ml-2 rounded px-1.5 py-0.5 text-cp-xs font-medium ${
+                            className={`ml-2 px-1.5 py-0.5 text-cp-xs font-medium ${
                               rackSetIds?.has(item.id)
                                 ? 'bg-sky-700/70 text-sky-100'
                                 : 'bg-cp-surface-4/60 text-cp-text-secondary hover:bg-cp-surface-5/60'
@@ -307,7 +307,7 @@ export const EquipmentChecklist = ({
                           if (kind === 'rentmanId') {
                             return (
                               <span
-                                className="ml-2 inline-flex items-center gap-1 rounded bg-emerald-800/60 px-1.5 py-0.5 text-cp-xs font-medium text-emerald-200"
+                                className="ml-2 inline-flex items-center gap-1 bg-emerald-800/60 px-1.5 py-0.5 text-cp-xs font-medium text-emerald-200"
                                 title={format(t('rentman.checklist.badge.linkedTitle', 'Already linked in the local library via Rentman ID to "{name}". Re-import only refreshes metadata (category, project link) — the local port configuration is preserved.'), { name: item.templateMatch })}
                               >
                                 <Icon icon={Check} size="xs" />
@@ -318,7 +318,7 @@ export const EquipmentChecklist = ({
                           if (kind === 'nameOnly') {
                             return (
                               <span
-                                className="ml-2 rounded bg-amber-800/60 px-1.5 py-0.5 text-cp-xs font-medium text-amber-100"
+                                className="ml-2 bg-amber-800/60 px-1.5 py-0.5 text-cp-xs font-medium text-amber-100"
                                 title={format(t('rentman.checklist.badge.nameOnlyTitle', 'Local template "{name}" has the same name but no Rentman ID. On import a conflict dialog appears — default is to keep the local version (with ports) and only attach the Rentman ID.'), { name: item.templateMatch })}
                               >
                                 <><Icon icon={Zap} size="xs" className="mr-1 inline-block align-text-bottom" />{t('rentman.checklist.badge.nameOnly', 'in library')}</>
@@ -328,7 +328,7 @@ export const EquipmentChecklist = ({
                           if (kind === 'catalog') {
                             return (
                               <span
-                                className="ml-2 rounded bg-cp-surface-4/60 px-1.5 py-0.5 text-cp-xs font-medium text-cp-text-bright"
+                                className="ml-2 bg-cp-surface-4/60 px-1.5 py-0.5 text-cp-xs font-medium text-cp-text-bright"
                                 title={format(t('rentman.checklist.badge.catalogTitle', 'Match from built-in catalog ("{name}"). Will be adopted as a template automatically on import.'), { name: item.templateMatch })}
                               >
                                 {t('rentman.checklist.badge.catalog', '⊕ catalog')}
@@ -338,7 +338,7 @@ export const EquipmentChecklist = ({
                           // Fallback (alte Variante ohne kind-Feld)
                           return (
                             <span
-                              className="ml-2 rounded bg-emerald-800/60 px-1.5 py-0.5 text-cp-xs font-medium text-emerald-200"
+                              className="ml-2 bg-emerald-800/60 px-1.5 py-0.5 text-cp-xs font-medium text-emerald-200"
                               title={format(t('rentman.checklist.badge.fallbackTitle', 'Auto-filled with template "{name}"'), { name: item.templateMatch })}
                             >
                               <Icon icon={Check} size="xs" className="mr-1 inline" />
@@ -358,7 +358,7 @@ export const EquipmentChecklist = ({
                         if (linkedDevice) {
                           return (
                             <span
-                              className="rounded bg-sky-800/60 px-1.5 py-0.5 text-cp-xs text-sky-100"
+                              className="bg-sky-800/60 px-1.5 py-0.5 text-cp-xs text-sky-100"
                               title={t('rentman.checklist.linkedTitle', 'Linked to a local device — will not be created as a duplicate on import')}
                             >
                               <Icon icon={Link} size="xs" className="mr-1 inline-block align-text-bottom" />{linkedDevice.name}
@@ -371,7 +371,7 @@ export const EquipmentChecklist = ({
                             onChange={(e) => {
                               if (e.target.value) onLinkExisting(item.id, e.target.value)
                             }}
-                            className="rounded border border-cp-border bg-cp-surface-1 px-1 py-0.5 text-cp-xs text-cp-text-secondary"
+                            className="border border-cp-border bg-cp-surface-1 px-1 py-0.5 text-cp-xs text-cp-text-secondary"
                             title={t('rentman.checklist.linkSelectTitle', 'Link to an existing local device')}
                           >
                             <option value="">{t('rentman.checklist.linkPlaceholder', 'Link…')}</option>
@@ -386,7 +386,7 @@ export const EquipmentChecklist = ({
                       <button
                         type="button"
                         onClick={() => onSetAllChildren(item.id, !allChildrenChecked)}
-                        className="rounded bg-cp-surface-4 px-1.5 py-0.5 text-cp-xs hover:bg-cp-surface-5"
+                        className="bg-cp-surface-4 px-1.5 py-0.5 text-cp-xs hover:bg-cp-surface-5"
                         title={allChildrenChecked ? t('rentman.checklist.deselectChildren', 'Deselect all children') : t('rentman.checklist.selectChildren', 'Select all children')}
                       >
                         <span className="inline-flex items-center gap-1"><Icon icon={allChildrenChecked ? Square : SquareCheck} size="xs" />{allChildrenChecked ? t('rentman.checklist.childrenAllOff', 'all') : t('rentman.checklist.childrenAllOn', 'all')}</span>

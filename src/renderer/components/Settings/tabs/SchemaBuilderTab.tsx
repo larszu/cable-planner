@@ -184,7 +184,7 @@ export const SchemaBuilderTab = () => {
           </label>
         </div>
 
-        <div className="mb-3 flex flex-wrap items-end gap-2 rounded border border-cp-border-muted bg-cp-surface-2/40 p-2">
+        <div className="mb-3 flex flex-wrap items-end gap-2 border border-cp-border-muted bg-cp-surface-2/40 p-2">
           <label className="block">
             <span className="mb-1 block text-cp-xs text-cp-text-faint">
               {t('schemaBuilder.newCatDe', 'New category (DE)')}
@@ -199,7 +199,7 @@ export const SchemaBuilderTab = () => {
             type="button"
             onClick={addCategory}
             disabled={!newCatDe.trim()}
-            className="flex items-center gap-1 rounded bg-sky-700 px-2 py-1.5 text-cp-xs text-white hover:bg-sky-600 disabled:opacity-40"
+            className="flex items-center gap-1 bg-sky-700 px-2 py-1.5 text-cp-xs text-white hover:bg-sky-600 disabled:opacity-40"
           >
             <Plus size={13} /> {t('schemaBuilder.addCat', 'Create category')}
           </button>
@@ -208,16 +208,16 @@ export const SchemaBuilderTab = () => {
         {/* Feld-Liste */}
         <div className="space-y-1">
           {builtIn.map((f) => (
-            <div key={f.key} className="flex items-center gap-2 rounded border border-cp-border-muted bg-cp-surface-3/30 px-2 py-1 text-cp-xs text-cp-text-muted">
+            <div key={f.key} className="flex items-center gap-2 border border-cp-border-muted bg-cp-surface-3/30 px-2 py-1 text-cp-xs text-cp-text-muted">
               <Lock size={12} className="text-cp-text-faint" />
               <span className="flex-1">{f.label[lang] ?? f.label.de}</span>
               <span className="text-cp-text-faint">{typeLabel(f.type)}</span>
               {f.unit ? <span className="text-cp-text-faint">· {f.unit}</span> : null}
-              <span className="rounded bg-cp-surface-2 px-1 text-cp-xs text-cp-text-faint">built-in</span>
+              <span className="bg-cp-surface-2 px-1 text-cp-xs text-cp-text-faint">built-in</span>
             </div>
           ))}
           {userFields.map((f) => (
-            <div key={f.key} className="flex items-center gap-2 rounded border border-cp-accent/30 bg-cp-accent/5 px-2 py-1 text-cp-xs">
+            <div key={f.key} className="flex items-center gap-2 border border-cp-accent/30 bg-cp-accent/5 px-2 py-1 text-cp-xs">
               <span className="flex-1 text-cp-text">{f.label[lang] ?? f.label.de}</span>
               <span className="text-cp-text-faint">{typeLabel(f.type)}</span>
               {f.unit ? <span className="text-cp-text-faint">· {f.unit}</span> : null}
@@ -241,7 +241,7 @@ export const SchemaBuilderTab = () => {
           <button
             type="button"
             onClick={() => setEditing(true)}
-            className="flex items-center gap-1 rounded bg-cp-surface-2 px-2 py-1.5 text-cp-sm text-cp-text-secondary hover:bg-cp-surface-1"
+            className="flex items-center gap-1 bg-cp-surface-2 px-2 py-1.5 text-cp-sm text-cp-text-secondary hover:bg-cp-surface-1"
           >
             <Plus size={14} /> {t('schemaBuilder.addField', 'Add field')}
           </button>
@@ -290,7 +290,7 @@ export const SchemaBuilderTab = () => {
             </div>
 
             {(draft.type === 'select' || draft.type === 'polar-pattern') && (
-              <div className="rounded border border-cp-border-muted bg-cp-surface-2/40 p-2">
+              <div className="border border-cp-border-muted bg-cp-surface-2/40 p-2">
                 <div className="mb-1 flex items-center justify-between text-cp-xs text-cp-text-secondary">
                   <span>{t('schemaBuilder.options', 'Choice options')}</span>
                   <button
@@ -348,10 +348,10 @@ export const SchemaBuilderTab = () => {
             {error && <p className="text-cp-xs text-cp-danger">{error}</p>}
 
             <div className="flex gap-2">
-              <button type="button" onClick={addField} className="rounded bg-sky-700 px-3 py-1.5 text-cp-sm text-white hover:bg-sky-600">
+              <button type="button" onClick={addField} className="bg-sky-700 px-3 py-1.5 text-cp-sm text-white hover:bg-sky-600">
                 {t('schemaBuilder.save', 'Create field')}
               </button>
-              <button type="button" onClick={resetDraft} className="rounded bg-cp-surface-2 px-3 py-1.5 text-cp-sm text-cp-text-secondary hover:bg-cp-surface-1">
+              <button type="button" onClick={resetDraft} className="bg-cp-surface-2 px-3 py-1.5 text-cp-sm text-cp-text-secondary hover:bg-cp-surface-1">
                 {t('common.cancel', 'Cancel')}
               </button>
             </div>

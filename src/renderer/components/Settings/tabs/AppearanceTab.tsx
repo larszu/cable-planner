@@ -79,7 +79,7 @@ const CustomPaletteCard = () => {
                 onChange={(e) =>
                   setPalette({ ...current, [field.key]: e.target.value })
                 }
-                className="h-10 w-full cursor-pointer rounded border border-cp-border bg-cp-surface-1 p-1"
+                className="h-10 w-full cursor-pointer border border-cp-border bg-cp-surface-1 p-1"
               />
               <code className="mt-1 block text-cp-xs text-cp-text-muted">
                 {current[field.key]}
@@ -179,7 +179,7 @@ export const AppearanceTab = () => {
               key={opt.value}
               type="button"
               onClick={() => setLanguage(opt.value)}
-              className={`flex-1 rounded px-3 py-1 text-cp-xs ${
+              className={`flex-1 px-3 py-1 text-cp-xs ${
                 language === opt.value
                   ? 'bg-sky-700 text-white'
                   : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'
@@ -211,7 +211,7 @@ export const AppearanceTab = () => {
               key={mode}
               type="button"
               onClick={() => setCanvasTheme(mode)}
-              className={`inline-flex flex-1 items-center justify-center gap-1.5 rounded px-3 py-1 text-cp-xs ${
+              className={`inline-flex flex-1 items-center justify-center gap-1.5 px-3 py-1 text-cp-xs ${
                 canvasTheme === mode
                   ? 'bg-sky-700 text-white'
                   : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'
@@ -258,7 +258,7 @@ export const AppearanceTab = () => {
             type="button"
             onClick={() => setPortLabelFontSize(11)}
             disabled={portLabelFontSize === 11}
-            className="rounded bg-cp-surface-2 px-2 py-0.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-4 disabled:opacity-50"
+            className="bg-cp-surface-2 px-2 py-0.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-4 disabled:opacity-50"
             title={t('settings.fontSize.reset', 'Reset to default 11 px')}
           >
             <Icon icon={RotateCcw} size="xs" />
@@ -277,7 +277,7 @@ export const AppearanceTab = () => {
           <button
             type="button"
             onClick={() => setColorPortsByType(false)}
-            className={`flex-1 rounded px-3 py-1 text-cp-xs ${
+            className={`flex-1 px-3 py-1 text-cp-xs ${
               !colorPortsByType
                 ? 'bg-sky-700 text-white'
                 : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'
@@ -292,7 +292,7 @@ export const AppearanceTab = () => {
           <button
             type="button"
             onClick={() => setColorPortsByType(true)}
-            className={`flex-1 rounded px-3 py-1 text-cp-xs ${
+            className={`flex-1 px-3 py-1 text-cp-xs ${
               colorPortsByType
                 ? 'bg-sky-700 text-white'
                 : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'
@@ -318,7 +318,7 @@ export const AppearanceTab = () => {
           <button
             type="button"
             onClick={() => setCableColorMode('manual')}
-            className={`flex-1 rounded px-3 py-1 text-cp-xs ${
+            className={`flex-1 px-3 py-1 text-cp-xs ${
               cableColorMode === 'manual'
                 ? 'bg-sky-700 text-white'
                 : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'
@@ -329,7 +329,7 @@ export const AppearanceTab = () => {
           <button
             type="button"
             onClick={() => setCableColorMode('byLength')}
-            className={`flex-1 rounded px-3 py-1 text-cp-xs ${
+            className={`flex-1 px-3 py-1 text-cp-xs ${
               cableColorMode === 'byLength'
                 ? 'bg-sky-700 text-white'
                 : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'
@@ -344,7 +344,7 @@ export const AppearanceTab = () => {
           <button
             type="button"
             onClick={() => setCableColorMode('byLayer')}
-            className={`flex-1 rounded px-3 py-1 text-cp-xs ${
+            className={`flex-1 px-3 py-1 text-cp-xs ${
               cableColorMode === 'byLayer'
                 ? 'bg-sky-700 text-white'
                 : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'
@@ -408,7 +408,7 @@ export const AppearanceTab = () => {
             <select
               value={bgVariant}
               onChange={(e) => setBgVariant(e.target.value as 'dots' | 'lines' | 'cross' | 'none')}
-              className="rounded border border-cp-border bg-cp-surface-1 p-1 text-cp-xs"
+              className="border border-cp-border bg-cp-surface-1 p-1 text-cp-xs"
             >
               <option value="dots">{t('settings.canvasBg.variant.dots', 'Dots')}</option>
               <option value="lines">{t('settings.canvasBg.variant.lines', 'Lines')}</option>
@@ -449,14 +449,14 @@ export const AppearanceTab = () => {
               ['dark', t('settings.canvasBg.darkImage', 'Dark-mode image'), canvasBgImageDark] as const,
               ['light', t('settings.canvasBg.lightImage', 'Light-mode image'), canvasBgImageLight] as const,
             ]).map(([theme, label, current]) => (
-              <div key={theme} className="rounded border border-cp-border-muted bg-cp-surface-3/40 p-2">
+              <div key={theme} className="border border-cp-border-muted bg-cp-surface-3/40 p-2">
                 <div className="mb-1 text-cp-xs font-semibold text-cp-text-secondary">{label}</div>
                 {current ? (
                   <>
                     <img
                       src={current}
                       alt={`${theme} background`}
-                      className="mb-2 h-20 w-full rounded border border-cp-border object-cover"
+                      className="mb-2 h-20 w-full border border-cp-border object-cover"
                     />
                     <div className="flex gap-1">
                       <button
@@ -465,14 +465,14 @@ export const AppearanceTab = () => {
                           const dataUri = await pickImageAsDataUri()
                           if (dataUri) setCanvasBgImage(theme, dataUri)
                         }}
-                        className="flex-1 rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
+                        className="flex-1 bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
                       >
                         {t('settings.canvasBg.replace', 'Replace…')}
                       </button>
                       <button
                         type="button"
                         onClick={() => setCanvasBgImage(theme, null)}
-                        className="rounded bg-red-900/60 px-2 py-1 text-cp-xs text-red-200 hover:bg-red-800"
+                        className="bg-red-900/60 px-2 py-1 text-cp-xs text-red-200 hover:bg-red-800"
                         title={t('settings.canvasBg.remove', 'Remove image')}
                         aria-label={t('settings.canvasBg.remove', 'Remove image')}
                       >
@@ -487,7 +487,7 @@ export const AppearanceTab = () => {
                       const dataUri = await pickImageAsDataUri()
                       if (dataUri) setCanvasBgImage(theme, dataUri)
                     }}
-                    className="w-full rounded border border-dashed border-cp-border bg-cp-surface-1 px-2 py-4 text-cp-xs text-cp-text-muted hover:border-cp-surface-5 hover:text-cp-text-bright"
+                    className="w-full border border-dashed border-cp-border bg-cp-surface-1 px-2 py-4 text-cp-xs text-cp-text-muted hover:border-cp-surface-5 hover:text-cp-text-bright"
                   >
                     {t('settings.canvasBg.upload', '+ Upload image…')}
                   </button>
@@ -500,7 +500,7 @@ export const AppearanceTab = () => {
             <select
               value={canvasBgImageFit}
               onChange={(e) => setCanvasBgImageFit(e.target.value as 'cover' | 'contain' | 'tile')}
-              className="rounded border border-cp-border bg-cp-surface-1 p-1 text-cp-xs"
+              className="border border-cp-border bg-cp-surface-1 p-1 text-cp-xs"
             >
               <option value="cover">{t('settings.canvasBg.fit.cover', 'Cover (fills completely, crops)')}</option>
               <option value="contain">{t('settings.canvasBg.fit.contain', 'Contain (fully visible, with margin)')}</option>
@@ -533,7 +533,7 @@ export const AppearanceTab = () => {
                   type="color"
                   value={effective}
                   onChange={(e) => setConnectorTypeColor(name, e.target.value)}
-                  className="h-6 w-8 cursor-pointer rounded border border-cp-border bg-cp-surface-1 p-0.5"
+                  className="h-6 w-8 cursor-pointer border border-cp-border bg-cp-surface-1 p-0.5"
                 />
                 <span className="flex-1 truncate text-cp-xs">
                   {name}
@@ -543,7 +543,7 @@ export const AppearanceTab = () => {
                   <button
                     type="button"
                     onClick={() => setConnectorTypeColor(name, null)}
-                    className="rounded bg-cp-surface-4 px-1 py-0.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-5"
+                    className="bg-cp-surface-4 px-1 py-0.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-5"
                     title={t('settings.colors.resetDefault', 'Reset to default')}
                   >
                     <Icon icon={RotateCcw} size="xs" />
@@ -557,7 +557,7 @@ export const AppearanceTab = () => {
           <button
             type="button"
             onClick={() => resetConnectorTypeColors()}
-            className="rounded bg-cp-surface-2 px-2 py-1 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-4"
+            className="bg-cp-surface-2 px-2 py-1 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-4"
           >
             {t('settings.connectorColors.resetAll', 'Reset all')}
           </button>
@@ -586,14 +586,14 @@ export const AppearanceTab = () => {
                     type="color"
                     value={effective}
                     onChange={(e) => setCategoryColor(cat, e.target.value)}
-                    className="h-6 w-8 cursor-pointer rounded border border-cp-border bg-cp-surface-1 p-0.5"
+                    className="h-6 w-8 cursor-pointer border border-cp-border bg-cp-surface-1 p-0.5"
                   />
                   <span className="flex-1 truncate text-cp-xs" title={cat}>{cat}</span>
                   {override && (
                     <button
                       type="button"
                       onClick={() => setCategoryColor(cat, null)}
-                      className="rounded bg-cp-surface-4 px-1 py-0.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-5"
+                      className="bg-cp-surface-4 px-1 py-0.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-5"
                       title={t('settings.colors.resetDefault', 'Reset to default')}
                     >
                       <Icon icon={RotateCcw} size="xs" />
@@ -609,7 +609,7 @@ export const AppearanceTab = () => {
             <button
               type="button"
               onClick={() => resetCategoryColors()}
-              className="rounded bg-cp-surface-2 px-2 py-1 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-4"
+              className="bg-cp-surface-2 px-2 py-1 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-4"
             >
               {t('settings.categoryColors.resetAll', 'Reset all')}
             </button>

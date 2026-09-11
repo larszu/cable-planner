@@ -308,12 +308,12 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
         ref={panelRef}
         aria-labelledby={titleId}
         {...dialogProps}
-        className="w-full max-w-lg rounded border border-cp-border bg-cp-surface-1 p-4 text-cp-text outline-none"
+        className="w-full max-w-lg border border-cp-border bg-cp-surface-1 p-4 text-cp-text outline-none"
       >
         <h3 id={titleId} className="mb-2 text-cp-2xl font-semibold">{t('cable.dialog.title', 'New cable')}</h3>
 
         {fromPort && toPort && (
-          <div className="mb-3 rounded bg-cp-surface-3 p-2 text-cp-xs">
+          <div className="mb-3 bg-cp-surface-3 p-2 text-cp-xs">
             <div>
               {t('cable.dialog.from', 'From:')} <span className="font-medium">{fromPort.name}</span> ({fromPort.connectorType}
               {fromPort.standard ? `, ${fromPort.standard}` : ''})
@@ -331,7 +331,7 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
             <select
               value={specId}
               onChange={(e) => onSelectSpec(e.target.value)}
-              className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2"
+              className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-2"
             >
               <option value={CUSTOM_CABLE_SPEC_ID}>★ {t('cable.customCable', 'Custom Cable')}…</option>
               {ranked.map(({ cable, level }) => {
@@ -346,7 +346,7 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
           </label>
 
           {promptPickCableType && (
-            <div className="rounded border border-amber-500/50 bg-amber-500/10 p-2 text-cp-xs text-amber-300">
+            <div className="border border-amber-500/50 bg-amber-500/10 p-2 text-cp-xs text-amber-300">
               {t(
                 'cable.dialog.pickTypeHint',
                 'No matching cable type in the catalog. Please deliberately choose a connector/standard below or create a new cable type — otherwise only a generic custom cable is created.',
@@ -355,7 +355,7 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
           )}
 
           {specId === CUSTOM_CABLE_SPEC_ID && (
-            <div className="rounded border border-cp-border bg-cp-surface-3/60 p-2">
+            <div className="border border-cp-border bg-cp-surface-3/60 p-2">
               <div className="mb-2 text-cp-xs font-semibold uppercase tracking-wide text-cp-text-muted">
                 {t('cable.customDefinition', 'Custom Cable Definition')}
               </div>
@@ -376,7 +376,7 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
                       }
                       setCustomConnectorType(v as ConnectorType)
                     }}
-                    className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2"
+                    className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-2"
                   >
                     {allConnectorOptions.map((type) => (
                       <option key={type} value={type}>
@@ -406,7 +406,7 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
                       setCustomStandard(next)
                       setStandard(next)
                     }}
-                    className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2"
+                    className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-2"
                   >
                     {allStandardOptions.map((item) => (
                       <option key={item} value={item}>
@@ -426,7 +426,7 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
                   value={customMaxLength}
                   onChange={(e) => setCustomMaxLength(e.target.value ? Number(e.target.value) : '')}
                   placeholder={t('common.optional', 'optional')}
-                  className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2"
+                  className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-2"
                 />
               </label>
               <button
@@ -454,7 +454,7 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
                   setSpecId(created.id)
                   setName(created.name)
                 }}
-                className="mt-2 w-full rounded bg-sky-700 px-2 py-1 text-cp-xs font-medium text-white hover:bg-sky-600"
+                className="mt-2 w-full bg-sky-700 px-2 py-1 text-cp-xs font-medium text-white hover:bg-sky-600"
                 title={t('cable.dialog.saveCustomTitle', 'Stores this custom definition as a reusable cable type in the library.')}
               >
                 <Icon icon={Save} size="xs" className="mr-1 inline-block align-text-bottom" />{t('cable.saveAsType', 'Save as cable type')}…
@@ -468,7 +468,7 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
               <select
                 value={standard ?? ''}
                 onChange={(e) => setStandard(e.target.value as SignalStandard)}
-                className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2"
+                className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-2"
               >
                 {selected.standards.map((s) => (
                   <option key={s} value={s}>
@@ -484,7 +484,7 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2"
+              className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-2"
             />
           </label>
 
@@ -496,7 +496,7 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
                 min={0}
                 value={length}
                 onChange={(e) => setLength(Number(e.target.value))}
-                className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2"
+                className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-2"
               />
             </label>
             <label className="block">
@@ -505,7 +505,7 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
                 type="color"
                 value={color}
                 onChange={(e) => setColor(e.target.value)}
-                className="mt-1 h-10 w-full rounded border border-cp-border bg-cp-surface-3 p-1"
+                className="mt-1 h-10 w-full border border-cp-border bg-cp-surface-3 p-1"
               />
             </label>
           </div>
@@ -515,7 +515,7 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2"
+              className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-2"
               rows={2}
             />
           </label>
@@ -524,31 +524,31 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
         {/* Status/warning area */}
         <div className="mt-3 space-y-1 text-cp-xs">
           {connectorMismatch === 'error' && (
-            <div className="flex items-center gap-1.5 rounded bg-red-900/50 p-2 text-red-100">
+            <div className="flex items-center gap-1.5 bg-red-900/50 p-2 text-red-100">
               <Icon icon={XCircle} size="sm" />
               {connectorMessage}
             </div>
           )}
           {connectorMismatch === 'warn' && (
-            <div className="flex items-center gap-1.5 rounded bg-amber-900/50 p-2 text-amber-100">
+            <div className="flex items-center gap-1.5 bg-amber-900/50 p-2 text-amber-100">
               <Icon icon={AlertTriangle} size="sm" />
               {connectorMessage}
             </div>
           )}
           {connectorMismatch === 'ok' && connectorMessage && (
-            <div className="flex items-center gap-1.5 rounded bg-emerald-900/40 p-2 text-emerald-100">
+            <div className="flex items-center gap-1.5 bg-emerald-900/40 p-2 text-emerald-100">
               <Icon icon={Check} size="sm" />
               {connectorMessage}
             </div>
           )}
           {sdiMismatch?.level === 'warn' && (
-            <div className="flex items-center gap-1.5 rounded bg-amber-900/50 p-2 text-amber-100">
+            <div className="flex items-center gap-1.5 bg-amber-900/50 p-2 text-amber-100">
               <Icon icon={AlertTriangle} size="sm" />
               {format(tr(sdiMismatch.schluessel, sdiMismatch.message), sdiMismatch.werte)}
             </div>
           )}
           {impedanceMismatch?.level === 'warn' && (
-            <div className="flex items-center gap-1.5 rounded bg-amber-900/50 p-2 text-amber-100">
+            <div className="flex items-center gap-1.5 bg-amber-900/50 p-2 text-amber-100">
               <Icon icon={AlertTriangle} size="sm" />
               {format(
                 tr(impedanceMismatch.schluessel, impedanceMismatch.message),
@@ -557,13 +557,13 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
             </div>
           )}
           {balanceWarning?.level === 'warn' && (
-            <div className="flex items-center gap-1.5 rounded bg-amber-900/50 p-2 text-amber-100">
+            <div className="flex items-center gap-1.5 bg-amber-900/50 p-2 text-amber-100">
               <Icon icon={AlertTriangle} size="sm" />
               {format(tr(balanceWarning.schluessel, balanceWarning.message), balanceWarning.werte)}
             </div>
           )}
           {lengthWarning && (
-            <div className="flex items-center gap-1.5 rounded bg-amber-900/50 p-2 text-amber-100">
+            <div className="flex items-center gap-1.5 bg-amber-900/50 p-2 text-amber-100">
               <Icon icon={AlertTriangle} size="sm" />
               {lengthWarning}
             </div>
@@ -574,14 +574,14 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
           <button
             type="button"
             onClick={onCancel}
-            className="rounded bg-cp-surface-4 px-3 py-1 hover:bg-cp-surface-5"
+            className="bg-cp-surface-4 px-3 py-1 hover:bg-cp-surface-5"
           >
             {t('common.cancel', 'Cancel')}
           </button>
           <button
             type="button"
             onClick={submit}
-            className="rounded bg-emerald-600 px-3 py-1 hover:bg-emerald-500"
+            className="bg-emerald-600 px-3 py-1 hover:bg-emerald-500"
           >
             {t('cable.dialog.create', 'Create')}
           </button>

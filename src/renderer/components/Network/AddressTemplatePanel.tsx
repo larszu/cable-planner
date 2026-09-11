@@ -90,7 +90,7 @@ export const AddressTemplatePanel = ({ projectName }: { projectName: string }) =
   }
 
   return (
-    <div className="rounded border border-cp-border bg-cp-surface-2 p-2 text-cp-xs">
+    <div className="border border-cp-border bg-cp-surface-2 p-2 text-cp-xs">
       <div className="mb-1 flex flex-wrap items-center gap-2">
         <span className="font-semibold text-cp-text-secondary">
           {t('addrTpl.title', 'Address ranges (standing plan + venue overlay)')}
@@ -100,7 +100,7 @@ export const AddressTemplatePanel = ({ projectName }: { projectName: string }) =
           onClick={() =>
             addAddressLayer({ name: t('addrTpl.newStanding', 'Truck'), kind: 'standing' })
           }
-          className="inline-flex items-center gap-1 rounded border border-cp-border px-2 py-0.5 hover:bg-cp-surface-3"
+          className="inline-flex items-center gap-1 border border-cp-border px-2 py-0.5 hover:bg-cp-surface-3"
         >
           <Icon icon={Plus} size="xs" />
           {t('addrTpl.addStanding', 'standing layer')}
@@ -108,7 +108,7 @@ export const AddressTemplatePanel = ({ projectName }: { projectName: string }) =
         <button
           type="button"
           onClick={() => addAddressLayer({ name: t('addrTpl.newVenue', 'Venue'), kind: 'venue' })}
-          className="inline-flex items-center gap-1 rounded border border-cp-border px-2 py-0.5 hover:bg-cp-surface-3"
+          className="inline-flex items-center gap-1 border border-cp-border px-2 py-0.5 hover:bg-cp-surface-3"
         >
           <Icon icon={Layers} size="xs" />
           {t('addrTpl.addVenue', 'venue layer')}
@@ -116,7 +116,7 @@ export const AddressTemplatePanel = ({ projectName }: { projectName: string }) =
         <button
           type="button"
           onClick={laden}
-          className="ml-auto inline-flex items-center gap-1 rounded border border-cp-border px-2 py-0.5 hover:bg-cp-surface-3"
+          className="ml-auto inline-flex items-center gap-1 border border-cp-border px-2 py-0.5 hover:bg-cp-surface-3"
         >
           <Icon icon={Download} size="xs" />
           {t('addrTpl.export', 'Ranges')}
@@ -136,9 +136,9 @@ export const AddressTemplatePanel = ({ projectName }: { projectName: string }) =
         </p>
       ) : (
         layers.map((l) => (
-          <div key={l.id} className="mb-2 rounded border border-cp-border-muted p-1">
+          <div key={l.id} className="mb-2 border border-cp-border-muted p-1">
             <div className="mb-1 flex flex-wrap items-center gap-1">
-              <span className="rounded bg-cp-surface-3 px-1 text-cp-text-secondary">
+              <span className="bg-cp-surface-3 px-1 text-cp-text-secondary">
                 {LAYER_LABEL[l.kind]}
               </span>
               <input
@@ -162,7 +162,7 @@ export const AddressTemplatePanel = ({ projectName }: { projectName: string }) =
                     setNeuerBereich((s) => ({ ...s, [l.id]: '' }))
                   }
                 }}
-                className="inline-flex items-center gap-1 rounded border border-cp-border px-2 py-0.5 hover:bg-cp-surface-3"
+                className="inline-flex items-center gap-1 border border-cp-border px-2 py-0.5 hover:bg-cp-surface-3"
               >
                 <Icon icon={Plus} size="xs" />
                 {t('addrTpl.addRange', 'Range')}
@@ -171,7 +171,7 @@ export const AddressTemplatePanel = ({ projectName }: { projectName: string }) =
                 type="button"
                 onClick={() => removeAddressLayer(l.id)}
                 title={t('addrTpl.removeLayer', 'Remove layer')}
-                className="ml-auto rounded border border-cp-border px-1 py-0.5 hover:bg-cp-surface-3"
+                className="ml-auto border border-cp-border px-1 py-0.5 hover:bg-cp-surface-3"
               >
                 <Icon icon={Trash2} size="xs" />
               </button>
@@ -274,7 +274,7 @@ export const AddressTemplatePanel = ({ projectName }: { projectName: string }) =
                           type="button"
                           onClick={() => removeAddressRange(l.id, r.id)}
                           title={t('addrTpl.removeRange', 'Remove range')}
-                          className="rounded border border-cp-border px-1 py-0.5 hover:bg-cp-surface-3"
+                          className="border border-cp-border px-1 py-0.5 hover:bg-cp-surface-3"
                         >
                           <Icon icon={Trash2} size="xs" />
                         </button>
@@ -334,7 +334,7 @@ export const AddressTemplatePanel = ({ projectName }: { projectName: string }) =
                     <button
                       type="button"
                       onClick={() => applyReaddress(v.equipmentId, v.nicId, v.to!, v.mask!)}
-                      className="rounded border border-cp-border px-2 py-0.5 hover:bg-cp-surface-3"
+                      className="border border-cp-border px-2 py-0.5 hover:bg-cp-surface-3"
                     >
                       {t('addrTpl.apply', 'adopt')}
                     </button>

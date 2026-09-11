@@ -209,7 +209,7 @@ export const VideohubRoutingMatrix = ({
 
   if (!useGrid) {
     return (
-      <div className="overflow-auto max-h-64 rounded border border-cp-border bg-cp-surface-3 p-2">
+      <div className="overflow-auto max-h-64 border border-cp-border bg-cp-surface-3 p-2">
         <div className="mb-2 text-cp-xs text-amber-300">
           {totalInputs}×{totalOutputs} ({cellCount.toLocaleString()} Crosspoints) —{' '}
           {t('export.listModeOverload', 'List mode, because at this size the crosspoint matrix overloads browser rendering.')}
@@ -225,7 +225,7 @@ export const VideohubRoutingMatrix = ({
               <select
                 value={routing[oi] ?? 0}
                 onChange={(e) => onRoute(oi, parseInt(e.target.value, 10))}
-                className="flex-1 rounded border border-cp-border bg-cp-surface-1 p-1 text-cp-base text-sky-200"
+                className="flex-1 border border-cp-border bg-cp-surface-1 p-1 text-cp-base text-sky-200"
               >
                 {inputLabels.map((inLabel, ii) => (
                   <option key={ii} value={ii}>
@@ -344,7 +344,7 @@ export const VideohubRoutingMatrix = ({
           <button
             type="button"
             onClick={resetLayout}
-            className="rounded bg-cp-surface-2 px-2 py-0.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-4"
+            className="bg-cp-surface-2 px-2 py-0.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-4"
           >
             <Icon icon={RotateCcw} size="xs" className="mr-1 inline" />
             {t('export.resetLayout', 'Reset layout')}
@@ -628,15 +628,15 @@ export const VideohubRoutingMatrix = ({
                           aria-label={`Set Output ${oi + 1} (${outLabel}) to Input ${ii + 1} (${inLabel})`}
                           className={
                             active
-                              ? 'mx-auto block rounded-sm bg-emerald-400 shadow-[0_0_8px_rgba(74,222,128,0.85)] ring-1 ring-emerald-200/70'
+                              ? 'mx-auto block bg-emerald-400 ring-1 ring-emerald-200/70'
                               : rowOn && inCol
-                                ? 'mx-auto block rounded-sm bg-sky-400/80 hover:bg-sky-300'
+                                ? 'mx-auto block bg-sky-400/80 hover:bg-sky-300'
                                 : rowOn
-                                  ? 'mx-auto block rounded-sm bg-slate-400/50 hover:bg-slate-300'
+                                  ? 'mx-auto block bg-slate-400/50 hover:bg-slate-300'
                                   : inCol
-                                    ? 'mx-auto block rounded-sm bg-sky-500/50 hover:bg-sky-400'
-                                    : 'mx-auto block rounded-sm bg-cp-surface-4/80 hover:bg-slate-500'
-                          }
+                                    ? 'mx-auto block bg-sky-500/50 hover:bg-sky-400'
+                                    : 'mx-auto block bg-cp-surface-4/80 hover:bg-slate-500'
+}
                           style={{
                             width: Math.min(cw - 8, rh - 10),
                             height: Math.min(cw - 8, rh - 10),

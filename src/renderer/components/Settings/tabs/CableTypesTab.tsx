@@ -74,7 +74,7 @@ export const CableTypesTab = () => {
       className="flex flex-wrap items-center gap-2 border-b border-cp-border-muted py-1 last:border-b-0"
     >
       <span
-        className="inline-block h-3 w-3 shrink-0 rounded-sm"
+        className="inline-block h-3 w-3 shrink-0"
         style={{ background: spec.color }}
         aria-hidden
       />
@@ -83,7 +83,7 @@ export const CableTypesTab = () => {
       <button
         type="button"
         onClick={() => setEditing(spec)}
-        className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
+        className="bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
         title={t('settings.cableTypes.edit', 'Edit')}
         aria-label={format(t('settings.cableTypes.editAria', 'Edit {name}'), { name: spec.name })}
       >
@@ -101,7 +101,7 @@ export const CableTypesTab = () => {
             )
             if (ok) removeCustomCableSpec(spec.id)
           }}
-          className="rounded bg-red-900/60 px-2 py-1 text-cp-xs hover:bg-red-800"
+          className="bg-red-900/60 px-2 py-1 text-cp-xs hover:bg-red-800"
           title={t('settings.cableTypes.delete', 'Delete')}
           aria-label={format(t('settings.cableTypes.deleteAria', 'Delete {name}'), { name: spec.name })}
         >
@@ -111,7 +111,7 @@ export const CableTypesTab = () => {
         <button
           type="button"
           onClick={() => clearCableSpecOverride(spec.id)}
-          className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
+          className="bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
           title={t('settings.cableTypes.reset', 'Reset to the built-in default')}
           aria-label={format(t('settings.cableTypes.resetAria', 'Reset {name}'), { name: spec.name })}
         >
@@ -141,7 +141,7 @@ export const CableTypesTab = () => {
         <button
           type="button"
           onClick={() => setEditing(undefined)}
-          className="mb-2 rounded bg-emerald-700 px-2 py-1 text-cp-xs text-white hover:bg-emerald-600"
+          className="mb-2 bg-emerald-700 px-2 py-1 text-cp-xs text-white hover:bg-emerald-600"
         >
           {t('settings.cableTypes.new', '+ New cable type')}
         </button>

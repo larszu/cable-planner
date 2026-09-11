@@ -44,7 +44,7 @@ export const ProjectSelector = ({ projects, selectedProjectId, onSelect }: Proje
     <div
       role="listbox"
       aria-label={t('rentman.projectSelector.aria', 'Rentman project')}
-      className="max-h-64 overflow-auto rounded border border-cp-border bg-cp-surface-1"
+      className="max-h-64 overflow-auto border border-cp-border bg-cp-surface-1"
     >
       {projects.map((project) => {
         const active = project.id === selectedProjectId
@@ -73,7 +73,7 @@ export const ProjectSelector = ({ projects, selectedProjectId, onSelect }: Proje
               })()}
             </span>
             {project.status && (
-              <span className={`shrink-0 rounded px-1.5 py-0.5 text-cp-xs ${active ? 'bg-sky-700 text-sky-50' : 'bg-cp-surface-2 text-cp-text-muted'}`}>
+              <span className={`shrink-0 px-1.5 py-0.5 text-cp-xs ${active ? 'bg-sky-700 text-sky-50' : 'bg-cp-surface-2 text-cp-text-muted'}`}>
                 {project.status}
               </span>
             )}

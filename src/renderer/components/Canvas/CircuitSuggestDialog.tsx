@@ -129,7 +129,7 @@ export function CircuitSuggestDialog({ open, onClose }: Props) {
         ref={panelRef}
         aria-labelledby={titleId}
         {...dialogProps}
-        className="flex max-h-[85vh] w-full max-w-[720px] flex-col rounded border border-cp-border bg-cp-surface-1 text-cp-text shadow-2xl"
+        className="flex max-h-[85vh] w-full max-w-[720px] flex-col border border-cp-border bg-cp-surface-1 text-cp-text"
       >
         <header className="flex items-center justify-between border-b border-cp-border px-4 py-2">
           <h2 id={titleId} className="text-cp-lg font-semibold">
@@ -138,7 +138,7 @@ export function CircuitSuggestDialog({ open, onClose }: Props) {
           <button
             type="button"
             onClick={onClose}
-            className="av-focus rounded bg-cp-surface-3 px-3 py-1 text-cp-xs hover:bg-cp-surface-2"
+            className="av-focus bg-cp-surface-3 px-3 py-1 text-cp-xs hover:bg-cp-surface-2"
           >
             {t('common.close', 'Close')}
           </button>
@@ -169,7 +169,7 @@ export function CircuitSuggestDialog({ open, onClose }: Props) {
           {befunde.length > 0 && (
             <ul className="mb-4 space-y-1">
               {befunde.map((b, i) => (
-                <li key={i} className="rounded border border-cp-warn/40 bg-cp-surface-2 px-3 py-2">
+                <li key={i} className="border border-cp-warn/40 bg-cp-surface-2 px-3 py-2">
                   <span className="text-cp-warn">{b.art}</span>
                   <span className="text-cp-text-secondary"> — {b.text}</span>
                 </li>
@@ -178,21 +178,21 @@ export function CircuitSuggestDialog({ open, onClose }: Props) {
           )}
 
           {!vollstaendig && grund && (
-            <p className="mb-4 rounded border border-cp-border bg-cp-surface-2 px-3 py-2 text-[12px] text-cp-text-secondary">
+            <p className="mb-4 border border-cp-border bg-cp-surface-2 px-3 py-2 text-[12px] text-cp-text-secondary">
               {t('canvas.circuit.suggest.capped', 'The search was limited: ')}
               {grund}
             </p>
           )}
 
           {vorschlaege.map((v, i) => (
-            <div key={i} className="mb-2 rounded border border-cp-border px-3 py-2">
+            <div key={i} className="mb-2 border border-cp-border px-3 py-2">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <span>{v.text}</span>
                 {v.hindernis === undefined ? (
                   <button
                     type="button"
                     onClick={() => eintragen(v)}
-                    className="av-focus rounded bg-cp-accent px-3 py-1 text-cp-xs text-cp-bg"
+                    className="av-focus bg-cp-accent px-3 py-1 text-cp-xs text-cp-bg"
                   >
                     {t('canvas.circuit.suggest.apply', 'Add wire')}
                   </button>

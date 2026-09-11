@@ -222,7 +222,7 @@ export const DrumMicingDialog = () => {
         ref={panelRef}
         aria-labelledby={titleId}
         {...dialogProps}
-        className="flex max-h-[90vh] w-full max-w-5xl flex-col overflow-hidden rounded-lg border border-cp-border bg-cp-bg shadow-2xl"
+        className="flex max-h-[90vh] w-full max-w-5xl flex-col overflow-hidden border border-cp-border bg-cp-bg"
       >
         <header className="flex shrink-0 items-center justify-between border-b border-cp-border-muted px-4 py-2.5">
           <h2 id={titleId} className="text-cp-lg font-semibold">
@@ -231,7 +231,7 @@ export const DrumMicingDialog = () => {
           <button
             type="button"
             onClick={() => setOpen(false)}
-            className="rounded px-2 py-1 text-cp-text-muted hover:bg-cp-surface-2 hover:text-cp-text"
+            className="px-2 py-1 text-cp-text-muted hover:bg-cp-surface-2 hover:text-cp-text"
             aria-label={t('common.close', 'Close')}
           >
             <X size={18} />
@@ -246,7 +246,7 @@ export const DrumMicingDialog = () => {
               key={key}
               type="button"
               onClick={() => applyPreset(key)}
-              className={`rounded border px-2 py-1 text-cp-xs ${
+              className={` border px-2 py-1 text-cp-xs ${
                 plan.technique === key
                   ? 'border-cp-accent bg-cp-accent/15 text-cp-text'
                   : 'border-cp-border-muted text-cp-text-secondary hover:bg-cp-surface-2'
@@ -258,7 +258,7 @@ export const DrumMicingDialog = () => {
           <button
             type="button"
             onClick={() => setEditKit((v) => !v)}
-            className={`ml-auto flex items-center gap-1 rounded border px-2 py-1 text-cp-xs ${
+            className={`ml-auto flex items-center gap-1 border px-2 py-1 text-cp-xs ${
               editKit
                 ? 'border-cp-accent bg-cp-accent/15 text-cp-text'
                 : 'border-cp-border-muted text-cp-text-secondary hover:bg-cp-surface-2'
@@ -270,7 +270,7 @@ export const DrumMicingDialog = () => {
           <button
             type="button"
             onClick={clearAll}
-            className="rounded border border-cp-border-muted px-2 py-1 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-2"
+            className="border border-cp-border-muted px-2 py-1 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-2"
           >
             {t('drum.clear', 'Remove all mics')}
           </button>
@@ -344,7 +344,7 @@ export const DrumMicingDialog = () => {
                       <input
                         value={z.label}
                         onChange={(e) => renameZone(z.id, e.target.value)}
-                        className="w-full rounded border border-cp-border bg-cp-surface-1 p-1 text-cp-xs"
+                        className="w-full border border-cp-border bg-cp-surface-1 p-1 text-cp-xs"
                       />
                       <button type="button" onClick={() => removeZone(z.id)} className="shrink-0 text-cp-danger" title={t('common.delete', 'Delete')}>
                         <Trash2 size={13} />
@@ -356,7 +356,7 @@ export const DrumMicingDialog = () => {
                   <select
                     value={newZoneKind}
                     onChange={(e) => setNewZoneKind(e.target.value as DrumZone['kind'])}
-                    className="rounded border border-cp-border bg-cp-surface-1 p-1 text-cp-xs"
+                    className="border border-cp-border bg-cp-surface-1 p-1 text-cp-xs"
                   >
                     {(Object.keys(ZONE_KIND_LABEL) as DrumZone['kind'][]).map((k) => (
                       <option key={k} value={k}>
@@ -368,9 +368,9 @@ export const DrumMicingDialog = () => {
                     value={newZoneLabel}
                     onChange={(e) => setNewZoneLabel(e.target.value)}
                     placeholder={defaultZoneLabel(newZoneKind, plan.zones)}
-                    className="w-full rounded border border-cp-border bg-cp-surface-1 p-1 text-cp-xs"
+                    className="w-full border border-cp-border bg-cp-surface-1 p-1 text-cp-xs"
                   />
-                  <button type="button" onClick={addZone} className="flex shrink-0 items-center gap-1 rounded bg-sky-700 px-2 py-1 text-cp-xs text-white hover:bg-sky-600">
+                  <button type="button" onClick={addZone} className="flex shrink-0 items-center gap-1 bg-sky-700 px-2 py-1 text-cp-xs text-white hover:bg-sky-600">
                     <Plus size={12} /> {t('drum.addZone', 'Zone')}
                   </button>
                 </div>
@@ -388,7 +388,7 @@ export const DrumMicingDialog = () => {
                     <button
                       type="button"
                       onClick={() => addMicToZone(selectedZone)}
-                      className="flex items-center gap-1 rounded bg-sky-700 px-2 py-1 text-cp-xs text-white hover:bg-sky-600"
+                      className="flex items-center gap-1 bg-sky-700 px-2 py-1 text-cp-xs text-white hover:bg-sky-600"
                     >
                       <Plus size={12} /> {t('drum.addMic', 'Mic')}
                     </button>
@@ -400,12 +400,12 @@ export const DrumMicingDialog = () => {
                     const resolved = m.micDeviceTypeId ? micById.get(m.micDeviceTypeId) : undefined
                     const phantom = resolved?.categoryProps?.powering === 'p48'
                     return (
-                      <div key={m.id} className="mb-1.5 rounded border border-cp-border-muted bg-cp-surface-2/40 p-1.5">
+                      <div key={m.id} className="mb-1.5 border border-cp-border-muted bg-cp-surface-2/40 p-1.5">
                         <div className="flex items-center gap-1">
                           <select
                             value={m.micDeviceTypeId ?? ''}
                             onChange={(e) => setMicModel(m.id, e.target.value)}
-                            className="w-full rounded border border-cp-border bg-cp-surface-1 p-1 text-cp-xs"
+                            className="w-full border border-cp-border bg-cp-surface-1 p-1 text-cp-xs"
                           >
                             <option value="">{t('drum.pickMic', '— pick microphone —')}</option>
                             {micTemplates.map((tmpl) => (
@@ -438,20 +438,20 @@ export const DrumMicingDialog = () => {
                 {t('drum.summary', 'Channel list & requirements')}
               </h3>
               <div className="mb-2 flex flex-wrap gap-2 text-cp-xs">
-                <span className="rounded bg-cp-surface-2 px-2 py-0.5 text-cp-text-secondary">
+                <span className="bg-cp-surface-2 px-2 py-0.5 text-cp-text-secondary">
                   {derivation.channelCount} {t('drum.channels', 'Channels')}
                 </span>
-                <span className="flex items-center gap-1 rounded bg-amber-500/15 px-2 py-0.5 text-amber-500">
+                <span className="flex items-center gap-1 bg-amber-500/15 px-2 py-0.5 text-amber-500">
                   <Zap size={11} /> {derivation.phantomCount}× 48V
                 </span>
                 {derivation.unknownCount > 0 && (
-                  <span className="flex items-center gap-1 rounded bg-cp-warn/15 px-2 py-0.5 text-cp-warn">
+                  <span className="flex items-center gap-1 bg-cp-warn/15 px-2 py-0.5 text-cp-warn">
                     <AlertTriangle size={11} /> {derivation.unknownCount} {t('drum.unknown', 'no mic')}
                   </span>
                 )}
                 {derivation.splRiskCount > 0 && (
                   <span
-                    className="flex items-center gap-1 rounded bg-cp-danger/15 px-2 py-0.5 text-cp-danger"
+                    className="flex items-center gap-1 bg-cp-danger/15 px-2 py-0.5 text-cp-danger"
                     title={t('drum.splHint', 'Max SPL < 140 dB on kick/snare — a single snare hit can exceed 156 dB (DPA).')}
                   >
                     <AlertTriangle size={11} /> {derivation.splRiskCount}× {t('drum.spl', 'SPL borderline')}
@@ -494,7 +494,7 @@ export const DrumMicingDialog = () => {
                     <button
                       type="button"
                       onClick={copyBom}
-                      className="inline-flex items-center gap-1 rounded border border-cp-border-muted px-2 py-0.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-2"
+                      className="inline-flex items-center gap-1 border border-cp-border-muted px-2 py-0.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-2"
                     >
                       {copied && <Icon icon={Check} size="xs" />}
                       {copied ? t('drum.copied', 'copied') : t('drum.copy', 'copy')}

@@ -175,7 +175,7 @@ export const ReconcileDialog = () => {
         ref={panelRef}
         aria-labelledby={titleId}
         {...dialogProps}
-        className="flex max-h-[88vh] w-full max-w-4xl flex-col overflow-hidden rounded-lg border border-cp-border bg-cp-surface-1 shadow-xl"
+        className="flex max-h-[88vh] w-full max-w-4xl flex-col overflow-hidden border border-cp-border bg-cp-surface-1"
       >
         <div className="flex items-center justify-between border-b border-cp-border px-4 py-2.5">
           <h2 id={titleId} className="text-cp-base font-semibold text-cp-text">
@@ -204,7 +204,7 @@ export const ReconcileDialog = () => {
             <button
               type="button"
               onClick={() => void load()}
-              className="inline-flex items-center gap-1 rounded border border-cp-border px-2.5 py-1 text-cp-sm text-cp-text-secondary hover:text-cp-text"
+              className="inline-flex items-center gap-1 border border-cp-border px-2.5 py-1 text-cp-sm text-cp-text-secondary hover:text-cp-text"
             >
               <Icon icon={FileUp} size="sm" /> {t('reconcile.load', 'Load file')}
             </button>
@@ -219,7 +219,7 @@ export const ReconcileDialog = () => {
                 <button
                   type="button"
                   onClick={exportCsv}
-                  className="ml-auto inline-flex items-center gap-1 rounded border border-cp-border px-2 py-1 text-cp-sm text-cp-text-secondary hover:text-cp-text"
+                  className="ml-auto inline-flex items-center gap-1 border border-cp-border px-2 py-1 text-cp-sm text-cp-text-secondary hover:text-cp-text"
                 >
                   <Icon icon={Download} size="sm" /> CSV
                 </button>
@@ -244,7 +244,7 @@ export const ReconcileDialog = () => {
               type="button"
               onClick={exportAsBuilt}
               disabled={asBuiltStand.total === 0}
-              className="ml-auto inline-flex items-center gap-1 rounded border border-cp-border px-2 py-1 text-cp-text-secondary hover:text-cp-text disabled:opacity-40"
+              className="ml-auto inline-flex items-center gap-1 border border-cp-border px-2 py-1 text-cp-text-secondary hover:text-cp-text disabled:opacity-40"
             >
               <Icon icon={Download} size="xs" />
               {t('asBuilt.export', 'As-built')}
@@ -252,7 +252,7 @@ export const ReconcileDialog = () => {
           </div>
 
           {error && (
-            <div className="mb-3 flex items-start gap-2 rounded border border-amber-700/60 bg-amber-900/20 p-2 text-cp-xs text-amber-200">
+            <div className="mb-3 flex items-start gap-2 border border-amber-700/60 bg-amber-900/20 p-2 text-cp-xs text-amber-200">
               <Icon icon={AlertTriangle} size="xs" />
               <span>{error}</span>
             </div>
@@ -279,7 +279,7 @@ export const ReconcileDialog = () => {
                 {report.rows.map((r, i) => (
                   <li
                     key={`${r.verdict}-${r.planned ?? ''}-${r.found ?? ''}-${i}`}
-                    className="flex flex-wrap items-center gap-2 rounded border border-cp-border-muted bg-cp-surface-2 px-2 py-1 text-cp-xs"
+                    className="flex flex-wrap items-center gap-2 border border-cp-border-muted bg-cp-surface-2 px-2 py-1 text-cp-xs"
                   >
                     <span className={`w-44 shrink-0 ${tone(r.verdict)}`}>{verdictText(r.verdict)}</span>
                     <span className="text-cp-text">{r.planned ?? '—'}</span>

@@ -222,7 +222,7 @@ export function SharedSyncPanel() {
         title={format(t('sync.pushTitle', 'Push to: {path}'), { path: syncPath })}
         disabled={busy}
         onClick={() => { void handlePush() }}
-        className="flex items-center gap-1 rounded bg-sky-700 px-2 py-1 text-cp-xs text-white hover:bg-sky-600 disabled:opacity-50"
+        className="flex items-center gap-1 bg-sky-700 px-2 py-1 text-cp-xs text-white hover:bg-sky-600 disabled:opacity-50"
       >
         <Icon icon={Upload} size="xs" />
         <span>{t('sync.push', 'Push')}</span>
@@ -232,7 +232,7 @@ export function SharedSyncPanel() {
         title={format(t('sync.pullTitle', 'Pull from: {path}'), { path: syncPath })}
         disabled={busy}
         onClick={() => { void handlePull() }}
-        className="flex items-center gap-1 rounded bg-cp-surface-4 px-2 py-1 text-cp-xs text-white hover:bg-cp-surface-5 disabled:opacity-50"
+        className="flex items-center gap-1 bg-cp-surface-4 px-2 py-1 text-cp-xs text-white hover:bg-cp-surface-5 disabled:opacity-50"
       >
         <Icon icon={Download} size="xs" />
         <span>{t('sync.pull', 'Pull')}</span>

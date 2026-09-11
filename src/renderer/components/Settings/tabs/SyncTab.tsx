@@ -70,7 +70,7 @@ const SharedLibrarySyncSection = ({ syncPath }: { syncPath: string }) => {
           type="button"
           onClick={run}
           disabled={disabled}
-          className="rounded bg-sky-700 px-3 py-1.5 hover:bg-sky-600 disabled:opacity-50"
+          className="bg-sky-700 px-3 py-1.5 hover:bg-sky-600 disabled:opacity-50"
         >
           {busy
             ? t('settings.sharedLib.syncing', 'Syncing…')
@@ -132,7 +132,7 @@ export const SyncTab = () => {
     <div className="space-y-3 text-cp-base">
       <CollabPanel />
       {!hasDesktopBridge && (
-        <div className="rounded border border-amber-700/50 bg-amber-900/20 p-2 text-cp-xs text-amber-300">
+        <div className="border border-amber-700/50 bg-amber-900/20 p-2 text-cp-xs text-amber-300">
           {t(
             'settings.sync.desktopOnly',
             'Network sync is only available in the desktop app.',
@@ -152,7 +152,7 @@ export const SyncTab = () => {
           type="text"
           value={draftSyncPath}
           onChange={(e) => setDraftSyncPath(e.target.value)}
-          className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2 font-mono text-cp-xs"
+          className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-2 font-mono text-cp-xs"
           placeholder={t('settings.sync.pathPlaceholder', 'Z:\\Projekte\\CablePlanner or \\\\server\\share\\cable-planner')}
         />
       </label>
@@ -162,7 +162,7 @@ export const SyncTab = () => {
           type="text"
           value={draftSyncUser}
           onChange={(e) => setDraftSyncUser(e.target.value)}
-          className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2 text-cp-base"
+          className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-2 text-cp-base"
           placeholder={t('settings.sync.userPlaceholder', 'e.g. Max Mustermann')}
         />
       </label>
@@ -173,7 +173,7 @@ export const SyncTab = () => {
             setDraftSyncPath(sharedSyncPath)
             setDraftSyncUser(sharedSyncUser)
           }}
-          className="rounded bg-cp-surface-4 px-3 py-1 text-cp-base hover:bg-cp-surface-5"
+          className="bg-cp-surface-4 px-3 py-1 text-cp-base hover:bg-cp-surface-5"
         >
           {t('common.reset', 'Reset')}
         </button>
@@ -183,7 +183,7 @@ export const SyncTab = () => {
             setSyncPath(draftSyncPath)
             setSyncUser(draftSyncUser)
           }}
-          className="rounded bg-emerald-600 px-3 py-1 text-cp-base hover:bg-emerald-500"
+          className="bg-emerald-600 px-3 py-1 text-cp-base hover:bg-emerald-500"
         >
           {t('common.save', 'Save')}
         </button>

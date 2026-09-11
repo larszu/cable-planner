@@ -32,7 +32,7 @@ export const EquipmentColorsSection = () => {
     >
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
         {(['light', 'dark'] as const).map((theme) => (
-          <div key={theme} className="rounded border border-cp-border bg-cp-surface-3/40 p-2">
+          <div key={theme} className="border border-cp-border bg-cp-surface-3/40 p-2">
             <div className="mb-2 flex items-center justify-between">
               <h4 className="flex items-center gap-1 text-cp-xs font-semibold text-cp-text-bright">
                 <Icon icon={theme === 'light' ? Sun : Moon} size="xs" />
@@ -43,7 +43,7 @@ export const EquipmentColorsSection = () => {
               <button
                 type="button"
                 onClick={() => resetEquipmentColors(theme)}
-                className="inline-flex items-center gap-1 rounded bg-cp-surface-4 px-2 py-0.5 text-cp-xs hover:bg-cp-surface-5"
+                className="inline-flex items-center gap-1 bg-cp-surface-4 px-2 py-0.5 text-cp-xs hover:bg-cp-surface-5"
                 title={t('settings.eqColors.resetTitle', 'Reset to default')}
               >
                 <Icon icon={RotateCcw} size="xs" />
@@ -59,7 +59,7 @@ export const EquipmentColorsSection = () => {
                       type="color"
                       value={equipmentColors[theme][r.key]}
                       onChange={(e) => setEquipmentColors(theme, { [r.key]: e.target.value })}
-                      className="h-6 w-10 cursor-pointer rounded border border-cp-border bg-cp-surface-1 p-0.5"
+                      className="h-6 w-10 cursor-pointer border border-cp-border bg-cp-surface-1 p-0.5"
                       title={r.hint}
                     />
                     <span className="font-mono text-cp-xs text-cp-text-muted">
@@ -79,7 +79,7 @@ export const EquipmentColorsSection = () => {
         )}
       </div>
       {/* v7.9.63 / #172 — Default-Farbe für NEU hinzugefügte Geräte. */}
-      <div className="mt-3 flex items-center justify-between gap-2 rounded border border-cp-border bg-cp-surface-3/40 p-2">
+      <div className="mt-3 flex items-center justify-between gap-2 border border-cp-border bg-cp-surface-3/40 p-2">
         <div>
           <div className="text-cp-xs font-semibold text-cp-text-bright">
             {t('settings.eqColors.defaultDeviceColor', 'Default device color')}
@@ -96,13 +96,13 @@ export const EquipmentColorsSection = () => {
             type="color"
             value={defaultDeviceColor ?? '#475569'}
             onChange={(e) => setDefaultDeviceColor(e.target.value)}
-            className="h-7 w-12 cursor-pointer rounded border border-cp-border bg-cp-surface-1 p-0.5"
+            className="h-7 w-12 cursor-pointer border border-cp-border bg-cp-surface-1 p-0.5"
           />
           {defaultDeviceColor && (
             <button
               type="button"
               onClick={() => setDefaultDeviceColor(undefined)}
-              className="inline-flex items-center gap-1 rounded bg-cp-surface-4 px-2 py-0.5 text-cp-xs hover:bg-cp-surface-5"
+              className="inline-flex items-center gap-1 bg-cp-surface-4 px-2 py-0.5 text-cp-xs hover:bg-cp-surface-5"
             >
               <Icon icon={X} size="xs" />
               {t('settings.eqColors.resetX', 'Reset')}

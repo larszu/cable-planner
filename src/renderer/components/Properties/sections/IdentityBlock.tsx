@@ -33,7 +33,7 @@ export const IdentityBlock = ({ equipment }: { equipment: EquipmentItem }) => {
         <input
           value={equipment.name}
           onChange={(event) => updateEquipment(equipment.id, { name: event.target.value })}
-          className="w-full rounded border border-cp-border bg-cp-surface-1 p-2"
+          className="w-full border border-cp-border bg-cp-surface-1 p-2"
         />
       </label>
 
@@ -62,7 +62,7 @@ export const IdentityBlock = ({ equipment }: { equipment: EquipmentItem }) => {
                 shortName: event.target.value || undefined,
               })
             }
-            className="flex-1 rounded border border-cp-border bg-cp-surface-1 p-2"
+            className="flex-1 border border-cp-border bg-cp-surface-1 p-2"
           />
           <button
             type="button"
@@ -75,7 +75,7 @@ export const IdentityBlock = ({ equipment }: { equipment: EquipmentItem }) => {
                 ? `${t('eq.field.shortNameAuto', 'Regenerate from name')} (${autoSuggestion})`
                 : t('eq.field.shortNameAutoEmpty', 'No suggestion — please set a name.')
             }
-            className="inline-flex shrink-0 items-center gap-1 rounded border border-cp-border bg-cp-surface-2 px-2 text-cp-xs text-cp-text-bright hover:bg-cp-surface-4 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex shrink-0 items-center gap-1 border border-cp-border bg-cp-surface-2 px-2 text-cp-xs text-cp-text-bright hover:bg-cp-surface-4 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Icon icon={RotateCcw} size="xs" />
             {t('eq.field.shortNameAutoBtn', 'auto')}
@@ -100,7 +100,7 @@ export const IdentityBlock = ({ equipment }: { equipment: EquipmentItem }) => {
           value={equipment.subtitle ?? ''}
           placeholder={t('eq.field.subtitlePlaceholder', 'Subtitle…')}
           onChange={(event) => updateEquipment(equipment.id, { subtitle: event.target.value || undefined })}
-          className="w-full rounded border border-cp-border bg-cp-surface-1 p-2"
+          className="w-full border border-cp-border bg-cp-surface-1 p-2"
         />
       </label>
     </>
@@ -134,7 +134,7 @@ const DeviceTypePicker = ({ equipment }: { equipment: EquipmentItem }) => {
   }, [all, filter])
 
   return (
-    <div className="rounded border border-cp-border-muted bg-cp-surface-1/40 p-2">
+    <div className="border border-cp-border-muted bg-cp-surface-1/40 p-2">
       <div className="mb-1 flex items-baseline justify-between gap-2">
         <span className="text-cp-text-secondary">
           {t('eq.field.deviceType', 'Catalogue type')}
@@ -165,14 +165,14 @@ const DeviceTypePicker = ({ equipment }: { equipment: EquipmentItem }) => {
         value={filter}
         onChange={(event) => setFilter(event.target.value)}
         placeholder={t('eq.field.deviceTypeFilter', 'Search the catalogue…')}
-        className="mb-1 w-full rounded border border-cp-border bg-cp-surface-1 p-1.5 text-cp-xs"
+        className="mb-1 w-full border border-cp-border bg-cp-surface-1 p-1.5 text-cp-xs"
       />
       <select
         value={equipment.deviceTypeId ?? ''}
         onChange={(event) =>
           updateEquipment(equipment.id, { deviceTypeId: event.target.value || undefined })
         }
-        className="w-full rounded border border-cp-border bg-cp-surface-1 p-1.5 text-cp-xs"
+        className="w-full border border-cp-border bg-cp-surface-1 p-1.5 text-cp-xs"
       >
         <option value="">{t('eq.field.deviceTypeUnset', '— none —')}</option>
         {matches.map((c) => (

@@ -145,7 +145,7 @@ export const PatchPanelCreateDialog = ({ open, onClose, onCreated }: PatchPanelC
         </div>
       }
     >
-        <div className="mb-3 flex overflow-hidden rounded border border-cp-border text-cp-xs">
+        <div className="mb-3 flex overflow-hidden border border-cp-border text-cp-xs">
           <button
             type="button"
             onClick={() => setTab('basics')}
@@ -173,7 +173,7 @@ export const PatchPanelCreateDialog = ({ open, onClose, onCreated }: PatchPanelC
               <input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1.5"
+                className="w-full border border-cp-border bg-cp-surface-3 px-2 py-1.5"
               />
             </label>
             <div className="grid grid-cols-2 gap-2">
@@ -185,7 +185,7 @@ export const PatchPanelCreateDialog = ({ open, onClose, onCreated }: PatchPanelC
                   max={6}
                   value={heightUnits}
                   onChange={(e) => setHeightUnits(Math.max(1, Math.min(6, Number(e.target.value) || 1)))}
-                  className="w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1.5"
+                  className="w-full border border-cp-border bg-cp-surface-3 px-2 py-1.5"
                 />
               </label>
               <label className="block">
@@ -193,7 +193,7 @@ export const PatchPanelCreateDialog = ({ open, onClose, onCreated }: PatchPanelC
                 <select
                   value={mountSide}
                   onChange={(e) => setMountSide(e.target.value as 'front' | 'rear' | 'full')}
-                  className="w-full rounded border border-cp-border bg-cp-surface-3 px-2 py-1.5"
+                  className="w-full border border-cp-border bg-cp-surface-3 px-2 py-1.5"
                   title={t('rack.patchPanel.mountTitle', 'Patch panels are often rear-mounted behind front devices.')}
                 >
                   <option value="full">{t('rack.patchPanel.mount.full', 'Full-depth (front)')}</option>
@@ -211,7 +211,7 @@ export const PatchPanelCreateDialog = ({ open, onClose, onCreated }: PatchPanelC
                   max={128}
                   value={portCount}
                   onChange={(e) => setPortCount(Math.max(1, Math.min(128, Number(e.target.value) || 1)))}
-                  className="w-24 rounded border border-cp-border bg-cp-surface-3 px-2 py-1.5"
+                  className="w-24 border border-cp-border bg-cp-surface-3 px-2 py-1.5"
                 />
                 <div className="flex gap-1">
                   {COMMON_PORT_COUNTS.map((n) => (
@@ -219,7 +219,7 @@ export const PatchPanelCreateDialog = ({ open, onClose, onCreated }: PatchPanelC
                       key={n}
                       type="button"
                       onClick={() => setPortCount(n)}
-                      className={`rounded px-2 py-0.5 text-cp-xs ${
+                      className={` px-2 py-0.5 text-cp-xs ${
                         portCount === n
                           ? 'bg-sky-700 text-white'
                           : 'bg-cp-surface-2 text-cp-text-muted hover:bg-cp-surface-4'
@@ -236,7 +236,7 @@ export const PatchPanelCreateDialog = ({ open, onClose, onCreated }: PatchPanelC
                 Selects (Front + Rear). Ohne Adapter-Mode wird der Rear-
                 Connector automatisch dem Front gleichgesetzt — klassische
                 Patchblende. */}
-            <label className="flex items-center gap-2 rounded border border-cp-border bg-cp-surface-3/40 px-2 py-1.5 text-cp-xs">
+            <label className="flex items-center gap-2 border border-cp-border bg-cp-surface-3/40 px-2 py-1.5 text-cp-xs">
               <input
                 type="checkbox"
                 checked={adapterMode}
@@ -293,7 +293,7 @@ export const PatchPanelCreateDialog = ({ open, onClose, onCreated }: PatchPanelC
               {t('rack.patchPanel.perPortNote', 'Per port label and connector type are overridable. Leave empty for default.')}
               {adapterMode && ` ${t('rack.patchPanel.perPortAdapterNote', 'In adapter mode the front and rear connectors are chosen independently.')}`}
             </div>
-            <div className="max-h-[40vh] overflow-y-auto rounded border border-cp-border-muted">
+            <div className="max-h-[40vh] overflow-y-auto border border-cp-border-muted">
               <table className="block overflow-x-auto w-full text-cp-xs">
                 <thead className="sticky top-0 bg-cp-surface-2 text-cp-text-muted">
                   <tr>
@@ -312,7 +312,7 @@ export const PatchPanelCreateDialog = ({ open, onClose, onCreated }: PatchPanelC
                           value={perPortOverrides[idx]?.label ?? ''}
                           placeholder={`P${idx + 1}`}
                           onChange={(e) => setOverride(idx, { label: e.target.value || undefined })}
-                          className="w-full rounded border border-cp-border bg-cp-surface-3 px-1.5 py-0.5"
+                          className="w-full border border-cp-border bg-cp-surface-3 px-1.5 py-0.5"
                         />
                       </td>
                       <td className="px-2 py-0.5">

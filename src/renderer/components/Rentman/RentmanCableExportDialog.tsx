@@ -376,7 +376,7 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
                   type="button"
                   onClick={() => void sendAll()}
                   disabled={!linkedProjectId || sendableCount === 0 || busyKey !== null}
-                  className="ml-auto rounded bg-emerald-700 px-3 py-1 text-cp-xs font-semibold text-white hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="ml-auto bg-emerald-700 px-3 py-1 text-cp-xs font-semibold text-white hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
                   title={
                     !linkedProjectId
                       ? t('rentman.cableExport.noLink', 'No Rentman project linked.')
@@ -391,7 +391,7 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
                   type="button"
                   onClick={() => void fetchCatalog()}
                   disabled={catalogLoading}
-                  className="rounded bg-orange-700 px-2 py-1 text-cp-xs font-semibold text-white hover:bg-orange-600 disabled:opacity-50"
+                  className="bg-orange-700 px-2 py-1 text-cp-xs font-semibold text-white hover:bg-orange-600 disabled:opacity-50"
                 >
                   {catalogLoading
                     ? t('rentman.cableExport.loading', 'Loading…')
@@ -514,7 +514,7 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
                           <button
                             type="button"
                             onClick={() => clearMapping(bucket.key)}
-                            className="rounded bg-cp-surface-4 px-1.5 py-0.5 text-cp-xs hover:bg-cp-surface-5"
+                            className="bg-cp-surface-4 px-1.5 py-0.5 text-cp-xs hover:bg-cp-surface-5"
                             title={t('rentman.cableExport.removeMapping', 'Remove mapping')}
                             aria-label={t('rentman.cableExport.removeMapping', 'Remove mapping')}
                           >
@@ -529,20 +529,20 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
                             setPickerKey(bucket.key)
                             setPickerQuery(`${bucket.type}`)
                           }}
-                          className="rounded bg-cp-surface-4 px-2 py-0.5 text-cp-xs hover:bg-cp-surface-5"
+                          className="bg-cp-surface-4 px-2 py-0.5 text-cp-xs hover:bg-cp-surface-5"
                         >
                           {t('rentman.cableExport.pickEquipment', 'Pick Rentman equipment…')}
                         </button>
                       )}
                       {pickerKey === bucket.key && (
-                        <div className="mt-1 rounded border border-cp-border bg-cp-surface-3 p-1.5">
+                        <div className="mt-1 border border-cp-border bg-cp-surface-3 p-1.5">
                           <input
                             type="text"
                             value={pickerQuery}
                             onChange={(event) => setPickerQuery(event.target.value)}
                             placeholder={t('rentman.cableExport.searchPlaceholder', 'Search…')}
                             aria-label={t('rentman.cableExport.searchPlaceholder', 'Search…')}
-                            className="mb-1 w-full rounded border border-cp-border bg-cp-surface-1 px-2 py-0.5 text-cp-xs"
+                            className="mb-1 w-full border border-cp-border bg-cp-surface-1 px-2 py-0.5 text-cp-xs"
                           />
                           <div className="max-h-40 space-y-0.5 overflow-auto">
                             {!catalogLoaded && !catalogLoading && (
@@ -563,7 +563,7 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
                                   setMapping(bucket.key, item.id, { resetSync: true })
                                   setPickerKey(null)
                                 }}
-                                className="flex w-full items-start justify-between gap-2 rounded px-1 py-0.5 text-left text-cp-xs hover:bg-cp-surface-2"
+                                className="flex w-full items-start justify-between gap-2 px-1 py-0.5 text-left text-cp-xs hover:bg-cp-surface-2"
                               >
                                 <span className="min-w-0 flex-1 truncate text-cp-text-bright">
                                   {item.name}
@@ -578,7 +578,7 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
                             <button
                               type="button"
                               onClick={() => setPickerKey(null)}
-                              className="rounded bg-cp-surface-4 px-2 py-0.5 text-cp-xs hover:bg-cp-surface-5"
+                              className="bg-cp-surface-4 px-2 py-0.5 text-cp-xs hover:bg-cp-surface-5"
                             >
                               {t('common.cancel', 'Cancel')}
                             </button>
@@ -601,7 +601,7 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
                         type="button"
                         onClick={() => void sendBucket(bucket)}
                         disabled={!canSend}
-                        className="rounded bg-orange-700 px-2 py-1 text-cp-xs font-semibold text-white hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="bg-orange-700 px-2 py-1 text-cp-xs font-semibold text-white hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-50"
                         title={
                           !linkedProjectId
                             ? t('rentman.cableExport.noLink', 'No Rentman project linked.')

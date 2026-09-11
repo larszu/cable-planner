@@ -44,7 +44,7 @@ export const SortableCategorySection = ({
       style={style}
       onDragOver={onDragOverTemplate}
       onDrop={onDropTemplate}
-      className="rounded border border-cp-border-muted"
+      className="border border-cp-border-muted"
     >
       {manualSort && (
         <span
@@ -112,7 +112,7 @@ export const SortablePresetCard = ({
     <div
       ref={setNodeRef}
       style={style}
-      className={`group rounded border border-cp-border bg-cp-surface-1 p-2 pl-5 text-cp-xs ${
+      className={`group border border-cp-border bg-cp-surface-1 p-2 pl-5 text-cp-xs ${
         onCardClick ? 'cursor-grab hover:bg-cp-surface-2 active:cursor-grabbing' : ''
       }`}
       draggable={!!nativeDragData}

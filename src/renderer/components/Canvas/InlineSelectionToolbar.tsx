@@ -113,7 +113,7 @@ export const InlineSelectionToolbar = () => {
 
   return (
     <div
-      className="nodrag nopan fixed z-40 flex items-center gap-0.5 rounded-lg border border-cp-border bg-cp-surface-1/95 p-1 shadow-xl backdrop-blur"
+      className="nodrag nopan fixed z-40 flex items-center gap-0.5 border border-cp-border bg-cp-surface-1/95 p-1 backdrop-blur"
       style={{ left: screenX, top: Math.max(8, screenY), transform: 'translateX(-50%)' }}
       onMouseDown={(e) => e.stopPropagation()}
       onClick={(e) => e.stopPropagation()}

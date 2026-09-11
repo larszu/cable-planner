@@ -272,14 +272,14 @@ export const FloatingPanelShell = ({
             borderStyle: 'dashed',
           }}
         >
-          <span className="rounded bg-sky-600/90 px-2 py-1 text-cp-xs font-medium text-white shadow-lg">
+          <span className="bg-sky-600/90 px-2 py-1 text-cp-xs font-medium text-white">
             {t('panel.dropToDock', 'Release to dock')}
           </span>
         </div>
       )}
       <aside
         ref={containerRef}
-        className="pointer-events-auto fixed z-40 flex flex-col rounded-cp-modal border border-[var(--cp-border)] bg-cp-surface-3/95 text-[var(--cp-text)] shadow-2xl backdrop-blur-md"
+        className="pointer-events-auto fixed z-40 flex flex-col rounded-cp-modal border border-[var(--cp-border)] bg-cp-surface-3/95 text-[var(--cp-text)] backdrop-blur-md"
         style={{
           left: pos.x,
           top: pos.y,

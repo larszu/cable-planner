@@ -203,7 +203,7 @@ export const EditingTab = () => {
               if (c.routing !== defaultRouting) updateCable(c.id, { routing: defaultRouting })
             })
           }}
-          className="mt-2 w-full rounded bg-cp-surface-2 px-2 py-1 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-4 disabled:opacity-50"
+          className="mt-2 w-full bg-cp-surface-2 px-2 py-1 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-4 disabled:opacity-50"
         >
           {format(
             t('settings.editing.routing.applyAll', 'Apply to all existing cables ({count})'),
@@ -232,7 +232,7 @@ export const EditingTab = () => {
             max={100}
             value={gridSize}
             onChange={(e) => setGridSize(Number(e.target.value) || 10)}
-            className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2"
+            className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-2"
           />
         </label>
       </SettingsCard>

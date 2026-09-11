@@ -253,9 +253,9 @@ export const MobileShareDialog = () => {
     >
         <div className="space-y-3 text-cp-base">
           {!hasDesktopBridge && (
-            <div className="rounded border border-amber-700 bg-amber-950/40 p-3 text-cp-xs text-amber-200">
+            <div className="border border-amber-700 bg-amber-950/40 p-3 text-cp-xs text-amber-200">
               {t('mobile.dialog.desktopOnly1', 'This feature requires the desktop app (Electron). In the web browser the mobile viewer is reachable as static HTML in')}{' '}
-              <code className="rounded bg-cp-surface-2 px-1">dist/renderer/mobile.html</code>{' '}
+              <code className="bg-cp-surface-2 px-1">dist/renderer/mobile.html</code>{' '}
               {t('mobile.dialog.desktopOnly2', '.')}
             </div>
           )}
@@ -267,20 +267,20 @@ export const MobileShareDialog = () => {
 
           {status.running ? (
             <div className="space-y-3">
-              <div className="flex flex-col items-center gap-2 rounded border border-emerald-700 bg-emerald-950/30 p-3">
+              <div className="flex flex-col items-center gap-2 border border-emerald-700 bg-emerald-950/30 p-3">
                 {/* Drei Zustaende, nicht zwei. Laeuft der Server, ist aber
                     keine Adresse uebrig — jede wurde zurueckgehalten (Bedarf
                     133) —, dann pulste hier frueher ein Platzhalter, der nie
                     fertig wird: „niemand hat nachgesehen" statt „da ist
                     nichts". Der Zustand wird jetzt benannt. */}
                 {qrDataUrl ? (
-                  <img src={qrDataUrl} alt={t('mobile.dialog.qrAlt', 'QR code')} className="rounded bg-white p-2" />
+                  <img src={qrDataUrl} alt={t('mobile.dialog.qrAlt', 'QR code')} className="bg-white p-2" />
                 ) : status.urls.length === 0 ? (
-                  <div className="flex h-[240px] w-[240px] items-center justify-center rounded border border-cp-border bg-cp-surface-2 p-3 text-center text-cp-xs text-cp-text-secondary">
+                  <div className="flex h-[240px] w-[240px] items-center justify-center border border-cp-border bg-cp-surface-2 p-3 text-center text-cp-xs text-cp-text-secondary">
                     {t('mobile.dialog.noAddress', 'No address shared — the server is running, but there is no local network it could be reached on.')}
                   </div>
                 ) : (
-                  <div className="h-[240px] w-[240px] animate-pulse rounded bg-cp-surface-2" />
+                  <div className="h-[240px] w-[240px] animate-pulse bg-cp-surface-2" />
                 )}
                 <div className="w-full">
                   <div className="text-cp-xs uppercase tracking-wide text-emerald-300">
@@ -290,13 +290,13 @@ export const MobileShareDialog = () => {
                     <input
                       readOnly
                       value={selectedUrl}
-                      className="flex-1 rounded border border-cp-border bg-cp-surface-3 px-2 py-1 font-mono text-cp-xs text-cp-text"
+                      className="flex-1 border border-cp-border bg-cp-surface-3 px-2 py-1 font-mono text-cp-xs text-cp-text"
                       onFocus={(e) => e.target.select()}
                     />
                     <button
                       type="button"
                       onClick={() => void copyUrl()}
-                      className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
+                      className="bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
                       title={t('mobile.dialog.copyToClipboard', 'Copy to clipboard')}
                     >
                       <Icon icon={copied ? Check : Clipboard} size="xs" />
@@ -321,13 +321,13 @@ export const MobileShareDialog = () => {
                     <input
                       readOnly
                       value={crewFeedUrl}
-                      className="flex-1 rounded border border-cp-border bg-cp-surface-3 px-2 py-1 font-mono text-cp-xs text-cp-text"
+                      className="flex-1 border border-cp-border bg-cp-surface-3 px-2 py-1 font-mono text-cp-xs text-cp-text"
                       onFocus={(e) => e.target.select()}
                     />
                     <button
                       type="button"
                       onClick={() => void navigator.clipboard?.writeText(crewFeedUrl)}
-                      className="rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
+                      className="bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
                       title={t('mobile.dialog.copyToClipboard', 'Copy to clipboard')}
                     >
                       <Icon icon={Clipboard} size="xs" />
@@ -352,7 +352,7 @@ export const MobileShareDialog = () => {
                         key={u}
                         type="button"
                         onClick={() => setSelectedUrl(u)}
-                        className={`rounded border px-2 py-0.5 text-cp-xs font-mono ${
+                        className={` border px-2 py-0.5 text-cp-xs font-mono ${
                           u === selectedUrl
                             ? 'border-sky-500 bg-sky-900 text-white'
                             : 'border-cp-border bg-cp-surface-1 text-cp-text-secondary hover:border-sky-700'
@@ -376,7 +376,7 @@ export const MobileShareDialog = () => {
                   Netzwerktechnik. Wer sie braucht, schaltet sie frei und
                   liest dabei, was er tut. */}
               {status.withheld.length > 0 && (
-                <div className="rounded border border-amber-700 bg-amber-950/40 p-2">
+                <div className="border border-amber-700 bg-amber-950/40 p-2">
                   <div className="mb-1 text-cp-xs uppercase tracking-wide text-amber-300">
                     {t('mobile.dialog.withheldTitle', 'Not shared')}
                   </div>
@@ -384,7 +384,7 @@ export const MobileShareDialog = () => {
                     {status.withheld.map((w) => (
                       <span
                         key={w.address}
-                        className="rounded border border-amber-700 bg-cp-surface-1 px-2 py-0.5 font-mono text-cp-xs text-amber-200"
+                        className="border border-amber-700 bg-cp-surface-1 px-2 py-0.5 font-mono text-cp-xs text-amber-200"
                       >
                         {w.address}
                       </span>
@@ -397,7 +397,7 @@ export const MobileShareDialog = () => {
                     type="button"
                     disabled={busy}
                     onClick={() => void handleAllowBeyondLan()}
-                    className="mt-1 rounded border border-amber-600 px-2 py-0.5 text-cp-xs text-amber-200 hover:bg-amber-900/60"
+                    className="mt-1 border border-amber-600 px-2 py-0.5 text-cp-xs text-amber-200 hover:bg-amber-900/60"
                   >
                     {t('mobile.dialog.allowBeyondLan', 'Share anyway (this session only)')}
                   </button>
@@ -416,14 +416,14 @@ export const MobileShareDialog = () => {
                   type="button"
                   onClick={() => void handleStop()}
                   disabled={busy}
-                  className="rounded bg-red-700 px-3 py-1 text-cp-xs text-white hover:bg-red-600 disabled:opacity-50"
+                  className="bg-red-700 px-3 py-1 text-cp-xs text-white hover:bg-red-600 disabled:opacity-50"
                 >
                   {t('mobile.dialog.stop', 'Stop')}
                 </button>
               </div>
             </div>
           ) : (
-            <div className="flex flex-col items-center gap-3 rounded border border-cp-border bg-cp-surface-3/40 p-6 text-center">
+            <div className="flex flex-col items-center gap-3 border border-cp-border bg-cp-surface-3/40 p-6 text-center">
               <Icon icon={Radio} size={28} className="text-cp-text-faint" />
               <p className="text-cp-xs text-cp-text-muted">
                 {t('mobile.dialog.stopped', 'Server is stopped. Click below to start the LAN server.')}
@@ -432,14 +432,14 @@ export const MobileShareDialog = () => {
                 type="button"
                 onClick={() => void handleStart()}
                 disabled={busy || !hasDesktopBridge}
-                className="rounded bg-sky-700 px-4 py-2 text-cp-base text-white hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-50"
+                className="bg-sky-700 px-4 py-2 text-cp-base text-white hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {busy ? t('mobile.dialog.starting', 'Starting…') : t('mobile.dialog.startServer', 'Start LAN server')}
               </button>
             </div>
           )}
 
-          <div className="flex flex-col gap-1 rounded border border-cp-border-muted p-2">
+          <div className="flex flex-col gap-1 border border-cp-border-muted p-2">
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-cp-xs font-medium text-cp-text">
                 {t('mobile.dialog.writeMode', 'Feedback from the phone')}
@@ -478,7 +478,7 @@ export const MobileShareDialog = () => {
           </div>
 
           {/* E-3 — die Anlagen-Zugangscodes, hinter einem eigenen Token. */}
-          <div className="flex flex-col gap-1 rounded border border-cp-border-muted p-2">
+          <div className="flex flex-col gap-1 border border-cp-border-muted p-2">
             <label className="flex items-center gap-2 text-cp-xs font-medium text-cp-text">
               <input
                 type="checkbox"
@@ -512,7 +512,7 @@ export const MobileShareDialog = () => {
                     'Type this code on the phone. It is NOT part of the QR code — whoever only has the link cannot reach the access data.',
                   )}
                 </p>
-                <code className="select-all rounded bg-cp-surface-2 px-2 py-1 font-mono text-cp-base tracking-widest text-cp-text">
+                <code className="select-all bg-cp-surface-2 px-2 py-1 font-mono text-cp-base tracking-widest text-cp-text">
                   {pinToken}
                 </code>
                 <p className="text-cp-xs text-cp-text-muted">

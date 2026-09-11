@@ -90,7 +90,7 @@ export const RevisionsDialog = () => {
     >
       <div className="flex flex-col gap-3">
         {/* Festschreiben */}
-        <div className="rounded border border-cp-border bg-cp-surface-1/40 p-2">
+        <div className="border border-cp-border bg-cp-surface-1/40 p-2">
           <div className="mb-1.5 text-cp-xs font-semibold text-cp-text-secondary">
             {t('revisions.commitTitle', 'Commit current state')}
           </div>
@@ -99,13 +99,13 @@ export const RevisionsDialog = () => {
               value={label}
               onChange={(e) => setLabel(e.target.value)}
               placeholder={t('revisions.labelPlaceholder', 'Label (e.g. "A", "Rev 2")')}
-              className="w-32 rounded border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs"
+              className="w-32 border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs"
             />
             <input
               value={note}
               onChange={(e) => setNote(e.target.value)}
               placeholder={t('revisions.notePlaceholder', 'Note: what changed?')}
-              className="flex-1 rounded border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs"
+              className="flex-1 border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs"
             />
             <label className="flex items-center gap-1 text-cp-xs text-cp-text-secondary">
               <input
@@ -118,7 +118,7 @@ export const RevisionsDialog = () => {
             <button
               type="button"
               onClick={commit}
-              className="inline-flex items-center gap-1 rounded bg-emerald-700 px-3 py-1 text-cp-xs hover:bg-emerald-600"
+              className="inline-flex items-center gap-1 bg-emerald-700 px-3 py-1 text-cp-xs hover:bg-emerald-600"
             >
               <Icon icon={Camera} size="xs" />
               {t('revisions.commit', 'Commit')}
@@ -136,7 +136,7 @@ export const RevisionsDialog = () => {
             {sorted.map((rev) => (
               <li key={rev.id} className="flex items-center gap-2 py-1.5 text-cp-xs">
                 <span
-                  className={`rounded px-1.5 py-0.5 font-bold ${
+                  className={` px-1.5 py-0.5 font-bold ${
                     rev.asBuilt ? 'bg-amber-600 text-amber-50' : 'bg-cp-surface-4 text-cp-text-bright'
                   }`}
                 >
@@ -153,7 +153,7 @@ export const RevisionsDialog = () => {
                   type="button"
                   onClick={() => void restore(rev.id, rev.label)}
                   title={t('revisions.restore', 'Restore')}
-                  className="inline-flex items-center gap-1 rounded bg-sky-700 px-2 py-1 hover:bg-sky-600"
+                  className="inline-flex items-center gap-1 bg-sky-700 px-2 py-1 hover:bg-sky-600"
                 >
                   <Icon icon={RotateCcw} size="xs" />
                 </button>
@@ -161,7 +161,7 @@ export const RevisionsDialog = () => {
                   type="button"
                   onClick={() => void remove(rev.id, rev.label)}
                   title={t('revisions.delete', 'Delete')}
-                  className="inline-flex items-center gap-1 rounded bg-red-900/60 px-2 py-1 hover:bg-red-800"
+                  className="inline-flex items-center gap-1 bg-red-900/60 px-2 py-1 hover:bg-red-800"
                 >
                   <Icon icon={Trash2} size="xs" />
                 </button>

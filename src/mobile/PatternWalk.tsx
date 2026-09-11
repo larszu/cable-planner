@@ -196,7 +196,7 @@ export function PatternWalk({ apiFetch, showId, schreibbar, onClose }: Props) {
   const karte = (stop: PatternShareStop, offen: boolean) => {
     const status = gemeldet[stop.id]
     return (
-      <div key={stop.id} className="rounded border border-cp-border bg-cp-surface-1 p-3">
+      <div key={stop.id} className="border border-cp-border bg-cp-surface-1 p-3">
         <div className="text-sm font-semibold text-cp-text">{stop.equipmentName}</div>
         <div className="text-xs text-cp-text-muted">{stop.portName}</div>
         {offen ? (
@@ -225,7 +225,7 @@ export function PatternWalk({ apiFetch, showId, schreibbar, onClose }: Props) {
                       ? setNameOffen((v) => (v === stop.id ? null : stop.id))
                       : void melde(stop, b.wert)
                   }
-                  className="rounded border border-cp-border px-2 py-1 text-xs text-cp-text-secondary active:bg-cp-surface-3"
+                  className="border border-cp-border px-2 py-1 text-xs text-cp-text-secondary active:bg-cp-surface-3"
                 >
                   {t(b.schluessel, b.label)}
                 </button>
@@ -238,13 +238,13 @@ export function PatternWalk({ apiFetch, showId, schreibbar, onClose }: Props) {
                   value={gesehenerName}
                   onChange={(e) => setGesehenerName(e.target.value)}
                   placeholder={t('mobile.walk.seenNamePlaceholder', 'Which name is on it?')}
-                  className="min-w-0 flex-1 rounded border border-cp-border bg-cp-surface-2 px-2 py-1 text-xs text-cp-text"
+                  className="min-w-0 flex-1 border border-cp-border bg-cp-surface-2 px-2 py-1 text-xs text-cp-text"
                 />
                 <button
                   type="button"
                   disabled={!gesehenerName.trim()}
                   onClick={() => void melde(stop, 'falsches-bild', gesehenerName.trim())}
-                  className="rounded border border-cp-border px-2 py-1 text-xs disabled:opacity-40"
+                  className="border border-cp-border px-2 py-1 text-xs disabled:opacity-40"
                 >
                   {t('mobile.walk.remember', 'remember')}
                 </button>
@@ -273,7 +273,7 @@ export function PatternWalk({ apiFetch, showId, schreibbar, onClose }: Props) {
         <button
           type="button"
           onClick={onClose}
-          className="rounded border border-cp-border px-2 py-1 text-xs text-cp-text-secondary"
+          className="border border-cp-border px-2 py-1 text-xs text-cp-text-secondary"
         >
           {t('mobile.close', 'Close')}
         </button>
@@ -281,7 +281,7 @@ export function PatternWalk({ apiFetch, showId, schreibbar, onClose }: Props) {
 
       {/* PFLICHT-BESCHRIFTUNG, nicht Zierde: was unten steht, ist der PLAN.
           Diese App sieht nicht, was auf dem Monitor steht (Invariante 16). */}
-      <p className="mb-2 rounded border border-cp-border bg-cp-surface-2 p-2 text-cp-xs text-cp-text-secondary">
+      <p className="mb-2 border border-cp-border bg-cp-surface-2 p-2 text-cp-xs text-cp-text-secondary">
         {t(
           'mobile.walk.disclaimer',
           'Below is what should arrive according to the plan — not what does arrive. ' +
@@ -295,7 +295,7 @@ export function PatternWalk({ apiFetch, showId, schreibbar, onClose }: Props) {
           value={wer}
           onChange={(e) => merkeWer(e.target.value)}
           placeholder={t('mobile.walk.namePlaceholder', 'Name (optional)')}
-          className="mt-1 w-full rounded border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-text"
+          className="mt-1 w-full border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-text"
         />
       </label>
 
@@ -304,7 +304,7 @@ export function PatternWalk({ apiFetch, showId, schreibbar, onClose }: Props) {
           <div className="text-xs text-cp-text-faint">{t('mobile.loadingShort', 'loading …')}</div>
         )}
         {fehler && (
-          <div className="rounded border border-cp-warn/50 p-2 text-xs text-cp-warn">
+          <div className="border border-cp-warn/50 p-2 text-xs text-cp-warn">
             {fehler}{' '}
             <button type="button" onClick={() => void laden()} className="underline">
               {t('mobile.walk.retry', 'try again')}

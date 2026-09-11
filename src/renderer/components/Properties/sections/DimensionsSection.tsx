@@ -39,7 +39,7 @@ export const DimensionsSection = ({ equipment }: { equipment: EquipmentItem }) =
             onChange={(e) =>
               updateEquipment(equipment.id, { widthMm: parseMm(e.target.value) })
             }
-            className="w-full rounded border border-cp-border bg-cp-surface-1 p-2 font-mono"
+            className="w-full border border-cp-border bg-cp-surface-1 p-2 font-mono"
           />
         </label>
         <label className="block">
@@ -53,7 +53,7 @@ export const DimensionsSection = ({ equipment }: { equipment: EquipmentItem }) =
             onChange={(e) =>
               updateEquipment(equipment.id, { heightMm: parseMm(e.target.value) })
             }
-            className="w-full rounded border border-cp-border bg-cp-surface-1 p-2 font-mono"
+            className="w-full border border-cp-border bg-cp-surface-1 p-2 font-mono"
           />
         </label>
         <label className="block">
@@ -67,7 +67,7 @@ export const DimensionsSection = ({ equipment }: { equipment: EquipmentItem }) =
             onChange={(e) =>
               updateEquipment(equipment.id, { depthMm: parseMm(e.target.value) })
             }
-            className="w-full rounded border border-cp-border bg-cp-surface-1 p-2 font-mono"
+            className="w-full border border-cp-border bg-cp-surface-1 p-2 font-mono"
           />
         </label>
       </div>

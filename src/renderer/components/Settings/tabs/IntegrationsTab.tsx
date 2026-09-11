@@ -79,7 +79,7 @@ const AiProvidersCard = () => {
           return (
             <div
               key={id}
-              className={`rounded border p-3 transition ${
+              className={` border p-3 transition ${
                 isSelected
                   ? 'border-sky-500 bg-sky-950/30'
                   : 'border-cp-border bg-cp-surface-3/40'
@@ -95,13 +95,13 @@ const AiProvidersCard = () => {
                 />
                 <span className="font-semibold">{config.label}</span>
                 {hasKey && (
-                  <span className="rounded bg-emerald-900/40 px-1.5 py-0.5 text-cp-xs text-emerald-300">
+                  <span className="bg-emerald-900/40 px-1.5 py-0.5 text-cp-xs text-emerald-300">
                     <Icon icon={Check} size="xs" className="mr-1 inline" />
                     {t('settings.integrations.keyStored', 'Key')}
                   </span>
                 )}
                 {isSelected && (
-                  <span className="ml-auto rounded bg-sky-900/40 px-1.5 py-0.5 text-cp-xs text-sky-300">
+                  <span className="ml-auto bg-sky-900/40 px-1.5 py-0.5 text-cp-xs text-sky-300">
                     {t('settings.integrations.ai.active', 'Active')}
                   </span>
                 )}
@@ -118,13 +118,13 @@ const AiProvidersCard = () => {
                         ? 'sk-ant-…'
                         : 'sk-proj-…'
                   }
-                  className="flex-1 rounded border border-cp-border bg-cp-surface-3 p-1.5 font-mono text-cp-xs"
+                  className="flex-1 border border-cp-border bg-cp-surface-3 p-1.5 font-mono text-cp-xs"
                   autoComplete="off"
                 />
                 <button
                   type="button"
                   onClick={() => setRevealed((r) => ({ ...r, [id]: !r[id] }))}
-                  className="rounded bg-cp-surface-2 px-2 py-1 text-cp-text-muted hover:bg-cp-surface-4"
+                  className="bg-cp-surface-2 px-2 py-1 text-cp-text-muted hover:bg-cp-surface-4"
                   title={revealed[id] ? t('common.hide', 'Hide') : t('common.show', 'Show')}
                   aria-label={revealed[id] ? t('common.hide', 'Hide') : t('common.show', 'Show')}
                 >
@@ -133,7 +133,7 @@ const AiProvidersCard = () => {
                 <button
                   type="button"
                   onClick={() => handleSave(id)}
-                  className="rounded bg-sky-600 px-3 py-1 text-cp-xs hover:bg-sky-500"
+                  className="bg-sky-600 px-3 py-1 text-cp-xs hover:bg-sky-500"
                 >
                   {t('common.save', 'Save')}
                 </button>
@@ -141,7 +141,7 @@ const AiProvidersCard = () => {
                   <button
                     type="button"
                     onClick={() => handleClear(id)}
-                    className="rounded bg-cp-surface-2 px-2 py-1 text-cp-xs text-cp-text-muted hover:bg-red-700 hover:text-white"
+                    className="bg-cp-surface-2 px-2 py-1 text-cp-xs text-cp-text-muted hover:bg-red-700 hover:text-white"
                     title={t('settings.integrations.gemini.deleteTitle', 'Delete key')}
                   >
                     <Icon icon={X} size="sm" />
@@ -220,7 +220,7 @@ const GreenGoPresetsCard = () => {
             saveGreenGoPreset(name, greengoConfig)
             refreshPresets()
           }}
-          className="rounded bg-emerald-700 px-3 py-1 text-cp-xs text-white hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
+          className="bg-emerald-700 px-3 py-1 text-cp-xs text-white hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
           title={
             usableConfig
               ? undefined
@@ -239,7 +239,7 @@ const GreenGoPresetsCard = () => {
           {presets.map((p) => (
             <li
               key={p.id}
-              className="flex items-center justify-between rounded border border-emerald-900/40 bg-emerald-950/30 px-2 py-1 text-cp-xs"
+              className="flex items-center justify-between border border-emerald-900/40 bg-emerald-950/30 px-2 py-1 text-cp-xs"
             >
               <div className="min-w-0 flex-1 truncate">
                 <span className="font-medium text-emerald-100">{p.name}</span>
@@ -265,7 +265,7 @@ const GreenGoPresetsCard = () => {
                     if (!ok) return
                     updateGreenGoConfig(p.config)
                   }}
-                  className="rounded bg-emerald-700 px-2 py-0.5 text-cp-xs text-white hover:bg-emerald-600"
+                  className="bg-emerald-700 px-2 py-0.5 text-cp-xs text-white hover:bg-emerald-600"
                 >
                   {t('settings.greengo.apply', 'Load')}
                 </button>
@@ -287,7 +287,7 @@ const GreenGoPresetsCard = () => {
                     deleteGreenGoPreset(p.id)
                     refreshPresets()
                   }}
-                  className="rounded bg-cp-surface-2 px-2 py-0.5 text-cp-xs text-cp-text-secondary hover:bg-red-700 hover:text-white"
+                  className="bg-cp-surface-2 px-2 py-0.5 text-cp-xs text-cp-text-secondary hover:bg-red-700 hover:text-white"
                 >
                   {t('settings.greengo.delete', 'Delete')}
                 </button>
@@ -379,7 +379,7 @@ const TallyPiCard = () => {
               onChange={(e) => setAdresse(e.target.value)}
               onBlur={() => setTallyPiUrl(adresse.trim())}
               placeholder="http://10.0.0.42:8080"
-              className="w-full rounded border border-cp-border bg-cp-surface-1 p-2"
+              className="w-full border border-cp-border bg-cp-surface-1 p-2"
             />
           </label>
           <div className="mt-2 flex items-center gap-2">
@@ -387,7 +387,7 @@ const TallyPiCard = () => {
               type="button"
               onClick={pruefen}
               disabled={laeuft || adresse.trim() === ''}
-              className="rounded border border-cp-border px-3 py-1.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-3 disabled:opacity-40"
+              className="border border-cp-border px-3 py-1.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-3 disabled:opacity-40"
             >
               {t('settings.integrations.tallyPi.test', 'Check the connection')}
             </button>
@@ -533,7 +533,7 @@ const NetboxCard = ({ onClose }: { onClose: () => void }) => {
                 type="url"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
-                className="flex-1 rounded border border-cp-border bg-cp-surface-3 p-2 font-mono text-cp-xs"
+                className="flex-1 border border-cp-border bg-cp-surface-3 p-2 font-mono text-cp-xs"
                 placeholder="https://netbox.firma.de"
                 autoComplete="off"
                 spellCheck={false}
@@ -542,7 +542,7 @@ const NetboxCard = ({ onClose }: { onClose: () => void }) => {
                 type="button"
                 disabled={busy || !url.trim()}
                 onClick={() => void saveUrl()}
-                className="rounded bg-sky-600 px-3 py-1 text-cp-base hover:bg-sky-500 disabled:opacity-50"
+                className="bg-sky-600 px-3 py-1 text-cp-base hover:bg-sky-500 disabled:opacity-50"
               >
                 {t('common.save', 'Save')}
               </button>
@@ -555,7 +555,7 @@ const NetboxCard = ({ onClose }: { onClose: () => void }) => {
               type="password"
               value={token}
               onChange={(e) => setToken(e.target.value)}
-              className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2 font-mono text-cp-xs"
+              className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-2 font-mono text-cp-xs"
               placeholder={
                 hasToken
                   ? t('settings.integrations.netbox.tokenStoredPlaceholder', 'Token stored — paste a new one to replace it')
@@ -566,7 +566,7 @@ const NetboxCard = ({ onClose }: { onClose: () => void }) => {
           </label>
 
           <div
-            className={`mt-2 rounded border p-2 text-cp-xs ${
+            className={`mt-2 border p-2 text-cp-xs ${
               hasToken
                 ? 'border-emerald-700/50 bg-emerald-900/20 text-emerald-300'
                 : 'border-cp-border bg-cp-surface-3/40 text-cp-text-muted'
@@ -589,7 +589,7 @@ const NetboxCard = ({ onClose }: { onClose: () => void }) => {
               type="button"
               disabled={busy || !token}
               onClick={() => void saveToken()}
-              className="rounded bg-sky-600 px-3 py-1 text-cp-base hover:bg-sky-500 disabled:opacity-50"
+              className="bg-sky-600 px-3 py-1 text-cp-base hover:bg-sky-500 disabled:opacity-50"
             >
               {t('settings.integrations.netbox.saveToken', 'Save token')}
             </button>
@@ -597,7 +597,7 @@ const NetboxCard = ({ onClose }: { onClose: () => void }) => {
               type="button"
               disabled={busy || !hasToken || !(netboxUrl || url).trim()}
               onClick={() => void testConnection()}
-              className="rounded bg-emerald-600 px-3 py-1 text-cp-base hover:bg-emerald-500 disabled:opacity-50"
+              className="bg-emerald-600 px-3 py-1 text-cp-base hover:bg-emerald-500 disabled:opacity-50"
             >
               {t('settings.integrations.netbox.test', 'Test connection')}
             </button>
@@ -605,7 +605,7 @@ const NetboxCard = ({ onClose }: { onClose: () => void }) => {
               type="button"
               disabled={busy || !hasToken}
               onClick={() => void removeToken()}
-              className="rounded bg-red-600 px-3 py-1 text-cp-base hover:bg-red-500 disabled:opacity-50"
+              className="bg-red-600 px-3 py-1 text-cp-base hover:bg-red-500 disabled:opacity-50"
             >
               {t('settings.integrations.netbox.deleteToken', 'Delete token')}
             </button>
@@ -616,7 +616,7 @@ const NetboxCard = ({ onClose }: { onClose: () => void }) => {
                 openNetboxImport()
                 onClose()
               }}
-              className="rounded bg-orange-700 px-3 py-1 text-cp-base font-semibold text-white hover:bg-orange-600 disabled:opacity-50"
+              className="bg-orange-700 px-3 py-1 text-cp-base font-semibold text-white hover:bg-orange-600 disabled:opacity-50"
             >
               {t('settings.integrations.netbox.import', 'Import site/rack…')}
             </button>
@@ -744,7 +744,7 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
             type="password"
             value={token}
             onChange={(e) => setToken(e.target.value)}
-            className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 p-2 font-mono text-cp-xs"
+            className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-2 font-mono text-cp-xs"
             placeholder={t(
               'settings.integrations.rentman.tokenPlaceholder',
               'Paste bearer token',
@@ -753,7 +753,7 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
           />
         </label>
         <div
-          className={`mt-2 rounded border p-2 text-cp-xs ${
+          className={`mt-2 border p-2 text-cp-xs ${
             hasToken
               ? 'border-emerald-700/50 bg-emerald-900/20 text-emerald-300'
               : 'border-cp-border bg-cp-surface-3/40 text-cp-text-muted'
@@ -775,7 +775,7 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
             type="button"
             disabled={busy || !token}
             onClick={saveToken}
-            className="rounded bg-sky-600 px-3 py-1 text-cp-base hover:bg-sky-500 disabled:opacity-50"
+            className="bg-sky-600 px-3 py-1 text-cp-base hover:bg-sky-500 disabled:opacity-50"
           >
             {t('settings.integrations.rentman.save', 'Save token')}
           </button>
@@ -783,7 +783,7 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
             type="button"
             disabled={busy || !hasToken}
             onClick={testToken}
-            className="rounded bg-emerald-600 px-3 py-1 text-cp-base hover:bg-emerald-500 disabled:opacity-50"
+            className="bg-emerald-600 px-3 py-1 text-cp-base hover:bg-emerald-500 disabled:opacity-50"
           >
             {t('settings.integrations.rentman.test', 'Test connection')}
           </button>
@@ -791,7 +791,7 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
             type="button"
             disabled={busy || !hasToken}
             onClick={removeToken}
-            className="rounded bg-red-600 px-3 py-1 text-cp-base hover:bg-red-500 disabled:opacity-50"
+            className="bg-red-600 px-3 py-1 text-cp-base hover:bg-red-500 disabled:opacity-50"
           >
             {t('settings.integrations.rentman.delete', 'Delete token')}
           </button>
@@ -821,7 +821,7 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
                 openRentmanImport()
                 onClose()
               }}
-              className="rounded bg-orange-700 px-3 py-1 text-cp-base font-semibold text-white hover:bg-orange-600 disabled:opacity-50"
+              className="bg-orange-700 px-3 py-1 text-cp-base font-semibold text-white hover:bg-orange-600 disabled:opacity-50"
             >
               {t(
                 'settings.integrations.linkedRentman.choose',
@@ -844,7 +844,7 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
                 openRentmanImport()
                 onClose()
               }}
-              className="rounded bg-orange-700 px-3 py-1 text-cp-base font-semibold text-white hover:bg-orange-600 disabled:opacity-50"
+              className="bg-orange-700 px-3 py-1 text-cp-base font-semibold text-white hover:bg-orange-600 disabled:opacity-50"
               title={
                 hasToken
                   ? t('settings.integrations.linkedRentman.titleSelect', 'Pick Rentman project')

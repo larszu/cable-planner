@@ -123,10 +123,10 @@ export function PatternChip() {
 
   return (
     <span className="flex items-center gap-1">
-      <label className="flex items-center gap-1.5 rounded-full border border-cp-border px-2 py-0.5 text-cp-xs text-cp-text-secondary">
+      <label className="flex items-center gap-1.5 border border-cp-border px-2 py-0.5 text-cp-xs text-cp-text-secondary">
         <span
           aria-hidden
-          className="inline-block h-1.5 w-1.5 rounded-full"
+          className="inline-block h-1.5 w-1.5"
           style={{ background: quelleId ? '#fbbf24' : 'var(--cp-text-faint, #64748b)' }}
         />
         <span>{t('canvas.pattern.label', 'Test pattern')}</span>
@@ -176,7 +176,7 @@ export function PatternChip() {
               'canvas.pattern.saveImageTitle',
               'Save the image as SVG — for a media player, the switcher stills store, or a laptop on an output. This app feeds nothing in.',
             )}
-            className="av-focus rounded-full border border-cp-border px-2 py-0.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-3"
+            className="av-focus border border-cp-border px-2 py-0.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-3"
           >
             {t('canvas.pattern.saveImage', 'Save image')}
           </button>
@@ -187,7 +187,7 @@ export function PatternChip() {
               'canvas.pattern.saveSheetTitle',
               'The walk-around list — including the paths the plan cannot follow to the end, and why.',
             )}
-            className="av-focus rounded-full border border-cp-border px-2 py-0.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-3"
+            className="av-focus border border-cp-border px-2 py-0.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-3"
           >
             {t('canvas.pattern.saveSheet', 'Check sheet')}
           </button>
@@ -198,7 +198,7 @@ export function PatternChip() {
               'canvas.pattern.saveAcceptanceTitle',
               'What was actually seen, with timestamps — and the places nobody has looked at yet.',
             )}
-            className="av-focus rounded-full border border-cp-border px-2 py-0.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-3"
+            className="av-focus border border-cp-border px-2 py-0.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-3"
           >
             {t('canvas.pattern.saveAcceptance', 'Sign-off')}
           </button>
@@ -210,7 +210,7 @@ export function PatternChip() {
                 'canvas.pattern.switchTitle',
                 'Set the crosspoints the plan foresees for one path — an intervention in the live installation. Only that path\u2019s outputs are switched; the plan itself stays unchanged.',
               )}
-              className="av-focus rounded-full border border-cp-danger/60 px-2 py-0.5 text-cp-xs text-cp-danger hover:bg-cp-surface-3"
+              className="av-focus border border-cp-danger/60 px-2 py-0.5 text-cp-xs text-cp-danger hover:bg-cp-surface-3"
             >
               {t('canvas.pattern.switch', 'Switch path…')}
             </button>

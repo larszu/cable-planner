@@ -71,7 +71,7 @@ export const LifecycleSection = ({ equipment }: { equipment: EquipmentItem }) =>
   }
 
   return (
-    <details className="rounded border border-cp-border bg-cp-surface-3/40">
+    <details className="border border-cp-border bg-cp-surface-3/40">
       <summary className="flex cursor-pointer select-none items-center gap-1.5 px-2 py-1.5 text-cp-xs font-semibold uppercase tracking-wide text-cp-text-muted hover:bg-cp-surface-2/40">
         <Icon icon={Wrench} size="xs" />
         {t('lifecycle.section', 'Lifecycle / maintenance')}
@@ -86,7 +86,7 @@ export const LifecycleSection = ({ equipment }: { equipment: EquipmentItem }) =>
             onChange={(e) =>
               setStatus(equipment.id, (e.target.value || undefined) as InstallStatus | undefined)
             }
-            className="w-full rounded border border-cp-border bg-cp-surface-1 p-2"
+            className="w-full border border-cp-border bg-cp-surface-1 p-2"
           >
             <option value="">{t('lifecycle.statusNone', '— no status —')}</option>
             {INSTALL_STATUSES.map((s) => (
@@ -103,7 +103,7 @@ export const LifecycleSection = ({ equipment }: { equipment: EquipmentItem }) =>
             <input
               value={equipment.assetTag ?? ''}
               onChange={(e) => updateEquipment(equipment.id, { assetTag: e.target.value || undefined })}
-              className="w-full rounded border border-cp-border bg-cp-surface-1 p-1.5"
+              className="w-full border border-cp-border bg-cp-surface-1 p-1.5"
             />
           </label>
           <label className="block">
@@ -112,7 +112,7 @@ export const LifecycleSection = ({ equipment }: { equipment: EquipmentItem }) =>
               type="date"
               value={(equipment.warrantyUntil ?? '').slice(0, 10)}
               onChange={(e) => updateEquipment(equipment.id, { warrantyUntil: e.target.value || undefined })}
-              className="w-full rounded border border-cp-border bg-cp-surface-1 p-1.5"
+              className="w-full border border-cp-border bg-cp-surface-1 p-1.5"
             />
           </label>
         </div>
@@ -130,7 +130,7 @@ export const LifecycleSection = ({ equipment }: { equipment: EquipmentItem }) =>
                 maintenanceIntervalDays: e.target.value === '' ? undefined : Number(e.target.value),
               })
             }
-            className="w-full rounded border border-cp-border bg-cp-surface-1 p-1.5"
+            className="w-full border border-cp-border bg-cp-surface-1 p-1.5"
           />
         </label>
         </>
@@ -151,7 +151,7 @@ export const LifecycleSection = ({ equipment }: { equipment: EquipmentItem }) =>
                   ownership: (e.target.value || undefined) as EquipmentOwnership | undefined,
                 })
               }
-              className="w-full rounded border border-cp-border bg-cp-surface-1 p-1.5"
+              className="w-full border border-cp-border bg-cp-surface-1 p-1.5"
             >
               <option value="">{t('lifecycle.ownershipNone', '— n/a —')}</option>
               {EQUIPMENT_OWNERSHIPS.map((o) => (
@@ -171,7 +171,7 @@ export const LifecycleSection = ({ equipment }: { equipment: EquipmentItem }) =>
               onChange={(e) =>
                 updateEquipment(equipment.id, { purchaseDate: e.target.value || undefined })
               }
-              className="w-full rounded border border-cp-border bg-cp-surface-1 p-1.5"
+              className="w-full border border-cp-border bg-cp-surface-1 p-1.5"
             />
           </label>
           <label className="block">
@@ -184,7 +184,7 @@ export const LifecycleSection = ({ equipment }: { equipment: EquipmentItem }) =>
                 updateEquipment(equipment.id, { stockLocation: e.target.value || undefined })
               }
               placeholder={t('lifecycle.stockLocationPh', 'e.g. Warehouse A · Shelf 3.2')}
-              className="w-full rounded border border-cp-border bg-cp-surface-1 p-1.5"
+              className="w-full border border-cp-border bg-cp-surface-1 p-1.5"
             />
           </label>
           <label className="block">
@@ -196,7 +196,7 @@ export const LifecycleSection = ({ equipment }: { equipment: EquipmentItem }) =>
               onChange={(e) =>
                 updateEquipment(equipment.id, { supplier: e.target.value || undefined })
               }
-              className="w-full rounded border border-cp-border bg-cp-surface-1 p-1.5"
+              className="w-full border border-cp-border bg-cp-surface-1 p-1.5"
             />
           </label>
         </div>
@@ -213,7 +213,7 @@ export const LifecycleSection = ({ equipment }: { equipment: EquipmentItem }) =>
               {[...history]
                 .sort((a, b) => b.date.localeCompare(a.date))
                 .map((r) => (
-                  <li key={r.id} className="flex items-start gap-1.5 rounded bg-cp-surface-1 px-2 py-1 text-cp-xs">
+                  <li key={r.id} className="flex items-start gap-1.5 bg-cp-surface-1 px-2 py-1 text-cp-xs">
                     <span className="shrink-0 font-mono text-cp-text-faint">
                       {new Date(r.date).toLocaleDateString('de-DE')}
                     </span>
@@ -224,7 +224,7 @@ export const LifecycleSection = ({ equipment }: { equipment: EquipmentItem }) =>
                     <button
                       type="button"
                       onClick={() => removeServiceRecord(equipment.id, r.id)}
-                      className="shrink-0 rounded p-0.5 text-cp-danger hover:bg-cp-surface-3"
+                      className="shrink-0 p-0.5 text-cp-danger hover:bg-cp-surface-3"
                       aria-label={t('lifecycle.history.delete', 'Delete entry')}
                     >
                       <Icon icon={Trash2} size="xs" />
@@ -237,7 +237,7 @@ export const LifecycleSection = ({ equipment }: { equipment: EquipmentItem }) =>
             <select
               value={kind}
               onChange={(e) => setKind(e.target.value as ServiceRecord['kind'])}
-              className="rounded border border-cp-border bg-cp-surface-1 p-1.5 text-cp-xs"
+              className="border border-cp-border bg-cp-surface-1 p-1.5 text-cp-xs"
             >
               {SERVICE_KINDS.map((k) => (
                 <option key={k} value={k}>
@@ -252,12 +252,12 @@ export const LifecycleSection = ({ equipment }: { equipment: EquipmentItem }) =>
                 if (e.key === 'Enter') onAdd()
               }}
               placeholder={t('lifecycle.history.placeholder', 'What was done?')}
-              className="min-w-0 flex-1 rounded border border-cp-border bg-cp-surface-1 p-1.5 text-cp-xs"
+              className="min-w-0 flex-1 border border-cp-border bg-cp-surface-1 p-1.5 text-cp-xs"
             />
             <button
               type="button"
               onClick={onAdd}
-              className="inline-flex shrink-0 items-center gap-1 rounded bg-cp-surface-4 px-2 py-1.5 text-cp-xs hover:bg-cp-surface-5"
+              className="inline-flex shrink-0 items-center gap-1 bg-cp-surface-4 px-2 py-1.5 text-cp-xs hover:bg-cp-surface-5"
             >
               <Icon icon={Plus} size="xs" /> {t('common.add', 'Add')}
             </button>

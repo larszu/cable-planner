@@ -174,7 +174,7 @@ export const DocumentLogDialog = ({ open, onClose }: DocumentLogDialogProps) => 
                 void load()
               }}
               disabled={busy}
-              className="flex items-center gap-1 rounded bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5 disabled:opacity-50"
+              className="flex items-center gap-1 bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5 disabled:opacity-50"
             >
               <Icon icon={RefreshCw} size="sm" />
               {t('common.refresh', 'Refresh')}
@@ -182,7 +182,7 @@ export const DocumentLogDialog = ({ open, onClose }: DocumentLogDialogProps) => 
             <button
               type="button"
               onClick={() => void onClear()}
-              className="flex items-center gap-1 rounded bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
+              className="flex items-center gap-1 bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
             >
               <Icon icon={Trash2} size="sm" />
               {t('doclog.clear', 'Clear register')}
@@ -190,7 +190,7 @@ export const DocumentLogDialog = ({ open, onClose }: DocumentLogDialogProps) => 
             <button
               type="button"
               onClick={onClose}
-              className="rounded bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
+              className="bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
             >
               {t('common.close', 'Close')}
             </button>
@@ -199,7 +199,7 @@ export const DocumentLogDialog = ({ open, onClose }: DocumentLogDialogProps) => 
       }
     >
       <div className="space-y-3 text-cp-sm">
-        <div className="rounded border border-cp-border-muted bg-cp-surface-2 p-2 text-cp-xs">
+        <div className="border border-cp-border-muted bg-cp-surface-2 p-2 text-cp-xs">
           {reviewSummary(entries)}
           {entries.length > 0 && (
             <span className="text-cp-text-muted">
@@ -279,7 +279,7 @@ export const DocumentLogDialog = ({ open, onClose }: DocumentLogDialogProps) => 
         {/* Die beiden Dinge, die ein Register verschweigen könnte — und dann
             vollständig aussähe. */}
         {log && log.dropped > 0 && (
-          <p className="flex items-start gap-2 rounded border border-cp-warn/40 bg-cp-surface-2 p-2 text-cp-xs text-cp-warn">
+          <p className="flex items-start gap-2 border border-cp-warn/40 bg-cp-surface-2 p-2 text-cp-xs text-cp-warn">
             <Icon icon={AlertTriangle} size="sm" />
             {t('doclog.dropped', 'Older entries have fallen out of the register:')}{' '}
             {log.dropped}

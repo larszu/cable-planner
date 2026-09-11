@@ -41,7 +41,7 @@ export const PlusMenu = ({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex h-7 items-center gap-0.5 rounded bg-emerald-700 px-2 text-cp-xs hover:bg-emerald-600"
+        className="flex h-7 items-center gap-0.5 bg-emerald-700 px-2 text-cp-xs hover:bg-emerald-600"
         title={t('library.menus.plusTitle', 'Create new device or category')}
         aria-haspopup="menu"
         aria-expanded={open}
@@ -52,7 +52,7 @@ export const PlusMenu = ({
       {open && (
         <div
           role="menu"
-          className="absolute right-0 top-full z-10 mt-1 min-w-[160px] rounded border border-cp-border bg-cp-surface-1 py-1 text-cp-xs shadow-xl"
+          className="absolute right-0 top-full z-10 mt-1 min-w-[160px] border border-cp-border bg-cp-surface-1 py-1 text-cp-xs"
         >
           <button
             type="button"
@@ -160,7 +160,7 @@ export const LibraryFiltersMenu = ({
         title={t('library.menus.filterTitle', 'Filter and view options')}
         aria-haspopup="menu"
         aria-expanded={open}
-        className="flex h-7 items-center justify-center gap-0.5 rounded border border-cp-border bg-cp-surface-1 px-1.5 text-cp-text-muted hover:bg-cp-surface-2 hover:text-cp-text-bright"
+        className="flex h-7 items-center justify-center gap-0.5 border border-cp-border bg-cp-surface-1 px-1.5 text-cp-text-muted hover:bg-cp-surface-2 hover:text-cp-text-bright"
       >
         {/* GEAENDERT 2026-09-07: hier standen drei Punkte. Drei Punkte heissen
             „hier ist noch etwas" und sonst nichts — und in einer 235 px
@@ -175,7 +175,7 @@ export const LibraryFiltersMenu = ({
       {open && (
         <div
           role="menu"
-          className="absolute right-0 top-full z-10 mt-1 min-w-[210px] rounded border border-cp-border bg-cp-surface-1 py-1 text-cp-xs shadow-xl"
+          className="absolute right-0 top-full z-10 mt-1 min-w-[210px] border border-cp-border bg-cp-surface-1 py-1 text-cp-xs"
         >
           <button
             type="button"

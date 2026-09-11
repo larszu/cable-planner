@@ -25,13 +25,13 @@ export const DeviceConfigsBlock = ({ equipmentId }: { equipmentId: string }) => 
     <details
       open={open}
       onToggle={(e) => setOpen(e.currentTarget.open)}
-      className="rounded border border-cp-border bg-cp-surface-1/40 [&_summary]:cursor-pointer"
+      className="border border-cp-border bg-cp-surface-1/40 [&_summary]:cursor-pointer"
     >
       <summary className="flex items-center gap-1 px-2 py-1.5 text-cp-xs uppercase tracking-wide text-cp-text-muted hover:text-cp-text-bright [&::-webkit-details-marker]:hidden">
         <Icon icon={open ? ChevronDown : ChevronRight} size="xs" className="text-cp-text-faint" />
         <span className="flex-1">{t('props.deviceConfigs.title', 'Configurations')}</span>
         {!open && assigned.length > 0 && (
-          <span className="rounded bg-cp-surface-4/60 px-1 text-cp-xs normal-case text-cp-text-bright">
+          <span className="bg-cp-surface-4/60 px-1 text-cp-xs normal-case text-cp-text-bright">
             {assigned.length}
           </span>
         )}
@@ -44,7 +44,7 @@ export const DeviceConfigsBlock = ({ equipmentId }: { equipmentId: string }) => 
       ) : (
         <ul className="mb-2 space-y-1">
           {assigned.map((e) => (
-            <li key={e.id} className="flex items-center gap-2 rounded bg-cp-surface-3 px-2 py-1 text-cp-xs">
+            <li key={e.id} className="flex items-center gap-2 bg-cp-surface-3 px-2 py-1 text-cp-xs">
               <span className="flex-1 truncate" title={`${e.fileName} (${e.kind})`}>
                 {e.name}
               </span>
@@ -52,7 +52,7 @@ export const DeviceConfigsBlock = ({ equipmentId }: { equipmentId: string }) => 
               <button
                 type="button"
                 onClick={() => updateDeviceConfig(e.id, { equipmentId: undefined })}
-                className="rounded bg-cp-surface-2 px-1.5 py-0.5 text-cp-xs text-cp-text-secondary hover:bg-red-700 hover:text-white"
+                className="bg-cp-surface-2 px-1.5 py-0.5 text-cp-xs text-cp-text-secondary hover:bg-red-700 hover:text-white"
                 title={t('props.deviceConfigs.unassignTitle', 'Detach assignment (file remains in library)')}
               >
                 {t('props.deviceConfigs.unassign', 'Detach')}
@@ -67,7 +67,7 @@ export const DeviceConfigsBlock = ({ equipmentId }: { equipmentId: string }) => 
           onChange={(e) => {
             if (e.target.value) updateDeviceConfig(e.target.value, { equipmentId })
           }}
-          className="w-full rounded border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
+          className="w-full border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
         >
           <option value="">
             {t('props.deviceConfigs.assignExisting', '+ Assign existing configuration…')}

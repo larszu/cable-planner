@@ -46,7 +46,7 @@ export const DeviceToolsSection = ({ equipment }: { equipment: EquipmentItem }) 
   }
 
   return (
-    <section className="mb-3 rounded border border-cp-border bg-cp-surface-2/40 p-2">
+    <section className="mb-3 border border-cp-border bg-cp-surface-2/40 p-2">
       <div className="mb-1.5 text-cp-xs font-semibold uppercase tracking-wide text-cp-text-muted">
         {t('props.deviceTools.title', 'Tools for this device')}
       </div>
@@ -56,7 +56,7 @@ export const DeviceToolsSection = ({ equipment }: { equipment: EquipmentItem }) 
             key={id}
             type="button"
             onClick={oeffnen[id]}
-            className="rounded border border-cp-border bg-cp-surface-1 px-2 py-1 text-left text-cp-xs text-cp-text hover:border-sky-500 hover:bg-cp-surface-3"
+            className="border border-cp-border bg-cp-surface-1 px-2 py-1 text-left text-cp-xs text-cp-text hover:border-sky-500 hover:bg-cp-surface-3"
           >
             {beschriftung[id]}
           </button>

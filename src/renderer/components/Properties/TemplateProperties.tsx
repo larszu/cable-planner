@@ -72,7 +72,7 @@ export const TemplateProperties = () => {
         </span>
         {template.rentmanSource && (
           <span
-            className="rounded bg-orange-700 px-1.5 py-0.5 text-cp-xs font-bold text-white"
+            className="bg-orange-700 px-1.5 py-0.5 text-cp-xs font-bold text-white"
             title={format(t('template.rentmanSourceTitle', 'Imported from Rentman project {source}'), { source: template.rentmanSource })}
           >
             R
@@ -85,7 +85,7 @@ export const TemplateProperties = () => {
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="w-full rounded border border-cp-border bg-cp-surface-1 p-2"
+          className="w-full border border-cp-border bg-cp-surface-1 p-2"
         />
       </label>
 
@@ -96,7 +96,7 @@ export const TemplateProperties = () => {
         <CategorySelect value={category} onChange={setCategory} />
       </label>
 
-      <div className="rounded bg-cp-surface-1 p-2 space-y-1">
+      <div className="bg-cp-surface-1 p-2 space-y-1">
         <div className="flex justify-between">
           <span className="text-cp-text-muted">{t('template.field.inputs', 'Inputs')}</span>
           <span className="text-cp-text-bright">{template.inputs.length}</span>
@@ -118,7 +118,7 @@ export const TemplateProperties = () => {
       <button
         type="button"
         onClick={handleSave}
-        className="w-full rounded bg-emerald-700 px-2 py-1 text-white hover:bg-emerald-600"
+        className="w-full bg-emerald-700 px-2 py-1 text-white hover:bg-emerald-600"
       >
         {t('common.save', 'Save')}
       </button>
@@ -126,7 +126,7 @@ export const TemplateProperties = () => {
       <button
         type="button"
         onClick={handlePlace}
-        className="w-full rounded bg-sky-700 px-2 py-1 text-white hover:bg-sky-600"
+        className="w-full bg-sky-700 px-2 py-1 text-white hover:bg-sky-600"
       >
         {t('template.action.place', 'Place on canvas')}
       </button>
@@ -134,7 +134,7 @@ export const TemplateProperties = () => {
       <button
         type="button"
         onClick={handleDelete}
-        className="w-full rounded bg-red-700 px-2 py-1 text-white hover:bg-red-600"
+        className="w-full bg-red-700 px-2 py-1 text-white hover:bg-red-600"
       >
         {t('template.action.delete', 'Delete template')}
       </button>

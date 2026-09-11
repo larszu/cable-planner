@@ -66,7 +66,7 @@ export const PropertiesPanel = () => {
         {selectedTemplateName && <TemplateProperties />}
         {!selectedEquipmentId && !selectedCableId && !selectedLocationId && !selectedTemplateName && (
           <div className="space-y-3 text-cp-xs text-cp-text-muted">
-            <div className="rounded border border-cp-border-muted bg-cp-surface-1/50 p-3">
+            <div className="border border-cp-border-muted bg-cp-surface-1/50 p-3">
               <div className="mb-1 font-semibold text-cp-text-bright">
                 {t('inspector.nothingSelected', 'Nothing selected')}
               </div>
@@ -77,7 +77,7 @@ export const PropertiesPanel = () => {
                 )}
               </div>
             </div>
-            <div className="rounded border border-cp-border-muted bg-cp-surface-1/40 p-3">
+            <div className="border border-cp-border-muted bg-cp-surface-1/40 p-3">
               <div className="mb-2 text-cp-xs font-semibold uppercase tracking-wide text-cp-text-muted">
                 {t('inspector.hints.title', 'Quick orientation')}
               </div>
@@ -155,7 +155,7 @@ export const PropertiesPanel = () => {
           onClick={toggle}
           title={t('inspector.collapse.show', 'Show properties')}
           aria-label={t('inspector.collapse.show', 'Show properties')}
-          className="mt-2 flex h-7 w-7 items-center justify-center rounded-full border border-cp-border bg-cp-surface-1 text-cp-text-secondary shadow-sm transition-all hover:border-sky-500 hover:bg-cp-surface-2 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+          className="mt-2 flex h-7 w-7 items-center justify-center border border-cp-border bg-cp-surface-1 text-cp-text-secondary transition-all hover:border-sky-500 hover:bg-cp-surface-2 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
         >
           <span className="text-cp-lg leading-none">‹</span>
         </button>
@@ -202,7 +202,7 @@ export const PropertiesPanel = () => {
             onClick={toggle}
             title={t('inspector.collapse.hide', 'Hide properties')}
             aria-label={t('inspector.collapse.hide', 'Hide properties')}
-            className="flex h-7 w-7 items-center justify-center rounded-full border border-cp-border bg-cp-surface-1 text-cp-text-secondary transition-all hover:border-sky-500 hover:bg-cp-surface-2 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+            className="flex h-7 w-7 items-center justify-center border border-cp-border bg-cp-surface-1 text-cp-text-secondary transition-all hover:border-sky-500 hover:bg-cp-surface-2 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
           >
             <span className="text-cp-lg leading-none">›</span>
           </button>

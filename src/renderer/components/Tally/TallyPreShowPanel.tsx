@@ -101,7 +101,7 @@ export const TallyPreShowPanel = () => {
   if (rollen.length === 0) return null
 
   return (
-    <div className="flex shrink-0 flex-col gap-2 rounded border border-cp-border bg-cp-surface-2 p-2">
+    <div className="flex shrink-0 flex-col gap-2 border border-cp-border bg-cp-surface-2 p-2">
       <div className="flex items-center gap-2">
         <Icon icon={Lightbulb} size="xs" />
         <span className="text-cp-xs font-semibold text-cp-text-secondary">
@@ -110,7 +110,7 @@ export const TallyPreShowPanel = () => {
         <button
           type="button"
           onClick={listeLaden}
-          className="ml-auto inline-flex items-center gap-1 rounded border border-cp-border px-2 py-0.5 text-cp-xs hover:bg-cp-surface-3"
+          className="ml-auto inline-flex items-center gap-1 border border-cp-border px-2 py-0.5 text-cp-xs hover:bg-cp-surface-3"
         >
           <Icon icon={Download} size="xs" />
           {t('tallyPos.export', 'Pre-show list')}
@@ -168,7 +168,7 @@ export const TallyPreShowPanel = () => {
                       value={pos?.endpoint ?? ''}
                       onChange={(ev) => setTallyPosition(rolle.id, { endpoint: ev.target.value })}
                       placeholder={t('tallyPos.endpointPh', 'IP / pin / source')}
-                      className="w-28 rounded border border-cp-border bg-cp-surface-1 px-1 py-0.5 font-mono"
+                      className="w-28 border border-cp-border bg-cp-surface-1 px-1 py-0.5 font-mono"
                     />
                   </td>
                   <td className="px-1 py-1">
@@ -176,7 +176,7 @@ export const TallyPreShowPanel = () => {
                       value={pos?.lamp ?? ''}
                       onChange={(ev) => setTallyPosition(rolle.id, { lamp: ev.target.value })}
                       placeholder={t('tallyPos.lampPh', 'camera head')}
-                      className="w-28 rounded border border-cp-border bg-cp-surface-1 px-1 py-0.5"
+                      className="w-28 border border-cp-border bg-cp-surface-1 px-1 py-0.5"
                     />
                   </td>
                   <td className="px-1 py-1">
@@ -232,7 +232,7 @@ export const TallyPreShowPanel = () => {
                       type="button"
                       onClick={() => festhalten(rolle.id)}
                       disabled={e.onProgram === 'not-checked' && e.onPreview === 'not-checked'}
-                      className="rounded bg-emerald-700 px-2 py-0.5 hover:bg-emerald-600 disabled:opacity-40"
+                      className="bg-emerald-700 px-2 py-0.5 hover:bg-emerald-600 disabled:opacity-40"
                     >
                       {t('tallyPos.record', 'seen')}
                     </button>

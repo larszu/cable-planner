@@ -48,7 +48,7 @@ export const ModuleOnboardingDialog = () => {
           <button
             type="button"
             onClick={skip}
-            className="rounded px-3 py-1 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-2"
+            className="px-3 py-1 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-2"
           >
             {t('onboarding.skip', 'Decide later')}
           </button>
@@ -56,7 +56,7 @@ export const ModuleOnboardingDialog = () => {
             type="button"
             onClick={confirm}
             disabled={selected.length === 0}
-            className="rounded bg-emerald-700 px-3 py-1 text-cp-xs enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
+            className="bg-emerald-700 px-3 py-1 text-cp-xs enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {t('onboarding.confirm', 'Get started')}
           </button>
@@ -80,7 +80,7 @@ export const ModuleOnboardingDialog = () => {
                 type="button"
                 onClick={() => toggle(p.id)}
                 aria-pressed={on}
-                className={`rounded border p-3 text-left transition ${
+                className={` border p-3 text-left transition ${
                   on
                     ? 'border-emerald-500 bg-emerald-900/20'
                     : 'border-cp-border bg-cp-surface-1 hover:border-cp-border-muted'
@@ -88,7 +88,7 @@ export const ModuleOnboardingDialog = () => {
               >
                 <div className="mb-1 flex items-center gap-2 font-semibold text-cp-text-bright">
                   <span
-                    className={`flex h-4 w-4 items-center justify-center rounded-sm border text-cp-xs ${
+                    className={`flex h-4 w-4 items-center justify-center border text-cp-xs ${
                       on ? 'border-emerald-500 bg-emerald-600 text-white' : 'border-cp-border'
                     }`}
                   >

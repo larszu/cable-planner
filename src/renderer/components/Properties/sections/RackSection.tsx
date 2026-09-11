@@ -55,7 +55,7 @@ export const RackSection = ({ equipment }: { equipment: EquipmentItem }) => {
           </label>
 
           {!equipment.isRackDevice && (
-            <div className="rounded border border-cp-border-muted bg-cp-surface-1/50 p-2 text-cp-xs text-cp-text-muted">
+            <div className="border border-cp-border-muted bg-cp-surface-1/50 p-2 text-cp-xs text-cp-text-muted">
               {t(
                 'props.rack.disabledHint',
                 'Rack fields only appear when the device is marked as a 19" rack device.',
@@ -78,7 +78,7 @@ export const RackSection = ({ equipment }: { equipment: EquipmentItem }) => {
                         rackUnits: Math.max(1, Number(event.target.value) || 1),
                       })
                     }
-                    className="w-full rounded border border-cp-border bg-cp-surface-1 p-2"
+                    className="w-full border border-cp-border bg-cp-surface-1 p-2"
                   />
                 </label>
                 <label className="block">
@@ -86,7 +86,7 @@ export const RackSection = ({ equipment }: { equipment: EquipmentItem }) => {
                   <select
                     value={rackViewMode}
                     onChange={(event) => setRackViewMode(event.target.value as 'front' | 'rear' | 'both')}
-                    className="w-full rounded border border-cp-border bg-cp-surface-1 p-2"
+                    className="w-full border border-cp-border bg-cp-surface-1 p-2"
                   >
                     <option value="front">{t('props.rack.frontOnly', 'Front only')}</option>
                     <option value="rear">{t('props.rack.rearOnly', 'Rear only')}</option>
@@ -102,7 +102,7 @@ export const RackSection = ({ equipment }: { equipment: EquipmentItem }) => {
                     const dataUri = await pickImageAsDataUri('image/png,image/jpeg,image/webp')
                     if (dataUri) setCropDialog({ side: 'front', src: dataUri })
                   }}
-                  className="rounded bg-sky-700 px-2 py-1 text-cp-xs hover:bg-sky-600"
+                  className="bg-sky-700 px-2 py-1 text-cp-xs hover:bg-sky-600"
                 >
                   {t('props.rack.importFront', 'Import front graphic + crop')}
                 </button>
@@ -112,7 +112,7 @@ export const RackSection = ({ equipment }: { equipment: EquipmentItem }) => {
                     const dataUri = await pickImageAsDataUri('image/png,image/jpeg,image/webp')
                     if (dataUri) setCropDialog({ side: 'rear', src: dataUri })
                   }}
-                  className="rounded bg-purple-700 px-2 py-1 text-cp-xs hover:bg-purple-600"
+                  className="bg-purple-700 px-2 py-1 text-cp-xs hover:bg-purple-600"
                 >
                   {t('props.rack.importRear', 'Import rear graphic + crop')}
                 </button>
@@ -133,7 +133,7 @@ export const RackSection = ({ equipment }: { equipment: EquipmentItem }) => {
                       rearPanelCrop: equipment.frontPanelCrop,
                     })
                   }
-                  className="mt-2 inline-flex w-full items-center justify-center gap-1 rounded border border-cp-surface-5 bg-cp-surface-2 px-2 py-1 text-cp-xs text-cp-text-bright hover:bg-cp-surface-4"
+                  className="mt-2 inline-flex w-full items-center justify-center gap-1 border border-cp-surface-5 bg-cp-surface-2 px-2 py-1 text-cp-xs text-cp-text-bright hover:bg-cp-surface-4"
                   title={t('props.rack.swapTitle', 'Swap front and rear photos (including crop metadata)')}
                 >
                   <Icon icon={ArrowLeftRight} size="xs" />

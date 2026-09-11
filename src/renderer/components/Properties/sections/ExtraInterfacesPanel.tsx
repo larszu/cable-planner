@@ -74,7 +74,7 @@ export const ExtraInterfacesPanel = ({ equipment }: { equipment: EquipmentItem }
         <button
           type="button"
           onClick={add}
-          className="flex items-center gap-1 rounded border border-cp-border px-2 py-0.5 text-cp-xs text-cp-text-secondary hover:text-cp-text"
+          className="flex items-center gap-1 border border-cp-border px-2 py-0.5 text-cp-xs text-cp-text-secondary hover:text-cp-text"
         >
           <Icon icon={Plus} size="xs" /> {t('nic.add', 'Add')}
         </button>
@@ -96,7 +96,7 @@ export const ExtraInterfacesPanel = ({ equipment }: { equipment: EquipmentItem }
                 e.target.value === 'unspecified' ? undefined : (e.target.value as NetworkInterfaceRole),
             })
           }
-          className="w-full rounded border border-cp-border bg-cp-surface-1 p-2"
+          className="w-full border border-cp-border bg-cp-surface-1 p-2"
         >
           {NETWORK_INTERFACE_ROLES.map((r) => (
             <option key={r} value={r}>{roleLabel(r)}</option>
@@ -109,20 +109,20 @@ export const ExtraInterfacesPanel = ({ equipment }: { equipment: EquipmentItem }
       ) : (
         <ul className="flex flex-col gap-2">
           {nics.map((n) => (
-            <li key={n.id} className="rounded border border-cp-border-muted bg-cp-surface-2 p-2">
+            <li key={n.id} className="border border-cp-border-muted bg-cp-surface-2 p-2">
               <div className="mb-1 flex items-center gap-2">
                 <input
                   value={n.label ?? ''}
                   onChange={(e) => patch(n.id, { label: e.target.value })}
                   placeholder={t('nic.label', 'Label, e.g. \u201eDante Sec\u201c')}
                   aria-label={t('nic.label', 'Label, e.g. \u201eDante Sec\u201c')}
-                  className="flex-1 rounded border border-cp-border bg-cp-surface-1 p-1.5"
+                  className="flex-1 border border-cp-border bg-cp-surface-1 p-1.5"
                 />
                 <select
                   value={n.role}
                   onChange={(e) => patch(n.id, { role: e.target.value as NetworkInterfaceRole })}
                   aria-label={t('nic.role', 'Role')}
-                  className="rounded border border-cp-border bg-cp-surface-1 p-1.5"
+                  className="border border-cp-border bg-cp-surface-1 p-1.5"
                 >
                   {NETWORK_INTERFACE_ROLES.map((r) => (
                     <option key={r} value={r}>{roleLabel(r)}</option>
@@ -184,7 +184,7 @@ export const ExtraInterfacesPanel = ({ equipment }: { equipment: EquipmentItem }
                     value={n.switchEquipmentId ?? ''}
                     onChange={(e) => patch(n.id, { switchEquipmentId: e.target.value || undefined })}
                     aria-label={t('nic.switch', 'Switch')}
-                    className="min-w-0 flex-1 rounded border border-cp-border bg-cp-surface-1 p-2"
+                    className="min-w-0 flex-1 border border-cp-border bg-cp-surface-1 p-2"
                   >
                     <option value="">{t('nic.noSwitch', '\u2014 no switch \u2014')}</option>
                     {switches.map((s) => (
@@ -196,7 +196,7 @@ export const ExtraInterfacesPanel = ({ equipment }: { equipment: EquipmentItem }
                     onChange={(e) => patch(n.id, { switchPort: e.target.value || undefined })}
                     placeholder={t('nic.switchPort', 'Port')}
                     aria-label={t('nic.switchPort', 'Port')}
-                    className="w-20 rounded border border-cp-border bg-cp-surface-1 p-2 font-mono"
+                    className="w-20 border border-cp-border bg-cp-surface-1 p-2 font-mono"
                   />
                 </div>
                 {/* BEDARF 73 — die Zeit. Drei Felder, weil der Bedarf drei
@@ -219,7 +219,7 @@ export const ExtraInterfacesPanel = ({ equipment }: { equipment: EquipmentItem }
                     }}
                     placeholder={t('nic.ptpDomain', 'PTP domain')}
                     aria-label={t('nic.ptpDomain', 'PTP domain')}
-                    className="w-24 rounded border border-cp-border bg-cp-surface-1 p-2 font-mono"
+                    className="w-24 border border-cp-border bg-cp-surface-1 p-2 font-mono"
                   />
                   <select
                     value={n.ptpProfile ?? 'unspecified'}
@@ -232,7 +232,7 @@ export const ExtraInterfacesPanel = ({ equipment }: { equipment: EquipmentItem }
                       })
                     }
                     aria-label={t('nic.ptpProfile', 'PTP profile')}
-                    className="min-w-0 flex-1 rounded border border-cp-border bg-cp-surface-1 p-2"
+                    className="min-w-0 flex-1 border border-cp-border bg-cp-surface-1 p-2"
                   >
                     <option value="unspecified">{t('nic.ptpProfile.unspecified', '\u2014 PTP profile \u2014')}</option>
                     <option value="st2059-2">{t('nic.ptpProfile.st2059', 'ST 2059-2 (default 127)')}</option>
@@ -250,7 +250,7 @@ export const ExtraInterfacesPanel = ({ equipment }: { equipment: EquipmentItem }
                       })
                     }
                     aria-label={t('nic.ptpRole', 'PTP role')}
-                    className="w-28 rounded border border-cp-border bg-cp-surface-1 p-2"
+                    className="w-28 border border-cp-border bg-cp-surface-1 p-2"
                   >
                     <option value="unspecified">{t('nic.ptpRole.unspecified', '\u2014 role \u2014')}</option>
                     <option value="grandmaster">{t('nic.ptpRole.grandmaster', 'Grandmaster')}</option>

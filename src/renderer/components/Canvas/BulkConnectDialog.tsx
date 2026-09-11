@@ -144,7 +144,7 @@ const BulkConnectDialogInner = () => {
           <button
             type="button"
             onClick={close}
-            className="rounded bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
+            className="bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
           >
             {t('common.cancel', 'Cancel')}
           </button>
@@ -152,7 +152,7 @@ const BulkConnectDialogInner = () => {
             type="button"
             onClick={handleSubmit}
             disabled={!fromEq || !toEq || planned.length === 0}
-            className="rounded bg-emerald-600 px-3 py-1 text-cp-xs text-white hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
+            className="bg-emerald-600 px-3 py-1 text-cp-xs text-white hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {format(t('bulk.create', 'Create {n} cables'), { n: planned.length })}
           </button>
@@ -169,7 +169,7 @@ const BulkConnectDialogInner = () => {
 
         <div className="grid grid-cols-2 gap-3">
           {/* Quelle */}
-          <fieldset className="rounded border border-cp-border p-2">
+          <fieldset className="border border-cp-border p-2">
             <legend className="px-1 text-cp-xs uppercase tracking-wide text-cp-text-muted">
               {t('bulk.source', 'Source')}
             </legend>
@@ -178,7 +178,7 @@ const BulkConnectDialogInner = () => {
               <select
                 value={fromEqId}
                 onChange={(e) => setFromEqId(e.target.value)}
-                className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5 text-cp-xs"
+                className="w-full border border-cp-border bg-cp-surface-3 p-1.5 text-cp-xs"
               >
                 <option value="">—</option>
                 {equipment.map((e) => (
@@ -193,7 +193,7 @@ const BulkConnectDialogInner = () => {
               <select
                 value={fromSide}
                 onChange={(e) => setFromSide(e.target.value as 'outputs' | 'inputs')}
-                className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5 text-cp-xs"
+                className="w-full border border-cp-border bg-cp-surface-3 p-1.5 text-cp-xs"
               >
                 <option value="outputs">{t('bulk.outputs', 'Outputs')}</option>
                 <option value="inputs">{t('bulk.inputs', 'Inputs')}</option>
@@ -212,13 +212,13 @@ const BulkConnectDialogInner = () => {
                 max={Math.max(1, fromPorts.length)}
                 value={fromStart}
                 onChange={(e) => setFromStart(Math.max(1, Number(e.target.value) || 1))}
-                className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5 font-mono text-cp-xs"
+                className="w-full border border-cp-border bg-cp-surface-3 p-1.5 font-mono text-cp-xs"
               />
             </label>
           </fieldset>
 
           {/* Ziel */}
-          <fieldset className="rounded border border-cp-border p-2">
+          <fieldset className="border border-cp-border p-2">
             <legend className="px-1 text-cp-xs uppercase tracking-wide text-cp-text-muted">
               {t('bulk.target', 'Target')}
             </legend>
@@ -227,7 +227,7 @@ const BulkConnectDialogInner = () => {
               <select
                 value={toEqId}
                 onChange={(e) => setToEqId(e.target.value)}
-                className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5 text-cp-xs"
+                className="w-full border border-cp-border bg-cp-surface-3 p-1.5 text-cp-xs"
               >
                 <option value="">—</option>
                 {equipment.map((e) => (
@@ -242,7 +242,7 @@ const BulkConnectDialogInner = () => {
               <select
                 value={toSide}
                 onChange={(e) => setToSide(e.target.value as 'inputs' | 'outputs')}
-                className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5 text-cp-xs"
+                className="w-full border border-cp-border bg-cp-surface-3 p-1.5 text-cp-xs"
               >
                 <option value="inputs">{t('bulk.inputs', 'Inputs')}</option>
                 <option value="outputs">{t('bulk.outputs', 'Outputs')}</option>
@@ -261,7 +261,7 @@ const BulkConnectDialogInner = () => {
                 max={Math.max(1, toPorts.length)}
                 value={toStart}
                 onChange={(e) => setToStart(Math.max(1, Number(e.target.value) || 1))}
-                className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5 font-mono text-cp-xs"
+                className="w-full border border-cp-border bg-cp-surface-3 p-1.5 font-mono text-cp-xs"
               />
             </label>
           </fieldset>
@@ -277,7 +277,7 @@ const BulkConnectDialogInner = () => {
               max={256}
               value={count}
               onChange={(e) => setCount(Math.max(1, Math.min(256, Number(e.target.value) || 1)))}
-              className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5 font-mono text-cp-xs"
+              className="w-full border border-cp-border bg-cp-surface-3 p-1.5 font-mono text-cp-xs"
             />
           </label>
           <label className="col-span-2 block">
@@ -285,7 +285,7 @@ const BulkConnectDialogInner = () => {
             <select
               value={cableSpecId}
               onChange={(e) => setCableSpecId(e.target.value)}
-              className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5 text-cp-xs"
+              className="w-full border border-cp-border bg-cp-surface-3 p-1.5 text-cp-xs"
             >
               {allSpecs.map((s) => (
                 <option key={s.id} value={s.id}>
@@ -304,12 +304,12 @@ const BulkConnectDialogInner = () => {
             step="0.5"
             value={lengthMeters}
             onChange={(e) => setLengthMeters(Math.max(0, Number(e.target.value) || 0))}
-            className="w-32 rounded border border-cp-border bg-cp-surface-3 p-1.5 font-mono text-cp-xs"
+            className="w-32 border border-cp-border bg-cp-surface-3 p-1.5 font-mono text-cp-xs"
           />
         </label>
 
         {/* Preview */}
-        <div className="rounded border border-cp-border bg-cp-surface-3/40 p-2">
+        <div className="border border-cp-border bg-cp-surface-3/40 p-2">
           <div className="mb-1 text-cp-xs uppercase tracking-wide text-cp-text-muted">
             {format(t('bulk.preview', 'Preview ({n}/{plan} cables)'), {
               n: planned.length,

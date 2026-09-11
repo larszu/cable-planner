@@ -625,7 +625,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
         {...dialogProps}
         // v7.9.2 — responsive: kein fixes 1400px max-width, sondern
         // 100vw mit Padding. Verhindert horizontal-Scroll auf Laptops.
-        className="flex max-h-[96vh] w-[min(1400px,calc(100vw-1rem))] flex-col overflow-hidden rounded border border-cp-border bg-cp-surface-1 p-3 text-cp-text shadow-2xl sm:p-4"
+        className="flex max-h-[96vh] w-[min(1400px,calc(100vw-1rem))] flex-col overflow-hidden border border-cp-border bg-cp-surface-1 p-3 text-cp-text sm:p-4"
       >
         <RackBuilderHeader
           editingId={editingId}
@@ -668,7 +668,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
               aria-required="true"
               aria-invalid={!draft.rackName.trim() && !!saveError}
               placeholder={t('rack.field.namePlaceholder', 'e.g. "Power rack A" or "Main video rack"')}
-              className={`mt-1 w-full rounded border bg-cp-surface-3 px-2.5 py-1.5 text-cp-base font-normal text-cp-text placeholder-slate-600 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 ${
+              className={`mt-1 w-full border bg-cp-surface-3 px-2.5 py-1.5 text-cp-base font-normal text-cp-text placeholder-slate-600 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 ${
                 !draft.rackName.trim() && saveError
                   ? 'border-red-600 ring-1 ring-red-600/40'
                   : 'border-cp-border'
@@ -688,7 +688,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                   totalUnits: Math.max(1, Math.min(LIMITS.MAX_RACK_HEIGHT_HE, Number(event.target.value) || 1)),
                 }))
               }
-              className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 px-2.5 py-1.5 text-cp-base font-normal text-cp-text focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
+              className="mt-1 w-full border border-cp-border bg-cp-surface-3 px-2.5 py-1.5 text-cp-base font-normal text-cp-text focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
             />
           </label>
           {/* v7.9.73 / #170 — Rack-Tiefe in mm. Wird vom 3D-Builder genutzt
@@ -707,7 +707,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                   depthMm: Math.max(200, Math.min(1500, Number(event.target.value) || 800)),
                 }))
               }
-              className="mt-1 w-full rounded border border-cp-border bg-cp-surface-3 px-2.5 py-1.5 text-cp-base font-normal text-cp-text focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
+              className="mt-1 w-full border border-cp-border bg-cp-surface-3 px-2.5 py-1.5 text-cp-base font-normal text-cp-text focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
               title={t('rack.depthTitle', 'Rack depth in mm. Default: 800 mm. Common values: 350/450/600/800/1000/1200.')}
             />
           </label>
@@ -729,14 +729,14 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
           style={{ '--lib-col': `${libraryColWidth}px` } as CSSProperties}
           className="grid grid-cols-1 gap-3 md:grid-cols-[var(--lib-col)_minmax(0,1fr)] lg:grid-cols-[var(--lib-col)_minmax(0,1fr)_300px]"
         >
-          <div className="relative rounded border border-cp-border bg-cp-surface-3/50 p-2">
+          <div className="relative border border-cp-border bg-cp-surface-3/50 p-2">
             {/* v7.9.11 — Library-Header mit Counter, dann Search-Input
                 mit Magnifier-Icon + Clear-Button für bessere Affordance. */}
             <div className="mb-2 flex items-center justify-between">
               <div className="text-cp-xs font-semibold uppercase tracking-wide text-cp-text-muted">
                 {t('library.title', 'Library')}
               </div>
-              <span className="rounded bg-cp-surface-2 px-1.5 py-0.5 text-cp-xs text-cp-text-muted">
+              <span className="bg-cp-surface-2 px-1.5 py-0.5 text-cp-xs text-cp-text-muted">
                 {filteredTemplates.length} / {templates.length}
               </span>
             </div>
@@ -749,7 +749,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
               <button
                 type="button"
                 onClick={() => setPatchPanelDialogOpen(true)}
-                className="rounded border border-amber-700 bg-amber-900/30 px-2 py-1.5 text-cp-xs font-semibold text-amber-200 hover:bg-amber-900/50"
+                className="border border-amber-700 bg-amber-900/30 px-2 py-1.5 text-cp-xs font-semibold text-amber-200 hover:bg-amber-900/50"
                 title={t('rack.patchPanelTitle', 'Create new patch panel: height, port count, connector type')}
               >
                 {t('rack.patchPanelBtn', '+ Patch panel')}
@@ -757,7 +757,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
               <button
                 type="button"
                 onClick={() => setShelfDialogOpen(true)}
-                className="rounded border border-emerald-700 bg-emerald-900/30 px-2 py-1.5 text-cp-xs font-semibold text-emerald-200 hover:bg-emerald-900/50"
+                className="border border-emerald-700 bg-emerald-900/30 px-2 py-1.5 text-cp-xs font-semibold text-emerald-200 hover:bg-emerald-900/50"
                 title={t('rack.shelfTitle', 'Create rack shelf for non-19" gear')}
               >
                 {t('rack.shelfBtn', '+ Rack shelf')}
@@ -781,7 +781,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder={t('rack.searchDevicesPlaceholder', 'Search device…')}
                 aria-label={t('rack.searchDevicesPlaceholder', 'Search device…')}
-                className="w-full rounded border border-cp-border bg-cp-surface-3 pl-7 pr-7 py-1.5 text-cp-xs placeholder-slate-600 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
+                className="w-full border border-cp-border bg-cp-surface-3 pl-7 pr-7 py-1.5 text-cp-xs placeholder-slate-600 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
               />
               {query && (
                 <button
@@ -789,7 +789,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                   onClick={() => setQuery('')}
                   title={t('library.search.clear', 'Clear search')}
                   aria-label={t('library.search.clear', 'Clear search')}
-                  className="absolute right-1.5 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded text-cp-text-faint hover:bg-cp-surface-2 hover:text-cp-text-bright"
+                  className="absolute right-1.5 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center text-cp-text-faint hover:bg-cp-surface-2 hover:text-cp-text-bright"
                 >
                   ×
                 </button>
@@ -812,7 +812,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
             </label>
             <div className="max-h-[58vh] space-y-1 overflow-auto">
               {filteredTemplates.length === 0 && (
-                <div className="rounded border border-dashed border-cp-border bg-cp-surface-3/40 p-4 text-center text-cp-xs text-cp-text-muted">
+                <div className="border border-dashed border-cp-border bg-cp-surface-3/40 p-4 text-center text-cp-xs text-cp-text-muted">
                   {query ? (
                     <>
                       {t('rack.noMatchesPre', 'No matches for')}{' '}
@@ -854,7 +854,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                         JSON.stringify({ name: template.name }),
                       )
                     }}
-                    className={`group rounded border p-2 text-cp-xs transition-colors ${
+                    className={`group border p-2 text-cp-xs transition-colors ${
                       isRack
                         ? 'cursor-grab border-cp-border-muted bg-cp-surface-1/60 hover:border-cp-surface-5 hover:bg-cp-surface-1 active:cursor-grabbing'
                         : 'cursor-grab border-amber-800/40 bg-amber-950/20 hover:border-amber-700/60'
@@ -869,7 +869,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                           <span className="min-w-0 break-words font-medium leading-snug text-cp-text">{template.name}</span>
                           {placedCount > 0 && (
                             <span
-                              className="shrink-0 rounded bg-emerald-800/70 px-1 text-cp-xs font-semibold uppercase text-emerald-200"
+                              className="shrink-0 bg-emerald-800/70 px-1 text-cp-xs font-semibold uppercase text-emerald-200"
                               title={format(t('rack.placedCountTitle', '{count}× placed in rack'), { count: placedCount })}
                             >
                               <Icon icon={Check} size="xs" className="mr-1 inline" />
@@ -878,7 +878,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                           )}
                           {!isRack && (
                             <span
-                              className="shrink-0 rounded bg-amber-800/60 px-1 text-cp-xs font-semibold uppercase text-amber-200"
+                              className="shrink-0 bg-amber-800/60 px-1 text-cp-xs font-semibold uppercase text-amber-200"
                               title={t('rack.notRackTitle', 'Not marked as 19" rack device — height will be asked on add.')}
                             >
                               No-HE
@@ -914,7 +914,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
             </div>
           </div>
 
-          <div className="min-w-0 rounded border border-cp-border bg-cp-surface-3/50 p-2">
+          <div className="min-w-0 border border-cp-border bg-cp-surface-3/50 p-2">
             {/* v7.9.11 — Rack-Header mit Live-HE-Belegung + Drag-Hint. */}
             <div className="mb-2 flex items-center justify-between gap-2">
               <div className="flex items-center gap-2">
@@ -960,7 +960,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                     <button
                       type="button"
                       onClick={() => setZoom((z) => Math.max(0.5, +(z - 0.1).toFixed(2)))}
-                      className="flex h-6 w-6 items-center justify-center rounded hover:bg-cp-surface-2"
+                      className="flex h-6 w-6 items-center justify-center hover:bg-cp-surface-2"
                       title={t('rack.zoomOut', 'Zoom out')}
                       aria-label={t('rack.zoomOut', 'Zoom out')}
                     >
@@ -969,7 +969,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                     <button
                       type="button"
                       onClick={() => setZoom(1)}
-                      className="min-w-[2.75rem] rounded px-1 text-center text-cp-xs tabular-nums hover:bg-cp-surface-2"
+                      className="min-w-[2.75rem] px-1 text-center text-cp-xs tabular-nums hover:bg-cp-surface-2"
                       title={t('rack.zoomFitTitle', 'Back to 100 % (auto-fit)')}
                     >
                       {Math.round(zoom * 100)}%
@@ -977,7 +977,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                     <button
                       type="button"
                       onClick={() => setZoom((z) => Math.min(2, +(z + 0.1).toFixed(2)))}
-                      className="flex h-6 w-6 items-center justify-center rounded hover:bg-cp-surface-2"
+                      className="flex h-6 w-6 items-center justify-center hover:bg-cp-surface-2"
                       title={t('rack.zoomIn', 'Zoom in')}
                       aria-label={t('rack.zoomIn', 'Zoom in')}
                     >
@@ -986,7 +986,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                     <button
                       type="button"
                       onClick={() => setZoom(1)}
-                      className="flex h-6 w-6 items-center justify-center rounded hover:bg-cp-surface-2"
+                      className="flex h-6 w-6 items-center justify-center hover:bg-cp-surface-2"
                       title={t('rack.zoomFit', 'Fit')}
                       aria-label={t('rack.zoomFit', 'Fit')}
                     >
@@ -1003,7 +1003,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
               </div>
             </div>
             {draft.placements.length === 0 && (
-              <div className="rounded border border-dashed border-cp-border bg-cp-surface-3/40 p-8 text-center text-cp-xs text-cp-text-faint">
+              <div className="border border-dashed border-cp-border bg-cp-surface-3/40 p-8 text-center text-cp-xs text-cp-text-faint">
                 <div className="mb-2 flex justify-center"><Icon icon={Server} size={28} /></div>
                 <div className="mb-1 font-semibold text-cp-text-secondary">{t('rack.empty', 'Rack is empty')}</div>
                 <div>{t('rack.addFromLibraryHint', 'Add devices from the library on the left (button "+ Rack").')}</div>
@@ -1110,10 +1110,10 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                   Panel (Tiefenansicht). Front/Rear/Both Modi laufen wie
                   vorher. */}
               {draft.viewMode === 'side' && (
-                <div className="rounded border border-cp-border-muted bg-cp-surface-3 p-2">
+                <div className="border border-cp-border-muted bg-cp-surface-3 p-2">
                   <div className="mb-2 flex items-center gap-2">
-                    <span className="inline-flex items-center gap-1 rounded bg-sky-900/50 px-1.5 py-0.5 text-cp-xs font-semibold uppercase tracking-wide text-sky-200">
-                      <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: '#0ea5e9' }} />
+                    <span className="inline-flex items-center gap-1 bg-sky-900/50 px-1.5 py-0.5 text-cp-xs font-semibold uppercase tracking-wide text-sky-200">
+                      <span className="inline-block h-1.5 w-1.5" style={{ background: '#0ea5e9' }} />
                       {t('rack.builder.sideView', 'Side view (depth)')}
                     </span>
                     <span className="text-cp-xs text-cp-text-muted">
@@ -1128,7 +1128,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                     const sidePxPerMm = sideWidthPx / depthMm
                     return (
                       <div
-                        className="relative mx-auto overflow-hidden rounded border border-cp-border bg-cp-surface-1"
+                        className="relative mx-auto overflow-hidden border border-cp-border bg-cp-surface-1"
                         style={{ width: sideWidthPx, height: draft.totalUnits * rowHeight }}
                       >
                         {/* HE-Grid */}
@@ -1170,7 +1170,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                             <div
                               key={`side-block-${item.id}`}
                               onClick={() => setSelectedPlacementId(item.id)}
-                              className={`absolute cursor-pointer overflow-hidden rounded border-2 text-cp-xs text-white transition ${
+                              className={`absolute cursor-pointer overflow-hidden border-2 text-cp-xs text-white transition ${
                                 isSelected ? 'border-amber-300 ring-1 ring-amber-400/40' : colorClass
                               }`}
                               style={{ top, height, left: leftPx, width: widthPx }}
@@ -1186,24 +1186,24 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                 </div>
               )}
               {draft.viewMode !== 'side' && (draft.viewMode === 'both' ? ['front', 'rear'] : [draft.viewMode]).map((side) => (
-                <div key={side} className="rounded border border-cp-border-muted bg-cp-surface-3 p-2">
+                <div key={side} className="border border-cp-border-muted bg-cp-surface-3 p-2">
                   <div className="mb-2 flex items-center gap-2">
                     <span
-                      className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-cp-xs font-semibold uppercase tracking-wide ${
+                      className={`inline-flex items-center gap-1 px-1.5 py-0.5 text-cp-xs font-semibold uppercase tracking-wide ${
                         side === 'front'
                           ? 'bg-sky-900/50 text-sky-200'
                           : 'bg-purple-900/50 text-purple-200'
                       }`}
                     >
                       <span
-                        className="inline-block h-1.5 w-1.5 rounded-full"
+                        className="inline-block h-1.5 w-1.5"
                         style={{ background: side === 'front' ? '#38bdf8' : '#a855f7' }}
                       />
                       {side === 'front' ? t('rack.viewMode.front', 'Front') : t('rack.viewMode.rear', 'Rear')}
                     </span>
                   </div>
                   <div
-                    className="relative mx-auto overflow-hidden rounded border border-cp-border bg-cp-surface-1"
+                    className="relative mx-auto overflow-hidden border border-cp-border bg-cp-surface-1"
                     // Lock the panel width to the 19"-rack aspect so the rows
                     // always look correct, even in single-side view where the
                     // grid would otherwise stretch the panel to the full pane
@@ -1329,9 +1329,9 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                       return (
                         <div
                           key={`${side}-block-${item.id}`}
-                          className={`absolute cursor-grab touch-none select-none overflow-hidden rounded border-2 active:cursor-grabbing ${
+                          className={`absolute cursor-grab touch-none select-none overflow-hidden border-2 active:cursor-grabbing ${
                             selectedPlacementId === item.id
-                              ? 'border-amber-300 bg-amber-900/40 shadow-[0_0_0_2px_rgba(252,211,77,0.45)] ring-1 ring-amber-400/40'
+                              ? 'border-amber-300 bg-amber-900/40 ring-1 ring-amber-400/40'
                               : isShelfDevice
                                 ? 'border-emerald-600/70 bg-emerald-900/30 hover:border-emerald-400/80'
                                 : 'border-sky-600/70 bg-sky-900/30 hover:border-sky-400/80 hover:bg-sky-900/40'
@@ -1531,7 +1531,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
           <div className="space-y-3 md:col-span-2 lg:col-span-1">
           {/* v7.9.9 — Live-Preview-Pane: Black-Box auf Canvas + interne
               Verkabelung — Updates live mit jeder Draft-Änderung. */}
-          <div className="rounded border border-cp-border bg-cp-surface-3/50 p-2">
+          <div className="border border-cp-border bg-cp-surface-3/50 p-2">
             <div className="mb-2 text-cp-xs font-semibold uppercase tracking-wide text-cp-text-muted">
               Live-Preview
             </div>
@@ -1560,7 +1560,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
               (PlacementPropertiesDialog am Ende der Component), das per
               Doppelklick auf ein Gerät im Rack aufgeht. Hier nur ein
               kleiner Hinweis statt der dauerhaft offenen Sidebar. */}
-          <div className="rounded border border-dashed border-cp-border bg-cp-surface-3/30 px-2 py-3 text-center text-cp-xs text-cp-text-muted">
+          <div className="border border-dashed border-cp-border bg-cp-surface-3/30 px-2 py-3 text-center text-cp-xs text-cp-text-muted">
             {t(
               'rack.propsHint',
               'Double-click a device in the rack → opens the properties popup (height, start RU, panel images, remove).',

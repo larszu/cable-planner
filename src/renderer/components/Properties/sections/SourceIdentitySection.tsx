@@ -147,7 +147,7 @@ export const SourceIdentitySection = ({ equipment }: { equipment: EquipmentItem 
           <select
             value={equipment.sourceIdentityId ?? ''}
             onChange={(event) => onPickRole(event.target.value)}
-            className="w-full rounded border border-cp-border bg-cp-surface-1 p-2"
+            className="w-full border border-cp-border bg-cp-surface-1 p-2"
           >
             <option value="">{t('sourceIdentity.none', '— none —')}</option>
             {list.map((s) => (
@@ -176,7 +176,7 @@ export const SourceIdentitySection = ({ equipment }: { equipment: EquipmentItem 
                     if (event.key === 'Escape') setNameDraft(null)
                   }}
                   placeholder="Kamera 1"
-                  className="w-full rounded border border-cp-border bg-cp-surface-1 p-2"
+                  className="w-full border border-cp-border bg-cp-surface-1 p-2"
                 />
               </label>
               <label className="block">
@@ -197,7 +197,7 @@ export const SourceIdentitySection = ({ equipment }: { equipment: EquipmentItem 
                           : undefined,
                     })
                   }}
-                  className="w-full rounded border border-cp-border bg-cp-surface-1 p-2 font-mono"
+                  className="w-full border border-cp-border bg-cp-surface-1 p-2 font-mono"
                 />
               </label>
             </div>
@@ -206,7 +206,7 @@ export const SourceIdentitySection = ({ equipment }: { equipment: EquipmentItem 
                 Sie steht ZWISCHEN Eingabefeld und Knopf, weil sie dort gelesen
                 wird: erst sehen, wo es ankommt, dann drücken. */}
             {impact && (
-              <div className="flex flex-col gap-1.5 rounded border border-cp-border-muted bg-cp-surface-2 p-2">
+              <div className="flex flex-col gap-1.5 border border-cp-border-muted bg-cp-surface-2 p-2">
                 {impact.refusal ? (
                   <p className="text-cp-danger">
                     {t(`rename.refusal.${impact.refusal}`, RENAME_REFUSAL_LABEL[impact.refusal])}
@@ -274,14 +274,14 @@ export const SourceIdentitySection = ({ equipment }: { equipment: EquipmentItem 
                     type="button"
                     onClick={applyRename}
                     disabled={Boolean(impact.refusal)}
-                    className="rounded bg-emerald-700 px-2 py-1 hover:bg-emerald-600 disabled:opacity-40"
+                    className="bg-emerald-700 px-2 py-1 hover:bg-emerald-600 disabled:opacity-40"
                   >
                     {t('rename.apply', 'Rename')}
                   </button>
                   <button
                     type="button"
                     onClick={() => setNameDraft(null)}
-                    className="rounded border border-cp-border px-2 py-1 hover:bg-cp-surface-3"
+                    className="border border-cp-border px-2 py-1 hover:bg-cp-surface-3"
                   >
                     {t('rename.discard', 'Discard')}
                   </button>
@@ -316,7 +316,7 @@ export const SourceIdentitySection = ({ equipment }: { equipment: EquipmentItem 
                 }}
                 onBlur={() => setUmdDraft(null)}
                 placeholder={t('sourceIdentity.umdPlaceholder', 'e.g. 1')}
-                className={`w-full rounded border bg-cp-surface-1 p-2 font-mono ${
+                className={`w-full border bg-cp-surface-1 p-2 font-mono ${
                   umdRejected ? 'border-cp-warn' : 'border-cp-border'
                 }`}
               />
@@ -335,7 +335,7 @@ export const SourceIdentitySection = ({ equipment }: { equipment: EquipmentItem 
             )}
 
             {clashPartners.length > 0 && (
-              <p className="rounded border border-cp-danger/60 bg-cp-danger/10 px-2 py-1.5 text-cp-danger">
+              <p className="border border-cp-danger/60 bg-cp-danger/10 px-2 py-1.5 text-cp-danger">
                 {format(
                   t(
                     'sourceIdentity.umdClash',
@@ -364,7 +364,7 @@ export const SourceIdentitySection = ({ equipment }: { equipment: EquipmentItem 
             <button
               type="button"
               onClick={() => removeSourceIdentity(bound.id)}
-              className="self-start rounded border border-cp-border px-2 py-1 text-cp-text-secondary hover:bg-cp-surface-3"
+              className="self-start border border-cp-border px-2 py-1 text-cp-text-secondary hover:bg-cp-surface-3"
             >
               {t('sourceIdentity.remove', 'Delete role (releases all bindings)')}
             </button>

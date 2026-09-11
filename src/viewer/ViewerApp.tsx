@@ -344,7 +344,7 @@ export const ViewerApp = () => {
   if (!project || !stamp) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-cp-bg p-4 text-cp-text">
-        <div className="w-full max-w-md rounded-lg border border-cp-border bg-cp-surface-1 p-6 shadow-2xl" onDragOver={(e) => e.preventDefault()} onDrop={onDrop}>
+        <div className="w-full max-w-md border border-cp-border bg-cp-surface-1 p-6" onDragOver={(e) => e.preventDefault()} onDrop={onDrop}>
           <h1 className="mb-1 text-lg font-semibold">Cable Planner — Viewer</h1>
           <p className="mb-4 text-sm text-cp-text-muted">
             {t(
@@ -356,8 +356,8 @@ export const ViewerApp = () => {
           <label className="mb-1 block text-xs text-cp-text-muted">
             {t('viewer.yourName', 'Your name (for annotations)')}
           </label>
-          <input value={reviewer} onChange={(e) => setReviewerPersisted(e.target.value)} placeholder={t('viewer.yourName.placeholder', 'e.g. Jan (freelance cam)')} className="mb-4 w-full rounded border border-cp-border bg-cp-surface-2 p-2 text-sm" />
-          <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded border border-dashed border-cp-border bg-cp-surface-2/40 p-6 text-center text-sm text-cp-text-muted hover:border-cp-accent hover:text-cp-text">
+          <input value={reviewer} onChange={(e) => setReviewerPersisted(e.target.value)} placeholder={t('viewer.yourName.placeholder', 'e.g. Jan (freelance cam)')} className="mb-4 w-full border border-cp-border bg-cp-surface-2 p-2 text-sm" />
+          <label className="flex cursor-pointer flex-col items-center justify-center gap-2 border border-dashed border-cp-border bg-cp-surface-2/40 p-6 text-center text-sm text-cp-text-muted hover:border-cp-accent hover:text-cp-text">
             <span className="font-medium">{t('viewer.drop', 'Drag a plan file here or click')}</span>
             <span className="text-xs">{t('viewer.drop.kinds', '.cpviewer or .json')}</span>
             <input type="file" accept=".cpviewer,.json,application/json" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) void loadFile(f) }} />
@@ -375,13 +375,13 @@ export const ViewerApp = () => {
                 'viewer.remote.placeholder',
                 'http://192.168.1.10:PORT/?t=…  (LAN)  ·  https://…  (mobile tunnel)',
               )}
-              className="w-full rounded border border-cp-border bg-cp-surface-2 p-2 text-xs"
+              className="w-full border border-cp-border bg-cp-surface-2 p-2 text-xs"
             />
             <button
               type="button"
               disabled={loadingRemote || !remoteUrl.trim()}
               onClick={() => void loadRemote()}
-              className="mt-2 w-full rounded bg-cp-accent px-3 py-1.5 text-xs font-medium text-white enabled:hover:opacity-90 disabled:opacity-50"
+              className="mt-2 w-full bg-cp-accent px-3 py-1.5 text-xs font-medium text-white enabled:hover:opacity-90 disabled:opacity-50"
             >
               {loadingRemote
                 ? t('viewer.remote.loading', 'Loading…')
@@ -397,7 +397,7 @@ export const ViewerApp = () => {
             </p>
           </div>
 
-          {error && <p className="mt-3 rounded border border-cp-danger/40 bg-cp-danger/10 p-2 text-xs text-cp-danger">{error}</p>}
+          {error && <p className="mt-3 border border-cp-danger/40 bg-cp-danger/10 p-2 text-xs text-cp-danger">{error}</p>}
         </div>
       </div>
     )
@@ -423,7 +423,7 @@ export const ViewerApp = () => {
           </p>
         </div>
         <div className="flex shrink-0 items-center gap-2 text-xs text-cp-text-muted">
-          <span className="rounded bg-cp-surface-3 px-2 py-1">
+          <span className="bg-cp-surface-3 px-2 py-1">
             {t('viewer.readOnly', 'Plan read-only')}
           </span>
           {reviewer && (
@@ -432,7 +432,7 @@ export const ViewerApp = () => {
               {reviewer}
             </span>
           )}
-          <button onClick={() => downloadAnnotated()} className="inline-flex items-center gap-1 rounded bg-cp-accent px-2 py-1 font-medium text-white hover:opacity-90" title={t(
+          <button onClick={() => downloadAnnotated()} className="inline-flex items-center gap-1 bg-cp-accent px-2 py-1 font-medium text-white hover:opacity-90" title={t(
             'viewer.download.title',
             'Download the annotated file (.cpviewer) — read it back in the main program via ' +
               '"Read back annotated viewer file…"',
@@ -440,7 +440,7 @@ export const ViewerApp = () => {
             {t('viewer.download', 'Annotated file')}
             <Icon icon={Download} size="xs" />
           </button>
-          <button onClick={() => setProject(null)} className="rounded border border-cp-border px-2 py-1 hover:bg-cp-surface-3">
+          <button onClick={() => setProject(null)} className="border border-cp-border px-2 py-1 hover:bg-cp-surface-3">
             {t('viewer.otherFile', 'Other file…')}
           </button>
         </div>
@@ -450,7 +450,7 @@ export const ViewerApp = () => {
           <PlanSvg project={project} annotations={annotations} centerById={centerById} addMode={addMode} onCanvasClick={addAnnotationAt} onMarkerClick={(id) => setSelectedId(id)} selectedId={selectedId} svgRef={svgRef} />
           <button
             onClick={() => setAddMode((v) => !v)}
-            className={`absolute left-3 top-3 rounded px-3 py-1.5 text-xs font-medium shadow-lg ${addMode ? 'bg-cp-accent text-white ring-2 ring-cp-accent/50' : 'bg-cp-surface-3 text-cp-text hover:bg-cp-surface-4'}`}
+            className={`absolute left-3 top-3 px-3 py-1.5 text-xs font-medium ${addMode ? 'bg-cp-accent text-white ring-2 ring-cp-accent/50' : 'bg-cp-surface-3 text-cp-text hover:bg-cp-surface-4'}`}
           >
             {addMode
               ? t('viewer.ann.clickPlan', 'Click in the plan…')
@@ -477,16 +477,16 @@ export const ViewerApp = () => {
                   const mine = a.author === (reviewer.trim() || 'Reviewer')
                   const sel = a.id === selectedId
                   return (
-                    <li key={a.id} className={`rounded border p-2 text-xs ${sel ? 'border-cp-accent bg-cp-surface-2' : 'border-cp-border-muted bg-cp-surface-2/40'}`} onClick={() => setSelectedId(a.id)}>
+                    <li key={a.id} className={` border p-2 text-xs ${sel ? 'border-cp-accent bg-cp-surface-2' : 'border-cp-border-muted bg-cp-surface-2/40'}`} onClick={() => setSelectedId(a.id)}>
                       <div className="mb-1 flex items-center justify-between gap-2">
                         <span className="flex items-center gap-1.5 font-medium text-cp-text-secondary">
-                          <span className="inline-flex h-4 w-4 items-center justify-center rounded-full text-cp-xs font-bold text-slate-900" style={{ backgroundColor: STATUS_COLOR[a.status] ?? '#64748b' }}>{i + 1}</span>
+                          <span className="inline-flex h-4 w-4 items-center justify-center text-cp-xs font-bold text-slate-900" style={{ backgroundColor: STATUS_COLOR[a.status] ?? '#64748b' }}>{i + 1}</span>
                           {a.author || '—'}
                         </span>
                         <select
                           value={a.status}
                           onChange={(e) => patchAnnotation(a.id, { status: e.target.value as ProjectAnnotation['status'] })}
-                          className="rounded border border-cp-border bg-cp-surface-1 px-1 py-0.5 text-cp-xs"
+                          className="border border-cp-border bg-cp-surface-1 px-1 py-0.5 text-cp-xs"
                           onClick={(e) => e.stopPropagation()}
                         >
                           {STATUS_ORDER.map((s) => <option key={s} value={s}>{STATUS_LABEL[s]}</option>)}
@@ -497,12 +497,12 @@ export const ViewerApp = () => {
                         onChange={(e) => patchAnnotation(a.id, { text: e.target.value })}
                         placeholder={t('viewer.ann.placeholder', 'Annotation…')}
                         rows={2}
-                        className="w-full resize-y rounded border border-cp-border-muted bg-cp-surface-1 p-1.5 text-xs text-cp-text"
+                        className="w-full resize-y border border-cp-border-muted bg-cp-surface-1 p-1.5 text-xs text-cp-text"
                         onClick={(e) => e.stopPropagation()}
                       />
                       {mine && (
                         <div className="mt-1 flex justify-end">
-                          <button onClick={(e) => { e.stopPropagation(); removeAnnotation(a.id) }} className="rounded px-1.5 py-0.5 text-cp-xs text-cp-danger hover:bg-cp-danger/20">
+                          <button onClick={(e) => { e.stopPropagation(); removeAnnotation(a.id) }} className="px-1.5 py-0.5 text-cp-xs text-cp-danger hover:bg-cp-danger/20">
                             {t('viewer.ann.delete', 'Delete')}
                           </button>
                         </div>

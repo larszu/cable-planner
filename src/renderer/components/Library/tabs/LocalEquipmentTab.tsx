@@ -143,7 +143,7 @@ export const LocalEquipmentTab = ({
             }}
             placeholder={t('library.search.placeholder', 'Search…')}
             aria-label={t('library.search.placeholder', 'Search…')}
-            className="w-full rounded border border-cp-border bg-cp-surface-1 py-1 pl-7 pr-12 text-cp-xs text-cp-text placeholder-slate-500"
+            className="w-full border border-cp-border bg-cp-surface-1 py-1 pl-7 pr-12 text-cp-xs text-cp-text placeholder-slate-500"
           />
           {librarySearch ? (
             <button
@@ -151,7 +151,7 @@ export const LocalEquipmentTab = ({
               onClick={() => setLibrarySearch('')}
               title={t('library.search.clear', 'Clear search')}
               aria-label={t('library.search.clear', 'Clear search')}
-              className="absolute right-1 top-1/2 -translate-y-1/2 rounded px-1 py-0.5 text-cp-xs text-cp-text-faint hover:bg-cp-surface-4 hover:text-cp-text-bright"
+              className="absolute right-1 top-1/2 -translate-y-1/2 px-1 py-0.5 text-cp-xs text-cp-text-faint hover:bg-cp-surface-4 hover:text-cp-text-bright"
             >
               <Icon icon={X} size="sm" />
             </button>
@@ -226,18 +226,18 @@ export const LocalEquipmentTab = ({
             value={newGroupName}
             onChange={(e) => setNewGroupName(e.target.value)}
             placeholder={t('library.newCategoryPlaceholder', 'Category name…')}
-            className="flex-1 rounded border border-cp-surface-5 bg-cp-surface-1 p-1.5 text-cp-xs"
+            className="flex-1 border border-cp-surface-5 bg-cp-surface-1 p-1.5 text-cp-xs"
           />
           <button
             type="submit"
-            className="rounded bg-emerald-700 px-2 text-cp-xs hover:bg-emerald-600"
+            className="bg-emerald-700 px-2 text-cp-xs hover:bg-emerald-600"
           >
             {t('common.ok', 'OK')}
           </button>
           <button
             type="button"
             onClick={() => setShowNewGroup(false)}
-            className="rounded bg-cp-surface-4 px-2 text-cp-xs hover:bg-cp-surface-5"
+            className="bg-cp-surface-4 px-2 text-cp-xs hover:bg-cp-surface-5"
             aria-label={t('common.close', 'Close')}
           >
             <Icon icon={X} size="sm" />
@@ -272,7 +272,7 @@ export const LocalEquipmentTab = ({
             )
             if (!anyMatch) {
               return (
-                <div className="mt-4 rounded border border-cp-border-muted bg-cp-surface-3/60 p-4 text-center text-cp-xs text-cp-text-muted">
+                <div className="mt-4 border border-cp-border-muted bg-cp-surface-3/60 p-4 text-center text-cp-xs text-cp-text-muted">
                   <div className="mb-2 font-semibold text-cp-text-secondary">
                     {t('library.empty.title', 'No devices found')}
                   </div>
@@ -288,7 +288,7 @@ export const LocalEquipmentTab = ({
                   <button
                     type="button"
                     onClick={() => setLibrarySearch('')}
-                    className="rounded bg-cp-surface-4 px-3 py-1 text-cp-xs text-cp-text hover:bg-cp-surface-5"
+                    className="bg-cp-surface-4 px-3 py-1 text-cp-xs text-cp-text hover:bg-cp-surface-5"
                   >
                     {t('library.empty.clearSearch', 'Clear search')}
                   </button>
@@ -334,7 +334,7 @@ export const LocalEquipmentTab = ({
                   } catch { /* ignore */ }
                 }}
               >
-                <div className="group/cat flex items-center gap-1.5 rounded-t bg-cp-surface-1/60 px-2 py-1.5 text-left text-cp-xs font-semibold uppercase tracking-wide text-cp-text-secondary hover:bg-cp-surface-2/80 hover:text-cp-text">
+                <div className="group/cat flex items-center gap-1.5 bg-cp-surface-1/60 px-2 py-1.5 text-left text-cp-xs font-semibold uppercase tracking-wide text-cp-text-secondary hover:bg-cp-surface-2/80 hover:text-cp-text">
                   <button
                     type="button"
                     onClick={() =>
@@ -375,13 +375,13 @@ export const LocalEquipmentTab = ({
                         setCategoryTranslation(cat, { de: result.de, en: result.en })
                       }
                     }}
-                    className="hidden rounded bg-cp-surface-4/80 px-1.5 py-0.5 text-cp-xs font-normal normal-case text-cp-text-bright hover:bg-cp-surface-5 group-hover/cat:block"
+                    className="hidden bg-cp-surface-4/80 px-1.5 py-0.5 text-cp-xs font-normal normal-case text-cp-text-bright hover:bg-cp-surface-5 group-hover/cat:block"
                     title={t('library.renameCategory', 'Rename category')}
                     aria-label={t('library.renameCategory', 'Rename category')}
                   >
                     <Icon icon={Pencil} size="xs" />
                   </button>
-                  <span className="rounded bg-cp-surface-2 px-1.5 py-0.5 text-cp-xs font-normal text-cp-text-muted">
+                  <span className="bg-cp-surface-2 px-1.5 py-0.5 text-cp-xs font-normal text-cp-text-muted">
                     {items.length}
                   </span>
                 </div>
@@ -418,7 +418,7 @@ export const LocalEquipmentTab = ({
                           <button
                             type="button"
                             onClick={() => setSelectedTemplateName(item.name)}
-                            className="absolute right-7 top-1 hidden rounded bg-cp-surface-5 px-1 py-0.5 text-cp-xs hover:bg-slate-500 group-hover/item:block"
+                            className="absolute right-7 top-1 hidden bg-cp-surface-5 px-1 py-0.5 text-cp-xs hover:bg-slate-500 group-hover/item:block"
                             title={t('library.template.editTitle', 'Edit template (name, category)')}
                             aria-label={t('library.template.editTitle', 'Edit template (name, category)')}
                           >

@@ -41,7 +41,7 @@ export const CameraControlsSection = ({ equipment }: { equipment: EquipmentItem 
   const zeilen = controlRows(model)
 
   return (
-    <details className="rounded border border-cp-border-muted">
+    <details className="border border-cp-border-muted">
       <summary className="cursor-pointer px-2 py-1 text-cp-xs font-medium text-cp-text">
         <Icon icon={Camera} size="xs" className="mr-1 inline" />
         {t('props.cameraControls.title', 'Controllable functions')}

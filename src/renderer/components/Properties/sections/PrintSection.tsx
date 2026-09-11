@@ -31,7 +31,7 @@ export const PrintSection = ({ equipment }: { equipment: EquipmentItem }) => {
               format: 'a4',
             })
           }
-          className="w-full rounded bg-sky-700 px-2 py-1 text-cp-xs text-white hover:bg-sky-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+          className="w-full bg-sky-700 px-2 py-1 text-cp-xs text-white hover:bg-sky-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
           title={t(
             'printSection.a4Title',
             'Generates a single-page A4 patch list with all ports + connected cables — to stick on the device.',
@@ -47,7 +47,7 @@ export const PrintSection = ({ equipment }: { equipment: EquipmentItem }) => {
               format: 'a3',
             })
           }
-          className="w-full rounded bg-sky-800 px-2 py-1 text-cp-xs text-white hover:bg-sky-700"
+          className="w-full bg-sky-800 px-2 py-1 text-cp-xs text-white hover:bg-sky-700"
           title={t('printSection.a3Title', 'A3 variant for devices with many ports.')}
         >
           <Icon icon={Printer} size="xs" className="mr-1 inline-block align-text-bottom" />

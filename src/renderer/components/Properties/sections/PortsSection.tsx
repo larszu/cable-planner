@@ -58,7 +58,7 @@ export const PortsSection = ({ equipment }: { equipment: EquipmentItem }) => {
     >
       <div className="space-y-2">
         {equipment.portsUnknown && equipment.inputs.length === 0 && equipment.outputs.length === 0 && (
-          <div className="rounded border border-cp-warn/40 bg-cp-warn/10 px-2 py-1.5 text-cp-xs text-cp-text-secondary">
+          <div className="border border-cp-warn/40 bg-cp-warn/10 px-2 py-1.5 text-cp-xs text-cp-text-secondary">
             {t(
               'ports.unknown',
               'Port layout unknown (no datasheet match on import). Add the real connectors below — none were fabricated.',
@@ -97,7 +97,7 @@ export const PortsSection = ({ equipment }: { equipment: EquipmentItem }) => {
           />
           {t('ports.flip', 'Flip ports (inputs on right, outputs on left)')}
         </label>
-        <details open className="rounded border border-cp-border-muted bg-cp-surface-3/30">
+        <details open className="border border-cp-border-muted bg-cp-surface-3/30">
           <summary className="cursor-pointer select-none px-2 py-1 text-cp-xs font-semibold text-cp-text-secondary hover:text-cp-text">
             {t('ports.title.inputs', 'Inputs')}{' '}
             <span className="text-cp-text-faint">({equipment.inputs.length})</span>
@@ -112,7 +112,7 @@ export const PortsSection = ({ equipment }: { equipment: EquipmentItem }) => {
             />
           </div>
         </details>
-        <details open className="rounded border border-cp-border-muted bg-cp-surface-3/30">
+        <details open className="border border-cp-border-muted bg-cp-surface-3/30">
           <summary className="cursor-pointer select-none px-2 py-1 text-cp-xs font-semibold text-cp-text-secondary hover:text-cp-text">
             {t('ports.title.outputs', 'Outputs')}{' '}
             <span className="text-cp-text-faint">({equipment.outputs.length})</span>

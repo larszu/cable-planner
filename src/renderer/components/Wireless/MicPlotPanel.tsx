@@ -138,7 +138,7 @@ export const MicPlotPanel = () => {
             </option>
           ))}
         </select>
-        <button type="button" onClick={addSession} className="rounded bg-cp-surface-3 px-2 py-1 text-cp-xs hover:bg-cp-surface-4">
+        <button type="button" onClick={addSession} className="bg-cp-surface-3 px-2 py-1 text-cp-xs hover:bg-cp-surface-4">
           <Plus size={12} className="mr-1 inline" />
           {t('micPlot.addSession', 'Session')}
         </button>
@@ -153,7 +153,7 @@ export const MicPlotPanel = () => {
             'micPlot.carryHint',
             'Take the previous session\u2019s assignments as a proposal. The battery timestamp is NOT carried over \u2014 yesterday\u2019s is the one value that is certainly wrong.',
           )}
-          className="rounded bg-cp-surface-3 px-2 py-1 text-cp-xs hover:bg-cp-surface-4 disabled:opacity-40"
+          className="bg-cp-surface-3 px-2 py-1 text-cp-xs hover:bg-cp-surface-4 disabled:opacity-40"
         >
           <CopyPlus size={12} className="mr-1 inline" />
           {t('micPlot.carry', 'Carry over from previous')}
@@ -162,7 +162,7 @@ export const MicPlotPanel = () => {
           type="button"
           onClick={exportieren}
           disabled={!aktuelle || zuordnungen.length === 0}
-          className="rounded bg-purple-700 px-2 py-1 text-cp-xs hover:bg-purple-600 disabled:opacity-40"
+          className="bg-purple-700 px-2 py-1 text-cp-xs hover:bg-purple-600 disabled:opacity-40"
         >
           <Download size={12} className="mr-1 inline" />
           {t('micPlot.export', 'Session sheet')}
@@ -276,7 +276,7 @@ export const MicPlotPanel = () => {
                       <button
                         type="button"
                         onClick={() => patch({ batteryFittedAt: new Date().toISOString() })}
-                        className="rounded bg-cp-surface-3 px-2 py-1 text-cp-xs hover:bg-cp-surface-4"
+                        className="bg-cp-surface-3 px-2 py-1 text-cp-xs hover:bg-cp-surface-4"
                       >
                         {a.batteryFittedAt
                           ? new Date(a.batteryFittedAt).toLocaleTimeString()
@@ -294,7 +294,7 @@ export const MicPlotPanel = () => {
                             ),
                           })
                         }
-                        className="rounded p-1 text-cp-text-muted hover:bg-red-900/50 hover:text-red-300"
+                        className="p-1 text-cp-text-muted hover:bg-red-900/50 hover:text-red-300"
                         title={t('common.delete', 'Delete')}
                       >
                         <Trash2 size={13} />
@@ -314,7 +314,7 @@ export const MicPlotPanel = () => {
                 ? undefined
                 : t('micPlot.needChannel', 'Create a channel in the rig plan first \u2014 the assignment points at it.')
             }
-            className="mt-2 rounded bg-cp-surface-3 px-2 py-1 text-cp-xs hover:bg-cp-surface-4 disabled:opacity-40"
+            className="mt-2 bg-cp-surface-3 px-2 py-1 text-cp-xs hover:bg-cp-surface-4 disabled:opacity-40"
           >
             <Plus size={12} className="mr-1 inline" />
             {t('micPlot.addPerson', 'Person')}

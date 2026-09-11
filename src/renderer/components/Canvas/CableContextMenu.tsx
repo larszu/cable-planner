@@ -268,7 +268,7 @@ export const CableContextMenu = () => {
         overflowY: 'auto',
         zIndex: 9999,
       }}
-      className={`rounded border shadow-2xl backdrop-blur-sm ${
+      className={` border backdrop-blur-sm ${
         'border-cp-border bg-cp-surface-1/98 text-cp-text'
       }`}
       onContextMenu={(e) => e.preventDefault()}

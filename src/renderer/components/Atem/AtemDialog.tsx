@@ -333,7 +333,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
                 onChange={(event) => setIp(event.target.value)}
                 placeholder="192.168.10.240"
                 disabled={status === 'connected' || status === 'connecting'}
-                className="w-full rounded border border-cp-border bg-cp-surface-3 p-2 font-mono text-cp-base"
+                className="w-full border border-cp-border bg-cp-surface-3 p-2 font-mono text-cp-base"
               />
             </label>
             {status !== 'connected' && (
@@ -341,7 +341,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
                 type="button"
                 onClick={discover}
                 disabled={discovering || status === 'connecting'}
-                className="rounded bg-purple-700 px-3 py-2 text-cp-base hover:bg-purple-600 disabled:opacity-50"
+                className="bg-purple-700 px-3 py-2 text-cp-base hover:bg-purple-600 disabled:opacity-50"
                 title={t('atem.dialog.discoverTitle', 'Discover ATEM switchers on the local network via mDNS (Bonjour)')}
               >
                 <Icon icon={Search} size="xs" className="mr-1 inline-block align-text-bottom" />
@@ -353,7 +353,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
                 type="button"
                 onClick={connect}
                 disabled={status === 'connecting' || !ip.trim()}
-                className="rounded bg-sky-700 px-3 py-2 text-cp-base hover:bg-sky-600 disabled:opacity-50"
+                className="bg-sky-700 px-3 py-2 text-cp-base hover:bg-sky-600 disabled:opacity-50"
               >
                 {status === 'connecting' ? t('atem.dialog.connecting', 'Connecting…') : t('atem.dialog.connect', 'Connect')}
               </button>
@@ -362,7 +362,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
               <button
                 type="button"
                 onClick={disconnect}
-                className="rounded bg-cp-surface-4 px-3 py-2 text-cp-base hover:bg-cp-surface-5"
+                className="bg-cp-surface-4 px-3 py-2 text-cp-base hover:bg-cp-surface-5"
               >
                 {t('atem.dialog.disconnect', 'Disconnect')}
               </button>
@@ -371,7 +371,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
               <button
                 type="button"
                 onClick={openAtemMvLayout}
-                className="rounded bg-emerald-700 px-3 py-2 text-cp-base hover:bg-emerald-600"
+                className="bg-emerald-700 px-3 py-2 text-cp-base hover:bg-emerald-600"
                 title={t('atem.dialog.mvLive', 'Show multiviewer layout live')}
               >
                 MV Layout →
@@ -383,7 +383,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
           {discoveryDone && status !== 'connected' && (
             <div className="mt-2">
               {discovered.length === 0 ? (
-                <div className="rounded border border-dashed border-cp-border bg-cp-surface-3/40 p-2 text-cp-xs text-cp-text-muted">
+                <div className="border border-dashed border-cp-border bg-cp-surface-3/40 p-2 text-cp-xs text-cp-text-muted">
                   {t(
                     'atem.dialog.noneFound',
                     'No ATEM switcher found via mDNS on the local network. (Some models / firewall setups block mDNS — enter the IP manually then.)',
@@ -401,7 +401,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
                       key={dev.ip}
                       type="button"
                       onClick={() => setIp(dev.ip)}
-                      className="flex w-full items-center justify-between gap-2 rounded border border-cp-border bg-cp-surface-3 px-2 py-1.5 text-left text-cp-xs hover:border-purple-500 hover:bg-cp-surface-1"
+                      className="flex w-full items-center justify-between gap-2 border border-cp-border bg-cp-surface-3 px-2 py-1.5 text-left text-cp-xs hover:border-purple-500 hover:bg-cp-surface-1"
                     >
                       <span className="font-medium text-cp-text">
                         {dev.name}
@@ -427,7 +427,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
             </div>
           )}
           {error && (
-            <div className="mt-2 rounded bg-red-900/50 p-2 text-cp-xs text-red-100">{error}</div>
+            <div className="mt-2 bg-red-900/50 p-2 text-cp-xs text-red-100">{error}</div>
           )}
         </div>
 
@@ -441,7 +441,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
                 type="button"
                 onClick={pushAll}
                 disabled={pushing || dirtyCount === 0}
-                className="rounded bg-emerald-700 px-3 py-1 text-cp-xs hover:bg-emerald-600 disabled:opacity-50"
+                className="bg-emerald-700 px-3 py-1 text-cp-xs hover:bg-emerald-600 disabled:opacity-50"
               >
                 {pushing
                   ? t('atem.dialog.sending', 'Sending…')
@@ -511,7 +511,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
                         maxLength={20}
                         disabled={row.locked}
                         onChange={(event) => setDraft(row.inputId, { long: event.target.value })}
-                        className="w-full rounded border border-cp-border bg-cp-surface-3 p-1 font-mono disabled:cursor-not-allowed disabled:bg-cp-surface-1 disabled:text-cp-text-faint"
+                        className="w-full border border-cp-border bg-cp-surface-3 p-1 font-mono disabled:cursor-not-allowed disabled:bg-cp-surface-1 disabled:text-cp-text-faint"
                       />
                     </td>
                     <td className="py-1">
@@ -522,7 +522,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
                         onChange={(event) =>
                           setDraft(row.inputId, { short: event.target.value.toUpperCase() })
                         }
-                        className="w-full rounded border border-cp-border bg-cp-surface-3 p-1 font-mono uppercase disabled:cursor-not-allowed disabled:bg-cp-surface-1 disabled:text-cp-text-faint"
+                        className="w-full border border-cp-border bg-cp-surface-3 p-1 font-mono uppercase disabled:cursor-not-allowed disabled:bg-cp-surface-1 disabled:text-cp-text-faint"
                       />
                     </td>
                   </tr>
@@ -541,7 +541,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
 
         <details className="border-t border-cp-border px-4 py-2 text-cp-xs">
           <summary className="cursor-pointer text-cp-text-muted">{t('atem.eventLog', 'Event log')} ({events.length})</summary>
-          <pre className="mt-2 max-h-40 overflow-auto rounded bg-cp-surface-3 p-2 font-mono text-cp-xs text-cp-text-secondary">
+          <pre className="mt-2 max-h-40 overflow-auto bg-cp-surface-3 p-2 font-mono text-cp-xs text-cp-text-secondary">
             {events.join('\n') || t('atem.dialog.noEvents', '(no events yet)')}
           </pre>
         </details>

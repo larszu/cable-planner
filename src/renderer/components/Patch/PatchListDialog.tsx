@@ -569,7 +569,7 @@ export const PatchListDialog = () => {
               type="button"
               onClick={exportCsv}
               disabled={filtered.length === 0}
-              className="inline-flex items-center gap-1.5 rounded bg-emerald-700 px-3 py-1 text-cp-xs hover:bg-emerald-600 disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 bg-emerald-700 px-3 py-1 text-cp-xs hover:bg-emerald-600 disabled:opacity-50"
             >
               <Icon icon={Download} size="xs" />
               {t('patchList.exportCsv', 'Export CSV')}
@@ -578,7 +578,7 @@ export const PatchListDialog = () => {
               type="button"
               onClick={() => void exportXlsx()}
               disabled={filtered.length === 0}
-              className="inline-flex items-center gap-1.5 rounded bg-emerald-700 px-3 py-1 text-cp-xs hover:bg-emerald-600 disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 bg-emerald-700 px-3 py-1 text-cp-xs hover:bg-emerald-600 disabled:opacity-50"
             >
               <Icon icon={Download} size="xs" />
               {t('patchList.exportXlsx', 'Export XLSX')}
@@ -587,7 +587,7 @@ export const PatchListDialog = () => {
               type="button"
               onClick={() => void exportLabels()}
               disabled={filtered.length === 0}
-              className="inline-flex items-center gap-1.5 rounded bg-sky-700 px-3 py-1 text-cp-xs hover:bg-sky-600 disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 bg-sky-700 px-3 py-1 text-cp-xs hover:bg-sky-600 disabled:opacity-50"
             >
               <Icon icon={Tag} size="xs" />
               {t('patchList.exportLabels', 'Labels + QR (PDF)')}
@@ -597,7 +597,7 @@ export const PatchListDialog = () => {
               value={labelCsvFormat}
               onChange={(e) => setLabelCsvFormat(e.target.value as LabelCsvFormat)}
               title={t('patchList.labelCsvFormat', 'Label-printer format')}
-              className="rounded border border-cp-border bg-cp-surface-3 px-1 py-1 text-cp-xs"
+              className="border border-cp-border bg-cp-surface-3 px-1 py-1 text-cp-xs"
             >
               <option value="generic">{t('patchList.labelCsv.generic', 'Generic (CSV)')}</option>
               <option value="brother">{t('patchList.labelCsv.brother', 'Brother P-touch (TXT)')}</option>
@@ -607,7 +607,7 @@ export const PatchListDialog = () => {
               type="button"
               onClick={() => exportLabelCsv(labelCsvFormat)}
               disabled={filtered.length === 0}
-              className="inline-flex items-center gap-1 rounded bg-sky-700 px-3 py-1 text-cp-xs hover:bg-sky-600 disabled:opacity-50"
+              className="inline-flex items-center gap-1 bg-sky-700 px-3 py-1 text-cp-xs hover:bg-sky-600 disabled:opacity-50"
             >
               <Icon icon={Tag} size="xs" />
               {t('patchList.exportLabelCsv', 'Label CSV')}
@@ -623,7 +623,7 @@ export const PatchListDialog = () => {
                   onChange={(e) => setChannelView(e.target.value as ChannelViewId | 'owner')}
                   title={t('channelList.view', 'View of the channel list')}
                   aria-label={t('channelList.view', 'View of the channel list')}
-                  className="rounded border border-cp-border bg-cp-surface-3 px-1 py-1 text-cp-xs"
+                  className="border border-cp-border bg-cp-surface-3 px-1 py-1 text-cp-xs"
                 >
                   <option value="band">{t('channelList.view.band', 'Band (rider)')}</option>
                   <option value="venue">{t('channelList.view.venue', 'Venue (patch)')}</option>
@@ -642,7 +642,7 @@ export const PatchListDialog = () => {
                     'channelList.exportHint',
                     'The same channel list, cut for this reader. The monitor view shows paths, not mix contents \u2014 the plan does not know those.',
                   )}
-                  className="inline-flex items-center gap-1 rounded bg-purple-700 px-3 py-1 text-cp-xs hover:bg-purple-600"
+                  className="inline-flex items-center gap-1 bg-purple-700 px-3 py-1 text-cp-xs hover:bg-purple-600"
                 >
                   <Icon icon={SlidersHorizontal} size="xs" />
                   {t('channelList.export', 'Channel list')}
@@ -653,7 +653,7 @@ export const PatchListDialog = () => {
                     eigentliche Nutzen — er ist die Änderungsliste aus der
                     Probe, die heute nur im Kopf von jemandem existiert. */}
                 <label
-                  className="inline-flex cursor-pointer items-center gap-1 rounded border border-cp-border px-3 py-1 text-cp-xs text-cp-text-secondary hover:text-cp-text"
+                  className="inline-flex cursor-pointer items-center gap-1 border border-cp-border px-3 py-1 text-cp-xs text-cp-text-secondary hover:text-cp-text"
                   title={t(
                     'scene.importHint',
                     'Read the console scene file (X32/M32/WING). This application writes nothing back to the console.',
@@ -706,7 +706,7 @@ export const PatchListDialog = () => {
             „was hat sich in der Probe geändert", und die stellt sich genau
             hier, mit der Liste daneben. */}
         {szeneAktuell && (
-          <div className="mb-2 rounded border border-cp-border-muted bg-cp-surface-2 p-2 text-cp-xs">
+          <div className="mb-2 border border-cp-border-muted bg-cp-surface-2 p-2 text-cp-xs">
             <div className="mb-1.5 flex flex-wrap items-center gap-2">
               <span className="font-medium text-cp-text">
                 {t('scene.title', 'Console scene file')}
@@ -732,7 +732,7 @@ export const PatchListDialog = () => {
                 value={szeneMode}
                 onChange={(e) => setSzeneMode(e.target.value as MatchMode)}
                 aria-label={t('scene.matchMode', 'Match to the plan')}
-                className="rounded border border-cp-border bg-cp-surface-3 px-1 py-0.5"
+                className="border border-cp-border bg-cp-surface-3 px-1 py-0.5"
               >
                 <option value="by-name">{t('scene.byName', 'by name')}</option>
                 <option value="by-number">
@@ -748,7 +748,7 @@ export const PatchListDialog = () => {
                     'text/csv',
                   )
                 }
-                className="rounded border border-cp-border px-2 py-0.5 text-cp-text-secondary hover:text-cp-text"
+                className="border border-cp-border px-2 py-0.5 text-cp-text-secondary hover:text-cp-text"
               >
                 {t('scene.exportList', 'Channels')}
               </button>
@@ -761,7 +761,7 @@ export const PatchListDialog = () => {
                     'text/csv',
                   )
                 }
-                className="rounded border border-cp-border px-2 py-0.5 text-cp-text-secondary hover:text-cp-text"
+                className="border border-cp-border px-2 py-0.5 text-cp-text-secondary hover:text-cp-text"
               >
                 {t('scene.exportMatch', 'Match')}
               </button>
@@ -775,7 +775,7 @@ export const PatchListDialog = () => {
                       'text/csv',
                     )
                   }
-                  className="rounded border border-cp-border px-2 py-0.5 text-cp-text-secondary hover:text-cp-text"
+                  className="border border-cp-border px-2 py-0.5 text-cp-text-secondary hover:text-cp-text"
                 >
                   {t('scene.exportDiff', 'Changes')}
                 </button>
@@ -813,14 +813,14 @@ export const PatchListDialog = () => {
             onChange={(e) => setFilter(e.target.value)}
             placeholder={t('patchList.searchPlaceholder', 'Search (device, port, type, colour, note …)')}
             aria-label={t('patchList.searchPlaceholder', 'Search (device, port, type, colour, note …)')}
-            className="flex-1 rounded border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs"
+            className="flex-1 border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs"
           />
           {layers.length > 0 && (
             <select
               value={layerFilter}
               onChange={(e) => setLayerFilter(e.target.value)}
               title={t('patchList.layerFilter', 'Filter by layer/discipline')}
-              className="rounded border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs"
+              className="border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs"
             >
               <option value="">{t('patchList.allLayers', 'All layers')}</option>
               {layers.map((l) => (
@@ -881,7 +881,7 @@ export const PatchListDialog = () => {
                   <td className="px-2 py-1 text-right text-cp-text-secondary">{r.length}</td>
                   <td className="px-2 py-1">
                     <span
-                      className="inline-block h-3 w-8 rounded"
+                      className="inline-block h-3 w-8"
                       style={{ background: r.color }}
                       title={r.color}
                     />

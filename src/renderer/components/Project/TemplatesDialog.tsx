@@ -195,7 +195,7 @@ export const TemplatesDialog = () => {
   const card = (tpl: ProjectTemplate) => (
     <div
       key={tpl.id}
-      className="flex flex-col gap-2 rounded border border-[var(--cp-border)] bg-[var(--cp-surface-2)] p-3"
+      className="flex flex-col gap-2 border border-[var(--cp-border)] bg-[var(--cp-surface-2)] p-3"
     >
       <div className="flex items-start gap-2">
         <Icon icon={LayoutTemplate} size="md" className="mt-0.5 text-violet-400" />

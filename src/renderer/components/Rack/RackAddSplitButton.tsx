@@ -55,7 +55,7 @@ export const RackAddSplitButton = ({
 
   return (
     <div ref={rootRef} className="relative shrink-0">
-      <div className="flex overflow-hidden rounded-cp-control shadow-sm">
+      <div className="flex overflow-hidden rounded-cp-control">
         <button
           type="button"
           onClick={onAddFull}
@@ -80,7 +80,7 @@ export const RackAddSplitButton = ({
       {open && (
         <div
           role="menu"
-          className="absolute right-0 z-30 mt-1 w-44 overflow-hidden rounded-cp-control border border-cp-border bg-cp-surface-1 text-cp-xs shadow-2xl"
+          className="absolute right-0 z-30 mt-1 w-44 overflow-hidden rounded-cp-control border border-cp-border bg-cp-surface-1 text-cp-xs"
         >
           <button
             type="button"

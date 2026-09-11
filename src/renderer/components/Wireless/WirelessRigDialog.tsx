@@ -111,7 +111,7 @@ export const WirelessRigDialog = () => {
         ref={panelRef}
         aria-labelledby={titleId}
         {...dialogProps}
-        className="flex max-h-[90vh] w-full max-w-5xl flex-col overflow-hidden rounded-lg border border-cp-border bg-cp-bg shadow-2xl"
+        className="flex max-h-[90vh] w-full max-w-5xl flex-col overflow-hidden border border-cp-border bg-cp-bg"
       >
         <header className="flex shrink-0 items-center justify-between border-b border-cp-border-muted px-4 py-2.5">
           <h2 id={titleId} className="flex items-center gap-2 text-cp-lg font-semibold">
@@ -120,7 +120,7 @@ export const WirelessRigDialog = () => {
           <button
             type="button"
             onClick={() => setOpen(false)}
-            className="rounded px-2 py-1 text-cp-text-muted hover:bg-cp-surface-2 hover:text-cp-text"
+            className="px-2 py-1 text-cp-text-muted hover:bg-cp-surface-2 hover:text-cp-text"
             aria-label={t('common.close', 'Close')}
           >
             <X size={18} />
@@ -132,20 +132,20 @@ export const WirelessRigDialog = () => {
           <button
             type="button"
             onClick={addChannel}
-            className="flex items-center gap-1 rounded bg-emerald-700 px-2.5 py-1.5 text-cp-xs hover:bg-emerald-600"
+            className="flex items-center gap-1 bg-emerald-700 px-2.5 py-1.5 text-cp-xs hover:bg-emerald-600"
           >
             <Plus size={14} /> {t('wireless.addChannel', 'Channel')}
           </button>
-          <span className="rounded bg-cp-surface-3 px-2 py-1 text-cp-xs text-cp-text-secondary">
+          <span className="bg-cp-surface-3 px-2 py-1 text-cp-xs text-cp-text-secondary">
             {format(t('wireless.summary', '{n} channels'), { n: derivation.channelCount })}
           </span>
           {derivation.incompatibleCount > 0 && (
-            <span className="flex items-center gap-1 rounded bg-cp-danger/20 px-2 py-1 text-cp-xs text-cp-danger">
+            <span className="flex items-center gap-1 bg-cp-danger/20 px-2 py-1 text-cp-xs text-cp-danger">
               <AlertTriangle size={12} /> {format(t('wireless.incompat', '{n} incompatible'), { n: derivation.incompatibleCount })}
             </span>
           )}
           {derivation.rfConflicts.length > 0 && (
-            <span className="flex items-center gap-1 rounded bg-cp-warn/20 px-2 py-1 text-cp-xs text-cp-warn">
+            <span className="flex items-center gap-1 bg-cp-warn/20 px-2 py-1 text-cp-xs text-cp-warn">
               <AlertTriangle size={12} /> {format(t('wireless.rfConflicts', '{n} RF conflicts'), { n: derivation.rfConflicts.length })}
             </span>
           )}
@@ -153,11 +153,11 @@ export const WirelessRigDialog = () => {
 
         <div className="flex min-h-0 flex-1 flex-col overflow-auto p-4 text-cp-sm">
           {plan.channels.length === 0 ? (
-            <div className="rounded border border-dashed border-cp-border py-12 text-center text-cp-text-muted">
+            <div className="border border-dashed border-cp-border py-12 text-center text-cp-text-muted">
               {t('wireless.empty', 'No channels yet. Add a channel and assign body + capsule/headset.')}
             </div>
           ) : (
-            <div className="overflow-x-auto rounded border border-cp-border">
+            <div className="overflow-x-auto border border-cp-border">
               <table className="w-full border-collapse text-left">
                 <thead className="bg-cp-surface-2 text-cp-text-muted">
                   <tr>
@@ -242,7 +242,7 @@ export const WirelessRigDialog = () => {
                           <button
                             type="button"
                             onClick={() => removeChannel(channel.id)}
-                            className="rounded p-1 text-cp-text-muted hover:bg-red-900/50 hover:text-red-300"
+                            className="p-1 text-cp-text-muted hover:bg-red-900/50 hover:text-red-300"
                             title={t('common.delete', 'Delete')}
                           >
                             <Trash2 size={13} />
@@ -262,10 +262,10 @@ export const WirelessRigDialog = () => {
               <div className="mb-1 flex items-center gap-2 text-cp-xs font-semibold uppercase tracking-wide text-cp-text-secondary">
                 <AlertTriangle size={13} className="text-cp-warn" /> {t('wireless.rfTitle', 'RF coordination — conflicts')}
               </div>
-              <ul className="space-y-1 rounded border border-cp-warn/40 bg-cp-warn/5 p-2 text-cp-xs">
+              <ul className="space-y-1 border border-cp-warn/40 bg-cp-warn/5 p-2 text-cp-xs">
                 {derivation.rfConflicts.map((c, i) => (
                   <li key={i} className="flex gap-2">
-                    <span className="rounded bg-cp-surface-3 px-1.5 py-0.5 text-cp-xs text-cp-text-muted">
+                    <span className="bg-cp-surface-3 px-1.5 py-0.5 text-cp-xs text-cp-text-muted">
                       {c.kind === 'spacing' ? t('wireless.kindSpacing', 'spacing') : c.kind === 'imd3-2tx' ? 'IMD3·2' : 'IMD3·3'}
                     </span>
                     <span className="text-cp-text-secondary">{c.message}</span>

@@ -116,7 +116,7 @@ export const RecordingStorageCalcCore = ({
         <select
           value={codecId}
           onChange={(e) => setCodecId(e.target.value)}
-          className="w-full rounded border border-cp-border bg-cp-surface-3 p-2"
+          className="w-full border border-cp-border bg-cp-surface-3 p-2"
         >
           {CODEC_PRESETS.map((c) => (
             <option key={c.id} value={c.id}>
@@ -136,7 +136,7 @@ export const RecordingStorageCalcCore = ({
             max={10000}
             value={customMbps}
             onChange={(e) => setCustomMbps(Math.max(1, Number(e.target.value) || 100))}
-            className="w-full rounded border border-cp-border bg-cp-surface-3 p-2"
+            className="w-full border border-cp-border bg-cp-surface-3 p-2"
           />
         </label>
       )}
@@ -150,7 +150,7 @@ export const RecordingStorageCalcCore = ({
             max={9999}
             value={hours}
             onChange={(e) => setHours(Math.max(0, Number(e.target.value) || 0))}
-            className="w-full rounded border border-cp-border bg-cp-surface-3 p-2"
+            className="w-full border border-cp-border bg-cp-surface-3 p-2"
           />
         </label>
         <label className="block">
@@ -161,7 +161,7 @@ export const RecordingStorageCalcCore = ({
             max={59}
             value={minutes}
             onChange={(e) => setMinutes(Math.max(0, Math.min(59, Number(e.target.value) || 0)))}
-            className="w-full rounded border border-cp-border bg-cp-surface-3 p-2"
+            className="w-full border border-cp-border bg-cp-surface-3 p-2"
           />
         </label>
         <label className="block">
@@ -173,7 +173,7 @@ export const RecordingStorageCalcCore = ({
             value={channels}
             disabled={fixedChannels !== undefined}
             onChange={(e) => setChannels(Math.max(1, Math.min(256, Number(e.target.value) || 1)))}
-            className="w-full rounded border border-cp-border bg-cp-surface-3 p-2 disabled:opacity-50"
+            className="w-full border border-cp-border bg-cp-surface-3 p-2 disabled:opacity-50"
           />
           {fixedChannels !== undefined && (
             <span className="mt-0.5 block text-cp-xs text-cp-text-muted">
@@ -183,7 +183,7 @@ export const RecordingStorageCalcCore = ({
         </label>
       </div>
 
-      <div className="rounded border border-emerald-700 bg-emerald-950/30 p-3">
+      <div className="border border-emerald-700 bg-emerald-950/30 p-3">
         <dl className="grid grid-cols-[max-content_1fr] gap-x-3 gap-y-1 text-cp-xs">
           <dt className="text-cp-text-faint">{t('recStorage.effectiveBitrate', 'Effective bitrate')}</dt>
           <dd className="font-mono text-cp-text-bright">{effectiveMbps} Mbps</dd>
@@ -216,7 +216,7 @@ export const RecordingStorageCalcCore = ({
       </div>
 
       {/* Array-Dimensionierung: wie viele Laufwerke brauche ich? */}
-      <div className="rounded border border-sky-700 bg-sky-950/20 p-3">
+      <div className="border border-sky-700 bg-sky-950/20 p-3">
         <div className="mb-2 text-cp-xs uppercase tracking-wide text-cp-text-secondary">
           {t('recStorage.sizing', 'Array sizing')}
         </div>
@@ -226,7 +226,7 @@ export const RecordingStorageCalcCore = ({
             <select
               value={redundancy}
               onChange={(e) => setRedundancy(e.target.value as typeof redundancy)}
-              className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5 text-cp-xs"
+              className="w-full border border-cp-border bg-cp-surface-3 p-1.5 text-cp-xs"
             >
               <option value="none">{t('recStorage.redNone', 'None (JBOD)')}</option>
               <option value="raid5">RAID 5 (+1)</option>
@@ -242,7 +242,7 @@ export const RecordingStorageCalcCore = ({
               max={90}
               value={headroomPercent}
               onChange={(e) => setHeadroomPercent(Math.min(90, Math.max(0, Number(e.target.value) || 0)))}
-              className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5 text-cp-xs"
+              className="w-full border border-cp-border bg-cp-surface-3 p-1.5 text-cp-xs"
             />
           </label>
           <label className="block">
@@ -253,7 +253,7 @@ export const RecordingStorageCalcCore = ({
               step={0.5}
               value={driveTb}
               onChange={(e) => setDriveTb(Math.max(0.5, Number(e.target.value) || 0.5))}
-              className="w-full rounded border border-cp-border bg-cp-surface-3 p-1.5 text-cp-xs"
+              className="w-full border border-cp-border bg-cp-surface-3 p-1.5 text-cp-xs"
             />
           </label>
         </div>
@@ -270,7 +270,7 @@ export const RecordingStorageCalcCore = ({
         </dl>
       </div>
 
-      <details className="rounded border border-cp-border-muted bg-cp-surface-3/40">
+      <details className="border border-cp-border-muted bg-cp-surface-3/40">
         <summary className="cursor-pointer px-3 py-1.5 text-cp-xs uppercase tracking-wide text-cp-text-muted">
           {t('recStorage.formulaHeader', 'Formula')}
         </summary>

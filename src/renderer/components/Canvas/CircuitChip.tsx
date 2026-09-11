@@ -50,13 +50,13 @@ export function CircuitChip() {
         onClick={() => setAn(!an)}
         title={titel}
         aria-pressed={an}
-        className={`av-focus flex items-center gap-1.5 rounded-full border border-cp-border px-2 py-0.5 text-cp-xs ${
+        className={`av-focus flex items-center gap-1.5 border border-cp-border px-2 py-0.5 text-cp-xs ${
           an ? 'bg-cp-surface-3 text-cp-text' : 'text-cp-text-secondary hover:bg-cp-surface-3'
         }`}
       >
         <span
           aria-hidden
-          className="inline-block h-1.5 w-1.5 rounded-full"
+          className="inline-block h-1.5 w-1.5"
           style={{ background: an && brennen > 0 ? '#facc15' : 'var(--cp-text-faint, #64748b)' }}
         />
         <span>{t('canvas.circuit.label', 'Circuit')}</span>
@@ -82,7 +82,7 @@ export function CircuitChip() {
             'canvas.circuit.resetTitle',
             'All switches back to their default. The plan does not change — it never carried the positions.',
           )}
-          className="av-focus rounded-full border border-cp-border px-2 py-0.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-3"
+          className="av-focus border border-cp-border px-2 py-0.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-3"
         >
           {t('canvas.circuit.reset', 'Reset switches')}
         </button>
@@ -95,7 +95,7 @@ export function CircuitChip() {
             'canvas.circuit.suggestTitle',
             'Why the circuit does not do what it should — and which wire would change that. Every suggestion is computed through and brings its own truth table; nothing is entered without a click.',
           )}
-          className="av-focus rounded-full border border-cp-border px-2 py-0.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-3"
+          className="av-focus border border-cp-border px-2 py-0.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-3"
         >
           {t('canvas.circuit.suggest', 'Suggestions')}
         </button>

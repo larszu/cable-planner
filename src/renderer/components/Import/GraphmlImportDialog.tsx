@@ -65,7 +65,7 @@ const confidenceBadge = (conf: ResolvedDevice['confidence']) => {
   const c = colors[conf]
   return (
     <span
-      className="rounded px-1 text-cp-xs font-bold"
+      className="px-1 text-cp-xs font-bold"
       style={{ background: c.bg, color: c.fg }}
     >
       {c.label}
@@ -309,7 +309,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
         type="button"
         disabled={busy}
         onClick={handlePickFile}
-        className="rounded bg-emerald-600 px-4 py-2 text-cp-base font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
+        className="bg-emerald-600 px-4 py-2 text-cp-base font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
       >
         {t('graphml.dialog.pickFile', 'Pick file…')}
       </button>
@@ -318,7 +318,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
 
   const renderParsing = (fileName: string) => (
     <div className="flex flex-1 flex-col items-center justify-center gap-3 p-12 text-center text-cp-text-secondary">
-      <div className="h-8 w-8 animate-spin rounded-full border-4 border-cp-surface-5 border-t-sky-400" />
+      <div className="h-8 w-8 animate-spin border-4 border-cp-surface-5 border-t-sky-400" />
       <div className="text-cp-base">
         <p className="font-medium">{fileName}</p>
         <p className="text-cp-text-faint">{t('graphml.dialog.parsing', 'Parser running (~ 250 ms per MB)…')}</p>
@@ -331,13 +331,13 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
       <div className="flex justify-center text-red-300"><Icon icon={AlertTriangle} size={32} /></div>
       <p className="text-cp-base font-medium text-red-300">{t('graphml.dialog.importFailed', 'Import failed')}</p>
       {fileName && <p className="text-cp-xs text-cp-text-muted">{fileName}</p>}
-      <pre className="max-w-full whitespace-pre-wrap rounded bg-cp-surface-3 p-3 text-cp-xs text-red-200">
+      <pre className="max-w-full whitespace-pre-wrap bg-cp-surface-3 p-3 text-cp-xs text-red-200">
         {message}
       </pre>
       <button
         type="button"
         onClick={reset}
-        className="rounded bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
+        className="bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
       >
         {t('graphml.dialog.pickOther', 'Pick another file')}
       </button>
@@ -366,7 +366,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
             <button
               type="button"
               onClick={reset}
-              className="inline-flex items-center gap-1 rounded bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
+              className="inline-flex items-center gap-1 bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
               title={t('graphml.dialog.pickOther', 'Pick another file')}
             >
               <Icon icon={RotateCcw} size="xs" />
@@ -404,7 +404,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
               <button
                 type="button"
                 onClick={() => setDestination('canvas')}
-                className={`rounded px-2 py-0.5 ${destination === 'canvas' ? 'bg-emerald-700 text-white' : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'}`}
+                className={` px-2 py-0.5 ${destination === 'canvas' ? 'bg-emerald-700 text-white' : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'}`}
                 title={t('graphml.dialog.canvasTitle', 'Place devices directly on the canvas (incl. cables).')}
               >
                 <Icon icon={Map} size="xs" className="mr-1 inline-block align-text-bottom" />{t('graphml.dialog.canvas', 'Canvas')}
@@ -412,7 +412,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
               <button
                 type="button"
                 onClick={() => setDestination('library')}
-                className={`rounded px-2 py-0.5 ${destination === 'library' ? 'bg-violet-700 text-white' : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'}`}
+                className={` px-2 py-0.5 ${destination === 'library' ? 'bg-violet-700 text-white' : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'}`}
                 title={t('graphml.dialog.libraryTitle', 'Only adopt as reusable device templates into the library (no cables, no canvas placement).')}
               >
                 <Icon icon={Library} size="xs" className="mr-1 inline-block align-text-bottom" />{t('graphml.dialog.library', 'Library')}
@@ -424,14 +424,14 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
                 <button
                   type="button"
                   onClick={() => setMode('append')}
-                  className={`rounded px-2 py-0.5 ${mode === 'append' ? 'bg-sky-700 text-white' : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'}`}
+                  className={` px-2 py-0.5 ${mode === 'append' ? 'bg-sky-700 text-white' : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'}`}
                 >
                   {t('graphml.dialog.appendProject', 'Append to project')}
                 </button>
                 <button
                   type="button"
                   onClick={() => setMode('replace')}
-                  className={`rounded px-2 py-0.5 ${mode === 'replace' ? 'bg-amber-700 text-white' : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'}`}
+                  className={` px-2 py-0.5 ${mode === 'replace' ? 'bg-amber-700 text-white' : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'}`}
                   title={t('graphml.dialog.replaceTitle', 'Replaces only GraphML-imported devices; manually added ones stay untouched.')}
                 >
                   {t('graphml.dialog.replaceImport', 'Replace GraphML import')}
@@ -444,7 +444,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
             value={filterText}
             onChange={(e) => setFilterText(e.target.value)}
             placeholder={t('graphml.dialog.filterPlaceholder', 'Filter: name / IP / category / cable type')}
-            className="w-64 rounded border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs text-cp-text"
+            className="w-64 border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs text-cp-text"
           />
         </div>
 
@@ -530,7 +530,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
                           onChange={(e) =>
                             setNameOverrides((p) => ({ ...p, [dev.importKey]: e.target.value }))
                           }
-                          className="w-full rounded border border-cp-border bg-cp-surface-3 px-1.5 py-0.5 text-cp-text"
+                          className="w-full border border-cp-border bg-cp-surface-3 px-1.5 py-0.5 text-cp-text"
                         />
                         {dev.subtitle && (
                           <div className="px-1.5 text-cp-xs text-cp-text-muted">{dev.subtitle}</div>
@@ -543,7 +543,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
                           onChange={(e) =>
                             setCategoryOverrides((p) => ({ ...p, [dev.importKey]: e.target.value }))
                           }
-                          className="w-32 rounded border border-cp-border bg-cp-surface-3 px-1.5 py-0.5 text-cp-text"
+                          className="w-32 border border-cp-border bg-cp-surface-3 px-1.5 py-0.5 text-cp-text"
                         />
                       </td>
                       <td className="px-3 py-1 text-cp-text-muted">{dev.ipAddress ?? '—'}</td>
@@ -662,7 +662,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
               reset()
               onClose()
             }}
-            className="rounded bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
+            className="bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
           >
             {t('graphml.dialog.cancel', 'Cancel')}
           </button>
@@ -670,7 +670,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
             type="button"
             onClick={handleImport}
             disabled={includedDevices === 0}
-            className={`rounded px-4 py-1.5 text-cp-xs font-medium text-white disabled:opacity-50 ${destination === 'library' ? 'bg-violet-600 hover:bg-violet-500' : 'bg-emerald-600 hover:bg-emerald-500'}`}
+            className={` px-4 py-1.5 text-cp-xs font-medium text-white disabled:opacity-50 ${destination === 'library' ? 'bg-violet-600 hover:bg-violet-500' : 'bg-emerald-600 hover:bg-emerald-500'}`}
           >
             {destination === 'library'
               ? `${includedDevices} ${includedDevices === 1 ? t('graphml.dialog.deviceSingular', 'device') : t('graphml.dialog.devicePlural', 'devices')} ${t('graphml.dialog.toLibrary', 'into library')}`
@@ -690,7 +690,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
         ref={panelRef}
         aria-labelledby={titleId}
         {...dialogProps}
-        className="flex h-[80vh] w-[min(1100px,95vw)] flex-col overflow-hidden rounded border border-cp-border bg-cp-surface-1 text-cp-text"
+        className="flex h-[80vh] w-[min(1100px,95vw)] flex-col overflow-hidden border border-cp-border bg-cp-surface-1 text-cp-text"
       >
         <div className="flex items-center justify-between border-b border-cp-border px-4 py-2">
           <h3 id={titleId} className="text-cp-base font-semibold">{t('graphml.dialog.heading', 'Import yEd / GraphML')}</h3>

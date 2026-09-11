@@ -68,12 +68,23 @@ jobs:
         run: npx tsc -p tsconfig.app.json --noEmit
       - name: Lint
         run: npm run lint
-      # Quellsprache (E-17/E-20): dieses Repo ist deutsch-quellig, und das
-      # steht nicht nur da, es wird gemessen. Laeuft eigenstaendig neben
-      # `npm test`, weil die Ausgabe die abweichenden Zeilen NAMENTLICH nennt
-      # — in einem roten Vitest-Lauf ginge das unter.
+      # Quellsprache (E-28): dieses Repo ist ENGLISCH-quellig, und das steht
+      # nicht nur da, es wird gemessen. Laeuft eigenstaendig neben `npm test`,
+      # weil die Ausgabe die abweichenden Zeilen NAMENTLICH nennt — in einem
+      # roten Vitest-Lauf ginge das unter.
+      #
+      # Hier stand bis 2026-09-11 „E-17/E-20: deutsch-quellig". Beides ist seit
+      # E-28 (2026-09-09) aufgehoben; die Zeile war also nicht bloss veraltet,
+      # sie sagte das GEGENTEIL der geltenden Regel — und ein Kommentar im
+      # Workflow ist genau die Stelle, an der jemand nachsieht, bevor er einen
+      # deutschen Fallback eintraegt.
       - name: Quellsprache
         run: npm run lang:check
+      # Die FORM der Oberflaeche (ADR-007 Abschnitt 3): keine Rundungen, keine
+      # Schatten. Eigener Schritt aus demselben Grund wie oben — die Ausgabe
+      # nennt Datei und Utility.
+      - name: Form (Rundungen/Schatten)
+        run: npm run form:check
       - name: Tests
         run: npm test
       - name: CRDT-Konvergenz

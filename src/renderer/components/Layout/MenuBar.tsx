@@ -1153,7 +1153,7 @@ export const MenuBar = ({
             type="button"
             onClick={onEditProjectMeta}
             disabled={!onEditProjectMeta}
-            className="group flex max-w-[42ch] items-center gap-1 truncate rounded px-2 py-0.5 text-cp-text-bright hover:bg-cp-surface-2 hover:text-white disabled:cursor-default disabled:hover:bg-transparent"
+            className="group flex max-w-[42ch] items-center gap-1 truncate px-2 py-0.5 text-cp-text-bright hover:bg-cp-surface-2 hover:text-white disabled:cursor-default disabled:hover:bg-transparent"
             title={onEditProjectMeta ? t('app.editProjectMeta', 'Edit project metadata') : projectName}
           >
             <span className="truncate font-medium">{projectName}</span>
@@ -1179,7 +1179,7 @@ export const MenuBar = ({
             tragen (Norm 44), gegen einen Einstellungen-Knopf, der ausserhalb
             des Bildes liegt — die Rechnung ist eindeutig.
             Erst ab `sm` (640 px) sind sie wieder da. */}
-        <div className="hidden items-center rounded border border-cp-border bg-cp-surface-1 sm:flex">
+        <div className="hidden items-center border border-cp-border bg-cp-surface-1 sm:flex">
           <button
             type="button"
             onClick={() => projectHistory.undo()}
@@ -1207,7 +1207,7 @@ export const MenuBar = ({
           <button
             type="button"
             onClick={() => useUiStore.getState().openMobileShare()}
-            className="inline-flex items-center gap-1 rounded bg-cp-surface-2 px-2 py-1 text-cp-text hover:bg-cp-surface-4"
+            className="inline-flex items-center gap-1 bg-cp-surface-2 px-2 py-1 text-cp-text hover:bg-cp-surface-4"
             aria-label={t('app.mobileShare.ariaLabel', 'Phone access')}
             title={t(
               'app.mobileShare.title',
@@ -1227,7 +1227,7 @@ export const MenuBar = ({
         <button
           type="button"
           onClick={onOpenSettings}
-          className="inline-flex items-center gap-1 rounded bg-cp-surface-2 px-2 py-1 text-cp-text hover:bg-cp-surface-4"
+          className="inline-flex items-center gap-1 bg-cp-surface-2 px-2 py-1 text-cp-text hover:bg-cp-surface-4"
           title={t('settings.title', 'Settings')}
         >
           <Icon icon={Settings} size="sm" />
@@ -1330,7 +1330,7 @@ const Menu = ({ label, children }: MenuProps) => {
            Die Schrift bleibt gleich gross: schmaler wird der Abstand, nicht
            das Wort. Ob es reicht, ist keine Meinung — `mobil:check` misst es
            in JEDER ausgelieferten Sprache. */
-        className={`rounded px-1 py-1 text-cp-text-bright hover:bg-cp-surface-2 sm:px-2 ${open ? 'bg-cp-surface-2' : ''}`}
+        className={` px-1 py-1 text-cp-text-bright hover:bg-cp-surface-2 sm:px-2 ${open ? 'bg-cp-surface-2' : ''}`}
       >
         {label}
         <Icon icon={ChevronDown} size={11} className="ml-1 text-cp-text-muted" />
@@ -1346,7 +1346,7 @@ const Menu = ({ label, children }: MenuProps) => {
              unter dem Fensterrand und waren nicht anklickbar. Dieselbe Sorte
              Fehler wie die zwei Register, die aus der Bibliothek fielen:
              ein Menuepunkt, den es fuer den Nutzer nicht gibt. */
-          className="absolute left-0 top-full z-50 mt-1 max-h-[calc(100vh-3.5rem)] min-w-[14rem] overflow-y-auto rounded border border-[var(--cp-border)] bg-[var(--cp-surface-1)] py-1 shadow-2xl"
+          className="absolute left-0 top-full z-50 mt-1 max-h-[calc(100vh-3.5rem)] min-w-[14rem] overflow-y-auto border border-[var(--cp-border)] bg-[var(--cp-surface-1)] py-1"
           role="menu"
         >
           {children}

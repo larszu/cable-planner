@@ -93,7 +93,7 @@ export const RackInternalWireOverlay = ({
         ref={panelRef}
         aria-labelledby={titleId}
         {...dialogProps}
-        className="flex h-[92vh] w-[min(1500px,calc(100vw-1rem))] flex-col rounded border border-cp-border bg-cp-surface-1 p-3 text-cp-text shadow-2xl"
+        className="flex h-[92vh] w-[min(1500px,calc(100vw-1rem))] flex-col border border-cp-border bg-cp-surface-1 p-3 text-cp-text"
       >
         <div className="mb-2 flex items-center justify-between gap-3">
           <div>
@@ -109,13 +109,13 @@ export const RackInternalWireOverlay = ({
           <button
             type="button"
             onClick={onClose}
-            className="rounded bg-emerald-700 px-3 py-1.5 text-cp-xs hover:bg-emerald-600"
+            className="bg-emerald-700 px-3 py-1.5 text-cp-xs hover:bg-emerald-600"
           >
             {t('common.done', 'Done')}
           </button>
         </div>
         {befunde.length > 0 && (
-          <ul className="mb-2 max-h-28 shrink-0 space-y-0.5 overflow-y-auto rounded border border-cp-border-muted bg-cp-surface-3/40 p-1.5 text-cp-xs">
+          <ul className="mb-2 max-h-28 shrink-0 space-y-0.5 overflow-y-auto border border-cp-border-muted bg-cp-surface-3/40 p-1.5 text-cp-xs">
             {befunde.map((f, i) => (
               <li
                 key={`${f.kind}-${f.index}-${i}`}
@@ -126,7 +126,7 @@ export const RackInternalWireOverlay = ({
             ))}
           </ul>
         )}
-        <div className="min-h-0 flex-1 overflow-hidden rounded border border-cp-border">
+        <div className="min-h-0 flex-1 overflow-hidden border border-cp-border">
           <RackInternalCanvas
             rackName={rackName}
             placements={placements.map((p) => ({

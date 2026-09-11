@@ -47,7 +47,7 @@ export const ColorField = ({
             type="color"
             value={value}
             onChange={(event) => onChange(event.target.value)}
-            className="h-7 w-12 cursor-pointer rounded border border-cp-border bg-cp-surface-1 p-0.5"
+            className="h-7 w-12 cursor-pointer border border-cp-border bg-cp-surface-1 p-0.5"
             title={title}
             aria-label={label}
           />
@@ -55,7 +55,7 @@ export const ColorField = ({
             <button
               type="button"
               onClick={onReset}
-              className="inline-flex items-center gap-1 rounded bg-cp-surface-4 px-1.5 py-0.5 text-cp-xs hover:bg-cp-surface-5"
+              className="inline-flex items-center gap-1 bg-cp-surface-4 px-1.5 py-0.5 text-cp-xs hover:bg-cp-surface-5"
               title={t('colorField.resetTitle', 'Reset colour')}
             >
               <Icon icon={X} size="xs" />
@@ -73,7 +73,7 @@ export const ColorField = ({
         type="color"
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="h-9 w-full cursor-pointer rounded border border-cp-border bg-cp-surface-1 p-1"
+        className="h-9 w-full cursor-pointer border border-cp-border bg-cp-surface-1 p-1"
         title={title}
         aria-label={label}
       />

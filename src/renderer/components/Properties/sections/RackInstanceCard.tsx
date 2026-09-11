@@ -17,7 +17,7 @@ export const RackInstanceCard = ({ equipment }: { equipment: EquipmentItem }) =>
   if (!equipment.rackInstanceId) return null
 
   return (
-    <div className="rounded border border-cyan-700 bg-cyan-950/30 p-2">
+    <div className="border border-cyan-700 bg-cyan-950/30 p-2">
       <div className="mb-1 text-cp-xs uppercase tracking-wide text-cyan-300">
         {t('rackInstance.label', 'Rack instance')} · {equipment.rackInstanceLabel ?? t('rackInstance.fallback', 'Rack')}
       </div>
@@ -31,7 +31,7 @@ export const RackInstanceCard = ({ equipment }: { equipment: EquipmentItem }) =>
       <button
         type="button"
         onClick={() => openRackEditor(equipment.rackInstanceId!)}
-        className="inline-flex w-full items-center justify-center gap-1.5 rounded bg-cyan-700 px-2 py-1 text-cp-xs text-white hover:bg-cyan-600"
+        className="inline-flex w-full items-center justify-center gap-1.5 bg-cyan-700 px-2 py-1 text-cp-xs text-white hover:bg-cyan-600"
       >
         <Icon icon={Server} size="xs" /> {t('rackInstance.openEditor', 'Open rack editor')}
       </button>

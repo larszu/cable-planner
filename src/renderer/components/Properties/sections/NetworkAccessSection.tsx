@@ -56,7 +56,7 @@ export const NetworkAccessSection = ({ equipment }: { equipment: EquipmentItem }
               updateEquipment(equipment.id, { ipAddress: event.target.value })
             }
             placeholder="192.168.1.10"
-            className="w-full rounded border border-cp-border bg-cp-surface-1 p-2 font-mono"
+            className="w-full border border-cp-border bg-cp-surface-1 p-2 font-mono"
           />
         </label>
         <label className="block">
@@ -67,7 +67,7 @@ export const NetworkAccessSection = ({ equipment }: { equipment: EquipmentItem }
               updateEquipment(equipment.id, { serialNumber: event.target.value || undefined })
             }
             placeholder={t('eq.field.serialPlaceholder', 'S/N')}
-            className="w-full rounded border border-cp-border bg-cp-surface-1 p-2 font-mono"
+            className="w-full border border-cp-border bg-cp-surface-1 p-2 font-mono"
           />
         </label>
         {/* BEDARF 78 — WELCHE Kiste. Direkt neben der Seriennummer, weil die
@@ -86,7 +86,7 @@ export const NetworkAccessSection = ({ equipment }: { equipment: EquipmentItem }
                   inventoryUnitId: event.target.value || undefined,
                 })
               }
-              className="w-full rounded border border-cp-border bg-cp-surface-1 p-2"
+              className="w-full border border-cp-border bg-cp-surface-1 p-2"
             >
               <option value="">{t('eq.field.unitNone', '\u2014 not stated \u2014')}</option>
               {units.map((u) => (
@@ -113,7 +113,7 @@ export const NetworkAccessSection = ({ equipment }: { equipment: EquipmentItem }
               updateEquipment(equipment.id, { subnetMask: event.target.value })
             }
             placeholder={t('eq.field.subnetPlaceholder', '255.255.255.0 or /24')}
-            className="w-full rounded border border-cp-border bg-cp-surface-1 p-2 font-mono"
+            className="w-full border border-cp-border bg-cp-surface-1 p-2 font-mono"
           />
         </label>
         <label className="block">
@@ -124,7 +124,7 @@ export const NetworkAccessSection = ({ equipment }: { equipment: EquipmentItem }
               updateEquipment(equipment.id, { macAddress: event.target.value || undefined })
             }
             placeholder="00:1A:2B:3C:4D:5E"
-            className="w-full rounded border border-cp-border bg-cp-surface-1 p-2 font-mono"
+            className="w-full border border-cp-border bg-cp-surface-1 p-2 font-mono"
           />
         </label>
         <label className="block">
@@ -135,7 +135,7 @@ export const NetworkAccessSection = ({ equipment }: { equipment: EquipmentItem }
               updateEquipment(equipment.id, { username: event.target.value })
             }
             autoComplete="off"
-            className="w-full rounded border border-cp-border bg-cp-surface-1 p-2"
+            className="w-full border border-cp-border bg-cp-surface-1 p-2"
           />
         </label>
         <label className="block">
@@ -148,7 +148,7 @@ export const NetworkAccessSection = ({ equipment }: { equipment: EquipmentItem }
                 updateEquipment(equipment.id, { password: event.target.value })
               }
               autoComplete="new-password"
-              className="w-full rounded border border-cp-border bg-cp-surface-1 p-2 pr-10"
+              className="w-full border border-cp-border bg-cp-surface-1 p-2 pr-10"
             />
             <button
               type="button"
@@ -177,7 +177,7 @@ export const NetworkAccessSection = ({ equipment }: { equipment: EquipmentItem }
           onChange={(event) => updateEquipment(equipment.id, { notes: event.target.value })}
           rows={3}
           placeholder={t('netAccess.notesPlaceholder', 'Web UI URL, firmware version, wiring notes, …')}
-          className="w-full rounded border border-cp-border bg-cp-surface-1 p-2"
+          className="w-full border border-cp-border bg-cp-surface-1 p-2"
         />
       </label>
       <ExtraInterfacesPanel equipment={equipment} />
