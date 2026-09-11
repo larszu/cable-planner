@@ -122,9 +122,20 @@ export function klassenListen(quelle) {
   return raus
 }
 
-/** Werte einer CSS-Eigenschaft. */
+/**
+ * Werte einer CSS-Eigenschaft.
+ *
+ * `!important` faellt vorher weg. Sonst waere `border-radius: 0 !important`
+ * ein anderer Wert als `border-radius: 0` — und der Lauf meldete eine
+ * Rundung, wo ausdruecklich keine steht. Eine falsche Anschuldigung kostet
+ * einen Waechter sein Ansehen schneller als ein Durchrutscher; gemessen im
+ * `multicam-planner`, wo die FlexLayout-Regeln durchweg `!important`
+ * tragen und drei von vier Meldungen Fehltreffer waren.
+ */
 export const werte = (quelle, eigenschaft) =>
-  [...quelle.matchAll(new RegExp(`${eigenschaft}\\s*:\\s*([^;}]+)`, 'g'))].map((m) => m[1].trim())
+  [...quelle.matchAll(new RegExp(`${eigenschaft}\\s*:\\s*([^;}]+)`, 'g'))].map((m) =>
+    m[1].replace(/!important/g, '').trim(),
+  )
 
 /**
  * Ist dieser `box-shadow` ein Ring (erlaubt) oder ein Schlagschatten?
@@ -193,6 +204,11 @@ assert.ok(!istRing('0 0 16px #ef444488'), 'eine Unschaerfe kommt durch')
 assert.ok(istRing('0 0 0 2px'), 'ein Ring ohne Farbangabe wird abgelehnt')
 assert.ok(!istRing('0 0 6px var(--cp-signal)'), 'eine Unschaerfe ohne Versatz kommt durch')
 assert.ok(!istRing('inset 0 0 0 2px red'), 'ein Wert mit Schluesselwort ist kein geprueftes Muster')
+
+// `!important` darf den Wert nicht zu einem anderen machen.
+assert.deepEqual(werte('a { border-radius: 0 !important; }', 'border-radius'), ['0'])
+assert.deepEqual(werte('a { box-shadow: none !important; }', 'box-shadow'), ['none'])
+assert.deepEqual(werte('a { border-radius: 8px; }', 'border-radius'), ['8px'])
 
 // 3. Klassenlisten werden gefunden, und NUR sie.
 {
