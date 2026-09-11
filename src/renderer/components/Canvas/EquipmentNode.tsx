@@ -553,13 +553,24 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
   // Expand für lange Port-Labels rundet entsprechend AUF.
   const GRID = EQUIPMENT_LAYOUT.GRID_SIZE
   const snapUp = (n: number) => Math.ceil(n / GRID) * GRID
-  const intrinsicWidth = snapUp(Math.max(EQUIPMENT_LAYOUT.DEFAULT_WIDTH, labelWidth * 2, nameWidth))
-  const width = Math.max(snapUp(data.width ?? intrinsicWidth), intrinsicWidth)
-  // computedHeight ist per Konstruktion bereits Vielfaches von GRID
-  // (headerHeight, PORT_ROW, PADDING sind alle Vielfache); data.height
-  // wird zur Sicherheit aufgerundet falls der User es manuell setzt.
-  const computedHeight = headerHeight + portRows * PORT_ROW + PADDING
-  const height = Math.max(snapUp(data.height ?? computedHeight), computedHeight)
+  // ─── `data.width`/`data.height` ENTSCHEIDEN NICHTS MEHR ───────────────────
+  //
+  // Nutzer-Meldung 2026-09-11: ein langer Port-Name machte das Geraet breit,
+  // und das Kuerzen des Namens machte es nicht wieder schmal. Hier stand
+  // `Math.max(snapUp(data.width ?? intrinsicWidth), intrinsicWidth)` — die
+  // gespeicherte Breite als Untergrenze. Sie war aber nie die Absicht eines
+  // Nutzers, sondern die zuletzt gemessene Breite, die `CanvasArea`
+  // zurueckschreibt. Die ganze Begruendung steht in `lib/equipmentLayout.ts`,
+  // wo die Formel lebt.
+  //
+  // Sie steht dort und nicht hier, und das ist die zweite Haelfte dieser
+  // Aenderung: dieselbe Rechnung stand bis heute in BEIDEN Dateien. Der Kopf
+  // von `equipmentLayout.ts` warnt seit v7.9.4 davor („Single source of
+  // truth"), und trotzdem lief sie doppelt — beim Beheben haette man die eine
+  // Fassung aendern und die andere vergessen koennen, und der Knoten stuende
+  // an einer anderen Stelle als seine Kabel-Enden.
+  const width = snapUp(Math.max(EQUIPMENT_LAYOUT.DEFAULT_WIDTH, labelWidth * 2, nameWidth))
+  const height = snapUp(headerHeight + portRows * PORT_ROW + PADDING)
 
   // Y offset for the handle dot: aligns to vertical center of the row.
   const rowCenter = (index: number) => headerHeight + index * PORT_ROW + PORT_ROW / 2

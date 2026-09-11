@@ -107,12 +107,47 @@ export const computeEquipmentLayout = (
   // (sichtbar v.a. am breiten Videohub mit vielen Output-Ports).
   const GRID = EQUIPMENT_LAYOUT.GRID_SIZE
   const snapUp = (n: number): number => Math.ceil(n / GRID) * GRID
-  const intrinsicWidth = snapUp(Math.max(EQUIPMENT_LAYOUT.DEFAULT_WIDTH, labelWidth * 2, nameWidth))
-  const width = Math.max(snapUp(eq.width ?? intrinsicWidth), intrinsicWidth)
+
+  // ─── `eq.width`/`eq.height` SIND EIN ABBILD, KEINE UNTERGRENZE ───────────
+  //
+  // NUTZER-MELDUNG 2026-09-11: „Wenn im Cable planner ein Gerät einen Port mit
+  // einem sehr langen Namen bekommt wird das Gerät sehr breit. Kürzt man dann
+  // den Namen, bleibt das Gerät breit. Es soll aber kürzer werden."
+  //
+  // GEMESSEN: Port-Name „IN" -> 220 px. Auf einen 37 Zeichen langen Namen
+  // -> 671 px. Name wieder auf „IN" -> immer noch 671 px.
+  //
+  // Hier stand `Math.max(snapUp(eq.width ?? intrinsicWidth), intrinsicWidth)`,
+  // und das war richtig gedacht: „der Nutzer hat das Gerät breiter gezogen,
+  // also lass es breiter". Nur gibt es das Ziehen nicht. `NodeResizer` haengt
+  // ausschliesslich am `LocationFrameNode`; ein Geraet laesst sich auf der
+  // Flaeche nicht in der Groesse aendern. (Die Millimeter-Felder in der
+  // Eigenschaften-Leiste sind `widthMm`/`heightMm` — die physische Bauform,
+  // ein anderes Feld.)
+  //
+  // Was tatsaechlich in `eq.width` stand, war die zuletzt GEMESSENE Breite:
+  // `CanvasArea` schreibt sie bei jedem `dimensions`-Change zurueck, damit der
+  // Ueberlappungs-Test und die Exporte eine stabile Zahl haben (#206). Und die
+  // gemessene Breite ist per Konstruktion `max(gespeichert, intrinsisch)` —
+  // sie kann also nie kleiner werden. Einmal breit, immer breit.
+  //
+  // Ein Feld, zwei Bedeutungen: „so gross will es der Nutzer" und „so gross
+  // war es zuletzt". Die Defektform heisst in dieser Suite
+  // `zwei-rechnungen`; hier war es dieselbe Zahl mit zwei Aufgaben, und die
+  // zweite hat die erste aufgefressen.
+  //
+  // Die Groesse kommt deshalb ab jetzt AUSSCHLIESSLICH aus den Daten. Das
+  // gespeicherte Feld bleibt erhalten und wird weiter nachgefuehrt — Exporte
+  // (`exportDxf`, `exportStagePlot`), die Kabellaengen-Schaetzung und die
+  // Raum-Zuordnung lesen es —, aber es entscheidet nichts mehr. Wer Geraete
+  // eines Tages ziehbar macht, braucht dafuer ein EIGENES Feld; dieses hier
+  // kann die Frage nicht beantworten.
+  const width = snapUp(Math.max(EQUIPMENT_LAYOUT.DEFAULT_WIDTH, labelWidth * 2, nameWidth))
 
   const portRows = Math.max(sideCounts.left, sideCounts.right, 1)
-  const computedHeight = headerHeight + portRows * PORT_ROW + PADDING
-  const height = Math.max(snapUp(eq.height ?? computedHeight), computedHeight)
+  // Dieselbe Begruendung fuer die Hoehe: sie folgt der Zahl der Port-Reihen.
+  // Ports zu loeschen liess das Geraet vorher genauso hoch stehen.
+  const height = snapUp(headerHeight + portRows * PORT_ROW + PADDING)
 
   const rowCenter = (slot: number): number => headerHeight + slot * PORT_ROW + PORT_ROW / 2
 
