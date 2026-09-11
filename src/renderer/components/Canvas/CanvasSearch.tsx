@@ -16,8 +16,28 @@
 //
 // Verschiebbar: am Grip-Griff (links) lässt sich die Leiste frei
 // positionieren; die Lage wird im uiStore gemerkt (canvasSearchPos).
+//
+// ─── SCHLIESSEN UND WIEDER ÖFFNEN (Nutzer-Meldung 2026-09-11) ─────────────
+//
+// „Man muss ‚Gerät suchen' … auch schliessen können und über das ‚Ansicht'
+// Menü in der oberen Leiste auch wieder öffnen können."
+//
+// Bis dahin gab es nur das Einklappen: aus dem Panel wurde eine Pille, und
+// die stand weiter da. Auf einem vollen Plan ist auch eine Pille Fläche, die
+// jemand braucht. Es gibt jetzt DREI Zustände statt zwei, und sie sind
+// bewusst unterscheidbar:
+//
+//   ausgeklappt  — Feld und Trefferliste. `−` klappt ein, `×` schliesst.
+//   eingeklappt  — die Pille. Klick klappt aus, `×` schliesst.
+//   geschlossen  — nichts. Zurück über Ansicht → „Gerät suchen" oder Strg+F.
+//
+// WARUM DIESE KOMPONENTE GEMOUNTET BLEIBT, WENN SIE NICHTS ZEICHNET: an ihr
+// hängt der Strg+F-Hörer. Würde sie am Aufrufort ausgehängt, gäbe es den
+// Weg zurück über die Tastatur nicht mehr — und eine geschlossene Leiste,
+// deren Tastenkürzel auch weg ist, ist für den Nutzer verschwunden. Sie
+// gibt deshalb `null` zurück, statt nicht zu existieren.
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Search, X, GripVertical } from 'lucide-react'
+import { Search, X, Minus, GripVertical } from 'lucide-react'
 import { useCanvasProjectStore } from '../../store/projectStoreContext'
 import { useUiStore } from '../../store/uiStore'
 import { triggerCanvasCenterOn } from '../../lib/canvasViewport'
@@ -34,6 +54,9 @@ export const CanvasSearch = () => {
   const setSelection = useCanvasProjectStore((s) => s.setSelection)
   const pos = useUiStore((s) => s.canvasSearchPos)
   const setPos = useUiStore((s) => s.setCanvasSearchPos)
+  const visible = useUiStore((s) => s.canvasSearchVisible)
+  const setVisible = useUiStore((s) => s.setCanvasSearchVisible)
+  const toolbarVisible = useUiStore((s) => s.canvasToolbarVisible)
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
@@ -44,21 +67,43 @@ export const CanvasSearch = () => {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && (e.key === 'f' || e.key === 'F')) {
-        const el = document.activeElement
+        // ─── `e.target` UND NICHT `document.activeElement` ────────────────
+        //
+        // GEMESSEN am 2026-09-11: Strg+F oeffnete die geschlossene Suche
+        // NICHT. Der Grund lag nicht hier, sondern eine Datei weiter:
+        // `LocalEquipmentTab` haengt einen ZWEITEN Strg+F-Hoerer an dasselbe
+        // `window` und fokussiert damit sein eigenes Suchfeld. Er ist frueher
+        // dran — und danach steht in `document.activeElement` ein INPUT, das
+        // vor dem Tastendruck noch nicht dort war. Diese Zeile las das als
+        // „der Nutzer tippt gerade" und gab auf.
+        //
+        // `e.target` ist, wo die Taste WIRKLICH passiert ist. Es aendert sich
+        // nicht dadurch, dass ein anderer Hoerer den Fokus verschiebt.
+        // Dieselbe Form benutzt der Hoerer in `LocalEquipmentTab` schon.
+        //
+        // Die Absicht bleibt unveraendert: wer in einem Feld tippt, behaelt
+        // sein Strg+F zum Suchen im Text.
+        const el = e.target
         const typing =
           el instanceof HTMLElement &&
           (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable)
         if (typing) return
         e.preventDefault()
+        // Strg+F ist der Weg zurueck aus dem geschlossenen Zustand — deshalb
+        // setzt es BEIDES. Nur `setOpen(true)` liesse eine geschlossene
+        // Leiste geschlossen, und das Kuerzel taete scheinbar nichts.
+        setVisible(true)
         setOpen(true)
         requestAnimationFrame(() => inputRef.current?.focus())
       } else if (e.key === 'Escape' && open) {
+        // Esc klappt ein und schliesst NICHT. Wer die Leiste versehentlich
+        // wegdrueckt, soll sie nicht im Menue suchen muessen.
         setOpen(false)
       }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [open])
+  }, [open, setVisible])
 
   const results = useMemo(
     () =>
@@ -148,7 +193,14 @@ export const CanvasSearch = () => {
     const eigen = containerRef.current
     const wurzel = eigen?.offsetParent ?? document.body
     const leiste = wurzel.querySelector<HTMLElement>('[data-cp-canvas-toolbar]')
-    if (!leiste) return
+    if (!leiste) {
+      // Keine Leiste da — also auch keine Unterkante, unter die man muesste.
+      // Das Zuruecksetzen ist der Punkt: ohne es behielte die Suche den
+      // zuletzt gemessenen Abstand und staende nach dem Schliessen der
+      // Werkzeugleiste allein in der Luft.
+      setToolbarBottom(0)
+      return
+    }
     const messen = () => {
       const r = leiste.getBoundingClientRect()
       const w = wurzel.getBoundingClientRect()
@@ -161,12 +213,40 @@ export const CanvasSearch = () => {
     return () => ro.disconnect()
     // `open` haengt drin, weil die Leiste im geschlossenen Zustand ein
     // anderes Element ist und `containerRef` dann neu zeigt.
-  }, [open])
+    // `toolbarVisible` haengt drin, weil die Werkzeugleiste dann gar nicht
+    // mehr im Dokument steht — der ResizeObserver auf einem entfernten
+    // Element meldet nichts mehr, und ohne diese Abhaengigkeit bliebe die
+    // alte Zahl stehen.
+  }, [open, visible, toolbarVisible])
 
   const posClass = pos ? '' : 'left-1/2 -translate-x-1/2'
   const posStyle = pos
     ? { left: pos.x, top: pos.y }
     : { top: toolbarBottom > 0 ? toolbarBottom + 8 : 12 }
+
+  // Ein Knopf, zwei Fundstellen (Pille und Panel) — und genau deshalb steht
+  // er hier einmal: zwei Fassungen desselben Knopfes waeren die Defektform
+  // `zwei-rechnungen`, hier mit einem Beschriftungs-Unterschied als Ausgang.
+  const Schliessen = (
+    <button
+      type="button"
+      onClick={(e) => {
+        e.stopPropagation()
+        setVisible(false)
+      }}
+      className="text-cp-text-faint hover:text-cp-text"
+      title={t(
+        'canvas.search.close',
+        'Close search (View menu or Ctrl+F brings it back)',
+      )}
+      aria-label={t(
+        'canvas.search.close',
+        'Close search (View menu or Ctrl+F brings it back)',
+      )}
+    >
+      <Icon icon={X} size="sm" />
+    </button>
+  )
 
   const Grip = (
     <button
@@ -182,6 +262,10 @@ export const CanvasSearch = () => {
       <Icon icon={GripVertical} size="sm" />
     </button>
   )
+
+  // Geschlossen. Die Komponente bleibt gemountet (siehe Kopfkommentar) —
+  // ohne sie gaebe es Strg+F nicht mehr.
+  if (!visible) return null
 
   if (!open) {
     return (
@@ -203,6 +287,7 @@ export const CanvasSearch = () => {
           <Icon icon={Search} size="sm" />
           {t('canvas.search.placeholder', 'Find device…')}
         </button>
+        {Schliessen}
       </div>
     )
   }
@@ -226,14 +311,20 @@ export const CanvasSearch = () => {
           placeholder={t('canvas.search.placeholder', 'Find device…')}
           className="flex-1 bg-transparent text-cp-sm text-cp-text outline-none placeholder:text-cp-text-faint"
         />
+        {/* Zwei Knoepfe, zwei verschiedene Dinge — und das ist der ganze
+            Punkt der Aenderung: `−` klappt zur Pille ein (wie bisher `×`),
+            `×` schliesst ganz. Ein Knopf, der beides koennte, muesste sich
+            fuer eine Bedeutung entscheiden, und die andere waere weg. */}
         <button
           type="button"
           onClick={() => setOpen(false)}
           className="text-cp-text-muted hover:text-cp-text"
-          aria-label={t('common.close', 'Close')}
+          title={t('canvas.search.collapse', 'Collapse to a pill')}
+          aria-label={t('canvas.search.collapse', 'Collapse to a pill')}
         >
-          <Icon icon={X} size="sm" />
+          <Icon icon={Minus} size="sm" />
         </button>
+        {Schliessen}
       </div>
       {query.trim() && (
         <ul className="max-h-64 overflow-y-auto py-1">

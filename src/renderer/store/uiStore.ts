@@ -239,6 +239,23 @@ interface PersistedUiState {
    *  Canvas-Fläche). `null` = Default oben mittig. Wird beim Verschieben
    *  per Grip gesetzt und merkt sich die Lage. */
   canvasSearchPos: { x: number; y: number } | null
+  /** Nutzer-Meldung 2026-09-11: „Man muss ‚Gerät suchen' und die Leiste wo die
+   *  Ebenen drauf stehen auch schliessen können und über das ‚Ansicht' Menü
+   *  auch wieder öffnen können."
+   *
+   *  Beide Leisten schweben ÜBER dem Plan. Sie liessen sich bis dahin nur
+   *  einklappen (die Suche) oder gar nicht (die Werkzeugleiste) — und
+   *  eingeklappt steht immer noch etwas da. Auf einem vollen Plan ist das
+   *  Fläche, die jemand braucht.
+   *
+   *  WARUM DIE FLAGGE PERSISTIERT UND NICHT NUR FÜR DIE SITZUNG GILT: wer
+   *  eine Leiste wegräumt, will sie beim nächsten Start nicht wieder
+   *  vorfinden. Der Preis ist der, den jeder versteckte Zustand hat — eine
+   *  Leiste, die weg ist und deren Weg zurück man nicht kennt. Deshalb
+   *  steht der Weg zurück im Ansicht-Menü, mit Häkchen, neben den anderen
+   *  Sicht-Schaltern. */
+  canvasSearchVisible: boolean
+  canvasToolbarVisible: boolean
   /** v7.9.112 / Issue #234 — Global Toggle der ALLE Kabel-Labels
    *  ausblendet, unabhaengig vom per-Kabel labelPosition. Praktisch
    *  fuer aufgeraeumte Plan-Ansicht beim Praesentieren ohne dass jedes
@@ -371,6 +388,8 @@ const defaults: PersistedUiState = {
   cableBumps: false,
   inlineToolbarEnabled: true,
   canvasSearchPos: null,
+  canvasSearchVisible: true,
+  canvasToolbarVisible: true,
   hideAllCableLabels: false,
   offPageShowNames: false,
   showCableEndpointLabels: false,
@@ -735,6 +754,8 @@ interface UiState extends PersistedUiState {
   setCableBumps: (value: boolean) => void
   setInlineToolbarEnabled: (value: boolean) => void
   setCanvasSearchPos: (value: { x: number; y: number } | null) => void
+  setCanvasSearchVisible: (value: boolean) => void
+  setCanvasToolbarVisible: (value: boolean) => void
   setHideAllCableLabels: (value: boolean) => void
   setOffPageShowNames: (value: boolean) => void
   setShowCableEndpointLabels: (value: boolean) => void
@@ -1262,6 +1283,8 @@ export const useUiStore = create<UiState>((set) => ({
   setCableBumps: (value) => set(applyPatch({ cableBumps: value })),
   setInlineToolbarEnabled: (value) => set(applyPatch({ inlineToolbarEnabled: value })),
   setCanvasSearchPos: (value) => set(applyPatch({ canvasSearchPos: value })),
+  setCanvasSearchVisible: (value) => set(applyPatch({ canvasSearchVisible: value })),
+  setCanvasToolbarVisible: (value) => set(applyPatch({ canvasToolbarVisible: value })),
   setHideAllCableLabels: (value) => set(applyPatch({ hideAllCableLabels: value })),
   setOffPageShowNames: (value) => set(applyPatch({ offPageShowNames: value })),
   setShowCableEndpointLabels: (value) => set(applyPatch({ showCableEndpointLabels: value })),
