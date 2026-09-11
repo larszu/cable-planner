@@ -956,6 +956,22 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
           // obwohl Stelle leer" (Bug 2 in Issue #206). Mit gespeicherten
           // measured Dimensions ist die fallback-Kette
           // rfNode?.width ?? eq.width ?? 0 immer stabil.
+          //
+          // 2026-09-11 — WAS HIER GESCHRIEBEN WIRD, IST EIN ABBILD UND KEINE
+          // ABSICHT. Bis heute las `EquipmentNode` dieselbe Zahl als
+          // Untergrenze wieder ein, und weil die gemessene Breite per
+          // Konstruktion `max(gespeichert, intrinsisch)` ist, konnte sie nie
+          // kleiner werden: ein langer Port-Name machte das Geraet breit, und
+          // das Kuerzen des Namens machte es nicht wieder schmal
+          // (Nutzer-Meldung). Die Groesse kommt jetzt allein aus den Daten
+          // (`lib/equipmentLayout.ts`), dieser Rueckschreiber fuehrt das Feld
+          // nur noch NACH.
+          //
+          // Und genau das heilt nebenbei die Bestandsdaten: sobald der Knoten
+          // schmaler rendert, meldet ReactFlow die neue Groesse, und die Zeile
+          // unten ersetzt den alten, zu grossen Wert. Es braucht keine
+          // Migration in `healProjectPositions` — das Feld korrigiert sich
+          // beim ersten Blick auf den Plan.
           const eq = project.equipment.find((e) => e.id === change.id)
           const newW = Math.max(40, Math.round(change.dimensions.width))
           const newH = Math.max(20, Math.round(change.dimensions.height))
