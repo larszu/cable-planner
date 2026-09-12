@@ -1428,6 +1428,180 @@ export const MISC_CATALOG: MiscEntry[] = [
       width: 200, height: 140,
     },
   },
+  // ── Magewell / Kiloview (Beleg: Hersteller-Produktseiten, je Modell per curl
+  //    geprüft, 2026-09) ──
+  // Quelle: https://www.magewell.com/products/pro-convert-hdmi-4k-plus
+  {
+    match: ['magewell', 'pro convert', 'hdmi 4k'],
+    deviceTypeId: '82889ba3-ce5a-4bcf-b42d-ce7bbf7a76c7',
+    template: {
+      manufacturerUrl: 'https://www.magewell.com/products/pro-convert-hdmi-4k-plus',
+      name: 'Magewell Pro Convert HDMI 4K Plus',
+      category: 'IP/NDI',
+      inputs: [
+        hdmiIn('HDMI In'),
+      ],
+      outputs: [
+        eth('LAN (NDI)'),
+      ],
+      width: 200, height: 140,
+    },
+  },
+  // Quelle: https://www.magewell.com/products/pro-convert-sdi-4k-plus
+  {
+    match: ['magewell', 'pro convert', 'sdi 4k'],
+    deviceTypeId: '0c36c579-0eaf-4f2d-a49a-44160df8bca0',
+    template: {
+      manufacturerUrl: 'https://www.magewell.com/products/pro-convert-sdi-4k-plus',
+      name: 'Magewell Pro Convert SDI 4K Plus',
+      category: 'IP/NDI',
+      inputs: [
+        sdiIn('SDI In'),
+      ],
+      outputs: [
+        eth('LAN (NDI)'),
+      ],
+      width: 200, height: 140,
+    },
+  },
+  // Quelle: https://www.magewell.com/products/pro-convert-hdmi-tx
+  {
+    match: ['magewell', 'pro convert', 'hdmi tx'],
+    deviceTypeId: '486ce07d-6a71-446b-b742-ec6b8d62b419',
+    template: {
+      manufacturerUrl: 'https://www.magewell.com/products/pro-convert-hdmi-tx',
+      name: 'Magewell Pro Convert HDMI TX',
+      category: 'IP/NDI',
+      inputs: [
+        hdmiIn('HDMI In'),
+      ],
+      outputs: [
+        eth('LAN (NDI)'),
+      ],
+      width: 200, height: 140,
+    },
+  },
+  // Quelle: https://www.magewell.com/products/usb-capture-hdmi-4k-plus
+  {
+    match: ['magewell', 'usb capture', 'hdmi'],
+    deviceTypeId: 'f1a76cac-2554-4f0e-b053-eea73ddefa70',
+    template: {
+      manufacturerUrl: 'https://www.magewell.com/products/usb-capture-hdmi-4k-plus',
+      name: 'Magewell USB Capture HDMI 4K Plus',
+      category: 'IP/NDI',
+      inputs: [
+        hdmiIn('HDMI In'),
+      ],
+      outputs: [
+        custom('USB 3.0'),
+      ],
+      width: 200, height: 140,
+    },
+  },
+  // Quelle: https://www.magewell.com/products/usb-capture-sdi-4k-plus
+  {
+    match: ['magewell', 'usb capture', 'sdi'],
+    deviceTypeId: 'e88cc79a-aeda-4479-a97b-8cacffdfb2e1',
+    template: {
+      manufacturerUrl: 'https://www.magewell.com/products/usb-capture-sdi-4k-plus',
+      name: 'Magewell USB Capture SDI 4K Plus',
+      category: 'IP/NDI',
+      inputs: [
+        sdiIn('SDI In'),
+      ],
+      outputs: [
+        custom('USB 3.0'),
+      ],
+      width: 200, height: 140,
+    },
+  },
+  // Quelle: https://www.kiloview.com/en/ndi/n30/
+  {
+    match: ['kiloview', 'n30'],
+    deviceTypeId: 'b712a373-503e-4005-af64-962bb8ff4132',
+    template: {
+      manufacturerUrl: 'https://www.kiloview.com/en/ndi/n30/',
+      name: 'Kiloview N30',
+      category: 'IP/NDI',
+      inputs: [
+        sdiIn('SDI In'),
+      ],
+      outputs: [
+        eth('LAN (NDI)'),
+      ],
+      width: 200, height: 140,
+    },
+  },
+  // Quelle: https://www.kiloview.com/en/ndi/n50/
+  {
+    match: ['kiloview', 'n50'],
+    deviceTypeId: 'e4db6ef7-db02-4732-bbdc-6c45a81abe35',
+    template: {
+      manufacturerUrl: 'https://www.kiloview.com/en/ndi/n50/',
+      name: 'Kiloview N50',
+      category: 'IP/NDI',
+      inputs: [
+        sdiIn('12G-SDI In'),
+      ],
+      outputs: [
+        eth('LAN (NDI)'),
+      ],
+      width: 200, height: 140,
+    },
+  },
+  // Quelle: https://www.kiloview.com/en/ndi/u40/
+  {
+    match: ['kiloview', 'u40'],
+    deviceTypeId: '42697402-44b7-491a-bb1e-c3dca9ba228a',
+    template: {
+      manufacturerUrl: 'https://www.kiloview.com/en/ndi/u40/',
+      name: 'Kiloview U40',
+      category: 'IP/NDI',
+      inputs: [
+        hdmiIn('HDMI In'),
+        sdiIn('SDI In'),
+      ],
+      outputs: [
+        custom('USB'),
+        eth('LAN (NDI)'),
+      ],
+      width: 200, height: 140,
+    },
+  },
+  // Quelle: https://www.kiloview.com/en/ndi/g2/
+  {
+    match: ['kiloview', 'g2'],
+    deviceTypeId: '8fa254ed-e5e9-404a-a0f1-c0bc4cc507d9',
+    template: {
+      manufacturerUrl: 'https://www.kiloview.com/en/ndi/g2/',
+      name: 'Kiloview G2',
+      category: 'IP/NDI',
+      inputs: [
+        hdmiIn('HDMI In'),
+      ],
+      outputs: [
+        eth('LAN (NDI)'),
+      ],
+      width: 200, height: 140,
+    },
+  },
+  // Quelle: https://www.kiloview.com/en/ndi/m2/
+  {
+    match: ['kiloview', 'm2'],
+    deviceTypeId: '78332a8c-fc28-4b30-80cc-5e36623a602c',
+    template: {
+      manufacturerUrl: 'https://www.kiloview.com/en/ndi/m2/',
+      name: 'Kiloview M2',
+      category: 'IP/NDI',
+      inputs: [
+        hdmiIn('HDMI In'),
+      ],
+      outputs: [
+        eth('LAN (NDI)'),
+      ],
+      width: 200, height: 140,
+    },
+  },
 ]
 
 /** Flat list of all built-in misc templates (seeded into the library). */
