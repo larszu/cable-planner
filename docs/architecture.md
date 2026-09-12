@@ -5,7 +5,7 @@ Invarianten der App. Sie ist die Pflicht-Lektüre, bevor strukturelle Änderunge
 gemacht werden. Für die interaktive Modul-Übersicht siehe [`app-structure.html`](./app-structure.html),
 für einen Wettbewerber-Vergleich [`comparison.html`](./comparison.html).
 
-Stand: v9.0.1 · ~657 TS/TSX-Module · ~193.0k LOC
+Stand: v9.0.1 · ~659 TS/TSX-Module · ~193.2k LOC
 
 ---
 
@@ -313,7 +313,9 @@ prüfen, ob das gemeinsame Konzept nach `shared/` gehört.
 - `CableEdge.tsx` (Custom-Edge mit Waypoints, Auto-Routing, Label-Slider)
 - `LocationNode.tsx` (Rahmen mit Move-Contents-Logik)
 - `LayerVisibilityChips.tsx` (Layer-Filter mit Count-Badges)
-- `pathfinding.ts` (Orthogonal-Routing zwischen Ports)
+- `pathfinding.ts` (Orthogonal-Routing zwischen Ports). **Das Zellmaß ist ein
+  Parameter, keine Konstante** — es kommt aus `lib/raster.ts` und ist gleich
+  der eingestellten Rastergröße (Invariante 24).
 - `cableApproach.ts` (die Anfahrt an das Geraet: Stummel an beiden Enden,
   Form gewaehlt statt angenommen — der Weg macht nicht kehrt, und der Pfeil
   faehrt gerade in die Buchse). Wer eine zweite Stelle baut, an der ein
@@ -872,6 +874,41 @@ Das Wichtigste in Listenform. Niemals brechen ohne expliziten Architektur-Review
     Aussage über die Schreibweise der Kategorie und nicht über das Gerät
     (ADR-002).
 
+24. **Das Raster ist EINE Zahl.** `uiStore.gridSize` — im Menü unter
+    *Einstellungen → Bearbeiten → Raster* einstellbar — ist die einzige
+    Schrittweite der Fläche. `lib/raster.ts` leitet daraus **alles** ab: die
+    Kopfhöhe der Gerätekarte, die Port-Reihe, das Innenpolster, die
+    Vorgabebreite **und das Zellmaß des Wegfinders**. Niemand schreibt eine
+    dieser Zahlen mehr hin.
+
+    Vorher waren es drei Rechnungen für dieselbe Frage: die eingestellte
+    Rastergröße, die 11er-Vielfachen in `EQUIPMENT_LAYOUT` und `CELL_SIZE = 20`
+    im A*. 20 ist kein Vielfaches von 11 — die Buchsen lagen also **per
+    Konstruktion** zwischen zwei Gitterpunkten des Wegfinders, und der
+    gezeichnete Weg holte den Rest als Stufe kurz vor der Buchse nach
+    (Nutzer-Meldung 2026-09-12: *„die Kabel gehen manchmal noch etwas unterhalb
+    von dem Ziel-Port und dann wieder hoch"*; in engen Szenen als Haken).
+
+    Zwei Regeln tragen die Ausrichtung, beide in `raster.ts` begründet:
+    - **Das Zellmaß teilt die Rastergröße** (es *ist* sie). Ein größeres Maß —
+      auch ein Vielfaches wie 2 g — lässt jede zweite Port-Reihe wieder
+      dazwischenfallen.
+    - **Die Port-Reihe ist ein GERADES Vielfaches** der Rastergröße, weil die
+      Buchse in ihrer Mitte sitzt.
+
+    Die Mindestmaße (44 / 66 / 22 / 11 / 220 px) bleiben als *Lesbarkeits-*
+    grenzen stehen und werden aufs nächste Vielfache gehoben; bei der Vorgabe
+    11 px ergibt das exakt die alten Zahlen. Die Grenzen `RASTER_MIN = 6` und
+    `RASTER_MAX = 60` sind gemessen, nicht geschätzt: eine Zelle je
+    Rasterschritt heißt quadratisch wachsende Suchfläche, und bei 2 px braucht
+    ein Plan mit 300 Kabeln rund sieben Sekunden (Tabelle in `raster.ts`).
+    Bei der Vorgabe ist das eine Raster **schneller** als die alten festen
+    20 px — 0,45 gegen 0,86 ms je Weg —, weil ein feineres Gitter geradere
+    Wege zulässt.
+
+    Wer das Zellmaß wieder von der Rastergröße löst, fällt in
+    `tests/rasterAlsEineZahl.test.ts` und `tests/anfahrtAmPort.test.ts`.
+
 ---
 
 ## 9 · Offene Architektur-Pfade
@@ -934,7 +971,7 @@ optionales Cloud-Backend (`y-websocket`, Auth/Permissions) bleiben offen.
 `vitest` ist eingerichtet (`npm test` / `npm run test:watch`); dazu kommen
 gezielte Node-Checks (`npm run test:crdt`, `npm run test:signaling`), ein
 UI-Smoke-Skript (`npm run ui:smoke`) und ein headless Drag-/Interaktions-Test
-(`npm run test:drag`, treibt den Renderer via Playwright). Bei ~193.0k LOC
+(`npm run test:drag`, treibt den Renderer via Playwright). Bei ~193.2k LOC
 bleibt der Ausbau der Abdeckung wichtig — empfohlene Schwerpunkte:
 - Snapshot-Tests auf `healProjectPositions` mit echten
   Beispiel-Projekt-JSONs.

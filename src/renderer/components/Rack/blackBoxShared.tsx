@@ -13,9 +13,8 @@
 // Hooks. EquipmentNode rendert seine Handles separat darüber.
 
 import type { CSSProperties } from 'react'
-import { EQUIPMENT_LAYOUT } from '../../lib/layoutConstants'
+import { useRaster } from '../../lib/aktuellesRaster'
 
-const PORT_ROW = EQUIPMENT_LAYOUT.PORT_ROW
 
 export interface BlackBoxBand {
   /** Stabile Identität (DeviceIndex auf Canvas, Placement-ID in Preview). */
@@ -50,6 +49,7 @@ interface RackBandsOverlayProps {
 /** Bänder-Stripes innerhalb der Black-Box-Card. Position absolut
  *  relativ zur Card. */
 export const RackBandsOverlay = ({ bands, headerHeight, isLight }: RackBandsOverlayProps) => {
+  const { PORT_ROW } = useRaster()
   return (
     <>
       {bands.map((band) => {

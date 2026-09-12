@@ -10,15 +10,17 @@
 import type { EquipmentItem, Port } from '../types/equipment'
 import type { IntercomPlan } from '../types/intercomPlan'
 import { findIntercomStationForEquipment } from './greengoSync'
-import { EQUIPMENT_LAYOUT } from './layoutConstants'
+import { aktuellesRaster } from './aktuellesRaster'
+import type { Raster } from './raster'
 
 // v7.9.23 — Layout-Konstanten zentralisiert in lib/layoutConstants.ts.
 // Vorher waren diese Werte zwischen EquipmentNode.tsx + equipmentLayout.ts
 // dupliziert — Bug-Garantie wenn einer der beiden geändert wurde.
-const HEADER_HEIGHT = EQUIPMENT_LAYOUT.HEADER_HEIGHT
-const HEADER_HEIGHT_WITH_IP = EQUIPMENT_LAYOUT.HEADER_HEIGHT_WITH_IP
-const PORT_ROW = EQUIPMENT_LAYOUT.PORT_ROW
-const PADDING = EQUIPMENT_LAYOUT.PADDING
+//
+// 2026-09-12 — und seither sind es keine Konstanten mehr, sondern das Ergebnis
+// der eingestellten Rastergroesse. Sie kommen als Parameter herein, damit diese
+// Datei nicht an einer Stelle rechnet, an der der Renderer eine andere Zahl
+// benutzt.
 
 export type PortSide = 'left' | 'right'
 
@@ -52,7 +54,16 @@ const resolveSide = (
 export const computeEquipmentLayout = (
   eq: EquipmentItem,
   intercom?: IntercomPlan,
+  raster: Raster = aktuellesRaster(),
 ): EquipmentLayout => {
+  const {
+    HEADER_HEIGHT,
+    HEADER_HEIGHT_WITH_IP,
+    PORT_ROW,
+    PADDING,
+    GRID_SIZE,
+    DEFAULT_WIDTH,
+  } = raster
   const inputs = eq.inputs ?? []
   const outputs = eq.outputs ?? []
   const portsFlipped = !!eq.portsFlipped
@@ -61,7 +72,7 @@ export const computeEquipmentLayout = (
   // v7.9.26 — Optionale Header-Zeilen sind gridSize-aligned (11 px)
   // statt 14, damit Port-Y-Positionen auf Dot-Reihen landen.
   const greengoUser = findIntercomStationForEquipment(eq.id, intercom)
-  const EXTRA_HEADER_LINE = EQUIPMENT_LAYOUT.GRID_SIZE
+  const EXTRA_HEADER_LINE = GRID_SIZE
   const beltpackLine = greengoUser ? EXTRA_HEADER_LINE : 0
   const headerHeight =
     (eq.ipAddress
@@ -105,8 +116,7 @@ export const computeEquipmentLayout = (
   // Linie an einer UN-gesnappten Außenkante, während der echte Port-Handle
   // an der gesnappten Kante sitzt → rechtsseitiger Versatz von bis zu 10px
   // (sichtbar v.a. am breiten Videohub mit vielen Output-Ports).
-  const GRID = EQUIPMENT_LAYOUT.GRID_SIZE
-  const snapUp = (n: number): number => Math.ceil(n / GRID) * GRID
+  const snapUp = (n: number): number => Math.ceil(n / GRID_SIZE) * GRID_SIZE
 
   // ─── `eq.width`/`eq.height` SIND EIN ABBILD, KEINE UNTERGRENZE ───────────
   //
@@ -142,7 +152,7 @@ export const computeEquipmentLayout = (
   // Raum-Zuordnung lesen es —, aber es entscheidet nichts mehr. Wer Geraete
   // eines Tages ziehbar macht, braucht dafuer ein EIGENES Feld; dieses hier
   // kann die Frage nicht beantworten.
-  const width = snapUp(Math.max(EQUIPMENT_LAYOUT.DEFAULT_WIDTH, labelWidth * 2, nameWidth))
+  const width = snapUp(Math.max(DEFAULT_WIDTH, labelWidth * 2, nameWidth))
 
   const portRows = Math.max(sideCounts.left, sideCounts.right, 1)
   // Dieselbe Begruendung fuer die Hoehe: sie folgt der Zahl der Port-Reihen.

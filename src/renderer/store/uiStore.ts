@@ -85,7 +85,8 @@ export interface DeviceConfigEntry {
 }
 
 import { STORAGE_KEYS } from '../lib/storageKeys'
-import { PANEL_LIMITS, EQUIPMENT_LAYOUT } from '../lib/layoutConstants'
+import { PANEL_LIMITS } from '../lib/layoutConstants'
+import { RASTER_DEFAULT, rasterGrenzen } from '../lib/raster'
 
 const KEY = STORAGE_KEYS.ui
 
@@ -354,7 +355,7 @@ const defaults: PersistedUiState = {
   propertiesCollapsed: false,
   libraryCollapsed: false,
   snapToGrid: true,
-  gridSize: EQUIPMENT_LAYOUT.GRID_SIZE,
+  gridSize: RASTER_DEFAULT,
   defaultRouting: 'orthogonal',
   defaultArrow: true,
   libraryWidth: 260,
@@ -622,11 +623,28 @@ const load = (): PersistedUiState => {
     }
     if (typeof merged.bgOpacity !== 'number' || !Number.isFinite(merged.bgOpacity))
       merged.bgOpacity = defaults.bgOpacity
-    // v7.9.30 — Snap-to-Grid und gridSize sind nicht mehr user-konfigurierbar
-    // (Toolbar-Toggle entfernt). Werte werden bei jedem Hydrate auf die
-    // Defaults gezwungen — alte localStorage-Stände werden überschrieben.
-    merged.snapToGrid = defaults.snapToGrid
-    merged.gridSize = defaults.gridSize
+    // ─── DIE RASTERGROESSE UEBERLEBT DAS NEULADEN WIEDER ──────────────────
+    //
+    // Hier stand seit v7.9.30: „Snap-to-Grid und gridSize sind nicht mehr
+    // user-konfigurierbar (Toolbar-Toggle entfernt). Werte werden bei jedem
+    // Hydrate auf die Defaults gezwungen." Der Toolbar-Knopf war weg — die
+    // EINSTELLUNG nicht: `Settings > Editing > Grid` bietet beides bis heute
+    // an, Haken und Zahlenfeld. Wer dort etwas eintrug, sah es wirken und
+    // nach dem naechsten Start wieder auf 11 stehen. Ein Menuepunkt, der
+    // seine Eingabe still wegwirft, ist schlimmer als keiner.
+    //
+    // Seit 2026-09-12 haengt an dieser Zahl ausserdem das Zellmass des
+    // Wegfinders (`lib/raster.ts`). Sie zu verwerfen hiesse jetzt: der Nutzer
+    // stellt das Raster um, die Geraete rasten anders ein, und nach dem
+    // Neustart rechnet wieder alles auf 11.
+    //
+    // Geprueft wird sie statt erzwungen: eine Zahl innerhalb der Grenzen aus
+    // `raster.ts`, sonst die Vorgabe.
+    if (typeof merged.snapToGrid !== 'boolean') merged.snapToGrid = defaults.snapToGrid
+    merged.gridSize =
+      typeof merged.gridSize === 'number' && Number.isFinite(merged.gridSize)
+        ? rasterGrenzen(merged.gridSize)
+        : defaults.gridSize
     if (typeof merged.libraryWidth !== 'number') merged.libraryWidth = defaults.libraryWidth
     if (typeof merged.propertiesWidth !== 'number') merged.propertiesWidth = defaults.propertiesWidth
     if (merged.canvasBgImageDark != null && typeof merged.canvasBgImageDark !== 'string')

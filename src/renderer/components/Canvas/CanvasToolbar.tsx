@@ -10,6 +10,7 @@ import { PatternChip } from './PatternChip'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { computeEquipmentLayout } from '../../lib/equipmentLayout'
+import { useRaster } from '../../lib/aktuellesRaster'
 import { computeAlignedPositions, type AlignMode, type AlignItem } from '../../lib/alignEquipment'
 import { Check, X, ChevronUp, ChevronDown} from 'lucide-react'
 import { useTranslation, format } from '../../lib/i18n'
@@ -103,6 +104,9 @@ const IconButton = ({
 )
 
 export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = {}) => {
+  // Geraete-Geometrie folgt der eingestellten Rastergroesse; mit Abonnement,
+  // damit ein Wechsel im Menue die Flaeche neu zeichnet.
+  const raster = useRaster()
   const t = useTranslation()
   // v7.9.5 — Toolbar frei verschiebbar (User-Request: "Mache die
   // toolbar im canvas frei verschiebbar"). useDraggablePosition liefert
@@ -118,9 +122,9 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
   const triggerRackBuilderEditFromBlackBox = useUiStore(
     (s) => s.triggerRackBuilderEditFromBlackBox,
   )
-  // v7.9.30 — Snap-to-Grid + Grid-Size sind nicht mehr user-konfigurierbar.
-  // Werte kommen jetzt aus dem Store-Default (snapToGrid=true,
-  // gridSize=EQUIPMENT_LAYOUT.GRID_SIZE=11) — siehe uiStore-Migration.
+  // v7.9.30 hatte den Toolbar-Knopf entfernt; die Einstellung selbst gibt es
+  // weiter unter Einstellungen > Bearbeiten > Raster, und seit 2026-09-12
+  // ueberlebt sie auch das Neuladen wieder (siehe uiStore-Hydrate).
   const snapToGrid = useUiStore((state) => state.snapToGrid)
   const gridSize = useUiStore((state) => state.gridSize)
   const defaultRouting = useUiStore((state) => state.defaultRouting)
@@ -212,7 +216,7 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
   // (snapUp-Breite + Header inkl. Subtitle/Beltpack). Vorher: ungesnappte
   // Store-Breite + vereinfachter Header → Versatz bei breiten Geräten.
   const measuredSize = (item: (typeof equipmentList)[number]) => {
-    const { width, height } = computeEquipmentLayout(item, intercom)
+    const { width, height } = computeEquipmentLayout(item, intercom, raster)
     return { w: width, h: height }
   }
 

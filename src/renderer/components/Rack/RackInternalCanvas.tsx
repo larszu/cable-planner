@@ -31,6 +31,7 @@ import { ProjectStoreProvider } from '../../store/ProjectStoreProvider'
 import { createProjectStoreInstance } from '../../store/projectStore'
 import { routeCable } from '../../lib/canvasViewport'
 import { computeEquipmentLayout } from '../../lib/equipmentLayout'
+import { aktuellesRaster } from '../../lib/aktuellesRaster'
 import type {
   EquipmentItem,
   EquipmentTemplate,
@@ -161,7 +162,7 @@ const buildScratchEquipment = (
     // Wert stabilisierte. Mit exakter Vorab-Größe ist estimate == measured →
     // der onNodesChange-Diff bleibt unter der 2px-Schwelle, kein Sprung. Hält
     // auch den hasOverlap-Check (#206) von Anfang an stabil.
-    const layout = computeEquipmentLayout(eq)
+    const layout = computeEquipmentLayout(eq, undefined, aktuellesRaster())
     eq.width = layout.width
     eq.height = layout.height
     return eq
