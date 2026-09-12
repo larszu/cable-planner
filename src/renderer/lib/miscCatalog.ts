@@ -567,6 +567,349 @@ export const MISC_CATALOG: MiscEntry[] = [
       notes: 'PCIe-Karte — in Sonnet Echo Express oder Mac Pro montieren.',
     },
   },
+  // ── Roland V-Switcher & Teradek Encoder (Beleg: Hersteller-Produktseiten,
+  //    je Modell per curl auf Erreichbarkeit geprüft, 2026-09) ──
+  // Quelle: https://proav.roland.com/global/products/v-60hd
+  {
+    match: ['roland', 'v-60hd'],
+    deviceTypeId: 'c1f1498e-a00a-4fdc-b0a8-a7a06b6cb1b2',
+    template: {
+      manufacturerUrl: 'https://proav.roland.com/global/products/v-60hd',
+      name: 'Roland V-60HD',
+      category: 'Video Mixer',
+      inputs: [
+        sdiIn('SDI In 1'),
+        sdiIn('SDI In 2'),
+        sdiIn('SDI In 3'),
+        sdiIn('SDI In 4'),
+        hdmiIn('HDMI In 1'),
+        hdmiIn('HDMI In 2'),
+      ],
+      outputs: [
+        hdmiOut('HDMI Out 1'),
+        hdmiOut('HDMI Out 2'),
+        sdiOut('SDI Out 1'),
+        port('USB Stream', 'USB'),
+      ],
+      width: 240, height: 200,
+    },
+  },
+  // Quelle: https://proav.roland.com/global/products/v-160hd
+  {
+    match: ['roland', 'v-160hd'],
+    deviceTypeId: 'da2c9344-c217-4b6b-981c-840a32bd6fde',
+    template: {
+      manufacturerUrl: 'https://proav.roland.com/global/products/v-160hd',
+      name: 'Roland V-160HD',
+      category: 'Video Mixer',
+      inputs: [
+        sdiIn('SDI In 1'),
+        sdiIn('SDI In 2'),
+        sdiIn('SDI In 3'),
+        sdiIn('SDI In 4'),
+        sdiIn('SDI In 5'),
+        sdiIn('SDI In 6'),
+        sdiIn('SDI In 7'),
+        sdiIn('SDI In 8'),
+        hdmiIn('HDMI In 1'),
+        hdmiIn('HDMI In 2'),
+        hdmiIn('HDMI In 3'),
+        hdmiIn('HDMI In 4'),
+        hdmiIn('HDMI In 5'),
+        hdmiIn('HDMI In 6'),
+        hdmiIn('HDMI In 7'),
+        hdmiIn('HDMI In 8'),
+      ],
+      outputs: [
+        sdiOut('SDI Out 1'),
+        sdiOut('SDI Out 2'),
+        sdiOut('SDI Out 3'),
+        hdmiOut('HDMI Out 1'),
+        hdmiOut('HDMI Out 2'),
+        hdmiOut('HDMI Out 3'),
+        port('USB-C Stream', 'USB'),
+      ],
+      width: 260, height: 300,
+    },
+  },
+  // Quelle: https://proav.roland.com/global/products/v-1hd
+  {
+    match: ['roland', 'v-1hd'],
+    deviceTypeId: '29eea792-d516-48bf-877b-b751d382ce4b',
+    template: {
+      manufacturerUrl: 'https://proav.roland.com/global/products/v-1hd',
+      name: 'Roland V-1HD',
+      category: 'Video Mixer',
+      inputs: [
+        hdmiIn('HDMI In 1'),
+        hdmiIn('HDMI In 2'),
+        hdmiIn('HDMI In 3'),
+        hdmiIn('HDMI In 4'),
+      ],
+      outputs: [
+        hdmiOut('HDMI Out 1'),
+        hdmiOut('HDMI Out 2'),
+      ],
+      width: 220, height: 180,
+    },
+  },
+  // Quelle: https://proav.roland.com/global/products/v-1sdi
+  {
+    match: ['roland', 'v-1sdi'],
+    deviceTypeId: 'efa0ed3d-a66f-49f7-8126-7d6a4b404cef',
+    template: {
+      manufacturerUrl: 'https://proav.roland.com/global/products/v-1sdi',
+      name: 'Roland V-1SDI',
+      category: 'Video Mixer',
+      inputs: [
+        sdiIn('SDI In 1'),
+        sdiIn('SDI In 2'),
+        sdiIn('SDI In 3'),
+        sdiIn('SDI In 4'),
+      ],
+      outputs: [
+        sdiOut('SDI Out 1'),
+        sdiOut('SDI Out 2'),
+      ],
+      width: 220, height: 180,
+    },
+  },
+  // Quelle: https://proav.roland.com/global/products/v-8hd
+  {
+    match: ['roland', 'v-8hd'],
+    deviceTypeId: '9fd7b49b-32ca-4c66-966f-0a2447506862',
+    template: {
+      manufacturerUrl: 'https://proav.roland.com/global/products/v-8hd',
+      name: 'Roland V-8HD',
+      category: 'Video Mixer',
+      inputs: [
+        hdmiIn('HDMI In 1'),
+        hdmiIn('HDMI In 2'),
+        hdmiIn('HDMI In 3'),
+        hdmiIn('HDMI In 4'),
+        hdmiIn('HDMI In 5'),
+        hdmiIn('HDMI In 6'),
+        hdmiIn('HDMI In 7'),
+        hdmiIn('HDMI In 8'),
+      ],
+      outputs: [
+        hdmiOut('HDMI Out 1'),
+        hdmiOut('HDMI Out 2'),
+        hdmiOut('HDMI Out 3'),
+      ],
+      width: 240, height: 220,
+    },
+  },
+  // Quelle: https://proav.roland.com/global/products/v-600uhd
+  {
+    match: ['roland', 'v-600uhd'],
+    deviceTypeId: '2edf1e21-27d6-445d-a167-3cf245d4775c',
+    template: {
+      manufacturerUrl: 'https://proav.roland.com/global/products/v-600uhd',
+      name: 'Roland V-600UHD',
+      category: 'Video Mixer',
+      inputs: [
+        hdmiIn('HDMI In 1'),
+        hdmiIn('HDMI In 2'),
+        hdmiIn('HDMI In 3'),
+        hdmiIn('HDMI In 4'),
+        sdiIn('12G-SDI In 1'),
+        sdiIn('12G-SDI In 2'),
+      ],
+      outputs: [
+        hdmiOut('HDMI Out 1'),
+        hdmiOut('HDMI Out 2'),
+        hdmiOut('HDMI Out 3'),
+        sdiOut('12G-SDI Out 1'),
+      ],
+      width: 240, height: 240,
+    },
+  },
+  // Quelle: https://proav.roland.com/global/products/vr-4hd
+  {
+    match: ['roland', 'vr-4hd'],
+    deviceTypeId: 'd7fd1b9c-bb9b-495d-b919-2924de639627',
+    template: {
+      manufacturerUrl: 'https://proav.roland.com/global/products/vr-4hd',
+      name: 'Roland VR-4HD',
+      category: 'Video Mixer',
+      inputs: [
+        hdmiIn('HDMI In 1'),
+        hdmiIn('HDMI In 2'),
+        hdmiIn('HDMI In 3'),
+        hdmiIn('HDMI In 4'),
+      ],
+      outputs: [
+        hdmiOut('HDMI Out 1'),
+        port('USB Stream', 'USB'),
+      ],
+      width: 220, height: 180,
+    },
+  },
+  // Quelle: https://proav.roland.com/global/products/vr-6hd
+  {
+    match: ['roland', 'vr-6hd'],
+    deviceTypeId: 'eebf5cb4-31f2-4c35-87a7-6c59c28227fb',
+    template: {
+      manufacturerUrl: 'https://proav.roland.com/global/products/vr-6hd',
+      name: 'Roland VR-6HD',
+      category: 'Video Mixer',
+      inputs: [
+        hdmiIn('HDMI In 1'),
+        hdmiIn('HDMI In 2'),
+        hdmiIn('HDMI In 3'),
+        hdmiIn('HDMI In 4'),
+        hdmiIn('HDMI In 5'),
+        hdmiIn('HDMI In 6'),
+      ],
+      outputs: [
+        hdmiOut('HDMI Out 1'),
+        hdmiOut('HDMI Out 2'),
+        hdmiOut('HDMI Out 3'),
+        port('USB-C Stream', 'USB'),
+      ],
+      width: 240, height: 200,
+    },
+  },
+  // Quelle: https://teradek.com/products/vidiu-x
+  {
+    match: ['teradek', 'vidiu x'],
+    deviceTypeId: '243d3fda-f8ed-4412-8a8d-cec61ca9de9e',
+    template: {
+      manufacturerUrl: 'https://teradek.com/products/vidiu-x',
+      name: 'Teradek VidiU X',
+      category: 'IP/NDI',
+      inputs: [
+        hdmiIn('HDMI In'),
+      ],
+      outputs: [
+        eth('LAN'),
+      ],
+      width: 200, height: 140,
+    },
+  },
+  // Quelle: https://teradek.com/products/vidiu-go
+  {
+    match: ['teradek', 'vidiu go'],
+    deviceTypeId: '5662501d-6a9d-4d38-b109-4fb0723b8c46',
+    template: {
+      manufacturerUrl: 'https://teradek.com/products/vidiu-go',
+      name: 'Teradek VidiU Go',
+      category: 'IP/NDI',
+      inputs: [
+        hdmiIn('HDMI In'),
+        sdiIn('SDI In'),
+      ],
+      outputs: [
+        eth('LAN'),
+      ],
+      width: 200, height: 160,
+    },
+  },
+  // Quelle: https://teradek.com/products/vidiu-pro
+  {
+    match: ['teradek', 'vidiu pro'],
+    deviceTypeId: 'fa797b7c-d576-4a5d-9ae9-a25a5a29f5cb',
+    template: {
+      manufacturerUrl: 'https://teradek.com/products/vidiu-pro',
+      name: 'Teradek VidiU Pro',
+      category: 'IP/NDI',
+      inputs: [
+        hdmiIn('HDMI In'),
+      ],
+      outputs: [
+        eth('LAN'),
+      ],
+      width: 200, height: 140,
+    },
+  },
+  // Quelle: https://teradek.com/products/cube-755
+  {
+    match: ['teradek', 'cube 755'],
+    deviceTypeId: 'ae018a64-1a37-48d1-bfdd-bfc974b67634',
+    template: {
+      manufacturerUrl: 'https://teradek.com/products/cube-755',
+      name: 'Teradek Cube 755',
+      category: 'IP/NDI',
+      inputs: [
+        sdiIn('SDI In'),
+      ],
+      outputs: [
+        eth('LAN'),
+      ],
+      width: 200, height: 140,
+    },
+  },
+  // Quelle: https://teradek.com/products/cube-655
+  {
+    match: ['teradek', 'cube 655'],
+    deviceTypeId: 'a5e581d1-553e-44bb-8a76-cb92d9e494e3',
+    template: {
+      manufacturerUrl: 'https://teradek.com/products/cube-655',
+      name: 'Teradek Cube 655',
+      category: 'IP/NDI',
+      inputs: [
+        hdmiIn('HDMI In'),
+      ],
+      outputs: [
+        eth('LAN'),
+      ],
+      width: 200, height: 140,
+    },
+  },
+  // Quelle: https://teradek.com/products/serv-4k
+  {
+    match: ['teradek', 'serv 4k'],
+    deviceTypeId: 'a7b82771-c0d0-4b82-94e7-c1a733d2560e',
+    template: {
+      manufacturerUrl: 'https://teradek.com/products/serv-4k',
+      name: 'Teradek Serv 4K',
+      category: 'IP/NDI',
+      inputs: [
+        hdmiIn('HDMI In'),
+        sdiIn('SDI In'),
+      ],
+      outputs: [
+        eth('LAN'),
+      ],
+      width: 200, height: 160,
+    },
+  },
+  // Quelle: https://teradek.com/products/serv-pro
+  {
+    match: ['teradek', 'serv pro'],
+    deviceTypeId: 'fd812dc8-d5b1-44b8-877f-56576c1194b8',
+    template: {
+      manufacturerUrl: 'https://teradek.com/products/serv-pro',
+      name: 'Teradek Serv Pro',
+      category: 'IP/NDI',
+      inputs: [
+        hdmiIn('HDMI In'),
+        sdiIn('SDI In'),
+      ],
+      outputs: [
+        eth('LAN'),
+      ],
+      width: 200, height: 160,
+    },
+  },
+  // Quelle: https://teradek.com/products/wave
+  {
+    match: ['teradek', 'wave'],
+    deviceTypeId: '44d19d65-6200-41b7-a620-ef780c8c299e',
+    template: {
+      manufacturerUrl: 'https://teradek.com/products/wave',
+      name: 'Teradek Wave',
+      category: 'IP/NDI',
+      inputs: [
+        hdmiIn('HDMI In'),
+      ],
+      outputs: [
+        eth('LAN'),
+      ],
+      width: 200, height: 140,
+    },
+  },
 ]
 
 /** Flat list of all built-in misc templates (seeded into the library). */
