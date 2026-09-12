@@ -1180,6 +1180,254 @@ export const MISC_CATALOG: MiscEntry[] = [
       width: 240, height: 240,
     },
   },
+  // ── Kiloview NDI-Encoder/Decoder (Beleg: kiloview.com, je Modell per curl
+  //    geprüft, 2026-09) ──
+  // Quelle: https://www.kiloview.com/en/ndi/n1/
+  {
+    match: ['kiloview', 'n1'],
+    deviceTypeId: 'a577c36b-1a15-4c1d-90df-1ddb6681825c',
+    template: {
+      manufacturerUrl: 'https://www.kiloview.com/en/ndi/n1/',
+      name: 'Kiloview N1',
+      category: 'IP/NDI',
+      inputs: [
+        hdmiIn('HDMI In'),
+      ],
+      outputs: [
+        eth('LAN (NDI)'),
+      ],
+      width: 200, height: 140,
+    },
+  },
+  // Quelle: https://www.kiloview.com/en/ndi/n2/
+  {
+    match: ['kiloview', 'n2'],
+    deviceTypeId: 'bd1d007e-ac69-46da-91d1-85b45530fd6a',
+    template: {
+      manufacturerUrl: 'https://www.kiloview.com/en/ndi/n2/',
+      name: 'Kiloview N2',
+      category: 'IP/NDI',
+      inputs: [
+        sdiIn('SDI In'),
+      ],
+      outputs: [
+        eth('LAN (NDI)'),
+      ],
+      width: 200, height: 140,
+    },
+  },
+  // Quelle: https://www.kiloview.com/en/ndi/n3/
+  {
+    match: ['kiloview', 'n3'],
+    deviceTypeId: '9768ecd9-2670-462d-afa9-eaefa95eb7d1',
+    template: {
+      manufacturerUrl: 'https://www.kiloview.com/en/ndi/n3/',
+      name: 'Kiloview N3',
+      category: 'IP/NDI',
+      inputs: [
+        hdmiIn('HDMI In'),
+      ],
+      outputs: [
+        eth('LAN (NDI)'),
+      ],
+      width: 200, height: 140,
+    },
+  },
+  // Quelle: https://www.kiloview.com/en/ndi/n40/
+  {
+    match: ['kiloview', 'n40'],
+    deviceTypeId: 'd61f8146-3ab2-4be2-9585-9e42e1dacaaa',
+    template: {
+      manufacturerUrl: 'https://www.kiloview.com/en/ndi/n40/',
+      name: 'Kiloview N40',
+      category: 'IP/NDI',
+      inputs: [
+        sdiIn('12G-SDI In'),
+      ],
+      outputs: [
+        eth('LAN (NDI)'),
+      ],
+      width: 200, height: 140,
+    },
+  },
+  // Quelle: https://www.kiloview.com/en/ndi/n60/
+  {
+    match: ['kiloview', 'n60'],
+    deviceTypeId: '483cf205-281d-41ff-b6fe-f7793af15fb0',
+    template: {
+      manufacturerUrl: 'https://www.kiloview.com/en/ndi/n60/',
+      name: 'Kiloview N60',
+      category: 'IP/NDI',
+      inputs: [
+        hdmiIn('HDMI In'),
+        sdiIn('SDI In'),
+      ],
+      outputs: [
+        eth('LAN (NDI)'),
+      ],
+      width: 200, height: 140,
+    },
+  },
+  // Quelle: https://www.kiloview.com/en/ndi/e1/
+  {
+    match: ['kiloview', 'e1'],
+    deviceTypeId: '5f29d11f-98f7-43a2-abe3-1d63e1930be7',
+    template: {
+      manufacturerUrl: 'https://www.kiloview.com/en/ndi/e1/',
+      name: 'Kiloview E1',
+      category: 'IP/NDI',
+      inputs: [
+        sdiIn('SDI In'),
+      ],
+      outputs: [
+        eth('LAN (NDI)'),
+      ],
+      width: 200, height: 140,
+    },
+  },
+  // Quelle: https://www.kiloview.com/en/ndi/e2/
+  {
+    match: ['kiloview', 'e2'],
+    deviceTypeId: '0856b42e-43fa-4bb6-bb2e-7acd0f8e279b',
+    template: {
+      manufacturerUrl: 'https://www.kiloview.com/en/ndi/e2/',
+      name: 'Kiloview E2',
+      category: 'IP/NDI',
+      inputs: [
+        hdmiIn('HDMI In'),
+      ],
+      outputs: [
+        eth('LAN (NDI)'),
+      ],
+      width: 200, height: 140,
+    },
+  },
+  // Quelle: https://www.kiloview.com/en/ndi/e3/
+  {
+    match: ['kiloview', 'e3'],
+    deviceTypeId: '630b9c0b-985c-49ad-96b9-64cd2e486d94',
+    template: {
+      manufacturerUrl: 'https://www.kiloview.com/en/ndi/e3/',
+      name: 'Kiloview E3',
+      category: 'IP/NDI',
+      inputs: [
+        hdmiIn('HDMI In'),
+        sdiIn('SDI In'),
+      ],
+      outputs: [
+        eth('LAN (NDI)'),
+      ],
+      width: 200, height: 140,
+    },
+  },
+  // Quelle: https://www.kiloview.com/en/ndi/p2/
+  {
+    match: ['kiloview', 'p2'],
+    deviceTypeId: '120fbd66-ee2a-43a4-af80-090e8ff512ec',
+    template: {
+      manufacturerUrl: 'https://www.kiloview.com/en/ndi/p2/',
+      name: 'Kiloview P2',
+      category: 'IP/NDI',
+      inputs: [
+        hdmiIn('HDMI In'),
+      ],
+      outputs: [
+        eth('LAN (NDI)'),
+      ],
+      width: 200, height: 140,
+    },
+  },
+  // Quelle: https://www.kiloview.com/en/ndi/p3/
+  {
+    match: ['kiloview', 'p3'],
+    deviceTypeId: '6dd278f8-0f72-4615-822b-56f750c7bb84',
+    template: {
+      manufacturerUrl: 'https://www.kiloview.com/en/ndi/p3/',
+      name: 'Kiloview P3',
+      category: 'IP/NDI',
+      inputs: [
+        hdmiIn('HDMI In'),
+        sdiIn('SDI In'),
+      ],
+      outputs: [
+        eth('LAN (NDI)'),
+      ],
+      width: 200, height: 140,
+    },
+  },
+  // Quelle: https://www.kiloview.com/en/ndi/cv190/
+  {
+    match: ['kiloview', 'cv190'],
+    deviceTypeId: 'b3372685-1aa6-4e08-8359-805de1792334',
+    template: {
+      manufacturerUrl: 'https://www.kiloview.com/en/ndi/cv190/',
+      name: 'Kiloview CV190',
+      category: 'IP/NDI',
+      inputs: [
+        sdiIn('SDI In'),
+        hdmiIn('HDMI In'),
+        eth('LAN (NDI)'),
+      ],
+      outputs: [
+        sdiOut('SDI Out'),
+        hdmiOut('HDMI Out'),
+      ],
+      width: 200, height: 140,
+    },
+  },
+  // Quelle: https://www.kiloview.com/en/ndi/d300/
+  {
+    match: ['kiloview', 'd300'],
+    deviceTypeId: 'f87e4131-7d96-49e5-a550-0533d05a0f54',
+    template: {
+      manufacturerUrl: 'https://www.kiloview.com/en/ndi/d300/',
+      name: 'Kiloview D300',
+      category: 'IP/NDI',
+      inputs: [
+        eth('LAN (NDI)'),
+      ],
+      outputs: [
+        hdmiOut('HDMI Out'),
+        sdiOut('SDI Out'),
+      ],
+      width: 200, height: 140,
+    },
+  },
+  // Quelle: https://www.kiloview.com/en/ndi/d350/
+  {
+    match: ['kiloview', 'd350'],
+    deviceTypeId: 'c7aea796-86ce-4768-9eda-e44797923058',
+    template: {
+      manufacturerUrl: 'https://www.kiloview.com/en/ndi/d350/',
+      name: 'Kiloview D350',
+      category: 'IP/NDI',
+      inputs: [
+        eth('LAN (NDI)'),
+      ],
+      outputs: [
+        hdmiOut('HDMI Out'),
+        sdiOut('SDI Out'),
+      ],
+      width: 200, height: 140,
+    },
+  },
+  // Quelle: https://www.kiloview.com/en/ndi/cube-r1/
+  {
+    match: ['kiloview', 'cube r1'],
+    deviceTypeId: '48c08871-3218-44eb-942d-26619a2a7f97',
+    template: {
+      manufacturerUrl: 'https://www.kiloview.com/en/ndi/cube-r1/',
+      name: 'Kiloview Cube R1',
+      category: 'IP/NDI',
+      inputs: [
+        eth('LAN (NDI)'),
+      ],
+      outputs: [
+        hdmiOut('HDMI Out'),
+      ],
+      width: 200, height: 140,
+    },
+  },
 ]
 
 /** Flat list of all built-in misc templates (seeded into the library). */

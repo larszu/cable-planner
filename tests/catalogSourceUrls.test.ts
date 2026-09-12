@@ -104,7 +104,7 @@ describe('jeder Quellen-Kommentar steht auch als Feld im Eintrag', () => {
     // Muster nicht mehr passt und `pairs()` leer zurueckkommt.
     // 253 + 1: `mediaStationCatalog` ist mit EINEM belegten Eintrag
     // dazugekommen (die Medien-Station als Plan-Endpunkt).
-    expect(pairs().length).toBe(394)
+    expect(pairs().length).toBe(408)
   })
 
   it('deckt die neun Kataloge ab, die Belege fuehren', () => {
@@ -247,6 +247,6 @@ describe('der Beleg zeigt auf den Hersteller, nicht auf einen Haendler', () => {
   it('prueft alle Belege, nicht nur die mit Feld', () => {
     // Ohne diese Zusicherung waere der Haendler-Test auch dann gruen, wenn
     // `pairs()` nichts mehr faende.
-    expect(pairs().filter((p) => p.field).length).toBe(394)
+    expect(pairs().filter((p) => p.field).length).toBe(408)
   })
 })
