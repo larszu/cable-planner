@@ -1602,6 +1602,329 @@ export const MISC_CATALOG: MiscEntry[] = [
       width: 200, height: 140,
     },
   },
+  // ── Roland V-/XS-/VC-Switcher & Konverter, AJA (Beleg: Hersteller-Produkt-
+  //    seiten, je Modell per curl geprüft, 2026-09) ──
+  // Quelle: https://proav.roland.com/global/products/vc-1-hs/
+  {
+    match: ['roland', 'vc-1-hs'],
+    deviceTypeId: '82ea88f0-d5b3-421b-88df-a2272bb86a8f',
+    template: {
+      manufacturerUrl: 'https://proav.roland.com/global/products/vc-1-hs/',
+      name: 'Roland VC-1-HS',
+      category: 'Video Converter',
+      inputs: [
+        hdmiIn('HDMI In'),
+        sdiIn('SDI In'),
+      ],
+      outputs: [
+        sdiOut('SDI Out'),
+        hdmiOut('HDMI Out'),
+      ],
+      width: 240, height: 200,
+    },
+  },
+  // Quelle: https://proav.roland.com/global/products/vc-1-sc/
+  {
+    match: ['roland', 'vc-1-sc'],
+    deviceTypeId: 'b8b73639-8048-4f91-a575-051d95dcdf20',
+    template: {
+      manufacturerUrl: 'https://proav.roland.com/global/products/vc-1-sc/',
+      name: 'Roland VC-1-SC',
+      category: 'Video Converter',
+      inputs: [
+        sdiIn('SDI In'),
+        hdmiIn('HDMI In'),
+      ],
+      outputs: [
+        sdiOut('SDI Out'),
+        hdmiOut('HDMI Out'),
+      ],
+      width: 240, height: 200,
+    },
+  },
+  // Quelle: https://proav.roland.com/global/products/vc-1-dl/
+  {
+    match: ['roland', 'vc-1-dl'],
+    deviceTypeId: '68a752a9-af12-4500-baba-9e12bfb6ef56',
+    template: {
+      manufacturerUrl: 'https://proav.roland.com/global/products/vc-1-dl/',
+      name: 'Roland VC-1-DL',
+      category: 'Video Converter',
+      inputs: [
+        sdiIn('SDI In'),
+        hdmiIn('HDMI In'),
+      ],
+      outputs: [
+        sdiOut('SDI Out'),
+        hdmiOut('HDMI Out'),
+      ],
+      width: 240, height: 200,
+    },
+  },
+  // Quelle: https://proav.roland.com/global/products/xs-62s/
+  {
+    match: ['roland', 'xs-62s'],
+    deviceTypeId: '9d9feabe-7a1d-473b-b182-d6a37e19a390',
+    template: {
+      manufacturerUrl: 'https://proav.roland.com/global/products/xs-62s/',
+      name: 'Roland XS-62S',
+      category: 'Video Mixer',
+      inputs: [
+        sdiIn('SDI In 1'),
+        sdiIn('SDI In 2'),
+        hdmiIn('HDMI In 3'),
+        hdmiIn('HDMI In 4'),
+        hdmiIn('HDMI In 5'),
+        hdmiIn('HDMI In 6'),
+      ],
+      outputs: [
+        sdiOut('SDI Out 1'),
+        hdmiOut('HDMI Out 2'),
+      ],
+      width: 240, height: 200,
+    },
+  },
+  // Quelle: https://proav.roland.com/global/products/xs-84h/
+  {
+    match: ['roland', 'xs-84h'],
+    deviceTypeId: '4c28019c-a14e-465b-ae66-2be15d05f706',
+    template: {
+      manufacturerUrl: 'https://proav.roland.com/global/products/xs-84h/',
+      name: 'Roland XS-84H',
+      category: 'Video Mixer',
+      inputs: [
+        hdmiIn('HDMI In 1'),
+        hdmiIn('HDMI In 2'),
+        hdmiIn('HDMI In 3'),
+        hdmiIn('HDMI In 4'),
+        hdmiIn('HDMI In 5'),
+        hdmiIn('HDMI In 6'),
+        hdmiIn('HDMI In 7'),
+        hdmiIn('HDMI In 8'),
+      ],
+      outputs: [
+        hdmiOut('HDMI Out 1'),
+        hdmiOut('HDMI Out 2'),
+        hdmiOut('HDMI Out 3'),
+        hdmiOut('HDMI Out 4'),
+      ],
+      width: 240, height: 200,
+    },
+  },
+  // Quelle: https://proav.roland.com/global/products/xs-1hd/
+  {
+    match: ['roland', 'xs-1hd'],
+    deviceTypeId: '9329823d-63cb-4d13-8f14-ace0e6a62f72',
+    template: {
+      manufacturerUrl: 'https://proav.roland.com/global/products/xs-1hd/',
+      name: 'Roland XS-1HD',
+      category: 'Video Mixer',
+      inputs: [
+        hdmiIn('HDMI In 1'),
+        hdmiIn('HDMI In 2'),
+        hdmiIn('HDMI In 3'),
+        hdmiIn('HDMI In 4'),
+      ],
+      outputs: [
+        hdmiOut('HDMI Out 1'),
+        hdmiOut('HDMI Out 2'),
+      ],
+      width: 240, height: 200,
+    },
+  },
+  // Quelle: https://proav.roland.com/global/products/vp-42h/
+  {
+    match: ['roland', 'vp-42h'],
+    deviceTypeId: 'c48e7903-7c1a-44ad-9e3d-20980f78866e',
+    template: {
+      manufacturerUrl: 'https://proav.roland.com/global/products/vp-42h/',
+      name: 'Roland VP-42H',
+      category: 'Video Mixer',
+      inputs: [
+        hdmiIn('HDMI In 1'),
+        hdmiIn('HDMI In 2'),
+        hdmiIn('HDMI In 3'),
+        hdmiIn('HDMI In 4'),
+      ],
+      outputs: [
+        hdmiOut('HDMI Out 1'),
+        hdmiOut('HDMI Out 2'),
+      ],
+      width: 240, height: 200,
+    },
+  },
+  // Quelle: https://proav.roland.com/global/products/v-1200hd/
+  {
+    match: ['roland', 'v-1200hd'],
+    deviceTypeId: 'b36b1870-fac4-4053-8f9f-5aa1efdddd26',
+    template: {
+      manufacturerUrl: 'https://proav.roland.com/global/products/v-1200hd/',
+      name: 'Roland V-1200HD',
+      category: 'Video Mixer',
+      inputs: [
+        sdiIn('SDI In 1'),
+        sdiIn('SDI In 2'),
+        sdiIn('SDI In 3'),
+        sdiIn('SDI In 4'),
+        hdmiIn('HDMI In 5'),
+        hdmiIn('HDMI In 6'),
+        hdmiIn('HDMI In 7'),
+        hdmiIn('HDMI In 8'),
+      ],
+      outputs: [
+        sdiOut('SDI Out 1'),
+        sdiOut('SDI Out 2'),
+        hdmiOut('HDMI Out 3'),
+        hdmiOut('HDMI Out 4'),
+      ],
+      width: 240, height: 200,
+    },
+  },
+  // Quelle: https://proav.roland.com/global/products/p-20hd/
+  {
+    match: ['roland', 'p-20hd'],
+    deviceTypeId: '319fdd22-1092-4b92-8b8f-d3ed5423db53',
+    template: {
+      manufacturerUrl: 'https://proav.roland.com/global/products/p-20hd/',
+      name: 'Roland P-20HD',
+      category: 'Video Mixer',
+      inputs: [
+        sdiIn('SDI In'),
+        hdmiIn('HDMI In'),
+      ],
+      outputs: [
+        hdmiOut('HDMI Out 1'),
+        hdmiOut('HDMI Out 2'),
+        eth('LAN'),
+      ],
+      width: 240, height: 200,
+    },
+  },
+  // Quelle: https://proav.roland.com/global/products/vr-120hd/
+  {
+    match: ['roland', 'vr-120hd'],
+    deviceTypeId: 'fc593190-82d8-4f39-9ffe-4aa5ac636bdb',
+    template: {
+      manufacturerUrl: 'https://proav.roland.com/global/products/vr-120hd/',
+      name: 'Roland VR-120HD',
+      category: 'Video Mixer',
+      inputs: [
+        hdmiIn('HDMI In 1'),
+        hdmiIn('HDMI In 2'),
+        hdmiIn('HDMI In 3'),
+        hdmiIn('HDMI In 4'),
+        hdmiIn('HDMI In 5'),
+        hdmiIn('HDMI In 6'),
+      ],
+      outputs: [
+        hdmiOut('HDMI Out 1'),
+        hdmiOut('HDMI Out 2'),
+        eth('USB-C Stream'),
+      ],
+      width: 240, height: 200,
+    },
+  },
+  // Quelle: https://proav.roland.com/global/products/v-80hd/
+  {
+    match: ['roland', 'v-80hd'],
+    deviceTypeId: '684a1453-28b5-4026-8f5d-f77edfbd55ff',
+    template: {
+      manufacturerUrl: 'https://proav.roland.com/global/products/v-80hd/',
+      name: 'Roland V-80HD',
+      category: 'Video Mixer',
+      inputs: [
+        sdiIn('SDI In 1'),
+        sdiIn('SDI In 2'),
+        hdmiIn('HDMI In 3'),
+        hdmiIn('HDMI In 4'),
+        hdmiIn('HDMI In 5'),
+        hdmiIn('HDMI In 6'),
+        hdmiIn('HDMI In 7'),
+        hdmiIn('HDMI In 8'),
+      ],
+      outputs: [
+        sdiOut('SDI Out 1'),
+        hdmiOut('HDMI Out 2'),
+        hdmiOut('HDMI Out 3'),
+      ],
+      width: 240, height: 200,
+    },
+  },
+  // Quelle: https://www.aja.com/products/hdp3
+  {
+    match: ['aja', 'hdp3'],
+    deviceTypeId: 'c8dddcaa-6f00-49a2-ad92-75cdf70c7863',
+    template: {
+      manufacturerUrl: 'https://www.aja.com/products/hdp3',
+      name: 'AJA Hi5 HDP3',
+      category: 'Video Converter',
+      inputs: [
+        sdiIn('SDI In'),
+      ],
+      outputs: [
+        hdmiOut('HDMI Out'),
+        sdiOut('SDI Loop Out'),
+      ],
+      width: 240, height: 200,
+    },
+  },
+  // Quelle: https://www.aja.com/products/u-tap-hdmi
+  {
+    match: ['aja', 'u-tap', 'hdmi'],
+    deviceTypeId: 'c5ed0127-2283-4873-ab4b-f002d5a141e6',
+    template: {
+      manufacturerUrl: 'https://www.aja.com/products/u-tap-hdmi',
+      name: 'AJA U-TAP HDMI',
+      category: 'Video',
+      inputs: [
+        hdmiIn('HDMI In'),
+      ],
+      outputs: [
+        custom('USB 3.0'),
+      ],
+      width: 240, height: 200,
+    },
+  },
+  // Quelle: https://www.aja.com/products/ki-pro-ultra-12g
+  {
+    match: ['aja', 'ki-pro ultra'],
+    deviceTypeId: '508757b6-40fb-4759-a707-fa3af5742e45',
+    template: {
+      manufacturerUrl: 'https://www.aja.com/products/ki-pro-ultra-12g',
+      name: 'AJA Ki Pro Ultra 12G',
+      category: 'Video',
+      inputs: [
+        sdiIn('SDI In'),
+        hdmiIn('HDMI In'),
+      ],
+      outputs: [
+        sdiOut('SDI Out'),
+        hdmiOut('HDMI Out'),
+        xlrIn('XLR Audio In'),
+      ],
+      width: 240, height: 200,
+    },
+  },
+  // Quelle: https://www.aja.com/products/3gm
+  {
+    match: ['aja', '3gm'],
+    deviceTypeId: 'fe9ede87-36d3-4fbf-931a-da24cfb31ff2',
+    template: {
+      manufacturerUrl: 'https://www.aja.com/products/3gm',
+      name: 'AJA 3GM',
+      category: 'Video Converter',
+      inputs: [
+        sdiIn('SDI In'),
+      ],
+      outputs: [
+        sdiOut('SDI Out 1'),
+        sdiOut('SDI Out 2'),
+        sdiOut('SDI Out 3'),
+        sdiOut('SDI Out 4'),
+      ],
+      width: 240, height: 200,
+    },
+  },
 ]
 
 /** Flat list of all built-in misc templates (seeded into the library). */
