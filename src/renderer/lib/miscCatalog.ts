@@ -910,6 +910,276 @@ export const MISC_CATALOG: MiscEntry[] = [
       width: 200, height: 140,
     },
   },
+  // ── AJA / Blackmagic UltraStudio / Decimator (Beleg: Hersteller-Produktseiten,
+  //    je Modell per curl geprüft, 2026-09) ──
+  // Quelle: https://www.aja.com/products/hi5-12g
+  {
+    match: ['aja', 'hi5-12g'],
+    deviceTypeId: '3c76d498-411e-4ac4-a9e4-80aa1886871a',
+    template: {
+      manufacturerUrl: 'https://www.aja.com/products/hi5-12g',
+      name: 'AJA Hi5-12G',
+      category: 'Konverter',
+      inputs: [
+        sdiIn('SDI In'),
+      ],
+      outputs: [
+        hdmiOut('HDMI Out'),
+        sdiOut('SDI Loop Out'),
+      ],
+      width: 200, height: 140,
+    },
+  },
+  // Quelle: https://www.aja.com/products/ha5-12g
+  {
+    match: ['aja', 'ha5-12g'],
+    deviceTypeId: 'b1a43b69-c438-4f01-a090-2d104e9d88ba',
+    template: {
+      manufacturerUrl: 'https://www.aja.com/products/ha5-12g',
+      name: 'AJA HA5-12G',
+      category: 'Konverter',
+      inputs: [
+        hdmiIn('HDMI In'),
+      ],
+      outputs: [
+        sdiOut('SDI Out 1'),
+        sdiOut('SDI Out 2'),
+      ],
+      width: 200, height: 140,
+    },
+  },
+  // Quelle: https://www.aja.com/products/ha5-4k
+  {
+    match: ['aja', 'ha5-4k'],
+    deviceTypeId: '1ab1b696-87e5-4223-b06d-860ec965857a',
+    template: {
+      manufacturerUrl: 'https://www.aja.com/products/ha5-4k',
+      name: 'AJA HA5-4K',
+      category: 'Konverter',
+      inputs: [
+        hdmiIn('HDMI In'),
+      ],
+      outputs: [
+        sdiOut('SDI Out 1'),
+        sdiOut('SDI Out 2'),
+        sdiOut('SDI Out 3'),
+        sdiOut('SDI Out 4'),
+      ],
+      width: 200, height: 180,
+    },
+  },
+  // Quelle: https://www.aja.com/products/roi-hdmi
+  {
+    match: ['aja', 'roi-hdmi'],
+    deviceTypeId: '2bbc1b6e-19c1-48d5-88cf-5f91c3853d4f',
+    template: {
+      manufacturerUrl: 'https://www.aja.com/products/roi-hdmi',
+      name: 'AJA ROI-HDMI',
+      category: 'Konverter',
+      inputs: [
+        hdmiIn('HDMI In'),
+      ],
+      outputs: [
+        sdiOut('SDI Out (ROI-Scaler)'),
+      ],
+      width: 200, height: 140,
+    },
+  },
+  // Quelle: https://www.aja.com/products/fs-hdr
+  {
+    match: ['aja', 'fs-hdr'],
+    deviceTypeId: 'b6f03080-8696-4e3b-8886-bd78ef0a96ae',
+    template: {
+      manufacturerUrl: 'https://www.aja.com/products/fs-hdr',
+      name: 'AJA FS-HDR',
+      category: 'Video Converter',
+      inputs: [
+        sdiIn('SDI In 1'),
+        sdiIn('SDI In 2'),
+        hdmiIn('HDMI In'),
+        eth('LAN'),
+      ],
+      outputs: [
+        sdiOut('SDI Out 1'),
+        sdiOut('SDI Out 2'),
+        hdmiOut('HDMI Out'),
+      ],
+      width: 240, height: 220,
+    },
+  },
+  // Quelle: https://www.aja.com/products/fs4
+  {
+    match: ['aja', 'fs4'],
+    deviceTypeId: '24fbf338-562e-4653-9c6d-b5156394f74e',
+    template: {
+      manufacturerUrl: 'https://www.aja.com/products/fs4',
+      name: 'AJA FS4',
+      category: 'Video Converter',
+      inputs: [
+        sdiIn('SDI In 1'),
+        sdiIn('SDI In 2'),
+        sdiIn('SDI In 3'),
+        sdiIn('SDI In 4'),
+        eth('LAN'),
+      ],
+      outputs: [
+        sdiOut('SDI Out 1'),
+        sdiOut('SDI Out 2'),
+        sdiOut('SDI Out 3'),
+        sdiOut('SDI Out 4'),
+        hdmiOut('HDMI Monitor'),
+      ],
+      width: 260, height: 240,
+    },
+  },
+  // Quelle: https://www.blackmagicdesign.com/products/ultrastudio-4k-mini
+  {
+    match: ['blackmagic', 'ultrastudio', '4k mini'],
+    deviceTypeId: 'd93e7465-15e3-4a8f-b697-5e804ec976e2',
+    template: {
+      manufacturerUrl: 'https://www.blackmagicdesign.com/products/ultrastudio-4k-mini',
+      name: 'Blackmagic UltraStudio 4K Mini',
+      category: 'Video',
+      inputs: [
+        sdiIn('SDI In'),
+        hdmiIn('HDMI In'),
+        custom('Thunderbolt 3'),
+      ],
+      outputs: [
+        sdiOut('SDI Out'),
+        hdmiOut('HDMI Out'),
+        xlrIn('XLR Audio In 1'),
+        xlrIn('XLR Audio In 2'),
+      ],
+      width: 240, height: 200,
+    },
+  },
+  // Quelle: https://www.blackmagicdesign.com/products/ultrastudio-monitor-3g
+  {
+    match: ['blackmagic', 'ultrastudio', 'monitor'],
+    deviceTypeId: '9bc37443-c79e-4ce5-9fcd-0ccbb7899879',
+    template: {
+      manufacturerUrl: 'https://www.blackmagicdesign.com/products/ultrastudio-monitor-3g',
+      name: 'Blackmagic UltraStudio Monitor 3G',
+      category: 'Video',
+      inputs: [
+        custom('Thunderbolt 3'),
+      ],
+      outputs: [
+        sdiOut('SDI Out'),
+        hdmiOut('HDMI Out'),
+      ],
+      width: 200, height: 140,
+    },
+  },
+  // Quelle: https://www.blackmagicdesign.com/products/ultrastudio-recorder-3g
+  {
+    match: ['blackmagic', 'ultrastudio', 'recorder'],
+    deviceTypeId: '4c7d84f0-991c-4d85-adf0-6cb31f05ff71',
+    template: {
+      manufacturerUrl: 'https://www.blackmagicdesign.com/products/ultrastudio-recorder-3g',
+      name: 'Blackmagic UltraStudio Recorder 3G',
+      category: 'Video',
+      inputs: [
+        sdiIn('SDI In'),
+        hdmiIn('HDMI In'),
+      ],
+      outputs: [
+        custom('Thunderbolt 3'),
+      ],
+      width: 200, height: 140,
+    },
+  },
+  // Quelle: https://decimator.com/Products/MultiViewers/DMON-QUAD%20MultiViewer/DMON-QUAD.html
+  {
+    match: ['decimator', 'dmon-quad'],
+    deviceTypeId: 'ce8397a6-aac5-457b-bc97-8a13e37cdf9f',
+    template: {
+      manufacturerUrl: 'https://decimator.com/Products/MultiViewers/DMON-QUAD%20MultiViewer/DMON-QUAD.html',
+      name: 'Decimator DMON-QUAD',
+      category: 'Monitore',
+      inputs: [
+        sdiIn('SDI In 1'),
+        sdiIn('SDI In 2'),
+        sdiIn('SDI In 3'),
+        sdiIn('SDI In 4'),
+      ],
+      outputs: [
+        sdiOut('SDI Out'),
+        hdmiOut('HDMI Out'),
+      ],
+      width: 220, height: 180,
+    },
+  },
+  // Quelle: https://decimator.com/Products/MultiViewers/DMON-4S%20MultiViewer/DMON-4S.html
+  {
+    match: ['decimator', 'dmon-4s'],
+    deviceTypeId: 'cc024c6d-8b05-43a3-943b-8243c4c41ba5',
+    template: {
+      manufacturerUrl: 'https://decimator.com/Products/MultiViewers/DMON-4S%20MultiViewer/DMON-4S.html',
+      name: 'Decimator DMON-4S',
+      category: 'Monitore',
+      inputs: [
+        sdiIn('SDI In 1'),
+        sdiIn('SDI In 2'),
+        sdiIn('SDI In 3'),
+        sdiIn('SDI In 4'),
+      ],
+      outputs: [
+        sdiOut('SDI Out'),
+        hdmiOut('HDMI Out'),
+      ],
+      width: 220, height: 180,
+    },
+  },
+  // Quelle: https://decimator.com/Products/MultiViewers/DMON-6S%20MultiViewer/DMON-6S.html
+  {
+    match: ['decimator', 'dmon-6s'],
+    deviceTypeId: 'd83dd61e-77b8-443e-8177-44e91998f654',
+    template: {
+      manufacturerUrl: 'https://decimator.com/Products/MultiViewers/DMON-6S%20MultiViewer/DMON-6S.html',
+      name: 'Decimator DMON-6S',
+      category: 'Monitore',
+      inputs: [
+        sdiIn('SDI In 1'),
+        sdiIn('SDI In 2'),
+        sdiIn('SDI In 3'),
+        sdiIn('SDI In 4'),
+        sdiIn('SDI In 5'),
+        sdiIn('SDI In 6'),
+      ],
+      outputs: [
+        sdiOut('SDI Out'),
+        hdmiOut('HDMI Out'),
+      ],
+      width: 220, height: 200,
+    },
+  },
+  // Quelle: https://decimator.com/Products/MultiViewers/DMON-16S%20MultiViewer/DMON-16S.html
+  {
+    match: ['decimator', 'dmon-16s'],
+    deviceTypeId: 'c76fd014-22f9-41cb-956f-c30855d77ced',
+    template: {
+      manufacturerUrl: 'https://decimator.com/Products/MultiViewers/DMON-16S%20MultiViewer/DMON-16S.html',
+      name: 'Decimator DMON-16S',
+      category: 'Monitore',
+      inputs: [
+        sdiIn('SDI In 1'),
+        sdiIn('SDI In 2'),
+        sdiIn('SDI In 3'),
+        sdiIn('SDI In 4'),
+        sdiIn('SDI In 5'),
+        sdiIn('SDI In 6'),
+        sdiIn('SDI In 7'),
+        sdiIn('SDI In 8'),
+      ],
+      outputs: [
+        sdiOut('SDI Out'),
+        hdmiOut('HDMI Out'),
+      ],
+      width: 240, height: 240,
+    },
+  },
 ]
 
 /** Flat list of all built-in misc templates (seeded into the library). */
