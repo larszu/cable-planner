@@ -191,7 +191,59 @@ export const versuchMitAbstand = (
   })
   if (!result) return null
 
+  // ─── DIE ACHSE DER BUCHSE GEWINNT ──────────────────────────────────────
+  //
+  // NUTZER-MELDUNG 2026-09-12: „Es gehen die Kabel manchmal noch etwas
+  // unterhalb von dem Ziel-Port und dann wieder hoch, dann erst in den
+  // Ziel-Port. Manchmal passieren auch Haken."
+  //
+  // BEIDES IST DERSELBE BEFUND. A* rechnet auf einem Gitter aus 20-px-Zellen
+  // (`CELL_SIZE`); die Buchsen sitzen auf dem 11-px-Raster des Geraets
+  // (`EQUIPMENT_LAYOUT.GRID_SIZE`, Port-Reihe 22 px). Die beiden Raster
+  // treffen sich nie. Der Stuetzpunkt neben der Buchse liegt deshalb bis zu
+  // eine halbe Zelle daneben, und der gezeichnete Weg muss den Rest als
+  // kleine Stufe nachholen — unmittelbar vor der Buchse.
+  //
+  // Zeigt die Stufe in die Gegenrichtung des naechsten Abschnitts, wird aus
+  // ihr ein Sporn, der aus der Linie heraussteht: der „Haken". Beispiel aus
+  // der Messung, Quelle (340, 155) nach rechts:
+  //
+  //     …(380, 155) -> (380, 160) -> (380, 60)…
+  //                     ^^^^^^^^^^ 5 px hinunter und sofort wieder hinauf
+  //
+  // GEMESSEN ueber 3300 Wege in 25 Raster-Szenen: die Stufe hatten 3300 von
+  // 3300 an BEIDEN Enden (hier immer 3 px, weil alle Ziele dieselbe
+  // Port-Reihe trafen), und 1972 Wege (59,8 %) trugen dadurch eine
+  // Kehrtwende im gezeichneten Streckenzug.
+  //
+  // WAS HIER PASSIERT: der Stuetzpunkt NEBEN der Buchse bekommt deren Achse.
+  // Nur dieser eine, und nur wenn der Abstand die Gitter-Rundung selbst ist
+  // (weniger als eine halbe Zelle) — eine echte senkrechte Anfahrt bleibt
+  // unberuehrt. Der Weg wird dadurch nicht laenger; die Stufe wandert vom
+  // letzten Zentimeter vor der Buchse auf die Ecke davor, wo sie ohnehin
+  // hingehoert.
+  //
+  // Nicht behoben ist damit die URSACHE — zwei Raster, die nicht aufeinander
+  // passen. Das Gitter des Wegfinders auf 11 px zu stellen waere die andere
+  // Antwort; sie kostet die dreifache Zellenzahl je Suche und ist nicht
+  // gemessen.
+  const aufAchse = (
+    p: { x: number; y: number },
+    buchse: { x: number; y: number },
+    seite: HandleSide,
+  ): { x: number; y: number } => {
+    const waagerecht = seite === 'left' || seite === 'right'
+    const abweichung = waagerecht ? Math.abs(p.y - buchse.y) : Math.abs(p.x - buchse.x)
+    if (abweichung >= CELL_SIZE / 2) return p
+    return waagerecht ? { x: p.x, y: buchse.y } : { x: buchse.x, y: p.y }
+  }
+
   const inner = result.waypoints.slice(1, -1)
+  if (inner.length > 0) {
+    inner[0] = aufAchse(inner[0], args.source, args.sourceSide)
+    inner[inner.length - 1] = aufAchse(inner[inner.length - 1], args.target, args.targetSide)
+  }
+
   const out: { x: number; y: number }[] = []
   for (const p of inner) {
     const last = out[out.length - 1]
