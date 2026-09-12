@@ -234,32 +234,6 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
     },
   },
   {
-    match: ['atem', '2 m/e', 'production', 'studio'],
-    deviceTypeId: '66258c7b-1d4e-4d4b-84b5-93b0225b4063',
-    kind: 'atem',
-    // Quelle: https://www.blackmagicdesign.com/products/atemproductionstudio4k
-    template: {
-      manufacturerUrl: 'https://www.blackmagicdesign.com/products/atemproductionstudio4k',
-      name: 'Blackmagic ATEM 2 M/E Production Studio 4K',
-      category: 'Video Mixer',
-      inputs: [
-        ...sdiIn(20),
-        port('HDMI In', 'HDMI'),
-        port('Ref In', 'BNC'),
-        port('Ethernet', 'Ethernet/RJ45'),
-        port('Audio In L', 'XLR'),
-        port('Audio In R', 'XLR'),
-      ],
-      outputs: [
-        ...sdiOut(6),
-        port('Multiview HDMI', 'HDMI'),
-        port('Multiview SDI', 'BNC'),
-      ],
-      width: 280,
-      height: 320,
-    },
-  },
-  {
     match: ['atem', '1 m/e', 'production', '4k'],
     deviceTypeId: '52167ca7-7a7e-4566-843b-4b9a4d635252',
     kind: 'atem',
