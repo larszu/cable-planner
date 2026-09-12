@@ -919,7 +919,7 @@ export const MISC_CATALOG: MiscEntry[] = [
     template: {
       manufacturerUrl: 'https://www.aja.com/products/hi5-12g',
       name: 'AJA Hi5-12G',
-      category: 'Konverter',
+      category: 'Converter',
       inputs: [
         sdiIn('SDI In'),
       ],
@@ -937,7 +937,7 @@ export const MISC_CATALOG: MiscEntry[] = [
     template: {
       manufacturerUrl: 'https://www.aja.com/products/ha5-12g',
       name: 'AJA HA5-12G',
-      category: 'Konverter',
+      category: 'Converter',
       inputs: [
         hdmiIn('HDMI In'),
       ],
@@ -955,7 +955,7 @@ export const MISC_CATALOG: MiscEntry[] = [
     template: {
       manufacturerUrl: 'https://www.aja.com/products/ha5-4k',
       name: 'AJA HA5-4K',
-      category: 'Konverter',
+      category: 'Converter',
       inputs: [
         hdmiIn('HDMI In'),
       ],
@@ -975,7 +975,7 @@ export const MISC_CATALOG: MiscEntry[] = [
     template: {
       manufacturerUrl: 'https://www.aja.com/products/roi-hdmi',
       name: 'AJA ROI-HDMI',
-      category: 'Konverter',
+      category: 'Converter',
       inputs: [
         hdmiIn('HDMI In'),
       ],
@@ -1097,7 +1097,7 @@ export const MISC_CATALOG: MiscEntry[] = [
     template: {
       manufacturerUrl: 'https://decimator.com/Products/MultiViewers/DMON-QUAD%20MultiViewer/DMON-QUAD.html',
       name: 'Decimator DMON-QUAD',
-      category: 'Monitore',
+      category: 'Monitors',
       inputs: [
         sdiIn('SDI In 1'),
         sdiIn('SDI In 2'),
@@ -1118,7 +1118,7 @@ export const MISC_CATALOG: MiscEntry[] = [
     template: {
       manufacturerUrl: 'https://decimator.com/Products/MultiViewers/DMON-4S%20MultiViewer/DMON-4S.html',
       name: 'Decimator DMON-4S',
-      category: 'Monitore',
+      category: 'Monitors',
       inputs: [
         sdiIn('SDI In 1'),
         sdiIn('SDI In 2'),
@@ -1139,7 +1139,7 @@ export const MISC_CATALOG: MiscEntry[] = [
     template: {
       manufacturerUrl: 'https://decimator.com/Products/MultiViewers/DMON-6S%20MultiViewer/DMON-6S.html',
       name: 'Decimator DMON-6S',
-      category: 'Monitore',
+      category: 'Monitors',
       inputs: [
         sdiIn('SDI In 1'),
         sdiIn('SDI In 2'),
@@ -1162,7 +1162,7 @@ export const MISC_CATALOG: MiscEntry[] = [
     template: {
       manufacturerUrl: 'https://decimator.com/Products/MultiViewers/DMON-16S%20MultiViewer/DMON-16S.html',
       name: 'Decimator DMON-16S',
-      category: 'Monitore',
+      category: 'Monitors',
       inputs: [
         sdiIn('SDI In 1'),
         sdiIn('SDI In 2'),
