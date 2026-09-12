@@ -70,6 +70,7 @@
     "ui:overflow": "node scripts/ui-overflow.mjs",
     "ui:labels": "node scripts/ui-labels.mjs",
     "ui:targets": "node scripts/ui-targets.mjs",
+    "greifzonen:check": "node scripts/greifzonen-check.mjs",
     "docs:shots": "node scripts/screenshots.mjs"
   },
   "dependencies": {

@@ -176,6 +176,18 @@ jobs:
       # Schritt hier identisch mit dem, was ein Mensch am eigenen Rechner
       # tippt -- ein Lauf, der in CI anders heisst als daheim, wird daheim
       # nicht gefahren.
+      # Sechster Lauf im selben Job, aus demselben Grund: dieselbe gebaute
+      # App, derselbe X-Server. Er beantwortet die Nutzer-Meldung vom
+      # 2026-09-12 -- „Es hat sich ein zweites Kabel verschoben, wenn ich ein
+      # anderes bearbeitet habe" -- und zwar an der Stelle, an der sie
+      # entsteht: die unsichtbare Greif-Zone eines Kabels lag ueber der Linie
+      # eines anderen, und gezogen wurde, was obenauf lag.
+      #
+      # Gemessen vorher: an 30 von 312 abgetasteten Stellen lag auf der
+      # eigenen Linie eines Kabels der Griff eines fremden. `vitest` kann das
+      # nicht sehen -- es rendert kein SVG und kennt keine Stapelreihenfolge.
+      - name: Der Griff gehoert dem Kabel, auf das man zeigt
+        run: xvfb-run -a npm run greifzonen:check
       - name: Die App bleibt auf dem Telefon im Fenster
         run: npm run mobil:check
       - name: Screenshots bei Fehlschlag

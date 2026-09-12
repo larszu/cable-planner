@@ -102,16 +102,26 @@ const handleCorridor = (
   return cells
 }
 
-export const routeCableWithAStar = (
+/**
+ * Ein Versuch mit EINER festen Abstands-Breite.
+ *
+ * Getrennt von `routeCableWithAStar`, weil der Abstand seit 2026-09-12 keine
+ * Vorgabe mehr ist, sondern ein Wunsch: scheitert er, wird er kleiner
+ * gemacht statt aufzugeben. Die Begruendung steht unten an der Leiter.
+ *
+ * EXPORTIERT, obwohl die Anwendung ihn nicht aufruft: sonst koennte kein
+ * Waechter die Leiter belegen. `routeCableWithAStar` gibt seit der Leiter
+ * immer einen Weg zurueck, wo frueher `null` stand — die Verbesserung ist von
+ * aussen nur zu sehen, wenn man daneben halten kann, was EINE Sprosse allein
+ * geschafft haette. `tests/autoRouteEinRouter.test.ts` tut genau das.
+ */
+export const versuchMitAbstand = (
   args: RouteCableArgs,
+  padCells: number,
 ): { x: number; y: number }[] | null => {
   // v7.9.37 — ALLE Devices kommen mit Padding als Hard-Obstacles rein,
   // inklusive Source und Target. Damit kann A* den Pfad nicht mehr durch
   // den eigenen Source/Target-Body optimieren.
-  // v7.9.118 — Padding-Zellen ueberschreibbar fuer Rack-Mode (default 2).
-  const padCells = typeof args.obstaclePadCells === 'number' && args.obstaclePadCells >= 0
-    ? args.obstaclePadCells
-    : OBSTACLE_PAD_CELLS
   const padPx = padCells * CELL_SIZE
   const obstacles: Rect[] = args.obstacles.map((r) => inflate(r, padPx))
 
@@ -188,6 +198,67 @@ export const routeCableWithAStar = (
     if (!last || Math.abs(last.x - p.x) > 1 || Math.abs(last.y - p.y) > 1) out.push(p)
   }
   return out
+}
+
+/**
+ * Der Weg um die Geraete herum — mit dem groesstmoeglichen Abstand, den es
+ * hergibt.
+ *
+ * ─── WAS GEMELDET WURDE (Nutzer, 2026-09-12) ──────────────────────────────
+ *
+ * „Das automatisch Routen hat eine sehr umstaendliche und zu lange Route
+ * genommen. Es haette nach rechts, dann nach oben und dann wieder nach rechts
+ * gehen muessen, ist aber nach links, dann nach oben, dann nach rechts durch
+ * ein Geraet durch […] gegangen."
+ *
+ * ─── WAS GEMESSEN WURDE ───────────────────────────────────────────────────
+ *
+ * Ueber 1188 Kabel-Paare in neun Raster-Szenen (drei Spalten- mal drei
+ * Zeilen-Abstaende, je zwoelf Geraete mit vier Ein- und vier Ausgaengen):
+ *
+ *   kein Weg gefunden, Abstand 2 Zellen (40 px)     342 von 1188   (28,8 %)
+ *   davon gerettet, sobald der Abstand 1 Zelle ist  342 von 342    (100 %)
+ *   Wege, die danach durch ein Geraet laufen        0
+ *
+ * Und der Abstand kostet auch dort, wo er nicht scheitert: in der Wand-Szene
+ * war derselbe Weg mit zwei Zellen Abstand Faktor 1,97 lang, mit einer 1,15.
+ *
+ * ─── WARUM DAS SCHLIMMER IST ALS EIN UMWEG ────────────────────────────────
+ *
+ * `null` heisst fuer den Aufrufer nicht „kein Weg" — es heisst „nimm den
+ * anderen Router". `useCanvasCableRouter` setzt die Stuetzpunkte dann auf
+ * `undefined`, und gezeichnet wird, was `routeAround` (`lib/cableRouting.ts`)
+ * findet: vier einfache Formen und je vier Umwege um EIN Rechteck. Der gibt
+ * ausdruecklich auch den kuerzesten NICHT-freien Weg zurueck, wenn keiner
+ * frei ist — der laeuft dann durch ein Geraet. Genau das hat der Nutzer
+ * gesehen, und zwar ohne dass irgendwo etwas gescheitert waere.
+ *
+ * ─── WAS SICH AENDERT ─────────────────────────────────────────────────────
+ *
+ * Der Abstand ist ein WUNSCH, keine Bedingung. Findet A* mit zwei Zellen
+ * keinen Weg, wird der Wunsch kleiner: 2 -> 1 -> 0. Erst wenn auch ein Weg
+ * direkt an der Geraetekante scheitert, gibt es wirklich keinen, und dann
+ * darf der Aufrufer zurueckfallen.
+ *
+ * Ein enger Weg ist haesslicher als ein weiter. Ein Weg durch ein Geraet ist
+ * falsch. Die Leiter tauscht das Erste gegen das Zweite und nicht umgekehrt.
+ */
+export const routeCableWithAStar = (
+  args: RouteCableArgs,
+): { x: number; y: number }[] | null => {
+  // v7.9.118 — Padding-Zellen ueberschreibbar fuer Rack-Mode (default 2).
+  // Der Wert ist ab hier die OBERSTE Sprosse der Leiter, nicht mehr die
+  // einzige: der Rack-Mode faengt bei 0 an und hat damit genau eine.
+  const wunsch =
+    typeof args.obstaclePadCells === 'number' && args.obstaclePadCells >= 0
+      ? Math.floor(args.obstaclePadCells)
+      : OBSTACLE_PAD_CELLS
+
+  for (let padCells = wunsch; padCells >= 0; padCells -= 1) {
+    const weg = versuchMitAbstand(args, padCells)
+    if (weg) return weg
+  }
+  return null
 }
 
 const handleArriveDir = (side: HandleSide): 0 | 1 | 2 | 3 => {
