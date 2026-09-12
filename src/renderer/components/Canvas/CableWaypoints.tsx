@@ -14,8 +14,6 @@ import {
 
 interface Props {
   cable: Cable
-  /** ReactFlow edge id — used to select the edge when dragging unselected. */
-  edgeId: string
   selected: boolean
   source: { x: number; y: number }
   target: { x: number; y: number }
@@ -87,18 +85,55 @@ function cleanCollinear(
 }
 
 /**
- * Renders segment drag hit-areas (always active) and waypoint dot handles
- * (only when selected).
+ * Die Greif-Geometrie des AUSGEWAEHLTEN Kabels: Zonen auf den Abschnitten und
+ * Punkte auf den Ecken.
  *
- * yEd-style UX:
- * - Hover any segment → cursor changes to ↕ / ↔ showing which axis will move
- * - Drag directly on the segment (no prior selection required)
- * - Drag starts segment movement; unselected edge is auto-selected first
- * - Selected edge additionally shows blue dot handles for fine-tuning
+ * - Ueber einem Abschnitt zeigt der Zeiger die Achse, die sich bewegen wird
+ *   (senkrecht / waagerecht).
+ * - Ziehen verschiebt den Abschnitt (yEd-Art, siehe `dragSegment`).
+ * - Die Ecken lassen sich einzeln ziehen und per Alt-Klick entfernen.
+ *
+ * ─── WARUM NUR DAS AUSGEWAEHLTE (2026-09-12) ──────────────────────────────
+ *
+ * NUTZER-MELDUNG: „Es hat sich in der GitHub page von Cable planner ein
+ * zweites Kabel verschoben, wenn ich ein anderes bearbeitet habe. Das muss vor
+ * kurzem kaputt gegangen sein."
+ *
+ * Die Greif-Zone eines Abschnitts ist eine unsichtbare Linie mit
+ * `SEGMENT_HIT_WIDTH` Strichbreite — ein Band von 8 px zu JEDER Seite des
+ * gezeichneten Strichs. Bis heute trug JEDES Kabel dieses Band, ausgewaehlt
+ * oder nicht. Wo zwei Kabel naeher als 8 px aneinander vorbeilaufen oder sich
+ * kreuzen, liegen zwei Baender uebereinander, und es gewinnt nicht das
+ * naechste, sondern das spaetere im DOM.
+ *
+ * GEMESSEN im laufenden Fenster (`scripts/greifzonen-check.mjs`, Szene aus
+ * neun Geraeten und acht Kabeln, 312 Punkte auf den gezeichneten Linien
+ * abgetastet): an 30 Stellen lag auf der EIGENEN Linie eines Kabels der GRIFF
+ * eines FREMDEN obenauf. Wer dort zog, bewegte ein Kabel, auf das er nicht
+ * gezeigt hatte; das gemeinte blieb liegen. Im selben Lauf reproduziert:
+ * gezogen an Kabel 3, bewegt hat sich Kabel 7.
+ *
+ * Nach der Korrektur sind es null. Die Gesamtzahl fremder Elemente obenauf
+ * bleibt dieselbe (33): aus 30 „bewegt das falsche Kabel" werden 30 „waehlt
+ * das falsche Kabel aus" — ReactFlows eigener Auswahl-Pfad ist breiter als der
+ * Strich. Das ist der Tausch, um den es geht: ein Klick, der sichtbar das
+ * falsche Kabel auswaehlt, ist ein Aerger; ein Zug, der unbemerkt das falsche
+ * Kabel verschiebt, ist ein Datenverlust.
+ *
+ * Kaputt gegangen ist es mit B-64 (2026-09-09). Vorher lagen die Zonen auf
+ * `cable.waypoints` und damit fast nie unter dem gezeichneten Strich (gemessen
+ * damals: 3292 von 3324 Abschnitten ohne deckungsgleiche Zone) — das Ziehen
+ * griff ins Leere, kollidierte aber auch kaum. Seit die Zonen exakt auf den
+ * Linien sitzen, treffen sie sich gegenseitig.
+ *
+ * Die Ecken-Punkte waren schon immer auf das ausgewaehlte Kabel beschraenkt.
+ * Jetzt gilt fuer die Zonen dieselbe Regel, und daraus wird eine, die man
+ * aussprechen kann: FORMEN LAESST SICH DAS KABEL, DAS AUSGEWAEHLT IST.
+ * Die Auswahl selbst macht weiter ReactFlow (`react-flow__edge-interaction`)
+ * — ein Klick dort waehlt sichtbar aus und verschiebt nichts.
  */
 export const CableWaypoints = ({
   cable,
-  edgeId,
   selected,
   source,
   target,
@@ -109,7 +144,6 @@ export const CableWaypoints = ({
 }: Props) => {
   const t = useTranslation()
   const updateCable = useProjectStore((state) => state.updateCable)
-  const setSelection = useProjectStore((state) => state.setSelection)
   const projectStoreInstance = useCanvasProjectStoreInstance()
   const { screenToFlowPosition } = useReactFlow()
   const canvasTheme = useUiStore((s) => s.canvasTheme)
@@ -257,8 +291,11 @@ export const CableWaypoints = ({
   // wird in `schiebeAbschnitt`, damit es ohne Canvas pruefbar ist.
 
   const dragSegment = (segIdx: number) => (event: React.PointerEvent<SVGElement>) => {
-    // Auto-select edge if not already selected.
-    if (!selected) setSelection(undefined, edgeId, undefined)
+    // Die Zonen gibt es nur am ausgewaehlten Kabel (siehe Kopf der Datei), ein
+    // Nachwaehlen von hier aus kann also nicht mehr vorkommen. Die Zeile stand
+    // hier bis 2026-09-12 und war der Weg, auf dem ein Zug ein Kabel auswaehlte
+    // und verschob, auf das der Nutzer nicht gezeigt hatte.
+    if (!selected) return
 
     event.stopPropagation()
     event.preventDefault()
@@ -309,13 +346,24 @@ export const CableWaypoints = ({
   }
 
   return (
-    <g className="nodrag nopan" style={{ pointerEvents: 'all' }}>
-      {/* ── Greif-Zonen der Abschnitte ──
+    // `cp-kabelgriff` + `data-kabel-id` sind der Griff fuer den Waechter
+    // `scripts/greifzonen-check.mjs`: er tastet die gezeichneten Linien ab und
+    // fragt, ob obenauf der Griff eines FREMDEN Kabels liegt. Ohne eine eigene
+    // Marke muesste er ueber Tag-Namen raten, und ein `<line>` ist im SVG
+    // einer Kante nicht eindeutig — dieselbe Falle, die in der Suite schon
+    // zweimal einen Waechter still gruen gemacht hat.
+    <g
+      className="nodrag nopan cp-kabelgriff"
+      data-kabel-id={cable.id}
+      style={{ pointerEvents: 'all' }}
+    >
+      {/* ── Greif-Zonen der Abschnitte, NUR am ausgewaehlten Kabel ──
           Sie liegen auf dem gezeichneten Weg (siehe `greifKette` oben). Der
           erste und der letzte Abschnitt sind die Stummel und bleiben frei;
           ein schraeger Abschnitt bekommt bei orthogonaler Fuehrung keine
-          Zone, damit niemand versehentlich eine Diagonale knickt. */}
-      {points.slice(0, -1).map((p, i) => {
+          Zone, damit niemand versehentlich eine Diagonale knickt.
+          Warum nur am ausgewaehlten: siehe Kopf der Datei. */}
+      {selected && points.slice(0, -1).map((p, i) => {
         if (!ziehbar(i)) return null
         const q = points[i + 1]
         const axis = abschnittAchse(p, q)

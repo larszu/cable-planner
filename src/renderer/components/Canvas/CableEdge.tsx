@@ -19,6 +19,7 @@ import { useUiStore } from '../../store/uiStore'
 import { CableWaypoints } from './CableWaypoints'
 import { computeObstacleAwareWaypoints, pathIsBlocked, type Rect } from '../../lib/cableRouting'
 import { legeAnfahrt, stummel, type Anschlussseite } from '../../lib/cableApproach'
+import { routeCableWithAStar, type HandleSide } from '../../lib/routeCableWithAStar'
 import { computeEquipmentLayout } from '../../lib/equipmentLayout'
 import { isCableVisibleByLayer } from '../../lib/cableLayers'
 import { netKeyOf, netEndpoints } from '../../lib/offPageNet'
@@ -158,6 +159,27 @@ const anschlussseite = (
       return 'unten'
     default:
       return 'rechts'
+  }
+}
+
+/**
+ * Dieselbe Seite, in der Vokabel des A*-Adapters.
+ *
+ * `anschlussseite` spricht deutsch, weil `cableApproach` es tut;
+ * `routeCableWithAStar` spricht englisch, weil `pathfinding` es tut. Eine
+ * Uebersetzung an einer Stelle ist besser als zwei Seiten-Begriffe, die
+ * irgendwann auseinanderlaufen.
+ */
+const alsHandleSide = (seite: Anschlussseite): HandleSide => {
+  switch (seite) {
+    case 'links':
+      return 'left'
+    case 'oben':
+      return 'top'
+    case 'unten':
+      return 'bottom'
+    default:
+      return 'right'
   }
 }
 
@@ -431,6 +453,43 @@ export const CableEdge = ({
   }>({})
   const persistTriedRef = useRef(false)
   const hadWaypointsRef = useRef(false)
+  // ── DER AUTOMATISCHE WEG KOMMT VOM A*-ROUTER ────────────────────────────
+  //
+  // NUTZER-MELDUNG 2026-09-12: „Das automatisch Routen hat eine sehr
+  // umstaendliche und zu lange Route genommen. Es haette nach rechts, dann
+  // nach oben und dann wieder nach rechts gehen muessen, ist aber nach links,
+  // dann nach oben, dann nach rechts durch ein Geraet durch und dann nach
+  // oben und dann nach rechts gegangen."
+  //
+  // ES GAB ZWEI ROUTER, und der Nutzer sah standardmaessig den schlechteren.
+  // `routeCableWithAStar` (Gitter-A*) lief nur auf ausdruecklichen Befehl —
+  // Kontextmenue „Automatisch routen" — und beim Anlegen eines Kabels.
+  // Alles andere, also JEDES Kabel aus einer geladenen Datei und jedes ohne
+  // Stuetzpunkte, bekam seinen Weg hier: aus `routeAround`
+  // (`lib/cableRouting.ts`), das vier einfache Formen und je vier Umwege um
+  // EIN Rechteck kennt. Die Defektform heisst in diesem Repo
+  // `zwei-rechnungen`.
+  //
+  // GEMESSEN an einer Szene aus neun Geraeten und acht Kabeln (Raster 3x3,
+  // 420 x 260 px): der gezeichnete Weg eines Kabels von links unten nach
+  // rechts unten lief als
+  //   M 344 738 L 362 738 L 362 87 L 344 87 L 954 87 L 954 738 L 936 738
+  // — erst 18 px zurueck nach links (der Umweg rechnet ab der Buchse, der
+  // Stummel steht 18 px weiter), dann ueber den ganzen Plan nach oben, quer,
+  // und wieder herunter. Das ist Wort fuer Wort die Meldung. Im selben
+  // Vergleich ueber 1188 Kabel-Paare war der schlimmste Umweg dieses Routers
+  // Faktor 4,93 gegenueber dem A*-Weg.
+  //
+  // Deshalb rechnet der Persist jetzt mit demselben Router wie der
+  // Menue-Befehl. `orthogonalWaypoints` bleibt, was es war: der Weg fuer das
+  // eine Bild, bevor der Persist greift — und der letzte Ausweg, wenn A*
+  // auch mit null Abstand keinen Weg findet.
+  //
+  // WAS ES KOSTET, gemessen an einem Plan aus 100 Geraeten und 300 Kabeln:
+  // 417 ms fuer alle 300 Wege, also 1,4 ms je Kabel — EINMAL, beim ersten
+  // Zeichnen (`persistTriedRef`). `routeAround` brauchte fuer dieselben 300
+  // Wege 7 ms, lief dafuer aber bei JEDEM Render jedes Kabels. Wer den Effekt
+  // hier eines Tages oefter laufen laesst, sollte diese Zahlen kennen.
   useEffect(() => {
     if (!cable) return
     // #221 — Off-Page-Kabel zeichnen keinen Pfad → keine Auto-Waypoints
@@ -455,8 +514,31 @@ export const CableEdge = ({
     if (persistTriedRef.current) return
     if (orthogonalWaypoints.length === 0) return
     persistTriedRef.current = true
-    updateCable(cable.id, { waypoints: orthogonalWaypoints })
-  }, [cable, orthogonalWaypoints, updateCable])
+    const ausAStern = routeCableWithAStar({
+      source: { x: sourceX, y: sourceY },
+      target: { x: targetX, y: targetY },
+      sourceSide: alsHandleSide(anschlussseite(sourcePosition)),
+      targetSide: alsHandleSide(anschlussseite(targetPosition)),
+      obstacles: obstacles.map((r, i) => ({ ...r, id: obstacleIds[i] })),
+      sourceEquipmentId: cable.fromEquipmentId,
+      targetEquipmentId: cable.toEquipmentId,
+    })
+    updateCable(cable.id, { waypoints: ausAStern ?? orthogonalWaypoints })
+    // `obstacles`/`obstacleIds` werden bei jedem Render neu gebaut und waeren
+    // als Abhaengigkeit eine Endlosschleife; der Effekt laeuft ohnehin genau
+    // einmal je Kabel (`persistTriedRef`) und liest sie dabei frisch.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    cable,
+    orthogonalWaypoints,
+    updateCable,
+    sourceX,
+    sourceY,
+    targetX,
+    targetY,
+    sourcePosition,
+    targetPosition,
+  ])
   const [path, centerX, centerY] = cable
     ? buildPath(cable, routingArgs, gezeichneterWeg)
     : getSmoothStepPath(routingArgs)
@@ -922,7 +1004,6 @@ export const CableEdge = ({
       {cable && (
         <CableWaypoints
           cable={cable}
-          edgeId={id}
           selected={!!selected}
           source={{ x: sourceX, y: sourceY }}
           target={{ x: targetX, y: targetY }}
