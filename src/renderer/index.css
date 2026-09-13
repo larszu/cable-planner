@@ -1036,3 +1036,135 @@ input[type="range"]:disabled {
     opacity: 1;
   }
 }
+
+/* ───────────────────────────────────────────────────────────────────────────
+ * B-77 — EIN BEDIENPUNKT IST 32 PX HOCH UND 32 PX BREIT.
+ *
+ * DER ANLASS. `bedienbar:check` in der Suite misst seit B-77 vier Planer im
+ * echten Browser. Dieser hier stand nicht in der Liste, weil sein `dist/`
+ * das Electron-Layout traegt (`renderer/index.html` statt einer
+ * Wurzel-Datei) — eine Eigenschaft des LAUFS, keine Auskunft ueber die App.
+ * Als der Ordner `dist/renderer` einmal bedient wurde, kam heraus
+ * (2026-09-13, 390/768/1440 px):
+ *
+ *   Menueknoepfe (File · Edit · Tools · View · Help)        26 px hoch
+ *   Projektname in der Kopfzeile                            22 px
+ *   Undo / Redo                                        30 x 22 px
+ *   Einstellungen                                           22 px
+ *   Spalten-Griffe (‹ ›)                               28 x 28 px
+ *   Reiter der Seitenleiste (Equipment · Cables · …)        26 px
+ *   Suchfeld der Bibliothek                                 28 px
+ *   die Kategoriezeilen der Bibliothek                      18 px
+ *   Kategorie-Chips (Video · Audio · Control · …)           24 px
+ *   Schematic / Circuit                                     24 px
+ *   die vier ReactFlow-Regler                          26 x 27 px
+ *   das Stil-Feld am Kabel                             49 x 17 px
+ *
+ * 62 Stueck bei 1440 px, 33 bei 390 px. Achtzehn Pixel ist eine Zeile, die
+ * man mit der Maus trifft und mit dem Finger nicht; die Bibliothek ist die
+ * Flaeche, auf der in dieser App am meisten geklickt wird.
+ *
+ * WAS SCHON GUT WAR: nichts ragt aus dem Fenster, in keiner der drei
+ * Breiten. Das ist die Arbeit aus B-44 Teil 3 und `mobil:check`. Aber
+ * `mobil:check` misst UEBERLAUF und keine Zielgroessen — er war auf allen
+ * 62 Punkten gruen. Zwei Laeufe, zwei Fragen.
+ *
+ * WARUM 32. WCAG 2.2 zieht die Untergrenze bei 24 px (SC 2.5.8) und
+ * empfiehlt 44 px (SC 2.5.5). 32 liegt auf dem 8-px-Raster aus ADR-007, ist
+ * die Breite einer eingeklappten Spalte, und dieselbe Zahl fuehren
+ * `inventory-planner`, `larszu-facility-planner`, `multicam-planner` und
+ * `light-planner` als `--ziel`. Eine sechste Zahl waere eine sechste
+ * Wahrheit.
+ *
+ * WARUM EINE GLOBALE REGEL. Die Hoehen entstehen aus Tailwind-Polsterung
+ * (`py-1`, `px-2`, `text-[11px]`) und nicht aus einer Hoehen-Angabe. Sie
+ * einzeln nachzuziehen hiesse, dieselbe Entscheidung an 62 Stellen zu
+ * wiederholen — und die 63., die morgen jemand schreibt, faellt wieder
+ * durch. `min-height` gewinnt ausserdem gegen `height`, deshalb greift die
+ * Regel auch bei den ReactFlow-Reglern, deren Groesse aus dem Paket kommt
+ * und nicht aus diesem Stilblatt.
+ *
+ * WAS AUSGENOMMEN IST, und warum:
+ *
+ *   * Kontrollkaestchen, Auswahlknoepfe, Schieberegler — ein 32-px-Kaestchen
+ *     ist kein besseres Kaestchen, und der Regler wird ueber seinen Griff
+ *     bedient.
+ *   * ALLES AUF DEM CANVAS (`.react-flow__node`, `.react-flow__handle` und
+ *     was darin steht). Eine Buchse am Geraet ist kein Knopf in einer
+ *     Leiste: ihre Groesse kommt aus dem Raster des Geraets (B-48,
+ *     `gridSize`), und sie auf 32 px zu heben verschoebe jeden Port und
+ *     damit jedes Kabel. Der Canvas hat seine eigene Bedienung — Zoom — und
+ *     seine eigene Messung.
+ * ─────────────────────────────────────────────────────────────────────────── */
+:root {
+  --ziel: 32px;
+}
+
+button,
+summary,
+[role='button'],
+select,
+textarea,
+input:not([type='checkbox']):not([type='radio']):not([type='range']) {
+  min-height: var(--ziel);
+}
+
+/* Die Breite nur dort, wo ein Knopf zum Quadrat schrumpfen kann — ein
+ * Eingabefeld ist nie zu schmal, ein Sinnbild-Knopf ohne Beschriftung schon
+ * (die Spalten-Griffe massen 28 px). */
+button,
+summary,
+[role='button'] {
+  min-width: var(--ziel);
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+ * B-77 — DIE MENUE-GRUPPE ROLLT, DIE KOPFZEILE NICHT.
+ *
+ * WARUM SIE JETZT NOETIG IST. Die 32-px-Regel oben hat die kleinen Knoepfe
+ * der Kopfzeile breiter gemacht (Rueckgaengig, Wiederholen und der
+ * Einstellungen-Knopf massen 30 px), und die Zeile hatte keinen Spielraum
+ * mehr. Gemessen mit `mobil:check` auf 390 x 844 in DEUTSCH: der Projektname
+ * endete bei 410 px, die rechte Gruppe bei 438 px. Auf Englisch passte es —
+ * genau deshalb misst dieser Lauf jede ausgelieferte Sprache.
+ *
+ * WARUM DIE GRUPPE UND NICHT DIE ZEILE: rollte die Kopfzeile, rollte der
+ * Einstellungen-Knopf rechts mit aus dem Bild. Das ist die Lage, die B-66
+ * beschreibt und gegen die dort die Polsterung verkleinert wurde — dieses
+ * Mittel ist ausgereizt. Die Gruppe traegt nur die fuenf Menues; Marke links
+ * und Einstellungen rechts bleiben stehen.
+ *
+ * DASS SIE ROLLEN DARF, ist keine Selbstverstaendlichkeit: ein Rollbereich
+ * schneidet ab, was nicht hineinpasst, und die Klappen WAREN Kinder dieser
+ * Zeile. Sie haengen seit B-77 am Fenster (`MenuBar.tsx`, `position: fixed`)
+ * — im `light-planner` ist genau diese Kombination schiefgegangen, dort war
+ * jede Klappe monatelang 0 px hoch sichtbar.
+ *
+ * Dieselbe Bauart wie `.bc-menubar` im `multicam-planner` und `.tb-menubar`
+ * im `light-planner`. Drei Apps, ein Mechanismus.
+ * ─────────────────────────────────────────────────────────────────────────── */
+.cp-menubar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+}
+
+.cp-menubar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Der Canvas nimmt die Regel zurueck: siehe oben, die Groesse eines Ports
+ * gehoert dem Raster und nicht dieser Zeile. */
+.react-flow__node button,
+.react-flow__node select,
+.react-flow__node input,
+.react-flow__handle,
+.react-flow__edge button,
+.react-flow__edge select {
+  min-height: 0;
+  min-width: 0;
+}

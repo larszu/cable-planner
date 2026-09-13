@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useSyncExternalStore, type ChangeEvent } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type ChangeEvent } from 'react'
 import {
   BarChart3,
   Boxes,
@@ -570,12 +570,19 @@ export const MenuBar = ({
       <input ref={cameraImportRef} type="file" accept=".cameras.json,.json" className="hidden" onChange={handleImportCameras} />
       <input ref={avplanImportRef} type="file" accept=".avplan,.json" className="hidden" onChange={handleImportAvplan} />
       <input ref={sourceMapImportRef} type="file" accept=".avsourcemap,.json" className="hidden" onChange={handleImportSourceMap} />
-      <div className="flex shrink-0 items-center gap-2">
+      <div className="flex min-w-0 shrink items-center gap-2">
         <span className="hidden select-none font-semibold tracking-wide text-cp-text-secondary lg:inline">
           {t('app.title', 'Cable Planner')}
         </span>
         <span className="hidden text-cp-text-dimmer lg:inline">│</span>
 
+        {/* Die fuenf Menues in EINER Gruppe (B-77) — sie ist es, die auf
+            schmalen Fenstern rollt, und nicht die ganze Kopfzeile. Rollte die
+            Zeile, rollte der Einstellungen-Knopf rechts mit aus dem Bild, und
+            genau das verhindert der Kommentar weiter unten seit B-66.
+            Dieselbe Bauart wie `.bc-menubar` im `multicam-planner` und
+            `.tb-menubar` im `light-planner`. */}
+        <div className="cp-menubar">
         <Menu label={t('app.menu.file', 'File')}>
           <MenuItem onClick={onNewProject} icon={<Icon icon={FileText} size="sm" />} shortcut={t('shortcut.ctrlN', 'Ctrl+N')}>
             {t('app.menu.file.new', 'New project')}
@@ -1145,6 +1152,7 @@ export const MenuBar = ({
             {t('app.menu.help.about', 'About Cable Planner…')}
           </MenuItem>
         </Menu>
+        </div>
       </div>
 
       <div className="flex min-w-0 flex-1 items-center justify-center gap-2">
@@ -1250,6 +1258,10 @@ interface MenuProps {
 const Menu = ({ label, children }: MenuProps) => {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement | null>(null)
+  const knopf = useRef<HTMLButtonElement | null>(null)
+  const klappe = useRef<HTMLDivElement | null>(null)
+  /** Das Rechteck des angeklickten Titels — Ausgangspunkt der Klappe. */
+  const [anker, setAnker] = useState<{ links: number; oben: number } | null>(null)
 
   useEffect(() => {
     if (!open) return
@@ -1261,13 +1273,51 @@ const Menu = ({ label, children }: MenuProps) => {
     const onKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape') setOpen(false)
     }
+    // ROLLEN FUEHRT NACH, GROESSE SCHLIESST (B-77). Die Menue-Gruppe rollt
+    // auf schmalen Fenstern waagerecht, also bewegt sich der Titel — und die
+    // Klappe haengt seit B-77 am Fenster und merkt das nicht von selbst.
+    // Schliessen beim Rollen waere falsch: liegt ein Titel ausserhalb der
+    // Leiste, rollt ein Klick sie erst dorthin, und das Rollereignis kommt
+    // NACH dem Klick. Im `multicam-planner` ging die Klappe damit auf und
+    // sofort wieder zu (gemessen bei 390 px).
+    const nachfuehren = () => {
+      const r = knopf.current?.getBoundingClientRect()
+      if (r) setAnker({ links: r.left, oben: r.bottom + 4 })
+    }
+    const zu = () => setOpen(false)
     document.addEventListener('mousedown', onDocClick)
     document.addEventListener('keydown', onKey)
+    window.addEventListener('resize', zu)
+    window.addEventListener('scroll', nachfuehren, true)
     return () => {
       document.removeEventListener('mousedown', onDocClick)
       document.removeEventListener('keydown', onKey)
+      window.removeEventListener('resize', zu)
+      window.removeEventListener('scroll', nachfuehren, true)
     }
   }, [open])
+
+  // B-77 — DIE KLAPPE HAENGT AM FENSTER, NICHT AN DER LEISTE.
+  //
+  // Sie war ein `absolute`-Kind der Kopfzeile. Solange nichts abschneidet,
+  // faellt das nicht auf; sobald ein Vorfahr rollt, ist die Klappe weg. Im
+  // `light-planner` ist genau das passiert: ein `overflow: hidden`, das die
+  // Kopfzeile einzeilig halten sollte, machte aus einer 250 x 505 px grossen
+  // Datei-Klappe eine mit 0 px sichtbarer Flaeche — vier Menues, kein
+  // einziges ging auf.
+  //
+  // Gemessen wird NACH dem Einhaengen: die Breite haengt am laengsten
+  // Eintrag und ist auf Deutsch eine andere als auf Englisch.
+  useLayoutEffect(() => {
+    const el = klappe.current
+    if (!el || !anker) return
+    const r = el.getBoundingClientRect()
+    const rand = 8
+    const links = Math.max(rand, Math.min(anker.links, window.innerWidth - rand - r.width))
+    const oben = Math.max(rand, Math.min(anker.oben, window.innerHeight - rand - r.height))
+    el.style.left = `${links}px`
+    el.style.top = `${oben}px`
+  }, [anker, open])
 
   // #461 — Tastatur-Navigation im offenen Menue: beim Oeffnen ersten Eintrag
   // fokussieren, Pfeile/Home/End bewegen den Fokus zwischen den menuitems.
@@ -1311,10 +1361,15 @@ const Menu = ({ label, children }: MenuProps) => {
   }
 
   return (
-    <div ref={ref} className="relative">
+    <div ref={ref} className="relative shrink-0">
       <button
         type="button"
-        onClick={() => setOpen((v) => !v)}
+        ref={knopf}
+        onClick={(e) => {
+          const r = e.currentTarget.getBoundingClientRect()
+          setAnker({ links: r.left, oben: r.bottom + 4 })
+          setOpen((v) => !v)
+        }}
         onKeyDown={(e) => {
           if (e.key === 'ArrowDown') {
             e.preventDefault()
@@ -1330,7 +1385,14 @@ const Menu = ({ label, children }: MenuProps) => {
            Die Schrift bleibt gleich gross: schmaler wird der Abstand, nicht
            das Wort. Ob es reicht, ist keine Meinung — `mobil:check` misst es
            in JEDER ausgelieferten Sprache. */
-        className={` px-1 py-1 text-cp-text-bright hover:bg-cp-surface-2 sm:px-2 ${open ? 'bg-cp-surface-2' : ''}`}
+        /* `inline-flex items-center` und nicht nur Polsterung (B-77): seit der
+           Knopf 32 px hoch ist, hat sein Inhalt Platz fuer eine zweite Zeile
+           — und weil er in einer schrumpfenden Reihe steht, NAHM er sie sich.
+           Gemessen: aus 46 x 26 px wurden 36 x 37 px, das Zeichen stand unter
+           dem Wort, und die Kopfzeile war 5 px zu hoch. Eine Flex-Zeile bricht
+           nicht um; nebenbei ist es dieselbe Bauart wie in den anderen vier
+           Apps. */
+        className={` inline-flex items-center px-1 py-1 text-cp-text-bright hover:bg-cp-surface-2 sm:px-2 ${open ? 'bg-cp-surface-2' : ''}`}
       >
         {label}
         <Icon icon={ChevronDown} size={11} className="ml-1 text-cp-text-muted" />
@@ -1346,7 +1408,8 @@ const Menu = ({ label, children }: MenuProps) => {
              unter dem Fensterrand und waren nicht anklickbar. Dieselbe Sorte
              Fehler wie die zwei Register, die aus der Bibliothek fielen:
              ein Menuepunkt, den es fuer den Nutzer nicht gibt. */
-          className="absolute left-0 top-full z-50 mt-1 max-h-[calc(100vh-3.5rem)] min-w-[14rem] overflow-y-auto border border-[var(--cp-border)] bg-[var(--cp-surface-1)] py-1"
+          ref={klappe}
+          className="fixed left-0 top-0 z-50 max-h-[calc(100vh-3.5rem)] min-w-[14rem] overflow-y-auto border border-[var(--cp-border)] bg-[var(--cp-surface-1)] py-1"
           role="menu"
         >
           {children}
