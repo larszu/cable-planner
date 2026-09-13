@@ -17,7 +17,7 @@
  *  - Aktiv = gedeckt-farbiger Background; Inaktiv = grau opak
  *  - Tooltip erklärt was passiert
  */
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Eye, Diamond, Plus} from 'lucide-react'
 import { useUiStore } from '../../store/uiStore'
 import { Icon } from '../shared/Icon'
@@ -39,6 +39,40 @@ export const LayerVisibilityChips = () => {
   const canvasTheme = useUiStore((s) => s.canvasTheme)
   const isLight = canvasTheme === 'light'
   const [menuOpen, setMenuOpen] = useState(false)
+  const menuHuelle = useRef<HTMLDivElement | null>(null)
+
+  /**
+   * KLICK DANEBEN UND ESCAPE SCHLIESSEN — nicht nur die Maus, die hinausfaehrt.
+   *
+   * Bis B-77 kannte dieses Menue genau EINEN Weg zu: `onMouseLeave`. Wer
+   * keine Maus hat, hatte keinen. Auf einem Tablet blieb die Klappe stehen,
+   * bis man einen ihrer beiden Eintraege ausloeste; mit der Tastatur ging sie
+   * gar nicht mehr weg.
+   *
+   * Und sie blieb nicht nur stehen, sie VERDECKTE: `bedienbar:check` in der
+   * Suite meldete bei 390 und 768 px zwei bis drei Bedienpunkte der Leiste
+   * darunter („Power", „Other", „Lock", „Finalise", „Badges") als „liegen
+   * unter einem anderen Element" — die 224 px breite Klappe lag darauf.
+   * Gemessen war damit beides auf einmal: dass sie nicht zugeht, und was das
+   * kostet.
+   *
+   * Dieselbe Regel wie fuer jeden Dialog dieser App (B-44).
+   */
+  useEffect(() => {
+    if (!menuOpen) return
+    const daneben = (e: MouseEvent) => {
+      if (menuHuelle.current && !menuHuelle.current.contains(e.target as Node)) setMenuOpen(false)
+    }
+    const esc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMenuOpen(false)
+    }
+    document.addEventListener('mousedown', daneben)
+    document.addEventListener('keydown', esc)
+    return () => {
+      document.removeEventListener('mousedown', daneben)
+      document.removeEventListener('keydown', esc)
+    }
+  }, [menuOpen])
   // v7.9.93 — Counter pro Layer: zeigt dem User auf einen Blick wie
   // viele Kabel auf welchem Layer liegen. Macht das Feature sichtbar:
   // wenn alle Counter "0" sind weiß der User dass keine Layer-
@@ -96,7 +130,7 @@ export const LayerVisibilityChips = () => {
        Wort „Control". `min-w-0` gehoert dazu: ohne das darf das Kind unter
        seine Inhaltsbreite gar nicht erst schrumpfen.
        Der Ausdruck-Dialog setzt denselben Umbruch schon aussen herum. */
-    <div className="relative flex min-w-0 flex-wrap items-center gap-1">
+    <div ref={menuHuelle} className="relative flex min-w-0 flex-wrap items-center gap-1">
       <span
         className={`select-none text-cp-xs uppercase tracking-wider ${isLight ? 'text-slate-400' : 'text-slate-400'}`}
         title={t(
@@ -213,6 +247,13 @@ export const LayerVisibilityChips = () => {
       </button>
       {menuOpen && (
         <div
+          /* `role="menu"` (B-77): der Knopf verspricht mit
+             `aria-haspopup="menu"` ein Menue. Hier stand ein nackter `div`,
+             und seine Eintraege waren nackte Knoepfe — ein Screenreader
+             wurde angekuendigt und fand dann keines. `bedienbar:check` in der
+             Suite meldete „der Klick oeffnet keine Klappe", weil er genau an
+             dieser Zusage misst. */
+          role="menu"
           onMouseLeave={() => setMenuOpen(false)}
           className={`absolute right-0 top-7 z-50 w-56 overflow-hidden border text-cp-xs ${
             isLight ? 'border-slate-300 bg-white text-slate-700' : 'border-slate-700 bg-slate-900 text-slate-200'
@@ -220,6 +261,7 @@ export const LayerVisibilityChips = () => {
         >
           <button
             type="button"
+            role="menuitem"
             onClick={() => {
               setMenuOpen(false)
               void handleAddCustom()
@@ -233,6 +275,7 @@ export const LayerVisibilityChips = () => {
           </button>
           <button
             type="button"
+            role="menuitem"
             onClick={() => {
               setMenuOpen(false)
               resetLayerVisibility()

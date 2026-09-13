@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
+import { useCallback, useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
+import { useKlappeAmFenster } from '../../hooks/useKlappeAmFenster'
 import { ExternalLink, PictureInPicture2, ChevronUp, ChevronDown} from 'lucide-react'
 import { useTranslation } from '../../lib/i18n'
 import { Icon } from './Icon'
@@ -47,6 +48,10 @@ export const PanelWindowMenu = ({
 }) => {
   const t = useTranslation()
   const [offen, setOffen] = useState(false)
+  // B-77 — die Klappe haengt am Fenster, nicht an der Panel-Kopfzeile; die
+  // schneidet ab. Der Haken erklaert, warum das noetig ist.
+  const schliessen = useCallback(() => setOffen(false), [])
+  const { knopfRef, klappeRef, ankern } = useKlappeAmFenster(offen, schliessen)
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -74,8 +79,10 @@ export const PanelWindowMenu = ({
         type="button"
         data-tearoff="handle"
         onPointerDown={onPointerDown}
+        ref={knopfRef}
         onClick={() => {
           if (draggedRef.current) return
+          ankern()
           setOffen((v) => !v)
         }}
         title={`${titel} — ${t('panel.window.title', 'undock, drag out or move to its own window')}`}
@@ -91,7 +98,13 @@ export const PanelWindowMenu = ({
       {offen && (
         <div
           role="menu"
-          className="absolute left-0 top-[calc(100%+4px)] z-30 min-w-[200px] border border-cp-border bg-cp-surface-1 p-1.5"
+          ref={klappeRef}
+          /* `fixed` und nicht `absolute` (B-77): die Panel-Kopfzeile
+             schneidet ab, was breiter ist als sie. Gemessen mit
+             `bedienbar:check` bei 1440 px: diese Klappe ist 200 x 124 px
+             gross und davon waren 141 x 124 px sichtbar — ein Fuenftel fehlte,
+             und zwar lautlos. Die Koordinaten setzt `useKlappeAmFenster`. */
+          className="fixed left-0 top-0 z-30 min-w-[200px] border border-cp-border bg-cp-surface-1 p-1.5"
         >
           <button
             type="button"
