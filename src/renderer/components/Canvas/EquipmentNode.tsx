@@ -28,7 +28,7 @@ type EquipmentNodeData = EquipmentItem & {
 // Vorher waren diese Werte zwischen EquipmentNode.tsx und
 // equipmentLayout.ts dupliziert — Bug-Garantie wenn einer der beiden
 // geändert wurde.
-import { EQUIPMENT_LAYOUT } from '../../lib/layoutConstants'
+import { useRaster } from '../../lib/aktuellesRaster'
 import { useTally } from '../../hooks/useCanvasFlow'
 import { useLampLevel } from '../../hooks/useCircuit'
 import { useErwartetesBild } from '../../hooks/usePattern'
@@ -36,11 +36,11 @@ import { testPatternDataUri } from '../../lib/testPattern'
 import { PatternCheckRow } from './PatternCheckRow'
 import { useCircuitStore, istSchaltbar } from '../../store/circuitStore'
 import { CIRCUIT_KIND_INFO } from '../../types/circuit'
-const HEADER_HEIGHT = EQUIPMENT_LAYOUT.HEADER_HEIGHT
-const HEADER_HEIGHT_WITH_IP = EQUIPMENT_LAYOUT.HEADER_HEIGHT_WITH_IP
-const PORT_ROW = EQUIPMENT_LAYOUT.PORT_ROW
-const HANDLE_SIZE = EQUIPMENT_LAYOUT.HANDLE_SIZE
-const PADDING = EQUIPMENT_LAYOUT.PADDING
+// 2026-09-12 — Diese fuenf Zahlen standen hier als Modul-Konstanten und waren
+// damit fuer die Lebensdauer des Moduls festgenagelt. Sie folgen jetzt der im
+// Menue eingestellten Rastergroesse und werden deshalb IN der Komponente
+// geholt (`useRaster()`), nicht daneben: nur mit Abonnement zeichnet sich die
+// Karte neu, wenn der Nutzer das Raster aendert.
 
 // v7.9.39 — rackBandColor lebt jetzt in '../../lib/rackBandColors' damit
 // die RackLivePreview im 2D Rack Builder identische Band-Farben rendert.
@@ -56,6 +56,15 @@ const resolvePortSide = (
 }
 
 export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeData>) => {
+  const {
+    HEADER_HEIGHT,
+    HEADER_HEIGHT_WITH_IP,
+    PORT_ROW,
+    HANDLE_SIZE,
+    PADDING,
+    GRID_SIZE,
+    DEFAULT_WIDTH,
+  } = useRaster()
   // Tally aus dem Mischer — `null`, solange nichts bekannt ist.
   const tally = useTally(id)
   // Schaltbild: Helligkeit dieser Leuchte. `null` = keine Aussage (kein
@@ -328,7 +337,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
   // erweitern den Header um 11 px (1 Grid-Step) statt 14, sodass der
   // headerHeight immer ein Vielfaches von gridSize bleibt und die
   // Ports auf Dot-Reihen landen.
-  const EXTRA_HEADER_LINE = EQUIPMENT_LAYOUT.GRID_SIZE
+  const EXTRA_HEADER_LINE = GRID_SIZE
   const beltpackLine = greengoUser ? EXTRA_HEADER_LINE : 0
   const headerHeight = (
     data.ipAddress
@@ -551,8 +560,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
   // v7.9.26 — Width rastet auf gridSize-Vielfache (11 px) ein, sodass
   // die Außenkanten der Karte mit Dot-Spalten zusammenfallen. Auto-
   // Expand für lange Port-Labels rundet entsprechend AUF.
-  const GRID = EQUIPMENT_LAYOUT.GRID_SIZE
-  const snapUp = (n: number) => Math.ceil(n / GRID) * GRID
+  const snapUp = (n: number) => Math.ceil(n / GRID_SIZE) * GRID_SIZE
   // ─── `data.width`/`data.height` ENTSCHEIDEN NICHTS MEHR ───────────────────
   //
   // Nutzer-Meldung 2026-09-11: ein langer Port-Name machte das Geraet breit,
@@ -569,7 +577,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
   // truth"), und trotzdem lief sie doppelt — beim Beheben haette man die eine
   // Fassung aendern und die andere vergessen koennen, und der Knoten stuende
   // an einer anderen Stelle als seine Kabel-Enden.
-  const width = snapUp(Math.max(EQUIPMENT_LAYOUT.DEFAULT_WIDTH, labelWidth * 2, nameWidth))
+  const width = snapUp(Math.max(DEFAULT_WIDTH, labelWidth * 2, nameWidth))
   const height = snapUp(headerHeight + portRows * PORT_ROW + PADDING)
 
   // Y offset for the handle dot: aligns to vertical center of the row.

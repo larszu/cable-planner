@@ -54,13 +54,23 @@ interface GridNode {
 
 // ---------- Constants ----------
 
-/** Grid cell size in pixels. All grid coordinates are multiples of this. */
-export const CELL_SIZE = 20;
+// ─── DAS ZELLMASS IST EIN PARAMETER, KEINE KONSTANTE ────────────────────────
+//
+// Hier stand `export const CELL_SIZE = 20`. Das Raster, auf dem die Geraete
+// einrasten, steht aber woanders und ist im Menue einstellbar (Einstellungen >
+// Bearbeiten > Rastergroesse). Zwei Zahlen fuer dieselbe Frage — in dieser
+// Suite heisst die Defektform `zwei-rechnungen` —, und weil 20 kein Vielfaches
+// von 11 ist, lag jeder Stuetzpunkt neben einer Buchse bis zu eine halbe Zelle
+// daneben.
+//
+// Das Zellmass kommt deshalb jetzt von aussen herein. `raster.ts` leitet es aus
+// der eingestellten Rastergroesse ab; `computeEdgePath` verlangt es als Feld,
+// damit niemand versehentlich wieder auf einer stillen 20 landet.
 
 /** Convert pixel coordinate to grid coordinate. */
-export const px2g = (px: number) => Math.round(px / CELL_SIZE);
+export const px2g = (px: number, cellSize: number) => Math.round(px / cellSize);
 /** Convert grid coordinate to pixel coordinate. */
-export const g2px = (g: number) => g * CELL_SIZE;
+export const g2px = (g: number, cellSize: number) => g * cellSize;
 
 /** Default routing parameters. Values are in GRID CELLS unless noted. */
 export const ROUTING_DEFAULTS = {
@@ -114,10 +124,11 @@ export function buildObstacles(
   nodes: readonly { id: string; position: { x: number; y: number }; parentId?: string; measured?: { width?: number; height?: number }; type?: string }[],
   excludeIds: Iterable<string>,
   getAbsPos: (node: typeof nodes[number]) => { x: number; y: number },
+  cellSize: number,
 ): { rects: Rect[] } {
   const excludeSet = excludeIds instanceof Set ? excludeIds : new Set(excludeIds);
   const rects: Rect[] = [];
-  const pad = ROUTING_PARAMS.PAD * CELL_SIZE; // PAD is in grid cells
+  const pad = ROUTING_PARAMS.PAD * cellSize; // PAD is in grid cells
   for (const n of nodes) {
     if (
       n.type === "room" ||
@@ -141,12 +152,12 @@ export function buildObstacles(
 }
 
 /** Convert pixel-coordinate obstacle rects to grid-coordinate rects. */
-export function pixelRectsToGrid(rects: Rect[]): GridRect[] {
+export function pixelRectsToGrid(rects: Rect[], cellSize: number): GridRect[] {
   return rects.map((r) => ({
-    left: Math.floor(r.left / CELL_SIZE),
-    top: Math.floor(r.top / CELL_SIZE),
-    right: Math.ceil(r.right / CELL_SIZE),
-    bottom: Math.ceil(r.bottom / CELL_SIZE),
+    left: Math.floor(r.left / cellSize),
+    top: Math.floor(r.top / cellSize),
+    right: Math.ceil(r.right / cellSize),
+    bottom: Math.ceil(r.bottom / cellSize),
     nodeId: r.nodeId,
   }));
 }
@@ -156,7 +167,7 @@ export function pixelRectsToGrid(rects: Rect[]): GridRect[] {
 export interface IntGrid {
   cols: number;
   rows: number;
-  originX: number; // grid X of column 0 (so pixel X = (originX + col) * CELL_SIZE)
+  originX: number; // grid X of column 0 (so pixel X = (originX + col) * cellSize)
   originY: number; // grid Y of row 0
   blocked: Uint8Array; // flat: blocked[col * rows + row], 1=blocked 0=free
 }
@@ -973,6 +984,9 @@ export interface ComputeEdgePathOptions {
    *  um einen Korridor vom Handle durch die eigene Padding-Zone zu
    *  öffnen. */
   extraForceOpen?: { gx: number; gy: number }[];
+  /** Kantenlaenge einer Gitterzelle in Pixeln. Pflichtfeld: siehe die
+   *  Begruendung oben bei `px2g`. `raster.ts` liefert den Wert. */
+  cellSize: number;
 }
 
 export function computeEdgePath(
@@ -995,13 +1009,14 @@ export function computeEdgePath(
     freeEndDir,
     stubCells,
     extraForceOpen,
+    cellSize,
   } = opts;
 
   // Convert pixel coordinates to grid coordinates
-  const sgx = px2g(sourceX);
-  const sgy = px2g(sourceY);
-  const tgx = px2g(targetX);
-  const tgy = px2g(targetY);
+  const sgx = px2g(sourceX, cellSize);
+  const sgy = px2g(sourceY, cellSize);
+  const tgx = px2g(targetX, cellSize);
+  const tgy = px2g(targetY, cellSize);
 
   // Stub: outward exit from port. Default 1 cell, kann per stubCells
   // erhöht werden wenn Source/Target gepaddete Obstacles sind.
@@ -1037,7 +1052,7 @@ export function computeEdgePath(
       }
     }
   } else {
-    const gridRects = precomputedGridRects ?? pixelRectsToGrid(obstacles);
+    const gridRects = precomputedGridRects ?? pixelRectsToGrid(obstacles, cellSize);
     const forceOpen = [
       { gx: stubSGX, gy: sgy },
       { gx: stubTGX, gy: tgy },
@@ -1063,16 +1078,16 @@ export function computeEdgePath(
   if (!astarResult) return null;
 
   // Convert grid path to pixel waypoints
-  const interiorPixels: Point[] = astarResult.path.map((p) => ({ x: g2px(p.gx), y: g2px(p.gy) }));
+  const interiorPixels: Point[] = astarResult.path.map((p) => ({ x: g2px(p.gx, cellSize), y: g2px(p.gy, cellSize) }));
   const interior = simplifyWaypoints(interiorPixels);
 
   // Build full waypoint list: source handle → A* path → target handle
   const waypoints: Point[] = [];
-  waypoints.push({ x: g2px(sgx), y: g2px(sgy) }); // Source (grid-snapped pixel)
+  waypoints.push({ x: g2px(sgx, cellSize), y: g2px(sgy, cellSize) }); // Source (grid-snapped pixel)
   for (const p of interior) {
     waypoints.push({ x: p.x + offset, y: p.y + offset });
   }
-  waypoints.push({ x: g2px(tgx), y: g2px(tgy) }); // Target (grid-snapped pixel)
+  waypoints.push({ x: g2px(tgx, cellSize), y: g2px(tgy, cellSize) }); // Target (grid-snapped pixel)
 
   const simplified = simplifyWaypoints(waypoints);
   const path = waypointsToSvgPath(simplified);

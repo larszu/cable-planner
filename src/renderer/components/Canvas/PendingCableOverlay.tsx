@@ -5,6 +5,7 @@ import { useReactFlow, useViewport } from 'reactflow'
 import { useUiStore } from '../../store/uiStore'
 import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
 import { computeEquipmentLayout } from '../../lib/equipmentLayout'
+import { useRaster } from '../../lib/aktuellesRaster'
 import { getEquipmentById } from '../../lib/equipmentSelectors'
 import { useTranslation, format } from '../../lib/i18n'
 
@@ -32,6 +33,9 @@ const BANNER_BUTTON: CSSProperties = {
  * source port through all placed waypoints to the current mouse position.
  */
 export const PendingCableOverlay = () => {
+  // Geraete-Geometrie folgt der eingestellten Rastergroesse; mit Abonnement,
+  // damit ein Wechsel im Menue die Flaeche neu zeichnet.
+  const raster = useRaster()
   const t = useTranslation()
   const pendingCable = useUiStore((s) => s.pendingCable)
   const clearPendingCable = useUiStore((s) => s.clearPendingCable)
@@ -77,7 +81,7 @@ export const PendingCableOverlay = () => {
   // bei breiteren Geräten landete der Startpunkt der gestrichelten
   // Linie mitten im Gerät statt am Port (User-Bug "startpunkt der
   // gelben gestrichelten linie ist aktuell immer die geräte mitte").
-  const layout = computeEquipmentLayout(node, project.intercom)
+  const layout = computeEquipmentLayout(node, project.intercom, raster)
   const pos = layout.portPos(
     port.id,
     pendingCable.handleType === 'source' ? 'source' : 'target',

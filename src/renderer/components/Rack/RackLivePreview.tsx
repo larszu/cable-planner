@@ -14,7 +14,7 @@
 
 import { useMemo } from 'react'
 import { rackBandColor } from '../../lib/rackBandColors'
-import { EQUIPMENT_LAYOUT } from '../../lib/layoutConstants'
+import { useRaster } from '../../lib/aktuellesRaster'
 import {
   RackBandsOverlay,
   RackInternalCablesOverlay,
@@ -47,9 +47,6 @@ interface RackLivePreviewProps {
   cables: PreviewCable[]
 }
 
-const PORT_ROW = EQUIPMENT_LAYOUT.PORT_ROW
-const HEADER_HEIGHT = EQUIPMENT_LAYOUT.HEADER_HEIGHT
-const PADDING = EQUIPMENT_LAYOUT.PADDING
 const HANDLE_R = 4
 const BAND_HEADER_ROW = 1
 const GAP_BETWEEN_BANDS = 1
@@ -68,6 +65,9 @@ export const RackLivePreview = ({
   placements,
   cables,
 }: RackLivePreviewProps) => {
+  // Folgt der eingestellten Rastergroesse; mit Abonnement, damit die Vorschau
+  // beim Umstellen mitgeht.
+  const { HEADER_HEIGHT, PORT_ROW, PADDING } = useRaster()
   const t = useTranslation()
   void _totalUnits
 
@@ -144,7 +144,7 @@ export const RackLivePreview = ({
       }
     }
     return m
-  }, [bandsComputed])
+  }, [bandsComputed, HEADER_HEIGHT, PORT_ROW])
 
   const placementById = useMemo(
     () => new Map(placements.map((p) => [p.id, p])),

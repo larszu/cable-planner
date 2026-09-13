@@ -22,10 +22,10 @@
  */
 
 import {
-  CELL_SIZE,
   computeEdgePath,
   type Rect,
 } from './pathfinding'
+import { RASTER_DEFAULT, rasterAus } from './raster'
 
 export type HandleSide = 'left' | 'right' | 'top' | 'bottom'
 
@@ -59,10 +59,36 @@ export interface RouteCableArgs {
    *  komplett → A* loopt um das ganze Rack. Caller darf den Wert
    *  reduzieren (z.B. 0) um dichte Routen zuzulassen. */
   obstaclePadCells?: number
+  /** Rastergroesse in Pixeln — die im Menue eingestellte Schrittweite
+   *  (`uiStore.gridSize`). Daraus folgt das Zellmass des Wegfinders: eine
+   *  Zelle ist ein Rasterschritt, damit jede Buchse auf einem Gitterpunkt
+   *  liegt. Ohne Angabe gilt die Vorgabe — nicht als zweite feste Zahl,
+   *  sondern als derselbe Wert, mit dem der uiStore startet. */
+  rasterPx?: number
 }
 
-/** v7.9.32 — Sichtbare Lücke um jedes Hindernis. 2 Grid-Cells = 40 px. */
-const OBSTACLE_PAD_CELLS = 2
+/**
+ * v7.9.32 — Sichtbare Luecke um jedes Hindernis.
+ *
+ * Sie stand als „2 Grid-Cells" da und war damit an das alte 20-px-Zellmass
+ * gebunden: 40 px. Seit das Zellmass der Rastergroesse folgt, waeren 2 Zellen
+ * bei feinem Raster ploetzlich 12 px und bei grobem 100 — die sichtbare Luecke
+ * haette sich mit einer Einstellung geaendert, die ueber sie nichts sagt. Der
+ * Wunsch steht deshalb in Pixeln und wird in Zellen umgerechnet.
+ */
+const OBSTACLE_PAD_PX = 40
+
+/**
+ * Die oberste Sprosse der Abstands-Leiter, in Zellen.
+ *
+ * EXPORTIERT, obwohl die Anwendung sie nicht ruft: `tests/autoRouteEinRouter`
+ * haelt daneben, was EINE Sprosse allein geschafft haette — und muss dafuer
+ * dieselbe Sprosse nehmen wie der Router. Eine „2" im Test waere seit dem
+ * rasterabhaengigen Zellmass eine andere Luecke als die des Routers, und der
+ * Waechter haette etwas anderes gemessen, als er behauptet.
+ */
+export const obersteSprosse = (rasterPx: number): number =>
+  Math.max(1, Math.round(OBSTACLE_PAD_PX / rasterAus(rasterPx).CELL_SIZE))
 
 // ReactFlow side → outward direction in pixel space (dx, dy).
 const handleOutwardDelta = (side: HandleSide): { dx: number; dy: number } => {
@@ -84,17 +110,18 @@ const inflate = (r: PixelRect, pad: number): Rect => ({
 
 /** Compute force-open cells: ein Korridor vom Handle, einen Cell tief
  *  ins Source-Device hinein (damit der gerenderte erste Segment am
- *  Handle anschließt) PLUS OBSTACLE_PAD_CELLS Cells nach außen durch
+ *  Handle anschließt) PLUS die Abstands-Zellen nach außen durch
  *  das eigene Padding. Ohne den Korridor wäre der Stub-Endpunkt in der
  *  Padding-Zone des Source-Devices selbst gefangen. */
 const handleCorridor = (
   handlePx: { x: number; y: number },
   side: HandleSide,
   outwardCells: number,
+  cellSize: number,
 ): { gx: number; gy: number }[] => {
   const { dx, dy } = handleOutwardDelta(side)
-  const baseGx = Math.round(handlePx.x / CELL_SIZE)
-  const baseGy = Math.round(handlePx.y / CELL_SIZE)
+  const baseGx = Math.round(handlePx.x / cellSize)
+  const baseGy = Math.round(handlePx.y / cellSize)
   const cells: { gx: number; gy: number }[] = []
   for (let i = 0; i <= outwardCells; i++) {
     cells.push({ gx: baseGx + dx * i, gy: baseGy + dy * i })
@@ -122,6 +149,7 @@ export const versuchMitAbstand = (
   // v7.9.37 — ALLE Devices kommen mit Padding als Hard-Obstacles rein,
   // inklusive Source und Target. Damit kann A* den Pfad nicht mehr durch
   // den eigenen Source/Target-Body optimieren.
+  const { CELL_SIZE } = rasterAus(args.rasterPx ?? RASTER_DEFAULT)
   const padPx = padCells * CELL_SIZE
   const obstacles: Rect[] = args.obstacles.map((r) => inflate(r, padPx))
 
@@ -134,8 +162,8 @@ export const versuchMitAbstand = (
   // damit der gerenderte erste Segment (Handle → erstes Waypoint = Stub)
   // einen freien Weg hat und A* den Stub erreichen kann.
   const extraForceOpen = [
-    ...handleCorridor(args.source, args.sourceSide, stubCells),
-    ...handleCorridor(args.target, args.targetSide, stubCells),
+    ...handleCorridor(args.source, args.sourceSide, stubCells, CELL_SIZE),
+    ...handleCorridor(args.target, args.targetSide, stubCells, CELL_SIZE),
   ]
 
   // Bei Top/Bottom-Handles weiß der Pathfinder nicht von "vertical stub" —
@@ -188,45 +216,41 @@ export const versuchMitAbstand = (
     excludeStartDir,
     stubCells,
     extraForceOpen,
+    cellSize: CELL_SIZE,
   })
   if (!result) return null
 
-  // ─── DIE ACHSE DER BUCHSE GEWINNT ──────────────────────────────────────
+  // ─── DIE ACHSE DER BUCHSE, ALS RUECKFALL ───────────────────────────────
   //
   // NUTZER-MELDUNG 2026-09-12: „Es gehen die Kabel manchmal noch etwas
   // unterhalb von dem Ziel-Port und dann wieder hoch, dann erst in den
   // Ziel-Port. Manchmal passieren auch Haken."
   //
-  // BEIDES IST DERSELBE BEFUND. A* rechnet auf einem Gitter aus 20-px-Zellen
-  // (`CELL_SIZE`); die Buchsen sitzen auf dem 11-px-Raster des Geraets
-  // (`EQUIPMENT_LAYOUT.GRID_SIZE`, Port-Reihe 22 px). Die beiden Raster
-  // treffen sich nie. Der Stuetzpunkt neben der Buchse liegt deshalb bis zu
-  // eine halbe Zelle daneben, und der gezeichnete Weg muss den Rest als
-  // kleine Stufe nachholen — unmittelbar vor der Buchse.
+  // URSACHE WAREN ZWEI RASTER. A* rechnete auf festen 20-px-Zellen, die
+  // Buchsen sassen auf dem 11-px-Raster des Geraets. 20 ist kein Vielfaches
+  // von 11, der Stuetzpunkt neben der Buchse lag also bis zu eine halbe Zelle
+  // daneben, und der gezeichnete Weg holte den Rest als Stufe unmittelbar vor
+  // der Buchse nach. Zeigte die Stufe gegen den naechsten Abschnitt, wurde ein
+  // Sporn daraus — der „Haken". GEMESSEN ueber 3300 Wege in 25 Raster-Szenen:
+  // Stufe an beiden Enden in 3300 von 3300 Faellen, Kehrtwende in 1972
+  // (59,8 %).
   //
-  // Zeigt die Stufe in die Gegenrichtung des naechsten Abschnitts, wird aus
-  // ihr ein Sporn, der aus der Linie heraussteht: der „Haken". Beispiel aus
-  // der Messung, Quelle (340, 155) nach rechts:
+  // DIE URSACHE IST SEIT 2026-09-12 WEG: es gibt nur noch EIN Raster. Das
+  // Zellmass ist die eingestellte Rastergroesse selbst (siehe `raster.ts`),
+  // und weil jede Buchsen-Koordinate ein Vielfaches davon ist, liegt jede
+  // Buchse auf einem Gitterpunkt. Die Abweichung, die hier korrigiert wurde,
+  // entsteht gar nicht mehr.
   //
-  //     …(380, 155) -> (380, 160) -> (380, 60)…
-  //                     ^^^^^^^^^^ 5 px hinunter und sofort wieder hinauf
+  // WARUM DIESER ABSCHNITT TROTZDEM STEHT: „eingerastet" gilt fuer Geraete,
+  // die der Editor gesetzt hat. Ein Projekt aus der Zeit vor dem Einrasten
+  // kann `x = 137` tragen, ein Import von aussen auch; `healProjectPositions`
+  // rundet solche Positionen zwar beim Laden, aber nur solange das Einrasten
+  // eingeschaltet ist. Fuer diese Faelle bleibt die Korrektur als Rueckfall —
+  // sie greift nur bei weniger als einer halben Zelle Abweichung, eine echte
+  // senkrechte Anfahrt bleibt unberuehrt.
   //
-  // GEMESSEN ueber 3300 Wege in 25 Raster-Szenen: die Stufe hatten 3300 von
-  // 3300 an BEIDEN Enden (hier immer 3 px, weil alle Ziele dieselbe
-  // Port-Reihe trafen), und 1972 Wege (59,8 %) trugen dadurch eine
-  // Kehrtwende im gezeichneten Streckenzug.
-  //
-  // WAS HIER PASSIERT: der Stuetzpunkt NEBEN der Buchse bekommt deren Achse.
-  // Nur dieser eine, und nur wenn der Abstand die Gitter-Rundung selbst ist
-  // (weniger als eine halbe Zelle) — eine echte senkrechte Anfahrt bleibt
-  // unberuehrt. Der Weg wird dadurch nicht laenger; die Stufe wandert vom
-  // letzten Zentimeter vor der Buchse auf die Ecke davor, wo sie ohnehin
-  // hingehoert.
-  //
-  // Nicht behoben ist damit die URSACHE — zwei Raster, die nicht aufeinander
-  // passen. Das Gitter des Wegfinders auf 11 px zu stellen waere die andere
-  // Antwort; sie kostet die dreifache Zellenzahl je Suche und ist nicht
-  // gemessen.
+  // NICHT GEMESSEN: ob der gezeichnete Weg optisch der kuerzeste ist. Die
+  // Abstands-Leiter oben nimmt die erste haltende Sprosse, nicht die kuerzeste.
   const aufAchse = (
     p: { x: number; y: number },
     buchse: { x: number; y: number },
@@ -304,7 +328,7 @@ export const routeCableWithAStar = (
   const wunsch =
     typeof args.obstaclePadCells === 'number' && args.obstaclePadCells >= 0
       ? Math.floor(args.obstaclePadCells)
-      : OBSTACLE_PAD_CELLS
+      : obersteSprosse(args.rasterPx ?? RASTER_DEFAULT)
 
   for (let padCells = wunsch; padCells >= 0; padCells -= 1) {
     const weg = versuchMitAbstand(args, padCells)
@@ -325,5 +349,6 @@ const handleArriveDir = (side: HandleSide): 0 | 1 | 2 | 3 => {
   }
 }
 
-// Re-exported for callers that previously imported these from cableAStar.
-export { CELL_SIZE }
+// Frueher stand hier `export { CELL_SIZE }`. Es gibt keine feste Zellgroesse
+// mehr; wer das Mass braucht, fragt `rasterAus(gridSize).CELL_SIZE`.
+export { rasterAus, RASTER_DEFAULT }

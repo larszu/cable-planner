@@ -3,6 +3,8 @@ import type { StoreApi } from 'zustand'
 import { computeEquipmentLayout } from '../../lib/equipmentLayout'
 import { routeCableWithAStar, type HandleSide, type PixelRect } from '../../lib/routeCableWithAStar'
 import { setCableRouter } from '../../lib/canvasViewport'
+import { rasterAus } from '../../lib/raster'
+import { useUiStore } from '../../store/uiStore'
 import type { ProjectState } from '../../store/projectStore'
 import type { Cable } from '../../types/cable'
 import type { EquipmentItem } from '../../types/equipment'
@@ -20,7 +22,12 @@ export function useCanvasCableRouter(
   mode: 'main' | 'rack',
   equipment: EquipmentItem[],
 ): void {
+  const gridSize = useUiStore((s) => s.gridSize)
   useEffect(() => {
+    // Das eingestellte Raster, einmal je Registrierung gelesen. Der Effekt
+    // haengt unten an `gridSize`, damit eine Aenderung im Menue den Router
+    // mit dem neuen Mass neu registriert.
+    const raster = rasterAus(gridSize)
     // Compute the layout geometry of one equipment item, matching the
     // visual rendering in EquipmentNode. Returns the equipment's
     // bounding rect plus precomputed port positions so we can place
@@ -32,7 +39,7 @@ export function useCanvasCableRouter(
       // Kopie (HEADER 62/48, PADDING 8, Port-Y über Array-Index statt Slot),
       // wodurch A*-geroutete Kabel von den echten Handles abwichen.
       const intercom = projectStoreInstance.getState().project.intercom
-      const layout = computeEquipmentLayout(eq, intercom)
+      const layout = computeEquipmentLayout(eq, intercom, raster)
       const handleAt = (
         portId: string,
         type: 'source' | 'target',
@@ -67,6 +74,9 @@ export function useCanvasCableRouter(
         obstacles,
         sourceEquipmentId: cable.fromEquipmentId,
         targetEquipmentId: cable.toEquipmentId,
+        // Dasselbe Raster wie `layoutOf` oben: eine Zelle des Wegfinders ist
+        // ein Rasterschritt, damit die Buchsen auf Gitterpunkten liegen.
+        rasterPx: raster.GRID_SIZE,
         // v7.9.118 / Issue #223 — Im Rack-Mode kleineres Obstacle-
         // Padding, weil Rack-Geraete in 1HE-Schritten direkt aneinander
         // stehen. Default 2 (= 40 px) wuerde den Korridor zwischen
@@ -102,7 +112,9 @@ export function useCanvasCableRouter(
 
     setCableRouter(routerId, { routeOne, routeAll })
     return () => setCableRouter(routerId, null)
-    // projectStoreInstance + mode sind stabil; equipment triggert Re-Routing.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [routerId, equipment, updateCable])
+    // `gridSize` steht jetzt mit in der Liste: aendert der Nutzer das Raster,
+    // muss der Router mit dem neuen Zellmass neu registriert werden. Damit
+    // sind alle gelesenen Werte aufgefuehrt und die frueher noetige
+    // eslint-Ausnahme ist weg.
+  }, [routerId, equipment, updateCable, gridSize, projectStoreInstance, mode])
 }

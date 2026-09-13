@@ -21,6 +21,7 @@ import { computeObstacleAwareWaypoints, pathIsBlocked, type Rect } from '../../l
 import { legeAnfahrt, stummel, type Anschlussseite } from '../../lib/cableApproach'
 import { routeCableWithAStar, type HandleSide } from '../../lib/routeCableWithAStar'
 import { computeEquipmentLayout } from '../../lib/equipmentLayout'
+import { useRaster } from '../../lib/aktuellesRaster'
 import { isCableVisibleByLayer } from '../../lib/cableLayers'
 import { netKeyOf, netEndpoints } from '../../lib/offPageNet'
 import { OffPageConnectorSymbol } from './OffPageConnectorSymbol'
@@ -297,6 +298,9 @@ export const CableEdge = ({
   selected,
   label,
 }: EdgeProps<CableEdgeData>) => {
+  // Geraete-Geometrie folgt der eingestellten Rastergroesse; mit Abonnement,
+  // damit ein Wechsel im Menue die Flaeche neu zeichnet.
+  const raster = useRaster()
   const t = useTranslation()
   const cable = data?.cable
   // Signalfluss dieser Kante. Der Hook laeuft VOR jedem fruehen Ausstieg
@@ -348,7 +352,7 @@ export const CableEdge = ({
       // #501-Folgefix — gleiche Geometrie-Quelle wie der Renderer, damit die
       // Obstacle-Boxen fürs Kabel-Umfahren exakt den gerenderten Geräten
       // entsprechen (vorher veraltete 62/48/8-Kopie ohne snapUp-Breite).
-      const { width, height } = computeEquipmentLayout(item, intercom)
+      const { width, height } = computeEquipmentLayout(item, intercom, raster)
       rects.push({ x: item.x, y: item.y, width, height })
       ids.push(item.id)
     }
@@ -522,6 +526,9 @@ export const CableEdge = ({
       obstacles: obstacles.map((r, i) => ({ ...r, id: obstacleIds[i] })),
       sourceEquipmentId: cable.fromEquipmentId,
       targetEquipmentId: cable.toEquipmentId,
+      // Dasselbe Raster, auf dem die Geraete einrasten und ihre Buchsen
+      // sitzen. Damit ist jede Buchse ein Gitterpunkt des Wegfinders.
+      rasterPx: raster.GRID_SIZE,
     })
     updateCable(cable.id, { waypoints: ausAStern ?? orthogonalWaypoints })
     // `obstacles`/`obstacleIds` werden bei jedem Render neu gebaut und waeren

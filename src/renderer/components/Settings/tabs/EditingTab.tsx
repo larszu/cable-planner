@@ -5,6 +5,8 @@ import { confirmDialog } from '../../../lib/confirmDialog'
 import { RoutingToggle } from '../../shared/RoutingToggle'
 import { SettingsCard } from '../SettingsCard'
 import { PanelHint } from '../../shared/PanelHint'
+import { PANEL_LIMITS } from '../../../lib/layoutConstants'
+import { RASTER_DEFAULT } from '../../../lib/raster'
 
 /**
  * #307 — Editing-Tab aus SettingsDialog ausgelagert. Enthaelt
@@ -214,7 +216,10 @@ export const EditingTab = () => {
 
       <SettingsCard
         title={t('settings.editing.grid', 'Grid')}
-        description={t('settings.editing.gridDesc', 'Snap-to-grid and grid size in pixels.')}
+        description={t(
+          'settings.editing.gridDesc',
+          'One step for everything: equipment snaps to it, port rows sit on it, and automatic cable routing searches on it.',
+        )}
       >
         <label className="flex items-center gap-2 text-cp-base text-cp-text-bright">
           <input
@@ -225,13 +230,20 @@ export const EditingTab = () => {
           {t('settings.editing.snapLabel', 'Snap equipment to grid')}
         </label>
         <label className="mt-2 block text-cp-base text-cp-text-secondary">
-          {t('settings.editing.gridSize', 'Grid size (pixels)')}
+          {format(
+            t('settings.editing.gridSize', 'Grid size in pixels ({min}-{max})'),
+            { min: PANEL_LIMITS.gridSize.MIN, max: PANEL_LIMITS.gridSize.MAX },
+          )}
           <input
             type="number"
-            min={2}
-            max={100}
+            // Grenzen aus einer Quelle: an ihnen haengt seit 2026-09-12 auch
+            // das Zellmass des Wegfinders. Standen sie hier noch einmal als
+            // 2 und 100, koennte das Feld einen Wert anbieten, den der Store
+            // klemmt — und der Nutzer saehe eine andere Zahl als die, die gilt.
+            min={PANEL_LIMITS.gridSize.MIN}
+            max={PANEL_LIMITS.gridSize.MAX}
             value={gridSize}
-            onChange={(e) => setGridSize(Number(e.target.value) || 10)}
+            onChange={(e) => setGridSize(Number(e.target.value) || RASTER_DEFAULT)}
             className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-2"
           />
         </label>

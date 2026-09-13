@@ -2,7 +2,8 @@ import { describe, it, expect } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { computeEquipmentLayout } from '../src/renderer/lib/equipmentLayout'
-import { routeCableWithAStar, versuchMitAbstand } from '../src/renderer/lib/routeCableWithAStar'
+import { routeCableWithAStar, versuchMitAbstand, obersteSprosse } from '../src/renderer/lib/routeCableWithAStar'
+import { RASTER_DEFAULT } from '../src/renderer/lib/raster'
 import { pathIsBlocked } from '../src/renderer/lib/cableRouting'
 import type { EquipmentItem } from '../src/renderer/types/equipment'
 
@@ -111,7 +112,11 @@ const messe = (): Lauf => {
           targetEquipmentId: b.id,
         }
         // Die alte Fassung: der Wunsch-Abstand als Bedingung, eine Sprosse.
-        if (!versuchMitAbstand(auftrag, 2)) lauf.ohneWegBeiFestemAbstand += 1
+        // Welche das ist, sagt der Router selbst — seit das Zellmass der
+        // Rastergroesse folgt, waere eine feste Zahl hier eine andere Luecke
+        // als die, gegen die geprueft werden soll.
+        if (!versuchMitAbstand(auftrag, obersteSprosse(RASTER_DEFAULT)))
+          lauf.ohneWegBeiFestemAbstand += 1
         const weg = routeCableWithAStar(auftrag)
         if (!weg) {
           lauf.ohneWeg += 1
@@ -147,6 +152,12 @@ describe('Automatisches Routen: eine Rechnung, und sie gibt nicht zu frueh auf',
     //
     // Gemessen: 342 von 1188 Paaren finden mit dem Wunsch-Abstand als
     // Bedingung KEINEN Weg. Mit der Leiter sind es null.
+    //
+    // Dieselbe Zahl wie vor dem Raster-Umbau, und das ist kein Zufall: der
+    // Wunsch steht in Pixeln. Frueher waren es 2 Zellen a 20 px, jetzt sind es
+    // 4 Zellen a 11 px — 40 gegen 44 px, also dieselbe Luecke und dieselben
+    // Paare, die daran scheitern. Haette hier weiter eine feste „2" gestanden,
+    // waere die Zahl auf 0 gefallen und der Waechter still gruen geworden.
     expect(lauf.ohneWegBeiFestemAbstand).toBeGreaterThan(300)
   })
 })

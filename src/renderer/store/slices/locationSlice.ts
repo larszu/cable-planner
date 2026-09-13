@@ -1,7 +1,7 @@
 import type { StateCreator } from 'zustand'
 import { v4 as uuidv4 } from 'uuid'
 import type { LocationFrame } from '../../types/location'
-import { EQUIPMENT_LAYOUT } from '../../lib/layoutConstants'
+import { aktuellesRaster } from '../../lib/aktuellesRaster'
 import { isProjectLocked, touchProject } from '../projectStoreHelpers'
 import type { ProjectState } from '../projectStore'
 
@@ -64,7 +64,7 @@ export const createLocationSlice: StateCreator<ProjectState, [], [], LocationSli
       let maxX = -Infinity
       let maxY = -Infinity
       for (const e of items) {
-        const w = e.width ?? EQUIPMENT_LAYOUT.DEFAULT_WIDTH
+        const w = e.width ?? aktuellesRaster().DEFAULT_WIDTH
         const h = e.height ?? 140
         if (e.x < minX) minX = e.x
         if (e.y < minY) minY = e.y

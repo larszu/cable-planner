@@ -10,37 +10,24 @@
 // Jetzt: ein zentrales `LAYOUT` + `LIMITS` Objekt. Wer die Werte
 // ändern will fasst genau eine Stelle an.
 
-/** Equipment-Node-Layout (geteilt zwischen EquipmentNode + equipmentLayout.ts).
- *  v7.9.26 — Alle Werte sind Vielfache von 11 px (= gridSize). Dadurch:
- *    - Port-Handle (im Row-Center bei headerHeight + slot*PORT_ROW + 11)
- *      landet exakt auf einer Dot-Reihe → Kabel laufen sichtbar entlang
- *      der Gitter-Linien.
- *    - Geräte-Höhe = headerHeight + N·PORT_ROW + PADDING = mult of 11
- *      → die Karten-Unterkante liegt immer auf einer Dot-Reihe.
- *    - DEFAULT_WIDTH = 220 = 20·11 → Geräte-Außenkanten links/rechts
- *      decken sich mit Dot-Spalten.
- *  Snap der Geräte-Position erfolgt mit gridSize=11 (siehe uiStore-Default). */
-export const EQUIPMENT_LAYOUT = {
-  /** Höhe der Karten-Header-Zone ohne IP-Adresse. 4·11 = 44 px. */
-  HEADER_HEIGHT: 44,
-  /** Höhe wenn die Karte eine IP-Adresse als Subtitle zeigt. 6·11 = 66 px. */
-  HEADER_HEIGHT_WITH_IP: 66,
-  /** Höhe einer Port-Zeile (Input/Output mit Connector-Dot + Label).
-   *  2·11 = 22 px — Port-Handle in der Mitte liegt damit auf jeder
-   *  zweiten Dot-Reihe. */
-  PORT_ROW: 22,
-  /** Größe der ReactFlow-Handle-Hitzone (transparent, click area).
-   *  Nicht grid-gebunden — rein visuelles UX-Element. */
-  HANDLE_SIZE: 16,
-  /** Inner-Padding der Equipment-Karte. 1·11 = 11 px. */
-  PADDING: 11,
-  /** Default-Breite eines Equipment-Items wenn nicht explizit gesetzt.
-   *  20·11 = 220 px. Auto-Expand schnappt ebenfalls auf 11-px-Schritte. */
-  DEFAULT_WIDTH: 220,
-  /** Default-Grid-Step in CSS-Pixeln. Single source of truth — der
-   *  uiStore-Default referenziert diesen Wert. */
-  GRID_SIZE: 11,
-} as const
+import { RASTER_MAX, RASTER_MIN, RASTER_VORGABE } from './raster'
+
+/**
+ * Equipment-Node-Layout der VORGABE-Rastergroesse.
+ *
+ * Hier standen bis 2026-09-12 die Zahlen selbst: 44, 66, 22, 11, 220. Alle
+ * Vielfache von 11, mit genau der Begruendung, die jetzt in `raster.ts` als
+ * Rechnung steht — die Port-Reihe muss auf einer Punktreihe landen, die
+ * Karten-Unterkante auch. Nur liess sich die Rastergroesse im Menue aendern
+ * (Einstellungen > Bearbeiten), und dann stimmte die Begruendung nicht mehr:
+ * die Geraete rasteten auf dem neuen Mass ein, ihr Innenleben blieb auf 11.
+ *
+ * Deshalb wird gerechnet statt geschrieben. Dieses Objekt ist das Ergebnis fuer
+ * die Vorgabe und bleibt exakt wie vorher (44/66/22/11/220) — es ist der
+ * Rueckfall fuer Aufrufer ohne Zugriff auf die Einstellung. Wer die
+ * EINGESTELLTE Groesse braucht, nimmt `aktuellesRaster()` bzw. `useRaster()`.
+ */
+export const EQUIPMENT_LAYOUT = RASTER_VORGABE
 
 /** Default-Werte für Viewport-Berechnungen (zoom-to-fit etc.). */
 export const VIEWPORT_DEFAULTS = {
@@ -79,8 +66,11 @@ export const PANEL_LIMITS = {
   /** Properties-Sidebar (rechts). Min 220px weil Properties-Forms
    *  längere Labels haben als die Library; max 600px Symmetrie. */
   properties: { MIN: 220, MAX: 600 },
-  /** Grid-Size (Snap-Raster) in px. */
-  gridSize: { MIN: 2, MAX: 100 },
+  /** Grid-Size (Snap-Raster) in px. Die Grenzen stehen in `raster.ts`: dort
+   *  haengt an ihnen seit 2026-09-12 auch das Zellmass des Wegfinders, und
+   *  zwei Zahlenpaare fuer dieselbe Grenze waeren genau der Fehler, den diese
+   *  Aenderung behebt. */
+  gridSize: { MIN: RASTER_MIN, MAX: RASTER_MAX },
 } as const
 
 /** Dialog-Drag-Grenzen. */

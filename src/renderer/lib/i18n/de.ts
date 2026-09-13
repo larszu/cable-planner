@@ -4591,8 +4591,9 @@ export const de: Dict = {
   'settings.editing.endpointLabelsNote':
     'Default aus — gibt zusätzlichen Visual-Noise. Wirkt zusammen mit dem globalen "Alle Labels ausblenden"-Toggle und respektiert per-Kabel labelPosition=\'none\'.',
   'settings.editing.grid': 'Raster (Grid)',
-  'settings.editing.gridDesc': 'Snap-to-Grid und Rastergröße in Pixeln.',
-  'settings.editing.gridSize': 'Rastergröße (Pixel)',
+  'settings.editing.gridDesc':
+    'Ein Schritt für alles: Geräte rasten darauf ein, Port-Reihen sitzen darauf, und das automatische Routen sucht darauf.',
+  'settings.editing.gridSize': 'Rastergröße in Pixeln ({min}-{max})',
   'settings.editing.inlineToolbar': 'Inline-Auswahl-Toolbar',
   'settings.editing.inlineToolbarDesc':
     'Schwebende Schnellaktionen (Ausrichten, Duplizieren, Rahmen, Löschen) direkt neben der Auswahl auf dem Canvas.',

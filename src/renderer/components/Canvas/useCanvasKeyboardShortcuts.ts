@@ -4,7 +4,7 @@ import type { Node, Edge } from 'reactflow'
 import { useTranslation } from '../../lib/i18n'
 import { promptDialog } from '../../lib/promptDialog'
 import { projectHistory } from '../../store/projectHistory'
-import { EQUIPMENT_LAYOUT } from '../../lib/layoutConstants'
+import { aktuellesRaster } from '../../lib/aktuellesRaster'
 import type { ProjectState } from '../../store/projectStore'
 import type { EquipmentItem } from '../../types/equipment'
 import type { Cable } from '../../types/cable'
@@ -127,7 +127,10 @@ export function useCanvasKeyboardShortcuts(deps: CanvasKeyboardShortcutsDeps): v
         const ids = getSelectedEquipmentIds()
         if (ids.length === 0) return
         event.preventDefault()
-        const grid = EQUIPMENT_LAYOUT.GRID_SIZE
+        // Ein Pfeiltastendruck ist ein Rasterschritt — der eingestellte, nicht
+        // ein fester. Ausserhalb von React gelesen: der Effekt laeuft beim
+        // Tastendruck, nicht beim Rendern.
+        const grid = aktuellesRaster().GRID_SIZE
         const step = event.shiftKey ? grid * 4 : grid
         const dx = event.key === 'ArrowLeft' ? -step : event.key === 'ArrowRight' ? step : 0
         const dy = event.key === 'ArrowUp' ? -step : event.key === 'ArrowDown' ? step : 0

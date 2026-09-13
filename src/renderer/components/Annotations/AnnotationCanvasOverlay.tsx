@@ -11,6 +11,7 @@ import { useReactFlow, useViewport } from 'reactflow'
 import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
 import { useUiStore } from '../../store/uiStore'
 import { computeEquipmentLayout } from '../../lib/equipmentLayout'
+import { useRaster } from '../../lib/aktuellesRaster'
 import { format, useTranslation } from '../../lib/i18n'
 import { getEquipmentById } from '../../lib/equipmentSelectors'
 import { readableTextColor } from '../../lib/contrast'
@@ -56,6 +57,9 @@ type DragState = {
 }
 
 export const AnnotationCanvasOverlay = () => {
+  // Geraete-Geometrie folgt der eingestellten Rastergroesse; mit Abonnement,
+  // damit ein Wechsel im Menue die Flaeche neu zeichnet.
+  const raster = useRaster()
   const t = useTranslation()
   const annotations = useProjectStore((s) => s.project.annotations) ?? EMPTY
   const equipment = useProjectStore((s) => s.project.equipment)
@@ -87,7 +91,7 @@ export const AnnotationCanvasOverlay = () => {
         if (anchor.type === 'device') {
           const eq = getEquipmentById(equipment, anchor.deviceId)
           if (!eq) return null
-          const layout = computeEquipmentLayout(eq, intercom)
+          const layout = computeEquipmentLayout(eq, intercom, raster)
           return {
             annotation: a,
             flow: { x: eq.x + layout.width - 8, y: eq.y + 4 },
@@ -96,7 +100,7 @@ export const AnnotationCanvasOverlay = () => {
         if (anchor.type === 'port') {
           const eq = getEquipmentById(equipment, anchor.deviceId)
           if (!eq) return null
-          const layout = computeEquipmentLayout(eq, intercom)
+          const layout = computeEquipmentLayout(eq, intercom, raster)
           const pos =
             layout.portPos(anchor.portId, 'source') ?? layout.portPos(anchor.portId, 'target')
           if (!pos) return null
@@ -107,7 +111,7 @@ export const AnnotationCanvasOverlay = () => {
       .filter(
         (x): x is { annotation: ProjectAnnotation; flow: { x: number; y: number } } => !!x,
       )
-  }, [annotations, equipment, intercom])
+  }, [annotations, equipment, intercom, raster])
 
   if (positions.length === 0) return null
   if (!annotationsVisible) return null

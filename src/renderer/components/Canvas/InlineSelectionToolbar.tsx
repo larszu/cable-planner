@@ -33,10 +33,14 @@ import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
 import { useTranslation } from '../../lib/i18n'
 import { computeEquipmentLayout } from '../../lib/equipmentLayout'
+import { useRaster } from '../../lib/aktuellesRaster'
 import { computeAlignedPositions, type AlignMode, type AlignItem } from '../../lib/alignEquipment'
 import { triggerCanvasDuplicate } from '../../lib/canvasViewport'
 
 export const InlineSelectionToolbar = () => {
+  // Geraete-Geometrie folgt der eingestellten Rastergroesse; mit Abonnement,
+  // damit ein Wechsel im Menue die Flaeche neu zeichnet.
+  const raster = useRaster()
   const t = useTranslation()
   const enabled = useUiStore((s) => s.inlineToolbarEnabled)
   const snapToGrid = useUiStore((s) => s.snapToGrid)
@@ -87,7 +91,7 @@ export const InlineSelectionToolbar = () => {
     const items: AlignItem[] = equipment
       .filter((e) => ids.includes(e.id))
       .map((item) => {
-        const { width, height } = computeEquipmentLayout(item, intercom)
+        const { width, height } = computeEquipmentLayout(item, intercom, raster)
         return { id: item.id, x: item.x, y: item.y, w: width, h: height }
       })
     const moves = computeAlignedPositions(items, mode, { snap, singleSelectionBounds: null })
