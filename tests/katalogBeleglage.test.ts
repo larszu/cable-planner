@@ -166,6 +166,6 @@ describe('B-11 — der Kopf einer Katalog-Datei sagt seine Beleglage', () => {
     // `catalogueEvidence.ts` nennt genau das als Grund für die Engstelle.
     expect(bericht.perCatalogue.map((c) => c.name)).toContain('blackmagic')
     expect(bericht.entries).toBe(bericht.sourced + bericht.unsourced)
-    expect(bericht.unsourced).toBe(48)
+    expect(bericht.unsourced).toBe(47)
   })
 })

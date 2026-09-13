@@ -221,27 +221,6 @@ export const MISC_CATALOG: MiscEntry[] = [
     },
   },
 
-  // MD-HX — HDMI/SDI bidirectional converter
-  // Rentman: "Decimator MD-HX"
-  {
-    match: ['decimator', 'md-hx'],
-    deviceTypeId: '58a5d7ab-3b87-4fdf-9156-db58f04fc600',
-    // Quelle: https://decimator.com/Products/MiniConverters/MD-HX/MD-HX.html
-    template: {
-      manufacturerUrl: 'https://decimator.com/Products/MiniConverters/MD-HX/MD-HX.html',
-      name: 'Decimator MD-HX',
-      category: VIDEO,
-      inputs: [
-        sdiIn('SDI In (3G/HD/SD)'),
-        hdmiIn('HDMI In'),
-      ],
-      outputs: [
-        sdiOut('SDI Out'),
-        hdmiOut('HDMI Out'),
-      ],
-      width: 200, height: 140,
-    },
-  },
 
   // ── AJA ───────────────────────────────────────────────────────────────────
 
@@ -418,39 +397,6 @@ export const MISC_CATALOG: MiscEntry[] = [
     },
   },
 
-  // d*ap8 variant name (Jünger uses asterisk in product line branding)
-  {
-    match: ['d*ap'],
-    deviceTypeId: 'ed37b542-67a3-4344-8d85-2387f0322611',
-    template: {
-      name: 'Jünger Audio DAP8',
-      category: AUDIO,
-      inputs: [
-        xlrIn('AES/EBU In 1'),
-        xlrIn('AES/EBU In 2'),
-        xlrIn('AES/EBU In 3'),
-        xlrIn('AES/EBU In 4'),
-        xlrIn('AES/EBU In 5'),
-        xlrIn('AES/EBU In 6'),
-        xlrIn('AES/EBU In 7'),
-        xlrIn('AES/EBU In 8'),
-        sdiIn('Word Clock In (BNC)'),
-        sdiIn('LTC In (BNC)'),
-      ],
-      outputs: [
-        xlrOut('AES/EBU Out 1'),
-        xlrOut('AES/EBU Out 2'),
-        xlrOut('AES/EBU Out 3'),
-        xlrOut('AES/EBU Out 4'),
-        xlrOut('AES/EBU Out 5'),
-        xlrOut('AES/EBU Out 6'),
-        xlrOut('AES/EBU Out 7'),
-        xlrOut('AES/EBU Out 8'),
-        sdiOut('Word Clock Out (BNC)'),
-      ],
-      width: 240, height: 360,
-    },
-  },
 
   // ── Decimator (zusätzliche Modelle, v7.9.72 / #189) ──────────────────
   // Decimator MD-LX — günstigster HDMI/SDI Bi-Direktional
@@ -569,69 +515,6 @@ export const MISC_CATALOG: MiscEntry[] = [
   },
   // ── Roland V-Switcher & Teradek Encoder (Beleg: Hersteller-Produktseiten,
   //    je Modell per curl auf Erreichbarkeit geprüft, 2026-09) ──
-  // Quelle: https://proav.roland.com/global/products/v-60hd
-  {
-    match: ['roland', 'v-60hd'],
-    deviceTypeId: 'c1f1498e-a00a-4fdc-b0a8-a7a06b6cb1b2',
-    template: {
-      manufacturerUrl: 'https://proav.roland.com/global/products/v-60hd',
-      name: 'Roland V-60HD',
-      category: 'Video Mixer',
-      inputs: [
-        sdiIn('SDI In 1'),
-        sdiIn('SDI In 2'),
-        sdiIn('SDI In 3'),
-        sdiIn('SDI In 4'),
-        hdmiIn('HDMI In 1'),
-        hdmiIn('HDMI In 2'),
-      ],
-      outputs: [
-        hdmiOut('HDMI Out 1'),
-        hdmiOut('HDMI Out 2'),
-        sdiOut('SDI Out 1'),
-        port('USB Stream', 'USB'),
-      ],
-      width: 240, height: 200,
-    },
-  },
-  // Quelle: https://proav.roland.com/global/products/v-160hd
-  {
-    match: ['roland', 'v-160hd'],
-    deviceTypeId: 'da2c9344-c217-4b6b-981c-840a32bd6fde',
-    template: {
-      manufacturerUrl: 'https://proav.roland.com/global/products/v-160hd',
-      name: 'Roland V-160HD',
-      category: 'Video Mixer',
-      inputs: [
-        sdiIn('SDI In 1'),
-        sdiIn('SDI In 2'),
-        sdiIn('SDI In 3'),
-        sdiIn('SDI In 4'),
-        sdiIn('SDI In 5'),
-        sdiIn('SDI In 6'),
-        sdiIn('SDI In 7'),
-        sdiIn('SDI In 8'),
-        hdmiIn('HDMI In 1'),
-        hdmiIn('HDMI In 2'),
-        hdmiIn('HDMI In 3'),
-        hdmiIn('HDMI In 4'),
-        hdmiIn('HDMI In 5'),
-        hdmiIn('HDMI In 6'),
-        hdmiIn('HDMI In 7'),
-        hdmiIn('HDMI In 8'),
-      ],
-      outputs: [
-        sdiOut('SDI Out 1'),
-        sdiOut('SDI Out 2'),
-        sdiOut('SDI Out 3'),
-        hdmiOut('HDMI Out 1'),
-        hdmiOut('HDMI Out 2'),
-        hdmiOut('HDMI Out 3'),
-        port('USB-C Stream', 'USB'),
-      ],
-      width: 260, height: 300,
-    },
-  },
   // Quelle: https://proav.roland.com/global/products/v-1hd
   {
     match: ['roland', 'v-1hd'],
@@ -672,32 +555,6 @@ export const MISC_CATALOG: MiscEntry[] = [
         sdiOut('SDI Out 2'),
       ],
       width: 220, height: 180,
-    },
-  },
-  // Quelle: https://proav.roland.com/global/products/v-8hd
-  {
-    match: ['roland', 'v-8hd'],
-    deviceTypeId: '9fd7b49b-32ca-4c66-966f-0a2447506862',
-    template: {
-      manufacturerUrl: 'https://proav.roland.com/global/products/v-8hd',
-      name: 'Roland V-8HD',
-      category: 'Video Mixer',
-      inputs: [
-        hdmiIn('HDMI In 1'),
-        hdmiIn('HDMI In 2'),
-        hdmiIn('HDMI In 3'),
-        hdmiIn('HDMI In 4'),
-        hdmiIn('HDMI In 5'),
-        hdmiIn('HDMI In 6'),
-        hdmiIn('HDMI In 7'),
-        hdmiIn('HDMI In 8'),
-      ],
-      outputs: [
-        hdmiOut('HDMI Out 1'),
-        hdmiOut('HDMI Out 2'),
-        hdmiOut('HDMI Out 3'),
-      ],
-      width: 240, height: 220,
     },
   },
   // Quelle: https://proav.roland.com/global/products/v-600uhd
@@ -985,28 +842,6 @@ export const MISC_CATALOG: MiscEntry[] = [
       width: 200, height: 140,
     },
   },
-  // Quelle: https://www.aja.com/products/fs-hdr
-  {
-    match: ['aja', 'fs-hdr'],
-    deviceTypeId: 'b6f03080-8696-4e3b-8886-bd78ef0a96ae',
-    template: {
-      manufacturerUrl: 'https://www.aja.com/products/fs-hdr',
-      name: 'AJA FS-HDR',
-      category: 'Video Converter',
-      inputs: [
-        sdiIn('SDI In 1'),
-        sdiIn('SDI In 2'),
-        hdmiIn('HDMI In'),
-        eth('LAN'),
-      ],
-      outputs: [
-        sdiOut('SDI Out 1'),
-        sdiOut('SDI Out 2'),
-        hdmiOut('HDMI Out'),
-      ],
-      width: 240, height: 220,
-    },
-  },
   // Quelle: https://www.aja.com/products/fs4
   {
     match: ['aja', 'fs4'],
@@ -1130,29 +965,6 @@ export const MISC_CATALOG: MiscEntry[] = [
         hdmiOut('HDMI Out'),
       ],
       width: 220, height: 180,
-    },
-  },
-  // Quelle: https://decimator.com/Products/MultiViewers/DMON-6S%20MultiViewer/DMON-6S.html
-  {
-    match: ['decimator', 'dmon-6s'],
-    deviceTypeId: 'd83dd61e-77b8-443e-8177-44e91998f654',
-    template: {
-      manufacturerUrl: 'https://decimator.com/Products/MultiViewers/DMON-6S%20MultiViewer/DMON-6S.html',
-      name: 'Decimator DMON-6S',
-      category: 'Monitors',
-      inputs: [
-        sdiIn('SDI In 1'),
-        sdiIn('SDI In 2'),
-        sdiIn('SDI In 3'),
-        sdiIn('SDI In 4'),
-        sdiIn('SDI In 5'),
-        sdiIn('SDI In 6'),
-      ],
-      outputs: [
-        sdiOut('SDI Out'),
-        hdmiOut('HDMI Out'),
-      ],
-      width: 220, height: 200,
     },
   },
   // Quelle: https://decimator.com/Products/MultiViewers/DMON-16S%20MultiViewer/DMON-16S.html
@@ -1430,23 +1242,6 @@ export const MISC_CATALOG: MiscEntry[] = [
   },
   // ── Magewell / Kiloview (Beleg: Hersteller-Produktseiten, je Modell per curl
   //    geprüft, 2026-09) ──
-  // Quelle: https://www.magewell.com/products/pro-convert-hdmi-4k-plus
-  {
-    match: ['magewell', 'pro convert', 'hdmi 4k'],
-    deviceTypeId: '82889ba3-ce5a-4bcf-b42d-ce7bbf7a76c7',
-    template: {
-      manufacturerUrl: 'https://www.magewell.com/products/pro-convert-hdmi-4k-plus',
-      name: 'Magewell Pro Convert HDMI 4K Plus',
-      category: 'IP/NDI',
-      inputs: [
-        hdmiIn('HDMI In'),
-      ],
-      outputs: [
-        eth('LAN (NDI)'),
-      ],
-      width: 200, height: 140,
-    },
-  },
   // Quelle: https://www.magewell.com/products/pro-convert-sdi-4k-plus
   {
     match: ['magewell', 'pro convert', 'sdi 4k'],
@@ -1672,14 +1467,17 @@ export const MISC_CATALOG: MiscEntry[] = [
       inputs: [
         sdiIn('SDI In 1'),
         sdiIn('SDI In 2'),
-        hdmiIn('HDMI In 3'),
-        hdmiIn('HDMI In 4'),
+        sdiIn('SDI In 3'),
+        sdiIn('SDI In 4'),
         hdmiIn('HDMI In 5'),
         hdmiIn('HDMI In 6'),
       ],
       outputs: [
         sdiOut('SDI Out 1'),
+        sdiOut('SDI Out 2'),
+        hdmiOut('HDMI Out 1'),
         hdmiOut('HDMI Out 2'),
+        hdmiOut('HDMI Out 3'),
       ],
       width: 240, height: 200,
     },
@@ -1881,26 +1679,6 @@ export const MISC_CATALOG: MiscEntry[] = [
       ],
       outputs: [
         custom('USB 3.0'),
-      ],
-      width: 240, height: 200,
-    },
-  },
-  // Quelle: https://www.aja.com/products/ki-pro-ultra-12g
-  {
-    match: ['aja', 'ki-pro ultra'],
-    deviceTypeId: '508757b6-40fb-4759-a707-fa3af5742e45',
-    template: {
-      manufacturerUrl: 'https://www.aja.com/products/ki-pro-ultra-12g',
-      name: 'AJA Ki Pro Ultra 12G',
-      category: 'Video',
-      inputs: [
-        sdiIn('SDI In'),
-        hdmiIn('HDMI In'),
-      ],
-      outputs: [
-        sdiOut('SDI Out'),
-        hdmiOut('HDMI Out'),
-        xlrIn('XLR Audio In'),
       ],
       width: 240, height: 200,
     },
