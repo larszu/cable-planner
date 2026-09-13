@@ -1452,7 +1452,17 @@ export default function App() {
       <AboutDialog />
       <PatchListDialog />
       <InstallationDocsDialog />
-      <ModuleOnboardingDialog />
+      {/* NACH dem Willkommens-Dialog, nicht daneben (#864).
+          Gemessen bei 390 px: beide standen gleichzeitig offen, sichtbar
+          uebereinander, und der Schleier der Modul-Frage nahm die Klicks
+          entgegen, die dem Schliessen-Knopf des Willkommens-Dialogs galten —
+          `bedienbar:check` in der Suite kam an der App gar nicht mehr vorbei.
+
+          Die Reihenfolge ist keine Geschmacksfrage: der Willkommens-Dialog
+          fragt „welches Projekt?" und blockiert die Arbeit, die Modul-Frage
+          fragt „wofuer nutzt du die App?" und ist eine Umfrage. Die Umfrage
+          wartet. */}
+      {!welcomeOpen && <ModuleOnboardingDialog />}
       <BandwidthCalculatorDialog />
       <PowerCalculatorDialog />
       <RecordingStorageCalculatorDialog />
