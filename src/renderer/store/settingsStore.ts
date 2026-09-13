@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { STORAGE_KEYS } from '../lib/storageKeys'
+import { AUSFUELL_VORGABE, AUSFUELL_QUELLEN, type AusfuellQuelle } from '../lib/felderAusfuellen'
 import { LIMITS } from '../lib/layoutConstants'
 import {
   type ModuleId,
@@ -65,6 +66,13 @@ const readLegacyRentmanEnabled = (): boolean | null => {
   }
 }
 
+/**
+ * #858 — welche Quelle der EINE Ausfuellen-Knopf fragt.
+ *
+ * Die Liste und die Vorgabe stehen in `lib/felderAusfuellen.ts`, nicht hier:
+ * dort liegt auch der Aufruf, und zwei Orte fuer dieselbe Aufzaehlung
+ * driften. Der Store haelt nur den gewaehlten Wert.
+ */
 interface PersistedSettings {
   autosaveIntervalMs: number
   sharedSyncPath: string
@@ -114,6 +122,21 @@ interface PersistedSettings {
    * entschieden wurde — und der Schreibvorgang loescht drueben Rollen.
    */
   tallyPiDirekt: boolean
+  /**
+   * #858 — die Quelle des Ausfuellen-Knopfs.
+   *
+   * Nutzer-Meldung: „Ebenso muss es nur einen mit ausfuellen Knopf geben den
+   * man in den Einstellungen konfigurieren kann." Vorher standen drei
+   * Knoepfe nebeneinander (Heuristik, Web, Gemini) — der Nutzer sollte
+   * entscheiden, welche Quelle fuer sein Geraet die beste ist, bevor er
+   * weiss, was sie liefert.
+   *
+   * Pro INSTALLATION und nicht pro Projekt: welche Quelle man fragt, haengt
+   * daran, ob auf diesem Rechner ein API-Schluessel liegt und ob er ins
+   * Internet darf — beides ist eine Eigenschaft der Maschine, nicht der
+   * Show.
+   */
+  ausfuellQuelle: AusfuellQuelle
 }
 
 const defaults: PersistedSettings = {
@@ -128,6 +151,7 @@ const defaults: PersistedSettings = {
   canvasMotion: true,
   tallyPiUrl: '',
   tallyPiDirekt: false,
+  ausfuellQuelle: AUSFUELL_VORGABE,
 }
 
 const load = (): PersistedSettings => {
@@ -170,6 +194,13 @@ const load = (): PersistedSettings => {
       // die niemand getroffen hat, mit Wirkung auf ein Geraet im Netz.
       tallyPiDirekt:
         typeof parsed.tallyPiDirekt === 'boolean' ? parsed.tallyPiDirekt : defaults.tallyPiDirekt,
+      // #858 — gegen die LISTE geprueft und nicht nur gegen den Typ. Bis
+      // 2026-09-13 gab es eine dritte Quelle („Heuristik"); wer sie gewaehlt
+      // hatte, traegt sie noch im Speicher. Ein blosses `typeof === 'string'`
+      // liesse den Wert stehen, und der Knopf fragte dann niemanden.
+      ausfuellQuelle: AUSFUELL_QUELLEN.includes(parsed.ausfuellQuelle as AusfuellQuelle)
+        ? (parsed.ausfuellQuelle as AusfuellQuelle)
+        : defaults.ausfuellQuelle,
     }
   } catch {
     return defaults
@@ -198,6 +229,7 @@ const snapshot = (s: PersistedSettings): PersistedSettings => ({
   canvasMotion: s.canvasMotion,
   tallyPiUrl: s.tallyPiUrl,
   tallyPiDirekt: s.tallyPiDirekt,
+  ausfuellQuelle: s.ausfuellQuelle,
 })
 
 interface SettingsState {
@@ -216,6 +248,7 @@ interface SettingsState {
   canvasMotion: boolean
   tallyPiUrl: string
   tallyPiDirekt: boolean
+  ausfuellQuelle: AusfuellQuelle
   setHasToken: (value: boolean) => void
   setTokenStatus: (value: string) => void
   setAutosaveIntervalMs: (value: number) => void
@@ -236,6 +269,7 @@ interface SettingsState {
   setCanvasMotion: (value: boolean) => void
   setTallyPiUrl: (value: string) => void
   setTallyPiDirekt: (value: boolean) => void
+  setAusfuellQuelle: (value: AusfuellQuelle) => void
 }
 
 const initial = load()
@@ -253,6 +287,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   enabledModules: initial.enabledModules,
   onboardingDone: initial.onboardingDone,
   canvasMotion: initial.canvasMotion,
+  ausfuellQuelle: initial.ausfuellQuelle,
   userSchema: initial.userSchema,
   netboxUrl: initial.netboxUrl,
   tallyPiUrl: initial.tallyPiUrl,
@@ -294,6 +329,11 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     set((state) => {
       persist(snapshot({ ...state, tallyPiDirekt: value }))
       return { tallyPiDirekt: value }
+    }),
+  setAusfuellQuelle: (value) =>
+    set((state) => {
+      persist(snapshot({ ...state, ausfuellQuelle: value }))
+      return { ausfuellQuelle: value }
     }),
   setModuleEnabled: (id, value) =>
     set((state) => {

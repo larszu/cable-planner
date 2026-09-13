@@ -38,6 +38,79 @@ import { SettingsCard } from '../SettingsCard'
  * verwaltbar. Aktiver Provider per Radio-Button, jeder Provider hat
  * eigenen API-Key-Slot (revealable via Klick auf den Key).
  */
+/**
+ * #858 — WOHER der eine Ausfuellen-Knopf seine Felder holt.
+ *
+ * Nutzer-Meldung: „Ebenso muss es nur einen mit ausfuellen Knopf geben den
+ * man in den Einstellungen konfigurieren kann."
+ *
+ * Vorher standen im Anlegen-Dialog drei Knoepfe nebeneinander (Heuristik,
+ * Web, Gemini) und im Rentman-Assistenten zwei — der Nutzer sollte
+ * entscheiden, welche Quelle fuer sein Geraet die beste ist, bevor er weiss,
+ * was sie liefert. Die Heuristik ist ganz weg (sie lieferte feste Zahlen, die
+ * keinem Geraet gehoerten); zwischen den beiden uebrigen wird HIER gewaehlt,
+ * einmal.
+ *
+ * Die Karte steht in den Integrationen und nicht unter „Bearbeiten": beide
+ * verbleibenden Quellen sind ein Griff nach draussen — ins Web oder an ein
+ * Modell. Ob das erlaubt und moeglich ist, haengt am Rechner und am Netz,
+ * nicht am Zeichenstil.
+ */
+const AusfuellQuelleCard = () => {
+  const t = useTranslation()
+  const quelle = useSettingsStore((s) => s.ausfuellQuelle)
+  const setQuelle = useSettingsStore((s) => s.setAusfuellQuelle)
+
+  return (
+    <SettingsCard
+      title={t('settings.integrations.fill', 'Fill-in source (the "Fill in" button)')}
+      description={t(
+        'settings.integrations.fillDesc',
+        'Where the one "Fill in" button gets its port groups from, in the new-device dialog and in the Rentman wizard. Both sources guess — neither replaces a datasheet — but both record where the guess came from.',
+      )}
+    >
+      <div className="space-y-2">
+        <label className="flex items-start gap-2">
+          <input
+            type="radio"
+            name="ausfuell-quelle"
+            checked={quelle === 'web'}
+            onChange={() => setQuelle('web')}
+            className="mt-1"
+          />
+          <span>
+            <span className="font-semibold">{t('settings.integrations.fill.web', 'Web search')}</span>
+            <span className="block text-cp-xs text-cp-text-muted">
+              {t(
+                'settings.integrations.fill.webDesc',
+                'Wikipedia and DuckDuckGo. No API key. It brings its source and the snippet the connectors were counted in — that snippet is kept with the device.',
+              )}
+            </span>
+          </span>
+        </label>
+        <label className="flex items-start gap-2">
+          <input
+            type="radio"
+            name="ausfuell-quelle"
+            checked={quelle === 'ki'}
+            onChange={() => setQuelle('ki')}
+            className="mt-1"
+          />
+          <span>
+            <span className="font-semibold">{t('settings.integrations.fill.ai', 'AI model')}</span>
+            <span className="block text-cp-xs text-cp-text-muted">
+              {t(
+                'settings.integrations.fill.aiDesc',
+                'The provider selected below. Needs an API key. It names itself as the origin, but cites no source.',
+              )}
+            </span>
+          </span>
+        </label>
+      </div>
+    </SettingsCard>
+  )
+}
+
 const AiProvidersCard = () => {
   const t = useTranslation()
   const [selected, setSelected] = useState<AiProvider>(() => getSelectedAiProvider())
@@ -867,6 +940,11 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
 
       {/* B-6 / E-7 — Ziel fuer den Direktweg zum Tally-Pi. */}
       <TallyPiCard />
+
+      {/* #858 — die Quelle des EINEN Ausfuellen-Knopfs. Steht VOR der
+          Provider-Karte: welche Quelle man fragt, entscheidet sich zuerst;
+          welches Modell, nur wenn die Antwort „KI" lautet. */}
+      <AusfuellQuelleCard />
 
       {/* v7.9.86 / #197 — Multi-AI-Provider Card (Gemini / Claude / OpenAI). */}
       <AiProvidersCard />
