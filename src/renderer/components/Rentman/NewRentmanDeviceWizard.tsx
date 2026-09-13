@@ -2,10 +2,11 @@ import { useEffect, useMemo, useState } from 'react'
 import { Globe, Sparkles } from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import type { ConnectorType, EquipmentTemplate } from '../../types/equipment'
-import { buildTemplateFromHints, suggestPortGroups, type PortGroupHint } from '../../lib/portSuggestions'
-import { getGeminiApiKey, setGeminiApiKey, suggestFromAI } from '../../lib/aiSuggestions'
-import { suggestFromWeb } from '../../lib/webPortSuggestions'
+import { buildTemplateFromHints, type PortGroupHint } from '../../lib/portSuggestions'
+import { felderAusfuellen } from '../../lib/felderAusfuellen'
+import { getGeminiApiKey, setGeminiApiKey } from '../../lib/aiSuggestions'
 import { useProjectStore } from '../../store/projectStore'
+import { useSettingsStore } from '../../store/settingsStore'
 import { format, useTranslation } from '../../lib/i18n'
 import { CategorySelect } from '../shared/CategorySelect'
 import { useDialogA11y } from '../../hooks/useDialogA11y'
@@ -68,10 +69,11 @@ export const NewRentmanDeviceWizard = ({
   const [name, setName] = useState('')
   const [category, setCategory] = useState('')
   const [groups, setGroups] = useState<GroupDraft[]>([])
-  const [aiLoading, setAiLoading] = useState(false)
+  // #858 — EIN Zustand statt zweier, und die Quelle aus den Einstellungen.
+  const [ausfuellLaeuft, setAusfuellLaeuft] = useState(false)
   const [aiError, setAiError] = useState('')
-  const [webLoading, setWebLoading] = useState(false)
   const [webInfo, setWebInfo] = useState<string>('')
+  const ausfuellQuelle = useSettingsStore((s) => s.ausfuellQuelle)
   const [aiSettingsOpen, setAiSettingsOpen] = useState(false)
   const [apiKeyDraft, setApiKeyDraft] = useState('')
 
@@ -80,7 +82,16 @@ export const NewRentmanDeviceWizard = ({
     // eslint-disable-next-line react-hooks/set-state-in-effect -- Draft aus dem aktuellen Item seeden (keyed sync)
     setName(current.name)
     setCategory(current.category || 'Custom')
-    setGroups(hintsToDrafts(suggestPortGroups(current.name, current.category)))
+    // #858 — HIER LIEF DIE HEURISTIK OHNE KLICK. Jeder Schrittwechsel fuellte
+    // die Port-Gruppen mit geratenen Werten, und weil `suggestPortGroups` nie
+    // eine leere Liste lieferte, stand nach dem Wechsel IMMER etwas da —
+    // meist „1 Custom In / 1 Custom Out", bei einem Namenstreffer die festen
+    // Zahlen einer Regel. Wer das uebersah, speicherte eine Vorlage mit
+    // erfundenen Anschluessen und ohne jeden Beleg.
+    //
+    // Jetzt beginnt jedes Geraet LEER. Wer raten lassen will, drueckt den
+    // einen Ausfuellen-Knopf; dann steht auch dran, wer geraten hat.
+    setGroups([])
   }, [current])
 
   const progress = useMemo(() => `${Math.min(index + 1, items.length)} / ${items.length}`, [index, items.length])
@@ -114,51 +125,48 @@ export const NewRentmanDeviceWizard = ({
     setIndex(index + 1)
   }
 
-  const handleAiSuggest = async () => {
+  /**
+   * DER EINE Ausfuellen-Knopf (#858) — dieselbe Quelle wie im
+   * Anlegen-Dialog, weil es dieselbe Frage ist.
+   */
+  const handleAusfuellen = async () => {
     setAiError('')
     setWebInfo('')
-    if (!getGeminiApiKey()) {
-      // No key — open the settings panel inline instead of throwing.
+    if (ausfuellQuelle === 'ki' && !getGeminiApiKey()) {
+      // Kein Schluessel — die Einstellungen aufklappen statt zu werfen.
       setApiKeyDraft('')
       setAiSettingsOpen(true)
-      setAiError(t('rentman.wizard.noGeminiKey', 'No Gemini API key configured. Enter one or use the free web search.'))
+      setAiError(
+        t('rentman.wizard.noGeminiKey', 'No AI API key configured. Enter one, or switch the source to web search in the settings.'),
+      )
       return
     }
-    setAiLoading(true)
+    setAusfuellLaeuft(true)
     try {
-      const hints = await suggestFromAI(name, category)
-      if (hints.length === 0) {
-        setAiError(t('rentman.wizard.aiNoPorts', 'AI returned no ports. Try refining the name.'))
+      const ergebnis = await felderAusfuellen(ausfuellQuelle, name, category)
+      if (ergebnis.hints.length === 0) {
+        if (ergebnis.quelle === 'ki') {
+          setAiError(t('rentman.wizard.aiNoPorts', 'The model returned no ports. Try refining the name.'))
+        } else {
+          setWebInfo(
+            ergebnis.schnipsel
+              ? format(t('rentman.wizard.webNoConnectors', 'No connectors detected in the {source} snippet. Add them manually or try a different name.'), { source: ergebnis.fundstelle ?? 'web' })
+              : t('rentman.wizard.webNoHit', 'No web hit. Refine the device name (manufacturer + model).'),
+          )
+        }
         return
       }
-      setGroups(hintsToDrafts(hints))
+      setGroups(hintsToDrafts(ergebnis.hints))
+      setWebInfo(
+        format(t('rentman.wizard.webHints', 'Adopted {count} port group(s) from {source}.'), {
+          count: ergebnis.hints.length,
+          source: ergebnis.fundstelle ?? t('rentman.wizard.sourceAi', 'the AI model'),
+        }),
+      )
     } catch (err) {
-      setAiError(err instanceof Error ? err.message : t('rentman.wizard.aiFailed', 'AI request failed'))
+      setAiError(err instanceof Error ? err.message : t('rentman.wizard.fillFailed', 'Filling in failed.'))
     } finally {
-      setAiLoading(false)
-    }
-  }
-
-  const handleWebSuggest = async () => {
-    setAiError('')
-    setWebInfo('')
-    setWebLoading(true)
-    try {
-      const { hints, source, snippet } = await suggestFromWeb(name, category)
-      if (hints.length === 0) {
-        setWebInfo(
-          snippet
-            ? format(t('rentman.wizard.webNoConnectors', 'No connectors detected in the {source} snippet. Add them manually or try a different name.'), { source })
-            : t('rentman.wizard.webNoHit', 'No web hit. Refine the device name (manufacturer + model).'),
-        )
-        return
-      }
-      setGroups(hintsToDrafts(hints))
-      setWebInfo(format(t('rentman.wizard.webHints', 'Adopted {count} port group(s) from {source}.'), { count: hints.length, source }))
-    } catch (err) {
-      setAiError(err instanceof Error ? err.message : t('rentman.wizard.webFailed', 'Web search failed'))
-    } finally {
-      setWebLoading(false)
+      setAusfuellLaeuft(false)
     }
   }
 
@@ -258,23 +266,24 @@ export const NewRentmanDeviceWizard = ({
         <div className="mb-2 flex items-center justify-between">
           <div className="text-cp-base font-semibold">{t('rentman.wizard.suggestedPortGroups', 'Suggested port groups')}</div>
           <div className="flex flex-wrap gap-2 text-cp-xs">
+            {/* EIN Knopf (#858). Hier standen zwei — „Websuche (frei)" und
+                „KI (Gemini)" —, dazu lief die Heuristik bei jedem
+                Schrittwechsel ungefragt. */}
             <button
               type="button"
-              onClick={handleWebSuggest}
-              disabled={webLoading}
+              onClick={handleAusfuellen}
+              disabled={ausfuellLaeuft}
               className="bg-emerald-700 px-2 py-1 hover:bg-emerald-600 disabled:opacity-50"
-              title={t('rentman.wizard.webSearchTitle', 'Search Wikipedia + DuckDuckGo (no key required)')}
+              title={t('rentman.wizard.fillTitle', 'Fill the port groups in from the source chosen in the settings')}
             >
-              {webLoading ? t('rentman.wizard.webBusy', 'Searching…') : <span className="inline-flex items-center gap-1"><Icon icon={Globe} size="xs" /> {t('rentman.wizard.webSearch', 'Web search (free)')}</span>}
-            </button>
-            <button
-              type="button"
-              onClick={handleAiSuggest}
-              disabled={aiLoading}
-              className="bg-purple-700 px-2 py-1 hover:bg-purple-600 disabled:opacity-50"
-              title={t('rentman.wizard.aiTitle', 'Gemini AI (requires API key)')}
-            >
-              {aiLoading ? t('rentman.wizard.aiBusy', 'Asking AI…') : <span className="inline-flex items-center gap-1"><Icon icon={Sparkles} size="xs" /> {t('rentman.wizard.aiButton', 'AI (Gemini)')}</span>}
+              {ausfuellLaeuft ? (
+                t('rentman.wizard.fillBusy', 'Filling in…')
+              ) : (
+                <span className="inline-flex items-center gap-1">
+                  <Icon icon={ausfuellQuelle === 'ki' ? Sparkles : Globe} size="xs" />{' '}
+                  {t('rentman.wizard.fill', 'Fill in')}
+                </span>
+              )}
             </button>
             <button
               type="button"

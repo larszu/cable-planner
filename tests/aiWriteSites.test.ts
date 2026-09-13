@@ -30,8 +30,24 @@ import { join, relative, resolve, sep } from 'node:path'
 
 const RENDERER = resolve(__dirname, '..', 'src', 'renderer')
 
-/** Ruft eine Maschine, die Werte erfindet — KI oder Web-Ableitung. */
-const CALLS_MACHINE = /suggestFromAI|suggestFromWeb|completeWithAI|generatePlanFromPrompt/
+/**
+ * Ruft eine Maschine, die Werte erfindet — KI oder Web-Ableitung.
+ *
+ * `felderAusfuellen` steht seit #858 mit drin, und das ist kein Zusatz,
+ * sondern die Bedingung dafuer, dass dieser Lauf ueberhaupt noch etwas
+ * sieht: der eine Ausfuellen-Knopf ruft nicht mehr `suggestFromAI` oder
+ * `suggestFromWeb` direkt, sondern die Weiche darueber. Ohne diese Zeile
+ * faenden drei der vier eingeordneten Dateien nicht mehr statt — der
+ * Waechter waere gruen, weil er nichts mehr FINDET, und genau diese Form von
+ * Gruen ist die gefaehrlichste.
+ *
+ * `suggestPortGroups` steht NICHT mehr drin: die Heuristik ist mit #858
+ * ersatzlos entfernt (siehe `lib/portSuggestions.ts`). Sie hier stehen zu
+ * lassen waere ein Muster, das nie wieder trifft — und das sieht aus wie
+ * Abdeckung.
+ */
+const CALLS_MACHINE =
+  /felderAusfuellen|suggestFromAI|suggestFromWeb|completeWithAI|generatePlanFromPrompt/
 
 /** Beruehrt den Projekt-Store. Bewusst grob, wie beim Geraete-Register. */
 const TOUCHES_PLAN = /useProjectStore|projectStore/
@@ -71,13 +87,16 @@ const CLASSIFIED: Site[] = [
     file: 'components/Library/LibraryPanel.tsx',
     verdict: 'markiert',
     reason:
-      'Bietet KI, Web und Heuristik als Quelle fuer Port-Gruppen — keine davon ' +
-      'ist ein Datenblatt. Alle drei setzen jetzt `groupsOrigin`, und ' +
+      'Der eine Ausfuellen-Knopf (#858) holt Port-Gruppen aus Web ODER Modell — ' +
+      'keine davon ist ein Datenblatt. Beide setzen `groupsOrigin`, und ' +
       '`buildTemplate` traegt es als `specSource` in die Vorlage. Der Web-Weg ' +
       'bewahrt zusaetzlich Fundstelle und Textschnipsel: er hatte sie als ' +
-      'einziger und warf sie vorher in eine Statusmeldung. Bei einer Vorlage ' +
-      'wiegt das schwerer als bei einem Geraet — jedes daraus erzeugte erbt ' +
-      'die geratenen Ports.',
+      'einziger und warf sie vorher in eine Statusmeldung. Seit #858 gibt es ' +
+      'hier einen dritten Weg in dieselbe Vorlage — das Abschreiben von einer ' +
+      'vorhandenen (`library.origin.preset`); auch der traegt seine Herkunft, ' +
+      'weil sonst geratene Ports beim Kopieren zu Tatsachen wuerden. Bei einer ' +
+      'Vorlage wiegt das schwerer als bei einem Geraet — jedes daraus erzeugte ' +
+      'erbt die geratenen Ports.',
   },
   {
     file: 'components/Rentman/NewRentmanDeviceWizard.tsx',
@@ -85,8 +104,11 @@ const CLASSIFIED: Site[] = [
     reason:
       'Baut sein Template aus (teils KI-)Hinweisen, aber der Nutzer prueft und ' +
       'bearbeitet sie Geraet fuer Geraet, bevor gespeichert wird. Die ' +
-      'schwaechste der Formen — ein Mensch bestaetigt. Steht hier, weil das ' +
-      'Kriterium bewusst zu breit faengt.',
+      'schwaechste der Formen — ein Mensch bestaetigt. Bis #858 war sie ' +
+      'schwaecher als das: die Heuristik lief bei JEDEM Schrittwechsel ohne ' +
+      'Klick und fuellte die Gruppen, und weil sie nie leer lieferte, stand ' +
+      'immer etwas da. Wer es uebersah, bestaetigte Erfundenes. Jetzt beginnt ' +
+      'jedes Geraet leer.',
   },
 ]
 
@@ -124,10 +146,28 @@ describe('jede Stelle, an der eine Maschine Plan-Werte erfindet, ist eingeordnet
 })
 
 describe('die Library-Vorlage traegt ihre Herkunft', () => {
-  it('alle drei Vorschlagswege setzen eine Herkunft', async () => {
+  it('jeder Weg in die Vorlage setzt eine Herkunft', async () => {
     const src = (await import('../src/renderer/components/Library/LibraryPanel.tsx?raw')).default
-    for (const key of ['library.origin.ai', 'library.origin.web', 'library.origin.heuristic']) {
+    // Drei Wege, drei Belege. `library.origin.heuristic` steht hier nicht
+    // mehr: die Heuristik ist mit #858 entfernt. `library.origin.preset` ist
+    // der neue dritte — das Abschreiben von einer vorhandenen Vorlage.
+    for (const key of ['library.origin.ai', 'library.origin.web', 'library.origin.preset']) {
       expect(src, key).toContain(key)
+    }
+  })
+
+  it('die Heuristik ist weg, und zwar ueberall', async () => {
+    // Die Gegenprobe zur Zeile darueber. Ein entfernter Knopf, dessen
+    // Rechenweg im Programm bleibt, ist kein entfernter Rechenweg — der
+    // naechste Aufruf findet ihn wieder.
+    const lib = (await import('../src/renderer/lib/portSuggestions.ts?raw')).default
+    expect(lib).not.toContain('export const suggestPortGroups')
+    for (const datei of [
+      '../src/renderer/components/Library/LibraryPanel.tsx?raw',
+      '../src/renderer/components/Rentman/NewRentmanDeviceWizard.tsx?raw',
+    ]) {
+      const src = (await import(/* @vite-ignore */ datei)).default as string
+      expect(src, datei).not.toContain('suggestPortGroups(')
     }
   })
 
@@ -135,7 +175,8 @@ describe('die Library-Vorlage traegt ihre Herkunft', () => {
     // Der Punkt: er hatte beides als einziger und warf es weg. Ein blosses
     // „aus dem Web" waere kein Beleg, sondern nur ein Etikett.
     const src = (await import('../src/renderer/components/Library/LibraryPanel.tsx?raw')).default
-    expect(src).toMatch(/\{ source, snippet: snippet/)
+    expect(src).toMatch(/source: ergebnis\.fundstelle/)
+    expect(src).toMatch(/snippet: \(ergebnis\.schnipsel \?\? ''\)/)
   })
 
   it('die Vorlage bekommt die Herkunft, nicht nur der Dialog', async () => {

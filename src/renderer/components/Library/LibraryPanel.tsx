@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, lazy, Suspense } from 'react'
-import { Settings, Ruler, Globe, Sparkles } from 'lucide-react'
+import { Settings, Globe, Sparkles } from 'lucide-react'
 import { v4 as uuidv4 } from 'uuid'
 import { Icon } from '../shared/Icon'
 import { Spinner } from '../shared/Spinner'
@@ -10,15 +10,12 @@ import { CategorySelect } from '../shared/CategorySelect'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { infoDialog } from '../../lib/infoDialog'
 import { format, useTranslation } from '../../lib/i18n'
-import { suggestPortGroups, type PortGroupHint } from '../../lib/portSuggestions'
-import {
-  getGeminiApiKey,
-  setGeminiApiKey,
-  suggestFromAI,
-} from '../../lib/aiSuggestions'
-import { suggestFromWeb } from '../../lib/webPortSuggestions'
+import { useSettingsStore } from '../../store/settingsStore'
+import { type PortGroupHint } from '../../lib/portSuggestions'
+import { felderAusfuellen } from '../../lib/felderAusfuellen'
+import { getGeminiApiKey, setGeminiApiKey } from '../../lib/aiSuggestions'
 import { ALL_CONNECTOR_TYPES } from '../../types/equipment'
-import type { ConnectorType, EquipmentTemplate } from '../../types/equipment'
+import type { ConnectorType, EquipmentTemplate, Port } from '../../types/equipment'
 import { nextPlacementPosition } from '../../lib/library'
 import { presetFromBlackBoxRack, presetFromEquipmentSelection } from '../../lib/rackPreset'
 import {
@@ -253,10 +250,18 @@ export const LibraryPanel = () => {
   // nicht die meist leere Rentman-Import-Ansicht. Sonst landet ein neuer Nutzer
   // auf „Keine Rentman-Geräte importiert" statt auf den 150+ Vorlagen.
   const [equipmentSection, setEquipmentSection] = useState<'local' | 'rentman'>('local')
-  // Local-device-create dialog: same Gemini-AI / Web-search auto-fill the
-  // Rentman wizard already offers (user request, parallels NewRentmanDeviceWizard).
-  const [aiLoading, setAiLoading] = useState(false)
-  const [webLoading, setWebLoading] = useState(false)
+  // #858 — EIN Zustand statt zweier. Vorher lief `aiLoading` und `webLoading`
+  // nebeneinander, weil zwei Knoepfe gleichzeitig drueckbar waren; jetzt gibt
+  // es einen Knopf, und er ist waehrend seines Laufs gesperrt.
+  const [ausfuellLaeuft, setAusfuellLaeuft] = useState(false)
+  // Die Quelle kommt aus den Einstellungen und nicht aus einem Knopf daneben
+  // (#858). Gelesen und nicht durchgereicht: der Dialog zeigt den Stand,
+  // nicht den Stand von vorhin.
+  const ausfuellQuelle = useSettingsStore((s) => s.ausfuellQuelle)
+  /** #858 — Suchtext der Vorlagen-Auswahl im Anlegen-Dialog. */
+  const [presetSuche, setPresetSuche] = useState('')
+  /** Welche Vorlage uebernommen wurde — steht als Beleg unter der Auswahl. */
+  const [presetName, setPresetName] = useState<string | null>(null)
   const [suggestError, setSuggestError] = useState('')
   const [suggestInfo, setSuggestInfo] = useState('')
   const [aiSettingsOpen, setAiSettingsOpen] = useState(false)
@@ -331,6 +336,98 @@ export const LibraryPanel = () => {
    */
   const [groupsOrigin, setGroupsOrigin] = useState<string | null>(null)
 
+/**
+ * Ports zu Gruppen zusammenfassen — der Rueckweg von `buildPorts` (#858).
+ *
+ * Der Dialog rechnet in Gruppen („4x BNC In"), eine Vorlage traegt einzelne
+ * Ports. Ohne diese Umrechnung stuenden nach dem Uebernehmen acht Zeilen da,
+ * die der Nutzer von Hand zusammenfassen muesste — genau die Arbeit, die ihm
+ * die Vorlage abnehmen soll.
+ *
+ * Gruppiert wird nach Richtung, Steckertyp und dem Namen OHNE laufende
+ * Nummer: „SDI In 1" und „SDI In 2" sind dieselbe Gruppe, „SDI In" und
+ * „SDI Thru" nicht. Die Reihenfolge bleibt die der Vorlage — eine Map
+ * behaelt ihre Einfuegereihenfolge, und eine alphabetische Sortierung
+ * verschoebe die Anschluesse gegenueber dem Geraet.
+ */
+const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[] => {
+  const gruppen = new Map<string, PortGroupDraft>()
+  for (const port of ports) {
+    // `connectorType` ist das gepflegte Feld; `type` ist der Altbestand und
+    // eine freie Zeichenkette. Was dort nicht auf der Steckerliste steht,
+    // wird nicht geraten, sondern `Custom` — genau die Angabe, die es ist.
+    const roh = port.connectorType ?? port.type
+    const connectorType: ConnectorType = ALL_CONNECTOR_TYPES.includes(roh as ConnectorType)
+      ? (roh as ConnectorType)
+      : 'Custom'
+    // Die laufende Nummer am Ende faellt weg, der Rest ist der Gruppenname.
+    const label =
+      port.name.replace(/\s+\d+$/, '').trim() || (direction === 'in' ? 'Input' : 'Output')
+    const key = `${connectorType}|${label}`
+    const vorhanden = gruppen.get(key)
+    if (vorhanden) vorhanden.count = Number(vorhanden.count) + 1
+    else gruppen.set(key, { id: uuidv4(), direction, count: 1, connectorType, label })
+  }
+  return [...gruppen.values()]
+}
+
+/**
+   * Die Vorlagen, aus denen man beim Anlegen abschreiben kann (#858).
+   *
+   * Nutzer-Meldung: „Beim anlegen neuer Geraete soll man schon vorhandene
+   * Geraete als preset nehmen koennen um die Felder vorauszufuellen und nur
+   * noch Teile davon anpassen zu muessen."
+   *
+   * Die Liste IST die lokale Bibliothek — `runLibraryMigration` legt alle 17
+   * Katalogе dort ab, also stehen die 150+ mitgelieferten Geraete und die
+   * eigenen in derselben Aufzaehlung. Eine zweite Quelle daneben (etwa die
+   * Katalog-Module direkt) waere dieselbe Liste zweimal, und die zweite
+   * zeigte die selbst angelegten nicht.
+   */
+  const presetTreffer = useMemo(() => {
+    const q = presetSuche.trim().toLowerCase()
+    if (!q) return []
+    return customLibrary
+      .filter(
+        (tpl) =>
+          tpl.name.toLowerCase().includes(q) || (tpl.category ?? '').toLowerCase().includes(q),
+      )
+      .slice(0, 8)
+  }, [customLibrary, presetSuche])
+
+  /**
+   * Eine Vorlage in die Felder des Dialogs schreiben.
+   *
+   * Die Ports werden dabei zu GRUPPEN zusammengefasst und nicht einzeln
+   * uebernommen: der Dialog rechnet in Gruppen („4x BNC In"), und acht
+   * Einzelzeilen waeren genau das, was der Nutzer danach von Hand
+   * zusammenfassen muesste. Gruppiert wird nach Richtung, Steckertyp und
+   * dem Namen OHNE laufende Nummer — „SDI In 1" und „SDI In 2" sind
+   * dieselbe Gruppe, „SDI In" und „SDI Thru" nicht.
+   *
+   * Der NAME wird mitgenommen und bekommt einen Zusatz. Ohne ihn traegt die
+   * neue Vorlage denselben Namen wie die alte, und `addCustomTemplate`
+   * schreibt nach Name — das Original waere still ueberschrieben. Mit Zusatz
+   * sieht der Nutzer sofort, dass er ihn anpassen soll, und verliert nichts,
+   * wenn er es vergisst.
+   */
+  const presetUebernehmen = (tpl: EquipmentTemplate) => {
+    setName(`${tpl.name} ${t('library.create.preset.suffix', '(copy)')}`)
+    setCategory(tpl.category ?? 'Other')
+    setIsRackDeviceDraft(!!tpl.isRackDevice)
+    setRackUnitsDraft(tpl.isRackDevice ? (tpl.rackUnits ?? 1) : '')
+    setGroups([...portsZuGruppen(tpl.inputs, 'in'), ...portsZuGruppen(tpl.outputs, 'out')])
+    // Die Herkunft der Ports wandert MIT. Wer aus einer Vorlage abschreibt,
+    // deren Ports geraten waren, erbt die Vermutung — und soll das sehen.
+    setGroupsOrigin(
+      format(t('library.origin.preset', 'Copied from the library entry "{name}"'), { name: tpl.name }),
+    )
+    setPresetName(tpl.name)
+    setPresetSuche('')
+    setSuggestError('')
+    setSuggestInfo('')
+  }
+
   const hintsToLocalDrafts = (hints: PortGroupHint[]): PortGroupDraft[] =>
     hints.map((h) => ({
       id: uuidv4(),
@@ -340,97 +437,87 @@ export const LibraryPanel = () => {
       label: h.label,
     }))
 
-  const handleHeuristicSuggest = () => {
+  /**
+   * DER EINE Ausfuellen-Knopf (#858).
+   *
+   * Vorher standen hier drei Handler nebeneinander — Heuristik, KI, Web —
+   * und in der Leiste drei Knoepfe dazu. Der Nutzer sollte entscheiden,
+   * welche Quelle fuer SEIN Geraet die beste ist, bevor er weiss, was sie
+   * liefert. Jetzt steht die Entscheidung einmal in den Einstellungen, und
+   * `felderAusfuellen` fragt die gewaehlte.
+   *
+   * Der Fehlerzweig fuer den fehlenden Schluessel bleibt, aber nur fuer die
+   * KI-Quelle: die Websuche braucht keinen.
+   */
+  const handleAusfuellen = async () => {
     setSuggestError('')
     setSuggestInfo('')
-    const hints = suggestPortGroups(name, category)
-    if (hints.length === 0) {
-      setSuggestError(t('library.suggest.heuristic.noMatch', 'No heuristic match for this name.'))
-      return
-    }
-    setGroups(hintsToLocalDrafts(hints))
-    setGroupsOrigin(
-      t('library.origin.heuristic', 'Heuristic from name and category — not from a datasheet'),
-    )
-    setSuggestInfo(
-      format(t('library.suggest.heuristic.ok', '{n} port group(s) suggested via heuristic.'), {
-        n: hints.length,
-      }),
-    )
-  }
-
-  const handleAiSuggest = async () => {
-    setSuggestError('')
-    setSuggestInfo('')
-    if (!getGeminiApiKey()) {
+    if (ausfuellQuelle === 'ki' && !getGeminiApiKey()) {
       setAiKeyDraft('')
       setAiSettingsOpen(true)
-      setSuggestError(t('library.suggest.ai.noKey', 'No Gemini API key. Enter one or use web/heuristic.'))
+      setSuggestError(
+        t('library.suggest.ai.noKey', 'No AI API key. Enter one, or switch the source to web search in the settings.'),
+      )
       return
     }
-    setAiLoading(true)
+    setAusfuellLaeuft(true)
     try {
-      const hints = await suggestFromAI(name, category)
-      if (hints.length === 0) {
-        setSuggestError(t('library.suggest.ai.noPorts', 'Gemini returned no ports.'))
-        return
-      }
-      setGroups(hintsToLocalDrafts(hints))
-      setGroupsOrigin(t('library.origin.ai', 'AI suggestion from name and category — not from a datasheet'))
-      setSuggestInfo(
-        format(t('library.suggest.ai.ok', '{n} port group(s) accepted from Gemini.'), {
-          n: hints.length,
-        }),
-      )
-    } catch (err) {
-      setSuggestError(err instanceof Error ? err.message : t('library.suggest.ai.error', 'Gemini call failed'))
-    } finally {
-      setAiLoading(false)
-    }
-  }
-
-  const handleWebSuggest = async () => {
-    setSuggestError('')
-    setSuggestInfo('')
-    setWebLoading(true)
-    try {
-      const { hints, source, snippet } = await suggestFromWeb(name, category)
-      if (hints.length === 0) {
-        setSuggestInfo(
-          snippet
-            ? format(
-                t(
-                  'library.suggest.web.noPlugs',
-                  'No connectors detected in the {source} snippet. Refine manufacturer + model.',
-                ),
-                { source },
-              )
-            : t('library.suggest.web.noHit', 'No hit on the web. Refine manufacturer + model.'),
+      const ergebnis = await felderAusfuellen(ausfuellQuelle, name, category)
+      if (ergebnis.hints.length === 0) {
+        setSuggestError(
+          ergebnis.quelle === 'ki'
+            ? t('library.suggest.ai.noPorts', 'The model returned no ports.')
+            : ergebnis.schnipsel
+              ? format(
+                  t(
+                    'library.suggest.web.noPlugs',
+                    'No connectors detected in the {source} snippet. Refine manufacturer + model.',
+                  ),
+                  { source: ergebnis.fundstelle ?? 'web' },
+                )
+              : t('library.suggest.web.noHit', 'No hit on the web. Refine manufacturer + model.'),
         )
         return
       }
-      setGroups(hintsToLocalDrafts(hints))
-      // Der Web-Weg ist der einzige, der eine echte Fundstelle mitbringt —
-      // und den Schnipsel, in dem die Stecker gezaehlt wurden. Genau der
-      // gehoert aufbewahrt: er macht die Angabe nachpruefbar, statt sie nur
-      // als „aus dem Web" zu kennzeichnen. Der Schnipsel wird gekuerzt, damit
-      // die Vorlage nicht einen halben Wikipedia-Artikel mitschleppt.
-      setGroupsOrigin(
-        format(
-          t('library.origin.web', 'Derived from {source} (connectors counted in the text): "{snippet}"'),
-          { source, snippet: snippet.replace(/\s+/g, ' ').trim().slice(0, 160) },
-        ),
-      )
-      setSuggestInfo(
-        format(t('library.suggest.web.ok', '{n} port group(s) accepted from {source}.'), {
-          n: hints.length,
-          source,
-        }),
-      )
+      setGroups(hintsToLocalDrafts(ergebnis.hints))
+      if (ergebnis.quelle === 'ki') {
+        setGroupsOrigin(
+          t('library.origin.ai', 'AI suggestion from name and category — not from a datasheet'),
+        )
+        setSuggestInfo(
+          format(t('library.suggest.ai.ok', '{n} port group(s) accepted from the model.'), {
+            n: ergebnis.hints.length,
+          }),
+        )
+      } else {
+        // Der Web-Weg ist der einzige, der eine echte Fundstelle mitbringt —
+        // und den Schnipsel, in dem die Stecker gezaehlt wurden. Genau der
+        // gehoert aufbewahrt: er macht die Angabe nachpruefbar, statt sie nur
+        // als „aus dem Web" zu kennzeichnen. Der Schnipsel wird gekuerzt,
+        // damit die Vorlage nicht einen halben Wikipedia-Artikel
+        // mitschleppt.
+        setGroupsOrigin(
+          format(
+            t('library.origin.web', 'Derived from {source} (connectors counted in the text): "{snippet}"'),
+            {
+              source: ergebnis.fundstelle ?? 'web',
+              snippet: (ergebnis.schnipsel ?? '').replace(/\s+/g, ' ').trim().slice(0, 160),
+            },
+          ),
+        )
+        setSuggestInfo(
+          format(t('library.suggest.web.ok', '{n} port group(s) accepted from {source}.'), {
+            n: ergebnis.hints.length,
+            source: ergebnis.fundstelle ?? 'web',
+          }),
+        )
+      }
     } catch (err) {
-      setSuggestError(err instanceof Error ? err.message : 'Web-Suche fehlgeschlagen')
+      setSuggestError(
+        err instanceof Error ? err.message : t('library.suggest.failed', 'Filling in failed.'),
+      )
     } finally {
-      setWebLoading(false)
+      setAusfuellLaeuft(false)
     }
   }
 
@@ -453,6 +540,12 @@ export const LibraryPanel = () => {
     setRackUnitsDraft('')
     setGroups([defaultGroup('in'), defaultGroup('out')])
     setGroupsOrigin(null)
+    // #858 — sonst stuende beim naechsten Oeffnen noch „Felder aus X
+    // uebernommen" unter einem Dialog, in dem nichts davon mehr steht.
+    setPresetSuche('')
+    setPresetName(null)
+    setSuggestError('')
+    setSuggestInfo('')
   }
 
   const buildTemplate = (): EquipmentTemplate => {
@@ -1064,6 +1157,67 @@ export const LibraryPanel = () => {
             <h3 id={anlegenTitleId} className="mb-3 text-cp-xl font-semibold">
               {t('library.create.title', 'Create your own device')}
             </h3>
+            {/*
+              VON EINEM VORHANDENEN GERAET ABSCHREIBEN (#858).
+
+              Nutzer-Meldung: „Beim anlegen neuer Geraete soll man schon
+              vorhandene Geraete als preset nehmen koennen um die Felder
+              vorauszufuellen und nur noch Teile davon anpassen zu muessen."
+
+              Die Auswahl steht GANZ OBEN und vor den Feldern: sie ist der
+              erste Schritt, nicht ein Zusatz. Und sie ist ein Suchfeld und
+              keine Liste — die Bibliothek traegt ueber 150 Geraete, eine
+              Klappliste damit ist zum Suchen unbrauchbar. Ohne Eingabe
+              erscheint nichts; wer von Hand anlegen will, tippt hier nicht
+              und sieht nur die Zeile.
+            */}
+            <div className="mb-3 border border-cp-border bg-cp-surface-3 p-2 text-cp-base">
+              <label className="block">
+                {t('library.create.preset', 'Start from an existing device (optional)')}
+                <input
+                  type="search"
+                  value={presetSuche}
+                  onChange={(event) => setPresetSuche(event.target.value)}
+                  placeholder={t('library.create.preset.placeholder', 'Search the library — name or category')}
+                  className="mt-1 w-full border border-cp-border bg-cp-surface-1 p-2"
+                />
+              </label>
+              {presetSuche.trim() !== '' && presetTreffer.length === 0 && (
+                <div className="mt-1 text-cp-xs text-cp-text-muted">
+                  {t('library.create.preset.noHit', 'No device in the library matches that.')}
+                </div>
+              )}
+              {presetTreffer.length > 0 && (
+                <ul className="mt-1 max-h-48 overflow-y-auto border border-cp-border-muted">
+                  {presetTreffer.map((tpl) => (
+                    <li key={`${tpl.category}-${tpl.name}`}>
+                      <button
+                        type="button"
+                        onClick={() => presetUebernehmen(tpl)}
+                        className="flex w-full items-center justify-between gap-2 px-2 py-1 text-left text-cp-xs hover:bg-cp-surface-4"
+                      >
+                        <span className="truncate">{tpl.name}</span>
+                        <span className="shrink-0 text-cp-text-muted">
+                          {format(t('library.create.preset.ports', '{cat} · {in} in / {out} out'), {
+                            cat: tpl.category ?? '—',
+                            in: tpl.inputs.length,
+                            out: tpl.outputs.length,
+                          })}
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {presetName && (
+                <div className="mt-1 text-cp-xs text-emerald-300">
+                  {format(t('library.create.preset.taken', 'Fields taken from "{name}". Adjust what differs.'), {
+                    name: presetName,
+                  })}
+                </div>
+              )}
+            </div>
+
             <div className="mb-3 grid grid-cols-1 sm:grid-cols-3 gap-2 text-cp-base">
               <label className="block">
                 {t('common.name', 'Name')}
@@ -1108,47 +1262,58 @@ export const LibraryPanel = () => {
             <div className="mb-2 border border-violet-800/60 bg-violet-950/30 p-2 text-cp-xs">
               <div className="mb-1 flex flex-wrap items-center justify-between gap-y-1 gap-x-2">
                 <span className="font-semibold text-violet-200">
-                  {t('library.suggest.heading', 'Auto-suggest from device name')}
+                  {t('library.suggest.heading', 'Guess the ports from the device name')}
                 </span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setAiKeyDraft(getGeminiApiKey())
-                    setAiSettingsOpen(true)
-                  }}
-                  className="text-cp-xs text-violet-300 hover:underline"
-                  title={t('library.create.aiSettings', 'AI settings')}
-                >
-                  <Icon icon={Settings} size="xs" className="mr-1 inline-block align-text-bottom" />{t('library.create.aiSettingsLabel', 'AI settings')}
-                </button>
+                {/* Nur bei der KI-Quelle (#858): ein „KI-Einstellungen"-Knopf
+                    neben einem Web-Such-Knopf ist ein Weg zu einem
+                    Schluessel, den gerade niemand braucht. */}
+                {ausfuellQuelle === 'ki' && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAiKeyDraft(getGeminiApiKey())
+                      setAiSettingsOpen(true)
+                    }}
+                    className="text-cp-xs text-violet-300 hover:underline"
+                    title={t('library.create.aiSettings', 'AI settings')}
+                  >
+                    <Icon icon={Settings} size="xs" className="mr-1 inline-block align-text-bottom" />{t('library.create.aiSettingsLabel', 'AI settings')}
+                  </button>
+                )}
               </div>
-              <div className="flex flex-wrap gap-1">
+              {/*
+                EIN Knopf (#858). Hier standen drei — „Heuristik", „Web",
+                „Gemini" — und der Nutzer sollte vorab entscheiden, welche
+                Quelle fuer sein Geraet die beste ist. Die Heuristik ist ganz
+                weg (sie log, siehe `lib/portSuggestions.ts`); die Wahl
+                zwischen den beiden uebrigen steht jetzt in den Einstellungen
+                und wird hier nur noch GENANNT, damit niemand raten muss, wen
+                der Knopf gleich fragt.
+              */}
+              <div className="flex flex-wrap items-center gap-2">
                 <button
                   type="button"
-                  onClick={handleHeuristicSuggest}
-                  className="bg-cp-surface-4 px-2 py-1 hover:bg-cp-surface-5"
-                  title={t('library.create.suggest.heuristicTitle', 'Built-in heuristic patterns (camera, ATEM, converter…)')}
-                >
-                  <Icon icon={Ruler} size="xs" className="mr-1 inline-block align-text-bottom" />{t('library.create.suggest.heuristic', 'Heuristic')}
-                </button>
-                <button
-                  type="button"
-                  disabled={webLoading}
-                  onClick={handleWebSuggest}
+                  disabled={ausfuellLaeuft}
+                  onClick={handleAusfuellen}
                   className="bg-emerald-700 px-2 py-1 hover:bg-emerald-600 disabled:opacity-50"
-                  title={t('library.create.suggest.webTitle', 'Wikipedia + DuckDuckGo snippet (no API key required)')}
+                  title={t('library.create.fill.title', 'Fill the port groups in from the source chosen in the settings')}
                 >
-                  {webLoading ? <span className="inline-flex items-center gap-1"><Spinner size="xs" /> {t('library.netbox.searching', 'Searching…')}</span> : <span className="inline-flex items-center gap-1"><Icon icon={Globe} size="xs" /> {t('library.create.suggest.web', 'Web')}</span>}
+                  {ausfuellLaeuft ? (
+                    <span className="inline-flex items-center gap-1">
+                      <Spinner size="xs" /> {t('library.create.fill.busy', 'Filling in…')}
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1">
+                      <Icon icon={ausfuellQuelle === 'ki' ? Sparkles : Globe} size="xs" />{' '}
+                      {t('library.create.fill', 'Fill in')}
+                    </span>
+                  )}
                 </button>
-                <button
-                  type="button"
-                  disabled={aiLoading}
-                  onClick={handleAiSuggest}
-                  className="bg-violet-700 px-2 py-1 hover:bg-violet-600 disabled:opacity-50"
-                  title={t('library.create.suggest.geminiTitle', 'Gemini AI — needs an API key')}
-                >
-                  {aiLoading ? <span className="inline-flex items-center gap-1"><Spinner size="xs" /> {t('library.create.suggest.asking', 'Asking…')}</span> : <span className="inline-flex items-center gap-1"><Icon icon={Sparkles} size="xs" /> {t('library.create.suggest.gemini', 'Gemini')}</span>}
-                </button>
+                <span className="text-cp-text-muted">
+                  {ausfuellQuelle === 'ki'
+                    ? t('library.create.fill.fromAi', 'from the AI model — needs an API key')
+                    : t('library.create.fill.fromWeb', 'from a web search — no API key needed')}
+                </span>
               </div>
               {suggestError && (
                 <div className="mt-1 text-amber-300">{suggestError}</div>

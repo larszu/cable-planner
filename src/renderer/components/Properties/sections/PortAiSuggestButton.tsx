@@ -3,16 +3,25 @@ import { Sparkles } from 'lucide-react'
 import { useProjectStore } from '../../../store/projectStore'
 import { Icon } from '../../shared/Icon'
 import { confirmDialog } from '../../../lib/confirmDialog'
-import { suggestFromAI } from '../../../lib/aiSuggestions'
+import { felderAusfuellen } from '../../../lib/felderAusfuellen'
+import { useSettingsStore } from '../../../store/settingsStore'
 import { buildTemplateFromHints, type PortGroupHint } from '../../../lib/portSuggestions'
 import type { EquipmentItem } from '../../../types/equipment'
 import { format, useTranslation } from '../../../lib/i18n'
 
 /**
- * #306 — AI-Port-Vorschlag-Button aus EquipmentProperties ausgelagert.
- * Klick → ruft suggestFromAI(equipment.name, equipment.category) via dem
- * im Settings gewählten Provider (Gemini/Claude/OpenAI) und schlägt
- * Port-Gruppen vor. Diese kann der User dann ersetzen/anhängen/verwerfen.
+ * #306 — Port-Vorschlag-Knopf aus EquipmentProperties ausgelagert.
+ *
+ * Klick → fragt die Quelle, die in den Einstellungen gewaehlt ist, und
+ * schlaegt Port-Gruppen vor. Diese kann der Nutzer dann ersetzen, anhaengen
+ * oder verwerfen.
+ *
+ * #858 — HIER STAND FEST „KI". Das war ein dritter Ort mit einer eigenen
+ * Antwort auf dieselbe Frage: der Anlegen-Dialog hatte drei Knoepfe, der
+ * Rentman-Assistent zwei, und dieser einen, der immer das Modell fragte. Wer
+ * in den Einstellungen die Websuche waehlte, bekam sie an zwei von drei
+ * Stellen — die dritte fragte weiter das Modell und verlangte einen
+ * Schluessel. Jetzt gilt die Einstellung ueberall.
  */
 export const PortAiSuggestButton = ({
   equipment,
@@ -24,20 +33,27 @@ export const PortAiSuggestButton = ({
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [hints, setHints] = useState<PortGroupHint[] | null>(null)
+  const ausfuellQuelle = useSettingsStore((s) => s.ausfuellQuelle)
 
   const handleAsk = async () => {
     setError(null)
     setHints(null)
     setBusy(true)
     try {
-      const result = await suggestFromAI(equipment.name ?? '', equipment.category ?? '')
-      if (result.length === 0) {
-        setError(t('props.aiPorts.noSuggestion', 'AI could not suggest any ports. Try a more specific device name.'))
+      const ergebnis = await felderAusfuellen(
+        ausfuellQuelle,
+        equipment.name ?? '',
+        equipment.category ?? '',
+      )
+      if (ergebnis.hints.length === 0) {
+        setError(
+          t('props.aiPorts.noSuggestion', 'No ports could be suggested. Try a more specific device name.'),
+        )
       } else {
-        setHints(result)
+        setHints(ergebnis.hints)
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('props.aiPorts.requestFailed', 'AI request failed'))
+      setError(err instanceof Error ? err.message : t('props.aiPorts.requestFailed', 'The request failed'))
     } finally {
       setBusy(false)
     }
