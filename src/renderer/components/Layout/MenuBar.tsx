@@ -1409,7 +1409,14 @@ const Menu = ({ label, children }: MenuProps) => {
              Fehler wie die zwei Register, die aus der Bibliothek fielen:
              ein Menuepunkt, den es fuer den Nutzer nicht gibt. */
           ref={klappe}
-          className="fixed left-0 top-0 z-50 max-h-[calc(100vh-3.5rem)] min-w-[14rem] overflow-y-auto border border-[var(--cp-border)] bg-[var(--cp-surface-1)] py-1"
+          /* `max-w-[calc(100vw-1rem)]` (B-77): das Werkzeuge-Menue ist mit
+             deutschen Beschriftungen 421 px breit und passte damit NICHT in
+             ein 390-px-Fenster — 39 px hingen rechts heraus, und dort stehen
+             die Tastenkuerzel. Die Hoehe war seit 2026-09-07 gedeckelt, die
+             Breite nicht; gemessen hat es erst der Lauf, der die Klappe
+             oeffnet. Ein Deckel, den es nur in einer Richtung gibt, ist ein
+             halber. */
+          className="fixed left-0 top-0 z-50 max-h-[calc(100vh-3.5rem)] min-w-[14rem] max-w-[calc(100vw-1rem)] overflow-y-auto border border-[var(--cp-border)] bg-[var(--cp-surface-1)] py-1"
           role="menu"
         >
           {children}
