@@ -670,6 +670,7 @@ export const MISC_CATALOG: MiscEntry[] = [
       category: 'IP/NDI',
       inputs: [
         sdiIn('SDI In'),
+        hdmiIn('HDMI In'),
       ],
       outputs: [
         eth('LAN'),
@@ -687,6 +688,7 @@ export const MISC_CATALOG: MiscEntry[] = [
       category: 'IP/NDI',
       inputs: [
         hdmiIn('HDMI In'),
+        sdiIn('SDI In'),
       ],
       outputs: [
         eth('LAN'),
@@ -964,6 +966,14 @@ export const MISC_CATALOG: MiscEntry[] = [
         sdiIn('SDI In 6'),
         sdiIn('SDI In 7'),
         sdiIn('SDI In 8'),
+        sdiIn('SDI In 9'),
+        sdiIn('SDI In 10'),
+        sdiIn('SDI In 11'),
+        sdiIn('SDI In 12'),
+        sdiIn('SDI In 13'),
+        sdiIn('SDI In 14'),
+        sdiIn('SDI In 15'),
+        sdiIn('SDI In 16'),
       ],
       outputs: [
         sdiOut('SDI Out'),
