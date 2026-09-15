@@ -118,26 +118,6 @@ export const MISC_CATALOG: MiscEntry[] = [
     },
   },
 
-  // Generic Nanosync / nanosyncs (catch-all)
-  // Rentman: "Nanosync"
-  {
-    match: ['nanosync'],
-    deviceTypeId: '284e7133-0c24-40cf-a701-3b3e5a025a39',
-    // Quelle: https://www.rosendahl-studiotechnik.com/nanosyncs.html
-    template: {
-      manufacturerUrl: 'https://www.rosendahl-studiotechnik.com/nanosyncs.html',
-      name: 'Nanosync',
-      category: SYNC,
-      inputs: [sdiIn('Ref In (BNC)')],
-      outputs: [
-        sdiOut('Blackburst Out 1'),
-        sdiOut('Blackburst Out 2'),
-        sdiOut('Tri-Level Out 1'),
-        sdiOut('Tri-Level Out 2'),
-      ],
-      width: 200, height: 160,
-    },
-  },
 
   // ── Behringer X32 ─────────────────────────────────────────────────────────
 

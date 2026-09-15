@@ -143,24 +143,6 @@ export const GREENGO_CATALOG: GreenGoEntry[] = [
   },
 
   // ── GreenGo WBPX – Wireless Beltpack X ──────────────────────────────────
-  // DECT wireless beltpack. No cable to the network — connects wirelessly
-  // via an Antenna X. Headset via XLR-5.
-  // Rentman: "GreenGo WBPX", "GreenGo Wireless Beltpack"
-  {
-    match: ['greengo', 'wbpx'],
-    deviceTypeId: '3a3159c7-713a-4e9c-9441-3b6b62655f10',
-    // Quelle: https://www.greengocom.com/products/wbpx
-    template: {
-      manufacturerUrl: 'https://www.greengocom.com/products/wbpx',
-      name: 'GreenGo WBPX',
-      category: INTERCOM,
-      inputs: [],
-      outputs: [
-        xlr5('Headset (XLR-5)'),
-      ],
-      width: 180, height: 100,
-    },
-  },
   {
     match: ['greengo', 'wireless beltpack'],
     deviceTypeId: '18772c9b-8d92-4e80-a7b2-d51ad09dc727',

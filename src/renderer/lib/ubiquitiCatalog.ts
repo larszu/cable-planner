@@ -343,19 +343,6 @@ export const UBIQUITI_CATALOG: UbiquitiEntry[] = [
       height: 820,
     },
   },
-  {
-    match: ['edgeswitch', 'es-xg-48'],
-    deviceTypeId: '1be4883f-3092-44c1-a1fc-ffeae2feb662',
-    networkKind: 'switch',
-    template: {
-      name: 'Ubiquiti EdgeSwitch XG 48 (ES-XG-48)',
-      category: NET,
-      inputs: [],
-      outputs: [...sfp(48, 'SFP+'), ...sfp(6, 'QSFP+')],
-      width: 320,
-      height: 900,
-    },
-  },
 
   // ---------- UniFi Dream Machine ----------
   {

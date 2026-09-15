@@ -314,12 +314,12 @@ export const MONITOR_CATALOG: MonitorEntry[] = [
       width: 200, height: 140,
     },
   },
-  // SmallHD 503 OLED (5", 2x SDI in)
+  // SmallHD 503 UltraBright (5")
   {
     match: ['smallhd', '503'],
     deviceTypeId: '9a91a6a2-f264-49fd-8fe0-4a5da6f37c65',
     template: {
-      name: 'SmallHD 503 OLED',
+      name: 'SmallHD 503 UltraBright',
       category: MON,
       inputs:  [sdiIn('SDI In 1'), sdiIn('SDI In 2'), hdmiIn('HDMI In')],
       outputs: [sdiOut('SDI Out')],
@@ -354,21 +354,6 @@ export const MONITOR_CATALOG: MonitorEntry[] = [
       ],
       outputs: [sdiOut('SDI Out 1'), sdiOut('SDI Out 2'), hdmiOut('HDMI Out')],
       width: 240, height: 220,
-    },
-  },
-  // LUM-215G (21.5", 2x 3G-SDI in/out, Ref)
-  {
-    match: ['tvlogic', 'lum-215'],
-    deviceTypeId: '90c5c012-ed90-4fa2-bbd4-f0476660a381',
-    template: {
-      name: 'TVLogic LUM-215G',
-      category: MON,
-      inputs: [
-        sdiIn('SDI In 1'), sdiIn('SDI In 2'),
-        hdmiIn('HDMI In'), sdiIn('Ref In'),
-      ],
-      outputs: [sdiOut('SDI Out 1'), sdiOut('SDI Out 2'), hdmiOut('HDMI Out')],
-      width: 240, height: 200,
     },
   },
   // LUM-170G (17", SDI in/out, HDMI in/out, Ref)
