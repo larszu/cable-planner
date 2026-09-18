@@ -8,6 +8,7 @@ import { useProjectStore } from '../../store/projectStore'
 import { useTranslation, format } from '../../lib/i18n'
 import { runDrawingChecks } from '../../lib/drawingChecks'
 import { autosaveFehlschlag } from '../../store/projectAutosave'
+import { fotoMasse } from '../../lib/fotoMasse'
 import { buildAddressPlan } from '../../lib/addressPlan'
 import { segmentFindings } from '../../lib/networkSegments'
 import { actionCounts, actionItems } from '../../lib/actionItems'
@@ -133,6 +134,12 @@ export const StatusBar = ({
   // Store, der beim Schreiben einen anderen Store schreibt, waere eine
   // Schleife, auf die niemand gefasst ist.
   const autosaveWeg = autosaveFehlschlag()
+  // #884 — wie schwer die Fotos den Plan machen. Nicht die Grenze des
+  // Browsers (in der Sicherungskopie stehen die Bilder gar nicht), sondern
+  // die der DATEI: ab etwa 40 MB wird eine `.cableplan` unhandlich zum
+  // Verschicken, und das erfaehrt man sonst am Mailserver.
+  const fotos = useProjectStore((s) => s.project.fotos)
+  const fotoLast = useMemo(() => fotoMasse(fotos), [fotos])
   // Memoisiert, weil die StatusBar bei jeder Viewport-Aenderung rendert, die
   // Check-Engine aber ueber den ganzen Plan laeuft (seit ADR-001 auch ueber
   // den Kabelgraph). Abhaengigkeiten sind Store-Referenzen, wechseln also nur
@@ -254,6 +261,23 @@ export const StatusBar = ({
           >
             <Icon icon={AlertTriangle} size="xs" />
             {t('statusbar.autosave.label', 'No recovery copy')}
+          </span>
+        )}
+        {fotoLast.ueberBudget && (
+          <span
+            className="inline-flex shrink-0 items-center gap-1 bg-amber-600 px-1.5 py-0.5 text-cp-xs font-bold text-amber-50"
+            title={format(
+              t(
+                'statusbar.fotos.title',
+                '{n} photos carry {mb} MB in this plan. The file still opens, but it gets hard to send by mail.',
+              ),
+              { n: fotoLast.anzahl, mb: (fotoLast.bytes / 1_000_000).toFixed(0) },
+            )}
+          >
+            <Icon icon={AlertTriangle} size="xs" />
+            {format(t('statusbar.fotos.label', 'Photos {mb} MB'), {
+              mb: (fotoLast.bytes / 1_000_000).toFixed(0),
+            })}
           </span>
         )}
         <AufgabenBadge />

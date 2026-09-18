@@ -460,6 +460,11 @@ const defaults: PersistedUiState = {
     'display',
     'network-config',
     'optional',
+    // #884 — die Fotos. Direkt hinter den optionalen Feldern, weil dort auch
+    // das Referenzbild steht: beides sind Bilder, und sie sind NICHT dasselbe
+    // (Typbild gegen Aufnahme von diesem Tag). Bestandsnutzer bekommen den
+    // Eintrag ueber die Vollstaendigkeits-Schleife weiter unten nachgetragen.
+    'fotos',
     'flags',
     'rack',
     'library',

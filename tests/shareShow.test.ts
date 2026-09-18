@@ -109,10 +109,11 @@ describe('Bedarf 127 — welche Show hängt an dieser Freigabe?', () => {
     // 409 und nicht 400: der Aufruf ist nicht falsch gebaut, die Lage hat
     // sich geaendert.
     expect(server).toMatch(/res\.statusCode = 409/)
-    // Und jeder der drei Wege fragt sie — VOR dem Weiterreichen.
+    // Und jeder Schreibweg fragt sie — VOR dem Weiterreichen. Die Zahl
+    // waechst mit den Wegen: `/fotos` kam am 2026-09-18 dazu (#884).
     const wege = server.match(/if \(!showOk\(parsed\)\) return/g) ?? []
-    expect(wege).toHaveLength(4)
-    for (const cb of ['onChecksUpdate', 'onCableAdded', 'onPendingChange', 'onPatternCheck']) {
+    expect(wege).toHaveLength(5)
+    for (const cb of ['onChecksUpdate', 'onCableAdded', 'onPendingChange', 'onPatternCheck', 'onFoto']) {
       const vorher = server.indexOf('if (!showOk(parsed)) return', server.indexOf(cb) - 4000)
       expect(vorher, cb).toBeGreaterThan(-1)
       expect(vorher).toBeLessThan(server.indexOf(`state.${cb}?.`))
@@ -149,7 +150,7 @@ describe('Bedarf 127 — welche Show hängt an dieser Freigabe?', () => {
     expect(mobil).toMatch(/const PROJECT_CACHE_KEY = \(showId: string \| null\)/)
     // Der Rueckweg traegt die Kennung — sonst weist der Server ihn ab.
     expect(mobil.match(/projectId: showId[,\s]/g) ?? []).toHaveLength(2)
-    expect(mobil.match(/projectId: showIdOf\(project\)/g) ?? []).toHaveLength(2)
+    expect(mobil.match(/projectId: showIdOf\(project\)/g) ?? []).toHaveLength(3)
   })
 
   it('8. der Show-Wechsel wird bemerkt und nicht vollzogen', () => {

@@ -619,13 +619,17 @@ einzige unreine Zeile des Wegs.
 liefert `src/mobile/` an Smartphones im LAN. Bidirektional:
 - Main → Mobile: aktuelle Projekt-Snapshot (Pull-Endpunkt), Passwörter und
   Schlüssel vorher via `stripSecrets` entfernt.
-- Mobile → Main: **vier** Schreibwege, nicht einer —
+- Mobile → Main: **fünf** Schreibwege, nicht einer —
   Bauteam-Häkchen (POST `/checks`), neu angelegte Kabel (POST `/cables`,
-  v7.9.54), Feld-Rückmeldungen (POST `/pending-changes`) und die
+  v7.9.54), Feld-Rückmeldungen (POST `/pending-changes`), die
   Sichtprüfung vom Prüfbild-Rundgang (POST `/pattern-checks`, B-42
-  Inkrement 2b). Alle vier sind token-gated (`authed`, Token aus der
-  QR-Code-URL), gehen durch `writeAllowed` (Bedarf 109) und durch
-  `showOk` (Bedarf 127).
+  Inkrement 2b) und **Fotos** (POST `/fotos`, #884). Alle fünf sind
+  token-gated (`authed`, Token aus der QR-Code-URL), gehen durch
+  `writeAllowed` (Bedarf 109) und durch `showOk` (Bedarf 127).
+  Der fünfte hat als einziger eine Obergrenze in Megabyte statt in
+  Kilobyte: ein Foto ist gross, und es wird schon auf dem Telefon
+  heruntergerechnet (1600 px lange Kante) — die 4 MB sind der Deckel
+  gegen ein Telefon, das das nicht tut, nicht das erwartete Mass.
   Der vierte ist bewusst KEIN Zweig von `/checks`: der dort geschickte
   `CheckState` ist ein vollständiger Zustand und ersetzt den vorigen —
   richtig für Häkchen, falsch für eine Beobachtung, die angehängt gehört.
@@ -633,7 +637,7 @@ liefert `src/mobile/` an Smartphones im LAN. Bidirektional:
   im Renderer aus `patternRouting` gerechnet und hier nur gehalten. Eine
   zweite Traversierung auf dem Telefon wäre `zwei-rechnungen`.
 
-**Mobile ist kein Editor** — aber auch nicht read-only: die vier Wege oben
+**Mobile ist kein Editor** — aber auch nicht read-only: die fünf Wege oben
 ändern das Projekt am Desktop. Wer das anders formuliert findet, korrigiert
 es; der Dialog-Hinweis sagte bis v7.9.x fälschlich „kann nur lesen, nichts
 schreiben", was für eine Sicherheits-Entscheidung des Nutzers die falsche

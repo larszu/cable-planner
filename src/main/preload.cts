@@ -547,5 +547,28 @@ contextBridge.exposeInMainWorld('cablePlanner', {
       ipcRenderer.on('mobileShare:pendingChange', listener)
       return () => ipcRenderer.removeListener('mobileShare:pendingChange', listener)
     },
+    // #884 — ein Foto vom Telefon. Der Renderer haengt es an den Plan.
+    onFoto: (
+      cb: (foto: {
+        dataUri: string
+        breite: number
+        hoehe: number
+        zeigtAuf?: { equipmentId?: string; cableId?: string }
+        notiz?: string
+      }) => void,
+    ) => {
+      const listener = (
+        _event: unknown,
+        foto: {
+          dataUri: string
+          breite: number
+          hoehe: number
+          zeigtAuf?: { equipmentId?: string; cableId?: string }
+          notiz?: string
+        },
+      ) => cb(foto)
+      ipcRenderer.on('mobileShare:foto', listener)
+      return () => ipcRenderer.removeListener('mobileShare:foto', listener)
+    },
   },
 })

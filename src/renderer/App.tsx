@@ -1,5 +1,6 @@
 import { hasDrops, type LoadDropKind, type LoadDropReason } from './types/loadReport'
 import { hasMobileDrops } from './types/mobileReport'
+import { v4 as uuidv4 } from 'uuid'
 import { useEffect, useMemo, useRef, useState, lazy, Suspense } from 'react'
 import { useIsNarrow } from './hooks/useBreakpoint'
 import { CanvasArea } from './components/Canvas/CanvasArea'
@@ -184,6 +185,7 @@ const DROP_ART: Record<LoadDropKind, [key: string, de: string]> = {
   'crosspoint': ['app.loadReport.crosspoint', 'Row of the planned routing'],
   'cable-stock': ['app.loadReport.cableStock', 'Stock length of a cable type'],
   'led-wall': ['app.loadReport.ledWall', 'LED wall or panel type'],
+  'foto': ['app.loadReport.foto', 'Photo'],
 } satisfies Record<LoadDropKind, [string, string]>
 
 const DROP_GRUND: Record<LoadDropReason, [key: string, de: string]> = {
@@ -814,6 +816,36 @@ export default function App() {
       })
     })
   }, [addPendingChange])
+
+  // #884 — ein Foto vom Telefon. Es kommt FERTIG kleingerechnet an (das
+  // Telefon rechnet es herunter, bevor es sendet), also wird hier nur noch
+  // ein Datensatz daraus. `aufgenommenAm` bleibt leer: was ueber die
+  // Leitung kam, trug keinen Aufnahmezeitpunkt, und „jetzt" waere die
+  // Empfangszeit.
+  const addFoto = useProjectStore((s) => s.addFoto)
+  useEffect(() => {
+    if (!hasDesktopBridge) return
+    return cablePlannerApi.mobileShare.onFoto((foto) => {
+      addFoto({
+        id: uuidv4(),
+        dataUri: foto.dataUri,
+        breite: foto.breite,
+        hoehe: foto.hoehe,
+        bytes: foto.dataUri.length,
+        zeigtAuf: foto.zeigtAuf,
+        quelle: 'handy',
+        hinzugefuegtAm: new Date().toISOString(),
+        notiz: foto.notiz,
+      })
+    })
+  }, [addFoto])
+
+  // #884 — die Bilder aus der Ablage nachtragen. Die Sicherungskopie im
+  // Browser traegt nur die Datensaetze; siehe `store/fotoSpeicher.ts`.
+  const fotosNachladen = useProjectStore((s) => s.fotosNachladen)
+  useEffect(() => {
+    void fotosNachladen()
+  }, [fotosNachladen])
 
   // Issue #69: dispatch user-customizable hotkeys defined in
   // Settings → Hotkeys. The undo/redo entries below intentionally

@@ -15,6 +15,7 @@ import {
   setMobileShareChecksHandler,
   setMobileShareCableAddedHandler,
   setMobileSharePendingChangeHandler,
+  setMobileSharePhotoHandler,
   setMobileSharePincodeAccess,
   setMobileSharePincodeReadHandler,
   setMobileSharePincodes,
@@ -102,6 +103,16 @@ export const registerMobileShareIpc = () => {
     for (const win of BrowserWindow.getAllWindows()) {
       if (win.isDestroyed()) continue
       win.webContents.send('mobileShare:pendingChange', change)
+    }
+  })
+
+  // #884 — ein Foto vom Telefon. Broadcast an alle Renderer; dort legt
+  // `addFoto` es in den Plan. Main schreibt es NICHT selbst weg: das Foto
+  // gehoert in die Plandatei, und die kennt nur der Renderer.
+  setMobileSharePhotoHandler((foto) => {
+    for (const win of BrowserWindow.getAllWindows()) {
+      if (win.isDestroyed()) continue
+      win.webContents.send('mobileShare:foto', foto)
     }
   })
 

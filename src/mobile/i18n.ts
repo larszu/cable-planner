@@ -205,6 +205,22 @@ const de: Record<string, string> = {
   'mobile.report.placeholder': 'für die Protokoll-Zuordnung',
   'mobile.report.send': 'Meldung senden',
 
+  // ── Foto in den Plan (#884) ──────────────────────────────────────────────
+  'mobile.foto.title': 'Foto für die Dokumentation hinzufügen',
+  'mobile.foto.heading': 'Foto für den Plan',
+  'mobile.foto.hint':
+    'Das Foto geht direkt in den Plan und wird auf diesem Telefon kleingerechnet, bevor es gesendet wird. Wähle ein Gerät oder ein Kabel, dann wird es dort abgelegt.',
+  'mobile.foto.pick': 'Foto',
+  'mobile.foto.notAnImage': 'Diese Datei liess sich nicht als Bild lesen.',
+  'mobile.foto.size': '{w} x {h} px · {kb} KB',
+  'mobile.foto.note': 'Notiz (optional)',
+  'mobile.foto.notePlaceholder': 'z.B. Patchfeld nach dem Rigging',
+  'mobile.foto.send': 'Foto senden',
+  'mobile.foto.sent': 'Foto gesendet — es steht am Desktop im Plan',
+  'mobile.foto.sendFailed':
+    'Konnte Foto nicht senden: {error}. Verbindung zum Desktop prüfen.',
+  'mobile.foto.sendFailedShort': 'Konnte Foto nicht senden.',
+
   // ── Pruefbild-Rundgang (B-42) ────────────────────────────────────────────
   'mobile.walk.obsOk': 'stimmt',
   'mobile.walk.obsOther': 'anderes Bild…',

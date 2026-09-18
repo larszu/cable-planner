@@ -272,8 +272,11 @@ file, not in browser storage, not in source. Exports strip them before writing.
 ## 📱 On Site
 - **Mobile build-day view** over the LAN, opened by QR code — no install, no
   account. It is not read-only: the build team ticks off what is done, adds
-  cables it actually pulled, and files change requests, all of which come back
-  into the plan.
+  cables it actually pulled, files change requests and sends photos, all of
+  which come back into the plan.
+- **Photos for the documentation**, from the planner and from the phone. They
+  point at a device or a cable (or at nothing, and then belong to the project),
+  are scaled down on the way in, and travel inside the plan file.
 - **Label sheets and QR labels** for cables and devices, print-ready.
 - **Read-only web viewer** for sharing a plan with someone who does not run the
   app.

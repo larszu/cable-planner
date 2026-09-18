@@ -6,6 +6,7 @@ import { useUiStore } from '../../store/uiStore'
 import { useModule } from '../../store/settingsStore'
 import { cableTypePatchFromPorts } from '../../lib/cableInheritance'
 import { adapterVorschlag } from '../../lib/adapterVorschlag'
+import { FotoListe } from './sections/FotoSection'
 import type { Cable } from '../../types/cable'
 import { LEITER_ROLLEN, type LeiterRolle } from '../../types/conductor'
 import type { EquipmentItem, Port } from '../../types/equipment'
@@ -184,6 +185,13 @@ export const CableProperties = () => {
           </div>
         )
       })()}
+      {/* #884 — Fotos an diesem Lauf. „So lag das Kabel" ist eine Aussage,
+          für die es kein Feld gibt und nie eines geben wird. */}
+      <div className="border-t border-cp-border-muted pt-2">
+        <span className="mb-1 block text-cp-text-secondary">{t('foto.section', 'Photos')}</span>
+        <FotoListe ziel={{ cableId: cable.id }} />
+      </div>
+
       {(() => {
         // v7.9.125 — Kabel-Typ vs. Port-Connector-Mismatch.
         // Greift nur wenn beide Ports existieren und das Kabel

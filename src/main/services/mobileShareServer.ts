@@ -279,6 +279,16 @@ interface MobileShareState {
         patch?: Record<string, unknown>
       }) => void)
     | null
+  /** #884 — ein Foto vom Telefon. Der Renderer legt es in den Plan. */
+  onFoto:
+    | ((foto: {
+        dataUri: string
+        breite: number
+        hoehe: number
+        zeigtAuf?: { equipmentId?: string; cableId?: string }
+        notiz?: string
+      }) => void)
+    | null
 }
 
 const state: MobileShareState = {
@@ -303,6 +313,7 @@ const state: MobileShareState = {
   onPatternCheck: null,
   onCableAdded: null,
   onPendingChange: null,
+  onFoto: null,
 }
 
 /** Loopback or RFC-1918 / link-local / unique-local address? Used to
@@ -865,6 +876,86 @@ const handleRequest = (req: IncomingMessage, res: ServerResponse) => {
     })
     return
   }
+  // #884 — Fotos vom Telefon. Der einzige Weg mit einer Grenze in MEGABYTE.
+  //
+  // WARUM 4 MB UND NICHT MEHR: das Telefon rechnet das Bild vorher auf 1600
+  // px lange Kante herunter (`src/mobile`), und damit liegt es bei 200-400
+  // KB. Die vier Megabyte sind der Deckel gegen ein Telefon, das das NICHT
+  // tut — ein unbeschnittenes 12-Megapixel-Bild soll abprallen und nicht den
+  // Hauptprozess mit einem 12-MB-String beschaeftigen.
+  //
+  // WARUM KEIN BINAERER UPLOAD: dieselbe Form wie die vier anderen Wege,
+  // also JSON mit Data-URI. Ein zweiter Koerpertyp waere eine zweite
+  // Leseschleife, eine zweite Grenze und eine zweite Stelle, an der ein
+  // Fehler anders aussieht — fuer ein Bild, das ohnehin base64 ueber die
+  // Leitung geht, wenn es aus dem Browser kommt.
+  if (pathname === '/fotos' && req.method === 'POST') {
+    if (!authed(req, url)) return denyUnauthorized(req, res)
+    if (!writeAllowed(req, res)) return
+    let body = ''
+    let aborted = false
+    req.on('data', (chunk) => {
+      if (aborted) return
+      body += chunk
+      if (body.length > 4_000_000) {
+        aborted = true
+        res.statusCode = 413
+        applyCors(req, res)
+        res.end('{"error":"photo too large"}')
+        req.destroy()
+      }
+    })
+    req.on('end', () => {
+      if (aborted) return
+      try {
+        const parsed = JSON.parse(body) as Record<string, unknown>
+        if (!showOk(parsed)) return
+        const dataUri = String(parsed.dataUri ?? '')
+        const breite = Number(parsed.breite)
+        const hoehe = Number(parsed.hoehe)
+        // Nur JPEG und PNG, und zwar als Praefix geprueft: ein Data-URI mit
+        // `text/html` darin waere ein Bild, das keines ist, und es landete
+        // in einem `<img src>` im Planer.
+        const bildhaft = /^data:image\/(jpeg|png);base64,/.test(dataUri)
+        if (!bildhaft || !(breite > 0) || !(hoehe > 0)) {
+          res.statusCode = 400
+          applyCors(req, res)
+          res.end('{"error":"not an image"}')
+          return
+        }
+        const ziel = parsed.zeigtAuf as Record<string, unknown> | undefined
+        state.onFoto?.({
+          dataUri,
+          breite,
+          hoehe,
+          zeigtAuf: ziel
+            ? {
+                equipmentId: typeof ziel.equipmentId === 'string' ? ziel.equipmentId : undefined,
+                cableId: typeof ziel.cableId === 'string' ? ziel.cableId : undefined,
+              }
+            : undefined,
+          notiz: typeof parsed.notiz === 'string' ? parsed.notiz : undefined,
+        })
+        res.statusCode = 200
+        applyCors(req, res)
+        res.end('{"ok":true}')
+      } catch {
+        res.statusCode = 400
+        applyCors(req, res)
+        res.end('{"error":"invalid json"}')
+      }
+    })
+    return
+  }
+  if (pathname === '/fotos' && req.method === 'OPTIONS') {
+    res.statusCode = 204
+    applyCors(req, res)
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-CP-Token')
+    res.end()
+    return
+  }
+
   if (pathname === '/pending-changes' && req.method === 'OPTIONS') {
     res.statusCode = 204
     applyCors(req, res)
@@ -1219,6 +1310,21 @@ export const setMobileSharePendingChangeHandler = (
     | null,
 ): void => {
   state.onPendingChange = handler
+}
+
+/** #884 — Registrierung des Callbacks fuer POST /fotos. */
+export const setMobileSharePhotoHandler = (
+  handler:
+    | ((foto: {
+        dataUri: string
+        breite: number
+        hoehe: number
+        zeigtAuf?: { equipmentId?: string; cableId?: string }
+        notiz?: string
+      }) => void)
+    | null,
+): void => {
+  state.onFoto = handler
 }
 
 export const getMobileShareStatus = (): MobileShareInfo & { running: boolean } => ({
