@@ -1095,6 +1095,42 @@ export const balanceForConnector = (
 }
 
 /**
+ * #876 — zwei Stecker desselben Geschlechts passen nicht ineinander.
+ *
+ * ─── WARUM DAS EINE EIGENE PRÜFUNG IST ─────────────────────────────────────
+ *
+ * Weil das Geschlecht am PORT steht (`Port.gender`, #410) und die übrigen
+ * Prüfungen nur den `ConnectorType` sehen. „XLR auf XLR" ist für sie in
+ * Ordnung — und am Aufbau stehen zwei Stifte voreinander. Genau dieser
+ * Fehler kostet eine Fahrt zum Lager, weil er im Plan nicht auffällt.
+ *
+ * ─── UND WARUM ER NUR WARNT ────────────────────────────────────────────────
+ *
+ * Ein Geschlechtswandler ist ein Teil und kein Hindernis: die Verbindung ist
+ * richtig gedacht, es fehlt ein Zwischenstück. Ein Fehler wäre es erst, wenn
+ * es das Teil nicht gäbe.
+ *
+ * Fehlt an einer Seite die Angabe, wird NICHT gewarnt. Ein Port ohne
+ * Geschlecht ist nicht „männlich", er ist ungemessen — und eine Warnung
+ * darüber schickte jemanden mit einem Adapter los, den er nicht braucht.
+ */
+export const checkGenderMismatch = (
+  from: 'male' | 'female' | undefined,
+  to: 'male' | 'female' | undefined,
+): CompatibilityResult | null => {
+  if (!from || !to || from !== to) return null
+  return {
+    level: 'warn',
+    schluessel: 'cableSpec.genderMismatch',
+    werte: { gender: from },
+    message: einsetzen(
+      'Both ends are {gender}. They do not mate — a gender changer goes in between.',
+      { gender: from },
+    ),
+  }
+}
+
+/**
  * #380 — Warnung beim Übergang symmetrisch ↔ unsymmetrisch (Brumm-/Pegel-
  * Probleme; ein DI/Übertrager wird empfohlen).
  */

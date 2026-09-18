@@ -19,12 +19,14 @@ import {
   checkSdiStandardMismatch,
   checkImpedanceMismatch,
   checkBalanceMismatch,
+  checkGenderMismatch,
   balanceForConnector,
   pickHighestSdiStandard,
   type CableSpec,
   type SignalStandard,
   type CompatibilityResult,
 } from '../../types/cableSpec'
+import { adapterVorschlag } from '../../lib/adapterVorschlag'
 import {
   DEFAULT_VIDEO_FORMAT,
   pickCableStandardForFormat,
@@ -240,6 +242,12 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
     specId === CUSTOM_CABLE_SPEC_ID
       ? ''
       : format(tr(selectedEntry.schluessel, selectedEntry.message), selectedEntry.werte)
+
+  // #876 — das Geschlecht der beiden Anschlüsse. Es steht am Port (#410) und
+  // war bis hierher für jede Prüfung unsichtbar: „XLR auf XLR" galt als in
+  // Ordnung, und am Aufbau standen zwei Stifte voreinander.
+  const geschlecht = checkGenderMismatch(fromPort?.gender, toPort?.gender)
+  const vorschlag = adapterVorschlag(fromPort, toPort)
 
   const needsConverter =
     connectorMismatch === 'warn' || sdiMismatch?.level === 'warn' || connectorMismatch === 'error'
@@ -560,6 +568,30 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
             <div className="flex items-center gap-1.5 bg-amber-900/50 p-2 text-amber-100">
               <Icon icon={AlertTriangle} size="sm" />
               {format(tr(balanceWarning.schluessel, balanceWarning.message), balanceWarning.werte)}
+            </div>
+          )}
+          {/* #876 — was zwischen diese beiden Anschlüsse gehört. Hier steht
+              nur der HINWEIS: das Kabel gibt es noch nicht, und in ein Kabel,
+              das noch nicht angelegt ist, lässt sich nichts einsetzen. Der
+              Knopf dazu steht in den Kabel-Eigenschaften. */}
+          {geschlecht?.level === 'warn' && (
+            <div className="flex items-center gap-1.5 bg-amber-900/50 p-2 text-amber-100">
+              <Icon icon={AlertTriangle} size="sm" />
+              {format(tr(geschlecht.schluessel, geschlecht.message), geschlecht.werte)}
+            </div>
+          )}
+          {vorschlag.art !== 'keiner' && (
+            <div className="flex items-center gap-1.5 bg-sky-900/40 p-2 text-sky-100">
+              <Icon icon={AlertTriangle} size="sm" />
+              {vorschlag.art === 'konverter'
+                ? t(
+                    'adapter.suggest.converter',
+                    'These are different signal families. That takes a converter — a device with power and a bandwidth limit, and one you pick yourself.',
+                  )
+                : t(
+                    'adapter.suggest.afterCreate',
+                    'This needs a piece in between. Create the cable, then insert it with one click in the cable properties.',
+                  )}
             </div>
           )}
           {lengthWarning && (
