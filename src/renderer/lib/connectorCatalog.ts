@@ -171,6 +171,11 @@ export const CONNECTOR_CATALOG: ConnectorCatalogEntry[] = [
   { id: 'Fiber Optic SC', label: 'Fibre Optic SC', category: 'fiber', symbol: 'fiber-sc' },
   { id: 'Fiber Optic ST', label: 'Fiber Optic ST', category: 'fiber', symbol: 'fiber-st' },
   { id: 'Toslink', label: 'Toslink', category: 'fiber', symbol: 'toslink' },
+  // #885 — die Breakout-Buchsen. Sie tragen KEIN eigenes Symbol: gezeichnet
+  // ist die runde Buchse, und die sieht bei DUO und QUAD gleich aus. Was sie
+  // unterscheidet, steht innen (`port.fasern`) und nicht auf dem Blech.
+  { id: 'opticalCON DUO', label: 'opticalCON DUO', category: 'fiber', symbol: 'fiber-lc', color: '#fbbf24' },
+  { id: 'opticalCON QUAD', label: 'opticalCON QUAD', category: 'fiber', symbol: 'fiber-lc', color: '#d97706' },
 
   // ---- Power ----
   { id: 'powerCON Input', label: 'powerCON Input', category: 'power', symbol: 'powercon', flow: 'in', color: '#0ea5e9' },

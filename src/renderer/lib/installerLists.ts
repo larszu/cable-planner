@@ -87,6 +87,15 @@ export interface PullListRow {
    * ein Drehfeld; ein als N gezogener Aussenleiter ist eine Gefahr.
    */
   adern: string
+  /**
+   * #885 — welche Faser der Buchse dieses Kabel belegt, je Ende.
+   *
+   * Sie steht neben `adern` und aus demselben Grund: auf der Ziehliste
+   * haengt an dieser Angabe, welches Ende an welchen Schwanz des Breakouts
+   * kommt. Vertauscht man sie, liegt das Kabel richtig und fuehrt kein
+   * Licht. Leer, wo keine Buchse aufgeteilt ist.
+   */
+  fasern: string
   /** Zu welchem Anschluss die Leitung gehoert — leer, wenn zu keinem. */
   anschluss: string
   layer: string
@@ -97,6 +106,29 @@ export interface PullListRow {
   status: string
   test: string
   notes: string
+}
+
+/**
+ * Die Faser-Spalte einer Ziehlisten-Zeile: „2 TX \u2192 2 RX" (#885).
+ *
+ * Die Rolle steht nur dort, wo sie angegeben ist. Ein angenommenes TX waere
+ * auf einer Ziehliste genau die Sorte Zahl, die wie eine Messung aussieht.
+ */
+const faserSpalte = (
+  von: EquipmentItem | undefined,
+  vonPortId: string,
+  faserVon: number | undefined,
+  nach: EquipmentItem | undefined,
+  nachPortId: string,
+  faserNach: number | undefined,
+): string => {
+  if (faserVon === undefined && faserNach === undefined) return ''
+  const seite = (e: EquipmentItem | undefined, portId: string, pos: number | undefined): string => {
+    if (pos === undefined) return '?'
+    const rolle = portObj(e, portId)?.fasern?.find((f) => f.position === pos)?.rolle
+    return rolle && rolle !== 'unbestimmt' ? `${pos} ${rolle.toUpperCase()}` : String(pos)
+  }
+  return `${seite(von, vonPortId, faserVon)} \u2192 ${seite(nach, nachPortId, faserNach)}`
 }
 
 export const buildPullListRows = (project: CablePlannerProject): PullListRow[] => {
@@ -129,6 +161,7 @@ export const buildPullListRows = (project: CablePlannerProject): PullListRow[] =
       adern: (c.adern ?? [])
         .map((a) => aderKurz(a, normFuer(c.anschlussId)))
         .join(' · '),
+      fasern: faserSpalte(from, c.fromPortId, c.faserVon, to, c.toPortId, c.faserNach),
       anschluss: anschlussName(c.anschlussId),
       layer: c.layer ?? '',
       pathway: c.pathway ?? '',
@@ -155,6 +188,7 @@ export const pullListTable = (project: CablePlannerProject): CsvTable => {
     'Typ',
     'Länge (m)',
     'Adern',
+    'Faser',
     'Bündel',
     'Ebene',
     'Trasse/Pfad',
@@ -176,6 +210,7 @@ export const pullListTable = (project: CablePlannerProject): CsvTable => {
     r.type,
     r.lengthM,
     r.adern,
+    r.fasern,
     r.anschluss,
     r.layer,
     r.pathway,

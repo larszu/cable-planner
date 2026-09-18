@@ -177,6 +177,8 @@ const DROP_ART: Record<LoadDropKind, [key: string, de: string]> = {
   'equipment-circuit': ['app.loadReport.equipmentCircuit', 'Circuit role of a device'],
   'equipment-adapter': ['app.loadReport.equipmentAdapter', 'Adapter details of a device'],
   'farbnorm': ['app.loadReport.farbnorm', 'Colour standard without a stated origin'],
+  'faser': ['app.loadReport.faser', 'Fibre without a usable position in the socket'],
+  'polaritaetsnorm': ['app.loadReport.polaritaetsnorm', 'Polarity method without a stated origin'],
   'anschlussListe': ['app.loadReport.anschlussListe', 'Wire bundle'],
   'ader': ['app.loadReport.ader', 'Conductor details of a cable'],
   'senkenprofil': ['app.loadReport.senkenprofil', 'Sink profile without a stated origin'],

@@ -28,6 +28,7 @@ import { infoDialog } from '../../lib/infoDialog'
 import { promptDialog } from '../../lib/promptDialog'
 import { effectivePortNumber, findDuplicatePortNumbers } from '../../lib/portNumbering'
 import { format, useTranslation } from '../../lib/i18n'
+import { FaserEditor } from './sections/FaserEditor'
 import { Icon } from '../shared/Icon'
 import { PORT_GROUP_INFO, gruppenBefunde, naechsteGruppenId, portGruppen } from '../../lib/portGroups'
 import { vorschlagBeiVorgabename } from '../../lib/portDefaultName'
@@ -742,6 +743,16 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                   AUX 8001+ · PGM 10010 · PVW 10011
                 </span>
               </div>
+            )}
+            {/* #885 — der Breakout. Er steht bei den optischen Buchsen und
+                bei MPO-artigen: nur dort hat „welche Faser" eine Bedeutung. */}
+            {(port.connectorType === 'Fiber' ||
+              port.connectorType === 'SFP' ||
+              port.connectorType === 'SFP+' ||
+              port.connectorType === 'Neutrik opticalCON DUO' ||
+              port.connectorType === 'Neutrik opticalCON QUAD' ||
+              (port.fasern?.length ?? 0) > 0) && (
+              <FaserEditor port={port} onChange={(fasern) => updatePort(port.id, { fasern })} />
             )}
             {(port.connectorType === 'Fiber' || port.connectorType === 'SFP' || port.connectorType === 'SFP+') && (
               <div className="mt-1 border border-sky-900/60 bg-sky-950/30 p-1.5">

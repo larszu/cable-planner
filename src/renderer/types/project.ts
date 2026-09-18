@@ -409,6 +409,17 @@ export interface CablePlannerProject {
    */
   fotos?: import('./foto').Foto[]
   farbnormen?: import('./conductor').Farbnorm[]
+  /**
+   * #885 — die Polaritaets-Methoden dieser Anlage (TIA-568 A/B/C …).
+   *
+   * Eingebaut ist KEINE, und das ist eine Entscheidung: die Begruendung in
+   * voller Laenge im Kopf von `types/fiber.ts`. Wie bei den Farbnormen wird
+   * eine GEWAEHLT und traegt ihre Herkunft. Optional -> heilt zu [].
+   */
+  polaritaetsnormen?: import('./fiber').Polaritaetsnorm[]
+  /** #885 — welche der Methoden fuer dieses Projekt gilt. Ohne sie bleibt
+   *  die Polaritaet ungeprueft, und der Plan-Check sagt das. */
+  polaritaetsnormId?: string
   /** B-45 — die Anschluss: welche Leitungen zusammen einen Anschluss bilden
    *  und welche Leiter er haben MUSS. Powerlock zieht man je Leiter einzeln;
    *  ein 400-A-Anschluss sind fuenf Leitungen. Ohne das `soll` koennte die

@@ -123,6 +123,10 @@ export const StatusBar = ({
   const sourceIdentities = useProjectStore((s) => s.project.sourceIdentities)
   const anschlussListe = useProjectStore((s) => s.project.anschlussListe)
   const farbnormen = useProjectStore((s) => s.project.farbnormen)
+  // #885 — die Polaritaets-Methoden. Ohne gewaehlte urteilt die Pruefung
+  // nicht, sie sagt nur, dass die Polaritaet ungeprueft ist.
+  const polaritaetsnormen = useProjectStore((s) => s.project.polaritaetsnormen)
+  const polaritaetsnormId = useProjectStore((s) => s.project.polaritaetsnormId)
   const defaultVideoFormat = useProjectStore((s) => s.project.metadata.defaultVideoFormat)
   // Die Auskunft des Gebaeudes speist die Haus-Checks (facility Issue #2).
   // Fehlt sie, schweigen sie vollstaendig.
@@ -145,8 +149,8 @@ export const StatusBar = ({
   // den Kabelgraph). Abhaengigkeiten sind Store-Referenzen, wechseln also nur
   // bei echter Projekt-Aenderung.
   const { errorCount, warningCount } = useMemo(
-    () => runDrawingChecks({ equipment, cables, drumKit, sourceIdentities, anschlussListe, farbnormen, defaultVideoFormat, hausAuskunft }),
-    [equipment, cables, drumKit, sourceIdentities, anschlussListe, farbnormen, defaultVideoFormat],
+    () => runDrawingChecks({ equipment, cables, drumKit, sourceIdentities, anschlussListe, farbnormen, polaritaetsnormen, polaritaetsnormId, defaultVideoFormat, hausAuskunft }),
+    [equipment, cables, drumKit, sourceIdentities, anschlussListe, farbnormen, polaritaetsnormen, polaritaetsnormId, defaultVideoFormat],
   )
   // ── DIE NETZ-BEFUNDE, NEBEN DEN PLAN-CHECK (2026-09-07) ────────────────
   //

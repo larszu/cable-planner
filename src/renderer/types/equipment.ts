@@ -23,6 +23,18 @@ export type ConnectorType =
    *  Touring/Stage-Variante. */
   | 'LEMO 3K.93C (SMPTE 304M)'
   | 'Neutrik Dragonfly (SMPTE 304M)'
+  /**
+   * #885 — die beiden Breakout-Buchsen von Neutrik: aussen EIN Stecker,
+   * innen zwei bzw. vier Fasern.
+   *
+   * Sie stehen als eigene Typen und nicht als Freitext in `fiberConnector`,
+   * weil die Faserzahl an ihnen haengt: „opticalCON" allein sagt nicht, ob
+   * zwei oder vier Fasern durchgehen — und genau danach fragt jede
+   * Patchliste. Der Breakout selbst steht in `port.fasern`; diese Typen
+   * sagen, was aussen sitzt.
+   */
+  | 'Neutrik opticalCON DUO'
+  | 'Neutrik opticalCON QUAD'
   | 'Wireless/RF'
   | 'VGA'
   | 'DVI'
@@ -137,6 +149,7 @@ export const ALL_CONNECTOR_TYPES: ConnectorType[] = [
   'DisplayPort', 'VGA', 'DVI', 'USB', 'USB-C',
   'Triax', 'Triax (Damar & Hagen)', 'Triax (Fischer)',
   'LEMO 3K.93C (SMPTE 304M)', 'Neutrik Dragonfly (SMPTE 304M)',
+  'Neutrik opticalCON DUO', 'Neutrik opticalCON QUAD',
   'F-Connector', 'DB9', 'DB25', 'Wireless/RF',
   'DMX 5-pol (XLR)', 'DMX 3-pol (XLR)', 'Cinch/RCA', 'SCART', 'S-Video', 'TT/Bantam', 'Mini-BNC', 'Micro-BNC',
   'IEC 230V', 'PowerCON', 'Schuko 230V', 'C7 Eurostecker',
@@ -392,6 +405,17 @@ export interface Port {
    * Bestimmt die Default-Reichweite/Bandbreite der Faser.
    */
   fiberClass?: string
+  /**
+   * #885 — der Breakout dieser Buchse: welche Fasern liegen dahinter.
+   *
+   * Leer/fehlend heisst „nicht aufgeteilt" und ist der Normalfall — eine
+   * LC-Duplex-Buchse braucht das nicht. Eine opticalCON QUAD schon: dort
+   * haengt an der Faser-Nummer, welches Kabel Licht fuehrt.
+   *
+   * Warum die Liste hier steht und nicht als vier Kabel im Plan, steht im
+   * Kopf von `types/fiber.ts`.
+   */
+  fasern?: import('./fiber').Faser[]
   /**
    * v7.9.77 / #170 — Manual position override of the port-dot on the
    * device's rack-panel (front oder rear). Normalized 0..1 across the

@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid'
 import { parse } from 'yaml'
 import type { ConnectorType, EquipmentTemplate, Port } from '../types/equipment'
+import type { Faser } from '../types/fiber'
 import { STORAGE_KEYS } from './storageKeys'
 
 const OWNER = 'netbox-community'
@@ -111,28 +112,52 @@ const portExists = (ports: Port[], name: string): boolean => {
   return ports.some((port) => normalize(port.name) === needle)
 }
 
+/**
+ * #885 — der Breakout, den NetBox schon mitliefert.
+ *
+ * Ein Rear-Port traegt dort `positions`: wieviele Front-Ports auf ihm liegen.
+ * Das ist genau die Faserzahl einer Buchse, und dieser Import hat sie bisher
+ * weggeworfen (Nebenbefund in #885).
+ *
+ * Was hier NICHT passiert: eine Richtung raten. NetBox sagt mit `positions`,
+ * WIEVIELE Lagen es gibt, und nichts darueber, welche sendet. Die Rollen
+ * bleiben deshalb `unbestimmt` — das ist der Zustand der Quelle, und ein
+ * eingesetztes TX saehe danach aus wie eine Angabe von NetBox.
+ */
+const fasernAus = (raw: Record<string, unknown>): Faser[] | undefined => {
+  const n = Number(raw.positions)
+  if (!Number.isInteger(n) || n < 2) return undefined
+  return Array.from({ length: n }, (_, i) => ({
+    id: `netbox-faser-${i + 1}`,
+    position: i + 1,
+    rolle: 'unbestimmt' as const,
+  }))
+}
+
 const appendPort = (
   inputs: Port[],
   outputs: Port[],
   name: string,
   connectorType: ConnectorType,
   direction: 'in' | 'out' | 'bidirectional',
+  fasern?: Faser[],
 ) => {
+  const mit = (port: Port): Port => (fasern ? { ...port, fasern } : port)
   if (direction === 'in') {
-    if (!portExists(inputs, name)) inputs.push(makePort(name, connectorType, 'in'))
+    if (!portExists(inputs, name)) inputs.push(mit(makePort(name, connectorType, 'in')))
     return
   }
   if (direction === 'out') {
-    if (!portExists(outputs, name)) outputs.push(makePort(name, connectorType, 'out'))
+    if (!portExists(outputs, name)) outputs.push(mit(makePort(name, connectorType, 'out')))
     return
   }
   // Keep bidirectional ports as a mirrored in/out pair with matching names,
   // but avoid multiplying duplicates when NetBox entries overlap.
   if (!portExists(inputs, name)) {
-    inputs.push(makePort(name, connectorType, 'bidirectional'))
+    inputs.push(mit(makePort(name, connectorType, 'bidirectional')))
   }
   if (!portExists(outputs, name)) {
-    outputs.push(makePort(name, connectorType, 'bidirectional'))
+    outputs.push(mit(makePort(name, connectorType, 'bidirectional')))
   }
 }
 
@@ -179,7 +204,7 @@ const importPorts = (device: NetBoxFrontMatter) => {
     const roleValue = toText(raw.role ?? raw.mode ?? raw.rear_port ?? '')
     const connectorType = inferConnectorType(name, typeValue)
     const direction = inferDirection(name, typeValue, roleValue)
-    appendPort(inputs, outputs, name, connectorType, direction)
+    appendPort(inputs, outputs, name, connectorType, direction, fasernAus(raw))
   }
 
   for (const raw of device.power_ports ?? []) {

@@ -24,6 +24,7 @@ import { deriveDrumChannels } from './drumMicing'
 import { labelTargetIssues } from './labelDerivation'
 import { beurteileAdapter } from '../types/adapter'
 import { anschlussBefunde, type AnschlussLeitung } from '../types/conductor'
+import { breakoutBefunde, polaritaetsBefunde } from '../types/fiber'
 import { beurteileBild } from '../types/displayCapability'
 import { gruppenBefunde } from './portGroups'
 import { pruefeAdressen, type DmxGeraet } from './dmx'
@@ -77,6 +78,11 @@ export interface DrawingCheckInput {
   /** B-45 — die Anschluesse und die gewaehlten Farbnormen. */
   anschlussListe?: import('../types/conductor').Anschluss[]
   farbnormen?: import('../types/conductor').Farbnorm[]
+  /** #885 — die Polaritaets-Methoden und die fuer dieses Projekt gewaehlte.
+   *  Ohne eine gewaehlte bleibt die Polaritaet ungeprueft, und die Pruefung
+   *  sagt das, statt zu schweigen. */
+  polaritaetsnormen?: import('../types/fiber').Polaritaetsnorm[]
+  polaritaetsnormId?: string
   /** B-47 — das Format, das gilt, wo das Kabel keines nennt. */
   defaultVideoFormat?: import('../types/videoFormat').VideoFormatId
   /**
@@ -110,6 +116,8 @@ export const runDrawingChecks = (
     sourceIdentities,
     anschlussListe,
     farbnormen,
+    polaritaetsnormen,
+    polaritaetsnormId,
     defaultVideoFormat,
     hausAuskunft,
   }: DrawingCheckInput,
@@ -684,7 +692,13 @@ export const runDrawingChecks = (
     const to = portById.get(c.toPortId)
     const a = from?.fiberConnector
     const b = to?.fiberConnector
-    if (a && b && a !== b) {
+    // #885 — ein BREAKOUT ist kein Mismatch. Wo eine Seite die Buchse in
+    // Fasern aufteilt (opticalCON QUAD aussen, LC innen), sind zwei
+    // verschiedene Steckverbinder genau die Bauform und kein Fehler; diese
+    // Pruefung haette sie als einen gemeldet und damit jeden Breakout im
+    // Plan rot gefaerbt.
+    const breakout = (from?.fasern?.length ?? 0) > 0 || (to?.fasern?.length ?? 0) > 0
+    if (a && b && a !== b && !breakout) {
       findings.push({
         id: `fiber-conn:${c.id}`,
         severity: 'warning',
@@ -698,6 +712,83 @@ export const runDrawingChecks = (
         ),
         cableId: c.id,
       })
+    }
+  }
+
+  // — Check 16c: Breakout unvollstaendig / doppelt belegt (#885) -------------
+  // Der strukturelle Nachbar von 16b: dort sind es N Buchsen fuer EIN Bild,
+  // hier ist es EINE Buchse mit N Fasern. Die Rechnung steht in
+  // `types/fiber.ts` und nicht hier — sie gehoert zum Modell, und die
+  // Eigenschaften-Leiste stellt dieselbe Frage.
+  for (const e of equipment) {
+    for (const p of [...e.inputs, ...e.outputs]) {
+      if (!p.fasern || p.fasern.length === 0) continue
+      const belegungen = cables
+        .filter((c) => c.fromPortId === p.id || c.toPortId === p.id)
+        .map((c) => ({
+          cableId: c.id,
+          bezeichnung: c.cableNumber || c.name || c.id,
+          position: c.fromPortId === p.id ? c.faserVon : c.faserNach,
+        }))
+      for (const b of breakoutBefunde({ id: p.id, name: `${e.name} · ${p.name}`, fasern: p.fasern }, belegungen)) {
+        findings.push({
+          id: `fibre-breakout:${p.id}:${b.art}`,
+          // Doppelt belegt ist ein FEHLER und nicht bloss ein Hinweis: im
+          // Plan sind es zwei Verbindungen, in der Anlage eine — eine davon
+          // fuehrt kein Licht, und welche steht nirgends.
+          severity: b.art === 'faser-doppelt' || b.art === 'faser-unbekannt' ? 'error' : 'warning',
+          category: 'Fibre breakout',
+          message: format(tr(b.schluessel, b.text), b.werte),
+          equipmentId: e.id,
+          cableId: b.cableId,
+        })
+      }
+    }
+  }
+
+  // — Check 17c: Faser-Polaritaet (#885) -------------------------------------
+  // Sie laeuft NUR ueber Kabel, deren beide Enden eine Faser nennen: nur dort
+  // gibt es ueberhaupt eine Polaritaet zu pruefen. Und sie urteilt nur mit
+  // gewaehlter Methode — ohne sie steht EIN Befund je Plan („ungeprueft"),
+  // nicht einer je Kabel, sonst erschlaegt die Auskunft die Liste.
+  const polNorm = polaritaetsnormen?.find((n) => n.id === polaritaetsnormId)
+  const faserKabel = cables.filter((c) => c.faserVon !== undefined && c.faserNach !== undefined)
+  if (faserKabel.length > 0 && !polNorm) {
+    findings.push({
+      id: 'fibre-polarity:no-method',
+      severity: 'info',
+      category: 'Fibre polarity',
+      message: format(
+        tr(
+          'check.fibreNoPolarityMethod',
+          '{n} fibre links carry a strand number, but no polarity method is chosen - their direction is unchecked. Which method applies to this installation is not in the program.',
+        ),
+        { n: faserKabel.length },
+      ),
+    })
+  }
+  if (polNorm) {
+    for (const c of faserKabel) {
+      const von = portById.get(c.fromPortId)?.fasern?.find((f) => f.position === c.faserVon)
+      const nach = portById.get(c.toPortId)?.fasern?.find((f) => f.position === c.faserNach)
+      if (!von && !nach) continue
+      for (const b of polaritaetsBefunde(
+        { id: c.id, bezeichnung: c.cableNumber || c.name || c.id },
+        von,
+        nach,
+        polNorm,
+      )) {
+        findings.push({
+          id: `fibre-polarity:${c.id}:${b.art}`,
+          // Verdreht ist ein Fehler — es geht kein Licht. „Rolle offen" ist
+          // eine Luecke in der Angabe und faerbt deshalb nicht rot; gruen
+          // wird sie trotzdem nicht.
+          severity: b.art === 'polaritaet-verdreht' ? 'error' : 'info',
+          category: 'Fibre polarity',
+          message: format(tr(b.schluessel, b.text), b.werte),
+          cableId: c.id,
+        })
+      }
     }
   }
 

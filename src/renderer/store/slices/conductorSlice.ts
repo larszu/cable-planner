@@ -21,13 +21,31 @@ import type { Anschluss, Farbnorm } from '../../types/conductor'
  */
 export type ConductorSlice = Pick<
   ProjectState,
-  'setFarbnormen' | 'setAnschluss' | 'setOscLauscher'
+  'setFarbnormen' | 'setAnschluss' | 'setOscLauscher' | 'setPolaritaetsnormen' | 'setPolaritaetsnormId'
 >
 
 export const createConductorSlice: StateCreator<ProjectState, [], [], ConductorSlice> = (set) => ({
   setFarbnormen: (farbnormen: Farbnorm[]) =>
     set((state) => {
       const updated = { ...state.project, farbnormen }
+      scheduleProjectAutosave(updated)
+      return { project: updated }
+    }),
+
+  // #885 — dieselbe Bauform fuer die Polaritaets-Methoden, und hier im
+  // selben Slice: es ist dieselbe Sorte Aussage — eine Zuordnung, die fuer
+  // die ganze Anlage gilt und die jemand WAEHLEN muss, statt sie geschenkt
+  // zu bekommen.
+  setPolaritaetsnormen: (polaritaetsnormen) =>
+    set((state) => {
+      const updated = { ...state.project, polaritaetsnormen }
+      scheduleProjectAutosave(updated)
+      return { project: updated }
+    }),
+
+  setPolaritaetsnormId: (polaritaetsnormId) =>
+    set((state) => {
+      const updated = { ...state.project, polaritaetsnormId }
       scheduleProjectAutosave(updated)
       return { project: updated }
     }),
