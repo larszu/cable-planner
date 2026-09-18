@@ -117,6 +117,7 @@ import {
 } from '../types/conductor'
 import { normalisiereFaser, normalisierePolaritaetsnorm } from '../types/fiber'
 import { normalisiereBerichtsvorlage } from '../types/bericht'
+import { normalisiereFrontplatte } from '../types/frontplatte'
 import { pruefeVorlage } from '../lib/textProtocol'
 import { pruefeCompanion } from '../lib/companionControl'
 
@@ -1263,9 +1264,25 @@ const healProjectPositions = (
             onDrop?.({ kind: 'faser', reason: 'invalid-value', label: p.name })
             fasern = undefined
           }
-          if (typ === p.connectorType && art === p.type && fasern === p.fasern) return p
+          // #879 — der Ausschnitt. Was keine positive Zahl ist, faellt weg:
+          // eine 0 stuende auf der Bohrschablone als Loch ohne Durchmesser,
+          // und eine negative Zahl machte aus einer Ueberschneidung einen
+          // Abstand.
+          const rohMass = (p as { ausschnittMm?: unknown }).ausschnittMm
+          let ausschnittMm = p.ausschnittMm
+          if (rohMass !== undefined && !(Number(rohMass) > 0)) {
+            onDrop?.({ kind: 'ausschnitt', reason: 'invalid-value', label: p.name })
+            ausschnittMm = undefined
+          }
+          if (
+            typ === p.connectorType &&
+            art === p.type &&
+            fasern === p.fasern &&
+            ausschnittMm === p.ausschnittMm
+          )
+            return p
           veraendert = true
-          return { ...p, connectorType: typ, type: art, fasern }
+          return { ...p, connectorType: typ, type: art, fasern, ausschnittMm }
         })
         return veraendert ? neu : ports
       }
@@ -1273,6 +1290,21 @@ const healProjectPositions = (
       const neueAus = heilePorts(item.outputs)
       if (neueEin !== item.inputs || neueAus !== item.outputs) {
         item = { ...item, inputs: neueEin, outputs: neueAus }
+      }
+
+      // #879 — die Frontplatte. Eine Art, die dieser Stand nicht kennt,
+      // faellt WEG statt stehenzubleiben: die Oberflaeche zeigte sonst ein
+      // leeres Auswahlfeld, und die Liste im Plan gruppierte nach einem Wort,
+      // das niemand kennt. Die MASSE bleiben (`widthMm`/`heightMm`) — sie
+      // gehoeren dem Geraet und nicht der Platte.
+      if (item.frontplatte !== undefined) {
+        const geheilt = normalisiereFrontplatte(item.frontplatte)
+        if (!geheilt) {
+          onDrop?.({ kind: 'frontplatte', reason: 'invalid-value', label: item.name })
+          item = (({ frontplatte: _weg, ...rest }) => rest)(item) as EquipmentItem
+        } else if (geheilt !== item.frontplatte) {
+          item = { ...item, frontplatte: geheilt }
+        }
       }
 
       // Schaltbild (Strom, 2026-09-08). Eine Bauart, die dieser Stand nicht

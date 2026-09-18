@@ -209,6 +209,10 @@ export const EQUIPMENT_FIELD_CLASS: Record<string, FieldClass> = {
   isConverter: 'substantive',
   isDistributionAmp: 'substantive',
   isPatchPanel: 'substantive',
+  // #879 — dass dieses Geraet eine Frontplatte IST, samt Art und
+  // Streifenhoehe. `substantive`: an der Art haengt, in welcher Liste die
+  // Platte steht, und an der Streifenhoehe, was aus dem Drucker kommt.
+  frontplatte: 'substantive',
   // B-46 — der Adapter. `substantive`, und zwar mit Nachdruck: an ihm haengt,
   // ob die Strecke ueberhaupt traegt, was auf der Packliste steht und wie der
   // Signalweg weiterlaeuft. Eine geaenderte Richtung ist keine Optik.

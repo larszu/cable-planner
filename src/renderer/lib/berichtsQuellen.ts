@@ -21,6 +21,7 @@ import { spectrumTableForProject } from './spectrumPlan'
 import { deliveryTableForProject } from './deliveryParity'
 import { tallyMapTableForProject } from './tallyMap'
 import { handoverManifestTableForProject } from './postHandover'
+import { frontplattenTable } from './frontplattenListe'
 import type { CsvTable } from './csv'
 import type { CablePlannerProject } from '../types/project'
 
@@ -42,6 +43,9 @@ export const BERICHTS_QUELLEN: ReadonlyArray<BerichtsQuelle> = [
   { id: 'tally-karte', label: 'Tally map', table: tallyMapTableForProject },
   // Bedarf 62 — das Blatt, mit dem die Post die Karten wiederfindet.
   { id: 'post-uebergabe', label: 'Handover to post', table: handoverManifestTableForProject },
+  // #879 — die Bohrliste. Sie geht durch denselben Editor wie jede andere
+  // Liste; eine eigene Ansicht waere eine zweite Fassung derselben Tabelle.
+  { id: 'frontplatten', label: 'Faceplates', table: frontplattenTable },
 ]
 
 export const quelleNach = (id: string): BerichtsQuelle | undefined =>

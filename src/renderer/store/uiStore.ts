@@ -880,6 +880,9 @@ interface UiState extends PersistedUiState {
   /** #880 — der Berichts-Editor (Spalten, Gruppen, Sortierung, Vorlagen). */
   berichtEditorOpen: boolean
   setBerichtEditorOpen: (open: boolean) => void
+  /** #879 — der Frontplatten-Editor (Anschlussfeld, Wanddose, Stagebox). */
+  frontplatteOpen: boolean
+  setFrontplatteOpen: (open: boolean) => void
   /** #881 — der LED-Wand-Rechner. */
   ledWallOpen: boolean
   setLedWallOpen: (open: boolean) => void
@@ -1435,6 +1438,8 @@ export const useUiStore = create<UiState>((set) => ({
   setAdernOpen: (open) => set({ adernOpen: open }),
   berichtEditorOpen: false,
   setBerichtEditorOpen: (open) => set({ berichtEditorOpen: open }),
+  frontplatteOpen: false,
+  setFrontplatteOpen: (open) => set({ frontplatteOpen: open }),
   ledWallOpen: false,
   setLedWallOpen: (open) => set({ ledWallOpen: open }),
   oscOpen: false,

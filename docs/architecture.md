@@ -959,6 +959,28 @@ Das Wichtigste in Listenform. Niemals brechen ohne expliziten Architektur-Review
     bekommt, und die Vorlage von gestern blendet danach die falsche aus. Den
     Preis trägt `heileForm`: Unbekanntes fällt aus der Vorlage, Neues kommt
     **sichtbar** dazu. Gemessen in `tests/berichtForm.test.ts`.
+27. **Die Frontplatte legt kein zweites Positionsfeld an** (`types/frontplatte.ts`,
+    #879). Gemessen, bevor gebaut wurde: `equipment.widthMm`/`heightMm`
+    (v7.9.80) sind das Mass der Platte, `port.panelPosX/Y` (#170) die Lage
+    jedes Steckers, `ConnectorSymbol` (#472) die Zeichnung. Neu ist nur die
+    Aussage, DASS ein Gerät eine Platte ist (`equipment.frontplatte`), samt
+    Art und Streifenhöhe.
+
+    Daraus folgt das vierte Kriterium aus #879 von selbst: wer im
+    Platten-Editor zieht, verschiebt den Punkt in der Rack-Ansicht und in der
+    3D-Sicht mit — es ist dasselbe Feld und keine Synchronisierung.
+
+    **Der Ausschnitt wird eingetragen, nie geraten.** Ein D-Loch misst 24 mm,
+    eine BNC-Durchführung je nach Bauform 10 bis 12,7 mm; welche gilt, steht
+    im Dokument des Herstellers. `ausschnittMm` ist deshalb optional, und ohne
+    ihn prüft `plattenBefunde` **nicht** auf Überschneidung — und sagt das:
+    eine Platte ohne Ausschnittmasse ist nicht kollisionsfrei, sie ist
+    ungeprüft. Dieselbe Regel auf dem Papier: ohne Mass zeichnet
+    `frontplattenBlatt` ein Kreuz und keinen geratenen Kreis.
+
+    Der Editor liegt in `components/Panel/` und **nicht** in `components/Rack/`:
+    dort hängt die Three.js-Grenze, und eine Anschlussdose soll kein 1,2-MB-
+    Bundle nachladen. Gemessen in `tests/frontplatte.test.ts`.
 
 ---
 

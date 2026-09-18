@@ -51,6 +51,18 @@ export const UNDESCRIBED = 'nicht beschrieben'
  * Datei, ohne dass sich am Plan etwas geaendert haette.
  */
 export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
+  // #879 — die Frontplatten-Liste (`lib/frontplattenListe.ts`). Sie geht an
+  // den, der bohrt, und der hat den Plan nicht auf dem Schirm.
+  Plate: 'Das Gerät, das diese Frontplatte IST — so benannt, wie es im Plan heißt.',
+  Kind: 'Was für eine Platte es ist: Wandanschlussfeld, Stagebox, Rack-Blende oder sonstige.',
+  'Width (mm)': 'Breite der Platte in Millimetern. Leer heißt: am Gerät ist kein Maß eingetragen.',
+  'Height (mm)': 'Höhe der Platte in Millimetern. Leer heißt: am Gerät ist kein Maß eingetragen.',
+  Connector: 'Der Stecker, wie er im Plan heißt — er IST ein Port des Geräts und keine Zeichnung daneben.',
+  Type: 'Die Bauform des Steckers (XLR, BNC, opticalCON …).',
+  'X (mm)': 'Abstand der Ausschnitt-MITTE vom linken Rand der Platte. Leer heißt: dieser Stecker hat noch keine Lage — nicht, dass er in der Ecke sitzt.',
+  'Y (mm)': 'Abstand der Ausschnitt-MITTE vom oberen Rand der Platte. Leer heißt: keine Lage gesetzt.',
+  'Cutout (mm)': 'Durchmesser des Ausschnitts, aus dem Dokument des Herstellers. LEER heißt „nicht angegeben“ — dieser Stecker wurde dann NICHT gegen die anderen auf Überschneidung geprüft, und das Programm rät das Maß nicht.',
+  Gender: 'Stift oder Buchse, soweit am Port eingetragen. Leer heißt: nicht angegeben.',
   // Bedarf 136 — der Quittungs-Block (`lib/handoverSignature.ts`).
   Vorgang: 'Welches Bein des Ausgabe-Vorgangs quittiert wird: die Ausgabe oder die Rückgabe.',
   Datum:

@@ -73,6 +73,7 @@ import { AnalysisDialog } from './components/Analysis/AnalysisDialog'
 import { DeliveryDialog } from './components/Delivery/DeliveryDialog'
 import { AdernDialog } from './components/Power/AdernDialog'
 import { BerichtEditorDialog } from './components/Export/BerichtEditorDialog'
+import { FrontplattenDialog } from './components/Panel/FrontplattenDialog'
 import { LedWallDialog } from './components/Project/LedWallDialog'
 import { OscEmpfangPanel } from './components/ShowControl/OscEmpfangPanel'
 import { ReconcileDialog } from './components/Network/ReconcileDialog'
@@ -181,6 +182,8 @@ const DROP_ART: Record<LoadDropKind, [key: string, de: string]> = {
   'faser': ['app.loadReport.faser', 'Fibre without a usable position in the socket'],
   'polaritaetsnorm': ['app.loadReport.polaritaetsnorm', 'Polarity method without a stated origin'],
   'berichtsvorlage': ['app.loadReport.berichtsvorlage', 'Report template without a name or a list'],
+  'ausschnitt': ['app.loadReport.ausschnitt', 'Cutout size that is not a positive number'],
+  'frontplatte': ['app.loadReport.frontplatte', 'Faceplate of an unknown kind'],
   'anschlussListe': ['app.loadReport.anschlussListe', 'Wire bundle'],
   'ader': ['app.loadReport.ader', 'Conductor details of a cable'],
   'senkenprofil': ['app.loadReport.senkenprofil', 'Sink profile without a stated origin'],
@@ -1503,6 +1506,7 @@ export default function App() {
       <DeliveryDialog />
       <AdernDialog />
       <BerichtEditorDialog />
+      <FrontplattenDialog />
       <LedWallDialog />
       <OscEmpfangPanel />
       <ReconcileDialog />
