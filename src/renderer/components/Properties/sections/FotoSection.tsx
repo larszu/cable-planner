@@ -121,7 +121,14 @@ export const FotoListe = ({ ziel }: { ziel?: FotoZiel }) => {
           // Handschuh. `scripts/ui-targets.mjs` zaehlt die Flaechen unter der
           // Marke und deckelt sie — eine neue darunter waere ein Schritt
           // zurueck gewesen, und der Deckel anzuheben hiesse, ihn zu machen.
-          className="inline-flex min-h-11 items-center gap-1 bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5 disabled:opacity-50"
+          //
+          // MIT AUSRUFEZEICHEN, und das ist kein Schmuck: `index.css` setzt
+          // `button { min-height: var(--ziel) }` = 32 px als UNGESCHICHTETE
+          // Regel (B-76). Ungeschichtetes CSS gewinnt in Tailwind 4 gegen
+          // jede Utility-Klasse — `min-h-11` allein blieb wirkungslos, und
+          // zwar unsichtbar: gebaut war die Regel, gegolten hat sie nie.
+          // Gemessen im Browser: 32 px vorher, 44 px hiermit.
+          className="inline-flex min-h-11! items-center gap-1 bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5 disabled:opacity-50"
         >
           <Icon icon={Camera} className="h-3 w-3" />
           {laeuft ? t('foto.working', 'Scaling…') : t('foto.add', 'Add photo…')}
