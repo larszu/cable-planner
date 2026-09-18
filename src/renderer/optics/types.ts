@@ -876,30 +876,23 @@ export interface ProjectFile {
      *  sie nicht in jeder Richtung still verlorengehen (ADR-005). */
     unknownDomains?: Record<string, unknown>;
   };
-  /**
-   * ADR-005 — Buehnen-Felder aus einem eingelesenen Raum, die MultiCam nicht
-   * modelliert (Podest-Hoehe, Drehung, Polygon-Umriss), je Buehnen-Id.
-   *
-   * Gehoert aus demselben Grund in die Datei wie `avForeign`: laege es nur im
-   * Speicher, waere jedes Speichern-und-neu-Oeffnen zwischen Import und Export
-   * genau der Verlust, den das Feld verhindern soll.
-   */
-  stageForeign?: Record<string, import('../utils/venueExchange').ForeignStageFields>;
-  /**
-   * ADR-005 — Gebaeudeplan-Felder aus einem eingelesenen Raum, die MultiCam
-   * nicht modelliert (Name, Sperre, PDF-Herkunft, Seitenzahl). Ohne sie kam
-   * ein uebernommener PDF-Grundriss als namenloses Bild ohne Seitenbezug
-   * zurueck. Gehoert aus demselben Grund in die Datei wie `stageForeign`.
-   */
-  floorPlanForeign?: import('../utils/venueExchange').ForeignFloorPlanFields;
-  /**
-   * ADR-005 — Wand-Felder aus einem eingelesenen Raum, die MultiCam nicht
-   * modelliert (Kruemmung, Reflexionsgrad), je Wand-Id.
-   */
-  wallForeign?: Record<string, import('../utils/venueExchange').ForeignWallFields>;
-  /**
-   * ADR-005 — Personen-Felder aus einem eingelesenen Raum, die MultiCam nicht
-   * modelliert (Pose, Blickrichtung), je Personen-Id.
-   */
-  personForeign?: Record<string, import('../utils/venueExchange').ForeignPersonFields>;
+  // Die vier Fremdfeld-Faecher aus MultiCams `.mcplan` — `stageForeign`,
+  // `floorPlanForeign`, `wallForeign`, `personForeign` — stehen hier NICHT.
+  //
+  // Sie beschreiben Felder des MultiCam-Raummodells, das dieses Repo nicht
+  // fuehrt, und ihre Typen kamen aus `../utils/venueExchange`: einer Datei,
+  // die beim Uebernehmen der Optik-Logik (a49aad8) nicht mitkam. Vier
+  // tsc-Fehler auf main waren die Folge — und damit JEDER Pull Request rot,
+  // gleich woran er arbeitete.
+  //
+  // Die Datei nachzuvendorieren waere der falsche Ausweg gewesen:
+  // `ProjectFile` ist die Form des MultiCam-Projektfiles und wird hier von
+  // nichts gelesen. Das Fremdfeld-Fach mitzuschleppen hiesse, MultiCams
+  // Raummodell in den Cable-Planner zu holen, damit ein ungenutzter Typ
+  // vollstaendig aussieht. Wer das Fach hier wirklich braucht, braucht
+  // vorher das Raummodell — und dann ist es eine Entscheidung und kein
+  // Import.
+  //
+  // ADR-005 ist davon unberuehrt: `avForeign` oben ist das Fach, das dieses
+  // Repo tatsaechlich fuehrt und ueber `lib/avplan.ts` auch wieder ausgibt.
 }
