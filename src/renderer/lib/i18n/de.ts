@@ -3196,6 +3196,8 @@ export const de: Dict = {
   'packet.sheet.frontplatten': 'Frontplatten',
   'app.loadReport.ausschnitt': 'Ausschnittmaß, das keine positive Zahl ist',
   'app.loadReport.frontplatte': 'Frontplatte mit unbekannter Art',
+  'check.haus.klinkeMehrdeutig':
+    '{name} benutzt die DALI-Adresse {adresse}, und die Auskunft des Hauses sagt nicht, welche Art das ist. Kurzadresse, Gruppe und Broadcast sind drei verschiedene Dinge — das Letzte ist der ganze Bus, Notlicht eingeschlossen.',
   'faceplate.title': 'Frontplatten-Editor',
   'faceplate.hint':
     'Die Stecker hier SIND die Ports dieses Geräts und keine Zeichnung davon: was du verschiebst, ist dieselbe Lage, die die Rack-Ansicht liest. Die Millimeter kommen aus dem Gerätemaß; der Beschriftungsstreifen druckt 1:1.',
