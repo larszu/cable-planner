@@ -18,6 +18,8 @@ import type { EquipmentItem, Port } from '../types/equipment'
 import { INSTALL_STATUS_LABEL } from '../types/lifecycle'
 import { aderKurz } from '../types/conductor'
 import { cableLabelId } from './docIds'
+import { rowSplit, shortfallLabel, splitLabel } from './cableSplit'
+import type { SplitResult, StockShortfall } from './cableSplit'
 import { portDisplayLabel } from './portLabel'
 import type { CsvCell, CsvTable } from './csv'
 import { csvFromTable, type DocumentStamp } from './documentStamp'
@@ -310,6 +312,24 @@ export interface CableBomRow {
   qtyWithReserve: number
   totalLengthM: number
   tieLine: boolean
+  /**
+   * #875 — die Stückelung EINES Laufs dieser Zeile in Lagerlängen.
+   *
+   * Fehlt sie, hat das Projekt für diesen Kabeltyp keine Lagerlängen
+   * hinterlegt. Das ist ausdrücklich nicht „passt genau": niemand hat gesagt,
+   * welche Trommeln es gibt, und eine Stückelung zu erfinden hiesse, eine
+   * Packliste gegen ein Lager zu rechnen, das niemand genannt hat.
+   */
+  split?: SplitResult
+  /**
+   * Was der Bestand für die GESAMTE Menge dieser Zeile nicht hergibt.
+   *
+   * Gerechnet wird gegen `qty` Läufe und nicht gegen einen: wer fünfmal
+   * denselben Lauf zieht, braucht fünfmal die Stücke. Leer heisst „reicht"
+   * oder „nicht gezählt" — den Unterschied macht `count` am Bestandseintrag,
+   * und ohne Zählung gibt es keine Warnung.
+   */
+  shortfall?: StockShortfall[]
 }
 
 /**
@@ -351,6 +371,20 @@ export const buildCableBomRows = (
       })
     }
   }
+  // #875 — die Stückelung je Zeile. Sie wird NACH dem Aggregieren gerechnet
+  // und nicht je Kabel: zehn gleich lange Läufe werden zehnmal gleich
+  // gestückelt, und zehnmal dieselbe Rechnung zu führen wäre nur langsamer.
+  //
+  // Der Fehlbestand dagegen zählt die ganze Zeile: wer fünfmal denselben Lauf
+  // zieht, braucht fünfmal die Stücke. Eine Warnung, die nur einen Lauf
+  // prüft, meldete Entwarnung für ein Lager, das beim zweiten leer ist.
+  const bestand = project.cableStock ?? []
+  for (const row of buckets.values()) {
+    const { split, shortfall } = rowSplit(bestand, row.type, row.lengthM, row.qty)
+    if (split) row.split = split
+    if (shortfall) row.shortfall = shortfall
+  }
+
   return Array.from(buckets.values()).sort(
     (a, b) => a.type.localeCompare(b.type) || a.lengthM - b.lengthM,
   )
@@ -361,6 +395,10 @@ export const cableBomTable = (
   reservePercent = 10,
 ): CsvTable => {
   const rows = buildCableBomRows(project, reservePercent)
+  // Die drei Stückelungs-Spalten erscheinen nur, wenn das Projekt überhaupt
+  // Lagerlängen führt. Drei leere Spalten in jedem Blatt wären eine Frage an
+  // den Leser, auf die das Werkzeug die Antwort hat: es gibt keine.
+  const mitStueckelung = rows.some((r) => r.split)
   const headers = [
     'Typ',
     'Länge (m)',
@@ -368,6 +406,7 @@ export const cableBomTable = (
     `Menge inkl. ${reservePercent}% Reserve`,
     'Gesamtlänge (m)',
     'Festverbindung',
+    ...(mitStueckelung ? ['Stückelung', 'Kupplungen', 'Fehlbestand'] : []),
   ]
   const body: CsvCell[][] = rows.map((r) => [
     r.type,
@@ -376,6 +415,13 @@ export const cableBomTable = (
     r.qtyWithReserve,
     r.totalLengthM,
     r.tieLine ? 'ja' : '',
+    ...(mitStueckelung
+      ? [
+          r.split ? splitLabel(r.split) : '',
+          r.split ? r.split.couplers * r.qty : '',
+          r.shortfall && r.shortfall.length > 0 ? shortfallLabel(r.shortfall) : '',
+        ]
+      : []),
   ])
   return { headers, rows: body }
 }

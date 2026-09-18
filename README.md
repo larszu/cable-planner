@@ -122,6 +122,15 @@ Built with **Electron, React, and TypeScript**, it is designed for real-world pr
   - Length tracking
   - Color coding
   - Labeling & notes
+- **Runs split into the stock lengths you actually own** (#875): record the
+  drums this production runs (Settings → Project → *Available stock lengths*),
+  and the cable bill of materials turns a 137 m run into 100 + 50 with one
+  coupler. Fewest couplers first, least excess second — a coupler is a
+  connection that can come loose, ten metres of excess cost coiling. The split
+  and the coupler count go into the on-screen list, the CSV and the PDF, and
+  the list says what the stock does not cover. An entry without a counted
+  quantity produces no warning: nobody counted, so there is nothing to warn
+  about.
 - Reusable project components
 
 ---

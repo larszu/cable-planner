@@ -1,4 +1,4 @@
-import type { Cable } from './cable'
+import type { Cable, CableStockEntry } from './cable'
 import type { EquipmentItem } from './equipment'
 import type { IntercomPlan } from './intercomPlan'
 import type { LocationFrame } from './location'
@@ -369,6 +369,16 @@ export interface CablePlannerProject {
    *  je Projekt: eine App-weite Einstellung erbte ein zweites Projekt mit,
    *  und dann lauschte ein Port, den fuer dieses Projekt niemand wollte. */
   oscLauscher?: import('./showControl').OscLauscherConfig
+  /**
+   * #875 — die verfuegbaren Lagerlaengen je Kabeltyp.
+   *
+   * Sie stehen am PROJEKT und nicht im Lager: ADR-006 hat den Bestand in ein
+   * eigenes Werkzeug ausgelagert, und der Planer soll kein Lager-Modell
+   * bekommen. Was hier steht, ist die Angabe „mit diesen Trommeln fahren wir
+   * diese Produktion" — von Hand gepflegt oder spaeter uebernommen.
+   * Optional -> alte Projekte heilen zu [].
+   */
+  cableStock?: CableStockEntry[]
   farbnormen?: import('./conductor').Farbnorm[]
   /** B-45 — die Anschluss: welche Leitungen zusammen einen Anschluss bilden
    *  und welche Leiter er haben MUSS. Powerlock zieht man je Leiter einzeln;

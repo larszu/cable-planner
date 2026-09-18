@@ -181,6 +181,7 @@ const DROP_ART: Record<LoadDropKind, [key: string, de: string]> = {
   'pattern-check': ['app.loadReport.patternCheck', 'Visual check from the test-pattern walk'],
   'hub-switch': ['app.loadReport.hubSwitch', 'Switching action on a router'],
   'crosspoint': ['app.loadReport.crosspoint', 'Row of the planned routing'],
+  'cable-stock': ['app.loadReport.cableStock', 'Stock length of a cable type'],
 } satisfies Record<LoadDropKind, [string, string]>
 
 const DROP_GRUND: Record<LoadDropReason, [key: string, de: string]> = {

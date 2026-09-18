@@ -30,22 +30,13 @@
 // nicht eine schlechtere Stückelung vorgesetzt bekommen, weil eine Trommel
 // gerade draussen ist.
 
-import type { CableType } from '../types/cable'
+// Der Typ liegt seit der Anbindung ans Projekt (#875) in `types/cable.ts` —
+// dort, wo die anderen Projekt-Angaben stehen, und nicht in dem Modul, das
+// mit ihm rechnet. Er wird hier RE-EXPORTIERT, damit Aufrufer weiter eine
+// Stelle haben: die Rechnung und ihre Eingabe gehören zusammen gelesen.
+import type { CableStockEntry, CableType } from '../types/cable'
 
-/** Eine verfügbare Länge eines Kabeltyps. */
-export interface CableStockEntry {
-  type: CableType
-  /** Länge eines Stücks in Metern. */
-  lengthM: number
-  /**
-   * Wie viele davon vorhanden sind.
-   *
-   * Fehlt die Angabe, ist das NICHT „keine" — es heisst, dass niemand gezählt
-   * hat. Dann gibt es keine Bestandswarnung, weil es keinen Bestand gibt,
-   * gegen den man warnen könnte.
-   */
-  count?: number
-}
+export type { CableStockEntry }
 
 /** Ein Stück in der Stückelung. */
 export interface SplitPiece {
@@ -221,3 +212,57 @@ export function stockShortfall(
 export function lengthsForType(bestand: readonly CableStockEntry[], type: CableType): number[] {
   return bestand.filter((e) => e.type === type).map((e) => e.lengthM)
 }
+
+// ───────────────────────────────────────────────────────────────────────────
+// Die Anbindung: eine Zeile einer Kabel-Stückliste stückeln.
+//
+// WARUM DAS HIER STEHT UND NICHT IN DER LISTE. Es gibt DREI Stücklisten in
+// diesem Repo — die gedruckte (`installerLists`), den Kabel-BOM-Dialog und
+// den BOM-Abschnitt im Export-Fenster. Jede rechnete den Aufruf sonst selbst,
+// und drei Fassungen derselben Rechnung sind genau die Defektform, die dieses
+// Repo `zwei-rechnungen` nennt — nur mit dreien.
+// ───────────────────────────────────────────────────────────────────────────
+
+/** Was eine Stücklisten-Zeile über ihre Stückelung weiss. */
+export interface RowSplit {
+  split?: SplitResult
+  shortfall?: StockShortfall[]
+}
+
+/**
+ * Die Stückelung einer Zeile, plus der Fehlbestand für ALLE ihre Läufe.
+ *
+ * `runs` ist die Stückzahl der Zeile: wer fünfmal denselben Lauf zieht,
+ * braucht fünfmal die Stücke. Eine Warnung, die nur einen Lauf prüft,
+ * meldete Entwarnung für ein Lager, das beim zweiten leer ist.
+ *
+ * Ohne Lagerlängen für diesen Typ kommt ein leeres Ergebnis zurück — und
+ * ausdrücklich keine erfundene Stückelung.
+ */
+export function rowSplit(
+  bestand: readonly CableStockEntry[],
+  type: string | undefined,
+  lengthM: number,
+  runs: number,
+): RowSplit {
+  if (!type || !(lengthM > 0)) return {}
+  const laengen = lengthsForType(bestand, type as CableStockEntry['type'])
+  if (laengen.length === 0) return {}
+  const outcome = splitRun(lengthM, laengen)
+  if (!outcome.ok) return {}
+  const split = outcome.split
+  if (runs <= 0) return { split }
+  const fehlt = stockShortfall(
+    { ...split, pieces: split.pieces.map((p) => ({ ...p, quantity: p.quantity * runs })) },
+    bestand.filter((e) => e.type === type),
+  )
+  return fehlt.length > 0 ? { split, shortfall: fehlt } : { split }
+}
+
+/** Die Stückelung als Text: „2 × 100 m + 1 × 50 m". */
+export const splitLabel = (split: SplitResult): string =>
+  split.pieces.map((p) => `${p.quantity} × ${p.lengthM} m`).join(' + ')
+
+/** Der Fehlbestand als Text: „100 m: 5 gebraucht / 3 da". */
+export const shortfallLabel = (fehlt: readonly StockShortfall[]): string =>
+  fehlt.map((f) => `${f.lengthM} m: ${f.needed}/${f.available}`).join(' · ')

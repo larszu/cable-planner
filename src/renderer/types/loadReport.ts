@@ -66,6 +66,18 @@ export type LoadDropKind =
   | 'equipment-adapter'
   | 'farbnorm'
   | 'anschlussListe'
+  /**
+   * #875 — eine Lagerlaenge ohne rechenbare Laenge oder mit negativer
+   * Stueckzahl.
+   *
+   * Warum sie faellt und gemeldet wird: sie geht in die Stueckelung der
+   * Kabellaeufe ein. Eine Laenge von 0 teilte jeden Lauf in unendlich viele
+   * Stuecke, eine negative Zahl machte aus einem Fehlbestand einen
+   * Ueberschuss. Beides sieht auf der Packliste aus wie eine Aussage ueber
+   * das Lager — und wer die Datei angelegt hat, soll erfahren, dass hier
+   * eine Angabe verlorenging.
+   */
+  | 'cable-stock'
   | 'ader'
   | 'senkenprofil'
   /**

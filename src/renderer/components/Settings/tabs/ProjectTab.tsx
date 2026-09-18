@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useSyncedState } from '../../../hooks/useSyncedState'
 import { Download, Upload, Loader2, X } from 'lucide-react'
 import { Icon } from '../../shared/Icon'
@@ -8,11 +8,13 @@ import { infoDialog } from '../../../lib/infoDialog'
 import { EMPTY_TEMPLATE_ADD_REPORT, hasOmissions } from '../../../lib/templateAddReport'
 import { pickImageAsDataUri } from '../../../lib/readImageAsDataUri'
 import { SettingsCard } from '../SettingsCard'
+import { PanelHint } from '../../shared/PanelHint'
 import { DEFAULT_CABLE_NUMBERING, cableNumberExample } from '../../../lib/cableNumbering'
 import { DEFAULT_LENGTH_ESTIMATION } from '../../../lib/cableLengthEstimate'
 import { VIDEO_FORMATS, DEFAULT_VIDEO_FORMAT } from '../../../types/videoFormat'
 import { POWER_STANDARDS, DEFAULT_POWER_STANDARD } from '../../../types/powerStandard'
 import type { CableNumberingScheme, LengthEstimationScheme } from '../../../types/project'
+import type { CableStockEntry } from '../../../types/cable'
 import type { PowerStandardId } from '../../../types/powerStandard'
 
 /**
@@ -389,6 +391,170 @@ const LengthEstimationSection = () => {
 }
 
 /**
+ * #875 — die verfuegbaren Lagerlaengen je Kabeltyp.
+ *
+ * ─── WARUM SIE HIER STEHEN UND NICHT IM LAGER ──────────────────────────────
+ *
+ * ADR-006 hat den Bestand in ein eigenes Werkzeug ausgelagert; der Planer
+ * kennt kein Lager-Modell. Was hier gepflegt wird, ist keine Bestandsfuehrung,
+ * sondern die Angabe „mit diesen Trommeln fahren wir diese Produktion" —
+ * genau so viel, wie die Stueckelung der Laeufe braucht.
+ *
+ * ─── UND WARUM DIE STUECKZAHL LEER BLEIBEN DARF ────────────────────────────
+ *
+ * Leer heisst NICHT null. Es heisst, dass niemand gezaehlt hat — und dann
+ * warnt die Packliste auch nicht vor einem Fehlbestand, den niemand
+ * festgestellt hat. Eine Vorbelegung mit 0 machte aus „nicht gezaehlt" ein
+ * „nichts da", und das steht danach auf einer Liste, mit der jemand ins
+ * Lager geht.
+ *
+ * Die Typ-Auswahl zeigt die Typen, die im PLAN vorkommen. Eine Liste aller
+ * Steckertypen waere sechzig Eintraege lang, von denen dieser Plan drei
+ * benutzt.
+ */
+const CableStockSection = () => {
+  const t = useTranslation()
+  const stock = useProjectStore((s) => s.project.cableStock) ?? []
+  const setCableStock = useProjectStore((s) => s.setCableStock)
+  const cables = useProjectStore((s) => s.project.cables)
+
+  const typenImPlan = useMemo(
+    () => [...new Set(cables.filter((c) => !c.wireless).map((c) => c.type))].sort(),
+    [cables],
+  )
+  const [neuerTyp, setNeuerTyp] = useState('')
+  const typ = neuerTyp || typenImPlan[0] || ''
+
+  const setzen = (i: number, patch: Partial<CableStockEntry>) =>
+    setCableStock(stock.map((e, j) => (j === i ? { ...e, ...patch } : e)))
+
+  const anlegen = () => {
+    if (!typ) return
+    setCableStock([...stock, { type: typ as CableStockEntry['type'], lengthM: 100 }])
+  }
+
+  return (
+    <SettingsCard
+      title={t('settings.project.stock.title', 'Available stock lengths')}
+      description={t(
+        'settings.project.stock.desc',
+        'Which drums this production runs. The cable bill of materials splits every run into these lengths — fewest couplers first, least excess second — and says what the stock does not cover.',
+      )}
+    >
+      <div className="space-y-2 text-cp-xs text-cp-text-bright">
+        {stock.length === 0 && (
+          <p className="text-cp-text-muted">
+            {t(
+              'settings.project.stock.none',
+              'Nothing recorded. Without stock lengths a run stays one figure — and at the dock there is no cable that long.',
+            )}
+          </p>
+        )}
+
+        {stock.map((e, i) => (
+          <div key={`${e.type}-${i}`} className="grid grid-cols-[1fr_5rem_5rem_2rem] items-end gap-2">
+            <label className="block">
+              <span className="mb-1 block text-cp-text-muted">
+                {t('settings.project.stock.type', 'Cable type')}
+              </span>
+              <input
+                value={e.type}
+                onChange={(ev) => setzen(i, { type: ev.target.value as CableStockEntry['type'] })}
+                className="w-full border border-cp-border bg-cp-surface-3 p-1.5"
+              />
+            </label>
+            <label className="block">
+              <span className="mb-1 block text-cp-text-muted">
+                {t('settings.project.stock.length', 'Length (m)')}
+              </span>
+              <input
+                type="number"
+                min={1}
+                value={e.lengthM}
+                onChange={(ev) => setzen(i, { lengthM: Math.max(1, Number(ev.target.value) || 1) })}
+                className="w-full border border-cp-border bg-cp-surface-3 p-1.5"
+              />
+            </label>
+            <label className="block">
+              <span className="mb-1 block text-cp-text-muted">
+                {t('settings.project.stock.count', 'In stock')}
+              </span>
+              <input
+                type="number"
+                min={0}
+                value={e.count ?? ''}
+                placeholder={t('settings.project.stock.uncounted', 'not counted')}
+                onChange={(ev) =>
+                  setzen(i, {
+                    count:
+                      ev.target.value.trim() === ''
+                        ? undefined
+                        : Math.max(0, Number(ev.target.value) || 0),
+                  })
+                }
+                className="w-full border border-cp-border bg-cp-surface-3 p-1.5"
+              />
+            </label>
+            <button
+              type="button"
+              onClick={() => setCableStock(stock.filter((_, j) => j !== i))}
+              className="border border-cp-border p-1.5 hover:bg-cp-surface-3"
+              title={t('settings.project.stock.remove', 'Remove')}
+            >
+              <Icon icon={X} className="h-3 w-3" />
+            </button>
+          </div>
+        ))}
+
+        {/* Hinter „mehr": der erste Satz ist die Anweisung, der Rest die
+            Begruendung. `PanelHint` ist die Hausform dafuer. */}
+        <PanelHint
+          text={t(
+            'settings.project.stock.uncountedHint',
+            'Leave “In stock” empty when nobody has counted. Empty is not zero — and the list only warns about a shortfall somebody actually established.',
+          )}
+        />
+
+        <div className="flex items-end gap-2 pt-1">
+          <label className="block flex-1">
+            <span className="mb-1 block text-cp-text-muted">
+              {t('settings.project.stock.newType', 'Type for a new entry')}
+            </span>
+            {typenImPlan.length > 0 ? (
+              <select
+                value={typ}
+                onChange={(ev) => setNeuerTyp(ev.target.value)}
+                className="w-full border border-cp-border bg-cp-surface-3 p-1.5"
+              >
+                {typenImPlan.map((tp) => (
+                  <option key={tp} value={tp}>
+                    {tp}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <input
+                value={neuerTyp}
+                onChange={(ev) => setNeuerTyp(ev.target.value)}
+                className="w-full border border-cp-border bg-cp-surface-3 p-1.5"
+              />
+            )}
+          </label>
+          <button
+            type="button"
+            onClick={anlegen}
+            disabled={!typ}
+            className="bg-sky-700 px-3 py-1.5 hover:bg-sky-600 disabled:opacity-50"
+          >
+            {t('settings.project.stock.add', 'Add length')}
+          </button>
+        </div>
+      </div>
+    </SettingsCard>
+  )
+}
+
+/**
  * Plan-Standards — technische Vorgaben für DIESEN Plan, je Gewerk. Der Cable
  * Planner deckt mehr als Video ab; das frühere „Format"-Feld in der Kopfzeile
  * ist hierher (und um den Strom-/Netz-Standard erweitert) gewandert.
@@ -636,6 +802,7 @@ export const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
 
       <CableNumberingSection />
       <LengthEstimationSection />
+      <CableStockSection />
 
       <LibraryExportSection />
 
