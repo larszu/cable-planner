@@ -2,9 +2,11 @@ import type { StateCreator } from 'zustand'
 import { scheduleProjectAutosave } from '../projectAutosave'
 import type { ProjectState } from '../projectStore'
 import type { CableStockEntry } from '../../types/cable'
+import type { LedPanelType, LedWall } from '../../types/ledWall'
 
 /**
- * #875 — die verfuegbaren Lagerlaengen je Kabeltyp.
+ * #875 / #881 — womit diese Produktion gebaut wird: Lagerlaengen und
+ * LED-Kacheln.
  *
  * ─── WARUM DAS EIN EIGENER SLICE IST ───────────────────────────────────────
  *
@@ -27,12 +29,30 @@ import type { CableStockEntry } from '../../types/cable'
  * wie bei den Farbnormen. Zwei Stellen, die dasselbe pruefen, sind eine
  * Stelle zu viel.
  */
-export type CableStockSlice = Pick<ProjectState, 'setCableStock'>
+export type CableStockSlice = Pick<ProjectState, 'setCableStock' | 'setLedPanelTypes' | 'setLedWalls'>
 
 export const createCableStockSlice: StateCreator<ProjectState, [], [], CableStockSlice> = (set) => ({
   setCableStock: (cableStock: CableStockEntry[]) =>
     set((state) => {
       const updated = { ...state.project, cableStock }
+      scheduleProjectAutosave(updated)
+      return { project: updated }
+    }),
+
+  // #881 — die LED-Waende liegen im selben Slice und nicht in einem eigenen:
+  // es ist derselbe Belang, nur eine Ebene weiter — eine Angabe darueber,
+  // WOMIT diese Produktion gebaut wird. Ein dritter Slice mit derselben
+  // Form waere eine Datei mehr und keine Grenze mehr.
+  setLedPanelTypes: (ledPanelTypes: LedPanelType[]) =>
+    set((state) => {
+      const updated = { ...state.project, ledPanelTypes }
+      scheduleProjectAutosave(updated)
+      return { project: updated }
+    }),
+
+  setLedWalls: (ledWalls: LedWall[]) =>
+    set((state) => {
+      const updated = { ...state.project, ledWalls }
       scheduleProjectAutosave(updated)
       return { project: updated }
     }),

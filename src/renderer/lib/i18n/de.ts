@@ -5619,6 +5619,7 @@ export const de: Dict = {
   'app.loadReport.hubSwitch': 'Schaltvorgang an einer Kreuzschiene',
   'app.loadReport.crosspoint': 'Zeile der geplanten Schaltung',
   'app.loadReport.cableStock': 'Lagerlaenge eines Kabeltyps',
+  'app.loadReport.ledWall': 'LED-Wand oder Panel-Typ',
   'app.loadReport.duplicateId': 'doppelte Id, der erste Eintrag gilt',
   'app.loadReport.danglingRef': 'der Verweis zeigt ins Leere — das Ziel wurde gelöscht',
   'app.loadReport.unknownValue': 'unbekannter Wert — die Datei stammt vermutlich aus einer anderen Fassung',
@@ -5709,4 +5710,63 @@ export const de: Dict = {
   'haus.keineKlinke': '— keine —',
   'haus.nurLesen': 'nur lesen — diese Adresse meldet, sie schaltet nicht',
   'haus.schaltet': 'schaltet — was dabei passiert, sagt das Gebäude',
+  // ── LED-Wand (#881) ──────────────────────────────────────────────────
+  //
+  // „Pixelabstand" und „Sending Card" sind die Branchenbegriffe; die Karte
+  // heisst auch auf Deutsch so. Die wichtigsten Sätze dieser Gruppe sind
+  // die beiden, die eine fehlende Angabe benennen: eine Wand aus Panels
+  // ohne Gewichtsangabe wiegt nicht 0 kg, und eine Karte, über die niemand
+  // etwas gesagt hat, trägt nicht unbegrenzt viel.
+  'app.menu.tools.ledWall': 'LED-Wand…',
+  'app.menu.tools.ledWall.note':
+    'Panels, Auflösung, Gewicht, Leistung — und die Pixelmap für den Medienserver',
+  'led.title': 'LED-Wand',
+  'led.intro':
+    'Eine Wand ist ein Raster gleicher Kacheln. Kachelzahl, Auflösung, Gewicht und Last fallen aus den Kacheldaten heraus — hier wird nichts geschätzt, und ein Panel-Typ ohne Gewichtsangabe ergibt eine Wand von unbekanntem Gewicht und keine von null.',
+  'led.types': 'Panel-Typen',
+  'led.types.none':
+    'Kein Panel-Typ eingetragen. Die Zahlen stehen auf dem Datenblatt — Pixelabstand, Auflösung, Masse, und wo angegeben Gewicht und Leistung.',
+  'led.types.add': 'Panel-Typ hinzufügen',
+  'led.panel.new': 'Neuer Panel-Typ',
+  'led.panel.name': 'Name',
+  'led.panel.pitch': 'Pixelabstand (mm)',
+  'led.panel.px': 'Pixel quer',
+  'led.panel.py': 'Pixel hoch',
+  'led.panel.w': 'Breite (mm)',
+  'led.panel.h': 'Höhe (mm)',
+  'led.panel.weight': 'Gewicht (kg)',
+  'led.panel.avg': 'Leistung, Dauer (W)',
+  'led.panel.max': 'Leistung, Spitze (W)',
+  'led.panel.source': 'Datenblatt (URL)',
+  'led.remove': 'Entfernen',
+  'led.walls': 'Wände',
+  'led.walls.none': 'Noch keine Wand geplant.',
+  'led.walls.needType': 'Eine Wand braucht zuerst einen Panel-Typ.',
+  'led.walls.add': 'Wand hinzufügen',
+  'led.wall.new': 'Neue Wand',
+  'led.wall.name': 'Name',
+  'led.wall.type': 'Panel-Typ',
+  'led.wall.columns': 'Spalten',
+  'led.wall.rows': 'Reihen',
+  'led.opening.w': 'Öffnung Breite (mm)',
+  'led.opening.h': 'Öffnung Höhe (mm)',
+  'led.opening.apply': 'Raster einpassen',
+  'led.opening.result': '{c} × {r} Kacheln, {bw} mm quer und {bh} mm hoch bleiben übrig',
+  'led.sum.panels': 'Panels',
+  'led.sum.pixels': 'Auflösung',
+  'led.sum.size': 'Mass (mm)',
+  'led.sum.weight': 'Gewicht',
+  'led.sum.noWeight': 'Panel-Typ trägt kein Gewicht',
+  'led.sum.avg': 'Leistung, Dauer',
+  'led.sum.max': 'Leistung, Spitze',
+  'led.sum.noPower': 'Panel-Typ trägt keine Leistungsangabe',
+  'led.sum.peakWhy':
+    'Die Sicherung wird nach der Spitze gewählt und nicht nach dem Mittel. Eine LED-Wand zieht im Weissbild ein Vielfaches ihres Mittels, und eine Sicherung nach dem Mittel fällt beim ersten Weissblitz.',
+  'led.ports.count': 'Ports der Sending Card',
+  'led.ports.capacity': 'Pixel je Port',
+  'led.ports.ok': '{need} von {have} Ports tragen sie',
+  'led.ports.short': 'Reicht nicht — {need} Ports nötig, {have} vorhanden',
+  'led.ports.unknown':
+    'Zur Sending Card ist nichts eingetragen — also wird auch nichts behauptet.',
+  'led.pixelmap': 'Pixelmap als PNG',
 }

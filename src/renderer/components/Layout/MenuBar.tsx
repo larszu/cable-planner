@@ -53,6 +53,7 @@ import {
   ZoomIn,
   ZoomOut,
   ListOrdered,
+  Grid3x3,
   ChevronDown,
 } from 'lucide-react'
 import { Icon } from '../shared/Icon'
@@ -917,6 +918,16 @@ export const MenuBar = ({
             note={t('app.menu.tools.delivery.note', 'Where it goes out, with which parameters')}
           >
             {t('app.menu.tools.delivery', 'Delivery (streaming destinations)…')}
+          </MenuItem>
+          <MenuItem
+            onClick={() => useUiStore.getState().setLedWallOpen(true)}
+            icon={<Icon icon={Grid3x3} size="sm" />}
+            note={t(
+              'app.menu.tools.ledWall.note',
+              'Panels, resolution, weight, power — and the pixel map for the media server',
+            )}
+          >
+            {t('app.menu.tools.ledWall', 'LED wall…')}
           </MenuItem>
           <MenuItem
             onClick={() => useUiStore.getState().setAdernOpen(true)}

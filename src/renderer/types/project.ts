@@ -379,6 +379,20 @@ export interface CablePlannerProject {
    * Optional -> alte Projekte heilen zu [].
    */
   cableStock?: CableStockEntry[]
+  /**
+   * #881 — die Panel-TYPEN, mit denen dieses Projekt rechnet.
+   *
+   * Sie stehen am Projekt und nicht app-weit: welche Kacheln im Haus liegen,
+   * ist eine Angabe der Produktion, und ein zweites Projekt erbte sie sonst
+   * mit. Optional -> alte Projekte heilen zu [].
+   */
+  ledPanelTypes?: import('./ledWall').LedPanelType[]
+  /**
+   * #881 — die geplanten LED-Waende. Jede verweist auf ihren Typ und traegt
+   * die ANZAHL, nie die Masse: die stehen am Typ (ADR-001).
+   * Optional -> alte Projekte heilen zu [].
+   */
+  ledWalls?: import('./ledWall').LedWall[]
   farbnormen?: import('./conductor').Farbnorm[]
   /** B-45 — die Anschluss: welche Leitungen zusammen einen Anschluss bilden
    *  und welche Leiter er haben MUSS. Powerlock zieht man je Leiter einzeln;
