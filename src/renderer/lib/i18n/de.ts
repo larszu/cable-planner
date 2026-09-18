@@ -5788,4 +5788,12 @@ export const de: Dict = {
     'Dazwischen gehört ein Zwischenstück. Kabel anlegen, dann in den Kabel-Eigenschaften mit einem Klick einsetzen.',
   'adapter.insert': 'Einsetzen',
   'adapter.insert.title': 'In diesen Lauf einsetzen — ein Undo nimmt es wieder heraus',
+  // ── Die Sicherungskopie im Browser ───────────────────────────────────
+  //
+  // „Keine Sicherungskopie" und nicht „Speicher voll": der Plan selbst ist
+  // in Ordnung, nur die Kopie im Browser fehlt. Wer „Speicher voll" liest,
+  // sucht den Fehler an der falschen Stelle.
+  'statusbar.autosave.label': 'Keine Sicherungskopie',
+  'statusbar.autosave.title':
+    'Der Browser hat die Sicherungskopie abgelehnt — der Plan ist {mb} MB gross, der Browser-Speicher fasst etwa 5. In eine Datei speichern; am Plan selbst fehlt nichts.',
 }

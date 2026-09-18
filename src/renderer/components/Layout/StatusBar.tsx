@@ -7,6 +7,7 @@ import { useCollabStore } from '../../store/collabStore'
 import { useProjectStore } from '../../store/projectStore'
 import { useTranslation, format } from '../../lib/i18n'
 import { runDrawingChecks } from '../../lib/drawingChecks'
+import { autosaveFehlschlag } from '../../store/projectAutosave'
 import { buildAddressPlan } from '../../lib/addressPlan'
 import { segmentFindings } from '../../lib/networkSegments'
 import { actionCounts, actionItems } from '../../lib/actionItems'
@@ -127,6 +128,11 @@ export const StatusBar = ({
   const hausAuskunft = useProjectStore((s) => s.project.hausAuskunft)
   const networkSegments = useProjectStore((s) => s.project.networkSegments)
   const togglePlanCheck = useUiStore((s) => s.togglePlanCheck)
+  // Beim Rendern gefragt und nicht abonniert: die Fussleiste rendert ohnehin
+  // bei jeder Projektaenderung, und der Autosave laeuft aus jedem Slice — ein
+  // Store, der beim Schreiben einen anderen Store schreibt, waere eine
+  // Schleife, auf die niemand gefasst ist.
+  const autosaveWeg = autosaveFehlschlag()
   // Memoisiert, weil die StatusBar bei jeder Viewport-Aenderung rendert, die
   // Check-Engine aber ueber den ganzen Plan laeuft (seit ADR-001 auch ueber
   // den Kabelgraph). Abhaengigkeiten sind Store-Referenzen, wechseln also nur
@@ -229,6 +235,26 @@ export const StatusBar = ({
             <Icon icon={AlertTriangle} size="xs" />
             {format(t('statusbar.network.counts', 'Network {count}'), { count: netzBefunde })}
           </button>
+        )}
+        {/* Die Sicherungskopie im Browser. Sie schwieg bis 2026-09-18, wenn
+            sie nicht mehr geschrieben werden konnte — `localStorage` fasst
+            5–10 MB, und der `catch` war leer. Wer weiterplant und dann den
+            Rechner verliert, hat den Stand von damals, und niemand hat ihm
+            gesagt, ab wann. */}
+        {autosaveWeg && (
+          <span
+            className="inline-flex shrink-0 items-center gap-1 bg-amber-600 px-1.5 py-0.5 text-cp-xs font-bold text-amber-50"
+            title={format(
+              t(
+                'statusbar.autosave.title',
+                'The browser refused the recovery copy — the project is {mb} MB and the browser store holds about 5. Save to a file; the plan itself is not affected.',
+              ),
+              { mb: (autosaveWeg.bytes / 1_000_000).toFixed(1) },
+            )}
+          >
+            <Icon icon={AlertTriangle} size="xs" />
+            {t('statusbar.autosave.label', 'No recovery copy')}
+          </span>
         )}
         <AufgabenBadge />
       </div>

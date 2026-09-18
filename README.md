@@ -135,6 +135,20 @@ Built with **Electron, React, and TypeScript**, it is designed for real-world pr
 
 ---
 
+### 💾 The recovery copy says when it fails
+
+The plan is auto-saved into the browser store every few hundred milliseconds.
+That store holds about 5 MB — and until now, the moment a project outgrew it,
+the copy stopped being written **silently** (`catch {}`). Keep planning, lose
+the machine, and you are back at the state from whenever that happened,
+without anyone having said so.
+
+The status bar now says **“No recovery copy”** with the project's size, and
+what to do (save to a file). The plan itself is unaffected — only the copy in
+the browser is missing, and the message says that too.
+
+---
+
 ### 🔁 Adapters, gender changers, converters
 
 Three different things, kept apart (#876):
