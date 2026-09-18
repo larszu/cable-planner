@@ -5,6 +5,7 @@ import { cableCatalog } from '../../types/cableSpec'
 import { useUiStore } from '../../store/uiStore'
 import { useModule } from '../../store/settingsStore'
 import { cableTypePatchFromPorts } from '../../lib/cableInheritance'
+import { adapterVorschlag } from '../../lib/adapterVorschlag'
 import type { Cable } from '../../types/cable'
 import { LEITER_ROLLEN, type LeiterRolle } from '../../types/conductor'
 import type { EquipmentItem, Port } from '../../types/equipment'
@@ -30,6 +31,7 @@ export const CableProperties = () => {
   const equipment = useProjectStore((state) => state.project.equipment)
   const cables = useProjectStore((state) => state.project.cables)
   const updateCable = useProjectStore((state) => state.updateCable)
+  const adapterEinsetzen = useProjectStore((state) => state.adapterEinsetzen)
   const anschlussListe = useProjectStore((state) => state.project.anschlussListe)
   const deleteCable = useProjectStore((state) => state.deleteCable)
   const setCableInstallStatus = useProjectStore((state) => state.setCableInstallStatus)
@@ -143,6 +145,45 @@ export const CableProperties = () => {
           <Icon icon={Pencil} size="xs" /> {t('cable.action.setTypeStandard', 'Set cable type / standard')}
         </button>
       )}
+      {(() => {
+        // ── #876 — was zwischen diese beiden Anschlüsse gehört ───────────
+        //
+        // Der Vorschlag steht HIER und nicht nur im Anlege-Dialog: die
+        // meisten unpassenden Verbindungen entstehen nicht beim Ziehen,
+        // sondern später — ein Gerät wird getauscht, ein Port umgesteckt.
+        // Ein Hinweis, den es nur einmal beim Anlegen gibt, ist dann weg.
+        //
+        // Der KONVERTER bekommt keinen Knopf. Er hat einen Hersteller, eine
+        // Bandbreite und einen Preis, und keine dieser Angaben steht im
+        // Plan; ihn einzusetzen wäre eine Behauptung über ein Gerät, das
+        // niemand gewählt hat.
+        const vorschlag = adapterVorschlag(fromPort, toPort)
+        if (vorschlag.art === 'keiner') return null
+        const satz =
+          vorschlag.art === 'geschlechtswandler'
+            ? t('adapter.suggest.gender', 'Both ends are the same gender — a gender changer goes in between.')
+            : vorschlag.art === 'adapter'
+              ? t('adapter.suggest.adapter', 'These connectors do not mate directly — an adapter goes in between.')
+              : t(
+                  'adapter.suggest.converter',
+                  'These are different signal families. That takes a converter — a device with power and a bandwidth limit, and one you pick yourself.',
+                )
+        return (
+          <div className="flex items-center gap-2 border border-sky-700/50 bg-sky-950/30 px-2 py-1 text-cp-xs text-sky-200">
+            <span className="flex-1 leading-snug">{satz}</span>
+            {vorschlag.spec && (
+              <button
+                type="button"
+                onClick={() => adapterEinsetzen(cable.id, vorschlag.spec!)}
+                className="shrink-0 bg-sky-700/50 px-1.5 py-0.5 font-medium hover:bg-sky-600/60"
+                title={t('adapter.insert.title', 'Insert it into this run — one undo step removes it again')}
+              >
+                {t('adapter.insert', 'Insert')}
+              </button>
+            )}
+          </div>
+        )
+      })()}
       {(() => {
         // v7.9.125 — Kabel-Typ vs. Port-Connector-Mismatch.
         // Greift nur wenn beide Ports existieren und das Kabel

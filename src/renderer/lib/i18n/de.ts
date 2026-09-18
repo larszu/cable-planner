@@ -5769,4 +5769,31 @@ export const de: Dict = {
   'led.ports.unknown':
     'Zur Sending Card ist nichts eingetragen — also wird auch nichts behauptet.',
   'led.pixelmap': 'Pixelmap als PNG',
+  // ── Adapter automatisch einsetzen (#876) ─────────────────────────────
+  //
+  // Drei Dinge, drei Wörter: der Adapter ändert die Bauform, der
+  // Geschlechtswandler nur Stift oder Buchse, der Konverter das Signal. Sie
+  // im Deutschen zusammenzuziehen wäre bequem und falsch — am Lagerregal
+  // liegen sie in drei verschiedenen Kisten.
+  'cableSpec.genderMismatch':
+    'Beide Enden sind {gender}. Sie passen nicht ineinander — dazwischen gehört ein Geschlechtswandler.',
+  'adapter.suggest.none': 'Nichts nötig.',
+  'adapter.suggest.gender':
+    'Beide Enden haben dasselbe Geschlecht — dazwischen gehört ein Geschlechtswandler.',
+  'adapter.suggest.adapter':
+    'Diese Stecker passen nicht direkt ineinander — dazwischen gehört ein Adapter.',
+  'adapter.suggest.converter':
+    'Das sind verschiedene Signalfamilien. Dafür braucht es einen Konverter — ein Gerät mit Strom und einer Bandbreitengrenze, und eines, das man selbst aussucht.',
+  'adapter.suggest.afterCreate':
+    'Dazwischen gehört ein Zwischenstück. Kabel anlegen, dann in den Kabel-Eigenschaften mit einem Klick einsetzen.',
+  'adapter.insert': 'Einsetzen',
+  'adapter.insert.title': 'In diesen Lauf einsetzen — ein Undo nimmt es wieder heraus',
+  // ── Die Sicherungskopie im Browser ───────────────────────────────────
+  //
+  // „Keine Sicherungskopie" und nicht „Speicher voll": der Plan selbst ist
+  // in Ordnung, nur die Kopie im Browser fehlt. Wer „Speicher voll" liest,
+  // sucht den Fehler an der falschen Stelle.
+  'statusbar.autosave.label': 'Keine Sicherungskopie',
+  'statusbar.autosave.title':
+    'Der Browser hat die Sicherungskopie abgelehnt — der Plan ist {mb} MB gross, der Browser-Speicher fasst etwa 5. In eine Datei speichern; am Plan selbst fehlt nichts.',
 }

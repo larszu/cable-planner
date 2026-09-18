@@ -432,6 +432,11 @@ export interface ProjectState {
   renumberCables: () => void
   deleteEquipment: (id: string) => void
   deleteCable: (id: string) => void
+  /**
+   * #876 — einen Adapter in ein bestehendes Kabel einsetzen: aus einem Lauf
+   * werden zwei, dazwischen steht ein Geraet. Ein `set`, ein Undo-Schritt.
+   */
+  adapterEinsetzen: (kabelId: string, spec: import('../types/adapter').AdapterSpec) => void
   deleteSelected: () => void
   reconnectCable: (
     cableId: string,

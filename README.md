@@ -135,6 +135,45 @@ Built with **Electron, React, and TypeScript**, it is designed for real-world pr
 
 ---
 
+### 💾 The recovery copy says when it fails
+
+The plan is auto-saved into the browser store every few hundred milliseconds.
+That store holds about 5 MB — and until now, the moment a project outgrew it,
+the copy stopped being written **silently** (`catch {}`). Keep planning, lose
+the machine, and you are back at the state from whenever that happened,
+without anyone having said so.
+
+The status bar now says **“No recovery copy”** with the project's size, and
+what to do (save to a file). The plan itself is unaffected — only the copy in
+the browser is missing, and the message says that too.
+
+---
+
+### 🔁 Adapters, gender changers, converters
+
+Three different things, kept apart (#876):
+
+- An **adapter** changes the shape of the plug — BNC to RCA. The signal stays
+  what it was; a piece of metal does it.
+- A **gender changer** changes only pin or socket. Two XLR plugs do not mate,
+  although both are XLR. Port gender was already recorded and was invisible
+  to every compatibility check until now — that is the error nobody sees in
+  the plan and everybody finds at the dock.
+- A **converter** changes the signal — SDI to HDMI. It has a manufacturer, a
+  bandwidth limit and a price, and none of those is in the plan. The planner
+  therefore **names** it and never inserts it.
+
+The first two can be inserted with one click on the selected cable: one run
+becomes two with the device in between, at its place on the canvas and in the
+picking list. **One undo takes all of it back** — the insertion is a single
+store write, not three that happen to fall inside a coalescing window.
+
+The inserted adapter claims nothing: direction and power stay "unknown", so
+the plan check lists it as an **open point** and not as a green tick. A green
+tick for a part nobody has checked costs more than an open point.
+
+---
+
 ### 🟥 LED walls
 
 - Panel types with the figures off the datasheet — pixel pitch, resolution,

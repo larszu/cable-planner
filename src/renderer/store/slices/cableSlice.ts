@@ -12,6 +12,8 @@ import { cablesEndingAt, targetKey } from '../../lib/portOccupancy'
 import { computeCableNumbers, nextCableNumber } from '../../lib/cableNumbering'
 import { estimateAllCableLengths, DEFAULT_LENGTH_ESTIMATION } from '../../lib/cableLengthEstimate'
 import { isProjectLocked, touchProject } from '../projectStoreHelpers'
+import { planeEinfuegen } from '../../lib/adapterEinfuegen'
+import type { AdapterSpec } from '../../types/adapter'
 import type { ProjectState } from '../projectStore'
 
 /**
@@ -40,9 +42,65 @@ export type CableSlice = Pick<
   | 'deleteCable'
   | 'reconnectCable'
   | 'estimateCableLengths'
+  | 'adapterEinsetzen'
 >
 
 export const createCableSlice: StateCreator<ProjectState, [], [], CableSlice> = (set, get) => ({
+  // ── #876 — den Adapter einsetzen ────────────────────────────────────────
+  //
+  // EIN `set`, und darum EIN Undo-Schritt. Die naheliegende Fassung waere
+  // `addEquipment` + `deleteCable` + zweimal Kabel anlegen gewesen; die
+  // faende der Verlauf als vier Aenderungen vor, die nur deshalb zu einer
+  // werden, weil sie zufaellig innerhalb von 200 ms passieren
+  // (`projectHistory` koalesziert nach Zeit). „Ein Klick fuegt ein, ein Undo
+  // entfernt alles" darf nicht an einer Uhr haengen.
+  //
+  // Die Rechnung selbst steht in `lib/adapterEinfuegen.ts` und ist rein; hier
+  // entstehen nur die Ids und der neue Projektstand.
+  adapterEinsetzen: (kabelId: string, spec: AdapterSpec) =>
+    set((state) => {
+      if (isProjectLocked(state)) return state
+      const kabel = state.project.cables.find((c) => c.id === kabelId)
+      if (!kabel) return state
+
+      const plan = planeEinfuegen(
+        kabel,
+        spec,
+        { geraet: uuidv4(), kabelVor: uuidv4(), kabelNach: uuidv4() },
+        state.project.equipment.find((e) => e.id === kabel.fromEquipmentId),
+        state.project.equipment.find((e) => e.id === kabel.toEquipmentId),
+      )
+
+      // Die Nummerierung gilt auch hier. Sie steht im Schema des Projekts,
+      // und zwei Kabel ohne Nummer zwischen lauter nummerierten sind auf
+      // dem Etikett die zwei, die niemand zuordnen kann. Das erste Stueck
+      // erbt die Nummer des alten Laufs — es IST der alte Lauf, nur kuerzer;
+      // das zweite bekommt die naechste freie.
+      const numbering = state.project.metadata.cableNumbering
+      if (numbering?.enabled) {
+        plan.kabelVor.cableNumber = kabel.cableNumber
+        plan.kabelNach.cableNumber = nextCableNumber(
+          state.project.cables,
+          numbering,
+          plan.kabelNach.layer,
+        )
+      }
+
+      return {
+        project: touchProject({
+          ...state.project,
+          equipment: [...state.project.equipment, plan.geraet],
+          // Das alte Kabel faellt an SEINER Stelle und die beiden neuen
+          // ruecken nach: so bleibt die Reihenfolge der Kabelliste die, die
+          // jemand kennt, statt dass der Lauf ans Ende springt.
+          cables: state.project.cables.flatMap((c) =>
+            c.id === kabelId ? [plan.kabelVor, plan.kabelNach] : [c],
+          ),
+        }),
+        selectedCableId: undefined,
+      }
+    }),
+
   queueConnection: (connection, waypoints) =>
     set((state) => {
       if (isProjectLocked(state)) return state
