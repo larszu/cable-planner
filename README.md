@@ -287,6 +287,13 @@ Designed for Blackmagic Videohub infrastructure.
   **vendor-neutral intercom exchange file** that someone building a Riedel or
   Clear-Com system can also read
 - **`.avplan`** — the shared exchange format across the planner suite
+- **Building statement** (`.avfacility`, from the facility planner) — outlets,
+  cable routes and the control addresses the show may use. The plan **refers**
+  to them and keeps no copy: the checks ask the statement, so a device wired to
+  an outlet or a control address that the latest statement no longer lists says
+  so. A **DALI address whose kind is not stated** is reported too — short
+  address, group and broadcast are three different things, and the last one is
+  the whole bus, emergency lighting included.
 
 API tokens live in the **operating system's credential store** (macOS Keychain,
 Windows Credential Manager, libsecret) through `keytar` — not in the project

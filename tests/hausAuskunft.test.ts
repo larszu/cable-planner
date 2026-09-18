@@ -176,6 +176,38 @@ describe('Der Plan-Check fragt die Auskunft', () => {
     expect(r.findings.some((x) => x.id.startsWith('haus-last'))).toBe(false)
   })
 
+  it('7. eine DALI-Adresse OHNE Art ist eine Warnung (facility #2)', () => {
+    // Bei DALI heisst „3" je nach Art etwas anderes: ein Vorschaltgeraet,
+    // dreissig Leuchten oder der ganze Bus samt Notlicht. Der Rechner dafuer
+    // stand im Gebaeude-Werkzeug und meldete nur dem, der die Auskunft
+    // pflegt — nicht dem, der die Adresse benutzt.
+    const mitLuecke = leseHausDatei(
+      datei({
+        ...HAUS,
+        klinken: [
+          { id: 'k3', system: 'dali', adresse: '3', richtung: 'schalten', bedeutung: 'Saallicht' },
+        ],
+      }),
+      { quelle: 'x.avfacility', gelesenAm: '2026-09-10T10:00:00.000Z' },
+    )!
+    const r = checks([geraet({ id: 'dim', name: 'Dimmer', hausKlinkeId: 'k3' })], mitLuecke)
+    const f = r.findings.find((x) => x.id === 'haus-klinke-mehrdeutig:dim')
+    expect(f?.severity).toBe('warning')
+    expect(f?.message).toContain('3')
+  })
+
+  it('8. bei KNX fehlt nichts, wenn die Art leer bleibt', () => {
+    // Eine KNX-Gruppenadresse ist aus sich heraus eindeutig. Dort zu warnen
+    // hiesse, ein Feld zu verlangen, das nur eine moegliche Antwort hat.
+    const r = checks([geraet({ id: 'frei', hausKlinkeId: 'k2' })], auskunft())
+    expect(r.findings.some((x) => x.id.startsWith('haus-klinke-mehrdeutig'))).toBe(false)
+  })
+
+  it('9. eine DALI-Adresse MIT Art schweigt ebenfalls', () => {
+    const r = checks([geraet({ id: 'ok', hausKlinkeId: 'k1' })], auskunft())
+    expect(r.findings.some((x) => x.id.startsWith('haus-klinke-mehrdeutig'))).toBe(false)
+  })
+
   it('6. ohne hinterlegte Auskunft schweigen ALLE Haus-Checks', () => {
     // Kein „nicht geprüft", kein Hinweis. Die meisten Pläne stehen in einer
     // Halle, über die niemand eine Datei hat — ein Befund, den man nicht

@@ -1265,6 +1265,38 @@ export const runDrawingChecks = (
         }
       }
 
+      // — Check 25: eine DALI-Adresse, deren ART das Haus nicht nennt ------
+      //
+      // Der Rechner dafuer steht im Gebaeude-Werkzeug (`adresseMehrdeutig`,
+      // facility Issue #2) und meldete bis hierher NUR dort — also dem, der
+      // die Auskunft pflegt, und nicht dem, der die Adresse benutzt.
+      //
+      // Bei DALI heisst „3" je nach Art etwas voellig anderes: Kurzadresse 3
+      // ist EIN Vorschaltgeraet, Gruppe 3 koennen dreissig Leuchten sein,
+      // Broadcast ist alles am Bus — auch das Notlicht des Hauses. Wer eine
+      // Gruppenadresse fuer eine Kurzadresse haelt, schaltet im Zweifel den
+      // halben Saal und merkt es, wenn es dunkel ist.
+      //
+      // WARNUNG UND KEIN FEHLER: die Adresse ist nicht falsch, ihre Art ist
+      // nicht angegeben. Und nur fuer DALI — bei KNX, Crestron und Vissonic
+      // ist die Adresse aus sich heraus eindeutig, dort fehlt nichts.
+      const klinke = e.hausKlinkeId ? klinkeById.get(e.hausKlinkeId) : undefined
+      if (klinke && klinke.system === 'dali' && klinke.adressart === undefined) {
+        findings.push({
+          id: `haus-klinke-mehrdeutig:${e.id}`,
+          severity: 'warning',
+          category: 'House control',
+          message: format(
+            tr(
+              'check.haus.klinkeMehrdeutig',
+              '{name} uses the DALI address {adresse}, and the building statement does not say what kind it is. Short address, group or broadcast are three different things - the last one is the whole bus, emergency lighting included.',
+            ),
+            { name: e.name, adresse: klinke.adresse },
+          ),
+          equipmentId: e.id,
+        })
+      }
+
       if (e.hausKlinkeId && !klinkeById.has(e.hausKlinkeId)) {
         findings.push({
           id: `haus-klinke-fehlt:${e.id}`,
