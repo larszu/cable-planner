@@ -427,6 +427,18 @@ export interface Port {
   panelPosX?: number
   panelPosY?: number
   /**
+   * #879 — Durchmesser des Ausschnitts in Millimetern, den dieser Stecker
+   * in der Frontplatte braucht.
+   *
+   * EINGETRAGEN, nie geraten. Ein D-Loch misst 24 mm, eine BNC-Durchfuehrung
+   * je nach Bauform 10 bis 12,7 mm — welche gilt, steht im Dokument des
+   * Herstellers und nicht in diesem Programm. Ohne die Angabe prueft
+   * `plattenBefunde` diesen Stecker NICHT auf Ueberschneidung und sagt das:
+   * eine Platte ohne Ausschnittmasse ist nicht kollisionsfrei, sie ist
+   * ungeprueft.
+   */
+  ausschnittMm?: number
+  /**
    * v7.9.81 / #170 — Auf welcher Rack-Face (Front/Rear) der Port
    * physisch sitzt. Unabhängig davon ob Input/Output (das ist die
    * Signal-Richtung). Default-Annahme bei fehlendem Wert: 'rear' —
@@ -1038,6 +1050,17 @@ export interface EquipmentItem {
    *  Beeinflusst die Darstellung (kleines "PP"-Badge, thin-depth in 3D
    *  default) und das Filtering in den View-Modi. */
   isPatchPanel?: boolean
+  /**
+   * #879 — dieses Geraet IST eine Frontplatte (Anschlussfeld, Wanddose,
+   * Stagebox).
+   *
+   * Das Mass der Platte steht in `widthMm`/`heightMm` (v7.9.80) und die Lage
+   * jedes Steckers in `panelPosX/Y` (#170) — beides gab es schon, und ein
+   * zweites Positionsfeld waere eine zweite Wahrheit ueber dieselbe Bohrung.
+   * Neu ist nur die Aussage, DASS es eine Platte ist, samt Art und
+   * Streifenhoehe.
+   */
+  frontplatte?: import('./frontplatte').Frontplatte
   /** v7.9.75 / #170 — Rack-Shelf-Marker. Geräte mit diesem Flag rendern
    *  als flache Plattform im Rack; auf sie können Non-19"-Items "gestellt"
    *  werden. Die HE-Höhe bleibt die volle Höhe (1HU = klassisches Single-

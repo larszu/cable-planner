@@ -3193,6 +3193,45 @@ export const de: Dict = {
   'packet.sheet.ausspielung': 'Ausspielung',
   'packet.sheet.tally-karte': 'Tally-Karte',
   'packet.sheet.post-uebergabe': 'Übergabe an die Post',
+  'packet.sheet.frontplatten': 'Frontplatten',
+  'app.loadReport.ausschnitt': 'Ausschnittmaß, das keine positive Zahl ist',
+  'app.loadReport.frontplatte': 'Frontplatte mit unbekannter Art',
+  'faceplate.title': 'Frontplatten-Editor',
+  'faceplate.hint':
+    'Die Stecker hier SIND die Ports dieses Geräts und keine Zeichnung davon: was du verschiebst, ist dieselbe Lage, die die Rack-Ansicht liest. Die Millimeter kommen aus dem Gerätemaß; der Beschriftungsstreifen druckt 1:1.',
+  'faceplate.device': 'Gerät',
+  'faceplate.kind': 'Art',
+  'faceplate.kindNone': 'keine Frontplatte',
+  'faceplate.kind.wall': 'Wandanschlussfeld',
+  'faceplate.kind.stagebox': 'Stagebox',
+  'faceplate.kind.panel': 'Rack-Blende',
+  'faceplate.kind.other': 'Sonstige',
+  'faceplate.width': 'Breite (mm)',
+  'faceplate.height': 'Höhe (mm)',
+  'faceplate.grid': 'Raster (mm)',
+  'faceplate.gridTitle':
+    'Hilft beim Setzen. 0 heißt frei — eine gekaufte Platte, deren Löcher schon gebohrt sind, hat kein Raster.',
+  'faceplate.strip': 'Streifen (mm)',
+  'faceplate.stripTitle': 'Höhe des Beschriftungsstreifen-Halters. Leer heißt: kein Streifen.',
+  'faceplate.print': '1:1 drucken',
+  'faceplate.noSize':
+    'Dieses Gerät hat noch kein Maß in Millimetern. Trage Breite und Höhe ein — ohne sie gibt es keine Platte, auf der etwas sitzen könnte, und ein geratenes Maß wäre das, nach dem jemand bohrt.',
+  'faceplate.connector': 'Stecker',
+  'faceplate.position': 'Lage (mm)',
+  'faceplate.cutout': 'Ausschnitt (mm)',
+  'faceplate.cutoutPlaceholder': 'nicht angegeben',
+  'faceplate.cutoutTitle':
+    'Aus dem Dokument des Herstellers. Ohne die Angabe wird dieser Stecker nicht gegen die anderen geprüft — und der Befund sagt das.',
+  'faceplate.place': 'setzen',
+  'faceplate.outside': '{port} sitzt außerhalb der Platte — dort lässt sich nicht bohren.',
+  'faceplate.overlap':
+    '{a} und {b} überschneiden sich um {mm} mm — die beiden Löcher laufen ineinander.',
+  'faceplate.unplaced': '{n} Stecker haben noch keine Lage auf der Platte: {ports}.',
+  'faceplate.cutoutUnknown':
+    '{n} Stecker tragen kein Ausschnittmaß — sie wurden NICHT gegeneinander geprüft. Das Maß steht im Dokument des Herstellers; dieses Programm rät es nicht.',
+  'app.menu.tools.faceplate': 'Frontplatten-Editor…',
+  'app.menu.tools.faceplate.note':
+    'Wandanschlussfelder, Stageboxen: die Stecker in Millimetern setzen und den Streifen 1:1 drucken',
   'bericht.title': 'Berichts-Editor',
   'bericht.hint':
     'Die Tabelle unten IST der Inhalt der CSV-Datei und des gedruckten Blatts — keine Vorschau darauf. Spalten, Gruppierung, Sortierung und Filter werden einmal angewandt, und alle drei lesen dasselbe Ergebnis.',

@@ -174,6 +174,26 @@ tick for a part nobody has checked costs more than an open point.
 
 ---
 
+### 🔌 Faceplate editor
+
+Wall panels, stage boxes and rack plates (#879): place each connector on the
+plate **in millimetres**, print the label strip and the drilling sheet **1:1**.
+
+- The connectors **are the ports of that device** — not a drawing beside them.
+  What you move here is the same position the rack view and the 3D view read;
+  nothing has to be kept in sync because there is only one field.
+- **Cutout diameters are entered, never guessed.** A Neutrik D-hole is 24 mm, a
+  BNC bushing 10 to 12.7 mm depending on the part — which one applies is in the
+  manufacturer's document. Connectors without the figure are *not* checked
+  against each other, and the report says so: a plate without cutout sizes is
+  unchecked, not collision-free.
+- Checks: a hole that runs over the edge, two holes that run into each other
+  (with the overlap in millimetres), and connectors that have no position yet.
+- The **faceplate list** goes through the report editor like every other list,
+  so it groups, filters and prints with the same settings.
+
+---
+
 ### 📋 Report editor
 
 Every list this program prints — pull list, termination list, cable schedule,

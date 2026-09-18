@@ -55,6 +55,7 @@ import {
   ListOrdered,
   Grid3x3,
   Table2,
+  LayoutGrid,
   ChevronDown,
 } from 'lucide-react'
 import { Icon } from '../shared/Icon'
@@ -929,6 +930,18 @@ export const MenuBar = ({
             )}
           >
             {t('app.menu.tools.ledWall', 'LED wall…')}
+          </MenuItem>
+          {/* #879 — der Frontplatten-Editor. Er steht bei den Werkzeugen wie
+              der Rack-Bauer: beides ordnet Buchsen auf einer Flaeche an. */}
+          <MenuItem
+            onClick={() => useUiStore.getState().setFrontplatteOpen(true)}
+            icon={<Icon icon={LayoutGrid} size="sm" />}
+            note={t(
+              'app.menu.tools.faceplate.note',
+              'Wall panels, stage boxes: place the connectors in millimetres and print the strip 1:1',
+            )}
+          >
+            {t('app.menu.tools.faceplate', 'Faceplate editor…')}
           </MenuItem>
           {/* #880 — der Berichts-Editor. Er steht bei den Werkzeugen und nicht
               unter „Datei → Export": er aendert nicht, WOHIN etwas geht,

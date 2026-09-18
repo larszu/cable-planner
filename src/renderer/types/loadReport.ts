@@ -71,6 +71,10 @@ export type LoadDropKind =
   | 'polaritaetsnorm'
   /** #880 — eine Berichts-Vorlage ohne Namen oder ohne Liste. */
   | 'berichtsvorlage'
+  /** #879 — ein Ausschnittmass, das keine positive Zahl ist. */
+  | 'ausschnitt'
+  /** #879 — eine Frontplatte mit unbekannter Art. */
+  | 'frontplatte'
   | 'anschlussListe'
   /**
    * #875 — eine Lagerlaenge ohne rechenbare Laenge oder mit negativer
