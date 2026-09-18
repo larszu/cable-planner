@@ -247,6 +247,12 @@ to match.
   half fits does not fit, and the remainder is the figure you hang the wall by
 - Totals: panel count, resolution, size, weight, load
 - Sending card: how many ports the wall needs against how many it has
+- **Connected to power and to the picking list**: the wall names the building
+  outlet it is fed from. Its *continuous* figure joins the load at that outlet,
+  its *peak* gets a finding of its own — the breaker is chosen by the peak, and
+  a wall draws a multiple of its average on a white frame. A panel type without
+  a power figure is **not** counted as zero; the plan says its load is missing
+  from the sum. The panels themselves are counted per type in the picking list.
 - **Pixel map as PNG**, exactly as large as the wall has pixels, tiles
   numbered row by row from the top left — the order a wall is built in
 - Nothing is estimated: a panel type without a weight gives a wall of unknown

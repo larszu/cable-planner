@@ -25,6 +25,7 @@ import { labelTargetIssues } from './labelDerivation'
 import { beurteileAdapter } from '../types/adapter'
 import { anschlussBefunde, type AnschlussLeitung } from '../types/conductor'
 import { breakoutBefunde, polaritaetsBefunde } from '../types/fiber'
+import { wandSumme } from './ledWall'
 import { beurteileBild } from '../types/displayCapability'
 import { gruppenBefunde } from './portGroups'
 import { pruefeAdressen, type DmxGeraet } from './dmx'
@@ -83,6 +84,10 @@ export interface DrawingCheckInput {
    *  sagt das, statt zu schweigen. */
   polaritaetsnormen?: import('../types/fiber').Polaritaetsnorm[]
   polaritaetsnormId?: string
+  /** #881 — die LED-Waende und ihre Panel-Typen. Ihre Last haengt am
+   *  Anschlusspunkt des Hauses wie die eines Geraets. */
+  ledWalls?: import('../types/ledWall').LedWall[]
+  ledPanelTypes?: import('../types/ledWall').LedPanelType[]
   /** B-47 — das Format, das gilt, wo das Kabel keines nennt. */
   defaultVideoFormat?: import('../types/videoFormat').VideoFormatId
   /**
@@ -118,6 +123,8 @@ export const runDrawingChecks = (
     farbnormen,
     polaritaetsnormen,
     polaritaetsnormId,
+    ledWalls,
+    ledPanelTypes,
     defaultVideoFormat,
     hausAuskunft,
   }: DrawingCheckInput,
@@ -1310,6 +1317,79 @@ export const runDrawingChecks = (
             { name: e.name, stand: hausAuskunft.gelesenAm.slice(0, 10) },
           ),
           equipmentId: e.id,
+        })
+      }
+    }
+
+    // — Check 26: die LED-Waende an ihrem Anschlusspunkt (#881) -------------
+    //
+    // Das letzte offene Kriterium aus #881 („Anbindung an Stromkreise und
+    // Stueckliste"). Die Waende sind keine Geraete und standen deshalb in
+    // KEINER Stromrechnung — eine 60-Panel-Wand zog im Plan null Watt.
+    //
+    // DIE DAUERLEISTUNG geht in dieselbe Summe wie die der Geraete, die
+    // SPITZE bekommt einen eigenen Befund: die Sicherung wird nach der Spitze
+    // gewaehlt, und eine LED-Wand zieht im Weissbild ein Vielfaches ihres
+    // Mittels. Beide in eine Zahl zu werfen hiesse, entweder dauerhaft zu
+    // ueberzeichnen oder die Sicherung zu unterschaetzen.
+    const panelById = new Map((ledPanelTypes ?? []).map((t) => [t.id, t]))
+    for (const wand of ledWalls ?? []) {
+      if (!wand.hausPunktId) continue
+      const punkt = punktById.get(wand.hausPunktId)
+      if (!punkt) {
+        findings.push({
+          id: `haus-wand-punkt-fehlt:${wand.id}`,
+          severity: 'error',
+          category: 'House outlet',
+          message: format(
+            tr(
+              'check.haus.wandPunktFehlt',
+              '{name} hangs on a building outlet that the statement of {stand} no longer lists.',
+            ),
+            { name: wand.name, stand: hausAuskunft.gelesenAm.slice(0, 10) },
+          ),
+        })
+        continue
+      }
+      const panel = panelById.get(wand.panelTypeId)
+      if (!panel) continue
+      const summe = wandSumme(panel, wand.columns, wand.rows)
+      if (summe.powerAvgW === undefined) {
+        // Nicht schweigen: die Summe am Punkt saehe sonst vollstaendig aus,
+        // und diese Wand waere darin mit null Watt enthalten.
+        findings.push({
+          id: `haus-wand-ohne-leistung:${wand.id}`,
+          severity: 'info',
+          category: 'House outlet',
+          message: format(
+            tr(
+              'check.haus.wandOhneLeistung',
+              '{name} carries no power figure at its panel type - its load is NOT part of the sum at {punkt}. The figure is on the datasheet; this program does not guess it.',
+            ),
+            { name: wand.name, punkt: punkt.bezeichnung },
+          ),
+        })
+        continue
+      }
+      lastJePunkt.set(punkt.id, (lastJePunkt.get(punkt.id) ?? 0) + summe.powerAvgW)
+
+      if (punkt.dauerleistungW && summe.powerMaxW && summe.powerMaxW > punkt.dauerleistungW) {
+        findings.push({
+          id: `haus-wand-spitze:${wand.id}`,
+          severity: 'warning',
+          category: 'House outlet',
+          message: format(
+            tr(
+              'check.haus.wandSpitze',
+              '{name} peaks at {spitze} W on a white frame; {punkt} is rated {grenze} W continuous. The breaker is chosen by the peak, not by the average.',
+            ),
+            {
+              name: wand.name,
+              spitze: summe.powerMaxW,
+              punkt: punkt.bezeichnung,
+              grenze: punkt.dauerleistungW,
+            },
+          ),
         })
       }
     }

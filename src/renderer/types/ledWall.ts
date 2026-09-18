@@ -71,5 +71,24 @@ export interface LedWall {
    * Portzahl sagt nichts über die Wand.
    */
   ausspielung?: { ports: number; pixelProPort: number }
+  /**
+   * #881, letztes Kriterium — an welchem Anschlusspunkt des Hauses die Wand
+   * haengt.
+   *
+   * ─── WARUM DER HAUS-PUNKT UND NICHT `circuitKind` ────────────────────────
+   *
+   * `circuitKind` (der Schaltbild-Rechner) beschreibt SCHALT-Topologie:
+   * Schalter, Wechselschalter, Leuchte, Klemmstelle. Sein Verteiler loest
+   * ausdruecklich NICHT aus — „dafuer muesste der Plan die Lasten kennen, und
+   * er kennt sie nicht" (`circuitSolver.ts`). Eine Wand dort einzuhaengen
+   * brachte also eine Zahl an eine Stelle, die sie nicht liest.
+   *
+   * Der Anschlusspunkt des Hauses ist die Stelle, an der Lasten WIRKLICH
+   * gegen eine genannte Grenze laufen (`drawingChecks`, Haus-Block). Dorthin
+   * gehoert die Wand — und zwar mit ihrer DAUERleistung in die Summe und mit
+   * ihrer SPITZE in einen eigenen Befund: die Sicherung wird nach der Spitze
+   * gewaehlt, und eine Wand zieht im Weissbild ein Vielfaches ihres Mittels.
+   */
+  hausPunktId?: string
   notes?: string
 }
