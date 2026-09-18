@@ -44,9 +44,14 @@ describe('mobileShare: der Rueckkanal und was der Dialog darueber sagt', () => {
     // ZUERST die beiden Dokumentationsstellen. Die Liste hier ist das
     // Letzte, was man anfasst — sonst waere sie eine Abschrift des Codes
     // statt eine Zusage darueber.
+    //
+    // Und am 2026-09-18 noch einmal: `/fotos` kam dazu (#884). Wieder in
+    // derselben Reihenfolge — erst 6.6, dann der Dialog-Hinweis („Häkchen,
+    // Kabel und Fotos zurückschicken"), dann diese Zeile.
     expect(postRoutes(read(SERVER))).toEqual([
       '/cables',
       '/checks',
+      '/fotos',
       '/pattern-checks',
       '/pending-changes',
     ])
@@ -58,7 +63,7 @@ describe('mobileShare: der Rueckkanal und was der Dialog darueber sagt', () => {
       .map((line, i) => ({ line, i }))
       .filter(({ line }) => /req\.method === 'POST'/.test(line))
 
-    expect(routeLines.length).toBe(4)
+    expect(routeLines.length).toBe(5)
     for (const { line, i } of routeLines) {
       // Die Pruefung steht unmittelbar als erste Anweisung im Handler.
       expect(lines[i + 1], `ungegated: ${line.trim()}`).toContain('authed(req, url)')
@@ -177,7 +182,7 @@ describe('mobileShare: lesen viele, schreiben einer (Bedarf 109)', () => {
       const block = src.slice(src.indexOf(`pathname === '${route}' && req.method === 'POST'`))
       expect(block.slice(0, 300)).toContain('writeAllowed(req, res)')
     }
-    expect(postRoutes(src)).toHaveLength(4)
+    expect(postRoutes(src)).toHaveLength(5)
   })
 
   it('prüft sie VOR dem Lesen des Bodys', () => {

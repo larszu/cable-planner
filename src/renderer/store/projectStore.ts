@@ -15,6 +15,7 @@ import { createAnnotationSlice } from './slices/annotationSlice'
 import { createSourceIdentitySlice } from './slices/sourceIdentitySlice'
 import { createDeliverySlice } from './slices/deliverySlice'
 import { createCableStockSlice } from './slices/cableStockSlice'
+import { createFotoSlice } from './slices/fotoSlice'
 import { createConductorSlice } from './slices/conductorSlice'
 import { createCrewSlice } from './slices/crewSlice'
 import { createAddressTemplateSlice } from './slices/addressTemplateSlice'
@@ -794,6 +795,17 @@ export interface ProjectState {
   setLedPanelTypes: (typen: import('../types/ledWall').LedPanelType[]) => void
   /** #881 — die geplanten LED-Waende, als ganze Liste. */
   setLedWalls: (waende: import('../types/ledWall').LedWall[]) => void
+  /** #884 — ein Foto aufnehmen. */
+  addFoto: (foto: import('../types/foto').Foto) => void
+  /** #884 — ein Foto entfernen. */
+  removeFoto: (id: string) => void
+  /** #884 — die Bilddaten aus der Ablage nachtragen (nach einem Absturz). */
+  fotosNachladen: () => Promise<void>
+  /** #884 — Notiz oder Ziel eines Fotos aendern. */
+  updateFoto: (
+    id: string,
+    patch: Partial<Pick<import('../types/foto').Foto, 'notiz' | 'zeigtAuf'>>,
+  ) => void
   setFarbnormen: (farbnormen: import('../types/conductor').Farbnorm[]) => void
   /** B-45 — die Anschluss des Projekts ersetzen. */
   setAnschluss: (anschlussListe: import('../types/conductor').Anschluss[]) => void
@@ -956,6 +968,26 @@ const healProjectPositions = (
     (project.ledWalls?.length ?? 0) !== ledWalls.length
   ) {
     onDrop?.({ kind: 'led-wall', reason: 'invalid-value', label: '' })
+  }
+
+  // #884 — die Fotos. Ein Datensatz ohne Id oder ohne Masse faellt: die
+  // Fussleiste rechnet mit `bytes`, die Galerie zeichnet mit `breite`/`hoehe`,
+  // und ein Loch darin verfaelscht jede Rechnung darueber still.
+  //
+  // Die BILDDATEN duerfen fehlen und das ist kein Mangel: die
+  // Sicherungskopie im Browser traegt sie nicht (siehe `lib/fotoMasse.ts`),
+  // sie kommen aus der Ablage nach.
+  const fotos = (project.fotos ?? []).filter(
+    (f) =>
+      !!f &&
+      typeof f.id === 'string' &&
+      f.id !== '' &&
+      Number.isFinite(f.breite) &&
+      Number.isFinite(f.hoehe) &&
+      typeof f.dataUri === 'string',
+  )
+  if ((project.fotos?.length ?? 0) !== fotos.length) {
+    onDrop?.({ kind: 'foto', reason: 'invalid-value', label: '' })
   }
 
   // B-45 — die Farbnormen und die Anschluss. Die Normen ZUERST: ein Anschluss
@@ -1490,6 +1522,8 @@ const healProjectPositions = (
     // #881 — dito.
     ledPanelTypes,
     ledWalls,
+    // #884 — dito.
+    fotos,
     // B-45 — dito: leere Liste, nicht `undefined`.
     farbnormen,
     // E-23 — dito.
@@ -1741,6 +1775,7 @@ const buildProjectStore = (
   ...createSourceIdentitySlice(set, get, store),
   ...createDeliverySlice(set, get, store),
   ...createCableStockSlice(set, get, store),
+  ...createFotoSlice(set, get, store),
   ...createConductorSlice(set, get, store),
   ...createCrewSlice(set, get, store),
   ...createAddressTemplateSlice(set, get, store),

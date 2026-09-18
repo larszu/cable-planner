@@ -534,6 +534,16 @@ type CablePlannerApi = {
         patch?: Record<string, unknown>
       }) => void,
     ) => () => void
+    /** #884 — Listener für Fotos vom Telefon. */
+    onFoto: (
+      cb: (foto: {
+        dataUri: string
+        breite: number
+        hoehe: number
+        zeigtAuf?: { equipmentId?: string; cableId?: string }
+        notiz?: string
+      }) => void,
+    ) => () => void
   }
 }
 
@@ -1161,6 +1171,7 @@ const webFallbackApi: CablePlannerApi = {
     onPatternCheck: () => () => {},
     onCableAdded: () => () => {},
     onPendingChange: () => () => {},
+    onFoto: () => () => {},
   },
 }
 

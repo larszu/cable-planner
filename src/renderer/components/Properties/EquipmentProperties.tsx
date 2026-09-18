@@ -31,6 +31,7 @@ import { DeviceConfigsBlock } from './sections/DeviceConfigsBlock'
 import { NetworkAccessSection } from './sections/NetworkAccessSection'
 import { DeviceKindCards } from './sections/DeviceKindCards'
 import { OptionalFieldsSection } from './sections/OptionalFieldsSection'
+import { FotoSection } from './sections/FotoSection'
 import { DisplayFlagsSection } from './sections/DisplayFlagsSection'
 import { RentmanSyncBadge } from './sections/RentmanSyncBadge'
 import { PortsSection } from './sections/PortsSection'
@@ -134,6 +135,8 @@ export const EquipmentProperties = () => {
       <IdentityBlock equipment={equipment} />
 
       <OptionalFieldsSection equipment={equipment} />
+
+      <FotoSection ziel={{ equipmentId: equipment.id }} id="fotos" />
 
       <DisplayFlagsSection equipment={equipment} />
 

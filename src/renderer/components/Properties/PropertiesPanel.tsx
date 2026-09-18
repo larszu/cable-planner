@@ -3,6 +3,7 @@ import { useUiStore } from '../../store/uiStore'
 import { CableProperties } from './CableProperties'
 import { EquipmentProperties } from './EquipmentProperties'
 import { LocationProperties } from './LocationProperties'
+import { ProjektFotos } from './sections/FotoSection'
 import { TemplateProperties } from './TemplateProperties'
 import { FloatingPanelShell } from '../Layout/FloatingPanelShell'
 import { openPanelPopout, isPopout } from '../../lib/panelPopout'
@@ -77,6 +78,10 @@ export const PropertiesPanel = () => {
                 )}
               </div>
             </div>
+            {/* #884 — die Fotos des Projekts. Hier und nicht im Geräte-Blatt:
+                ein Foto ohne Ziel gehört dem Plan, und das ist die Stelle,
+                an der der Plan selbst der Gegenstand ist. */}
+            <ProjektFotos />
             <div className="border border-cp-border-muted bg-cp-surface-1/40 p-3">
               <div className="mb-2 text-cp-xs font-semibold uppercase tracking-wide text-cp-text-muted">
                 {t('inspector.hints.title', 'Quick orientation')}

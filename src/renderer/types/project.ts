@@ -393,6 +393,21 @@ export interface CablePlannerProject {
    * Optional -> alte Projekte heilen zu [].
    */
   ledWalls?: import('./ledWall').LedWall[]
+  /**
+   * #884 — Fotos zur Dokumentation. Vom Planer aus aufgenommen oder vom
+   * Handy hereingeschickt.
+   *
+   * EINE Liste am Projekt, und die Fotos zeigen ueber `zeigtAuf` auf Geraet
+   * oder Kabel (ADR-001). Am Geraet gespeichert waeren sie beim Kopieren
+   * mitkopiert, und der Abgleich mit dem Kollab-Modell (`projectCrdt`
+   * spiegelt Geraete als GANZE Objekte) schoebe bei jeder Beruehrung des
+   * Geraets das Bild ueber die Leitung.
+   *
+   * Die Bilddaten stehen NICHT in der Sicherungskopie im Browser — die
+   * Rechnung dazu steht in `lib/fotoMasse.ts`. Optional -> alte Projekte
+   * heilen zu [].
+   */
+  fotos?: import('./foto').Foto[]
   farbnormen?: import('./conductor').Farbnorm[]
   /** B-45 — die Anschluss: welche Leitungen zusammen einen Anschluss bilden
    *  und welche Leiter er haben MUSS. Powerlock zieht man je Leiter einzeln;

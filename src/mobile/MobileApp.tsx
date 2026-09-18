@@ -27,6 +27,7 @@ import {
   AlertTriangle,
   ArrowRight,
   Cable,
+  Camera,
   Check,
   FolderOpen,
   House,
@@ -58,6 +59,7 @@ import { portDisplayLabel } from '../renderer/lib/portLabel'
 import { keepScreenAwake } from '../renderer/lib/wakeLock'
 import type { CablePlannerProject } from '../renderer/types/project'
 import { PatternWalk } from './PatternWalk'
+import { verkleinere } from './fotoVerkleinern'
 import { format, uebersetzer } from './i18n'
 import { WASM_TAKT_MS, cameraScanSupported, ladeDecoder } from './qrDecoder'
 import { aenderungen, positionsKarte } from '../renderer/lib/rundownCard'
@@ -1480,6 +1482,7 @@ const ProjectView = ({
   // eine kurze Status-Meldung.
   const [findOpen, setFindOpen] = useState(false)
   const [showReport, setShowReport] = useState(false)
+  const [showFoto, setShowFoto] = useState(false)
   // B-42 Inkrement 2b — der Pruefbild-Rundgang. Eigenes Overlay und kein
   // Reiter: er ist ein Vorgang mit Anfang und Ende, kein zweiter Blick auf
   // dieselbe Liste.
@@ -1767,6 +1770,18 @@ const ProjectView = ({
               {t('mobile.report.button', 'Report')}
             </button>
           )}
+          {/* #884 — Foto vom Telefon in den Plan. Nur im Mitschreib-Modus:
+              ein Bild ist eine Aenderung am Plan wie jede andere. */}
+          {writeMode === 'contribute' && (
+            <button
+              type="button"
+              onClick={() => setShowFoto(true)}
+              className="bg-cp-surface-3 px-2 py-1 text-cp-xs text-cp-text hover:bg-cp-surface-4"
+              title={t('mobile.foto.title', 'Add a photo for the documentation')}
+            >
+              <Icon icon={Camera} size="xs" />
+            </button>
+          )}
           {writeMode === 'contribute' && (
           <button
             type="button"
@@ -1839,6 +1854,14 @@ const ProjectView = ({
       )}
       {showReport && (
         <MobileReportModal project={project} onClose={() => setShowReport(false)} />
+      )}
+      {showFoto && (
+        <MobileFotoModal
+          project={project}
+          apiFetch={apiFetch}
+          initialDeviceId={lastOpenedDeviceId ?? undefined}
+          onClose={() => setShowFoto(false)}
+        />
       )}
       {walkOpen && (
         <PatternWalk
@@ -3045,6 +3068,269 @@ const MobileReportModal = ({
                   {busy
                     ? t('mobile.sending', 'Sending…')
                     : t('mobile.report.send', 'Send report')}
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// #884 — ein Foto vom Telefon in den Plan.
+//
+// ─── WARUM DAS FOTO NICHT DURCH DIE MELDUNG GEHT ───────────────────────────
+//
+// Eine Meldung (`/pending-changes`) ist ein VORSCHLAG: der Planer uebernimmt
+// oder verwirft sie. Ein Foto ist keiner — es behauptet nichts ueber den
+// Plan, es zeigt, wie es aussah. Es durch die Pruefschlange zu schicken
+// hiesse, dass eine Dokumentation erst nach einem Haekchen am Desktop
+// existiert, und der Rundgang ist dann laengst vorbei.
+//
+// ─── WAS ES MITBRINGT UND WAS NICHT ────────────────────────────────────────
+//
+// Es zeigt AUF ein Geraet oder ein Kabel, wenn eines gewaehlt ist — sonst
+// gehoert es dem Projekt. Einen Aufnahmezeitpunkt schickt es NICHT: die
+// Datei aus der Kamera traegt `lastModified`, das ist auf vielen Telefonen
+// der Zeitpunkt des Speicherns und nicht der der Aufnahme. Der Planer setzt
+// `hinzugefuegtAm`, und das ist ehrlich.
+// ───────────────────────────────────────────────────────────────────────────
+const MobileFotoModal = ({
+  project,
+  apiFetch,
+  initialDeviceId,
+  onClose,
+}: {
+  project: CablePlannerProject
+  apiFetch: (path: string, init?: RequestInit) => Promise<Response>
+  initialDeviceId?: string
+  onClose: () => void
+}) => {
+  const [deviceId, setDeviceId] = useState(initialDeviceId ?? '')
+  const [cableId, setCableId] = useState('')
+  const [notiz, setNotiz] = useState('')
+  const [bild, setBild] = useState<{ dataUri: string; breite: number; hoehe: number } | null>(null)
+  const [busy, setBusy] = useState(false)
+  const [err, setErr] = useState<string | null>(null)
+  const [done, setDone] = useState(false)
+
+  const cablesForDevice = useMemo(
+    () =>
+      deviceId
+        ? project.cables.filter(
+            (c) => c.fromEquipmentId === deviceId || c.toEquipmentId === deviceId,
+          )
+        : project.cables,
+    [project.cables, deviceId],
+  )
+
+  const waehle = async (datei: File | undefined) => {
+    if (!datei) return
+    setErr(null)
+    setBusy(true)
+    try {
+      const klein = await verkleinere(datei)
+      if (!klein) {
+        setErr(t('mobile.foto.notAnImage', 'This file could not be read as an image.'))
+        return
+      }
+      setBild(klein)
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const submit = async () => {
+    if (!bild || busy) return
+    setBusy(true)
+    setErr(null)
+    try {
+      const res = await apiFetch('/fotos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          projectId: showIdOf(project),
+          dataUri: bild.dataUri,
+          breite: bild.breite,
+          hoehe: bild.hoehe,
+          zeigtAuf: cableId
+            ? { cableId }
+            : deviceId
+              ? { equipmentId: deviceId }
+              : undefined,
+          notiz: notiz.trim() || undefined,
+        }),
+      })
+      if (!res.ok) throw new Error(`Server ${res.status}`)
+      setDone(true)
+      window.setTimeout(onClose, 1300)
+    } catch (e) {
+      setErr(
+        e instanceof Error
+          ? format(
+              t(
+                'mobile.foto.sendFailed',
+                'Could not send the photo: {error}. Check the connection to the desktop.',
+              ),
+              { error: e.message },
+            )
+          : t('mobile.foto.sendFailedShort', 'Could not send the photo.'),
+      )
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-20 flex items-end justify-center bg-black/60 p-2"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose()
+      }}
+    >
+      <div className="w-full max-w-md border border-cp-border bg-cp-surface-1 text-cp-text">
+        <header className="flex items-center justify-between border-b border-cp-border px-3 py-2">
+          <h2 className="inline-flex items-center gap-2 text-sm font-semibold">
+            <Icon icon={Camera} size="sm" />
+            {t('mobile.foto.heading', 'Photo for the plan')}
+          </h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-2 py-0.5 text-xs text-cp-text-muted hover:bg-cp-surface-3"
+          >
+            <Icon icon={X} size="sm" />
+          </button>
+        </header>
+        <div className="space-y-3 p-3 text-xs">
+          {done ? (
+            <div className="border border-emerald-700 bg-emerald-900/30 p-3 text-center text-emerald-200">
+              <span className="inline-flex items-center gap-1">
+                <Icon icon={Check} size="sm" />
+                {t('mobile.foto.sent', 'Photo sent — it is in the plan on the desktop')}
+              </span>
+            </div>
+          ) : (
+            <>
+              <p className="text-cp-xs italic text-cp-text-muted">
+                {t(
+                  'mobile.foto.hint',
+                  'The photo goes straight into the plan and is scaled down on this phone ' +
+                    'before it is sent. Pick a device or cable and it is filed there.',
+                )}
+              </p>
+
+              {/* `capture="environment"`: auf dem Telefon oeffnet das direkt
+                  die Ruecksekamera, am Rechner bleibt es ein Dateidialog. */}
+              <label className="block">
+                <span className="mb-1 block text-cp-text-secondary">
+                  {t('mobile.foto.pick', 'Photo')}
+                </span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  onChange={(e) => {
+                    void waehle(e.target.files?.[0])
+                    e.target.value = ''
+                  }}
+                  className="w-full border border-cp-border bg-cp-bg px-2 py-2 text-cp-text"
+                />
+              </label>
+
+              {bild && (
+                <div className="space-y-1">
+                  <img
+                    src={bild.dataUri}
+                    alt=""
+                    className="max-h-48 w-full border border-cp-border object-contain"
+                  />
+                  <div className="text-cp-xs text-cp-text-muted">
+                    {format(t('mobile.foto.size', '{w} x {h} px · {kb} KB'), {
+                      w: bild.breite,
+                      h: bild.hoehe,
+                      kb: Math.round(bild.dataUri.length / 1024),
+                    })}
+                  </div>
+                </div>
+              )}
+
+              <label className="block">
+                <span className="mb-1 block text-cp-text-secondary">
+                  {t('mobile.device.context', 'Device (context)')}
+                </span>
+                <select
+                  value={deviceId}
+                  onChange={(e) => {
+                    setDeviceId(e.target.value)
+                    setCableId('')
+                  }}
+                  className="w-full border border-cp-border bg-cp-bg px-2 py-2 text-cp-text"
+                >
+                  <option value="">{t('mobile.choose', '— choose —')}</option>
+                  {project.equipment.map((d) => (
+                    <option key={d.id} value={d.id}>
+                      {d.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="block">
+                <span className="mb-1 block text-cp-text-secondary">
+                  {t('mobile.cable', 'Cable')}
+                </span>
+                <select
+                  value={cableId}
+                  onChange={(e) => setCableId(e.target.value)}
+                  className="w-full border border-cp-border bg-cp-bg px-2 py-2 text-cp-text"
+                >
+                  <option value="">{t('mobile.choose', '— choose —')}</option>
+                  {cablesForDevice.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {cableLabelId(c)} · {c.name || c.type}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="block">
+                <span className="mb-1 block text-cp-text-secondary">
+                  {t('mobile.foto.note', 'Note (optional)')}
+                </span>
+                <textarea
+                  value={notiz}
+                  onChange={(e) => setNotiz(e.target.value)}
+                  rows={2}
+                  placeholder={t('mobile.foto.notePlaceholder', 'e.g. patch field after rigging')}
+                  className="w-full border border-cp-border bg-cp-bg px-2 py-2 text-cp-text"
+                />
+              </label>
+
+              {err && (
+                <div className="border border-amber-700/60 bg-amber-900/30 px-2 py-1 text-cp-xs text-amber-200">
+                  {err}
+                </div>
+              )}
+
+              <div className="flex justify-end gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="px-3 py-1.5 text-xs text-cp-text-secondary hover:bg-cp-surface-3"
+                >
+                  {t('mobile.cancel', 'Cancel')}
+                </button>
+                <button
+                  type="button"
+                  onClick={submit}
+                  disabled={!bild || busy}
+                  className="inline-flex items-center gap-1 bg-cp-accent px-3 py-1.5 text-xs font-medium text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  {!busy && <Icon icon={Send} size="xs" />}
+                  {busy ? t('mobile.sending', 'Sending…') : t('mobile.foto.send', 'Send photo')}
                 </button>
               </div>
             </>

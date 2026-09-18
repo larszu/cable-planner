@@ -87,6 +87,14 @@ export type LoadDropKind =
    * Kachel. Beides steht danach auf einem Anschlussblatt.
    */
   | 'led-wall'
+  /**
+   * #884 — ein Foto-Datensatz ohne Id oder ohne Masse.
+   *
+   * Warum er faellt: die Fussleiste rechnet mit `bytes`, und die Galerie
+   * zeichnet mit `breite`/`hoehe`. Ein Datensatz ohne diese Zahlen ist kein
+   * Foto, sondern ein Loch, das jede Rechnung darueber still verfaelscht.
+   */
+  | 'foto'
   | 'ader'
   | 'senkenprofil'
   /**

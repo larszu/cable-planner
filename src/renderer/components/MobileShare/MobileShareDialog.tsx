@@ -16,9 +16,9 @@
  * Der Rueckkanal: entgegen einer frueheren Fassung dieses Kommentars hat
  * der Server sehr wohl Schreib-Endpunkte — POST /checks (Haekchen),
  * POST /cables (neu angelegte Kabel), POST /pending-changes
- * (Feld-Rueckmeldungen) und POST /pattern-checks (die Sichtpruefung vom
- * Pruefbild-Rundgang, B-42 Inkrement 2b). Alle vier aendern das Projekt
- * am Desktop.
+ * (Feld-Rueckmeldungen), POST /pattern-checks (die Sichtpruefung vom
+ * Pruefbild-Rundgang, B-42 Inkrement 2b) und POST /fotos (#884). Alle
+ * fuenf aendern das Projekt am Desktop.
  * Jeder von ihnen verlangt das Token aus der QR-Code-URL (`authed`),
  * und `stripSecrets` entfernt Passwoerter/Schluessel, bevor das Projekt
  * das Geraet verlaesst. Der Weg ist also abgesichert — aber er ist da,
@@ -460,7 +460,7 @@ export const MobileShareDialog = () => {
                   />
                   {m === 'read-only'
                     ? t('mobile.dialog.writeMode.read', 'Read only')
-                    : t('mobile.dialog.writeMode.contribute', 'Send back ticks and cables')}
+                    : t('mobile.dialog.writeMode.contribute', 'Send back ticks, cables and photos')}
                 </label>
               ))}
             </div>
@@ -468,11 +468,11 @@ export const MobileShareDialog = () => {
               {writeMode === 'read-only'
                 ? t(
                     'mobile.dialog.writeMode.readHint',
-                    'The three write routes are closed — the phone is refused on every write attempt. The plan is changed by the person at the desk.',
+                    'All write routes are closed — the phone is refused on every write attempt. The plan is changed by the person at the desk.',
                   )
                 : t(
                     'mobile.dialog.writeMode.contributeHint',
-                    'Ticks, cables added on site and field reports go back into the project. Anyone with the QR code can change the plan.',
+                    'Ticks, cables added on site, field reports and photos go back into the project. Anyone with the QR code can change the plan.',
                   )}
             </p>
           </div>
@@ -541,7 +541,7 @@ export const MobileShareDialog = () => {
           <details className="text-cp-xs text-cp-text-muted">
             <summary className="cursor-pointer hover:text-cp-text-secondary">{t('mobile.dialog.securityHeading', 'Security notes')}</summary>
             <ul className="mt-1 list-inside list-disc space-y-1">
-              <li>{t('mobile.dialog.security.writeBack', 'Whether the phone may write back is decided by the setting above. If it is set to \u201csend checks and cables back\u201d, anyone with the QR code can change the plan.')}</li>
+              <li>{t('mobile.dialog.security.writeBack', 'Whether the phone may write back is decided by the setting above. If it is set to \u201csend back ticks, cables and photos\u201d, anyone with the QR code can change the plan.')}</li>
               <li>{t('mobile.dialog.security.token', 'Every write path requires the token from the QR code. Passwords and keys are stripped from the project before it leaves the device.')}</li>
               <li>{t('mobile.dialog.security.pincode', 'The system access codes NEVER travel with the project. They live only in the desktop app\'s memory and only while the switch above is on; they are retrieved with a second code that is not part of the QR code.')}</li>
               <li>{t('mobile.dialog.security.bind', 'The server binds to the local network (0.0.0.0). If it is unclear who is on the network, prefer stopping it.')}</li>

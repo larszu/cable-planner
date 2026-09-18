@@ -97,6 +97,11 @@ export function stripForTemplate(
   // laesst die Vorlage mit jedem Speichern wachsen.
   delete clone.revisions
   delete clone.pendingChanges
+  // #884 — und die Fotos. Sie zeigen die HALLE VON LETZTEM MAL: in einer
+  // Vorlage waeren sie eine Aussage ueber einen Ort, an dem die naechste
+  // Show gar nicht stattfindet. Sie sind ausserdem das Schwerste am Plan —
+  // eine Vorlage, die zehn Bilder mitschleppt, ist keine Vorlage mehr.
+  delete clone.fotos
 
   // Immer weg: Behauptungen, die im neuen Projekt falsch WAEREN.
   if (clone.multicast) {
