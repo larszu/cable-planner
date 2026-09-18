@@ -103,3 +103,60 @@ describe('#872 — aus als Vorgabe', () => {
     expect(TAB).toContain('It only READS')
   })
 })
+
+// ---------------------------------------------------------------------------
+// #873 Stufe 2 — der zweite Schalter.
+// ---------------------------------------------------------------------------
+describe('#873 — Schreiben ist eine EIGENE Entscheidung', () => {
+  const code = ohneKommentare(SERVER)
+
+  it('der Server beginnt ohne Schreib-Erlaubnis', () => {
+    expect(code).toContain('schreibenErlaubt: false,')
+  })
+
+  it('die schreibenden Werkzeuge existieren nur, wenn sie erlaubt sind', () => {
+    // Ein Werkzeug, das immer „nicht erlaubt" antwortet, ist dieselbe Sorte
+    // Luege wie ein Knopf, der jedes Mal 403 bekommt (ADR-005).
+    const block = code.slice(code.indexOf('if (state.schreibenErlaubt)'))
+    for (const w of ['connect_ports', 'disconnect_cable', 'set_cable', 'rename_device']) {
+      expect(block).toContain(`'${w}'`)
+    }
+  })
+
+  it('das Entfernen traegt `destructiveHint`', () => {
+    const block = code.slice(code.indexOf("'disconnect_cable'"))
+    expect(block.slice(0, 500)).toContain('destructiveHint: true')
+  })
+
+  it('kein Schaltbefehl steht im Werkzeugsatz', () => {
+    expect(code).not.toMatch(/videohub|atem|crosspoint/i)
+  })
+})
+
+describe('#873 — ein Aufruf, ein Undo-Schritt', () => {
+  const slice = ohneKommentare(
+    readFileSync(resolve(__dirname, '..', 'src/renderer/store/slices/mcpSlice.ts'), 'utf8'),
+  )
+  const app = ohneKommentare(readFileSync(resolve(__dirname, '..', 'src/renderer/App.tsx'), 'utf8'))
+
+  it('klammert die Aenderung UND die Nachweiszeile', () => {
+    // Ohne die Klammer waeren es zwei Eintraege, und das erste Strg-Z naehme
+    // nur den Nachweis zurueck. Die Klammer steht beim AUFRUFER — ein Slice,
+    // der `projectHistory` importiert, schliesst einen Ring ueber den Store.
+    // Die AUFRUFSTELLE, nicht die Import-Zeile: gemessen wird ab der Stelle,
+    // an der die Liste der Schreibwerkzeuge BENUTZT wird.
+    const stelle = app.slice(app.indexOf('MCP_SCHREIBWERKZEUGE as readonly string[]'))
+    expect(stelle.slice(0, 600)).toContain('projectHistory.transact(')
+    expect(slice).toContain('mitEintrag(')
+    expect(slice).not.toContain("from '../projectHistory'")
+  })
+
+  it('haengt nicht an der 200-ms-Koaleszenz', () => {
+    // Eine Uhr ist keine Zusage.
+    expect(slice).not.toMatch(/setTimeout|Date\.now\(\) -/)
+  })
+
+  it('laesst einen gesperrten Plan gesperrt', () => {
+    expect(slice).toContain('isProjectLocked(')
+  })
+})

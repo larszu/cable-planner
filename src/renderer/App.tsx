@@ -2,6 +2,7 @@ import { hasDrops, type LoadDropKind, type LoadDropReason } from './types/loadRe
 import { hasMobileDrops } from './types/mobileReport'
 import { v4 as uuidv4 } from 'uuid'
 import { beantworteWerkzeug } from './lib/mcpWerkzeuge'
+import { MCP_SCHREIBWERKZEUGE } from './lib/mcpSchreiben'
 import { useEffect, useMemo, useRef, useState, lazy, Suspense } from 'react'
 import { useIsNarrow } from './hooks/useBreakpoint'
 import { CanvasArea } from './components/Canvas/CanvasArea'
@@ -185,6 +186,7 @@ const DROP_ART: Record<LoadDropKind, [key: string, de: string]> = {
   'berichtsvorlage': ['app.loadReport.berichtsvorlage', 'Report template without a name or a list'],
   'ausschnitt': ['app.loadReport.ausschnitt', 'Cutout size that is not a positive number'],
   'frontplatte': ['app.loadReport.frontplatte', 'Faceplate of an unknown kind'],
+  'mcp-log': ['app.loadReport.mcpLog', 'MCP trace line without a timestamp'],
   'anschlussListe': ['app.loadReport.anschlussListe', 'Wire bundle'],
   'ader': ['app.loadReport.ader', 'Conductor details of a cable'],
   'senkenprofil': ['app.loadReport.senkenprofil', 'Sink profile without a stated origin'],
@@ -856,6 +858,21 @@ export default function App() {
     if (!hasDesktopBridge) return
     return cablePlannerApi.mcp.onFrage((frage) => {
       try {
+        // #873 — schreibende Werkzeuge gehen durch den Store-Slice (ein
+        // Aufruf, ein Undo-Schritt, eine Nachweiszeile). Lesende bleiben
+        // rein.
+        if ((MCP_SCHREIBWERKZEUGE as readonly string[]).includes(frage.werkzeug)) {
+          // #873 — EIN Aufruf, EIN Undo-Schritt. Die Klammer steht hier und
+          // nicht im Slice: `projectHistory` liest beim Laden den Store, und
+          // ein Slice, den derselbe Store zusammensetzt, saehe ihn als
+          // `undefined` (Ringschluss). Dieselbe Form wie im
+          // `BulkConnectDialog`.
+          const { daten, text } = projectHistory.transact(() =>
+            useProjectStore.getState().mcpSchreiben(frage.werkzeug, frage.args),
+          )
+          cablePlannerApi.mcp.beantworten({ id: frage.id, daten, text })
+          return
+        }
         const { daten, text } = beantworteWerkzeug(
           useProjectStore.getState().project,
           frage.werkzeug,

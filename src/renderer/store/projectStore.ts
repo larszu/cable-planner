@@ -15,6 +15,7 @@ import { createAnnotationSlice } from './slices/annotationSlice'
 import { createSourceIdentitySlice } from './slices/sourceIdentitySlice'
 import { createDeliverySlice } from './slices/deliverySlice'
 import { createCableStockSlice } from './slices/cableStockSlice'
+import { createMcpSlice } from './slices/mcpSlice'
 import { createFotoSlice } from './slices/fotoSlice'
 import { createConductorSlice } from './slices/conductorSlice'
 import { createCrewSlice } from './slices/crewSlice'
@@ -118,6 +119,7 @@ import {
 import { normalisiereFaser, normalisierePolaritaetsnorm } from '../types/fiber'
 import { normalisiereBerichtsvorlage } from '../types/bericht'
 import { normalisiereFrontplatte } from '../types/frontplatte'
+import { MCP_LOG_MAX, normalisiereMcpEintrag } from '../types/mcpLog'
 import { pruefeVorlage } from '../lib/textProtocol'
 import { pruefeCompanion } from '../lib/companionControl'
 
@@ -814,6 +816,16 @@ export interface ProjectState {
   setPolaritaetsnormen: (normen: import('../types/fiber').Polaritaetsnorm[]) => void
   /** #880 — die Berichts-Vorlagen dieses Projekts ersetzen. */
   setBerichtsvorlagen: (v: import('../types/bericht').Berichtsvorlage[]) => void
+  /**
+   * #873 — ein schreibendes MCP-Werkzeug ausfuehren.
+   *
+   * Ein Aufruf ist ein Undo-Schritt, und er schreibt eine Nachweiszeile in
+   * `project.mcpLog`. Was erlaubt ist, steht in `lib/mcpSchreiben.ts`.
+   */
+  mcpSchreiben: (
+    werkzeug: string,
+    args: Record<string, unknown>,
+  ) => { ok: boolean; text: string; daten: Record<string, unknown> }
   setPolaritaetsnormId: (id: string | undefined) => void
   /** B-45 — die Anschluss des Projekts ersetzen. */
   setAnschluss: (anschlussListe: import('../types/conductor').Anschluss[]) => void
@@ -1011,6 +1023,17 @@ const healProjectPositions = (
     onDrop?.({ kind: 'farbnorm', reason: 'invalid-value', label: '' })
   }
   const normIds = new Set(farbnormen.map((n) => n.id))
+
+  // #873 — der MCP-Nachweis. Eine Zeile ohne Zeitpunkt faellt weg: sie waere
+  // keine Auskunft darueber, WANN etwas passiert ist, und genau das ist der
+  // Zweck der Liste.
+  const mcpLog = (project.mcpLog ?? [])
+    .map(normalisiereMcpEintrag)
+    .filter((e): e is import('../types/mcpLog').McpEintrag => !!e)
+    .slice(-MCP_LOG_MAX)
+  if ((project.mcpLog?.length ?? 0) !== mcpLog.length) {
+    onDrop?.({ kind: 'mcp-log', reason: 'invalid-value', label: '' })
+  }
 
   // #880 — die Berichts-Vorlagen des Projekts. Eine ohne Namen oder ohne
   // Liste faellt weg: sie stuende in der Auswahl und formte nichts.
@@ -1623,6 +1646,7 @@ const healProjectPositions = (
     // B-45 — dito: leere Liste, nicht `undefined`.
     farbnormen,
     berichtsvorlagen,
+    mcpLog,
     polaritaetsnormen,
     polaritaetsnormId,
     // E-23 — dito.
@@ -1874,6 +1898,7 @@ const buildProjectStore = (
   ...createSourceIdentitySlice(set, get, store),
   ...createDeliverySlice(set, get, store),
   ...createCableStockSlice(set, get, store),
+  ...createMcpSlice(set, get, store),
   ...createFotoSlice(set, get, store),
   ...createConductorSlice(set, get, store),
   ...createCrewSlice(set, get, store),

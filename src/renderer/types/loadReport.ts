@@ -75,6 +75,8 @@ export type LoadDropKind =
   | 'ausschnitt'
   /** #879 — eine Frontplatte mit unbekannter Art. */
   | 'frontplatte'
+  /** #873 — eine MCP-Nachweiszeile ohne Zeitpunkt. */
+  | 'mcp-log'
   | 'anschlussListe'
   /**
    * #875 — eine Lagerlaenge ohne rechenbare Laenge oder mit negativer

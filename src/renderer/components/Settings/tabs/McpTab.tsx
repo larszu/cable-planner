@@ -14,10 +14,44 @@ import { useCallback, useEffect, useState } from 'react'
 import { Copy, Play, RefreshCw, Square } from 'lucide-react'
 import { cablePlannerApi, hasDesktopBridge, type McpStatus } from '../../../lib/bridge'
 import { useTranslation, format } from '../../../lib/i18n'
+import { useProjectStore } from '../../../store/projectStore'
 import { PanelHint } from '../../shared/PanelHint'
 import { Icon } from '../../shared/Icon'
 
-const LEER: McpStatus = { running: false, port: 0, url: '', verbunden: false }
+/**
+ * #873 — was Claude am Plan geaendert hat.
+ *
+ * Er steht HIER und nicht im Undo-Stapel: dessen Eintraege sind ganze
+ * Plan-Zustaende ohne Namen (`projectHistory`), und ein Etikett dort hiesse,
+ * den Undo-Mechanismus umzubauen. Diese Liste beantwortet dieselbe Frage —
+ * „was hat das Ding an meinem Plan gemacht?" — und ueberlebt den Stapel.
+ */
+const McpNachweis = () => {
+  const t = useTranslation()
+  const log = useProjectStore((s) => s.project.mcpLog) ?? []
+  if (log.length === 0) return null
+  return (
+    <div className="space-y-1">
+      <div className="text-cp-text-secondary">{t('mcp.trace', 'What Claude changed')}</div>
+      <ul className="max-h-40 space-y-0.5 overflow-auto border border-cp-border-muted p-2">
+        {[...log].reverse().map((e) => (
+          <li key={e.id} className="text-cp-text-muted">
+            <span className="font-mono text-cp-text-faint">{e.zeit.slice(0, 16).replace('T', ' ')}</span>{' '}
+            {e.text}
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+const LEER: McpStatus = {
+  running: false,
+  port: 0,
+  url: '',
+  verbunden: false,
+  schreibenErlaubt: false,
+}
 
 export const McpTab = () => {
   const t = useTranslation()
@@ -125,6 +159,29 @@ export const McpTab = () => {
         )}
       </div>
 
+      {/* #873 — der ZWEITE Schalter. „Claude darf lesen" und „Claude darf
+          aendern" sind zwei Entscheidungen; wer nur fragen wollte, soll nicht
+          aus Versehen dem Aendern zugestimmt haben. */}
+      <label className="flex items-start gap-2">
+        <input
+          type="checkbox"
+          checked={status.schreibenErlaubt}
+          disabled={!hasDesktopBridge}
+          onChange={async (e) => setStatus(await cablePlannerApi.mcp.setSchreibmodus(e.target.checked))}
+        />
+        <span>
+          <span className="text-cp-text">
+            {t('mcp.write', 'Claude may also change the plan')}
+          </span>
+          <span className="block text-cp-text-muted">
+            {t(
+              'mcp.writeHint',
+              'Connect and remove cables, set cable details, rename devices - through the same store actions the canvas uses. Every call is ONE undo step and leaves a line under "What Claude changed" below. Switching devices (Videohub, ATEM) is never offered. Takes effect when the server is restarted.',
+            )}
+          </span>
+        </span>
+      </label>
+
       {fehler && (
         <div className="border border-cp-danger/60 bg-cp-danger/10 px-2 py-1 text-cp-danger">
           {fehler}
@@ -151,6 +208,8 @@ export const McpTab = () => {
           )}
         />
       </div>
+
+      <McpNachweis />
 
       {befehl && (
         <div className="space-y-1">

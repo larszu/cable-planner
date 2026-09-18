@@ -60,6 +60,16 @@ interface McpState {
   /** Wann zuletzt ein Client geantwortet bekam — fuer die Anzeige. */
   letzterZugriff: number | null
   frager: PlanFrager | null
+  /**
+   * #873 — darf der Client auch SCHREIBEN?
+   *
+   * Zweiter Schalter, und ausdruecklich nicht derselbe: „Claude darf meinen
+   * Plan lesen" und „Claude darf meinen Plan aendern" sind zwei
+   * Entscheidungen. Dieselbe Teilung wie beim Handy (BEDARF 109), und aus
+   * demselben Grund — wer nur fragen wollte, soll nicht aus Versehen
+   * zugestimmt haben, dass geaendert wird.
+   */
+  schreibenErlaubt: boolean
 }
 
 const state: McpState = {
@@ -68,11 +78,14 @@ const state: McpState = {
   token: '',
   letzterZugriff: null,
   frager: null,
+  schreibenErlaubt: false,
 }
 
 export interface McpStatus {
   running: boolean
   port: number
+  /** #873 — ob schreibende Werkzeuge angeboten werden. */
+  schreibenErlaubt: boolean
   /** Das Token steht NICHT hier — es geht nur ueber einen eigenen Weg. */
   url: string
   /** Vor weniger als zwei Minuten hat ein Client gefragt. */
@@ -84,9 +97,19 @@ const ZWEI_MINUTEN = 2 * 60 * 1000
 export const getMcpStatus = (): McpStatus => ({
   running: !!state.server,
   port: state.port,
+  schreibenErlaubt: state.schreibenErlaubt,
   url: state.server ? `http://127.0.0.1:${state.port}/mcp` : '',
   verbunden: !!state.letzterZugriff && Date.now() - state.letzterZugriff < ZWEI_MINUTEN,
 })
+
+/**
+ * #873 — den Schreibmodus setzen. Er wirkt erst beim naechsten Start: die
+ * Werkzeugliste steht im Server, und ein Client, der sie schon geholt hat,
+ * bekommt sie nicht nachtraeglich geaendert.
+ */
+export const setMcpSchreibmodus = (an: boolean): void => {
+  state.schreibenErlaubt = an === true
+}
 
 /** Der Renderer haengt sich hier ein; ohne ihn antwortet kein Werkzeug. */
 export const setMcpPlanFrager = (frager: PlanFrager | null): void => {
@@ -187,6 +210,73 @@ const baueServer = (): McpServer => {
     },
     async (args) => werkzeugAntwort('plan_findings', args as Record<string, unknown>),
   )
+
+  // #873 — die schreibenden Werkzeuge. NUR wenn der zweite Schalter an ist;
+  // sonst existieren sie fuer den Client gar nicht. Ein Werkzeug, das immer
+  // „nicht erlaubt" antwortet, ist dieselbe Sorte Luege wie ein Knopf, der
+  // jedes Mal 403 bekommt (ADR-005).
+  if (state.schreibenErlaubt) {
+    mcp.registerTool(
+      'connect_ports',
+      {
+        title: 'Connect two ports',
+        description:
+          'Draw a cable between two ports, through the same store action the canvas uses. Says what would fit if the two ends do not mate.',
+        annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false },
+        inputSchema: {
+          fromDeviceId: z.string(),
+          fromPortId: z.string(),
+          toDeviceId: z.string(),
+          toPortId: z.string(),
+          name: z.string().optional(),
+          type: z.string().optional(),
+          length: z.number().optional().describe('Metres. Leave it out rather than guessing.'),
+          notes: z.string().optional(),
+        },
+      },
+      async (args) => werkzeugAntwort('connect_ports', args as Record<string, unknown>),
+    )
+
+    mcp.registerTool(
+      'disconnect_cable',
+      {
+        title: 'Remove a cable',
+        description: 'Delete one cable from the plan. One undo step takes it back.',
+        annotations: { readOnlyHint: false, destructiveHint: true },
+        inputSchema: { cableId: z.string().describe('Cable id, number or name.') },
+      },
+      async (args) => werkzeugAntwort('disconnect_cable', args as Record<string, unknown>),
+    )
+
+    mcp.registerTool(
+      'set_cable',
+      {
+        title: 'Set cable details',
+        description: 'Change name, length, notes, colour or layer of one cable.',
+        annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true },
+        inputSchema: {
+          cableId: z.string(),
+          name: z.string().optional(),
+          length: z.number().optional(),
+          notes: z.string().optional(),
+          color: z.string().optional(),
+          layer: z.string().optional(),
+        },
+      },
+      async (args) => werkzeugAntwort('set_cable', args as Record<string, unknown>),
+    )
+
+    mcp.registerTool(
+      'rename_device',
+      {
+        title: 'Rename a device',
+        description: 'Give one device a new name. Every list and label follows the name.',
+        annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true },
+        inputSchema: { deviceId: z.string(), name: z.string() },
+      },
+      async (args) => werkzeugAntwort('rename_device', args as Record<string, unknown>),
+    )
+  }
 
   return mcp
 }

@@ -308,6 +308,22 @@ claude mcp add --transport http cable-planner http://127.0.0.1:<port>/mcp \
 
 The settings page shows the line with the port and token already filled in.
 
+**Writing is a second switch** (#873), off by its own default. With it on, Claude
+can connect and remove cables, set cable details and rename devices — through
+the *same store actions the canvas uses*, so the validation, the type
+inheritance and the layer detection are the ones you already know. Each call is
+**one undo step**, and each leaves a line under *What Claude changed*, which
+travels in the plan file.
+
+If two ends do not mate, the answer says what would: *"No cable in the catalogue
+connects BNC to HDMI directly - this needs a converter, and the planner names
+converters instead of inserting them."* A refusal without a way forward just
+makes a model try the same thing again.
+
+**Switching commands are never offered.** Reading a Videohub or an ATEM: yes.
+Routing them from a tool: no — a model that changes routing during a show is a
+risk without a payoff.
+
 ---
 
 ### 🔗 Integrations & Interchange
