@@ -65,6 +65,10 @@ export type LoadDropKind =
   | 'equipment-circuit'
   | 'equipment-adapter'
   | 'farbnorm'
+  /** #885 — eine Faser ohne brauchbare Lage in der Buchse. */
+  | 'faser'
+  /** #885 — eine Polaritaets-Methode ohne Herkunft. */
+  | 'polaritaetsnorm'
   | 'anschlussListe'
   /**
    * #875 — eine Lagerlaenge ohne rechenbare Laenge oder mit negativer

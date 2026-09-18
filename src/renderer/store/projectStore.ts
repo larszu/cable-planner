@@ -115,6 +115,7 @@ import {
   normalisiereAnschluss,
   normalisiereFarbnorm,
 } from '../types/conductor'
+import { normalisiereFaser, normalisierePolaritaetsnorm } from '../types/fiber'
 import { pruefeVorlage } from '../lib/textProtocol'
 import { pruefeCompanion } from '../lib/companionControl'
 
@@ -807,6 +808,9 @@ export interface ProjectState {
     patch: Partial<Pick<import('../types/foto').Foto, 'notiz' | 'zeigtAuf'>>,
   ) => void
   setFarbnormen: (farbnormen: import('../types/conductor').Farbnorm[]) => void
+  /** #885 — die Polaritaets-Methoden und die gewaehlte. */
+  setPolaritaetsnormen: (normen: import('../types/fiber').Polaritaetsnorm[]) => void
+  setPolaritaetsnormId: (id: string | undefined) => void
   /** B-45 — die Anschluss des Projekts ersetzen. */
   setAnschluss: (anschlussListe: import('../types/conductor').Anschluss[]) => void
   /** E-23 — die Lauscher-Einstellung dieses Projekts. */
@@ -1003,6 +1007,23 @@ const healProjectPositions = (
     onDrop?.({ kind: 'farbnorm', reason: 'invalid-value', label: '' })
   }
   const normIds = new Set(farbnormen.map((n) => n.id))
+
+  // #885 — dieselbe Bauform fuer die Polaritaets-Methoden: ohne `herkunft`
+  // faellt eine weg. Sie stuende sonst in der Auswahl, ohne dass jemand
+  // nachlesen kann, ob sie fuer diese Anlage gilt — und beurteilte trotzdem
+  // jede Faser.
+  const polaritaetsnormen = (project.polaritaetsnormen ?? [])
+    .map(normalisierePolaritaetsnorm)
+    .filter((n): n is import('../types/fiber').Polaritaetsnorm => !!n)
+  if ((project.polaritaetsnormen?.length ?? 0) !== polaritaetsnormen.length) {
+    onDrop?.({ kind: 'polaritaetsnorm', reason: 'invalid-value', label: '' })
+  }
+  // Ein Zeiger auf eine geloeschte Methode verliert sich — sonst stuende im
+  // Projekt eine Wahl, die es nicht gibt, und die Pruefung liefe gegen
+  // `undefined` und schwiege.
+  const polaritaetsnormId = polaritaetsnormen.some((n) => n.id === project.polaritaetsnormId)
+    ? project.polaritaetsnormId
+    : undefined
   const anschlussListe = (project.anschlussListe ?? [])
     .map((b) => normalisiereAnschluss(b, normIds))
     .filter((b): b is import('../types/conductor').Anschluss => !!b)
@@ -1210,9 +1231,29 @@ const healProjectPositions = (
         const neu = ports.map((p) => {
           const typ = heileSteckertyp(p.connectorType)
           const art = heileSteckertyp(p.type)
-          if (typ === p.connectorType && art === p.type) return p
+          // #885 — der Breakout. Eine Faser ohne brauchbare Lage faellt weg:
+          // sie waere nicht adressierbar, und eine geratene Lage stuende
+          // danach im Plan wie eine Angabe des Datenblatts. Zwei Fasern auf
+          // derselben Lage sind KEIN Wegwurf — das ist ein Befund, und den
+          // zeigt `breakoutBefunde`, statt ihn hier stillschweigend
+          // aufzuraeumen.
+          const rohFasern = (p as { fasern?: unknown }).fasern
+          let fasern = p.fasern
+          if (Array.isArray(rohFasern)) {
+            const geheilt = rohFasern
+              .map((f, i) => normalisiereFaser(f, i))
+              .filter((f): f is import('../types/fiber').Faser => !!f)
+            if (geheilt.length !== rohFasern.length) {
+              onDrop?.({ kind: 'faser', reason: 'invalid-value', label: p.name })
+            }
+            fasern = geheilt.length > 0 ? geheilt : undefined
+          } else if (rohFasern !== undefined) {
+            onDrop?.({ kind: 'faser', reason: 'invalid-value', label: p.name })
+            fasern = undefined
+          }
+          if (typ === p.connectorType && art === p.type && fasern === p.fasern) return p
           veraendert = true
-          return { ...p, connectorType: typ, type: art }
+          return { ...p, connectorType: typ, type: art, fasern }
         })
         return veraendert ? neu : ports
       }
@@ -1458,6 +1499,17 @@ const healProjectPositions = (
           patched = { ...patched, adern: geheilt }
         }
       }
+      // #885 — die belegte Faser je Ende. Was keine ganze Zahl ab 1 ist,
+      // faellt weg: eine `0` oder eine `2.5` stuende in der Patchliste als
+      // Faser-Nummer, und danach sucht jemand am Breakout nach ihr.
+      for (const feld of ['faserVon', 'faserNach'] as const) {
+        const wert = patched[feld]
+        if (wert === undefined) continue
+        if (!Number.isInteger(wert) || wert < 1) {
+          onDrop?.({ kind: 'faser', reason: 'invalid-value', label: patched.name || patched.id })
+          patched = { ...patched, [feld]: undefined }
+        }
+      }
       // Ein Anschluss-Zeiger ins Leere faellt WEG. Er saehe in der Anzeige aus
       // wie eine Zugehoerigkeit — und die Pruefung, die das fehlende
       // Gegenstueck finden soll, faende ein Anschluss, das es nicht gibt.
@@ -1526,6 +1578,8 @@ const healProjectPositions = (
     fotos,
     // B-45 — dito: leere Liste, nicht `undefined`.
     farbnormen,
+    polaritaetsnormen,
+    polaritaetsnormId,
     // E-23 — dito.
     oscLauscher,
     anschlussListe,

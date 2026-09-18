@@ -368,6 +368,64 @@ export const CableProperties = () => {
                 className="w-full border border-cp-border bg-cp-surface-1 p-1.5"
               />
             </label>
+            {/* #885 — die belegte Faser, je Ende. Die Auswahl erscheint nur,
+                wo die Buchse ueberhaupt aufgeteilt ist: an einer LC-Duplex
+                gibt es nichts zu waehlen, und ein leeres Menue dort waere
+                eine Frage ohne Antwortmoeglichkeit. */}
+            {(fromPort?.fasern?.length ?? 0) > 0 && (
+              <label className="block">
+                <span className="mb-1 block text-cp-text-secondary">
+                  {t('fibre.strandFrom', 'Fibre A')}
+                </span>
+                <select
+                  value={cable.faserVon ?? ''}
+                  onChange={(e) =>
+                    updateCable(cable.id, {
+                      faserVon: e.target.value ? Number(e.target.value) : undefined,
+                    })
+                  }
+                  className="w-full border border-cp-border bg-cp-surface-1 p-1.5"
+                >
+                  <option value="">{t('fibre.strandNone', '— not stated —')}</option>
+                  {[...(fromPort?.fasern ?? [])]
+                    .sort((a, b) => a.position - b.position)
+                    .map((f) => (
+                      <option key={f.id} value={f.position}>
+                        {f.rolle === 'unbestimmt'
+                          ? String(f.position)
+                          : `${f.position} ${f.rolle.toUpperCase()}`}
+                      </option>
+                    ))}
+                </select>
+              </label>
+            )}
+            {(toPort?.fasern?.length ?? 0) > 0 && (
+              <label className="block">
+                <span className="mb-1 block text-cp-text-secondary">
+                  {t('fibre.strandTo', 'Fibre B')}
+                </span>
+                <select
+                  value={cable.faserNach ?? ''}
+                  onChange={(e) =>
+                    updateCable(cable.id, {
+                      faserNach: e.target.value ? Number(e.target.value) : undefined,
+                    })
+                  }
+                  className="w-full border border-cp-border bg-cp-surface-1 p-1.5"
+                >
+                  <option value="">{t('fibre.strandNone', '— not stated —')}</option>
+                  {[...(toPort?.fasern ?? [])]
+                    .sort((a, b) => a.position - b.position)
+                    .map((f) => (
+                      <option key={f.id} value={f.position}>
+                        {f.rolle === 'unbestimmt'
+                          ? String(f.position)
+                          : `${f.position} ${f.rolle.toUpperCase()}`}
+                      </option>
+                    ))}
+                </select>
+              </label>
+            )}
           </div>
           {/* Mess-/Test-Ergebnis */}
           <div className="border border-cp-border-muted bg-cp-surface-1/40 p-1.5">

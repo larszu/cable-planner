@@ -174,6 +174,28 @@ tick for a part nobody has checked costs more than an open point.
 
 ---
 
+### 🧵 Fibre breakouts and polarity
+
+One socket, several fibres (#885). An opticalCON QUAD carries four of them
+behind a single connector, and until now the plan could only show that as four
+cables — which loses the outer connector, the one figure the cable actually has
+to match.
+
+- The **breakout lives on the socket**: each fibre with its position, what it
+  carries (`TX`, `RX` or *not stated*) and its own connector at the tail.
+- Each cable end says **which fibre it uses**. Patch list and pull list carry
+  it as a column, and only when the plan has a breakout at all.
+- The plan check finds **three of four fibres patched**, two cables on the same
+  fibre, and a fibre the socket does not have.
+- **Polarity** is checked only against a method you entered — TIA-568 knows the
+  methods A, B and C, and they differ in *where* the fibres cross. Which one
+  applies is in the site's own document, so none is built in. Until one is
+  chosen the direction is reported as **unchecked**, never as correct.
+- *Not stated* is a state of its own throughout: it never turns into a green
+  tick, and it is never quietly read as `TX`.
+
+---
+
 ### 🟥 LED walls
 
 - Panel types with the figures off the datasheet — pixel pitch, resolution,

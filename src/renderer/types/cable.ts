@@ -220,6 +220,19 @@ export interface Cable {
   /** Festinstallation — Terminierung je Ende (T568A/B, LC/SC/MPO …). */
   terminationFrom?: string
   terminationTo?: string
+  /**
+   * #885 — WELCHE Faser der Buchse dieses Kabel belegt, je Ende (1-basiert).
+   *
+   * Sie steht hier und nicht als eigenes Kabel je Faser: der Breakout ist
+   * eine Eigenschaft der Buchse (`port.fasern`), das Kabel belegt davon
+   * eine. Die Begruendung in voller Laenge im Kopf von `types/fiber.ts`.
+   *
+   * Undefined heisst „nicht gesagt" — bei einer Buchse ohne Breakout ist
+   * das die richtige Antwort, bei einer QUAD eine Luecke, und der Plan-Check
+   * sagt welche.
+   */
+  faserVon?: number
+  faserNach?: number
   /** Festinstallation — Mess-/Zertifikats-Ergebnis (TIA-568/1152, OLTS/OTDR). */
   testResult?: CableTestResult
   /** Festinstallation — kurze stabile QR-/Lookup-ID (druckbar, ≥ 1,6 cm).

@@ -130,7 +130,7 @@ export const de: Dict = {
   'adern.norm.newName': 'Neue Farbnorm',
   'adern.tab.anschluss': 'Anschlüsse (Bündel)',
   'adern.tab.normen': 'Farbnormen',
-  'adern.title': 'Adern, Farbnormen und Anschlüsse',
+  'adern.title': 'Adern, Farbnormen, Anschlüsse und Faser-Polarität',
   'aiPlan.generate': 'Generieren',
   'aiPlan.generating': 'Generiere…',
   'aiPlan.insert': 'In den Plan einfügen',
@@ -3184,6 +3184,59 @@ export const de: Dict = {
   'statusbar.fotos.label': 'Fotos {mb} MB',
   'statusbar.fotos.title':
     '{n} Fotos tragen {mb} MB in diesem Plan. Die Datei öffnet weiterhin, nur wird sie zum Verschicken per Mail unhandlich.',
+  'fibre.breakout': 'Breakout',
+  'fibre.template2': 'DUO (2)',
+  'fibre.template4': 'QUAD (4)',
+  'fibre.noneHint':
+    'Nicht aufgeteilt. Eine Buchse, die mehrere Fasern führt (opticalCON DUO/QUAD, MPO), listet sie hier — danach sagt jedes Kabel, welche es belegt.',
+  'fibre.positionTitle': 'Lage in der Buchse, 1-basiert',
+  'fibre.roleTitle':
+    'Was diese Faser führt. „nicht angegeben" ist ein eigener Zustand — er gilt nie als geprüft.',
+  'fibre.role.tx': 'TX (sendend)',
+  'fibre.role.rx': 'RX (empfangend)',
+  'fibre.role.unstated': 'nicht angegeben',
+  'fibre.connectorPlaceholder': 'Stecker (LC)',
+  'fibre.connectorTitle':
+    'Der Steckverbinder DIESER Faser am Breakout-Schwanz — aussen opticalCON, innen LC.',
+  'fibre.notePlaceholder': 'Notiz',
+  'fibre.remove': 'Faser entfernen',
+  'fibre.add': 'Faser hinzufügen',
+  'fibre.strandFrom': 'Faser A',
+  'fibre.strandTo': 'Faser B',
+  'fibre.strandNone': '— nicht angegeben —',
+  'fibre.method.newName': 'Neue Polaritäts-Methode',
+  'fibre.method.name': 'Name der Methode',
+  'fibre.method.add': 'Polaritäts-Methode eintragen',
+  'fibre.method.confirmDelete': 'Polaritäts-Methode löschen?',
+  'fibre.method.confirmDeleteBody':
+    'War sie die gewählte, ist die Faser-Richtung danach wieder ungeprüft.',
+  'fibre.method.herkuntPlaceholder':
+    'Woher kommt diese Methode? Norm, Ausgabe, Seite — oder „Hausunterlage, festgelegt von …"',
+  'fibre.method.herkunftMissing':
+    'Ohne Herkunft wird diese Methode beim nächsten Laden verworfen — sie beurteilte sonst jede Faser, ohne dass jemand nachlesen kann, ob sie hier gilt.',
+  'fibre.method.crosses':
+    'Diese Methode kreuzt die Fasern: TX des einen Endes trifft RX des anderen.',
+  'fibre.method.chosen': 'Diese Methode gilt für dieses Projekt.',
+  'fibre.method.hint':
+    'Eingebaut ist keine Methode, aus demselben Grund wie oben: TIA-568 kennt die Methoden A, B und C, und sie unterscheiden sich darin, WO die Fasern gekreuzt werden — im Trunk, im Patchkabel oder an beiden Enden unterschiedlich. Welche gilt, steht in der Unterlage dieser Anlage. Trage sie hier ein, mit ihrer Herkunft.',
+  'fibre.method.empty':
+    'Noch keine Methode eingetragen. Bis eine gewählt ist, bleibt die Faser-Richtung ungeprüft — der Plan-Check sagt das, statt sie stillschweigend als richtig zu zeigen.',
+  'fibre.strandDuplicate':
+    '{port}: Faser {n} trägt mehr als ein Kabel ({cables}). Im Rack trägt sie eines.',
+  'fibre.strandUnknown':
+    '{port}: „{cables}" liegt auf Faser {n}, die diese Buchse nicht hat.',
+  'fibre.strandsUnused':
+    '{port}: {belegt} von {total} Fasern sind gepatcht — {frei} nicht. Geplant oder vergessen?',
+  'fibre.noPolarityMethod':
+    '{cable}: keine Polaritäts-Methode gewählt — die Faser-Richtung ist ungeprüft. Welche Methode für diese Anlage gilt, steht nicht im Programm.',
+  'fibre.roleUnstated':
+    '{cable}: mindestens ein Ende sagt nicht, ob es sendet oder empfängt — die Polarität lässt sich nicht prüfen.',
+  'fibre.polarityTwisted':
+    '{cable}: {a} trifft {b}, die Methode „{norm}" erwartet es andersherum. Da geht kein Licht durch.',
+  'check.fibreNoPolarityMethod':
+    '{n} Faser-Strecken tragen eine Faser-Nummer, aber es ist keine Polaritäts-Methode gewählt — ihre Richtung ist ungeprüft. Welche Methode für diese Anlage gilt, steht nicht im Programm.',
+  'patchList.col.fibre': 'Faser',
+  'adern.tab.polaritaet': 'Faser-Polarität',
   'foto.section': 'Fotos',
   'foto.projectSection': 'Fotos des Projekts',
   'foto.none': 'Noch keine Fotos. Ein Foto beantwortet Fragen, für die es kein Feld gibt.',
@@ -5635,6 +5688,8 @@ export const de: Dict = {
   'app.loadReport.cableStock': 'Lagerlaenge eines Kabeltyps',
   'app.loadReport.ledWall': 'LED-Wand oder Panel-Typ',
   'app.loadReport.foto': 'Foto',
+  'app.loadReport.faser': 'Faser ohne brauchbare Lage in der Buchse',
+  'app.loadReport.polaritaetsnorm': 'Polaritäts-Methode ohne genannte Herkunft',
   'app.loadReport.duplicateId': 'doppelte Id, der erste Eintrag gilt',
   'app.loadReport.danglingRef': 'der Verweis zeigt ins Leere — das Ziel wurde gelöscht',
   'app.loadReport.unknownValue': 'unbekannter Wert — die Datei stammt vermutlich aus einer anderen Fassung',

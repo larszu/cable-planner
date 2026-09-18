@@ -79,6 +79,38 @@ interface PatchRow {
   layer: string
   /** #363 — Multicore-/Snake-Bündel-Name (leer = Einzelkabel). */
   multicore: string
+  /**
+   * #885 — welche Faser der Buchse dieses Kabel belegt, je Ende.
+   *
+   * Leer, wo keine Buchse aufgeteilt ist — also fast immer. Die Spalte
+   * erscheint deshalb nur, wenn im Plan ueberhaupt ein Breakout steckt: eine
+   * dauerhaft leere Spalte auf jeder Patchliste ist Rauschen, und sie kostet
+   * genau dort Platz, wo am Aufbau jemand mit dem Finger die Zeile sucht.
+   */
+  faser: string
+}
+
+/**
+ * Die Faser-Zuordnung einer Zeile: „2 TX → 2 RX" (#885).
+ *
+ * Die Rolle steht MIT, wo sie angegeben ist — die Faser-Nummer allein sagt
+ * nicht, in welche Richtung sie laeuft, und genau danach sucht jemand, der
+ * am Breakout steht. Wo sie nicht angegeben ist, steht sie nicht da; ein
+ * angenommenes TX waere eine Auskunft, die niemand gegeben hat.
+ */
+const faserText = (
+  von: Port | undefined,
+  faserVon: number | undefined,
+  nach: Port | undefined,
+  faserNach: number | undefined,
+): string => {
+  if (faserVon === undefined && faserNach === undefined) return ''
+  const seite = (p: Port | undefined, pos: number | undefined): string => {
+    if (pos === undefined) return '?'
+    const rolle = p?.fasern?.find((f) => f.position === pos)?.rolle
+    return rolle && rolle !== 'unbestimmt' ? `${pos} ${rolle.toUpperCase()}` : String(pos)
+  }
+  return `${seite(von, faserVon)} \u2192 ${seite(nach, faserNach)}`
 }
 
 export const PatchListDialog = () => {
@@ -224,6 +256,7 @@ export const PatchListDialog = () => {
         notes: c.notes ?? '',
         layer: c.layer ?? '',
         multicore: c.multicoreName ?? '',
+        faser: faserText(fromPort, c.faserVon, finalToPort, c.faserNach),
       }
     })
     const cmp = (a: PatchRow, b: PatchRow): number => {
@@ -247,6 +280,10 @@ export const PatchListDialog = () => {
 
   // #353 — vorhandene Cable-Layer (z.B. audio/video/network) für den Filter.
   const layers = useMemo(() => [...new Set(rows.map((r) => r.layer).filter(Boolean))].sort(), [rows])
+
+  // #885 — steckt im Plan ueberhaupt ein Breakout? Danach richtet sich, ob
+  // die Faser-Spalte erscheint.
+  const hatFasern = useMemo(() => rows.some((r) => r.faser !== ''), [rows])
 
   const filtered = useMemo(() => {
     const q = filter.trim().toLowerCase()
@@ -335,6 +372,7 @@ export const PatchListDialog = () => {
       t('export.bom.csv.lengthM', 'Length (m)'),
       t('patchList.col.layer', 'Layer'),
       t('patchList.col.multicore', 'Multicore'),
+      t('patchList.col.fibre', 'Fibre'),
       t('patchList.col.color', 'Colour'),
       t('patchList.col.cableName', 'Cable name'),
       t('patchList.col.notes', 'Notes'),
@@ -349,6 +387,7 @@ export const PatchListDialog = () => {
       r.length,
       r.layer,
       r.multicore,
+      r.faser,
       r.color,
       r.cableName,
       r.notes,
@@ -847,6 +886,9 @@ export const PatchListDialog = () => {
                   { k: 'type' as const, label: t('export.bom.csv.type', 'Type') },
                   { k: 'length' as const, label: t('export.bom.csv.lengthM', 'Length (m)') },
                   { k: 'color' as const, label: t('patchList.col.color', 'Colour') },
+                  ...(hatFasern
+                    ? [{ k: 'number' as const, label: t('patchList.col.fibre', 'Fibre') }]
+                    : []),
                 ].map((col, i) => (
                   <th
                     key={`${col.k}-${i}`}
@@ -886,12 +928,15 @@ export const PatchListDialog = () => {
                       title={r.color}
                     />
                   </td>
+                  {hatFasern && (
+                    <td className="px-2 py-1 font-mono text-cp-text-secondary">{r.faser}</td>
+                  )}
                 </tr>
               ))}
               {filtered.length === 0 && (
                 <tr>
                   <td
-                    colSpan={8}
+                    colSpan={hatFasern ? 9 : 8}
                     className="px-2 py-8 text-center text-cp-xs text-[var(--cp-text-faint)]"
                   >
                     {rows.length === 0

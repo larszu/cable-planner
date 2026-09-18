@@ -67,6 +67,11 @@ export const DEFAULT_CONNECTOR_TYPE_COLORS: Record<ConnectorType, string> = {
   'Triax (Fischer)': '#854d0e',
   'LEMO 3K.93C (SMPTE 304M)': '#ea580c',
   'Neutrik Dragonfly (SMPTE 304M)': '#b45309',
+  // #885 — die Breakout-Buchsen bleiben in der Fiber-Familie (gelb) und
+  // nicht bei SMPTE 304M: durch sie geht Glas und kein Hybrid-Kamerakabel.
+  // Zwei Abstufungen, damit DUO und QUAD in der Legende auseinandergehen.
+  'Neutrik opticalCON DUO': '#fbbf24',
+  'Neutrik opticalCON QUAD': '#d97706',
   'Wireless/RF': '#ec4899',
   'IEC 230V': '#475569',
   PowerCON: '#0ea5e9',

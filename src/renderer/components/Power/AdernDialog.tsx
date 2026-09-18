@@ -13,6 +13,7 @@ import {
   type Farbnorm,
   type LeiterRolle,
 } from '../../types/conductor'
+import type { Polaritaetsnorm } from '../../types/fiber'
 
 /**
  * Die Farbnormen und die Adernbündel eines Projekts (B-45).
@@ -54,7 +55,16 @@ export const AdernDialog = () => {
   const anschluss = useProjectStore((s) => s.project.anschlussListe) ?? []
   const setFarbnormen = useProjectStore((s) => s.setFarbnormen)
   const setAnschluss = useProjectStore((s) => s.setAnschluss)
-  const [tab, setTab] = useState<'normen' | 'anschluss'>('normen')
+  // #885 — die Polaritaets-Methoden stehen in DIESEM Dialog und nicht in
+  // einem eigenen: es ist dieselbe Sorte Aussage wie eine Farbnorm — eine
+  // Zuordnung, die fuer die Anlage gilt, die niemand raten darf und die ihre
+  // Herkunft traegt. Zwei Dialoge mit derselben Regel waeren zwei Orte, an
+  // denen jemand sie das naechste Mal aufweicht.
+  const polaritaetsnormen = useProjectStore((s) => s.project.polaritaetsnormen) ?? []
+  const polaritaetsnormId = useProjectStore((s) => s.project.polaritaetsnormId)
+  const setPolaritaetsnormen = useProjectStore((s) => s.setPolaritaetsnormen)
+  const setPolaritaetsnormId = useProjectStore((s) => s.setPolaritaetsnormId)
+  const [tab, setTab] = useState<'normen' | 'anschluss' | 'polaritaet'>('normen')
 
   if (!open) return null
 
@@ -88,6 +98,20 @@ export const AdernDialog = () => {
   const aendereAnschluss = (id: string, teil: Partial<Anschluss>) =>
     setAnschluss(anschluss.map((b) => (b.id === id ? { ...b, ...teil } : b)))
 
+  const neuePolNorm = () =>
+    setPolaritaetsnormen([
+      ...polaritaetsnormen,
+      {
+        id: `pol-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
+        name: t('fibre.method.newName', 'New polarity method'),
+        herkunft: '',
+        kreuzt: false,
+      },
+    ])
+
+  const aenderePolNorm = (id: string, teil: Partial<Polaritaetsnorm>) =>
+    setPolaritaetsnormen(polaritaetsnormen.map((n) => (n.id === id ? { ...n, ...teil } : n)))
+
   const kippeSoll = (b: Anschluss, rolle: LeiterRolle) =>
     aendereAnschluss(b.id, {
       soll: b.soll.includes(rolle) ? b.soll.filter((r) => r !== rolle) : [...b.soll, rolle],
@@ -97,11 +121,11 @@ export const AdernDialog = () => {
     <ModalShell
       open={open}
       onClose={() => setOpen(false)}
-      title={t('adern.title', 'Conductors, colour standards and connections')}
+      title={t('adern.title', 'Conductors, colour standards, connections and fibre polarity')}
       maxWidth="3xl"
     >
       <div className="mb-3 flex flex-wrap gap-1">
-        {(['normen', 'anschluss'] as const).map((k) => (
+        {(['normen', 'anschluss', 'polaritaet'] as const).map((k) => (
           <button
             key={k}
             type="button"
@@ -114,7 +138,9 @@ export const AdernDialog = () => {
           >
             {k === 'normen'
               ? t('adern.tab.normen', 'Colour standards')
-              : t('adern.tab.anschluss', 'Connections (bundles)')}
+              : k === 'anschluss'
+                ? t('adern.tab.anschluss', 'Connections (bundles)')
+                : t('adern.tab.polaritaet', 'Fibre polarity')}
           </button>
         ))}
       </div>
@@ -221,7 +247,7 @@ export const AdernDialog = () => {
             <Icon icon={Plus} size="xs" /> {t('adern.norm.add', 'Enter colour standard')}
           </button>
         </>
-      ) : (
+      ) : tab === 'anschluss' ? (
         <>
           <PanelHint
             className="mb-3 text-cp-xs text-cp-text-muted"
@@ -322,6 +348,118 @@ export const AdernDialog = () => {
             className="mt-3 flex items-center gap-1 bg-emerald-700 px-2 py-1 text-cp-xs hover:bg-emerald-600"
           >
             <Icon icon={Plus} size="xs" /> {t('adern.anschluss.add', 'Add connection')}
+          </button>
+        </>
+      ) : (
+        <>
+          <PanelHint
+            className="mb-3 text-cp-xs text-cp-text-muted"
+            text={t(
+              'fibre.method.hint',
+              'No method is built in, for the same reason as above: TIA-568 knows the methods A, B and C, and they differ in WHERE the fibres cross - in the trunk, in the patch cord, or differently at each end. Which one applies is in the installation document of this site. Enter it here, with where it comes from.',
+            )}
+          />
+          {polaritaetsnormen.length === 0 && (
+            <div className="mb-3 border border-cp-border-muted bg-cp-surface-2 p-3 text-cp-xs text-cp-text-muted">
+              {t(
+                'fibre.method.empty',
+                'No method entered yet. Until one is chosen the fibre direction stays unchecked - the plan check says so instead of quietly showing it as correct.',
+              )}
+            </div>
+          )}
+          <div className="space-y-3">
+            {polaritaetsnormen.map((n) => (
+              <div key={n.id} className="border border-cp-border bg-cp-surface-2 p-3">
+                <div className="flex items-start gap-2">
+                  <input
+                    className="min-w-0 flex-1 border border-cp-border bg-cp-surface-1 px-2 py-1 text-cp-base"
+                    value={n.name}
+                    onChange={(e) => aenderePolNorm(n.id, { name: e.target.value })}
+                    aria-label={t('fibre.method.name', 'Name of the method')}
+                  />
+                  <button
+                    type="button"
+                    className="bg-red-700 px-2 py-1 text-cp-xs hover:bg-red-600"
+                    onClick={async () => {
+                      if (
+                        await confirmDialog(
+                          t('fibre.method.confirmDelete', 'Delete polarity method?'),
+                          {
+                            body: t(
+                              'fibre.method.confirmDeleteBody',
+                              'If it was the chosen one, the fibre direction is unchecked again afterwards.',
+                            ),
+                            destructive: true,
+                            okLabel: t('common.delete', 'Delete'),
+                          },
+                        )
+                      ) {
+                        setPolaritaetsnormen(polaritaetsnormen.filter((x) => x.id !== n.id))
+                      }
+                    }}
+                    aria-label={t('common.delete', 'Delete')}
+                  >
+                    <Icon icon={Trash2} size="xs" />
+                  </button>
+                </div>
+                <label className="mt-2 block text-cp-xs">
+                  <span className="mb-1 block text-cp-text-muted">
+                    {t('adern.norm.herkunft', 'Source (required)')}
+                  </span>
+                  <input
+                    className={`w-full border bg-cp-surface-1 px-2 py-1 text-cp-base ${
+                      n.herkunft.trim() ? 'border-cp-border' : 'border-cp-danger'
+                    }`}
+                    value={n.herkunft}
+                    placeholder={t(
+                      'fibre.method.herkuntPlaceholder',
+                      'Where does this method come from? Standard, edition, page - or "site document, set by ..."',
+                    )}
+                    onChange={(e) => aenderePolNorm(n.id, { herkunft: e.target.value })}
+                  />
+                </label>
+                {!n.herkunft.trim() && (
+                  <PanelHint
+                    className="mt-1 text-cp-xs text-cp-danger"
+                    text={t(
+                      'fibre.method.herkunftMissing',
+                      'Without a source this method is discarded on the next load - it would otherwise judge every fibre without anyone being able to check whether it applies here.',
+                    )}
+                  />
+                )}
+                <label className="mt-2 flex items-center gap-2 text-cp-xs">
+                  <input
+                    type="checkbox"
+                    checked={n.kreuzt}
+                    onChange={(e) => aenderePolNorm(n.id, { kreuzt: e.target.checked })}
+                  />
+                  <span className="text-cp-text-muted">
+                    {t(
+                      'fibre.method.crosses',
+                      'This method crosses the fibres: TX at one end meets RX at the other.',
+                    )}
+                  </span>
+                </label>
+                <label className="mt-2 flex items-center gap-2 text-cp-xs">
+                  <input
+                    type="radio"
+                    name="polaritaetsnorm"
+                    checked={polaritaetsnormId === n.id}
+                    onChange={() => setPolaritaetsnormId(n.id)}
+                  />
+                  <span className="text-cp-text-muted">
+                    {t('fibre.method.chosen', 'This method applies to this project.')}
+                  </span>
+                </label>
+              </div>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={neuePolNorm}
+            className="mt-3 flex items-center gap-1 bg-emerald-700 px-2 py-1 text-cp-xs hover:bg-emerald-600"
+          >
+            <Icon icon={Plus} size="xs" /> {t('fibre.method.add', 'Enter polarity method')}
           </button>
         </>
       )}

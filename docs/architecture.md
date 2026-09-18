@@ -912,6 +912,35 @@ Das Wichtigste in Listenform. Niemals brechen ohne expliziten Architektur-Review
 
     Wer das Zellmaß wieder von der Rastergröße löst, fällt in
     `tests/rasterAlsEineZahl.test.ts` und `tests/anfahrtAmPort.test.ts`.
+25. **Der Breakout gehört der Buchse, nicht dem Kabel** (`types/fiber.ts`,
+    #885). Eine opticalCON QUAD führt vier Fasern, ob jemand sie patcht oder
+    nicht; ein Kabel belegt davon eine. Deshalb steht die Faser-Liste am
+    `Port` (`port.fasern`) und die Faser-NUMMER am Kabelende (`faserVon` /
+    `faserNach`, neben `terminationFrom`/`terminationTo`).
+
+    Die naheliegende Alternative — vier Kabel mit gemeinsamem
+    `multicoreName` — ist der Notbehelf, den heute jeder baut, und sie
+    verliert **den äusseren Steckverbinder**: der Plan zeigt vier
+    LC-Strippen und verschweigt, dass sie durch eine Buchse gehen. Genau
+    daran hängt, ob das Kabel passt und wieviele Stecker man braucht.
+    Ausserdem hinge die Zahl der Kabel im Plan dann an der Zahl der
+    gepatchten Fasern: eine QUAD mit einem Duplex wäre zwei Kabel und ein
+    Loch, und niemand könnte sagen, ob das Loch geplant oder vergessen ist.
+
+    **Eine Polaritäts-Methode wird gewählt, nicht mitgeliefert** — dieselbe
+    Regel wie bei den Farbnormen (Invariante 22) und aus demselben Grund:
+    TIA-568 kennt die Methoden A, B und C, und sie unterscheiden sich darin,
+    WO gekreuzt wird. `EINGEBAUTE_POLARITAETSNORMEN` ist deshalb **leer**,
+    jede Methode trägt ihre `herkunft`, und ohne gewählte Methode meldet der
+    Plan-Check die Richtung als *ungeprüft* statt zu schweigen.
+
+    **`unbestimmt` ist der dritte Zustand der Faserrolle** und kein
+    Notausgang: er ist der Zustand jedes Datenblatts, das die Richtung nicht
+    nennt. Ihn als `tx` zu führen hiesse, gegen eine erfundene Angabe zu
+    prüfen. Gemessen in `tests/fasern.test.ts` und
+    `tests/drawingChecksFasern.test.ts`; Letzterer hält auch fest, dass
+    Prüfung 17b einen Breakout **nicht** mehr für einen Steckertyp-Fehler
+    hält.
 
 ---
 

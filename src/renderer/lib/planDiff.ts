@@ -115,6 +115,13 @@ export const CABLE_FIELD_CLASS: Record<string, FieldClass> = {
   jacketRating: 'substantive',
   terminationFrom: 'substantive',
   terminationTo: 'substantive',
+  // #885 — welche Faser des Breakouts belegt ist. `substantive` aus
+  // demselben Grund wie die Adernfarbe darunter: vertauscht liegt das Kabel
+  // richtig und fuehrt kein Licht, und im Plan sieht man den Unterschied
+  // nicht. Ein Vergleich zweier Staende, der das als Kosmetik durchwinkt,
+  // verschweigt genau die Aenderung, wegen der jemand nachts sucht.
+  faserVon: 'substantive',
+  faserNach: 'substantive',
   isTieLine: 'substantive',
   multicoreName: 'substantive',
   // B-45 — die Adern und die Zugehoerigkeit zum Anschluss. `substantive`,
