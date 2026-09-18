@@ -383,6 +383,47 @@ contextBridge.exposeInMainWorld('cablePlanner', {
     deleteItem: (params: { kind: 'device' | 'group'; name: string }) =>
       ipcRenderer.invoke('library:delete', params) as Promise<boolean>,
   },
+  // #872 — der lokale MCP-Server. Nur lesend, aus als Vorgabe.
+  mcp: {
+    start: () =>
+      ipcRenderer.invoke('mcp:start') as Promise<{
+        running: boolean
+        port: number
+        url: string
+        verbunden: boolean
+        token: string
+      }>,
+    stop: () => ipcRenderer.invoke('mcp:stop') as Promise<{ ok: boolean }>,
+    status: () =>
+      ipcRenderer.invoke('mcp:status') as Promise<{
+        running: boolean
+        port: number
+        url: string
+        verbunden: boolean
+      }>,
+    token: () => ipcRenderer.invoke('mcp:token') as Promise<{ token: string }>,
+    resetToken: () => ipcRenderer.invoke('mcp:resetToken') as Promise<{ token: string }>,
+    /**
+     * Die Fragen des Servers. Der Renderer beantwortet sie aus dem Store —
+     * `beantworten` schickt die Antwort mit derselben Kennung zurueck.
+     */
+    onFrage: (
+      cb: (frage: { id: string; werkzeug: string; args: Record<string, unknown> }) => void,
+    ) => {
+      const listener = (
+        _event: unknown,
+        frage: { id: string; werkzeug: string; args: Record<string, unknown> },
+      ) => cb(frage)
+      ipcRenderer.on('mcp:frage', listener)
+      return () => ipcRenderer.removeListener('mcp:frage', listener)
+    },
+    beantworten: (antwort: {
+      id: string
+      daten?: Record<string, unknown>
+      text?: string
+      fehler?: string
+    }) => ipcRenderer.send('mcp:antwort', antwort),
+  },
   mobileShare: {
     start: () =>
       ipcRenderer.invoke('mobileShare:start') as Promise<{

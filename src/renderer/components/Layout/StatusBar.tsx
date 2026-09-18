@@ -1,5 +1,5 @@
-import { useMemo } from 'react'
-import { Check, AlertCircle, AlertTriangle, CheckCircle2 } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+import { Check, AlertCircle, AlertTriangle, Bot, CheckCircle2 } from 'lucide-react'
 import { APP_VERSION } from '../../lib/appInfo'
 import { useUiStore } from '../../store/uiStore'
 import { useModule } from '../../store/settingsStore'
@@ -8,6 +8,7 @@ import { useProjectStore } from '../../store/projectStore'
 import { useTranslation, format } from '../../lib/i18n'
 import { runDrawingChecks } from '../../lib/drawingChecks'
 import { autosaveFehlschlag } from '../../store/projectAutosave'
+import { cablePlannerApi, hasDesktopBridge } from '../../lib/bridge'
 import { fotoMasse } from '../../lib/fotoMasse'
 import { buildAddressPlan } from '../../lib/addressPlan'
 import { segmentFindings } from '../../lib/networkSegments'
@@ -58,6 +59,61 @@ const CollabStatusBadge = () => {
     >
       <span className="inline-block h-2 w-2 bg-emerald-300" />
       {t('statusbar.collab.live', 'Live')} · {Math.max(peers.length, 1)}
+    </button>
+  )
+}
+
+/**
+ * #872 — das Abzeichen fuer den MCP-Server.
+ *
+ * Es steht NUR da, wenn der Server laeuft — und es sagt, ob gerade jemand
+ * fragt. Das ist die Anforderung aus #872 („Anzeige in der Kopfzeile, wenn
+ * ein Client verbunden ist"), und sie hat einen Grund: ein Weg, auf dem ein
+ * anderes Programm den Plan liest, soll nicht unsichtbar offenstehen.
+ *
+ * Gefragt wird alle fuenf Sekunden. Ein Ereignis waere sparsamer und
+ * unehrlicher: „verbunden" heisst hier „hat vor weniger als zwei Minuten
+ * gefragt", und das veraltet von selbst.
+ */
+const McpBadge = () => {
+  const t = useTranslation()
+  const [status, setStatus] = useState<{ running: boolean; verbunden: boolean }>({
+    running: false,
+    verbunden: false,
+  })
+  useEffect(() => {
+    if (!hasDesktopBridge) return
+    let lebt = true
+    const holen = async () => {
+      const s = await cablePlannerApi.mcp.status()
+      if (lebt) setStatus({ running: s.running, verbunden: s.verbunden })
+    }
+    // Erster Blick im Timeout, nicht direkt im Effekt — siehe `McpTab`.
+    const sofort = window.setTimeout(() => void holen(), 0)
+    const uhr = window.setInterval(() => void holen(), 5000)
+    return () => {
+      lebt = false
+      window.clearTimeout(sofort)
+      window.clearInterval(uhr)
+    }
+  }, [])
+  if (!status.running) return null
+  return (
+    <button
+      type="button"
+      onClick={() => useUiStore.getState().openSettings('mcp')}
+      title={t(
+        'statusbar.mcp.title',
+        'The local MCP server is running - Claude can READ this plan. Click for the switch and the token.',
+      )}
+      className={`flex items-center gap-1 whitespace-nowrap px-1.5 py-0.5 text-cp-xs font-medium ${
+        status.verbunden
+          ? 'bg-cp-accent text-white'
+          : 'bg-cp-surface-3 text-cp-text-secondary hover:bg-cp-surface-4'
+      }`}
+    >
+      <Icon icon={Bot} size="xs" />
+      {status.verbunden ? t('statusbar.mcp.asking', 'MCP · asking') : t('statusbar.mcp.on', 'MCP')}
     </button>
   )
 }
@@ -293,6 +349,7 @@ export const StatusBar = ({
         {/* v7.9.4 — Rentman-Badge nur sichtbar wenn die Integration
             in den Einstellungen aktiviert ist. */}
         <CollabStatusBadge />
+        <McpBadge />
         {useModule('rentman') && (
           <span className={`hidden whitespace-nowrap lg:inline ${rentmanProjectName ? 'text-orange-300' : hasToken ? 'text-[var(--cp-text-muted)]' : 'text-[var(--cp-text-faint)]'}`}>
             {t('statusbar.rentman.label', 'Rentman:')}{' '}

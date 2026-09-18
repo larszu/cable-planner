@@ -283,6 +283,33 @@ Designed for Blackmagic Videohub infrastructure.
 
 ---
 
+### 🤖 Use with Claude
+
+The planner can answer questions about the open plan through a **local MCP
+server** (#872) — devices, ports, signal paths, cables and what the plan check
+says.
+
+- **It only reads.** Stage 1 has no writing tools at all, and every tool is
+  declared `readOnlyHint`. Nothing in the plan can be changed through it.
+- **It asks the plan, not a file.** The question goes into the planner window
+  and is answered from the live store with the *same* functions the screen
+  uses. A file on disk is the state of the last save; a second implementation
+  of "what is connected to what" would disagree with the screen sooner or later.
+- **Off by default**, switched on under *Settings → MCP*. It binds to
+  `127.0.0.1` only, requires a pairing token kept in the operating system's
+  credential store, and rejects requests whose `Host`/`Origin` is not the
+  loopback address (DNS-rebinding protection). While it runs, the status bar
+  says so — and says when a client is asking.
+
+```bash
+claude mcp add --transport http cable-planner http://127.0.0.1:<port>/mcp \
+  --header "Authorization: Bearer <token>"
+```
+
+The settings page shows the line with the port and token already filled in.
+
+---
+
 ### 🔗 Integrations & Interchange
 - **Rentman** — import projects, equipment and categories from the rental
   platform, with a selective import workflow

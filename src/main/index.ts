@@ -19,6 +19,7 @@ import { registerTallyIpc } from './ipc/tallyIpc.js'
 import { registerSyncIpc } from './ipc/syncIpc.js'
 import { registerGraphmlIpc } from './ipc/graphmlIpc.js'
 import { registerMobileShareIpc } from './ipc/mobileShareIpc.js'
+import { registerMcpIpc } from './ipc/mcpIpc.js'
 import { registerCollabDiscoveryIpc } from './ipc/collabDiscoveryIpc.js'
 import { registerPrintIpc } from './ipc/printIpc.js'
 import { registerLibraryIpc } from './ipc/libraryIpc.js'
@@ -369,6 +370,9 @@ app.whenReady().then(async () => {
   registerSyncIpc()
   registerGraphmlIpc()
   registerMobileShareIpc()
+  // #872 — der lokale MCP-Server. Die Handler stehen immer bereit; der
+  // Server selbst laeuft erst, wenn jemand ihn einschaltet.
+  registerMcpIpc()
   registerCollabDiscoveryIpc()
   registerPrintIpc()
   registerLibraryIpc()

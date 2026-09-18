@@ -90,6 +90,17 @@ const ohneKommentare = (text: string) =>
  * SINKEN und nicht steigen.
  */
 const BESTAND: Record<string, number> = {
+  // #872 — die Saetze, die der MCP-Server an den CLIENT zurueckgibt („12
+  // devices match", „No device with id …"). Sie sind ausdruecklich KEIN
+  // Oberflaechen-Text: sie erscheinen in keinem Panel und auf keinem Blatt,
+  // sondern gehen an ein Programm — und die Werkzeug-Beschreibungen sind aus
+  // demselben Grund englisch (#872: „Beschreibungen auf Englisch").
+  //
+  // Sie zu wickeln waere ein Fehler und keine Schlamperei: dann spraeche der
+  // Server Deutsch, sobald die Oberflaeche auf Deutsch steht, und ein Client
+  // bekaeme je nach Einstellung des Planers eine andere Antwort auf dieselbe
+  // Frage.
+  'lib/mcpWerkzeuge.ts': 8,
   'lib/eventMetadata.ts': 11,
   'lib/circuitSuggest.ts': 11,
   'lib/transmissionRecord.ts': 10,
