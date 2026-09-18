@@ -59,6 +59,8 @@ import { exportGroupAsPatchPdf, buildGroupPatchPdfBlob } from '../../lib/exportG
 import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 import { LayerVisibilityChips } from '../Canvas/LayerVisibilityChips'
 import type { Cable } from '../../types/cable'
+import { rowSplit, shortfallLabel, splitLabel } from '../../lib/cableSplit'
+import type { SplitResult, StockShortfall } from '../../lib/cableSplit'
 import { PanelHint } from '../shared/PanelHint'
 import {
   buildPlanBom,
@@ -754,6 +756,10 @@ interface BomRow {
   /** v7.9.117 — Verknuepfter Rentman-Equipment-Name (siehe CableBomDialog). */
   rentmanName?: string
   rentmanId?: string
+  /** #875 — Stueckelung dieses Laufs in die hinterlegten Lagerlaengen. */
+  split?: SplitResult
+  /** #875 — was der Bestand fuer ALLE Laeufe dieser Zeile nicht hergibt. */
+  shortfall?: StockShortfall[]
 }
 
 const bomKeyOf = (c: Pick<Cable, 'type' | 'length'>): string => `${c.type}|${c.length}`
@@ -922,6 +928,15 @@ const BomSection = () => {
       const parsed = parseBomKey(k)
       const mapping = cableMap[k]
       const rentmanId = mapping?.rentmanEquipmentId
+      // #875 — dieselbe Rechnung wie in den anderen beiden Stuecklisten, und
+      // zwar dieselbe FUNKTION: drei Fassungen davon waeren drei Antworten
+      // auf „wie wird dieser Lauf gestueckelt".
+      const { split, shortfall } = rowSplit(
+        project.cableStock ?? [],
+        built.get(k)?.sample?.type,
+        parsed.length,
+        b,
+      )
       list.push({
         key: k,
         type: parsed.type,
@@ -932,6 +947,8 @@ const BomSection = () => {
         sample: built.get(k)?.sample,
         rentmanId,
         rentmanName: rentmanId ? rentmanNameById.get(String(rentmanId)) : undefined,
+        split,
+        ...(shortfall ? { shortfall } : {}),
       })
     }
     list.sort((a, b) =>
@@ -940,6 +957,7 @@ const BomSection = () => {
     return list
   }, [
     project.cables,
+    project.cableStock,
     project.metadata.rentmanCablePlan,
     project.metadata.rentmanCableMap,
     customLibrary,
@@ -971,6 +989,11 @@ const BomSection = () => {
         t('export.bom.csv.totalM', 'Total (m)'),
         t('export.bom.csv.rentmanPlanned', 'Rentman planned'),
         t('export.bom.csv.diff', 'Difference'),
+        // #875 — immer dabei, auch leer: eine CSV mit wechselnder Spaltenzahl
+        // ist fuer jedes Blatt, das sie einliest, eine zweite Datei.
+        t('export.bom.csv.split', 'Pieces'),
+        t('export.bom.csv.couplers', 'Couplers'),
+        t('export.bom.csv.short', 'Stock short'),
       ].join(';'),
     ]
     for (const r of rows) {
@@ -983,6 +1006,9 @@ const BomSection = () => {
           String(Number((r.built * r.length).toFixed(1))),
           String(r.planned),
           fmtSignFixed(r.diff),
+          r.split ? splitLabel(r.split) : '',
+          r.split ? String(r.split.couplers * r.built) : '',
+          r.shortfall ? shortfallLabel(r.shortfall) : '',
         ].join(';'),
       )
     }
@@ -994,6 +1020,9 @@ const BomSection = () => {
         String(rows.reduce((s, r) => s + r.built, 0)),
         String(Number(rows.reduce((s, r) => s + r.built * r.length, 0).toFixed(1))),
         '',
+        '',
+        '',
+        String(rows.reduce((s, r) => s + (r.split ? r.split.couplers * r.built : 0), 0)),
         '',
       ].join(';'),
     )
@@ -1060,6 +1089,20 @@ const BomSection = () => {
         pdf.setFontSize(9)
         nextY = y + 22
       }
+      // #875 — die Stueckelung als ZEILE unter dem Typ. A4 hoch ist bei
+      // colX[4] = margin + 440 zu Ende; eine sechste Spalte liefe in den
+      // Rand, und eine Spalte im Rand ist keine.
+      if (r.split) {
+        const kupplungen = r.split.couplers * Math.max(1, r.built)
+        const zeile = `S: ${splitLabel(r.split)}${kupplungen > 0 ? ` · ${kupplungen}×` : ''}${
+          r.shortfall ? ` · ${shortfallLabel(r.shortfall)}` : ''
+        }`
+        pdf.setFontSize(7)
+        pdf.setTextColor(r.shortfall ? 180 : 80, r.shortfall ? 120 : 80, 20)
+        pdf.text(sanitizeForPdf(zeile), colX[0] + 8, nextY - 4)
+        pdf.setFontSize(9)
+        nextY += 10
+      }
       pdf.setDrawColor(220)
       pdf.line(margin, nextY - 6, pageWidth - margin, nextY - 6)
       y = nextY
@@ -1123,6 +1166,20 @@ const BomSection = () => {
         pdf.setFontSize(9)
         nextY = y + 22
       }
+      // #875 — die Stueckelung als ZEILE unter dem Typ. A4 hoch ist bei
+      // colX[4] = margin + 440 zu Ende; eine sechste Spalte liefe in den
+      // Rand, und eine Spalte im Rand ist keine.
+      if (r.split) {
+        const kupplungen = r.split.couplers * Math.max(1, r.built)
+        const zeile = `S: ${splitLabel(r.split)}${kupplungen > 0 ? ` · ${kupplungen}×` : ''}${
+          r.shortfall ? ` · ${shortfallLabel(r.shortfall)}` : ''
+        }`
+        pdf.setFontSize(7)
+        pdf.setTextColor(r.shortfall ? 180 : 80, r.shortfall ? 120 : 80, 20)
+        pdf.text(sanitizeForPdf(zeile), colX[0] + 8, nextY - 4)
+        pdf.setFontSize(9)
+        nextY += 10
+      }
       pdf.setDrawColor(220)
       pdf.line(margin, nextY - 6, pageWidth - margin, nextY - 6)
       y = nextY
@@ -1167,12 +1224,16 @@ const BomSection = () => {
               <th className="px-3 py-2 text-right">{t('bom.cable.col.totalM', 'Total (m)')}</th>
               <th className="px-3 py-2 text-right">{t('export.bom.col.rentmanPlanned', 'Rentman planned')}</th>
               <th className="px-3 py-2 text-right">{t('export.bom.col.diff', 'Diff')}</th>
+              {/* #875 — nur, wenn das Projekt Lagerlaengen fuehrt. */}
+              {rows.some((r) => r.split) && (
+                <th className="px-3 py-2 text-left">{t('bom.cable.col.split', 'Pieces')}</th>
+              )}
             </tr>
           </thead>
           <tbody>
             {rows.length === 0 && (
               <tr>
-                <td className="px-3 py-4 text-center text-cp-text-faint" colSpan={6}>
+                <td className="px-3 py-4 text-center text-cp-text-faint" colSpan={7}>
                   {t('export.bom.noCables', 'No cables in the project.')}
                 </td>
               </tr>
@@ -1220,6 +1281,32 @@ const BomSection = () => {
                 >
                   {fmtSignFixed(r.diff)}
                 </td>
+                {rows.some((x) => x.split) && (
+                  <td className="px-3 py-1 text-cp-xs">
+                    {r.split ? (
+                      <>
+                        <div className="text-cp-text-secondary">{splitLabel(r.split)}</div>
+                        {r.split.couplers > 0 && (
+                          <div className="text-cp-text-muted">
+                            {format(t('bom.cable.couplers', 'Couplers per run: {n} · excess {m} m'), {
+                              n: r.split.couplers,
+                              m: r.split.excessM,
+                            })}
+                          </div>
+                        )}
+                        {r.shortfall && (
+                          <div className="text-amber-300">
+                            {format(t('bom.cable.short', 'Stock short — {what}'), {
+                              what: shortfallLabel(r.shortfall),
+                            })}
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <span className="text-cp-text-dim">—</span>
+                    )}
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>
@@ -1231,7 +1318,7 @@ const BomSection = () => {
                 <td className="px-3 py-2 text-right font-mono text-emerald-300">
                   {Number(rows.reduce((s, r) => s + r.built * r.length, 0).toFixed(1))} m
                 </td>
-                <td colSpan={2} />
+                <td colSpan={rows.some((r) => r.split) ? 3 : 2} />
               </tr>
             </tfoot>
           )}

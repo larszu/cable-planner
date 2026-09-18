@@ -6,6 +6,28 @@ export type CableType = Exclude<ConnectorType, 'DIN' | 'DisplayPort' | 'USB'> | 
 
 export type CableRouting = 'orthogonal' | 'straight' | 'curved'
 
+/**
+ * Eine verfuegbare Lagerlaenge eines Kabeltyps (#875).
+ *
+ * WARUM DAS AM PROJEKT HAENGT UND NICHT IM LAGER. ADR-006 hat den Bestand in
+ * ein eigenes Werkzeug ausgelagert; der cable-planner kennt kein Lager-Modell
+ * und soll keins bekommen. Die verfuegbaren Laengen sind deshalb eine ANGABE
+ * AM PROJEKT — von Hand gepflegt oder spaeter aus dem Lager uebernommen.
+ *
+ * `count` ist eine WARNUNG und keine Schranke: die Rechnung sucht die beste
+ * Stueckelung aus den verfuegbaren LAENGEN, und danach wird geprueft, ob der
+ * Bestand sie hergibt. Fehlt die Zahl, ist das nicht „keine" — es heisst,
+ * dass niemand gezaehlt hat, und dann gibt es keine Warnung, weil es keinen
+ * Bestand gibt, gegen den man warnen koennte.
+ */
+export interface CableStockEntry {
+  type: CableType
+  /** Laenge eines Stuecks in Metern. */
+  lengthM: number
+  /** Wie viele davon vorhanden sind. Fehlt die Angabe: nicht gezaehlt. */
+  count?: number
+}
+
 export interface CableWaypoint {
   x: number
   y: number

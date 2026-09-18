@@ -14,6 +14,7 @@ import { createCableSlice } from './slices/cableSlice'
 import { createAnnotationSlice } from './slices/annotationSlice'
 import { createSourceIdentitySlice } from './slices/sourceIdentitySlice'
 import { createDeliverySlice } from './slices/deliverySlice'
+import { createCableStockSlice } from './slices/cableStockSlice'
 import { createConductorSlice } from './slices/conductorSlice'
 import { createCrewSlice } from './slices/crewSlice'
 import { createAddressTemplateSlice } from './slices/addressTemplateSlice'
@@ -782,6 +783,8 @@ export interface ProjectState {
    *  Liefert die Anzahl neu vergebener IDs je Sorte. */
   assignDocIds: () => { cables: number; equipment: number }
   /** B-45 — die Farbnormen des Projekts ersetzen. */
+  /** #875 — die verfuegbaren Lagerlaengen je Kabeltyp, als ganze Liste. */
+  setCableStock: (cableStock: import('../types/cable').CableStockEntry[]) => void
   setFarbnormen: (farbnormen: import('../types/conductor').Farbnorm[]) => void
   /** B-45 — die Anschluss des Projekts ersetzen. */
   setAnschluss: (anschlussListe: import('../types/conductor').Anschluss[]) => void
@@ -904,6 +907,23 @@ const healProjectPositions = (
   // E-23 gilt auch fuer eine fremde Datei, und ein Port, der auf einer
   // fremden Angabe lauscht, ist einer, den hier niemand wollte.
   const oscLauscher = normalisiereOscLauscher(project.oscLauscher)
+
+  // #875 — die Lagerlaengen. Eine Laenge, die nicht rechenbar ist oder bei
+  // 0 liegt, faellt: sie teilte einen Lauf in unendlich viele Stuecke. Eine
+  // negative Stueckzahl faellt ebenfalls — sie machte aus einem Fehlbestand
+  // einen Ueberschuss. Was bleibt, ist entweder eine Zahl oder ausdruecklich
+  // keine (`count` fehlt = nicht gezaehlt, und das ist nicht null).
+  const cableStock = (project.cableStock ?? []).filter(
+    (e) =>
+      !!e &&
+      typeof e.type === 'string' &&
+      Number.isFinite(e.lengthM) &&
+      e.lengthM > 0 &&
+      (e.count === undefined || (Number.isFinite(e.count) && e.count >= 0)),
+  )
+  if ((project.cableStock?.length ?? 0) !== cableStock.length) {
+    onDrop?.({ kind: 'cable-stock', reason: 'invalid-value', label: '' })
+  }
 
   // B-45 — die Farbnormen und die Anschluss. Die Normen ZUERST: ein Anschluss
   // mit einem Zeiger auf eine geloeschte Norm verliert ihn, und die Kabel
@@ -1432,6 +1452,8 @@ const healProjectPositions = (
     tallyPositions,
     patternChecks,
     hubSwitches,
+    // #875 — dito: leere Liste, nicht `undefined`.
+    cableStock,
     // B-45 — dito: leere Liste, nicht `undefined`.
     farbnormen,
     // E-23 — dito.
@@ -1682,6 +1704,7 @@ const buildProjectStore = (
   ...createAnnotationSlice(set, get, store),
   ...createSourceIdentitySlice(set, get, store),
   ...createDeliverySlice(set, get, store),
+  ...createCableStockSlice(set, get, store),
   ...createConductorSlice(set, get, store),
   ...createCrewSlice(set, get, store),
   ...createAddressTemplateSlice(set, get, store),

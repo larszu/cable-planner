@@ -7,6 +7,8 @@ import { sanitizeForPdf } from '../../lib/sanitizeForPdf'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
 import type { Cable } from '../../types/cable'
+import { rowSplit, shortfallLabel, splitLabel } from '../../lib/cableSplit'
+import type { SplitResult, StockShortfall } from '../../lib/cableSplit'
 import { downloadBlob } from '../../lib/downloadBlob'
 import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 import {
@@ -36,6 +38,12 @@ interface BomRow {
   /** #292 — Sample-Pfade dieses Buckets ("Cam1@Bühne → Mischer@FOH").
    *  Bis zu 3 sichtbar in der Spalte, der Rest als Tooltip. */
   paths: string[]
+  /** #875 — die Stueckelung EINES Laufs in die hinterlegten Lagerlaengen.
+   *  Fehlt sie, gibt es fuer diesen Typ keine Lagerlaengen — und dann wird
+   *  auch keine erfunden. */
+  split?: SplitResult
+  /** #875 — was der Bestand fuer ALLE Laeufe dieser Zeile nicht hergibt. */
+  shortfall?: StockShortfall[]
 }
 
 const keyOf = (c: Pick<Cable, 'type' | 'length'>): string => `${c.type}|${c.length}`
@@ -111,6 +119,7 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
     for (const tpl of customLibrary) {
       if (tpl.rentmanId) rentmanNameById.set(String(tpl.rentmanId), tpl.name)
     }
+    const bestand = project.cableStock ?? []
     const keys = new Set<string>([...built.keys(), ...Object.keys(planned)])
     const list: BomRow[] = []
     for (const k of keys) {
@@ -130,6 +139,12 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
             ),
           )
         : []
+      // #875 — die Stueckelung. Sie haengt am ECHTEN Kabeltyp des Musters
+      // und nicht am Schluessel dieser Zeile: der traegt bei Tie-Lines und
+      // Multicores einen geschmueckten Namen („Multicore: Snake A (8 Adern)"),
+      // und gegen den findet sich keine Lagerlaenge.
+      const { split, shortfall } = rowSplit(bestand, bucket?.sample?.type, parsed.length, b)
+
       list.push({
         key: k,
         type: parsed.type,
@@ -141,6 +156,8 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
         rentmanId,
         rentmanName: rentmanId ? rentmanNameById.get(String(rentmanId)) : undefined,
         paths,
+        split,
+        ...(shortfall ? { shortfall } : {}),
       })
     }
     list.sort((a, b) =>
@@ -154,9 +171,14 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
     project.locations,
     project.metadata.rentmanCablePlan,
     project.metadata.rentmanCableMap,
+    project.cableStock,
     customLibrary,
     draftPlan,
   ])
+
+  // #875 — fuehrt dieses Projekt ueberhaupt Lagerlaengen? Danach richtet
+  // sich, ob die Spalte ueberhaupt erscheint.
+  const mitStueckelung = rows.some((r) => r.split)
 
   if (!open) return null
 
@@ -190,6 +212,14 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
         t('export.bom.csv.totalM', 'Total (m)'),
         t('export.bom.csv.rentmanPlanned', 'Rentman planned'),
         t('export.bom.csv.diff', 'Difference'),
+        // #875 — drei Spalten, die nur etwas sagen, wenn das Projekt
+        // Lagerlaengen fuehrt. Sie stehen trotzdem immer da: eine CSV mit
+        // wechselnder Spaltenzahl ist fuer jedes Blatt, das sie einliest,
+        // eine zweite Datei. Am Bildschirm ist das anders — dort kostet
+        // eine leere Spalte Platz, hier kostet sie nichts.
+        t('export.bom.csv.split', 'Pieces'),
+        t('export.bom.csv.couplers', 'Couplers'),
+        t('export.bom.csv.short', 'Stock short'),
         t('export.bom.csv.paths', 'Paths'),
       ].join(';'),
     ]
@@ -203,6 +233,9 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
           String(Number((r.built * r.length).toFixed(1))),
           String(r.planned),
           fmtSignFixed(r.diff),
+          r.split ? splitLabel(r.split) : '',
+          r.split ? String(r.split.couplers * r.built) : '',
+          r.shortfall ? shortfallLabel(r.shortfall) : '',
           `"${r.paths.join(' | ').replace(/"/g, '""')}"`,
         ].join(';'),
       )
@@ -286,6 +319,21 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
         )
         pdf.setFontSize(9)
         nextY = y + 22
+      }
+      // #875 — die Stueckelung als ZEILE unter dem Typ und nicht als sechste
+      // Spalte: A4 hoch ist bei colX[4] = margin + 440 zu Ende, und eine
+      // Spalte, die in den Rand laeuft, ist keine. Dieselbe Form wie der
+      // Rentman-Name darueber.
+      if (r.split) {
+        const kupplungen = r.split.couplers * Math.max(1, r.built)
+        const zeile = `S: ${splitLabel(r.split)}${kupplungen > 0 ? ` · ${kupplungen}×` : ''}${
+          r.shortfall ? ` · ${shortfallLabel(r.shortfall)}` : ''
+        }`
+        pdf.setFontSize(7)
+        pdf.setTextColor(r.shortfall ? 180 : 80, r.shortfall ? 120 : 80, 20)
+        pdf.text(sanitizeForPdf(zeile), colX[0] + 8, nextY - 4)
+        pdf.setFontSize(9)
+        nextY += 10
       }
       pdf.setDrawColor(220)
       pdf.line(margin, nextY - 6, pageWidth - margin, nextY - 6)
@@ -396,6 +444,13 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
                 <th className="px-3 py-2 text-right">{t('bom.cable.col.totalM', 'Total (m)')}</th>
                 <th className="px-3 py-2 text-right">{t('bom.cable.col.planned', 'Rentman planned')}</th>
                 <th className="px-3 py-2 text-right">{t('bom.cable.col.diff', 'Difference')}</th>
+                {/* #875 — die Stueckelung in Lagerlaengen. Die Spalte steht
+                    nur, wenn das Projekt Lagerlaengen fuehrt: eine leere
+                    Spalte waere eine Frage, auf die das Werkzeug die Antwort
+                    hat — niemand hat gesagt, welche Trommeln es gibt. */}
+                {mitStueckelung && (
+                  <th className="px-3 py-2 text-left">{t('bom.cable.col.split', 'Pieces')}</th>
+                )}
                 {/* #292 — Pfade dieses Buckets (Cam1@Bühne → Mischer@FOH). */}
                 <th className="px-3 py-2 text-left">{t('bom.cable.col.paths', 'Paths')}</th>
               </tr>
@@ -403,7 +458,7 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
             <tbody>
               {rows.length === 0 && (
                 <tr>
-                  <td className="px-3 py-4 text-center text-cp-text-faint" colSpan={7}>
+                  <td className="px-3 py-4 text-center text-cp-text-faint" colSpan={mitStueckelung ? 8 : 7}>
                     {t('bom.cable.noCables', 'No cables in the project.')}
                   </td>
                 </tr>
@@ -476,6 +531,36 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
                   >
                     {fmtSignFixed(r.diff)}
                   </td>
+                  {/* #875 — Stueckelung, Kupplungen, Fehlbestand. Der
+                      Fehlbestand steht als ZAHL da („100 m: 5/3") und nicht
+                      als Ampel: „rot" laesst offen, ob zwei Trommeln fehlen
+                      oder zwanzig. */}
+                  {mitStueckelung && (
+                    <td className="px-3 py-1 align-top text-cp-xs">
+                      {r.split ? (
+                        <>
+                          <div className="text-cp-text-secondary">{splitLabel(r.split)}</div>
+                          {r.split.couplers > 0 && (
+                            <div className="text-cp-text-muted">
+                              {format(
+                                t('bom.cable.couplers', 'Couplers per run: {n} · excess {m} m'),
+                                { n: r.split.couplers, m: r.split.excessM },
+                              )}
+                            </div>
+                          )}
+                          {r.shortfall && (
+                            <div className="text-amber-300">
+                              {format(t('bom.cable.short', 'Stock short — {what}'), {
+                                what: shortfallLabel(r.shortfall),
+                              })}
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <span className="text-cp-text-dim">—</span>
+                      )}
+                    </td>
+                  )}
                   {/* #292 — Wege-Spalte: max 3 Pfade sichtbar, alle weiteren
                       als Tooltip ("+N weitere"). */}
                   <td className="px-3 py-1 align-top text-cp-xs text-cp-text-secondary">

@@ -941,6 +941,14 @@ export const de: Dict = {
   'bom.cable.col.diff': 'Differenz',
   'bom.cable.col.length': 'Länge (m)',
   'bom.cable.col.paths': 'Wege',
+  // #875 — „Stückelung" ist der Werkstattbegriff: ein Lauf wird gestückelt,
+  // nicht „aufgeteilt". „Kupplung" ebenso — es ist das Ding, das zwischen
+  // zwei Trommeln steckt.
+  'bom.cable.col.split': 'Stückelung',
+  // Zählneutral: „1 Kupplungen" stand da, und das liest sich wie ein Fehler
+  // an einer Stelle, an der jemand einer Zahl glauben soll.
+  'bom.cable.couplers': 'Kupplungen je Lauf: {n} · Überlänge {m} m',
+  'bom.cable.short': 'Bestand reicht nicht — {what}',
   'bom.cable.col.planned': 'Rentman geplant',
   'bom.cable.col.totalM': 'Gesamt (m)',
   'bom.cable.col.type': 'Typ',
@@ -2068,6 +2076,9 @@ export const de: Dict = {
   'export.bom.csv.diff': 'Differenz',
   'export.bom.csv.lengthM': 'Länge (m)',
   'export.bom.csv.paths': 'Wege',
+  'export.bom.csv.split': 'Stückelung',
+  'export.bom.csv.couplers': 'Kupplungen',
+  'export.bom.csv.short': 'Fehlbestand',
   'export.bom.csv.rentmanName': 'Rentman-Name',
   'export.bom.csv.rentmanPlanned': 'Rentman geplant',
   'export.bom.csv.totalM': 'Gesamt (m)',
@@ -4790,6 +4801,23 @@ export const de: Dict = {
   'settings.project.lengthEst.scale': 'Meter pro 100 px',
   'settings.project.lengthEst.slack': 'Reserve (%)',
   'settings.project.lengthEst.title': 'Kabellängen schätzen',
+  // #875 — die Lagerlängen. „Nicht gezählt" ist der wichtigste Text dieser
+  // Gruppe: leer heisst nicht null, und eine Warnung über einen Fehlbestand,
+  // den niemand festgestellt hat, wäre eine Behauptung über das Lager.
+  'settings.project.stock.title': 'Verfügbare Lagerlängen',
+  'settings.project.stock.desc':
+    'Mit welchen Trommeln diese Produktion fährt. Die Kabel-Stückliste teilt jeden Lauf in diese Längen — erst möglichst wenige Kupplungen, dann möglichst wenig Überlänge — und sagt, was der Bestand nicht hergibt.',
+  'settings.project.stock.none':
+    'Nichts eingetragen. Ohne Lagerlängen bleibt ein Lauf eine Zahl — und am Ladedock gibt es kein Kabel dieser Länge.',
+  'settings.project.stock.type': 'Kabeltyp',
+  'settings.project.stock.length': 'Länge (m)',
+  'settings.project.stock.count': 'Vorhanden',
+  'settings.project.stock.uncounted': 'nicht gezählt',
+  'settings.project.stock.uncountedHint':
+    '„Vorhanden" leer lassen, wenn niemand gezählt hat. Leer ist nicht null — und die Liste warnt nur vor einem Fehlbestand, den jemand wirklich festgestellt hat.',
+  'settings.project.stock.newType': 'Typ für einen neuen Eintrag',
+  'settings.project.stock.add': 'Länge hinzufügen',
+  'settings.project.stock.remove': 'Entfernen',
   'settings.project.libExport.desc':
     'Sichere deine eigenen Geräte-Templates, Gruppen und Rack-Presets als JSON-Datei. Beim Import werden bestehende Einträge mit gleichem Namen NICHT überschrieben (merge-by-name).',
   'settings.project.libExport.devicesWord': 'Geräte',
@@ -5590,6 +5618,7 @@ export const de: Dict = {
   'app.loadReport.patternCheck': 'Sichtprüfung vom Prüfbild-Rundgang',
   'app.loadReport.hubSwitch': 'Schaltvorgang an einer Kreuzschiene',
   'app.loadReport.crosspoint': 'Zeile der geplanten Schaltung',
+  'app.loadReport.cableStock': 'Lagerlaenge eines Kabeltyps',
   'app.loadReport.duplicateId': 'doppelte Id, der erste Eintrag gilt',
   'app.loadReport.danglingRef': 'der Verweis zeigt ins Leere — das Ziel wurde gelöscht',
   'app.loadReport.unknownValue': 'unbekannter Wert — die Datei stammt vermutlich aus einer anderen Fassung',
