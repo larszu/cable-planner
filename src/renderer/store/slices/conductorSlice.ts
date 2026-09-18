@@ -21,7 +21,7 @@ import type { Anschluss, Farbnorm } from '../../types/conductor'
  */
 export type ConductorSlice = Pick<
   ProjectState,
-  'setFarbnormen' | 'setAnschluss' | 'setOscLauscher' | 'setPolaritaetsnormen' | 'setPolaritaetsnormId'
+  'setFarbnormen' | 'setAnschluss' | 'setOscLauscher' | 'setPolaritaetsnormen' | 'setPolaritaetsnormId' | 'setBerichtsvorlagen'
 >
 
 export const createConductorSlice: StateCreator<ProjectState, [], [], ConductorSlice> = (set) => ({
@@ -46,6 +46,17 @@ export const createConductorSlice: StateCreator<ProjectState, [], [], ConductorS
   setPolaritaetsnormId: (polaritaetsnormId) =>
     set((state) => {
       const updated = { ...state.project, polaritaetsnormId }
+      scheduleProjectAutosave(updated)
+      return { project: updated }
+    }),
+
+  // #880 — die Berichts-Vorlagen des Projekts. Sie stehen hier, weil sie
+  // dieselbe Bauform haben wie die Normen darueber: eine Liste am Projekt,
+  // ganz ersetzt, ohne Aufraeumen beim Loeschen — was ins Leere zeigt,
+  // heilt beim naechsten Laden.
+  setBerichtsvorlagen: (berichtsvorlagen) =>
+    set((state) => {
+      const updated = { ...state.project, berichtsvorlagen }
       scheduleProjectAutosave(updated)
       return { project: updated }
     }),

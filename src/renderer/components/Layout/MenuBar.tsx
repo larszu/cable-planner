@@ -54,6 +54,7 @@ import {
   ZoomOut,
   ListOrdered,
   Grid3x3,
+  Table2,
   ChevronDown,
 } from 'lucide-react'
 import { Icon } from '../shared/Icon'
@@ -928,6 +929,20 @@ export const MenuBar = ({
             )}
           >
             {t('app.menu.tools.ledWall', 'LED wall…')}
+          </MenuItem>
+          {/* #880 — der Berichts-Editor. Er steht bei den Werkzeugen und nicht
+              unter „Datei → Export": er aendert nicht, WOHIN etwas geht,
+              sondern WIE die Liste aussieht — und das gilt fuer Papier und
+              Datei gleichermassen. */}
+          <MenuItem
+            onClick={() => useUiStore.getState().setBerichtEditorOpen(true)}
+            icon={<Icon icon={Table2} size="sm" />}
+            note={t(
+              'app.menu.tools.bericht.note',
+              'Columns, grouping, sorting and filters for every list - saved as a template',
+            )}
+          >
+            {t('app.menu.tools.bericht', 'Report editor…')}
           </MenuItem>
           <MenuItem
             onClick={() => useUiStore.getState().setAdernOpen(true)}

@@ -69,6 +69,8 @@ export type LoadDropKind =
   | 'faser'
   /** #885 — eine Polaritaets-Methode ohne Herkunft. */
   | 'polaritaetsnorm'
+  /** #880 — eine Berichts-Vorlage ohne Namen oder ohne Liste. */
+  | 'berichtsvorlage'
   | 'anschlussListe'
   /**
    * #875 — eine Lagerlaenge ohne rechenbare Laenge oder mit negativer

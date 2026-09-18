@@ -877,6 +877,9 @@ interface UiState extends PersistedUiState {
   /** B-45 — Farbnormen und Anschluss. */
   adernOpen: boolean
   setAdernOpen: (open: boolean) => void
+  /** #880 — der Berichts-Editor (Spalten, Gruppen, Sortierung, Vorlagen). */
+  berichtEditorOpen: boolean
+  setBerichtEditorOpen: (open: boolean) => void
   /** #881 — der LED-Wand-Rechner. */
   ledWallOpen: boolean
   setLedWallOpen: (open: boolean) => void
@@ -1430,6 +1433,8 @@ export const useUiStore = create<UiState>((set) => ({
   setDeliveryOpen: (open) => set({ deliveryOpen: open }),
   adernOpen: false,
   setAdernOpen: (open) => set({ adernOpen: open }),
+  berichtEditorOpen: false,
+  setBerichtEditorOpen: (open) => set({ berichtEditorOpen: open }),
   ledWallOpen: false,
   setLedWallOpen: (open) => set({ ledWallOpen: open }),
   oscOpen: false,

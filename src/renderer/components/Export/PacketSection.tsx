@@ -15,15 +15,7 @@ import {
 } from '../../lib/documentPacket'
 import { stampForRows } from '../../lib/documentStamp'
 import { DOCUMENT_STANDS } from '../../lib/documentRegistry'
-import { pullListTable, terminationListTable, cableScheduleTable } from '../../lib/installerLists'
-import { assetRegisterTable } from '../../lib/assetRegister'
-import { crewSheetTableForProject } from '../../lib/crewNetworkSheet'
-import { spectrumTableForProject } from '../../lib/spectrumPlan'
-import { deliveryTableForProject } from '../../lib/deliveryParity'
-import { tallyMapTableForProject } from '../../lib/tallyMap'
-import { handoverManifestTableForProject } from '../../lib/postHandover'
-import type { CsvTable } from '../../lib/csv'
-import type { CablePlannerProject } from '../../types/project'
+import { BERICHTS_QUELLEN } from '../../lib/berichtsQuellen'
 
 /**
  * BEDARF 115 — ein Papierstapel, den man zusammenheften kann.
@@ -44,26 +36,10 @@ import type { CablePlannerProject } from '../../types/project'
  * den ADR-004 abgeschafft hat.
  */
 
-interface Kandidat {
-  id: string
-  label: string
-  table: (p: CablePlannerProject) => CsvTable
-}
-
-const KANDIDATEN: ReadonlyArray<Kandidat> = [
-  { id: 'pull-liste', label: 'Zug-Liste', table: pullListTable },
-  { id: 'termination-liste', label: 'Auflege-Liste', table: terminationListTable },
-  { id: 'kabel-schedule', label: 'Kabel-Schedule', table: cableScheduleTable },
-  { id: 'asset-register', label: 'Geräte-Register', table: assetRegisterTable },
-  { id: 'crew-netz', label: 'Netz-Merkblatt', table: crewSheetTableForProject },
-  { id: 'spektrum-plan', label: 'Spektrum-Plan', table: spectrumTableForProject },
-  { id: 'ausspielung', label: 'Ausspielung', table: deliveryTableForProject },
-  { id: 'tally-karte', label: 'Tally-Karte', table: tallyMapTableForProject },
-  // Bedarf 62 — das Blatt, mit dem die Post die Karten wiederfindet, ohne die
-  // Crew anzurufen. Es gehoert in den Stapel und nicht in einen eigenen
-  // Dialog: es geht mit den Karten mit, und was mitgeht, wird zusammengeheftet.
-  { id: 'post-uebergabe', label: 'Übergabe an die Post', table: handoverManifestTableForProject },
-]
+// #880 — die Liste der Blaetter liegt jetzt in `lib/berichtsQuellen.ts`.
+// Der Berichts-Editor stellt dieselbe Frage; zwei Abschriften liefen beim
+// naechsten Blatt auseinander.
+const KANDIDATEN = BERICHTS_QUELLEN
 
 export const PacketSection = () => {
   const t = useTranslation()
