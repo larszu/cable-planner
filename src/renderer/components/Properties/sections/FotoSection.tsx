@@ -116,7 +116,12 @@ export const FotoListe = ({ ziel }: { ziel?: FotoZiel }) => {
           type="button"
           onClick={() => feld.current?.click()}
           disabled={laeuft}
-          className="inline-flex items-center gap-1 bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5 disabled:opacity-50"
+          // 44 px hoch und nicht 32 wie die Nachbarknoepfe: dieser hier wird
+          // im Aufbau mit dem Finger getroffen, oft auf einem Tablet und mit
+          // Handschuh. `scripts/ui-targets.mjs` zaehlt die Flaechen unter der
+          // Marke und deckelt sie — eine neue darunter waere ein Schritt
+          // zurueck gewesen, und der Deckel anzuheben hiesse, ihn zu machen.
+          className="inline-flex min-h-11 items-center gap-1 bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5 disabled:opacity-50"
         >
           <Icon icon={Camera} className="h-3 w-3" />
           {laeuft ? t('foto.working', 'Scaling…') : t('foto.add', 'Add photo…')}
