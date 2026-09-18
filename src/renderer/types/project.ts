@@ -408,6 +408,14 @@ export interface CablePlannerProject {
    * heilen zu [].
    */
   fotos?: import('./foto').Foto[]
+  /**
+   * #880 — Berichts-Vorlagen, die mit DIESEM Plan reisen.
+   *
+   * Neben den globalen in den Einstellungen: „so sieht die Ziehliste dieser
+   * Produktion aus" gehoert in die Plandatei, „so sieht meine Ziehliste aus"
+   * in die Installation. Optional -> heilt zu [].
+   */
+  berichtsvorlagen?: import('./bericht').Berichtsvorlage[]
   farbnormen?: import('./conductor').Farbnorm[]
   /**
    * #885 — die Polaritaets-Methoden dieser Anlage (TIA-568 A/B/C …).

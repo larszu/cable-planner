@@ -941,6 +941,24 @@ Das Wichtigste in Listenform. Niemals brechen ohne expliziten Architektur-Review
     `tests/drawingChecksFasern.test.ts`; Letzterer hält auch fest, dass
     Prüfung 17b einen Breakout **nicht** mehr für einen Steckertyp-Fehler
     hält.
+26. **Die Vorschau IST der Export** (`types/bericht.ts`, #880). Der
+    Berichts-Editor formt eine `CsvTable` — Spalten, Gruppierung, Sortierung,
+    Filter — und Bildschirm, CSV und Papier lesen **dasselbe** Ergebnis von
+    `wendeForm(...)`. Eine Vorschau, die den Export nachbaut, stimmt am ersten
+    Tag und driftet danach; das vierte Kriterium aus #880 ist deshalb keine
+    Absprache zwischen zwei Stellen, sondern eine Eigenschaft des Aufbaus.
+
+    Gearbeitet wird **auf `CsvTable` und nicht auf einem neuen Modell**: neun
+    Listen liefern sie bereits (`lib/berichtsQuellen.ts`, die eine Registry —
+    sie lag vorher in `PacketSection.tsx`, und eine zweite Abschrift wäre beim
+    nächsten Blatt auseinandergelaufen). Ein Modell darüber wäre eine zweite
+    Beschreibung derselben Tabelle, und gedruckt würde weiter die erste.
+
+    Die Spalte wird über ihren **Kopftext** angesprochen und nicht über einen
+    Index: ein Index verrutscht, sobald eine Liste eine Spalte dazwischen
+    bekommt, und die Vorlage von gestern blendet danach die falsche aus. Den
+    Preis trägt `heileForm`: Unbekanntes fällt aus der Vorlage, Neues kommt
+    **sichtbar** dazu. Gemessen in `tests/berichtForm.test.ts`.
 
 ---
 

@@ -174,6 +174,29 @@ tick for a part nobody has checked costs more than an open point.
 
 ---
 
+### 📋 Report editor
+
+Every list this program prints — pull list, termination list, cable schedule,
+asset register, network sheet, spectrum plan, delivery, tally map, handover —
+goes through one editor (#880):
+
+- **Columns**: show, hide, reorder.
+- **Group** by any column, **sort** by several (a hidden column sorts too — who
+  orders by room and does not want to print it would otherwise get a list in no
+  order at all), **filter** per column.
+- **Templates**, saved either *with the project* ("this production's pull list")
+  or *for all projects* ("my pull list"). Those are two statements, so they have
+  two homes.
+- **The preview is the export.** Not a rendering of it: the table on screen, the
+  CSV file and the printed sheet are the same computed result. A preview that
+  re-implements the export agrees on day one and drifts afterwards.
+
+A template written against last month's list still opens: a column that no
+longer exists drops out, a new one joins **visible** — a silently missing column
+on a pull list is worse than one too many.
+
+---
+
 ### 🧵 Fibre breakouts and polarity
 
 One socket, several fibres (#885). An opticalCON QUAD carries four of them

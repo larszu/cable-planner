@@ -72,6 +72,7 @@ import { BulkConnectDialog } from './components/Canvas/BulkConnectDialog'
 import { AnalysisDialog } from './components/Analysis/AnalysisDialog'
 import { DeliveryDialog } from './components/Delivery/DeliveryDialog'
 import { AdernDialog } from './components/Power/AdernDialog'
+import { BerichtEditorDialog } from './components/Export/BerichtEditorDialog'
 import { LedWallDialog } from './components/Project/LedWallDialog'
 import { OscEmpfangPanel } from './components/ShowControl/OscEmpfangPanel'
 import { ReconcileDialog } from './components/Network/ReconcileDialog'
@@ -179,6 +180,7 @@ const DROP_ART: Record<LoadDropKind, [key: string, de: string]> = {
   'farbnorm': ['app.loadReport.farbnorm', 'Colour standard without a stated origin'],
   'faser': ['app.loadReport.faser', 'Fibre without a usable position in the socket'],
   'polaritaetsnorm': ['app.loadReport.polaritaetsnorm', 'Polarity method without a stated origin'],
+  'berichtsvorlage': ['app.loadReport.berichtsvorlage', 'Report template without a name or a list'],
   'anschlussListe': ['app.loadReport.anschlussListe', 'Wire bundle'],
   'ader': ['app.loadReport.ader', 'Conductor details of a cable'],
   'senkenprofil': ['app.loadReport.senkenprofil', 'Sink profile without a stated origin'],
@@ -1500,6 +1502,7 @@ export default function App() {
       <RundownDialog />
       <DeliveryDialog />
       <AdernDialog />
+      <BerichtEditorDialog />
       <LedWallDialog />
       <OscEmpfangPanel />
       <ReconcileDialog />

@@ -18,7 +18,12 @@ import type { Cable } from '../src/renderer/types/cable'
 import type { SourceIdentity } from '../src/renderer/types/sourceIdentity'
 import quelle from '../src/renderer/lib/postHandover.ts?raw'
 import registerQuelle from '../src/renderer/lib/documentRegistry.ts?raw'
-import packetQuelle from '../src/renderer/components/Export/PacketSection.tsx?raw'
+// #880 — die Kandidaten-Liste ist aus `PacketSection.tsx` nach
+// `lib/berichtsQuellen.ts` gezogen, weil der Berichts-Editor dieselbe Frage
+// stellt („welche Listen gibt es?") und zwei Abschriften auseinanderliefen.
+// Geprueft wird weiterhin der EINTRAG und nicht der Import — nur an der
+// Stelle, an der er jetzt steht.
+import packetQuelle from '../src/renderer/lib/berichtsQuellen.ts?raw'
 
 // ---------------------------------------------------------------------------
 // Die Uebergabe an die Post (Bedarf 62, P2).

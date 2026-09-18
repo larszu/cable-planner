@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { STORAGE_KEYS } from '../lib/storageKeys'
 import { AUSFUELL_VORGABE, AUSFUELL_QUELLEN, type AusfuellQuelle } from '../lib/felderAusfuellen'
 import { LIMITS } from '../lib/layoutConstants'
+import { normalisiereBerichtsvorlage } from '../types/bericht'
 import {
   type ModuleId,
   DEFAULT_ENABLED,
@@ -95,6 +96,15 @@ interface PersistedSettings {
    *  hier. Leerer String = NetBox nicht konfiguriert. */
   netboxUrl: string
   /**
+   * #880 — Berichts-Vorlagen, die fuer ALLE Projekte gelten.
+   *
+   * Pro Installation und nicht pro Projekt: „meine Ziehliste sieht so aus"
+   * ist eine Gewohnheit der Person und nicht eine Eigenschaft der Produktion.
+   * Die projektgebundene Fassung steht daneben in `project.berichtsvorlagen`
+   * — wer eine Vorlage mit dem Plan weitergeben will, legt sie dort ab.
+   */
+  berichtsvorlagen: import('../types/bericht').Berichtsvorlage[]
+  /**
    * Bewegte Darstellung im Canvas (Signalfluss auf den Kanten).
    *
    * Vorgabe AN, aber `prefers-reduced-motion` des Systems gewinnt darueber —
@@ -148,6 +158,7 @@ const defaults: PersistedSettings = {
   onboardingDone: false,
   userSchema: {},
   netboxUrl: '',
+  berichtsvorlagen: [],
   canvasMotion: true,
   tallyPiUrl: '',
   tallyPiDirekt: false,
@@ -201,6 +212,14 @@ const load = (): PersistedSettings => {
       ausfuellQuelle: AUSFUELL_QUELLEN.includes(parsed.ausfuellQuelle as AusfuellQuelle)
         ? (parsed.ausfuellQuelle as AusfuellQuelle)
         : defaults.ausfuellQuelle,
+      // #880 — dieselbe Heilung wie im Projekt: eine Vorlage ohne Namen oder
+      // ohne Liste faellt weg. Sie stuende sonst in der Auswahl und formte
+      // nichts.
+      berichtsvorlagen: Array.isArray(parsed.berichtsvorlagen)
+        ? parsed.berichtsvorlagen
+            .map(normalisiereBerichtsvorlage)
+            .filter((v): v is import('../types/bericht').Berichtsvorlage => !!v)
+        : [],
     }
   } catch {
     return defaults
@@ -226,6 +245,7 @@ const snapshot = (s: PersistedSettings): PersistedSettings => ({
   onboardingDone: s.onboardingDone,
   userSchema: s.userSchema,
   netboxUrl: s.netboxUrl,
+  berichtsvorlagen: s.berichtsvorlagen,
   canvasMotion: s.canvasMotion,
   tallyPiUrl: s.tallyPiUrl,
   tallyPiDirekt: s.tallyPiDirekt,
@@ -245,6 +265,7 @@ interface SettingsState {
   onboardingDone: boolean
   userSchema: UserSchemaMap
   netboxUrl: string
+  berichtsvorlagen: import('../types/bericht').Berichtsvorlage[]
   canvasMotion: boolean
   tallyPiUrl: string
   tallyPiDirekt: boolean
@@ -265,6 +286,8 @@ interface SettingsState {
   setUserSchema: (map: UserSchemaMap) => void
   /** #597 — Basis-URL der NetBox-Instanz setzen (leer = nicht konfiguriert). */
   setNetboxUrl: (value: string) => void
+  /** #880 — die globalen Berichts-Vorlagen ersetzen. */
+  setBerichtsvorlagen: (v: import('../types/bericht').Berichtsvorlage[]) => void
   /** Bewegte Darstellung im Canvas ein-/ausschalten. */
   setCanvasMotion: (value: boolean) => void
   setTallyPiUrl: (value: string) => void
@@ -290,6 +313,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   ausfuellQuelle: initial.ausfuellQuelle,
   userSchema: initial.userSchema,
   netboxUrl: initial.netboxUrl,
+  berichtsvorlagen: initial.berichtsvorlagen,
   tallyPiUrl: initial.tallyPiUrl,
   tallyPiDirekt: initial.tallyPiDirekt,
   setHasToken: (value) => set({ hasToken: value }),
@@ -364,6 +388,15 @@ export const useSettingsStore = create<SettingsState>((set) => ({
       const netboxUrl = value.trim()
       persist(snapshot({ ...state, netboxUrl }))
       return { netboxUrl }
+    }),
+  // #880 — die globalen Vorlagen. Sie werden GANZ ersetzt und nicht
+  // einzeln gepflegt: der Editor hat die vollstaendige Liste ohnehin in der
+  // Hand, und ein zweiter Weg (hinzufuegen/entfernen) waere eine zweite
+  // Stelle, an der eine Vorlage entsteht.
+  setBerichtsvorlagen: (v) =>
+    set((state) => {
+      persist(snapshot({ ...state, berichtsvorlagen: v }))
+      return { berichtsvorlagen: v }
     }),
 }))
 

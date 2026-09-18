@@ -116,6 +116,7 @@ import {
   normalisiereFarbnorm,
 } from '../types/conductor'
 import { normalisiereFaser, normalisierePolaritaetsnorm } from '../types/fiber'
+import { normalisiereBerichtsvorlage } from '../types/bericht'
 import { pruefeVorlage } from '../lib/textProtocol'
 import { pruefeCompanion } from '../lib/companionControl'
 
@@ -810,6 +811,8 @@ export interface ProjectState {
   setFarbnormen: (farbnormen: import('../types/conductor').Farbnorm[]) => void
   /** #885 — die Polaritaets-Methoden und die gewaehlte. */
   setPolaritaetsnormen: (normen: import('../types/fiber').Polaritaetsnorm[]) => void
+  /** #880 — die Berichts-Vorlagen dieses Projekts ersetzen. */
+  setBerichtsvorlagen: (v: import('../types/bericht').Berichtsvorlage[]) => void
   setPolaritaetsnormId: (id: string | undefined) => void
   /** B-45 — die Anschluss des Projekts ersetzen. */
   setAnschluss: (anschlussListe: import('../types/conductor').Anschluss[]) => void
@@ -1007,6 +1010,15 @@ const healProjectPositions = (
     onDrop?.({ kind: 'farbnorm', reason: 'invalid-value', label: '' })
   }
   const normIds = new Set(farbnormen.map((n) => n.id))
+
+  // #880 — die Berichts-Vorlagen des Projekts. Eine ohne Namen oder ohne
+  // Liste faellt weg: sie stuende in der Auswahl und formte nichts.
+  const berichtsvorlagen = (project.berichtsvorlagen ?? [])
+    .map(normalisiereBerichtsvorlage)
+    .filter((v): v is import('../types/bericht').Berichtsvorlage => !!v)
+  if ((project.berichtsvorlagen?.length ?? 0) !== berichtsvorlagen.length) {
+    onDrop?.({ kind: 'berichtsvorlage', reason: 'invalid-value', label: '' })
+  }
 
   // #885 — dieselbe Bauform fuer die Polaritaets-Methoden: ohne `herkunft`
   // faellt eine weg. Sie stuende sonst in der Auswahl, ohne dass jemand
@@ -1578,6 +1590,7 @@ const healProjectPositions = (
     fotos,
     // B-45 — dito: leere Liste, nicht `undefined`.
     farbnormen,
+    berichtsvorlagen,
     polaritaetsnormen,
     polaritaetsnormId,
     // E-23 — dito.
