@@ -1038,6 +1038,65 @@ input[type="range"]:disabled {
 }
 
 /* ───────────────────────────────────────────────────────────────────────────
+ * #877 — EIN PORT IST MIT DEM FINGER ZU TREFFEN, OHNE GROESSER ZU WERDEN.
+ *
+ * „Verbinden per Stift oder Finger-Ziehen, ausreichend grosse
+ * Port-Trefferflaechen."
+ *
+ * Ein Port-Punkt ist 10 x 10 px. Das ist mit der Maus genau richtig und mit
+ * dem Finger zu klein — aber ihn zu VERGROESSERN ginge nicht: seine Groesse
+ * gehoert dem Raster (siehe die Ruecknahme der 32-px-Regel weiter unten), und
+ * ein fetter Punkt verdeckte die Zeichnung, auf die es ankommt.
+ *
+ * Also waechst die TREFFERFLAECHE und nicht die Zeichnung — und zwar NACH
+ * AUSSEN. Das ist die eigentliche Entscheidung hier:
+ *
+ *   NACH OBEN UND UNTEN nur 2 px. Dort sitzen die NACHBARPORTS. Ihr Abstand
+ *   ist `Kartenhoehe / Anzahl` und wird bei einem Geraet mit vielen Ports
+ *   schmal; eine Flaeche, die 8 px nach oben griffe, laege ueber dem Port
+ *   darueber. Der falsche Port getroffen ist schlimmer als der Port
+ *   verfehlt: das Verfehlen merkt man sofort, das falsche Kabel erst beim
+ *   Durchgang.
+ *
+ *   NACH AUSSEN 14 px. Dort ist nichts — links vom linken Rand und rechts
+ *   vom rechten liegt leere Leinwand, und von dort kommt der Finger auch.
+ *
+ * Nur bei `pointer: coarse`: an der Maus gibt es das Problem nicht, und eine
+ * unsichtbar vergroesserte Flaeche waere dort eine Stelle, an der der Zeiger
+ * etwas anfasst, was er nicht beruehrt.
+ * ═══════════════════════════════════════════════════════════════════════ */
+@media (pointer: coarse) {
+  .react-flow__handle::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+  }
+
+  .react-flow__handle-left::after {
+    left: -14px;
+  }
+
+  .react-flow__handle-right::after {
+    right: -14px;
+  }
+
+  .react-flow__handle-top::after {
+    top: -14px;
+    left: -2px;
+    right: -2px;
+  }
+
+  .react-flow__handle-bottom::after {
+    bottom: -14px;
+    left: -2px;
+    right: -2px;
+  }
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
  * B-77 — EIN BEDIENPUNKT IST 32 PX HOCH UND 32 PX BREIT.
  *
  * DER ANLASS. `bedienbar:check` in der Suite misst seit B-77 vier Planer im

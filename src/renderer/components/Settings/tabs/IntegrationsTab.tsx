@@ -24,6 +24,7 @@ import {
 } from '../../../lib/greengoSync'
 import { greengoFromPlan } from '../../../lib/intercomPlan'
 import { SettingsCard } from '../SettingsCard'
+import { imBrowser, nurDesktop } from '../../../lib/nurDesktop'
 
 /**
  * #307 — Integrations-Tab aus SettingsDialog ausgelagert. Rentman-API-
@@ -776,6 +777,15 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
 
   return (
     <div className="space-y-3">
+      {/* ─── #877: WAS IM BROWSER NICHT GEHT, STEHT VORHER DA ────────────
+          Diese Karte erscheint NUR in der Web-Fassung, und dann als erste:
+          die Liste darunter nennt Wege, die dort nicht laufen, und wer das
+          erst beim Klick auf „Verbinden" erfaehrt, steht am FOH vor einem
+          Knopf, der nichts tut. Die Liste kommt aus `lib/nurDesktop.ts` und
+          wird gegen `bridge.ts` geprueft — sie kann nicht veralten, ohne rot
+          zu werden. */}
+      <WebFassungKarte />
+
       {/* v7.9.4 — Rentman-Toggle als ERSTE Karte. User kann die ganze
           Integration mit einem Klick aus-/anschalten — dann verschwinden
           alle Rentman-Buttons, Tabs, Status-Badges und Library-Spalten. */}
@@ -951,5 +961,36 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
 
       <GreenGoPresetsCard />
     </div>
+  )
+}
+
+/**
+ * Die Karte „Web-Fassung" — nur im Browser sichtbar.
+ *
+ * Sie zaehlt keine Einschraenkungen auf, um sich zu entschuldigen, sondern
+ * nennt zu jedem Weg den technischen GRUND. „Geht nur am Desktop" allein
+ * saehe aus wie eine Lizenzgrenze, und jemand suchte nach einem Schalter, den
+ * es nicht gibt.
+ */
+function WebFassungKarte() {
+  const t = useTranslation()
+  if (!imBrowser()) return null
+  const wege = nurDesktop(t)
+  return (
+    <SettingsCard
+      title={t('settings.web.title', 'You are running the web edition')}
+      description={t(
+        'settings.web.desc',
+        'Planning, drawing and exporting work here. What needs a socket, a listening port or the OS keychain does not — those are the desktop app.',
+      )}
+    >
+      <ul className="space-y-1">
+        {wege.map((w) => (
+          <li key={w.domaene} className="text-cp-xs text-cp-text-secondary">
+            <span className="text-cp-text">{w.name}</span> — {w.grund}
+          </li>
+        ))}
+      </ul>
+    </SettingsCard>
   )
 }

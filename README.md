@@ -485,6 +485,30 @@ npm run dist
 > in a plain browser (`npm run dev:renderer` → `localhost:4181`) for quick UI
 > work, though desktop-only features (file I/O, ATEM/LAN) are inert there.
 
+### On a tablet — the web edition
+
+The deployed page is installable: open it on an iPad and add it to the home
+screen, and it runs full-screen with its own icon (it has its own manifest —
+the one the phone viewer uses describes a different app, and installing that
+one would put the viewer on your home screen).
+
+On a touch screen the canvas behaves like a touch app: pinch zooms the plan
+and not the page, two fingers pan, and **a long press on a device opens the
+context menu** that the right mouse button opens on a desktop — 500 ms and
+10 px of slop, the same values iOS and Android use for their own "touch and
+hold", because a gesture that feels different in one app makes the user think
+they are clumsy. Port hit areas grow **outwards** on a coarse pointer, never
+upwards: above and below sit the neighbouring ports, and hitting the wrong
+port is worse than missing — you notice missing immediately, and the wrong
+cable at the show-through.
+
+What the browser cannot do is listed **before** you click it, in
+Settings → Integrations: ATEM, Videohub, NetBox, LAN sync, phone access, the
+MCP server, show control, switching, the direct path to the Tally-Pi, the
+Rentman export and the update check each say *why* — a socket, a listening
+port, or the OS keychain. The list is checked against `lib/bridge.ts`, so it
+cannot go stale without turning a test red.
+
 ---
 
 ## 📚 Documentation

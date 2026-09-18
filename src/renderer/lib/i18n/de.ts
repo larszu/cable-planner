@@ -4930,6 +4930,48 @@ export const de: Dict = {
   'settings.integrations.rentmanToggle.desc':
     'Wenn aktiv: Library-Tab, Menü-Einträge und Status-Anzeigen für Rentman erscheinen. Ausgeschaltet zeigt der Cable Planner nur lokale Geräte/Kabel — alle Rentman-Funktionen werden ausgeblendet.',
   'settings.integrations.rentmanToggle.label': 'Rentman-Integration aktivieren',
+  // #877 — was in der Web-Fassung nicht geht, mit Grund. „Desktop-App",
+  // „ATEM", „NetBox", „MCP", „OSC", „UDP", „TCP", „CORS" bleiben, wie sie
+  // heissen: Namen, keine Beschriftungen.
+  'desktopOnly.atem': 'ATEM-Steuerung',
+  'desktopOnly.atem.why':
+    'Spricht über einen UDP-Socket mit dem Mischer. Eine Browser-Seite kann keinen öffnen.',
+  'desktopOnly.videohub': 'Videohub-Routing',
+  'desktopOnly.videohub.why':
+    'Rohes TCP auf Port 9990. Ein Browser kann nur HTTP und WebSocket.',
+  'desktopOnly.netbox': 'NetBox-Integration',
+  'desktopOnly.netbox.why':
+    'Liest ein Token aus dem Schlüsselbund des Systems und ruft einen Host im eigenen Netz.',
+  'desktopOnly.signaling': 'Lokaler Signaling-Server',
+  'desktopOnly.signaling.why':
+    'Lauscht auf einem Port dieses Rechners. Eine Seite kann kein Server sein.',
+  'desktopOnly.sync': 'Netzwerk-Abgleich (LAN)',
+  'desktopOnly.sync.why':
+    'Findet die anderen Rechner im LAN über UDP-Discovery.',
+  'desktopOnly.mobileShare': 'Handy-Zugriff auf den Plan',
+  'desktopOnly.mobileShare.why':
+    'Liefert den Plan von diesem Rechner an Telefone in der Halle – dafür braucht es einen lauschenden Port.',
+  'desktopOnly.mcp': 'MCP-Server',
+  'desktopOnly.mcp.why':
+    'Lauscht auf 127.0.0.1, damit ein Assistent auf diesem Rechner den Plan lesen kann.',
+  'desktopOnly.tally': 'Direktweg zum Tally-Pi',
+  'desktopOnly.tally.why':
+    'Schickt die Tally-Karte an den Pi. Dessen Server sendet keine CORS-Kopfzeilen, eine Seite kommt also nicht heran – der Datei-Export bleibt.',
+  'desktopOnly.switcher': 'Mischer und Kreuzschienen schalten',
+  'desktopOnly.switcher.why':
+    'Schickt die Schaltbefehle und fragt Companion. Beides braucht Sockets, die eine Seite nicht hat.',
+  'desktopOnly.rentman': 'Rentman-Export',
+  'desktopOnly.rentman.why':
+    'Schreibt die Export-Datei über den Datei-Weg der Desktop-App. Das Lesen aus Rentman geht hier.',
+  'desktopOnly.updater': 'Update-Prüfung',
+  'desktopOnly.updater.why':
+    'Es gibt nichts zu aktualisieren: die Web-Fassung ist das, was der Server zuletzt ausgeliefert hat.',
+  'desktopOnly.showControl': 'Show-Steuerung (OSC / UDP-Eingang)',
+  'desktopOnly.showControl.why':
+    'Wartet auf Nachrichten an einem UDP-Port. Im Browser gibt es keinen Port zum Lauschen.',
+  'settings.web.title': 'Du benutzt die Web-Fassung',
+  'settings.web.desc':
+    'Planen, Zeichnen und Exportieren gehen hier. Was einen Socket, einen lauschenden Port oder den Schlüsselbund des Systems braucht, nicht – das ist die Desktop-App.',
   'settings.integrations.rentmanToggle.title': 'Rentman-Integration',
   'settings.integrations.tallyPi.desc':
     'Schickt die Tally-Karte aus dem Export-Dialog direkt an den Pi, statt eine Datei herunterzuladen, die jemand von Hand kopiert. Die Datei bleibt daneben bestehen — sie ist der Weg, der ohne Netz zum Pi funktioniert. Der Pi behält dabei seine Verdrahtung; Rollen, die im Plan fehlen, verschwinden dort.',

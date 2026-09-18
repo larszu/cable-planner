@@ -65,6 +65,7 @@ import { useAtemTallyFeed } from '../../hooks/useAtemTallyFeed'
 import { useVideohubLinkFeed } from '../../hooks/useVideohubLinkFeed'
 import { styleForLayer } from '../../lib/cableLayers'
 import { MONO_TINTE, monochromLabel } from '../../lib/monochromeSheet'
+import { DRUCK_MS, LangerDruck } from '../../lib/langerDruck'
 
 const nodeTypes = { equipment: EquipmentNode, location: LocationFrameNode }
 const edgeTypes = { cable: CableEdge }
@@ -170,6 +171,9 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
     (s) => s.triggerRackBuilderEditFromBlackBox,
   )
   const wrapperRef = useRef<HTMLDivElement>(null)
+  // Die laufende Beruehrung (#877). Eine Instanz je Flaeche: die Geste IST
+  // der Zustand zwischen den Ereignissen.
+  const druckRef = useRef(new LangerDruck())
   // Last screen-pixel mouse position over the canvas. Used by Strg++ quick-add
   // (#44) so the new device lands where the user pointed instead of always at
   // the viewport origin.
@@ -434,6 +438,90 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
     | { clientX: number; clientY: number; nodeId: string; nodeType: 'equipment' | 'location' }
     | null
   >(null)
+
+  // ═════════════════════════════════════════════════════════════════════
+  // LANGE BERUEHRUNG STATT RECHTSKLICK (#877)
+  //
+  // Das Kontextmenue („Position sperren") haengt an `onNodeContextMenu`, und
+  // das liefert ReactFlow nur bei einem Rechtsklick. Ein iPad hat keine
+  // rechte Taste — der Eintrag war dort schlicht nicht erreichbar.
+  //
+  // Die Geste selbst rechnet `lib/langerDruck.ts`; hier steht nur, WORAUF sie
+  // zeigt. Der getroffene Knoten kommt aus dem DOM-Vertrag von ReactFlow
+  // (`.react-flow__node` traegt `data-id`) und nicht aus einer eigenen
+  // Trefferrechnung: eine zweite Rechnung ueber dieselbe Frage liefe beim
+  // naechsten Zoom auseinander.
+  useEffect(() => {
+    const el = wrapperRef.current
+    if (!el) return
+    const druck = druckRef.current
+    let uhr: number | undefined
+
+    const knotenUnter = (ziel: EventTarget | null): { id: string; typ: string } | null => {
+      const node = (ziel as HTMLElement | null)?.closest?.('.react-flow__node') as HTMLElement | null
+      const id = node?.getAttribute('data-id')
+      if (!id) return null
+      // Der Typ steht als Klasse (`react-flow__node-equipment`). Nur die
+      // beiden, die auch per Rechtsklick ein Menue haben.
+      const typ = node!.classList.contains('react-flow__node-equipment')
+        ? 'equipment'
+        : node!.classList.contains('react-flow__node-location')
+          ? 'location'
+          : ''
+      return typ ? { id, typ } : null
+    }
+
+    const abbrechen = () => {
+      if (uhr !== undefined) window.clearTimeout(uhr)
+      uhr = undefined
+    }
+
+    const runter = (e: PointerEvent) => {
+      abbrechen()
+      const treffer = knotenUnter(e.target)
+      const antwort = druck.runter(
+        { zeigerId: e.pointerId, x: e.clientX, y: e.clientY, art: e.pointerType },
+        performance.now(),
+      )
+      if (antwort.art !== 'warten' || !treffer) return
+      uhr = window.setTimeout(() => {
+        const fertig = druck.pruefe(performance.now())
+        if (fertig.art !== 'ausloesen') return
+        setNodeContextMenu({
+          clientX: fertig.x,
+          clientY: fertig.y,
+          nodeId: treffer.id,
+          nodeType: treffer.typ as 'equipment' | 'location',
+        })
+      }, DRUCK_MS)
+    }
+
+    const bewegt = (e: PointerEvent) => {
+      if (!druck.laeuft) return
+      if (druck.bewegt({ zeigerId: e.pointerId, x: e.clientX, y: e.clientY, art: e.pointerType }).art !== 'warten') {
+        abbrechen()
+      }
+    }
+
+    const hoch = (e: PointerEvent) => {
+      druck.hoch(e.pointerId)
+      abbrechen()
+    }
+
+    el.addEventListener('pointerdown', runter)
+    el.addEventListener('pointermove', bewegt)
+    el.addEventListener('pointerup', hoch)
+    el.addEventListener('pointercancel', hoch)
+    return () => {
+      abbrechen()
+      druck.leeren()
+      el.removeEventListener('pointerdown', runter)
+      el.removeEventListener('pointermove', bewegt)
+      el.removeEventListener('pointerup', hoch)
+      el.removeEventListener('pointercancel', hoch)
+    }
+  }, [])
+
   const flashOverlap = (id: string) => {
     setOverlapFlashId(id)
     window.setTimeout(() => setOverlapFlashId(null), 500)
