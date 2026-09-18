@@ -29,6 +29,15 @@ export interface PiAntwort {
   error?: string
 }
 
+/** #872 — was der lokale MCP-Server ueber sich sagt. Ohne das Token. */
+export interface McpStatus {
+  running: boolean
+  port: number
+  url: string
+  /** Vor weniger als zwei Minuten hat ein Client gefragt. */
+  verbunden: boolean
+}
+
 export interface MobileShareInfo {
   port: number
   urls: string[]
@@ -458,6 +467,23 @@ type CablePlannerApi = {
       payload: unknown
     }) => Promise<{ fileName: string; fileVersion: number; modifiedAt: string }>
     deleteItem: (params: { kind: 'device' | 'group'; name: string }) => Promise<boolean>
+  }
+  /** #872 — der lokale MCP-Server. Nur lesend, aus als Vorgabe. */
+  mcp: {
+    start: () => Promise<McpStatus & { token: string }>
+    stop: () => Promise<{ ok: boolean }>
+    status: () => Promise<McpStatus>
+    token: () => Promise<{ token: string }>
+    resetToken: () => Promise<{ token: string }>
+    onFrage: (
+      cb: (frage: { id: string; werkzeug: string; args: Record<string, unknown> }) => void,
+    ) => () => void
+    beantworten: (antwort: {
+      id: string
+      daten?: Record<string, unknown>
+      text?: string
+      fehler?: string
+    }) => void
   }
   mobileShare: {
     start: () => Promise<MobileShareInfo>
@@ -1146,6 +1172,19 @@ const webFallbackApi: CablePlannerApi = {
       modifiedAt: new Date().toISOString(),
     }),
     deleteItem: async () => false,
+  },
+  mcp: {
+    // Im Browser gibt es keinen lokalen Server — und keine Behauptung, es
+    // gaebe einen.
+    start: async () => {
+      throw new Error('Der MCP-Server erfordert die Desktop-App.')
+    },
+    stop: async () => ({ ok: false }),
+    status: async () => ({ running: false, port: 0, url: '', verbunden: false }),
+    token: async () => ({ token: '' }),
+    resetToken: async () => ({ token: '' }),
+    onFrage: () => () => {},
+    beantworten: () => {},
   },
   mobileShare: {
     start: async () => {

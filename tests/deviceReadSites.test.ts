@@ -85,6 +85,12 @@ const SONSTIGE_DOMAENEN = [
   'graphml',
   'library',
   'logs',
+  // #872 — der lokale MCP-Server. Ausdruecklich KEIN Geraete-Weg: er fragt
+  // den Plan und liest kein Geraet. Und er schreibt nichts — Stufe 1 hat
+  // keine schreibenden Werkzeuge, `tests/mcpWerkzeuge.test.ts` haelt fest,
+  // dass das Antwort-Modul weder Store noch Speicher anfasst. Ohne diese
+  // beiden Saetze waere die Zeile eine Behauptung.
+  'mcp',
   'mobileShare',
   'print',
   'project',

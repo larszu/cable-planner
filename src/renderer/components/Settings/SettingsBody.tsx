@@ -5,7 +5,7 @@
  */
 import { useState, type HTMLAttributes, type ReactNode } from 'react'
 import {
-  ClipboardList, Palette, Pencil, Keyboard, Plug, Database, RefreshCw, Settings, Blocks, X, ListPlus,
+  ClipboardList, Palette, Pencil, Keyboard, Plug, Database, RefreshCw, Settings, Blocks, X, ListPlus, Bot,
   BadgeCheck, Cable,
   type LucideIcon,
 } from 'lucide-react'
@@ -19,6 +19,7 @@ import { ConfigsTab } from './tabs/ConfigsTab'
 import { EditingTab } from './tabs/EditingTab'
 import { AppearanceTab } from './tabs/AppearanceTab'
 import { IntegrationsTab } from './tabs/IntegrationsTab'
+import { McpTab } from './tabs/McpTab'
 import { SchemaBuilderTab } from './tabs/SchemaBuilderTab'
 import { NachweiseTab } from './tabs/NachweiseTab'
 import { CableTypesTab } from './tabs/CableTypesTab'
@@ -31,6 +32,7 @@ export type SettingsSection =
   | 'editing'
   | 'hotkeys'
   | 'integrations'
+  | 'mcp'
   | 'configs'
   | 'cableTypes'
   | 'schema'
@@ -45,6 +47,7 @@ const TAB_ICONS: Record<SettingsSection, LucideIcon> = {
   editing: Pencil,
   hotkeys: Keyboard,
   integrations: Plug,
+  mcp: Bot,
   configs: Database,
   cableTypes: Cable,
   schema: ListPlus,
@@ -60,6 +63,7 @@ const TAB_FALLBACK_LABEL: Record<SettingsSection, string> = {
   editing: 'Bearbeiten',
   hotkeys: 'Hotkeys',
   integrations: 'Integrationen',
+  mcp: 'MCP',
   configs: 'Konfigurationen',
   cableTypes: 'Cable types',
   schema: 'Kategorien & Felder',
@@ -75,6 +79,7 @@ const TAB_FALLBACK_TITLE: Record<SettingsSection, string> = {
   editing: 'Bearbeiten',
   hotkeys: 'Tastenkürzel',
   integrations: 'Integrationen',
+  mcp: 'MCP-Server (Claude fragt den Plan)',
   configs: 'Geräte-Konfigurationen',
   cableTypes: 'Cable types',
   schema: 'Kategorien & Felder (Feld-Builder)',
@@ -167,6 +172,7 @@ export const SettingsBody = ({ onClose, initialSection, headerProps, titleId, he
           {section === 'editing' && <EditingTab />}
           {section === 'hotkeys' && <HotkeysTab />}
           {section === 'integrations' && <IntegrationsTab onClose={onClose} />}
+          {section === 'mcp' && <McpTab />}
           {section === 'configs' && <ConfigsTab />}
           {section === 'cableTypes' && <CableTypesTab />}
           {section === 'schema' && <SchemaBuilderTab />}

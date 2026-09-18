@@ -3196,6 +3196,24 @@ export const de: Dict = {
   'packet.sheet.frontplatten': 'Frontplatten',
   'app.loadReport.ausschnitt': 'Ausschnittmaß, das keine positive Zahl ist',
   'app.loadReport.frontplatte': 'Frontplatte mit unbekannter Art',
+  'mcp.hint':
+    'Lässt Claude diesen Plan fragen: Geräte, Ports, Signalwege, Kabel und was der Plan-Check sagt. Es wird nur GELESEN — über diesen Weg lässt sich nichts am Plan ändern. Der Server hört nur auf 127.0.0.1 und verlangt das Paarungs-Token unten.',
+  'mcp.desktopOnly': 'Der lokale Server braucht die Desktop-App.',
+  'mcp.start': 'Server starten',
+  'mcp.stop': 'Server stoppen',
+  'mcp.running': 'Hört auf {url}',
+  'mcp.stopped': 'Aus',
+  'mcp.connected': 'ein Client fragt gerade',
+  'mcp.showToken': 'Paarungs-Token zeigen',
+  'mcp.newToken': 'Neues Token',
+  'mcp.tokenHint':
+    'Das Token liegt im Schlüsselbund des Betriebssystems, nicht in der Einstellungsdatei. Ein neues Token gilt nach einem Neustart des Servers, und jeder Client muss es neu erfahren.',
+  'mcp.setup': 'In Claude Code eintragen',
+  'mcp.copy': 'Kopieren',
+  'statusbar.mcp.title':
+    'Der lokale MCP-Server läuft — Claude kann diesen Plan LESEN. Klick öffnet den Schalter und das Token.',
+  'statusbar.mcp.on': 'MCP',
+  'statusbar.mcp.asking': 'MCP · fragt',
   'led.outlet': 'Gespeist aus (Anschlusspunkt des Hauses)',
   'led.outletNone': 'nicht angegeben',
   'led.outletTitle':

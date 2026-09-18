@@ -1,6 +1,7 @@
 import { hasDrops, type LoadDropKind, type LoadDropReason } from './types/loadReport'
 import { hasMobileDrops } from './types/mobileReport'
 import { v4 as uuidv4 } from 'uuid'
+import { beantworteWerkzeug } from './lib/mcpWerkzeuge'
 import { useEffect, useMemo, useRef, useState, lazy, Suspense } from 'react'
 import { useIsNarrow } from './hooks/useBreakpoint'
 import { CanvasArea } from './components/Canvas/CanvasArea'
@@ -846,6 +847,31 @@ export default function App() {
       })
     })
   }, [addFoto])
+
+  // #872 — der MCP-Server fragt, dieses Fenster antwortet. Aus DEM Store,
+  // der auf dem Bildschirm steht, und mit denselben Rechnungen: ein
+  // Assistent, der eine andere Signalkette meldet als der Plan daneben, ist
+  // schlimmer als keiner.
+  useEffect(() => {
+    if (!hasDesktopBridge) return
+    return cablePlannerApi.mcp.onFrage((frage) => {
+      try {
+        const { daten, text } = beantworteWerkzeug(
+          useProjectStore.getState().project,
+          frage.werkzeug,
+          frage.args,
+        )
+        cablePlannerApi.mcp.beantworten({ id: frage.id, daten, text })
+      } catch (e) {
+        // Der Fehler geht zurueck und wird nicht verschluckt: eine leere
+        // Antwort liest das Modell als „es gibt nichts".
+        cablePlannerApi.mcp.beantworten({
+          id: frage.id,
+          fehler: e instanceof Error ? e.message : 'unknown error',
+        })
+      }
+    })
+  }, [])
 
   // #884 — die Bilder aus der Ablage nachtragen. Die Sicherungskopie im
   // Browser traegt nur die Datensaetze; siehe `store/fotoSpeicher.ts`.
