@@ -101,6 +101,11 @@ const BESTAND: Record<string, number> = {
   // bekaeme je nach Einstellung des Planers eine andere Antwort auf dieselbe
   // Frage.
   'lib/mcpWerkzeuge.ts': 8,
+  // #873 — dieselbe Begruendung wie eine Zeile darueber: die Saetze gehen an
+  // den MCP-CLIENT und nicht auf ein Blatt. `mcpLog` traegt einen davon als
+  // Feldnamen (`text`), die Schreibwerkzeuge vier als Antworten.
+  'lib/mcpSchreiben.ts': 4,
+  'types/mcpLog.ts': 1,
   'lib/eventMetadata.ts': 11,
   'lib/circuitSuggest.ts': 11,
   'lib/transmissionRecord.ts': 10,

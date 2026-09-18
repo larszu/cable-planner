@@ -416,6 +416,14 @@ export interface CablePlannerProject {
    * in die Installation. Optional -> heilt zu [].
    */
   berichtsvorlagen?: import('./bericht').Berichtsvorlage[]
+  /**
+   * #873 — was ueber den MCP-Server am Plan geaendert wurde.
+   *
+   * Im Projekt und nicht in den Einstellungen: wer die Datei weitergibt, gibt
+   * mit, was daran nicht von Hand entstanden ist. Gedeckelt auf 50 Zeilen.
+   * Optional -> heilt zu [].
+   */
+  mcpLog?: import('./mcpLog').McpEintrag[]
   farbnormen?: import('./conductor').Farbnorm[]
   /**
    * #885 — die Polaritaets-Methoden dieser Anlage (TIA-568 A/B/C …).

@@ -24,6 +24,7 @@ import {
   getMcpStatus,
   resetMcpToken,
   setMcpPlanFrager,
+  setMcpSchreibmodus,
   startMcpServer,
   stopMcpServer,
 } from '../mcp/mcpServer.js'
@@ -75,6 +76,12 @@ export const registerMcpIpc = (): void => {
     return { ok: true }
   })
   ipcMain.handle('mcp:status', () => getMcpStatus())
+  // #873 — der zweite Schalter. Er wirkt beim naechsten Start des Servers;
+  // die Werkzeugliste ist dann eine andere.
+  ipcMain.handle('mcp:setSchreibmodus', (_event, an: unknown) => {
+    setMcpSchreibmodus(an === true)
+    return getMcpStatus()
+  })
   // Das Token geht ueber einen EIGENEN Weg und nicht im Status: der Status
   // wird alle paar Sekunden abgefragt und landet in jedem Zustand, der ihn
   // anfasst. Das Token soll dorthin, wo jemand es sehen WILL.

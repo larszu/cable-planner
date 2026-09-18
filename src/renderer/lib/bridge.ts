@@ -36,6 +36,8 @@ export interface McpStatus {
   url: string
   /** Vor weniger als zwei Minuten hat ein Client gefragt. */
   verbunden: boolean
+  /** #873 — ob schreibende Werkzeuge angeboten werden. */
+  schreibenErlaubt: boolean
 }
 
 export interface MobileShareInfo {
@@ -473,6 +475,7 @@ type CablePlannerApi = {
     start: () => Promise<McpStatus & { token: string }>
     stop: () => Promise<{ ok: boolean }>
     status: () => Promise<McpStatus>
+    setSchreibmodus: (an: boolean) => Promise<McpStatus>
     token: () => Promise<{ token: string }>
     resetToken: () => Promise<{ token: string }>
     onFrage: (
@@ -1180,7 +1183,20 @@ const webFallbackApi: CablePlannerApi = {
       throw new Error('Der MCP-Server erfordert die Desktop-App.')
     },
     stop: async () => ({ ok: false }),
-    status: async () => ({ running: false, port: 0, url: '', verbunden: false }),
+    status: async () => ({
+      running: false,
+      port: 0,
+      url: '',
+      verbunden: false,
+      schreibenErlaubt: false,
+    }),
+    setSchreibmodus: async () => ({
+      running: false,
+      port: 0,
+      url: '',
+      verbunden: false,
+      schreibenErlaubt: false,
+    }),
     token: async () => ({ token: '' }),
     resetToken: async () => ({ token: '' }),
     onFrage: () => () => {},

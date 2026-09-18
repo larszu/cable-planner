@@ -3196,6 +3196,7 @@ export const de: Dict = {
   'packet.sheet.frontplatten': 'Frontplatten',
   'app.loadReport.ausschnitt': 'Ausschnittmaß, das keine positive Zahl ist',
   'app.loadReport.frontplatte': 'Frontplatte mit unbekannter Art',
+  'app.loadReport.mcpLog': 'MCP-Nachweiszeile ohne Zeitpunkt',
   'mcp.hint':
     'Lässt Claude diesen Plan fragen: Geräte, Ports, Signalwege, Kabel und was der Plan-Check sagt. Es wird nur GELESEN — über diesen Weg lässt sich nichts am Plan ändern. Der Server hört nur auf 127.0.0.1 und verlangt das Paarungs-Token unten.',
   'mcp.desktopOnly': 'Der lokale Server braucht die Desktop-App.',
@@ -3209,6 +3210,10 @@ export const de: Dict = {
   'mcp.tokenHint':
     'Das Token liegt im Schlüsselbund des Betriebssystems, nicht in der Einstellungsdatei. Ein neues Token gilt nach einem Neustart des Servers, und jeder Client muss es neu erfahren.',
   'mcp.setup': 'In Claude Code eintragen',
+  'mcp.write': 'Claude darf den Plan auch ändern',
+  'mcp.writeHint':
+    'Kabel anlegen und entfernen, Kabel-Angaben setzen, Geräte umbenennen — über dieselben Store-Aktionen wie die Leinwand. Jeder Aufruf ist EIN Undo-Schritt und hinterlässt eine Zeile unter „Was Claude geändert hat". Schaltbefehle an Geräte (Videohub, ATEM) werden nie angeboten. Gilt ab dem nächsten Start des Servers.',
+  'mcp.trace': 'Was Claude geändert hat',
   'mcp.copy': 'Kopieren',
   'statusbar.mcp.title':
     'Der lokale MCP-Server läuft — Claude kann diesen Plan LESEN. Klick öffnet den Schalter und das Token.',
