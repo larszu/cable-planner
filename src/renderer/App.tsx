@@ -71,6 +71,7 @@ import { BulkConnectDialog } from './components/Canvas/BulkConnectDialog'
 import { AnalysisDialog } from './components/Analysis/AnalysisDialog'
 import { DeliveryDialog } from './components/Delivery/DeliveryDialog'
 import { AdernDialog } from './components/Power/AdernDialog'
+import { LedWallDialog } from './components/Project/LedWallDialog'
 import { OscEmpfangPanel } from './components/ShowControl/OscEmpfangPanel'
 import { ReconcileDialog } from './components/Network/ReconcileDialog'
 import { setStreamKeyDropper } from './store/slices/deliverySlice'
@@ -182,6 +183,7 @@ const DROP_ART: Record<LoadDropKind, [key: string, de: string]> = {
   'hub-switch': ['app.loadReport.hubSwitch', 'Switching action on a router'],
   'crosspoint': ['app.loadReport.crosspoint', 'Row of the planned routing'],
   'cable-stock': ['app.loadReport.cableStock', 'Stock length of a cable type'],
+  'led-wall': ['app.loadReport.ledWall', 'LED wall or panel type'],
 } satisfies Record<LoadDropKind, [string, string]>
 
 const DROP_GRUND: Record<LoadDropReason, [key: string, de: string]> = {
@@ -1464,6 +1466,7 @@ export default function App() {
       <RundownDialog />
       <DeliveryDialog />
       <AdernDialog />
+      <LedWallDialog />
       <OscEmpfangPanel />
       <ReconcileDialog />
       <LocationBomDialog />

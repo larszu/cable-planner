@@ -135,6 +135,22 @@ Built with **Electron, React, and TypeScript**, it is designed for real-world pr
 
 ---
 
+### 🟥 LED walls
+
+- Panel types with the figures off the datasheet — pixel pitch, resolution,
+  size, and, where stated, weight and power (average **and** peak)
+- Opening in millimetres → grid, with the leftover shown: a tile that only
+  half fits does not fit, and the remainder is the figure you hang the wall by
+- Totals: panel count, resolution, size, weight, load
+- Sending card: how many ports the wall needs against how many it has
+- **Pixel map as PNG**, exactly as large as the wall has pixels, tiles
+  numbered row by row from the top left — the order a wall is built in
+- Nothing is estimated: a panel type without a weight gives a wall of unknown
+  weight, not one of zero, and a sending card nobody recorded says nothing
+  rather than "fine"
+
+---
+
 ### 📡 ATEM Multiviewer Configuration
 - Visual multiview layout editor
 - Camera / program / preview assignment

@@ -78,6 +78,15 @@ export type LoadDropKind =
    * eine Angabe verlorenging.
    */
   | 'cable-stock'
+  /**
+   * #881 — eine LED-Wand ohne Panel-Typ oder ein Typ ohne rechenbares Mass.
+   *
+   * Warum sie faellt: aus ihr faellt eine Gesamtauflösung, ein Gewicht und
+   * eine Stromlast heraus. Ein Panel mit der Kantenlaenge 0 ergaebe
+   * unendlich viele Kacheln; eine Wand ohne Typ ergaebe eine Flaeche ohne
+   * Kachel. Beides steht danach auf einem Anschlussblatt.
+   */
+  | 'led-wall'
   | 'ader'
   | 'senkenprofil'
   /**

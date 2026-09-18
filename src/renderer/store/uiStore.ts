@@ -872,6 +872,9 @@ interface UiState extends PersistedUiState {
   /** B-45 — Farbnormen und Anschluss. */
   adernOpen: boolean
   setAdernOpen: (open: boolean) => void
+  /** #881 — der LED-Wand-Rechner. */
+  ledWallOpen: boolean
+  setLedWallOpen: (open: boolean) => void
   /** E-23 — die Mitschrift eingehender OSC-Nachrichten. */
   oscOpen: boolean
   setOscOpen: (open: boolean) => void
@@ -1422,6 +1425,8 @@ export const useUiStore = create<UiState>((set) => ({
   setDeliveryOpen: (open) => set({ deliveryOpen: open }),
   adernOpen: false,
   setAdernOpen: (open) => set({ adernOpen: open }),
+  ledWallOpen: false,
+  setLedWallOpen: (open) => set({ ledWallOpen: open }),
   oscOpen: false,
   setOscOpen: (open) => set({ oscOpen: open }),
   reconcileOpen: false,

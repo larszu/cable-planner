@@ -785,6 +785,10 @@ export interface ProjectState {
   /** B-45 — die Farbnormen des Projekts ersetzen. */
   /** #875 — die verfuegbaren Lagerlaengen je Kabeltyp, als ganze Liste. */
   setCableStock: (cableStock: import('../types/cable').CableStockEntry[]) => void
+  /** #881 — die Panel-Typen des Projekts, als ganze Liste. */
+  setLedPanelTypes: (typen: import('../types/ledWall').LedPanelType[]) => void
+  /** #881 — die geplanten LED-Waende, als ganze Liste. */
+  setLedWalls: (waende: import('../types/ledWall').LedWall[]) => void
   setFarbnormen: (farbnormen: import('../types/conductor').Farbnorm[]) => void
   /** B-45 — die Anschluss des Projekts ersetzen. */
   setAnschluss: (anschlussListe: import('../types/conductor').Anschluss[]) => void
@@ -923,6 +927,30 @@ const healProjectPositions = (
   )
   if ((project.cableStock?.length ?? 0) !== cableStock.length) {
     onDrop?.({ kind: 'cable-stock', reason: 'invalid-value', label: '' })
+  }
+
+  // #881 — die Panel-Typen und die Waende. Die TYPEN zuerst: eine Wand, die
+  // auf einen geloeschten Typ zeigt, hat keine Kachel und damit keine
+  // Auflösung, kein Gewicht und keine Last — sie faellt mit.
+  const ledPanelTypes = (project.ledPanelTypes ?? []).filter(
+    (t) =>
+      !!t &&
+      typeof t.id === 'string' &&
+      t.id !== '' &&
+      t.sizeMm?.w > 0 &&
+      t.sizeMm?.h > 0 &&
+      t.pixels?.x > 0 &&
+      t.pixels?.y > 0,
+  )
+  const panelIds = new Set(ledPanelTypes.map((t) => t.id))
+  const ledWalls = (project.ledWalls ?? []).filter(
+    (w) => !!w && typeof w.id === 'string' && panelIds.has(w.panelTypeId),
+  )
+  if (
+    (project.ledPanelTypes?.length ?? 0) !== ledPanelTypes.length ||
+    (project.ledWalls?.length ?? 0) !== ledWalls.length
+  ) {
+    onDrop?.({ kind: 'led-wall', reason: 'invalid-value', label: '' })
   }
 
   // B-45 — die Farbnormen und die Anschluss. Die Normen ZUERST: ein Anschluss
@@ -1454,6 +1482,9 @@ const healProjectPositions = (
     hubSwitches,
     // #875 — dito: leere Liste, nicht `undefined`.
     cableStock,
+    // #881 — dito.
+    ledPanelTypes,
+    ledWalls,
     // B-45 — dito: leere Liste, nicht `undefined`.
     farbnormen,
     // E-23 — dito.
