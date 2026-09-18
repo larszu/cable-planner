@@ -329,3 +329,50 @@ describe('Bedarf 17 — die Erreichbarkeit im Deckungs-Abgleich', () => {
     expect(exportDialogQuelle).toMatch(/zusatzBedarf\(\{ drumKit, wirelessRig, cables, equipment \}\)/)
   })
 })
+
+// ───────────────────────────────────────────────────────────────────────────
+// #881, letztes Kriterium — die LED-Panels sind Material.
+//
+// Sie werden gefahren, getragen und gezaehlt, und standen bis hierher in
+// keiner Stueckliste: eine 60-Panel-Wand kam am Aufbautag ohne Panels an.
+// ───────────────────────────────────────────────────────────────────────────
+describe('die LED-Wand zaehlt ihre Panels', () => {
+  const typ = {
+    id: 'pt1',
+    name: 'P2.6 500x500',
+    pixelPitchMm: 2.6,
+    pixels: { x: 192, y: 192 },
+    sizeMm: { w: 500, h: 500 },
+  }
+  const wand = (teil: Record<string, unknown> = {}) => ({
+    id: 'w',
+    name: 'Bühne',
+    panelTypeId: 'pt1',
+    columns: 10,
+    rows: 6,
+    ...teil,
+  })
+
+  it('sechzig Kacheln sind sechzig Stueck', () => {
+    const z = zusatzBedarf({ ledPanelTypes: [typ], ledWalls: [wand()] } as never)
+    const zeile = z.find((x) => x.herkunft === 'LED-Wand')
+    expect(zeile?.label).toBe('P2.6 500x500')
+    expect(zeile?.quantity).toBe(60)
+  })
+
+  it('zwei Waende aus demselben Typ sind EINE Position', () => {
+    // Im Lager liegt ein Stapel Panels und keine zwei Waende.
+    const z = zusatzBedarf({
+      ledPanelTypes: [typ],
+      ledWalls: [wand(), wand({ id: 'w2', columns: 2, rows: 2 })],
+    } as never)
+    const zeilen = z.filter((x) => x.herkunft === 'LED-Wand')
+    expect(zeilen).toHaveLength(1)
+    expect(zeilen[0].quantity).toBe(64)
+  })
+
+  it('eine Wand ohne bekannten Typ zaehlt nicht', () => {
+    const z = zusatzBedarf({ ledPanelTypes: [], ledWalls: [wand()] } as never)
+    expect(z.some((x) => x.herkunft === 'LED-Wand')).toBe(false)
+  })
+})

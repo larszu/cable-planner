@@ -79,6 +79,7 @@ export interface ZusatzBedarf {
 const DRUM = 'Drum-Mikrofonierung'
 const FUNK = 'Funkstrecken-Plan'
 const KABEL = 'Kabelplan'
+const LED = 'LED-Wand'
 const ADAPTER = 'Adapter (vom Plan verlangt)'
 
 /** Zaehlt gleiche Positionen zusammen, deterministisch sortiert. */
@@ -104,7 +105,10 @@ const zusammen = (roh: ZusatzBedarf[]): ZusatzBedarf[] => {
  * Signatur statt im Rumpf.
  */
 export const zusatzBedarf = (
-  plan: Pick<CablePlannerProject, 'drumKit' | 'wirelessRig' | 'cables' | 'equipment'>,
+  plan: Pick<
+    CablePlannerProject,
+    'drumKit' | 'wirelessRig' | 'cables' | 'equipment' | 'ledWalls' | 'ledPanelTypes'
+  >,
 ): ZusatzBedarf[] => {
   const roh: ZusatzBedarf[] = []
 
@@ -151,6 +155,23 @@ export const zusatzBedarf = (
         herkunft: FUNK,
       })
     }
+  }
+
+  // ── LED-Waende ────────────────────────────────────────────────────────────
+  // #881, letztes Kriterium. Die Panels sind Material wie jedes andere: sie
+  // werden gefahren, getragen und gezaehlt. Bis hierher standen sie in keiner
+  // Stueckliste — eine 60-Panel-Wand kam am Aufbautag ohne Panels an.
+  //
+  // Gezaehlt wird je PANEL-TYP und nicht je Wand: zwei Waende aus demselben
+  // Typ sind im Lager eine Position. Die Wand selbst steht im Etikett, damit
+  // beim Kommissionieren klar ist, wofuer.
+  const panelTypen = new Map((plan.ledPanelTypes ?? []).map((t) => [t.id, t]))
+  for (const wand of plan.ledWalls ?? []) {
+    const typ = panelTypen.get(wand.panelTypeId)
+    if (!typ) continue
+    const anzahl = Math.max(0, Math.floor(wand.columns)) * Math.max(0, Math.floor(wand.rows))
+    if (anzahl <= 0) continue
+    roh.push({ label: typ.name, quantity: anzahl, herkunft: LED })
   }
 
   // ── Kabel ─────────────────────────────────────────────────────────────────

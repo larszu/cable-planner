@@ -501,6 +501,35 @@ export const LedWallDialog = () => {
               </div>
             </div>
 
+            {/* #881, letztes Kriterium — der Anschlusspunkt des Hauses. Die
+                Liste kommt aus der hinterlegten Gebaeude-Auskunft; ohne eine
+                solche gibt es hier nichts zu waehlen, und ein freies Textfeld
+                waere ein Verweis auf etwas, das der Plan nicht nachschlagen
+                kann. */}
+            {(project.hausAuskunft?.punkte.length ?? 0) > 0 && (
+              <label className="mt-3 block text-cp-xs">
+                <span className="mb-1 block text-cp-text-secondary">
+                  {t('led.outlet', 'Fed from (building outlet)')}
+                </span>
+                <select
+                  value={wand.hausPunktId ?? ''}
+                  onChange={(e) => wandAendern(wand.id, { hausPunktId: e.target.value || undefined })}
+                  className="w-full border border-cp-border bg-cp-surface-1 px-2 py-1 text-cp-text"
+                  title={t(
+                    'led.outletTitle',
+                    'The continuous figure joins the load at that outlet; the peak gets its own finding - the breaker is chosen by the peak.',
+                  )}
+                >
+                  <option value="">{t('led.outletNone', 'not stated')}</option>
+                  {project.hausAuskunft?.punkte.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.bezeichnung}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
+
             <div className="mt-3 flex justify-end">
               <button
                 type="button"

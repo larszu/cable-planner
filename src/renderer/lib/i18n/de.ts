@@ -3196,6 +3196,16 @@ export const de: Dict = {
   'packet.sheet.frontplatten': 'Frontplatten',
   'app.loadReport.ausschnitt': 'Ausschnittmaß, das keine positive Zahl ist',
   'app.loadReport.frontplatte': 'Frontplatte mit unbekannter Art',
+  'led.outlet': 'Gespeist aus (Anschlusspunkt des Hauses)',
+  'led.outletNone': 'nicht angegeben',
+  'led.outletTitle':
+    'Die Dauerleistung geht in die Last an diesem Punkt; die Spitze bekommt einen eigenen Befund — die Sicherung wird nach der Spitze gewählt.',
+  'check.haus.wandPunktFehlt':
+    '{name} hängt an einem Anschlusspunkt, den die Auskunft vom {stand} nicht mehr führt.',
+  'check.haus.wandOhneLeistung':
+    '{name} trägt an seinem Panel-Typ keine Leistungsangabe — seine Last steht NICHT in der Summe an {punkt}. Die Zahl steht im Datenblatt; dieses Programm rät sie nicht.',
+  'check.haus.wandSpitze':
+    '{name} zieht im Weissbild {spitze} W; {punkt} ist mit {grenze} W Dauerleistung angegeben. Die Sicherung wird nach der Spitze gewählt, nicht nach dem Mittel.',
   'check.haus.klinkeMehrdeutig':
     '{name} benutzt die DALI-Adresse {adresse}, und die Auskunft des Hauses sagt nicht, welche Art das ist. Kurzadresse, Gruppe und Broadcast sind drei verschiedene Dinge — das Letzte ist der ganze Bus, Notlicht eingeschlossen.',
   'faceplate.title': 'Frontplatten-Editor',
