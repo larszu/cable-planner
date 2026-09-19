@@ -474,6 +474,9 @@ npm run dev
 npx tsc -p tsconfig.app.json --noEmit
 npm run lint
 
+# 3b. Every *:check script is actually run by CI
+npm run ci:complete
+
 # 4. Production build (renderer + main + preload)
 npm run build
 
