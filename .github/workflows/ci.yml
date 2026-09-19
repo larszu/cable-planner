@@ -190,6 +190,15 @@ jobs:
         run: xvfb-run -a npm run greifzonen:check
       - name: Die App bleibt auf dem Telefon im Fenster
         run: npm run mobil:check
+      # Der Waechter ueber den Waechtern: jeder `*:check` aus package.json wird
+      # auch wirklich gefahren — als eigener Schritt hier oder angehaengt an
+      # `test`/`lint`. Ohne ihn ist diese Liste der Kenntnisstand dessen, der
+      # sie zuletzt angefasst hat. Im `multicam-planner` ist genau das am
+      # 2026-09-19 aufgefallen: `slider:check` stand seit sieben Tagen in
+      # package.json, war gruen und lief bei keinem Merge.
+      - name: Jeder Pruef-Lauf wird auch gefahren
+        run: npm run ci:complete
+
       - name: Screenshots bei Fehlschlag
         if: failure()
         uses: actions/upload-artifact@v6
