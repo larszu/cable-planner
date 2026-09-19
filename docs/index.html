@@ -1007,6 +1007,59 @@
   </div>
 </section>
 
+<!-- ─── Pro / Cloud — der Nachfragetest (#866) ──────────────────────
+     Die Schwelle steht VOR dem Test in docs/cloud/nachfragetest.md:
+     20 zahlende Vorbestellungen in 3 Monaten. Eine Schwelle, die man nach
+     dem Ergebnis festlegt, ist keine Schwelle, sondern eine Begruendung.
+
+     SOLANGE UNTEN KEINE KAUF-URL STEHT, ZEIGT DER ABSCHNITT „NOCH NICHT
+     OFFEN" — und keinen Knopf. Ein Kaufknopf, der nicht kauft, verbrennt
+     genau die Aufmerksamkeit, die dieser Test messen will. -->
+<section id="pro">
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="eyebrow">Planned</div>
+      <h2>Pro / Cloud</h2>
+      <p>
+        The desktop app stays free, offline and complete — that is not a
+        marketing line but the rule this project is built on: the cloud is an
+        addition, never a requirement. A single point of failure on show day
+        is unacceptable.
+      </p>
+    </div>
+
+    <div class="card reveal" style="padding:28px;">
+      <h3 style="margin-top:0;">What Pro would add</h3>
+      <ul style="line-height:1.9;">
+        <li><strong>Share link</strong> — a read-only link that opens anywhere, no account for whoever receives it</li>
+        <li><strong>Sync with revisions</strong> — the same project on desktop, tablet and phone, with restore</li>
+        <li><strong>PDF tech pack</strong> — the full set of sheets in one file</li>
+        <li><strong>Remote MCP</strong> — the assistant in claude.ai reaches your cloud projects</li>
+      </ul>
+
+      <h3>What stays free</h3>
+      <p style="color:var(--text-dim);">
+        Everything that works without a server: the canvas, ATEM and Videohub
+        control, racks, the 3D view, Rentman and NetBox import, every export,
+        the LAN view on a phone, peer-to-peer collaboration and the local MCP
+        server. Nothing moves behind a paywall.
+      </p>
+
+      <h3>Why you are reading this instead of a price</h3>
+      <p style="color:var(--text-dim);">
+        Running a server costs money and evenings, so the interest is measured
+        first. The threshold was written down before the test:
+        <strong>20 paid pre-orders in three months</strong>. If it is not
+        reached, nothing is built and every pre-order is refunded — a promise
+        that is not kept gets paid back, not sat out.
+        <a href="cloud/nachfragetest.md" target="_blank" rel="noopener">The full decision rule is public.</a>
+      </p>
+
+      <div id="pro-cta" style="margin-top:22px;"></div>
+    </div>
+  </div>
+</section>
+
 <!-- ─── Footer ──────────────────────────────────────── -->
 <footer>
   <div class="container">
@@ -1021,6 +1074,7 @@
         <a href="https://github.com/larszu/cable-planner" target="_blank" rel="noopener">GitHub</a>
         <a href="https://github.com/larszu/cable-planner/releases" target="_blank" rel="noopener">Releases</a>
         <a href="https://github.com/larszu/cable-planner/blob/main/LICENSE" target="_blank" rel="noopener">Licence</a>
+        <a href="#pro">Pro / Cloud</a>
         <a href="https://paypal.me/larszumpe" target="_blank" rel="noopener">Donate</a>
       </div>
     </div>
@@ -1032,6 +1086,39 @@
 </footer>
 
 <script>
+  // ── Pre-order link (#866)
+  //
+  // HIER kommt die Checkout-URL des Merchant of Record hinein (Paddle oder
+  // Lemon Squeezy), sobald das Konto besteht. Solange der String leer ist,
+  // erscheint KEIN Knopf, sondern der Hinweis, dass es noch nicht so weit
+  // ist. Das ist Absicht: ein Kaufknopf, der ins Leere fuehrt, kostet genau
+  // das Vertrauen, das dieser Test messen soll.
+  //
+  // Warum ein Merchant of Record und nicht Stripe direkt: er wird Verkaeufer
+  // und schuldet die Umsatzsteuer im Ausland. Bei 15 EUR Monatspreis waere
+  // die Einzelbeurteilung je Land der teuerste Teil des Geschaefts.
+  const VORBESTELLUNG_URL = '';
+
+  (function () {
+    const ziel = document.getElementById('pro-cta');
+    if (!ziel) return;
+    if (VORBESTELLUNG_URL) {
+      const a = document.createElement('a');
+      a.className = 'btn btn-primary';
+      a.href = VORBESTELLUNG_URL;
+      a.target = '_blank';
+      a.rel = 'noopener';
+      a.textContent = 'Pre-order at the founder price';
+      ziel.appendChild(a);
+    } else {
+      const p = document.createElement('p');
+      p.style.color = 'var(--text-faint)';
+      p.style.margin = '0';
+      p.textContent = 'Pre-orders are not open yet. This page will carry the link when they are.';
+      ziel.appendChild(p);
+    }
+  })();
+
   // ── Year
   document.getElementById('yr').textContent = new Date().getFullYear();
 

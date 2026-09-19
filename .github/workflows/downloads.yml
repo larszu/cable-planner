@@ -1,0 +1,51 @@
+name: Download-Zahlen mitschreiben
+
+# Die zweite Kennzahl des Nachfragetests (#866).
+#
+# WARUM EIN WORKFLOW UND KEIN NACHSCHLAGEN. Die GitHub-API nennt zu jedem
+# Asset nur den HEUTIGEN `download_count`; eine Historie gibt es nicht, und
+# ein ersetztes Asset nimmt seine Zahl mit. Wer in drei Monaten wissen will,
+# ob die Downloads gestiegen sind, muss heute anfangen zu schreiben.
+#
+# WARUM MONATLICH UND NICHT TAEGLICH. Die Messreihe soll einen Trend zeigen,
+# nicht ein Rauschen; und jeder Lauf schreibt einen Commit. Zwoelf Zeilen im
+# Jahr sind lesbar, dreihundertfuenfundsechzig nicht.
+
+on:
+  schedule:
+    # Am Ersten jedes Monats, 04:17 UTC. Die krumme Minute ist Absicht:
+    # GitHub verteilt Laeufe zur vollen Stunde schlechter.
+    - cron: '17 4 1 * *'
+  workflow_dispatch:
+
+concurrency:
+  group: downloads
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  zaehlen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+      - name: Zaehlen und schreiben
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run downloads:zaehlen
+      - name: Zurueckschreiben, wenn sich etwas geaendert hat
+        run: |
+          set -eu
+          if git diff --quiet -- docs/cloud/downloads.csv; then
+            echo "Keine Aenderung — nichts zu committen."
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/cloud/downloads.csv
+          git commit -m "chore(downloads): Stand $(date -u +%Y-%m-%d) mitgeschrieben (#866)"
+          git push

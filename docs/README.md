@@ -16,6 +16,17 @@ unter `docs/` muss von einer Einstiegsseite aus über Links erreichbar sein.
   zwei Netzen. Enthält die coturn-Einrichtung und das Eingabeformat der
   STUN-/TURN-Zeilen im Collab-Panel.
 
+## Pro / Cloud — die Kette, bevor etwas gemietet wird
+
+- [`cloud/nachfragetest.md`](cloud/nachfragetest.md) — die Schwelle des
+  Nachfragetests (#866), aufgeschrieben **bevor** gemessen wurde: 20 zahlende
+  Vorbestellungen in drei Monaten, und was bei Nichterreichen passiert. Dazu
+  die zweite Kennzahl (Download-Zahlen, `npm run downloads:zaehlen`).
+- [`cloud/recht-und-betrieb.md`](cloud/recht-und-betrieb.md) — Merkliste für
+  das Gespräch mit Steuerberater und Anwalt (#867). Kein Rechtsrat: die
+  Fragen sortiert, und die Teile ausgefüllt, die sich aus dem Code ergeben —
+  vor allem, **welche Daten welcher Dienst berührt**.
+
 ## Für Entwicklung
 
 - [`architecture.md`](architecture.md) — Drei-Prozess-Modell, IPC-Domänen,
