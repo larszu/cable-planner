@@ -534,6 +534,15 @@ cannot go stale without turning a test red.
 ## 📚 Documentation
 - [**`docs/README.md`**](docs/README.md) — index of everything in `docs/`,
   grouped by operations, development, domain concepts and dated audits.
+- [`docs/cloud/nachfragetest.md`](docs/cloud/nachfragetest.md) — the threshold
+  for the planned Pro/Cloud tier, written down **before** it was measured (20
+  paid pre-orders in three months) and what happens if it is not reached. The
+  desktop app stays free, offline and complete either way — the cloud is an
+  addition, never a requirement.
+- [`docs/cloud/recht-und-betrieb.md`](docs/cloud/recht-und-betrieb.md) — the
+  checklist for the tax adviser and the lawyer, with the part only the code
+  can answer filled in: which data each planned service would touch, and which
+  it would not.
 - [`docs/self-hosted-relay.md`](docs/self-hosted-relay.md) — run your own
   signaling relay and TURN server for live collaboration across networks.
 - [`docs/architecture.md`](docs/architecture.md) — Process model, IPC, store
