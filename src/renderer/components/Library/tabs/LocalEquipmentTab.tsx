@@ -11,6 +11,9 @@ import { hasDesktopBridge } from '../../../lib/bridge'
 import { MIME_EQUIPMENT } from '../../../lib/dragDropMimes'
 import { exportTemplateToFile } from '../../../lib/itemExport'
 import { nextPlacementPosition } from '../../../lib/library'
+import { downloadBlob } from '../../../lib/downloadBlob'
+import { infoDialog } from '../../../lib/infoDialog'
+import { baueEinreichung } from '../../../lib/vorlagenEinreichung'
 import type { EquipmentTemplate } from '../../../types/equipment'
 import { CategoryDndWrapper } from '../LibraryDndWrappers'
 import { SortableCategorySection } from '../LibrarySortables'
@@ -115,6 +118,40 @@ export const LocalEquipmentTab = ({
     setCollapsedCats(allCats)
   }, [customLibrary, knownCategories])
 
+  /**
+   * Eigene Vorlagen einreichen (#878).
+   *
+   * Geprueft wird VOR dem Schreiben, und was nicht durchgeht, steht MIT
+   * GRUND in der Datei — eine Einreichung, die still die Haelfte weglaesst,
+   * sieht vollstaendig aus. Die Zusammenfassung davor sagt, was gleich
+   * passiert; wer sie liest, weiss, ob sich das Abschicken lohnt.
+   */
+  const einreichen = async () => {
+    const eigene = customLibrary.filter((v) => !v.rentmanSource)
+    const paket = baueEinreichung(eigene, {
+      app: 'cable-planner',
+      appVersion: __APP_VERSION__,
+    }, t)
+    if (paket.eintraege.length === 0 && paket.uebersprungen.length === 0) {
+      await infoDialog(t('library.submit.none', 'No templates of your own to submit.'))
+      return
+    }
+    const bericht = [
+      format(t('library.submit.summary', '{n} of {total} templates can be submitted.'), {
+        n: paket.eintraege.length,
+        total: eigene.length,
+      }),
+      ...paket.uebersprungen.map((u) => `• ${u.name}: ${u.gruende[0] ?? ''}`),
+    ].join('\n')
+    await infoDialog(t('library.submit.title', 'Submit templates'), { body: bericht })
+    if (paket.eintraege.length === 0) return
+    downloadBlob(
+      'cable-planner-devices.submission.json',
+      JSON.stringify(paket, null, 2),
+      'application/json',
+    )
+  }
+
   return (
     <>
       {/* v7.9.5 — Such-Zeile mit "+"-Dropdown rechts und View-Mode-Toggle.
@@ -170,6 +207,7 @@ export const LocalEquipmentTab = ({
           }}
           onImportFile={() => void onImportLibraryFile()}
           onOpenFolder={() => void openLibraryFolder()}
+          onSubmit={() => void einreichen()}
           hasFolder={hasDesktopBridge}
         />
         {/* Overflow-Menü für selten genutzte Filter */}

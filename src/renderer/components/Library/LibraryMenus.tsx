@@ -17,12 +17,15 @@ export const PlusMenu = ({
   onNewCategory,
   onImportFile,
   onOpenFolder,
+  onSubmit,
   hasFolder,
 }: {
   onNewDevice: () => void
   onNewCategory: () => void
   onImportFile: () => void
   onOpenFolder: () => void
+  /** #878 — eigene Vorlagen einreichen, mit Pruefung davor. */
+  onSubmit: () => void
   hasFolder: boolean
 }) => {
   const t = useTranslation()
@@ -88,6 +91,21 @@ export const PlusMenu = ({
             title={t('library.menus.importFileTitle', 'Import .cpdevice or .cpgroup file')}
           >
             {t('library.menus.importFile', 'Import file…')}
+          </button>
+          {/* #878 — der Weg nach DRAUSSEN. Er steht neben dem Import, weil
+              es dieselbe Frage von der anderen Seite ist, und nicht in einem
+              eigenen Menue: wer eine Vorlage gebaut hat, sucht sie hier. */}
+          <button
+            type="button"
+            role="menuitem"
+            onClick={() => {
+              setOpen(false)
+              onSubmit()
+            }}
+            className="block w-full px-3 py-1.5 text-left hover:bg-cp-surface-2"
+            title={t('library.menus.submitTitle', 'Check your own templates and write a submission file — every entry needs a datasheet link')}
+          >
+            {t('library.menus.submit', 'Submit templates…')}
           </button>
           {hasFolder && (
             <button

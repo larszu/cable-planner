@@ -485,6 +485,26 @@ npm run dist
 > in a plain browser (`npm run dev:renderer` → `localhost:4181`) for quick UI
 > work, though desktop-only features (file I/O, ATEM/LAN) are inert there.
 
+### Submitting your own device templates
+
+Built a template for a device the catalogue does not have? **Library → `+` →
+Submit templates…** checks your own templates and writes a submission file.
+
+The check is the point, and one rule of it is hard: **no datasheet link, no
+submission.** A template nobody can verify looks, in a plan six months later,
+exactly like one that was. Every port needs a connector type and a label too —
+not for tidiness, but because "Replace device" matches ports by exactly those
+two, and a template missing them falls back to matching by position, which
+cables the wrong socket.
+
+Power draw is the opposite case: it is **reported, not required.** A passive
+splitter has none and a PoE device draws it from the network; forcing a number
+there would mean inventing one so a form is happy. It stays "not stated" in
+the catalogue rather than a 0 that looks measured.
+
+What does not pass is written **into the file** with its reason, next to what
+did — a submission that quietly drops half of itself looks complete.
+
 ### On a tablet — the web edition
 
 The deployed page is installable: open it on an iPad and add it to the home

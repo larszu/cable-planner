@@ -4972,6 +4972,29 @@ export const de: Dict = {
   'settings.web.title': 'Du benutzt die Web-Fassung',
   'settings.web.desc':
     'Planen, Zeichnen und Exportieren gehen hier. Was einen Socket, einen lauschenden Port oder den Schlüsselbund des Systems braucht, nicht – das ist die Desktop-App.',
+  // #878 — eigene Vorlagen einreichen, mit Pruefung davor.
+  'library.menus.submit': 'Vorlagen einreichen…',
+  'library.menus.submitTitle':
+    'Eigene Vorlagen prüfen und eine Einreichungs-Datei schreiben – jeder Eintrag braucht einen Datenblatt-Link',
+  'library.submit.title': 'Vorlagen einreichen',
+  'library.submit.none': 'Keine eigenen Vorlagen zum Einreichen.',
+  'library.submit.summary': '{n} von {total} Vorlagen können eingereicht werden.',
+  'submit.noName': 'Die Vorlage hat keinen Namen.',
+  'submit.noCategory':
+    'Keine Kategorie – ohne sie ist die Vorlage in der Bibliothek nicht zu finden.',
+  'submit.noSource':
+    'Keine Quelle: eine Vorlage ohne Datenblatt-Link kann niemand nachprüfen – und in einem Plan sieht sie später aus wie eine geprüfte.',
+  'submit.sourceNotALink':
+    'Die Quelle ist kein Link. „Steht im Handbuch" ist keine Quelle: niemand kann es aufschlagen.',
+  'submit.noPorts': 'Keine Ports – es gäbe nichts zu verkabeln.',
+  'submit.portNoConnector':
+    'Port ohne Steckertyp. „Gerät ersetzen" ordnet über den Steckertyp zu – ohne ihn fällt es auf die Position zurück, und die verkabelt die falsche Buchse.',
+  'submit.portNoLabel':
+    'Port ohne Beschriftung. Derselbe Grund: die Zuordnung läuft über Steckertyp UND Beschriftung.',
+  'submit.portLabelTwice':
+    'Zwei Ports teilen sich Steckertyp und Beschriftung „{label}" ({n}x). „Gerät ersetzen" nimmt dann den ersten freien.',
+  'submit.noPower':
+    'Leistungsaufnahme nicht angegeben. Das ist in Ordnung – im Katalog steht dann „nicht angegeben" statt einer 0, die wie eine Messung aussieht.',
   'settings.integrations.rentmanToggle.title': 'Rentman-Integration',
   'settings.integrations.tallyPi.desc':
     'Schickt die Tally-Karte aus dem Export-Dialog direkt an den Pi, statt eine Datei herunterzuladen, die jemand von Hand kopiert. Die Datei bleibt daneben bestehen — sie ist der Weg, der ohne Netz zum Pi funktioniert. Der Pi behält dabei seine Verdrahtung; Rollen, die im Plan fehlen, verschwinden dort.',
