@@ -1,0 +1,19 @@
+{
+  "name": "Cable Planner",
+  "short_name": "Cable Planner",
+  "description": "Plan broadcast cabling: devices, ports, cables, racks — on a tablet at FOH too.",
+  "start_url": "index.html",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -485,6 +485,50 @@ npm run dist
 > in a plain browser (`npm run dev:renderer` → `localhost:4181`) for quick UI
 > work, though desktop-only features (file I/O, ATEM/LAN) are inert there.
 
+### Submitting your own device templates
+
+Built a template for a device the catalogue does not have? **Library → `+` →
+Submit templates…** checks your own templates and writes a submission file.
+
+The check is the point, and one rule of it is hard: **no datasheet link, no
+submission.** A template nobody can verify looks, in a plan six months later,
+exactly like one that was. Every port needs a connector type and a label too —
+not for tidiness, but because "Replace device" matches ports by exactly those
+two, and a template missing them falls back to matching by position, which
+cables the wrong socket.
+
+Power draw is the opposite case: it is **reported, not required.** A passive
+splitter has none and a PoE device draws it from the network; forcing a number
+there would mean inventing one so a form is happy. It stays "not stated" in
+the catalogue rather than a 0 that looks measured.
+
+What does not pass is written **into the file** with its reason, next to what
+did — a submission that quietly drops half of itself looks complete.
+
+### On a tablet — the web edition
+
+The deployed page is installable: open it on an iPad and add it to the home
+screen, and it runs full-screen with its own icon (it has its own manifest —
+the one the phone viewer uses describes a different app, and installing that
+one would put the viewer on your home screen).
+
+On a touch screen the canvas behaves like a touch app: pinch zooms the plan
+and not the page, two fingers pan, and **a long press on a device opens the
+context menu** that the right mouse button opens on a desktop — 500 ms and
+10 px of slop, the same values iOS and Android use for their own "touch and
+hold", because a gesture that feels different in one app makes the user think
+they are clumsy. Port hit areas grow **outwards** on a coarse pointer, never
+upwards: above and below sit the neighbouring ports, and hitting the wrong
+port is worse than missing — you notice missing immediately, and the wrong
+cable at the show-through.
+
+What the browser cannot do is listed **before** you click it, in
+Settings → Integrations: ATEM, Videohub, NetBox, LAN sync, phone access, the
+MCP server, show control, switching, the direct path to the Tally-Pi, the
+Rentman export and the update check each say *why* — a socket, a listening
+port, or the OS keychain. The list is checked against `lib/bridge.ts`, so it
+cannot go stale without turning a test red.
+
 ---
 
 ## 📚 Documentation
