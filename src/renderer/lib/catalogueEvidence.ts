@@ -55,10 +55,18 @@ import { SWITCHER_CATALOG } from './switcherCatalog'
 import { UBIQUITI_CATALOG } from './ubiquitiCatalog'
 import { WIRELESS_AUDIO_CATALOG } from './wirelessAudioCatalog'
 
-/** Das Wenige, das diese Rechnung von einem Katalog-Eintrag braucht. */
-interface EvidenceEntry {
+/**
+ * Das Wenige, das diese Rechnung von einem Katalog-Eintrag braucht.
+ *
+ * `category` steht hier, obwohl die Beleg-Rechnung sie nicht liest:
+ * `katalogLuecken` zaehlt damit gegen die Zielbereiche aus #878 und liest
+ * dafuer DIESELBE `CATALOGUES`-Liste. Eine zweite Liste daneben koennte
+ * abweichen — dann stuende in der Luecken-Messung ein anderer Katalog als in
+ * der Beleg-Messung, und beide saehen richtig aus.
+ */
+export interface EvidenceEntry {
   deviceTypeId: string
-  template: Pick<EquipmentTemplate, 'name' | 'manufacturerUrl'>
+  template: Pick<EquipmentTemplate, 'name' | 'category' | 'manufacturerUrl'>
 }
 
 /**

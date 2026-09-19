@@ -27,6 +27,13 @@ unter `docs/` muss von einer Einstiegsseite aus über Links erreichbar sein.
   Fragen sortiert, und die Teile ausgefüllt, die sich aus dem Code ergeben —
   vor allem, **welche Daten welcher Dienst berührt**.
 
+## Gerätekatalog
+
+- [`katalog-luecken.md`](katalog-luecken.md) — wo der Katalog dünn ist und
+  warum dort noch keine Einträge stehen (#878). Die Zahlen rechnet
+  `lib/katalogLuecken.ts`, dieses Papier begründet sie und nennt die
+  Arbeitsliste.
+
 ## Für Entwicklung
 
 - [`architecture.md`](architecture.md) — Drei-Prozess-Modell, IPC-Domänen,
