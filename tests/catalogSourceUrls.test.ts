@@ -103,11 +103,13 @@ describe('jeder Quellen-Kommentar steht auch als Feld im Eintrag', () => {
     // Ohne diese Zusicherung waere der Test auch dann gruen, wenn das
     // Muster nicht mehr passt und `pairs()` leer zurueckkommt.
     // 253 + 1: `mediaStationCatalog` ist mit EINEM belegten Eintrag
-    // dazugekommen (die Medien-Station als Plan-Endpunkt).
-    expect(pairs().length).toBe(422)
+    // dazugekommen (die Medien-Station als Plan-Endpunkt). +2 am 2026-09-23:
+    // `ledProcessorCatalog`, die erste Bestueckung einer Kategorie, die bei
+    // null stand (#878).
+    expect(pairs().length).toBe(424)
   })
 
-  it('deckt die neun Kataloge ab, die Belege fuehren', () => {
+  it('deckt die Kataloge ab, die Belege fuehren', () => {
     const files = new Set(pairs().map((p) => p.file))
     expect([...files].sort()).toEqual([
       'ajaCatalog.ts',
@@ -117,6 +119,7 @@ describe('jeder Quellen-Kommentar steht auch als Feld im Eintrag', () => {
       'broadcastToolsCatalog.ts',
       'cameraCatalog.ts',
       'greengoCatalog.ts',
+      'ledProcessorCatalog.ts',
       'lynxCatalog.ts',
       'mediaStationCatalog.ts',
       'micCatalog.ts',
@@ -247,6 +250,6 @@ describe('der Beleg zeigt auf den Hersteller, nicht auf einen Haendler', () => {
   it('prueft alle Belege, nicht nur die mit Feld', () => {
     // Ohne diese Zusicherung waere der Haendler-Test auch dann gruen, wenn
     // `pairs()` nichts mehr faende.
-    expect(pairs().filter((p) => p.field).length).toBe(422)
+    expect(pairs().filter((p) => p.field).length).toBe(424)
   })
 })

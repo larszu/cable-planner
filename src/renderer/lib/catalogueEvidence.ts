@@ -45,6 +45,7 @@ import { BLACKMAGIC_CATALOG } from './blackmagicCatalog'
 import { BROADCAST_TOOLS_CATALOG } from './broadcastToolsCatalog'
 import { CAMERA_CATALOG } from './cameraCatalog'
 import { GREENGO_CATALOG } from './greengoCatalog'
+import { LED_PROCESSOR_CATALOG } from './ledProcessorCatalog'
 import { LYNX_CATALOG } from './lynxCatalog'
 import { MEDIA_STATION_CATALOG } from './mediaStationCatalog'
 import { MIC_CATALOG } from './micCatalog'
@@ -91,6 +92,7 @@ export const CATALOGUES: ReadonlyArray<{ name: string; entries: readonly Evidenc
   { name: 'broadcastTools', entries: BROADCAST_TOOLS_CATALOG },
   { name: 'camera', entries: CAMERA_CATALOG },
   { name: 'greengo', entries: GREENGO_CATALOG },
+  { name: 'ledProcessor', entries: LED_PROCESSOR_CATALOG },
   { name: 'lynx', entries: LYNX_CATALOG },
   { name: 'mediaStation', entries: MEDIA_STATION_CATALOG },
   { name: 'mic', entries: MIC_CATALOG },
