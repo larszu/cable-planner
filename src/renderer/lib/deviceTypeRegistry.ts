@@ -15,6 +15,7 @@ import type { RecordingCapability } from './recording'
 import { CAMERA_CATALOG } from './cameraCatalog'
 import { BLACKMAGIC_CATALOG } from './blackmagicCatalog'
 import { GREENGO_CATALOG } from './greengoCatalog'
+import { LED_PROCESSOR_CATALOG } from './ledProcessorCatalog'
 import { MONITOR_CATALOG } from './monitorCatalog'
 import { UBIQUITI_CATALOG } from './ubiquitiCatalog'
 import { MISC_CATALOG } from './miscCatalog'
@@ -78,6 +79,11 @@ const buildRegistry = (): Map<string, DeviceTypeInfo> => {
     put(e.deviceTypeId, {
       template: { ...e.template, deviceTypeId: e.deviceTypeId },
       kind: 'greengo',
+    })
+  }
+  for (const e of LED_PROCESSOR_CATALOG) {
+    put(e.deviceTypeId, {
+      template: { ...e.template, deviceTypeId: e.deviceTypeId },
     })
   }
   for (const e of MONITOR_CATALOG) {
