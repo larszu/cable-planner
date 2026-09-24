@@ -5,7 +5,8 @@ import { create, type StateCreator } from 'zustand'
 import type { Connection } from 'reactflow'
 import type { Cable } from '../types/cable'
 import type { EquipmentItem, EquipmentTemplate, GroupPreset, Port } from '../types/equipment'
-import type { LocationFrame } from '../types/location'
+import type { Floor, LocationFrame } from '../types/location'
+import { etageVon, heileEtagen } from '../lib/etagen'
 import type { CablePlannerProject } from '../types/project'
 import { useUiStore } from './uiStore'
 import { defaultProject, isProjectLocked, sanitizePort, touchProject } from './projectStoreHelpers'
@@ -408,6 +409,12 @@ export interface ProjectState {
   addLocation: (partial?: Partial<LocationFrame>) => void
   addLocationAroundEquipment: (equipmentIds: string[], partial?: Partial<LocationFrame>) => void
   updateLocation: (id: string, patch: Partial<LocationFrame>) => void
+  /** #911 — die Etagenliste ersetzen (Reihenfolge, Hoehen, neue Etagen). */
+  setFloors: (floors: Floor[]) => void
+  /** #911 — Etage umbenennen; die Rahmen darauf ziehen mit. */
+  renameFloor: (alt: string, neu: string) => void
+  /** #911 — Etage entfernen; die Rahmen darauf verlieren ihre Etagen-Angabe. */
+  removeFloor: (name: string) => void
   deleteLocation: (id: string) => void
   deleteLocationWithContents: (id: string) => void
   moveLocationWithContents: (id: string, dx: number, dy: number, containedEquipmentIds: string[]) => void
@@ -1183,6 +1190,7 @@ const healProjectPositions = (
     project as CablePlannerProject & { greengoConfig?: GreenGoConfig },
   ) as CablePlannerProject
 
+  const etagen = heileEtagen(project.floors, project.locations ?? [])
   return {
     ...ohneAltesFeld,
     ...(intercom ? { intercom } : {}),
@@ -1625,7 +1633,13 @@ const healProjectPositions = (
       width: snap > 0 ? Math.ceil(loc.width / snap) * snap : Math.round(loc.width),
       height: snap > 0 ? Math.ceil(loc.height / snap) * snap : Math.round(loc.height),
       moveContents: loc.moveContents !== false,
+      // #911 — die Schreibweise der Liste gilt: „1.og" am Rahmen und „1.OG"
+      // in der Liste sind dieselbe Etage, die Auswahl zeigt nur eine davon.
+      ...(loc.floor !== undefined ? { floor: etageVon(loc, etagen)?.name } : {}),
     })),
+    // #911 — die Etagen. Freitext-Etagen alter Rahmen werden zur Liste, ohne
+    // dass ein Rahmen seine Angabe verliert (lib/etagen.ts).
+    floors: etagen,
     // #412 — Revisionen sind optional; alte Projekte heilen zu [].
     revisions: project.revisions ?? [],
     // Festinstallation — Änderungsprotokoll ist optional; alte Projekte

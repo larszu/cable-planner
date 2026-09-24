@@ -18,12 +18,17 @@ import { STANDARD_LAYERS, LAYER_STYLES } from '../../lib/cableLayers'
 import { netKeyOf, netPeerCount } from '../../lib/offPageNet'
 import { sourceDestLabel } from '../../lib/cableLabel'
 import { cableTouches } from '../../lib/portOccupancy'
+import { kabelEnden, ortText } from '../../lib/kabelOrt'
+import type { Floor, LocationFrame } from '../../types/location'
 import {
   INSTALL_STATUSES,
   INSTALL_STATUS_LABEL,
   type InstallStatus,
   type CableTestResult,
 } from '../../types/lifecycle'
+
+const EMPTY_LOCATIONS: LocationFrame[] = []
+const EMPTY_FLOORS: Floor[] = []
 
 export const CableProperties = () => {
   const t = useTranslation()
@@ -34,6 +39,8 @@ export const CableProperties = () => {
   const updateCable = useProjectStore((state) => state.updateCable)
   const adapterEinsetzen = useProjectStore((state) => state.adapterEinsetzen)
   const anschlussListe = useProjectStore((state) => state.project.anschlussListe)
+  const locations = useProjectStore((state) => state.project.locations ?? EMPTY_LOCATIONS)
+  const floors = useProjectStore((state) => state.project.floors ?? EMPTY_FLOORS)
   const deleteCable = useProjectStore((state) => state.deleteCable)
   const setCableInstallStatus = useProjectStore((state) => state.setCableInstallStatus)
   const setCableTestResult = useProjectStore((state) => state.setCableTestResult)
@@ -762,6 +769,20 @@ export const CableProperties = () => {
             <span className="mx-1 text-cp-text-faint">→</span>
             {toDev?.name ?? '?'} · {toPort?.name ?? cable.toPortId}
           </span>
+          {/* #912 — wo die Enden sitzen: Etage · Raum, aus der Lage im Rahmen. */}
+          {(() => {
+            const { von, nach } = kabelEnden(cable, { equipment, locations, floors })
+            const a = ortText(von)
+            const b = ortText(nach)
+            if (!a && !b) return null
+            return (
+              <span className="mt-0.5 block text-cp-text-muted">
+                {a || t('cable.location.none', 'no room')}
+                <span className="mx-1 text-cp-text-faint">→</span>
+                {b || t('cable.location.none', 'no room')}
+              </span>
+            )
+          })()}
         </summary>
         <div className="border-t border-cp-border p-2">
           <div className="grid grid-cols-2 gap-2">

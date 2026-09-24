@@ -110,6 +110,14 @@ Built with **Electron, React, and TypeScript**, it is designed for real-world pr
 - Cable metadata (type, length, color, notes)
 - Zoom, pan, minimap navigation
 - Real-time signal topology visualization
+- **Rooms and floors**: a frame on the canvas is a room; it picks its floor from
+  the project's floor list (bottom to top, with the floor level in metres —
+  *Floors* in the frame's properties). Renaming a floor renames it on every
+  frame; old projects with typed-in floors become the list on load
+- **Where each cable end sits**: the cable's properties, the pull list and the
+  cable schedule show *floor · room · device · port* for both ends, read from
+  where the device lies — e.g. `EG · Hall 3 · CAM 3 · SDI Out → 3rd floor ·
+  Gallery · Videohub · SDI 12`
 
 ---
 
