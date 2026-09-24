@@ -125,6 +125,120 @@ export type ConnectorType =
   | 'TT/Bantam'
   | 'Mini-BNC'
   | 'Micro-BNC'
+  /**
+   * ─── DIE 36 STECKER, DIE DER AUSWAHLDIALOG SCHON KANNTE (2026-09-24) ─────
+   *
+   * `lib/connectorCatalog.ts` fuehrt seit #170 einen nach Funktion gruppierten
+   * Stecker-Katalog mit Symbolen — und sein Kopf erklaert, warum das ohne
+   * Erweiterung dieser Union ging: „`connectorType` ist eh ein freier String".
+   *
+   * Das stimmte und war trotzdem ein Auseinanderlaufen. GEMESSEN am
+   * 2026-09-24: 36 Stecker-Ids stehen im Katalog und NICHT hier. Der Nutzer
+   * konnte sie im Patchblenden-Dialog also waehlen, und der Uebersetzer hat
+   * seitdem keinen Tippfehler in ihnen gefunden — weil er sie nicht kannte.
+   *
+   * Sie stehen jetzt hier, mit den IDENTISCHEN Zeichenketten. Ein neuer,
+   * schoenerer Name waere die dritte Vokabel gewesen und haette jeden
+   * gespeicherten Plan gebrochen, der die zweite benutzt.
+   *
+   * ZWEI PAARE MEINEN DASSELBE und bleiben trotzdem beide stehen:
+   * `opticalCON DUO`/`QUAD` (Katalog) neben `Neutrik opticalCON DUO`/`QUAD`
+   * (Union, #885), und `powerCON Input`/`Output` (Katalog) neben `PowerCON`
+   * (Union). Eines davon stillzulegen hiesse, gespeicherte Ports umzuschreiben
+   * — `tests/steckerVokabular.test.ts` haelt die Paare fest, damit sie als
+   * bekannte Doppelung sichtbar sind statt als Versehen.
+   */
+  | 'XLR 3 Male'
+  | 'XLR 3 Female'
+  | 'Combo XLR/Jack'
+  | 'speakON 2 Pole'
+  | 'speakON 4 Pole'
+  | 'Binding Post'
+  | 'XLR 4 Male'
+  | 'XLR 4 Female'
+  | 'XLR 5 Male'
+  | 'XLR 5 Female'
+  | 'XLR 6 Male'
+  | 'XLR 6 Female'
+  | 'XLR 7 Male'
+  | 'XLR 7 Female'
+  | 'MIDI'
+  | 'S-VHS'
+  | 'USB Type A'
+  | 'USB Type B'
+  | 'USB 3 Type A'
+  | 'USB 3 Type B'
+  | 'FireWire 400'
+  | 'FireWire 800'
+  | 'PS/2'
+  | 'Fiber Optic LC'
+  | 'Fiber Optic SC'
+  | 'Fiber Optic ST'
+  | 'Toslink'
+  | 'opticalCON DUO'
+  | 'opticalCON QUAD'
+  | 'powerCON Input'
+  | 'powerCON Output'
+  | 'Lemo'
+  | 'Tourine 25'
+  | 'Tourine 37'
+  | 'Generic'
+  | 'Blanking Panel'
+  /**
+   * ─── DIE LUECKEN, DIE EIN BLICK IN EINE FREMDE DATENBANK GEZEIGT HAT ─────
+   *
+   * Aus der EasySchematic-Datenbank sind die NAMEN gelesen worden — welche
+   * Steckerarten es in der Installations-AV ueberhaupt gibt. Die Daten der
+   * Geraete kommen weiterhin aus den Herstellerblaettern; ein Steckername ist
+   * keine Messung, sondern eine Vokabel.
+   *
+   * ZWEI STECHEN HERAUS. `Phoenix/Euroblock` und `Terminal Block` sind dort
+   * mit zusammen 9513 Anschluessen der HAEUFIGSTE Stecker ueberhaupt —
+   * Schraubklemmen, das Brot der Festinstallation. Dass wir sie bis heute
+   * nicht kannten, sagt mehr ueber unseren bisherigen Zuschnitt (Show und
+   * Broadcast) als ueber die Stecker.
+   *
+   * `DC Barrel` ist der dritte dieser Art: 716 Anschluesse dort, und jedes
+   * Miniaturgeraet in unserem eigenen Decimator-Katalog hat einen. Der stand
+   * bis heute als `Custom` da.
+   *
+   * Nicht uebernommen wurden `none`, `other` und `d-hole-insert` — das sind
+   * keine Stecker, sondern das Fehlen eines Steckers bzw. ein Blech-Ausschnitt.
+   */
+  | 'Phoenix/Euroblock'
+  | 'Terminal Block'
+  | 'Bare Wire'
+  | 'etherCON'
+  | 'RJ11'
+  | 'QSFP'
+  | 'QSFP28'
+  | 'USB Mini-B'
+  | 'USB Micro-B'
+  | 'DB15'
+  | 'DB37'
+  | 'Mini-DIN 4'
+  | 'Mini-DIN 7'
+  | 'Mini-DIN 8'
+  | 'DIN 5-pol'
+  | 'Mini-DisplayPort'
+  | 'MPO'
+  | 'NEMA 5-15 (Edison)'
+  | 'NEMA L5-20'
+  | 'NEMA L6-20'
+  | 'NEMA L6-30'
+  | 'NEMA L21-30'
+  | 'IEC C15'
+  | 'IEC C20'
+  | 'powerCON TRUE1'
+  | 'Cam-Lok'
+  | 'DC Barrel'
+  | 'PCIe 6-pin'
+  | 'V-Mount'
+  | 'D-Tap'
+  | 'SMA'
+  | 'RP-TNC'
+  | 'Multipin'
+
   | 'Custom'
 
 /**
@@ -153,7 +267,11 @@ export const ALL_CONNECTOR_TYPES: ConnectorType[] = [
   'F-Connector', 'DB9', 'DB25', 'Wireless/RF',
   'DMX 5-pol (XLR)', 'DMX 3-pol (XLR)', 'Cinch/RCA', 'SCART', 'S-Video', 'TT/Bantam', 'Mini-BNC', 'Micro-BNC',
   'IEC 230V', 'PowerCON', 'Schuko 230V', 'C7 Eurostecker',
-  'CEE16', 'CEE32', 'CEE63', 'Powerlock', 'Socapex', 'Harting', 'Kleeblatt', 'Custom',
+  'CEE16', 'CEE32', 'CEE63', 'Powerlock', 'Socapex', 'Harting', 'Kleeblatt',
+  // 2026-09-24 — Gleichstand mit `connectorCatalog.ts` (36) und die
+  // Vokabel-Luecken aus der Installations-AV (33). Siehe Kopf der Union.
+  'XLR 3 Male', 'XLR 3 Female', 'Combo XLR/Jack', 'speakON 2 Pole', 'speakON 4 Pole', 'Binding Post', 'XLR 4 Male', 'XLR 4 Female', 'XLR 5 Male', 'XLR 5 Female', 'XLR 6 Male', 'XLR 6 Female', 'XLR 7 Male', 'XLR 7 Female', 'MIDI', 'S-VHS', 'USB Type A', 'USB Type B', 'USB 3 Type A', 'USB 3 Type B', 'FireWire 400', 'FireWire 800', 'PS/2', 'Fiber Optic LC', 'Fiber Optic SC', 'Fiber Optic ST', 'Toslink', 'opticalCON DUO', 'opticalCON QUAD', 'powerCON Input', 'powerCON Output', 'Lemo', 'Tourine 25', 'Tourine 37', 'Generic', 'Blanking Panel', 'Phoenix/Euroblock', 'Terminal Block', 'Bare Wire', 'etherCON', 'RJ11', 'QSFP', 'QSFP28', 'USB Mini-B', 'USB Micro-B', 'DB15', 'DB37', 'Mini-DIN 4', 'Mini-DIN 7', 'Mini-DIN 8', 'DIN 5-pol', 'Mini-DisplayPort', 'MPO', 'NEMA 5-15 (Edison)', 'NEMA L5-20', 'NEMA L6-20', 'NEMA L6-30', 'NEMA L21-30', 'IEC C15', 'IEC C20', 'powerCON TRUE1', 'Cam-Lok', 'DC Barrel', 'PCIe 6-pin', 'V-Mount', 'D-Tap', 'SMA', 'RP-TNC', 'Multipin',
+  'Custom',
 ]
 
 import type { SignalStandard } from './cableSpec'
