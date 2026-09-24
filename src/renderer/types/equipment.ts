@@ -125,6 +125,80 @@ export type ConnectorType =
   | 'TT/Bantam'
   | 'Mini-BNC'
   | 'Micro-BNC'
+  /**
+   * ─── DIE 53 STECKER AUS DER EasySchematic-UEBERNAHME (2026-09-24) ────────
+   *
+   * Sie stehen in der Union und nicht als freier String, obwohl der Kopf von
+   * `lib/connectorCatalog.ts` das erlaubte („`connectorType` ist eh ein freier
+   * String"). Der Grund ist die Zahl: mit 3982 uebernommenen Geraeten und
+   * 44 376 Anschluessen ist ein Tippfehler im Steckertyp nicht mehr ein
+   * Einzelfall, den jemand sieht, sondern eine Klasse von Fehlern, die
+   * niemand mehr zaehlt. Die Union faengt ihn beim Uebersetzen.
+   *
+   * ZWEI, DIE HERAUSSTECHEN: `Phoenix/Euroblock` und `Terminal Block` sind
+   * mit zusammen 9513 Anschluessen der HAEUFIGSTE Stecker der ganzen
+   * uebernommenen Datenbank — Schraubklemmen, das Brot der Installation. Dass
+   * wir sie bis heute nicht kannten, sagt mehr ueber unseren bisherigen
+   * Zuschnitt als ueber die Stecker.
+   *
+   * Die Abbildung von ihren 84 Namen auf diese steht als pruefbare Tabelle in
+   * `scripts/easyschematic-vokabular.mjs`. Was dort fehlt, wird `Custom` und
+   * NICHT der naechstbeste Stecker: 2276 Anschluesse stehen so da, und das
+   * ist eine sichtbare Luecke statt einer stillen Falschaussage.
+   */
+  | 'Binding Post'
+  | 'Blankdraht'
+  | 'Cam-Lok'
+  | 'Combo XLR/Jack'
+  | 'D-Hole Insert'
+  | 'D-Tap'
+  | 'DB15'
+  | 'DB37'
+  | 'DB7W2'
+  | 'DC Barrel'
+  | 'DIN 5'
+  | 'DigiLink'
+  | 'Fiber Optic LC'
+  | 'Fiber Optic SC'
+  | 'IEC C15'
+  | 'IEC C20'
+  | 'IEC C5 (Kleeblatt)'
+  | 'Kycon 4-pin'
+  | 'Lemo 2-pin'
+  | 'Lemo 4-pin'
+  | 'Lemo 5-pin'
+  | 'MIDI'
+  | 'MPO'
+  | 'Mini-DIN 4'
+  | 'Mini-DIN 7'
+  | 'Mini-DIN 8'
+  | 'Mini-DisplayPort'
+  | 'Multipin'
+  | 'NEMA 5-15 (Edison)'
+  | 'NEMA L21-30'
+  | 'NEMA L5-20'
+  | 'NEMA L6-20'
+  | 'NEMA L6-30'
+  | 'PCIe 6-pin'
+  | 'Phoenix/Euroblock'
+  | 'QSFP'
+  | 'QSFP28'
+  | 'RJ11'
+  | 'RP-TNC'
+  | 'SMA'
+  | 'Terminal Block'
+  | 'Toslink'
+  | 'USB Micro-B'
+  | 'USB Mini-B'
+  | 'USB Type A'
+  | 'USB Type B'
+  | 'V-Mount'
+  | 'XLR 4 Male'
+  | 'XLR 5 Male'
+  | 'etherCON'
+  | 'opticalCON'
+  | 'powerCON TRUE1'
+  | 'speakON'
   | 'Custom'
 
 /**
@@ -153,7 +227,10 @@ export const ALL_CONNECTOR_TYPES: ConnectorType[] = [
   'F-Connector', 'DB9', 'DB25', 'Wireless/RF',
   'DMX 5-pol (XLR)', 'DMX 3-pol (XLR)', 'Cinch/RCA', 'SCART', 'S-Video', 'TT/Bantam', 'Mini-BNC', 'Micro-BNC',
   'IEC 230V', 'PowerCON', 'Schuko 230V', 'C7 Eurostecker',
-  'CEE16', 'CEE32', 'CEE63', 'Powerlock', 'Socapex', 'Harting', 'Kleeblatt', 'Custom',
+  'CEE16', 'CEE32', 'CEE63', 'Powerlock', 'Socapex', 'Harting', 'Kleeblatt',
+  // EasySchematic-Uebernahme 2026-09-24 — siehe Kopf der Union.
+  'Binding Post', 'Blankdraht', 'Cam-Lok', 'Combo XLR/Jack', 'D-Hole Insert', 'D-Tap', 'DB15', 'DB37', 'DB7W2', 'DC Barrel', 'DIN 5', 'DigiLink', 'Fiber Optic LC', 'Fiber Optic SC', 'IEC C15', 'IEC C20', 'IEC C5 (Kleeblatt)', 'Kycon 4-pin', 'Lemo 2-pin', 'Lemo 4-pin', 'Lemo 5-pin', 'MIDI', 'MPO', 'Mini-DIN 4', 'Mini-DIN 7', 'Mini-DIN 8', 'Mini-DisplayPort', 'Multipin', 'NEMA 5-15 (Edison)', 'NEMA L21-30', 'NEMA L5-20', 'NEMA L6-20', 'NEMA L6-30', 'PCIe 6-pin', 'Phoenix/Euroblock', 'QSFP', 'QSFP28', 'RJ11', 'RP-TNC', 'SMA', 'Terminal Block', 'Toslink', 'USB Micro-B', 'USB Mini-B', 'USB Type A', 'USB Type B', 'V-Mount', 'XLR 4 Male', 'XLR 5 Male', 'etherCON', 'opticalCON', 'powerCON TRUE1', 'speakON',
+  'Custom',
 ]
 
 import type { SignalStandard } from './cableSpec'

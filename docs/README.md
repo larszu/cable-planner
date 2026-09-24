@@ -34,10 +34,10 @@ unter `docs/` muss von einer Einstiegsseite aus über Links erreichbar sein.
   `lib/katalogLuecken.ts`, dieses Papier begründet sie und nennt die
   Arbeitsliste.
 - [`katalog-luecken-easyschematic.md`](katalog-luecken-easyschematic.md) —
-  dieselbe Frage von außen: was führt EasySchematic (4053 Einträge,
-  AGPL-3.0), das uns fehlt. **Eine Lückenliste, keine Übernahme** — die
-  Werte kommen aus dem Herstellerdatenblatt, weil kopierte Datendateien
-  cable-planner als Ganzes unter AGPL-3.0 zwängen.
+  die Übernahme der EasySchematic-Datenbank (3982 Geräte, 44 376 Anschlüsse,
+  39 neue Kategorien, 53 neue Steckertypen): was übernommen wurde, wie die
+  Vokabeln abgebildet sind, und der offene Lizenzpunkt (AGPL-3.0 gegen
+  proprietär).
 
 ## Für Entwicklung
 

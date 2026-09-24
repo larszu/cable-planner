@@ -91,8 +91,14 @@ describe('Initiative 11 — trägt diese Katalog-Zeile ein Datenblatt?', () => {
     // steigt damit von 90,4 % auf 89,7 % — sie SINKT leicht, und das ist die
     // ehrliche Zahl: die Rigs kommen ohne einen einzigen Beleg mit, und von
     // den 84 Lichtgeraeten tragen 50 einen.
+    // 2026-09-24, zweiter Schritt: die EasySchematic-Uebernahme bringt 3982
+    // Eintraege OHNE Datenblatt-Link mit. 1802 -> 5784, belegt bleibt 1616.
+    // Die Abdeckung faellt damit von 89,7 % auf 27,9 %, und das ist die
+    // ehrliche Zahl: eine Portliste aus einer Gemeinschafts-Datenbank ist
+    // eine andere Auskunft als eine aus dem Blatt des Herstellers. Der Plan
+    // soll den Unterschied nicht verwischen — deshalb steht er hier.
     expect(bericht.sourced).toBe(1616)
-    expect(bericht.entries).toBe(1802)
+    expect(bericht.entries).toBe(5784)
 
     // B-11 hatte diese Liste auf LEER gebracht. Seit dem 2026-09-24 steht
     // wieder genau EINER darin, und er ist benannt statt weggerechnet: die
@@ -105,7 +111,7 @@ describe('Initiative 11 — trägt diese Katalog-Zeile ein Datenblatt?', () => {
     // nach, faellt er von selbst heraus und diese Zeile wird rot — als
     // Erinnerung, die Ausnahme zu loeschen.
     const ohne = bericht.perCatalogue.filter((c) => c.sourced === 0).map((c) => c.name)
-    expect(ohne).toEqual(['rig'])
+    expect(ohne.sort()).toEqual(['easySchematic', 'rig'])
   })
 
   it('3. die Ratsche: ein vollständig belegter Katalog bleibt es', () => {
@@ -131,7 +137,10 @@ describe('Initiative 11 — trägt diese Katalog-Zeile ein Datenblatt?', () => {
     // Haendler-Adresse (die der Generator herausfiltert). Die offenen Punkte
     // stehen namentlich in den Koepfen von `fixtureCatalog.ts` und
     // `rigCatalog.ts` — als Arbeitsliste, nicht als Restposten.
-    expect(bericht.unsourced).toBeLessThanOrEqual(186)
+    // 186 -> 4168. Der Sprung ist die EasySchematic-Uebernahme; die Herkunft
+    // steht im Kopf von `easySchematicCatalog.ts`. Wer dort Datenblatt-Links
+    // nachtraegt, laesst diese Zeile fallen und zieht sie nach.
+    expect(bericht.unsourced).toBeLessThanOrEqual(4168)
   })
 
   it('4. „kein Beleg" ist eine eigene Auskunft', () => {

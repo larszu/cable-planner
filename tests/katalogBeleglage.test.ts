@@ -125,7 +125,11 @@ describe('B-11 — der Kopf einer Katalog-Datei sagt seine Beleglage', () => {
     // Schleife unten wieder, und das ist gut: sie prüft, dass der Kopf der
     // Datei die Lage SAGT. Wird die Lücke geschlossen, fällt DIESE Zeile
     // zuerst — und dann gehört die ganze Datei weg, nicht die Zeile.
-    expect(ohne.length, 'kein belegloser Katalog mehr — dann ist B-11 erledigt').toBe(1)
+    // 2026-09-24: zwei. `rigCatalog` (Quelle nennt keine Adresse) und
+    // `easySchematicCatalog` (Quelle ist eine Gemeinschafts-Datenbank, nicht
+    // das Blatt des Herstellers). Beide tragen die BELEGLAGE-Zeile im Kopf,
+    // und genau das prueft die Schleife unten.
+    expect(ohne.length, 'kein belegloser Katalog mehr — dann ist B-11 erledigt').toBe(2)
 
     for (const c of ohne) {
       const text = kopf(dateiFuer(c.name))
@@ -176,6 +180,6 @@ describe('B-11 — der Kopf einer Katalog-Datei sagt seine Beleglage', () => {
     // 1333 Einträge mit, davon 186 ohne Beleg. Die Begründung je Datei steht
     // in deren Kopf; `catalogueEvidence.test.ts` hält die Gesamtzahl als
     // Obergrenze.
-    expect(bericht.unsourced).toBe(186)
+    expect(bericht.unsourced).toBe(4168)
   })
 })

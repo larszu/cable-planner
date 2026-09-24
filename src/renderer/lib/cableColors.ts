@@ -118,6 +118,71 @@ export const DEFAULT_CONNECTOR_TYPE_COLORS: Record<ConnectorType, string> = {
   'TT/Bantam': '#06b6d4',
   'Mini-BNC': '#fbbf24',
   'Micro-BNC': '#fcd34d',
+  // ─── EasySchematic-Uebernahme 2026-09-24 ────────────────────────────────
+  //
+  // Farbe nach FAMILIE, nicht nach Laune: Audio blau, MIDI/Lichtwelle magenta,
+  // Video/SDI bernstein, HDMI/DP violett, Netz gruen, Glas gelb, Strom rot bis
+  // dunkel, Daten grau — dieselbe Ordnung, nach der die Werte darueber schon
+  // vergeben waren. Wer eine Patchliste ausdruckt, soll die Gruppe am Farbton
+  // erkennen und nicht jeden Stecker einzeln lernen muessen.
+  //
+  // Die Schraubklemmen (Phoenix/Euroblock, Terminal Block) bekommen ein
+  // dunkleres Blau als die XLR: sie fuehren dasselbe Signal, sind aber kein
+  // Steckverbinder — wer sie am Farbton unterscheidet, greift nicht zum
+  // falschen Kabel.
+  'XLR 4 Male': '#38bdf8',
+  'XLR 5 Male': '#38bdf8',
+  'Combo XLR/Jack': '#38bdf8',
+  speakON: '#0ea5e9',
+  'Binding Post': '#0ea5e9',
+  'Phoenix/Euroblock': '#0284c7',
+  'Terminal Block': '#0284c7',
+  Blankdraht: '#0369a1',
+  'DIN 5': '#e879f9',
+  MIDI: '#e879f9',
+  Toslink: '#67e8f9',
+  'Mini-DisplayPort': '#8b5cf6',
+  etherCON: '#16a34a',
+  RJ11: '#4ade80',
+  QSFP: '#ca8a04',
+  QSFP28: '#a16207',
+  'Fiber Optic LC': '#eab308',
+  'Fiber Optic SC': '#eab308',
+  MPO: '#facc15',
+  opticalCON: '#fde047',
+  'USB Type A': '#64748b',
+  'USB Type B': '#64748b',
+  'USB Mini-B': '#94a3b8',
+  'USB Micro-B': '#94a3b8',
+  DB15: '#a1a1aa',
+  DB37: '#a1a1aa',
+  DB7W2: '#a1a1aa',
+  DigiLink: '#a1a1aa',
+  Multipin: '#a1a1aa',
+  'Mini-DIN 4': '#94a3b8',
+  'Mini-DIN 7': '#94a3b8',
+  'Mini-DIN 8': '#94a3b8',
+  'Kycon 4-pin': '#94a3b8',
+  'D-Hole Insert': '#94a3b8',
+  'Lemo 2-pin': '#c084fc',
+  'Lemo 4-pin': '#c084fc',
+  'Lemo 5-pin': '#c084fc',
+  SMA: '#f472b6',
+  'RP-TNC': '#f472b6',
+  'IEC C15': '#ef4444',
+  'IEC C20': '#ef4444',
+  'IEC C5 (Kleeblatt)': '#1e293b',
+  'NEMA 5-15 (Edison)': '#dc2626',
+  'NEMA L5-20': '#b91c1c',
+  'NEMA L6-20': '#b91c1c',
+  'NEMA L6-30': '#991b1b',
+  'NEMA L21-30': '#7f1d1d',
+  'Cam-Lok': '#7f1d1d',
+  'powerCON TRUE1': '#ea580c',
+  'DC Barrel': '#f97316',
+  'PCIe 6-pin': '#fb923c',
+  'D-Tap': '#fdba74',
+  'V-Mount': '#fdba74',
   Custom: '#94a3b8',
 }
 

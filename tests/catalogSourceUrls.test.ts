@@ -191,6 +191,10 @@ describe('was der Test NICHT behauptet', () => {
     const ohne = catalogs().filter((f) => !mitBeleg.has(f))
     expect(ohne.sort()).toEqual([
       'connectorCatalog.ts',
+      // 2026-09-24: die EasySchematic-Uebernahme. Ihre Quelle ist die
+      // Gemeinschafts-Datenbank und nicht das Blatt des Herstellers — 3982
+      // Eintraege ohne Link, benannt statt weggerechnet.
+      'easySchematicCatalog.ts',
       // 2026-09-24 dazugekommen: die Kamera-Rigs aus dem multicam-planner.
       // Die Quelle fuehrt fuer KEINES der 49 Rigs eine Hersteller-Adresse —
       // nachgemessen, nicht vermutet. Die Maße dagegen sind dort belegt, mit

@@ -57,9 +57,23 @@ const GESCHUETZT: readonly RegExp[] = [
 
 const DATEIEN = ['.ts', '.tsx', '.md', '.html', '.mjs', '.json']
 
+/**
+ * Dateien, die NICHT ins Repo gehen und deshalb hier nicht zaehlen.
+ *
+ * `scripts/easyschematic-templates.json` ist der rohe Abzug der
+ * EasySchematic-API (8 MB) — Eingangsdaten des Katalog-Generators, in
+ * `.gitignore` und nie eingecheckt. Er traegt fremde Geraetenamen, darunter
+ * Sendernamen in Modellbezeichnungen; geprueft wird, was WIR ausliefern.
+ *
+ * Die erzeugte Datei `src/renderer/lib/easySchematicCatalog.ts` wird
+ * weiterhin geprueft — die geht mit.
+ */
+const NICHT_IM_REPO = new Set(['easyschematic-templates.json'])
+
 const sammle = (dir: string, out: string[] = []): string[] => {
   for (const name of readdirSync(dir)) {
     if (name === 'node_modules' || name.startsWith('.')) continue
+    if (NICHT_IM_REPO.has(name)) continue
     const voll = join(dir, name)
     if (statSync(voll).isDirectory()) sammle(voll, out)
     else if (DATEIEN.some((e) => name.endsWith(e))) out.push(voll)

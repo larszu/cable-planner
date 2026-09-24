@@ -124,20 +124,29 @@ describe('Sie sind aus der Bibliothek erreichbar', () => {
     expect(store).toContain('...passiveTemplates')
   })
 
-  it('zieht die Migrations-Version hoch, sonst sieht sie niemand', () => {
-    // Der Seed laeuft bei jedem Start, aber ohne neue Version bleibt die
-    // Bibliothek eines bestehenden Nutzers unangetastet — die Vorlagen
-    // waeren gebaut und unsichtbar.
+  it('kommt aus dem Modul und nicht aus dem Speicher', () => {
+    // ─── WAS SICH AM 2026-09-24 GEDREHT HAT ────────────────────────────────
+    //
+    // Frueher stand hier: „zieht die Migrations-Version hoch, sonst sieht sie
+    // niemand." Das war richtig, solange die ausgelieferten Vorlagen in
+    // `localStorage` geschrieben wurden — ein Bestandsnutzer bekam eine neue
+    // Vorlage nur ueber eine neue Kennung zu sehen.
+    //
+    // Seit der EasySchematic-Uebernahme geht das nicht mehr: 5315 Vorlagen
+    // sind als JSON 4,38 MB, das Kontingent liegt bei etwa 5 MB fuer den
+    // ganzen Ursprung. Der Schreibversuch waere an `QuotaExceededError`
+    // gescheitert und das `catch` haette ihn verschluckt.
+    //
+    // Jetzt kommen sie aus dem Modul und sind damit IMMER da. Die Kennung
+    // raeumt nur noch die eine Altlast weg (erfundene Rentman-Vorlagen von
+    // vor 2026-04) — und genau das wird hier geprueft, statt einer Zahl, die
+    // bei jeder Lieferung nachgezogen werden muesste.
     const store = lies('src/renderer/store/projectStore.ts')
-    // 2026-09-24 weitergezogen auf `2026-09-suite-uebernahme`: die Kataloge
-    // aus multicam- und light-planner kamen dazu, und ohne neue Kennung haette
-    // ein Bestandsnutzer keinen einzigen der 1333 neuen Eintraege gesehen.
-    // Diese Zeile prueft nicht den WERT, sondern dass es weiterhin einen gibt
-    // und die Traeger-Saat darunter haengt — sonst waere sie beim naechsten
-    // Katalog wieder rot, ohne dass etwas kaputt ist.
-    expect(store).toMatch(/LIB_MIGRATION_VERSION = '20\d\d-\d\d-[a-z-]+'/)
-    // Und die alten Versionen bleiben geschuetzt, damit niemandem die eigene
-    // Bibliothek geloescht wird — die vorige ausdruecklich mit.
+    expect(store).toContain('const EINGEBAUTE_VORLAGEN')
+    expect(store).toContain('...passiveTemplates')
+    expect(store).toContain('mischeBibliothek(EINGEBAUTE_VORLAGEN, loadCustomLibrary())')
+    // Die alten Kennungen bleiben geschuetzt, damit niemandem die eigene
+    // Bibliothek geloescht wird.
     expect(store).toContain("'2026-04-greengo-catalog-v2'")
     expect(store).toContain("'2026-09-passive-carriers'")
   })
