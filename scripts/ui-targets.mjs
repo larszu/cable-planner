@@ -300,6 +300,12 @@ await app.close()
  *            Sie sind jetzt 24 x 24 bei unveraendertem Symbol. Der neue
  *            Knopf hat den alten Missstand sichtbar gemacht.
  *
+ * NEU GEMESSEN am 2026-09-24 (cable#920): unter44 91 -> 93. Die zwei neuen
+ * Knoepfe „Hallenplan" und „Symbole" in der Canvas-Werkzeugleiste, in
+ * derselben Zeile und Hoehe wie „Anmerkungen" und „Badges". Ein 44-px-Knopf
+ * machte aus der Zeile einen Block — derselbe Grund wie bei #852. unter24
+ * bleibt: beide sind hoeher als 24 px.
+ *
  * Der Deckel fuer `unter24` sinkt deshalb mit auf 50. Eine Obergrenze, die
  * ueber dem Gemessenen stehenbleibt, ist Luft, in die es still
  * zurueckwachsen kann.
@@ -320,8 +326,8 @@ await app.close()
  * gehoert in eine eigene Runde.
  */
 const DECKEL = {
-  maus: { unter24: 50, unter44: 91 },
-  finger: { unter24: 50, unter44: 91 },
+  maus: { unter24: 50, unter44: 93 },
+  finger: { unter24: 50, unter44: 93 },
 }
 
 let befunde = 0
