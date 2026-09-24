@@ -3102,6 +3102,9 @@ export const de: Dict = {
   'location.field.color': 'Farbe',
   'floors.add': 'Etage hinzufügen…',
   'floors.down': 'Nach unten',
+  'floors.fromBuilding': 'Etagen aus der Gebäude-Auskunft übernehmen ({n})',
+  'floors.fromBuildingTitle':
+    'Ergänzt die Etagen, die die Gebäude-Auskunft nennt, und trägt fehlende Höhen nach. Hier schon gesetzte Höhen bleiben.',
   'floors.heightLabel': 'Höhe von {name} in Metern',
   'floors.heightPlaceholder': 'm',
   'floors.hint':
@@ -5997,6 +6000,9 @@ export const de: Dict = {
     '{name} hängt an {punkt}, und das Haus gibt diese Dose als gedimmt an. Ein Schaltnetzteil am Dimmer fällt aus oder brennt.',
   'check.haus.geschaltet':
     '{name} hängt an {punkt}, und das Haus gibt diese Dose als geschaltet an. Wer den Schalter umlegt, nimmt das Gerät mit.',
+  'check.haus.aderDoppelt': 'Ader „{ader}“ der Strecke {strecke} ist von mehreren Kabeln belegt: {kabel}.',
+  'check.haus.aderUnbekannt': 'Kabel {name} benutzt die Ader „{ader}“ der Strecke {strecke}, die das Haus nicht nennt.',
+  'check.haus.streckeFehlt': 'Kabel {name} ist auf einer Hausstrecke geplant, die die Gebäude-Auskunft vom {stand} nicht mehr nennt.',
   'check.haus.klinkeFehlt':
     '{name} benutzt eine Steueradresse, die die Gebäude-Auskunft vom {stand} nicht mehr führt. Was sie schalten würde, ist unbekannt.',
   'check.haus.ueberlast':
@@ -6014,6 +6020,17 @@ export const de: Dict = {
   'haus.dateiUnlesbar':
     'Das ist keine Gebäude-Datei des Gebäude-Werkzeugs, oder sie stammt aus einer neueren Fassung. Es wurde nichts übernommen.',
   'haus.stand': '{name} · gelesen {stand} aus {quelle}',
+  'hausStrecke.conflict': 'Ader {nr} ist von mehreren Kabeln belegt: {cables}',
+  'hausStrecke.core': 'Ader / Port',
+  'hausStrecke.missing': 'Die Gebäude-Auskunft vom {stand} nennt diese Strecke nicht mehr.',
+  'hausStrecke.missingOption': '(nicht mehr in der Gebäude-Auskunft)',
+  'hausStrecke.none': '— keine —',
+  'hausStrecke.occupancy': '{used} von {total} Adern in diesem Plan belegt',
+  'hausStrecke.run': 'Strecke',
+  'hausStrecke.takenBy': 'belegt durch {cables}',
+  'hausStrecke.title': 'Hausstrecke',
+  'hausStrecke.unknownCore': 'Das Haus nennt auf dieser Strecke keine Ader „{nr}“.',
+  'hausStrecke.wholeRun': '— ganze Strecke —',
   'haus.punkt': 'Hausanschluss',
   'haus.keinPunkt': '— keiner —',
   'haus.absicherung': 'Absicherung {a} A',

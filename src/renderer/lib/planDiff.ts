@@ -123,6 +123,9 @@ export const CABLE_FIELD_CLASS: Record<string, FieldClass> = {
   faserVon: 'substantive',
   faserNach: 'substantive',
   isTieLine: 'substantive',
+  // Welche Hausstrecke und Ader belegt wird, ist die Arbeit des Anschliessens.
+  hausStreckeId: 'substantive',
+  hausAder: 'substantive',
   multicoreName: 'substantive',
   // B-45 — die Adern und die Zugehoerigkeit zum Anschluss. `substantive`,
   // und zwar buchstaeblich: an der Adernfarbe haengt, welcher Leiter wohin

@@ -1321,6 +1321,71 @@ export const runDrawingChecks = (
       }
     }
 
+    // — Check 26: die Hausstrecken an den Kabeln (facility#15) ---------------
+    //
+    // Ein Kabel, das eine Hausstrecke benutzt, die das Haus nicht mehr nennt,
+    // zeigt ins Leere — dieselbe Regel wie bei der Dose. Zwei Kabel auf
+    // derselben Ader sind zwei Signale in einem Leiter; eine Ader, die das
+    // Haus auf der Strecke nicht kennt, ist ein Tippfehler oder ein Umbau.
+    const streckeById = new Map(hausAuskunft.strecken.map((s) => [s.id, s]))
+    const aufAder = new Map<string, string[]>()
+    for (const c of cables) {
+      if (!c.hausStreckeId) continue
+      const strecke = streckeById.get(c.hausStreckeId)
+      const kabelName = c.cableNumber || c.name
+      if (!strecke) {
+        findings.push({
+          id: `haus-strecke-fehlt:${c.id}`,
+          severity: 'error',
+          category: 'House run',
+          message: format(
+            tr(
+              'check.haus.streckeFehlt',
+              'Cable {name} is planned on a house run that the building statement of {stand} no longer lists.',
+            ),
+            { name: kabelName, stand: hausAuskunft.gelesenAm.slice(0, 10) },
+          ),
+          cableId: c.id,
+        })
+        continue
+      }
+      const ader = c.hausAder?.trim()
+      if (!ader) continue
+      if (strecke.adern && !strecke.adern.some((a) => a.nr === ader)) {
+        findings.push({
+          id: `haus-ader-unbekannt:${c.id}`,
+          severity: 'warning',
+          category: 'House run',
+          message: format(
+            tr('check.haus.aderUnbekannt', 'Cable {name} uses core "{ader}" of {strecke}, which the building does not list.'),
+            { name: kabelName, ader, strecke: strecke.bezeichnung },
+          ),
+          cableId: c.id,
+        })
+        continue
+      }
+      const key = `${strecke.id}\u0000${ader}`
+      aufAder.set(key, [...(aufAder.get(key) ?? []), c.id])
+    }
+    for (const [key, ids] of aufAder) {
+      if (ids.length < 2) continue
+      const [streckeId, ader] = key.split('\u0000')
+      const namen = ids.map((id) => {
+        const c = cables.find((x) => x.id === id)
+        return c ? c.cableNumber || c.name : id
+      })
+      findings.push({
+        id: `haus-ader-doppelt:${streckeId}:${ader}`,
+        severity: 'warning',
+        category: 'House run',
+        message: format(
+          tr('check.haus.aderDoppelt', 'Core "{ader}" of {strecke} is used by several cables: {kabel}.'),
+          { ader, strecke: streckeById.get(streckeId)?.bezeichnung ?? streckeId, kabel: namen.join(', ') },
+        ),
+        cableId: ids[0],
+      })
+    }
+
     // — Check 26: die LED-Waende an ihrem Anschlusspunkt (#881) -------------
     //
     // Das letzte offene Kriterium aus #881 („Anbindung an Stromkreise und

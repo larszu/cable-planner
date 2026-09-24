@@ -28,6 +28,8 @@ import type {
   HausRaum,
   HausSteuersystem,
   HausStrecke,
+  HausStreckenAder,
+  HausEtage,
 } from '../types/hausAuskunft'
 
 export const FACILITY_FORMAT = 'avplan-facility'
@@ -36,11 +38,12 @@ export const FACILITY_FORMAT = 'avplan-facility'
  * Die hoechste Fassung, die dieser Leser versteht.
  *
  * Sie muss mit `FACILITY_FORMAT_VERSION` im `facility-planner`
- * uebereinstimmen. Eine neuere Datei wird abgewiesen — nicht aus Strenge,
+ * uebereinstimmen. v2 (facility#15): Etagen als Liste, Hausstrecken mit
+ * Raeumen, Endblenden und Adern; v1 wird weiter gelesen. Eine neuere Datei wird abgewiesen — nicht aus Strenge,
  * sondern weil die Felder, die dieser Leser dann nicht kennt, Auskuenfte
  * ueber Strom sind.
  */
-export const FACILITY_FORMAT_VERSION = 1
+export const FACILITY_FORMAT_VERSION = 2
 
 const ANSCHLUSSARTEN: HausAnschlussart[] = ['cee63', 'cee32', 'cee16', 'powerlock', 'klemme', 'schuko']
 const SYSTEME: HausSteuersystem[] = ['knx', 'dali', 'crestron', 'vissonic', 'sonstige']
@@ -55,13 +58,42 @@ const zahl = (v: unknown): number | undefined =>
 /** `undefined` bleibt `undefined` — hier NICHT auf `false` ziehen. */
 const jaNein = (v: unknown): boolean | undefined => (typeof v === 'boolean' ? v : undefined)
 
-const leseRaum = (roh: unknown): HausRaum | null => {
+/**
+ * Ein Raum. Seine Etage: in v2 ueber `etageId` aus der Etagenliste, in v1 der
+ * Freitext `etage`. Zeigt `etageId` ins Leere, hat der Raum keine Etage —
+ * geraten wird sie nicht.
+ */
+const leseRaum = (etagen: readonly HausEtage[]) => (roh: unknown): HausRaum | null => {
   if (!roh || typeof roh !== 'object') return null
   const r = roh as Record<string, unknown>
   const id = text(r.id)
   const name = text(r.name)
   if (!id || !name) return null
-  return { id, name, hausbezeichner: text(r.hausbezeichner) ?? '' }
+  const etageId = text(r.etageId)
+  const etage = etageId ? etagen.find((e) => e.id === etageId)?.name : text(r.etage)
+  return { id, name, hausbezeichner: text(r.hausbezeichner) ?? '', ...(etage ? { etage } : {}) }
+}
+
+const leseEtage = (roh: unknown): HausEtage | null => {
+  if (!roh || typeof roh !== 'object') return null
+  const e = roh as Record<string, unknown>
+  const id = text(e.id)
+  const name = text(e.name)
+  if (!id || !name) return null
+  const hoeheM = zahl(e.hoeheM)
+  return { id, name, ...(hoeheM !== undefined ? { hoeheM } : {}) }
+}
+
+const leseAder = (roh: unknown): HausStreckenAder | null => {
+  if (!roh || typeof roh !== 'object') return null
+  const a = roh as Record<string, unknown>
+  const nr = text(a.nr)
+  if (!nr) return null
+  return {
+    nr,
+    ...(text(a.stecker) ? { stecker: text(a.stecker) } : {}),
+    ...(text(a.signal) ? { signal: text(a.signal) } : {}),
+  }
 }
 
 const lesePunkt = (roh: unknown): HausPunkt | null => {
@@ -117,7 +149,16 @@ const leseStrecke = (roh: unknown): HausStrecke | null => {
   const id = text(s.id)
   const bezeichnung = text(s.bezeichnung)
   if (!id || !bezeichnung) return null
-  return { id, bezeichnung }
+  const adern = liste(s.adern, leseAder)
+  return {
+    id,
+    bezeichnung,
+    ...(text(s.vonRaumId) ? { vonRaumId: text(s.vonRaumId) } : {}),
+    ...(text(s.nachRaumId) ? { nachRaumId: text(s.nachRaumId) } : {}),
+    ...(text(s.vonBlende) ? { vonBlende: text(s.vonBlende) } : {}),
+    ...(text(s.nachBlende) ? { nachBlende: text(s.nachBlende) } : {}),
+    ...(adern.length > 0 ? { adern } : {}),
+  }
 }
 
 const liste = <T>(v: unknown, lies: (roh: unknown) => T | null): T[] =>
@@ -148,13 +189,15 @@ export const leseHausDatei = (
   const g = f.gebaeude
   if (!g || typeof g !== 'object') return null
   const gg = g as Record<string, unknown>
+  const etagen = liste(gg.etagen, leseEtage)
   return {
     name: text(gg.name) ?? 'Gebäude',
     gelesenAm: meta.gelesenAm,
     quelle: meta.quelle,
-    raeume: liste(gg.raeume, leseRaum),
+    raeume: liste(gg.raeume, leseRaum(etagen)),
     punkte: liste(gg.punkte, lesePunkt),
     klinken: liste(gg.klinken, leseKlinke),
     strecken: liste(gg.strecken, leseStrecke),
+    ...(etagen.length > 0 ? { etagen } : {}),
   }
 }

@@ -380,6 +380,12 @@ risk without a payoff.
   so. A **DALI address whose kind is not stated** is reported too — short
   address, group and broadcast are three different things, and the last one is
   the whole bus, emergency lighting included.
+  Since format v2 the statement also carries the building's **floors** (take
+  them into the plan's floor list with one click) and its **house runs** with
+  rooms, the plate at each end and their cores. A cable's properties pick the
+  run and core it uses; the list shows which cores other cables already hold,
+  and the plan check reports a run the building no longer lists, a core it
+  does not know, and two cables on one core.
 
 API tokens live in the **operating system's credential store** (macOS Keychain,
 Windows Credential Manager, libsecret) through `keytar` — not in the project

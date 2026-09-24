@@ -11,7 +11,7 @@ import { confirmDialog } from '../../lib/confirmDialog'
 import { infoDialog } from '../../lib/infoDialog'
 import { promptDialog } from '../../lib/promptDialog'
 import { format, useTranslation } from '../../lib/i18n'
-import { etagenSchluessel, rahmenAufEtage } from '../../lib/etagen'
+import { etagenAusHaus, etagenSchluessel, rahmenAufEtage } from '../../lib/etagen'
 import { Icon } from '../shared/Icon'
 import type { Floor } from '../../types/location'
 
@@ -25,6 +25,7 @@ export const EtagenVerwaltung = () => {
   const setFloors = useProjectStore((s) => s.setFloors)
   const renameFloor = useProjectStore((s) => s.renameFloor)
   const removeFloor = useProjectStore((s) => s.removeFloor)
+  const hausEtagen = useProjectStore((s) => s.project.hausAuskunft?.etagen)
 
   const verschiebe = (i: number, richtung: -1 | 1) => {
     const j = i + richtung
@@ -142,6 +143,19 @@ export const EtagenVerwaltung = () => {
             </div>
           )
         })}
+        {hausEtagen && hausEtagen.length > 0 && (
+          <button
+            type="button"
+            onClick={() => setFloors(etagenAusHaus(floors, hausEtagen))}
+            className="mt-1 self-start border border-cp-border px-2 py-0.5 text-cp-text-secondary hover:text-cp-text"
+            title={t(
+              'floors.fromBuildingTitle',
+              'Adds the floors the building statement lists and fills in missing heights. Heights already set here stay.',
+            )}
+          >
+            {format(t('floors.fromBuilding', 'Take floors from the building statement ({n})'), { n: hausEtagen.length })}
+          </button>
+        )}
         <button
           type="button"
           onClick={() => void neu()}

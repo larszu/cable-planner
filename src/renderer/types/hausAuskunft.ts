@@ -80,6 +80,23 @@ export interface HausRaum {
   name: string
   /** Der Bezeichner, unter dem das Haus den Raum fuehrt. Der Plan druckt ihn. */
   hausbezeichner: string
+  /** Name der Etage laut Haus (v2: aus `etagen`, v1: der Freitext). */
+  etage?: string
+}
+
+/** Eine Etage laut Haus (`avplan-facility` v2). Reihenfolge = von unten nach oben. */
+export interface HausEtage {
+  id: string
+  name: string
+  /** Fussbodenhoehe in m, wenn das Haus sie nennt. */
+  hoeheM?: number
+}
+
+/** Eine Ader / ein Port einer Hausstrecke (`avplan-facility` v2). */
+export interface HausStreckenAder {
+  nr: string
+  stecker?: string
+  signal?: string
 }
 
 export type HausSteuersystem = 'knx' | 'dali' | 'crestron' | 'vissonic' | 'sonstige'
@@ -109,6 +126,13 @@ export interface HausKlinke {
 export interface HausStrecke {
   id: string
   bezeichnung: string
+  /** v2 — von welchem Raum in welchen, und an welcher Blende sie endet. */
+  vonRaumId?: string
+  nachRaumId?: string
+  vonBlende?: string
+  nachBlende?: string
+  /** v2 — die Adern/Ports der Strecke. Fehlt: das Haus nennt keine. */
+  adern?: HausStreckenAder[]
 }
 
 /**
@@ -128,6 +152,8 @@ export interface HausAuskunft {
   punkte: HausPunkt[]
   klinken: HausKlinke[]
   strecken: HausStrecke[]
+  /** v2 — die Etagen des Hauses. Fehlt bei einer v1-Datei. */
+  etagen?: HausEtage[]
 }
 
 /** Der Punkt zu einer Id, oder `undefined`. Kein Namensabgleich (ADR-002). */
