@@ -336,6 +336,13 @@ risk without a payoff.
   **vendor-neutral intercom exchange file** that someone building a Riedel or
   Clear-Com system can also read
 - **`.avplan`** — the shared exchange format across the planner suite
+- **Racks for the warehouse** (`rack-belegung.json`, *Library → Racks → For the
+  warehouse*) — what sits in each rack, with unit and name, for the Inventory
+  Planner. A rack that travels in a case is a case there: the warehouse owns
+  the empty shell (how many units, how deep), the plan owns what is mounted
+  in it. The inventory checks one against the other and says so when the plan
+  fills units 1–14 of a 12-unit case — before the truck leaves. Units are
+  counted from the bottom in the file, the way the trade counts them.
 - **Building statement** (`.avfacility`, from the facility planner) — outlets,
   cable routes and the control addresses the show may use. The plan **refers**
   to them and keeps no copy: the checks ask the statement, so a device wired to
