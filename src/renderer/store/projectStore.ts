@@ -13,6 +13,7 @@ import { defaultProject, isProjectLocked, sanitizePort, touchProject } from './p
 import { createLocationSlice } from './slices/locationSlice'
 import { createCableSlice } from './slices/cableSlice'
 import { createAnnotationSlice } from './slices/annotationSlice'
+import { createGrundrissSlice } from './slices/grundrissSlice'
 import { createSourceIdentitySlice } from './slices/sourceIdentitySlice'
 import { createDeliverySlice } from './slices/deliverySlice'
 import { createCableStockSlice } from './slices/cableStockSlice'
@@ -601,6 +602,15 @@ export interface ProjectState {
   addAnnotation: (annotation: import('../types/project').ProjectAnnotation) => void
   updateAnnotation: (id: string, patch: Partial<import('../types/project').ProjectAnnotation>) => void
   removeAnnotation: (id: string) => void
+  /** Hallenplan unter dem Canvas; `null` entfernt ihn. */
+  setGrundriss: (g: import('../types/grundriss').Grundriss | null) => void
+  updateGrundriss: (patch: Partial<import('../types/grundriss').Grundriss>) => void
+  kalibriereGrundriss: (k: import('../types/grundriss').PlanKalibrierung) => void
+  addSymbol: (s: import('../types/symbol').PlatziertesSymbol) => void
+  updateSymbol: (id: string, patch: Partial<import('../types/symbol').PlatziertesSymbol>) => void
+  removeSymbol: (id: string) => void
+  addSymbolDef: (d: import('../types/symbol').SymbolDef) => void
+  removeSymbolDef: (id: string) => void
   /** ADR-001 — Signalquellen-Rolle anlegen; liefert die (ggf. erzeugte) Id,
    *  oder undefined wenn nichts angelegt wurde (leerer Name). */
   addSourceIdentity: (
@@ -1610,6 +1620,7 @@ const healProjectPositions = (
             fromY: r(o.fromY),
             toX: r(o.toX),
             toY: r(o.toY),
+            ...(o.weg ? { weg: o.weg.map((w) => ({ x: r(w.x), y: r(w.y) })) } : {}),
           },
         }
       }
@@ -1912,6 +1923,7 @@ const buildProjectStore = (
   ...createLocationSlice(set, get, store),
   ...createCableSlice(set, get, store),
   ...createAnnotationSlice(set, get, store),
+  ...createGrundrissSlice(set, get, store),
   ...createSourceIdentitySlice(set, get, store),
   ...createDeliverySlice(set, get, store),
   ...createCableStockSlice(set, get, store),

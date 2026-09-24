@@ -35,6 +35,8 @@ import { CableContextMenu } from './components/Canvas/CableContextMenu'
 import { LayerVisibilityChips } from './components/Canvas/LayerVisibilityChips'
 import { ExportDialog } from './components/Export/ExportDialog'
 import { AnnotationsPanel } from './components/Annotations/AnnotationsPanel'
+import { GrundrissPanel } from './components/Grundriss/GrundrissPanel'
+import { SymbolPanel } from './components/Grundriss/SymbolPanel'
 
 // v7.9.3 — Hook-Wrapper damit das Annotations-Panel auf
 // uiStore.annotationsPanelOpen reagiert. Direkt im JSX würde
@@ -1615,6 +1617,8 @@ export default function App() {
       <TemplatesDialog />
       <CableContextMenu />
       <AnnotationsPanelHost />
+      <GrundrissPanel />
+      <SymbolPanel />
       <ExportDialog
         open={exportDialogOpen}
         onClose={() => setExportDialogOpen(false)}

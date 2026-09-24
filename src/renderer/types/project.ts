@@ -185,6 +185,14 @@ export interface CablePlannerProject {
   cables: Cable[]
   canvasState: CanvasState
   locations?: LocationFrame[]
+  /** Hallenplan unter dem Canvas, mit Massstab. */
+  grundriss?: import('./grundriss').Grundriss
+  /** Symbole auf dem Canvas. */
+  symbole?: import('./symbol').PlatziertesSymbol[]
+  /** Eigene Symbol-Definitionen dieses Projekts (importiert, per KI erzeugt).
+   *  Reisen in der Datei mit, damit der Plan auf einem anderen Rechner
+   *  dieselben Zeichen zeigt. */
+  symbolDefs?: import('./symbol').SymbolDef[]
   /** #911 — die Etagen, von unten nach oben. Siehe `Floor`. */
   floors?: Floor[]
   /**

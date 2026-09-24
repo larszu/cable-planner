@@ -67,6 +67,7 @@ import {
 } from '../../lib/dantePatch'
 import type { DantePatch } from '../../types/dantePatch'
 import { cableRunFindings, cableRunTable, type RunFinding } from '../../lib/cableRunChecks'
+import { laengenKontext } from '../../lib/laengenKontext'
 import { CrewTab } from './CrewTab'
 import { ActionTab } from './ActionTab'
 import { ChainTab } from './ChainTab'
@@ -1994,8 +1995,13 @@ const RunsTab = ({ projectName }: { projectName: string }) => {
   const t = useTranslation()
   const cables = useProjectStore((s) => s.project.cables)
   const equipment = useProjectStore((s) => s.project.equipment)
+  const grundriss = useProjectStore((s) => s.project.grundriss)
+  const intercom = useProjectStore((s) => s.project.intercom)
 
-  const findings = useMemo(() => cableRunFindings(cables, equipment), [cables, equipment])
+  const findings = useMemo(
+    () => cableRunFindings(cables, equipment, laengenKontext({ grundriss, intercom })),
+    [cables, equipment, grundriss, intercom],
+  )
 
   // Ausgeschriebener switch, ein Schluessel je Fall. Einen Schluessel aus dem
   // kind-Feld zusammenzusetzen waere fuer den i18n-Deckungs-Guard unsichtbar

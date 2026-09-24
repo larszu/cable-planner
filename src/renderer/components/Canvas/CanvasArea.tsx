@@ -43,6 +43,11 @@ import { useCanvasKeyboardShortcuts } from './useCanvasKeyboardShortcuts'
 import { CableEdge } from './CableEdge'
 import { CanvasToolbar } from './CanvasToolbar'
 import { LocationFrameNode } from './LocationFrameNode'
+import { GrundrissNode } from './GrundrissNode'
+import { SymbolNode } from './SymbolNode'
+import { GrundrissKalibrierung } from '../Grundriss/GrundrissKalibrierung'
+import { EINGEBAUTE_SYMBOLE } from '../../lib/symbole/eingebaut'
+import { useGrundrissUi } from '../../store/grundrissUiStore'
 import { PendingCableOverlay } from './PendingCableOverlay'
 import { InlineSelectionToolbar } from './InlineSelectionToolbar'
 import { colorByLength } from '../../lib/cableColors'
@@ -68,7 +73,12 @@ import { MONO_TINTE, monochromLabel } from '../../lib/monochromeSheet'
 import { DRUCK_MS, LangerDruck } from '../../lib/langerDruck'
 import { ansicht } from '../../lib/ansicht'
 
-const nodeTypes = { equipment: EquipmentNode, location: LocationFrameNode }
+const nodeTypes = { equipment: EquipmentNode, location: LocationFrameNode, grundriss: GrundrissNode, symbol: SymbolNode }
+
+/** Knoten, die weder Geraet noch Raum sind und ihre Aenderungen selbst
+ *  verbuchen — die Geraete-Logik in `onNodesChange` bekommt sie nie zu sehen. */
+const GRUNDRISS_ID = 'grundriss'
+const istEigenerKnoten = (id: string, symbolIds: Set<string>) => id === GRUNDRISS_ID || symbolIds.has(id)
 const edgeTypes = { cable: CableEdge }
 
 type CanvasMode = 'main' | 'rack'
@@ -416,8 +426,81 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
       // v7.9.68 — analog für Geräte.
       draggable: !item.positionLocked && !lockEquipment && !projectIsLocked,
     }))
-    return [...locationNodes, ...equipmentNodes]
-  }, [project.equipment, locations, pdfExportThemeOverride, lockFrames, lockEquipment, projectIsLocked])
+    const g = project.grundriss
+    const grundrissNodes: Node[] = g
+      ? [
+          {
+            id: GRUNDRISS_ID,
+            type: 'grundriss',
+            position: { x: g.x, y: g.y },
+            data: g,
+            // Gesperrt liegt der Plan unter allem, auch unter der Klickflaeche
+            // von ReactFlow — Klicks treffen Geraete und Canvas. Entsperrt
+            // (zum Ausrichten) muss er greifbar sein; ein negativer z-Index
+            // laege dafuer unter der Klickflaeche. Dann deckt er die Kabel
+            // halb ab, bis er wieder gesperrt ist.
+            zIndex: g.gesperrt ? -2 : 0,
+            style: { width: g.width, height: g.height },
+            draggable: !g.gesperrt && !projectIsLocked,
+            selectable: !g.gesperrt,
+          },
+        ]
+      : []
+    const defs = new Map([...EINGEBAUTE_SYMBOLE, ...(project.symbolDefs ?? [])].map((d) => [d.id, d]))
+    const symbolNodes: Node[] = (project.symbole ?? []).map((sym) => ({
+      id: sym.id,
+      type: 'symbol',
+      position: { x: sym.x, y: sym.y },
+      data: { ...sym, def: defs.get(sym.defId), exportThemeOverride: pdfExportThemeOverride },
+      style: { width: sym.groesse, height: sym.groesse },
+      draggable: !sym.gesperrt && !projectIsLocked,
+    }))
+    return [...grundrissNodes, ...locationNodes, ...symbolNodes, ...equipmentNodes]
+  }, [project.equipment, project.grundriss, project.symbole, project.symbolDefs, locations, pdfExportThemeOverride, lockFrames, lockEquipment, projectIsLocked])
+  const symbolIds = useMemo(() => new Set((project.symbole ?? []).map((s) => s.id)), [project.symbole])
+  const updateGrundriss = useProjectStore((state) => state.updateGrundriss)
+  const updateSymbol = useProjectStore((state) => state.updateSymbol)
+  const waehleSymbol = useGrundrissUi((s) => s.waehleSymbol)
+  const removeSymbol = useProjectStore((state) => state.removeSymbol)
+
+  // Entf/Backspace loescht das gewaehlte Symbol. Eigener Handler, weil die
+  // Geraete-Tastatur (`useCanvasKeyboardShortcuts`) nur Geraete und Kabel
+  // kennt; ein Symbol-Klick hebt deren Auswahl auf, beide greifen nie zugleich.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Delete' && e.key !== 'Backspace') return
+      const ziel = e.target as HTMLElement | null
+      if (ziel && (ziel.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(ziel.tagName))) return
+      const id = useGrundrissUi.getState().ausgewaehltesSymbol
+      if (!id) return
+      removeSymbol(id)
+      waehleSymbol(null)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [removeSymbol, waehleSymbol])
+
+  // Hallenplan und Symbole: Verschieben und Groesse. Die Lage wird am
+  // Drag-ENDE geschrieben (sonst ein Undo-Schritt je Mausbewegung), die
+  // Groesse nur aus dem NodeResizer (`resizing` gesetzt) — die Messung, die
+  // ReactFlow fuer jeden Knoten meldet, ist keine Aenderung des Nutzers.
+  const eigeneKnotenAendern = (changes: NodeChange[]) => {
+    setRfNodes((current) => applyNodeChanges(changes, current))
+    const snap = (v: number) => (snapToGrid && gridSize > 0 ? Math.round(v / gridSize) * gridSize : v)
+    for (const c of changes) {
+      const istPlan = 'id' in c && c.id === GRUNDRISS_ID
+      if (c.type === 'position' && c.position && c.dragging !== true) {
+        const pos = c.dragging === false ? { x: snap(c.position.x), y: snap(c.position.y) } : c.position
+        if (istPlan) updateGrundriss(pos)
+        else updateSymbol(c.id, pos)
+      }
+      if (c.type === 'dimensions' && c.dimensions && c.resizing !== undefined && c.updateStyle) {
+        const { width, height } = c.dimensions
+        if (istPlan) updateGrundriss({ width, height })
+        else updateSymbol(c.id, { groesse: Math.round(Math.max(width, height)) })
+      }
+    }
+  }
 
   // Local state keeps React Flow's controlled node positions in sync during drag.
   // We initialise once from the store and then apply changes incrementally.
@@ -627,6 +710,13 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         // nodes-Memo durchgereicht werden, weil sich der Wert mit dem
         // Toolbar-Lock UND mit dem Per-Device-Lock ändern kann. Ohne diese
         // Zeile hätte rfNodes den Lock-State von der Erst-Initialisierung.
+        // Hallenplan und Symbole: Ebene, Auswahl, Groesse und Lage kommen
+        // ebenfalls aus dem Store — Sperren legt den Plan unter die
+        // Klickflaeche, und Groesse/Drehung aendern sich im Panel, nicht nur
+        // durch Ziehen auf dem Canvas.
+        if (n.type === 'grundriss' || n.type === 'symbol') {
+          return { ...existing, data: n.data, draggable: n.draggable, selectable: n.selectable, zIndex: n.zIndex, style: n.style, position: n.position }
+        }
         return { ...existing, data: n.data, draggable: n.draggable }
       })
     })
@@ -777,6 +867,12 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
   }, [project.equipment, rfNodes])
 
   const onNodesChange = (changes: NodeChange[]) => {
+    const eigene = changes.filter((c) => 'id' in c && istEigenerKnoten(c.id, symbolIds))
+    if (eigene.length > 0) {
+      eigeneKnotenAendern(eigene)
+      changes = changes.filter((c) => !eigene.includes(c))
+      if (changes.length === 0) return
+    }
     // snap helper used both in the locked and normal paths
     const snap = (v: number) =>
       snapToGrid && gridSize > 0 ? Math.round(v / gridSize) * gridSize : v
@@ -1278,6 +1374,12 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
   )
 
   const onNodeDragStop = useCallback((_event: React.MouseEvent, node: Node) => {
+    // Plan und Symbole schreiben ihre Lage in `eigeneKnotenAendern`.
+    if (node.type === 'grundriss' || node.type === 'symbol') {
+      draggingIdsRef.current.clear()
+      dragStartPositionsRef.current.clear()
+      return
+    }
     const snap = (v: number) =>
       snapToGrid && gridSize > 0 ? Math.round(v / gridSize) * gridSize : v
 
@@ -1828,6 +1930,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
           muss. Die Leiste hat keines; sie kommt ueber Ansicht zurueck. */}
       {canvasToolbarVisible && <CanvasToolbar mode={mode} />}
       {mode === 'main' && <AnnotationCanvasOverlay />}
+      {mode === 'main' && <GrundrissKalibrierung />}
       {/* v7.9.5 — Lock-Banner. Wenn projectMode='finalized' oder 'viewer'
           ist, zeigt eine prominente Leiste oben dass das Canvas
           gesperrt ist + im finalized-Fall einen Quick-Unlock-Button. */}
@@ -2000,12 +2103,14 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
             return
           }
           setSelection(undefined, undefined, undefined)
+          waehleSymbol(null)
         }}
-        onNodeClick={(_event, node) =>
-          node.type === 'location'
-            ? setSelection(undefined, undefined, node.id)
-            : setSelection(node.id, undefined, undefined)
-        }
+        onNodeClick={(_event, node) => {
+          waehleSymbol(node.type === 'symbol' ? node.id : null)
+          if (node.type === 'symbol' || node.type === 'grundriss') setSelection(undefined, undefined, undefined)
+          else if (node.type === 'location') setSelection(undefined, undefined, node.id)
+          else setSelection(node.id, undefined, undefined)
+        }}
         onNodeDoubleClick={async (_event, node) => {
           if (node.type === 'location') {
             const current = (node.data as { name?: string }).name ?? ''
