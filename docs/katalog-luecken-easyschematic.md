@@ -159,3 +159,44 @@ Das Skript, das diese Tabellen erzeugt hat, steht in der Sitzung vom
 `CATALOGUES`-Liste aus `lib/catalogueEvidence.ts`, gleicht Hersteller über
 eine kleine Alias-Tabelle ab (`Blackmagic Design` = `Blackmagic`) und zählt.
 Übernommen wird daraus nichts außer den Zahlen in diesem Papier.
+
+
+## Nachtrag 2026-09-24: der Versuch, es abzukürzen
+
+Es gab einen Zwischenstand, in dem die 4053 Einträge samt ihrer 44 376
+Anschlüsse aus der API **übernommen** wurden. Das war falsch und ist
+zurückgenommen (`git revert`). Der Auftraggeber hat es in einem Satz
+korrigiert:
+
+> „du sollst das aus dem hersteller datenblatt nehmen, nicht aus der
+> datenbank!"
+
+Genau das steht oben in diesem Papier und in #878 seit dem ersten Tag. Der
+Unterschied ist nicht formal: eine Portzahl aus zweiter Hand steht im Plan
+genauso da wie eine nachgesehene. Die Beleg-Abdeckung wäre von 89,7 % auf
+27,9 % gefallen — das war das Symptom, nicht der Preis.
+
+**Was der Fehlversuch trotzdem gebracht hat**, weil es gemessen wurde und
+unabhängig gilt:
+
+- Die ausgelieferten Vorlagen werden in `localStorage` geschrieben. 5315
+  Vorlagen sind als JSON **4,38 MB** gegen ein Kontingent von etwa 5 MB für
+  den ganzen Ursprung — und `persistCustomLibrary` verschluckt den
+  Fehlschlag. Heute sind es 1810 Vorlagen (~0,4 MB), die Grenze ist also
+  nicht erreicht; sie kommt mit jedem Katalog näher.
+- `Phoenix/Euroblock` und `Terminal Block` sind in ihrer Datenbank mit
+  zusammen 9513 Anschlüssen der häufigste Stecker überhaupt. Wir führen
+  beide nicht. Das ist eine Lücke in unserem **Stecker**-Vokabular, die
+  keine Gerätezählung zeigt — und der erste Eintrag für die Arbeitsliste,
+  sobald Installations-AV drankommt.
+
+## Erster Schritt nach dieser Liste: Decimator
+
+`decimatorCatalog.ts`, acht Geräte, jedes mit dem Broschüren-PDF als Beleg:
+MD-HX, MD-LX, MD-CROSS, MD-DUCC, MD-QUAD, DMON-QUAD, DMON-6S, DMON-12S.
+Dabei ist die Behauptung aus `katalog-luecken.md` gefallen, `decimator.com`
+sei nicht erreichbar — ein direkter Abruf kommt durch; nur der
+Web-Abholdienst scheitert an der Zertifikatskette.
+
+Drei Modelle fehlen weiterhin: für `MD-LX-12G`, `MD-HX-12G` und `DMON-4K`
+gibt es unter `brochures/` kein PDF (404, gemessen). Ohne Blatt kein Eintrag.

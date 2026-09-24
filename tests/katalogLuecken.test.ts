@@ -36,7 +36,7 @@ describe('#878 — Katalog-Luecken in den Zielbereichen', () => {
     // die beiden Sorten nicht verwechseln — `belegt` je Bereich sagt, wie
     // viele ein Datenblatt haben, und der Plan-Check zeigt am Geraet, ob die
     // Anschluesse noch fehlen.
-    expect(b.eintraegeGesamt).toBe(1802)
+    expect(b.eintraegeGesamt).toBe(1810)
     expect(b.eintraegeGesamt).toBe(evidenceReport().entries)
 
     // „ueber ein Drittel Mikrofone" — das stimmt, und zwar deutlich.
@@ -71,11 +71,15 @@ describe('#878 — Katalog-Luecken in den Zielbereichen', () => {
     // 20 -> 385 am 2026-09-24 (Uebernahme aus dem multicam-planner). 377
     // davon mit Datenblatt-Link, aber nur 20 mit Portliste.
     expect(stand('kameras').eintraege).toBe(385)
-    expect(stand('konverter').eintraege).toBe(30)
+    // 30 -> 34 am 2026-09-24: Decimator. #878 nennt die Marke ausdruecklich,
+    // und `docs/katalog-luecken.md` hielt fest, dass sie vollstaendig fehlte —
+    // weil die Datenblaetter „nicht erreichbar" schienen. Erreichbar waren
+    // sie; nur der Abruf-Dienst scheiterte an der Zertifikatskette.
+    expect(stand('konverter').eintraege).toBe(34)
     expect(stand('netzwerk').eintraege).toBe(81)
     expect(stand('intercom').eintraege).toBe(8)
     expect(stand('led-prozessoren').eintraege).toBe(2)
-    expect(katalogLuecken().eintraegeInBereichen).toBe(506)
+    expect(katalogLuecken().eintraegeInBereichen).toBe(510)
 
     // Und die Breite, nicht nur die Menge: Kameras und Intercom haengen an je
     // EINEM Katalog. Ein Bereich mit einem Hersteller ist kein bestueckter

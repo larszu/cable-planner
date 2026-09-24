@@ -115,7 +115,7 @@ describe('jeder Quellen-Kommentar steht auch als Feld im Eintrag', () => {
     // WER DIESE ZAHL AENDERT, OHNE DEN GENERATOR GELAUFEN ZU HABEN, hat von
     // Hand in eine erzeugte Datei geschrieben. `npm run katalog:check` sagt,
     // ob sie noch zur Quelle passt.
-    expect(pairs().length).toBe(1616)
+    expect(pairs().length).toBe(1624)
   })
 
   it('deckt die Kataloge ab, die Belege fuehren', () => {
@@ -129,6 +129,9 @@ describe('jeder Quellen-Kommentar steht auch als Feld im Eintrag', () => {
       // Erzeugt aus dem multicam-planner (2026-09-24).
       'cameraBodyCatalog.ts',
       'cameraCatalog.ts',
+      // #878, aus den Broschueren-PDFs recherchiert (2026-09-24): die Marke,
+      // die das Issue ausdruecklich nennt und die vollstaendig fehlte.
+      'decimatorCatalog.ts',
       // Erzeugt aus dem light-planner (2026-09-24).
       'fixtureCatalog.ts',
       'greengoCatalog.ts',
@@ -283,6 +286,6 @@ describe('der Beleg zeigt auf den Hersteller, nicht auf einen Haendler', () => {
   it('prueft alle Belege, nicht nur die mit Feld', () => {
     // Ohne diese Zusicherung waere der Haendler-Test auch dann gruen, wenn
     // `pairs()` nichts mehr faende.
-    expect(pairs().filter((p) => p.field).length).toBe(1616)
+    expect(pairs().filter((p) => p.field).length).toBe(1624)
   })
 })

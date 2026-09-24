@@ -38,6 +38,11 @@ export const DEFAULT_CATEGORIES = [
   // Neu hinzugefuegte Vorgabe-Kategorien erreichen auch bestehende Nutzer:
   // `loadKnownCategories` vereinigt Vorgabe und Gespeichertes.
   'Patch panels',
+  // Der Multiviewer hatte keine Kategorie — die Decimator-DMON-Reihe waere
+  // sonst unter „Video" gelandet, neben Mischern und Kreuzschienen. Er steht
+  // in derselben Familie wie `Video Mixer` und `Video Router`, die die
+  // Kataloge schon fuehren, und ist genauso ein eigenes Geraet.
+  'Multiviewer',
   'Power',
   'Rigging',
   'Other',

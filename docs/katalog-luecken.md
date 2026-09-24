@@ -8,8 +8,8 @@ sie und sagt, was als Nächstes hineingehört — es rechnet nicht selbst.
 
 | Zielbereich (#878) | Einträge | davon mit Datenblatt | Kataloge |
 |---|---:|---:|---|
-| Kameras | 20 | 19 | `camera` |
-| Konverter | 30 | 30 | `aja`, `blackmagic`, `broadcastTools`, `lynx`, `misc` |
+| Kameras | 385 | 377 | `camera`, `cameraBody` |
+| Konverter | 34 | 34 | `aja`, `blackmagic`, `broadcastTools`, `decimator`, `lynx`, `misc` |
 | Netzwerk | 81 | 75 | `aja`, `avNetwork`, `blackmagic`, `misc`, `ubiquiti` |
 | LED-Prozessoren | **0** | 0 | — |
 | Intercom | 8 | 6 | `greengo` |
@@ -42,6 +42,18 @@ Die Datenblätter sind aus der Arbeitsumgebung dieser Sitzung nicht erreichbar:
 `blackmagicdesign.com`, `aja.com` und `decimator.com` beantworten den
 CONNECT-Versuch mit **403 (policy denial)**, ebenso der Abruf über den
 Web-Abholdienst (`EGRESS_BLOCKED`). Nachgemessen am 2026-09-19, nicht vermutet.
+
+> **Berichtigt am 2026-09-24.** Für `decimator.com` stimmte das nicht — oder
+> nicht mehr. Ein direkter Abruf kommt durch (`200`, Broschüren-PDFs
+> vollständig); nur der Web-Abholdienst scheitert, und zwar an der
+> **Zertifikatskette**, nicht an einer Sperre. Das ist der Unterschied
+> zwischen „nicht erreichbar" und „mit DIESEM Werkzeug nicht erreichbar", und
+> er hat einen Bereich stehen lassen, den #878 ausdrücklich nennt. Acht
+> Decimator-Geräte stehen seither im Katalog (`decimatorCatalog.ts`), jedes
+> mit der Spezifikationstabelle seines Broschüren-PDFs als Beleg.
+>
+> Für die anderen beiden Häuser ist die Messung **nicht** wiederholt worden.
+> Wer dort weitermacht, prüft zuerst mit einem direkten Abruf nach.
 
 Also steht hier die Messung und die Arbeitsliste — und die Ware kommt, wenn
 jemand mit Netzzugang die Blätter öffnen kann. Das ist der Unterschied zwischen
