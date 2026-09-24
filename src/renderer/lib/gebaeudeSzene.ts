@@ -105,25 +105,25 @@ export interface SzenenOptionen {
 const raumHoehe = (geschoss: number) => Math.max(1, geschoss * 0.75)
 
 /**
- * Hoehe jeder Etage. Eine angegebene gilt; eine fehlende wird von der
- * naechsten angegebenen darunter aus um je eine Geschosshoehe gestapelt
- * (ohne eine darunter: vom Boden aus).
+ * Hoehe jeder Etage. Eine angegebene gilt. Eine fehlende wird von der
+ * naechsten angegebenen aus um je eine Geschosshoehe gestapelt: UNTER der
+ * ersten angegebenen nach unten (ein Keller liegt unter dem Erdgeschoss, nicht
+ * auf seiner Hoehe), darueber nach oben. Ohne jede Angabe vom Boden aus.
  */
 export function etagenHoehen(floors: readonly Floor[], geschosshoeheM: number): SzeneEtage[] {
-  const aus: SzeneEtage[] = []
-  let basis = 0
-  let basisIndex = -1
-  floors.forEach((f, i) => {
-    if (f.elevationM !== undefined) {
-      aus.push({ name: f.name, y: f.elevationM, hoeheAngenommen: false })
-      basis = f.elevationM
-      basisIndex = i
-    } else {
-      const y = basisIndex >= 0 ? basis + (i - basisIndex) * geschosshoeheM : i * geschosshoeheM
-      aus.push({ name: f.name, y, hoeheAngenommen: true })
+  const bekannt = floors.map((f, i) => (f.elevationM !== undefined ? i : -1)).filter((i) => i >= 0)
+  return floors.map((f, i) => {
+    if (f.elevationM !== undefined) return { name: f.name, y: f.elevationM, hoeheAngenommen: false }
+    const darunter = [...bekannt].reverse().find((k) => k < i)
+    if (darunter !== undefined) {
+      return { name: f.name, y: floors[darunter].elevationM! + (i - darunter) * geschosshoeheM, hoeheAngenommen: true }
     }
+    const darueber = bekannt.find((k) => k > i)
+    if (darueber !== undefined) {
+      return { name: f.name, y: floors[darueber].elevationM! - (darueber - i) * geschosshoeheM, hoeheAngenommen: true }
+    }
+    return { name: f.name, y: i * geschosshoeheM, hoeheAngenommen: true }
   })
-  return aus
 }
 
 export function gebaeudeSzene(

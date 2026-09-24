@@ -329,7 +329,7 @@ export const CableEdge = ({
   // port handles, so the entire connection visually pops at once.
   const hoveredCableId = useUiStore((s) => s.hoveredCableId)
   // #914 — liegt dieses Kabel auf dem hervorgehobenen Signalweg?
-  const imSignalweg = useUiStore((s) => !!s.signalweg?.kabelIds.includes(id))
+  const imSignalweg = useUiStore((s) => !s.vollansicht && !!s.signalweg?.kabelIds.includes(id))
   // #915 — fuer die Stummel-Beschriftung: wo das verborgene Ende sitzt.
   const locations = useProjectStore((state) => state.project.locations)
   const floors = useProjectStore((state) => state.project.floors)

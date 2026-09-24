@@ -106,3 +106,23 @@ describe('abgleichKameras', () => {
     })
   })
 })
+
+describe('Uebergang v1 → v2 (Review-Befund)', () => {
+  it('eine Kamera aus einer v1-Liste wird von der ersten v2-Liste uebernommen, nicht verdoppelt', () => {
+    // Ohne Projekt-Id — `liste(…, undefined)` fiele auf den Vorgabewert zurueck.
+    const { projectId: _ohne, ...v1rest } = liste([{ id: 'cam-1', label: 'CAM 1' }])
+    const v1: CameraListExchange = { ...v1rest, formatVersion: 1 }
+    const bestand = importiert(v1)
+    expect(bestand[0].multicamProjectId).toBeUndefined()
+    const r = abgleichKameras(bestand, liste([{ id: 'cam-1', label: 'CAM 1' }], 'plan-a'))
+    expect(r.neu).toEqual([])
+    expect(r.aktualisiert).toEqual([{ id: 'geraet-0', patch: { multicamProjectId: 'plan-a' } }])
+  })
+
+  it('ein Geraet wird in einem Lauf nur einmal getroffen', () => {
+    const { projectId: _ohne, ...v1rest } = liste([{ id: 'cam-1', label: 'CAM 1' }])
+    const bestand = importiert({ ...v1rest, formatVersion: 1 })
+    const r = abgleichKameras(bestand, liste([{ id: 'cam-1', label: 'A' }, { id: 'cam-2', label: 'B' }], 'plan-a'))
+    expect(r.neu.map((e) => e.name)).toEqual(['B'])
+  })
+})

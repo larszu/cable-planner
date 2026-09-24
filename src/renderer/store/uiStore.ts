@@ -214,6 +214,10 @@ interface PersistedUiState {
   /** v7.9.2 — User-definierte Signal-Standards (z.B. "Madi 64ch",
    *  "Dante Primary"), zusätzlich zu ALL_SIGNAL_STANDARDS. */
   customSignalStandards: string[]
+  /** #917 — hier entfernte eigene Stammdaten (`stecker:`/`standard:`/`ebene:`
+   *  + Name klein). Der Bibliotheks-Abgleich ergaenzt nur und braechte sie
+   *  sonst beim naechsten Sync zurueck — das Entfernen haette keine Wirkung. */
+  stammdatenEntfernt: string[]
   /** v7.9.6 — User-defined order of cable groups (SDI, HDMI, …) in the
    *  Kabel-Library. Empty array = natural order from groupOf(). Unknown
    *  groups land at the end so adding a new connector type doesn't lose
@@ -383,6 +387,7 @@ const defaults: PersistedUiState = {
   customCableSpecs: [],
   customConnectorTypes: [],
   customSignalStandards: [],
+  stammdatenEntfernt: [],
   cableGroupOrder: [],
   cableSpecOverrides: {},
   deviceConfigLibrary: [],
@@ -501,6 +506,7 @@ const load = (): PersistedUiState => {
     if (!Array.isArray(merged.customCableSpecs)) merged.customCableSpecs = []
     if (!Array.isArray(merged.customConnectorTypes)) merged.customConnectorTypes = []
     if (!Array.isArray(merged.customSignalStandards)) merged.customSignalStandards = []
+    if (!Array.isArray(merged.stammdatenEntfernt)) merged.stammdatenEntfernt = []
     if (!Array.isArray(merged.deviceConfigLibrary)) merged.deviceConfigLibrary = []
     if (typeof merged.cableBumps !== 'boolean') merged.cableBumps = defaults.cableBumps
     if (typeof merged.inlineToolbarEnabled !== 'boolean') merged.inlineToolbarEnabled = defaults.inlineToolbarEnabled
@@ -1092,6 +1098,11 @@ interface UiState extends PersistedUiState {
    *  Oeffnen still fehlender Raum saehe aus wie ein geloeschter. */
   ausgeblendeteRaeume: string[]
   ausgeblendeteEtagen: string[]
+  /** Waehrend einer Ausgabe (PDF, Druck, Bild) zeigt der Canvas den GANZEN
+   *  Plan: kein ausgeblendeter Raum, kein gedimmter Rest. Ein Ausdruck, dem
+   *  still eine Etage fehlt, saehe aus wie der Plan. */
+  vollansicht: boolean
+  setVollansicht: (v: boolean) => void
   toggleRaumSichtbar: (id: string) => void
   toggleEtageSichtbar: (key: string) => void
   alleRaeumeZeigen: () => void
@@ -1125,6 +1136,16 @@ interface UiState extends PersistedUiState {
   removeLastPendingWaypoint: () => void
   clearPendingCable: () => void
 }
+
+// #917 — Grabsteine fuer entfernte eigene Stammdaten (siehe `stammdatenEntfernt`).
+export const grabstein = (art: 'stecker' | 'standard' | 'ebene', name: string): string =>
+  `${art}:${name.trim().toLowerCase()}`
+const mitGrabstein = (liste: string[], art: 'stecker' | 'standard' | 'ebene', name: string): string[] => {
+  const g = grabstein(art, name)
+  return liste.includes(g) ? liste : [...liste, g]
+}
+const ohneGrabstein = (liste: string[], art: 'stecker' | 'standard' | 'ebene', name: string): string[] =>
+  liste.filter((x) => x !== grabstein(art, name))
 
 // #296 — Persistenz-Schluessel werden aus `defaults` abgeleitet, sodass
 // jedes neue Feld in PersistedUiState automatisch durchgereicht wird.
@@ -1259,12 +1280,14 @@ export const useUiStore = create<UiState>((set) => ({
       if (state.customConnectorTypes.includes(trimmed)) return state
       return applyPatch({
         customConnectorTypes: [...state.customConnectorTypes, trimmed],
+        stammdatenEntfernt: ohneGrabstein(state.stammdatenEntfernt, 'stecker', trimmed),
       })(state)
     }),
   removeCustomConnectorType: (name) =>
     set((state) =>
       applyPatch({
         customConnectorTypes: state.customConnectorTypes.filter((n) => n !== name),
+        stammdatenEntfernt: mitGrabstein(state.stammdatenEntfernt, 'stecker', name),
       })(state),
     ),
   addCustomSignalStandard: (name) =>
@@ -1274,12 +1297,14 @@ export const useUiStore = create<UiState>((set) => ({
       if (state.customSignalStandards.includes(trimmed)) return state
       return applyPatch({
         customSignalStandards: [...state.customSignalStandards, trimmed],
+        stammdatenEntfernt: ohneGrabstein(state.stammdatenEntfernt, 'standard', trimmed),
       })(state)
     }),
   removeCustomSignalStandard: (name) =>
     set((state) =>
       applyPatch({
         customSignalStandards: state.customSignalStandards.filter((n) => n !== name),
+        stammdatenEntfernt: mitGrabstein(state.stammdatenEntfernt, 'standard', name),
       })(state),
     ),
   setCableGroupOrder: (order) => set(applyPatch({ cableGroupOrder: order })),
@@ -1418,7 +1443,11 @@ export const useUiStore = create<UiState>((set) => ({
       const clean = name.trim().toLowerCase()
       if (!clean) return {}
       if (state.customLayers.includes(clean)) return {}
+      if (state.stammdatenEntfernt.includes(grabstein('ebene', clean))) {
+        applyPatch({ stammdatenEntfernt: ohneGrabstein(state.stammdatenEntfernt, 'ebene', clean) })(state)
+      }
       return {
+        stammdatenEntfernt: ohneGrabstein(state.stammdatenEntfernt, 'ebene', clean),
         customLayers: [...state.customLayers, clean],
         // Neu hinzugefügt = standardmäßig sichtbar.
         layerVisibility: { ...state.layerVisibility, [clean]: true },
@@ -1428,7 +1457,10 @@ export const useUiStore = create<UiState>((set) => ({
     set((state) => {
       const next = { ...state.layerVisibility }
       delete next[name]
+      const stammdatenEntfernt = mitGrabstein(state.stammdatenEntfernt, 'ebene', name)
+      applyPatch({ stammdatenEntfernt })(state)
       return {
+        stammdatenEntfernt,
         customLayers: state.customLayers.filter((l) => l !== name),
         layerVisibility: next,
       }
@@ -1570,6 +1602,8 @@ export const useUiStore = create<UiState>((set) => ({
   setSignalweg: (weg) => set({ signalweg: weg }),
   ausgeblendeteRaeume: [],
   ausgeblendeteEtagen: [],
+  vollansicht: false,
+  setVollansicht: (v) => set({ vollansicht: v }),
   toggleRaumSichtbar: (id) =>
     set((state) => ({
       ausgeblendeteRaeume: state.ausgeblendeteRaeume.includes(id)

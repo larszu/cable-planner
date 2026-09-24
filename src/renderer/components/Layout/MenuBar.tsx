@@ -305,9 +305,22 @@ export const MenuBar = ({
         // jedem Oeffnen zurueck.
         const liste = (avplan.domains.cameras as { cameraList?: unknown } | undefined)?.cameraList
         if (liste !== undefined) {
-          const store = useProjectStore.getState()
-          const ergebnis = abgleichKameras(store.project.equipment, pruefeCameraList(liste))
-          if (ergebnis.neu.length > 0 || ergebnis.aktualisiert.length > 0) {
+          // Eigener Fehlerweg: das Projekt ist an dieser Stelle schon geladen.
+          // Eine unlesbare Kamera-Liste darf nicht als „Import fehlgeschlagen"
+          // gemeldet werden — der Plan steht ja da, nur ohne die Kameras.
+          let ergebnis: KameraAbgleich | null = null
+          try {
+            ergebnis = abgleichKameras(useProjectStore.getState().project.equipment, pruefeCameraList(liste))
+          } catch {
+            await infoDialog(
+              t(
+                'app.menu.file.avplanCamerasUnreadable',
+                'The project was opened, but the MultiCam camera list in this file could not be read — the cameras were not applied.',
+              ),
+              { tone: 'warning' },
+            )
+          }
+          if (ergebnis && (ergebnis.neu.length > 0 || ergebnis.aktualisiert.length > 0)) {
             const ok = await confirmDialog(
               t('app.menu.file.avplanCamerasAsk', 'This file contains the cameras of the MultiCam plan. Apply them to the signal plan?'),
               { body: kameraBericht(ergebnis).join('\n') },

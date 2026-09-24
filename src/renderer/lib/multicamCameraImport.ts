@@ -275,9 +275,18 @@ export function abgleichKameras(bestand: readonly EquipmentItem[], ex: CameraLis
 
   ex.cameras.forEach((c, i) => {
     const kandidat = kandidaten[i]
+    const frei = (e: EquipmentItem) => !getroffen.has(e.id)
     const vorhanden =
-      bestand.find((e) => e.multicamId === c.id && ausDiesemPlan(e, ex.projectId)) ??
-      bestand.find((e) => e.multicamId === undefined && e.id === c.id && /camera|kamera/i.test(e.category ?? ''))
+      bestand.find((e) => frei(e) && e.multicamId === c.id && ausDiesemPlan(e, ex.projectId)) ??
+      // Uebergang v1 → v2: eine Kamera aus einer Liste OHNE Projekt-Id wird
+      // von der ersten Liste MIT Id uebernommen, statt daneben ein zweites
+      // Mal angelegt zu werden. Der Patch traegt die Id dann nach.
+      (ex.projectId !== undefined
+        ? bestand.find((e) => frei(e) && e.multicamId === c.id && e.multicamProjectId === undefined)
+        : undefined) ??
+      bestand.find(
+        (e) => frei(e) && e.multicamId === undefined && e.id === c.id && /camera|kamera/i.test(e.category ?? ''),
+      )
     if (!vorhanden) {
       ergebnis.neu.push(kandidat)
       return

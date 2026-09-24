@@ -2062,6 +2062,10 @@ const buildProjectStore = (
         equipment: slice.equipment,
         cables: slice.cables,
         locations: slice.locations,
+        // #911 — der Abgleich traegt nur Rahmen, nicht die Etagenliste. Eine
+        // Etage, die ein Mitarbeiter angelegt hat, kommt so wenigstens als
+        // Name in die Liste (ohne Hoehe), statt am Rahmen ins Leere zu zeigen.
+        floors: heileEtagen(state.project.floors, slice.locations),
       },
     })),
   importGraphml: (payload) => {
@@ -2254,6 +2258,14 @@ const buildProjectStore = (
         // Haupt-/Backup-Paar zu behaupten, das niemand erklaert hat — und
         // zwei Geraete auf dieselbe Tally-Adresse zu setzen.
         sourceIdentityId: undefined,
+        // #909 — die MultiCam-Herkunft ebenso wenig. Mit ihr gewaenne beim
+        // naechsten Kamera-Import das Original den Abgleich, und die Kopie
+        // stuende als „nicht mehr im MultiCam-Plan" da, ohne je wieder
+        // nachgezogen zu werden.
+        multicamId: undefined,
+        multicamProjectId: undefined,
+        multicamRemoved: undefined,
+        importSource: item.importSource === 'multicam' ? undefined : item.importSource,
       }
     })
     const newCables: Cable[] = []

@@ -152,6 +152,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
   const signalweg = useUiStore((state) => state.signalweg)
   const ausgeblendeteRaeume = useUiStore((state) => state.ausgeblendeteRaeume)
   const ausgeblendeteEtagen = useUiStore((state) => state.ausgeblendeteEtagen)
+  const vollansicht = useUiStore((state) => state.vollansicht)
   const pdfExportThemeOverride = useUiStore((state) => state.pdfExportThemeOverride)
   const pdfExportMonochrome = useUiStore((state) => state.pdfExportMonochrome)
   const pendingCable = useUiStore((state) => state.pendingCable)
@@ -339,17 +340,22 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
   // #914/#915 — Signalweg und ausgeblendete Raeume gehoeren zu DIESEM Plan.
   // Nach dem Oeffnen eines anderen bliebe sonst alles gedimmt (keine Id des
   // Signalwegs passt mehr) oder eine gleichnamige Etage still verborgen.
+  //
+  // An der Projekt-Kennung und nicht an `projectVersion`: die zaehlt auch
+  // bei einem Kabel vom Telefon, einer uebernommenen Aenderung oder einem
+  // GraphML-Import hoch — dann soll die Ansicht bleiben. Und nur im
+  // Haupt-Canvas: der Rack-Canvas teilt den globalen Zustand und darf ihn
+  // nicht beim Oeffnen zuruecksetzen.
   const setSignalwegAnsicht = useUiStore((s) => s.setSignalweg)
   const alleRaeumeZeigenAnsicht = useUiStore((s) => s.alleRaeumeZeigen)
-  const erstesLaden = useRef(true)
+  const projektKennung = project.metadata.projectId
+  const letzteKennung = useRef(projektKennung)
   useEffect(() => {
-    if (erstesLaden.current) {
-      erstesLaden.current = false
-      return
-    }
+    if (mode !== 'main' || letzteKennung.current === projektKennung) return
+    letzteKennung.current = projektKennung
     setSignalwegAnsicht(null)
     alleRaeumeZeigenAnsicht()
-  }, [projectVersion, setSignalwegAnsicht, alleRaeumeZeigenAnsicht])
+  }, [projektKennung, mode, setSignalwegAnsicht, alleRaeumeZeigenAnsicht])
 
   const edgeUpdateSuccessful = useRef(true)
   const connectStartRef = useRef<{
@@ -648,12 +654,15 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
 
   const sicht = useMemo(
     () =>
-      ansicht(project.equipment, project.cables, locations, {
-        ausgeblendeteRaeume,
-        ausgeblendeteEtagen,
-        signalweg,
-      }),
-    [project.equipment, project.cables, locations, ausgeblendeteRaeume, ausgeblendeteEtagen, signalweg],
+      ansicht(
+        project.equipment,
+        project.cables,
+        locations,
+        vollansicht
+          ? { ausgeblendeteRaeume: [], ausgeblendeteEtagen: [], signalweg: null }
+          : { ausgeblendeteRaeume, ausgeblendeteEtagen, signalweg },
+      ),
+    [project.equipment, project.cables, locations, ausgeblendeteRaeume, ausgeblendeteEtagen, signalweg, vollansicht],
   )
 
   const edges = useMemo<Edge[]>(

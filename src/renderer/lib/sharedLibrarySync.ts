@@ -20,7 +20,7 @@ import { stripCredentials } from './credentialKeys'
 import type { CredentialChoice } from './credentialChoiceDialog'
 import { useSettingsStore } from '../store/settingsStore'
 import { useProjectStore } from '../store/projectStore'
-import { useUiStore } from '../store/uiStore'
+import { grabstein, useUiStore } from '../store/uiStore'
 import { fehlendeStammdaten, vereinigteStammdaten } from './stammdaten'
 import { ALL_CONNECTOR_TYPES } from '../types/equipment'
 import { ALL_SIGNAL_STANDARDS } from '../types/cableSpec'
@@ -125,9 +125,11 @@ export const syncSharedLibrary = async (
       signalStandards: [...ALL_SIGNAL_STANDARDS],
       cableLayers: [...STANDARD_LAYERS],
     })
-    fehlend.connectorTypes.forEach((n) => ui.addCustomConnectorType(n))
-    fehlend.signalStandards.forEach((n) => ui.addCustomSignalStandard(n))
-    fehlend.cableLayers.forEach((n) => ui.addCustomLayer(n))
+    // Was hier jemand entfernt hat, kommt nicht still zurueck.
+    const entfernt = new Set(ui.stammdatenEntfernt)
+    fehlend.connectorTypes.filter((n) => !entfernt.has(grabstein('stecker', n))).forEach((n) => ui.addCustomConnectorType(n))
+    fehlend.signalStandards.filter((n) => !entfernt.has(grabstein('standard', n))).forEach((n) => ui.addCustomSignalStandard(n))
+    fehlend.cableLayers.filter((n) => !entfernt.has(grabstein('ebene', n))).forEach((n) => ui.addCustomLayer(n))
 
     // ── Push: Vereinigung (lokal gewinnt) zurückschreiben ──
     const after = useProjectStore.getState()

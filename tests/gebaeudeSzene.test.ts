@@ -22,6 +22,11 @@ describe('etagenHoehen', () => {
       { name: '3.OG', y: 12, hoeheAngenommen: false },
     ])
   })
+  it('unter der ersten angegebenen Etage wird nach UNTEN gestapelt', () => {
+    expect(etagenHoehen([{ name: 'UG' }, { name: 'EG' }, { name: '1.OG', elevationM: 3.5 }], 4).map((e) => e.y)).toEqual([-4.5, -0.5, 3.5])
+    expect(etagenHoehen([{ name: 'KG' }, { name: 'EG', elevationM: 0 }], 3).map((e) => e.y)).toEqual([-3, 0])
+  })
+
   it('ohne jede Angabe vom Boden aus', () => {
     expect(etagenHoehen([{ name: 'EG' }, { name: '1.OG' }], 3.5).map((e) => e.y)).toEqual([0, 3.5])
   })

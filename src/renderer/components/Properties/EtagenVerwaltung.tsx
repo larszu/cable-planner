@@ -35,15 +35,20 @@ export const EtagenVerwaltung = () => {
     setFloors(next)
   }
 
+  /**
+   * Nur schreiben, was sich wirklich aendert: ein Blur ohne Aenderung waere
+   * sonst ein Undo-Schritt und ein „ungespeichert". Eine unlesbare Eingabe
+   * („3,5 m") loescht die vorhandene Hoehe NICHT — sie bleibt stehen, und das
+   * Feld zeigt sie wieder. Nur ein leeres Feld nimmt sie weg.
+   */
   const setzeHoehe = (i: number, roh: string) => {
-    const next = floors.map((f, k) => {
-      if (k !== i) return f
-      const wert = roh.trim() === '' ? undefined : Number(roh.replace(',', '.'))
-      const e: Floor = { name: f.name }
-      if (wert !== undefined && Number.isFinite(wert)) e.elevationM = wert
-      return e
-    })
-    setFloors(next)
+    const f = floors[i]
+    if (!f) return
+    const text = roh.trim().replace(',', '.').replace(/\s*m$/i, '')
+    const wert = text === '' ? undefined : Number(text)
+    if (wert !== undefined && !Number.isFinite(wert)) return
+    if (wert === f.elevationM) return
+    setFloors(floors.map((x, k) => (k !== i ? x : wert === undefined ? { name: x.name } : { name: x.name, elevationM: wert })))
   }
 
   const umbenennen = async (f: Floor) => {
@@ -109,7 +114,11 @@ export const EtagenVerwaltung = () => {
                 inputMode="decimal"
                 defaultValue={f.elevationM ?? ''}
                 key={`${f.name}:${f.elevationM ?? ''}`}
-                onBlur={(e) => setzeHoehe(i, e.target.value)}
+                onBlur={(e) => {
+                  setzeHoehe(i, e.target.value)
+                  // Unlesbares nicht stehen lassen: das Feld zeigt, was gilt.
+                  e.target.value = f.elevationM === undefined ? '' : String(f.elevationM)
+                }}
                 placeholder={t('floors.heightPlaceholder', 'm')}
                 aria-label={format(t('floors.heightLabel', 'Height of {name} in metres'), { name: f.name })}
                 className="w-14 border border-cp-border bg-cp-surface-3 px-1 py-0.5 text-right"

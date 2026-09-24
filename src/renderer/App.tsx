@@ -992,7 +992,17 @@ export default function App() {
   }
 
   // v7.7.1 — PNG / JPEG export (canvas only, no header / title block).
+  // #914/#915 — jede Ausgabe zeigt den ganzen Plan, auch wenn auf dem Schirm
+  // Raeume ausgeblendet sind oder ein Signalweg hervorgehoben ist. Zwei
+  // Bilder warten, bis der Canvas ohne Filter gezeichnet ist.
+  const setVollansicht = useUiStore((state) => state.setVollansicht)
+  const vollansichtAn = async () => {
+    setVollansicht(true)
+    await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())))
+  }
+
   const handleExportImage = async (imgFormat: 'png' | 'jpeg' | 'svg' | 'dxf') => {
+    if (imgFormat !== 'dxf') await vollansichtAn()
     try {
       if (imgFormat === 'dxf') {
         // #355 — DXF wird strukturiert aus den Projektdaten erzeugt (nicht
@@ -1022,6 +1032,8 @@ export default function App() {
           tone: 'error',
         },
       )
+    } finally {
+      setVollansicht(false)
     }
   }
 
@@ -1157,6 +1169,7 @@ export default function App() {
     // Bedarf 128 — wie das Thema: nur fuer die Dauer dieser Ausgabe gesetzt
     // und im `finally` zurueckgenommen. Auf dem Schirm aendert sich nichts.
     setPdfExportMonochrome(monochrom)
+    setVollansicht(true)
     setPdfProgress({ active: true, phase: 'Starte…' })
     await new Promise<void>((resolve) =>
       requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
@@ -1205,6 +1218,7 @@ export default function App() {
     } finally {
       setPdfExportThemeOverride(null)
       setPdfExportMonochrome(false)
+      setVollansicht(false)
       setPdfProgress({ active: false })
     }
   }
@@ -1214,6 +1228,7 @@ export default function App() {
    *  printPdfBlob → unsichtbares iframe → window.print() → OS-Druckdialog. */
   const handlePrintPdf = async (theme: 'dark' | 'light' = canvasTheme) => {
     setPdfExportThemeOverride(theme)
+    setVollansicht(true)
     setPdfProgress({ active: true, phase: 'Starte…' })
     await new Promise<void>((resolve) =>
       requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
@@ -1244,6 +1259,7 @@ export default function App() {
     } finally {
       setPdfExportThemeOverride(null)
       setPdfExportMonochrome(false)
+      setVollansicht(false)
       setPdfProgress({ active: false })
     }
   }

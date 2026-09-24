@@ -133,6 +133,14 @@ export const Gebaeude3DDialog = () => {
     (s) => s.project.metadata.lengthEstimation?.metersPer100px ?? DEFAULT_LENGTH_ESTIMATION.metersPer100px,
   )
   const [geschosshoeheM, setGeschosshoeheM] = useState(4)
+  // Eingabe als Text, uebernommen beim Verlassen/Enter: sonst liesse sich
+  // „12" nicht tippen — die „1" dazwischen laege unter der Untergrenze.
+  const [geschossEingabe, setGeschossEingabe] = useState('4')
+  const geschossUebernehmen = () => {
+    const v = Number(geschossEingabe.replace(',', '.'))
+    if (Number.isFinite(v) && v >= 2 && v <= 20) setGeschosshoeheM(v)
+    else setGeschossEingabe(String(geschosshoeheM))
+  }
   const [modus, setModus] = useState<Modus>('raeume')
   const [beschriftung, setBeschriftung] = useState(true)
 
@@ -196,14 +204,13 @@ export const Gebaeude3DDialog = () => {
           <label className="flex items-center gap-1 text-cp-xs text-cp-text-secondary" title={t('gebaeude3d.storeyTitle', 'Used only for floors without a height in the floor list')}>
             {t('gebaeude3d.storey', 'Storey height (m)')}
             <input
-              type="number"
-              min={2}
-              max={20}
-              step={0.5}
-              value={geschosshoeheM}
-              onChange={(e) => {
-                const v = Number(e.target.value)
-                if (Number.isFinite(v) && v >= 2 && v <= 20) setGeschosshoeheM(v)
+              type="text"
+              inputMode="decimal"
+              value={geschossEingabe}
+              onChange={(e) => setGeschossEingabe(e.target.value)}
+              onBlur={geschossUebernehmen}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') geschossUebernehmen()
               }}
               className="w-14 border border-cp-border bg-cp-surface-3 px-1 py-0.5"
             />

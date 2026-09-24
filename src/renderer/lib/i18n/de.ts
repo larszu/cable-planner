@@ -567,6 +567,8 @@ export const de: Dict = {
     'Nicht mehr im MultiCam-Plan — markiert, nicht gelöscht, weil Kabel daran hängen können: {names}',
   'app.menu.file.importCamerasModelChanged':
     'Modell in MultiCam geändert — Ports und Kabel bleiben; den Körper in den Eigenschaften über „Anderes Gerät wählen…“ tauschen: {names}',
+  'app.menu.file.avplanCamerasUnreadable':
+    'Das Projekt ist geöffnet, aber die MultiCam-Kameraliste in dieser Datei ließ sich nicht lesen — die Kameras wurden nicht übernommen.',
   'app.menu.file.avplanCamerasAsk':
     'Diese Datei enthält die Kameras des MultiCam-Plans. In den Signalplan übernehmen?',
   'app.menu.file.importCamerasError':
