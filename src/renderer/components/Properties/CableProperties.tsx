@@ -19,6 +19,7 @@ import { netKeyOf, netPeerCount } from '../../lib/offPageNet'
 import { sourceDestLabel } from '../../lib/cableLabel'
 import { cableTouches } from '../../lib/portOccupancy'
 import { kabelEnden, ortText } from '../../lib/kabelOrt'
+import { SignalwegSection } from './SignalwegSection'
 import type { Floor, LocationFrame } from '../../types/location'
 import {
   INSTALL_STATUSES,
@@ -756,6 +757,8 @@ export const CableProperties = () => {
           </div>
         )}
       </div>
+
+      <SignalwegSection cable={cable} />
 
       {/* Endpoint editor — inline accordion (open by default) so users can
           re-route a cable from the properties panel without opening a dialog. */}

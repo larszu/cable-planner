@@ -4,6 +4,8 @@ import { useUiStore } from '../../store/uiStore'
 import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
 import { LENGTH_COLOR_RULES } from '../../lib/cableColors'
 import { LayerVisibilityChips } from './LayerVisibilityChips'
+import { RaumSichtbarkeit } from './RaumSichtbarkeit'
+import { SignalwegChip } from './SignalwegChip'
 import { FlowModeChip } from './FlowModeChip'
 import { CircuitChip } from './CircuitChip'
 import { PatternChip } from './PatternChip'
@@ -811,6 +813,8 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
           gefiltert wird nur das KABEL, nicht das Gerät (Option A aus
           #123). Aus AV-Industrie-Recherche: D-Tools, Stardraw, AVECAV
           nutzen genau diese 5 Top-Level-Layer als Branchenstandard. */}
+      <SignalwegChip />
+      <RaumSichtbarkeit />
       <LayerVisibilityChips />
       <span style={dividerStyle} />
       {/* Die Betriebsart des Signalflusses. Sie steht neben der

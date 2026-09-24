@@ -1079,6 +1079,18 @@ interface UiState extends PersistedUiState {
    *  leave. */
   hoveredCableId: string | null
   setHoveredCableId: (id: string | null) => void
+  /** #914 — der hervorgehobene Signalweg (Kabel + Geraete), oder null. Reine
+   *  Ansicht: dimmt alles andere auf dem Canvas, aendert nichts am Plan. */
+  signalweg: { cableId: string; kabelIds: string[]; geraetIds: string[] } | null
+  setSignalweg: (weg: { cableId: string; kabelIds: string[]; geraetIds: string[] } | null) => void
+  /** #915 — ausgeblendete Rahmen (Ids) und Etagen (`etagenSchluessel`). Nicht
+   *  gespeichert: Rahmen-Ids gehoeren zu einem Projekt, und ein beim naechsten
+   *  Oeffnen still fehlender Raum saehe aus wie ein geloeschter. */
+  ausgeblendeteRaeume: string[]
+  ausgeblendeteEtagen: string[]
+  toggleRaumSichtbar: (id: string) => void
+  toggleEtageSichtbar: (key: string) => void
+  alleRaeumeZeigen: () => void
   /** #221 — Netz-Schlüssel des aktuell hervorgehobenen Off-Page-Netzes.
    *  Wird beim Selektieren eines Off-Page-Kabels gesetzt (CanvasArea-Effekt);
    *  jedes CableEdge mit passendem Netz-Schlüssel leuchtet dann mit. So
@@ -1547,6 +1559,23 @@ export const useUiStore = create<UiState>((set) => ({
   closeRentmanCableExport: () => set({ rentmanCableExport: { open: false } }),
   hoveredCableId: null,
   setHoveredCableId: (id) => set({ hoveredCableId: id }),
+  signalweg: null,
+  setSignalweg: (weg) => set({ signalweg: weg }),
+  ausgeblendeteRaeume: [],
+  ausgeblendeteEtagen: [],
+  toggleRaumSichtbar: (id) =>
+    set((state) => ({
+      ausgeblendeteRaeume: state.ausgeblendeteRaeume.includes(id)
+        ? state.ausgeblendeteRaeume.filter((x) => x !== id)
+        : [...state.ausgeblendeteRaeume, id],
+    })),
+  toggleEtageSichtbar: (key) =>
+    set((state) => ({
+      ausgeblendeteEtagen: state.ausgeblendeteEtagen.includes(key)
+        ? state.ausgeblendeteEtagen.filter((x) => x !== key)
+        : [...state.ausgeblendeteEtagen, key],
+    })),
+  alleRaeumeZeigen: () => set({ ausgeblendeteRaeume: [], ausgeblendeteEtagen: [] }),
   highlightedNetKey: null,
   setHighlightedNetKey: (key) => set({ highlightedNetKey: key }),
   pendingCable: null,

@@ -24,6 +24,8 @@ export interface EndeOrt {
   etage?: string
   /** Rahmen-Name; fehlt, wenn das Geraet in keinem Rahmen liegt. */
   raum?: string
+  /** Id dieses Rahmens — der Name ist nicht eindeutig. */
+  raumId?: string
   geraet: string
   port: string
   equipmentId: string
@@ -40,12 +42,12 @@ export function ortVonGeraet(
   e: Pick<EquipmentItem, 'x' | 'y' | 'width' | 'height'> | undefined,
   locations: readonly LocationFrame[],
   floors: readonly Floor[],
-): { etage?: string; raum?: string } {
+): { etage?: string; raum?: string; raumId?: string } {
   if (!e) return {}
   const loc = locationForEquipment(e, locations)
   if (!loc) return {}
   const etage = etageVon(loc, floors)?.name
-  return etage ? { etage, raum: loc.name } : { raum: loc.name }
+  return etage ? { etage, raum: loc.name, raumId: loc.id } : { raum: loc.name, raumId: loc.id }
 }
 
 const ende = (equipmentId: string, portId: string, ctx: OrtsKontext, byId: Map<string, EquipmentItem>): EndeOrt => {
