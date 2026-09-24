@@ -122,6 +122,12 @@ Built with **Electron, React, and TypeScript**, it is designed for real-world pr
   belongs to — through plates, house runs, converters, routers — and dims the
   rest; the stations are listed with floor, room, device and port. Esc or the
   chip in the toolbar ends it
+- **3D** in the toolbar shows the building: every frame as a room on its
+  floor's height, devices inside, and the connections between rooms — as one
+  line per room pair with the cable count, or as single cables (house runs
+  dashed). The same floor/room and layer switches as on the canvas apply. A
+  floor without a height is stacked with an adjustable storey height, and the
+  view says so
 - **Rooms ▾** in the toolbar hides floors or single rooms with their devices.
   A cable into a hidden room stays as a stub at the visible end and says
   where it goes; its arrow brings the room back. Only the view changes — the

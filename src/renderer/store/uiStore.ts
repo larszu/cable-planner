@@ -910,6 +910,10 @@ interface UiState extends PersistedUiState {
    *  written by `placeGroupPreset` on every device that belongs to the
    *  same rack instance. */
   rackEditor: { open: boolean; rackInstanceId?: string }
+  /** #916 — Gebaeude-3D-Dialog (lazy, hinter der Three.js-Grenze). */
+  gebaeude3dOpen: boolean
+  openGebaeude3d: () => void
+  closeGebaeude3d: () => void
   openRackEditor: (rackInstanceId: string) => void
   closeRackEditor: () => void
   /** v7.9.0 / Issue #120 — Trigger that the RackBuilder should open
@@ -1471,6 +1475,9 @@ export const useUiStore = create<UiState>((set) => ({
   openLocationBom: (locationId) => set({ locationBom: { open: true, locationId } }),
   closeLocationBom: () => set({ locationBom: { open: false } }),
   rackEditor: { open: false },
+  gebaeude3dOpen: false,
+  openGebaeude3d: () => set({ gebaeude3dOpen: true }),
+  closeGebaeude3d: () => set({ gebaeude3dOpen: false }),
   openRackEditor: (rackInstanceId) => set({ rackEditor: { open: true, rackInstanceId } }),
   closeRackEditor: () => set({ rackEditor: { open: false } }),
   rackBuilderSeedTrigger: null,

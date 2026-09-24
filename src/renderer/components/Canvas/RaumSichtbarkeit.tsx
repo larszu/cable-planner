@@ -10,7 +10,7 @@
  * Erscheint nur, wenn es Rahmen gibt: ohne Raeume gibt es nichts auszublenden.
  */
 import { useEffect, useRef, useState } from 'react'
-import { Layers } from 'lucide-react'
+import { Box, Layers } from 'lucide-react'
 import { useUiStore } from '../../store/uiStore'
 import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
 import { format, useTranslation } from '../../lib/i18n'
@@ -87,7 +87,7 @@ export const RaumSichtbarkeit = () => {
       {offen && (
         <div
           role="menu"
-          className={`absolute right-0 top-7 z-50 max-h-96 w-64 overflow-y-auto border p-1 text-cp-xs ${
+          className={`absolute right-0 top-7 z-[60] max-h-96 w-64 overflow-y-auto border p-1 text-cp-xs ${
             isLight ? 'border-slate-300 bg-white text-slate-700' : 'border-slate-700 bg-slate-900 text-slate-200'
           }`}
         >
@@ -136,5 +136,29 @@ export const RaumSichtbarkeit = () => {
         </div>
       )}
     </div>
+  )
+}
+
+/** #916 — oeffnet die Gebaeude-3D-Ansicht. Nur mit Raeumen sinnvoll. */
+export const Gebaeude3DKnopf = () => {
+  const t = useTranslation()
+  const hatRaeume = useProjectStore((s) => (s.project.locations?.length ?? 0) > 0)
+  const oeffnen = useUiStore((s) => s.openGebaeude3d)
+  const isLight = useUiStore((s) => s.canvasTheme) === 'light'
+  if (!hatRaeume) return null
+  return (
+    <button
+      type="button"
+      onClick={oeffnen}
+      title={t('gebaeude3d.open', 'Show rooms by floor in 3D, with the connections between them')}
+      className={`inline-flex h-6 items-center gap-1 border px-2 text-cp-xs transition ${
+        isLight
+          ? 'border-slate-300 bg-slate-100 text-slate-600 hover:bg-slate-200'
+          : 'border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700'
+      }`}
+    >
+      <Icon icon={Box} size="xs" />
+      <span>{t('gebaeude3d.button', '3D')}</span>
+    </button>
   )
 }

@@ -56,6 +56,10 @@ import { AnnotationsPanel } from './components/Annotations/AnnotationsPanel'
 const RackEditorDialog = lazy(() =>
   import('./components/Rack/RackEditorDialog').then((m) => ({ default: m.RackEditorDialog })),
 )
+/** #916 — dritter Eintritt nach `Rack/`, genauso lazy und nur offen gemountet. */
+const Gebaeude3DDialog = lazy(() =>
+  import('./components/Rack/Gebaeude3DDialog').then((m) => ({ default: m.Gebaeude3DDialog })),
+)
 
 const AnnotationsPanelHost = () => {
   const open = useUiStore((s) => s.annotationsPanelOpen)
@@ -291,6 +295,7 @@ export default function App() {
   // Nur der Offen-Zustand: der Rack-Dialog (und mit ihm Three.js) wird erst
   // gemountet und nachgeladen, wenn ihn jemand oeffnet.
   const rackEditorOpen = useUiStore((s) => s.rackEditor.open)
+  const gebaeude3dOpen = useUiStore((s) => s.gebaeude3dOpen)
   const settingsSection = useUiStore((s) => s.settingsSection)
   const setSettingsOpen = (open: boolean) =>
     open ? useUiStore.getState().openSettings() : useUiStore.getState().closeSettings()
@@ -1557,6 +1562,11 @@ export default function App() {
       {rackEditorOpen && (
         <Suspense fallback={null}>
           <RackEditorDialog />
+        </Suspense>
+      )}
+      {gebaeude3dOpen && (
+        <Suspense fallback={null}>
+          <Gebaeude3DDialog />
         </Suspense>
       )}
       <MobileShareDialog />

@@ -4,7 +4,7 @@ import { useUiStore } from '../../store/uiStore'
 import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
 import { LENGTH_COLOR_RULES } from '../../lib/cableColors'
 import { LayerVisibilityChips } from './LayerVisibilityChips'
-import { RaumSichtbarkeit } from './RaumSichtbarkeit'
+import { Gebaeude3DKnopf, RaumSichtbarkeit } from './RaumSichtbarkeit'
 import { SignalwegChip } from './SignalwegChip'
 import { FlowModeChip } from './FlowModeChip'
 import { CircuitChip } from './CircuitChip'
@@ -815,6 +815,7 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
           nutzen genau diese 5 Top-Level-Layer als Branchenstandard. */}
       <SignalwegChip />
       <RaumSichtbarkeit />
+      <Gebaeude3DKnopf />
       <LayerVisibilityChips />
       <span style={dividerStyle} />
       {/* Die Betriebsart des Signalflusses. Sie steht neben der
