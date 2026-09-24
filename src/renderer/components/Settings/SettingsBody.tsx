@@ -6,7 +6,7 @@
 import { useState, type HTMLAttributes, type ReactNode } from 'react'
 import {
   ClipboardList, Palette, Pencil, Keyboard, Plug, Database, RefreshCw, Settings, Blocks, X, ListPlus, Bot,
-  BadgeCheck, Cable,
+  BadgeCheck, Cable, ListChecks,
   type LucideIcon,
 } from 'lucide-react'
 import { Icon } from '../shared/Icon'
@@ -23,6 +23,7 @@ import { McpTab } from './tabs/McpTab'
 import { SchemaBuilderTab } from './tabs/SchemaBuilderTab'
 import { NachweiseTab } from './tabs/NachweiseTab'
 import { CableTypesTab } from './tabs/CableTypesTab'
+import { StammdatenTab } from './tabs/StammdatenTab'
 import { useTranslation } from '../../lib/i18n'
 
 export type SettingsSection =
@@ -35,6 +36,7 @@ export type SettingsSection =
   | 'mcp'
   | 'configs'
   | 'cableTypes'
+  | 'stammdaten'
   | 'schema'
   | 'sync'
   | 'nachweise'
@@ -50,6 +52,7 @@ const TAB_ICONS: Record<SettingsSection, LucideIcon> = {
   mcp: Bot,
   configs: Database,
   cableTypes: Cable,
+  stammdaten: ListChecks,
   schema: ListPlus,
   sync: RefreshCw,
   nachweise: BadgeCheck,
@@ -66,6 +69,7 @@ const TAB_FALLBACK_LABEL: Record<SettingsSection, string> = {
   mcp: 'MCP',
   configs: 'Konfigurationen',
   cableTypes: 'Cable types',
+  stammdaten: 'Master data',
   schema: 'Kategorien & Felder',
   sync: 'Netzwerk-Sync',
   nachweise: 'Nachweise',
@@ -82,6 +86,7 @@ const TAB_FALLBACK_TITLE: Record<SettingsSection, string> = {
   mcp: 'MCP-Server (Claude fragt den Plan)',
   configs: 'Geräte-Konfigurationen',
   cableTypes: 'Cable types',
+  stammdaten: 'Master data (connectors, standards, layers)',
   schema: 'Kategorien & Felder (Feld-Builder)',
   sync: 'Netzwerk-Sync',
   nachweise: 'Nachweise (Qualifikationen, Versicherungen)',
@@ -175,6 +180,7 @@ export const SettingsBody = ({ onClose, initialSection, headerProps, titleId, he
           {section === 'mcp' && <McpTab />}
           {section === 'configs' && <ConfigsTab />}
           {section === 'cableTypes' && <CableTypesTab />}
+          {section === 'stammdaten' && <StammdatenTab />}
           {section === 'schema' && <SchemaBuilderTab />}
           {section === 'sync' && <SyncTab />}
           {section === 'nachweise' && <NachweiseTab />}

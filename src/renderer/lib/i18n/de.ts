@@ -5103,6 +5103,8 @@ export const de: Dict = {
   'settings.cableTypes.resetAria': '{name} zurücksetzen',
   'settings.cableTypes.sidebarHint':
     'Die Kabel-Bibliothek in der linken Seitenleiste bearbeitet einen Typ weiterhin an Ort und Stelle — sie zeigt, woraus du beim Planen wählst.',
+  'settings.tab.stammdaten': 'Stammdaten',
+  'settings.tabTitle.stammdaten': 'Stammdaten (Stecker, Standards, Ebenen)',
   'settings.tab.cableTypes': 'Kabeltypen',
   'settings.modules.intro':
     'Schalte Funktionsbereiche ein oder aus, um die Oberfläche auf deinen Anwendungsfall zuzuschneiden. Das betrifft nur die Sichtbarkeit — gespeicherte Projektdaten bleiben immer vollständig erhalten.',
@@ -5189,6 +5191,20 @@ export const de: Dict = {
   'settings.project.numbering.separator': 'Trennzeichen',
   'settings.project.numbering.start': 'Start-Nummer',
   'settings.project.numbering.title': 'Kabelnummerierung',
+  'stammdaten.add': 'Hinzufügen',
+  'stammdaten.builtIn': 'Eingebaut ({n})',
+  'stammdaten.connectorPlaceholder': 'z. B. opticalCON DUO',
+  'stammdaten.connectors': 'Steckertypen',
+  'stammdaten.exists': 'Gibt es schon.',
+  'stammdaten.intro':
+    'Eigene Steckertypen, Signalstandards und Kabel-Ebenen — an einer Stelle. Sie stehen in jeder Auswahl neben den eingebauten und reisen mit der geteilten Bibliothek (Netzwerk-Sync), damit ein Team dieselben Namen benutzt.',
+  'stammdaten.layerPlaceholder': 'z. B. Intercom',
+  'stammdaten.layers': 'Kabel-Ebenen',
+  'stammdaten.noneOwn': 'Noch keine eigenen Einträge.',
+  'stammdaten.remove': '{name} entfernen',
+  'stammdaten.removeConfirm': '„{name}“ entfernen?',
+  'stammdaten.standardPlaceholder': 'z. B. SMPTE 2110-20',
+  'stammdaten.standards': 'Signalstandards',
   'settings.section': 'Einstellungen',
   'settings.sharedLib.conflicts': '{n} Namens-Konflikt(e) — lokale Version behalten: {names}',
   'settings.sharedLib.desc':

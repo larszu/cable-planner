@@ -20,6 +20,11 @@ import { stripCredentials } from './credentialKeys'
 import type { CredentialChoice } from './credentialChoiceDialog'
 import { useSettingsStore } from '../store/settingsStore'
 import { useProjectStore } from '../store/projectStore'
+import { useUiStore } from '../store/uiStore'
+import { fehlendeStammdaten, vereinigteStammdaten } from './stammdaten'
+import { ALL_CONNECTOR_TYPES } from '../types/equipment'
+import { ALL_SIGNAL_STANDARDS } from '../types/cableSpec'
+import { STANDARD_LAYERS } from './cableLayers'
 import {
   SHARED_LIBRARY_FILE,
   joinSyncPath,
@@ -106,6 +111,23 @@ export const syncSharedLibrary = async (
     if (dDiff.add.length) store.addCustomTemplates(dDiff.add)
     if (gDiff.add.length) store.setGroupPresets(unionByName(localGroups, gDiff.add))
     if (newCats.length) store.addKnownCategories(newCats)
+    // #917 — eigene Steckertypen, Signalstandards und Ebenen: ebenfalls nur
+    // ergaenzen. Sie liegen im uiStore und nicht im Projekt — sie sind
+    // Wortschatz des Rechners, nicht Inhalt eines Plans.
+    const ui = useUiStore.getState()
+    const lokalStamm = {
+      connectorTypes: ui.customConnectorTypes,
+      signalStandards: ui.customSignalStandards,
+      cableLayers: ui.customLayers,
+    }
+    const fehlend = fehlendeStammdaten(lokalStamm, shared, {
+      connectorTypes: [...ALL_CONNECTOR_TYPES],
+      signalStandards: [...ALL_SIGNAL_STANDARDS],
+      cableLayers: [...STANDARD_LAYERS],
+    })
+    fehlend.connectorTypes.forEach((n) => ui.addCustomConnectorType(n))
+    fehlend.signalStandards.forEach((n) => ui.addCustomSignalStandard(n))
+    fehlend.cableLayers.forEach((n) => ui.addCustomLayer(n))
 
     // ── Push: Vereinigung (lokal gewinnt) zurückschreiben ──
     const after = useProjectStore.getState()
@@ -124,6 +146,15 @@ export const syncSharedLibrary = async (
     const writeGroups =
       credentials === 'strip' ? stripCredentials(mergedGroups) : mergedGroups
     const writeCats = [...new Set([...after.knownCategories, ...sCats])]
+    const uiNach = useUiStore.getState()
+    const stamm = vereinigteStammdaten(
+      {
+        connectorTypes: uiNach.customConnectorTypes,
+        signalStandards: uiNach.customSignalStandards,
+        cableLayers: uiNach.customLayers,
+      },
+      shared,
+    )
     const out: SharedLibraryFile = {
       type: 'cable-planner-shared-library',
       version: 1,
@@ -131,6 +162,9 @@ export const syncSharedLibrary = async (
       devices: writeDevices,
       groups: writeGroups,
       categories: writeCats,
+      connectorTypes: stamm.connectorTypes,
+      signalStandards: stamm.signalStandards,
+      cableLayers: stamm.cableLayers,
     }
     await api.writeFile(filePath, JSON.stringify(out, null, 2))
 

@@ -14,6 +14,11 @@ export interface SharedLibraryFile {
   devices: EquipmentTemplate[]
   groups: GroupPreset[]
   categories: string[]
+  /** #917 — eigene Stammdaten. Optional: aeltere Dateien haben sie nicht, und
+   *  ein Leser, der sie nicht kennt, laesst sie unangetastet. */
+  connectorTypes?: string[]
+  signalStandards?: string[]
+  cableLayers?: string[]
 }
 
 /** Pfad + Dateiname plattformkorrekt verbinden (Windows `\\` vs. POSIX `/`). */

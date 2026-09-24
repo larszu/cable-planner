@@ -154,6 +154,10 @@ Built with **Electron, React, and TypeScript**, it is designed for real-world pr
   quantity produces no warning: nobody counted, so there is nothing to warn
   about.
 - Reusable project components
+- **Master data** (Settings → *Master data*): your own connector types, signal
+  standards and cable layers in one place, next to the built-in ones. They
+  appear in every picker and travel with the shared library (Network sync),
+  so a team uses the same names
 
 ---
 
