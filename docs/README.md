@@ -33,6 +33,11 @@ unter `docs/` muss von einer Einstiegsseite aus über Links erreichbar sein.
   warum dort noch keine Einträge stehen (#878). Die Zahlen rechnet
   `lib/katalogLuecken.ts`, dieses Papier begründet sie und nennt die
   Arbeitsliste.
+- [`katalog-luecken-easyschematic.md`](katalog-luecken-easyschematic.md) —
+  dieselbe Frage von außen: was führt EasySchematic (4053 Einträge,
+  AGPL-3.0), das uns fehlt. **Eine Lückenliste, keine Übernahme** — die
+  Werte kommen aus dem Herstellerdatenblatt, weil kopierte Datendateien
+  cable-planner als Ganzes unter AGPL-3.0 zwängen.
 
 ## Für Entwicklung
 
