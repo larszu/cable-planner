@@ -129,10 +129,17 @@ describe('Sie sind aus der Bibliothek erreichbar', () => {
     // Bibliothek eines bestehenden Nutzers unangetastet — die Vorlagen
     // waeren gebaut und unsichtbar.
     const store = lies('src/renderer/store/projectStore.ts')
-    expect(store).toContain("LIB_MIGRATION_VERSION = '2026-09-passive-carriers'")
-    // Und die alte Version bleibt geschuetzt, damit niemandem die eigene
-    // Bibliothek geloescht wird.
+    // 2026-09-24 weitergezogen auf `2026-09-suite-uebernahme`: die Kataloge
+    // aus multicam- und light-planner kamen dazu, und ohne neue Kennung haette
+    // ein Bestandsnutzer keinen einzigen der 1333 neuen Eintraege gesehen.
+    // Diese Zeile prueft nicht den WERT, sondern dass es weiterhin einen gibt
+    // und die Traeger-Saat darunter haengt — sonst waere sie beim naechsten
+    // Katalog wieder rot, ohne dass etwas kaputt ist.
+    expect(store).toMatch(/LIB_MIGRATION_VERSION = '20\d\d-\d\d-[a-z-]+'/)
+    // Und die alten Versionen bleiben geschuetzt, damit niemandem die eigene
+    // Bibliothek geloescht wird — die vorige ausdruecklich mit.
     expect(store).toContain("'2026-04-greengo-catalog-v2'")
+    expect(store).toContain("'2026-09-passive-carriers'")
   })
 })
 

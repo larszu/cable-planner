@@ -44,6 +44,10 @@ import { AVNETWORK_CATALOG } from './avNetworkCatalog'
 import { BLACKMAGIC_CATALOG } from './blackmagicCatalog'
 import { BROADCAST_TOOLS_CATALOG } from './broadcastToolsCatalog'
 import { CAMERA_CATALOG } from './cameraCatalog'
+import { CAMERA_BODY_CATALOG } from './cameraBodyCatalog'
+import { LENS_CATALOG } from './lensCatalog'
+import { RIG_CATALOG } from './rigCatalog'
+import { FIXTURE_CATALOG } from './fixtureCatalog'
 import { GREENGO_CATALOG } from './greengoCatalog'
 import { LED_PROCESSOR_CATALOG } from './ledProcessorCatalog'
 import { LYNX_CATALOG } from './lynxCatalog'
@@ -91,6 +95,10 @@ export const CATALOGUES: ReadonlyArray<{ name: string; entries: readonly Evidenc
   { name: 'blackmagic', entries: BLACKMAGIC_CATALOG },
   { name: 'broadcastTools', entries: BROADCAST_TOOLS_CATALOG },
   { name: 'camera', entries: CAMERA_CATALOG },
+  { name: 'cameraBody', entries: CAMERA_BODY_CATALOG },
+  { name: 'lens', entries: LENS_CATALOG },
+  { name: 'rig', entries: RIG_CATALOG },
+  { name: 'fixture', entries: FIXTURE_CATALOG },
   { name: 'greengo', entries: GREENGO_CATALOG },
   { name: 'ledProcessor', entries: LED_PROCESSOR_CATALOG },
   { name: 'lynx', entries: LYNX_CATALOG },

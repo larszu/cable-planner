@@ -73,7 +73,9 @@
     "ui:targets": "node scripts/ui-targets.mjs",
     "greifzonen:check": "node scripts/greifzonen-check.mjs",
     "ci:complete": "node scripts/ci-runs-every-check.mjs",
-    "docs:shots": "node scripts/screenshots.mjs"
+    "docs:shots": "node scripts/screenshots.mjs",
+    "katalog:uebernahme": "node --experimental-strip-types --import ./scripts/register-endungen.mjs scripts/katalog-uebernahme.mjs",
+    "katalog:check": "node --experimental-strip-types --import ./scripts/register-endungen.mjs scripts/katalog-uebernahme.mjs --pruefen"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

@@ -106,7 +106,16 @@ describe('jeder Quellen-Kommentar steht auch als Feld im Eintrag', () => {
     // dazugekommen (die Medien-Station als Plan-Endpunkt). +2 am 2026-09-23:
     // `ledProcessorCatalog`, die erste Bestueckung einer Kategorie, die bei
     // null stand (#878).
-    expect(pairs().length).toBe(424)
+    //
+    // 424 -> 1616 am 2026-09-24: die Uebernahme aus den Schwester-Planern
+    // (`npm run katalog:uebernahme`). 358 Kamerabodies, 784 Objektive und 50
+    // Lichtgeraete bringen ihren Datenblatt-Link mit; die Kataloge sind
+    // ERZEUGT, die Zahl zieht also der Generator und nicht eine Hand.
+    //
+    // WER DIESE ZAHL AENDERT, OHNE DEN GENERATOR GELAUFEN ZU HABEN, hat von
+    // Hand in eine erzeugte Datei geschrieben. `npm run katalog:check` sagt,
+    // ob sie noch zur Quelle passt.
+    expect(pairs().length).toBe(1616)
   })
 
   it('deckt die Kataloge ab, die Belege fuehren', () => {
@@ -117,9 +126,15 @@ describe('jeder Quellen-Kommentar steht auch als Feld im Eintrag', () => {
       'avNetworkCatalog.ts',
       'blackmagicCatalog.ts',
       'broadcastToolsCatalog.ts',
+      // Erzeugt aus dem multicam-planner (2026-09-24).
+      'cameraBodyCatalog.ts',
       'cameraCatalog.ts',
+      // Erzeugt aus dem light-planner (2026-09-24).
+      'fixtureCatalog.ts',
       'greengoCatalog.ts',
       'ledProcessorCatalog.ts',
+      // Erzeugt aus dem multicam-planner (2026-09-24).
+      'lensCatalog.ts',
       'lynxCatalog.ts',
       'mediaStationCatalog.ts',
       'micCatalog.ts',
@@ -176,6 +191,15 @@ describe('was der Test NICHT behauptet', () => {
     const ohne = catalogs().filter((f) => !mitBeleg.has(f))
     expect(ohne.sort()).toEqual([
       'connectorCatalog.ts',
+      // 2026-09-24 dazugekommen: die Kamera-Rigs aus dem multicam-planner.
+      // Die Quelle fuehrt fuer KEINES der 49 Rigs eine Hersteller-Adresse —
+      // nachgemessen, nicht vermutet. Die Maße dagegen sind dort belegt, mit
+      // ihrer Herkunft und den Stellen, an denen die Objektivhoehe geschaetzt
+      // ist. Wer die Datenblaetter von J.L. Fisher, Panther, Sachtler,
+      // Vinten, Technocrane, Spidercam und Jimmy Jib nachtraegt, traegt sie
+      // in `multicam-planner src/data/rigs.ts` ein — von dort holt sie der
+      // Generator.
+      'rigCatalog.ts',
       'wirelessCatalog.ts',
     ])
   })
@@ -196,6 +220,15 @@ describe('was der Test NICHT behauptet', () => {
 })
 
 describe('der Beleg zeigt auf den Hersteller, nicht auf einen Haendler', () => {
+  // NACHGEZOGEN 2026-09-24: der Generator der uebernommenen Kataloge filtert
+  // Haendler-Adressen selbst heraus (`herstellerUrl` in
+  // `scripts/katalog-uebernahme.mjs`) und zaehlt die betroffenen Eintraege als
+  // unbelegt. Gemessen: 16 Eintraege des multicam-planners zeigen auf B&H
+  // (Laowa Nanomorph, Zeiss CP.2, Panasonic AG-AF100, Ikegami HDK-79EXIII
+  // u.a.). Sie stehen dort weiter — dort ist die Adresse als Herkunftsbeleg
+  // der ZAHLEN dokumentiert, nicht als Hersteller-Link. Hier fehlt der Beleg,
+  // und genau das sagt die Abdeckung jetzt.
+  //
   // Gemessen 2026-09-04 ueber alle 253 Belege: **einer** zeigt auf einen
   // Haendler. `audioCatalog.ts` fuehrt die Behringer X32 mit einem bei
   // Markertek liegenden Spec-PDF, waehrend der Eintrag direkt darunter (Wing)
@@ -250,6 +283,6 @@ describe('der Beleg zeigt auf den Hersteller, nicht auf einen Haendler', () => {
   it('prueft alle Belege, nicht nur die mit Feld', () => {
     // Ohne diese Zusicherung waere der Haendler-Test auch dann gruen, wenn
     // `pairs()` nichts mehr faende.
-    expect(pairs().filter((p) => p.field).length).toBe(424)
+    expect(pairs().filter((p) => p.field).length).toBe(1616)
   })
 })
