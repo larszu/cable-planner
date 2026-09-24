@@ -3019,6 +3019,13 @@ export const de: Dict = {
   'library.tabs.racks.exportAria': 'Exportieren',
   'library.tabs.racks.exportTitle': 'Als Datei exportieren (Kopie in den Downloads-Ordner)',
   'library.tabs.racks.new': '+ Neues Rack',
+  'library.tabs.racks.warehouse': 'Fürs Lager',
+  'library.tabs.racks.warehouseTitle':
+    'Was in jedem Rack sitzt, als Datei für den Inventory Planner sichern — der prüft es gegen das Rack-Case',
+  'library.tabs.racks.warehouseNone': 'Noch kein Rack-Layout zum Übergeben.',
+  'library.tabs.racks.warehouseDone': '{racks} Racks übergeben.',
+  'library.tabs.racks.warehouseSkipped':
+    '{racks} Racks übergeben. {skipped} Geräte sitzen ausserhalb ihres Racks und wurden weggelassen statt verschoben.',
   'library.tabs.racks.subtitle': 'Rack-Slots in HE, als platzierbare Gruppe gespeichert',
   'library.tabs.racks.title': '2D Rack Builder',
   'library.template.editTitle': 'Vorlage bearbeiten (Name, Kategorie)',

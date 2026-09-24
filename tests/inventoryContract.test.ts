@@ -20,9 +20,7 @@
 //        cable-planner      tests/inventoryContract.test.ts
 //        multicam-planner   src/__tests__/inventoryContract.test.ts
 //        light-planner      scripts/inventory-contract-check.ts
-//        inventory-planner  src/domain/lib/inventoryPortable.ts
-//                           (dort friert bisher nur die Version ein, nicht
-//                            die Feldliste -- eigener Vorgang)
+//        inventory-planner  src/domain/__tests__/inventoryContract.test.ts
 //   3. die eingefrorenen Key-Listen unten anpassen.
 // ───────────────────────────────────────────────────────────────────────────
 import { describe, it, expect } from 'vitest'
@@ -40,10 +38,10 @@ import type { InventoryItem, StorageNode, InventorySet, InventoryUnit } from '..
 // Eingefrorener Contract — MUSS in allen drei Repos identisch sein.
 const CONTRACT = {
   format: 'avplan-inventory',
-  version: 7,
+  version: 8,
   envelopeKeys: ['app', 'exportedAt', 'format', 'fristArten', 'items', 'nodes', 'sets', 'units', 'version'],
   itemKeys: ['category', 'code', 'codeType', 'createdAt', 'deviceTypeId', 'dimensions', 'id', 'locationId', 'manufacturer', 'materialKinds', 'mindestmenge', 'model', 'notes', 'ownership', 'quantity', 'rentPricePerDay', 'returnDue', 'stockLocation', 'supplier', 'updatedAt', 'ursprungsland'],
-  nodeKeys: ['code', 'codeType', 'createdAt', 'dimensions', 'id', 'kind', 'name', 'notes', 'parentId', 'updatedAt'],
+  nodeKeys: ['code', 'codeType', 'createdAt', 'dimensions', 'id', 'kind', 'name', 'notes', 'parentId', 'stellplatz', 'transport', 'updatedAt'],
   setKeys: ['components', 'createdAt', 'id', 'name', 'notes', 'updatedAt'],
   unitKeys: ['anschaffung', 'code', 'codeType', 'condition', 'createdAt', 'fristen', 'history', 'houseRef', 'id', 'itemId', 'locationId', 'notes', 'serial', 'updatedAt', 'versicherungswert'],
 } as const
@@ -74,6 +72,9 @@ const item: InventoryItem = {
 const node: StorageNode = {
   id: 'n1', name: 'Transport-Case 1', kind: 'transportCase', parentId: 'n0',
   code: 'LOC-1', codeType: 'barcode', dimensions: { widthMm: 800, weightKg: 12 },
+  // Version 8 -- beide Felder MUESSEN den Round-Trip ueberleben.
+  stellplatz: { xMm: 1000, zMm: 2000, breiteMm: 1200, tiefeMm: 600, hoeheMm: 2400, drehung: 90, ebenen: 5 },
+  transport: { castors: { heightMm: 100, includedInHeightMm: true, kind: 'swivel' }, maxLayers: 2 },
   notes: 'x', createdAt: 't', updatedAt: 't',
 }
 const set: InventorySet = {

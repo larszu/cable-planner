@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Pencil, Download, X, Server} from 'lucide-react'
 import { useProjectStore } from '../../../store/projectStore'
 import { Icon } from '../../shared/Icon'
@@ -7,6 +8,9 @@ import { MIME_RACK_PRESET } from '../../../lib/dragDropMimes'
 import { PresetDndWrapper } from '../LibraryDndWrappers'
 import { SortablePresetCard } from '../LibrarySortables'
 import { format, useTranslation } from '../../../lib/i18n'
+import { downloadBlob } from '../../../lib/downloadBlob'
+import { planRacks } from '../../../lib/rackBelegung'
+import { serializeRackBelegung } from '../../../lib/rackBelegungFormat'
 
 interface RacksTabProps {
   onCreateRack: () => void
@@ -26,6 +30,35 @@ export const RacksTab = ({ onCreateRack, onEditRack }: RacksTabProps) => {
   const insertBlackBoxRack = useProjectStore((s) => s.insertBlackBoxRack)
   const deleteGroupPreset = useProjectStore((s) => s.deleteGroupPreset)
   const canvasState = useProjectStore((s) => s.project.canvasState)
+  const [lagerMeldung, setLagerMeldung] = useState<string | null>(null)
+
+  // Das Gegenstück zum Rack-Ausbau im Lager (inventory-planner): dort hat
+  // ein Rack-Case Höheneinheiten und eine Einbautiefe, hier steht, was darin
+  // sitzt. Die Datei trägt genau das — und das Lager meldet, wenn der Plan
+  // mehr HE belegt, als das Case hat.
+  const fuersLager = () => {
+    const { racks, verworfen } = planRacks(groupPresets)
+    if (racks.length === 0) {
+      setLagerMeldung(t('library.tabs.racks.warehouseNone', 'No rack layout to hand over yet.'))
+      return
+    }
+    downloadBlob(
+      'rack-belegung.json',
+      serializeRackBelegung(racks, { app: 'cable-planner', exportedAt: new Date().toISOString() }),
+      'application/json',
+    )
+    setLagerMeldung(
+      verworfen > 0
+        ? format(
+            t(
+              'library.tabs.racks.warehouseSkipped',
+              '{racks} racks handed over. {skipped} devices sit outside their rack and were left out instead of being moved.',
+            ),
+            { racks: racks.length, skipped: verworfen },
+          )
+        : format(t('library.tabs.racks.warehouseDone', '{racks} racks handed over.'), { racks: racks.length }),
+    )
+  }
 
   return (
     <div className="flex flex-1 min-h-0 flex-col">
@@ -36,14 +69,28 @@ export const RacksTab = ({ onCreateRack, onEditRack }: RacksTabProps) => {
             {t('library.tabs.racks.subtitle', 'Rack slots in RU, saved as a placeable group')}
           </div>
         </div>
-        <button
-          type="button"
-          onClick={onCreateRack}
-          className="bg-emerald-700 px-2 py-1 text-cp-xs hover:bg-emerald-600"
-        >
-          {t('library.tabs.racks.new', '+ New rack')}
-        </button>
+        <div className="flex gap-1">
+          <button
+            type="button"
+            onClick={fuersLager}
+            className="bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
+            title={t(
+              'library.tabs.racks.warehouseTitle',
+              'Save what sits in each rack as a file for the Inventory Planner, which checks it against the rack case',
+            )}
+          >
+            {t('library.tabs.racks.warehouse', 'For the warehouse')}
+          </button>
+          <button
+            type="button"
+            onClick={onCreateRack}
+            className="bg-emerald-700 px-2 py-1 text-cp-xs hover:bg-emerald-600"
+          >
+            {t('library.tabs.racks.new', '+ New rack')}
+          </button>
+        </div>
       </div>
+      {lagerMeldung && <div className="mb-2 text-cp-xs text-cp-text-muted" role="status">{lagerMeldung}</div>}
 
       {groupPresets.filter((preset) => !!preset.rack).length === 0 ? (
         <div className="flex-1 flex flex-col items-center justify-center gap-2 text-cp-xs text-cp-text-faint text-center p-4">
