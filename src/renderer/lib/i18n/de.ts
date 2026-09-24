@@ -358,6 +358,20 @@ export const de: Dict = {
   'analysis.network.subnetCount': '{n} Geräte',
   'analysis.network.subnets': 'Subnetze',
   'analysis.network.vlanSummary': 'Geräte je VLAN',
+  'analysis.patch.count': '{gezeigt} von {alle} Anschlüssen',
+  'analysis.patch.device': 'Gerät',
+  'analysis.patch.intro':
+    'Eine Zeile je Netzwerk-Schnittstelle: vom Anschluss am Gerät über das Kabel, durch jedes Patchfeld mit beiden Portnummern, bis in den Switch-Port — mit IP, Subnetz, VLAN und MAC daneben. Der Weg wird durch die Kabel gelaufen; ein von Hand in die Netz-Maske getippter Switch-Port steht als eigene Quelle daneben, und wo beide sich widersprechen, bleibt der Widerspruch sichtbar.',
+  'analysis.patch.nic': 'Schnittstelle',
+  'analysis.patch.noSwitch': 'Ohne erreichten Switch',
+  'analysis.patch.none':
+    'Nichts zu verfolgen: im Plan steht kein Gerät mit einer Netzwerk-Schnittstelle und kein Kabel, das zu einem Switch führt.',
+  'analysis.patch.onlyOpen': 'Nur offene',
+  'analysis.patch.openCount': '{n} ohne erreichten Switch-Port',
+  'analysis.patch.path': 'Weg',
+  'analysis.patch.search': 'Gerät, IP, Switch, Patchfeld …',
+  'analysis.patch.source': 'Quelle',
+  'analysis.patch.switchPort': 'Switch-Port',
   'analysis.ptp.domain': 'Domäne {n}',
   'analysis.ptp.export': 'Zeit-Plan (PTP)',
   'analysis.ptp.intro':

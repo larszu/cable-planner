@@ -119,8 +119,12 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   Hinweis:
     'Was beim Zielsystem NICHT so ankommt wie gemeint: gekürzt, nicht darstellbare Zeichen, oder „kommt hier NICHT an“ — dann speichert das Ziel nach der Umbenennung denselben Text wie vorher.',
   // Bedarf 105 — die Vor-Show-Liste fuer das Tally (`lib/tallyPosition.ts`).
+  // ZWEI LESARTEN, und darum stehen beide hier. Die Vor-Show-Liste meint den
+  // UEBERTRAGUNGSWEG des Tally, die Anschlussliste den gesteckten KABELWEG.
+  // Eine der beiden auszusuchen hiesse, die andere still falsch zu machen —
+  // genau davor warnt der Kopf dieser Datei.
   Weg:
-    'Über welchen Weg das Tally an diese Position kommt (TSL UMD v3.1, GPIO, NDI, der Mischer selbst). „nicht festgelegt“ heißt: niemand hat es entschieden.',
+    'Je nach Blatt zweierlei. Vor-Show-Liste Tally: über welchen Weg das Tally an diese Position kommt (TSL UMD v3.1, GPIO, NDI, der Mischer selbst); „nicht festgelegt“ heißt, niemand hat es entschieden. Anschlussliste: der ganze gesteckte Weg in einer Zeile, mit jedem Kabel und jeder Zwischenstation — die Spalte, die auch dann vollständig ist, wenn mehr als ein Patchfeld dazwischenliegt.',
   Adresse:
     'Adresse, Host oder Pin, wie es AM GERÄT eingetragen ist. Der Plan prüft den Wert nicht — was gültig ist, hängt am Weg; geprüft wird an der Lampe.',
   Lampe: 'Wo die Lampe sitzt, die diese Position anzeigt („Kamerakopf“, „Box am Stativ“).',
@@ -454,6 +458,32 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   'Zurück bis': 'Bis wann die Rückgabe zugesagt ist.',
   Zuletzt: 'Wann der jüngste Fehler an dieser Einheit gemeldet wurde.',
   Zwischenstationen: 'Die Geräte, die zwischen Programm-Eingang und Ziel im Weg liegen.',
+  // Nutzer-Frage 2026-09-23 — die Spalten der Anschlussliste (`portTrace.ts`).
+  // „Maske", „IP", „VLAN", „Segment", „Rolle", „Quelle", „Widerspruch" stehen
+  // schon oben und werden bewusst WEITERVERWENDET statt neu erfunden: eine
+  // zweite Vokabel fuer dieselbe Sache waere genau die Krankheit, gegen die
+  // dieses Lexikon geschrieben ist.
+  Rack: 'Das Rack, in dem das Gerät steht — die Beschriftung aus dem Rack-Editor. Leer heißt: das Gerät ist keinem Rack zugeordnet, nicht dass es frei steht.',
+  Seriennummer: 'Die Seriennummer, wie sie am Gerät steht. Freitext — der Plan prüft sie nicht.',
+  'Netz (CIDR)':
+    'Das Netz aus IP und Maske in Kurzschreibweise (10.0.0.0/24). Gerechnet, nicht eingetragen: fehlt eine der beiden Angaben, bleibt die Spalte leer statt eine Maske anzunehmen.',
+  'Anschluss am Gerät':
+    'Die Buchse am Gerät selbst, an der der verfolgte Weg beginnt — so beschriftet, wie sie im Plan heißt.',
+  Kabeltyp: 'Der Typ des ersten Kabels (Cat6, OS2 …), wie er am Kabel im Plan steht.',
+  Patchfeld:
+    'Das ERSTE Patchfeld auf dem Weg zum Switch. Liegen mehrere dazwischen, stehen sie vollständig in „Weg“; wie viele es sind, sagt „Stationen“.',
+  'Patchfeld-Rack': 'Das Rack, in dem dieses Patchfeld steht.',
+  'Port hinten':
+    'Die Buchse des Patchfelds, an der der Weg ankommt — in einer Festinstallation die fest verlegte Seite.',
+  'Port vorn':
+    'Die gleichnummerige Buchse auf der anderen Seite desselben Patchfelds, auf der es weitergeht. Abgeleitet aus der Bauart (Position n auf Position n), nicht aus einem Betriebszustand: ein gestecktes Rangierkabel, das die Normalisierung aufhebt, weiß der Plan nicht.',
+  Stationen:
+    'Wie viele Zwischenstationen (Patchfelder, Wandler, Adapter) zwischen Gerät und Switch liegen. 0 heißt: direkt gesteckt.',
+  'Kabel zum Switch':
+    'Das letzte Kabel des Weges — das, was im Switch steckt. Ohne Zwischenstation ist es dasselbe wie „Kabel“.',
+  Switch:
+    'Der Switch (oder Router), an dem der Weg ankommt. Leer heißt: der Weg erreicht keinen — warum, sagt „Status“.',
+  'Switch-Port': 'Der Port am Switch, so beschriftet, wie er dort aufgedruckt ist.',
 }
 
 /**
