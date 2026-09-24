@@ -115,26 +115,18 @@ Built with **Electron, React, and TypeScript**, it is designed for real-world pr
 
 ### 📚 One device library across the suite
 
-The built-in catalogue holds **5784 device types** across **55 categories**,
-with **113 connector types**. 1616 carry a manufacturer datasheet link that the
-Properties panel offers as *Hersteller-Link*. 5315 entries are **generated**,
-not hand-typed — `npm run katalog:uebernahme` pulls them; `npm run katalog:check`
+The built-in catalogue holds **1802 device types**, 1616 of them with a
+manufacturer datasheet link that the Properties panel offers as *Hersteller-Link*.
+1333 of those entries come from the sister planners and are **generated**, not
+hand-typed — `npm run katalog:uebernahme` pulls them; `npm run katalog:check`
 says when they have gone stale:
 
 | From | Entries | With datasheet | Ports |
 |---|---:|---:|---|
-| EasySchematic community DB | 3982 | 0 | **real** — 44 376 of them |
 | multicam-planner cameras | 365 | 358 | unknown, marked |
 | multicam-planner lenses | 835 | 784 | unknown, marked |
 | multicam-planner rigs | 49 | 0 | unknown, marked |
 | light-planner fixtures | 84 | 50 | **real** — DMX + power |
-
-The datasheet coverage **dropped** from 89.7 % to 27.9 % with the EasySchematic
-import, and the number is left standing rather than redefined: a port list from
-a community database is a different claim than one from the manufacturer's own
-sheet, and the plan should not blur the two. See
-`docs/katalog-luecken-easyschematic.md` — including the open licence point
-(EasySchematic is AGPL-3.0, this project is proprietary).
 
 **Nothing is invented.** The sister planners know a camera's sensor and mount,
 not its sockets, so those entries carry `portsUnknown: true` — the plan check

@@ -40,61 +40,6 @@ export const DEFAULT_CATEGORIES = [
   'Patch panels',
   'Power',
   'Rigging',
-  // ─── DIE UEBERNAHME AUS EasySchematic (2026-09-24) ───────────────────────
-  //
-  // 39 Bereiche, die es hier vorher nicht gab. Auf ausdrueckliche
-  // Anweisung des Eigentuemers uebernommen, samt ihrer Namen.
-  //
-  // WARUM SIE IHRE NAMEN BEHALTEN. Sie in unsere sechzehn zu pressen haette
-  // sie unsichtbar gemacht: „KVM / Extenders", „Expansion Cards" und
-  // „Windowing Processors" haetten alle „Sonstiges" geheissen, und die
-  // Bibliotheks-Seitenleiste haette einen Bereich mit tausend Eintraegen
-  // gezeigt statt vierzig, in denen man etwas findet. Wo wir schon einen
-  // Bereich fuehren, wird ABGEBILDET und nicht verdoppelt — die Tabelle steht
-  // in `scripts/easyschematic-vokabular.mjs` (`Mixing Consoles` ->
-  // `Mixing console`, `Displays` -> `Monitors`, `PTZ Camera` -> `Cameras`).
-  //
-  // Bestandsnutzer bekommen sie ueber `loadKnownCategories`, das Vorgabe und
-  // Gespeichertes vereinigt.
-  'Amplifiers',
-  'Audio Expansion',
-  'Audio I/O',
-  'Cloud Services',
-  'Codecs',
-  'Control',
-  'Controllers',
-  'DMX Splitter',
-  'Distribution',
-  'Expansion Cards',
-  'Firewalls',
-  'Headphone Amplifier',
-  'Infrastructure',
-  'Intercom',
-  'KVM / Extenders',
-  'LED Video',
-  'Management Platforms',
-  'Media Players',
-  'Media Servers',
-  'Monitoring',
-  'Network Switches',
-  'Peripherals',
-  'Power Amplifier',
-  'Powered Mixers',
-  'Processing',
-  'Processors',
-  'Projection',
-  'Projector Lenses',
-  'Projectors',
-  'Recording',
-  'Sources',
-  'Speakers',
-  'Storage',
-  'Storage Media',
-  'Switching',
-  'User Interfaces',
-  'Video Switchers',
-  'Windowing Processors',
-  'Wireless',
   'Other',
 ]
 
@@ -138,73 +83,13 @@ export const loadCustomLibrary = (): EquipmentTemplate[] => {
   }
 }
 
-/**
- * Die Namen der AUSGELIEFERTEN Vorlagen. Wird von `projectStore` gesetzt,
- * bevor irgendetwas gespeichert wird.
- *
- * Warum als veraenderliche Menge und nicht als Import: `libraryPersist` darf
- * die Katalog-Module nicht ziehen. Es haengt an `projectStore`, und
- * `projectStore` haengt an ihm — ein Import in diese Richtung waere ein Ring,
- * und der Grund, aus dem diese Datei ueberhaupt ausgelagert wurde (#308).
- */
-let eingebauteNamen: ReadonlySet<string> = new Set()
-
-export const setzeEingebauteNamen = (namen: Iterable<string>) => {
-  eingebauteNamen = new Set(namen)
-}
-
-/**
- * ─── WAS HIER GESPEICHERT WIRD — UND WAS SEIT DEM 2026-09-24 NICHT MEHR ────
- *
- * NUR DIE VORLAGEN DES NUTZERS. Die ausgelieferten kommen aus ihren Modulen
- * und werden beim Start davorgelegt; sie in `localStorage` zu schreiben war
- * bis heute richtig und ist es seit der EasySchematic-Uebernahme nicht mehr.
- *
- * GEMESSEN: 5315 ausgelieferte Vorlagen sind als JSON **4,38 MB**. Das
- * Kontingent von `localStorage` liegt in den meisten Browsern bei 5 MB fuer
- * den ganzen Ursprung — geteilt mit dem Autosave des Projekts, den
- * Einstellungen, dem Offline-Zwischenspeicher. Der Schreibversuch waere also
- * an `QuotaExceededError` gescheitert, und das `catch` hier haette ihn
- * VERSCHLUCKT: die Bibliothek waere still auf dem alten Stand geblieben, ohne
- * dass irgendwo etwas steht.
- *
- * Damit faellt auch ein Umweg weg, den es nur wegen dieser Speicherung gab:
- * die Saat musste ihre `LIB_MIGRATION_VERSION` hochziehen, damit ein
- * Bestandsnutzer neue Katalog-Eintraege ueberhaupt zu sehen bekam. Was aus
- * dem Modul kommt, ist immer da.
- *
- * Eine eigene Vorlage mit dem Namen einer ausgelieferten bleibt erhalten und
- * gewinnt (siehe `mischeBibliothek`) — wer eine ausgelieferte Vorlage
- * anpasst, soll seine Fassung behalten.
- */
 export const persistCustomLibrary = (items: EquipmentTemplate[]) => {
-  const eigene = items.filter((t) => !eingebauteNamen.has(t.name))
   try {
-    localStorage.setItem(CUSTOM_LIB_KEY, JSON.stringify(eigene))
+    localStorage.setItem(CUSTOM_LIB_KEY, JSON.stringify(items))
   } catch {
     /* ignore */
   }
-  // Der Ordner-Abgleich bekommt weiterhin ALLES: er ist der Weg nach aussen
-  // (Desktop-Bibliothek), und dort ist eine ausgelieferte Vorlage so
-  // brauchbar wie eine eigene.
   syncDevicesToFolder(items)
-}
-
-/**
- * Ausgelieferte und eigene Vorlagen zu EINER Liste — die eigene gewinnt.
- *
- * Die Reihenfolge ist die Zusicherung: wer eine ausgelieferte Vorlage unter
- * demselben Namen angepasst hat, arbeitet weiter mit seiner Fassung. Ohne
- * diese Regel haette die naechste Katalog-Lieferung stillschweigend seine
- * Portliste ersetzt.
- */
-export const mischeBibliothek = (
-  eingebaute: EquipmentTemplate[],
-  eigene: EquipmentTemplate[],
-): EquipmentTemplate[] => {
-  const nachName = new Map(eingebaute.map((t) => [t.name, t]))
-  for (const t of eigene) nachName.set(t.name, t)
-  return [...nachName.values()]
 }
 
 export const loadKnownCategories = (): string[] => {

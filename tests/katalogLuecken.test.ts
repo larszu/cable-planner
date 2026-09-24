@@ -36,7 +36,7 @@ describe('#878 — Katalog-Luecken in den Zielbereichen', () => {
     // die beiden Sorten nicht verwechseln — `belegt` je Bereich sagt, wie
     // viele ein Datenblatt haben, und der Plan-Check zeigt am Geraet, ob die
     // Anschluesse noch fehlen.
-    expect(b.eintraegeGesamt).toBe(5784)
+    expect(b.eintraegeGesamt).toBe(1802)
     expect(b.eintraegeGesamt).toBe(evidenceReport().entries)
 
     // „ueber ein Drittel Mikrofone" — das stimmt, und zwar deutlich.
@@ -48,18 +48,7 @@ describe('#878 — Katalog-Luecken in den Zielbereichen', () => {
     // gemessen, bevor jemand sie fuer normal haelt.
     expect(b.groessteKategorie.kategorie).toBe('Lenses')
     expect(b.groessteKategorie.eintraege).toBe(835)
-    // ─── DIE SCHIEFLAGE IST WEG, UND DAS IST DER BEFUND ────────────────────
-    //
-    // Der Satz des Issues lautete „ueber ein Drittel Mikrofone", und diese
-    // Zeile hielt ihn fest: `anteil > 1/3`. Nach beiden Uebernahmen
-    // (Schwester-Planer, EasySchematic) ist die groesste Kategorie 835 von
-    // 5784 — 14 %. Kein Bereich dominiert mehr.
-    //
-    // Die Zusicherung dreht sich damit um: sie haelt nicht mehr fest, DASS
-    // der Katalog schief ist, sondern dass er es nicht mehr ist. Steigt ein
-    // Bereich wieder ueber ein Drittel, faellt diese Zeile — und das ist dann
-    // dieselbe Warnung wie damals, nur rechtzeitig.
-    expect(b.groessteKategorie.anteil).toBeLessThan(1 / 3)
+    expect(b.groessteKategorie.anteil).toBeGreaterThan(1 / 3)
   })
 
   it('2. „gar nicht" ist eine andere Auskunft als „wenig"', () => {
@@ -81,12 +70,12 @@ describe('#878 — Katalog-Luecken in den Zielbereichen', () => {
     // nach. Ein Ziel, das niemand nachrechnet, ist ein Vorsatz.
     // 20 -> 385 am 2026-09-24 (Uebernahme aus dem multicam-planner). 377
     // davon mit Datenblatt-Link, aber nur 20 mit Portliste.
-    expect(stand('kameras').eintraege).toBe(386)
+    expect(stand('kameras').eintraege).toBe(385)
     expect(stand('konverter').eintraege).toBe(30)
-    expect(stand('netzwerk').eintraege).toBe(387)
-    expect(stand('intercom').eintraege).toBe(45)
+    expect(stand('netzwerk').eintraege).toBe(81)
+    expect(stand('intercom').eintraege).toBe(8)
     expect(stand('led-prozessoren').eintraege).toBe(2)
-    expect(katalogLuecken().eintraegeInBereichen).toBe(850)
+    expect(katalogLuecken().eintraegeInBereichen).toBe(506)
 
     // Und die Breite, nicht nur die Menge: Kameras und Intercom haengen an je
     // EINEM Katalog. Ein Bereich mit einem Hersteller ist kein bestueckter
@@ -94,10 +83,8 @@ describe('#878 — Katalog-Luecken in den Zielbereichen', () => {
     // Kameras haengen nicht mehr an EINEM Katalog — der zweite ist allerdings
     // derselbe Hersteller-Kreis, nur ohne Ports. Die Breite des Bereichs hat
     // sich also nicht geaendert, nur seine Laenge.
-    expect(stand('kameras').kataloge).toEqual(['camera', 'cameraBody', 'easySchematic'])
-    // Intercom haengt nicht mehr an einem Haus: die Uebernahme bringt 37
-    // weitere Eintraege mit. 8 -> 45.
-    expect(stand('intercom').kataloge).toEqual(['easySchematic', 'greengo'])
+    expect(stand('kameras').kataloge).toEqual(['camera', 'cameraBody'])
+    expect(stand('intercom').kataloge).toEqual(['greengo'])
     expect(stand('konverter').kataloge.length).toBeGreaterThan(2)
 
     // Was dazukommt, kommt mit Datenblatt (#878: „Lieber

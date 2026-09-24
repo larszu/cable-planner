@@ -46,7 +46,6 @@
 // Verknuepfung zum Kamera-Katalog zerschnitten.
 // ───────────────────────────────────────────────────────────────────────────
 import { createHash } from 'node:crypto'
-import { KATEGORIE, SIGNAL, SIGNAL_GROSS, STECKER } from './easyschematic-vokabular.mjs'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
@@ -231,64 +230,6 @@ const datei = (name, kopf, konstante, saat, kategorieKonstante, kategorieWert, e
  * Deshalb steht bei `belegt === 0` die Beleglage-Zeile vor jedem anderen Satz.
  */
 const BELEGLAGE_ZEILE = '// BELEGLAGE: kein Datenblatt-Link je Eintrag (B-11).'
-
-/**
- * Dateirumpf fuer einen Katalog, dessen Eintraege VERSCHIEDENE Kategorien
- * tragen.
- *
- * `datei()` schreibt oben eine Konstante (`const CAM = 'Cameras'`) und setzt
- * sie in jeden Eintrag — das passt, solange ein Katalog genau eine Kategorie
- * hat. Die EasySchematic-Uebernahme verteilt sich auf ueber vierzig; dort
- * steht die Kategorie als Literal am Eintrag.
- */
-/** Wie viele Eintraege in einem Teilstueck stehen. Siehe `datei_`. */
-const STUECK = 400
-
-const datei_ = (name, kopf, konstante, saat, eintraege) => {
-  // ─── WARUM DIE LISTE ZERTEILT IST ────────────────────────────────────────
-  //
-  // Als EIN Literal mit 3982 Eintraegen bricht TypeScript ab:
-  //
-  //   error TS2590: Expression produces a union type that is too complex to
-  //   represent.
-  //
-  // Der Pruefer leitet fuer ein Array-Literal den Vereinigungstyp seiner
-  // Elemente her, und bei 3982 Eintraegen mit zusammen 44 376 Anschluessen
-  // sprengt der jede Grenze — die Anmerkung `: EasySchematicEntry[]` haelt
-  // ihn davon NICHT ab. Teilstuecke von je ${STUECK} und ein Zusammenlegen am
-  // Ende umgehen das, ohne einen Typ wegzuwerfen: jedes Stueck ist
-  // vollstaendig geprueft.
-  const stuecke = []
-  for (let i = 0; i < eintraege.length; i += STUECK) {
-    stuecke.push(eintraege.slice(i, i + STUECK))
-  }
-  const teile = stuecke.map(
-    (st, i) => `const TEIL_${i + 1}: ${name}[] = [\n${st.join('\n')}\n]`,
-  )
-  return [
-    kopf,
-    "import type { EquipmentTemplate } from '../types/equipment'",
-    '',
-    '/** Katalog-Eintrag: stabile Geraetetyp-Id plus Vorlage. `match` traegt die',
-    ' *  normalisierten Namensformen, ueber die ein Import ohne GUID aufloest. */',
-    `export interface ${name} {`,
-    '  deviceTypeId: string',
-    '  match: string[]',
-    '  template: EquipmentTemplate',
-    '}',
-    '',
-    teile.join('\n\n'),
-    '',
-    `export const ${konstante}: ${name}[] = [`,
-    stuecke.map((_, i) => `  ...TEIL_${i + 1},`).join('\n'),
-    ']',
-    '',
-    '/** Die Vorlagen allein — fuer die Bibliotheks-Saat in `projectStore`. */',
-    `export const ${saat}: EquipmentTemplate[] =`,
-    `  ${konstante}.map((e) => ({ ...e.template, deviceTypeId: e.deviceTypeId }))`,
-    '',
-  ].join('\n')
-}
 
 const ERZEUGT = (quelle, anzahl, belegt, opt = {}) => {
   const kasten = `// ╔═══════════════════════════════════════════════════════════════════════╗
@@ -692,171 +633,6 @@ ${ohneBeleg.map((n) => `//   ${n}`).join('\n')}
   }
 }
 
-// ─── EasySchematic ─────────────────────────────────────────────────────────
-//
-// Uebernahme der Gemeinschafts-Datenbank von EasySchematic
-// (https://api.easyschematic.live/templates, Projekt
-// https://github.com/duremovich/EasySchematic, AGPL-3.0), auf ausdrueckliche
-// Anweisung des Eigentuemers am 2026-09-24.
-//
-// ─── DAS IST DER ERSTE UEBERNOMMENE KATALOG MIT ANSCHLUESSEN ───────────────
-//
-// Kameras, Objektive und Rigs kamen mit `portsUnknown`, weil ihre Quellen
-// keine Buchsen kennen. Diese hier kennt sie: 45 033 Anschluesse mit Richtung,
-// Signalart und Steckertyp. Sie werden uebersetzt, nicht geraten — die
-// Abbildung steht als Tabelle in `easyschematic-vokabular.mjs`, damit man sie
-// Zeile fuer Zeile pruefen kann.
-//
-// ─── DIE RICHTUNG IST EINE ENTSCHEIDUNG, ALSO STEHT SIE HIER ───────────────
-//
-//   input         -> `inputs`
-//   output        -> `outputs`
-//   bidirectional -> `inputs`  (11 579 Anschluesse)
-//   passthrough   -> `outputs` (645)
-//
-// Unser Modell trennt Ein- und Ausgang; ihres kennt zusaetzlich die
-// beidseitige Buchse. Eine RJ45 an einem Switch IST beides, und sie in BEIDE
-// Listen zu legen haette jeden Switch mit der doppelten Portzahl gezeigt —
-// eine Falschaussage in jeder Stueckliste. Sie steht deshalb dort, wo man ein
-// Kabel hineinsteckt. Ein `passthrough` (Strom-Durchschleifung, Video-Loop)
-// geht weiter und steht bei den Ausgaengen.
-//
-// ─── KEIN DATENBLATT-LINK ──────────────────────────────────────────────────
-//
-// Ihre Eintraege fuehren keinen. Die Quelle ist die Gemeinschafts-Datenbank
-// und nicht das Blatt des Herstellers — `catalogueEvidence` zaehlt sie
-// deshalb vollstaendig als unbelegt, und der Dateikopf traegt die
-// BELEGLAGE-Zeile. Das ist keine Formalie: eine Portzahl aus zweiter Hand ist
-// eine andere Auskunft als eine aus dem Datenblatt, und der Plan soll den
-// Unterschied nicht verwischen.
-const easySchematic = async () => {
-  const datei = flag('easyschematic', join(HIER, 'scripts', 'easyschematic-templates.json'))
-  let roh
-  try {
-    roh = JSON.parse(readFileSync(datei, 'utf8'))
-  } catch {
-    console.log(
-      `easySchematicCatalog.ts    uebersprungen   (${datei} fehlt — holen mit:\n` +
-        '  curl -s https://api.easyschematic.live/templates -o scripts/easyschematic-templates.json)',
-    )
-    return null
-  }
-
-  const rueckfall = { stecker: new Map(), gesamt: 0 }
-  const steckerVon = (p) => {
-    const roh = (p.connectorType ?? '').trim()
-    const signal = (p.signalType ?? '').trim()
-    // Eine fuenfpolige XLR mit DMX IST der DMX-Stecker, und die Patchliste
-    // soll ihn so nennen. Zwei Felder, eine Aussage — deshalb hier und nicht
-    // in der Tabelle.
-    if (signal === 'dmx' && roh === 'xlr-5') return 'DMX 5-pol (XLR)'
-    if (signal === 'dmx' && roh === 'xlr-3') return 'DMX 3-pol (XLR)'
-    if (signal === 'midi' && roh === 'din-5') return 'MIDI'
-    const treffer = STECKER[roh]
-    if (treffer) return treffer
-    rueckfall.gesamt += 1
-    rueckfall.stecker.set(roh || '(leer)', (rueckfall.stecker.get(roh || '(leer)') ?? 0) + 1)
-    return 'Custom'
-  }
-  const signalVon = (p) => {
-    const s = (p.signalType ?? '').trim()
-    if (SIGNAL[s]) return SIGNAL[s]
-    if (SIGNAL_GROSS.has(s)) return s.toUpperCase()
-    return s ? s.charAt(0).toUpperCase() + s.slice(1) : 'Custom'
-  }
-
-  const neueKategorien = new Set()
-  const eintraege = []
-  const gesehen = new Set()
-  let ausgelassen = 0
-  let anschluesse = 0
-
-  for (const t of roh) {
-    const name = `${(t.manufacturer ?? '').trim()} ${(t.label ?? '').trim()}`.trim()
-    if (!name || !t.id) { ausgelassen += 1; continue }
-    // Gleicher Name zweimal waere in der Bibliotheks-Seitenleiste eine Zeile,
-    // die man nicht auseinanderhalten kann.
-    const schluessel = norm(name)
-    if (gesehen.has(schluessel)) { ausgelassen += 1; continue }
-    gesehen.add(schluessel)
-
-    const kat = (t.category ?? '').trim() || 'Other'
-    const kategorie = KATEGORIE[kat] ?? kat
-    if (!KATEGORIE[kat]) neueKategorien.add(kategorie)
-
-    const inputs = []
-    const outputs = []
-    for (const p of t.ports ?? []) {
-      anschluesse += 1
-      const anschluss = {
-        name: (p.label ?? '').trim() || (p.signalType ?? 'Port'),
-        type: signalVon(p),
-        connectorType: steckerVon(p),
-      }
-      const r = (p.direction ?? '').trim()
-      if (r === 'output' || r === 'passthrough') outputs.push(anschluss)
-      else inputs.push(anschluss)
-    }
-
-    eintraege.push(
-      eintrag({
-        deviceTypeId: t.id,
-        match: [schluessel, norm(t.label ?? '')],
-        kategorie: ts(kategorie),
-        felder: {
-          name,
-          ...(t.deviceType ? { subtitle: String(t.deviceType) } : {}),
-          width: 240,
-          height: Math.min(520, 120 + Math.max(inputs.length, outputs.length) * 18),
-        },
-        ports: { inputs, outputs },
-      }),
-    )
-  }
-
-  return {
-    inhalt: datei_(
-      'EasySchematicEntry',
-      ERZEUGT('EasySchematic — api.easyschematic.live/templates', eintraege.length, 0, {
-        ports: `// ─── HERKUNFT ──────────────────────────────────────────────────────────────
-//
-// EasySchematic, Gemeinschafts-Datenbank, gelesen ueber die offene API
-// \`https://api.easyschematic.live/templates\`. Projekt:
-// \`https://github.com/duremovich/EasySchematic\` (AGPL-3.0). Uebernommen auf
-// ausdrueckliche Anweisung des Eigentuemers am 2026-09-24.
-//
-// ─── DER ERSTE UEBERNOMMENE KATALOG MIT ANSCHLUESSEN ───────────────────────
-//
-// ${anschluesse} Anschluesse mit Richtung, Signalart und Steckertyp. Sie sind
-// UEBERSETZT und nicht geraten: die Abbildung ihrer 84 Steckertypen und 73
-// Signalarten auf unsere steht als pruefbare Tabelle in
-// \`scripts/easyschematic-vokabular.mjs\`.
-//
-// ${rueckfall.gesamt} Anschluesse fielen auf \`Custom\` zurueck, weil die Tabelle ihren
-// Steckertyp nicht kennt. Das ist Absicht: den naechstbesten zu nehmen waere
-// eine Falschaussage in der Patchliste, \`Custom\` ist eine Luecke, die
-// auffaellt. Betroffen sind${[...rueckfall.stecker.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8).map(([k, v]) => ` ${k} (${v})`).join(',') || ' keine'}.
-//
-// ─── DIE RICHTUNG ──────────────────────────────────────────────────────────
-//
-// \`input\` und \`bidirectional\` werden Eingaenge, \`output\` und
-// \`passthrough\` Ausgaenge. Unser Modell trennt Ein- und Ausgang; ihres kennt
-// zusaetzlich die beidseitige Buchse. Eine RJ45 am Switch IST beides — sie in
-// BEIDE Listen zu legen haette jeden Switch mit der doppelten Portzahl
-// gezeigt, und das waere eine Falschaussage in jeder Stueckliste.
-//
-// ${ausgelassen} Eintraege ausgelassen (Name doppelt oder leer).`,
-      }),
-      'EASYSCHEMATIC_CATALOG',
-      'easySchematicTemplates',
-      eintraege,
-    ),
-    neueKategorien: [...neueKategorien].sort(),
-    anzahl: eintraege.length,
-    mitBeleg: 0,
-  }
-}
-
 // ─── Lauf ──────────────────────────────────────────────────────────────────
 const stand = []
 const k = await kameras()
@@ -867,20 +643,6 @@ const r = await rigs()
 stand.push(['rigCatalog.ts', schreibe('rigCatalog.ts', r.inhalt), r.anzahl, r.mitBeleg])
 const l = await licht()
 stand.push(['fixtureCatalog.ts', schreibe('fixtureCatalog.ts', l.inhalt), l.anzahl, l.mitBeleg])
-const es = await easySchematic()
-if (es) {
-  stand.push([
-    'easySchematicCatalog.ts',
-    schreibe('easySchematicCatalog.ts', es.inhalt),
-    es.anzahl,
-    es.mitBeleg,
-  ])
-  writeFileSync(
-    join(HIER, 'scripts', 'easyschematic-kategorien.json'),
-    `${JSON.stringify(es.neueKategorien, null, 2)}\n`,
-  )
-  console.log(`\n${es.neueKategorien.length} neue Kategorien: ${es.neueKategorien.join(', ')}`)
-}
 
 // ─── DIE GEGENRICHTUNG ─────────────────────────────────────────────────────
 //

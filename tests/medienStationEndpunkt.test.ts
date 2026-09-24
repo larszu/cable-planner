@@ -34,13 +34,9 @@ describe('die Medien-Station ist im Plan platzierbar', () => {
     // wurde, weil die IMPORT-Zeile stehenblieb. Der Waechter prueft damit
     // den Zustand, den der Fix erzeugt, statt den, den der Defekt braucht.
     // Geprueft wird deshalb die Saat-Liste selbst.
-    // 2026-09-24: die Saat schreibt die ausgelieferten Vorlagen nicht mehr in
-    // `localStorage`, sondern legt sie aus dem MODUL davor (4,38 MB haetten
-    // das Kontingent gesprengt). Geprueft wird deshalb die Liste
-    // `EINGEBAUTE_VORLAGEN` statt der frueheren Schleife.
     const saat = storeQuelle.slice(
-      storeQuelle.indexOf('const EINGEBAUTE_VORLAGEN'),
-      storeQuelle.indexOf('setzeEingebauteNamen('),
+      storeQuelle.indexOf('for (const t of ['),
+      storeQuelle.indexOf('if (!byName.has(t.name))'),
     )
     expect(saat).not.toBe('')
     expect(saat).toContain('...mediaStationTemplates')

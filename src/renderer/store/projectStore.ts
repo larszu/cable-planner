@@ -34,9 +34,7 @@ import { createPendingChangesSlice } from './slices/pendingChangesSlice'
 import { createNetboxImportSlice } from './slices/netboxImportSlice'
 import {
   loadCustomLibrary,
-  mischeBibliothek,
   persistCustomLibrary,
-  setzeEingebauteNamen,
   loadKnownCategories,
   persistKnownCategories,
 } from './libraryPersist'
@@ -60,7 +58,6 @@ import { cameraBodyTemplates } from '../lib/cameraBodyCatalog'
 import { lensTemplates } from '../lib/lensCatalog'
 import { rigTemplates } from '../lib/rigCatalog'
 import { fixtureTemplates } from '../lib/fixtureCatalog'
-import { easySchematicTemplates } from '../lib/easySchematicCatalog'
 import { miscTemplates } from '../lib/miscCatalog'
 import { mediaStationTemplates } from '../lib/mediaStationCatalog'
 import { passiveTemplates } from '../lib/passiveCatalog'
@@ -133,58 +130,53 @@ import { pruefeCompanion } from '../lib/companionControl'
 const CUSTOM_LIB_KEY = STORAGE_KEYS.customLibrary
 const PROJECT_AUTOSAVE_KEY = STORAGE_KEYS.projectAutosave
 const LIB_MIGRATION_KEY = STORAGE_KEYS.libMigration
-/**
- * ─── DIE AUSGELIEFERTEN VORLAGEN, AN EINER STELLE ──────────────────────────
- *
- * Sie kommen aus ihren Modulen und werden beim Start VOR die eigenen gelegt.
- * Bis zum 2026-09-24 wurden sie stattdessen in `localStorage` geschrieben —
- * das ging, solange es ein paar hundert waren.
- *
- * GEMESSEN: 5315 ausgelieferte Vorlagen sind als JSON 4,38 MB, und das
- * Kontingent von `localStorage` liegt in den meisten Browsern bei 5 MB fuer
- * den ganzen Ursprung, geteilt mit Projekt-Autosave und Einstellungen. Der
- * Schreibversuch waere an `QuotaExceededError` gescheitert, und das `catch`
- * haette ihn verschluckt: die Bibliothek waere still auf dem alten Stand
- * geblieben.
- *
- * Damit faellt der ganze Migrations-Umweg weg. Er hatte genau einen Zweck —
- * einem Bestandsnutzer neue Katalog-Eintraege ueberhaupt zu zeigen, indem die
- * Kennung hochgezogen wurde. Was aus dem Modul kommt, ist immer da.
- */
-const EINGEBAUTE_VORLAGEN: EquipmentTemplate[] = [
-  ...blackmagicTemplates, ...ubiquitiTemplates, ...monitorTemplates, ...cameraTemplates,
-  ...cameraBodyTemplates, ...lensTemplates, ...rigTemplates, ...fixtureTemplates,
-  ...easySchematicTemplates, ...miscTemplates, ...greengoTemplates, ...ajaTemplates,
-  ...rossTemplates, ...lynxTemplates, ...switcherTemplates, ...avNetworkTemplates,
-  ...broadcastToolsTemplates, ...audioTemplates, ...wirelessAudioTemplates,
-  ...micTemplates, ...mediaStationTemplates, ...passiveTemplates,
-].map((t) => ({ ...t, name: heileVorlagenName(t.name) }))
+// 2026-09-24: die uebernommenen Kataloge aus multicam- und light-planner
+// (Bodies, Objektive, Rigs, Lichtgeraete). Neue Kennung, damit die Saat auch
+// bei Bestandsnutzern laeuft — `byName` legt nur an, was noch fehlt, und
+// laesst eigene Vorlagen gleichen Namens stehen.
+const LIB_MIGRATION_VERSION = '2026-09-suite-uebernahme'
 
-setzeEingebauteNamen(EINGEBAUTE_VORLAGEN.map((t) => t.name))
-
-/**
- * Die EINE Altlast, die bleibt: ein Build von vor 2026-04 hat fuer jedes
- * Rentman-Geraet eine erfundene 1-rein/1-raus-Vorlage erzeugt. Die werden
- * einmal weggeraeumt. Alles andere an dieser Funktion ist entfallen.
- */
-const raeumeAltlastWeg = () => {
+const runLibraryMigration = () => {
   try {
     const current = localStorage.getItem(LIB_MIGRATION_KEY)
-    const unbedenklich = new Set([
-      '2026-04-reset', '2026-04-blackmagic-seed', '2026-04-monitor-camera-seed',
-      '2026-04-misc-catalog-seed', '2026-04-greengo-catalog-seed',
-      '2026-04-greengo-catalog-v2', '2026-09-passive-carriers',
-      '2026-09-suite-uebernahme', '2026-09-eingebaute-aus-dem-modul',
-    ])
-    if (current && !unbedenklich.has(current)) {
+    // Step 1 (earlier migration): the previous build auto-generated bogus
+    // 1-in/1-out templates for every Rentman device. Ensure those are cleared
+    // ONCE, but don't wipe libraries created by any later good migration.
+    const preservedVersions = new Set(['2026-04-reset', '2026-04-blackmagic-seed', '2026-04-monitor-camera-seed', '2026-04-misc-catalog-seed', '2026-04-greengo-catalog-seed', '2026-04-greengo-catalog-v2', '2026-09-passive-carriers', LIB_MIGRATION_VERSION])
+    if (current && !preservedVersions.has(current)) {
       localStorage.removeItem(CUSTOM_LIB_KEY)
     }
-    localStorage.setItem(LIB_MIGRATION_KEY, '2026-09-eingebaute-aus-dem-modul')
+    // Step 2: always seed built-in templates (Blackmagic + Ubiquiti) so they
+    // appear in the library, even for users who already passed an earlier
+    // migration gate. Entries the user saved under the same name are kept.
+    const raw = localStorage.getItem(CUSTOM_LIB_KEY)
+    const existing: EquipmentTemplate[] = raw ? JSON.parse(raw) : []
+    // #837 — erst den heutigen Namen herstellen, dann abgleichen. Die
+    // Reihenfolge ist der ganze Punkt: wer zuerst abgleicht, findet die alte
+    // deutsche Vorlage nicht unter dem neuen Namen und legt sie ein zweites
+    // Mal an.
+    const byName = new Map(
+      existing.map((t) => {
+        const name = heileVorlagenName(t.name)
+        return [name, { ...t, name }] as const
+      }),
+    )
+    let added = false
+    for (const t of [...blackmagicTemplates, ...ubiquitiTemplates, ...monitorTemplates, ...cameraTemplates, ...cameraBodyTemplates, ...lensTemplates, ...rigTemplates, ...fixtureTemplates, ...miscTemplates, ...greengoTemplates, ...ajaTemplates, ...rossTemplates, ...lynxTemplates, ...switcherTemplates, ...avNetworkTemplates, ...broadcastToolsTemplates, ...audioTemplates, ...wirelessAudioTemplates, ...micTemplates, ...mediaStationTemplates, ...passiveTemplates]) {
+      if (!byName.has(t.name)) {
+        byName.set(t.name, t)
+        added = true
+      }
+    }
+    if (added || !raw) {
+      localStorage.setItem(CUSTOM_LIB_KEY, JSON.stringify(Array.from(byName.values())))
+    }
+    localStorage.setItem(LIB_MIGRATION_KEY, LIB_MIGRATION_VERSION)
   } catch {
     /* ignore */
   }
 }
-raeumeAltlastWeg()
+runLibraryMigration()
 
 const loadAutosavedProject = (): CablePlannerProject | null => {
   try {
@@ -1946,7 +1938,7 @@ const buildProjectStore = (
   dismissMobileDrop: () => set({ lastMobileDrop: null }),
   showCableDialog: false,
   recentProjects: [],
-  customLibrary: mischeBibliothek(EINGEBAUTE_VORLAGEN, loadCustomLibrary()),
+  customLibrary: loadCustomLibrary(),
   knownCategories: loadKnownCategories(),
   categoryTranslations: loadCategoryTranslations(),
   setCategoryTranslation: (canonical, pair) =>

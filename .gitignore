@@ -42,4 +42,3 @@ build/code-sign.pfx
 build/code-sign.cer
 build/*.pfx
 build/*.p12
-scripts/easyschematic-templates.json

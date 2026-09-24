@@ -48,7 +48,6 @@ import { CAMERA_BODY_CATALOG } from './cameraBodyCatalog'
 import { LENS_CATALOG } from './lensCatalog'
 import { RIG_CATALOG } from './rigCatalog'
 import { FIXTURE_CATALOG } from './fixtureCatalog'
-import { EASYSCHEMATIC_CATALOG } from './easySchematicCatalog'
 import { GREENGO_CATALOG } from './greengoCatalog'
 import { LED_PROCESSOR_CATALOG } from './ledProcessorCatalog'
 import { LYNX_CATALOG } from './lynxCatalog'
@@ -100,7 +99,6 @@ export const CATALOGUES: ReadonlyArray<{ name: string; entries: readonly Evidenc
   { name: 'lens', entries: LENS_CATALOG },
   { name: 'rig', entries: RIG_CATALOG },
   { name: 'fixture', entries: FIXTURE_CATALOG },
-  { name: 'easySchematic', entries: EASYSCHEMATIC_CATALOG },
   { name: 'greengo', entries: GREENGO_CATALOG },
   { name: 'ledProcessor', entries: LED_PROCESSOR_CATALOG },
   { name: 'lynx', entries: LYNX_CATALOG },
