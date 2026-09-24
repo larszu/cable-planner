@@ -336,6 +336,21 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectVersion])
 
+  // #914/#915 — Signalweg und ausgeblendete Raeume gehoeren zu DIESEM Plan.
+  // Nach dem Oeffnen eines anderen bliebe sonst alles gedimmt (keine Id des
+  // Signalwegs passt mehr) oder eine gleichnamige Etage still verborgen.
+  const setSignalwegAnsicht = useUiStore((s) => s.setSignalweg)
+  const alleRaeumeZeigenAnsicht = useUiStore((s) => s.alleRaeumeZeigen)
+  const erstesLaden = useRef(true)
+  useEffect(() => {
+    if (erstesLaden.current) {
+      erstesLaden.current = false
+      return
+    }
+    setSignalwegAnsicht(null)
+    alleRaeumeZeigenAnsicht()
+  }, [projectVersion, setSignalwegAnsicht, alleRaeumeZeigenAnsicht])
+
   const edgeUpdateSuccessful = useRef(true)
   const connectStartRef = useRef<{
     nodeId: string | null
