@@ -91,7 +91,30 @@ export const INVENTORY_FORMAT = 'avplan-inventory'
 //
 // Aeltere Dateien (v1-v6) lesen wir unveraendert weiter; ihre Fristen tragen
 // eingebaute Arten, und eine Liste eigener Arten haben sie schlicht nicht.
-export const INVENTORY_FORMAT_VERSION = 7
+//
+// Version 8 (Ladeplanung): `transport` an `InventoryCase` und an `StorageNode`
+// -- Rollen, Rollenteller, zulaessige Lagen, Nachgeben (`types/transport.ts`).
+// Dieselbe Begruendung wie bei Version 2 und 3: die `heal*`-Funktionen bauen
+// jeden Knoten Feld fuer Feld neu auf, ein Stand ohne dieses Feld wuerde es
+// beim Re-Export STILL verlieren. Mit der Version weigert sich ein aelterer
+// Planer stattdessen.
+//
+// Die Felder stehen bewusst NICHT in `PhysicalDimensions`. Das liegt
+// byte-gleich in den Planern; es zu erweitern waere ein Versionssprung in
+// allen Repos fuer etwas, das nur die Ladeplanung braucht. Als eigener
+// optionaler Nachbar bleibt `PhysicalDimensions` unveraendert.
+//
+// Ebenfalls Version 8: `StorageNode.stellplatz` -- die Lage eines festen
+// Lagerplatzes im Hallen-Grundriss. Das Feld kam im Lager-Werkzeug OHNE
+// eigenen Sprung dazu (2026-09-18) und wurde erst beim Abgleich aller Kopien
+// am 2026-09-24 gefunden. Kein Schaden entstanden: bis dahin las kein Planer
+// Version 8, jeder lehnte die Datei also ab statt sie zu kuerzen. Es gehoert
+// damit zu 8 und nicht zu 9 -- jede Kopie, die 8 liest, kennt beide Felder.
+//
+// ABGEGLICHEN AM 2026-09-24 in allen Kopien: inventory-planner,
+// cable-planner, light-planner, multicam-planner, und in der Suite
+// `packages/inventory-core`, `apps/cable-planner`, `apps/inventory-planner`.
+export const INVENTORY_FORMAT_VERSION = 8
 
 export interface InventorySnapshot {
   items: InventoryItem[]

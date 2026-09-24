@@ -219,3 +219,38 @@ describe('inventoryStore — seedFromEquipment, Grenzfälle des Namens-Fallbacks
     expect(items.find((i) => i.deviceTypeId === F55_ID)?.quantity).toBe(1)
   })
 })
+
+describe('inventoryStore — Format-Version 8 (Stellplatz, Transport)', () => {
+  beforeEach(reset)
+
+  // Das Lager-Werkzeug schreibt beide Felder seit Version 8. Vor dem Abgleich
+  // (2026-09-24) baute healNode den Knoten ohne sie neu auf: ein Planer, der
+  // die Datei einliest und zurueckschreibt, haette Rollen, Stapelgrenzen und
+  // die Lage des Regals in der Halle still geloescht.
+  it('traegt stellplatz und transport durch die Heilung', () => {
+    useInventoryStore.getState().importSnapshot(
+      {
+        nodes: [
+          {
+            id: 'n1', name: 'Case 1', kind: 'transportCase',
+            stellplatz: { xMm: 1000, zMm: 2000, breiteMm: 1200, tiefeMm: 600, ebenen: 5 },
+            transport: { castors: { heightMm: 100, includedInHeightMm: true, kind: 'swivel' }, maxLayers: 2 },
+          } as never,
+        ],
+      },
+      'replace',
+    )
+    const n = useInventoryStore.getState().nodes[0]
+    expect(n.stellplatz).toMatchObject({ xMm: 1000, zMm: 2000, breiteMm: 1200, tiefeMm: 600, ebenen: 5 })
+    expect(n.transport?.castors).toMatchObject({ heightMm: 100, includedInHeightMm: true, kind: 'swivel' })
+    expect(n.transport?.maxLayers).toBe(2)
+  })
+
+  it('verwirft einen halb vermessenen Stellplatz, statt ihn bei (0,0) zu zeigen', () => {
+    useInventoryStore.getState().importSnapshot(
+      { nodes: [{ id: 'n1', name: 'Regal', kind: 'shelf', stellplatz: { xMm: 10, breiteMm: 500 } } as never] },
+      'replace',
+    )
+    expect(useInventoryStore.getState().nodes[0].stellplatz).toBeUndefined()
+  })
+})
