@@ -191,6 +191,11 @@ plate **in millimetres**, print the label strip and the drilling sheet **1:1**.
   (with the overlap in millimetres), and connectors that have no position yet.
 - The **faceplate list** goes through the report editor like every other list,
   so it groups, filters and prints with the same settings.
+- A **wall panel, stagebox or plate passes the signal through**, socket n at
+  the back to socket n at the front — so the signal path runs camera → hall
+  plate → house run → 3rd-floor plate → gallery as one chain instead of
+  stopping at the first plate. Untick *Patch panel* on a plate that does not
+  (a stagebox with a converter inside).
 
 ---
 

@@ -2289,6 +2289,8 @@ export const de: Dict = {
   'flags.packedTitle':
     'Markiert das Gerät als gepackt. Erscheint als ✓ auf dem Canvas und als eigene Spalte in der Geräte-BOM.',
   'flags.patchPanel': 'Patchfeld (Durchgang folgt der Position)',
+  'flags.patchPanelByPlate':
+    'Diese Frontplatte leitet Position für Position durch (Buchse n hinten auf Buchse n vorn), deshalb folgt ihr der Signalweg. Abwählen, wenn nicht — etwa bei einer Stagebox mit eingebautem Wandler.',
   'flags.patchPanelTitle':
     'Patchfeld: Buchse n hinten liegt auf Buchse n vorn. Der Signalweg und die Patchliste folgen dem Durchgang, statt an der Blende anzuhalten. Setzt gleich viele Ein- und Ausgänge voraus.',
   'flags.subtitle': 'kompakt · Farbe · gepackt',
