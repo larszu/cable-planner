@@ -29,6 +29,7 @@ export const OptikSection = ({ equipment }: { equipment: EquipmentItem }) => {
     if (bereich) zeilen.push([t('props.optik.range', 'Focal range'), bereich])
     if (o.brennweiteMm !== undefined) zeilen.push([t('props.optik.focal', 'Set focal length'), `${zahl(o.brennweiteMm)} mm`])
     if (o.extender !== undefined) zeilen.push([t('props.optik.extender', 'Extender'), `${zahl(o.extender)}x`])
+    if (o.bildwinkelGrad !== undefined) zeilen.push([t('props.optik.fov', 'Horizontal field of view'), `${zahl(o.bildwinkelGrad)}°`])
     if (o.objektivMount) zeilen.push([t('props.optik.lensMount', 'Lens mount'), o.objektivMount])
     if (o.kameraMount) zeilen.push([t('props.optik.bodyMount', 'Body mount'), o.kameraMount])
     if (o.hoeheM !== undefined) zeilen.push([t('props.optik.height', 'Height'), `${zahl(o.hoeheM)} m`])

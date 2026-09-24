@@ -3925,6 +3925,7 @@ export const de: Dict = {
   'props.optik.bodyMount': 'Mount am Körper',
   'props.optik.extender': 'Extender',
   'props.optik.focal': 'Eingestellte Brennweite',
+  'props.optik.fov': 'Horizontaler Bildwinkel',
   'props.optik.height': 'Höhe',
   'props.optik.lens': 'Objektiv',
   'props.optik.lensMount': 'Mount des Objektivs',

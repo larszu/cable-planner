@@ -557,6 +557,9 @@ export interface KameraOptik {
   extender?: number
   /** Hoehe der Kamera ueber Boden in m, wenn der Kameraplan sie kennt. */
   hoeheM?: number
+  /** Horizontaler Bildwinkel in Grad, wenn der Kameraplan ihn gerechnet hat
+   *  (in der Suite ueber den Seed). */
+  bildwinkelGrad?: number
 }
 
 export interface EquipmentItem {
