@@ -1,7 +1,7 @@
 import type { Cable, CableStockEntry } from './cable'
 import type { EquipmentItem } from './equipment'
 import type { IntercomPlan } from './intercomPlan'
-import type { LocationFrame } from './location'
+import type { Floor, LocationFrame } from './location'
 import type { VenueAnswer } from './venueAnswer'
 import type { HausAuskunft } from './hausAuskunft'
 import type { VideoFormatId } from './videoFormat'
@@ -185,6 +185,8 @@ export interface CablePlannerProject {
   cables: Cable[]
   canvasState: CanvasState
   locations?: LocationFrame[]
+  /** #911 — die Etagen, von unten nach oben. Siehe `Floor`. */
+  floors?: Floor[]
   /**
    * Der Intercom-Slot (E-2, Schritt 1).
    *

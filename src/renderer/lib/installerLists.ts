@@ -12,6 +12,7 @@
  * Spaltennamen orientieren sich an TIA-568-Pull-Schedule / Cable-Schedule.
  * Alles ist seiteneffektfrei und damit headless testbar.
  */
+import { ortVonGeraet } from './kabelOrt'
 import type { CablePlannerProject } from '../types/project'
 import type { Cable } from '../types/cable'
 import type { EquipmentItem, Port } from '../types/equipment'
@@ -72,8 +73,13 @@ export interface PullListRow {
   labelId: string
   cableNumber: string
   name: string
+  /** #912 — Etage und Raum je Ende, aus der Lage im Rahmen abgeleitet. */
+  fromFloor: string
+  fromRoom: string
   fromDevice: string
   fromPort: string
+  toFloor: string
+  toRoom: string
   toDevice: string
   toPort: string
   type: string
@@ -145,15 +151,23 @@ export const buildPullListRows = (project: CablePlannerProject): PullListRow[] =
     const b = id ? anschlussById.get(id) : undefined
     return b?.farbnormId ? normById.get(b.farbnormId) : undefined
   }
+  const locations = project.locations ?? []
+  const floors = project.floors ?? []
   return project.cables.map((c) => {
     const from = byId.get(c.fromEquipmentId)
     const to = byId.get(c.toEquipmentId)
+    const vonOrt = ortVonGeraet(from, locations, floors)
+    const nachOrt = ortVonGeraet(to, locations, floors)
     return {
       labelId: cableLabelId(c),
       cableNumber: c.cableNumber ?? '',
       name: c.name ?? '',
+      fromFloor: vonOrt.etage ?? '',
+      fromRoom: vonOrt.raum ?? '',
       fromDevice: from?.name ?? '—',
       fromPort: portName(from, c.fromPortId),
+      toFloor: nachOrt.etage ?? '',
+      toRoom: nachOrt.raum ?? '',
       toDevice: to?.name ?? '—',
       toPort: portName(to, c.toPortId),
       type: c.type,
@@ -181,8 +195,12 @@ export const pullListTable = (project: CablePlannerProject): CsvTable => {
     'Label-ID',
     'Kabel-Nr.',
     'Name',
+    'Von Etage',
+    'Von Raum',
     'Von Gerät',
     'Von Port',
+    'Nach Etage',
+    'Nach Raum',
     'Nach Gerät',
     'Nach Port',
     'Typ',
@@ -203,8 +221,12 @@ export const pullListTable = (project: CablePlannerProject): CsvTable => {
     r.labelId,
     r.cableNumber,
     r.name,
+    r.fromFloor,
+    r.fromRoom,
     r.fromDevice,
     r.fromPort,
+    r.toFloor,
+    r.toRoom,
     r.toDevice,
     r.toPort,
     r.type,
@@ -303,17 +325,25 @@ export const cableScheduleTable = (project: CablePlannerProject): CsvTable => {
     'Typ',
     'Standard',
     'Länge (m)',
+    'Von Etage',
+    'Von Raum',
     'Von Gerät',
     'Von Port',
+    'Nach Etage',
+    'Nach Raum',
     'Nach Gerät',
     'Nach Port',
     'Ebene',
     'Tie-Line',
     'Status',
   ]
+  const locations = project.locations ?? []
+  const floors = project.floors ?? []
   const body: CsvCell[][] = project.cables.map((c) => {
     const from = byId.get(c.fromEquipmentId)
     const to = byId.get(c.toEquipmentId)
+    const vonOrt = ortVonGeraet(from, locations, floors)
+    const nachOrt = ortVonGeraet(to, locations, floors)
     return [
       cableLabelId(c),
       c.cableNumber ?? '',
@@ -321,8 +351,12 @@ export const cableScheduleTable = (project: CablePlannerProject): CsvTable => {
       c.type,
       c.standard ?? '',
       c.length ?? 0,
+      vonOrt.etage ?? '',
+      vonOrt.raum ?? '',
       from?.name ?? '—',
       portName(from, c.fromPortId),
+      nachOrt.etage ?? '',
+      nachOrt.raum ?? '',
       to?.name ?? '—',
       portName(to, c.toPortId),
       c.layer ?? '',

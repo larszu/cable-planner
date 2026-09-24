@@ -51,6 +51,13 @@ export const UNDESCRIBED = 'nicht beschrieben'
  * Datei, ohne dass sich am Plan etwas geaendert haette.
  */
 export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
+  // #912 — Etage und Raum je Kabelende (Ziehliste, Kabel-Schedule).
+  'Von Etage':
+    'Etage des Rahmens, in dem das Quellgerät liegt. Leer heißt: der Rahmen hat keine Etage oder das Gerät liegt in keinem Rahmen — nicht „Erdgeschoss“.',
+  'Von Raum': 'Der Rahmen (Raum, Bereich), in dem das Quellgerät auf dem Plan liegt. Leer heißt: in keinem Rahmen.',
+  'Nach Etage':
+    'Etage des Rahmens, in dem das Zielgerät liegt. Leer heißt: der Rahmen hat keine Etage oder das Gerät liegt in keinem Rahmen.',
+  'Nach Raum': 'Der Rahmen (Raum, Bereich), in dem das Zielgerät auf dem Plan liegt. Leer heißt: in keinem Rahmen.',
   // #879 — die Frontplatten-Liste (`lib/frontplattenListe.ts`). Sie geht an
   // den, der bohrt, und der hat den Plan nicht auf dem Schirm.
   Plate: 'Das Gerät, das diese Frontplatte IST — so benannt, wie es im Plan heißt.',

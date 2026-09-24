@@ -66,6 +66,7 @@ import { useVideohubLinkFeed } from '../../hooks/useVideohubLinkFeed'
 import { styleForLayer } from '../../lib/cableLayers'
 import { MONO_TINTE, monochromLabel } from '../../lib/monochromeSheet'
 import { DRUCK_MS, LangerDruck } from '../../lib/langerDruck'
+import { ansicht } from '../../lib/ansicht'
 
 const nodeTypes = { equipment: EquipmentNode, location: LocationFrameNode }
 const edgeTypes = { cable: CableEdge }
@@ -145,6 +146,13 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
   const cableColorMode = useUiStore((state) => state.cableColorMode)
   const cableLabelShortForm = useUiStore((state) => state.cableLabelShortForm)
   const canvasTheme = useUiStore((state) => state.canvasTheme)
+  // #914/#915 — was der Canvas gerade zeigt: Signalweg und ausgeblendete
+  // Raeume/Etagen. Reine Ansicht, deshalb erst beim Uebergeben an ReactFlow
+  // angewandt und nicht in `nodes`/`edges` (die spiegeln den Plan).
+  const signalweg = useUiStore((state) => state.signalweg)
+  const ausgeblendeteRaeume = useUiStore((state) => state.ausgeblendeteRaeume)
+  const ausgeblendeteEtagen = useUiStore((state) => state.ausgeblendeteEtagen)
+  const vollansicht = useUiStore((state) => state.vollansicht)
   const pdfExportThemeOverride = useUiStore((state) => state.pdfExportThemeOverride)
   const pdfExportMonochrome = useUiStore((state) => state.pdfExportMonochrome)
   const pendingCable = useUiStore((state) => state.pendingCable)
@@ -328,6 +336,26 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
     setViewport({ x: cs.x, y: cs.y, zoom: cs.zoom })
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectVersion])
+
+  // #914/#915 — Signalweg und ausgeblendete Raeume gehoeren zu DIESEM Plan.
+  // Nach dem Oeffnen eines anderen bliebe sonst alles gedimmt (keine Id des
+  // Signalwegs passt mehr) oder eine gleichnamige Etage still verborgen.
+  //
+  // An der Projekt-Kennung und nicht an `projectVersion`: die zaehlt auch
+  // bei einem Kabel vom Telefon, einer uebernommenen Aenderung oder einem
+  // GraphML-Import hoch — dann soll die Ansicht bleiben. Und nur im
+  // Haupt-Canvas: der Rack-Canvas teilt den globalen Zustand und darf ihn
+  // nicht beim Oeffnen zuruecksetzen.
+  const setSignalwegAnsicht = useUiStore((s) => s.setSignalweg)
+  const alleRaeumeZeigenAnsicht = useUiStore((s) => s.alleRaeumeZeigen)
+  const projektKennung = project.metadata.projectId
+  const letzteKennung = useRef(projektKennung)
+  useEffect(() => {
+    if (mode !== 'main' || letzteKennung.current === projektKennung) return
+    letzteKennung.current = projektKennung
+    setSignalwegAnsicht(null)
+    alleRaeumeZeigenAnsicht()
+  }, [projektKennung, mode, setSignalwegAnsicht, alleRaeumeZeigenAnsicht])
 
   const edgeUpdateSuccessful = useRef(true)
   const connectStartRef = useRef<{
@@ -624,6 +652,19 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
     }
   }, [nodes, projectVersion, updateNodeInternals])
 
+  const sicht = useMemo(
+    () =>
+      ansicht(
+        project.equipment,
+        project.cables,
+        locations,
+        vollansicht
+          ? { ausgeblendeteRaeume: [], ausgeblendeteEtagen: [], signalweg: null }
+          : { ausgeblendeteRaeume, ausgeblendeteEtagen, signalweg },
+      ),
+    [project.equipment, project.cables, locations, ausgeblendeteRaeume, ausgeblendeteEtagen, signalweg, vollansicht],
+  )
+
   const edges = useMemo<Edge[]>(
     () =>
       project.cables.map((item) => {
@@ -690,6 +731,23 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
       }),
     [project.cables, cableColorMode, cableLabelShortForm, pdfExportThemeOverride, pdfExportMonochrome],
   )
+
+  const angezeigteKanten = useMemo<Edge[]>(() => {
+    if (
+      sicht.verborgeneKabel.size === 0 &&
+      sicht.stummel.size === 0 &&
+      sicht.gedimmteKabel.size === 0
+    ) {
+      return edges
+    }
+    return edges.map((e) => {
+      if (sicht.verborgeneKabel.has(e.id)) return { ...e, hidden: true }
+      const seite = sicht.stummel.get(e.id)
+      if (seite) return { ...e, data: { ...e.data, stummel: seite } }
+      if (sicht.gedimmteKabel.has(e.id)) return { ...e, style: { ...e.style, opacity: 0.15 } }
+      return e
+    })
+  }, [edges, sicht])
 
   // Helper: check if equipment position overlaps with others.
   // v7.9.69 / #183 — Ghost-Blocking-Fix:
@@ -1868,12 +1926,22 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
       </svg>
       <ReactFlow
         proOptions={{ hideAttribution: true }}
-        nodes={rfNodes.map((n) =>
-          overlapFlashId === n.id
-            ? { ...n, className: (n.className ? n.className + ' ' : '') + 'overlap-flash' }
-            : n,
-        )}
-        edges={edges}
+        nodes={rfNodes.map((n) => {
+          const node =
+            overlapFlashId === n.id
+              ? { ...n, className: (n.className ? n.className + ' ' : '') + 'overlap-flash' }
+              : n
+          if (sicht.verborgeneRahmen.has(n.id)) return { ...node, hidden: true }
+          // Ein Geraet in einem ausgeblendeten Raum bleibt MONTIERT, nur
+          // unsichtbar: seine Port-Handles werden weiter vermessen, und nur so
+          // kann ein Kabel zu ihm als Stummel am sichtbaren Ende stehen.
+          if (sicht.verborgeneGeraete.has(n.id)) {
+            return { ...node, selectable: false, draggable: false, style: { ...node.style, visibility: 'hidden' as const } }
+          }
+          if (sicht.gedimmteGeraete.has(n.id)) return { ...node, style: { ...node.style, opacity: 0.25 } }
+          return node
+        })}
+        edges={angezeigteKanten}
         nodesDraggable={!interactionLocked && !projectIsLocked}
         nodesConnectable={!projectIsLocked}
         elementsSelectable={!interactionLocked}

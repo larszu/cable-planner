@@ -110,6 +110,28 @@ Built with **Electron, React, and TypeScript**, it is designed for real-world pr
 - Cable metadata (type, length, color, notes)
 - Zoom, pan, minimap navigation
 - Real-time signal topology visualization
+- **Rooms and floors**: a frame on the canvas is a room; it picks its floor from
+  the project's floor list (bottom to top, with the floor level in metres —
+  *Floors* in the frame's properties). Renaming a floor renames it on every
+  frame; old projects with typed-in floors become the list on load
+- **Where each cable end sits**: the cable's properties, the pull list and the
+  cable schedule show *floor · room · device · port* for both ends, read from
+  where the device lies — e.g. `EG · Hall 3 · CAM 3 · SDI Out → 3rd floor ·
+  Gallery · Videohub · SDI 12`
+- **Show signal path**: in a cable's properties, highlights the whole chain it
+  belongs to — through plates, house runs, converters, routers — and dims the
+  rest; the stations are listed with floor, room, device and port. Esc or the
+  chip in the toolbar ends it
+- **3D** in the toolbar shows the building: every frame as a room on its
+  floor's height, devices inside, and the connections between rooms — as one
+  line per room pair with the cable count, or as single cables (house runs
+  dashed). The same floor/room and layer switches as on the canvas apply. A
+  floor without a height is stacked with an adjustable storey height, and the
+  view says so
+- **Rooms ▾** in the toolbar hides floors or single rooms with their devices.
+  A cable into a hidden room stays as a stub at the visible end and says
+  where it goes; its arrow brings the room back. Only the view changes — the
+  plan and every export stay complete
 
 ---
 
@@ -132,6 +154,10 @@ Built with **Electron, React, and TypeScript**, it is designed for real-world pr
   quantity produces no warning: nobody counted, so there is nothing to warn
   about.
 - Reusable project components
+- **Master data** (Settings → *Master data*): your own connector types, signal
+  standards and cable layers in one place, next to the built-in ones. They
+  appear in every picker and travel with the shared library (Network sync),
+  so a team uses the same names
 
 ---
 
@@ -191,6 +217,11 @@ plate **in millimetres**, print the label strip and the drilling sheet **1:1**.
   (with the overlap in millimetres), and connectors that have no position yet.
 - The **faceplate list** goes through the report editor like every other list,
   so it groups, filters and prints with the same settings.
+- A **wall panel, stagebox or plate passes the signal through**, socket n at
+  the back to socket n at the front — so the signal path runs camera → hall
+  plate → house run → 3rd-floor plate → gallery as one chain instead of
+  stopping at the first plate. Untick *Patch panel* on a plate that does not
+  (a stagebox with a converter inside).
 
 ---
 
@@ -335,7 +366,16 @@ risk without a payoff.
 - **Green-GO** — intercom configuration export (`.gg5`), plus a
   **vendor-neutral intercom exchange file** that someone building a Riedel or
   Clear-Com system can also read
-- **`.avplan`** — the shared exchange format across the planner suite
+- **`.avplan`** — the shared exchange format across the planner suite. When the
+  file carries the MultiCam plan's cameras, opening it offers to place them in
+  the signal plan
+- **MultiCam cameras** (`.cameras.json`, *File → Import MultiCam cameras*) —
+  every placed camera becomes a device with its datasheet ports, lens, zoom
+  range and set focal length (shown on the node and under *Optics* in its
+  properties). Importing again **reconciles** instead of duplicating: names
+  and optics follow the camera plan, position, ports and cables stay, and a
+  camera that left the MultiCam plan is marked, not deleted — cables may hang
+  on it
 - **Racks for the warehouse** (`rack-belegung.json`, *Library → Racks → For the
   warehouse*) — what sits in each rack, with unit and name, for the Inventory
   Planner. A rack that travels in a case is a case there: the warehouse owns
@@ -350,6 +390,12 @@ risk without a payoff.
   so. A **DALI address whose kind is not stated** is reported too — short
   address, group and broadcast are three different things, and the last one is
   the whole bus, emergency lighting included.
+  Since format v2 the statement also carries the building's **floors** (take
+  them into the plan's floor list with one click) and its **house runs** with
+  rooms, the plate at each end and their cores. A cable's properties pick the
+  run and core it uses; the list shows which cores other cables already hold,
+  and the plan check reports a run the building no longer lists, a core it
+  does not know, and two cables on one core.
 
 API tokens live in the **operating system's credential store** (macOS Keychain,
 Windows Credential Manager, libsecret) through `keytar` — not in the project

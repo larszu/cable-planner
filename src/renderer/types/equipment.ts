@@ -536,6 +536,32 @@ export interface VideohubRouting {
   salvos: VideohubSalvo[]
 }
 
+/**
+ * #910 — Objektiv und Einstellung einer Kamera, aus dem MultiCam-Plan
+ * (`camera-list` v2). Jedes Feld optional: was der Kameraplan nicht sagt,
+ * steht hier nicht — eine fehlende Brennweite ist keine Brennweite von 0.
+ */
+export interface KameraOptik {
+  objektivHersteller?: string
+  objektivModell?: string
+  /** Zoombereich des Objektivs in mm (bei Festbrennweite min = max). */
+  brennweiteMinMm?: number
+  brennweiteMaxMm?: number
+  /** Mount des Objektivs laut Katalog. */
+  objektivMount?: string
+  /** Aktiver Mount am Kamerakoerper (kann per Adapter vom Objektiv abweichen). */
+  kameraMount?: string
+  /** Eingestellte Brennweite in mm. */
+  brennweiteMm?: number
+  /** Eingeschalteter Extender-Faktor (z. B. 2); fehlt, wenn keiner. */
+  extender?: number
+  /** Hoehe der Kamera ueber Boden in m, wenn der Kameraplan sie kennt. */
+  hoeheM?: number
+  /** Horizontaler Bildwinkel in Grad, wenn der Kameraplan ihn gerechnet hat
+   *  (in der Suite ueber den Seed). */
+  bildwinkelGrad?: number
+}
+
 export interface EquipmentItem {
   id: string
   name: string
@@ -649,7 +675,21 @@ export interface EquipmentItem {
   /** Tracks how the device entered the project — used by the import
    *  dialog's diff view and by Rentman / GraphML re-imports so we know
    *  which subset of devices is replaceable. */
-  importSource?: 'graphml' | 'rentman' | 'netbox' | 'manual'
+  importSource?: 'graphml' | 'rentman' | 'netbox' | 'multicam' | 'manual'
+  /** #909 — Id der Kamera im MultiCam-Plan (`camera-list`). Stabile
+   *  Identitaet ueber Import-Laeufe: der naechste Import aktualisiert dieses
+   *  Geraet, statt ein zweites anzulegen. */
+  multicamId?: string
+  /** #909 — Projekt-Id des MultiCam-Plans, aus dem die Kamera stammt. Trennt
+   *  `cam-1` aus zwei verschiedenen Plaenen; fehlt sie (Altdatei v1), gilt
+   *  die Kamera-Id allein. */
+  multicamProjectId?: string
+  /** #909 — der letzte Import fand diese Kamera im MultiCam-Plan nicht mehr.
+   *  Markiert statt geloescht: sie kann verkabelt sein, und das Kabel waere
+   *  sonst still weg. */
+  multicamRemoved?: boolean
+  /** #910 — Optik der Kamera, wie der MultiCam-Plan sie gesetzt hat. */
+  optik?: KameraOptik
   x: number
   y: number
   width: number

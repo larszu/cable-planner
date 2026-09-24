@@ -32,6 +32,7 @@
 // REIN: keine Uhr, kein Store, kein IO.
 // ───────────────────────────────────────────────────────────────────────────
 import type { EquipmentItem, Port } from '../types/equipment'
+import type { Frontplatte, FrontplattenArt } from '../types/frontplatte'
 
 /**
  * Die Geraetekategorie aus der Ueberschrift des Issues.
@@ -47,17 +48,39 @@ export const categoryIsPatchPanel = (category: string | undefined): boolean =>
   (category ?? '').trim().toLowerCase() === PATCH_PANEL_CATEGORY.toLowerCase()
 
 /**
+ * #913 — die Frontplatten-Arten, die ihrer Bauart nach DURCHLEITEN.
+ *
+ * Eine Wanddose, ein Wandfeld, eine Stagebox und eine Blende sind in der
+ * Festinstallation genau die Zwischenstationen, an denen die Kette bisher
+ * abbrach: sie waren als Platte ausgewiesen, aber fuer die Signalkette erst
+ * dann ein Durchgang, wenn zusaetzlich jemand das Patchfeld-Haekchen setzte.
+ * Der Weg Kamera → Blende Halle → Hausstrecke → Blende 3.OG → Regie zerfiel
+ * dadurch in Einzelstuecke. `sonstige` bleibt aussen vor: was das ist, sagt
+ * die Art gerade nicht.
+ */
+export const DURCHLEITENDE_PLATTEN: readonly FrontplattenArt[] = ['wandfeld', 'stagebox', 'blende']
+
+/** Leitet diese Frontplatte ihrer Art nach durch? Ohne Platte: nein. */
+export const plattenDurchleitung = (device: { frontplatte?: Pick<Frontplatte, 'art'> }): boolean =>
+  !!device.frontplatte && DURCHLEITENDE_PLATTEN.includes(device.frontplatte.art)
+
+/**
  * Ist dieses Geraet eine Patchblende?
  *
- * ZWEI WEGE, EINE ANTWORT: das Flag `isPatchPanel` (vom Rack-Builder gesetzt,
- * in den Properties umschaltbar) ODER die Kategorie „Patchfelder". Wer ein
- * Geraet in diese Kategorie legt, hat damit gesagt, was es ist; ein zweites
- * Haekchen zu verlangen waere eine Falle. Die Properties-Sektion zeigt das
- * Haekchen deshalb als gesetzt UND gesperrt, wenn die Kategorie es schon sagt.
+ * DREI WEGE, EINE ANTWORT: das Flag `isPatchPanel` (vom Rack-Builder gesetzt,
+ * in den Properties umschaltbar), die Kategorie „Patchfelder" ODER eine
+ * durchleitende Frontplatte (#913). Wer ein Geraet in diese Kategorie legt
+ * oder als Wandfeld ausweist, hat damit gesagt, was es ist; ein zweites
+ * Haekchen zu verlangen waere eine Falle. Nur bei der Platte ist ein
+ * ausdrueckliches Nein moeglich (`isPatchPanel: false`) — eine Stagebox mit
+ * aktivem Wandler darin leitet nicht Position auf Position durch.
  */
 export const isPatchPanelDevice = (
-  device: Pick<EquipmentItem, 'category'> & { isPatchPanel?: boolean },
-): boolean => device.isPatchPanel === true || categoryIsPatchPanel(device.category)
+  device: Pick<EquipmentItem, 'category'> & { isPatchPanel?: boolean; frontplatte?: Pick<Frontplatte, 'art'> },
+): boolean =>
+  device.isPatchPanel === true ||
+  categoryIsPatchPanel(device.category) ||
+  (device.isPatchPanel !== false && plattenDurchleitung(device))
 
 /**
  * Der Anschluss auf der anderen Seite — Position n gegen Position n.
