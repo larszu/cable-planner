@@ -298,6 +298,9 @@ export interface ProjectState {
   setCanvasState: (x: number, y: number, zoom: number) => void
   addEquipment: (equipment: Omit<EquipmentItem, 'id'>) => void
   importEquipment: (equipment: EquipmentItem[]) => void
+  /** #909 — Abgleich eines Imports: neue Geraete anhaengen und vorhandene
+   *  patchen, in EINEM Schritt (ein Undo, ein Autosave). */
+  syncImportedEquipment: (neu: EquipmentItem[], patches: Array<{ id: string; patch: Partial<EquipmentItem> }>) => void
   /** #414 — Fügt KI-generierte Geräte + Kabel atomar ein, ohne IDs neu zu
    *  vergeben (die Kabel referenzieren die mitgelieferten IDs). */
   insertGeneratedPlan: (equipment: EquipmentItem[], cables: import('../types/cable').Cable[]) => void

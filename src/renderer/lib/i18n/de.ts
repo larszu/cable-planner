@@ -562,7 +562,13 @@ export const de: Dict = {
   'app.menu.file.importAvplan': 'Gesamtprojekt importieren (.avplan)…',
   'app.menu.file.importAvplanError': 'Import fehlgeschlagen — keine gültige .avplan-Datei.',
   'app.menu.file.importCameras': 'MultiCam-Kameras importieren…',
-  'app.menu.file.importCamerasDone': 'MultiCam-Kamera(s) als Equipment importiert.',
+  'app.menu.file.importCamerasSummary': 'MultiCam-Kameras: {neu} neu, {aktualisiert} aktualisiert, {unveraendert} unverändert.',
+  'app.menu.file.importCamerasRemoved':
+    'Nicht mehr im MultiCam-Plan — markiert, nicht gelöscht, weil Kabel daran hängen können: {names}',
+  'app.menu.file.importCamerasModelChanged':
+    'Modell in MultiCam geändert — Ports und Kabel bleiben; den Körper in den Eigenschaften über „Anderes Gerät wählen…“ tauschen: {names}',
+  'app.menu.file.avplanCamerasAsk':
+    'Diese Datei enthält die Kameras des MultiCam-Plans. In den Signalplan übernehmen?',
   'app.menu.file.importCamerasError':
     'Kamera-Import fehlgeschlagen — keine gültige MultiCam-Kameraliste.',
   'app.menu.file.importGraphml': 'yEd / GraphML importieren…',
@@ -3861,6 +3867,17 @@ export const de: Dict = {
   'props.aiPorts.summary': '{groups} Gruppe(n) / {ports} Ports vorgeschlagen:',
   'props.cameraControls.noSource':
     'Zu diesem Modell liegt keine Fähigkeits-Aussage vor. „Nicht belegt" heißt nicht „geht nicht" — es heißt, dass niemand es nachgesehen hat.',
+  'props.optik.bodyMount': 'Mount am Körper',
+  'props.optik.extender': 'Extender',
+  'props.optik.focal': 'Eingestellte Brennweite',
+  'props.optik.height': 'Höhe',
+  'props.optik.lens': 'Objektiv',
+  'props.optik.lensMount': 'Mount des Objektivs',
+  'props.optik.range': 'Brennweitenbereich',
+  'props.optik.removed':
+    'Diese Kamera steht nicht mehr im MultiCam-Plan. Sie bleibt hier, weil Kabel daran hängen können — selbst löschen, wenn sie weg ist.',
+  'props.optik.source': 'Im MultiCam-Planer gesetzt; der nächste Kamera-Import aktualisiert es.',
+  'props.optik.title': 'Optik (MultiCam-Plan)',
   'props.cameraControls.title': 'Steuerbare Funktionen',
   'props.deviceConfigs.assignExisting': '+ Vorhandene Konfiguration zuordnen…',
   'props.deviceConfigs.hint':

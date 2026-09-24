@@ -71,7 +71,7 @@ const ConfirmDialog = ({ title, options, onDone }: Props) => {
           {title}
         </div>
         {options.body && (
-          <div style={{ marginBottom: 16, fontSize: 13, color: '#cbd5e1' }}>
+          <div style={{ marginBottom: 16, fontSize: 13, color: '#cbd5e1', whiteSpace: 'pre-line' }}>
             {options.body}
           </div>
         )}

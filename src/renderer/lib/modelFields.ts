@@ -179,6 +179,14 @@ export const INSTANCE_FIELDS = [
   'hausKlinkeId',
   'id',
 
+  // #909/#910 — die Kamera aus dem MultiCam-Plan: WELCHE es dort ist und wie
+  // DIESES Exemplar eingestellt ist (Objektiv, Brennweite). Ein anderes
+  // Exemplar desselben Modells steht mit anderem Objektiv an anderer Stelle.
+  'multicamId',
+  'multicamProjectId',
+  'multicamRemoved',
+  'optik',
+
   // Wo dieses Exemplar steht
   'x',
   'y',

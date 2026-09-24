@@ -335,7 +335,16 @@ risk without a payoff.
 - **Green-GO** — intercom configuration export (`.gg5`), plus a
   **vendor-neutral intercom exchange file** that someone building a Riedel or
   Clear-Com system can also read
-- **`.avplan`** — the shared exchange format across the planner suite
+- **`.avplan`** — the shared exchange format across the planner suite. When the
+  file carries the MultiCam plan's cameras, opening it offers to place them in
+  the signal plan
+- **MultiCam cameras** (`.cameras.json`, *File → Import MultiCam cameras*) —
+  every placed camera becomes a device with its datasheet ports, lens, zoom
+  range and set focal length (shown on the node and under *Optics* in its
+  properties). Importing again **reconciles** instead of duplicating: names
+  and optics follow the camera plan, position, ports and cables stay, and a
+  camera that left the MultiCam plan is marked, not deleted — cables may hang
+  on it
 - **Racks for the warehouse** (`rack-belegung.json`, *Library → Racks → For the
   warehouse*) — what sits in each rack, with unit and name, for the Inventory
   Planner. A rack that travels in a case is a case there: the warehouse owns

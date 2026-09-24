@@ -76,7 +76,7 @@ import { toolsInPlan } from '../../lib/deviceTools'
 import { useModule } from '../../store/settingsStore'
 import { exportStagePlotSvg } from '../../lib/exportStagePlot'
 import { downloadBlob } from '../../lib/downloadBlob'
-import { parseCameraList, cameraListToEquipment } from '../../lib/multicamCameraImport'
+import { abgleichKameras, parseCameraList, pruefeCameraList, type KameraAbgleich } from '../../lib/multicamCameraImport'
 import {
   cableToAvPlan,
   parseAvPlan,
@@ -170,16 +170,55 @@ export const MenuBar = ({
   const t = useTranslation()
 
   // MultiCam-Planner-Kameras (.cameras.json) als Equipment-Nodes importieren.
+  // #909 — ein Abgleich, kein Anhaengen: der zweite Import aktualisiert.
   const cameraImportRef = useRef<HTMLInputElement | null>(null)
+  const kameraBericht = (ergebnis: KameraAbgleich): string[] => {
+    const lines = [
+      format(
+        t('app.menu.file.importCamerasSummary', 'MultiCam cameras: {neu} new, {aktualisiert} updated, {unveraendert} unchanged.'),
+        {
+          neu: ergebnis.neu.length,
+          aktualisiert: ergebnis.aktualisiert.length - ergebnis.verwaist.length,
+          unveraendert: ergebnis.unveraendert,
+        },
+      ),
+    ]
+    const project = useProjectStore.getState().project
+    const namen = (ids: string[]) =>
+      ids.map((id) => project.equipment.find((e) => e.id === id)?.name ?? id).join(', ')
+    if (ergebnis.verwaist.length > 0) {
+      lines.push(
+        format(
+          t(
+            'app.menu.file.importCamerasRemoved',
+            'No longer in the MultiCam plan — marked, not deleted, because cables may hang on them: {names}',
+          ),
+          { names: namen(ergebnis.verwaist) },
+        ),
+      )
+    }
+    if (ergebnis.modellGeaendert.length > 0) {
+      lines.push(
+        format(
+          t(
+            'app.menu.file.importCamerasModelChanged',
+            'Model changed in MultiCam — ports and cables kept; swap the body via "Choose another device…" in its properties: {names}',
+          ),
+          { names: ergebnis.modellGeaendert.join(', ') },
+        ),
+      )
+    }
+    return lines
+  }
   const handleImportCameras = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
       try {
-        const items = cameraListToEquipment(parseCameraList(await file.text()))
-        useProjectStore.getState().importEquipment(items)
-        await infoDialog(
-          `${items.length} ${t('app.menu.file.importCamerasDone', 'MultiCam camera(s) imported as equipment.')}`,
-        )
+        const store = useProjectStore.getState()
+        const ergebnis = abgleichKameras(store.project.equipment, parseCameraList(await file.text()))
+        const lines = kameraBericht(ergebnis)
+        store.syncImportedEquipment(ergebnis.neu, ergebnis.aktualisiert)
+        await infoDialog(lines[0], lines.length > 1 ? { body: lines.slice(1).join('\n') } : {})
       } catch {
         await infoDialog(
           t('app.menu.file.importCamerasError', 'Camera import failed — not a valid MultiCam camera list.'),
@@ -259,6 +298,23 @@ export const MenuBar = ({
         }
 
         useProjectStore.getState().loadProject({ ...base, avForeign: foreign })
+
+        // #908 — die Kameras des MultiCam-Plans stehen seit camera-list v2 als
+        // abgeleitete Liste im eigenen Slot. Gefragt statt still uebernommen:
+        // wer eine Kamera hier bewusst geloescht hat, bekaeme sie sonst bei
+        // jedem Oeffnen zurueck.
+        const liste = (avplan.domains.cameras as { cameraList?: unknown } | undefined)?.cameraList
+        if (liste !== undefined) {
+          const store = useProjectStore.getState()
+          const ergebnis = abgleichKameras(store.project.equipment, pruefeCameraList(liste))
+          if (ergebnis.neu.length > 0 || ergebnis.aktualisiert.length > 0) {
+            const ok = await confirmDialog(
+              t('app.menu.file.avplanCamerasAsk', 'This file contains the cameras of the MultiCam plan. Apply them to the signal plan?'),
+              { body: kameraBericht(ergebnis).join('\n') },
+            )
+            if (ok) useProjectStore.getState().syncImportedEquipment(ergebnis.neu, ergebnis.aktualisiert)
+          }
+        }
       } catch {
         await infoDialog(
           t('app.menu.file.importAvplanError', 'Import failed — not a valid .avplan file.'),
