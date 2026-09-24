@@ -218,3 +218,79 @@ describe('Was der Zug bewirkt', () => {
     }
   })
 })
+
+// ───────────────────────────────────────────────────────────────────────────
+// ISSUE #904 — „man greift das kabel und kann es nur ein kleine stück ziehen"
+//
+// Der dritte Befund derselben Familie, und der einzige, der NICHT in der
+// Geometrie liegt. `kabelGriff` und `kabelAnfahrt` messen, ob der Griff dort
+// ist, wo der Strich ist. Hier geht es darum, ob der Zug ueberhaupt am Leben
+// bleibt.
+//
+// DIE URSACHE, im DOM statt in der Rechnung:
+//
+//   `handleMove` schreibt `cable.waypoints`
+//     -> die Kante rendert neu, `legeAnfahrt` legt den Weg neu
+//     -> `greifKette` kuerzt eine kollineare Ecke heraus oder
+//        `rechtwinkligMachen` schiebt eine ein, die Punktzahl aendert sich
+//     -> die Griffe haengen an INDEX-Schluesseln (`seg-3`, `wp-2`), React
+//        montiert den Griff unter dem Zeiger also ab
+//     -> die Listener hingen AN DIESEM ELEMENT (`setPointerCapture`), sind
+//        mit ihm aus dem Dokument, und `pointermove` kommt nie wieder an.
+//
+// Der Zug endete nach genau einem Schritt — „nur ein kleine stück".
+//
+// WARUM DAS EIN QUELLTEXT-WAECHTER IST UND KEIN ABLAUF-TEST. Diese Suite
+// faehrt ohne React-Plugin (siehe `vitest.config.ts`: „decken die reine Logik
+// ab — keine React-Komponenten"). Der Befund ist aber kein Rechenfehler,
+// sondern eine Aussage darueber, WO die Listener haengen — und die steht im
+// Quelltext und ist dort pruefbar. Ein Test, der die Komponente montierte,
+// muesste ReactFlow, Zustand-Store und Pointer-Capture nachbauen; er wuerde
+// mehr Attrappe pruefen als Verhalten.
+//
+// Die Zeile, auf die es ankommt: das Ziehen darf nicht an der Lebensdauer
+// eines Griffs haengen, den derselbe Zug umbaut.
+// ───────────────────────────────────────────────────────────────────────────
+describe('Issue #904 — der Zug ueberlebt den Umbau seines eigenen Griffs', () => {
+  const quelle = (): string =>
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require('node:fs').readFileSync(
+      require('node:path').join(__dirname, '..', 'src', 'renderer', 'components', 'Canvas', 'CableWaypoints.tsx'),
+      'utf8',
+    )
+
+  it('haengt die Zieh-Listener an `window`, nicht an den Griff', () => {
+    const src = quelle()
+    expect(src).toContain("window.addEventListener('pointermove'")
+    expect(src).toContain("window.addEventListener('pointerup'")
+    expect(src).toContain("window.addEventListener('pointercancel'")
+  })
+
+  it('nimmt sie auch wieder ab — sonst zieht das naechste Kabel mit', () => {
+    const src = quelle()
+    expect(src).toContain("window.removeEventListener('pointermove'")
+    expect(src).toContain("window.removeEventListener('pointerup'")
+    expect(src).toContain("window.removeEventListener('pointercancel'")
+  })
+
+  it('haelt den Zeiger nicht mehr am Element fest', () => {
+    // `setPointerCapture` loest dasselbe Problem nur so lange, wie das Element
+    // existiert — und genau das tut es hier nicht. Bleibt der Aufruf stehen,
+    // ist der Fehler zurueck, ohne dass die Listener-Pruefung oben es merkt.
+    // Geprueft wird der AUFRUF, nicht das Wort: der Kopf der Datei erklaert
+    // ausfuehrlich, warum `setPointerCapture` hier nicht taugt, und dieser
+    // Satz soll stehen bleiben duerfen.
+    const src = quelle()
+    expect(src).not.toMatch(/\.setPointerCapture\s*\(/)
+    expect(src).not.toMatch(/\.releasePointerCapture\s*\(/)
+  })
+
+  it('fuehrt Ecken- und Abschnitts-Zug durch EINE Stelle', () => {
+    // Bis #904 stand die Listener-Verkabelung zweimal da — in `beginDrag` und
+    // in `dragSegment`. Ein Fix an einer von beiden haette die andere stehen
+    // gelassen, und der Nutzer haette „Ecke geht, Abschnitt nicht" gemeldet.
+    const src = quelle()
+    expect((src.match(/window\.addEventListener\('pointermove'/g) ?? []).length).toBe(1)
+    expect(src).toMatch(/const dragSegment =[\s\S]{0,900}beginDrag\(/)
+  })
+})

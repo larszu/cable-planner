@@ -38,6 +38,7 @@ import { PortsSection } from './sections/PortsSection'
 import { LibrarySaveSection } from './sections/LibrarySaveSection'
 import { PrintSection } from './sections/PrintSection'
 import { RackSection } from './sections/RackSection'
+import { SectionFilterBar } from './SectionFilterBar'
 import { IdentityBlock } from './sections/IdentityBlock'
 import { NetworkConfigSection } from './sections/NetworkConfigSection'
 import { ModesSection } from './sections/ModesSection'
@@ -118,6 +119,10 @@ export const EquipmentProperties = () => {
   return (
     <DndContext sensors={dragSensors} collisionDetection={closestCenter} onDragEnd={handleSectionDragEnd}>
     <SortableContext items={sectionOrder} strategy={verticalListSortingStrategy}>
+    {/* #903 — der Weg zu EINEM Abschnitt. Ausserhalb des `fieldset`, damit
+        auch im gesperrten Projekt gesucht werden kann: Lesen ist keine
+        Aenderung. */}
+    <SectionFilterBar />
     <fieldset
       disabled={projectIsLocked}
       className="flex flex-col gap-3 text-cp-xs disabled:cursor-default disabled:opacity-50"
