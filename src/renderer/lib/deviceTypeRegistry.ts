@@ -18,6 +18,7 @@ import { LENS_CATALOG } from './lensCatalog'
 import { RIG_CATALOG } from './rigCatalog'
 import { FIXTURE_CATALOG } from './fixtureCatalog'
 import { DECIMATOR_CATALOG } from './decimatorCatalog'
+import { BROMPTON_CATALOG } from './bromptonCatalog'
 import { BLACKMAGIC_CATALOG } from './blackmagicCatalog'
 import { GREENGO_CATALOG } from './greengoCatalog'
 import { LED_PROCESSOR_CATALOG } from './ledProcessorCatalog'
@@ -88,6 +89,9 @@ const buildRegistry = (): Map<string, DeviceTypeInfo> => {
     put(e.deviceTypeId, { template: { ...e.template, deviceTypeId: e.deviceTypeId } })
   }
   for (const e of DECIMATOR_CATALOG) {
+    put(e.deviceTypeId, { template: { ...e.template, deviceTypeId: e.deviceTypeId } })
+  }
+  for (const e of BROMPTON_CATALOG) {
     put(e.deviceTypeId, { template: { ...e.template, deviceTypeId: e.deviceTypeId } })
   }
   for (const e of BLACKMAGIC_CATALOG) {
