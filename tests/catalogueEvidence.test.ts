@@ -74,7 +74,12 @@ describe('Initiative 11 — trägt diese Katalog-Zeile ein Datenblatt?', () => {
     // Smartscope Duo 4K bleibt als einziger unbelegt (eingestellt, keine
     // Live-Produktseite). +2 am 2026-09-23: `ledProcessorCatalog`, der erste
     // Eintrag einer Kategorie, die bei null stand (#878).
-    expect(kommentare).toBe(424)
+    //
+    // 424 -> 1616 am 2026-09-24: die Uebernahme aus multicam- und
+    // light-planner (`npm run katalog:uebernahme`). Die Zahl zieht der
+    // Generator; `npm run katalog:check` sagt, ob die erzeugten Dateien noch
+    // zur Quelle passen.
+    expect(kommentare).toBe(1648)
   })
 
   it('2. die Abdeckung wird gerechnet', () => {
@@ -82,16 +87,25 @@ describe('Initiative 11 — trägt diese Katalog-Zeile ein Datenblatt?', () => {
     // Die Summen stammen aus derselben Rechnung wie die Zeilen.
     expect(bericht.entries).toBe(bericht.perCatalogue.reduce((s, c) => s + c.entries, 0))
     expect(bericht.sourced + bericht.unsourced).toBe(bericht.entries)
-    expect(bericht.sourced).toBe(424)
-    expect(bericht.entries).toBe(469)
+    // 2026-09-24: 469 -> 1802 Eintraege, 424 -> 1616 belegt. Die Abdeckung
+    // steigt damit von 90,4 % auf 89,7 % — sie SINKT leicht, und das ist die
+    // ehrliche Zahl: die Rigs kommen ohne einen einzigen Beleg mit, und von
+    // den 84 Lichtgeraeten tragen 50 einen.
+    expect(bericht.sourced).toBe(1648)
+    expect(bericht.entries).toBe(1834)
 
-    // Kein Katalog steht mehr ganz ohne Beleg (B-11 abgeschlossen) — und die
-    // Liste wird GERECHNET, nicht aufgezählt: trägt einer von ihnen morgen
-    // Belege nach, fällt er von selbst heraus.
+    // B-11 hatte diese Liste auf LEER gebracht. Seit dem 2026-09-24 steht
+    // wieder genau EINER darin, und er ist benannt statt weggerechnet: die
+    // Kamera-Rigs aus dem multicam-planner. Dort fuehrt keines der 49 Rigs
+    // eine Hersteller-Adresse — nachgemessen. Eine zu erfinden waere
+    // schlimmer als die Luecke; sie hier zu verstecken waere schlimmer als
+    // beides.
+    //
+    // Die Liste wird GERECHNET, nicht aufgezählt: traegt `rig` morgen Belege
+    // nach, faellt er von selbst heraus und diese Zeile wird rot — als
+    // Erinnerung, die Ausnahme zu loeschen.
     const ohne = bericht.perCatalogue.filter((c) => c.sourced === 0).map((c) => c.name)
-    expect(ohne).toEqual([])
-    expect(bericht.perCatalogue.filter((c) => c.sourced === 0)
-      .reduce((s, c) => s + c.entries, 0)).toBe(0)
+    expect(ohne).toEqual(['rig'])
   })
 
   it('3. die Ratsche: ein vollständig belegter Katalog bleibt es', () => {
@@ -110,7 +124,14 @@ describe('Initiative 11 — trägt diese Katalog-Zeile ein Datenblatt?', () => {
     }
     // Und die Gesamtzahl der unbelegten steigt nicht. Sinken darf sie —
     // dann ist diese Zeile die Erinnerung, die Zahl nachzuziehen.
-    expect(bericht.unsourced).toBeLessThanOrEqual(159)
+    // 159 -> 186 am 2026-09-24. Die Zahl STEIGT, und das ist keine
+    // Verschlechterung der Pflege, sondern der Preis der Uebernahme: 49 Rigs
+    // ohne Adresse, 34 Lichtgeraete ohne gefundene Produktseite, 5 Bodies und
+    // 37 Objektive, deren Quelle selbst keine nennt oder nur eine
+    // Haendler-Adresse (die der Generator herausfiltert). Die offenen Punkte
+    // stehen namentlich in den Koepfen von `fixtureCatalog.ts` und
+    // `rigCatalog.ts` — als Arbeitsliste, nicht als Restposten.
+    expect(bericht.unsourced).toBeLessThanOrEqual(186)
   })
 
   it('4. „kein Beleg" ist eine eigene Auskunft', () => {

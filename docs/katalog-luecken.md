@@ -8,13 +8,26 @@ sie und sagt, was als Nächstes hineingehört — es rechnet nicht selbst.
 
 | Zielbereich (#878) | Einträge | davon mit Datenblatt | Kataloge |
 |---|---:|---:|---|
-| Kameras | 20 | 19 | `camera` |
-| Konverter | 30 | 30 | `aja`, `blackmagic`, `broadcastTools`, `lynx`, `misc` |
-| Netzwerk | 81 | 75 | `aja`, `avNetwork`, `blackmagic`, `misc`, `ubiquiti` |
-| LED-Prozessoren | **0** | 0 | — |
-| Intercom | 8 | 6 | `greengo` |
+| Kameras | 385 | 377 | `camera`, `cameraBody` |
+| Konverter | 34 | 34 | `aja`, `blackmagic`, `broadcastTools`, `decimator`, `lynx`, `misc` |
+| Netzwerk | 87 | 81 | `aja`, `avNetwork`, `blackmagic`, `luminex`, `misc`, `ubiquiti` |
+| LED-Prozessoren | 7 | 7 | `brompton`, `ledProcessor` |
+| Intercom | 12 | 10 | `clearcom`, `greengo` |
 
-Gesamt 467 Einträge, davon 184 Mikrofone (39,4 %).
+Gesamt 1825 Einträge (Stand 2026-09-25), davon 184 Mikrofone — 10,1 % statt
+39,4 %.
+
+> **Nachgezogen am 2026-09-25.** Alle drei Befunde von 2026-09-19 sind
+> erledigt:
+>
+> 1. Die Schieflage ist weg. Mikrofone waren 39,4 % und sind 10,1 %; die
+>    größte Kategorie sind jetzt die Objektive mit 835 von 1825 (14 % nach
+>    Bereichen gerechnet, siehe `katalogLuecken.test.ts`).
+> 2. **LED-Prozessoren sind nicht mehr leer** — und ausgerechnet der Bereich,
+>    der bei null stand, ist der einzige mit **vollständigem** Beleg (7 von 7).
+> 3. **Kein Bereich hängt mehr an einem Haus.** Intercom hatte nur GreenGo und
+>    hat jetzt Clear-Com dazu; Netzwerk hatte nur Ubiquiti als
+>    Veranstaltungs-Haus und hat jetzt Luminex.
 
 Drei Befunde, die ohne die Rechnung nicht sichtbar waren:
 
@@ -42,6 +55,18 @@ Die Datenblätter sind aus der Arbeitsumgebung dieser Sitzung nicht erreichbar:
 `blackmagicdesign.com`, `aja.com` und `decimator.com` beantworten den
 CONNECT-Versuch mit **403 (policy denial)**, ebenso der Abruf über den
 Web-Abholdienst (`EGRESS_BLOCKED`). Nachgemessen am 2026-09-19, nicht vermutet.
+
+> **Berichtigt am 2026-09-24.** Für `decimator.com` stimmte das nicht — oder
+> nicht mehr. Ein direkter Abruf kommt durch (`200`, Broschüren-PDFs
+> vollständig); nur der Web-Abholdienst scheitert, und zwar an der
+> **Zertifikatskette**, nicht an einer Sperre. Das ist der Unterschied
+> zwischen „nicht erreichbar" und „mit DIESEM Werkzeug nicht erreichbar", und
+> er hat einen Bereich stehen lassen, den #878 ausdrücklich nennt. Acht
+> Decimator-Geräte stehen seither im Katalog (`decimatorCatalog.ts`), jedes
+> mit der Spezifikationstabelle seines Broschüren-PDFs als Beleg.
+>
+> Für die anderen beiden Häuser ist die Messung **nicht** wiederholt worden.
+> Wer dort weitermacht, prüft zuerst mit einem direkten Abruf nach.
 
 Also steht hier die Messung und die Arbeitsliste — und die Ware kommt, wenn
 jemand mit Netzzugang die Blätter öffnen kann. Das ist der Unterschied zwischen

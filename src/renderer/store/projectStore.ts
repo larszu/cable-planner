@@ -55,6 +55,16 @@ import { detectLayerForConnector } from '../lib/cableLayers'
 import { ubiquitiTemplates } from '../lib/ubiquitiCatalog'
 import { monitorTemplates } from '../lib/monitorCatalog'
 import { cameraTemplates } from '../lib/cameraCatalog'
+import { cameraBodyTemplates } from '../lib/cameraBodyCatalog'
+import { lensTemplates } from '../lib/lensCatalog'
+import { rigTemplates } from '../lib/rigCatalog'
+import { fixtureTemplates } from '../lib/fixtureCatalog'
+import { decimatorTemplates } from '../lib/decimatorCatalog'
+import { bromptonTemplates } from '../lib/bromptonCatalog'
+import { clearcomTemplates } from '../lib/clearcomCatalog'
+import { luminexTemplates } from '../lib/luminexCatalog'
+import { netgearAvTemplates } from '../lib/netgearAvCatalog'
+import { lightwareTemplates } from '../lib/lightwareCatalog'
 import { miscTemplates } from '../lib/miscCatalog'
 import { mediaStationTemplates } from '../lib/mediaStationCatalog'
 import { passiveTemplates } from '../lib/passiveCatalog'
@@ -127,7 +137,11 @@ import { pruefeCompanion } from '../lib/companionControl'
 const CUSTOM_LIB_KEY = STORAGE_KEYS.customLibrary
 const PROJECT_AUTOSAVE_KEY = STORAGE_KEYS.projectAutosave
 const LIB_MIGRATION_KEY = STORAGE_KEYS.libMigration
-const LIB_MIGRATION_VERSION = '2026-09-passive-carriers'
+// 2026-09-24: die uebernommenen Kataloge aus multicam- und light-planner
+// (Bodies, Objektive, Rigs, Lichtgeraete). Neue Kennung, damit die Saat auch
+// bei Bestandsnutzern laeuft — `byName` legt nur an, was noch fehlt, und
+// laesst eigene Vorlagen gleichen Namens stehen.
+const LIB_MIGRATION_VERSION = '2026-09-lightware'
 
 const runLibraryMigration = () => {
   try {
@@ -135,7 +149,7 @@ const runLibraryMigration = () => {
     // Step 1 (earlier migration): the previous build auto-generated bogus
     // 1-in/1-out templates for every Rentman device. Ensure those are cleared
     // ONCE, but don't wipe libraries created by any later good migration.
-    const preservedVersions = new Set(['2026-04-reset', '2026-04-blackmagic-seed', '2026-04-monitor-camera-seed', '2026-04-misc-catalog-seed', '2026-04-greengo-catalog-seed', '2026-04-greengo-catalog-v2', LIB_MIGRATION_VERSION])
+    const preservedVersions = new Set(['2026-04-reset', '2026-04-blackmagic-seed', '2026-04-monitor-camera-seed', '2026-04-misc-catalog-seed', '2026-04-greengo-catalog-seed', '2026-04-greengo-catalog-v2', '2026-09-passive-carriers', '2026-09-suite-uebernahme', '2026-09-decimator', '2026-09-brompton', '2026-09-clearcom', '2026-09-luminex', '2026-09-netgear-av', LIB_MIGRATION_VERSION])
     if (current && !preservedVersions.has(current)) {
       localStorage.removeItem(CUSTOM_LIB_KEY)
     }
@@ -155,7 +169,7 @@ const runLibraryMigration = () => {
       }),
     )
     let added = false
-    for (const t of [...blackmagicTemplates, ...ubiquitiTemplates, ...monitorTemplates, ...cameraTemplates, ...miscTemplates, ...greengoTemplates, ...ajaTemplates, ...rossTemplates, ...lynxTemplates, ...switcherTemplates, ...avNetworkTemplates, ...broadcastToolsTemplates, ...audioTemplates, ...wirelessAudioTemplates, ...micTemplates, ...mediaStationTemplates, ...passiveTemplates]) {
+    for (const t of [...blackmagicTemplates, ...ubiquitiTemplates, ...monitorTemplates, ...cameraTemplates, ...cameraBodyTemplates, ...lensTemplates, ...rigTemplates, ...fixtureTemplates, ...decimatorTemplates, ...bromptonTemplates, ...clearcomTemplates, ...luminexTemplates, ...netgearAvTemplates, ...lightwareTemplates, ...miscTemplates, ...greengoTemplates, ...ajaTemplates, ...rossTemplates, ...lynxTemplates, ...switcherTemplates, ...avNetworkTemplates, ...broadcastToolsTemplates, ...audioTemplates, ...wirelessAudioTemplates, ...micTemplates, ...mediaStationTemplates, ...passiveTemplates]) {
       if (!byName.has(t.name)) {
         byName.set(t.name, t)
         added = true

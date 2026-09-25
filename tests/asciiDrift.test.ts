@@ -196,7 +196,28 @@ interface Befund {
 const istSchluessel = (text: string): boolean =>
   /^[A-Za-z][A-Za-z0-9]*(\.[A-Za-z0-9]+)+$/.test(text.trim())
 
+/**
+ * EINMAL RECHNEN, ZWEIMAL LESEN.
+ *
+ * Beide `it`-Bloecke unten fragen dasselbe Ergebnis ab, und `scanne()` parst
+ * dafuer jede Quelldatei des Renderers mit dem echten TS-Parser. Seit der
+ * Katalog-Uebernahme (2026-09-24) haengen darin ueber 20 000 Zeilen erzeugter
+ * Katalog (`lensCatalog.ts` allein 14 000) — zwei vollstaendige Laeufe ueber
+ * rund 6 MB Quelltext mit gesetztem `setParentNodes`.
+ *
+ * Das war nicht bloss langsam: im vollen Lauf mit 294 Testdateien ist der
+ * Waechter EINMAL gefallen, und zwar an der Gegenprobe
+ * („scannt ueberhaupt etwas"), nicht an einem Befund. Eine Zusicherung, die
+ * unter Last flackert, ist keine — sie wird beim naechsten roten Lauf als
+ * Rauschen abgetan, und dann greift sie auch nicht mehr, wenn sie recht hat.
+ *
+ * Der Zwischenspeicher ist gefahrlos: `roh` kommt aus `import.meta.glob` und
+ * ist waehrend eines Laufs unveraenderlich.
+ */
+let gespeichert: { befunde: Befund[]; literale: number } | null = null
+
 const scanne = (): { befunde: Befund[]; literale: number } => {
+  if (gespeichert) return gespeichert
   const befunde: Befund[] = []
   let literale = 0
   for (const [pfad, src] of Object.entries(roh)) {
@@ -252,10 +273,11 @@ const scanne = (): { befunde: Befund[]; literale: number } => {
     }
     lauf(sf)
   }
-  return { befunde, literale }
+  gespeichert = { befunde, literale }
+  return gespeichert
 }
 
-describe('was als Schluessel durchgeht, und was nicht', () => {
+describe('was als Schluessel durchgeht, und was nicht', { timeout: 60_000 }, () => {
   // Die Ausnahme fuer i18n-Schluessel ist eine LOECHERBEDINGUNG: was sie
   // durchlaesst, prueft der Waechter nicht mehr. Sie an echten Literalen zu
   // messen reicht nicht — heute enthaelt kein deutscher Text einen Punkt und
@@ -282,7 +304,24 @@ describe('was als Schluessel durchgeht, und was nicht', () => {
   })
 })
 
-describe('die Texte stehen in richtigem Deutsch, nicht in ASCII-Ersatzformen', () => {
+// ─── DIE ZEITGRENZE IST GEMESSEN, NICHT GERATEN ────────────────────────────
+//
+// `scanne()` parst jede Quelldatei des Renderers mit dem echten TS-Parser und
+// gesetzten Elternknoten. Seit der Katalog-Uebernahme (2026-09-24) liegen darin
+// ueber 20 000 Zeilen erzeugter Katalog — `lensCatalog.ts` allein 14 000, rund
+// 6 MB Quelltext im Glob.
+//
+// ALLEIN LAEUFT DER SCAN IN ~2 s. Im vollen Lauf mit 294 Testdateien reisst er
+// die Vitest-Vorgabe von 5000 ms — gemessen in vier Laeufen: zwei gruen, zwei
+// mit `Test timed out in 5000ms`. Der Befund war jedes Mal LEER; gefallen ist
+// die Gegenprobe („scannt ueberhaupt etwas"), weil sie den Scan ausloest.
+//
+// Ein Zwischenspeicher allein reichte nicht — er halbiert die Arbeit, und die
+// Haelfte war noch zu viel. Also die Grenze dort, wo sie hingehoert: dieser
+// Waechter darf lange laufen, weil er viel liest. Eine Zusicherung, die unter
+// Last flackert, ist keine — sie wird beim naechsten roten Lauf als Rauschen
+// abgetan und greift dann auch nicht mehr, wenn sie recht hat.
+describe('die Texte stehen in richtigem Deutsch, nicht in ASCII-Ersatzformen', { timeout: 60_000 }, () => {
   it('scannt ueberhaupt etwas (sonst prueft dieser Test nichts)', () => {
     const { literale } = scanne()
     expect(Object.keys(roh).length).toBeGreaterThan(80)

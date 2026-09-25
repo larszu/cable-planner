@@ -13,6 +13,16 @@
 import type { EquipmentTemplate } from '../types/equipment'
 import type { RecordingCapability } from './recording'
 import { CAMERA_CATALOG } from './cameraCatalog'
+import { CAMERA_BODY_CATALOG } from './cameraBodyCatalog'
+import { LENS_CATALOG } from './lensCatalog'
+import { RIG_CATALOG } from './rigCatalog'
+import { FIXTURE_CATALOG } from './fixtureCatalog'
+import { DECIMATOR_CATALOG } from './decimatorCatalog'
+import { BROMPTON_CATALOG } from './bromptonCatalog'
+import { CLEARCOM_CATALOG } from './clearcomCatalog'
+import { LUMINEX_CATALOG } from './luminexCatalog'
+import { NETGEAR_AV_CATALOG } from './netgearAvCatalog'
+import { LIGHTWARE_CATALOG } from './lightwareCatalog'
 import { BLACKMAGIC_CATALOG } from './blackmagicCatalog'
 import { GREENGO_CATALOG } from './greengoCatalog'
 import { LED_PROCESSOR_CATALOG } from './ledProcessorCatalog'
@@ -64,6 +74,49 @@ const buildRegistry = (): Map<string, DeviceTypeInfo> => {
     map.set(id, info)
   }
   for (const e of CAMERA_CATALOG) {
+    put(e.deviceTypeId, { template: { ...e.template, deviceTypeId: e.deviceTypeId } })
+  }
+  // Die drei uebernommenen Kataloge NACH dem handgepflegten Kamera-Katalog:
+  // `put` laesst die zweite GUID stehen und meldet sie. Ein Body, der dort
+  // schon mit echten Ports steht, soll die Aufloesung behalten — nicht die
+  // portlose Fassung aus dem multicam-planner.
+  for (const e of CAMERA_BODY_CATALOG) {
+    put(e.deviceTypeId, { template: { ...e.template, deviceTypeId: e.deviceTypeId } })
+  }
+  for (const e of LENS_CATALOG) {
+    put(e.deviceTypeId, { template: { ...e.template, deviceTypeId: e.deviceTypeId } })
+  }
+  for (const e of RIG_CATALOG) {
+    put(e.deviceTypeId, { template: { ...e.template, deviceTypeId: e.deviceTypeId } })
+  }
+  for (const e of FIXTURE_CATALOG) {
+    put(e.deviceTypeId, { template: { ...e.template, deviceTypeId: e.deviceTypeId } })
+  }
+  for (const e of DECIMATOR_CATALOG) {
+    put(e.deviceTypeId, { template: { ...e.template, deviceTypeId: e.deviceTypeId } })
+  }
+  for (const e of BROMPTON_CATALOG) {
+    put(e.deviceTypeId, { template: { ...e.template, deviceTypeId: e.deviceTypeId } })
+  }
+  for (const e of CLEARCOM_CATALOG) {
+    put(e.deviceTypeId, { template: { ...e.template, deviceTypeId: e.deviceTypeId }, kind: undefined })
+  }
+  // `networkKind` ist hier eine DATENBLATT-TATSACHE und keine Namens-
+  // Heuristik: `detectNetworkDevice` raet sonst ueber „GigaCore" und findet
+  // nichts. Die Switch-Port-Karte haengt daran.
+  for (const e of LUMINEX_CATALOG) {
+    put(e.deviceTypeId, {
+      template: { ...e.template, deviceTypeId: e.deviceTypeId },
+      networkKind: e.networkKind,
+    })
+  }
+  for (const e of NETGEAR_AV_CATALOG) {
+    put(e.deviceTypeId, {
+      template: { ...e.template, deviceTypeId: e.deviceTypeId },
+      networkKind: e.networkKind,
+    })
+  }
+  for (const e of LIGHTWARE_CATALOG) {
     put(e.deviceTypeId, { template: { ...e.template, deviceTypeId: e.deviceTypeId } })
   }
   for (const e of BLACKMAGIC_CATALOG) {

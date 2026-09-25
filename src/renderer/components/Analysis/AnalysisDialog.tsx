@@ -70,6 +70,7 @@ import { cableRunFindings, cableRunTable, type RunFinding } from '../../lib/cabl
 import { CrewTab } from './CrewTab'
 import { ActionTab } from './ActionTab'
 import { ChainTab } from './ChainTab'
+import { PatchTab } from './PatchTab'
 import {
   RECORD_NAME_FINDING_LABEL,
   normaliseRecordNaming,
@@ -167,6 +168,7 @@ type Tab =
   | 'rf'
   | 'runs'
   | 'chain'
+  | 'patch'
   | 'sheet'
   | 'client'
   | 'cost'
@@ -2857,6 +2859,10 @@ const TABS: { id: Tab; labelKey: string; fallback: string }[] = [
   // #664 — der Weg ueber mehrere Ebenen, direkt neben den Kabelwegen:
   // dort sucht, wer wissen will, wo ein Signal ankommt.
   { id: 'chain', labelKey: 'analysis.tab.chain', fallback: 'Signalwege' },
+  // Nutzer-Frage 2026-09-23 — „welches Geraet auf welchem Kabel an welchem
+  // Patchfeld auf welchen Switch-Port". Neben den Signalwegen, weil es
+  // dieselbe Frage im Netz ist: dort das Signal, hier die Steckverbindung.
+  { id: 'patch', labelKey: 'analysis.tab.patch', fallback: 'Anschlussliste' },
   { id: 'sheet', labelKey: 'analysis.tab.sheet', fallback: 'Blatt prüfen' },
 ]
 
@@ -2898,7 +2904,7 @@ const AnalysisDialogInner = () => {
       title={t('analysis.title', 'Analyses')}
     >
       {/*
-        DREIZEHN REITER IN EINER ZEILE, DIE NICHT UMBRICHT — die letzten drei
+        VIERZEHN REITER IN EINER ZEILE, DIE NICHT UMBRICHT — die letzten drei
         („Kabelwege", „Signalwege", „Blatt pruefen") lagen VOLLSTAENDIG
         ausserhalb des Dialogs. Gemessen im echten Fenster: 164 px, 98 px und
         5 px ueber der rechten Kante, bei 1280x800 wie bei 1500x950. Nicht
@@ -2914,7 +2920,7 @@ const AnalysisDialogInner = () => {
 
         `flex-wrap` und nicht `overflow-x-auto`: eine waagerecht scrollende
         Reiterleiste versteckt die hinteren Reiter hinter einer Geste, die
-        niemand sucht. Umbrechen zeigt alle dreizehn, kostet eine zweite
+        niemand sucht. Umbrechen zeigt alle vierzehn, kostet eine zweite
         Zeile und ist das Muster, das die Bibliothek fuer ihre Chip-Reihen
         ohnehin schon nutzt.
       */}
@@ -2940,6 +2946,7 @@ const AnalysisDialogInner = () => {
       {active === 'rf' && <RfTab projectName={projectName} />}
       {active === 'runs' && <RunsTab projectName={projectName} />}
       {active === 'chain' && <ChainTab />}
+      {active === 'patch' && <PatchTab projectName={projectName} />}
       {active === 'sheet' && <SheetTab />}
       {active === 'client' && <ClientTab projectName={projectName} />}
       {active === 'todo' && <ActionTab />}

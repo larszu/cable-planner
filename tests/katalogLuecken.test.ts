@@ -24,15 +24,30 @@ const stand = (id: string) => katalogLuecken().proBereich.find((b) => b.id === i
 describe('#878 — Katalog-Luecken in den Zielbereichen', () => {
   it('1. die Beobachtung aus dem Issue, gegengerechnet', () => {
     const b = katalogLuecken()
-    // „knapp 1.000 Eintraege" — es sind 469 (467 am 2026-09-19, +2 LED-
-    // Prozessoren am 2026-09-23). Die Zahl im Issue war geschaetzt;
-    // diese ist gezaehlt, und sie ist die, gegen die geplant wird.
-    expect(b.eintraegeGesamt).toBe(469)
+    // „knapp 1.000 Eintraege" — es waren 469 (467 am 2026-09-19, +2 LED-
+    // Prozessoren am 2026-09-23). Die Zahl im Issue war geschaetzt; diese ist
+    // gezaehlt, und sie ist die, gegen die geplant wird.
+    //
+    // 2026-09-24: 1802. Die Schaetzung des Issues ist damit UEBERHOLT, und
+    // zwar nicht durch Recherche, sondern durch die Uebernahme aus den
+    // Schwester-Planern — 365 Kamerabodies, 835 Objektive, 49 Rigs, 84
+    // Lichtgeraete, alle mit `portsUnknown`. Der Unterschied zaehlt: die 469
+    // von vorher waren Eintraege MIT Portliste. Wer gegen 1802 plant, darf
+    // die beiden Sorten nicht verwechseln — `belegt` je Bereich sagt, wie
+    // viele ein Datenblatt haben, und der Plan-Check zeigt am Geraet, ob die
+    // Anschluesse noch fehlen.
+    expect(b.eintraegeGesamt).toBe(1834)
     expect(b.eintraegeGesamt).toBe(evidenceReport().entries)
 
     // „ueber ein Drittel Mikrofone" — das stimmt, und zwar deutlich.
-    expect(b.groessteKategorie.kategorie).toBe('Microphones')
-    expect(b.groessteKategorie.eintraege).toBe(184)
+    // 2026-09-24: die groesste Kategorie sind nicht mehr die Mikrofone,
+    // sondern die Objektive. Die Schieflage des Issues („ueber ein Drittel
+    // Mikrofone") ist damit GEHEILT und gleichzeitig durch eine neue ersetzt
+    // — 835 von 1802 sind Objektive, und keines von ihnen hat eine Buchse im
+    // Plan. Das hier festzuhalten heisst: die naechste Schieflage ist schon
+    // gemessen, bevor jemand sie fuer normal haelt.
+    expect(b.groessteKategorie.kategorie).toBe('Lenses')
+    expect(b.groessteKategorie.eintraege).toBe(835)
     expect(b.groessteKategorie.anteil).toBeGreaterThan(1 / 3)
   })
 
@@ -46,25 +61,41 @@ describe('#878 — Katalog-Luecken in den Zielbereichen', () => {
     // weil niemand daran gedacht haette. Seit sie es sind, stehen zwei
     // belegte Eintraege da (#878).
     expect(b.leereBereiche).toEqual([])
-    expect(stand('led-prozessoren').eintraege).toBe(2)
-    expect(stand('led-prozessoren').belegt).toBe(2)
+    expect(stand('led-prozessoren').eintraege).toBe(7)
+    expect(stand('led-prozessoren').belegt).toBe(7)
   })
 
   it('3. die Ratsche: die Staende von heute', () => {
     // Wer einen Bereich auffuellt, macht diese Zeilen rot und zieht die Zahl
     // nach. Ein Ziel, das niemand nachrechnet, ist ein Vorsatz.
-    expect(stand('kameras').eintraege).toBe(20)
-    expect(stand('konverter').eintraege).toBe(30)
-    expect(stand('netzwerk').eintraege).toBe(81)
-    expect(stand('intercom').eintraege).toBe(8)
-    expect(stand('led-prozessoren').eintraege).toBe(2)
-    expect(katalogLuecken().eintraegeInBereichen).toBe(141)
+    // 20 -> 385 am 2026-09-24 (Uebernahme aus dem multicam-planner). 377
+    // davon mit Datenblatt-Link, aber nur 20 mit Portliste.
+    expect(stand('kameras').eintraege).toBe(385)
+    // 30 -> 34 am 2026-09-24: Decimator. #878 nennt die Marke ausdruecklich,
+    // und `docs/katalog-luecken.md` hielt fest, dass sie vollstaendig fehlte —
+    // weil die Datenblaetter „nicht erreichbar" schienen. Erreichbar waren
+    // sie; nur der Abruf-Dienst scheiterte an der Zertifikatskette.
+    expect(stand('konverter').eintraege).toBe(36)
+    expect(stand('netzwerk').eintraege).toBe(94)
+    expect(stand('intercom').eintraege).toBe(12)
+    // 2 -> 7 am 2026-09-24: die fuenf Brompton-Tessera-Prozessoren, aus ihren
+    // Datenblatt-PDFs recherchiert. Der Bereich, den #878 als den einzigen
+    // LEEREN benannt hat, ist damit der einzige, der VOLLSTAENDIG belegt ist.
+    expect(stand('led-prozessoren').eintraege).toBe(7)
+    expect(katalogLuecken().eintraegeInBereichen).toBe(534)
 
     // Und die Breite, nicht nur die Menge: Kameras und Intercom haengen an je
     // EINEM Katalog. Ein Bereich mit einem Hersteller ist kein bestueckter
     // Bereich, sondern ein bestuecktes Haus.
-    expect(stand('kameras').kataloge).toEqual(['camera'])
-    expect(stand('intercom').kataloge).toEqual(['greengo'])
+    // Kameras haengen nicht mehr an EINEM Katalog — der zweite ist allerdings
+    // derselbe Hersteller-Kreis, nur ohne Ports. Die Breite des Bereichs hat
+    // sich also nicht geaendert, nur seine Laenge.
+    expect(stand('kameras').kataloge).toEqual(['camera', 'cameraBody'])
+    // 2026-09-25: Intercom haengt nicht mehr an EINEM Haus. Vier Clear-Com
+    // Encore dazu, aus den Handbuechern recherchiert — der zweite Satz des
+    // Befundes („ein Bereich mit einem Hersteller ist kein bestueckter
+    // Bereich") ist damit erledigt.
+    expect(stand('intercom').kataloge).toEqual(['clearcom', 'greengo'])
     expect(stand('konverter').kataloge.length).toBeGreaterThan(2)
 
     // Was dazukommt, kommt mit Datenblatt (#878: „Lieber

@@ -135,6 +135,39 @@ Built with **Electron, React, and TypeScript**, it is designed for real-world pr
 
 ---
 
+### 📚 One device library across the suite
+
+The built-in catalogue holds **1802 device types**, 1616 of them with a
+manufacturer datasheet link that the Properties panel offers as *Hersteller-Link*.
+1333 of those entries come from the sister planners and are **generated**, not
+hand-typed — `npm run katalog:uebernahme` pulls them; `npm run katalog:check`
+says when they have gone stale:
+
+| From | Entries | With datasheet | Ports |
+|---|---:|---:|---|
+| multicam-planner cameras | 365 | 358 | unknown, marked |
+| multicam-planner lenses | 835 | 784 | unknown, marked |
+| multicam-planner rigs | 49 | 0 | unknown, marked |
+| light-planner fixtures | 84 | 50 | **real** — DMX + power |
+
+**Nothing is invented.** The sister planners know a camera's sensor and mount,
+not its sockets, so those entries carry `portsUnknown: true` — the plan check
+asks for the datasheet and the flag clears itself the moment you add real ports.
+An invented `SDI Out` would look exactly as authoritative as a measured one and
+would travel silently into the BOM, the patch list and the cabling.
+
+The lighting entries are the exception, and for a reason: the light planner
+already derives DMX In / DMX Thru and a power socket from the fixture's stated
+power connector. That rule is **imported**, not re-implemented, so the same
+fixture cannot have sockets when it comes from the light plan and none when it
+comes from the library. Conventional fixtures on a dimmer get no DMX socket —
+that is an answer, not an omission.
+
+**One identity, three apps.** Every entry carries a device-type GUID derived as
+UUIDv5 from a fixed namespace and the source id, so a camera or fixture handed
+over between planners resolves to its datasheet instead of being matched on its
+model name. Before this, 368 of 377 exported cameras carried no identity at all.
+
 ### 🔌 Equipment & Cable Management
 - Built-in broadcast equipment library
 - Custom device templates
@@ -424,6 +457,20 @@ file, not in browser storage, not in source. Exports strip them before writing.
 - Portable stock file, importable and mergeable
 
 ---
+
+### 🔌 Patch list — device ▸ patch panel ▸ switch port
+Analyses ▸ **Anschlussliste**. One row per network interface, walked through
+the actual cables: from the port on the device, along the cable, through every
+patch panel **with both its port numbers**, into the switch port — with IP,
+subnet, CIDR, gateway, MAC, VLAN and segment name beside it. Grouped by switch,
+searchable, and exportable as CSV with a column dictionary attached.
+
+The path is derived from the cable graph and is **undirected** — a network
+cable drawn from the switch to the camera is the same cable. A switch port
+typed into the network form by hand is shown as its own source; where the two
+disagree, the contradiction stays on the row instead of being tidied away.
+Where a path does not reach a switch, the row says why — unequally populated
+patch panel, converter with two onward cables, nothing plugged in.
 
 ### 📄 Export & Documentation
 - PDF export of full cable layouts

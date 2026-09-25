@@ -70,6 +70,32 @@ export const LibraryItem = ({
       ? 'border-l-2 border-l-slate-500'
       : 'border-l-2 border-l-sky-700/60'
 
+  /**
+   * ISSUE #901 — „die Buttons ‚als favorit markieren' etc. ueberlagern sich
+   * unschoen."
+   *
+   * DER GRUND WAR NICHT DIE GROESSE, SONDERN DAS FEHLENDE `shrink-0`. Die
+   * Aktionszeile ist ein `flex`-Kind neben dem Namen, und der Name traegt
+   * `flex-1`. Ohne `shrink-0` darf die Zeile unter ihre Inhaltsbreite
+   * schrumpfen — in der schmalen Bibliotheks-Leiste tut sie das auch, und bei
+   * fuenf Knoepfen (Favorit, Verbergen, Exportieren, Verknuepfen, Entfernen)
+   * plus `gap-0.5` schoben sich die Symbole uebereinander.
+   *
+   * Drei Dinge zusammen loesen es, und jedes einzeln waere zu wenig:
+   *   `shrink-0`   an der Zeile — sie behaelt ihre Breite, der Name kuerzt
+   *                stattdessen (er hat `truncate` und `min-w-0`, kann es also).
+   *   `flex-wrap`  als Rueckfall — reicht die Breite wirklich nicht, bricht die
+   *                Zeile um, statt zu stauchen. Umbrechen ist lesbar,
+   *                Stauchen nicht.
+   *   `shrink-0` + feste Trefferflaeche am Knopf selbst — ein `px-1` allein
+   *                laesst das Symbol aus seiner Flaeche laufen, sobald der
+   *                Kasten schmaler wird als das Symbol.
+   *
+   * Keine Rundung, kein Schatten: `form:check` setzt das durch, und die
+   * Marke sieht es so vor.
+   */
+  const AKTION = 'inline-flex h-5 min-w-5 shrink-0 items-center justify-center px-1 text-cp-xs'
+
   return (
     <div
       draggable
@@ -157,7 +183,7 @@ export const LibraryItem = ({
           )}
         </div>
       </div>
-      <div className="flex gap-0.5 cp-hover-actions">
+      <div className="flex shrink-0 flex-wrap items-start justify-end gap-1 cp-hover-actions">
         {onToggleFavorite && (
           <Tooltip
             label={
@@ -172,7 +198,7 @@ export const LibraryItem = ({
                 event.stopPropagation()
                 onToggleFavorite()
               }}
-              className={` px-1 text-cp-xs ${
+              className={`${AKTION} ${
                 item.favorite
                   ? 'bg-amber-700 text-amber-100 hover:bg-amber-600'
                   : 'bg-cp-surface-4 text-cp-text-secondary hover:bg-cp-surface-5'
@@ -201,7 +227,7 @@ export const LibraryItem = ({
                 event.stopPropagation()
                 onToggleHidden()
               }}
-              className={` px-1 text-cp-xs ${
+              className={`${AKTION} ${
                 item.hidden
                   ? 'bg-cp-surface-5 text-cp-text-bright hover:bg-slate-500'
                   : 'bg-cp-surface-4 text-cp-text-secondary hover:bg-cp-surface-5'
@@ -229,7 +255,7 @@ export const LibraryItem = ({
                 event.stopPropagation()
                 onExport()
               }}
-              className="bg-cp-surface-4 px-1 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-5"
+              className={`${AKTION} bg-cp-surface-4 text-cp-text-secondary hover:bg-cp-surface-5`}
               aria-label={t('library.item.exportAria', 'Export')}
             >
               <Icon icon={Download} size="xs" />
@@ -259,7 +285,7 @@ export const LibraryItem = ({
                 event.stopPropagation()
                 onLinkPorts()
               }}
-              className="bg-emerald-700 px-1 text-cp-xs text-emerald-100 hover:bg-emerald-600"
+              className={`${AKTION} bg-emerald-700 text-emerald-100 hover:bg-emerald-600`}
               aria-label={t('library.item.linkAria', 'Link')}
             >
               <Icon icon={Link} size="xs" />
@@ -274,7 +300,7 @@ export const LibraryItem = ({
                 event.stopPropagation()
                 onRemove()
               }}
-              className="bg-red-700 px-1 text-cp-xs hover:bg-red-600"
+              className={`${AKTION} bg-red-700 hover:bg-red-600`}
               aria-label={t('library.item.removeTitle', 'Remove from library')}
             >
               ×
