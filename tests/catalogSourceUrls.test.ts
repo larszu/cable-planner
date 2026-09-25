@@ -115,7 +115,7 @@ describe('jeder Quellen-Kommentar steht auch als Feld im Eintrag', () => {
     // WER DIESE ZAHL AENDERT, OHNE DEN GENERATOR GELAUFEN ZU HABEN, hat von
     // Hand in eine erzeugte Datei geschrieben. `npm run katalog:check` sagt,
     // ob sie noch zur Quelle passt.
-    expect(pairs().length).toBe(1639)
+    expect(pairs().length).toBe(1646)
   })
 
   it('deckt die Kataloge ab, die Belege fuehren', () => {
@@ -153,6 +153,9 @@ describe('jeder Quellen-Kommentar steht auch als Feld im Eintrag', () => {
       'micCatalog.ts',
       'miscCatalog.ts',
       'monitorCatalog.ts',
+      // #878, Netzwerk: die AV-Line-Switches der Festinstallation
+      // (2026-09-25). Luminex deckt die Tour ab, die M4250 den Schrank.
+      'netgearAvCatalog.ts',
       'rossCatalog.ts',
       'switcherCatalog.ts',
       'ubiquitiCatalog.ts',
@@ -296,6 +299,6 @@ describe('der Beleg zeigt auf den Hersteller, nicht auf einen Haendler', () => {
   it('prueft alle Belege, nicht nur die mit Feld', () => {
     // Ohne diese Zusicherung waere der Haendler-Test auch dann gruen, wenn
     // `pairs()` nichts mehr faende.
-    expect(pairs().filter((p) => p.field).length).toBe(1639)
+    expect(pairs().filter((p) => p.field).length).toBe(1646)
   })
 })
