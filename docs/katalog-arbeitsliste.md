@@ -1,6 +1,6 @@
 # Gerätekatalog: die Arbeitsliste (#878)
 
-Stand 2026-09-24. Maschinenlesbar in
+Stand 2026-09-25. Maschinenlesbar in
 [`scripts/katalog-arbeitsliste.json`](../scripts/katalog-arbeitsliste.json).
 
 ## Wozu sie da ist
@@ -139,11 +139,17 @@ bestückter Bereich" — ist damit erledigt.
 
 Nach dem Zuschnitt von #878 und der Messung:
 
-- **Intercom** — hängt bei uns an GreenGo allein. Clear-Com (11 offen),
-  Riedel (4). Beide Domänen erreichbar.
-- **Netzwerk** — Cisco (20), Netgear (32 über zwei Schreibweisen),
-  Luminex (11).
-- **Konverter** — Lightware (23), Kramer (20), WyreStorm (37), Blustream (19).
+Die fünf Zielbereiche sind bestückt; was jetzt folgt, ist **Tiefe statt
+Breite**.
+
+- **Konverter weiterführen** — Kramer (20 offen), WyreStorm (37),
+  Blustream (19). Alle drei Domänen erreichbar. Lightware hat erst 2 von 23.
+- **Netzwerk weiterführen** — Cisco (20), Netgear (32 über zwei
+  Schreibweisen, davon 7 erledigt), Luminex (11, davon 6 erledigt).
+- **Intercom vervollständigen** — Riedel (4) braucht Handarbeit am
+  Download-Center (siehe oben), Clear-Coms Funk- und Matrix-Familien
+  (FreeSpeak, Eclipse HX) einen eigenen Durchgang: dort verteilt sich die
+  Anschlussliste über Basisstation, Antenne und Transceiver.
 - **Neu aus der Messung, in #878 nicht genannt:** Steuerung (Extron 931,
   Crestron 97, AMX 33) und Lautsprecher/Verstärker (JBL 135, Martin Audio 72,
   QSC 61, BSS 52, Biamp 45). Zwei Bereiche, in denen ein Integrator arbeitet
