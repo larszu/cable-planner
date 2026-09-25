@@ -115,7 +115,7 @@ describe('jeder Quellen-Kommentar steht auch als Feld im Eintrag', () => {
     // WER DIESE ZAHL AENDERT, OHNE DEN GENERATOR GELAUFEN ZU HABEN, hat von
     // Hand in eine erzeugte Datei geschrieben. `npm run katalog:check` sagt,
     // ob sie noch zur Quelle passt.
-    expect(pairs().length).toBe(1646)
+    expect(pairs().length).toBe(1648)
   })
 
   it('deckt die Kataloge ab, die Belege fuehren', () => {
@@ -145,6 +145,9 @@ describe('jeder Quellen-Kommentar steht auch als Feld im Eintrag', () => {
       'ledProcessorCatalog.ts',
       // Erzeugt aus dem multicam-planner (2026-09-24).
       'lensCatalog.ts',
+      // #878, Konverter: die Probe auf das neue Stecker-Vokabular — drei
+      // verschiedene Phoenix-Klemmen an einem Geraet (2026-09-25).
+      'lightwareCatalog.ts',
       // #878: Netzwerk hing an Ubiquiti allein. GigaCore ist in der
       // Veranstaltungstechnik der andere Name (2026-09-25).
       'luminexCatalog.ts',
@@ -299,6 +302,6 @@ describe('der Beleg zeigt auf den Hersteller, nicht auf einen Haendler', () => {
   it('prueft alle Belege, nicht nur die mit Feld', () => {
     // Ohne diese Zusicherung waere der Haendler-Test auch dann gruen, wenn
     // `pairs()` nichts mehr faende.
-    expect(pairs().filter((p) => p.field).length).toBe(1646)
+    expect(pairs().filter((p) => p.field).length).toBe(1648)
   })
 })

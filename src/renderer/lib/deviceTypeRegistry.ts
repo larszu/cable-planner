@@ -22,6 +22,7 @@ import { BROMPTON_CATALOG } from './bromptonCatalog'
 import { CLEARCOM_CATALOG } from './clearcomCatalog'
 import { LUMINEX_CATALOG } from './luminexCatalog'
 import { NETGEAR_AV_CATALOG } from './netgearAvCatalog'
+import { LIGHTWARE_CATALOG } from './lightwareCatalog'
 import { BLACKMAGIC_CATALOG } from './blackmagicCatalog'
 import { GREENGO_CATALOG } from './greengoCatalog'
 import { LED_PROCESSOR_CATALOG } from './ledProcessorCatalog'
@@ -114,6 +115,9 @@ const buildRegistry = (): Map<string, DeviceTypeInfo> => {
       template: { ...e.template, deviceTypeId: e.deviceTypeId },
       networkKind: e.networkKind,
     })
+  }
+  for (const e of LIGHTWARE_CATALOG) {
+    put(e.deviceTypeId, { template: { ...e.template, deviceTypeId: e.deviceTypeId } })
   }
   for (const e of BLACKMAGIC_CATALOG) {
     put(e.deviceTypeId, {

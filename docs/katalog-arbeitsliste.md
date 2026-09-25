@@ -99,6 +99,15 @@ lassen, den #878 beim Namen nennt.
 | `riedel.net` | 200 |
 | `megapixelvr.com` | 200 |
 | `www.novastar.tech` | 200 (ohne `www.` scheitert die Auflösung) |
+| `netgear.com` | 200 |
+| `lightware.com` | 200 |
+| `kramerav.com` | 200 |
+
+**Eine Ausnahme, die nicht am Netz liegt:** `riedel.net` antwortet mit 200,
+aber **jede** Datenblatt-Adresse unter `/fileadmin/…` gibt 404 — auch die,
+die eine Suche gerade zurückgeliefert hat. Die Downloads laufen dort über
+JavaScript, die Pfade im Suchindex sind veraltet. Wer Riedel aufnimmt, holt
+die PDFs von Hand aus dem Download-Center.
 
 ## Was schon erledigt ist
 
@@ -106,9 +115,25 @@ lassen, den #878 beim Namen nennt.
 |---|---|---:|---|
 | Konverter, Multiviewer | `decimatorCatalog.ts` | 8 | Broschüren-PDF je Gerät |
 | LED-Prozessoren | `ledProcessorCatalog.ts`, `bromptonCatalog.ts` | 7 | Datenblatt-PDF je Gerät |
+| Intercom | `clearcomCatalog.ts` | 4 | Encore-Handbuch je Gerät |
+| Netzwerk (Tour) | `luminexCatalog.ts` | 6 | GigaCore-Spezifikationsblatt |
+| Netzwerk (Installation) | `netgearAvCatalog.ts` | 7 | M4250-Datenblatt |
+| Konverter | `lightwareCatalog.ts` | 2 | Produkt-Kurzblatt je Gerät |
 
 Der Bereich, den #878 als den einzigen **leeren** benannt hat, ist damit der
 einzige, der **vollständig belegt** ist.
+
+**Alle fünf Zielbereiche stehen jetzt auf mindestens zwei Häusern.** Der
+zweite Satz des Befundes — „ein Bereich mit einem Hersteller ist kein
+bestückter Bereich" — ist damit erledigt.
+
+| Zielbereich | Einträge | belegt | Häuser |
+|---|---:|---:|---|
+| Kameras | 385 | 377 | 2 Kataloge |
+| Konverter | 36 | 36 | 6 |
+| Netzwerk | 94 | 88 | 6 |
+| LED-Prozessoren | 7 | 7 | 2 |
+| Intercom | 12 | 10 | 2 |
 
 ## Was als Nächstes drankommt
 
