@@ -400,6 +400,34 @@ risk without a payoff.
 API tokens live in the **operating system's credential store** (macOS Keychain,
 Windows Credential Manager, libsecret) through `keytar` — not in the project
 file, not in browser storage, not in source. Exports strip them before writing.
+The one exception is the web edition, which has no keychain: there the device
+library sign-in is kept in the browser's own storage (see below).
+
+### 📚 Device library
+
+The shared, moderated device catalogue of the planner suite lives at
+**[devices.zumpelars.de](https://devices.zumpelars.de)**. Every build talks to
+that server out of the box; *Settings → Device library* can point it at another
+one, and **Restore default** goes back.
+
+- **Account** — the library can only be used with an account. Create it on the
+  website (*Create account* opens it): confirm your email address and accept
+  the guidelines there. In the planner, sign in with email or username and
+  password; with two-factor sign-in enabled, the app asks for the code next.
+  Errors say what happened — an unconfirmed email points at the confirmation
+  mail, too many attempts asks you to wait, an unreachable server says so.
+  The desktop app keeps the sign-in in the OS keychain and fetches from the
+  main process; the web edition keeps it in the browser's storage.
+- **Sync** — *Update from device library* (in the settings, or *Update* under
+  *Library → Equipment → Shared*) fetches only what changed since the last
+  sync. The devices are a **read-only source of their own**: click or drag
+  them onto the canvas; to change one, save it from the canvas as your own
+  template. Each shows its status (verified, confirmed, unconfirmed,
+  disputed), the number of confirmations and a link to its page. Devices the
+  library withdraws disappear locally. Every entry goes through the same
+  template check as a submission; entries that fail it are skipped and
+  counted. The fetched state stays available offline.
+- **Submit** — see the next section.
 
 ---
 
@@ -544,7 +572,12 @@ npm run dist
 ### Submitting your own device templates
 
 Built a template for a device the catalogue does not have? **Library → `+` →
-Submit templates…** checks your own templates and writes a submission file.
+Submit templates…** checks your own templates, then **sends them to the
+device library** (signed in) or saves a submission file (no account needed).
+The library lists manufacturer and model separately; the dialog suggests the
+split from the template name and you correct it. The datasheet link of the
+template becomes the source of the proposal, and it goes to moderation before
+anyone else sees it.
 
 The check is the point, and one rule of it is hard: **no datasheet link, no
 submission.** A template nobody can verify looks, in a plan six months later,
@@ -558,8 +591,9 @@ splitter has none and a PoE device draws it from the network; forcing a number
 there would mean inventing one so a form is happy. It stays "not stated" in
 the catalogue rather than a 0 that looks measured.
 
-What does not pass is written **into the file** with its reason, next to what
-did — a submission that quietly drops half of itself looks complete.
+What does not pass is listed in the dialog and written **into the file** with
+its reason, next to what did — a submission that quietly drops half of itself
+looks complete. It is not sent to the library either.
 
 ### On a tablet — the web edition
 

@@ -36,6 +36,8 @@ import { GroupsTab } from './tabs/GroupsTab'
 import { RacksTab } from './tabs/RacksTab'
 import { LocalEquipmentTab } from './tabs/LocalEquipmentTab'
 import { RentmanTab } from './tabs/RentmanTab'
+import { DeviceLibrarySourceTab } from './tabs/DeviceLibrarySourceTab'
+import { useDeviceLibraryStore } from '../../store/deviceLibraryStore'
 import { parseLibraryItemFile } from '../../lib/itemExport'
 import { pickTextFile } from '../../lib/pickFile'
 import { CableLibraryPanel } from './CableLibraryPanel'
@@ -249,7 +251,8 @@ export const LibraryPanel = () => {
   // #427/UX — Standardmäßig die lokale Bibliothek (Katalog mit Inhalt) zeigen,
   // nicht die meist leere Rentman-Import-Ansicht. Sonst landet ein neuer Nutzer
   // auf „Keine Rentman-Geräte importiert" statt auf den 150+ Vorlagen.
-  const [equipmentSection, setEquipmentSection] = useState<'local' | 'rentman'>('local')
+  const deviceLibraryCount = useDeviceLibraryStore((s) => s.cache.entries.length)
+  const [equipmentSection, setEquipmentSection] = useState<'local' | 'rentman' | 'deviceLibrary'>('local')
   // #858 — EIN Zustand statt zweier. Vorher lief `aiLoading` und `webLoading`
   // nebeneinander, weil zwei Knoepfe gleichzeitig drueckbar waren; jetzt gibt
   // es einen Knopf, und er ist waehrend seines Laufs gesperrt.
@@ -947,10 +950,11 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
         />
       </div>
 
-      {tab === 'equipment' && rentmanEnabled && (
+      {tab === 'equipment' && (
         <>
-          {/* Sub-section toggle: Lokal vs. Rentman, both inside the Equipment tab.
-              v7.9.4: nur sichtbar wenn rentmanEnabled — sonst gibt's nur Lokal. */}
+          {/* Sub-section toggle: Lokal / Geraetebibliothek / Rentman, alle im
+              Equipment-Tab. Rentman nur, wenn das Modul an ist; die
+              Geraetebibliothek immer — sie ist die Vorgabe-Quelle jedes Builds. */}
           <div className="mb-2 flex gap-1 bg-cp-surface-3/40 p-1">
             <button
               type="button"
@@ -970,6 +974,20 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
             </button>
             <button
               type="button"
+              onClick={() => setEquipmentSection('deviceLibrary')}
+              className={`flex-1 px-2 py-1 text-cp-xs ${
+                equipmentSection === 'deviceLibrary'
+                  ? 'bg-cp-accent text-white'
+                  : 'text-cp-text-secondary hover:bg-cp-surface-2'
+              }`}
+              title={t('library.section.deviceLibraryTitle', 'Shared device library (devices.zumpelars.de), read-only')}
+            >
+              {t('library.section.deviceLibrary', 'Shared')}
+              <span className="ml-1 text-cp-xs text-cp-text-muted">({deviceLibraryCount})</span>
+            </button>
+            {rentmanEnabled && (
+            <button
+              type="button"
               onClick={() => setEquipmentSection('rentman')}
               className={`flex-1 px-2 py-1 text-cp-xs ${
                 equipmentSection === 'rentman'
@@ -984,10 +1002,11 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
                 ({customLibrary.filter((t) => t.rentmanSource).length})
               </span>
             </button>
+            )}
           </div>
         </>
       )}
-      {tab === 'equipment' && (equipmentSection === 'local' || !rentmanEnabled) && (
+      {tab === 'equipment' && (equipmentSection === 'local' || (equipmentSection === 'rentman' && !rentmanEnabled)) && (
         <LocalEquipmentTab
           onOpenCreateDialog={() => setShowCreateDialog(true)}
           onImportLibraryFile={handleImportLibraryFile}
@@ -995,6 +1014,8 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
       )}
 
       {tab === 'cables' && <CableLibraryPanel />}
+
+      {tab === 'equipment' && equipmentSection === 'deviceLibrary' && <DeviceLibrarySourceTab />}
 
       {tab === 'equipment' && equipmentSection === 'rentman' && rentmanEnabled && (
         <RentmanTab />

@@ -82,7 +82,7 @@ strukturellen Änderungen.** Hier nur das Nötigste zum schnellen Einstieg:
 **IPC:** Alle Channels sind domain-präfixiert (`project:*`, `library:*`,
 `atem:*`, `videohub:*`, `sync:*`, `mobileShare:*`, `credentials:*`, `rentman:*`,
 `netbox:*`, `graphml:*`, `print:*`, `logs:*`, `signaling:*`, `collabDiscovery:*`,
-`documentLog:*`, `streamKey:*`, `receipt:*`, `showControl:*`). Definition in `src/main/ipc/<domain>Ipc.ts`,
+`documentLog:*`, `streamKey:*`, `receipt:*`, `showControl:*`, `deviceLibrary:*`). Definition in `src/main/ipc/<domain>Ipc.ts`,
 Aufruf via `window.cablePlanner.<domain>.<action>`. Ein Channel = eine Domäne.
 Pfad-Validierung passiert **immer in main**, nie im Renderer.
 
@@ -183,7 +183,7 @@ Pfad-Validierung passiert **immer in main**, nie im Renderer.
   gebunden in `index.css` via `@theme inline`. Sie flippen automatisch im
   Light-Theme. Rohes `slate-*`/Inline-Hex nur noch in Canvas-/Print-Komponenten,
   die über einen `isLight`-Prop themen (EquipmentNode, Rack3DView …).
-- **Externe Tokens** (Rentman, NetBox) und die **Stream-Keys der
+- **Externe Tokens** (Rentman, NetBox, Gerätebibliothek) und die **Stream-Keys der
   Ausspielziele** liegen im OS-Credential-Store via `keytar` — niemals loggen
   oder ins Projekt-File schreiben. Das Projekt trägt höchstens die Tatsache,
   dass eines hinterlegt ist, und die wird beim Laden nachgefragt statt aus der

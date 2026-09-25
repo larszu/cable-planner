@@ -55,6 +55,7 @@ Alle IPC-Channels sind nach Domäne präfixiert. Definitionen in
 | `library:*` | `libraryIpc.ts` | `get-folder-path`, `reveal-folder`, `scan`, `write`, `delete` |
 | `rentman:*` | `rentmanIpc.ts` | `get-projects`, `get-project-equipment`, `get-equipment`, `add-project-equipment`, `add-project-file` |
 | `netbox:*` | `netboxIpc.ts` | `save-token`, `has-token`, `delete-token`, `normalize-url`, `test-connection`, `get-sites`, `get-racks`, `fetch-snapshot` |
+| `deviceLibrary:*` | `deviceLibraryIpc.ts` | `has-token`, `sign-in`, `verify-second-factor`, `current-user`, `sign-out`, `sync`, `propose` — die Gerätebibliothek (devices.zumpelars.de, §6.3b). URL je Aufruf, Token bleibt in main. |
 | `atem:*` | `atemIpc.ts` | `connect`, `disconnect`, `state`, `get-status`, `get-events`, `set-input-name`, `bulk-set-input-names`, `apply-mv-config`, `read-mv-config`, `apply-audio-config`, `discover`, plus `atem:event` (broadcast) |
 | `videohub:*` | `videohubIpc.ts` | `send` (TCP zu Blackmagic Videohub) |
 | `sync:*` | `syncIpc.ts` | `read-file`, `write-file`, `exists`, `acquire-lock`, `release-lock` |
@@ -573,6 +574,37 @@ Nicht zu verwechseln mit `lib/netboxImport.ts` — das ist der ältere
 Import einzelner Gerätetypen aus der öffentlichen
 `netbox-community/devicetype-library` auf GitHub (statische YAML), ohne
 eigene Instanz.
+
+### 6.3b · Gerätebibliothek (devices.zumpelars.de)
+
+Gemeinsamer, moderierter Gerätekatalog der Suite (Repo
+`larszu/av-device-library`). Nur mit Konto nutzbar; Konten entstehen auf der
+Website. Der Client ist eine **unveränderte Kopie** von
+`clients/deviceLibraryClient.ts` aus dem Bibliotheks-Repo und liegt zweimal
+hier: `src/main/services/` (Desktop) und `src/renderer/lib/` (Web-Build);
+`tests/deviceLibrary.test.ts` hält beide Kopien gleich.
+
+- **Abruf im Main-Prozess** (`services/deviceLibraryService.ts`). Zwei
+  Gründe: das Bearer-Token verlässt main nicht (wie bei NetBox), und die
+  Server-URL ist änderbar — die CSP des Fensters kennt nur feste Ursprünge,
+  main unterliegt ihr nicht. `https://devices.zumpelars.de` steht trotzdem in
+  `connect-src`, für den Renderer-Weg ohne Preload-Brücke.
+- **Token**: Desktop im Schlüsselbund (`keytar`, Account
+  `device-library-token`); Web-Build unter einem eigenen localStorage-Schlüssel
+  (`deviceLibraryWeb.ts`). Nie im Projekt, nie im Log.
+- **URL**: `settingsStore.deviceLibraryUrl`, leer = `DEFAULT_DEVICE_LIBRARY_URL`.
+  Geprüft (nur http/https) in main.
+- **Abgleich** (`lib/deviceLibrary.ts`, rein und getestet): `sync('cable',
+  latestSeq)` inkrementell; `removed` entfernt; jeder Eintrag läuft durch
+  `pruefeVorlage` und wird bei blockierendem Befund übersprungen und gezählt.
+  Kennt der Server einen kleineren `latestSeq` als gemerkt, wird alles neu
+  geholt. Stand und `latestSeq` liegen unter
+  `STORAGE_KEYS.deviceLibraryCache` — **nicht** in `customLibrary`: die
+  Bibliothek ist eine eigene, schreibgeschützte Quelle
+  (`store/deviceLibraryStore.ts`, Bibliothek → Equipment → „Shared").
+- **Einreichen**: `DeviceLibrarySubmitDialog` baut auf `baueEinreichung`
+  auf; Hersteller/Modell trennt der Nutzer (die Vorlagen kennen nur einen
+  Namen), `sourceUrl` ist `manufacturerUrl`.
 
 ### 6.4 · GraphML-Import (yEd)
 

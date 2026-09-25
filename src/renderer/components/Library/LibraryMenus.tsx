@@ -103,7 +103,7 @@ export const PlusMenu = ({
               onSubmit()
             }}
             className="block w-full px-3 py-1.5 text-left hover:bg-cp-surface-2"
-            title={t('library.menus.submitTitle', 'Check your own templates and write a submission file — every entry needs a datasheet link')}
+            title={t('library.menus.submitTitle', 'Check your own templates, then send them to the device library or save a submission file — every entry needs a datasheet link')}
           >
             {t('library.menus.submit', 'Submit templates…')}
           </button>

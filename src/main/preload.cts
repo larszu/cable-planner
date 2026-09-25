@@ -81,6 +81,21 @@ contextBridge.exposeInMainWorld('cablePlanner', {
     fetchSnapshot: (baseUrl: string, scope: 'site' | 'rack', scopeId: number) =>
       ipcRenderer.invoke('netbox:fetch-snapshot', baseUrl, scope, scopeId) as Promise<unknown>,
   },
+  // Geraetebibliothek. Wie `netbox`: URL je Aufruf, Token bleibt in main.
+  // Die Antworttypen stehen in `src/renderer/lib/bridge.ts`.
+  deviceLibrary: {
+    hasToken: () => ipcRenderer.invoke('deviceLibrary:has-token') as Promise<boolean>,
+    signIn: (server: string, login: string, password: string) =>
+      ipcRenderer.invoke('deviceLibrary:sign-in', server, login, password) as Promise<unknown>,
+    verifySecondFactor: (server: string, challenge: string, code: string) =>
+      ipcRenderer.invoke('deviceLibrary:verify-second-factor', server, challenge, code) as Promise<unknown>,
+    currentUser: (server: string) => ipcRenderer.invoke('deviceLibrary:current-user', server) as Promise<unknown>,
+    signOut: (server: string) => ipcRenderer.invoke('deviceLibrary:sign-out', server) as Promise<void>,
+    sync: (server: string, after: number) =>
+      ipcRenderer.invoke('deviceLibrary:sync', server, after) as Promise<unknown>,
+    propose: (server: string, core: Record<string, unknown>, facet: Record<string, unknown>) =>
+      ipcRenderer.invoke('deviceLibrary:propose', server, core, facet) as Promise<unknown>,
+  },
   graphml: {
     openFile: () =>
       ipcRenderer.invoke('graphml:open-file') as Promise<{
