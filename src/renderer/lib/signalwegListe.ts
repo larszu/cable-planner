@@ -43,7 +43,9 @@ export const signalwegeTable = (project: CablePlannerProject): CsvTable => {
     // Stabil nach Quelle und Weg — die Reihenfolge der Kabel im Projekt ist
     // Bearbeitungsverlauf und darf das Blatt nicht umsortieren.
     .map((k) => ({ k, schluessel: `${k.steps[0].fromEquipmentName}\u0000${k.steps[0].fromPortName}\u0000${k.id}` }))
-    .sort((a, b) => a.schluessel.localeCompare(b.schluessel))
+    // Ohne `localeCompare`: die Reihenfolge geht in den Fingerabdruck ein und
+    // darf nicht vom Gebietsschema des Rechners abhaengen.
+    .sort((a, b) => (a.schluessel < b.schluessel ? -1 : a.schluessel > b.schluessel ? 1 : 0))
     .map(({ k }) => k)
 
   const rows: CsvCell[][] = ketten.map((k: SignalChain, i) => {

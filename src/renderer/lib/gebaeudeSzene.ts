@@ -317,7 +317,7 @@ export function wegUeberSchacht(
   if (schaechte.length === 0 || Math.abs(vonTrasseY - nachTrasseY) < 0.01) return luftlinie
   const flach = (a: { x: number; z: number }, b: { x: number; z: number }) => Math.hypot(a.x - b.x, a.z - b.z)
   const schacht = [...schaechte].sort(
-    (a, b) => flach(von, a) + flach(a, nach) - (flach(von, b) + flach(b, nach)) || a.id.localeCompare(b.id),
+    (a, b) => flach(von, a) + flach(a, nach) - (flach(von, b) + flach(b, nach)) || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0),
   )[0]
   return {
     schachtId: schacht.id,
