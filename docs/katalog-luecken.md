@@ -10,11 +10,24 @@ sie und sagt, was als Nächstes hineingehört — es rechnet nicht selbst.
 |---|---:|---:|---|
 | Kameras | 385 | 377 | `camera`, `cameraBody` |
 | Konverter | 34 | 34 | `aja`, `blackmagic`, `broadcastTools`, `decimator`, `lynx`, `misc` |
-| Netzwerk | 81 | 75 | `aja`, `avNetwork`, `blackmagic`, `misc`, `ubiquiti` |
-| LED-Prozessoren | **0** | 0 | — |
-| Intercom | 8 | 6 | `greengo` |
+| Netzwerk | 87 | 81 | `aja`, `avNetwork`, `blackmagic`, `luminex`, `misc`, `ubiquiti` |
+| LED-Prozessoren | 7 | 7 | `brompton`, `ledProcessor` |
+| Intercom | 12 | 10 | `clearcom`, `greengo` |
 
-Gesamt 467 Einträge, davon 184 Mikrofone (39,4 %).
+Gesamt 1825 Einträge (Stand 2026-09-25), davon 184 Mikrofone — 10,1 % statt
+39,4 %.
+
+> **Nachgezogen am 2026-09-25.** Alle drei Befunde von 2026-09-19 sind
+> erledigt:
+>
+> 1. Die Schieflage ist weg. Mikrofone waren 39,4 % und sind 10,1 %; die
+>    größte Kategorie sind jetzt die Objektive mit 835 von 1825 (14 % nach
+>    Bereichen gerechnet, siehe `katalogLuecken.test.ts`).
+> 2. **LED-Prozessoren sind nicht mehr leer** — und ausgerechnet der Bereich,
+>    der bei null stand, ist der einzige mit **vollständigem** Beleg (7 von 7).
+> 3. **Kein Bereich hängt mehr an einem Haus.** Intercom hatte nur GreenGo und
+>    hat jetzt Clear-Com dazu; Netzwerk hatte nur Ubiquiti als
+>    Veranstaltungs-Haus und hat jetzt Luminex.
 
 Drei Befunde, die ohne die Rechnung nicht sichtbar waren:
 
