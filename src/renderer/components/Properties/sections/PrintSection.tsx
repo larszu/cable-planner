@@ -16,6 +16,8 @@ export const PrintSection = ({ equipment }: { equipment: EquipmentItem }) => {
   const t = useTranslation()
   const allEquipment = useProjectStore((state) => state.project.equipment)
   const allCables = useProjectStore((state) => state.project.cables)
+  const locations = useProjectStore((state) => state.project.locations)
+  const floors = useProjectStore((state) => state.project.floors)
 
   return (
     <SortableSection
@@ -29,6 +31,8 @@ export const PrintSection = ({ equipment }: { equipment: EquipmentItem }) => {
           onClick={() =>
             void exportDevicePatchSheet(equipment, allEquipment, allCables, {
               format: 'a4',
+              locations,
+              floors,
             })
           }
           className="w-full bg-sky-700 px-2 py-1 text-cp-xs text-white hover:bg-sky-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
@@ -45,6 +49,8 @@ export const PrintSection = ({ equipment }: { equipment: EquipmentItem }) => {
           onClick={() =>
             void exportDevicePatchSheet(equipment, allEquipment, allCables, {
               format: 'a3',
+              locations,
+              floors,
             })
           }
           className="w-full bg-sky-800 px-2 py-1 text-cp-xs text-white hover:bg-sky-700"

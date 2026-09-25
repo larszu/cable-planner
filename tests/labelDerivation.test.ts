@@ -467,3 +467,44 @@ describe('Demo-Projekt', () => {
     expect(labelTargetIssues(input)).toEqual([])
   })
 })
+
+// Gefunden am Beispiel „3 PTZ Saal → Regie" mit einem Katalog-ATEM: er fuehrt
+// nach seinen Bildeingaengen auch Ref, Ethernet und zwei Audio-XLR als
+// Eingaenge. Die Ableitung meldete „Audio In L & Audio In R werden beide
+// AUDI" als Fehler und fuehrte den Ethernet-Port als Mischer-Eingang 12.
+describe('nur Bildeingaenge', () => {
+  const katalogAtem = () =>
+    atem([
+      port('sdi1', 'SDI In 1'),
+      port('sdi2', 'SDI In 2'),
+      port('ref', 'Ref In'),
+      port('eth', 'Ethernet', { type: 'Ethernet/RJ45', connectorType: 'Ethernet/RJ45' }),
+      port('al', 'Audio In L', { type: 'XLR', connectorType: 'XLR' }),
+      port('ar', 'Audio In R', { type: 'XLR', connectorType: 'XLR' }),
+    ])
+  const sw = eq({
+    id: 'sw',
+    name: 'Switch',
+    category: 'Networking',
+    outputs: [port('sw1', '1', { type: 'Ethernet/RJ45', connectorType: 'Ethernet/RJ45' })],
+  })
+
+  it('zaehlt Ethernet, Referenz und Audio nicht als Mischer-Eingang', () => {
+    const equipment = [katalogAtem(), camera('cam1', 'Kamera 1'), sw]
+    const cables = [cable(['cam1', 'cam1-out'], ['atem', 'sdi1']), cable(['sw', 'sw1'], ['atem', 'eth'])]
+    const { sources, candidates } = deriveLabels({ equipment, cables })
+    expect(sources.map((s) => [s.inputIndex, s.sourceEquipmentId])).toEqual([[1, 'cam1']])
+    expect(candidates.some((c) => ['eth', 'ref', 'al', 'ar'].includes(c.portId ?? ''))).toBe(false)
+  })
+
+  it('meldet keine Namenskollision fuer die Audio-Eingaenge', () => {
+    const issues = labelTargetIssues({ equipment: [katalogAtem()], cables: [] })
+    expect(issues.filter((i) => i.severity === 'error')).toEqual([])
+  })
+
+  it('laesst einen Eingang namens „Return" als Bildeingang stehen', () => {
+    const mischer = atem([port('r1', 'Stage Return')])
+    const { candidates } = deriveLabels({ equipment: [mischer], cables: [] })
+    expect(candidates.some((c) => c.portId === 'r1')).toBe(true)
+  })
+})

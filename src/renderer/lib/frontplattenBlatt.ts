@@ -23,7 +23,7 @@
 //
 // REIN: keine Uhr, kein Store, kein IO. Das Drucken macht `printHtml`.
 // ───────────────────────────────────────────────────────────────────────────
-import { mmPosition, streifenFelder, type PlattenMass } from '../types/frontplatte'
+import { mmPosition, streifenReihen, type PlattenMass } from '../types/frontplatte'
 import type { Port } from '../types/equipment'
 
 const esc = (s: string): string =>
@@ -47,7 +47,7 @@ export interface FrontplattenBlattOptionen {
  */
 export const buildFrontplattenHtml = (o: FrontplattenBlattOptionen): string => {
   const beschriftung = o.beschriftung ?? ((p: Port) => p.name)
-  const felder = o.streifenHoeheMm ? streifenFelder(o.ports, o.platte, beschriftung) : []
+  const reihen = o.streifenHoeheMm ? streifenReihen(o.ports, o.platte, beschriftung) : []
   const papier = o.papierBreiteMm ?? 210
   const zuBreit = o.platte.breiteMm > papier - 20
 
@@ -65,16 +65,15 @@ export const buildFrontplattenHtml = (o: FrontplattenBlattOptionen): string => {
     .join('\n')
 
   const streifen =
-    o.streifenHoeheMm && felder.length > 0
-      ? `<div class="streifen" style="width:${o.platte.breiteMm}mm;height:${o.streifenHoeheMm}mm">
-${felder
-  .map(
-    (f) =>
-      `<div class="feld" style="left:${f.xMm}mm">${esc(f.text)}</div>`,
-  )
-  .join('\n')}
-</div>
-<div class="hinweis">Cut along the border and slide into the holder.</div>`
+    o.streifenHoeheMm && reihen.length > 0
+      ? `${reihen
+          .map(
+            (felder, i) => `${reihen.length > 1 ? `<div class="reihe">Row ${i + 1} of ${reihen.length}</div>` : ''}<div class="streifen" style="width:${o.platte.breiteMm}mm;height:${o.streifenHoeheMm}mm">
+${felder.map((f) => `<div class="feld" style="left:${f.xMm}mm">${esc(f.text)}</div>`).join('\n')}
+</div>`,
+          )
+          .join('\n')}
+<div class="hinweis">Cut along the border and slide into the holder${reihen.length > 1 ? ' of its row' : ''}.</div>`
       : ''
 
   return `<!doctype html>
@@ -95,6 +94,8 @@ ${felder
   .streifen { position: relative; margin-top: 8mm; border: 0.3mm dashed #666; }
   .feld { position: absolute; top: 50%; transform: translate(-50%, -50%); font-size: 7pt;
           white-space: nowrap; }
+  .reihe { margin-top: 6mm; font-size: 6pt; color: #444; }
+  .reihe + .streifen { margin-top: 1mm; }
   .hinweis { margin-top: 2mm; font-size: 6pt; color: #444; }
   .warnung { margin: 0 0 4mm; padding: 2mm; border: 0.3mm solid #000; font-size: 7pt; }
 </style></head>
