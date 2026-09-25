@@ -319,9 +319,20 @@ await app.close()
  * dieser Flaechen wirklich wachsen SOLLEN, ist eine Gestaltungsfrage und
  * gehoert in eine eigene Runde.
  */
+/*
+ * ANGEHOBEN am 2026-09-25 (Geraetebibliothek), unter44 91 -> 93:
+ * 98 Trefferflaechen, davon 93 unter 44 px. Die zwei neuen sind der
+ * Quellen-Umschalter im Equipment-Tab der Bibliothek („Local" / „Shared").
+ * Er stand bisher nur bei eingeschaltetem Rentman-Modul da; die
+ * Geraetebibliothek ist aber die Vorgabe-Quelle jedes Builds, also steht
+ * er jetzt immer. Er sitzt in derselben 235 px schmalen Seitenleiste wie
+ * die Register darueber (32 px hoch, ebenfalls unter der Marke) — 44 px je
+ * Knopf machten ihn hoeher als die Register, zu denen er gehoert, und
+ * schoeben die Liste darunter aus dem Blick.
+ */
 const DECKEL = {
-  maus: { unter24: 50, unter44: 91 },
-  finger: { unter24: 50, unter44: 91 },
+  maus: { unter24: 50, unter44: 93 },
+  finger: { unter24: 50, unter44: 93 },
 }
 
 let befunde = 0
