@@ -161,6 +161,51 @@ Built with **Electron, React, and TypeScript**, it is designed for real-world pr
 
 ---
 
+### 🗺️ Floor plan, scale and real cable lengths
+
+Put the venue under the canvas and measure cables on it (toolbar → *Floor plan*).
+
+- **Load an image**, or **import the venue from MultiCam / Light Planner**
+  (`venue-exchange` v1). The image and its scale come with it, and walls,
+  people and stages the cable planner does not draw go back out unchanged on
+  export.
+- **Two points** set the scale on a plan drawn straight from above (CAD export,
+  scan): click both ends of a known distance.
+- **Four corners** set it on a photo, a wall sign or an isometric drawing: click
+  the corners of a floor area of known width and depth. The plan is then
+  measured through a perspective projection, so a metre is a metre in every
+  direction on the floor. Heights shown in the picture are not measured.
+- **Cable lengths follow the drawn route** — socket to socket, through every
+  bend point. A cable without bend points is measured as the right-angled path
+  the canvas draws, not as a straight line. Slack and rounding up apply as
+  before, and the bill of materials still splits each run into the stock
+  lengths you own.
+- A length derived this way is reported as **out of date** once a device moves,
+  the cable is re-routed or the plan is re-calibrated.
+- After calibration the plan locks and lies under everything; clicks reach the
+  devices. A four-corner calibration cannot be exported to the venue exchange,
+  which carries one scale per plan — the export button says so.
+
+---
+
+### 🔣 Symbols
+
+Plan symbols on the canvas (toolbar → *Symbols*): electrical, intrusion alarm,
+fire alarm, voice alarm / PA, IT / network, automation and AV — drawn after the
+common plan conventions (DIN EN 60617, DIN 14034-6), not certified against them.
+
+- A symbol is **not a device**: no ports, no checks. It labels the plan. Label,
+  size, rotation and lock are set in the panel; Delete removes the selected one.
+- **Import your own** as SVG, PNG, JPG or WebP. SVGs are cleaned (no scripts,
+  no event handlers, no external references) and every symbol is drawn through
+  `<img>`, where nothing runs. Custom symbols travel inside the project file.
+- **Generate a symbol** from a description when an AI key is stored under
+  *Settings → AI* (Gemini, Claude or OpenAI). Without a key the option is not
+  shown. A generated symbol is a model's drawing, not a standard symbol.
+- **Symbol list as CSV**: count and labels per symbol.
+
+---
+
 ### 💾 The recovery copy says when it fails
 
 The plan is auto-saved into the browser store every few hundred milliseconds.

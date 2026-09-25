@@ -118,7 +118,7 @@ const HARMLOS = new Set(
     'frequenzen', 'frequenzgang', 'frequenzabstand', 'funkfrequenz',
     'sendefrequenz', 'bauen', 'dauerhaft', 'dauerhafte', 'genaue', 'teuerste',
     'auszugrauen', 'koexistenz', 'manuell', 'manuelle', 'manuellen', 'individuell',
-    'eventuell', 'virtuell', 'treue', 'feuer', 'europa', 'euro',
+    'eventuell', 'virtuell', 'treue', 'feuer', 'feuerwehr', 'europa', 'euro',
     // Eigennamen, Protokolle, Einheiten
     'segoe', 'poe', 'poestandard', 'poestandards', 'poebudget', 'poebudgetw',
     'erpoe', 'aes', 'aea', 'aearibbonmics', 'gerätesteuerung',

@@ -289,4 +289,11 @@ export interface DerivedLengthOrigin {
    *  genauso überholt wie nach einem Verschieben — die Zahl hängt an beidem. */
   metersPer100px: number
   slackPercent: number
+  /** Die Knickpunkte, ueber die gerechnet wurde. Ein neu gerouteter Weg
+   *  macht die Laenge ebenso ueberholt wie ein verschobenes Geraet. Die
+   *  Punkte selbst und kein Textschluessel: die Raster-Heilung beim Laden
+   *  zieht sie mit den Knickpunkten des Kabels gleich. */
+  weg?: CableWaypoint[]
+  /** Die Hallenplan-Kalibrierung, mit der gerechnet wurde. */
+  massstabSchluessel?: string
 }

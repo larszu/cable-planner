@@ -192,7 +192,7 @@ describe('die Herkunft wird gefuehrt', () => {
     const o = origins.get('c1')!
     // Der URSPRUNG der Geraete, nicht der Mittelpunkt: nur er ueberlebt die
     // Raster-Heilung beim Laden unveraendert.
-    expect(o).toEqual({ fromX: 0, fromY: 0, toX: 500, toY: 0, metersPer100px: 1, slackPercent: 15 })
+    expect(o).toEqual({ fromX: 0, fromY: 0, toX: 500, toY: 0, metersPer100px: 1, slackPercent: 15, weg: [] })
   })
 
   it('der Store haengt sie an das Kabel', () => {
@@ -230,7 +230,7 @@ describe('Erreichbarkeit in der Analyse', () => {
   it('hat einen eigenen Reiter', () => {
     expect(analyseQuelle).toContain("id: 'runs'")
     expect(analyseQuelle).toContain('<RunsTab projectName={projectName} />')
-    expect(analyseQuelle).toMatch(/cableRunFindings\(cables, equipment\)/)
+    expect(analyseQuelle).toMatch(/cableRunFindings\(cables, equipment, laengenKontext\(/)
   })
 
   it('gibt die Befunde als Blatt aus', () => {
