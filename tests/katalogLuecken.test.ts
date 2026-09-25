@@ -36,7 +36,7 @@ describe('#878 — Katalog-Luecken in den Zielbereichen', () => {
     // die beiden Sorten nicht verwechseln — `belegt` je Bereich sagt, wie
     // viele ein Datenblatt haben, und der Plan-Check zeigt am Geraet, ob die
     // Anschluesse noch fehlen.
-    expect(b.eintraegeGesamt).toBe(1819)
+    expect(b.eintraegeGesamt).toBe(1825)
     expect(b.eintraegeGesamt).toBe(evidenceReport().entries)
 
     // „ueber ein Drittel Mikrofone" — das stimmt, und zwar deutlich.
@@ -76,13 +76,13 @@ describe('#878 — Katalog-Luecken in den Zielbereichen', () => {
     // weil die Datenblaetter „nicht erreichbar" schienen. Erreichbar waren
     // sie; nur der Abruf-Dienst scheiterte an der Zertifikatskette.
     expect(stand('konverter').eintraege).toBe(34)
-    expect(stand('netzwerk').eintraege).toBe(81)
+    expect(stand('netzwerk').eintraege).toBe(87)
     expect(stand('intercom').eintraege).toBe(12)
     // 2 -> 7 am 2026-09-24: die fuenf Brompton-Tessera-Prozessoren, aus ihren
     // Datenblatt-PDFs recherchiert. Der Bereich, den #878 als den einzigen
     // LEEREN benannt hat, ist damit der einzige, der VOLLSTAENDIG belegt ist.
     expect(stand('led-prozessoren').eintraege).toBe(7)
-    expect(katalogLuecken().eintraegeInBereichen).toBe(519)
+    expect(katalogLuecken().eintraegeInBereichen).toBe(525)
 
     // Und die Breite, nicht nur die Menge: Kameras und Intercom haengen an je
     // EINEM Katalog. Ein Bereich mit einem Hersteller ist kein bestueckter

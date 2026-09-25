@@ -51,6 +51,7 @@ import { FIXTURE_CATALOG } from './fixtureCatalog'
 import { DECIMATOR_CATALOG } from './decimatorCatalog'
 import { BROMPTON_CATALOG } from './bromptonCatalog'
 import { CLEARCOM_CATALOG } from './clearcomCatalog'
+import { LUMINEX_CATALOG } from './luminexCatalog'
 import { GREENGO_CATALOG } from './greengoCatalog'
 import { LED_PROCESSOR_CATALOG } from './ledProcessorCatalog'
 import { LYNX_CATALOG } from './lynxCatalog'
@@ -103,6 +104,7 @@ export const CATALOGUES: ReadonlyArray<{ name: string; entries: readonly Evidenc
   { name: 'rig', entries: RIG_CATALOG },
   { name: 'brompton', entries: BROMPTON_CATALOG },
   { name: 'clearcom', entries: CLEARCOM_CATALOG },
+  { name: 'luminex', entries: LUMINEX_CATALOG },
   { name: 'decimator', entries: DECIMATOR_CATALOG },
   { name: 'fixture', entries: FIXTURE_CATALOG },
   { name: 'greengo', entries: GREENGO_CATALOG },

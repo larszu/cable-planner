@@ -79,7 +79,7 @@ describe('Initiative 11 — trägt diese Katalog-Zeile ein Datenblatt?', () => {
     // light-planner (`npm run katalog:uebernahme`). Die Zahl zieht der
     // Generator; `npm run katalog:check` sagt, ob die erzeugten Dateien noch
     // zur Quelle passen.
-    expect(kommentare).toBe(1633)
+    expect(kommentare).toBe(1639)
   })
 
   it('2. die Abdeckung wird gerechnet', () => {
@@ -91,8 +91,8 @@ describe('Initiative 11 — trägt diese Katalog-Zeile ein Datenblatt?', () => {
     // steigt damit von 90,4 % auf 89,7 % — sie SINKT leicht, und das ist die
     // ehrliche Zahl: die Rigs kommen ohne einen einzigen Beleg mit, und von
     // den 84 Lichtgeraeten tragen 50 einen.
-    expect(bericht.sourced).toBe(1633)
-    expect(bericht.entries).toBe(1819)
+    expect(bericht.sourced).toBe(1639)
+    expect(bericht.entries).toBe(1825)
 
     // B-11 hatte diese Liste auf LEER gebracht. Seit dem 2026-09-24 steht
     // wieder genau EINER darin, und er ist benannt statt weggerechnet: die

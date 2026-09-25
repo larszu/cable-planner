@@ -20,6 +20,7 @@ import { FIXTURE_CATALOG } from './fixtureCatalog'
 import { DECIMATOR_CATALOG } from './decimatorCatalog'
 import { BROMPTON_CATALOG } from './bromptonCatalog'
 import { CLEARCOM_CATALOG } from './clearcomCatalog'
+import { LUMINEX_CATALOG } from './luminexCatalog'
 import { BLACKMAGIC_CATALOG } from './blackmagicCatalog'
 import { GREENGO_CATALOG } from './greengoCatalog'
 import { LED_PROCESSOR_CATALOG } from './ledProcessorCatalog'
@@ -97,6 +98,15 @@ const buildRegistry = (): Map<string, DeviceTypeInfo> => {
   }
   for (const e of CLEARCOM_CATALOG) {
     put(e.deviceTypeId, { template: { ...e.template, deviceTypeId: e.deviceTypeId }, kind: undefined })
+  }
+  // `networkKind` ist hier eine DATENBLATT-TATSACHE und keine Namens-
+  // Heuristik: `detectNetworkDevice` raet sonst ueber „GigaCore" und findet
+  // nichts. Die Switch-Port-Karte haengt daran.
+  for (const e of LUMINEX_CATALOG) {
+    put(e.deviceTypeId, {
+      template: { ...e.template, deviceTypeId: e.deviceTypeId },
+      networkKind: e.networkKind,
+    })
   }
   for (const e of BLACKMAGIC_CATALOG) {
     put(e.deviceTypeId, {
