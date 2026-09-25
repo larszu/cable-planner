@@ -71,6 +71,16 @@ export interface Frontplatte {
    * ist die des Streifenhalters, nicht der Platte.
    */
   streifenHoeheMm?: number
+  /**
+   * Welche Portliste auf der Platte sitzt, wenn das Geraet durchleitet.
+   *
+   * Ein Wandfeld hat vorne die Buchsen und hinten die Hausstrecke; beide
+   * Seiten stehen als `inputs` und `outputs` am Geraet (Position n vorne ist
+   * Position n hinten, `patchPanelCounterpart`). Auf die Platte gehoert nur
+   * eine davon. Fehlt die Angabe, gilt die Seite, deren Stecker schon eine
+   * Lage haben — siehe `plattenPorts` in `lib/patchPanel.ts`.
+   */
+  seite?: 'inputs' | 'outputs'
   notiz?: string
 }
 
@@ -86,6 +96,7 @@ export const normalisiereFrontplatte = (roh: unknown): Frontplatte | undefined =
     art: o.art,
     rasterMm: zahl(o.rasterMm),
     streifenHoeheMm: zahl(o.streifenHoeheMm),
+    seite: o.seite === 'inputs' || o.seite === 'outputs' ? o.seite : undefined,
     notiz: typeof o.notiz === 'string' ? o.notiz : undefined,
   }
 }
@@ -249,6 +260,8 @@ export interface StreifenFeld {
   text: string
   /** Mitte des Feldes in Millimetern von links. */
   xMm: number
+  /** Mitte des Steckers in Millimetern von oben — sagt, zu welcher Reihe er gehoert. */
+  yMm: number
 }
 
 /**
@@ -266,7 +279,33 @@ export const streifenFelder = (
   ports
     .map((p) => {
       const pos = mmPosition(p, platte)
-      return pos ? { portId: p.id, text: beschriftung(p), xMm: pos.xMm } : undefined
+      return pos ? { portId: p.id, text: beschriftung(p), xMm: pos.xMm, yMm: pos.yMm } : undefined
     })
     .filter((f): f is StreifenFeld => !!f)
     .sort((a, b) => a.xMm - b.xMm)
+
+/** Stecker, deren Mitten weniger als so viel auseinanderliegen, bilden eine Reihe. */
+const REIHEN_TOLERANZ_MM = 3
+
+/**
+ * Die Streifen einer Platte, ein Streifen je Steckerreihe, von oben nach unten.
+ *
+ * Ein einziger Streifen fuer eine zweireihige Platte (BNC oben, RJ45
+ * darunter) druckte die Namen uebereinander, weil beide Reihen dieselben
+ * x-Lagen haben. Wandfelder mit mehreren Reihen haben je Reihe einen
+ * Streifenhalter — also gibt es je Reihe einen Streifen.
+ */
+export const streifenReihen = (
+  ports: readonly Port[],
+  platte: PlattenMass,
+  beschriftung: (p: Port) => string,
+): StreifenFeld[][] => {
+  const reihen: StreifenFeld[][] = []
+  const felder = [...streifenFelder(ports, platte, beschriftung)].sort((a, b) => a.yMm - b.yMm)
+  for (const f of felder) {
+    const reihe = reihen.find((r) => Math.abs(r[0].yMm - f.yMm) < REIHEN_TOLERANZ_MM)
+    if (reihe) reihe.push(f)
+    else reihen.push([f])
+  }
+  return reihen.map((r) => r.sort((a, b) => a.xMm - b.xMm))
+}

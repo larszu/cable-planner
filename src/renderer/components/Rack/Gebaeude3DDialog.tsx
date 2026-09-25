@@ -63,6 +63,23 @@ const Szene = ({ szene, modus, beschriftung, isLight }: { szene: GebaeudeSzene; 
           )}
         </group>
       ))}
+      {szene.schaechte.map((sch) => {
+        const hoehe = sch.yOben - sch.yUnten
+        return (
+          <group key={sch.id} position={[sch.x, sch.yUnten + hoehe / 2, sch.z]}>
+            <mesh>
+              <boxGeometry args={[sch.breite, hoehe, sch.tiefe]} />
+              <meshStandardMaterial color={sch.farbe} transparent opacity={0.18} depthWrite={false} />
+              <Edges color={sch.farbe} />
+            </mesh>
+            {beschriftung && (
+              <Html position={[0, hoehe / 2 + 0.3, 0]} center>
+                {label(sch.name, sch.farbe)}
+              </Html>
+            )}
+          </group>
+        )
+      })}
       {szene.geraete.map((g) => (
         <group key={g.id} position={[g.pos.x, g.pos.y, g.pos.z]}>
           <mesh>
@@ -80,10 +97,7 @@ const Szene = ({ szene, modus, beschriftung, isLight }: { szene: GebaeudeSzene; 
         szene.kabel.map((k) => (
           <Line
             key={k.id}
-            points={[
-              [k.von.x, k.von.y, k.von.z],
-              [k.nach.x, k.nach.y, k.nach.z],
-            ]}
+            points={k.punkte.map((p) => [p.x, p.y, p.z] as [number, number, number])}
             color={k.farbe}
             lineWidth={k.raumuebergreifend ? 2.5 : 1.2}
             dashed={k.tieLine}
@@ -93,14 +107,16 @@ const Szene = ({ szene, modus, beschriftung, isLight }: { szene: GebaeudeSzene; 
         ))}
       {modus === 'raeume' &&
         szene.verbindungen.map((v) => {
-          const mitte: [number, number, number] = [(v.von.x + v.nach.x) / 2, (v.von.y + v.nach.y) / 2, (v.von.z + v.nach.z) / 2]
+          // Beschriftung in der Mitte des mittleren Abschnitts — ueber einen
+          // Schacht ist das die senkrechte Strecke darin.
+          const i = Math.max(0, Math.floor((v.punkte.length - 1) / 2))
+          const a = v.punkte[i]
+          const b = v.punkte[Math.min(i + 1, v.punkte.length - 1)]
+          const mitte: [number, number, number] = [(a.x + b.x) / 2, (a.y + b.y) / 2, (a.z + b.z) / 2]
           return (
             <group key={`${v.vonRaumId}-${v.nachRaumId}`}>
               <Line
-                points={[
-                  [v.von.x, v.von.y, v.von.z],
-                  [v.nach.x, v.nach.y, v.nach.z],
-                ]}
+                points={v.punkte.map((p) => [p.x, p.y, p.z] as [number, number, number])}
                 color="#38bdf8"
                 lineWidth={Math.min(8, 2 + v.kabelIds.length)}
               />
@@ -225,6 +241,14 @@ export const Gebaeude3DDialog = () => {
             {format(
               t('gebaeude3d.assumed', 'No height given for: {floors}. Stacked with the storey height — an assumption, not a measurement.'),
               { floors: angenommen.map((e) => e.name).join(', ') },
+            )}
+          </p>
+        )}
+        {modus === 'kabel' && szene.schaechte.length === 0 && szene.kabel.some((k) => k.etagenwechsel) && (
+          <p className="border-b border-cp-border px-4 py-1 text-cp-xs text-cp-text-muted">
+            {t(
+              'gebaeude3d.noRiser',
+              'Cables between floors are drawn as straight lines. Mark a frame as riser (frame properties) to route them through it.',
             )}
           </p>
         )}

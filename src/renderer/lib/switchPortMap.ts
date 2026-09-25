@@ -42,6 +42,7 @@ import type { CsvCell, CsvTable } from './csv'
 import { portDisplayLabel } from './portLabel'
 import { allDeviceInterfaces } from './networkInterfaces'
 import { detectNetworkDevice } from './deviceKind'
+import { durchBlenden, gegenendenJePort } from './patchPanel'
 
 /** Woher die Belegung eines Switch-Ports stammt. */
 export type PortOccupancySource = 'interface' | 'cable'
@@ -64,6 +65,11 @@ export interface SwitchPortRow {
    * Der Text nennt den jeweils anderen, damit jemand nachsehen kann.
    */
   conflict?: string
+  /**
+   * Die Blenden zwischen Switch und Geraet, in Reihenfolge (Namen). Fehlt,
+   * wenn das Kabel direkt am Geraet endet.
+   */
+  via?: string[]
 }
 
 export interface SwitchPortMap {
@@ -110,6 +116,7 @@ export function buildSwitchPortMaps(
     (e) => (onlySwitchId ? e.id === onlySwitchId : isSwitch(e)),
   )
   const nics = allDeviceInterfaces(equipment)
+  const enden = gegenendenJePort(cables)
 
   return switches.map((sw) => {
     const ports = switchPorts(sw)
@@ -131,6 +138,10 @@ export function buildSwitchPortMaps(
     }
 
     // 2. Belegungen aus dem Kabelgraphen — was der Plan ohnehin weiss.
+    //    Durch Blenden hindurch: in der Festinstallation endet fast jedes
+    //    Kabel am Switch an einem Patchfeld, und die Karte naennte sonst das
+    //    Patchfeld statt der Kamera dahinter — und meldete einen Widerspruch
+    //    zur gepflegten Schnittstelle, den es nicht gibt.
     const fromCable = new Map<string, SwitchPortRow>()
     for (const c of cables) {
       const ends: Array<[string, string, string, string]> = [
@@ -141,9 +152,10 @@ export function buildSwitchPortMaps(
         if (nearEq !== sw.id) continue
         const p = ports.find((x) => x.id === nearPort)
         if (!p) continue
-        const far = byId.get(farEq)
+        const { ende, blenden } = durchBlenden({ equipmentId: farEq, portId: farPort }, byId, enden)
+        const far = byId.get(ende.equipmentId)
         if (!far) continue
-        const farPortObj = [...(far.inputs ?? []), ...(far.outputs ?? [])].find((x) => x.id === farPort)
+        const farPortObj = [...(far.inputs ?? []), ...(far.outputs ?? [])].find((x) => x.id === ende.portId)
         fromCable.set(portDisplayLabel(p) || p.id, {
           port: portDisplayLabel(p) || p.id,
           device: far.name,
@@ -151,6 +163,7 @@ export function buildSwitchPortMaps(
           ...(farPortObj ? { nicLabel: portDisplayLabel(farPortObj) } : {}),
           ...(far.ipAddress ? { ipAddress: far.ipAddress } : {}),
           source: 'cable',
+          ...(blenden.length > 0 ? { via: blenden.map((id) => byId.get(id)?.name ?? id) } : {}),
         })
       }
     }
@@ -166,6 +179,8 @@ export function buildSwitchPortMaps(
       const cableRow = fromCable.get(name)
       if (nicRow && cableRow && nicRow.deviceId !== cableRow.deviceId) {
         rows.push({ ...nicRow, conflict: cableRow.device })
+      } else if (nicRow && cableRow?.via) {
+        rows.push({ ...nicRow, via: cableRow.via })
       } else {
         rows.push(nicRow ?? cableRow ?? { port: name })
       }

@@ -17,6 +17,12 @@ export interface LocationFrame {
   /** v7.9.67 / #178 — When true the frame can't be dragged or resized.
    *  Per-frame opt-in via Rechtsklick → "Position sperren". */
   positionLocked?: boolean
+  /**
+   * Der Rahmen ist ein Steigschacht (senkrechte Trasse), kein Raum. Die
+   * 3D-Ansicht zeichnet ihn durch alle Etagen, und Kabel zwischen Etagen
+   * laufen durch den naechstgelegenen statt als Luftlinie.
+   */
+  steigschacht?: boolean
 }
 
 /**

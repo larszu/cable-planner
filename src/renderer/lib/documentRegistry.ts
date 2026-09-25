@@ -36,6 +36,8 @@ import { eventMetadataTable } from './eventMetadata'
 import { transmissionRecordTable } from './transmissionRecord'
 import { costComparisonTable } from './costComparison'
 import { renameSetTable } from './namingScheme'
+import { signalwegeTable } from './signalwegListe'
+import { hausStreckenTable } from './hausStrecken'
 import type { CsvTable } from './csv'
 
 const ofTable =
@@ -175,6 +177,11 @@ export const DOCUMENT_STANDS: Record<string, (project: CablePlannerProject) => s
   // ist die wahre Antwort und kein Ausweichen. Die BEFUNDE stehen nicht in der
   // Tabelle -- sie tragen Fliesstext.
   umbenennungssatz: ofTable((p) => renameSetTable(p)),
+  // Festinstallation — alle Signalwege mit Etage und Raum je Station, und die
+  // Belegung der Hausstrecken Ader fuer Ader. Reproduzierbar, weil beide nur
+  // aus Geraeten, Kabeln, Rahmen, Etagen und der Hausauskunft folgen.
+  signalwege: ofTable(signalwegeTable),
+  hausstrecken: ofTable(hausStreckenTable),
 }
 
 /**
@@ -278,6 +285,8 @@ export const DOCUMENT_LABELS: Record<string, string> = {
   'atem-mv-layout': 'Multiviewer-Layout',
   'switch-port-karte': 'Switch-Port-Karte',
   stueckliste: 'Stückliste',
+  signalwege: 'Signalwege',
+  hausstrecken: 'Hausstrecken-Belegung',
 }
 
 /**

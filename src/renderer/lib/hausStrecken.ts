@@ -10,6 +10,8 @@
 // ───────────────────────────────────────────────────────────────────────────
 import type { Cable } from '../types/cable'
 import type { HausAuskunft, HausStrecke, HausStreckenAder } from '../types/hausAuskunft'
+import type { CablePlannerProject } from '../types/project'
+import type { CsvCell, CsvTable } from './csv'
 
 export interface AderBelegung {
   ader: HausStreckenAder
@@ -63,4 +65,51 @@ export function streckenWeg(a: HausAuskunft | undefined, s: HausStrecke): string
     return blende ? `${name} (${blende})` : name
   }
   return `${seite(s.vonRaumId, s.vonBlende)} → ${seite(s.nachRaumId, s.nachBlende)}`
+}
+
+/**
+ * Die Belegung aller Hausstrecken als Blatt: je Ader eine Zeile, dazu die
+ * Kabel, die eine Strecke ohne Ader oder mit einer unbekannten Ader nennen.
+ *
+ * Der Inspector zeigt die Belegung je Kabel; die Haustechnik braucht sie je
+ * Strecke — welche Ader frei ist, bevor jemand eine vierte Kamera anschliesst.
+ * Kanonisches Deutsch in den Kopfzeilen, weil das Blatt gestempelt wird.
+ */
+export function hausStreckenTable(
+  project: Pick<CablePlannerProject, 'hausAuskunft' | 'cables'>,
+): CsvTable {
+  const headers = ['Strecke', 'Weg', 'Ader', 'Stecker', 'Signal', 'Belegt durch', 'Befund']
+  const rows: CsvCell[][] = []
+  const auskunft = project.hausAuskunft
+  const name = (id: string) => {
+    const c = project.cables.find((x) => x.id === id)
+    return c ? c.cableNumber || c.name || id : id
+  }
+  for (const s of auskunft?.strecken ?? []) {
+    const b = streckenBelegung(auskunft, project.cables, s.id)
+    if (!b) continue
+    const weg = streckenWeg(auskunft, s)
+    for (const a of b.adern) {
+      rows.push([
+        s.bezeichnung,
+        weg,
+        a.ader.nr,
+        a.ader.stecker ?? '',
+        a.ader.signal ?? '',
+        a.kabel.map(name).join(', '),
+        a.kabel.length === 0 ? 'frei' : a.kabel.length > 1 ? 'mehrfach belegt' : '',
+      ])
+    }
+    for (const id of b.ohneAder) rows.push([s.bezeichnung, weg, '', '', '', name(id), 'ohne Ader'])
+    for (const u of b.unbekannteAder) {
+      rows.push([s.bezeichnung, weg, u.ader, '', '', name(u.kabelId), 'Ader laut Haus unbekannt'])
+    }
+  }
+  const bekannt = new Set((auskunft?.strecken ?? []).map((s) => s.id))
+  for (const c of project.cables) {
+    if (c.hausStreckeId && !bekannt.has(c.hausStreckeId)) {
+      rows.push([c.hausStreckeId, '', c.hausAder ?? '', '', '', c.cableNumber || c.name, 'Strecke nicht mehr in der Auskunft'])
+    }
+  }
+  return { headers, rows }
 }

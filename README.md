@@ -127,7 +127,10 @@ Built with **Electron, React, and TypeScript**, it is designed for real-world pr
   line per room pair with the cable count, or as single cables (house runs
   dashed). The same floor/room and layer switches as on the canvas apply. A
   floor without a height is stacked with an adjustable storey height, and the
-  view says so
+  view says so. Tick **Riser** in a frame's properties and it becomes a shaft
+  through every floor: cables between floors then run up to the ceiling, over
+  to the nearest riser, down or up, and across to their target — without a
+  riser they stay straight lines, and the view says that too
 - **Rooms ▾** in the toolbar hides floors or single rooms with their devices.
   A cable into a hidden room stays as a stub at the visible end and says
   where it goes; its arrow brings the room back. Only the view changes — the
@@ -267,13 +270,20 @@ plate **in millimetres**, print the label strip and the drilling sheet **1:1**.
   plate → house run → 3rd-floor plate → gallery as one chain instead of
   stopping at the first plate. Untick *Patch panel* on a plate that does not
   (a stagebox with a converter inside).
+- A pass-through plate has a front and a back. **On the plate** picks which of
+  the two sits on it (by default the side whose connectors already have a
+  position); the back — the house run — is not drilled and not reported as
+  "no position".
+- A plate with **several rows** of connectors prints **one label strip per
+  row**, so BNC on top and RJ45 below no longer land on the same spot.
 
 ---
 
 ### 📋 Report editor
 
 Every list this program prints — pull list, termination list, cable schedule,
-asset register, network sheet, spectrum plan, delivery, tally map, handover —
+asset register, network sheet, spectrum plan, delivery, tally map, handover,
+signal paths, house run occupancy —
 goes through one editor (#880):
 
 - **Columns**: show, hide, reorder.
@@ -477,6 +487,17 @@ file, not in browser storage, not in source. Exports strip them before writing.
   - Cable metadata
   - Signal routing overview
 - Print-ready production documentation
+- **Fixed install: docs & handover** (File menu) — pull list, termination list,
+  cable schedule, cable BOM with reserve, asset register, handover document,
+  **signal paths** (every chain from source to target with floor and room at
+  each station) and **house run occupancy** (per core: which cable, which are
+  free), plus QR labels for every cable and device
+- **Per-device patch sheets** name where the device stands (*floor · room*)
+  and, for a cable leaving the room, where its other end lies
+- The **switch port map** looks through patch panels and wall plates: a camera
+  behind the gallery patch panel and the hall wall panel is named as the
+  camera, with the panels it passes — not as a conflict with the patch panel.
+  The PoE budget counts it the same way
 
 ---
 

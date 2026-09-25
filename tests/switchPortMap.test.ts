@@ -4,6 +4,7 @@ import {
   switchPortDescriptionBlock,
   switchPortTable,
 } from '../src/renderer/lib/switchPortMap'
+import { runDrawingChecks } from '../src/renderer/lib/drawingChecks'
 import type { Cable } from '../src/renderer/types/cable'
 import type { EquipmentItem, Port } from '../src/renderer/types/equipment'
 
@@ -192,5 +193,87 @@ describe('CSV', () => {
     const table = switchPortTable(buildSwitchPortMaps([sw, kamera], [])[0])
     expect(table.headers[0]).toBe('Port')
     expect(table.rows[0]).toEqual(['1', 'Kamera 1', 'Control', '10.0.0.9', 20, 'Schnittstelle', ''])
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Festinstallation: zwischen Switch und Geraet liegen Blenden.
+//
+// Gefunden am Beispiel „3 PTZ Saal → Regie": Kamera → Wandfeld im Saal →
+// Hausstrecke → Patchfeld in der Regie → Switch. Die Karte nannte das
+// Patchfeld und meldete bei jeder Kamera „Kabel sagt: PP-R-01" — einen
+// Widerspruch, den es nicht gab, und zwar an fast jedem Port einer
+// fest installierten Anlage.
+// ---------------------------------------------------------------------------
+describe('durch Blenden', () => {
+  const blende = (name: string, n: number, over: Partial<EquipmentItem> = {}) =>
+    geraet(name, {
+      category: 'Patch panels',
+      inputs: Array.from({ length: n }, (_, i) => port(`${name}-v${i + 1}`, `${i + 1}`)),
+      outputs: Array.from({ length: n }, (_, i) => port(`${name}-h${i + 1}`, `${i + 1} hinten`)),
+      ...over,
+    })
+
+  const aufbau = (mitNic: boolean) => {
+    const sw = switchMit([port('s1', '1'), port('s2', '2')])
+    const kamera = geraet('PTZ 1', {
+      inputs: [port('k-lan', 'LAN')],
+      ipAddress: '10.20.30.11',
+      ...(mitNic
+        ? { networkInterfaces: [{ id: 'n', label: 'LAN', role: 'control', ipAddress: '10.20.30.11', switchEquipmentId: sw.id, switchPort: '1' }] }
+        : {}),
+    })
+    const waf = blende('WAF-EG-01', 2, { category: 'Sonstiges', frontplatte: { art: 'wandfeld' } } as Partial<EquipmentItem>)
+    const pp = blende('PP-R-01', 2)
+    const cables = [
+      kabel([kamera.id, 'k-lan'], [waf.id, 'WAF-EG-01-v1']),
+      kabel([waf.id, 'WAF-EG-01-h1'], [pp.id, 'PP-R-01-h1']),
+      kabel([pp.id, 'PP-R-01-v1'], [sw.id, 's1']),
+    ]
+    return { sw, kamera, waf, pp, cables }
+  }
+
+  it('nennt das Geraet hinter Patchfeld und Wandfeld, samt Weg', () => {
+    const { sw, kamera, waf, pp, cables } = aufbau(false)
+    const row = buildSwitchPortMaps([sw, kamera, waf, pp], cables)[0].rows[0]
+    expect(row.device).toBe('PTZ 1')
+    expect(row.nicLabel).toBe('LAN')
+    expect(row.ipAddress).toBe('10.20.30.11')
+    expect(row.via).toEqual(['PP-R-01', 'WAF-EG-01'])
+  })
+
+  it('meldet keinen Widerspruch, wenn Schnittstelle und Kabelweg dasselbe sagen', () => {
+    const { sw, kamera, waf, pp, cables } = aufbau(true)
+    const row = buildSwitchPortMaps([sw, kamera, waf, pp], cables)[0].rows[0]
+    expect(row.conflict).toBeUndefined()
+    expect(row.source).toBe('interface')
+    expect(row.via).toEqual(['PP-R-01', 'WAF-EG-01'])
+  })
+
+  it('bleibt an der Blende stehen, wenn dahinter nichts gesteckt ist', () => {
+    const { sw, kamera, waf, pp, cables } = aufbau(false)
+    const row = buildSwitchPortMaps([sw, kamera, waf, pp], cables.slice(1))[0].rows[0]
+    expect(row.device).toBe('WAF-EG-01')
+    expect(row.via).toEqual(['PP-R-01'])
+  })
+
+  it('laeuft in einer Schleife nicht endlos', () => {
+    const sw = switchMit([port('s1', '1')])
+    const pp = blende('PP', 2)
+    const cables = [
+      kabel([pp.id, 'PP-v1'], [sw.id, 's1']),
+      kabel([pp.id, 'PP-h1'], [pp.id, 'PP-v2']),
+      kabel([pp.id, 'PP-h2'], [pp.id, 'PP-v1']),
+    ]
+    const row = buildSwitchPortMaps([sw, pp], cables)[0].rows[0]
+    expect(row.device).toBe('PP')
+  })
+
+  it('zaehlt eine PoE-Kamera hinter Blenden ins Budget', () => {
+    const { sw, kamera, waf, pp, cables } = aufbau(false)
+    const budgetSwitch = { ...sw, categoryProps: { poeBudgetW: 10 } } as EquipmentItem
+    const verbraucher = { ...kamera, powerConsumptionWatts: 25 } as EquipmentItem
+    const befunde = runDrawingChecks({ equipment: [budgetSwitch, verbraucher, waf, pp], cables }).findings
+    expect(befunde.some((f) => f.id === `poe-over:${sw.id}`)).toBe(true)
   })
 })

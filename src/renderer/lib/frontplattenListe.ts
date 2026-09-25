@@ -21,6 +21,7 @@
 // REIN: keine Uhr, kein Store, kein IO.
 // ───────────────────────────────────────────────────────────────────────────
 import { mmPosition } from '../types/frontplatte'
+import { plattenPorts } from './patchPanel'
 import type { CsvCell, CsvTable } from './csv'
 import type { CablePlannerProject } from '../types/project'
 
@@ -29,7 +30,8 @@ export const frontplattenTable = (project: CablePlannerProject): CsvTable => {
   for (const geraet of project.equipment) {
     if (!geraet.frontplatte) continue
     const platte = { breiteMm: geraet.widthMm ?? 0, hoeheMm: geraet.heightMm ?? 0 }
-    for (const port of [...geraet.inputs, ...geraet.outputs]) {
+    // Nur die Seite auf der Platte — die Rueckseite eines Wandfelds wird nicht gebohrt.
+    for (const port of plattenPorts(geraet)) {
       const pos = platte.breiteMm > 0 && platte.hoeheMm > 0 ? mmPosition(port, platte) : undefined
       rows.push([
         geraet.name,

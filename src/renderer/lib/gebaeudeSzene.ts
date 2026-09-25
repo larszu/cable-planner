@@ -57,6 +57,8 @@ export interface SzeneGeraet {
   name: string
   raumId?: string
   pos: Punkt3D
+  /** Hoehe der Kabeltrasse ueber dem Geraet: knapp unter der Decke seines Raums. */
+  trasseY: number
 }
 
 export interface SzeneKabel {
@@ -68,6 +70,33 @@ export interface SzeneKabel {
   tieLine: boolean
   /** Laeuft zwischen zwei verschiedenen Raeumen. */
   raumuebergreifend: boolean
+  /**
+   * Der gezeichnete Weg. Zwei Punkte (Luftlinie), solange nichts ueber den
+   * Kabelweg bekannt ist; ueber einen Steigschacht sechs: hoch zur Trasse,
+   * waagrecht zum Schacht, senkrecht auf die andere Etage, waagrecht zum
+   * Ziel, hinunter.
+   */
+  punkte: Punkt3D[]
+  /** Id des Schachts, durch den der Weg laeuft. */
+  schachtId?: string
+  /** Die Enden liegen auf verschiedenen Etagen. */
+  etagenwechsel: boolean
+}
+
+/**
+ * Ein Steigschacht: ein Rahmen, der als senkrechte Trasse durch alle Etagen
+ * gezeichnet wird. Kabel zwischen Etagen laufen durch den naechstgelegenen.
+ */
+export interface SzeneSchacht {
+  id: string
+  name: string
+  farbe: string
+  x: number
+  z: number
+  breite: number
+  tiefe: number
+  yUnten: number
+  yOben: number
 }
 
 export interface SzeneVerbindung {
@@ -76,6 +105,8 @@ export interface SzeneVerbindung {
   kabelIds: string[]
   von: Punkt3D
   nach: Punkt3D
+  /** Wie `SzeneKabel.punkte`: zwei Punkte oder der Weg ueber den Schacht. */
+  punkte: Punkt3D[]
 }
 
 export interface GebaeudeSzene {
@@ -84,6 +115,7 @@ export interface GebaeudeSzene {
   geraete: SzeneGeraet[]
   kabel: SzeneKabel[]
   verbindungen: SzeneVerbindung[]
+  schaechte: SzeneSchacht[]
   /** Mittelpunkt und Ausdehnung — fuer die Kamera. */
   mitte: Punkt3D
   groesse: number
@@ -142,8 +174,27 @@ export function gebaeudeSzene(
     return i >= 0 ? etagen[i].y : 0
   }
 
-  const raeume: SzeneRaum[] = daten.locations
-    .filter((l) => !opt.verborgeneRahmen?.has(l.id))
+  const sichtbar = daten.locations.filter((l) => !opt.verborgeneRahmen?.has(l.id))
+  // Schaechte stehen nicht als Raum auf einer Etage, sondern gehen durch alle:
+  // vom tiefsten Boden bis unter die hoechste Decke.
+  const tiefste = etagen.length > 0 ? Math.min(...etagen.map((e) => e.y)) : 0
+  const hoechste = etagen.length > 0 ? Math.max(...etagen.map((e) => e.y)) : 0
+  const schaechte: SzeneSchacht[] = sichtbar
+    .filter((l) => l.steigschacht)
+    .map((l) => ({
+      id: l.id,
+      name: l.name,
+      farbe: l.color,
+      x: (l.x + l.width / 2) * m,
+      z: (l.y + l.height / 2) * m,
+      breite: Math.max(0.3, l.width * m),
+      tiefe: Math.max(0.3, l.height * m),
+      yUnten: tiefste,
+      yOben: hoechste + raumHoehe(opt.geschosshoeheM),
+    }))
+
+  const raeume: SzeneRaum[] = sichtbar
+    .filter((l) => !l.steigschacht)
     .map((l) => ({
       id: l.id,
       name: l.name,
@@ -175,6 +226,7 @@ export function gebaeudeSzene(
         y: boden + ueberBoden,
         z: (e.y + (e.height ?? 0) / 2) * m,
       },
+      trasseY: boden + raumHoehe(opt.geschosshoeheM) * 0.95,
     })
   }
 
@@ -187,6 +239,7 @@ export function gebaeudeSzene(
     const nach = geraetById.get(c.toEquipmentId)
     if (!von || !nach) continue
     const raumuebergreifend = !!von.raumId && !!nach.raumId && von.raumId !== nach.raumId
+    const weg = wegUeberSchacht(von.pos, von.trasseY, nach.pos, nach.trasseY, schaechte)
     kabel.push({
       id: c.id,
       name: c.cableNumber || c.name,
@@ -195,6 +248,9 @@ export function gebaeudeSzene(
       nach: nach.pos,
       tieLine: !!c.isTieLine,
       raumuebergreifend,
+      punkte: weg.punkte,
+      ...(weg.schachtId ? { schachtId: weg.schachtId } : {}),
+      etagenwechsel: Math.abs(von.trasseY - nach.trasseY) >= 0.01,
     })
     if (raumuebergreifend) {
       // Richtungsunabhaengig: A→B und B→A sind dieselbe Verbindung zweier Raeume.
@@ -203,7 +259,16 @@ export function gebaeudeSzene(
       const v = verbindungByKey.get(key)
       if (v) v.kabelIds.push(c.id)
       else if (raumMitte.has(a) && raumMitte.has(b)) {
-        verbindungByKey.set(key, { vonRaumId: a, nachRaumId: b, kabelIds: [c.id], von: raumMitte.get(a)!, nach: raumMitte.get(b)! })
+        const va = raumMitte.get(a)!
+        const vb = raumMitte.get(b)!
+        verbindungByKey.set(key, {
+          vonRaumId: a,
+          nachRaumId: b,
+          kabelIds: [c.id],
+          von: va,
+          nach: vb,
+          punkte: wegUeberSchacht(va, va.y, vb, vb.y, schaechte).punkte,
+        })
       }
     }
   }
@@ -214,6 +279,10 @@ export function gebaeudeSzene(
       { x: r.x + r.breite, y: r.y + r.hoehe, z: r.z + r.tiefe },
     ]),
     ...[...geraetById.values()].map((g) => g.pos),
+    ...schaechte.flatMap((sch) => [
+      { x: sch.x, y: sch.yUnten, z: sch.z },
+      { x: sch.x, y: sch.yOben, z: sch.z },
+    ]),
   ]
   const min = { x: Infinity, y: Infinity, z: Infinity }
   const max = { x: -Infinity, y: -Infinity, z: -Infinity }
@@ -225,5 +294,40 @@ export function gebaeudeSzene(
   const mitte = leer ? { x: 0, y: 0, z: 0 } : { x: (min.x + max.x) / 2, y: (min.y + max.y) / 2, z: (min.z + max.z) / 2 }
   const groesse = leer ? 10 : Math.max(5, max.x - min.x, max.y - min.y, max.z - min.z)
 
-  return { etagen, raeume, geraete: [...geraetById.values()], kabel, verbindungen: [...verbindungByKey.values()], mitte, groesse }
+  return { etagen, raeume, geraete: [...geraetById.values()], kabel, verbindungen: [...verbindungByKey.values()], schaechte, mitte, groesse }
+}
+
+/**
+ * Der Weg zwischen zwei Punkten auf VERSCHIEDENEN Etagen, wenn es einen
+ * Steigschacht gibt: hoch zur Trasse, waagrecht zum Schacht, senkrecht
+ * hinauf oder hinab, waagrecht zum Ziel, hinunter.
+ *
+ * Gewaehlt wird der Schacht mit dem kuerzesten waagrechten Umweg. Auf
+ * derselben Etage oder ohne Schacht bleibt es die Luftlinie — was der Plan
+ * nicht weiss, zeichnet die Ansicht nicht als Trasse.
+ */
+export function wegUeberSchacht(
+  von: Punkt3D,
+  vonTrasseY: number,
+  nach: Punkt3D,
+  nachTrasseY: number,
+  schaechte: readonly SzeneSchacht[],
+): { punkte: Punkt3D[]; schachtId?: string } {
+  const luftlinie = { punkte: [von, nach] }
+  if (schaechte.length === 0 || Math.abs(vonTrasseY - nachTrasseY) < 0.01) return luftlinie
+  const flach = (a: { x: number; z: number }, b: { x: number; z: number }) => Math.hypot(a.x - b.x, a.z - b.z)
+  const schacht = [...schaechte].sort(
+    (a, b) => flach(von, a) + flach(a, nach) - (flach(von, b) + flach(b, nach)) || a.id.localeCompare(b.id),
+  )[0]
+  return {
+    schachtId: schacht.id,
+    punkte: [
+      von,
+      { x: von.x, y: vonTrasseY, z: von.z },
+      { x: schacht.x, y: vonTrasseY, z: schacht.z },
+      { x: schacht.x, y: nachTrasseY, z: schacht.z },
+      { x: nach.x, y: nachTrasseY, z: nach.z },
+      nach,
+    ].filter((p, i, alle) => i === 0 || flach(p, alle[i - 1]) > 1e-6 || Math.abs(p.y - alle[i - 1].y) > 1e-6),
+  }
 }

@@ -44,7 +44,9 @@ import {
   cableBomTable,
 } from '../../lib/installerLists'
 import { assetRegisterCsv, assetRegisterTable } from '../../lib/assetRegister'
-import { stampForRows } from '../../lib/documentStamp'
+import { csvFromTable, stampForRows } from '../../lib/documentStamp'
+import { signalwegeTable } from '../../lib/signalwegListe'
+import { hausStreckenTable } from '../../lib/hausStrecken'
 import { buildHandoverManifest, handoverTable } from '../../lib/handoverPackage'
 import {
   JOB_BASIS_LABEL,
@@ -198,6 +200,40 @@ export const InstallationDocsDialog = () => {
           mime: 'text/markdown',
         }),
       },
+      {
+        key: 'signalwege',
+        label: t('docs.signalPaths', 'Signal paths'),
+        hint: t('docs.signalPaths.hint', 'Every chain from source to target with floor and room at each station (CSV)'),
+        build: () => ({
+          content: csvFromTable(
+            signalwegeTable(project),
+            stampForRows(project, signalwegeTable, new Date()),
+            'signalwege',
+          ),
+          suffix: 'signalwege',
+          ext: 'csv',
+          mime: 'text/csv',
+        }),
+      },
+      ...(project.hausAuskunft?.strecken.length
+        ? [
+            {
+              key: 'hausstrecken',
+              label: t('docs.houseRuns', 'House run occupancy'),
+              hint: t('docs.houseRuns.hint', 'Per core of every house run: which cable uses it, which are free (CSV)'),
+              build: () => ({
+                content: csvFromTable(
+                  hausStreckenTable(project),
+                  stampForRows(project, hausStreckenTable, new Date()),
+                  'hausstrecken',
+                ),
+                suffix: 'hausstrecken',
+                ext: 'csv',
+                mime: 'text/csv',
+              }),
+            },
+          ]
+        : []),
     ],
     [project, reserve, t],
   )

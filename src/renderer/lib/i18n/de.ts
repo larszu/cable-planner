@@ -438,6 +438,7 @@ export const de: Dict = {
   'analysis.sheet.unreadable':
     'Kein Dokument-Code und kein Stand — acht Zeichen vom Fuß des Blatts oder der ganze Code',
   'analysis.switchPorts.conflict': 'Kabel sagt: {name}',
+  'analysis.switchPorts.via': 'über {panels}',
   'analysis.switchPorts.count': '{n} Switches',
   'analysis.switchPorts.descHint':
     'Herstellerneutraler Text zum Einfügen. Der Plan schickt nichts an den Switch — lies, was du einfügst.',
@@ -1941,6 +1942,10 @@ export const de: Dict = {
   'docs.exports': 'Listen & Übergabe-Dokumente',
   'docs.handover': 'Übergabe-Dokument',
   'docs.handover.hint': 'Betreiber-Übersicht: Umfang, Status, BOM, Assets (Markdown)',
+  'docs.signalPaths': 'Signalwege',
+  'docs.signalPaths.hint': 'Jede Kette von der Quelle bis zum Ziel, mit Etage und Raum an jeder Station (CSV)',
+  'docs.houseRuns': 'Hausstrecken-Belegung',
+  'docs.houseRuns.hint': 'Je Ader jeder Hausstrecke: welches Kabel sie benutzt, welche frei sind (CSV)',
   'docs.ids.none': 'Alle Elemente haben bereits eine ID.',
   'docs.job.intro':
     'Nächstes Jahr wird dieselbe Veranstaltung aus dieser Datei geplant. Trägt sie den Plan von vor dem Aufbau, wird jede Änderung vor Ort ein zweites Mal gefunden.',
@@ -3111,6 +3116,8 @@ export const de: Dict = {
   'gebaeude3d.labels': 'Beschriftung',
   'gebaeude3d.mode': 'Anzeigen',
   'gebaeude3d.modeCables': 'Einzelne Kabel',
+  'gebaeude3d.noRiser':
+    'Kabel zwischen Etagen sind als Luftlinie gezeichnet. Einen Rahmen als Steigschacht markieren (Rahmen-Eigenschaften), dann laufen sie durch ihn.',
   'gebaeude3d.modeRooms': 'Raumverbindungen',
   'gebaeude3d.open': 'Räume nach Etage in 3D zeigen, mit den Verbindungen dazwischen',
   'gebaeude3d.storey': 'Geschosshöhe (m)',
@@ -3137,6 +3144,9 @@ export const de: Dict = {
   'location.field.floor': 'Stockwerk',
   'location.field.height': 'Höhe',
   'location.field.name': 'Name',
+  'location.field.riser': 'Steigschacht / senkrechte Trasse',
+  'location.field.riserTitle':
+    'In der 3D-Gebäudeansicht geht dieser Rahmen durch alle Etagen, und Kabel zwischen Etagen werden durch ihn gezeichnet statt als Luftlinie.',
   'location.field.notes': 'Notizen',
   'location.field.width': 'Breite',
   'location.tip':
@@ -3262,6 +3272,8 @@ export const de: Dict = {
   'packet.sheet.tally-karte': 'Tally-Karte',
   'packet.sheet.post-uebergabe': 'Übergabe an die Post',
   'packet.sheet.frontplatten': 'Frontplatten',
+  'packet.sheet.signalwege': 'Signalwege',
+  'packet.sheet.hausstrecken': 'Hausstrecken-Belegung',
   'app.loadReport.ausschnitt': 'Ausschnittmaß, das keine positive Zahl ist',
   'app.loadReport.frontplatte': 'Frontplatte mit unbekannter Art',
   'app.loadReport.mcpLog': 'MCP-Nachweiszeile ohne Zeitpunkt',
@@ -3314,6 +3326,11 @@ export const de: Dict = {
   'faceplate.grid': 'Raster (mm)',
   'faceplate.gridTitle':
     'Hilft beim Setzen. 0 heißt frei — eine gekaufte Platte, deren Löcher schon gebohrt sind, hat kein Raster.',
+  'faceplate.side': 'Auf der Platte',
+  'faceplate.sideTitle':
+    'Ein durchleitendes Feld hat eine Vorder- und eine Rückseite: Position n vorne ist Position n hinten. Auf der Platte sitzt nur eine Seite.',
+  'faceplate.sideInputs': 'Eingänge ({n})',
+  'faceplate.sideOutputs': 'Ausgänge ({n})',
   'faceplate.strip': 'Streifen (mm)',
   'faceplate.stripTitle': 'Höhe des Beschriftungsstreifen-Halters. Leer heißt: kein Streifen.',
   'faceplate.print': '1:1 drucken',
