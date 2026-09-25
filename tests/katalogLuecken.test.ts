@@ -36,7 +36,7 @@ describe('#878 — Katalog-Luecken in den Zielbereichen', () => {
     // die beiden Sorten nicht verwechseln — `belegt` je Bereich sagt, wie
     // viele ein Datenblatt haben, und der Plan-Check zeigt am Geraet, ob die
     // Anschluesse noch fehlen.
-    expect(b.eintraegeGesamt).toBe(1815)
+    expect(b.eintraegeGesamt).toBe(1819)
     expect(b.eintraegeGesamt).toBe(evidenceReport().entries)
 
     // „ueber ein Drittel Mikrofone" — das stimmt, und zwar deutlich.
@@ -77,12 +77,12 @@ describe('#878 — Katalog-Luecken in den Zielbereichen', () => {
     // sie; nur der Abruf-Dienst scheiterte an der Zertifikatskette.
     expect(stand('konverter').eintraege).toBe(34)
     expect(stand('netzwerk').eintraege).toBe(81)
-    expect(stand('intercom').eintraege).toBe(8)
+    expect(stand('intercom').eintraege).toBe(12)
     // 2 -> 7 am 2026-09-24: die fuenf Brompton-Tessera-Prozessoren, aus ihren
     // Datenblatt-PDFs recherchiert. Der Bereich, den #878 als den einzigen
     // LEEREN benannt hat, ist damit der einzige, der VOLLSTAENDIG belegt ist.
     expect(stand('led-prozessoren').eintraege).toBe(7)
-    expect(katalogLuecken().eintraegeInBereichen).toBe(515)
+    expect(katalogLuecken().eintraegeInBereichen).toBe(519)
 
     // Und die Breite, nicht nur die Menge: Kameras und Intercom haengen an je
     // EINEM Katalog. Ein Bereich mit einem Hersteller ist kein bestueckter
@@ -91,7 +91,11 @@ describe('#878 — Katalog-Luecken in den Zielbereichen', () => {
     // derselbe Hersteller-Kreis, nur ohne Ports. Die Breite des Bereichs hat
     // sich also nicht geaendert, nur seine Laenge.
     expect(stand('kameras').kataloge).toEqual(['camera', 'cameraBody'])
-    expect(stand('intercom').kataloge).toEqual(['greengo'])
+    // 2026-09-25: Intercom haengt nicht mehr an EINEM Haus. Vier Clear-Com
+    // Encore dazu, aus den Handbuechern recherchiert — der zweite Satz des
+    // Befundes („ein Bereich mit einem Hersteller ist kein bestueckter
+    // Bereich") ist damit erledigt.
+    expect(stand('intercom').kataloge).toEqual(['clearcom', 'greengo'])
     expect(stand('konverter').kataloge.length).toBeGreaterThan(2)
 
     // Was dazukommt, kommt mit Datenblatt (#878: „Lieber
