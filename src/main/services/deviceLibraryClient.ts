@@ -36,6 +36,10 @@ export type SignInResult =
 export type LibraryErrorCode =
   | 'wrong-credentials'
   | 'email-not-verified'
+  /** Die Community-Richtlinien haben sich geaendert: auf der Website neu annehmen. */
+  | 'guidelines-outdated'
+  /** Hersteller und Modell gibt es schon in der Bibliothek. */
+  | 'exists'
   | 'wrong-code'
   | 'rate-limited'
   | 'not-signed-in'
@@ -131,7 +135,10 @@ async function jsonOderNull(res: Response): Promise<Record<string, unknown> | nu
 const fehlerAus = (res: Response, body: Record<string, unknown> | null): LibraryErrorCode => {
   const code = String(body?.code ?? body?.error ?? '')
   if (res.status === 429) return 'rate-limited'
-  if (code === 'EMAIL_NOT_VERIFIED') return 'email-not-verified'
+  // Better Auth antwortet in GROSSBUCHSTABEN, die Bibliotheks-Routen klein.
+  if (code === 'EMAIL_NOT_VERIFIED' || code === 'email-not-verified') return 'email-not-verified'
+  if (code === 'guidelines-outdated') return 'guidelines-outdated'
+  if (res.status === 409 || code === 'exists') return 'exists'
   if (code === 'INVALID_CODE' || code === 'INVALID_TWO_FACTOR_CODE' || code === 'OTP_HAS_EXPIRED') return 'wrong-code'
   if (res.status === 401 && code === 'not-signed-in') return 'not-signed-in'
   if (res.status === 401 || res.status === 403) return 'wrong-credentials'

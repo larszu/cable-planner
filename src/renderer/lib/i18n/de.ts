@@ -6227,8 +6227,11 @@ export const de: Dict = {
   'deviceLibrary.saveFile': 'Einreichungsdatei speichern',
   'deviceLibrary.sending': 'Sende…',
   'deviceLibrary.send': '{n} an die Gerätebibliothek senden',
-  'deviceLibrary.error.guidelines': 'Bitte zuerst auf der Website der Gerätebibliothek die aktuellen Richtlinien annehmen.',
-  'deviceLibrary.error.exists': 'Die Bibliothek hat schon ein Gerät mit diesem Hersteller und Modell.',
+  'deviceLibrary.error.guidelines':
+    'Die Community-Richtlinien haben sich geändert. Auf der Website der Gerätebibliothek lesen und annehmen, dann erneut einreichen.',
+  'deviceLibrary.error.exists':
+    'Die Bibliothek hat schon ein Gerät mit diesem Hersteller und Modell. Dort nachsehen und es bestätigen oder korrigieren.',
+  'deviceLibrary.guidelines': 'Richtlinien öffnen',
   'deviceLibrary.error.wrongCredentials': 'E-Mail/Benutzername oder Passwort ist falsch.',
   'deviceLibrary.error.emailNotVerified':
     'Die E-Mail-Adresse ist noch nicht bestätigt. Den Link in der Bestätigungsmail öffnen, dann erneut anmelden.',

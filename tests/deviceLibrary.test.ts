@@ -16,6 +16,7 @@ import {
   emptyCache,
   errorText,
   guessManufacturerModel,
+  guidelinesUrl,
   loadCache,
   mergeSync,
   normalizeServerUrl,
@@ -304,6 +305,19 @@ describe('Web-Build: Token in localStorage, Abruf per fetch', () => {
     expect(r).toEqual({ kind: 'second-factor', challenge: 'c1' })
   })
 
+  it.each([
+    [403, { error: 'email-not-verified' }, 'email-not-verified'],
+    [403, { error: 'guidelines-outdated' }, 'guidelines-outdated'],
+    [409, { error: 'exists', slug: 'acme-x1' }, 'exists'],
+  ] as const)('meldet beim Einreichen HTTP %i als Code', async (status, body, code) => {
+    const s = speicher()
+    s.setItem(STORAGE_KEYS.deviceLibraryWebToken, 't')
+    vi.stubGlobal('fetch', vi.fn(async () => json(body, { status })))
+    const { core, facet } = proposalFor(vorlage('Acme X1'), { manufacturer: 'Acme', model: 'X1' })
+    const r = await createWebDeviceLibraryApi(() => s).propose(SERVER, core, facet)
+    expect(r).toMatchObject({ ok: false, code, status })
+  })
+
   it('sendet einen Vorschlag mit dem Datenblattlink als sourceUrl', async () => {
     const s = speicher()
     s.setItem(STORAGE_KEYS.deviceLibraryWebToken, 't')
@@ -323,14 +337,21 @@ describe('Web-Build: Token in localStorage, Abruf per fetch', () => {
 describe('Einreichen und Fehlertexte', () => {
   const t = (_k: string, f: string) => f
 
+  it('verweist bei geaenderten Richtlinien auf die Richtlinien-Seite', () => {
+    expect(guidelinesUrl('https://devices.zumpelars.de/')).toBe('https://devices.zumpelars.de/guidelines')
+  })
+
   it('schlaegt Hersteller und Modell aus dem Namen vor', () => {
     expect(guessManufacturerModel('Blackmagic ATEM Mini Pro')).toEqual({ manufacturer: 'Blackmagic', model: 'ATEM Mini Pro' })
     expect(guessManufacturerModel('Einwort')).toEqual({ manufacturer: '', model: 'Einwort' })
   })
 
-  it('nennt die unbestaetigte E-Mail als solche — auch beim 403 des Einreichens', () => {
+  it('nennt jeden Fehlercode als eigenen Satz', () => {
     expect(errorText({ code: 'email-not-verified' }, t)).toMatch(/confirmation email/)
-    expect(errorText({ code: 'wrong-credentials', status: 403, message: 'email-not-verified' }, t)).toMatch(/confirmation email/)
+    expect(errorText({ code: 'guidelines-outdated' }, t)).toMatch(/guidelines have changed/)
+    expect(errorText({ code: 'exists' }, t)).toMatch(/already has a device/)
+    // Die Nachricht des Servers entscheidet nichts mehr — nur der Code.
+    expect(errorText({ code: 'wrong-credentials', status: 403, message: 'email-not-verified' }, t)).toMatch(/password is wrong/)
     expect(errorText({ code: 'offline' }, t)).toMatch(/cannot be reached/)
     expect(errorText({ code: 'rate-limited' }, t)).toMatch(/Too many attempts/)
   })

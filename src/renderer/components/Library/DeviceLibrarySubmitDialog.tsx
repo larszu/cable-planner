@@ -19,13 +19,14 @@ import { useDialogA11y } from '../../hooks/useDialogA11y'
 import { cablePlannerApi } from '../../lib/bridge'
 import { downloadBlob } from '../../lib/downloadBlob'
 import { deviceUrl } from '../../lib/deviceLibraryClient'
-import { effectiveServer, errorText, guessManufacturerModel, proposalFor } from '../../lib/deviceLibrary'
+import { effectiveServer, errorText, guessManufacturerModel, guidelinesUrl, proposalFor } from '../../lib/deviceLibrary'
 import type { Einreichung } from '../../lib/vorlagenEinreichung'
+import type { DeviceLibraryErrorCode } from '../../types/deviceLibrary'
 import { useSettingsStore } from '../../store/settingsStore'
 import { useDeviceLibraryStore } from '../../store/deviceLibraryStore'
 import { useUiStore } from '../../store/uiStore'
 
-type Ergebnis = { ok: true; slug: string } | { ok: false; text: string }
+type Ergebnis = { ok: true; slug: string } | { ok: false; text: string; code: DeviceLibraryErrorCode }
 
 interface Zeile {
   auswahl: boolean
@@ -66,7 +67,7 @@ export const DeviceLibrarySubmitDialog = ({ paket, total, onClose }: { paket: Ei
         if (!z.auswahl || z.ergebnis?.ok || !z.manufacturer.trim() || !z.model.trim()) continue
         const { core, facet } = proposalFor(paket.eintraege[i].vorlage, z)
         const r = await cablePlannerApi.deviceLibrary.propose(server, core, facet)
-        setZeile(i, { ergebnis: r.ok ? { ok: true, slug: r.value.slug } : { ok: false, text: errorText(r, t) } })
+        setZeile(i, { ergebnis: r.ok ? { ok: true, slug: r.value.slug } : { ok: false, text: errorText(r, t), code: r.code } })
         if (!r.ok && r.code === 'not-signed-in') {
           await refreshSession(server)
           break
@@ -169,7 +170,22 @@ export const DeviceLibrarySubmitDialog = ({ paket, total, onClose }: { paket: Ei
                         </div>
                       )}
                       {z.ergebnis && !z.ergebnis.ok && (
-                        <div className="mt-1 text-cp-danger" role="alert">{z.ergebnis.text}</div>
+                        <div className="mt-1 text-cp-danger" role="alert">
+                          {z.ergebnis.text}
+                          {z.ergebnis.code === 'guidelines-outdated' && (
+                            <>
+                              {' '}
+                              <a
+                                href={guidelinesUrl(server)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 text-cp-accent hover:underline"
+                              >
+                                <Icon icon={ExternalLink} size="xs" /> {t('deviceLibrary.guidelines', 'Open guidelines')}
+                              </a>
+                            </>
+                          )}
+                        </div>
                       )}
                     </li>
                   )

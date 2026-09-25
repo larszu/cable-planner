@@ -14,7 +14,7 @@
 // ───────────────────────────────────────────────────────────────────────────
 
 import type { ProposalCore, SyncResponse } from './deviceLibraryClient'
-export { effectiveServer, normalizeServerUrl } from './deviceLibraryUrl'
+export { effectiveServer, guidelinesUrl, normalizeServerUrl } from './deviceLibraryUrl'
 import { pruefeVorlage } from './vorlagenEinreichung'
 import { STORAGE_KEYS } from './storageKeys'
 import type { EquipmentTemplate } from '../types/equipment'
@@ -221,20 +221,15 @@ export function errorText(
   r: { code: DeviceLibraryErrorCode; status?: number; message?: string },
   t: Uebersetzen,
 ): string {
-  // Beim Einreichen meldet der Server fehlende Berechtigungen mit 403 und
-  // einem eigenen Code; der Client fasst 403 als `wrong-credentials` zusammen.
-  if (r.message === 'email-not-verified') return errorText({ code: 'email-not-verified' }, t)
-  if (r.message === 'guidelines-outdated') {
-    return t('deviceLibrary.error.guidelines', 'Please accept the current contribution guidelines on the device library website first.')
-  }
-  if (r.message === 'exists') {
-    return t('deviceLibrary.error.exists', 'The library already has a device with this manufacturer and model.')
-  }
   switch (r.code) {
     case 'wrong-credentials':
       return t('deviceLibrary.error.wrongCredentials', 'Email/username or password is wrong.')
     case 'email-not-verified':
       return t('deviceLibrary.error.emailNotVerified', 'Your email address is not confirmed yet. Open the link in the confirmation email, then sign in again.')
+    case 'guidelines-outdated':
+      return t('deviceLibrary.error.guidelines', 'The community guidelines have changed. Read and accept them on the device library website, then submit again.')
+    case 'exists':
+      return t('deviceLibrary.error.exists', 'The library already has a device with this manufacturer and model. Look it up there and confirm or correct it instead.')
     case 'wrong-code':
       return t('deviceLibrary.error.wrongCode', 'The two-factor code is wrong or has expired.')
     case 'rate-limited':
