@@ -5,6 +5,7 @@ import fs from 'node:fs'
 import { registerCredentialsIpc } from './ipc/credentialsIpc.js'
 import { appendLogCapped } from './util/appendLogCapped.js'
 import { registerRentmanIpc } from './ipc/rentmanIpc.js'
+import { registerDeviceLibraryIpc } from './ipc/deviceLibraryIpc.js'
 import { registerNetboxIpc } from './ipc/netboxIpc.js'
 import { openExternalProject, registerProjectIpc } from './ipc/projectIpc.js'
 import { findProjectPathInArgv, setPendingLaunchPath } from './services/fileOpenService.js'
@@ -346,7 +347,14 @@ app.whenReady().then(async () => {
               // ws:/wss: für die Live-Kollaboration (y-webrtc-Signaling: lokaler
               // LAN-Server + öffentlicher Fallback) — sonst blockt die CSP den
               // Signaling-WebSocket und keine Session verbindet sich.
-              "connect-src 'self' https://api.rentman.net https://generativelanguage.googleapis.com ws: wss:; " +
+              //
+              // devices.zumpelars.de: die Geraetebibliothek. Im Desktop-Build
+              // ruft sie der Main-Prozess ab (`deviceLibraryService.ts`), und
+              // der unterliegt dieser Regel nicht -- deshalb funktioniert dort
+              // auch eine vom Nutzer geaenderte Server-URL. Der Eintrag hier
+              // deckt den Renderer-Weg (`webFallbackApi`) fuer den Vorgabe-
+              // Server ab, falls das Fenster ohne Preload-Bruecke laeuft.
+              "connect-src 'self' https://api.rentman.net https://generativelanguage.googleapis.com https://devices.zumpelars.de ws: wss:; " +
               "object-src 'none'; base-uri 'none'; frame-ancestors 'none'",
           ],
           'X-Content-Type-Options': ['nosniff'],
@@ -358,6 +366,7 @@ app.whenReady().then(async () => {
   registerCredentialsIpc()
   registerRentmanIpc()
   registerNetboxIpc()
+  registerDeviceLibraryIpc()
   registerProjectIpc()
   registerAtemIpc()
   registerVideohubIpc()

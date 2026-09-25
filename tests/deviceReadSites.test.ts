@@ -68,7 +68,16 @@ const RENDERER = resolve(__dirname, '..', 'src', 'renderer')
  * eine neue anlegt, muss sie einordnen — zwei Zeilen — statt sie stillschweigend
  * durchrutschen zu lassen.
  */
-const GERAETE_DOMAENEN = ['atem', 'videohub', 'switcher', 'netbox', 'rentman', 'tally'] as const
+const GERAETE_DOMAENEN = [
+  'atem', 'videohub', 'switcher', 'netbox', 'rentman', 'tally',
+  // Die Geraetebibliothek (devices.zumpelars.de) ist ein Fremdsystem wie
+  // Rentman und NetBox: ein Katalog, kein Anlagenzustand. Eingeordnet als
+  // Fremdsystem, damit eine Datei, die ihre Antwort in den Plan schreibt,
+  // hier auffaellt. Heute tut das keine: der Abgleich landet im eigenen
+  // Store (`deviceLibraryStore`), nicht im Projekt; ein Geraet kommt erst
+  // durch Ziehen oder Klicken als neues Geraet in den Plan.
+  'deviceLibrary',
+] as const
 
 /**
  * Die uebrigen Domaenen — ausdruecklich KEINE Geraete-Wege.

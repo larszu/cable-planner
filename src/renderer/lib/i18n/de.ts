@@ -5055,7 +5055,7 @@ export const de: Dict = {
   // #878 — eigene Vorlagen einreichen, mit Pruefung davor.
   'library.menus.submit': 'Vorlagen einreichen…',
   'library.menus.submitTitle':
-    'Eigene Vorlagen prüfen und eine Einreichungs-Datei schreiben – jeder Eintrag braucht einen Datenblatt-Link',
+    'Eigene Vorlagen prüfen, dann an die Gerätebibliothek senden oder als Einreichungsdatei speichern — jeder Eintrag braucht einen Datenblatt-Link',
   'library.submit.title': 'Vorlagen einreichen',
   'library.submit.none': 'Keine eigenen Vorlagen zum Einreichen.',
   'library.submit.summary': '{n} von {total} Vorlagen können eingereicht werden.',
@@ -6161,6 +6161,87 @@ export const de: Dict = {
   'statusbar.autosave.label': 'Keine Sicherungskopie',
   'statusbar.autosave.title':
     'Der Browser hat die Sicherungskopie abgelehnt — der Plan ist {mb} MB gross, der Browser-Speicher fasst etwa 5. In eine Datei speichern; am Plan selbst fehlt nichts.',
+
+  // Gerätebibliothek (devices.zumpelars.de)
+  'settings.tab.deviceLibrary': 'Gerätebibliothek',
+  'settings.tabTitle.deviceLibrary': 'Gerätebibliothek (devices.zumpelars.de)',
+  'library.section.deviceLibrary': 'Geteilt',
+  'library.section.deviceLibraryTitle': 'Geteilte Gerätebibliothek (devices.zumpelars.de), schreibgeschützt',
+  'deviceLibrary.serverTitle': 'Server',
+  'deviceLibrary.serverDesc':
+    'Die gemeinsame Gerätebibliothek, aus der der Planer Vorlagen abgleicht und an die er Vorlagen einreicht. Leer lassen für den Standard-Server.',
+  'deviceLibrary.serverUrl': 'Server-Adresse',
+  'deviceLibrary.restoreDefault': 'Standard wiederherstellen',
+  'deviceLibrary.serverActive': 'Aktiv: {url}',
+  'deviceLibrary.urlSaved': 'Server-Adresse gespeichert.',
+  'deviceLibrary.urlRestored': 'Standard-Server wiederhergestellt.',
+  'deviceLibrary.webHint':
+    'Im Browser liegt die Anmeldung im Speicher dieses Browsers. Die Desktop-App legt sie im Schlüsselbund des Systems ab.',
+  'deviceLibrary.accountTitle': 'Konto',
+  'deviceLibrary.accountDesc':
+    'Die Gerätebibliothek ist nur mit Konto nutzbar. Konten werden auf der Website angelegt: dort die E-Mail-Adresse bestätigen und die Richtlinien annehmen.',
+  'deviceLibrary.signedInAs': 'Angemeldet als {name} ({email})',
+  'deviceLibrary.signedInUnverified': 'Angemeldet — der Server war nicht erreichbar, um die Sitzung zu bestätigen.',
+  'deviceLibrary.signOut': 'Abmelden',
+  'deviceLibrary.code': 'Zwei-Faktor-Code aus der Authenticator-App',
+  'deviceLibrary.login': 'E-Mail oder Benutzername',
+  'deviceLibrary.password': 'Passwort',
+  'deviceLibrary.verify': 'Code bestätigen',
+  'deviceLibrary.signIn': 'Anmelden',
+  'deviceLibrary.register': 'Konto anlegen',
+  'deviceLibrary.forgot': 'Passwort vergessen',
+  'deviceLibrary.syncTitle': 'Abgleich',
+  'deviceLibrary.syncDesc':
+    'Holt nur, was sich seit dem letzten Abgleich geändert hat. Die Geräte erscheinen schreibgeschützt in der Bibliothek unter „Geteilt“ und bleiben offline verfügbar.',
+  'deviceLibrary.syncing': 'Aktualisiere…',
+  'deviceLibrary.update': 'Aus der Gerätebibliothek aktualisieren',
+  'deviceLibrary.updateShort': 'Aktualisieren',
+  'deviceLibrary.cacheState': '{n} Geräte lokal gespeichert',
+  'deviceLibrary.syncedAt': 'zuletzt aktualisiert {when}',
+  'deviceLibrary.syncResult': '{added} neu, {updated} aktualisiert, {removed} entfernt.',
+  'deviceLibrary.syncReset': 'Der Server wurde zurückgesetzt; die ganze Bibliothek wurde neu geholt.',
+  'deviceLibrary.syncInvalid':
+    '{n} Einträge übersprungen: sie bestehen die Vorlagenprüfung dieser App nicht (Ports, Steckertypen, Datenblatt-Link).',
+  'deviceLibrary.notPersisted':
+    'Der lokale Speicher ist voll: die abgeglichenen Geräte bleiben nur bis zum Neustart der App erhalten.',
+  'deviceLibrary.signInHint':
+    'Zum Holen oder Aktualisieren der Geräte bei der Gerätebibliothek anmelden. Bereits geholte Geräte bleiben nutzbar.',
+  'deviceLibrary.openSettings': 'Anmelden…',
+  'deviceLibrary.empty': 'Noch keine Geräte aus der Gerätebibliothek. Mit „Aktualisieren“ holen.',
+  'deviceLibrary.itemTitle': 'Aus der Gerätebibliothek (schreibgeschützt) — klicken oder auf den Canvas ziehen',
+  'deviceLibrary.status.verified': 'verifiziert',
+  'deviceLibrary.status.confirmed': 'bestätigt',
+  'deviceLibrary.status.unconfirmed': 'unbestätigt',
+  'deviceLibrary.status.disputed': 'umstritten',
+  'deviceLibrary.confirmations': '{n} Bestätigungen',
+  'deviceLibrary.openDevicePage': 'Geräteseite im Browser öffnen',
+  'deviceLibrary.devicePage': 'Seite',
+  'deviceLibrary.submitNames':
+    'Die Gerätebibliothek führt Hersteller und Modell getrennt. Die aus dem Vorlagennamen vorgeschlagene Trennung prüfen.',
+  'deviceLibrary.manufacturer': 'Hersteller',
+  'deviceLibrary.model': 'Modell',
+  'deviceLibrary.datasheet': 'Datenblatt: {url}',
+  'deviceLibrary.submitted': 'Eingereicht — für andere sichtbar, sobald eine Moderation zustimmt.',
+  'deviceLibrary.submitSignIn':
+    'Zum Senden an die Gerätebibliothek zuerst anmelden. Eine Einreichungsdatei zu speichern geht auch ohne Konto.',
+  'deviceLibrary.saveFile': 'Einreichungsdatei speichern',
+  'deviceLibrary.sending': 'Sende…',
+  'deviceLibrary.send': '{n} an die Gerätebibliothek senden',
+  'deviceLibrary.error.guidelines':
+    'Die Community-Richtlinien haben sich geändert. Auf der Website der Gerätebibliothek lesen und annehmen, dann erneut einreichen.',
+  'deviceLibrary.error.exists':
+    'Die Bibliothek hat schon ein Gerät mit diesem Hersteller und Modell. Dort nachsehen und es bestätigen oder korrigieren.',
+  'deviceLibrary.guidelines': 'Richtlinien öffnen',
+  'deviceLibrary.error.wrongCredentials': 'E-Mail/Benutzername oder Passwort ist falsch.',
+  'deviceLibrary.error.emailNotVerified':
+    'Die E-Mail-Adresse ist noch nicht bestätigt. Den Link in der Bestätigungsmail öffnen, dann erneut anmelden.',
+  'deviceLibrary.error.wrongCode': 'Der Zwei-Faktor-Code ist falsch oder abgelaufen.',
+  'deviceLibrary.error.rateLimited': 'Zu viele Versuche. Bitte ein paar Minuten warten und erneut versuchen.',
+  'deviceLibrary.error.notSignedIn': 'Nicht angemeldet oder die Sitzung ist abgelaufen. Bitte erneut anmelden.',
+  'deviceLibrary.error.offline':
+    'Die Gerätebibliothek ist nicht erreichbar. Netzwerkverbindung und Server-Adresse prüfen.',
+  'deviceLibrary.error.invalidUrl': 'Die Server-Adresse ist keine gültige http(s)-URL.',
+  'deviceLibrary.error.server': 'Die Gerätebibliothek hat einen Fehler gemeldet. Bitte später erneut versuchen.',
   // Hallenplan und Symbole
   'floorplan.calibrate.badCorners': 'Die vier Ecken ergeben keinen Rechteck-Umriss. Klicke sie der Reihe nach rund um die Fläche an, links oben beginnend.',
   'floorplan.calibrate.progress': '{n} von {total}',

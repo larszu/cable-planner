@@ -6,7 +6,7 @@
 import { useState, type HTMLAttributes, type ReactNode } from 'react'
 import {
   ClipboardList, Palette, Pencil, Keyboard, Plug, Database, RefreshCw, Settings, Blocks, X, ListPlus, Bot,
-  BadgeCheck, Cable, ListChecks,
+  BadgeCheck, Cable, ListChecks, Library,
   type LucideIcon,
 } from 'lucide-react'
 import { Icon } from '../shared/Icon'
@@ -20,6 +20,7 @@ import { EditingTab } from './tabs/EditingTab'
 import { AppearanceTab } from './tabs/AppearanceTab'
 import { IntegrationsTab } from './tabs/IntegrationsTab'
 import { McpTab } from './tabs/McpTab'
+import { DeviceLibraryTab } from './tabs/DeviceLibraryTab'
 import { SchemaBuilderTab } from './tabs/SchemaBuilderTab'
 import { NachweiseTab } from './tabs/NachweiseTab'
 import { CableTypesTab } from './tabs/CableTypesTab'
@@ -33,6 +34,7 @@ export type SettingsSection =
   | 'editing'
   | 'hotkeys'
   | 'integrations'
+  | 'deviceLibrary'
   | 'mcp'
   | 'configs'
   | 'cableTypes'
@@ -49,6 +51,7 @@ const TAB_ICONS: Record<SettingsSection, LucideIcon> = {
   editing: Pencil,
   hotkeys: Keyboard,
   integrations: Plug,
+  deviceLibrary: Library,
   mcp: Bot,
   configs: Database,
   cableTypes: Cable,
@@ -66,6 +69,7 @@ const TAB_FALLBACK_LABEL: Record<SettingsSection, string> = {
   editing: 'Bearbeiten',
   hotkeys: 'Hotkeys',
   integrations: 'Integrationen',
+  deviceLibrary: 'Device library',
   mcp: 'MCP',
   configs: 'Konfigurationen',
   cableTypes: 'Cable types',
@@ -83,6 +87,7 @@ const TAB_FALLBACK_TITLE: Record<SettingsSection, string> = {
   editing: 'Bearbeiten',
   hotkeys: 'Tastenkürzel',
   integrations: 'Integrationen',
+  deviceLibrary: 'Device library (devices.zumpelars.de)',
   mcp: 'MCP-Server (Claude fragt den Plan)',
   configs: 'Geräte-Konfigurationen',
   cableTypes: 'Cable types',
@@ -177,6 +182,7 @@ export const SettingsBody = ({ onClose, initialSection, headerProps, titleId, he
           {section === 'editing' && <EditingTab />}
           {section === 'hotkeys' && <HotkeysTab />}
           {section === 'integrations' && <IntegrationsTab onClose={onClose} />}
+          {section === 'deviceLibrary' && <DeviceLibraryTab />}
           {section === 'mcp' && <McpTab />}
           {section === 'configs' && <ConfigsTab />}
           {section === 'cableTypes' && <CableTypesTab />}
