@@ -8,6 +8,7 @@
 import { hasDesktopBridge } from './bridge'
 import { mergeProjects, pushToCloud, cloudApi, type PushResult } from './cloud'
 import { effectiveServer } from './deviceLibraryUrl'
+import { mcpDigest } from './mcpWerkzeuge'
 import { useProjectStore } from '../store/projectStore'
 import { useSettingsStore } from '../store/settingsStore'
 import type { CablePlannerProject } from '../types/project'
@@ -29,7 +30,9 @@ export const syncCloudNow = async (server: string): Promise<PushResult> => {
   running = (async () => {
     const store = useProjectStore.getState()
     const before = store.project
-    const r = await pushToCloud(cloudApi, server, before, { device: cloudDevice() })
+    // Mit den vorberechneten Antworten der Lese-Werkzeuge: so kann der
+    // Remote-MCP (#874) Fragen zu dieser Revision beantworten.
+    const r = await pushToCloud(cloudApi, server, before, { device: cloudDevice(), digest: mcpDigest })
     const now = useProjectStore.getState()
     // Waehrend der Anfrage weitergearbeitet: das Zusammengefuehrte ist dann
     // nicht mehr der Stand auf dem Bildschirm — noch einmal dreiseitig.

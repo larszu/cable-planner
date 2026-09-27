@@ -410,6 +410,23 @@ connects BNC to HDMI directly - this needs a converter, and the planner names
 converters instead of inserting them."* A refusal without a way forward just
 makes a model try the same thing again.
 
+**From claude.ai, Claude on the phone, or another machine** (#874): those
+cannot reach `127.0.0.1`. Put the project into the cloud (*File → Cloud & share
+link…*), then add a custom connector in claude.ai (*Settings → Connectors →
+Add custom connector*) with
+
+```
+https://devices.zumpelars.de/mcp
+```
+
+and sign in with your device-library account (OAuth; claude.ai registers
+itself). The remote server offers the same read tools plus `list_projects` and
+`list_revisions`, over **your cloud projects only**. The answers are computed by
+the planner when it saves — the server never works out a signal path of its
+own — and nothing can be written. Disconnect at any time under *Account →
+Security → Connected apps* on devices.zumpelars.de. Claude Code works the same
+way: `claude mcp add --transport http cable-planner-cloud https://devices.zumpelars.de/mcp`.
+
 **Switching commands are never offered.** Reading a Videohub or an ATEM: yes.
 Routing them from a tool: no — a model that changes routing during a show is a
 risk without a payoff.

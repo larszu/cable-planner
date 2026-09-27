@@ -14,6 +14,8 @@ import { useCallback, useEffect, useState } from 'react'
 import { Copy, Play, RefreshCw, Square } from 'lucide-react'
 import { cablePlannerApi, hasDesktopBridge, type McpStatus } from '../../../lib/bridge'
 import { useTranslation, format } from '../../../lib/i18n'
+import { useSettingsStore } from '../../../store/settingsStore'
+import { effectiveServer } from '../../../lib/deviceLibraryUrl'
 import { useProjectStore } from '../../../store/projectStore'
 import { PanelHint } from '../../shared/PanelHint'
 import { Icon } from '../../shared/Icon'
@@ -55,6 +57,7 @@ const LEER: McpStatus = {
 
 export const McpTab = () => {
   const t = useTranslation()
+  const remoteMcpUrl = `${effectiveServer(useSettingsStore((st) => st.deviceLibraryUrl))}/mcp`
   const [status, setStatus] = useState<McpStatus>(LEER)
   const [token, setToken] = useState('')
   const [zeigeToken, setZeigeToken] = useState(false)
@@ -229,6 +232,23 @@ export const McpTab = () => {
           </div>
         </div>
       )}
+
+      {/* #874 — claude.ai und die Claude-App erreichen keinen localhost. Fuer
+          sie gibt es den Connector auf dem Server der Geraetebibliothek; er
+          liest die Plaene, die in der Cloud liegen, und nur lesend. */}
+      <div className="space-y-1 border-t border-cp-border-muted pt-3">
+        <div className="text-cp-text-secondary">{t('mcp.remote.title', 'claude.ai and the Claude app')}</div>
+        <PanelHint
+          className="text-cp-text-muted"
+          text={format(
+            t(
+              'mcp.remote.hint',
+              'They cannot reach this computer. Put the project into the cloud (File → Cloud & share link…), then in claude.ai add a custom connector with {url} and sign in with your device library account. It reads cloud projects only, and never changes them.',
+            ),
+            { url: remoteMcpUrl },
+          )}
+        />
+      </div>
     </div>
   )
 }
