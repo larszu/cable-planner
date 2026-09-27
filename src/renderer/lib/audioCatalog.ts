@@ -93,12 +93,12 @@ export const AUDIO_CATALOG: AudioEntry[] = [
   },
 
   // Midas M32 Live (2017) — 40-Input/25-Bus, Midas-Pro-Preamps, X32-Plattform, DL-Stageboxen via AES50
-  // Quelle: https://www.midasconsoles.com/product.html?modelCode=0603-AAF
+  // Quelle: https://www.midasconsoles.com/en/products/0603-AEO
   {
     match: ['midas', 'm32'],
     deviceTypeId: 'f4f89c92-7ccf-48a5-8590-0504a3670ae1',
     template: {
-      manufacturerUrl: 'https://www.midasconsoles.com/product.html?modelCode=0603-AAF',
+      manufacturerUrl: 'https://www.midasconsoles.com/en/products/0603-AEO',
       name: 'Midas M32 Live',
       category: 'Audio',
       inputs: [
@@ -291,12 +291,12 @@ export const AUDIO_CATALOG: AudioEntry[] = [
   },
 
   // Behringer S16 (2013) — Digital-Stagebox 16x8, Midas-Preamps, AES50-Kaskade
-  // Quelle: https://www.behringer.com/product.html?modelCode=0606-ABC
+  // Quelle: https://www.behringer.com/en/products/0606-ABC
   {
     match: ['behringer', 's16'],
     deviceTypeId: 'd18f77b3-d775-4f93-9cf5-4242320960d3',
     template: {
-      manufacturerUrl: 'https://www.behringer.com/product.html?modelCode=0606-ABC',
+      manufacturerUrl: 'https://www.behringer.com/en/products/0606-ABC',
       name: 'Behringer S16',
       category: 'Audio',
       inputs: [
@@ -314,12 +314,12 @@ export const AUDIO_CATALOG: AudioEntry[] = [
   },
 
   // Behringer S32 (2016) — Digital-Stagebox 32x16, Midas-Preamps, AES50
-  // Quelle: https://www.behringer.com/product.html?modelCode=0606-ACQ
+  // Quelle: https://www.behringer.com/en/products/0606-ACQ
   {
     match: ['behringer', 's32'],
     deviceTypeId: 'cc59f6ab-1e25-4db7-a0c8-e0ca2aab66c4',
     template: {
-      manufacturerUrl: 'https://www.behringer.com/product.html?modelCode=0606-ACQ',
+      manufacturerUrl: 'https://www.behringer.com/en/products/0606-ACQ',
       name: 'Behringer S32',
       category: 'Audio',
       inputs: [
@@ -337,12 +337,12 @@ export const AUDIO_CATALOG: AudioEntry[] = [
   },
 
   // Midas DL32 (2015) — Stagebox 32x16, Midas-Pro-Preamps, AES50 SuperMAC
-  // Quelle: https://www.midasconsoles.com/product.html?modelCode=0605-AAC
+  // Quelle: https://www.midasconsoles.com/en/products/0606-ACR
   {
     match: ['midas', 'dl32'],
     deviceTypeId: 'd707763c-36b6-4df0-90e4-2f785580637e',
     template: {
-      manufacturerUrl: 'https://www.midasconsoles.com/product.html?modelCode=0605-AAC',
+      manufacturerUrl: 'https://www.midasconsoles.com/en/products/0606-ACR',
       name: 'Midas DL32',
       category: 'Audio',
       inputs: [
