@@ -48,6 +48,7 @@ import {
   persistCategoryTranslations,
 } from '../lib/categoryTranslations'
 import { heileSteckertyp } from '../lib/connectorRenames'
+import { DEVICE_TYPE_ALIASES } from '../lib/deviceTypeAliases'
 import { loadGroupPresets } from './groupPresetsPersist'
 import { createDemoProject } from '../lib/demoProject'
 import { DEMO_RACK_PRESET_ID, createDemoRackPreset } from '../lib/demoRack'
@@ -1206,6 +1207,13 @@ const healProjectPositions = (
     ...(intercom ? { intercom } : {}),
     equipment: project.equipment.map((item) => {
       item = clearDanglingIdentity(item, identityIds)
+      // 2026-09-27 — ein Katalog-Eintrag, der in einem anderen aufgegangen
+      // ist (USW-16 -> USW-16-PoE), traegt im Projekt noch die alte Id. Sie
+      // loest ueber den Alias weiter auf; hier wird sie auf die heutige
+      // gehoben, damit Lager-Deckung und Stueckliste dieselbe Id vergleichen.
+      if (item.deviceTypeId && DEVICE_TYPE_ALIASES[item.deviceTypeId]) {
+        item = { ...item, deviceTypeId: DEVICE_TYPE_ALIASES[item.deviceTypeId] }
+      }
 
       // #822 — die Geraetekategorie von Deutsch auf die Quellsprache.
       //

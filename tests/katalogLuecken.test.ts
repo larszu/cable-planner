@@ -27,7 +27,8 @@ describe('#878 — Katalog-Luecken in den Zielbereichen', () => {
     // „knapp 1.000 Eintraege" — es sind 469 (467 am 2026-09-19, +2 LED-
     // Prozessoren am 2026-09-23). Die Zahl im Issue war geschaetzt;
     // diese ist gezaehlt, und sie ist die, gegen die geplant wird.
-    expect(b.eintraegeGesamt).toBe(469)
+    // 468 seit 2026-09-27: USW-16 ist im USW-16-PoE aufgegangen.
+    expect(b.eintraegeGesamt).toBe(468)
     expect(b.eintraegeGesamt).toBe(evidenceReport().entries)
 
     // „ueber ein Drittel Mikrofone" — das stimmt, und zwar deutlich.
@@ -55,10 +56,10 @@ describe('#878 — Katalog-Luecken in den Zielbereichen', () => {
     // nach. Ein Ziel, das niemand nachrechnet, ist ein Vorsatz.
     expect(stand('kameras').eintraege).toBe(20)
     expect(stand('konverter').eintraege).toBe(30)
-    expect(stand('netzwerk').eintraege).toBe(81)
+    expect(stand('netzwerk').eintraege).toBe(80)
     expect(stand('intercom').eintraege).toBe(8)
     expect(stand('led-prozessoren').eintraege).toBe(2)
-    expect(katalogLuecken().eintraegeInBereichen).toBe(141)
+    expect(katalogLuecken().eintraegeInBereichen).toBe(140)
 
     // Und die Breite, nicht nur die Menge: Kameras und Intercom haengen an je
     // EINEM Katalog. Ein Bereich mit einem Hersteller ist kein bestueckter

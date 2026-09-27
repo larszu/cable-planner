@@ -12,8 +12,11 @@ import type { RecordingCapability } from './recording'
 // Decimator, AJA, Yamaha Pro Audio und Blackmagic Decklink — je Modell auf
 // Erreichbarkeit geprüft. Behringer X32 (behringer.com-URLs nachweislich
 // schwer, vgl. die Markertek-Ausnahme in audioCatalog), Miranda/Grass Valley,
-// TC Electronic, Jünger DAP8 und Sonnet bleiben ohne Beleg statt mit einer
-// geratenen Adresse.
+// TC Electronic bleiben ohne Beleg statt mit einer geratenen Adresse.
+// „Miranda mini Densite 3G HDSD LKG" (Rentman-Name) vermischt den Rahmen
+// Densité 3 mini mit einer Karte (vermutlich LGK-3901); das Datenblatt des
+// mini-Rahmens liefert 403, und dass die LGK-3901 in ihn passt, ist nicht
+// belegt — Recherche 2026-09-27, der Eintrag bleibt unbelegt.
 
 const port = (name: string, connectorType: Port['connectorType'] = 'BNC'): Port => ({
   id: '',
@@ -346,40 +349,40 @@ export const MISC_CATALOG: MiscEntry[] = [
 
   // ── Jünger Audio ──────────────────────────────────────────────────────────
 
-  // DAP8 — 8-channel digital audio processor (loudness, dynamics, EQ)
-  // Not in Rentman — added as library template for manual use.
-  // I/O: 8× AES/EBU XLR In, 8× AES/EBU XLR Out, Word Clock In/Out (BNC),
-  //      LTC In (BNC), Ethernet (remote control), optional SDI embedding.
+  // D*AP8 — 8-Kanal-Audioprozessor. Vorher „DAP8" mit 8x AES auf XLR; das
+  // Handbuch nennt 4x AES I/O auf BNC (je 2 Kanaele, zusammen 8), Sync In,
+  // Word Clock Out, LTC In, Ethernet, GPI/O (D-Sub 25) und Metadaten (2x
+  // D-Sub 9). Die Editionen (FLX, TAP, MAP, CODEC) haben dieselben
+  // On-board-Anschluesse; die zwei Optionssteckplaetze sind nicht modelliert.
+  // Handbuch: https://www.junger-audio.com/uploads/manual/550afbc36a612d01b51c0300/DAP8-MEI_manual_EN_161214.pdf
   {
     match: ['dap8'],
     deviceTypeId: 'afdf7ac4-95bc-43cd-afae-ee9abb15efa8',
+    // Quelle: https://junger-audio.com/en/products/slim-line/8-channel-surround-audio-processor-d-ap8-flx
     template: {
-      name: 'Jünger Audio DAP8',
+      manufacturerUrl: 'https://junger-audio.com/en/products/slim-line/8-channel-surround-audio-processor-d-ap8-flx',
+      name: 'Jünger Audio D*AP8',
       category: AUDIO,
       inputs: [
-        xlrIn('AES/EBU In 1'),
-        xlrIn('AES/EBU In 2'),
-        xlrIn('AES/EBU In 3'),
-        xlrIn('AES/EBU In 4'),
-        xlrIn('AES/EBU In 5'),
-        xlrIn('AES/EBU In 6'),
-        xlrIn('AES/EBU In 7'),
-        xlrIn('AES/EBU In 8'),
-        sdiIn('Word Clock In (BNC)'),
-        sdiIn('LTC In (BNC)'),
+        port('AES In 1/2', 'BNC'),
+        port('AES In 3/4', 'BNC'),
+        port('AES In 5/6', 'BNC'),
+        port('AES In 7/8', 'BNC'),
+        port('Sync In', 'BNC'),
+        port('LTC In', 'BNC'),
+        eth('Ethernet'),
+        port('GPI/O', 'DB25'),
+        port('Metadata In', 'DB9'),
       ],
       outputs: [
-        xlrOut('AES/EBU Out 1'),
-        xlrOut('AES/EBU Out 2'),
-        xlrOut('AES/EBU Out 3'),
-        xlrOut('AES/EBU Out 4'),
-        xlrOut('AES/EBU Out 5'),
-        xlrOut('AES/EBU Out 6'),
-        xlrOut('AES/EBU Out 7'),
-        xlrOut('AES/EBU Out 8'),
-        sdiOut('Word Clock Out (BNC)'),
+        port('AES Out 1/2', 'BNC'),
+        port('AES Out 3/4', 'BNC'),
+        port('AES Out 5/6', 'BNC'),
+        port('AES Out 7/8', 'BNC'),
+        port('Word Clock Out', 'BNC'),
+        port('Metadata Out', 'DB9'),
       ],
-      width: 240, height: 360,
+      width: 240, height: 300,
     },
   },
 
@@ -450,15 +453,25 @@ export const MISC_CATALOG: MiscEntry[] = [
       notes: 'Bestückbar mit 3× PCIe-Karten, z.B. BMD Decklink Duo 2 / Quad 2 / 8K Pro.',
     },
   },
-  // Sonnet xMac mini Server (1HE 19" Gehäuse für Mac Mini + 2 PCIe)
+  // Sonnet xMac mini Server Thunderbolt 3 (1HE 19" Gehäuse für Mac mini + 2
+  // PCIe). USB-C = Thunderbolt 3, also diese Generation (der Vorgaenger
+  // XMAC-MS-A hat Thunderbolt 2). LAN, USB-A und HDMI sind durchgefuehrte
+  // Anschluesse des Mac mini.
   {
     match: ['sonnet', 'xmac mini'],
     deviceTypeId: '714a8c95-758d-463b-8da0-3e7cb0b4c3c5',
+    // Quelle: https://sonnettech.com/product/xmacminiservertb3.html
     template: {
-      name: 'Sonnet xMac mini Server (1HE, TB, 2× PCIe)',
+      manufacturerUrl: 'https://sonnettech.com/product/xmacminiservertb3.html',
+      name: 'Sonnet xMac mini Server Thunderbolt 3 (XMAC-MS-A-TB3)',
       category: 'IT/Server',
-      inputs: [port('Thunderbolt In (USB-C)', 'USB-C'), port('LAN', 'Ethernet/RJ45')],
-      outputs: [port('Thunderbolt Out (USB-C)', 'USB-C'), port('USB-A 1', 'USB')],
+      inputs: [port('Thunderbolt 3 (1)', 'USB-C'), port('LAN (Mac mini)', 'Ethernet/RJ45')],
+      outputs: [
+        port('Thunderbolt 3 (2)', 'USB-C'),
+        port('USB-A front (Mac mini)', 'USB'),
+        port('USB-A rear (Mac mini)', 'USB'),
+        port('HDMI (Mac mini)', 'HDMI'),
+      ],
       width: 240, height: 200,
       isRackDevice: true,
       rackUnits: 1,

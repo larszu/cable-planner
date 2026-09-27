@@ -442,10 +442,15 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
   {
     match: ['smartscope'],
     deviceTypeId: 'efa08d23-505b-44f8-9a45-3d778342d87a',
+    // Quelle: https://www.blackmagicdesign.com/products/smartview/techspecs/W-HDL-07
+    // Vorher „Smartscope Duo 4K2" — eine „4K 2" fuehrt Blackmagic nicht; die
+    // Techspecs nennen SmartScope Duo 4K und SmartView Duo. Ethernet laut
+    // Produktseite der Reihe („SmartView includes ethernet").
     template: {
-      name: 'Blackmagic Smartscope Duo 4K2',
+      manufacturerUrl: 'https://www.blackmagicdesign.com/products/smartview/techspecs/W-HDL-07',
+      name: 'Blackmagic SmartScope Duo 4K',
       category: 'Monitors',
-      inputs: [...sdiIn(2)],
+      inputs: [...sdiIn(2), port('Ethernet', 'Ethernet/RJ45')],
       outputs: [],
       width: 220, height: 120,
     },

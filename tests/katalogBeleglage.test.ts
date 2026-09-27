@@ -167,6 +167,8 @@ describe('B-11 — der Kopf einer Katalog-Datei sagt seine Beleglage', () => {
     expect(bericht.perCatalogue.map((c) => c.name)).toContain('blackmagic')
     expect(bericht.entries).toBe(bericht.sourced + bericht.unsourced)
     // 45 -> 26 am 2026-09-27: 19 Eintraege mit geoeffnetem Herstellerbeleg.
-    expect(bericht.unsourced).toBe(26)
+    // 26 -> 17 am 2026-09-27: acht auf das belegte Herstellermodell
+    // umgestellt, USW-16 im USW-16-PoE aufgegangen.
+    expect(bericht.unsourced).toBe(17)
   })
 })

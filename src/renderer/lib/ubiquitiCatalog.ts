@@ -9,9 +9,15 @@ import type { EquipmentTemplate, Port } from '../types/equipment'
 // Belege gegen den offiziellen Ubiquiti-Store (store.ui.com, Erstpartei-
 // Hersteller, Recherche 2026-09, Quellen-URL je Eintrag) — je Modell auf
 // Erreichbarkeit geprüft (sauberes 404 der Fallbackseite als Gegenprobe).
-// Sieben eingestellte Modelle (ER-8, ERLite-3, ERPoe-5, ERPro-8, ES-8XP,
-// ES-XG-48, USW-16) sind nicht mehr im Store gelistet und bleiben ohne Beleg
+// Sechs eingestellte Modelle (ER-8, ERLite-3, ERPoe-5, ERPro-8, ES-8XP,
+// ES-XG-48) sind nicht mehr im Store gelistet und bleiben ohne Beleg
 // statt mit erfundener Adresse.
+//
+// „UniFi Switch 16 (USW-16)" gab es als eigenes Modell nicht: ui.com fuehrt
+// unter usw-16 nur den USW-16-PoE (16 RJ45, 2 SFP — dieselben Anschluesse).
+// Der Eintrag ist in den USW-16-PoE aufgegangen; seine Geraetetyp-Id loest
+// ueber DEVICE_TYPE_ALIASES (deviceTypeAliases.ts) weiter auf, der Name ueber
+// LEGACY_TEMPLATE_RENAMES.
 
 const port = (name: string, connectorType: Port['connectorType'] = 'Ethernet/RJ45'): Port => ({
   id: '',
@@ -645,7 +651,7 @@ export const UBIQUITI_CATALOG: UbiquitiEntry[] = [
     },
   },
   {
-    match: ['unifi', 'switch', '16', 'poe'],
+    match: ['unifi', 'switch', '16'],
     deviceTypeId: '6d8f73bf-2a99-4de4-933f-9621abd4c16c',
     networkKind: 'switch',
     // Quelle: https://store.ui.com/us/en/products/usw-16-poe
@@ -655,19 +661,6 @@ export const UBIQUITI_CATALOG: UbiquitiEntry[] = [
       category: NET,
       inputs: [],
       outputs: [...rj45(16, 'PoE Port'), ...sfp(2, 'SFP')],
-      width: 260,
-      height: 360,
-    },
-  },
-  {
-    match: ['unifi', 'switch', '16'],
-    deviceTypeId: 'a6c64b89-60ff-40f6-9049-3d6faa4beeca',
-    networkKind: 'switch',
-    template: {
-      name: 'UniFi Switch 16 (USW-16)',
-      category: NET,
-      inputs: [],
-      outputs: [...rj45(16, 'Port'), ...sfp(2, 'SFP')],
       width: 260,
       height: 360,
     },
