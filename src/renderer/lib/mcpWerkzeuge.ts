@@ -86,6 +86,42 @@ const portZeile = (p: Port, richtung: 'in' | 'out') => ({
   contentLabel: p.contentLabel ?? null,
 })
 
+const kabelZeile = (c: CablePlannerProject['cables'][number], name: (id: string) => string) => ({
+  id: c.id,
+  label: cableLabelId(c),
+  type: c.type,
+  // Eine Laenge, die niemand eingetragen hat, ist nicht 0 m.
+  lengthM: c.length ?? null,
+  from: name(c.fromEquipmentId),
+  to: name(c.toEquipmentId),
+  layer: c.layer ?? null,
+})
+
+const befunde = (project: Readonly<CablePlannerProject>) =>
+  // DIESELBE Pruefung wie die Fussleiste und die Plan-Check-Palette. Eine
+  // zweite hier waere eine zweite Vorstellung davon, was in Ordnung ist.
+  runDrawingChecks({
+    equipment: project.equipment,
+    cables: project.cables,
+    drumKit: project.drumKit,
+    sourceIdentities: project.sourceIdentities,
+    anschlussListe: project.anschlussListe,
+    farbnormen: project.farbnormen,
+    polaritaetsnormen: project.polaritaetsnormen,
+    polaritaetsnormId: project.polaritaetsnormId,
+    ledWalls: project.ledWalls,
+    ledPanelTypes: project.ledPanelTypes,
+    defaultVideoFormat: project.metadata?.defaultVideoFormat,
+    hausAuskunft: project.hausAuskunft,
+  })
+
+const befundZeile = (f: ReturnType<typeof befunde>['findings'][number]) => ({
+  id: f.id,
+  severity: f.severity,
+  category: f.category,
+  message: f.message,
+})
+
 const geraetZeile = (e: EquipmentItem) => ({
   id: e.id,
   name: e.name,
@@ -200,16 +236,7 @@ export const beantworteWerkzeug = (
         daten: {
           total: alle.length,
           offset,
-          cables: seite.map((c) => ({
-            id: c.id,
-            label: cableLabelId(c),
-            type: c.type,
-            // Eine Laenge, die niemand eingetragen hat, ist nicht 0 m.
-            lengthM: c.length ?? null,
-            from: name(c.fromEquipmentId),
-            to: name(c.toEquipmentId),
-            layer: c.layer ?? null,
-          })),
+          cables: seite.map((c) => kabelZeile(c, name)),
         },
         text: `${alle.length} cables match; showing ${seite.length} from ${offset}.`,
       }
@@ -218,22 +245,7 @@ export const beantworteWerkzeug = (
     case 'plan_findings': {
       const schwere = typeof args.severity === 'string' ? args.severity : ''
       const limit = grenze(args.limit, MCP_SEITE, MCP_SEITE_MAX)
-      // DIESELBE Pruefung wie die Fussleiste und die Plan-Check-Palette. Eine
-      // zweite hier waere eine zweite Vorstellung davon, was in Ordnung ist.
-      const { findings, errorCount, warningCount, infoCount } = runDrawingChecks({
-        equipment: project.equipment,
-        cables: project.cables,
-        drumKit: project.drumKit,
-        sourceIdentities: project.sourceIdentities,
-        anschlussListe: project.anschlussListe,
-        farbnormen: project.farbnormen,
-        polaritaetsnormen: project.polaritaetsnormen,
-        polaritaetsnormId: project.polaritaetsnormId,
-        ledWalls: project.ledWalls,
-        ledPanelTypes: project.ledPanelTypes,
-        defaultVideoFormat: project.metadata?.defaultVideoFormat,
-        hausAuskunft: project.hausAuskunft,
-      })
+      const { findings, errorCount, warningCount, infoCount } = befunde(project)
       const gefiltert = schwere ? findings.filter((f) => f.severity === schwere) : findings
       return {
         daten: {
@@ -241,12 +253,7 @@ export const beantworteWerkzeug = (
           warningCount,
           infoCount,
           total: gefiltert.length,
-          findings: gefiltert.slice(0, limit).map((f) => ({
-            id: f.id,
-            severity: f.severity,
-            category: f.category,
-            message: f.message,
-          })),
+          findings: gefiltert.slice(0, limit).map(befundZeile),
         },
         text: `${errorCount} errors, ${warningCount} warnings, ${infoCount} notes in this plan.`,
       }
@@ -257,5 +264,39 @@ export const beantworteWerkzeug = (
         daten: { known: MCP_WERKZEUGE },
         text: `Unknown tool "${werkzeug}".`,
       }
+  }
+}
+
+// ─── #874 — DIE ANTWORTEN FUER DEN REMOTE-MCP ──────────────────────────────
+//
+// claude.ai erreicht keinen localhost; der Remote-MCP auf devices.zumpelars.de
+// antwortet deshalb aus der Cloud-Revision. Rechnen darf er dort nicht — eine
+// zweite Signalkette auf dem Server waere genau die Defektform, gegen die
+// dieses Modul steht. Also rechnet der Planner beim Speichern alles, was die
+// Werkzeuge brauchen, mit DENSELBEN Funktionen wie oben, und legt es neben die
+// Revision. Der Server filtert und blaettert nur (av-device-library
+// `src/server/mcp.ts`, gleiche Zeilenformen).
+
+export const MCP_DIGEST_FORMAT = 'cable-planner-mcp-digest'
+
+export const mcpDigest = (project: Readonly<CablePlannerProject>): Record<string, unknown> => {
+  const name = (id: string) => project.equipment.find((e) => e.id === id)?.name ?? '?'
+  const chains: Record<string, unknown[]> = {}
+  for (const e of project.equipment) {
+    const k = (beantworteWerkzeug(project, 'trace_signal', { deviceId: e.id }).daten.chains ?? []) as unknown[]
+    if (k.length > 0) chains[e.id] = k
+  }
+  const { findings, errorCount, warningCount, infoCount } = befunde(project)
+  return {
+    format: MCP_DIGEST_FORMAT,
+    version: 1,
+    devices: project.equipment.map((e) => ({
+      ...geraetZeile(e),
+      ports: [...e.inputs.map((p) => portZeile(p, 'in')), ...e.outputs.map((p) => portZeile(p, 'out'))],
+    })),
+    // `name`/`number` nur fuer die Suche des Servers; er gibt sie nicht aus.
+    cables: project.cables.map((c) => ({ ...kabelZeile(c, name), name: c.name ?? null, number: c.cableNumber ?? null })),
+    chains,
+    findings: { errorCount, warningCount, infoCount, findings: findings.map(befundZeile) },
   }
 }

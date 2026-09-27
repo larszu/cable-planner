@@ -61,6 +61,16 @@ der Seite, und dieses Dokument bekommt eine Zeile mit dem Ergebnis.
 Preis falsch ist oder die Zielgruppe — und sie wird hier beantwortet, mit
 Datum, bevor irgendetwas gebaut wird.
 
+**Stand 2026-09-28 — gebaut ohne Schwelle, ohne Bezahlung.** Der Eigentümer
+hat am 2026-09-27 entschieden, die Cloud-Bausteine trotzdem zu bauen — auf dem
+vorhandenen lz-share-VPS statt auf einer zweiten VM, neben der
+Gerätebibliothek (devices.zumpelars.de), deren Konten sie nutzen: Sync mit
+Revisionen (#871), Lese-Link (#870), Relay/TURN (#869), Remote-MCP (#874).
+Der Nachfragetest bleibt damit die Frage, ob **Pro** kommt, nicht mehr, ob es
+ein Backend gibt; eine Bezahlfunktion und die kostenlos/Pro-Aufteilung aus
+#870 sind nicht gebaut. Die Grundregel unten gilt unverändert: alles ist
+opt-in, und die App arbeitet ohne Server weiter.
+
 ## Was Pro NICHT ist
 
 Die Desktop-App bleibt, was sie ist: **kostenlos, offline, vollständig**. Das
