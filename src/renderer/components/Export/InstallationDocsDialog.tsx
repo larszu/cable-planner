@@ -48,6 +48,11 @@ import { csvFromTable, stampForRows, stampLine } from '../../lib/documentStamp'
 import { signalwegeTable } from '../../lib/signalwegListe'
 import { hausStreckenTable } from '../../lib/hausStrecken'
 import { durchgaengeTable, trassenplanHtml, trassenplanStandTable } from '../../lib/trassenplan'
+import { abnahmeprotokollHtml, abnahmeStandTable, maengelTable } from '../../lib/abnahme'
+import { wartungsplanTable } from '../../lib/wartungsplan'
+import { konfigVorgabenTable } from '../../lib/konfigVorgaben'
+import { steckbriefHtml, steckbriefStandTable } from '../../lib/steckbrief'
+import { bedienUebersichtHtml, bedienUebersichtStandTable } from '../../lib/bedienUebersicht'
 import { buildHandoverManifest, handoverTable } from '../../lib/handoverPackage'
 import {
   JOB_BASIS_LABEL,
@@ -199,6 +204,103 @@ export const InstallationDocsDialog = () => {
           suffix: 'uebergabe',
           ext: 'md',
           mime: 'text/markdown',
+        }),
+      },
+      {
+        key: 'abnahme',
+        label: t('docs.acceptance', 'Acceptance record'),
+        hint: t(
+          'docs.acceptance.hint',
+          'Scope, test results, defects and open items from the plan, result boxes and signature block (HTML, print to PDF)',
+        ),
+        build: () => ({
+          content: abnahmeprotokollHtml(project, {
+            titel: `${project.metadata.name || t('docs.acceptance', 'Acceptance record')} — ${t('docs.acceptance', 'Acceptance record')}`,
+            stempel: stampLine(stampForRows(project, abnahmeStandTable, new Date())),
+            t,
+          }),
+          suffix: 'abnahmeprotokoll',
+          ext: 'html',
+          mime: 'text/html',
+        }),
+      },
+      {
+        key: 'maengel',
+        label: t('docs.defects', 'Defects and open items'),
+        hint: t('docs.defects.hint', 'Faults, failed tests, open field reports, items still planned (CSV)'),
+        build: () => ({
+          content: csvFromTable(maengelTable(project), stampForRows(project, maengelTable, new Date()), 'maengelliste'),
+          suffix: 'maengelliste',
+          ext: 'csv',
+          mime: 'text/csv',
+        }),
+      },
+      {
+        key: 'wartung',
+        label: t('docs.maintenance', 'Maintenance schedule'),
+        hint: t(
+          'docs.maintenance.hint',
+          'Next due date per device from its interval and the last service or the handover date (CSV)',
+        ),
+        build: () => ({
+          content: csvFromTable(wartungsplanTable(project), stampForRows(project, wartungsplanTable, new Date()), 'wartungsplan'),
+          suffix: 'wartungsplan',
+          ext: 'csv',
+          mime: 'text/csv',
+        }),
+      },
+      {
+        key: 'konfig',
+        label: t('docs.config', 'Configuration settings'),
+        hint: t(
+          'docs.config.hint',
+          'Per device and interface: address, mask, gateway, VLAN, switch port, patch panels in between, web interface (CSV)',
+        ),
+        build: () => ({
+          content: csvFromTable(
+            konfigVorgabenTable(project),
+            stampForRows(project, konfigVorgabenTable, new Date()),
+            'konfig-vorgaben',
+          ),
+          suffix: 'konfig-vorgaben',
+          ext: 'csv',
+          mime: 'text/csv',
+        }),
+      },
+      {
+        key: 'steckbrief',
+        label: t('docs.deviceCards', 'Device cards'),
+        hint: t(
+          'docs.deviceCards.hint',
+          'One card per device: location, identity, network, switcher input, cables, service history (HTML, print to PDF)',
+        ),
+        build: () => ({
+          content: steckbriefHtml(project, {
+            titel: `${project.metadata.name || t('docs.deviceCards', 'Device cards')} — ${t('docs.deviceCards', 'Device cards')}`,
+            stempel: stampLine(stampForRows(project, steckbriefStandTable, new Date())),
+            t,
+          }),
+          suffix: 'steckbrief',
+          ext: 'html',
+          mime: 'text/html',
+        }),
+      },
+      {
+        key: 'bedien',
+        label: t('docs.operatorSheet', 'Operator overview'),
+        hint: t(
+          'docs.operatorSheet.hint',
+          'Which source lies on which switcher input, where the outputs go, contacts, web interfaces (HTML, print to PDF)',
+        ),
+        build: () => ({
+          content: bedienUebersichtHtml(project, {
+            titel: `${project.metadata.name || t('docs.operatorSheet', 'Operator overview')} — ${t('docs.operatorSheet', 'Operator overview')}`,
+            stempel: stampLine(stampForRows(project, bedienUebersichtStandTable, new Date())),
+            t,
+          }),
+          suffix: 'bedien-uebersicht',
+          ext: 'html',
+          mime: 'text/html',
         }),
       },
       {

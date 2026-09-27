@@ -43,6 +43,25 @@ export const locationForEquipment = (
 }
 
 /**
+ * Der Standort als Text, wie ihn die Betreiber-Listen drucken: „Raum
+ * (Etage)", nur „Raum" ohne Etage, leer ausserhalb jedes Raums.
+ *
+ * Das Asset-Register rechnete bis 2026-09-27 mit einer eigenen Suche über die
+ * linke obere Ecke des Geräts, alle übrigen Stellen über die Mitte. Ein Gerät
+ * auf der Raumkante stand damit im Asset-Register in einem anderen Raum als
+ * im Patch-Sheet — zwei Antworten auf „wo steht das Gerät". Jetzt gibt es
+ * die eine.
+ */
+export const standortText = (
+  equipment: Pick<EquipmentItem, 'x' | 'y' | 'width' | 'height'>,
+  locations: readonly LocationFrame[],
+): string => {
+  const loc = locationForEquipment(equipment, locations)
+  if (!loc) return ''
+  return loc.floor ? `${loc.name} (${loc.floor})` : loc.name
+}
+
+/**
  * #292 — Praktischer "Device@Location"-Formatter. Wenn der Equipment-
  * Name leer ist, wird `?` als Platzhalter verwendet. Wenn keine Location
  * passt, wird nur der Geraete-Name zurueckgegeben.

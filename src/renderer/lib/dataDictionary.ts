@@ -179,7 +179,7 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
     'Wie groß dieser Teil am Ganzen ist — immer MIT Nenner („3 von 12 (25 %)"), nie als nackter Prozentsatz.',
   Antwort: 'Was das Haus auf die Frage geantwortet hat — gewährt, abgelehnt oder mit Auflage.',
   Anzahl: 'Wie viele Geräte, Positionen oder Kabel diese Zeile betrifft.',
-  Art: 'Die Sorte des Eintrags — je nach Blatt Ereignis-, Kanal-, Container-, Anforderungs- oder Durchgangsart.',
+  Art: 'Die Sorte des Eintrags — je nach Blatt Ereignis-, Kanal-, Container-, Anforderungs-, Durchgangs- oder Mangelart.',
   'As-Built': 'Die Revision, die als Bauzustand festgeschrieben wurde.',
   Audio: 'Die geplanten Audio-Parameter des Ziels (Codec, Abtastrate, Bitrate).',
   'Auflage / Umweg':
@@ -530,6 +530,19 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   Durchgang:
     'Wo Kabel eine Grenze im Gebäude passieren: zwischen zwei Räumen, in einen Steigschacht hinein oder durch eine Geschossdecke im Schacht. Wie viele Wände zwischen zwei Räumen liegen, sagt der Plan nicht.',
   Etage: 'Die Etage aus der Etagenliste des Plans; bei einer Geschossdecke die Etage darunter und darüber.',
+
+  // ── Die Betreiber-Blätter der Übergabe (2026-09-27) ─────────────────────
+  Betrifft: 'Das Gerät (Name) oder Kabel (Nummer), an dem der Punkt festgestellt wurde. Leer, wenn die Feld-Meldung kein Ziel nennt.',
+  Gemeldet:
+    'Der Tag, an dem der Punkt in den Plan kam — bei einer Messung ihr Datum, bei einer Feld-Meldung ihr Eingang. Leer bei einem Status: der Plan weiß nicht, seit wann er gilt.',
+  'Gemeldet von': 'Wer den Punkt eingetragen hat — Prüfer der Messung oder Melder vor Ort.',
+  Basis:
+    'Worauf die nächste Fälligkeit rechnet: der jüngste Service-Eintrag am Gerät, sonst das Übergabe-Datum. Leer, wenn es keines von beiden gibt.',
+  'Nächste Wartung':
+    'Ausgangsdatum plus Wartungsintervall, als Tag. Leer, wenn Intervall oder Ausgangsdatum fehlt — der Befund sagt, welches.',
+  Switch: 'Der Switch, an dem die Schnittstelle hängt — eingetragen an der Schnittstelle oder aus dem Kabel gefolgert (siehe Quelle).',
+  'Über': 'Die Blenden (Patchfelder, Wanddosen) zwischen Switch und Gerät, in Reihenfolge. Leer bei direkter Verkabelung.',
+  'Web-Oberfläche': 'Die Adresse der Bedien-Oberfläche des Geräts, wie sie im Plan eingetragen ist.',
 }
 
 /**
