@@ -13,6 +13,7 @@ import {
   restoreCloudRevision,
   revokeShareLink,
   saveCloudRevision,
+  turnCredentials,
 } from './cloudProjectsClient'
 import { normalizeServerUrl } from './deviceLibraryUrl'
 import { STORAGE_KEYS } from './storageKeys'
@@ -42,6 +43,7 @@ export const CLOUD_OPS: Record<string, Op> = {
   links: listShareLinks as Op,
   createLink: createShareLink as Op,
   revokeLink: revokeShareLink as Op,
+  turn: turnCredentials,
 }
 
 /**

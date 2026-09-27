@@ -26,7 +26,8 @@ import * as Y from 'yjs'
 import { cablePlannerApi } from './bridge'
 import { ProjectCrdt, type CrdtProjectSlice } from './crdt/projectCrdt'
 import { stripCredentials } from './credentialKeys'
-import type { CloudProject, CloudRevision, CloudUsage, SaveInput, ShareLink } from './cloudProjectsClient'
+import type { CloudProject, CloudRevision, CloudUsage, SaveInput, ShareLink, TurnCredentials } from './cloudProjectsClient'
+import type { IceServerConfig } from './crdt/iceServers'
 import type { CablePlannerProject, CloudBinding } from '../types/project'
 
 export class CloudCallError extends Error {
@@ -72,6 +73,24 @@ export const cloudApi = {
   createLink: (s: string, id: string, opts: { rev?: number | null; expiresInDays?: number | null }) =>
     call<ShareLink>(s, 'createLink', id, opts),
   revokeLink: (s: string, linkId: string) => call<{ ok: true }>(s, 'revokeLink', linkId),
+  turn: (s: string) => call<TurnCredentials>(s, 'turn'),
+}
+
+/**
+ * #869 — STUN/TURN des eigenen coturn mit den Zugangsdaten des Kontos.
+ * Leer, wenn niemand angemeldet ist, der Server keinen TURN kennt oder das
+ * Netz fehlt: dann gelten die Defaults von y-webrtc, wie bisher.
+ */
+export const turnFromAccount = async (server: string): Promise<IceServerConfig[]> => {
+  try {
+    const r = await cloudApi.turn(server)
+    // Eine URL je Eintrag: so fuehrt `IceServerConfig` sie auch aus dem Feld.
+    return r.iceServers.flatMap((x) =>
+      x.urls.map((urls) => ({ urls, ...(x.username ? { username: x.username, credential: x.credential } : {}) })),
+    )
+  } catch {
+    return []
+  }
 }
 
 export type CloudApi = typeof cloudApi

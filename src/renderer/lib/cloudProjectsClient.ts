@@ -168,3 +168,11 @@ export const createShareLink = (server: string, token: string, id: string, opts:
 
 export const revokeShareLink = (server: string, token: string, linkId: string) =>
   rufe<{ ok: true }>(server, token, 'DELETE', `/cloud/links/${linkId}`)
+
+/** Kurzlebige TURN-Zugangsdaten fuer die Live-Zusammenarbeit (#869); 404 = kein TURN. */
+export interface TurnCredentials {
+  ttl: number
+  iceServers: { urls: string[]; username?: string; credential?: string }[]
+}
+
+export const turnCredentials = (server: string, token: string) => rufe<TurnCredentials>(server, token, 'GET', '/turn-credentials')

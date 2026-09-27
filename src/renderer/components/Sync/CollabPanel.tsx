@@ -12,11 +12,12 @@ import {
   useCollabStore,
   type CollabMode,
   type DiscoveredCollabSession,
+  DEFAULT_RELAY,
 } from '../../store/collabStore'
 import { useProjectStore } from '../../store/projectStore'
 import { hasDesktopBridge } from '../../lib/bridge'
 import { buildInviteLink } from '../../lib/collabInvite'
-import { useTranslation } from '../../lib/i18n'
+import { format, useTranslation } from '../../lib/i18n'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { ungueltigeIceZeilen } from '../../lib/crdt/iceServers'
 import { PanelHint } from '../shared/PanelHint'
@@ -216,8 +217,15 @@ export const CollabPanel = () => {
               value={signaling}
               disabled={active || localOnly}
               onChange={(e) => setSignaling(e.target.value)}
-              placeholder="wss://relay.example.com"
+              placeholder={DEFAULT_RELAY}
             />
+            {/* #869 — was ohne Eintrag gilt, steht da, statt dass ein leeres
+                Feld nach „kein Server" aussieht. */}
+            {!signaling.trim() && !localOnly && (
+              <span className="block text-cp-xs text-[var(--cp-text-faint)]">
+                {format(t('collab.signaling.default', 'Empty: {relay} (default) — sees only connection metadata, never the plan.'), { relay: DEFAULT_RELAY })}
+              </span>
+            )}
             <label className="mt-1 flex items-center gap-2 text-cp-xs text-[var(--cp-text-secondary)]">
               <input
                 type="checkbox"
