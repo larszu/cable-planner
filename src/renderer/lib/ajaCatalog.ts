@@ -294,7 +294,7 @@ export const AJA_CATALOG: AjaEntry[] = [
         { id: '', name: 'Analog Audio Out (DB-25)', type: 'DB25', connectorType: 'DB25' },
       ],
       powerConsumptionWatts: 55,
-      notes: '55 W typisch, 80 W max. (Datenblatt) · SFP-Schaechte nur mit AJA-Glasfasermodulen',
+      notes: '55 W typisch, 80 W max. (Datenblatt) · SFP-Schächte nur mit AJA-Glasfasermodulen',
       width: 260, height: 220,
     },
   },
