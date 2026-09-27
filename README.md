@@ -284,7 +284,7 @@ plate **in millimetres**, print the label strip and the drilling sheet **1:1**.
 Every list this program prints — pull list, termination list, cable schedule,
 asset register, network sheet, spectrum plan, delivery, tally map, handover,
 signal paths, house run occupancy, crossings, defects and open items,
-maintenance schedule, configuration settings —
+maintenance schedule, configuration settings, attachment index —
 goes through one editor (#880):
 
 - **Columns**: show, hide, reorder.
@@ -529,6 +529,14 @@ file, not in browser storage, not in source. Exports strip them before writing.
   switcher or router input, where each output goes (through patch panels),
   contacts, web interfaces, and an empty box for operating steps: the plan does
   not know them and the sheet does not invent them
+- **Attachments** (desktop app) — test reports, manufacturer documents and
+  configuration backups, each attached to a cable, a device or the whole
+  installation. The files are copied into the folder `Anhaenge` next to the
+  project (named by their SHA-256, any file type, up to 100 MB); the project
+  keeps only the reference. Files are never opened from the app, only shown
+  in the file manager. A missing file, a target no longer in the plan and a
+  cable with a test result but no report are flagged. The **attachment
+  index** (CSV) lists them all with their checksum for the handover
 - Every column of every exported list carries a lexicon entry (the column
   glossary appended to each CSV)
 - **Per-device patch sheets** name where the device stands (*floor · room*)

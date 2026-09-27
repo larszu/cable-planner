@@ -71,6 +71,7 @@ const mitAllem = () =>
     ],
     revisions: [{ id: 'r1', label: 'A', note: '', createdAt: 'x', asBuilt: false, snapshot: {} }],
     pendingChanges: [{ id: 'p1' }],
+    anhaenge: [{ id: 'a1', art: 'messprotokoll', titel: '', datei: { sha256: 'x', storedAs: 'Anhaenge/x.pdf' } }],
   } as never)
 
 // ---------------------------------------------------------------------------
@@ -99,6 +100,12 @@ describe('was IMMER faellt — Behauptungen, die im neuen Projekt falsch waeren'
     const c = stripForTemplate(mitAllem(), 'venue')
     expect(c.revisions).toBeUndefined()
     expect(c.pendingChanges).toBeUndefined()
+  })
+
+  it('nimmt die Anhänge weg — sie zeigen auf Dateien neben dem ALTEN Projekt', () => {
+    for (const scope of ['venue', 'neutral'] as const) {
+      expect(stripForTemplate(mitAllem(), scope).anhaenge, scope).toBeUndefined()
+    }
   })
 
   it('fasst das UEBERGEBENE Projekt nicht an', () => {

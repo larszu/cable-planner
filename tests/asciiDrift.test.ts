@@ -169,6 +169,13 @@ const AUSNAHMEN: Record<string, readonly string[]> = {
   // gelesen — ein Blatt mit „übergabe" fiele gegen jedes frueher gedruckte
   // durch.
   'renderer/lib/handoverPackage.ts': ['uebergabe'],
+  // Der Ordnername der Anhänge-Ablage, wie er auf der Platte steht. Er ist
+  // absichtlich ASCII (`src/main/services/attachmentStore.ts`): ein „ä" kommt
+  // zwischen macOS und Linux verschieden normalisiert an, und der Ordner
+  // wäre nach dem Kopieren nicht mehr zu finden. Die Texte nennen ihn so,
+  // wie der Nutzer ihn im Dateimanager sieht.
+  'renderer/lib/dataDictionary.ts': ['anhaenge'],
+  'renderer/lib/i18n/de.ts': ['anhaenge'],
 }
 
 /** Hex-Folgen (Farben, Fingerabdruecke) bestehen nur aus a-f und Ziffern. */

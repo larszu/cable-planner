@@ -53,6 +53,8 @@ import { wartungsplanTable } from '../../lib/wartungsplan'
 import { konfigVorgabenTable } from '../../lib/konfigVorgaben'
 import { steckbriefHtml, steckbriefStandTable } from '../../lib/steckbrief'
 import { bedienUebersichtHtml, bedienUebersichtStandTable } from '../../lib/bedienUebersicht'
+import { anhaengeTable } from '../../lib/anhaenge'
+import { AnhaengeSection } from './AnhaengeSection'
 import { buildHandoverManifest, handoverTable } from '../../lib/handoverPackage'
 import {
   JOB_BASIS_LABEL,
@@ -301,6 +303,20 @@ export const InstallationDocsDialog = () => {
           suffix: 'bedien-uebersicht',
           ext: 'html',
           mime: 'text/html',
+        }),
+      },
+      {
+        key: 'anhaenge',
+        label: t('docs.attachments', 'Attachment index'),
+        hint: t(
+          'docs.attachments.hint',
+          'Every attachment with kind, target, stored file and SHA-256, plus cables whose test result has no report (CSV)',
+        ),
+        build: () => ({
+          content: csvFromTable(anhaengeTable(project), stampForRows(project, anhaengeTable, new Date()), 'anhaenge'),
+          suffix: 'anhaenge',
+          ext: 'csv',
+          mime: 'text/csv',
         }),
       },
       {
@@ -649,6 +665,8 @@ export const InstallationDocsDialog = () => {
         {info && (
           <p className="bg-cp-surface-2 px-2 py-1 text-cp-xs text-cp-text-secondary">{info}</p>
         )}
+
+        <AnhaengeSection />
 
         {/* Feld-Rückkanal — vom Mobile-Companion gemeldete, noch offene Änderungen */}
         <section className="border border-cp-border bg-cp-surface-2/40 p-3">

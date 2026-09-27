@@ -321,8 +321,10 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
     'Bis wann der Nachweis gilt. Fehlt die Angabe, heisst das NICHT „unbefristet", sondern „keine Frist angegeben" — die Spalte „Lage" sagt es.',
   Lage:
     'Ob der Nachweis am Stichtag gilt, abgelaufen ist oder gar keine Frist trägt. Drei Zustände, weil eine fehlende Frist keine Zusage ist.',
+  // Zwei Lesarten: der Scan im Nachweis-Paket, die abgelegte Datei im
+  // Anhänge-Verzeichnis.
   Datei:
-    'Der Dateiname des Scans, der beiliegen soll. Steht dort „keine Datei benannt", ist an dieser Stelle nichts beigelegt.',
+    'Der Dateiname des Scans, der beiliegen soll (steht dort „keine Datei benannt", ist nichts beigelegt) — im Anhänge-Verzeichnis der Ort der Datei relativ zum Projektordner (`Anhaenge/…`), leer in einer Zeile, die ein fehlendes Protokoll meldet.',
   'Im Plan': 'Was der Plan an dieser Stelle vorsieht — die Soll-Seite des Abgleichs.',
   'Ingest-URL': 'Die Adresse, an die gesendet wird. Ohne Stream-Key — der steht nie in einer Datei.',
   IP: 'Die IP-Adresse der Schnittstelle.',
@@ -413,7 +415,8 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   Stumm: 'Ob der Kanal stummgeschaltet gespeichert wurde.',
   Text: 'Der Klartext dieser Zeile.',
   Thumbnail: 'Der Dateiname des Vorschaubilds — das Bild selbst steckt nicht im Projekt.',
-  Titel: 'Der Titel, unter dem die Veranstaltung läuft.',
+  Titel:
+    'Der Titel, unter dem die Veranstaltung läuft — im Anhänge-Verzeichnis der Name des Anhangs, sonst sein Dateiname.',
   'Titel aus': 'Ob der Titel vom Projekt kommt, aus einer Abweichung oder nirgendwo.',
   Transport: 'Über welchen Transport gesendet wird (SRT, RTMP, HLS).',
   'UDP-Port': 'Der Sende-Port. Adresse und Port zusammen müssen je Sender eindeutig sein.',
@@ -543,6 +546,12 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   Switch: 'Der Switch, an dem die Schnittstelle hängt — eingetragen an der Schnittstelle oder aus dem Kabel gefolgert (siehe Quelle).',
   'Über': 'Die Blenden (Patchfelder, Wanddosen) zwischen Switch und Gerät, in Reihenfolge. Leer bei direkter Verkabelung.',
   'Web-Oberfläche': 'Die Adresse der Bedien-Oberfläche des Geräts, wie sie im Plan eingetragen ist.',
+
+  // ── Das Anhänge-Verzeichnis (2026-09-27) ────────────────────────────────
+  'Größe (KB)': 'Die Dateigröße beim Anhängen, auf volle Kilobyte aufgerundet.',
+  'SHA-256':
+    'Die Prüfsumme des Inhalts beim Anhängen. Ergibt dieselbe Datei im Ordner heute eine andere, ist es nicht mehr dieselbe Datei.',
+  Angehängt: 'Der Tag, an dem die Datei in den Projektordner kam.',
 }
 
 /**
