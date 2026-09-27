@@ -81,7 +81,11 @@ describe('Initiative 11 — trägt diese Katalog-Zeile ein Datenblatt?', () => {
     // so nicht gab, auf das belegte Modell umgestellt (SmartScope Duo 4K,
     // V-LCD173HR, V-LCD56MD-3G, LVM-075A, D*AP8, SmallHD 2403/1703, xMac mini
     // Server TB3); USW-16 ist im USW-16-PoE aufgegangen (-1 Eintrag).
-    expect(kommentare).toBe(451)
+    // +22 am 2026-09-27: aus dem liegengebliebenen #907 uebernommen, was main
+    // noch fehlte — Clear-Com Encore (4), Brompton Tessera S8/S4/T1/XD, Luminex
+    // GigaCore (5), NETGEAR M4250 (5), Lightware UCX (2), Decimator MD-DUCC/
+    // MD-QUAD; jedes Datenblatt-PDF beim Hersteller abgerufen (HTTP 200).
+    expect(kommentare).toBe(473)
   })
 
   it('2. die Abdeckung wird gerechnet', () => {
@@ -89,8 +93,8 @@ describe('Initiative 11 — trägt diese Katalog-Zeile ein Datenblatt?', () => {
     // Die Summen stammen aus derselben Rechnung wie die Zeilen.
     expect(bericht.entries).toBe(bericht.perCatalogue.reduce((s, c) => s + c.entries, 0))
     expect(bericht.sourced + bericht.unsourced).toBe(bericht.entries)
-    expect(bericht.sourced).toBe(451)
-    expect(bericht.entries).toBe(468)
+    expect(bericht.sourced).toBe(473)
+    expect(bericht.entries).toBe(490)
 
     // Kein Katalog steht mehr ganz ohne Beleg (B-11 abgeschlossen) — und die
     // Liste wird GERECHNET, nicht aufgezählt: trägt einer von ihnen morgen
