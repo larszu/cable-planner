@@ -135,6 +135,8 @@ Built with **Electron, React, and TypeScript**, it is designed for real-world pr
   A cable into a hidden room stays as a stub at the visible end and says
   where it goes; its arrow brings the room back. Only the view changes — the
   plan and every export stay complete
+- **Cable bends and segments** follow the pointer for the whole drag, however
+  far — also when the route re-routes under the pointer
 
 ---
 
@@ -157,6 +159,9 @@ Built with **Electron, React, and TypeScript**, it is designed for real-world pr
   quantity produces no warning: nobody counted, so there is nothing to warn
   about.
 - Reusable project components
+- **Properties sidebar**: a filter field finds a section by title, summary or
+  id and opens it; *Collapse all* / *Expand all* in one click. Which sections
+  are open is remembered across devices and restarts; the filter is not
 - **Master data** (Settings → *Master data*): your own connector types, signal
   standards and cable layers in one place, next to the built-in ones. They
   appear in every picker and travel with the shared library (Network sync),
