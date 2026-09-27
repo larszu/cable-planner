@@ -2,6 +2,15 @@ import { create } from 'zustand'
 import { cablePlannerApi } from '../lib/bridge'
 import { effectiveServer, loadCache, runSync } from '../lib/deviceLibrary'
 import { useSettingsStore } from './settingsStore'
+import {
+  loadUploadStand,
+  runUpload,
+  saveUploadStand,
+  type UploadBilanz,
+  type UploadStand,
+} from '../lib/deviceLibraryUpload'
+import type { Namen } from '../lib/deviceLibraryItem'
+import type { EquipmentTemplate } from '../types/equipment'
 import type { LibraryUser } from '../lib/deviceLibraryClient'
 import type {
   DeviceLibraryCache,
@@ -40,6 +49,15 @@ interface DeviceLibraryState {
   setSignedIn: (user: LibraryUser) => void
   signOut: (server: string) => Promise<void>
   sync: (server: string) => Promise<void>
+  /** Was von den eigenen Vorlagen hochgeladen ist — je Vorlage, persistent. */
+  uploads: UploadStand
+  uploading: boolean
+  lastUpload: UploadBilanz | null
+  uploadError: DeviceLibraryFailure | null
+  /** Hersteller/Modell einer Vorlage festlegen (gilt fuer jedes weitere Hochladen). */
+  setNames: (server: string, templateName: string, names: Namen) => void
+  /** Erst hoch (was sich geaendert hat), dann runter (`sync`). */
+  syncNow: (server: string, bibliothek: readonly EquipmentTemplate[]) => Promise<void>
 }
 
 export const useDeviceLibraryStore = create<DeviceLibraryState>((set, get) => ({
@@ -51,10 +69,49 @@ export const useDeviceLibraryStore = create<DeviceLibraryState>((set, get) => ({
   syncing: false,
   lastSync: null,
   lastError: null,
+  uploads: loadUploadStand(effectiveServer(useSettingsStore.getState().deviceLibraryUrl)),
+  uploading: false,
+  lastUpload: null,
+  uploadError: null,
 
   loadFor: (server) => {
     if (get().cache.server === server) return
-    set({ cache: loadCache(server), lastSync: null, lastError: null })
+    set({
+      cache: loadCache(server),
+      uploads: loadUploadStand(server),
+      lastSync: null,
+      lastError: null,
+      lastUpload: null,
+      uploadError: null,
+    })
+  },
+
+  setNames: (server, templateName, names) => {
+    get().loadFor(server)
+    const uploads = { ...get().uploads, namen: { ...get().uploads.namen, [templateName]: names } }
+    saveUploadStand(uploads)
+    set({ uploads })
+  },
+
+  syncNow: async (server, bibliothek) => {
+    if (get().uploading || get().syncing) return
+    get().loadFor(server)
+    set({ uploading: true, uploadError: null })
+    try {
+      const r = await runUpload(cablePlannerApi.deviceLibrary, server, bibliothek)
+      if (r.ok) set({ uploads: r.stand, lastUpload: r.bilanz })
+      else {
+        set({
+          uploadError: { code: r.code, status: r.status, message: r.message },
+          ...(r.code === 'not-signed-in' ? { session: 'signed-out' as const, user: null } : {}),
+        })
+        // Offline oder abgemeldet: runter geht dann auch nicht.
+        if (r.code === 'offline' || r.code === 'not-signed-in') return
+      }
+    } finally {
+      set({ uploading: false })
+    }
+    await get().sync(server)
   },
 
   refreshSession: async (server) => {

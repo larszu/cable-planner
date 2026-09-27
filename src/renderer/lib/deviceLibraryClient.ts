@@ -241,6 +241,52 @@ export async function propose(
   return body as { slug: string; state: string; findings?: unknown[] }
 }
 
+export interface UploadItem {
+  /** Die eigene Id des Eintrags im Planner; kommt im Ergebnis zurueck. */
+  localId: string
+  core: ProposalCore
+  facet: Record<string, unknown>
+}
+
+export type UploadState = 'created' | 'edit-proposed' | 'pending-updated' | 'approved' | 'in-sync' | 'blocked' | 'error'
+
+export interface UploadResult {
+  localId: string
+  state: UploadState
+  slug?: string
+  findings?: unknown
+  error?: string
+}
+
+/** Hoechstens so viele Eintraege je Anfrage; `upload` teilt groessere Mengen selbst. */
+export const UPLOAD_BATCH = 100
+
+/**
+ * Lokale Eintraege hochladen. Gleiches Geraet (Hersteller + Modell) wird
+ * nicht doppelt angelegt: die Ansicht dieses Planners kommt als naechste
+ * Version dazu. Moderation bleibt — ausser das Konto ist Admin.
+ * Ergebnis je Eintrag, auch wenn einzelne blockiert sind.
+ */
+export async function upload(
+  server: string,
+  token: string,
+  planner: LibraryPlanner,
+  items: UploadItem[],
+): Promise<UploadResult[]> {
+  const out: UploadResult[] = []
+  for (let i = 0; i < items.length; i += UPLOAD_BATCH) {
+    const res = await anfrage(server, '/api/upload', {
+      method: 'POST',
+      token,
+      body: { planner, items: items.slice(i, i + UPLOAD_BATCH) },
+    })
+    const body = await jsonOderNull(res)
+    if (!res.ok) throw new LibraryError(fehlerAus(res, body), res.status, String(body?.error ?? ''))
+    out.push(...((body?.results ?? []) as UploadResult[]))
+  }
+  return out
+}
+
 /** Wo man ein Konto anlegt — die Registrierung laeuft auf der Website
  *  (E-Mail bestaetigen, Richtlinien annehmen), nicht im Planner. */
 export const registerUrl = (server: string) => `${basis(server)}/register`

@@ -4,6 +4,8 @@ import type {
   ProposalCore,
   SyncDevice,
   SyncResponse,
+  UploadItem,
+  UploadResult,
 } from '../lib/deviceLibraryClient'
 import type { EquipmentTemplate } from './equipment'
 
@@ -42,6 +44,8 @@ export interface DeviceLibraryApi {
     core: ProposalCore,
     facet: Record<string, unknown>,
   ) => Promise<DeviceLibraryResult<DeviceLibraryProposalAck>>
+  /** Eigene Vorlagen hochladen; der Client teilt in Stapel zu 100. */
+  upload: (server: string, items: UploadItem[]) => Promise<DeviceLibraryResult<UploadResult[]>>
 }
 
 /** Ein Geraet aus der Bibliothek, wie es lokal liegt. */

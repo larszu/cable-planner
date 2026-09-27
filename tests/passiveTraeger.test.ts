@@ -120,8 +120,10 @@ describe('Die Absicherung steht am Abgang und wird nicht geraten', () => {
 describe('Sie sind aus der Bibliothek erreichbar', () => {
   it('stehen in der Seed-Liste', () => {
     // Uebersetzte Vorlagen, die niemand ausliefert, sind kein Feature.
-    const store = lies('src/renderer/store/projectStore.ts')
-    expect(store).toContain('...passiveTemplates')
+    // Die Saat-Liste steht seit 2026-09-27 in `eingebauterKatalog.ts`; der
+    // Store saet genau sie.
+    expect(lies('src/renderer/store/projectStore.ts')).toContain('for (const t of EINGEBAUTER_KATALOG)')
+    expect(lies('src/renderer/lib/eingebauterKatalog.ts')).toContain('...passiveTemplates')
   })
 
   it('zieht die Migrations-Version hoch, sonst sieht sie niemand', () => {

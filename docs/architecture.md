@@ -55,7 +55,7 @@ Alle IPC-Channels sind nach Domäne präfixiert. Definitionen in
 | `library:*` | `libraryIpc.ts` | `get-folder-path`, `reveal-folder`, `scan`, `write`, `delete` |
 | `rentman:*` | `rentmanIpc.ts` | `get-projects`, `get-project-equipment`, `get-equipment`, `add-project-equipment`, `add-project-file` |
 | `netbox:*` | `netboxIpc.ts` | `save-token`, `has-token`, `delete-token`, `normalize-url`, `test-connection`, `get-sites`, `get-racks`, `fetch-snapshot` |
-| `deviceLibrary:*` | `deviceLibraryIpc.ts` | `has-token`, `sign-in`, `verify-second-factor`, `current-user`, `sign-out`, `sync`, `propose` — die Gerätebibliothek (devices.zumpelars.de, §6.3b). URL je Aufruf, Token bleibt in main. |
+| `deviceLibrary:*` | `deviceLibraryIpc.ts` | `has-token`, `sign-in`, `verify-second-factor`, `current-user`, `sign-out`, `sync`, `propose`, `upload` — die Gerätebibliothek (devices.zumpelars.de, §6.3b). URL je Aufruf, Token bleibt in main. |
 | `atem:*` | `atemIpc.ts` | `connect`, `disconnect`, `state`, `get-status`, `get-events`, `set-input-name`, `bulk-set-input-names`, `apply-mv-config`, `read-mv-config`, `apply-audio-config`, `discover`, plus `atem:event` (broadcast) |
 | `videohub:*` | `videohubIpc.ts` | `send` (TCP zu Blackmagic Videohub) |
 | `sync:*` | `syncIpc.ts` | `read-file`, `write-file`, `exists`, `acquire-lock`, `release-lock` |
@@ -605,7 +605,22 @@ hier: `src/main/services/` (Desktop) und `src/renderer/lib/` (Web-Build);
   (`store/deviceLibraryStore.ts`, Bibliothek → Equipment → „Shared").
 - **Einreichen**: `DeviceLibrarySubmitDialog` baut auf `baueEinreichung`
   auf; Hersteller/Modell trennt der Nutzer (die Vorlagen kennen nur einen
-  Namen), `sourceUrl` ist `manufacturerUrl`.
+  Namen), `sourceUrl` ist `manufacturerUrl`. Die Trennung wird gemerkt und
+  gilt fürs Hochladen.
+- **Hochladen** (`lib/deviceLibraryUpload.ts`, rein und getestet): eigene
+  Vorlagen = `customLibrary` ohne Rentman-Importe und ohne unveränderte
+  Vorlagen aus `EINGEBAUTER_KATALOG` (Favorit/Versteckt zählen nicht). Je
+  Vorlage wird der Fingerabdruck der hochgeladenen Fassung gemerkt
+  (`STORAGE_KEYS.deviceLibraryUploads`, dazu Zustand, Slug, Befunde und die
+  Hersteller/Modell-Trennung); nur Geändertes geht per `upload('cable', …)`
+  raus, nach `error` erneut. `lib/deviceLibraryAuto.ts` startet im
+  Hauptfenster: beim Start und 5 s nach einer Änderung an `customLibrary`
+  erst hoch, dann `sync` — nur mit Einstellung
+  `deviceLibraryAutoUpload` (Vorgabe an) und angemeldet.
+- **Katalog veröffentlichen**: `scripts/library-publish.mjs` lädt
+  `eingebauterKatalog.ts` und `deviceLibraryItem.ts` direkt in Node (deshalb
+  dort nur Typ-Importe und Importe mit `.ts`-Endung) und lädt mit einem
+  Admin-API-Schlüssel hoch; Workflow `library-publish.yml`.
 
 ### 6.4 · GraphML-Import (yEd)
 

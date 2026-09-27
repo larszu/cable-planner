@@ -95,6 +95,8 @@ contextBridge.exposeInMainWorld('cablePlanner', {
       ipcRenderer.invoke('deviceLibrary:sync', server, after) as Promise<unknown>,
     propose: (server: string, core: Record<string, unknown>, facet: Record<string, unknown>) =>
       ipcRenderer.invoke('deviceLibrary:propose', server, core, facet) as Promise<unknown>,
+    upload: (server: string, items: unknown[]) =>
+      ipcRenderer.invoke('deviceLibrary:upload', server, items) as Promise<unknown>,
   },
   graphml: {
     openFile: () =>

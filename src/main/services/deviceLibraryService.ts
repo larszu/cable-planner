@@ -6,11 +6,14 @@ import {
   signIn,
   signOut,
   sync,
+  upload,
   verifySecondFactor,
   type LibraryErrorCode,
   type LibraryUser,
   type ProposalCore,
   type SyncResponse,
+  type UploadItem,
+  type UploadResult,
 } from './deviceLibraryClient.js'
 
 /**
@@ -145,5 +148,12 @@ export const deviceLibraryService = {
       return Promise.resolve({ ok: false, code: 'server', message: 'invalid-proposal' })
     }
     return mitToken(server, (url, token) => propose(url, token, 'cable', core, facet))
+  },
+
+  upload(server: unknown, items: unknown): Promise<DeviceLibraryResult<UploadResult[]>> {
+    if (!Array.isArray(items) || items.some((i) => !i || typeof i !== 'object')) {
+      return Promise.resolve({ ok: false, code: 'server', message: 'invalid-upload' })
+    }
+    return mitToken(server, (url, token) => upload(url, token, 'cable', items as UploadItem[]))
   },
 }

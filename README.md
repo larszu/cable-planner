@@ -485,7 +485,28 @@ one, and **Restore default** goes back.
   library withdraws disappear locally. Every entry goes through the same
   template check as a submission; entries that fail it are skipped and
   counted. The fetched state stays available offline.
+- **Your own devices go up** — templates you created or changed are uploaded
+  to the library, so what you build in one planner is there for the others.
+  With *Upload my own devices automatically* (on by default; it only acts
+  while you are signed in) this happens at start and a few seconds after you
+  change a template; **Sync now** does it by hand — first up, then down. Only
+  what changed since the last upload is sent. Built-in templates you have not
+  changed are not uploaded from your machine; the project publishes them
+  itself. *Settings → Device library → My devices* lists every own template
+  with its state (not uploaded yet, waiting for moderation, live, up to date,
+  blocked with the reasons) and lets you correct the manufacturer/model split
+  — the library recognises the same device across planners by exactly those
+  two. A part without a recognisable manufacturer (patch panels, power strips)
+  is not guessed: it waits until you enter one.
 - **Submit** — see the next section.
+
+Maintainers publish the built-in catalogue with `npm run library:publish`
+(`DEVICE_LIBRARY_KEY` = an admin API key `dlk_…`, optional
+`DEVICE_LIBRARY_URL`; `-- --dry-run` only reports). Entries without a
+datasheet link or a recognisable manufacturer are listed, not uploaded. The
+workflow `library-publish.yml` runs it on every push to `main` that touches
+the catalogue, and on demand; without the `DEVICE_LIBRARY_KEY` secret it says
+so and sends nothing.
 
 ---
 

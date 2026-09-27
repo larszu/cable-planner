@@ -52,25 +52,9 @@ import { createDemoProject } from '../lib/demoProject'
 import { DEMO_RACK_PRESET_ID, createDemoRackPreset } from '../lib/demoRack'
 import { vergibAdressen, type DmxGeraet } from '../lib/dmx'
 import { scheduleProjectAutosave } from './projectAutosave'
-import { blackmagicTemplates } from '../lib/blackmagicCatalog'
+import { EINGEBAUTER_KATALOG } from '../lib/eingebauterKatalog'
 import { detectLayerForConnector } from '../lib/cableLayers'
-import { ubiquitiTemplates } from '../lib/ubiquitiCatalog'
-import { monitorTemplates } from '../lib/monitorCatalog'
-import { cameraTemplates } from '../lib/cameraCatalog'
-import { miscTemplates } from '../lib/miscCatalog'
-import { mediaStationTemplates } from '../lib/mediaStationCatalog'
-import { passiveTemplates } from '../lib/passiveCatalog'
 import { heileVorlagenName } from '../lib/templateRenames'
-import { greengoTemplates } from '../lib/greengoCatalog'
-import { ajaTemplates } from '../lib/ajaCatalog'
-import { rossTemplates } from '../lib/rossCatalog'
-import { lynxTemplates } from '../lib/lynxCatalog'
-import { switcherTemplates } from '../lib/switcherCatalog'
-import { avNetworkTemplates } from '../lib/avNetworkCatalog'
-import { broadcastToolsTemplates } from '../lib/broadcastToolsCatalog'
-import { audioTemplates } from '../lib/audioCatalog'
-import { wirelessAudioTemplates } from '../lib/wirelessAudioCatalog'
-import { micTemplates } from '../lib/micCatalog'
 import { upsertCachedRentmanTemplate } from '../lib/rentmanTemplateCache'
 import type { GreenGoConfig } from '../types/greengo'
 import type { IntercomPlan } from '../types/intercomPlan'
@@ -158,7 +142,7 @@ const runLibraryMigration = () => {
       }),
     )
     let added = false
-    for (const t of [...blackmagicTemplates, ...ubiquitiTemplates, ...monitorTemplates, ...cameraTemplates, ...miscTemplates, ...greengoTemplates, ...ajaTemplates, ...rossTemplates, ...lynxTemplates, ...switcherTemplates, ...avNetworkTemplates, ...broadcastToolsTemplates, ...audioTemplates, ...wirelessAudioTemplates, ...micTemplates, ...mediaStationTemplates, ...passiveTemplates]) {
+    for (const t of EINGEBAUTER_KATALOG) {
       if (!byName.has(t.name)) {
         byName.set(t.name, t)
         added = true

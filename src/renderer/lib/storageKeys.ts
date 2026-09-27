@@ -59,6 +59,8 @@ export const STORAGE_KEYS = {
   /** Geraetebibliothek — abgeglichener Stand samt `latestSeq` (nichts Geheimes). */
   deviceLibraryCache: 'cable-planner:deviceLibrary:cache:v1',
   /** Geraetebibliothek — Token NUR im Web-Build; der Desktop nutzt den Schluesselbund. */
+  /** Geraetebibliothek — was von den eigenen Vorlagen hochgeladen ist (Fingerabdruck, Zustand, Namen). */
+  deviceLibraryUploads: 'cable-planner:deviceLibrary:uploads:v1',
   deviceLibraryWebToken: 'cable-planner:web:deviceLibraryToken',
   /** GreenGo Intercom-Preset-Library. */
   greengoPresets: 'cable-planner:greengoPresets',

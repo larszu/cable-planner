@@ -14,6 +14,8 @@ import { effectiveServer, errorText, normalizeServerUrl } from '../../../lib/dev
 import { useSettingsStore } from '../../../store/settingsStore'
 import { useDeviceLibraryStore } from '../../../store/deviceLibraryStore'
 import { SettingsCard } from '../SettingsCard'
+import { DeviceLibraryUploads } from '../DeviceLibraryUploads'
+import { autoSyncJetzt } from '../../../lib/deviceLibraryAuto'
 import { Icon } from '../../shared/Icon'
 
 const knopf =
@@ -82,6 +84,8 @@ export const DeviceLibraryTab = () => {
         : await cablePlannerApi.deviceLibrary.signIn(server, login, password)
       if (r.kind === 'ok') {
         setSignedIn(r.user)
+        // Frisch angemeldet: was bisher liegen blieb, jetzt hoch und runter.
+        void autoSyncJetzt()
         setPassword('')
         setCode('')
         setChallenge(null)
@@ -236,11 +240,13 @@ export const DeviceLibraryTab = () => {
         </div>
       </SettingsCard>
 
+      <DeviceLibraryUploads server={server} signedIn={signedIn} />
+
       <SettingsCard
         title={t('deviceLibrary.syncTitle', 'Sync')}
         description={t(
           'deviceLibrary.syncDesc',
-          'Fetches only what changed since the last sync. The devices appear read-only in the library under “Device library” and stay available offline.',
+          'Fetches only what changed since the last sync. The devices appear read-only in the library under “Shared” and stay available offline.',
         )}
       >
         <div className="flex flex-wrap items-center gap-2">
