@@ -14,5 +14,11 @@ export default defineConfig({
     setupFiles: ['tests/setup.ts'],
     globals: false,
     restoreMocks: true,
+    // Node ab 25 bringt ein eigenes `localStorage` mit, und ohne
+    // `--localstorage-file` ist es leer (`undefined`). Es verdeckt das von
+    // happy-dom: unter Node 26 scheiterten 17 Testdateien an
+    // `localStorage.clear()`. Node 22 und 24 (CI) kennen den Schalter
+    // ebenfalls; dort ist Webstorage ohnehin aus.
+    execArgv: ['--no-experimental-webstorage'],
   },
 })
