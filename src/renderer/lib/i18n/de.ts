@@ -3091,6 +3091,7 @@ export const de: Dict = {
   'library.item.linkNamed': 'Mit lokalem Gerät "{name}" verknüpfen (Ports übernehmen)',
   'library.item.linkSameName': 'Mit gleichnamigem lokalem Gerät verknüpfen (Ports übernehmen)',
   'library.item.removeTitle': 'Aus der Bibliothek entfernen',
+  'library.item.removeConfirm': '„{name}“ aus der Bibliothek entfernen?',
   'library.item.show': 'Wieder anzeigen',
   'library.item.titleActiveRentman':
     'Aus aktivem Rentman-Projekt{suffix} — Klick oder Drag & Drop auf den Canvas',
