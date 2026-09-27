@@ -158,7 +158,10 @@ Built with **Electron, React, and TypeScript**, it is designed for real-world pr
   about.
 - Reusable project components
 - **Master data** (Settings → *Master data*): your own connector types, signal
-  standards and cable layers in one place, next to the built-in ones. They
+  standards and cable layers in one place, next to the built-in ones — add,
+  rename, remove. Renaming carries the new name onto the ports, cables,
+  library templates and own cable types that use it (in the open project;
+  saved projects that are not open keep the old name as free text). They
   appear in every picker and travel with the shared library (Network sync),
   so a team uses the same names
 

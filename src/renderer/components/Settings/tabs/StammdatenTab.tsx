@@ -12,32 +12,58 @@
 // dieselben Namen benutzt und nicht jeder seine eigene „LC-Duplex"-Schreibung.
 // ───────────────────────────────────────────────────────────────────────────
 import { useState } from 'react'
-import { Trash2 } from 'lucide-react'
+import { Pencil, Trash2 } from 'lucide-react'
 import { Icon } from '../../shared/Icon'
 import { SettingsCard } from '../SettingsCard'
 import { PanelHint } from '../../shared/PanelHint'
 import { useUiStore } from '../../../store/uiStore'
 import { confirmDialog } from '../../../lib/confirmDialog'
+import { promptDialog } from '../../../lib/promptDialog'
+import { infoDialog } from '../../../lib/infoDialog'
+import { useProjectStore } from '../../../store/projectStore'
 import { format, useTranslation } from '../../../lib/i18n'
-import { schonVorhanden } from '../../../lib/stammdaten'
+import { schonVorhanden, type StammdatenArt } from '../../../lib/stammdaten'
 import { ALL_CONNECTOR_TYPES } from '../../../types/equipment'
 import { ALL_SIGNAL_STANDARDS } from '../../../types/cableSpec'
 import { STANDARD_LAYERS } from '../../../lib/cableLayers'
 
 const Liste = ({
+  art,
   eingebaut,
   eigene,
   onAdd,
   onRemove,
   platzhalter,
+  normalisiere = (n) => n.trim(),
 }: {
+  art: StammdatenArt
   eingebaut: readonly string[]
   eigene: readonly string[]
   onAdd: (name: string) => void
   onRemove: (name: string) => void
   platzhalter: string
+  normalisiere?: (name: string) => string
 }) => {
   const t = useTranslation()
+  const renameStammdatum = useProjectStore((s) => s.renameStammdatum)
+  const renameInCableSpecs = useUiStore((s) => s.renameStammdatumInCableSpecs)
+  // Umbenennen = neuen Namen anlegen, Verwendungen mitziehen, alten entfernen.
+  // Das Entfernen setzt den Grabstein, damit die geteilte Bibliothek den alten
+  // Namen nicht beim naechsten Abgleich zuruecklegt.
+  const umbenennen = async (alt: string) => {
+    const roh = await promptDialog(format(t('stammdaten.renamePrompt', 'Rename "{name}"'), { name: alt }), alt)
+    if (roh === null) return
+    const neu = normalisiere(roh)
+    if (!neu || neu === alt) return
+    if (schonVorhanden(neu, eingebaut, eigene.filter((x) => x !== alt))) {
+      await infoDialog(format(t('stammdaten.renameExists', '"{name}" already exists.'), { name: neu }))
+      return
+    }
+    onAdd(neu)
+    renameInCableSpecs(art, alt, neu)
+    renameStammdatum(art, alt, neu)
+    onRemove(alt)
+  }
   const [neu, setNeu] = useState('')
   const doppelt = neu.trim() !== '' && schonVorhanden(neu, eingebaut, eigene)
   const hinzufuegen = () => {
@@ -51,6 +77,14 @@ const Liste = ({
         {eigene.map((n) => (
           <span key={n} className="inline-flex items-center gap-1 border border-cp-accent px-1.5 py-0.5 text-cp-text">
             {n}
+            <button
+              type="button"
+              onClick={() => void umbenennen(n)}
+              aria-label={format(t('stammdaten.rename', 'Rename {name}'), { name: n })}
+              className="text-cp-text-muted hover:text-cp-text"
+            >
+              <Icon icon={Pencil} size="xs" />
+            </button>
             <button
               type="button"
               onClick={async () => {
@@ -115,11 +149,12 @@ export const StammdatenTab = () => {
         className="text-cp-xs text-cp-text-muted"
         text={t(
           'stammdaten.intro',
-          'Your own connector types, signal standards and cable layers — in one place. They appear in every picker next to the built-in ones and travel with the shared library (Network sync), so a team uses the same names.',
+          'Your own connector types, signal standards and cable layers — in one place. Renaming one also renames it on the ports, cables and library templates that use it. They appear in every picker next to the built-in ones and travel with the shared library (Network sync), so a team uses the same names.',
         )}
       />
       <SettingsCard title={t('stammdaten.connectors', 'Connector types')}>
         <Liste
+          art="stecker"
           eingebaut={ALL_CONNECTOR_TYPES}
           eigene={customConnectorTypes}
           onAdd={addCustomConnectorType}
@@ -129,6 +164,7 @@ export const StammdatenTab = () => {
       </SettingsCard>
       <SettingsCard title={t('stammdaten.standards', 'Signal standards')}>
         <Liste
+          art="standard"
           eingebaut={ALL_SIGNAL_STANDARDS}
           eigene={customSignalStandards}
           onAdd={addCustomSignalStandard}
@@ -138,6 +174,8 @@ export const StammdatenTab = () => {
       </SettingsCard>
       <SettingsCard title={t('stammdaten.layers', 'Cable layers')}>
         <Liste
+          art="ebene"
+          normalisiere={(n) => n.trim().toLowerCase()}
           eingebaut={STANDARD_LAYERS}
           eigene={customLayers}
           onAdd={addCustomLayer}

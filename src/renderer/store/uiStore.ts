@@ -87,6 +87,7 @@ export interface DeviceConfigEntry {
 import { STORAGE_KEYS } from '../lib/storageKeys'
 import { PANEL_LIMITS } from '../lib/layoutConstants'
 import { RASTER_DEFAULT, rasterGrenzen } from '../lib/raster'
+import { kabeltypenUmbenannt } from '../lib/stammdaten'
 
 const KEY = STORAGE_KEYS.ui
 
@@ -765,6 +766,8 @@ interface UiState extends PersistedUiState {
   removeCustomConnectorType: (name: string) => void
   addCustomSignalStandard: (name: string) => void
   removeCustomSignalStandard: (name: string) => void
+  /** #917 — Stecker/Standard in den eigenen Kabeltypen umbenennen. */
+  renameStammdatumInCableSpecs: (art: import('../lib/stammdaten').StammdatenArt, oldName: string, newName: string) => void
   setCableGroupOrder: (order: string[]) => void
   /** v7.9.7 — Override-Schicht für eingebaute CableSpec-Einträge. Erlaubt
    *  Umbenennen/Recolor/Notes-Editing ohne den globalen cableCatalog
@@ -1307,6 +1310,12 @@ export const useUiStore = create<UiState>((set) => ({
         stammdatenEntfernt: mitGrabstein(state.stammdatenEntfernt, 'standard', name),
       })(state),
     ),
+  renameStammdatumInCableSpecs: (art, oldName, newName) =>
+    set((state) => {
+      const next = kabeltypenUmbenannt(state.customCableSpecs, art, oldName, newName)
+      if (next.every((s, i) => s === state.customCableSpecs[i])) return state
+      return applyPatch({ customCableSpecs: next })(state)
+    }),
   setCableGroupOrder: (order) => set(applyPatch({ cableGroupOrder: order })),
   setCableSpecOverride: (id, patch) =>
     set((state) => {
