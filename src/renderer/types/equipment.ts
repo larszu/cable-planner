@@ -622,6 +622,11 @@ export interface EquipmentItem {
    *  Plan-Check fordert die Datenblatt-Ergaenzung ein. Sobald der User Ports
    *  ergaenzt, entfernt die Properties-Sektion das Flag. */
   portsUnknown?: boolean
+  /** #906 — vor Ort erfasst, noch nicht ausgearbeitet: Name, Raum, vermutete
+   *  Verbindung und Notiz stehen in `notes`, die Ports fehlen (`portsUnknown`).
+   *  Die Marke haelt das Geraet in der Liste „Bestandsaufnahme", bis jemand
+   *  es als erledigt abhakt. */
+  erfasst?: { am: string; quelle: 'planer' | 'handy' }
   /** v7.5.0 — operating-mode-dependent port layouts (media servers,
    *  modular processors like Pixelhue P20 / Parco S3 / Brompton Tessera).
    *  Each mode carries its own `inputs` + `outputs`. When `activeModeId`

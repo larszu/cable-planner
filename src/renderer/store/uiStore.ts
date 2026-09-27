@@ -878,6 +878,9 @@ interface UiState extends PersistedUiState {
   wirelessRigOpen: boolean
   /** Bedarf 10 — Ablauf einlesen und Kamera-Auftraege zuordnen. */
   rundownOpen: boolean
+  /** #906 — Bestandsaufnahme: vorhandene Technik vor Ort erfassen. */
+  surveyOpen: boolean
+  setSurveyOpen: (open: boolean) => void
   setRundownOpen: (open: boolean) => void
   setWirelessRigOpen: (open: boolean) => void
   /** Initiative 9 — Register der Ausspielziele. */
@@ -1488,6 +1491,8 @@ export const useUiStore = create<UiState>((set) => ({
   wirelessRigOpen: false,
   setWirelessRigOpen: (open) => set({ wirelessRigOpen: open }),
   rundownOpen: false,
+  surveyOpen: false,
+  setSurveyOpen: (open) => set({ surveyOpen: open }),
   setRundownOpen: (open) => set({ rundownOpen: open }),
   deliveryOpen: false,
   setDeliveryOpen: (open) => set({ deliveryOpen: open }),
