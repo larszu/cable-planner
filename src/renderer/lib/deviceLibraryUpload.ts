@@ -42,10 +42,24 @@ export interface UploadEintrag {
   hash?: string
   zustand: UploadZustand
   slug?: string
+  /** Stand in der Moderation laut Server — auch bei `in-sync`. */
+  moderation?: 'pending' | 'approved'
   befunde?: string[]
   fehler?: string
   am: string
 }
+
+const WARTEND: readonly UploadZustand[] = ['created', 'edit-proposed', 'pending-updated']
+
+/** Wartet dieser Eintrag noch auf die Moderation? Aeltere Staende ohne
+ *  `moderation` schliessen es aus dem Zustand. */
+export const wartetAufModeration = (e: UploadEintrag | undefined): boolean =>
+  !!e && (e.moderation ? e.moderation === 'pending' : WARTEND.includes(e.zustand))
+
+/** Was der Server ueber die Moderation sagt — oder, bei einem Server ohne
+ *  das Feld, was sich aus dem Zustand ergibt. */
+const moderationAus = (r: UploadResult): UploadEintrag['moderation'] =>
+  r.moderation ?? (r.state === 'approved' ? 'approved' : WARTEND.includes(r.state) ? 'pending' : undefined)
 
 export interface UploadStand {
   format: 'cable-planner-device-library-uploads'
@@ -137,7 +151,10 @@ export function planeUpload(
     const item = uploadItemAus(t, namen)
     const hash = fingerabdruck(item)
     const bisher = stand.eintraege[t.name]
-    if (bisher?.hash === hash) continue
+    // Unveraendert UND nicht mehr in der Moderation: nichts zu tun. Wartet es
+    // noch, geht es mit — nur so erfaehrt die App, dass es inzwischen live
+    // ist (der Server meldet dann `in-sync` mit `moderation: 'approved'`).
+    if (bisher?.hash === hash && !wartetAufModeration(bisher)) continue
     const gruende = pruefe(t)
     if (!namen.manufacturer.trim()) gruende.push('manufacturer-missing')
     if (!namen.model.trim()) gruende.push('model-missing')
@@ -174,6 +191,7 @@ export function uebernehmeErgebnisse(
       ...(r.state === 'error' ? {} : { hash: plan.hashes.get(r.localId) }),
       zustand: r.state,
       ...(r.slug ? { slug: r.slug } : {}),
+      ...(moderationAus(r) ? { moderation: moderationAus(r) } : {}),
       ...(r.state === 'blocked' ? { befunde: befundeAus(r.findings) } : {}),
       ...(r.error ? { fehler: r.error } : {}),
       am,
@@ -187,16 +205,14 @@ export interface UploadBilanz {
   gesendet: number
   wartet: number
   live: number
-  aktuell: number
   blockiert: number
   fehler: number
 }
 
 export const bilanz = (plan: ReturnType<typeof planeUpload>, ergebnisse: readonly UploadResult[]): UploadBilanz => ({
   gesendet: plan.items.length,
-  wartet: ergebnisse.filter((r) => r.state === 'created' || r.state === 'edit-proposed' || r.state === 'pending-updated').length,
-  live: ergebnisse.filter((r) => r.state === 'approved').length,
-  aktuell: ergebnisse.filter((r) => r.state === 'in-sync').length,
+  wartet: ergebnisse.filter((r) => moderationAus(r) === 'pending').length,
+  live: ergebnisse.filter((r) => moderationAus(r) === 'approved').length,
   blockiert: ergebnisse.filter((r) => r.state === 'blocked').length + plan.lokalBlockiert.size,
   fehler: ergebnisse.filter((r) => r.state === 'error').length,
 })

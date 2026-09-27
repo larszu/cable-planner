@@ -126,7 +126,9 @@ export const MISC_CATALOG: MiscEntry[] = [
   {
     match: ['behringer', 'x32', 'compact'],
     deviceTypeId: 'f3b3574c-477b-466e-85c6-4e3b9d832ba7',
+    // Quelle: https://www.behringer.com/en/products/0603-AAB
     template: {
+      manufacturerUrl: 'https://www.behringer.com/en/products/0603-AAB',
       name: 'Behringer X32 Compact',
       category: AUDIO,
       inputs: [
@@ -154,7 +156,9 @@ export const MISC_CATALOG: MiscEntry[] = [
   {
     match: ['behringer', 'x32', 'rack'],
     deviceTypeId: 'd8243024-8bcc-4de3-9f72-3b0f4e4e9a5e',
+    // Quelle: https://www.behringer.com/en/products/0604-AAA
     template: {
+      manufacturerUrl: 'https://www.behringer.com/en/products/0604-AAA',
       name: 'Behringer X32 Rack',
       category: AUDIO,
       inputs: [
@@ -281,7 +285,9 @@ export const MISC_CATALOG: MiscEntry[] = [
   {
     match: ['clarity m', 'stereo'],
     deviceTypeId: 'eba83ff5-bd49-4043-ab51-5b83fa842bd0',
+    // Quelle: https://www.tcelectronic.com/en/products/0842-AAD
     template: {
+      manufacturerUrl: 'https://www.tcelectronic.com/en/products/0842-AAD',
       name: 'TC Electronics Clarity M Stereo',
       category: AUDIO,
       inputs: [
@@ -433,7 +439,9 @@ export const MISC_CATALOG: MiscEntry[] = [
   {
     match: ['sonnet', 'echo express'],
     deviceTypeId: 'a98ad03b-aa1c-42c6-af53-45a9b9920216',
+    // Quelle: https://www.sonnettech.com/product/echo-express-3d-tb3/techspecs.html
     template: {
+      manufacturerUrl: 'https://www.sonnettech.com/product/echo-express-3d-tb3/techspecs.html',
       name: 'Sonnet Echo Express III-D (TB3, 3× PCIe)',
       category: 'IT/Server',
       inputs: [port('Thunderbolt 3 In (USB-C)', 'USB-C')],

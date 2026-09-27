@@ -613,7 +613,9 @@ hier: `src/main/services/` (Desktop) und `src/renderer/lib/` (Web-Build);
   Vorlage wird der Fingerabdruck der hochgeladenen Fassung gemerkt
   (`STORAGE_KEYS.deviceLibraryUploads`, dazu Zustand, Slug, Befunde und die
   Hersteller/Modell-Trennung); nur Geändertes geht per `upload('cable', …)`
-  raus, nach `error` erneut. `lib/deviceLibraryAuto.ts` startet im
+  raus, nach `error` erneut, und dazu alles, was laut `moderation` noch
+  `pending` ist — der Server meldet den Moderationsstand auch bei `in-sync`,
+  so wird „wartet" zu „live". `lib/deviceLibraryAuto.ts` startet im
   Hauptfenster: beim Start und 5 s nach einer Änderung an `customLibrary`
   erst hoch, dann `sync` — nur mit Einstellung
   `deviceLibraryAutoUpload` (Vorgabe an) und angemeldet.

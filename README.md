@@ -490,14 +490,16 @@ one, and **Restore default** goes back.
   With *Upload my own devices automatically* (on by default; it only acts
   while you are signed in) this happens at start and a few seconds after you
   change a template; **Sync now** does it by hand — first up, then down. Only
-  what changed since the last upload is sent. Built-in templates you have not
+  what changed since the last upload is sent, plus what is still waiting for
+  moderation — that is how an entry switches from *waiting for moderation* to
+  *live* once a moderator approves it. Built-in templates you have not
   changed are not uploaded from your machine; the project publishes them
   itself. *Settings → Device library → My devices* lists every own template
   with its state (not uploaded yet, waiting for moderation, live, up to date,
   blocked with the reasons) and lets you correct the manufacturer/model split
   — the library recognises the same device across planners by exactly those
-  two. A part without a recognisable manufacturer (patch panels, power strips)
-  is not guessed: it waits until you enter one.
+  two. A generic part without a manufacturer (patch panels, power strips) is
+  not guessed: it waits until you enter one.
 - **Submit** — see the next section.
 
 Maintainers publish the built-in catalogue with `npm run library:publish`

@@ -6456,7 +6456,7 @@ export const de: Dict = {
   'deviceLibrary.up.noModel': 'Modell fehlt — oben eintragen.',
   'deviceLibrary.up.nothing': 'Nichts hochzuladen — alles ist so wie zuletzt gesendet.',
   'deviceLibrary.up.result':
-    '{sent} gesendet: {pending} warten auf Moderation, {live} freigegeben, {same} unverändert, {blocked} blockiert, {errors} Fehler.',
+    '{sent} gesendet: {pending} warten auf Moderation, {live} freigegeben, {blocked} blockiert, {errors} Fehler.',
   'deviceLibrary.up.list': 'Eigene Vorlagen ({n})',
   'deviceLibrary.up.none':
     'Noch keine eigenen Vorlagen — unveränderte eingebaute Vorlagen stehen hier nicht.',

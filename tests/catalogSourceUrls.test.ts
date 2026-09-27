@@ -106,7 +106,10 @@ describe('jeder Quellen-Kommentar steht auch als Feld im Eintrag', () => {
     // dazugekommen (die Medien-Station als Plan-Endpunkt). +2 am 2026-09-23:
     // `ledProcessorCatalog`, die erste Bestueckung einer Kategorie, die bei
     // null stand (#878).
-    expect(pairs().length).toBe(424)
+    // +19 am 2026-09-27: Herstellerbelege fuer bis dahin unbelegte Eintraege
+    // (Ubiquiti-EdgeMax-Datenblaetter/QSGs, SmallHD, TVLogic, JVC, NEC, Behringer,
+    // TC Electronic, Sonnet, Atomos-QSG) — jede Seite geoeffnet, Modell darauf.
+    expect(pairs().length).toBe(443)
   })
 
   it('deckt die Kataloge ab, die Belege fuehren', () => {
@@ -250,6 +253,6 @@ describe('der Beleg zeigt auf den Hersteller, nicht auf einen Haendler', () => {
   it('prueft alle Belege, nicht nur die mit Feld', () => {
     // Ohne diese Zusicherung waere der Haendler-Test auch dann gruen, wenn
     // `pairs()` nichts mehr faende.
-    expect(pairs().filter((p) => p.field).length).toBe(424)
+    expect(pairs().filter((p) => p.field).length).toBe(443)
   })
 })

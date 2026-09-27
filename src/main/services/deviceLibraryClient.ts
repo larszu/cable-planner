@@ -254,6 +254,8 @@ export interface UploadResult {
   localId: string
   state: UploadState
   slug?: string
+  /** Stand in der Moderation — auch bei `in-sync`: wartet noch oder ist live. */
+  moderation?: 'pending' | 'approved'
   findings?: unknown
   error?: string
 }
