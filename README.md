@@ -521,6 +521,30 @@ so and sends nothing.
 
 ---
 
+### ☁️ Cloud copy with revisions
+
+Optional, off until you ask for it (#871). *File → Cloud…* puts
+the open project into the cloud of your device-library account
+([devices.zumpelars.de](https://devices.zumpelars.de)); sign in under
+*Settings → Device library*.
+
+- **Your file stays the master copy.** The cloud keeps a copy with history;
+  without a connection the planner works exactly as before.
+- **Every save is a revision** — automatically 30 s after the last change, or
+  with *Save to cloud now*. Any revision can be restored; restoring makes it
+  the newest one, nothing is lost.
+- **A parallel change is never overwritten.** Each save names the revision it
+  was based on. If another device saved in between, the planner merges both
+  (devices, cables and areas through the same CRDT as live collaboration;
+  other fields: whoever changed them wins) and saves the result.
+- **Second device:** the same dialog lists your cloud projects to open or to
+  download as `.cableplan` at any time.
+- **Credentials stay on the computer** (device logins are removed before
+  upload and kept locally when merging). Stored encrypted; *Delete from cloud*
+  removes the project with every revision at once.
+
+---
+
 ### 👥 Live Collaboration
 - Real-time co-editing over **WebRTC** with a CRDT document — no server holds
   your plan

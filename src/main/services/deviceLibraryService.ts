@@ -63,7 +63,8 @@ export const checkServerUrl = (server: unknown): string | null => {
   }
 }
 
-const tokenStore = {
+/** Auch fuer die Cloud-Projekte (`cloudService`): dasselbe Konto, dasselbe Token. */
+export const tokenStore = {
   get: () => keytar.getPassword(SERVICE_NAME, ACCOUNT_NAME),
   set: (token: string) => keytar.setPassword(SERVICE_NAME, ACCOUNT_NAME, token),
   clear: () => keytar.deletePassword(SERVICE_NAME, ACCOUNT_NAME),

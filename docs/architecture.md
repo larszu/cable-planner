@@ -56,6 +56,7 @@ Alle IPC-Channels sind nach Domäne präfixiert. Definitionen in
 | `rentman:*` | `rentmanIpc.ts` | `get-projects`, `get-project-equipment`, `get-equipment`, `add-project-equipment`, `add-project-file` |
 | `netbox:*` | `netboxIpc.ts` | `save-token`, `has-token`, `delete-token`, `normalize-url`, `test-connection`, `get-sites`, `get-racks`, `fetch-snapshot` |
 | `deviceLibrary:*` | `deviceLibraryIpc.ts` | `has-token`, `sign-in`, `verify-second-factor`, `current-user`, `sign-out`, `sync`, `propose`, `upload` — die Gerätebibliothek (devices.zumpelars.de, §6.3b). URL je Aufruf, Token bleibt in main. |
+| `cloud:*` | `cloudIpc.ts` | `call` — Cloud-Projekte und Lese-Links (#871, #870) auf dem Server der Gerätebibliothek, eine Operation aus fester Liste (`cloudService.ts`). Gleiches Konto und Token wie `deviceLibrary:*`, Token bleibt in main. |
 | `atem:*` | `atemIpc.ts` | `connect`, `disconnect`, `state`, `get-status`, `get-events`, `set-input-name`, `bulk-set-input-names`, `apply-mv-config`, `read-mv-config`, `apply-audio-config`, `discover`, plus `atem:event` (broadcast) |
 | `videohub:*` | `videohubIpc.ts` | `send` (TCP zu Blackmagic Videohub) |
 | `sync:*` | `syncIpc.ts` | `read-file`, `write-file`, `exists`, `acquire-lock`, `release-lock` |

@@ -25,6 +25,7 @@ import { createConductorSlice } from './slices/conductorSlice'
 import { createCrewSlice } from './slices/crewSlice'
 import { createAddressTemplateSlice } from './slices/addressTemplateSlice'
 import { createRevisionSlice } from './slices/revisionSlice'
+import { createCloudSlice } from './slices/cloudSlice'
 import { createMobileSyncSlice } from './slices/mobileSyncSlice'
 import { createTemplateSlice } from './slices/templateSlice'
 import { createGroupPresetSlice } from './slices/groupPresetSlice'
@@ -769,6 +770,12 @@ export interface ProjectState {
   /** v7.9.3 — Setzt Viewer-Session-Author (beim ersten Öffnen einer
    *  .cpviewer-Datei). */
   setViewerSession: (session: { author: string; startedAt: string } | undefined) => void
+  /** #871 — Cloud-Verbindung setzen oder loesen. Kein neuer Undo-Schritt
+   *  im Plan: die Verbindung ist Ablage-Zustand, kein Planinhalt. */
+  setCloudBinding: (binding: import('../types/project').CloudBinding | undefined) => void
+  /** #871 — das zusammengefuehrte Ergebnis eines Cloud-Abgleichs oder eine
+   *  wiederhergestellte Cloud-Revision uebernehmen. Die Datei bleibt dieselbe. */
+  applyCloudProject: (project: CablePlannerProject) => void
   /** #412 — Revisionen/Snapshots. */
   commitRevision: (label: string, note: string, asBuilt: boolean) => void
   restoreRevision: (id: string) => void
@@ -1945,6 +1952,7 @@ const buildProjectStore = (
   ...createCrewSlice(set, get, store),
   ...createAddressTemplateSlice(set, get, store),
   ...createRevisionSlice(set, get, store),
+  ...createCloudSlice(set, get, store),
   ...createMobileSyncSlice(set, get, store),
   ...createTemplateSlice(set, get, store),
   ...createGroupPresetSlice(set, get, store),

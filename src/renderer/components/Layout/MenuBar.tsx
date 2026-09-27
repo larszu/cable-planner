@@ -12,6 +12,7 @@ import {
   Copy,
   Drum,
   Eye,
+  Cloud,
   FileDown,
   FileText,
   FolderOpen,
@@ -794,6 +795,11 @@ export const MenuBar = ({
               mergen. v8.x: Wort "Freelancer" entfernt (#405/#406 —
               Workflow ist nicht freelancer-spezifisch). */}
           {(onExportViewer || onImportAnnotations) && <MenuSep />}
+          {/* #871/#870 — Cloud-Kopie mit Revisionen und Lese-Link: steht beim
+              Viewer, weil der Lese-Link genau diesen Viewer oeffnet. */}
+          <MenuItem onClick={() => useUiStore.getState().openCloudDialog()} icon={<Icon icon={Cloud} size="sm" />}>
+            {t('app.menu.file.cloud', 'Cloud…')}
+          </MenuItem>
           {onExportViewer && (
             <MenuItem onClick={onExportViewer} icon={<Icon icon={Eye} size="sm" />}>
               {t('app.menu.file.exportViewer', 'Export as viewer file…')}

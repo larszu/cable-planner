@@ -70,6 +70,7 @@ const AnnotationsPanelHost = () => {
   return <AnnotationsPanel open={open} onClose={() => setOpen(false)} />
 }
 import { MobileShareDialog } from './components/MobileShare/MobileShareDialog'
+import { CloudDialog } from './components/Cloud/CloudDialog'
 import { AboutDialog } from './components/About/AboutDialog'
 import { PatchListDialog } from './components/Patch/PatchListDialog'
 import { InstallationDocsDialog } from './components/Export/InstallationDocsDialog'
@@ -1590,6 +1591,7 @@ export default function App() {
         </Suspense>
       )}
       <MobileShareDialog />
+      <CloudDialog />
       <AboutDialog />
       <PatchListDialog />
       <InstallationDocsDialog />
