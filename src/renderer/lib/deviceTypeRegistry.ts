@@ -29,6 +29,7 @@ import { AUDIO_CATALOG } from './audioCatalog'
 import { WIRELESS_AUDIO_CATALOG } from './wirelessAudioCatalog'
 import { MIC_CATALOG } from './micCatalog'
 import { MEDIA_STATION_CATALOG } from './mediaStationCatalog'
+import { DEVICE_TYPE_ALIASES } from './deviceTypeAliases'
 
 export interface DeviceTypeInfo {
   /** Datenblatt-Template (inkl. deviceTypeId). */
@@ -180,5 +181,5 @@ export const listDeviceTypes = (): DeviceTypeChoice[] => {
 export const resolveDeviceType = (deviceTypeId: string | undefined): DeviceTypeInfo | null => {
   if (!deviceTypeId) return null
   registry ??= buildRegistry()
-  return registry.get(deviceTypeId) ?? null
+  return registry.get(deviceTypeId) ?? registry.get(DEVICE_TYPE_ALIASES[deviceTypeId] ?? '') ?? null
 }

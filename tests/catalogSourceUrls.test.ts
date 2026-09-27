@@ -109,7 +109,11 @@ describe('jeder Quellen-Kommentar steht auch als Feld im Eintrag', () => {
     // +19 am 2026-09-27: Herstellerbelege fuer bis dahin unbelegte Eintraege
     // (Ubiquiti-EdgeMax-Datenblaetter/QSGs, SmallHD, TVLogic, JVC, NEC, Behringer,
     // TC Electronic, Sonnet, Atomos-QSG) — jede Seite geoeffnet, Modell darauf.
-    expect(pairs().length).toBe(443)
+    // +8 am 2026-09-27 (zweite Runde): Katalognamen, die es beim Hersteller
+    // so nicht gab, auf das belegte Modell umgestellt (SmartScope Duo 4K,
+    // V-LCD173HR, V-LCD56MD-3G, LVM-075A, D*AP8, SmallHD 2403/1703, xMac mini
+    // Server TB3); USW-16 ist im USW-16-PoE aufgegangen (-1 Eintrag).
+    expect(pairs().length).toBe(451)
   })
 
   it('deckt die Kataloge ab, die Belege fuehren', () => {
@@ -253,6 +257,6 @@ describe('der Beleg zeigt auf den Hersteller, nicht auf einen Haendler', () => {
   it('prueft alle Belege, nicht nur die mit Feld', () => {
     // Ohne diese Zusicherung waere der Haendler-Test auch dann gruen, wenn
     // `pairs()` nichts mehr faende.
-    expect(pairs().filter((p) => p.field).length).toBe(443)
+    expect(pairs().filter((p) => p.field).length).toBe(451)
   })
 })
