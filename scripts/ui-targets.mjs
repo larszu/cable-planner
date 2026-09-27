@@ -340,9 +340,16 @@ await app.close()
  * Knopf machten ihn hoeher als die Register, zu denen er gehoert, und
  * schoeben die Liste darunter aus dem Blick.
  */
+/*
+ * ANGEHOBEN am 2026-09-27 (#878, 22 neue Katalog-Eintraege), unter44 95 -> 97,
+ * gemessen im CI-Lauf von #937. Kein neues Bedienelement: die zusaetzlichen
+ * Flaechen sind Zeilen-Aktionen der Bibliotheks-Seitenleiste (Kategorie-
+ * Griffe, Eintrags-Knoepfe), von denen mit dem groesseren Katalog mehr im
+ * 950-px-Fenster stehen. Lokal nachgezaehlt: Zuwachs nur in „Seitenleiste".
+ */
 const DECKEL = {
-  maus: { unter24: 50, unter44: 95 },
-  finger: { unter24: 50, unter44: 95 },
+  maus: { unter24: 50, unter44: 97 },
+  finger: { unter24: 50, unter44: 97 },
 }
 
 let befunde = 0
