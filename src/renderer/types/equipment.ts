@@ -560,6 +560,28 @@ export interface KameraOptik {
   /** Horizontaler Bildwinkel in Grad, wenn der Kameraplan ihn gerechnet hat
    *  (in der Suite ueber den Seed). */
   bildwinkelGrad?: number
+  /** camera-list v3: Ausrichtung in Grad, Konvention des Kameraplans
+   *  (Pan 0 = nach rechts im Grundriss). */
+  panGrad?: number
+  /** camera-list v3: Neigung in Grad, negativ = nach unten. */
+  neigungGrad?: number
+}
+
+/**
+ * Ein gespeichertes PTZ-Preset, wie es der Kameraplan fuehrt (camera-list
+ * v3). Der Stand des Speicherns steht dabei: ein Preset ist ein Zustand von
+ * damals, nicht der heutige der Kamera.
+ */
+export interface KameraPreset {
+  nummer: number
+  name: string
+  segment?: string
+  panGrad: number
+  neigungGrad: number
+  brennweiteMm: number
+  fokusM: number
+  /** ISO — wann das Preset gespeichert wurde. */
+  gespeichertAm: string
 }
 
 export interface EquipmentItem {
@@ -690,6 +712,8 @@ export interface EquipmentItem {
   multicamRemoved?: boolean
   /** #910 — Optik der Kamera, wie der MultiCam-Plan sie gesetzt hat. */
   optik?: KameraOptik
+  /** camera-list v3 — die PTZ-Presets aus dem Kameraplan. */
+  kameraPresets?: KameraPreset[]
   x: number
   y: number
   width: number

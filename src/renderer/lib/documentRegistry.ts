@@ -45,6 +45,7 @@ import { konfigVorgabenTable } from './konfigVorgaben'
 import { steckbriefStandTable } from './steckbrief'
 import { bedienUebersichtStandTable } from './bedienUebersicht'
 import { anhaengeTable } from './anhaenge'
+import { kameraPositionsblattStandTable } from './kameraPositionsblatt'
 import type { CsvTable } from './csv'
 
 const ofTable =
@@ -202,6 +203,7 @@ export const DOCUMENT_STANDS: Record<string, (project: CablePlannerProject) => s
   // Das Verzeichnis führt, was im PROJEKT steht — nicht, ob die Datei auf
   // diesem Rechner im Ordner liegt. Sonst hinge der Stand am Rechner.
   anhaenge: ofTable(anhaengeTable),
+  'kamera-positionen': ofTable(kameraPositionsblattStandTable),
 }
 
 /**
@@ -316,6 +318,7 @@ export const DOCUMENT_LABELS: Record<string, string> = {
   steckbrief: 'Geräte-Steckbrief',
   'bedien-uebersicht': 'Bedien-Kurzübersicht',
   anhaenge: 'Anhänge-Verzeichnis',
+  'kamera-positionen': 'Kamera-Positionsblatt',
 }
 
 /**

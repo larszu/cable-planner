@@ -425,13 +425,15 @@ risk without a payoff.
 - **`.avplan`** — the shared exchange format across the planner suite. When the
   file carries the MultiCam plan's cameras, opening it offers to place them in
   the signal plan
-- **MultiCam cameras** (`.cameras.json`, *File → Import MultiCam cameras*) —
-  every placed camera becomes a device with its datasheet ports, lens, zoom
-  range and set focal length (shown on the node and under *Optics* in its
-  properties). Importing again **reconciles** instead of duplicating: names
-  and optics follow the camera plan, position, ports and cables stay, and a
-  camera that left the MultiCam plan is marked, not deleted — cables may hang
-  on it
+- **MultiCam cameras** (`.cameras.json`, format `camera-list` v1 to v3,
+  *File → Import MultiCam cameras*) — every placed camera becomes a device with
+  its datasheet ports, lens, zoom range, set focal length, height, pan and tilt,
+  and (v3) its saved PTZ presets with the day each was saved (shown on the node
+  and under *Optics* in its properties). Importing again **reconciles** instead
+  of duplicating: names, optics and presets follow the camera plan, position,
+  ports and cables stay, and a camera that left the MultiCam plan is marked,
+  not deleted — cables may hang on it. An older v2 list says nothing about
+  presets and leaves the existing ones in place
 - **Racks for the warehouse** (`rack-belegung.json`, *Library → Racks → For the
   warehouse*) — what sits in each rack, with unit and name, for the Inventory
   Planner. A rack that travels in a case is a case there: the warehouse owns
@@ -529,6 +531,11 @@ file, not in browser storage, not in source. Exports strip them before writing.
   switcher or router input, where each output goes (through patch panels),
   contacts, web interfaces, and an empty box for operating steps: the plan does
   not know them and the sheet does not invent them
+- **Camera positions** (HTML) — per camera from the camera plan: room, role,
+  height, aim, optics, switcher input and the PTZ presets (number, shot,
+  segment, pan, tilt, focal length, focus, saved on). The sheet says that the
+  presets are not checked against the camera head — no camera protocol is
+  spoken here
 - **Attachments** (desktop app) — test reports, manufacturer documents and
   configuration backups, each attached to a cable, a device or the whole
   installation. The files are copied into the folder `Anhaenge` next to the

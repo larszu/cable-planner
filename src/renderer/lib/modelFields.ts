@@ -186,6 +186,9 @@ export const INSTANCE_FIELDS = [
   'multicamProjectId',
   'multicamRemoved',
   'optik',
+  // camera-list v3 — die Presets gehoeren zum KOPF dieses Exemplars, nicht
+  // zum Modell: zwei baugleiche PTZ an zwei Orten haben zwei Satz Presets.
+  'kameraPresets',
 
   // Wo dieses Exemplar steht
   'x',

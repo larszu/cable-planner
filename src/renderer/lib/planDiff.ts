@@ -243,6 +243,9 @@ export const EQUIPMENT_FIELD_CLASS: Record<string, FieldClass> = {
   hausPunktId: 'substantive',
   // Objektiv und Brennweite bestimmen, was die Kamera zeigt — und was gepackt wird.
   optik: 'substantive',
+  // Ein anderes Preset faehrt die Kamera live auf einen anderen Shot — das ist
+  // eine Aussage des Plans, kein Aussehen.
+  kameraPresets: 'substantive',
   hausKlinkeId: 'substantive',
   // B-46 — die erklaerten Merkmale. Ebenfalls `substantive`: ob die Quelle den
   // Alternate-Mode kann, entscheidet ueber einen Befund am Adapter. Wer das
