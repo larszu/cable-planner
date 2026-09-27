@@ -16,6 +16,7 @@ import { PopoutApp } from './components/Layout/PopoutApp'
 import { initPanelPopoutSync, popoutPanel } from './lib/panelPopout'
 import { initSettingsSync } from './lib/settingsSync'
 import { startDeviceLibraryAutoSync } from './lib/deviceLibraryAuto'
+import { startCloudAutoSync } from './lib/cloudAutoSync'
 
 // v7.8.2 — Emergency escape hatch: launch with ?reset (or hash #reset)
 // to wipe all cable-planner localStorage entries before any module
@@ -114,6 +115,7 @@ initSettingsSync()
 const popout = popoutPanel()
 // Geraetebibliothek: eigene Vorlagen hoch, Katalog runter — nur im Hauptfenster.
 if (!popout) startDeviceLibraryAutoSync()
+if (!popout) startCloudAutoSync()
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ErrorBoundary>{popout ? <PopoutApp panel={popout} /> : <App />}</ErrorBoundary>

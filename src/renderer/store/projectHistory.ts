@@ -59,16 +59,22 @@ const pushPast = (entry: CablePlannerProject): void => {
  *  (z.B. nach yEd-Import) einen Undo-Schritt, und das erste Strg+Z nimmt
  *  nur den Viewport zurueck statt den Import. */
 const onlyViewportChanged = (a: CablePlannerProject, b: CablePlannerProject): boolean => {
-  if (a === b || a.canvasState === b.canvasState) return false
-  const ak = Object.keys(a) as (keyof CablePlannerProject)[]
-  const bk = Object.keys(b) as (keyof CablePlannerProject)[]
-  if (ak.length !== bk.length) return false
-  for (const k of ak) {
-    if (k === 'canvasState') continue
-    if (a[k] !== b[k]) return false
+  if (a === b) return false
+  const keys = new Set([...Object.keys(a), ...Object.keys(b)]) as Set<keyof CablePlannerProject>
+  let changed = false
+  for (const k of keys) {
+    if (a[k] === b[k]) continue
+    if (!NOT_UNDOABLE.has(k)) return false
+    changed = true
   }
-  return true
+  return changed
 }
+
+/** Top-Level-Felder, deren Aenderung kein Undo-Schritt ist: der Viewport
+ *  (#382, oben) und die Cloud-Verbindung (#871). Ein Strg+Z, das nur die
+ *  Revisionsnummer zuruecksetzt, naehme keinen Plan-Edit zurueck — es liesse
+ *  nur das naechste Speichern in einen Konflikt laufen. */
+const NOT_UNDOABLE = new Set<keyof CablePlannerProject>(['canvasState', 'cloud'])
 
 useProjectStore.subscribe((state) => {
   if (state.project === lastProject) return

@@ -986,6 +986,10 @@ interface UiState extends PersistedUiState {
   mobileShare: { open: boolean }
   openMobileShare: () => void
   closeMobileShare: () => void
+  /** #871/#870 — Cloud-Projekt, Revisionen, Lese-Links. */
+  cloudDialog: { open: boolean }
+  openCloudDialog: () => void
+  closeCloudDialog: () => void
   aboutDialog: { open: boolean }
   openAboutDialog: () => void
   closeAboutDialog: () => void
@@ -1547,6 +1551,9 @@ export const useUiStore = create<UiState>((set) => ({
   mobileShare: { open: false },
   openMobileShare: () => set({ mobileShare: { open: true } }),
   closeMobileShare: () => set({ mobileShare: { open: false } }),
+  cloudDialog: { open: false },
+  openCloudDialog: () => set({ cloudDialog: { open: true } }),
+  closeCloudDialog: () => set({ cloudDialog: { open: false } }),
   aboutDialog: { open: false },
   openAboutDialog: () => set({ aboutDialog: { open: true } }),
   closeAboutDialog: () => set({ aboutDialog: { open: false } }),
