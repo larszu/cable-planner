@@ -229,6 +229,7 @@ export const roleLabelsByPort = (
     const kind = detectDeviceKind(device)
     if (kind !== 'atem' && kind !== 'videohub') continue
     for (const port of device.inputs) {
+      if (!istBildEingang(port)) continue
       const resolved = resolveSignalSource(port.id, ctx)
       const source = resolved ? ctx.eqById.get(resolved.equipmentId) : undefined
       const name = roleNameOf(source, identityById)
@@ -323,6 +324,37 @@ const REFERENCE_PORT =
  */
 export const isReferencePort = (port: Port): boolean =>
   REFERENCE_PORT.test(`${port.name ?? ''} ${port.contentLabel ?? ''}`)
+
+/**
+ * Steckverbinder, ueber die kein Bild in einen Mischer oder Router kommt.
+ *
+ * Katalog-Mischer fuehren neben ihren Bildeingaengen auch Ref, Ethernet und
+ * die Audio-XLR als `inputs` (Datenblatt). Die Ableitung zaehlte sie mit: der
+ * Plan-Check meldete „Audio In L & Audio In R werden beide AUDI", und der
+ * Ethernet-Port erschien als Mischer-Eingang 12 mit dem Switch als Quelle.
+ * Die Exporter senden fuer diese Ports nichts — der ATEM-Dialog ordnet nur
+ * seine Video-Eingaenge zu, der Videohub-Export schreibt nur so viele Zeilen,
+ * wie das Geraet Eingaenge hat. Nach der TREUE-REGEL darf die Ableitung dann
+ * auch nichts fuer sie behaupten.
+ *
+ * Eine Ausschlussliste und keine Positivliste: ein selbst angelegter Stecker
+ * („HD-BNC 75 Ω Hausnorm") soll weiter als Bildeingang gelten.
+ */
+const KEIN_BILD = new Set<string>([
+  'Ethernet/RJ45', 'GG45', 'XLR', 'Mini-XLR', 'Klinke', 'Jack 6.35 mm', 'Jack 3.5 mm',
+  'Jack 6.35 mm TS', 'Jack 6.35 mm TRS', 'Jack 3.5 mm TS', 'Jack 3.5 mm TRS',
+  'Jack 3.5 mm TRRS', 'Jack 2.5 mm TRS', 'TT/Bantam', 'DB9', 'DB25', 'DIN', 'USB',
+  'USB-C', 'IEC 230V', 'PowerCON', 'Schuko 230V', 'C7 Eurostecker', 'CEE16', 'CEE32',
+  'CEE63', 'Powerlock', 'Socapex', 'Harting', 'Kleeblatt', 'DMX 5-pol (XLR)',
+  'DMX 3-pol (XLR)', 'Wireless/RF',
+])
+
+/** Nur die Referenz; „Return" oder „Control" sind hier gueltige Eingangsnamen. */
+const REF_EINGANG = /^\s*(ref(erence)?|genlock|sync)\b/i
+
+/** Kann an diesem Mischer-/Router-Eingang ein Bild ankommen? */
+export const istBildEingang = (port: Port): boolean =>
+  !KEIN_BILD.has(port.connectorType) && !REF_EINGANG.test(port.name ?? '')
 
 /**
  * Der eine Eingang, durch den das an `arrival` anliegende Signal plausibel
@@ -516,6 +548,7 @@ export const deriveLabels = ({
     if (kind !== 'atem' && kind !== 'videohub') continue
 
     device.inputs.forEach((port, idx) => {
+      if (!istBildEingang(port)) return
       const resolved = resolveSignalSource(port.id, ctx)
       const source = resolved ? eqById.get(resolved.equipmentId) : undefined
       if (resolved && source) {

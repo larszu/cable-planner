@@ -31,6 +31,7 @@
 //
 // REIN: keine Uhr, kein Store, kein IO.
 // ───────────────────────────────────────────────────────────────────────────
+import type { Cable } from '../types/cable'
 import type { EquipmentItem, Port } from '../types/equipment'
 import type { Frontplatte, FrontplattenArt } from '../types/frontplatte'
 
@@ -109,3 +110,98 @@ export const patchPanelCounterpart = (
 
   return null
 }
+
+/** Ein Kabelende: Geraet und Port. */
+export interface KabelEnde {
+  equipmentId: string
+  portId: string
+}
+
+/**
+ * Je Port die Gegenenden seiner Kabel. Ein Kabel kann in beide Richtungen
+ * gezeichnet sein, deshalb steht jedes zweimal darin.
+ */
+export const gegenendenJePort = (cables: readonly Cable[]): Map<string, KabelEnde[]> => {
+  const m = new Map<string, KabelEnde[]>()
+  const add = (portId: string, ende: KabelEnde) => {
+    const list = m.get(portId)
+    if (list) list.push(ende)
+    else m.set(portId, [ende])
+  }
+  for (const c of cables) {
+    add(c.fromPortId, { equipmentId: c.toEquipmentId, portId: c.toPortId })
+    add(c.toPortId, { equipmentId: c.fromEquipmentId, portId: c.fromPortId })
+  }
+  return m
+}
+
+const MAX_BLENDEN = 12
+
+/**
+ * Vom Ende eines Kabels durch Blenden, Wandfelder und Patchfelder hindurch bis
+ * zum Geraet, das dort wirklich haengt.
+ *
+ * Richtungslos, weil ein Netzwerkkabel keine Richtung hat: wer am Switch
+ * steht, will wissen, welche Kamera hinter Patchfeld und Wandfeld steckt.
+ * Endet der Weg in einer Blende (Position n unbeschaltet), bleibt die Blende
+ * die Antwort — sie ist dann tatsaechlich das Letzte, was der Plan kennt.
+ * `blenden` nennt die durchlaufenen Platten in Reihenfolge.
+ */
+export const durchBlenden = (
+  start: KabelEnde,
+  eqById: ReadonlyMap<string, EquipmentItem>,
+  enden: ReadonlyMap<string, readonly KabelEnde[]>,
+): { ende: KabelEnde; blenden: string[] } => {
+  let ende = start
+  const blenden: string[] = []
+  const besucht = new Set<string>([start.portId])
+  for (let i = 0; i < MAX_BLENDEN; i++) {
+    const geraet = eqById.get(ende.equipmentId)
+    if (!geraet || !isPatchPanelDevice(geraet)) break
+    const gegen = patchPanelCounterpart(geraet, { id: ende.portId })
+    if (!gegen || besucht.has(gegen.id)) break
+    const weiter = enden.get(gegen.id)?.find((e) => !besucht.has(e.portId))
+    if (!weiter) break
+    besucht.add(gegen.id)
+    besucht.add(weiter.portId)
+    blenden.push(geraet.id)
+    ende = weiter
+  }
+  return { ende, blenden }
+}
+
+/**
+ * Die Ports, die auf der Frontplatte sitzen.
+ *
+ * Ein durchleitendes Geraet (Wandfeld, Blende, Patchfeld) hat zwei Seiten:
+ * vorne die Buchsen, hinten die Hausstrecke oder die Rackverkabelung. Der
+ * Platten-Editor verlangte fuer beide eine Lage und meldete die Rueckseite als
+ * „ohne Lage auf der Platte" — bei einem Wandfeld mit acht Buchsen acht
+ * Fehlmeldungen. Auf die Platte gehoert eine Seite:
+ *
+ * 1. die ausdrueckliche Angabe `frontplatte.seite`,
+ * 2. sonst die Seite, deren Stecker schon eine Lage haben (bei Gleichstand
+ *    die Eingaenge — die Wahl steht im Editor und laesst sich umstellen).
+ *
+ * Alles, was nicht durchleitet, zeigt wie bisher alle Ports.
+ */
+export const plattenPorts = (device: EquipmentItem): Port[] => {
+  if (!hatPlattenSeiten(device)) return [...device.inputs, ...device.outputs]
+  const seite = plattenSeite(device)
+  return seite === 'outputs' ? [...device.outputs] : [...device.inputs]
+}
+
+/** Welche Seite eines durchleitenden Geraets auf der Platte sitzt. */
+export const plattenSeite = (device: EquipmentItem): 'inputs' | 'outputs' => {
+  const gesetzt = device.frontplatte?.seite
+  if (gesetzt) return gesetzt
+  const mitLage = (ports: readonly Port[]) =>
+    ports.filter((p) => p.panelPosX !== undefined && p.panelPosY !== undefined).length
+  return mitLage(device.outputs) > mitLage(device.inputs) ? 'outputs' : 'inputs'
+}
+
+/** Leitet das Geraet durch, sodass eine Seite gewaehlt werden muss? */
+export const hatPlattenSeiten = (device: EquipmentItem): boolean =>
+  isPatchPanelDevice(device) &&
+  device.inputs.length > 0 &&
+  device.inputs.length === device.outputs.length

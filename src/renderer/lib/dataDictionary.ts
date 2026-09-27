@@ -127,7 +127,7 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
     'Was beim Zielsystem NICHT so ankommt wie gemeint: gekürzt, nicht darstellbare Zeichen, oder „kommt hier NICHT an“ — dann speichert das Ziel nach der Umbenennung denselben Text wie vorher.',
   // Bedarf 105 — die Vor-Show-Liste fuer das Tally (`lib/tallyPosition.ts`).
   Weg:
-    'Über welchen Weg das Tally an diese Position kommt (TSL UMD v3.1, GPIO, NDI, der Mischer selbst). „nicht festgelegt“ heißt: niemand hat es entschieden.',
+    'Je nach Blatt: in der Tally-Karte, über welchen Weg das Tally an diese Position kommt (TSL UMD v3.1, GPIO, NDI, der Mischer selbst; „nicht festgelegt“ heißt: niemand hat es entschieden); in den Signalwegen die ganze Kette mit Ort, Gerät und Port an jeder Station; bei den Hausstrecken, von welchem Raum zu welchem sie laut Gebäude führt.',
   Adresse:
     'Adresse, Host oder Pin, wie es AM GERÄT eingetragen ist. Der Plan prüft den Wert nicht — was gültig ist, hängt am Weg; geprüft wird an der Lampe.',
   Lampe: 'Wo die Lampe sitzt, die diese Position anzeigt („Kamerakopf“, „Box am Stativ“).',
@@ -178,8 +178,8 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   Anteil:
     'Wie groß dieser Teil am Ganzen ist — immer MIT Nenner („3 von 12 (25 %)"), nie als nackter Prozentsatz.',
   Antwort: 'Was das Haus auf die Frage geantwortet hat — gewährt, abgelehnt oder mit Auflage.',
-  Anzahl: 'Wie viele Geräte oder Positionen diese Zeile betrifft.',
-  Art: 'Die Sorte des Eintrags — je nach Blatt Ereignis-, Kanal-, Container- oder Anforderungsart.',
+  Anzahl: 'Wie viele Geräte, Positionen oder Kabel diese Zeile betrifft.',
+  Art: 'Die Sorte des Eintrags — je nach Blatt Ereignis-, Kanal-, Container-, Anforderungs-, Durchgangs- oder Mangelart.',
   'As-Built': 'Die Revision, die als Bauzustand festgeschrieben wurde.',
   Audio: 'Die geplanten Audio-Parameter des Ziels (Codec, Abtastrate, Bitrate).',
   'Auflage / Umweg':
@@ -321,13 +321,15 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
     'Bis wann der Nachweis gilt. Fehlt die Angabe, heisst das NICHT „unbefristet", sondern „keine Frist angegeben" — die Spalte „Lage" sagt es.',
   Lage:
     'Ob der Nachweis am Stichtag gilt, abgelaufen ist oder gar keine Frist trägt. Drei Zustände, weil eine fehlende Frist keine Zusage ist.',
+  // Zwei Lesarten: der Scan im Nachweis-Paket, die abgelegte Datei im
+  // Anhänge-Verzeichnis.
   Datei:
-    'Der Dateiname des Scans, der beiliegen soll. Steht dort „keine Datei benannt", ist an dieser Stelle nichts beigelegt.',
+    'Der Dateiname des Scans, der beiliegen soll (steht dort „keine Datei benannt", ist nichts beigelegt) — im Anhänge-Verzeichnis der Ort der Datei relativ zum Projektordner (`Anhaenge/…`), leer in einer Zeile, die ein fehlendes Protokoll meldet.',
   'Im Plan': 'Was der Plan an dieser Stelle vorsieht — die Soll-Seite des Abgleichs.',
   'Ingest-URL': 'Die Adresse, an die gesendet wird. Ohne Stream-Key — der steht nie in einer Datei.',
   IP: 'Die IP-Adresse der Schnittstelle.',
   Ist: 'Der tatsächlich angefallene Betrag. Wird nie gerechnet und nie geraten.',
-  Kabel: 'Das Kabel, um das es in dieser Zeile geht.',
+  Kabel: 'Das Kabel — oder die Kabel, mit Nummer —, um die es in dieser Zeile geht.',
   Kennung: 'Die interne Kennung des Datensatzes, für den Rückbezug.',
   Kennzahl: 'Der Name der Kennzahl im Übergabe-Dokument.',
   'Key hinterlegt':
@@ -413,7 +415,8 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   Stumm: 'Ob der Kanal stummgeschaltet gespeichert wurde.',
   Text: 'Der Klartext dieser Zeile.',
   Thumbnail: 'Der Dateiname des Vorschaubilds — das Bild selbst steckt nicht im Projekt.',
-  Titel: 'Der Titel, unter dem die Veranstaltung läuft.',
+  Titel:
+    'Der Titel, unter dem die Veranstaltung läuft — im Anhänge-Verzeichnis der Name des Anhangs, sonst sein Dateiname.',
   'Titel aus': 'Ob der Titel vom Projekt kommt, aus einer Abweichung oder nirgendwo.',
   Transport: 'Über welchen Transport gesendet wird (SRT, RTMP, HLS).',
   'UDP-Port': 'Der Sende-Port. Adresse und Port zusammen müssen je Sender eindeutig sein.',
@@ -422,7 +425,7 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   VLAN: 'Das VLAN, in dem die Schnittstelle liegt.',
   // Bedarf 20 — die vier Spalten des Adressbereichs-Blatts.
   Ebene:
-    'Aus welcher Schicht der Bereich stammt: „stehend“ ist der Plan, der am Wagen hängt, „Haus“ die Überlagerung vor Ort. Die Haus-Ebene gewinnt.',
+    'Je nach Blatt: in den Kabellisten die Kabelebene (etwa Video, Audio, Netz, Strom), nach der der Plan Kabel ein- und ausblendet; im Spektrum-Plan, aus welcher Schicht der Bereich stammt — „stehend“ ist der Plan, der am Wagen hängt, „Haus“ die Überlagerung vor Ort, und die Haus-Ebene gewinnt.',
   'Schlüssel':
     'Der Schlüssel, an dem sich die Ebenen treffen: die Haus-Ebene ersetzt den stehenden Bereich mit DEMSELBEN Schlüssel und lässt alle anderen stehen. Ein Tippfehler hier heisst, dass die gemeinte Ersetzung nicht stattfindet.',
   CIDR:
@@ -460,7 +463,95 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   'Zurück am': 'Wann die Einheit oder der Container zurückgegeben wurde.',
   'Zurück bis': 'Bis wann die Rückgabe zugesagt ist.',
   Zuletzt: 'Wann der jüngste Fehler an dieser Einheit gemeldet wurde.',
-  Zwischenstationen: 'Die Geräte, die zwischen Programm-Eingang und Ziel im Weg liegen.',
+  Zwischenstationen:
+    'Die Geräte, die zwischen Quelle und Ziel im Weg liegen — im Ausspielweg zwischen Programm-Eingang und Ziel, in den Signalwegen die durchleitenden Stationen (Wandfeld, Patchfeld, Blende).',
+
+  // ── Die Festinstallations-Listen (2026-09-27) ─────────────────────────────
+  //
+  // Diese Spalten standen seit ihren Blättern ohne Eintrag da, und der Guard
+  // in tests/dataDictionary.test.ts war grün: er las `headers: [...]`,
+  // `…_HEADERS = [...]` und `toCsv([...])`, aber nicht `const headers = [...]`
+  // — die Form, in der Pull-Liste, Termination-Liste, Kabel-Schedule,
+  // Stückliste, Asset-Register und Hausstrecken ihre Spalten schreiben. 42
+  // Spalten gingen so ohne Erklärung an den Installateur. Gefunden beim
+  // Anlegen der Durchgangsliste; der Guard kennt die Form jetzt.
+  'Asset-Tag':
+    'Die Inventar-Nummer des Geräts. Fehlt sie, steht die QR-Kennung oder eine Kurzform der internen Id da — dann ist noch keine Nummer vergeben.',
+  Standort: 'Der Raum, in dem das Gerät im Plan steht, mit der Etage in Klammern. Leer, wenn es in keinem Raum liegt.',
+  'Serien-Nr.': 'Die Seriennummer, wie sie am Gerät eingetragen ist. Freitext, nicht gegen den Hersteller geprüft.',
+  Firmware: 'Der eingetragene Firmware-Stand des Geräts.',
+  Eigentum: 'Eigenbestand, angemietet oder Sub-Hire.',
+  Lieferant: 'Bei wem das Gerät bezogen wurde.',
+  Anschaffung: 'Das Anschaffungsdatum.',
+  'Garantie bis': 'Bis zu welchem Datum die Garantie läuft.',
+  'Wartungsintervall (Tage)':
+    'Wie viele Tage zwischen zwei Wartungen liegen sollen. Leer heißt: kein Intervall angegeben — nicht „wartungsfrei“.',
+  'Letzter Service': 'Das Datum des jüngsten Eintrags in der Service-Historie des Geräts.',
+  'Service-Einträge': 'Wie viele Einträge die Service-Historie des Geräts hat.',
+  Strecke: 'Die Bezeichnung der festen Hausstrecke, wie das Gebäude sie führt.',
+  Ader: 'Die Ader der Hausstrecke (Koax, Paar, Faser), mit der Nummer aus der Gebäude-Datei.',
+  Signal: 'Welches Signal das Gebäude für diese Ader angibt.',
+  'Belegt durch': 'Die Kabel im Plan, die diese Ader benutzen. Leer heißt: die Ader ist frei.',
+  'Label-ID':
+    'Die Kennung auf dem Etikett: die Kabelnummer, sonst die QR-Kennung, sonst eine Kurzform der internen Id.',
+  'Kabel-Nr.': 'Die Kabelnummer aus dem Nummernschema des Plans.',
+  'Von Gerät': 'Das Gerät am A-Ende des Kabels.',
+  'Von Port': 'Der Anschluss am A-Ende, mit Inhaltsnamen, wo einer vergeben ist.',
+  'Nach Gerät': 'Das Gerät am B-Ende des Kabels.',
+  'Nach Port': 'Der Anschluss am B-Ende, mit Inhaltsnamen, wo einer vergeben ist.',
+  Typ:
+    'Je nach Blatt: in Kabellisten und Stückliste der Kabeltyp (etwa BNC, RJ45, XLR); im Plan-Vergleich, welche Sorte Objekt sich geändert hat (Kabel, Gerät, Raum).',
+  Adern: 'Welche Leiter die Leitung führt, mit Farbe laut Farbnorm — etwa „L1 (braun)“. Leer, wo nichts angegeben ist.',
+  Faser:
+    'Welche Faser der Buchse das Kabel je Ende belegt, mit Rolle, wo angegeben: „2 TX → 2 RX“. Leer, wo keine Buchse aufgeteilt ist.',
+  'Bündel': 'Zu welchem Anschluss die Leitung gehört. Leer, wenn zu keinem.',
+  'Trasse/Pfad':
+    'Die Trasse, der Kanal oder das Rohr, in dem das Kabel läuft — wie am Kabel eingetragen. In der Durchgangsliste alle Trassen der Kabel, die den Übergang passieren.',
+  'Mantel/Brandklasse':
+    'Die Mantel- oder Brandklasse des Kabels (etwa LSZH, CPR B2ca). In der Durchgangsliste je Klasse gezählt; „ohne Angabe“ sind die Kabel, bei denen sie fehlt.',
+  'Term. A': 'Die Terminierung am A-Ende (etwa T568B, LC).',
+  'Term. B': 'Die Terminierung am B-Ende (etwa T568B, LC).',
+  Test: 'Das Mess-Ergebnis des Kabels: PASS oder FAIL, mit der Reserve in dB, wo gemessen.',
+  Notizen: 'Die freie Notiz am Kabel.',
+  Ende:
+    'Je nach Blatt: in der Termination-Liste A oder B, also welches Ende des Kabels die Zeile beschreibt; in den Signalwegen, warum die Kette nicht an einem Ziel endet (leer, wenn sie es tut).',
+  Steckverbinder: 'Der Stecker am Port dieses Endes, aus dem Datenblatt — sonst der Kabeltyp.',
+  Geschlecht: 'm (Stecker) oder w (Buchse) am Port, wo angegeben.',
+  Terminierung: 'Wie dieses Ende konfektioniert wird (etwa T568B, LC).',
+  'Tie-Line': '„ja“ bei einer Festverbindung, die im Gebäude liegt und nicht zur Show gehört.',
+  'Gesamtlänge (m)': 'Menge mal Länge: die Meter, die diese Zeile braucht, ohne Reserve.',
+  Festverbindung: '„ja“, wenn die Zeile Festverbindungen zusammenfasst — sie werden getrennt von den Show-Kabeln gezählt.',
+  'Stückelung': 'Wie die Länge aus vorhandenen Lagerlängen zusammengesetzt wird: „2 × 100 m + 1 × 50 m“.',
+  Kupplungen: 'Wie viele Kupplungen die Stückelung für alle Kabel dieser Zeile braucht.',
+  Fehlbestand: 'Welche Lagerlängen fehlen: „100 m: 5/3“ heißt 5 gebraucht, 3 da.',
+  Klasse:
+    'Im Plan-Vergleich, welcher Art die Feldänderung ist: Identität, inhaltlich, Darstellung, Herkunft oder Zugangsdaten.',
+  Kette: 'Die laufende Nummer des Signalwegs auf diesem Blatt.',
+  'Von (Etage · Raum)': 'Wo die Quelle steht: Etage und Raum aus der Lage im Rahmen.',
+  'Nach (Etage · Raum)': 'Wo das Ziel steht: Etage und Raum aus der Lage im Rahmen.',
+  Hausstrecken: 'Die festen Hausstrecken im Weg, mit der benutzten Ader in Klammern.',
+  Durchgang:
+    'Wo Kabel eine Grenze im Gebäude passieren: zwischen zwei Räumen, in einen Steigschacht hinein oder durch eine Geschossdecke im Schacht. Wie viele Wände zwischen zwei Räumen liegen, sagt der Plan nicht.',
+  Etage: 'Die Etage aus der Etagenliste des Plans; bei einer Geschossdecke die Etage darunter und darüber.',
+
+  // ── Die Betreiber-Blätter der Übergabe (2026-09-27) ─────────────────────
+  Betrifft: 'Das Gerät (Name) oder Kabel (Nummer), an dem der Punkt festgestellt wurde. Leer, wenn die Feld-Meldung kein Ziel nennt.',
+  Gemeldet:
+    'Der Tag, an dem der Punkt in den Plan kam — bei einer Messung ihr Datum, bei einer Feld-Meldung ihr Eingang. Leer bei einem Status: der Plan weiß nicht, seit wann er gilt.',
+  'Gemeldet von': 'Wer den Punkt eingetragen hat — Prüfer der Messung oder Melder vor Ort.',
+  Basis:
+    'Worauf die nächste Fälligkeit rechnet: der jüngste Service-Eintrag am Gerät, sonst das Übergabe-Datum. Leer, wenn es keines von beiden gibt.',
+  'Nächste Wartung':
+    'Ausgangsdatum plus Wartungsintervall, als Tag. Leer, wenn Intervall oder Ausgangsdatum fehlt — der Befund sagt, welches.',
+  Switch: 'Der Switch, an dem die Schnittstelle hängt — eingetragen an der Schnittstelle oder aus dem Kabel gefolgert (siehe Quelle).',
+  'Über': 'Die Blenden (Patchfelder, Wanddosen) zwischen Switch und Gerät, in Reihenfolge. Leer bei direkter Verkabelung.',
+  'Web-Oberfläche': 'Die Adresse der Bedien-Oberfläche des Geräts, wie sie im Plan eingetragen ist.',
+
+  // ── Das Anhänge-Verzeichnis (2026-09-27) ────────────────────────────────
+  'Größe (KB)': 'Die Dateigröße beim Anhängen, auf volle Kilobyte aufgerundet.',
+  'SHA-256':
+    'Die Prüfsumme des Inhalts beim Anhängen. Ergibt dieselbe Datei im Ordner heute eine andere, ist es nicht mehr dieselbe Datei.',
+  Angehängt: 'Der Tag, an dem die Datei in den Projektordner kam.',
 }
 
 /**

@@ -127,7 +127,10 @@ Built with **Electron, React, and TypeScript**, it is designed for real-world pr
   line per room pair with the cable count, or as single cables (house runs
   dashed). The same floor/room and layer switches as on the canvas apply. A
   floor without a height is stacked with an adjustable storey height, and the
-  view says so
+  view says so. Tick **Riser** in a frame's properties and it becomes a shaft
+  through every floor: cables between floors then run up to the ceiling, over
+  to the nearest riser, down or up, and across to their target — without a
+  riser they stay straight lines, and the view says that too
 - **Rooms ▾** in the toolbar hides floors or single rooms with their devices.
   A cable into a hidden room stays as a stub at the visible end and says
   where it goes; its arrow brings the room back. Only the view changes — the
@@ -267,13 +270,21 @@ plate **in millimetres**, print the label strip and the drilling sheet **1:1**.
   plate → house run → 3rd-floor plate → gallery as one chain instead of
   stopping at the first plate. Untick *Patch panel* on a plate that does not
   (a stagebox with a converter inside).
+- A pass-through plate has a front and a back. **On the plate** picks which of
+  the two sits on it (by default the side whose connectors already have a
+  position); the back — the house run — is not drilled and not reported as
+  "no position".
+- A plate with **several rows** of connectors prints **one label strip per
+  row**, so BNC on top and RJ45 below no longer land on the same spot.
 
 ---
 
 ### 📋 Report editor
 
 Every list this program prints — pull list, termination list, cable schedule,
-asset register, network sheet, spectrum plan, delivery, tally map, handover —
+asset register, network sheet, spectrum plan, delivery, tally map, handover,
+signal paths, house run occupancy, crossings, defects and open items,
+maintenance schedule, configuration settings, attachment index —
 goes through one editor (#880):
 
 - **Columns**: show, hide, reorder.
@@ -414,13 +425,15 @@ risk without a payoff.
 - **`.avplan`** — the shared exchange format across the planner suite. When the
   file carries the MultiCam plan's cameras, opening it offers to place them in
   the signal plan
-- **MultiCam cameras** (`.cameras.json`, *File → Import MultiCam cameras*) —
-  every placed camera becomes a device with its datasheet ports, lens, zoom
-  range and set focal length (shown on the node and under *Optics* in its
-  properties). Importing again **reconciles** instead of duplicating: names
-  and optics follow the camera plan, position, ports and cables stay, and a
-  camera that left the MultiCam plan is marked, not deleted — cables may hang
-  on it
+- **MultiCam cameras** (`.cameras.json`, format `camera-list` v1 to v3,
+  *File → Import MultiCam cameras*) — every placed camera becomes a device with
+  its datasheet ports, lens, zoom range, set focal length, height, pan and tilt,
+  and (v3) its saved PTZ presets with the day each was saved (shown on the node
+  and under *Optics* in its properties). Importing again **reconciles** instead
+  of duplicating: names, optics and presets follow the camera plan, position,
+  ports and cables stay, and a camera that left the MultiCam plan is marked,
+  not deleted — cables may hang on it. An older v2 list says nothing about
+  presets and leaves the existing ones in place
 - **Racks for the warehouse** (`rack-belegung.json`, *Library → Racks → For the
   warehouse*) — what sits in each rack, with unit and name, for the Inventory
   Planner. A rack that travels in a case is a case there: the warehouse owns
@@ -505,6 +518,68 @@ one, and **Restore default** goes back.
   - Cable metadata
   - Signal routing overview
 - Print-ready production documentation
+- **Fixed install: docs & handover** (File menu) — pull list, termination list,
+  cable schedule, cable BOM with reserve, asset register, handover document,
+  **signal paths** (every chain from source to target with floor and room at
+  each station) and **house run occupancy** (per core: which cable, which are
+  free), plus QR labels for every cable and device
+- **Route plan per floor** (HTML, A4 landscape) — a top view of every floor
+  with its rooms, the riser and a line per connection room to room or room to
+  riser, labelled with the cable count. Schematic, not the tray route: the
+  plan knows rooms and risers, not where the tray runs
+- **Crossings (fire protection)** (CSV) — every room boundary, riser entry and
+  floor slab a cable passes, with the cables bundled per crossing, their
+  jacket / fire rating and pathway. A missing rating is named in the finding
+  column, and a floor change without a riser says so instead of inventing a
+  route. Cables with an end outside every room are counted, not placed
+- **Acceptance record** (HTML) — installation header, scope and test results,
+  the defects and open items the plan knows (faults, failed cable tests, field
+  reports neither applied nor rejected, items still planned) plus empty rows
+  for the walk-through, three result boxes left unticked, and a signature block
+  for client and contractor. A cable without status or test result is counted,
+  not listed as a defect. The list alone is also a CSV (**defects and open
+  items**)
+- **Maintenance schedule** (CSV) — next due date per device from its
+  maintenance interval and the latest service entry, else the handover date;
+  which basis applied is its own column. No interval or no basis: the date
+  stays empty and the finding says why. No statutory inspection periods are
+  assumed
+- **Configuration settings** (CSV) — per device and interface: address, mask,
+  gateway, VLAN, MAC, switch and port (entered at the interface, or followed
+  from the cable through patch panels), web interface. A single cabled port
+  goes to the first interface; with two, each gets its own row instead of a
+  guess. Devices on a switch without an address, missing masks and port
+  conflicts are flagged
+- **Device cards** (HTML) — one card per device: location, category, asset
+  tag, serial, firmware, status, warranty, interval, manufacturer page, web
+  interface, network, switcher input, every cable with its other end (and,
+  when that end is a patch panel, the device behind it), service history.
+  Gaps show as a dash
+- **Operator overview** (HTML) — which source (by role name) lies on which
+  switcher or router input, where each output goes (through patch panels),
+  contacts, web interfaces, and an empty box for operating steps: the plan does
+  not know them and the sheet does not invent them
+- **Camera positions** (HTML) — per camera from the camera plan: room, role,
+  height, aim, optics, switcher input and the PTZ presets (number, shot,
+  segment, pan, tilt, focal length, focus, saved on). The sheet says that the
+  presets are not checked against the camera head — no camera protocol is
+  spoken here
+- **Attachments** (desktop app) — test reports, manufacturer documents and
+  configuration backups, each attached to a cable, a device or the whole
+  installation. The files are copied into the folder `Anhaenge` next to the
+  project (named by their SHA-256, any file type, up to 100 MB); the project
+  keeps only the reference. Files are never opened from the app, only shown
+  in the file manager. A missing file, a target no longer in the plan and a
+  cable with a test result but no report are flagged. The **attachment
+  index** (CSV) lists them all with their checksum for the handover
+- Every column of every exported list carries a lexicon entry (the column
+  glossary appended to each CSV)
+- **Per-device patch sheets** name where the device stands (*floor · room*)
+  and, for a cable leaving the room, where its other end lies
+- The **switch port map** looks through patch panels and wall plates: a camera
+  behind the gallery patch panel and the hall wall panel is named as the
+  camera, with the panels it passes — not as a conflict with the patch panel.
+  The PoE budget counts it the same way
 
 ---
 

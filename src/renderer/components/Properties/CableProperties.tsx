@@ -14,6 +14,7 @@ import { ColorField } from '../shared/ColorField'
 import { v4 as uuidv4 } from 'uuid'
 import { RoutingToggle } from '../shared/RoutingToggle'
 import { format, useTranslation } from '../../lib/i18n'
+import { installStatusText } from '../../lib/installStatusText'
 import { STANDARD_LAYERS, LAYER_STYLES } from '../../lib/cableLayers'
 import { netKeyOf, netPeerCount } from '../../lib/offPageNet'
 import { sourceDestLabel } from '../../lib/cableLabel'
@@ -24,7 +25,6 @@ import { HausStreckeSection } from './HausStreckeSection'
 import type { Floor, LocationFrame } from '../../types/location'
 import {
   INSTALL_STATUSES,
-  INSTALL_STATUS_LABEL,
   type InstallStatus,
   type CableTestResult,
 } from '../../types/lifecycle'
@@ -336,7 +336,7 @@ export const CableProperties = () => {
               <option value="">{t('lifecycle.statusNone', '— no status —')}</option>
               {INSTALL_STATUSES.map((s) => (
                 <option key={s} value={s}>
-                  {t(`lifecycle.status.${s}`, INSTALL_STATUS_LABEL[s])}
+                  {installStatusText(s, t)}
                 </option>
               ))}
             </select>

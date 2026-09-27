@@ -28,6 +28,7 @@ import { breakoutBefunde, polaritaetsBefunde } from '../types/fiber'
 import { wandSumme } from './ledWall'
 import { beurteileBild } from '../types/displayCapability'
 import { gruppenBefunde } from './portGroups'
+import { durchBlenden, gegenendenJePort } from './patchPanel'
 import { pruefeAdressen, type DmxGeraet } from './dmx'
 import { tr, format } from './i18n'
 export type { CheckSeverity, CheckFinding } from '../types/checkFinding'
@@ -584,6 +585,7 @@ export const runDrawingChecks = (
   // Ethernet angeschlossenen PoE-fähigen Verbraucher (≤ 90 W = 802.3bt Typ 4;
   // größere Geräte haben eigene Stromversorgung und zählen nicht).
   const POE_MAX_W = 90
+  const kabelEnden = gegenendenJePort(cables)
   for (const sw of equipment) {
     const budgetRaw = sw.categoryProps?.poeBudgetW
     const budget = typeof budgetRaw === 'number' ? budgetRaw : Number(budgetRaw)
@@ -593,16 +595,20 @@ export const runDrawingChecks = (
     const seen = new Set<string>()
     for (const c of cables) {
       let swPortId: string | undefined
-      let otherId: string | undefined
+      let fern: { equipmentId: string; portId: string } | undefined
       if (c.fromEquipmentId === sw.id) {
         swPortId = c.fromPortId
-        otherId = c.toEquipmentId
+        fern = { equipmentId: c.toEquipmentId, portId: c.toPortId }
       } else if (c.toEquipmentId === sw.id) {
         swPortId = c.toPortId
-        otherId = c.fromEquipmentId
+        fern = { equipmentId: c.fromEquipmentId, portId: c.fromPortId }
       } else continue
       const swPort = portById.get(swPortId)
       if (!swPort || swPort.connectorType !== 'Ethernet/RJ45') continue
+      // Durch Patchfeld und Wanddose zum Verbraucher: sonst zaehlt eine
+      // PoE-Kamera hinter einer Blende nicht mit, und das Budget sieht in
+      // jeder Festinstallation leer aus.
+      const otherId = durchBlenden(fern, eqById, kabelEnden).ende.equipmentId
       if (!otherId || seen.has(otherId)) continue
       const consumer = eqById.get(otherId)
       if (!consumer) continue

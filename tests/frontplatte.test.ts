@@ -7,7 +7,11 @@ import {
   normalisiereFrontplatte,
   plattenBefunde,
   streifenFelder,
+  streifenReihen,
 } from '../src/renderer/types/frontplatte'
+import { plattenPorts, plattenSeite } from '../src/renderer/lib/patchPanel'
+import { buildFrontplattenHtml } from '../src/renderer/lib/frontplattenBlatt'
+import type { EquipmentItem } from '../src/renderer/types/equipment'
 import type { Port } from '../src/renderer/types/equipment'
 
 // ---------------------------------------------------------------------------
@@ -202,5 +206,80 @@ describe('#879 — die Frontplatten-Liste', () => {
       expect(t.rows[0][6]).toBe('')
       expect(t.rows[0][8]).toBe('')
     })
+  })
+})
+
+// Gefunden am Beispiel „3 PTZ Saal → Regie": ein Wandfeld mit BNC oben und
+// RJ45 darunter druckte beide Namen an dieselbe Stelle des einen Streifens.
+describe('Streifen je Steckerreihe', () => {
+  const zweiReihen = [
+    port('BNC 1', { panelPosX: 0.2, panelPosY: 0.3 }),
+    port('BNC 2', { panelPosX: 0.6, panelPosY: 0.3 }),
+    port('RJ45 1', { panelPosX: 0.2, panelPosY: 0.7 }),
+    port('RJ45 2', { panelPosX: 0.6, panelPosY: 0.71 }),
+  ]
+
+  it('bildet eine Reihe je Hoehe, von oben nach unten, links nach rechts', () => {
+    const reihen = streifenReihen(zweiReihen, platte, (p) => p.name)
+    expect(reihen.map((r) => r.map((f) => f.portId))).toEqual([
+      ['BNC 1', 'BNC 2'],
+      ['RJ45 1', 'RJ45 2'],
+    ])
+  })
+
+  it('druckt je Reihe einen eigenen Streifen', () => {
+    const html = buildFrontplattenHtml({ titel: 'WAF', platte, ports: zweiReihen, streifenHoeheMm: 9 })
+    expect(html.match(/class="streifen"/g)).toHaveLength(2)
+    expect(html).toContain('Row 2 of 2')
+  })
+
+  it('bleibt bei einer Reihe bei einem Streifen ohne Reihen-Zeile', () => {
+    const html = buildFrontplattenHtml({ titel: 'WAF', platte, ports: zweiReihen.slice(0, 2), streifenHoeheMm: 9 })
+    expect(html.match(/class="streifen"/g)).toHaveLength(1)
+    expect(html).not.toContain('Row 1')
+  })
+})
+
+// Ein Wandfeld hat vorne Buchsen und hinten die Hausstrecke. Der Editor
+// verlangte fuer beide Seiten eine Lage auf der Platte.
+describe('Seite auf der Platte', () => {
+  const wandfeld = (over: Partial<EquipmentItem> = {}): EquipmentItem =>
+    ({
+      id: 'waf',
+      name: 'WAF-EG-01',
+      category: 'Sonstiges',
+      frontplatte: { art: 'wandfeld' },
+      inputs: [port('v1', { panelPosX: 0.2, panelPosY: 0.5 }), port('v2', { panelPosX: 0.6, panelPosY: 0.5 })],
+      outputs: [port('h1'), port('h2')],
+      x: 0,
+      y: 0,
+      width: 200,
+      height: 100,
+      ...over,
+    }) as EquipmentItem
+
+  it('nimmt die Seite, deren Stecker schon eine Lage haben', () => {
+    expect(plattenPorts(wandfeld()).map((p) => p.id)).toEqual(['v1', 'v2'])
+    const umgekehrt = wandfeld({ inputs: [port('h1'), port('h2')], outputs: [port('v1', { panelPosX: 0.2, panelPosY: 0.5 }), port('v2')] })
+    expect(plattenSeite(umgekehrt)).toBe('outputs')
+  })
+
+  it('folgt der ausdruecklichen Angabe', () => {
+    expect(plattenPorts(wandfeld({ frontplatte: { art: 'wandfeld', seite: 'outputs' } })).map((p) => p.id)).toEqual(['h1', 'h2'])
+  })
+
+  it('meldet die Rueckseite nicht als „ohne Lage"', () => {
+    const befunde = plattenBefunde(plattenPorts(wandfeld()), platte)
+    expect(befunde.some((b) => b.art === 'ohne-lage')).toBe(false)
+  })
+
+  it('zeigt bei einem Geraet, das nicht durchleitet, alle Ports', () => {
+    const stagebox = wandfeld({ frontplatte: { art: 'sonstige' }, outputs: [port('x')] })
+    expect(plattenPorts(stagebox)).toHaveLength(3)
+  })
+
+  it('merkt sich die Seite beim Laden und verwirft Unsinn', () => {
+    expect(normalisiereFrontplatte({ art: 'wandfeld', seite: 'outputs' })?.seite).toBe('outputs')
+    expect(normalisiereFrontplatte({ art: 'wandfeld', seite: 'links' })?.seite).toBeUndefined()
   })
 })

@@ -279,6 +279,16 @@ contextBridge.exposeInMainWorld('cablePlanner', {
     reveal: (projectPath: string | undefined, storedAs: string) =>
       ipcRenderer.invoke('receipt:reveal', projectPath, storedAs) as Promise<boolean>,
   },
+  // Anhänge neben dem Projekt (Messprotokolle, Herstellerunterlagen,
+  // Konfig-Sicherungen). Nur Zeichenketten hin; kein Kanal oeffnet eine Datei.
+  attachment: {
+    pick: (projectPath?: string) =>
+      ipcRenderer.invoke('attachment:pick', projectPath) as Promise<unknown>,
+    present: (projectPath: string | undefined, storedAs: string[]) =>
+      ipcRenderer.invoke('attachment:present', projectPath, storedAs) as Promise<unknown>,
+    reveal: (projectPath: string | undefined, storedAs: string) =>
+      ipcRenderer.invoke('attachment:reveal', projectPath, storedAs) as Promise<boolean>,
+  },
   /**
    * E-23 — der eingehende OSC-Lauscher.
    *

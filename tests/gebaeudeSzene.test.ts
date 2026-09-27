@@ -84,3 +84,61 @@ describe('gebaeudeSzene', () => {
     expect(s.groesse).toBeGreaterThan(0)
   })
 })
+
+// Kabel zwischen Etagen liefen als Luftlinie quer durch das Haus. Ein Rahmen
+// kann jetzt Steigschacht sein; dann laeuft der Weg hoch zur Trasse, zum
+// Schacht, senkrecht, und auf der anderen Etage zum Ziel.
+describe('Steigschacht', () => {
+  const mitSchacht = {
+    equipment: [geraet('kam', 50, 50), geraet('hub', 550, 50)],
+    cables: [kabel('k1', 'kam', 'hub')],
+    locations: [
+      rahmen('halle', 0, 'EG'),
+      rahmen('regie', 500, '3.OG'),
+      { id: 'schacht', name: 'S1', x: 1000, y: 0, width: 100, height: 100, color: '#999', floor: 'EG', steigschacht: true },
+      { id: 'schacht2', name: 'S2', x: 5000, y: 0, width: 100, height: 100, color: '#999', floor: 'EG', steigschacht: true },
+    ] as LocationFrame[],
+    floors: [{ name: 'EG', elevationM: 0 }, { name: '3.OG', elevationM: 12 }],
+  }
+  const opt = { metersPer100px: 1, geschosshoeheM: 4 }
+
+  it('zeichnet den Schacht durch alle Etagen und nicht als Raum', () => {
+    const s = gebaeudeSzene(mitSchacht, opt)
+    expect(s.raeume.map((r) => r.id)).toEqual(['halle', 'regie'])
+    expect(s.schaechte.find((x) => x.id === 'schacht')).toMatchObject({ x: 10.5, z: 0.5, yUnten: 0, yOben: 15 })
+  })
+
+  it('fuehrt ein Kabel zwischen Etagen ueber den naechsten Schacht', () => {
+    const k = gebaeudeSzene(mitSchacht, opt).kabel[0]
+    expect(k.schachtId).toBe('schacht')
+    expect(k.etagenwechsel).toBe(true)
+    expect(k.punkte.map((p) => [p.x, p.y, p.z].map((w) => Math.round(w * 100) / 100))).toEqual([
+      [1, 0.8, 1],
+      [1, 2.85, 1],
+      [10.5, 2.85, 0.5],
+      [10.5, 14.85, 0.5],
+      [6, 14.85, 1],
+      [6, 12.8, 1],
+    ])
+  })
+
+  it('fuehrt auch die Raumverbindung ueber den Schacht', () => {
+    const v = gebaeudeSzene(mitSchacht, opt).verbindungen[0]
+    expect(v.punkte).toHaveLength(4)
+    expect(v.punkte[1]).toMatchObject({ x: 10.5, z: 0.5 })
+  })
+
+  it('bleibt ohne Schacht und auf derselben Etage die Luftlinie', () => {
+    const ohne = { ...mitSchacht, locations: mitSchacht.locations.filter((l) => !l.steigschacht) }
+    const k = gebaeudeSzene(ohne, opt).kabel[0]
+    expect(k.punkte).toHaveLength(2)
+    expect(k.schachtId).toBeUndefined()
+    const gleicheEtage = { ...mitSchacht, locations: mitSchacht.locations.map((l) => (l.id === 'regie' ? { ...l, floor: 'EG' } : l)) }
+    expect(gebaeudeSzene(gleicheEtage, opt).kabel[0].punkte).toHaveLength(2)
+  })
+
+  it('laesst einen ausgeblendeten Schacht aus', () => {
+    const s = gebaeudeSzene(mitSchacht, { ...opt, verborgeneRahmen: new Set(['schacht']) })
+    expect(s.kabel[0].schachtId).toBe('schacht2')
+  })
+})

@@ -285,6 +285,10 @@ export interface CablePlannerProject {
    *  Planer übernimmt/verwirft sie am Desktop; beim Übernehmen wandert die
    *  Änderung ins `changelog`. Optional → alte Projekte heilen zu []. */
   pendingChanges?: PendingChange[]
+  /** Festinstallation — Anhänge neben dem Projekt (Messprotokolle,
+   *  Herstellerunterlagen, Konfig-Sicherungen). Nur Verweise; die Dateien
+   *  liegen in `Anhaenge/`. Optional → leer heilt zu `undefined`. */
+  anhaenge?: import('./anhang').ProjektAnhang[]
   /** .avplan-Passthrough — fremde Domaenen (geteilter Raum + Kamera- + Licht-
    *  Planung), die der Cable-Planner nicht bearbeitet, aber verlustfrei sowohl
    *  in der gemeinsamen .avplan als auch im eigenen Projektfile aufbewahrt,

@@ -22,6 +22,13 @@ import { deliveryTableForProject } from './deliveryParity'
 import { tallyMapTableForProject } from './tallyMap'
 import { handoverManifestTableForProject } from './postHandover'
 import { frontplattenTable } from './frontplattenListe'
+import { signalwegeTable } from './signalwegListe'
+import { hausStreckenTable } from './hausStrecken'
+import { durchgaengeTable } from './trassenplan'
+import { maengelTable } from './abnahme'
+import { wartungsplanTable } from './wartungsplan'
+import { konfigVorgabenTable } from './konfigVorgaben'
+import { anhaengeTable } from './anhaenge'
 import type { CsvTable } from './csv'
 import type { CablePlannerProject } from '../types/project'
 
@@ -46,6 +53,13 @@ export const BERICHTS_QUELLEN: ReadonlyArray<BerichtsQuelle> = [
   // #879 — die Bohrliste. Sie geht durch denselben Editor wie jede andere
   // Liste; eine eigene Ansicht waere eine zweite Fassung derselben Tabelle.
   { id: 'frontplatten', label: 'Faceplates', table: frontplattenTable },
+  { id: 'signalwege', label: 'Signal paths', table: signalwegeTable },
+  { id: 'hausstrecken', label: 'House run occupancy', table: hausStreckenTable },
+  { id: 'durchgaenge', label: 'Crossings (fire protection)', table: durchgaengeTable },
+  { id: 'maengelliste', label: 'Defects and open items', table: maengelTable },
+  { id: 'wartungsplan', label: 'Maintenance schedule', table: wartungsplanTable },
+  { id: 'konfig-vorgaben', label: 'Configuration settings', table: konfigVorgabenTable },
+  { id: 'anhaenge', label: 'Attachment index', table: anhaengeTable },
 ]
 
 export const quelleNach = (id: string): BerichtsQuelle | undefined =>

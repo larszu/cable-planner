@@ -5,7 +5,7 @@ Invarianten der App. Sie ist die Pflicht-Lektüre, bevor strukturelle Änderunge
 gemacht werden. Für die interaktive Modul-Übersicht siehe [`app-structure.html`](./app-structure.html),
 für einen Wettbewerber-Vergleich [`comparison.html`](./comparison.html).
 
-Stand: v9.0.3 · ~720 TS/TSX-Module · ~209.5k LOC
+Stand: v9.0.3 · ~754 TS/TSX-Module · ~215.5k LOC
 
 ---
 
@@ -68,6 +68,7 @@ Alle IPC-Channels sind nach Domäne präfixiert. Definitionen in
 | `signaling:*` | `signalingIpc.ts` | LAN-Signaling-Relay für die Yjs/WebRTC-Kollaboration (#413) |
 | `collabDiscovery:*` | `collabDiscoveryIpc.ts` | Bonjour/mDNS-Discovery von Kollaborations-Peers im LAN |
 | `receipt:*` | `receiptIpc.ts` | `pick`, `attach`, `read`, `reveal` — die Belegdatei einer Auslagenzeile (Bedarf 97). Die Datei liegt in `Belege/` **neben** dem Projekt und nicht im Projekt-File: ein Foto von zwei Megabyte in jeder `.avplan` verteuerte jede Speicherung und jeden Versand. Gespeichert wird unter dem SHA-256 des Inhalts, damit derselbe Beleg nur einmal liegt. Der Dateidialog läuft in main, der gewählte absolute Pfad erreicht den Renderer gar nicht; `reveal` zeigt den Ordner (`showItemInFolder`) statt die Datei zu öffnen — sie kommt von außen. |
+| `attachment:*` | `attachmentIpc.ts` | `pick`, `present`, `reveal` — Anhänge neben dem Projekt in `Anhaenge/`: Messprotokolle, Herstellerunterlagen, Konfig-Sicherungen. Dieselbe Ablage wie die Belege (`util/projektAblage.ts`: SHA-256-Name, Grenze zum Projektordner, atomar), aber **jede Endung** wird angenommen — ein Messgerät oder eine Konfig-Sicherung schreibt ihr eigenes Format. Vertretbar, weil es **keinen** Kanal gibt, der die Datei öffnet oder liest: nur `reveal` (Dateimanager) und `present` (liegt sie im Ordner?). Das Projekt führt nur den Verweis (`anhaenge`). |
 | `showControl:*` | `showControlIpc.ts` | `start`, `stop`, `state`, `clear` + Ereignis `showControl:update` — der eingehende OSC-Hörer (E-23). **Vier Auflagen stehen im Code und nicht in der Prosa:** aus als Vorgabe (dieses Modul startet nichts von selbst), je Projekt eingeschaltet, eine Adresse, die der Nutzer nennt (eine leere wird zurückgewiesen — `0.0.0.0` als Vorgabe lauscht auf jeder Schnittstelle, auch der im Kundennetz), und ein sichtbarer Befund, wenn nicht gebunden werden konnte. `start` gibt IMMER einen Zustand zurück, auch den gescheiterten: ein stiller Nicht-Empfang sieht aus wie „keine Cues", und das ist die Entwarnung durch die Hintertür. Gelesen wird aus dem Paket NUR die Adresse und die Länge dessen, was dahinter steht — Argumente zu entziffern hiesse, aus fremden Bytes Zahlen zu machen (Invariante 23). |
 | `documentLog:*` | `documentLogIpc.ts` | `append`, `read`, `clear` — das Register der ausgegebenen Dokumente (ADR-004). Es überdauert die Sitzung und gehört damit auf die Platte. |
 
@@ -96,7 +97,7 @@ Vier Stores in `src/renderer/store/`. Jeder hat einen klar abgegrenzten Concern.
 
 #### 3.1.1 · Slice-Komposition (#308)
 
-`projectStore.ts` ist intern in **23 Slices** unter `src/renderer/store/slices/`
+`projectStore.ts` ist intern in **25 Slices** unter `src/renderer/store/slices/`
 zerlegt, die alle in den Haupt-Store komponiert werden:
 
 ```
@@ -279,7 +280,7 @@ jemand drei von zwölf Monitoren angesehen hat.
 
 ### 3.2 · Komponenten
 
-`src/renderer/components/` ist in 31 Subdomänen aufgeteilt:
+`src/renderer/components/` ist in 32 Subdomänen aufgeteilt:
 
 ```
 About/         Analysis/      Annotations/   Atem/          Cable/
@@ -1023,7 +1024,7 @@ Diese Themen sind diskutiert, aber noch nicht entschieden / umgesetzt.
 ### 9.1 · Store-Slicing — **erledigt** ✓ (#308)
 
 Implementiert. `projectStore.ts` von 2178 LOC auf ~1146 reduziert durch
-23 Slices unter `store/slices/`. Siehe §3.1.1.
+25 Slices unter `store/slices/`. Siehe §3.1.1.
 
 ### 9.2 · Komponenten-Splits — **teilweise** ✓ (#306, #307)
 
@@ -1076,7 +1077,7 @@ optionales Cloud-Backend (`y-websocket`, Auth/Permissions) bleiben offen.
 `vitest` ist eingerichtet (`npm test` / `npm run test:watch`); dazu kommen
 gezielte Node-Checks (`npm run test:crdt`, `npm run test:signaling`), ein
 UI-Smoke-Skript (`npm run ui:smoke`) und ein headless Drag-/Interaktions-Test
-(`npm run test:drag`, treibt den Renderer via Playwright). Bei ~209.5k LOC
+(`npm run test:drag`, treibt den Renderer via Playwright). Bei ~215.5k LOC
 bleibt der Ausbau der Abdeckung wichtig — empfohlene Schwerpunkte:
 - Snapshot-Tests auf `healProjectPositions` mit echten
   Beispiel-Projekt-JSONs.

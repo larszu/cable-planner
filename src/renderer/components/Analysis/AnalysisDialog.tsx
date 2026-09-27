@@ -920,6 +920,11 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
                           : t('analysis.switchPorts.fromCable', 'cable')}
                       </span>
                     )}
+                    {r.via && (
+                      <span className="text-cp-xs text-[var(--cp-text-faint)]">
+                        {format(t('analysis.switchPorts.via', 'via {panels}'), { panels: r.via.join(' → ') })}
+                      </span>
+                    )}
                     {r.conflict && (
                       <span className="text-amber-300/90">
                         {format(t('analysis.switchPorts.conflict', 'cable says: {name}'), {

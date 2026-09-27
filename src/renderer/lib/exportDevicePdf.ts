@@ -27,6 +27,24 @@ import { pdfText } from './pdfHelpers'
 import { sanitizeForPdf } from './sanitizeForPdf'
 import { buildExportFilename, buildExportFilenameWithSuffix } from './exportFilename'
 import { portDisplayLabel, portLabelPair } from './portLabel'
+import { ortVonGeraet } from './kabelOrt'
+import type { Floor, LocationFrame } from '../types/location'
+
+/**
+ * Rahmen und Etagen des Plans — damit das Blatt sagt, WO das Geraet steht und
+ * wo das andere Kabelende liegt („2. OG · Regie 2.12"). Fehlen sie, bleibt
+ * das Blatt wie bisher ohne Ort.
+ */
+export interface PatchSheetOrt {
+  locations?: readonly LocationFrame[]
+  floors?: readonly Floor[]
+}
+
+const ortZeile = (e: EquipmentItem | undefined, ort: PatchSheetOrt | undefined): string => {
+  if (!e || !ort?.locations?.length) return ''
+  const o = ortVonGeraet(e, ort.locations, ort.floors ?? [])
+  return [o.etage, o.raum].filter(Boolean).join(' · ')
+}
 
 interface CableEndpointSummary {
   /** Human-readable label for the cable (name OR fallback to type+length). */
@@ -39,6 +57,8 @@ interface CableEndpointSummary {
    *  Mirrors what the mobile viewer prints next to each port so the
    *  patch sheet and the phone screen match. */
   otherPortConnectorType: string | null
+  /** Etage · Raum des anderen Endes, wenn es in einem anderen Raum liegt. */
+  otherOrt: string
   cable: Cable
 }
 
@@ -46,6 +66,7 @@ const summarizeEndpoint = (
   cable: Cable,
   myEquipmentId: string,
   allEquipment: EquipmentItem[],
+  ort?: PatchSheetOrt,
 ): CableEndpointSummary => {
   const isFromMe = cable.fromEquipmentId === myEquipmentId
   const otherId = isFromMe ? cable.toEquipmentId : cable.fromEquipmentId
@@ -89,6 +110,11 @@ const summarizeEndpoint = (
     // die schlechtere Wahrheit.
     otherPortName: otherPort ? portDisplayLabel(otherPort) || null : null,
     otherPortConnectorType: otherPort?.connectorType ? String(otherPort.connectorType) : null,
+    otherOrt: (() => {
+      const dort = ortZeile(other, ort)
+      const hier = ortZeile(allEquipment.find((e) => e.id === myEquipmentId), ort)
+      return dort && dort !== hier ? dort : ''
+    })(),
     cable,
   }
 }
@@ -102,6 +128,7 @@ const collectPortRows = (
   myEquipmentId: string,
   allCables: Cable[],
   allEquipment: EquipmentItem[],
+  ort?: PatchSheetOrt,
 ): Array<{ port: Port; cables: CableEndpointSummary[] }> => {
   void device
   return ports.map((port) => {
@@ -110,7 +137,7 @@ const collectPortRows = (
         (c.fromEquipmentId === myEquipmentId && c.fromPortId === port.id) ||
         (c.toEquipmentId === myEquipmentId && c.toPortId === port.id),
       )
-      .map((c) => summarizeEndpoint(c, myEquipmentId, allEquipment))
+      .map((c) => summarizeEndpoint(c, myEquipmentId, allEquipment, ort))
     return { port, cables }
   })
 }
@@ -127,7 +154,7 @@ const collectPortRows = (
  *  current date/time + horizontal rule). Called once on the first
  *  page AND repeated on every subsequent page so users can identify
  *  the printed sheet without flipping back to page 1. */
-const drawPageHeader = (pdf: jsPDF, device: EquipmentItem): number => {
+const drawPageHeader = (pdf: jsPDF, device: EquipmentItem, ort?: PatchSheetOrt): number => {
   const pageWidth = pdf.internal.pageSize.getWidth()
   const margin = 32
   pdf.setFontSize(16)
@@ -142,6 +169,8 @@ const drawPageHeader = (pdf: jsPDF, device: EquipmentItem): number => {
   if (device.category) metaParts.push(device.category)
   if (device.subtitle) metaParts.push(device.subtitle)
   if (device.ipAddress) metaParts.push(`IP ${device.ipAddress}`)
+  const hier = ortZeile(device, ort)
+  if (hier) metaParts.push(`Ort ${hier}`)
   pdfText(pdf, metaParts.join('  -'), margin, margin + 20)
   pdfText(pdf, new Date().toLocaleString(), pageWidth - margin, margin + 20, { align: 'right' })
 
@@ -224,9 +253,10 @@ const drawPortRowPair = (
       cy += 11 * labelLines
       pdf.setTextColor(80)
       const otherSuffix = c.otherPortConnectorType ? ` [${c.otherPortConnectorType}]` : ''
+      const dort = c.otherOrt ? `  (${c.otherOrt})` : ''
       const tgt = c.otherPortName
-        ? `       an ${c.otherDeviceName} - ${c.otherPortName}${otherSuffix}`
-        : `       an ${c.otherDeviceName}`
+        ? `       an ${c.otherDeviceName} - ${c.otherPortName}${otherSuffix}${dort}`
+        : `       an ${c.otherDeviceName}${dort}`
       const tgtLines = pdfText(pdf, tgt, x, cy, { maxWidth: colWidth - 6 })
       cy += 11 * tgtLines
     }
@@ -243,6 +273,7 @@ const drawDevicePage = (
   device: EquipmentItem,
   allEquipment: EquipmentItem[],
   allCables: Cable[],
+  ort?: PatchSheetOrt,
 ): void => {
   const pageWidth = pdf.internal.pageSize.getWidth()
   const pageHeight = pdf.internal.pageSize.getHeight()
@@ -250,7 +281,7 @@ const drawDevicePage = (
   const pageBottom = pageHeight - margin
 
   // Header on page 1
-  let y = drawPageHeader(pdf, device)
+  let y = drawPageHeader(pdf, device, ort)
 
   // Two-column layout for inputs (left) and outputs (right)
   const gutter = 18
@@ -263,6 +294,7 @@ const drawDevicePage = (
     device.id,
     allCables,
     allEquipment,
+    ort,
   )
   const outputRows = collectPortRows(
     device,
@@ -270,6 +302,7 @@ const drawDevicePage = (
     device.id,
     allCables,
     allEquipment,
+    ort,
   )
 
   // Column titles
@@ -298,7 +331,7 @@ const drawDevicePage = (
     if (y + estHeight > pageBottom) {
       pdf.addPage()
       // Repeat header on every new page (Issue #109)
-      y = drawPageHeader(pdf, device)
+      y = drawPageHeader(pdf, device, ort)
       // Repeat column titles too so the user knows what's left/right
       pdf.setFontSize(11)
       pdf.setFont('helvetica', 'bold')
@@ -329,11 +362,11 @@ export const exportDevicePatchSheet = async (
   device: EquipmentItem,
   allEquipment: EquipmentItem[],
   allCables: Cable[],
-  options?: { format?: 'a4' | 'a3' },
+  options?: { format?: 'a4' | 'a3' } & PatchSheetOrt,
 ): Promise<void> => {
   const format = options?.format ?? 'a4'
   const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format, compress: true })
-  drawDevicePage(pdf, device, allEquipment, allCables)
+  drawDevicePage(pdf, device, allEquipment, allCables, options)
   // v7.9.116 — Einheitlicher Stempel: YYYYMMDD_<device>_NNN_patch.pdf
   pdf.save(buildExportFilenameWithSuffix(device.name || 'device', 'patch', 'pdf'))
 }
@@ -345,11 +378,11 @@ export const buildDevicePatchSheetBlob = (
   device: EquipmentItem,
   allEquipment: EquipmentItem[],
   allCables: Cable[],
-  options?: { format?: 'a4' | 'a3' },
+  options?: { format?: 'a4' | 'a3' } & PatchSheetOrt,
 ): Blob => {
   const format = options?.format ?? 'a4'
   const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format, compress: true })
-  drawDevicePage(pdf, device, allEquipment, allCables)
+  drawDevicePage(pdf, device, allEquipment, allCables, options)
   return pdf.output('blob')
 }
 
@@ -362,14 +395,14 @@ export const exportDevicesPatchSheetsBatch = async (
   devices: EquipmentItem[],
   allEquipment: EquipmentItem[],
   allCables: Cable[],
-  options?: { format?: 'a4' | 'a3'; fileName?: string },
+  options?: { format?: 'a4' | 'a3'; fileName?: string } & PatchSheetOrt,
 ): Promise<void> => {
   if (devices.length === 0) return
   const format = options?.format ?? 'a4'
   const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format, compress: true })
   devices.forEach((device, idx) => {
     if (idx > 0) pdf.addPage()
-    drawDevicePage(pdf, device, allEquipment, allCables)
+    drawDevicePage(pdf, device, allEquipment, allCables, options)
   })
   // v7.9.116 — Wenn ein fileName explizit uebergeben wurde (z.B. weil
   // der Caller einen sehr spezifischen Namen will), benutzen wir den;
@@ -385,14 +418,14 @@ export const buildDevicesPatchSheetsBatchBlob = (
   devices: EquipmentItem[],
   allEquipment: EquipmentItem[],
   allCables: Cable[],
-  options?: { format?: 'a4' | 'a3' },
+  options?: { format?: 'a4' | 'a3' } & PatchSheetOrt,
 ): Blob | null => {
   if (devices.length === 0) return null
   const format = options?.format ?? 'a4'
   const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format, compress: true })
   devices.forEach((device, idx) => {
     if (idx > 0) pdf.addPage()
-    drawDevicePage(pdf, device, allEquipment, allCables)
+    drawDevicePage(pdf, device, allEquipment, allCables, options)
   })
   return pdf.output('blob')
 }

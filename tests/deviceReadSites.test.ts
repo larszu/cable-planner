@@ -104,6 +104,11 @@ const SONSTIGE_DOMAENEN = [
   'print',
   'project',
   'receipt',
+  // Die Anhänge-Ablage. KEIN Geraete-Weg: sie kopiert Dateien in den Ordner
+  // neben dem Projekt und zeigt sie im Dateimanager — sie spricht mit keinem
+  // Geraet, und eine abgelegte Konfig-Sicherung wird nie ausgelesen oder
+  // zurueckgespielt (`tests/anhaenge.test.ts`: kein Kanal liest oder oeffnet).
+  'attachment',
   'signaling',
   // E-23 — der eingehende OSC-Hoerer. Ausdruecklich KEIN Geraete-Weg, und
   // das ist die ganze Entscheidung hinter E-23: was aus einer Nachricht

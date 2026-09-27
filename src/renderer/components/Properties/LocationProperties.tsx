@@ -109,6 +109,16 @@ export const LocationProperties = () => {
         />
       </div>
 
+      <label className="flex items-start gap-2" title={t('location.field.riserTitle', 'In the building 3D view this frame runs through all floors, and cables between floors are drawn through it instead of as a straight line.')}>
+        <input
+          type="checkbox"
+          checked={!!location.steigschacht}
+          onChange={(e) => updateLocation(location.id, { steigschacht: e.target.checked || undefined })}
+          className="mt-0.5"
+        />
+        <span>{t('location.field.riser', 'Riser / vertical cable route')}</span>
+      </label>
+
       <div>
         <label className="block">
           {t('location.field.notes', 'Notes')}
