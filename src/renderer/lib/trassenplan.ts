@@ -38,6 +38,7 @@ import type { CablePlannerProject } from '../types/project'
 import type { CsvCell, CsvTable } from './csv'
 import { DEFAULT_LENGTH_ESTIMATION } from './cableLengthEstimate'
 import { gebaeudeSzene, type GebaeudeSzene, type SzeneRaum, type SzeneSchacht } from './gebaeudeSzene'
+import { esc, fmt, quelle, vergleich, type Uebersetzen } from './druckblatt'
 
 export type DurchgangArt = 'raumgrenze' | 'schachtzugang' | 'geschossdecke' | 'ohne-weg'
 
@@ -74,8 +75,6 @@ export interface DurchgangsAuswertung {
 
 /** Die Geschosshöhe fürs Stapeln der Etagen ohne Höhenangabe — nur für die Reihenfolge. */
 const GESCHOSS_M = 4
-
-const vergleich = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0)
 
 /**
  * Die Szene für Blatt und Liste: der GANZE Plan, nichts ausgeblendet. Was in
@@ -196,10 +195,7 @@ export function durchgaenge(project: CablePlannerProject): DurchgangsAuswertung 
 
 const kabelName = (c: Cable | undefined): string => (c ? c.cableNumber || c.name || c.id : '')
 
-export type Uebersetzen = (key: string, fallback: string) => string
-
-const fmt = (vorlage: string, werte: Record<string, string | number>): string =>
-  vorlage.replace(/\{(\w+)\}/g, (_, k: string) => (k in werte ? String(werte[k]) : `{${k}}`))
+export type { Uebersetzen }
 
 /**
  * Die Texte einer Zeile — einmal kanonisch fürs gestempelte CSV, einmal
@@ -305,11 +301,6 @@ export const trassenplanStandTable = (project: CablePlannerProject): CsvTable =>
 }
 
 // ─── DIE ZEICHNUNG ─────────────────────────────────────────────────────────
-
-const quelle: Uebersetzen = (_key, fallback) => fallback
-
-const esc = (s: string): string =>
-  s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 
 const zahl = (n: number) => String(Math.round(n * 100) / 100)
 

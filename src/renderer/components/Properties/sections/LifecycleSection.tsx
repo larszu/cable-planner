@@ -11,10 +11,10 @@ import { Wrench, Trash2, Plus } from 'lucide-react'
 import { useCanvasProjectStore as useProjectStore } from '../../../store/projectStoreContext'
 import { useSettingsStore, useModule } from '../../../store/settingsStore'
 import { useTranslation } from '../../../lib/i18n'
+import { installStatusText } from '../../../lib/installStatusText'
 import { Icon } from '../../shared/Icon'
 import {
   INSTALL_STATUSES,
-  INSTALL_STATUS_LABEL,
   type InstallStatus,
   type ServiceRecord,
 } from '../../../types/lifecycle'
@@ -91,7 +91,7 @@ export const LifecycleSection = ({ equipment }: { equipment: EquipmentItem }) =>
             <option value="">{t('lifecycle.statusNone', '— no status —')}</option>
             {INSTALL_STATUSES.map((s) => (
               <option key={s} value={s}>
-                {t(`lifecycle.status.${s}`, INSTALL_STATUS_LABEL[s])}
+                {installStatusText(s, t)}
               </option>
             ))}
           </select>

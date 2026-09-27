@@ -283,7 +283,8 @@ plate **in millimetres**, print the label strip and the drilling sheet **1:1**.
 
 Every list this program prints — pull list, termination list, cable schedule,
 asset register, network sheet, spectrum plan, delivery, tally map, handover,
-signal paths, house run occupancy, crossings —
+signal paths, house run occupancy, crossings, defects and open items,
+maintenance schedule, configuration settings —
 goes through one editor (#880):
 
 - **Columns**: show, hide, reorder.
@@ -501,6 +502,33 @@ file, not in browser storage, not in source. Exports strip them before writing.
   jacket / fire rating and pathway. A missing rating is named in the finding
   column, and a floor change without a riser says so instead of inventing a
   route. Cables with an end outside every room are counted, not placed
+- **Acceptance record** (HTML) — installation header, scope and test results,
+  the defects and open items the plan knows (faults, failed cable tests, field
+  reports neither applied nor rejected, items still planned) plus empty rows
+  for the walk-through, three result boxes left unticked, and a signature block
+  for client and contractor. A cable without status or test result is counted,
+  not listed as a defect. The list alone is also a CSV (**defects and open
+  items**)
+- **Maintenance schedule** (CSV) — next due date per device from its
+  maintenance interval and the latest service entry, else the handover date;
+  which basis applied is its own column. No interval or no basis: the date
+  stays empty and the finding says why. No statutory inspection periods are
+  assumed
+- **Configuration settings** (CSV) — per device and interface: address, mask,
+  gateway, VLAN, MAC, switch and port (entered at the interface, or followed
+  from the cable through patch panels), web interface. A single cabled port
+  goes to the first interface; with two, each gets its own row instead of a
+  guess. Devices on a switch without an address, missing masks and port
+  conflicts are flagged
+- **Device cards** (HTML) — one card per device: location, category, asset
+  tag, serial, firmware, status, warranty, interval, manufacturer page, web
+  interface, network, switcher input, every cable with its other end (and,
+  when that end is a patch panel, the device behind it), service history.
+  Gaps show as a dash
+- **Operator overview** (HTML) — which source (by role name) lies on which
+  switcher or router input, where each output goes (through patch panels),
+  contacts, web interfaces, and an empty box for operating steps: the plan does
+  not know them and the sheet does not invent them
 - Every column of every exported list carries a lexicon entry (the column
   glossary appended to each CSV)
 - **Per-device patch sheets** name where the device stands (*floor · room*)
