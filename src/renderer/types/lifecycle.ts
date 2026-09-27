@@ -98,7 +98,15 @@ export interface ChangeLogEntry {
 }
 
 /** Art einer Feld-Rückmeldung (vom Mobile-/Viewer-Light-Editor). */
-export type PendingChangeKind = 'cable-edit' | 'equipment-edit' | 'issue' | 'note'
+export type PendingChangeKind =
+  | 'cable-edit'
+  | 'equipment-edit'
+  | 'issue'
+  | 'note'
+  /** #906 — ein Geraet, das im Plan fehlt, vor Ort am Telefon erfasst. Der
+   *  `patch` traegt Name, Raum, vermutete Verbindung und Notiz; Uebernehmen
+   *  legt ein unfertiges Geraet an (siehe `lib/erfassung.ts`). */
+  | 'new-device'
 
 /**
  * Feld-Rückkanal: eine vom Mobile-Companion (oder Viewer) gemeldete, noch

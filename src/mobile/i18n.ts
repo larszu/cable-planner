@@ -192,6 +192,15 @@ const de: Record<string, string> = {
   'mobile.report.hint':
     'Wird NICHT direkt geändert — der Planer übernimmt oder verwirft deine Meldung am Desktop (landet dann im Änderungsprotokoll).',
   'mobile.report.kindNote': 'Notiz',
+  'mobile.report.kindNewDevice': 'Neues Gerät',
+  'mobile.report.newDeviceSummary': 'Neues Gerät: {name}',
+  'mobile.report.newDeviceName': 'Gerät (noch nicht im Plan)',
+  'mobile.report.newDeviceNamePlaceholder': 'z. B. Beamer Decke vorn',
+  'mobile.report.room': 'Raum',
+  'mobile.report.connection': 'Verbunden mit (vermutet)',
+  'mobile.report.connectionPlaceholder': 'z. B. Rednerpult, HDMI hinten?',
+  'mobile.readonly.how':
+    'Um von hier Meldungen, Fotos, Kabel oder neue Geräte zu schicken: am Rechner „Telefonzugriff“ öffnen, „Mitschreiben“ einstellen und den QR-Code neu scannen.',
   'mobile.device.context': 'Gerät (Kontext)',
   'mobile.cable': 'Kabel',
   'mobile.report.correctedLength': 'Korrigierte Länge (m)',

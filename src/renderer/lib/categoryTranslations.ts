@@ -92,6 +92,8 @@ const BUILTIN_EN_TO_DE: Record<string, string> = {
   'Video Router': 'Kreuzschiene',
   'IT/Server': 'IT/Server',
   'IP/NDI': 'IP/NDI',
+  // #906 — vor Ort erfasst, noch nicht ausgearbeitet.
+  Captured: 'Erfasst',
 }
 const BUILTIN_DE_TO_EN: Record<string, string> = Object.fromEntries(
   Object.entries(BUILTIN_EN_TO_DE).map(([en, de]) => [de, en]),

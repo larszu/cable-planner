@@ -622,6 +622,19 @@ so and sends nothing.
 - **Photos for the documentation**, from the planner and from the phone. They
   point at a device or a cable (or at nothing, and then belong to the project),
   are scaled down on the way in, and travel inside the plan file.
+- **Survey an existing installation** (*Tools → Survey*): walk through the room
+  and type what you see — device name, room (it stays for the next entry),
+  assumed connection, note — Enter, next. Each entry is in the plan at once as
+  an unfinished device: no invented connectors (the plan check asks for them),
+  the details in its notes, photos attachable in the survey list. Tick it off
+  once it is worked out. From the phone the same works via *Report → New
+  device*; the report arrives in the survey list and becomes a device when you
+  accept it.
+- **Phone access** asks for the decision first: *Read only* or *Contribute*.
+  Only *Contribute* lets the phone send ticks, cables, photos, reports and new
+  devices; a read-only phone says how to switch. The phone path needs the
+  desktop app (it serves the plan over the LAN); the browser edition shows the
+  button and says so.
 - **Label sheets and QR labels** for cables and devices, print-ready.
 - **Read-only web viewer** for sharing a plan with someone who does not run the
   app.

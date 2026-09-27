@@ -6,6 +6,9 @@ import { touchProject } from '../projectStoreHelpers'
 import { scheduleProjectAutosave } from '../projectAutosave'
 import { useSettingsStore } from '../settingsStore'
 import type { ProjectState } from '../projectStore'
+import { eintragAusMeldung, erfasstesGeraet } from '../../lib/erfassung'
+import { nextPlacementPosition } from '../../lib/library'
+import { tr } from '../../lib/i18n'
 
 /**
  * Feld-Rückkanal — Review-Queue für vom Mobile-Companion/Viewer gemeldete
@@ -140,6 +143,19 @@ export const createPendingChangesSlice: StateCreator<
             }
           }
         }
+      }
+
+      // (1b) #906 — ein am Telefon erfasstes Geraet. Es gibt kein Ziel, das
+      // gepatcht wuerde; Uebernehmen HEISST hier: ein unfertiges Geraet
+      // anlegen (keine Buchsen, Notiz mit Raum und vermuteter Verbindung).
+      const eintrag = eintragAusMeldung(pc)
+      if (eintrag) {
+        const geraet = erfasstesGeraet(eintrag, nextPlacementPosition(project.equipment.length, project.equipment), {
+          am: pc.ts,
+          quelle: 'handy',
+          label: { raum: tr('survey.room', 'Room'), verbindung: tr('survey.connection', 'Connected to (assumed)') },
+        })
+        if (geraet) project = { ...project, equipment: [...project.equipment, { ...geraet, id: uuidv4() }] }
       }
 
       // (2) Ins Änderungsprotokoll + (3) aus der Queue entfernen.

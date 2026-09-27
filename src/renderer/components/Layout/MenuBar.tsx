@@ -57,6 +57,7 @@ import {
   Table2,
   LayoutGrid,
   ChevronDown,
+  ClipboardList,
 } from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import {
@@ -959,6 +960,15 @@ export const MenuBar = ({
           </MenuItem>
 
           <MenuSectionHeader>{t('app.menu.tools.group.plan', 'Plan')}</MenuSectionHeader>
+          {/* #906 — Bestandsaufnahme zuerst: wer eine vorhandene Anlage
+              dokumentiert, faengt hier an, nicht beim Mikrofonieren. */}
+          <MenuItem
+            onClick={() => useUiStore.getState().setSurveyOpen(true)}
+            icon={<Icon icon={ClipboardList} size="sm" />}
+            note={t('app.menu.tools.survey.note', 'Capture existing equipment on site: name, room, assumed connection, photo')}
+          >
+            {t('app.menu.tools.survey', 'Survey (capture existing)…')}
+          </MenuItem>
           <MenuItem
             onClick={() => useUiStore.getState().setDrumMicingOpen(true)}
             icon={<Icon icon={Drum} size="sm" />}
@@ -1319,7 +1329,10 @@ export const MenuBar = ({
           </button>
         </div>
         <SharedSyncPanel />
-        {hasDesktopBridge && mobileModule && (
+        {/* #906 — auch in der Browser-Fassung sichtbar. Dort fehlte der Knopf
+            ganz, ohne dass irgendwo stand, warum; der Dialog sagt jetzt, dass
+            der Weg die Desktop-App braucht. */}
+        {mobileModule && (
           <button
             type="button"
             onClick={() => useUiStore.getState().openMobileShare()}

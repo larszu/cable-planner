@@ -265,6 +265,49 @@ export const MobileShareDialog = () => {
             text={t('mobile.dialog.description', 'Starts a small web server on the local network. Scan the QR code with the phone → the mobile viewer opens in the browser and loads the current project. The server stops automatically when the app closes or via the Stop button.')}
           />
 
+          {/* #906 — die Entscheidung zuerst. „Nur lesen" gegen „Mitschreiben"
+              ist das, worum es in diesem Dialog geht; als Schalter unter dem
+              QR-Code wurde er uebersehen, und wer vor Ort erfassen wollte,
+              fand am Telefon keinen einzigen Knopf dafuer. */}
+          <div className="flex flex-col gap-1 border border-cp-border-muted p-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-cp-xs font-medium text-cp-text">
+                {t('mobile.dialog.writeMode', 'Feedback from the phone')}
+              </span>
+              {(['read-only', 'contribute'] as const).map((m) => (
+                <label key={m} className="flex items-center gap-1 text-cp-xs">
+                  <input
+                    type="radio"
+                    name="cp-write-mode"
+                    checked={writeMode === m}
+                    onChange={async () => {
+                      // Der angezeigte Wert kommt aus der ANTWORT und nicht aus
+                      // dem Klick: sonst zeigte der Dialog einen Zustand, den
+                      // der Server womöglich nicht angenommen hat.
+                      const r = await cablePlannerApi.mobileShare.setWriteMode(m)
+                      setWriteModeState(r.writeMode)
+                    }}
+                  />
+                  {m === 'read-only'
+                    ? t('mobile.dialog.writeMode.read', 'Read only')
+                    : t('mobile.dialog.writeMode.contribute', 'Contribute: ticks, cables, photos, new devices')}
+                </label>
+              ))}
+            </div>
+            <p className="text-cp-xs text-cp-text-muted">
+              {writeMode === 'read-only'
+                ? t(
+                    'mobile.dialog.writeMode.readHint',
+                    'All write routes are closed — the phone is refused on every write attempt. The plan is changed by the person at the desk.',
+                  )
+                : t(
+                    'mobile.dialog.writeMode.contributeHint',
+                    'Ticks, on-site cables, reports, photos and new devices go back into the project. Anyone with the QR code can change the plan.',
+                  )}
+            </p>
+          </div>
+
+
           {status.running ? (
             <div className="space-y-3">
               <div className="flex flex-col items-center gap-2 border border-emerald-700 bg-emerald-950/30 p-3">
@@ -438,44 +481,6 @@ export const MobileShareDialog = () => {
               </button>
             </div>
           )}
-
-          <div className="flex flex-col gap-1 border border-cp-border-muted p-2">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-cp-xs font-medium text-cp-text">
-                {t('mobile.dialog.writeMode', 'Feedback from the phone')}
-              </span>
-              {(['read-only', 'contribute'] as const).map((m) => (
-                <label key={m} className="flex items-center gap-1 text-cp-xs">
-                  <input
-                    type="radio"
-                    name="cp-write-mode"
-                    checked={writeMode === m}
-                    onChange={async () => {
-                      // Der angezeigte Wert kommt aus der ANTWORT und nicht aus
-                      // dem Klick: sonst zeigte der Dialog einen Zustand, den
-                      // der Server womöglich nicht angenommen hat.
-                      const r = await cablePlannerApi.mobileShare.setWriteMode(m)
-                      setWriteModeState(r.writeMode)
-                    }}
-                  />
-                  {m === 'read-only'
-                    ? t('mobile.dialog.writeMode.read', 'Read only')
-                    : t('mobile.dialog.writeMode.contribute', 'Send back ticks, cables and photos')}
-                </label>
-              ))}
-            </div>
-            <p className="text-cp-xs text-cp-text-muted">
-              {writeMode === 'read-only'
-                ? t(
-                    'mobile.dialog.writeMode.readHint',
-                    'All write routes are closed — the phone is refused on every write attempt. The plan is changed by the person at the desk.',
-                  )
-                : t(
-                    'mobile.dialog.writeMode.contributeHint',
-                    'Ticks, cables added on site, field reports and photos go back into the project. Anyone with the QR code can change the plan.',
-                  )}
-            </p>
-          </div>
 
           {/* E-3 — die Anlagen-Zugangscodes, hinter einem eigenen Token. */}
           <div className="flex flex-col gap-1 border border-cp-border-muted p-2">
