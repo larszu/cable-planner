@@ -1,9 +1,10 @@
 // ───────────────────────────────────────────────────────────────────────────
-// Import von MultiCam-Planner-Kameras als Equipment (`camera-list` v1 + v2)
+// Import von MultiCam-Planner-Kameras als Equipment (`camera-list` v1 bis v3)
 //
 // Der MultiCam-Planner exportiert seine platzierten Kameras als neutrale
 // Kamera-Liste (Modell, Hersteller, Venue-Position, seit v2 auch Objektiv und
-// Einstellung). Hier werden sie zu EquipmentItems der Kategorie "Kameras".
+// Einstellung, seit v3 Ausrichtung und PTZ-Presets). Hier werden sie zu
+// EquipmentItems der Kategorie "Kameras".
 //
 // GRUNDSATZ (kein Raten von Fakten): passt ein Modell EINDEUTIG zum
 // CAMERA_CATALOG (Datenblatt-basiert), erbt es dessen echte Port-Belegung
@@ -18,11 +19,11 @@
 // jeder Lauf die Kameras neu an: zweimal importiert hiess jede Kamera doppelt,
 // in der Stueckliste doppelt, und die Kabel hingen an der alten.
 // ───────────────────────────────────────────────────────────────────────────
-import type { EquipmentItem, KameraOptik, Port } from '../types/equipment'
+import type { EquipmentItem, KameraOptik, KameraPreset, Port } from '../types/equipment'
 import { matchCameraTemplate, matchCameraTemplateById } from './cameraCatalog'
 
 export const CAMERA_LIST_KIND = 'camera-list' as const
-export const CAMERA_LIST_VERSION = 2 as const
+export const CAMERA_LIST_VERSION = 3 as const
 
 /** Objektiv laut Katalog des Kameraplans. */
 export interface CameraListLens {
@@ -31,6 +32,18 @@ export interface CameraListLens {
   focalMinMm?: number
   focalMaxMm?: number
   mount?: string
+}
+
+/** v3: ein gespeichertes PTZ-Preset, wie MultiCam es exportiert. */
+export interface CameraListPreset {
+  number: number
+  name: string
+  segment?: string
+  pan: number
+  tilt: number
+  focalMm: number
+  focusM: number
+  savedAt: string
 }
 
 export interface CameraListEntry {
@@ -56,10 +69,16 @@ export interface CameraListEntry {
   extender?: number
   /** v2: Objektiv. */
   lens?: CameraListLens
+  /** v3: Ausrichtung in Grad, MultiCams Konvention (Pan 0 = nach rechts im Grundriss). */
+  pan?: number
+  /** v3: Neigung in Grad, negativ = nach unten. */
+  tilt?: number
+  /** v3: die gespeicherten PTZ-Presets, nach Nummer. */
+  presets?: CameraListPreset[]
 }
 export interface CameraListExchange {
   kind: typeof CAMERA_LIST_KIND
-  formatVersion: 1 | 2
+  formatVersion: 1 | 2 | 3
   app: string
   appVersion: string
   exportedAt: string
@@ -110,7 +129,38 @@ function pruefeEintrag(roh: unknown, index: number): CameraListEntry {
       if (!istPositiv(lens[feld])) throw new Error(`${wo}: field "lens.${feld}" is not a positive number.`)
     }
   }
+  for (const feld of ['pan', 'tilt'] as const) {
+    if (!istZahl(roh[feld])) throw new Error(`${wo}: field "${feld}" is not a finite number.`)
+  }
+  if (roh.presets !== undefined) {
+    if (!Array.isArray(roh.presets)) throw new Error(`${wo}: field "presets" is not a list.`)
+    roh.presets.forEach((p, i) => pruefePreset(p, `${wo}, preset #${i + 1}`))
+  }
   return roh as unknown as CameraListEntry
+}
+
+/**
+ * v3 — ein Preset ist nachstellbar oder die Datei lädt nicht. Dieselbe
+ * Prüfung wie im Exporter (multicam-planner `pruefePreset`): Nummer ganz und
+ * ab 0, Ausrichtung, Brennweite (> 0), Fokus (>= 0) und Stand sind Pflicht;
+ * nur Name und Segment dürfen leer sein bzw. fehlen.
+ */
+function pruefePreset(roh: unknown, wo: string): void {
+  if (!istObjekt(roh)) throw new Error(`${wo}: not an object.`)
+  if (!Number.isInteger(roh.number) || (roh.number as number) < 0) {
+    throw new Error(`${wo}: field "number" is not a whole number from 0.`)
+  }
+  if (typeof roh.name !== 'string') throw new Error(`${wo}: field "name" is not text.`)
+  if (typeof roh.savedAt !== 'string' || roh.savedAt.trim() === '') throw new Error(`${wo}: field "savedAt" missing.`)
+  for (const feld of ['pan', 'tilt', 'focalMm', 'focusM'] as const) {
+    if (roh[feld] === undefined) throw new Error(`${wo}: field "${feld}" missing.`)
+  }
+  if (!istText(roh.segment)) throw new Error(`${wo}: field "segment" is not text.`)
+  for (const feld of ['pan', 'tilt', 'focusM'] as const) {
+    if (!istZahl(roh[feld])) throw new Error(`${wo}: field "${feld}" is not a finite number.`)
+  }
+  if (!istPositiv(roh.focalMm)) throw new Error(`${wo}: field "focalMm" is not a positive number.`)
+  if ((roh.focusM as number) < 0) throw new Error(`${wo}: field "focusM" is below 0.`)
 }
 
 /** Liest eine Kamera-Liste v1 oder v2 aus JSON-Text. */
@@ -124,7 +174,7 @@ export function pruefeCameraList(roh: unknown): CameraListExchange {
   if (!data || data.kind !== CAMERA_LIST_KIND) {
     throw new Error('Not a valid camera list (kind != camera-list).')
   }
-  if (data.formatVersion !== 1 && data.formatVersion !== 2) {
+  if (data.formatVersion !== 1 && data.formatVersion !== 2 && data.formatVersion !== 3) {
     throw new Error(`Unsupported camera list version: ${String(data.formatVersion)}`)
   }
   if (!Array.isArray(data.cameras)) throw new Error('Camera list without cameras array.')
@@ -181,7 +231,31 @@ export function optikAus(c: CameraListEntry): KameraOptik | undefined {
   // Faktor 1 ist „kein Extender" — nicht als Extender fuehren.
   if (c.extender !== undefined && c.extender !== 1) o.extender = c.extender
   if (c.z !== undefined) o.hoeheM = c.z
+  if (c.pan !== undefined) o.panGrad = c.pan
+  if (c.tilt !== undefined) o.neigungGrad = c.tilt
   return Object.keys(o).length > 0 ? o : undefined
+}
+
+/**
+ * v3 — die Presets einer Kamera, so wie MultiCam sie gespeichert hat. Der
+ * Stand (`gespeichertAm`) bleibt dabei: ob ein Preset nach einem Umbau noch
+ * stimmt, ist genau die Frage, die das Positionsblatt beantwortbar machen
+ * soll, und ohne Datum ist sie es nicht.
+ */
+export function presetsAus(c: CameraListEntry): KameraPreset[] | undefined {
+  if (!c.presets?.length) return undefined
+  return [...c.presets]
+    .sort((a, b) => a.number - b.number)
+    .map((p) => ({
+      nummer: p.number,
+      name: p.name,
+      ...(p.segment ? { segment: p.segment } : {}),
+      panGrad: p.pan,
+      neigungGrad: p.tilt,
+      brennweiteMm: p.focalMm,
+      fokusM: p.focusM,
+      gespeichertAm: p.savedAt,
+    }))
 }
 
 /** Neutrale Kamera-Liste → neue Equipment-Nodes (Kategorie "Kameras"). */
@@ -189,6 +263,7 @@ export function cameraListToEquipment(ex: CameraListExchange): EquipmentItem[] {
   return ex.cameras.map((c, i) => {
     const tmpl = matchTemplate(c)
     const optik = optikAus(c)
+    const kameraPresets = presetsAus(c)
     const base = {
       // Die Geraete-Id vergibt der Store. Frueher war sie die MultiCam-Id —
       // und `cam-1` aus zwei Plaenen waren dann zwei Geraete mit derselben Id.
@@ -203,6 +278,7 @@ export function cameraListToEquipment(ex: CameraListExchange): EquipmentItem[] {
       multicamId: c.id,
       ...(ex.projectId ? { multicamProjectId: ex.projectId } : {}),
       ...(optik ? { optik } : {}),
+      ...(kameraPresets ? { kameraPresets } : {}),
       x: Math.round((c.x ?? i * 2) * PX_PER_METER),
       y: Math.round((c.y ?? 0) * PX_PER_METER),
     }
@@ -296,6 +372,12 @@ export function abgleichKameras(bestand: readonly EquipmentItem[], ex: CameraLis
     const patch: Partial<EquipmentItem> = {}
     if (vorhanden.name !== kandidat.name) patch.name = kandidat.name
     if (!gleich(vorhanden.optik, kandidat.optik)) patch.optik = kandidat.optik
+    // Die Presets fuehrt der Kameraplan wie die Optik. Eine v1/v2-Liste sagt
+    // zu ihnen nichts — dann bleiben die vorhandenen stehen, statt von einer
+    // aelteren Datei geloescht zu werden.
+    if (ex.formatVersion >= 3 && !gleich(vorhanden.kameraPresets, kandidat.kameraPresets)) {
+      patch.kameraPresets = kandidat.kameraPresets
+    }
     if (vorhanden.multicamId !== c.id) patch.multicamId = c.id
     if (vorhanden.multicamProjectId !== kandidat.multicamProjectId) patch.multicamProjectId = kandidat.multicamProjectId
     if (vorhanden.importSource !== 'multicam') patch.importSource = 'multicam'

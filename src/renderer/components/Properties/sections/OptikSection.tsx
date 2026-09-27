@@ -9,7 +9,7 @@
  * die Kamera im MultiCam-Plan nicht mehr steht.
  */
 import { Aperture, AlertTriangle } from 'lucide-react'
-import { useTranslation } from '../../../lib/i18n'
+import { format, useTranslation } from '../../../lib/i18n'
 import { Icon } from '../../shared/Icon'
 import { objektivName, zoombereich } from '../../../lib/kameraOptik'
 import type { EquipmentItem } from '../../../types/equipment'
@@ -19,7 +19,8 @@ const zahl = (n: number): string => String(Math.round(n * 10) / 10)
 export const OptikSection = ({ equipment }: { equipment: EquipmentItem }) => {
   const t = useTranslation()
   const o = equipment.optik
-  if (!o && !equipment.multicamRemoved) return null
+  const presets = equipment.kameraPresets ?? []
+  if (!o && !equipment.multicamRemoved && presets.length === 0) return null
 
   const zeilen: Array<[string, string]> = []
   if (o) {
@@ -33,6 +34,8 @@ export const OptikSection = ({ equipment }: { equipment: EquipmentItem }) => {
     if (o.objektivMount) zeilen.push([t('props.optik.lensMount', 'Lens mount'), o.objektivMount])
     if (o.kameraMount) zeilen.push([t('props.optik.bodyMount', 'Body mount'), o.kameraMount])
     if (o.hoeheM !== undefined) zeilen.push([t('props.optik.height', 'Height'), `${zahl(o.hoeheM)} m`])
+    if (o.panGrad !== undefined) zeilen.push([t('props.optik.pan', 'Pan'), `${zahl(o.panGrad)}°`])
+    if (o.neigungGrad !== undefined) zeilen.push([t('props.optik.tilt', 'Tilt'), `${zahl(o.neigungGrad)}°`])
   }
 
   return (
@@ -58,6 +61,36 @@ export const OptikSection = ({ equipment }: { equipment: EquipmentItem }) => {
                 <tr key={label} className="border-b border-cp-border-muted">
                   <td className="py-0.5 pr-2 text-cp-text-muted">{label}</td>
                   <td className="py-0.5 text-right text-cp-text">{wert}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+        {presets.length > 0 && (
+          <table className="block overflow-x-auto w-full border-collapse">
+            <thead>
+              <tr className="border-b border-cp-border-muted text-left text-cp-text-muted">
+                <th className="py-0.5 pr-2 font-normal">{t('props.optik.presetNo', 'Preset')}</th>
+                <th className="py-0.5 pr-2 font-normal">{t('props.optik.presetShot', 'Shot')}</th>
+                <th className="py-0.5 font-normal">{t('props.optik.presetSaved', 'Saved')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {presets.map((p) => (
+                <tr key={p.nummer} className="border-b border-cp-border-muted">
+                  <td className="py-0.5 pr-2 text-cp-text">{p.nummer}</td>
+                  <td className="py-0.5 pr-2 text-cp-text">
+                    {p.name || t('props.optik.presetUnnamed', '(unnamed)')}
+                    <span className="block text-cp-text-faint">
+                      {format(t('props.optik.presetAim', 'pan {pan}°, tilt {tilt}°, {focal} mm, focus {focus} m'), {
+                        pan: zahl(p.panGrad),
+                        tilt: zahl(p.neigungGrad),
+                        focal: zahl(p.brennweiteMm),
+                        focus: zahl(p.fokusM),
+                      })}
+                    </span>
+                  </td>
+                  <td className="py-0.5 text-cp-text-muted">{p.gespeichertAm.slice(0, 10)}</td>
                 </tr>
               ))}
             </tbody>

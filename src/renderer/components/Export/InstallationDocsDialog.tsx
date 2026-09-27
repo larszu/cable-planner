@@ -54,6 +54,7 @@ import { konfigVorgabenTable } from '../../lib/konfigVorgaben'
 import { steckbriefHtml, steckbriefStandTable } from '../../lib/steckbrief'
 import { bedienUebersichtHtml, bedienUebersichtStandTable } from '../../lib/bedienUebersicht'
 import { anhaengeTable } from '../../lib/anhaenge'
+import { kameraPositionsblattHtml, kameraPositionsblattStandTable } from '../../lib/kameraPositionsblatt'
 import { AnhaengeSection } from './AnhaengeSection'
 import { buildHandoverManifest, handoverTable } from '../../lib/handoverPackage'
 import {
@@ -301,6 +302,24 @@ export const InstallationDocsDialog = () => {
             t,
           }),
           suffix: 'bedien-uebersicht',
+          ext: 'html',
+          mime: 'text/html',
+        }),
+      },
+      {
+        key: 'kamerapos',
+        label: t('docs.cameraPositions', 'Camera positions'),
+        hint: t(
+          'docs.cameraPositions.hint',
+          'Per camera: location, height, aim, optics, switcher input and the PTZ presets from the camera plan (HTML, print to PDF)',
+        ),
+        build: () => ({
+          content: kameraPositionsblattHtml(project, {
+            titel: `${project.metadata.name || t('docs.cameraPositions', 'Camera positions')} — ${t('docs.cameraPositions', 'Camera positions')}`,
+            stempel: stampLine(stampForRows(project, kameraPositionsblattStandTable, new Date())),
+            t,
+          }),
+          suffix: 'kamera-positionen',
           ext: 'html',
           mime: 'text/html',
         }),
