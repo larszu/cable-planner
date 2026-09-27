@@ -208,6 +208,57 @@ export const CLEARCOM_CATALOG: ClearcomEntry[] = [
       height: 200,
     },
   },
+
+  // FreeSpeak II Base Station (FSII-BASE-II) — Funk-Intercom-Basis. Die
+  // Funk-Familie fehlte oben, weil ihre Anschluesse ueber Basis, Antenne und
+  // Transceiver verteilt sind; die BASIS hat ein eigenes Blatt mit einer
+  // vollstaendigen Anschlussliste und steht deshalb hier. Leistung laut
+  // Blatt „Input Power (Max): 48W" — ein Maximum, deshalb im notes-Feld.
+  // Quelle: https://clearcom.com/DownloadCenter/datasheets/FreeSpeakII/FSII-BASE-II_FreeSpeakII_Base_II_Datasheet.pdf
+  {
+    match: ['clearcomfsiibaseii', 'fsiibase'],
+    deviceTypeId: 'c06bb6b8-4876-4ed9-99ac-0a7f70eafb90',
+    template: {
+      manufacturerUrl: 'https://clearcom.com/DownloadCenter/datasheets/FreeSpeakII/FSII-BASE-II_FreeSpeakII_Base_II_Datasheet.pdf',
+      name: 'Clear-Com FreeSpeak II Base Station (FSII-BASE-II)',
+      category: IC,
+      // Blatt: „2-Wire I/O: (4) XLR-3F", „4-Wire I/O: (4) RJ45",
+      // „Program Audio Input: XLR-3F", „Stage Announce Output: XLR-3M",
+      // „GPIO: (1) DB15F", Transceiver „(2) RJ45, (2) SFP", DECT-Sync
+      // „(2) RJ45 (Input & Output)", „LAN: (2) RJ45", Headset „4-pin XLR-M
+      // (X4), 5-pin XLR-F (X5)", „IEC-C14" und DC „KPJX-4S-S".
+      inputs: [
+        port('Program In (XLR-3F)', 'XLR', 'Analog Audio'),
+        port('DECT Sync In', 'Ethernet/RJ45', 'Sync'),
+        port('Headset (front, XLR-4M)', 'Custom', 'Headset'),
+        port('Headset (front, XLR-5F)', 'Custom', 'Headset'),
+        port('AC Power (IEC C14)', 'IEC 230V', 'Power'),
+        port('DC Power (KPJX-4S-S, 12 V)', 'Custom', 'Power'),
+      ],
+      outputs: [
+        port('2-Wire 1 (XLR-3F)', 'XLR', 'Partyline'),
+        port('2-Wire 2 (XLR-3F)', 'XLR', 'Partyline'),
+        port('2-Wire 3 (XLR-3F)', 'XLR', 'Partyline'),
+        port('2-Wire 4 (XLR-3F)', 'XLR', 'Partyline'),
+        port('4-Wire 1 (RJ45)', 'Ethernet/RJ45', '4-Wire'),
+        port('4-Wire 2 (RJ45)', 'Ethernet/RJ45', '4-Wire'),
+        port('4-Wire 3 (RJ45)', 'Ethernet/RJ45', '4-Wire'),
+        port('4-Wire 4 (RJ45)', 'Ethernet/RJ45', '4-Wire'),
+        port('Stage Announce Out (XLR-3M)', 'XLR', 'Analog Audio'),
+        port('Transceiver 1 (RJ45)', 'Ethernet/RJ45', 'E1'),
+        port('Transceiver 2 (RJ45)', 'Ethernet/RJ45', 'E1'),
+        port('Transceiver 1 (SFP)', 'SFP', 'E1'),
+        port('Transceiver 2 (SFP)', 'SFP', 'E1'),
+        port('DECT Sync Out', 'Ethernet/RJ45', 'Sync'),
+        port('LAN 1', 'Ethernet/RJ45', 'Ethernet'),
+        port('LAN 2', 'Ethernet/RJ45', 'Ethernet'),
+        port('GPIO (DB-15F)', 'Custom', 'GPIO'),
+      ],
+      notes: 'Leistung max. 48 W (Blatt) · Transceiver-Anschluss wahlweise RJ45 oder SFP · 4-Draht auf RJ45 in AES-72-Belegung',
+      width: 280,
+      height: 460,
+    },
+  },
 ]
 
 /** Die Vorlagen allein — fuer die Bibliotheks-Saat in `projectStore`. */

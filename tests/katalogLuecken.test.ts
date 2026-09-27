@@ -30,7 +30,8 @@ describe('#878 — Katalog-Luecken in den Zielbereichen', () => {
     // 468 seit 2026-09-27: USW-16 ist im USW-16-PoE aufgegangen.
     // 490: +22 aus #907 (Clear-Com, Brompton, Luminex, NETGEAR, Lightware,
     // Decimator), jeder mit Datenblatt.
-    expect(b.eintraegeGesamt).toBe(490)
+    // 498: +8 Nachzuegler am 2026-09-28.
+    expect(b.eintraegeGesamt).toBe(498)
     expect(b.eintraegeGesamt).toBe(evidenceReport().entries)
 
     // „ueber ein Drittel Mikrofone" — das stimmt, und zwar deutlich.
@@ -60,11 +61,11 @@ describe('#878 — Katalog-Luecken in den Zielbereichen', () => {
     expect(stand('kameras').eintraege).toBe(20)
     // 2026-09-27 aus #907: +2 Lightware, +1 Decimator (MD-DUCC; MD-QUAD
     // steht unter „Video"), +5 Luminex, +5 NETGEAR, +4 Clear-Com, +4 Brompton.
-    expect(stand('konverter').eintraege).toBe(33)
+    expect(stand('konverter').eintraege).toBe(34) // +AJA FS2
     expect(stand('netzwerk').eintraege).toBe(90)
-    expect(stand('intercom').eintraege).toBe(12)
+    expect(stand('intercom').eintraege).toBe(13) // +FreeSpeak II Base
     expect(stand('led-prozessoren').eintraege).toBe(6)
-    expect(katalogLuecken().eintraegeInBereichen).toBe(161)
+    expect(katalogLuecken().eintraegeInBereichen).toBe(163)
 
     // Und die Breite, nicht nur die Menge: Kameras hingen und haengen an
     // EINEM Katalog. Ein Bereich mit einem Hersteller ist kein bestueckter

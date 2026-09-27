@@ -85,7 +85,10 @@ describe('Initiative 11 — trägt diese Katalog-Zeile ein Datenblatt?', () => {
     // noch fehlte — Clear-Com Encore (4), Brompton Tessera S8/S4/T1/XD, Luminex
     // GigaCore (5), NETGEAR M4250 (5), Lightware UCX (2), Decimator MD-DUCC/
     // MD-QUAD; jedes Datenblatt-PDF beim Hersteller abgerufen (HTTP 200).
-    expect(kommentare).toBe(473)
+    // +8 am 2026-09-28: Katalog-Nachzuegler aus docs/device-identity-concept.md
+    // (AJA FS2, Aquilon RS alpha, TriCaster Mini 4K, FreeSpeak II Base,
+    // Shure UA844+SWB/AD4D/AD4Q, Sennheiser ASA 214), Blaetter geoeffnet.
+    expect(kommentare).toBe(481)
   })
 
   it('2. die Abdeckung wird gerechnet', () => {
@@ -93,8 +96,8 @@ describe('Initiative 11 — trägt diese Katalog-Zeile ein Datenblatt?', () => {
     // Die Summen stammen aus derselben Rechnung wie die Zeilen.
     expect(bericht.entries).toBe(bericht.perCatalogue.reduce((s, c) => s + c.entries, 0))
     expect(bericht.sourced + bericht.unsourced).toBe(bericht.entries)
-    expect(bericht.sourced).toBe(473)
-    expect(bericht.entries).toBe(490)
+    expect(bericht.sourced).toBe(481)
+    expect(bericht.entries).toBe(498)
 
     // Kein Katalog steht mehr ganz ohne Beleg (B-11 abgeschlossen) — und die
     // Liste wird GERECHNET, nicht aufgezählt: trägt einer von ihnen morgen
