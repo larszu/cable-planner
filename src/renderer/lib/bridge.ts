@@ -4,6 +4,8 @@ import type { AttachResult, ReceiptContent } from '../types/receipt'
 import type { AnhangErgebnis } from '../types/anhang'
 import type { LauscherZustand, OscEmpfang, OscLauscherConfig } from '../types/showControl'
 import { downloadBlob } from './downloadBlob'
+import { createWebDeviceLibraryApi } from './deviceLibraryWeb'
+import type { DeviceLibraryApi } from '../types/deviceLibrary'
 
 /**
  * BEDARF 133 — was die Freigabe anbietet, und was sie zurueckhaelt.
@@ -481,6 +483,8 @@ type CablePlannerApi = {
     }) => Promise<{ fileName: string; fileVersion: number; modifiedAt: string }>
     deleteItem: (params: { kind: 'device' | 'group'; name: string }) => Promise<boolean>
   }
+  /** Geraetebibliothek. Desktop: Abruf und Token im Main-Prozess; Web: direkt, Token in localStorage. */
+  deviceLibrary: DeviceLibraryApi
   /** #872 — der lokale MCP-Server. Nur lesend, aus als Vorgabe. */
   mcp: {
     start: () => Promise<McpStatus & { token: string }>
@@ -1192,6 +1196,7 @@ const webFallbackApi: CablePlannerApi = {
     }),
     deleteItem: async () => false,
   },
+  deviceLibrary: createWebDeviceLibraryApi(),
   mcp: {
     // Im Browser gibt es keinen lokalen Server — und keine Behauptung, es
     // gaebe einen.
