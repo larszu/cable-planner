@@ -798,7 +798,7 @@ export const MenuBar = ({
           {/* #871/#870 — Cloud-Kopie mit Revisionen und Lese-Link: steht beim
               Viewer, weil der Lese-Link genau diesen Viewer oeffnet. */}
           <MenuItem onClick={() => useUiStore.getState().openCloudDialog()} icon={<Icon icon={Cloud} size="sm" />}>
-            {t('app.menu.file.cloud', 'Cloud…')}
+            {t('app.menu.file.cloud', 'Cloud & share link…')}
           </MenuItem>
           {onExportViewer && (
             <MenuItem onClick={onExportViewer} icon={<Icon icon={Eye} size="sm" />}>

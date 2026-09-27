@@ -12,7 +12,7 @@ import { confirmDialog } from '../../lib/confirmDialog'
 import { downloadBlob } from '../../lib/downloadBlob'
 import { CloudCallError, cloudApi, projectFromCloud } from '../../lib/cloud'
 import { syncCloudNow } from '../../lib/cloudAutoSync'
-import type { CloudProject, CloudRevision } from '../../lib/cloudProjectsClient'
+import type { CloudProject, CloudRevision, ShareLink } from '../../lib/cloudProjectsClient'
 
 /**
  * #871 — Cloud-Projekt: in die Cloud legen, Revisionen, wiederherstellen,
@@ -31,6 +31,10 @@ export const CloudDialog = () => {
   const binding = useProjectStore((s) => s.project.cloud)
   const [projects, setProjects] = useState<CloudProject[]>([])
   const [revisions, setRevisions] = useState<CloudRevision[]>([])
+  const [links, setLinks] = useState<ShareLink[]>([])
+  const [expiry, setExpiry] = useState<number | null>(null)
+  const [followNewest, setFollowNewest] = useState(true)
+  const [copied, setCopied] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
@@ -77,9 +81,11 @@ export const CloudDialog = () => {
       try {
         const list = await cloudApi.list(server)
         const revs = boundId ? await cloudApi.revisions(server, boundId) : []
+        const ls = boundId ? await cloudApi.links(server, boundId) : []
         if (!live) return
         setProjects(list)
         setRevisions(revs)
+        setLinks(ls)
         setLoadError(null)
       } catch (e) {
         if (live) setLoadError(e)
@@ -143,6 +149,31 @@ export const CloudDialog = () => {
     run(async () => {
       const head = await cloudApi.revision(server, p.id, 'head')
       downloadBlob(`${p.name}.cableplan`, JSON.stringify(head.data, null, 2), 'application/json')
+    })
+
+  // #870 — Lese-Link. Er zeigt ohne Konto genau diesen Plan; vorgegeben
+  // folgt er der neuesten Revision, damit „derselbe Link" aktuell bleibt.
+  const createLink = () =>
+    run(async () => {
+      const b = useProjectStore.getState().project.cloud
+      if (!b) return
+      const l = await cloudApi.createLink(server, b.projectId, { rev: followNewest ? null : b.rev, expiresInDays: expiry })
+      await copy(l)
+    })
+
+  const copy = async (l: ShareLink) => {
+    try {
+      await navigator.clipboard.writeText(l.url)
+      setCopied(l.id)
+    } catch {
+      setCopied('')
+    }
+  }
+
+  const revokeLink = (l: ShareLink) =>
+    run(async () => {
+      const ok = await confirmDialog(t('cloud.link.revoke.confirm', 'Revoke this link? Anyone who has it can no longer open the plan.'))
+      if (ok) await cloudApi.revokeLink(server, l.id)
     })
 
   const disconnect = () => useProjectStore.getState().setCloudBinding(undefined)
@@ -237,6 +268,67 @@ export const CloudDialog = () => {
                 </>
               )}
             </section>
+            {bound && (
+              <section className="flex flex-col gap-2">
+                <h3 className="font-semibold text-cp-text">{t('cloud.link.title', 'Share link')}</h3>
+                <p className="border border-cp-warn px-2 py-1 text-cp-text">
+                  {t(
+                    'cloud.link.warning',
+                    'The plan leaves this computer: anyone with the link can read it in the browser, without an account. Credentials are not included.',
+                  )}
+                </p>
+                <div className="flex flex-wrap items-center gap-3">
+                  <label className="flex items-center gap-1">
+                    <input type="checkbox" checked={followNewest} onChange={(e) => setFollowNewest(e.target.checked)} />
+                    {t('cloud.link.follow', 'Always show the newest revision')}
+                  </label>
+                  <label className="flex items-center gap-1">
+                    {t('cloud.link.expiry', 'Expires')}
+                    <select
+                      value={expiry ?? ''}
+                      onChange={(e) => setExpiry(e.target.value ? Number(e.target.value) : null)}
+                      className="border border-cp-border bg-cp-surface-2 px-1 py-0.5"
+                    >
+                      <option value="">{t('cloud.link.never', 'never')}</option>
+                      {[7, 30, 90].map((d) => (
+                        <option key={d} value={d}>
+                          {format(t('cloud.link.days', 'after {n} days'), { n: d })}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <Button variant="primary" disabled={busy} onClick={() => void createLink()}>
+                    {t('cloud.link.create', 'Create link and copy')}
+                  </Button>
+                </div>
+                <ul className="flex flex-col gap-1">
+                  {links.map((l) => (
+                    <li key={l.id} className="flex items-center justify-between gap-2 border-b border-cp-border-muted py-1">
+                      <span className="min-w-0">
+                        <span className="block truncate font-mono text-cp-xs">{l.url}</span>
+                        <span className="text-cp-text-muted">
+                          {format(t('cloud.link.row', '{what} · opened {n}× · {expiry}'), {
+                            what: l.rev === null ? t('cloud.link.newest', 'newest revision') : format(t('cloud.link.fixed', 'revision {rev}'), { rev: l.rev }),
+                            n: l.opens,
+                            expiry: l.expiresAt
+                              ? format(t('cloud.link.until', 'until {time}'), { time: dateText(l.expiresAt) })
+                              : t('cloud.link.noExpiry', 'no expiry'),
+                          })}
+                        </span>
+                      </span>
+                      <span className="flex shrink-0 gap-1">
+                        <Button size="sm" variant="secondary" onClick={() => void copy(l)}>
+                          {copied === l.id ? t('cloud.link.copied', 'Copied') : t('cloud.link.copy', 'Copy')}
+                        </Button>
+                        <Button size="sm" variant="danger" disabled={busy} onClick={() => void revokeLink(l)}>
+                          {t('cloud.link.revoke', 'Revoke')}
+                        </Button>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
             <section className="flex flex-col gap-2">
               <h3 className="font-semibold text-cp-text">{t('cloud.others', 'Your cloud projects')}</h3>
               {others.length === 0 && <p className="text-cp-text-muted">{t('cloud.none', 'None.')}</p>}

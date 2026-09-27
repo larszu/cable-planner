@@ -80,6 +80,10 @@ const de: Record<string, string> = {
   'viewer.ann.placeholder': 'Anmerkung…',
   'viewer.ann.delete': 'Löschen',
   'viewer.counts': '{devices} Geräte · {cables} Kabel · {locations} Standorte',
+  // ── Lese-Link (#870) ────────────────────────────────────────────────────
+  'viewer.share.gone': 'Dieser Link ist abgelaufen oder wurde widerrufen.',
+  'viewer.share.from': 'Geteilter Link · {host} · Revision {rev}',
+  'viewer.share.saved': 'Gespeichert {time}',
 }
 
 const woerterbuecher: Partial<Record<Sprache, Record<string, string>>> = { de }
