@@ -113,7 +113,11 @@ describe('jeder Quellen-Kommentar steht auch als Feld im Eintrag', () => {
     // so nicht gab, auf das belegte Modell umgestellt (SmartScope Duo 4K,
     // V-LCD173HR, V-LCD56MD-3G, LVM-075A, D*AP8, SmallHD 2403/1703, xMac mini
     // Server TB3); USW-16 ist im USW-16-PoE aufgegangen (-1 Eintrag).
-    expect(pairs().length).toBe(451)
+    // +22 am 2026-09-27: aus dem liegengebliebenen #907 uebernommen, was main
+    // noch fehlte — Clear-Com Encore (4), Brompton Tessera S8/S4/T1/XD, Luminex
+    // GigaCore (5), NETGEAR M4250 (5), Lightware UCX (2), Decimator MD-DUCC/
+    // MD-QUAD; jedes Datenblatt-PDF beim Hersteller abgerufen (HTTP 200).
+    expect(pairs().length).toBe(473)
   })
 
   it('deckt die Kataloge ab, die Belege fuehren', () => {
@@ -124,14 +128,20 @@ describe('jeder Quellen-Kommentar steht auch als Feld im Eintrag', () => {
       'avNetworkCatalog.ts',
       'blackmagicCatalog.ts',
       'broadcastToolsCatalog.ts',
+      'bromptonCatalog.ts',
       'cameraCatalog.ts',
+      'clearcomCatalog.ts',
+      'decimatorCatalog.ts',
       'greengoCatalog.ts',
       'ledProcessorCatalog.ts',
+      'lightwareCatalog.ts',
+      'luminexCatalog.ts',
       'lynxCatalog.ts',
       'mediaStationCatalog.ts',
       'micCatalog.ts',
       'miscCatalog.ts',
       'monitorCatalog.ts',
+      'netgearAvCatalog.ts',
       'rossCatalog.ts',
       'switcherCatalog.ts',
       'ubiquitiCatalog.ts',
@@ -257,6 +267,6 @@ describe('der Beleg zeigt auf den Hersteller, nicht auf einen Haendler', () => {
   it('prueft alle Belege, nicht nur die mit Feld', () => {
     // Ohne diese Zusicherung waere der Haendler-Test auch dann gruen, wenn
     // `pairs()` nichts mehr faende.
-    expect(pairs().filter((p) => p.field).length).toBe(451)
+    expect(pairs().filter((p) => p.field).length).toBe(473)
   })
 })

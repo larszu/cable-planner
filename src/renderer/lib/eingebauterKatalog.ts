@@ -26,5 +26,11 @@ import { wirelessAudioTemplates } from './wirelessAudioCatalog.ts'
 import { micTemplates } from './micCatalog.ts'
 import { mediaStationTemplates } from './mediaStationCatalog.ts'
 import { passiveTemplates } from './passiveCatalog.ts'
+import { decimatorTemplates } from './decimatorCatalog.ts'
+import { bromptonTemplates } from './bromptonCatalog.ts'
+import { clearcomTemplates } from './clearcomCatalog.ts'
+import { luminexTemplates } from './luminexCatalog.ts'
+import { netgearAvTemplates } from './netgearAvCatalog.ts'
+import { lightwareTemplates } from './lightwareCatalog.ts'
 
-export const EINGEBAUTER_KATALOG: readonly EquipmentTemplate[] = [...blackmagicTemplates, ...ubiquitiTemplates, ...monitorTemplates, ...cameraTemplates, ...miscTemplates, ...greengoTemplates, ...ajaTemplates, ...rossTemplates, ...lynxTemplates, ...switcherTemplates, ...avNetworkTemplates, ...broadcastToolsTemplates, ...audioTemplates, ...wirelessAudioTemplates, ...micTemplates, ...mediaStationTemplates, ...passiveTemplates]
+export const EINGEBAUTER_KATALOG: readonly EquipmentTemplate[] = [...blackmagicTemplates, ...ubiquitiTemplates, ...monitorTemplates, ...cameraTemplates, ...miscTemplates, ...greengoTemplates, ...ajaTemplates, ...rossTemplates, ...lynxTemplates, ...switcherTemplates, ...avNetworkTemplates, ...broadcastToolsTemplates, ...audioTemplates, ...wirelessAudioTemplates, ...micTemplates, ...mediaStationTemplates, ...passiveTemplates, ...decimatorTemplates, ...bromptonTemplates, ...clearcomTemplates, ...luminexTemplates, ...netgearAvTemplates, ...lightwareTemplates]
