@@ -102,14 +102,46 @@ export interface HausStreckenAder {
 export type HausSteuersystem = 'knx' | 'dali' | 'crestron' | 'vissonic' | 'sonstige'
 
 /**
- * Art einer Steuer-Adresse.
+ * Art einer Steuer-Adresse — dieselbe Tabelle wie `ADRESSARTEN` im
+ * facility-planner (`src/domain/modell.ts`, facility#19). Nicht hier neu
+ * erfinden: der Leser nimmt, was das Gebaeude-Werkzeug schreibt.
  *
- * Bei DALI heisst „3" je nach Art etwas voellig anderes: Kurzadresse 3 ist
- * ein Vorschaltgeraet, Gruppe 3 koennen 30 Leuchten sein, Broadcast ist alles
- * am Bus — auch das Notlicht. Wer eine Gruppenadresse fuer eine Kurzadresse
- * haelt, schaltet im Zweifel den halben Saal.
+ * DALI: „3" ist je nach Art ein Vorschaltgeraet (kurz), eine Gruppe von
+ * dreissig Leuchten oder alles am Bus samt Notlicht (broadcast).
+ * Crestron: die drei Join-Signalarten laut Crestron-Glossar — Digital 12 und
+ * Analog 12 sind zwei verschiedene Klinken.
+ * Vissonic: ein Kamera-Befehl bewegt EINE Kamera; der Mischer VIS-CATC hat
+ * einen einzigen Ausgang, ein Befehl dort aendert das Bild auf jedem
+ * Bildschirm.
+ * KNX und „sonstige" kennen keine Art; das Feld bleibt dort weg.
  */
-export type HausAdressart = 'kurz' | 'gruppe' | 'broadcast'
+export type HausAdressart =
+  | 'kurz'
+  | 'gruppe'
+  | 'broadcast'
+  | 'digital'
+  | 'analog'
+  | 'seriell'
+  | 'kamera'
+  | 'mischer'
+
+export const HAUS_ADRESSARTEN: Readonly<Record<HausSteuersystem, readonly HausAdressart[]>> = {
+  knx: [],
+  dali: ['kurz', 'gruppe', 'broadcast'],
+  crestron: ['digital', 'analog', 'seriell'],
+  vissonic: ['kamera', 'mischer'],
+  sonstige: [],
+}
+
+/**
+ * Mehrdeutig: das System kennt Adressarten und die Klinke traegt keine davon.
+ * Eine Art aus einem fremden System (DALI-„kurz" an einem Mischer) zaehlt als
+ * keine — wortgleich zu `adresseMehrdeutig` im facility-planner.
+ */
+export const adresseMehrdeutig = (klinke: Pick<HausKlinke, 'system' | 'adressart'>): boolean => {
+  const arten = HAUS_ADRESSARTEN[klinke.system] ?? []
+  return arten.length > 0 && !(klinke.adressart && arten.includes(klinke.adressart))
+}
 
 /** Eine Klinke der Haussteuerung, die der Show offensteht. */
 export interface HausKlinke {

@@ -31,6 +31,7 @@ import type {
   HausStreckenAder,
   HausEtage,
 } from '../types/hausAuskunft'
+import { HAUS_ADRESSARTEN } from '../types/hausAuskunft'
 
 export const FACILITY_FORMAT = 'avplan-facility'
 
@@ -47,7 +48,6 @@ export const FACILITY_FORMAT_VERSION = 2
 
 const ANSCHLUSSARTEN: HausAnschlussart[] = ['cee63', 'cee32', 'cee16', 'powerlock', 'klemme', 'schuko']
 const SYSTEME: HausSteuersystem[] = ['knx', 'dali', 'crestron', 'vissonic', 'sonstige']
-const ADRESSARTEN: HausAdressart[] = ['kurz', 'gruppe', 'broadcast']
 
 const text = (v: unknown): string | undefined =>
   typeof v === 'string' && v.trim() ? v.trim() : undefined
@@ -132,7 +132,11 @@ const leseKlinke = (roh: unknown): HausKlinke | null => {
   // wissen, was passiert. Sie faellt weg — dieselbe Regel wie drueben, wo
   // beide Felder Pflicht sind.
   if (!id || !adresse || !bedeutung || !system) return null
-  const adressart = ADRESSARTEN.find((a) => a === k.adressart)
+  // Nur eine Art, die das System kennt (facility#19). Eine fremde Art — etwa
+  // DALI-„kurz" an einer Vissonic-Klinke nach einem Systemwechsel — faellt
+  // weg und wird damit als fehlend gemeldet, statt eine Reichweite zu
+  // behaupten, die dort nichts bedeutet.
+  const adressart: HausAdressart | undefined = HAUS_ADRESSARTEN[system].find((a) => a === k.adressart)
   return {
     id,
     system,

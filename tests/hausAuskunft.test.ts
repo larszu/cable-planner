@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { leseHausDatei, FACILITY_FORMAT, FACILITY_FORMAT_VERSION } from '../src/renderer/lib/hausDatei'
 import { runDrawingChecks } from '../src/renderer/lib/drawingChecks'
 import type { EquipmentItem } from '../src/renderer/types/equipment'
-import type { HausAuskunft } from '../src/renderer/types/hausAuskunft'
+import { adresseMehrdeutig, HAUS_ADRESSARTEN, type HausAuskunft } from '../src/renderer/types/hausAuskunft'
 
 // ───────────────────────────────────────────────────────────────────────────
 // Der Weg vom Plan zur Klinke (larszu-facility-planner Issue #2).
@@ -206,6 +206,42 @@ describe('Der Plan-Check fragt die Auskunft', () => {
   it('9. eine DALI-Adresse MIT Art schweigt ebenfalls', () => {
     const r = checks([geraet({ id: 'ok', hausKlinkeId: 'k1' })], auskunft())
     expect(r.findings.some((x) => x.id.startsWith('haus-klinke-mehrdeutig'))).toBe(false)
+  })
+
+  it('10. Crestron und Vissonic brauchen ihre Art — gleiche Tabelle wie facility#19', () => {
+    // Vorher kannte der Leser nur die drei DALI-Arten und verwarf jede
+    // andere still: Crestron-Joins und Vissonic-Klinken kamen als „ohne
+    // Art" an, und der Check schwieg, weil er nur DALI ansah.
+    const mit = (klinken: unknown[]) =>
+      leseHausDatei(datei({ ...HAUS, klinken }), { quelle: 'x.avfacility', gelesenAm: '2026-09-27T10:00:00.000Z' })!
+    const a = mit([
+      { id: 'c1', system: 'crestron', adresse: '12', adressart: 'analog', richtung: 'schalten', bedeutung: 'Beamer-Lift' },
+      { id: 'v1', system: 'vissonic', adresse: 'mix', adressart: 'mischer', richtung: 'schalten', bedeutung: 'Ausgangsbild' },
+      { id: 'c2', system: 'crestron', adresse: '13', richtung: 'schalten', bedeutung: 'Leinwand' },
+      { id: 'v2', system: 'vissonic', adresse: 'cam1', adressart: 'kurz', richtung: 'schalten', bedeutung: 'Kamera 1' },
+    ])
+    expect(a.klinken.map((k) => k.adressart)).toEqual(['analog', 'mischer', undefined, undefined])
+
+    const r = checks(
+      ['c1', 'v1', 'c2', 'v2'].map((k) => geraet({ id: `g-${k}`, name: k, hausKlinkeId: k })),
+      a,
+    )
+    const gemeldet = r.findings.filter((x) => x.id.startsWith('haus-klinke-mehrdeutig')).map((x) => x.equipmentId)
+    expect(gemeldet.sort()).toEqual(['g-c2', 'g-v2'])
+    expect(r.findings.find((x) => x.equipmentId === 'g-v2')?.message).toContain('mixer')
+  })
+
+  it('11. adresseMehrdeutig: wortgleich zur facility-Tabelle', () => {
+    expect(HAUS_ADRESSARTEN).toEqual({
+      knx: [],
+      dali: ['kurz', 'gruppe', 'broadcast'],
+      crestron: ['digital', 'analog', 'seriell'],
+      vissonic: ['kamera', 'mischer'],
+      sonstige: [],
+    })
+    expect(adresseMehrdeutig({ system: 'knx' })).toBe(false)
+    expect(adresseMehrdeutig({ system: 'dali', adressart: 'digital' })).toBe(true)
+    expect(adresseMehrdeutig({ system: 'crestron', adressart: 'seriell' })).toBe(false)
   })
 
   it('6. ohne hinterlegte Auskunft schweigen ALLE Haus-Checks', () => {

@@ -3533,6 +3533,10 @@ export const de: Dict = {
     '{name} zieht im Weissbild {spitze} W; {punkt} ist mit {grenze} W Dauerleistung angegeben. Die Sicherung wird nach der Spitze gewählt, nicht nach dem Mittel.',
   'check.haus.klinkeMehrdeutig':
     '{name} benutzt die DALI-Adresse {adresse}, und die Auskunft des Hauses sagt nicht, welche Art das ist. Kurzadresse, Gruppe und Broadcast sind drei verschiedene Dinge — das Letzte ist der ganze Bus, Notlicht eingeschlossen.',
+  'check.haus.klinkeMehrdeutigCrestron':
+    '{name} benutzt den Crestron-Join {adresse}, und die Auskunft des Hauses sagt nicht, welche Signalart das ist. Digital-, Analog- und Serial-Join {adresse} sind drei verschiedene Joins.',
+  'check.haus.klinkeMehrdeutigVissonic':
+    '{name} benutzt die Vissonic-Adresse {adresse}, und die Auskunft des Hauses sagt nicht, ob das eine Kamera oder der Mischer ist. Ein Kamera-Befehl bewegt eine Kamera; der Mischer hat einen einzigen Ausgang, ein Befehl dort ändert das Bild auf jedem Bildschirm.',
   'faceplate.title': 'Frontplatten-Editor',
   'faceplate.hint':
     'Die Stecker hier SIND die Ports dieses Geräts und keine Zeichnung davon: was du verschiebst, ist dieselbe Lage, die die Rack-Ansicht liest. Die Millimeter kommen aus dem Gerätemaß; der Beschriftungsstreifen druckt 1:1.',

@@ -448,9 +448,12 @@ risk without a payoff.
   cable routes and the control addresses the show may use. The plan **refers**
   to them and keeps no copy: the checks ask the statement, so a device wired to
   an outlet or a control address that the latest statement no longer lists says
-  so. A **DALI address whose kind is not stated** is reported too — short
-  address, group and broadcast are three different things, and the last one is
-  the whole bus, emergency lighting included.
+  so. A **control address whose kind is not stated** is reported too, for the
+  systems that have kinds (same table as the facility planner): DALI short
+  address, group or broadcast (the last one is the whole bus, emergency
+  lighting included); Crestron digital, analog or serial join; Vissonic camera
+  or mixer (the mixer has a single output — a command there changes every
+  screen). KNX addresses need no kind.
   Since format v2 the statement also carries the building's **floors** (take
   them into the plan's floor list with one click) and its **house runs** with
   rooms, the plate at each end and their cores. A cable's properties pick the
