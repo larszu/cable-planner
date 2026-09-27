@@ -41,6 +41,14 @@ export const DeviceLibraryUploads = ({ server, signedIn }: { server: string; sig
     if (geaendert && e.zustand !== 'local-blocked') {
       return { text: t('deviceLibrary.up.changed', 'changed since the last upload'), klasse: 'text-cp-text-muted' }
     }
+    if (e.zustand !== 'blocked' && e.zustand !== 'local-blocked' && e.zustand !== 'error') {
+      if (e.moderation === 'pending') {
+        return { text: t('deviceLibrary.up.pending', 'uploaded — waiting for moderation'), klasse: 'text-cp-text' }
+      }
+      if (e.moderation === 'approved') {
+        return { text: t('deviceLibrary.up.approved', 'uploaded — live'), klasse: 'text-cp-accent' }
+      }
+    }
     switch (e.zustand) {
       case 'created':
       case 'edit-proposed':
@@ -107,12 +115,11 @@ export const DeviceLibraryUploads = ({ server, signedIn }: { server: string; sig
           {lastUpload.gesendet === 0 && lastUpload.blockiert === 0
             ? t('deviceLibrary.up.nothing', 'Nothing to upload — everything is as last sent.')
             : format(
-                t('deviceLibrary.up.result', '{sent} sent: {pending} waiting for moderation, {live} live, {same} unchanged, {blocked} blocked, {errors} errors.'),
+                t('deviceLibrary.up.result', '{sent} sent: {pending} waiting for moderation, {live} live, {blocked} blocked, {errors} errors.'),
                 {
                   sent: lastUpload.gesendet,
                   pending: lastUpload.wartet,
                   live: lastUpload.live,
-                  same: lastUpload.aktuell,
                   blocked: lastUpload.blockiert,
                   errors: lastUpload.fehler,
                 },

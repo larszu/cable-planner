@@ -74,7 +74,10 @@ describe('Initiative 11 — trägt diese Katalog-Zeile ein Datenblatt?', () => {
     // Smartscope Duo 4K bleibt als einziger unbelegt (eingestellt, keine
     // Live-Produktseite). +2 am 2026-09-23: `ledProcessorCatalog`, der erste
     // Eintrag einer Kategorie, die bei null stand (#878).
-    expect(kommentare).toBe(424)
+    // +19 am 2026-09-27: Herstellerbelege fuer bis dahin unbelegte Eintraege
+    // (Ubiquiti-EdgeMax-Datenblaetter/QSGs, SmallHD, TVLogic, JVC, NEC, Behringer,
+    // TC Electronic, Sonnet, Atomos-QSG) — jede Seite geoeffnet, Modell darauf.
+    expect(kommentare).toBe(443)
   })
 
   it('2. die Abdeckung wird gerechnet', () => {
@@ -82,7 +85,7 @@ describe('Initiative 11 — trägt diese Katalog-Zeile ein Datenblatt?', () => {
     // Die Summen stammen aus derselben Rechnung wie die Zeilen.
     expect(bericht.entries).toBe(bericht.perCatalogue.reduce((s, c) => s + c.entries, 0))
     expect(bericht.sourced + bericht.unsourced).toBe(bericht.entries)
-    expect(bericht.sourced).toBe(424)
+    expect(bericht.sourced).toBe(443)
     expect(bericht.entries).toBe(469)
 
     // Kein Katalog steht mehr ganz ohne Beleg (B-11 abgeschlossen) — und die

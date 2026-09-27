@@ -85,7 +85,9 @@ export const UBIQUITI_CATALOG: UbiquitiEntry[] = [
     match: ['edgerouter', 'lite'],
     deviceTypeId: 'eca7eae0-a59c-4314-8b9e-ded8148eb2ee',
     networkKind: 'router',
+    // Quelle: https://dl.ubnt.com/datasheets/edgemax/EdgeRouter_Lite_DS.pdf
     template: {
+      manufacturerUrl: 'https://dl.ubnt.com/datasheets/edgemax/EdgeRouter_Lite_DS.pdf',
       name: 'Ubiquiti EdgeRouter Lite (ERLite-3)',
       category: NET,
       inputs: [port('eth0 (WAN)', 'Ethernet/RJ45')],
@@ -98,7 +100,9 @@ export const UBIQUITI_CATALOG: UbiquitiEntry[] = [
     match: ['edgerouter', 'poe'],
     deviceTypeId: 'deaa3398-f480-4aa2-b78d-18658938ca80',
     networkKind: 'router',
+    // Quelle: https://dl.ubnt.com/qsg/ERPoe-5/ERPoe-5_EN.html
     template: {
+      manufacturerUrl: 'https://dl.ubnt.com/qsg/ERPoe-5/ERPoe-5_EN.html',
       name: 'Ubiquiti EdgeRouter PoE (ERPoe-5)',
       category: NET,
       inputs: [port('eth0 (WAN)', 'Ethernet/RJ45')],
@@ -148,7 +152,9 @@ export const UBIQUITI_CATALOG: UbiquitiEntry[] = [
     match: ['edgerouter', 'er-8'],
     deviceTypeId: 'f673d842-0fca-47b4-b78e-76dec0499180',
     networkKind: 'router',
+    // Quelle: https://dl.ubnt.com/qsg/ER-8/ER-8_EN.html
     template: {
+      manufacturerUrl: 'https://dl.ubnt.com/qsg/ER-8/ER-8_EN.html',
       name: 'Ubiquiti EdgeRouter 8 (ER-8)',
       category: NET,
       inputs: [port('eth0 (WAN)', 'Ethernet/RJ45')],
@@ -180,7 +186,9 @@ export const UBIQUITI_CATALOG: UbiquitiEntry[] = [
     match: ['edgerouter', 'pro'],
     deviceTypeId: '3f75230c-f85f-44a1-8554-a0a5cf74a381',
     networkKind: 'router',
+    // Quelle: https://dl.ubnt.com/qsg/ERPro-8/ERPro-8_EN.html
     template: {
+      manufacturerUrl: 'https://dl.ubnt.com/qsg/ERPro-8/ERPro-8_EN.html',
       name: 'Ubiquiti EdgeRouter Pro (ERPro-8)',
       category: NET,
       inputs: [port('eth0 (WAN)', 'Ethernet/RJ45')],
@@ -214,7 +222,9 @@ export const UBIQUITI_CATALOG: UbiquitiEntry[] = [
     match: ['edgeswitch', 'es-8xp'],
     deviceTypeId: 'c29a476f-1fa8-4c94-b09c-ae24d47bb008',
     networkKind: 'switch',
+    // Quelle: https://dl.ubnt.com/qsg/ES-8XP/ES-8XP_EN.html
     template: {
+      manufacturerUrl: 'https://dl.ubnt.com/qsg/ES-8XP/ES-8XP_EN.html',
       name: 'Ubiquiti EdgeSwitch 8XP (ES-8XP)',
       category: NET,
       inputs: [port('Uplink', 'Ethernet/RJ45')],

@@ -166,6 +166,7 @@ describe('B-11 — der Kopf einer Katalog-Datei sagt seine Beleglage', () => {
     // `catalogueEvidence.ts` nennt genau das als Grund für die Engstelle.
     expect(bericht.perCatalogue.map((c) => c.name)).toContain('blackmagic')
     expect(bericht.entries).toBe(bericht.sourced + bericht.unsourced)
-    expect(bericht.unsourced).toBe(45)
+    // 45 -> 26 am 2026-09-27: 19 Eintraege mit geoeffnetem Herstellerbeleg.
+    expect(bericht.unsourced).toBe(26)
   })
 })

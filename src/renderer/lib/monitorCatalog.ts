@@ -114,7 +114,9 @@ export const MONITOR_CATALOG: MonitorEntry[] = [
     match: ['shogun', 'ultra'],
     deviceTypeId: '37ca86f0-451a-4e6a-85aa-80e23beb6a3f',
     records: 'per-device',
+    // Quelle: https://www.atomos.com/wp-content/uploads/2025/02/SHOGUN_ULTRA_QSG_2025.pdf
     template: {
+      manufacturerUrl: 'https://www.atomos.com/wp-content/uploads/2025/02/SHOGUN_ULTRA_QSG_2025.pdf',
       name: 'Atomos Shogun Ultra',
       category: MON,
       inputs:  [sdiIn('12G-SDI In'), hdmiIn('HDMI 2.0 In'), eth('Ethernet 1G')],
@@ -259,7 +261,9 @@ export const MONITOR_CATALOG: MonitorEntry[] = [
   {
     match: ['smallhd', '702'],
     deviceTypeId: '1100c1ea-5170-4e24-8673-7478ef82658c',
+    // Quelle: https://guide.smallhd.com/m/shd702bright
     template: {
+      manufacturerUrl: 'https://guide.smallhd.com/m/shd702bright',
       name: 'SmallHD 702 Bright',
       category: MON,
       inputs:  [sdiIn('SDI In'), hdmiIn('HDMI In')],
@@ -318,7 +322,9 @@ export const MONITOR_CATALOG: MonitorEntry[] = [
   {
     match: ['smallhd', '503'],
     deviceTypeId: '9a91a6a2-f264-49fd-8fe0-4a5da6f37c65',
+    // Quelle: https://smallhd.com/products/503-ultra-bright-professional-on-camera-field-monitor
     template: {
+      manufacturerUrl: 'https://smallhd.com/products/503-ultra-bright-professional-on-camera-field-monitor',
       name: 'SmallHD 503 UltraBright',
       category: MON,
       inputs:  [sdiIn('SDI In 1'), sdiIn('SDI In 2'), hdmiIn('HDMI In')],
@@ -330,7 +336,9 @@ export const MONITOR_CATALOG: MonitorEntry[] = [
   {
     match: ['smallhd', '502'],
     deviceTypeId: 'dc6f1c1a-8280-4dc5-9fa7-dacccb8a97d0',
+    // Quelle: https://smallhd.com/pages/502-bright-on-camera-monitor
     template: {
+      manufacturerUrl: 'https://smallhd.com/pages/502-bright-on-camera-monitor',
       name: 'SmallHD 502',
       category: MON,
       inputs:  [sdiIn('SDI In'), hdmiIn('HDMI In')],
@@ -345,7 +353,9 @@ export const MONITOR_CATALOG: MonitorEntry[] = [
   {
     match: ['tvlogic', 'lum-240'],
     deviceTypeId: '863ddb0c-c350-4440-b2d6-25943d37efce',
+    // Quelle: https://www.tvlogic.tv/new/M_Spec.asp?sidx=77
     template: {
+      manufacturerUrl: 'https://www.tvlogic.tv/new/M_Spec.asp?sidx=77',
       name: 'TVLogic LUM-240G',
       category: MON,
       inputs: [
@@ -360,7 +370,9 @@ export const MONITOR_CATALOG: MonitorEntry[] = [
   {
     match: ['tvlogic', 'lum-170'],
     deviceTypeId: '37731c4c-20d4-44f1-94c0-d55e8774bb38',
+    // Quelle: https://www.tvlogic.tv/new/M_Spec.asp?sidx=76
     template: {
+      manufacturerUrl: 'https://www.tvlogic.tv/new/M_Spec.asp?sidx=76',
       name: 'TVLogic LUM-170G',
       category: MON,
       inputs: [sdiIn('SDI In'), hdmiIn('HDMI In'), sdiIn('Ref In')],
@@ -372,7 +384,9 @@ export const MONITOR_CATALOG: MonitorEntry[] = [
   {
     match: ['tvlogic', 'lvm-246'],
     deviceTypeId: 'a361bec1-f781-4f47-9a79-a0c9050307fd',
+    // Quelle: https://www.tvlogic.tv/new/M_Spec.asp?sidx=55
     template: {
+      manufacturerUrl: 'https://www.tvlogic.tv/new/M_Spec.asp?sidx=55',
       name: 'TVLogic LVM-246W',
       category: MON,
       inputs: [sdiIn('SDI In 1'), sdiIn('SDI In 2'), hdmiIn('HDMI In')],
@@ -408,7 +422,9 @@ export const MONITOR_CATALOG: MonitorEntry[] = [
   {
     match: ['tvlogic', 'xvm-245'],
     deviceTypeId: '4b72d161-b295-4f4f-b3ed-9ca1717154d9',
+    // Quelle: https://www.tvlogic.tv/new/M_Spec.asp?sidx=22
     template: {
+      manufacturerUrl: 'https://www.tvlogic.tv/new/M_Spec.asp?sidx=22',
       name: 'TVLogic XVM-245W',
       category: MON,
       inputs: [
@@ -484,7 +500,9 @@ export const MONITOR_CATALOG: MonitorEntry[] = [
   {
     match: ['jvc', 'dt-v24g'],
     deviceTypeId: 'bfab2e39-b0b3-439a-8546-6fc3f813e9b5',
+    // Quelle: https://www.jvc.com/jp/pro/monitor/lineup/dt-v24g1/spec/
     template: {
+      manufacturerUrl: 'https://www.jvc.com/jp/pro/monitor/lineup/dt-v24g1/spec/',
       name: 'JVC DT-V24G1',
       category: MON,
       inputs: [
@@ -558,7 +576,9 @@ export const MONITOR_CATALOG: MonitorEntry[] = [
   {
     match: ['nec', 'x401'],
     deviceTypeId: '744f9954-fbc6-4362-b13b-9da86b45021d',
+    // Quelle: https://sharp-displays.jp.sharp/dl/en/dp_manual/x401s.html
     template: {
+      manufacturerUrl: 'https://sharp-displays.jp.sharp/dl/en/dp_manual/x401s.html',
       name: 'NEC MultiSync X401S',
       category: MON,
       inputs: [

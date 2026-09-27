@@ -23,6 +23,7 @@ import {
   runUpload,
   saveUploadStand,
   uebernehmeErgebnisse,
+  wartetAufModeration,
 } from '../src/renderer/lib/deviceLibraryUpload'
 import { EINGEBAUTER_KATALOG } from '../src/renderer/lib/eingebauterKatalog'
 import { createWebDeviceLibraryApi } from '../src/renderer/lib/deviceLibraryWeb'
@@ -76,10 +77,13 @@ describe('Hersteller und Modell aus dem Namen', () => {
     expect(herstellerAusName('UniFi Switch 24 (USW-24)')).toEqual({ manufacturer: 'Ubiquiti', model: 'UniFi Switch 24 (USW-24)' })
   })
 
-  it('erfindet keinen Hersteller fuer passive Teile und Eigenbauten', () => {
+  it('erfindet keinen Hersteller fuer passive Bauformen', () => {
     expect(herstellerAusName('Patch panel 24x BNC').manufacturer).toBe('')
     expect(herstellerAusName('Power strip 6-way').manufacturer).toBe('')
-    expect(herstellerAusName('LZ Media Station').manufacturer).toBe('')
+  })
+
+  it('fuehrt den Eigenbau unter der Firma', () => {
+    expect(herstellerAusName('LZ Media Station')).toEqual({ manufacturer: 'Lars Zumpe Medienproduktion', model: 'LZ Media Station' })
   })
 
   it('verwechselt keinen Praefix mit dem Wortanfang', () => {
@@ -125,7 +129,7 @@ describe('planeUpload / uebernehmeErgebnisse', () => {
     const stand = leererUploadStand(SERVER)
     const plan = planeUpload([v], stand, ohnePruefung)
     expect(plan.items).toHaveLength(1)
-    const nach = uebernehmeErgebnisse(stand, [v], plan, [{ localId: 'Acme X1', state: 'created', slug: 'acme-x1' }])
+    const nach = uebernehmeErgebnisse(stand, [v], plan, [{ localId: 'Acme X1', state: 'in-sync', moderation: 'approved', slug: 'acme-x1' }])
     expect(planeUpload([v], nach, ohnePruefung).items).toHaveLength(0)
     expect(planeUpload([{ ...v, powerWatts: 3 }], nach, ohnePruefung).items).toHaveLength(1)
   })
@@ -180,9 +184,17 @@ describe('runUpload', () => {
     expect(b.aufrufe[0].map((i) => i.localId)).toEqual(['Acme X1'])
     expect(loadUploadStand(SERVER, s).eintraege['Acme X1']).toMatchObject({ zustand: 'created', slug: 'acme-x1' })
 
+    // Zweiter Lauf: die Vorlage wartet noch auf Moderation und geht deshalb
+    // mit (sonst erfuehre die App nie von der Freigabe) — sonst nichts.
     const zwei = await runUpload(b, SERVER, bibliothek, s)
-    expect(zwei.ok && zwei.bilanz.gesendet).toBe(0)
-    expect(b.aufrufe).toHaveLength(1)
+    expect(zwei.ok && zwei.bilanz.gesendet).toBe(1)
+    expect(b.aufrufe).toHaveLength(2)
+    const drei = await runUpload(bruecke(alle('approved')), SERVER, bibliothek, s)
+    expect(drei.ok && drei.bilanz.gesendet).toBe(1)
+    const b4 = bruecke(alle('in-sync'))
+    const vier = await runUpload(b4, SERVER, bibliothek, s)
+    expect(vier.ok && vier.bilanz.gesendet).toBe(0)
+    expect(b4.aufrufe).toHaveLength(0)
   })
 
   it('laesst den Stand bei einem Fehler der Anfrage unberuehrt', async () => {
@@ -192,6 +204,34 @@ describe('runUpload', () => {
     expect(r).toMatchObject({ ok: false, code: 'rate-limited' })
     expect(loadUploadStand(SERVER, s).eintraege).toEqual({})
     expect(loadUploadStand(SERVER, s).namen['Acme X1']).toEqual({ manufacturer: 'Acme', model: 'X1' })
+  })
+
+  it('schickt Wartendes erneut mit und stellt es auf live, sobald freigegeben', async () => {
+    const s = speicher()
+    const bibliothek = [vorlage('Acme X1'), vorlage('Acme Y2')]
+    await runUpload(
+      bruecke((items) => items.map((i) => ({ localId: i.localId, state: i.localId === 'Acme X1' ? 'created' : 'approved', moderation: i.localId === 'Acme X1' ? 'pending' : 'approved' }))),
+      SERVER, bibliothek, s,
+    )
+    expect(wartetAufModeration(loadUploadStand(SERVER, s).eintraege['Acme X1'])).toBe(true)
+
+    // Unveraendert, aber noch wartend: geht mit. Das freigegebene nicht.
+    const b = bruecke((items) => items.map((i) => ({ localId: i.localId, state: 'in-sync', moderation: 'approved' })))
+    const r = await runUpload(b, SERVER, bibliothek, s)
+    expect(b.aufrufe[0].map((i) => i.localId)).toEqual(['Acme X1'])
+    expect(r.ok && r.bilanz).toMatchObject({ gesendet: 1, live: 1, wartet: 0 })
+    expect(loadUploadStand(SERVER, s).eintraege['Acme X1']).toMatchObject({ zustand: 'in-sync', moderation: 'approved' })
+
+    // Danach ist nichts mehr offen: keine Anfrage.
+    const c = bruecke(alle('in-sync'))
+    await runUpload(c, SERVER, bibliothek, s)
+    expect(c.aufrufe).toHaveLength(0)
+  })
+
+  it('schliesst den Moderationsstand bei einem Server ohne das Feld aus dem Zustand', async () => {
+    const s = speicher()
+    await runUpload(bruecke(alle('created')), SERVER, [vorlage('Acme X1')], s)
+    expect(loadUploadStand(SERVER, s).eintraege['Acme X1'].moderation).toBe('pending')
   })
 
   it('beginnt fuer einen anderen Server von vorn', async () => {
