@@ -7,6 +7,7 @@ import type { Cable } from '../types/cable'
 import type { EquipmentItem, EquipmentTemplate, GroupPreset, Port } from '../types/equipment'
 import type { Floor, LocationFrame } from '../types/location'
 import { etageVon, heileEtagen } from '../lib/etagen'
+import { geraeteUmbenannt, kabelUmbenannt, type StammdatenArt } from '../lib/stammdaten'
 import type { CablePlannerProject } from '../types/project'
 import { useUiStore } from './uiStore'
 import { defaultProject, isProjectLocked, sanitizePort, touchProject } from './projectStoreHelpers'
@@ -467,6 +468,10 @@ export interface ProjectState {
   removeCustomTemplate: (name: string) => void
   setCustomTemplateCategory: (name: string, category: string) => void
   renameCustomCategory: (oldCategory: string, newCategory: string) => void
+  /** #917 — eigenen Stecker/Standard/Ebene umbenennen: zieht Ports, Kabel und
+   *  Bibliotheks-Vorlagen im offenen Projekt mit. Liefert die Zahl der
+   *  geaenderten Geraete, Kabel und Vorlagen. */
+  renameStammdatum: (art: StammdatenArt, oldName: string, newName: string) => number
   /** Update name and/or category of an existing library template. */
   updateCustomTemplate: (currentName: string, patch: { name?: string; category?: string }) => void
   /** v7.9.13 — Markiert ein Library-Template permanent als 19"-Rack-
@@ -2331,6 +2336,31 @@ const buildProjectStore = (
       return { customLibrary: healed }
     })
     return addedOrPatched
+  },
+  renameStammdatum: (art, oldName, newName) => {
+    const alt = oldName.trim()
+    const neu = newName.trim()
+    if (!alt || !neu || alt === neu) return 0
+    let n = 0
+    set((state) => {
+      const lib = geraeteUmbenannt(state.customLibrary, art, alt, neu)
+      if (lib.n > 0) persistCustomLibrary(lib.liste)
+      n += lib.n
+      // Ein gesperrtes Projekt bleibt, wie es ist; die Bibliothek gehoert
+      // nicht zum Projekt und wird trotzdem nachgezogen.
+      if (isProjectLocked(state)) return lib.n > 0 ? { customLibrary: lib.liste } : {}
+      const geraete = geraeteUmbenannt(state.project.equipment, art, alt, neu)
+      const kabel = kabelUmbenannt(state.project.cables, art, alt, neu)
+      n += geraete.n + kabel.n
+      const projektGeaendert = geraete.n + kabel.n > 0
+      return {
+        ...(lib.n > 0 ? { customLibrary: lib.liste } : {}),
+        ...(projektGeaendert
+          ? { project: touchProject({ ...state.project, equipment: geraete.liste, cables: kabel.liste }) }
+          : {}),
+      }
+    })
+    return n
   },
   renameCustomCategory: (oldCategory, newCategory) =>
     set((state) => {
