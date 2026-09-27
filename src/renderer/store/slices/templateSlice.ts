@@ -8,6 +8,8 @@ import { upsertCachedRentmanTemplate } from '../../lib/rentmanTemplateCache'
 import { mergeDefined } from '../../lib/mergeDefined'
 import { persistCustomLibrary, persistKnownCategories } from '../libraryPersist'
 import type { ProjectState } from '../projectStore'
+import { v4 as uuidv4 } from 'uuid'
+import { isProjectLocked } from '../projectStoreHelpers'
 
 /**
  * #308 — Template-Slice. CRUD-Actions auf state.customLibrary:
@@ -97,6 +99,31 @@ const templateFromEquipment = (
   ...(override.preserveFlags?.favorite !== undefined ? { favorite: override.preserveFlags.favorite } : {}),
   ...(override.preserveFlags?.hidden !== undefined ? { hidden: override.preserveFlags.hidden } : {}),
 })
+
+/**
+ * Gerätetyp-Id einer EIGENEN Vorlage (device-identity-concept, „Offen":
+ * „User-eigene Templates optional mit selbst geminteter GUID").
+ *
+ * Vorrang: die des Geräts (Katalog-Typ bleibt Katalog-Typ), dann die der
+ * gleichnamigen Vorlage (Überschreiben ändert die Identität nicht), sonst neu
+ * gemintet. Ohne Id bliebe ein selbst angelegter Typ für Lager-Deckung und
+ * „Gerät tauschen" ein Namensvergleich — genau der, den ADR-002 ablöst.
+ */
+const eigeneTypId = (item: EquipmentItem, existing: EquipmentTemplate | undefined): string =>
+  item.deviceTypeId ?? existing?.deviceTypeId ?? uuidv4()
+
+/** Das Gerät, aus dem die Vorlage entstand, bekommt dieselbe Id — sonst wäre
+ *  es vom eigenen Typ getrennt. Nur wenn es noch keine trug und der Plan
+ *  nicht gesperrt ist. */
+const mitTypId = (state: ProjectState, item: EquipmentItem, typId: string): Partial<ProjectState> =>
+  item.deviceTypeId || isProjectLocked(state)
+    ? {}
+    : {
+        project: {
+          ...state.project,
+          equipment: state.project.equipment.map((e) => (e.id === item.id ? { ...e, deviceTypeId: typId } : e)),
+        },
+      }
 
 export const createTemplateSlice: StateCreator<ProjectState, [], [], TemplateSlice> = (set) => ({
   addCustomTemplate: (template) =>
@@ -193,7 +220,8 @@ export const createTemplateSlice: StateCreator<ProjectState, [], [], TemplateSli
       const item = state.project.equipment.find((e) => e.id === equipmentId)
       if (!item) return {}
       const existing = state.customLibrary.find((t) => t.name === item.name)
-      const rebuilt = templateFromEquipment(item, { preserveFlags: existing })
+      const typId = eigeneTypId(item, existing)
+      const rebuilt = { ...templateFromEquipment(item, { preserveFlags: existing }), deviceTypeId: typId }
       // ADR-005, Regel 2 — der aermere Nachbau darf nicht loeschen.
       //
       // `templateFromEquipment` nennt 23 Felder. Die Bibliothek traegt aber
@@ -225,7 +253,7 @@ export const createTemplateSlice: StateCreator<ProjectState, [], [], TemplateSli
         : [...state.customLibrary, template]
       persistCustomLibrary(next)
       if (template.rentmanId) upsertCachedRentmanTemplate(template)
-      return { customLibrary: next }
+      return { customLibrary: next, ...mitTypId(state, item, typId) }
     }),
   saveEquipmentAsNewTemplate: (equipmentId, newName, category) =>
     set((state) => {
@@ -236,11 +264,12 @@ export const createTemplateSlice: StateCreator<ProjectState, [], [], TemplateSli
       // If the target name already exists we treat the whole operation as a
       // no-op so we never accidentally overwrite a different template.
       if (state.customLibrary.some((t) => t.name === trimmed)) return {}
-      const template = templateFromEquipment(item, { name: trimmed, category })
+      const typId = eigeneTypId(item, undefined)
+      const template = { ...templateFromEquipment(item, { name: trimmed, category }), deviceTypeId: typId }
       const next = [...state.customLibrary, template]
       persistCustomLibrary(next)
       if (template.rentmanId) upsertCachedRentmanTemplate(template)
-      return { customLibrary: next }
+      return { customLibrary: next, ...mitTypId(state, item, typId) }
     }),
   toggleTemplateFavorite: (name) =>
     set((state) => {

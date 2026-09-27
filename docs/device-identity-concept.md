@@ -190,8 +190,9 @@ identische Fixtures korrekt zu einem Patch-Typ. Headless verifiziert per
 eindeutiges `uuid`.
 
 **Offen** (nächste Schritte): echte GDTF-`FixtureTypeID`-GUIDs, sobald
-Light-Planner GDTF-Profile einbettet (heute per Name relinked); User-eigene
-Templates optional mit selbst geminteter GUID; Katalog-Nachzügler mit geklärter I/O (TriCaster Mini 4K,
+Light-Planner GDTF-Profile einbettet (heute per Name relinked); ~~User-eigene
+Templates optional mit selbst geminteter GUID~~ (erledigt 2026-09-27: beim
+Speichern als Vorlage, siehe `templateSlice.eigeneTypId`); Katalog-Nachzügler mit geklärter I/O (TriCaster Mini 4K,
 greenMachine titan, AJA FS4/FS2, Analog Way Aquilon, Clear-Com FreeSpeak,
 Riedel Bolero, Grass Valley, Datavideo, Antennen-Splitter Shure UA844+/
 Sennheiser ASA 214, Shure AD4D/Axient).
