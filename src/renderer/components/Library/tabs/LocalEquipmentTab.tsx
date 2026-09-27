@@ -15,6 +15,7 @@ import { DeviceLibrarySubmitDialog } from '../DeviceLibrarySubmitDialog'
 import { mountModal } from '../../../lib/modalRoot'
 import { infoDialog } from '../../../lib/infoDialog'
 import { baueEinreichung } from '../../../lib/vorlagenEinreichung'
+import { eigeneVorlagen } from '../../../lib/deviceLibraryUpload'
 import type { EquipmentTemplate } from '../../../types/equipment'
 import { CategoryDndWrapper } from '../LibraryDndWrappers'
 import { SortableCategorySection } from '../LibrarySortables'
@@ -128,7 +129,8 @@ export const LocalEquipmentTab = ({
    * angemeldet, die Geraetebibliothek (`DeviceLibrarySubmitDialog`).
    */
   const einreichen = async () => {
-    const eigene = customLibrary.filter((v) => !v.rentmanSource)
+    // Nur Eigenes: unveraenderte Katalog-Vorlagen veroeffentlicht das Projekt selbst.
+    const eigene = eigeneVorlagen(customLibrary)
     const paket = baueEinreichung(eigene, {
       app: 'cable-planner',
       appVersion: __APP_VERSION__,

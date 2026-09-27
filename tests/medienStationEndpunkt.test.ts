@@ -4,6 +4,7 @@ import { resolveDeviceType } from '../src/renderer/lib/deviceTypeRegistry'
 import { evidenceForType } from '../src/renderer/lib/catalogueEvidence'
 import quelle from '../src/renderer/lib/mediaStationCatalog.ts?raw'
 import storeQuelle from '../src/renderer/store/projectStore.ts?raw'
+import katalogQuelle from '../src/renderer/lib/eingebauterKatalog.ts?raw'
 
 // ---------------------------------------------------------------------------
 // Die Medien-Station als PLAN-ENDPUNKT.
@@ -34,12 +35,17 @@ describe('die Medien-Station ist im Plan platzierbar', () => {
     // wurde, weil die IMPORT-Zeile stehenblieb. Der Waechter prueft damit
     // den Zustand, den der Fix erzeugt, statt den, den der Defekt braucht.
     // Geprueft wird deshalb die Saat-Liste selbst.
+    //
+    // Seit 2026-09-27 steht die Saat-Liste in `eingebauterKatalog.ts` (sie
+    // bestimmt auch, was als eigene Vorlage hochgeladen wird). Geprueft wird
+    // beides: der Store saet GENAU diese Liste, und sie enthaelt die Station.
     const saat = storeQuelle.slice(
-      storeQuelle.indexOf('for (const t of ['),
+      storeQuelle.indexOf('for (const t of '),
       storeQuelle.indexOf('if (!byName.has(t.name))'),
     )
-    expect(saat).not.toBe('')
-    expect(saat).toContain('...mediaStationTemplates')
+    expect(saat).toContain('EINGEBAUTER_KATALOG')
+    const liste = katalogQuelle.slice(katalogQuelle.indexOf('export const EINGEBAUTER_KATALOG'))
+    expect(liste).toContain('...mediaStationTemplates')
     expect(mediaStationTemplates).toHaveLength(MEDIA_STATION_CATALOG.length)
   })
 

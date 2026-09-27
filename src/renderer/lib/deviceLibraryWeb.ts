@@ -5,6 +5,7 @@ import {
   signIn,
   signOut,
   sync,
+  upload,
   verifySecondFactor,
   type SignInResult,
 } from './deviceLibraryClient'
@@ -99,5 +100,6 @@ export function createWebDeviceLibraryApi(storage: () => KeyValueStorage | null 
     },
     sync: (server, after) => mitToken(server, (url, token) => sync(url, token, 'cable', after)),
     propose: (server, core, facet) => mitToken(server, (url, token) => propose(url, token, 'cable', core, facet)),
+    upload: (server, items) => mitToken(server, (url, token) => upload(url, token, 'cable', items)),
   }
 }

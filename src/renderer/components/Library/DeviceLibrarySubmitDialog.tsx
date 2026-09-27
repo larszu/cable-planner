@@ -19,7 +19,8 @@ import { useDialogA11y } from '../../hooks/useDialogA11y'
 import { cablePlannerApi } from '../../lib/bridge'
 import { downloadBlob } from '../../lib/downloadBlob'
 import { deviceUrl } from '../../lib/deviceLibraryClient'
-import { effectiveServer, errorText, guessManufacturerModel, guidelinesUrl, proposalFor } from '../../lib/deviceLibrary'
+import { effectiveServer, errorText, guidelinesUrl, proposalFor } from '../../lib/deviceLibrary'
+import { namenFuer } from '../../lib/deviceLibraryUpload'
 import type { Einreichung } from '../../lib/vorlagenEinreichung'
 import type { DeviceLibraryErrorCode } from '../../types/deviceLibrary'
 import { useSettingsStore } from '../../store/settingsStore'
@@ -44,8 +45,10 @@ export const DeviceLibrarySubmitDialog = ({ paket, total, onClose }: { paket: Ei
   const server = effectiveServer(useSettingsStore((s) => s.deviceLibraryUrl))
   const session = useDeviceLibraryStore((s) => s.session)
   const refreshSession = useDeviceLibraryStore((s) => s.refreshSession)
+  const setNames = useDeviceLibraryStore((s) => s.setNames)
+  const uploads = useDeviceLibraryStore((s) => s.uploads)
   const [zeilen, setZeilen] = useState<Zeile[]>(() =>
-    paket.eintraege.map((e) => ({ auswahl: true, ...guessManufacturerModel(e.vorlage.name) })),
+    paket.eintraege.map((e) => ({ auswahl: true, ...namenFuer(uploads, e.vorlage) })),
   )
   const [busy, setBusy] = useState(false)
   const { panelRef, titleId, dialogProps } = useDialogA11y(true, onClose)
@@ -65,7 +68,10 @@ export const DeviceLibrarySubmitDialog = ({ paket, total, onClose }: { paket: Ei
       for (let i = 0; i < zeilen.length; i += 1) {
         const z = zeilen[i]
         if (!z.auswahl || z.ergebnis?.ok || !z.manufacturer.trim() || !z.model.trim()) continue
-        const { core, facet } = proposalFor(paket.eintraege[i].vorlage, z)
+        const vorlage = paket.eintraege[i].vorlage
+        // Die Trennung gilt auch fuer das automatische Hochladen danach.
+        setNames(server, vorlage.name, { manufacturer: z.manufacturer, model: z.model })
+        const { core, facet } = proposalFor(vorlage, z)
         const r = await cablePlannerApi.deviceLibrary.propose(server, core, facet)
         setZeile(i, { ergebnis: r.ok ? { ok: true, slug: r.value.slug } : { ok: false, text: errorText(r, t), code: r.code } })
         if (!r.ok && r.code === 'not-signed-in') {

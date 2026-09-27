@@ -16,6 +16,7 @@
 import type { ProposalCore, SyncResponse } from './deviceLibraryClient'
 export { effectiveServer, guidelinesUrl, normalizeServerUrl } from './deviceLibraryUrl'
 import { pruefeVorlage } from './vorlagenEinreichung'
+import { coreAus, facetAus, type Namen } from './deviceLibraryItem'
 import { STORAGE_KEYS } from './storageKeys'
 import type { EquipmentTemplate } from '../types/equipment'
 import type {
@@ -179,39 +180,15 @@ export async function runSync(
   return { ok: true, cache: next, stats: { ...merged.stats, reset }, persisted }
 }
 
-/**
- * Hersteller und Modell aus dem Vorlagennamen raten — nur als Vorschlag im
- * Einreichen-Dialog. Die Vorlagen dieser App kennen kein eigenes
- * Herstellerfeld; die Bibliothek verlangt beides. Der Nutzer korrigiert.
- */
-export function guessManufacturerModel(name: string): { manufacturer: string; model: string } {
-  const s = name.trim().replace(/\s+/g, ' ')
-  const i = s.indexOf(' ')
-  if (i < 0) return { manufacturer: '', model: s }
-  return { manufacturer: s.slice(0, i), model: s.slice(i + 1) }
-}
+/** Vorschlag fuer Hersteller/Modell — der Nutzer korrigiert im Dialog. */
+export { herstellerAusName as guessManufacturerModel } from './herstellerAusName'
 
-/** Was an den Server geht. `sourceUrl` ist der Datenblattlink der Vorlage —
- *  ohne ihn laesst `pruefeVorlage` sie gar nicht erst bis hierher. */
+/** Was an den Server geht (Einreichen-Dialog). */
 export function proposalFor(
   template: EquipmentTemplate,
-  names: { manufacturer: string; model: string },
+  names: Namen,
 ): { core: ProposalCore; facet: Record<string, unknown> } {
-  const core: ProposalCore = {
-    manufacturer: names.manufacturer.trim(),
-    model: names.model.trim(),
-    category: template.category.trim(),
-    sourceUrl: (template.manufacturerUrl ?? '').trim(),
-    ...(template.powerWatts != null ? { powerWatts: template.powerWatts } : {}),
-    ...(template.rackUnits != null ? { rackUnits: template.rackUnits } : {}),
-    ...(template.weightKg != null ? { weightKg: template.weightKg } : {}),
-  }
-  // Rentman-Herkunft und Favoriten-/Versteckt-Schalter sind Sache dieser
-  // Installation. Der Server streift private Felder ebenfalls ab; hier gehen
-  // sie gar nicht erst raus.
-  const facet: Record<string, unknown> = { ...template }
-  for (const k of ['rentmanSource', 'rentmanProjectName', 'favorite', 'hidden']) delete facet[k]
-  return { core, facet }
+  return { core: coreAus(template, names), facet: facetAus(template) }
 }
 
 type Uebersetzen = (key: string, fallback: string) => string

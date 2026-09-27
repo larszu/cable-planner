@@ -342,7 +342,8 @@ describe('Einreichen und Fehlertexte', () => {
   })
 
   it('schlaegt Hersteller und Modell aus dem Namen vor', () => {
-    expect(guessManufacturerModel('Blackmagic ATEM Mini Pro')).toEqual({ manufacturer: 'Blackmagic', model: 'ATEM Mini Pro' })
+    expect(guessManufacturerModel('Blackmagic ATEM Mini Pro')).toEqual({ manufacturer: 'Blackmagic Design', model: 'ATEM Mini Pro' })
+    expect(guessManufacturerModel('Acme Box 2')).toEqual({ manufacturer: 'Acme', model: 'Box 2' })
     expect(guessManufacturerModel('Einwort')).toEqual({ manufacturer: '', model: 'Einwort' })
   })
 

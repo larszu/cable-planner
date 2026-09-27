@@ -1,0 +1,49 @@
+name: Katalog in der Geraetebibliothek veroeffentlichen
+
+# Der eingebaute Katalog gehoert auf devices.zumpelars.de — einmal je
+# Aenderung, von hier aus, statt von jedem Rechner einzeln (siehe Kopf von
+# `scripts/library-publish.mjs`).
+#
+# Ohne das Secret DEVICE_LIBRARY_KEY sendet der Lauf nichts, sagt das in der
+# Zusammenfassung und endet gruen: ein Fork oder ein Repo ohne Schluessel soll
+# nicht bei jedem Merge rot werden. Der Schluessel ist ein API-Schluessel
+# (`dlk_…`) eines Admin-Kontos der Bibliothek — er darf nur lesen und
+# hochladen. Ein anderer Server geht ueber die Repo-Variable
+# DEVICE_LIBRARY_URL.
+#
+# Kein `npm ci`: das Skript braucht nur Node (Typen streicht Node 24 selbst,
+# `fetch` ist eingebaut) — die Installation kostete mehr als der Lauf.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/renderer/lib/*Catalog.ts'
+      - 'src/renderer/lib/eingebauterKatalog.ts'
+      - 'src/renderer/lib/deviceLibraryItem.ts'
+      - 'src/renderer/lib/herstellerAusName.ts'
+      - 'src/renderer/lib/deviceLibraryClient.ts'
+      - 'scripts/library-publish.mjs'
+      - '.github/workflows/library-publish.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: library-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+      - name: Katalog hochladen
+        env:
+          DEVICE_LIBRARY_KEY: ${{ secrets.DEVICE_LIBRARY_KEY }}
+          DEVICE_LIBRARY_URL: ${{ vars.DEVICE_LIBRARY_URL }}
+        run: npm run library:publish

@@ -23,4 +23,5 @@ export const registerDeviceLibraryIpc = () => {
   ipcMain.handle('deviceLibrary:propose', (_e, server: unknown, core: ProposalCore, facet: Record<string, unknown>) =>
     deviceLibraryService.propose(server, core, facet),
   )
+  ipcMain.handle('deviceLibrary:upload', (_e, server: unknown, items: unknown) => deviceLibraryService.upload(server, items))
 }
