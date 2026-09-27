@@ -14,6 +14,7 @@ import { nextPlacementPosition } from '../../../lib/library'
 import { DeviceLibrarySubmitDialog } from '../DeviceLibrarySubmitDialog'
 import { mountModal } from '../../../lib/modalRoot'
 import { infoDialog } from '../../../lib/infoDialog'
+import { confirmDialog } from '../../../lib/confirmDialog'
 import { baueEinreichung } from '../../../lib/vorlagenEinreichung'
 import { eigeneVorlagen } from '../../../lib/deviceLibraryUpload'
 import type { EquipmentTemplate } from '../../../types/equipment'
@@ -439,21 +440,20 @@ export const LocalEquipmentTab = ({
                           <LibraryItem
                             item={item}
                             onAdd={() => addEquipment({ ...stampDeviceLibraryRef(item), ...nextPlacementPosition(equipmentCount, equipmentItems) })}
-                            onRemove={() => removeCustomTemplate(item.name)}
+                            onRemove={async () => {
+                              // #901 — Entfernen loescht die Vorlage aus der
+                              // Bibliothek und steht in keinem Undo-Verlauf.
+                              const ok = await confirmDialog(
+                                format(t('library.item.removeConfirm', 'Remove "{name}" from the library?'), { name: item.name }),
+                                { destructive: true },
+                              )
+                              if (ok) removeCustomTemplate(item.name)
+                            }}
+                            onEdit={() => setSelectedTemplateName(item.name)}
                             onToggleFavorite={() => toggleTemplateFavorite(item.name)}
                             onToggleHidden={() => toggleTemplateHidden(item.name)}
                             onExport={() => void exportTemplateToFile(item)}
                           />
-                          {/* Edit button — appears on hover */}
-                          <button
-                            type="button"
-                            onClick={() => setSelectedTemplateName(item.name)}
-                            className="absolute right-7 top-1 hidden bg-cp-surface-5 px-1 py-0.5 text-cp-xs hover:bg-slate-500 group-hover/item:block"
-                            title={t('library.template.editTitle', 'Edit template (name, category)')}
-                            aria-label={t('library.template.editTitle', 'Edit template (name, category)')}
-                          >
-                            <Icon icon={Pencil} size="xs" />
-                          </button>
                         </div>
                       ))
                     )}

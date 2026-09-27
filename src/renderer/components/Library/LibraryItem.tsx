@@ -1,5 +1,5 @@
 import type { EquipmentTemplate } from '../../types/equipment'
-import { Star, Link, Eye, EyeOff, Download } from 'lucide-react'
+import { Star, Link, Eye, EyeOff, Download, Pencil } from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import { Tooltip } from '../shared/Tooltip'
 import { useProjectStore } from '../../store/projectStore'
@@ -15,6 +15,10 @@ interface LibraryItemProps {
   onToggleFavorite?: () => void
   onToggleHidden?: () => void
   onExport?: () => void
+  /** #901 — Bearbeiten sitzt in derselben Aktionszeile wie die uebrigen
+   *  Knoepfe. Vorher lag es absolut positioniert (`right-7`) UEBER dieser
+   *  Zeile und verdeckte Favorit/Ausblenden/Export. */
+  onEdit?: () => void
   /** v7.9.106 / Issue #227 — Rentman-Item ohne Ports + gleichnamiges
    *  lokales Item mit Ports → Aktion zum Verknuepfen/Sync. Wenn gesetzt
    *  erscheint ein 🔗-Button rechts. */
@@ -30,6 +34,7 @@ export const LibraryItem = ({
   onToggleFavorite,
   onToggleHidden,
   onExport,
+  onEdit,
   onLinkPorts,
   linkTargetName,
 }: LibraryItemProps) => {
@@ -157,7 +162,9 @@ export const LibraryItem = ({
           )}
         </div>
       </div>
-      <div className="flex gap-0.5 cp-hover-actions">
+      {/* #901 — `shrink-0`: der Name daneben traegt `flex-1` und `truncate`
+          und soll kuerzen, nicht die Knoepfe stauchen. */}
+      <div className="flex shrink-0 gap-0.5 cp-hover-actions">
         {onToggleFavorite && (
           <Tooltip
             label={
@@ -233,6 +240,21 @@ export const LibraryItem = ({
               aria-label={t('library.item.exportAria', 'Export')}
             >
               <Icon icon={Download} size="xs" />
+            </button>
+          </Tooltip>
+        )}
+        {onEdit && (
+          <Tooltip label={t('library.template.editTitle', 'Edit template (name, category)')}>
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation()
+                onEdit()
+              }}
+              className="bg-cp-surface-4 px-1 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-5"
+              aria-label={t('library.template.editTitle', 'Edit template (name, category)')}
+            >
+              <Icon icon={Pencil} size="xs" />
             </button>
           </Tooltip>
         )}
