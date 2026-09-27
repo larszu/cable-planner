@@ -5,6 +5,7 @@ import { Download, User } from 'lucide-react'
 import { stampForPlan } from '../renderer/lib/documentStamp'
 import { Icon } from '../renderer/components/shared/Icon'
 import { format, uebersetzer } from './i18n'
+import { isSharedPlan, savedDate, shareUrlFromHash } from './share'
 
 // #143 — Zero-Install-Web-Viewer (Stage 1). Lädt eine .cpviewer/.json und
 // rendert den Plan read-only als SVG plus die Anmerkungen. Der Reviewer kann
@@ -196,6 +197,42 @@ export const ViewerApp = () => {
     if (project) for (const e of project.equipment) m.set(e.id, { x: e.x + (e.width ?? 240) / 2, y: e.y + (e.height ?? 80) / 2 })
     return m
   }, [project])
+
+  // #870 — ein Lese-Link oeffnet den Plan direkt, ohne Datei und ohne Konto.
+  const [shared, setShared] = useState<{ host: string; rev: number; savedAt: string } | null>(null)
+  useEffect(() => {
+    const url = shareUrlFromHash(window.location.hash)
+    if (!url) return
+    let live = true
+    fetch(url, { cache: 'no-store', credentials: 'omit' })
+      .then(async (res) => {
+        if (!res.ok) {
+          throw new Error(
+            res.status === 404
+              ? t('viewer.share.gone', 'This link has expired or was revoked.')
+              : format(t('viewer.err.serverStatus', 'The server answered {status}.'), { status: res.status }),
+          )
+        }
+        const body: unknown = await res.json()
+        if (!isSharedPlan(body)) throw new Error(t('viewer.err.noPlanData', 'No valid plan data received.'))
+        if (!live) return
+        const plan = body.data as CablePlannerProject
+        let stored: ProjectAnnotation[] = []
+        try {
+          const raw = localStorage.getItem(annKey(plan))
+          if (raw) stored = JSON.parse(raw) as ProjectAnnotation[]
+        } catch { /* ignore */ }
+        setShared({ host: url.host, rev: body.rev, savedAt: body.savedAt })
+        setProject(plan)
+        setAnnotations(mergeAnn(plan.annotations ?? [], stored))
+      })
+      .catch((e: unknown) => {
+        if (live) setError(e instanceof Error ? e.message : t('viewer.err.remoteFailed', 'Remote loading failed.'))
+      })
+    return () => {
+      live = false
+    }
+  }, [])
 
   // Persist annotations per plan so the reviewer doesn't lose work on reload.
   useEffect(() => {
@@ -426,6 +463,11 @@ export const ViewerApp = () => {
           <span className="bg-cp-surface-3 px-2 py-1">
             {t('viewer.readOnly', 'Plan read-only')}
           </span>
+          {shared && (
+            <span className="hidden bg-cp-surface-3 px-2 py-1 sm:inline" title={format(t('viewer.share.saved', 'Saved {time}'), { time: savedDate(shared.savedAt).toLocaleString() })}>
+              {format(t('viewer.share.from', 'Shared link · {host} · revision {rev}'), { host: shared.host, rev: shared.rev })}
+            </span>
+          )}
           {reviewer && (
             <span className="hidden items-center gap-1 sm:inline-flex">
               <Icon icon={User} size="xs" />
