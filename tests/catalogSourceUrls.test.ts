@@ -117,7 +117,10 @@ describe('jeder Quellen-Kommentar steht auch als Feld im Eintrag', () => {
     // noch fehlte — Clear-Com Encore (4), Brompton Tessera S8/S4/T1/XD, Luminex
     // GigaCore (5), NETGEAR M4250 (5), Lightware UCX (2), Decimator MD-DUCC/
     // MD-QUAD; jedes Datenblatt-PDF beim Hersteller abgerufen (HTTP 200).
-    expect(pairs().length).toBe(473)
+    // +8 am 2026-09-28: Katalog-Nachzuegler aus docs/device-identity-concept.md
+    // (AJA FS2, Aquilon RS alpha, TriCaster Mini 4K, FreeSpeak II Base,
+    // Shure UA844+SWB/AD4D/AD4Q, Sennheiser ASA 214), Blaetter geoeffnet.
+    expect(pairs().length).toBe(481)
   })
 
   it('deckt die Kataloge ab, die Belege fuehren', () => {
@@ -267,6 +270,6 @@ describe('der Beleg zeigt auf den Hersteller, nicht auf einen Haendler', () => {
   it('prueft alle Belege, nicht nur die mit Feld', () => {
     // Ohne diese Zusicherung waere der Haendler-Test auch dann gruen, wenn
     // `pairs()` nichts mehr faende.
-    expect(pairs().filter((p) => p.field).length).toBe(473)
+    expect(pairs().filter((p) => p.field).length).toBe(481)
   })
 })

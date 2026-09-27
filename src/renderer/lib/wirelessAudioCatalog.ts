@@ -187,6 +187,121 @@ export const WIRELESS_AUDIO_CATALOG: WirelessAudioEntry[] = [
       width: 260, height: 156,
     },
   },
+
+  // Shure UA844+SWB (470–960 MHz) — aktiver Antennenverteiler fuer bis zu fuenf
+  // Empfaenger (vier Ausgaenge je Zweig + Kaskade, laut Anschlussbild), vier
+  // DC-Ausgaenge (14–18 V) fuer die Empfaenger. Steckertyp der DC-Buchsen
+  // nennt das Blatt nicht → Custom.
+  // Quelle: https://pubs.shure.com/view/guide/UA844SWBplus/en-US.pdf
+  {
+    match: ['ua844'],
+    deviceTypeId: '560c54d0-b31b-4a87-be2d-5e14acf24aaa',
+    template: {
+      manufacturerUrl: 'https://pubs.shure.com/view/guide/UA844SWBplus/en-US.pdf',
+      name: 'Shure UA844+SWB',
+      category: 'Wireless',
+      inputs: [
+        { id: '', name: 'Antenna A', type: 'BNC', connectorType: 'BNC' },
+        { id: '', name: 'Antenna B', type: 'BNC', connectorType: 'BNC' },
+        { id: '', name: 'DC In (15 V)', type: 'Custom', connectorType: 'Custom' },
+      ],
+      outputs: [
+        ...num('RF Out A', 4, 'BNC'),
+        ...num('RF Out B', 4, 'BNC'),
+        ...num('Cascade', 2, 'BNC'),
+        ...num('DC Out (14–18 V)', 4, 'Custom'),
+      ],
+      width: 260, height: 156,
+    },
+  },
+
+  // Sennheiser ASA 214-UHF (470–870 MHz; ASA 214-1G8 gleiche Buchsen) —
+  // Antennensplitter 2 x 1:4, A1–A4 fuehren 12 V fuer die Empfaenger,
+  // RF OUT A zum Kaskadieren eines zweiten ASA 214.
+  // Quelle: https://www.sennheiser.com/globalassets/digizuite/41635-en-sp_1186_v1.0_asa_214_product_specification_en.pdf
+  {
+    match: ['asa 214'],
+    deviceTypeId: 'dcfaa89f-b12e-4892-80b1-3e7325a5393e',
+    template: {
+      manufacturerUrl: 'https://www.sennheiser.com/globalassets/digizuite/41635-en-sp_1186_v1.0_asa_214_product_specification_en.pdf',
+      name: 'Sennheiser ASA 214-UHF',
+      category: 'Wireless',
+      inputs: [
+        { id: '', name: 'ANT RF In A', type: 'BNC', connectorType: 'BNC' },
+        { id: '', name: 'ANT RF In B', type: 'BNC', connectorType: 'BNC' },
+        { id: '', name: 'DC In (13.8 V)', type: 'Custom', connectorType: 'Custom' },
+      ],
+      outputs: [
+        ...num('RF Out A', 4, 'BNC'),
+        ...num('RF Out B', 4, 'BNC'),
+        { id: '', name: 'RF Out A (Cascade)', type: 'BNC', connectorType: 'BNC' },
+      ],
+      width: 260, height: 156,
+    },
+  },
+
+  // Shure AD4D (Axient Digital, 2 Kanaele) — Antenne A/B und Kaskade C/D auf
+  // BNC, 2x XLR + 2x 6,35 mm trafosymmetrisch, AES3, Word Clock In/Thru,
+  // 4x Ethernet (2 Dante, 2 Steuerung mit PoE). AES3- und Word-Clock-Buchse
+  // nennt das Blatt nicht → Custom. Leistung: „Maximum 23 W … Idle 15 W".
+  // Quelle: https://pubs.shure.com/view/guide/AD4D/en-US.pdf
+  {
+    match: ['ad4d'],
+    deviceTypeId: '3d8575b1-57ab-4738-a430-b014cb47bab1',
+    template: {
+      manufacturerUrl: 'https://pubs.shure.com/view/guide/AD4D/en-US.pdf',
+      name: 'Shure AD4D',
+      category: 'Wireless',
+      inputs: [
+        { id: '', name: 'Antenna A', type: 'BNC', connectorType: 'BNC' },
+        { id: '', name: 'Antenna B', type: 'BNC', connectorType: 'BNC' },
+        { id: '', name: 'Word Clock In', type: 'Custom', connectorType: 'Custom' },
+        ...num('Dante', 2, 'Ethernet/RJ45', true),
+        ...num('Control (PoE)', 2, 'Ethernet/RJ45', true),
+      ],
+      outputs: [
+        ...num('XLR Out', 2, 'XLR'),
+        ...num('Line Out (6.35 mm)', 2, 'Jack 6.35 mm'),
+        { id: '', name: 'AES3 Out', type: 'Custom', connectorType: 'Custom' },
+        { id: '', name: 'RF Cascade C', type: 'BNC', connectorType: 'BNC' },
+        { id: '', name: 'RF Cascade D', type: 'BNC', connectorType: 'BNC' },
+        { id: '', name: 'Word Clock Thru', type: 'Custom', connectorType: 'Custom' },
+        { id: '', name: 'Phones (front)', type: 'Jack 6.35 mm', connectorType: 'Jack 6.35 mm' },
+      ],
+      powerConsumptionWatts: 23,
+      width: 260, height: 156,
+    },
+  },
+
+  // Shure AD4Q (Axient Digital, 4 Kanaele) — wie AD4D, 4x XLR (3 und 4
+  // umschaltbar auf AES3) und 4x 6,35 mm. Leistung: „Maximum 31 W … Idle 21 W".
+  // Quelle: https://pubs.shure.com/view/guide/AD4Q/en-US.pdf
+  {
+    match: ['ad4q'],
+    deviceTypeId: '43ecc5c9-7501-4c30-982e-1d52633d19a3',
+    template: {
+      manufacturerUrl: 'https://pubs.shure.com/view/guide/AD4Q/en-US.pdf',
+      name: 'Shure AD4Q',
+      category: 'Wireless',
+      inputs: [
+        { id: '', name: 'Antenna A', type: 'BNC', connectorType: 'BNC' },
+        { id: '', name: 'Antenna B', type: 'BNC', connectorType: 'BNC' },
+        { id: '', name: 'Word Clock In', type: 'Custom', connectorType: 'Custom' },
+        ...num('Dante', 2, 'Ethernet/RJ45', true),
+        ...num('Control (PoE)', 2, 'Ethernet/RJ45', true),
+      ],
+      outputs: [
+        ...num('XLR Out', 4, 'XLR'),
+        ...num('Line Out (6.35 mm)', 4, 'Jack 6.35 mm'),
+        { id: '', name: 'RF Cascade C', type: 'BNC', connectorType: 'BNC' },
+        { id: '', name: 'RF Cascade D', type: 'BNC', connectorType: 'BNC' },
+        { id: '', name: 'Word Clock Thru', type: 'Custom', connectorType: 'Custom' },
+        { id: '', name: 'Phones (front)', type: 'Jack 6.35 mm', connectorType: 'Jack 6.35 mm' },
+      ],
+      powerConsumptionWatts: 31,
+      width: 260, height: 170,
+    },
+  },
 ]
 
 /** Flat list of all built-in templates (seeded into the library). */
@@ -210,7 +325,10 @@ export const matchWirelessAudioTemplate = (name: string): EquipmentTemplate | nu
     lower.includes('p10t') ||
     lower.includes('em 6000') ||
     lower.includes('iem') ||
-    lower.includes('ew ')
+    lower.includes('ew ') ||
+    lower.includes('axient') ||
+    lower.includes('ua844') ||
+    lower.includes('asa 214')
   if (!isBrandKnown) return null
   for (const entry of WIRELESS_AUDIO_CATALOG) {
     if (entry.match.every((needle) => lower.includes(needle))) {
