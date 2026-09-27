@@ -38,6 +38,7 @@ import { costComparisonTable } from './costComparison'
 import { renameSetTable } from './namingScheme'
 import { signalwegeTable } from './signalwegListe'
 import { hausStreckenTable } from './hausStrecken'
+import { durchgaengeTable, trassenplanStandTable } from './trassenplan'
 import type { CsvTable } from './csv'
 
 const ofTable =
@@ -182,6 +183,8 @@ export const DOCUMENT_STANDS: Record<string, (project: CablePlannerProject) => s
   // aus Geraeten, Kabeln, Rahmen, Etagen und der Hausauskunft folgen.
   signalwege: ofTable(signalwegeTable),
   hausstrecken: ofTable(hausStreckenTable),
+  durchgaenge: ofTable(durchgaengeTable),
+  trassenplan: ofTable(trassenplanStandTable),
 }
 
 /**
@@ -287,6 +290,8 @@ export const DOCUMENT_LABELS: Record<string, string> = {
   stueckliste: 'Stückliste',
   signalwege: 'Signalwege',
   hausstrecken: 'Hausstrecken-Belegung',
+  durchgaenge: 'Durchgänge (Brandschutz)',
+  trassenplan: 'Trassenplan',
 }
 
 /**

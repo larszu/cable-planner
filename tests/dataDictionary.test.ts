@@ -196,10 +196,16 @@ describe('der Guard: jede Spalte, die irgendwo exportiert wird, ist erklaert', (
       const ohneKommentar = src
         .replace(/\/\*[\s\S]*?\*\//g, '')
         .replace(/(^|[^:])\/\/[^\n]*/gm, '$1')
+      // VIERTE FORM (2026-09-27): `const headers = [...]` — eine lokale
+      // Konstante, die erst als Kurzschreibweise `{ headers, rows }` ins Blatt
+      // geht. So schreiben Pull-Liste, Termination-Liste, Kabel-Schedule,
+      // Stückliste, Asset-Register und Hausstrecken ihre Spalten; 42 davon
+      // standen ohne Eintrag da, waehrend dieser Guard gruen war.
       const listen = [
         ...ohneKommentar.matchAll(/headers:\s*\[([\s\S]*?)\]/g),
         ...ohneKommentar.matchAll(/_HEADERS(?::[^=]*)?\s*=\s*\[([\s\S]*?)\]/g),
         ...ohneKommentar.matchAll(/toCsv\(\s*\[([\s\S]*?)\]/g),
+        ...ohneKommentar.matchAll(/\bconst headers(?::[^=]*)?\s*=\s*\[([\s\S]*?)\]/g),
       ]
       for (const m of listen) {
         for (const s of m[1].matchAll(/'((?:[^'\\]|\\.)*)'/g)) {

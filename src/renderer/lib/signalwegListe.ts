@@ -20,7 +20,7 @@ import { ortVonGeraet } from './kabelOrt'
 const ortText = (o: { etage?: string; raum?: string }): string =>
   [o.etage, o.raum].filter(Boolean).join(' · ')
 
-export const SIGNALWEG_KOPF = [
+export const SIGNALWEG_HEADERS = [
   'Kette',
   'Quelle',
   'Von (Etage · Raum)',
@@ -76,5 +76,5 @@ export const signalwegeTable = (project: CablePlannerProject): CsvTable => {
       weg,
     ]
   })
-  return { headers: [...SIGNALWEG_KOPF], rows }
+  return { headers: [...SIGNALWEG_HEADERS], rows }
 }
