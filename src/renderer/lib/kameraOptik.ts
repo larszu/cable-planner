@@ -5,6 +5,7 @@
 // Eigenschaften-Feld, und beide duerfen nicht auseinanderlaufen.
 // ───────────────────────────────────────────────────────────────────────────
 import type { KameraOptik } from '../types/equipment'
+import { horizontalFov } from '../optics/fov'
 
 /** 7.80 → „7.8", 105 → „105" — Brennweiten werden nicht auf ganze mm gerundet. */
 const mm = (n: number): string => String(Math.round(n * 10) / 10)
@@ -41,4 +42,16 @@ export function optikKurz(o: KameraOptik | undefined): string | undefined {
   if (o.brennweiteMm !== undefined) teile.push(`@ ${mm(o.brennweiteMm)} mm`)
   if (o.extender !== undefined) teile.push(`${mm(o.extender)}x`)
   return teile.length > 0 ? teile.join(' ') : undefined
+}
+
+/**
+ * Horizontaler Bildwinkel in Grad: der vom Kameraplan, sonst aus Sensorbreite
+ * und eingestellter Brennweite (mal Extender) gerechnet. `gerechnet` sagt,
+ * welcher von beiden — die Oberflaeche nennt es dazu.
+ */
+export function bildwinkel(o: KameraOptik): { grad: number; gerechnet: boolean } | undefined {
+  if (o.bildwinkelGrad !== undefined) return { grad: o.bildwinkelGrad, gerechnet: false }
+  if (o.sensorBreiteMm === undefined || o.brennweiteMm === undefined || o.brennweiteMm <= 0) return undefined
+  const f = o.brennweiteMm * (o.extender ?? 1)
+  return { grad: horizontalFov(o.sensorBreiteMm, f), gerechnet: true }
 }

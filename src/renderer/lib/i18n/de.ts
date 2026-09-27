@@ -4164,6 +4164,7 @@ export const de: Dict = {
   'props.optik.extender': 'Extender',
   'props.optik.focal': 'Eingestellte Brennweite',
   'props.optik.fov': 'Horizontaler Bildwinkel',
+  'props.optik.fovCalculated': 'Horizontaler Bildwinkel (aus Sensorbreite)',
   'props.optik.height': 'Höhe',
   'props.optik.pan': 'Schwenk',
   'props.optik.tilt': 'Neigung',

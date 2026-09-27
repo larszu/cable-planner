@@ -21,6 +21,7 @@
 // ───────────────────────────────────────────────────────────────────────────
 import type { EquipmentItem, KameraOptik, KameraPreset, Port } from '../types/equipment'
 import { matchCameraTemplate, matchCameraTemplateById } from './cameraCatalog'
+import { sensorBreiteMm } from './kameraSensor'
 
 export const CAMERA_LIST_KIND = 'camera-list' as const
 export const CAMERA_LIST_VERSION = 3 as const
@@ -233,6 +234,12 @@ export function optikAus(c: CameraListEntry): KameraOptik | undefined {
   if (c.z !== undefined) o.hoeheM = c.z
   if (c.pan !== undefined) o.panGrad = c.pan
   if (c.tilt !== undefined) o.neigungGrad = c.tilt
+  // Nur zusammen mit einer Brennweite — allein ist die Sensorbreite keine
+  // Auskunft ueber die Optik und machte aus „nichts bekannt" einen Abschnitt.
+  if (o.brennweiteMm !== undefined) {
+    const breite = sensorBreiteMm({ ...c, objektivMount: c.lens?.mount })
+    if (breite !== undefined) o.sensorBreiteMm = breite
+  }
   return Object.keys(o).length > 0 ? o : undefined
 }
 

@@ -11,7 +11,7 @@
 import { Aperture, AlertTriangle } from 'lucide-react'
 import { format, useTranslation } from '../../../lib/i18n'
 import { Icon } from '../../shared/Icon'
-import { objektivName, zoombereich } from '../../../lib/kameraOptik'
+import { bildwinkel, objektivName, zoombereich } from '../../../lib/kameraOptik'
 import type { EquipmentItem } from '../../../types/equipment'
 
 const zahl = (n: number): string => String(Math.round(n * 10) / 10)
@@ -30,7 +30,15 @@ export const OptikSection = ({ equipment }: { equipment: EquipmentItem }) => {
     if (bereich) zeilen.push([t('props.optik.range', 'Focal range'), bereich])
     if (o.brennweiteMm !== undefined) zeilen.push([t('props.optik.focal', 'Set focal length'), `${zahl(o.brennweiteMm)} mm`])
     if (o.extender !== undefined) zeilen.push([t('props.optik.extender', 'Extender'), `${zahl(o.extender)}x`])
-    if (o.bildwinkelGrad !== undefined) zeilen.push([t('props.optik.fov', 'Horizontal field of view'), `${zahl(o.bildwinkelGrad)}°`])
+    const bw = bildwinkel(o)
+    if (bw) {
+      zeilen.push([
+        bw.gerechnet
+          ? t('props.optik.fovCalculated', 'Horizontal field of view (from sensor width)')
+          : t('props.optik.fov', 'Horizontal field of view'),
+        `${zahl(bw.grad)}°`,
+      ])
+    }
     if (o.objektivMount) zeilen.push([t('props.optik.lensMount', 'Lens mount'), o.objektivMount])
     if (o.kameraMount) zeilen.push([t('props.optik.bodyMount', 'Body mount'), o.kameraMount])
     if (o.hoeheM !== undefined) zeilen.push([t('props.optik.height', 'Height'), `${zahl(o.hoeheM)} m`])

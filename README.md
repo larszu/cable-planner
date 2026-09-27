@@ -429,7 +429,10 @@ risk without a payoff.
   *File → Import MultiCam cameras*) — every placed camera becomes a device with
   its datasheet ports, lens, zoom range, set focal length, height, pan and tilt,
   and (v3) its saved PTZ presets with the day each was saved (shown on the node
-  and under *Optics* in its properties). Importing again **reconciles** instead
+  and under *Optics* in its properties). When the plan sends no field of view,
+  *Optics* calculates the horizontal one from the camera's sensor width and the
+  set focal length (times extender) — only when that is unambiguous (one sensor
+  mode, lens on the native mount) and labelled as calculated. Importing again **reconciles** instead
   of duplicating: names, optics and presets follow the camera plan, position,
   ports and cables stay, and a camera that left the MultiCam plan is marked,
   not deleted — cables may hang on it. An older v2 list says nothing about
