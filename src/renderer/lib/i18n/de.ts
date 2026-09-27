@@ -6725,4 +6725,5 @@ export const de: Dict = {
   'cloud.link.copied': 'Kopiert',
   'cloud.link.revoke': 'Widerrufen',
   'cloud.link.revoke.confirm': 'Diesen Link widerrufen? Wer ihn hat, kann den Plan dann nicht mehr öffnen.',
+  'collab.signaling.default': 'Leer: {relay} (Vorgabe) — sieht nur Verbindungsdaten, nie den Plan.',
 }

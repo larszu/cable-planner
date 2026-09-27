@@ -552,9 +552,12 @@ the open project into the cloud of your device-library account
 - Join by **invite link**, or find open sessions on the LAN automatically
 - **Room password** encrypts the session end-to-end; without it, anyone who
   knows the room name can read along
-- Bring your own **signaling relay and STUN/TURN servers** for connections
-  across networks — or switch on **local-only** mode, where nothing leaves
-  your LAN
+- Across networks it works out of the box: the default relay
+  `wss://relay.zumpelars.de` only sees connection metadata, and a
+  device-library account adds short-lived TURN credentials for networks where
+  peer-to-peer fails ([docs/self-hosted-relay.md](docs/self-hosted-relay.md))
+- Bring your own **signaling relay and STUN/TURN servers** — or switch on
+  **local-only** mode, where nothing leaves your LAN
 - Collaborative undo takes back *your* edits, not other people's
 
 ---

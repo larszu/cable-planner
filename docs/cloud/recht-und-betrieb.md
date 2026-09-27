@@ -36,7 +36,7 @@ einen Dienst** — der Server —, und sie gehört in ein eigenes Dokument.
 ## 2. Welche Daten die Cloud berühren — ausgefüllt, weil der Code es sagt
 
 Das ist der Teil, den der Berater nicht wissen kann und der in jede
-Datenschutzerklärung und jeden AVV gehört. Stand: geplant, nichts davon läuft.
+Datenschutzerklärung und jeden AVV gehört. Stand 2026-09-28: gebaut (Server: larszu/av-device-library, Relay: `deploy/relay/`), ausgerollt wird von Hand.
 
 | Dienst | Was den Server berührt | Was NICHT |
 |---|---|---|

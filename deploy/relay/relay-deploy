@@ -1,0 +1,74 @@
+#!/bin/bash
+# Deploy von Signaling-Relay + coturn NUR aus dem GitHub-Repo — dieselbe Regel
+# wie lz-share-deploy und devices-deploy: was laeuft, ist genau ein Commit.
+#
+#   relay-deploy             main holen, bauen, ausrollen
+#   relay-deploy <commit>    zu einem frueheren Stand zurueck
+#   relay-deploy --stand     was laeuft, wie viel Verkehr
+#   relay-deploy --certs     Zertifikat aus Caddy fuer coturn uebernehmen (cron)
+set -euo pipefail
+SRC=/opt/relay-src
+DIR=/opt/relay
+LOG=/var/log/relay-deploy.log
+HOST=relay.zumpelars.de
+
+certs() {
+  local caddy vol crt key
+  caddy=$(docker compose -f /opt/pingvin/docker-compose.yml ps -q caddy)
+  vol=$(docker inspect -f '{{range .Mounts}}{{if eq .Destination "/data"}}{{.Source}}{{end}}{{end}}' "$caddy")
+  crt=$(find "$vol/caddy/certificates" -name "$HOST.crt" | head -1)
+  key=$(find "$vol/caddy/certificates" -name "$HOST.key" | head -1)
+  [ -n "$crt" ] && [ -n "$key" ] || { echo "Noch kein Zertifikat fuer $HOST in Caddy (DNS gesetzt? Caddy neu erstellt?)"; return 1; }
+  if ! cmp -s "$crt" "$DIR/certs/fullchain.pem" || ! cmp -s "$key" "$DIR/certs/privkey.pem"; then
+    install -m 444 -o 65534 -g 65534 "$crt" "$DIR/certs/fullchain.pem"
+    install -m 400 -o 65534 -g 65534 "$key" "$DIR/certs/privkey.pem"
+    echo "$(date -Is)  Zertifikat fuer coturn erneuert"
+    docker restart coturn >/dev/null 2>&1 || true
+  fi
+}
+
+stand() {
+  cd "$SRC" && echo "Laeuft:  $(git log --oneline -1)"
+  cd "$DIR" && docker compose ps --format "  {{.Name}}: {{.Status}}"
+  docker stats --no-stream --format "  {{.Name}}: CPU {{.CPUPerc}}  RAM {{.MemUsage}}" relay coturn 2>/dev/null || true
+  # TURN leitet Nutzdaten weiter, wenn P2P scheitert — der Inklusiv-Traffic
+  # des Tarifs ist die Grenze, die zaehlt.
+  if command -v vnstat >/dev/null; then vnstat -m | tail -5
+  else
+    local ifc
+    ifc=$(ip -4 route get 1.1.1.1 | awk '{for(i=1;i<=NF;i++) if($i=="dev") print $(i+1)}')
+    awk -v i="$ifc:" '$1==i {printf "  %s seit Neustart: rein %.1f GB, raus %.1f GB (fuer Monatswerte: apt install vnstat)\n", i, $2/1e9, $10/1e9}' /proc/net/dev
+  fi
+  echo "  TURN-Sitzungen heute: $(docker logs --since 24h coturn 2>&1 | grep -c 'session .* new' || true)"
+}
+
+[ "${1:-}" = "--stand" ] && { stand; exit 0; }
+[ "${1:-}" = "--certs" ] && { certs; exit 0; }
+
+cd "$SRC"
+if [ -n "$(git status --porcelain)" ]; then
+  echo "FEHLER: ungesicherte Aenderungen in $SRC. Erst ins Repo, dann deployen."
+  exit 1
+fi
+git fetch --quiet origin
+git checkout --quiet --detach "${1:-origin/main}"
+echo "== $(git log --oneline -1)"
+install -m 755 "$SRC/deploy/relay/relay-deploy" /usr/local/bin/relay-deploy
+
+# coturn-Konfiguration aus der Vorlage; das Secret kommt aus .env, nie aus git.
+set -a; . "$DIR/.env"; set +a
+PUBLIC_IP=$(ip -4 route get 1.1.1.1 | awk '{for(i=1;i<=NF;i++) if($i=="src") print $(i+1)}')
+sed -e "s|@TURN_SECRET@|$TURN_SECRET|" -e "s|@REALM@|$REALM|" -e "s|@PUBLIC_IP@|$PUBLIC_IP|" \
+  "$SRC/deploy/relay/turnserver.conf.in" > "$DIR/turnserver.conf.new"
+install -m 400 -o 65534 -g 65534 "$DIR/turnserver.conf.new" "$DIR/turnserver.conf"
+rm -f "$DIR/turnserver.conf.new"
+certs || echo "coturn startet ohne TLS-Zertifikat; 5349 geht erst nach 'relay-deploy --certs'."
+
+nice -n 19 docker build -q -f deploy/relay/Dockerfile -t cable-planner-relay:latest "$SRC"
+cd "$DIR"
+docker compose up -d 2>&1 | tail -2
+sleep 5
+docker compose ps --format "  {{.Name}}: {{.Status}}"
+docker image prune -f >/dev/null
+cd "$SRC"
+echo "$(date -Is)  deployt: $(git rev-parse --short HEAD)  $(git log --format=%s -1)" >> "$LOG"

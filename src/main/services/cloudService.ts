@@ -13,6 +13,7 @@ import {
   restoreCloudRevision,
   revokeShareLink,
   saveCloudRevision,
+  turnCredentials,
 } from './cloudProjectsClient.js'
 import { checkServerUrl, tokenStore } from './deviceLibraryService.js'
 
@@ -48,6 +49,7 @@ const OPS: Record<string, Op> = {
   links: listShareLinks as Op,
   createLink: createShareLink as Op,
   revokeLink: revokeShareLink as Op,
+  turn: turnCredentials,
 }
 
 export const cloudService = {

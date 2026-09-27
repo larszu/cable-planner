@@ -1,0 +1,55 @@
+# /opt/relay/compose.yml — Signaling-Relay + coturn (cable-planner #869).
+# Laeuft neben lz-share (/opt/pingvin) und der Geraetebibliothek (/opt/devices)
+# auf demselben VPS. Die Grenzen sind der Punkt: TURN leitet echten Verkehr
+# weiter, und nichts hier darf share.zumpelars.de aushungern.
+services:
+  relay:
+    image: cable-planner-relay:latest
+    container_name: relay
+    restart: unless-stopped
+    read_only: true
+    user: "1000:1000"
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: 96m
+    memswap_limit: 96m
+    cpus: 0.25
+    pids_limit: 50
+    environment:
+      MAX_CONNECTIONS: "1000"
+      MAX_PER_IP: "50"
+      MAX_TOPICS: "50"
+    logging:
+      driver: json-file
+      options: { max-size: "5m", max-file: "3" }
+    networks: [edge]
+
+  # Host-Netz, wie das coturn-Projekt es empfiehlt: Docker bildet grosse
+  # Portbereiche schlecht ab. Die Portbreite (49160-49200) begrenzt zugleich,
+  # wie viele Relays gleichzeitig offen sein koennen.
+  coturn:
+    image: coturn/coturn:4.18.0-alpine
+    container_name: coturn
+    restart: unless-stopped
+    network_mode: host
+    read_only: true
+    tmpfs:
+      - /var/lib/coturn:size=8m,mode=1777
+      - /tmp:size=8m,mode=1777
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: 128m
+    memswap_limit: 128m
+    cpus: 0.5
+    pids_limit: 200
+    volumes:
+      - ./turnserver.conf:/etc/coturn/turnserver.conf:ro
+      - ./certs:/certs:ro
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
+
+# Eigenes Netz wie devices_edge: Caddy tritt bei, lz-share nicht.
+networks:
+  edge:
+    name: relay_edge
