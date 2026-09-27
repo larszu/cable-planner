@@ -283,7 +283,7 @@ plate **in millimetres**, print the label strip and the drilling sheet **1:1**.
 
 Every list this program prints — pull list, termination list, cable schedule,
 asset register, network sheet, spectrum plan, delivery, tally map, handover,
-signal paths, house run occupancy —
+signal paths, house run occupancy, crossings —
 goes through one editor (#880):
 
 - **Columns**: show, hide, reorder.
@@ -492,6 +492,17 @@ file, not in browser storage, not in source. Exports strip them before writing.
   **signal paths** (every chain from source to target with floor and room at
   each station) and **house run occupancy** (per core: which cable, which are
   free), plus QR labels for every cable and device
+- **Route plan per floor** (HTML, A4 landscape) — a top view of every floor
+  with its rooms, the riser and a line per connection room to room or room to
+  riser, labelled with the cable count. Schematic, not the tray route: the
+  plan knows rooms and risers, not where the tray runs
+- **Crossings (fire protection)** (CSV) — every room boundary, riser entry and
+  floor slab a cable passes, with the cables bundled per crossing, their
+  jacket / fire rating and pathway. A missing rating is named in the finding
+  column, and a floor change without a riser says so instead of inventing a
+  route. Cables with an end outside every room are counted, not placed
+- Every column of every exported list carries a lexicon entry (the column
+  glossary appended to each CSV)
 - **Per-device patch sheets** name where the device stands (*floor · room*)
   and, for a cable leaving the room, where its other end lies
 - The **switch port map** looks through patch panels and wall plates: a camera

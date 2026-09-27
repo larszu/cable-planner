@@ -44,9 +44,10 @@ import {
   cableBomTable,
 } from '../../lib/installerLists'
 import { assetRegisterCsv, assetRegisterTable } from '../../lib/assetRegister'
-import { csvFromTable, stampForRows } from '../../lib/documentStamp'
+import { csvFromTable, stampForRows, stampLine } from '../../lib/documentStamp'
 import { signalwegeTable } from '../../lib/signalwegListe'
 import { hausStreckenTable } from '../../lib/hausStrecken'
+import { durchgaengeTable, trassenplanHtml, trassenplanStandTable } from '../../lib/trassenplan'
 import { buildHandoverManifest, handoverTable } from '../../lib/handoverPackage'
 import {
   JOB_BASIS_LABEL,
@@ -211,6 +212,42 @@ export const InstallationDocsDialog = () => {
             'signalwege',
           ),
           suffix: 'signalwege',
+          ext: 'csv',
+          mime: 'text/csv',
+        }),
+      },
+      {
+        key: 'trassenplan',
+        label: t('docs.routePlan', 'Route plan per floor'),
+        hint: t(
+          'docs.routePlan.hint',
+          'Top view per floor: rooms, riser, the connections between them, and the crossings list (HTML, print to PDF)',
+        ),
+        build: () => ({
+          content: trassenplanHtml(project, {
+            titel: `${project.metadata.name || t('docs.routePlan', 'Route plan per floor')} — ${t('docs.routePlan', 'Route plan per floor')}`,
+            stempel: stampLine(stampForRows(project, trassenplanStandTable, new Date())),
+            t,
+          }),
+          suffix: 'trassenplan',
+          ext: 'html',
+          mime: 'text/html',
+        }),
+      },
+      {
+        key: 'durchgaenge',
+        label: t('docs.crossings', 'Crossings (fire protection)'),
+        hint: t(
+          'docs.crossings.hint',
+          'Every room boundary, riser entry and floor slab a cable passes, with jacket rating and pathway (CSV)',
+        ),
+        build: () => ({
+          content: csvFromTable(
+            durchgaengeTable(project),
+            stampForRows(project, durchgaengeTable, new Date()),
+            'durchgaenge',
+          ),
+          suffix: 'durchgaenge',
           ext: 'csv',
           mime: 'text/csv',
         }),
