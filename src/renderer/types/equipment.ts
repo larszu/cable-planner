@@ -560,6 +560,10 @@ export interface KameraOptik {
   /** Horizontaler Bildwinkel in Grad, wenn der Kameraplan ihn gerechnet hat
    *  (in der Suite ueber den Seed). */
   bildwinkelGrad?: number
+  /** Sensorbreite in mm laut Kamera-Katalog (`optics/`), nur wenn eindeutig
+   *  (ein Sensor-Modus, Objektiv am nativen Mount). Grundlage fuer den
+   *  gerechneten Bildwinkel, wenn `bildwinkelGrad` fehlt. */
+  sensorBreiteMm?: number
   /** camera-list v3: Ausrichtung in Grad, Konvention des Kameraplans
    *  (Pan 0 = nach rechts im Grundriss). */
   panGrad?: number
