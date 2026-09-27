@@ -14,6 +14,7 @@ import { registerSwitcherIpc } from './ipc/switcherIpc.js'
 import { registerLogIpc } from './ipc/logIpc.js'
 import { registerDocumentLogIpc } from './ipc/documentLogIpc.js'
 import { registerReceiptIpc } from './ipc/receiptIpc.js'
+import { registerAttachmentIpc } from './ipc/attachmentIpc.js'
 import { registerShowControlIpc } from './ipc/showControlIpc.js'
 import { registerTallyIpc } from './ipc/tallyIpc.js'
 import { registerSyncIpc } from './ipc/syncIpc.js'
@@ -365,6 +366,7 @@ app.whenReady().then(async () => {
   registerLogIpc()
   registerDocumentLogIpc()
   registerReceiptIpc()
+  registerAttachmentIpc()
   registerShowControlIpc()
   registerTallyIpc()
   registerSyncIpc()

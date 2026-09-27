@@ -1,6 +1,7 @@
 import type { CablePlannerProject } from '../types/project'
 import type { NetboxRack, NetboxSite, NetboxSnapshot } from '../types/netbox'
 import type { AttachResult, ReceiptContent } from '../types/receipt'
+import type { AnhangErgebnis } from '../types/anhang'
 import type { LauscherZustand, OscEmpfang, OscLauscherConfig } from '../types/showControl'
 import { downloadBlob } from './downloadBlob'
 
@@ -231,6 +232,16 @@ type CablePlannerApi = {
     pick: (projectPath?: string) => Promise<{ canceled: boolean; results: AttachResult[] }>
     attach: (projectPath: string | undefined, sourcePath: string) => Promise<AttachResult>
     read: (projectPath: string | undefined, storedAs: string) => Promise<ReceiptContent>
+    reveal: (projectPath: string | undefined, storedAs: string) => Promise<boolean>
+  }
+  /**
+   * Anhänge neben dem Projekt. Im Browser gibt es keinen Ort dafür; der
+   * Fallback lehnt benannt ab und meldet jede Datei als nicht vorhanden,
+   * statt eine Ablage vorzutäuschen.
+   */
+  attachment: {
+    pick: (projectPath?: string) => Promise<{ canceled: boolean; results: AnhangErgebnis[] }>
+    present: (projectPath: string | undefined, storedAs: string[]) => Promise<Record<string, boolean>>
     reveal: (projectPath: string | undefined, storedAs: string) => Promise<boolean>
   }
   /**
@@ -931,6 +942,11 @@ const webFallbackApi: CablePlannerApi = {
     pick: async () => ({ canceled: false, results: [{ ok: false as const, reason: 'no-project-path' as const }] }),
     attach: async () => ({ ok: false as const, reason: 'no-project-path' as const }),
     read: async () => ({ ok: false as const, reason: 'no-project-path' as const }),
+    reveal: async () => false,
+  },
+  attachment: {
+    pick: async () => ({ canceled: false, results: [{ ok: false as const, reason: 'no-project-path' as const }] }),
+    present: async (_p: string | undefined, storedAs: string[]) => Object.fromEntries(storedAs.map((s) => [s, false])),
     reveal: async () => false,
   },
   documentLog: (() => {

@@ -44,6 +44,7 @@ import { wartungsplanTable } from './wartungsplan'
 import { konfigVorgabenTable } from './konfigVorgaben'
 import { steckbriefStandTable } from './steckbrief'
 import { bedienUebersichtStandTable } from './bedienUebersicht'
+import { anhaengeTable } from './anhaenge'
 import type { CsvTable } from './csv'
 
 const ofTable =
@@ -198,6 +199,9 @@ export const DOCUMENT_STANDS: Record<string, (project: CablePlannerProject) => s
   'konfig-vorgaben': ofTable(konfigVorgabenTable),
   steckbrief: ofTable(steckbriefStandTable),
   'bedien-uebersicht': ofTable(bedienUebersichtStandTable),
+  // Das Verzeichnis führt, was im PROJEKT steht — nicht, ob die Datei auf
+  // diesem Rechner im Ordner liegt. Sonst hinge der Stand am Rechner.
+  anhaenge: ofTable(anhaengeTable),
 }
 
 /**
@@ -311,6 +315,7 @@ export const DOCUMENT_LABELS: Record<string, string> = {
   'konfig-vorgaben': 'Konfigurationsvorgaben',
   steckbrief: 'Geräte-Steckbrief',
   'bedien-uebersicht': 'Bedien-Kurzübersicht',
+  anhaenge: 'Anhänge-Verzeichnis',
 }
 
 /**

@@ -19,6 +19,7 @@ import { createDeliverySlice } from './slices/deliverySlice'
 import { createCableStockSlice } from './slices/cableStockSlice'
 import { createMcpSlice } from './slices/mcpSlice'
 import { createFotoSlice } from './slices/fotoSlice'
+import { createAnhangSlice } from './slices/anhangSlice'
 import { createConductorSlice } from './slices/conductorSlice'
 import { createCrewSlice } from './slices/crewSlice'
 import { createAddressTemplateSlice } from './slices/addressTemplateSlice'
@@ -103,6 +104,7 @@ import { normaliseTallyPositions } from '../lib/tallyPosition'
 import { normaliseNetworkSegments } from '../lib/networkSegments'
 import { normaliseAddressLayers } from '../lib/addressTemplate'
 import { normaliseVenueAnswers } from '../lib/venueAnswers'
+import { normaliseAnhaenge } from '../lib/anhaenge'
 import { isNetworkInterfaceRole, normaliseNetworkInterface } from '../lib/networkInterfaces'
 import type { NetworkInterface } from '../types/network'
 import { istCircuitKind } from '../types/circuit'
@@ -831,6 +833,15 @@ export interface ProjectState {
     id: string,
     patch: Partial<Pick<import('../types/foto').Foto, 'notiz' | 'zeigtAuf'>>,
   ) => void
+  /** Anhänge — frisch abgelegte Dateien aufnehmen. */
+  addAnhaenge: (neu: import('../types/anhang').ProjektAnhang[]) => void
+  /** Anhänge — Titel, Art oder Ziel ändern. `ziel: undefined` = zur Anlage. */
+  updateAnhang: (
+    id: string,
+    patch: Partial<Pick<import('../types/anhang').ProjektAnhang, 'titel' | 'art' | 'ziel'>>,
+  ) => void
+  /** Anhänge — den Verweis entfernen. Die Datei bleibt im Ordner. */
+  removeAnhang: (id: string) => void
   setFarbnormen: (farbnormen: import('../types/conductor').Farbnorm[]) => void
   /** #885 — die Polaritaets-Methoden und die gewaehlte. */
   setPolaritaetsnormen: (normen: import('../types/fiber').Polaritaetsnorm[]) => void
@@ -1703,6 +1714,9 @@ const healProjectPositions = (
     micPlot,
     // Bedarf 10 — dito: `undefined` heisst „kein Ablauf eingelesen".
     rundown,
+    // Anhänge — nur Einträge mit Hash und relativem Pfad im Projektordner;
+    // leer heisst `undefined`, wie beim Mic-Plot.
+    anhaenge: normaliseAnhaenge(project.anhaenge),
     // ADR-003 — Rentman-Zaehler: gesendet ist nicht bestaetigt.
     metadata: {
       ...healRentmanCableMap(project.metadata),
@@ -1929,6 +1943,7 @@ const buildProjectStore = (
   ...createCableStockSlice(set, get, store),
   ...createMcpSlice(set, get, store),
   ...createFotoSlice(set, get, store),
+  ...createAnhangSlice(set, get, store),
   ...createConductorSlice(set, get, store),
   ...createCrewSlice(set, get, store),
   ...createAddressTemplateSlice(set, get, store),
