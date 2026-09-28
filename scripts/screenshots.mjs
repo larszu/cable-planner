@@ -98,7 +98,25 @@ const app = await electron.launch({
     '--enable-unsafe-swiftshader',
     '--use-angle=swiftshader',
   ],
-  executablePath: join(WURZEL, 'node_modules', 'electron', 'dist', 'electron'),
+  // KEIN `executablePath` MEHR (2026-09-28).
+  //
+  // Hier stand `join(WURZEL, 'node_modules', 'electron', 'dist', 'electron')`
+  // — ein fest geschriebener Pfad in der LINUX-Form. Er stimmt auf keiner der
+  // beiden Maschinen, auf denen dieses Repo laeuft:
+  //
+  //   macOS  die Binaerdatei liegt unter `dist/Electron.app/Contents/MacOS/
+  //          Electron`; `dist/electron` gibt es nicht.
+  //   CI     `spawn .../node_modules/electron/dist/electron ENOENT`
+  //          (Lauf 36427037040, ubuntu-latest).
+  //
+  // Playwright findet sie ohne diese Zeile selbst, ueber `require('electron')`
+  // und dessen `path.txt` — genau so machen es `ui-smoke.mjs`, `ui-targets.mjs`
+  // und `ui-overflow.mjs`, und die laufen seit Monaten in CI durch.
+  //
+  // WARUM DAS SO LANGE NIEMAND GEMERKT HAT: dieses Skript wurde nie
+  // automatisch gefahren. Es gibt es seit dem 2026-09-10, und bis heute gab es
+  // keinen Workflow dafuer — der Fehler lag also die ganze Zeit da, in einer
+  // Zeile, die aussieht, als waere sie sorgfaeltig.
   cwd: WURZEL,
 })
 const win = await app.firstWindow({ timeout: 30_000 })
