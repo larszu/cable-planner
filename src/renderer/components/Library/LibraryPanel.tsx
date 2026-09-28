@@ -114,7 +114,7 @@ export const LibraryPanel = () => {
   const [seedPreset, setSeedPreset] = useState<import('../../types/equipment').GroupPreset | null>(null)
   // Hochgezogen über die Drop-/Seed-Effekte, damit der React-Compiler die
   // Setter vor ihrem Gebrauch im useEffect sieht (react-hooks/immutability).
-  const [name, setName] = useState('Custom Device')
+  const [name, setName] = useState('')
   const [category, setCategory] = useState('Cameras')
   const [tab, setTab] = useState<'equipment' | 'cables' | 'groups' | 'racks'>('equipment')
   // v7.9.105 / Issue #224 — Wenn der RackBuilder aus dem Canvas-Toolbar-
@@ -241,10 +241,11 @@ export const LibraryPanel = () => {
 
   const [isRackDeviceDraft, setIsRackDeviceDraft] = useState(false)
   const [rackUnitsDraft, setRackUnitsDraft] = useState<number | ''>('')
-  const [groups, setGroups] = useState<PortGroupDraft[]>([
-    defaultGroup('in'),
-    defaultGroup('out'),
-  ])
+  // 2026-09-28 — ohne Vorgabe-Gruppen. „Input 1"/„Output 1" vom Typ Custom
+  // waren Platzhalter, die als Anschluesse im Plan landeten, wenn man nur
+  // schnell ein Geraet haben wollte. Ports kommen jetzt, wenn sie bekannt
+  // sind — oder durch ein Kabel, das auf das Geraet gezogen wird.
+  const [groups, setGroups] = useState<PortGroupDraft[]>([])
   // Equipment sub-section: separates local templates from Rentman-imported ones
   // inside one shared tab, so the user always lives in "Equipment" and just
   // toggles the source.
@@ -537,11 +538,11 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
   }
 
   const resetDialog = () => {
-    setName('Custom Device')
+    setName('')
     setCategory('Cameras')
     setIsRackDeviceDraft(false)
     setRackUnitsDraft('')
-    setGroups([defaultGroup('in'), defaultGroup('out')])
+    setGroups([])
     setGroupsOrigin(null)
     // #858 — sonst stuende beim naechsten Oeffnen noch „Felder aus X
     // uebernommen" unter einem Dialog, in dem nichts davon mehr steht.
@@ -556,7 +557,7 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
     const outputs = buildPorts(groups, 'out')
     const maxPorts = Math.max(inputs.length, outputs.length, 3)
     return {
-      name: name.trim() || 'Custom Device',
+      name: name.trim() || t('library.create.defaultName', 'New device'),
       category: category.trim() || 'Other',
       inputs,
       outputs,
@@ -564,6 +565,9 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
       rackUnits: isRackDeviceDraft ? (rackUnitsDraft === '' ? 1 : rackUnitsDraft) : undefined,
       width: 240,
       height: 80 + maxPorts * 22,
+      // Ohne Ports angelegt: die Plan-Pruefung erinnert ruhig daran (info),
+      // und ein Kabel auf den Geraetekoerper legt den ersten an.
+      ...(inputs.length === 0 && outputs.length === 0 ? { portsUnknown: true } : {}),
       // Die Herkunft wandert in die Vorlage mit. Ohne das waere sie beim
       // Anlegen weg — und jedes Geraet, das spaeter aus dieser Vorlage
       // entsteht, truege geratene Ports als Tatsache.
@@ -803,7 +807,7 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
   const netBoxBackdrop = useBackdropClose(() => setShowNetBoxDialog(false))
   const seedBackdrop = useBackdropClose(() => setSeedPreset(null))
   const anlegenBackdrop = useBackdropClose(() => setShowCreateDialog(false), {
-    schutz: () => name.trim() !== 'Custom Device',
+    schutz: () => name.trim() !== '' || groups.length > 0,
     frage: t('library.closeUnsaved', 'Cancel creating and discard your input?'),
   })
   const {
@@ -1267,7 +1271,11 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
               <label className="block">
                 {t('common.name', 'Name')}
                 <input
+                  // Der schnelle Weg: Name tippen, anlegen. Alles andere darf
+                  // fehlen und kommt spaeter.
+                  autoFocus
                   value={name}
+                  placeholder={t('library.create.defaultName', 'New device')}
                   onChange={(event) => setName(event.target.value)}
                   className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-2"
                 />
@@ -1506,7 +1514,12 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
                 </div>
               ))}
               {groups.length === 0 && (
-                <div className="text-cp-xs text-cp-text-muted">{t('library.create.noPortGroups', 'No port groups yet. Add one above.')}</div>
+                <div className="text-cp-xs text-cp-text-muted">
+                  {t(
+                    'library.create.noPortGroups',
+                    'No ports yet — that is fine. Add them now or later; a cable dropped onto the device adds one.',
+                  )}
+                </div>
               )}
               {/*
                 #832 — Eine Gruppe ohne Anzahl verschwindet beim Speichern

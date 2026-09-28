@@ -72,6 +72,7 @@ import { styleForLayer } from '../../lib/cableLayers'
 import { MONO_TINTE, monochromLabel } from '../../lib/monochromeSheet'
 import { DRUCK_MS, LangerDruck } from '../../lib/langerDruck'
 import { ansicht } from '../../lib/ansicht'
+import { portAmKoerper } from '../../lib/portAmKoerper'
 
 const nodeTypes = { equipment: EquipmentNode, location: LocationFrameNode, grundriss: GrundrissNode, symbol: SymbolNode }
 
@@ -1630,6 +1631,26 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
       if (!srcPort) return
 
       const stubSide: 'input' | 'output' = start.handleType === 'source' ? 'input' : 'output'
+
+      // 2026-09-28 — Drop auf den KOERPER eines anderen Geraets: dort einen
+      // passenden Port anlegen und verbinden (lib/portAmKoerper). So laesst
+      // sich ein Geraet verkabeln, das erst einen Namen hat.
+      const zielEl = target?.closest('.react-flow__node-equipment') as HTMLElement | null
+      const zielId = zielEl?.getAttribute('data-id') ?? null
+      const zielGeraet =
+        zielId && zielId !== start.nodeId ? project.equipment.find((e) => e.id === zielId) : undefined
+      if (zielGeraet) {
+        const neu = portAmKoerper(zielGeraet, stubSide, srcPort)
+        if (neu) {
+          updateEquipment(zielGeraet.id, neu.patch)
+          if (start.handleType === 'source') {
+            queueConnection({ source: start.nodeId, sourceHandle: start.handleId, target: zielGeraet.id, targetHandle: neu.portId })
+          } else {
+            queueConnection({ source: zielGeraet.id, sourceHandle: neu.portId, target: start.nodeId, targetHandle: start.handleId })
+          }
+          return
+        }
+      }
       // Snap stub position so floats from screenToFlowPosition (e.g. at
       // zoom 1.5) don't sneak into the store.
       const rawX = flowPos.x - 70
@@ -1660,7 +1681,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         })
       }
     },
-    [addOpenEndStub, project.equipment, queueConnection, screenToFlowPosition, snapToGrid, gridSize, projectIsLocked],
+    [addOpenEndStub, project.equipment, queueConnection, screenToFlowPosition, snapToGrid, gridSize, projectIsLocked, updateEquipment],
   )
 
   const onDragOver = useCallback((event: React.DragEvent) => {

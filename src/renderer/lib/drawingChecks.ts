@@ -228,13 +228,15 @@ export const runDrawingChecks = (
     }
   }
 
-  // — Check 4: fehlende Längen (warning, nur kabelgebunden) -------------------
+  // — Check 4: fehlende Längen (info, nur kabelgebunden) -------------------
   for (const c of cables) {
     if (c.wireless) continue
     if (!c.length || c.length <= 0) {
+      // 2026-09-28 — Hinweis statt Warnung: die Laenge fehlt noch, sie ist
+      // nicht falsch. Beim Planen kommt sie oft erst mit dem Aufmass.
       findings.push({
         id: `missing-length:${c.id}`,
-        severity: 'warning',
+        severity: 'info',
         category: 'Missing length',
         message:
           (c.cableNumber ? c.cableNumber + ' · ' : '') +
@@ -812,15 +814,22 @@ export const runDrawingChecks = (
   // `portsUnknown`. Wir haben ihre I/O NICHT erfunden — der User muss die
   // realen Ports aus dem Datenblatt ergänzen, sonst sind sie unverkabelbar.
   for (const e of equipment) {
+    // 2026-09-28 — ein Hinweis, keine Warnung. Ein Geraet ohne Ports ist ein
+    // UNFERTIGES Geraet, kein falsches: man plant damit weiter, und ein Kabel,
+    // das auf den Geraetekoerper gezogen wird, legt den Port an. Gelb stand
+    // es neben echten Fehlern (Stecker passt nicht, IP doppelt) und machte
+    // aus „noch nicht eingetragen" einen Vorwurf. Die Belegpflicht des
+    // eingebauten Katalogs bleibt davon unberuehrt — sie gilt den
+    // mitgelieferten Datenblaettern, nicht dem, was der Nutzer anlegt.
     if (e.portsUnknown && e.inputs.length === 0 && e.outputs.length === 0) {
       findings.push({
         id: `ports-unknown:${e.id}`,
-        severity: 'warning',
+        severity: 'info',
         category: 'Ports unknown',
         message: format(
           tr(
             'check.portsUnknown',
-            '{name}: the port layout is unknown (no data-sheet match) - add the real connectors from the data sheet',
+            '{name}: no ports entered yet - add them when known',
           ),
           { name: e.name },
         ),

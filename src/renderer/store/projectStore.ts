@@ -58,6 +58,7 @@ import { scheduleProjectAutosave } from './projectAutosave'
 import { EINGEBAUTER_KATALOG } from '../lib/eingebauterKatalog'
 import { detectLayerForConnector } from '../lib/cableLayers'
 import { heileVorlagenName } from '../lib/templateRenames'
+import { mitKatalogTyp } from '../lib/deviceTypeMatch'
 import { upsertCachedRentmanTemplate } from '../lib/rentmanTemplateCache'
 import type { GreenGoConfig } from '../types/greengo'
 import type { IntercomPlan } from '../types/intercomPlan'
@@ -147,8 +148,17 @@ const runLibraryMigration = () => {
     )
     let added = false
     for (const t of EINGEBAUTER_KATALOG) {
-      if (!byName.has(t.name)) {
+      const vorhanden = byName.get(t.name)
+      if (!vorhanden) {
         byName.set(t.name, t)
+        added = true
+      } else if (!vorhanden.deviceTypeId && t.deviceTypeId) {
+        // 2026-09-28 — Vorlagen, die geseedet wurden, bevor der Katalog
+        // Geraetetyp-Ids trug, blieben ohne: der Abgleich oben laesst eine
+        // vorhandene Vorlage stehen. Jedes daraus platzierte Geraet kam ohne
+        // Katalog-Typ auf den Plan. Nur die Id wird nachgetragen; was der
+        // Nutzer an der Vorlage geaendert hat, bleibt.
+        byName.set(t.name, { ...vorhanden, deviceTypeId: t.deviceTypeId })
         added = true
       }
     }
@@ -1222,6 +1232,10 @@ const healProjectPositions = (
       if (item.deviceTypeId && DEVICE_TYPE_ALIASES[item.deviceTypeId]) {
         item = { ...item, deviceTypeId: DEVICE_TYPE_ALIASES[item.deviceTypeId] }
       }
+      // 2026-09-28 — alte Projekte: Geraete ohne Katalog-Typ bekommen ihn,
+      // wenn der Name eindeutig genau einen Eintrag trifft. Bei mehreren
+      // Treffern bleibt das Feld leer (lib/deviceTypeMatch).
+      item = mitKatalogTyp(item)
 
       // #822 — die Geraetekategorie von Deutsch auf die Quellsprache.
       //
@@ -2252,7 +2266,7 @@ const buildProjectStore = (
       return {
         project: touchProject({
           ...state.project,
-          equipment: [...baseEquipment, ...insertedEquipment],
+          equipment: [...baseEquipment, ...insertedEquipment.map((e) => mitKatalogTyp(e))],
           cables: [...baseCables, ...insertedCables],
           canvasState,
         }),
