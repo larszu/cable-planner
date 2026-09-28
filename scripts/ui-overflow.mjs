@@ -511,6 +511,9 @@ await erststartOverlayWeg(win)
 }
 await win.setViewportSize(groessen[0])
 await win.waitForTimeout(800)
+// Die Seed-Stufe fuellt die Bibliothek beim Start mit dem ganzen Katalog;
+// auf dem CI-Runner stand sie nach der festen Wartezeit noch leer.
+await win.waitForSelector('.cp-hover-actions', { state: 'attached', timeout: 30000 }).catch(() => {})
 
 // Je Reihen-GROESSE eine Probe. Die Bibliothek fuehrt Tausende Eintraege, und
 // sie unterscheiden sich fuer diese Frage nur in einem: wie viele Knoepfe die

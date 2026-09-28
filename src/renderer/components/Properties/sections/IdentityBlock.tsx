@@ -121,8 +121,6 @@ export const IdentityBlock = ({ equipment }: { equipment: EquipmentItem }) => {
           className="w-full border border-cp-border bg-cp-surface-1 p-2"
         />
       </label>
-
-      <DeviceTypePicker equipment={equipment} />
     </>
   )
 }
