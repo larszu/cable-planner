@@ -67,21 +67,25 @@ const eintragen = (map: Map<string, Set<string>>, key: string, id: string) => {
   map.set(key, set)
 }
 
-const nebennamen = (name: string): string[] => {
+// `vergeben`: die vollen Namen ALLER Katalog-Eintraege. Ein abgeleiteter
+// Nebenname, der dort steht, gehoert einem anderen Eintrag — „Canon CR-N300
+// (weiß)" ohne Klammer ist „Canon CR-N300", und beide hiessen sonst gleich.
+const nebennamen = (name: string, vergeben?: ReadonlySet<string>): string[] => {
   const voll = katalogSchluessel(name)
   const out = [voll]
+  const frei = (k: string) => !vergeben?.has(k)
   // Artikelnummer in Klammern: „UniFi Switch 16 PoE (USW-16-PoE)".
   const klammer = /\(([^)]+)\)/.exec(name)
   if (klammer) {
     const nr = katalogSchluessel(klammer[1])
-    if (traegtAlsName(nr)) out.push(nr)
+    if (traegtAlsName(nr) && frei(nr)) out.push(nr)
     const ohne = katalogSchluessel(name.replace(/\([^)]*\)/g, ' '))
-    if (ohne && ohne !== voll) out.push(ohne)
+    if (ohne && ohne !== voll && frei(ohne)) out.push(ohne)
   }
   // Ohne das fuehrende Herstellerwort.
   for (const k of [...out]) {
     const rest = k.split(' ').slice(1).join(' ')
-    if (traegtAlsName(rest)) out.push(rest)
+    if (traegtAlsName(rest) && frei(rest)) out.push(rest)
   }
   return out
 }
@@ -90,8 +94,9 @@ const baueIndex = (): Map<string, Set<string>> => {
   const map = new Map<string, Set<string>>()
   const typen = listDeviceTypes()
   const idNachName = new Map<string, string[]>()
+  const vergeben = new Set(typen.map((t) => katalogSchluessel(t.name)))
   for (const t of typen) {
-    for (const k of nebennamen(t.name)) eintragen(map, k, t.id)
+    for (const k of nebennamen(t.name, vergeben)) eintragen(map, k, t.id)
     idNachName.set(t.name, [...(idNachName.get(t.name) ?? []), t.id])
   }
   for (const [alt, neu] of Object.entries(LEGACY_TEMPLATE_RENAMES)) {
