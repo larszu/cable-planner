@@ -34,15 +34,14 @@ const STORE = lies('src', 'renderer', 'store', 'uiStore.ts')
 const NETZ = lies('src', 'renderer', 'components', 'Properties', 'sections', 'NetworkAccessSection.tsx')
 
 describe('Eigenschaften-Leiste: der Kopf', () => {
-  it('Name und Notiz stehen vor dem Katalog-Typ', () => {
+  it('Name und Notiz stehen oben, der Katalog-Typ nicht im Kopf', () => {
     const name = IDENTITY.indexOf("t('eq.field.name'")
     const notiz = IDENTITY.indexOf("t('eq.field.notes'")
-    const katalogTyp = IDENTITY.indexOf('<DeviceTypePicker')
     expect(name).toBeGreaterThan(-1)
-    expect(notiz).toBeGreaterThan(-1)
-    expect(katalogTyp).toBeGreaterThan(-1)
     expect(name).toBeLessThan(notiz)
-    expect(notiz).toBeLessThan(katalogTyp)
+    // Der Katalog-Typ wird automatisch vergeben und steht in `CatalogueSection`.
+    expect(IDENTITY).not.toContain('<DeviceTypePicker')
+    expect(PANEL.indexOf('<CatalogueSection')).toBeGreaterThan(PANEL.indexOf('<PortsSection'))
   })
 
   it('die Notiz ist das Geraetefeld und liegt nicht mehr im Netzzugang', () => {
