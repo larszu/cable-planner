@@ -3,6 +3,8 @@ import { Settings, Globe, Sparkles } from 'lucide-react'
 import { v4 as uuidv4 } from 'uuid'
 import { Icon } from '../shared/Icon'
 import { Spinner } from '../shared/Spinner'
+import { FotoPortErkennung } from './FotoPortErkennung'
+import type { Foto } from '../../types/foto'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
 import { useModule } from '../../store/settingsStore'
@@ -246,6 +248,8 @@ export const LibraryPanel = () => {
   // schnell ein Geraet haben wollte. Ports kommen jetzt, wenn sie bekannt
   // sind — oder durch ein Kabel, das auf das Geraet gezogen wird.
   const [groups, setGroups] = useState<PortGroupDraft[]>([])
+  // Fotos aus der Port-Erkennung, die mit dem Geraet gespeichert werden sollen.
+  const [fotosBehalten, setFotosBehalten] = useState<Foto[]>([])
   // Equipment sub-section: separates local templates from Rentman-imported ones
   // inside one shared tab, so the user always lives in "Equipment" and just
   // toggles the source.
@@ -550,6 +554,20 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
     setPresetName(null)
     setSuggestError('')
     setSuggestInfo('')
+    setFotosBehalten([])
+  }
+
+  /**
+   * Die Fotos aus der Port-Erkennung an das gerade platzierte Geraet haengen.
+   * `addEquipment` vergibt die Id im Store und gibt sie nicht zurueck; das
+   * neue Geraet ist das letzte der Liste.
+   */
+  const fotosAnsNeueGeraet = () => {
+    if (fotosBehalten.length === 0) return
+    const st = useProjectStore.getState()
+    const neu = st.project.equipment.at(-1)
+    if (!neu) return
+    for (const f of fotosBehalten) st.addFoto({ ...f, zeigtAuf: { equipmentId: neu.id } })
   }
 
   const buildTemplate = (): EquipmentTemplate => {
@@ -618,6 +636,7 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
     } else {
       addEquipment({ ...template, ...nextPosition })
     }
+    fotosAnsNeueGeraet()
     setShowCreateDialog(false)
     setPendingDropOnSave(null)
     resetDialog()
@@ -637,11 +656,16 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
   const placeOnly = () => {
     const template = buildTemplate()
     persistCategory(template)
+    platzieren(template)
+  }
+
+  const platzieren = (template: EquipmentTemplate) => {
     if (pendingDropOnSave) {
       addEquipment({ ...template, x: pendingDropOnSave.x, y: pendingDropOnSave.y })
     } else {
       addEquipment({ ...template, ...nextPosition })
     }
+    fotosAnsNeueGeraet()
     setShowCreateDialog(false)
     setPendingDropOnSave(null)
     resetDialog()
@@ -1311,6 +1335,23 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
                 )}
               </label>
             </div>
+
+            <FotoPortErkennung
+              name={name}
+              vokabular={connectorOptions}
+              onFotosBehalten={setFotosBehalten}
+              onKatalogPlatzieren={platzieren}
+              onUebernehmen={({ groups: erkannt, name: modellName, herkunft }) => {
+                setGroups(erkannt)
+                if (modellName) setName(modellName)
+                setGroupsOrigin(herkunft)
+                setPresetName(null)
+                setSuggestError('')
+                setSuggestInfo(
+                  format(t('library.photo.applied', '{n} port group(s) taken from the photo.'), { n: erkannt.length }),
+                )
+              }}
+            />
 
             <div className="mb-2 border border-violet-800/60 bg-violet-950/30 p-2 text-cp-xs">
               <div className="mb-1 flex flex-wrap items-center justify-between gap-y-1 gap-x-2">

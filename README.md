@@ -153,6 +153,17 @@ Built with **Electron, React, and TypeScript**, it is designed for real-world pr
   the body of such a device and it gets a matching port (not on built-in
   catalogue devices, whose ports come from the datasheet). Missing ports and
   cable lengths show up in the plan check as calm hints, never as a block
+- **Ports from a photo**: in *Create your own device*, pick, drop or paste
+  photos of the connector side (on a phone: *Take photo*). The AI provider
+  chosen under Settings → Integrations → AI reads the connectors — label,
+  connector type from the app's own list, direction, count per row, signal
+  where visible — and the rating plate. The result is an editable suggestion
+  list: unsure rows are marked and unticked, nothing is taken over until you
+  apply it. If the model is in the built-in catalogue, the catalogue device
+  with its datasheet ports is offered instead. Photos are scaled to 1600 px
+  before sending and go only to the chosen provider; tick *Keep the photos*
+  to store them on the placed device. Without a key the section only points
+  to the settings
 - **Catalogue type is automatic**: devices created by hand, imported (Rentman,
   GraphML, NetBox, MultiCam, on-site survey) or loaded from older projects are
   linked to their built-in catalogue model when the name matches exactly one
