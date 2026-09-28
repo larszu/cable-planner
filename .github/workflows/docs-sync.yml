@@ -50,7 +50,7 @@ jobs:
           claude_args: '--max-turns 30'
           prompt: |
             Du bist ein sorgfältiger Dokumentations-Auditor für dieses Repository
-            (Electron + React + TypeScript Broadcast-Kabelplaner "Cable Planner").
+            (Electron + React + TypeScript Broadcast-Kabelplaner "LZ Cable Planner").
             Aufgabe: prüfe, ob die Dokumentation noch zum AKTUELLEN CODE passt, und
             aktualisiere NUR die Stellen, die nachweislich veraltet oder falsch sind.
 

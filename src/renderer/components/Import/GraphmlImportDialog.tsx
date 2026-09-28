@@ -302,7 +302,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
       <div className="max-w-md text-cp-base">
         <p className="mb-2 font-semibold text-cp-text">{t('graphml.dialog.importerTitle', 'yEd / GraphML importer')}</p>
         <p>
-          {t('graphml.dialog.empty.intro1', 'Pick a')} <code className="text-cp-text-bright">.graphml</code> {t('graphml.dialog.empty.intro2', 'file. Cable Planner auto-detects devices, ports and cables — you get a preview where you can include or exclude individual entries before committing to the project.')}
+          {t('graphml.dialog.empty.intro1', 'Pick a')} <code className="text-cp-text-bright">.graphml</code> {t('graphml.dialog.empty.intro2', 'file. LZ Cable Planner auto-detects devices, ports and cables — you get a preview where you can include or exclude individual entries before committing to the project.')}
         </p>
       </div>
       <button

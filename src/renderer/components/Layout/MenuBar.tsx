@@ -96,6 +96,7 @@ import { buildExportFilename } from '../../lib/exportFilename'
 import { hasDesktopBridge, cablePlannerApi } from '../../lib/bridge'
 import { infoDialog } from '../../lib/infoDialog'
 import { confirmDialog } from '../../lib/confirmDialog'
+import { LzmLogo } from '../Brand/LzmLogo'
 
 interface MenuBarProps {
   onNewProject: () => void
@@ -645,8 +646,9 @@ export const MenuBar = ({
       <input ref={avplanImportRef} type="file" accept=".avplan,.json" className="hidden" onChange={handleImportAvplan} />
       <input ref={sourceMapImportRef} type="file" accept=".avsourcemap,.json" className="hidden" onChange={handleImportSourceMap} />
       <div className="flex min-w-0 shrink items-center gap-2">
+        <LzmLogo variant="signet" />
         <span className="hidden select-none font-semibold tracking-wide text-cp-text-secondary lg:inline">
-          {t('app.title', 'Cable Planner')}
+          {t('app.title', 'LZ Cable Planner')}
         </span>
         <span className="hidden text-cp-text-dimmer lg:inline">│</span>
 
@@ -1273,7 +1275,7 @@ export const MenuBar = ({
             onClick={() => useUiStore.getState().openAboutDialog()}
             icon={<Icon icon={Info} size="sm" />}
           >
-            {t('app.menu.help.about', 'About Cable Planner…')}
+            {t('app.menu.help.about', 'About LZ Cable Planner…')}
           </MenuItem>
         </Menu>
         </div>

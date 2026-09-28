@@ -29,7 +29,7 @@ export const PopoutApp = ({ panel }: { panel: PopoutPanel }) => {
     document.documentElement.dataset.theme = canvasTheme
   }, [canvasTheme])
   useEffect(() => {
-    document.title = `Cable Planner — ${t(TITLE_KEYS[panel].key, TITLE_KEYS[panel].fallback)}`
+    document.title = `LZ Cable Planner — ${t(TITLE_KEYS[panel].key, TITLE_KEYS[panel].fallback)}`
   }, [panel, t])
 
   // #427 — Einstellungen füllen das Fenster (Sidebar + Tab), Schließen

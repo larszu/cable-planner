@@ -16,14 +16,16 @@ const tryGet = <T>(get: () => T, fallback: T): T => {
 
 export const APP_VERSION = tryGet(() => safe(__APP_VERSION__, '0.0.0'), '0.0.0')
 export const APP_DESCRIPTION = tryGet(
-  () => safe(__APP_DESCRIPTION__, 'Cable Planner'),
-  'Cable Planner',
+  () => safe(__APP_DESCRIPTION__, 'LZ Cable Planner'),
+  'LZ Cable Planner',
 )
 export const APP_AUTHOR = tryGet(() => safe(__APP_AUTHOR__, ''), '')
 export const APP_BUILD_DATE = tryGet(
   () => safe(__APP_BUILD_DATE__, new Date().toISOString()),
   new Date().toISOString(),
 )
+
+export const APP_COMPANY = 'Lars Zumpe Medienproduktion'
 
 export const APP_REPO_URL = 'https://github.com/larszu/cable-planner'
 

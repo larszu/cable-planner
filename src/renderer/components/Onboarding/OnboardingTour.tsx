@@ -24,7 +24,7 @@ const stepsForLang = (
   t: (key: string, fallback?: string) => string,
 ): TourStep[] => [
   {
-    title: t('onboarding.steps.welcome.title', 'Welcome to Cable Planner'),
+    title: t('onboarding.steps.welcome.title', 'Welcome to LZ Cable Planner'),
     body: t(
       'onboarding.steps.welcome.body',
       'A short tour shows where the main features live. You can re-open it any time from the Help menu in the top right.',
@@ -73,7 +73,7 @@ const stepsForLang = (
     title: t('onboarding.steps.cablePlan.title', 'Cable plan & warnings'),
     body: t(
       'onboarding.steps.cablePlan.body',
-      'If you import cable quantities from Rentman, Cable Planner warns when you wire more cables than available. "Send cables to Rentman" syncs back the assembled totals.',
+      'If you import cable quantities from Rentman, LZ Cable Planner warns when you wire more cables than available. "Send cables to Rentman" syncs back the assembled totals.',
     ),
   },
 ]

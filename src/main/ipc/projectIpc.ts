@@ -122,11 +122,11 @@ export const registerProjectIpc = () => {
 
   ipcMain.handle('project:open', async () => {
     const { canceled, filePaths } = await dialog.showOpenDialog({
-      title: 'Open Cable Planner Project',
+      title: 'Open LZ Cable Planner Project',
       filters: [
         // v7.9.3 — .cpviewer ist eine Read-only Variante der normalen
         // JSON-Datei (gleicher Inhalt + project.mode='viewer').
-        { name: 'Cable Planner Project / Viewer', extensions: ['cableplan', 'json', 'cpviewer'] },
+        { name: 'LZ Cable Planner Project / Viewer', extensions: ['cableplan', 'json', 'cpviewer'] },
         { name: 'JSON', extensions: ['json'] },
         { name: 'Viewer (read-only)', extensions: ['cpviewer'] },
       ],
@@ -154,7 +154,7 @@ export const registerProjectIpc = () => {
     const { canceled, filePath } = await dialog.showSaveDialog({
       title: 'Als Viewer-Datei exportieren',
       defaultPath: defaultViewerPath(project),
-      filters: [{ name: 'Cable Planner Viewer', extensions: ['cpviewer'] }],
+      filters: [{ name: 'LZ Cable Planner Viewer', extensions: ['cpviewer'] }],
     })
     if (canceled || !filePath) return null
     const target = ensureViewerExtension(filePath)
@@ -184,7 +184,7 @@ export const registerProjectIpc = () => {
     const { canceled, filePaths } = await dialog.showOpenDialog({
       title: 'Anmerkungen aus Viewer-Datei importieren',
       filters: [
-        { name: 'Cable Planner Viewer / JSON', extensions: ['cpviewer', 'json'] },
+        { name: 'LZ Cable Planner Viewer / JSON', extensions: ['cpviewer', 'json'] },
       ],
       properties: ['openFile'],
     })
@@ -204,9 +204,9 @@ export const registerProjectIpc = () => {
 
     if (!targetPath) {
       const { canceled, filePath } = await dialog.showSaveDialog({
-        title: 'Save Cable Planner Project',
+        title: 'Save LZ Cable Planner Project',
         defaultPath: defaultSavePath(project),
-        filters: [{ name: 'Cable Planner Project', extensions: ['cableplan', 'json'] }],
+        filters: [{ name: 'LZ Cable Planner Project', extensions: ['cableplan', 'json'] }],
       })
 
       if (canceled || !filePath) {
@@ -225,9 +225,9 @@ export const registerProjectIpc = () => {
 
   ipcMain.handle('project:save-as', async (_event, project: unknown) => {
     const { canceled, filePath } = await dialog.showSaveDialog({
-      title: 'Save Cable Planner Project As',
+      title: 'Save LZ Cable Planner Project As',
       defaultPath: defaultSavePath(project),
-      filters: [{ name: 'Cable Planner Project', extensions: ['cableplan', 'json'] }],
+      filters: [{ name: 'LZ Cable Planner Project', extensions: ['cableplan', 'json'] }],
     })
 
     if (canceled || !filePath) {
@@ -256,7 +256,7 @@ export const registerProjectIpc = () => {
       title: 'Plan-Stand zum Vergleichen öffnen',
       filters: [
         {
-          name: 'Cable Planner Project / Viewer',
+          name: 'LZ Cable Planner Project / Viewer',
           extensions: ['cableplan', 'json', 'cpviewer'],
         },
       ],

@@ -218,7 +218,7 @@ export const buildHandoverManifest = (
   lines.push('')
   lines.push('---')
   lines.push('')
-  lines.push('_Erzeugt mit Cable-Planner. Diese Doku ist vendor-neutral —')
+  lines.push('_Erzeugt mit LZ Cable Planner. Diese Doku ist vendor-neutral —')
   lines.push('jeder qualifizierte Dienstleister kann die Anlage übernehmen._')
   if (stamp) {
     lines.push('')

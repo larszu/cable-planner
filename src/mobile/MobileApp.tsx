@@ -374,7 +374,7 @@ const ProjectPicker = ({
         setError(
           t(
             'mobile.err.notAProject',
-            'This file does not look like a Cable Planner project (equipment/cables missing).',
+            'This file does not look like an LZ Cable Planner project (equipment/cables missing).',
           ),
         )
         return
@@ -402,7 +402,7 @@ const ProjectPicker = ({
           <Icon icon={Cable} size={28} />
         </div>
         <h1 className="mt-1 text-lg font-semibold text-cp-text">
-          Cable Planner — Mobile
+          LZ Cable Planner — Mobile
         </h1>
         <p className="mt-1 text-xs text-cp-text-muted">
           {t(
@@ -457,7 +457,7 @@ const ProjectPicker = ({
         />
         <span className="inline-flex cursor-pointer items-center justify-center gap-2">
           <Icon icon={FolderOpen} size="sm" />
-          {t('mobile.file.pick', 'Choose a Cable Planner file (.json)…')}
+          {t('mobile.file.pick', 'Choose an LZ Cable Planner file (.json)…')}
         </span>
       </label>
       <div className="text-center">

@@ -42,7 +42,7 @@ export const ModuleOnboardingDialog = () => {
       onClose={skip}
       maxWidth="lg"
       titleIcon={<Icon icon={Blocks} size="sm" />}
-      title={t('onboarding.title', 'Welcome — what do you use Cable Planner for?')}
+      title={t('onboarding.title', 'Welcome — what do you use LZ Cable Planner for?')}
       footer={
         <div className="flex items-center justify-between gap-2">
           <button

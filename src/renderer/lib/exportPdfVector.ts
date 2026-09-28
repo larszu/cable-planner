@@ -341,7 +341,7 @@ const buildPrintHtml = (params: {
 <html lang="de" data-theme="${themeAttr}">
 <head>
 <meta charset="utf-8">
-<title>${escapeHtml(projectName || 'Cable Planner')}</title>
+<title>${escapeHtml(projectName || 'LZ Cable Planner')}</title>
 <style>
 ${appCss}
 </style>
@@ -415,7 +415,7 @@ ${appCss}
 <body>
 <div class="pdf-page">
   <div class="pdf-header">
-    <div class="title">${escapeHtml(projectName || 'Cable Planner Project')}</div>
+    <div class="title">${escapeHtml(projectName || 'LZ Cable Planner Project')}</div>
     <div class="stamp">${escapeHtml(timestamp)}</div>
   </div>
   <div class="pdf-canvas-wrap">

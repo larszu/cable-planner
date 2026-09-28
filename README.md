@@ -1,4 +1,4 @@
-<h1 align="center">⚡ CablePlanner</h1>
+<h1 align="center">⚡ LZ Cable Planner</h1>
 
 <p align="center">
   <b>Broadcast cable planning software</b> — a node-based editor for AV, Network and Power Signal flow,<br />
@@ -19,7 +19,7 @@
 <!-- DOWNLOAD CTA — always points at the newest GitHub release (installers auto-built in CI) -->
 <p align="center">
   <a href="https://github.com/larszu/cable-planner/releases/latest">
-    <img src="https://img.shields.io/badge/⬇%20Download%20for%20macOS%20%26%20Windows-863bff?style=for-the-badge&logo=github&logoColor=white" alt="Download CablePlanner for macOS and Windows" height="42" />
+    <img src="https://img.shields.io/badge/⬇%20Download%20for%20macOS%20%26%20Windows-863bff?style=for-the-badge&logo=github&logoColor=white" alt="Download LZ Cable Planner for macOS and Windows" height="42" />
   </a>
   &nbsp;
   <a href="https://larszu.github.io/cable-planner/">
@@ -31,7 +31,7 @@
 
 <!-- HERO IMAGE — see docs/screenshots/README.md for capture + redaction guide -->
 <p align="center">
-  <img src="docs/screenshots/hero.png" alt="CablePlanner — node-based broadcast cabling canvas for SDI signal flow, ATEM and Videohub" width="860" />
+  <img src="docs/screenshots/hero.png" alt="LZ Cable Planner — node-based broadcast cabling canvas for SDI signal flow, ATEM and Videohub" width="860" />
   <br />
   <sub><i>The node-based canvas — equipment nodes, ports and routed signal cabling.</i></sub>
 </p>
@@ -56,7 +56,7 @@ Measured 2026-09-09: **published** — the `deploy` job ran and succeeded.
 ---
 ## ✨ Overview
 
-**CablePlanner** is free-to-use **broadcast cable planning software** for designing and visualizing **SDI signal flow**, **ATEM multiviewer** layouts and **Blackmagic Videohub routing** on a node-based canvas. It runs **fully offline** on macOS and Windows, so every audio, video and data run is documented before you ever pull cable on site.
+**LZ Cable Planner** is free-to-use **broadcast cable planning software** for designing and visualizing **SDI signal flow**, **ATEM multiviewer** layouts and **Blackmagic Videohub routing** on a node-based canvas. It runs **fully offline** on macOS and Windows, so every audio, video and data run is documented before you ever pull cable on site.
 
 Built with **Electron, React, and TypeScript**, it is designed for real-world production environments such as studios, OB vans, and live event setups — a modern alternative to legacy AV/broadcast wiring tools. The source is public to read; the licence is proprietary (see [LICENSE](LICENSE)).
 
@@ -854,13 +854,13 @@ state lives on-device, and integrations (Rentman, ATEM, Videohub) are opt-in.
 
 ---
 
-## 🆚 CablePlanner vs. the alternatives
+## 🆚 LZ Cable Planner vs. the alternatives
 
 Looking for a **WireCAD alternative**, a **D-Tools** or **Microsoft Visio**
 replacement for AV/broadcast wiring, or something more domain-specific than
-**draw.io**? Here is where CablePlanner fits:
+**draw.io**? Here is where LZ Cable Planner fits:
 
-| | **CablePlanner** | WireCAD | D-Tools SI | Visio / draw.io |
+| | **LZ Cable Planner** | WireCAD | D-Tools SI | Visio / draw.io |
 | --- | --- | --- | --- | --- |
 | Price | **Kostenlos · proprietär** | ~$1,500–4,500 | $1,000s / yr | Subscription / free |
 | Platforms | **macOS + Windows** | Windows only | Windows + SQL Server | Windows / web |
@@ -869,16 +869,16 @@ replacement for AV/broadcast wiring, or something more domain-specific than
 | ATEM / Videohub live control | **Yes** | No | No | No |
 | 3D rack view | **Yes** *(in progress)* | No | No | No |
 
-- **vs. WireCAD** — CablePlanner wins on platform support, open file format,
+- **vs. WireCAD** — LZ Cable Planner wins on platform support, open file format,
   modern UX and live hardware control; WireCAD has the deeper symbol library and
   a longer-established workflow.
 - **vs. D-Tools System Integrator** — different league: D-Tools covers the full
-  quote → invoice business lifecycle, while CablePlanner is a focused planning
+  quote → invoice business lifecycle, while LZ Cable Planner is a focused planning
   tool (complementary, not competing).
 - **vs. EPlan / WSCAD** — those target industrial-electrical and control-cabinet
-  design; CablePlanner is purpose-built for AV/broadcast signal flow.
+  design; LZ Cable Planner is purpose-built for AV/broadcast signal flow.
 - **vs. draw.io / Visio** — general diagramming tools are a workaround for AV;
-  CablePlanner adds connector-aware layers, a cable bill of materials and
+  LZ Cable Planner adds connector-aware layers, a cable bill of materials and
   patch-sheet logic out of the box.
 
 📊 Full structural comparison: [`docs/comparison.html`](docs/comparison.html).
@@ -913,6 +913,16 @@ npm run dist
 > Tip: `npm run dev` launches the full Electron shell. The renderer also runs
 > in a plain browser (`npm run dev:renderer` → `localhost:4181`) for quick UI
 > work, though desktop-only features (file I/O, ATEM/LAN) are inert there.
+
+> The installed app keeps its data (library, recent projects, settings) in the
+> `Cable Planner` app-data folder from before the rename to LZ Cable Planner —
+> `src/main/userDataPin.ts` holds that path. Installer files are named
+> `LZ Cable Planner-<version>-<arch>.<ext>` (on the release page:
+> `LZ.Cable.Planner-…`).
+>
+> App icon: edit `build/icon.svg` (with signet) or `public/favicon.svg`
+> (pictogram only), then `node scripts/generate-icon.mjs` writes `icon.png`,
+> `icon.ico`, `icon-192/512.png` and `apple-touch-icon.png`.
 
 ### Submitting your own device templates
 
@@ -994,13 +1004,13 @@ cannot go stale without turning a test red.
 
 ## 👤 Author
 
-Built and maintained by **Lars Zumpe**
+Built and maintained by **Lars Zumpe** — Lars Zumpe Medienproduktion
 
 ---
 
 ## ❤️ Support / Donate
 
-If CablePlanner saves you time on your next show, consider buying me a coffee:
+If LZ Cable Planner saves you time on your next show, consider buying me a coffee:
 
 <p>
   <a href="https://paypal.me/larszumpe">

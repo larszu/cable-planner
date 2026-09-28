@@ -1,6 +1,6 @@
 {
-  "name": "Cable Planner",
-  "short_name": "Cable Planner",
+  "name": "LZ Cable Planner",
+  "short_name": "LZ Cable",
   "description": "Plan broadcast cabling: devices, ports, cables, racks — on a tablet at FOH too.",
   "start_url": "index.html",
   "scope": ".",
@@ -13,7 +13,19 @@
       "src": "favicon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
     }
   ]
 }

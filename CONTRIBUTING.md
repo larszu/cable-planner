@@ -1,6 +1,6 @@
-# Contributing to CablePlanner
+# Contributing to LZ Cable Planner
 
-Thanks for taking the time to contribute! 🎛️ CablePlanner is an
+Thanks for taking the time to contribute! 🎛️ LZ Cable Planner is an
 offline-first broadcast cable-planning desktop app (Electron + React +
 TypeScript). This guide covers how to get set up, the conventions we
 follow, and how to get a change merged.

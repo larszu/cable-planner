@@ -41,12 +41,12 @@ describe('Der Editor ist installierbar (#877)', () => {
     const m = JSON.parse(lies('public/editor.webmanifest')) as Record<string, string>
     expect(m.start_url).toBe('index.html')
     expect(m.display).toBe('standalone')
-    expect(m.name).toBe('Cable Planner')
+    expect(m.name).toBe('LZ Cable Planner')
   })
 
   it('der Handy-Viewer behaelt sein eigenes', () => {
     const m = JSON.parse(lies('public/manifest.webmanifest')) as Record<string, string>
-    expect(m.name).not.toBe('Cable Planner')
+    expect(m.name).not.toBe('LZ Cable Planner')
     expect(lies('mobile.html')).toContain('href="manifest.webmanifest"')
   })
 })

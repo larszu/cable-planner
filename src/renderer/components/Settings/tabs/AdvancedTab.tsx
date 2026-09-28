@@ -253,7 +253,7 @@ export const AdvancedTab = () => {
         title={t('settings.advanced.export', 'Data export')}
         description={t(
           'settings.advanced.exportDesc',
-          'Export Cable Planner data stored locally as JSON — e.g. to migrate to another machine.',
+          'Export LZ Cable Planner data stored locally as JSON — e.g. to migrate to another machine.',
         )}
       >
         <button

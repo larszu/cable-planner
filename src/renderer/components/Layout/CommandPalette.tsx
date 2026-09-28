@@ -128,7 +128,7 @@ export const CommandPalette = () => {
       { id: 'loadDemo', group: gTools, title: t('canvas.empty.loadDemo', 'Load example project'), run: () => { useProjectStore.getState().loadDemoProject(); setTimeout(() => triggerCanvasFitView(), 80) } },
       { id: 'settings', group: gHelp, title: t('palette.settings', 'Settings…'), run: () => ui().openSettings() },
       { id: 'shortcuts', group: gHelp, title: t('app.menu.help.shortcuts', 'Keyboard shortcuts…'), run: () => window.dispatchEvent(new CustomEvent('cp:open-shortcuts-help')) },
-      { id: 'about', group: gHelp, title: t('app.menu.help.about', 'About Cable Planner…'), run: () => ui().openAboutDialog() },
+      { id: 'about', group: gHelp, title: t('app.menu.help.about', 'About LZ Cable Planner…'), run: () => ui().openAboutDialog() },
     ],
     [t, gEdit, gView, gTools, gHelp],
   )

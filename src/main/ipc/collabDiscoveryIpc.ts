@@ -84,7 +84,7 @@ export const registerCollabDiscoveryIpc = (): void => {
       advertiseBonjour = bonjour
       const project = (info.project ?? '').trim()
       const host = (info.host ?? '').trim()
-      const label = [project || 'Cable Planner', host].filter(Boolean).join(' · ').slice(0, 63)
+      const label = [project || 'LZ Cable Planner', host].filter(Boolean).join(' · ').slice(0, 63)
       bonjour.publish({
         name: label,
         type: SERVICE_TYPE,

@@ -366,7 +366,7 @@ export const StatusBar = ({
           type="button"
           onClick={() => useUiStore.getState().openAboutDialog()}
           className="bg-[var(--cp-surface-2)] px-1.5 py-0.5 font-mono text-cp-xs text-[var(--cp-text-muted)] hover:bg-[var(--cp-border)] hover:text-[var(--cp-text)]"
-          title={t('statusbar.aboutTitle', 'About Cable Planner')}
+          title={t('statusbar.aboutTitle', 'About LZ Cable Planner')}
         >
           v{APP_VERSION}
         </button>

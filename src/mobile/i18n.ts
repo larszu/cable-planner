@@ -36,7 +36,7 @@ const de: Record<string, string> = {
   'mobile.err.hostUnreachable': 'Host nicht erreichbar ({error}). Datei wählen oder JSON einfügen.',
   'mobile.err.hostUnreachableShort': 'Host nicht erreichbar.',
   'mobile.err.notAProject':
-    'Datei sieht nicht wie ein Cable-Planner-Projekt aus (fehlende equipment/cables).',
+    'Datei sieht nicht wie ein LZ-Cable-Planner-Projekt aus (fehlende equipment/cables).',
   'mobile.err.fileUnreadable': 'Datei konnte nicht gelesen werden.',
   'mobile.intro':
     'Hak Ports und Kabel ab während du sie steckst, oder trage fehlende Patches direkt vor Ort nach. Alles syncht live zum Desktop. Offline funktioniert auch — Häkchen werden beim Re-Connect übertragen.',
@@ -46,7 +46,7 @@ const de: Record<string, string> = {
   'mobile.reload.cached': 'Projekt erneut laden (Cache: {time})',
   'mobile.reload.fresh': 'Projekt vom Desktop laden',
   'mobile.or': 'oder',
-  'mobile.file.pick': 'Cable-Planner-Datei (.json) wählen…',
+  'mobile.file.pick': 'LZ-Cable-Planner-Datei (.json) wählen…',
   'mobile.paste.cancel': 'Einfügen abbrechen',
   'mobile.paste.open': 'Oder JSON einfügen…',
   'mobile.paste.load': 'Projekt laden',

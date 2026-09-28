@@ -1,5 +1,5 @@
 {
-  "name": "Cable Planner — Mobile",
+  "name": "LZ Cable Planner — Mobile",
   "short_name": "Planner",
   "description": "Plan + Lager ansehen und Codes scannen (QR/Barcode).",
   "start_url": ".",
@@ -13,7 +13,19 @@
       "src": "favicon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
     }
   ]
 }

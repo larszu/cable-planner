@@ -65,7 +65,7 @@ export const useProject = () => {
       if (!looksLikeProject(result.data)) {
         const lang = useUiStore.getState().language
         await infoDialog(
-          translate(lang, 'project.open.notAPlanTitle', 'This file is not a Cable Planner project'),
+          translate(lang, 'project.open.notAPlanTitle', 'This file is not an LZ Cable Planner project'),
           {
             body: translate(
               lang,
