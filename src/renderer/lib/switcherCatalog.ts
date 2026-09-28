@@ -225,6 +225,64 @@ export const SWITCHER_CATALOG: SwitcherEntry[] = [
       width: 260, height: 556,
     },
   },
+
+  // Analog Way Aquilon RS alpha (AQL-RS-ALPHA) — kleinstes Modell der RS-Reihe,
+  // Grundbestueckung: 8x HDMI 2.0 in, 4x HDMI 2.0 out, 2x Multiviewer HDMI;
+  // Karten tauschbar (SDI, DP, NDI, ST 2110 …) — hier die Grundbestueckung.
+  // Framelock-BNC mit Loop, Dante primaer/sekundaer, Steuer-Ethernet.
+  // Leistung widerspruechlich (Datenblatt 400 W, Quick-Start 540 W) → notes.
+  // Quelle: https://www.analogway.com/products/aquilon-rs-alpha
+  {
+    match: ['aquilon', 'alpha'],
+    deviceTypeId: 'c0c2877f-8520-4742-815c-7ac077da9a21',
+    template: {
+      manufacturerUrl: 'https://www.analogway.com/products/aquilon-rs-alpha',
+      name: 'Analog Way Aquilon RS alpha',
+      category: 'Video Mixer',
+      inputs: [
+        ...num('HDMI 2.0 In', 8, 'HDMI'),
+        { id: '', name: 'Framelock / Ref In', type: 'BNC', connectorType: 'BNC' },
+        { id: '', name: 'Dante Primary', type: 'Ethernet/RJ45', connectorType: 'Ethernet/RJ45', direction: 'bidirectional' as const },
+        { id: '', name: 'Dante Secondary', type: 'Ethernet/RJ45', connectorType: 'Ethernet/RJ45', direction: 'bidirectional' as const },
+        { id: '', name: 'Control (Ethernet)', type: 'Ethernet/RJ45', connectorType: 'Ethernet/RJ45', direction: 'bidirectional' as const },
+      ],
+      outputs: [
+        ...num('HDMI 2.0 Out', 4, 'HDMI'),
+        ...num('Multiviewer Out (HDMI)', 2, 'HDMI'),
+        { id: '', name: 'Framelock Loop', type: 'BNC', connectorType: 'BNC' },
+      ],
+      notes: 'Leistung max. 400 W (Datenblatt) bzw. 540 W (Quick-Start-Guide) · Ein-/Ausgangskarten tauschbar, hier Grundbestückung',
+      width: 280, height: 260,
+    },
+  },
+
+  // Vizrt (NewTek) TriCaster Mini 4K — keine SDI/HDMI-Eingaenge am Geraet:
+  // 8 NDI-Quellen, davon vier ueber die PoE+-Ports (HDMI-Wandler), 2x GbE,
+  // 4x Mini-DisplayPort, Audio auf 6,35-mm-Klinke. Die Herstellerseite ist
+  // abgeschaltet; Beleg ist ihre Archivkopie.
+  // Quelle: https://web.archive.org/web/20250125084503/https://www.vizrt.com/products/tricaster/tricaster-mini-4k/tech-specs/
+  {
+    match: ['tricaster', 'mini', '4k'],
+    deviceTypeId: 'e96379ac-e90b-411a-a390-fcebe3696a5f',
+    template: {
+      manufacturerUrl: 'https://web.archive.org/web/20250125084503/https://www.vizrt.com/products/tricaster/tricaster-mini-4k/tech-specs/',
+      name: 'Vizrt (NewTek) TriCaster Mini 4K',
+      category: 'Video Mixer',
+      inputs: [
+        ...num('NDI 1-4 (PoE+)', 4, 'Ethernet/RJ45', true),
+        ...num('LAN (1 GbE)', 2, 'Ethernet/RJ45', true),
+        { id: '', name: 'Mic In (6.35 mm)', type: 'Jack 6.35 mm', connectorType: 'Jack 6.35 mm' },
+        ...num('Line In (6.35 mm)', 2, 'Jack 6.35 mm'),
+      ],
+      outputs: [
+        ...num('Mini DisplayPort Out', 4, 'Custom'),
+        ...num('Line Out (6.35 mm)', 2, 'Jack 6.35 mm'),
+        { id: '', name: 'Phones (6.35 mm)', type: 'Jack 6.35 mm', connectorType: 'Jack 6.35 mm' },
+      ],
+      notes: 'PoE-Budget 60 W (Abgabe, keine Aufnahme) · Ausgänge des Mischers nur als NDI',
+      width: 260, height: 200,
+    },
+  },
 ]
 
 /** Flat list of all built-in templates (seeded into the library). */

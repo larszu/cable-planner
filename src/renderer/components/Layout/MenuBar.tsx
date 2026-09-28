@@ -12,6 +12,7 @@ import {
   Copy,
   Drum,
   Eye,
+  Cloud,
   FileDown,
   FileText,
   FolderOpen,
@@ -57,6 +58,7 @@ import {
   Table2,
   LayoutGrid,
   ChevronDown,
+  ClipboardList,
 } from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import {
@@ -793,6 +795,11 @@ export const MenuBar = ({
               mergen. v8.x: Wort "Freelancer" entfernt (#405/#406 —
               Workflow ist nicht freelancer-spezifisch). */}
           {(onExportViewer || onImportAnnotations) && <MenuSep />}
+          {/* #871/#870 — Cloud-Kopie mit Revisionen und Lese-Link: steht beim
+              Viewer, weil der Lese-Link genau diesen Viewer oeffnet. */}
+          <MenuItem onClick={() => useUiStore.getState().openCloudDialog()} icon={<Icon icon={Cloud} size="sm" />}>
+            {t('app.menu.file.cloud', 'Cloud & share link…')}
+          </MenuItem>
           {onExportViewer && (
             <MenuItem onClick={onExportViewer} icon={<Icon icon={Eye} size="sm" />}>
               {t('app.menu.file.exportViewer', 'Export as viewer file…')}
@@ -959,6 +966,15 @@ export const MenuBar = ({
           </MenuItem>
 
           <MenuSectionHeader>{t('app.menu.tools.group.plan', 'Plan')}</MenuSectionHeader>
+          {/* #906 — Bestandsaufnahme zuerst: wer eine vorhandene Anlage
+              dokumentiert, faengt hier an, nicht beim Mikrofonieren. */}
+          <MenuItem
+            onClick={() => useUiStore.getState().setSurveyOpen(true)}
+            icon={<Icon icon={ClipboardList} size="sm" />}
+            note={t('app.menu.tools.survey.note', 'Capture existing equipment on site: name, room, assumed connection, photo')}
+          >
+            {t('app.menu.tools.survey', 'Survey (capture existing)…')}
+          </MenuItem>
           <MenuItem
             onClick={() => useUiStore.getState().setDrumMicingOpen(true)}
             icon={<Icon icon={Drum} size="sm" />}
@@ -1319,7 +1335,10 @@ export const MenuBar = ({
           </button>
         </div>
         <SharedSyncPanel />
-        {hasDesktopBridge && mobileModule && (
+        {/* #906 — auch in der Browser-Fassung sichtbar. Dort fehlte der Knopf
+            ganz, ohne dass irgendwo stand, warum; der Dialog sagt jetzt, dass
+            der Weg die Desktop-App braucht. */}
+        {mobileModule && (
           <button
             type="button"
             onClick={() => useUiStore.getState().openMobileShare()}

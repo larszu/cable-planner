@@ -258,6 +258,46 @@ export const AJA_CATALOG: AjaEntry[] = [
       width: 260, height: 140,
     },
   },
+
+  // AJA FS2 — Frame-Synchronizer, zwei Kanaele. 2x SDI in/out, 2 SFP-Schaechte
+  // (optionale AJA-Glasfasermodule), HDMI in/out, Komponente 3x BNC in/out,
+  // Composite in/out, Ref 2x BNC (Loop), AES und Analog-Audio je DB-25 in/out,
+  // GPI auf DB-15, LAN, zwei Netzteile. Leistung: „55W typical; 80W max."
+  // Quelle: https://www.aja.com/products/fs2/spec-sheet.pdf
+  {
+    match: ['fs2'],
+    deviceTypeId: 'ea1b428d-3ffa-41fc-b06f-3b8a7b7e10e9',
+    template: {
+      manufacturerUrl: 'https://www.aja.com/products/fs2/spec-sheet.pdf',
+      name: 'AJA FS2',
+      category: 'Converter',
+      inputs: [
+        ...num('SDI In', 2, 'BNC'),
+        { id: '', name: 'HDMI In', type: 'HDMI', connectorType: 'HDMI' },
+        ...num('Component In (Y/Pb/Pr)', 3, 'BNC'),
+        { id: '', name: 'Composite In', type: 'BNC', connectorType: 'BNC' },
+        { id: '', name: 'Ref In', type: 'BNC', connectorType: 'BNC' },
+        { id: '', name: 'AES In (DB-25)', type: 'DB25', connectorType: 'DB25' },
+        { id: '', name: 'Analog Audio In (DB-25)', type: 'DB25', connectorType: 'DB25' },
+        { id: '', name: 'GPI (DB-15)', type: 'Custom', connectorType: 'Custom' },
+        { id: '', name: 'LAN', type: 'Ethernet/RJ45', connectorType: 'Ethernet/RJ45' },
+        { id: '', name: 'Power 1 (IEC)', type: 'IEC 230V', connectorType: 'IEC 230V' },
+        { id: '', name: 'Power 2 (IEC)', type: 'IEC 230V', connectorType: 'IEC 230V' },
+      ],
+      outputs: [
+        ...num('SDI Out', 2, 'BNC'),
+        { id: '', name: 'HDMI Out', type: 'HDMI', connectorType: 'HDMI' },
+        ...num('Component Out (Y/Pb/Pr)', 3, 'BNC'),
+        { id: '', name: 'Composite Out', type: 'BNC', connectorType: 'BNC' },
+        { id: '', name: 'Ref Loop', type: 'BNC', connectorType: 'BNC' },
+        { id: '', name: 'AES Out (DB-25)', type: 'DB25', connectorType: 'DB25' },
+        { id: '', name: 'Analog Audio Out (DB-25)', type: 'DB25', connectorType: 'DB25' },
+      ],
+      powerConsumptionWatts: 55,
+      notes: '55 W typisch, 80 W max. (Datenblatt) · SFP-Schächte nur mit AJA-Glasfasermodulen',
+      width: 260, height: 220,
+    },
+  },
 ]
 
 /** Flat list of all built-in templates (seeded into the library). */
@@ -277,6 +317,7 @@ export const matchAjaTemplate = (name: string): EquipmentTemplate | null => {
     lower.includes('ki pro') ||
     lower.includes('helo') ||
     lower.includes('fs-hdr') ||
+    lower.includes('fs2') ||
     lower.includes('u-tap')
   if (!isBrandKnown) return null
   for (const entry of AJA_CATALOG) {

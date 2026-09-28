@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { beforeAll, describe, expect, it } from 'vitest'
 import ts from 'typescript'
 
 // ── Lange Erklaersaetze stehen hinter „mehr" ───────────────────────────────
@@ -94,13 +94,24 @@ const suche = (): { funde: Fund[]; absaetze: number } => {
 }
 
 describe('lange Erklaersaetze benutzen PanelHint', () => {
+  // EIN Lauf fuer alle Faelle, im Hook und mit eigener Frist. Der Lauf parst
+  // jede .tsx-Datei des Renderers mit dem TypeScript-Parser; das dauert allein gut
+  // eine Sekunde und unter Last (volle Suite, andere Prozesse) mehrere. Frueher
+  // lief er in JEDEM Fall neu und riss das 5-s-Limit von Vitest, ohne dass
+  // der Code falsch war. Die Frist gilt nur dem Einlesen; die Faelle selbst
+  // pruefen danach ein fertiges Ergebnis.
+  let ergebnis: ReturnType<typeof suche>
+  beforeAll(() => {
+    ergebnis = suche()
+  }, 60_000)
+
   it('sieht ueberhaupt Absaetze (sonst prueft dieser Test nichts)', () => {
-    const { absaetze } = suche()
+    const { absaetze } = ergebnis
     expect(absaetze).toBeGreaterThan(100)
   })
 
   it('findet kein blankes <p> mit mehr als 140 Zeichen', () => {
-    const { funde } = suche()
+    const { funde } = ergebnis
     const liste = funde.map((f) => `${f.datei}:${f.zeile} (${f.laenge}): ${f.text}`)
     expect(liste, `Absaetze ohne PanelHint: ${liste.join(' | ')}`).toEqual([])
   })

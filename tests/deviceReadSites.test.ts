@@ -88,6 +88,10 @@ const GERAETE_DOMAENEN = [
  * darum geht es in diesem Test.
  */
 const SONSTIGE_DOMAENEN = [
+  // #871 — Cloud-Kopie des eigenen Plans. Kein Geraet: was zurueckkommt, ist
+  // der eigene Plan (eine Revision oder das dreiseitig Zusammengefuehrte,
+  // `lib/cloud.ts`), kein Befund einer Anlage.
+  'cloud',
   'collabDiscovery',
   'credentials',
   'documentLog',

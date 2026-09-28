@@ -5,7 +5,7 @@ Invarianten der App. Sie ist die Pflicht-Lektüre, bevor strukturelle Änderunge
 gemacht werden. Für die interaktive Modul-Übersicht siehe [`app-structure.html`](./app-structure.html),
 für einen Wettbewerber-Vergleich [`comparison.html`](./comparison.html).
 
-Stand: v9.0.3 · ~772 TS/TSX-Module · ~218.5k LOC
+Stand: v9.0.3 · ~793 TS/TSX-Module · ~222.6k LOC
 
 ---
 
@@ -56,6 +56,7 @@ Alle IPC-Channels sind nach Domäne präfixiert. Definitionen in
 | `rentman:*` | `rentmanIpc.ts` | `get-projects`, `get-project-equipment`, `get-equipment`, `add-project-equipment`, `add-project-file` |
 | `netbox:*` | `netboxIpc.ts` | `save-token`, `has-token`, `delete-token`, `normalize-url`, `test-connection`, `get-sites`, `get-racks`, `fetch-snapshot` |
 | `deviceLibrary:*` | `deviceLibraryIpc.ts` | `has-token`, `sign-in`, `verify-second-factor`, `current-user`, `sign-out`, `sync`, `propose`, `upload` — die Gerätebibliothek (devices.zumpelars.de, §6.3b). URL je Aufruf, Token bleibt in main. |
+| `cloud:*` | `cloudIpc.ts` | `call` — Cloud-Projekte und Lese-Links (#871, #870) auf dem Server der Gerätebibliothek, eine Operation aus fester Liste (`cloudService.ts`). Gleiches Konto und Token wie `deviceLibrary:*`, Token bleibt in main. |
 | `atem:*` | `atemIpc.ts` | `connect`, `disconnect`, `state`, `get-status`, `get-events`, `set-input-name`, `bulk-set-input-names`, `apply-mv-config`, `read-mv-config`, `apply-audio-config`, `discover`, plus `atem:event` (broadcast) |
 | `videohub:*` | `videohubIpc.ts` | `send` (TCP zu Blackmagic Videohub) |
 | `sync:*` | `syncIpc.ts` | `read-file`, `write-file`, `exists`, `acquire-lock`, `release-lock` |
@@ -97,7 +98,7 @@ Vier Stores in `src/renderer/store/`. Jeder hat einen klar abgegrenzten Concern.
 
 #### 3.1.1 · Slice-Komposition (#308)
 
-`projectStore.ts` ist intern in **25 Slices** unter `src/renderer/store/slices/`
+`projectStore.ts` ist intern in **26 Slices** unter `src/renderer/store/slices/`
 zerlegt, die alle in den Haupt-Store komponiert werden:
 
 ```
@@ -280,7 +281,7 @@ jemand drei von zwölf Monitoren angesehen hat.
 
 ### 3.2 · Komponenten
 
-`src/renderer/components/` ist in 32 Subdomänen aufgeteilt:
+`src/renderer/components/` ist in 34 Subdomänen aufgeteilt:
 
 ```
 About/         Analysis/      Annotations/   Atem/          Cable/
@@ -1041,7 +1042,7 @@ Diese Themen sind diskutiert, aber noch nicht entschieden / umgesetzt.
 ### 9.1 · Store-Slicing — **erledigt** ✓ (#308)
 
 Implementiert. `projectStore.ts` von 2178 LOC auf ~1146 reduziert durch
-25 Slices unter `store/slices/`. Siehe §3.1.1.
+26 Slices unter `store/slices/`. Siehe §3.1.1.
 
 ### 9.2 · Komponenten-Splits — **teilweise** ✓ (#306, #307)
 
@@ -1094,7 +1095,7 @@ optionales Cloud-Backend (`y-websocket`, Auth/Permissions) bleiben offen.
 `vitest` ist eingerichtet (`npm test` / `npm run test:watch`); dazu kommen
 gezielte Node-Checks (`npm run test:crdt`, `npm run test:signaling`), ein
 UI-Smoke-Skript (`npm run ui:smoke`) und ein headless Drag-/Interaktions-Test
-(`npm run test:drag`, treibt den Renderer via Playwright). Bei ~218.5k LOC
+(`npm run test:drag`, treibt den Renderer via Playwright). Bei ~222.6k LOC
 bleibt der Ausbau der Abdeckung wichtig — empfohlene Schwerpunkte:
 - Snapshot-Tests auf `healProjectPositions` mit echten
   Beispiel-Projekt-JSONs.

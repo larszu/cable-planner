@@ -87,6 +87,7 @@ export interface DeviceConfigEntry {
 import { STORAGE_KEYS } from '../lib/storageKeys'
 import { PANEL_LIMITS } from '../lib/layoutConstants'
 import { RASTER_DEFAULT, rasterGrenzen } from '../lib/raster'
+import { kabeltypenUmbenannt } from '../lib/stammdaten'
 
 const KEY = STORAGE_KEYS.ui
 
@@ -325,6 +326,22 @@ interface PersistedUiState {
    *  default position so adding new sections in future versions
    *  doesn't lose the user's existing ordering. */
   equipmentSectionOrder: string[]
+  /**
+   * ISSUE #903 — „Rechte Seitenleiste zu unuebersichtlich."
+   *
+   * Welche Abschnitte der Eigenschaften-Leiste OFFEN sind, je Abschnitts-Id.
+   *
+   * WAS VORHER FEHLTE. `SortableSection` bekam `open={defaultOpen}` und sonst
+   * nichts. Der Zustand lebte damit allein im DOM: er ueberlebte kein
+   * Neu-Montieren, und beim Geraetewechsel stand die Leiste wieder als Wand
+   * aus achtundzwanzig gleich aussehenden zugeklappten Zeilen da — auch der
+   * Abschnitt, in dem man gerade gearbeitet hatte.
+   *
+   * Ein fehlender Eintrag heisst „wie der Abschnitt es vorgibt"
+   * (`defaultOpen`) und NICHT „zu": sonst waere die Vorgabe jedes Abschnitts
+   * beim ersten Start unwirksam.
+   */
+  equipmentSectionOpen: Record<string, boolean>
   /** v7.7.1 — Custom canvas background image (Issue #71). Separate
    *  uploads for dark and light theme so the user can tune visibility.
    *  When set, the image replaces the radial gradient and tiles by
@@ -430,6 +447,7 @@ const defaults: PersistedUiState = {
   canvasBgImageLight: null,
   canvasBgImageFit: 'cover',
   portLabelFontSize: 11,
+  equipmentSectionOpen: {},
   equipmentSectionOrder: [
     'source-identity',
     'modes',
@@ -586,6 +604,22 @@ const load = (): PersistedUiState => {
         }
       }
       merged.equipmentSectionOrder = cleaned
+    }
+    // #903 — der Offen-Zustand je Abschnitt. Ein kaputter Satz (Array, null,
+    // Zahlen als Werte) waere kein Grund, die Leiste unbenutzbar zu machen;
+    // die Vorgabe ist ein leerer Satz, und dann gilt wieder `defaultOpen`.
+    if (
+      merged.equipmentSectionOpen === null ||
+      typeof merged.equipmentSectionOpen !== 'object' ||
+      Array.isArray(merged.equipmentSectionOpen)
+    ) {
+      merged.equipmentSectionOpen = {}
+    } else {
+      merged.equipmentSectionOpen = Object.fromEntries(
+        Object.entries(merged.equipmentSectionOpen).filter(
+          ([k, v]) => typeof k === 'string' && typeof v === 'boolean',
+        ),
+      )
     }
     if (merged.connectorTypeColors === null || typeof merged.connectorTypeColors !== 'object')
       merged.connectorTypeColors = {}
@@ -765,6 +799,8 @@ interface UiState extends PersistedUiState {
   removeCustomConnectorType: (name: string) => void
   addCustomSignalStandard: (name: string) => void
   removeCustomSignalStandard: (name: string) => void
+  /** #917 — Stecker/Standard in den eigenen Kabeltypen umbenennen. */
+  renameStammdatumInCableSpecs: (art: import('../lib/stammdaten').StammdatenArt, oldName: string, newName: string) => void
   setCableGroupOrder: (order: string[]) => void
   /** v7.9.7 — Override-Schicht für eingebaute CableSpec-Einträge. Erlaubt
    *  Umbenennen/Recolor/Notes-Editing ohne den globalen cableCatalog
@@ -801,6 +837,21 @@ interface UiState extends PersistedUiState {
   setAnnotationsPanelFloatingPos: (pos: { x: number; y: number }) => void
   setCustomPalette: (palette: { canvasBg: string; gridColor: string; accent: string } | null) => void
   setEquipmentSectionOrder: (order: string[]) => void
+  /** #903 — einen Abschnitt der Eigenschaften-Leiste auf- oder zuklappen. */
+  setEquipmentSectionOpen: (id: string, open: boolean) => void
+  /** #903 — alle Abschnitte auf einmal. `null` loescht die Merkung, sodass
+   *  wieder die Vorgabe jedes Abschnitts gilt. */
+  setAllEquipmentSectionsOpen: (open: boolean | null) => void
+  /**
+   * #903 — Filtertext der Eigenschaften-Leiste.
+   *
+   * NICHT PERSISTIERT, und das ist Absicht: ein gespeicherter Filter waere beim
+   * naechsten Start eine Leiste, in der Abschnitte fehlen, ohne dass jemand
+   * weiss warum. Deshalb steht das Feld NICHT in `defaults` und damit nicht in
+   * `PERSISTED_KEYS`; der Setter geht an `applyPatch` vorbei.
+   */
+  propsFilter: string
+  setPropsFilter: (text: string) => void
   setCanvasBgImage: (theme: 'dark' | 'light', dataUri: string | null) => void
   setCanvasBgImageFit: (fit: 'cover' | 'contain' | 'tile') => void
   setPortLabelFontSize: (value: number) => void
@@ -875,6 +926,9 @@ interface UiState extends PersistedUiState {
   wirelessRigOpen: boolean
   /** Bedarf 10 — Ablauf einlesen und Kamera-Auftraege zuordnen. */
   rundownOpen: boolean
+  /** #906 — Bestandsaufnahme: vorhandene Technik vor Ort erfassen. */
+  surveyOpen: boolean
+  setSurveyOpen: (open: boolean) => void
   setRundownOpen: (open: boolean) => void
   setWirelessRigOpen: (open: boolean) => void
   /** Initiative 9 — Register der Ausspielziele. */
@@ -980,6 +1034,10 @@ interface UiState extends PersistedUiState {
   mobileShare: { open: boolean }
   openMobileShare: () => void
   closeMobileShare: () => void
+  /** #871/#870 — Cloud-Projekt, Revisionen, Lese-Links. */
+  cloudDialog: { open: boolean }
+  openCloudDialog: () => void
+  closeCloudDialog: () => void
   aboutDialog: { open: boolean }
   openAboutDialog: () => void
   closeAboutDialog: () => void
@@ -1307,6 +1365,12 @@ export const useUiStore = create<UiState>((set) => ({
         stammdatenEntfernt: mitGrabstein(state.stammdatenEntfernt, 'standard', name),
       })(state),
     ),
+  renameStammdatumInCableSpecs: (art, oldName, newName) =>
+    set((state) => {
+      const next = kabeltypenUmbenannt(state.customCableSpecs, art, oldName, newName)
+      if (next.every((s, i) => s === state.customCableSpecs[i])) return state
+      return applyPatch({ customCableSpecs: next })(state)
+    }),
   setCableGroupOrder: (order) => set(applyPatch({ cableGroupOrder: order })),
   setCableSpecOverride: (id, patch) =>
     set((state) => {
@@ -1377,6 +1441,19 @@ export const useUiStore = create<UiState>((set) => ({
     set(applyPatch({ annotationsPanelFloatingPos: pos })),
   setCustomPalette: (palette) => set(applyPatch({ customPalette: palette })),
   setEquipmentSectionOrder: (order) => set(applyPatch({ equipmentSectionOrder: order })),
+  setEquipmentSectionOpen: (id, open) =>
+    set((state) => applyPatch({ equipmentSectionOpen: { ...state.equipmentSectionOpen, [id]: open } })(state)),
+  setAllEquipmentSectionsOpen: (open) =>
+    set((state) =>
+      applyPatch({
+        equipmentSectionOpen:
+          open === null
+            ? {}
+            : Object.fromEntries(state.equipmentSectionOrder.map((id) => [id, open])),
+      })(state),
+    ),
+  propsFilter: '',
+  setPropsFilter: (text) => set({ propsFilter: text }),
   setCanvasBgImage: (theme, dataUri) =>
     set(applyPatch(
       theme === 'dark'
@@ -1479,6 +1556,8 @@ export const useUiStore = create<UiState>((set) => ({
   wirelessRigOpen: false,
   setWirelessRigOpen: (open) => set({ wirelessRigOpen: open }),
   rundownOpen: false,
+  surveyOpen: false,
+  setSurveyOpen: (open) => set({ surveyOpen: open }),
   setRundownOpen: (open) => set({ rundownOpen: open }),
   deliveryOpen: false,
   setDeliveryOpen: (open) => set({ deliveryOpen: open }),
@@ -1533,6 +1612,9 @@ export const useUiStore = create<UiState>((set) => ({
   mobileShare: { open: false },
   openMobileShare: () => set({ mobileShare: { open: true } }),
   closeMobileShare: () => set({ mobileShare: { open: false } }),
+  cloudDialog: { open: false },
+  openCloudDialog: () => set({ cloudDialog: { open: true } }),
+  closeCloudDialog: () => set({ cloudDialog: { open: false } }),
   aboutDialog: { open: false },
   openAboutDialog: () => set({ aboutDialog: { open: true } }),
   closeAboutDialog: () => set({ aboutDialog: { open: false } }),

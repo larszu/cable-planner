@@ -135,6 +135,8 @@ Built with **Electron, React, and TypeScript**, it is designed for real-world pr
   A cable into a hidden room stays as a stub at the visible end and says
   where it goes; its arrow brings the room back. Only the view changes — the
   plan and every export stay complete
+- **Cable bends and segments** follow the pointer for the whole drag, however
+  far — also when the route re-routes under the pointer
 
 ---
 
@@ -157,8 +159,14 @@ Built with **Electron, React, and TypeScript**, it is designed for real-world pr
   quantity produces no warning: nobody counted, so there is nothing to warn
   about.
 - Reusable project components
+- **Properties sidebar**: a filter field finds a section by title, summary or
+  id and opens it; *Collapse all* / *Expand all* in one click. Which sections
+  are open is remembered across devices and restarts; the filter is not
 - **Master data** (Settings → *Master data*): your own connector types, signal
-  standards and cable layers in one place, next to the built-in ones. They
+  standards and cable layers in one place, next to the built-in ones — add,
+  rename, remove. Renaming carries the new name onto the ports, cables,
+  library templates and own cable types that use it (in the open project;
+  saved projects that are not open keep the old name as free text). They
   appear in every picker and travel with the shared library (Network sync),
   so a team uses the same names
 
@@ -407,6 +415,23 @@ connects BNC to HDMI directly - this needs a converter, and the planner names
 converters instead of inserting them."* A refusal without a way forward just
 makes a model try the same thing again.
 
+**From claude.ai, Claude on the phone, or another machine** (#874): those
+cannot reach `127.0.0.1`. Put the project into the cloud (*File → Cloud & share
+link…*), then add a custom connector in claude.ai (*Settings → Connectors →
+Add custom connector*) with
+
+```
+https://devices.zumpelars.de/mcp
+```
+
+and sign in with your device-library account (OAuth; claude.ai registers
+itself). The remote server offers the same read tools plus `list_projects` and
+`list_revisions`, over **your cloud projects only**. The answers are computed by
+the planner when it saves — the server never works out a signal path of its
+own — and nothing can be written. Disconnect at any time under *Account →
+Security → Connected apps* on devices.zumpelars.de. Claude Code works the same
+way: `claude mcp add --transport http cable-planner-cloud https://devices.zumpelars.de/mcp`.
+
 **Switching commands are never offered.** Reading a Videohub or an ATEM: yes.
 Routing them from a tool: no — a model that changes routing during a show is a
 risk without a payoff.
@@ -429,7 +454,10 @@ risk without a payoff.
   *File → Import MultiCam cameras*) — every placed camera becomes a device with
   its datasheet ports, lens, zoom range, set focal length, height, pan and tilt,
   and (v3) its saved PTZ presets with the day each was saved (shown on the node
-  and under *Optics* in its properties). Importing again **reconciles** instead
+  and under *Optics* in its properties). When the plan sends no field of view,
+  *Optics* calculates the horizontal one from the camera's sensor width and the
+  set focal length (times extender) — only when that is unambiguous (one sensor
+  mode, lens on the native mount) and labelled as calculated. Importing again **reconciles** instead
   of duplicating: names, optics and presets follow the camera plan, position,
   ports and cables stay, and a camera that left the MultiCam plan is marked,
   not deleted — cables may hang on it. An older v2 list says nothing about
@@ -445,9 +473,12 @@ risk without a payoff.
   cable routes and the control addresses the show may use. The plan **refers**
   to them and keeps no copy: the checks ask the statement, so a device wired to
   an outlet or a control address that the latest statement no longer lists says
-  so. A **DALI address whose kind is not stated** is reported too — short
-  address, group and broadcast are three different things, and the last one is
-  the whole bus, emergency lighting included.
+  so. A **control address whose kind is not stated** is reported too, for the
+  systems that have kinds (same table as the facility planner): DALI short
+  address, group or broadcast (the last one is the whole bus, emergency
+  lighting included); Crestron digital, analog or serial join; Vissonic camera
+  or mixer (the mixer has a single output — a command there changes every
+  screen). KNX addresses need no kind.
   Since format v2 the statement also carries the building's **floors** (take
   them into the plan's floor list with one click) and its **house runs** with
   rooms, the plate at each end and their cores. A cable's properties pick the
@@ -512,6 +543,30 @@ so and sends nothing.
 
 ---
 
+### ☁️ Cloud copy with revisions
+
+Optional, off until you ask for it (#871). *File → Cloud…* puts
+the open project into the cloud of your device-library account
+([devices.zumpelars.de](https://devices.zumpelars.de)); sign in under
+*Settings → Device library*.
+
+- **Your file stays the master copy.** The cloud keeps a copy with history;
+  without a connection the planner works exactly as before.
+- **Every save is a revision** — automatically 30 s after the last change, or
+  with *Save to cloud now*. Any revision can be restored; restoring makes it
+  the newest one, nothing is lost.
+- **A parallel change is never overwritten.** Each save names the revision it
+  was based on. If another device saved in between, the planner merges both
+  (devices, cables and areas through the same CRDT as live collaboration;
+  other fields: whoever changed them wins) and saves the result.
+- **Second device:** the same dialog lists your cloud projects to open or to
+  download as `.cableplan` at any time.
+- **Credentials stay on the computer** (device logins are removed before
+  upload and kept locally when merging). Stored encrypted; *Delete from cloud*
+  removes the project with every revision at once.
+
+---
+
 ### 👥 Live Collaboration
 - Real-time co-editing over **WebRTC** with a CRDT document — no server holds
   your plan
@@ -519,9 +574,12 @@ so and sends nothing.
 - Join by **invite link**, or find open sessions on the LAN automatically
 - **Room password** encrypts the session end-to-end; without it, anyone who
   knows the room name can read along
-- Bring your own **signaling relay and STUN/TURN servers** for connections
-  across networks — or switch on **local-only** mode, where nothing leaves
-  your LAN
+- Across networks it works out of the box: the default relay
+  `wss://relay.zumpelars.de` only sees connection metadata, and a
+  device-library account adds short-lived TURN credentials for networks where
+  peer-to-peer fails ([docs/self-hosted-relay.md](docs/self-hosted-relay.md))
+- Bring your own **signaling relay and STUN/TURN servers** — or switch on
+  **local-only** mode, where nothing leaves your LAN
 - Collaborative undo takes back *your* edits, not other people's
 
 ---
@@ -629,6 +687,19 @@ so and sends nothing.
 - **Photos for the documentation**, from the planner and from the phone. They
   point at a device or a cable (or at nothing, and then belong to the project),
   are scaled down on the way in, and travel inside the plan file.
+- **Survey an existing installation** (*Tools → Survey*): walk through the room
+  and type what you see — device name, room (it stays for the next entry),
+  assumed connection, note — Enter, next. Each entry is in the plan at once as
+  an unfinished device: no invented connectors (the plan check asks for them),
+  the details in its notes, photos attachable in the survey list. Tick it off
+  once it is worked out. From the phone the same works via *Report → New
+  device*; the report arrives in the survey list and becomes a device when you
+  accept it.
+- **Phone access** asks for the decision first: *Read only* or *Contribute*.
+  Only *Contribute* lets the phone send ticks, cables, photos, reports and new
+  devices; a read-only phone says how to switch. The phone path needs the
+  desktop app (it serves the plan over the LAN); the browser edition shows the
+  button and says so.
 - **Label sheets and QR labels** for cables and devices, print-ready.
 - **Read-only web viewer** for sharing a plan with someone who does not run the
   app.

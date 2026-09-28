@@ -5,6 +5,7 @@ import type { AnhangErgebnis } from '../types/anhang'
 import type { LauscherZustand, OscEmpfang, OscLauscherConfig } from '../types/showControl'
 import { downloadBlob } from './downloadBlob'
 import { createWebDeviceLibraryApi } from './deviceLibraryWeb'
+import { createWebCloudApi, type CloudBridge } from './cloudWeb'
 import type { DeviceLibraryApi } from '../types/deviceLibrary'
 
 /**
@@ -485,6 +486,8 @@ type CablePlannerApi = {
   }
   /** Geraetebibliothek. Desktop: Abruf und Token im Main-Prozess; Web: direkt, Token in localStorage. */
   deviceLibrary: DeviceLibraryApi
+  /** #871/#870 — Cloud-Projekte mit dem Konto der Geraetebibliothek. Typisiert in `lib/cloud.ts`. */
+  cloud: CloudBridge
   /** #872 — der lokale MCP-Server. Nur lesend, aus als Vorgabe. */
   mcp: {
     start: () => Promise<McpStatus & { token: string }>
@@ -1197,6 +1200,7 @@ const webFallbackApi: CablePlannerApi = {
     deleteItem: async () => false,
   },
   deviceLibrary: createWebDeviceLibraryApi(),
+  cloud: createWebCloudApi(),
   mcp: {
     // Im Browser gibt es keinen lokalen Server — und keine Behauptung, es
     // gaebe einen.

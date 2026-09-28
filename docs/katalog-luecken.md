@@ -4,7 +4,21 @@ Gemessen am 2026-09-19 von `src/renderer/lib/katalogLuecken.ts`;
 `tests/katalogLuecken.test.ts` hält die Zahlen fest. Dieses Papier begründet
 sie und sagt, was als Nächstes hineingehört — es rechnet nicht selbst.
 
-## Der Stand
+## Stand 2026-09-27
+
+| Zielbereich (#878) | Einträge | davon mit Datenblatt | Kataloge |
+|---|---:|---:|---|
+| Kameras | 20 | 19 | `camera` |
+| Konverter | 33 | 33 | `aja`, `blackmagic`, `broadcastTools`, `decimator`, `lightware`, `lynx`, `misc` |
+| Netzwerk | 90 | 90 | `aja`, `avNetwork`, `blackmagic`, `luminex`, `misc`, `netgearAv`, `ubiquiti` |
+| LED-Prozessoren | 6 | 6 | `brompton`, `ledProcessor` |
+| Intercom | 12 | 10 | `clearcom`, `greengo` |
+
+Gesamt 490 Einträge. Die Arbeitsliste unten ist bis auf die Kameras
+abgearbeitet (siehe die Häkchen). Die Messung vom 2026-09-19 bleibt als
+Ausgangslage stehen.
+
+## Der Stand am 2026-09-19
 
 | Zielbereich (#878) | Einträge | davon mit Datenblatt | Kataloge |
 |---|---:|---:|---|
@@ -52,18 +66,25 @@ jemand mit Netzzugang die Blätter öffnen kann. Das ist der Unterschied zwische
 Je Eintrag gehören in den Katalog: Portliste mit Signaltypen, Leistungsaufnahme
 und `manufacturerUrl` auf das Blatt, aus dem beides stammt.
 
-- **LED-Prozessoren** — der leere Bereich, deshalb zuerst. Novastar, Brompton,
+- [x] **LED-Prozessoren** — der leere Bereich, deshalb zuerst. *Erledigt:
+  NovaStar MX40 Pro und Brompton SX40 (#902), Brompton S8/S4/T1/XD (aus #907
+  übernommen).* Novastar, Brompton,
   Megapixel. Braucht zusätzlich eine neue Kategorie `LED Processing`;
   `ZIELBEREICHE` nennt sie bereits, damit der Bereich von Anfang an mitgezählt
   wird und nicht erst, wenn jemand daran denkt.
-- **Konverter** — Decimator fehlt vollständig (MD-HX, MD-LX, DMON-Serie),
-  obwohl #878 die Marke ausdrücklich nennt.
-- **Intercom** — neben GreenGo mindestens Riedel und Clear-Com, sonst bleibt
-  der Bereich ein Haus.
-- **Kameras** — dieselbe Frage: der Bereich hat 20 Einträge aus genau einem
-  Katalog.
-- **Netzwerk** — der am besten bestückte der fünf; hier reicht das Nachziehen
-  der sechs unbelegten Einträge.
+- [x] **Konverter** — Decimator fehlt vollständig (MD-HX, MD-LX, DMON-Serie),
+  obwohl #878 die Marke ausdrücklich nennt. *Nachgemessen: MD-HX, MD-LX,
+  MD-Cross und die DMON-Reihe standen schon in `misc`/`broadcastTools`;
+  MD-DUCC, MD-QUAD und Lightware UCX kamen aus #907 dazu.*
+- [x] **Intercom** — neben GreenGo mindestens Riedel und Clear-Com, sonst bleibt
+  der Bereich ein Haus. *Clear-Com Encore (MS-702, CS-702, SB-704, RS-702).
+  Riedel steht noch aus.*
+- [ ] **Kameras** — dieselbe Frage: der Bereich hat 20 Einträge aus genau einem
+  Katalog. *Offen: die Übernahme der 365 multicam-Kameras liegt in #907
+  (Konflikt mit main, nicht übernommen).*
+- [x] **Netzwerk** — der am besten bestückte der fünf; hier reicht das Nachziehen
+  der sechs unbelegten Einträge. *Alle belegt; dazu Luminex GigaCore und
+  NETGEAR M4250 aus #907. USW-16 ist im USW-16-PoE aufgegangen.*
 
 ## Was der Weg für Einreichungen schon kann
 

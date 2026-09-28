@@ -270,6 +270,8 @@ export const INSTANCE_FIELDS = [
   'netboxSourceUrl',
   'rentmanId',
   'rentmanRemoved',
+  // #906 — vor Ort erfasst: gilt fuer DIESES Exemplar und seine Arbeitsliste.
+  'erfasst',
 
   // Oberflaechen-Zustand am Canvas
   'nodeColor',

@@ -109,7 +109,18 @@ describe('jeder Quellen-Kommentar steht auch als Feld im Eintrag', () => {
     // +19 am 2026-09-27: Herstellerbelege fuer bis dahin unbelegte Eintraege
     // (Ubiquiti-EdgeMax-Datenblaetter/QSGs, SmallHD, TVLogic, JVC, NEC, Behringer,
     // TC Electronic, Sonnet, Atomos-QSG) — jede Seite geoeffnet, Modell darauf.
-    expect(pairs().length).toBe(443)
+    // +8 am 2026-09-27 (zweite Runde): Katalognamen, die es beim Hersteller
+    // so nicht gab, auf das belegte Modell umgestellt (SmartScope Duo 4K,
+    // V-LCD173HR, V-LCD56MD-3G, LVM-075A, D*AP8, SmallHD 2403/1703, xMac mini
+    // Server TB3); USW-16 ist im USW-16-PoE aufgegangen (-1 Eintrag).
+    // +22 am 2026-09-27: aus dem liegengebliebenen #907 uebernommen, was main
+    // noch fehlte — Clear-Com Encore (4), Brompton Tessera S8/S4/T1/XD, Luminex
+    // GigaCore (5), NETGEAR M4250 (5), Lightware UCX (2), Decimator MD-DUCC/
+    // MD-QUAD; jedes Datenblatt-PDF beim Hersteller abgerufen (HTTP 200).
+    // +8 am 2026-09-28: Katalog-Nachzuegler aus docs/device-identity-concept.md
+    // (AJA FS2, Aquilon RS alpha, TriCaster Mini 4K, FreeSpeak II Base,
+    // Shure UA844+SWB/AD4D/AD4Q, Sennheiser ASA 214), Blaetter geoeffnet.
+    expect(pairs().length).toBe(481)
   })
 
   it('deckt die Kataloge ab, die Belege fuehren', () => {
@@ -120,14 +131,20 @@ describe('jeder Quellen-Kommentar steht auch als Feld im Eintrag', () => {
       'avNetworkCatalog.ts',
       'blackmagicCatalog.ts',
       'broadcastToolsCatalog.ts',
+      'bromptonCatalog.ts',
       'cameraCatalog.ts',
+      'clearcomCatalog.ts',
+      'decimatorCatalog.ts',
       'greengoCatalog.ts',
       'ledProcessorCatalog.ts',
+      'lightwareCatalog.ts',
+      'luminexCatalog.ts',
       'lynxCatalog.ts',
       'mediaStationCatalog.ts',
       'micCatalog.ts',
       'miscCatalog.ts',
       'monitorCatalog.ts',
+      'netgearAvCatalog.ts',
       'rossCatalog.ts',
       'switcherCatalog.ts',
       'ubiquitiCatalog.ts',
@@ -253,6 +270,6 @@ describe('der Beleg zeigt auf den Hersteller, nicht auf einen Haendler', () => {
   it('prueft alle Belege, nicht nur die mit Feld', () => {
     // Ohne diese Zusicherung waere der Haendler-Test auch dann gruen, wenn
     // `pairs()` nichts mehr faende.
-    expect(pairs().filter((p) => p.field).length).toBe(443)
+    expect(pairs().filter((p) => p.field).length).toBe(481)
   })
 })

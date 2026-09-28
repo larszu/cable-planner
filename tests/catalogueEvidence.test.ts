@@ -77,7 +77,18 @@ describe('Initiative 11 — trägt diese Katalog-Zeile ein Datenblatt?', () => {
     // +19 am 2026-09-27: Herstellerbelege fuer bis dahin unbelegte Eintraege
     // (Ubiquiti-EdgeMax-Datenblaetter/QSGs, SmallHD, TVLogic, JVC, NEC, Behringer,
     // TC Electronic, Sonnet, Atomos-QSG) — jede Seite geoeffnet, Modell darauf.
-    expect(kommentare).toBe(443)
+    // +8 am 2026-09-27 (zweite Runde): Katalognamen, die es beim Hersteller
+    // so nicht gab, auf das belegte Modell umgestellt (SmartScope Duo 4K,
+    // V-LCD173HR, V-LCD56MD-3G, LVM-075A, D*AP8, SmallHD 2403/1703, xMac mini
+    // Server TB3); USW-16 ist im USW-16-PoE aufgegangen (-1 Eintrag).
+    // +22 am 2026-09-27: aus dem liegengebliebenen #907 uebernommen, was main
+    // noch fehlte — Clear-Com Encore (4), Brompton Tessera S8/S4/T1/XD, Luminex
+    // GigaCore (5), NETGEAR M4250 (5), Lightware UCX (2), Decimator MD-DUCC/
+    // MD-QUAD; jedes Datenblatt-PDF beim Hersteller abgerufen (HTTP 200).
+    // +8 am 2026-09-28: Katalog-Nachzuegler aus docs/device-identity-concept.md
+    // (AJA FS2, Aquilon RS alpha, TriCaster Mini 4K, FreeSpeak II Base,
+    // Shure UA844+SWB/AD4D/AD4Q, Sennheiser ASA 214), Blaetter geoeffnet.
+    expect(kommentare).toBe(481)
   })
 
   it('2. die Abdeckung wird gerechnet', () => {
@@ -85,8 +96,8 @@ describe('Initiative 11 — trägt diese Katalog-Zeile ein Datenblatt?', () => {
     // Die Summen stammen aus derselben Rechnung wie die Zeilen.
     expect(bericht.entries).toBe(bericht.perCatalogue.reduce((s, c) => s + c.entries, 0))
     expect(bericht.sourced + bericht.unsourced).toBe(bericht.entries)
-    expect(bericht.sourced).toBe(443)
-    expect(bericht.entries).toBe(469)
+    expect(bericht.sourced).toBe(481)
+    expect(bericht.entries).toBe(498)
 
     // Kein Katalog steht mehr ganz ohne Beleg (B-11 abgeschlossen) — und die
     // Liste wird GERECHNET, nicht aufgezählt: trägt einer von ihnen morgen
@@ -118,9 +129,10 @@ describe('Initiative 11 — trägt diese Katalog-Zeile ein Datenblatt?', () => {
 
   it('4. „kein Beleg" ist eine eigene Auskunft', () => {
     const mitBeleg = CATALOGUES.find((c) => c.name === 'aja')!.entries[0]
-    // Der Smartscope Duo 4K ist der einzige blackmagic-Eintrag ohne Beleg
-    // (eingestellt) — genau darum taugt er als „unsourced"-Beispiel.
-    const ohneBeleg = CATALOGUES.find((c) => c.name === 'blackmagic')!.entries.find(
+    // Seit 2026-09-27 ist blackmagic vollstaendig belegt; der Marshall
+    // V-LCD241 (Name ohne Suffix, zwei Varianten) bleibt unbelegt und taugt
+    // deshalb als „unsourced"-Beispiel.
+    const ohneBeleg = CATALOGUES.find((c) => c.name === 'monitor')!.entries.find(
       (e) => !e.template.manufacturerUrl,
     )!
 
@@ -133,7 +145,7 @@ describe('Initiative 11 — trägt diese Katalog-Zeile ein Datenblatt?', () => {
 
     const b = evidenceForType(ohneBeleg.deviceTypeId)
     expect(b.kind).toBe('unsourced')
-    if (b.kind === 'unsourced') expect(b.catalogue).toBe('blackmagic')
+    if (b.kind === 'unsourced') expect(b.catalogue).toBe('monitor')
 
     // Kein Katalog-Typ ist etwas ANDERES als ein Typ ohne Beleg.
     expect(evidenceForType('gibt-es-nicht').kind).toBe('no-type')

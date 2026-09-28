@@ -27,7 +27,11 @@ describe('#878 — Katalog-Luecken in den Zielbereichen', () => {
     // „knapp 1.000 Eintraege" — es sind 469 (467 am 2026-09-19, +2 LED-
     // Prozessoren am 2026-09-23). Die Zahl im Issue war geschaetzt;
     // diese ist gezaehlt, und sie ist die, gegen die geplant wird.
-    expect(b.eintraegeGesamt).toBe(469)
+    // 468 seit 2026-09-27: USW-16 ist im USW-16-PoE aufgegangen.
+    // 490: +22 aus #907 (Clear-Com, Brompton, Luminex, NETGEAR, Lightware,
+    // Decimator), jeder mit Datenblatt.
+    // 498: +8 Nachzuegler am 2026-09-28.
+    expect(b.eintraegeGesamt).toBe(498)
     expect(b.eintraegeGesamt).toBe(evidenceReport().entries)
 
     // „ueber ein Drittel Mikrofone" — das stimmt, und zwar deutlich.
@@ -46,25 +50,29 @@ describe('#878 — Katalog-Luecken in den Zielbereichen', () => {
     // weil niemand daran gedacht haette. Seit sie es sind, stehen zwei
     // belegte Eintraege da (#878).
     expect(b.leereBereiche).toEqual([])
-    expect(stand('led-prozessoren').eintraege).toBe(2)
-    expect(stand('led-prozessoren').belegt).toBe(2)
+    // 2026-09-27: vier weitere Brompton (S8, S4, T1, XD) aus #907.
+    expect(stand('led-prozessoren').eintraege).toBe(6)
+    expect(stand('led-prozessoren').belegt).toBe(6)
   })
 
   it('3. die Ratsche: die Staende von heute', () => {
     // Wer einen Bereich auffuellt, macht diese Zeilen rot und zieht die Zahl
     // nach. Ein Ziel, das niemand nachrechnet, ist ein Vorsatz.
     expect(stand('kameras').eintraege).toBe(20)
-    expect(stand('konverter').eintraege).toBe(30)
-    expect(stand('netzwerk').eintraege).toBe(81)
-    expect(stand('intercom').eintraege).toBe(8)
-    expect(stand('led-prozessoren').eintraege).toBe(2)
-    expect(katalogLuecken().eintraegeInBereichen).toBe(141)
+    // 2026-09-27 aus #907: +2 Lightware, +1 Decimator (MD-DUCC; MD-QUAD
+    // steht unter „Video"), +5 Luminex, +5 NETGEAR, +4 Clear-Com, +4 Brompton.
+    expect(stand('konverter').eintraege).toBe(34) // +AJA FS2
+    expect(stand('netzwerk').eintraege).toBe(90)
+    expect(stand('intercom').eintraege).toBe(13) // +FreeSpeak II Base
+    expect(stand('led-prozessoren').eintraege).toBe(6)
+    expect(katalogLuecken().eintraegeInBereichen).toBe(163)
 
-    // Und die Breite, nicht nur die Menge: Kameras und Intercom haengen an je
+    // Und die Breite, nicht nur die Menge: Kameras hingen und haengen an
     // EINEM Katalog. Ein Bereich mit einem Hersteller ist kein bestueckter
     // Bereich, sondern ein bestuecktes Haus.
     expect(stand('kameras').kataloge).toEqual(['camera'])
-    expect(stand('intercom').kataloge).toEqual(['greengo'])
+    // Intercom haengt seit 2026-09-27 an zwei Haeusern (Clear-Com Encore).
+    expect(stand('intercom').kataloge).toEqual(['clearcom', 'greengo'])
     expect(stand('konverter').kataloge.length).toBeGreaterThan(2)
 
     // Was dazukommt, kommt mit Datenblatt (#878: „Lieber

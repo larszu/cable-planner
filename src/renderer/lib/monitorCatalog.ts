@@ -13,6 +13,9 @@ import type { RecordingCapability } from './recording'
 // oder liegen auf Domänen, die von hier nachweislich nicht erreichbar sind
 // (Atomos: 403 auf curl wie WebFetch). Sie bleiben ohne Beleg statt mit einer
 // geratenen Adresse — das ist die ehrliche Auskunft, kein Versäumnis.
+// 2026-09-27: Marshall V-LCD173HR/V-LCD56MD-3G, TVLogic LVM-075A und SmallHD
+// 2403/1703 auf die echten Herstellermodelle umgestellt und belegt (Ports am
+// Datenblatt korrigiert); V-LCD241, V-LCD70 und LVM-171W bleiben unbelegt.
 
 const port = (name: string, connectorType: Port['connectorType'] = 'BNC'): Port => ({
   id: '',
@@ -221,39 +224,36 @@ export const MONITOR_CATALOG: MonitorEntry[] = [
 
   // ── SmallHD ──────────────────────────────────────────────────────────────
 
-  // SmallHD 2403 HDR (24", 4x 12G-SDI, reference monitor)
+  // SmallHD 2403 HDR Production Monitor (24") — 3G, kein Ref-Eingang. Die
+  // vorherige Portliste (4x 12G, Ref) war die der Vision/Cine 24. Die
+  // Herstellerseite ist abgeschaltet („no longer available"); Beleg ist ihre
+  // Archivkopie.
   {
     match: ['smallhd', '2403'],
     deviceTypeId: '516d1c7d-4edf-468d-b0ab-5bb4e12f1819',
+    // Quelle: https://web.archive.org/web/20170710135919/http://store.smallhd.com/products/2400-series/2403-HDR-Production-Monitor
     template: {
-      name: 'SmallHD 2403 HDR',
+      manufacturerUrl: 'https://web.archive.org/web/20170710135919/http://store.smallhd.com/products/2400-series/2403-HDR-Production-Monitor',
+      name: 'SmallHD 2403 HDR Production Monitor',
       category: MON,
-      inputs: [
-        sdiIn('12G-SDI In 1'), sdiIn('12G-SDI In 2'),
-        sdiIn('12G-SDI In 3'), sdiIn('12G-SDI In 4'),
-        hdmiIn('HDMI In'),
-        sdiIn('Ref In'),
-      ],
-      outputs: [
-        sdiOut('12G-SDI Out 1'), sdiOut('12G-SDI Out 2'),
-        sdiOut('12G-SDI Out 3'), sdiOut('12G-SDI Out 4'),
-      ],
+      inputs: [sdiIn('3G-SDI In 1'), sdiIn('3G-SDI In 2'), hdmiIn('HDMI In')],
+      outputs: [sdiOut('3G-SDI Out 1'), sdiOut('3G-SDI Out 2'), hdmiOut('HDMI Out')],
       width: 260, height: 280,
     },
   },
-  // SmallHD 1703 P3X HDR (17", 2x 12G-SDI)
+  // SmallHD 1703 P3X (17") — „1703 P3X HDR" vermischte zwei Namen; 1703 P3X
+  // und 1703 HDR haben dieselben Anschluesse: 2x 3G-SDI in/out, HDMI in/out,
+  // kein Ref-Eingang.
   {
     match: ['smallhd', '1703'],
     deviceTypeId: '2a0e71a1-8505-457d-88db-8f1902f94eeb',
+    // Quelle: https://smallhd.com/products/1703-p3x-production-monitor
     template: {
-      name: 'SmallHD 1703 P3X HDR',
+      manufacturerUrl: 'https://smallhd.com/products/1703-p3x-production-monitor',
+      name: 'SmallHD 1703 P3X',
       category: MON,
-      inputs: [
-        sdiIn('12G-SDI In 1'), sdiIn('12G-SDI In 2'),
-        hdmiIn('HDMI In'),
-        sdiIn('Ref In'),
-      ],
-      outputs: [sdiOut('12G-SDI Out 1'), sdiOut('12G-SDI Out 2')],
+      inputs: [sdiIn('3G-SDI In 1'), sdiIn('3G-SDI In 2'), hdmiIn('HDMI In')],
+      outputs: [sdiOut('3G-SDI Out 1'), sdiOut('3G-SDI Out 2'), hdmiOut('HDMI Out')],
       width: 240, height: 200,
     },
   },
@@ -394,7 +394,11 @@ export const MONITOR_CATALOG: MonitorEntry[] = [
       width: 240, height: 200,
     },
   },
-  // LVM-171W (17", 2x SDI in, SDI out loop, HDMI in)
+  // LVM-171W (17", 2x SDI in, SDI out loop, HDMI in) — UNBELEGT (2026-09-27):
+  // das Modell gab es (Handbuch bei Dritten), eine Herstellerseite nicht,
+  // auch nicht im Archiv. Die Ports decken sich mit dem LVM-171A
+  // (tvlogic.tv sidx=81), der zusaetzlich DVI, Composite und Ethernet hat —
+  // aber ein anderes Modell ist.
   {
     match: ['tvlogic', 'lvm-171'],
     deviceTypeId: '925e8461-77be-4540-80f8-58b825494270',
@@ -406,15 +410,24 @@ export const MONITOR_CATALOG: MonitorEntry[] = [
       width: 230, height: 180,
     },
   },
-  // LVM-075W (7", 2x SDI in loop, HDMI in)
+  // LVM-075A (7") — das einzige LVM-075 des Herstellers.
   {
     match: ['tvlogic', 'lvm-075'],
     deviceTypeId: 'eb21053a-3a43-4d36-99d1-d07beea487cf',
+    // Quelle: https://www.tvlogic.tv/new/M_Spec.asp?sidx=75
     template: {
-      name: 'TVLogic LVM-075W',
+      manufacturerUrl: 'https://www.tvlogic.tv/new/M_Spec.asp?sidx=75',
+      name: 'TVLogic LVM-075A',
       category: MON,
-      inputs: [sdiIn('SDI In (Loop 1)'), sdiIn('SDI In (Loop 2)'), hdmiIn('HDMI In')],
-      outputs: [],
+      inputs: [
+        sdiIn('3G-SDI In A'),
+        sdiIn('3G-SDI In B'),
+        hdmiIn('HDMI In'),
+        port('Component Y', 'Cinch/RCA'),
+        port('Component Pb', 'Cinch/RCA'),
+        port('Component Pr', 'Cinch/RCA'),
+      ],
+      outputs: [sdiOut('SDI Loop Out'), hdmiOut('HDMI Out')],
       width: 200, height: 140,
     },
   },
@@ -442,7 +455,11 @@ export const MONITOR_CATALOG: MonitorEntry[] = [
 
   // ── Marshall Electronics ─────────────────────────────────────────────────
 
-  // V-LCD241 (24.5", 2x SDI in/out, HDMI in)
+  // V-LCD241 (24.5", 2x SDI in/out, HDMI in) — UNBELEGT (2026-09-27): den
+  // Namen ohne Suffix fuehrt Marshall nicht. Es gab V-LCD241MD (nur HDMI in/
+  // out) und V-LCD241MD-3G (dazu 1x 3G-SDI in + Loop ueber das MD-3GE-
+  // Modul) — zwei Varianten mit verschiedenen Anschluessen, keine passt zur
+  // Portliste hier. Welche im Bestand steht, entscheidet das Typenschild.
   {
     match: ['marshall', 'v-lcd241'],
     deviceTypeId: '43423cbc-280b-42a6-99ba-c2b735da7913',
@@ -454,19 +471,33 @@ export const MONITOR_CATALOG: MonitorEntry[] = [
       width: 240, height: 200,
     },
   },
-  // V-LCD173 (17.3", 2x SDI in, SDI loop, HDMI in)
+  // V-LCD173HR (17.3") — der einzige V-LCD173 des Herstellers (-DT ist die
+  // Tischfassung). SDI, HDMI und Composite je mit Loop Out, Tally HD-15.
   {
     match: ['marshall', 'v-lcd173'],
     deviceTypeId: 'ca65efb5-0357-4aad-a9c7-8a21b49fd058',
+    // Quelle: https://marshall-usa.com/monitors/model/V-LCD173HR.php
     template: {
-      name: 'Marshall V-LCD173',
+      manufacturerUrl: 'https://marshall-usa.com/monitors/model/V-LCD173HR.php',
+      name: 'Marshall V-LCD173HR',
       category: MON,
-      inputs: [sdiIn('SDI In 1'), sdiIn('SDI In 2'), hdmiIn('HDMI In')],
-      outputs: [sdiOut('SDI Loop Out')],
+      inputs: [
+        sdiIn('SDI In'),
+        hdmiIn('HDMI In'),
+        port('Composite In', 'BNC'),
+        port('Audio In L', 'Cinch/RCA'),
+        port('Audio In R', 'Cinch/RCA'),
+        port('Tally (HD-15)', 'Custom'),
+        port('USB-A (Firmware)', 'USB'),
+      ],
+      outputs: [sdiOut('SDI Loop Out'), hdmiOut('HDMI Loop Out'), port('Composite Loop Out', 'BNC')],
       width: 230, height: 180,
     },
   },
-  // V-LCD70 (7", SDI in, SDI loop, HDMI in) – many variant suffixes
+  // V-LCD70 (7", SDI in, SDI loop, HDMI in) — UNBELEGT (2026-09-27): sechs
+  // Varianten (XHB-3GSDI, XP-HDI, XHB-HDIPT, MD, -AFHD, W-SH) mit sehr
+  // verschiedenen Anschluessen; am naechsten liegt V-LCD70-AFHD. Ohne
+  // Suffix nicht eindeutig.
   {
     match: ['marshall', 'v-lcd7'],
     deviceTypeId: '8629ac16-f864-4668-8af2-2c6335a0a089',
@@ -478,15 +509,18 @@ export const MONITOR_CATALOG: MonitorEntry[] = [
       width: 200, height: 140,
     },
   },
-  // V-LCD56 (5.6", SDI in, SDI loop, HDMI in)
+  // V-LCD56MD-3G (5.6") — HDMI mit Pass-Through, SDI ueber das MD-3GE-Modul
+  // mit Loop. Der andere 5,6-Zoll-Marshall (V-LCD5.6-PRO) hat nur CVBS.
   {
     match: ['marshall', 'v-lcd56'],
     deviceTypeId: 'd10b5f2c-e09d-479c-9906-3853b5c0ad45',
+    // Quelle: https://marshall-usa.com/discontinued/camera-top-monitors/V-LCD56MD.php
     template: {
-      name: 'Marshall V-LCD56',
+      manufacturerUrl: 'https://marshall-usa.com/discontinued/camera-top-monitors/V-LCD56MD.php',
+      name: 'Marshall V-LCD56MD-3G',
       category: MON,
-      inputs: [sdiIn('SDI In'), hdmiIn('HDMI In')],
-      outputs: [sdiOut('SDI Loop Out')],
+      inputs: [sdiIn('3G-SDI In'), hdmiIn('HDMI In')],
+      outputs: [sdiOut('3G-SDI Loop Out'), hdmiOut('HDMI Pass-Through')],
       width: 180, height: 120,
     },
   },

@@ -200,6 +200,9 @@ export const EQUIPMENT_FIELD_CLASS: Record<string, FieldClass> = {
   inputs: 'substantive',
   outputs: 'substantive',
   portsUnknown: 'substantive',
+  // #906 — offen in der Bestandsaufnahme oder abgehakt: eine Aussage ueber
+  // den Stand der Doku, die ein Vergleich zeigen soll.
+  erfasst: 'substantive',
   modes: 'substantive',
   activeModeId: 'substantive',
   categoryProps: 'substantive',

@@ -29,6 +29,13 @@ import { AUDIO_CATALOG } from './audioCatalog'
 import { WIRELESS_AUDIO_CATALOG } from './wirelessAudioCatalog'
 import { MIC_CATALOG } from './micCatalog'
 import { MEDIA_STATION_CATALOG } from './mediaStationCatalog'
+import { DEVICE_TYPE_ALIASES } from './deviceTypeAliases'
+import { DECIMATOR_CATALOG } from './decimatorCatalog'
+import { BROMPTON_CATALOG } from './bromptonCatalog'
+import { CLEARCOM_CATALOG } from './clearcomCatalog'
+import { LUMINEX_CATALOG } from './luminexCatalog'
+import { NETGEAR_AV_CATALOG } from './netgearAvCatalog'
+import { LIGHTWARE_CATALOG } from './lightwareCatalog'
 
 export interface DeviceTypeInfo {
   /** Datenblatt-Template (inkl. deviceTypeId). */
@@ -143,6 +150,24 @@ const buildRegistry = (): Map<string, DeviceTypeInfo> => {
       networkKind: e.networkKind,
     })
   }
+  for (const e of DECIMATOR_CATALOG) {
+    put(e.deviceTypeId, { template: { ...e.template, deviceTypeId: e.deviceTypeId } })
+  }
+  for (const e of BROMPTON_CATALOG) {
+    put(e.deviceTypeId, { template: { ...e.template, deviceTypeId: e.deviceTypeId } })
+  }
+  for (const e of CLEARCOM_CATALOG) {
+    put(e.deviceTypeId, { template: { ...e.template, deviceTypeId: e.deviceTypeId } })
+  }
+  for (const e of LUMINEX_CATALOG) {
+    put(e.deviceTypeId, { template: { ...e.template, deviceTypeId: e.deviceTypeId } })
+  }
+  for (const e of NETGEAR_AV_CATALOG) {
+    put(e.deviceTypeId, { template: { ...e.template, deviceTypeId: e.deviceTypeId }, networkKind: e.networkKind })
+  }
+  for (const e of LIGHTWARE_CATALOG) {
+    put(e.deviceTypeId, { template: { ...e.template, deviceTypeId: e.deviceTypeId } })
+  }
   return map
 }
 
@@ -180,5 +205,5 @@ export const listDeviceTypes = (): DeviceTypeChoice[] => {
 export const resolveDeviceType = (deviceTypeId: string | undefined): DeviceTypeInfo | null => {
   if (!deviceTypeId) return null
   registry ??= buildRegistry()
-  return registry.get(deviceTypeId) ?? null
+  return registry.get(deviceTypeId) ?? registry.get(DEVICE_TYPE_ALIASES[deviceTypeId] ?? '') ?? null
 }

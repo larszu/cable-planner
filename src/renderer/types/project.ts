@@ -179,6 +179,15 @@ export interface CanvasState {
   zoom: number
 }
 
+/** #871 — siehe `CablePlannerProject.cloud`. */
+export interface CloudBinding {
+  /** Server, auf dem das Projekt liegt (Geraetebibliothek). */
+  server: string
+  projectId: string
+  rev: number
+  syncedAt: string
+}
+
 export interface CablePlannerProject {
   metadata: ProjectMetadata
   equipment: EquipmentItem[]
@@ -275,6 +284,10 @@ export interface CablePlannerProject {
    *  hält einen vollständigen Snapshot des Plans, sodass ein früherer Stand
    *  wiederhergestellt werden kann. Optional → alte Projekte laden sauber. */
   revisions?: ProjectRevision[]
+  /** #871 — Verbindung zu einem Cloud-Projekt. Nur gesetzt, wenn jemand das
+   *  Projekt ausdruecklich in die Cloud gelegt hat. `rev` ist der Stand, auf
+   *  dem die lokale Datei beruht — Grundlage fuer die Konfliktpruefung. */
+  cloud?: CloudBinding
   /** Festinstallation — attribuiertes Änderungsprotokoll (MAC/IMACD). Jede
    *  Move/Add/Change/Service-Aktion landet hier mit wer/was/wann, sodass der
    *  Plan ein nachvollziehbares lebendes Dokument bleibt. Optional → alte

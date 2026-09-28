@@ -213,15 +213,56 @@ export const CableWaypoints = ({
 
   // ── helpers ────────────────────────────────────────────────────────────────
 
+  /**
+   * Einen Zug beginnen — und ihn zu Ende fuehren koennen.
+   *
+   * ─── ISSUE #904: „nur ein kleines Stueck ziehen" (2026-09-24) ─────────────
+   *
+   * NUTZER-MELDUNG: „Kabel greifen und verschieben im canvas funktioniert
+   * nicht mehr zuverlässig. man greift das kabel und kann es nur ein kleine
+   * stück ziehen. man soll es beliebig verschieben können."
+   *
+   * DER GRUND STEHT NICHT IM ZIEH-ALGORITHMUS, SONDERN IM DOM. Die
+   * Zieh-Listener hingen am GRIFF-ELEMENT (`event.currentTarget`), gehalten
+   * von `setPointerCapture`. Das ist der uebliche Weg und hier trotzdem
+   * falsch, weil dieses Element den Zug nicht ueberlebt:
+   *
+   *   `handleMove` schreibt `cable.waypoints`
+   *     -> die Kante rendert neu, `legeAnfahrt` legt den Weg neu
+   *     -> `greifKette` kuerzt kollineare Ecken heraus oder `rechtwinkligMachen`
+   *        schiebt eine neue ein, `points.length` aendert sich
+   *     -> die Griffe haengen an INDEX-Schluesseln (`seg-3`, `wp-2`), React
+   *        montiert den Griff unter dem Zeiger also ab
+   *     -> das Element ist aus dem Dokument, `pointermove` kommt nie wieder
+   *        an, und der Zug endet nach genau einem Schritt.
+   *
+   * Das ist dieselbe Ursachen-Familie wie B-48 und der 2026-09-12-Befund:
+   * beide Male lag der Fehler darin, dass die Greif-Geometrie und der
+   * gezeichnete Weg nicht dieselbe Sache sind. Hier ist die Folge nicht „faellt
+   * ins Leere", sondern „laesst nach einem Schritt los".
+   *
+   * DIE LISTENER GEHEN DESHALB AN `window`. Damit haengt der Zug nicht mehr an
+   * der Lebensdauer eines Griffs, den derselbe Zug umbaut. `setPointerCapture`
+   * faellt weg — es loest dasselbe Problem nur so lange, wie das Element
+   * existiert, und genau das tut es nicht.
+   *
+   * `dragSegment` fuehrt seinen Zug seit heute durch dieselbe Stelle. Vorher
+   * stand die Verkabelung dort ein zweites Mal — und ein Fix an einer von
+   * beiden haette die andere stehen gelassen.
+   */
   const beginDrag = (
     event: React.PointerEvent<SVGElement>,
-    update: (flow: { x: number; y: number }) => CableWaypoint[],
+    update: (
+      flow: { x: number; y: number },
+      start: { x: number; y: number },
+    ) => CableWaypoint[],
     extraPatch?: Partial<Cable>,
   ) => {
     event.stopPropagation()
     event.preventDefault()
-    const el = event.currentTarget as SVGElement
-    el.setPointerCapture(event.pointerId)
+
+    const rohStart = screenToFlowPosition({ x: event.clientX, y: event.clientY })
+    const start = { x: Math.round(rohStart.x), y: Math.round(rohStart.y) }
 
     const handleMove = (moveEvent: PointerEvent) => {
       // #377 — auf ganze Flow-Einheiten runden. screenToFlowPosition liefert
@@ -230,17 +271,16 @@ export const CableWaypoints = ({
       // GERENDERT — über mehrere Drags akkumuliert das zu "unregelmäßigen"
       // Pfaden. Gerundete Koordinaten halten geteilte Achsenwerte exakt gleich.
       const raw = screenToFlowPosition({ x: moveEvent.clientX, y: moveEvent.clientY })
-      const next = update({ x: Math.round(raw.x), y: Math.round(raw.y) }).map((w) => ({
+      const next = update({ x: Math.round(raw.x), y: Math.round(raw.y) }, start).map((w) => ({
         x: Math.round(w.x),
         y: Math.round(w.y),
       }))
       updateCable(cable.id, { waypoints: next.length ? next : undefined, ...extraPatch })
     }
     const handleUp = () => {
-      el.removeEventListener('pointermove', handleMove as EventListener)
-      el.removeEventListener('pointerup', handleUp)
-      el.removeEventListener('pointercancel', handleUp)
-      try { el.releasePointerCapture(event.pointerId) } catch { /* ignore */ }
+      window.removeEventListener('pointermove', handleMove)
+      window.removeEventListener('pointerup', handleUp)
+      window.removeEventListener('pointercancel', handleUp)
       // After drag ends, collapse any redundant collinear waypoints so that
       // segments that became straight lines don't leave orphan bend-points.
       const currentWPs = (projectStoreInstance.getState().project.cables.find(c => c.id === cable.id)?.waypoints) ?? []
@@ -249,9 +289,9 @@ export const CableWaypoints = ({
         updateCable(cable.id, { waypoints: cleaned.length ? cleaned : undefined })
       }
     }
-    el.addEventListener('pointermove', handleMove as EventListener)
-    el.addEventListener('pointerup', handleUp)
-    el.addEventListener('pointercancel', handleUp)
+    window.addEventListener('pointermove', handleMove)
+    window.addEventListener('pointerup', handleUp)
+    window.addEventListener('pointercancel', handleUp)
   }
 
   // ── existing waypoint dot handles (selected-only) ─────────────────────────
@@ -297,52 +337,20 @@ export const CableWaypoints = ({
     // und verschob, auf das der Nutzer nicht gezeigt hatte.
     if (!selected) return
 
-    event.stopPropagation()
-    event.preventDefault()
-    const el = event.currentTarget as SVGElement
-    el.setPointerCapture(event.pointerId)
-
     const initKette = kette.map((p) => ({ ...p }))
-    const needsRoutingSwitch = routing === 'straight'
+    // Ein `straight`-Kabel wird mit dem ersten Abschnitts-Zug orthogonal:
+    // sonst haette der gezogene Abschnitt keine Achse, auf der er liegt.
+    const extraPatch = routing === 'straight' ? { routing: 'orthogonal' as const } : undefined
 
-    // Nur fuer den schraegen Abschnitt (es gibt ihn nur bei `straight`).
-    const rawStart = screenToFlowPosition({ x: event.clientX, y: event.clientY })
-    const startFlow = { x: Math.round(rawStart.x), y: Math.round(rawStart.y) }
-
-    const handleMove = (moveEvent: PointerEvent) => {
-      // #377 — auf ganze Einheiten runden, damit geteilte Achsenwerte exakt
-      // gleich bleiben und Segmente nicht sub-pixel-diagonal werden.
-      const raw = screenToFlowPosition({ x: moveEvent.clientX, y: moveEvent.clientY })
-      const cursor = { x: Math.round(raw.x), y: Math.round(raw.y) }
-      const versatz = { x: cursor.x - startFlow.x, y: cursor.y - startFlow.y }
-      const next = schiebeAbschnitt(initKette, segIdx, cursor, versatz)
-        .slice(1, -1)
-        .map((w) => ({ x: Math.round(w.x), y: Math.round(w.y) }))
-      updateCable(cable.id, {
-        waypoints: next.length ? next : undefined,
-        ...(needsRoutingSwitch ? { routing: 'orthogonal' } : {}),
-      })
-    }
-
-    const handleUp = () => {
-      el.removeEventListener('pointermove', handleMove as EventListener)
-      el.removeEventListener('pointerup', handleUp)
-      el.removeEventListener('pointercancel', handleUp)
-      try { el.releasePointerCapture(event.pointerId) } catch { /* ignore */ }
-      // v7.9.4 — Gleiche Hygiene wie bei `dragEcke`: nach dem Zug alle
-      // redundanten kollinearen Stuetzpunkte rauswerfen, sonst sammeln sie
-      // sich mit jedem Zug an. Die Greifkette kuerzt beim Zeichnen ohnehin
-      // ein — das hier haelt die GESPEICHERTE Liste knapp.
-      const currentWPs =
-        projectStoreInstance.getState().project.cables.find((c) => c.id === cable.id)?.waypoints ?? []
-      const cleaned = cleanCollinear(currentWPs, source, target)
-      if (cleaned.length !== currentWPs.length) {
-        updateCable(cable.id, { waypoints: cleaned.length ? cleaned : undefined })
-      }
-    }
-    el.addEventListener('pointermove', handleMove as EventListener)
-    el.addEventListener('pointerup', handleUp)
-    el.addEventListener('pointercancel', handleUp)
+    beginDrag(
+      event,
+      (cursor, start) =>
+        schiebeAbschnitt(initKette, segIdx, cursor, {
+          x: cursor.x - start.x,
+          y: cursor.y - start.y,
+        }).slice(1, -1),
+      extraPatch,
+    )
   }
 
   return (

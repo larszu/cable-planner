@@ -98,6 +98,11 @@ contextBridge.exposeInMainWorld('cablePlanner', {
     upload: (server: string, items: unknown[]) =>
       ipcRenderer.invoke('deviceLibrary:upload', server, items) as Promise<unknown>,
   },
+  // Cloud-Projekte (#871/#870): eine Operation aus fester Liste (cloudService).
+  cloud: {
+    call: (server: string, op: string, args: unknown[]) =>
+      ipcRenderer.invoke('cloud:call', server, op, args) as Promise<unknown>,
+  },
   graphml: {
     openFile: () =>
       ipcRenderer.invoke('graphml:open-file') as Promise<{

@@ -82,13 +82,13 @@ strukturellen Änderungen.** Hier nur das Nötigste zum schnellen Einstieg:
 **IPC:** Alle Channels sind domain-präfixiert (`project:*`, `library:*`,
 `atem:*`, `videohub:*`, `sync:*`, `mobileShare:*`, `credentials:*`, `rentman:*`,
 `netbox:*`, `graphml:*`, `print:*`, `logs:*`, `signaling:*`, `collabDiscovery:*`,
-`documentLog:*`, `streamKey:*`, `receipt:*`, `attachment:*`, `showControl:*`, `deviceLibrary:*`). Definition in `src/main/ipc/<domain>Ipc.ts`,
+`documentLog:*`, `streamKey:*`, `receipt:*`, `attachment:*`, `showControl:*`, `deviceLibrary:*`, `cloud:*`). Definition in `src/main/ipc/<domain>Ipc.ts`,
 Aufruf via `window.cablePlanner.<domain>.<action>`. Ein Channel = eine Domäne.
 Pfad-Validierung passiert **immer in main**, nie im Renderer.
 
 **State (Zustand, `src/renderer/store/`):**
 - `projectStore.ts` — **Single Source of Truth** für alle Projekt-Daten. Intern
-  in 25 Slices unter `store/slices/` komponiert. Komponenten dürfen Projekt-Daten
+  in 26 Slices unter `store/slices/` komponiert. Komponenten dürfen Projekt-Daten
   nicht lokal duplizieren/cachen.
 - `uiStore.ts` — Viewport, Panels, Editor-Defaults, Geräte-Farben. **Keine**
   Projekt-Daten.

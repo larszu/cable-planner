@@ -31,6 +31,7 @@ import { gruppenBefunde } from './portGroups'
 import { durchBlenden, gegenendenJePort } from './patchPanel'
 import { pruefeAdressen, type DmxGeraet } from './dmx'
 import { tr, format } from './i18n'
+import { adresseMehrdeutig } from '../types/hausAuskunft'
 export type { CheckSeverity, CheckFinding } from '../types/checkFinding'
 import type { CheckSeverity, CheckFinding } from '../types/checkFinding'
 
@@ -1278,34 +1279,44 @@ export const runDrawingChecks = (
         }
       }
 
-      // — Check 25: eine DALI-Adresse, deren ART das Haus nicht nennt ------
+      // — Check 25: eine Steuer-Adresse, deren ART das Haus nicht nennt ------
       //
-      // Der Rechner dafuer steht im Gebaeude-Werkzeug (`adresseMehrdeutig`,
-      // facility Issue #2) und meldete bis hierher NUR dort — also dem, der
-      // die Auskunft pflegt, und nicht dem, der die Adresse benutzt.
+      // Der Rechner steht im Gebaeude-Werkzeug (`adresseMehrdeutig`, facility
+      // #2/#19) und meldete bis hierher NUR dort — also dem, der die Auskunft
+      // pflegt, und nicht dem, der die Adresse benutzt. Welche Systeme eine
+      // Art brauchen, sagt `HAUS_ADRESSARTEN` (dieselbe Tabelle wie drueben):
       //
-      // Bei DALI heisst „3" je nach Art etwas voellig anderes: Kurzadresse 3
-      // ist EIN Vorschaltgeraet, Gruppe 3 koennen dreissig Leuchten sein,
-      // Broadcast ist alles am Bus — auch das Notlicht des Hauses. Wer eine
-      // Gruppenadresse fuer eine Kurzadresse haelt, schaltet im Zweifel den
-      // halben Saal und merkt es, wenn es dunkel ist.
+      //   DALI     — Kurzadresse 3 ist EIN Vorschaltgeraet, Gruppe 3 koennen
+      //              dreissig Leuchten sein, Broadcast ist der ganze Bus samt
+      //              Notlicht.
+      //   Crestron — Digital 12 und Analog 12 sind zwei verschiedene Joins.
+      //   Vissonic — Kamera bewegt EINE Kamera; der Mischer hat einen einzigen
+      //              Ausgang, ein Befehl dort aendert jedes Bild.
       //
       // WARNUNG UND KEIN FEHLER: die Adresse ist nicht falsch, ihre Art ist
-      // nicht angegeben. Und nur fuer DALI — bei KNX, Crestron und Vissonic
-      // ist die Adresse aus sich heraus eindeutig, dort fehlt nichts.
+      // nicht angegeben. KNX und „sonstige" sind aus sich heraus eindeutig.
       const klinke = e.hausKlinkeId ? klinkeById.get(e.hausKlinkeId) : undefined
-      if (klinke && klinke.system === 'dali' && klinke.adressart === undefined) {
+      if (klinke && adresseMehrdeutig(klinke)) {
+        const text =
+          klinke.system === 'crestron'
+            ? tr(
+                'check.haus.klinkeMehrdeutigCrestron',
+                '{name} uses the Crestron join {adresse}, and the building statement does not say which signal type it is. Digital, analog and serial join {adresse} are three different joins.',
+              )
+            : klinke.system === 'vissonic'
+              ? tr(
+                  'check.haus.klinkeMehrdeutigVissonic',
+                  '{name} uses the Vissonic address {adresse}, and the building statement does not say whether it is a camera or the mixer. A camera command moves one camera; the mixer has a single output, so a command there changes the picture on every screen.',
+                )
+              : tr(
+                  'check.haus.klinkeMehrdeutig',
+                  '{name} uses the DALI address {adresse}, and the building statement does not say what kind it is. Short address, group or broadcast are three different things - the last one is the whole bus, emergency lighting included.',
+                )
         findings.push({
           id: `haus-klinke-mehrdeutig:${e.id}`,
           severity: 'warning',
           category: 'House control',
-          message: format(
-            tr(
-              'check.haus.klinkeMehrdeutig',
-              '{name} uses the DALI address {adresse}, and the building statement does not say what kind it is. Short address, group or broadcast are three different things - the last one is the whole bus, emergency lighting included.',
-            ),
-            { name: e.name, adresse: klinke.adresse },
-          ),
+          message: format(text, { name: e.name, adresse: klinke.adresse }),
           equipmentId: e.id,
         })
       }
