@@ -978,6 +978,10 @@ cannot go stale without turning a test red.
   checklist for the tax adviser and the lawyer, with the part only the code
   can answer filled in: which data each planned service would touch, and which
   it would not.
+- [`docs/geraetedaten-speicher.md`](docs/geraetedaten-speicher.md) — JSON or
+  SQLite for device data: where the suite keeps devices today, from which size
+  a database pays off, and how the shared device library keeps working when its
+  server is down.
 - [`docs/self-hosted-relay.md`](docs/self-hosted-relay.md) — run your own
   signaling relay and TURN server for live collaboration across networks.
 - [`docs/architecture.md`](docs/architecture.md) — Process model, IPC, store

@@ -42,6 +42,11 @@ unter `docs/` muss von einer Einstiegsseite aus über Links erreichbar sein.
   AGPL-3.0), das uns fehlt. **Eine Lückenliste, keine Übernahme** — die
   Werte kommen aus dem Herstellerdatenblatt, weil kopierte Datendateien
   cable-planner als Ganzes unter AGPL-3.0 zwängen.
+- [`geraetedaten-speicher.md`](geraetedaten-speicher.md) — JSON oder SQLite:
+  wo die Geräte der Suite heute liegen, ab welcher Größe eine Datenbank lohnt,
+  wie die gemeinsame Bibliothek ohne Server weiterarbeitet, und was noch der
+  Eigentümer entscheidet (Katalog im Installer, externe Kopie, inventory-planner
+  auf SQLite).
 
 ## Für Entwicklung
 
