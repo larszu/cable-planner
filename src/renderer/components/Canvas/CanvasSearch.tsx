@@ -124,6 +124,7 @@ export const CanvasSearch = () => {
       mac: t('canvas.search.f.mac', 'MAC'),
       vlan: t('canvas.search.f.vlan', 'VLAN'),
       assetTag: t('canvas.search.f.assetTag', 'Asset no.'),
+      internalNumber: t('canvas.search.f.internalNumber', 'Internal no.'),
       serial: t('canvas.search.f.serial', 'Serial number'),
       qrId: t('canvas.search.f.qrId', 'Label code'),
       switchPort: t('canvas.search.f.switchPort', 'Switch port'),

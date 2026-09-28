@@ -570,13 +570,15 @@ export const buildNetboxImportPlan = (
       `Importiert aus NetBox (${baseUrl}), Gerät #${netboxId}.`,
       manufacturer || model ? `Typ: ${[manufacturer, model].filter(Boolean).join(' ')}` : '',
       device.serial ? `Seriennummer: ${device.serial}` : '',
-      device.asset_tag ? `Asset-Tag: ${device.asset_tag}` : '',
       (device.description ?? '').trim(),
     ].filter(Boolean)
 
     const item: EquipmentItem = mitKatalogTyp({
       id: uuidv4(),
       name: deviceName,
+      // #960 — der Asset-Tag ist ein Feld und keine Notiz: Register, Suche
+      // und Etiketten lesen `assetTag`, nicht den Freitext.
+      ...(device.asset_tag?.trim() ? { assetTag: device.asset_tag.trim() } : {}),
       ...(model && model !== deviceName ? { subtitle: model } : {}),
       category: netboxCategoryForRole(device),
       inputs: built.inputs,

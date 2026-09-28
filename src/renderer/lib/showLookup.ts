@@ -79,6 +79,7 @@ export type LookupField =
   | 'mac'
   | 'vlan'
   | 'assetTag'
+  | 'internalNumber'
   | 'serial'
   | 'qrId'
   | 'switchPort'
@@ -94,6 +95,7 @@ const IDENTITY_FIELDS: ReadonlySet<LookupField> = new Set<LookupField>([
   'mac',
   'vlan',
   'assetTag',
+  'internalNumber',
   'serial',
   'qrId',
   'switchPort',
@@ -243,6 +245,7 @@ export function lookupInPlan(
     push(hit('name', e.name, q))
     push(hit('shortName', e.shortName, q))
     push(hit('assetTag', e.assetTag, q))
+    push(hit('internalNumber', e.internalNumber, q))
     push(hit('serial', e.serialNumber, q))
     push(hit('qrId', e.qrId, q))
     push(hit('category', e.category, q))

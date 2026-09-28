@@ -126,7 +126,12 @@ Markierung verschwindet, sobald echte Anschlüsse eingetragen sind.
 ### Netzwerk und Streams
 
 - **Network & Access**: IP, Maske, Gateway, MAC und **VLAN**. Die Gerätekarte
-  zeigt `10.0.0.5 /24 · VLAN 30`.
+  zeigt `10.0.0.5 /24 · VLAN 30`. Im selben Abschnitt stehen die drei
+  Kennungen des Exemplars: **Seriennummer**, **Asset-Tag** (das Etikett) und
+  **interne Nummer** (die Zählung des Hauses). *Einstellungen → Darstellung*
+  wählt, welche der beiden Nummern neben der Kategorie auf der Gerätekarte
+  steht. Beide sind suchbar, beide stehen im Asset-Register (CSV), und
+  CSV-Import wie NetBox-Import füllen sie.
 - **Streams**: was ein Gerät sendet oder empfängt (RTSP, SRT, RTMP, NDI, HLS,
   MJPEG, WebRTC, ST 2110, Dante, AES67 …) mit Adresse, Port, Codec und Format.
 - **Zugangsdaten kommen nie in den Plan.** Benutzername, Passwort oder Token in

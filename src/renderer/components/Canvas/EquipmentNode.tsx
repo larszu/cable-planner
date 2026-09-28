@@ -74,6 +74,18 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
   // Schaltbild-Geraet oder Anzeige aus), `-1` = brennt nicht, 0..100 = brennt.
   const lampLevel = useLampLevel(id)
   const circuitOverlay = useUiStore((s) => s.circuitOverlay)
+  // #960 — welche Kennung des Exemplars neben der Kategorie steht. In DER
+  // Kategoriezeile und nicht in einer eigenen: der Kopf waechst sonst, und
+  // seine Hoehe rechnet `computeEquipmentLayout` ohne Zugriff auf den
+  // UI-Store nach — eine Zeile, die nur der Knoten kennt, verschoebe jede
+  // Kabelspitze um ein Raster.
+  const kennungAmKnoten = useUiStore((s) => s.kennungAmKnoten)
+  const kennung =
+    kennungAmKnoten === 'assetTag'
+      ? data.assetTag?.trim()
+      : kennungAmKnoten === 'internalNumber'
+        ? data.internalNumber?.trim()
+        : undefined
   // Pruefbild: welchen NAMEN muesste das Bild hier tragen? `null` = der Plan
   // sieht hier nichts vor. Ausdruecklich keine Aussage darueber, ob dort ein
   // Bild ankommt — diese App hat keinen Videoeingang.
@@ -814,7 +826,17 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
             </span>
           )}
         </div>
-        <div style={{ fontSize: 11, color: tokens.subtext, lineHeight: '14px' }}>{data.category}</div>
+        <div
+          style={{ fontSize: 11, color: tokens.subtext, lineHeight: '14px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+          title={kennung ? `${data.category} · ${kennung}` : undefined}
+        >
+          {data.category}
+          {kennung && (
+            <span style={{ fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace', marginLeft: 6 }}>
+              {kennung}
+            </span>
+          )}
+        </div>
         {data.subtitle && (
           <div style={{ fontSize: 11, color: tokens.subtext, lineHeight: '14px', fontStyle: 'italic' }}>{data.subtitle}</div>
         )}

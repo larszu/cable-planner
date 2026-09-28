@@ -114,6 +114,10 @@ interface PersistedUiState {
    *              die er nicht einloeste.
    */
   cableColorMode: 'manual' | 'byLength' | 'byLayer'
+  /** #960 — welche Kennung des Exemplars am Knoten neben der Kategorie steht:
+   *  Asset-Tag (Etikett, Anlagenbuchhaltung) oder interne Nummer (Technik),
+   *  oder keine. Anzeige-Wahl des Rechners, nicht des Projekts. */
+  kennungAmKnoten: 'assetTag' | 'internalNumber' | 'none'
   /**
    * Schaltbild-Anzeige (Strom): brennende Leuchten, Schalterstellungen und
    * Leitungen unter Spannung (2026-09-08).
@@ -382,6 +386,7 @@ const defaults: PersistedUiState = {
   libraryWidth: 260,
   propertiesWidth: 280,
   cableColorMode: 'manual',
+  kennungAmKnoten: 'assetTag',
   circuitOverlay: false,
   canvasTheme: 'dark',
   followSystemTheme: false,
@@ -708,6 +713,8 @@ const load = (): PersistedUiState => {
         : defaults.gridSize
     if (typeof merged.libraryWidth !== 'number') merged.libraryWidth = defaults.libraryWidth
     if (typeof merged.propertiesWidth !== 'number') merged.propertiesWidth = defaults.propertiesWidth
+    if (!['assetTag', 'internalNumber', 'none'].includes(merged.kennungAmKnoten))
+      merged.kennungAmKnoten = defaults.kennungAmKnoten
     if (merged.canvasBgImageDark != null && typeof merged.canvasBgImageDark !== 'string')
       merged.canvasBgImageDark = null
     if (merged.canvasBgImageLight != null && typeof merged.canvasBgImageLight !== 'string')
@@ -778,6 +785,7 @@ interface UiState extends PersistedUiState {
   setLibraryWidth: (value: number) => void
   setPropertiesWidth: (value: number) => void
   setCableColorMode: (value: 'manual' | 'byLength' | 'byLayer') => void
+  setKennungAmKnoten: (value: 'assetTag' | 'internalNumber' | 'none') => void
   setCircuitOverlay: (value: boolean) => void
   setCanvasTheme: (value: 'dark' | 'light') => void
   setFollowSystemTheme: (value: boolean) => void
@@ -1267,6 +1275,7 @@ export const useUiStore = create<UiState>((set) => ({
   setPropertiesWidth: (value) =>
     set(applyPatch({ propertiesWidth: Math.max(PANEL_LIMITS.properties.MIN, Math.min(PANEL_LIMITS.properties.MAX, Math.round(value))) })),
   setCableColorMode: (value) => set(applyPatch({ cableColorMode: value })),
+  setKennungAmKnoten: (value) => set(applyPatch({ kennungAmKnoten: value })),
   setCircuitOverlay: (value) => set(applyPatch({ circuitOverlay: value })),
   setCanvasTheme: (value) => set(applyPatch({ canvasTheme: value })),
   setFollowSystemTheme: (value) => set(applyPatch({ followSystemTheme: value })),

@@ -70,6 +70,7 @@ const EQUIP_PATCH_KEYS = new Set([
   'notes',
   'serialNumber',
   'assetTag',
+  'internalNumber',
   'firmware',
   'ipAddress',
   'installStatus',

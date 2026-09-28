@@ -16,6 +16,8 @@ import { primaryVlanId } from './vlanAnzeige'
 
 export interface AssetRow {
   assetTag: string
+  /** #960 — die interne Nummer des Hauses; leer ohne Eintrag. */
+  internalNumber: string
   name: string
   category: string
   location: string
@@ -41,6 +43,7 @@ export const buildAssetRows = (project: CablePlannerProject): AssetRow[] =>
     const last = history.reduce<string>((acc, r) => (r.date > acc ? r.date : acc), '')
     return {
       assetTag: equipmentAssetTag(e),
+      internalNumber: e.internalNumber ?? '',
       name: e.name,
       category: e.category ?? '',
       location: standortText(e, project.locations ?? []),
@@ -67,6 +70,7 @@ export const assetRegisterTable = (project: CablePlannerProject): CsvTable => {
   const rows = buildAssetRows(project)
   const headers = [
     'Asset-Tag',
+    'Interne Nr.',
     'Gerät',
     'Kategorie',
     'Standort',
@@ -86,6 +90,7 @@ export const assetRegisterTable = (project: CablePlannerProject): CsvTable => {
   ]
   const body: CsvCell[][] = rows.map((r) => [
     r.assetTag,
+    r.internalNumber,
     r.name,
     r.category,
     r.location,

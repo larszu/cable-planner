@@ -1,7 +1,7 @@
 /**
  * Festinstallation — Geräte-Lebenszyklus-Section.
  *
- * Betriebs-Status, Asset-Tag, Garantie, Wartungsintervall und die
+ * Betriebs-Status, Garantie, Wartungsintervall und die
  * zeitgestempelte Service-Historie eines Geräts. Bewusst ein einfaches
  * <details> (nicht draggable), damit kein Eintrag in der sortierbaren
  * Section-Order nötig ist.
@@ -98,14 +98,9 @@ export const LifecycleSection = ({ equipment }: { equipment: EquipmentItem }) =>
         </label>
 
         <div className="grid grid-cols-2 gap-2">
-          <label className="block">
-            <span className="mb-1 block text-cp-text-secondary">{t('lifecycle.assetTag', 'Asset tag')}</span>
-            <input
-              value={equipment.assetTag ?? ''}
-              onChange={(e) => updateEquipment(equipment.id, { assetTag: e.target.value || undefined })}
-              className="w-full border border-cp-border bg-cp-surface-1 p-1.5"
-            />
-          </label>
+          {/* Der Asset-Tag stand hier bis 2026-09-28 und liegt jetzt im
+              Netzzugang neben Seriennummer und interner Nummer (#960) — als
+              Kennung des Exemplars, nicht als Wartungsangabe. */}
           <label className="block">
             <span className="mb-1 block text-cp-text-secondary">{t('lifecycle.warranty', 'Warranty until')}</span>
             <input

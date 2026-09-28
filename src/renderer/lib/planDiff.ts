@@ -317,6 +317,7 @@ export const EQUIPMENT_FIELD_CLASS: Record<string, FieldClass> = {
   // Asset-Register und Lager — Inhalt der Uebergabe-Doku.
   installStatus: 'substantive',
   assetTag: 'substantive',
+  internalNumber: 'substantive',
   serialNumber: 'substantive',
   // BEDARF 78 — welche Kiste. Substantiell und nicht kosmetisch: wer sie
   // aendert, hat getauscht, und mit der Kiste wandern der eingebrannte
