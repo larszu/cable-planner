@@ -465,6 +465,10 @@ const defaults: PersistedUiState = {
     'dimensions',
     'display',
     'network-config',
+    // #946 — Streams hinter der Netzwerk-Konfiguration: dieselbe Frage
+    // (was geht ueber das Netz), eine Ebene hoeher. Bestandsnutzer bekommen
+    // den Eintrag ueber die Vollstaendigkeits-Schleife nachgetragen.
+    'streams',
     'optional',
     // #884 — die Fotos. Direkt hinter den optionalen Feldern, weil dort auch
     // das Referenzbild steht: beides sind Bilder, und sie sind NICHT dasselbe

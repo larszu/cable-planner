@@ -29,6 +29,7 @@ import { DisplayPropertiesBlock } from './sections/DisplayPropertiesBlock'
 import { CategoryPropsSection } from './sections/CategoryPropsSection'
 import { DeviceConfigsBlock } from './sections/DeviceConfigsBlock'
 import { NetworkAccessSection } from './sections/NetworkAccessSection'
+import { StreamsSection } from './sections/StreamsSection'
 import { DeviceKindCards } from './sections/DeviceKindCards'
 import { OptionalFieldsSection } from './sections/OptionalFieldsSection'
 import { FotoSection } from './sections/FotoSection'
@@ -157,6 +158,7 @@ export const EquipmentProperties = () => {
       <SourceIdentitySection equipment={equipment} />
 
       <NetworkAccessSection equipment={equipment} />
+      <StreamsSection equipment={equipment} />
 
       <LifecycleSection equipment={equipment} />
       {/* BEDARF 103 — Faehigkeiten je Modell. Rendert sich an Nicht-Kameras

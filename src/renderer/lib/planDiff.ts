@@ -291,6 +291,8 @@ export const EQUIPMENT_FIELD_CLASS: Record<string, FieldClass> = {
   // und welche Adresse dort erwartet wird. Beides steht auf den Listen, die
   // schon draussen sind.
   networkInterfaces: 'substantive',
+  // #946 — eine geaenderte Stream-Adresse steht auf jedem Zettel am Encoder.
+  streams: 'substantive',
   primaryInterfaceRole: 'substantive',
   mgmtUrl: 'substantive',
   firmware: 'substantive',

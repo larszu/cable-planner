@@ -164,6 +164,18 @@ Built with **Electron, React, and TypeScript**, it is designed for real-world pr
   saved projects that are not open keep the old name as free text). They
   appear in every picker and travel with the shared library (Network sync),
   so a team uses the same names
+- **VLAN next to the address** (#946): *Network & access* has a VLAN ID field
+  (switches and routers keep it in their switch configuration), and the device
+  card on the canvas shows it right after the IP address: `10.0.0.5 /24 · VLAN 30`
+- **Streams per device** (#946): *Streams* lists what a device sends or
+  receives — RTSP, SRT, RTMP, NDI, HLS, WebRTC, ST 2110 — with direction,
+  label and address. A user name or password typed into the address is removed
+  when leaving the field (and from older project files): the project file
+  travels, the password belongs in *Network & access*. Optionally a **still
+  image preview** under the device on the canvas: the app cannot play RTSP or
+  NDI, so it fetches the http(s) still image most cameras and encoders offer
+  (e.g. `/snapshot.jpg`) every 10 s, desktop app only, and labels it with its
+  time. When the fetch fails, the tile says why instead of showing an old image
 
 ---
 

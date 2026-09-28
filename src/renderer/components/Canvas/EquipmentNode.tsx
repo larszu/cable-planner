@@ -37,6 +37,8 @@ import { PatternCheckRow } from './PatternCheckRow'
 import { useCircuitStore, istSchaltbar } from '../../store/circuitStore'
 import { CIRCUIT_KIND_INFO } from '../../types/circuit'
 import { optikKurz } from '../../lib/kameraOptik'
+import { hatAdressZeile } from '../../lib/equipmentLayout'
+import { StreamPreviewTile } from './StreamPreviewTile'
 // 2026-09-12 — Diese fuenf Zahlen standen hier als Modul-Konstanten und waren
 // damit fuer die Lebensdauer des Moduls festgenagelt. Sie folgen jetzt der im
 // Menue eingestellten Rastergroesse und werden deshalb IN der Komponente
@@ -344,7 +346,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
   const optikZeile = optikKurz(data.optik)
   const optikLine = optikZeile ? EXTRA_HEADER_LINE : 0
   const headerHeight = (
-    data.ipAddress
+    hatAdressZeile(data)
       ? (data.subtitle ? HEADER_HEIGHT_WITH_IP + EXTRA_HEADER_LINE : HEADER_HEIGHT_WITH_IP)
       : (data.subtitle ? HEADER_HEIGHT + EXTRA_HEADER_LINE : HEADER_HEIGHT)
   ) + beltpackLine + optikLine
@@ -838,7 +840,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
             <Icon icon={Headphones} size="xs" className="mr-1 inline-block align-text-bottom" />{greengoUser.station.name}
           </div>
         )}
-        {data.ipAddress && (
+        {hatAdressZeile(data) && (
           <div
             style={{
               fontFamily:
@@ -848,14 +850,15 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
               lineHeight: '12px',
               marginTop: 2,
             }}
-            title={
-              data.subnetMask
-                ? `IP: ${data.ipAddress} / ${data.subnetMask}`
-                : `IP: ${data.ipAddress}`
-            }
+            title={[
+              data.ipAddress ? (data.subnetMask ? `IP: ${data.ipAddress} / ${data.subnetMask}` : `IP: ${data.ipAddress}`) : '',
+              data.managementVlanId != null ? `VLAN ${data.managementVlanId}` : '',
+            ].filter(Boolean).join(' · ')}
           >
             {data.ipAddress}
-            {data.subnetMask ? ` /${data.subnetMask}` : ''}
+            {data.ipAddress && data.subnetMask ? ` /${data.subnetMask}` : ''}
+            {/* #946 — die VLAN-ID direkt neben der Adresse, nicht erst im Panel. */}
+            {data.managementVlanId != null ? `${data.ipAddress ? ' · ' : ''}VLAN ${data.managementVlanId}` : ''}
           </div>
         )}
 
@@ -913,6 +916,9 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
           </div>
         )}
       </div>
+
+      {/* #946 — das Standbild eines Streams, UNTER dem Knoten. */}
+      <StreamPreviewTile streams={data.streams} isLight={isLight} />
 
       {/* v7.9.14 — Rack-Bänder: Hintergrund-Rechtecke + Geräte-Name-Labels
           für jedes interne Rack-Gerät. Mit subtilem farbigen Akzent

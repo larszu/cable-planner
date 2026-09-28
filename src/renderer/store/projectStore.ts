@@ -93,6 +93,7 @@ import { normaliseAddressLayers } from '../lib/addressTemplate'
 import { normaliseVenueAnswers } from '../lib/venueAnswers'
 import { normaliseAnhaenge } from '../lib/anhaenge'
 import { isNetworkInterfaceRole, normaliseNetworkInterface } from '../lib/networkInterfaces'
+import { normaliseStreams } from '../lib/streamEndpoints'
 import type { NetworkInterface } from '../types/network'
 import { istCircuitKind } from '../types/circuit'
 import { normalisePatternChecks } from '../types/patternCheck'
@@ -1522,6 +1523,13 @@ const healProjectPositions = (
 
       if (item.videohubRouting !== undefined) {
         item = { ...item, videohubRouting: normaliseVideohubRouting(item.videohubRouting) }
+      }
+
+      // #946 — Streams am Geraet. Nur angefasst, wenn das Geraet welche
+      // fuehrt. Die Normalisierung entfernt dabei auch Zugangsdaten, die eine
+      // aeltere oder fremde Datei in der Adresse mitbringt.
+      if (item.streams !== undefined) {
+        item = { ...item, streams: normaliseStreams(item.streams) }
       }
 
       // #422 — Legacy-Dimensions-Migration: dimensionHmm/Wmm/Dmm waren das
