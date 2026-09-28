@@ -1343,6 +1343,11 @@ export interface EquipmentItem {
   installStatus?: InstallStatus
   /** Festinstallation — Inventar-/Asset-Nummer für das Asset-Register. */
   assetTag?: string
+  /** #960 — die INTERNE Nummer des Betreibers oder Verleihers neben dem
+   *  Asset-Tag: das Etikett am Geraet und die Nummer im Haus sind oft zwei
+   *  verschiedene Zahlen (Anlagenbuchhaltung vs. Technik). Welche am Knoten
+   *  steht, waehlt `uiStore.kennungAmKnoten`. */
+  internalNumber?: string
   /** Festinstallation — kurze stabile QR-/Lookup-ID (Etikett → Datensatz). */
   qrId?: string
   /** Festinstallation — Garantie-Ablauf (ISO-Datum) für die Betreiber-Doku. */

@@ -45,7 +45,7 @@ export const NetworkAccessSection = ({ equipment }: { equipment: EquipmentItem }
     <SortableSection
       id="network"
       title={t('netAccess.title', 'Network & access')}
-      subtitle={t('netAccess.subtitle', 'IP · MAC · S/N · login')}
+      subtitle={t('netAccess.subtitle', 'IP · MAC · S/N · tags · login')}
       defaultOpen
     >
       <div className="grid grid-cols-2 gap-2">
@@ -68,6 +68,34 @@ export const NetworkAccessSection = ({ equipment }: { equipment: EquipmentItem }
               updateEquipment(equipment.id, { serialNumber: event.target.value || undefined })
             }
             placeholder={t('eq.field.serialPlaceholder', 'S/N')}
+            className="w-full border border-cp-border bg-cp-surface-1 p-2 font-mono"
+          />
+        </label>
+        {/* #960 — Asset-Tag und interne Nummer neben der Seriennummer: drei
+            Kennungen desselben Exemplars. Der Asset-Tag lag bis 2026-09-28 im
+            Abschnitt „Lebenszyklus" und nur mit Modul Festinstallation — ohne
+            das Modul gab es keinen Weg, ihn einzutragen, obwohl Register,
+            Etiketten, Suche und Uebergabe ihn lesen. Welche der beiden am
+            Knoten steht, entscheidet Einstellungen → Darstellung. */}
+        <label className="block">
+          <span className="mb-1 block text-cp-text-secondary">{t('eq.field.assetTag', 'Asset tag')}</span>
+          <input
+            value={equipment.assetTag ?? ''}
+            onChange={(event) =>
+              updateEquipment(equipment.id, { assetTag: event.target.value || undefined })
+            }
+            placeholder="AV-0421"
+            className="w-full border border-cp-border bg-cp-surface-1 p-2 font-mono"
+          />
+        </label>
+        <label className="block">
+          <span className="mb-1 block text-cp-text-secondary">{t('eq.field.internalNumber', 'Internal number')}</span>
+          <input
+            value={equipment.internalNumber ?? ''}
+            onChange={(event) =>
+              updateEquipment(equipment.id, { internalNumber: event.target.value || undefined })
+            }
+            placeholder="INV-2026-017"
             className="w-full border border-cp-border bg-cp-surface-1 p-2 font-mono"
           />
         </label>

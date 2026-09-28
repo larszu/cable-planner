@@ -47,6 +47,8 @@ export type FieldKey =
   | 'watts'
   | 'weight'
   | 'serial'
+  | 'assetTag'
+  | 'internalNumber'
   | 'ip'
   | 'rackUnits'
   | 'subtitle'
@@ -61,6 +63,8 @@ export const ALIASES: Record<FieldKey, string[]> = {
   watts: ['watt', 'watts', 'leistung', 'power', 'w'],
   weight: ['gewicht', 'weight', 'kg'],
   serial: ['seriennummer', 'serial', 's/n', 'sn'],
+  assetTag: ['asset-tag', 'asset tag', 'assettag', 'asset_tag', 'inventarnummer', 'inventar-nr', 'inventar-nr.'],
+  internalNumber: ['interne nummer', 'interne nr', 'interne nr.', 'internal number', 'internal no', 'internal no.', 'hausnummer'],
   ip: ['ip', 'ip-adresse', 'ipaddress', 'ip address', 'ip adresse'],
   rackUnits: ['he', 'rackunits', 'ru', 'höheneinheiten', 'hoeheneinheiten'],
   subtitle: ['untertitel', 'subtitle', 'hersteller', 'manufacturer', 'marke', 'brand'],
@@ -213,6 +217,10 @@ export function planCsvImport(
     if (kg != null) tpl.weightKg = kg
     const sn = at(r, 'serial')
     if (sn) tpl.serialNumber = sn
+    const tag = at(r, 'assetTag')
+    if (tag) tpl.assetTag = tag
+    const intern = at(r, 'internalNumber')
+    if (intern) tpl.internalNumber = intern
     const ip = at(r, 'ip')
     if (ip) tpl.ipAddress = ip
     const ru = toNum(at(r, 'rackUnits'))

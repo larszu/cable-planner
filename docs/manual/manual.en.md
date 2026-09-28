@@ -116,7 +116,12 @@ asks for the datasheet; the mark disappears as soon as you add real ports.
 ### Network and streams
 
 - **Network & access**: IP, mask, gateway, MAC and **VLAN**. The device card
-  shows `10.0.0.5 /24 · VLAN 30`.
+  shows `10.0.0.5 /24 · VLAN 30`. The same section holds the three
+  identifiers of the unit: **serial number**, **asset tag** (the label) and
+  **internal number** (the house's own numbering). *Settings → Appearance*
+  chooses which of the two numbers appears next to the category on the
+  device card. Both are searchable, both travel in the asset register CSV,
+  and CSV import and NetBox import fill them.
 - **Streams**: what a device sends or receives (RTSP, SRT, RTMP, NDI, HLS,
   MJPEG, WebRTC, ST 2110, Dante, AES67 …) with address, port, codec and
   format.

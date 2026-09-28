@@ -200,6 +200,7 @@ export const INSTANCE_FIELDS = [
 
   // Wer dieses Exemplar ist
   'assetTag',
+  'internalNumber',
   'serialNumber',
   // BEDARF 78 — die Einheit aus dem Bestand. Instanz, und zwar besonders
   // deutlich: sie IST das eine Exemplar. In einem Template getragen wuerde sie

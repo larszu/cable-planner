@@ -32,6 +32,7 @@ const makeSnapshot = (overrides: Partial<NetboxSnapshot> = {}): NetboxSnapshot =
       rack: { id: 10, name: 'R1' },
       position: 40,
       primary_ip: { address: '10.0.0.2/24' },
+      asset_tag: 'AV-0421',
     },
     {
       id: 200,
@@ -155,6 +156,12 @@ describe('buildNetboxImportPlan — Erstimport', () => {
     expect(plan.newEquipment.map((e) => e.netboxId).sort()).toEqual([100, 200])
     expect(plan.newEquipment.every((e) => e.importSource === 'netbox')).toBe(true)
     expect(plan.newEquipment.every((e) => e.netboxSourceUrl === BASE_URL)).toBe(true)
+  })
+
+  it('traegt den Asset-Tag als Feld ein, nicht als Notiz (#960)', () => {
+    const sw = plan.newEquipment.find((e) => e.netboxId === 100)!
+    expect(sw.assetTag).toBe('AV-0421')
+    expect(sw.notes ?? '').not.toContain('Asset-Tag')
   })
 
   it('importiert per Default nur verkabelte Ports', () => {

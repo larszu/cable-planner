@@ -154,6 +154,15 @@ describe('buildCableBomRows', () => {
   })
 })
 
+describe('buildAssetRows: interne Nummer (#960)', () => {
+  it('traegt die interne Nummer als eigene Spalte neben dem Asset-Tag', () => {
+    const p = project({ equipment: [eq('e1', 'ATEM', { assetTag: 'AV-1', internalNumber: 'INV-7' })] })
+    const r = buildAssetRows(p)[0]
+    expect(r.assetTag).toBe('AV-1')
+    expect(r.internalNumber).toBe('INV-7')
+  })
+})
+
 describe('buildAssetRows', () => {
   it('mappt Status-Label, Serie und Service-Anzahl', () => {
     const p = project({

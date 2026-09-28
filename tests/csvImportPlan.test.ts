@@ -118,6 +118,23 @@ describe('die Zahlen im Erfolgsfenster stimmen', () => {
   })
 })
 
+describe('Kennungen des Exemplars (#960)', () => {
+  it('liest Asset-Tag und interne Nummer aus den ueblichen Ueberschriften', () => {
+    // Externe Werkzeuge (Anlagenbuchhaltung, Lagerverwaltung, Etikettendrucker)
+    // liefern die beiden Nummern unter verschiedenen Namen. Was hier nicht
+    // erkannt wird, landet als Notiz — und damit nirgends, wo Register,
+    // Suche oder Etikett es lesen.
+    const plan = planCsvImport(
+      csv('Name;Asset-Tag;Interne Nr.\nATEM;AV-0421;INV-2026-017'),
+      [],
+      'Importiert',
+    )
+    expect(plan.fresh[0].assetTag).toBe('AV-0421')
+    expect(plan.fresh[0].internalNumber).toBe('INV-2026-017')
+    expect(plan.unmapped).toEqual([])
+  })
+})
+
 describe('leere Zellen ueberschreiben nichts', () => {
   it('legt kein Feld an, dessen Zelle leer ist', () => {
     // Die zweite Regel des Bedarfs („refuses to overwrite non-empty values

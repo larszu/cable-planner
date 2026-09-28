@@ -142,6 +142,8 @@ export const AppearanceTab = () => {
     return [...builtIn, ...custom]
   }, [customConnectorTypes])
   const bgVariant = useUiStore((s) => s.bgVariant)
+  const kennungAmKnoten = useUiStore((s) => s.kennungAmKnoten)
+  const setKennungAmKnoten = useUiStore((s) => s.setKennungAmKnoten)
   const setBgVariant = useUiStore((s) => s.setBgVariant)
   const bgOpacity = useUiStore((s) => s.bgOpacity)
   const setBgOpacity = useUiStore((s) => s.setBgOpacity)
@@ -393,6 +395,24 @@ export const AppearanceTab = () => {
             'Connect any inputs and outputs without warning',
           )}
         </label>
+      </SettingsCard>
+
+      <SettingsCard
+        title={t('settings.kennung.title', 'Identifier on the device node')}
+        description={t(
+          'settings.kennung.desc',
+          'Which number of the unit is shown next to the category: the asset tag on the label or the internal number of the house. Shown only where one is entered.',
+        )}
+      >
+        <select
+          value={kennungAmKnoten}
+          onChange={(e) => setKennungAmKnoten(e.target.value as 'assetTag' | 'internalNumber' | 'none')}
+          className="border border-cp-border bg-cp-surface-1 p-1 text-cp-xs"
+        >
+          <option value="assetTag">{t('settings.kennung.assetTag', 'Asset tag')}</option>
+          <option value="internalNumber">{t('settings.kennung.internalNumber', 'Internal number')}</option>
+          <option value="none">{t('settings.kennung.none', 'None')}</option>
+        </select>
       </SettingsCard>
 
       <SettingsCard
