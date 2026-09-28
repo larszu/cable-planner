@@ -13,7 +13,12 @@ import { format, useTranslation } from '../../lib/i18n'
 import { useSettingsStore } from '../../store/settingsStore'
 import { type PortGroupHint } from '../../lib/portSuggestions'
 import { felderAusfuellen } from '../../lib/felderAusfuellen'
-import { getGeminiApiKey, setGeminiApiKey } from '../../lib/aiSuggestions'
+import {
+  getAiProviderConfig,
+  getApiKey,
+  getSelectedAiProvider,
+  setApiKey,
+} from '../../lib/aiSuggestions'
 import { ALL_CONNECTOR_TYPES } from '../../types/equipment'
 import type { ConnectorType, EquipmentTemplate, Port } from '../../types/equipment'
 import { nextPlacementPosition } from '../../lib/library'
@@ -455,11 +460,38 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
   const handleAusfuellen = async () => {
     setSuggestError('')
     setSuggestInfo('')
-    if (ausfuellQuelle === 'ki' && !getGeminiApiKey()) {
+    // ─── DER SCHLUESSEL DES GEWAEHLTEN ANBIETERS (2026-09-28) ─────────────
+    //
+    // Hier stand `getGeminiApiKey()`, und in der Tastenzeile darunter auch.
+    // Das sind die Alt-Kurzschluesse aus `aiSuggestions.ts`, und sie sind
+    // FEST auf Gemini verdrahtet (`getApiKey('gemini')`). Gemeldet als „in den
+    // KI Ausfuellen der Geraeteinfos ist immer Gemini hinterlegt, unabhaengig
+    // von dem was im Menue ausgewaehlt ist".
+    //
+    // Es waren zwei Fehler in einem:
+    //   1. Wer Claude oder OpenAI gewaehlt und dort einen Schluessel hinterlegt
+    //      hatte, bekam trotzdem „kein API-Key" — gefragt wurde der leere
+    //      Gemini-Platz.
+    //   2. Trug er den Schluessel dann in diesem Fenster nach, landete er
+    //      UNTER GEMINI. Der Aufruf ging danach an den gewaehlten Anbieter,
+    //      dessen Platz weiterhin leer war. Ein Schluessel, den man eingibt und
+    //      der nirgends ankommt, ist schlimmer als eine Fehlermeldung.
+    //
+    // Der Anbieter wird hier gelesen und nicht im Zustand gehalten: er kann
+    // sich in den Einstellungen aendern, waehrend dieses Fenster offen steht.
+    if (ausfuellQuelle === 'ki' && !getApiKey(getSelectedAiProvider())) {
       setAiKeyDraft('')
       setAiSettingsOpen(true)
+      // Der Anbieter steht IM Satz. „Kein API-Key" allein liess offen, welcher
+      // von drei gefragt wurde — und genau diese Frage war der gemeldete Fehler.
       setSuggestError(
-        t('library.suggest.ai.noKey', 'No AI API key. Enter one, or switch the source to web search in the settings.'),
+        format(
+          t(
+            'library.suggest.ai.noKeyFor',
+            'No API key for {provider}. Enter one, pick another provider in the settings, or switch the source to web search.',
+          ),
+          { provider: getAiProviderConfig(getSelectedAiProvider()).label },
+        ),
       )
       return
     }
@@ -1292,7 +1324,7 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
                   <button
                     type="button"
                     onClick={() => {
-                      setAiKeyDraft(getGeminiApiKey())
+                      setAiKeyDraft(getApiKey(getSelectedAiProvider()))
                       setAiSettingsOpen(true)
                     }}
                     className="text-cp-xs text-violet-300 hover:underline"
@@ -1346,19 +1378,27 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
 
             {aiSettingsOpen && (
               <div className="mb-2 border border-cp-border bg-cp-surface-3 p-2 text-cp-xs">
-                <div className="mb-1 font-semibold text-cp-text-bright">{t('library.create.aiKey.label', 'Gemini API key')}</div>
+                {/* Der NAME des Anbieters steht im Titel, nicht „Gemini". Ein
+                    Fenster, das nach einem Gemini-Schluessel fragt, waehrend
+                    Claude gewaehlt ist, laedt genau zu dem Fehler ein, den es
+                    ausloest. */}
+                <div className="mb-1 font-semibold text-cp-text-bright">
+                  {format(t('library.create.aiKey.labelFor', '{provider} API key'), {
+                    provider: getAiProviderConfig(getSelectedAiProvider()).label,
+                  })}
+                </div>
                 <div className="flex gap-1">
                   <input
                     type="password"
                     value={aiKeyDraft}
                     onChange={(e) => setAiKeyDraft(e.target.value)}
-                    placeholder={t('library.create.aiKey.placeholder', 'AIza…')}
+                    placeholder={getAiProviderConfig(getSelectedAiProvider()).keyHint}
                     className="flex-1 border border-cp-border bg-cp-surface-1 px-2 py-1 font-mono"
                   />
                   <button
                     type="button"
                     onClick={() => {
-                      setGeminiApiKey(aiKeyDraft.trim())
+                      setApiKey(getSelectedAiProvider(), aiKeyDraft.trim())
                       setAiSettingsOpen(false)
                       setSuggestError('')
                     }}
@@ -1376,13 +1416,16 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
                 </div>
                 <div className="mt-1 text-cp-xs text-cp-text-muted">
                   {t('library.create.aiKey.hintPrefix', 'Stored locally in localStorage only. Create a key at')}{' '}
+                  {/* Auch die Adresse gehoert dem gewaehlten Anbieter. Sie stand
+                      fest auf aistudio.google.com — ein Verweis, der jemanden mit
+                      Claude-Auswahl zum falschen Dashboard schickt. */}
                   <a
-                    href="https://aistudio.google.com/app/apikey"
+                    href={getAiProviderConfig(getSelectedAiProvider()).consoleUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="underline"
                   >
-                    aistudio.google.com
+                    {new URL(getAiProviderConfig(getSelectedAiProvider()).consoleUrl).hostname}
                   </a>{' '}
                   {t('library.create.aiKey.hintSuffix', '.')}
                 </div>

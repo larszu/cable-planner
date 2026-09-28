@@ -117,3 +117,42 @@ describe('Eigenschaften-Leiste: der Kopf', () => {
     expect(STORE).toContain('portsVorangestellt: true,')
   })
 })
+
+/**
+ * Die schwebende Suchleiste bleibt im Fenster.
+ *
+ * WARUM ES DAS GIBT. `ui:overflow` meldete am 2026-09-28 bei 1280 x 800:
+ * „Reihe 818px breit, Inhalt 1172px — unerreichbar: Gerät suchen…". Gemerkt
+ * war `x: 1012` — bei 1500 px Fensterbreite ist die Zeichenflaeche 1038 px
+ * breit und das passt knapp, bei 1280 px ist sie 818 px breit und 1012 liegt
+ * 194 px draussen. Weg war damit auch der Schliess-Knopf.
+ *
+ * Der Zieh-Vorgang begrenzt die Lage (`maxX`/`maxY`) — aber nur WAEHREND des
+ * Ziehens. Was danach mit dem Fenster passiert, wusste niemand.
+ */
+describe('die schwebende Suchleiste', () => {
+  const SUCHE = lies('src', 'renderer', 'components', 'Canvas', 'CanvasSearch.tsx')
+
+  it('prueft die gemerkte Lage gegen die gemessene Flaeche', () => {
+    // Gemessen, nicht geraten: am `offsetParent`, demselben Bezug, auf den
+    // `left`/`top` sich beziehen.
+    expect(SUCHE).toContain('new ResizeObserver(messen)')
+    expect(SUCHE).toContain('pos.x + eigen.w <= flaeche.w')
+    expect(SUCHE).toContain('pos.y + eigen.h <= flaeche.h')
+  })
+
+  it('faellt auf die Vorgabe zurueck, statt an den Rand zu rutschen', () => {
+    // Der erste Versuch schob sie nur ins Fenster — dort lag sie auf der
+    // Werkzeugleiste und verdeckte „Schematic" und „Circuit". Die Vorgabe
+    // weicht ihr aus, weil sie deren Unterkante MISST.
+    expect(SUCHE).toContain('const eigeneLage = pos && passt')
+    expect(SUCHE).toContain('toolbarBottom > 0 ? toolbarBottom + 8 : 12')
+  })
+
+  it('schreibt beim Verkleinern nicht in den Speicher', () => {
+    // Wer sein Fenster kurz verkleinert, soll seine Lage nicht verlieren.
+    // `setPos` darf deshalb nur aus dem Ziehen kommen — es steht genau
+    // einmal im Quelltext, in `onMove`.
+    expect(SUCHE.match(/setPos\(/g) ?? []).toHaveLength(1)
+  })
+})

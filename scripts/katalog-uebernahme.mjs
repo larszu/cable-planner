@@ -507,7 +507,16 @@ const licht = async () => {
     const id = geraetetypId('fixture', f.id)
     verknuepfung.push({ quellId: f.id, deviceTypeId: id })
     const name = f.name.startsWith(f.manufacturer) ? f.name : `${f.manufacturer} ${f.name}`
-    const url = herstellerUrl(f.manufacturerUrl)
+    // DER LICHT-PLANER NENNT DEN BELEG `datasheetUrl`, NICHT `manufacturerUrl`
+    // (2026-09-28). Hier stand die zweite Vokabel, weil die Uebernahme sie
+    // selbst in den Licht-Planer eingefuehrt hatte — und weil sie im
+    // Kabel-Planer so heisst. Der Licht-Planer hat die Luecke in der Zwischen-
+    // zeit selbst geschlossen, und zwar besser: `datasheetUrl` zeigt auf das
+    // PDF, nicht auf die Produktseite, und es sind 69 von 84 statt 50. Das
+    // eigene Feld ist dort wieder herausgefallen; blieb diese Zeile stehen,
+    // haette der erzeugte Katalog NULL Belege gehabt und der Waechter das
+    // gemeldet, ohne dass jemand die Ursache sieht.
+    const url = herstellerUrl(f.datasheetUrl)
     if (url) mitBeleg += 1
     else ohneBeleg.push(name)
     const modi = f.dmxModes?.length

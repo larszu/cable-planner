@@ -53,6 +53,8 @@ import { BROMPTON_CATALOG } from './bromptonCatalog'
 import { CLEARCOM_CATALOG } from './clearcomCatalog'
 import { LUMINEX_CATALOG } from './luminexCatalog'
 import { NETGEAR_AV_CATALOG } from './netgearAvCatalog'
+import { CRESTRON_CATALOG } from './crestronCatalog'
+import { CISCO_CATALOG } from './ciscoCatalog'
 import { LIGHTWARE_CATALOG } from './lightwareCatalog'
 import { GREENGO_CATALOG } from './greengoCatalog'
 import { LED_PROCESSOR_CATALOG } from './ledProcessorCatalog'
@@ -109,6 +111,8 @@ export const CATALOGUES: ReadonlyArray<{ name: string; entries: readonly Evidenc
   { name: 'lightware', entries: LIGHTWARE_CATALOG },
   { name: 'luminex', entries: LUMINEX_CATALOG },
   { name: 'netgearAv', entries: NETGEAR_AV_CATALOG },
+  { name: 'cisco', entries: CISCO_CATALOG },
+  { name: 'crestron', entries: CRESTRON_CATALOG },
   { name: 'decimator', entries: DECIMATOR_CATALOG },
   { name: 'fixture', entries: FIXTURE_CATALOG },
   { name: 'greengo', entries: GREENGO_CATALOG },

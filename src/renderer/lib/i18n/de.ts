@@ -2267,6 +2267,14 @@ export const de: Dict = {
   'eq.field.manufacturerUrlOpenTitle': 'In externem Browser öffnen',
   'eq.field.name': 'Name',
   'eq.field.notes': 'Notiz',
+  'library.create.aiKey.labelFor': '{provider} API-Schlüssel',
+  'library.suggest.ai.noKeyFor':
+    'Kein API-Schlüssel für {provider}. Einen eintragen, in den Einstellungen einen anderen Anbieter wählen oder die Quelle auf Websuche umstellen.',
+  'rentman.wizard.aiKeyHeading': '{provider} API-Schlüssel',
+  'rentman.wizard.aiKeyHintPre': 'Anlegen unter',
+  'rentman.wizard.aiKeyHintPost': '— liegt nur lokal im Browser-Speicher.',
+  'rentman.wizard.noKeyFor':
+    'Kein API-Schlüssel für {provider}. Einen eintragen, in den Einstellungen einen anderen Anbieter wählen oder die Quelle auf Websuche umstellen.',
   'eq.field.notesPlaceholder':
     'Alles, was kein eigenes Feld hat — Web-Oberfläche, Firmware, wo es steht, wem es gehört…',
   'eq.field.password': 'Password',
@@ -3042,8 +3050,6 @@ export const de: Dict = {
   'library.create.addOutputGroup': '+ Output-Gruppe',
   'library.create.aiKey.hintPrefix': 'Gespeichert nur lokal in localStorage. Key bei',
   'library.create.aiKey.hintSuffix': 'erstellen.',
-  'library.create.aiKey.label': 'Gemini API-Key',
-  'library.create.aiKey.placeholder': 'AIza…',
   'library.create.aiSettings': 'Gemini-API-Key konfigurieren',
   'library.create.aiSettingsLabel': 'AI-Settings',
   'library.create.emptyCount': 'Eine Gruppe hat keine Anzahl — sie erzeugt keine Ports.',
@@ -3237,7 +3243,6 @@ export const de: Dict = {
   'library.sortables.categoryAria': 'Kategorie verschieben',
   'library.sortables.dragTitle': 'Per Drag&Drop verschieben',
   'library.sortables.moveAria': 'Verschieben',
-  'library.suggest.ai.noKey': 'Kein Gemini-API-Key. Trage einen ein oder nutze Web/Heuristik.',
   'library.suggest.ai.noPorts': 'Gemini lieferte keine Ports zurück.',
   'library.suggest.ai.ok': '{n} Port-Gruppe(n) von Gemini übernommen.',
   'library.suggest.heading': 'Die Ports aus dem Geräte-Namen raten',
@@ -4809,7 +4814,6 @@ export const de: Dict = {
   'rentman.wizard.addCategory': '+ Neu',
   'rentman.wizard.addInputGroup': '+ Eingangs-Gruppe',
   'rentman.wizard.addOutputGroup': '+ Ausgangs-Gruppe',
-  'rentman.wizard.aiKeyPlaceholder': 'AIzaSy...',
   'rentman.wizard.aiNoPorts': 'KI lieferte keine Ports. Namen präzisieren.',
   'rentman.wizard.aiSettings': 'KI-Einstellungen',
   'rentman.wizard.aiSettingsTitle': 'Gemini API-Key konfigurieren',
@@ -4822,17 +4826,11 @@ export const de: Dict = {
   'rentman.wizard.directionOut': 'Ausgang',
   'rentman.wizard.exclude': 'Nicht importieren',
   'rentman.wizard.excludeTitle': 'Dieses Gerät überspringen und NICHT importieren',
-  'rentman.wizard.geminiKeyHeading': 'Gemini API-Key',
-  'rentman.wizard.geminiKeyHintPost':
-    '(15 Anfragen/Min). Wird lokal im Browser-Storage gespeichert.',
-  'rentman.wizard.geminiKeyHintPre': 'Kostenlos unter',
   'rentman.wizard.introPost':
     ' — Ein-/Ausgänge bestätigen, sie werden in deiner Bibliothek gespeichert.',
   'rentman.wizard.introPre': 'Zum ersten Mal gesehen:',
   'rentman.wizard.labelPrefixPlaceholder': 'Label-Präfix',
   'rentman.wizard.name': 'Name',
-  'rentman.wizard.noGeminiKey':
-    'Kein Gemini-API-Key hinterlegt. Trage einen ein oder nutze "Web-Suche (frei)".',
   'rentman.wizard.noGroups': 'Keine Port-Gruppen. Oben hinzufügen oder Gerät überspringen.',
   'rentman.wizard.removeGroupTitle': 'Gruppe entfernen',
   'rentman.wizard.saveAsCategoryTitle': 'Als neue Kategorie speichern',

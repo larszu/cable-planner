@@ -191,6 +191,14 @@ model name. Before this, 368 of 377 exported cameras carried no identity at all.
   the list says what the stock does not cover. An entry without a counted
   quantity produces no warning: nobody counted, so there is nothing to warn
   about.
+- **Crestron and Cisco in the catalogue**: DM-NVX-350 / -351 / -D30 streaming
+  endpoints, the HD-TX-USB-2000-C HDBaseT transmitter, the HD-MD4X1-4K-E
+  switcher and the Avia DSP-1283 audio processor; Catalyst 9300-24U,
+  9300X-48HXN and Nexus 93108TC-EX switches. Every port list is copied from the
+  manufacturer's own specification page or spec-sheet PDF, linked on each entry.
+  The Catalyst uplinks are deliberately **not** listed as ports: the data sheet
+  says *modular uplinks*, so a switch without a network module has none — the
+  slot is there and the available modules are named in the notes.
 - Reusable project components
 - **Properties sidebar**: the top is fixed — **name**, then the device **note**
   (the one free text field: web UI, firmware, where it sits, who it belongs to),

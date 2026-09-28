@@ -122,6 +122,16 @@ const HARMLOS = new Set(
     // Eigennamen, Protokolle, Einheiten
     'segoe', 'poe', 'poestandard', 'poestandards', 'poebudget', 'poebudgetw',
     'erpoe', 'aes', 'aea', 'aearibbonmics', 'gerätesteuerung',
+    // 2026-09-28, mit dem Cisco-Katalog: „UPOE" und „UPOE+" sind Ciscos
+    // Schreibweise fuer Universal PoE (60 W bzw. 90 W je Port). Derselbe Grund
+    // wie bei „poe" drei Zeilen darueber — nur dass hier ein U davorsteht, und
+    // das macht aus dem „OE" kein „Ö".
+    'upoe',
+    // Und noch zwei richtige Woerter mit derselben Silbengrenze: „Ste-uersystem"
+    // (das Crestron-Steuersystem, an dem der Extender ausdruecklich NICHT
+    // haengt) und das englische „discontinued" — Crestron fuehrt den
+    // HD-MD4X1-4K-E unter „Discontinued", und das ist der Name der Rubrik.
+    'steuersystem', 'steuersysteme', 'discontinued',
     // Ein Paar fuer sich ist nie ein deutsches Wort: es kommt aus einer UUID,
     // aus einem URL-Pfad („/ue_US/") oder aus `danteNaming`, das genau diese
     // Ersetzung VORNIMMT, weil Dante-Namen ASCII sein muessen.

@@ -5,7 +5,7 @@
 // ║  Pruefen:    npm run katalog:check                                    ║
 // ╚═══════════════════════════════════════════════════════════════════════╝
 //
-// 835 Eintraege, davon 784 mit Datenblatt-Link.
+// 835 Eintraege, davon 815 mit Datenblatt-Link.
 //
 // JEDER EINTRAG TRAEGT `portsUnknown: true`. Die Quelle kennt keine
 // Anschluesse, und eine erfundene Belegung saehe im Plan genauso autoritativ
@@ -850,14 +850,16 @@ export const LENS_CATALOG: LensEntry[] = [
       portsUnknown: true,
     },
   },
+  // Quelle: https://www.canon-europe.com/broadcast/eng-efp-pro/hj17ex62b/
   {
     match: ['canonhj17ex62b', 'hj17ex62b'],
     deviceTypeId: 'c6d5141e-879f-5cae-bd4e-2adfc4ebe13b',
     template: {
+      manufacturerUrl: 'https://www.canon-europe.com/broadcast/eng-efp-pro/hj17ex62b/',
       name: 'Canon HJ17ex6.2B',
       category: LENS,
-      subtitle: '6.2-105 mm · B4',
-      notes: '6.2-105 mm · T/F 1.8 · B4 mount · HD wide 17x',
+      subtitle: '6.2-106 mm · B4',
+      notes: '6.2-106 mm · T/F 1.8 · B4 mount · HD wide 17x',
       width: 200,
       height: 120,
       inputs: [],
@@ -2614,10 +2616,12 @@ export const LENS_CATALOG: LensEntry[] = [
       portsUnknown: true,
     },
   },
+  // Quelle: https://pro.sony/en_GB/products/ptz-network-cameras/brc-x400
   {
     match: ['sonybrcx400integrated20x', 'brcx400integrated20x'],
     deviceTypeId: '6adbf43a-cb55-5f6b-bdb3-93f0eae7a112',
     template: {
+      manufacturerUrl: 'https://pro.sony/en_GB/products/ptz-network-cameras/brc-x400',
       name: 'Sony BRC-X400 integrated 20x',
       category: LENS,
       subtitle: '4.4-88 mm · integrated',
@@ -2629,10 +2633,12 @@ export const LENS_CATALOG: LensEntry[] = [
       portsUnknown: true,
     },
   },
+  // Quelle: https://pro.sony/en_GB/products/ptz-network-cameras/srg-x120
   {
     match: ['sonysrgx120integrated12x', 'srgx120integrated12x'],
     deviceTypeId: '9f83a64a-0d0c-5023-8aa0-441a83fdedfa',
     template: {
+      manufacturerUrl: 'https://pro.sony/en_GB/products/ptz-network-cameras/srg-x120',
       name: 'Sony SRG-X120 integrated 12x',
       category: LENS,
       subtitle: '4.4-52.8 mm · integrated',
@@ -2644,10 +2650,12 @@ export const LENS_CATALOG: LensEntry[] = [
       portsUnknown: true,
     },
   },
+  // Quelle: https://pro.sony/en_GB/products/ptz-network-cameras/brc-h800
   {
     match: ['sonybrch800integrated12x', 'brch800integrated12x'],
     deviceTypeId: '5ff9de7e-a363-5f02-ac79-e020219679e5',
     template: {
+      manufacturerUrl: 'https://pro.sony/en_GB/products/ptz-network-cameras/brc-h800',
       name: 'Sony BRC-H800 integrated 12x',
       category: LENS,
       subtitle: '9.3-111.6 mm · integrated',
@@ -2693,10 +2701,12 @@ export const LENS_CATALOG: LensEntry[] = [
       portsUnknown: true,
     },
   },
+  // Quelle: https://www.canon-europe.com/ptz-cameras/cr-n500/specifications/
   {
     match: ['canoncrn500integrated15x', 'crn500integrated15x'],
     deviceTypeId: 'c9999db3-e136-54eb-b49c-4208eeb94a52',
     template: {
+      manufacturerUrl: 'https://www.canon-europe.com/ptz-cameras/cr-n500/specifications/',
       name: 'Canon CR-N500 integrated 15x',
       category: LENS,
       subtitle: '8.3-124.5 mm · integrated',
@@ -2708,10 +2718,12 @@ export const LENS_CATALOG: LensEntry[] = [
       portsUnknown: true,
     },
   },
+  // Quelle: https://www.canon-europe.com/ptz-cameras/cr-n300/specifications/
   {
     match: ['canoncrn300integrated20x', 'crn300integrated20x'],
     deviceTypeId: '1143c47a-08ef-5775-9ca4-8f69c9bbf2a9',
     template: {
+      manufacturerUrl: 'https://www.canon-europe.com/ptz-cameras/cr-n300/specifications/',
       name: 'Canon CR-N300 integrated 20x',
       category: LENS,
       subtitle: '3.67-73.4 mm · integrated',
@@ -2738,10 +2750,12 @@ export const LENS_CATALOG: LensEntry[] = [
       portsUnknown: true,
     },
   },
+  // Quelle: https://www.angenieux.com/lenses/legacy-series/optimo-long-lens-zoom-24-290/
   {
     match: ['angnieuxoptimo24290t28', 'optimo24290t28'],
     deviceTypeId: 'b9587d29-a1a9-5493-b3d1-7f3710b087e9',
     template: {
+      manufacturerUrl: 'https://www.angenieux.com/lenses/legacy-series/optimo-long-lens-zoom-24-290/',
       name: 'Angénieux Optimo 24-290 T2.8',
       category: LENS,
       subtitle: '24-290 mm · PL',
@@ -2753,10 +2767,12 @@ export const LENS_CATALOG: LensEntry[] = [
       portsUnknown: true,
     },
   },
+  // Quelle: https://www.angenieux.com/optimo-compact-lens-zoom-28-76/
   {
     match: ['angnieuxoptimo2876t26', 'optimo2876t26'],
     deviceTypeId: '77d8eb9e-c3f1-54f4-b717-c5eed2af1c9b',
     template: {
+      manufacturerUrl: 'https://www.angenieux.com/optimo-compact-lens-zoom-28-76/',
       name: 'Angénieux Optimo 28-76 T2.6',
       category: LENS,
       subtitle: '28-76 mm · PL',
@@ -2768,10 +2784,12 @@ export const LENS_CATALOG: LensEntry[] = [
       portsUnknown: true,
     },
   },
+  // Quelle: https://www.angenieux.com/wp-content/uploads/2016/01/15-40-Product-Sheet.pdf
   {
     match: ['angnieuxoptimo1540t26', 'optimo1540t26'],
     deviceTypeId: 'f9caf746-5909-5f0e-8140-1c1bf82de8db',
     template: {
+      manufacturerUrl: 'https://www.angenieux.com/wp-content/uploads/2016/01/15-40-Product-Sheet.pdf',
       name: 'Angénieux Optimo 15-40 T2.6',
       category: LENS,
       subtitle: '15-40 mm · PL',
@@ -2783,10 +2801,12 @@ export const LENS_CATALOG: LensEntry[] = [
       portsUnknown: true,
     },
   },
+  // Quelle: https://www.angenieux.com/wp-content/uploads/2019/03/User-Manual-17-80.pdf
   {
     match: ['angnieuxoptimo1780t22', 'optimo1780t22'],
     deviceTypeId: 'f7d5c55e-2f54-5d24-b4f6-64efb1c01d06',
     template: {
+      manufacturerUrl: 'https://www.angenieux.com/wp-content/uploads/2019/03/User-Manual-17-80.pdf',
       name: 'Angénieux Optimo 17-80 T2.2',
       category: LENS,
       subtitle: '17-80 mm · PL',
@@ -5937,11 +5957,13 @@ export const LENS_CATALOG: LensEntry[] = [
       portsUnknown: true,
     },
   },
+  // Quelle: https://www.angenieux.com/lenses/optimo-prime-series/
   {
-    match: ['angnieuxoptimoprime18mmt18', 'optimoprime18mmt18'],
+    match: ['angnieuxoptimoprime18mmt2', 'optimoprime18mmt2'],
     deviceTypeId: 'f120f3a2-b3e7-52d6-a1f2-bae790f04da3',
     template: {
-      name: 'Angénieux Optimo Prime 18mm T1.8',
+      manufacturerUrl: 'https://www.angenieux.com/lenses/optimo-prime-series/',
+      name: 'Angénieux Optimo Prime 18mm T2',
       category: LENS,
       subtitle: '18 mm · PL',
       notes: '18 mm · T/F 2 · PL mount',
@@ -5952,10 +5974,12 @@ export const LENS_CATALOG: LensEntry[] = [
       portsUnknown: true,
     },
   },
+  // Quelle: https://www.angenieux.com/lenses/optimo-prime-series/
   {
     match: ['angnieuxoptimoprime21mmt18', 'optimoprime21mmt18'],
     deviceTypeId: 'e6d6faa8-4596-5593-80af-62cd7c6c5000',
     template: {
+      manufacturerUrl: 'https://www.angenieux.com/lenses/optimo-prime-series/',
       name: 'Angénieux Optimo Prime 21mm T1.8',
       category: LENS,
       subtitle: '21 mm · PL',
@@ -5967,10 +5991,12 @@ export const LENS_CATALOG: LensEntry[] = [
       portsUnknown: true,
     },
   },
+  // Quelle: https://www.angenieux.com/lenses/optimo-prime-series/
   {
     match: ['angnieuxoptimoprime24mmt18', 'optimoprime24mmt18'],
     deviceTypeId: '1dd85c85-080d-5677-b6e5-ce90e16b5433',
     template: {
+      manufacturerUrl: 'https://www.angenieux.com/lenses/optimo-prime-series/',
       name: 'Angénieux Optimo Prime 24mm T1.8',
       category: LENS,
       subtitle: '24 mm · PL',
@@ -5982,10 +6008,12 @@ export const LENS_CATALOG: LensEntry[] = [
       portsUnknown: true,
     },
   },
+  // Quelle: https://www.angenieux.com/lenses/optimo-prime-series/
   {
     match: ['angnieuxoptimoprime28mmt18', 'optimoprime28mmt18'],
     deviceTypeId: '0f2ad1f8-f55e-5b22-8373-204011c4cc0e',
     template: {
+      manufacturerUrl: 'https://www.angenieux.com/lenses/optimo-prime-series/',
       name: 'Angénieux Optimo Prime 28mm T1.8',
       category: LENS,
       subtitle: '28 mm · PL',
@@ -5997,10 +6025,12 @@ export const LENS_CATALOG: LensEntry[] = [
       portsUnknown: true,
     },
   },
+  // Quelle: https://www.angenieux.com/lenses/optimo-prime-series/
   {
     match: ['angnieuxoptimoprime32mmt18', 'optimoprime32mmt18'],
     deviceTypeId: 'bdd0769d-9725-5e32-be3c-9259b86c22b7',
     template: {
+      manufacturerUrl: 'https://www.angenieux.com/lenses/optimo-prime-series/',
       name: 'Angénieux Optimo Prime 32mm T1.8',
       category: LENS,
       subtitle: '32 mm · PL',
@@ -6012,10 +6042,12 @@ export const LENS_CATALOG: LensEntry[] = [
       portsUnknown: true,
     },
   },
+  // Quelle: https://www.angenieux.com/lenses/optimo-prime-series/
   {
     match: ['angnieuxoptimoprime40mmt18', 'optimoprime40mmt18'],
     deviceTypeId: 'ab0ed19f-95da-53c8-bc25-8ab87c984a4c',
     template: {
+      manufacturerUrl: 'https://www.angenieux.com/lenses/optimo-prime-series/',
       name: 'Angénieux Optimo Prime 40mm T1.8',
       category: LENS,
       subtitle: '40 mm · PL',
@@ -6027,10 +6059,12 @@ export const LENS_CATALOG: LensEntry[] = [
       portsUnknown: true,
     },
   },
+  // Quelle: https://www.angenieux.com/lenses/optimo-prime-series/
   {
     match: ['angnieuxoptimoprime50mmt18', 'optimoprime50mmt18'],
     deviceTypeId: '8f8acd9c-c52e-52ed-994a-f22ed8cf3cc3',
     template: {
+      manufacturerUrl: 'https://www.angenieux.com/lenses/optimo-prime-series/',
       name: 'Angénieux Optimo Prime 50mm T1.8',
       category: LENS,
       subtitle: '50 mm · PL',
@@ -6042,10 +6076,12 @@ export const LENS_CATALOG: LensEntry[] = [
       portsUnknown: true,
     },
   },
+  // Quelle: https://www.angenieux.com/lenses/optimo-prime-series/
   {
     match: ['angnieuxoptimoprime60mmt18', 'optimoprime60mmt18'],
     deviceTypeId: 'e65bdc0c-d1f2-5a23-8add-1f09f49fe995',
     template: {
+      manufacturerUrl: 'https://www.angenieux.com/lenses/optimo-prime-series/',
       name: 'Angénieux Optimo Prime 60mm T1.8',
       category: LENS,
       subtitle: '60 mm · PL',
@@ -6057,10 +6093,12 @@ export const LENS_CATALOG: LensEntry[] = [
       portsUnknown: true,
     },
   },
+  // Quelle: https://www.angenieux.com/lenses/optimo-prime-series/
   {
     match: ['angnieuxoptimoprime75mmt18', 'optimoprime75mmt18'],
     deviceTypeId: '5775a7ec-aff6-5726-bcdc-15069e84c2a8',
     template: {
+      manufacturerUrl: 'https://www.angenieux.com/lenses/optimo-prime-series/',
       name: 'Angénieux Optimo Prime 75mm T1.8',
       category: LENS,
       subtitle: '75 mm · PL',
@@ -6072,10 +6110,12 @@ export const LENS_CATALOG: LensEntry[] = [
       portsUnknown: true,
     },
   },
+  // Quelle: https://www.angenieux.com/lenses/optimo-prime-series/
   {
     match: ['angnieuxoptimoprime100mmt18', 'optimoprime100mmt18'],
     deviceTypeId: 'fccf0e2c-ad7f-5edb-9737-a588b4f03fd6',
     template: {
+      manufacturerUrl: 'https://www.angenieux.com/lenses/optimo-prime-series/',
       name: 'Angénieux Optimo Prime 100mm T1.8',
       category: LENS,
       subtitle: '100 mm · PL',
@@ -6087,10 +6127,12 @@ export const LENS_CATALOG: LensEntry[] = [
       portsUnknown: true,
     },
   },
+  // Quelle: https://www.angenieux.com/lenses/optimo-prime-series/
   {
     match: ['angnieuxoptimoprime135mmt18', 'optimoprime135mmt18'],
     deviceTypeId: '759e1dff-47cd-5382-9bb2-112ee1707d56',
     template: {
+      manufacturerUrl: 'https://www.angenieux.com/lenses/optimo-prime-series/',
       name: 'Angénieux Optimo Prime 135mm T1.8',
       category: LENS,
       subtitle: '135 mm · PL',
@@ -6102,11 +6144,13 @@ export const LENS_CATALOG: LensEntry[] = [
       portsUnknown: true,
     },
   },
+  // Quelle: https://www.angenieux.com/lenses/optimo-prime-series/
   {
-    match: ['angnieuxoptimoprime200mmt18', 'optimoprime200mmt18'],
+    match: ['angnieuxoptimoprime200mmt22', 'optimoprime200mmt22'],
     deviceTypeId: 'ff094aa5-dd18-572e-b344-86d20a554145',
     template: {
-      name: 'Angénieux Optimo Prime 200mm T1.8',
+      manufacturerUrl: 'https://www.angenieux.com/lenses/optimo-prime-series/',
+      name: 'Angénieux Optimo Prime 200mm T2.2',
       category: LENS,
       subtitle: '200 mm · PL',
       notes: '200 mm · T/F 2.2 · PL mount',
@@ -6848,10 +6892,12 @@ export const LENS_CATALOG: LensEntry[] = [
       portsUnknown: true,
     },
   },
+  // Quelle: https://viltrox.com/pages/af-24-1-8-fe
   {
     match: ['viltroxaf24f18fe', 'af24f18fe'],
     deviceTypeId: '1a614f6d-2029-5180-8912-5da4ba11241f',
     template: {
+      manufacturerUrl: 'https://viltrox.com/pages/af-24-1-8-fe',
       name: 'Viltrox AF 24 F1.8 FE',
       category: LENS,
       subtitle: '24 mm · E',
@@ -6914,10 +6960,12 @@ export const LENS_CATALOG: LensEntry[] = [
       portsUnknown: true,
     },
   },
+  // Quelle: https://viltrox.com/pages/af-50-1-8-fe
   {
     match: ['viltroxaf50f18fe', 'af50f18fe'],
     deviceTypeId: '1ae06c9a-8ca6-58cb-9660-ddea3bd6250c',
     template: {
+      manufacturerUrl: 'https://viltrox.com/pages/af-50-1-8-fe',
       name: 'Viltrox AF 50 F1.8 FE',
       category: LENS,
       subtitle: '50 mm · E',
@@ -6963,14 +7011,16 @@ export const LENS_CATALOG: LensEntry[] = [
       portsUnknown: true,
     },
   },
+  // Quelle: https://www.canon-europe.com/broadcast/eng-efp-pro/cj12ex4.3b/
   {
     match: ['canonuhdgccj12ex43b', 'uhdgccj12ex43b'],
     deviceTypeId: 'ab4361a1-9b2b-5a0b-8af5-a9c2ea08679c',
     template: {
+      manufacturerUrl: 'https://www.canon-europe.com/broadcast/eng-efp-pro/cj12ex4.3b/',
       name: 'Canon UHDgc CJ12ex4.3B',
       category: LENS,
-      subtitle: '4.3-51.6 mm · B4',
-      notes: '4.3-51.6 mm · T/F 1.8 · B4 mount',
+      subtitle: '4.3-52 mm · B4',
+      notes: '4.3-52 mm · T/F 1.8 · B4 mount',
       width: 200,
       height: 120,
       inputs: [],
@@ -6995,10 +7045,12 @@ export const LENS_CATALOG: LensEntry[] = [
       portsUnknown: true,
     },
   },
+  // Quelle: https://www.canon-europe.com/broadcast/cj17ex6-2b/
   {
     match: ['canonuhdgccj17ex62b', 'uhdgccj17ex62b'],
     deviceTypeId: 'cc76354f-f39d-5f40-b5c3-668185ced770',
     template: {
+      manufacturerUrl: 'https://www.canon-europe.com/broadcast/cj17ex6-2b/',
       name: 'Canon UHDgc CJ17ex6.2B',
       category: LENS,
       subtitle: '6.2-106 mm · B4',
@@ -7095,10 +7147,12 @@ export const LENS_CATALOG: LensEntry[] = [
       portsUnknown: true,
     },
   },
+  // Quelle: https://www.canon-europe.com/support/consumer/products/lenses/bctv/cj45ex136b-iase-v-h.html
   {
     match: ['canonuhdgccj45ex136b', 'uhdgccj45ex136b'],
     deviceTypeId: 'f93c9f55-dd7c-5b77-a5fb-f694577663d2',
     template: {
+      manufacturerUrl: 'https://www.canon-europe.com/support/consumer/products/lenses/bctv/cj45ex136b-iase-v-h.html',
       name: 'Canon UHDgc CJ45ex13.6B',
       category: LENS,
       subtitle: '13.6-612 mm · B4',
@@ -9765,10 +9819,12 @@ export const LENS_CATALOG: LensEntry[] = [
       portsUnknown: true,
     },
   },
+  // Quelle: https://leica-camera.com/en-US/photography/lenses/sl/vario-elmarit-sl-24-70-f2-8-asph-black-finish
   {
     match: ['leicasl2470f28', 'sl2470f28'],
     deviceTypeId: '3fd59f7a-ad29-5b66-8a94-56659da34aab',
     template: {
+      manufacturerUrl: 'https://leica-camera.com/en-US/photography/lenses/sl/vario-elmarit-sl-24-70-f2-8-asph-black-finish',
       name: 'Leica SL 24-70 F2.8',
       category: LENS,
       subtitle: '24-70 mm · L',
@@ -9780,10 +9836,12 @@ export const LENS_CATALOG: LensEntry[] = [
       portsUnknown: true,
     },
   },
+  // Quelle: https://leica-camera.com/sites/default/files/pm-55652-Datenblatt_Vario-Elmarit-SL_24-90_en.pdf
   {
     match: ['leicasl2490f284', 'sl2490f284'],
     deviceTypeId: 'd133b16f-0951-5d80-b2ec-f82da01fb8cc',
     template: {
+      manufacturerUrl: 'https://leica-camera.com/sites/default/files/pm-55652-Datenblatt_Vario-Elmarit-SL_24-90_en.pdf',
       name: 'Leica SL 24-90 F2.8-4',
       category: LENS,
       subtitle: '24-90 mm · L',
@@ -9795,10 +9853,12 @@ export const LENS_CATALOG: LensEntry[] = [
       portsUnknown: true,
     },
   },
+  // Quelle: https://leica-camera.com/sites/default/files/pm-55506-Datenblatt_APO-Vario-Elmarit-SL_90-280_en.pdf
   {
     match: ['leicasl90280f284', 'sl90280f284'],
     deviceTypeId: 'f491abfc-f783-5a7d-b5c8-b3a5404e34c9',
     template: {
+      manufacturerUrl: 'https://leica-camera.com/sites/default/files/pm-55506-Datenblatt_APO-Vario-Elmarit-SL_90-280_en.pdf',
       name: 'Leica SL 90-280 F2.8-4',
       category: LENS,
       subtitle: '90-280 mm · L',
@@ -9810,10 +9870,12 @@ export const LENS_CATALOG: LensEntry[] = [
       portsUnknown: true,
     },
   },
+  // Quelle: https://leica-camera.com/sites/default/files/pm-55409-160915_Datenblatt_Summilux-SL-50mm-ASPH_e.pdf
   {
     match: ['leicasl50f14', 'sl50f14'],
     deviceTypeId: '08489080-6a43-5ad2-8f42-14de1aa81c34',
     template: {
+      manufacturerUrl: 'https://leica-camera.com/sites/default/files/pm-55409-160915_Datenblatt_Summilux-SL-50mm-ASPH_e.pdf',
       name: 'Leica SL 50 F1.4',
       category: LENS,
       subtitle: '50 mm · L',

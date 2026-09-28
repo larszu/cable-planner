@@ -5,7 +5,7 @@
 // ║  Pruefen:    npm run katalog:check                                    ║
 // ╚═══════════════════════════════════════════════════════════════════════╝
 //
-// 365 Eintraege, davon 358 mit Datenblatt-Link.
+// 361 Eintraege, davon 358 mit Datenblatt-Link.
 //
 // JEDER EINTRAG TRAEGT `portsUnknown: true`. Die Quelle kennt keine
 // Anschluesse, und eine erfundene Belegung saehe im Plan genauso autoritativ
@@ -17,7 +17,7 @@
 // ─── WARUM ZWEI KAMERA-KATALOGE ────────────────────────────────────────────
 //
 // `cameraCatalog.ts` fuehrt 20 Modelle MIT Datenblatt-Ports — von Hand
-// recherchiert, Buchse fuer Buchse. Diese Datei fuehrt die uebrigen 365
+// recherchiert, Buchse fuer Buchse. Diese Datei fuehrt die uebrigen 361
 // Bodies OHNE. Die beiden zusammenzulegen hiesse, den Unterschied zwischen
 // „nachgesehen" und „noch nicht nachgesehen" zu verwischen — und genau der
 // ist die Auskunft, die jemand vor dem Bestellen braucht.
@@ -445,40 +445,6 @@ export const CAMERA_BODY_CATALOG: CameraBodyEntry[] = [
       portsUnknown: true,
     },
   },
-  // Quelle: https://www.blackmagicdesign.com/products/blackmagicursaminipro/techspecs/W-URSA-34
-  {
-    match: ['blackmagicursaminiprog2', 'ursaminiprog2'],
-    deviceTypeId: 'dad63596-2d73-5b07-ad6f-044e6cf6ee73',
-    template: {
-      manufacturerUrl: 'https://www.blackmagicdesign.com/products/blackmagicursaminipro/techspecs/W-URSA-34',
-      name: 'Blackmagic URSA Mini Pro G2',
-      category: CAM,
-      subtitle: 'cinema',
-      notes: 'Super 35 (24.6×13.8) · PL mount · 4.6K/4K/HD',
-      width: 240,
-      height: 160,
-      inputs: [],
-      outputs: [],
-      portsUnknown: true,
-    },
-  },
-  // Quelle: https://www.blackmagicdesign.com/media/release/20170302-01
-  {
-    match: ['blackmagicursaminipro46k', 'ursaminipro46k'],
-    deviceTypeId: '5ba41eb3-a5b0-5901-aba8-c6103bbe2b02',
-    template: {
-      manufacturerUrl: 'https://www.blackmagicdesign.com/media/release/20170302-01',
-      name: 'Blackmagic URSA Mini Pro 4.6K',
-      category: CAM,
-      subtitle: 'cinema',
-      notes: 'Super 35 (24.6×13.8) · PL mount · 4.6K/4K/HD',
-      width: 240,
-      height: 160,
-      inputs: [],
-      outputs: [],
-      portsUnknown: true,
-    },
-  },
   // Quelle: https://www.blackmagicdesign.com/products/blackmagicpocketcinemacamera/techspecs
   {
     match: ['blackmagicpocketcinema6kpro', 'pocketcinema6kpro'],
@@ -489,40 +455,6 @@ export const CAMERA_BODY_CATALOG: CameraBodyEntry[] = [
       category: CAM,
       subtitle: 'cinema',
       notes: 'Super 35 (24.6×13.8) · EF mount · 6K/4K/HD',
-      width: 240,
-      height: 160,
-      inputs: [],
-      outputs: [],
-      portsUnknown: true,
-    },
-  },
-  // Quelle: https://www.blackmagicdesign.com/products/blackmagicpocketcinemacamera/techspecs/W-CIN-19
-  {
-    match: ['blackmagicpocketcinema6kg2', 'pocketcinema6kg2'],
-    deviceTypeId: 'fcbbac28-7c6a-5306-8880-92765d027c69',
-    template: {
-      manufacturerUrl: 'https://www.blackmagicdesign.com/products/blackmagicpocketcinemacamera/techspecs/W-CIN-19',
-      name: 'Blackmagic Pocket Cinema 6K G2',
-      category: CAM,
-      subtitle: 'cinema',
-      notes: 'Super 35 (24.6×13.8) · EF mount · 6K/4K/HD',
-      width: 240,
-      height: 160,
-      inputs: [],
-      outputs: [],
-      portsUnknown: true,
-    },
-  },
-  // Quelle: https://www.blackmagicdesign.com/products/blackmagicpocketcinemacamera/techspecs/W-CIN-12
-  {
-    match: ['blackmagicpocketcinema4k', 'pocketcinema4k'],
-    deviceTypeId: '43dd1758-8b87-51c6-a68c-ee72767a7df4',
-    template: {
-      manufacturerUrl: 'https://www.blackmagicdesign.com/products/blackmagicpocketcinemacamera/techspecs/W-CIN-12',
-      name: 'Blackmagic Pocket Cinema 4K',
-      category: CAM,
-      subtitle: 'cinema',
-      notes: 'Micro Four Thirds · MFT mount · 4K/HD',
       width: 240,
       height: 160,
       inputs: [],
@@ -6100,10 +6032,12 @@ export const CAMERA_BODY_CATALOG: CameraBodyEntry[] = [
       portsUnknown: true,
     },
   },
+  // Quelle: https://pro.sony/ue_US/products/ptz-network-cameras/srg-xb25
   {
     match: ['sonysrgxb25', 'srgxb25'],
     deviceTypeId: 'e1691892-f50a-5379-9d24-ca95824b180d',
     template: {
+      manufacturerUrl: 'https://pro.sony/ue_US/products/ptz-network-cameras/srg-xb25',
       name: 'Sony SRG-XB25',
       category: CAM,
       subtitle: 'ptz',
@@ -6115,10 +6049,12 @@ export const CAMERA_BODY_CATALOG: CameraBodyEntry[] = [
       portsUnknown: true,
     },
   },
+  // Quelle: https://www.canon-europe.com/ptz-cameras/cr-n300/specifications/
   {
     match: ['canoncrn300wei', 'crn300wei'],
     deviceTypeId: 'a9572b79-61c5-5119-9f58-9dc9c6e36281',
     template: {
+      manufacturerUrl: 'https://www.canon-europe.com/ptz-cameras/cr-n300/specifications/',
       name: 'Canon CR-N300 (weiß)',
       category: CAM,
       subtitle: 'ptz',
@@ -6181,10 +6117,12 @@ export const CAMERA_BODY_CATALOG: CameraBodyEntry[] = [
       portsUnknown: true,
     },
   },
+  // Quelle: https://aidaimaging.com/uhd-100a/
   {
     match: ['aidauhd100a', 'uhd100a'],
     deviceTypeId: '97b69968-c652-5dfe-bf52-26633ac06711',
     template: {
+      manufacturerUrl: 'https://aidaimaging.com/uhd-100a/',
       name: 'AIDA UHD-100A',
       category: CAM,
       subtitle: 'broadcast',
@@ -6196,10 +6134,12 @@ export const CAMERA_BODY_CATALOG: CameraBodyEntry[] = [
       portsUnknown: true,
     },
   },
+  // Quelle: https://aidaimaging.com/ptz4k-ndi-x30/
   {
     match: ['aidaptz4kndix30', 'ptz4kndix30'],
     deviceTypeId: '8d80f3fd-05b4-50d7-986a-41a3fa55ba87',
     template: {
+      manufacturerUrl: 'https://aidaimaging.com/ptz4k-ndi-x30/',
       name: 'AIDA PTZ4K-NDI-X30',
       category: CAM,
       subtitle: 'ptz',

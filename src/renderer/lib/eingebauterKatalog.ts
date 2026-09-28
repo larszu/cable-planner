@@ -31,6 +31,8 @@ import { bromptonTemplates } from './bromptonCatalog.ts'
 import { clearcomTemplates } from './clearcomCatalog.ts'
 import { luminexTemplates } from './luminexCatalog.ts'
 import { netgearAvTemplates } from './netgearAvCatalog.ts'
+import { crestronTemplates } from './crestronCatalog.ts'
+import { ciscoTemplates } from './ciscoCatalog.ts'
 import { lightwareTemplates } from './lightwareCatalog.ts'
 // Uebernahme aus den Schwester-Planern (2026-09-24, `npm run katalog:uebernahme`).
 // Diese vier sind ERZEUGT; sie tragen `portsUnknown`, weil ihre Quellen keine
@@ -41,4 +43,6 @@ import { lensTemplates } from './lensCatalog.ts'
 import { rigTemplates } from './rigCatalog.ts'
 import { fixtureTemplates } from './fixtureCatalog.ts'
 
-export const EINGEBAUTER_KATALOG: readonly EquipmentTemplate[] = [...blackmagicTemplates, ...ubiquitiTemplates, ...monitorTemplates, ...cameraTemplates, ...miscTemplates, ...greengoTemplates, ...ajaTemplates, ...rossTemplates, ...lynxTemplates, ...switcherTemplates, ...avNetworkTemplates, ...broadcastToolsTemplates, ...audioTemplates, ...wirelessAudioTemplates, ...micTemplates, ...mediaStationTemplates, ...passiveTemplates, ...decimatorTemplates, ...bromptonTemplates, ...clearcomTemplates, ...luminexTemplates, ...netgearAvTemplates, ...lightwareTemplates, ...cameraBodyTemplates, ...lensTemplates, ...rigTemplates, ...fixtureTemplates]
+export const EINGEBAUTER_KATALOG: readonly EquipmentTemplate[] = [...blackmagicTemplates, ...ubiquitiTemplates, ...monitorTemplates, ...cameraTemplates, ...miscTemplates, ...greengoTemplates, ...ajaTemplates, ...rossTemplates, ...lynxTemplates, ...switcherTemplates, ...avNetworkTemplates, ...broadcastToolsTemplates, ...audioTemplates, ...wirelessAudioTemplates, ...micTemplates, ...mediaStationTemplates, ...passiveTemplates, ...decimatorTemplates, ...bromptonTemplates, ...clearcomTemplates, ...luminexTemplates, ...netgearAvTemplates,
+  ...ciscoTemplates,
+  ...crestronTemplates, ...lightwareTemplates, ...cameraBodyTemplates, ...lensTemplates, ...rigTemplates, ...fixtureTemplates]

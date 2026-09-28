@@ -44,6 +44,16 @@ interface ProviderConfig {
   consoleUrl: string
   /** Per-Provider override via window — für E2E-Tests. */
   overrideKey: string
+  /**
+   * Wie ein Schluessel dieses Anbieters ANFAENGT — als Platzhalter im
+   * Eingabefeld.
+   *
+   * Dazugekommen 2026-09-28, weil im Anlegen-Dialog `AIza…` fest im Markup
+   * stand: ein Platzhalter, der die Form eines Gemini-Schluessels zeigt,
+   * waehrend Claude gewaehlt ist, ist eine falsche Auskunft an genau der
+   * Stelle, an der jemand pruefen will, ob er das Richtige eingefuegt hat.
+   */
+  keyHint: string
 }
 
 const PROVIDERS: Record<AiProvider, ProviderConfig> = {
@@ -53,6 +63,7 @@ const PROVIDERS: Record<AiProvider, ProviderConfig> = {
     storageKey: STORAGE_KEY_GEMINI,
     consoleUrl: 'https://aistudio.google.com/app/apikey',
     overrideKey: '__CABLE_PLANNER_GEMINI__',
+    keyHint: 'AIza…',
   },
   claude: {
     label: 'Anthropic Claude',
@@ -60,6 +71,7 @@ const PROVIDERS: Record<AiProvider, ProviderConfig> = {
     storageKey: STORAGE_KEY_CLAUDE,
     consoleUrl: 'https://console.anthropic.com/settings/keys',
     overrideKey: '__CABLE_PLANNER_CLAUDE__',
+    keyHint: 'sk-ant-…',
   },
   openai: {
     label: 'OpenAI',
@@ -67,6 +79,7 @@ const PROVIDERS: Record<AiProvider, ProviderConfig> = {
     storageKey: STORAGE_KEY_OPENAI,
     consoleUrl: 'https://platform.openai.com/api-keys',
     overrideKey: '__CABLE_PLANNER_OPENAI__',
+    keyHint: 'sk-…',
   },
 }
 
@@ -124,6 +137,21 @@ export const hasAnyAiKey = (): boolean =>
 // Funktionen unverändert weiter aber lenken sie auf den neuen per-
 // Provider-Pfad um, damit Migration sanft läuft.
 
+// ─── WARUM DIESE ZWEI NICHT MEHR BENUTZT WERDEN ─────────────────────────
+//
+// Sie waren als sanfte Migration gedacht und wurden zur Falle. Am 2026-09-28
+// gemeldet: „in den KI Ausfuellen der Geraeteinfos ist immer Gemini
+// hinterlegt, unabhaengig von dem was im Menue ausgewaehlt ist." Beide
+// Anlegen-Dialoge (`LibraryPanel`, `NewRentmanDeviceWizard`) riefen sie —
+// sie sehen wie „der KI-Schluessel" aus, sind aber `getApiKey('gemini')`.
+// Folge: mit Claude oder OpenAI gewaehlt meldete der Knopf „kein API-Key",
+// und der im Fenster nachgetragene Schluessel landete unter Gemini, wo ihn
+// niemand mehr las.
+//
+// Sie bleiben als Schnittstelle stehen (Fremdcode kann sie rufen), aber im
+// eigenen Quelltext ruft sie nichts mehr; `tests/kiAnbieter.test.ts` haelt das
+// fest. Wer einen Schluessel braucht, fragt `getApiKey(getSelectedAiProvider())`
+// — dann steht die Auswahl in der Antwort.
 export const getGeminiApiKey = (): string => getApiKey('gemini')
 export const setGeminiApiKey = (key: string): void => setApiKey('gemini', key)
 

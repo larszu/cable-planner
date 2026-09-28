@@ -4,7 +4,12 @@ import { Icon } from '../shared/Icon'
 import type { ConnectorType, EquipmentTemplate } from '../../types/equipment'
 import { buildTemplateFromHints, type PortGroupHint } from '../../lib/portSuggestions'
 import { felderAusfuellen } from '../../lib/felderAusfuellen'
-import { getGeminiApiKey, setGeminiApiKey } from '../../lib/aiSuggestions'
+import {
+  getAiProviderConfig,
+  getApiKey,
+  getSelectedAiProvider,
+  setApiKey,
+} from '../../lib/aiSuggestions'
 import { useProjectStore } from '../../store/projectStore'
 import { useSettingsStore } from '../../store/settingsStore'
 import { format, useTranslation } from '../../lib/i18n'
@@ -132,12 +137,24 @@ export const NewRentmanDeviceWizard = ({
   const handleAusfuellen = async () => {
     setAiError('')
     setWebInfo('')
-    if (ausfuellQuelle === 'ki' && !getGeminiApiKey()) {
+    // Der Schluessel des GEWAEHLTEN Anbieters — siehe die Begruendung im
+    // Anlegen-Dialog (`LibraryPanel`) und im Kopf der Alt-Kurzschluesse in
+    // `aiSuggestions.ts`. Hier stand derselbe Fehler: `getGeminiApiKey()` ist
+    // fest `getApiKey('gemini')`, also meldete dieses Fenster mit gewaehltem
+    // Claude „kein API-Key" und legte den nachgetragenen Schluessel unter
+    // Gemini ab.
+    if (ausfuellQuelle === 'ki' && !getApiKey(getSelectedAiProvider())) {
       // Kein Schluessel — die Einstellungen aufklappen statt zu werfen.
       setApiKeyDraft('')
       setAiSettingsOpen(true)
       setAiError(
-        t('rentman.wizard.noGeminiKey', 'No AI API key configured. Enter one, or switch the source to web search in the settings.'),
+        format(
+          t(
+            'rentman.wizard.noKeyFor',
+            'No API key for {provider}. Enter one, pick another provider in the settings, or switch the source to web search.',
+          ),
+          { provider: getAiProviderConfig(getSelectedAiProvider()).label },
+        ),
       )
       return
     }
@@ -171,11 +188,11 @@ export const NewRentmanDeviceWizard = ({
   }
 
   const handleOpenAiSettings = () => {
-    setApiKeyDraft(getGeminiApiKey())
+    setApiKeyDraft(getApiKey(getSelectedAiProvider()))
     setAiSettingsOpen(true)
   }
   const handleSaveAiSettings = () => {
-    setGeminiApiKey(apiKeyDraft.trim())
+    setApiKey(getSelectedAiProvider(), apiKeyDraft.trim())
     setAiSettingsOpen(false)
     setAiError('')
   }
@@ -318,17 +335,28 @@ export const NewRentmanDeviceWizard = ({
 
         {aiSettingsOpen && (
           <div className="mb-3 border border-purple-700 bg-purple-950/40 p-3">
-            <div className="mb-2 text-cp-xs font-semibold text-purple-200">{t('rentman.wizard.geminiKeyHeading', 'Gemini API key')}</div>
+            {/* Name und Adresse des GEWAEHLTEN Anbieters. Hier stand beides fest
+                auf Gemini — Titel, Adresse und Platzhalter. Der Satz „(15
+                requests/min)" stand dabei fuer Gemini und galt fuer die anderen
+                zwei gar nicht; er ist weg, weil eine Zahl, die nur fuer einen
+                von drei stimmt, schlechter ist als keine. */}
+            <div className="mb-2 text-cp-xs font-semibold text-purple-200">
+              {format(t('rentman.wizard.aiKeyHeading', '{provider} API key'), {
+                provider: getAiProviderConfig(getSelectedAiProvider()).label,
+              })}
+            </div>
             <p className="mb-2 text-cp-xs text-cp-text-secondary">
-              {t('rentman.wizard.geminiKeyHintPre', 'Free at')}{' '}
-              <span className="font-mono text-cp-text-bright">aistudio.google.com/apikey</span>{' '}
-              {t('rentman.wizard.geminiKeyHintPost', '(15 requests/min). Stored locally in browser storage.')}
+              {t('rentman.wizard.aiKeyHintPre', 'Create one at')}{' '}
+              <span className="font-mono text-cp-text-bright">
+                {new URL(getAiProviderConfig(getSelectedAiProvider()).consoleUrl).hostname}
+              </span>{' '}
+              {t('rentman.wizard.aiKeyHintPost', '— stored locally in browser storage only.')}
             </p>
             <input
               type="password"
               value={apiKeyDraft}
               onChange={(event) => setApiKeyDraft(event.target.value)}
-              placeholder={t('rentman.wizard.aiKeyPlaceholder', 'AIzaSy...')}
+              placeholder={getAiProviderConfig(getSelectedAiProvider()).keyHint}
               className="w-full border border-cp-border bg-cp-surface-3 p-2 text-cp-xs"
               autoFocus
             />
@@ -343,7 +371,7 @@ export const NewRentmanDeviceWizard = ({
               <button
                 type="button"
                 onClick={() => {
-                  setGeminiApiKey('')
+                  setApiKey(getSelectedAiProvider(), '')
                   setApiKeyDraft('')
                   setAiSettingsOpen(false)
                 }}

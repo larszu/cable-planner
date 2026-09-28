@@ -88,7 +88,15 @@ describe('Initiative 11 — trägt diese Katalog-Zeile ein Datenblatt?', () => {
     // +8 am 2026-09-28: Katalog-Nachzuegler aus docs/device-identity-concept.md
     // (AJA FS2, Aquilon RS alpha, TriCaster Mini 4K, FreeSpeak II Base,
     // Shure UA844+SWB/AD4D/AD4Q, Sennheiser ASA 214), Blaetter geoeffnet.
-    expect(kommentare).toBe(1673)
+    // 1673 -> 1723 und 158 -> 104 am 2026-09-28: die Schwester-Planner haben
+    // ihre Belege selbst nachgezogen (light-planner `datasheetUrl`, 69 von 84
+    // statt 0; multicam 35 weitere Datenblattlinks). Die Zahl ist gestiegen,
+    // ohne dass hier jemand recherchiert hat -- das ist der Sinn erzeugter
+    // Kataloge.
+    // 1723 -> 1732 am 2026-09-28: sechs Crestron- und drei Cisco-Eintraege,
+    // jeder mit geoeffnetem Blatt. Die neun sind vollstaendig belegt, `unsourced`
+    // bleibt deshalb bei 104.
+    expect(kommentare).toBe(1732)
   })
 
   it('2. die Abdeckung wird gerechnet', () => {
@@ -96,8 +104,11 @@ describe('Initiative 11 — trägt diese Katalog-Zeile ein Datenblatt?', () => {
     // Die Summen stammen aus derselben Rechnung wie die Zeilen.
     expect(bericht.entries).toBe(bericht.perCatalogue.reduce((s, c) => s + c.entries, 0))
     expect(bericht.sourced + bericht.unsourced).toBe(bericht.entries)
-    expect(bericht.sourced).toBe(1673)
-    expect(bericht.entries).toBe(1831)
+    expect(bericht.sourced).toBe(1732)
+    // 1831 -> 1827: der multicam-planner hat vier erfundene Kamera-Eintraege
+    // entfernt (Datenblatt-Verifikation dort). Ein erzeugter Katalog, der
+    // kleiner wird, weil die Quelle aufgeraeumt hat, ist ein Gewinn.
+    expect(bericht.entries).toBe(1836)
 
     // Kein Katalog steht mehr ganz ohne Beleg (B-11 abgeschlossen) — und die
     // Liste wird GERECHNET, nicht aufgezählt: trägt einer von ihnen morgen
@@ -128,7 +139,7 @@ describe('Initiative 11 — trägt diese Katalog-Zeile ein Datenblatt?', () => {
     }
     // Und die Gesamtzahl der unbelegten steigt nicht. Sinken darf sie —
     // dann ist diese Zeile die Erinnerung, die Zahl nachzuziehen.
-    expect(bericht.unsourced).toBeLessThanOrEqual(158)
+    expect(bericht.unsourced).toBeLessThanOrEqual(104)
   })
 
   it('4. „kein Beleg" ist eine eigene Auskunft', () => {

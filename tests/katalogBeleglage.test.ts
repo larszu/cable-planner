@@ -172,6 +172,9 @@ describe('B-11 — der Kopf einer Katalog-Datei sagt seine Beleglage', () => {
     // 45 -> 26 am 2026-09-27: 19 Eintraege mit geoeffnetem Herstellerbeleg.
     // 26 -> 17 am 2026-09-27: acht auf das belegte Herstellermodell
     // umgestellt, USW-16 im USW-16-PoE aufgegangen.
-    expect(bericht.unsourced).toBe(158)
+    // 158 -> 104 am 2026-09-28: die Schwester-Planner haben ihre Belege selbst
+    // nachgezogen. 54 Eintraege sind hier belegt geworden, ohne dass jemand
+    // eine Adresse in dieses Repo geschrieben hat.
+    expect(bericht.unsourced).toBe(104)
   })
 })

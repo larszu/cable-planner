@@ -120,7 +120,12 @@ describe('jeder Quellen-Kommentar steht auch als Feld im Eintrag', () => {
     // +8 am 2026-09-28: Katalog-Nachzuegler aus docs/device-identity-concept.md
     // (AJA FS2, Aquilon RS alpha, TriCaster Mini 4K, FreeSpeak II Base,
     // Shure UA844+SWB/AD4D/AD4Q, Sennheiser ASA 214), Blaetter geoeffnet.
-    expect(pairs().length).toBe(1673)
+    // 1673 -> 1723 und 158 -> 104 am 2026-09-28: die Schwester-Planner haben
+    // ihre Belege selbst nachgezogen (light-planner `datasheetUrl`, 69 von 84
+    // statt 0; multicam 35 weitere Datenblattlinks). Die Zahl ist gestiegen,
+    // ohne dass hier jemand recherchiert hat -- das ist der Sinn erzeugter
+    // Kataloge.
+    expect(pairs().length).toBe(1732)
   })
 
   it('deckt die Kataloge ab, die Belege fuehren', () => {
@@ -135,7 +140,9 @@ describe('jeder Quellen-Kommentar steht auch als Feld im Eintrag', () => {
       // Uebernahme aus dem multicam-planner (2026-09-24, erzeugt).
       'cameraBodyCatalog.ts',
       'cameraCatalog.ts',
+      'ciscoCatalog.ts',
       'clearcomCatalog.ts',
+      'crestronCatalog.ts',
       'decimatorCatalog.ts',
       // Uebernahme aus dem light-planner (2026-09-24, erzeugt).
       'fixtureCatalog.ts',
@@ -280,6 +287,6 @@ describe('der Beleg zeigt auf den Hersteller, nicht auf einen Haendler', () => {
   it('prueft alle Belege, nicht nur die mit Feld', () => {
     // Ohne diese Zusicherung waere der Haendler-Test auch dann gruen, wenn
     // `pairs()` nichts mehr faende.
-    expect(pairs().filter((p) => p.field).length).toBe(1673)
+    expect(pairs().filter((p) => p.field).length).toBe(1732)
   })
 })
