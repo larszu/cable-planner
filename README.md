@@ -148,6 +148,18 @@ Built with **Electron, React, and TypeScript**, it is designed for real-world pr
   in project only*. No template is saved and nothing is uploaded to the device
   library — for loan gear, a client's box or a placeholder. To reuse it later,
   save it from the canvas as a template like any other device
+- **Start with just a name**: *Create your own device* needs nothing but a
+  name — no ports, manufacturer, connector or datasheet. Drop a cable end onto
+  the body of such a device and it gets a matching port (not on built-in
+  catalogue devices, whose ports come from the datasheet). Missing ports and
+  cable lengths show up in the plan check as calm hints, never as a block
+- **Catalogue type is automatic**: devices created by hand, imported (Rentman,
+  GraphML, NetBox, MultiCam, on-site survey) or loaded from older projects are
+  linked to their built-in catalogue model when the name matches exactly one
+  entry (spelling, manufacturer prefix, part number and renamed templates
+  count; several matches are never guessed). The link sits in the collapsed
+  *Catalogue & source* section and offers matching entries without applying
+  them
 - Port-level connection system
 - Cable properties:
   - Type (SDI, HDMI, Ethernet, etc.)

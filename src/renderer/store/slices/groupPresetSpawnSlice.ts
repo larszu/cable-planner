@@ -8,6 +8,7 @@ import { stampGroupLibraryRef } from '../../lib/librarySync'
 import { isProjectLocked, touchProject } from '../projectStoreHelpers'
 import { scheduleProjectAutosave } from '../projectAutosave'
 import type { ProjectState } from '../projectStore'
+import { mitKatalogTyp } from '../../lib/deviceTypeMatch'
 
 /**
  * #308 — GroupPreset-Spawner-Slice. Drei Actions die Equipment +
@@ -188,7 +189,7 @@ export const createGroupPresetSpawnSlice: StateCreator<
         .filter((c): c is Cable => c !== null)
       const updated = touchProject({
         ...state.project,
-        equipment: [...state.project.equipment, ...newEquipment],
+        equipment: [...state.project.equipment, ...newEquipment.map((e) => mitKatalogTyp(e))],
         cables: [...state.project.cables, ...newCables],
       })
       scheduleProjectAutosave(updated)

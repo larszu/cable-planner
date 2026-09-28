@@ -2328,6 +2328,13 @@ export const de: Dict = {
     'Hat nur {have}/2 Ports. Keine weiteren freien BNC-Ports verfügbar — bitte zuerst BNC-Ports hinzufügen oder bestehende freigeben.',
   'dualLink.incompleteTitle': 'Dual-Link Set {g} unvollständig',
   'dualLink.okFill': 'Ja, ergänzen',
+  'eq.catalogue.choose': 'Von Hand wählen',
+  'eq.catalogue.explain':
+    'Verknüpft dieses Gerät mit einem Modell aus dem eingebauten Katalog: Datenblatt-Link, Lager-Abgleich und Stückliste nutzen das. Wird automatisch gesetzt, wenn der Name eindeutig ist; zum Planen nicht nötig.',
+  'eq.catalogue.none': 'nicht verknüpft',
+  'eq.catalogue.suggest': 'Passender Katalogeintrag: {name}',
+  'eq.catalogue.title': 'Katalog & Herkunft',
+  'eq.catalogue.use': 'übernehmen',
   'eq.field.category': 'Kategorie',
   'eq.field.color': 'Gerätefarbe',
   'eq.field.compact': 'Kompakte Darstellung',
@@ -2336,8 +2343,6 @@ export const de: Dict = {
   'eq.field.deviceTypeClear': 'lösen',
   'eq.field.deviceTypeCount': '{n} von {total} Typen',
   'eq.field.deviceTypeFilter': 'Katalog durchsuchen…',
-  'eq.field.deviceTypeNone':
-    'Kein Katalog-Typ — Lager-Deckung und Stückliste können dieses Gerät nur über den Namen erraten.',
   'eq.field.deviceTypeScope':
     'setzt nur die Identität; Ports, Maße und Leistung bleiben unverändert.',
   'eq.field.deviceTypeUnset': '— keiner —',
@@ -3157,7 +3162,8 @@ export const de: Dict = {
   'library.create.groupLabelPrefix': 'Label prefix',
   'library.create.hePlaceholder': 'HE',
   'library.create.isRack': 'Ist Rack-Gerät',
-  'library.create.noPortGroups': 'Noch keine Port-Gruppen. Oben eine hinzufügen.',
+  'library.create.noPortGroups':
+    'Noch keine Anschlüsse — das ist in Ordnung. Jetzt oder später ergänzen; ein Kabel, das auf das Gerät gezogen wird, legt einen an.',
   'library.create.portGroups': 'Port-Gruppen',
   'library.create.rackDevice': '19" Rack-Gerät',
   'library.create.removeGroup': 'Gruppe entfernen',
@@ -6314,7 +6320,7 @@ export const de: Dict = {
   'check.portsGuessed': '{name}: Ports stammen aus {source} — gegen die realen Anschlüsse prüfen',
   'check.portsGuessed.noSource': 'einer Quelle ohne Datenblatt',
   'check.portsUnknown':
-    '{name}: Port-Belegung unbekannt (kein Datenblatt-Match) — reale Anschlüsse aus dem Datenblatt ergänzen',
+    '{name}: noch keine Anschlüsse eingetragen — ergänzen, sobald bekannt',
   'check.rf.sameChannel': 'gleicher Kanal {channel}',
   'check.rf.tooClose': 'Frequenzabstand < {mhz} MHz',
   'check.sdiNoGenlock':

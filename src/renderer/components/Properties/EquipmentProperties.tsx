@@ -37,6 +37,7 @@ import { DisplayFlagsSection } from './sections/DisplayFlagsSection'
 import { RentmanSyncBadge } from './sections/RentmanSyncBadge'
 import { PortsSection } from './sections/PortsSection'
 import { LibrarySaveSection } from './sections/LibrarySaveSection'
+import { CatalogueSection } from './sections/CatalogueSection'
 import { PrintSection } from './sections/PrintSection'
 import { RackSection } from './sections/RackSection'
 import { SectionFilterBar } from './SectionFilterBar'
@@ -202,6 +203,8 @@ export const EquipmentProperties = () => {
       <RackSection equipment={equipment} />
 
       <LibrarySaveSection equipment={equipment} />
+
+      <CatalogueSection equipment={equipment} />
 
       <ReplaceDeviceSection equipment={equipment} />
 

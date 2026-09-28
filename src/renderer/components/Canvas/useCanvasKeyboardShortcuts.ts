@@ -105,6 +105,10 @@ export function useCanvasKeyboardShortcuts(deps: CanvasKeyboardShortcutsDeps): v
               y: flow.y,
               width: 240,
               height: 80,
+              // Nur ein Name: die Ports kommen spaeter (Kabel auf den Koerper
+              // ziehen legt einen an). Die Marke haelt das in der
+              // Plan-Pruefung als ruhigen Hinweis fest.
+              portsUnknown: true,
             })
           })()
           return

@@ -495,6 +495,10 @@ const defaults: PersistedUiState = {
     'flags',
     'rack',
     'library',
+    // 2026-09-28 — Katalog & Herkunft neben „In Bibliothek speichern": beides
+    // betrifft das MODELL, nicht diese Instanz. Stand vorher als Picker ganz
+    // oben in der Identitaet.
+    'catalogue',
     'configs',
     'rack-instance',
     'print',

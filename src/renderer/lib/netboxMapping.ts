@@ -3,6 +3,7 @@ import type { Cable, CableType } from '../types/cable'
 import type { ConnectorType, EquipmentItem, Port } from '../types/equipment'
 import type { LocationFrame } from '../types/location'
 import { bitsToMask, maskToBits } from './subnet'
+import { mitKatalogTyp } from './deviceTypeMatch'
 import type {
   NetboxCable,
   NetboxComponent,
@@ -573,7 +574,7 @@ export const buildNetboxImportPlan = (
       (device.description ?? '').trim(),
     ].filter(Boolean)
 
-    const item: EquipmentItem = {
+    const item: EquipmentItem = mitKatalogTyp({
       id: uuidv4(),
       name: deviceName,
       ...(model && model !== deviceName ? { subtitle: model } : {}),
@@ -604,7 +605,7 @@ export const buildNetboxImportPlan = (
       // Ein Gerät ohne jede Komponente hätte sonst still eine leere
       // Port-Liste — der Plan-Check soll das Datenblatt einfordern.
       ...(built.inputs.length === 0 && built.outputs.length === 0 ? { portsUnknown: true } : {}),
-    }
+    }, { manufacturer, model })
     newEquipment.push(item)
     lookup.set(netboxId, indexPorts(item.id, item.inputs, item.outputs))
   }
