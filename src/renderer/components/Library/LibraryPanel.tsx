@@ -271,9 +271,8 @@ export const LibraryPanel = () => {
   // (#858). Gelesen und nicht durchgereicht: der Dialog zeigt den Stand,
   // nicht den Stand von vorhin.
   const ausfuellQuelle = useSettingsStore((s) => s.ausfuellQuelle)
-  /** #858 — Suchtext der Vorlagen-Auswahl im Anlegen-Dialog. */
-  const [presetSuche, setPresetSuche] = useState('')
-  /** Welche Vorlage uebernommen wurde — steht als Beleg unter der Auswahl. */
+  /** #858 — welche Vorlage uebernommen wurde: steht als Beleg unter dem
+   *  Namen und schaltet die Trefferliste ab. */
   const [presetName, setPresetName] = useState<string | null>(null)
   const [suggestError, setSuggestError] = useState('')
   const [suggestInfo, setSuggestInfo] = useState('')
@@ -398,15 +397,22 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
    * zeigte die selbst angelegten nicht.
    */
   const presetTreffer = useMemo(() => {
-    const q = presetSuche.trim().toLowerCase()
-    if (!q) return []
+    // #955 — das NAMENSFELD ist die Suche. Bis 2026-09-28 stand darueber ein
+    // zweites Suchfeld „Von einem vorhandenen Geraet ausgehen"; zwei Felder,
+    // in die man denselben Geraetenamen tippt, sind eins zu viel. Wer einen
+    // Namen eingibt, der in der Bibliothek steht, bekommt die Treffer unter
+    // dem Feld und kann einen als Vorlage nehmen. Wer von Hand anlegt, tippt
+    // weiter und die Liste verschwindet mit dem ersten Zeichen, das nicht
+    // mehr passt. Nach der Uebernahme ist die Liste weg (`presetName`).
+    const q = name.trim().toLowerCase()
+    if (q.length < 2 || presetName) return []
     return customLibrary
       .filter(
         (tpl) =>
           tpl.name.toLowerCase().includes(q) || (tpl.category ?? '').toLowerCase().includes(q),
       )
       .slice(0, 8)
-  }, [customLibrary, presetSuche])
+  }, [customLibrary, name, presetName])
 
   /**
    * Eine Vorlage in die Felder des Dialogs schreiben.
@@ -436,7 +442,6 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
       format(t('library.origin.preset', 'Copied from the library entry "{name}"'), { name: tpl.name }),
     )
     setPresetName(tpl.name)
-    setPresetSuche('')
     setSuggestError('')
     setSuggestInfo('')
   }
@@ -582,7 +587,6 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
     setGroupsOrigin(null)
     // #858 — sonst stuende beim naechsten Oeffnen noch „Felder aus X
     // uebernommen" unter einem Dialog, in dem nichts davon mehr steht.
-    setPresetSuche('')
     setPresetName(null)
     setSuggestError('')
     setSuggestInfo('')
@@ -1262,80 +1266,59 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
             <h3 id={anlegenTitleId} className="mb-3 text-cp-xl font-semibold">
               {t('library.create.title', 'Create your own device')}
             </h3>
-            {/*
-              VON EINEM VORHANDENEN GERAET ABSCHREIBEN (#858).
-
-              Nutzer-Meldung: „Beim anlegen neuer Geraete soll man schon
-              vorhandene Geraete als preset nehmen koennen um die Felder
-              vorauszufuellen und nur noch Teile davon anpassen zu muessen."
-
-              Die Auswahl steht GANZ OBEN und vor den Feldern: sie ist der
-              erste Schritt, nicht ein Zusatz. Und sie ist ein Suchfeld und
-              keine Liste — die Bibliothek traegt ueber 150 Geraete, eine
-              Klappliste damit ist zum Suchen unbrauchbar. Ohne Eingabe
-              erscheint nichts; wer von Hand anlegen will, tippt hier nicht
-              und sieht nur die Zeile.
-            */}
-            <div className="mb-3 border border-cp-border bg-cp-surface-3 p-2 text-cp-base">
-              <label className="block">
-                {t('library.create.preset', 'Start from an existing device (optional)')}
-                <input
-                  type="search"
-                  value={presetSuche}
-                  onChange={(event) => setPresetSuche(event.target.value)}
-                  placeholder={t('library.create.preset.placeholder', 'Search the library — name or category')}
-                  className="mt-1 w-full border border-cp-border bg-cp-surface-1 p-2"
-                />
-              </label>
-              {presetSuche.trim() !== '' && presetTreffer.length === 0 && (
-                <div className="mt-1 text-cp-xs text-cp-text-muted">
-                  {t('library.create.preset.noHit', 'No device in the library matches that.')}
-                </div>
-              )}
-              {presetTreffer.length > 0 && (
-                <ul className="mt-1 max-h-48 overflow-y-auto border border-cp-border-muted">
-                  {presetTreffer.map((tpl) => (
-                    <li key={`${tpl.category}-${tpl.name}`}>
-                      <button
-                        type="button"
-                        onClick={() => presetUebernehmen(tpl)}
-                        className="flex w-full items-center justify-between gap-2 px-2 py-1 text-left text-cp-xs hover:bg-cp-surface-4"
-                      >
-                        <span className="truncate">{tpl.name}</span>
-                        <span className="shrink-0 text-cp-text-muted">
-                          {format(t('library.create.preset.ports', '{cat} · {in} in / {out} out'), {
-                            cat: tpl.category ?? '—',
-                            in: tpl.inputs.length,
-                            out: tpl.outputs.length,
-                          })}
-                        </span>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-              {presetName && (
-                <div className="mt-1 text-cp-xs text-emerald-300">
-                  {format(t('library.create.preset.taken', 'Fields taken from "{name}". Adjust what differs.'), {
-                    name: presetName,
-                  })}
-                </div>
-              )}
-            </div>
-
             <div className="mb-3 grid grid-cols-1 sm:grid-cols-3 gap-2 text-cp-base">
-              <label className="block">
-                {t('common.name', 'Name')}
-                <input
-                  // Der schnelle Weg: Name tippen, anlegen. Alles andere darf
-                  // fehlen und kommt spaeter.
-                  autoFocus
-                  value={name}
-                  placeholder={t('library.create.defaultName', 'New device')}
-                  onChange={(event) => setName(event.target.value)}
-                  className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-2"
-                />
-              </label>
+              <div className="relative block sm:col-span-3">
+                <label className="block">
+                  {t('common.name', 'Name')}
+                  <input
+                    // Der schnelle Weg: Name tippen, anlegen. Alles andere darf
+                    // fehlen und kommt spaeter. Das Feld ist zugleich die
+                    // Suche in der Bibliothek (#955, `presetTreffer`).
+                    autoFocus
+                    value={name}
+                    placeholder={t('library.create.defaultName', 'New device')}
+                    onChange={(event) => setName(event.target.value)}
+                    className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-2"
+                  />
+                </label>
+                {presetTreffer.length > 0 && (
+                  <ul
+                    aria-label={t('library.create.preset.list', 'Matching library devices')}
+                    className="absolute left-0 right-0 z-10 mt-1 max-h-48 overflow-y-auto border border-cp-border bg-cp-surface-1"
+                  >
+                    {presetTreffer.map((tpl) => (
+                      <li key={`${tpl.category}-${tpl.name}`}>
+                        <button
+                          type="button"
+                          onClick={() => presetUebernehmen(tpl)}
+                          className="flex w-full items-center justify-between gap-2 px-2 py-1.5 text-left text-cp-xs hover:bg-cp-surface-4"
+                        >
+                          <span className="min-w-0">
+                            <span className="block truncate">{tpl.name}</span>
+                            <span className="block text-cp-text-muted">
+                              {format(t('library.create.preset.ports', '{cat} · {in} in / {out} out'), {
+                                cat: tpl.category ?? '—',
+                                in: tpl.inputs.length,
+                                out: tpl.outputs.length,
+                              })}
+                            </span>
+                          </span>
+                          <span className="shrink-0 text-cp-accent">
+                            {t('library.create.preset.use', 'Use as template')}
+                          </span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {presetName && (
+                  <div className="mt-1 text-cp-xs text-emerald-300">
+                    {format(t('library.create.preset.taken', 'Fields taken from "{name}". Adjust what differs.'), {
+                      name: presetName,
+                    })}
+                  </div>
+                )}
+              </div>
               <label className="block">
                 {t('library.create.category', 'Category')}
                 <CategorySelect

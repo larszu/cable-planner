@@ -149,9 +149,14 @@ describe('es gibt einen Ausfuellen-Knopf und eine Stelle, die ihn steuert', () =
 describe('eine vorhandene Vorlage kann die Felder fuellen', () => {
   const src = () => lies('components/Library/LibraryPanel.tsx')
 
-  it('der Anlegen-Dialog hat eine Vorlagen-Auswahl', () => {
+  it('das Namensfeld IST die Vorlagen-Suche — kein zweites Feld (#955)', () => {
     expect(src()).toContain('presetUebernehmen')
-    expect(src()).toContain('library.create.preset')
+    expect(src()).toContain("t('library.create.preset.use'")
+    // Bis 2026-09-28 stand ein eigenes Suchfeld ueber dem Namen. Zwei Felder
+    // fuer denselben Geraetenamen sind eins zu viel.
+    expect(src()).not.toContain('presetSuche')
+    const treffer = src().slice(src().indexOf('const presetTreffer'), src().indexOf('const presetUebernehmen'))
+    expect(treffer).toContain('const q = name.trim().toLowerCase()')
   })
 
   it('sie fuellt ALLE Felder, nicht nur den Namen', () => {

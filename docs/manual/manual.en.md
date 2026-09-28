@@ -93,7 +93,9 @@ dragged into any order. The filter field finds a section by title; **Collapse al
 ### Creating your own device
 
 - **Library → Create your own device** needs only a name. Ports, manufacturer
-  and datasheet can follow later. Drop a cable end onto the body of such a
+  and datasheet can follow later. While you type, matching library devices
+  appear under the name field; **Use as template** copies category, rack size
+  and ports, and the name gets *(copy)* so the original stays untouched. Drop a cable end onto the body of such a
   device and it gets a matching port.
 - **Place in project only** keeps the device out of the template library — for
   loan gear, a client's box or a placeholder.
