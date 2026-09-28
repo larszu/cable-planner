@@ -96,7 +96,10 @@ sich die App.
 ### Eigenes Gerät anlegen
 
 - **Eigenes Gerät anlegen** in der Bibliothek braucht nur einen Namen.
-  Anschlüsse, Hersteller und Datenblatt können später folgen. Ein Kabelende
+  Anschlüsse, Hersteller und Datenblatt können später folgen. Beim Tippen
+  erscheinen passende Bibliotheksgeräte unter dem Namensfeld; **Als Vorlage
+  nutzen** übernimmt Kategorie, Rackmaß und Anschlüsse, der Name bekommt
+  *(Kopie)*, damit das Original stehen bleibt. Ein Kabelende
   auf den Körper eines solchen Geräts fallen lassen, und es bekommt einen
   passenden Anschluss.
 - **Nur im Projekt platzieren** hält das Gerät aus der Vorlagenbibliothek

@@ -3196,11 +3196,10 @@ export const de: Dict = {
   'library.create.saveTitle': 'In die Bibliothek speichern (zur Wiederverwendung)',
   'library.create.title': 'Eigenes Gerät anlegen',
   // #858 — Vorlage als Ausgangspunkt und der EINE Ausfüllen-Knopf.
-  'library.create.preset': 'Von einem vorhandenen Gerät ausgehen (optional)',
-  'library.create.preset.placeholder': 'In der Bibliothek suchen — Name oder Kategorie',
-  'library.create.preset.noHit': 'Kein Gerät in der Bibliothek passt dazu.',
+  'library.create.preset.list': 'Passende Geräte in der Bibliothek',
   'library.create.preset.ports': '{cat} · {in} Ein / {out} Aus',
   'library.create.preset.suffix': '(Kopie)',
+  'library.create.preset.use': 'Als Vorlage nutzen',
   'library.create.preset.taken': 'Felder aus „{name}" übernommen. Passe an, was abweicht.',
   'library.create.fill': 'Ausfüllen',
   'library.create.fill.busy': 'Wird ausgefüllt …',
