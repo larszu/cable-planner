@@ -98,6 +98,10 @@ contextBridge.exposeInMainWorld('cablePlanner', {
     upload: (server: string, items: unknown[]) =>
       ipcRenderer.invoke('deviceLibrary:upload', server, items) as Promise<unknown>,
   },
+  // #946 — Standbild fuer die Stream-Vorschau. Antworttyp in `bridge.ts`.
+  streamPreview: {
+    snapshot: (url: string) => ipcRenderer.invoke('streamPreview:snapshot', url) as Promise<unknown>,
+  },
   // Cloud-Projekte (#871/#870): eine Operation aus fester Liste (cloudService).
   cloud: {
     call: (server: string, op: string, args: unknown[]) =>

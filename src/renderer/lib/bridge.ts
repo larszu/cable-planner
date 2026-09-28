@@ -8,6 +8,10 @@ import { createWebDeviceLibraryApi } from './deviceLibraryWeb'
 import { createWebCloudApi, type CloudBridge } from './cloudWeb'
 import type { DeviceLibraryApi } from '../types/deviceLibrary'
 
+export type StreamSnapshotResult =
+  | { ok: true; dataUri: string; fetchedAt: string }
+  | { ok: false; code: 'invalid-url' | 'unreachable' | 'http' | 'not-image' | 'too-large' | 'desktop-only'; status?: number }
+
 /**
  * BEDARF 133 — was die Freigabe anbietet, und was sie zurueckhaelt.
  *
@@ -486,6 +490,10 @@ type CablePlannerApi = {
   }
   /** Geraetebibliothek. Desktop: Abruf und Token im Main-Prozess; Web: direkt, Token in localStorage. */
   deviceLibrary: DeviceLibraryApi
+  /** #946 — Standbild fuer die Stream-Vorschau, geholt im Main-Prozess. */
+  streamPreview: {
+    snapshot: (url: string) => Promise<StreamSnapshotResult>
+  }
   /** #871/#870 — Cloud-Projekte mit dem Konto der Geraetebibliothek. Typisiert in `lib/cloud.ts`. */
   cloud: CloudBridge
   /** #872 — der lokale MCP-Server. Nur lesend, aus als Vorgabe. */
@@ -1200,6 +1208,11 @@ const webFallbackApi: CablePlannerApi = {
     deleteItem: async () => false,
   },
   deviceLibrary: createWebDeviceLibraryApi(),
+  // Im Browser verbietet die Herkunft den Abruf fremder Kameras ohnehin;
+  // gesagt wird es, statt ein leeres Bild zu zeigen.
+  streamPreview: {
+    snapshot: async () => ({ ok: false, code: 'desktop-only' as const }),
+  },
   cloud: createWebCloudApi(),
   mcp: {
     // Im Browser gibt es keinen lokalen Server — und keine Behauptung, es

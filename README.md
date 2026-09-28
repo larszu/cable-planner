@@ -143,6 +143,11 @@ Built with **Electron, React, and TypeScript**, it is designed for real-world pr
 ### 🔌 Equipment & Cable Management
 - Built-in broadcast equipment library
 - Custom device templates
+- **Devices for this project only**: right-click an empty spot on the canvas →
+  *New device here …*, or *Create your own device* in the library, then *Place
+  in project only*. No template is saved and nothing is uploaded to the device
+  library — for loan gear, a client's box or a placeholder. To reuse it later,
+  save it from the canvas as a template like any other device
 - Port-level connection system
 - Cable properties:
   - Type (SDI, HDMI, Ethernet, etc.)
@@ -169,6 +174,18 @@ Built with **Electron, React, and TypeScript**, it is designed for real-world pr
   saved projects that are not open keep the old name as free text). They
   appear in every picker and travel with the shared library (Network sync),
   so a team uses the same names
+- **VLAN next to the address** (#946): *Network & access* has a VLAN ID field
+  (switches and routers keep it in their switch configuration), and the device
+  card on the canvas shows it right after the IP address: `10.0.0.5 /24 · VLAN 30`
+- **Streams per device** (#946): *Streams* lists what a device sends or
+  receives — RTSP, SRT, RTMP, NDI, HLS, WebRTC, ST 2110 — with direction,
+  label and address. A user name or password typed into the address is removed
+  when leaving the field (and from older project files): the project file
+  travels, the password belongs in *Network & access*. Optionally a **still
+  image preview** under the device on the canvas: the app cannot play RTSP or
+  NDI, so it fetches the http(s) still image most cameras and encoders offer
+  (e.g. `/snapshot.jpg`) every 10 s, desktop app only, and labels it with its
+  time. When the fetch fails, the tile says why instead of showing an old image
 
 ---
 
@@ -516,6 +533,13 @@ one, and **Restore default** goes back.
   library withdraws disappear locally. Every entry goes through the same
   template check as a submission; entries that fail it are skipped and
   counted. The fetched state stays available offline.
+- **Works without the server** — if devices.zumpelars.de is down, slow or
+  replaced, the app keeps the devices from the last sync: only a successful
+  answer changes them, a request gives up after 15 s, signing out keeps them,
+  and each server address has its own stored state, so switching to another
+  server and back loses nothing. A freshly set-up server with no devices
+  cannot wipe the local state. The rule lives in the shared client
+  (`syncFrom`) and is the same in every planner.
 - **Your own devices go up** — templates you created or changed are uploaded
   to the library, so what you build in one planner is there for the others.
   With *Upload my own devices automatically* (on by default; it only acts
@@ -642,7 +666,11 @@ the open project into the cloud of your device-library account
   connections, service history. Every filled property is preselected; an
   empty one you tick prints as a dash. *Print* opens the print dialog, *Save
   PDF* writes the file (desktop app; the web edition offers "Save as PDF" in
-  the print dialog). Login credentials are never offered
+  the print dialog). Login credentials are never offered. Also from the
+  right-click menu on a device, the selection toolbar and *Export → Patch
+  sheets → Datasheets (n)…*: for several devices one list with "filled on n
+  of m" per property, one A4 page per device in one document, optionally the
+  first photo of each device
 - **Operator overview** (HTML) — which source (by role name) lies on which
   switcher or router input, where each output goes (through patch panels),
   contacts, web interfaces, and an empty box for operating steps: the plan does

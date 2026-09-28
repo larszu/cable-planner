@@ -47,7 +47,7 @@ export const PrintSection = ({ equipment }: { equipment: EquipmentItem }) => {
             Aenderung. */}
         {datenblatt &&
           createPortal(
-            <GeraeteDatenblattDialog equipmentId={equipment.id} onClose={() => setDatenblatt(false)} />,
+            <GeraeteDatenblattDialog equipmentIds={[equipment.id]} onClose={() => setDatenblatt(false)} />,
             document.body,
           )}
         <button

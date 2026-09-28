@@ -619,6 +619,30 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
     resetDialog()
   }
 
+  /**
+   * Ein Geraet NUR fuer dieses Projekt — ohne Vorlage in der Bibliothek.
+   *
+   * Vorher legte jeder Weg durch diesen Dialog eine Vorlage an, und mit
+   * eingeschaltetem Auto-Upload ging sie an devices.zumpelars.de. Fuer ein
+   * Leihgeraet, einen Adapter aus der Kiste des Kunden oder einen Platzhalter
+   * „kommt noch" war das zu viel: die Bibliothek fuellte sich mit Einmal-
+   * Geraeten, und die Gemeinschaftsbibliothek bekam Vorschlaege, die niemand
+   * einreichen wollte. Soll es spaeter doch wiederverwendet werden: aus dem
+   * Canvas als Vorlage speichern, wie jedes andere Geraet.
+   */
+  const placeOnly = () => {
+    const template = buildTemplate()
+    persistCategory(template)
+    if (pendingDropOnSave) {
+      addEquipment({ ...template, x: pendingDropOnSave.x, y: pendingDropOnSave.y })
+    } else {
+      addEquipment({ ...template, ...nextPosition })
+    }
+    setShowCreateDialog(false)
+    setPendingDropOnSave(null)
+    resetDialog()
+  }
+
   const handleSearchNetBox = async () => {
     setNetBoxBusy(true)
     setNetBoxError(null)
@@ -1525,6 +1549,17 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
                 )}
               >
                 {t('library.create.save', 'Save to library')}
+              </button>
+              <button
+                type="button"
+                onClick={placeOnly}
+                className="border border-cp-border bg-cp-surface-3 px-3 py-1 text-cp-base hover:bg-cp-surface-4"
+                title={t(
+                  'library.create.placeOnlyTitle',
+                  'Place the device in this project only: no template in the library, nothing is uploaded. Good for loan gear, placeholders and one-offs.',
+                )}
+              >
+                {t('library.create.placeOnly', 'Place in project only')}
               </button>
               <button
                 type="button"

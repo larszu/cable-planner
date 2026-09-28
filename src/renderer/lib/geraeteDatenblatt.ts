@@ -232,7 +232,8 @@ const GRUPPEN: Array<[DatenblattGruppe, string, string]> = [
   ['operation', 'datasheet.group.operation', 'Operation'],
 ]
 
-export function datenblattHtml(project: CablePlannerProject, equipmentId: string, o: DatenblattOptionen): string {
+/** Titel und Inhalt EINER Geraeteseite, ohne Dokumentrahmen. */
+function datenblattSeite(project: CablePlannerProject, equipmentId: string, o: DatenblattOptionen): { titel: string; body: string } {
   const t = o.t ?? quelle
   const e = project.equipment.find((x) => x.id === equipmentId)
   const felder = datenblattFelder(project, equipmentId, { t, ...(o.lang ? { lang: o.lang } : {}) }) ?? []
@@ -261,13 +262,15 @@ export function datenblattHtml(project: CablePlannerProject, equipmentId: string
 
   const leer = !gewaehlt.length && !fotos.length ? `<p class="leise">${esc(t('datasheet.nothingSelected', 'No property selected.'))}</p>` : ''
 
-  return druckblatt(
-    {
-      titel: e ? (e.shortName ? `${e.name} (${e.shortName})` : e.name) : equipmentId,
-      ...(o.stempel ? { stempel: o.stempel } : {}),
-      // Fotos rechts neben den Feldern statt darüber: so bleibt ein Gerät
-      // mit Foto, Feldern und Verbindungen auf einer A4-Seite.
-      css: `  h2 { margin: 3mm 0 1.5mm; }
+  return {
+    titel: e ? (e.shortName ? `${e.name} (${e.shortName})` : e.name) : equipmentId,
+    body: `<div class="oben"><div class="felder">${abschnitte}</div>${fotoHtml}</div>\n${tabellen}\n${leer}`,
+  }
+}
+
+// Fotos rechts neben den Feldern statt darüber: so bleibt ein Gerät mit Foto,
+// Feldern und Verbindungen auf einer A4-Seite.
+const SEITEN_CSS = `  h2 { margin: 3mm 0 1.5mm; }
   .oben { display: flex; gap: 5mm; align-items: flex-start; }
   .felder { flex: 1 1 auto; min-width: 0; }
   .felder > h2:first-child { margin-top: 0; }
@@ -275,8 +278,75 @@ export function datenblattHtml(project: CablePlannerProject, equipmentId: string
   .fotos figure { margin: 0; }
   .fotos img { display: block; max-width: 100%; max-height: 60mm; object-fit: contain; }
   .fotos figcaption { font-size: 7pt; color: #555; margin-top: 1mm; }
-  dd { overflow-wrap: anywhere; }`,
+  dd { overflow-wrap: anywhere; }`
+
+export function datenblattHtml(project: CablePlannerProject, equipmentId: string, o: DatenblattOptionen): string {
+  const { titel, body } = datenblattSeite(project, equipmentId, o)
+  return druckblatt({ titel, ...(o.stempel ? { stempel: o.stempel } : {}), css: SEITEN_CSS }, body)
+}
+
+/**
+ * Mehrere Geraete in EINEM Dokument, eine Seite je Geraet — ein Druckauftrag,
+ * eine PDF-Datei. Die Auswahl der Eigenschaften gilt fuer alle; was ein Geraet
+ * nicht hat, steht bei ihm als Strich, wenn es angekreuzt ist (dieselbe Regel
+ * wie beim einzelnen Blatt). Fotos je Geraet ueber `fotoIdsJeGeraet`.
+ */
+export function datenblaetterHtml(
+  project: CablePlannerProject,
+  equipmentIds: readonly string[],
+  o: Omit<DatenblattOptionen, 'fotoIds'> & { fotoIdsJeGeraet?: Readonly<Record<string, readonly string[]>> },
+): string {
+  if (equipmentIds.length === 1) {
+    return datenblattHtml(project, equipmentIds[0], { ...o, fotoIds: o.fotoIdsJeGeraet?.[equipmentIds[0]] ?? [] })
+  }
+  const seiten = equipmentIds.map((id) => {
+    const { titel, body } = datenblattSeite(project, id, { ...o, fotoIds: o.fotoIdsJeGeraet?.[id] ?? [] })
+    return `<section class="seite"><h1>${esc(titel)}</h1>${body}${o.stempel ? `<footer>${esc(o.stempel)}</footer>` : ''}</section>`
+  })
+  const t = o.t ?? quelle
+  return druckblatt(
+    {
+      titel: t('datasheet.titleMany', 'Device datasheets'),
+      ohneKopf: true,
+      css: `${SEITEN_CSS}
+  .seite { break-after: page; }
+  .seite:last-child { break-after: auto; }`,
     },
-    `<div class="oben"><div class="felder">${abschnitte}</div>${fotoHtml}</div>\n${tabellen}\n${leer}`,
+    seiten.join('\n'),
   )
 }
+
+/** Ein Feld der gemeinsamen Liste fuer mehrere Geraete. */
+export interface DatenblattFeldMehrere {
+  key: string
+  gruppe: DatenblattGruppe
+  label: string
+  /** Bei wie vielen der Geraete das Feld ausgefuellt ist. */
+  gefuellt: number
+  gesamt: number
+}
+
+/**
+ * Die Vereinigung der Felder mehrerer Geraete, in der Reihenfolge ihres
+ * ersten Auftretens. Vorausgewaehlt (`vorauswahlMehrere`) ist, was bei
+ * mindestens einem Geraet ausgefuellt ist — „alle ausgefuellten" aus #919,
+ * ueber die Auswahl gelesen.
+ */
+export function datenblattFelderMehrere(
+  project: CablePlannerProject,
+  equipmentIds: readonly string[],
+  o: { t?: Uebersetzen; lang?: Lang } = {},
+): DatenblattFeldMehrere[] {
+  const nachKey = new Map<string, DatenblattFeldMehrere>()
+  for (const id of equipmentIds) {
+    for (const f of datenblattFelder(project, id, o) ?? []) {
+      const alt = nachKey.get(f.key)
+      if (alt) alt.gefuellt += f.wert !== '' ? 1 : 0
+      else nachKey.set(f.key, { key: f.key, gruppe: f.gruppe, label: f.label, gefuellt: f.wert !== '' ? 1 : 0, gesamt: equipmentIds.length })
+    }
+  }
+  return [...nachKey.values()]
+}
+
+export const vorauswahlMehrere = (felder: readonly DatenblattFeldMehrere[]): Set<string> =>
+  new Set(felder.filter((f) => f.gefuellt > 0).map((f) => f.key))

@@ -6,6 +6,7 @@ import { registerCredentialsIpc } from './ipc/credentialsIpc.js'
 import { appendLogCapped } from './util/appendLogCapped.js'
 import { registerRentmanIpc } from './ipc/rentmanIpc.js'
 import { registerDeviceLibraryIpc } from './ipc/deviceLibraryIpc.js'
+import { registerStreamPreviewIpc } from './ipc/streamPreviewIpc.js'
 import { registerCloudIpc } from './ipc/cloudIpc.js'
 import { registerNetboxIpc } from './ipc/netboxIpc.js'
 import { openExternalProject, registerProjectIpc } from './ipc/projectIpc.js'
@@ -369,6 +370,7 @@ app.whenReady().then(async () => {
   registerRentmanIpc()
   registerNetboxIpc()
   registerDeviceLibraryIpc()
+  registerStreamPreviewIpc()
   registerCloudIpc()
   registerProjectIpc()
   registerAtemIpc()

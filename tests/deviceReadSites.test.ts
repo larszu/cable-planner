@@ -93,6 +93,10 @@ const SONSTIGE_DOMAENEN = [
   // `lib/cloud.ts`), kein Befund einer Anlage.
   'cloud',
   'collabDiscovery',
+  // #946 — ein Standbild fuer die Vorschau-Kachel. Es kommt zwar von einem
+  // Geraet, landet aber nur im Komponenten-State der Kachel (mit Uhrzeit),
+  // nie im Plan — genau die Grenze, die dieser Test bewacht.
+  'streamPreview',
   'credentials',
   'documentLog',
   'graphml',

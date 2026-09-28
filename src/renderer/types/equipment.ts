@@ -746,6 +746,9 @@ export interface EquipmentItem {
    * Optional → alte Projekte heilen zu [].
    */
   networkInterfaces?: import('./network').NetworkInterface[]
+  /** #946 — Streams, die das Geraet sendet oder empfaengt (RTSP, SRT, NDI …).
+   *  Begruendung und Grenzen in `types/stream.ts`. */
+  streams?: import('./stream').StreamEndpoint[]
   /**
    * Wofuer die Adresse in den Alt-Feldern da ist. Ohne Angabe gilt
    * `unspecified` — geraten wird nicht: ob die eine IP einer Kamera ihre

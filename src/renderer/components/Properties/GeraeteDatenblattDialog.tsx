@@ -2,14 +2,16 @@ import { useMemo, useState } from 'react'
 import { FileDown, Printer } from 'lucide-react'
 import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
 import { useUiStore } from '../../store/uiStore'
-import { translate, useTranslation } from '../../lib/i18n'
+import { format, translate, useTranslation } from '../../lib/i18n'
 import { ModalShell } from '../shared/ModalShell'
 import { Icon } from '../shared/Icon'
+import { PanelHint } from '../shared/PanelHint'
 import {
+  datenblaetterHtml,
   datenblattFelder,
-  datenblattHtml,
+  datenblattFelderMehrere,
   geraeteFotos,
-  vorauswahl,
+  vorauswahlMehrere,
   type DatenblattGruppe,
 } from '../../lib/geraeteDatenblatt'
 import { datenblattPdf } from '../../lib/datenblattPdf'
@@ -19,31 +21,64 @@ import { stampForRows, stampLine } from '../../lib/documentStamp'
 import { steckbriefStandTable } from '../../lib/steckbrief'
 
 /**
- * #919 — Datenblatt EINES Geräts: Eigenschaften ankreuzen, Foto wählen,
- * drucken oder als PDF speichern. Vorausgewählt ist, was ausgefüllt ist;
- * die Auswahl lebt nur im Dialog — sie ist eine Entscheidung für dieses eine
- * Blatt, keine Eigenschaft des Geräts.
+ * #919 — Datenblatt: Eigenschaften ankreuzen, Foto wählen, drucken oder als
+ * PDF speichern. Vorausgewählt ist, was ausgefüllt ist; die Auswahl lebt nur
+ * im Dialog — sie ist eine Entscheidung für dieses Blatt, keine Eigenschaft
+ * des Geräts.
+ *
+ * Mehrere Geräte (Rechtsklick in eine Auswahl, Auswahl-Leiste, Export →
+ * Patch-Sheets): EINE Liste für alle, je Zeile „ausgefüllt bei n von m",
+ * eine Seite je Gerät in einem Dokument. Fotos dann je Gerät das erste
+ * geladene — einzeln ankreuzen hiesse, bei zwanzig Geräten sechzig Haken.
  */
-export const GeraeteDatenblattDialog = ({ equipmentId, onClose }: { equipmentId: string; onClose: () => void }) => {
+export const GeraeteDatenblattDialog = ({ equipmentIds, onClose }: { equipmentIds: readonly string[]; onClose: () => void }) => {
   const t = useTranslation()
   const language = useUiStore((s) => s.language)
   const lang = language === 'de' ? 'de' : 'en'
   const project = useProjectStore((s) => s.project)
-  const felder = useMemo(
-    () => datenblattFelder(project, equipmentId, { t: (key, fallback) => translate(language, key, fallback), lang }) ?? [],
-    [project, equipmentId, language, lang],
+  const ids = useMemo(
+    () => equipmentIds.filter((id) => project.equipment.some((e) => e.id === id)),
+    [equipmentIds, project.equipment],
   )
-  const fotos = useMemo(() => geraeteFotos(project, equipmentId), [project, equipmentId])
-  const [auswahl, setAuswahl] = useState<Set<string>>(() => vorauswahl(felder))
+  const mehrere = ids.length > 1
+  const felder = useMemo(
+    () => datenblattFelderMehrere(project, ids, { t: (key, fallback) => translate(language, key, fallback), lang }),
+    [project, ids, language, lang],
+  )
+  const fotos = useMemo(() => (mehrere || !ids[0] ? [] : geraeteFotos(project, ids[0])), [project, ids, mehrere])
+  // Beim einzelnen Gerät steht der Wert neben dem Haken, wie vorher.
+  const wertEinzeln = useMemo(
+    () =>
+      new Map(
+        mehrere || !ids[0]
+          ? []
+          : (datenblattFelder(project, ids[0], { t: (key, fallback) => translate(language, key, fallback), lang }) ?? []).map(
+              (f) => [f.key, f.wert] as const,
+            ),
+      ),
+    [project, ids, mehrere, language, lang],
+  )
+  const [auswahl, setAuswahl] = useState<Set<string>>(() => vorauswahlMehrere(felder))
   const [fotoIds, setFotoIds] = useState<string[]>(() => fotos.filter((f) => f.dataUri).slice(0, 1).map((f) => f.id))
+  const [ersteFotos, setErsteFotos] = useState(true)
   const [pdfFehler, setPdfFehler] = useState('')
-  const name = project.equipment.find((e) => e.id === equipmentId)?.name ?? equipmentId
+  const name = mehrere
+    ? format(t('datasheet.devices', '{n} devices'), { n: String(ids.length) })
+    : (project.equipment.find((e) => e.id === ids[0])?.name ?? ids[0] ?? '')
+
+  const fotoIdsJeGeraet = (): Record<string, string[]> => {
+    if (!mehrere) return ids[0] ? { [ids[0]]: fotoIds } : {}
+    if (!ersteFotos) return {}
+    return Object.fromEntries(
+      ids.map((id) => [id, geraeteFotos(project, id).filter((f) => f.dataUri).slice(0, 1).map((f) => f.id)]),
+    )
+  }
 
   // Derselbe Stempel wie die Geräte-Steckbriefe: das Blatt ist ein Auszug daraus.
   const html = () =>
-    datenblattHtml(project, equipmentId, {
+    datenblaetterHtml(project, ids, {
       auswahl,
-      fotoIds,
+      fotoIdsJeGeraet: fotoIdsJeGeraet(),
       stempel: stampLine(stampForRows(project, steckbriefStandTable, new Date())),
       t,
       lang,
@@ -89,11 +124,11 @@ export const GeraeteDatenblattDialog = ({ equipmentId, onClose }: { equipmentId:
     <ModalShell
       open
       onClose={onClose}
-      title={`${t('datasheet.title', 'Device datasheet')} — ${name}`}
+      title={`${mehrere ? t('datasheet.titleMany', 'Device datasheets') : t('datasheet.title', 'Device datasheet')} — ${name}`}
       maxWidth="3xl"
       footer={
         <div className="flex flex-wrap items-center gap-2">
-          <button type="button" className={knopf} onClick={() => setAuswahl(vorauswahl(felder))}>
+          <button type="button" className={knopf} onClick={() => setAuswahl(vorauswahlMehrere(felder))}>
             {t('datasheet.selectFilled', 'Filled ones')}
           </button>
           <button type="button" className={knopf} onClick={() => setAuswahl(new Set(felder.map((f) => f.key)))}>
@@ -114,9 +149,20 @@ export const GeraeteDatenblattDialog = ({ equipmentId, onClose }: { equipmentId:
         </div>
       }
     >
-      <p className="mb-2 text-cp-xs text-cp-text-muted">
-        {t('datasheet.hint', 'One A4 page for this device. Filled properties are preselected; an empty one you tick prints as a dash.')}
-      </p>
+      <PanelHint
+        className="mb-2 text-cp-xs text-cp-text-muted"
+        text={
+          mehrere
+            ? t('datasheet.hintMany', 'One A4 page per device, in one document. Properties filled on at least one device are preselected; where a device lacks a ticked one, it prints as a dash.')
+            : t('datasheet.hint', 'One A4 page for this device. Filled properties are preselected; an empty one you tick prints as a dash.')
+        }
+      />
+      {mehrere && (
+        <label className="mb-3 flex items-center gap-1.5 text-cp-xs">
+          <input type="checkbox" checked={ersteFotos} onChange={(e) => setErsteFotos(e.target.checked)} />
+          {t('datasheet.firstPhotoEach', 'First photo of each device')}
+        </label>
+      )}
       {pdfFehler && <p className="mb-2 text-cp-xs text-cp-warn">{pdfFehler}</p>}
       {fotos.length > 0 && (
         <fieldset className="mb-3">
@@ -154,7 +200,11 @@ export const GeraeteDatenblattDialog = ({ equipmentId, onClose }: { equipmentId:
                 <label key={f.key} className="flex min-w-0 items-baseline gap-1.5 text-cp-xs">
                   <input type="checkbox" checked={auswahl.has(f.key)} onChange={() => umschalten(f.key)} />
                   <span className="shrink-0 text-cp-text-secondary">{f.label}</span>
-                  <span className={`truncate ${f.wert ? 'text-cp-text' : 'text-cp-text-faint'}`}>{f.wert || '—'}</span>
+                  <span className={`truncate ${f.gefuellt > 0 ? 'text-cp-text' : 'text-cp-text-faint'}`}>
+                    {mehrere
+                      ? format(t('datasheet.filledOf', 'filled on {n} of {m}'), { n: String(f.gefuellt), m: String(f.gesamt) })
+                      : (wertEinzeln.get(f.key) || '—')}
+                  </span>
                 </label>
               ))}
             </div>
@@ -163,4 +213,18 @@ export const GeraeteDatenblattDialog = ({ equipmentId, onClose }: { equipmentId:
       })}
     </ModalShell>
   )
+}
+
+/**
+ * Der Dialog auf App-Ebene, geoeffnet ueber `uiStore.openDatasheet`. Dort und
+ * nicht in der Eigenschaften-Leiste, weil ihn auch Canvas-Menue, Auswahl-
+ * Leiste und Export-Dialog oeffnen — und weil die Leiste im gesperrten
+ * Projekt in einem deaktivierten `fieldset` steckt: ein Datenblatt drucken
+ * ist keine Aenderung.
+ */
+export const GeraeteDatenblattHost = () => {
+  const datasheet = useUiStore((s) => s.datasheet)
+  const close = useUiStore((s) => s.closeDatasheet)
+  if (!datasheet) return null
+  return <GeraeteDatenblattDialog key={datasheet.equipmentIds.join('|')} equipmentIds={datasheet.equipmentIds} onClose={close} />
 }
