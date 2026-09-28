@@ -1,8 +1,6 @@
 import { useCanvasProjectStore as useProjectStore } from '../../../store/projectStoreContext'
 import { exportDevicePatchSheet } from '../../../lib/exportDevicePdf'
-import { FileText, Printer } from 'lucide-react'
-import { useUiStore } from '../../../store/uiStore'
-import { useProjectStore as useMainProjectStore } from '../../../store/projectStore'
+import { Printer } from 'lucide-react'
 import { useTranslation } from '../../../lib/i18n'
 import { SortableSection } from '../SortableSection'
 import { Icon } from '../../shared/Icon'
@@ -10,8 +8,7 @@ import type { EquipmentItem } from '../../../types/equipment'
 
 /**
  * #306 — "Druck / Dokumentation"-SortableSection. Zwei PDF-Buttons:
- * A4- und A3-Patch-Sheet fuer das aktuelle Geraet; dazu seit #919 das
- * Geraete-Datenblatt (Auswahl-Dialog, `DeviceDatasheetDialog`). Liest equipment +
+ * A4- und A3-Patch-Sheet fuer das aktuelle Geraet. Liest equipment +
  * cables reactive aus dem Store damit die PDF immer den aktuellen
  * Verkabelungs-Stand spiegelt.
  */
@@ -21,10 +18,6 @@ export const PrintSection = ({ equipment }: { equipment: EquipmentItem }) => {
   const allCables = useProjectStore((state) => state.project.cables)
   const locations = useProjectStore((state) => state.project.locations)
   const floors = useProjectStore((state) => state.project.floors)
-  const openDatasheet = useUiStore((s) => s.openDatasheet)
-  // Der Datenblatt-Dialog haengt am Haupt-Plan (App.tsx). Im Rack-Innenleben
-  // (Scratch-Store) steht das Geraet dort nicht — der Knopf fuehrte ins Leere.
-  const imHauptplan = useMainProjectStore((s) => s.project.equipment.some((e) => e.id === equipment.id))
 
   return (
     <SortableSection
@@ -66,21 +59,6 @@ export const PrintSection = ({ equipment }: { equipment: EquipmentItem }) => {
           <Icon icon={Printer} size="xs" className="mr-1 inline-block align-text-bottom" />
           {t('printSection.a3Btn', 'Print patch sheet (A3 PDF)')}
         </button>
-        {/* #919 — Datenblatt: Doku-Fotos + angehakte Eigenschaften, A4. */}
-        {imHauptplan && (
-        <button
-          type="button"
-          onClick={() => openDatasheet([equipment.id])}
-          className="w-full bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
-          title={t(
-            'printSection.datasheetTitle',
-            'One A4 page with the documentation photos and the properties you tick — as PDF or straight to the printer.',
-          )}
-        >
-          <Icon icon={FileText} size="xs" className="mr-1 inline-block align-text-bottom" />
-          {t('printSection.datasheetBtn', 'Device datasheet…')}
-        </button>
-        )}
       </div>
     </SortableSection>
   )

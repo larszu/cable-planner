@@ -73,7 +73,6 @@ import { MobileShareDialog } from './components/MobileShare/MobileShareDialog'
 import { CloudDialog } from './components/Cloud/CloudDialog'
 import { AboutDialog } from './components/About/AboutDialog'
 import { PatchListDialog } from './components/Patch/PatchListDialog'
-import { DeviceDatasheetDialog } from './components/Export/DeviceDatasheetDialog'
 import { InstallationDocsDialog } from './components/Export/InstallationDocsDialog'
 import { ModuleOnboardingDialog } from './components/Onboarding/ModuleOnboardingDialog'
 import { BandwidthCalculatorDialog, PowerCalculatorDialog } from './components/Calculators/CalculatorsDialog'
@@ -1595,7 +1594,6 @@ export default function App() {
       <CloudDialog />
       <AboutDialog />
       <PatchListDialog />
-      <DeviceDatasheetDialog />
       <InstallationDocsDialog />
       {/* NACH dem Willkommens-Dialog, nicht daneben (#864).
           Gemessen bei 390 px: beide standen gleichzeitig offen, sichtbar

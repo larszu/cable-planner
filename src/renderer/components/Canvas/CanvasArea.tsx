@@ -173,7 +173,6 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
   const setHighlightedNetKey = useUiStore((state) => state.setHighlightedNetKey)
   // v7.8.7 — cable right-click context menu trigger.
   const openCableContextMenu = useUiStore((state) => state.openCableContextMenu)
-  const openDatasheet = useUiStore((state) => state.openDatasheet)
   // #557 — Kontextmenüs schliessen sobald Canvas verschoben/gezoomt wird.
   const closeCableContextMenu = useUiStore((state) => state.closeCableContextMenu)
   // v7.9.3 — Projekt-Lock: 'finalized' und 'viewer' Modus blockieren
@@ -2273,20 +2272,6 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
           triggerRackBuilderEditFromBlackBox(nodeContextMenu.nodeId)
           setNodeContextMenu(null)
         }
-        // #919 — Datenblatt. Liegt der angeklickte Knoten in der aktuellen
-        // Auswahl, gilt es fuer alle ausgewaehlten Geraete (eine Seite je
-        // Geraet) — sonst nur fuer ihn. Dieselbe Regel wie beim Datei-
-        // Explorer: der Rechtsklick auf ein Element der Auswahl meint die
-        // Auswahl.
-        const datenblatt = () => {
-          const ausgewaehlt = getNodes()
-            .filter((n) => n.selected && n.type === 'equipment')
-            .map((n) => n.id)
-          openDatasheet(
-            ausgewaehlt.includes(nodeContextMenu.nodeId) ? ausgewaehlt : [nodeContextMenu.nodeId],
-          )
-          setNodeContextMenu(null)
-        }
         const toggle = () => {
           if (isLocation) {
             updateLocation(nodeContextMenu.nodeId, { positionLocked: !isLocked })
@@ -2384,33 +2369,6 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
                 </button>
                 <div style={{ height: 1, background: '#334155', margin: '4px 0' }} />
               </>
-            )}
-            {!isLocation && mode === 'main' && (
-              <button
-                type="button"
-                onClick={datenblatt}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  width: '100%',
-                  padding: '6px 10px',
-                  background: 'transparent',
-                  color: 'inherit',
-                  border: 'none',
-                  borderRadius: 4,
-                  cursor: 'pointer',
-                  textAlign: 'left',
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = '#334155')}
-                onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
-              >
-                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <path d="M4 1.5h5.5L12 4v10.5H4z" />
-                  <path d="M6 7h4M6 9.5h4M6 12h2.5" />
-                </svg>
-                <span>{t('canvas.nodeMenu.datasheet', 'Device datasheet…')}</span>
-              </button>
             )}
             <button
               type="button"

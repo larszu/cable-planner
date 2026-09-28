@@ -29,13 +29,6 @@ import { buildExportFilename, buildExportFilenameWithSuffix } from './exportFile
 import { portDisplayLabel, portLabelPair } from './portLabel'
 import { ortVonGeraet } from './kabelOrt'
 import type { Floor, LocationFrame } from '../types/location'
-import {
-  DATENBLATT_GRUPPEN,
-  gruppenTitel,
-  type DatenblattBild,
-  type DatenblattEigenschaft,
-} from './geraeteDatenblatt'
-import { fmt, quelle, type Uebersetzen } from './druckblatt'
 
 /**
  * Rahmen und Etagen des Plans — damit das Blatt sagt, WO das Geraet steht und
@@ -161,18 +154,7 @@ const collectPortRows = (
  *  current date/time + horizontal rule). Called once on the first
  *  page AND repeated on every subsequent page so users can identify
  *  the printed sheet without flipping back to page 1. */
-/**
- * #919 — `unterzeile` ersetzt die Meta-Zeile (Kategorie, IP, Ort, Datenblatt-
- * Link). Das Geraete-Datenblatt braucht das: dort waehlt der Nutzer jede
- * Eigenschaft einzeln an oder ab, und eine IP, die er abgewaehlt hat, darf
- * nicht trotzdem im Kopf stehen.
- */
-const drawPageHeader = (
-  pdf: jsPDF,
-  device: EquipmentItem,
-  ort?: PatchSheetOrt,
-  unterzeile?: string,
-): number => {
+const drawPageHeader = (pdf: jsPDF, device: EquipmentItem, ort?: PatchSheetOrt): number => {
   const pageWidth = pdf.internal.pageSize.getWidth()
   const margin = 32
   pdf.setFontSize(16)
@@ -184,21 +166,18 @@ const drawPageHeader = (
   pdf.setFont('helvetica', 'normal')
   pdf.setTextColor(80)
   const metaParts: string[] = []
-  if (unterzeile !== undefined) metaParts.push(unterzeile)
-  else {
-    if (device.category) metaParts.push(device.category)
-    if (device.subtitle) metaParts.push(device.subtitle)
-    if (device.ipAddress) metaParts.push(`IP ${device.ipAddress}`)
-    const hier = ortZeile(device, ort)
-    if (hier) metaParts.push(`Ort ${hier}`)
-  }
+  if (device.category) metaParts.push(device.category)
+  if (device.subtitle) metaParts.push(device.subtitle)
+  if (device.ipAddress) metaParts.push(`IP ${device.ipAddress}`)
+  const hier = ortZeile(device, ort)
+  if (hier) metaParts.push(`Ort ${hier}`)
   pdfText(pdf, metaParts.join('  -'), margin, margin + 20)
   pdfText(pdf, new Date().toLocaleString(), pageWidth - margin, margin + 20, { align: 'right' })
 
   // Hersteller-/Datenblatt-Link als klickbare Zeile. Das manufacturerUrl-
   // Feld existierte schon (Properties), tauchte aber in keinem Report auf.
   let dividerY = margin + 28
-  if (device.manufacturerUrl && unterzeile === undefined) {
+  if (device.manufacturerUrl) {
     const url = device.manufacturerUrl
     const safe = sanitizeForPdf(url)
     const shown = safe.length > 88 ? safe.slice(0, 87) + '...' : safe
@@ -450,191 +429,3 @@ export const buildDevicesPatchSheetsBatchBlob = (
   })
   return pdf.output('blob')
 }
-
-// ═══════════════════════════════════════════════════════════════════════════
-// GERAETE-DATENBLATT (#919)
-//
-// Eine A4-Seite je Geraet: Doku-Fotos oben, darunter die Eigenschaften, die
-// der Nutzer angehakt hat. Gleicher Seitenkopf wie das Patch-Sheet oben
-// (`drawPageHeader`), damit zwei Blaetter desselben Geraets im Ordner
-// zusammen aussehen — nur die Meta-Zeile ist ersetzt, weil sonst eine
-// abgewaehlte IP im Kopf stuende.
-//
-// WELCHE Eigenschaften es gibt und welche ausgefuellt sind, rechnet
-// `lib/geraeteDatenblatt.ts` (rein, getestet). Hier wird nur gezeichnet.
-// ═══════════════════════════════════════════════════════════════════════════
-
-export interface DatenblattSeite {
-  device: EquipmentItem
-  /** Bereits auf die Auswahl gefiltert. */
-  eigenschaften: readonly DatenblattEigenschaft[]
-  /** Bereits auf die Auswahl gefiltert. */
-  bilder: readonly DatenblattBild[]
-}
-
-export interface DatenblattPdfOptionen {
-  t?: Uebersetzen
-}
-
-/** Hoechstens so viele Bilder je Seite — sonst ist es kein Blatt mehr. */
-const MAX_BILDER = 4
-
-/** jsPDF kann JPEG und PNG ohne Plugin; alles andere wird ausgelassen. */
-const bildFormat = (dataUri: string): 'JPEG' | 'PNG' | null => {
-  if (/^data:image\/jpe?g/i.test(dataUri)) return 'JPEG'
-  if (/^data:image\/png/i.test(dataUri)) return 'PNG'
-  return null
-}
-
-const drawDatasheetPage = (pdf: jsPDF, seite: DatenblattSeite, t: Uebersetzen): void => {
-  const pageWidth = pdf.internal.pageSize.getWidth()
-  const pageHeight = pdf.internal.pageSize.getHeight()
-  const margin = 32
-  const bottom = pageHeight - margin - 10
-  const breite = pageWidth - margin * 2
-  const unterzeile = t('datasheet.pdf.subtitle', 'Device datasheet')
-  let y = drawPageHeader(pdf, seite.device, undefined, unterzeile)
-
-  // ── Bilder ─────────────────────────────────────────────────────────────
-  const bilder = seite.bilder.filter((b) => bildFormat(b.dataUri) !== null)
-  const gezeigt = bilder.slice(0, MAX_BILDER)
-  if (gezeigt.length > 0) {
-    const cols = gezeigt.length === 1 ? 1 : 2
-    const rows = Math.ceil(gezeigt.length / cols)
-    const gap = 10
-    const captionH = 12
-    const flaecheH = gezeigt.length === 1 ? 300 : gezeigt.length === 2 ? 220 : 380
-    const zelleW = (breite - gap * (cols - 1)) / cols
-    const zelleH = (flaecheH - gap * (rows - 1)) / rows - captionH
-    gezeigt.forEach((b, i) => {
-      const cx = margin + (i % cols) * (zelleW + gap)
-      const cy = y + Math.floor(i / cols) * (zelleH + captionH + gap)
-      try {
-        const props = pdf.getImageProperties(b.dataUri)
-        const scale = Math.min(zelleW / props.width, zelleH / props.height)
-        const w = props.width * scale
-        const h = props.height * scale
-        pdf.addImage(b.dataUri, bildFormat(b.dataUri)!, cx + (zelleW - w) / 2, cy + (zelleH - h) / 2, w, h)
-      } catch {
-        // Ein kaputtes Bild kostet das Blatt nicht: der Rahmen bleibt leer.
-      }
-      pdf.setDrawColor(200)
-      pdf.rect(cx, cy, zelleW, zelleH)
-      if (b.unterschrift) {
-        pdf.setFontSize(8)
-        pdf.setTextColor(90)
-        const s = sanitizeForPdf(b.unterschrift)
-        const zeile = (pdf.splitTextToSize(s, zelleW) as string[])[0] ?? ''
-        pdf.text(zeile, cx + zelleW / 2, cy + zelleH + 9, { align: 'center' })
-      }
-    })
-    y += flaecheH + 6
-    if (bilder.length > gezeigt.length) {
-      pdf.setFontSize(8)
-      pdf.setTextColor(120)
-      pdfText(
-        pdf,
-        fmt(t('datasheet.pdf.morePhotos', '{n} more photos not shown'), { n: bilder.length - gezeigt.length }),
-        margin,
-        y,
-      )
-      y += 10
-    }
-    y += 10
-  }
-
-  // ── Eigenschaften ──────────────────────────────────────────────────────
-  const labelW = 150
-  const wertW = breite - labelW
-  // Fuss auf jeder Seite dieses Geraets — auch auf der Folgeseite.
-  const fuss = () => {
-    pdf.setFontSize(7)
-    pdf.setFont('helvetica', 'normal')
-    pdf.setTextColor(140)
-    pdfText(
-      pdf,
-      fmt(t('datasheet.pdf.footer', 'Cable Planner - {name} - device datasheet'), { name: seite.device.name }),
-      pageWidth / 2,
-      pageHeight - 12,
-      { align: 'center' },
-    )
-  }
-  const neueSeite = () => {
-    fuss()
-    pdf.addPage()
-    y = drawPageHeader(pdf, seite.device, undefined, `${unterzeile} - ${t('datasheet.pdf.continued', 'continued')}`)
-  }
-
-  pdf.setFontSize(11)
-  pdf.setFont('helvetica', 'bold')
-  pdf.setTextColor(20)
-  pdfText(pdf, t('datasheet.pdf.properties', 'Properties').toUpperCase(), margin, y)
-  y += 16
-
-  if (seite.eigenschaften.length === 0) {
-    pdf.setFontSize(9)
-    pdf.setFont('helvetica', 'normal')
-    pdf.setTextColor(120)
-    pdfText(pdf, t('datasheet.pdf.none', 'No property selected.'), margin, y)
-  }
-
-  for (const gruppe of DATENBLATT_GRUPPEN) {
-    const zeilen = seite.eigenschaften.filter((p) => p.gruppe === gruppe)
-    if (zeilen.length === 0) continue
-    if (y + 30 > bottom) neueSeite()
-    pdf.setFontSize(9)
-    pdf.setFont('helvetica', 'bold')
-    pdf.setTextColor(60)
-    pdfText(pdf, gruppenTitel(gruppe, t), margin, y)
-    pdf.setDrawColor(210)
-    pdf.line(margin, y + 3, pageWidth - margin, y + 3)
-    y += 14
-    for (const p of zeilen) {
-      pdf.setFontSize(9)
-      pdf.setFont('helvetica', 'normal')
-      const wert = sanitizeForPdf(p.wert)
-      const lines = pdf.splitTextToSize(wert, wertW - 4) as string[]
-      const h = 11 * lines.length + 2
-      if (y + h > bottom) neueSeite()
-      pdf.setTextColor(90)
-      pdfText(pdf, p.label, margin, y, { maxWidth: labelW - 8 })
-      if (/^https?:\/\//i.test(p.wert) && lines.length === 1) {
-        pdf.setTextColor(40, 90, 180)
-        pdf.textWithLink(lines[0], margin + labelW, y, { url: p.wert })
-      } else {
-        pdf.setTextColor(15)
-        pdf.text(lines, margin + labelW, y)
-      }
-      y += h
-    }
-    y += 6
-  }
-
-  fuss()
-}
-
-const buildDatasheetPdf = (seiten: readonly DatenblattSeite[], o?: DatenblattPdfOptionen): jsPDF => {
-  const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4', compress: true })
-  seiten.forEach((seite, idx) => {
-    if (idx > 0) pdf.addPage()
-    drawDatasheetPage(pdf, seite, o?.t ?? quelle)
-  })
-  return pdf
-}
-
-/** Datenblatt(er) als Datei — ein Geraet je Seite, eine Datei. */
-export const exportDeviceDatasheets = (seiten: readonly DatenblattSeite[], o?: DatenblattPdfOptionen): void => {
-  if (seiten.length === 0) return
-  const pdf = buildDatasheetPdf(seiten, o)
-  const name =
-    seiten.length === 1
-      ? buildExportFilenameWithSuffix(seiten[0].device.name || 'device', 'datenblatt', 'pdf')
-      : buildExportFilename('cable-planner-datenblaetter', 'pdf')
-  pdf.save(name)
-}
-
-/** Dieselbe PDF als Blob — fuer `printPdfBlob` (direkter Druck). */
-export const buildDeviceDatasheetsBlob = (
-  seiten: readonly DatenblattSeite[],
-  o?: DatenblattPdfOptionen,
-): Blob | null => (seiten.length === 0 ? null : buildDatasheetPdf(seiten, o).output('blob'))
