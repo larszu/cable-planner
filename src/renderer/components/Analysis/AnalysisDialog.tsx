@@ -23,6 +23,8 @@ import { effectiveDeviceResources, effectiveWatts } from '../../lib/equipmentSel
 import { checkDanteName } from '../../lib/danteNaming'
 import { subnetCidr } from '../../lib/subnet'
 import { addressPlanTable, buildAddressPlan, type AddressIssue } from '../../lib/addressPlan'
+import { ipWithVlan } from '../../lib/vlanAnzeige'
+import { StreamsPanel } from '../Network/StreamsPanel'
 import {
   buildSwitchPortMaps,
   switchPortDescriptionBlock,
@@ -697,6 +699,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
     const csvRows = addressPlanTable(plan, label, [
       t('analysis.network.device', 'Device'),
       'IP',
+      'VLAN',
       t('analysis.address.mask', 'Mask'),
       'Gateway',
       t('analysis.network.subnets', 'Subnets'),
@@ -782,6 +785,9 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
           die Zahl, dann ihre Bedeutung, dann die Adressen. */}
       <SegmentsPanel projectName={projectName} />
 
+      {/* #946 — die Streams der Geraete, mit VLAN. */}
+      <StreamsPanel projectName={projectName} />
+
       {/* BEDARF 20 — die Adressbereiche. Sie stehen NACH den Segmenten und VOR
           der Subnetz-Uebersicht: das Segment sagt, wofuer eine VLAN da ist,
           der Bereich sagt, welche Adressen darin gelten, und die Uebersicht
@@ -843,7 +849,9 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
               {plan.withIssues.map((r) => (
                 <li key={r.id} className="flex flex-wrap items-baseline gap-x-2">
                   <span className="font-semibold">{r.name}</span>
-                  {r.ip && <span className="font-mono text-[var(--cp-text-muted)]">{r.ip}</span>}
+                  {r.ip && (
+                    <span className="font-mono text-[var(--cp-text-muted)]">{ipWithVlan(r.ip, r.vlanId)}</span>
+                  )}
                   <span className="text-amber-300/90">{r.issues.map(label).join(' · ')}</span>
                   {/* Der Beleg. Wer die Zeile fuer falsch haelt, soll sehen,
                       welcher Port sie ausgeloest hat. */}

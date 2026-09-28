@@ -28,6 +28,12 @@ export async function fetchSnapshot(
   raw: unknown,
   holen: typeof fetch = fetch,
   jetzt: () => Date = () => new Date(),
+  /**
+   * Nachtrag #946 — `Basic …` aus dem Schluesselbund, gesetzt von
+   * `streamPreviewService`. Nie aus der Adresse: die Zugangsdaten darin
+   * werden weiter unten verworfen.
+   */
+  authorization?: string,
 ): Promise<SnapshotResult> {
   let url: URL
   try {
@@ -46,7 +52,10 @@ export async function fetchSnapshot(
     res = await holen(url.toString(), {
       signal: AbortSignal.timeout(SNAPSHOT_TIMEOUT_MS),
       credentials: 'omit',
-      redirect: 'follow',
+      // Nachtrag #946: mit Zugangsdaten keine Weiterleitung — sie gingen
+      // sonst an einen Host, den niemand geprueft hat.
+      redirect: authorization ? 'error' : 'follow',
+      ...(authorization ? { headers: { authorization } } : {}),
     })
   } catch {
     return { ok: false, code: 'unreachable' }

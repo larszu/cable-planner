@@ -12,6 +12,7 @@ import { equipmentAssetTag } from './docIds'
 import { standortText } from './equipmentLocation'
 import type { CsvCell, CsvTable } from './csv'
 import { csvFromTable, type DocumentStamp } from './documentStamp'
+import { primaryVlanId } from './vlanAnzeige'
 
 export interface AssetRow {
   assetTag: string
@@ -20,6 +21,8 @@ export interface AssetRow {
   location: string
   serial: string
   ip: string
+  /** #946 — VLAN der Alt-Felder (Schnittstelle 0); leer ohne Eintrag. */
+  vlan: number | ''
   firmware: string
   status: string
   ownership: string
@@ -43,6 +46,7 @@ export const buildAssetRows = (project: CablePlannerProject): AssetRow[] =>
       location: standortText(e, project.locations ?? []),
       serial: e.serialNumber ?? '',
       ip: e.ipAddress ?? '',
+      vlan: primaryVlanId(e) ?? '',
       firmware: e.firmware ?? '',
       status: e.installStatus ? INSTALL_STATUS_LABEL[e.installStatus] : '',
       ownership: e.ownership ? EQUIPMENT_OWNERSHIP_LABEL[e.ownership] : '',
@@ -68,6 +72,7 @@ export const assetRegisterTable = (project: CablePlannerProject): CsvTable => {
     'Standort',
     'Serien-Nr.',
     'IP',
+    'VLAN',
     'Firmware',
     'Status',
     'Eigentum',
@@ -86,6 +91,7 @@ export const assetRegisterTable = (project: CablePlannerProject): CsvTable => {
     r.location,
     r.serial,
     r.ip,
+    r.vlan,
     r.firmware,
     r.status,
     r.ownership,

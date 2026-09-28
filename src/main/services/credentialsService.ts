@@ -156,3 +156,50 @@ export const streamKeyService = {
     return keytar.deletePassword(SERVICE_NAME, accountFor(destinationId))
   },
 }
+
+/**
+ * #946 — Zugangsdaten der Geraete-Streams (`rtsp://benutzer:passwort@…`).
+ *
+ * Eigener Praefix neben den Stream-Keys: ein Ausspielziel und ein Stream am
+ * Geraet sind verschiedene Dinge mit eigenen Ids, und ein gemeinsamer
+ * Namensraum liesse das Loeschen des einen den anderen treffen.
+ *
+ * Anders als beim Stream-Key geht der Klartext NICHT an den Renderer zurueck
+ * (wie beim NetBox-Token): gebraucht wird er nur vom Standbild-Abruf, und der
+ * laeuft hier im Main-Prozess. Wer das Kamera-Passwort wissen will, sieht in
+ * der Kamera nach.
+ */
+const STREAM_CREDENTIAL_PREFIX = 'stream-credential:'
+
+const streamCredentialAccount = (streamId: string): string => {
+  if (!isSafeDestinationId(streamId)) {
+    throw new Error('Invalid stream id.')
+  }
+  return STREAM_CREDENTIAL_PREFIX + streamId
+}
+
+export const streamCredentialService = {
+  /** Nur fuer den Main-Prozess. Kein IPC-Kanal fuehrt hierher. */
+  async get(streamId: string): Promise<string | null> {
+    return keytar.getPassword(SERVICE_NAME, streamCredentialAccount(streamId))
+  },
+
+  async has(streamId: string): Promise<boolean> {
+    return Boolean(await keytar.getPassword(SERVICE_NAME, streamCredentialAccount(streamId)))
+  },
+
+  /** `secrets` ist das JSON aus `splitStreamSecrets` — leer heisst loeschen. */
+  async save(streamId: string, secrets: string): Promise<boolean> {
+    const account = streamCredentialAccount(streamId)
+    if (!secrets?.trim()) {
+      await keytar.deletePassword(SERVICE_NAME, account)
+      return false
+    }
+    await keytar.setPassword(SERVICE_NAME, account, secrets)
+    return true
+  },
+
+  async delete(streamId: string): Promise<boolean> {
+    return keytar.deletePassword(SERVICE_NAME, streamCredentialAccount(streamId))
+  },
+}

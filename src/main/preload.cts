@@ -100,7 +100,16 @@ contextBridge.exposeInMainWorld('cablePlanner', {
   },
   // #946 — Standbild fuer die Stream-Vorschau. Antworttyp in `bridge.ts`.
   streamPreview: {
-    snapshot: (url: string) => ipcRenderer.invoke('streamPreview:snapshot', url) as Promise<unknown>,
+    snapshot: (req: { credentialId: string; weg: 'http' | 'ffmpeg'; protocol: string; url: string }) =>
+      ipcRenderer.invoke('streamPreview:snapshot', req) as Promise<unknown>,
+  },
+  // Nachtrag #946 — Zugangsdaten der Geraete-Streams im Schluesselbund. Kein
+  // `get`: den Klartext braucht nur der Standbild-Abruf im Main-Prozess.
+  streamCredential: {
+    has: (id: string) => ipcRenderer.invoke('streamCredential:has', id) as Promise<boolean>,
+    save: (id: string, secrets: string) =>
+      ipcRenderer.invoke('streamCredential:save', id, secrets) as Promise<boolean>,
+    delete: (id: string) => ipcRenderer.invoke('streamCredential:delete', id) as Promise<boolean>,
   },
   // Cloud-Projekte (#871/#870): eine Operation aus fester Liste (cloudService).
   cloud: {

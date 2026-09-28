@@ -176,16 +176,31 @@ Built with **Electron, React, and TypeScript**, it is designed for real-world pr
   so a team uses the same names
 - **VLAN next to the address** (#946): *Network & access* has a VLAN ID field
   (switches and routers keep it in their switch configuration), and the device
-  card on the canvas shows it right after the IP address: `10.0.0.5 /24 · VLAN 30`
+  card on the canvas shows it right after the IP address: `10.0.0.5 /24 · VLAN 30`.
+  The same VLAN stands beside the address in the address plan (on screen and
+  CSV), the location bill of materials, the device PDF, the asset register and
+  the MCP answer `device_ports`. No VLAN entered, nothing shown
 - **Streams per device** (#946): *Streams* lists what a device sends or
-  receives — RTSP, SRT, RTMP, NDI, HLS, WebRTC, ST 2110 — with direction,
-  label and address. A user name or password typed into the address is removed
-  when leaving the field (and from older project files): the project file
-  travels, the password belongs in *Network & access*. Optionally a **still
-  image preview** under the device on the canvas: the app cannot play RTSP or
-  NDI, so it fetches the http(s) still image most cameras and encoders offer
-  (e.g. `/snapshot.jpg`) every 10 s, desktop app only, and labels it with its
-  time. When the fetch fails, the tile says why instead of showing an old image
+  receives — RTSP, SRT, RTMP, NDI, NDI-HX, HLS, MJPEG, WebRTC, WHIP, WHEP,
+  RTP, ST 2110, Dante, AES67 or other — with direction, label, address, port,
+  codec and format. They appear in the network tab of *Analysis* (with CSV), on
+  the device cards, in the device datasheet and in the MCP tool `device_ports`
+- **Credentials never enter the plan**: a user name, password or secret
+  parameter (`passphrase=`, `token=`, `password=` …) typed into a stream
+  address is cut out when leaving the field (and from older project files).
+  The desktop app keeps it in **this computer's keychain**, where only the
+  preview fetch in the main process reads it back; the web edition discards it
+  and says so
+- **Still image preview** under the device on the canvas: either from the
+  http(s) still image address most cameras offer (`/snapshot.jpg`), or — when
+  the device *sends* an RTSP, RTMP, SRT, HLS or MJPEG stream — one frame taken
+  with **ffmpeg** (not bundled: `brew install ffmpeg`, or `ffmpeg.exe` on the
+  PATH; without it the tile says so). Refreshed every 10 s while visible,
+  desktop app only, **local network only** (private, loopback and link-local
+  addresses), labelled with its time. Opening a project never starts a
+  preview: the tile shows *Start preview* until someone clicks it (or switches
+  it on in *Streams*) in this session. NDI, Dante, AES67, ST 2110, WebRTC and
+  RTP get no preview, and the entry says why
 
 ---
 

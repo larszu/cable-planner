@@ -163,7 +163,8 @@ const baueServer = (): McpServer => {
     'device_ports',
     {
       title: 'Ports of a device',
-      description: 'Every input and output of one device, with connector type and signal standard.',
+      description:
+        'Every input and output of one device, with connector type and signal standard, plus its network interfaces (IP, VLAN) and the streams it sends or receives (RTSP, SRT, NDI …).',
       annotations: { readOnlyHint: true },
       inputSchema: { deviceId: z.string().describe('Device id or exact device name.') },
     },

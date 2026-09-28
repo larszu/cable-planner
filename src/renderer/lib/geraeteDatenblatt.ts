@@ -28,6 +28,7 @@ import type { Foto } from '../types/foto'
 import type { Lang } from './categoryTranslations'
 import { schemaForCategory } from './categorySchemas'
 import { steckbriefe, type Steckbrief } from './steckbrief'
+import { streamDirectionText } from './streamEndpoints'
 import { installStatusText } from './installStatusText'
 import { portDisplayLabel } from './portLabel'
 import { druckblatt, esc, fmt, quelle, tabelle, type Uebersetzen } from './druckblatt'
@@ -181,6 +182,30 @@ export function datenblattFelder(
       [t('datasheet.col.interface', 'Interface'), 'IP', t('datasheet.col.mask', 'Mask'), 'Gateway', 'VLAN', 'Switch', t('datasheet.col.port', 'Port')],
       netz.map((n) => [n.schnittstelle || dash, n.ip || dash, n.maske || dash, n.gateway || dash, n.vlan !== undefined ? String(n.vlan) : dash, n.switchName || dash, n.port || dash]),
       t('datasheet.noNetwork', 'No network interface.'),
+    ),
+  )
+  // #946 — Streams. Zugangsdaten stehen nicht im Plan, also auch nicht hier.
+  const streams = s?.streams ?? []
+  block(
+    'streams',
+    t('datasheet.streams', 'Streams'),
+    streams.length,
+    tabelle(
+      [
+        t('datasheet.col.direction', 'Direction'),
+        t('datasheet.col.protocol', 'Protocol'),
+        t('datasheet.col.address', 'Address'),
+        'VLAN',
+        t('datasheet.col.codec', 'Codec / format'),
+      ],
+      streams.map((r) => [
+        streamDirectionText(r.stream.direction, t),
+        [r.protokoll, r.stream.label].filter(Boolean).join(' '),
+        r.adresse || dash,
+        r.vlanId !== undefined ? String(r.vlanId) : dash,
+        [r.stream.codec, r.stream.format].filter(Boolean).join(' · ') || dash,
+      ]),
+      t('datasheet.noStreams', 'No stream.'),
     ),
   )
   const verb = s?.verbindungen ?? []

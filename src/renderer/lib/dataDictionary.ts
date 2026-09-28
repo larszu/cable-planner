@@ -234,6 +234,13 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   Bein: 'Welcher der beiden 2022-7-Wege (a oder b) diese Vergabe ist.',
   'Beobachtet von': 'Wer den Eintrag im Sendebericht gemacht hat.',
   Beschreibung: 'Der Klartext zu dieser Zeile.',
+  // #946 — die Stream-Liste der Geräte.
+  Richtung: 'Ob das Gerät den Stream sendet, empfängt oder beides (Transcoder, Gateway).',
+  Protokoll: 'Das Protokoll des Streams (RTSP, SRT, NDI, HLS, ST 2110 …), mit denselben Wörtern wie am Kabel.',
+  'Stream-Adresse':
+    'Adresse oder Name des Streams, gegebenenfalls mit Port. Zugangsdaten stehen nie darin — sie liegen im Schlüsselbund des Rechners, nicht im Plan.',
+  Codec: 'Der Codec des Streams, wie eingetragen (etwa H.264, HEVC, JPEG XS, L24).',
+  Format: 'Auflösung und Bildrate des Streams, wie eingetragen (etwa 1920x1080p50).',
   Bezeichnung: 'Wie der Container im Lager heißt.',
   Bild: 'Die geplanten Bild-Parameter des Ziels (Auflösung, Bildrate, Codec).',
   'Bezug im Plan':
