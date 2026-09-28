@@ -636,6 +636,13 @@ the open project into the cloud of your device-library account
   interface, network, switcher input, every cable with its other end (and,
   when that end is a patch panel, the device behind it), service history.
   Gaps show as a dash
+- **Device datasheet** (device properties → *Print / documentation*) — one A4
+  page for a single device with its photo and the properties you tick:
+  general, technical and category data, operation, ports, network,
+  connections, service history. Every filled property is preselected; an
+  empty one you tick prints as a dash. *Print* opens the print dialog, *Save
+  PDF* writes the file (desktop app; the web edition offers "Save as PDF" in
+  the print dialog). Login credentials are never offered
 - **Operator overview** (HTML) — which source (by role name) lies on which
   switcher or router input, where each output goes (through patch panels),
   contacts, web interfaces, and an empty box for operating steps: the plan does
