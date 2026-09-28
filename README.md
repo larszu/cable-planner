@@ -681,6 +681,13 @@ the open project into the cloud of your device-library account
   glossary appended to each CSV)
 - **Per-device patch sheets** name where the device stands (*floor · room*)
   and, for a cable leaving the room, where its other end lies
+- **Device datasheet** (#919) — one A4 page per device with its documentation
+  photos (up to four, with their notes) and the properties you tick, saved as
+  PDF or sent straight to the printer. All filled-in properties are
+  preselected, empty fields are not offered, and the password is never
+  printed. Reachable from the device's *Print / documentation* section, the
+  right-click menu and the selection toolbar (one page per selected device),
+  and from *Export → Patch sheets* for any list of devices
 - The **switch port map** looks through patch panels and wall plates: a camera
   behind the gallery patch panel and the hall wall panel is named as the
   camera, with the panels it passes — not as a conflict with the patch panel.
