@@ -10,26 +10,9 @@
 
 import type { VenueExchange } from '../lib/grundriss/venueExchange'
 
-export interface PlanPunkt {
-  x: number
-  y: number
-}
-
-/**
- * Wie Canvas-Pixel auf dem Plan zu Metern werden.
- *
- * `zweiPunkt`: eine Strecke bekannter Laenge. Gilt nur fuer Plaene, die
- * senkrecht von oben und unverzerrt vorliegen (CAD-Export, Scan).
- *
- * `rechteck`: die vier Ecken einer Flaeche bekannter Breite und Tiefe, im
- * Uhrzeigersinn ab links oben — so, wie sie auf dem Bild erscheinen. Daraus
- * entsteht eine Projektion (Homographie), die auch Perspektive und
- * Isometrie des Bodens richtig rechnet. Hoehen auf dem Bild (Waende einer
- * isometrischen Zeichnung) rechnet sie nicht: sie gilt fuer die Bodenebene.
- */
-export type PlanKalibrierung =
-  | { art: 'zweiPunkt'; a: PlanPunkt; b: PlanPunkt; meter: number }
-  | { art: 'rechteck'; ecken: [PlanPunkt, PlanPunkt, PlanPunkt, PlanPunkt]; breiteM: number; tiefeM: number }
+// PlanPunkt und PlanKalibrierung kommen aus dem Suite-Paket (ADR-015).
+import type { PlanKalibrierung, PlanPunkt } from '../avplan/floorplan/typen'
+export type { PlanKalibrierung, PlanPunkt }
 
 export interface Grundriss {
   /** data:-URL des Bildes. Reist in der Projektdatei mit. */

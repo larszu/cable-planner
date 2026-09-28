@@ -26,6 +26,10 @@ import {
 } from '../../store/projectStoreContext'
 import { projectHistory } from '../../store/projectHistory'
 import { confirmDialog } from '../../lib/confirmDialog'
+import { infoDialog } from '../../lib/infoDialog'
+import { planAblage, ziehtDateien } from '../../avplan/floorplan/planDatei'
+import { PLAN_PDF, planFehlerText, ungeeignetCode, ursprungUm } from '../../lib/grundriss/planUebernahme'
+import { planUebernehmen } from '../Grundriss/planUebernehmen'
 import { useUiStore } from '../../store/uiStore'
 import { netKeyOf } from '../../lib/offPageNet'
 import {
@@ -1684,7 +1688,43 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
     [addOpenEndStub, project.equipment, queueConnection, screenToFlowPosition, snapToGrid, gridSize, projectIsLocked, updateEquipment],
   )
 
+  // Plan-Datei per Drag & Drop (ADR-015, @avplan/floorplan). Nur im Haupt-
+  // Canvas und nur fuer Drags, die Dateien tragen (`ziehtDateien`) — alle
+  // app-internen Drags (Bibliothek, Presets, Annotationen) laufen unveraendert
+  // durch die Handler darunter.
+  const [planAblageAktiv, setPlanAblageAktiv] = useState(false)
+  const planDateiAnnehmen = mode === 'main' && !projectIsLocked
+  const planAblageAm = useCallback(
+    (punkt: { x: number; y: number }) =>
+      planAblage({
+        pdf: PLAN_PDF,
+        onAktiv: setPlanAblageAktiv,
+        onDatei: (datei) => {
+          void planUebernehmen({
+            datei,
+            ursprung: (plan) => ursprungUm(punkt, plan),
+            aktuell: projectStoreInstance.getState().project.grundriss,
+            setze: (g) => projectStoreInstance.getState().setGrundriss(g),
+            t,
+          }).then((r) => {
+            if (r.status === 'fehler') void infoDialog(t('floorplan.drop.failedTitle', 'Floor plan not loaded'), { body: r.text, tone: 'warning' })
+          })
+        },
+        onUngeeignet: (dateien) =>
+          void infoDialog(t('floorplan.drop.failedTitle', 'Floor plan not loaded'), {
+            body: planFehlerText(ungeeignetCode(dateien), t),
+            tone: 'warning',
+          }),
+      }),
+    [projectStoreInstance, t],
+  )
+
   const onDragOver = useCallback((event: React.DragEvent) => {
+    if (planDateiAnnehmen && ziehtDateien(event.dataTransfer)) {
+      event.stopPropagation()
+      planAblageAm({ x: 0, y: 0 }).onDragOver(event)
+      return
+    }
     event.preventDefault()
     event.stopPropagation()
     // dropEffect MUST match the source's effectAllowed, otherwise the
@@ -1694,10 +1734,25 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
     const types = event.dataTransfer.types
     event.dataTransfer.dropEffect =
       types && Array.from(types).includes(ANNOTATION_DRAG_MIME) ? 'move' : 'copy'
-  }, [])
+  }, [planDateiAnnehmen, planAblageAm])
+
+  const onDragLeave = useCallback(
+    (event: React.DragEvent) => {
+      // dragleave feuert auch beim Wechsel auf ein Kind-Element; nur das
+      // echte Verlassen des Canvas nimmt die Markierung weg.
+      if (event.currentTarget.contains(event.relatedTarget as Element | null)) return
+      planAblageAm({ x: 0, y: 0 }).onDragLeave()
+    },
+    [planAblageAm],
+  )
 
   const onDrop = useCallback(
     (event: React.DragEvent) => {
+      if (planDateiAnnehmen && ziehtDateien(event.dataTransfer)) {
+        event.stopPropagation()
+        planAblageAm(screenToFlowPosition({ x: event.clientX, y: event.clientY })).onDrop(event)
+        return
+      }
       event.preventDefault()
       event.stopPropagation()
       const position = screenToFlowPosition({ x: event.clientX, y: event.clientY })
@@ -1783,7 +1838,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         console.error('Failed to drop equipment:', error)
       }
     },
-    [addEquipment, screenToFlowPosition, snapToGrid, gridSize, mode, projectStoreInstance],
+    [addEquipment, screenToFlowPosition, snapToGrid, gridSize, mode, projectStoreInstance, planDateiAnnehmen, planAblageAm],
   )
 
   // In-app clipboard for Ctrl+C / Ctrl+V. Snapshots the selected equipment
@@ -1922,10 +1977,23 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
       className={effectiveCanvasTheme === 'light' ? 'canvas-theme-light' : ''}
       onDrop={onDrop}
       onDragOver={onDragOver}
+      onDragLeave={onDragLeave}
       onMouseMove={(event) => {
         lastMousePosRef.current = { x: event.clientX, y: event.clientY }
       }}
     >
+      {planAblageAktiv && (
+        <div
+          data-testid="grundriss-ablage"
+          className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center border-2 border-dashed border-cp-accent bg-cp-bg/40"
+        >
+          <span className="border border-cp-accent bg-cp-surface-1 px-3 py-2 text-cp-text">
+            {project.grundriss
+              ? t('floorplan.drop.replaceHere', 'Drop the image to replace the floor plan')
+              : t('floorplan.drop.here', 'Drop the image to use it as floor plan')}
+          </span>
+        </div>
+      )}
       {/* #ux — Empty-State: leere Haupt-Canvas erklärte sich bisher nicht
           (schwarze Fläche). Hinweis weist auf die Bibliothek; pointer-events-
           none, damit Drag&Drop + Pan/Zoom darunter ungestört funktionieren.
