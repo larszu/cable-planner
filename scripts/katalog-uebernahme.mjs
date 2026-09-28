@@ -507,16 +507,25 @@ const licht = async () => {
     const id = geraetetypId('fixture', f.id)
     verknuepfung.push({ quellId: f.id, deviceTypeId: id })
     const name = f.name.startsWith(f.manufacturer) ? f.name : `${f.manufacturer} ${f.name}`
-    // DER LICHT-PLANER NENNT DEN BELEG `datasheetUrl`, NICHT `manufacturerUrl`
-    // (2026-09-28). Hier stand die zweite Vokabel, weil die Uebernahme sie
-    // selbst in den Licht-Planer eingefuehrt hatte — und weil sie im
-    // Kabel-Planer so heisst. Der Licht-Planer hat die Luecke in der Zwischen-
-    // zeit selbst geschlossen, und zwar besser: `datasheetUrl` zeigt auf das
-    // PDF, nicht auf die Produktseite, und es sind 69 von 84 statt 50. Das
-    // eigene Feld ist dort wieder herausgefallen; blieb diese Zeile stehen,
-    // haette der erzeugte Katalog NULL Belege gehabt und der Waechter das
-    // gemeldet, ohne dass jemand die Ursache sieht.
-    const url = herstellerUrl(f.datasheetUrl)
+    // ─── DER LICHT-PLANER FUEHRT ZWEI BELEG-FELDER, UND BEIDE ZAEHLEN ──────
+    //
+    // `datasheetUrl` ist das PDF mit der Tabelle — daraus kommen die Zahlen.
+    // `manufacturerUrl` ist die Produktseite. Das PDF ist der staerkere
+    // Beleg, also gilt es, wo es beides gibt; fehlt es, ist die Produktseite
+    // immer noch besser als nichts.
+    //
+    // HIER STAND ZWEIMAL NUR EINES VON BEIDEN, und beide Male war es falsch.
+    // Zuerst `manufacturerUrl` allein — weil die Uebernahme dieses Feld selbst
+    // in den Licht-Planer eingefuehrt hatte. Dann `datasheetUrl` allein, weil
+    // der Licht-Planer die Luecke in der Zwischenzeit selbst und besser
+    // geschlossen hatte (74 von 84 statt 50). Beide Male wurde ein Beleg
+    // weggeworfen, den es gab.
+    //
+    // Gemessen am Stand vom 2026-09-28: 74 Leuchten mit Blatt, 48 mit
+    // Produktseite, zusammen 74 belegt (alle 48 haben auch ein Blatt) und 10
+    // ohne beides — sieben generische Bauformen, drei Geraete, deren
+    // Produktseite es nicht mehr gibt.
+    const url = herstellerUrl(f.datasheetUrl ?? f.manufacturerUrl)
     if (url) mitBeleg += 1
     else ohneBeleg.push(name)
     const modi = f.dmxModes?.length

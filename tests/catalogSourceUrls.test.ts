@@ -125,7 +125,11 @@ describe('jeder Quellen-Kommentar steht auch als Feld im Eintrag', () => {
     // statt 0; multicam 35 weitere Datenblattlinks). Die Zahl ist gestiegen,
     // ohne dass hier jemand recherchiert hat -- das ist der Sinn erzeugter
     // Kataloge.
-    expect(pairs().length).toBe(1732)
+    // 1732 -> 1737 am 2026-09-28: der Licht-Planer fuehrt seinen Beleg jetzt in
+    // ZWEI Feldern (`datasheetUrl` das PDF, `manufacturerUrl` die
+    // Produktseite), und die Uebernahme liest beide. Fuenf Leuchten, die nur
+    // unter dem zweiten Namen belegt waren, zaehlen damit mit.
+    expect(pairs().length).toBe(1737)
   })
 
   it('deckt die Kataloge ab, die Belege fuehren', () => {
@@ -287,6 +291,6 @@ describe('der Beleg zeigt auf den Hersteller, nicht auf einen Haendler', () => {
   it('prueft alle Belege, nicht nur die mit Feld', () => {
     // Ohne diese Zusicherung waere der Haendler-Test auch dann gruen, wenn
     // `pairs()` nichts mehr faende.
-    expect(pairs().filter((p) => p.field).length).toBe(1732)
+    expect(pairs().filter((p) => p.field).length).toBe(1737)
   })
 })

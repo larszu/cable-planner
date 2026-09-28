@@ -96,7 +96,11 @@ describe('Initiative 11 — trägt diese Katalog-Zeile ein Datenblatt?', () => {
     // 1723 -> 1732 am 2026-09-28: sechs Crestron- und drei Cisco-Eintraege,
     // jeder mit geoeffnetem Blatt. Die neun sind vollstaendig belegt, `unsourced`
     // bleibt deshalb bei 104.
-    expect(kommentare).toBe(1732)
+    // 1732 -> 1737 am 2026-09-28: der Licht-Planer fuehrt seinen Beleg jetzt in
+    // ZWEI Feldern (`datasheetUrl` das PDF, `manufacturerUrl` die
+    // Produktseite), und die Uebernahme liest beide. Fuenf Leuchten, die nur
+    // unter dem zweiten Namen belegt waren, zaehlen damit mit.
+    expect(kommentare).toBe(1737)
   })
 
   it('2. die Abdeckung wird gerechnet', () => {
@@ -104,7 +108,7 @@ describe('Initiative 11 — trägt diese Katalog-Zeile ein Datenblatt?', () => {
     // Die Summen stammen aus derselben Rechnung wie die Zeilen.
     expect(bericht.entries).toBe(bericht.perCatalogue.reduce((s, c) => s + c.entries, 0))
     expect(bericht.sourced + bericht.unsourced).toBe(bericht.entries)
-    expect(bericht.sourced).toBe(1732)
+    expect(bericht.sourced).toBe(1737)
     // 1831 -> 1827: der multicam-planner hat vier erfundene Kamera-Eintraege
     // entfernt (Datenblatt-Verifikation dort). Ein erzeugter Katalog, der
     // kleiner wird, weil die Quelle aufgeraeumt hat, ist ein Gewinn.
@@ -139,7 +143,7 @@ describe('Initiative 11 — trägt diese Katalog-Zeile ein Datenblatt?', () => {
     }
     // Und die Gesamtzahl der unbelegten steigt nicht. Sinken darf sie —
     // dann ist diese Zeile die Erinnerung, die Zahl nachzuziehen.
-    expect(bericht.unsourced).toBeLessThanOrEqual(104)
+    expect(bericht.unsourced).toBeLessThanOrEqual(99)
   })
 
   it('4. „kein Beleg" ist eine eigene Auskunft', () => {

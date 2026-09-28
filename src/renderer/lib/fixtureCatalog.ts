@@ -5,7 +5,7 @@
 // ║  Pruefen:    npm run katalog:check                                    ║
 // ╚═══════════════════════════════════════════════════════════════════════╝
 //
-// 84 Eintraege, davon 69 mit Datenblatt-Link.
+// 84 Eintraege, davon 74 mit Datenblatt-Link.
 //
 // ─── DIESE EINTRAEGE HABEN ANSCHLUESSE ─────────────────────────────────────
 //
@@ -17,18 +17,18 @@
 // Regel daneben hiesse, dass dieselbe Leuchte aus dem Licht-Plan Buchsen hat
 // und aus der Bibliothek nicht.
 //
-// 50 Eintraege bekommen KEINE DMX-Buchse. Das ist eine Aussage und kein
+// 49 Eintraege bekommen KEINE DMX-Buchse. Das ist eine Aussage und kein
 // Versehen: eine konventionelle Leuchte am Dimmer hat keine. Ihr eine
 // anzudichten hiesse, eine DMX-Leitung zum Stufenlinsenscheinwerfer zu planen.
 //
-// 73 Eintraege nennen keinen Netzstecker. Sie bekommen den Rueckfall aus
+// 69 Eintraege nennen keinen Netzstecker. Sie bekommen den Rueckfall aus
 // `powerConnectorToCp` (PowerCON) — dieselbe Annahme wie im Licht-Plan, und
 // damit dieselbe an beiden Stellen. Wer sie korrigiert, korrigiert sie in
 // `fixtureLibrary.ts`; von dort holt sie der Generator.
 //
 // ─── ZWEI SORTEN LUECKE, UND SIE BEDEUTEN VERSCHIEDENES ────────────────────
 //
-// 15 Eintraege ohne Datenblatt-Link. Davon sind sieben
+// 10 Eintraege ohne Datenblatt-Link. Davon sind sieben
 // `Generic`-Bauformen, die keinen Hersteller behaupten — bei ihnen ist die
 // Leere die richtige Antwort. Die uebrigen sind offene Recherche: die
 // Herstellerseite war aus der Arbeitsumgebung nicht erreichbar oder die
@@ -37,19 +37,14 @@
 // Offen (Stand 2026-09-24):
 //   Generic 1 kW Fresnel
 //   Generic 2 kW Fresnel
-//   ETC ColorSource Fresnel
 //   Generic PAR64 CP62 (NSP)
 //   Generic PAR64 CP61 (MFL)
 //   Generic PAR64 CP60 (WFL)
 //   Generic PAR56 MFL 300W
-//   Chauvet Professional COLORdash Par H18IP
 //   Generic LED PAR 54×3 W RGBW
-//   Robe iForte LTX
 //   Chauvet Professional Rogue R2 Spot
 //   Cameo OPUS H5
 //   Clay Paky Mythos 2
-//   Aputure LS 300x II
-//   Elation KL Panel FC
 //
 // DREI MODELLNAMEN, DIE DER HERSTELLER SO NICHT FUEHRT — aufgefallen bei der
 // Recherche, hier festgehalten statt stillschweigend angeglichen:
@@ -223,20 +218,20 @@ export const FIXTURE_CATALOG: FixtureEntry[] = [
   },
   // Quelle: https://www.robertjuliat.com/Product_Specifications/Fiches_EN/Standard/DSEN074_714SX2.pdf
   {
-    match: ['robertjuliat714sx2suiveur25kw', '714sx2suiveur25kw'],
+    match: ['robertjuliat714sx2', '714sx2'],
     deviceTypeId: '36cf4ce9-9cf3-55c3-9035-01e9662d1a00',
     template: {
       manufacturerUrl: 'https://www.robertjuliat.com/Product_Specifications/Fiches_EN/Standard/DSEN074_714SX2.pdf',
-      name: 'Robert Juliat 714SX2 Suiveur 2,5kW',
+      name: 'Robert Juliat 714SX2',
       category: LIGHT,
       subtitle: 'profile',
       powerWatts: 2500,
-      weightKg: 23,
-      notes: '68000 lm · zoom 8-16° · 3200 K · mount yoke',
+      weightKg: 20,
+      notes: '65000 lm · zoom 15-40° · 3200 K · power Schuko (CEE 7/7) · mount yoke',
       width: 200,
       height: 140,
       inputs: [
-        { id: '', name: 'Power', type: 'Power', connectorType: 'PowerCON' },
+        { id: '', name: 'Power', type: 'Power', connectorType: 'Schuko 230V' },
       ],
       outputs: [],
     },
@@ -277,16 +272,18 @@ export const FIXTURE_CATALOG: FixtureEntry[] = [
       outputs: [],
     },
   },
+  // Quelle: https://www.etcconnect.com/Products/Entertainment-Fixtures/ColorSource-Fresnel-V/Features.aspx
   {
-    match: ['etccolorsourcefresnel', 'colorsourcefresnel'],
+    match: ['etccolorsourcefresnelv', 'colorsourcefresnelv'],
     deviceTypeId: '9823f454-4794-53f2-886f-76359a8a8c41',
     template: {
-      name: 'ETC ColorSource Fresnel',
+      manufacturerUrl: 'https://www.etcconnect.com/Products/Entertainment-Fixtures/ColorSource-Fresnel-V/Features.aspx',
+      name: 'ETC ColorSource Fresnel V',
       category: LIGHT,
       subtitle: 'fresnel',
-      powerWatts: 125,
-      weightKg: 5.2,
-      notes: '3250 lm · zoom 15-50° · 2700-6500 K · CRI 92 · DMX 5 ch · mount clamp',
+      powerWatts: 149,
+      weightKg: 6.24,
+      notes: '5330 lm · zoom 13-44° · 2700-6500 K · CRI 92 · power powerCON TRUE1 · DMX Stn: Standard 8 ch, RGB 4 ch, 1ch: 1-channel 1 ch, Dir: Direct 10 ch, 6ch: 6-channel 6 ch, CCT: Studio 8 ch, St2: Standard 16-bit 12 ch, Dr2: Direct 16-bit 16 ch, CT2: Studio 16-bit 10 ch · mount clamp',
       width: 200,
       height: 140,
       inputs: [
@@ -393,16 +390,18 @@ export const FIXTURE_CATALOG: FixtureEntry[] = [
       ],
     },
   },
+  // Quelle: https://chauvetprofessional.com/product/colordash-par-h18-xip/
   {
-    match: ['chauvetprofessionalcolordashparh18ip', 'colordashparh18ip'],
+    match: ['chauvetprofessionalcolordashparh18xip', 'colordashparh18xip'],
     deviceTypeId: '498f378e-66e0-561b-a7da-cd452b787a43',
     template: {
-      name: 'Chauvet Professional COLORdash Par H18IP',
+      manufacturerUrl: 'https://chauvetprofessional.com/product/colordash-par-h18-xip/',
+      name: 'Chauvet Professional COLORdash PAR H18 XIP',
       category: LIGHT,
       subtitle: 'wash',
-      powerWatts: 180,
-      weightKg: 4.8,
-      notes: '5736 lm · beam 22° · RGBW · DMX 14 ch · IP65 · mount clamp',
+      powerWatts: 150,
+      weightKg: 6.6,
+      notes: '5567 lm · beam 25.4° · 2800-10000 K · power Seetronic Powerkon IP65 · DMX 6CH 6 ch, 8CH 8 ch, 9CH 9 ch, 13CH 13 ch, 14CH 14 ch · IP65 · mount clamp',
       width: 200,
       height: 140,
       inputs: [
@@ -951,22 +950,27 @@ export const FIXTURE_CATALOG: FixtureEntry[] = [
       ],
     },
   },
+  // Quelle: https://www.robe.cz/iforte-ltx-wb
   {
-    match: ['robeiforteltx', 'iforteltx'],
+    match: ['robeiforteltxwb', 'iforteltxwb'],
     deviceTypeId: 'eb40e6c0-2d0e-52ca-9d3c-cd242c9d8e8d',
     template: {
-      name: 'Robe iForte LTX',
+      manufacturerUrl: 'https://www.robe.cz/iforte-ltx-wb',
+      name: 'Robe iFORTE LTX WB',
       category: LIGHT,
       subtitle: 'moving-spot',
-      powerWatts: 307,
-      weightKg: 42.5,
-      notes: '8200 lm · zoom 3.5-52° · 6800 K · IP65 · mount yoke',
+      powerWatts: 1250,
+      weightKg: 49,
+      notes: '43800 lm · zoom 3.5-52° · 3000-6700 K · CRI 70 · power powerCON TRUE1 · DMX Mode 1 54 ch · IP65 · mount yoke',
       width: 200,
       height: 140,
       inputs: [
+        { id: '', name: 'DMX In', type: 'DMX', connectorType: 'DMX 5-pol (XLR)' },
         { id: '', name: 'Power', type: 'Power', connectorType: 'PowerCON' },
       ],
-      outputs: [],
+      outputs: [
+        { id: '', name: 'DMX Thru', type: 'DMX', connectorType: 'DMX 5-pol (XLR)' },
+      ],
     },
   },
   // Quelle: https://www.martin.com/en/products/mac-encore-performance-cld
@@ -1650,16 +1654,18 @@ export const FIXTURE_CATALOG: FixtureEntry[] = [
       ],
     },
   },
+  // Quelle: https://aputure.com/en-US/products/ls-300x
   {
-    match: ['aputurels300xii', 'ls300xii'],
+    match: ['aputurels300x', 'ls300x'],
     deviceTypeId: '4fbfbbe1-3400-5d06-bb72-8a481e7851da',
     template: {
-      name: 'Aputure LS 300x II',
+      manufacturerUrl: 'https://aputure.com/en-US/products/ls-300x',
+      name: 'Aputure LS 300x',
       category: LIGHT,
       subtitle: 'led-panel',
       powerWatts: 350,
       weightKg: 3.45,
-      notes: '18000 lm · beam 55° · 2700-6500 K · CRI 96 · power Neutrik TRUE1 · DMX 4 ch · mount bowens',
+      notes: '18000 lm · beam 55° · 2700-6500 K · CRI 96 · power Neutrik powerCON · DMX 6 ch · mount bowens',
       width: 200,
       height: 140,
       inputs: [
@@ -1717,16 +1723,18 @@ export const FIXTURE_CATALOG: FixtureEntry[] = [
       ],
     },
   },
+  // Quelle: https://www.elationlighting.com/products/kl-panel
   {
-    match: ['elationklpanelfc', 'klpanelfc'],
+    match: ['elationklpanel', 'klpanel'],
     deviceTypeId: '4a58b27f-dcc4-505d-b156-bf5f06141d38',
     template: {
-      name: 'Elation KL Panel FC',
+      manufacturerUrl: 'https://www.elationlighting.com/products/kl-panel',
+      name: 'Elation KL Panel',
       category: LIGHT,
       subtitle: 'led-panel',
       powerWatts: 295,
       weightKg: 13,
-      notes: '24000 lm · beam 64° · 2000-10000 K · CRI 95 · power powerCON TRUE1 · DMX 16 ch · mount clamp',
+      notes: '24000 lm · beam 101° · 2000-10000 K · CRI 95 · power powerCON TRUE1 · DMX 1-CH Dimmer 1 ch, 4-CH Dimmer Color 4 ch, 7-CH Dimmer Color FX 7 ch, 6-CH RGBWLC 6 ch, 12-CH RGBWLC 16-bit 12 ch, 14-CH Standard 14 ch, 23-CH Extended 23 ch, 4-CH HSI 4 ch, 12-CH HSI Extended 12 ch · mount clamp',
       width: 200,
       height: 140,
       inputs: [
