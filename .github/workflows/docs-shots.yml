@@ -1,0 +1,98 @@
+name: README-Bilder neu aufnehmen
+
+# Nimmt die Bilder in `docs/screenshots/` aus der laufenden App auf und
+# committet sie zurück.
+#
+# ─── WARUM ES DIESEN WORKFLOW GIBT (2026-09-28) ────────────────────────────
+#
+# `scripts/screenshots.mjs` gibt es seit dem 2026-09-10, und sein Kopf nennt
+# den Aufruf: `npm run build && xvfb-run -a node scripts/screenshots.mjs`.
+# Gefahren hat ihn seither NIEMAND automatisch — es gab keinen Workflow dafür.
+# Die eingecheckten Bilder stehen auf v9.0.1, die App inzwischen weit darüber.
+#
+# Aufgefallen ist das beim Release auf 9.1.0: `tests/screenshotsAktuell.test.ts`
+# vergleicht den Stempel in `aufnahme.json` mit der MINOR-Version aus
+# package.json. Solange beide „9.0" waren, fiel nichts auf. Mit „9.1" wird die
+# Zeile rot — und das ist keine Schikane des Tests, sondern genau seine
+# Aufgabe: ein Titelbild ist die erste Auskunft über das Produkt, und eine
+# veraltete ist eine falsche.
+#
+# ─── WARUM NICHT AUF DEM ARBEITSPLATZ ──────────────────────────────────────
+#
+# Der Lauf braucht Software-Rendering für die 3D-Rack-Ansicht
+# (`--use-gl=swiftshader`). Auf macOS hängt Electron damit ohne Fehlermeldung;
+# nachgemessen am 2026-09-28: der Start kehrt nicht zurück, auch nicht nach
+# zehn Minuten. Unter `xvfb-run` auf Linux läuft er — dieselbe Umgebung, in
+# der `ui:smoke` und `ui:overflow` schon messen.
+#
+# Ein Schritt, der nur auf einer Maschine läuft, die niemand hat, ist ein
+# Schritt, der liegenbleibt. Deshalb hier.
+#
+# ─── WARUM NUR VON HAND UND NICHT BEI JEDEM MERGE ──────────────────────────
+#
+# Bilder sind keine Kennzahl. Jeder Merge auf main würde sechs PNG neu
+# schreiben, und der Verlauf wäre nach einem Monat unlesbar. Der Test fragt
+# nach der MINOR-Version, also ist der richtige Takt „einmal je Minor" — und
+# den löst ein Mensch aus, wenn er die Version hochzieht.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# Nicht zwei Läufe gleichzeitig; laufenden NICHT abbrechen (sonst halbe
+# Bildserie) — dieselbe Regel wie bei den Doku-Kennzahlen.
+concurrency:
+  group: docs-shots
+  cancel-in-progress: false
+
+jobs:
+  shots:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      # keytar (nativ) braucht beim Kompilieren libsecret, zur Laufzeit
+      # libsecret-1-0 — sonst bricht der Main-Prozess beim `require('keytar')`
+      # ab, bevor ein Fenster entsteht. Gleiche Absicherung wie im ui-smoke-Job
+      # von ci.yml, und dort steht auch, wie lange dieser Fehler als
+      # „30-Sekunden-Timeout ohne Ursache" gelesen wurde.
+      - run: sudo apt-get update && sudo apt-get install -y libsecret-1-dev libsecret-1-0 xvfb
+
+      - run: npm ci
+
+      - name: Bauen
+        run: npm run build
+
+      - name: Aufnehmen
+        run: xvfb-run -a node scripts/screenshots.mjs
+
+      - name: Bilder committen (falls sie sich geändert haben)
+        run: |
+          if git diff --quiet -- docs/screenshots; then
+            echo "Die Bilder sind unverändert — nichts zu committen."
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/screenshots
+          git commit -m "docs: README-Bilder gegen die aktuelle Version aufgenommen"
+          git push
+
+      # Ein Lauf, der nichts aufgenommen hat, ist ein Fehlschlag und kein
+      # Erfolg: dann fehlen die Bilder, und `tests/screenshotsAktuell.test.ts`
+      # meldet es erst beim nächsten Testlauf — eine Ebene zu spät.
+      - name: Der Stempel trägt die heutige Version
+        run: |
+          gestempelt=$(node -p "require('./docs/screenshots/aufnahme.json').version")
+          app=$(node -p "require('./package.json').version")
+          if [ "${gestempelt%.*}" != "${app%.*}" ]; then
+            echo "Stempel $gestempelt passt nicht zu $app — die Aufnahme ist nicht durchgelaufen." >&2
+            exit 1
+          fi
+          echo "Stempel $gestempelt passt zu $app."
