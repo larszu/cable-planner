@@ -666,7 +666,11 @@ the open project into the cloud of your device-library account
   connections, service history. Every filled property is preselected; an
   empty one you tick prints as a dash. *Print* opens the print dialog, *Save
   PDF* writes the file (desktop app; the web edition offers "Save as PDF" in
-  the print dialog). Login credentials are never offered
+  the print dialog). Login credentials are never offered. Also from the
+  right-click menu on a device, the selection toolbar and *Export → Patch
+  sheets → Datasheets (n)…*: for several devices one list with "filled on n
+  of m" per property, one A4 page per device in one document, optionally the
+  first photo of each device
 - **Operator overview** (HTML) — which source (by role name) lies on which
   switcher or router input, where each output goes (through patch panels),
   contacts, web interfaces, and an empty box for operating steps: the plan does

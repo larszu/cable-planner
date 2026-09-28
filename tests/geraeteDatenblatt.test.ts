@@ -3,7 +3,15 @@ import type { CablePlannerProject } from '../src/renderer/types/project'
 import type { EquipmentItem, Port } from '../src/renderer/types/equipment'
 import type { Cable } from '../src/renderer/types/cable'
 import type { Foto } from '../src/renderer/types/foto'
-import { datenblattFelder, datenblattHtml, geraeteFotos, vorauswahl } from '../src/renderer/lib/geraeteDatenblatt'
+import {
+  datenblaetterHtml,
+  datenblattFelder,
+  datenblattFelderMehrere,
+  datenblattHtml,
+  geraeteFotos,
+  vorauswahl,
+  vorauswahlMehrere,
+} from '../src/renderer/lib/geraeteDatenblatt'
 
 // #919 — ein A4-Blatt je Gerät: vorausgewählt ist, was ausgefüllt ist; auf
 // dem Blatt steht nur, was angekreuzt ist; das Foto kommt mit, wenn es auf
@@ -118,5 +126,36 @@ describe('Geräte-Datenblatt (#919)', () => {
 
   it('ein unbekanntes Gerät hat keine Felder', () => {
     expect(datenblattFelder(projekt(), 'weg')).toBeUndefined()
+  })
+})
+
+describe('Datenblätter für mehrere Geräte (#919)', () => {
+  it('führt die Felder zusammen und zählt, bei wie vielen sie ausgefüllt sind', () => {
+    const felder = datenblattFelderMehrere(projekt(), ['CAM 1', 'ATEM'])
+    const sn = felder.find((f) => f.key.includes('serial'))
+    expect(sn).toMatchObject({ gefuellt: 1, gesamt: 2 })
+    expect(new Set(felder.map((f) => f.key)).size).toBe(felder.length)
+    // Vorausgewählt ist, was bei mindestens einem Gerät ausgefüllt ist.
+    expect(vorauswahlMehrere(felder).has(sn!.key)).toBe(true)
+  })
+
+  it('gibt eine Seite je Gerät in einem Dokument, Fotos je Gerät', () => {
+    const p = projekt()
+    const auswahl = vorauswahlMehrere(datenblattFelderMehrere(p, ['CAM 1', 'ATEM']))
+    const html = datenblaetterHtml(p, ['CAM 1', 'ATEM'], { auswahl, fotoIdsJeGeraet: { 'CAM 1': ['f1'], ATEM: ['f2'] } })
+    expect(html.match(/<section class="seite">/g)?.length).toBe(2)
+    expect(html).toContain('<h1>CAM 1</h1>')
+    expect(html).toContain('<h1>ATEM</h1>')
+    expect(html.match(/<img /g)?.length).toBe(2)
+    expect(html).toContain('break-after: page')
+    expect(html).not.toContain('geheim')
+  })
+
+  it('ist bei einem Gerät dasselbe Blatt wie vorher', () => {
+    const p = projekt()
+    const auswahl = vorauswahl(datenblattFelder(p, 'CAM 1') ?? [])
+    expect(datenblaetterHtml(p, ['CAM 1'], { auswahl, fotoIdsJeGeraet: { 'CAM 1': ['f1'] } })).toBe(
+      datenblattHtml(p, 'CAM 1', { auswahl, fotoIds: ['f1'] }),
+    )
   })
 })

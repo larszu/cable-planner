@@ -6,8 +6,8 @@
 // globale Toggles (Snap, Routing, Layer …) zuständig.
 //
 // Aktionen je nach Auswahl:
-//   - 1 Gerät      → Duplizieren · Rahmen um Auswahl · Löschen
-//   - 2+ Geräte    → Ausrichten (6×) + Verteilen (ab 3) · Rahmen · Löschen
+//   - 1 Gerät      → Duplizieren · Rahmen um Auswahl · Datenblatt · Löschen
+//   - 2+ Geräte    → Ausrichten (6×) + Verteilen (ab 3) · Rahmen · Datenblatt · Löschen
 //   - 1 Location   → Löschen
 // Kabel haben bereits ihr eigenes Rechtsklick-Menü (CableContextMenu).
 //
@@ -25,6 +25,7 @@ import {
   AlignHorizontalDistributeCenter,
   AlignVerticalDistributeCenter,
   Copy,
+  FileText,
   SquareDashed,
   Trash2,
 } from 'lucide-react'
@@ -43,6 +44,7 @@ export const InlineSelectionToolbar = () => {
   const raster = useRaster()
   const t = useTranslation()
   const enabled = useUiStore((s) => s.inlineToolbarEnabled)
+  const openDatasheet = useUiStore((s) => s.openDatasheet)
   const snapToGrid = useUiStore((s) => s.snapToGrid)
   const gridSize = useUiStore((s) => s.gridSize)
   const nodes = useNodes()
@@ -172,6 +174,16 @@ export const InlineSelectionToolbar = () => {
             onClick={() => addLocationAroundEquipment(ids)}
           >
             <Icon icon={SquareDashed} size="xs" />
+          </button>
+          {/* #919 — Datenblatt fuer die ganze Auswahl, eine Seite je Geraet. */}
+          <button
+            type="button"
+            className={btn}
+            title={t('inlineToolbar.datasheet', 'Device datasheet (A4 PDF / print)')}
+            aria-label={t('inlineToolbar.datasheet', 'Device datasheet (A4 PDF / print)')}
+            onClick={() => openDatasheet(ids)}
+          >
+            <Icon icon={FileText} size="xs" />
           </button>
         </>
       )}
