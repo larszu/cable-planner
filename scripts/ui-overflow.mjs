@@ -511,9 +511,15 @@ await erststartOverlayWeg(win)
 }
 await win.setViewportSize(groessen[0])
 await win.waitForTimeout(800)
-// Die Seed-Stufe fuellt die Bibliothek beim Start mit dem ganzen Katalog;
-// auf dem CI-Runner stand sie nach der festen Wartezeit noch leer.
-await win.waitForSelector('.cp-hover-actions', { state: 'attached', timeout: 30000 }).catch(() => {})
+// Die Kategorien starten zugeklappt; ohne offene gibt es keine Karte zu messen.
+// Ein befuelltes Profil hatte das verdeckt, der CI-Runner startet leer.
+{
+  const kategorie = win.locator('.group\\/cat > button').first()
+  if (await kategorie.count()) {
+    await kategorie.click()
+    await win.waitForTimeout(500)
+  }
+}
 
 // Je Reihen-GROESSE eine Probe. Die Bibliothek fuehrt Tausende Eintraege, und
 // sie unterscheiden sich fuer diese Frage nur in einem: wie viele Knoepfe die
