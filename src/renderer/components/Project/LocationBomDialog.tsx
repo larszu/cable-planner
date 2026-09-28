@@ -11,6 +11,7 @@ import { formatCategoryProps } from '../../lib/categorySchemas'
 import { effectiveDeviceResources, effectiveWatts } from '../../lib/equipmentSelectors'
 import type { Lang } from '../../lib/categoryTranslations'
 import { portDisplayLabel } from '../../lib/portLabel'
+import { ipWithVlan, primaryVlanId } from '../../lib/vlanAnzeige'
 
 /**
  * Issue #39 — Frame-scoped Bill of Materials. For a selected location/frame
@@ -251,7 +252,7 @@ export const LocationBomDialog = () => {
           y = margin
         }
         const sn = d.serialNumber ? `  S/N: ${d.serialNumber}` : ''
-        const ip = d.ipAddress ? `  IP: ${d.ipAddress}` : ''
+        const ip = d.ipAddress ? `  IP: ${ipWithVlan(d.ipAddress, primaryVlanId(d))}` : ''
         // #351 — Pack-Status als Checkbox-Praefix fuer die Pull-/Packliste.
         const box = d.packed ? '[x]' : '[ ]'
         pdf.text(sanitizeForPdf(`${box} ${d.name}  [${d.category}]${sn}${ip}`), margin, y)
@@ -418,7 +419,7 @@ export const LocationBomDialog = () => {
                     {d.serialNumber ?? '—'}
                   </td>
                   <td className="px-2 py-1 font-mono text-cp-text-muted">
-                    {d.ipAddress ?? '—'}
+                    {d.ipAddress ? ipWithVlan(d.ipAddress, primaryVlanId(d)) : '—'}
                   </td>
                   <td className="px-2 py-1 text-cp-text-muted">
                     {formatCategoryProps(d.category, d.categoryProps, lang) || '—'}

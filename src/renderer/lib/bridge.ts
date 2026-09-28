@@ -10,7 +10,31 @@ import type { DeviceLibraryApi } from '../types/deviceLibrary'
 
 export type StreamSnapshotResult =
   | { ok: true; dataUri: string; fetchedAt: string }
-  | { ok: false; code: 'invalid-url' | 'unreachable' | 'http' | 'not-image' | 'too-large' | 'desktop-only'; status?: number }
+  | {
+      ok: false
+      code:
+        | 'invalid-url'
+        | 'unreachable'
+        | 'http'
+        | 'not-image'
+        | 'too-large'
+        | 'desktop-only'
+        // Nachtrag #946
+        | 'not-local'
+        | 'no-ffmpeg'
+        | 'unsupported'
+        | 'busy'
+      status?: number
+    }
+
+/** Nachtrag #946 — was die Kachel beim Main-Prozess anfragt. */
+export interface StreamSnapshotRequest {
+  /** Schluesselbund-Account der Zugangsdaten (`zugangsSchluessel`). */
+  credentialId: string
+  weg: 'http' | 'ffmpeg'
+  protocol: string
+  url: string
+}
 
 /**
  * BEDARF 133 — was die Freigabe anbietet, und was sie zurueckhaelt.
@@ -492,7 +516,13 @@ type CablePlannerApi = {
   deviceLibrary: DeviceLibraryApi
   /** #946 — Standbild fuer die Stream-Vorschau, geholt im Main-Prozess. */
   streamPreview: {
-    snapshot: (url: string) => Promise<StreamSnapshotResult>
+    snapshot: (req: StreamSnapshotRequest) => Promise<StreamSnapshotResult>
+  }
+  /** Nachtrag #946 — Zugangsdaten der Geraete-Streams. Kein `get`: nur main braucht sie. */
+  streamCredential: {
+    has: (id: string) => Promise<boolean>
+    save: (id: string, secrets: string) => Promise<boolean>
+    delete: (id: string) => Promise<boolean>
   }
   /** #871/#870 — Cloud-Projekte mit dem Konto der Geraetebibliothek. Typisiert in `lib/cloud.ts`. */
   cloud: CloudBridge
@@ -1212,6 +1242,15 @@ const webFallbackApi: CablePlannerApi = {
   // gesagt wird es, statt ein leeres Bild zu zeigen.
   streamPreview: {
     snapshot: async () => ({ ok: false, code: 'desktop-only' as const }),
+  },
+  // Nachtrag #946 — kein Schluesselbund im Browser. Die Zugangsdaten landen
+  // NICHT in localStorage (anders als der Stream-Key): gebraucht werden sie
+  // nur fuer die Vorschau, und die gibt es hier nicht. `save` sagt `false`,
+  // die Oberflaeche sagt, dass sie verworfen wurden.
+  streamCredential: {
+    has: async () => false,
+    save: async () => false,
+    delete: async () => true,
   },
   cloud: createWebCloudApi(),
   mcp: {

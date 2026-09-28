@@ -20,6 +20,7 @@
 // info first so technicians can match the printed sheet to the labels
 // they put on the physical cables.
 
+import { ipWithVlan, primaryVlanId } from './vlanAnzeige'
 import jsPDF from 'jspdf'
 import type { Cable } from '../types/cable'
 import type { EquipmentItem, Port } from '../types/equipment'
@@ -168,7 +169,7 @@ const drawPageHeader = (pdf: jsPDF, device: EquipmentItem, ort?: PatchSheetOrt):
   const metaParts: string[] = []
   if (device.category) metaParts.push(device.category)
   if (device.subtitle) metaParts.push(device.subtitle)
-  if (device.ipAddress) metaParts.push(`IP ${device.ipAddress}`)
+  if (device.ipAddress) metaParts.push(`IP ${ipWithVlan(device.ipAddress, primaryVlanId(device))}`)
   const hier = ortZeile(device, ort)
   if (hier) metaParts.push(`Ort ${hier}`)
   pdfText(pdf, metaParts.join('  -'), margin, margin + 20)

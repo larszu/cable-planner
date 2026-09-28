@@ -18,6 +18,7 @@ import type { EquipmentItem, Port } from '../types/equipment'
 import type { InstallStatus, ServiceRecord } from '../types/lifecycle'
 import type { CsvCell, CsvTable } from './csv'
 import { deriveLabels } from './labelDerivation'
+import { streamDirectionText, streamZeilen, type StreamZeile } from './streamEndpoints'
 import { equipmentAssetTag } from './docIds'
 import { standortText } from './equipmentLocation'
 import { portDisplayLabel } from './portLabel'
@@ -55,6 +56,8 @@ export interface Steckbrief {
   herstellerUrl: string
   web: string
   netz: KonfigZeile[]
+  /** #946 — Streams, die das Gerät sendet oder empfängt. */
+  streams: StreamZeile[]
   mischerEingaenge: Array<{ mischer: string; eingang: number }>
   verbindungen: SteckbriefVerbindung[]
   /** Jüngster Eintrag zuerst. */
@@ -126,6 +129,7 @@ export function steckbriefe(project: CablePlannerProject): Steckbrief[] {
         herstellerUrl: e.manufacturerUrl ?? '',
         web: e.mgmtUrl ?? '',
         netz: netz.get(e.id) ?? [],
+        streams: streamZeilen([e]),
         mischerEingaenge,
         verbindungen,
         service: [...(e.serviceHistory ?? [])].sort((a, b) => vergleich(b.date, a.date) || vergleich(a.id, b.id)),
@@ -158,6 +162,12 @@ export const steckbriefStandTable = (project: CablePlannerProject): CsvTable => 
     feld('Web-Oberfläche', s.web)
     for (const n of s.netz) {
       feld('Netz', [n.schnittstelle, n.ip, n.maske, n.gateway, n.vlan ?? '', n.switchName, n.port].join(' | '))
+    }
+    for (const r of s.streams) {
+      feld(
+        'Stream',
+        [r.stream.direction, r.protokoll, r.stream.label ?? '', r.adresse, r.vlanId ?? '', r.stream.codec ?? '', r.stream.format ?? ''].join(' | '),
+      )
     }
     for (const m of s.mischerEingaenge) feld('Mischer-Eingang', `${m.mischer} ${m.eingang}`)
     for (const v of s.verbindungen) {
@@ -232,6 +242,25 @@ export function steckbriefHtml(project: CablePlannerProject, o: SteckbriefOption
           '',
         )
       : ''
+    const streams = s.streams.length
+      ? tabelle(
+          [
+            t('steckbrief.col.direction', 'Direction'),
+            t('steckbrief.col.protocol', 'Protocol'),
+            t('steckbrief.col.address', 'Address'),
+            t('steckbrief.col.vlan', 'VLAN'),
+            t('steckbrief.col.codec', 'Codec / format'),
+          ],
+          s.streams.map((r) => [
+            streamDirectionText(r.stream.direction, t),
+            [r.protokoll, r.stream.label].filter(Boolean).join(' '),
+            r.adresse || dash,
+            r.vlanId !== undefined ? String(r.vlanId) : dash,
+            [r.stream.codec, r.stream.format].filter(Boolean).join(' · ') || dash,
+          ]),
+          '',
+        )
+      : ''
     const verbindungen = tabelle(
       [
         t('steckbrief.col.port', 'Port'),
@@ -253,6 +282,7 @@ export function steckbriefHtml(project: CablePlannerProject, o: SteckbriefOption
 <h2>${esc(s.name)}${s.kurzname ? ` <span class="leise">(${esc(s.kurzname)})</span>` : ''}</h2>
 <dl>${felder.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v || dash)}</dd>`).join('')}</dl>
 ${netz ? `<h3>${esc(t('steckbrief.network', 'Network'))}</h3>${netz}` : ''}
+${streams ? `<h3>${esc(t('steckbrief.streams', 'Streams'))}</h3>${streams}` : ''}
 <h3>${esc(t('steckbrief.connections', 'Connections'))}</h3>
 ${verbindungen}
 <h3>${esc(t('steckbrief.service', 'Service history'))}</h3>

@@ -14,22 +14,51 @@
 //
 // `rtsp://user:pass@…` ist die uebliche Schreibweise, und genau deshalb wird
 // sie beim Speichern entfernt (`streamUrlOhneZugang`): die Projektdatei geht
-// per Mail, in den Mobile-Viewer und nach GitHub Pages. Benutzer und Passwort
-// des Geraets haben ihre eigenen Felder unter „Netzwerk & Zugang". Ein
+// per Mail, in den Mobile-Viewer und nach GitHub Pages. Dasselbe gilt fuer
+// geheime Query-Parameter (`passphrase=` bei SRT, `token=`, `password=`).
+// Was herausgetrennt wird, legt die Desktop-App im Schluesselbund DIESES
+// Rechners ab (`streamCredential:*`, wie die Stream-Keys der Ausspielziele);
+// nur der Standbild-Abruf im Main-Prozess setzt es wieder ein. Ein
 // RTMP-Stream-Key ist ein Geheimnis wie ein Token und gehoert in die
 // Ausspielziele (Schluesselbund), nicht hierher.
 // ───────────────────────────────────────────────────────────────────────────
 
-export type StreamProtocol = 'rtsp' | 'srt' | 'rtmp' | 'ndi' | 'hls' | 'webrtc' | 'st2110' | 'other'
+// Nachtrag #946: die Liste folgt dem Vokabular von `SignalStandard`
+// (`types/cableSpec.ts`), wo es dort schon Woerter gibt (NDI-HX, Dante, AES67),
+// und ergaenzt die Ausspiel-Protokolle, die Encoder und Mediaserver anbieten
+// (WHIP/WHEP, RTP/SDP, MJPEG). Alles andere geht als `other` mit Beschriftung.
+export type StreamProtocol =
+  | 'rtsp'
+  | 'srt'
+  | 'rtmp'
+  | 'ndi'
+  | 'ndi-hx'
+  | 'hls'
+  | 'mjpeg'
+  | 'webrtc'
+  | 'whip'
+  | 'whep'
+  | 'rtp'
+  | 'st2110'
+  | 'dante'
+  | 'aes67'
+  | 'other'
 
 export const STREAM_PROTOCOLS: ReadonlyArray<StreamProtocol> = [
   'rtsp',
   'srt',
   'rtmp',
   'ndi',
+  'ndi-hx',
   'hls',
+  'mjpeg',
   'webrtc',
+  'whip',
+  'whep',
+  'rtp',
   'st2110',
+  'dante',
+  'aes67',
   'other',
 ]
 
@@ -52,7 +81,17 @@ export interface StreamEndpoint {
    * ist, was sie ehrlich zeigen kann.
    */
   previewUrl?: string
-  /** Vorschau am Canvas zeigen. Eine Planangabe: „diese Kachel will ich". */
+  /**
+   * Vorschau am Canvas zeigen. Eine Planangabe: „diese Kachel will ich".
+   * Sie startet KEINEN Abruf beim Oeffnen der Datei — das tut erst ein Klick
+   * in dieser Sitzung (`streamPreviewStore`), siehe Nachtrag #946.
+   */
   showPreview?: boolean
   notes?: string
+  /** Port, wenn er nicht in der Adresse steht (NDI, Dante, SRT-Listener). */
+  port?: number
+  /** Codec, frei („H.264", „HEVC", „JPEG XS", „L24"). */
+  codec?: string
+  /** Aufloesung/Bildrate, frei („1920x1080p50"). */
+  format?: string
 }

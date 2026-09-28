@@ -126,6 +126,9 @@ const SONSTIGE_DOMAENEN = [
   // genau das fest. Ohne ihn waere diese Zeile eine Behauptung.
   'showControl',
   'streamKey',
+  // Nachtrag #946 — Zugangsdaten der Geraete-Streams im Schluesselbund. Kein
+  // Geraete-Befund, und kein `get`: der Renderer bekommt nie den Klartext.
+  'streamCredential',
   'sync',
   'updater',
 ] as const

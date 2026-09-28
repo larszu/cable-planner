@@ -120,6 +120,8 @@ export interface AddressPlanRow {
   ip?: string
   mask?: string
   gateway?: string
+  /** #946 — VLAN der Schnittstelle, wenn eingetragen. */
+  vlanId?: number
   /** Subnetz in CIDR-Schreibweise, sobald Adresse und Maske dafür reichen. */
   cidr?: string
   /**
@@ -258,6 +260,7 @@ export function buildAddressPlan(equipment: EquipmentItem[]): AddressPlan {
         ...(nic.ipAddress ? { ip: nic.ipAddress } : {}),
         ...(nic.subnetMask ? { mask: nic.subnetMask } : {}),
         ...(nic.gateway ? { gateway: nic.gateway } : {}),
+        ...(nic.vlanId !== undefined ? { vlanId: nic.vlanId } : {}),
         ...(nic.ipAddress && nic.subnetMask
           ? { cidr: subnetCidr(nic.ipAddress, nic.subnetMask) ?? undefined }
           : {}),
@@ -289,6 +292,7 @@ export function addressPlanTable(
       .map((r) => [
         r.nicLabel ? `${r.name} · ${r.nicLabel}` : r.name,
         r.ip ?? '',
+        r.vlanId ?? '',
         r.mask ?? '',
         r.gateway ?? '',
         r.cidr ?? '',
