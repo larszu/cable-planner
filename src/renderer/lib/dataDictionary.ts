@@ -485,6 +485,8 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   'Asset-Tag':
     'Die Inventar-Nummer des Geräts. Fehlt sie, steht die QR-Kennung oder eine Kurzform der internen Id da — dann ist noch keine Nummer vergeben.',
   Standort: 'Der Raum, in dem das Gerät im Plan steht, mit der Etage in Klammern. Leer, wenn es in keinem Raum liegt.',
+  'Interne Nr.':
+    'Die interne Nummer des Hauses oder Verleihers, unabhängig vom Etikett am Gerät (#960). Leer ohne Eintrag.',
   'Serien-Nr.': 'Die Seriennummer, wie sie am Gerät eingetragen ist. Freitext, nicht gegen den Hersteller geprüft.',
   Firmware: 'Der eingetragene Firmware-Stand des Geräts.',
   Eigentum: 'Eigenbestand, angemietet oder Sub-Hire.',
