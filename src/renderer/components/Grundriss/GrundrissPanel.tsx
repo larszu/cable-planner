@@ -7,39 +7,10 @@ import { meterJePixel } from '../../lib/grundriss/massstab'
 import { parseVenueExchange } from '../../lib/grundriss/venueExchange'
 import { grundrissAusVenue, venueAusGrundriss } from '../../lib/grundriss/venueAustausch'
 import { format, useTranslation } from '../../lib/i18n'
-import type { Grundriss } from '../../types/grundriss'
 import { PanelHint } from '../shared/PanelHint'
-
-/** Laengste Bildkante, die in die Projektdatei geht. Ein Hallenplan braucht
- *  nicht mehr; ein 12-Megapixel-Foto sprengte sonst die Wiederherstellungs-
- *  kopie im Browser-Speicher (rund 5 MB). */
-const MAX_KANTE = 3000
-
-const bildLaden = (datei: File): Promise<{ src: string; w: number; h: number }> =>
-  new Promise((resolve, reject) => {
-    const leser = new FileReader()
-    leser.onerror = () => reject(leser.error)
-    leser.onload = () => {
-      const img = new Image()
-      img.onerror = () => reject(new Error('image'))
-      img.onload = () => {
-        const f = Math.min(1, MAX_KANTE / Math.max(img.naturalWidth, img.naturalHeight))
-        if (f === 1) {
-          resolve({ src: String(leser.result), w: img.naturalWidth, h: img.naturalHeight })
-          return
-        }
-        const w = Math.round(img.naturalWidth * f)
-        const h = Math.round(img.naturalHeight * f)
-        const c = document.createElement('canvas')
-        c.width = w
-        c.height = h
-        c.getContext('2d')?.drawImage(img, 0, 0, w, h)
-        resolve({ src: c.toDataURL('image/jpeg', 0.9), w, h })
-      }
-      img.src = String(leser.result)
-    }
-    leser.readAsDataURL(datei)
-  })
+import { planAblage } from '../../avplan/floorplan/planDatei'
+import { PLAN_ACCEPT, PLAN_PDF, planFehlerText, ungeeignetCode } from '../../lib/grundriss/planUebernahme'
+import { planUebernehmen } from './planUebernehmen'
 
 const Zahl = ({ wert, setze, einheit }: { wert: number; setze: (n: number) => void; einheit: string }) => (
   <label className="inline-flex items-center gap-1">
@@ -71,6 +42,7 @@ export const GrundrissPanel = () => {
   const [meldung, setMeldung] = useState<string | null>(null)
   const bildInput = useRef<HTMLInputElement>(null)
   const venueInput = useRef<HTMLInputElement>(null)
+  const [ablageAktiv, setAblageAktiv] = useState(false)
 
   if (!offen) return null
 
@@ -81,26 +53,27 @@ export const GrundrissPanel = () => {
 
   const bildGewaehlt = async (datei: File | undefined) => {
     if (!datei) return
-    try {
-      const { src, w, h } = await bildLaden(datei)
-      const o = ursprung()
-      const neu: Grundriss = {
-        src,
-        name: datei.name,
-        naturalWidth: w,
-        naturalHeight: h,
-        x: o.x,
-        y: o.y,
-        width: w,
-        height: h,
-        deckkraft: 0.6,
-      }
-      setGrundriss(neu)
+    const r = await planUebernehmen({
+      datei,
+      ursprung: () => ursprung(),
+      aktuell: useProjectStore.getState().project.grundriss,
+      setze: setGrundriss,
+      t,
+    })
+    if (r.status === 'ok') {
       setMeldung(t('floorplan.loaded', 'Floor plan loaded. Set the scale next — until then lengths use “metres per 100 px”.'))
-    } catch {
-      setMeldung(t('floorplan.loadFailed', 'The file could not be read as an image.'))
+    } else if (r.status === 'fehler') {
+      setMeldung(r.text)
     }
   }
+
+  // Drop aufs Panel: dieselbe Uebernahme wie die Dateiauswahl.
+  const ablage = planAblage({
+    pdf: PLAN_PDF,
+    onAktiv: setAblageAktiv,
+    onDatei: (datei) => void bildGewaehlt(datei),
+    onUngeeignet: (dateien) => setMeldung(planFehlerText(ungeeignetCode(dateien), t)),
+  })
 
   const venueGewaehlt = async (datei: File | undefined) => {
     if (!datei) return
@@ -139,7 +112,19 @@ export const GrundrissPanel = () => {
       : format(t('floorplan.scale.rect', 'Perspective scale from a {w} × {d} m area.'), { w: k.breiteM, d: k.tiefeM })
 
   return (
-    <div className="fixed right-0 top-0 z-40 flex h-screen w-full max-w-[95vw] flex-col border-l border-cp-border bg-cp-surface-1 text-cp-text sm:w-96 text-sm">
+    <div
+      className={`fixed right-0 top-0 z-40 flex h-screen w-full max-w-[95vw] flex-col border-l bg-cp-surface-1 text-cp-text sm:w-96 text-sm ${
+        ablageAktiv ? 'border-cp-accent outline outline-2 -outline-offset-2 outline-cp-accent' : 'border-cp-border'
+      }`}
+      data-testid="grundriss-panel"
+      onDragOver={ablage.onDragOver}
+      onDragLeave={(e) => {
+        // Beim Wechsel auf ein Kind-Element feuert dragleave auch — nur das
+        // echte Verlassen des Panels beendet die Markierung.
+        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) ablage.onDragLeave()
+      }}
+      onDrop={ablage.onDrop}
+    >
       <div className="flex items-center justify-between border-b border-cp-border px-3 py-2">
         <strong>{t('floorplan.title', 'Floor plan')}</strong>
         <button className="px-2 hover:bg-cp-surface-3" onClick={() => setOffen(false)} aria-label={t('common.close', 'Close')}>
@@ -147,7 +132,7 @@ export const GrundrissPanel = () => {
         </button>
       </div>
       <div className="flex-1 overflow-y-auto p-3 space-y-4">
-        <input ref={bildInput} type="file" accept="image/*" hidden onChange={(e) => void bildGewaehlt(e.target.files?.[0])} />
+        <input ref={bildInput} type="file" accept={PLAN_ACCEPT} hidden onChange={(e) => void bildGewaehlt(e.target.files?.[0])} />
         <input ref={venueInput} type="file" accept=".json,application/json" hidden onChange={(e) => void venueGewaehlt(e.target.files?.[0])} />
         <section className="space-y-2">
           <button className="w-full px-2 py-1 border border-cp-border hover:bg-cp-surface-3" onClick={() => bildInput.current?.click()}>
@@ -156,6 +141,9 @@ export const GrundrissPanel = () => {
           <button className="w-full px-2 py-1 border border-cp-border hover:bg-cp-surface-3" onClick={() => venueInput.current?.click()}>
             {t('floorplan.importVenue', 'Import venue from MultiCam / Light Planner…')}
           </button>
+          <p className={ablageAktiv ? 'text-cp-accent' : 'text-cp-text-muted'}>
+            {t('floorplan.dropHint', 'Or drop an image file here or onto the canvas.')}
+          </p>
         </section>
 
         {g && (

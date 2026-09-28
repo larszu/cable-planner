@@ -1,0 +1,13 @@
+{
+  "paket": "@avplan/floorplan",
+  "version": "1.0.0",
+  "quelle": "av-planner-suite/packages/floorplan/src",
+  "hinweis": "Kopie eines Suite-Pakets (ADR-015). Nicht hier aendern: in av-planner-suite/packages aendern und mit `npm run pakete:verteilen` neu kopieren.",
+  "dateien": {
+    "index.ts": "a2fb158adcfd174e278a7cba48990d7022f7b5cb9774c46974309f94b46a21f6",
+    "massstab.ts": "9b1c323c21c5f3c18787e2ec78c49376081d8cbd9b7a9c2f1882c678ba004e86",
+    "planDatei.ts": "5b83c71813d644fc0ea3ceb88e3fff3eb477d84100af76657219aaca8fd771d5",
+    "typen.ts": "9f705653b1bc6d4a6a9e26da6dfbf85fd7c86e0b6e4bd8a3e5e312906c5175bc",
+    "venueExchange.ts": "7733256b556755df0eeb97d57984830c5c34e73bcee185428f4412a0876fdace"
+  }
+}

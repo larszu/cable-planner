@@ -168,6 +168,10 @@ const KENNUNGEN = new Set([
   'gewicht-waerme', 'ausweich-geruest', 'geraete-bom', 'uebergabe',
   'post-uebergabe', 'pult-aenderungen', 'pult-kanaele', 'stueckliste',
   'rueckgabe-befunde.csv', 'schaeden.csv',
+  // Fehlercode aus @avplan/floorplan (ADR-015, Kopie unter avplan/). Er wird
+  // verglichen, nicht angezeigt — und die Kopie darf hier nicht geaendert
+  // werden; die Meldung dazu steht uebersetzt in `planUebernahme.ts`.
+  'pdf-nicht-verfuegbar',
 ])
 
 const AUSNAHMEN: Record<string, readonly string[]> = {

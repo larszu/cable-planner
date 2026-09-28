@@ -279,6 +279,12 @@ Put the venue under the canvas and measure cables on it (toolbar → *Floor plan
   (`venue-exchange` v1). The image and its scale come with it, and walls,
   people and stages the cable planner does not draw go back out unchanged on
   export.
+- **Drag & drop** an image file (PNG, JPG, WebP, GIF, BMP, AVIF) onto the
+  canvas or the floor plan panel. On the canvas it lands centred where you drop
+  it; replacing a calibrated plan asks first, because the calibration is lost.
+  Images over 3000 px on the long edge are scaled down. PDF plans are not
+  supported yet — export the page as PNG or JPG. Loading and dropping come from
+  the shared suite package `@avplan/floorplan` (ADR-015).
 - **Two points** set the scale on a plan drawn straight from above (CAD export,
   scan): click both ends of a known distance.
 - **Four corners** set it on a photo, a wall sign or an isometric drawing: click
