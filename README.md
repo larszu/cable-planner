@@ -511,6 +511,13 @@ one, and **Restore default** goes back.
   library withdraws disappear locally. Every entry goes through the same
   template check as a submission; entries that fail it are skipped and
   counted. The fetched state stays available offline.
+- **Works without the server** — if devices.zumpelars.de is down, slow or
+  replaced, the app keeps the devices from the last sync: only a successful
+  answer changes them, a request gives up after 15 s, signing out keeps them,
+  and each server address has its own stored state, so switching to another
+  server and back loses nothing. A freshly set-up server with no devices
+  cannot wipe the local state. The rule lives in the shared client
+  (`syncFrom`) and is the same in every planner.
 - **Your own devices go up** — templates you created or changed are uploaded
   to the library, so what you build in one planner is there for the others.
   With *Upload my own devices automatically* (on by default; it only acts

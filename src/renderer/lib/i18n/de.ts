@@ -6545,9 +6545,11 @@ export const de: Dict = {
   'deviceLibrary.error.rateLimited': 'Zu viele Versuche. Bitte ein paar Minuten warten und erneut versuchen.',
   'deviceLibrary.error.notSignedIn': 'Nicht angemeldet oder die Sitzung ist abgelaufen. Bitte erneut anmelden.',
   'deviceLibrary.error.offline':
-    'Die Gerätebibliothek ist nicht erreichbar. Netzwerkverbindung und Server-Adresse prüfen.',
+    'Die Gerätebibliothek ist nicht erreichbar. Die Geräte vom letzten Abgleich bleiben verfügbar; Netzwerkverbindung und Server-Adresse prüfen.',
   'deviceLibrary.error.invalidUrl': 'Die Server-Adresse ist keine gültige http(s)-URL.',
   'deviceLibrary.error.server': 'Die Gerätebibliothek hat einen Fehler gemeldet. Bitte später erneut versuchen.',
+  'deviceLibrary.error.serverEmpty':
+    'Der Server wurde neu aufgesetzt und hat noch keine Geräte. Deine Geräte vom letzten Abgleich wurden behalten.',
   // Hallenplan und Symbole
   'floorplan.calibrate.badCorners': 'Die vier Ecken ergeben keinen Rechteck-Umriss. Klicke sie der Reihe nach rund um die Fläche an, links oben beginnend.',
   'floorplan.calibrate.progress': '{n} von {total}',

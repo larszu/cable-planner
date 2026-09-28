@@ -196,6 +196,23 @@ describe('Cache und latestSeq', () => {
     expect(loadCache(SERVER, s)).toEqual(emptyCache(SERVER))
   })
 
+  it('loescht beim Serverwechsel den Stand des anderen nicht', () => {
+    // Umstellen auf einen Ersatzserver und zurueck: der alte Stand ist wieder da.
+    const s = speicher()
+    saveCache({ ...emptyCache(SERVER), latestSeq: 40 }, s)
+    saveCache({ ...emptyCache('https://ersatz.example'), latestSeq: 2 }, s)
+    expect(loadCache(SERVER, s).latestSeq).toBe(40)
+    expect(loadCache('https://ersatz.example', s).latestSeq).toBe(2)
+  })
+
+  it('liest den alten Einzelstand als Stand seines Servers', () => {
+    const s = speicher()
+    s.setItem(STORAGE_KEYS.deviceLibraryCache, JSON.stringify({ ...emptyCache(SERVER), latestSeq: 17 }))
+    expect(loadCache(SERVER, s).latestSeq).toBe(17)
+    saveCache({ ...emptyCache('https://ersatz.example'), latestSeq: 2 }, s)
+    expect(loadCache(SERVER, s).latestSeq).toBe(17)
+  })
+
   it('nimmt einen kaputten Eintrag als keinen', () => {
     const s = speicher()
     s.setItem(STORAGE_KEYS.deviceLibraryCache, '{kaputt')
@@ -209,11 +226,11 @@ describe('Cache und latestSeq', () => {
 })
 
 describe('runSync', () => {
-  const api = (antworten: SyncResponse[]) => {
+  const api = (antworten: SyncResponse[], reset = false) => {
     const aufrufe: number[] = []
     const sync: DeviceLibraryApi['sync'] = async (_server, after) => {
       aufrufe.push(after)
-      return { ok: true, value: antworten.shift()! }
+      return { ok: true, value: { reset, response: antworten.shift()! } }
     }
     return { sync, aufrufe }
   }
@@ -232,14 +249,24 @@ describe('runSync', () => {
     expect(loadCache(SERVER, s).entries.map((e) => e.slug)).toEqual(['a', 'b'])
   })
 
-  it('holt alles neu, wenn der Server weniger kennt als wir', async () => {
+  it('ersetzt den ganzen Stand, wenn syncFrom einen neuen Server meldet', async () => {
     const s = speicher()
-    saveCache({ ...emptyCache(SERVER), latestSeq: 50, entries: [] }, s)
-    const a = api([antwort(3, []), antwort(3, [geraet('a', 3, vorlage('Acme A') as unknown as Record<string, unknown>)])])
+    const alt = mergeSync({ ...emptyCache(SERVER), latestSeq: 50 }, antwort(50, [geraet('weg', 50, vorlage('Acme Weg') as unknown as Record<string, unknown>)])).cache
+    saveCache(alt, s)
+    const a = api([antwort(3, [geraet('a', 3, vorlage('Acme A') as unknown as Record<string, unknown>)])], true)
     const r = await runSync(a, SERVER, s)
-    expect(a.aufrufe).toEqual([50, 0])
+    expect(a.aufrufe).toEqual([50])
     expect(r.ok && r.stats.reset).toBe(true)
     expect(loadCache(SERVER, s).latestSeq).toBe(3)
+    expect(loadCache(SERVER, s).entries.map((e) => e.slug)).toEqual(['a'])
+  })
+
+  it('behaelt den Stand, wenn der neue Server leer ist', async () => {
+    const s = speicher()
+    saveCache({ ...emptyCache(SERVER), latestSeq: 9 }, s)
+    const r = await runSync({ sync: async () => ({ ok: false, code: 'server', message: 'server-empty' }) }, SERVER, s)
+    expect(r.ok).toBe(false)
+    expect(loadCache(SERVER, s).latestSeq).toBe(9)
   })
 
   it('laesst den Stand bei einem Fehler unberuehrt', async () => {
