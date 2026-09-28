@@ -654,6 +654,58 @@ export interface VideohubRouting {
   salvos: VideohubSalvo[]
 }
 
+/**
+ * #910 — Objektiv und Einstellung einer Kamera, aus dem MultiCam-Plan
+ * (`camera-list` v2). Jedes Feld optional: was der Kameraplan nicht sagt,
+ * steht hier nicht — eine fehlende Brennweite ist keine Brennweite von 0.
+ */
+export interface KameraOptik {
+  objektivHersteller?: string
+  objektivModell?: string
+  /** Zoombereich des Objektivs in mm (bei Festbrennweite min = max). */
+  brennweiteMinMm?: number
+  brennweiteMaxMm?: number
+  /** Mount des Objektivs laut Katalog. */
+  objektivMount?: string
+  /** Aktiver Mount am Kamerakoerper (kann per Adapter vom Objektiv abweichen). */
+  kameraMount?: string
+  /** Eingestellte Brennweite in mm. */
+  brennweiteMm?: number
+  /** Eingeschalteter Extender-Faktor (z. B. 2); fehlt, wenn keiner. */
+  extender?: number
+  /** Hoehe der Kamera ueber Boden in m, wenn der Kameraplan sie kennt. */
+  hoeheM?: number
+  /** Horizontaler Bildwinkel in Grad, wenn der Kameraplan ihn gerechnet hat
+   *  (in der Suite ueber den Seed). */
+  bildwinkelGrad?: number
+  /** Sensorbreite in mm laut Kamera-Katalog (`optics/`), nur wenn eindeutig
+   *  (ein Sensor-Modus, Objektiv am nativen Mount). Grundlage fuer den
+   *  gerechneten Bildwinkel, wenn `bildwinkelGrad` fehlt. */
+  sensorBreiteMm?: number
+  /** camera-list v3: Ausrichtung in Grad, Konvention des Kameraplans
+   *  (Pan 0 = nach rechts im Grundriss). */
+  panGrad?: number
+  /** camera-list v3: Neigung in Grad, negativ = nach unten. */
+  neigungGrad?: number
+}
+
+/**
+ * Ein gespeichertes PTZ-Preset, wie es der Kameraplan fuehrt (camera-list
+ * v3). Der Stand des Speicherns steht dabei: ein Preset ist ein Zustand von
+ * damals, nicht der heutige der Kamera.
+ */
+export interface KameraPreset {
+  nummer: number
+  name: string
+  segment?: string
+  panGrad: number
+  neigungGrad: number
+  brennweiteMm: number
+  fokusM: number
+  /** ISO — wann das Preset gespeichert wurde. */
+  gespeichertAm: string
+}
+
 export interface EquipmentItem {
   id: string
   name: string
@@ -688,6 +740,11 @@ export interface EquipmentItem {
    *  Plan-Check fordert die Datenblatt-Ergaenzung ein. Sobald der User Ports
    *  ergaenzt, entfernt die Properties-Sektion das Flag. */
   portsUnknown?: boolean
+  /** #906 — vor Ort erfasst, noch nicht ausgearbeitet: Name, Raum, vermutete
+   *  Verbindung und Notiz stehen in `notes`, die Ports fehlen (`portsUnknown`).
+   *  Die Marke haelt das Geraet in der Liste „Bestandsaufnahme", bis jemand
+   *  es als erledigt abhakt. */
+  erfasst?: { am: string; quelle: 'planer' | 'handy' }
   /** v7.5.0 — operating-mode-dependent port layouts (media servers,
    *  modular processors like Pixelhue P20 / Parco S3 / Brompton Tessera).
    *  Each mode carries its own `inputs` + `outputs`. When `activeModeId`
@@ -767,7 +824,23 @@ export interface EquipmentItem {
   /** Tracks how the device entered the project — used by the import
    *  dialog's diff view and by Rentman / GraphML re-imports so we know
    *  which subset of devices is replaceable. */
-  importSource?: 'graphml' | 'rentman' | 'netbox' | 'manual'
+  importSource?: 'graphml' | 'rentman' | 'netbox' | 'multicam' | 'manual'
+  /** #909 — Id der Kamera im MultiCam-Plan (`camera-list`). Stabile
+   *  Identitaet ueber Import-Laeufe: der naechste Import aktualisiert dieses
+   *  Geraet, statt ein zweites anzulegen. */
+  multicamId?: string
+  /** #909 — Projekt-Id des MultiCam-Plans, aus dem die Kamera stammt. Trennt
+   *  `cam-1` aus zwei verschiedenen Plaenen; fehlt sie (Altdatei v1), gilt
+   *  die Kamera-Id allein. */
+  multicamProjectId?: string
+  /** #909 — der letzte Import fand diese Kamera im MultiCam-Plan nicht mehr.
+   *  Markiert statt geloescht: sie kann verkabelt sein, und das Kabel waere
+   *  sonst still weg. */
+  multicamRemoved?: boolean
+  /** #910 — Optik der Kamera, wie der MultiCam-Plan sie gesetzt hat. */
+  optik?: KameraOptik
+  /** camera-list v3 — die PTZ-Presets aus dem Kameraplan. */
+  kameraPresets?: KameraPreset[]
   x: number
   y: number
   width: number

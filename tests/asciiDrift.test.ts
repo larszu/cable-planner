@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { beforeAll, describe, expect, it } from 'vitest'
 import ts from 'typescript'
 // @ts-expect-error — reines JS-Modul ohne Typen
 import { klassifiziere } from '../scripts/quellsprache.mjs'
@@ -118,7 +118,7 @@ const HARMLOS = new Set(
     'frequenzen', 'frequenzgang', 'frequenzabstand', 'funkfrequenz',
     'sendefrequenz', 'bauen', 'dauerhaft', 'dauerhafte', 'genaue', 'teuerste',
     'auszugrauen', 'koexistenz', 'manuell', 'manuelle', 'manuellen', 'individuell',
-    'eventuell', 'virtuell', 'treue', 'feuer', 'europa', 'euro',
+    'eventuell', 'virtuell', 'treue', 'feuer', 'feuerwehr', 'europa', 'euro',
     // Eigennamen, Protokolle, Einheiten
     'segoe', 'poe', 'poestandard', 'poestandards', 'poebudget', 'poebudgetw',
     'erpoe', 'aes', 'aea', 'aearibbonmics', 'gerätesteuerung',
@@ -169,6 +169,13 @@ const AUSNAHMEN: Record<string, readonly string[]> = {
   // gelesen — ein Blatt mit „übergabe" fiele gegen jedes frueher gedruckte
   // durch.
   'renderer/lib/handoverPackage.ts': ['uebergabe'],
+  // Der Ordnername der Anhänge-Ablage, wie er auf der Platte steht. Er ist
+  // absichtlich ASCII (`src/main/services/attachmentStore.ts`): ein „ä" kommt
+  // zwischen macOS und Linux verschieden normalisiert an, und der Ordner
+  // wäre nach dem Kopieren nicht mehr zu finden. Die Texte nennen ihn so,
+  // wie der Nutzer ihn im Dateimanager sieht.
+  'renderer/lib/dataDictionary.ts': ['anhaenge'],
+  'renderer/lib/i18n/de.ts': ['anhaenge'],
 }
 
 /** Hex-Folgen (Farben, Fingerabdruecke) bestehen nur aus a-f und Ziffern. */
@@ -196,28 +203,7 @@ interface Befund {
 const istSchluessel = (text: string): boolean =>
   /^[A-Za-z][A-Za-z0-9]*(\.[A-Za-z0-9]+)+$/.test(text.trim())
 
-/**
- * EINMAL RECHNEN, ZWEIMAL LESEN.
- *
- * Beide `it`-Bloecke unten fragen dasselbe Ergebnis ab, und `scanne()` parst
- * dafuer jede Quelldatei des Renderers mit dem echten TS-Parser. Seit der
- * Katalog-Uebernahme (2026-09-24) haengen darin ueber 20 000 Zeilen erzeugter
- * Katalog (`lensCatalog.ts` allein 14 000) — zwei vollstaendige Laeufe ueber
- * rund 6 MB Quelltext mit gesetztem `setParentNodes`.
- *
- * Das war nicht bloss langsam: im vollen Lauf mit 294 Testdateien ist der
- * Waechter EINMAL gefallen, und zwar an der Gegenprobe
- * („scannt ueberhaupt etwas"), nicht an einem Befund. Eine Zusicherung, die
- * unter Last flackert, ist keine — sie wird beim naechsten roten Lauf als
- * Rauschen abgetan, und dann greift sie auch nicht mehr, wenn sie recht hat.
- *
- * Der Zwischenspeicher ist gefahrlos: `roh` kommt aus `import.meta.glob` und
- * ist waehrend eines Laufs unveraenderlich.
- */
-let gespeichert: { befunde: Befund[]; literale: number } | null = null
-
 const scanne = (): { befunde: Befund[]; literale: number } => {
-  if (gespeichert) return gespeichert
   const befunde: Befund[] = []
   let literale = 0
   for (const [pfad, src] of Object.entries(roh)) {
@@ -273,11 +259,10 @@ const scanne = (): { befunde: Befund[]; literale: number } => {
     }
     lauf(sf)
   }
-  gespeichert = { befunde, literale }
-  return gespeichert
+  return { befunde, literale }
 }
 
-describe('was als Schluessel durchgeht, und was nicht', { timeout: 60_000 }, () => {
+describe('was als Schluessel durchgeht, und was nicht', () => {
   // Die Ausnahme fuer i18n-Schluessel ist eine LOECHERBEDINGUNG: was sie
   // durchlaesst, prueft der Waechter nicht mehr. Sie an echten Literalen zu
   // messen reicht nicht — heute enthaelt kein deutscher Text einen Punkt und
@@ -304,32 +289,26 @@ describe('was als Schluessel durchgeht, und was nicht', { timeout: 60_000 }, () 
   })
 })
 
-// ─── DIE ZEITGRENZE IST GEMESSEN, NICHT GERATEN ────────────────────────────
-//
-// `scanne()` parst jede Quelldatei des Renderers mit dem echten TS-Parser und
-// gesetzten Elternknoten. Seit der Katalog-Uebernahme (2026-09-24) liegen darin
-// ueber 20 000 Zeilen erzeugter Katalog — `lensCatalog.ts` allein 14 000, rund
-// 6 MB Quelltext im Glob.
-//
-// ALLEIN LAEUFT DER SCAN IN ~2 s. Im vollen Lauf mit 294 Testdateien reisst er
-// die Vitest-Vorgabe von 5000 ms — gemessen in vier Laeufen: zwei gruen, zwei
-// mit `Test timed out in 5000ms`. Der Befund war jedes Mal LEER; gefallen ist
-// die Gegenprobe („scannt ueberhaupt etwas"), weil sie den Scan ausloest.
-//
-// Ein Zwischenspeicher allein reichte nicht — er halbiert die Arbeit, und die
-// Haelfte war noch zu viel. Also die Grenze dort, wo sie hingehoert: dieser
-// Waechter darf lange laufen, weil er viel liest. Eine Zusicherung, die unter
-// Last flackert, ist keine — sie wird beim naechsten roten Lauf als Rauschen
-// abgetan und greift dann auch nicht mehr, wenn sie recht hat.
-describe('die Texte stehen in richtigem Deutsch, nicht in ASCII-Ersatzformen', { timeout: 60_000 }, () => {
+describe('die Texte stehen in richtigem Deutsch, nicht in ASCII-Ersatzformen', () => {
+  // EIN Lauf fuer alle Faelle, im Hook und mit eigener Frist. Der Lauf parst
+  // jede Datei unter src/ mit dem TypeScript-Parser; das dauert allein gut
+  // eine Sekunde und unter Last (volle Suite, andere Prozesse) mehrere. Frueher
+  // lief er in JEDEM Fall neu und riss das 5-s-Limit von Vitest, ohne dass
+  // der Code falsch war. Die Frist gilt nur dem Einlesen; die Faelle selbst
+  // pruefen danach ein fertiges Ergebnis.
+  let ergebnis: ReturnType<typeof scanne>
+  beforeAll(() => {
+    ergebnis = scanne()
+  }, 60_000)
+
   it('scannt ueberhaupt etwas (sonst prueft dieser Test nichts)', () => {
-    const { literale } = scanne()
+    const { literale } = ergebnis
     expect(Object.keys(roh).length).toBeGreaterThan(80)
     expect(literale).toBeGreaterThan(2000)
   })
 
   it('findet keine ASCII-Ersatzform in einem String-Literal', () => {
-    const { befunde } = scanne()
+    const { befunde } = ergebnis
     const liste = befunde.map((b) => `${b.datei}: „${b.wort}" in "${b.text}"`)
     expect(liste, `ASCII-Ersatzformen: ${liste.join(' | ')}`).toEqual([])
   })

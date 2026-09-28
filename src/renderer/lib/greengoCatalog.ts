@@ -10,8 +10,11 @@ import type { EquipmentTemplate, Port } from '../types/equipment'
 // Recherche 2026-09, Quellen-URL je Eintrag). Die Modellnamen folgen dem
 // Rentman-Bestand und weichen teils von der aktuellen X-Serie ab (MCXD →
 // Multichannel X Extension, Antenna X → Wireless Antenna) — die URL zeigt
-// jeweils auf das entsprechende Produkt. XTBB/XTBD werden in der aktuellen
-// Reihe nicht mehr geführt und bleiben ohne Beleg statt mit erfundener Adresse.
+// jeweils auf das entsprechende Produkt. XTBB/XTBD fuehrt Green-GO nicht
+// (Produktuebersicht greengocom.com/products, 2026-09-27); inhaltlich
+// naechstliegend waeren Beltpack X (BPX) und Multichannel X Desk (MCXD),
+// beide aber mit XLR-4-Headset statt XLR-5 und ohne Lautsprecher-XLR. Die
+// Zuordnung ist nicht belegbar — beide bleiben unbelegt.
 
 const port = (
   name: string,

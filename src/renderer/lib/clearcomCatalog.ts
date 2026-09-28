@@ -51,7 +51,7 @@ const port = (name: string, connectorType: Port['connectorType'], type: string):
 })
 
 /** Eine Partyline-Buchse. XLR-3, Audio und 28 V Speisung auf derselben Ader. */
-const pl = (name: string) => port(name, 'XLR 3 Male', 'Partyline')
+const pl = (name: string) => port(name, 'XLR', 'Partyline')
 const klinke = (name: string) => port(name, 'Jack 6.35 mm TRS', 'Analog Audio')
 const netz = () => port('AC Power (IEC 320)', 'IEC 230V', 'Power')
 
@@ -82,10 +82,10 @@ export const CLEARCOM_CATALOG: ClearcomEntry[] = [
       // vierpolig. Zwei Kanaele brauchen zwei Hoerer-Adern; wer das
       // gleichsetzt, bringt das falsche Headset mit.
       inputs: [
-        port('Program In', 'XLR 3 Female', 'Analog Audio'),
+        port('Program In', 'XLR', 'Analog Audio'),
         klinke('Hot Mic / IFB'),
         port('Panel Mic (front)', 'Jack 6.35 mm TRS', 'Mic'),
-        port('Headset (front)', 'XLR 5 Female', 'Headset'),
+        port('Headset (front, XLR-5F)', 'Custom', 'Headset'),
         netz(),
       ],
       outputs: [
@@ -95,7 +95,7 @@ export const CLEARCOM_CATALOG: ClearcomEntry[] = [
         pl('Intercom CH B 1'),
         pl('Intercom CH B 2'),
         pl('Intercom CH B 3'),
-        port('Announce Out', 'XLR 3 Male', 'Analog Audio'),
+        port('Announce Out', 'XLR', 'Analog Audio'),
         klinke('Announce Relay'),
       ],
       isRackDevice: true,
@@ -118,9 +118,9 @@ export const CLEARCOM_CATALOG: ClearcomEntry[] = [
       // und mit anderem Front-Anschluss: Panel Mic ist eine 3,5-mm-Buchse,
       // Headset (1) XLR-4M.
       inputs: [
-        port('Program In', 'XLR 3 Female', 'Analog Audio'),
+        port('Program In', 'XLR', 'Analog Audio'),
         port('Panel Mic (front)', 'Jack 3.5 mm TRS', 'Mic'),
-        port('Headset (front)', 'XLR 4 Male', 'Headset'),
+        port('Headset (front, XLR-4M)', 'Custom', 'Headset'),
         netz(),
       ],
       outputs: [
@@ -130,7 +130,7 @@ export const CLEARCOM_CATALOG: ClearcomEntry[] = [
         pl('Intercom CH B 1'),
         pl('Intercom CH B 2'),
         pl('Intercom CH B 3'),
-        port('Announce Out', 'XLR 3 Male', 'Analog Audio'),
+        port('Announce Out', 'XLR', 'Analog Audio'),
         klinke('Announce Relay'),
       ],
       isRackDevice: true,
@@ -159,17 +159,17 @@ export const CLEARCOM_CATALOG: ClearcomEntry[] = [
       // Unterschied zur MS-704 und der Grund, warum das Geraet
       // „Switchboard" heisst.
       inputs: [
-        port('Program In', 'XLR 3 Female', 'Analog Audio'),
+        port('Program In', 'XLR', 'Analog Audio'),
         klinke('Hot Mic / IFB'),
         port('Panel Mic (front)', 'Jack 6.35 mm TRS', 'Mic'),
-        port('Headset (front)', 'XLR 4 Male', 'Headset'),
-        port('Accessory (DB-15F)', 'DB15', 'GPIO'),
+        port('Headset (front, XLR-4M)', 'Custom', 'Headset'),
+        port('Accessory (DB-15F)', 'Custom', 'GPIO'),
         netz(),
       ],
       outputs: [
         ...Array.from({ length: 4 }, (_, i) => pl(`Intercom CH ${String.fromCharCode(65 + i)}`)),
         ...Array.from({ length: 10 }, (_, i) => pl(`Switched Intercom ${i + 1}`)),
-        port('Announce Out', 'XLR 3 Male', 'Analog Audio'),
+        port('Announce Out', 'XLR', 'Analog Audio'),
         klinke('External Speaker'),
       ],
       isRackDevice: true,
@@ -198,14 +198,65 @@ export const CLEARCOM_CATALOG: ClearcomEntry[] = [
       // Pins anders — das steht im `notes`-Feld, weil es genau die Sorte
       // Angabe ist, wegen der jemand vor Ort ratlos dasteht.
       inputs: [
-        port('Intercom Line In (XLR-6)', 'XLR 6 Female', 'Partyline'),
-        port('Headset (XLR-4M)', 'XLR 4 Male', 'Headset'),
+        port('Intercom Line In (XLR-6)', 'Custom', 'Partyline'),
+        port('Headset (XLR-4M)', 'Custom', 'Headset'),
       ],
-      outputs: [port('Intercom Line Thru (XLR-6)', 'XLR 6 Male', 'Partyline')],
+      outputs: [port('Intercom Line Thru (XLR-6)', 'Custom', 'Partyline')],
       notes:
         '2 Kanäle · Speisung über die Leitung, Pin 2 = +28 V DC · 6-pol XLR im Switchcraft-Layout (Neutrik nur mit „S" in der Bestellnummer)',
       width: 240,
       height: 200,
+    },
+  },
+
+  // FreeSpeak II Base Station (FSII-BASE-II) — Funk-Intercom-Basis. Die
+  // Funk-Familie fehlte oben, weil ihre Anschluesse ueber Basis, Antenne und
+  // Transceiver verteilt sind; die BASIS hat ein eigenes Blatt mit einer
+  // vollstaendigen Anschlussliste und steht deshalb hier. Leistung laut
+  // Blatt „Input Power (Max): 48W" — ein Maximum, deshalb im notes-Feld.
+  // Quelle: https://clearcom.com/DownloadCenter/datasheets/FreeSpeakII/FSII-BASE-II_FreeSpeakII_Base_II_Datasheet.pdf
+  {
+    match: ['clearcomfsiibaseii', 'fsiibase'],
+    deviceTypeId: 'c06bb6b8-4876-4ed9-99ac-0a7f70eafb90',
+    template: {
+      manufacturerUrl: 'https://clearcom.com/DownloadCenter/datasheets/FreeSpeakII/FSII-BASE-II_FreeSpeakII_Base_II_Datasheet.pdf',
+      name: 'Clear-Com FreeSpeak II Base Station (FSII-BASE-II)',
+      category: IC,
+      // Blatt: „2-Wire I/O: (4) XLR-3F", „4-Wire I/O: (4) RJ45",
+      // „Program Audio Input: XLR-3F", „Stage Announce Output: XLR-3M",
+      // „GPIO: (1) DB15F", Transceiver „(2) RJ45, (2) SFP", DECT-Sync
+      // „(2) RJ45 (Input & Output)", „LAN: (2) RJ45", Headset „4-pin XLR-M
+      // (X4), 5-pin XLR-F (X5)", „IEC-C14" und DC „KPJX-4S-S".
+      inputs: [
+        port('Program In (XLR-3F)', 'XLR', 'Analog Audio'),
+        port('DECT Sync In', 'Ethernet/RJ45', 'Sync'),
+        port('Headset (front, XLR-4M)', 'Custom', 'Headset'),
+        port('Headset (front, XLR-5F)', 'Custom', 'Headset'),
+        port('AC Power (IEC C14)', 'IEC 230V', 'Power'),
+        port('DC Power (KPJX-4S-S, 12 V)', 'Custom', 'Power'),
+      ],
+      outputs: [
+        port('2-Wire 1 (XLR-3F)', 'XLR', 'Partyline'),
+        port('2-Wire 2 (XLR-3F)', 'XLR', 'Partyline'),
+        port('2-Wire 3 (XLR-3F)', 'XLR', 'Partyline'),
+        port('2-Wire 4 (XLR-3F)', 'XLR', 'Partyline'),
+        port('4-Wire 1 (RJ45)', 'Ethernet/RJ45', '4-Wire'),
+        port('4-Wire 2 (RJ45)', 'Ethernet/RJ45', '4-Wire'),
+        port('4-Wire 3 (RJ45)', 'Ethernet/RJ45', '4-Wire'),
+        port('4-Wire 4 (RJ45)', 'Ethernet/RJ45', '4-Wire'),
+        port('Stage Announce Out (XLR-3M)', 'XLR', 'Analog Audio'),
+        port('Transceiver 1 (RJ45)', 'Ethernet/RJ45', 'E1'),
+        port('Transceiver 2 (RJ45)', 'Ethernet/RJ45', 'E1'),
+        port('Transceiver 1 (SFP)', 'SFP', 'E1'),
+        port('Transceiver 2 (SFP)', 'SFP', 'E1'),
+        port('DECT Sync Out', 'Ethernet/RJ45', 'Sync'),
+        port('LAN 1', 'Ethernet/RJ45', 'Ethernet'),
+        port('LAN 2', 'Ethernet/RJ45', 'Ethernet'),
+        port('GPIO (DB-15F)', 'Custom', 'GPIO'),
+      ],
+      notes: 'Leistung max. 48 W (Blatt) · Transceiver-Anschluss wahlweise RJ45 oder SFP · 4-Draht auf RJ45 in AES-72-Belegung',
+      width: 280,
+      height: 460,
     },
   },
 ]

@@ -170,16 +170,15 @@ export const NetworkAccessSection = ({ equipment }: { equipment: EquipmentItem }
           </div>
         </label>
       </div>
-      <label className="mt-2 block">
-        <span className="mb-1 block text-cp-text-secondary">{t('cable.field.notes', 'Notes')}</span>
-        <textarea
-          value={equipment.notes ?? ''}
-          onChange={(event) => updateEquipment(equipment.id, { notes: event.target.value })}
-          rows={3}
-          placeholder={t('netAccess.notesPlaceholder', 'Web UI URL, firmware version, wiring notes, …')}
-          className="w-full border border-cp-border bg-cp-surface-1 p-2"
-        />
-      </label>
+      {/* DIE NOTIZ STAND HIER und steht seit 2026-09-28 im `IdentityBlock`,
+          direkt unter dem Namen.
+          `equipment.notes` ist das EINZIGE freie Textfeld am Geraet — dort
+          landet, was in kein Feld passt: „Kabel liegt hinter der Buehne",
+          „Netzteil ist geliehen", „Nummer klebt unten". Nichts davon hat mit
+          Netzzugang zu tun. Es lag hier, weil dieser Abschnitt der erste war,
+          der ein `textarea` brauchte, und hat damit vier Klicks gekostet:
+          Abschnitt finden, aufklappen, ganz nach unten, unter den
+          Zugangsdaten. */}
       <ExtraInterfacesPanel equipment={equipment} />
     </SortableSection>
   )

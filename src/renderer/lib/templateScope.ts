@@ -102,6 +102,10 @@ export function stripForTemplate(
   // Show gar nicht stattfindet. Sie sind ausserdem das Schwerste am Plan —
   // eine Vorlage, die zehn Bilder mitschleppt, ist keine Vorlage mehr.
   delete clone.fotos
+  // Und die Anhänge: Messprotokolle und Sicherungen DIESER Anlage. Die Dateien
+  // liegen ohnehin im Ordner neben dem alten Projekt — eine Vorlage, die auf
+  // sie zeigt, zeigte ins Leere oder auf die Messung einer anderen Halle.
+  delete clone.anhaenge
 
   // Immer weg: Behauptungen, die im neuen Projekt falsch WAEREN.
   if (clone.multicast) {

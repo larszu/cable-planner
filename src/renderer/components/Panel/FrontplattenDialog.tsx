@@ -32,6 +32,7 @@ import { ConnectorSymbol } from '../shared/ConnectorSymbol'
 import { findConnectorEntry, connectorColorById } from '../../lib/connectorCatalog'
 import { printHtmlDocument } from '../../lib/printHtml'
 import { buildFrontplattenHtml } from '../../lib/frontplattenBlatt'
+import { hatPlattenSeiten, plattenPorts, plattenSeite } from '../../lib/patchPanel'
 import {
   FRONTPLATTEN_ARTEN,
   ausMm,
@@ -73,7 +74,9 @@ export const FrontplattenDialog = () => {
     () => ({ breiteMm: geraet?.widthMm ?? 0, hoeheMm: geraet?.heightMm ?? 0 }),
     [geraet],
   )
-  const ports = useMemo(() => (geraet ? [...geraet.inputs, ...geraet.outputs] : []), [geraet])
+  // Bei einem durchleitenden Geraet nur die Seite, die auf der Platte sitzt —
+  // die Rueckseite (Hausstrecke) hat dort keine Lage und darf keine verlangen.
+  const ports = useMemo(() => (geraet ? plattenPorts(geraet) : []), [geraet])
   const befunde = useMemo(
     () => (platte.breiteMm > 0 && platte.hoeheMm > 0 ? plattenBefunde(ports, platte) : []),
     [ports, platte],
@@ -168,6 +171,27 @@ export const FrontplattenDialog = () => {
             ))}
           </select>
         </label>
+        {geraet && hatPlattenSeiten(geraet) && (
+          <label className="flex items-center gap-1.5">
+            {t('faceplate.side', 'On the plate')}
+            <select
+              value={plattenSeite(geraet)}
+              onChange={(e) => setzePlatte({ seite: e.target.value as 'inputs' | 'outputs' })}
+              className={feldCls}
+              title={t(
+                'faceplate.sideTitle',
+                'A pass-through panel has a front and a back: position n in front is position n behind. Only one side sits on the plate.',
+              )}
+            >
+              <option value="inputs">
+                {format(t('faceplate.sideInputs', 'Inputs ({n})'), { n: geraet.inputs.length })}
+              </option>
+              <option value="outputs">
+                {format(t('faceplate.sideOutputs', 'Outputs ({n})'), { n: geraet.outputs.length })}
+              </option>
+            </select>
+          </label>
+        )}
         <label className="flex items-center gap-1.5">
           {t('faceplate.width', 'Width (mm)')}
           <input

@@ -26,11 +26,10 @@
  * die Antwort auf den Doppel-Eintrag, den der Bedarf beschreibt („entered
  * three times").
  */
-import { createHash } from 'node:crypto'
-import { mkdir, readFile, stat } from 'node:fs/promises'
+import { readFile, stat } from 'node:fs/promises'
 import path from 'node:path'
-import { atomicWriteFile } from '../util/atomicWrite.js'
 import { jpegTakenAt } from '../util/exifDate.js'
+import { ablageZiel, dateiAblegen, imProjektordner, type AblageRegel } from '../util/projektAblage.js'
 
 /** Der Ordner neben dem Projekt, in dem die Belege liegen. */
 export const RECEIPT_DIR = 'Belege'
@@ -88,14 +87,7 @@ export type AttachResult =
   | { ok: true; attachment: ReceiptAttachment }
   | { ok: false; reason: AttachRefusal }
 
-/** Alles, was Windows oder POSIX im Dateinamen verbieten, faellt heraus. */
-const sicherName = (roh: string): string => {
-  const sauber = path
-    .basename(roh)
-    .replace(/[^\p{L}\p{N}._+-]/gu, '_')
-    .replace(/^[._]+/, '')
-  return sauber.slice(-80) || 'beleg'
-}
+const REGEL: AblageRegel = { ordner: RECEIPT_DIR, erlaubt: ERLAUBT, maxBytes: MAX_BYTES, ersatzName: 'beleg' }
 
 /**
  * Den Zielpfad eines Belegs bilden — die EINZIGE Stelle, die das tut.
@@ -108,11 +100,7 @@ export const receiptTargetPath = (
   projectPath: string,
   sha256: string,
   fileName: string,
-): { abs: string; rel: string } => {
-  const dir = path.dirname(path.resolve(projectPath))
-  const rel = path.posix.join(RECEIPT_DIR, `${sha256.slice(0, 12)}-${sicherName(fileName)}`)
-  return { abs: path.resolve(dir, rel), rel }
-}
+): { abs: string; rel: string } => ablageZiel(projectPath, RECEIPT_DIR, sha256, fileName, REGEL.ersatzName)
 
 /**
  * Eine Datei als Beleg uebernehmen.
@@ -129,61 +117,14 @@ export const attachReceipt = async (
   sourcePath: string,
   now: string,
 ): Promise<AttachResult> => {
-  if (!projectPath) return { ok: false, reason: 'no-project-path' }
-  const quelle = path.resolve(sourcePath)
-  const endung = path.extname(quelle).toLowerCase()
-  const mediaType = ERLAUBT[endung]
-  if (!mediaType) return { ok: false, reason: 'unsupported-type' }
-  let groesse: number
-  try {
-    const s = await stat(quelle)
-    if (!s.isFile()) return { ok: false, reason: 'not-a-file' }
-    groesse = s.size
-  } catch {
-    return { ok: false, reason: 'unreadable' }
-  }
-  if (groesse > MAX_BYTES) return { ok: false, reason: 'too-large' }
-  let inhalt: Buffer
-  try {
-    inhalt = await readFile(quelle)
-  } catch {
-    return { ok: false, reason: 'unreadable' }
-  }
-  const sha256 = createHash('sha256').update(inhalt).digest('hex')
-  const fileName = sicherName(path.basename(quelle))
-  const { abs, rel } = receiptTargetPath(projectPath, sha256, fileName)
-  const projektDir = path.dirname(path.resolve(projectPath))
-  // Guertel und Hosentraeger: der Zielpfad wird aus einem bereinigten Namen
-  // gebaut UND danach noch einmal dagegen geprueft, dass er im
-  // Projektverzeichnis liegt. Wer die Bereinigung eines Tages lockert, faellt
-  // hier auf und nicht erst beim Nutzer.
-  if (!abs.startsWith(projektDir + path.sep)) return { ok: false, reason: 'outside-project' }
-  try {
-    await mkdir(path.dirname(abs), { recursive: true })
-    // Liegt der Beleg schon da, liegt er unter seinem Inhalts-Hash — es sind
-    // dieselben Bytes. Ihn noch einmal zu schreiben brauechte Zeit und legte
-    // eine `.bak` an, die eine Kopie derselben Datei waere.
-    const schonDa = await stat(abs).then(
-      (s) => s.isFile() && s.size === groesse,
-      () => false,
-    )
-    if (!schonDa) await atomicWriteFile(abs, inhalt, { backup: false })
-  } catch {
-    return { ok: false, reason: 'unreadable' }
-  }
-  const takenAt = mediaType === 'image/jpeg' ? jpegTakenAt(inhalt) : undefined
-  return {
-    ok: true,
-    attachment: {
-      sha256,
-      fileName,
-      storedAs: rel,
-      mediaType,
-      bytes: groesse,
-      addedAt: now,
-      ...(takenAt ? { takenAt } : {}),
-    },
-  }
+  // Pfadbildung, Grenze zum Projektordner und atomares Schreiben liegen in
+  // `util/projektAblage.ts` — gemeinsam mit der Anhänge-Ablage, damit es die
+  // sicherheitsrelevante Stelle nur einmal gibt.
+  const r = await dateiAblegen(projectPath, sourcePath, now, REGEL)
+  if (!r.ok) return r
+  const { inhalt, ...datei } = r.datei
+  const takenAt = datei.mediaType === 'image/jpeg' ? jpegTakenAt(inhalt) : undefined
+  return { ok: true, attachment: { ...datei, ...(takenAt ? { takenAt } : {}) } }
 }
 
 export type ReceiptContent =
@@ -203,9 +144,8 @@ export const readReceiptFile = async (
   storedAs: string,
 ): Promise<ReceiptContent> => {
   if (!projectPath) return { ok: false, reason: 'no-project-path' }
-  const projektDir = path.dirname(path.resolve(projectPath))
-  const abs = path.resolve(projektDir, storedAs)
-  if (!abs.startsWith(projektDir + path.sep)) return { ok: false, reason: 'outside-project' }
+  const abs = imProjektordner(projectPath, storedAs)
+  if (!abs) return { ok: false, reason: 'outside-project' }
   try {
     const s = await stat(abs)
     if (!s.isFile()) return { ok: false, reason: 'missing' }

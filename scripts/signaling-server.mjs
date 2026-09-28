@@ -20,7 +20,24 @@ const PORT = Number(process.env.PORT) || 4444
 const HOST = process.env.HOST || '0.0.0.0'
 const PING_TIMEOUT_MS = 30_000
 
-const wss = new WebSocketServer({ port: PORT, host: HOST })
+// #869 — Grenzen fuer den oeffentlichen Betrieb (deploy/relay). Die Vorgaben
+// stoeren im LAN niemanden; im Netz halten sie einen einzelnen Absender davon
+// ab, den Relay mit Verbindungen, Raeumen oder grossen Nachrichten zu fuellen.
+const MAX_CONNECTIONS = Number(process.env.MAX_CONNECTIONS) || 1000
+const MAX_PER_IP = Number(process.env.MAX_PER_IP) || 50
+const MAX_TOPICS = Number(process.env.MAX_TOPICS) || 50
+const MAX_PAYLOAD = Number(process.env.MAX_PAYLOAD) || 256 * 1024
+// Hinter Caddy kommt jede Verbindung von Caddy; die echte Adresse steht dann
+// in X-Forwarded-For. Nur mit TRUST_PROXY=1 glauben — sonst koennte jeder
+// Client sie selbst setzen.
+const TRUST_PROXY = process.env.TRUST_PROXY === '1'
+
+const wss = new WebSocketServer({ port: PORT, host: HOST, maxPayload: MAX_PAYLOAD })
+const perIp = new Map()
+const ipOf = (req) => {
+  const fwd = TRUST_PROXY ? String(req.headers['x-forwarded-for'] ?? '').split(',')[0].trim() : ''
+  return fwd || req.socket.remoteAddress || '?'
+}
 
 /** topic (room) → Set<connection> */
 const topics = new Map()
@@ -34,7 +51,13 @@ const send = (conn, msg) => {
   }
 }
 
-wss.on('connection', (conn) => {
+wss.on('connection', (conn, req) => {
+  const ip = ipOf(req)
+  if (wss.clients.size > MAX_CONNECTIONS || (perIp.get(ip) ?? 0) >= MAX_PER_IP) {
+    conn.close(1013, 'busy')
+    return
+  }
+  perIp.set(ip, (perIp.get(ip) ?? 0) + 1)
   const subscribed = new Set()
   let closed = false
   let pongReceived = true
@@ -58,6 +81,9 @@ wss.on('connection', (conn) => {
   })
 
   conn.on('close', () => {
+    const n = (perIp.get(ip) ?? 1) - 1
+    if (n > 0) perIp.set(ip, n)
+    else perIp.delete(ip)
     subscribed.forEach((name) => {
       const subs = topics.get(name)
       if (subs) {
@@ -81,7 +107,8 @@ wss.on('connection', (conn) => {
     switch (m.type) {
       case 'subscribe':
         ;(m.topics || []).forEach((name) => {
-          if (typeof name !== 'string') return
+          if (typeof name !== 'string' || name.length > 200) return
+          if (!subscribed.has(name) && subscribed.size >= MAX_TOPICS) return
           let subs = topics.get(name)
           if (!subs) topics.set(name, (subs = new Set()))
           subs.add(conn)
@@ -110,4 +137,4 @@ wss.on('connection', (conn) => {
   })
 })
 
-console.log(`[signaling] y-webrtc relay hört auf ws://${HOST}:${PORT} — für Mobilfunk hinter wss:// Reverse-Proxy stellen.`)
+wss.on('listening', () => console.log(`[signaling] y-webrtc relay hört auf ws://${HOST}:${PORT} — für Mobilfunk hinter wss:// Reverse-Proxy stellen.`))

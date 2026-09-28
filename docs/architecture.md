@@ -5,7 +5,7 @@ Invarianten der App. Sie ist die Pflicht-Lektüre, bevor strukturelle Änderunge
 gemacht werden. Für die interaktive Modul-Übersicht siehe [`app-structure.html`](./app-structure.html),
 für einen Wettbewerber-Vergleich [`comparison.html`](./comparison.html).
 
-Stand: v9.0.3 · ~701 TS/TSX-Module · ~205.9k LOC
+Stand: v9.0.3 · ~793 TS/TSX-Module · ~222.6k LOC
 
 ---
 
@@ -55,6 +55,8 @@ Alle IPC-Channels sind nach Domäne präfixiert. Definitionen in
 | `library:*` | `libraryIpc.ts` | `get-folder-path`, `reveal-folder`, `scan`, `write`, `delete` |
 | `rentman:*` | `rentmanIpc.ts` | `get-projects`, `get-project-equipment`, `get-equipment`, `add-project-equipment`, `add-project-file` |
 | `netbox:*` | `netboxIpc.ts` | `save-token`, `has-token`, `delete-token`, `normalize-url`, `test-connection`, `get-sites`, `get-racks`, `fetch-snapshot` |
+| `deviceLibrary:*` | `deviceLibraryIpc.ts` | `has-token`, `sign-in`, `verify-second-factor`, `current-user`, `sign-out`, `sync`, `propose`, `upload` — die Gerätebibliothek (devices.zumpelars.de, §6.3b). URL je Aufruf, Token bleibt in main. |
+| `cloud:*` | `cloudIpc.ts` | `call` — Cloud-Projekte und Lese-Links (#871, #870) auf dem Server der Gerätebibliothek, eine Operation aus fester Liste (`cloudService.ts`). Gleiches Konto und Token wie `deviceLibrary:*`, Token bleibt in main. |
 | `atem:*` | `atemIpc.ts` | `connect`, `disconnect`, `state`, `get-status`, `get-events`, `set-input-name`, `bulk-set-input-names`, `apply-mv-config`, `read-mv-config`, `apply-audio-config`, `discover`, plus `atem:event` (broadcast) |
 | `videohub:*` | `videohubIpc.ts` | `send` (TCP zu Blackmagic Videohub) |
 | `sync:*` | `syncIpc.ts` | `read-file`, `write-file`, `exists`, `acquire-lock`, `release-lock` |
@@ -67,6 +69,7 @@ Alle IPC-Channels sind nach Domäne präfixiert. Definitionen in
 | `signaling:*` | `signalingIpc.ts` | LAN-Signaling-Relay für die Yjs/WebRTC-Kollaboration (#413) |
 | `collabDiscovery:*` | `collabDiscoveryIpc.ts` | Bonjour/mDNS-Discovery von Kollaborations-Peers im LAN |
 | `receipt:*` | `receiptIpc.ts` | `pick`, `attach`, `read`, `reveal` — die Belegdatei einer Auslagenzeile (Bedarf 97). Die Datei liegt in `Belege/` **neben** dem Projekt und nicht im Projekt-File: ein Foto von zwei Megabyte in jeder `.avplan` verteuerte jede Speicherung und jeden Versand. Gespeichert wird unter dem SHA-256 des Inhalts, damit derselbe Beleg nur einmal liegt. Der Dateidialog läuft in main, der gewählte absolute Pfad erreicht den Renderer gar nicht; `reveal` zeigt den Ordner (`showItemInFolder`) statt die Datei zu öffnen — sie kommt von außen. |
+| `attachment:*` | `attachmentIpc.ts` | `pick`, `present`, `reveal` — Anhänge neben dem Projekt in `Anhaenge/`: Messprotokolle, Herstellerunterlagen, Konfig-Sicherungen. Dieselbe Ablage wie die Belege (`util/projektAblage.ts`: SHA-256-Name, Grenze zum Projektordner, atomar), aber **jede Endung** wird angenommen — ein Messgerät oder eine Konfig-Sicherung schreibt ihr eigenes Format. Vertretbar, weil es **keinen** Kanal gibt, der die Datei öffnet oder liest: nur `reveal` (Dateimanager) und `present` (liegt sie im Ordner?). Das Projekt führt nur den Verweis (`anhaenge`). |
 | `showControl:*` | `showControlIpc.ts` | `start`, `stop`, `state`, `clear` + Ereignis `showControl:update` — der eingehende OSC-Hörer (E-23). **Vier Auflagen stehen im Code und nicht in der Prosa:** aus als Vorgabe (dieses Modul startet nichts von selbst), je Projekt eingeschaltet, eine Adresse, die der Nutzer nennt (eine leere wird zurückgewiesen — `0.0.0.0` als Vorgabe lauscht auf jeder Schnittstelle, auch der im Kundennetz), und ein sichtbarer Befund, wenn nicht gebunden werden konnte. `start` gibt IMMER einen Zustand zurück, auch den gescheiterten: ein stiller Nicht-Empfang sieht aus wie „keine Cues", und das ist die Entwarnung durch die Hintertür. Gelesen wird aus dem Paket NUR die Adresse und die Länge dessen, was dahinter steht — Argumente zu entziffern hiesse, aus fremden Bytes Zahlen zu machen (Invariante 23). |
 | `documentLog:*` | `documentLogIpc.ts` | `append`, `read`, `clear` — das Register der ausgegebenen Dokumente (ADR-004). Es überdauert die Sitzung und gehört damit auf die Platte. |
 
@@ -95,7 +98,7 @@ Vier Stores in `src/renderer/store/`. Jeder hat einen klar abgegrenzten Concern.
 
 #### 3.1.1 · Slice-Komposition (#308)
 
-`projectStore.ts` ist intern in **23 Slices** unter `src/renderer/store/slices/`
+`projectStore.ts` ist intern in **26 Slices** unter `src/renderer/store/slices/`
 zerlegt, die alle in den Haupt-Store komponiert werden:
 
 ```
@@ -278,7 +281,7 @@ jemand drei von zwölf Monitoren angesehen hat.
 
 ### 3.2 · Komponenten
 
-`src/renderer/components/` ist in 31 Subdomänen aufgeteilt:
+`src/renderer/components/` ist in 34 Subdomänen aufgeteilt:
 
 ```
 About/         Analysis/      Annotations/   Atem/          Cable/
@@ -573,6 +576,54 @@ Nicht zu verwechseln mit `lib/netboxImport.ts` — das ist der ältere
 Import einzelner Gerätetypen aus der öffentlichen
 `netbox-community/devicetype-library` auf GitHub (statische YAML), ohne
 eigene Instanz.
+
+### 6.3b · Gerätebibliothek (devices.zumpelars.de)
+
+Gemeinsamer, moderierter Gerätekatalog der Suite (Repo
+`larszu/av-device-library`). Nur mit Konto nutzbar; Konten entstehen auf der
+Website. Der Client ist eine **unveränderte Kopie** von
+`clients/deviceLibraryClient.ts` aus dem Bibliotheks-Repo und liegt zweimal
+hier: `src/main/services/` (Desktop) und `src/renderer/lib/` (Web-Build);
+`tests/deviceLibrary.test.ts` hält beide Kopien gleich.
+
+- **Abruf im Main-Prozess** (`services/deviceLibraryService.ts`). Zwei
+  Gründe: das Bearer-Token verlässt main nicht (wie bei NetBox), und die
+  Server-URL ist änderbar — die CSP des Fensters kennt nur feste Ursprünge,
+  main unterliegt ihr nicht. `https://devices.zumpelars.de` steht trotzdem in
+  `connect-src`, für den Renderer-Weg ohne Preload-Brücke.
+- **Token**: Desktop im Schlüsselbund (`keytar`, Account
+  `device-library-token`); Web-Build unter einem eigenen localStorage-Schlüssel
+  (`deviceLibraryWeb.ts`). Nie im Projekt, nie im Log.
+- **URL**: `settingsStore.deviceLibraryUrl`, leer = `DEFAULT_DEVICE_LIBRARY_URL`.
+  Geprüft (nur http/https) in main.
+- **Abgleich** (`lib/deviceLibrary.ts`, rein und getestet): `sync('cable',
+  latestSeq)` inkrementell; `removed` entfernt; jeder Eintrag läuft durch
+  `pruefeVorlage` und wird bei blockierendem Befund übersprungen und gezählt.
+  Kennt der Server einen kleineren `latestSeq` als gemerkt, wird alles neu
+  geholt. Stand und `latestSeq` liegen unter
+  `STORAGE_KEYS.deviceLibraryCache` — **nicht** in `customLibrary`: die
+  Bibliothek ist eine eigene, schreibgeschützte Quelle
+  (`store/deviceLibraryStore.ts`, Bibliothek → Equipment → „Shared").
+- **Einreichen**: `DeviceLibrarySubmitDialog` baut auf `baueEinreichung`
+  auf; Hersteller/Modell trennt der Nutzer (die Vorlagen kennen nur einen
+  Namen), `sourceUrl` ist `manufacturerUrl`. Die Trennung wird gemerkt und
+  gilt fürs Hochladen.
+- **Hochladen** (`lib/deviceLibraryUpload.ts`, rein und getestet): eigene
+  Vorlagen = `customLibrary` ohne Rentman-Importe und ohne unveränderte
+  Vorlagen aus `EINGEBAUTER_KATALOG` (Favorit/Versteckt zählen nicht). Je
+  Vorlage wird der Fingerabdruck der hochgeladenen Fassung gemerkt
+  (`STORAGE_KEYS.deviceLibraryUploads`, dazu Zustand, Slug, Befunde und die
+  Hersteller/Modell-Trennung); nur Geändertes geht per `upload('cable', …)`
+  raus, nach `error` erneut, und dazu alles, was laut `moderation` noch
+  `pending` ist — der Server meldet den Moderationsstand auch bei `in-sync`,
+  so wird „wartet" zu „live". `lib/deviceLibraryAuto.ts` startet im
+  Hauptfenster: beim Start und 5 s nach einer Änderung an `customLibrary`
+  erst hoch, dann `sync` — nur mit Einstellung
+  `deviceLibraryAutoUpload` (Vorgabe an) und angemeldet.
+- **Katalog veröffentlichen**: `scripts/library-publish.mjs` lädt
+  `eingebauterKatalog.ts` und `deviceLibraryItem.ts` direkt in Node (deshalb
+  dort nur Typ-Importe und Importe mit `.ts`-Endung) und lädt mit einem
+  Admin-API-Schlüssel hoch; Workflow `library-publish.yml`.
 
 ### 6.4 · GraphML-Import (yEd)
 
@@ -991,7 +1042,7 @@ Diese Themen sind diskutiert, aber noch nicht entschieden / umgesetzt.
 ### 9.1 · Store-Slicing — **erledigt** ✓ (#308)
 
 Implementiert. `projectStore.ts` von 2178 LOC auf ~1146 reduziert durch
-23 Slices unter `store/slices/`. Siehe §3.1.1.
+26 Slices unter `store/slices/`. Siehe §3.1.1.
 
 ### 9.2 · Komponenten-Splits — **teilweise** ✓ (#306, #307)
 
@@ -1044,7 +1095,7 @@ optionales Cloud-Backend (`y-websocket`, Auth/Permissions) bleiben offen.
 `vitest` ist eingerichtet (`npm test` / `npm run test:watch`); dazu kommen
 gezielte Node-Checks (`npm run test:crdt`, `npm run test:signaling`), ein
 UI-Smoke-Skript (`npm run ui:smoke`) und ein headless Drag-/Interaktions-Test
-(`npm run test:drag`, treibt den Renderer via Playwright). Bei ~205.9k LOC
+(`npm run test:drag`, treibt den Renderer via Playwright). Bei ~222.6k LOC
 bleibt der Ausbau der Abdeckung wichtig — empfohlene Schwerpunkte:
 - Snapshot-Tests auf `healProjectPositions` mit echten
   Beispiel-Projekt-JSONs.

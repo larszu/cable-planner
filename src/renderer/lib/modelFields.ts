@@ -179,6 +179,17 @@ export const INSTANCE_FIELDS = [
   'hausKlinkeId',
   'id',
 
+  // #909/#910 — die Kamera aus dem MultiCam-Plan: WELCHE es dort ist und wie
+  // DIESES Exemplar eingestellt ist (Objektiv, Brennweite). Ein anderes
+  // Exemplar desselben Modells steht mit anderem Objektiv an anderer Stelle.
+  'multicamId',
+  'multicamProjectId',
+  'multicamRemoved',
+  'optik',
+  // camera-list v3 — die Presets gehoeren zum KOPF dieses Exemplars, nicht
+  // zum Modell: zwei baugleiche PTZ an zwei Orten haben zwei Satz Presets.
+  'kameraPresets',
+
   // Wo dieses Exemplar steht
   'x',
   'y',
@@ -259,6 +270,8 @@ export const INSTANCE_FIELDS = [
   'netboxSourceUrl',
   'rentmanId',
   'rentmanRemoved',
+  // #906 — vor Ort erfasst: gilt fuer DIESES Exemplar und seine Arbeitsliste.
+  'erfasst',
 
   // Oberflaechen-Zustand am Canvas
   'nodeColor',

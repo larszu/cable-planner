@@ -5,22 +5,27 @@ import { create, type StateCreator } from 'zustand'
 import type { Connection } from 'reactflow'
 import type { Cable } from '../types/cable'
 import type { EquipmentItem, EquipmentTemplate, GroupPreset, Port } from '../types/equipment'
-import type { LocationFrame } from '../types/location'
+import type { Floor, LocationFrame } from '../types/location'
+import { etageVon, heileEtagen } from '../lib/etagen'
+import { geraeteUmbenannt, kabelUmbenannt, type StammdatenArt } from '../lib/stammdaten'
 import type { CablePlannerProject } from '../types/project'
 import { useUiStore } from './uiStore'
 import { defaultProject, isProjectLocked, sanitizePort, touchProject } from './projectStoreHelpers'
 import { createLocationSlice } from './slices/locationSlice'
 import { createCableSlice } from './slices/cableSlice'
 import { createAnnotationSlice } from './slices/annotationSlice'
+import { createGrundrissSlice } from './slices/grundrissSlice'
 import { createSourceIdentitySlice } from './slices/sourceIdentitySlice'
 import { createDeliverySlice } from './slices/deliverySlice'
 import { createCableStockSlice } from './slices/cableStockSlice'
 import { createMcpSlice } from './slices/mcpSlice'
 import { createFotoSlice } from './slices/fotoSlice'
+import { createAnhangSlice } from './slices/anhangSlice'
 import { createConductorSlice } from './slices/conductorSlice'
 import { createCrewSlice } from './slices/crewSlice'
 import { createAddressTemplateSlice } from './slices/addressTemplateSlice'
 import { createRevisionSlice } from './slices/revisionSlice'
+import { createCloudSlice } from './slices/cloudSlice'
 import { createMobileSyncSlice } from './slices/mobileSyncSlice'
 import { createTemplateSlice } from './slices/templateSlice'
 import { createGroupPresetSlice } from './slices/groupPresetSlice'
@@ -44,40 +49,15 @@ import {
   persistCategoryTranslations,
 } from '../lib/categoryTranslations'
 import { heileSteckertyp } from '../lib/connectorRenames'
+import { DEVICE_TYPE_ALIASES } from '../lib/deviceTypeAliases'
 import { loadGroupPresets } from './groupPresetsPersist'
 import { createDemoProject } from '../lib/demoProject'
 import { DEMO_RACK_PRESET_ID, createDemoRackPreset } from '../lib/demoRack'
 import { vergibAdressen, type DmxGeraet } from '../lib/dmx'
 import { scheduleProjectAutosave } from './projectAutosave'
-import { blackmagicTemplates } from '../lib/blackmagicCatalog'
+import { EINGEBAUTER_KATALOG } from '../lib/eingebauterKatalog'
 import { detectLayerForConnector } from '../lib/cableLayers'
-import { ubiquitiTemplates } from '../lib/ubiquitiCatalog'
-import { monitorTemplates } from '../lib/monitorCatalog'
-import { cameraTemplates } from '../lib/cameraCatalog'
-import { cameraBodyTemplates } from '../lib/cameraBodyCatalog'
-import { lensTemplates } from '../lib/lensCatalog'
-import { rigTemplates } from '../lib/rigCatalog'
-import { fixtureTemplates } from '../lib/fixtureCatalog'
-import { decimatorTemplates } from '../lib/decimatorCatalog'
-import { bromptonTemplates } from '../lib/bromptonCatalog'
-import { clearcomTemplates } from '../lib/clearcomCatalog'
-import { luminexTemplates } from '../lib/luminexCatalog'
-import { netgearAvTemplates } from '../lib/netgearAvCatalog'
-import { lightwareTemplates } from '../lib/lightwareCatalog'
-import { miscTemplates } from '../lib/miscCatalog'
-import { mediaStationTemplates } from '../lib/mediaStationCatalog'
-import { passiveTemplates } from '../lib/passiveCatalog'
 import { heileVorlagenName } from '../lib/templateRenames'
-import { greengoTemplates } from '../lib/greengoCatalog'
-import { ajaTemplates } from '../lib/ajaCatalog'
-import { rossTemplates } from '../lib/rossCatalog'
-import { lynxTemplates } from '../lib/lynxCatalog'
-import { switcherTemplates } from '../lib/switcherCatalog'
-import { avNetworkTemplates } from '../lib/avNetworkCatalog'
-import { broadcastToolsTemplates } from '../lib/broadcastToolsCatalog'
-import { audioTemplates } from '../lib/audioCatalog'
-import { wirelessAudioTemplates } from '../lib/wirelessAudioCatalog'
-import { micTemplates } from '../lib/micCatalog'
 import { upsertCachedRentmanTemplate } from '../lib/rentmanTemplateCache'
 import type { GreenGoConfig } from '../types/greengo'
 import type { IntercomPlan } from '../types/intercomPlan'
@@ -111,6 +91,7 @@ import { normaliseTallyPositions } from '../lib/tallyPosition'
 import { normaliseNetworkSegments } from '../lib/networkSegments'
 import { normaliseAddressLayers } from '../lib/addressTemplate'
 import { normaliseVenueAnswers } from '../lib/venueAnswers'
+import { normaliseAnhaenge } from '../lib/anhaenge'
 import { isNetworkInterfaceRole, normaliseNetworkInterface } from '../lib/networkInterfaces'
 import type { NetworkInterface } from '../types/network'
 import { istCircuitKind } from '../types/circuit'
@@ -136,11 +117,7 @@ import { pruefeCompanion } from '../lib/companionControl'
 const CUSTOM_LIB_KEY = STORAGE_KEYS.customLibrary
 const PROJECT_AUTOSAVE_KEY = STORAGE_KEYS.projectAutosave
 const LIB_MIGRATION_KEY = STORAGE_KEYS.libMigration
-// 2026-09-24: die uebernommenen Kataloge aus multicam- und light-planner
-// (Bodies, Objektive, Rigs, Lichtgeraete). Neue Kennung, damit die Saat auch
-// bei Bestandsnutzern laeuft — `byName` legt nur an, was noch fehlt, und
-// laesst eigene Vorlagen gleichen Namens stehen.
-const LIB_MIGRATION_VERSION = '2026-09-lightware'
+const LIB_MIGRATION_VERSION = '2026-09-passive-carriers'
 
 const runLibraryMigration = () => {
   try {
@@ -148,7 +125,7 @@ const runLibraryMigration = () => {
     // Step 1 (earlier migration): the previous build auto-generated bogus
     // 1-in/1-out templates for every Rentman device. Ensure those are cleared
     // ONCE, but don't wipe libraries created by any later good migration.
-    const preservedVersions = new Set(['2026-04-reset', '2026-04-blackmagic-seed', '2026-04-monitor-camera-seed', '2026-04-misc-catalog-seed', '2026-04-greengo-catalog-seed', '2026-04-greengo-catalog-v2', '2026-09-passive-carriers', '2026-09-suite-uebernahme', '2026-09-decimator', '2026-09-brompton', '2026-09-clearcom', '2026-09-luminex', '2026-09-netgear-av', LIB_MIGRATION_VERSION])
+    const preservedVersions = new Set(['2026-04-reset', '2026-04-blackmagic-seed', '2026-04-monitor-camera-seed', '2026-04-misc-catalog-seed', '2026-04-greengo-catalog-seed', '2026-04-greengo-catalog-v2', LIB_MIGRATION_VERSION])
     if (current && !preservedVersions.has(current)) {
       localStorage.removeItem(CUSTOM_LIB_KEY)
     }
@@ -168,7 +145,7 @@ const runLibraryMigration = () => {
       }),
     )
     let added = false
-    for (const t of [...blackmagicTemplates, ...ubiquitiTemplates, ...monitorTemplates, ...cameraTemplates, ...cameraBodyTemplates, ...lensTemplates, ...rigTemplates, ...fixtureTemplates, ...decimatorTemplates, ...bromptonTemplates, ...clearcomTemplates, ...luminexTemplates, ...netgearAvTemplates, ...lightwareTemplates, ...miscTemplates, ...greengoTemplates, ...ajaTemplates, ...rossTemplates, ...lynxTemplates, ...switcherTemplates, ...avNetworkTemplates, ...broadcastToolsTemplates, ...audioTemplates, ...wirelessAudioTemplates, ...micTemplates, ...mediaStationTemplates, ...passiveTemplates]) {
+    for (const t of EINGEBAUTER_KATALOG) {
       if (!byName.has(t.name)) {
         byName.set(t.name, t)
         added = true
@@ -312,6 +289,9 @@ export interface ProjectState {
   setCanvasState: (x: number, y: number, zoom: number) => void
   addEquipment: (equipment: Omit<EquipmentItem, 'id'>) => void
   importEquipment: (equipment: EquipmentItem[]) => void
+  /** #909 — Abgleich eines Imports: neue Geraete anhaengen und vorhandene
+   *  patchen, in EINEM Schritt (ein Undo, ein Autosave). */
+  syncImportedEquipment: (neu: EquipmentItem[], patches: Array<{ id: string; patch: Partial<EquipmentItem> }>) => void
   /** #414 — Fügt KI-generierte Geräte + Kabel atomar ein, ohne IDs neu zu
    *  vergeben (die Kabel referenzieren die mitgelieferten IDs). */
   insertGeneratedPlan: (equipment: EquipmentItem[], cables: import('../types/cable').Cable[]) => void
@@ -419,6 +399,12 @@ export interface ProjectState {
   addLocation: (partial?: Partial<LocationFrame>) => void
   addLocationAroundEquipment: (equipmentIds: string[], partial?: Partial<LocationFrame>) => void
   updateLocation: (id: string, patch: Partial<LocationFrame>) => void
+  /** #911 — die Etagenliste ersetzen (Reihenfolge, Hoehen, neue Etagen). */
+  setFloors: (floors: Floor[]) => void
+  /** #911 — Etage umbenennen; die Rahmen darauf ziehen mit. */
+  renameFloor: (alt: string, neu: string) => void
+  /** #911 — Etage entfernen; die Rahmen darauf verlieren ihre Etagen-Angabe. */
+  removeFloor: (name: string) => void
   deleteLocation: (id: string) => void
   deleteLocationWithContents: (id: string) => void
   moveLocationWithContents: (id: string, dx: number, dy: number, containedEquipmentIds: string[]) => void
@@ -484,6 +470,10 @@ export interface ProjectState {
   removeCustomTemplate: (name: string) => void
   setCustomTemplateCategory: (name: string, category: string) => void
   renameCustomCategory: (oldCategory: string, newCategory: string) => void
+  /** #917 — eigenen Stecker/Standard/Ebene umbenennen: zieht Ports, Kabel und
+   *  Bibliotheks-Vorlagen im offenen Projekt mit. Liefert die Zahl der
+   *  geaenderten Geraete, Kabel und Vorlagen. */
+  renameStammdatum: (art: StammdatenArt, oldName: string, newName: string) => number
   /** Update name and/or category of an existing library template. */
   updateCustomTemplate: (currentName: string, patch: { name?: string; category?: string }) => void
   /** v7.9.13 — Markiert ein Library-Template permanent als 19"-Rack-
@@ -605,6 +595,15 @@ export interface ProjectState {
   addAnnotation: (annotation: import('../types/project').ProjectAnnotation) => void
   updateAnnotation: (id: string, patch: Partial<import('../types/project').ProjectAnnotation>) => void
   removeAnnotation: (id: string) => void
+  /** Hallenplan unter dem Canvas; `null` entfernt ihn. */
+  setGrundriss: (g: import('../types/grundriss').Grundriss | null) => void
+  updateGrundriss: (patch: Partial<import('../types/grundriss').Grundriss>) => void
+  kalibriereGrundriss: (k: import('../types/grundriss').PlanKalibrierung) => void
+  addSymbol: (s: import('../types/symbol').PlatziertesSymbol) => void
+  updateSymbol: (id: string, patch: Partial<import('../types/symbol').PlatziertesSymbol>) => void
+  removeSymbol: (id: string) => void
+  addSymbolDef: (d: import('../types/symbol').SymbolDef) => void
+  removeSymbolDef: (id: string) => void
   /** ADR-001 — Signalquellen-Rolle anlegen; liefert die (ggf. erzeugte) Id,
    *  oder undefined wenn nichts angelegt wurde (leerer Name). */
   addSourceIdentity: (
@@ -771,6 +770,12 @@ export interface ProjectState {
   /** v7.9.3 — Setzt Viewer-Session-Author (beim ersten Öffnen einer
    *  .cpviewer-Datei). */
   setViewerSession: (session: { author: string; startedAt: string } | undefined) => void
+  /** #871 — Cloud-Verbindung setzen oder loesen. Kein neuer Undo-Schritt
+   *  im Plan: die Verbindung ist Ablage-Zustand, kein Planinhalt. */
+  setCloudBinding: (binding: import('../types/project').CloudBinding | undefined) => void
+  /** #871 — das zusammengefuehrte Ergebnis eines Cloud-Abgleichs oder eine
+   *  wiederhergestellte Cloud-Revision uebernehmen. Die Datei bleibt dieselbe. */
+  applyCloudProject: (project: CablePlannerProject) => void
   /** #412 — Revisionen/Snapshots. */
   commitRevision: (label: string, note: string, asBuilt: boolean) => void
   restoreRevision: (id: string) => void
@@ -825,6 +830,15 @@ export interface ProjectState {
     id: string,
     patch: Partial<Pick<import('../types/foto').Foto, 'notiz' | 'zeigtAuf'>>,
   ) => void
+  /** Anhänge — frisch abgelegte Dateien aufnehmen. */
+  addAnhaenge: (neu: import('../types/anhang').ProjektAnhang[]) => void
+  /** Anhänge — Titel, Art oder Ziel ändern. `ziel: undefined` = zur Anlage. */
+  updateAnhang: (
+    id: string,
+    patch: Partial<Pick<import('../types/anhang').ProjektAnhang, 'titel' | 'art' | 'ziel'>>,
+  ) => void
+  /** Anhänge — den Verweis entfernen. Die Datei bleibt im Ordner. */
+  removeAnhang: (id: string) => void
   setFarbnormen: (farbnormen: import('../types/conductor').Farbnorm[]) => void
   /** #885 — die Polaritaets-Methoden und die gewaehlte. */
   setPolaritaetsnormen: (normen: import('../types/fiber').Polaritaetsnorm[]) => void
@@ -1194,11 +1208,19 @@ const healProjectPositions = (
     project as CablePlannerProject & { greengoConfig?: GreenGoConfig },
   ) as CablePlannerProject
 
+  const etagen = heileEtagen(project.floors, project.locations ?? [])
   return {
     ...ohneAltesFeld,
     ...(intercom ? { intercom } : {}),
     equipment: project.equipment.map((item) => {
       item = clearDanglingIdentity(item, identityIds)
+      // 2026-09-27 — ein Katalog-Eintrag, der in einem anderen aufgegangen
+      // ist (USW-16 -> USW-16-PoE), traegt im Projekt noch die alte Id. Sie
+      // loest ueber den Alias weiter auf; hier wird sie auf die heutige
+      // gehoben, damit Lager-Deckung und Stueckliste dieselbe Id vergleichen.
+      if (item.deviceTypeId && DEVICE_TYPE_ALIASES[item.deviceTypeId]) {
+        item = { ...item, deviceTypeId: DEVICE_TYPE_ALIASES[item.deviceTypeId] }
+      }
 
       // #822 — die Geraetekategorie von Deutsch auf die Quellsprache.
       //
@@ -1613,6 +1635,7 @@ const healProjectPositions = (
             fromY: r(o.fromY),
             toX: r(o.toX),
             toY: r(o.toY),
+            ...(o.weg ? { weg: o.weg.map((w) => ({ x: r(w.x), y: r(w.y) })) } : {}),
           },
         }
       }
@@ -1636,7 +1659,13 @@ const healProjectPositions = (
       width: snap > 0 ? Math.ceil(loc.width / snap) * snap : Math.round(loc.width),
       height: snap > 0 ? Math.ceil(loc.height / snap) * snap : Math.round(loc.height),
       moveContents: loc.moveContents !== false,
+      // #911 — die Schreibweise der Liste gilt: „1.og" am Rahmen und „1.OG"
+      // in der Liste sind dieselbe Etage, die Auswahl zeigt nur eine davon.
+      ...(loc.floor !== undefined ? { floor: etageVon(loc, etagen)?.name } : {}),
     })),
+    // #911 — die Etagen. Freitext-Etagen alter Rahmen werden zur Liste, ohne
+    // dass ein Rahmen seine Angabe verliert (lib/etagen.ts).
+    floors: etagen,
     // #412 — Revisionen sind optional; alte Projekte heilen zu [].
     revisions: project.revisions ?? [],
     // Festinstallation — Änderungsprotokoll ist optional; alte Projekte
@@ -1689,6 +1718,9 @@ const healProjectPositions = (
     micPlot,
     // Bedarf 10 — dito: `undefined` heisst „kein Ablauf eingelesen".
     rundown,
+    // Anhänge — nur Einträge mit Hash und relativem Pfad im Projektordner;
+    // leer heisst `undefined`, wie beim Mic-Plot.
+    anhaenge: normaliseAnhaenge(project.anhaenge),
     // ADR-003 — Rentman-Zaehler: gesendet ist nicht bestaetigt.
     metadata: {
       ...healRentmanCableMap(project.metadata),
@@ -1909,15 +1941,18 @@ const buildProjectStore = (
   ...createLocationSlice(set, get, store),
   ...createCableSlice(set, get, store),
   ...createAnnotationSlice(set, get, store),
+  ...createGrundrissSlice(set, get, store),
   ...createSourceIdentitySlice(set, get, store),
   ...createDeliverySlice(set, get, store),
   ...createCableStockSlice(set, get, store),
   ...createMcpSlice(set, get, store),
   ...createFotoSlice(set, get, store),
+  ...createAnhangSlice(set, get, store),
   ...createConductorSlice(set, get, store),
   ...createCrewSlice(set, get, store),
   ...createAddressTemplateSlice(set, get, store),
   ...createRevisionSlice(set, get, store),
+  ...createCloudSlice(set, get, store),
   ...createMobileSyncSlice(set, get, store),
   ...createTemplateSlice(set, get, store),
   ...createGroupPresetSlice(set, get, store),
@@ -2059,6 +2094,10 @@ const buildProjectStore = (
         equipment: slice.equipment,
         cables: slice.cables,
         locations: slice.locations,
+        // #911 — der Abgleich traegt nur Rahmen, nicht die Etagenliste. Eine
+        // Etage, die ein Mitarbeiter angelegt hat, kommt so wenigstens als
+        // Name in die Liste (ohne Hoehe), statt am Rahmen ins Leere zu zeigen.
+        floors: heileEtagen(state.project.floors, slice.locations),
       },
     })),
   importGraphml: (payload) => {
@@ -2251,6 +2290,14 @@ const buildProjectStore = (
         // Haupt-/Backup-Paar zu behaupten, das niemand erklaert hat — und
         // zwei Geraete auf dieselbe Tally-Adresse zu setzen.
         sourceIdentityId: undefined,
+        // #909 — die MultiCam-Herkunft ebenso wenig. Mit ihr gewaenne beim
+        // naechsten Kamera-Import das Original den Abgleich, und die Kopie
+        // stuende als „nicht mehr im MultiCam-Plan" da, ohne je wieder
+        // nachgezogen zu werden.
+        multicamId: undefined,
+        multicamProjectId: undefined,
+        multicamRemoved: undefined,
+        importSource: item.importSource === 'multicam' ? undefined : item.importSource,
       }
     })
     const newCables: Cable[] = []
@@ -2305,6 +2352,31 @@ const buildProjectStore = (
       return { customLibrary: healed }
     })
     return addedOrPatched
+  },
+  renameStammdatum: (art, oldName, newName) => {
+    const alt = oldName.trim()
+    const neu = newName.trim()
+    if (!alt || !neu || alt === neu) return 0
+    let n = 0
+    set((state) => {
+      const lib = geraeteUmbenannt(state.customLibrary, art, alt, neu)
+      if (lib.n > 0) persistCustomLibrary(lib.liste)
+      n += lib.n
+      // Ein gesperrtes Projekt bleibt, wie es ist; die Bibliothek gehoert
+      // nicht zum Projekt und wird trotzdem nachgezogen.
+      if (isProjectLocked(state)) return lib.n > 0 ? { customLibrary: lib.liste } : {}
+      const geraete = geraeteUmbenannt(state.project.equipment, art, alt, neu)
+      const kabel = kabelUmbenannt(state.project.cables, art, alt, neu)
+      n += geraete.n + kabel.n
+      const projektGeaendert = geraete.n + kabel.n > 0
+      return {
+        ...(lib.n > 0 ? { customLibrary: lib.liste } : {}),
+        ...(projektGeaendert
+          ? { project: touchProject({ ...state.project, equipment: geraete.liste, cables: kabel.liste }) }
+          : {}),
+      }
+    })
+    return n
   },
   renameCustomCategory: (oldCategory, newCategory) =>
     set((state) => {

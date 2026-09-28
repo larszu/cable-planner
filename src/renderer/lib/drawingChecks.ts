@@ -28,8 +28,10 @@ import { breakoutBefunde, polaritaetsBefunde } from '../types/fiber'
 import { wandSumme } from './ledWall'
 import { beurteileBild } from '../types/displayCapability'
 import { gruppenBefunde } from './portGroups'
+import { durchBlenden, gegenendenJePort } from './patchPanel'
 import { pruefeAdressen, type DmxGeraet } from './dmx'
 import { tr, format } from './i18n'
+import { adresseMehrdeutig } from '../types/hausAuskunft'
 export type { CheckSeverity, CheckFinding } from '../types/checkFinding'
 import type { CheckSeverity, CheckFinding } from '../types/checkFinding'
 
@@ -584,6 +586,7 @@ export const runDrawingChecks = (
   // Ethernet angeschlossenen PoE-fähigen Verbraucher (≤ 90 W = 802.3bt Typ 4;
   // größere Geräte haben eigene Stromversorgung und zählen nicht).
   const POE_MAX_W = 90
+  const kabelEnden = gegenendenJePort(cables)
   for (const sw of equipment) {
     const budgetRaw = sw.categoryProps?.poeBudgetW
     const budget = typeof budgetRaw === 'number' ? budgetRaw : Number(budgetRaw)
@@ -593,16 +596,20 @@ export const runDrawingChecks = (
     const seen = new Set<string>()
     for (const c of cables) {
       let swPortId: string | undefined
-      let otherId: string | undefined
+      let fern: { equipmentId: string; portId: string } | undefined
       if (c.fromEquipmentId === sw.id) {
         swPortId = c.fromPortId
-        otherId = c.toEquipmentId
+        fern = { equipmentId: c.toEquipmentId, portId: c.toPortId }
       } else if (c.toEquipmentId === sw.id) {
         swPortId = c.toPortId
-        otherId = c.fromEquipmentId
+        fern = { equipmentId: c.fromEquipmentId, portId: c.fromPortId }
       } else continue
       const swPort = portById.get(swPortId)
       if (!swPort || swPort.connectorType !== 'Ethernet/RJ45') continue
+      // Durch Patchfeld und Wanddose zum Verbraucher: sonst zaehlt eine
+      // PoE-Kamera hinter einer Blende nicht mit, und das Budget sieht in
+      // jeder Festinstallation leer aus.
+      const otherId = durchBlenden(fern, eqById, kabelEnden).ende.equipmentId
       if (!otherId || seen.has(otherId)) continue
       const consumer = eqById.get(otherId)
       if (!consumer) continue
@@ -1272,34 +1279,44 @@ export const runDrawingChecks = (
         }
       }
 
-      // — Check 25: eine DALI-Adresse, deren ART das Haus nicht nennt ------
+      // — Check 25: eine Steuer-Adresse, deren ART das Haus nicht nennt ------
       //
-      // Der Rechner dafuer steht im Gebaeude-Werkzeug (`adresseMehrdeutig`,
-      // facility Issue #2) und meldete bis hierher NUR dort — also dem, der
-      // die Auskunft pflegt, und nicht dem, der die Adresse benutzt.
+      // Der Rechner steht im Gebaeude-Werkzeug (`adresseMehrdeutig`, facility
+      // #2/#19) und meldete bis hierher NUR dort — also dem, der die Auskunft
+      // pflegt, und nicht dem, der die Adresse benutzt. Welche Systeme eine
+      // Art brauchen, sagt `HAUS_ADRESSARTEN` (dieselbe Tabelle wie drueben):
       //
-      // Bei DALI heisst „3" je nach Art etwas voellig anderes: Kurzadresse 3
-      // ist EIN Vorschaltgeraet, Gruppe 3 koennen dreissig Leuchten sein,
-      // Broadcast ist alles am Bus — auch das Notlicht des Hauses. Wer eine
-      // Gruppenadresse fuer eine Kurzadresse haelt, schaltet im Zweifel den
-      // halben Saal und merkt es, wenn es dunkel ist.
+      //   DALI     — Kurzadresse 3 ist EIN Vorschaltgeraet, Gruppe 3 koennen
+      //              dreissig Leuchten sein, Broadcast ist der ganze Bus samt
+      //              Notlicht.
+      //   Crestron — Digital 12 und Analog 12 sind zwei verschiedene Joins.
+      //   Vissonic — Kamera bewegt EINE Kamera; der Mischer hat einen einzigen
+      //              Ausgang, ein Befehl dort aendert jedes Bild.
       //
       // WARNUNG UND KEIN FEHLER: die Adresse ist nicht falsch, ihre Art ist
-      // nicht angegeben. Und nur fuer DALI — bei KNX, Crestron und Vissonic
-      // ist die Adresse aus sich heraus eindeutig, dort fehlt nichts.
+      // nicht angegeben. KNX und „sonstige" sind aus sich heraus eindeutig.
       const klinke = e.hausKlinkeId ? klinkeById.get(e.hausKlinkeId) : undefined
-      if (klinke && klinke.system === 'dali' && klinke.adressart === undefined) {
+      if (klinke && adresseMehrdeutig(klinke)) {
+        const text =
+          klinke.system === 'crestron'
+            ? tr(
+                'check.haus.klinkeMehrdeutigCrestron',
+                '{name} uses the Crestron join {adresse}, and the building statement does not say which signal type it is. Digital, analog and serial join {adresse} are three different joins.',
+              )
+            : klinke.system === 'vissonic'
+              ? tr(
+                  'check.haus.klinkeMehrdeutigVissonic',
+                  '{name} uses the Vissonic address {adresse}, and the building statement does not say whether it is a camera or the mixer. A camera command moves one camera; the mixer has a single output, so a command there changes the picture on every screen.',
+                )
+              : tr(
+                  'check.haus.klinkeMehrdeutig',
+                  '{name} uses the DALI address {adresse}, and the building statement does not say what kind it is. Short address, group or broadcast are three different things - the last one is the whole bus, emergency lighting included.',
+                )
         findings.push({
           id: `haus-klinke-mehrdeutig:${e.id}`,
           severity: 'warning',
           category: 'House control',
-          message: format(
-            tr(
-              'check.haus.klinkeMehrdeutig',
-              '{name} uses the DALI address {adresse}, and the building statement does not say what kind it is. Short address, group or broadcast are three different things - the last one is the whole bus, emergency lighting included.',
-            ),
-            { name: e.name, adresse: klinke.adresse },
-          ),
+          message: format(text, { name: e.name, adresse: klinke.adresse }),
           equipmentId: e.id,
         })
       }
@@ -1319,6 +1336,71 @@ export const runDrawingChecks = (
           equipmentId: e.id,
         })
       }
+    }
+
+    // — Check 26: die Hausstrecken an den Kabeln (facility#15) ---------------
+    //
+    // Ein Kabel, das eine Hausstrecke benutzt, die das Haus nicht mehr nennt,
+    // zeigt ins Leere — dieselbe Regel wie bei der Dose. Zwei Kabel auf
+    // derselben Ader sind zwei Signale in einem Leiter; eine Ader, die das
+    // Haus auf der Strecke nicht kennt, ist ein Tippfehler oder ein Umbau.
+    const streckeById = new Map(hausAuskunft.strecken.map((s) => [s.id, s]))
+    const aufAder = new Map<string, string[]>()
+    for (const c of cables) {
+      if (!c.hausStreckeId) continue
+      const strecke = streckeById.get(c.hausStreckeId)
+      const kabelName = c.cableNumber || c.name
+      if (!strecke) {
+        findings.push({
+          id: `haus-strecke-fehlt:${c.id}`,
+          severity: 'error',
+          category: 'House run',
+          message: format(
+            tr(
+              'check.haus.streckeFehlt',
+              'Cable {name} is planned on a house run that the building statement of {stand} no longer lists.',
+            ),
+            { name: kabelName, stand: hausAuskunft.gelesenAm.slice(0, 10) },
+          ),
+          cableId: c.id,
+        })
+        continue
+      }
+      const ader = c.hausAder?.trim()
+      if (!ader) continue
+      if (strecke.adern && !strecke.adern.some((a) => a.nr === ader)) {
+        findings.push({
+          id: `haus-ader-unbekannt:${c.id}`,
+          severity: 'warning',
+          category: 'House run',
+          message: format(
+            tr('check.haus.aderUnbekannt', 'Cable {name} uses core "{ader}" of {strecke}, which the building does not list.'),
+            { name: kabelName, ader, strecke: strecke.bezeichnung },
+          ),
+          cableId: c.id,
+        })
+        continue
+      }
+      const key = `${strecke.id}\u0000${ader}`
+      aufAder.set(key, [...(aufAder.get(key) ?? []), c.id])
+    }
+    for (const [key, ids] of aufAder) {
+      if (ids.length < 2) continue
+      const [streckeId, ader] = key.split('\u0000')
+      const namen = ids.map((id) => {
+        const c = cables.find((x) => x.id === id)
+        return c ? c.cableNumber || c.name : id
+      })
+      findings.push({
+        id: `haus-ader-doppelt:${streckeId}:${ader}`,
+        severity: 'warning',
+        category: 'House run',
+        message: format(
+          tr('check.haus.aderDoppelt', 'Core "{ader}" of {strecke} is used by several cables: {kabel}.'),
+          { ader, strecke: streckeById.get(streckeId)?.bezeichnung ?? streckeId, kabel: namen.join(', ') },
+        ),
+        cableId: ids[0],
+      })
     }
 
     // — Check 26: die LED-Waende an ihrem Anschlusspunkt (#881) -------------

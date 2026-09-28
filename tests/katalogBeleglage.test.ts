@@ -117,14 +117,11 @@ describe('B-11 — der Kopf einer Katalog-Datei sagt seine Beleglage', () => {
     const ohne = bericht.perCatalogue.filter((c) => c.entries > 0 && c.sourced === 0)
     // Gegenprobe zur Prüfung selbst: gäbe es keinen einzigen belegloosen
     // Katalog, liefe die Schleife leer und bewiese nichts. Heute sind es
-    // keinem mehr (B-11 abgeschlossen: kein Katalog steht ganz ohne Beleg).
-    //
-    // 2026-09-24: wieder genau EINER. `rigCatalog.ts` kommt aus dem
-    // multicam-planner, und dort führt keines der 49 Kamera-Rigs eine
-    // Hersteller-Adresse — nachgemessen, nicht vermutet. Damit greift die
-    // Schleife unten wieder, und das ist gut: sie prüft, dass der Kopf der
-    // Datei die Lage SAGT. Wird die Lücke geschlossen, fällt DIESE Zeile
-    // zuerst — und dann gehört die ganze Datei weg, nicht die Zeile.
+    // keinem mehr (B-11 abgeschlossen: kein Katalog steht ganz ohne Beleg). Wird die Lücke geschlossen, fällt DIESE
+    // Zeile zuerst — und dann gehört die ganze Datei weg, nicht die Zeile.
+    // 2026-09-24: einer. `rigCatalog.ts` kommt aus dem multicam-planner, und
+    // dort fuehrt keines der 49 Rigs eine Hersteller-Adresse. Er traegt die
+    // BELEGLAGE-Zeile im Kopf, und genau das prueft die Schleife unten.
     expect(ohne.length, 'kein belegloser Katalog mehr — dann ist B-11 erledigt').toBe(1)
 
     for (const c of ohne) {
@@ -172,10 +169,9 @@ describe('B-11 — der Kopf einer Katalog-Datei sagt seine Beleglage', () => {
     // `catalogueEvidence.ts` nennt genau das als Grund für die Engstelle.
     expect(bericht.perCatalogue.map((c) => c.name)).toContain('blackmagic')
     expect(bericht.entries).toBe(bericht.sourced + bericht.unsourced)
-    // 45 -> 186 am 2026-09-24. Die Übernahme aus den Schwester-Planern bringt
-    // 1333 Einträge mit, davon 186 ohne Beleg. Die Begründung je Datei steht
-    // in deren Kopf; `catalogueEvidence.test.ts` hält die Gesamtzahl als
-    // Obergrenze.
-    expect(bericht.unsourced).toBe(186)
+    // 45 -> 26 am 2026-09-27: 19 Eintraege mit geoeffnetem Herstellerbeleg.
+    // 26 -> 17 am 2026-09-27: acht auf das belegte Herstellermodell
+    // umgestellt, USW-16 im USW-16-PoE aufgegangen.
+    expect(bericht.unsourced).toBe(158)
   })
 })

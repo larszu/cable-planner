@@ -10,6 +10,38 @@ Grundsatz: **Jeder hostet seinen eigenen Relay** — keine Abhängigkeit von ein
 fremden Dienst, DSGVO-freundlich, volle Kontrolle. Ohne eigenen Relay greifen
 die öffentlichen y-webrtc-Server (Default) — okay zum Testen, nicht für Produktiv.
 
+## 0. Der Vorgabe-Relay `relay.zumpelars.de` (#869)
+
+Ohne eigenen Eintrag nutzt die App `wss://relay.zumpelars.de` (dazu den
+lokalen LAN-Server und den öffentlichen y-webrtc-Server als Reserve). Mit
+Konto der Gerätebibliothek holt sie sich außerdem kurzlebige TURN-Zugangsdaten
+für den coturn daneben (`/api/turn-credentials`, 12 h gültig) — ein TURN ohne
+Konto gibt es nicht, sonst wäre er ein offenes Relay auf Kosten des VPS.
+Eigener Relay und „Nur lokal" bleiben wählbar und haben Vorrang.
+
+| Was den Server berührt | Was nicht |
+|---|---|
+| Raumkennung, IP-Adressen, Verbindungsaufbau (SDP) — nur im Speicher | der Plan: Updates laufen Ende-zu-Ende zwischen den Geräten, mit Raum-Passwort verschlüsselt |
+| TURN: Nutzdaten im Durchlauf, wenn P2P scheitert (verschlüsselt, nicht gespeichert) | irgendetwas auf Platte |
+
+Betrieb (auf dem lz-share-VPS, Grenzen: Relay 96 MB/0,25 CPU, coturn
+128 MB/0,5 CPU, 500 kB/s je Sitzung, 5 MB/s gesamt, Portbereich
+49160–49200, keine Weiterleitung in private Netze oder zum VPS selbst):
+
+```bash
+ssh root@91.216.248.103
+curl -fsSL https://raw.githubusercontent.com/larszu/cable-planner/main/deploy/relay/setup-relay.sh | bash
+# DNS: A-Record relay.zumpelars.de -> VPS (Lima-Panel)
+cd /opt/pingvin && docker compose up -d --force-recreate caddy
+relay-deploy              # main holen, bauen, ausrollen
+relay-deploy --stand      # was läuft, Traffic, TURN-Sitzungen
+```
+
+Dateien: `deploy/relay/` (Dockerfile, `compose.yml`, `turnserver.conf.in`,
+`Caddyfile.snippet`, `setup-relay.sh`, `relay-deploy`). Das TURN-Secret
+erzeugt `setup-relay.sh` und trägt es in `/opt/relay/.env` und
+`/opt/devices/.env` ein — nie ins Repo.
+
 ## 1. Relay starten
 
 Der Relay ist ein einzelnes Node-Skript ohne Electron-Abhängigkeit:

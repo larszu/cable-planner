@@ -44,7 +44,18 @@ import {
   cableBomTable,
 } from '../../lib/installerLists'
 import { assetRegisterCsv, assetRegisterTable } from '../../lib/assetRegister'
-import { stampForRows } from '../../lib/documentStamp'
+import { csvFromTable, stampForRows, stampLine } from '../../lib/documentStamp'
+import { signalwegeTable } from '../../lib/signalwegListe'
+import { hausStreckenTable } from '../../lib/hausStrecken'
+import { durchgaengeTable, trassenplanHtml, trassenplanStandTable } from '../../lib/trassenplan'
+import { abnahmeprotokollHtml, abnahmeStandTable, maengelTable } from '../../lib/abnahme'
+import { wartungsplanTable } from '../../lib/wartungsplan'
+import { konfigVorgabenTable } from '../../lib/konfigVorgaben'
+import { steckbriefHtml, steckbriefStandTable } from '../../lib/steckbrief'
+import { bedienUebersichtHtml, bedienUebersichtStandTable } from '../../lib/bedienUebersicht'
+import { anhaengeTable } from '../../lib/anhaenge'
+import { kameraPositionsblattHtml, kameraPositionsblattStandTable } from '../../lib/kameraPositionsblatt'
+import { AnhaengeSection } from './AnhaengeSection'
 import { buildHandoverManifest, handoverTable } from '../../lib/handoverPackage'
 import {
   JOB_BASIS_LABEL,
@@ -198,6 +209,205 @@ export const InstallationDocsDialog = () => {
           mime: 'text/markdown',
         }),
       },
+      {
+        key: 'abnahme',
+        label: t('docs.acceptance', 'Acceptance record'),
+        hint: t(
+          'docs.acceptance.hint',
+          'Scope, test results, defects and open items from the plan, result boxes and signature block (HTML, print to PDF)',
+        ),
+        build: () => ({
+          content: abnahmeprotokollHtml(project, {
+            titel: `${project.metadata.name || t('docs.acceptance', 'Acceptance record')} — ${t('docs.acceptance', 'Acceptance record')}`,
+            stempel: stampLine(stampForRows(project, abnahmeStandTable, new Date())),
+            t,
+          }),
+          suffix: 'abnahmeprotokoll',
+          ext: 'html',
+          mime: 'text/html',
+        }),
+      },
+      {
+        key: 'maengel',
+        label: t('docs.defects', 'Defects and open items'),
+        hint: t('docs.defects.hint', 'Faults, failed tests, open field reports, items still planned (CSV)'),
+        build: () => ({
+          content: csvFromTable(maengelTable(project), stampForRows(project, maengelTable, new Date()), 'maengelliste'),
+          suffix: 'maengelliste',
+          ext: 'csv',
+          mime: 'text/csv',
+        }),
+      },
+      {
+        key: 'wartung',
+        label: t('docs.maintenance', 'Maintenance schedule'),
+        hint: t(
+          'docs.maintenance.hint',
+          'Next due date per device from its interval and the last service or the handover date (CSV)',
+        ),
+        build: () => ({
+          content: csvFromTable(wartungsplanTable(project), stampForRows(project, wartungsplanTable, new Date()), 'wartungsplan'),
+          suffix: 'wartungsplan',
+          ext: 'csv',
+          mime: 'text/csv',
+        }),
+      },
+      {
+        key: 'konfig',
+        label: t('docs.config', 'Configuration settings'),
+        hint: t(
+          'docs.config.hint',
+          'Per device and interface: address, mask, gateway, VLAN, switch port, patch panels in between, web interface (CSV)',
+        ),
+        build: () => ({
+          content: csvFromTable(
+            konfigVorgabenTable(project),
+            stampForRows(project, konfigVorgabenTable, new Date()),
+            'konfig-vorgaben',
+          ),
+          suffix: 'konfig-vorgaben',
+          ext: 'csv',
+          mime: 'text/csv',
+        }),
+      },
+      {
+        key: 'steckbrief',
+        label: t('docs.deviceCards', 'Device cards'),
+        hint: t(
+          'docs.deviceCards.hint',
+          'One card per device: location, identity, network, switcher input, cables, service history (HTML, print to PDF)',
+        ),
+        build: () => ({
+          content: steckbriefHtml(project, {
+            titel: `${project.metadata.name || t('docs.deviceCards', 'Device cards')} — ${t('docs.deviceCards', 'Device cards')}`,
+            stempel: stampLine(stampForRows(project, steckbriefStandTable, new Date())),
+            t,
+          }),
+          suffix: 'steckbrief',
+          ext: 'html',
+          mime: 'text/html',
+        }),
+      },
+      {
+        key: 'bedien',
+        label: t('docs.operatorSheet', 'Operator overview'),
+        hint: t(
+          'docs.operatorSheet.hint',
+          'Which source lies on which switcher input, where the outputs go, contacts, web interfaces (HTML, print to PDF)',
+        ),
+        build: () => ({
+          content: bedienUebersichtHtml(project, {
+            titel: `${project.metadata.name || t('docs.operatorSheet', 'Operator overview')} — ${t('docs.operatorSheet', 'Operator overview')}`,
+            stempel: stampLine(stampForRows(project, bedienUebersichtStandTable, new Date())),
+            t,
+          }),
+          suffix: 'bedien-uebersicht',
+          ext: 'html',
+          mime: 'text/html',
+        }),
+      },
+      {
+        key: 'kamerapos',
+        label: t('docs.cameraPositions', 'Camera positions'),
+        hint: t(
+          'docs.cameraPositions.hint',
+          'Per camera: location, height, aim, optics, switcher input and the PTZ presets from the camera plan (HTML, print to PDF)',
+        ),
+        build: () => ({
+          content: kameraPositionsblattHtml(project, {
+            titel: `${project.metadata.name || t('docs.cameraPositions', 'Camera positions')} — ${t('docs.cameraPositions', 'Camera positions')}`,
+            stempel: stampLine(stampForRows(project, kameraPositionsblattStandTable, new Date())),
+            t,
+          }),
+          suffix: 'kamera-positionen',
+          ext: 'html',
+          mime: 'text/html',
+        }),
+      },
+      {
+        key: 'anhaenge',
+        label: t('docs.attachments', 'Attachment index'),
+        hint: t(
+          'docs.attachments.hint',
+          'Every attachment with kind, target, stored file and SHA-256, plus cables whose test result has no report (CSV)',
+        ),
+        build: () => ({
+          content: csvFromTable(anhaengeTable(project), stampForRows(project, anhaengeTable, new Date()), 'anhaenge'),
+          suffix: 'anhaenge',
+          ext: 'csv',
+          mime: 'text/csv',
+        }),
+      },
+      {
+        key: 'signalwege',
+        label: t('docs.signalPaths', 'Signal paths'),
+        hint: t('docs.signalPaths.hint', 'Every chain from source to target with floor and room at each station (CSV)'),
+        build: () => ({
+          content: csvFromTable(
+            signalwegeTable(project),
+            stampForRows(project, signalwegeTable, new Date()),
+            'signalwege',
+          ),
+          suffix: 'signalwege',
+          ext: 'csv',
+          mime: 'text/csv',
+        }),
+      },
+      {
+        key: 'trassenplan',
+        label: t('docs.routePlan', 'Route plan per floor'),
+        hint: t(
+          'docs.routePlan.hint',
+          'Top view per floor: rooms, riser, the connections between them, and the crossings list (HTML, print to PDF)',
+        ),
+        build: () => ({
+          content: trassenplanHtml(project, {
+            titel: `${project.metadata.name || t('docs.routePlan', 'Route plan per floor')} — ${t('docs.routePlan', 'Route plan per floor')}`,
+            stempel: stampLine(stampForRows(project, trassenplanStandTable, new Date())),
+            t,
+          }),
+          suffix: 'trassenplan',
+          ext: 'html',
+          mime: 'text/html',
+        }),
+      },
+      {
+        key: 'durchgaenge',
+        label: t('docs.crossings', 'Crossings (fire protection)'),
+        hint: t(
+          'docs.crossings.hint',
+          'Every room boundary, riser entry and floor slab a cable passes, with jacket rating and pathway (CSV)',
+        ),
+        build: () => ({
+          content: csvFromTable(
+            durchgaengeTable(project),
+            stampForRows(project, durchgaengeTable, new Date()),
+            'durchgaenge',
+          ),
+          suffix: 'durchgaenge',
+          ext: 'csv',
+          mime: 'text/csv',
+        }),
+      },
+      ...(project.hausAuskunft?.strecken.length
+        ? [
+            {
+              key: 'hausstrecken',
+              label: t('docs.houseRuns', 'House run occupancy'),
+              hint: t('docs.houseRuns.hint', 'Per core of every house run: which cable uses it, which are free (CSV)'),
+              build: () => ({
+                content: csvFromTable(
+                  hausStreckenTable(project),
+                  stampForRows(project, hausStreckenTable, new Date()),
+                  'hausstrecken',
+                ),
+                suffix: 'hausstrecken',
+                ext: 'csv',
+                mime: 'text/csv',
+              }),
+            },
+          ]
+        : []),
     ],
     [project, reserve, t],
   )
@@ -474,6 +684,8 @@ export const InstallationDocsDialog = () => {
         {info && (
           <p className="bg-cp-surface-2 px-2 py-1 text-cp-xs text-cp-text-secondary">{info}</p>
         )}
+
+        <AnhaengeSection />
 
         {/* Feld-Rückkanal — vom Mobile-Companion gemeldete, noch offene Änderungen */}
         <section className="border border-cp-border bg-cp-surface-2/40 p-3">

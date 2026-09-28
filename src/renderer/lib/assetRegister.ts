@@ -6,10 +6,10 @@
  * einen späteren CMMS-Import (Branchen-Praxis: Etikett/QR → Asset-Datensatz).
  */
 import type { CablePlannerProject } from '../types/project'
-import type { EquipmentItem } from '../types/equipment'
 import { INSTALL_STATUS_LABEL } from '../types/lifecycle'
 import { EQUIPMENT_OWNERSHIP_LABEL } from '../types/equipment'
 import { equipmentAssetTag } from './docIds'
+import { standortText } from './equipmentLocation'
 import type { CsvCell, CsvTable } from './csv'
 import { csvFromTable, type DocumentStamp } from './documentStamp'
 
@@ -32,19 +32,6 @@ export interface AssetRow {
   serviceCount: number
 }
 
-/** Standort aus der umschließenden Location (Raum + Etage), wenn vorhanden. */
-const locationOf = (project: CablePlannerProject, eq: EquipmentItem): string => {
-  const loc = (project.locations ?? []).find(
-    (l) =>
-      eq.x >= l.x &&
-      eq.y >= l.y &&
-      eq.x <= l.x + l.width &&
-      eq.y <= l.y + l.height,
-  )
-  if (!loc) return ''
-  return loc.floor ? `${loc.name} (${loc.floor})` : loc.name
-}
-
 export const buildAssetRows = (project: CablePlannerProject): AssetRow[] =>
   project.equipment.map((e) => {
     const history = e.serviceHistory ?? []
@@ -53,7 +40,7 @@ export const buildAssetRows = (project: CablePlannerProject): AssetRow[] =>
       assetTag: equipmentAssetTag(e),
       name: e.name,
       category: e.category ?? '',
-      location: locationOf(project, e),
+      location: standortText(e, project.locations ?? []),
       serial: e.serialNumber ?? '',
       ip: e.ipAddress ?? '',
       firmware: e.firmware ?? '',

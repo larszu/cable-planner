@@ -50,7 +50,7 @@ const port = (name: string, connectorType: Port['connectorType'], type: string):
   connectorType,
 })
 
-const ec = (name: string) => port(name, 'etherCON', 'Ethernet')
+const ec = (name: string) => port(name, 'Ethernet/RJ45', 'Ethernet')
 const rj = (name: string) => port(name, 'Ethernet/RJ45', 'Ethernet')
 const sfp = (name: string) => port(name, 'SFP', 'Ethernet')
 const sfpPlus = (name: string) => port(name, 'SFP+', 'Ethernet')
@@ -144,37 +144,6 @@ export const LUMINEX_CATALOG: LuminexEntry[] = [
 
   // Quelle: https://www.luminex.be/wp-content/uploads/doccenter/gigacore_specifications_rev3-1.pdf
   {
-    match: ['luminexgigacore16xt', 'gigacore16xt'],
-    deviceTypeId: '1c83f5b9-6d27-4a08-be51-97d034e2a6b8',
-    networkKind: 'switch',
-    template: {
-      manufacturerUrl: 'https://www.luminex.be/wp-content/uploads/doccenter/gigacore_specifications_rev3-1.pdf',
-      name: 'Luminex GigaCore 16Xt',
-      category: NET,
-      // Blatt: wie 14R (12 x etherCON, 4 x SFP, Konsole, IEC, zwei
-      // RPSU-Eingaenge).
-      inputs: [
-        iec(),
-        rpsu('RPSU Mains (Molex Micro-Fit 6)'),
-        rpsu('RPSU PoE (Molex Micro-Fit 6)'),
-        port('Console (seriell, RJ45)', 'Ethernet/RJ45', 'Serial'),
-      ],
-      outputs: [
-        ...Array.from({ length: 10 }, (_, i) => ec(`Port ${i + 1} (front)`)),
-        ec('Port 11 (rear)'),
-        ec('Port 12 (rear)'),
-        ...Array.from({ length: 4 }, (_, i) => sfp(`SFP ${i + 1}`)),
-      ],
-      isRackDevice: true,
-      rackUnits: 1,
-      notes: '32 Gbit/s · PoE 802.3af optional, bis 160 W auf die zehn Frontports · zwei Lüfter',
-      width: 260,
-      height: 400,
-    },
-  },
-
-  // Quelle: https://www.luminex.be/wp-content/uploads/doccenter/gigacore_specifications_rev3-1.pdf
-  {
     match: ['luminexgigacore16rfo', 'gigacore16rfo'],
     deviceTypeId: 'f4917e35-2b68-4c1d-a073-5e8c62b940df',
     networkKind: 'switch',
@@ -191,7 +160,7 @@ export const LUMINEX_CATALOG: LuminexEntry[] = [
       // TRUE1 In UND Out. Das ist der Unterschied zwischen „ein Kabel je
       // Geraet" und „eine Kette".
       inputs: [
-        port('powerCON TRUE1 In', 'powerCON TRUE1', 'Power'),
+        port('powerCON TRUE1 In', 'Custom', 'Power'),
         port('Console (seriell, RJ45)', 'Ethernet/RJ45', 'Serial'),
       ],
       outputs: [
@@ -205,7 +174,7 @@ export const LUMINEX_CATALOG: LuminexEntry[] = [
         // anderes Fabrikat.
         ...Array.from({ length: 4 }, (_, i) => port(`Fibre Slot ${i + 1} (front, D-Typ)`, 'Fiber', 'Fiber')),
         ...Array.from({ length: 4 }, (_, i) => port(`Fibre Slot ${i + 5} (rear, D-Typ)`, 'Fiber', 'Fiber')),
-        port('powerCON TRUE1 Out', 'powerCON TRUE1', 'Power'),
+        port('powerCON TRUE1 Out', 'Custom', 'Power'),
       ],
       isRackDevice: true,
       rackUnits: 1,

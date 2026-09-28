@@ -56,6 +56,12 @@ export const STORAGE_KEYS = {
   rentmanTemplateCacheV1: 'cable-planner:rentmanTemplateCache:v1',
   /** NetBox device-type-library Index-Cache. */
   netboxIndexV1: 'cable-planner:netbox:index:v1',
+  /** Geraetebibliothek — abgeglichener Stand samt `latestSeq` (nichts Geheimes). */
+  deviceLibraryCache: 'cable-planner:deviceLibrary:cache:v1',
+  /** Geraetebibliothek — Token NUR im Web-Build; der Desktop nutzt den Schluesselbund. */
+  /** Geraetebibliothek — was von den eigenen Vorlagen hochgeladen ist (Fingerabdruck, Zustand, Namen). */
+  deviceLibraryUploads: 'cable-planner:deviceLibrary:uploads:v1',
+  deviceLibraryWebToken: 'cable-planner:web:deviceLibraryToken',
   /** GreenGo Intercom-Preset-Library. */
   greengoPresets: 'cable-planner:greengoPresets',
   /** Gemini-API-Key (User-supplied, kein .env-Eintrag). */

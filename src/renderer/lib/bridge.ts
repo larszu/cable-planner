@@ -1,8 +1,12 @@
 import type { CablePlannerProject } from '../types/project'
 import type { NetboxRack, NetboxSite, NetboxSnapshot } from '../types/netbox'
 import type { AttachResult, ReceiptContent } from '../types/receipt'
+import type { AnhangErgebnis } from '../types/anhang'
 import type { LauscherZustand, OscEmpfang, OscLauscherConfig } from '../types/showControl'
 import { downloadBlob } from './downloadBlob'
+import { createWebDeviceLibraryApi } from './deviceLibraryWeb'
+import { createWebCloudApi, type CloudBridge } from './cloudWeb'
+import type { DeviceLibraryApi } from '../types/deviceLibrary'
 
 /**
  * BEDARF 133 — was die Freigabe anbietet, und was sie zurueckhaelt.
@@ -231,6 +235,16 @@ type CablePlannerApi = {
     pick: (projectPath?: string) => Promise<{ canceled: boolean; results: AttachResult[] }>
     attach: (projectPath: string | undefined, sourcePath: string) => Promise<AttachResult>
     read: (projectPath: string | undefined, storedAs: string) => Promise<ReceiptContent>
+    reveal: (projectPath: string | undefined, storedAs: string) => Promise<boolean>
+  }
+  /**
+   * Anhänge neben dem Projekt. Im Browser gibt es keinen Ort dafür; der
+   * Fallback lehnt benannt ab und meldet jede Datei als nicht vorhanden,
+   * statt eine Ablage vorzutäuschen.
+   */
+  attachment: {
+    pick: (projectPath?: string) => Promise<{ canceled: boolean; results: AnhangErgebnis[] }>
+    present: (projectPath: string | undefined, storedAs: string[]) => Promise<Record<string, boolean>>
     reveal: (projectPath: string | undefined, storedAs: string) => Promise<boolean>
   }
   /**
@@ -470,6 +484,10 @@ type CablePlannerApi = {
     }) => Promise<{ fileName: string; fileVersion: number; modifiedAt: string }>
     deleteItem: (params: { kind: 'device' | 'group'; name: string }) => Promise<boolean>
   }
+  /** Geraetebibliothek. Desktop: Abruf und Token im Main-Prozess; Web: direkt, Token in localStorage. */
+  deviceLibrary: DeviceLibraryApi
+  /** #871/#870 — Cloud-Projekte mit dem Konto der Geraetebibliothek. Typisiert in `lib/cloud.ts`. */
+  cloud: CloudBridge
   /** #872 — der lokale MCP-Server. Nur lesend, aus als Vorgabe. */
   mcp: {
     start: () => Promise<McpStatus & { token: string }>
@@ -933,6 +951,11 @@ const webFallbackApi: CablePlannerApi = {
     read: async () => ({ ok: false as const, reason: 'no-project-path' as const }),
     reveal: async () => false,
   },
+  attachment: {
+    pick: async () => ({ canceled: false, results: [{ ok: false as const, reason: 'no-project-path' as const }] }),
+    present: async (_p: string | undefined, storedAs: string[]) => Object.fromEntries(storedAs.map((s) => [s, false])),
+    reveal: async () => false,
+  },
   documentLog: (() => {
     // Sitzungs-Register: im Browser gibt es kein userData-Verzeichnis. Es
     // verhaelt sich sonst gleich, damit die Oberflaeche nicht zwei Faelle
@@ -1176,6 +1199,8 @@ const webFallbackApi: CablePlannerApi = {
     }),
     deleteItem: async () => false,
   },
+  deviceLibrary: createWebDeviceLibraryApi(),
+  cloud: createWebCloudApi(),
   mcp: {
     // Im Browser gibt es keinen lokalen Server — und keine Behauptung, es
     // gaebe einen.

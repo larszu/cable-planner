@@ -4,6 +4,7 @@ import {
   PATCH_PANEL_CATEGORY,
   categoryIsPatchPanel,
   isPatchPanelDevice,
+  plattenDurchleitung,
 } from '../../../lib/patchPanel'
 import { ColorField } from '../../shared/ColorField'
 import { SortableSection } from '../SortableSection'
@@ -25,6 +26,9 @@ export const DisplayFlagsSection = ({ equipment }: { equipment: EquipmentItem })
   // Haekchen gesetzt UND gesperrt, statt eine zweite, widersprechbare
   // Wahrheit anzubieten.
   const ausKategorie = categoryIsPatchPanel(equipment.category)
+  // #913 — eine Wanddose/Blende/Stagebox leitet ihrer Art nach durch. Das
+  // Haekchen ist dann gesetzt, laesst sich aber ausdruecklich abwaehlen.
+  const ausPlatte = plattenDurchleitung(equipment)
 
   return (
     <SortableSection id="flags" title={t('flags.title', 'Display & flags')} subtitle={t('flags.subtitle', 'compact · colour · packed')}>
@@ -94,6 +98,11 @@ export const DisplayFlagsSection = ({ equipment }: { equipment: EquipmentItem })
                   'flags.patchPanelByCategory',
                   `Die Kategorie „${PATCH_PANEL_CATEGORY}" weist dieses Gerät bereits als Patchfeld aus.`,
                 )
+              : ausPlatte
+              ? t(
+                  'flags.patchPanelByPlate',
+                  'This faceplate passes signals through position by position (rear socket n to front socket n), so the signal path follows it. Untick it if it does not — for example a stagebox with a converter inside.',
+                )
               : t(
                   'flags.patchPanelTitle',
                   'Patch panel: rear socket n lands on front socket n. The signal path and the patch list follow that through-path instead of stopping at the panel. Requires an equal number of inputs and outputs.',
@@ -106,7 +115,13 @@ export const DisplayFlagsSection = ({ equipment }: { equipment: EquipmentItem })
             disabled={ausKategorie}
             onChange={(event) =>
               updateEquipment(equipment.id, {
-                isPatchPanel: event.target.checked || undefined,
+                // Bei einer Platte ist „an" die Vorgabe; gespeichert wird nur
+                // das ausdrueckliche Nein.
+                isPatchPanel: ausPlatte
+                  ? event.target.checked
+                    ? undefined
+                    : false
+                  : event.target.checked || undefined,
               })
             }
           />

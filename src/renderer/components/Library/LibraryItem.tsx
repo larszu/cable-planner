@@ -1,5 +1,5 @@
 import type { EquipmentTemplate } from '../../types/equipment'
-import { Star, Link, Eye, EyeOff, Download } from 'lucide-react'
+import { Star, Link, Eye, EyeOff, Download, Pencil } from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import { Tooltip } from '../shared/Tooltip'
 import { useProjectStore } from '../../store/projectStore'
@@ -15,6 +15,10 @@ interface LibraryItemProps {
   onToggleFavorite?: () => void
   onToggleHidden?: () => void
   onExport?: () => void
+  /** #901 — Bearbeiten sitzt in derselben Aktionszeile wie die uebrigen
+   *  Knoepfe. Vorher lag es absolut positioniert (`right-7`) UEBER dieser
+   *  Zeile und verdeckte Favorit/Ausblenden/Export. */
+  onEdit?: () => void
   /** v7.9.106 / Issue #227 — Rentman-Item ohne Ports + gleichnamiges
    *  lokales Item mit Ports → Aktion zum Verknuepfen/Sync. Wenn gesetzt
    *  erscheint ein 🔗-Button rechts. */
@@ -30,6 +34,7 @@ export const LibraryItem = ({
   onToggleFavorite,
   onToggleHidden,
   onExport,
+  onEdit,
   onLinkPorts,
   linkTargetName,
 }: LibraryItemProps) => {
@@ -69,32 +74,6 @@ export const LibraryItem = ({
     : isFromOtherRentman
       ? 'border-l-2 border-l-slate-500'
       : 'border-l-2 border-l-sky-700/60'
-
-  /**
-   * ISSUE #901 — „die Buttons ‚als favorit markieren' etc. ueberlagern sich
-   * unschoen."
-   *
-   * DER GRUND WAR NICHT DIE GROESSE, SONDERN DAS FEHLENDE `shrink-0`. Die
-   * Aktionszeile ist ein `flex`-Kind neben dem Namen, und der Name traegt
-   * `flex-1`. Ohne `shrink-0` darf die Zeile unter ihre Inhaltsbreite
-   * schrumpfen — in der schmalen Bibliotheks-Leiste tut sie das auch, und bei
-   * fuenf Knoepfen (Favorit, Verbergen, Exportieren, Verknuepfen, Entfernen)
-   * plus `gap-0.5` schoben sich die Symbole uebereinander.
-   *
-   * Drei Dinge zusammen loesen es, und jedes einzeln waere zu wenig:
-   *   `shrink-0`   an der Zeile — sie behaelt ihre Breite, der Name kuerzt
-   *                stattdessen (er hat `truncate` und `min-w-0`, kann es also).
-   *   `flex-wrap`  als Rueckfall — reicht die Breite wirklich nicht, bricht die
-   *                Zeile um, statt zu stauchen. Umbrechen ist lesbar,
-   *                Stauchen nicht.
-   *   `shrink-0` + feste Trefferflaeche am Knopf selbst — ein `px-1` allein
-   *                laesst das Symbol aus seiner Flaeche laufen, sobald der
-   *                Kasten schmaler wird als das Symbol.
-   *
-   * Keine Rundung, kein Schatten: `form:check` setzt das durch, und die
-   * Marke sieht es so vor.
-   */
-  const AKTION = 'inline-flex h-5 min-w-5 shrink-0 items-center justify-center px-1 text-cp-xs'
 
   return (
     <div
@@ -183,7 +162,9 @@ export const LibraryItem = ({
           )}
         </div>
       </div>
-      <div className="flex shrink-0 flex-wrap items-start justify-end gap-1 cp-hover-actions">
+      {/* #901 — `shrink-0`: der Name daneben traegt `flex-1` und `truncate`
+          und soll kuerzen, nicht die Knoepfe stauchen. */}
+      <div className="flex shrink-0 gap-0.5 cp-hover-actions">
         {onToggleFavorite && (
           <Tooltip
             label={
@@ -198,7 +179,7 @@ export const LibraryItem = ({
                 event.stopPropagation()
                 onToggleFavorite()
               }}
-              className={`${AKTION} ${
+              className={` px-1 text-cp-xs ${
                 item.favorite
                   ? 'bg-amber-700 text-amber-100 hover:bg-amber-600'
                   : 'bg-cp-surface-4 text-cp-text-secondary hover:bg-cp-surface-5'
@@ -227,7 +208,7 @@ export const LibraryItem = ({
                 event.stopPropagation()
                 onToggleHidden()
               }}
-              className={`${AKTION} ${
+              className={` px-1 text-cp-xs ${
                 item.hidden
                   ? 'bg-cp-surface-5 text-cp-text-bright hover:bg-slate-500'
                   : 'bg-cp-surface-4 text-cp-text-secondary hover:bg-cp-surface-5'
@@ -255,10 +236,25 @@ export const LibraryItem = ({
                 event.stopPropagation()
                 onExport()
               }}
-              className={`${AKTION} bg-cp-surface-4 text-cp-text-secondary hover:bg-cp-surface-5`}
+              className="bg-cp-surface-4 px-1 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-5"
               aria-label={t('library.item.exportAria', 'Export')}
             >
               <Icon icon={Download} size="xs" />
+            </button>
+          </Tooltip>
+        )}
+        {onEdit && (
+          <Tooltip label={t('library.template.editTitle', 'Edit template (name, category)')}>
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation()
+                onEdit()
+              }}
+              className="bg-cp-surface-4 px-1 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-5"
+              aria-label={t('library.template.editTitle', 'Edit template (name, category)')}
+            >
+              <Icon icon={Pencil} size="xs" />
             </button>
           </Tooltip>
         )}
@@ -285,7 +281,7 @@ export const LibraryItem = ({
                 event.stopPropagation()
                 onLinkPorts()
               }}
-              className={`${AKTION} bg-emerald-700 text-emerald-100 hover:bg-emerald-600`}
+              className="bg-emerald-700 px-1 text-cp-xs text-emerald-100 hover:bg-emerald-600"
               aria-label={t('library.item.linkAria', 'Link')}
             >
               <Icon icon={Link} size="xs" />
@@ -300,7 +296,7 @@ export const LibraryItem = ({
                 event.stopPropagation()
                 onRemove()
               }}
-              className={`${AKTION} bg-red-700 hover:bg-red-600`}
+              className="bg-red-700 px-1 text-cp-xs hover:bg-red-600"
               aria-label={t('library.item.removeTitle', 'Remove from library')}
             >
               ×

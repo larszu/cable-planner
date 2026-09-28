@@ -11,6 +11,7 @@ import { detectLayerForConnector } from '../../lib/cableLayers'
 import { cablesEndingAt, targetKey } from '../../lib/portOccupancy'
 import { computeCableNumbers, nextCableNumber } from '../../lib/cableNumbering'
 import { estimateAllCableLengths, DEFAULT_LENGTH_ESTIMATION } from '../../lib/cableLengthEstimate'
+import { laengenKontext } from '../../lib/laengenKontext'
 import { isProjectLocked, touchProject } from '../projectStoreHelpers'
 import { planeEinfuegen } from '../../lib/adapterEinfuegen'
 import type { AdapterSpec } from '../../types/adapter'
@@ -348,6 +349,7 @@ export const createCableSlice: StateCreator<ProjectState, [], [], CableSlice> = 
       state.project.cables,
       state.project.equipment,
       scheme,
+      laengenKontext(state.project),
     )
     if (updates.size === 0) return 0
     set((s) => ({

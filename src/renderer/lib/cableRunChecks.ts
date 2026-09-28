@@ -36,7 +36,11 @@
 import type { Cable } from '../types/cable'
 import type { EquipmentItem } from '../types/equipment'
 import { cableCatalog, type CableSpec } from '../types/cableSpec'
-import { centerOf } from './cableLengthEstimate'
+import {
+  estimateCableLength,
+  massstabSchluessel,
+  type LaengenKontext,
+} from './cableLengthEstimate'
 import type { CsvCell, CsvTable } from './csv'
 
 /**
@@ -109,7 +113,11 @@ const labelOf = (c: Cable): string => c.name || c.id
  * Sortiert nach Kabelbezeichnung, damit dieselbe Liste zweimal dieselbe Datei
  * ergibt — sie wandert als CSV.
  */
-export const cableRunFindings = (cables: Cable[], equipment: EquipmentItem[]): RunFinding[] => {
+export const cableRunFindings = (
+  cables: Cable[],
+  equipment: EquipmentItem[],
+  ctx: LaengenKontext = {},
+): RunFinding[] => {
   const eqById = new Map(equipment.map((e) => [e.id, e]))
   const out: RunFinding[] = []
 
@@ -157,14 +165,27 @@ export const cableRunFindings = (cables: Cable[], equipment: EquipmentItem[]): R
       Math.hypot(from.x - herkunft.fromX, from.y - herkunft.fromY),
       Math.hypot(to.x - herkunft.toX, to.y - herkunft.toY),
     )
-    if (versatz <= MOVE_TOLERANCE_PX) continue
+    // Ein neu gerouteter Weg oder ein neu kalibrierter Plan aendert die
+    // Zahl ebenso. Fehlt der Schluessel (Schaetzung aus v9.0 oder frueher),
+    // gibt es nichts zu vergleichen.
+    const jetztWeg = c.waypoints ?? []
+    const wegGeaendert =
+      herkunft.weg !== undefined &&
+      (herkunft.weg.length !== jetztWeg.length ||
+        herkunft.weg.some((p, i) => Math.hypot(p.x - jetztWeg[i].x, p.y - jetztWeg[i].y) > MOVE_TOLERANCE_PX))
+    const massstabGeaendert =
+      herkunft.massstabSchluessel !== massstabSchluessel(ctx.grundriss?.kalibrierung) &&
+      (herkunft.massstabSchluessel !== undefined || ctx.grundriss?.kalibrierung !== undefined)
+    if (versatz <= MOVE_TOLERANCE_PX && !wegGeaendert && !massstabGeaendert) continue
 
-    // Was die Schaetzung HEUTE ergaebe, mit dem Massstab von damals: sonst
+    // Was die Schaetzung HEUTE ergaebe, mit dem Zuschlag von damals: sonst
     // vermischte die Meldung zwei Aenderungen und benennt keine.
-    const a = centerOf(from)
-    const b = centerOf(to)
-    const px = Math.hypot(b.x - a.x, b.y - a.y)
-    const jetzt = (px / 100) * herkunft.metersPer100px * (1 + herkunft.slackPercent / 100)
+    const jetzt = estimateCableLength(
+      c,
+      eqById,
+      { metersPer100px: herkunft.metersPer100px, slackPercent: herkunft.slackPercent, roundUp: true },
+      ctx,
+    )
 
     out.push({
       kind: 'derived-length-stale',
@@ -172,7 +193,7 @@ export const cableRunFindings = (cables: Cable[], equipment: EquipmentItem[]): R
       cableLabel: labelOf(c),
       values: [
         String(c.length ?? ''),
-        String(Math.max(1, Math.ceil(jetzt))),
+        jetzt == null ? '?' : String(jetzt),
         String(Math.round(versatz)),
       ],
       ...(dienste ? { services: dienste } : {}),

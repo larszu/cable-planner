@@ -9,6 +9,9 @@ import { create } from 'zustand'
 import { startCollaboration, type CollabMode, type CollabSession } from '../lib/crdt/collab'
 import { colorForId, type PresencePeer } from '../lib/crdt/presence'
 import { parseIceServers } from '../lib/crdt/iceServers'
+import { turnFromAccount as turnFor } from '../lib/cloud'
+import { effectiveServer } from '../lib/deviceLibraryUrl'
+import { useSettingsStore } from './settingsStore'
 import { cablePlannerApi, hasDesktopBridge, type DiscoveredCollabSession } from '../lib/bridge'
 import { useUiStore } from './uiStore'
 import { useProjectStore } from './projectStore'
@@ -47,6 +50,20 @@ const COLLAB_KEY = 'cable-planner.collab'
  *  Liste) — so funktioniert auch der manuelle „gleicher Raumname"-Workflow ohne
  *  Discovery weiter, während im LAN der lokale Server gewinnt. */
 const PUBLIC_SIGNALING_FALLBACK = 'wss://y-webrtc-eu.fly.dev'
+
+/** #869 — der eigene Relay (Lars Zumpe Medienproduktion, `deploy/relay/`).
+ *  Vorgabe, solange niemand einen eigenen eintraegt und „Nur lokal" aus ist.
+ *  Er sieht nur Signaling-Metadaten, nie den Plan. Der oeffentliche Server
+ *  bleibt als Reserve dahinter, y-webrtc nutzt alle zugleich. */
+export const DEFAULT_RELAY = 'wss://relay.zumpelars.de'
+
+/** Welche Signaling-Server gelten — ohne eigenen Eintrag der Vorgabe-Relay. */
+export const signalingFor = (manual: string, localOnly: boolean, lanServer?: string): string[] => {
+  if (localOnly) return lanServer ? [lanServer] : []
+  const list = manual.split(/[\s,]+/).map((s) => s.trim()).filter(Boolean)
+  if (list.length > 0) return list
+  return [...(lanServer ? [lanServer] : []), DEFAULT_RELAY, PUBLIC_SIGNALING_FALLBACK]
+}
 
 const defaults: PersistedCollab = { mode: 'broadcast', room: 'cable-planner', name: '', signaling: '', password: '', localOnly: false, iceServers: '' }
 
@@ -216,26 +233,22 @@ export const useCollabStore = create<CollabState>((set, get) => ({
     const self = { id: selfId, name: effectiveName(name), color: colorForId(selfId) }
     // „Nur lokal": jeden manuell gesetzten Remote-Relay ignorieren — es zählt
     // ausschließlich der lokale LAN-Server (unten gestartet).
-    let signalingList = localOnly
-      ? []
-      : signaling
-          .split(/[\s,]+/)
-          .map((s) => s.trim())
-          .filter(Boolean)
+    const manual = signaling.split(/[\s,]+/).map((s) => s.trim()).filter(Boolean)
+    let signalingList = signalingFor(signaling, localOnly)
     // #413 — Host ohne eigenen Signaling-Server: lokalen LAN-Server starten und
     // dessen Adresse bewerben, damit Beitretende sich OHNE den (oft toten)
     // öffentlichen y-webrtc-Default-Server finden. Beim Beitreten (adopt)
     // NICHT — dort kommt die Signaling-Adresse des Hosts aus der mDNS-Discovery.
     let localSignaling = false
-    if (mode === 'webrtc' && !adopt && signalingList.length === 0 && hasDesktopBridge) {
+    if (mode === 'webrtc' && !adopt && manual.length === 0 && hasDesktopBridge) {
       try {
         const { url } = await cablePlannerApi.signaling.start()
-        // Lokaler Server zuerst (LAN); öffentlicher Default nur als Reserve,
-        // wenn NICHT „nur lokal" gewählt ist.
-        signalingList = localOnly ? [url] : [url, PUBLIC_SIGNALING_FALLBACK]
+        // Lokaler Server zuerst (LAN); Vorgabe-Relay und öffentlicher Default
+        // nur, wenn NICHT „nur lokal" gewählt ist.
+        signalingList = signalingFor(signaling, localOnly, url)
         localSignaling = true
       } catch {
-        /* Kein lokaler Server möglich → öffentlicher y-webrtc-Default greift. */
+        /* Kein lokaler Server möglich → Vorgabe-Relay und öffentliche Reserve. */
       }
     }
 
@@ -244,7 +257,11 @@ export const useCollabStore = create<CollabState>((set, get) => ({
     // weder in den Einladungslink noch in die mDNS-Ankündigung (siehe
     // `lib/crdt/iceServers.ts`): ein Einladungslink wird in einen Chat
     // gepastet, und ein TURN-Passwort, das dort mitfährt, ist veröffentlicht.
-    const ice = parseIceServers(iceServers)
+    let ice = parseIceServers(iceServers)
+    // #869 — kein eigener STUN/TURN eingetragen: mit Konto der
+    // Geraetebibliothek kurzlebige Zugangsdaten fuer den eigenen coturn
+    // holen. Ohne Konto oder ohne Netz bleibt es bei den y-webrtc-Defaults.
+    if (mode === 'webrtc' && ice.length === 0 && !localOnly) ice = await turnFor(effectiveServer(useSettingsStore.getState().deviceLibraryUrl))
     // Nur ein WebRTC-Options-Objekt bauen, wenn es etwas zu setzen gibt
     // (Signaling, Passwort und/oder ICE-Server). Das Passwort verschlüsselt den
     // Raum E2E — nur Peers mit demselben Passwort können das Projekt lesen.

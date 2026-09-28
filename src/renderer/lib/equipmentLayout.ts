@@ -7,6 +7,7 @@
 // so the overlay's stub-width left the pending line starting at the
 // "middle" of wide devices instead of at the actual handle.
 
+import { optikKurz } from './kameraOptik'
 import type { EquipmentItem, Port } from '../types/equipment'
 import type { IntercomPlan } from '../types/intercomPlan'
 import { findIntercomStationForEquipment } from './greengoSync'
@@ -74,6 +75,10 @@ export const computeEquipmentLayout = (
   const greengoUser = findIntercomStationForEquipment(eq.id, intercom)
   const EXTRA_HEADER_LINE = GRID_SIZE
   const beltpackLine = greengoUser ? EXTRA_HEADER_LINE : 0
+  // #910 — die Optik-Zeile einer MultiCam-Kamera, wie im Knoten. Fehlte sie
+  // hier, lagen Kabel-Routing und Hindernisse eine Rasterzeile neben den
+  // echten Anschluessen.
+  const optikLine = optikKurz(eq.optik) ? EXTRA_HEADER_LINE : 0
   const headerHeight =
     (eq.ipAddress
       ? eq.subtitle
@@ -81,7 +86,7 @@ export const computeEquipmentLayout = (
         : HEADER_HEIGHT_WITH_IP
       : eq.subtitle
         ? HEADER_HEIGHT + EXTRA_HEADER_LINE
-        : HEADER_HEIGHT) + beltpackLine
+        : HEADER_HEIGHT) + beltpackLine + optikLine
 
   // Side bucketing — identical to EquipmentNode.
   const inputPlacement = new Map<string, { side: PortSide; slot: number }>()

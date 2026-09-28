@@ -81,6 +81,28 @@ contextBridge.exposeInMainWorld('cablePlanner', {
     fetchSnapshot: (baseUrl: string, scope: 'site' | 'rack', scopeId: number) =>
       ipcRenderer.invoke('netbox:fetch-snapshot', baseUrl, scope, scopeId) as Promise<unknown>,
   },
+  // Geraetebibliothek. Wie `netbox`: URL je Aufruf, Token bleibt in main.
+  // Die Antworttypen stehen in `src/renderer/lib/bridge.ts`.
+  deviceLibrary: {
+    hasToken: () => ipcRenderer.invoke('deviceLibrary:has-token') as Promise<boolean>,
+    signIn: (server: string, login: string, password: string) =>
+      ipcRenderer.invoke('deviceLibrary:sign-in', server, login, password) as Promise<unknown>,
+    verifySecondFactor: (server: string, challenge: string, code: string) =>
+      ipcRenderer.invoke('deviceLibrary:verify-second-factor', server, challenge, code) as Promise<unknown>,
+    currentUser: (server: string) => ipcRenderer.invoke('deviceLibrary:current-user', server) as Promise<unknown>,
+    signOut: (server: string) => ipcRenderer.invoke('deviceLibrary:sign-out', server) as Promise<void>,
+    sync: (server: string, after: number) =>
+      ipcRenderer.invoke('deviceLibrary:sync', server, after) as Promise<unknown>,
+    propose: (server: string, core: Record<string, unknown>, facet: Record<string, unknown>) =>
+      ipcRenderer.invoke('deviceLibrary:propose', server, core, facet) as Promise<unknown>,
+    upload: (server: string, items: unknown[]) =>
+      ipcRenderer.invoke('deviceLibrary:upload', server, items) as Promise<unknown>,
+  },
+  // Cloud-Projekte (#871/#870): eine Operation aus fester Liste (cloudService).
+  cloud: {
+    call: (server: string, op: string, args: unknown[]) =>
+      ipcRenderer.invoke('cloud:call', server, op, args) as Promise<unknown>,
+  },
   graphml: {
     openFile: () =>
       ipcRenderer.invoke('graphml:open-file') as Promise<{
@@ -263,6 +285,16 @@ contextBridge.exposeInMainWorld('cablePlanner', {
       ipcRenderer.invoke('receipt:read', projectPath, storedAs) as Promise<unknown>,
     reveal: (projectPath: string | undefined, storedAs: string) =>
       ipcRenderer.invoke('receipt:reveal', projectPath, storedAs) as Promise<boolean>,
+  },
+  // Anhänge neben dem Projekt (Messprotokolle, Herstellerunterlagen,
+  // Konfig-Sicherungen). Nur Zeichenketten hin; kein Kanal oeffnet eine Datei.
+  attachment: {
+    pick: (projectPath?: string) =>
+      ipcRenderer.invoke('attachment:pick', projectPath) as Promise<unknown>,
+    present: (projectPath: string | undefined, storedAs: string[]) =>
+      ipcRenderer.invoke('attachment:present', projectPath, storedAs) as Promise<unknown>,
+    reveal: (projectPath: string | undefined, storedAs: string) =>
+      ipcRenderer.invoke('attachment:reveal', projectPath, storedAs) as Promise<boolean>,
   },
   /**
    * E-23 — der eingehende OSC-Lauscher.

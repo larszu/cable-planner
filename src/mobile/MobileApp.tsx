@@ -1837,6 +1837,13 @@ const ProjectView = ({
                 'mobile.readonly.banner',
                 'Read only · ticks stay on this device and do not reach the plan · the person ' +
                   'at the computer changes the plan',
+              )}{' '}
+              {/* #906 — nicht nur sagen, DASS man nicht darf, sondern wie man
+                  dahin kommt. Der Schalter sitzt am Rechner, nicht hier. */}
+              {t(
+                'mobile.readonly.how',
+                'To send reports, photos, cables or new devices from here: at the computer, open ' +
+                  'Phone access, set "Contribute" and scan the QR code again.',
               )}
             </span>
           </div>
@@ -2783,7 +2790,7 @@ const AddCableModal = ({
 // ändern (das darf nur der Planer), meldet er es: POST /pending-changes →
 // Review-Queue am Desktop. Beim Übernehmen mergt der Planer den Patch und
 // es wird ins Änderungsprotokoll geschrieben.
-type ReportKind = 'cable-edit' | 'issue' | 'note'
+type ReportKind = 'cable-edit' | 'issue' | 'note' | 'new-device'
 const REPORTER_KEY = 'cable-planner-mobile:reporter'
 
 const MobileReportModal = ({
@@ -2798,6 +2805,10 @@ const MobileReportModal = ({
   const [cableId, setCableId] = useState('')
   const [lengthVal, setLengthVal] = useState('')
   const [note, setNote] = useState('')
+  // #906 — ein Geraet, das im Plan fehlt: Name, Raum, vermutete Verbindung.
+  const [neuName, setNeuName] = useState('')
+  const [neuRaum, setNeuRaum] = useState('')
+  const [neuVerbindung, setNeuVerbindung] = useState('')
   const [reporter, setReporter] = useState(() => {
     try {
       return localStorage.getItem(REPORTER_KEY) ?? ''
@@ -2822,7 +2833,11 @@ const MobileReportModal = ({
 
   const canSubmit =
     !busy &&
-    (kind === 'cable-edit' ? !!cableId && (!!lengthVal || !!note.trim()) : !!note.trim())
+    (kind === 'cable-edit'
+      ? !!cableId && (!!lengthVal || !!note.trim())
+      : kind === 'new-device'
+        ? !!neuName.trim()
+        : !!note.trim())
 
   const submit = async () => {
     if (!canSubmit) return
@@ -2844,6 +2859,16 @@ const MobileReportModal = ({
         }
         if (note.trim()) parts.push(note.trim())
         summary = parts.join(' · ') || t('mobile.report.cableEdit', 'Cable correction')
+      } else if (kind === 'new-device') {
+        // Kein Ziel: das Geraet gibt es im Plan noch nicht. Es entsteht erst,
+        // wenn der Planer die Meldung annimmt.
+        summary = format(t('mobile.report.newDeviceSummary', 'New device: {name}'), { name: neuName.trim() })
+        patch = {
+          name: neuName.trim(),
+          ...(neuRaum.trim() ? { raum: neuRaum.trim() } : {}),
+          ...(neuVerbindung.trim() ? { verbindung: neuVerbindung.trim() } : {}),
+          ...(note.trim() ? { notiz: note.trim() } : {}),
+        }
       } else {
         const dev = project.equipment.find((e) => e.id === deviceId)
         if (dev) target = { type: 'equipment', id: dev.id, name: dev.name }
@@ -2929,12 +2954,13 @@ const MobileReportModal = ({
                 )}
               </p>
 
-              <div className="grid grid-cols-3 gap-1 bg-cp-bg p-0.5">
+              <div className="grid grid-cols-2 gap-1 bg-cp-bg p-0.5">
                 {(
                   [
                     ['cable-edit', t('mobile.report.cableEdit', 'Cable correction')],
                     ['issue', t('mobile.report.kindIssue', 'Problem')],
                     ['note', t('mobile.report.kindNote', 'Note')],
+                    ['new-device', t('mobile.report.kindNewDevice', 'New device')],
                   ] as const
                 ).map(([k, label]) => (
                   <button
@@ -2950,6 +2976,42 @@ const MobileReportModal = ({
                 ))}
               </div>
 
+              {kind === 'new-device' && (
+                <>
+                  <label className="block">
+                    <span className="mb-1 block text-cp-text-secondary">
+                      {t('mobile.report.newDeviceName', 'Device (not in the plan yet)')}
+                    </span>
+                    <input
+                      value={neuName}
+                      onChange={(e) => setNeuName(e.target.value)}
+                      placeholder={t('mobile.report.newDeviceNamePlaceholder', 'e.g. Projector ceiling front')}
+                      className="w-full border border-cp-border bg-cp-bg px-2 py-2 text-cp-text"
+                    />
+                  </label>
+                  <label className="block">
+                    <span className="mb-1 block text-cp-text-secondary">{t('mobile.report.room', 'Room')}</span>
+                    <input
+                      value={neuRaum}
+                      onChange={(e) => setNeuRaum(e.target.value)}
+                      className="w-full border border-cp-border bg-cp-bg px-2 py-2 text-cp-text"
+                    />
+                  </label>
+                  <label className="block">
+                    <span className="mb-1 block text-cp-text-secondary">
+                      {t('mobile.report.connection', 'Connected to (assumed)')}
+                    </span>
+                    <input
+                      value={neuVerbindung}
+                      onChange={(e) => setNeuVerbindung(e.target.value)}
+                      placeholder={t('mobile.report.connectionPlaceholder', 'e.g. lectern, HDMI at the back?')}
+                      className="w-full border border-cp-border bg-cp-bg px-2 py-2 text-cp-text"
+                    />
+                  </label>
+                </>
+              )}
+
+              {kind !== 'new-device' && (
               <label className="block">
                 <span className="mb-1 block text-cp-text-secondary">
                   {t('mobile.device.context', 'Device (context)')}
@@ -2970,6 +3032,7 @@ const MobileReportModal = ({
                   ))}
                 </select>
               </label>
+              )}
 
               {kind === 'cable-edit' && (
                 <>

@@ -24,28 +24,23 @@ const stand = (id: string) => katalogLuecken().proBereich.find((b) => b.id === i
 describe('#878 — Katalog-Luecken in den Zielbereichen', () => {
   it('1. die Beobachtung aus dem Issue, gegengerechnet', () => {
     const b = katalogLuecken()
-    // „knapp 1.000 Eintraege" — es waren 469 (467 am 2026-09-19, +2 LED-
-    // Prozessoren am 2026-09-23). Die Zahl im Issue war geschaetzt; diese ist
-    // gezaehlt, und sie ist die, gegen die geplant wird.
-    //
-    // 2026-09-24: 1802. Die Schaetzung des Issues ist damit UEBERHOLT, und
-    // zwar nicht durch Recherche, sondern durch die Uebernahme aus den
-    // Schwester-Planern — 365 Kamerabodies, 835 Objektive, 49 Rigs, 84
-    // Lichtgeraete, alle mit `portsUnknown`. Der Unterschied zaehlt: die 469
-    // von vorher waren Eintraege MIT Portliste. Wer gegen 1802 plant, darf
-    // die beiden Sorten nicht verwechseln — `belegt` je Bereich sagt, wie
-    // viele ein Datenblatt haben, und der Plan-Check zeigt am Geraet, ob die
-    // Anschluesse noch fehlen.
-    expect(b.eintraegeGesamt).toBe(1834)
+    // „knapp 1.000 Eintraege" — es sind 469 (467 am 2026-09-19, +2 LED-
+    // Prozessoren am 2026-09-23). Die Zahl im Issue war geschaetzt;
+    // diese ist gezaehlt, und sie ist die, gegen die geplant wird.
+    // 468 seit 2026-09-27: USW-16 ist im USW-16-PoE aufgegangen.
+    // 490: +22 aus #907 (Clear-Com, Brompton, Luminex, NETGEAR, Lightware,
+    // Decimator), jeder mit Datenblatt.
+    // 498: +8 Nachzuegler am 2026-09-28.
+    expect(b.eintraegeGesamt).toBe(1831)
     expect(b.eintraegeGesamt).toBe(evidenceReport().entries)
 
     // „ueber ein Drittel Mikrofone" — das stimmt, und zwar deutlich.
-    // 2026-09-24: die groesste Kategorie sind nicht mehr die Mikrofone,
-    // sondern die Objektive. Die Schieflage des Issues („ueber ein Drittel
-    // Mikrofone") ist damit GEHEILT und gleichzeitig durch eine neue ersetzt
-    // — 835 von 1802 sind Objektive, und keines von ihnen hat eine Buchse im
-    // Plan. Das hier festzuhalten heisst: die naechste Schieflage ist schon
-    // gemessen, bevor jemand sie fuer normal haelt.
+    // ─── DIE SCHIEFLAGE IST UMGEZOGEN, NICHT WEG ───────────────────────────
+    //
+    // #878 warf „ueber ein Drittel Mikrofone" vor. Nach der Uebernahme aus
+    // dem multicam-planner sind es 184 von 1854 (9,9 %) — dafuer stellen die
+    // Objektive 835. Der Katalog ist also weiterhin schief, nur an einer
+    // anderen Stelle, und das gehoert hierher statt in eine Erfolgsmeldung.
     expect(b.groessteKategorie.kategorie).toBe('Lenses')
     expect(b.groessteKategorie.eintraege).toBe(835)
     expect(b.groessteKategorie.anteil).toBeGreaterThan(1 / 3)
@@ -61,40 +56,28 @@ describe('#878 — Katalog-Luecken in den Zielbereichen', () => {
     // weil niemand daran gedacht haette. Seit sie es sind, stehen zwei
     // belegte Eintraege da (#878).
     expect(b.leereBereiche).toEqual([])
-    expect(stand('led-prozessoren').eintraege).toBe(7)
-    expect(stand('led-prozessoren').belegt).toBe(7)
+    // 2026-09-27: vier weitere Brompton (S8, S4, T1, XD) aus #907.
+    expect(stand('led-prozessoren').eintraege).toBe(6)
+    expect(stand('led-prozessoren').belegt).toBe(6)
   })
 
   it('3. die Ratsche: die Staende von heute', () => {
     // Wer einen Bereich auffuellt, macht diese Zeilen rot und zieht die Zahl
     // nach. Ein Ziel, das niemand nachrechnet, ist ein Vorsatz.
-    // 20 -> 385 am 2026-09-24 (Uebernahme aus dem multicam-planner). 377
-    // davon mit Datenblatt-Link, aber nur 20 mit Portliste.
     expect(stand('kameras').eintraege).toBe(385)
-    // 30 -> 34 am 2026-09-24: Decimator. #878 nennt die Marke ausdruecklich,
-    // und `docs/katalog-luecken.md` hielt fest, dass sie vollstaendig fehlte —
-    // weil die Datenblaetter „nicht erreichbar" schienen. Erreichbar waren
-    // sie; nur der Abruf-Dienst scheiterte an der Zertifikatskette.
-    expect(stand('konverter').eintraege).toBe(36)
-    expect(stand('netzwerk').eintraege).toBe(94)
-    expect(stand('intercom').eintraege).toBe(12)
-    // 2 -> 7 am 2026-09-24: die fuenf Brompton-Tessera-Prozessoren, aus ihren
-    // Datenblatt-PDFs recherchiert. Der Bereich, den #878 als den einzigen
-    // LEEREN benannt hat, ist damit der einzige, der VOLLSTAENDIG belegt ist.
-    expect(stand('led-prozessoren').eintraege).toBe(7)
-    expect(katalogLuecken().eintraegeInBereichen).toBe(534)
+    // 2026-09-27 aus #907: +2 Lightware, +1 Decimator (MD-DUCC; MD-QUAD
+    // steht unter „Video"), +5 Luminex, +5 NETGEAR, +4 Clear-Com, +4 Brompton.
+    expect(stand('konverter').eintraege).toBe(34) // +AJA FS2
+    expect(stand('netzwerk').eintraege).toBe(90)
+    expect(stand('intercom').eintraege).toBe(13) // +FreeSpeak II Base
+    expect(stand('led-prozessoren').eintraege).toBe(6)
+    expect(katalogLuecken().eintraegeInBereichen).toBe(528)
 
-    // Und die Breite, nicht nur die Menge: Kameras und Intercom haengen an je
+    // Und die Breite, nicht nur die Menge: Kameras hingen und haengen an
     // EINEM Katalog. Ein Bereich mit einem Hersteller ist kein bestueckter
     // Bereich, sondern ein bestuecktes Haus.
-    // Kameras haengen nicht mehr an EINEM Katalog — der zweite ist allerdings
-    // derselbe Hersteller-Kreis, nur ohne Ports. Die Breite des Bereichs hat
-    // sich also nicht geaendert, nur seine Laenge.
     expect(stand('kameras').kataloge).toEqual(['camera', 'cameraBody'])
-    // 2026-09-25: Intercom haengt nicht mehr an EINEM Haus. Vier Clear-Com
-    // Encore dazu, aus den Handbuechern recherchiert — der zweite Satz des
-    // Befundes („ein Bereich mit einem Hersteller ist kein bestueckter
-    // Bereich") ist damit erledigt.
+    // Intercom haengt seit 2026-09-27 an zwei Haeusern (Clear-Com Encore).
     expect(stand('intercom').kataloge).toEqual(['clearcom', 'greengo'])
     expect(stand('konverter').kataloge.length).toBeGreaterThan(2)
 

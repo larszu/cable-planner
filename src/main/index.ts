@@ -5,6 +5,8 @@ import fs from 'node:fs'
 import { registerCredentialsIpc } from './ipc/credentialsIpc.js'
 import { appendLogCapped } from './util/appendLogCapped.js'
 import { registerRentmanIpc } from './ipc/rentmanIpc.js'
+import { registerDeviceLibraryIpc } from './ipc/deviceLibraryIpc.js'
+import { registerCloudIpc } from './ipc/cloudIpc.js'
 import { registerNetboxIpc } from './ipc/netboxIpc.js'
 import { openExternalProject, registerProjectIpc } from './ipc/projectIpc.js'
 import { findProjectPathInArgv, setPendingLaunchPath } from './services/fileOpenService.js'
@@ -14,6 +16,7 @@ import { registerSwitcherIpc } from './ipc/switcherIpc.js'
 import { registerLogIpc } from './ipc/logIpc.js'
 import { registerDocumentLogIpc } from './ipc/documentLogIpc.js'
 import { registerReceiptIpc } from './ipc/receiptIpc.js'
+import { registerAttachmentIpc } from './ipc/attachmentIpc.js'
 import { registerShowControlIpc } from './ipc/showControlIpc.js'
 import { registerTallyIpc } from './ipc/tallyIpc.js'
 import { registerSyncIpc } from './ipc/syncIpc.js'
@@ -346,7 +349,14 @@ app.whenReady().then(async () => {
               // ws:/wss: für die Live-Kollaboration (y-webrtc-Signaling: lokaler
               // LAN-Server + öffentlicher Fallback) — sonst blockt die CSP den
               // Signaling-WebSocket und keine Session verbindet sich.
-              "connect-src 'self' https://api.rentman.net https://generativelanguage.googleapis.com ws: wss:; " +
+              //
+              // devices.zumpelars.de: die Geraetebibliothek. Im Desktop-Build
+              // ruft sie der Main-Prozess ab (`deviceLibraryService.ts`), und
+              // der unterliegt dieser Regel nicht -- deshalb funktioniert dort
+              // auch eine vom Nutzer geaenderte Server-URL. Der Eintrag hier
+              // deckt den Renderer-Weg (`webFallbackApi`) fuer den Vorgabe-
+              // Server ab, falls das Fenster ohne Preload-Bruecke laeuft.
+              "connect-src 'self' https://api.rentman.net https://generativelanguage.googleapis.com https://devices.zumpelars.de ws: wss:; " +
               "object-src 'none'; base-uri 'none'; frame-ancestors 'none'",
           ],
           'X-Content-Type-Options': ['nosniff'],
@@ -358,6 +368,8 @@ app.whenReady().then(async () => {
   registerCredentialsIpc()
   registerRentmanIpc()
   registerNetboxIpc()
+  registerDeviceLibraryIpc()
+  registerCloudIpc()
   registerProjectIpc()
   registerAtemIpc()
   registerVideohubIpc()
@@ -365,6 +377,7 @@ app.whenReady().then(async () => {
   registerLogIpc()
   registerDocumentLogIpc()
   registerReceiptIpc()
+  registerAttachmentIpc()
   registerShowControlIpc()
   registerTallyIpc()
   registerSyncIpc()

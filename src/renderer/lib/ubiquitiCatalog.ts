@@ -9,9 +9,15 @@ import type { EquipmentTemplate, Port } from '../types/equipment'
 // Belege gegen den offiziellen Ubiquiti-Store (store.ui.com, Erstpartei-
 // Hersteller, Recherche 2026-09, Quellen-URL je Eintrag) — je Modell auf
 // Erreichbarkeit geprüft (sauberes 404 der Fallbackseite als Gegenprobe).
-// Sieben eingestellte Modelle (ER-8, ERLite-3, ERPoe-5, ERPro-8, ES-8XP,
-// ES-XG-48, USW-16) sind nicht mehr im Store gelistet und bleiben ohne Beleg
+// Sechs eingestellte Modelle (ER-8, ERLite-3, ERPoe-5, ERPro-8, ES-8XP,
+// ES-XG-48) sind nicht mehr im Store gelistet und bleiben ohne Beleg
 // statt mit erfundener Adresse.
+//
+// „UniFi Switch 16 (USW-16)" gab es als eigenes Modell nicht: ui.com fuehrt
+// unter usw-16 nur den USW-16-PoE (16 RJ45, 2 SFP — dieselben Anschluesse).
+// Der Eintrag ist in den USW-16-PoE aufgegangen; seine Geraetetyp-Id loest
+// ueber DEVICE_TYPE_ALIASES (deviceTypeAliases.ts) weiter auf, der Name ueber
+// LEGACY_TEMPLATE_RENAMES.
 
 const port = (name: string, connectorType: Port['connectorType'] = 'Ethernet/RJ45'): Port => ({
   id: '',
@@ -85,7 +91,9 @@ export const UBIQUITI_CATALOG: UbiquitiEntry[] = [
     match: ['edgerouter', 'lite'],
     deviceTypeId: 'eca7eae0-a59c-4314-8b9e-ded8148eb2ee',
     networkKind: 'router',
+    // Quelle: https://dl.ubnt.com/datasheets/edgemax/EdgeRouter_Lite_DS.pdf
     template: {
+      manufacturerUrl: 'https://dl.ubnt.com/datasheets/edgemax/EdgeRouter_Lite_DS.pdf',
       name: 'Ubiquiti EdgeRouter Lite (ERLite-3)',
       category: NET,
       inputs: [port('eth0 (WAN)', 'Ethernet/RJ45')],
@@ -98,7 +106,9 @@ export const UBIQUITI_CATALOG: UbiquitiEntry[] = [
     match: ['edgerouter', 'poe'],
     deviceTypeId: 'deaa3398-f480-4aa2-b78d-18658938ca80',
     networkKind: 'router',
+    // Quelle: https://dl.ubnt.com/qsg/ERPoe-5/ERPoe-5_EN.html
     template: {
+      manufacturerUrl: 'https://dl.ubnt.com/qsg/ERPoe-5/ERPoe-5_EN.html',
       name: 'Ubiquiti EdgeRouter PoE (ERPoe-5)',
       category: NET,
       inputs: [port('eth0 (WAN)', 'Ethernet/RJ45')],
@@ -148,7 +158,9 @@ export const UBIQUITI_CATALOG: UbiquitiEntry[] = [
     match: ['edgerouter', 'er-8'],
     deviceTypeId: 'f673d842-0fca-47b4-b78e-76dec0499180',
     networkKind: 'router',
+    // Quelle: https://dl.ubnt.com/qsg/ER-8/ER-8_EN.html
     template: {
+      manufacturerUrl: 'https://dl.ubnt.com/qsg/ER-8/ER-8_EN.html',
       name: 'Ubiquiti EdgeRouter 8 (ER-8)',
       category: NET,
       inputs: [port('eth0 (WAN)', 'Ethernet/RJ45')],
@@ -180,7 +192,9 @@ export const UBIQUITI_CATALOG: UbiquitiEntry[] = [
     match: ['edgerouter', 'pro'],
     deviceTypeId: '3f75230c-f85f-44a1-8554-a0a5cf74a381',
     networkKind: 'router',
+    // Quelle: https://dl.ubnt.com/qsg/ERPro-8/ERPro-8_EN.html
     template: {
+      manufacturerUrl: 'https://dl.ubnt.com/qsg/ERPro-8/ERPro-8_EN.html',
       name: 'Ubiquiti EdgeRouter Pro (ERPro-8)',
       category: NET,
       inputs: [port('eth0 (WAN)', 'Ethernet/RJ45')],
@@ -214,7 +228,9 @@ export const UBIQUITI_CATALOG: UbiquitiEntry[] = [
     match: ['edgeswitch', 'es-8xp'],
     deviceTypeId: 'c29a476f-1fa8-4c94-b09c-ae24d47bb008',
     networkKind: 'switch',
+    // Quelle: https://dl.ubnt.com/qsg/ES-8XP/ES-8XP_EN.html
     template: {
+      manufacturerUrl: 'https://dl.ubnt.com/qsg/ES-8XP/ES-8XP_EN.html',
       name: 'Ubiquiti EdgeSwitch 8XP (ES-8XP)',
       category: NET,
       inputs: [port('Uplink', 'Ethernet/RJ45')],
@@ -635,7 +651,7 @@ export const UBIQUITI_CATALOG: UbiquitiEntry[] = [
     },
   },
   {
-    match: ['unifi', 'switch', '16', 'poe'],
+    match: ['unifi', 'switch', '16'],
     deviceTypeId: '6d8f73bf-2a99-4de4-933f-9621abd4c16c',
     networkKind: 'switch',
     // Quelle: https://store.ui.com/us/en/products/usw-16-poe
@@ -645,19 +661,6 @@ export const UBIQUITI_CATALOG: UbiquitiEntry[] = [
       category: NET,
       inputs: [],
       outputs: [...rj45(16, 'PoE Port'), ...sfp(2, 'SFP')],
-      width: 260,
-      height: 360,
-    },
-  },
-  {
-    match: ['unifi', 'switch', '16'],
-    deviceTypeId: 'a6c64b89-60ff-40f6-9049-3d6faa4beeca',
-    networkKind: 'switch',
-    template: {
-      name: 'UniFi Switch 16 (USW-16)',
-      category: NET,
-      inputs: [],
-      outputs: [...rj45(16, 'Port'), ...sfp(2, 'SFP')],
       width: 260,
       height: 360,
     },

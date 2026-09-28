@@ -9,16 +9,12 @@ import type { EquipmentTemplate, Port } from '../types/equipment'
 //
 // ─── DER GRUND, WARUM GERADE DIESE ZWEI ZUERST ─────────────────────────────
 //
-// Sie sind die Probe auf das Stecker-Vokabular, das am 2026-09-24 dazukam.
 // Die Tabelle nennt DREI verschiedene Phoenix-Klemmen an einem Geraet:
 // „RS232 Connector 2x 3Pol Phoenix", „Room Occupancy Sensor Connector 3Pol
-// Phoenix", „GPIO Connector 8Pol Phoenix". Vor der Erweiterung waeren alle
-// drei `Custom` gewesen — drei verschiedene Klemmen unter einem Namen, und
-// die Patchliste haette sie nicht auseinandergehalten.
-//
-// Die POLZAHL steht deshalb im Namen des Anschlusses und nicht im Steckertyp:
-// `Phoenix/Euroblock` ist die Bauform, „3-polig" und „8-polig" sind das, was
-// man beim Konfektionieren wissen muss.
+// Phoenix", „GPIO Connector 8Pol Phoenix". Das Stecker-Vokabular kennt keine
+// Schraubklemme; sie stehen als `Custom`, Bauform und POLZAHL im Namen des
+// Anschlusses — „3-polig" und „8-polig" sind das, was man beim
+// Konfektionieren wissen muss.
 //
 // ─── USB IST HIER NICHT EIN ANSCHLUSS, SONDERN SIEBEN ──────────────────────
 //
@@ -48,10 +44,10 @@ const port = (name: string, connectorType: Port['connectorType'], type: string):
 
 const hdmi = (name: string) => port(name, 'HDMI', 'HDMI')
 const usbC = (name: string) => port(name, 'USB-C', 'USB')
-const usbA = (name: string) => port(name, 'USB Type A', 'USB')
-const usbB = (name: string) => port(name, 'USB Type B', 'USB')
+const usbA = (name: string) => port(name, 'USB', 'USB')
+const usbB = (name: string) => port(name, 'USB', 'USB')
 const lan = (name: string) => port(name, 'Ethernet/RJ45', 'Ethernet')
-const phoenix = (name: string) => port(name, 'Phoenix/Euroblock', 'Control')
+const phoenix = (name: string) => port(name, 'Custom', 'Control')
 const netzteil = () => port('DC In (externes 160-W-Netzteil)', 'Custom', 'Power')
 
 const CONV = 'Converter'

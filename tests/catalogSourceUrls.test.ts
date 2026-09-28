@@ -106,16 +106,21 @@ describe('jeder Quellen-Kommentar steht auch als Feld im Eintrag', () => {
     // dazugekommen (die Medien-Station als Plan-Endpunkt). +2 am 2026-09-23:
     // `ledProcessorCatalog`, die erste Bestueckung einer Kategorie, die bei
     // null stand (#878).
-    //
-    // 424 -> 1616 am 2026-09-24: die Uebernahme aus den Schwester-Planern
-    // (`npm run katalog:uebernahme`). 358 Kamerabodies, 784 Objektive und 50
-    // Lichtgeraete bringen ihren Datenblatt-Link mit; die Kataloge sind
-    // ERZEUGT, die Zahl zieht also der Generator und nicht eine Hand.
-    //
-    // WER DIESE ZAHL AENDERT, OHNE DEN GENERATOR GELAUFEN ZU HABEN, hat von
-    // Hand in eine erzeugte Datei geschrieben. `npm run katalog:check` sagt,
-    // ob sie noch zur Quelle passt.
-    expect(pairs().length).toBe(1648)
+    // +19 am 2026-09-27: Herstellerbelege fuer bis dahin unbelegte Eintraege
+    // (Ubiquiti-EdgeMax-Datenblaetter/QSGs, SmallHD, TVLogic, JVC, NEC, Behringer,
+    // TC Electronic, Sonnet, Atomos-QSG) — jede Seite geoeffnet, Modell darauf.
+    // +8 am 2026-09-27 (zweite Runde): Katalognamen, die es beim Hersteller
+    // so nicht gab, auf das belegte Modell umgestellt (SmartScope Duo 4K,
+    // V-LCD173HR, V-LCD56MD-3G, LVM-075A, D*AP8, SmallHD 2403/1703, xMac mini
+    // Server TB3); USW-16 ist im USW-16-PoE aufgegangen (-1 Eintrag).
+    // +22 am 2026-09-27: aus dem liegengebliebenen #907 uebernommen, was main
+    // noch fehlte — Clear-Com Encore (4), Brompton Tessera S8/S4/T1/XD, Luminex
+    // GigaCore (5), NETGEAR M4250 (5), Lightware UCX (2), Decimator MD-DUCC/
+    // MD-QUAD; jedes Datenblatt-PDF beim Hersteller abgerufen (HTTP 200).
+    // +8 am 2026-09-28: Katalog-Nachzuegler aus docs/device-identity-concept.md
+    // (AJA FS2, Aquilon RS alpha, TriCaster Mini 4K, FreeSpeak II Base,
+    // Shure UA844+SWB/AD4D/AD4Q, Sennheiser ASA 214), Blaetter geoeffnet.
+    expect(pairs().length).toBe(1673)
   })
 
   it('deckt die Kataloge ab, die Belege fuehren', () => {
@@ -126,38 +131,25 @@ describe('jeder Quellen-Kommentar steht auch als Feld im Eintrag', () => {
       'avNetworkCatalog.ts',
       'blackmagicCatalog.ts',
       'broadcastToolsCatalog.ts',
-      // #878, aus den Datenblatt-PDFs recherchiert (2026-09-24): der Bereich
-      // LED-Prozessoren, der laut Issue bei null stand.
       'bromptonCatalog.ts',
-      // Erzeugt aus dem multicam-planner (2026-09-24).
+      // Uebernahme aus dem multicam-planner (2026-09-24, erzeugt).
       'cameraBodyCatalog.ts',
       'cameraCatalog.ts',
-      // #878: Intercom hing an GreenGo allein. Aus den Encore-Handbuechern
-      // recherchiert (2026-09-25) — dort steht die Anschlusstabelle, nicht
-      // im Produktblatt.
       'clearcomCatalog.ts',
-      // #878, aus den Broschueren-PDFs recherchiert (2026-09-24): die Marke,
-      // die das Issue ausdruecklich nennt und die vollstaendig fehlte.
       'decimatorCatalog.ts',
-      // Erzeugt aus dem light-planner (2026-09-24).
+      // Uebernahme aus dem light-planner (2026-09-24, erzeugt).
       'fixtureCatalog.ts',
       'greengoCatalog.ts',
       'ledProcessorCatalog.ts',
-      // Erzeugt aus dem multicam-planner (2026-09-24).
+      // Uebernahme aus dem multicam-planner (2026-09-24, erzeugt).
       'lensCatalog.ts',
-      // #878, Konverter: die Probe auf das neue Stecker-Vokabular — drei
-      // verschiedene Phoenix-Klemmen an einem Geraet (2026-09-25).
       'lightwareCatalog.ts',
-      // #878: Netzwerk hing an Ubiquiti allein. GigaCore ist in der
-      // Veranstaltungstechnik der andere Name (2026-09-25).
       'luminexCatalog.ts',
       'lynxCatalog.ts',
       'mediaStationCatalog.ts',
       'micCatalog.ts',
       'miscCatalog.ts',
       'monitorCatalog.ts',
-      // #878, Netzwerk: die AV-Line-Switches der Festinstallation
-      // (2026-09-25). Luminex deckt die Tour ab, die M4250 den Schrank.
       'netgearAvCatalog.ts',
       'rossCatalog.ts',
       'switcherCatalog.ts',
@@ -210,14 +202,9 @@ describe('was der Test NICHT behauptet', () => {
     const ohne = catalogs().filter((f) => !mitBeleg.has(f))
     expect(ohne.sort()).toEqual([
       'connectorCatalog.ts',
-      // 2026-09-24 dazugekommen: die Kamera-Rigs aus dem multicam-planner.
-      // Die Quelle fuehrt fuer KEINES der 49 Rigs eine Hersteller-Adresse —
-      // nachgemessen, nicht vermutet. Die Maße dagegen sind dort belegt, mit
-      // ihrer Herkunft und den Stellen, an denen die Objektivhoehe geschaetzt
-      // ist. Wer die Datenblaetter von J.L. Fisher, Panther, Sachtler,
-      // Vinten, Technocrane, Spidercam und Jimmy Jib nachtraegt, traegt sie
-      // in `multicam-planner src/data/rigs.ts` ein — von dort holt sie der
-      // Generator.
+      // Die Kamera-Rigs aus dem multicam-planner: die Quelle nennt fuer
+      // KEINES der 49 eine Hersteller-Adresse — nachgemessen, nicht
+      // vermutet. Die Masse dagegen sind dort belegt.
       'rigCatalog.ts',
       'wirelessCatalog.ts',
     ])
@@ -239,15 +226,6 @@ describe('was der Test NICHT behauptet', () => {
 })
 
 describe('der Beleg zeigt auf den Hersteller, nicht auf einen Haendler', () => {
-  // NACHGEZOGEN 2026-09-24: der Generator der uebernommenen Kataloge filtert
-  // Haendler-Adressen selbst heraus (`herstellerUrl` in
-  // `scripts/katalog-uebernahme.mjs`) und zaehlt die betroffenen Eintraege als
-  // unbelegt. Gemessen: 16 Eintraege des multicam-planners zeigen auf B&H
-  // (Laowa Nanomorph, Zeiss CP.2, Panasonic AG-AF100, Ikegami HDK-79EXIII
-  // u.a.). Sie stehen dort weiter — dort ist die Adresse als Herkunftsbeleg
-  // der ZAHLEN dokumentiert, nicht als Hersteller-Link. Hier fehlt der Beleg,
-  // und genau das sagt die Abdeckung jetzt.
-  //
   // Gemessen 2026-09-04 ueber alle 253 Belege: **einer** zeigt auf einen
   // Haendler. `audioCatalog.ts` fuehrt die Behringer X32 mit einem bei
   // Markertek liegenden Spec-PDF, waehrend der Eintrag direkt darunter (Wing)
@@ -302,6 +280,6 @@ describe('der Beleg zeigt auf den Hersteller, nicht auf einen Haendler', () => {
   it('prueft alle Belege, nicht nur die mit Feld', () => {
     // Ohne diese Zusicherung waere der Haendler-Test auch dann gruen, wenn
     // `pairs()` nichts mehr faende.
-    expect(pairs().filter((p) => p.field).length).toBe(1648)
+    expect(pairs().filter((p) => p.field).length).toBe(1673)
   })
 })

@@ -227,7 +227,45 @@ const auswerten = (name, ziele) => {
   return { gesamt: ziele.length, unter24: unter24.length, unter44: unter44.length }
 }
 
-const maus = await messen()
+/**
+ * Messen, bis sich die Zahl nicht mehr aendert.
+ *
+ * ─── WARUM DAS NOETIG WURDE (2026-09-28) ───────────────────────────────────
+ *
+ * Bis hierher stand die Szene auf festen Wartezeiten (`waitForTimeout(1500)`
+ * nach dem Beispielprojekt, 600 ms nach der Fenstergroesse). Das trug,
+ * solange die Bibliothek ein paar hundert Vorlagen hatte.
+ *
+ * Mit 1831 Eintraegen traegt es nicht mehr. GEMESSEN an drei Laeufen
+ * hintereinander, gleicher Baum, gleiche Bedingungen: Maus 110 / 108 / 108,
+ * Finger 165 / 143 / 143. Die Seitenleiste war je nach Lauf verschieden weit
+ * aufgebaut, und die Messung fing mal mehr, mal weniger Zeilen.
+ *
+ * Eine Zahl, die sich zwischen zwei Laeufen um 22 unterscheidet, ist keine
+ * Messung — und ein Deckel darauf waere ein flackerndes Gate. Genau davor
+ * warnt der Kopf dieser Datei: „Hier eine Zahl aus dem Quelltext zu erfinden
+ * waere schlimmer als keine: sie saehe aus wie eine Messung."
+ *
+ * Also wird nicht laenger gewartet, sondern GEPRUEFT: zweimal hintereinander
+ * dieselbe Anzahl heisst, der Aufbau steht. Das ist schneller als ein
+ * grosszuegiger fester Wert und zugleich verlaesslich, wenn die Bibliothek
+ * weiter waechst.
+ */
+const messenStabil = async (was) => {
+  let vorher = null
+  for (let versuch = 0; versuch < 15; versuch += 1) {
+    const jetzt = await messen()
+    if (vorher !== null && jetzt.ziele.length === vorher.ziele.length) return jetzt
+    vorher = jetzt
+    await win.waitForTimeout(400)
+  }
+  throw new Error(
+    `${was}: die Anzahl der Trefferflaechen kommt nicht zur Ruhe. Entweder baut die ` +
+      'Oberflaeche endlos nach, oder die Szene ist nicht mehr die gemeinte.',
+  )
+}
+
+const maus = await messenStabil('Maus')
 if (maus.coarse) throw new Error('Der erste Durchgang sollte ein feiner Zeiger sein, ist aber grob.')
 const mitMaus = auswerten('Maus (pointer: fine)', maus.ziele)
 console.log(`  davon nur fuer groben Zeiger sichtbar: ${maus.nurGrob}`)
@@ -245,7 +283,7 @@ await cdp.send('Emulation.setDeviceMetricsOverride', {
 })
 await win.waitForTimeout(800)
 
-const finger = await messen()
+const finger = await messenStabil('Finger')
 if (!finger.coarse) {
   throw new Error(
     'Die Finger-Nachbildung hat nicht gegriffen — `(pointer: coarse)` ist weiter false. ' +
@@ -300,6 +338,16 @@ await app.close()
  *            Sie sind jetzt 24 x 24 bei unveraendertem Symbol. Der neue
  *            Knopf hat den alten Missstand sichtbar gemacht.
  *
+ * NEU GEMESSEN am 2026-09-24 (cable#920): unter44 91 -> 93. Die zwei neuen
+ * Knoepfe „Hallenplan" und „Symbole" in der Canvas-Werkzeugleiste, in
+ * derselben Zeile und Hoehe wie „Anmerkungen" und „Badges". Ein 44-px-Knopf
+ * machte aus der Zeile einen Block — derselbe Grund wie bei #852. unter24
+ * bleibt: beide sind hoeher als 24 px.
+ *
+ * ZUSAMMENGEFUEHRT am 2026-09-25: #920 (Hallenplan, Symbole) und #921
+ * (Umschalter Local/Shared) hoben den Deckel je um 2 von 91 auf 93 — jeder
+ * gegen den alten Stand gemessen. Zusammen sind es vier neue Flaechen: 95.
+ *
  * Der Deckel fuer `unter24` sinkt deshalb mit auf 50. Eine Obergrenze, die
  * ueber dem Gemessenen stehenbleibt, ist Luft, in die es still
  * zurueckwachsen kann.
@@ -319,9 +367,58 @@ await app.close()
  * dieser Flaechen wirklich wachsen SOLLEN, ist eine Gestaltungsfrage und
  * gehoert in eine eigene Runde.
  */
+/*
+ * ANGEHOBEN am 2026-09-25 (Geraetebibliothek), unter44 91 -> 93:
+ * 98 Trefferflaechen, davon 93 unter 44 px. Die zwei neuen sind der
+ * Quellen-Umschalter im Equipment-Tab der Bibliothek („Local" / „Shared").
+ * Er stand bisher nur bei eingeschaltetem Rentman-Modul da; die
+ * Geraetebibliothek ist aber die Vorgabe-Quelle jedes Builds, also steht
+ * er jetzt immer. Er sitzt in derselben 235 px schmalen Seitenleiste wie
+ * die Register darueber (32 px hoch, ebenfalls unter der Marke) — 44 px je
+ * Knopf machten ihn hoeher als die Register, zu denen er gehoert, und
+ * schoeben die Liste darunter aus dem Blick.
+ */
+/*
+ * ANGEHOBEN am 2026-09-27 (#878, 22 neue Katalog-Eintraege), unter44 95 -> 97,
+ * gemessen im CI-Lauf von #937. Kein neues Bedienelement: die zusaetzlichen
+ * Flaechen sind Zeilen-Aktionen der Bibliotheks-Seitenleiste (Kategorie-
+ * Griffe, Eintrags-Knoepfe), von denen mit dem groesseren Katalog mehr im
+ * 950-px-Fenster stehen. Lokal nachgezaehlt: Zuwachs nur in „Seitenleiste".
+ */
+/**
+ * NEU GEMESSEN am 2026-09-28, nachdem die Messung stabil gemacht wurde
+ * (siehe `messenStabil` weiter oben): Maus 112 Ziele, davon 10 unter 24 px
+ * und 108 unter 44 px; Finger 147 Ziele, davon 10 unter 24 px und 143 unter
+ * 44 px. Dreimal hintereinander dieselben Zahlen.
+ *
+ * DIE BEIDEN DURCHGAENGE BEKOMMEN AB HIER VERSCHIEDENE DECKEL, und das ist
+ * die eigentliche Aenderung. Bis heute stand fuer beide dieselbe Zahl, weil
+ * sie zufaellig gleich waren. Sie sind es nicht mehr: unter dem Finger
+ * kommen 35 Flaechen DAZU, die es unter der Maus gar nicht gibt
+ * (`.cp-coarse-only`, „davon nur fuer groben Zeiger sichtbar" im Bericht).
+ * Ein gemeinsamer Deckel muesste den groesseren der beiden nehmen und liesse
+ * damit den Maus-Durchgang um 35 wachsen, ohne dass jemand es merkt.
+ *
+ * WARUM DIE ZAHL GESTIEGEN IST (97 -> 108/143): nicht wegen neuer
+ * Bedienelemente, sondern wegen der Bibliothek. Der Katalog ist auf 1831
+ * Eintraege gewachsen, und damit zeigt die Seitenleiste mehr
+ * Kategorie-Gruppen. Jede Gruppe ist eine Zeile mit Griff — gemessen 95 der
+ * 143 Finger-Flaechen liegen in der Seitenleiste.
+ *
+ * DAS MACHT DEN DECKEL SCHWAECHER, ALS ER WAR, und das gehoert gesagt: er
+ * misst jetzt zum Teil, wie viele Kategorien der Katalog fuehrt, und nicht
+ * mehr nur, wie dicht die Oberflaeche ist. Wer ihn wieder scharf haben will,
+ * zaehlt die Seitenleiste getrennt — das ist eine eigene Runde, keine
+ * Nebenbei-Aenderung an einem Merge.
+ *
+ * `unter24` bleibt bei 50, obwohl nur 10 gemessen werden. Die Zahl ist seit
+ * der Katalog-Uebernahme gefallen, und warum, ist hier nicht nachgemessen;
+ * sie auf 10 zu senken hiesse, einen Gewinn festzuschreiben, dessen Ursache
+ * niemand kennt. Das gehoert in dieselbe eigene Runde.
+ */
 const DECKEL = {
-  maus: { unter24: 50, unter44: 91 },
-  finger: { unter24: 50, unter44: 91 },
+  maus: { unter24: 50, unter44: 108 },
+  finger: { unter24: 50, unter44: 143 },
 }
 
 let befunde = 0

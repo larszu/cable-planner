@@ -153,10 +153,15 @@ jobs:
       # gebaute App und derselbe X-Server. Er beantwortet die Frage, die
       # B-44 Teil 2 ausdruecklich OFFEN gelassen hat -- „wie viele
       # Bedienelemente liegen unter der 44-px-Marke?" -- und zwar am
-      # gerenderten Element statt an Klassennamen. Gemessen sind es 91 von
-      # 95; die Zahl ist gedeckelt, damit sie nicht still weiterwaechst. Auch
-      # sie lebt in `scripts/ui-targets.mjs`, samt Begruendung -- hier steht
-      # eine Abschrift, und Abschriften veralten (diese tat es).
+      # gerenderten Element statt an Klassennamen. Die Zahl ist gedeckelt, damit
+      # sie nicht still weiterwaechst.
+      #
+      # HIER STEHT SIE ABSICHTLICH NICHT MEHR. Bis 2026-09-28 stand „93 von 98",
+      # gemessen waren es 108 von 112 (Maus) und 143 von 147 (Finger) -- die
+      # Abschrift war um 50 Flaechen daneben. Derselbe Satz hat es schon einmal
+      # selbst zugegeben („Abschriften veralten, diese tat es") und wurde dann
+      # wieder mit einer Zahl gefuellt. Der Deckel und seine Begruendung leben in
+      # `scripts/ui-targets.mjs`; dort und nur dort steht die Zahl.
       #
       # Der Lauf misst ZWEIMAL: einmal mit Maus, einmal mit nachgebildetem
       # Finger (`pointer: coarse`). Nur der zweite sieht die Griffe, die es
@@ -206,3 +211,46 @@ jobs:
           name: ui-smoke-screenshots
           path: /tmp/cable-planner-ui-shots
           if-no-files-found: ignore
+
+  # ---------------------------------------------------------------------------
+  # Kataloge gegen die Schwester-Planner. `cameraBodyCatalog.ts`,
+  # `lensCatalog.ts`, `rigCatalog.ts` und `fixtureCatalog.ts` sind ERZEUGT — aus
+  # `multicam-planner/src/data/*` und `light-planner/src/core/fixtureLibrary.ts`.
+  # Erzeugte Dateien, die eingecheckt sind, veralten leise: wer im
+  # multicam-planner eine Kamera ergaenzt, merkt hier nichts davon.
+  #
+  # EIGENER JOB, WEIL ER ZWEI FREMDE REPOS BRAUCHT. Damit haengt dieser Lauf an
+  # deren Verfuegbarkeit, und das ist kein Nebeneffekt, sondern der Zweck: eine
+  # Aenderung dort SOLL hier rot werden. Die Kehrseite gehoert dazu — dieser Job
+  # kann rot stehen, ohne dass der Pull Request etwas damit zu tun hat. Dann ist
+  # die Antwort `npm run katalog:uebernahme`, nicht dieser Job.
+  #
+  # Nicht im `verify`-Job, damit der Merge-Gate nicht an einem fremden Repo
+  # haengt — dieselbe Trennung wie bei `ui-smoke`.
+  katalog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/checkout@v5
+        with:
+          repository: larszu/multicam-planner
+          path: fremd/multicam-planner
+      - uses: actions/checkout@v5
+        with:
+          repository: larszu/av-planner-suite
+          path: fremd/av-planner-suite
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          cache: 'npm'
+      - run: sudo apt-get update && sudo apt-get install -y libsecret-1-dev
+      - run: npm ci
+      # Die Pfade stehen hier ausgeschrieben, weil die Vorgabewerte im Skript
+      # die Arbeitsplatz-Ordner sind (`../../dev/multicam-planner`) — im Runner
+      # gibt es die nicht.
+      - name: Kataloge sind auf dem Stand der Schwester-Planner
+        run: >-
+          npm run katalog:check --
+          --multicam fremd/multicam-planner
+          --light fremd/av-planner-suite/apps/light-planner
+

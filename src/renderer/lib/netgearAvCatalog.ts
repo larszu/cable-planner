@@ -110,7 +110,7 @@ export const NETGEAR_AV_CATALOG: NetgearEntry[] = [
       inputs: [
         netzteil(),
         port('Console (USB-C, front)', 'USB-C', 'Serial'),
-        port('Storage (USB-A, rear)', 'USB Type A', 'USB'),
+        port('Storage (USB-A, rear)', 'USB', 'USB'),
         oob(),
       ],
       outputs: [
@@ -122,33 +122,6 @@ export const NETGEAR_AV_CATALOG: NetgearEntry[] = [
         'Tischgerät 210 x 40 x 140 mm · 56 Gbit/s · PoE-Budget 220 W (254 W mit stärkerem Netzteil) — Abgabe, nicht Aufnahme',
       width: 260,
       height: 340,
-    },
-  },
-
-  // Quelle: https://www.downloads.netgear.com/files/GDC/M4250/M4250_Datasheet.pdf
-  {
-    match: ['netgearm425010g2fpoe', 'gsm4212p', 'm425010g2fpoe'],
-    deviceTypeId: 'c095f7a2-8b63-4d14-a850-7e26b9c3f051',
-    networkKind: 'switch',
-    template: {
-      manufacturerUrl: 'https://www.downloads.netgear.com/files/GDC/M4250/M4250_Datasheet.pdf',
-      name: 'NETGEAR M4250-10G2F-PoE+ (GSM4212P)',
-      category: NET,
-      // Blatt: 8 Ports PoE+ (125 W) · 2 weitere 1G-Ports OHNE PoE ·
-      // 2 Ports SFP · fester C14 mit Netzschalter · 1 HE.
-      inputs: [c14(), konsoleRj(), oob()],
-      outputs: [
-        ...Array.from({ length: 8 }, (_, i) => poe(i + 1)),
-        kupfer('Port 9 (1G, ohne PoE)'),
-        kupfer('Port 10 (1G, ohne PoE)'),
-        sfp('SFP 1'),
-        sfp('SFP 2'),
-      ],
-      isRackDevice: true,
-      rackUnits: 1,
-      notes: '440 x 43.2 x 200 mm · 24 Gbit/s · PoE-Budget 125 W — Abgabe, nicht Aufnahme',
-      width: 260,
-      height: 380,
     },
   },
 
@@ -176,32 +149,6 @@ export const NETGEAR_AV_CATALOG: NetgearEntry[] = [
       notes: '440 x 43.2 x 200 mm · 60 Gbit/s · PoE-Budget 240 W — Abgabe, nicht Aufnahme',
       width: 260,
       height: 380,
-    },
-  },
-
-  // Quelle: https://www.downloads.netgear.com/files/GDC/M4250/M4250_Datasheet.pdf
-  {
-    match: ['netgearm425026g4fpoe', 'gsm4230p', 'm425026g4fpoe'],
-    deviceTypeId: 'e8604b17-2d95-4c83-9a70-1f36c5b80e42',
-    networkKind: 'switch',
-    template: {
-      manufacturerUrl: 'https://www.downloads.netgear.com/files/GDC/M4250/M4250_Datasheet.pdf',
-      name: 'NETGEAR M4250-26G4F-PoE+ (GSM4230P)',
-      category: NET,
-      // Blatt: 24 Ports PoE+ (300 W) · 2 weitere 1G-Ports OHNE PoE ·
-      // 4 Ports SFP · C14 · 1 HE, 257 mm tief.
-      inputs: [c14(), konsoleRj(), oob()],
-      outputs: [
-        ...Array.from({ length: 24 }, (_, i) => poe(i + 1)),
-        kupfer('Port 25 (1G, ohne PoE)'),
-        kupfer('Port 26 (1G, ohne PoE)'),
-        ...Array.from({ length: 4 }, (_, i) => sfp(`SFP ${i + 1}`)),
-      ],
-      isRackDevice: true,
-      rackUnits: 1,
-      notes: '440 x 43.2 x 257 mm · 60 Gbit/s · PoE-Budget 300 W — Abgabe, nicht Aufnahme',
-      width: 280,
-      height: 560,
     },
   },
 

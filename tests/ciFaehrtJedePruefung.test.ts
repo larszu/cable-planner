@@ -77,14 +77,18 @@ const OHNE_CI: Record<string, string> = {
     'Braucht einen laufenden `dev:renderer` auf localhost:4181 und einen echten Browser. ' +
     'Ein CI-Job dafuer muesste den Dev-Server hochfahren und wieder abraeumen; bis jemand das baut, ' +
     'ist der Lauf ein Werkzeug fuer die Hand, keine Zusicherung.',
-  'katalog:check':
-    'Liest die Quelldaten der SCHWESTER-REPOS (multicam-planner src/data, light-planner ' +
-    'src/core/fixtureLibrary) und vergleicht sie mit den erzeugten Katalogen. Ein CI-Checkout ' +
-    'dieses Repos hat die beiden Nachbarn nicht — der Lauf wuerde nicht fehlschlagen, sondern am ' +
-    'fehlenden Pfad abbrechen, und das waere ein rotes Ergebnis ohne Aussage. Die erzeugten ' +
-    'Dateien sind eingecheckt und damit von jedem anderen Gate mitgeprueft; die Frage, ob sie ' +
-    'noch zur Quelle passen, gehoert an den Arbeitsplatz, an dem beide Repos liegen.',
 }
+
+// `katalog:check` STAND HIER und ist am 2026-09-28 herausgeflogen. Die
+// Begruendung lautete, ein CI-Checkout habe die Schwester-Repos nicht, und das
+// war keine Unmoeglichkeit, sondern eine ungestellte Frage: `actions/checkout`
+// holt mit `repository:` und `path:` jedes weitere oeffentliche Repo in
+// denselben Runner. Genau das tut der Job `katalog` jetzt.
+//
+// Der Satz „die erzeugten Dateien sind eingecheckt und damit von jedem anderen
+// Gate mitgeprueft" war dabei das eigentliche Problem: geprueft wurde, dass sie
+// uebersetzen — nicht, dass sie noch zur Quelle passen. Eine erzeugte Datei, die
+// niemand gegen ihre Quelle haelt, ist eine Abschrift, und Abschriften veralten.
 
 /**
  * Der Workflow-Text OHNE reine Kommentarzeilen.

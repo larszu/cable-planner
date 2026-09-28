@@ -1,9 +1,12 @@
+import { useGrundrissUi } from '../../store/grundrissUiStore'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useOnSelectionChange, useReactFlow } from 'reactflow'
 import { useUiStore } from '../../store/uiStore'
 import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
 import { LENGTH_COLOR_RULES } from '../../lib/cableColors'
 import { LayerVisibilityChips } from './LayerVisibilityChips'
+import { Gebaeude3DKnopf, RaumSichtbarkeit } from './RaumSichtbarkeit'
+import { SignalwegChip } from './SignalwegChip'
 import { FlowModeChip } from './FlowModeChip'
 import { CircuitChip } from './CircuitChip'
 import { PatternChip } from './PatternChip'
@@ -175,6 +178,10 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
   const setProjectMode = useProjectStore((s) => s.setProjectMode)
   const annotationsPanelOpen = useUiStore((s) => s.annotationsPanelOpen)
   const setAnnotationsPanelOpen = useUiStore((s) => s.setAnnotationsPanelOpen)
+  const grundrissPanel = useGrundrissUi((s) => s.grundrissPanel)
+  const setGrundrissPanel = useGrundrissUi((s) => s.setGrundrissPanel)
+  const symbolPanel = useGrundrissUi((s) => s.symbolPanel)
+  const setSymbolPanel = useGrundrissUi((s) => s.setSymbolPanel)
   const annotationsVisible = useUiStore((s) => s.annotationsVisible)
   const setAnnotationsVisible = useUiStore((s) => s.setAnnotationsVisible)
   // v7.9.67 / #177 — Toolbar-Modi um ganze Objektarten zu sperren.
@@ -811,6 +818,9 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
           gefiltert wird nur das KABEL, nicht das Gerät (Option A aus
           #123). Aus AV-Industrie-Recherche: D-Tools, Stardraw, AVECAV
           nutzen genau diese 5 Top-Level-Layer als Branchenstandard. */}
+      <SignalwegChip />
+      <RaumSichtbarkeit />
+      <Gebaeude3DKnopf />
       <LayerVisibilityChips />
       <span style={dividerStyle} />
       {/* Die Betriebsart des Signalflusses. Sie steht neben der
@@ -1000,6 +1010,35 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
           {annotationsCount > 0 ? ` (${annotationsCount})` : ''}
         </span>
       </button>
+      {([
+        ['grundriss', grundrissPanel, () => setGrundrissPanel(!grundrissPanel), t('toolbar.floorplan.label', 'Floor plan'), t('toolbar.floorplan.title', 'Floor plan under the canvas, scale for cable lengths'), 'M2 2h12v12H2zM2 7h6v7M8 2v3'],
+        ['symbole', symbolPanel, () => setSymbolPanel(!symbolPanel), t('toolbar.symbols.label', 'Symbols'), t('toolbar.symbols.title', 'Plan symbols: electrical, alarm, PA, IT, automation, AV'), 'M8 2a6 6 0 1 0 0 12A6 6 0 0 0 8 2zM4 4l8 8M12 4l-8 8'],
+      ] as const).map(([id, aktiv, klick, label, titel, pfad]) => (
+        <button
+          key={id}
+          type="button"
+          onClick={klick}
+          title={titel}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 4,
+            height: T.iconBtnSize,
+            padding: '0 10px',
+            background: aktiv ? T.btnActiveBg : T.btnBg,
+            color: aktiv ? '#ffffff' : T.text,
+            border: `1px solid ${aktiv ? T.btnActiveBg : T.border}`,
+            cursor: 'pointer',
+            fontSize: 11,
+            fontWeight: 500,
+          }}
+        >
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <path d={pfad} />
+          </svg>
+          <span>{label}</span>
+        </button>
+      ))}
       </>}
 
       {/* Length-Color-Legend Popover (bei Bedarf gerendert) */}

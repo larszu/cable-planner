@@ -14,7 +14,18 @@ import type { LocationFrame } from '../types/location'
 export const locationNameForEquipment = (
   equipment: Pick<EquipmentItem, 'x' | 'y' | 'width' | 'height'>,
   locations: readonly LocationFrame[],
-): string | undefined => {
+): string | undefined => locationForEquipment(equipment, locations)?.name
+
+/**
+ * #912 — der Rahmen selbst statt nur seines Namens (fuer die Etage). Dieselbe
+ * Rechnung wie oben — der Name ist nur ein Feld davon, und zwei Suchen, die
+ * beim naechsten Sonderfall auseinanderlaufen, waeren zwei Antworten auf
+ * „wo steht das Geraet".
+ */
+export const locationForEquipment = (
+  equipment: Pick<EquipmentItem, 'x' | 'y' | 'width' | 'height'>,
+  locations: readonly LocationFrame[],
+): LocationFrame | undefined => {
   if (!locations.length) return undefined
   const cx = equipment.x + (equipment.width ?? 0) / 2
   const cy = equipment.y + (equipment.height ?? 0) / 2
@@ -25,10 +36,29 @@ export const locationNameForEquipment = (
       cy >= loc.y &&
       cy <= loc.y + loc.height
     ) {
-      return loc.name
+      return loc
     }
   }
   return undefined
+}
+
+/**
+ * Der Standort als Text, wie ihn die Betreiber-Listen drucken: „Raum
+ * (Etage)", nur „Raum" ohne Etage, leer ausserhalb jedes Raums.
+ *
+ * Das Asset-Register rechnete bis 2026-09-27 mit einer eigenen Suche über die
+ * linke obere Ecke des Geräts, alle übrigen Stellen über die Mitte. Ein Gerät
+ * auf der Raumkante stand damit im Asset-Register in einem anderen Raum als
+ * im Patch-Sheet — zwei Antworten auf „wo steht das Gerät". Jetzt gibt es
+ * die eine.
+ */
+export const standortText = (
+  equipment: Pick<EquipmentItem, 'x' | 'y' | 'width' | 'height'>,
+  locations: readonly LocationFrame[],
+): string => {
+  const loc = locationForEquipment(equipment, locations)
+  if (!loc) return ''
+  return loc.floor ? `${loc.name} (${loc.floor})` : loc.name
 }
 
 /**

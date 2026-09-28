@@ -62,7 +62,7 @@ export const SectionFilterBar = () => {
         className={knopf}
         title={t('props.filter.collapseAll', 'Collapse all sections')}
       >
-        {t('props.filter.collapse', 'All shut')}
+        {t('props.filter.collapse', 'Collapse all')}
       </button>
       <button
         type="button"
@@ -70,7 +70,7 @@ export const SectionFilterBar = () => {
         className={knopf}
         title={t('props.filter.expandAll', 'Expand all sections')}
       >
-        {t('props.filter.expand', 'All open')}
+        {t('props.filter.expand', 'Expand all')}
       </button>
     </div>
   )

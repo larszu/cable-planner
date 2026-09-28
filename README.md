@@ -110,6 +110,33 @@ Built with **Electron, React, and TypeScript**, it is designed for real-world pr
 - Cable metadata (type, length, color, notes)
 - Zoom, pan, minimap navigation
 - Real-time signal topology visualization
+- **Rooms and floors**: a frame on the canvas is a room; it picks its floor from
+  the project's floor list (bottom to top, with the floor level in metres —
+  *Floors* in the frame's properties). Renaming a floor renames it on every
+  frame; old projects with typed-in floors become the list on load
+- **Where each cable end sits**: the cable's properties, the pull list and the
+  cable schedule show *floor · room · device · port* for both ends, read from
+  where the device lies — e.g. `EG · Hall 3 · CAM 3 · SDI Out → 3rd floor ·
+  Gallery · Videohub · SDI 12`
+- **Show signal path**: in a cable's properties, highlights the whole chain it
+  belongs to — through plates, house runs, converters, routers — and dims the
+  rest; the stations are listed with floor, room, device and port. Esc or the
+  chip in the toolbar ends it
+- **3D** in the toolbar shows the building: every frame as a room on its
+  floor's height, devices inside, and the connections between rooms — as one
+  line per room pair with the cable count, or as single cables (house runs
+  dashed). The same floor/room and layer switches as on the canvas apply. A
+  floor without a height is stacked with an adjustable storey height, and the
+  view says so. Tick **Riser** in a frame's properties and it becomes a shaft
+  through every floor: cables between floors then run up to the ceiling, over
+  to the nearest riser, down or up, and across to their target — without a
+  riser they stay straight lines, and the view says that too
+- **Rooms ▾** in the toolbar hides floors or single rooms with their devices.
+  A cable into a hidden room stays as a stub at the visible end and says
+  where it goes; its arrow brings the room back. Only the view changes — the
+  plan and every export stay complete
+- **Cable bends and segments** follow the pointer for the whole drag, however
+  far — also when the route re-routes under the pointer
 
 ---
 
@@ -165,6 +192,64 @@ model name. Before this, 368 of 377 exported cameras carried no identity at all.
   quantity produces no warning: nobody counted, so there is nothing to warn
   about.
 - Reusable project components
+- **Properties sidebar**: the top is fixed — **name**, then the device **note**
+  (the one free text field: web UI, firmware, where it sits, who it belongs to),
+  then **inputs & outputs**. Everything else follows and can be dragged into any
+  order you like. A filter field finds a section by title, summary or id and
+  opens it; *Collapse all* / *Expand all* in one click. Which sections are open
+  is remembered across devices and restarts; the filter is not
+- **Master data** (Settings → *Master data*): your own connector types, signal
+  standards and cable layers in one place, next to the built-in ones — add,
+  rename, remove. Renaming carries the new name onto the ports, cables,
+  library templates and own cable types that use it (in the open project;
+  saved projects that are not open keep the old name as free text). They
+  appear in every picker and travel with the shared library (Network sync),
+  so a team uses the same names
+
+---
+
+### 🗺️ Floor plan, scale and real cable lengths
+
+Put the venue under the canvas and measure cables on it (toolbar → *Floor plan*).
+
+- **Load an image**, or **import the venue from MultiCam / Light Planner**
+  (`venue-exchange` v1). The image and its scale come with it, and walls,
+  people and stages the cable planner does not draw go back out unchanged on
+  export.
+- **Two points** set the scale on a plan drawn straight from above (CAD export,
+  scan): click both ends of a known distance.
+- **Four corners** set it on a photo, a wall sign or an isometric drawing: click
+  the corners of a floor area of known width and depth. The plan is then
+  measured through a perspective projection, so a metre is a metre in every
+  direction on the floor. Heights shown in the picture are not measured.
+- **Cable lengths follow the drawn route** — socket to socket, through every
+  bend point. A cable without bend points is measured as the right-angled path
+  the canvas draws, not as a straight line. Slack and rounding up apply as
+  before, and the bill of materials still splits each run into the stock
+  lengths you own.
+- A length derived this way is reported as **out of date** once a device moves,
+  the cable is re-routed or the plan is re-calibrated.
+- After calibration the plan locks and lies under everything; clicks reach the
+  devices. A four-corner calibration cannot be exported to the venue exchange,
+  which carries one scale per plan — the export button says so.
+
+---
+
+### 🔣 Symbols
+
+Plan symbols on the canvas (toolbar → *Symbols*): electrical, intrusion alarm,
+fire alarm, voice alarm / PA, IT / network, automation and AV — drawn after the
+common plan conventions (DIN EN 60617, DIN 14034-6), not certified against them.
+
+- A symbol is **not a device**: no ports, no checks. It labels the plan. Label,
+  size, rotation and lock are set in the panel; Delete removes the selected one.
+- **Import your own** as SVG, PNG, JPG or WebP. SVGs are cleaned (no scripts,
+  no event handlers, no external references) and every symbol is drawn through
+  `<img>`, where nothing runs. Custom symbols travel inside the project file.
+- **Generate a symbol** from a description when an AI key is stored under
+  *Settings → AI* (Gemini, Claude or OpenAI). Without a key the option is not
+  shown. A generated symbol is a model's drawing, not a standard symbol.
+- **Symbol list as CSV**: count and labels per symbol.
 
 ---
 
@@ -224,13 +309,26 @@ plate **in millimetres**, print the label strip and the drilling sheet **1:1**.
   (with the overlap in millimetres), and connectors that have no position yet.
 - The **faceplate list** goes through the report editor like every other list,
   so it groups, filters and prints with the same settings.
+- A **wall panel, stagebox or plate passes the signal through**, socket n at
+  the back to socket n at the front — so the signal path runs camera → hall
+  plate → house run → 3rd-floor plate → gallery as one chain instead of
+  stopping at the first plate. Untick *Patch panel* on a plate that does not
+  (a stagebox with a converter inside).
+- A pass-through plate has a front and a back. **On the plate** picks which of
+  the two sits on it (by default the side whose connectors already have a
+  position); the back — the house run — is not drilled and not reported as
+  "no position".
+- A plate with **several rows** of connectors prints **one label strip per
+  row**, so BNC on top and RJ45 below no longer land on the same spot.
 
 ---
 
 ### 📋 Report editor
 
 Every list this program prints — pull list, termination list, cable schedule,
-asset register, network sheet, spectrum plan, delivery, tally map, handover —
+asset register, network sheet, spectrum plan, delivery, tally map, handover,
+signal paths, house run occupancy, crossings, defects and open items,
+maintenance schedule, configuration settings, attachment index —
 goes through one editor (#880):
 
 - **Columns**: show, hide, reorder.
@@ -353,6 +451,23 @@ connects BNC to HDMI directly - this needs a converter, and the planner names
 converters instead of inserting them."* A refusal without a way forward just
 makes a model try the same thing again.
 
+**From claude.ai, Claude on the phone, or another machine** (#874): those
+cannot reach `127.0.0.1`. Put the project into the cloud (*File → Cloud & share
+link…*), then add a custom connector in claude.ai (*Settings → Connectors →
+Add custom connector*) with
+
+```
+https://devices.zumpelars.de/mcp
+```
+
+and sign in with your device-library account (OAuth; claude.ai registers
+itself). The remote server offers the same read tools plus `list_projects` and
+`list_revisions`, over **your cloud projects only**. The answers are computed by
+the planner when it saves — the server never works out a signal path of its
+own — and nothing can be written. Disconnect at any time under *Account →
+Security → Connected apps* on devices.zumpelars.de. Claude Code works the same
+way: `claude mcp add --transport http cable-planner-cloud https://devices.zumpelars.de/mcp`.
+
 **Switching commands are never offered.** Reading a Videohub or an ATEM: yes.
 Routing them from a tool: no — a model that changes routing during a show is a
 risk without a payoff.
@@ -368,18 +483,123 @@ risk without a payoff.
 - **Green-GO** — intercom configuration export (`.gg5`), plus a
   **vendor-neutral intercom exchange file** that someone building a Riedel or
   Clear-Com system can also read
-- **`.avplan`** — the shared exchange format across the planner suite
+- **`.avplan`** — the shared exchange format across the planner suite. When the
+  file carries the MultiCam plan's cameras, opening it offers to place them in
+  the signal plan
+- **MultiCam cameras** (`.cameras.json`, format `camera-list` v1 to v3,
+  *File → Import MultiCam cameras*) — every placed camera becomes a device with
+  its datasheet ports, lens, zoom range, set focal length, height, pan and tilt,
+  and (v3) its saved PTZ presets with the day each was saved (shown on the node
+  and under *Optics* in its properties). When the plan sends no field of view,
+  *Optics* calculates the horizontal one from the camera's sensor width and the
+  set focal length (times extender) — only when that is unambiguous (one sensor
+  mode, lens on the native mount) and labelled as calculated. Importing again **reconciles** instead
+  of duplicating: names, optics and presets follow the camera plan, position,
+  ports and cables stay, and a camera that left the MultiCam plan is marked,
+  not deleted — cables may hang on it. An older v2 list says nothing about
+  presets and leaves the existing ones in place
+- **Racks for the warehouse** (`rack-belegung.json`, *Library → Racks → For the
+  warehouse*) — what sits in each rack, with unit and name, for the Inventory
+  Planner. A rack that travels in a case is a case there: the warehouse owns
+  the empty shell (how many units, how deep), the plan owns what is mounted
+  in it. The inventory checks one against the other and says so when the plan
+  fills units 1–14 of a 12-unit case — before the truck leaves. Units are
+  counted from the bottom in the file, the way the trade counts them.
 - **Building statement** (`.avfacility`, from the facility planner) — outlets,
   cable routes and the control addresses the show may use. The plan **refers**
   to them and keeps no copy: the checks ask the statement, so a device wired to
   an outlet or a control address that the latest statement no longer lists says
-  so. A **DALI address whose kind is not stated** is reported too — short
-  address, group and broadcast are three different things, and the last one is
-  the whole bus, emergency lighting included.
+  so. A **control address whose kind is not stated** is reported too, for the
+  systems that have kinds (same table as the facility planner): DALI short
+  address, group or broadcast (the last one is the whole bus, emergency
+  lighting included); Crestron digital, analog or serial join; Vissonic camera
+  or mixer (the mixer has a single output — a command there changes every
+  screen). KNX addresses need no kind.
+  Since format v2 the statement also carries the building's **floors** (take
+  them into the plan's floor list with one click) and its **house runs** with
+  rooms, the plate at each end and their cores. A cable's properties pick the
+  run and core it uses; the list shows which cores other cables already hold,
+  and the plan check reports a run the building no longer lists, a core it
+  does not know, and two cables on one core.
 
 API tokens live in the **operating system's credential store** (macOS Keychain,
 Windows Credential Manager, libsecret) through `keytar` — not in the project
 file, not in browser storage, not in source. Exports strip them before writing.
+The one exception is the web edition, which has no keychain: there the device
+library sign-in is kept in the browser's own storage (see below).
+
+### 📚 Device library
+
+The shared, moderated device catalogue of the planner suite lives at
+**[devices.zumpelars.de](https://devices.zumpelars.de)**. Every build talks to
+that server out of the box; *Settings → Device library* can point it at another
+one, and **Restore default** goes back.
+
+- **Account** — the library can only be used with an account. Create it on the
+  website (*Create account* opens it): confirm your email address and accept
+  the guidelines there. In the planner, sign in with email or username and
+  password; with two-factor sign-in enabled, the app asks for the code next.
+  Errors say what happened — an unconfirmed email points at the confirmation
+  mail, too many attempts asks you to wait, an unreachable server says so.
+  The desktop app keeps the sign-in in the OS keychain and fetches from the
+  main process; the web edition keeps it in the browser's storage.
+- **Sync** — *Update from device library* (in the settings, or *Update* under
+  *Library → Equipment → Shared*) fetches only what changed since the last
+  sync. The devices are a **read-only source of their own**: click or drag
+  them onto the canvas; to change one, save it from the canvas as your own
+  template. Each shows its status (verified, confirmed, unconfirmed,
+  disputed), the number of confirmations and a link to its page. Devices the
+  library withdraws disappear locally. Every entry goes through the same
+  template check as a submission; entries that fail it are skipped and
+  counted. The fetched state stays available offline.
+- **Your own devices go up** — templates you created or changed are uploaded
+  to the library, so what you build in one planner is there for the others.
+  With *Upload my own devices automatically* (on by default; it only acts
+  while you are signed in) this happens at start and a few seconds after you
+  change a template; **Sync now** does it by hand — first up, then down. Only
+  what changed since the last upload is sent, plus what is still waiting for
+  moderation — that is how an entry switches from *waiting for moderation* to
+  *live* once a moderator approves it. Built-in templates you have not
+  changed are not uploaded from your machine; the project publishes them
+  itself. *Settings → Device library → My devices* lists every own template
+  with its state (not uploaded yet, waiting for moderation, live, up to date,
+  blocked with the reasons) and lets you correct the manufacturer/model split
+  — the library recognises the same device across planners by exactly those
+  two. A generic part without a manufacturer (patch panels, power strips) is
+  not guessed: it waits until you enter one.
+- **Submit** — see the next section.
+
+Maintainers publish the built-in catalogue with `npm run library:publish`
+(`DEVICE_LIBRARY_KEY` = an admin API key `dlk_…`, optional
+`DEVICE_LIBRARY_URL`; `-- --dry-run` only reports). Entries without a
+datasheet link or a recognisable manufacturer are listed, not uploaded. The
+workflow `library-publish.yml` runs it on every push to `main` that touches
+the catalogue, and on demand; without the `DEVICE_LIBRARY_KEY` secret it says
+so and sends nothing.
+
+---
+
+### ☁️ Cloud copy with revisions
+
+Optional, off until you ask for it (#871). *File → Cloud…* puts
+the open project into the cloud of your device-library account
+([devices.zumpelars.de](https://devices.zumpelars.de)); sign in under
+*Settings → Device library*.
+
+- **Your file stays the master copy.** The cloud keeps a copy with history;
+  without a connection the planner works exactly as before.
+- **Every save is a revision** — automatically 30 s after the last change, or
+  with *Save to cloud now*. Any revision can be restored; restoring makes it
+  the newest one, nothing is lost.
+- **A parallel change is never overwritten.** Each save names the revision it
+  was based on. If another device saved in between, the planner merges both
+  (devices, cables and areas through the same CRDT as live collaboration;
+  other fields: whoever changed them wins) and saves the result.
+- **Second device:** the same dialog lists your cloud projects to open or to
+  download as `.cableplan` at any time.
+- **Credentials stay on the computer** (device logins are removed before
+  upload and kept locally when merging). Stored encrypted; *Delete from cloud*
+  removes the project with every revision at once.
 
 ---
 
@@ -390,9 +610,12 @@ file, not in browser storage, not in source. Exports strip them before writing.
 - Join by **invite link**, or find open sessions on the LAN automatically
 - **Room password** encrypts the session end-to-end; without it, anyone who
   knows the room name can read along
-- Bring your own **signaling relay and STUN/TURN servers** for connections
-  across networks — or switch on **local-only** mode, where nothing leaves
-  your LAN
+- Across networks it works out of the box: the default relay
+  `wss://relay.zumpelars.de` only sees connection metadata, and a
+  device-library account adds short-lived TURN credentials for networks where
+  peer-to-peer fails ([docs/self-hosted-relay.md](docs/self-hosted-relay.md))
+- Bring your own **signaling relay and STUN/TURN servers** — or switch on
+  **local-only** mode, where nothing leaves your LAN
 - Collaborative undo takes back *your* edits, not other people's
 
 ---
@@ -426,6 +649,68 @@ patch panel, converter with two onward cables, nothing plugged in.
   - Cable metadata
   - Signal routing overview
 - Print-ready production documentation
+- **Fixed install: docs & handover** (File menu) — pull list, termination list,
+  cable schedule, cable BOM with reserve, asset register, handover document,
+  **signal paths** (every chain from source to target with floor and room at
+  each station) and **house run occupancy** (per core: which cable, which are
+  free), plus QR labels for every cable and device
+- **Route plan per floor** (HTML, A4 landscape) — a top view of every floor
+  with its rooms, the riser and a line per connection room to room or room to
+  riser, labelled with the cable count. Schematic, not the tray route: the
+  plan knows rooms and risers, not where the tray runs
+- **Crossings (fire protection)** (CSV) — every room boundary, riser entry and
+  floor slab a cable passes, with the cables bundled per crossing, their
+  jacket / fire rating and pathway. A missing rating is named in the finding
+  column, and a floor change without a riser says so instead of inventing a
+  route. Cables with an end outside every room are counted, not placed
+- **Acceptance record** (HTML) — installation header, scope and test results,
+  the defects and open items the plan knows (faults, failed cable tests, field
+  reports neither applied nor rejected, items still planned) plus empty rows
+  for the walk-through, three result boxes left unticked, and a signature block
+  for client and contractor. A cable without status or test result is counted,
+  not listed as a defect. The list alone is also a CSV (**defects and open
+  items**)
+- **Maintenance schedule** (CSV) — next due date per device from its
+  maintenance interval and the latest service entry, else the handover date;
+  which basis applied is its own column. No interval or no basis: the date
+  stays empty and the finding says why. No statutory inspection periods are
+  assumed
+- **Configuration settings** (CSV) — per device and interface: address, mask,
+  gateway, VLAN, MAC, switch and port (entered at the interface, or followed
+  from the cable through patch panels), web interface. A single cabled port
+  goes to the first interface; with two, each gets its own row instead of a
+  guess. Devices on a switch without an address, missing masks and port
+  conflicts are flagged
+- **Device cards** (HTML) — one card per device: location, category, asset
+  tag, serial, firmware, status, warranty, interval, manufacturer page, web
+  interface, network, switcher input, every cable with its other end (and,
+  when that end is a patch panel, the device behind it), service history.
+  Gaps show as a dash
+- **Operator overview** (HTML) — which source (by role name) lies on which
+  switcher or router input, where each output goes (through patch panels),
+  contacts, web interfaces, and an empty box for operating steps: the plan does
+  not know them and the sheet does not invent them
+- **Camera positions** (HTML) — per camera from the camera plan: room, role,
+  height, aim, optics, switcher input and the PTZ presets (number, shot,
+  segment, pan, tilt, focal length, focus, saved on). The sheet says that the
+  presets are not checked against the camera head — no camera protocol is
+  spoken here
+- **Attachments** (desktop app) — test reports, manufacturer documents and
+  configuration backups, each attached to a cable, a device or the whole
+  installation. The files are copied into the folder `Anhaenge` next to the
+  project (named by their SHA-256, any file type, up to 100 MB); the project
+  keeps only the reference. Files are never opened from the app, only shown
+  in the file manager. A missing file, a target no longer in the plan and a
+  cable with a test result but no report are flagged. The **attachment
+  index** (CSV) lists them all with their checksum for the handover
+- Every column of every exported list carries a lexicon entry (the column
+  glossary appended to each CSV)
+- **Per-device patch sheets** name where the device stands (*floor · room*)
+  and, for a cable leaving the room, where its other end lies
+- The **switch port map** looks through patch panels and wall plates: a camera
+  behind the gallery patch panel and the hall wall panel is named as the
+  camera, with the panels it passes — not as a conflict with the patch panel.
+  The PoE budget counts it the same way
 
 ---
 
@@ -445,6 +730,19 @@ patch panel, converter with two onward cables, nothing plugged in.
 - **Photos for the documentation**, from the planner and from the phone. They
   point at a device or a cable (or at nothing, and then belong to the project),
   are scaled down on the way in, and travel inside the plan file.
+- **Survey an existing installation** (*Tools → Survey*): walk through the room
+  and type what you see — device name, room (it stays for the next entry),
+  assumed connection, note — Enter, next. Each entry is in the plan at once as
+  an unfinished device: no invented connectors (the plan check asks for them),
+  the details in its notes, photos attachable in the survey list. Tick it off
+  once it is worked out. From the phone the same works via *Report → New
+  device*; the report arrives in the survey list and becomes a device when you
+  accept it.
+- **Phone access** asks for the decision first: *Read only* or *Contribute*.
+  Only *Contribute* lets the phone send ticks, cables, photos, reports and new
+  devices; a read-only phone says how to switch. The phone path needs the
+  desktop app (it serves the plan over the LAN); the browser edition shows the
+  button and says so.
 - **Label sheets and QR labels** for cables and devices, print-ready.
 - **Read-only web viewer** for sharing a plan with someone who does not run the
   app.
@@ -538,7 +836,12 @@ npm run dist
 ### Submitting your own device templates
 
 Built a template for a device the catalogue does not have? **Library → `+` →
-Submit templates…** checks your own templates and writes a submission file.
+Submit templates…** checks your own templates, then **sends them to the
+device library** (signed in) or saves a submission file (no account needed).
+The library lists manufacturer and model separately; the dialog suggests the
+split from the template name and you correct it. The datasheet link of the
+template becomes the source of the proposal, and it goes to moderation before
+anyone else sees it.
 
 The check is the point, and one rule of it is hard: **no datasheet link, no
 submission.** A template nobody can verify looks, in a plan six months later,
@@ -552,8 +855,9 @@ splitter has none and a PoE device draws it from the network; forcing a number
 there would mean inventing one so a form is happy. It stays "not stated" in
 the catalogue rather than a 0 that looks measured.
 
-What does not pass is written **into the file** with its reason, next to what
-did — a submission that quietly drops half of itself looks complete.
+What does not pass is listed in the dialog and written **into the file** with
+its reason, next to what did — a submission that quietly drops half of itself
+looks complete. It is not sent to the library either.
 
 ### On a tablet — the web edition
 

@@ -44,6 +44,7 @@ export type EquipmentSlice = Pick<
   ProjectState,
   | 'addEquipment'
   | 'importEquipment'
+  | 'syncImportedEquipment'
   | 'insertGeneratedPlan'
   | 'updateEquipment'
   | 'deleteEquipment'
@@ -110,6 +111,40 @@ export const createEquipmentSlice: StateCreator<ProjectState, [], [], EquipmentS
               // CRITICAL: Ensure x/y are valid numbers. Equipment being imported
               // should have positions, but if somehow they don't, default to (0, 0)
               // to prevent disappearing equipment.
+              x: item.x !== undefined && !Number.isNaN(item.x) ? item.x : 0,
+              y: item.y !== undefined && !Number.isNaN(item.y) ? item.y : 0,
+              inputs: item.inputs.map((p, index) => sanitizePort(p, `In ${index + 1}`)),
+              outputs: item.outputs.map((p, index) => sanitizePort(p, `Out ${index + 1}`)),
+            })),
+          ],
+        }),
+      }
+    }),
+  syncImportedEquipment: (neu, patches) =>
+    set((state) => {
+      if (isProjectLocked(state)) return state
+      if (neu.length === 0 && patches.length === 0) return state
+      const byId = new Map(patches.map((p) => [p.id, p.patch]))
+      return {
+        project: touchProject({
+          ...state.project,
+          equipment: [
+            ...state.project.equipment.map((item) => {
+              const patch = byId.get(item.id)
+              if (!patch) return item
+              const next = { ...item, ...patch }
+              // `undefined` im Patch heisst „Feld entfernen" (z. B. die
+              // Verwaist-Markierung einer wieder aufgetauchten Kamera).
+              for (const [k, v] of Object.entries(patch)) {
+                if (v === undefined) delete (next as Record<string, unknown>)[k]
+              }
+              if (patch.inputs) next.inputs = patch.inputs.map((p, index) => sanitizePort(p, `In ${index + 1}`))
+              if (patch.outputs) next.outputs = patch.outputs.map((p, index) => sanitizePort(p, `Out ${index + 1}`))
+              return next
+            }),
+            ...neu.map((item) => ({
+              ...item,
+              id: item.id || uuidv4(),
               x: item.x !== undefined && !Number.isNaN(item.x) ? item.x : 0,
               y: item.y !== undefined && !Number.isNaN(item.y) ? item.y : 0,
               inputs: item.inputs.map((p, index) => sanitizePort(p, `In ${index + 1}`)),

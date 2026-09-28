@@ -11,9 +11,12 @@ import { hasDesktopBridge } from '../../../lib/bridge'
 import { MIME_EQUIPMENT } from '../../../lib/dragDropMimes'
 import { exportTemplateToFile } from '../../../lib/itemExport'
 import { nextPlacementPosition } from '../../../lib/library'
-import { downloadBlob } from '../../../lib/downloadBlob'
+import { DeviceLibrarySubmitDialog } from '../DeviceLibrarySubmitDialog'
+import { mountModal } from '../../../lib/modalRoot'
 import { infoDialog } from '../../../lib/infoDialog'
+import { confirmDialog } from '../../../lib/confirmDialog'
 import { baueEinreichung } from '../../../lib/vorlagenEinreichung'
+import { eigeneVorlagen } from '../../../lib/deviceLibraryUpload'
 import type { EquipmentTemplate } from '../../../types/equipment'
 import { CategoryDndWrapper } from '../LibraryDndWrappers'
 import { SortableCategorySection } from '../LibrarySortables'
@@ -122,12 +125,13 @@ export const LocalEquipmentTab = ({
    * Eigene Vorlagen einreichen (#878).
    *
    * Geprueft wird VOR dem Schreiben, und was nicht durchgeht, steht MIT
-   * GRUND in der Datei — eine Einreichung, die still die Haelfte weglaesst,
-   * sieht vollstaendig aus. Die Zusammenfassung davor sagt, was gleich
-   * passiert; wer sie liest, weiss, ob sich das Abschicken lohnt.
+   * GRUND im Dialog und in der Datei — eine Einreichung, die still die
+   * Haelfte weglaesst, sieht vollstaendig aus. Ziel ist die Datei oder,
+   * angemeldet, die Geraetebibliothek (`DeviceLibrarySubmitDialog`).
    */
   const einreichen = async () => {
-    const eigene = customLibrary.filter((v) => !v.rentmanSource)
+    // Nur Eigenes: unveraenderte Katalog-Vorlagen veroeffentlicht das Projekt selbst.
+    const eigene = eigeneVorlagen(customLibrary)
     const paket = baueEinreichung(eigene, {
       app: 'cable-planner',
       appVersion: __APP_VERSION__,
@@ -136,20 +140,9 @@ export const LocalEquipmentTab = ({
       await infoDialog(t('library.submit.none', 'No templates of your own to submit.'))
       return
     }
-    const bericht = [
-      format(t('library.submit.summary', '{n} of {total} templates can be submitted.'), {
-        n: paket.eintraege.length,
-        total: eigene.length,
-      }),
-      ...paket.uebersprungen.map((u) => `• ${u.name}: ${u.gruende[0] ?? ''}`),
-    ].join('\n')
-    await infoDialog(t('library.submit.title', 'Submit templates'), { body: bericht })
-    if (paket.eintraege.length === 0) return
-    downloadBlob(
-      'cable-planner-devices.submission.json',
-      JSON.stringify(paket, null, 2),
-      'application/json',
-    )
+    await mountModal<void>((done) => (
+      <DeviceLibrarySubmitDialog paket={paket} total={eigene.length} onClose={() => done()} />
+    ))
   }
 
   return (
@@ -447,21 +440,20 @@ export const LocalEquipmentTab = ({
                           <LibraryItem
                             item={item}
                             onAdd={() => addEquipment({ ...stampDeviceLibraryRef(item), ...nextPlacementPosition(equipmentCount, equipmentItems) })}
-                            onRemove={() => removeCustomTemplate(item.name)}
+                            onRemove={async () => {
+                              // #901 — Entfernen loescht die Vorlage aus der
+                              // Bibliothek und steht in keinem Undo-Verlauf.
+                              const ok = await confirmDialog(
+                                format(t('library.item.removeConfirm', 'Remove "{name}" from the library?'), { name: item.name }),
+                                { destructive: true },
+                              )
+                              if (ok) removeCustomTemplate(item.name)
+                            }}
+                            onEdit={() => setSelectedTemplateName(item.name)}
                             onToggleFavorite={() => toggleTemplateFavorite(item.name)}
                             onToggleHidden={() => toggleTemplateHidden(item.name)}
                             onExport={() => void exportTemplateToFile(item)}
                           />
-                          {/* Edit button — appears on hover */}
-                          <button
-                            type="button"
-                            onClick={() => setSelectedTemplateName(item.name)}
-                            className="absolute right-7 top-1 hidden bg-cp-surface-5 px-1 py-0.5 text-cp-xs hover:bg-slate-500 group-hover/item:block"
-                            title={t('library.template.editTitle', 'Edit template (name, category)')}
-                            aria-label={t('library.template.editTitle', 'Edit template (name, category)')}
-                          >
-                            <Icon icon={Pencil} size="xs" />
-                          </button>
                         </div>
                       ))
                     )}

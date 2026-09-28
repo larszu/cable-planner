@@ -6,6 +6,14 @@ import { format, useTranslation } from '../../lib/i18n'
 import { ColorField } from '../shared/ColorField'
 import { Icon } from '../shared/Icon'
 import { PanelHint } from '../shared/PanelHint'
+import { promptDialog } from '../../lib/promptDialog'
+import { etagenIndex } from '../../lib/etagen'
+import { EtagenVerwaltung } from './EtagenVerwaltung'
+import type { Floor } from '../../types/location'
+
+/** Wert der Auswahl-Option „Neue Etage…" — kann kein Etagenname sein. */
+const NEUE_ETAGE = '\u0000neu'
+const EMPTY_FLOORS: Floor[] = []
 
 export const LocationProperties = () => {
   const t = useTranslation()
@@ -19,6 +27,8 @@ export const LocationProperties = () => {
     (state) => state.deleteLocationWithContents,
   )
   const openLocationBom = useUiStore((state) => state.openLocationBom)
+  const floors = useProjectStore((state) => state.project.floors ?? EMPTY_FLOORS)
+  const setFloors = useProjectStore((state) => state.setFloors)
 
   if (!location) return null
 
@@ -66,12 +76,31 @@ export const LocationProperties = () => {
       <div className="grid grid-cols-2 gap-2">
         <label className="block">
           {t('location.field.floor', 'Floor')}
-          <input
-            value={location.floor ?? ''}
-            placeholder={t('location.field.floorPlaceholder', 'e.g. ground floor, 1st')}
-            onChange={(e) => updateLocation(location.id, { floor: e.target.value })}
+          {/* #911 — eine Auswahl statt Freitext: ein Tippfehler war sonst eine
+              neue Etage. „Neue Etage…" legt sie in der Liste an. */}
+          <select
+            value={location.floor?.trim() ?? ''}
+            onChange={async (e) => {
+              const v = e.target.value
+              if (v === NEUE_ETAGE) {
+                const name = (await promptDialog(t('floors.newPrompt', 'Name of the new floor (e.g. "3rd floor")')))?.trim()
+                if (!name) return
+                if (etagenIndex(name, floors) < 0) setFloors([...floors, { name }])
+                updateLocation(location.id, { floor: name })
+                return
+              }
+              updateLocation(location.id, { floor: v || undefined })
+            }}
             className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-1.5"
-          />
+          >
+            <option value="">{t('location.field.floorNone', '— none —')}</option>
+            {[...floors].reverse().map((f) => (
+              <option key={f.name} value={f.name}>
+                {f.elevationM !== undefined ? `${f.name} (${f.elevationM} m)` : f.name}
+              </option>
+            ))}
+            <option value={NEUE_ETAGE}>{t('floors.add', 'Add floor…')}</option>
+          </select>
         </label>
         <ColorField
           label={t('location.field.color', 'Colour')}
@@ -79,6 +108,16 @@ export const LocationProperties = () => {
           onChange={(color) => updateLocation(location.id, { color })}
         />
       </div>
+
+      <label className="flex items-start gap-2" title={t('location.field.riserTitle', 'In the building 3D view this frame runs through all floors, and cables between floors are drawn through it instead of as a straight line.')}>
+        <input
+          type="checkbox"
+          checked={!!location.steigschacht}
+          onChange={(e) => updateLocation(location.id, { steigschacht: e.target.checked || undefined })}
+          className="mt-0.5"
+        />
+        <span>{t('location.field.riser', 'Riser / vertical cable route')}</span>
+      </label>
 
       <div>
         <label className="block">
@@ -91,6 +130,8 @@ export const LocationProperties = () => {
           />
         </label>
       </div>
+
+      <EtagenVerwaltung />
 
       {/* "Geräte beim Verschieben mitnehmen" is temporarily hidden while the
           group-drag selection logic is being reworked. The store field and the

@@ -95,6 +95,13 @@ interface PersistedSettings {
    *  Projekte. Das zugehörige Token liegt im OS-Schlüsselbund, niemals
    *  hier. Leerer String = NetBox nicht konfiguriert. */
   netboxUrl: string
+  /** Geraetebibliothek — Server-URL. Leer = Vorgabe-Server
+   *  (`DEFAULT_DEVICE_LIBRARY_URL`); so bleibt ein Build ohne Einstellung
+   *  beim Werksserver, auch wenn sich dessen Adresse einmal aendert. */
+  deviceLibraryUrl: string
+  /** Eigene Vorlagen beim Start und nach jeder Aenderung hochladen und danach
+   *  abgleichen. Vorgabe an — wirkt nur, solange jemand angemeldet ist. */
+  deviceLibraryAutoUpload: boolean
   /**
    * #880 — Berichts-Vorlagen, die fuer ALLE Projekte gelten.
    *
@@ -158,6 +165,8 @@ const defaults: PersistedSettings = {
   onboardingDone: false,
   userSchema: {},
   netboxUrl: '',
+  deviceLibraryUrl: '',
+  deviceLibraryAutoUpload: true,
   berichtsvorlagen: [],
   canvasMotion: true,
   tallyPiUrl: '',
@@ -193,6 +202,12 @@ const load = (): PersistedSettings => {
         typeof parsed.onboardingDone === 'boolean' ? parsed.onboardingDone : true,
       userSchema: sanitizeUserSchema(parsed.userSchema),
       netboxUrl: typeof parsed.netboxUrl === 'string' ? parsed.netboxUrl : defaults.netboxUrl,
+      deviceLibraryUrl:
+        typeof parsed.deviceLibraryUrl === 'string' ? parsed.deviceLibraryUrl : defaults.deviceLibraryUrl,
+      deviceLibraryAutoUpload:
+        typeof parsed.deviceLibraryAutoUpload === 'boolean'
+          ? parsed.deviceLibraryAutoUpload
+          : defaults.deviceLibraryAutoUpload,
       // Bestehende Installationen kennen das Feld nicht — sie bekommen die
       // Vorgabe AN. Das ist keine Aenderung ihrer Entscheidung, sondern die
       // erste: die Bewegung gab es vorher nicht.
@@ -245,6 +260,8 @@ const snapshot = (s: PersistedSettings): PersistedSettings => ({
   onboardingDone: s.onboardingDone,
   userSchema: s.userSchema,
   netboxUrl: s.netboxUrl,
+  deviceLibraryUrl: s.deviceLibraryUrl,
+  deviceLibraryAutoUpload: s.deviceLibraryAutoUpload,
   berichtsvorlagen: s.berichtsvorlagen,
   canvasMotion: s.canvasMotion,
   tallyPiUrl: s.tallyPiUrl,
@@ -265,6 +282,8 @@ interface SettingsState {
   onboardingDone: boolean
   userSchema: UserSchemaMap
   netboxUrl: string
+  deviceLibraryUrl: string
+  deviceLibraryAutoUpload: boolean
   berichtsvorlagen: import('../types/bericht').Berichtsvorlage[]
   canvasMotion: boolean
   tallyPiUrl: string
@@ -286,6 +305,8 @@ interface SettingsState {
   setUserSchema: (map: UserSchemaMap) => void
   /** #597 — Basis-URL der NetBox-Instanz setzen (leer = nicht konfiguriert). */
   setNetboxUrl: (value: string) => void
+  setDeviceLibraryUrl: (value: string) => void
+  setDeviceLibraryAutoUpload: (value: boolean) => void
   /** #880 — die globalen Berichts-Vorlagen ersetzen. */
   setBerichtsvorlagen: (v: import('../types/bericht').Berichtsvorlage[]) => void
   /** Bewegte Darstellung im Canvas ein-/ausschalten. */
@@ -313,6 +334,8 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   ausfuellQuelle: initial.ausfuellQuelle,
   userSchema: initial.userSchema,
   netboxUrl: initial.netboxUrl,
+  deviceLibraryUrl: initial.deviceLibraryUrl,
+  deviceLibraryAutoUpload: initial.deviceLibraryAutoUpload,
   berichtsvorlagen: initial.berichtsvorlagen,
   tallyPiUrl: initial.tallyPiUrl,
   tallyPiDirekt: initial.tallyPiDirekt,
@@ -388,6 +411,17 @@ export const useSettingsStore = create<SettingsState>((set) => ({
       const netboxUrl = value.trim()
       persist(snapshot({ ...state, netboxUrl }))
       return { netboxUrl }
+    }),
+  setDeviceLibraryUrl: (value) =>
+    set((state) => {
+      const deviceLibraryUrl = value.trim()
+      persist(snapshot({ ...state, deviceLibraryUrl }))
+      return { deviceLibraryUrl }
+    }),
+  setDeviceLibraryAutoUpload: (value) =>
+    set((state) => {
+      persist(snapshot({ ...state, deviceLibraryAutoUpload: value }))
+      return { deviceLibraryAutoUpload: value }
     }),
   // #880 — die globalen Vorlagen. Sie werden GANZ ersetzt und nicht
   // einzeln gepflegt: der Editor hat die vollstaendige Liste ohnehin in der

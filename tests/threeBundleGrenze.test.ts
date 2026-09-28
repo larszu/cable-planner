@@ -30,6 +30,12 @@ describe('Three.js bleibt hinter der Lazy-Grenze', () => {
     expect(c).not.toMatch(/^import \{[^}]*RackEditorDialog[^}]*\} from/m)
   })
 
+  it('App laedt die Gebaeude-3D-Ansicht lazy (#916)', () => {
+    const c = code(appSrc)
+    expect(c).toMatch(/lazy\(\(\) =>\s*import\('\.\/components\/Rack\/Gebaeude3DDialog'\)/)
+    expect(c).toContain('gebaeude3dOpen && (')
+  })
+
   it('LibraryPanel laedt den Rack-Builder lazy', () => {
     const c = code(libSrc)
     expect(c).toMatch(/lazy\(\(\) => import\('\.\.\/Rack\/RackBuilderDialog'\)/)

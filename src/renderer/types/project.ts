@@ -1,7 +1,7 @@
 import type { Cable, CableStockEntry } from './cable'
 import type { EquipmentItem } from './equipment'
 import type { IntercomPlan } from './intercomPlan'
-import type { LocationFrame } from './location'
+import type { Floor, LocationFrame } from './location'
 import type { VenueAnswer } from './venueAnswer'
 import type { HausAuskunft } from './hausAuskunft'
 import type { VideoFormatId } from './videoFormat'
@@ -179,12 +179,31 @@ export interface CanvasState {
   zoom: number
 }
 
+/** #871 — siehe `CablePlannerProject.cloud`. */
+export interface CloudBinding {
+  /** Server, auf dem das Projekt liegt (Geraetebibliothek). */
+  server: string
+  projectId: string
+  rev: number
+  syncedAt: string
+}
+
 export interface CablePlannerProject {
   metadata: ProjectMetadata
   equipment: EquipmentItem[]
   cables: Cable[]
   canvasState: CanvasState
   locations?: LocationFrame[]
+  /** Hallenplan unter dem Canvas, mit Massstab. */
+  grundriss?: import('./grundriss').Grundriss
+  /** Symbole auf dem Canvas. */
+  symbole?: import('./symbol').PlatziertesSymbol[]
+  /** Eigene Symbol-Definitionen dieses Projekts (importiert, per KI erzeugt).
+   *  Reisen in der Datei mit, damit der Plan auf einem anderen Rechner
+   *  dieselben Zeichen zeigt. */
+  symbolDefs?: import('./symbol').SymbolDef[]
+  /** #911 — die Etagen, von unten nach oben. Siehe `Floor`. */
+  floors?: Floor[]
   /**
    * Der Intercom-Slot (E-2, Schritt 1).
    *
@@ -265,6 +284,10 @@ export interface CablePlannerProject {
    *  hält einen vollständigen Snapshot des Plans, sodass ein früherer Stand
    *  wiederhergestellt werden kann. Optional → alte Projekte laden sauber. */
   revisions?: ProjectRevision[]
+  /** #871 — Verbindung zu einem Cloud-Projekt. Nur gesetzt, wenn jemand das
+   *  Projekt ausdruecklich in die Cloud gelegt hat. `rev` ist der Stand, auf
+   *  dem die lokale Datei beruht — Grundlage fuer die Konfliktpruefung. */
+  cloud?: CloudBinding
   /** Festinstallation — attribuiertes Änderungsprotokoll (MAC/IMACD). Jede
    *  Move/Add/Change/Service-Aktion landet hier mit wer/was/wann, sodass der
    *  Plan ein nachvollziehbares lebendes Dokument bleibt. Optional → alte
@@ -275,6 +298,10 @@ export interface CablePlannerProject {
    *  Planer übernimmt/verwirft sie am Desktop; beim Übernehmen wandert die
    *  Änderung ins `changelog`. Optional → alte Projekte heilen zu []. */
   pendingChanges?: PendingChange[]
+  /** Festinstallation — Anhänge neben dem Projekt (Messprotokolle,
+   *  Herstellerunterlagen, Konfig-Sicherungen). Nur Verweise; die Dateien
+   *  liegen in `Anhaenge/`. Optional → leer heilt zu `undefined`. */
+  anhaenge?: import('./anhang').ProjektAnhang[]
   /** .avplan-Passthrough — fremde Domaenen (geteilter Raum + Kamera- + Licht-
    *  Planung), die der Cable-Planner nicht bearbeitet, aber verlustfrei sowohl
    *  in der gemeinsamen .avplan als auch im eigenen Projektfile aufbewahrt,

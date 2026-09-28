@@ -87,6 +87,7 @@ export interface DeviceConfigEntry {
 import { STORAGE_KEYS } from '../lib/storageKeys'
 import { PANEL_LIMITS } from '../lib/layoutConstants'
 import { RASTER_DEFAULT, rasterGrenzen } from '../lib/raster'
+import { kabeltypenUmbenannt } from '../lib/stammdaten'
 
 const KEY = STORAGE_KEYS.ui
 
@@ -214,6 +215,10 @@ interface PersistedUiState {
   /** v7.9.2 — User-definierte Signal-Standards (z.B. "Madi 64ch",
    *  "Dante Primary"), zusätzlich zu ALL_SIGNAL_STANDARDS. */
   customSignalStandards: string[]
+  /** #917 — hier entfernte eigene Stammdaten (`stecker:`/`standard:`/`ebene:`
+   *  + Name klein). Der Bibliotheks-Abgleich ergaenzt nur und braechte sie
+   *  sonst beim naechsten Sync zurueck — das Entfernen haette keine Wirkung. */
+  stammdatenEntfernt: string[]
   /** v7.9.6 — User-defined order of cable groups (SDI, HDMI, …) in the
    *  Kabel-Library. Empty array = natural order from groupOf(). Unknown
    *  groups land at the end so adding a new connector type doesn't lose
@@ -321,6 +326,11 @@ interface PersistedUiState {
    *  default position so adding new sections in future versions
    *  doesn't lose the user's existing ordering. */
   equipmentSectionOrder: string[]
+  /** Merker der einmaligen Umstellung von 2026-09-28: `ports` an den Anfang
+   *  von `equipmentSectionOrder`. Siehe `load()` — ohne ihn saehe ein
+   *  Bestandsnutzer die neue Vorgabe nie, mit ihm bleibt eine eigene
+   *  Sortierung danach unangetastet. */
+  portsVorangestellt: boolean
   /**
    * ISSUE #903 — „Rechte Seitenleiste zu unuebersichtlich."
    *
@@ -399,6 +409,7 @@ const defaults: PersistedUiState = {
   customCableSpecs: [],
   customConnectorTypes: [],
   customSignalStandards: [],
+  stammdatenEntfernt: [],
   cableGroupOrder: [],
   cableSpecOverrides: {},
   deviceConfigLibrary: [],
@@ -442,10 +453,25 @@ const defaults: PersistedUiState = {
   canvasBgImageFit: 'cover',
   portLabelFontSize: 11,
   equipmentSectionOpen: {},
+  // Ein frischer Start braucht die Umstellung nicht — die Vorgabe unten hat
+  // `ports` schon vorn. Der Merker steht trotzdem auf `true`, damit `load()`
+  // nicht bei jedem Start eine Liste umbaut, die bereits stimmt.
+  portsVorangestellt: true,
   equipmentSectionOrder: [
+    // DIE ANSCHLUESSE ZUERST (2026-09-28). Gemeldet als „die
+    // Eigenschaften-Zeile ist unuebersichtlich": oben Name und Notiz, dann die
+    // Ein- und Ausgaenge, dann der Rest. `ports` stand an dritter Stelle und
+    // damit auf `order: 2` — unter dem ganzen unsortierbaren Kopf, an einem
+    // Panel, dessen Zweck die Verkabelung ist.
+    //
+    // Der erste Eintrag bekommt `order: 0` und liegt damit im selben Band wie
+    // die unsortierbaren Bloecke; welcher von ihnen zuerst steht, entscheidet
+    // die JSX-Reihenfolge in `EquipmentProperties`. Dort steht `PortsSection`
+    // direkt unter dem `IdentityBlock`. Die beiden Stellen gehoeren zusammen:
+    // wer hier umsortiert, ohne dort zu schauen, verschiebt nichts.
+    'ports',
     'source-identity',
     'modes',
-    'ports',
     'network',
     'sdi',
     'power',
@@ -518,6 +544,7 @@ const load = (): PersistedUiState => {
     if (!Array.isArray(merged.customCableSpecs)) merged.customCableSpecs = []
     if (!Array.isArray(merged.customConnectorTypes)) merged.customConnectorTypes = []
     if (!Array.isArray(merged.customSignalStandards)) merged.customSignalStandards = []
+    if (!Array.isArray(merged.stammdatenEntfernt)) merged.stammdatenEntfernt = []
     if (!Array.isArray(merged.deviceConfigLibrary)) merged.deviceConfigLibrary = []
     if (typeof merged.cableBumps !== 'boolean') merged.cableBumps = defaults.cableBumps
     if (typeof merged.inlineToolbarEnabled !== 'boolean') merged.inlineToolbarEnabled = defaults.inlineToolbarEnabled
@@ -596,7 +623,31 @@ const load = (): PersistedUiState => {
           seen.add(def)
         }
       }
-      merged.equipmentSectionOrder = cleaned
+      // EINMALIGE UMSTELLUNG (2026-09-28): `ports` nach vorn. Die
+      // Vollstaendigkeits-Schleife darueber traegt nur FEHLENDE Abschnitte
+      // nach — eine geaenderte Vorgabe-REIHENFOLGE erreicht damit niemanden,
+      // der die App schon einmal geoeffnet hat. Genau das war bei den
+      // Anschluessen der Fall: die Meldung kam von einem Bestandsnutzer, und
+      // eine neue Vorgabe haette bei ihm nichts geaendert.
+      //
+      // WARUM MIT MERKER UND NICHT JEDES MAL: wer `ports` bewusst nach unten
+      // zieht, soll es dort behalten. Ohne den Merker sprang der Abschnitt bei
+      // jedem Start zurueck — das waere keine Umstellung, sondern ein Feld,
+      // das sich nicht bedienen laesst.
+      //
+      // GEFRAGT WIRD `parsed`, NICHT `merged`. `merged` ist
+      // `{ ...defaults, ...parsed }`, und in den Vorgaben steht der Merker auf
+      // `true` — ein Bestandssatz ohne das Feld haette darin also `true`
+      // gestanden, und die Umstellung waere bei genau denen ausgefallen, fuer
+      // die sie gedacht ist. Der rohe Satz kennt den Unterschied zwischen
+      // „nicht vorhanden" und „schon erledigt".
+      if (parsed.portsVorangestellt !== true) {
+        merged.equipmentSectionOrder = [
+          'ports',
+          ...merged.equipmentSectionOrder.filter((id) => id !== 'ports'),
+        ]
+        merged.portsVorangestellt = true
+      }
     }
     // #903 — der Offen-Zustand je Abschnitt. Ein kaputter Satz (Array, null,
     // Zahlen als Werte) waere kein Grund, die Leiste unbenutzbar zu machen;
@@ -792,6 +843,8 @@ interface UiState extends PersistedUiState {
   removeCustomConnectorType: (name: string) => void
   addCustomSignalStandard: (name: string) => void
   removeCustomSignalStandard: (name: string) => void
+  /** #917 — Stecker/Standard in den eigenen Kabeltypen umbenennen. */
+  renameStammdatumInCableSpecs: (art: import('../lib/stammdaten').StammdatenArt, oldName: string, newName: string) => void
   setCableGroupOrder: (order: string[]) => void
   /** v7.9.7 — Override-Schicht für eingebaute CableSpec-Einträge. Erlaubt
    *  Umbenennen/Recolor/Notes-Editing ohne den globalen cableCatalog
@@ -917,6 +970,9 @@ interface UiState extends PersistedUiState {
   wirelessRigOpen: boolean
   /** Bedarf 10 — Ablauf einlesen und Kamera-Auftraege zuordnen. */
   rundownOpen: boolean
+  /** #906 — Bestandsaufnahme: vorhandene Technik vor Ort erfassen. */
+  surveyOpen: boolean
+  setSurveyOpen: (open: boolean) => void
   setRundownOpen: (open: boolean) => void
   setWirelessRigOpen: (open: boolean) => void
   /** Initiative 9 — Register der Ausspielziele. */
@@ -958,6 +1014,10 @@ interface UiState extends PersistedUiState {
    *  written by `placeGroupPreset` on every device that belongs to the
    *  same rack instance. */
   rackEditor: { open: boolean; rackInstanceId?: string }
+  /** #916 — Gebaeude-3D-Dialog (lazy, hinter der Three.js-Grenze). */
+  gebaeude3dOpen: boolean
+  openGebaeude3d: () => void
+  closeGebaeude3d: () => void
   openRackEditor: (rackInstanceId: string) => void
   closeRackEditor: () => void
   /** v7.9.0 / Issue #120 — Trigger that the RackBuilder should open
@@ -1018,6 +1078,10 @@ interface UiState extends PersistedUiState {
   mobileShare: { open: boolean }
   openMobileShare: () => void
   closeMobileShare: () => void
+  /** #871/#870 — Cloud-Projekt, Revisionen, Lese-Links. */
+  cloudDialog: { open: boolean }
+  openCloudDialog: () => void
+  closeCloudDialog: () => void
   aboutDialog: { open: boolean }
   openAboutDialog: () => void
   closeAboutDialog: () => void
@@ -1127,6 +1191,23 @@ interface UiState extends PersistedUiState {
    *  leave. */
   hoveredCableId: string | null
   setHoveredCableId: (id: string | null) => void
+  /** #914 — der hervorgehobene Signalweg (Kabel + Geraete), oder null. Reine
+   *  Ansicht: dimmt alles andere auf dem Canvas, aendert nichts am Plan. */
+  signalweg: { cableId: string; kabelIds: string[]; geraetIds: string[] } | null
+  setSignalweg: (weg: { cableId: string; kabelIds: string[]; geraetIds: string[] } | null) => void
+  /** #915 — ausgeblendete Rahmen (Ids) und Etagen (`etagenSchluessel`). Nicht
+   *  gespeichert: Rahmen-Ids gehoeren zu einem Projekt, und ein beim naechsten
+   *  Oeffnen still fehlender Raum saehe aus wie ein geloeschter. */
+  ausgeblendeteRaeume: string[]
+  ausgeblendeteEtagen: string[]
+  /** Waehrend einer Ausgabe (PDF, Druck, Bild) zeigt der Canvas den GANZEN
+   *  Plan: kein ausgeblendeter Raum, kein gedimmter Rest. Ein Ausdruck, dem
+   *  still eine Etage fehlt, saehe aus wie der Plan. */
+  vollansicht: boolean
+  setVollansicht: (v: boolean) => void
+  toggleRaumSichtbar: (id: string) => void
+  toggleEtageSichtbar: (key: string) => void
+  alleRaeumeZeigen: () => void
   /** #221 — Netz-Schlüssel des aktuell hervorgehobenen Off-Page-Netzes.
    *  Wird beim Selektieren eines Off-Page-Kabels gesetzt (CanvasArea-Effekt);
    *  jedes CableEdge mit passendem Netz-Schlüssel leuchtet dann mit. So
@@ -1157,6 +1238,16 @@ interface UiState extends PersistedUiState {
   removeLastPendingWaypoint: () => void
   clearPendingCable: () => void
 }
+
+// #917 — Grabsteine fuer entfernte eigene Stammdaten (siehe `stammdatenEntfernt`).
+export const grabstein = (art: 'stecker' | 'standard' | 'ebene', name: string): string =>
+  `${art}:${name.trim().toLowerCase()}`
+const mitGrabstein = (liste: string[], art: 'stecker' | 'standard' | 'ebene', name: string): string[] => {
+  const g = grabstein(art, name)
+  return liste.includes(g) ? liste : [...liste, g]
+}
+const ohneGrabstein = (liste: string[], art: 'stecker' | 'standard' | 'ebene', name: string): string[] =>
+  liste.filter((x) => x !== grabstein(art, name))
 
 // #296 — Persistenz-Schluessel werden aus `defaults` abgeleitet, sodass
 // jedes neue Feld in PersistedUiState automatisch durchgereicht wird.
@@ -1291,12 +1382,14 @@ export const useUiStore = create<UiState>((set) => ({
       if (state.customConnectorTypes.includes(trimmed)) return state
       return applyPatch({
         customConnectorTypes: [...state.customConnectorTypes, trimmed],
+        stammdatenEntfernt: ohneGrabstein(state.stammdatenEntfernt, 'stecker', trimmed),
       })(state)
     }),
   removeCustomConnectorType: (name) =>
     set((state) =>
       applyPatch({
         customConnectorTypes: state.customConnectorTypes.filter((n) => n !== name),
+        stammdatenEntfernt: mitGrabstein(state.stammdatenEntfernt, 'stecker', name),
       })(state),
     ),
   addCustomSignalStandard: (name) =>
@@ -1306,14 +1399,22 @@ export const useUiStore = create<UiState>((set) => ({
       if (state.customSignalStandards.includes(trimmed)) return state
       return applyPatch({
         customSignalStandards: [...state.customSignalStandards, trimmed],
+        stammdatenEntfernt: ohneGrabstein(state.stammdatenEntfernt, 'standard', trimmed),
       })(state)
     }),
   removeCustomSignalStandard: (name) =>
     set((state) =>
       applyPatch({
         customSignalStandards: state.customSignalStandards.filter((n) => n !== name),
+        stammdatenEntfernt: mitGrabstein(state.stammdatenEntfernt, 'standard', name),
       })(state),
     ),
+  renameStammdatumInCableSpecs: (art, oldName, newName) =>
+    set((state) => {
+      const next = kabeltypenUmbenannt(state.customCableSpecs, art, oldName, newName)
+      if (next.every((s, i) => s === state.customCableSpecs[i])) return state
+      return applyPatch({ customCableSpecs: next })(state)
+    }),
   setCableGroupOrder: (order) => set(applyPatch({ cableGroupOrder: order })),
   setCableSpecOverride: (id, patch) =>
     set((state) => {
@@ -1463,7 +1564,11 @@ export const useUiStore = create<UiState>((set) => ({
       const clean = name.trim().toLowerCase()
       if (!clean) return {}
       if (state.customLayers.includes(clean)) return {}
+      if (state.stammdatenEntfernt.includes(grabstein('ebene', clean))) {
+        applyPatch({ stammdatenEntfernt: ohneGrabstein(state.stammdatenEntfernt, 'ebene', clean) })(state)
+      }
       return {
+        stammdatenEntfernt: ohneGrabstein(state.stammdatenEntfernt, 'ebene', clean),
         customLayers: [...state.customLayers, clean],
         // Neu hinzugefügt = standardmäßig sichtbar.
         layerVisibility: { ...state.layerVisibility, [clean]: true },
@@ -1473,7 +1578,10 @@ export const useUiStore = create<UiState>((set) => ({
     set((state) => {
       const next = { ...state.layerVisibility }
       delete next[name]
+      const stammdatenEntfernt = mitGrabstein(state.stammdatenEntfernt, 'ebene', name)
+      applyPatch({ stammdatenEntfernt })(state)
       return {
+        stammdatenEntfernt,
         customLayers: state.customLayers.filter((l) => l !== name),
         layerVisibility: next,
       }
@@ -1492,6 +1600,8 @@ export const useUiStore = create<UiState>((set) => ({
   wirelessRigOpen: false,
   setWirelessRigOpen: (open) => set({ wirelessRigOpen: open }),
   rundownOpen: false,
+  surveyOpen: false,
+  setSurveyOpen: (open) => set({ surveyOpen: open }),
   setRundownOpen: (open) => set({ rundownOpen: open }),
   deliveryOpen: false,
   setDeliveryOpen: (open) => set({ deliveryOpen: open }),
@@ -1520,6 +1630,9 @@ export const useUiStore = create<UiState>((set) => ({
   openLocationBom: (locationId) => set({ locationBom: { open: true, locationId } }),
   closeLocationBom: () => set({ locationBom: { open: false } }),
   rackEditor: { open: false },
+  gebaeude3dOpen: false,
+  openGebaeude3d: () => set({ gebaeude3dOpen: true }),
+  closeGebaeude3d: () => set({ gebaeude3dOpen: false }),
   openRackEditor: (rackInstanceId) => set({ rackEditor: { open: true, rackInstanceId } }),
   closeRackEditor: () => set({ rackEditor: { open: false } }),
   rackBuilderSeedTrigger: null,
@@ -1543,6 +1656,9 @@ export const useUiStore = create<UiState>((set) => ({
   mobileShare: { open: false },
   openMobileShare: () => set({ mobileShare: { open: true } }),
   closeMobileShare: () => set({ mobileShare: { open: false } }),
+  cloudDialog: { open: false },
+  openCloudDialog: () => set({ cloudDialog: { open: true } }),
+  closeCloudDialog: () => set({ cloudDialog: { open: false } }),
   aboutDialog: { open: false },
   openAboutDialog: () => set({ aboutDialog: { open: true } }),
   closeAboutDialog: () => set({ aboutDialog: { open: false } }),
@@ -1608,6 +1724,25 @@ export const useUiStore = create<UiState>((set) => ({
   closeRentmanCableExport: () => set({ rentmanCableExport: { open: false } }),
   hoveredCableId: null,
   setHoveredCableId: (id) => set({ hoveredCableId: id }),
+  signalweg: null,
+  setSignalweg: (weg) => set({ signalweg: weg }),
+  ausgeblendeteRaeume: [],
+  ausgeblendeteEtagen: [],
+  vollansicht: false,
+  setVollansicht: (v) => set({ vollansicht: v }),
+  toggleRaumSichtbar: (id) =>
+    set((state) => ({
+      ausgeblendeteRaeume: state.ausgeblendeteRaeume.includes(id)
+        ? state.ausgeblendeteRaeume.filter((x) => x !== id)
+        : [...state.ausgeblendeteRaeume, id],
+    })),
+  toggleEtageSichtbar: (key) =>
+    set((state) => ({
+      ausgeblendeteEtagen: state.ausgeblendeteEtagen.includes(key)
+        ? state.ausgeblendeteEtagen.filter((x) => x !== key)
+        : [...state.ausgeblendeteEtagen, key],
+    })),
+  alleRaeumeZeigen: () => set({ ausgeblendeteRaeume: [], ausgeblendeteEtagen: [] }),
   highlightedNetKey: null,
   setHighlightedNetKey: (key) => set({ highlightedNetKey: key }),
   pendingCable: null,

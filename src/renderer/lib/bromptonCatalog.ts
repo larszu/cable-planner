@@ -6,7 +6,8 @@ import type { EquipmentTemplate, Port } from '../types/equipment'
 // #878 nennt LED-Prozessoren als den Bereich, der bei NULL stand („LED-
 // Prozessoren fehlen ganz. Nicht duenn besetzt — es gibt die Kategorie
 // nicht."). `ledProcessorCatalog.ts` hat ihn am 2026-09-23 mit zwei
-// Eintraegen eroeffnet; hier kommen fuenf Brompton dazu.
+// Eintraegen eroeffnet (darunter der Tessera SX40); hier kommen vier
+// weitere Brompton dazu.
 //
 // ─── WAS EIN LED-PROZESSOR IM KABELPLAN IST ────────────────────────────────
 //
@@ -22,7 +23,9 @@ import type { EquipmentTemplate, Port } from '../types/equipment'
 // etherCON (CAT5e) connectors. Compatible with standard Cat6A / Cat5e RJ45
 // connectors." Also etherCON — ein RJ45 in einer verriegelnden Huelse. Das
 // Kabel ist dasselbe, der Stecker nicht, und auf Tour ist genau das der
-// Unterschied. Der Steckertyp `etherCON` existiert seit dem 2026-09-24.
+// Unterschied. Ein eigener Steckertyp `etherCON` fehlt im Vokabular; die
+// Buchse steht als `Ethernet/RJ45` (der RJ45-Stecker passt), das Wort
+// etherCON im Kommentar der Helfer-Funktion.
 //
 // ─── WAS HIER NICHT STEHT ──────────────────────────────────────────────────
 //
@@ -46,10 +49,9 @@ const port = (name: string, connectorType: Port['connectorType'], type: string):
 })
 
 /** Ein Tessera-Ausgang. etherCON-Buchse, Tessera-Protokoll — nicht Netzwerk. */
-const tessera = (name: string) => port(name, 'etherCON', 'Tessera')
-const tesseraFibre = (name: string) => port(name, 'opticalCON DUO', 'Tessera (Fibre)')
+const tessera = (name: string) => port(name, 'Ethernet/RJ45', 'Tessera')
 const eth = (name: string) => port(name, 'Ethernet/RJ45', 'Ethernet')
-const usb = (name: string) => port(name, 'USB Type A', 'USB')
+const usb = (name: string) => port(name, 'USB', 'USB')
 const dmxIn = () => port('DMX In (5-pol)', 'DMX 5-pol (XLR)', 'DMX')
 const dmxThru = () => port('DMX Thru (5-pol)', 'DMX 5-pol (XLR)', 'DMX')
 const mains = () => port('Mains In (100–240 V)', 'IEC 230V', 'Power')
@@ -64,51 +66,6 @@ interface BromptonEntry {
 
 export const BROMPTON_CATALOG: BromptonEntry[] = [
 
-  // Quelle: https://www.bromptontech.com/wp-content/uploads/2025/07/Brompton-SX40-Data-Sheet-Feb2025-EN.pdf
-  {
-    match: ['bromptontesserasx40', 'tesserasx40', 'sx40'],
-    deviceTypeId: '5c1a7e93-4b80-4d26-9f35-8a06e2c7b419',
-    template: {
-      manufacturerUrl: 'https://www.bromptontech.com/wp-content/uploads/2025/07/Brompton-SX40-Data-Sheet-Feb2025-EN.pdf',
-      name: 'Brompton Tessera SX40',
-      category: LED,
-      // Blatt: 1x HDMI 2.0b In · 1x 12G-SDI In und Re-clocked Thru ·
-      // Bi/Tri-Level Sync In & Thru · DMX-512A auf 5-pol XLR In & Thru ·
-      // 2x Gigabit Management · 2x USB 3.0 hinten (2x USB 2.0 vorn) ·
-      // 4x 10GBASE-T Kupfer UND 4x 10GBASE-LR Glas.
-      //
-      // DIE VIER GLAS- UND VIER KUPFERPORTS SIND DIESELBEN VIER AUSGAENGE:
-      // „Each 10G output independently auto-switches between fibre and
-      // copper." Sie stehen trotzdem als acht Buchsen da, denn acht Buchsen
-      // sind am Geraet — wer nur vier zeichnet, sucht die anderen vier im
-      // Rack vergeblich.
-      inputs: [
-        port('HDMI 2.0b In', 'HDMI', 'HDMI'),
-        port('12G-SDI In', 'BNC', 'SDI'),
-        port('Sync In (Bi/Tri-Level)', 'BNC', 'Genlock'),
-        dmxIn(),
-        eth('Management 1'),
-        eth('Management 2'),
-        usb('USB 3.0 (rear) 1'),
-        usb('USB 3.0 (rear) 2'),
-        mains(),
-      ],
-      outputs: [
-        port('12G-SDI Thru (re-clocked)', 'BNC', 'SDI'),
-        port('Sync Thru', 'BNC', 'Genlock'),
-        dmxThru(),
-        port('Monitor Out (DP++)', 'DisplayPort', 'DisplayPort'),
-        ...Array.from({ length: 4 }, (_, i) => tessera(`Tessera 10G Copper ${i + 1}`)),
-        ...Array.from({ length: 4 }, (_, i) => tesseraFibre(`Tessera 10G Fibre ${i + 1}`)),
-      ],
-      isRackDevice: true,
-      rackUnits: 2,
-      weightKg: 7.5,
-      notes: '19" 2 HE · 482.6 x 88.9 x 406.4 mm · 100–240 V AC, 1.2–0.6 A · 9 Mio. Pixel',
-      width: 280,
-      height: 420,
-    },
-  },
 
   // Quelle: https://www.bromptontech.com/wp-content/uploads/2025/07/Brompton-S8-Data-Sheet-Mar2025-EN.pdf
   {
@@ -227,11 +184,11 @@ export const BROMPTON_CATALOG: BromptonEntry[] = [
       // Stromrechnung.
       inputs: [
         tessera('Tessera 10G In (von SX40)'),
-        port('powerCON TRUE1 In', 'powerCON TRUE1', 'Power'),
+        port('powerCON TRUE1 In', 'Custom', 'Power'),
       ],
       outputs: [
         ...Array.from({ length: 10 }, (_, i) => tessera(`Tessera 1G ${i + 1}`)),
-        port('powerCON TRUE1 Thru', 'powerCON TRUE1', 'Power'),
+        port('powerCON TRUE1 Thru', 'Custom', 'Power'),
       ],
       isRackDevice: true,
       rackUnits: 1,

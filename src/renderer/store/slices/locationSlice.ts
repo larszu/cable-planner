@@ -2,6 +2,7 @@ import type { StateCreator } from 'zustand'
 import { v4 as uuidv4 } from 'uuid'
 import type { LocationFrame } from '../../types/location'
 import { aktuellesRaster } from '../../lib/aktuellesRaster'
+import { etagenSchluessel, heileEtagen } from '../../lib/etagen'
 import { isProjectLocked, touchProject } from '../projectStoreHelpers'
 import type { ProjectState } from '../projectStore'
 
@@ -23,6 +24,9 @@ export type LocationSlice = Pick<
   | 'deleteLocation'
   | 'deleteLocationWithContents'
   | 'moveLocationWithContents'
+  | 'setFloors'
+  | 'renameFloor'
+  | 'removeFloor'
 >
 
 export const createLocationSlice: StateCreator<ProjectState, [], [], LocationSlice> = (set) => ({
@@ -175,6 +179,66 @@ export const createLocationSlice: StateCreator<ProjectState, [], [], LocationSli
             containedSet.has(e.id) ? { ...e, x: e.x + dx, y: e.y + dy } : e,
           ),
           cables: nextCables,
+        }),
+      }
+    }),
+  // #911 — Etagen. Die Liste wird bei jedem Schreiben gegen die Rahmen
+  // geheilt: eine Etage, die noch ein Rahmen nennt, kann nicht aus der Liste
+  // verschwinden, ohne dass der Rahmen sie verliert (dafuer: removeFloor).
+  setFloors: (floors) =>
+    set((state) => {
+      if (isProjectLocked(state)) return state
+      return {
+        project: touchProject({
+          ...state.project,
+          floors: heileEtagen(floors, state.project.locations ?? []),
+        }),
+      }
+    }),
+  renameFloor: (alt, neu) =>
+    set((state) => {
+      if (isProjectLocked(state)) return state
+      const name = neu.trim()
+      if (!name) return state
+      const altKey = etagenSchluessel(alt)
+      const floors = state.project.floors ?? []
+      // Umbenennen auf eine vorhandene ANDERE Etage wuerde zwei zu einer
+      // verschmelzen — das ist kein Umbenennen, und still passieren darf es nicht.
+      if (floors.some((f) => etagenSchluessel(f.name) === etagenSchluessel(name) && etagenSchluessel(f.name) !== altKey)) {
+        return state
+      }
+      const locations = (state.project.locations ?? []).map((l) =>
+        l.floor?.trim() && etagenSchluessel(l.floor) === altKey ? { ...l, floor: name } : l,
+      )
+      return {
+        project: touchProject({
+          ...state.project,
+          locations,
+          floors: heileEtagen(
+            floors.map((f) => (etagenSchluessel(f.name) === altKey ? { ...f, name } : f)),
+            locations,
+          ),
+        }),
+      }
+    }),
+  removeFloor: (name) =>
+    set((state) => {
+      if (isProjectLocked(state)) return state
+      const key = etagenSchluessel(name)
+      const locations = (state.project.locations ?? []).map((l) => {
+        if (!l.floor?.trim() || etagenSchluessel(l.floor) !== key) return l
+        const rest = { ...l }
+        delete rest.floor
+        return rest
+      })
+      return {
+        project: touchProject({
+          ...state.project,
+          locations,
+          floors: heileEtagen(
+            (state.project.floors ?? []).filter((f) => etagenSchluessel(f.name) !== key),
+            locations,
+          ),
         }),
       }
     }),

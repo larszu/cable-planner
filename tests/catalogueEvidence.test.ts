@@ -74,12 +74,21 @@ describe('Initiative 11 — trägt diese Katalog-Zeile ein Datenblatt?', () => {
     // Smartscope Duo 4K bleibt als einziger unbelegt (eingestellt, keine
     // Live-Produktseite). +2 am 2026-09-23: `ledProcessorCatalog`, der erste
     // Eintrag einer Kategorie, die bei null stand (#878).
-    //
-    // 424 -> 1616 am 2026-09-24: die Uebernahme aus multicam- und
-    // light-planner (`npm run katalog:uebernahme`). Die Zahl zieht der
-    // Generator; `npm run katalog:check` sagt, ob die erzeugten Dateien noch
-    // zur Quelle passen.
-    expect(kommentare).toBe(1648)
+    // +19 am 2026-09-27: Herstellerbelege fuer bis dahin unbelegte Eintraege
+    // (Ubiquiti-EdgeMax-Datenblaetter/QSGs, SmallHD, TVLogic, JVC, NEC, Behringer,
+    // TC Electronic, Sonnet, Atomos-QSG) — jede Seite geoeffnet, Modell darauf.
+    // +8 am 2026-09-27 (zweite Runde): Katalognamen, die es beim Hersteller
+    // so nicht gab, auf das belegte Modell umgestellt (SmartScope Duo 4K,
+    // V-LCD173HR, V-LCD56MD-3G, LVM-075A, D*AP8, SmallHD 2403/1703, xMac mini
+    // Server TB3); USW-16 ist im USW-16-PoE aufgegangen (-1 Eintrag).
+    // +22 am 2026-09-27: aus dem liegengebliebenen #907 uebernommen, was main
+    // noch fehlte — Clear-Com Encore (4), Brompton Tessera S8/S4/T1/XD, Luminex
+    // GigaCore (5), NETGEAR M4250 (5), Lightware UCX (2), Decimator MD-DUCC/
+    // MD-QUAD; jedes Datenblatt-PDF beim Hersteller abgerufen (HTTP 200).
+    // +8 am 2026-09-28: Katalog-Nachzuegler aus docs/device-identity-concept.md
+    // (AJA FS2, Aquilon RS alpha, TriCaster Mini 4K, FreeSpeak II Base,
+    // Shure UA844+SWB/AD4D/AD4Q, Sennheiser ASA 214), Blaetter geoeffnet.
+    expect(kommentare).toBe(1673)
   })
 
   it('2. die Abdeckung wird gerechnet', () => {
@@ -87,25 +96,20 @@ describe('Initiative 11 — trägt diese Katalog-Zeile ein Datenblatt?', () => {
     // Die Summen stammen aus derselben Rechnung wie die Zeilen.
     expect(bericht.entries).toBe(bericht.perCatalogue.reduce((s, c) => s + c.entries, 0))
     expect(bericht.sourced + bericht.unsourced).toBe(bericht.entries)
-    // 2026-09-24: 469 -> 1802 Eintraege, 424 -> 1616 belegt. Die Abdeckung
-    // steigt damit von 90,4 % auf 89,7 % — sie SINKT leicht, und das ist die
-    // ehrliche Zahl: die Rigs kommen ohne einen einzigen Beleg mit, und von
-    // den 84 Lichtgeraeten tragen 50 einen.
-    expect(bericht.sourced).toBe(1648)
-    expect(bericht.entries).toBe(1834)
+    expect(bericht.sourced).toBe(1673)
+    expect(bericht.entries).toBe(1831)
 
-    // B-11 hatte diese Liste auf LEER gebracht. Seit dem 2026-09-24 steht
-    // wieder genau EINER darin, und er ist benannt statt weggerechnet: die
-    // Kamera-Rigs aus dem multicam-planner. Dort fuehrt keines der 49 Rigs
-    // eine Hersteller-Adresse — nachgemessen. Eine zu erfinden waere
-    // schlimmer als die Luecke; sie hier zu verstecken waere schlimmer als
-    // beides.
-    //
-    // Die Liste wird GERECHNET, nicht aufgezählt: traegt `rig` morgen Belege
-    // nach, faellt er von selbst heraus und diese Zeile wird rot — als
-    // Erinnerung, die Ausnahme zu loeschen.
+    // Kein Katalog steht mehr ganz ohne Beleg (B-11 abgeschlossen) — und die
+    // Liste wird GERECHNET, nicht aufgezählt: trägt einer von ihnen morgen
+    // Belege nach, fällt er von selbst heraus.
+    // 2026-09-24: wieder genau EINER, und er ist benannt statt weggerechnet.
+    // Die Kamera-Rigs aus dem multicam-planner fuehren dort KEINE
+    // Hersteller-Adresse — nachgemessen. Eine zu erfinden waere schlimmer als
+    // die Luecke; sie hier zu verstecken waere schlimmer als beides.
     const ohne = bericht.perCatalogue.filter((c) => c.sourced === 0).map((c) => c.name)
     expect(ohne).toEqual(['rig'])
+    expect(bericht.perCatalogue.filter((c) => c.sourced === 0)
+      .reduce((s, c) => s + c.entries, 0)).toBe(49)
   })
 
   it('3. die Ratsche: ein vollständig belegter Katalog bleibt es', () => {
@@ -124,21 +128,15 @@ describe('Initiative 11 — trägt diese Katalog-Zeile ein Datenblatt?', () => {
     }
     // Und die Gesamtzahl der unbelegten steigt nicht. Sinken darf sie —
     // dann ist diese Zeile die Erinnerung, die Zahl nachzuziehen.
-    // 159 -> 186 am 2026-09-24. Die Zahl STEIGT, und das ist keine
-    // Verschlechterung der Pflege, sondern der Preis der Uebernahme: 49 Rigs
-    // ohne Adresse, 34 Lichtgeraete ohne gefundene Produktseite, 5 Bodies und
-    // 37 Objektive, deren Quelle selbst keine nennt oder nur eine
-    // Haendler-Adresse (die der Generator herausfiltert). Die offenen Punkte
-    // stehen namentlich in den Koepfen von `fixtureCatalog.ts` und
-    // `rigCatalog.ts` — als Arbeitsliste, nicht als Restposten.
-    expect(bericht.unsourced).toBeLessThanOrEqual(186)
+    expect(bericht.unsourced).toBeLessThanOrEqual(158)
   })
 
   it('4. „kein Beleg" ist eine eigene Auskunft', () => {
     const mitBeleg = CATALOGUES.find((c) => c.name === 'aja')!.entries[0]
-    // Der Smartscope Duo 4K ist der einzige blackmagic-Eintrag ohne Beleg
-    // (eingestellt) — genau darum taugt er als „unsourced"-Beispiel.
-    const ohneBeleg = CATALOGUES.find((c) => c.name === 'blackmagic')!.entries.find(
+    // Seit 2026-09-27 ist blackmagic vollstaendig belegt; der Marshall
+    // V-LCD241 (Name ohne Suffix, zwei Varianten) bleibt unbelegt und taugt
+    // deshalb als „unsourced"-Beispiel.
+    const ohneBeleg = CATALOGUES.find((c) => c.name === 'monitor')!.entries.find(
       (e) => !e.template.manufacturerUrl,
     )!
 
@@ -151,7 +149,7 @@ describe('Initiative 11 — trägt diese Katalog-Zeile ein Datenblatt?', () => {
 
     const b = evidenceForType(ohneBeleg.deviceTypeId)
     expect(b.kind).toBe('unsourced')
-    if (b.kind === 'unsourced') expect(b.catalogue).toBe('blackmagic')
+    if (b.kind === 'unsourced') expect(b.catalogue).toBe('monitor')
 
     // Kein Katalog-Typ ist etwas ANDERES als ein Typ ohne Beleg.
     expect(evidenceForType('gibt-es-nicht').kind).toBe('no-type')

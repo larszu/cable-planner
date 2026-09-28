@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { beforeAll, describe, expect, it } from 'vitest'
 import { stripComments } from './support/stripComments'
 
 // WAS HIER SCHIEFLIEF (gemessen 2026-09-04).
@@ -67,14 +67,21 @@ const aufrufe = (): Aufruf[] => {
 }
 
 describe('jeder Plan-Ausdruck traegt den Stempel', () => {
+  // Ein Lauf ueber alle Renderer-Quellen statt einem je Fall; unter Last
+  // brauchte jeder Lauf um eine Sekunde, dreimal hintereinander.
+  let alle: Aufruf[]
+  beforeAll(() => {
+    alle = aufrufe()
+  }, 60_000)
+
   it('findet ueberhaupt Aufrufe — sonst prueft der Test nichts', () => {
     // Ohne diese Zusicherung waere der Test auch dann gruen, wenn der Bauer
     // umbenannt wird und `aufrufe()` leer zurueckkommt.
-    expect(aufrufe().length).toBeGreaterThanOrEqual(3)
+    expect(alle.length).toBeGreaterThanOrEqual(3)
   })
 
   it('setzt an JEDEM Aufruf `stamp`', () => {
-    const ohne = aufrufe()
+    const ohne = alle
       .filter((a) => !/\bstamp\s*:/.test(a.optionen))
       .map((a) => `${a.datei}@${a.index}`)
     expect(
@@ -89,7 +96,7 @@ describe('jeder Plan-Ausdruck traegt den Stempel', () => {
     // Ein handgebautes Stempel-Objekt haette denselben Titelblock und einen
     // erfundenen Fingerabdruck — schlimmer als kein Stempel, weil es
     // Aktualitaet behauptet.
-    const falsch = aufrufe()
+    const falsch = alle
       .filter((a) => /\bstamp\s*:/.test(a.optionen) && !/stamp:\s*stampForPlan\(/.test(a.optionen))
       .map((a) => `${a.datei}@${a.index}`)
     expect(falsch).toEqual([])

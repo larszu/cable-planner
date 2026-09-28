@@ -226,7 +226,7 @@ const callClaude = async (apiKey: string, prompt: string): Promise<string> => {
   const url = `${base}/messages`
   const body = {
     model,
-    max_tokens: 1024,
+    max_tokens: 4096,
     temperature: 0.2,
     messages: [{ role: 'user', content: prompt }],
   }

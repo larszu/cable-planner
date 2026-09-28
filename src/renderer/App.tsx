@@ -29,12 +29,15 @@ import { AtemAudioRouterDialog } from './components/Atem/AtemAudioRouterDialog'
 import { DrumMicingDialog } from './components/DrumMicing/DrumMicingDialog'
 import { WirelessRigDialog } from './components/Wireless/WirelessRigDialog'
 import { RundownDialog } from './components/Rundown/RundownDialog'
+import { SurveyDialog } from './components/Survey/SurveyDialog'
 import { LocationBomDialog } from './components/Project/LocationBomDialog'
 
 import { CableContextMenu } from './components/Canvas/CableContextMenu'
 import { LayerVisibilityChips } from './components/Canvas/LayerVisibilityChips'
 import { ExportDialog } from './components/Export/ExportDialog'
 import { AnnotationsPanel } from './components/Annotations/AnnotationsPanel'
+import { GrundrissPanel } from './components/Grundriss/GrundrissPanel'
+import { SymbolPanel } from './components/Grundriss/SymbolPanel'
 
 // v7.9.3 — Hook-Wrapper damit das Annotations-Panel auf
 // uiStore.annotationsPanelOpen reagiert. Direkt im JSX würde
@@ -56,6 +59,10 @@ import { AnnotationsPanel } from './components/Annotations/AnnotationsPanel'
 const RackEditorDialog = lazy(() =>
   import('./components/Rack/RackEditorDialog').then((m) => ({ default: m.RackEditorDialog })),
 )
+/** #916 — dritter Eintritt nach `Rack/`, genauso lazy und nur offen gemountet. */
+const Gebaeude3DDialog = lazy(() =>
+  import('./components/Rack/Gebaeude3DDialog').then((m) => ({ default: m.Gebaeude3DDialog })),
+)
 
 const AnnotationsPanelHost = () => {
   const open = useUiStore((s) => s.annotationsPanelOpen)
@@ -63,6 +70,7 @@ const AnnotationsPanelHost = () => {
   return <AnnotationsPanel open={open} onClose={() => setOpen(false)} />
 }
 import { MobileShareDialog } from './components/MobileShare/MobileShareDialog'
+import { CloudDialog } from './components/Cloud/CloudDialog'
 import { AboutDialog } from './components/About/AboutDialog'
 import { PatchListDialog } from './components/Patch/PatchListDialog'
 import { InstallationDocsDialog } from './components/Export/InstallationDocsDialog'
@@ -291,6 +299,7 @@ export default function App() {
   // Nur der Offen-Zustand: der Rack-Dialog (und mit ihm Three.js) wird erst
   // gemountet und nachgeladen, wenn ihn jemand oeffnet.
   const rackEditorOpen = useUiStore((s) => s.rackEditor.open)
+  const gebaeude3dOpen = useUiStore((s) => s.gebaeude3dOpen)
   const settingsSection = useUiStore((s) => s.settingsSection)
   const setSettingsOpen = (open: boolean) =>
     open ? useUiStore.getState().openSettings() : useUiStore.getState().closeSettings()
@@ -987,7 +996,17 @@ export default function App() {
   }
 
   // v7.7.1 — PNG / JPEG export (canvas only, no header / title block).
+  // #914/#915 — jede Ausgabe zeigt den ganzen Plan, auch wenn auf dem Schirm
+  // Raeume ausgeblendet sind oder ein Signalweg hervorgehoben ist. Zwei
+  // Bilder warten, bis der Canvas ohne Filter gezeichnet ist.
+  const setVollansicht = useUiStore((state) => state.setVollansicht)
+  const vollansichtAn = async () => {
+    setVollansicht(true)
+    await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())))
+  }
+
   const handleExportImage = async (imgFormat: 'png' | 'jpeg' | 'svg' | 'dxf') => {
+    if (imgFormat !== 'dxf') await vollansichtAn()
     try {
       if (imgFormat === 'dxf') {
         // #355 — DXF wird strukturiert aus den Projektdaten erzeugt (nicht
@@ -1017,6 +1036,8 @@ export default function App() {
           tone: 'error',
         },
       )
+    } finally {
+      setVollansicht(false)
     }
   }
 
@@ -1152,6 +1173,7 @@ export default function App() {
     // Bedarf 128 — wie das Thema: nur fuer die Dauer dieser Ausgabe gesetzt
     // und im `finally` zurueckgenommen. Auf dem Schirm aendert sich nichts.
     setPdfExportMonochrome(monochrom)
+    setVollansicht(true)
     setPdfProgress({ active: true, phase: 'Starte…' })
     await new Promise<void>((resolve) =>
       requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
@@ -1200,6 +1222,7 @@ export default function App() {
     } finally {
       setPdfExportThemeOverride(null)
       setPdfExportMonochrome(false)
+      setVollansicht(false)
       setPdfProgress({ active: false })
     }
   }
@@ -1209,6 +1232,7 @@ export default function App() {
    *  printPdfBlob → unsichtbares iframe → window.print() → OS-Druckdialog. */
   const handlePrintPdf = async (theme: 'dark' | 'light' = canvasTheme) => {
     setPdfExportThemeOverride(theme)
+    setVollansicht(true)
     setPdfProgress({ active: true, phase: 'Starte…' })
     await new Promise<void>((resolve) =>
       requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
@@ -1239,6 +1263,7 @@ export default function App() {
     } finally {
       setPdfExportThemeOverride(null)
       setPdfExportMonochrome(false)
+      setVollansicht(false)
       setPdfProgress({ active: false })
     }
   }
@@ -1546,6 +1571,7 @@ export default function App() {
       <DrumMicingDialog />
       <WirelessRigDialog />
       <RundownDialog />
+      <SurveyDialog />
       <DeliveryDialog />
       <AdernDialog />
       <BerichtEditorDialog />
@@ -1559,7 +1585,13 @@ export default function App() {
           <RackEditorDialog />
         </Suspense>
       )}
+      {gebaeude3dOpen && (
+        <Suspense fallback={null}>
+          <Gebaeude3DDialog />
+        </Suspense>
+      )}
       <MobileShareDialog />
+      <CloudDialog />
       <AboutDialog />
       <PatchListDialog />
       <InstallationDocsDialog />
@@ -1589,6 +1621,8 @@ export default function App() {
       <TemplatesDialog />
       <CableContextMenu />
       <AnnotationsPanelHost />
+      <GrundrissPanel />
+      <SymbolPanel />
       <ExportDialog
         open={exportDialogOpen}
         onClose={() => setExportDialogOpen(false)}

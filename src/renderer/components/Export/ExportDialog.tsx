@@ -525,6 +525,8 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
   const t = useTranslation()
   const equipment = useProjectStore((s) => s.project.equipment)
   const cables = useProjectStore((s) => s.project.cables)
+  const locations = useProjectStore((s) => s.project.locations)
+  const floors = useProjectStore((s) => s.project.floors)
   const openPatchList = useUiStore((s) => s.openPatchList)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [busy, setBusy] = useState(false)
@@ -553,10 +555,10 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
     try {
       const devices = equipment.filter((d) => selectedIds.has(d.id))
       if (action === 'batch') {
-        await exportDevicesPatchSheetsBatch(devices, equipment, cables, { format: paper })
+        await exportDevicesPatchSheetsBatch(devices, equipment, cables, { format: paper, locations, floors })
       } else if (action === 'individual') {
         for (const d of devices) {
-          await exportDevicePatchSheet(d, equipment, cables, { format: paper })
+          await exportDevicePatchSheet(d, equipment, cables, { format: paper, locations, floors })
         }
       } else if (action === 'print') {
         // Combined PDF in einen Print-Job; mehrere Devices → eine PDF
@@ -564,8 +566,8 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
         // bekommt statt N.
         const blob =
           devices.length === 1
-            ? buildDevicePatchSheetBlob(devices[0], equipment, cables, { format: paper })
-            : buildDevicesPatchSheetsBatchBlob(devices, equipment, cables, { format: paper })
+            ? buildDevicePatchSheetBlob(devices[0], equipment, cables, { format: paper, locations, floors })
+            : buildDevicesPatchSheetsBatchBlob(devices, equipment, cables, { format: paper, locations, floors })
         if (blob) void printPdfBlob(blob)
       }
       onClose()

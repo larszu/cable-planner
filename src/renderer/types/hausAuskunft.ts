@@ -80,19 +80,68 @@ export interface HausRaum {
   name: string
   /** Der Bezeichner, unter dem das Haus den Raum fuehrt. Der Plan druckt ihn. */
   hausbezeichner: string
+  /** Name der Etage laut Haus (v2: aus `etagen`, v1: der Freitext). */
+  etage?: string
+}
+
+/** Eine Etage laut Haus (`avplan-facility` v2). Reihenfolge = von unten nach oben. */
+export interface HausEtage {
+  id: string
+  name: string
+  /** Fussbodenhoehe in m, wenn das Haus sie nennt. */
+  hoeheM?: number
+}
+
+/** Eine Ader / ein Port einer Hausstrecke (`avplan-facility` v2). */
+export interface HausStreckenAder {
+  nr: string
+  stecker?: string
+  signal?: string
 }
 
 export type HausSteuersystem = 'knx' | 'dali' | 'crestron' | 'vissonic' | 'sonstige'
 
 /**
- * Art einer Steuer-Adresse.
+ * Art einer Steuer-Adresse — dieselbe Tabelle wie `ADRESSARTEN` im
+ * facility-planner (`src/domain/modell.ts`, facility#19). Nicht hier neu
+ * erfinden: der Leser nimmt, was das Gebaeude-Werkzeug schreibt.
  *
- * Bei DALI heisst „3" je nach Art etwas voellig anderes: Kurzadresse 3 ist
- * ein Vorschaltgeraet, Gruppe 3 koennen 30 Leuchten sein, Broadcast ist alles
- * am Bus — auch das Notlicht. Wer eine Gruppenadresse fuer eine Kurzadresse
- * haelt, schaltet im Zweifel den halben Saal.
+ * DALI: „3" ist je nach Art ein Vorschaltgeraet (kurz), eine Gruppe von
+ * dreissig Leuchten oder alles am Bus samt Notlicht (broadcast).
+ * Crestron: die drei Join-Signalarten laut Crestron-Glossar — Digital 12 und
+ * Analog 12 sind zwei verschiedene Klinken.
+ * Vissonic: ein Kamera-Befehl bewegt EINE Kamera; der Mischer VIS-CATC hat
+ * einen einzigen Ausgang, ein Befehl dort aendert das Bild auf jedem
+ * Bildschirm.
+ * KNX und „sonstige" kennen keine Art; das Feld bleibt dort weg.
  */
-export type HausAdressart = 'kurz' | 'gruppe' | 'broadcast'
+export type HausAdressart =
+  | 'kurz'
+  | 'gruppe'
+  | 'broadcast'
+  | 'digital'
+  | 'analog'
+  | 'seriell'
+  | 'kamera'
+  | 'mischer'
+
+export const HAUS_ADRESSARTEN: Readonly<Record<HausSteuersystem, readonly HausAdressart[]>> = {
+  knx: [],
+  dali: ['kurz', 'gruppe', 'broadcast'],
+  crestron: ['digital', 'analog', 'seriell'],
+  vissonic: ['kamera', 'mischer'],
+  sonstige: [],
+}
+
+/**
+ * Mehrdeutig: das System kennt Adressarten und die Klinke traegt keine davon.
+ * Eine Art aus einem fremden System (DALI-„kurz" an einem Mischer) zaehlt als
+ * keine — wortgleich zu `adresseMehrdeutig` im facility-planner.
+ */
+export const adresseMehrdeutig = (klinke: Pick<HausKlinke, 'system' | 'adressart'>): boolean => {
+  const arten = HAUS_ADRESSARTEN[klinke.system] ?? []
+  return arten.length > 0 && !(klinke.adressart && arten.includes(klinke.adressart))
+}
 
 /** Eine Klinke der Haussteuerung, die der Show offensteht. */
 export interface HausKlinke {
@@ -109,6 +158,13 @@ export interface HausKlinke {
 export interface HausStrecke {
   id: string
   bezeichnung: string
+  /** v2 — von welchem Raum in welchen, und an welcher Blende sie endet. */
+  vonRaumId?: string
+  nachRaumId?: string
+  vonBlende?: string
+  nachBlende?: string
+  /** v2 — die Adern/Ports der Strecke. Fehlt: das Haus nennt keine. */
+  adern?: HausStreckenAder[]
 }
 
 /**
@@ -128,6 +184,8 @@ export interface HausAuskunft {
   punkte: HausPunkt[]
   klinken: HausKlinke[]
   strecken: HausStrecke[]
+  /** v2 — die Etagen des Hauses. Fehlt bei einer v1-Datei. */
+  etagen?: HausEtage[]
 }
 
 /** Der Punkt zu einer Id, oder `undefined`. Kein Namensabgleich (ADR-002). */

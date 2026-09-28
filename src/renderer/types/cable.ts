@@ -185,6 +185,14 @@ export interface Cable {
    *  nicht mit zu konfektionierenden Kabeln vermischt werden. Undefined =
    *  normales (Show-)Kabel. */
   isTieLine?: boolean
+  /** #916/facility#15 — welche Hausstrecke des Gebaeudes (`HausAuskunft.strecken[].id`)
+   *  diese Verbindung benutzt. Eine ERKLAERUNG des Plans, wie `hausPunktId` am
+   *  Geraet: der Verweis zeigt auf die Auskunft des Hauses oder ins Leere, und
+   *  ins Leere zeigt der Plan-Check an. Keine Abschrift von Raeumen und Blenden. */
+  hausStreckeId?: string
+  /** Welche Ader/welcher Port der Hausstrecke (`adern[].nr`). Fehlt = die
+   *  ganze Strecke, ohne Angabe der Ader. */
+  hausAder?: string
   /** #221 — Off-Page-/Pfeil-Connector (EAGLE/ECAD-Stil). Wenn true wird das
    *  Kabel NICHT als durchgehende Linie gezeichnet, sondern an jedem Ende als
    *  kompaktes benanntes Connector-Symbol (Pfeil + Netzname + Gegenstück).
@@ -281,4 +289,11 @@ export interface DerivedLengthOrigin {
    *  genauso überholt wie nach einem Verschieben — die Zahl hängt an beidem. */
   metersPer100px: number
   slackPercent: number
+  /** Die Knickpunkte, ueber die gerechnet wurde. Ein neu gerouteter Weg
+   *  macht die Laenge ebenso ueberholt wie ein verschobenes Geraet. Die
+   *  Punkte selbst und kein Textschluessel: die Raster-Heilung beim Laden
+   *  zieht sie mit den Knickpunkten des Kabels gleich. */
+  weg?: CableWaypoint[]
+  /** Die Hallenplan-Kalibrierung, mit der gerechnet wurde. */
+  massstabSchluessel?: string
 }

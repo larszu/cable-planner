@@ -1,3 +1,4 @@
+import { endeText, kabelEnden } from '../../lib/kabelOrt'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import {
   BaseEdge,
@@ -35,6 +36,9 @@ import { useEdgeEnergised } from '../../hooks/useCircuit'
 interface CableEdgeData {
   cable: Cable
   exportThemeOverride?: 'dark' | 'light'
+  /** #915 — das andere Ende liegt in einem ausgeblendeten Raum; sichtbar
+   *  bleibt nur dieses Ende, als Stummel mit Ziel-Beschriftung. */
+  stummel?: 'from' | 'to'
 }
 
 /**
@@ -324,6 +328,13 @@ export const CableEdge = ({
   // EquipmentNode reads the same store value to highlight the matching
   // port handles, so the entire connection visually pops at once.
   const hoveredCableId = useUiStore((s) => s.hoveredCableId)
+  // #914 — liegt dieses Kabel auf dem hervorgehobenen Signalweg?
+  const imSignalweg = useUiStore((s) => !s.vollansicht && !!s.signalweg?.kabelIds.includes(id))
+  // #915 — fuer die Stummel-Beschriftung: wo das verborgene Ende sitzt.
+  const locations = useProjectStore((state) => state.project.locations)
+  const floors = useProjectStore((state) => state.project.floors)
+  const toggleRaumSichtbar = useUiStore((s) => s.toggleRaumSichtbar)
+  const alleRaeumeZeigen = useUiStore((s) => s.alleRaeumeZeigen)
   // v7.9.112 / Issue #234 — Globaler Toggle blendet ALLE Kabel-Labels
   // aus. Wirkt zusammen mit dem per-Kabel labelPosition='none' / legacy
   // labelHidden=true (zwei Wege zum gleichen Ziel waehrend der Migration).
@@ -342,7 +353,7 @@ export const CableEdge = ({
   // bumpStyle field.
   const globalCableBumps = useUiStore((s) => s.cableBumps)
   const routing = cable?.routing ?? 'orthogonal'
-  const hovered = hoveredCableId === id
+  const hovered = hoveredCableId === id || imSignalweg
   const isLight = (data?.exportThemeOverride ?? canvasTheme) === 'light'
 
   const { obstacles, obstacleIds } = (() => {
@@ -729,6 +740,59 @@ export const CableEdge = ({
   // sichtbar.
   if (cable && !isCableVisibleByLayer(cable, layerVisibility)) {
     return null
+  }
+
+  // #915 — STUMMEL: das andere Ende liegt in einem ausgeblendeten Raum. Nur
+  // das sichtbare Ende bekommt ein Verbinder-Symbol, das nennt, wohin die
+  // Leitung laeuft (Etage · Raum · Geraet · Port). Eine Linie ins Leere waere
+  // schlimmer als keine: sie zeigte auf eine Stelle, an der nichts steht.
+  if (cable && data?.stummel) {
+    const seite = data.stummel
+    const { von, nach } = kabelEnden(cable, {
+      equipment,
+      locations: locations ?? [],
+      floors: floors ?? [],
+    })
+    const verborgen = seite === 'from' ? nach : von
+    const stroke = (style?.stroke as string) || cable.color || '#64748b'
+    const x = seite === 'from' ? sourceX : targetX
+    const y = seite === 'from' ? sourceY : targetY
+    const ohneZiehen = () => undefined
+    return (
+      <EdgeLabelRenderer>
+        <OffPageConnectorSymbol
+          x={x}
+          y={y}
+          position={seite === 'from' ? sourcePosition : targetPosition}
+          direction={seite === 'from' ? 'out' : 'in'}
+          netName={cable.cableNumber || cable.name}
+          counterpart={endeText(verborgen)}
+          color={stroke}
+          highlighted={hovered}
+          selected={selectedCableId === id}
+          isLight={isLight}
+          showName={offPageShowNames}
+          offset={{ x: 0, y: 0 }}
+          zoom={rf.getZoom()}
+          onDragMove={ohneZiehen}
+          onDragEnd={ohneZiehen}
+          onSelect={() => setSelection(undefined, id, undefined)}
+          onNavigate={() => {
+            // Der Pfeil holt den verborgenen Raum zurueck — ist er ueber seine
+            // Etage ausgeblendet, gibt es keinen einzelnen Schalter, also alle.
+            const ui = useUiStore.getState()
+            if (verborgen.raumId && ui.ausgeblendeteRaeume.includes(verborgen.raumId)) {
+              toggleRaumSichtbar(verborgen.raumId)
+            } else {
+              alleRaeumeZeigen()
+            }
+          }}
+          getNetInfo={() => ({ key: cable.cableNumber || cable.name, rows: [] })}
+          onNavigateTo={ohneZiehen}
+          onResolve={alleRaeumeZeigen}
+        />
+      </EdgeLabelRenderer>
+    )
   }
 
   // #221 — OFF-PAGE-MODUS: keine durchgehende Linie quer über den Plan,
