@@ -54,12 +54,18 @@ export const SortableSection = ({
   title,
   subtitle,
   defaultOpen = false,
+  fest = false,
   children,
 }: {
   id: string
   title: ReactNode
   subtitle?: ReactNode
   defaultOpen?: boolean
+  /** #957 — FEST: kein Griff, kein `order`, steht dort, wo es im JSX steht.
+   *  Offen-Zustand und Filter gelten trotzdem; nur die Reihenfolge nicht.
+   *  `useSortable` laeuft auch dann (Hook-Regel) und findet die Id schlicht
+   *  nicht in der Liste — das ist beabsichtigt, nicht ein Fehler. */
+  fest?: boolean
   children: ReactNode
 }) => {
   const t = useTranslation()
@@ -84,7 +90,7 @@ export const SortableSection = ({
 
   return (
     <details
-      ref={setNodeRef}
+      ref={fest ? undefined : setNodeRef}
       open={offen}
       onToggle={(event) => {
         const nun = (event.currentTarget as HTMLDetailsElement).open
@@ -93,27 +99,33 @@ export const SortableSection = ({
       className={` border border-cp-border bg-cp-surface-1/40 [&_summary]:cursor-pointer ${
         isDragging ? 'opacity-60' : ''
       }`}
-      style={{
-        order: index < 0 ? 999 : index,
-        transform: CSS.Transform.toString(transform),
-        transition,
-      }}
+      style={
+        fest
+          ? undefined
+          : {
+              order: index < 0 ? 999 : index,
+              transform: CSS.Transform.toString(transform),
+              transition,
+            }
+      }
     >
       <summary className="flex items-center gap-2 px-2 py-1.5 text-cp-xs uppercase tracking-wide text-cp-text-muted hover:text-cp-text-bright">
         {/* #421 — Drag-Handle deutlicher: groesseres ⠿-Glyph, hellere Farbe,
             breitere Klickflaeche; sichtbar auf jeder Sektion damit klar ist,
             dass die Reihenfolge per Drag&Drop am Handle aenderbar ist. */}
-        <span
-          {...attributes}
-          {...listeners}
-          title={t('props.section.dragTitle', 'Drag section to change order (persists across devices).')}
-          className="-my-1 inline-flex h-5 w-5 cursor-grab items-center justify-center text-cp-lg leading-none text-cp-text-muted hover:bg-cp-surface-4/40 hover:text-cp-text-bright active:cursor-grabbing"
-          aria-label={t('props.section.dragAria', 'Move section')}
-          role="button"
-          onClick={(e) => e.preventDefault()}
-        >
-          ⠿
-        </span>
+        {!fest && (
+          <span
+            {...attributes}
+            {...listeners}
+            title={t('props.section.dragTitle', 'Drag section to change order (persists across devices).')}
+            className="-my-1 inline-flex h-5 w-5 cursor-grab items-center justify-center text-cp-lg leading-none text-cp-text-muted hover:bg-cp-surface-4/40 hover:text-cp-text-bright active:cursor-grabbing"
+            aria-label={t('props.section.dragAria', 'Move section')}
+            role="button"
+            onClick={(e) => e.preventDefault()}
+          >
+            ⠿
+          </span>
+        )}
         <span className="flex-1">{title}</span>
         {subtitle && (
           <span className="normal-case text-cp-xs text-cp-text-muted">{subtitle}</span>

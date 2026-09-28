@@ -326,11 +326,6 @@ interface PersistedUiState {
    *  default position so adding new sections in future versions
    *  doesn't lose the user's existing ordering. */
   equipmentSectionOrder: string[]
-  /** Merker der einmaligen Umstellung von 2026-09-28: `ports` an den Anfang
-   *  von `equipmentSectionOrder`. Siehe `load()` — ohne ihn saehe ein
-   *  Bestandsnutzer die neue Vorgabe nie, mit ihm bleibt eine eigene
-   *  Sortierung danach unangetastet. */
-  portsVorangestellt: boolean
   /**
    * ISSUE #903 — „Rechte Seitenleiste zu unuebersichtlich."
    *
@@ -453,23 +448,13 @@ const defaults: PersistedUiState = {
   canvasBgImageFit: 'cover',
   portLabelFontSize: 11,
   equipmentSectionOpen: {},
-  // Ein frischer Start braucht die Umstellung nicht — die Vorgabe unten hat
-  // `ports` schon vorn. Der Merker steht trotzdem auf `true`, damit `load()`
-  // nicht bei jedem Start eine Liste umbaut, die bereits stimmt.
-  portsVorangestellt: true,
   equipmentSectionOrder: [
-    // DIE ANSCHLUESSE ZUERST (2026-09-28). Gemeldet als „die
-    // Eigenschaften-Zeile ist unuebersichtlich": oben Name und Notiz, dann die
-    // Ein- und Ausgaenge, dann der Rest. `ports` stand an dritter Stelle und
-    // damit auf `order: 2` — unter dem ganzen unsortierbaren Kopf, an einem
-    // Panel, dessen Zweck die Verkabelung ist.
-    //
-    // Der erste Eintrag bekommt `order: 0` und liegt damit im selben Band wie
-    // die unsortierbaren Bloecke; welcher von ihnen zuerst steht, entscheidet
-    // die JSX-Reihenfolge in `EquipmentProperties`. Dort steht `PortsSection`
-    // direkt unter dem `IdentityBlock`. Die beiden Stellen gehoeren zusammen:
-    // wer hier umsortiert, ohne dort zu schauen, verschiebt nichts.
-    'ports',
+    // DIE ANSCHLUESSE STEHEN NICHT IN DIESER LISTE (#957, 2026-09-28). Sie
+    // sind kein sortierbarer Abschnitt mehr, sondern liegen fest unter Name,
+    // Kurzname und Untertitel — `PortsSection` rendert mit `fest`. Vorher war
+    // `ports` der erste Eintrag hier und zugleich per JSX-Stelle oben; wer den
+    // Griff anfasste, zog ihn unter den Kopf und fand ihn nicht wieder. Ein
+    // Abschnitt, der immer oben stehen soll, braucht keinen Griff.
     'source-identity',
     'modes',
     'network',
@@ -631,31 +616,10 @@ const load = (): PersistedUiState => {
           seen.add(def)
         }
       }
-      // EINMALIGE UMSTELLUNG (2026-09-28): `ports` nach vorn. Die
-      // Vollstaendigkeits-Schleife darueber traegt nur FEHLENDE Abschnitte
-      // nach — eine geaenderte Vorgabe-REIHENFOLGE erreicht damit niemanden,
-      // der die App schon einmal geoeffnet hat. Genau das war bei den
-      // Anschluessen der Fall: die Meldung kam von einem Bestandsnutzer, und
-      // eine neue Vorgabe haette bei ihm nichts geaendert.
-      //
-      // WARUM MIT MERKER UND NICHT JEDES MAL: wer `ports` bewusst nach unten
-      // zieht, soll es dort behalten. Ohne den Merker sprang der Abschnitt bei
-      // jedem Start zurueck — das waere keine Umstellung, sondern ein Feld,
-      // das sich nicht bedienen laesst.
-      //
-      // GEFRAGT WIRD `parsed`, NICHT `merged`. `merged` ist
-      // `{ ...defaults, ...parsed }`, und in den Vorgaben steht der Merker auf
-      // `true` — ein Bestandssatz ohne das Feld haette darin also `true`
-      // gestanden, und die Umstellung waere bei genau denen ausgefallen, fuer
-      // die sie gedacht ist. Der rohe Satz kennt den Unterschied zwischen
-      // „nicht vorhanden" und „schon erledigt".
-      if (parsed.portsVorangestellt !== true) {
-        merged.equipmentSectionOrder = [
-          'ports',
-          ...merged.equipmentSectionOrder.filter((id) => id !== 'ports'),
-        ]
-        merged.portsVorangestellt = true
-      }
+      // Ids, die keinen Abschnitt mehr haben, fallen weg — `ports` stand bis
+      // 2026-09-28 in dieser Liste und ist seit #957 fest verankert.
+      const bekannt = new Set(defaults.equipmentSectionOrder)
+      merged.equipmentSectionOrder = cleaned.filter((id) => bekannt.has(id))
     }
     // #903 — der Offen-Zustand je Abschnitt. Ein kaputter Satz (Array, null,
     // Zahlen als Werte) waere kein Grund, die Leiste unbenutzbar zu machen;

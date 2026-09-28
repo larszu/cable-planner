@@ -81,9 +81,13 @@ do).
 
 ![Device properties](../screenshots/properties.png)
 
-The top of the panel is fixed: **name**, **note** (web UI, firmware, location,
-owner) and **inputs & outputs**. All other sections can be dragged into any
-order. The filter field finds a section by title; **Collapse all** /
+The top of the panel is fixed: **name**, **short name**, **subtitle**, then
+**inputs & outputs**, then the **note** (web UI, firmware, location, owner).
+The short name is derived from the name and shown as one line; the pencil
+opens it for editing, *auto* returns to the derived form. The two port lists
+can be dragged past each other; that swaps them and mirrors the ports on the
+canvas node, exactly like the *Flip ports* box. All other sections can be
+dragged into any order. The filter field finds a section by title; **Collapse all** /
 **Expand all** in one click. Open sections are remembered.
 
 ### Creating your own device

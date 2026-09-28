@@ -117,6 +117,25 @@ export const NetworkAccessSection = ({ equipment }: { equipment: EquipmentItem }
             className="w-full border border-cp-border bg-cp-surface-1 p-2 font-mono"
           />
         </label>
+        {/* #961 — das Gateway von Schnittstelle 0. Das Feld gab es bisher nur
+            in der Switch-/Router-Konfiguration; an jedem anderen Geraet fehlte
+            es, obwohl die Pruefungen (`drawingChecks`, `addressPlan`) es lesen
+            und der Hinweis unter den Zusatz-Schnittstellen behauptet, „die
+            Felder oben" seien die erste Schnittstelle. Bei Switch/Router
+            steht es weiter dort, darum hier nur fuer alle anderen. */}
+        {!detectNetworkDevice(equipment) && (
+          <label className="block">
+            <span className="mb-1 block text-cp-text-secondary">{t('net.gateway', 'Gateway')}</span>
+            <input
+              value={equipment.gateway ?? ''}
+              onChange={(event) =>
+                updateEquipment(equipment.id, { gateway: event.target.value || undefined })
+              }
+              placeholder="192.168.1.1"
+              className="w-full border border-cp-border bg-cp-surface-1 p-2 font-mono"
+            />
+          </label>
+        )}
         {/* #946 — die VLAN-ID gehoert neben die Adresse. Sie ist dasselbe Feld
             wie das Management-VLAN eines Switches (`managementVlanId` ist die
             VLAN-Id von Schnittstelle 0, siehe `deviceInterfaces`); bei
