@@ -192,13 +192,35 @@ const normalizeHints = (ports: RawSuggestion[]): PortGroupHint[] =>
 const overrideFor = <T = unknown>(key: string): T | undefined =>
   (globalThis as Record<string, unknown>)[key] as T | undefined
 
-const callGemini = async (apiKey: string, prompt: string): Promise<string> => {
+/**
+ * Bilder als Data-URI (`data:image/jpeg;base64,…`) in Mime-Typ und Nutzlast
+ * zerlegen. Alle drei Anbieter wollen die Nutzlast ohne Praefix — nur OpenAI
+ * nimmt die ganze Data-URI.
+ */
+export const zerlegeDataUri = (dataUri: string): { mime: string; data: string } => {
+  const m = /^data:([^;,]+);base64,(.*)$/s.exec(dataUri)
+  if (!m) throw new Error('Image is not a base64 data URI')
+  return { mime: m[1], data: m[2] }
+}
+
+const callGemini = async (apiKey: string, prompt: string, images: string[] = []): Promise<string> => {
   const override = overrideFor<{ base?: string; model?: string }>('__CABLE_PLANNER_GEMINI__')
   const base = override?.base ?? 'https://generativelanguage.googleapis.com/v1beta'
   const model = override?.model ?? PROVIDERS.gemini.defaultModel
   const url = `${base}/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`
   const body = {
-    contents: [{ role: 'user', parts: [{ text: prompt }] }],
+    contents: [
+      {
+        role: 'user',
+        parts: [
+          ...images.map((uri) => {
+            const { mime, data } = zerlegeDataUri(uri)
+            return { inline_data: { mime_type: mime, data } }
+          }),
+          { text: prompt },
+        ],
+      },
+    ],
     generationConfig: {
       responseMimeType: 'application/json',
       temperature: 0.2,
@@ -219,7 +241,7 @@ const callGemini = async (apiKey: string, prompt: string): Promise<string> => {
   return json.candidates?.[0]?.content?.parts?.[0]?.text ?? ''
 }
 
-const callClaude = async (apiKey: string, prompt: string): Promise<string> => {
+const callClaude = async (apiKey: string, prompt: string, images: string[] = []): Promise<string> => {
   const override = overrideFor<{ base?: string; model?: string }>('__CABLE_PLANNER_CLAUDE__')
   const base = override?.base ?? 'https://api.anthropic.com/v1'
   const model = override?.model ?? PROVIDERS.claude.defaultModel
@@ -228,7 +250,21 @@ const callClaude = async (apiKey: string, prompt: string): Promise<string> => {
     model,
     max_tokens: 4096,
     temperature: 0.2,
-    messages: [{ role: 'user', content: prompt }],
+    messages: [
+      {
+        role: 'user',
+        content:
+          images.length === 0
+            ? prompt
+            : [
+                ...images.map((uri) => {
+                  const { mime, data } = zerlegeDataUri(uri)
+                  return { type: 'image', source: { type: 'base64', media_type: mime, data } }
+                }),
+                { type: 'text', text: prompt },
+              ],
+      },
+    ],
   }
   const res = await fetch(url, {
     method: 'POST',
@@ -253,7 +289,7 @@ const callClaude = async (apiKey: string, prompt: string): Promise<string> => {
   return textBlock?.text ?? ''
 }
 
-const callOpenAI = async (apiKey: string, prompt: string): Promise<string> => {
+const callOpenAI = async (apiKey: string, prompt: string, images: string[] = []): Promise<string> => {
   const override = overrideFor<{ base?: string; model?: string }>('__CABLE_PLANNER_OPENAI__')
   const base = override?.base ?? 'https://api.openai.com/v1'
   const model = override?.model ?? PROVIDERS.openai.defaultModel
@@ -262,7 +298,18 @@ const callOpenAI = async (apiKey: string, prompt: string): Promise<string> => {
     model,
     temperature: 0.2,
     response_format: { type: 'json_object' },
-    messages: [{ role: 'user', content: prompt }],
+    messages: [
+      {
+        role: 'user',
+        content:
+          images.length === 0
+            ? prompt
+            : [
+                { type: 'text', text: prompt },
+                ...images.map((uri) => ({ type: 'image_url', image_url: { url: uri } })),
+              ],
+      },
+    ],
   }
   const res = await fetch(url, {
     method: 'POST',
@@ -295,12 +342,14 @@ export const suggestFromAI = async (
 }
 
 /**
- * #414 — Generische Text→Text-Completion über den ausgewählten Provider.
+ * #414 — Generische Text→Text-Completion (2026-09-28: optional mit Bildern —
+ * alle drei Anbieter nehmen sie in derselben Nachricht; siehe
+ * `lib/fotoPortErkennung.ts`) über den ausgewählten Provider.
  * Wird von der KI-Plan-Generierung (planGeneration.ts) genutzt. Wirft, wenn
  * kein API-Key hinterlegt ist. Liefert den rohen Modell-Text (Caller parst
  * JSON selbst via parseJsonResponse).
  */
-export const completeWithAI = async (prompt: string): Promise<string> => {
+export const completeWithAI = async (prompt: string, images: string[] = []): Promise<string> => {
   const provider = getSelectedAiProvider()
   const key = getApiKey(provider)
   if (!key) {
@@ -310,10 +359,10 @@ export const completeWithAI = async (prompt: string): Promise<string> => {
   }
   switch (provider) {
     case 'gemini':
-      return callGemini(key, prompt)
+      return callGemini(key, prompt, images)
     case 'claude':
-      return callClaude(key, prompt)
+      return callClaude(key, prompt, images)
     case 'openai':
-      return callOpenAI(key, prompt)
+      return callOpenAI(key, prompt, images)
   }
 }
