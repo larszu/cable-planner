@@ -143,6 +143,11 @@ Built with **Electron, React, and TypeScript**, it is designed for real-world pr
 ### 🔌 Equipment & Cable Management
 - Built-in broadcast equipment library
 - Custom device templates
+- **Devices for this project only**: right-click an empty spot on the canvas →
+  *New device here …*, or *Create your own device* in the library, then *Place
+  in project only*. No template is saved and nothing is uploaded to the device
+  library — for loan gear, a client's box or a placeholder. To reuse it later,
+  save it from the canvas as a template like any other device
 - Port-level connection system
 - Cable properties:
   - Type (SDI, HDMI, Ethernet, etc.)

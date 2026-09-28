@@ -1467,6 +1467,9 @@ export const de: Dict = {
   'canvas.pattern.check.seenPlaceholder': 'Welcher Name steht drauf?',
   'canvas.pattern.check.wrong': 'anderes Bild…',
   'canvas.pattern.expected': 'Erwartung laut Plan',
+  'canvas.paneMenu.newDevice': 'Neues Gerät hier …',
+  'library.create.placeOnly': 'Nur im Projekt platzieren',
+  'library.create.placeOnlyTitle': 'Das Gerät nur in diesem Projekt platzieren: keine Vorlage in der Bibliothek, nichts wird hochgeladen. Für Leihgeräte, Platzhalter und Einzelstücke.',
   // #946 — Stream-Vorschau am Canvas
   'canvas.stream.still': 'Standbild {time} · {name}',
   'canvas.stream.pending': 'Vorschau · {name}',

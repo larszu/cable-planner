@@ -549,6 +549,11 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
     | { clientX: number; clientY: number; nodeId: string; nodeType: 'equipment' | 'location' }
     | null
   >(null)
+  // Rechtsklick auf eine freie Stelle: „Neues Geraet hier". Der Anlege-Dialog
+  // lebt im LibraryPanel und wird ueber denselben Weg geoeffnet wie beim
+  // Ziehen eines portlosen Geraets (`triggerEmptyDeviceDrop`) — mit der
+  // Klickstelle als Platz.
+  const [paneMenu, setPaneMenu] = useState<{ clientX: number; clientY: number; x: number; y: number } | null>(null)
 
   // ═════════════════════════════════════════════════════════════════════
   // LANGE BERUEHRUNG STATT RECHTSKLICK (#877)
@@ -1304,6 +1309,20 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
     },
     [],
   )
+
+  useEffect(() => {
+    if (!paneMenu) return
+    const zu = () => setPaneMenu(null)
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') zu()
+    }
+    window.addEventListener('keydown', onKey)
+    window.addEventListener('click', zu)
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      window.removeEventListener('click', zu)
+    }
+  }, [paneMenu])
 
   // ESC oder Klick außerhalb → Menu schließen.
   useEffect(() => {
@@ -2075,6 +2094,12 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         connectionMode={ConnectionMode.Loose}
         onNodesChange={onNodesChange}
         onNodeContextMenu={onNodeContextMenu}
+        onPaneContextMenu={(event) => {
+          event.preventDefault()
+          const flow = screenToFlowPosition({ x: event.clientX, y: event.clientY })
+          setNodeContextMenu(null)
+          setPaneMenu({ clientX: event.clientX, clientY: event.clientY, x: flow.x, y: flow.y })
+        }}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         onConnectStart={onConnectStart}
@@ -2215,6 +2240,24 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
       </ReactFlow>
       <PendingCableOverlay />
       {mode === 'main' && <InlineSelectionToolbar />}
+      {paneMenu && (
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className="fixed z-[100] min-w-[180px] border border-cp-border bg-cp-surface-2 p-1 text-cp-sm text-cp-text"
+          style={{ left: paneMenu.clientX, top: paneMenu.clientY }}
+        >
+          <button
+            type="button"
+            onClick={() => {
+              useUiStore.getState().triggerEmptyDeviceDrop({ name: '', category: '', x: paneMenu.x, y: paneMenu.y })
+              setPaneMenu(null)
+            }}
+            className="block w-full px-2.5 py-1.5 text-left hover:bg-cp-surface-3"
+          >
+            {t('canvas.paneMenu.newDevice', 'New device here …')}
+          </button>
+        </div>
+      )}
       {nodeContextMenu && (() => {
         const isLocation = nodeContextMenu.nodeType === 'location'
         const target = isLocation
