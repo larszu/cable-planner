@@ -464,6 +464,183 @@ for (let i = 0; i < befehle; i++) {
 }
 console.log(`${dialoge} Dialog(e) aus der Befehlspalette geprueft`)
 
+// ── 7. Die Bedienreihen, die es erst beim Darueberfahren gibt ─────────────
+//
+// WARUM DIESER DURCHGANG NOETIG WURDE. Gemeldet am 2026-09-28 mit einem Bild:
+// in der Bibliothek stand „Allen &…" und darunter „Audio · 36 i…" — der Name
+// auf zwei Zeichen geschrumpft, daneben fuenf Knoepfe in voller Groesse.
+//
+// Die Punkte 1 bis 6 haetten das finden MUESSEN: Punkt 2 meldet jede
+// Beschriftung, deren Text breiter ist als ihr sichtbarer Bereich, und die
+// Karte traegt `role="button"`. Er hat es nicht gefunden, und der Grund ist
+// derselbe wie beim Trefferflaechen-Waechter (#951): er misst die STEHENDE
+// Oberflaeche. Die Knopfreihe steht dort auf `opacity: 0` — unberuehrt nimmt
+// sie zwar Platz ein, aber `sichtbar()` laesst sie samt ihrer Folgen fallen,
+// und der Name hat in diesem Zustand die volle Breite.
+//
+// Ein Zustand, den nur der Mauszeiger herstellt, wird von keiner Messung
+// gesehen, die nicht darueberfaehrt. Also faehrt dieser Durchgang darueber.
+//
+// GEMESSEN WIRD BEI DER KLEINSTEN LEISTENBREITE, nicht bei der Vorgabe: 180 px
+// ist erlaubt (`PANEL_LIMITS.library`), und was dort passt, passt ueberall.
+// Vorher lagen die Knoepfe dort 33 px ausserhalb der Karte.
+const breiteVorher = await win.evaluate(() => {
+  const k = 'cable-planner:ui'
+  try {
+    const o = JSON.parse(localStorage.getItem(k) || '{}')
+    const vorher = o.libraryWidth ?? null
+    o.libraryWidth = 180
+    localStorage.setItem(k, JSON.stringify(o))
+    return vorher
+  } catch {
+    /* ohne Speicher bleibt die Vorgabebreite — dann misst dieser Durchgang
+       eben die, und das ist immer noch mehr als gar nicht zu messen. */
+    return null
+  }
+})
+await win.reload()
+await win.waitForLoadState('domcontentloaded')
+await win.waitForTimeout(3000)
+await erststartOverlayWeg(win)
+{
+  const demo = win.getByRole('button', { name: /Beispielprojekt laden|Load example project/i })
+  if (await demo.count()) {
+    await demo.first().click()
+    await win.waitForTimeout(1500)
+  }
+}
+await win.setViewportSize(groessen[0])
+await win.waitForTimeout(800)
+
+// Je Reihen-GROESSE eine Probe. Die Bibliothek fuehrt Tausende Eintraege, und
+// sie unterscheiden sich fuer diese Frage nur in einem: wie viele Knoepfe die
+// Reihe traegt. Alle zu messen kostet Minuten und sagt dasselbe.
+const proben = await win.evaluate(() => {
+  const gesehen = new Map()
+  for (const r of document.querySelectorAll('.cp-hover-actions')) {
+    // NICHT JEDE `.cp-hover-actions` IST EINE REIHE VON KNOEPFEN. In der
+    // Kopfzeile steckt eine davon um ein blosses Stift-SYMBOL (der Projektname
+    // ist der Knopf, das Symbol darin erscheint beim Darueberfahren). Es ist
+    // 12 px breit und soll es sein — getroffen wird der Knopf drumherum. Ein
+    // Befund darauf waere falsch.
+    //
+    // Unterschieden wird am INHALT und nicht an der Umgebung: „enthaelt diese
+    // Reihe eigene Bedienelemente?" Der erste Anlauf fragte stattdessen, ob
+    // sie in einem Knopf STECKT — und schloss damit genau den Fall aus, um den
+    // es geht: die Bibliothekskarte traegt selbst `role="button"`, ihre
+    // Knopfreihe steckt also immer in einem Knopf. Der Lauf fand danach gar
+    // keine Reihe mehr und meldete das (siehe der Wurf unten); waere er
+    // stillschweigend gruen geworden, stuende der Fehler heute noch drin.
+    const knoepfe = [...r.children].filter(
+      (c) =>
+        c.matches('button, a[href], [role="button"]') ||
+        c.querySelector('button, a[href], [role="button"]'),
+    )
+    if (knoepfe.length === 0) continue
+    if (!gesehen.has(knoepfe.length)) gesehen.set(knoepfe.length, r)
+  }
+  let i = 0
+  for (const r of gesehen.values()) r.setAttribute('data-cp-reihe', String(i++))
+  return [...gesehen.keys()].sort((a, b) => a - b)
+})
+if (proben.length === 0) {
+  throw new Error(
+    'Keine Bedienreihe mit `.cp-hover-actions` gefunden — entweder heisst die Klasse ' +
+      'nicht mehr so, oder die Bibliothek ist leer. In beiden Faellen misst dieser ' +
+      'Durchgang nichts und waere gruen, ohne hingesehen zu haben.',
+  )
+}
+
+// Der Name braucht Platz, und wie viel, ist eine Entscheidung und keine
+// Messung: 96 px traegt etwa ein Dutzend Zeichen — genug, um zwei Geraete
+// derselben Baureihe zu unterscheiden. Gemessen VOR der Reparatur waren es
+// 30 px („Allen &…"), danach 128 px bei derselben schmalsten Leiste.
+const NAME_MINDESTENS = 96
+let reihen = 0
+for (let i = 0; i < proben.length; i++) {
+  const karte = win.locator(`[data-cp-reihe="${i}"]`).locator('xpath=..')
+  if ((await karte.count()) === 0) continue
+  await karte.first().hover().catch(() => {})
+  await win.waitForTimeout(250)
+  const m = await win.evaluate((idx) => {
+    const reihe = document.querySelector(`[data-cp-reihe="${idx}"]`)
+    if (!reihe) return null
+    const karte = reihe.parentElement
+    const kr = karte.getBoundingClientRect()
+    const rr = reihe.getBoundingClientRect()
+    const text = [...karte.children].find((c) => c !== reihe)
+    const name = text?.firstElementChild
+    return {
+      knoepfe: reihe.children.length,
+      ueber: Math.round(Math.max(rr.right - kr.right, kr.left - rr.left)),
+      // Der kleinste Knopf der Reihe: er darf beim Umbrechen nicht gestaucht
+      // werden, sonst ist der Ueberlauf gegen eine unbedienbare Flaeche
+      // getauscht.
+      knopf: Math.min(
+        ...[...reihe.children].map((b) => {
+          // Gemessen wird das Bedienelement, nicht seine Huelle: die Knoepfe
+          // stecken in einem `Tooltip`-Behaelter, der sie eng umschliesst —
+          // aber eben nur meistens.
+          const k = b.matches('button, a[href], [role="button"]')
+            ? b
+            : b.querySelector('button, a[href], [role="button"]')
+          return Math.round((k ?? b).getBoundingClientRect().width)
+        }),
+      ),
+      name: name ? Math.round(name.clientWidth) : 0,
+      txt: (name?.textContent || '').trim().slice(0, 24),
+    }
+  }, i)
+  if (!m) continue
+  reihen += 1
+  if (m.ueber > 2) {
+    console.error(
+      `✗ Bedienreihe (${m.knoepfe} Knoepfe): ragt ${m.ueber}px aus ihrer Karte — ` +
+        'beim Darueberfahren nicht vollstaendig sichtbar',
+    )
+    befunde += 1
+  }
+  if (m.name > 0 && m.name < NAME_MINDESTENS) {
+    console.error(
+      `✗ Bedienreihe (${m.knoepfe} Knoepfe): daneben bleiben dem Namen ${m.name}px ` +
+        `(mindestens ${NAME_MINDESTENS}) — „${m.txt}"`,
+    )
+    befunde += 1
+  }
+  if (m.knopf < 24) {
+    console.error(
+      `✗ Bedienreihe (${m.knoepfe} Knoepfe): kleinster Knopf ${m.knopf}px breit — ` +
+        'unter der WCAG-2.2-Marke von 24px (vgl. #951)',
+    )
+    befunde += 1
+  }
+}
+// GEPRUEFT WIRD, WAS AUF DEM SCHIRM STEHT. Die Karten der Register „Racks" und
+// „Gruppen" tragen dieselbe Reihe, liegen aber hinter einem anderen Reiter und
+// sind hier nicht dabei. Das steht in der Ausgabe, damit die Zahl nicht mehr
+// behauptet, als sie gesehen hat.
+console.log(
+  `${reihen} Bedienreihe(n) beim Darueberfahren geprueft (${proben.join(', ')} Knoepfe) — ` +
+    'nur die im offenen Register',
+)
+
+// DIE LEISTENBREITE WIRD ZURUECKGESETZT. Sie steht im `localStorage` des
+// Electron-Profils, und das ueberlebt den Lauf. Ohne diese Zeile begann der
+// NAECHSTE Lauf mit 180 px — und meldete dann bei Punkt 1 bis 6 abgeschnittene
+// Reiter („Equipment", „Groups", „Racks"), die mit dieser Messung nichts zu
+// tun haben. Gemessen und erlebt: genau das ist beim ersten Anlauf passiert.
+await win.evaluate((vorher) => {
+  const k = 'cable-planner:ui'
+  try {
+    const o = JSON.parse(localStorage.getItem(k) || '{}')
+    if (vorher === null) delete o.libraryWidth
+    else o.libraryWidth = vorher
+    localStorage.setItem(k, JSON.stringify(o))
+  } catch {
+    /* nichts zu retten */
+  }
+}, breiteVorher)
+
 await app.close()
 console.log(`UI-Overflow fertig → ${OUT} (${befunde} Befund(e))`)
 process.exit(befunde > 0 ? 1 : 0)

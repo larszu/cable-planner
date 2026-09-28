@@ -91,7 +91,7 @@ export const LibraryItem = ({
           addFromClick()
         }
       }}
-      className={`group flex w-full cursor-grab items-start justify-between gap-2 border ${accentClass} px-2 py-2 text-left text-cp-base active:cursor-grabbing ${
+      className={`group flex w-full flex-wrap cursor-grab items-start justify-between gap-2 border ${accentClass} px-2 py-2 text-left text-cp-base active:cursor-grabbing ${
         item.hidden
           ? 'border-cp-border-muted bg-cp-surface-3 opacity-60 hover:opacity-100'
           : 'border-cp-border bg-cp-surface-1 hover:bg-cp-surface-2'
@@ -116,7 +116,29 @@ export const LibraryItem = ({
             : t('library.item.titleLocal', 'Local device — click or drag & drop onto canvas')
       }
     >
-      <div className="min-w-0 flex-1">
+      {/* ─── `min-w-[8rem]` UND NICHT `min-w-0` (2026-09-28) ──────────────────
+          Gemeldet mit einem Bild: in der Bibliothek stand „Allen &…" und
+          darunter „Audio · 36 i…" — der Name war auf zwei Zeichen geschrumpft,
+          waehrend fuenf Knoepfe daneben in voller Groesse standen.
+
+          NACHGEMESSEN bei der Vorgabebreite der Leiste (260 px): die Karte ist
+          225 px breit, die Knopfreihe 168 px, und fuer den Namen blieben
+          DREISSIG Pixel — bei 242 px Bedarf. `min-w-0` erlaubt einem
+          Flex-Kind, bis auf null zu schrumpfen, und genau das tat es.
+
+          Die Knoepfe sind nicht zu breit: 32 px ist die Trefferflaeche, unter
+          die sie nach WCAG 2.2 nicht duerfen (#951). Fuenf davon passen neben
+          einen lesbaren Namen erst ab rund 300 px Kartenbreite — die Leiste
+          darf aber bis auf 180 px herunter (`PANEL_LIMITS.library`).
+
+          Also bekommt der Name eine UNTERGRENZE statt keiner: passt daneben
+          keine Knopfreihe mehr, bricht sie dank `flex-wrap` am aeusseren
+          Behaelter in die naechste Zeile. Die Karte wird in einer schmalen
+          Leiste dauerhaft hoeher — und zwar dauerhaft und nicht erst beim
+          Darueberfahren: die Reihe steht auf `opacity: 0` und nicht auf
+          `display: none`, belegt ihren Platz also auch unberuehrt. Nichts
+          springt, wenn die Maus ueber die Liste faehrt. */}
+      <div className="min-w-[8rem] flex-1">
         <div className="truncate font-medium">
           {item.favorite && (
             <span className="mr-1 inline-flex text-amber-300">
@@ -162,9 +184,26 @@ export const LibraryItem = ({
           )}
         </div>
       </div>
-      {/* #901 — `shrink-0`: der Name daneben traegt `flex-1` und `truncate`
-          und soll kuerzen, nicht die Knoepfe stauchen. */}
-      <div className="flex shrink-0 gap-0.5 cp-hover-actions">
+      {/* #901 hatte hier `shrink-0`, damit der Name kuerzt und nicht die
+          Knoepfe gestaucht werden. Das bleibt die Absicht — nur liegt sie
+          jetzt eine Ebene tiefer.
+
+          WARUM (2026-09-28, nachgemessen): bei der KLEINSTEN Leistenbreite
+          (180 px, `PANEL_LIMITS.library`) ist die Karte 145 px breit. Fuenf
+          Knoepfe brauchen 168 px. Eine Reihe, die nicht schrumpfen DARF und
+          nicht umbrechen KANN, stand damit 33 px ueber den Rand hinaus — der
+          rote Loeschknopf lag halb ausserhalb der Karte.
+
+          `flex-wrap` an der Reihe loest das, ohne die Absicht aufzugeben:
+          gestaucht wird immer noch nichts (`[&>*]:shrink-0` haelt jeden Knopf
+          auf seiner Groesse, und 32 px ist die Untergrenze nach WCAG 2.2, vgl.
+          #951) — die Knoepfe rutschen stattdessen in eine weitere Zeile. Die
+          Karte wird hoeher, und das ist der richtige Preis: hoeher kann man
+          lesen, abgeschnitten nicht.
+
+          `ml-auto` und `justify-end`: bricht die Reihe unter den Namen, steht
+          sie sonst links und laesst rechts eine Luecke. */}
+      <div className="flex flex-wrap justify-end ml-auto gap-0.5 [&>*]:shrink-0 cp-hover-actions">
         {onToggleFavorite && (
           <Tooltip
             label={

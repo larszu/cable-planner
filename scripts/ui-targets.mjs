@@ -253,37 +253,54 @@ const auswerten = (name, ziele) => {
  *
  * Mit zwei gleichen Messungen in Folge gab derselbe Baum in einem Lauf 112 und
  * im naechsten 178 Trefferflaechen. Innerhalb eines Laufes war die Zahl also
- * ruhig, zwischen zwei Laeufen um 66 verschieden — und der Unterschied war
- * nicht Rauschen, sondern EINE GRUPPE: die Port-Griffe auf den Geraete-Knoten
- * („In 1 · BNC — Enter verbindet", 65x19 px), im Bericht die Zeile „auf dem
- * Knoten". Im 112er-Lauf waren es null, im 178er dreiundsiebzig.
+ * ruhig, zwischen zwei Laeufen um 66 verschieden. Zwei gleiche Messungen
+ * beweisen eben nicht, dass der Aufbau FERTIG ist — nur, dass er in diesen
+ * 400 ms nicht gewachsen ist.
  *
- * Zwei gleiche Messungen beweisen nicht, dass der Aufbau fertig ist — nur,
- * dass er in diesen 400 ms nicht gewachsen ist. Genau das passiert, wenn
- * ReactFlow seine Knoten noch nicht gemessen hat: ein Knoten ohne Groesse ist
- * 0 x 0 px, seine Griffe fallen durch den Rechteck-Test in `sichtbar()`, und
- * die Messung ruht auf einer Szene ohne Knoten-Inhalt.
+ * ─── ZWEI GRUPPEN FEHLTEN, UND DIE ERSTE DIAGNOSE NANNTE NUR EINE ──────────
+ *
+ * Hier stand zuerst, der Unterschied seien die Port-Griffe auf den Knoten
+ * gewesen. Das war zu schnell. Nachgerechnet: 178 - 112 = 66, und die
+ * Knoten-Gruppe ist 73 gross — die Zahl geht gar nicht auf. Gemessen liegen
+ * 60 der 66 fehlenden Flaechen in der BIBLIOTHEKS-SEITENLEISTE. Die Knoten
+ * standen in beiden Laeufen.
+ *
+ * Beide Gruppen bauen sich nach, und beide aus demselben Grund:
+ *
+ *   • Ein ReactFlow-Knoten ist 0 x 0 px, bis er vermessen ist; seine Griffe
+ *     fallen so lange durch den Rechteck-Test in `sichtbar()`. Sie stehen im
+ *     DOM, haben aber keine Flaeche — deshalb fragt `szeneFertig` nach der
+ *     FLAECHE und nicht nach dem Vorhandensein.
+ *   • Die Bibliothek fuehrt 1827 Vorlagen und baut ihre Liste nach. Eine
+ *     leere Leiste kommt genauso zur Ruhe wie eine volle.
  *
  * DESHALB EINE BEDINGUNG UND NICHT NUR EINE WARTESCHLEIFE: gewartet wird, bis
- * auf den Knoten wirklich Bedienelemente liegen (`portGriffeDa`), und erst
- * danach auf Ruhe geprueft — und die braucht jetzt DREI gleiche Messungen.
- * Eine Zahl, die zwischen zwei Laeufen um 66 schwankt, ist keine Messung, und
- * ein Deckel darauf waere ein Gate, das wuerfelt.
+ * BEIDE Gruppen mit Flaeche dastehen (`szeneFertig`), und erst danach auf Ruhe
+ * geprueft — und die braucht jetzt DREI gleiche Messungen. Eine Zahl, die
+ * zwischen zwei Laeufen um 66 schwankt, ist keine Messung, und ein Deckel
+ * darauf waere ein Gate, das wuerfelt.
+ *
+ * `knotenGeprueft` weist danach zurueck, was trotzdem ohne eine der beiden
+ * Gruppen gemessen wurde. Warum das noetig ist, obwohl es schon einen Deckel
+ * gibt: ein Deckel meldet nur „zu viele". Der blinde Lauf ergab 112 gegen
+ * einen Deckel von 171 und war damit GRUEN.
  */
 
 /**
- * Liegen auf den Geraete-Knoten schon Bedienelemente?
+ * Steht die Szene — Knoten UND Seitenleiste?
  *
- * Das ist die Bedingung, an der sich „fertig aufgebaut" festmachen laesst,
- * ohne eine Zahl zu behaupten: die Port-Griffe sind `role="button"` INNERHALB
- * eines `.react-flow__node`. Solange keiner davon da ist, hat ReactFlow die
- * Knoten noch nicht gemessen — und die Messung waere um die ganze Gruppe „auf
- * dem Knoten" zu klein.
+ * Die Bedingung, an der sich „fertig aufgebaut" festmachen laesst, ohne eine
+ * Zahl zu behaupten — je Gruppe ein Merkmal, das es nur im fertigen Zustand
+ * gibt:
  *
- * Gefragt wird nach der ROLLE und nicht nach einem Beschriftungstext: der
+ *   Knoten        `role="button"` INNERHALB eines `.react-flow__node` — die
+ *                 Port-Griffe.
+ *   Seitenleiste  `.cp-hover-actions` — die Bedienreihe einer Listenzeile.
+ *
+ * Gefragt wird nach ROLLE und KLASSE, nicht nach einem Beschriftungstext: der
  * haengt an der Sprache, und dieser Lauf soll in jeder laufen.
  */
-const portGriffeDa = async () =>
+const szeneFertig = async () =>
   win.evaluate(() => {
     // NICHT „steht im DOM", SONDERN „HAT FLAECHE". Der erste Anlauf fragte nur
     // nach `length > 0` — und das war von der ersten Millisekunde an wahr, weil
@@ -295,11 +312,22 @@ const portGriffeDa = async () =>
     //
     // Gefragt wird deshalb nach dem, worauf es ankommt — einer Flaeche, die man
     // treffen koennte.
-    const griffe = [...document.querySelectorAll('.react-flow__node [role="button"]')]
-    return griffe.some((el) => {
+    const mitFlaeche = (el) => {
       const r = el.getBoundingClientRect()
       return r.width >= 1 && r.height >= 1
-    })
+    }
+    const griffe = [...document.querySelectorAll('.react-flow__node [role="button"]')]
+    // UND DIE SEITENLEISTE. Das ist die zweite Haelfte, und sie hat gefehlt:
+    // nachgemessen sind 178 - 112 = 66 Flaechen Unterschied, davon liegen 60
+    // in der Bibliotheks-Seitenleiste und nur der Rest woanders. Die Knoten
+    // waren also gar nicht das Wackelnde — sie standen in beiden Faellen.
+    //
+    // Die Bibliothek fuehrt 1827 Vorlagen und baut ihre Liste nach; solange
+    // keine einzige Zeile da ist, misst der Lauf eine leere Leiste und kommt
+    // trotzdem zur Ruhe. `.cp-hover-actions` ist die Bedienreihe einer solchen
+    // Zeile — gibt es sie mit Flaeche, steht die Liste.
+    const eintraege = [...document.querySelectorAll('.cp-hover-actions')]
+    return griffe.some(mitFlaeche) && eintraege.some(mitFlaeche)
   })
 
 /** Wie viele der gemessenen Ziele auf einem Geraete-Knoten liegen. */
@@ -308,13 +336,13 @@ const aufKnoten = (ziele) => ziele.filter((z) => z.wo === 'auf dem Knoten').leng
 const messenStabil = async (was) => {
   // Erst die Bedingung, dann die Ruhe.
   for (let versuch = 0; versuch < 30; versuch += 1) {
-    if (await portGriffeDa()) break
+    if (await szeneFertig()) break
     if (versuch === 29) {
       throw new Error(
-        `${was}: auf den Geraete-Knoten liegt kein einziges Bedienelement. Entweder ` +
-          'hat ReactFlow die Knoten nicht gemessen, oder die Griffe heissen nicht mehr ' +
-          '`role="button"` — in beiden Faellen waere die Messung um die ganze Gruppe ' +
-          '„auf dem Knoten" zu klein, ohne es zu sagen.',
+        `${was}: die Szene ist nicht fertig — auf den Geraete-Knoten liegt kein ` +
+          'Bedienelement mit Flaeche, oder die Bibliotheks-Seitenleiste ist leer. In ' +
+          'beiden Faellen fehlt der Messung eine ganze Gruppe, ohne dass sie es sagt: ' +
+          'die Knoten tragen 73 Flaechen, die Seitenleiste 60.',
       )
     }
     await win.waitForTimeout(400)
@@ -358,13 +386,16 @@ const messenStabil = async (was) => {
  * gehoert sie geaendert, nicht der Deckel.
  */
 const knotenGeprueft = (was, ziele) => {
-  const n = aufKnoten(ziele)
-  if (n > 0) return
+  const fehlt = []
+  if (aufKnoten(ziele) === 0) fehlt.push('auf dem Knoten (gemessen 73 Flaechen)')
+  if (ziele.filter((z) => z.wo === 'Seitenleiste').length === 0) {
+    fehlt.push('Seitenleiste (gemessen 60 unter der Maus, 95 unter dem Finger)')
+  }
+  if (fehlt.length === 0) return
   throw new Error(
-    `${was}: kein einziges Ziel liegt auf einem Geraete-Knoten. Die Port-Griffe sind ` +
-      'gemessen 65 x 19 px gross und muessen auftauchen; fehlen sie, hat ReactFlow die ' +
-      'Knoten noch nicht vermessen und die ganze Messung ist um sie zu klein. Ein ' +
-      'gruenes Ergebnis waere dann eine Aussage ueber eine Oberflaeche, die es so nie gibt.',
+    `${was}: diese Gruppe fehlt in der Messung — ${fehlt.join(' und ')}. Sie ist nicht ` +
+      'leer, sie war nur noch nicht aufgebaut. Ein gruenes Ergebnis waere hier eine ' +
+      'Aussage ueber eine Oberflaeche, die es so nie gibt.',
   )
 }
 
@@ -502,12 +533,11 @@ await app.close()
  * denn nur eine davon bedeutet, dass die Oberflaeche schlechter geworden ist,
  * und das ist keine von den drei.
  *
- * 1. DER DECKEL WAR BLIND FUER 73 FLAECHEN. Das ist die wichtigste und
- *    unangenehmste. Die Port-Griffe auf den Geraete-Knoten („In 1 · BNC —
- *    Enter verbindet", 65 x 19 px) wurden nie mitgezaehlt: die Messung lief,
- *    bevor ReactFlow seine Knoten gemessen hatte, und ein Knoten ohne Groesse
- *    ist 0 x 0 px — seine Griffe fallen durch den Rechteck-Test in
- *    `sichtbar()`. Sie waren also immer da und immer zu klein; gezaehlt hat
+ * 1. DER DECKEL WAR BLIND FUER GANZE GRUPPEN. Das ist die wichtigste und
+ *    unangenehmste. Die Messung lief, bevor die Oberflaeche fertig aufgebaut
+ *    war — mal fehlten die 73 Port-Griffe auf den Geraete-Knoten („In 1 · BNC
+ *    — Enter verbindet", 65 x 19 px), mal die 60 Zeilen der
+ *    Bibliotheks-Seitenleiste. Sie waren also immer da und immer zu klein; gezaehlt hat
  *    sie niemand. Seit `portGriffeDa()` wartet der Lauf auf sie — und zwar
  *    darauf, dass sie FLAECHE haben und nicht bloss im DOM stehen; die erste
  *    Fassung fragte nur nach Vorhandensein und war damit von der ersten
