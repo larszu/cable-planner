@@ -1,3 +1,19 @@
+import type { ReactNode } from 'react'
+import {
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core'
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import { useCanvasProjectStore as useProjectStore } from '../../../store/projectStoreContext'
 import { ProvenanceBadge } from '../../shared/ProvenanceBadge'
 import { detectDeviceKind } from '../../../lib/deviceKind'
@@ -8,17 +24,82 @@ import { PortList } from '../PortList'
 import { PortAiSuggestButton } from './PortAiSuggestButton'
 import type { EquipmentItem } from '../../../types/equipment'
 
+const SENSOR_ZEIGER = { activationConstraint: { distance: 6 } } as const
+const SENSOR_TASTATUR = { coordinateGetter: sortableKeyboardCoordinates } as const
+
 /**
- * #306 — "Inputs & Outputs"-SortableSection. Enthaelt PortAiSuggestButton
- * plus zwei <details>-Listen (Inputs / Outputs), die unabhaengig kollabieren
- * koennen (#185). showAtemSourceId triggert die ATEM-spezifische
- * Source-ID-Spalte in PortList.
+ * Eine der beiden Listen (Inputs / Outputs) als ziehbares `<details>`.
+ *
+ * #958 — Die beiden Listen lassen sich gegeneinander verschieben, mit
+ * demselben Griff wie die einzelnen Ports darin. Es gibt nur zwei, also ist
+ * jede Verschiebung ein TAUSCH — und der Tausch IST `portsFlipped`: dieselbe
+ * Eigenschaft, die am Knoten die Seiten dreht. Zwei Zustaende fuer dieselbe
+ * Frage („was steht links?") gaebe es sonst.
+ */
+const PortListe = ({
+  id,
+  titel,
+  anzahl,
+  children,
+}: {
+  id: 'in' | 'out'
+  titel: string
+  anzahl: number
+  children: ReactNode
+}) => {
+  const t = useTranslation()
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id })
+  return (
+    <details
+      ref={setNodeRef}
+      open
+      className={`border border-cp-border-muted bg-cp-surface-3/30 ${isDragging ? 'opacity-60' : ''}`}
+      style={{ transform: CSS.Transform.toString(transform), transition }}
+    >
+      <summary className="flex cursor-pointer select-none items-center gap-1 px-2 py-1 text-cp-xs font-semibold text-cp-text-secondary hover:text-cp-text">
+        <span
+          {...attributes}
+          {...listeners}
+          role="button"
+          aria-label={t('ports.listMove', 'Swap inputs and outputs')}
+          title={t('ports.listMove', 'Swap inputs and outputs')}
+          onClick={(e) => e.preventDefault()}
+          className="-my-1 inline-flex h-5 w-5 cursor-grab items-center justify-center text-cp-text-muted hover:text-cp-text-bright active:cursor-grabbing"
+        >
+          ≡
+        </span>
+        {titel} <span className="text-cp-text-faint">({anzahl})</span>
+      </summary>
+      <div className="px-2 pb-2">{children}</div>
+    </details>
+  )
+}
+
+/**
+ * #306 — "Inputs & Outputs". Enthaelt PortAiSuggestButton plus zwei
+ * <details>-Listen (Inputs / Outputs), die unabhaengig kollabieren koennen
+ * (#185). showAtemSourceId triggert die ATEM-spezifische Source-ID-Spalte in
+ * PortList.
+ *
+ * #957 — FEST unter Name, Kurzname und Untertitel (`fest`), kein Griff. Der
+ * Abschnitt war bis 2026-09-28 sortierbar und stand per Vorgabe oben; wer den
+ * Griff beruehrte, hatte ihn unten. An einem Panel, dessen Zweck die
+ * Verkabelung ist, ist „immer oben" keine Vorgabe, sondern eine Eigenschaft.
  */
 export const PortsSection = ({ equipment }: { equipment: EquipmentItem }) => {
   const t = useTranslation()
   const updateEquipment = useProjectStore((state) => state.updateEquipment)
   const deviceKind = detectDeviceKind(equipment)
   const isAtem = deviceKind === 'atem'
+  const gespiegelt = !!equipment.portsFlipped
+  const setGespiegelt = (wert: boolean) =>
+    updateEquipment(equipment.id, { portsFlipped: wert || undefined })
+  const listenSensoren = useSensors(
+    useSensor(PointerSensor, SENSOR_ZEIGER),
+    useSensor(KeyboardSensor, SENSOR_TASTATUR),
+  )
+  // Gespiegelt heisst: Outputs links am Knoten — und damit auch zuerst hier.
+  const reihenfolge: Array<'in' | 'out'> = gespiegelt ? ['out', 'in'] : ['in', 'out']
 
   // Ports ändern → sobald reale Anschlüsse existieren, ist das Gerät nicht mehr
   // "unbekannt": den explizit-Unbekannt-Marker (aus dem Import ohne Datenblatt-
@@ -55,6 +136,7 @@ export const PortsSection = ({ equipment }: { equipment: EquipmentItem }) => {
       title={t('portsSection.title', 'Inputs & outputs')}
       subtitle={`${equipment.inputs.length} ${t('portsSection.in', 'In')} · ${equipment.outputs.length} ${t('portsSection.out', 'Out')}`}
       defaultOpen
+      fest
     >
       <div className="space-y-2">
         {equipment.portsUnknown && equipment.inputs.length === 0 && equipment.outputs.length === 0 && (
@@ -90,43 +172,54 @@ export const PortsSection = ({ equipment }: { equipment: EquipmentItem }) => {
         >
           <input
             type="checkbox"
-            checked={!!equipment.portsFlipped}
-            onChange={(event) =>
-              updateEquipment(equipment.id, { portsFlipped: event.target.checked || undefined })
-            }
+            checked={gespiegelt}
+            onChange={(event) => setGespiegelt(event.target.checked)}
           />
           {t('ports.flip', 'Flip ports (inputs on right, outputs on left)')}
         </label>
-        <details open className="border border-cp-border-muted bg-cp-surface-3/30">
-          <summary className="cursor-pointer select-none px-2 py-1 text-cp-xs font-semibold text-cp-text-secondary hover:text-cp-text">
-            {t('ports.title.inputs', 'Inputs')}{' '}
-            <span className="text-cp-text-faint">({equipment.inputs.length})</span>
-          </summary>
-          <div className="px-2 pb-2">
-            <PortList
-              title={t('ports.title.inputs', 'Inputs')}
-              ports={equipment.inputs}
-              onChange={(inputs) => applyPorts({ inputs })}
-              hideTitle
-              showAtemSourceId={isAtem}
-            />
-          </div>
-        </details>
-        <details open className="border border-cp-border-muted bg-cp-surface-3/30">
-          <summary className="cursor-pointer select-none px-2 py-1 text-cp-xs font-semibold text-cp-text-secondary hover:text-cp-text">
-            {t('ports.title.outputs', 'Outputs')}{' '}
-            <span className="text-cp-text-faint">({equipment.outputs.length})</span>
-          </summary>
-          <div className="px-2 pb-2">
-            <PortList
-              title={t('ports.title.outputs', 'Outputs')}
-              ports={equipment.outputs}
-              onChange={(outputs) => applyPorts({ outputs })}
-              hideTitle
-              showAtemSourceId={isAtem}
-            />
-          </div>
-        </details>
+        <DndContext
+          sensors={listenSensoren}
+          collisionDetection={closestCenter}
+          onDragEnd={({ active, over }) => {
+            if (over && active.id !== over.id) setGespiegelt(!gespiegelt)
+          }}
+        >
+          <SortableContext items={reihenfolge} strategy={verticalListSortingStrategy}>
+            {reihenfolge.map((seite) =>
+              seite === 'in' ? (
+                <PortListe
+                  key="in"
+                  id="in"
+                  titel={t('ports.title.inputs', 'Inputs')}
+                  anzahl={equipment.inputs.length}
+                >
+                  <PortList
+                    title={t('ports.title.inputs', 'Inputs')}
+                    ports={equipment.inputs}
+                    onChange={(inputs) => applyPorts({ inputs })}
+                    hideTitle
+                    showAtemSourceId={isAtem}
+                  />
+                </PortListe>
+              ) : (
+                <PortListe
+                  key="out"
+                  id="out"
+                  titel={t('ports.title.outputs', 'Outputs')}
+                  anzahl={equipment.outputs.length}
+                >
+                  <PortList
+                    title={t('ports.title.outputs', 'Outputs')}
+                    ports={equipment.outputs}
+                    onChange={(outputs) => applyPorts({ outputs })}
+                    hideTitle
+                    showAtemSourceId={isAtem}
+                  />
+                </PortListe>
+              ),
+            )}
+          </SortableContext>
+        </DndContext>
       </div>
     </SortableSection>
   )

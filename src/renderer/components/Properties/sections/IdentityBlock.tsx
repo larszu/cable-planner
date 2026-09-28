@@ -1,15 +1,22 @@
-import { RotateCcw } from 'lucide-react'
+import { useState } from 'react'
+import { Pencil, RotateCcw } from 'lucide-react'
 import { Icon } from '../../shared/Icon'
 import { useCanvasProjectStore as useProjectStore } from '../../../store/projectStoreContext'
-import { generateShortName } from '../../../lib/shortName'
+import { effectiveShortName, generateShortName } from '../../../lib/shortName'
 import { useTranslation } from '../../../lib/i18n'
 import type { EquipmentItem } from '../../../types/equipment'
 
 /**
- * #306 — IdentityBlock: Name + Short-Name + Untertitel. Drei Felder
- * die zusammen die "Identitaet" des Geraets beschreiben. Short-Name
- * (#v7.9.127) wird auto-generiert wenn leer — Placeholder zeigt den
- * Vorschlag, "↻ auto"-Button uebernimmt ihn ins Override-Feld.
+ * #306 — IdentityBlock: Name + Kurzname + Untertitel — was ein Mensch vor dem
+ * Rack zuerst liest. Darunter folgen im Panel FEST die Anschluesse (#957), erst
+ * dann die Notiz und der Rest.
+ *
+ * DER KURZNAME IST EINE ZEILE, KEIN FELD (#956). Er wird fast immer aus dem
+ * Namen erzeugt (`lib/shortName`) und nur selten von Hand gesetzt. Ein
+ * Eingabefeld mit Knopf und Hinweistext nahm dafuer drei Zeilen ein — mehr
+ * als der Name selbst. Jetzt steht der wirksame Wert als Zeile unter dem
+ * Namen; der Stift daneben oeffnet das Feld, und erst dann erscheinen Eingabe
+ * und „auto"-Knopf.
  *
  * Der Katalog-Typ (ADR-002) stand bis 2026-09-28 hier ganz oben und sah ohne
  * Wert aus wie ein fehlendes Pflichtfeld. Er wird jetzt automatisch vergeben
@@ -19,6 +26,9 @@ export const IdentityBlock = ({ equipment }: { equipment: EquipmentItem }) => {
   const t = useTranslation()
   const updateEquipment = useProjectStore((state) => state.updateEquipment)
   const autoSuggestion = generateShortName(equipment.name)
+  const wirksam = effectiveShortName(equipment)
+  const manuell = !!equipment.shortName?.trim()
+  const [kurznameOffen, setKurznameOffen] = useState(false)
 
   return (
     <>
@@ -31,81 +41,61 @@ export const IdentityBlock = ({ equipment }: { equipment: EquipmentItem }) => {
         />
       </label>
 
-      {/* DIE NOTIZ, direkt unter dem Namen (2026-09-28).
-          Sie stand bis dahin im Abschnitt „Netzzugang", unter Benutzername und
-          Passwort — der einzige Platz im Panel, der schon ein `textarea` hatte.
-          `notes` ist aber das einzige FREIE Textfeld am Geraet und traegt
-          entsprechend alles, was in kein Feld passt; mit dem Netzzugang hat das
-          nichts zu tun. Zusammen mit dem Namen ist es das, was ein Mensch vor
-          dem Rack zuerst liest und zuerst schreibt, also steht es zuerst. */}
-      <label className="block">
-        <span className="mb-1 block text-cp-text-secondary">
-          {t('eq.field.notes', 'Note')}{' '}
-          <span className="text-cp-text-faint">({t('common.optional', 'optional')})</span>
-        </span>
-        <textarea
-          value={equipment.notes ?? ''}
-          onChange={(event) => updateEquipment(equipment.id, { notes: event.target.value })}
-          rows={2}
-          placeholder={t(
-            'eq.field.notesPlaceholder',
-            'Anything with no field of its own — web UI, firmware, where it sits, who it belongs to…',
-          )}
-          className="w-full border border-cp-border bg-cp-surface-1 p-2"
-        />
-      </label>
-
-      {/* v7.9.127 — Short-Form-Name. Wird in platzknappen Kontexten
-          benutzt (Cable-Endpoint-Labels, Patch-Sheets). Wenn leer:
-          auto-generiert aus name (Placeholder zeigt den Vorschlag).
-          Refresh-Button setzt den Override auf den Auto-Vorschlag. */}
-      <label className="block">
-        <span className="mb-1 block text-cp-text-secondary">
-          {t('eq.field.shortName', 'Short name')}{' '}
-          <span className="text-cp-text-faint">
-            ({t('common.optional', 'optional')},{' '}
-            {t(
-              'eq.field.shortNameHint',
-              'for port/endpoint labels — e.g. "ATEM8K" instead of "ATEM Constellation 8K"',
-            )}
-            )
+      {kurznameOffen ? (
+        <label className="block">
+          <span className="mb-1 block text-cp-text-secondary">
+            {t('eq.field.shortName', 'Short name')}{' '}
+            <span className="text-cp-text-faint">
+              ({t('eq.field.shortNameHint', 'for port/endpoint labels — e.g. "ATEM8K" instead of "ATEM Constellation 8K"')})
+            </span>
           </span>
-        </span>
-        <div className="flex gap-1">
-          <input
-            value={equipment.shortName ?? ''}
-            placeholder={autoSuggestion || t('eq.field.shortNamePlaceholder', 'Short form…')}
-            onChange={(event) =>
-              updateEquipment(equipment.id, {
-                shortName: event.target.value || undefined,
-              })
-            }
-            className="flex-1 border border-cp-border bg-cp-surface-1 p-2"
-          />
+          <div className="flex gap-1">
+            <input
+              autoFocus
+              value={equipment.shortName ?? ''}
+              placeholder={autoSuggestion || t('eq.field.shortNamePlaceholder', 'Short form…')}
+              onChange={(event) =>
+                updateEquipment(equipment.id, { shortName: event.target.value || undefined })
+              }
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === 'Escape') setKurznameOffen(false)
+              }}
+              onBlur={() => setKurznameOffen(false)}
+              className="flex-1 border border-cp-border bg-cp-surface-1 p-2 font-mono"
+            />
+            <button
+              type="button"
+              // Vor dem Blur greifen: sonst schliesst das Feld, bevor der
+              // Klick ankommt.
+              onMouseDown={(event) => event.preventDefault()}
+              onClick={() => updateEquipment(equipment.id, { shortName: undefined })}
+              disabled={!manuell}
+              title={t('eq.field.shortNameAuto', 'Regenerate from name')}
+              className="inline-flex shrink-0 items-center gap-1 border border-cp-border bg-cp-surface-2 px-2 text-cp-xs text-cp-text-bright hover:bg-cp-surface-4 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <Icon icon={RotateCcw} size="xs" />
+              {t('eq.field.shortNameAutoBtn', 'auto')}
+            </button>
+          </div>
+        </label>
+      ) : (
+        <div className="flex items-center gap-2 px-1 text-cp-xs">
+          <span className="text-cp-text-secondary">{t('eq.field.shortName', 'Short name')}</span>
+          <span className="font-mono text-cp-text">{wirksam || '—'}</span>
+          {!manuell && wirksam && (
+            <span className="text-cp-text-faint">{t('eq.field.shortNameAutoBadge', 'auto')}</span>
+          )}
           <button
             type="button"
-            onClick={() =>
-              updateEquipment(equipment.id, { shortName: autoSuggestion || undefined })
-            }
-            disabled={!autoSuggestion}
-            title={
-              autoSuggestion
-                ? `${t('eq.field.shortNameAuto', 'Regenerate from name')} (${autoSuggestion})`
-                : t('eq.field.shortNameAutoEmpty', 'No suggestion — please set a name.')
-            }
-            className="inline-flex shrink-0 items-center gap-1 border border-cp-border bg-cp-surface-2 px-2 text-cp-xs text-cp-text-bright hover:bg-cp-surface-4 disabled:cursor-not-allowed disabled:opacity-50"
+            onClick={() => setKurznameOffen(true)}
+            aria-label={t('eq.field.shortNameEdit', 'Edit short name')}
+            title={t('eq.field.shortNameEdit', 'Edit short name')}
+            className="ml-auto inline-flex h-6 w-6 items-center justify-center text-cp-text-muted hover:bg-cp-surface-4/40 hover:text-cp-text-bright"
           >
-            <Icon icon={RotateCcw} size="xs" />
-            {t('eq.field.shortNameAutoBtn', 'auto')}
+            <Icon icon={Pencil} size="xs" />
           </button>
         </div>
-        {!equipment.shortName?.trim() && autoSuggestion && (
-          <p className="mt-1 text-cp-xs text-cp-text-muted">
-            {t('eq.field.shortNameAutoUsed', 'Automatically using:')}{' '}
-            <span className="font-mono text-cp-text-muted">{autoSuggestion}</span>
-          </p>
-        )}
-      </label>
+      )}
 
       <label className="block">
         <span className="mb-1 block text-cp-text-secondary">
@@ -122,5 +112,35 @@ export const IdentityBlock = ({ equipment }: { equipment: EquipmentItem }) => {
         />
       </label>
     </>
+  )
+}
+
+/**
+ * DIE NOTIZ — das einzige freie Textfeld am Geraet. Sie stand bis 2026-09-28
+ * im Abschnitt „Netzzugang" unter dem Passwort, dann kurz zwischen Name und
+ * Kurzname. Seit #957 liegen die Anschluesse direkt unter dem Untertitel, und
+ * die Notiz folgt ihnen: sie ist Freitext fuer alles, was in kein Feld passt,
+ * und nicht Teil der Identitaet.
+ */
+export const NotesBlock = ({ equipment }: { equipment: EquipmentItem }) => {
+  const t = useTranslation()
+  const updateEquipment = useProjectStore((state) => state.updateEquipment)
+  return (
+    <label className="block">
+      <span className="mb-1 block text-cp-text-secondary">
+        {t('eq.field.notes', 'Note')}{' '}
+        <span className="text-cp-text-faint">({t('common.optional', 'optional')})</span>
+      </span>
+      <textarea
+        value={equipment.notes ?? ''}
+        onChange={(event) => updateEquipment(equipment.id, { notes: event.target.value })}
+        rows={2}
+        placeholder={t(
+          'eq.field.notesPlaceholder',
+          'Anything with no field of its own — web UI, firmware, where it sits, who it belongs to…',
+        )}
+        className="w-full border border-cp-border bg-cp-surface-1 p-2"
+      />
+    </label>
   )
 }

@@ -41,7 +41,7 @@ import { CatalogueSection } from './sections/CatalogueSection'
 import { PrintSection } from './sections/PrintSection'
 import { RackSection } from './sections/RackSection'
 import { SectionFilterBar } from './SectionFilterBar'
-import { IdentityBlock } from './sections/IdentityBlock'
+import { IdentityBlock, NotesBlock } from './sections/IdentityBlock'
 import { NetworkConfigSection } from './sections/NetworkConfigSection'
 import { ModesSection } from './sections/ModesSection'
 import { RackInstanceCard } from './sections/RackInstanceCard'
@@ -138,34 +138,17 @@ export const EquipmentProperties = () => {
             : t('inspector.finalizedLocked', 'Plan finalised — fields locked. Click "Re-enable editing" in the canvas banner.')}
         </div>
       )}
-      {/* Name und Notiz zuerst. Die Geraete-Art-Karte (GreenGo, Videohub,
-          ATEM) stand bis 2026-09-28 darueber: ein farbiger Kasten mit einem
-          Export-Knopf, der an den meisten Geraeten gar nicht erscheint
-          (`detectDeviceKind` gibt dann nichts zurueck) und an den anderen eine
-          Abkuerzung in einen Dialog ist. Eine Abkuerzung gehoert nicht vor das
+      {/* Name, Kurzname, Untertitel — dann FEST die Anschluesse, dann die
+          Notiz (#957, 2026-09-28). Die Anschluesse sind kein sortierbarer
+          Abschnitt mehr (`fest` in `PortsSection`), darum entscheidet hier
+          allein die JSX-Reihenfolge. Die Geraete-Art-Karte (GreenGo, Videohub,
+          ATEM) stand frueher darueber: eine Abkuerzung gehoert nicht vor das
           Feld, das man sucht. */}
       <IdentityBlock equipment={equipment} />
 
-      {/* ─── DIE ANSCHLUESSE, DIREKT UNTER NAME UND NOTIZ (2026-09-28) ───────
-          Gemeldet als „die Eigenschaften-Zeile ist unuebersichtlich": oben
-          Name und Notiz, dann die Ein- und Ausgaenge, und erst darunter der
-          Rest. Vorher stand dieser Abschnitt an JSX-Stelle 24 von 31, hinter
-          Verbrauch, Stromkreis, Adapter, DMX, Haus, Formatprofil und
-          Abmessungen — an einem Panel, dessen ganzer Zweck die Verkabelung
-          ist.
-
-          WARUM DAS HIER EINE JSX-VERSCHIEBUNG IST UND KEIN `order`-WERT: die
-          sortierbaren Abschnitte setzen `order: index` aus der gemerkten
-          Reihenfolge (`SortableSection`), die unsortierbaren Bloecke setzen
-          nichts und stehen damit auf `order: 0`. Bei gleichem `order`
-          entscheidet die DOM-Reihenfolge — `ports` steht als ERSTER Eintrag in
-          `equipmentSectionOrder` und hat damit ebenfalls `order: 0`, also
-          entscheidet auch fuer ihn die Stelle im JSX. Genau die ist diese.
-
-          Wer den Abschnitt wegzieht, bekommt `index > 0` und damit einen
-          `order` groesser als der Kopf — dann rutscht er unter die
-          unsortierbaren Bloecke. Das ist gewollt: gezogen hat ein Mensch. */}
       <PortsSection equipment={equipment} />
+
+      <NotesBlock equipment={equipment} />
 
       <DeviceKindCards equipment={equipment} />
 

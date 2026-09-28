@@ -33,15 +33,26 @@ const IDENTITY = lies('src', 'renderer', 'components', 'Properties', 'sections',
 const STORE = lies('src', 'renderer', 'store', 'uiStore.ts')
 const NETZ = lies('src', 'renderer', 'components', 'Properties', 'sections', 'NetworkAccessSection.tsx')
 
+const PORTS = lies('src', 'renderer', 'components', 'Properties', 'sections', 'PortsSection.tsx')
+
 describe('Eigenschaften-Leiste: der Kopf', () => {
-  it('Name und Notiz stehen oben, der Katalog-Typ nicht im Kopf', () => {
+  it('Name, Kurzname, Untertitel — der Katalog-Typ nicht im Kopf', () => {
     const name = IDENTITY.indexOf("t('eq.field.name'")
-    const notiz = IDENTITY.indexOf("t('eq.field.notes'")
+    const kurz = IDENTITY.indexOf("t('eq.field.shortName'")
+    const untertitel = IDENTITY.indexOf("t('eq.field.subtitle'")
     expect(name).toBeGreaterThan(-1)
-    expect(name).toBeLessThan(notiz)
+    expect(name).toBeLessThan(kurz)
+    expect(kurz).toBeLessThan(untertitel)
     // Der Katalog-Typ wird automatisch vergeben und steht in `CatalogueSection`.
     expect(IDENTITY).not.toContain('<DeviceTypePicker')
     expect(PANEL.indexOf('<CatalogueSection')).toBeGreaterThan(PANEL.indexOf('<PortsSection'))
+  })
+
+  it('der Kurzname ist zugeklappt eine Zeile mit Stift, kein Feld (#956)', () => {
+    // Der Stift oeffnet das Feld; ohne ihn steht nur der wirksame Wert da.
+    expect(IDENTITY).toContain("t('eq.field.shortNameEdit'")
+    expect(IDENTITY).toContain('effectiveShortName(equipment)')
+    expect(IDENTITY).toContain('kurznameOffen ? (')
   })
 
   it('die Notiz ist das Geraetefeld und liegt nicht mehr im Netzzugang', () => {
@@ -52,11 +63,13 @@ describe('Eigenschaften-Leiste: der Kopf', () => {
     expect(NETZ).not.toContain('{ notes: event.target.value }')
   })
 
-  it('die Anschluesse stehen im JSX vor allem ausser dem Kopf', () => {
+  it('die Anschluesse stehen im JSX direkt unter dem Kopf, davor die Notiz nicht (#957)', () => {
     const identity = PANEL.indexOf('<IdentityBlock')
     const ports = PANEL.indexOf('<PortsSection')
+    const notiz = PANEL.indexOf('<NotesBlock')
     expect(identity).toBeGreaterThan(-1)
     expect(ports).toBeGreaterThan(identity)
+    expect(notiz).toBeGreaterThan(ports)
     // Alles andere kommt danach. Die Liste ist ausgeschrieben und nicht
     // gerechnet: ein neuer Abschnitt soll diesen Test dazu zwingen, dass jemand
     // eine Entscheidung trifft, statt ihn stillschweigend mitzunehmen.
@@ -91,29 +104,32 @@ describe('Eigenschaften-Leiste: der Kopf', () => {
       '<DeviceConfigsBlock',
       '<PrintSection',
     ]) {
-      expect(PANEL.indexOf(spaeter), spaeter).toBeGreaterThan(ports)
+      expect(PANEL.indexOf(spaeter), spaeter).toBeGreaterThan(notiz)
     }
   })
 
-  it('`ports` ist der erste Eintrag der gemerkten Reihenfolge', () => {
+  it('die Anschluesse sind FEST — kein Griff, nicht in der gemerkten Reihenfolge (#957)', () => {
+    // „Immer oben" ist keine Vorgabe, die ein Griff wieder aufheben darf.
+    expect(PORTS).toMatch(/<SortableSection[\s\S]*?\bfest\b[\s\S]*?>/)
     const block = STORE.slice(STORE.indexOf('equipmentSectionOrder: ['))
     const liste = block.slice(0, block.indexOf('],'))
     const ids = [...liste.matchAll(/^\s*'([a-z-]+)',$/gm)].map((m) => m[1])
-    expect(ids[0]).toBe('ports')
+    expect(ids).not.toContain('ports')
+    // Ein Bestandssatz mit altem `ports`-Eintrag verliert ihn beim Laden.
+    expect(STORE).toContain('cleaned.filter((id) => bekannt.has(id))')
+    expect(STORE).not.toContain('portsVorangestellt')
   })
 
-  it('Bestandsnutzer bekommen die Umstellung, und zwar genau einmal', () => {
-    // Die Vollstaendigkeits-Schleife in `load()` traegt nur FEHLENDE Abschnitte
-    // nach; eine geaenderte Vorgabe-Reihenfolge erreicht damit niemanden, der
-    // die App schon einmal geoeffnet hat — also gerade den nicht, der die
-    // Meldung geschrieben hat.
-    expect(STORE).toContain('parsed.portsVorangestellt !== true')
-    // Und genau einmal: wer `ports` bewusst wegzieht, behaelt das.
-    expect(STORE).toContain('merged.portsVorangestellt = true')
-    // Die Vorgabe steht auf `true`, weil ein frischer Satz die Umstellung nicht
-    // braucht. Deshalb MUSS gegen `parsed` geprueft werden, nicht gegen
-    // `merged` — dort haette ein Bestandssatz ohne das Feld ebenfalls `true`.
-    expect(STORE).toContain('portsVorangestellt: true,')
+  it('Inputs und Outputs tauschen ist dasselbe wie Ports spiegeln (#958)', () => {
+    // Zwei Listen, ein Zustand: die Reihenfolge im Panel folgt `portsFlipped`,
+    // und ein Zug am Griff schaltet genau diese Eigenschaft.
+    expect(PORTS).toContain("gespiegelt ? ['out', 'in'] : ['in', 'out']")
+    expect(PORTS).toContain('if (over && active.id !== over.id) setGespiegelt(!gespiegelt)')
+  })
+
+  it('das Gateway der ersten Schnittstelle ist im Netzzugang eintragbar (#961)', () => {
+    expect(NETZ).toContain("t('net.gateway'")
+    expect(NETZ).toContain('{ gateway: event.target.value || undefined }')
   })
 })
 

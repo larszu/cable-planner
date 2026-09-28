@@ -83,9 +83,13 @@ Ohne Installation läuft die Web-Ausgabe unter
 
 ![Geräteeigenschaften](../screenshots/properties.png)
 
-Oben stehen fest **Name**, **Notiz** (Web-Oberfläche, Firmware, Standort,
-Eigentümer) und **Ein- & Ausgänge**. Alle übrigen Abschnitte lassen sich in
-jede Reihenfolge ziehen. Das Filterfeld findet einen Abschnitt über den Titel;
+Oben stehen fest **Name**, **Kurzname**, **Untertitel**, dann **Ein- &
+Ausgänge**, dann die **Notiz** (Web-Oberfläche, Firmware, Standort,
+Eigentümer). Der Kurzname wird aus dem Namen abgeleitet und als eine Zeile
+gezeigt; der Stift öffnet ihn zum Bearbeiten, *auto* kehrt zur Ableitung
+zurück. Die beiden Port-Listen lassen sich übereinander ziehen; das tauscht sie
+und spiegelt die Ports am Knoten, genau wie das Häkchen *Ports spiegeln*. Alle
+übrigen Abschnitte lassen sich in jede Reihenfolge ziehen. Das Filterfeld findet einen Abschnitt über den Titel;
 alle auf- oder zuklappen mit einem Klick. Welche Abschnitte offen sind, merkt
 sich die App.
 
