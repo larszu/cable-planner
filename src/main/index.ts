@@ -1,3 +1,4 @@
+import './userDataPin.js'
 import { app, BrowserWindow, Menu, session, shell } from 'electron'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'

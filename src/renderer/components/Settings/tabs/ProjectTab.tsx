@@ -660,7 +660,7 @@ export const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
       <p className="text-cp-xs text-cp-text-muted">
         {t(
           'settings.project.intro',
-          'Project metadata — saved with the Cable Planner file.',
+          'Project metadata — saved with the LZ Cable Planner file.',
         )}
       </p>
       <label className="block text-cp-base">

@@ -1,36 +1,32 @@
-// Generate build/icon.png (1024x1024) and build/icon.ico from build/icon.svg.
-// Run after editing build/icon.svg:  node scripts/generate-icon.mjs
+// Generate the app icon set from build/icon.svg (master, with signet "lz.")
+// and public/favicon.svg (pictogram only). Run after editing either SVG:
+//   node scripts/generate-icon.mjs
+// Below 48 px the signet is unreadable, so the ICO takes those sizes from the
+// favicon (Brand Guide 2.0: icon under 48 px without the tally dot).
 import { readFile, writeFile } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import sharp from 'sharp'
 import pngToIco from 'png-to-ico'
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
-const root = resolve(__dirname, '..')
-const svgPath = resolve(root, 'build/icon.svg')
-const pngPath = resolve(root, 'build/icon.png')
-const icoPath = resolve(root, 'build/icon.ico')
+const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
+const at = (p) => resolve(root, p)
 
-const svg = await readFile(svgPath)
+const gross = await readFile(at('build/icon.svg'))
+const klein = await readFile(at('public/favicon.svg'))
+const png = (svg, size) => sharp(svg, { density: 300 }).resize(size, size).png({ compressionLevel: 9 })
 
-// Master 1024px PNG — electron-builder uses this as cross-platform source.
-await sharp(svg, { density: 384 })
-  .resize(1024, 1024, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
-  .png({ compressionLevel: 9 })
-  .toFile(pngPath)
-console.log('wrote', pngPath)
+for (const [file, size] of [
+  ['build/icon.png', 1024],
+  ['public/icon-512.png', 512],
+  ['public/icon-192.png', 192],
+  ['public/apple-touch-icon.png', 180],
+]) {
+  await png(gross, size).toFile(at(file))
+  console.log('wrote', file)
+}
 
-// Multi-resolution ICO (Windows Explorer + installer header use these).
 const sizes = [16, 24, 32, 48, 64, 128, 256]
-const buffers = await Promise.all(
-  sizes.map((size) =>
-    sharp(svg, { density: 384 })
-      .resize(size, size, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
-      .png()
-      .toBuffer(),
-  ),
-)
-const ico = await pngToIco(buffers)
-await writeFile(icoPath, ico)
-console.log('wrote', icoPath, `(${sizes.join(',')} px)`)
+const ico = await pngToIco(await Promise.all(sizes.map((n) => png(n < 48 ? klein : gross, n).toBuffer())))
+await writeFile(at('build/icon.ico'), ico)
+console.log('wrote build/icon.ico', `(${sizes.join(',')} px)`)

@@ -5,7 +5,7 @@ const year = new Date().getFullYear()
 
 export default {
   appId: 'net.cableplanner.app',
-  productName: 'Cable Planner',
+  productName: 'LZ Cable Planner',
   copyright: `Copyright © ${year} Lars Zumpe`,
   // #pre-sale — Auto-Update-Quelle. electron-builder bettet daraus die
   // app-update.yml ins Paket ein; electron-updater (siehe updaterService.ts)
@@ -55,14 +55,14 @@ export default {
   fileAssociations: [
     {
       ext: 'cableplan',
-      name: 'Cable Planner Project',
-      description: 'Cable Planner Projekt',
+      name: 'LZ Cable Planner Project',
+      description: 'LZ Cable Planner Projekt',
       role: 'Editor',
     },
     {
       ext: 'cpviewer',
-      name: 'Cable Planner Viewer',
-      description: 'Cable Planner Viewer (read-only)',
+      name: 'LZ Cable Planner Viewer',
+      description: 'LZ Cable Planner Viewer (read-only)',
       role: 'Viewer',
     },
   ],
@@ -179,7 +179,7 @@ export default {
     installerIcon: 'build/icon.ico',
     uninstallerIcon: 'build/icon.ico',
     installerHeaderIcon: 'build/icon.ico',
-    shortcutName: 'Cable Planner',
+    shortcutName: 'LZ Cable Planner',
     createDesktopShortcut: true,
     createStartMenuShortcut: true,
   },

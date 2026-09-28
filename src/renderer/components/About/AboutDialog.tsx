@@ -8,14 +8,15 @@
  */
 
 import { useUiStore } from '../../store/uiStore'
-import { Cable, Info } from 'lucide-react'
+import { Info } from 'lucide-react'
 import { ModalShell } from '../shared/ModalShell'
 import { Icon } from '../shared/Icon'
+import { LzmLogo } from '../Brand/LzmLogo'
 import { useTranslation } from '../../lib/i18n'
 import {
   APP_AUTHOR,
+  APP_COMPANY,
   APP_BUILD_DATE,
-  APP_DESCRIPTION,
   APP_REPO_URL,
   APP_VERSION,
 } from '../../lib/appInfo'
@@ -36,24 +37,18 @@ export const AboutDialog = () => {
     <ModalShell
       open={open}
       onClose={close}
-      title={t('about.title', 'About Cable Planner')}
+      title={t('about.title', 'About LZ Cable Planner')}
       titleIcon={<Icon icon={Info} size="sm" />}
       maxWidth="md"
       draggableKey="cable-planner:modal-pos:about"
     >
-      {/* #449 — Demo-Migration roher slate-* → cp-Token-Utilities. Alle
-          ersetzten Paare sind headless als pixelgleich (dark+light) verifiziert.
-          bg-emerald-700 (Versions-Badge) + hover:text-sky-300 bleiben: dafür
-          gibt es (noch) keinen exakten Token. */}
       <div className="space-y-3 text-cp-base">
-        <div className="flex items-center gap-3 border border-cp-border-muted bg-cp-surface-3/40 p-3">
-          <Icon icon={Cable} size={28} className="text-cp-accent" />
+        <div className="flex flex-col items-start gap-4 border border-cp-border-muted bg-cp-surface-3/40 p-4">
+          <LzmLogo variant="hauptlogo" width={160} />
           <div className="min-w-0">
-            <div className="font-semibold text-cp-text">{t('app.title', 'Cable Planner')}</div>
-            <div className="text-cp-xs text-cp-text-muted">{APP_DESCRIPTION}</div>
-          </div>
-          <div className="ml-auto shrink-0 bg-emerald-700 px-2 py-1 font-mono text-cp-xs text-white">
-            v{APP_VERSION}
+            <div className="font-semibold text-cp-text">{t('app.title', 'LZ Cable Planner')}</div>
+            <div className="font-mono text-cp-xs text-cp-text">v{APP_VERSION}</div>
+            <div className="text-cp-xs text-cp-text-muted">{APP_COMPANY}</div>
           </div>
         </div>
 

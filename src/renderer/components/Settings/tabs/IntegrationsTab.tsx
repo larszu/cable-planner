@@ -793,7 +793,7 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
         title={t('settings.integrations.rentmanToggle.title', 'Rentman integration')}
         description={t(
           'settings.integrations.rentmanToggle.desc',
-          'When active, the Library tab, menu entries and status badges for Rentman appear. When off, Cable Planner only shows local devices/cables — all Rentman features are hidden.',
+          'When active, the Library tab, menu entries and status badges for Rentman appear. When off, LZ Cable Planner only shows local devices/cables — all Rentman features are hidden.',
         )}
       >
         <label className="flex items-center gap-2 text-cp-base">
@@ -917,7 +917,7 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
             <div className="text-cp-xs text-cp-text-faint">
               {t(
                 'settings.integrations.linkedRentman.none',
-                'No Rentman project linked to this Cable Planner project yet.',
+                'No Rentman project linked to this LZ Cable Planner project yet.',
               )}
             </div>
             <button

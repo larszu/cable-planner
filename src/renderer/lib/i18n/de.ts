@@ -33,7 +33,7 @@ export const de: Dict = {
   'about.issueHint': 'Issues + Feature-Wünsche bitte direkt auf GitHub melden.',
   'about.platform': 'Plattform',
   'about.repository': 'Repository',
-  'about.title': 'Über Cable Planner',
+  'about.title': 'Über LZ Cable Planner',
   'about.version': 'Version',
   'adapter.grenze': 'Lässt höchstens durch',
   'adapter.grenzeHint':
@@ -609,7 +609,7 @@ export const de: Dict = {
   'app.menu.file.viewForeignFixtures': 'Lampen ({n})',
   'app.menu.file.viewForeignTitle': 'Verknüpfte Venue-Planung (nur Ansicht)',
   'app.menu.help': 'Hilfe',
-  'app.menu.help.about': 'Über Cable Planner…',
+  'app.menu.help.about': 'Über LZ Cable Planner…',
   'app.menu.help.checkUpdates': 'Auf Updates prüfen…',
   'app.menu.help.commandPalette': 'Befehlspalette…',
   'app.menu.help.shortcuts': 'Tastaturkürzel…',
@@ -732,7 +732,7 @@ export const de: Dict = {
   'app.rentman.notLinkedBody': 'Bitte zuerst in den Einstellungen verknüpfen.',
   'app.rentman.notLinkedTitle': 'Kein Rentman-Projekt verknüpft',
   'app.rentman.uploadFailedTitle': 'Fehler beim PDF-Upload',
-  'app.title': 'Cable Planner',
+  'app.title': 'LZ Cable Planner',
   'app.undo': 'Rückgängig (Strg+Z)',
   'app.viewerExport.failTitle': 'Viewer-Export fehlgeschlagen',
   'app.viewerExport.okBody':
@@ -1687,7 +1687,7 @@ export const de: Dict = {
     'Beitreten übernimmt den Plan des Hosts (ersetzt deinen aktuellen Plan).',
   'collab.discover.desktopOnly': 'Netzwerk-Suche ist nur in der Desktop-App verfügbar.',
   'collab.discover.empty':
-    'Noch keine offene Session gefunden. „Im Netzwerk suchen" durchsucht das lokale Netz nach laufenden Cable-Planner-Sessions.',
+    'Noch keine offene Session gefunden. „Im Netzwerk suchen" durchsucht das lokale Netz nach laufenden LZ-Cable-Planner-Sessions.',
   'collab.discover.join': 'Beitreten',
   'collab.discover.search': 'Im Netzwerk suchen',
   'collab.discover.searching': 'Suche läuft…',
@@ -1701,7 +1701,7 @@ export const de: Dict = {
   'collab.invite.copy': 'Einladung kopieren',
   'collab.invite.joinConfirm':
     'Zur Live-Session „{room}" beitreten? Dein aktueller Plan wird durch den des Hosts ersetzt.',
-  'collab.invite.linkHead': 'Cable-Planner Live-Session beitreten:',
+  'collab.invite.linkHead': 'Live-Session im LZ Cable Planner beitreten:',
   'collab.join.replaceConfirm':
     'Beitreten lädt den Plan des Hosts und ersetzt deinen aktuellen Plan. Fortfahren?',
   'collab.join.replaceOk': 'Beitreten und ersetzen',
@@ -2708,7 +2708,7 @@ export const de: Dict = {
   'graphml.dialog.edgesNoTarget': 'Edges ohne Ziel',
   'graphml.dialog.empty.intro1': 'Wähle eine',
   'graphml.dialog.empty.intro2':
-    'Datei. Cable Planner erkennt Geräte, Ports und Kabel automatisch — du bekommst eine Vorschau und kannst einzelne Einträge ein- oder ausschließen, bevor sie ins Projekt übernommen werden.',
+    'Datei. LZ Cable Planner erkennt Geräte, Ports und Kabel automatisch — du bekommst eine Vorschau und kannst einzelne Einträge ein- oder ausschließen, bevor sie ins Projekt übernommen werden.',
   'graphml.dialog.file': 'Datei',
   'graphml.dialog.filterPlaceholder': 'Filter: Name / IP / Kategorie / Kabeltyp',
   'graphml.dialog.heading': 'yEd / GraphML importieren',
@@ -2809,7 +2809,7 @@ export const de: Dict = {
   'greengo.importOverlay.title': '.gg5 importieren — Geräte verknüpfen',
   'greengo.importOverlay.unreadEntries': ' ({count} Einträge)',
   'greengo.importOverlay.unreadHint':
-    'Diese Abschnitte und Felder liest der Cable-Planner nicht — beim Export aus der geladenen Datei reisen sie unverändert mit. Nur ohne geladene Datei werden sie mit Standardwerten neu erzeugt. Die Original-Datei ersetzt der Export nie — bewahre sie trotzdem auf.',
+    'Diese Abschnitte und Felder liest der LZ Cable Planner nicht — beim Export aus der geladenen Datei reisen sie unverändert mit. Nur ohne geladene Datei werden sie mit Standardwerten neu erzeugt. Die Original-Datei ersetzt der Export nie — bewahre sie trotzdem auf.',
   'greengo.importOverlay.unreadTitle': 'Diese Datei enthält Abschnitte, die der Import nicht liest',
   'greengo.importXlsxBinaryError': 'Konnte XLSX nicht als Binärdaten lesen.',
   'greengo.matrix.emptyBoth':
@@ -4031,7 +4031,7 @@ export const de: Dict = {
   'onboarding.skip': 'Später entscheiden',
   'onboarding.start': "Los geht's",
   'onboarding.steps.cablePlan.body':
-    'Importierst du Kabelmengen aus Rentman, warnt der Cable Planner beim Verkabeln, sobald du mehr Kabel verbaust als vorhanden sind. Über „Kabel an Rentman senden" gleichst du fertige Mengen zurück.',
+    'Importierst du Kabelmengen aus Rentman, warnt der LZ Cable Planner beim Verkabeln, sobald du mehr Kabel verbaust als vorhanden sind. Über „Kabel an Rentman senden" gleichst du fertige Mengen zurück.',
   'onboarding.steps.cablePlan.title': 'Kabel-Plan & Warnung',
   'onboarding.steps.export.body':
     'Im „Export"-Menü findest du den PDF-Plan-Export, die Kabel-Stückliste sowie zwei Rentman-Aktionen: PDF an Rentman anhängen und Kabel an Rentman senden.',
@@ -4052,9 +4052,9 @@ export const de: Dict = {
   'onboarding.steps.settings.title': 'Einstellungen → Rentman',
   'onboarding.steps.welcome.body':
     'Eine kurze Tour zeigt dir, wo du die wichtigsten Funktionen findest. Du kannst sie jederzeit über das Hilfe-Menü oben rechts wieder öffnen.',
-  'onboarding.steps.welcome.title': 'Willkommen im Cable Planner',
+  'onboarding.steps.welcome.title': 'Willkommen im LZ Cable Planner',
   'onboarding.tip': 'Tipp:',
-  'onboarding.title': 'Willkommen — wofür nutzt du Cable-Planner?',
+  'onboarding.title': 'Willkommen — wofür nutzt du LZ Cable Planner?',
   'opt.iconAutoTitle': 'Auf automatisch zurücksetzen',
   'opt.iconGlyphTitle': 'Icon {glyph}',
   'opt.iconHint': 'Glyph oder Emoji, max 2 Zeichen — leer = automatisch',
@@ -4298,7 +4298,7 @@ export const de: Dict = {
   'project.meta.titleNew': 'Neues Projekt',
   'project.open.notAPlan':
     'Die Datei ließ sich lesen, enthält aber keine Geräte- und Kabel-Liste. ',
-  'project.open.notAPlanTitle': 'Diese Datei ist kein Cable-Planner-Projekt',
+  'project.open.notAPlanTitle': 'Diese Datei ist kein LZ-Cable-Planner-Projekt',
   'project.viewerName.missingBody':
     'Ohne Namen können keine Anmerkungen gemacht werden. Die Datei wird nicht geladen.',
   'project.viewerName.missingTitle': 'Name fehlt',
@@ -4316,7 +4316,7 @@ export const de: Dict = {
   'project.welcome.recents': 'Zuletzt verwendet',
   'project.welcome.recentsHint':
     'Klick „Projekt öffnen…“ und wähle eine der Dateien im Datei-Dialog.',
-  'project.welcome.title': 'Willkommen beim Cable Planner',
+  'project.welcome.title': 'Willkommen beim LZ Cable Planner',
   'props.aiPorts.adopt': 'Übernehmen',
   'props.aiPorts.append': 'Anhängen',
   'props.aiPorts.appendTitle': 'Hängt die AI-Vorschläge an die bestehenden Ports an',
@@ -5172,7 +5172,7 @@ export const de: Dict = {
   'settings.advanced.export': 'Datenexport',
   'settings.advanced.exportBtn': 'Alle localStorage-Daten exportieren',
   'settings.advanced.exportDesc':
-    'Lokal gespeicherte Cable-Planner-Daten als JSON exportieren — z. B. zum Übertragen auf eine andere Maschine.',
+    'Lokal gespeicherte LZ-Cable-Planner-Daten als JSON exportieren — z. B. zum Übertragen auf eine andere Maschine.',
   'settings.appearance.arrows': 'Pfeile auf Kabeln',
   'settings.appearance.arrows.label': 'Pfeil am Ziel-Ende anzeigen (Signalflussrichtung)',
   'settings.appearance.arrowsDesc':
@@ -5391,7 +5391,7 @@ export const de: Dict = {
   'settings.integrations.linkedRentman.current': 'Aktuell verknüpft mit ',
   'settings.integrations.linkedRentman.link': 'Mit Rentman-Projekt verknüpfen…',
   'settings.integrations.linkedRentman.none':
-    'Noch kein Rentman-Projekt mit diesem Cable-Planner-Projekt verknüpft.',
+    'Noch kein Rentman-Projekt mit diesem LZ-Cable-Planner-Projekt verknüpft.',
   'settings.integrations.linkedRentman.titleNeedToken': 'Erst Token speichern',
   'settings.integrations.linkedRentman.titleSelect': 'Rentman-Projekt auswählen',
   'settings.integrations.netbox': 'NetBox API',
@@ -5436,7 +5436,7 @@ export const de: Dict = {
   'settings.integrations.rentmanDesc':
     'Bearer-Token aus deinem Rentman-Account. Wird mit dem Betriebssystem-Schlüsselbund verschlüsselt gespeichert (nie im Projektfile).',
   'settings.integrations.rentmanToggle.desc':
-    'Wenn aktiv: Library-Tab, Menü-Einträge und Status-Anzeigen für Rentman erscheinen. Ausgeschaltet zeigt der Cable Planner nur lokale Geräte/Kabel — alle Rentman-Funktionen werden ausgeblendet.',
+    'Wenn aktiv: Library-Tab, Menü-Einträge und Status-Anzeigen für Rentman erscheinen. Ausgeschaltet zeigt der LZ Cable Planner nur lokale Geräte/Kabel — alle Rentman-Funktionen werden ausgeblendet.',
   'settings.integrations.rentmanToggle.label': 'Rentman-Integration aktivieren',
   // #877 — was in der Web-Fassung nicht geht, mit Grund. „Desktop-App",
   // „ATEM", „NetBox", „MCP", „OSC", „UDP", „TCP", „CORS" bleiben, wie sie
@@ -5553,7 +5553,7 @@ export const de: Dict = {
   'settings.project.defaults.video': 'Video-Format (SDI)',
   'settings.project.description': 'Beschreibung',
   'settings.project.descriptionPlaceholder': 'Optionale Projektbeschreibung',
-  'settings.project.intro': 'Projekt-Metadaten — werden mit der Cable-Planner-Datei gespeichert.',
+  'settings.project.intro': 'Projekt-Metadaten — werden mit der LZ-Cable-Planner-Datei gespeichert.',
   'settings.project.lengthEst.desc':
     'Schätzt die Kabellängen aus der Canvas-Distanz der Geräte (Luftlinie × Maßstab + Reserve). Überschreibt vorhandene Längen.',
   'settings.project.lengthEst.done': '{n} Kabellängen aktualisiert.',
@@ -5786,7 +5786,7 @@ export const de: Dict = {
   'sourceMap.report.unrepresented':
     'Kein Feld dafür in dieser App — bleibt nur in der Datei: {fields}',
   'splitter.resize': 'Spalte verbreitern',
-  'statusbar.aboutTitle': 'Über Cable Planner',
+  'statusbar.aboutTitle': 'Über LZ Cable Planner',
   'statusbar.cables': '{count} Kabel',
   'statusbar.collab.live': 'Live',
   'statusbar.collab.title': 'Live-Kollaboration aktiv — Klick für Teilnehmer & Einladung',
@@ -6235,7 +6235,7 @@ export const de: Dict = {
   'errorBoundary.reloading': 'Die App lädt in 2 s neu — du landest direkt wieder in deinem Projekt.',
   'errorBoundary.resetLocal': 'Lokale Daten zurücksetzen (mit Backup)',
   'errorBoundary.saved': 'gespeichert.',
-  'errorBoundary.title': 'Cable Planner – Fehler beim Start',
+  'errorBoundary.title': 'LZ Cable Planner – Fehler beim Start',
   'errorBoundary.unexpected': 'Ein unerwarteter Fehler ist aufgetreten. Details wurden in',
 
   // ── Ohne deutsche Fassung geblieben, jetzt uebersetzt (E-28) ────────────

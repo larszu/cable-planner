@@ -40,7 +40,7 @@ export const exportDeviceConfig = (
       what,
       filename,
       stamp: stampForPlan(project, new Date()),
-      app: `Cable Planner ${APP_VERSION}`,
+      app: `LZ Cable Planner ${APP_VERSION}`,
     },
     content,
     mimeType,

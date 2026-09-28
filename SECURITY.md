@@ -2,7 +2,7 @@
 
 ## Supported versions
 
-CablePlanner is shipped as desktop installers via
+LZ Cable Planner is shipped as desktop installers via
 [GitHub Releases](https://github.com/larszu/cable-planner/releases).
 Security fixes are made against the latest release line.
 
@@ -40,7 +40,7 @@ public disclosure.
 
 ## Security model notes
 
-CablePlanner is **offline-first** and designed to limit exposure:
+LZ Cable Planner is **offline-first** and designed to limit exposure:
 
 - Projects are plain local JSON files; nothing is uploaded by default.
 - External integrations (Rentman, ATEM, Videohub, LAN mobile view) are

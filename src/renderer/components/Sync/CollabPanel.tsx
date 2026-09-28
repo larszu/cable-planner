@@ -92,7 +92,7 @@ export const CollabPanel = () => {
   // Link, eine kurze Kopfzeile gibt Kontext.
   const copyInvite = () => {
     const link = buildInviteLink({ mode, room, signaling, password, host: name })
-    const text = `${t('collab.invite.linkHead', 'Join the Cable Planner live session:')}\n${link}`
+    const text = `${t('collab.invite.linkHead', 'Join the LZ Cable Planner live session:')}\n${link}`
     void navigator.clipboard?.writeText(text).then(
       () => {
         setCopied(true)
@@ -344,7 +344,7 @@ export const CollabPanel = () => {
               {hasDesktopBridge
                 ? t(
                     'collab.discover.empty',
-                    'No open session found yet. "Search the network" scans the local network for running Cable Planner sessions.',
+                    'No open session found yet. "Search the network" scans the local network for running LZ Cable Planner sessions.',
                   )
                 : t('collab.discover.desktopOnly', 'Network search is only available in the desktop app.')}
             </p>

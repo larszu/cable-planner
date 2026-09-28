@@ -993,7 +993,7 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
                   <div className="mt-1.5 text-cp-xs text-cp-text-muted">
                     {t(
                       'greengo.importOverlay.unreadHint',
-                      'Cable Planner does not read these sections and fields — when you export from the loaded file they travel through unchanged. Only without a loaded file are they regenerated with defaults. The export never replaces the original file, but keep it anyway.',
+                      'LZ Cable Planner does not read these sections and fields — when you export from the loaded file they travel through unchanged. Only without a loaded file are they regenerated with defaults. The export never replaces the original file, but keep it anyway.',
                     )}
                   </div>
                 </div>

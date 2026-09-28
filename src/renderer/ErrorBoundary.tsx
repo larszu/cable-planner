@@ -286,7 +286,7 @@ export class ErrorBoundary extends Component<Props, State> {
           fontFamily: 'system-ui, sans-serif',
           overflow: 'auto',
         }}>
-          <h1 style={{ color: '#fca5a5', marginBottom: 12 }}>{translate(lang, 'errorBoundary.title', 'Cable Planner – error on startup')}</h1>
+          <h1 style={{ color: '#fca5a5', marginBottom: 12 }}>{translate(lang, 'errorBoundary.title', 'LZ Cable Planner – error on startup')}</h1>
           {this.state.autoRecovered && (
             <div style={{
               marginBottom: 12,

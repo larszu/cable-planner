@@ -43,7 +43,7 @@ const de: Record<string, string> = {
   'viewer.err.serverStatus': 'Server antwortete {status}.',
   'viewer.err.noPlanData': 'Keine gültigen Plandaten empfangen.',
   'viewer.err.remoteFailed': 'Remote-Laden fehlgeschlagen.',
-  'viewer.err.notAFile': 'Keine gültige Cable-Planner-Datei (.cpviewer / .json).',
+  'viewer.err.notAFile': 'Keine gültige LZ-Cable-Planner-Datei (.cpviewer / .json).',
   'viewer.err.fileUnreadable': 'Datei konnte nicht gelesen werden.',
 
   // ── Startseite ──────────────────────────────────────────────────────────

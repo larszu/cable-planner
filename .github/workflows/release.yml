@@ -58,7 +58,7 @@ jobs:
         # Tag und package.json.version driften sonst auseinander, weil
         # Tags von der Auto-Merge-Automation gesetzt werden während
         # package.json.version manuell in PRs läuft. electron-builder
-        # liest package.json.version → Filename "Cable.Planner-X.Y.Z.exe"
+        # liest package.json.version → Filename "LZ.Cable.Planner-X.Y.Z.exe"
         # MUSS dem Tag entsprechen. `npm version --no-git-tag-version`
         # rewriting package.json + package-lock.json ohne Commit/Tag.
         # workflow_dispatch (kein Tag-Push) wird übersprungen.

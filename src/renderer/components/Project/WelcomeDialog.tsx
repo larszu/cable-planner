@@ -43,7 +43,7 @@ export const WelcomeDialog = ({ open, onNew, onOpen, onClose }: WelcomeDialogPro
     <ModalShell
       open={open}
       onClose={onClose}
-      title={t('project.welcome.title', 'Welcome to Cable Planner')}
+      title={t('project.welcome.title', 'Welcome to LZ Cable Planner')}
       maxWidth="lg"
       zIndex={60}
       closeOnBackdrop={false}

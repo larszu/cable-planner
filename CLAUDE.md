@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-Cable Planner ist eine Electron-Desktop-App zum Planen und Visualisieren von
+LZ Cable Planner ist eine Electron-Desktop-App zum Planen und Visualisieren von
 Broadcast-Verkabelung (SDI-Signalfluss, ATEM-Multiviewer, Blackmagic-Videohub).
 React 19 + TypeScript + Zustand + ReactFlow + Three.js, offline-first.
 

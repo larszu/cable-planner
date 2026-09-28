@@ -405,7 +405,7 @@ export const exportIntercomMatrixXlsx = async (config: GreenGoConfig): Promise<A
 
   // Footer note about scope
   aoa[firstUserRow + config.users.length + 1][ID_COL] =
-    `Exportiert aus Cable Planner · ${new Date().toLocaleString()} · ${config.users.length} User × ${config.groups.length} Gruppen`
+    `Exportiert aus LZ Cable Planner · ${new Date().toLocaleString()} · ${config.users.length} User × ${config.groups.length} Gruppen`
 
   const sheet = XLSX.utils.aoa_to_sheet(aoa)
 

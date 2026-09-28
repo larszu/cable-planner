@@ -300,7 +300,7 @@ export const ViewerApp = () => {
       const parsed = JSON.parse(text) as CablePlannerProject
       if (!parsed || !Array.isArray(parsed.equipment) || !Array.isArray(parsed.cables)) {
         throw new Error(
-          t('viewer.err.notAFile', 'Not a valid Cable Planner file (.cpviewer / .json).'),
+          t('viewer.err.notAFile', 'Not a valid LZ Cable Planner file (.cpviewer / .json).'),
         )
       }
       let stored: ProjectAnnotation[] = []
@@ -382,7 +382,7 @@ export const ViewerApp = () => {
     return (
       <div className="flex min-h-screen items-center justify-center bg-cp-bg p-4 text-cp-text">
         <div className="w-full max-w-md border border-cp-border bg-cp-surface-1 p-6" onDragOver={(e) => e.preventDefault()} onDrop={onDrop}>
-          <h1 className="mb-1 text-lg font-semibold">Cable Planner — Viewer</h1>
+          <h1 className="mb-1 text-lg font-semibold">LZ Cable Planner — Viewer</h1>
           <p className="mb-4 text-sm text-cp-text-muted">
             {t(
               'viewer.intro',

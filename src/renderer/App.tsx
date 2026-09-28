@@ -745,7 +745,7 @@ export default function App() {
       void cablePlannerApi.mobileShare.setCrewCalendar(
         crew && crew.entries.length > 0
           ? crewCalendar(crew, {
-              projectName: project.metadata.name || 'Cable Planner',
+              projectName: project.metadata.name || 'LZ Cable Planner',
               now: new Date().toISOString(),
               projectId: project.metadata.projectId ?? project.metadata.name ?? 'cable-planner',
             })

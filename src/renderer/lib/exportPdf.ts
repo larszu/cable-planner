@@ -501,7 +501,7 @@ const buildCanvasPdf = async (
 
   pdf.setFontSize(14)
   pdf.setTextColor(15)
-  pdfText(pdf, metadata?.name || 'Cable Planner Project', margin, margin + 4)
+  pdfText(pdf, metadata?.name || 'LZ Cable Planner Project', margin, margin + 4)
   pdf.setFontSize(9)
   pdf.setTextColor(80)
   pdfText(pdf, new Date().toLocaleString(), pageWidth - margin, margin + 4, { align: 'right' })

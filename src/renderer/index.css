@@ -957,6 +957,37 @@ input[type="range"]:disabled {
   border-bottom: 1px solid var(--cp-border);
 }
 
+.lzm-logo {
+  display: inline-flex;
+  flex: none;
+}
+.lzm-logo img {
+  display: block;
+  height: auto;
+}
+.lzm-logo--signet img {
+  height: 32px;
+  width: auto;
+}
+/* Schutzraum des Signets: 0,5 × Höhe, zusammen mit gap und padding der Kopfzeile. */
+.cp-topbar > div > .lzm-logo--signet {
+  margin: 0 8px 0 4px;
+}
+/* Unter 32 px Höhe darf das Signet nicht stehen, und auf dem Telefon schöbe
+ * es die Menüs aus dem Bild (mobil:check) — dort entfällt es. */
+@media (max-width: 639px) {
+  .cp-topbar > div > .lzm-logo--signet {
+    display: none;
+  }
+}
+.lzm-logo__navy,
+[data-theme="light"] .lzm-logo__offwhite {
+  display: none !important;
+}
+[data-theme="light"] .lzm-logo__navy {
+  display: block !important;
+}
+
 .cp-statusbar {
   display: flex;
   align-items: center;

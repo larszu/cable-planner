@@ -352,7 +352,7 @@ const drawDevicePage = (
   pdf.setTextColor(140)
   pdfText(
     pdf,
-    `Cable Planner - ${device.name} - ${inputRows.length} In / ${outputRows.length} Out - automatisch erzeugte Patch-Liste`,
+    `LZ Cable Planner - ${device.name} - ${inputRows.length} In / ${outputRows.length} Out - automatisch erzeugte Patch-Liste`,
     pageWidth / 2,
     pageHeight - 12,
     { align: 'center' },

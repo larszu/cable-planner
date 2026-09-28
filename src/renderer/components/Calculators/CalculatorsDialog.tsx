@@ -587,7 +587,7 @@ const PowerTab = () => {
     }
     pdf.setFontSize(15)
     pdf.setTextColor(20)
-    pdf.text(sanitizeForPdf(`${t('calc.pdf.title', 'Power distribution')} — ${projectName || 'Cable Planner'}`), margin, y)
+    pdf.text(sanitizeForPdf(`${t('calc.pdf.title', 'Power distribution')} — ${projectName || 'LZ Cable Planner'}`), margin, y)
     y += 20
     pdf.setFontSize(9)
     pdf.setTextColor(90)

@@ -19,7 +19,7 @@ export const CLOUD_DEBOUNCE_MS = 30_000
 export const cloudDevice = (): string => {
   const ua = globalThis.navigator?.userAgent ?? ''
   const os = /iPad|iPhone/.test(ua) ? 'iOS' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'macOS' : /Windows/.test(ua) ? 'Windows' : /Linux/.test(ua) ? 'Linux' : ''
-  return [hasDesktopBridge ? 'Cable Planner' : 'Browser', os].filter(Boolean).join(' · ')
+  return [hasDesktopBridge ? 'LZ Cable Planner' : 'Browser', os].filter(Boolean).join(' · ')
 }
 
 let running: Promise<PushResult> | null = null
