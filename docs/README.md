@@ -9,6 +9,11 @@ Dokument, das nur findet, wer den Ordner durchblättert, ist praktisch nicht
 vorhanden. `tests/dokuErreichbar.test.ts` hält das jetzt fest: jedes Dokument
 unter `docs/` muss von einer Einstiegsseite aus über Links erreichbar sein.
 
+## Benutzerhandbuch
+
+- [`manual/handbuch.de.md`](manual/handbuch.de.md) · [`manual/manual.en.md`](manual/manual.en.md)
+  — Bedienung für Anwender, als PDF daneben (`npm run manual:pdf`).
+
 ## Betrieb & Einrichtung
 
 - [`self-hosted-relay.md`](self-hosted-relay.md) — eigener Signaling-Relay und

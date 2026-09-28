@@ -1,1036 +1,113 @@
-<h1 align="center">⚡ LZ Cable Planner</h1>
-
 <p align="center">
-  <b>Broadcast cable planning software</b> — a node-based editor for AV, Network and Power Signal flow,<br />
-  ATEM multiviewer layouts and Blackmagic Videohub routing.
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="src/renderer/assets/brand/lzm_hauptlogo_offwhite.svg" />
+    <img src="src/renderer/assets/brand/lzm_hauptlogo_navy.svg" alt="Lars Zumpe Medienproduktion" width="220" />
+  </picture>
 </p>
 
-<p align="center">
-  <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Windows-blue" />
-  <img src="https://img.shields.io/badge/offline-ready-success" />
-  <img src="https://img.shields.io/badge/status-active%20development-orange" />
-  <img src="https://img.shields.io/badge/license-proprietär-critical" />
-</p>
+<h1 align="center">LZ Cable Planner</h1>
 
 <p align="center">
-  Plan, visualize, and document complex broadcast cabling systems — from camera to switcher to encoder — with real-world production integrations.
+  <b>Broadcast and AV cable planning for macOS and Windows.</b><br />
+  Draw the signal flow, get real cable lengths, and hand over every list the build day needs.
 </p>
 
-<!-- DOWNLOAD CTA — always points at the newest GitHub release (installers auto-built in CI) -->
 <p align="center">
   <a href="https://github.com/larszu/cable-planner/releases/latest">
-    <img src="https://img.shields.io/badge/⬇%20Download%20for%20macOS%20%26%20Windows-863bff?style=for-the-badge&logo=github&logoColor=white" alt="Download LZ Cable Planner for macOS and Windows" height="42" />
+    <img src="https://img.shields.io/badge/Download-macOS%20%26%20Windows-1D324F?style=for-the-badge&logo=github&logoColor=white" alt="Download LZ Cable Planner for macOS and Windows" height="40" />
   </a>
   &nbsp;
   <a href="https://larszu.github.io/cable-planner/">
- 
+    <img src="https://img.shields.io/badge/Open%20in%20browser-web%20edition-5C6B85?style=for-the-badge" alt="Open the web edition" height="40" />
   </a>
-  <br />
-  <sub>Kostenlos nutzbar, proprietär lizenziert · <code>.dmg</code> (Apple Silicon + Intel) and <code>.exe</code> installers attached to every release</sub>
 </p>
 
-<!-- HERO IMAGE — see docs/screenshots/README.md for capture + redaction guide -->
 <p align="center">
-  <img src="docs/screenshots/hero.png" alt="LZ Cable Planner — node-based broadcast cabling canvas for SDI signal flow, ATEM and Videohub" width="860" />
+  <b>User manual:</b>
+  <a href="docs/manual/LZ-Cable-Planner-Manual-EN.pdf">English (PDF)</a> ·
+  <a href="docs/manual/LZ-Cable-Planner-Handbuch-DE.pdf">Deutsch (PDF)</a>
   <br />
-  <sub><i>The node-based canvas — equipment nodes, ports and routed signal cabling.</i></sub>
+  <sub>Read online: <a href="docs/manual/manual.en.md">manual.en.md</a> · <a href="docs/manual/handbuch.de.md">handbuch.de.md</a></sub>
 </p>
 
+<p align="center">
+  <img src="docs/screenshots/hero.png" alt="LZ Cable Planner — node-based canvas with devices, ports and routed cables" width="860" />
+</p>
 
 ---
 
-## The web page
+## Why LZ Cable Planner
 
-Every push to the default branch builds this repo's page from
-`.github/workflows/pages.yml` and publishes it:
+- **Plan in signal flow, not in drawings.** Devices with real ports from 1,800+
+  catalogue entries, each linked to its manufacturer datasheet.
+- **Real cable lengths.** Put the floor plan under the canvas, calibrate it, and
+  lengths follow the drawn route — split into the stock lengths you own.
+- **Rooms, floors, risers, 3D.** Every cable end reads *floor · room · device ·
+  port*; the signal path shows the whole chain through plates and house runs.
+- **Every list for the build day.** Pull list, patch list, termination list,
+  BOM, patch sheets, faceplates, acceptance record, QR labels — one report
+  editor, preview equals export.
+- **ATEM and Videohub.** Multiviewer layouts and router configuration.
+- **On site.** Phones join by QR code, tick off work and send photos back into
+  the plan.
+- **Together.** Live co-editing over WebRTC, optional cloud copy with revisions,
+  a shared device library across the planner suite.
+- **Ask Claude.** A local MCP server answers questions about the open plan.
+- **Offline first.** One JSON file per project, secrets in the OS keychain.
 
-**https://larszu.github.io/cable-planner/**
-
-The workflow **asks the Pages API before it configures anything.** With no
-Pages site it still builds — that is a real check — and skips only the
-publishing step, with a warning and the one missing step in the run summary.
-A run that must stay red for a click nobody made teaches people to ignore red.
-
-Measured 2026-09-09: **published** — the `deploy` job ran and succeeded.
-
----
-## ✨ Overview
-
-**LZ Cable Planner** is free-to-use **broadcast cable planning software** for designing and visualizing **SDI signal flow**, **ATEM multiviewer** layouts and **Blackmagic Videohub routing** on a node-based canvas. It runs **fully offline** on macOS and Windows, so every audio, video and data run is documented before you ever pull cable on site.
-
-Built with **Electron, React, and TypeScript**, it is designed for real-world production environments such as studios, OB vans, and live event setups — a modern alternative to legacy AV/broadcast wiring tools. The source is public to read; the licence is proprietary (see [LICENSE](LICENSE)).
-
-✔ Fully offline desktop application  
-✔ macOS & Windows support  
-✔ Production-focused broadcast tooling  
-✔ Extensible integration system  
-
----
-
-## 📸 Screenshots
-
+## Screenshots
 
 <table>
   <tr>
-    <td width="50%" align="center">
-      <img src="docs/screenshots/properties.png" alt="Device properties panel showing ports, colour, dimensions and ATEM tools" width="420" /><br />
-      <b>Device &amp; location properties</b>
-    </td>
-    <td width="50%" align="center">
-      <img src="docs/screenshots/atem-multiview.png" alt="ATEM multiviewer layout editor with program and preview windows" width="420" /><br />
-      <b>ATEM multiviewer editor</b>
-    </td>
+    <td width="50%" align="center"><img src="docs/screenshots/properties.png" alt="Device properties panel" width="420" /><br /><b>Device properties</b></td>
+    <td width="50%" align="center"><img src="docs/screenshots/atem-multiview.png" alt="ATEM multiviewer layout editor" width="420" /><br /><b>ATEM multiviewer</b></td>
   </tr>
   <tr>
-    <td width="50%" align="center">
-      <img src="docs/screenshots/export.png" alt="Export and print hub with PDF, PNG, JPEG, SVG options and layer filter" width="420" /><br />
-      <b>Export &amp; print hub</b>
-    </td>
-    <td width="50%" align="center">
-      <img src="docs/screenshots/bom.png" alt="Cable bill of materials aggregated by connector type and length" width="420" /><br />
-      <b>Cable bill of materials</b>
-    </td>
-  </tr>
-  <tr>
-    <td colspan="2" align="center">
-      <img src="docs/screenshots/patch-sheets.png" alt="Per-device patch sheet generator with device selection" width="420" /><br />
-      <b>Per-device patch sheets</b>
-    </td>
+    <td width="50%" align="center"><img src="docs/screenshots/export.png" alt="Export and print hub" width="420" /><br /><b>Export &amp; print</b></td>
+    <td width="50%" align="center"><img src="docs/screenshots/bom.png" alt="Cable bill of materials" width="420" /><br /><b>Cable bill of materials</b></td>
   </tr>
 </table>
 
----
-
-## ✨ Core Features
-
-### 🎛️ Visual Cable Canvas
-- Drag & drop node-based interface (React Flow)
-- Equipment nodes with input/output ports
-- Interactive cable connections between devices
-- Cable metadata (type, length, color, notes)
-- Zoom, pan, minimap navigation
-- Real-time signal topology visualization
-- **Rooms and floors**: a frame on the canvas is a room; it picks its floor from
-  the project's floor list (bottom to top, with the floor level in metres —
-  *Floors* in the frame's properties). Renaming a floor renames it on every
-  frame; old projects with typed-in floors become the list on load
-- **Where each cable end sits**: the cable's properties, the pull list and the
-  cable schedule show *floor · room · device · port* for both ends, read from
-  where the device lies — e.g. `EG · Hall 3 · CAM 3 · SDI Out → 3rd floor ·
-  Gallery · Videohub · SDI 12`
-- **Show signal path**: in a cable's properties, highlights the whole chain it
-  belongs to — through plates, house runs, converters, routers — and dims the
-  rest; the stations are listed with floor, room, device and port. Esc or the
-  chip in the toolbar ends it
-- **3D** in the toolbar shows the building: every frame as a room on its
-  floor's height, devices inside, and the connections between rooms — as one
-  line per room pair with the cable count, or as single cables (house runs
-  dashed). The same floor/room and layer switches as on the canvas apply. A
-  floor without a height is stacked with an adjustable storey height, and the
-  view says so. Tick **Riser** in a frame's properties and it becomes a shaft
-  through every floor: cables between floors then run up to the ceiling, over
-  to the nearest riser, down or up, and across to their target — without a
-  riser they stay straight lines, and the view says that too
-- **Rooms ▾** in the toolbar hides floors or single rooms with their devices.
-  A cable into a hidden room stays as a stub at the visible end and says
-  where it goes; its arrow brings the room back. Only the view changes — the
-  plan and every export stay complete
-- **Cable bends and segments** follow the pointer for the whole drag, however
-  far — also when the route re-routes under the pointer
-
----
-
-### 📚 One device library across the suite
-
-The built-in catalogue holds **1802 device types**, 1616 of them with a
-manufacturer datasheet link that the Properties panel offers as *Hersteller-Link*.
-1333 of those entries come from the sister planners and are **generated**, not
-hand-typed — `npm run katalog:uebernahme` pulls them; `npm run katalog:check`
-says when they have gone stale:
-
-| From | Entries | With datasheet | Ports |
-|---|---:|---:|---|
-| multicam-planner cameras | 365 | 358 | unknown, marked |
-| multicam-planner lenses | 835 | 784 | unknown, marked |
-| multicam-planner rigs | 49 | 0 | unknown, marked |
-| light-planner fixtures | 84 | 50 | **real** — DMX + power |
-
-**Nothing is invented.** The sister planners know a camera's sensor and mount,
-not its sockets, so those entries carry `portsUnknown: true` — the plan check
-asks for the datasheet and the flag clears itself the moment you add real ports.
-An invented `SDI Out` would look exactly as authoritative as a measured one and
-would travel silently into the BOM, the patch list and the cabling.
-
-The lighting entries are the exception, and for a reason: the light planner
-already derives DMX In / DMX Thru and a power socket from the fixture's stated
-power connector. That rule is **imported**, not re-implemented, so the same
-fixture cannot have sockets when it comes from the light plan and none when it
-comes from the library. Conventional fixtures on a dimmer get no DMX socket —
-that is an answer, not an omission.
-
-**One identity, three apps.** Every entry carries a device-type GUID derived as
-UUIDv5 from a fixed namespace and the source id, so a camera or fixture handed
-over between planners resolves to its datasheet instead of being matched on its
-model name. Before this, 368 of 377 exported cameras carried no identity at all.
-
-### 🔌 Equipment & Cable Management
-- Built-in broadcast equipment library
-- Custom device templates
-- **Devices for this project only**: right-click an empty spot on the canvas →
-  *New device here …*, or *Create your own device* in the library, then *Place
-  in project only*. No template is saved and nothing is uploaded to the device
-  library — for loan gear, a client's box or a placeholder. To reuse it later,
-  save it from the canvas as a template like any other device
-- **Start with just a name**: *Create your own device* needs nothing but a
-  name — no ports, manufacturer, connector or datasheet. Drop a cable end onto
-  the body of such a device and it gets a matching port (not on built-in
-  catalogue devices, whose ports come from the datasheet). Missing ports and
-  cable lengths show up in the plan check as calm hints, never as a block
-- **Ports from a photo**: in *Create your own device*, pick, drop or paste
-  photos of the connector side (on a phone: *Take photo*). The AI provider
-  chosen under Settings → Integrations → AI reads the connectors — label,
-  connector type from the app's own list, direction, count per row, signal
-  where visible — and the rating plate. The result is an editable suggestion
-  list: unsure rows are marked and unticked, nothing is taken over until you
-  apply it. If the model is in the built-in catalogue, the catalogue device
-  with its datasheet ports is offered instead. Photos are scaled to 1600 px
-  before sending and go only to the chosen provider; tick *Keep the photos*
-  to store them on the placed device. Without a key the section only points
-  to the settings
-- **Catalogue type is automatic**: devices created by hand, imported (Rentman,
-  GraphML, NetBox, MultiCam, on-site survey) or loaded from older projects are
-  linked to their built-in catalogue model when the name matches exactly one
-  entry (spelling, manufacturer prefix, part number and renamed templates
-  count; several matches are never guessed). The link sits in the collapsed
-  *Catalogue & source* section and offers matching entries without applying
-  them
-- Port-level connection system
-- Cable properties:
-  - Type (SDI, HDMI, Ethernet, etc.)
-  - Length tracking
-  - Color coding
-  - Labeling & notes
-- **Runs split into the stock lengths you actually own** (#875): record the
-  drums this production runs (Settings → Project → *Available stock lengths*),
-  and the cable bill of materials turns a 137 m run into 100 + 50 with one
-  coupler. Fewest couplers first, least excess second — a coupler is a
-  connection that can come loose, ten metres of excess cost coiling. The split
-  and the coupler count go into the on-screen list, the CSV and the PDF, and
-  the list says what the stock does not cover. An entry without a counted
-  quantity produces no warning: nobody counted, so there is nothing to warn
-  about.
-- **Crestron and Cisco in the catalogue**: DM-NVX-350 / -351 / -D30 streaming
-  endpoints, the HD-TX-USB-2000-C HDBaseT transmitter, the HD-MD4X1-4K-E
-  switcher and the Avia DSP-1283 audio processor; Catalyst 9300-24U,
-  9300X-48HXN and Nexus 93108TC-EX switches. Every port list is copied from the
-  manufacturer's own specification page or spec-sheet PDF, linked on each entry.
-  The Catalyst uplinks are deliberately **not** listed as ports: the data sheet
-  says *modular uplinks*, so a switch without a network module has none — the
-  slot is there and the available modules are named in the notes.
-- Reusable project components
-- **Properties sidebar**: the top is fixed — **name**, then the device **note**
-  (the one free text field: web UI, firmware, where it sits, who it belongs to),
-  then **inputs & outputs**. Everything else follows and can be dragged into any
-  order you like. A filter field finds a section by title, summary or id and
-  opens it; *Collapse all* / *Expand all* in one click. Which sections are open
-  is remembered across devices and restarts; the filter is not
-- **Master data** (Settings → *Master data*): your own connector types, signal
-  standards and cable layers in one place, next to the built-in ones — add,
-  rename, remove. Renaming carries the new name onto the ports, cables,
-  library templates and own cable types that use it (in the open project;
-  saved projects that are not open keep the old name as free text). They
-  appear in every picker and travel with the shared library (Network sync),
-  so a team uses the same names
-- **VLAN next to the address** (#946): *Network & access* has a VLAN ID field
-  (switches and routers keep it in their switch configuration), and the device
-  card on the canvas shows it right after the IP address: `10.0.0.5 /24 · VLAN 30`.
-  The same VLAN stands beside the address in the address plan (on screen and
-  CSV), the location bill of materials, the device PDF, the asset register and
-  the MCP answer `device_ports`. No VLAN entered, nothing shown
-- **Streams per device** (#946): *Streams* lists what a device sends or
-  receives — RTSP, SRT, RTMP, NDI, NDI-HX, HLS, MJPEG, WebRTC, WHIP, WHEP,
-  RTP, ST 2110, Dante, AES67 or other — with direction, label, address, port,
-  codec and format. They appear in the network tab of *Analysis* (with CSV), on
-  the device cards, in the device datasheet and in the MCP tool `device_ports`
-- **Credentials never enter the plan**: a user name, password or secret
-  parameter (`passphrase=`, `token=`, `password=` …) typed into a stream
-  address is cut out when leaving the field (and from older project files).
-  The desktop app keeps it in **this computer's keychain**, where only the
-  preview fetch in the main process reads it back; the web edition discards it
-  and says so
-- **Still image preview** under the device on the canvas: either from the
-  http(s) still image address most cameras offer (`/snapshot.jpg`), or — when
-  the device *sends* an RTSP, RTMP, SRT, HLS or MJPEG stream — one frame taken
-  with **ffmpeg** (not bundled: `brew install ffmpeg`, or `ffmpeg.exe` on the
-  PATH; without it the tile says so). Refreshed every 10 s while visible,
-  desktop app only, **local network only** (private, loopback and link-local
-  addresses), labelled with its time. Opening a project never starts a
-  preview: the tile shows *Start preview* until someone clicks it (or switches
-  it on in *Streams*) in this session. NDI, Dante, AES67, ST 2110, WebRTC and
-  RTP get no preview, and the entry says why
-
----
-
-### 🗺️ Floor plan, scale and real cable lengths
-
-Put the venue under the canvas and measure cables on it (toolbar → *Floor plan*).
-
-- **Load an image**, or **import the venue from MultiCam / Light Planner**
-  (`venue-exchange` v1). The image and its scale come with it, and walls,
-  people and stages the cable planner does not draw go back out unchanged on
-  export.
-- **Drag & drop** an image file (PNG, JPG, WebP, GIF, BMP, AVIF) onto the
-  canvas or the floor plan panel. On the canvas it lands centred where you drop
-  it; replacing a calibrated plan asks first, because the calibration is lost.
-  Images over 3000 px on the long edge are scaled down. PDF plans are not
-  supported yet — export the page as PNG or JPG. Loading and dropping come from
-  the shared suite package `@avplan/floorplan` (ADR-015).
-- **Two points** set the scale on a plan drawn straight from above (CAD export,
-  scan): click both ends of a known distance.
-- **Four corners** set it on a photo, a wall sign or an isometric drawing: click
-  the corners of a floor area of known width and depth. The plan is then
-  measured through a perspective projection, so a metre is a metre in every
-  direction on the floor. Heights shown in the picture are not measured.
-- **Cable lengths follow the drawn route** — socket to socket, through every
-  bend point. A cable without bend points is measured as the right-angled path
-  the canvas draws, not as a straight line. Slack and rounding up apply as
-  before, and the bill of materials still splits each run into the stock
-  lengths you own.
-- A length derived this way is reported as **out of date** once a device moves,
-  the cable is re-routed or the plan is re-calibrated.
-- After calibration the plan locks and lies under everything; clicks reach the
-  devices. A four-corner calibration cannot be exported to the venue exchange,
-  which carries one scale per plan — the export button says so.
-
----
-
-### 🔣 Symbols
-
-Plan symbols on the canvas (toolbar → *Symbols*): electrical, intrusion alarm,
-fire alarm, voice alarm / PA, IT / network, automation and AV — drawn after the
-common plan conventions (DIN EN 60617, DIN 14034-6), not certified against them.
-
-- A symbol is **not a device**: no ports, no checks. It labels the plan. Label,
-  size, rotation and lock are set in the panel; Delete removes the selected one.
-- **Import your own** as SVG, PNG, JPG or WebP. SVGs are cleaned (no scripts,
-  no event handlers, no external references) and every symbol is drawn through
-  `<img>`, where nothing runs. Custom symbols travel inside the project file.
-- **Generate a symbol** from a description when an AI key is stored under
-  *Settings → AI* (Gemini, Claude or OpenAI). Without a key the option is not
-  shown. A generated symbol is a model's drawing, not a standard symbol.
-- **Symbol list as CSV**: count and labels per symbol.
-
----
-
-### 💾 The recovery copy says when it fails
-
-The plan is auto-saved into the browser store every few hundred milliseconds.
-That store holds about 5 MB — and until now, the moment a project outgrew it,
-the copy stopped being written **silently** (`catch {}`). Keep planning, lose
-the machine, and you are back at the state from whenever that happened,
-without anyone having said so.
-
-The status bar now says **“No recovery copy”** with the project's size, and
-what to do (save to a file). The plan itself is unaffected — only the copy in
-the browser is missing, and the message says that too.
-
----
-
-### 🔁 Adapters, gender changers, converters
-
-Three different things, kept apart (#876):
-
-- An **adapter** changes the shape of the plug — BNC to RCA. The signal stays
-  what it was; a piece of metal does it.
-- A **gender changer** changes only pin or socket. Two XLR plugs do not mate,
-  although both are XLR. Port gender was already recorded and was invisible
-  to every compatibility check until now — that is the error nobody sees in
-  the plan and everybody finds at the dock.
-- A **converter** changes the signal — SDI to HDMI. It has a manufacturer, a
-  bandwidth limit and a price, and none of those is in the plan. The planner
-  therefore **names** it and never inserts it.
-
-The first two can be inserted with one click on the selected cable: one run
-becomes two with the device in between, at its place on the canvas and in the
-picking list. **One undo takes all of it back** — the insertion is a single
-store write, not three that happen to fall inside a coalescing window.
-
-The inserted adapter claims nothing: direction and power stay "unknown", so
-the plan check lists it as an **open point** and not as a green tick. A green
-tick for a part nobody has checked costs more than an open point.
-
----
-
-### 🔌 Faceplate editor
-
-Wall panels, stage boxes and rack plates (#879): place each connector on the
-plate **in millimetres**, print the label strip and the drilling sheet **1:1**.
-
-- The connectors **are the ports of that device** — not a drawing beside them.
-  What you move here is the same position the rack view and the 3D view read;
-  nothing has to be kept in sync because there is only one field.
-- **Cutout diameters are entered, never guessed.** A Neutrik D-hole is 24 mm, a
-  BNC bushing 10 to 12.7 mm depending on the part — which one applies is in the
-  manufacturer's document. Connectors without the figure are *not* checked
-  against each other, and the report says so: a plate without cutout sizes is
-  unchecked, not collision-free.
-- Checks: a hole that runs over the edge, two holes that run into each other
-  (with the overlap in millimetres), and connectors that have no position yet.
-- The **faceplate list** goes through the report editor like every other list,
-  so it groups, filters and prints with the same settings.
-- A **wall panel, stagebox or plate passes the signal through**, socket n at
-  the back to socket n at the front — so the signal path runs camera → hall
-  plate → house run → 3rd-floor plate → gallery as one chain instead of
-  stopping at the first plate. Untick *Patch panel* on a plate that does not
-  (a stagebox with a converter inside).
-- A pass-through plate has a front and a back. **On the plate** picks which of
-  the two sits on it (by default the side whose connectors already have a
-  position); the back — the house run — is not drilled and not reported as
-  "no position".
-- A plate with **several rows** of connectors prints **one label strip per
-  row**, so BNC on top and RJ45 below no longer land on the same spot.
-
----
-
-### 📋 Report editor
-
-Every list this program prints — pull list, termination list, cable schedule,
-asset register, network sheet, spectrum plan, delivery, tally map, handover,
-signal paths, house run occupancy, crossings, defects and open items,
-maintenance schedule, configuration settings, attachment index —
-goes through one editor (#880):
-
-- **Columns**: show, hide, reorder.
-- **Group** by any column, **sort** by several (a hidden column sorts too — who
-  orders by room and does not want to print it would otherwise get a list in no
-  order at all), **filter** per column.
-- **Templates**, saved either *with the project* ("this production's pull list")
-  or *for all projects* ("my pull list"). Those are two statements, so they have
-  two homes.
-- **The preview is the export.** Not a rendering of it: the table on screen, the
-  CSV file and the printed sheet are the same computed result. A preview that
-  re-implements the export agrees on day one and drifts afterwards.
-
-A template written against last month's list still opens: a column that no
-longer exists drops out, a new one joins **visible** — a silently missing column
-on a pull list is worse than one too many.
-
----
-
-### 🧵 Fibre breakouts and polarity
-
-One socket, several fibres (#885). An opticalCON QUAD carries four of them
-behind a single connector, and until now the plan could only show that as four
-cables — which loses the outer connector, the one figure the cable actually has
-to match.
-
-- The **breakout lives on the socket**: each fibre with its position, what it
-  carries (`TX`, `RX` or *not stated*) and its own connector at the tail.
-- Each cable end says **which fibre it uses**. Patch list and pull list carry
-  it as a column, and only when the plan has a breakout at all.
-- The plan check finds **three of four fibres patched**, two cables on the same
-  fibre, and a fibre the socket does not have.
-- **Polarity** is checked only against a method you entered — TIA-568 knows the
-  methods A, B and C, and they differ in *where* the fibres cross. Which one
-  applies is in the site's own document, so none is built in. Until one is
-  chosen the direction is reported as **unchecked**, never as correct.
-- *Not stated* is a state of its own throughout: it never turns into a green
-  tick, and it is never quietly read as `TX`.
-
----
-
-### 🟥 LED walls
-
-- Panel types with the figures off the datasheet — pixel pitch, resolution,
-  size, and, where stated, weight and power (average **and** peak)
-- Opening in millimetres → grid, with the leftover shown: a tile that only
-  half fits does not fit, and the remainder is the figure you hang the wall by
-- Totals: panel count, resolution, size, weight, load
-- Sending card: how many ports the wall needs against how many it has
-- **Connected to power and to the picking list**: the wall names the building
-  outlet it is fed from. Its *continuous* figure joins the load at that outlet,
-  its *peak* gets a finding of its own — the breaker is chosen by the peak, and
-  a wall draws a multiple of its average on a white frame. A panel type without
-  a power figure is **not** counted as zero; the plan says its load is missing
-  from the sum. The panels themselves are counted per type in the picking list.
-- **Pixel map as PNG**, exactly as large as the wall has pixels, tiles
-  numbered row by row from the top left — the order a wall is built in
-- Nothing is estimated: a panel type without a weight gives a wall of unknown
-  weight, not one of zero, and a sending card nobody recorded says nothing
-  rather than "fine"
-
----
-
-### 📡 ATEM Multiviewer Configuration
-- Visual multiview layout editor
-- Camera / program / preview assignment
-- Grid-based layout system
-- Preconfigured source mapping
-- Exportable production configs
-
-Compatible with Blackmagic ATEM switchers (Television Studio, Constellation, and M/E models).
-
----
-
-### 🔀 Videohub Routing Configuration
-- SDI routing visualization
-- Source → destination patch mapping
-- Logical router configuration editor
-- Visual signal path overview
-- Exportable routing setups
-
-Designed for Blackmagic Videohub infrastructure.
-
----
-
-### 🤖 Use with Claude
-
-The planner can answer questions about the open plan through a **local MCP
-server** (#872) — devices, ports, signal paths, cables and what the plan check
-says.
-
-- **It only reads.** Stage 1 has no writing tools at all, and every tool is
-  declared `readOnlyHint`. Nothing in the plan can be changed through it.
-- **It asks the plan, not a file.** The question goes into the planner window
-  and is answered from the live store with the *same* functions the screen
-  uses. A file on disk is the state of the last save; a second implementation
-  of "what is connected to what" would disagree with the screen sooner or later.
-- **Off by default**, switched on under *Settings → MCP*. It binds to
-  `127.0.0.1` only, requires a pairing token kept in the operating system's
-  credential store, and rejects requests whose `Host`/`Origin` is not the
-  loopback address (DNS-rebinding protection). While it runs, the status bar
-  says so — and says when a client is asking.
-
-```bash
-claude mcp add --transport http cable-planner http://127.0.0.1:<port>/mcp \
-  --header "Authorization: Bearer <token>"
-```
-
-The settings page shows the line with the port and token already filled in.
-
-**Writing is a second switch** (#873), off by its own default. With it on, Claude
-can connect and remove cables, set cable details and rename devices — through
-the *same store actions the canvas uses*, so the validation, the type
-inheritance and the layer detection are the ones you already know. Each call is
-**one undo step**, and each leaves a line under *What Claude changed*, which
-travels in the plan file.
-
-If two ends do not mate, the answer says what would: *"No cable in the catalogue
-connects BNC to HDMI directly - this needs a converter, and the planner names
-converters instead of inserting them."* A refusal without a way forward just
-makes a model try the same thing again.
-
-**From claude.ai, Claude on the phone, or another machine** (#874): those
-cannot reach `127.0.0.1`. Put the project into the cloud (*File → Cloud & share
-link…*), then add a custom connector in claude.ai (*Settings → Connectors →
-Add custom connector*) with
-
-```
-https://devices.zumpelars.de/mcp
-```
-
-and sign in with your device-library account (OAuth; claude.ai registers
-itself). The remote server offers the same read tools plus `list_projects` and
-`list_revisions`, over **your cloud projects only**. The answers are computed by
-the planner when it saves — the server never works out a signal path of its
-own — and nothing can be written. Disconnect at any time under *Account →
-Security → Connected apps* on devices.zumpelars.de. Claude Code works the same
-way: `claude mcp add --transport http cable-planner-cloud https://devices.zumpelars.de/mcp`.
-
-**Switching commands are never offered.** Reading a Videohub or an ATEM: yes.
-Routing them from a tool: no — a model that changes routing during a show is a
-risk without a payoff.
-
----
-
-### 🔗 Integrations & Interchange
-- **Rentman** — import projects, equipment and categories from the rental
-  platform, with a selective import workflow
-- **NetBox** — import racks, devices and cable paths from the DCIM side
-- **GraphML** — import existing diagrams, with a preview before anything lands
-  in the plan
-- **Green-GO** — intercom configuration export (`.gg5`), plus a
-  **vendor-neutral intercom exchange file** that someone building a Riedel or
-  Clear-Com system can also read
-- **`.avplan`** — the shared exchange format across the planner suite. When the
-  file carries the MultiCam plan's cameras, opening it offers to place them in
-  the signal plan
-- **MultiCam cameras** (`.cameras.json`, format `camera-list` v1 to v3,
-  *File → Import MultiCam cameras*) — every placed camera becomes a device with
-  its datasheet ports, lens, zoom range, set focal length, height, pan and tilt,
-  and (v3) its saved PTZ presets with the day each was saved (shown on the node
-  and under *Optics* in its properties). When the plan sends no field of view,
-  *Optics* calculates the horizontal one from the camera's sensor width and the
-  set focal length (times extender) — only when that is unambiguous (one sensor
-  mode, lens on the native mount) and labelled as calculated. Importing again **reconciles** instead
-  of duplicating: names, optics and presets follow the camera plan, position,
-  ports and cables stay, and a camera that left the MultiCam plan is marked,
-  not deleted — cables may hang on it. An older v2 list says nothing about
-  presets and leaves the existing ones in place
-- **Racks for the warehouse** (`rack-belegung.json`, *Library → Racks → For the
-  warehouse*) — what sits in each rack, with unit and name, for the Inventory
-  Planner. A rack that travels in a case is a case there: the warehouse owns
-  the empty shell (how many units, how deep), the plan owns what is mounted
-  in it. The inventory checks one against the other and says so when the plan
-  fills units 1–14 of a 12-unit case — before the truck leaves. Units are
-  counted from the bottom in the file, the way the trade counts them.
-- **Building statement** (`.avfacility`, from the facility planner) — outlets,
-  cable routes and the control addresses the show may use. The plan **refers**
-  to them and keeps no copy: the checks ask the statement, so a device wired to
-  an outlet or a control address that the latest statement no longer lists says
-  so. A **control address whose kind is not stated** is reported too, for the
-  systems that have kinds (same table as the facility planner): DALI short
-  address, group or broadcast (the last one is the whole bus, emergency
-  lighting included); Crestron digital, analog or serial join; Vissonic camera
-  or mixer (the mixer has a single output — a command there changes every
-  screen). KNX addresses need no kind.
-  Since format v2 the statement also carries the building's **floors** (take
-  them into the plan's floor list with one click) and its **house runs** with
-  rooms, the plate at each end and their cores. A cable's properties pick the
-  run and core it uses; the list shows which cores other cables already hold,
-  and the plan check reports a run the building no longer lists, a core it
-  does not know, and two cables on one core.
-
-API tokens live in the **operating system's credential store** (macOS Keychain,
-Windows Credential Manager, libsecret) through `keytar` — not in the project
-file, not in browser storage, not in source. Exports strip them before writing.
-The one exception is the web edition, which has no keychain: there the device
-library sign-in is kept in the browser's own storage (see below).
-
-### 📚 Device library
-
-The shared, moderated device catalogue of the planner suite lives at
-**[devices.zumpelars.de](https://devices.zumpelars.de)**. Every build talks to
-that server out of the box; *Settings → Device library* can point it at another
-one, and **Restore default** goes back.
-
-- **Account** — the library can only be used with an account. Create it on the
-  website (*Create account* opens it): confirm your email address and accept
-  the guidelines there. In the planner, sign in with email or username and
-  password; with two-factor sign-in enabled, the app asks for the code next.
-  Errors say what happened — an unconfirmed email points at the confirmation
-  mail, too many attempts asks you to wait, an unreachable server says so.
-  The desktop app keeps the sign-in in the OS keychain and fetches from the
-  main process; the web edition keeps it in the browser's storage.
-- **Sync** — *Update from device library* (in the settings, or *Update* under
-  *Library → Equipment → Shared*) fetches only what changed since the last
-  sync. The devices are a **read-only source of their own**: click or drag
-  them onto the canvas; to change one, save it from the canvas as your own
-  template. Each shows its status (verified, confirmed, unconfirmed,
-  disputed), the number of confirmations and a link to its page. Devices the
-  library withdraws disappear locally. Every entry goes through the same
-  template check as a submission; entries that fail it are skipped and
-  counted. The fetched state stays available offline.
-- **Works without the server** — if devices.zumpelars.de is down, slow or
-  replaced, the app keeps the devices from the last sync: only a successful
-  answer changes them, a request gives up after 15 s, signing out keeps them,
-  and each server address has its own stored state, so switching to another
-  server and back loses nothing. A freshly set-up server with no devices
-  cannot wipe the local state. The rule lives in the shared client
-  (`syncFrom`) and is the same in every planner.
-- **Your own devices go up** — templates you created or changed are uploaded
-  to the library, so what you build in one planner is there for the others.
-  With *Upload my own devices automatically* (on by default; it only acts
-  while you are signed in) this happens at start and a few seconds after you
-  change a template; **Sync now** does it by hand — first up, then down. Only
-  what changed since the last upload is sent, plus what is still waiting for
-  moderation — that is how an entry switches from *waiting for moderation* to
-  *live* once a moderator approves it. Built-in templates you have not
-  changed are not uploaded from your machine; the project publishes them
-  itself. *Settings → Device library → My devices* lists every own template
-  with its state (not uploaded yet, waiting for moderation, live, up to date,
-  blocked with the reasons) and lets you correct the manufacturer/model split
-  — the library recognises the same device across planners by exactly those
-  two. A generic part without a manufacturer (patch panels, power strips) is
-  not guessed: it waits until you enter one.
-- **Submit** — see the next section.
-
-Maintainers publish the built-in catalogue with `npm run library:publish`
-(`DEVICE_LIBRARY_KEY` = an admin API key `dlk_…`, optional
-`DEVICE_LIBRARY_URL`; `-- --dry-run` only reports). Entries without a
-datasheet link or a recognisable manufacturer are listed, not uploaded. The
-workflow `library-publish.yml` runs it on every push to `main` that touches
-the catalogue, and on demand; without the `DEVICE_LIBRARY_KEY` secret it says
-so and sends nothing.
-
----
-
-### ☁️ Cloud copy with revisions
-
-Optional, off until you ask for it (#871). *File → Cloud…* puts
-the open project into the cloud of your device-library account
-([devices.zumpelars.de](https://devices.zumpelars.de)); sign in under
-*Settings → Device library*.
-
-- **Your file stays the master copy.** The cloud keeps a copy with history;
-  without a connection the planner works exactly as before.
-- **Every save is a revision** — automatically 30 s after the last change, or
-  with *Save to cloud now*. Any revision can be restored; restoring makes it
-  the newest one, nothing is lost.
-- **A parallel change is never overwritten.** Each save names the revision it
-  was based on. If another device saved in between, the planner merges both
-  (devices, cables and areas through the same CRDT as live collaboration;
-  other fields: whoever changed them wins) and saves the result.
-- **Second device:** the same dialog lists your cloud projects to open or to
-  download as `.cableplan` at any time.
-- **Credentials stay on the computer** (device logins are removed before
-  upload and kept locally when merging). Stored encrypted; *Delete from cloud*
-  removes the project with every revision at once.
-
----
-
-### 👥 Live Collaboration
-- Real-time co-editing over **WebRTC** with a CRDT document — no server holds
-  your plan
-- Presence: who is in the room, and where they are working
-- Join by **invite link**, or find open sessions on the LAN automatically
-- **Room password** encrypts the session end-to-end; without it, anyone who
-  knows the room name can read along
-- Across networks it works out of the box: the default relay
-  `wss://relay.zumpelars.de` only sees connection metadata, and a
-  device-library account adds short-lived TURN credentials for networks where
-  peer-to-peer fails ([docs/self-hosted-relay.md](docs/self-hosted-relay.md))
-- Bring your own **signaling relay and STUN/TURN servers** — or switch on
-  **local-only** mode, where nothing leaves your LAN
-- Collaborative undo takes back *your* edits, not other people's
-
----
-
-### 🗄️ Inventory & Stock
-- Warehouse stock with storage locations, serial numbers and quantities
-- The plan's demand checked against what is actually in stock — including the
-  parts that are not equipment nodes (drum kits, wireless rigs, patch fields)
-- Portable stock file, importable and mergeable
-
----
-
-### 🔌 Patch list — device ▸ patch panel ▸ switch port
-Analyses ▸ **Anschlussliste**. One row per network interface, walked through
-the actual cables: from the port on the device, along the cable, through every
-patch panel **with both its port numbers**, into the switch port — with IP,
-subnet, CIDR, gateway, MAC, VLAN and segment name beside it. Grouped by switch,
-searchable, and exportable as CSV with a column dictionary attached.
-
-The path is derived from the cable graph and is **undirected** — a network
-cable drawn from the switch to the camera is the same cable. A switch port
-typed into the network form by hand is shown as its own source; where the two
-disagree, the contradiction stays on the row instead of being tidied away.
-Where a path does not reach a switch, the row says why — unequally populated
-patch panel, converter with two onward cables, nothing plugged in.
-
-### 📄 Export & Documentation
-- PDF export of full cable layouts
-- Includes:
-  - Equipment lists
-  - Cable metadata
-  - Signal routing overview
-- Print-ready production documentation
-- **Fixed install: docs & handover** (File menu) — pull list, termination list,
-  cable schedule, cable BOM with reserve, asset register, handover document,
-  **signal paths** (every chain from source to target with floor and room at
-  each station) and **house run occupancy** (per core: which cable, which are
-  free), plus QR labels for every cable and device
-- **Route plan per floor** (HTML, A4 landscape) — a top view of every floor
-  with its rooms, the riser and a line per connection room to room or room to
-  riser, labelled with the cable count. Schematic, not the tray route: the
-  plan knows rooms and risers, not where the tray runs
-- **Crossings (fire protection)** (CSV) — every room boundary, riser entry and
-  floor slab a cable passes, with the cables bundled per crossing, their
-  jacket / fire rating and pathway. A missing rating is named in the finding
-  column, and a floor change without a riser says so instead of inventing a
-  route. Cables with an end outside every room are counted, not placed
-- **Acceptance record** (HTML) — installation header, scope and test results,
-  the defects and open items the plan knows (faults, failed cable tests, field
-  reports neither applied nor rejected, items still planned) plus empty rows
-  for the walk-through, three result boxes left unticked, and a signature block
-  for client and contractor. A cable without status or test result is counted,
-  not listed as a defect. The list alone is also a CSV (**defects and open
-  items**)
-- **Maintenance schedule** (CSV) — next due date per device from its
-  maintenance interval and the latest service entry, else the handover date;
-  which basis applied is its own column. No interval or no basis: the date
-  stays empty and the finding says why. No statutory inspection periods are
-  assumed
-- **Configuration settings** (CSV) — per device and interface: address, mask,
-  gateway, VLAN, MAC, switch and port (entered at the interface, or followed
-  from the cable through patch panels), web interface. A single cabled port
-  goes to the first interface; with two, each gets its own row instead of a
-  guess. Devices on a switch without an address, missing masks and port
-  conflicts are flagged
-- **Device cards** (HTML) — one card per device: location, category, asset
-  tag, serial, firmware, status, warranty, interval, manufacturer page, web
-  interface, network, switcher input, every cable with its other end (and,
-  when that end is a patch panel, the device behind it), service history.
-  Gaps show as a dash
-- **Device datasheet** (device properties → *Print / documentation*) — one A4
-  page for a single device with its photo and the properties you tick:
-  general, technical and category data, operation, ports, network,
-  connections, service history. Every filled property is preselected; an
-  empty one you tick prints as a dash. *Print* opens the print dialog, *Save
-  PDF* writes the file (desktop app; the web edition offers "Save as PDF" in
-  the print dialog). Login credentials are never offered. Also from the
-  right-click menu on a device, the selection toolbar and *Export → Patch
-  sheets → Datasheets (n)…*: for several devices one list with "filled on n
-  of m" per property, one A4 page per device in one document, optionally the
-  first photo of each device
-- **Operator overview** (HTML) — which source (by role name) lies on which
-  switcher or router input, where each output goes (through patch panels),
-  contacts, web interfaces, and an empty box for operating steps: the plan does
-  not know them and the sheet does not invent them
-- **Camera positions** (HTML) — per camera from the camera plan: room, role,
-  height, aim, optics, switcher input and the PTZ presets (number, shot,
-  segment, pan, tilt, focal length, focus, saved on). The sheet says that the
-  presets are not checked against the camera head — no camera protocol is
-  spoken here
-- **Attachments** (desktop app) — test reports, manufacturer documents and
-  configuration backups, each attached to a cable, a device or the whole
-  installation. The files are copied into the folder `Anhaenge` next to the
-  project (named by their SHA-256, any file type, up to 100 MB); the project
-  keeps only the reference. Files are never opened from the app, only shown
-  in the file manager. A missing file, a target no longer in the plan and a
-  cable with a test result but no report are flagged. The **attachment
-  index** (CSV) lists them all with their checksum for the handover
-- Every column of every exported list carries a lexicon entry (the column
-  glossary appended to each CSV)
-- **Per-device patch sheets** name where the device stands (*floor · room*)
-  and, for a cable leaving the room, where its other end lies
-- The **switch port map** looks through patch panels and wall plates: a camera
-  behind the gallery patch panel and the hall wall panel is named as the
-  camera, with the panels it passes — not as a conflict with the patch panel.
-  The PoE budget counts it the same way
-
----
-
-## 🧠 Project Management
-- Local JSON project system
-- New / Open / Save / Save As workflows
-- Recent projects list (auto-managed)
-- Safe file handling with concurrency protection
-
----
-
-## 📱 On Site
-- **Mobile build-day view** over the LAN, opened by QR code — no install, no
-  account. It is not read-only: the build team ticks off what is done, adds
-  cables it actually pulled, files change requests and sends photos, all of
-  which come back into the plan.
-- **Photos for the documentation**, from the planner and from the phone. They
-  point at a device or a cable (or at nothing, and then belong to the project),
-  are scaled down on the way in, and travel inside the plan file.
-- **Survey an existing installation** (*Tools → Survey*): walk through the room
-  and type what you see — device name, room (it stays for the next entry),
-  assumed connection, note — Enter, next. Each entry is in the plan at once as
-  an unfinished device: no invented connectors (the plan check asks for them),
-  the details in its notes, photos attachable in the survey list. Tick it off
-  once it is worked out. From the phone the same works via *Report → New
-  device*; the report arrives in the survey list and becomes a device when you
-  accept it.
-- **Phone access** asks for the decision first: *Read only* or *Contribute*.
-  Only *Contribute* lets the phone send ticks, cables, photos, reports and new
-  devices; a read-only phone says how to switch. The phone path needs the
-  desktop app (it serves the plan over the LAN); the browser edition shows the
-  button and says so.
-- **Label sheets and QR labels** for cables and devices, print-ready.
-- **Read-only web viewer** for sharing a plan with someone who does not run the
-  app.
-
----
-
-## ⚙️ Experimental Features
-- 🌐 Shared network-drive sync for multi-planner collaboration *(experimental)*
-- 🗄️ 3D rack builder with STL export *(in progress)*
-
----
-
-## 🛠️ Tech Stack
-
-| Layer | Technology |
-| ----- | ---------- |
-| Desktop shell | **Electron** |
-| UI | **React 19** + **TypeScript** |
-| Canvas | **React Flow** (node graph) |
-| 3D rack view | **three.js** / react-three-fiber |
-| Styling | **Tailwind CSS** (token-based theming) |
-| State | **Zustand** stores with localStorage autosave |
-| Build | **Vite** |
-| Export | **jsPDF** (vector + raster PDF, PNG/JPEG/SVG) |
-
-The app is **offline-first**: every project is a local JSON file, all
-state lives on-device, and integrations (Rentman, ATEM, Videohub) are opt-in.
-
----
-
-## 🆚 LZ Cable Planner vs. the alternatives
-
-Looking for a **WireCAD alternative**, a **D-Tools** or **Microsoft Visio**
-replacement for AV/broadcast wiring, or something more domain-specific than
-**draw.io**? Here is where LZ Cable Planner fits:
+## How it compares
 
 | | **LZ Cable Planner** | WireCAD | D-Tools SI | Visio / draw.io |
 | --- | --- | --- | --- | --- |
-| Price | **Kostenlos · proprietär** | ~$1,500–4,500 | $1,000s / yr | Subscription / free |
-| Platforms | **macOS + Windows** | Windows only | Windows + SQL Server | Windows / web |
-| File format | **Open JSON (git-diffable)** | Proprietary | Proprietary | VSDX / XML |
-| Broadcast-smart defaults | **Yes** (connector→layer, BOM, patch sheets) | Yes | Partial | No |
-| ATEM / Videohub live control | **Yes** | No | No | No |
-| 3D rack view | **Yes** *(in progress)* | No | No | No |
+| Price | **Free to use** | ~$1,500–4,500 | $1,000s / yr | Subscription / free |
+| Platforms | **macOS + Windows + web** | Windows | Windows + SQL Server | Windows / web |
+| File format | **JSON, git-diffable** | Proprietary | Proprietary | VSDX / XML |
+| Broadcast-aware (connectors, BOM, patch sheets) | **Yes** | Yes | Partial | No |
+| ATEM / Videohub | **Yes** | No | No | No |
 
-- **vs. WireCAD** — LZ Cable Planner wins on platform support, open file format,
-  modern UX and live hardware control; WireCAD has the deeper symbol library and
-  a longer-established workflow.
-- **vs. D-Tools System Integrator** — different league: D-Tools covers the full
-  quote → invoice business lifecycle, while LZ Cable Planner is a focused planning
-  tool (complementary, not competing).
-- **vs. EPlan / WSCAD** — those target industrial-electrical and control-cabinet
-  design; LZ Cable Planner is purpose-built for AV/broadcast signal flow.
-- **vs. draw.io / Visio** — general diagramming tools are a workaround for AV;
-  LZ Cable Planner adds connector-aware layers, a cable bill of materials and
-  patch-sheet logic out of the box.
+Full comparison: [`docs/comparison.html`](docs/comparison.html).
 
-📊 Full structural comparison: [`docs/comparison.html`](docs/comparison.html).
+## Build from source
 
----
-
-## 🚀 Getting Started
-
-**Prerequisites:** [Node.js](https://nodejs.org/) 20+ and npm.
+Requires [Node.js](https://nodejs.org/) 20+.
 
 ```bash
-# 1. Install dependencies
 npm install
-
-# 2. Run the desktop app in development (Vite + Electron, hot-reload)
-npm run dev
-
-# 3. Type-check, lint
-npx tsc -p tsconfig.app.json --noEmit
-npm run lint
-
-# 3b. Every *:check script is actually run by CI
-npm run ci:complete
-
-# 4. Production build (renderer + main + preload)
-npm run build
-
-# 5. Package distributable installers (macOS / Windows)
-npm run dist
+npm run dev     # Electron with hot reload
+npm test        # vitest + guards
+npm run build   # renderer, main, preload
+npm run dist    # installers for macOS / Windows
 ```
 
-> Tip: `npm run dev` launches the full Electron shell. The renderer also runs
-> in a plain browser (`npm run dev:renderer` → `localhost:4181`) for quick UI
-> work, though desktop-only features (file I/O, ATEM/LAN) are inert there.
+Contributing, maintainer notes and conventions: [CONTRIBUTING.md](CONTRIBUTING.md).
+Architecture: [docs/architecture.md](docs/architecture.md). Everything else in
+`docs/`: [docs/README.md](docs/README.md).
 
-> The installed app keeps its data (library, recent projects, settings) in the
-> `Cable Planner` app-data folder from before the rename to LZ Cable Planner —
-> `src/main/userDataPin.ts` holds that path. Installer files are named
-> `LZ Cable Planner-<version>-<arch>.<ext>` (on the release page:
-> `LZ.Cable.Planner-…`).
->
-> App icon: edit `build/icon.svg` (with signet) or `public/favicon.svg`
-> (pictogram only), then `node scripts/generate-icon.mjs` writes `icon.png`,
-> `icon.ico`, `icon-192/512.png` and `apple-touch-icon.png`.
+Built with Electron, React 19, TypeScript, React Flow, three.js, Zustand and Vite.
 
-### Submitting your own device templates
+## Author & support
 
-Built a template for a device the catalogue does not have? **Library → `+` →
-Submit templates…** checks your own templates, then **sends them to the
-device library** (signed in) or saves a submission file (no account needed).
-The library lists manufacturer and model separately; the dialog suggests the
-split from the template name and you correct it. The datasheet link of the
-template becomes the source of the proposal, and it goes to moderation before
-anyone else sees it.
+Built and maintained by **Lars Zumpe** — Lars Zumpe Medienproduktion.
+If the planner saves you time on your next show:
+[PayPal](https://paypal.me/larszumpe). Donations are optional; the app stays
+free to use.
 
-The check is the point, and one rule of it is hard: **no datasheet link, no
-submission.** A template nobody can verify looks, in a plan six months later,
-exactly like one that was. Every port needs a connector type and a label too —
-not for tidiness, but because "Replace device" matches ports by exactly those
-two, and a template missing them falls back to matching by position, which
-cables the wrong socket.
+## License
 
-Power draw is the opposite case: it is **reported, not required.** A passive
-splitter has none and a PoE device draws it from the network; forcing a number
-there would mean inventing one so a form is happy. It stays "not stated" in
-the catalogue rather than a 0 that looks measured.
-
-What does not pass is listed in the dialog and written **into the file** with
-its reason, next to what did — a submission that quietly drops half of itself
-looks complete. It is not sent to the library either.
-
-### On a tablet — the web edition
-
-The deployed page is installable: open it on an iPad and add it to the home
-screen, and it runs full-screen with its own icon (it has its own manifest —
-the one the phone viewer uses describes a different app, and installing that
-one would put the viewer on your home screen).
-
-On a touch screen the canvas behaves like a touch app: pinch zooms the plan
-and not the page, two fingers pan, and **a long press on a device opens the
-context menu** that the right mouse button opens on a desktop — 500 ms and
-10 px of slop, the same values iOS and Android use for their own "touch and
-hold", because a gesture that feels different in one app makes the user think
-they are clumsy. Port hit areas grow **outwards** on a coarse pointer, never
-upwards: above and below sit the neighbouring ports, and hitting the wrong
-port is worse than missing — you notice missing immediately, and the wrong
-cable at the show-through.
-
-What the browser cannot do is listed **before** you click it, in
-Settings → Integrations: ATEM, Videohub, NetBox, LAN sync, phone access, the
-MCP server, show control, switching, the direct path to the Tally-Pi, the
-Rentman export and the update check each say *why* — a socket, a listening
-port, or the OS keychain. The list is checked against `lib/bridge.ts`, so it
-cannot go stale without turning a test red.
-
----
-
-## 📚 Documentation
-- [**`docs/README.md`**](docs/README.md) — index of everything in `docs/`,
-  grouped by operations, development, domain concepts and dated audits.
-- [`docs/cloud/nachfragetest.md`](docs/cloud/nachfragetest.md) — the threshold
-  for the planned Pro/Cloud tier, written down **before** it was measured (20
-  paid pre-orders in three months) and what happens if it is not reached. The
-  desktop app stays free, offline and complete either way — the cloud is an
-  addition, never a requirement.
-- [`docs/cloud/recht-und-betrieb.md`](docs/cloud/recht-und-betrieb.md) — the
-  checklist for the tax adviser and the lawyer, with the part only the code
-  can answer filled in: which data each planned service would touch, and which
-  it would not.
-- [`docs/geraetedaten-speicher.md`](docs/geraetedaten-speicher.md) — JSON or
-  SQLite for device data: where the suite keeps devices today, from which size
-  a database pays off, and how the shared device library keeps working when its
-  server is down.
-- [`docs/self-hosted-relay.md`](docs/self-hosted-relay.md) — run your own
-  signaling relay and TURN server for live collaboration across networks.
-- [`docs/architecture.md`](docs/architecture.md) — Process model, IPC, store
-  architecture, build & release workflow, non-negotiable invariants.
-- [`docs/app-structure.html`](docs/app-structure.html) — interactive module
-  overview (open in a browser).
-- [`docs/comparison.html`](docs/comparison.html) — competitor comparison.
-
----
-
-## 👤 Author
-
-Built and maintained by **Lars Zumpe** — Lars Zumpe Medienproduktion
-
----
-
-## ❤️ Support / Donate
-
-If LZ Cable Planner saves you time on your next show, consider buying me a coffee:
-
-<p>
-  <a href="https://paypal.me/larszumpe">
-    <img src="https://img.shields.io/badge/PayPal-larszumpe-00457C?logo=paypal&logoColor=white" alt="Donate via PayPal" />
-  </a>
-</p>
-
-Donations are completely optional — the app stays free to use. It is proprietary software, not open source. 🙌
-
----
-
-## 📄 License
-
-Proprietär — © 2026 Lars Zumpe, alle Rechte vorbehalten. Nutzung der veröffentlichten Builds ist kostenlos; Weiterverbreitung und abgeleitete Werke sind es nicht. Siehe [LICENSE](LICENSE).
+Proprietär — © 2026 Lars Zumpe, alle Rechte vorbehalten. Nutzung der veröffentlichten Builds ist kostenlos; Weiterverbreitung und abgeleitete Werke sind es nicht. Siehe [LICENSE](LICENSE). Not open source: the code is public to read.
 
 Die gebündelten Fremdpakete behalten ihre eigenen Lizenzen; deren Texte und
 Copyright-Hinweise stehen vollständig in

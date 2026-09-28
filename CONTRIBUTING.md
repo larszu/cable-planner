@@ -41,6 +41,33 @@ IPC channels, store/slice architecture and the **non-negotiable
 invariants** — please read it before touching `main/`, the store, or the
 project-file schema.
 
+## Maintainer notes
+
+- **User manual** lives in [`docs/manual/`](docs/manual/manual.en.md) as
+  Markdown (English and [German](docs/manual/handbuch.de.md)). Whenever a
+  change touches operation or menus, update both files, then rebuild the PDFs
+  linked from the README: `npm run manual:pdf` (needs a local Chrome and
+  network for the font).
+- **Web page**: every push to the default branch builds
+  `.github/workflows/pages.yml` and publishes
+  <https://larszu.github.io/cable-planner/>. Without a Pages site the workflow
+  still builds and only skips publishing, with a note in the run summary.
+- **App data folder**: the installed app keeps library, recent projects and
+  settings in the `Cable Planner` folder from before the rename to LZ Cable
+  Planner — `src/main/userDataPin.ts` holds that path. Installers are named
+  `LZ Cable Planner-<version>-<arch>.<ext>` (`LZ.Cable.Planner-…` on the
+  release page).
+- **App icon**: edit `build/icon.svg` (with signet) or `public/favicon.svg`
+  (pictogram only), then `node scripts/generate-icon.mjs`.
+- **Catalogue from the sister planners**: `npm run katalog:uebernahme` pulls
+  cameras, lenses, rigs and fixtures; `npm run katalog:check` reports when they
+  are stale. Entries without known sockets carry `portsUnknown: true` instead
+  of invented ports.
+- **Device library**: `npm run library:publish` publishes the built-in
+  catalogue (`DEVICE_LIBRARY_KEY` = admin key `dlk_…`, optional
+  `DEVICE_LIBRARY_URL`, `-- --dry-run` only reports). `library-publish.yml`
+  runs it on pushes to `main` that touch the catalogue.
+
 ## Before you open a pull request
 
 Run these locally — CI enforces the same gates:
