@@ -28,6 +28,10 @@ import { Icon } from '../../shared/Icon'
  *     (X gemappt / Y verworfen)
  *  4. Nach Confirm wird die Slice-Action gerufen
  */
+/** Wie viele Vorlagen die Liste hoechstens zeigt. Die Zahl der TREFFER steht
+ *  daneben, damit aus dem Abschneiden keine falsche Vollstaendigkeit wird. */
+const LISTEN_GRENZE = 40
+
 const previewMapping = (
   oldPorts: Port[],
   newPorts: Port[],
@@ -92,9 +96,19 @@ export const ReplaceDeviceSection = ({ equipment }: { equipment: EquipmentItem }
     return buildCategoryOptions(Array.from(set), lang, categoryTranslations)
   }, [allTemplates, lang, categoryTranslations])
 
-  const filtered = useMemo(() => {
+  /**
+   * #878 — DIE ZAHL DER TREFFER GEHOERT DAZU, SEIT DIE BIBLIOTHEK GROSS IST.
+   *
+   * Die Liste zeigt 40 Eintraege und hat das immer getan. Bei 469 Vorlagen war
+   * das eine Bequemlichkeit; bei 1802 (Uebernahme aus multicam- und
+   * light-planner, 2026-09-24) ist es eine Falle: wer „Sony" sucht, sieht
+   * vierzig von Hunderten und haelt das fuer alles, was es gibt. Also wird die
+   * Gesamtzahl mitgezaehlt und angezeigt — dann weiss man, dass man den Filter
+   * noch verengen muss.
+   */
+  const { filtered, treffer } = useMemo(() => {
     const q = filter.trim().toLowerCase()
-    return allTemplates
+    const alle = allTemplates
       .filter((tpl) => tpl.name !== equipment.libraryRef?.name) // skip same template
       .filter((tpl) => (categoryFilter ? tpl.category === categoryFilter : true))
       .filter((tpl) => {
@@ -104,7 +118,7 @@ export const ReplaceDeviceSection = ({ equipment }: { equipment: EquipmentItem }
           (tpl.category ?? '').toLowerCase().includes(q)
         )
       })
-      .slice(0, 40)
+    return { filtered: alle.slice(0, LISTEN_GRENZE), treffer: alle.length }
   }, [allTemplates, filter, categoryFilter, equipment.libraryRef?.name])
 
   const connectedCables = cables.filter(
@@ -115,6 +129,25 @@ export const ReplaceDeviceSection = ({ equipment }: { equipment: EquipmentItem }
     const inPrev = previewMapping(equipment.inputs, template.inputs)
     const outPrev = previewMapping(equipment.outputs, template.outputs)
     const lost = inPrev.lost + outPrev.lost
+    /**
+     * #878 — „0 Anschluesse zugeordnet" heisst ZWEIERLEI, und der Dialog sagte
+     * nur das eine.
+     *
+     * Seit der Katalog-Uebernahme (2026-09-24) fuehrt die Bibliothek 1333
+     * Vorlagen mit `portsUnknown: true`: Kamerabodies, Objektive und Rigs,
+     * deren Buchsen niemand nachgesehen hat. Tauscht man ein verkabeltes Geraet
+     * gegen so eine Vorlage, stand da „0 Eingaenge zugeordnet, N Kabel werden
+     * geloescht" — und das liest sich, als HAETTE das Zielgeraet keine
+     * Anschluesse. Das ist die Verwechslung, gegen die `portsUnknown`
+     * ueberhaupt erfunden wurde (`docs/device-identity-concept.md`).
+     *
+     * Der Satz steht im Dialog, nicht im Katalog: die Vorlage ist in Ordnung,
+     * nur die Folge dieses Tauschs ist eine andere als sie aussieht.
+     */
+    const zielPortsUnbekannt =
+      template.portsUnknown === true &&
+      template.inputs.length === 0 &&
+      template.outputs.length === 0
     const body =
       format(
         t(
@@ -123,6 +156,12 @@ export const ReplaceDeviceSection = ({ equipment }: { equipment: EquipmentItem }
         ),
         { connected: connectedCables },
       ) +
+      (zielPortsUnbekannt
+        ? `\n\u26a0 ${t(
+            'replaceDevice.confirm.portsUnknown',
+            'The ports of the target device are NOT known \u2014 nobody has looked them up in a datasheet yet. This is not the same as „has no sockets\u201c: every cable would lose its port. Add the real ports to the template first, then swap.',
+          )}`
+        : '') +
       `\n• ${format(t('replaceDevice.confirm.inMapped', '{n} input port(s) mapped'), { n: inPrev.mapped })}` +
       `\n• ${format(t('replaceDevice.confirm.outMapped', '{n} output port(s) mapped'), { n: outPrev.mapped })}` +
       (lost > 0
@@ -193,6 +232,16 @@ export const ReplaceDeviceSection = ({ equipment }: { equipment: EquipmentItem }
               </option>
             ))}
           </select>
+          {/* #878 — bei 1802 Vorlagen ist „40 gezeigt" ohne die Gesamtzahl eine
+              falsche Vollstaendigkeit. */}
+          {treffer > filtered.length && (
+            <p className="text-cp-xs text-cp-text-muted">
+              {format(
+                t('replaceDevice.truncated', '{gezeigt} of {treffer} matches \u2014 narrow the filter to see the rest'),
+                { gezeigt: filtered.length, treffer },
+              )}
+            </p>
+          )}
           <div className="max-h-56 overflow-auto border border-cp-border-muted">
             {filtered.length === 0 ? (
               <div className="px-2 py-3 text-center text-cp-xs text-cp-text-muted">
@@ -216,7 +265,13 @@ export const ReplaceDeviceSection = ({ equipment }: { equipment: EquipmentItem }
                             {tpl.name}
                           </span>
                           <span className="block text-cp-xs text-cp-text-muted">
-                            {categoryDisplay(tpl.category ?? '', lang, categoryTranslations)} · {tpl.inputs.length} in / {tpl.outputs.length} out
+                            {categoryDisplay(tpl.category ?? '', lang, categoryTranslations)} ·{' '}
+                            {/* „0 in / 0 out" und „Ports unbekannt" sind
+                                verschiedene Auskuenfte; als dieselbe Zahl sahen
+                                sie gleich aus. */}
+                            {tpl.portsUnknown && tpl.inputs.length === 0 && tpl.outputs.length === 0
+                              ? t('replaceDevice.portsUnknownShort', 'ports unknown')
+                              : `${tpl.inputs.length} in / ${tpl.outputs.length} out`}
                           </span>
                         </span>
                         {lost > 0 ? (

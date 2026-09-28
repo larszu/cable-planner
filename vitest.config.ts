@@ -14,6 +14,25 @@ export default defineConfig({
     setupFiles: ['tests/setup.ts'],
     globals: false,
     restoreMocks: true,
+    // ─── WARUM DIE GRENZE HOEHER LIEGT ALS DIE VORGABE (2026-09-28) ─────────
+    //
+    // Vitest gibt einem Test 5000 ms. Das reicht nicht mehr: `projectStore`
+    // legt beim Laden `EINGEBAUTER_KATALOG` zusammen und zieht dafuer JEDEN
+    // Katalog mit — inzwischen 1831 Eintraege aus 27 Modulen. Jeder Test, der
+    // den Store importiert, bezahlt das.
+    //
+    // GEMESSEN: `templateIdentity` laeuft ALLEIN in 2,3 s durch und faellt,
+    // sobald `rentmanCableMap` daneben laeuft (zusammen 11,99 s fuer 25
+    // Tests). Im vollen Lauf traf es bei aufeinanderfolgenden Durchgaengen
+    // jeweils ANDERE Dateien — `templateSaveMerge`, `groupPresetSaveFields`,
+    // `intercomSlot`, `lifecycleDocs`.
+    //
+    // Ein Fehlschlag, der beim naechsten Lauf einen anderen Test trifft, ist
+    // kein Befund; er ist Rauschen, das echte Befunde unglaubwuerdig macht.
+    // 30 s ist nicht „grosszuegig", sondern der Abstand zur gemessenen
+    // Wirklichkeit. Wer den Wert senken will, misst vorher.
+    testTimeout: 30_000,
+    hookTimeout: 30_000,
     // Node ab 25 bringt ein eigenes `localStorage` mit, und ohne
     // `--localstorage-file` ist es leer (`undefined`). Es verdeckt das von
     // happy-dom: unter Node 26 scheiterten 17 Testdateien an

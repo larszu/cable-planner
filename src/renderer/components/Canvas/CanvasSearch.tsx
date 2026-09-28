@@ -219,8 +219,69 @@ export const CanvasSearch = () => {
     // alte Zahl stehen.
   }, [open, visible, toolbarVisible])
 
-  const posClass = pos ? '' : 'left-1/2 -translate-x-1/2'
-  const posStyle = pos
+  /**
+   * ─── EINE GEMERKTE LAGE MUSS INS FENSTER PASSEN (2026-09-28) ─────────────
+   *
+   * Der Zieh-Vorgang begrenzt die Lage auf die Flaeche (`maxX`/`maxY` in
+   * `startDrag`) — aber nur WAEHREND des Ziehens. Wird das Fenster danach
+   * schmaler, bleibt die Zahl stehen, und die Leiste steht ausserhalb.
+   *
+   * GEMESSEN: `ui:overflow` meldete bei 1280 x 800 „Reihe 818px breit, Inhalt
+   * 1172px — unerreichbar: Gerät suchen…". Gemerkt war `x: 1012`; bei 1500 px
+   * Fensterbreite ist die Zeichenflaeche 1038 px breit und 1012 passt knapp, bei
+   * 1280 px ist sie 818 px breit und 1012 liegt 194 px draussen. Die Suchleiste
+   * war weg — samt Schliess-Knopf, also ohne Weg zurueck ausser Strg+F.
+   *
+   * WARUM NUR FUER DIE DARSTELLUNG UND NICHT IM SPEICHER: wer sein Fenster
+   * kurz verkleinert, soll seine Lage nicht verlieren. Wird es wieder breit,
+   * steht die Leiste wieder, wo er sie hingezogen hat. Ein `setPos` beim
+   * Verkleinern haette sie stillschweigend nach links gerueckt und dort
+   * gelassen.
+   *
+   * UND WARUM SIE DANN AUF DIE VORGABE ZURUECKFAELLT UND NICHT AN DEN RAND
+   * RUTSCHT. Der erste Versuch schob sie einfach ins Fenster — damit war sie
+   * drin und lag prompt auf der Werkzeugleiste: `ui:overflow` meldete
+   * „Schematic" und „Circuit" als verdeckt. Bei 1280 px umbricht die Leiste in
+   * mehr Zeilen, die freie Ecke von vorhin ist dort keine mehr.
+   *
+   * Passt die gemerkte Lage nicht, gilt deshalb die VORGABE — und die weicht
+   * der Werkzeugleiste aus, weil sie deren Unterkante misst statt sie zu
+   * raten. Eine Leiste, die sichtbar ist und trotzdem drei Schalter verdeckt,
+   * ist derselbe Fehler wie eine, die draussen steht.
+   *
+   * Gemessen wird am `offsetParent` — demselben Bezug, auf den `left`/`top`
+   * sich beziehen, und derselbe, den `startDrag` verwendet.
+   */
+  const [flaeche, setFlaeche] = useState<{ w: number; h: number } | null>(null)
+  const [eigen, setEigen] = useState<{ w: number; h: number } | null>(null)
+  useEffect(() => {
+    const el = containerRef.current
+    const wurzel = el?.offsetParent as HTMLElement | null
+    if (!el || !wurzel) return
+    const messen = () => {
+      const w = wurzel.getBoundingClientRect()
+      const r = el.getBoundingClientRect()
+      setFlaeche({ w: w.width, h: w.height })
+      setEigen({ w: r.width, h: r.height })
+    }
+    messen()
+    const ro = new ResizeObserver(messen)
+    ro.observe(wurzel)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [open, visible, toolbarVisible])
+
+  /** Passt die gemerkte Lage vollstaendig in die Flaeche? Solange nicht
+   *  gemessen ist (`flaeche`/`eigen` noch `null`), wird ihr geglaubt — sonst
+   *  sprang die Leiste bei jedem Montieren einmal auf die Vorgabe. */
+  const passt =
+    !flaeche || !eigen || !pos
+      ? true
+      : pos.x >= 0 && pos.y >= 0 && pos.x + eigen.w <= flaeche.w && pos.y + eigen.h <= flaeche.h
+
+  const eigeneLage = pos && passt
+  const posClass = eigeneLage ? '' : 'left-1/2 -translate-x-1/2'
+  const posStyle = eigeneLage
     ? { left: pos.x, top: pos.y }
     : { top: toolbarBottom > 0 ? toolbarBottom + 8 : 12 }
 

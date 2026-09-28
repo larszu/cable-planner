@@ -227,7 +227,180 @@ const auswerten = (name, ziele) => {
   return { gesamt: ziele.length, unter24: unter24.length, unter44: unter44.length }
 }
 
-const maus = await messen()
+/**
+ * Messen, bis sich die Zahl nicht mehr aendert.
+ *
+ * ─── WARUM DAS NOETIG WURDE (2026-09-28) ───────────────────────────────────
+ *
+ * Bis hierher stand die Szene auf festen Wartezeiten (`waitForTimeout(1500)`
+ * nach dem Beispielprojekt, 600 ms nach der Fenstergroesse). Das trug,
+ * solange die Bibliothek ein paar hundert Vorlagen hatte.
+ *
+ * Mit 1831 Eintraegen traegt es nicht mehr. GEMESSEN an drei Laeufen
+ * hintereinander, gleicher Baum, gleiche Bedingungen: Maus 110 / 108 / 108,
+ * Finger 165 / 143 / 143. Die Seitenleiste war je nach Lauf verschieden weit
+ * aufgebaut, und die Messung fing mal mehr, mal weniger Zeilen.
+ *
+ * Eine Zahl, die sich zwischen zwei Laeufen um 22 unterscheidet, ist keine
+ * Messung — und ein Deckel darauf waere ein flackerndes Gate. Genau davor
+ * warnt der Kopf dieser Datei: „Hier eine Zahl aus dem Quelltext zu erfinden
+ * waere schlimmer als keine: sie saehe aus wie eine Messung."
+ *
+ * Also wird nicht laenger gewartet, sondern GEPRUEFT: dieselbe Anzahl mehrmals
+ * hintereinander heisst, der Aufbau steht.
+ *
+ * ─── UND WARUM „ZWEIMAL DASSELBE" NICHT GENUEGT HAT (noch am 2026-09-28) ───
+ *
+ * Mit zwei gleichen Messungen in Folge gab derselbe Baum in einem Lauf 112 und
+ * im naechsten 178 Trefferflaechen. Innerhalb eines Laufes war die Zahl also
+ * ruhig, zwischen zwei Laeufen um 66 verschieden. Zwei gleiche Messungen
+ * beweisen eben nicht, dass der Aufbau FERTIG ist — nur, dass er in diesen
+ * 400 ms nicht gewachsen ist.
+ *
+ * ─── ZWEI GRUPPEN FEHLTEN, UND DIE ERSTE DIAGNOSE NANNTE NUR EINE ──────────
+ *
+ * Hier stand zuerst, der Unterschied seien die Port-Griffe auf den Knoten
+ * gewesen. Das war zu schnell. Nachgerechnet: 178 - 112 = 66, und die
+ * Knoten-Gruppe ist 73 gross — die Zahl geht gar nicht auf. Gemessen liegen
+ * 60 der 66 fehlenden Flaechen in der BIBLIOTHEKS-SEITENLEISTE. Die Knoten
+ * standen in beiden Laeufen.
+ *
+ * Beide Gruppen bauen sich nach, und beide aus demselben Grund:
+ *
+ *   • Ein ReactFlow-Knoten ist 0 x 0 px, bis er vermessen ist; seine Griffe
+ *     fallen so lange durch den Rechteck-Test in `sichtbar()`. Sie stehen im
+ *     DOM, haben aber keine Flaeche — deshalb fragt `szeneFertig` nach der
+ *     FLAECHE und nicht nach dem Vorhandensein.
+ *   • Die Bibliothek fuehrt 1827 Vorlagen und baut ihre Liste nach. Eine
+ *     leere Leiste kommt genauso zur Ruhe wie eine volle.
+ *
+ * DESHALB EINE BEDINGUNG UND NICHT NUR EINE WARTESCHLEIFE: gewartet wird, bis
+ * BEIDE Gruppen mit Flaeche dastehen (`szeneFertig`), und erst danach auf Ruhe
+ * geprueft — und die braucht jetzt DREI gleiche Messungen. Eine Zahl, die
+ * zwischen zwei Laeufen um 66 schwankt, ist keine Messung, und ein Deckel
+ * darauf waere ein Gate, das wuerfelt.
+ *
+ * `knotenGeprueft` weist danach zurueck, was trotzdem ohne eine der beiden
+ * Gruppen gemessen wurde. Warum das noetig ist, obwohl es schon einen Deckel
+ * gibt: ein Deckel meldet nur „zu viele". Der blinde Lauf ergab 112 gegen
+ * einen Deckel von 171 und war damit GRUEN.
+ */
+
+/**
+ * Steht die Szene — Knoten UND Seitenleiste?
+ *
+ * Die Bedingung, an der sich „fertig aufgebaut" festmachen laesst, ohne eine
+ * Zahl zu behaupten — je Gruppe ein Merkmal, das es nur im fertigen Zustand
+ * gibt:
+ *
+ *   Knoten        `role="button"` INNERHALB eines `.react-flow__node` — die
+ *                 Port-Griffe.
+ *   Seitenleiste  `.cp-hover-actions` — die Bedienreihe einer Listenzeile.
+ *
+ * Gefragt wird nach ROLLE und KLASSE, nicht nach einem Beschriftungstext: der
+ * haengt an der Sprache, und dieser Lauf soll in jeder laufen.
+ */
+const szeneFertig = async () =>
+  win.evaluate(() => {
+    // NICHT „steht im DOM", SONDERN „HAT FLAECHE". Der erste Anlauf fragte nur
+    // nach `length > 0` — und das war von der ersten Millisekunde an wahr, weil
+    // ReactFlow den Knoten samt Griffen sofort rendert und ERST DANACH
+    // vermisst. Bis zur Vermessung ist der Knoten 0 x 0 px, seine Griffe fallen
+    // durch den Rechteck-Test in `sichtbar()`, und die Bedingung war erfuellt,
+    // waehrend die Messung noch um 66 Flaechen zu klein war. Gemessen: derselbe
+    // Baum gab weiter 112 statt 178.
+    //
+    // Gefragt wird deshalb nach dem, worauf es ankommt — einer Flaeche, die man
+    // treffen koennte.
+    const mitFlaeche = (el) => {
+      const r = el.getBoundingClientRect()
+      return r.width >= 1 && r.height >= 1
+    }
+    const griffe = [...document.querySelectorAll('.react-flow__node [role="button"]')]
+    // UND DIE SEITENLEISTE. Das ist die zweite Haelfte, und sie hat gefehlt:
+    // nachgemessen sind 178 - 112 = 66 Flaechen Unterschied, davon liegen 60
+    // in der Bibliotheks-Seitenleiste und nur der Rest woanders. Die Knoten
+    // waren also gar nicht das Wackelnde — sie standen in beiden Faellen.
+    //
+    // Die Bibliothek fuehrt 1827 Vorlagen und baut ihre Liste nach; solange
+    // keine einzige Zeile da ist, misst der Lauf eine leere Leiste und kommt
+    // trotzdem zur Ruhe. `.cp-hover-actions` ist die Bedienreihe einer solchen
+    // Zeile — gibt es sie mit Flaeche, steht die Liste.
+    const eintraege = [...document.querySelectorAll('.cp-hover-actions')]
+    return griffe.some(mitFlaeche) && eintraege.some(mitFlaeche)
+  })
+
+/** Wie viele der gemessenen Ziele auf einem Geraete-Knoten liegen. */
+const aufKnoten = (ziele) => ziele.filter((z) => z.wo === 'auf dem Knoten').length
+
+const messenStabil = async (was) => {
+  // Erst die Bedingung, dann die Ruhe.
+  for (let versuch = 0; versuch < 30; versuch += 1) {
+    if (await szeneFertig()) break
+    if (versuch === 29) {
+      throw new Error(
+        `${was}: die Szene ist nicht fertig — auf den Geraete-Knoten liegt kein ` +
+          'Bedienelement mit Flaeche, oder die Bibliotheks-Seitenleiste ist leer. In ' +
+          'beiden Faellen fehlt der Messung eine ganze Gruppe, ohne dass sie es sagt: ' +
+          'die Knoten tragen 73 Flaechen, die Seitenleiste 60.',
+      )
+    }
+    await win.waitForTimeout(400)
+  }
+
+  let vorher = null
+  let gleich = 0
+  for (let versuch = 0; versuch < 30; versuch += 1) {
+    const jetzt = await messen()
+    if (vorher !== null && jetzt.ziele.length === vorher.ziele.length) {
+      gleich += 1
+      // DREI gleiche Messungen, nicht zwei — zwei waren es bis heute, und
+      // damit war die Zahl zwischen zwei Laeufen um 66 verschieden.
+      if (gleich >= 2) return jetzt
+    } else {
+      gleich = 0
+    }
+    vorher = jetzt
+    await win.waitForTimeout(400)
+  }
+  throw new Error(
+    `${was}: die Anzahl der Trefferflaechen kommt nicht zur Ruhe. Entweder baut die ` +
+      'Oberflaeche endlos nach, oder die Szene ist nicht mehr die gemeinte.',
+  )
+}
+
+/**
+ * Hat die Messung die Knoten wirklich gesehen?
+ *
+ * ─── WARUM EINE UNTERGRENZE UND NICHT NUR EIN DECKEL ───────────────────────
+ *
+ * Ein Deckel meldet nur, wenn es ZU VIELE sind. Genau darum hat dieser Lauf
+ * jahrelang eine zu kleine Szene gemessen und dabei gruen gemeldet: fehlten
+ * die 73 Griffe auf den Knoten, lag die Zahl WEIT unter dem Deckel — und ein
+ * Gate, das bei einer halb aufgebauten Oberflaeche gruen wird, sagt nichts.
+ *
+ * Es ist kein Zahlen-Deckel in die andere Richtung (der waere dieselbe
+ * Ratsche noch einmal), sondern eine Aussage: auf den Geraete-Knoten LIEGEN
+ * Bedienelemente, also muss die Messung welche gefunden haben. Wird der
+ * Knoten einmal umgebaut und traegt keine mehr, faellt diese Zeile — und dann
+ * gehoert sie geaendert, nicht der Deckel.
+ */
+const knotenGeprueft = (was, ziele) => {
+  const fehlt = []
+  if (aufKnoten(ziele) === 0) fehlt.push('auf dem Knoten (gemessen 73 Flaechen)')
+  if (ziele.filter((z) => z.wo === 'Seitenleiste').length === 0) {
+    fehlt.push('Seitenleiste (gemessen 60 unter der Maus, 95 unter dem Finger)')
+  }
+  if (fehlt.length === 0) return
+  throw new Error(
+    `${was}: diese Gruppe fehlt in der Messung — ${fehlt.join(' und ')}. Sie ist nicht ` +
+      'leer, sie war nur noch nicht aufgebaut. Ein gruenes Ergebnis waere hier eine ' +
+      'Aussage ueber eine Oberflaeche, die es so nie gibt.',
+  )
+}
+
+const maus = await messenStabil('Maus')
+knotenGeprueft('Maus', maus.ziele)
 if (maus.coarse) throw new Error('Der erste Durchgang sollte ein feiner Zeiger sein, ist aber grob.')
 const mitMaus = auswerten('Maus (pointer: fine)', maus.ziele)
 console.log(`  davon nur fuer groben Zeiger sichtbar: ${maus.nurGrob}`)
@@ -245,7 +418,8 @@ await cdp.send('Emulation.setDeviceMetricsOverride', {
 })
 await win.waitForTimeout(800)
 
-const finger = await messen()
+const finger = await messenStabil('Finger')
+knotenGeprueft('Finger', finger.ziele)
 if (!finger.coarse) {
   throw new Error(
     'Die Finger-Nachbildung hat nicht gegriffen — `(pointer: coarse)` ist weiter false. ' +
@@ -347,9 +521,60 @@ await app.close()
  * Griffe, Eintrags-Knoepfe), von denen mit dem groesseren Katalog mehr im
  * 950-px-Fenster stehen. Lokal nachgezaehlt: Zuwachs nur in „Seitenleiste".
  */
+/**
+ * ─── DIE DECKEL, UND WARUM SIE HEUTE SPRINGEN ──────────────────────────────
+ *
+ * GEMESSEN am 2026-09-28, dreimal hintereinander gleich:
+ *   Maus   178 Ziele — 73 unter 24 px, 171 unter 44 px
+ *   Finger 213 Ziele — 73 unter 24 px, 206 unter 44 px
+ *
+ * Vorher stand fuer beide Durchgaenge 50 / 97. Das ist ein Sprung von 97 auf
+ * 171, und er hat DREI verschiedene Ursachen, die man auseinanderhalten muss —
+ * denn nur eine davon bedeutet, dass die Oberflaeche schlechter geworden ist,
+ * und das ist keine von den drei.
+ *
+ * 1. DER DECKEL WAR BLIND FUER GANZE GRUPPEN. Das ist die wichtigste und
+ *    unangenehmste. Die Messung lief, bevor die Oberflaeche fertig aufgebaut
+ *    war — mal fehlten die 73 Port-Griffe auf den Geraete-Knoten („In 1 · BNC
+ *    — Enter verbindet", 65 x 19 px), mal die 60 Zeilen der
+ *    Bibliotheks-Seitenleiste. Sie waren also immer da und immer zu klein; gezaehlt hat
+ *    sie niemand. Seit `portGriffeDa()` wartet der Lauf auf sie — und zwar
+ *    darauf, dass sie FLAECHE haben und nicht bloss im DOM stehen; die erste
+ *    Fassung fragte nur nach Vorhandensein und war damit von der ersten
+ *    Millisekunde an erfuellt. `knotenGeprueft()` weist danach zurueck, was
+ *    trotzdem ohne sie gemessen wurde: ein Deckel allein haette den zu kleinen
+ *    Lauf gruen gemeldet, denn 112 ist WENIGER als 171.
+ *
+ *    DAVON SIND 63 UNTER 24 px, also unter der NORM (WCAG 2.2, 2.5.8 AA) und
+ *    nicht bloss unter einer Hersteller-Empfehlung. Das ist ein Befund an der
+ *    Oberflaeche und keiner an diesem Skript; er steht als #951 und ist nicht
+ *    hier wegdefiniert. Die Zahl steht als Deckel, um
+ *    sie festzunageln — sie darf nicht weiter steigen.
+ *
+ * 2. DIE BIBLIOTHEK IST GEWACHSEN. Der Katalog fuehrt 1827 Eintraege, und die
+ *    Seitenleiste zeigt entsprechend mehr Kategorie-Gruppen; jede ist eine
+ *    Zeile mit Griff. Gemessen liegen 95 der 206 Finger-Flaechen dort. Das
+ *    sind keine neuen Bedienelemente, sondern mehr Zeilen derselben Art.
+ *
+ *    DAS MACHT DEN DECKEL SCHWAECHER, und das gehoert gesagt: er misst jetzt
+ *    zum Teil, wie viele Kategorien der Katalog fuehrt, statt wie dicht die
+ *    Oberflaeche ist. Wer ihn wieder scharf haben will, zaehlt die
+ *    Seitenleiste getrennt — eine eigene Runde, keine Nebenbei-Aenderung.
+ *
+ * 3. DIE BEIDEN DURCHGAENGE BEKOMMEN VERSCHIEDENE DECKEL. Bis heute stand
+ *    fuer beide dieselbe Zahl, weil sie zufaellig gleich waren. Sie sind es
+ *    nicht: unter dem Finger kommen 35 Flaechen DAZU, die es unter der Maus
+ *    gar nicht gibt (`.cp-coarse-only`). Ein gemeinsamer Deckel muesste den
+ *    groesseren nehmen und liesse den Maus-Durchgang um 35 wachsen, ohne dass
+ *    jemand es merkt.
+ *
+ * `unter24` steigt von 50 auf 73 — und zwar NICHT, weil 23 Flaechen
+ * geschrumpft sind, sondern weil 63 von ihnen zum ersten Mal gezaehlt werden
+ * (siehe 1.). Die 10, die vorher sichtbar waren, sind weiter 10.
+ */
 const DECKEL = {
-  maus: { unter24: 50, unter44: 97 },
-  finger: { unter24: 50, unter44: 97 },
+  maus: { unter24: 73, unter44: 171 },
+  finger: { unter24: 73, unter44: 206 },
 }
 
 let befunde = 0

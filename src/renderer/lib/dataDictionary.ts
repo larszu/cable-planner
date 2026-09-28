@@ -559,6 +559,31 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   'SHA-256':
     'Die Prüfsumme des Inhalts beim Anhängen. Ergibt dieselbe Datei im Ordner heute eine andere, ist es nicht mehr dieselbe Datei.',
   Angehängt: 'Der Tag, an dem die Datei in den Projektordner kam.',
+  // ─── DIE SPALTEN DER ANSCHLUSSLISTE (`lib/portTrace.ts`, 2026-09-23) ──────
+  //
+  // „Maske", „IP", „VLAN", „Segment", „Rolle", „Quelle", „Widerspruch",
+  // „Switch" und „Weg" stehen schon oben und werden bewusst WEITERVERWENDET
+  // statt neu erfunden: eine zweite Vokabel fuer dieselbe Sache waere genau
+  // die Krankheit, gegen die dieses Lexikon geschrieben ist.
+  Rack: 'Das Rack, in dem das Gerät steht — die Beschriftung aus dem Rack-Editor. Leer heißt: das Gerät ist keinem Rack zugeordnet, nicht dass es frei steht.',
+  Seriennummer: 'Die Seriennummer, wie sie am Gerät steht. Freitext — der Plan prüft sie nicht.',
+  'Netz (CIDR)':
+    'Das Netz aus IP und Maske in Kurzschreibweise (10.0.0.0/24). Gerechnet, nicht eingetragen: fehlt eine der beiden Angaben, bleibt die Spalte leer statt eine Maske anzunehmen.',
+  'Anschluss am Gerät':
+    'Die Buchse am Gerät selbst, an der der verfolgte Weg beginnt — so beschriftet, wie sie im Plan heißt.',
+  Kabeltyp: 'Der Typ des ersten Kabels (Cat6, OS2 …), wie er am Kabel im Plan steht.',
+  Patchfeld:
+    'Das ERSTE Patchfeld auf dem Weg zum Switch. Liegen mehrere dazwischen, stehen sie vollständig in „Weg“; wie viele es sind, sagt „Stationen“.',
+  'Patchfeld-Rack': 'Das Rack, in dem dieses Patchfeld steht.',
+  'Port hinten':
+    'Die Buchse des Patchfelds, an der der Weg ankommt — in einer Festinstallation die fest verlegte Seite.',
+  'Port vorn':
+    'Die gleichnummerige Buchse auf der anderen Seite desselben Patchfelds, auf der es weitergeht. Abgeleitet aus der Bauart (Position n auf Position n), nicht aus einem Betriebszustand: ein gestecktes Rangierkabel, das die Normalisierung aufhebt, weiß der Plan nicht.',
+  Stationen:
+    'Wie viele Zwischenstationen (Patchfelder, Wandler, Adapter) zwischen Gerät und Switch liegen. 0 heißt: direkt gesteckt.',
+  'Kabel zum Switch':
+    'Das letzte Kabel des Weges — das, was im Switch steckt. Ohne Zwischenstation ist es dasselbe wie „Kabel“.',
+  'Switch-Port': 'Der Port am Switch, so beschriftet, wie er dort aufgedruckt ist.',
 }
 
 /**

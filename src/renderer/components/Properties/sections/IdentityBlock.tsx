@@ -31,6 +31,30 @@ export const IdentityBlock = ({ equipment }: { equipment: EquipmentItem }) => {
         />
       </label>
 
+      {/* DIE NOTIZ, direkt unter dem Namen (2026-09-28).
+          Sie stand bis dahin im Abschnitt „Netzzugang", unter Benutzername und
+          Passwort — der einzige Platz im Panel, der schon ein `textarea` hatte.
+          `notes` ist aber das einzige FREIE Textfeld am Geraet und traegt
+          entsprechend alles, was in kein Feld passt; mit dem Netzzugang hat das
+          nichts zu tun. Zusammen mit dem Namen ist es das, was ein Mensch vor
+          dem Rack zuerst liest und zuerst schreibt, also steht es zuerst. */}
+      <label className="block">
+        <span className="mb-1 block text-cp-text-secondary">
+          {t('eq.field.notes', 'Note')}{' '}
+          <span className="text-cp-text-faint">({t('common.optional', 'optional')})</span>
+        </span>
+        <textarea
+          value={equipment.notes ?? ''}
+          onChange={(event) => updateEquipment(equipment.id, { notes: event.target.value })}
+          rows={2}
+          placeholder={t(
+            'eq.field.notesPlaceholder',
+            'Anything with no field of its own — web UI, firmware, where it sits, who it belongs to…',
+          )}
+          className="w-full border border-cp-border bg-cp-surface-1 p-2"
+        />
+      </label>
+
       {/* v7.9.127 — Short-Form-Name. Wird in platzknappen Kontexten
           benutzt (Cable-Endpoint-Labels, Patch-Sheets). Wenn leer:
           auto-generiert aus name (Placeholder zeigt den Vorschlag).

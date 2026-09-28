@@ -120,7 +120,16 @@ describe('jeder Quellen-Kommentar steht auch als Feld im Eintrag', () => {
     // +8 am 2026-09-28: Katalog-Nachzuegler aus docs/device-identity-concept.md
     // (AJA FS2, Aquilon RS alpha, TriCaster Mini 4K, FreeSpeak II Base,
     // Shure UA844+SWB/AD4D/AD4Q, Sennheiser ASA 214), Blaetter geoeffnet.
-    expect(pairs().length).toBe(481)
+    // 1673 -> 1723 und 158 -> 104 am 2026-09-28: die Schwester-Planner haben
+    // ihre Belege selbst nachgezogen (light-planner `datasheetUrl`, 69 von 84
+    // statt 0; multicam 35 weitere Datenblattlinks). Die Zahl ist gestiegen,
+    // ohne dass hier jemand recherchiert hat -- das ist der Sinn erzeugter
+    // Kataloge.
+    // 1732 -> 1737 am 2026-09-28: der Licht-Planer fuehrt seinen Beleg jetzt in
+    // ZWEI Feldern (`datasheetUrl` das PDF, `manufacturerUrl` die
+    // Produktseite), und die Uebernahme liest beide. Fuenf Leuchten, die nur
+    // unter dem zweiten Namen belegt waren, zaehlen damit mit.
+    expect(pairs().length).toBe(1737)
   })
 
   it('deckt die Kataloge ab, die Belege fuehren', () => {
@@ -132,11 +141,19 @@ describe('jeder Quellen-Kommentar steht auch als Feld im Eintrag', () => {
       'blackmagicCatalog.ts',
       'broadcastToolsCatalog.ts',
       'bromptonCatalog.ts',
+      // Uebernahme aus dem multicam-planner (2026-09-24, erzeugt).
+      'cameraBodyCatalog.ts',
       'cameraCatalog.ts',
+      'ciscoCatalog.ts',
       'clearcomCatalog.ts',
+      'crestronCatalog.ts',
       'decimatorCatalog.ts',
+      // Uebernahme aus dem light-planner (2026-09-24, erzeugt).
+      'fixtureCatalog.ts',
       'greengoCatalog.ts',
       'ledProcessorCatalog.ts',
+      // Uebernahme aus dem multicam-planner (2026-09-24, erzeugt).
+      'lensCatalog.ts',
       'lightwareCatalog.ts',
       'luminexCatalog.ts',
       'lynxCatalog.ts',
@@ -196,6 +213,10 @@ describe('was der Test NICHT behauptet', () => {
     const ohne = catalogs().filter((f) => !mitBeleg.has(f))
     expect(ohne.sort()).toEqual([
       'connectorCatalog.ts',
+      // Die Kamera-Rigs aus dem multicam-planner: die Quelle nennt fuer
+      // KEINES der 49 eine Hersteller-Adresse — nachgemessen, nicht
+      // vermutet. Die Masse dagegen sind dort belegt.
+      'rigCatalog.ts',
       'wirelessCatalog.ts',
     ])
   })
@@ -270,6 +291,6 @@ describe('der Beleg zeigt auf den Hersteller, nicht auf einen Haendler', () => {
   it('prueft alle Belege, nicht nur die mit Feld', () => {
     // Ohne diese Zusicherung waere der Haendler-Test auch dann gruen, wenn
     // `pairs()` nichts mehr faende.
-    expect(pairs().filter((p) => p.field).length).toBe(481)
+    expect(pairs().filter((p) => p.field).length).toBe(1737)
   })
 })

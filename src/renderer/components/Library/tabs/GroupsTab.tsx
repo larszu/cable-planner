@@ -76,8 +76,14 @@ export const GroupsTab = () => {
                         'Click = place on canvas · Drag&Drop = place at drop position',
                       )}
                     >
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="min-w-0 flex-1">
+                      {/* Dieselbe Regel wie in `LibraryItem` (2026-09-28):
+                          `flex-wrap` am Behaelter, eine Untergrenze fuer den
+                          Namen und eine umbrechende Knopfreihe. Bei der
+                          kleinsten Leistenbreite (180 px) ist die Karte 145 px
+                          breit — ohne das schrumpft der Name auf wenige Pixel
+                          und die Knoepfe stehen ueber dem Rand. */}
+                      <div className="flex flex-wrap items-start justify-between gap-2">
+                        <div className="min-w-[8rem] flex-1">
                           <div className="truncate font-medium text-cp-text">{preset.name}</div>
                           <div className="mt-0.5 text-cp-xs text-cp-text-muted">
                             {format(t('library.tabs.groups.counts', '{items} devices · {cables} cables'), {
@@ -94,7 +100,7 @@ export const GroupsTab = () => {
                             {preset.items.map((i) => i.name).join(', ')}
                           </div>
                         </div>
-                        <div className="flex shrink-0 gap-0.5 cp-hover-actions">
+                        <div className="flex flex-wrap justify-end ml-auto gap-0.5 [&>*]:shrink-0 cp-hover-actions">
                           {/* #425 — Inline-Rename. Duplikat-Check verhindert
                               dass zwei Vorlagen denselben Namen tragen. */}
                           <button

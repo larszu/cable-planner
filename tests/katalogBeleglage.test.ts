@@ -119,7 +119,10 @@ describe('B-11 — der Kopf einer Katalog-Datei sagt seine Beleglage', () => {
     // Katalog, liefe die Schleife leer und bewiese nichts. Heute sind es
     // keinem mehr (B-11 abgeschlossen: kein Katalog steht ganz ohne Beleg). Wird die Lücke geschlossen, fällt DIESE
     // Zeile zuerst — und dann gehört die ganze Datei weg, nicht die Zeile.
-    expect(ohne.length, 'kein belegloser Katalog mehr — dann ist B-11 erledigt').toBe(0)
+    // 2026-09-24: einer. `rigCatalog.ts` kommt aus dem multicam-planner, und
+    // dort fuehrt keines der 49 Rigs eine Hersteller-Adresse. Er traegt die
+    // BELEGLAGE-Zeile im Kopf, und genau das prueft die Schleife unten.
+    expect(ohne.length, 'kein belegloser Katalog mehr — dann ist B-11 erledigt').toBe(1)
 
     for (const c of ohne) {
       const text = kopf(dateiFuer(c.name))
@@ -169,6 +172,12 @@ describe('B-11 — der Kopf einer Katalog-Datei sagt seine Beleglage', () => {
     // 45 -> 26 am 2026-09-27: 19 Eintraege mit geoeffnetem Herstellerbeleg.
     // 26 -> 17 am 2026-09-27: acht auf das belegte Herstellermodell
     // umgestellt, USW-16 im USW-16-PoE aufgegangen.
-    expect(bericht.unsourced).toBe(17)
+    // 158 -> 104 am 2026-09-28: die Schwester-Planner haben ihre Belege selbst
+    // nachgezogen. 54 Eintraege sind hier belegt geworden, ohne dass jemand
+    // eine Adresse in dieses Repo geschrieben hat.
+    // 104 -> 99: der Licht-Planer fuehrt den Beleg jetzt in ZWEI Feldern, und
+    // die Uebernahme liest beide (`datasheetUrl ?? manufacturerUrl`). Fuenf
+    // Leuchten waren nur unter dem zweiten Namen belegt.
+    expect(bericht.unsourced).toBe(99)
   })
 })

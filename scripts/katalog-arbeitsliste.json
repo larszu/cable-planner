@@ -1,0 +1,8647 @@
+[
+ {
+  "hersteller": "Extron",
+  "offen": 931,
+  "vorhanden": 0,
+  "kategorien": [
+   "Amplifiers",
+   "Audio",
+   "Audio I/O",
+   "Cable Accessories",
+   "Control",
+   "Distribution",
+   "Expansion Cards",
+   "Infrastructure",
+   "KVM / Extenders",
+   "Mixing Consoles",
+   "Networking",
+   "Peripherals",
+   "Processing",
+   "Sources",
+   "Speakers",
+   "Switching"
+  ],
+  "modelle": [
+   "EBP 108 D",
+   "Extron 12G HD-SDI 101",
+   "Extron AAP",
+   "Extron AAP",
+   "Extron AC 102 AUS",
+   "Extron AC 102 BR",
+   "Extron AC 102 CN",
+   "Extron AC 102 DK",
+   "Extron AC 102 EU",
+   "Extron AC 102 FR",
+   "Extron AC 102 IT",
+   "Extron AC 102 JP",
+   "Extron AC 102 MULTI",
+   "Extron AC 102 SA",
+   "Extron AC 102 SW",
+   "Extron AC 102 UK",
+   "Extron AC 102 US",
+   "Extron AC 102 US with conduit",
+   "Extron AC 104 US Cord",
+   "Extron AC 104 US, Conduit",
+   "Extron AC+USB 212 AUS",
+   "Extron AC+USB 212 CN",
+   "Extron AC+USB 212 DK",
+   "Extron AC+USB 212 EU",
+   "Extron AC+USB 212 FR",
+   "Extron AC+USB 212 IT",
+   "Extron AC+USB 212 MULTI",
+   "Extron AC+USB 212 SW",
+   "Extron AC+USB 212 UK",
+   "Extron AC+USB 311 EU",
+   "Extron AC+USB 311 FR",
+   "Extron AC+USB 311 MULTI",
+   "Extron AC+USB 311 UK",
+   "Extron AC+USB 311 US, Conduit",
+   "Extron AC+USB 311 US, Cord",
+   "Extron AC+USB 314 US Conduit",
+   "Extron AC+USB 314 US, Cord",
+   "Extron ACP 100",
+   "Extron ACP 105 D",
+   "Extron ACP 105 EU",
+   "Extron ACP 105 MK",
+   "Extron ACP 106 D",
+   "Extron ACP 106 EU",
+   "Extron ACP 106 MK",
+   "Extron ACP VC1 D",
+   "Extron ACP VC1 EU",
+   "Extron ACP VC1 MK",
+   "Extron AXI 016",
+   "Extron AXI 02 AT",
+   "Extron AXI 22 AT",
+   "Extron AXI 22 AT D Black",
+   "Extron AXI 22 AT D White",
+   "Extron AXI 44 AT",
+   "Extron AXP 50 C AT",
+   "Extron AXP 64 C AT",
+   "Extron Annotator 300",
+   "Extron Annotator 401",
+   "Extron BUC 202",
+   "Extron CA 163 LP, 70/100V, Black",
+   "Extron CA 163 LP, 70/100V, White",
+   "Extron CA 163 LP, 8 Ohm, Black",
+   "Extron CA 163 LP, 8 Ohm, White",
+   "Extron CA 163 PT, 70/100V, Black",
+   "Extron CA 163 PT, 70/100V, White",
+   "Extron CA 163 PT, 8 Ohm, Black",
+   "Extron CA 163 PT, 8 Ohm, White",
+   "Extron CA 43T LP, Black",
+   "Extron CA 43T LP, White",
+   "Extron CA 43T PT, Black",
+   "Extron CA 43T PT, White",
+   "Extron CA 83T LP, Black",
+   "Extron CA 83T LP, White",
+   "Extron CA 83T PT, Black",
+   "Extron CA 83T PT, White",
+   "Extron CPI 51",
+   "Extron CS 1226T Plus",
+   "Extron CS 123T",
+   "Extron CS 26T Plus",
+   "Extron CS 3T",
+   "Extron Cable Cubby 100 EU AC",
+   "Extron Cable Cubby 100 France AC",
+   "Extron Cable Cubby 100 Multi-Region AC",
+   "Extron Cable Cubby 100 UK AC",
+   "Extron Cable Cubby 100 US AC",
+   "Extron Cable Cubby 1202 Black",
+   "Extron Cable Cubby 1202 Blr Alum",
+   "Extron Cable Cubby 1202 US AC Black",
+   "Extron Cable Cubby 1402 Black",
+   "Extron Cable Cubby 1402 Black US AC",
+   "Extron Cable Cubby 1402 Br Alum",
+   "Extron Cable Cubby 500 Black No AC",
+   "Extron Cable Cubby 500 Br Alum No AC",
+   "Extron Cable Cubby 500 CCB",
+   "Extron Cable Cubby 500 US AC Black",
+   "Extron Cable Cubby 700 Black",
+   "Extron Cable Cubby 700 Br Alum",
+   "Extron Cable Cubby 700 US AC Black",
+   "Extron DA 6A",
+   "Extron DA2 HD 4K",
+   "Extron DA2 HD 4K PLUS",
+   "Extron DA2 HD 8K AE",
+   "Extron DA2 HD 8K AI",
+   "Extron DA2 HD 8K L",
+   "Extron DA4 12G HD-SDI",
+   "Extron DA4 12G HD-SDI",
+   "Extron DA4 HD 4K",
+   "Extron DA4 HD 4K PLUS",
+   "Extron DA4 HD 8K L",
+   "Extron DA6 HD 4K",
+   "Extron DA6 HD 4K PLUS",
+   "Extron DA6 HD 8K L",
+   "Extron DAC 102",
+   "Extron DMP 128",
+   "Extron DMP 128 C P",
+   "Extron DMP 128 C P AT",
+   "Extron DMP 128 FlexPlus C AT",
+   "Extron DMP 128 FlexPlus C V AT",
+   "Extron DMP 128 Plus",
+   "Extron DMP 128 Plus AT",
+   "Extron DMP 128 Plus C",
+   "Extron DMP 128 Plus C",
+   "Extron DMP 128 Plus C AT",
+   "Extron DMP 128 Plus C V",
+   "Extron DMP 128 Plus C V AT",
+   "Extron DMP 44 LC",
+   "Extron DMP 44 xi",
+   "Extron DMP 64",
+   "Extron DMP 64 Plus C",
+   "Extron DMP 64 Plus C AT",
+   "Extron DMP 64 Plus C V",
+   "Extron DMP 64 Plus C V AT",
+   "Extron DP DA2",
+   "Extron DPH 101 4K PLUS",
+   "Extron DSC 301 HD",
+   "Extron DSC 3G-3G A",
+   "Extron DSC 3G-HD A",
+   "Extron DSC 401",
+   "Extron DSC 401 A",
+   "Extron DSC DP-HD A",
+   "Extron DSC HD-3G A",
+   "Extron DSC HD-HD",
+   "Extron DSC HD-HD 4K PLUS A",
+   "Extron DSC HD-HD 4K PLUS A xi",
+   "Extron DTP CrossPoint 108 4K",
+   "Extron DTP CrossPoint 108 4K",
+   "Extron DTP CrossPoint 108 4K IPCP MA 70",
+   "Extron DTP CrossPoint 108 4K IPCP MA 70 LL",
+   "Extron DTP CrossPoint 108 4K IPCP Q MA 70",
+   "Extron DTP CrossPoint 108 4K IPCP Q MA 70 LL",
+   "Extron DTP CrossPoint 108 4K IPCP Q SA LL",
+   "Extron DTP CrossPoint 108 4K IPCP SA",
+   "Extron DTP CrossPoint 108 4K IPCP SA LL",
+   "Extron DTP CrossPoint 82 4K",
+   "Extron DTP CrossPoint 82 4K IPCP MA 70",
+   "Extron DTP CrossPoint 82 4K IPCP MA 70",
+   "Extron DTP CrossPoint 82 4K IPCP Q MA 70",
+   "Extron DTP CrossPoint 82 4K IPCP Q MA 70",
+   "Extron DTP CrossPoint 82 4K IPCP Q SA",
+   "Extron DTP CrossPoint 82 4K IPCP Q SA LL",
+   "Extron DTP CrossPoint 82 4K IPCP SA",
+   "Extron DTP CrossPoint 82 4K IPCP SA LL",
+   "Extron DTP CrossPoint 84",
+   "Extron DTP CrossPoint 84 4K",
+   "Extron DTP CrossPoint 84 4K IPCP MA 70",
+   "Extron DTP CrossPoint 84 4K IPCP MA 70 LL",
+   "Extron DTP CrossPoint 84 4K IPCP Q MA 70",
+   "Extron DTP CrossPoint 84 4K IPCP Q MA 70 LL",
+   "Extron DTP CrossPoint 84 4K IPCP Q SA",
+   "Extron DTP CrossPoint 84 4K IPCP Q SA LL",
+   "Extron DTP CrossPoint 84 4K IPCP SA",
+   "Extron DTP CrossPoint 84 4K IPCP SA LL",
+   "Extron DTP CrossPoint 84 IPCP MA 70",
+   "Extron DTP CrossPoint 84 IPCP MA 70 LL",
+   "Extron DTP CrossPoint 84 IPCP SA",
+   "Extron DTP CrossPoint 84 IPCP SA LL",
+   "Extron DTP CrossPoint 86 4K",
+   "Extron DTP CrossPoint 86 4K IPCP MA 70",
+   "Extron DTP CrossPoint 86 4K IPCP MA 70 LL",
+   "Extron DTP CrossPoint 86 4K IPCP Q MA 70",
+   "Extron DTP CrossPoint 86 4K IPCP Q MA 70 LL",
+   "Extron DTP CrossPoint 86 4K IPCP Q SA",
+   "Extron DTP CrossPoint 86 4K IPCP Q SA LL",
+   "Extron DTP CrossPoint 86 4K IPCP SA",
+   "Extron DTP CrossPoint 86 4K IPCP SA LL",
+   "Extron DTP DVI 4K 230 D Rx Black",
+   "Extron DTP DVI 4K 230 D Rx White",
+   "Extron DTP DVI 4K 230 D Tx White",
+   "Extron DTP DVI 4K 230 Rx",
+   "Extron DTP DVI 4K 230 Tx",
+   "Extron DTP DVI 4K 330 Rx",
+   "Extron DTP DVI 4K 330 Tx",
+   "Extron DTP HD DA4 4K 230",
+   "Extron DTP HD DA4 4K 330",
+   "Extron DTP HD DA8 4K 230",
+   "Extron DTP HD DA8 4K 330",
+   "Extron DTP HDMI 4K 230 Rx",
+   "Extron DTP HDMI 4K 230 Tx",
+   "Extron DTP HDMI 4K 330 Rx",
+   "Extron DTP HDMI 4K 330 Tx",
+   "Extron DTP R DP 4K 230",
+   "Extron DTP R DP 4K 330",
+   "Extron DTP R HD2 4K",
+   "Extron DTP R HWP 4K 231 D Black",
+   "Extron DTP R HWP 4K 231 D White",
+   "Extron DTP R HWP 4K 331 D Black",
+   "Extron DTP R HWP 4K 331 D White",
+   "Extron DTP T DP 4K 230",
+   "Extron DTP T DP 4K 330",
+   "Extron DTP T DSW 4K 233",
+   "Extron DTP T DSW 4K 333",
+   "Extron DTP T DWP 4K 232 D Black",
+   "Extron DTP T DWP 4K 232 D White",
+   "Extron DTP T DWP 4K 332 D White",
+   "Extron DTP T EU 232",
+   "Extron DTP T EU 4K 231",
+   "Extron DTP T EU 4K 331",
+   "Extron DTP T FB 232",
+   "Extron DTP T HD2 4K",
+   "Extron DTP T HD2 4K 330",
+   "Extron DTP T HWP 232 D White",
+   "Extron DTP T HWP 4K 231 D Black",
+   "Extron DTP T HWP 4K 231 D White",
+   "Extron DTP T HWP 4K 331 D Black",
+   "Extron DTP T HWP 4K 331 D White",
+   "Extron DTP T MK 232",
+   "Extron DTP T MK 4K 231",
+   "Extron DTP T SW4 HD 4K",
+   "Extron DTP T USW 233",
+   "Extron DTP T USW 333",
+   "Extron DTP T UWP 4K 232 D Black",
+   "Extron DTP T UWP 4K 232 D White",
+   "Extron DTP T UWP 4K 332 D Black",
+   "Extron DTP T UWP 4K 332 D White",
+   "Extron DTP2 CrossPoint 82",
+   "Extron DTP2 CrossPoint 82 IPCP MA 70",
+   "Extron DTP2 CrossPoint 82 IPCP MA 70 LL",
+   "Extron DTP2 CrossPoint 82 IPCP Q MA 70",
+   "Extron DTP2 CrossPoint 82 IPCP Q MA 70 LL",
+   "Extron DTP2 CrossPoint 82 IPCP Q SA",
+   "Extron DTP2 CrossPoint 82 IPCP Q SA LL",
+   "Extron DTP2 CrossPoint 82 IPCP SA",
+   "Extron DTP2 CrossPoint 82 IPCP SA LL",
+   "Extron DTP2 R 211",
+   "Extron DTP2 R 211",
+   "Extron DTP2 R 212",
+   "Extron DTP2 R 212 SA",
+   "Extron DTP2 T 201 D Black",
+   "Extron DTP2 T 201 D White",
+   "Extron DTP2 T 202 FB",
+   "Extron DTP2 T 203",
+   "Extron DTP2 T 204",
+   "Extron DTP2 T 211",
+   "Extron DTP2 T 211",
+   "Extron DTP2 T 212",
+   "Extron DTP2 T 212",
+   "Extron DTP3 CrossPoint 42",
+   "Extron DTP3 CrossPoint 622",
+   "Extron DTP3 CrossPoint 622 IPCP A",
+   "Extron DTP3 CrossPoint 622 IPCP A LL",
+   "Extron DTP3 CrossPoint 622 IPCP A SL",
+   "Extron DTP3 CrossPoint 622 IPCP A SL LL",
+   "Extron DTP3 CrossPoint 642",
+   "Extron DTP3 CrossPoint 642 IPCP A",
+   "Extron DTP3 CrossPoint 642 IPCP A LL",
+   "Extron DTP3 CrossPoint 642 IPCP A SL",
+   "Extron DTP3 CrossPoint 642 IPCP A SL LL",
+   "Extron DTP3 CrossPoint 662",
+   "Extron DTP3 CrossPoint 662 IPCP A",
+   "Extron DTP3 CrossPoint 662 IPCP A LL",
+   "Extron DTP3 CrossPoint 662 IPCP A SL",
+   "Extron DTP3 CrossPoint 662 IPCP A SL LL",
+   "Extron DTP3 CrossPoint 884",
+   "Extron DTP3 CrossPoint 884 IPCP A",
+   "Extron DTP3 CrossPoint 884 IPCP A LL",
+   "Extron DTP3 IN2004 DI/DO",
+   "Extron DTP3 IN2004 DO",
+   "Extron DTP3 R 201",
+   "Extron DTP3 R 201",
+   "Extron DTP3 R 201 D, Black",
+   "Extron DTP3 R 301",
+   "Extron DTP3 R 311",
+   "Extron DTP3 T 101 D Black",
+   "Extron DTP3 T 101 D White",
+   "Extron DTP3 T 202",
+   "Extron DTP3 T 202",
+   "Extron DTP3 T 202 EU/MK",
+   "Extron DTP3 T 203",
+   "Extron DTP3 T 211",
+   "Extron DTP3 T 212 D Black",
+   "Extron DTP3 T 212 D White",
+   "Extron DTP3 T 301",
+   "Extron DTP3 T 311",
+   "Extron DVC RGB-HD A",
+   "Extron DXP 1616 HD 4K PLUS",
+   "Extron DXP 168 HD 4K PLUS",
+   "Extron DXP 42 HD 4K PLUS",
+   "Extron DXP 44 HD 4K PLUS",
+   "Extron DXP 84 HD 4K PLUS",
+   "Extron DXP 88 HD 4K PLUS",
+   "Extron EBDB",
+   "Extron EBDB MINI",
+   "Extron EBP 100",
+   "Extron EBP 103 D",
+   "Extron EBP 104 EU",
+   "Extron EBP 104 MK",
+   "Extron EBP 105 D",
+   "Extron EBP 105 EU",
+   "Extron EBP 105 MK",
+   "Extron EBP 105P EU",
+   "Extron EBP 106 D",
+   "Extron EBP 106 EU",
+   "Extron EBP 106 MK",
+   "Extron EBP 106P D",
+   "Extron EBP 108 EU",
+   "Extron EBP 108 MK",
+   "Extron EBP 110 D",
+   "Extron EBP 110 EU",
+   "Extron EBP 110 MK",
+   "Extron EBP 111 D",
+   "Extron EBP 200",
+   "Extron EBP 50",
+   "Extron EBP NAV D",
+   "Extron EBP VC1 D",
+   "Extron EBP VC1 EU",
+   "Extron EBP VC2 D",
+   "Extron ECM DIO8",
+   "Extron ECM S10",
+   "Extron EDID 101H 4K PLUS",
+   "Extron EDID 111H 4K PLUS",
+   "Extron EDID 121",
+   "Extron FF 120T 1'x2'",
+   "Extron FF 220T 2'x2'",
+   "Extron FF 220T 600x600",
+   "Extron FOX3 24x I/O 88 MM",
+   "Extron FOX3 24x I/O 88 SM",
+   "Extron FOX3 I/O 88 MM",
+   "Extron FOX3 I/O 88 SM",
+   "Extron FOX3 Matrix 160x IPCP Pro",
+   "Extron FOX3 Matrix 160x no FPC",
+   "Extron FOX3 Matrix 24x no FPC 16io MM",
+   "Extron FOX3 Matrix 24x no FPC 16io SM",
+   "Extron FOX3 Matrix 24x no FPC 24io MM",
+   "Extron FOX3 Matrix 24x no FPC 24io SM",
+   "Extron FOX3 Matrix 24x no FPC 8io MM",
+   "Extron FOX3 Matrix 24x no FPC 8io SM",
+   "Extron FOX3 Matrix 320x IPCP Pro",
+   "Extron FOX3 Matrix 320x no FPC",
+   "Extron FOX3 Matrix 40x IPCP Pro",
+   "Extron FOX3 Matrix 40x no FPC",
+   "Extron FOX3 Matrix 560x IPCP Pro",
+   "Extron FOX3 Matrix 80x IPCP Pro",
+   "Extron FOX3 Matrix 80x no FPC",
+   "Extron FOX3 Matrix 840x IPCP Pro",
+   "Extron FOX3 R 101 MM",
+   "Extron FOX3 R 101 SM",
+   "Extron FOX3 R 301 MM Lossless",
+   "Extron FOX3 R 301 MM Uncompressed",
+   "Extron FOX3 R 301 SM Lossless",
+   "Extron FOX3 R 301 SM Uncompressed",
+   "Extron FOX3 R 311 MM Uncompressed",
+   "Extron FOX3 R 311 SM Lossless",
+   "Extron FOX3 SR 201 MM Lossless",
+   "Extron FOX3 SR 201 MM Uncompressed",
+   "Extron FOX3 SR 201 PC MM",
+   "Extron FOX3 SR 201 PC MM",
+   "Extron FOX3 SR 201 PC SM",
+   "Extron FOX3 SR 201 PC SM",
+   "Extron FOX3 SR 201 SM Lossless",
+   "Extron FOX3 SR 201 SM Uncompressed",
+   "Extron FOX3 SR 211 MM",
+   "Extron FOX3 SR 211 SM",
+   "Extron FOX3 SR 301 MM Lossless",
+   "Extron FOX3 SR 301 MM Uncompressed",
+   "Extron FOX3 SR 301 PC MM",
+   "Extron FOX3 SR 301 PC MM",
+   "Extron FOX3 SR 301 PC SM",
+   "Extron FOX3 SR 301 PC SM",
+   "Extron FOX3 SR 301 SM Lossless",
+   "Extron FOX3 SR 301 SM Uncompressed",
+   "Extron FOX3 SR 311 MM Lossless",
+   "Extron FOX3 SR 311 MM Uncompressed",
+   "Extron FOX3 SR 311 PC MM",
+   "Extron FOX3 SR 311 PC MM",
+   "Extron FOX3 SR 311 PC SM",
+   "Extron FOX3 SR 311 PC SM",
+   "Extron FOX3 SR 311 SM Lossless",
+   "Extron FOX3 SR 311 SM Uncompressed",
+   "Extron FOX3 SR 321 MM Lossless",
+   "Extron FOX3 SR 321 MM Uncompr.",
+   "Extron FOX3 SR 321 SM Lossless",
+   "Extron FOX3 SR 321 SM Uncompr.",
+   "Extron FOX3 SR 331 MM Lossless",
+   "Extron FOX3 SR 331 MM Uncompr.",
+   "Extron FOX3 SR 331 SM Lossless",
+   "Extron FOX3 SR 331 SM Uncompr.",
+   "Extron FOX3 T 101 MM",
+   "Extron FOX3 T 101 SM",
+   "Extron FOX3 T 201 MM Lossless",
+   "Extron FOX3 T 201 MM Uncompressed",
+   "Extron FOX3 T 201 PC MM",
+   "Extron FOX3 T 201 PC MM",
+   "Extron FOX3 T 201 PC SM",
+   "Extron FOX3 T 201 PC SM",
+   "Extron FOX3 T 201 SM Lossless",
+   "Extron FOX3 T 201 SM Uncompressed",
+   "Extron FOX3 T 211 MM",
+   "Extron FOX3 T 211 SM",
+   "Extron FOX3 T 301 MM Lossless",
+   "Extron FOX3 T 301 MM Uncompressed",
+   "Extron FOX3 T 301 PC MM",
+   "Extron FOX3 T 301 PC MM",
+   "Extron FOX3 T 301 PC SM",
+   "Extron FOX3 T 301 PC SM",
+   "Extron FOX3 T 301 SM Lossless",
+   "Extron FOX3 T 301 SM Uncompressed",
+   "Extron FOX3 T 311 MM Lossless",
+   "Extron FOX3 T 311 MM Uncompressed",
+   "Extron FOX3 T 311 SM Lossless",
+   "Extron FOX3 T 311 SM Uncompressed",
+   "Extron FOX3 T 321 MM Lossless",
+   "Extron FOX3 T 321 MM Uncompressed",
+   "Extron FOX3 T 321 SM Lossless",
+   "Extron FOX3 T 321 SM Uncompressed",
+   "Extron FOX3 T 331 MM Lossless",
+   "Extron FOX3 T 331 MM Uncompressed",
+   "Extron FOX3 T 331 SM Lossless",
+   "Extron FOX3 T 331 SM Uncompressed",
+   "Extron HAE 100 4K plus",
+   "Extron HAI 100 4K",
+   "Extron HAI 100 4K Plus",
+   "Extron HCR 102",
+   "Extron HCT 101 EU",
+   "Extron HCT 101 MK",
+   "Extron HD CTL 100",
+   "Extron HDP 101 4K",
+   "Extron IN1604 DTP",
+   "Extron IN1604 HD",
+   "Extron IN1606",
+   "Extron IN1608 xi",
+   "Extron IN1608 xi IPCP MA 70",
+   "Extron IN1608 xi IPCP MA 70 LL",
+   "Extron IN1608 xi IPCP Q MA 70",
+   "Extron IN1608 xi IPCP Q MA 70 LL",
+   "Extron IN1608 xi IPCP Q SA",
+   "Extron IN1608 xi IPCP Q SA LL",
+   "Extron IN1608 xi IPCP SA",
+   "Extron IN1608 xi IPCP SA LL",
+   "Extron IN1608 xi MA 70",
+   "Extron IN1608 xi SA",
+   "Extron IN1804",
+   "Extron IN1804 DI",
+   "Extron IN1804 DI/DO",
+   "Extron IN1804 DO",
+   "Extron IN1806",
+   "Extron IN1808",
+   "Extron IN1808 IPCP MA 70",
+   "Extron IN1808 IPCP MA 70 LL",
+   "Extron IN1808 IPCP Q MA 70",
+   "Extron IN1808 IPCP Q MA 70 LL",
+   "Extron IN1808 IPCP Q SA",
+   "Extron IN1808 IPCP Q SA LL",
+   "Extron IN1808 IPCP SA",
+   "Extron IN1808 IPCP SA LL",
+   "Extron IN2004",
+   "Extron IPA T RLY4",
+   "Extron IPCP Pro 250",
+   "Extron IPCP Pro 250 LL",
+   "Extron IPCP Pro 250 xi",
+   "Extron IPCP Pro 255",
+   "Extron IPCP Pro 255 LL",
+   "Extron IPCP Pro 255Q xi",
+   "Extron IPCP Pro 350",
+   "Extron IPCP Pro 350 LL",
+   "Extron IPCP Pro 350 xi",
+   "Extron IPCP Pro 355DR",
+   "Extron IPCP Pro 355DR LL",
+   "Extron IPCP Pro 360Q xi",
+   "Extron IPCP Pro 550",
+   "Extron IPCP Pro 550 LL",
+   "Extron IPCP Pro 550 xi",
+   "Extron IPCP Pro 555",
+   "Extron IPCP Pro 555 LL",
+   "Extron IPCP Pro 555Q xi",
+   "Extron IPCP Pro PCS1",
+   "Extron IPCP Pro PCS1 LL",
+   "Extron IPCP Pro S1 xi",
+   "Extron IPL EXP 200",
+   "Extron IPL EXP PDU8L",
+   "Extron IPL EXP S5",
+   "Extron IPL Pro IRS8",
+   "Extron IPL Pro S1",
+   "Extron IPL Pro S3",
+   "Extron ISS 608",
+   "Extron ISS 612",
+   "Extron MDA 3A",
+   "Extron MGP 641",
+   "Extron MGP 641",
+   "Extron MGP 641 xi",
+   "Extron MGP 641 xi 5K",
+   "Extron MGP 641 xi SDI",
+   "Extron MIX 301",
+   "Extron MLC 226 IP",
+   "Extron MLC 55 RS",
+   "Extron MLC 55 RS EU",
+   "Extron MLC 55 RS EU V",
+   "Extron MLC 55 RS MK",
+   "Extron MLC 55 RS VC",
+   "Extron MLC 62 IR D",
+   "Extron MLC 62 RS CC",
+   "Extron MLC 62 RS EU",
+   "Extron MLC 62 RS EU White",
+   "Extron MLC 62 RS MK",
+   "Extron MLC Plus 100",
+   "Extron MLC Plus 100 AAP",
+   "Extron MLC Plus 200",
+   "Extron MLC Plus 200 AAP",
+   "Extron MLC Plus 400",
+   "Extron MLC Plus 50",
+   "Extron MLC Plus 84 D",
+   "Extron MLC Plus 84 EU",
+   "Extron MLC Plus 84 MK",
+   "Extron MLS 100 A",
+   "Extron MP 101",
+   "Extron MPA 152 Plus",
+   "Extron MPA 601-100V",
+   "Extron MPA 601-70V",
+   "Extron MPS 602",
+   "Extron MPS 602 MA",
+   "Extron MPS 602 SA",
+   "Extron MVC 121 Plus",
+   "Extron MVC 121 xi",
+   "Extron MediaPort 200",
+   "Extron MediaPort 300",
+   "Extron NAV 10E 101 MM",
+   "Extron NAV 10E 101 SM",
+   "Extron NAV 10E 201 D Black MM",
+   "Extron NAV 10E 201 D Black SM",
+   "Extron NAV 10E 201 D White MM",
+   "Extron NAV 10E 201 D White SM",
+   "Extron NAV 10E 401 D Black MM",
+   "Extron NAV 10E 401 D Black SM",
+   "Extron NAV 10E 401 D White MM",
+   "Extron NAV 10E 401 D White SM",
+   "Extron NAV 10E 501 MM",
+   "Extron NAV 10E 501 SM",
+   "Extron NAV 10SD 101 MM",
+   "Extron NAV 10SD 101 SM",
+   "Extron NAV 10SD 501 MM",
+   "Extron NAV 10SD 501 SM",
+   "Extron NAV D 121",
+   "Extron NAV E 101",
+   "Extron NAV E 101 DTP",
+   "Extron NAV E 111 DTP3",
+   "Extron NAV E 121",
+   "Extron NAV E 201 D Black",
+   "Extron NAV E 201 D White",
+   "Extron NAV E 222",
+   "Extron NAV E 401 D Black",
+   "Extron NAV E 401 D White",
+   "Extron NAV E 501",
+   "Extron NAV E 511 MM",
+   "Extron NAV E 511 SM",
+   "Extron NAV SD 101",
+   "Extron NAV SD 121",
+   "Extron NAV SD 501",
+   "Extron NAV SD 511 MM",
+   "Extron NAV SD 511 SM",
+   "Extron NAVigator",
+   "Extron NBP 100",
+   "Extron NBP 104 EU",
+   "Extron NBP 110",
+   "Extron NBP 1200C Black",
+   "Extron NBP 1200C Br Alum",
+   "Extron NBP 200",
+   "Extron NBP 50",
+   "Extron NBP VC1 D",
+   "Extron NBP VC1 EU",
+   "Extron NBP VC2 D",
+   "Extron NBP VC2 EU",
+   "Extron NF 4C P LP-1",
+   "Extron NF 4C P LP-2",
+   "Extron NF 4C P LP-3",
+   "Extron NF 4C P LP-4",
+   "Extron NF 4C S LP",
+   "Extron NetPA 1001-70V AT",
+   "Extron NetPA 204 POE",
+   "Extron NetPA 502 AT",
+   "Extron NetPA U 1002",
+   "Extron NetPA U 1002-100V",
+   "Extron NetPA U 1002-70V",
+   "Extron NetPA U 1004",
+   "Extron NetPA U 1004-100V",
+   "Extron NetPA U 1004-70V",
+   "Extron NetPA U 2002 SB",
+   "Extron NetPA U 8001 SUB",
+   "Extron OCS 100C",
+   "Extron OCS 100W",
+   "Extron PC 101",
+   "Extron PI 115",
+   "Extron PI 130",
+   "Extron PPC 25",
+   "Extron PS 1220EB",
+   "Extron PS 124",
+   "Extron PS 125",
+   "Extron PS 128",
+   "Extron PowerCage 401 Enclosure",
+   "Extron Quantum Expansion IN",
+   "Extron Quantum Expansion OUT",
+   "Extron Quantum IN SMD 100",
+   "Extron Quantum IN4DTP3",
+   "Extron Quantum IN4FOX3 L MM",
+   "Extron Quantum IN4FOX3 L SM",
+   "Extron Quantum IN4FOX3 U MM",
+   "Extron Quantum IN4FOX3 U SM",
+   "Extron Quantum IN4HDMI",
+   "Extron Quantum IN4HDMI 4K PLUS",
+   "Extron Quantum OUT32AT",
+   "Extron Quantum OUT4DTP",
+   "Extron Quantum OUT4DTP3",
+   "Extron Quantum OUT4FOX3 L MM",
+   "Extron Quantum OUT4FOX3 L SM",
+   "Extron Quantum OUT4FOX3 U MM",
+   "Extron Quantum OUT4FOX3 U SM",
+   "Extron Quantum OUT4HDMI",
+   "Extron Quantum OUT4HDMI 4K PLUS",
+   "Extron Quantum Ultra 305",
+   "Extron Quantum Ultra 610",
+   "Extron Quantum Ultra II 305",
+   "Extron Quantum Ultra II 610",
+   "Extron RCP 101 D",
+   "Extron RCP 101 EU",
+   "Extron RCP 101 MK",
+   "Extron RCP 401 D",
+   "Extron RCP 401 EU",
+   "Extron SB 33 A 46-55",
+   "Extron SB 33 A 55-65",
+   "Extron SB 33 A 65-70",
+   "Extron SB 33 A 75-80",
+   "Extron SB 33 A 82-90",
+   "Extron SB 33 A 90-100",
+   "Extron SF 10C SUB",
+   "Extron SF 228T Plus",
+   "Extron SF 26CT",
+   "Extron SF 26CT LP",
+   "Extron SF 26PT Black",
+   "Extron SF 26PT White",
+   "Extron SF 26X",
+   "Extron SF 28PT Black",
+   "Extron SF 28PT White",
+   "Extron SF 3C LP",
+   "Extron SF 3CT LP",
+   "Extron SF 3PT Black",
+   "Extron SF 3PT White",
+   "Extron SF 8CT SUB",
+   "Extron SM 26 Black",
+   "Extron SM 26 White",
+   "Extron SM 26T Black",
+   "Extron SM 26T White",
+   "Extron SM 28 Black",
+   "Extron SM 28 White",
+   "Extron SM 28T Black",
+   "Extron SM 28T White",
+   "Extron SM 3 Black",
+   "Extron SM 3 White",
+   "Extron SMD 101",
+   "Extron SMD 202",
+   "Extron SME 211",
+   "Extron SMP 111",
+   "Extron SMP 351 - 400 GB SSD",
+   "Extron SMP 351 - 80 GB SSD",
+   "Extron SMP 351 3G-SDI - 400 GB SSD",
+   "Extron SMP 351 3G-SDI - 80 GB SSD",
+   "Extron SMP 352 - 400 GB SSD",
+   "Extron SMP 352 - 80 GB SSD",
+   "Extron SMP 352 3G-SDI - 400 GB SSD",
+   "Extron SMP 401",
+   "Extron SMP 401 12G-SDI",
+   "Extron SSI 100C",
+   "Extron SSI 100W",
+   "Extron SSP 200",
+   "Extron SW2 HD 4K",
+   "Extron SW2 HD 4K PLUS",
+   "Extron SW2 HD 8K",
+   "Extron SW2 USB",
+   "Extron SW2 USB Pro",
+   "Extron SW4 12G HD-SDI",
+   "Extron SW4 12G HD-SDI",
+   "Extron SW4 HD 4K",
+   "Extron SW4 HD 4K PLUS",
+   "Extron SW4 USB",
+   "Extron SW4 USB PLUS",
+   "Extron SW4 USB Pro",
+   "Extron SW6 HD 4K",
+   "Extron SW6 HD 4K PLUS",
+   "Extron SW8 HD 4K",
+   "Extron SW8 HD 4K PLUS",
+   "Extron ShareLink Pro 1000",
+   "Extron ShareLink Pro 1100",
+   "Extron ShareLink Pro 1100 Miracast Kit EU",
+   "Extron ShareLink Pro 1100 Miracast Kit US",
+   "Extron ShareLink Pro 2000",
+   "Extron ShareLink Pro 2000 Miracast & ShareNext EU",
+   "Extron ShareLink Pro 2000 Miracast & ShareNext US",
+   "Extron ShareLink Pro 2500",
+   "Extron ShareLink Pro 2500 Miracast & ShareNext Kit EU",
+   "Extron ShareLink Pro 2500 Miracast & ShareNext Kit US",
+   "Extron ShareLink Pro 500",
+   "Extron ShareLink Pro 500 Miracast Kit EU",
+   "Extron ShareLink Pro 500 Miracast Kit US",
+   "Extron TLC Pro 1026M Black",
+   "Extron TLC Pro 1026M White",
+   "Extron TLC Pro 526M Black",
+   "Extron TLC Pro 526M White",
+   "Extron TLC Pro 726M Black",
+   "Extron TLC Pro 726M White",
+   "Extron TLCA 1",
+   "Extron TLI Pro 101",
+   "Extron TLI Pro 201",
+   "Extron TLP Pro 1025M Black",
+   "Extron TLP Pro 1025M Black",
+   "Extron TLP Pro 1025M White",
+   "Extron TLP Pro 1025M White",
+   "Extron TLP Pro 1025T Black",
+   "Extron TLP Pro 1025T Black",
+   "Extron TLP Pro 1025T White",
+   "Extron TLP Pro 1025T White",
+   "Extron TLP Pro 1220MG",
+   "Extron TLP Pro 1220TG",
+   "Extron TLP Pro 1225MG",
+   "Extron TLP Pro 1225MG",
+   "Extron TLP Pro 1225TG",
+   "Extron TLP Pro 1225TG NC",
+   "Extron TLP Pro 1230WTG Black",
+   "Extron TLP Pro 1230WTG White",
+   "Extron TLP Pro 1520MG",
+   "Extron TLP Pro 1520TG",
+   "Extron TLP Pro 1525MG",
+   "Extron TLP Pro 1525MG",
+   "Extron TLP Pro 1525TG",
+   "Extron TLP Pro 1525TG NC",
+   "Extron TLP Pro 1720MG",
+   "Extron TLP Pro 1720TG",
+   "Extron TLP Pro 1725MG",
+   "Extron TLP Pro 1725MG NC",
+   "Extron TLP Pro 1725TG",
+   "Extron TLP Pro 1725TG NC",
+   "Extron TLP Pro 300M Black",
+   "Extron TLP Pro 300M White",
+   "Extron TLP Pro 320C Black",
+   "Extron TLP Pro 320C US Black",
+   "Extron TLP Pro 525C Black",
+   "Extron TLP Pro 525C Black",
+   "Extron TLP Pro 525M Black",
+   "Extron TLP Pro 525M Black",
+   "Extron TLP Pro 525M White",
+   "Extron TLP Pro 525M White",
+   "Extron TLP Pro 525T Black",
+   "Extron TLP Pro 525T Black",
+   "Extron TLP Pro 525T White",
+   "Extron TLP Pro 525T White",
+   "Extron TLP Pro 725C Black w/o AC",
+   "Extron TLP Pro 725C Black w/o AC",
+   "Extron TLP Pro 725M Black",
+   "Extron TLP Pro 725M NC Black",
+   "Extron TLP Pro 725M White",
+   "Extron TLP Pro 725M White",
+   "Extron TLP Pro 725T Black",
+   "Extron TLP Pro 725T Black",
+   "Extron TLP Pro 725T White",
+   "Extron TLP Pro 725T White",
+   "Extron TLS 1025M Black",
+   "Extron TLS 1025M NC Black",
+   "Extron TLS 1025M NC White",
+   "Extron TLS 1025M White",
+   "Extron TLS 300M",
+   "Extron TLS 300M",
+   "Extron TLS 525M Black",
+   "Extron TLS 525M NC Black",
+   "Extron TLS 525M NC White",
+   "Extron TLS 525M White",
+   "Extron TLS 725M Black",
+   "Extron TLS 725M NC Black",
+   "Extron TLS 725M NC White",
+   "Extron TLS 725M White",
+   "Extron TLSI 201",
+   "Extron UCS 303",
+   "Extron UCS 601",
+   "Extron UCS FR 902",
+   "Extron UCS FT 901",
+   "Extron UCS SR 501",
+   "Extron UCS SR 501",
+   "Extron UCS SW 313",
+   "Extron UCS T 503",
+   "Extron UCS T 503",
+   "Extron UPI 100",
+   "Extron USB Extender Plus AAP R Black",
+   "Extron USB Extender Plus AAP R White",
+   "Extron USB Extender Plus AAP T",
+   "Extron USB Extender Plus D R",
+   "Extron USB Extender Plus D T",
+   "Extron USB Extender Plus R",
+   "Extron USB Extender Plus R HID",
+   "Extron USB Extender Plus T",
+   "Extron USB Extender Plus T HID",
+   "Extron USB HUB4 AAP",
+   "Extron USB HUB4 AAP",
+   "Extron USB HUB4 MAAP",
+   "Extron USB HUB4 MAAP",
+   "Extron USB Plus Matrix Controller",
+   "Extron USB-C HD 101",
+   "Extron VC 50",
+   "Extron VCA 100",
+   "Extron VCM 200 D",
+   "Extron VND 250",
+   "Extron VNE 250",
+   "Extron VNM EC 201",
+   "Extron WAP 100AC EU",
+   "Extron WAP 100AC US",
+   "Extron WC PRO 150 OCS",
+   "Extron WC PRO 160",
+   "Extron WFA 100 EU",
+   "Extron WFA 100 US",
+   "Extron XMP 240 C AT",
+   "Extron XPA 1002",
+   "Extron XPA 1002 Plus",
+   "Extron XPA 2001-100V",
+   "Extron XPA 2001-70V",
+   "Extron XPA 2002-100V",
+   "Extron XPA 2003C-100V",
+   "Extron XPA 2003C-70V",
+   "Extron XPA 2004",
+   "Extron XPA 4002",
+   "Extron XPA 4002-70V",
+   "Extron XPA U 1002",
+   "Extron XPA U 1002-100V",
+   "Extron XPA U 1002-70V",
+   "Extron XPA U 1004",
+   "Extron XPA U 1004 SB",
+   "Extron XPA U 1004-100V",
+   "Extron XPA U 1004-70V",
+   "Extron XPA U 1004C-100V",
+   "Extron XPA U 1004C-70V",
+   "Extron XPA U 2002 SB",
+   "Extron XPA U 2004 FX",
+   "Extron XPA U 2008 FX",
+   "Extron XPA U 3502",
+   "Extron XPA U 358",
+   "Extron XPA U 358-100V",
+   "Extron XPA U 358-70V",
+   "Extron XPA U 358C-100V",
+   "Extron XPA U 358C-70V",
+   "Extron XPA U 4004 FX",
+   "Extron XPA U 758",
+   "Extron XTP CP 4i 12G-SDI",
+   "Extron XTP CP 4i 3G-SDI",
+   "Extron XTP CP 4i DVI Pro",
+   "Extron XTP CP 4i Fiber 4K MM",
+   "Extron XTP CP 4i Fiber 4K SM",
+   "Extron XTP CP 4i VGA",
+   "Extron XTP CP 4o 12G-SDI",
+   "Extron XTP CP 4o 4K",
+   "Extron XTP CP 4o DVI Pro",
+   "Extron XTP CP 4o Fiber 4K MM",
+   "Extron XTP CP 4o Fiber 4K SM",
+   "Extron XTP CP 4o SA",
+   "Extron XTP FT HD 4K MM",
+   "Extron XTP FT HD 4K SM",
+   "Extron XTP II CP 4i F 8K MM",
+   "Extron XTP II CP 4i F 8K SM",
+   "Extron XTP II CP 4i HD 4K PLUS",
+   "Extron XTP II CP 4i HD 8K",
+   "Extron XTP II CP 4i HD DMA 4K PLUS",
+   "Extron XTP II CP 4o HD 4K PLUS",
+   "Extron XTP II CP 4o HD 8K",
+   "Extron XTP II CP 4o HD AT 4K PLUS",
+   "Extron XTP II CP 4o HD AT 8K",
+   "Extron XTP II CP 4o SF 8K MM",
+   "Extron XTP II CP 4o SF 8K SM",
+   "Extron XTP II CrossPoint 1600",
+   "Extron XTP II CrossPoint 1600",
+   "Extron XTP II CrossPoint 1600 Frame w/ RPS",
+   "Extron XTP II CrossPoint 1600 Frame w/ RPS",
+   "Extron XTP II CrossPoint 3200 Frame C14",
+   "Extron XTP II CrossPoint 3200 Frame C20",
+   "Extron XTP II CrossPoint 6400 Frame No plug",
+   "Extron XTP II CrossPoint 6400 Frame North Am",
+   "Extron XTP II FR 401 MM",
+   "Extron XTP II FR 401 SM",
+   "Extron XTP II FT 402 8K MM",
+   "Extron XTP II FT 402 8K SM",
+   "Extron XTP PI 100",
+   "Extron XTP PI 400",
+   "Extron XTP R HD 4K",
+   "Extron XTP R HWP 201 4K Black",
+   "Extron XTP R HWP 201 4K White",
+   "Extron XTP R HWP 201 Black",
+   "Extron XTP R HWP 201 White",
+   "Extron XTP SFR HD 4K MM",
+   "Extron XTP SFR HD 4K MM",
+   "Extron XTP SFR HD 4K SM",
+   "Extron XTP SFR HD 4K SM",
+   "Extron XTP SR HD 4K",
+   "Extron XTP SR HD 4K",
+   "Extron XTP T EU 202",
+   "Extron XTP T FB 202",
+   "Extron XTP T FB 202 4K",
+   "Extron XTP T HD 4K",
+   "Extron XTP T HWP 101 4K Black",
+   "Extron XTP T HWP 101 4K White",
+   "Extron XTP T MK 202",
+   "Extron XTP T USW 103",
+   "Extron XTP T USW 103 4K",
+   "Extron XTP T UWP 202 4K Black",
+   "Extron XTP T UWP 202 4K NL Black",
+   "Extron XTP T UWP 202 4K NL White",
+   "Extron XTP T UWP 202 4K White",
+   "Extron XTP T UWP 202 Black",
+   "Extron XTP T UWP 202 NL Black",
+   "Extron XTP T UWP 202 NL White",
+   "Extron XTP T UWP 202 White",
+   "Extron XTP T VGA",
+   "Extron ZRTP Pro 1025M",
+   "Extron ZRTP Pro 1025T",
+   "Extron ZRTP Pro 725M",
+   "Extron ZRTP Pro 725T",
+   "Extron eLink 100 R AUS",
+   "Extron eLink 100 R EU",
+   "Extron eLink 100 R US",
+   "Extron eLink 100 T AUS",
+   "Extron eLink 100 T EU",
+   "Extron eLink 100 T US"
+  ]
+ },
+ {
+  "hersteller": "Blackmagic Design",
+  "offen": 146,
+  "vorhanden": 15,
+  "kategorien": [
+   "Audio I/O",
+   "Control",
+   "Displays",
+   "Distribution",
+   "Mixing Consoles",
+   "Networking",
+   "Processing",
+   "Recording",
+   "Sources",
+   "Storage",
+   "Switching"
+  ],
+  "modelle": [
+   "ATEM 2 M/E Advanced Panel 40",
+   "ATEM 2 M/E Constellation 4K",
+   "ATEM 2 M/E Production Studio 4K",
+   "ATEM 4 M/E Constellation 4K Plus",
+   "ATEM 4 M/E Constellation IP",
+   "ATEM 4 M/E Constellation IP Plus",
+   "ATEM Constellation 1 M/E",
+   "ATEM Constellation 2 M/E",
+   "ATEM Constellation 4 M/E",
+   "ATEM Microphone Converter",
+   "ATEM Mini",
+   "ATEM Mini Extreme",
+   "ATEM Mini Extreme ISO",
+   "ATEM Mini Extreme ISO G2",
+   "ATEM Mini Pro",
+   "ATEM Mini Pro ISO",
+   "ATEM SDI",
+   "ATEM SDI Extreme ISO",
+   "ATEM SDI Pro ISO",
+   "ATEM Television Studio HD",
+   "ATEM Television Studio HD8",
+   "BMD 2110 IP Converter 3x3G",
+   "BMD 2110 IP Converter 8x12G SFP",
+   "BMD 2110 IP Mini BiDirect 12G",
+   "BMD 2110 IP Mini BiDirect 12G SFP",
+   "BMD 2110 IP Mini IP to HDMI",
+   "BMD 2110 IP Mini IP to HDMI SFP",
+   "BMD 2110 IP Presentation Converter",
+   "BMD 2110 IP SDI to HDMI 12G",
+   "BMD 2110 IP SDI to HDMI 12G-10",
+   "BMD 2110 IP UpDownCross 12G",
+   "BMD ATEM 1 M/E Advanced Panel 10",
+   "BMD ATEM 1 M/E Broadcast Panel",
+   "BMD ATEM 1 Production Studio 4K",
+   "BMD ATEM 2 M/E Advanced Panel 20",
+   "BMD ATEM Camera Control Panel",
+   "BMD ATEM Monitoring Rack Panel 40",
+   "BMD ATEM Monitoring Rack Panel 40",
+   "BMD ATEM Television Studio Pro 4K",
+   "BMD Audio Monitor 12G G3",
+   "BMD Audio→SDI 12G",
+   "BMD BiDir SDI/HDMI 12G",
+   "BMD BiDir SDI/HDMI 3G",
+   "BMD CleanSwitch 12x12",
+   "BMD Cloud Store Mini",
+   "BMD DeckLink 8K Pro G2",
+   "BMD DeckLink Duo 2",
+   "BMD DeckLink Quad 2",
+   "BMD DeckLink SDI 4K",
+   "BMD Fairlight Live Audio Panel 10",
+   "BMD Fairlight Live Audio Panel 20",
+   "BMD GPI & Tally",
+   "BMD HDMI→SDI",
+   "BMD HDMI→SDI 12G",
+   "BMD HyperDeck 4K Pro",
+   "BMD HyperDeck Extreme",
+   "BMD HyperDeck HD Mini",
+   "BMD HyperDeck HD Plus",
+   "BMD HyperDeck Shuttle 4K Pro",
+   "BMD HyperDeck Studio 12G",
+   "BMD HyperDeck Studio 2",
+   "BMD HyperDeck Studio Pro 2",
+   "BMD Media Player 10G",
+   "BMD Micro Studio Camera 4K G2",
+   "BMD Micro Studio Camera 4K G2",
+   "BMD Mini Converter Audio to SDI 4K",
+   "BMD Mini Converter Optical Fiber 12G",
+   "BMD MultiView 16",
+   "BMD MultiView 4",
+   "BMD PYXIS 6K Camera",
+   "BMD Pocket 6K Pro",
+   "BMD SDI DA 1x8",
+   "BMD SDI DA 4K 1x8",
+   "BMD SDI→Audio 12G",
+   "BMD SDI→HDMI",
+   "BMD SDI→HDMI 12G",
+   "BMD SmartScope Duo",
+   "BMD SmartScope Duo 4K",
+   "BMD SmartView 4K G3",
+   "BMD SmartView Duo",
+   "BMD SmartView Duo",
+   "BMD Streaming Decoder 4K",
+   "BMD Streaming Encoder 4K",
+   "BMD Streaming Encoder HD",
+   "BMD Studio Camera 4K Pro G2",
+   "BMD Studio Camera 6K Pro",
+   "BMD Studio Converter",
+   "BMD Studio Fiber Converter",
+   "BMD Sync Generator",
+   "BMD Teranex HDMI→SDI 12G",
+   "BMD Teranex SDI Distribution 12G",
+   "BMD Teranex SDI→HDMI 12G",
+   "BMD URSA Broadcast G2",
+   "BMD UltraStudio 4K Extreme 3",
+   "BMD UltraStudio 4K Mini",
+   "BMD UltraStudio HD Mini",
+   "BMD UltraStudio Recorder 3G",
+   "BMD Universal Videohub 72",
+   "BMD Video Assist 12G HDR 5in",
+   "BMD Video Assist 12G HDR 7in",
+   "BMD Videohub 120x120 12G",
+   "BMD Videohub 12G 10x10",
+   "BMD Videohub 12G 40x40",
+   "BMD Videohub 20x20 12G",
+   "BMD Videohub 80x80 12G",
+   "BMD Videohub Mini 4x2 12G",
+   "BMD Videohub Mini 6x2 12G",
+   "BMD Videohub Mini 8x4 12G",
+   "BMD Videohub Smart Control Pro",
+   "Blackmagic 2110 IP Converter 4x12G PWR",
+   "Blackmagic DeckLink IP 100G",
+   "Blackmagic DeckLink Micro Recorder",
+   "Blackmagic DeckLink SDI Micro",
+   "Blackmagic Design Camera Fiber Converter",
+   "Blackmagic Design Studio Camera 4K Plus G2",
+   "Blackmagic Design URSA Studio Viewfinder G2",
+   "Blackmagic Design UltraStudio Monitor 3G",
+   "Blackmagic Design Web Presenter",
+   "Blackmagic Ethernet Switch 820",
+   "Blackmagic HyperDeck Studio HD Pro",
+   "Blackmagic Mini Converter Analog to SDI",
+   "Blackmagic Mini Converter Audio to SDI",
+   "Blackmagic Mini Converter SDI to Analog",
+   "Blackmagic Mini Converter SDI to Analog 4K",
+   "Blackmagic Mini Converter SDI to Audio 4K",
+   "Blackmagic PYXIS 12K EF",
+   "Blackmagic PYXIS 12K PL",
+   "Blackmagic PYXIS 6K EF",
+   "Blackmagic PYXIS 6K PL",
+   "Blackmagic SDI Expander 8x12G",
+   "Blackmagic Streaming Encoder 4K",
+   "Blackmagic Streaming Encoder HD",
+   "Blackmagic StudioBridge 10G PWR",
+   "Blackmagic URSA Cine 12K LF 100G",
+   "Blackmagic URSA Cine 17K 65",
+   "Blackmagic URSA Cine Immersive",
+   "Blackmagic URSA Cine Immersive 100G",
+   "Blackmagic URSA Mini Pro 12K OLPF",
+   "Blackmagic Ultimatte 12",
+   "Blackmagic UpDownCross 100G",
+   "Blackmagic Web Presenter 4K",
+   "Blackmagic Web Presenter HD",
+   "Fairlight Live Audio Panel 40",
+   "SDI Distribution",
+   "SDI to Audio",
+   "UpDownCross HD"
+  ]
+ },
+ {
+  "hersteller": "JBL",
+  "offen": 135,
+  "vorhanden": 0,
+  "kategorien": [
+   "Powered Mixers",
+   "Speakers"
+  ],
+  "modelle": [
+   "JBL 4642A Dual 460mm (18in.) Subwoofer system",
+   "JBL 8124",
+   "JBL 8128",
+   "JBL CBT 1000",
+   "JBL CBT 1000E",
+   "JBL CBT 100LA-1",
+   "JBL CBT 100LA-LS",
+   "JBL CBT 200LA-1",
+   "JBL CBT 50LA-1",
+   "JBL CBT 50LA-LS",
+   "JBL CBT 70J-1",
+   "JBL CBT 70JE-1",
+   "JBL CSMA 1120 Mixer-Amplifier",
+   "JBL Control 12C-VA",
+   "JBL Control 12C/T",
+   "JBL Control 14C-VA",
+   "JBL Control 14C/T",
+   "JBL Control 16C-VA",
+   "JBL Control 16C/T",
+   "JBL Control 18C/T",
+   "JBL Control 19CS",
+   "JBL Control 19CS/T",
+   "JBL Control 19CST",
+   "JBL Control 226C/T",
+   "JBL Control 227C",
+   "JBL Control 227CT",
+   "JBL Control 24C",
+   "JBL Control 24C Micro",
+   "JBL Control 24CT",
+   "JBL Control 24CT Micro",
+   "JBL Control 24CT MicroPlus",
+   "JBL Control 24CT-BK",
+   "JBL Control 25-1-WH",
+   "JBL Control 26-DT",
+   "JBL Control 26C",
+   "JBL Control 26CT",
+   "JBL Control 26CT-LS",
+   "JBL Control 30",
+   "JBL Control 312CS",
+   "JBL Control 321C",
+   "JBL Control 321CT",
+   "JBL Control 322C",
+   "JBL Control 322CT",
+   "JBL Control 328C",
+   "JBL Control 328CT",
+   "JBL Control 40CS/T",
+   "JBL Control 412C/T",
+   "JBL Control 412C/T-VA",
+   "JBL Control 414C/T",
+   "JBL Control 414C/T Micro",
+   "JBL Control 414C/T-VA",
+   "JBL Control 414CT Micro Plus",
+   "JBL Control 416C/T",
+   "JBL Control 416C/T-VA",
+   "JBL Control 418C/T",
+   "JBL Control 419CS/T",
+   "JBL Control 424C/T",
+   "JBL Control 424LP",
+   "JBL Control 426C/T",
+   "JBL Control 426C/T-LS",
+   "JBL Control 426LP",
+   "JBL Control 42C",
+   "JBL Control 440CS/T",
+   "JBL Control 442C/T",
+   "JBL Control 445C/T",
+   "JBL Control 447C/T",
+   "JBL Control 447HC",
+   "JBL Control 447LP",
+   "JBL Control 45C/T",
+   "JBL Control 47C/T",
+   "JBL Control 47HC",
+   "JBL Control 47LP",
+   "JBL Control 60PS/T",
+   "JBL Control 62P",
+   "JBL Control 64P/T",
+   "JBL Control 65P/T",
+   "JBL Control 67HC/T",
+   "JBL Control 67P/T",
+   "JBL Control 68HP",
+   "JBL Intellivox DS115D",
+   "JBL Intellivox DS180D",
+   "JBL Intellivox DS280D",
+   "JBL Intellivox DS380D",
+   "JBL Intellivox DS430D",
+   "JBL Intellivox DS500D",
+   "JBL Intellivox DSX180D",
+   "JBL Intellivox DSX280D",
+   "JBL Intellivox DSX380D",
+   "JBL Intellivox DSX430D",
+   "JBL Intellivox DSX500D",
+   "JBL Intellivox HP-DS170D",
+   "JBL Intellivox HP-DS370D",
+   "JBL PRX412M",
+   "JBL PRX415M",
+   "JBL PRX418S",
+   "JBL PRX425",
+   "JBL PRX908",
+   "JBL PRX912",
+   "JBL PRX915",
+   "JBL PRX915XLF",
+   "JBL PRX918XLF",
+   "JBL SRX812",
+   "JBL SRX812P",
+   "JBL SRX815",
+   "JBL SRX815P",
+   "JBL SRX818S",
+   "JBL SRX818SP",
+   "JBL SRX828S",
+   "JBL SRX828SP",
+   "JBL SRX835",
+   "JBL SRX835P",
+   "JBL SRX906LA",
+   "JBL SRX910LA",
+   "JBL SRX915SF",
+   "JBL SRX918S",
+   "JBL SRX918SF",
+   "JBL SRX928S",
+   "JBL VRX915M",
+   "JBL VRX915S",
+   "JBL VRX918S",
+   "JBL VRX918SP",
+   "JBL VRX928LA",
+   "JBL VRX932LA-1",
+   "JBL VRX932LAP",
+   "JBL VTX A12",
+   "JBL VTX A6",
+   "JBL VTX A8",
+   "JBL VTX B15",
+   "JBL VTX B18",
+   "JBL VTX B28",
+   "JBL VTX G28",
+   "JBL VTX S25",
+   "JBL VTX S28",
+   "JBL VTX V20",
+   "JBL VTX V25-II"
+  ]
+ },
+ {
+  "hersteller": "(ohne Hersteller)",
+  "offen": 130,
+  "vorhanden": 0,
+  "kategorien": [
+   "Cable Accessories",
+   "Control",
+   "Displays",
+   "Distribution",
+   "Infrastructure",
+   "Lighting",
+   "Mixing Consoles",
+   "Networking",
+   "Peripherals",
+   "Processing",
+   "Recording",
+   "Sources",
+   "Storage",
+   "Switching"
+  ],
+  "modelle": [
+   "208V Panel (42-ckt)",
+   "Audio Mixer",
+   "Audio Snake (16-ch) Break-in",
+   "Audio Snake (16-ch) Break-out",
+   "Audio Snake (24-ch) Break-in",
+   "Audio Snake (24-ch) Break-out",
+   "Audio Snake (4-ch) Break-in",
+   "Audio Snake (4-ch) Break-out",
+   "Audio Snake (8-ch) Break-in",
+   "Audio Snake (8-ch) Break-out",
+   "Audio Snake DB25 (8-ch) Break-in",
+   "Audio Snake DB25 (8-ch) Break-out",
+   "BNC (F↔F) Barrel",
+   "BNC Patch Panel 12-Port",
+   "BNC Patch Panel 24-Port",
+   "BNC Patch Panel 32-Port",
+   "BNC Patch Panel 48-Port",
+   "Camera",
+   "Company Switch 100A Single Phase",
+   "Company Switch 200A 3-Phase",
+   "Company Switch 400A 3-Phase",
+   "Computer",
+   "Converter",
+   "Custom Break-in",
+   "Custom Break-out",
+   "DB9 (F↔F) Barrel",
+   "DMX Opto-Splitter",
+   "DMX-over-Ethernet Node",
+   "DP (M) → HDMI (F) Adapter",
+   "DVI (M) → HDMI (F) Adapter",
+   "Distribution Amp",
+   "Edison (M) → IEC (F) Adapter",
+   "Edison (M) → L21-30 (F) Adapter",
+   "Edison (M) → L5-20 (F) Adapter",
+   "Edison (M) → L6-20 (F) Adapter",
+   "Edison (M) → L6-30 (F) Adapter",
+   "Edison (M) → powerCON (F) Adapter",
+   "Ethernet Switch (4-port)",
+   "Ethernet Switch (8-port)",
+   "External HDD/SSD",
+   "Fiber Break-in (4-ch)",
+   "Fiber Break-out (4-ch)",
+   "Fiber Patch Panel 12-Port",
+   "Fiber Patch Panel 24-Port",
+   "Fiber Patch Panel 32-Port",
+   "Fiber Patch Panel 48-Port",
+   "Frame Sync",
+   "Graphics Generator",
+   "HDMI (F↔F) Barrel",
+   "HDMI (M) → DVI (F) Adapter",
+   "IEC (M) → Edison (F) Adapter",
+   "IEC (M) → powerCON (F) Adapter",
+   "Keyboard",
+   "L21-30 (M) → Edison (F) Adapter",
+   "L21-30 (M) → powerCON (F) Adapter",
+   "L5-20 (M) → Edison (F) Adapter",
+   "L5-20 (M) → powerCON (F) Adapter",
+   "L6-20 (M) → Edison (F) Adapter",
+   "L6-20 (M) → powerCON (F) Adapter",
+   "L6-30 (M) → Edison (F) Adapter",
+   "L6-30 (M) → powerCON (F) Adapter",
+   "MIDI Merge 4x2",
+   "MIDI Thru 1x4",
+   "Mini DP (M) → DP (F) Adapter",
+   "Mini DP (M) → HDMI (F) Adapter",
+   "Monitor",
+   "Mouse",
+   "Multiviewer",
+   "NDI Decoder",
+   "NDI Encoder",
+   "Patch Panel 12-Port",
+   "Patch Panel 24-Port",
+   "Patch Panel 32-Port",
+   "Patch Panel 48-Port",
+   "Portable 60A Distro",
+   "Power Strip",
+   "PowerCON Distro",
+   "PowerCON Thru Distro",
+   "RCA (F↔F) Barrel",
+   "RCA (M) → XLR-3 (F) Adapter",
+   "RJ45 (F↔F) Coupler",
+   "Rack PDU",
+   "Rack PDU 208V",
+   "Recorder",
+   "SDI Router",
+   "Socapex Break-in (6-ch)",
+   "Socapex Break-out (6-ch)",
+   "Socapex Breakout",
+   "TB (M) → HDMI (F) Adapter",
+   "TB (M) → RJ45 (F) Adapter",
+   "TOSLINK (F↔F) Barrel",
+   "TRS 1/4\" (F↔F) Barrel",
+   "TRS 1/4\" (M) → TRS 1/8\" (F) Adapter",
+   "TRS 1/4\" (M) → XLR-3 (F) Adapter",
+   "TRS 1/8\" (M) → TRS 1/4\" (F) Adapter",
+   "TRS Patch Bay 24-Point",
+   "TRS Patch Bay 48-Point",
+   "TRS Patch Bay 96-Point",
+   "TV",
+   "USB-A (F↔F) Barrel",
+   "USB-A (M) → RJ45 (F) Adapter",
+   "USB-C (M) → DP (F) Adapter",
+   "USB-C (M) → HDMI (F) Adapter",
+   "USB-C (M) → USB-A (F) Adapter",
+   "USB-C (M) → USB-B (F) Adapter",
+   "VGA (F↔F) Barrel",
+   "Video Switcher",
+   "Wall Outlet / Convenience Power",
+   "Wall Plate 1-Port BNC",
+   "Wall Plate 1-Port Keystone",
+   "Wall Plate 1-Port XLR",
+   "Wall Plate 2-Port BNC",
+   "Wall Plate 2-Port Keystone",
+   "Wall Plate 2-Port XLR",
+   "Wall Plate 4-Port Keystone",
+   "XLR Patch Panel 12-Port",
+   "XLR Patch Panel 24-Port",
+   "XLR Patch Panel 32-Port",
+   "XLR Patch Panel 48-Port",
+   "XLR-3 (F↔F) Barrel",
+   "XLR-3 (M) → RCA (F) Adapter",
+   "XLR-3 (M) → TRS 1/4\" (F) Adapter",
+   "XLR-5 (F↔F) Barrel",
+   "mini-XLR (M) → XLR-3 (F) Adapter",
+   "powerCON (M) → Edison (F) Adapter",
+   "powerCON (M) → IEC (F) Adapter",
+   "powerCON (M) → L5-20 (F) Adapter",
+   "powerCON (M) → L6-20 (F) Adapter",
+   "powerCON (M) → L6-30 (F) Adapter",
+   "speakON (F↔F) Barrel"
+  ]
+ },
+ {
+  "hersteller": "Crestron",
+  "offen": 97,
+  "vorhanden": 0,
+  "kategorien": [
+   "Amplifiers",
+   "Audio Expansion",
+   "Audio I/O",
+   "Cable Accessories",
+   "Codecs",
+   "Control",
+   "Distribution",
+   "Expansion Cards",
+   "Infrastructure",
+   "KVM / Extenders",
+   "Lighting",
+   "Networking",
+   "Processing",
+   "Sources",
+   "Speakers",
+   "Switching"
+  ],
+  "modelle": [
+   "10.1 in. Tabletop Touch Screen, Unified Communication Version",
+   "8K Smart Display Controller",
+   "AirMedia AM-TX3-100",
+   "CP4N",
+   "CRESTRON - TSS-1080-B",
+   "CRESTRON - TSW-1080-UC-B 2",
+   "Crestron  DM-NUX-R2-1G-B",
+   "Crestron - DM-RMC-SCALER-C",
+   "Crestron - PW-5430DUS",
+   "Crestron AM-3100-WF",
+   "Crestron AM-3200-WF-I",
+   "Crestron AMP-X300",
+   "Crestron AirMedia 3000",
+   "Crestron CEN-IO-COM-102",
+   "Crestron CP4",
+   "Crestron CP4N",
+   "Crestron Collab Compute",
+   "Crestron DIN-8SW8-I",
+   "Crestron DM-DA4-4K-C",
+   "Crestron DM-MD16X16-CPU3",
+   "Crestron DM-MD8X8-CPU3",
+   "Crestron DM-NVX-350",
+   "Crestron DM-NVX-351",
+   "Crestron DM-NVX-352",
+   "Crestron DM-NVX-D200",
+   "Crestron DM-NVX-E20",
+   "Crestron DM-NVX-E20-2G-W-T",
+   "Crestron DM-TX-201-C",
+   "Crestron DM-TX-4KZ-100-C-1G-W-T",
+   "Crestron DMPS3-4K-350-C",
+   "Crestron Dual-Technology Occupancy Sensor",
+   "Crestron HD-CONV-USB-260",
+   "Crestron HD-CONV-USB-300",
+   "Crestron HD-DA2-4KZ-E",
+   "Crestron HD-DA4-4KZ-E",
+   "Crestron HD-MD4X2-4KZ-E",
+   "Crestron HD-PS401",
+   "Crestron HD-RXC-4KZ-101",
+   "Crestron HD-RXU-4KZ-101-E",
+   "Crestron HD-TX-4KZ-101-1G-B",
+   "Crestron HD-TXC-4KZ-101",
+   "Crestron HD-TXC-4KZ-101-1G-B",
+   "Crestron HD-TXU-4KZ-111-E",
+   "Crestron IV-CAM-I12",
+   "Crestron IV-CAM-P12",
+   "Crestron NAX 4ZSA",
+   "Crestron NAX 8ZSA",
+   "Crestron NVX-360",
+   "Crestron NVX-363",
+   "Crestron RMC4",
+   "Crestron SAROS ICT5T-22-W",
+   "Crestron TS-1080-B",
+   "Crestron TS-770",
+   "Crestron TSW-1050",
+   "Crestron TSW-750",
+   "Crestron TSW-752",
+   "Crestron TSW-770-B-S",
+   "Crestron UC-C100-T - Dell",
+   "Crestron UC-SB2-CAM-A-T",
+   "Crestron USB-EXT-2-LOCAL-1G-WW",
+   "Crestron USB-EXT-2-REMOTE-1G-W",
+   "Crestron USB-EXT-3S-LOCAL",
+   "Crestron USB-EXT-3S-REMOTE",
+   "DM-NAX-BTIO-100-1G",
+   "DM-NVX-350C",
+   "DM-NVX-351C",
+   "DM-NVX-352C",
+   "DM-NVX-360C",
+   "DM-NVX-363C",
+   "DM-NVX-384",
+   "DM-NVX-384C",
+   "DM-NVX-385",
+   "DM-NVX-385C",
+   "DM-NVX-D10",
+   "DM-NVX-D20",
+   "DM-NVX-D30",
+   "DM-NVX-D30C",
+   "DM-NVX-E10",
+   "DM-NVX-E20-2G",
+   "DM-NVX-E30",
+   "DM-NVX-E30C",
+   "DM-NVX-E760",
+   "DM-NVX-E760C",
+   "DMC-4KZ-C",
+   "DMC-4KZ-HD",
+   "DMC-4KZ-HDMI",
+   "DMCO-4KZ-HD",
+   "DMCO-4KZ-HDMI",
+   "DMF-CI-8",
+   "FT2-500-ELEC-PTL-B",
+   "HD-DA8-4KZ-E",
+   "HD-MD4X1-4KZ-E",
+   "HD-RX-4K-210-C-E",
+   "MC4",
+   "TSW/TS 70 Series Wall Mounted Touch Screen",
+   "UC PR (CCC-BYOD-KIT)",
+   "UC-SB1-CAM"
+  ]
+ },
+ {
+  "hersteller": "Yamaha",
+  "offen": 77,
+  "vorhanden": 5,
+  "kategorien": [
+   "Amplifiers",
+   "Audio",
+   "Audio I/O",
+   "Codecs",
+   "Control",
+   "Expansion Cards",
+   "Microphones",
+   "Mixing Consoles",
+   "Networking",
+   "Power Amplifier",
+   "Processing",
+   "Speakers"
+  ],
+  "modelle": [
+   "CS-700",
+   "DM7 Control",
+   "DM7C",
+   "Dugan-MY16",
+   "MY16-AE",
+   "MY16-AT",
+   "MY16-MD64",
+   "MY8-AE",
+   "MY8-LAKE",
+   "PY-MIDI-GPI",
+   "PY64-D",
+   "PY64-MD",
+   "PY8-AE",
+   "TF RACK",
+   "XM-CS-700 Table Microphone",
+   "Yamaha CHR12M",
+   "Yamaha CL1",
+   "Yamaha CL3",
+   "Yamaha CS-R3",
+   "Yamaha CS-R5",
+   "Yamaha DBR10",
+   "Yamaha DBR12",
+   "Yamaha DBR15",
+   "Yamaha DM3 Standard",
+   "Yamaha DM7",
+   "Yamaha DME 7",
+   "Yamaha DZR10",
+   "Yamaha EXi8",
+   "Yamaha EXo8",
+   "Yamaha HS 5",
+   "Yamaha LS9-32",
+   "Yamaha MCP1",
+   "Yamaha MG06X",
+   "Yamaha MGX12",
+   "Yamaha MGX12V",
+   "Yamaha MGX16",
+   "Yamaha MGX16V",
+   "Yamaha MRX7-D",
+   "Yamaha MSP5",
+   "Yamaha MTX3",
+   "Yamaha MTX5-D",
+   "Yamaha PA2120",
+   "Yamaha PC406-D",
+   "Yamaha PC412-D",
+   "Yamaha PGM1",
+   "Yamaha PX10",
+   "Yamaha PX3",
+   "Yamaha PX5",
+   "Yamaha PX8",
+   "Yamaha QL1",
+   "Yamaha RM-CR",
+   "Yamaha RMio64-D",
+   "Yamaha Rio1608-D",
+   "Yamaha Rio1608-D3",
+   "Yamaha Rio3224-D",
+   "Yamaha Rio3224-D3",
+   "Yamaha STAGEPAS 100BTR mkII",
+   "Yamaha STAGEPAS 1KmkII",
+   "Yamaha STAGEPAS 200BTR",
+   "Yamaha STAGEPAS 400BT",
+   "Yamaha STAGEPAS 600BT",
+   "Yamaha SWR2311P-10G",
+   "Yamaha TF1",
+   "Yamaha TF1 + NY64D",
+   "Yamaha TF3",
+   "Yamaha TF5",
+   "Yamaha Tio1608-D2",
+   "Yamaha UR12MK3",
+   "Yamaha UR22MK3",
+   "Yamaha URX22C",
+   "Yamaha URX44C",
+   "Yamaha VS 6",
+   "Yamaha VXS 8",
+   "Yamaha XM4180",
+   "Yamaha XMV8140",
+   "Yamaha XMV8280",
+   "Yamaha XMV8280-D"
+  ]
+ },
+ {
+  "hersteller": "Martin Audio",
+  "offen": 72,
+  "vorhanden": 0,
+  "kategorien": [
+   "Amplifiers",
+   "Audio",
+   "Speakers"
+  ],
+  "modelle": [
+   "Martin Adorn A80T",
+   "Martin Audio Blackline Q210",
+   "Martin Audio Blackline Q26",
+   "Martin Audio CDD-LIVE12",
+   "Martin Audio CDD-LIVE15",
+   "Martin Audio CDD-LIVE8",
+   "Martin Audio CDD10",
+   "Martin Audio CDD12",
+   "Martin Audio CDD15",
+   "Martin Audio CDD5",
+   "Martin Audio CDD6",
+   "Martin Audio CDD8",
+   "Martin Audio DX0.4",
+   "Martin Audio DX0.6",
+   "Martin Audio DX4.0",
+   "Martin Audio FP12",
+   "Martin Audio FP15",
+   "Martin Audio FP4",
+   "Martin Audio FP6",
+   "Martin Audio FP8",
+   "Martin Audio LE100",
+   "Martin Audio LE200",
+   "Martin Audio O-LINE",
+   "Martin Audio Q10",
+   "Martin Audio Q118",
+   "Martin Audio Q12",
+   "Martin Audio Q15",
+   "Martin Audio Q210",
+   "Martin Audio Q218",
+   "Martin Audio Q26",
+   "Martin Audio Q44",
+   "Martin Audio Q8",
+   "Martin Audio SX110",
+   "Martin Audio SX112",
+   "Martin Audio SX115",
+   "Martin Audio SX118",
+   "Martin Audio SX118+",
+   "Martin Audio SX210",
+   "Martin Audio SX212",
+   "Martin Audio SX215",
+   "Martin Audio SX218",
+   "Martin Audio SX218+",
+   "Martin Audio SXC115",
+   "Martin Audio SXC118",
+   "Martin Audio SXCF115",
+   "Martin Audio SXCF118",
+   "Martin Audio SXH218",
+   "Martin Audio SXHF218",
+   "Martin Audio SXP118",
+   "Martin Audio SXP218",
+   "Martin Audio THH",
+   "Martin Audio THS",
+   "Martin Audio THV",
+   "Martin Audio Torus T1215",
+   "Martin Audio Torus T1230",
+   "Martin Audio Torus T820",
+   "Martin Audio VIA2004",
+   "Martin Audio VIA2502",
+   "Martin Audio VIA5002",
+   "Martin Audio VIA5004",
+   "Martin Audio WPC",
+   "Martin Audio WPL",
+   "Martin Audio WPM",
+   "Martin Audio WPS",
+   "Martin Audio XE300",
+   "Martin Audio XE500",
+   "Martin Audio XP118",
+   "Martin Audio XP12",
+   "Martin Audio XP15",
+   "Martin Audio iKON iK41",
+   "Martin Audio iKON iK42",
+   "Martin Audio iKON iK81"
+  ]
+ },
+ {
+  "hersteller": "Allen & Heath",
+  "offen": 66,
+  "vorhanden": 1,
+  "kategorien": [
+   "Audio",
+   "Audio Expansion",
+   "Audio I/O",
+   "Expansion Cards",
+   "Mixing Consoles"
+  ],
+  "modelle": [
+   "A&H 4in AES3 DX32 Module",
+   "A&H 4out AES3 DX32 Module",
+   "A&H 8in Analogue DX32 Module",
+   "A&H 8out Analogue DX32 Module",
+   "A&H AES3 10out Network Card",
+   "A&H AES3 2in/8out Network Card",
+   "A&H AES3 4in/6Out Network Card",
+   "A&H AES3 6in/4out Network Card",
+   "A&H AR2412 Expander",
+   "A&H Avantis",
+   "A&H Avantis Solo",
+   "A&H DX Link Network Card",
+   "A&H DX012 Expander",
+   "A&H DX164-W",
+   "A&H DX168 Expander",
+   "A&H DX32 Expander",
+   "A&H Dante 64x64 Network Card",
+   "A&H Dante128",
+   "A&H FibreACE128",
+   "A&H GLD-112",
+   "A&H GX4816 Expander",
+   "A&H PRIME IN DX32 Module",
+   "A&H PRIME OUT DX32 Module",
+   "A&H Qu-16",
+   "A&H Qu-5/Qu-5D",
+   "A&H SQ MADI",
+   "A&H SQ Waves",
+   "A&H SQ-5",
+   "A&H SQ-6",
+   "A&H SQ-7",
+   "A&H SQ-Dante32",
+   "A&H SQ-Dante64",
+   "A&H SQ-Rack",
+   "A&H dLive C1500 Surface",
+   "A&H dLive C2500 Surface",
+   "A&H dLive C3500",
+   "A&H dLive CDM 32",
+   "A&H dLive CDM48",
+   "A&H dLive CDM64 MixRack",
+   "A&H dLive CTi1500 Surface",
+   "A&H dLive DM32 MixRack",
+   "A&H dLive DM48 MixRack",
+   "A&H dLive DM64 MixRack",
+   "A&H dLive S3000",
+   "A&H dLive S5000",
+   "A&H dLive S7000",
+   "A&H dLive S7000",
+   "A&H fibreACE Network Card",
+   "A&H gigaACE Network Card",
+   "A&H superMADI",
+   "Allen & Heath AB168 16x8 Digital Stage Box",
+   "Allen & Heath AHM-16",
+   "Allen & Heath AHM-32",
+   "Allen & Heath AHM-64",
+   "Allen & Heath CQ-12T",
+   "Allen & Heath DT168 16x8 Dante Digital Stage Box",
+   "Allen & Heath DT20",
+   "Allen & Heath GLD80",
+   "Allen & Heath SQ6+",
+   "Allen & Heath SQ7+",
+   "GigaACE128",
+   "M-DL-DANTE128",
+   "M-DL-SMADI",
+   "M-DL-WAVES3",
+   "SQ Dante 64x64",
+   "SQ SLink Card"
+  ]
+ },
+ {
+  "hersteller": "QSC",
+  "offen": 61,
+  "vorhanden": 0,
+  "kategorien": [
+   "Amplifiers",
+   "Audio",
+   "Audio Expansion",
+   "Audio I/O",
+   "Control",
+   "Networking",
+   "Processors",
+   "Sources",
+   "Speakers"
+  ],
+  "modelle": [
+   "AC-C4T",
+   "MPA-Q 4x250",
+   "MPA-Q 4x500",
+   "MPA-Q 8x125",
+   "MPA-Q 8x250",
+   "NC-20x60",
+   "NV-1-H-WE",
+   "NV-32-H",
+   "Q-SYS MPA-Q 8x250",
+   "Q-SYS QIO-GP8x8",
+   "Q-SYS Server Core X10",
+   "QIO-L24o",
+   "QIO-ML24i",
+   "QSC AD-C6T-ZB",
+   "QSC CP12",
+   "QSC Core 24f",
+   "QSC GX5",
+   "QSC I/O-USB Bridge",
+   "QSC ISA 500Ti",
+   "QSC K12.2",
+   "QSC KLA12",
+   "QSC KLA181",
+   "QSC KS118 Subwoofer",
+   "QSC LA108",
+   "QSC LS118",
+   "QSC PLD 4.5",
+   "QSC Q-SYS CX-Q 2K4",
+   "QSC Q-SYS CX-Q 4K4",
+   "QSC Q-SYS CX-Q 4K8",
+   "QSC Q-SYS CX-Q 8K4",
+   "QSC Q-SYS CX-Q 8K8",
+   "QSC Q-SYS Core 110f",
+   "QSC Q-SYS Core 8 Flex",
+   "QSC Q-SYS Core Nano",
+   "QSC Q-SYS IO-8 Flex",
+   "QSC Q-SYS NC-12x80",
+   "QSC Q-SYS NC-90-G2",
+   "QSC Q-SYS NV-21-HU",
+   "QSC Q-SYS QIO-LVR4",
+   "QSC Q-SYS TSC-101-G3",
+   "QSC Q-SYS TSC-101-G3",
+   "QSC Q-SYS TSC-50-G3",
+   "QSC Q-SYS TSC-70-G3",
+   "QSC QIO-IR1x4",
+   "QSC QIO-L4o",
+   "QSC QIO-ML2x2",
+   "QSC QIO-ML4i",
+   "QSC RMX 2450",
+   "QSC S.SAT",
+   "QSC S.SUB",
+   "QSC unDX2IO+",
+   "Qsys QIO S-4",
+   "SPA-Qf 60x2",
+   "SPA-Qf 60x4",
+   "SPA2-200",
+   "SPA2-60",
+   "SPA4-100",
+   "SPA4-60",
+   "Server Core X10",
+   "Server Core X20r",
+   "Server Core X50r"
+  ]
+ },
+ {
+  "hersteller": "Shure",
+  "offen": 54,
+  "vorhanden": 8,
+  "kategorien": [
+   "Amplifiers",
+   "Audio",
+   "Audio I/O",
+   "Codecs",
+   "Control",
+   "Microphones",
+   "Networking",
+   "Speakers",
+   "Wireless"
+  ],
+  "modelle": [
+   "MXA 320 Table Array Microphone",
+   "MXA 710 Linear Array Microphone",
+   "MXA 920 Ceiling Array Microphone",
+   "MXA310",
+   "MXA925",
+   "MXN5W-C Networked Ceiling Loudspeaker 1",
+   "MXWAPT8",
+   "MXWAPX",
+   "MXWNDX",
+   "Shure AD4Q",
+   "Shure AD4Q",
+   "Shure AD600",
+   "Shure ANI22",
+   "Shure ANI4IN",
+   "Shure ANI4OUT",
+   "Shure ANIUSB-C",
+   "Shure ANIUSB-MATRIX",
+   "Shure ANX4",
+   "Shure AXT600",
+   "Shure Axient AD4D",
+   "Shure Axient AD4Q",
+   "Shure IntelliMix P300",
+   "Shure IntelliMix Room Kit – IntelliMix Bar Pro",
+   "Shure IntelliMix Touch Panel",
+   "Shure MX202B/C",
+   "Shure MX412",
+   "Shure MX418",
+   "Shure MX418D/C",
+   "Shure MXA901",
+   "Shure MXA902",
+   "Shure MXA910 Ceiling Array Microphone",
+   "Shure MXN-6",
+   "Shure MXN-AMP",
+   "Shure MXN5-C 1",
+   "Shure MXP-1",
+   "Shure MXP-3",
+   "Shure MXP-5",
+   "Shure MXP-6",
+   "Shure MXWANI4",
+   "Shure PA421B",
+   "Shure PA821B",
+   "Shure PSM P3T",
+   "Shure SLX4 Receiver",
+   "Shure SLXD4",
+   "Shure SLXD4D+",
+   "Shure SLXD4Q+",
+   "Shure UA844 Antenna",
+   "Shure UA844+SWB",
+   "Shure UA845UWB",
+   "Shure UA860SWB",
+   "Shure UA874 Active Directional UHF Antenna",
+   "Shure ULXD1 Bodypack Transmitter",
+   "Shure ULXD4 Wireless Mic Receiver",
+   "Shure ULXD4D"
+  ]
+ },
+ {
+  "hersteller": "BSS",
+  "offen": 52,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio",
+   "Audio I/O",
+   "Control",
+   "KVM / Extenders",
+   "Networking",
+   "Processing"
+  ],
+  "modelle": [
+   "BSS BLU-10",
+   "BSS BLU-100",
+   "BSS BLU-101",
+   "BSS BLU-102",
+   "BSS BLU-103",
+   "BSS BLU-160",
+   "BSS BLU-3",
+   "BSS BLU-326DA",
+   "BSS BLU-50v2",
+   "BSS BLU-8v2",
+   "BSS BLU-BIB",
+   "BSS BLU-BOB1",
+   "BSS BLU-BOB2",
+   "BSS BLU-DAN",
+   "BSS BLU-GPX",
+   "BSS Contrio EC-4BV",
+   "BSS Contrio EC-4V",
+   "BSS Contrio EC-8BV",
+   "BSS Contrio EC-8V",
+   "BSS MC-1",
+   "BSS OMNI 16e",
+   "BSS OMNI 256P",
+   "BSS OMNI 32e",
+   "BSS OMNI-KP-6B",
+   "BSS OMNI-KP-6BV",
+   "BSS OMNI-KP-8BV",
+   "BSS OMNI-KP-T6B",
+   "BSS OMNI-KP-T6BV",
+   "BSS OMNI-KP-T8BV",
+   "BSS OMNI-KP-V",
+   "BSS OMNI-TP-100",
+   "BSS OMNI-TP-100N",
+   "BSS OMNI-TP-150",
+   "BSS OMNI-TP-150N",
+   "BSS OMNI-TP-80",
+   "BSS OMNI-TP-80N",
+   "BSS OMNI-TP-SL50",
+   "BSS OMNI-TP-SL80",
+   "BSS OMNI-UD-210",
+   "BSS OMNI-UD-210-WP",
+   "BSS OMNI-UE-210",
+   "BSS OMNI-VD-330",
+   "BSS OMNI-VD-610",
+   "BSS OMNI-VD-630-WP",
+   "BSS OMNI-VD-660",
+   "BSS OMNI-VE-330",
+   "BSS OMNI-VE-610",
+   "BSS OMNI-VE-630-WP",
+   "BSS OMNI-VE-630-WP-EK",
+   "BSS OMNI-VE-660",
+   "Di Box Mono",
+   "OMNI-VD-630-WP-EK"
+  ]
+ },
+ {
+  "hersteller": "Generic",
+  "offen": 51,
+  "vorhanden": 0,
+  "kategorien": [
+   "Amplifiers",
+   "Audio I/O",
+   "Cable Accessories",
+   "Control",
+   "Displays",
+   "Distribution",
+   "Expansion Cards",
+   "Infrastructure",
+   "LED Video",
+   "Microphones",
+   "Networking",
+   "Processing",
+   "Projection",
+   "Sources",
+   "Speakers",
+   "Storage Media",
+   "Switching",
+   "Wireless"
+  ],
+  "modelle": [
+   "10 RJ45 / 2-SFP+ Switch",
+   "1000BASE-T SFP (Copper)",
+   "10GBASE-LR SFP+ (SM Fiber)",
+   "10GBASE-SR SFP+ (MM Fiber)",
+   "10GBASE-T SFP+ (Copper)",
+   "12V Power Supply",
+   "16 PORT GIGABIT SWITCH",
+   "24 PORT GIGABIT SWITCH",
+   "25GBASE-SR SFP28 (MM Fiber)",
+   "40GBASE-LR4 QSFP+ (SM Fiber)",
+   "40GBASE-SR4 QSFP+ (MM Fiber)",
+   "8-RJ45 / 1-SFP Switch",
+   "Antenna",
+   "Audio De-Embeder",
+   "Ceiling Speaker",
+   "Class PC",
+   "Class PC",
+   "Classroom PC (Self-Built)",
+   "ELC Switch 8GB",
+   "Electric Projection Screen",
+   "Generic 4G/5G Wireless Access Point",
+   "Generic 8-port Switch with SFP",
+   "Generic Audio Amplifier",
+   "Generic Display",
+   "Generic Microphone",
+   "Generic Modem",
+   "Generic Speaker (Passive)",
+   "Generic Speaker (Powered)",
+   "HDMI - HDMI mini convertor",
+   "HDMI 4K Splitter 1 in 4 Out",
+   "HDMI Splitter 1 in 2 out",
+   "HDMI Switch 2 in 1 out",
+   "HDMI mini - HDMI convertor",
+   "LED Cabinet",
+   "PC w/ Decklink 4K",
+   "PoE Injector",
+   "Projector",
+   "SDHC Card (32 GB)",
+   "SDXC Card (128 GB)",
+   "SDXC Card (256 GB)",
+   "SDXC Card (512 GB)",
+   "Socapex speaKON4 Break-In (4-ch)",
+   "Socapex speaKON4 Break-out (4-ch)",
+   "Trolley TV",
+   "USB to HDMI (DisplayLink)",
+   "User Laptop",
+   "Zoom PC",
+   "microSDXC Card (128 GB)",
+   "microSDXC Card (256 GB)",
+   "speaKON Break-In",
+   "speaKON Break-Out"
+  ]
+ },
+ {
+  "hersteller": "Ubiquiti",
+  "offen": 50,
+  "vorhanden": 0,
+  "kategorien": [
+   "Amplifiers",
+   "Control",
+   "Infrastructure",
+   "Intercom",
+   "Monitoring",
+   "Networking",
+   "Processing",
+   "Projection",
+   "Recording",
+   "Sources",
+   "Storage"
+  ],
+  "modelle": [
+   "AC Mesh",
+   "Analog Telephone Adapter",
+   "Dream Machine SE",
+   "Dream Router",
+   "Dream Router 5G Max",
+   "Enterprise AV Fiber",
+   "Enterprise AV XG 24 PoE",
+   "G3 Reader",
+   "G3 Reader Pro",
+   "G6 Dome",
+   "Lite 8 PoE",
+   "Protect Viewport",
+   "Redundant Power",
+   "U7 Pro",
+   "U7 Pro Max",
+   "USW Pro 24 PoE",
+   "Ubiquiti Cloud Gateway Ultra",
+   "Ubiquiti Display Cast Pro",
+   "Ubiquiti EAV-Bridge",
+   "Ubiquiti EV Station Pro",
+   "Ubiquiti Enterprise NVR",
+   "Ubiquiti Flex 2.5G PoE",
+   "Ubiquiti G3 Touch Pro",
+   "Ubiquiti PoE Audio Port",
+   "Ubiquiti PowerAmp",
+   "Ubiquiti Pro Max 48",
+   "Ubiquiti Pro Max 48 PoE Switch",
+   "Ubiquiti U6 Pro",
+   "Ubiquiti U7 Pro Outdoor",
+   "Ubiquiti UAP-AC-M-US Access Point",
+   "Ubiquiti UniFi Gate Hub",
+   "Ubiquiti UniFi Protect 4K AI Turret Camera (White)",
+   "UniFi Enterprise 3.5\" HDD, 16 TB",
+   "UniFi G3 Intercom",
+   "UniFi G6 PTZ",
+   "UniFi G6 Pro Entry",
+   "UniFi PoE Over 2-Wire Retrofit Extender (Receiver)",
+   "UniFi PoE Over 2-Wire Retrofit Extender (Transmitter)",
+   "UniFi PoE+ Adapter (30W)",
+   "UniFi PoE++ Adapter (60W)",
+   "UniFi Pro HD 24 PoE",
+   "UniFi Pro Max 16 PoE Switch",
+   "UniFi Pro Max 24 PoE",
+   "UniFi Pro XG 48 PoE",
+   "UniFi USW-16-POE",
+   "UniFi USW-Aggregation",
+   "UniFi USW-Pro-24-POE",
+   "Unifi Cloud Gateway Max (UCG-MAX)",
+   "Unifi Dream Machine Pro",
+   "Unifi Dream Machine Pro Max"
+  ]
+ },
+ {
+  "hersteller": "Biamp",
+  "offen": 45,
+  "vorhanden": 0,
+  "kategorien": [
+   "Amplifiers",
+   "Audio",
+   "Audio I/O",
+   "Codecs",
+   "Control",
+   "Microphones",
+   "Networking",
+   "Speakers"
+  ],
+  "modelle": [
+   "Biamp ALC-1604D",
+   "Biamp ALC-404D",
+   "Biamp DX-S8",
+   "Biamp Desono C-IC6",
+   "Biamp Desono DX-IC6LP-TAA White",
+   "Biamp Desono DX-S5-UB-W",
+   "Biamp Desono DX-S8-UB-W",
+   "Biamp Desono EX-S10-UB-B",
+   "Biamp ENT-FR",
+   "Biamp Forte X 400/800/1600",
+   "Biamp IC6-1062/00",
+   "Biamp IC6-1082/26",
+   "Biamp IV6-1122/05",
+   "Biamp IV6-1122/15",
+   "Biamp LVH-906/AS",
+   "Biamp LVH-909/AS",
+   "Biamp Qt X 300",
+   "Biamp R.5-66MAX",
+   "Biamp R.5-96MAX",
+   "Biamp Tesira AMP-450P",
+   "Biamp Tesira EX-IN",
+   "Biamp Tesira EX-IO",
+   "Biamp Tesira EX-LOGIC",
+   "Biamp Tesira EX-OUT",
+   "Biamp Tesira EX-UBT",
+   "Biamp Tesira EX-USB",
+   "Biamp Tesira SERVER",
+   "Biamp TesiraCONNECT TC-5",
+   "Biamp TesiraCONNECT TC-5D",
+   "Biamp TesiraFORTE X 800",
+   "Biamp TesiraFORTÉ AI",
+   "Biamp TesiraFORTÉ AVB AI",
+   "Biamp TesiraFORTÉ AVB CI",
+   "Biamp TesiraFORTÉ AVB VT",
+   "Biamp TesiraFORTÉ AVB VT4",
+   "Biamp TesiraFORTÉ DAN AI",
+   "Biamp TesiraFORTÉ DAN CI",
+   "Biamp TesiraFORTÉ VT DSP",
+   "Biamp Voltara D 1200.4M",
+   "Biamp Voltera A 600.2",
+   "Biamp Voltera A 600.4",
+   "Network Box TTM-X",
+   "Parle VBC 2800",
+   "Parlé TCM-1",
+   "Parlé TCM-1EX"
+  ]
+ },
+ {
+  "hersteller": "Fulcrum Acoustic",
+  "offen": 43,
+  "vorhanden": 0,
+  "kategorien": [
+   "Amplifiers",
+   "Audio",
+   "Speakers"
+  ],
+  "modelle": [
+   "Driveflex 232",
+   "Driveflex 412",
+   "Driveflex 424",
+   "Driveflex 46",
+   "Fulcrum CC215",
+   "Fulcrum CC230",
+   "Fulcrum CCX1200",
+   "Fulcrum CCX1226",
+   "Fulcrum CCX1265",
+   "Fulcrum CCX1277",
+   "Fulcrum CCX1295",
+   "Fulcrum CCX1500",
+   "Fulcrum CCX1526",
+   "Fulcrum CCX1565",
+   "Fulcrum CCX1577",
+   "Fulcrum CCX1595",
+   "Fulcrum CCX826",
+   "Fulcrum CCX896",
+   "Fulcrum CS118",
+   "Fulcrum CS118v2-WR",
+   "Fulcrum CS121",
+   "Fulcrum CS121v2-WR",
+   "Fulcrum CS212L",
+   "Fulcrum CS215L",
+   "Fulcrum CS218L",
+   "Fulcrum CX1226",
+   "Fulcrum CX1526",
+   "Fulcrum CX1565",
+   "Fulcrum CX1577",
+   "Fulcrum CX1595",
+   "Fulcrum CX826",
+   "Fulcrum CX896",
+   "Fulcrum Sub112",
+   "Fulcrum Sub115",
+   "Fulcrum Sub118",
+   "Fulcrum Sub215",
+   "Fulcrum Sub215L",
+   "Fulcrum Sub218L",
+   "Fulcrum Venueflex 128",
+   "Fulcrum Venueflex 16",
+   "Fulcrum Venueflex 32",
+   "Fulcrum Venueflex 64",
+   "Fulcrum Venueflex 96"
+  ]
+ },
+ {
+  "hersteller": "Crown",
+  "offen": 42,
+  "vorhanden": 0,
+  "kategorien": [
+   "Amplifiers",
+   "Audio"
+  ],
+  "modelle": [
+   "Crown CDi 2|1200",
+   "Crown CDi 2|300",
+   "Crown CDi 2|600",
+   "Crown CDi 4|1200",
+   "Crown CDi 4|300",
+   "Crown CDi 4|600",
+   "Crown CDi4000",
+   "Crown CT4150",
+   "Crown CT475",
+   "Crown CT8150",
+   "Crown CT875",
+   "Crown CTD-2125",
+   "Crown CTD-4125",
+   "Crown CTD-8125",
+   "Crown Com-Tech 410",
+   "Crown DCi 2|1250",
+   "Crown DCi 2|1250N",
+   "Crown DCi 2|2400N",
+   "Crown DCi 2|300",
+   "Crown DCi 2|300N",
+   "Crown DCi 2|600",
+   "Crown DCi 2|600N",
+   "Crown DCi 4|1250",
+   "Crown DCi 4|1250DA",
+   "Crown DCi 4|1250N",
+   "Crown DCi 4|2400N",
+   "Crown DCi 4|300",
+   "Crown DCi 4|300DA",
+   "Crown DCi 4|300N",
+   "Crown DCi 4|600",
+   "Crown DCi 4|600DA",
+   "Crown DCi 4|600N",
+   "Crown DCi 8|300",
+   "Crown DCi 8|300DA",
+   "Crown DCi 8|300N",
+   "Crown DCi 8|600",
+   "Crown DCi 8|600DA",
+   "Crown DCi 8|600N",
+   "Crown XLS 2502",
+   "Crown XLi 1500",
+   "Crown XTi 4002",
+   "Crown Xs900"
+  ]
+ },
+ {
+  "hersteller": "Evertz",
+  "offen": 42,
+  "vorhanden": 0,
+  "kategorien": [
+   "Control",
+   "Expansion Cards",
+   "Infrastructure",
+   "Recording",
+   "Sources",
+   "Switching"
+  ],
+  "modelle": [
+   "DreamCatcher Lite",
+   "DreamCatcher Play",
+   "DreamCatcher Recorder",
+   "Dreamcatcher RCP",
+   "Evertz 3067VIPX-HW-A",
+   "Evertz 5700MSC-IP",
+   "Evertz 7700DA7-3G",
+   "Evertz 7767VIP12",
+   "Evertz 7767VIP4",
+   "Evertz 7767VIP8",
+   "Evertz 7800FR",
+   "Evertz 7825DSK2-LG-HD",
+   "Evertz EMX6-FR",
+   "Evertz EQX10",
+   "Evertz MIO-AES-D4",
+   "Evertz MIO-AES-IN4-IP",
+   "Evertz MIO-AES-IN6-OUT6",
+   "Evertz MIO-AES-IP",
+   "Evertz MIO-AES-LTC-D4",
+   "Evertz MIO-AES-OUT4-IP",
+   "Evertz MIO-AVR",
+   "Evertz MIO-AVT",
+   "Evertz MIO-DANTE-64",
+   "Evertz MIO-DD4-3G",
+   "Evertz MIO-DE4-3G",
+   "Evertz MIO-GE-RJ45-IP",
+   "Evertz MIO-HDMI-2-4K-IP",
+   "Evertz MIO-HDMI-IN-3G",
+   "Evertz MIO-HDMI-IN-4K",
+   "Evertz MIO-HDMI-IN1-4K-IP",
+   "Evertz MIO-HDMI-OUT-3G",
+   "Evertz MIO-HDMI-OUT-4K",
+   "Evertz MIO-HDMI-OUT1-4K-IP",
+   "Evertz MIO-IT-IP",
+   "Evertz MIO-MADI-2-IP",
+   "Evertz MIO-USB-A",
+   "Evertz MIO-USB-B",
+   "Evertz MIO-VB-2-12G",
+   "Evertz MIO-VTR-2-12G",
+   "Evertz Scorpion-18",
+   "Evertz Scorpion-2",
+   "Evertz Scorpion-6"
+  ]
+ },
+ {
+  "hersteller": "Behringer",
+  "offen": 38,
+  "vorhanden": 6,
+  "kategorien": [
+   "Amplifiers",
+   "Audio",
+   "Audio I/O",
+   "Expansion Cards",
+   "Microphones",
+   "Mixing Consoles"
+  ],
+  "modelle": [
+   "32-Channel Audinate Dante Networking",
+   "32-Channel USB Audio Interface",
+   "Behringer A800",
+   "Behringer ADA8200",
+   "Behringer AMP800",
+   "Behringer C-2",
+   "Behringer EP2000",
+   "Behringer EPQ304",
+   "Behringer HA400",
+   "Behringer HA6000",
+   "Behringer HA8000",
+   "Behringer KM1700",
+   "Behringer KM750",
+   "Behringer MA400",
+   "Behringer NX1000",
+   "Behringer NX3000",
+   "Behringer NX4-6000",
+   "Behringer NX6000",
+   "Behringer P1",
+   "Behringer P16-D",
+   "Behringer P16-HQ",
+   "Behringer P2",
+   "Behringer P24",
+   "Behringer SD16",
+   "Behringer SD8",
+   "Behringer U-PHORIA UM2",
+   "Behringer UM22",
+   "Behringer UMC1820",
+   "Behringer UMC202",
+   "Behringer UMC204",
+   "Behringer UMC404",
+   "Behringer WING COMPACT",
+   "Behringer WING RACK",
+   "Behringer X Air X18",
+   "Behringer X Air XR12",
+   "Behringer X Air XR16",
+   "Behringer X Air XR18",
+   "Behringer Xenyx Q802USB"
+  ]
+ },
+ {
+  "hersteller": "Sonifex",
+  "offen": 38,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio",
+   "Audio I/O",
+   "Control",
+   "Distribution",
+   "Intercom",
+   "Processing"
+  ],
+  "modelle": [
+   "Sonifex AVN-AESIO8",
+   "Sonifex AVN-AESIO8R",
+   "Sonifex AVN-AH8",
+   "Sonifex AVN-AI16",
+   "Sonifex AVN-AI16R",
+   "Sonifex AVN-AIO4",
+   "Sonifex AVN-AIO8",
+   "Sonifex AVN-AIO8R",
+   "Sonifex AVN-AO16",
+   "Sonifex AVN-AO16R",
+   "Sonifex AVN-CU1",
+   "Sonifex AVN-CU2",
+   "Sonifex AVN-CU2-RAV",
+   "Sonifex AVN-CU4",
+   "Sonifex AVN-CU4-RAV",
+   "Sonifex AVN-DIO01",
+   "Sonifex AVN-DIO02",
+   "Sonifex AVN-DIO03",
+   "Sonifex AVN-DIO04",
+   "Sonifex AVN-DIO05",
+   "Sonifex AVN-DIO10-12G Dante",
+   "Sonifex AVN-DIO12",
+   "Sonifex AVN-DIO14",
+   "Sonifex AVN-DIO15",
+   "Sonifex AVN-DIO16",
+   "Sonifex AVN-DIO19",
+   "Sonifex AVN-DIO20",
+   "Sonifex AVN-DIO6",
+   "Sonifex AVN-DIO7",
+   "Sonifex AVN-DIO8",
+   "Sonifex AVN-DIO9",
+   "Sonifex AVN-GMCS",
+   "Sonifex AVN-GPIO",
+   "Sonifex AVN-M8R",
+   "Sonifex B-DDA6A",
+   "Sonifex RB-DA6",
+   "Sonifex RB-DHD6",
+   "Sonifex-DIO10"
+  ]
+ },
+ {
+  "hersteller": "WyreStorm",
+  "offen": 36,
+  "vorhanden": 0,
+  "kategorien": [
+   "Amplifiers",
+   "Audio",
+   "Cable Accessories",
+   "Control",
+   "KVM / Extenders",
+   "Networking",
+   "Processing",
+   "Switching"
+  ],
+  "modelle": [
+   "AMP-2120-DNT Audio Amplifier",
+   "CAM-0402-BRG Camera Bridge and Mixer",
+   "CAM-0402-NDI-BRG Camera Bridge and Mixer",
+   "COM-MIC-HUB Microphone Hub",
+   "CON-ANLG-DNT Analog to Dante Converter",
+   "CON-DNT-ANLG Dante to Analog Converter",
+   "CON-DNT-XLR Dante to XLR Converter",
+   "CON-USBC-DNT USB to Dante Converter",
+   "CON-XLR-DNT XLR to Dante Converter",
+   "EX-35-8K HDMI Extender (RX)",
+   "EX-35-8K HDMI Extender (TX)",
+   "EXA-100-EARC Audio Extender (RX)",
+   "EXA-100-EARC Audio Extender (TX)",
+   "EXP-CON-AUD-H2 Audio Extractor",
+   "IDB-300-BTN Dual-Channel In-Desk CableBox",
+   "MX-0402-MST Conference Room Switcher",
+   "MX-0403-H3-MST Conference Room Switcher",
+   "NHD-120-IW-TX In-Wall Encoder",
+   "NHD-120-TX Encoder",
+   "NHD-128-NDI-TRX NDI Gateway",
+   "NHD-150-RX MultiView Decoder",
+   "NHD-500-E-RX Lite Decoder",
+   "NHD-500-E-TX Lite Encoder",
+   "NHD-500-E-TX Lite Encoder",
+   "NHD-500-TX v2 Encoder",
+   "NHD-510-TX Encoder",
+   "NHD-600-E-RX SDVoE Decoder",
+   "NHD-600-E-TX SDVoE Encoder",
+   "NHD-600-TRXF SDVoE Encoder",
+   "NHD-CTL-PRO-V2 Controller",
+   "SW-130-TX-UK In-Wall HDBaseT Transmitter",
+   "SW-620-TX-W Presentation Switcher",
+   "WyreStorm APO-SKY-MIC Ceiling Microphone",
+   "WyreStorm MX-1007-HYB Matrix Switcher",
+   "WyreStorm NHD-120-RX-S Sealoc Decoder",
+   "WyreStorm NHD-124-TX Quad Encoder"
+  ]
+ },
+ {
+  "hersteller": "AMX",
+  "offen": 33,
+  "vorhanden": 0,
+  "kategorien": [
+   "Control",
+   "KVM / Extenders",
+   "Networking",
+   "Switching",
+   "User Interfaces",
+   "Video Switchers",
+   "Windowing Processors"
+  ],
+  "modelle": [
+   "AMX CE-COM2",
+   "AMX CE-IO4",
+   "AMX CE-IRS4",
+   "AMX CE-REL8",
+   "AMX DXL-RX-4K60",
+   "AMX DXL-TX-4K60",
+   "AMX MUSE MU-1000",
+   "AMX MUSE MU-1300",
+   "AMX MUSE MU-2300",
+   "AMX MUSE MU-3300",
+   "AMX NCITE-813",
+   "AMX NCITE-813A",
+   "AMX NMX-DEC-N2622S",
+   "AMX NMX-DEC-N2625D-WP",
+   "AMX NMX-DEC-N2625D-WP-EK",
+   "AMX NMX-DEC-N3322D",
+   "AMX NMX-ENC-N2612S",
+   "AMX NMX-ENC-N2615D-WP",
+   "AMX NMX-ENC-N2615D-WP-EK",
+   "AMX NMX-ENC-N3312D",
+   "AMX NetLinx NX-1200",
+   "AMX NetLinx NX-2200",
+   "AMX NetLinx NX-3200",
+   "AMX NetLinx NX-4200",
+   "AMX PR-0402",
+   "AMX PR01-0808",
+   "AMX Varia 100",
+   "AMX Varia 100N (No-Comm)",
+   "AMX Varia 150",
+   "AMX Varia 80",
+   "AMX Varia SL50",
+   "AMX Varia SL80",
+   "NMX-WP-N2510"
+  ]
+ },
+ {
+  "hersteller": "Genelec",
+  "offen": 32,
+  "vorhanden": 0,
+  "kategorien": [
+   "Speakers"
+  ],
+  "modelle": [
+   "Genelec 1032C",
+   "Genelec 3440A",
+   "Genelec 4010A",
+   "Genelec 4020C",
+   "Genelec 4030C",
+   "Genelec 4040A",
+   "Genelec 4410A",
+   "Genelec 4420A",
+   "Genelec 4430A",
+   "Genelec 4435A",
+   "Genelec 4436A",
+   "Genelec 7040A",
+   "Genelec 7050C",
+   "Genelec 7350A",
+   "Genelec 7360A",
+   "Genelec 7370A",
+   "Genelec 7380A",
+   "Genelec 7382A",
+   "Genelec 8010A",
+   "Genelec 8020D",
+   "Genelec 8030C",
+   "Genelec 8040B",
+   "Genelec 8050B",
+   "Genelec 8320A",
+   "Genelec 8330A",
+   "Genelec 8331A",
+   "Genelec 8340A",
+   "Genelec 8341A",
+   "Genelec 8350A",
+   "Genelec 8351B",
+   "Genelec 8361A",
+   "Genelec W371A"
+  ]
+ },
+ {
+  "hersteller": "Novastar",
+  "offen": 30,
+  "vorhanden": 1,
+  "kategorien": [
+   "Expansion Cards",
+   "LED Video"
+  ],
+  "modelle": [
+   "H-Series 16x RJ45 + 2x Fiber Sending Card",
+   "H-Series 1x HDMI 2.0 + 1x DP 1.2 Input Card",
+   "H-Series 20x RJ45 Sending Card",
+   "H-Series 2x Audio Input + 2x Audio Output Card",
+   "H-Series 2x CVBS + 2x VGA Input Card",
+   "H-Series 2x HDMI2.0 Input Card",
+   "H-Series 2x RJ45 IP Input Card",
+   "H-Series 4x 3G-SDI Input Card",
+   "H-Series 4x DVI Input Card",
+   "H-Series 4x DVI Output Card",
+   "H-Series 4x HDBaseT Input Card",
+   "H-Series 4x HDMI Input Card",
+   "H-Series 4x HDMI Output Card",
+   "H-Series 4x OPT Output Card",
+   "H-Series Multiviewer",
+   "H-Series Secondary PSU",
+   "MCTRL 660Pro",
+   "Novastar CVT10 Fiber Converter",
+   "Novastar H2",
+   "Novastar KU20",
+   "Novastar MCTRL4K",
+   "Novastar MX30",
+   "Novastar NovaPro HD",
+   "Novastar NovaPro UHD Jr",
+   "Novastar VX1000",
+   "Novastar VX1000 Pro",
+   "Novastar VX2000 Pro",
+   "Novastar VX400 Pro",
+   "Novastar VX600 Pro",
+   "Novastar tb60"
+  ]
+ },
+ {
+  "hersteller": "LAWO",
+  "offen": 30,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio",
+   "Audio I/O",
+   "Control",
+   "Displays",
+   "Intercom",
+   "Mixing Consoles",
+   "Monitoring",
+   "Networking",
+   "Processing"
+  ],
+  "modelle": [
+   "LAWO .edge",
+   "LAWO A__UHD Core",
+   "LAWO A__line",
+   "LAWO HOME",
+   "LAWO HOME Commentary",
+   "LAWO HOME Multiviewer",
+   "LAWO HOME Power Core",
+   "LAWO HOME Video Monitor",
+   "LAWO HOME mc² DSP",
+   "LAWO Lawo VSC",
+   "LAWO Lawo Workspaces",
+   "LAWO Power Core",
+   "LAWO Power Core Gateway",
+   "LAWO Power Core RP",
+   "LAWO RƎLAY AoIP Stream Monitor",
+   "LAWO RƎLAY VSC Virtual Sound Card",
+   "LAWO VSM",
+   "LAWO VisTool",
+   "LAWO crystal",
+   "LAWO diamond",
+   "LAWO mc²36",
+   "LAWO mc²36 xp",
+   "LAWO mc²56",
+   "LAWO mc²96",
+   "LAWO mxGUI",
+   "LAWO new crystal Clear",
+   "LAWO vSNMP",
+   "LAWO vsmGear",
+   "LAWO vsmSOUL",
+   "LAWO vsmTALLY"
+  ]
+ },
+ {
+  "hersteller": "AVMATRIX",
+  "offen": 29,
+  "vorhanden": 0,
+  "kategorien": [
+   "Displays",
+   "Distribution",
+   "Networking",
+   "Processing",
+   "Sources",
+   "Switching"
+  ],
+  "modelle": [
+   "1x2 12G Splitter",
+   "AVMATRIX DE20-4K",
+   "AVMATRIX FE1121-12G RX",
+   "AVMATRIX FE1121-12G TX",
+   "AVMATRIX MMV1630",
+   "AVMATRIX MSS0811",
+   "AVMATRIX MSS1611-S",
+   "AVMATRIX MV0430",
+   "AVMATRIX PG4K",
+   "AVMATRIX SC1120",
+   "AVMATRIX SC2030",
+   "AVMATRIX SC2031",
+   "AVMATRIX SC2040",
+   "AVMATRIX SC7030",
+   "AVMATRIX SD1121-12G",
+   "AVMATRIX SD1141",
+   "AVMATRIX SD1151-12G",
+   "AVMATRIX SD1191",
+   "AVMATRIX SD1242-4K",
+   "AVMATRIX SD2080",
+   "AVMATRIX SHARK S6 PLUS",
+   "AVMATRIX SHARK S8X",
+   "AVMATRIX VM40",
+   "AVMatrix SC2020-12G",
+   "HDMI2.0 TO USB 4K Capture Box",
+   "Mini SC1112 3G-SDI to HDMI converter",
+   "Mini SC1221 hdmi-to-3g-sdi-mini-converter",
+   "SDI to USB3.1 TYPE-C Uncompressed Video Capture",
+   "UC2018 HDMI/SDI to USB3.1 TYPE-C"
+  ]
+ },
+ {
+  "hersteller": "Sennheiser",
+  "offen": 28,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio I/O",
+   "Codecs",
+   "Microphones",
+   "Wireless"
+  ],
+  "modelle": [
+   "EW-DX EM 2 (Q1-9)",
+   "EW-DX EM 2 DANTE (R1-9)",
+   "EW-DX EM 4 DANTE (Q1-9)",
+   "MEG 14-40 Mic",
+   "MKE 600 Mic",
+   "MobileConnect Station",
+   "Sennheiser AC 41",
+   "Sennheiser AC3200-MK II",
+   "Sennheiser ADP UHF",
+   "Sennheiser ASA 3000",
+   "Sennheiser EM 300 G3",
+   "Sennheiser EM 6000",
+   "Sennheiser EM 6000 Dante",
+   "Sennheiser EW 500 G4",
+   "Sennheiser EW-D AB",
+   "Sennheiser EW-D ASA Antenna Splitter",
+   "Sennheiser EW-D EM",
+   "Sennheiser EW-D ME2 SET",
+   "Sennheiser EW-DX EM 4",
+   "Sennheiser MEB 102",
+   "Sennheiser SL LAVALIER SET DW-3-AU R",
+   "Sennheiser SL MCR 2 DW",
+   "Sennheiser SL MCR 4 DW",
+   "Sennheiser TeamConnect Ceiling 2",
+   "Spectera Base Station",
+   "Spectera DAD Antenna UHF",
+   "TeamConnect Bar Medium",
+   "TeamConnect Ceiling M Plus"
+  ]
+ },
+ {
+  "hersteller": "Epson",
+  "offen": 24,
+  "vorhanden": 0,
+  "kategorien": [
+   "Peripherals",
+   "Projection",
+   "Projector Lenses",
+   "Projectors",
+   "Sources"
+  ],
+  "modelle": [
+   "DC-21 Document Camera",
+   "Epson EB-2265U",
+   "Epson EB-L1755UNL",
+   "Epson EB-L530U",
+   "Epson EB-L690U",
+   "Epson EB-L790U",
+   "Epson EB-L890E",
+   "Epson EB-L890U",
+   "Epson EB-PQ2216B",
+   "Epson EB-PU1007W",
+   "Epson EB-PU1008W",
+   "Epson EB-PU2010W",
+   "Epson EB-PU2120W",
+   "Epson EB-PU2213B",
+   "Epson EB-PU2216B",
+   "Epson EB-PU2220B",
+   "Epson ELPDC21",
+   "Epson ELPLW06",
+   "Epson PowerLite 815E",
+   "Epson PowerLite L730U",
+   "Epson PowerLite Pro Z8050WNL",
+   "Epson Pro L1505U",
+   "Epson Pro L1755U",
+   "Epson TM-L500A"
+  ]
+ },
+ {
+  "hersteller": "Lightware",
+  "offen": 23,
+  "vorhanden": 0,
+  "kategorien": [
+   "Control",
+   "Expansion Cards",
+   "KVM / Extenders",
+   "Networking",
+   "Switching"
+  ],
+  "modelle": [
+   "Lightware DCX-3x1-TPN-TX10",
+   "Lightware GVN-HDMI-RX110AP",
+   "Lightware GVN-HDMI-RX110AP-DNT",
+   "Lightware GVN-HDMI-TX210AP-DNT",
+   "Lightware GVN-MMU-X100",
+   "Lightware HDMI-TPS-RX96",
+   "Lightware HDMI-TPX-RX209AK",
+   "Lightware HDMI-TPX-TX209AK",
+   "Lightware MMX2-4x3-H20",
+   "Lightware MMX4x2-HDMI",
+   "Lightware MX2 16x16 HDMI",
+   "Lightware MX2 8x8 HDMI",
+   "Lightware MX2-24x24-HDMI20",
+   "Lightware MX2-8x8-HDMI20-Audio-L",
+   "Lightware MX2M-FR24R",
+   "Lightware UCX-2x1-TPX-TX20",
+   "Lightware UCX-4x2-HC30",
+   "Lightware UCX-4x3-HC60",
+   "MX2M DP Input Board",
+   "MX2M Fiber Input Board",
+   "MX2M Fiber Output Board",
+   "MX2M HDMI Input Board",
+   "MX2M HDMI Output Board"
+  ]
+ },
+ {
+  "hersteller": "Barco",
+  "offen": 20,
+  "vorhanden": 1,
+  "kategorien": [
+   "Codecs",
+   "Expansion Cards",
+   "Processing",
+   "Projection",
+   "Switching"
+  ],
+  "modelle": [
+   "4K Tri-Combo Input",
+   "4K Tri-Combo Output",
+   "Barco Clickshare Bar Core",
+   "Barco Clickshare CX-30",
+   "Barco Clickshare CX-50 Gen 2",
+   "Barco G60-W7",
+   "Barco HDX-W20 Flex",
+   "Barco Image Pro II",
+   "Barco PDS-4K SDI",
+   "Barco S3-4K",
+   "Barco UDM-4K22",
+   "Barco UDM-W22",
+   "Barco UDX-4K32",
+   "Clickshare CX-20",
+   "DP 1.2 Quad Input",
+   "DP 1.2 Quad Output",
+   "HDMI 2.0 Quad Input",
+   "HDMI 2.0 Quad Output",
+   "SDI Quad Input",
+   "SDI Quad Output"
+  ]
+ },
+ {
+  "hersteller": "Cisco",
+  "offen": 20,
+  "vorhanden": 0,
+  "kategorien": [
+   "Codecs",
+   "Control",
+   "Expansion Cards",
+   "Microphones",
+   "Networking",
+   "Sources"
+  ],
+  "modelle": [
+   "C9300-24U-M",
+   "C9300-NM-2Q (2x 40G QSFP+)",
+   "C9300-NM-2Y (2x 25G SFP28)",
+   "C9300-NM-4G (4x 1G SFP)",
+   "C9300-NM-4M (4x mGig RJ45)",
+   "C9300-NM-8X (8x 10G SFP+)",
+   "Cisco 24P PoE",
+   "Cisco Bar Pro",
+   "Cisco Catalyst 9300X-48HXN",
+   "Cisco Ceiling Mic Pro",
+   "Cisco Codec EQ",
+   "Cisco Codec Pro",
+   "Cisco Codec Pro G2",
+   "Cisco Nexus 93108TC-EX Switch",
+   "Cisco Quad Camera",
+   "Cisco Room Bar",
+   "Cisco Room Kit",
+   "Cisco Room Navigator",
+   "Cisco Room Vision PTZ",
+   "Cisco Table Mic Pro"
+  ]
+ },
+ {
+  "hersteller": "Kramer",
+  "offen": 20,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio I/O",
+   "Control",
+   "Distribution",
+   "KVM / Extenders",
+   "Networking",
+   "Switching"
+  ],
+  "modelle": [
+   "KDS-DEC7",
+   "Kramer FC-69",
+   "Kramer KDS-17DEC",
+   "Kramer KDS-17EN",
+   "Kramer KDS-7-MNGR",
+   "Kramer MTX-44-HSA",
+   "Kramer SWT3-41-H",
+   "Kramer TP-580R",
+   "Kramer TP-580T",
+   "Kramer VM-1010",
+   "Kramer VM-2H2",
+   "Kramer VM-4HDT",
+   "Kramer VS-88H2",
+   "Kramer WP-20",
+   "Kramer Z4KC2XS-D-AA",
+   "Kramer Z4KC2XS-DAU-AA",
+   "Kramer Z4KC2XS-E-AA",
+   "Kramer Z4KC2XS-EAU-AA",
+   "Kramer ZMPNUC-F",
+   "VM-4H2"
+  ]
+ },
+ {
+  "hersteller": "Netgear",
+  "offen": 20,
+  "vorhanden": 2,
+  "kategorien": [
+   "Network Switches",
+   "Networking",
+   "Switching"
+  ],
+  "modelle": [
+   "M4250-10G2XF-PoE+",
+   "M4250-12M2XF",
+   "M4250-16XF",
+   "M4250-26G4XF-PoE+",
+   "M4250-8G2XF-PoE+",
+   "M4250-8G2XF-PoE+",
+   "M4250-9G1F-PoE+ (GSM4210PD)",
+   "M4350-12X12F",
+   "M4350-8x8F",
+   "Netgear GS308EP",
+   "Netgear GS316PP",
+   "Netgear GSM4248UX",
+   "Netgear JGS516",
+   "Netgear JGS524",
+   "Netgear M4250-10G2XF-PoE++",
+   "Netgear M4250-40G8XF-PoE+",
+   "Netgear M4350-24F4V",
+   "Netgear MSM4214X-TAANAS",
+   "Netgear PR60X",
+   "PR460X"
+  ]
+ },
+ {
+  "hersteller": "Disguise",
+  "offen": 20,
+  "vorhanden": 0,
+  "kategorien": [
+   "Expansion Cards",
+   "Media Servers"
+  ],
+  "modelle": [
+   "Disguise EX 2",
+   "Disguise EX 3",
+   "Disguise EX 3+",
+   "Disguise GX 1",
+   "Disguise GX 2",
+   "Disguise GX 2C",
+   "Disguise GX 3",
+   "Disguise GX 3+",
+   "Disguise VX 1",
+   "Disguise VX 2",
+   "Disguise VX 3",
+   "Disguise VX 4+",
+   "Disguise d3 4x4pro",
+   "Disguise d3 Solo",
+   "DisplayPort 1.2 VFC",
+   "DisplayPort 1.4 VFC",
+   "HDMI 2.0 VFC",
+   "IP-VFC",
+   "Quad DVI VFC",
+   "Quad SDI VFC"
+  ]
+ },
+ {
+  "hersteller": "AJA",
+  "offen": 19,
+  "vorhanden": 7,
+  "kategorien": [
+   "Audio I/O",
+   "Control",
+   "Distribution",
+   "Monitoring",
+   "Networking",
+   "Processing",
+   "Recording",
+   "Switching"
+  ],
+  "modelle": [
+   "AJA 12GDA",
+   "AJA 3GDA",
+   "AJA Bridge Live IP",
+   "AJA ColorBox",
+   "AJA DANTE-12GAM",
+   "AJA FiDO-4R",
+   "AJA FiDO-4T",
+   "AJA FiDO-R",
+   "AJA FiDO-T",
+   "AJA Gen10",
+   "AJA HDR Image Analyzer 12G",
+   "AJA Helo",
+   "AJA IP25-R",
+   "AJA Io 4k Plus",
+   "AJA Io X3",
+   "AJA KUMO CP",
+   "AJA KUMO CP2",
+   "AJA Ki Pro GO2",
+   "AJA Ki Pro Rack"
+  ]
+ },
+ {
+  "hersteller": "Blustream",
+  "offen": 19,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio",
+   "Audio I/O",
+   "Control",
+   "Distribution",
+   "Infrastructure",
+   "KVM / Extenders",
+   "Networking",
+   "Processing",
+   "Switching"
+  ],
+  "modelle": [
+   "Blustream 100m ARC Over CAT (Receiver)",
+   "Blustream 100m ARC Over CAT (Transmitter)",
+   "Blustream 100m eARC/ARC Over CAT (Receiver)",
+   "Blustream 100m eARC/ARC Over CAT (Transmitter)",
+   "Blustream ACM",
+   "Blustream Bluetooth/Analogue Dante Wall Plate",
+   "Blustream DA11USB",
+   "Blustream Dante Wall Plate",
+   "Blustream Digital Audio Over CAT (Receiver)",
+   "Blustream Digital Audio Over CAT (Transmitter)",
+   "Blustream HMXL42ARC",
+   "Blustream IP200UHD-RX",
+   "Blustream IP200UHD-TX",
+   "Blustream IP250UHD-RX",
+   "Blustream RX70CS",
+   "Blustream WMF72",
+   "CMX88CS",
+   "HDMI 4K Splitter 1 in 4 Out",
+   "SELV PDU"
+  ]
+ },
+ {
+  "hersteller": "ETC",
+  "offen": 19,
+  "vorhanden": 1,
+  "kategorien": [
+   "Control",
+   "Lighting"
+  ],
+  "modelle": [
+   "ETC ColorSource 20",
+   "ETC ColorSource Spot V",
+   "ETC Element 2",
+   "ETC Eos Apex",
+   "ETC Eos Ti",
+   "ETC Gio @5",
+   "ETC Ion Xe",
+   "ETC Ion Xe 20",
+   "ETC MSC X Mk3",
+   "ETC MSC1",
+   "ETC Net3 4-Port Gateway",
+   "ETC Source Four LED Series 2 Lustr",
+   "ETC Universal Fader Wing",
+   "ETCnomad Puck",
+   "Mosaic TS-5",
+   "Paradigm Portable Touchscreen",
+   "Paradigm Wall Mount Touchscreen",
+   "Response II MIDI Gateway-Backpack",
+   "Unison Mosaic Show Controller"
+  ]
+ },
+ {
+  "hersteller": "Ecler",
+  "offen": 19,
+  "vorhanden": 0,
+  "kategorien": [
+   "Amplifiers",
+   "Audio",
+   "Audio I/O",
+   "Control"
+  ],
+  "modelle": [
+   "Ecler AURA-2B150",
+   "Ecler AURA-2B600",
+   "Ecler AURA-4B600",
+   "Ecler AURA-4B900",
+   "Ecler AURA-8B150",
+   "Ecler BIO-X8G",
+   "Ecler BOB-22",
+   "Ecler MIMO1212SG",
+   "Ecler MIMO4040CDN",
+   "Ecler MIMO7272DN",
+   "Ecler MIMO88",
+   "Ecler MIMO88SG",
+   "Ecler PULSO-10",
+   "Ecler PULSO-4",
+   "Ecler PULSO-6",
+   "Ecler VIDA-16Q",
+   "Ecler VIDA-24Q",
+   "Ecler VIVO-X8D8",
+   "Ecler eMPAGE"
+  ]
+ },
+ {
+  "hersteller": "Panasonic",
+  "offen": 18,
+  "vorhanden": 12,
+  "kategorien": [
+   "Control",
+   "Displays",
+   "Projection",
+   "Sources"
+  ],
+  "modelle": [
+   "DC-BGH1E",
+   "Panasonic AK-HCU250ESJ",
+   "Panasonic AK-UCU600ESJ",
+   "Panasonic AW-RP150",
+   "Panasonic AW-RP50",
+   "Panasonic AW-UE150A",
+   "Panasonic DZ13K",
+   "Panasonic PT-MZ14K",
+   "Panasonic PT-MZ14K Projector",
+   "Panasonic PT-RQ25K",
+   "Panasonic PT-RQ35K",
+   "Panasonic PT-RZ34K",
+   "Panasonic PT-RZ6L",
+   "Panasonic PT-RZ790",
+   "Panasonic PT-VMZ72",
+   "Panasonic RZ12K",
+   "Panasonic RZ21K",
+   "Panasonic TV-65Z95AP OLED"
+  ]
+ },
+ {
+  "hersteller": "EVS",
+  "offen": 18,
+  "vorhanden": 0,
+  "kategorien": [
+   "Control",
+   "Expansion Cards",
+   "Infrastructure",
+   "Recording"
+  ],
+  "modelle": [
+   "EVS AAD08",
+   "EVS ADC44",
+   "EVS ADC48",
+   "EVS AXON SFR04",
+   "EVS AXON SFR08",
+   "EVS AXON SFR18",
+   "EVS CDV07",
+   "EVS CDV08",
+   "EVS CDV29",
+   "EVS Cerebrum CGP-4848",
+   "EVS DAC44",
+   "EVS DAC48",
+   "EVS DAD08 BPL01",
+   "EVS DAD08 BPL05D",
+   "EVS DAD08 BPX01",
+   "EVS ERC-ERS108-118",
+   "EVS XT-VIA",
+   "EVS XT3"
+  ]
+ },
+ {
+  "hersteller": "Logitech",
+  "offen": 17,
+  "vorhanden": 1,
+  "kategorien": [
+   "Audio",
+   "Codecs",
+   "Control",
+   "KVM / Extenders",
+   "Microphones",
+   "Peripherals",
+   "Sources"
+  ],
+  "modelle": [
+   "Extend - PC Side",
+   "Extend - Rally Side",
+   "Logitech Extension Kit (Camera Side Base)",
+   "Logitech Extension Kit (Control Side Box)",
+   "Logitech MK270 Wireless Combo",
+   "Logitech MeetUP 2",
+   "Logitech Rally Bar",
+   "Logitech Rally Bar Mini",
+   "Logitech Rally Camera Streamline Kit Camera Side Assembly",
+   "Logitech Rally Camera Streamline Kit Control Side Box",
+   "Logitech Rally Display Hub",
+   "Logitech Rally Table Hub",
+   "Logitech Roommate",
+   "Logitech Scribe",
+   "Logitech Tap Cat5e",
+   "Mic Pod",
+   "Tap IP"
+  ]
+ },
+ {
+  "hersteller": "Zoom",
+  "offen": 17,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio I/O",
+   "Expansion Cards",
+   "Mixing Consoles",
+   "Recording"
+  ],
+  "modelle": [
+   "Zoom AMS-22",
+   "Zoom AMS-24",
+   "Zoom AMS-44",
+   "Zoom BTA-1 Bluetooth Adapter",
+   "Zoom F6",
+   "Zoom F8n Pro",
+   "Zoom GCE-3",
+   "Zoom LiveTrak L-12",
+   "Zoom LiveTrak L-20",
+   "Zoom LiveTrak L-8",
+   "Zoom LiveTrak L12next",
+   "Zoom LiveTrak L6",
+   "Zoom LiveTrak L6max",
+   "Zoom PodTrak P4",
+   "Zoom PodTrak P8",
+   "Zoom U-44",
+   "Zoom UAC-232"
+  ]
+ },
+ {
+  "hersteller": "Sony",
+  "offen": 16,
+  "vorhanden": 12,
+  "kategorien": [
+   "Control",
+   "Displays",
+   "Projection",
+   "Sources",
+   "Switching"
+  ],
+  "modelle": [
+   "65 in Display",
+   "RM-IP500 PTZ Camera Remote Controller",
+   "SONY 98\" BRAVIA FW-98BZ30L",
+   "Sony BPU-4000",
+   "Sony BRAVIA FW-85BZ30P 85-inch Professional Display",
+   "Sony Display K-75XR50",
+   "Sony FW-55BZ35L",
+   "Sony FW55EZ20L",
+   "Sony FX30",
+   "Sony HDCU-2500",
+   "Sony HDCU-4300",
+   "Sony PXW-FX6",
+   "Sony PXW-Z200",
+   "Sony RM-IP10",
+   "Sony VPL-PHZ61",
+   "Sony XVS G1"
+  ]
+ },
+ {
+  "hersteller": "ESI",
+  "offen": 16,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio I/O",
+   "Control"
+  ],
+  "modelle": [
+   "ESI Amber i1",
+   "ESI Amber i2",
+   "ESI Amber i4",
+   "ESI GIGAPORT eX",
+   "ESI M4U eX",
+   "ESI M8U eX",
+   "ESI MAYA22",
+   "ESI MAYA44",
+   "ESI Neva Duo",
+   "ESI Neva OTG",
+   "ESI Neva Uno",
+   "ESI U22 XT",
+   "ESI U24 XL",
+   "ESI UGM192",
+   "ESI planet 22c",
+   "ESI planet 22x"
+  ]
+ },
+ {
+  "hersteller": "Samsung",
+  "offen": 16,
+  "vorhanden": 0,
+  "kategorien": [
+   "Displays",
+   "LED Video",
+   "Storage"
+  ],
+  "modelle": [
+   "External USB SSD",
+   "QN90A",
+   "Samsung 43\" QMC Series 4K Commercial Display",
+   "Samsung BE75FX-H",
+   "Samsung Crystal UHD U8070H 65\"",
+   "Samsung QB65B Trolley TV",
+   "Samsung QB65C",
+   "Samsung QB65C-N",
+   "Samsung QE75T",
+   "Samsung QET55",
+   "Samsung QM55C",
+   "Samsung QM65R-B",
+   "Samsung QM98T Wall TV",
+   "Samsung SNOW-JMU",
+   "Samsung ViewFinity S8 27\" 4K (S80UD)",
+   "Samsung WM75A"
+  ]
+ },
+ {
+  "hersteller": "Pixera",
+  "offen": 15,
+  "vorhanden": 0,
+  "kategorien": [
+   "Expansion Cards",
+   "Sources"
+  ],
+  "modelle": [
+   "A1 HDSPe AIO Pro",
+   "PIXERA two Gen.2 Quad",
+   "PXO- IH4",
+   "PXO-CT2",
+   "PXO-CT2H1",
+   "PXO-CT4",
+   "PXO-G2/PXO-G3",
+   "PXO-IH2",
+   "PXO-IS2",
+   "PXO-IS4",
+   "PXO-L1x4",
+   "PXO-L26x2",
+   "PXO-RA4",
+   "PXO-RA8",
+   "PXO-S2/PXO-S3"
+  ]
+ },
+ {
+  "hersteller": "Yealink",
+  "offen": 15,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio",
+   "Audio I/O",
+   "Codecs",
+   "Control",
+   "Displays",
+   "Microphones",
+   "Networking",
+   "Sources",
+   "Speakers"
+  ],
+  "modelle": [
+   "Yealink AP08",
+   "Yealink AVBridge",
+   "Yealink CM50",
+   "Yealink CS10-D",
+   "Yealink CT300",
+   "Yealink DE300",
+   "Yealink EN300",
+   "Yealink MCore 4",
+   "Yealink MCore Pro MS",
+   "Yealink MD series",
+   "Yealink MTouch Plus",
+   "Yealink MeetingBar A50",
+   "Yealink RCH240",
+   "Yealink Roomcast E2",
+   "Yealink SmartVision 80"
+  ]
+ },
+ {
+  "hersteller": "Analog Way",
+  "offen": 14,
+  "vorhanden": 0,
+  "kategorien": [
+   "Control",
+   "Expansion Cards",
+   "LED Video",
+   "Processing",
+   "Switching"
+  ],
+  "modelle": [
+   "Analog Way Aquilon C",
+   "Analog Way Aquilon RS3",
+   "Analog Way Aquilon RS6",
+   "Analog Way DPH 104",
+   "Analog Way RC400T",
+   "Aquilon DP Input Module",
+   "Aquilon DP Output Module",
+   "Aquilon Fiber Input Module",
+   "Aquilon Fiber Output Module",
+   "Aquilon HDMI Input Module",
+   "Aquilon HDMI Output Module",
+   "Aquilon SDI Input Module",
+   "Aquilon SDI Output Module",
+   "Zenith 200"
+  ]
+ },
+ {
+  "hersteller": "Presonus",
+  "offen": 14,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio",
+   "Audio I/O",
+   "Control",
+   "Mixing Consoles",
+   "Speakers"
+  ],
+  "modelle": [
+   "Eris E5 Studio Monitor",
+   "PreSonus Central Station PLUS",
+   "PreSonus Central Station REMOTE",
+   "PreSonus MicroStation-BT",
+   "PreSonus NSB 16.8",
+   "PreSonus NSB 32.16",
+   "PreSonus NSB 8.8",
+   "PreSonus Quantum 2626",
+   "PreSonus Quantum ES 2",
+   "PreSonus StudioLive 16R",
+   "PreSonus StudioLive 24R",
+   "PreSonus StudioLive 32SC",
+   "PreSonus StudioLive AR8c",
+   "Presonus StudioLive 32R"
+  ]
+ },
+ {
+  "hersteller": "JBL Professional",
+  "offen": 14,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio",
+   "Speakers"
+  ],
+  "modelle": [
+   "JBL 305P MKII",
+   "JBL 306P MkII Powered 6 Two-Way Studio Monitor",
+   "JBL AC18/95 Compact 8-inch 2-way Loudspeaker",
+   "JBL ASB6112-WRX",
+   "JBL ASB6115",
+   "JBL ASB6118-WRX",
+   "JBL AW526",
+   "JBL AW566",
+   "JBL AW595",
+   "JBL AWC159",
+   "JBL COL800 Slim Column Loudspeaker",
+   "JBL EON610",
+   "JBL VRX928LA",
+   "JBL VRX932LAP"
+  ]
+ },
+ {
+  "hersteller": "Meyer Sound",
+  "offen": 14,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio",
+   "Speakers"
+  ],
+  "modelle": [
+   "Meyer 750-LFC",
+   "Meyer 900-LFC",
+   "Meyer Galileo Galaxy 816",
+   "Meyer Leopard",
+   "Meyer Lina",
+   "Meyer M1D",
+   "Meyer MJF-210",
+   "Meyer MM-4XP",
+   "Meyer UM-1P",
+   "Meyer UPA-1P",
+   "Meyer UPJ-1P",
+   "Meyer UPM-1P",
+   "Meyer Ultra-X23",
+   "Meyer Ultra-X40"
+  ]
+ },
+ {
+  "hersteller": "Visionary Solutions",
+  "offen": 12,
+  "vorhanden": 0,
+  "kategorien": [
+   "Networking",
+   "Processing"
+  ],
+  "modelle": [
+   "D4100",
+   "D5000",
+   "D5100",
+   "D5200",
+   "DuetE5-WP",
+   "E5100",
+   "E5200",
+   "MV5",
+   "VSI DuetD-5",
+   "VSI DuetE-2",
+   "VSI DuetE-5",
+   "XB5"
+  ]
+ },
+ {
+  "hersteller": "d&b audiotechnik",
+  "offen": 12,
+  "vorhanden": 0,
+  "kategorien": [
+   "Amplifiers",
+   "Audio",
+   "Speakers"
+  ],
+  "modelle": [
+   "DS100",
+   "DS100M",
+   "d&b 30D",
+   "d&b D20",
+   "d&b D40",
+   "d&b E8",
+   "d&b V-Sub",
+   "d&b V8",
+   "d&b Y7P",
+   "d&b audiotechnik 10D",
+   "d&b audiotechnik 5D",
+   "d&b audiotechnik DS10"
+  ]
+ },
+ {
+  "hersteller": "L-Acoustics",
+  "offen": 12,
+  "vorhanden": 0,
+  "kategorien": [
+   "Amplifiers",
+   "Audio",
+   "Networking",
+   "Speakers"
+  ],
+  "modelle": [
+   "K3",
+   "KIVA II",
+   "L-Acoustics KS21",
+   "L-Acoustics LA1.16i",
+   "L-Acoustics LA2Xi Amplified Controller",
+   "L-Acoustics SB10i On-Wall Subwoofer (Black)",
+   "L-Acoustics X4i Passive Loudspeaker",
+   "LA12X",
+   "LA7.16",
+   "LS10",
+   "P1",
+   "SB15m"
+  ]
+ },
+ {
+  "hersteller": "K-Array",
+  "offen": 12,
+  "vorhanden": 0,
+  "kategorien": [
+   "Speakers"
+  ],
+  "modelle": [
+   "KK102 I",
+   "KK52 I",
+   "KP102 I",
+   "KP52 I",
+   "KS1 I",
+   "KS2 I",
+   "KS3 I",
+   "KS4 I",
+   "KS5P I",
+   "KSC12 P",
+   "KSC18 P",
+   "KSCARDIO412P"
+  ]
+ },
+ {
+  "hersteller": "NETGEAR",
+  "offen": 12,
+  "vorhanden": 0,
+  "kategorien": [
+   "Controllers",
+   "Networking"
+  ],
+  "modelle": [
+   "M4350-24M4X4V",
+   "NETGEAR AV Line M4250-40G8F-PoE+",
+   "NETGEAR Align Controller GB406",
+   "NETGEAR M4250-26G4F-PoE+ (GSM4230P)",
+   "NETGEAR M4350-16V4C",
+   "NETGEAR M4350-24G4XF",
+   "NETGEAR M4350-24X4V",
+   "NETGEAR M4350-24X8F8V",
+   "NETGEAR M4350-40X4C",
+   "NETGEAR M4350-48G4XF",
+   "NETGEAR WAX610",
+   "NETGEAR WAX610Y"
+  ]
+ },
+ {
+  "hersteller": "WolfVision",
+  "offen": 12,
+  "vorhanden": 0,
+  "kategorien": [
+   "Codecs",
+   "Sources",
+   "Wireless"
+  ],
+  "modelle": [
+   "WolfVision Cynap Bridge",
+   "WolfVision Cynap Core Pro",
+   "WolfVision Cynap Pro",
+   "WolfVision Cynap Pure",
+   "WolfVision Cynap Pure (Next Gen)",
+   "WolfVision Cynap Pure Mini",
+   "WolfVision Cynap Pure Pro",
+   "WolfVision Cynap Videobar",
+   "WolfVision VZ-2.UHD",
+   "WolfVision VZ-3neo.UHD",
+   "WolfVision VZ-8.UHD",
+   "WolfVision VZ-8neo.UHD"
+  ]
+ },
+ {
+  "hersteller": "L'Acoustics",
+  "offen": 12,
+  "vorhanden": 0,
+  "kategorien": [
+   "Amplifiers",
+   "Speakers"
+  ],
+  "modelle": [
+   "L'Acoustics 5XT",
+   "L'Acoustics A15 Wide",
+   "L'Acoustics K2",
+   "L'Acoustics KS28",
+   "L'Acoustics Kara II",
+   "L'Acoustics LA-RAK II",
+   "L'Acoustics LA4X",
+   "L'Acoustics SB18",
+   "L'Acoustics SYVA",
+   "L'Acoustics X12",
+   "L'Acoustics X15 HiQ",
+   "L'Acoustics X8"
+  ]
+ },
+ {
+  "hersteller": "Sharp",
+  "offen": 11,
+  "vorhanden": 0,
+  "kategorien": [
+   "Cable Accessories",
+   "Displays",
+   "Projection"
+  ],
+  "modelle": [
+   "AOC USB-C 7M",
+   "PN-L652B Touch",
+   "PN-L862B Touch",
+   "PN-M752",
+   "PN-M862",
+   "PN-M982",
+   "Sharp P621U",
+   "Sharp P701U",
+   "Sharp V731U",
+   "Sharp V801U",
+   "Sharp XP-E501U"
+  ]
+ },
+ {
+  "hersteller": "Canon",
+  "offen": 11,
+  "vorhanden": 5,
+  "kategorien": [
+   "Control",
+   "Displays",
+   "Sources"
+  ],
+  "modelle": [
+   "Canon CR-N400",
+   "Canon DP-V1710",
+   "Canon DP-V1711",
+   "Canon DP-V1830",
+   "Canon DP-V2411",
+   "Canon DP-V2421",
+   "Canon DP-V2730",
+   "Canon DP-V3120",
+   "Canon RC-IP100",
+   "Canon RC-IP1000",
+   "Canon RC-IP300"
+  ]
+ },
+ {
+  "hersteller": "Ross Video",
+  "offen": 11,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio I/O",
+   "Expansion Cards",
+   "Infrastructure",
+   "Sources",
+   "Switching"
+  ],
+  "modelle": [
+   "Carbonite Ultra 24",
+   "RAVE ABU 12G",
+   "Ross Carbonite Black 2 M/E",
+   "Ross Graphite",
+   "Ross Ultrix FR1",
+   "Ross Ultrix FR2",
+   "Ross Ultrix FR5",
+   "Ross XPression Studio",
+   "Ross oGx Frame",
+   "ULTRIX-HDX-IO",
+   "ULTRIX-IPX-IO"
+  ]
+ },
+ {
+  "hersteller": "Clear-Com",
+  "offen": 11,
+  "vorhanden": 0,
+  "kategorien": [
+   "Intercom"
+  ],
+  "modelle": [
+   "Clear-Com CC-400 Double-ear Standard Headset",
+   "Clear-Com Eclipse HX",
+   "Clear-Com Encore RS-701",
+   "Clear-Com FreeSpeak Edge",
+   "Clear-Com MS-702",
+   "Clear-Com MS-704",
+   "Clear-Com Partyline Intercom 4-Channel Switchboard Main Station",
+   "ClearCom FreeSpeak II",
+   "Freespeak 1.9 Transceiver",
+   "Freespeak II Splitter",
+   "TW-47"
+  ]
+ },
+ {
+  "hersteller": "Control4",
+  "offen": 11,
+  "vorhanden": 0,
+  "kategorien": [
+   "Control",
+   "Infrastructure"
+  ],
+  "modelle": [
+   "Control4 4-Channel Bus Dry Contact Input Module",
+   "Control4 48V Bus Power Supply",
+   "Control4 Bus Ethernet Gateway V2",
+   "Control4 CORE 5 CONTROLLER",
+   "Control4 Core 1",
+   "Control4 EA5 CONTROLLER",
+   "Control4 Halo Touch Remote (Black)",
+   "Control4 Lux 1 Gang Faceplate (Snow White)",
+   "Control4 Lux Wired Keypad (WHT)",
+   "Control4® T5 Series In-Wall Touchscreen 11\" (White)",
+   "Control4® T5 Series In-Wall Touchscreen 8\" (Midnight Black)"
+  ]
+ },
+ {
+  "hersteller": "Focusrite",
+  "offen": 11,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio I/O"
+  ],
+  "modelle": [
+   "Focusrite MP8R",
+   "Focusrite RedNet A16R",
+   "Focusrite RedNet A8R",
+   "Focusrite RedNet AM2",
+   "Focusrite RedNet PCIeNX",
+   "Focusrite Scarlett 16i16 (4th Gen)",
+   "Focusrite Scarlett 18i16 (4th Gen)",
+   "Focusrite Scarlett 18i20 (4th Gen)",
+   "Focusrite Scarlett 2i2 (4th Gen)",
+   "Focusrite Scarlett 4i4 (4th Gen)",
+   "Scarlett Solo"
+  ]
+ },
+ {
+  "hersteller": "Grass Valley",
+  "offen": 11,
+  "vorhanden": 0,
+  "kategorien": [
+   "Processing",
+   "Switching"
+  ],
+  "modelle": [
+   "GV K-Frame CXP",
+   "GV K-Frame SXP",
+   "GV K-Frame VXP",
+   "GV Kahuna 4800",
+   "GV Kahuna 6400",
+   "GV Kahuna 9600",
+   "GV Kaleido X",
+   "GV Kaleido X16",
+   "GV Sirius 830",
+   "GV Sirius 840",
+   "GV Sirius 850"
+  ]
+ },
+ {
+  "hersteller": "Luminex",
+  "offen": 11,
+  "vorhanden": 2,
+  "kategorien": [
+   "Lighting",
+   "Networking"
+  ],
+  "modelle": [
+   "GigaCore 14R",
+   "GigaCore 26i with PoE",
+   "Gigacore 10i",
+   "Gigacore 16i",
+   "Gigacore 16i with POE",
+   "Gigacore 16t",
+   "Gigacore 16t with POE",
+   "Gigacore 20T",
+   "Gigacore 30i",
+   "Gigacore O26-i",
+   "LumiNode 12"
+  ]
+ },
+ {
+  "hersteller": "LG",
+  "offen": 10,
+  "vorhanden": 0,
+  "kategorien": [
+   "Displays",
+   "Sources",
+   "Video"
+  ],
+  "modelle": [
+   "55UH5Q-E.AEU",
+   "75UH5Q-E.AEU",
+   "LG - 86UL5Q",
+   "LG 55UL3Q-E",
+   "LG 55UN640S",
+   "LG 86UN640S",
+   "LG 98UH5J-H",
+   "LG LASA136",
+   "LG STB-6500",
+   "OLED83G67LW"
+  ]
+ },
+ {
+  "hersteller": "HP/Poly",
+  "offen": 10,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio I/O",
+   "Cable Accessories",
+   "Codecs",
+   "Infrastructure",
+   "Microphones"
+  ],
+  "modelle": [
+   "A2 Mic Extender 8M(26ft)",
+   "A2 Table Microphone",
+   "PoE++ Injector 65 W 2.5G Adapter",
+   "Poly Studio Exp. Mic Adapter RJ11/RJ45",
+   "Poly Studio R30",
+   "Poly Studio Table Microphone RJ11",
+   "Poly Studio USB",
+   "Poly Studio V12",
+   "Poly Studio V72",
+   "Studio A2 Audiobridge"
+  ]
+ },
+ {
+  "hersteller": "AVPro Edge",
+  "offen": 10,
+  "vorhanden": 0,
+  "kategorien": [
+   "Control",
+   "Distribution",
+   "KVM / Extenders",
+   "Networking",
+   "Switching"
+  ],
+  "modelle": [
+   "AC MXNET 1G D TAA",
+   "AC MXNET 1G E",
+   "AC-CXWP-HDMO-T",
+   "AVPro Edge AC-CX-84",
+   "AVPro Edge AC-EX40-444-R",
+   "AVPro Edge AC-EX40-444-T",
+   "AVPro Edge AC-MX-42",
+   "AVPro Edge MXnet 10G Transceiver",
+   "AVPro Edge MXnet CBOX-HA",
+   "AVPro Edge MXnet SW24"
+  ]
+ },
+ {
+  "hersteller": "Bose Professional",
+  "offen": 10,
+  "vorhanden": 0,
+  "kategorien": [
+   "Amplifiers",
+   "Audio",
+   "Speakers"
+  ],
+  "modelle": [
+   "Bose AMS115 Subwoofer",
+   "Bose ControlSpace ESP-880",
+   "Bose DesignMax DM3C",
+   "Bose DesignMax DM6SE",
+   "Bose DesignMax Luna DML88P",
+   "Bose Forum FC108",
+   "Bose PowerShare PS404D",
+   "Bose PowerShare PS604D",
+   "Bose PowerShareX PSX4804D",
+   "Bose S1 Pro+"
+  ]
+ },
+ {
+  "hersteller": "Chief",
+  "offen": 10,
+  "vorhanden": 0,
+  "kategorien": [
+   "Infrastructure"
+  ],
+  "modelle": [
+   "Chief NW1F1218 W1 Rack",
+   "Chief NW1F1223 W1 Rack",
+   "Chief NW1F2018 W1 Rack",
+   "Chief NW1F2023 W1 Rack",
+   "Chief NW1F2818 W1 Rack",
+   "Chief NW1F2823 W1 Rack",
+   "Chief NW1F2828 W1 Rack",
+   "Chief NW1F3618 W1 Rack",
+   "Chief NW1F3623 W1 Rack",
+   "Chief NW1F3628 W1 Rack"
+  ]
+ },
+ {
+  "hersteller": "DirectOut",
+  "offen": 10,
+  "vorhanden": 0,
+  "kategorien": [
+   "Expansion Cards"
+  ],
+  "modelle": [
+   "DirectOut A Slot AVB/MILAN Module",
+   "DirectOut A Slot Dante/AES67 Module",
+   "DirectOut A Slot MADI / USB Module",
+   "DirectOut A Slot RAVENNA/AES67/ST 2110 Module",
+   "DirectOut A Slot SoundGrid Module",
+   "DirectOut B Slot MADI BNC Module",
+   "DirectOut B Slot MADI SFP Module",
+   "DirectOut C Slot AES3 8ch Module",
+   "DirectOut C Slot Analog 8x8 Module",
+   "DirectOut C Slot Mic/Line 8ch Module"
+  ]
+ },
+ {
+  "hersteller": "Electro-Voice",
+  "offen": 10,
+  "vorhanden": 0,
+  "kategorien": [
+   "Speakers"
+  ],
+  "modelle": [
+   "EV Evolve 50",
+   "EV PXM-12MP",
+   "EV ZLX-12P-G2",
+   "EV ZLX-15P-G2",
+   "EV ZLX-8P-G2",
+   "EVERSE 12",
+   "EVERSE 8",
+   "EVIVA 12P",
+   "EVIVA 15P",
+   "EVIVA 18SP"
+  ]
+ },
+ {
+  "hersteller": "LynxTechnik",
+  "offen": 10,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio",
+   "Control",
+   "Distribution",
+   "Processing"
+  ],
+  "modelle": [
+   "Lynx GreenMachine Titan",
+   "Lynx yellobrik RCT 1012",
+   "Lynx yellobrik SRV1000",
+   "LynxTechnik DVA 1714",
+   "LynxTechnik DVD 5810",
+   "LynxTechnik IDC 1411",
+   "LynxTechnik ORX 1702-1",
+   "LynxTechnik OTX 1712-2",
+   "LynxTechnik OTX 1742-2",
+   "LynxTechnik SPG 1708"
+  ]
+ },
+ {
+  "hersteller": "NovaStar",
+  "offen": 10,
+  "vorhanden": 0,
+  "kategorien": [
+   "Sources"
+  ],
+  "modelle": [
+   "NovaStar LCB2K",
+   "NovaStar MBOX600 Pro",
+   "NovaStar TB10 Plus",
+   "NovaStar TB20 Plus",
+   "NovaStar TB30",
+   "NovaStar TB50",
+   "NovaStar TB60",
+   "NovaStar TU15 Pro",
+   "NovaStar TU20 Pro",
+   "NovaStar TU4K Pro"
+  ]
+ },
+ {
+  "hersteller": "Sonance",
+  "offen": 10,
+  "vorhanden": 0,
+  "kategorien": [
+   "Amplifiers",
+   "Speakers"
+  ],
+  "modelle": [
+   "PowerZone Connect 1008",
+   "Sonance 10\" Invisible In-Wall/Ceiling Speaker (White)",
+   "Sonance 6\" Invisible In-Wall/Ceiling Speaker",
+   "Sonance 8\" Invisible In-Wall/Ceiling Speaker",
+   "Sonance DSP 8-130 MKIII",
+   "Sonance Mariner MX62 SST Outdoor Speaker (White)",
+   "Sonance RK83 Granite Rock Speaker",
+   "Sonance VX62R SST Round Stereo Speaker",
+   "Sonance VXXT6R Outdoor In-Ceiling Speaker",
+   "Sonance VXXT8R Outdoor In-Ceiling Speaker"
+  ]
+ },
+ {
+  "hersteller": "AVLIFE",
+  "offen": 9,
+  "vorhanden": 0,
+  "kategorien": [
+   "Distribution",
+   "Networking",
+   "Peripherals",
+   "Sources",
+   "Switching"
+  ],
+  "modelle": [
+   "AVLIFE CTL-NESC controller",
+   "AVLIFE ESPO RX",
+   "AVLIFE HDNESCRX receiver",
+   "AVLIFE HDNESCTX transmitter",
+   "CAMERA PTZ 4K IA (CAM600AV)",
+   "CAMERA USB 4K IA (CAM506AV)",
+   "DOCKING STATION (AVLINK 1)",
+   "MATRIX HDMI 4X4 4K AUDIO OUT CONTROL",
+   "SPLITTER HDMI 1X2 4K AUDIO OUT"
+  ]
+ },
+ {
+  "hersteller": "Absen",
+  "offen": 9,
+  "vorhanden": 0,
+  "kategorien": [
+   "LED Video"
+  ],
+  "modelle": [
+   "Absen Clear Cobalt CL0.7 MicroLED",
+   "Absen Clear Cobalt CL0.9 MicroLED",
+   "Absen Clear Cobalt CL1.2 MicroLED",
+   "Absen Clear Cobalt CL1.5 MicroLED",
+   "Absen NX 1.2 LED Cabinet",
+   "Absen NX 1.5 LED Cabinet",
+   "Absen NX 1.8 LED Cabinet",
+   "Absen NX 2.5 LED Cabinet",
+   "Absen NX 3.7 LED Cabinet"
+  ]
+ },
+ {
+  "hersteller": "Apple",
+  "offen": 9,
+  "vorhanden": 0,
+  "kategorien": [
+   "Control",
+   "Sources"
+  ],
+  "modelle": [
+   "Apple M6 Mac mini",
+   "Apple MBP 16\"",
+   "AppleTV",
+   "Mac Mini",
+   "Mac Mini M2 pro",
+   "Mac Studio (M4)",
+   "Mac mini (2023)",
+   "iMac (M4)",
+   "iPad"
+  ]
+ },
+ {
+  "hersteller": "Danley Sound Labs",
+  "offen": 9,
+  "vorhanden": 0,
+  "kategorien": [
+   "Amplifiers",
+   "Speakers"
+  ],
+  "modelle": [
+   "Danley BC215",
+   "Danley CCX1226",
+   "Danley CX12",
+   "Danley CX1295",
+   "Danley DNA-20K4 Pro",
+   "Danley J7-95",
+   "Danley J8-94",
+   "Danley OS62-G",
+   "Danley Sub 112"
+  ]
+ },
+ {
+  "hersteller": "High End Systems",
+  "offen": 9,
+  "vorhanden": 0,
+  "kategorien": [
+   "Lighting"
+  ],
+  "modelle": [
+   "DMX Processor 8000",
+   "Full Boar 4",
+   "HPU",
+   "HedgeHog 4X",
+   "HedgeHog 4X",
+   "High End Lonestar",
+   "High End SolaFrame 3000",
+   "High End SolaHyBeam 3000",
+   "Road Hog 4"
+  ]
+ },
+ {
+  "hersteller": "Lowell Manufacturing",
+  "offen": 9,
+  "vorhanden": 0,
+  "kategorien": [
+   "Infrastructure"
+  ],
+  "modelle": [
+   "Lowell CBP-1 Cable Brush Panel",
+   "Lowell SEFP-2 Blank Panel",
+   "Lowell SEFP-3 Blank Panel",
+   "Lowell SEFP-4 Blank Panel",
+   "Lowell SEFP-6 Blank Panel",
+   "Lowell SEP-1 1U Blank Panel",
+   "Lowell UDP-214 Utility Drawer",
+   "Lowell UDP-314 Utility Drawer",
+   "Lowell UPS9AC-1000"
+  ]
+ },
+ {
+  "hersteller": "SPL",
+  "offen": 9,
+  "vorhanden": 0,
+  "kategorien": [
+   "Amplifiers",
+   "Audio",
+   "Audio I/O",
+   "Mixing Consoles"
+  ],
+  "modelle": [
+   "SPL Control One",
+   "SPL GainStation 1",
+   "SPL Gemini",
+   "SPL Marc One",
+   "SPL MixDream XP Mk2",
+   "SPL Phonitor One",
+   "SPL Phonitor One d",
+   "SPL Pre One",
+   "SPL Tube Vitalizer"
+  ]
+ },
+ {
+  "hersteller": "Teradek",
+  "offen": 9,
+  "vorhanden": 1,
+  "kategorien": [
+   "Networking",
+   "Switching",
+   "Wireless"
+  ],
+  "modelle": [
+   "Teradek Bolt 4K MAX RX",
+   "Teradek Bolt 4K MAX TX",
+   "Teradek Bolt 4K RX",
+   "Teradek Bolt 4K TX",
+   "Teradek Bolt 6 LT Receiver",
+   "Teradek Bolt 6 LT Transmitter",
+   "Teradek Cube 775",
+   "Teradek Prism Flex",
+   "Teradek RF-X"
+  ]
+ },
+ {
+  "hersteller": "Triad",
+  "offen": 9,
+  "vorhanden": 0,
+  "kategorien": [
+   "Amplifiers",
+   "Audio",
+   "Speakers"
+  ],
+  "modelle": [
+   "Triad 16x16 Audio Matrix Switch",
+   "Triad 8x8 Audio Matrix Switch V2",
+   "Triad Garden Array GA10 Subwoofer",
+   "Triad Garden Array GA4 Satellite Speaker (Pair)",
+   "Triad PDX Series 4 In-Ceiling Speaker (8\")",
+   "Triad PDX Series 5 In-Ceiling Speaker (8\")",
+   "Triad Power Amplifier",
+   "Triad Standalone 700 RackAmp",
+   "Triad Standalone InWall Bronze/4 SlimSub (8-ohm, painted)"
+  ]
+ },
+ {
+  "hersteller": "Datavideo",
+  "offen": 8,
+  "vorhanden": 1,
+  "kategorien": [
+   "Control",
+   "Monitoring",
+   "Processing",
+   "Sources",
+   "Switching"
+  ],
+  "modelle": [
+   "CAP-4",
+   "Datavideo DAC-70",
+   "Datavideo DVK-400",
+   "Datavideo VS-100",
+   "Datavideo iCAST 10 NDI",
+   "SE2600MU",
+   "VoiceTRX100",
+   "VoiceTRX50"
+  ]
+ },
+ {
+  "hersteller": "Dynacord",
+  "offen": 8,
+  "vorhanden": 0,
+  "kategorien": [
+   "Amplifiers",
+   "Mixing Consoles",
+   "Powered Mixers"
+  ],
+  "modelle": [
+   "Dynacord CMS 1000-3",
+   "Dynacord IX15:4",
+   "Dynacord L1300FD",
+   "Dynacord MXE5-64",
+   "Dynacord PM 502",
+   "Dynacord Powermate 1000-3",
+   "Dynacord Powermate 600-3",
+   "Dynacord TGX20"
+  ]
+ },
+ {
+  "hersteller": "Fortinet",
+  "offen": 8,
+  "vorhanden": 0,
+  "kategorien": [
+   "Firewalls"
+  ],
+  "modelle": [
+   "Fortinet FortiGate 100F",
+   "Fortinet FortiGate 120G",
+   "Fortinet FortiGate 200F",
+   "Fortinet FortiGate 200G",
+   "Fortinet FortiGate 400F",
+   "Fortinet FortiGate 400G",
+   "Fortinet FortiGate 600F",
+   "Fortinet FortiGate 900G"
+  ]
+ },
+ {
+  "hersteller": "HP",
+  "offen": 8,
+  "vorhanden": 0,
+  "kategorien": [
+   "Codecs",
+   "Computer",
+   "Displays",
+   "Peripherals",
+   "Sources"
+  ],
+  "modelle": [
+   "G4 Dock 280W",
+   "HP E24mv G4 Conferencing Monitor",
+   "HP G9 Plus",
+   "HP Mini IP Conferencing PC",
+   "HP Monitor / Conferencing Display",
+   "HP Omen 16L",
+   "Zoom PC (HP Elite Mini, vPro i7)",
+   "Zoom PC - HP Desktop"
+  ]
+ },
+ {
+  "hersteller": "MA Lighting",
+  "offen": 8,
+  "vorhanden": 0,
+  "kategorien": [
+   "Lighting"
+  ],
+  "modelle": [
+   "GrandMA3 Node",
+   "MA Lighting Dot2 Core",
+   "MA NPU",
+   "MA onPC command wing",
+   "grandMA2 full-size",
+   "grandMA3 compact XT",
+   "grandMA3 full-size",
+   "grandMA3 light"
+  ]
+ },
+ {
+  "hersteller": "Green-GO",
+  "offen": 8,
+  "vorhanden": 1,
+  "kategorien": [
+   "Audio I/O",
+   "Intercom",
+   "Networking",
+   "Wireless"
+  ],
+  "modelle": [
+   "Green-GO DNTI Dante Audio Interface",
+   "Green-GO MCX Rack User Station",
+   "Green-GO MCXD Desktop User Station",
+   "Green-GO Q4WR Quad 4-Wire Interface",
+   "Green-GO SW5 PoE Switch",
+   "Green-GO Stride",
+   "Green-GO WAA",
+   "Green-GO WBPX"
+  ]
+ },
+ {
+  "hersteller": "Magewell",
+  "offen": 8,
+  "vorhanden": 0,
+  "kategorien": [
+   "Networking",
+   "Processing"
+  ],
+  "modelle": [
+   "Magewell HDMI 4K→NDI",
+   "Magewell HDMI→NDI",
+   "Magewell NDI→HDMI",
+   "Magewell SDI→NDI",
+   "Magewell USB Capture HDMI Gen 2",
+   "Magewell USB Capture HDMI Plus",
+   "Magewell USB Capture SDI Gen 2",
+   "Magewell Ultra Encode AIO"
+  ]
+ },
+ {
+  "hersteller": "RGBlink",
+  "offen": 8,
+  "vorhanden": 0,
+  "kategorien": [
+   "Control",
+   "Processing",
+   "Sources",
+   "Switching"
+  ],
+  "modelle": [
+   "RGBlink D8",
+   "RGBlink Mini V3",
+   "RGBlink RGBCTL-PTZ-BK",
+   "RGBlink TAO 1pro",
+   "RGBlink TAO 1tiny",
+   "RGBlink mini",
+   "RGBlink mini pro",
+   "RGBlink vue 4K PTZ"
+  ]
+ },
+ {
+  "hersteller": "Vaddio",
+  "offen": 7,
+  "vorhanden": 0,
+  "kategorien": [
+   "Codecs",
+   "Networking",
+   "Sources"
+  ],
+  "modelle": [
+   "Bridge",
+   "Vaddio ConferenceSHOT 10",
+   "Vaddio Easy IP 10",
+   "Vaddio EasyIP 10",
+   "Vaddio EasyIP Decoder",
+   "Vaddio EasyIP Mixer",
+   "Vaddio RoboSHOT 12E HDBT"
+  ]
+ },
+ {
+  "hersteller": "Liberty AV",
+  "offen": 7,
+  "vorhanden": 0,
+  "kategorien": [
+   "KVM / Extenders"
+  ],
+  "modelle": [
+   "INT-USB3-C",
+   "INT-USB3-CWP",
+   "INT-USB3-H",
+   "INT-USB3-HWP",
+   "Presenter Extender RX",
+   "TU-HUC42-RX",
+   "TU-HUC42-TX"
+  ]
+ },
+ {
+  "hersteller": "Equipson",
+  "offen": 7,
+  "vorhanden": 0,
+  "kategorien": [
+   "DMX Splitter",
+   "Headphone Amplifier",
+   "Lighting",
+   "Speakers"
+  ],
+  "modelle": [
+   "Lightshark LS Core",
+   "MARK FOGVEIL FV2500",
+   "Mark LED Video 400",
+   "Mark MAA Mini 4",
+   "Mark MD 4 Splitter",
+   "Mark Splitter 1202",
+   "Work Pro MSH-30/BT"
+  ]
+ },
+ {
+  "hersteller": "Lynx",
+  "offen": 7,
+  "vorhanden": 0,
+  "kategorien": [
+   "Expansion Cards",
+   "Infrastructure",
+   "KVM / Extenders",
+   "Processing"
+  ],
+  "modelle": [
+   "Lynx CHD 1412",
+   "Lynx DVD 5820",
+   "Lynx ORX 5800",
+   "Lynx OTX 5840",
+   "Lynx PVD 5800",
+   "Lynx RFR 5018",
+   "Lynx SVD 5812"
+  ]
+ },
+ {
+  "hersteller": "Middle Atlantic",
+  "offen": 7,
+  "vorhanden": 0,
+  "kategorien": [
+   "Infrastructure"
+  ],
+  "modelle": [
+   "Middle Atlantic PD-1815R",
+   "Middle Atlantic RLNK-1015V",
+   "Middle Atlantic RLNK-1615V",
+   "Middle Atlantic RLNK-215",
+   "Middle Atlantic RLNK-415R",
+   "Middle Atlantic RLNK-915R",
+   "Middle Atlantic UPS-S1000R"
+  ]
+ },
+ {
+  "hersteller": "Nexo",
+  "offen": 7,
+  "vorhanden": 0,
+  "kategorien": [
+   "Amplifiers",
+   "Speakers"
+  ],
+  "modelle": [
+   "Nexo EPS 12",
+   "Nexo EPS 8",
+   "Nexo Geo M1012",
+   "Nexo MSUB18",
+   "Nexo NXAMP 4X2 MKII",
+   "Nexo NXAMP 4X4 MKII",
+   "Nexo nanoNXAMP4-D"
+  ]
+ },
+ {
+  "hersteller": "Turtle",
+  "offen": 7,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio I/O",
+   "Networking"
+  ],
+  "modelle": [
+   "Turtle Dante Domain Bridge",
+   "Turtle Dante Pro USB I/O Converter",
+   "Turtle MINEOLA MICro",
+   "Turtle Mineola 16×16",
+   "Turtle Mineola 2x2",
+   "Turtle Mineola 4x4",
+   "Turtle Mineola 8x8"
+  ]
+ },
+ {
+  "hersteller": "DiGiCo",
+  "offen": 7,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio I/O",
+   "Expansion Cards",
+   "Mixing Consoles"
+  ],
+  "modelle": [
+   "DMI-Dante",
+   "DMI-MADI",
+   "DMI-Waves",
+   "DiGiCo DQ-Rack",
+   "DiGiCo Quantum 225",
+   "DiGiCo SD12",
+   "DiGiCo SD7"
+  ]
+ },
+ {
+  "hersteller": "Matrox",
+  "offen": 7,
+  "vorhanden": 0,
+  "kategorien": [
+   "Distribution"
+  ],
+  "modelle": [
+   "Matrox QuadHead2Go Q155",
+   "Matrox QuadHead2Go Q155 Card",
+   "Matrox QuadHead2Go Q185",
+   "Matrox QuadHead2Go Q185 Card",
+   "Matrox TripleHead2Go DP Edition",
+   "Matrox TripleHead2Go Digital Edition",
+   "Matrox TripleHead2Go Digital SE"
+  ]
+ },
+ {
+  "hersteller": "Elation",
+  "offen": 6,
+  "vorhanden": 1,
+  "kategorien": [
+   "Lighting"
+  ],
+  "modelle": [
+   "Elation Artiste Mondrian",
+   "Elation Chorus Line 8",
+   "Elation Fuze Spot",
+   "Elation Fuze Wash FR",
+   "Elation Opto Branch 4",
+   "Elation Proteus Hybrid"
+  ]
+ },
+ {
+  "hersteller": "Inogeni",
+  "offen": 6,
+  "vorhanden": 0,
+  "kategorien": [
+   "Processing",
+   "Switching"
+  ],
+  "modelle": [
+   "INOGENI HD2USB3",
+   "Inogeni 4K2USB3 Capture Card",
+   "Inogeni SDI2USB3",
+   "Inogeni Toggle USB 3.0",
+   "Inogeni U-CAM",
+   "Toggle Room"
+  ]
+ },
+ {
+  "hersteller": "Lake People",
+  "offen": 6,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio"
+  ],
+  "modelle": [
+   "Lake People G101",
+   "Lake People G103D4",
+   "Lake People MC10",
+   "Lake People MC100",
+   "Lake People MC50",
+   "Phone Amp G118"
+  ]
+ },
+ {
+  "hersteller": "Chauvet Professional",
+  "offen": 6,
+  "vorhanden": 0,
+  "kategorien": [
+   "Lighting"
+  ],
+  "modelle": [
+   "Chauvet Color STRIKE M",
+   "Chauvet Freedom Flex H4",
+   "Chauvet Maverick MK3 Spot",
+   "Chauvet Rogue Outcast 2X Wash",
+   "Maverick Storm 1 Spot",
+   "Rogue Outcast 1 BeamWash"
+  ]
+ },
+ {
+  "hersteller": "PTZOptics",
+  "offen": 6,
+  "vorhanden": 2,
+  "kategorien": [
+   "Sources"
+  ],
+  "modelle": [
+   "PTZOptics Link 4K (12x)",
+   "PTZOptics Link 4K (20x)",
+   "PTZOptics Link 4K (30x)",
+   "PTZOptics SimplTrack 3",
+   "PTZOptics Studio 12x",
+   "PTZOptics Studio 20x"
+  ]
+ },
+ {
+  "hersteller": "Pioneer",
+  "offen": 6,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio",
+   "Mixing Consoles"
+  ],
+  "modelle": [
+   "Pioneer CDJ-2000NXS2",
+   "Pioneer CDJ-3000",
+   "Pioneer CDJ-3000X",
+   "Pioneer DJM-900NXS2",
+   "Pioneer DJM-A9",
+   "Pioneer DJM-V10"
+  ]
+ },
+ {
+  "hersteller": "Radial Engineering",
+  "offen": 6,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio"
+  ],
+  "modelle": [
+   "Radial J48 Active Direct Box",
+   "Radial J48 Stereo Active Direct Box",
+   "Radial JDI Stereo Passive Direct Box",
+   "Radial Pro48 Active Direct Box",
+   "Radial ProD2 Stereo Passive Direct Box",
+   "Radial ProDI Passive Direct Box"
+  ]
+ },
+ {
+  "hersteller": "Domo Broadcast",
+  "offen": 6,
+  "vorhanden": 0,
+  "kategorien": [
+   "Wireless"
+  ],
+  "modelle": [
+   "Sapphire TX",
+   "Sapphire-BTX",
+   "Sapphire-MDR Decoder",
+   "Sapphire-RPM",
+   "Sapphire-RXD3",
+   "Sapphire-RXD4"
+  ]
+ },
+ {
+  "hersteller": "Work Pro",
+  "offen": 6,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio I/O",
+   "Speakers"
+  ],
+  "modelle": [
+   "Work Pro Arena 10 CX",
+   "Work Pro Arena 28S",
+   "Work Pro Athos B15",
+   "Work Pro DD4",
+   "Work Pro NGS80L",
+   "Work Pro WFS500CX"
+  ]
+ },
+ {
+  "hersteller": "ASUS",
+  "offen": 5,
+  "vorhanden": 0,
+  "kategorien": [
+   "Displays",
+   "Sources"
+  ],
+  "modelle": [
+   "ASUS 16\" TUF Gaming F16 Laptop",
+   "ASUS NUC 13 Pro",
+   "ASUS NUC 14 Pro (Tall)",
+   "ASUS ProArt Display PA278CV",
+   "ASUS ProArt PA248QFV Gen2"
+  ]
+ },
+ {
+  "hersteller": "Audio-Technica",
+  "offen": 5,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio I/O",
+   "Microphones"
+  ],
+  "modelle": [
+   "ATW-DR3240DAN",
+   "Audio-Technica ATND1061DAN",
+   "Audio-Technica ATND8677a",
+   "Audio-Technica ES915FTRH18",
+   "System 20 - 2 bastoes"
+  ]
+ },
+ {
+  "hersteller": "Araknis",
+  "offen": 5,
+  "vorhanden": 0,
+  "kategorien": [
+   "Networking"
+  ],
+  "modelle": [
+   "Araknis 16 Port POE",
+   "Araknis 24 Port POE",
+   "Araknis 48 Port PoE",
+   "Araknis 520 Router",
+   "Araknis 8 Port POE"
+  ]
+ },
+ {
+  "hersteller": "Audinate",
+  "offen": 5,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio I/O",
+   "Processing"
+  ],
+  "modelle": [
+   "Audinate AVIO AES3",
+   "Audinate AVIO Input",
+   "Audinate AVIO Output",
+   "Audinate AVIO USB",
+   "Audinate Dante AVIO USB 2x2"
+  ]
+ },
+ {
+  "hersteller": "BirdDog",
+  "offen": 5,
+  "vorhanden": 3,
+  "kategorien": [
+   "Networking",
+   "Processing",
+   "Sources"
+  ],
+  "modelle": [
+   "BirdDog 4K HDMI",
+   "BirdDog MAX UHD 4K PTZ Camera",
+   "BirdDog Mini HDMI",
+   "BirdDog POD",
+   "BirdDog Play"
+  ]
+ },
+ {
+  "hersteller": "Dell",
+  "offen": 5,
+  "vorhanden": 0,
+  "kategorien": [
+   "Displays",
+   "Sources"
+  ],
+  "modelle": [
+   "Dell E2425H",
+   "Dell OptiPlex Micro (QCM1250)",
+   "Dell P2424HT",
+   "Dell Precision 3460",
+   "Dell Pro Slim"
+  ]
+ },
+ {
+  "hersteller": "K-array",
+  "offen": 5,
+  "vorhanden": 0,
+  "kategorien": [
+   "Amplifiers",
+   "Speakers"
+  ],
+  "modelle": [
+   "K-array Anakonda KAN200 Marine",
+   "K-array Anakonda-KAN200",
+   "K-array KU212",
+   "K-array Kommander-KA28",
+   "K-array Rumble KU212 Marine"
+  ]
+ },
+ {
+  "hersteller": "Lumens",
+  "offen": 5,
+  "vorhanden": 0,
+  "kategorien": [
+   "Control",
+   "Media Servers",
+   "PTZ Camera",
+   "Recording",
+   "Sources"
+  ],
+  "modelle": [
+   "Lumens - PS760",
+   "Lumens LC100 CaptureVision System",
+   "Lumens LC300",
+   "Lumens VC-A71P-HN",
+   "Lumens VS-KB21N"
+  ]
+ },
+ {
+  "hersteller": "RTS Intercom Systems",
+  "offen": 5,
+  "vorhanden": 0,
+  "kategorien": [
+   "Intercom"
+  ],
+  "modelle": [
+   "OMNEO Main Station",
+   "RTS BTR-240",
+   "RTS KP-3016",
+   "RTS Odin",
+   "RTS TR-240 Beltpack"
+  ]
+ },
+ {
+  "hersteller": "Osee",
+  "offen": 5,
+  "vorhanden": 0,
+  "kategorien": [
+   "Switching"
+  ],
+  "modelle": [
+   "GoStream Duet",
+   "GoStream Duet 8 ISO",
+   "GoStream Duet 8 ISO Kit",
+   "GoStream M2",
+   "Osee GoStream Deck"
+  ]
+ },
+ {
+  "hersteller": "ViewSonic",
+  "offen": 5,
+  "vorhanden": 0,
+  "kategorien": [
+   "Displays",
+   "Projection"
+  ],
+  "modelle": [
+   "ViewSonic 24\" VX2467U",
+   "ViewSonic IFP8652-1C",
+   "ViewSonic LS740-4K",
+   "ViewSonic ViewBoard IFP110",
+   "Viewsonic TD2760"
+  ]
+ },
+ {
+  "hersteller": "Brompton Technology",
+  "offen": 5,
+  "vorhanden": 1,
+  "kategorien": [
+   "LED Video"
+  ],
+  "modelle": [
+   "Brompton Tessera M2",
+   "Brompton Tessera R2+",
+   "Brompton Tessera S4",
+   "Brompton Tessera S8",
+   "Brompton Tessera XD 10G"
+  ]
+ },
+ {
+  "hersteller": "CSD",
+  "offen": 4,
+  "vorhanden": 0,
+  "kategorien": [
+   "Infrastructure",
+   "Monitoring"
+  ],
+  "modelle": [
+   "12V 18Ah SLA Battery",
+   "Flush mount screamer 12V DC",
+   "Recessed Steel Door Reed Switch, Flush Mount, WHT",
+   "Roller Door Heavy Duty Reed Switch"
+  ]
+ },
+ {
+  "hersteller": "TP-Link",
+  "offen": 4,
+  "vorhanden": 0,
+  "kategorien": [
+   "Networking"
+  ],
+  "modelle": [
+   "16-Port Gigabit Easy Smart Switch",
+   "5-Port Desktop POE Switch",
+   "5-Port Desktop Switch",
+   "8-Port Gigabit Easy Smart Switch with 4-Port PoE+"
+  ]
+ },
+ {
+  "hersteller": "EQUIPSON",
+  "offen": 4,
+  "vorhanden": 0,
+  "kategorien": [
+   "Amplifiers",
+   "Audio",
+   "Lighting",
+   "Speakers"
+  ],
+  "modelle": [
+   "6W CEILING SPEAKER",
+   "DSP AUDIO MATRIX 8x8",
+   "Light Shark LS1",
+   "MIXER AMPLIFIER 65W_8Ω/100V"
+  ]
+ },
+ {
+  "hersteller": "AUDAC",
+  "offen": 4,
+  "vorhanden": 0,
+  "kategorien": [
+   "Amplifiers",
+   "Expansion Cards",
+   "Speakers"
+  ],
+  "modelle": [
+   "ANI44XT",
+   "AUDAC Celo6I",
+   "PMQ240",
+   "PMQ600"
+  ]
+ },
+ {
+  "hersteller": "Atlona",
+  "offen": 4,
+  "vorhanden": 0,
+  "kategorien": [
+   "Control",
+   "Distribution",
+   "Switching"
+  ],
+  "modelle": [
+   "AT-RON-444",
+   "Atlona OME-MS42-HDBT",
+   "Atlona OME-SR21",
+   "Atlona VTPG-1000VL"
+  ]
+ },
+ {
+  "hersteller": "AVer",
+  "offen": 4,
+  "vorhanden": 0,
+  "kategorien": [
+   "Sources",
+   "Switching"
+  ],
+  "modelle": [
+   "AVer CAM520",
+   "AVer CAM550",
+   "AVer TR530+",
+   "MT300N"
+  ]
+ },
+ {
+  "hersteller": "Atomos",
+  "offen": 4,
+  "vorhanden": 2,
+  "kategorien": [
+   "Control",
+   "Displays",
+   "Recording",
+   "Switching"
+  ],
+  "modelle": [
+   "Atomos A-Eye Control",
+   "Atomos Ninja Ultra",
+   "SHOGUN AV-19",
+   "Shinobi 7"
+  ]
+ },
+ {
+  "hersteller": "Audiocenter",
+  "offen": 4,
+  "vorhanden": 0,
+  "kategorien": [
+   "Amplifiers",
+   "Audio",
+   "Speakers"
+  ],
+  "modelle": [
+   "Audiocenter K-LA118",
+   "Audiocenter K-LA210",
+   "Audiocenter P48D",
+   "Audiocenter PD1000"
+  ]
+ },
+ {
+  "hersteller": "BrightSign",
+  "offen": 4,
+  "vorhanden": 0,
+  "kategorien": [
+   "Media Servers",
+   "Sources"
+  ],
+  "modelle": [
+   "BrightSign AU335",
+   "BrightSign XD1035",
+   "BrightSign XD1036",
+   "BrightSign XD236"
+  ]
+ },
+ {
+  "hersteller": "ChamSys",
+  "offen": 4,
+  "vorhanden": 0,
+  "kategorien": [
+   "Control",
+   "Lighting"
+  ],
+  "modelle": [
+   "ChamSys QuickQ 10",
+   "ChamSys QuickQ 30",
+   "MagicQ PC Wing Compact",
+   "QuickQ 20"
+  ]
+ },
+ {
+  "hersteller": "Riedel",
+  "offen": 4,
+  "vorhanden": 0,
+  "kategorien": [
+   "Intercom"
+  ],
+  "modelle": [
+   "DCP-1016E",
+   "Riedel Artist",
+   "Riedel Bolero",
+   "Riedel NSA-002A"
+  ]
+ },
+ {
+  "hersteller": "Elgato",
+  "offen": 4,
+  "vorhanden": 0,
+  "kategorien": [
+   "Control"
+  ],
+  "modelle": [
+   "Elgato Stream Deck Network Dock",
+   "Stream Deck",
+   "Stream Deck Studio",
+   "Streamdeck Studio"
+  ]
+ },
+ {
+  "hersteller": "Inner Range",
+  "offen": 4,
+  "vorhanden": 0,
+  "kategorien": [
+   "Control",
+   "Infrastructure"
+  ],
+  "modelle": [
+   "EliteX OLED Keypad",
+   "Integriti Extra Large Powered Enclosure (8A Smart PSU)",
+   "SIFER Keypad",
+   "Standard LAN Access Module (SLAM)"
+  ]
+ },
+ {
+  "hersteller": "Follow-Me",
+  "offen": 4,
+  "vorhanden": 0,
+  "kategorien": [
+   "Control",
+   "Lighting",
+   "Media Servers"
+  ],
+  "modelle": [
+   "Follow-Me Fader Console",
+   "Follow-Me Mouse Console",
+   "Follow-Me Rack Server",
+   "Follow-Me Track-IT Server"
+  ]
+ },
+ {
+  "hersteller": "Fomako",
+  "offen": 4,
+  "vorhanden": 0,
+  "kategorien": [
+   "Control",
+   "Sources",
+   "Switching"
+  ],
+  "modelle": [
+   "Fomako FMK12UH Pro(20x)",
+   "Fomako KC601 Pro",
+   "Fomako KC608 Pro",
+   "Fomako KN30A Pro"
+  ]
+ },
+ {
+  "hersteller": "KV2 Audio",
+  "offen": 4,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio"
+  ],
+  "modelle": [
+   "KV2 Compex",
+   "KV2 SAC2",
+   "KV2 SD8",
+   "KV2 SDD3 Delay Line"
+  ]
+ },
+ {
+  "hersteller": "MAXHUB",
+  "offen": 4,
+  "vorhanden": 0,
+  "kategorien": [
+   "Displays",
+   "Microphones"
+  ],
+  "modelle": [
+   "MAXHUB ND43CMB",
+   "MAXHUB ND50CMB",
+   "MAXHUB ND98CMB",
+   "SPEAKERPHONE BM35"
+  ]
+ },
+ {
+  "hersteller": "biamp",
+  "offen": 4,
+  "vorhanden": 0,
+  "kategorien": [
+   "Microphones"
+  ],
+  "modelle": [
+   "NPX G1040",
+   "TCM-XEX Expansion Ceiling Mic 1",
+   "TTM-X Table Mic (incl. Network Box)",
+   "TTM-XEX Expansion Table Mic"
+  ]
+ },
+ {
+  "hersteller": "Powersoft",
+  "offen": 4,
+  "vorhanden": 0,
+  "kategorien": [
+   "Amplifiers"
+  ],
+  "modelle": [
+   "Powersoft Mezzo 602 AD",
+   "Powersoft Ottocanali 8K4 DSP+D",
+   "Powersoft Quattrocanali 4804",
+   "Powersoft X4 Dante"
+  ]
+ },
+ {
+  "hersteller": "RCF",
+  "offen": 4,
+  "vorhanden": 0,
+  "kategorien": [
+   "Amplifiers",
+   "Speakers"
+  ],
+  "modelle": [
+   "RCF COMPACT M 05",
+   "RCF COMPACT M 12",
+   "RCF KPS 804D",
+   "RCF S19 SUBWOOFER"
+  ]
+ },
+ {
+  "hersteller": "RDL",
+  "offen": 4,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio",
+   "Audio I/O"
+  ],
+  "modelle": [
+   "RDL AV-NH1",
+   "RDL D-RN2ML",
+   "RU-MLB4",
+   "TXJ2 Input Transformer"
+  ]
+ },
+ {
+  "hersteller": "Roland",
+  "offen": 4,
+  "vorhanden": 11,
+  "kategorien": [
+   "Processing",
+   "Switching"
+  ],
+  "modelle": [
+   "Roland V-02HDMKII",
+   "Roland V-1-4K",
+   "Roland VR-1HD",
+   "Roland XS-42H"
+  ]
+ },
+ {
+  "hersteller": "Silverstar",
+  "offen": 4,
+  "vorhanden": 0,
+  "kategorien": [
+   "Lighting"
+  ],
+  "modelle": [
+   "Silverstar Aurocyc S3",
+   "Silverstar Eclipse EC4",
+   "Silverstar Frezno F3",
+   "Silverstar TU7"
+  ]
+ },
+ {
+  "hersteller": "Teufel",
+  "offen": 4,
+  "vorhanden": 0,
+  "kategorien": [
+   "Speakers"
+  ],
+  "modelle": [
+   "Teufel Rockster",
+   "Teufel Rockster 2",
+   "Teufel Rockster Air 2",
+   "Teufel Rockster Neo"
+  ]
+ },
+ {
+  "hersteller": "Wattbox",
+  "offen": 4,
+  "vorhanden": 0,
+  "kategorien": [
+   "Infrastructure"
+  ],
+  "modelle": [
+   "WattBox 250 Series WiFi Surge Protector | 2 Outlets",
+   "WattBox 800 Series IP Power Conditioner | 12 Individually Controlled & Metered Outlets",
+   "WattBox 800 Series IPPower Conditioner | 6 Outlet",
+   "WattBox® 800I Series Faceplate"
+  ]
+ },
+ {
+  "hersteller": "WiiM",
+  "offen": 4,
+  "vorhanden": 0,
+  "kategorien": [
+   "Media Players"
+  ],
+  "modelle": [
+   "WiiM Mini",
+   "WiiM Pro",
+   "WiiM Pro Plus",
+   "WiiM Ultra"
+  ]
+ },
+ {
+  "hersteller": "Zowietek",
+  "offen": 4,
+  "vorhanden": 0,
+  "kategorien": [
+   "Control",
+   "Networking",
+   "Sources"
+  ],
+  "modelle": [
+   "ZowieBox 4K",
+   "ZowieBox SDI",
+   "ZowieKBD PTZ Controller",
+   "Zowietek 4K NDI PTZ Camera 25x"
+  ]
+ },
+ {
+  "hersteller": "Optoma",
+  "offen": 3,
+  "vorhanden": 0,
+  "kategorien": [
+   "Displays",
+   "Projection"
+  ],
+  "modelle": [
+   "120\" Motrized Screen",
+   "Optoma FHDQ130 All-in-One QUAD LED-Display",
+   "Optoma HZ146X-W"
+  ]
+ },
+ {
+  "hersteller": "dbx",
+  "offen": 3,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio"
+  ],
+  "modelle": [
+   "266xs",
+   "dbx DriveRack",
+   "dbx DriveRack VENU360"
+  ]
+ },
+ {
+  "hersteller": "AtlasIED",
+  "offen": 3,
+  "vorhanden": 0,
+  "kategorien": [
+   "Amplifiers",
+   "Infrastructure",
+   "Speakers"
+  ],
+  "modelle": [
+   "AtlasIED A-RCA",
+   "AtlasIED FAP62T Speaker",
+   "AtlasIED PA1001G Amplifier"
+  ]
+ },
+ {
+  "hersteller": "Aurora Multimedia",
+  "offen": 3,
+  "vorhanden": 0,
+  "kategorien": [
+   "Distribution",
+   "Networking"
+  ],
+  "modelle": [
+   "Aurora HT-TC1-PRO",
+   "Aurora VPX-TC1 Pro",
+   "Aurora VPX-TC1-WP2"
+  ]
+ },
+ {
+  "hersteller": "Chroma-Q",
+  "offen": 3,
+  "vorhanden": 0,
+  "kategorien": [
+   "Lighting"
+  ],
+  "modelle": [
+   "Chroma-Q Color Force 72",
+   "Chroma-Q Studio Force II 48",
+   "Chroma-Q Vista MV"
+  ]
+ },
+ {
+  "hersteller": "Hollyland",
+  "offen": 3,
+  "vorhanden": 0,
+  "kategorien": [
+   "Intercom",
+   "Wireless"
+  ],
+  "modelle": [
+   "Cosmo C2 RX",
+   "Hollyland Cosmo C2 TX",
+   "Solidcom M1"
+  ]
+ },
+ {
+  "hersteller": "Deity",
+  "offen": 3,
+  "vorhanden": 0,
+  "kategorien": [
+   "Control",
+   "Recording"
+  ],
+  "modelle": [
+   "Deity PR-2",
+   "Deity PR-4",
+   "Deity TC-1"
+  ]
+ },
+ {
+  "hersteller": "Doug Fleenor Design",
+  "offen": 3,
+  "vorhanden": 0,
+  "kategorien": [
+   "Control",
+   "Lighting"
+  ],
+  "modelle": [
+   "Doug Fleenor 1211-TB",
+   "Doug Fleenor Entry Station 2",
+   "Doug Fleenor Preset 10"
+  ]
+ },
+ {
+  "hersteller": "Ereca",
+  "offen": 3,
+  "vorhanden": 0,
+  "kategorien": [
+   "Processing",
+   "Sources"
+  ],
+  "modelle": [
+   "Ereca Stage Racer 2 – 24 SDI",
+   "Ereca Topas 4K RX",
+   "Ereca Topas 4K TX"
+  ]
+ },
+ {
+  "hersteller": "Furman",
+  "offen": 3,
+  "vorhanden": 0,
+  "kategorien": [
+   "Infrastructure"
+  ],
+  "modelle": [
+   "Furman CN-3600S E",
+   "Furman Merit M-8S",
+   "Furman PL-Plus C"
+  ]
+ },
+ {
+  "hersteller": "Huddly",
+  "offen": 3,
+  "vorhanden": 1,
+  "kategorien": [
+   "Processing",
+   "Sources"
+  ],
+  "modelle": [
+   "Huddly IQ",
+   "Huddly S1",
+   "Huddly USB Adapter"
+  ]
+ },
+ {
+  "hersteller": "Global Cache",
+  "offen": 3,
+  "vorhanden": 0,
+  "kategorien": [
+   "Control"
+  ],
+  "modelle": [
+   "IP2CC-P",
+   "IP2IR-P",
+   "IP2SL-P"
+  ]
+ },
+ {
+  "hersteller": "Iiyama",
+  "offen": 3,
+  "vorhanden": 0,
+  "kategorien": [
+   "Control",
+   "Displays"
+  ],
+  "modelle": [
+   "Iiyama ProLite LE9864UHS-B1AG",
+   "Iiyama ProLite LH8664UHS-B3AG",
+   "Iiyama ProLite TF4339AS-B1AG"
+  ]
+ },
+ {
+  "hersteller": "Kiloview",
+  "offen": 3,
+  "vorhanden": 5,
+  "kategorien": [
+   "Networking",
+   "Recording",
+   "Switching"
+  ],
+  "modelle": [
+   "Kiloview CUBE X1",
+   "Kiloview N5",
+   "Kiloview N6"
+  ]
+ },
+ {
+  "hersteller": "Lab Gruppen",
+  "offen": 3,
+  "vorhanden": 0,
+  "kategorien": [
+   "Amplifiers"
+  ],
+  "modelle": [
+   "Lab Gruppen E4:2",
+   "Lab Gruppen FAD1202",
+   "Lab Gruppen FAD2402"
+  ]
+ },
+ {
+  "hersteller": "LiveU",
+  "offen": 3,
+  "vorhanden": 0,
+  "kategorien": [
+   "Networking"
+  ],
+  "modelle": [
+   "LiveU LU300S",
+   "LiveU LU4000",
+   "LiveU LU800"
+  ]
+ },
+ {
+  "hersteller": "LynTec",
+  "offen": 3,
+  "vorhanden": 0,
+  "kategorien": [
+   "Control",
+   "Infrastructure"
+  ],
+  "modelle": [
+   "LynTec RPC 141",
+   "LynTec RPC I/O-R Board",
+   "LynTec SS-2"
+  ]
+ },
+ {
+  "hersteller": "Marshall",
+  "offen": 3,
+  "vorhanden": 0,
+  "kategorien": [
+   "Displays"
+  ],
+  "modelle": [
+   "Marshall ML-702",
+   "Marshall QVW-1708 Monitor",
+   "Marshall V-MD173 Monitor"
+  ]
+ },
+ {
+  "hersteller": "Neat",
+  "offen": 3,
+  "vorhanden": 0,
+  "kategorien": [
+   "Codecs"
+  ],
+  "modelle": [
+   "Neat Bar",
+   "Neat Bar BYOD",
+   "Neat Bar Pro"
+  ]
+ },
+ {
+  "hersteller": "Pathway Connectivity",
+  "offen": 3,
+  "vorhanden": 0,
+  "kategorien": [
+   "Control",
+   "Lighting"
+  ],
+  "modelle": [
+   "Pathway Perform Controller",
+   "Pathway Perform Touchscreen 5\"",
+   "Pathway Vignette DIN Gateway"
+  ]
+ },
+ {
+  "hersteller": "Poly",
+  "offen": 3,
+  "vorhanden": 1,
+  "kategorien": [
+   "Codecs",
+   "Control",
+   "Sources"
+  ],
+  "modelle": [
+   "Poly E60",
+   "Poly G62 Conference Appliance",
+   "Poly TC10"
+  ]
+ },
+ {
+  "hersteller": "RME",
+  "offen": 3,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio I/O"
+  ],
+  "modelle": [
+   "RME Digiface Dante",
+   "RME MADIface USB",
+   "RME MADIface XT II"
+  ]
+ },
+ {
+  "hersteller": "Alta",
+  "offen": 3,
+  "vorhanden": 0,
+  "kategorien": [
+   "Networking"
+  ],
+  "modelle": [
+   "ROUTE10",
+   "S48-APOE",
+   "S8-POE"
+  ]
+ },
+ {
+  "hersteller": "HTC",
+  "offen": 3,
+  "vorhanden": 0,
+  "kategorien": [
+   "Sources"
+  ],
+  "modelle": [
+   "ROVER",
+   "VIVE MARS CAMTRACK",
+   "VIVE Tracker 3.0"
+  ]
+ },
+ {
+  "hersteller": "RØDE",
+  "offen": 3,
+  "vorhanden": 0,
+  "kategorien": [
+   "Switching"
+  ],
+  "modelle": [
+   "RØDECaster Video",
+   "RØDECaster Video Core",
+   "RØDECaster Video S"
+  ]
+ },
+ {
+  "hersteller": "Showtec",
+  "offen": 3,
+  "vorhanden": 0,
+  "kategorien": [
+   "Lighting"
+  ],
+  "modelle": [
+   "Showtec ACT Fresnel 50 RGBAL",
+   "Showtec ACT Profile 50 RGBAL",
+   "Showtec Luna Par 60 Q4"
+  ]
+ },
+ {
+  "hersteller": "TELEVIC",
+  "offen": 3,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio",
+   "Intercom",
+   "Microphones"
+  ],
+  "modelle": [
+   "TELEVIC Confidea WAPG4",
+   "Televic Lingua ID Mike",
+   "Televic Mike PLM 402 F"
+  ]
+ },
+ {
+  "hersteller": "Vello",
+  "offen": 3,
+  "vorhanden": 0,
+  "kategorien": [
+   "Lighting"
+  ],
+  "modelle": [
+   "Vello LED BSW450",
+   "Vello LED Par 24",
+   "Vello LED Profile 350"
+  ]
+ },
+ {
+  "hersteller": "Datapath",
+  "offen": 3,
+  "vorhanden": 0,
+  "kategorien": [
+   "Distribution"
+  ],
+  "modelle": [
+   "Datapath FX4 HDMI",
+   "Datapath FX4 SDI",
+   "Datapath Hx4"
+  ]
+ },
+ {
+  "hersteller": "Lex Products",
+  "offen": 3,
+  "vorhanden": 0,
+  "kategorien": [
+   "Infrastructure"
+  ],
+  "modelle": [
+   "Lex DB-100",
+   "Lex DB-200",
+   "Lex Hammerhead 400A Splitter"
+  ]
+ },
+ {
+  "hersteller": "Dataton",
+  "offen": 3,
+  "vorhanden": 0,
+  "kategorien": [
+   "Media Servers"
+  ],
+  "modelle": [
+   "Dataton WATCHPAX 40",
+   "Dataton WATCHPAX 60",
+   "Dataton WATCHPAX 64"
+  ]
+ },
+ {
+  "hersteller": "AWS",
+  "offen": 3,
+  "vorhanden": 0,
+  "kategorien": [
+   "Cloud Services"
+  ],
+  "modelle": [
+   "AWS MediaConnect",
+   "AWS MediaLive",
+   "AWS MediaPackage"
+  ]
+ },
+ {
+  "hersteller": "AVstumpfl",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Projection"
+  ],
+  "modelle": [
+   "10ft VARIO Fast Fold Screen",
+   "9ft Monolyte Screen"
+  ]
+ },
+ {
+  "hersteller": "Josawa",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "KVM / Extenders"
+  ],
+  "modelle": [
+   "ALF TPUK150-RS Rx",
+   "Josawa ALF-TPUK150-RS Tx"
+  ]
+ },
+ {
+  "hersteller": "Amix",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Monitoring"
+  ],
+  "modelle": [
+   "AMIX AFF17-3",
+   "Amix AFF25 Touring"
+  ]
+ },
+ {
+  "hersteller": "ATEN",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Infrastructure"
+  ],
+  "modelle": [
+   "ATEN PE4104G",
+   "ATEN PE8108G"
+  ]
+ },
+ {
+  "hersteller": "AVProEdge",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "KVM / Extenders"
+  ],
+  "modelle": [
+   "AVProEdge AC-CXWP-USBC-T",
+   "AVProEdge AC-EX70-444-RNE-P"
+  ]
+ },
+ {
+  "hersteller": "Acer",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Displays",
+   "Peripherals"
+  ],
+  "modelle": [
+   "Acer CB241HQK",
+   "TB4 Dock T34"
+  ]
+ },
+ {
+  "hersteller": "Airtame",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Switching"
+  ],
+  "modelle": [
+   "Airtame 2",
+   "Airtame 3"
+  ]
+ },
+ {
+  "hersteller": "BZBGEAR",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Codecs",
+   "Switching"
+  ],
+  "modelle": [
+   "BG-CONNEXIO",
+   "BG-CYCLOPS-4K"
+  ]
+ },
+ {
+  "hersteller": "Brown Innovations",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio"
+  ],
+  "modelle": [
+   "Brown Innovations Myriad DSP Amplifier",
+   "Brown Innovations SB-24 SonicBeam Directional Speaker"
+  ]
+ },
+ {
+  "hersteller": "Tascam",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio I/O",
+   "Sources"
+  ],
+  "modelle": [
+   "CD-200BT",
+   "TASCAM ML-32D"
+  ]
+ },
+ {
+  "hersteller": "TC Electronic",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio",
+   "Monitoring"
+  ],
+  "modelle": [
+   "CLARITY M STEREO",
+   "TC D Two"
+  ]
+ },
+ {
+  "hersteller": "Caymon",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Cable Accessories",
+   "Infrastructure"
+  ],
+  "modelle": [
+   "Caymon SPR80RF Roof Fan Unit",
+   "Caymon SPR8842 19\" Rack 42U"
+  ]
+ },
+ {
+  "hersteller": "Christie",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Projection"
+  ],
+  "modelle": [
+   "Christie 4K1400-KS",
+   "Christie DWU1075-GS"
+  ]
+ },
+ {
+  "hersteller": "SmallHD",
+  "offen": 2,
+  "vorhanden": 2,
+  "kategorien": [
+   "Displays"
+  ],
+  "modelle": [
+   "Cine 24\" 4K",
+   "SmallHD Cine 24"
+  ]
+ },
+ {
+  "hersteller": "ClayPaky",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Lighting"
+  ],
+  "modelle": [
+   "ClayPaky Arolla Aqua",
+   "ClayPaky Skylos"
+  ]
+ },
+ {
+  "hersteller": "CODA Audio",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Amplifiers",
+   "Speakers"
+  ],
+  "modelle": [
+   "Coda SCV-F Sub",
+   "LINUS14/14D"
+  ]
+ },
+ {
+  "hersteller": "Creative Lighting",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Control",
+   "Lighting"
+  ],
+  "modelle": [
+   "Creative Lighting DALI Universe Digital Lighting Gateway",
+   "Creative Lighting UBi Power - DALI Power Supply & Line Breakout"
+  ]
+ },
+ {
+  "hersteller": "Alectro",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Infrastructure"
+  ],
+  "modelle": [
+   "Custom Input Plate",
+   "XLR Plate"
+  ]
+ },
+ {
+  "hersteller": "DVDO",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Processing",
+   "Sources"
+  ],
+  "modelle": [
+   "DVDO-C4-1-B 1",
+   "DVDO-Switcher-21SS-MV"
+  ]
+ },
+ {
+  "hersteller": "Dayton Audio",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Amplifiers"
+  ],
+  "modelle": [
+   "Dayton Audio MA1240a",
+   "Dayton Audio MA1260"
+  ]
+ },
+ {
+  "hersteller": "Decimator Design",
+  "offen": 2,
+  "vorhanden": 7,
+  "kategorien": [
+   "Processing"
+  ],
+  "modelle": [
+   "Decimator 12G-CROSS",
+   "Decimator 12G-Cross"
+  ]
+ },
+ {
+  "hersteller": "Liberty",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Control",
+   "KVM / Extenders"
+  ],
+  "modelle": [
+   "DigitaLynx DL-UHDILC",
+   "Presenter Extender"
+  ]
+ },
+ {
+  "hersteller": "Epiphan",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Recording",
+   "Switching"
+  ],
+  "modelle": [
+   "Epiphan Pearl Mini",
+   "Epiphan Pearl-2"
+  ]
+ },
+ {
+  "hersteller": "Fostex",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Speakers"
+  ],
+  "modelle": [
+   "Fostex 6301B",
+   "Fostex 6301DT"
+  ]
+ },
+ {
+  "hersteller": "G2 Digital",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Sources"
+  ],
+  "modelle": [
+   "G2 Digital 1U PC W15 - Control & Monitoring",
+   "G2 Digital 1U PC W15 - Scalable 9 Min Spec"
+  ]
+ },
+ {
+  "hersteller": "Chamsys",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Lighting"
+  ],
+  "modelle": [
+   "GeNetix GN10",
+   "MagicQ MQ70"
+  ]
+ },
+ {
+  "hersteller": "Gude",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Infrastructure"
+  ],
+  "modelle": [
+   "Gude Expert Power Control 1141-1",
+   "Gude Expert Power Control 8045"
+  ]
+ },
+ {
+  "hersteller": "KissBox",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Expansion Cards",
+   "Processing"
+  ],
+  "modelle": [
+   "KissBox D08SK",
+   "KissBox IO3CC"
+  ]
+ },
+ {
+  "hersteller": "Kystar",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "LED Video"
+  ],
+  "modelle": [
+   "Kystar KBS2000",
+   "Kystar SE3"
+  ]
+ },
+ {
+  "hersteller": "LOX Locking",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Monitoring"
+  ],
+  "modelle": [
+   "LOX ES10 Electric Strike Non-monitored",
+   "LOX ES20 Electric Strike Monitored"
+  ]
+ },
+ {
+  "hersteller": "Lea",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Amplifiers",
+   "Control"
+  ],
+  "modelle": [
+   "Lea CS-Touch",
+   "Lea Connect 704D"
+  ]
+ },
+ {
+  "hersteller": "Legrand",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Infrastructure"
+  ],
+  "modelle": [
+   "Legrand LP-41110",
+   "Legrand WP24RM Patch Panel"
+  ]
+ },
+ {
+  "hersteller": "Lenovo",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Codecs",
+   "Sources"
+  ],
+  "modelle": [
+   "Lenovo ThinkCentre Neo 50q Gen 5",
+   "Lenovo ThinkSmart Core Gen 2 for Logitech Microsoft Teams Rooms"
+  ]
+ },
+ {
+  "hersteller": "Lilliput",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Displays"
+  ],
+  "modelle": [
+   "Lilliput BM230-4KS 23.8\"",
+   "Lilliput Q24"
+  ]
+ },
+ {
+  "hersteller": "LUMENS",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Networking",
+   "Sources"
+  ],
+  "modelle": [
+   "Lumens OIP N60D Dante AV-H",
+   "Lumens VC TR60A Dante AV-H 4K"
+  ]
+ },
+ {
+  "hersteller": "Midas",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio",
+   "Audio I/O"
+  ],
+  "modelle": [
+   "Midas DN4888",
+   "Midas DP48"
+  ]
+ },
+ {
+  "hersteller": "Mikrotik",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Networking",
+   "Switching"
+  ],
+  "modelle": [
+   "Mikrotik CRS328-24P-4S+RM",
+   "Mikrotik RB4011iGS+5HacQ2HnD-IN"
+  ]
+ },
+ {
+  "hersteller": "Monoprice",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "KVM / Extenders"
+  ],
+  "modelle": [
+   "Monoprice Blackbird HDBaseT Receiver",
+   "Monoprice Blackbird HDBaseT Transmitter"
+  ]
+ },
+ {
+  "hersteller": "Motu",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio I/O"
+  ],
+  "modelle": [
+   "Motu M2",
+   "Motu M4"
+  ]
+ },
+ {
+  "hersteller": "Rode",
+  "offen": 2,
+  "vorhanden": 2,
+  "kategorien": [
+   "Audio",
+   "Microphones",
+   "Mixing Consoles"
+  ],
+  "modelle": [
+   "Rode NTH100",
+   "Rodecaster Pro 2"
+  ]
+ },
+ {
+  "hersteller": "Obsidian Control Systems",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Lighting"
+  ],
+  "modelle": [
+   "NX P",
+   "NX4"
+  ]
+ },
+ {
+  "hersteller": "Nureva",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio",
+   "Audio I/O"
+  ],
+  "modelle": [
+   "Nureva HDL310 Connect Module",
+   "Nureva HDL310 Microphone and Speaker Bar"
+  ]
+ },
+ {
+  "hersteller": "Philips",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Projection"
+  ],
+  "modelle": [
+   "Philips 86BDL4511D/27",
+   "Philips 86BDL4650D_00"
+  ]
+ },
+ {
+  "hersteller": "PixelHue",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Switching"
+  ],
+  "modelle": [
+   "PixelHue P10",
+   "PixelHue P20"
+  ]
+ },
+ {
+  "hersteller": "PowerShield",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Expansion Cards",
+   "Infrastructure"
+  ],
+  "modelle": [
+   "PowerShield Centurion RT 2000 UPS",
+   "PowerShield SNMP Comms Card Lite V1"
+  ]
+ },
+ {
+  "hersteller": "Symetrix",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio",
+   "Audio I/O"
+  ],
+  "modelle": [
+   "Prism 16x16",
+   "Symetrix xIO Bluetooth RCA-3.5"
+  ]
+ },
+ {
+  "hersteller": "Rosendahl",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Control"
+  ],
+  "modelle": [
+   "Rosendahl Nanosyncs",
+   "Rosendahl mif4"
+  ]
+ },
+ {
+  "hersteller": "SCT",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "VIdeo"
+  ],
+  "modelle": [
+   "SCT\tRTK-AM1-C-RX Module",
+   "SCT\tRTK-AM1-C-TX Module"
+  ]
+ },
+ {
+  "hersteller": "Skaarhoj",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Control"
+  ],
+  "modelle": [
+   "Skaarhoj MasterKey One",
+   "Skaarhoj RC-SK5"
+  ]
+ },
+ {
+  "hersteller": "Sonnet Technologies",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio Expansion"
+  ],
+  "modelle": [
+   "Sonnet Echo Express SE-I",
+   "Sonnet Echo III Desktop"
+  ]
+ },
+ {
+  "hersteller": "Sonnect",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio I/O"
+  ],
+  "modelle": [
+   "SoundWire",
+   "Soundwire Mini"
+  ]
+ },
+ {
+  "hersteller": "Soundcraft",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Mixing Consoles"
+  ],
+  "modelle": [
+   "Soundcraft Ui12",
+   "Soundcraft Ui16"
+  ]
+ },
+ {
+  "hersteller": "StarTech.com",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Processing"
+  ],
+  "modelle": [
+   "StarTech 16-Port Industrial USB Hub",
+   "StarTech USB-C to HDMI/DVI/VGA Adapter"
+  ]
+ },
+ {
+  "hersteller": "Swisson",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Lighting"
+  ],
+  "modelle": [
+   "Swisson XND-8R5",
+   "Swisson XPD-28-8R"
+  ]
+ },
+ {
+  "hersteller": "Swit",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Infrastructure"
+  ],
+  "modelle": [
+   "Swit PB-M146S",
+   "Swit PB-R220S+"
+  ]
+ },
+ {
+  "hersteller": "TOA",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio"
+  ],
+  "modelle": [
+   "TOA IR-510R",
+   "TOA IR-702T"
+  ]
+ },
+ {
+  "hersteller": "Turtle AV",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio",
+   "Networking"
+  ],
+  "modelle": [
+   "Turtle AV TAV-D2USB-PRO",
+   "Turtle Chazy 4K TX"
+  ]
+ },
+ {
+  "hersteller": "steinberg",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio I/O"
+  ],
+  "modelle": [
+   "UR44C USB 3 Audio Interface",
+   "UR816C USB 3 Audio Interface"
+  ]
+ },
+ {
+  "hersteller": "Visual Productions",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Lighting"
+  ],
+  "modelle": [
+   "Visual Productions CueCore3",
+   "Visual Productions RDMSPLITTER"
+  ]
+ },
+ {
+  "hersteller": "Craltech",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Networking"
+  ],
+  "modelle": [
+   "W1",
+   "W10"
+  ]
+ },
+ {
+  "hersteller": "Waves",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio",
+   "Audio I/O"
+  ],
+  "modelle": [
+   "Waves MGR Madi to SG",
+   "Waves SG Server Extreme"
+  ]
+ },
+ {
+  "hersteller": "Williams AV",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio",
+   "Infrastructure"
+  ],
+  "modelle": [
+   "Wiliams AV - WI-TFP057",
+   "Williams AV IR T3"
+  ]
+ },
+ {
+  "hersteller": "Williams Sound",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio"
+  ],
+  "modelle": [
+   "Williams Sound PPA R38 Receiver",
+   "Williams Sound T45 Transmitter"
+  ]
+ },
+ {
+  "hersteller": "XINE Robotics",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Lighting"
+  ],
+  "modelle": [
+   "XINE SafetyBox",
+   "XINE WS2512"
+  ]
+ },
+ {
+  "hersteller": "iConnectivity",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio I/O",
+   "Control"
+  ],
+  "modelle": [
+   "iConnectivity PlayAudio 1U",
+   "mioXM"
+  ]
+ },
+ {
+  "hersteller": "nnounce",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Microphones"
+  ],
+  "modelle": [
+   "nnounce micnode 2g",
+   "nnounce micnode 2h"
+  ]
+ },
+ {
+  "hersteller": "Martin",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Lighting"
+  ],
+  "modelle": [
+   "Martin MAC Aura XIP",
+   "Martin MAC Ultra Performance"
+  ]
+ },
+ {
+  "hersteller": "Ayrton",
+  "offen": 2,
+  "vorhanden": 1,
+  "kategorien": [
+   "Lighting"
+  ],
+  "modelle": [
+   "Ayrton Huracán LT",
+   "Ayrton Perseo Beam"
+  ]
+ },
+ {
+  "hersteller": "GLP",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Lighting"
+  ],
+  "modelle": [
+   "GLP JDC1",
+   "GLP impression X4 Bar 20"
+  ]
+ },
+ {
+  "hersteller": "ARRI",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Lighting"
+  ],
+  "modelle": [
+   "ARRI SkyPanel S360-C",
+   "ARRI SkyPanel S60-C"
+  ]
+ },
+ {
+  "hersteller": "Astera",
+  "offen": 2,
+  "vorhanden": 0,
+  "kategorien": [
+   "Lighting"
+  ],
+  "modelle": [
+   "Astera AX5 TriplePAR",
+   "Astera Titan Tube"
+  ]
+ },
+ {
+  "hersteller": "Lex Innovations",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Infrastructure"
+  ],
+  "modelle": [
+   "200 Amp Pagoda to 19-Pin Receptacles"
+  ]
+ },
+ {
+  "hersteller": "2N",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Control"
+  ],
+  "modelle": [
+   "2N Wiegand Module"
+  ]
+ },
+ {
+  "hersteller": "AC Infinity",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Peripherals"
+  ],
+  "modelle": [
+   "AC Infinity CLOUDPLATE T7-N, Quiet Rack Cooling Fan System, 2U Intake"
+  ]
+ },
+ {
+  "hersteller": "AEA",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Microphones"
+  ],
+  "modelle": [
+   "AEA N8  - Ribbon"
+  ]
+ },
+ {
+  "hersteller": "AERIAL INDUSTRIAL",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Displays"
+  ],
+  "modelle": [
+   "AERIAL INDUSTRIAL - HD STB"
+  ]
+ },
+ {
+  "hersteller": "AKG",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Microphones"
+  ],
+  "modelle": [
+   "AKG - GN50ESP"
+  ]
+ },
+ {
+  "hersteller": "AMC",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Sources"
+  ],
+  "modelle": [
+   "AMC LIVE RADIO AUDIO PLAYER 19923"
+  ]
+ },
+ {
+  "hersteller": "AMS",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Sources"
+  ],
+  "modelle": [
+   "AMS MUB 62"
+  ]
+ },
+ {
+  "hersteller": "ART",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio I/O"
+  ],
+  "modelle": [
+   "ART S8-3Way Microphone Splitter"
+  ]
+ },
+ {
+  "hersteller": "AVerMedia",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Processing"
+  ],
+  "modelle": [
+   "AVerMedia ExtremeCap UVC BU110"
+  ]
+ },
+ {
+  "hersteller": "Aeromic",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Microphones"
+  ],
+  "modelle": [
+   "Aeromic CM11H Headset Mic"
+  ]
+ },
+ {
+  "hersteller": "Alfatron",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Sources"
+  ],
+  "modelle": [
+   "Alfatron 25X-4KCAM w/NDI HX3"
+  ]
+ },
+ {
+  "hersteller": "Altimium",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Switching"
+  ],
+  "modelle": [
+   "Altimium MAT.HDMI44H2-4KV2"
+  ]
+ },
+ {
+  "hersteller": "Altronics",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Control"
+  ],
+  "modelle": [
+   "Altronics - S5314A"
+  ]
+ },
+ {
+  "hersteller": "Amino",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Sources"
+  ],
+  "modelle": [
+   "Amino H200"
+  ]
+ },
+ {
+  "hersteller": "Ampetronic",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio"
+  ],
+  "modelle": [
+   "Ampetronic AURI-TX2N-D"
+  ]
+ },
+ {
+  "hersteller": "Anker",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Infrastructure"
+  ],
+  "modelle": [
+   "Anker Prime Charger (200w)"
+  ]
+ },
+ {
+  "hersteller": "AnthemAV",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Amplifiers"
+  ],
+  "modelle": [
+   "Anthem AVM 70 8K"
+  ]
+ },
+ {
+  "hersteller": "Appsys",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Processing"
+  ],
+  "modelle": [
+   "Appsys Multiverter"
+  ]
+ },
+ {
+  "hersteller": "Arista",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Networking"
+  ],
+  "modelle": [
+   "Arista 710P-16P"
+  ]
+ },
+ {
+  "hersteller": "Aruba",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Networking"
+  ],
+  "modelle": [
+   "Aruba - JL679A"
+  ]
+ },
+ {
+  "hersteller": "Arylic",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Sources"
+  ],
+  "modelle": [
+   "Arylic S50 Pro+"
+  ]
+ },
+ {
+  "hersteller": "Ashly",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "audio"
+  ],
+  "modelle": [
+   "Ashly AQM408"
+  ]
+ },
+ {
+  "hersteller": "Audac",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Amplifiers"
+  ],
+  "modelle": [
+   "Audac SMQ1250 4-Channel Amp"
+  ]
+ },
+ {
+  "hersteller": "Arturia",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio I/O"
+  ],
+  "modelle": [
+   "AudioFuse 16Rig"
+  ]
+ },
+ {
+  "hersteller": "Avaya",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Sources"
+  ],
+  "modelle": [
+   "Avaya HC020"
+  ]
+ },
+ {
+  "hersteller": "Aver",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Sources"
+  ],
+  "modelle": [
+   "Aver TR535N"
+  ]
+ },
+ {
+  "hersteller": "Avocor",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Displays"
+  ],
+  "modelle": [
+   "Avocor AVK-9810"
+  ]
+ },
+ {
+  "hersteller": "BSS Audio",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "KVM / Extenders"
+  ],
+  "modelle": [
+   "BLU-USB"
+  ]
+ },
+ {
+  "hersteller": "BarnColor",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Processing"
+  ],
+  "modelle": [
+   "BarnColor 4x12G SDI"
+  ]
+ },
+ {
+  "hersteller": "Beetronics",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Displays"
+  ],
+  "modelle": [
+   "Beetronics 19HD7M"
+  ]
+ },
+ {
+  "hersteller": "Belkin",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Infrastructure"
+  ],
+  "modelle": [
+   "Belkin 6-outlet Surge Protection Strip"
+  ]
+ },
+ {
+  "hersteller": "BenQ",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Displays"
+  ],
+  "modelle": [
+   "BenQ RP7505"
+  ]
+ },
+ {
+  "hersteller": "Bang & Olufsen",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Speakers"
+  ],
+  "modelle": [
+   "Beoplay M3"
+  ]
+ },
+ {
+  "hersteller": "Beyerdynamic",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio"
+  ],
+  "modelle": [
+   "Beyerdynamic DT-770 Pro"
+  ]
+ },
+ {
+  "hersteller": "Bond",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Networking"
+  ],
+  "modelle": [
+   "Bond Bridge Pro"
+  ]
+ },
+ {
+  "hersteller": "Bosch",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Control"
+  ],
+  "modelle": [
+   "Bosch 360 Degree Low Profile Ceiling Mount PIR Detector"
+  ]
+ },
+ {
+  "hersteller": "Bose",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Speakers"
+  ],
+  "modelle": [
+   "Bose Professional MA12 Modular Column Array Loudspeaker"
+  ]
+ },
+ {
+  "hersteller": "CLEARONE",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Microphones"
+  ],
+  "modelle": [
+   "CHAT 150"
+  ]
+ },
+ {
+  "hersteller": "Waveshare",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Control"
+  ],
+  "modelle": [
+   "CM4-IO-POE-BOX-B"
+  ]
+ },
+ {
+  "hersteller": "CTP",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Intercom"
+  ],
+  "modelle": [
+   "CTP DCD2020"
+  ]
+ },
+ {
+  "hersteller": "Cable EZ",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Infrastructure"
+  ],
+  "modelle": [
+   "Cable EZ HDMI Input Plate"
+  ]
+ },
+ {
+  "hersteller": "Cameo",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Lighting"
+  ],
+  "modelle": [
+   "Cameo H1_FC"
+  ]
+ },
+ {
+  "hersteller": "Catchbox",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio"
+  ],
+  "modelle": [
+   "Catchbox Plus"
+  ]
+ },
+ {
+  "hersteller": "CoolAutomation",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Control"
+  ],
+  "modelle": [
+   "CoolMaster Universal VRF Bridge"
+  ]
+ },
+ {
+  "hersteller": "Resi",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Networking"
+  ],
+  "modelle": [
+   "D2200 Decoder"
+  ]
+ },
+ {
+  "hersteller": "Denon",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Recording"
+  ],
+  "modelle": [
+   "Denon DN-700R"
+  ]
+ },
+ {
+  "hersteller": "Digital Projection",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Projection"
+  ],
+  "modelle": [
+   "Digital Projection E-Vision 24000i WU"
+  ]
+ },
+ {
+  "hersteller": "EAW",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Speakers"
+  ],
+  "modelle": [
+   "EAW RSX89"
+  ]
+ },
+ {
+  "hersteller": "EM Acoustics",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Speakers"
+  ],
+  "modelle": [
+   "EMS-126"
+  ]
+ },
+ {
+  "hersteller": "Eaton Tripp Lite",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Infrastructure"
+  ],
+  "modelle": [
+   "Eaton Tripp Lite SMART500RT1U"
+  ]
+ },
+ {
+  "hersteller": "Echo 360",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Recording"
+  ],
+  "modelle": [
+   "EchoVideo PRO"
+  ]
+ },
+ {
+  "hersteller": "Aputure",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Lighting"
+  ],
+  "modelle": [
+   "Electro Storm XT26"
+  ]
+ },
+ {
+  "hersteller": "Elmo",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Sources"
+  ],
+  "modelle": [
+   "Elmo TT-12G"
+  ]
+ },
+ {
+  "hersteller": "Elokance",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Amplifiers"
+  ],
+  "modelle": [
+   "Elokance HA 1000"
+  ]
+ },
+ {
+  "hersteller": "Epiphan Video",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Networking"
+  ],
+  "modelle": [
+   "Epiphan Pearl Nexus"
+  ]
+ },
+ {
+  "hersteller": "Episode",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Speakers"
+  ],
+  "modelle": [
+   "Episode® Terrain Series 4\" Satellite Speakers and 8\" Subwoofer"
+  ]
+ },
+ {
+  "hersteller": "Colorlight/ROE",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "LED Video"
+  ],
+  "modelle": [
+   "Evision HD 102"
+  ]
+ },
+ {
+  "hersteller": "Faradite",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Control"
+  ],
+  "modelle": [
+   "Faradite Motion Sensor 360 IP67 WHT"
+  ]
+ },
+ {
+  "hersteller": "Feelworld",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Displays"
+  ],
+  "modelle": [
+   "Feelworld D71 Plus"
+  ]
+ },
+ {
+  "hersteller": "Fohhn",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio I/O"
+  ],
+  "modelle": [
+   "Fohhn A-1 Live"
+  ]
+ },
+ {
+  "hersteller": "FutureNow",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Control"
+  ],
+  "modelle": [
+   "FutureNow FNIP"
+  ]
+ },
+ {
+  "hersteller": "Gefen",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio I/O"
+  ],
+  "modelle": [
+   "Gefen GTV-HDMI-2-HDMIAUD"
+  ]
+ },
+ {
+  "hersteller": "Gemini",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Sources"
+  ],
+  "modelle": [
+   "Gemini CDMP-1500"
+  ]
+ },
+ {
+  "hersteller": "Glensound",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Intercom"
+  ],
+  "modelle": [
+   "Glensound Nomad"
+  ]
+ },
+ {
+  "hersteller": "Grandstream",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Networking"
+  ],
+  "modelle": [
+   "Grandstream GWN7664LR"
+  ]
+ },
+ {
+  "hersteller": "HPE Aruba Networking",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Networking"
+  ],
+  "modelle": [
+   "HPE Networking Instant On 1830 24G 2SFP"
+  ]
+ },
+ {
+  "hersteller": "Humax",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Sources"
+  ],
+  "modelle": [
+   "HUMAX FHR-6000T FREELY SET TOP BOX"
+  ]
+ },
+ {
+  "hersteller": "Haivision",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Networking"
+  ],
+  "modelle": [
+   "Haivision Makito X4"
+  ]
+ },
+ {
+  "hersteller": "Heritage Audio",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio"
+  ],
+  "modelle": [
+   "Heritage Audio Baby RAM"
+  ]
+ },
+ {
+  "hersteller": "Hisense",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Displays"
+  ],
+  "modelle": [
+   "Hisense 100BM66D"
+  ]
+ },
+ {
+  "hersteller": "ICC",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Infrastructure"
+  ],
+  "modelle": [
+   "ICC 24-Port Blank Keystone Patch Panel"
+  ]
+ },
+ {
+  "hersteller": "Inception",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Control"
+  ],
+  "modelle": [
+   "Inception Controller"
+  ]
+ },
+ {
+  "hersteller": "Infosec",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Infrastructure"
+  ],
+  "modelle": [
+   "Infosec E3 Live 1500 RM"
+  ]
+ },
+ {
+  "hersteller": "Innosonix",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Amplifiers"
+  ],
+  "modelle": [
+   "Innosonix\tMA16/LP2"
+  ]
+ },
+ {
+  "hersteller": "Harman International Industries",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Speakers"
+  ],
+  "modelle": [
+   "JBL EON ONE Compact"
+  ]
+ },
+ {
+  "hersteller": "JuiceGoose",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Infrastructure"
+  ],
+  "modelle": [
+   "JuiceGoose CQ 1520-RX"
+  ]
+ },
+ {
+  "hersteller": "Juniper",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Networking"
+  ],
+  "modelle": [
+   "Juniper EX4100-24MP"
+  ]
+ },
+ {
+  "hersteller": "KCEVE",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "KVM / Extenders"
+  ],
+  "modelle": [
+   "KCEVE HKS0401A1U 4-Port HDMI KVM"
+  ]
+ },
+ {
+  "hersteller": "Key Digital",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Control"
+  ],
+  "modelle": [
+   "KD-WP8-3"
+  ]
+ },
+ {
+  "hersteller": "KEF",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Speakers"
+  ],
+  "modelle": [
+   "KEF R3 Meta"
+  ]
+ },
+ {
+  "hersteller": "Klark Teknik",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio I/O"
+  ],
+  "modelle": [
+   "Klark Teknik SQ1S"
+  ]
+ },
+ {
+  "hersteller": "LAIA",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Sources"
+  ],
+  "modelle": [
+   "LAIA C-Pro AK AI Bullet IP Camera"
+  ]
+ },
+ {
+  "hersteller": "CalDigit",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Peripherals"
+  ],
+  "modelle": [
+   "Laptop Dock"
+  ]
+ },
+ {
+  "hersteller": "Lexicon",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio"
+  ],
+  "modelle": [
+   "Lexicon PCM 96"
+  ]
+ },
+ {
+  "hersteller": "Lindy",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Processing"
+  ],
+  "modelle": [
+   "Lindy HDMI 4K60 Audio Extractor"
+  ]
+ },
+ {
+  "hersteller": "Linea Research",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Amplifiers"
+  ],
+  "modelle": [
+   "Linea Research 88 C20-TA1-01"
+  ]
+ },
+ {
+  "hersteller": "Listen Technologies",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio I/O"
+  ],
+  "modelle": [
+   "ListenWifi 16Ch Server"
+  ]
+ },
+ {
+  "hersteller": "Lite-Puter",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Control"
+  ],
+  "modelle": [
+   "Lite-Puter EPX-820D"
+  ]
+ },
+ {
+  "hersteller": "Lockwood",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Monitoring"
+  ],
+  "modelle": [
+   "Lockwood Monitored V-Lock"
+  ]
+ },
+ {
+  "hersteller": "Lowell",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Infrastructure"
+  ],
+  "modelle": [
+   "Lowell ACS-2020-IG-10C-HW"
+  ]
+ },
+ {
+  "hersteller": "Eltex",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Networking"
+  ],
+  "modelle": [
+   "MES2300-48P"
+  ]
+ },
+ {
+  "hersteller": "MSolutions",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "KVM / Extenders"
+  ],
+  "modelle": [
+   "MSolutions MSR-63DOC"
+  ]
+ },
+ {
+  "hersteller": "Avid",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio I/O"
+  ],
+  "modelle": [
+   "MTRX Studio"
+  ]
+ },
+ {
+  "hersteller": "Interspace Industires",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Peripherals"
+  ],
+  "modelle": [
+   "MasterCue V7"
+  ]
+ },
+ {
+  "hersteller": "Maxwell",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Projection"
+  ],
+  "modelle": [
+   "Maxell MP-WU5503"
+  ]
+ },
+ {
+  "hersteller": "Mean Well",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Control"
+  ],
+  "modelle": [
+   "Mean Well DIN Rail 60 Watt 24VDC Power Supply"
+  ]
+ },
+ {
+  "hersteller": "Mersive",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Switching"
+  ],
+  "modelle": [
+   "Mersive SP-8100-E5"
+  ]
+ },
+ {
+  "hersteller": "Metric Halo",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio I/O"
+  ],
+  "modelle": [
+   "Metric Halo ULN-8"
+  ]
+ },
+ {
+  "hersteller": "Midi Solutions",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Control"
+  ],
+  "modelle": [
+   "Midi Solutions Quadra Thru"
+  ]
+ },
+ {
+  "hersteller": "Aveo Systems",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Control"
+  ],
+  "modelle": [
+   "Mira Connect 10"
+  ]
+ },
+ {
+  "hersteller": "Studio Technologies",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Control"
+  ],
+  "modelle": [
+   "Model 5401A Dante Leader Clock"
+  ]
+ },
+ {
+  "hersteller": "Nemesis",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "KVM / Extenders"
+  ],
+  "modelle": [
+   "Nemesis CCS-2"
+  ]
+ },
+ {
+  "hersteller": "Nevion",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Distribution"
+  ],
+  "modelle": [
+   "Nevion Vikinx V0106Q"
+  ]
+ },
+ {
+  "hersteller": "NewTek",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Networking"
+  ],
+  "modelle": [
+   "NewTek Spark Plus IO"
+  ]
+ },
+ {
+  "hersteller": "ELC",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Lighting"
+  ],
+  "modelle": [
+   "Node GBx8"
+  ]
+ },
+ {
+  "hersteller": "Nokia",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Networking"
+  ],
+  "modelle": [
+   "Nokia ONT XS-2426X-A"
+  ]
+ },
+ {
+  "hersteller": "Enttec",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Lighting"
+  ],
+  "modelle": [
+   "ODE MK3"
+  ]
+ },
+ {
+  "hersteller": "OREI",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "KVM / Extenders"
+  ],
+  "modelle": [
+   "OREI EX1000 Receiver"
+  ]
+ },
+ {
+  "hersteller": "SnapAV",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Control"
+  ],
+  "modelle": [
+   "OVRC-300-Pro HUB"
+  ]
+ },
+ {
+  "hersteller": "Convergent Design",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Recording"
+  ],
+  "modelle": [
+   "Odyssey 7q+"
+  ]
+ },
+ {
+  "hersteller": "Rapix",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Lighting"
+  ],
+  "modelle": [
+   "One Channel Voltage Free Relay"
+  ]
+ },
+ {
+  "hersteller": "OneLan",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Sources"
+  ],
+  "modelle": [
+   "OneLan NTB-HDN-RTL1-0"
+  ]
+ },
+ {
+  "hersteller": "Orei",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Switching"
+  ],
+  "modelle": [
+   "Orei UHD88-EXB400R-K"
+  ]
+ },
+ {
+  "hersteller": "Origin Acoustics",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Speakers"
+  ],
+  "modelle": [
+   "Origin Acoustics Director D83DT/SUR Loudspeaker"
+  ]
+ },
+ {
+  "hersteller": "Osprey Video",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Networking"
+  ],
+  "modelle": [
+   "Osprey Talon UHD-SC"
+  ]
+ },
+ {
+  "hersteller": "TSL",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Monitoring"
+  ],
+  "modelle": [
+   "PAM PICO 5"
+  ]
+ },
+ {
+  "hersteller": "IMAGINE",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Switching"
+  ],
+  "modelle": [
+   "PVX"
+  ]
+ },
+ {
+  "hersteller": "Jabra",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Codecs"
+  ],
+  "modelle": [
+   "PanaCast 50"
+  ]
+ },
+ {
+  "hersteller": "Phabrix",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Monitoring"
+  ],
+  "modelle": [
+   "Phabrix Qx"
+  ]
+ },
+ {
+  "hersteller": "PreSonus",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio I/O"
+  ],
+  "modelle": [
+   "PreSonus AudioBox USB 96"
+  ]
+ },
+ {
+  "hersteller": "Pro Signal",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Networking"
+  ],
+  "modelle": [
+   "Pro Signal 2 Way RJ45 Switch Box - SB382"
+  ]
+ },
+ {
+  "hersteller": "Prodys",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Intercom"
+  ],
+  "modelle": [
+   "Prodys Quantum2 W"
+  ]
+ },
+ {
+  "hersteller": "Q-SYS",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Speakers"
+  ],
+  "modelle": [
+   "Q-SYS AD-C6T-LPZB-WH"
+  ]
+ },
+ {
+  "hersteller": "Qbic",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Sources"
+  ],
+  "modelle": [
+   "Qbic-BXP-100"
+  ]
+ },
+ {
+  "hersteller": "Qsys",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Amplifiers"
+  ],
+  "modelle": [
+   "Qsys MP-A40V"
+  ]
+ },
+ {
+  "hersteller": "Chauvet",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Lighting"
+  ],
+  "modelle": [
+   "RDMX Splitter 8"
+  ]
+ },
+ {
+  "hersteller": "RF Venue",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Wireless"
+  ],
+  "modelle": [
+   "RF Venue DISTRO4"
+  ]
+ },
+ {
+  "hersteller": "Raspberry Pi",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Sources"
+  ],
+  "modelle": [
+   "Raspberry Pi 5"
+  ]
+ },
+ {
+  "hersteller": "Renkus Heinz",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Speakers"
+  ],
+  "modelle": [
+   "Renkus Heinz ICL-X-RD-BK"
+  ]
+ },
+ {
+  "hersteller": "Roku",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Sources"
+  ],
+  "modelle": [
+   "Roku Ultra"
+  ]
+ },
+ {
+  "hersteller": "Rolls",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio"
+  ],
+  "modelle": [
+   "Rolls DU30b Mic-Preamp/Audio Ducker"
+  ]
+ },
+ {
+  "hersteller": "SE Audiotechnik",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Speakers"
+  ],
+  "modelle": [
+   "SE Audiotechnik IC 38X"
+  ]
+ },
+ {
+  "hersteller": "Wyrestorm",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Switching"
+  ],
+  "modelle": [
+   "SW-640L-TX-W"
+  ]
+ },
+ {
+  "hersteller": "Screen Technics",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Projection"
+  ],
+  "modelle": [
+   "Screen Technics - 4515069-2"
+  ]
+ },
+ {
+  "hersteller": "Stealth Acoustics",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Speakers"
+  ],
+  "modelle": [
+   "Stealth Acoustics Dual 8″ 3-Way Invisible Loudspeaker"
+  ]
+ },
+ {
+  "hersteller": "Stoltzen",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Switching"
+  ],
+  "modelle": [
+   "Stoltzen Athena 44HB2 HDBaseT Matrix"
+  ]
+ },
+ {
+  "hersteller": "Studiomaster",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Amplifiers"
+  ],
+  "modelle": [
+   "Studiomaster HX4-1000 4 x 425W @ 4 Ohm Digital Power Amplifier"
+  ]
+ },
+ {
+  "hersteller": "Ametek Surgex",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Infrastructure"
+  ],
+  "modelle": [
+   "Surgex Squid 240V  - 12V"
+  ]
+ },
+ {
+  "hersteller": "Kenton",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Control"
+  ],
+  "modelle": [
+   "THRU-5"
+  ]
+ },
+ {
+  "hersteller": "TRENDnet",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Infrastructure"
+  ],
+  "modelle": [
+   "TRENDnet TPE-119GI PoE++ Injector"
+  ]
+ },
+ {
+  "hersteller": "Tannoy",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Speakers"
+  ],
+  "modelle": [
+   "Tannoy CMS 1201SW"
+  ]
+ },
+ {
+  "hersteller": "Telescript",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Displays"
+  ],
+  "modelle": [
+   "Telescript 17\" IP Teleprompter Monitor"
+  ]
+ },
+ {
+  "hersteller": "Teltonika",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Networking"
+  ],
+  "modelle": [
+   "Teltonika RUTX-R1"
+  ]
+ },
+ {
+  "hersteller": "MiniDSP",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio I/O"
+  ],
+  "modelle": [
+   "Tide 16"
+  ]
+ },
+ {
+  "hersteller": "Tripp Lite",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Infrastructure"
+  ],
+  "modelle": [
+   "Tripp Lite LCR2400"
+  ]
+ },
+ {
+  "hersteller": "Turbosound",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Speakers"
+  ],
+  "modelle": [
+   "Turbosound Impact 35T"
+  ]
+ },
+ {
+  "hersteller": "Unilumin",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Displays"
+  ],
+  "modelle": [
+   "ULWIII MIP 1.2 Pro (0.6mx0.3m)"
+  ]
+ },
+ {
+  "hersteller": "INOGENI",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "KVM / Extenders"
+  ],
+  "modelle": [
+   "USB 3 Extender - Host"
+  ]
+ },
+ {
+  "hersteller": "PureLink",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Cable Accessories"
+  ],
+  "modelle": [
+   "USB-C 5M, PI6000"
+  ]
+ },
+ {
+  "hersteller": "Aten",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio I/O"
+  ],
+  "modelle": [
+   "VE66DTH"
+  ]
+ },
+ {
+  "hersteller": "Vivi",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Switching"
+  ],
+  "modelle": [
+   "Vivi Presentation Device"
+  ]
+ },
+ {
+  "hersteller": "Vivolink",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Peripherals"
+  ],
+  "modelle": [
+   "Vivolink USB-C Hub 4K 60Hz"
+  ]
+ },
+ {
+  "hersteller": "X2 Security",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Monitoring"
+  ],
+  "modelle": [
+   "X2 Combo Siren & Strobe with Status LED and PDX-RX1 Holder"
+  ]
+ },
+ {
+  "hersteller": "Zyxel",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Networking"
+  ],
+  "modelle": [
+   "XS1930-12HP"
+  ]
+ },
+ {
+  "hersteller": "XTA",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio I/O"
+  ],
+  "modelle": [
+   "XTA DS8000"
+  ]
+ },
+ {
+  "hersteller": "ZeeVee",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Management Platforms"
+  ],
+  "modelle": [
+   "ZeeVee ZyPer4K Management Platform MP120"
+  ]
+ },
+ {
+  "hersteller": "Zynthian",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Audio"
+  ],
+  "modelle": [
+   "Zynthian V5"
+  ]
+ },
+ {
+  "hersteller": "dB Technologies",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Speakers"
+  ],
+  "modelle": [
+   "dB Technologies ES 1002"
+  ]
+ },
+ {
+  "hersteller": "Acuity",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Lighting"
+  ],
+  "modelle": [
+   "nLight Animate Controller"
+  ]
+ },
+ {
+  "hersteller": "Thor",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Infrastructure"
+  ],
+  "modelle": [
+   "Thor Smart Rack Guard 11"
+  ]
+ },
+ {
+  "hersteller": "Strong",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Infrastructure"
+  ],
+  "modelle": [
+   "Strong VersaBox Pro In-Wall Enclosure 14\" x 14\" (Black)"
+  ]
+ },
+ {
+  "hersteller": "Wall-Smart",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Infrastructure"
+  ],
+  "modelle": [
+   "Wall-Smart New Construction Mount for Control4 T5 11\""
+  ]
+ },
+ {
+  "hersteller": "Leader",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Displays"
+  ],
+  "modelle": [
+   "Leader LV5333"
+  ]
+ },
+ {
+  "hersteller": "Mackie",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Mixing Consoles"
+  ],
+  "modelle": [
+   "Mackie ProFX16v2"
+  ]
+ },
+ {
+  "hersteller": "Sound Devices",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Recording"
+  ],
+  "modelle": [
+   "Sound Devices PIX 270i"
+  ]
+ },
+ {
+  "hersteller": "Adder",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "KVM / Extenders"
+  ],
+  "modelle": [
+   "Adder XDIP"
+  ]
+ },
+ {
+  "hersteller": "D'San",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Control"
+  ],
+  "modelle": [
+   "D'San Perfect Cue"
+  ]
+ },
+ {
+  "hersteller": "Brainstorm Electronics",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Control"
+  ],
+  "modelle": [
+   "Brainstorm SR-112"
+  ]
+ },
+ {
+  "hersteller": "AIDA Imaging",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Control"
+  ],
+  "modelle": [
+   "AIDA CCU-MINI"
+  ]
+ },
+ {
+  "hersteller": "Megapixel",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "LED Video"
+  ],
+  "modelle": [
+   "Megapixel HELIOS"
+  ]
+ },
+ {
+  "hersteller": "DT Videolabs",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Media Servers"
+  ],
+  "modelle": [
+   "DT Videolabs PlaybackPro Plus"
+  ]
+ },
+ {
+  "hersteller": "Litepanels",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Lighting"
+  ],
+  "modelle": [
+   "Litepanels Astra 1x1"
+  ]
+ },
+ {
+  "hersteller": "Avolites",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Lighting"
+  ],
+  "modelle": [
+   "Avolites Arena"
+  ]
+ },
+ {
+  "hersteller": "Zero 88 / Vari-Lite",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Lighting"
+  ],
+  "modelle": [
+   "Vari-Lite FLX S24"
+  ]
+ },
+ {
+  "hersteller": "Clay Paky",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Lighting"
+  ],
+  "modelle": [
+   "Clay Paky Scenius Unico"
+  ]
+ },
+ {
+  "hersteller": "KLANG",
+  "offen": 1,
+  "vorhanden": 0,
+  "kategorien": [
+   "Expansion Cards"
+  ],
+  "modelle": [
+   "DMI-KLANG"
+  ]
+ }
+]

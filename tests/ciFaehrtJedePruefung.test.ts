@@ -79,6 +79,17 @@ const OHNE_CI: Record<string, string> = {
     'ist der Lauf ein Werkzeug fuer die Hand, keine Zusicherung.',
 }
 
+// `katalog:check` STAND HIER und ist am 2026-09-28 herausgeflogen. Die
+// Begruendung lautete, ein CI-Checkout habe die Schwester-Repos nicht, und das
+// war keine Unmoeglichkeit, sondern eine ungestellte Frage: `actions/checkout`
+// holt mit `repository:` und `path:` jedes weitere oeffentliche Repo in
+// denselben Runner. Genau das tut der Job `katalog` jetzt.
+//
+// Der Satz „die erzeugten Dateien sind eingecheckt und damit von jedem anderen
+// Gate mitgeprueft" war dabei das eigentliche Problem: geprueft wurde, dass sie
+// uebersetzen — nicht, dass sie noch zur Quelle passen. Eine erzeugte Datei, die
+// niemand gegen ihre Quelle haelt, ist eine Abschrift, und Abschriften veralten.
+
 /**
  * Der Workflow-Text OHNE reine Kommentarzeilen.
  *

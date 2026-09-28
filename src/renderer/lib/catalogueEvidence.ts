@@ -44,6 +44,18 @@ import { AVNETWORK_CATALOG } from './avNetworkCatalog'
 import { BLACKMAGIC_CATALOG } from './blackmagicCatalog'
 import { BROADCAST_TOOLS_CATALOG } from './broadcastToolsCatalog'
 import { CAMERA_CATALOG } from './cameraCatalog'
+import { CAMERA_BODY_CATALOG } from './cameraBodyCatalog'
+import { LENS_CATALOG } from './lensCatalog'
+import { RIG_CATALOG } from './rigCatalog'
+import { FIXTURE_CATALOG } from './fixtureCatalog'
+import { DECIMATOR_CATALOG } from './decimatorCatalog'
+import { BROMPTON_CATALOG } from './bromptonCatalog'
+import { CLEARCOM_CATALOG } from './clearcomCatalog'
+import { LUMINEX_CATALOG } from './luminexCatalog'
+import { NETGEAR_AV_CATALOG } from './netgearAvCatalog'
+import { CRESTRON_CATALOG } from './crestronCatalog'
+import { CISCO_CATALOG } from './ciscoCatalog'
+import { LIGHTWARE_CATALOG } from './lightwareCatalog'
 import { GREENGO_CATALOG } from './greengoCatalog'
 import { LED_PROCESSOR_CATALOG } from './ledProcessorCatalog'
 import { LYNX_CATALOG } from './lynxCatalog'
@@ -55,12 +67,6 @@ import { ROSS_CATALOG } from './rossCatalog'
 import { SWITCHER_CATALOG } from './switcherCatalog'
 import { UBIQUITI_CATALOG } from './ubiquitiCatalog'
 import { WIRELESS_AUDIO_CATALOG } from './wirelessAudioCatalog'
-import { DECIMATOR_CATALOG } from './decimatorCatalog'
-import { BROMPTON_CATALOG } from './bromptonCatalog'
-import { CLEARCOM_CATALOG } from './clearcomCatalog'
-import { LUMINEX_CATALOG } from './luminexCatalog'
-import { NETGEAR_AV_CATALOG } from './netgearAvCatalog'
-import { LIGHTWARE_CATALOG } from './lightwareCatalog'
 
 /**
  * Das Wenige, das diese Rechnung von einem Katalog-Eintrag braucht.
@@ -97,6 +103,18 @@ export const CATALOGUES: ReadonlyArray<{ name: string; entries: readonly Evidenc
   { name: 'blackmagic', entries: BLACKMAGIC_CATALOG },
   { name: 'broadcastTools', entries: BROADCAST_TOOLS_CATALOG },
   { name: 'camera', entries: CAMERA_CATALOG },
+  { name: 'cameraBody', entries: CAMERA_BODY_CATALOG },
+  { name: 'lens', entries: LENS_CATALOG },
+  { name: 'rig', entries: RIG_CATALOG },
+  { name: 'brompton', entries: BROMPTON_CATALOG },
+  { name: 'clearcom', entries: CLEARCOM_CATALOG },
+  { name: 'lightware', entries: LIGHTWARE_CATALOG },
+  { name: 'luminex', entries: LUMINEX_CATALOG },
+  { name: 'netgearAv', entries: NETGEAR_AV_CATALOG },
+  { name: 'cisco', entries: CISCO_CATALOG },
+  { name: 'crestron', entries: CRESTRON_CATALOG },
+  { name: 'decimator', entries: DECIMATOR_CATALOG },
+  { name: 'fixture', entries: FIXTURE_CATALOG },
   { name: 'greengo', entries: GREENGO_CATALOG },
   { name: 'ledProcessor', entries: LED_PROCESSOR_CATALOG },
   { name: 'lynx', entries: LYNX_CATALOG },
@@ -108,12 +126,6 @@ export const CATALOGUES: ReadonlyArray<{ name: string; entries: readonly Evidenc
   { name: 'switcher', entries: SWITCHER_CATALOG },
   { name: 'ubiquiti', entries: UBIQUITI_CATALOG },
   { name: 'wirelessAudio', entries: WIRELESS_AUDIO_CATALOG },
-  { name: 'decimator', entries: DECIMATOR_CATALOG },
-  { name: 'brompton', entries: BROMPTON_CATALOG },
-  { name: 'clearcom', entries: CLEARCOM_CATALOG },
-  { name: 'luminex', entries: LUMINEX_CATALOG },
-  { name: 'netgearAv', entries: NETGEAR_AV_CATALOG },
-  { name: 'lightware', entries: LIGHTWARE_CATALOG },
 ]
 
 export interface CatalogueCoverage {

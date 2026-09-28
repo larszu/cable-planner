@@ -88,7 +88,19 @@ describe('Initiative 11 — trägt diese Katalog-Zeile ein Datenblatt?', () => {
     // +8 am 2026-09-28: Katalog-Nachzuegler aus docs/device-identity-concept.md
     // (AJA FS2, Aquilon RS alpha, TriCaster Mini 4K, FreeSpeak II Base,
     // Shure UA844+SWB/AD4D/AD4Q, Sennheiser ASA 214), Blaetter geoeffnet.
-    expect(kommentare).toBe(481)
+    // 1673 -> 1723 und 158 -> 104 am 2026-09-28: die Schwester-Planner haben
+    // ihre Belege selbst nachgezogen (light-planner `datasheetUrl`, 69 von 84
+    // statt 0; multicam 35 weitere Datenblattlinks). Die Zahl ist gestiegen,
+    // ohne dass hier jemand recherchiert hat -- das ist der Sinn erzeugter
+    // Kataloge.
+    // 1723 -> 1732 am 2026-09-28: sechs Crestron- und drei Cisco-Eintraege,
+    // jeder mit geoeffnetem Blatt. Die neun sind vollstaendig belegt, `unsourced`
+    // bleibt deshalb bei 104.
+    // 1732 -> 1737 am 2026-09-28: der Licht-Planer fuehrt seinen Beleg jetzt in
+    // ZWEI Feldern (`datasheetUrl` das PDF, `manufacturerUrl` die
+    // Produktseite), und die Uebernahme liest beide. Fuenf Leuchten, die nur
+    // unter dem zweiten Namen belegt waren, zaehlen damit mit.
+    expect(kommentare).toBe(1737)
   })
 
   it('2. die Abdeckung wird gerechnet', () => {
@@ -96,16 +108,23 @@ describe('Initiative 11 — trägt diese Katalog-Zeile ein Datenblatt?', () => {
     // Die Summen stammen aus derselben Rechnung wie die Zeilen.
     expect(bericht.entries).toBe(bericht.perCatalogue.reduce((s, c) => s + c.entries, 0))
     expect(bericht.sourced + bericht.unsourced).toBe(bericht.entries)
-    expect(bericht.sourced).toBe(481)
-    expect(bericht.entries).toBe(498)
+    expect(bericht.sourced).toBe(1737)
+    // 1831 -> 1827: der multicam-planner hat vier erfundene Kamera-Eintraege
+    // entfernt (Datenblatt-Verifikation dort). Ein erzeugter Katalog, der
+    // kleiner wird, weil die Quelle aufgeraeumt hat, ist ein Gewinn.
+    expect(bericht.entries).toBe(1836)
 
     // Kein Katalog steht mehr ganz ohne Beleg (B-11 abgeschlossen) — und die
     // Liste wird GERECHNET, nicht aufgezählt: trägt einer von ihnen morgen
     // Belege nach, fällt er von selbst heraus.
+    // 2026-09-24: wieder genau EINER, und er ist benannt statt weggerechnet.
+    // Die Kamera-Rigs aus dem multicam-planner fuehren dort KEINE
+    // Hersteller-Adresse — nachgemessen. Eine zu erfinden waere schlimmer als
+    // die Luecke; sie hier zu verstecken waere schlimmer als beides.
     const ohne = bericht.perCatalogue.filter((c) => c.sourced === 0).map((c) => c.name)
-    expect(ohne).toEqual([])
+    expect(ohne).toEqual(['rig'])
     expect(bericht.perCatalogue.filter((c) => c.sourced === 0)
-      .reduce((s, c) => s + c.entries, 0)).toBe(0)
+      .reduce((s, c) => s + c.entries, 0)).toBe(49)
   })
 
   it('3. die Ratsche: ein vollständig belegter Katalog bleibt es', () => {
@@ -124,7 +143,7 @@ describe('Initiative 11 — trägt diese Katalog-Zeile ein Datenblatt?', () => {
     }
     // Und die Gesamtzahl der unbelegten steigt nicht. Sinken darf sie —
     // dann ist diese Zeile die Erinnerung, die Zahl nachzuziehen.
-    expect(bericht.unsourced).toBeLessThanOrEqual(159)
+    expect(bericht.unsourced).toBeLessThanOrEqual(99)
   })
 
   it('4. „kein Beleg" ist eine eigene Auskunft', () => {

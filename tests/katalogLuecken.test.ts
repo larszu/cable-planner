@@ -31,12 +31,18 @@ describe('#878 — Katalog-Luecken in den Zielbereichen', () => {
     // 490: +22 aus #907 (Clear-Com, Brompton, Luminex, NETGEAR, Lightware,
     // Decimator), jeder mit Datenblatt.
     // 498: +8 Nachzuegler am 2026-09-28.
-    expect(b.eintraegeGesamt).toBe(498)
+    expect(b.eintraegeGesamt).toBe(1836)
     expect(b.eintraegeGesamt).toBe(evidenceReport().entries)
 
     // „ueber ein Drittel Mikrofone" — das stimmt, und zwar deutlich.
-    expect(b.groessteKategorie.kategorie).toBe('Microphones')
-    expect(b.groessteKategorie.eintraege).toBe(184)
+    // ─── DIE SCHIEFLAGE IST UMGEZOGEN, NICHT WEG ───────────────────────────
+    //
+    // #878 warf „ueber ein Drittel Mikrofone" vor. Nach der Uebernahme aus
+    // dem multicam-planner sind es 184 von 1854 (9,9 %) — dafuer stellen die
+    // Objektive 835. Der Katalog ist also weiterhin schief, nur an einer
+    // anderen Stelle, und das gehoert hierher statt in eine Erfolgsmeldung.
+    expect(b.groessteKategorie.kategorie).toBe('Lenses')
+    expect(b.groessteKategorie.eintraege).toBe(835)
     expect(b.groessteKategorie.anteil).toBeGreaterThan(1 / 3)
   })
 
@@ -58,19 +64,26 @@ describe('#878 — Katalog-Luecken in den Zielbereichen', () => {
   it('3. die Ratsche: die Staende von heute', () => {
     // Wer einen Bereich auffuellt, macht diese Zeilen rot und zieht die Zahl
     // nach. Ein Ziel, das niemand nachrechnet, ist ein Vorsatz.
-    expect(stand('kameras').eintraege).toBe(20)
+    // 385 -> 381 am 2026-09-28: vier erfundene Kameras sind im
+    // multicam-planner bei dessen Datenblatt-Verifikation herausgeflogen.
+    expect(stand('kameras').eintraege).toBe(381)
     // 2026-09-27 aus #907: +2 Lightware, +1 Decimator (MD-DUCC; MD-QUAD
     // steht unter „Video"), +5 Luminex, +5 NETGEAR, +4 Clear-Com, +4 Brompton.
     expect(stand('konverter').eintraege).toBe(34) // +AJA FS2
-    expect(stand('netzwerk').eintraege).toBe(90)
+    // 90 -> 96 am 2026-09-28: drei Cisco-Switches (C9300-24U, C9300X-48HXN,
+    // Nexus 93108TC-EX) und drei Crestron-Streamer, die unter „Networking"
+    // laufen (DM-NVX-350/-351/-D30).
+    expect(stand('netzwerk').eintraege).toBe(96)
     expect(stand('intercom').eintraege).toBe(13) // +FreeSpeak II Base
     expect(stand('led-prozessoren').eintraege).toBe(6)
-    expect(katalogLuecken().eintraegeInBereichen).toBe(163)
+    // 528 -> 524: dieselben vier Kameras wie oben.
+    // 524 -> 530: die sechs neuen Netzwerk-Eintraege (drei Cisco, drei Crestron).
+    expect(katalogLuecken().eintraegeInBereichen).toBe(530)
 
     // Und die Breite, nicht nur die Menge: Kameras hingen und haengen an
     // EINEM Katalog. Ein Bereich mit einem Hersteller ist kein bestueckter
     // Bereich, sondern ein bestuecktes Haus.
-    expect(stand('kameras').kataloge).toEqual(['camera'])
+    expect(stand('kameras').kataloge).toEqual(['camera', 'cameraBody'])
     // Intercom haengt seit 2026-09-27 an zwei Haeusern (Clear-Com Encore).
     expect(stand('intercom').kataloge).toEqual(['clearcom', 'greengo'])
     expect(stand('konverter').kataloge.length).toBeGreaterThan(2)
