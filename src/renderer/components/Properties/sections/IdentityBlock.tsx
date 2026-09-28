@@ -1,10 +1,8 @@
-import { useMemo, useState } from 'react'
 import { RotateCcw } from 'lucide-react'
 import { Icon } from '../../shared/Icon'
 import { useCanvasProjectStore as useProjectStore } from '../../../store/projectStoreContext'
 import { generateShortName } from '../../../lib/shortName'
-import { useTranslation, format } from '../../../lib/i18n'
-import { listDeviceTypes, resolveDeviceType } from '../../../lib/deviceTypeRegistry'
+import { useTranslation } from '../../../lib/i18n'
 import type { EquipmentItem } from '../../../types/equipment'
 
 /**
@@ -13,11 +11,9 @@ import type { EquipmentItem } from '../../../types/equipment'
  * (#v7.9.127) wird auto-generiert wenn leer — Placeholder zeigt den
  * Vorschlag, "↻ auto"-Button uebernimmt ihn ins Override-Feld.
  *
- * ADR-002 — dazu der KATALOG-TYP. Er ist die vierte und einzige Angabe
- * hier, die nicht der Mensch formuliert, sondern das Datenblatt: die
- * stabile GUID, ueber die Plan und Lager sich ohne Namensvergleich finden.
- * Bis hierher konnte sie nur beim Anlegen aus dem Katalog entstehen; ein
- * von Hand angelegtes oder importiertes Geraet hatte nie eine.
+ * Der Katalog-Typ (ADR-002) stand bis 2026-09-28 hier ganz oben und sah ohne
+ * Wert aus wie ein fehlendes Pflichtfeld. Er wird jetzt automatisch vergeben
+ * (lib/deviceTypeMatch) und liegt in `CatalogueSection`.
  */
 export const IdentityBlock = ({ equipment }: { equipment: EquipmentItem }) => {
   const t = useTranslation()
@@ -26,12 +22,6 @@ export const IdentityBlock = ({ equipment }: { equipment: EquipmentItem }) => {
 
   return (
     <>
-      {/* NAME ZUERST (2026-09-28). Bis dahin stand der Katalog-Typ darueber —
-          eine Auswahlliste mit Suchfeld ueber 1800 Modelle, an der ganz oben
-          nichts zu erledigen ist: sie ist gesetzt, wenn das Geraet aus der
-          Bibliothek kam, und bleibt leer, wenn nicht. Der Name dagegen ist das
-          Feld, das jeder anfasst. Er steht jetzt oben, der Katalog-Typ unter
-          den drei Namensfeldern. */}
       <label className="block">
         <span className="mb-1 block text-cp-text-secondary">{t('eq.field.name', 'Name')}</span>
         <input
@@ -134,94 +124,5 @@ export const IdentityBlock = ({ equipment }: { equipment: EquipmentItem }) => {
 
       <DeviceTypePicker equipment={equipment} />
     </>
-  )
-}
-
-/**
- * Zuweisung des Katalog-Typs.
- *
- * BEWUSST NUR DIE IDENTITAET: Ports, Masse und Leistung des Geraets bleiben
- * unangetastet. Der Nutzer sagt hier „das IST dieses Modell", er tauscht das
- * Geraet nicht aus — dafuer gibt es die Geraete-Ersetzung weiter unten. Ein
- * Klick, der stillschweigend die Verkabelungspunkte neu schreibt, waere eine
- * andere Aktion mit demselben Aussehen.
- */
-const DeviceTypePicker = ({ equipment }: { equipment: EquipmentItem }) => {
-  const t = useTranslation()
-  const updateEquipment = useProjectStore((state) => state.updateEquipment)
-  const [filter, setFilter] = useState('')
-
-  const current = resolveDeviceType(equipment.deviceTypeId)
-  const all = useMemo(() => listDeviceTypes(), [])
-  const matches = useMemo(() => {
-    const needle = filter.trim().toLowerCase()
-    if (!needle) return all
-    return all.filter(
-      (c) =>
-        c.name.toLowerCase().includes(needle) ||
-        (c.category ?? '').toLowerCase().includes(needle),
-    )
-  }, [all, filter])
-
-  return (
-    <div className="border border-cp-border-muted bg-cp-surface-1/40 p-2">
-      <div className="mb-1 flex items-baseline justify-between gap-2">
-        <span className="text-cp-text-secondary">
-          {t('eq.field.deviceType', 'Catalogue type')}
-        </span>
-        {current ? (
-          <button
-            type="button"
-            onClick={() => updateEquipment(equipment.id, { deviceTypeId: undefined })}
-            className="text-cp-xs text-cp-text-muted hover:text-cp-text"
-          >
-            {t('eq.field.deviceTypeClear', 'clear')}
-          </button>
-        ) : null}
-      </div>
-
-      {current ? (
-        <p className="mb-1 text-cp-text">{current.template.name}</p>
-      ) : (
-        <p className="mb-1 text-cp-text-muted">
-          {t(
-            'eq.field.deviceTypeNone',
-            'No catalogue type — inventory coverage and the BOM can only guess this device from its name.',
-          )}
-        </p>
-      )}
-
-      <input
-        value={filter}
-        onChange={(event) => setFilter(event.target.value)}
-        placeholder={t('eq.field.deviceTypeFilter', 'Search the catalogue…')}
-        className="mb-1 w-full border border-cp-border bg-cp-surface-1 p-1.5 text-cp-xs"
-      />
-      <select
-        value={equipment.deviceTypeId ?? ''}
-        onChange={(event) =>
-          updateEquipment(equipment.id, { deviceTypeId: event.target.value || undefined })
-        }
-        className="w-full border border-cp-border bg-cp-surface-1 p-1.5 text-cp-xs"
-      >
-        <option value="">{t('eq.field.deviceTypeUnset', '— none —')}</option>
-        {matches.map((c) => (
-          <option key={c.id} value={c.id}>
-            {c.category ? `${c.name} · ${c.category}` : c.name}
-          </option>
-        ))}
-      </select>
-      <p className="mt-1 text-cp-xs text-cp-text-faint">
-        {format(t('eq.field.deviceTypeCount', '{n} of {total} types'), {
-          n: matches.length,
-          total: all.length,
-        })}
-        {' — '}
-        {t(
-          'eq.field.deviceTypeScope',
-          'sets the identity only; ports, dimensions and power stay unchanged.',
-        )}
-      </p>
-    </div>
   )
 }

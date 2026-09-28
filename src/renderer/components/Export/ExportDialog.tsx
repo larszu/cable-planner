@@ -528,6 +528,7 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
   const locations = useProjectStore((s) => s.project.locations)
   const floors = useProjectStore((s) => s.project.floors)
   const openPatchList = useUiStore((s) => s.openPatchList)
+  const openDatasheet = useUiStore((s) => s.openDatasheet)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [busy, setBusy] = useState(false)
   const [filter, setFilter] = useState('')
@@ -677,6 +678,21 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
           Wenn pending action: A4/A3-Auswahl + Abbrechen. */}
       {pendingAction == null ? (
         <div className="flex shrink-0 justify-end gap-2">
+          {/* #919 — Datenblatt statt Patch-Sheet: dieselbe Geraete-Auswahl,
+              dann die Eigenschaften-Auswahl im eigenen Dialog. Immer A4. */}
+          <button
+            type="button"
+            onClick={() => {
+              openDatasheet(equipment.filter((d) => selectedIds.has(d.id)).map((d) => d.id))
+              onClose()
+            }}
+            disabled={busy || selectedIds.size === 0}
+            className="mr-auto inline-flex items-center gap-1 bg-cp-surface-4 px-3 py-1.5 text-cp-xs hover:bg-cp-surface-5 disabled:opacity-50"
+            title={t('export.patch.datasheetTitle', 'Device datasheet: photos and chosen properties, one A4 page per device')}
+          >
+            <Icon icon={FileText} size="xs" />
+            {format(t('export.patch.datasheetBtn', 'Datasheets ({n})…'), { n: String(selectedIds.size) })}
+          </button>
           <button
             type="button"
             onClick={() => setPendingAction('individual')}

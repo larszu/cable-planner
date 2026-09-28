@@ -5,7 +5,7 @@ Invarianten der App. Sie ist die Pflicht-Lektüre, bevor strukturelle Änderunge
 gemacht werden. Für die interaktive Modul-Übersicht siehe [`app-structure.html`](./app-structure.html),
 für einen Wettbewerber-Vergleich [`comparison.html`](./comparison.html).
 
-Stand: v9.0.3 · ~793 TS/TSX-Module · ~222.6k LOC
+Stand: v9.0.3 · ~812 TS/TSX-Module · ~226.4k LOC
 
 ---
 
@@ -57,6 +57,8 @@ Alle IPC-Channels sind nach Domäne präfixiert. Definitionen in
 | `netbox:*` | `netboxIpc.ts` | `save-token`, `has-token`, `delete-token`, `normalize-url`, `test-connection`, `get-sites`, `get-racks`, `fetch-snapshot` |
 | `deviceLibrary:*` | `deviceLibraryIpc.ts` | `has-token`, `sign-in`, `verify-second-factor`, `current-user`, `sign-out`, `sync`, `propose`, `upload` — die Gerätebibliothek (devices.zumpelars.de, §6.3b). URL je Aufruf, Token bleibt in main. |
 | `cloud:*` | `cloudIpc.ts` | `call` — Cloud-Projekte und Lese-Links (#871, #870) auf dem Server der Gerätebibliothek, eine Operation aus fester Liste (`cloudService.ts`). Gleiches Konto und Token wie `deviceLibrary:*`, Token bleibt in main. |
+| `streamPreview:*` | `streamPreviewIpc.ts` | `snapshot` — Standbild für die Stream-Vorschau am Canvas (#946), als `data:`-URI zurück, damit die CSP unverändert bleibt. Zwei Wege: die http(s)-Standbild-Adresse (nur `image/*`, 5 s / 5 MB) oder ein Bild aus dem Strom per **ffmpeg** (RTSP/RTMP/SRT/HLS/MJPEG, 10 s, nicht mitgeliefert → `no-ffmpeg`). **Nur lokale Hosts** (jede aufgelöste Adresse privat/Loopback/Link-Local, sonst `not-local`), kein SRT-Listener, höchstens zwei gleichzeitig. Zugangsdaten kommen aus `streamCredential` (Basic-Auth bzw. in die ffmpeg-Adresse), ffmpegs stderr wird verworfen. Der Renderer fragt erst nach einer Freigabe in der laufenden Sitzung (`streamPreviewStore`), nie beim Öffnen einer Datei. |
+| `streamCredential:*` | `credentialsIpc.ts` | `has`, `save`, `delete` (Nachtrag #946): die aus einer Stream-Adresse herausgetrennten Zugangsdaten (`benutzer:passwort@`, `passphrase=`, `token=` …) je Stream und Feld unter `stream-credential:<id>`. **Kein `get`:** den Klartext braucht nur `streamPreview` im Main-Prozess. |
 | `atem:*` | `atemIpc.ts` | `connect`, `disconnect`, `state`, `get-status`, `get-events`, `set-input-name`, `bulk-set-input-names`, `apply-mv-config`, `read-mv-config`, `apply-audio-config`, `discover`, plus `atem:event` (broadcast) |
 | `videohub:*` | `videohubIpc.ts` | `send` (TCP zu Blackmagic Videohub) |
 | `sync:*` | `syncIpc.ts` | `read-file`, `write-file`, `exists`, `acquire-lock`, `release-lock` |
@@ -1095,7 +1097,7 @@ optionales Cloud-Backend (`y-websocket`, Auth/Permissions) bleiben offen.
 `vitest` ist eingerichtet (`npm test` / `npm run test:watch`); dazu kommen
 gezielte Node-Checks (`npm run test:crdt`, `npm run test:signaling`), ein
 UI-Smoke-Skript (`npm run ui:smoke`) und ein headless Drag-/Interaktions-Test
-(`npm run test:drag`, treibt den Renderer via Playwright). Bei ~222.6k LOC
+(`npm run test:drag`, treibt den Renderer via Playwright). Bei ~226.4k LOC
 bleibt der Ausbau der Abdeckung wichtig — empfohlene Schwerpunkte:
 - Snapshot-Tests auf `healProjectPositions` mit echten
   Beispiel-Projekt-JSONs.

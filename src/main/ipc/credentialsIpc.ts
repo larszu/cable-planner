@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { ipcMain } from 'electron'
-import { credentialsService, streamKeyService } from '../services/credentialsService.js'
+import { credentialsService, streamCredentialService, streamKeyService } from '../services/credentialsService.js'
 import { createRentmanApiClient } from '../services/rentmanApiClient.js'
 
 export const registerCredentialsIpc = () => {
@@ -37,6 +37,14 @@ export const registerCredentialsIpc = () => {
   ipcMain.handle('streamKey:has', (_event, id: string) => streamKeyService.has(id))
   ipcMain.handle('streamKey:save', (_event, id: string, key: string) => streamKeyService.save(id, key))
   ipcMain.handle('streamKey:delete', (_event, id: string) => streamKeyService.delete(id))
+
+  // Nachtrag #946 — Zugangsdaten der Geraete-Streams. Bewusst OHNE `get`:
+  // der Klartext wird nur im Main-Prozess gebraucht (Standbild-Abruf).
+  ipcMain.handle('streamCredential:has', (_event, id: string) => streamCredentialService.has(id))
+  ipcMain.handle('streamCredential:save', (_event, id: string, secrets: string) =>
+    streamCredentialService.save(id, secrets),
+  )
+  ipcMain.handle('streamCredential:delete', (_event, id: string) => streamCredentialService.delete(id))
 
   ipcMain.handle('credentials:test-token', async () => {
     const token = await credentialsService.getToken()

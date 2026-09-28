@@ -1,6 +1,8 @@
 // #468 — Port-Gruppen-Helfer aus LibraryPanel ausgelagert (rein, kein React).
 import { v4 as uuidv4 } from 'uuid'
 import type { ConnectorType, Port } from '../../types/equipment'
+import type { SignalStandard } from '../../types/cableSpec'
+import type { ErkannterPort } from '../../lib/fotoPortErkennung'
 
 export interface PortGroupDraft {
   id: string
@@ -23,6 +25,9 @@ export interface PortGroupDraft {
   count: number | ''
   connectorType: ConnectorType
   label: string
+  /** Zweiwege-Port (Ethernet, USB). Steht bei den Eingaengen, wie ueberall. */
+  bidirectional?: boolean
+  standard?: SignalStandard
 }
 
 /** Die Vorgabe-Beschriftung einer Richtung. Eine Stelle, zwei Leser. */
@@ -71,6 +76,22 @@ export const buildPorts = (groups: PortGroupDraft[], direction: 'in' | 'out'): P
       name: `${group.label} ${index + 1}`,
       type: group.connectorType,
       connectorType: group.connectorType,
+      ...(group.bidirectional ? { direction: 'bidirectional' as const } : {}),
+      ...(group.standard ? { standard: group.standard } : {}),
     })),
   )
 }
+
+/** Angehakte Zeilen der Foto-Erkennung als Port-Gruppen des Anlegen-Dialogs. */
+export const erkennungZuGruppen = (zeilen: ReadonlyArray<ErkannterPort & { an: boolean }>): PortGroupDraft[] =>
+  zeilen
+    .filter((z) => z.an)
+    .map((z) => ({
+      id: uuidv4(),
+      direction: z.direction === 'out' ? 'out' : 'in',
+      count: z.count,
+      connectorType: z.connectorType,
+      label: z.label,
+      ...(z.direction === 'bidirectional' ? { bidirectional: true } : {}),
+      ...(z.standard ? { standard: z.standard } : {}),
+    }))

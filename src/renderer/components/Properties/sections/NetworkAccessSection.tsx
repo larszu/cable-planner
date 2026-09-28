@@ -5,6 +5,7 @@ import { useTranslation } from '../../../lib/i18n'
 import { SortableSection } from '../SortableSection'
 import { Icon } from '../../shared/Icon'
 import { ExtraInterfacesPanel } from './ExtraInterfacesPanel'
+import { detectNetworkDevice } from '../../../lib/deviceKind'
 import type { EquipmentItem } from '../../../types/equipment'
 import { identityAnchors, unitLabel, useBestand, useEinheiten } from '../../../lager'
 
@@ -116,6 +117,29 @@ export const NetworkAccessSection = ({ equipment }: { equipment: EquipmentItem }
             className="w-full border border-cp-border bg-cp-surface-1 p-2 font-mono"
           />
         </label>
+        {/* #946 — die VLAN-ID gehoert neben die Adresse. Sie ist dasselbe Feld
+            wie das Management-VLAN eines Switches (`managementVlanId` ist die
+            VLAN-Id von Schnittstelle 0, siehe `deviceInterfaces`); bei
+            Switch/Router steht es schon in der Switch-Konfiguration, darum
+            hier nur fuer alle anderen. */}
+        {!detectNetworkDevice(equipment) && (
+          <label className="block">
+            <span className="mb-1 block text-cp-text-secondary">{t('eq.field.vlanId', 'VLAN ID')}</span>
+            <input
+              type="number"
+              min={1}
+              max={4094}
+              value={equipment.managementVlanId ?? ''}
+              onChange={(event) =>
+                updateEquipment(equipment.id, {
+                  managementVlanId: event.target.value ? Number(event.target.value) : undefined,
+                })
+              }
+              placeholder="10"
+              className="w-full border border-cp-border bg-cp-surface-1 p-2 font-mono"
+            />
+          </label>
+        )}
         <label className="block">
           <span className="mb-1 block text-cp-text-secondary">{t('eq.field.mac', 'MAC address')}</span>
           <input

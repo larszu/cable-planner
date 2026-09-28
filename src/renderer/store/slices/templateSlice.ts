@@ -10,6 +10,7 @@ import { persistCustomLibrary, persistKnownCategories } from '../libraryPersist'
 import type { ProjectState } from '../projectStore'
 import { v4 as uuidv4 } from 'uuid'
 import { isProjectLocked } from '../projectStoreHelpers'
+import { mitKatalogTyp } from '../../lib/deviceTypeMatch'
 
 /**
  * #308 — Template-Slice. CRUD-Actions auf state.customLibrary:
@@ -126,8 +127,11 @@ const mitTypId = (state: ProjectState, item: EquipmentItem, typId: string): Part
       }
 
 export const createTemplateSlice: StateCreator<ProjectState, [], [], TemplateSlice> = (set) => ({
-  addCustomTemplate: (template) =>
+  addCustomTemplate: (vorlage) =>
     set((state) => {
+      // 2026-09-28 — auch Vorlagen (Rentman, eigener Dialog) tragen den
+      // Katalog-Typ, wenn ihr Name eindeutig einen trifft.
+      const template = mitKatalogTyp(vorlage)
       const next = [...state.customLibrary.filter((t) => t.name !== template.name), template]
       persistCustomLibrary(next)
       if (template.rentmanId) upsertCachedRentmanTemplate(template)

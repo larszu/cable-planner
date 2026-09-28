@@ -72,6 +72,7 @@ import { styleForLayer } from '../../lib/cableLayers'
 import { MONO_TINTE, monochromLabel } from '../../lib/monochromeSheet'
 import { DRUCK_MS, LangerDruck } from '../../lib/langerDruck'
 import { ansicht } from '../../lib/ansicht'
+import { portAmKoerper } from '../../lib/portAmKoerper'
 
 const nodeTypes = { equipment: EquipmentNode, location: LocationFrameNode, grundriss: GrundrissNode, symbol: SymbolNode }
 
@@ -173,6 +174,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
   const setHighlightedNetKey = useUiStore((state) => state.setHighlightedNetKey)
   // v7.8.7 — cable right-click context menu trigger.
   const openCableContextMenu = useUiStore((state) => state.openCableContextMenu)
+  const openDatasheet = useUiStore((state) => state.openDatasheet)
   // #557 — Kontextmenüs schliessen sobald Canvas verschoben/gezoomt wird.
   const closeCableContextMenu = useUiStore((state) => state.closeCableContextMenu)
   // v7.9.3 — Projekt-Lock: 'finalized' und 'viewer' Modus blockieren
@@ -549,6 +551,11 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
     | { clientX: number; clientY: number; nodeId: string; nodeType: 'equipment' | 'location' }
     | null
   >(null)
+  // Rechtsklick auf eine freie Stelle: „Neues Geraet hier". Der Anlege-Dialog
+  // lebt im LibraryPanel und wird ueber denselben Weg geoeffnet wie beim
+  // Ziehen eines portlosen Geraets (`triggerEmptyDeviceDrop`) — mit der
+  // Klickstelle als Platz.
+  const [paneMenu, setPaneMenu] = useState<{ clientX: number; clientY: number; x: number; y: number } | null>(null)
 
   // ═════════════════════════════════════════════════════════════════════
   // LANGE BERUEHRUNG STATT RECHTSKLICK (#877)
@@ -1305,6 +1312,20 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
     [],
   )
 
+  useEffect(() => {
+    if (!paneMenu) return
+    const zu = () => setPaneMenu(null)
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') zu()
+    }
+    window.addEventListener('keydown', onKey)
+    window.addEventListener('click', zu)
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      window.removeEventListener('click', zu)
+    }
+  }, [paneMenu])
+
   // ESC oder Klick außerhalb → Menu schließen.
   useEffect(() => {
     if (!nodeContextMenu) return
@@ -1610,6 +1631,26 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
       if (!srcPort) return
 
       const stubSide: 'input' | 'output' = start.handleType === 'source' ? 'input' : 'output'
+
+      // 2026-09-28 — Drop auf den KOERPER eines anderen Geraets: dort einen
+      // passenden Port anlegen und verbinden (lib/portAmKoerper). So laesst
+      // sich ein Geraet verkabeln, das erst einen Namen hat.
+      const zielEl = target?.closest('.react-flow__node-equipment') as HTMLElement | null
+      const zielId = zielEl?.getAttribute('data-id') ?? null
+      const zielGeraet =
+        zielId && zielId !== start.nodeId ? project.equipment.find((e) => e.id === zielId) : undefined
+      if (zielGeraet) {
+        const neu = portAmKoerper(zielGeraet, stubSide, srcPort)
+        if (neu) {
+          updateEquipment(zielGeraet.id, neu.patch)
+          if (start.handleType === 'source') {
+            queueConnection({ source: start.nodeId, sourceHandle: start.handleId, target: zielGeraet.id, targetHandle: neu.portId })
+          } else {
+            queueConnection({ source: zielGeraet.id, sourceHandle: neu.portId, target: start.nodeId, targetHandle: start.handleId })
+          }
+          return
+        }
+      }
       // Snap stub position so floats from screenToFlowPosition (e.g. at
       // zoom 1.5) don't sneak into the store.
       const rawX = flowPos.x - 70
@@ -1640,7 +1681,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         })
       }
     },
-    [addOpenEndStub, project.equipment, queueConnection, screenToFlowPosition, snapToGrid, gridSize, projectIsLocked],
+    [addOpenEndStub, project.equipment, queueConnection, screenToFlowPosition, snapToGrid, gridSize, projectIsLocked, updateEquipment],
   )
 
   const onDragOver = useCallback((event: React.DragEvent) => {
@@ -2075,6 +2116,12 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         connectionMode={ConnectionMode.Loose}
         onNodesChange={onNodesChange}
         onNodeContextMenu={onNodeContextMenu}
+        onPaneContextMenu={(event) => {
+          event.preventDefault()
+          const flow = screenToFlowPosition({ x: event.clientX, y: event.clientY })
+          setNodeContextMenu(null)
+          setPaneMenu({ clientX: event.clientX, clientY: event.clientY, x: flow.x, y: flow.y })
+        }}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         onConnectStart={onConnectStart}
@@ -2215,6 +2262,24 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
       </ReactFlow>
       <PendingCableOverlay />
       {mode === 'main' && <InlineSelectionToolbar />}
+      {paneMenu && (
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className="fixed z-[100] min-w-[180px] border border-cp-border bg-cp-surface-2 p-1 text-cp-sm text-cp-text"
+          style={{ left: paneMenu.clientX, top: paneMenu.clientY }}
+        >
+          <button
+            type="button"
+            onClick={() => {
+              useUiStore.getState().triggerEmptyDeviceDrop({ name: '', category: '', x: paneMenu.x, y: paneMenu.y })
+              setPaneMenu(null)
+            }}
+            className="block w-full px-2.5 py-1.5 text-left hover:bg-cp-surface-3"
+          >
+            {t('canvas.paneMenu.newDevice', 'New device here …')}
+          </button>
+        </div>
+      )}
       {nodeContextMenu && (() => {
         const isLocation = nodeContextMenu.nodeType === 'location'
         const target = isLocation
@@ -2227,6 +2292,17 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         const isRack = !isLocation && !!(target as { rackInternalSnapshot?: unknown }).rackInternalSnapshot
         const openRackEditor = () => {
           triggerRackBuilderEditFromBlackBox(nodeContextMenu.nodeId)
+          setNodeContextMenu(null)
+        }
+        // #919 — Datenblatt. Liegt der angeklickte Knoten in der aktuellen
+        // Auswahl, gilt es fuer alle ausgewaehlten Geraete (eine Seite je
+        // Geraet) — sonst nur fuer ihn. Der Rechtsklick auf ein Element der
+        // Auswahl meint die Auswahl.
+        const datenblatt = () => {
+          const ausgewaehlt = getNodes()
+            .filter((n) => n.selected && n.type === 'equipment')
+            .map((n) => n.id)
+          openDatasheet(ausgewaehlt.includes(nodeContextMenu.nodeId) ? ausgewaehlt : [nodeContextMenu.nodeId])
           setNodeContextMenu(null)
         }
         const toggle = () => {
@@ -2326,6 +2402,35 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
                 </button>
                 <div style={{ height: 1, background: '#334155', margin: '4px 0' }} />
               </>
+            )}
+            {/* Nur im Haupt-Plan: der Dialog auf App-Ebene liest den Haupt-Store,
+                nicht das Rack-Innenleben. */}
+            {!isLocation && mode === 'main' && (
+              <button
+                type="button"
+                onClick={datenblatt}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  width: '100%',
+                  padding: '6px 10px',
+                  background: 'transparent',
+                  color: 'inherit',
+                  border: 'none',
+                  borderRadius: 4,
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = '#334155')}
+                onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+              >
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path d="M4 1.5h5.5L12 4v10.5H4z" />
+                  <path d="M6 7h4M6 9.5h4M6 12h2.5" />
+                </svg>
+                <span>{t('canvas.nodeMenu.datasheet', 'Device datasheet…')}</span>
+              </button>
             )}
             <button
               type="button"

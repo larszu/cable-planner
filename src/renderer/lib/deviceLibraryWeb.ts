@@ -4,7 +4,7 @@ import {
   propose,
   signIn,
   signOut,
-  sync,
+  syncFrom,
   upload,
   verifySecondFactor,
   type SignInResult,
@@ -98,7 +98,7 @@ export function createWebDeviceLibraryApi(storage: () => KeyValueStorage | null 
       if (url && token) await signOut(url, token)
       tokenStore.clear()
     },
-    sync: (server, after) => mitToken(server, (url, token) => sync(url, token, 'cable', after)),
+    sync: (server, after) => mitToken(server, (url, token) => syncFrom(url, token, 'cable', after)),
     propose: (server, core, facet) => mitToken(server, (url, token) => propose(url, token, 'cable', core, facet)),
     upload: (server, items) => mitToken(server, (url, token) => upload(url, token, 'cable', items)),
   }

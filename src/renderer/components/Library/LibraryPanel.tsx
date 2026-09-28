@@ -3,6 +3,8 @@ import { Settings, Globe, Sparkles } from 'lucide-react'
 import { v4 as uuidv4 } from 'uuid'
 import { Icon } from '../shared/Icon'
 import { Spinner } from '../shared/Spinner'
+import { FotoPortErkennung } from './FotoPortErkennung'
+import type { Foto } from '../../types/foto'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
 import { useModule } from '../../store/settingsStore'
@@ -119,7 +121,7 @@ export const LibraryPanel = () => {
   const [seedPreset, setSeedPreset] = useState<import('../../types/equipment').GroupPreset | null>(null)
   // Hochgezogen über die Drop-/Seed-Effekte, damit der React-Compiler die
   // Setter vor ihrem Gebrauch im useEffect sieht (react-hooks/immutability).
-  const [name, setName] = useState('Custom Device')
+  const [name, setName] = useState('')
   const [category, setCategory] = useState('Cameras')
   const [tab, setTab] = useState<'equipment' | 'cables' | 'groups' | 'racks'>('equipment')
   // v7.9.105 / Issue #224 — Wenn der RackBuilder aus dem Canvas-Toolbar-
@@ -246,10 +248,13 @@ export const LibraryPanel = () => {
 
   const [isRackDeviceDraft, setIsRackDeviceDraft] = useState(false)
   const [rackUnitsDraft, setRackUnitsDraft] = useState<number | ''>('')
-  const [groups, setGroups] = useState<PortGroupDraft[]>([
-    defaultGroup('in'),
-    defaultGroup('out'),
-  ])
+  // 2026-09-28 — ohne Vorgabe-Gruppen. „Input 1"/„Output 1" vom Typ Custom
+  // waren Platzhalter, die als Anschluesse im Plan landeten, wenn man nur
+  // schnell ein Geraet haben wollte. Ports kommen jetzt, wenn sie bekannt
+  // sind — oder durch ein Kabel, das auf das Geraet gezogen wird.
+  const [groups, setGroups] = useState<PortGroupDraft[]>([])
+  // Fotos aus der Port-Erkennung, die mit dem Geraet gespeichert werden sollen.
+  const [fotosBehalten, setFotosBehalten] = useState<Foto[]>([])
   // Equipment sub-section: separates local templates from Rentman-imported ones
   // inside one shared tab, so the user always lives in "Equipment" and just
   // toggles the source.
@@ -569,11 +574,11 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
   }
 
   const resetDialog = () => {
-    setName('Custom Device')
+    setName('')
     setCategory('Cameras')
     setIsRackDeviceDraft(false)
     setRackUnitsDraft('')
-    setGroups([defaultGroup('in'), defaultGroup('out')])
+    setGroups([])
     setGroupsOrigin(null)
     // #858 — sonst stuende beim naechsten Oeffnen noch „Felder aus X
     // uebernommen" unter einem Dialog, in dem nichts davon mehr steht.
@@ -581,6 +586,20 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
     setPresetName(null)
     setSuggestError('')
     setSuggestInfo('')
+    setFotosBehalten([])
+  }
+
+  /**
+   * Die Fotos aus der Port-Erkennung an das gerade platzierte Geraet haengen.
+   * `addEquipment` vergibt die Id im Store und gibt sie nicht zurueck; das
+   * neue Geraet ist das letzte der Liste.
+   */
+  const fotosAnsNeueGeraet = () => {
+    if (fotosBehalten.length === 0) return
+    const st = useProjectStore.getState()
+    const neu = st.project.equipment.at(-1)
+    if (!neu) return
+    for (const f of fotosBehalten) st.addFoto({ ...f, zeigtAuf: { equipmentId: neu.id } })
   }
 
   const buildTemplate = (): EquipmentTemplate => {
@@ -588,7 +607,7 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
     const outputs = buildPorts(groups, 'out')
     const maxPorts = Math.max(inputs.length, outputs.length, 3)
     return {
-      name: name.trim() || 'Custom Device',
+      name: name.trim() || t('library.create.defaultName', 'New device'),
       category: category.trim() || 'Other',
       inputs,
       outputs,
@@ -596,6 +615,9 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
       rackUnits: isRackDeviceDraft ? (rackUnitsDraft === '' ? 1 : rackUnitsDraft) : undefined,
       width: 240,
       height: 80 + maxPorts * 22,
+      // Ohne Ports angelegt: die Plan-Pruefung erinnert ruhig daran (info),
+      // und ein Kabel auf den Geraetekoerper legt den ersten an.
+      ...(inputs.length === 0 && outputs.length === 0 ? { portsUnknown: true } : {}),
       // Die Herkunft wandert in die Vorlage mit. Ohne das waere sie beim
       // Anlegen weg — und jedes Geraet, das spaeter aus dieser Vorlage
       // entsteht, truege geratene Ports als Tatsache.
@@ -646,6 +668,36 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
     } else {
       addEquipment({ ...template, ...nextPosition })
     }
+    fotosAnsNeueGeraet()
+    setShowCreateDialog(false)
+    setPendingDropOnSave(null)
+    resetDialog()
+  }
+
+  /**
+   * Ein Geraet NUR fuer dieses Projekt — ohne Vorlage in der Bibliothek.
+   *
+   * Vorher legte jeder Weg durch diesen Dialog eine Vorlage an, und mit
+   * eingeschaltetem Auto-Upload ging sie an devices.zumpelars.de. Fuer ein
+   * Leihgeraet, einen Adapter aus der Kiste des Kunden oder einen Platzhalter
+   * „kommt noch" war das zu viel: die Bibliothek fuellte sich mit Einmal-
+   * Geraeten, und die Gemeinschaftsbibliothek bekam Vorschlaege, die niemand
+   * einreichen wollte. Soll es spaeter doch wiederverwendet werden: aus dem
+   * Canvas als Vorlage speichern, wie jedes andere Geraet.
+   */
+  const placeOnly = () => {
+    const template = buildTemplate()
+    persistCategory(template)
+    platzieren(template)
+  }
+
+  const platzieren = (template: EquipmentTemplate) => {
+    if (pendingDropOnSave) {
+      addEquipment({ ...template, x: pendingDropOnSave.x, y: pendingDropOnSave.y })
+    } else {
+      addEquipment({ ...template, ...nextPosition })
+    }
+    fotosAnsNeueGeraet()
     setShowCreateDialog(false)
     setPendingDropOnSave(null)
     resetDialog()
@@ -811,7 +863,7 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
   const netBoxBackdrop = useBackdropClose(() => setShowNetBoxDialog(false))
   const seedBackdrop = useBackdropClose(() => setSeedPreset(null))
   const anlegenBackdrop = useBackdropClose(() => setShowCreateDialog(false), {
-    schutz: () => name.trim() !== 'Custom Device',
+    schutz: () => name.trim() !== '' || groups.length > 0,
     frage: t('library.closeUnsaved', 'Cancel creating and discard your input?'),
   })
   const {
@@ -1275,7 +1327,11 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
               <label className="block">
                 {t('common.name', 'Name')}
                 <input
+                  // Der schnelle Weg: Name tippen, anlegen. Alles andere darf
+                  // fehlen und kommt spaeter.
+                  autoFocus
                   value={name}
+                  placeholder={t('library.create.defaultName', 'New device')}
                   onChange={(event) => setName(event.target.value)}
                   className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-2"
                 />
@@ -1311,6 +1367,23 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
                 )}
               </label>
             </div>
+
+            <FotoPortErkennung
+              name={name}
+              vokabular={connectorOptions}
+              onFotosBehalten={setFotosBehalten}
+              onKatalogPlatzieren={platzieren}
+              onUebernehmen={({ groups: erkannt, name: modellName, herkunft }) => {
+                setGroups(erkannt)
+                if (modellName) setName(modellName)
+                setGroupsOrigin(herkunft)
+                setPresetName(null)
+                setSuggestError('')
+                setSuggestInfo(
+                  format(t('library.photo.applied', '{n} port group(s) taken from the photo.'), { n: erkannt.length }),
+                )
+              }}
+            />
 
             <div className="mb-2 border border-violet-800/60 bg-violet-950/30 p-2 text-cp-xs">
               <div className="mb-1 flex flex-wrap items-center justify-between gap-y-1 gap-x-2">
@@ -1525,7 +1598,12 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
                 </div>
               ))}
               {groups.length === 0 && (
-                <div className="text-cp-xs text-cp-text-muted">{t('library.create.noPortGroups', 'No port groups yet. Add one above.')}</div>
+                <div className="text-cp-xs text-cp-text-muted">
+                  {t(
+                    'library.create.noPortGroups',
+                    'No ports yet — that is fine. Add them now or later; a cable dropped onto the device adds one.',
+                  )}
+                </div>
               )}
               {/*
                 #832 — Eine Gruppe ohne Anzahl verschwindet beim Speichern
@@ -1568,6 +1646,17 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
                 )}
               >
                 {t('library.create.save', 'Save to library')}
+              </button>
+              <button
+                type="button"
+                onClick={placeOnly}
+                className="border border-cp-border bg-cp-surface-3 px-3 py-1 text-cp-base hover:bg-cp-surface-4"
+                title={t(
+                  'library.create.placeOnlyTitle',
+                  'Place the device in this project only: no template in the library, nothing is uploaded. Good for loan gear, placeholders and one-offs.',
+                )}
+              >
+                {t('library.create.placeOnly', 'Place in project only')}
               </button>
               <button
                 type="button"

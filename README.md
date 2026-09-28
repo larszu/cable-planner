@@ -176,6 +176,34 @@ model name. Before this, 368 of 377 exported cameras carried no identity at all.
 ### 🔌 Equipment & Cable Management
 - Built-in broadcast equipment library
 - Custom device templates
+- **Devices for this project only**: right-click an empty spot on the canvas →
+  *New device here …*, or *Create your own device* in the library, then *Place
+  in project only*. No template is saved and nothing is uploaded to the device
+  library — for loan gear, a client's box or a placeholder. To reuse it later,
+  save it from the canvas as a template like any other device
+- **Start with just a name**: *Create your own device* needs nothing but a
+  name — no ports, manufacturer, connector or datasheet. Drop a cable end onto
+  the body of such a device and it gets a matching port (not on built-in
+  catalogue devices, whose ports come from the datasheet). Missing ports and
+  cable lengths show up in the plan check as calm hints, never as a block
+- **Ports from a photo**: in *Create your own device*, pick, drop or paste
+  photos of the connector side (on a phone: *Take photo*). The AI provider
+  chosen under Settings → Integrations → AI reads the connectors — label,
+  connector type from the app's own list, direction, count per row, signal
+  where visible — and the rating plate. The result is an editable suggestion
+  list: unsure rows are marked and unticked, nothing is taken over until you
+  apply it. If the model is in the built-in catalogue, the catalogue device
+  with its datasheet ports is offered instead. Photos are scaled to 1600 px
+  before sending and go only to the chosen provider; tick *Keep the photos*
+  to store them on the placed device. Without a key the section only points
+  to the settings
+- **Catalogue type is automatic**: devices created by hand, imported (Rentman,
+  GraphML, NetBox, MultiCam, on-site survey) or loaded from older projects are
+  linked to their built-in catalogue model when the name matches exactly one
+  entry (spelling, manufacturer prefix, part number and renamed templates
+  count; several matches are never guessed). The link sits in the collapsed
+  *Catalogue & source* section and offers matching entries without applying
+  them
 - Port-level connection system
 - Cable properties:
   - Type (SDI, HDMI, Ethernet, etc.)
@@ -213,6 +241,33 @@ model name. Before this, 368 of 377 exported cameras carried no identity at all.
   saved projects that are not open keep the old name as free text). They
   appear in every picker and travel with the shared library (Network sync),
   so a team uses the same names
+- **VLAN next to the address** (#946): *Network & access* has a VLAN ID field
+  (switches and routers keep it in their switch configuration), and the device
+  card on the canvas shows it right after the IP address: `10.0.0.5 /24 · VLAN 30`.
+  The same VLAN stands beside the address in the address plan (on screen and
+  CSV), the location bill of materials, the device PDF, the asset register and
+  the MCP answer `device_ports`. No VLAN entered, nothing shown
+- **Streams per device** (#946): *Streams* lists what a device sends or
+  receives — RTSP, SRT, RTMP, NDI, NDI-HX, HLS, MJPEG, WebRTC, WHIP, WHEP,
+  RTP, ST 2110, Dante, AES67 or other — with direction, label, address, port,
+  codec and format. They appear in the network tab of *Analysis* (with CSV), on
+  the device cards, in the device datasheet and in the MCP tool `device_ports`
+- **Credentials never enter the plan**: a user name, password or secret
+  parameter (`passphrase=`, `token=`, `password=` …) typed into a stream
+  address is cut out when leaving the field (and from older project files).
+  The desktop app keeps it in **this computer's keychain**, where only the
+  preview fetch in the main process reads it back; the web edition discards it
+  and says so
+- **Still image preview** under the device on the canvas: either from the
+  http(s) still image address most cameras offer (`/snapshot.jpg`), or — when
+  the device *sends* an RTSP, RTMP, SRT, HLS or MJPEG stream — one frame taken
+  with **ffmpeg** (not bundled: `brew install ffmpeg`, or `ffmpeg.exe` on the
+  PATH; without it the tile says so). Refreshed every 10 s while visible,
+  desktop app only, **local network only** (private, loopback and link-local
+  addresses), labelled with its time. Opening a project never starts a
+  preview: the tile shows *Start preview* until someone clicks it (or switches
+  it on in *Streams*) in this session. NDI, Dante, AES67, ST 2110, WebRTC and
+  RTP get no preview, and the entry says why
 
 ---
 
@@ -560,6 +615,13 @@ one, and **Restore default** goes back.
   library withdraws disappear locally. Every entry goes through the same
   template check as a submission; entries that fail it are skipped and
   counted. The fetched state stays available offline.
+- **Works without the server** — if devices.zumpelars.de is down, slow or
+  replaced, the app keeps the devices from the last sync: only a successful
+  answer changes them, a request gives up after 15 s, signing out keeps them,
+  and each server address has its own stored state, so switching to another
+  server and back loses nothing. A freshly set-up server with no devices
+  cannot wipe the local state. The rule lives in the shared client
+  (`syncFrom`) and is the same in every planner.
 - **Your own devices go up** — templates you created or changed are uploaded
   to the library, so what you build in one planner is there for the others.
   With *Upload my own devices automatically* (on by default; it only acts
@@ -694,6 +756,17 @@ patch panel, converter with two onward cables, nothing plugged in.
   interface, network, switcher input, every cable with its other end (and,
   when that end is a patch panel, the device behind it), service history.
   Gaps show as a dash
+- **Device datasheet** (device properties → *Print / documentation*) — one A4
+  page for a single device with its photo and the properties you tick:
+  general, technical and category data, operation, ports, network,
+  connections, service history. Every filled property is preselected; an
+  empty one you tick prints as a dash. *Print* opens the print dialog, *Save
+  PDF* writes the file (desktop app; the web edition offers "Save as PDF" in
+  the print dialog). Login credentials are never offered. Also from the
+  right-click menu on a device, the selection toolbar and *Export → Patch
+  sheets → Datasheets (n)…*: for several devices one list with "filled on n
+  of m" per property, one A4 page per device in one document, optionally the
+  first photo of each device
 - **Operator overview** (HTML) — which source (by role name) lies on which
   switcher or router input, where each output goes (through patch panels),
   contacts, web interfaces, and an empty box for operating steps: the plan does

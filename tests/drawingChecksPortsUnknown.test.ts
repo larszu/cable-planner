@@ -16,14 +16,14 @@ const eq = (over: Partial<EquipmentItem>): EquipmentItem => ({
 })
 
 describe('drawingChecks — Ports unbekannt (#Grundsatz: nichts erfinden)', () => {
-  it('warnt bei portsUnknown ohne Ports', () => {
+  it('weist ruhig auf portsUnknown ohne Ports hin (info, keine Warnung)', () => {
     const { findings } = runDrawingChecks({
       equipment: [eq({ id: 'cam', name: 'CAM 2', portsUnknown: true })],
       cables: [],
     })
     const f = findings.find((x) => x.id === 'ports-unknown:cam')
     expect(f).toBeTruthy()
-    expect(f?.severity).toBe('warning')
+    expect(f?.severity).toBe('info')
     expect(f?.equipmentId).toBe('cam')
   })
 

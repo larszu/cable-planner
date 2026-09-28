@@ -9,6 +9,7 @@ import { isProjectLocked, sanitizePort, touchProject } from '../projectStoreHelp
 import { scheduleProjectAutosave } from '../projectAutosave'
 import type { ProjectState } from '../projectStore'
 import { resolvePortLabel } from '../../lib/portLabel'
+import { mitKatalogTyp } from '../../lib/deviceTypeMatch'
 
 /**
  * #308 — Equipment-Slice. Equipment-CRUD-Actions:
@@ -70,7 +71,10 @@ export const createEquipmentSlice: StateCreator<ProjectState, [], [], EquipmentS
           equipment: [
             ...state.project.equipment,
             {
-              ...equipment,
+              // 2026-09-28 — Katalog-Typ, wenn der Name eindeutig einen trifft
+              // (lib/deviceTypeMatch). Aus der Bibliothek platzierte Geraete
+              // tragen ihn schon; das hier faengt Handanlage und Altvorlagen.
+              ...mitKatalogTyp(equipment),
               id: uuidv4(),
               // v7.9.63 / #172 — Default-Gerätefarbe aus uiStore wenn der
               // Caller selber keine nodeColor mitschickt. So kann der User
@@ -106,7 +110,7 @@ export const createEquipmentSlice: StateCreator<ProjectState, [], [], EquipmentS
           equipment: [
             ...state.project.equipment,
             ...equipment.map((item) => ({
-              ...item,
+              ...mitKatalogTyp(item),
               id: item.id || uuidv4(),
               // CRITICAL: Ensure x/y are valid numbers. Equipment being imported
               // should have positions, but if somehow they don't, default to (0, 0)
@@ -143,7 +147,7 @@ export const createEquipmentSlice: StateCreator<ProjectState, [], [], EquipmentS
               return next
             }),
             ...neu.map((item) => ({
-              ...item,
+              ...mitKatalogTyp(item),
               id: item.id || uuidv4(),
               x: item.x !== undefined && !Number.isNaN(item.x) ? item.x : 0,
               y: item.y !== undefined && !Number.isNaN(item.y) ? item.y : 0,
@@ -163,7 +167,7 @@ export const createEquipmentSlice: StateCreator<ProjectState, [], [], EquipmentS
       return {
         project: touchProject({
           ...state.project,
-          equipment: [...state.project.equipment, ...equipment],
+          equipment: [...state.project.equipment, ...equipment.map((e) => mitKatalogTyp(e))],
           cables: [...state.project.cables, ...cables],
         }),
       }

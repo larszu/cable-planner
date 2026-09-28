@@ -52,6 +52,13 @@ const resolveSide = (
 /** Berechnet das Layout eines Equipment-Items genau so wie EquipmentNode
  *  es rendert: Header inkl. IP/Subtitle/Beltpack, Port-Side-Bucketing,
  *  Auto-Expand auf intrinsic width für lange Port-Labels. */
+/** #946 — die Adresszeile im Kopf (IP, Maske, VLAN) steht, sobald eines
+ *  davon da ist. Knoten und Layout fragen beide HIER, sonst laegen die
+ *  Kabelenden eine Zeile neben den Anschluessen, sobald nur ein VLAN
+ *  eingetragen ist. */
+export const hatAdressZeile = (eq: { ipAddress?: string; managementVlanId?: number }): boolean =>
+  !!eq.ipAddress || eq.managementVlanId != null
+
 export const computeEquipmentLayout = (
   eq: EquipmentItem,
   intercom?: IntercomPlan,
@@ -80,7 +87,7 @@ export const computeEquipmentLayout = (
   // echten Anschluessen.
   const optikLine = optikKurz(eq.optik) ? EXTRA_HEADER_LINE : 0
   const headerHeight =
-    (eq.ipAddress
+    (hatAdressZeile(eq)
       ? eq.subtitle
         ? HEADER_HEIGHT_WITH_IP + EXTRA_HEADER_LINE
         : HEADER_HEIGHT_WITH_IP

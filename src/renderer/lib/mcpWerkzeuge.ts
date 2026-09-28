@@ -28,6 +28,8 @@
 import { signalChains } from './signalChain'
 import { runDrawingChecks } from './drawingChecks'
 import { portDisplayLabel } from './portLabel'
+import { deviceInterfaces } from './networkInterfaces'
+import { streamZeilen } from './streamEndpoints'
 import { cableLabelId } from './docIds'
 import type { CablePlannerProject } from '../types/project'
 import type { EquipmentItem, Port } from '../types/equipment'
@@ -131,6 +133,31 @@ const geraetZeile = (e: EquipmentItem) => ({
 })
 
 /**
+ * #946 — Adressen mit VLAN und die Streams eines Geraets. Zugangsdaten sind
+ * nicht im Plan und deshalb auch hier nicht; ein fehlendes VLAN ist `null`,
+ * nicht 0.
+ */
+const netzZeilen = (e: EquipmentItem) =>
+  deviceInterfaces(e).map((n) => ({
+    label: n.label ?? null,
+    role: n.role,
+    ip: n.ipAddress ?? null,
+    vlan: n.vlanId ?? null,
+  }))
+
+const streamZeilenMcp = (e: EquipmentItem) =>
+  streamZeilen([e]).map((r) => ({
+    id: r.stream.id,
+    direction: r.stream.direction,
+    protocol: r.protokoll,
+    label: r.stream.label ?? null,
+    address: r.adresse || null,
+    vlan: r.vlanId ?? null,
+    codec: r.stream.codec ?? null,
+    format: r.stream.format ?? null,
+  }))
+
+/**
  * Die eine Stelle, die eine Werkzeug-Frage beantwortet.
  *
  * Unbekannte Werkzeuge werfen NICHT, sie antworten mit einem Satz: der
@@ -179,8 +206,10 @@ export const beantworteWerkzeug = (
             ...geraet.inputs.map((p) => portZeile(p, 'in')),
             ...geraet.outputs.map((p) => portZeile(p, 'out')),
           ],
+          network: netzZeilen(geraet),
+          streams: streamZeilenMcp(geraet),
         },
-        text: `${geraet.name}: ${geraet.inputs.length} inputs, ${geraet.outputs.length} outputs.`,
+        text: `${geraet.name}: ${geraet.inputs.length} inputs, ${geraet.outputs.length} outputs, ${(geraet.streams ?? []).length} streams.`,
       }
     }
 
@@ -293,6 +322,8 @@ export const mcpDigest = (project: Readonly<CablePlannerProject>): Record<string
     devices: project.equipment.map((e) => ({
       ...geraetZeile(e),
       ports: [...e.inputs.map((p) => portZeile(p, 'in')), ...e.outputs.map((p) => portZeile(p, 'out'))],
+      network: netzZeilen(e),
+      streams: streamZeilenMcp(e),
     })),
     // `name`/`number` nur fuer die Suche des Servers; er gibt sie nicht aus.
     cables: project.cables.map((c) => ({ ...kabelZeile(c, name), name: c.name ?? null, number: c.cableNumber ?? null })),

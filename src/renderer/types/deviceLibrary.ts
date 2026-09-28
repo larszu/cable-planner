@@ -3,7 +3,7 @@ import type {
   LibraryUser,
   ProposalCore,
   SyncDevice,
-  SyncResponse,
+  SyncResult,
   UploadItem,
   UploadResult,
 } from '../lib/deviceLibraryClient'
@@ -38,7 +38,7 @@ export interface DeviceLibraryApi {
   verifySecondFactor: (server: string, challenge: string, code: string) => Promise<DeviceLibrarySignIn>
   currentUser: (server: string) => Promise<DeviceLibraryResult<LibraryUser | null>>
   signOut: (server: string) => Promise<void>
-  sync: (server: string, after: number) => Promise<DeviceLibraryResult<SyncResponse>>
+  sync: (server: string, after: number) => Promise<DeviceLibraryResult<SyncResult>>
   propose: (
     server: string,
     core: ProposalCore,
@@ -63,7 +63,8 @@ export interface DeviceLibraryEntry {
 export interface DeviceLibraryCache {
   format: 'cable-planner-device-library-cache'
   version: 1
-  /** Der Server, von dem der Stand kommt. Ein anderer Server heisst: neu anfangen. */
+  /** Der Server, von dem der Stand kommt. Jeder Server hat seinen eigenen
+   *  Stand; ein Wechsel loescht den des anderen nicht (`saveCache`). */
   server: string
   latestSeq: number
   syncedAt?: string

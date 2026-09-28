@@ -30,7 +30,7 @@ issues and pull requests, and any direct contact that starts from them.
 
 ## Reporting
 
-Report unacceptable behaviour to **lars@zumpe.dev**. Reports are read by the
+Report unacceptable behaviour to **lars@zumpelars.de**. Reports are read by the
 maintainer and handled confidentially. You do not need to have participated in
 the project to report something.
 

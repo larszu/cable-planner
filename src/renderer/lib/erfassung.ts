@@ -21,6 +21,7 @@
 // ───────────────────────────────────────────────────────────────────────────
 import type { EquipmentItem } from '../types/equipment'
 import type { PendingChange } from '../types/lifecycle'
+import { mitKatalogTyp } from './deviceTypeMatch'
 
 export interface ErfassungsEintrag {
   name: string
@@ -64,7 +65,7 @@ export function erfasstesGeraet(
   const name = sauber(e.name)
   if (!name) return null
   const notes = erfassungsNotiz(e, meta.label)
-  return {
+  return mitKatalogTyp({
     name,
     category: ERFASST_KATEGORIE,
     inputs: [],
@@ -76,7 +77,7 @@ export function erfasstesGeraet(
     portsUnknown: true,
     erfasst: { am: meta.am, quelle: meta.quelle },
     ...(notes ? { notes } : {}),
-  }
+  })
 }
 
 /** Der Eintrag aus einer Handy-Meldung `new-device`, oder null. */

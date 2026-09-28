@@ -6,6 +6,7 @@ import { registerCredentialsIpc } from './ipc/credentialsIpc.js'
 import { appendLogCapped } from './util/appendLogCapped.js'
 import { registerRentmanIpc } from './ipc/rentmanIpc.js'
 import { registerDeviceLibraryIpc } from './ipc/deviceLibraryIpc.js'
+import { registerStreamPreviewIpc } from './ipc/streamPreviewIpc.js'
 import { registerCloudIpc } from './ipc/cloudIpc.js'
 import { registerNetboxIpc } from './ipc/netboxIpc.js'
 import { openExternalProject, registerProjectIpc } from './ipc/projectIpc.js'
@@ -356,7 +357,13 @@ app.whenReady().then(async () => {
               // auch eine vom Nutzer geaenderte Server-URL. Der Eintrag hier
               // deckt den Renderer-Weg (`webFallbackApi`) fuer den Vorgabe-
               // Server ab, falls das Fenster ohne Preload-Bruecke laeuft.
-              "connect-src 'self' https://api.rentman.net https://generativelanguage.googleapis.com https://devices.zumpelars.de ws: wss:; " +
+              //
+              // api.anthropic.com / api.openai.com (2026-09-28): die KI-Wege
+              // (Port-Vorschlag, Plan-Generierung, Ports aus Foto) rufen den in
+              // Einstellungen → AI gewaehlten Anbieter aus dem Renderer. Bis
+              // hierher stand nur Gemini in der Liste — Claude und OpenAI waren
+              // im gepackten Fenster waehlbar, aber von dieser Regel gesperrt.
+              "connect-src 'self' https://api.rentman.net https://generativelanguage.googleapis.com https://api.anthropic.com https://api.openai.com https://devices.zumpelars.de ws: wss:; " +
               "object-src 'none'; base-uri 'none'; frame-ancestors 'none'",
           ],
           'X-Content-Type-Options': ['nosniff'],
@@ -369,6 +376,7 @@ app.whenReady().then(async () => {
   registerRentmanIpc()
   registerNetboxIpc()
   registerDeviceLibraryIpc()
+  registerStreamPreviewIpc()
   registerCloudIpc()
   registerProjectIpc()
   registerAtemIpc()

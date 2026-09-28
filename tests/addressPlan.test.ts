@@ -185,11 +185,13 @@ describe('CSV', () => {
       geraet('Kamera 1', { outputs: [port('SDI', { standard: 'SDI-12G' })] }),
       geraet('Stagebox', { inputs: [netzPort('Dante')] }),
     ])
-    const rows = addressPlanTable(plan, (i) => i.kind, ['Gerät', 'IP', 'Maske', 'Gateway', 'Subnetz', 'Beleg', 'Befund'])
+    const rows = addressPlanTable(plan, (i) => i.kind, ['Gerät', 'IP', 'VLAN', 'Maske', 'Gateway', 'Subnetz', 'Beleg', 'Befund'])
     expect(rows).toHaveLength(2) // Kopfzeile + Stagebox
     expect(rows[1][0]).toBe('Stagebox')
-    expect(rows[1][5]).toBe('NET 1 (Dante)')
-    expect(rows[1][6]).toBe('missing-address')
+    // #946 — VLAN steht neben der IP; ohne Eintrag leer, nicht „—".
+    expect(rows[1][2]).toBe('')
+    expect(rows[1][6]).toBe('NET 1 (Dante)')
+    expect(rows[1][7]).toBe('missing-address')
   })
 })
 

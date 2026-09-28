@@ -100,13 +100,27 @@ export class LibraryError extends Error {
 
 const basis = (server: string) => server.replace(/\/+$/, '')
 
+/**
+ * Hoechstens so lange wartet eine Anfrage, dann gilt der Server als offline.
+ *
+ * Ohne Frist haengt ein Abgleich an einem Server, der die Verbindung annimmt
+ * und dann schweigt (Proxy vor einem gestoppten Container, halbtote Leitung
+ * im Hallen-WLAN), unbegrenzt — und weil jeder Planner waehrenddessen
+ * „laeuft gerade" gesetzt hat, versucht er es bis zum Neustart nie wieder.
+ * Das Hochladen bekommt mehr Zeit: 100 Eintraege mit Facet sind kein
+ * Sekundenpaket.
+ */
+export const REQUEST_TIMEOUT_MS = 15_000
+export const UPLOAD_TIMEOUT_MS = 120_000
+
 async function anfrage(
   server: string,
   pfad: string,
-  init: { method?: 'GET' | 'POST'; token?: string; body?: unknown; headers?: Record<string, string> } = {},
+  init: { method?: 'GET' | 'POST'; token?: string; body?: unknown; headers?: Record<string, string>; timeoutMs?: number } = {},
 ): Promise<Response> {
   try {
     return await fetch(`${basis(server)}${pfad}`, {
+      signal: AbortSignal.timeout(init.timeoutMs ?? REQUEST_TIMEOUT_MS),
       method: init.method ?? 'GET',
       // Nie Cookies: der Planner ist ein fremder Ursprung, das Token ist
       // die einzige Sitzung.
@@ -219,6 +233,43 @@ export async function sync(server: string, token: string, planner: LibraryPlanne
   return body as unknown as SyncResponse
 }
 
+export interface SyncResult {
+  /** `true`: `response` ist der GANZE Stand und ersetzt den Cache.
+   *  `false`: `response` sind nur die Aenderungen nach `after`. */
+  reset: boolean
+  response: SyncResponse
+}
+
+/**
+ * Der Abgleich, wie ihn JEDER Planner faehrt — die Regel steht hier und nicht
+ * fuenfmal in fuenf Repos.
+ *
+ * DER VERTRAG. Die Bibliothek muss weiterarbeiten, wenn der Server weg ist.
+ * Daraus folgt fuer jeden Planner:
+ *
+ *  1. Der Cache wird nur durch eine ERFOLGREICHE Antwort geaendert. Offline,
+ *     Zeitueberschreitung, Serverfehler, abgelaufene Anmeldung: der Stand
+ *     bleibt, wie er ist. Abmelden leert ihn nicht.
+ *  2. Der Cache gehoert zu einer Server-Adresse, aber eine andere Adresse
+ *     LOESCHT ihn nicht: jeder Server hat seinen eigenen Platz, und wer
+ *     zurueckwechselt, hat seinen alten Stand wieder.
+ *  3. Meldet der Server einen kleineren `latestSeq` als gemerkt, ist er nicht
+ *     mehr derselbe (neu aufgesetzt, Sicherung eingespielt): dann den ganzen
+ *     Stand holen (`reset: true`). Kommt dabei NICHTS zurueck, ist das kein
+ *     neuer Stand, sondern ein leerer Server — Fehler `server`, der Cache
+ *     bleibt. Sonst loeschte ein frisch aufgesetzter Ersatzserver mit einem
+ *     einzigen Abgleich jede Bibliothek, die sich mit ihm verbindet.
+ */
+export async function syncFrom(server: string, token: string, planner: LibraryPlanner, after: number): Promise<SyncResult> {
+  const delta = await sync(server, token, planner, after)
+  if (delta.latestSeq >= after) return { reset: false, response: delta }
+  const ganz = await sync(server, token, planner, 0)
+  if (!ganz.devices.some((d) => !d.removed)) {
+    throw new LibraryError('server', 200, 'server-empty')
+  }
+  return { reset: true, response: ganz }
+}
+
 /**
  * Ein Geraet vorschlagen. Es geht in die Moderation und ist fuer andere erst
  * nach der Freigabe sichtbar. `facet` ist das Objekt im Bibliotheksformat des
@@ -281,6 +332,7 @@ export async function upload(
       method: 'POST',
       token,
       body: { planner, items: items.slice(i, i + UPLOAD_BATCH) },
+      timeoutMs: UPLOAD_TIMEOUT_MS,
     })
     const body = await jsonOderNull(res)
     if (!res.ok) throw new LibraryError(fehlerAus(res, body), res.status, String(body?.error ?? ''))

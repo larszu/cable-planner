@@ -502,6 +502,10 @@ const defaults: PersistedUiState = {
     'dimensions',
     'display',
     'network-config',
+    // #946 — Streams hinter der Netzwerk-Konfiguration: dieselbe Frage
+    // (was geht ueber das Netz), eine Ebene hoeher. Bestandsnutzer bekommen
+    // den Eintrag ueber die Vollstaendigkeits-Schleife nachgetragen.
+    'streams',
     'optional',
     // #884 — die Fotos. Direkt hinter den optionalen Feldern, weil dort auch
     // das Referenzbild steht: beides sind Bilder, und sie sind NICHT dasselbe
@@ -511,6 +515,10 @@ const defaults: PersistedUiState = {
     'flags',
     'rack',
     'library',
+    // 2026-09-28 — Katalog & Herkunft neben „In Bibliothek speichern": beides
+    // betrifft das MODELL, nicht diese Instanz. Stand vorher als Picker ganz
+    // oben in der Identitaet.
+    'catalogue',
     'configs',
     'rack-instance',
     'print',
@@ -1088,6 +1096,11 @@ interface UiState extends PersistedUiState {
   patchList: { open: boolean }
   openPatchList: () => void
   closePatchList: () => void
+  /** #919 — Geraete-Datenblatt: fuer welche Geraete die Eigenschaften-
+   *  Auswahl offen ist. `null` = zu. Nur IDs, keine Projekt-Daten. */
+  datasheet: { equipmentIds: string[] } | null
+  openDatasheet: (equipmentIds: string[]) => void
+  closeDatasheet: () => void
   /** Festinstallation — Doku-/Übergabe-Dialog (Installateur-Listen,
    *  Asset-Register, QR-IDs, Übergabe-Paket, Änderungsprotokoll). */
   installDocs: { open: boolean }
@@ -1665,6 +1678,10 @@ export const useUiStore = create<UiState>((set) => ({
   patchList: { open: false },
   openPatchList: () => set({ patchList: { open: true } }),
   closePatchList: () => set({ patchList: { open: false } }),
+  datasheet: null,
+  openDatasheet: (equipmentIds) =>
+    set({ datasheet: equipmentIds.length > 0 ? { equipmentIds: [...equipmentIds] } : null }),
+  closeDatasheet: () => set({ datasheet: null }),
   installDocs: { open: false },
   openInstallDocs: () => set({ installDocs: { open: true } }),
   closeInstallDocs: () => set({ installDocs: { open: false } }),

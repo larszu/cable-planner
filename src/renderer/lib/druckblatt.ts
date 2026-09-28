@@ -31,6 +31,9 @@ export interface DruckblattOptionen {
   /** Stempelzeile (`stampLine`) für den Fuss — optional. */
   stempel?: string
   quer?: boolean
+  /** Keine Titelzeile oben: der Inhalt bringt je Seite seine eigene mit
+   *  (mehrere Datenblaetter in einem Druckauftrag). */
+  ohneKopf?: boolean
   /** Zusätzliche Regeln für dieses eine Blatt. */
   css?: string
 }
@@ -65,7 +68,7 @@ export const druckblatt = (o: DruckblattOptionen, inhalt: string): string => `<!
 ${o.css ?? ''}
 </style></head>
 <body>
-<h1>${esc(o.titel)}</h1>
+${o.ohneKopf ? '' : `<h1>${esc(o.titel)}</h1>`}
 ${inhalt}
 ${o.stempel ? `<footer>${esc(o.stempel)}</footer>` : ''}
 </body></html>`

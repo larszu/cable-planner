@@ -57,26 +57,57 @@ const istCache = (v: unknown): v is DeviceLibraryCache => {
   )
 }
 
-/** Der Stand fuer DIESEN Server. Gehoert der gespeicherte einem anderen,
- *  faengt der Abgleich bei 0 an — Sequenznummern zweier Server haben nichts
- *  miteinander zu tun. */
-export function loadCache(server: string, storage = standardSpeicher()): DeviceLibraryCache {
+/**
+ * Die Staende ALLER Server, unter einem Schluessel.
+ *
+ * Frueher lag hier genau ein Stand, und ein anderer Server hiess: neu
+ * anfangen — beim ersten erfolgreichen Abgleich mit ihm war der alte Stand
+ * ueberschrieben. Wer auf einen Ersatzserver umstellte, weil
+ * devices.zumpelars.de gerade nicht lief, und zurueckwechselte, hatte danach
+ * eine leere Bibliothek. Jetzt hat jeder Server seinen Platz (Vertrag Punkt 2
+ * in `syncFrom`, `deviceLibraryClient.ts`). Ein alter Einzelstand wird beim
+ * Lesen als Eintrag seines Servers verstanden.
+ */
+interface CacheAblage {
+  format: 'cable-planner-device-library-caches'
+  version: 1
+  byServer: Record<string, DeviceLibraryCache>
+}
+
+const leereAblage = (): CacheAblage => ({ format: 'cable-planner-device-library-caches', version: 1, byServer: {} })
+
+function ladeAblage(storage: KeyValueStorage | null): CacheAblage {
   try {
     const raw = storage?.getItem(STORAGE_KEYS.deviceLibraryCache)
     const parsed: unknown = raw ? JSON.parse(raw) : null
-    if (istCache(parsed) && parsed.server === server) return parsed
+    if (istCache(parsed)) return { ...leereAblage(), byServer: { [parsed.server]: parsed } }
+    const a = parsed as Partial<CacheAblage> | null
+    if (a?.format === 'cable-planner-device-library-caches' && a.version === 1 && a.byServer && typeof a.byServer === 'object') {
+      const byServer: Record<string, DeviceLibraryCache> = {}
+      for (const [server, c] of Object.entries(a.byServer)) if (istCache(c) && c.server === server) byServer[server] = c
+      return { ...leereAblage(), byServer }
+    }
   } catch {
     // kaputter Eintrag: wie keiner
   }
-  return emptyCache(server)
+  return leereAblage()
+}
+
+/** Der Stand fuer DIESEN Server; Sequenznummern zweier Server haben nichts
+ *  miteinander zu tun. */
+export function loadCache(server: string, storage = standardSpeicher()): DeviceLibraryCache {
+  return ladeAblage(storage).byServer[server] ?? emptyCache(server)
 }
 
 /** `false`, wenn der Speicher voll ist oder fehlt — dann gilt der Stand nur
- *  bis zum Neustart, und das wird gesagt statt verschwiegen. */
+ *  bis zum Neustart, und das wird gesagt statt verschwiegen. Die Staende der
+ *  anderen Server bleiben unberuehrt. */
 export function saveCache(cache: DeviceLibraryCache, storage = standardSpeicher()): boolean {
   if (!storage) return false
   try {
-    storage.setItem(STORAGE_KEYS.deviceLibraryCache, JSON.stringify(cache))
+    const ablage = ladeAblage(storage)
+    ablage.byServer[cache.server] = cache
+    storage.setItem(STORAGE_KEYS.deviceLibraryCache, JSON.stringify(ablage))
     return true
   } catch {
     return false
@@ -153,10 +184,10 @@ export type SyncOutcome =
 /**
  * Einmal abgleichen: ab dem gemerkten `latestSeq`, gespeichert danach.
  *
- * Meldet der Server einen KLEINEREN `latestSeq` als den gemerkten, ist er
- * nicht mehr derselbe (neu aufgesetzt, Sicherung eingespielt). Dann wird der
- * ganze Stand neu geholt — sonst fragte die App fuer immer nach Nummern, die
- * es dort nicht gibt, und saehe nie wieder etwas Neues.
+ * Ob der Server noch derselbe ist, entscheidet `syncFrom` im gemeinsamen
+ * Client — dieselbe Regel in jedem Planner. Kommt `reset`, ersetzt die
+ * Antwort den ganzen Stand; ein leerer neuer Server kommt gar nicht erst als
+ * Antwort an, sondern als Fehler, und der Stand bleibt.
  */
 export async function runSync(
   api: Pick<DeviceLibraryApi, 'sync'>,
@@ -164,17 +195,11 @@ export async function runSync(
   storage = standardSpeicher(),
   jetzt: () => Date = () => new Date(),
 ): Promise<SyncOutcome> {
-  let cache = loadCache(server, storage)
-  let res = await api.sync(server, cache.latestSeq)
+  const cache = loadCache(server, storage)
+  const res = await api.sync(server, cache.latestSeq)
   if (!res.ok) return res
-  let reset = false
-  if (res.value.latestSeq < cache.latestSeq) {
-    reset = true
-    cache = emptyCache(server)
-    res = await api.sync(server, 0)
-    if (!res.ok) return res
-  }
-  const merged = mergeSync(cache, res.value)
+  const { reset, response } = res.value
+  const merged = mergeSync(reset ? emptyCache(server) : cache, response)
   const next = { ...merged.cache, syncedAt: jetzt().toISOString() }
   const persisted = saveCache(next, storage)
   return { ok: true, cache: next, stats: { ...merged.stats, reset }, persisted }
@@ -214,10 +239,13 @@ export function errorText(
     case 'not-signed-in':
       return t('deviceLibrary.error.notSignedIn', 'Not signed in, or the session has expired. Please sign in again.')
     case 'offline':
-      return t('deviceLibrary.error.offline', 'The device library cannot be reached. Check the network connection and the server address.')
+      return t('deviceLibrary.error.offline', 'The device library cannot be reached. The devices from the last update stay available; check the network connection and the server address.')
     case 'invalid-url':
       return t('deviceLibrary.error.invalidUrl', 'The server address is not a valid http(s) URL.')
     default:
+      if (r.message === 'server-empty') {
+        return t('deviceLibrary.error.serverEmpty', 'The server was set up anew and has no devices yet. Your devices from the last update were kept.')
+      }
       return t('deviceLibrary.error.server', 'The device library reported an error. Please try again later.')
   }
 }
