@@ -135,6 +135,40 @@ bestückter Bereich" — ist damit erledigt.
 | LED-Prozessoren | 7 | 7 | 2 |
 | Intercom | 12 | 10 | 2 |
 
+## Zehn Geräte, die beim Merge herausgefallen sind
+
+Am 2026-09-28 wurde `origin/main` in den Zweig mit der Katalog-Übernahme
+gemerged. Sechs Hersteller-Kataloge hatten **beide Seiten unabhängig
+geschrieben**, mit teils verschiedenen Geräten. Genommen ist mains Fassung, und
+zwar nicht aus Bequemlichkeit: deren `deviceTypeId` sind **ausgeliefert**. Eine
+GUID nachträglich zu ändern lässt jede gespeicherte Verknüpfung in jeder
+Projektdatei ins Leere zeigen.
+
+Diese zehn standen nur in der eigenen Fassung — **mit Datenblatt-Beleg**, sie
+sind also nicht zu recherchieren, sondern zu übertragen:
+
+| Katalog | Gerät |
+|---|---|
+| `decimatorCatalog.ts` | Decimator MD-HX |
+| | Decimator MD-LX |
+| | Decimator MD-CROSS |
+| | Decimator DMON-QUAD |
+| | Decimator DMON-6S |
+| | Decimator DMON-12S |
+| `bromptonCatalog.ts` | Brompton Tessera SX40 |
+| `luminexCatalog.ts` | Luminex GigaCore 16Xt |
+| `netgearAvCatalog.ts` | NETGEAR M4250-10G2F-PoE+ (GSM4212P) |
+| | NETGEAR M4250-26G4F-PoE+ (GSM4230P) |
+
+Die Einträge liegen samt `manufacturerUrl` in **Commit `9ffc06fb`** (dem ersten
+Elternteil des Merges). Wer sie nachträgt, holt sie dort heraus und gibt ihnen
+eine **neue** GUID — die alte war nie ausgeliefert, die von main für dasselbe
+Gerät aber möglicherweise schon.
+
+Umgekehrt kam **eine** Clear-Com FreeSpeak II Base Station (FSII-BASE-II) aus
+main dazu, die die eigene Fassung nicht hatte. Der Merge hat also nicht nur
+gekostet.
+
 ## Was als Nächstes drankommt
 
 Nach dem Zuschnitt von #878 und der Messung:
