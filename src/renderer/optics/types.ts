@@ -343,6 +343,10 @@ export type ControlPath =
   | 'tcp' | 'serial' | 'lumix-http' | 'sony-usb' | 'blackmagic' | 'sony-mnc'
   | 'canon-ccapi' | 'zcam' | 'panasonic-ptz' | 'visca' | 'visca-serial'
   | 'jvc' | 'birddog'
+  // HTTP-CGI: die Web-CGI von Vissonic/PTZOptics (ptzctrl.cgi) und Sony
+  // SRG/BRC (/command/) als Steuerweg, wo VISCA-Ports gesperrt sind
+  // (lz-camera-bridge #65, #71).
+  | 'http-cgi'
   // Gimbals. Sie tragen eine Kamera, sie sind keine: vom Pult aus bewegen
   // sie den Kopf und stellen NICHTS am Bild. Sie stehen hier trotzdem,
   // weil man sie aufbaut und also plant -- anders als `demo`, das es in

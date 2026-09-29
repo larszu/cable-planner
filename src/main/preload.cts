@@ -343,6 +343,21 @@ contextBridge.exposeInMainWorld('cablePlanner', {
     write: (adresse: string, devices: unknown[]) =>
       ipcRenderer.invoke('tally:write', adresse, devices) as Promise<unknown>,
   },
+  // Die LZ Camera Bridge des Raums: EIN WebSocket im Main-Prozess, jede
+  // Nachricht der Bruecke kommt unveraendert als `camera:event` zurueck.
+  camera: {
+    connect: (address: { host: string; port: number }) =>
+      ipcRenderer.invoke('camera:connect', address) as Promise<{ ok: boolean; message: string }>,
+    disconnect: () => ipcRenderer.invoke('camera:disconnect') as Promise<{ ok: boolean; message: string }>,
+    send: (msg: unknown) => ipcRenderer.invoke('camera:send', msg) as Promise<{ ok: boolean; message: string }>,
+    status: () =>
+      ipcRenderer.invoke('camera:status') as Promise<{ connected: boolean; address: { host: string; port: number } | null }>,
+    onEvent: (cb: (msg: unknown) => void) => {
+      const listener = (_event: unknown, msg: unknown) => cb(msg)
+      ipcRenderer.on('camera:event', listener)
+      return () => ipcRenderer.removeListener('camera:event', listener)
+    },
+  },
   logs: {
     rendererError: (payload: { message: string; stack?: string; source?: string }) =>
       ipcRenderer.send('logs:renderer-error', payload),

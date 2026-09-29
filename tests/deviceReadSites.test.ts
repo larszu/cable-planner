@@ -77,6 +77,11 @@ const GERAETE_DOMAENEN = [
   // Store (`deviceLibraryStore`), nicht im Projekt; ein Geraet kommt erst
   // durch Ziehen oder Klicken als neues Geraet in den Plan.
   'deviceLibrary',
+  // Die LZ Camera Bridge (`camera:*`): Pose, Tally und Slots sind Befunde
+  // eines laufenden Raums und landen im `cameraBridgeStore`, nie im Projekt.
+  // Ins Projekt schreibt nur der Planer selbst: die Slot-Nummer, die ER beim
+  // Senden vergibt (`lib/cameraBridgeSite.ts`), keine Antwort der Bruecke.
+  'camera',
 ] as const
 
 /**
@@ -288,6 +293,17 @@ const CLASSIFIED: Site[] = [
       'Statuszeile angezeigt. Sie steht trotzdem hier, weil der Test bewusst zu ' +
       'breit faengt — und weil genau diese Datei belegt, dass er es vorher nicht ' +
       'tat.',
+  },
+  {
+    file: 'store/cameraBridgeStore.ts',
+    verdict: 'getrennt',
+    reason:
+      'Die LZ Camera Bridge des Raums (2026-09-29). Der Store liest den Plan ' +
+      'nicht und schreibt nicht hinein: Pose, Tally, Slots und Fortschritt der ' +
+      'Presets sind Beobachtungen und bleiben im nicht persistierten Store. ' +
+      'Ins Projekt schreibt nur `PtzControlSection`, und zwar die Slot-Nummer, ' +
+      'die der Plan beim Senden SELBST vergibt (`buildSite`) — keine Antwort ' +
+      'der Bruecke.',
   },
   {
     file: 'hooks/useVideohubLinkFeed.ts',

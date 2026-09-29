@@ -21,6 +21,7 @@ import { registerReceiptIpc } from './ipc/receiptIpc.js'
 import { registerAttachmentIpc } from './ipc/attachmentIpc.js'
 import { registerShowControlIpc } from './ipc/showControlIpc.js'
 import { registerTallyIpc } from './ipc/tallyIpc.js'
+import { registerCameraIpc } from './ipc/cameraIpc.js'
 import { registerSyncIpc } from './ipc/syncIpc.js'
 import { registerGraphmlIpc } from './ipc/graphmlIpc.js'
 import { registerMobileShareIpc } from './ipc/mobileShareIpc.js'
@@ -389,6 +390,7 @@ app.whenReady().then(async () => {
   registerAttachmentIpc()
   registerShowControlIpc()
   registerTallyIpc()
+  registerCameraIpc()
   registerSyncIpc()
   registerGraphmlIpc()
   registerMobileShareIpc()
