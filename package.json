@@ -70,7 +70,7 @@
     "test:drag": "node scripts/drag-test.mjs",
     "downloads:zaehlen": "node scripts/release-downloads.mjs",
     "docs:stats": "node scripts/update-doc-stats.mjs",
-    "manual:pdf": "node scripts/manual-pdf.mjs",
+    "manual:pdf": "node scripts/handbuch/zusammensetzen.mjs && node scripts/manual-pdf.mjs",
     "test:crdt": "node scripts/crdt-convergence-check.mjs",
     "test:signaling": "npm run build:main && node scripts/signaling-relay-check.mjs",
     "relay": "node scripts/signaling-server.mjs",

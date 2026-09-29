@@ -1,0 +1,22 @@
+{
+  "patchlist": "Patch list\nAll layers\nvideo\n4 / 4\nNo.\tFrom device\tPort\tTo device\tPort\tType\tLength (m)\tColour\n\tCamera 1\tSDI Out\tVision mixer\tIn 1\tBNC\t12\t\n\tCamera 2\tSDI Out\tVision mixer\tIn 2\tBNC\t18\t\n\tVision mixer\tMultiview Out\tMultiviewer\tSDI In\tBNC\t6\t\n\tVision mixer\tPGM Out\tControl room monitor\tSDI In\tBNC\t6\t\n\nEach cable as its own row, sorted for patching order on set. more\n\nExport CSV\nExport XLSX\nLabels + QR (PDF)\nGeneric (CSV)\nBrother P-touch (TXT)\nDymo (CSV)\nLabel CSV",
+  "ledwand": "⌘+K\nNo commands found",
+  "frontplatten": "⌘+K\nNo commands found",
+  "bericht": "⌘+K\nNo commands found",
+  "adern": "⌘+K\nNo commands found",
+  "showccontrol": "⌘+K\nNo commands found",
+  "mehrere-kabel": "Connect multiple cables\n\nCreates N cables at once: source port i → target port i. Occupied target ports are skipped.\n\nSOURCE\nDevice\n—\nCamera 1\nCamera 2\nVision mixer\nMultiviewer\nControl room monitor\nSide\nOutputs\nInputs\nStart Output (1..0)\nTARGET\nDevice\n—\nCamera 1\nCamera 2\nVision mixer\nMultiviewer\nControl room monitor\nSide\nInputs\nOutputs\nStart Input (1..0)\nCable count\nCable type\nXLR 3-pin Audio (XLR)\nSDI 3G (1080p50/60) (BNC)\nSDI 6G (4K30 4:2:0) (BNC)\nSDI 12G (4K60) (BNC)\nHDMI 2.0 (4K60 4:4:4) (HDMI)\nHDMI 2.1 (8K/4K120) (HDMI)\nDisplayPort 1.4 (DisplayPort)\nEthernet Cat6 (1G) (Ethernet/RJ45)\nEthernet Cat6a (10G) (Ethernet/RJ45)\nNDI über Cat6a (1G/10G) (Ethernet/RJ45)\nDante / AES67 (Cat6) (Ethernet/RJ45)\nStream-Uplink (SRT/RTMP/HLS) (Ethernet/RJ45)\nSMPTE ST 2110 (Fiber) (Fiber)\nReferenz Blackburst / Tri-Level (BNC) (BNC)\nWord Clock (BNC) (BNC)\nLTC Timecode (BNC) (BNC)\nPTP / Referenz (Ethernet) (Ethernet/RJ45)\nFiber SM (LC) (Fiber)\nFiber MM OM4 (LC) (Fiber)\nUSB 3.x (USB)\nIEC C13/C14 230V (IEC 230V)\npowerCON TRUE1 (PowerCON)\nSchuko 230V (Schuko 230V)\nThunderbolt 3 (40Gbps) (USB-C)\nThunderbolt 4 (40Gbps, zertifiziert) (USB-C)\nMADI Koax (BNC, 75Ω) (BNC)\nAES3id (BNC, 75Ω) (BNC)\nDVB-ASI (BNC, 75Ω) (BNC)\nMADI Optisch (ST/SC Fiber) (Fiber)\nSMPTE ST 297 — Optisches SDI (Glasfaser) (Fiber)\nSMPTE 304M Hybrid-Fiber (LEMO 3K.93C / 311) (LEMO 3K.93C (SMPTE 304M))\nSMPTE 304M Hybrid-Fiber (Neutrik Dragonfly) (Neutrik Dragonfly (SMPTE 304M))\nTriax (Damar & Hagen) (Triax (Damar & Hagen))\nTriax (Fischer) (Triax (Fischer))\nTriax-Kamerakabel (analog/koaxial) (Triax)\nSerielle Steuerung RS-232/422/485 (DB9) (DB9)\nVGA (DE-15) (VGA)\nDVI (Single/Dual-Link) (DVI)\nDB25 Mehrkanal-Audio (AES59 / TASCAM) (DB25)\nDMX512 / RDM (5-pol XLR) (DMX 5-pol (XLR))\nArt-Net / sACN (Ethernet) (Ethernet/RJ45)\nComposite / FBAS (Cinch) (Cinch/RCA)\nS-Video (Y/C) (S-Video)\nComponent YPbPr (3× Cinch/BNC) (Cinch/RCA)\nTally / GPI-GPO (DB9 / Kontakt) (DB9)\nHDBaseT (Video/Audio/Steuerung/PoH über Cat) (Ethernet/RJ45)\nHDMI AOC (Active Optical, bis ~100 m) (HDMI)\nDisplayPort AOC (Active Optical, bis ~50 m) (DisplayPort)\nUSB-C AOC (Active Optical, bis ~30 m) (USB-C)\nLength per cable (m)\nPREVIEW (0/8 CABLES)\n\nPick source/target and port range.\n\nCancel\nCreate 0 cables",
+  "neues-rack": "⌘+K\nNo commands found",
+  "rack-builder": "⌘+K\nNo commands found",
+  "ki-plan": "AI plan generation\nNo AI API key set. Add a provider key under Settings → AI.\nDescribe the system in plain language\nA preview is shown — nothing is inserted without confirmation.\nGenerate",
+  "revisionen": "Revisions & snapshots\nCommit current state\nAs-built\nCommit\n\nNo revisions committed yet.\n\nA revision stores a full snapshot of the plan. Restoring keeps the history.",
+  "revisionen-tabs": "Revisions & snapshots\nCommit current state\nAs-built\nCommit\n\nNo revisions committed yet.\n\nA revision stores a full snapshot of the plan. Restoring keeps the history.",
+  "lager": "⌘+K\nNo commands found",
+  "lager-tabs": "⌘+K\nNo commands found",
+  "atem-multiviewer": "⌘+K\nNo commands found",
+  "atem-audio": "⌘+K\nNo commands found",
+  "atem-labels": "⌘+K\nNo commands found",
+  "videohub": "⌘+K\nNo commands found",
+  "videohub-tabs": "⌘+K\nNo commands found",
+  "greengo": "⌘+K\nNo commands found"
+}

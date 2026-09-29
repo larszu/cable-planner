@@ -43,11 +43,14 @@ project-file schema.
 
 ## Maintainer notes
 
-- **User manual** lives in [`docs/manual/`](docs/manual/manual.en.md) as
-  Markdown (English and [German](docs/manual/handbuch.de.md)). Whenever a
-  change touches operation or menus, update both files, then rebuild the PDFs
-  linked from the README: `npm run manual:pdf` (needs a local Chrome and
-  network for the font).
+- **User manual**: the sources are the chapter files in
+  [`docs/manual/kapitel/`](docs/manual/kapitel/README.md), one German and one
+  English file per chapter. Whenever a change touches operation or menus,
+  update both, then `npm run manual:pdf` — it assembles
+  `docs/manual/handbuch.de.md` / `manual.en.md` and sets the PDFs linked from
+  the README (needs a local Chrome and network for the font). Screenshots:
+  `npm run build && node scripts/handbuch/aufnehmen.mjs` re-captures every
+  chapter in both languages from the built app (`scripts/handbuch/bereiche/`).
 - **Web page**: every push to the default branch builds
   `.github/workflows/pages.yml` and publishes
   <https://larszu.github.io/cable-planner/>. Without a Pages site the workflow

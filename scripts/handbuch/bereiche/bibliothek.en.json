@@ -1,0 +1,5 @@
+{
+  "create_general": "",
+  "cables_manage": "SETTINGS\nProjekt\nModule\nDarstellung\nBearbeiten\nHotkeys\nIntegrationen\nDevice library\nMCP\nKonfigurationen\nCable types\nMaster data\nKategorien & Felder\nNetzwerk-Sync\nNachweise\nErweitert\nCable types\n\nCable types are the presets the plan offers you: connector, signal standards, colour and maximum length. more\n\nYour own cable types\n\nCreated here and available in every project on this machine.\n\n+ New cable type\n\nNone yet — the built-in catalogue is used as is.\n\nChanged built-in types\n\nA built-in type is never deleted, only overridden. Reset puts the shipped values back.\n\nNone — every built-in type is unchanged.\n\nThe cable library in the left sidebar still edits a type in place — it shows what you pick from while planning.",
+  "rack_builder": ""
+}

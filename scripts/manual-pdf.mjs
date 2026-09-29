@@ -31,6 +31,7 @@ import { chromium } from 'playwright-core'
 import { readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
+import { slug } from './handbuch/slug.mjs'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const DIR = join(ROOT, 'docs', 'manual')
@@ -63,6 +64,7 @@ const inline = (text) => {
   return s.replace(/\u0000(\d+)\u0000/g, (_, i) => `<code>${codes[i]}</code>`)
 }
 
+const ids = new Set()
 function blockHtml(md) {
   const zeilen = md.replace(/\r/g, '').split('\n')
   const out = []
@@ -88,8 +90,14 @@ function blockHtml(md) {
       out.push(`<pre><code>${esc(code.join('\n'))}</code></pre>`)
       continue
     }
-    const h = z.match(/^(#{1,3})\s+(.*)$/)
-    if (h) { out.push(`<h${h[1].length}>${inline(h[2])}</h${h[1].length}>`); i++; continue }
+    const h = z.match(/^(#{1,5})\s+(.*)$/)
+    if (h) {
+      // ids wie GitHub, doppelte mit -1, -2 … — so zeigen die #-Links des Inhaltsverzeichnisses im PDF auf die Stelle.
+      let id = slug(h[2])
+      if (ids.has(id)) { let n = 1; while (ids.has(`${id}-${n}`)) n++; id = `${id}-${n}` }
+      ids.add(id)
+      out.push(`<h${h[1].length} id="${id}">${inline(h[2])}</h${h[1].length}>`); i++; continue
+    }
     if (/^---+$/.test(z)) { out.push('<hr>'); i++; continue }
     if (/^-\s+/.test(z)) { out.push(liste(false)); continue }
     if (/^\d+\.\s+/.test(z)) { out.push(liste(true)); continue }
@@ -171,7 +179,9 @@ body { font-family: 'Public Sans', system-ui, 'Segoe UI', Roboto, Arial, sans-se
 h1 { display: none; }
 h2 { font-weight: 800; font-size: 18pt; line-height: 1.2; margin: 0 0 5mm; break-before: page; break-after: avoid; }
 .toc h2 { break-before: auto; }
-h3 { font-weight: 800; font-size: 12pt; margin: 6mm 0 2mm; break-after: avoid; }
+h3 { font-weight: 800; font-size: 12pt; margin: 7mm 0 2mm; break-after: avoid; }
+h4 { font-weight: 700; font-size: 10.5pt; margin: 5mm 0 1.5mm; break-after: avoid; }
+h5 { font-weight: 700; font-size: 10pt; margin: 4mm 0 1mm; break-after: avoid; color: var(--schiefer); }
 p, li { max-width: 125mm; }
 p { margin: 0 0 2.5mm; }
 ul, ol { margin: 0 0 3mm; padding-left: 5mm; }
@@ -190,10 +200,13 @@ table { border-collapse: collapse; width: 100%; margin: 2mm 0 5mm; font-size: 9p
 th { background: var(--eis); text-align: left; font-weight: 700; font-size: 6.5pt; letter-spacing: .18em; text-transform: uppercase; }
 th, td { padding: 1.8mm 2mm; border-bottom: .5pt solid var(--stahl); vertical-align: top; }
 figure { margin: 3mm 0 5mm; break-inside: avoid; }
-figure img { display: block; width: 100%; }
+figure img { display: block; width: auto; max-width: 100%; max-height: 190mm; }
 hr { display: none; }
 .toc { break-after: page; }
 .toc ol li { margin-bottom: 1.5mm; }
+.toc ul { margin: 1mm 0 2mm; }
+.toc ul li { margin-bottom: .5mm; font-size: 9pt; }
+.toc a { text-decoration: none; }
 `
 
 function dokument(a) {
@@ -202,9 +215,8 @@ function dokument(a) {
   // Erste Zeile ist der Titel, der erste Absatz die Unterzeile — beide gehören aufs Deckblatt.
   const [, h1, rest] = md.match(/^#\s+(.*)\n+([\s\S]*)$/)
   const [unterzeile, , ...danach] = rest.split(/\n\n/)
-  // Der Verweis auf die andere Sprache (2. Absatz) führt im PDF auf eine .md-Datei,
-  // die Copyright-Zeile hinter dem letzten Trenner ersetzt die Rückseite.
-  const inhalt = danach.join('\n\n').replace(/\n---\n(?![\s\S]*\n---\n)[\s\S]*$/, '\n')
+  // Der Verweis auf die andere Sprache (2. Absatz) führt im PDF auf eine .md-Datei.
+  const inhalt = danach.join('\n\n')
   let body = blockHtml(inhalt)
   body = body.replace('<h2>', '<section class="toc"><h2>').replace(/(<\/ol>)/, '$1</section>')
   const heute = new Date()
@@ -242,10 +254,11 @@ try {
   const page = await browser.newPage({ colorScheme: 'light' })
   for (const a of AUSGABEN) {
     const html = join(DIR, `.${a.lang}.tmp.html`)
+    ids.clear()
     writeFileSync(html, dokument(a))
     await page.goto(pathToFileURL(html).href, { waitUntil: 'networkidle' })
     await page.evaluate(() => document.fonts.ready)
-    await page.pdf({ path: join(DIR, a.ziel), preferCSSPageSize: true, printBackground: true })
+    await page.pdf({ path: join(DIR, a.ziel), preferCSSPageSize: true, printBackground: true, outline: true, tagged: true })
     rmSync(html)
     console.log(`docs/manual/${a.ziel}`)
   }
