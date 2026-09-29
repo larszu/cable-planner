@@ -13,6 +13,8 @@ unter `docs/` muss von einer Einstiegsseite aus über Links erreichbar sein.
 
 - [`manual/handbuch.de.md`](manual/handbuch.de.md) · [`manual/manual.en.md`](manual/manual.en.md)
   — Bedienung für Anwender, als PDF daneben (`npm run manual:pdf`).
+  Quelle sind die [Kapitel](manual/kapitel/README.md); die Bilder nimmt
+  `scripts/handbuch/aufnehmen.mjs` aus der laufenden App auf.
 
 ## Betrieb & Einrichtung
 

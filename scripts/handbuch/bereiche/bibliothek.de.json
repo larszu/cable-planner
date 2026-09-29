@@ -1,0 +1,5 @@
+{
+  "create_general": "",
+  "cables_manage": "EINSTELLUNGEN\nProjekt\nModule\nDarstellung\nBearbeiten\nHotkeys\nIntegrationen\nGerätebibliothek\nMCP\nKonfigurationen\nKabeltypen\nStammdaten\nKategorien & Felder\nNetzwerk-Sync\nNachweise\nErweitert\nCable types\n\nKabeltypen sind die Vorlagen, die der Plan dir anbietet: Stecker, Signal-Standards, Farbe und Höchstlänge. mehr\n\nEigene Kabeltypen\n\nHier angelegt und in jedem Projekt auf diesem Rechner verfügbar.\n\n+ Neuer Kabeltyp\n\nNoch keiner — der eingebaute Katalog wird unverändert benutzt.\n\nGeänderte eingebaute Typen\n\nEin eingebauter Typ wird nie gelöscht, nur überschrieben. Zurücksetzen stellt die ausgelieferten Werte wieder her.\n\nKeine — jeder eingebaute Typ steht unverändert.\n\nDie Kabel-Bibliothek in der linken Seitenleiste bearbeitet einen Typ weiterhin an Ort und Stelle — sie zeigt, woraus du beim Planen wählst.",
+  "rack_builder": ""
+}

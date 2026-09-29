@@ -1,0 +1,5 @@
+{
+  "patchlist": "Patchliste\nAlle Layer\nvideo\n4 / 4\nNr.\tVon Gerät\tPort\tNach Gerät\tPort\tTyp\tLänge (m)\tFarbe\n\tCamera 1\tSDI Out\tVision mixer\tIn 1\tBNC\t12\t\n\tCamera 2\tSDI Out\tVision mixer\tIn 2\tBNC\t18\t\n\tVision mixer\tMultiview Out\tMultiviewer\tSDI In\tBNC\t6\t\n\tVision mixer\tPGM Out\tControl room monitor\tSDI In\tBNC\t6\t\n\nJedes Kabel als eigene Zeile, sortiert für die Patch-Reihenfolge auf dem Set. mehr\n\nCSV exportieren\nXLSX exportieren\nEtiketten + QR (PDF)\nGenerisch (CSV)\nBrother P-touch (TXT)\nDymo (CSV)\nEtiketten-CSV",
+  "ledwand": "⌘+K\nKeine Befehle gefunden",
+  "frontplatten": "⌘+K\nKeine Befehle gefunden"
+}
