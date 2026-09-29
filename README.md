@@ -47,7 +47,11 @@
 - **Every list for the build day.** Pull list, patch list, termination list,
   BOM, patch sheets, faceplates, acceptance record, QR labels — one report
   editor, preview equals export.
-- **ATEM and Videohub.** Multiviewer layouts and router configuration.
+- **Control at the device.** ATEM multiviewer and audio, Videohub routing,
+  PTZ cameras through the LZ Camera Bridge (joystick, presets, the shots
+  planned in MultiCam driven and stored in the head, one offset on site, live
+  picture and a video wall), and Green-GO intercom channels live over OSC —
+  each in the properties of the device it belongs to, not in a separate tool.
 - **On site.** Phones join by QR code, tick off work and send photos back into
   the plan.
 - **Together.** Live co-editing over WebRTC, optional cloud copy with revisions,
@@ -66,6 +70,10 @@
     <td width="50%" align="center"><img src="docs/screenshots/export.png" alt="Export and print hub" width="420" /><br /><b>Export &amp; print</b></td>
     <td width="50%" align="center"><img src="docs/screenshots/bom.png" alt="Cable bill of materials" width="420" /><br /><b>Cable bill of materials</b></td>
   </tr>
+  <tr>
+    <td width="50%" align="center"><img src="docs/screenshots/camera-control.png" alt="Camera control at the device: bridge, control path, joystick, zoom curve, planned shots" width="420" /><br /><b>Camera control at the device</b></td>
+    <td width="50%" align="center"><img src="docs/screenshots/rack-3d.png" alt="3D view of the example rack" width="420" /><br /><b>Rack in 3D</b></td>
+  </tr>
 </table>
 
 ## How it compares
@@ -77,6 +85,7 @@
 | File format | **JSON, git-diffable** | Proprietary | Proprietary | VSDX / XML |
 | Broadcast-aware (connectors, BOM, patch sheets) | **Yes** | Yes | Partial | No |
 | ATEM / Videohub | **Yes** | No | No | No |
+| PTZ presets from the plan, Green-GO live | **Yes** | No | No | No |
 
 Full comparison: [`docs/comparison.html`](docs/comparison.html).
 

@@ -12,7 +12,7 @@ import { cablePlannerApi } from '../lib/bridge'
 export interface BridgeCameraSlot {
   cameraNumber: number
   connected: boolean
-  config: Record<string, unknown> & { label?: string; streamUrl?: string; switcherInput?: number; poseOffset?: { pan: number; tilt: number } }
+  config: Record<string, unknown> & { label?: string; streamUrl?: string; switcherInput?: number; poseOffset?: { pan: number; tilt: number }; zoomTable?: { position: number; focalMm: number }[] }
   plan?: { label: string; presets?: { number: number; name: string; pan: number; tilt: number; focalMm?: number }[] }
 }
 

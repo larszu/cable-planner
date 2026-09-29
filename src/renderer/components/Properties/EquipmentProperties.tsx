@@ -49,6 +49,7 @@ import { ReplaceDeviceSection } from './sections/ReplaceDeviceSection'
 import { LifecycleSection } from './sections/LifecycleSection'
 import { CameraControlsSection } from './sections/CameraControlsSection'
 import { PtzControlSection } from './sections/PtzControlSection'
+import { GreenGoLiveSection } from './sections/GreenGoLiveSection'
 import { OptikSection } from './sections/OptikSection'
 import { SourceIdentitySection } from './sections/SourceIdentitySection'
 import { DeviceToolsSection } from './sections/DeviceToolsSection'
@@ -183,6 +184,7 @@ export const EquipmentProperties = () => {
       <OptikSection equipment={equipment} />
       <CameraControlsSection equipment={equipment} />
       <PtzControlSection equipment={equipment} />
+      <GreenGoLiveSection equipment={equipment} />
 
       <PowerConsumptionSection equipment={equipment} />
 

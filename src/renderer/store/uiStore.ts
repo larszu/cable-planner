@@ -481,6 +481,8 @@ const defaults: PersistedUiState = {
     // dieselbe Frage fuer den Kopf -- wohin schaut er, und wer sagt es ihm.
     // Bestandsnutzer bekommen den Eintrag ueber die Vollstaendigkeits-Schleife.
     'camera-control',
+    // Green-GO live (2026-09-29) direkt daneben: dieselbe Frage fuer die Intercom.
+    'greengo-live',
     // Der Adapter (B-46) hinter der Schaltung: beides beantwortet dieselbe
     // Frage -- was gibt dieses Geraet weiter, und unter welcher Bedingung.
     // Bestandsnutzer bekommen den Eintrag ueber die

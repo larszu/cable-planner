@@ -82,6 +82,8 @@ const GERAETE_DOMAENEN = [
   // Ins Projekt schreibt nur der Planer selbst: die Slot-Nummer, die ER beim
   // Senden vergibt (`lib/cameraBridgeSite.ts`), keine Antwort der Bruecke.
   'camera',
+  // Green-GO live (`greengo:*`): Zustand des Geraets, nur im greengoLiveStore.
+  'greengo',
 ] as const
 
 /**
