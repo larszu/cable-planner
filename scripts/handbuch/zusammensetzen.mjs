@@ -7,7 +7,7 @@
 // dasselbe zeigen. Nummern und Inhaltsverzeichnis entstehen hier — von Hand
 // gezählte Kapitelnummern verrutschen beim ersten eingeschobenen Kapitel.
 
-import { readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { slug } from './slug.mjs'
@@ -34,7 +34,10 @@ export const KAPITEL = [
 const AUSGABE = { de: ['handbuch.de.md', 'Inhalt'], en: ['manual.en.md', 'Contents'] }
 
 for (const [sprache, [datei, inhalt]] of Object.entries(AUSGABE)) {
-  const kopf = readFileSync(join(DIR, 'kapitel', `_kopf.${sprache}.md`), 'utf8').trim()
+  // Der Kopf liegt in `kapitel/` und verlinkt deshalb mit `../` (sonst waere
+  // der Link in der Quelle tot, tests/dokuErreichbar.test.ts); das fertige
+  // Handbuch liegt eine Ebene hoeher, dort faellt das `../` weg.
+  const kopf = readFileSync(join(DIR, 'kapitel', `_kopf.${sprache}.md`), 'utf8').trim().replace(/\]\(\.\.\//g, '](')
   const titel = []
   const unter = []
   const teile = KAPITEL.map((k, i) => {
@@ -62,7 +65,13 @@ for (const [sprache, [datei, inhalt]] of Object.entries(AUSGABE)) {
 
 // Index der Quelldateien — jedes Dokument unter docs/ muss verlinkt sein
 // (tests/dokuErreichbar.test.ts).
-const zeile = (k) => `- ${k}: [de](${k}.de.md) · [en](${k}.en.md)`
+// Nur Sprachen, deren Datei es gibt: ein Kapitel, dessen Uebersetzung noch
+// fehlt, bekommt keinen toten Link (tests/dokuErreichbar.test.ts).
+const zeile = (k) =>
+  `- ${k}: ${['de', 'en']
+    .filter((l) => existsSync(join(DIR, 'kapitel', `${k}.${l}.md`)))
+    .map((l) => `[${l}](${k}.${l}.md)`)
+    .join(' · ')}`
 writeFileSync(
   join(DIR, 'kapitel', 'README.md'),
   `# Handbuch-Kapitel\n\nQuelle des Benutzerhandbuchs. Hier bearbeiten, dann \`npm run manual:pdf\`.\n\n${[

@@ -155,7 +155,7 @@ This option colorizes cables according to their discipline/domain (e.g., video, 
 
 ![About dialog](bilder/en/oberflaeche-about.jpg)
 
-The About dialog displays the current version of LZ Cable Planner along with information about the publisher and open-source libraries used. It can be accessed via *Help → About LZ Cable Planner…*.
+The About dialog displays the current version of LZ Cable Planner along with information about the publisher and the licences of the bundled third-party libraries. It can be accessed via *Help → About LZ Cable Planner…*.
 
 Here you will find:
 - The current version number
