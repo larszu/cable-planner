@@ -237,6 +237,12 @@ export interface CablePlannerProject {
    * Gebaeude ist `mangelMelden` im `facility-planner`.
    */
   hausAuskunft?: HausAuskunft
+  /**
+   * Die LZ Camera Bridge dieses Raums — der Prozess, der die PTZ-Koepfe
+   * faehrt, die Mischer schaltet und die Livebilder liefert. Eine Adresse je
+   * Projekt: die Bruecke steht bei den Kameras, nicht bei jedem Geraet.
+   */
+  cameraBridge?: { host: string; port: number }
   /** v7.9.3 — Aufbau-Status: welche Ports / Kabel der Field-Tech bereits
    *  physikalisch gesteckt hat. Wird vom Mobile-Viewer (handy.html) via
    *  POST /checks zurückgespielt und im Haupt-Canvas als kleines Häkchen

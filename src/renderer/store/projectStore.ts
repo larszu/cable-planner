@@ -388,6 +388,8 @@ export interface ProjectState {
    * vollstaendig (siehe `runDrawingChecks`), statt jedes Geraet zu melden.
    */
   setHausAuskunft: (auskunft: import('../types/hausAuskunft').HausAuskunft | undefined) => void
+  /** Die LZ Camera Bridge des Raums (Adresse), oder keine. */
+  setCameraBridge: (bridge: { host: string; port: number } | undefined) => void
   /**
    * #314 — Geraet auf dem Canvas durch ein anderes Library-Template
    * ersetzen. Ports werden anhand (connectorType, contentLabel/name,
@@ -1701,6 +1703,14 @@ const healProjectPositions = (
     tallyPositions,
     patternChecks,
     hubSwitches,
+    // Die Bruecke des Raums: nur mit Host, sonst weg. Port ohne Zahl → 9700.
+    cameraBridge:
+      project.cameraBridge && typeof project.cameraBridge.host === 'string' && project.cameraBridge.host.trim()
+        ? {
+            host: project.cameraBridge.host.trim(),
+            port: Number.isInteger(project.cameraBridge.port) && project.cameraBridge.port > 0 ? project.cameraBridge.port : 9700,
+          }
+        : undefined,
     // #875 — dito: leere Liste, nicht `undefined`.
     cableStock,
     // #881 — dito.

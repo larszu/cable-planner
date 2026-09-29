@@ -51,7 +51,10 @@ const GESCHUETZT: readonly RegExp[] = [
   /\bard-?mediathek\b/i,
   /\bservus\s?tv\b/i,
   /\bwelt\s?tv\b/i,
-  /\bn-?tv\b/i,
+  // Nicht nach einem Backslash: in aufgenommenen Oberflaechentexten
+  // (scripts/handbuch/bereiche/*.json) steht der Zeilenumbruch als `\n`, und
+  // „…Verwenden\nTV-Studio" las sich als „nTV" — ein Fehlalarm, kein Sender.
+  /(?<!\\)\bn-?tv\b/i,
   /\bsky\s?deutschland\b/i,
 ]
 

@@ -155,7 +155,7 @@ Mit dieser Option werden Kabel nach ihrer Disziplin/ihrem Gewerk eingefärbt (z.
 
 ![Über-Dialog](bilder/de/oberflaeche-about.jpg)
 
-Der About-Dialog zeigt die aktuelle Version von LZ Cable Planner sowie Informationen über den Lizenzgeber und verwendete Open-Source-Bibliotheken. Er ist erreichbar über *Hilfe → Über LZ Cable Planner…*.
+Der About-Dialog zeigt die aktuelle Version von LZ Cable Planner sowie Informationen über den Lizenzgeber und die Lizenzen der mitgelieferten Fremdbibliotheken. Er ist erreichbar über *Hilfe → Über LZ Cable Planner…*.
 
 Hier finden Sie:
 - Die aktuelle Versionsnummer

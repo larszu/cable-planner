@@ -1,3 +1,4 @@
+import { tr, format } from './i18n'
 import type { CablePlannerProject } from '../types/project'
 import type { NetboxRack, NetboxSite, NetboxSnapshot } from '../types/netbox'
 import type { AttachResult, ReceiptContent } from '../types/receipt'
@@ -305,6 +306,19 @@ type CablePlannerApi = {
   tally: {
     read: (adresse: string) => Promise<PiAntwort>
     write: (adresse: string, devices: unknown[]) => Promise<PiAntwort>
+  }
+  /**
+   * Die LZ Camera Bridge des Raums. In der Desktop-App ein WebSocket im
+   * Main-Prozess; im Browser ein WebSocket des Renderers — die Bruecke steht
+   * im selben Netz und spricht nur JSON, deshalb ist das hier ausnahmsweise
+   * kein „braucht die Desktop-App".
+   */
+  camera: {
+    connect: (address: { host: string; port: number }) => Promise<{ ok: boolean; message: string }>
+    disconnect: () => Promise<{ ok: boolean; message: string }>
+    send: (msg: { type: string } & Record<string, unknown>) => Promise<{ ok: boolean; message: string }>
+    status: () => Promise<{ connected: boolean; address: { host: string; port: number } | null }>
+    onEvent: (cb: (msg: Record<string, unknown>) => void) => () => void
   }
   project: {
     newProject: () => Promise<void>
@@ -797,7 +811,83 @@ const isForbiddenForPath = (error: unknown, path: string): boolean => {
  *  hier statt in einem Kommentar, den niemand liest. */
 const STREAM_KEY_WEB_PREFIX = 'cablePlanner.streamKey.'
 
+/** Browser-Weg zur Bruecke: ein WebSocket des Renderers, siehe `CablePlannerApi.camera`. */
+const webCameraBridge = (() => {
+  // Eine Antwortform; der Text kommt immer gewickelt herein (tr), leer bei Erfolg.
+  const antwort = (ok: boolean, text: string) => ({ ok, message: text })
+  const nein = (text: string) => antwort(false, text)
+  const JA_VERBUNDEN = antwort(true, '')
+  let ws: WebSocket | null = null
+  let address: { host: string; port: number } | null = null
+  const listeners = new Set<(msg: Record<string, unknown>) => void>()
+  const emit = (msg: Record<string, unknown>) => {
+    for (const l of listeners) l(msg)
+  }
+  return {
+    connect: (a: { host: string; port: number }) =>
+      new Promise<{ ok: boolean; message: string }>((resolve) => {
+        const host = a.host.trim()
+        const port = Number.isInteger(a.port) && a.port > 0 ? a.port : 9700
+        if (!host) return resolve(nein(tr('bridge.camera.noAddress', 'No bridge address.')))
+        if (ws && ws.readyState === WebSocket.OPEN && address?.host === host && address.port === port) {
+          return resolve(JA_VERBUNDEN)
+        }
+        ws?.close()
+        let settled = false
+        const sock = new WebSocket(`ws://${host}:${port}`)
+        ws = sock
+        address = { host, port }
+        sock.onopen = () => {
+          settled = true
+          emit({ type: 'bridge', status: 'connected', address })
+          resolve(JA_VERBUNDEN)
+        }
+        sock.onmessage = (ev) => {
+          try {
+            emit(JSON.parse(String(ev.data)))
+          } catch {
+            /* nur JSON */
+          }
+        }
+        sock.onerror = () => {
+          if (!settled) {
+            settled = true
+            resolve(nein(format(tr('bridge.camera.noAnswer', 'Bridge {addr} does not answer.'), { addr: `${host}:${port}` })))
+          }
+        }
+        sock.onclose = () => {
+          if (ws === sock) {
+            ws = null
+            emit({ type: 'bridge', status: 'disconnected' })
+          }
+          if (!settled) {
+            settled = true
+            resolve(nein(format(tr('bridge.camera.refused', 'Bridge {addr} did not accept the connection.'), { addr: `${host}:${port}` })))
+          }
+        }
+      }),
+    disconnect: async () => {
+      ws?.close()
+      ws = null
+      return JA_VERBUNDEN
+    },
+    send: async (msg: { type: string } & Record<string, unknown>) => {
+      if (!ws || ws.readyState !== WebSocket.OPEN) return nein(tr('bridge.camera.notConnected', 'Not connected to the bridge.'))
+      ws.send(JSON.stringify(msg))
+      return JA_VERBUNDEN
+    },
+    status: async () => ({ connected: Boolean(ws && ws.readyState === WebSocket.OPEN), address }),
+    onEvent: (cb: (msg: Record<string, unknown>) => void) => {
+      listeners.add(cb)
+      return () => {
+        listeners.delete(cb)
+      }
+    },
+  }
+})()
+
 const webFallbackApi: CablePlannerApi = {
+  camera: webCameraBridge,
   /**
    * E-23 im Browser: es gibt keinen UDP-Port, und das wird GESAGT statt
    * still nichts zu tun. „Nicht gebunden, weil hier kein Desktop laeuft" ist

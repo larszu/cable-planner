@@ -868,6 +868,20 @@ export interface EquipmentItem {
    *  Begruendung und Grenzen in `types/stream.ts`. */
   streams?: import('./stream').StreamEndpoint[]
   /**
+   * Steuerung am Geraet (Kameras): der Weg, auf dem die LZ Camera Bridge
+   * diesen Kopf faehrt, und die Nummer des Slots, den die Bruecke ihm gegeben
+   * hat, nachdem der Raum an sie geschickt wurde. Das Steuern selbst passiert
+   * in der Bruecke; hier steht nur, WIE sie das Geraet erreicht — so wie
+   * `controlProtocol` es fuer Kreuzschiene und Mischer tut.
+   */
+  cameraControlPath?: import('../optics/types').ControlPath
+  /** HTTP-CGI: welche Firmware-Familie (Vissonic/PTZOptics oder Sony SRG). */
+  cameraControlFamily?: 'vissonic' | 'sony'
+  /** Steuer-Port, wenn er vom Standard des Wegs abweicht. */
+  cameraControlPort?: number
+  /** Slot-Nummer in der Bruecke; vergeben beim Senden des Raums. */
+  bridgeCameraNumber?: number
+  /**
    * Wofuer die Adresse in den Alt-Feldern da ist. Ohne Angabe gilt
    * `unspecified` — geraten wird nicht: ob die eine IP einer Kamera ihre
    * Steuerung oder ihr Medienweg ist, weiss der Plan nicht, und eine geratene

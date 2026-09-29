@@ -477,6 +477,10 @@ const defaults: PersistedUiState = {
     // wohin weiter. Bestandsnutzer bekommen den Eintrag ueber die
     // Vollstaendigkeits-Schleife weiter unten nachgetragen.
     'switching',
+    // Die Kamerasteuerung (LZ Camera Bridge, 2026-09-29) hinter der Schaltung:
+    // dieselbe Frage fuer den Kopf -- wohin schaut er, und wer sagt es ihm.
+    // Bestandsnutzer bekommen den Eintrag ueber die Vollstaendigkeits-Schleife.
+    'camera-control',
     // Der Adapter (B-46) hinter der Schaltung: beides beantwortet dieselbe
     // Frage -- was gibt dieses Geraet weiter, und unter welcher Bedingung.
     // Bestandsnutzer bekommen den Eintrag ueber die
@@ -937,6 +941,10 @@ interface UiState extends PersistedUiState {
   videohubExport: { open: boolean; deviceId?: string; initialShowMatrix?: boolean }
   openVideohubExport: (deviceId?: string, initialShowMatrix?: boolean) => void
   closeVideohubExport: () => void
+  /** Die Videowand der Bruecke: alle Livebilder des Raums, aus einer Kamera heraus geoeffnet. */
+  cameraMultiview: { open: boolean; deviceId?: string }
+  openCameraMultiview: (deviceId?: string) => void
+  closeCameraMultiview: () => void
   greengoExport: { open: boolean }
   openGreenGoExport: () => void
   closeGreenGoExport: () => void
@@ -1575,6 +1583,9 @@ export const useUiStore = create<UiState>((set) => ({
   videohubExport: { open: false },
   openVideohubExport: (deviceId, initialShowMatrix) => set({ videohubExport: { open: true, deviceId, initialShowMatrix } }),
   closeVideohubExport: () => set({ videohubExport: { open: false } }),
+  cameraMultiview: { open: false },
+  openCameraMultiview: (deviceId) => set({ cameraMultiview: { open: true, deviceId } }),
+  closeCameraMultiview: () => set({ cameraMultiview: { open: false } }),
   greengoExport: { open: false },
   openGreenGoExport: () => set({ greengoExport: { open: true } }),
   closeGreenGoExport: () => set({ greengoExport: { open: false } }),

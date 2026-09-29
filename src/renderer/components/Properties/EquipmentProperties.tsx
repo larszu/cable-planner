@@ -48,6 +48,7 @@ import { RackInstanceCard } from './sections/RackInstanceCard'
 import { ReplaceDeviceSection } from './sections/ReplaceDeviceSection'
 import { LifecycleSection } from './sections/LifecycleSection'
 import { CameraControlsSection } from './sections/CameraControlsSection'
+import { PtzControlSection } from './sections/PtzControlSection'
 import { OptikSection } from './sections/OptikSection'
 import { SourceIdentitySection } from './sections/SourceIdentitySection'
 import { DeviceToolsSection } from './sections/DeviceToolsSection'
@@ -181,6 +182,7 @@ export const EquipmentProperties = () => {
           selbst weg; ein aufklappbares Feld an jedem Stativ waere Laerm. */}
       <OptikSection equipment={equipment} />
       <CameraControlsSection equipment={equipment} />
+      <PtzControlSection equipment={equipment} />
 
       <PowerConsumptionSection equipment={equipment} />
 

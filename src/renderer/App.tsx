@@ -21,6 +21,7 @@ import { OnboardingTour } from './components/Onboarding/OnboardingTour'
 import { hasSeenTour } from './components/Onboarding/onboardingState'
 import { SettingsDialog } from './components/Settings/SettingsDialog'
 import { VideohubExportDialog } from './components/Export/VideohubExportDialog'
+import { CameraMultiviewDialog } from './components/Camera/CameraMultiviewDialog'
 import { GreenGoExportDialog } from './components/Export/GreenGoExportDialog'
 import { AtemDialog } from './components/Atem/AtemDialog'
 import { MultiviewerLayoutView } from './components/Atem/MultiviewerLayoutView'
@@ -278,6 +279,8 @@ export default function App() {
   const setPropertiesCollapsed = useUiStore((state) => state.setPropertiesCollapsed)
   const videohubExport = useUiStore((state) => state.videohubExport)
   const closeVideohubExport = useUiStore((state) => state.closeVideohubExport)
+  const cameraMultiview = useUiStore((state) => state.cameraMultiview)
+  const closeCameraMultiview = useUiStore((state) => state.closeCameraMultiview)
   const greengoExport = useUiStore((state) => state.greengoExport)
   const closeGreenGoExport = useUiStore((state) => state.closeGreenGoExport)
   const cableEdit = useUiStore((state) => state.cableEdit)
@@ -1560,6 +1563,7 @@ export default function App() {
           initialShowMatrix={videohubExport.initialShowMatrix}
         />
       )}
+      {cameraMultiview.open && <CameraMultiviewDialog onClose={closeCameraMultiview} />}
       {greengoExport.open && (
         <GreenGoExportDialog onClose={closeGreenGoExport} />
       )}

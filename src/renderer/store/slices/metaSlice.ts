@@ -38,6 +38,7 @@ export type MetaSlice = Pick<
   | 'setFallbackPlan'
   | 'setEventMetadata'
   | 'setHausAuskunft'
+  | 'setCameraBridge'
   | 'setTransmissionRecord'
   | 'setCostPlan'
   | 'setNamingScheme'
@@ -336,6 +337,18 @@ export const createMetaSlice: StateCreator<ProjectState, [], [], MetaSlice> = (s
   setHausAuskunft: (auskunft) =>
     set((state) => {
       const updated = { ...state.project, hausAuskunft: auskunft }
+      scheduleProjectAutosave(updated)
+      return { project: updated }
+    }),
+  // Die Bruecke des Raums: Adresse leer heisst keine. Der Port faellt auf
+  // 9700, den Port der LZ Camera Bridge.
+  setCameraBridge: (bridge) =>
+    set((state) => {
+      const host = bridge?.host.trim() ?? ''
+      const updated = {
+        ...state.project,
+        cameraBridge: host ? { host, port: bridge && bridge.port > 0 ? bridge.port : 9700 } : undefined,
+      }
       scheduleProjectAutosave(updated)
       return { project: updated }
     }),

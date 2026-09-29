@@ -202,6 +202,13 @@ export const INSTANCE_FIELDS = [
   'assetTag',
   'internalNumber',
   'serialNumber',
+  // Wie die Bruecke DIESES Exemplar erreicht: Steuerweg, Firmware-Familie,
+  // Port und der Slot, den der Plan ihm beim Senden gegeben hat. Instanz,
+  // weil zwei Koepfe desselben Modells im selben Raum zwei Wege haben.
+  'cameraControlPath',
+  'cameraControlFamily',
+  'cameraControlPort',
+  'bridgeCameraNumber',
   // BEDARF 78 — die Einheit aus dem Bestand. Instanz, und zwar besonders
   // deutlich: sie IST das eine Exemplar. In einem Template getragen wuerde sie
   // beim zweiten Herausziehen zwei Plaetze auf dieselbe Kiste zeigen lassen --

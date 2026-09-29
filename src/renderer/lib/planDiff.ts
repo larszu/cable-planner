@@ -249,6 +249,12 @@ export const EQUIPMENT_FIELD_CLASS: Record<string, FieldClass> = {
   // Ein anderes Preset faehrt die Kamera live auf einen anderen Shot — das ist
   // eine Aussage des Plans, kein Aussehen.
   kameraPresets: 'substantive',
+  // Der Steuerweg zur Bruecke und die Slot-Nummer: substantiell, weil ein
+  // anderer Weg ein anderes Kabel und eine andere Freigabe im Netz ist.
+  cameraControlPath: 'substantive',
+  cameraControlFamily: 'substantive',
+  cameraControlPort: 'substantive',
+  bridgeCameraNumber: 'substantive',
   hausKlinkeId: 'substantive',
   // B-46 — die erklaerten Merkmale. Ebenfalls `substantive`: ob die Quelle den
   // Alternate-Mode kann, entscheidet ueber einen Befund am Adapter. Wer das
