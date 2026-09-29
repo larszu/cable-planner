@@ -10,7 +10,7 @@ Quelle des Benutzerhandbuchs. Hier bearbeiten, dann `npm run manual:pdf`.
 - eigenschaften: [de](eigenschaften.de.md) · [en](eigenschaften.en.md)
 - datei-import: [de](datei-import.de.md) · [en](datei-import.en.md)
 - werkzeuge-planen: [de](werkzeuge-planen.de.md) · [en](werkzeuge-planen.en.md)
-- werkzeuge-bauen: [de](werkzeuge-bauen.de.md)
+- werkzeuge-bauen: [de](werkzeuge-bauen.de.md) · [en](werkzeuge-bauen.en.md)
 - export: [de](export.de.md) · [en](export.en.md)
 - einstellungen: [de](einstellungen.de.md) · [en](einstellungen.en.md)
 - claude: [de](claude.de.md) · [en](claude.en.md)
