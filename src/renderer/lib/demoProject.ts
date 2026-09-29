@@ -54,6 +54,15 @@ export const createDemoProject = (): CablePlannerProject => {
         id: cam1,
         name: 'Camera 1',
         category: 'Cameras',
+        // Ferngesteuert ueber die LZ Camera Bridge: Steuerweg und
+        // geplante Shots, damit der Abschnitt „Camera control" im Beispiel
+        // etwas zu zeigen hat. Brennweiten sind Planwerte, kein Datenblatt.
+        cameraControlPath: 'visca',
+        optik: { panGrad: 0, neigungGrad: 0 },
+        kameraPresets: [
+          { nummer: 1, name: 'Wide', panGrad: 0, neigungGrad: -5, brennweiteMm: 10, fokusM: 8, gespeichertAm: now },
+          { nummer: 2, name: 'Presenter', panGrad: -12, neigungGrad: -8, brennweiteMm: 45, fokusM: 6, gespeichertAm: now },
+        ],
         inputs: [],
         outputs: [{ id: cam1Out, name: 'SDI Out', type: 'BNC', connectorType: 'BNC', direction: 'out' }],
         x: 80,
@@ -66,6 +75,15 @@ export const createDemoProject = (): CablePlannerProject => {
         id: cam2,
         name: 'Camera 2',
         category: 'Cameras',
+        // Ferngesteuert ueber die LZ Camera Bridge: Steuerweg und
+        // geplante Shots, damit der Abschnitt „Camera control" im Beispiel
+        // etwas zu zeigen hat. Brennweiten sind Planwerte, kein Datenblatt.
+        cameraControlPath: 'visca',
+        optik: { panGrad: 0, neigungGrad: 0 },
+        kameraPresets: [
+          { nummer: 1, name: 'Wide', panGrad: 0, neigungGrad: -5, brennweiteMm: 10, fokusM: 8, gespeichertAm: now },
+          { nummer: 2, name: 'Audience', panGrad: 15, neigungGrad: -10, brennweiteMm: 30, fokusM: 10, gespeichertAm: now },
+        ],
         inputs: [],
         outputs: [{ id: cam2Out, name: 'SDI Out', type: 'BNC', connectorType: 'BNC', direction: 'out' }],
         x: 80,

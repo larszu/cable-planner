@@ -343,6 +343,21 @@ contextBridge.exposeInMainWorld('cablePlanner', {
     write: (adresse: string, devices: unknown[]) =>
       ipcRenderer.invoke('tally:write', adresse, devices) as Promise<unknown>,
   },
+  // Green-GO live: OSC an ein Geraet mit dem Skript osc-remote.gg5t.
+  greengo: {
+    connect: (a: { host: string; port: number }) =>
+      ipcRenderer.invoke('greengo:connect', a) as Promise<{ ok: boolean; message: string }>,
+    disconnect: () => ipcRenderer.invoke('greengo:disconnect') as Promise<{ ok: boolean; message: string }>,
+    send: (path: string, args: number[]) =>
+      ipcRenderer.invoke('greengo:send', path, args) as Promise<{ ok: boolean; message: string }>,
+    status: () =>
+      ipcRenderer.invoke('greengo:status') as Promise<{ connected: boolean; host: string | null; port: number | null; lastHeard: number }>,
+    onEvent: (cb: (msg: unknown) => void) => {
+      const listener = (_event: unknown, msg: unknown) => cb(msg)
+      ipcRenderer.on('greengo:event', listener)
+      return () => ipcRenderer.removeListener('greengo:event', listener)
+    },
+  },
   // Die LZ Camera Bridge des Raums: EIN WebSocket im Main-Prozess, jede
   // Nachricht der Bruecke kommt unveraendert als `camera:event` zurueck.
   camera: {

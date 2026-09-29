@@ -80,6 +80,7 @@ export const PtzControlSection = ({ equipment }: { equipment: EquipmentItem }) =
   const [showPicture, setShowPicture] = useState(false)
   const [calibrateFor, setCalibrateFor] = useState<number | null>(null)
   const [storeArmed, setStoreArmed] = useState(false)
+  const [focal, setFocal] = useState('')
 
   useEffect(() => attach(), [attach])
   useEffect(() => {
@@ -180,10 +181,10 @@ export const PtzControlSection = ({ equipment }: { equipment: EquipmentItem }) =
 
         {/* Steuerweg dieses Geraets */}
         <div className="flex flex-wrap items-end gap-2">
-          <label className="flex flex-col gap-0.5">
+          <label className="flex min-w-0 max-w-full flex-col gap-0.5">
             <span className="text-cp-text-muted">{t('props.cameraControl.path', 'Control path')}</span>
             <select
-              className="border border-cp-border bg-cp-surface-1 px-1 py-0.5"
+              className="max-w-full border border-cp-border bg-cp-surface-1 px-1 py-0.5"
               value={equipment.cameraControlPath ?? ''}
               onChange={(e) => updateEquipment(equipment.id, { cameraControlPath: (e.target.value || undefined) as ControlPath | undefined })}
             >
@@ -283,7 +284,7 @@ export const PtzControlSection = ({ equipment }: { equipment: EquipmentItem }) =
             )}
 
             {/* Joystick */}
-            <div className="flex items-start gap-3">
+            <div className="flex flex-wrap items-start gap-3">
               <div className="flex flex-col gap-1" onPointerLeave={jogStop}>
                 {[
                   [['↖', -60, 60], ['↑', 0, 60], ['↗', 60, 60]],
@@ -308,8 +309,8 @@ export const PtzControlSection = ({ equipment }: { equipment: EquipmentItem }) =
                   </div>
                 ))}
               </div>
-              <div className="flex flex-col gap-1">
-                <div className="flex gap-1">
+              <div className="flex min-w-0 flex-col gap-1">
+                <div className="flex flex-wrap gap-1">
                   {[['T', 'setZoom', 70], ['W', 'setZoom', -70], ['N', 'setFocus', 60], ['F', 'setFocus', -60]].map(([label, c, v]) => (
                     <button
                       key={String(label)}
@@ -330,6 +331,46 @@ export const PtzControlSection = ({ equipment }: { equipment: EquipmentItem }) =
               </div>
             </div>
 
+            {/* Zoomkurve dieses Modells, vor Ort gemessen */}
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center gap-2">
+                <span className="font-medium">{t('props.cameraControl.zoomCurve', 'Zoom curve')}</span>
+                <span className="text-cp-text-muted">
+                  {slot?.config.zoomTable?.length
+                    ? format(t('props.cameraControl.zoomMeasured', '{n} point(s) measured'), { n: slot.config.zoomTable.length })
+                    : t('props.cameraControl.zoomEstimated', 'estimated between the ends')}
+                </span>
+              </div>
+              <div className="flex flex-wrap items-center gap-1">
+                {[0, 0.25, 0.5, 0.75, 1].map((z) => (
+                  <button key={z} type="button" className="border border-cp-border bg-cp-surface-1 px-2 py-0.5 hover:bg-cp-surface-3 disabled:opacity-40" disabled={!camOnline} onClick={() => void send({ type: 'zoomTo', cameraNumber: num, zoom: z })}>
+                    {Math.round(z * 100)} %
+                  </button>
+                ))}
+                <input
+                  className="w-16 border border-cp-border bg-cp-surface-1 px-1 py-0.5"
+                  value={focal}
+                  placeholder="mm"
+                  inputMode="decimal"
+                  aria-label={t('props.cameraControl.focalRead', 'Focal length read off the lens, in mm')}
+                  onChange={(e) => setFocal(e.target.value)}
+                />
+                <button
+                  type="button"
+                  className="border border-cp-border bg-cp-surface-1 px-2 py-0.5 hover:bg-cp-surface-3 disabled:opacity-40"
+                  disabled={!camOnline || !(Number(focal.replace(',', '.')) > 0)}
+                  onClick={() => { void send({ type: 'captureZoomPoint', cameraNumber: num, focalMm: Number(focal.replace(',', '.')) }); setFocal('') }}
+                >
+                  {t('props.cameraControl.recordPoint', 'Record point')}
+                </button>
+                {slot?.config.zoomTable?.length ? (
+                  <button type="button" className="border border-cp-border bg-cp-surface-1 px-2 py-0.5 hover:bg-cp-surface-3" onClick={() => void send({ type: 'clearZoomTable', cameraNumber: num })}>
+                    {t('props.cameraControl.clearCurve', 'Clear curve')}
+                  </button>
+                ) : null}
+              </div>
+            </div>
+
             {/* Shots aus dem Plan */}
             {shots.length > 0 && (
               <div className="flex flex-col gap-1">
@@ -341,12 +382,17 @@ export const PtzControlSection = ({ equipment }: { equipment: EquipmentItem }) =
                 </div>
                 <div className="flex flex-col gap-1">
                   {shots.map((p) => (
-                    <div key={p.nummer} className="flex items-center gap-2 border border-cp-border-muted px-2 py-1">
-                      <span className="w-6 font-semibold">{p.nummer}</span>
-                      <span className="flex-1 truncate">{p.name || `Shot ${p.nummer}`} <span className="text-cp-text-muted">· {p.panGrad}° / {p.neigungGrad}° · {p.brennweiteMm} mm</span></span>
+                    <div key={p.nummer} className="flex flex-col gap-1 border border-cp-border-muted px-2 py-1">
+                      {/* Zwei Zeilen: im schmalen Inspector haette der Name neben drei Knoepfen keinen Platz. */}
+                      <div className="flex items-baseline gap-2">
+                        <span className="font-semibold">{p.nummer}</span>
+                        <span className="truncate">{p.name || `Shot ${p.nummer}`}</span>
+                        <span className="truncate text-cp-text-muted">{p.panGrad}° / {p.neigungGrad}° · {p.brennweiteMm} mm</span>
+                      </div>
                       {progress?.presetNumber === p.nummer && progress.step !== 'done' && (
                         <span className="text-cp-text-muted">{progress.step}{progress.fit === 'linear' ? ' (zoom estimated)' : ''}</span>
                       )}
+                      <div className="flex flex-wrap gap-1">
                       <button type="button" className="border border-cp-border bg-cp-surface-1 px-2 py-0.5 hover:bg-cp-surface-3 disabled:opacity-40" disabled={!camOnline} onClick={() => cmd('recallPreset', { value: p.nummer })} title={t('props.cameraControl.recallTitle', 'Recall the preset stored in the head')}>
                         {t('props.cameraControl.recall', 'Recall')}
                       </button>
@@ -365,6 +411,7 @@ export const PtzControlSection = ({ equipment }: { equipment: EquipmentItem }) =
                       >
                         {calibrateFor === p.nummer ? t('props.cameraControl.hereConfirm', 'Head is here — confirm') : t('props.cameraControl.here', 'Head is here')}
                       </button>
+                      </div>
                     </div>
                   ))}
                 </div>

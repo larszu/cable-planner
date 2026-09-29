@@ -12,3 +12,10 @@ export const LEGACY_USER_DATA_DIR = 'Cable Planner'
 if (app.isPackaged) {
   app.setPath('userData', path.join(app.getPath('appData'), LEGACY_USER_DATA_DIR))
 }
+
+// Ein frisches, eigenes Profil fuer automatische Laeufe (`scripts/screenshots.mjs`):
+// sie sollen weder das Autosave eines frueheren Laufs sehen noch einen
+// Ordner loeschen muessen, in dem jemand arbeitet. Nur ausserhalb des Pakets.
+if (!app.isPackaged && process.env.CP_USER_DATA_DIR) {
+  app.setPath('userData', process.env.CP_USER_DATA_DIR)
+}

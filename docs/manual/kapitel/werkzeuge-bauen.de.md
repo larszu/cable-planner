@@ -4,7 +4,7 @@ Das Menü *Werkzeuge* enthält Spezialtasks zum Planen und Bauen von Systemen: K
 
 ### Patchliste
 
-*Datei → Patchliste…*
+*Werkzeuge → Patch-Liste…*
 
 ![Patchliste Dialog](bilder/de/werkzeuge-bauen-patchlist.jpg)
 
@@ -194,7 +194,7 @@ Speichert Snapshots des Plans — zum Dokumentieren von As-Built-Ständen, zum V
 1. Geben Sie einen Namen ein (z. B. „As-Built", „Technische Abnahme").
 2. Klicken Sie „Festschreiben" — ein kompletter Snapshot wird gespeichert.
 3. Revisionen sind unveränderlich — Sie können Sie nicht später bearbeiten.
-4. Zum Wiederherstellen: Wählen Sie eine Revision und klicken „Laden".
+4. Zum Wiederherstellen: Wählen Sie eine Revision und klicken „Wiederherstellen".
 
 **Unterschied zu Undo:** Revisionen sind absichtlich aufbewahrte Meilensteine. Undo ist ein temporärer Puffer für die aktuelle Arbeitssitzung.
 

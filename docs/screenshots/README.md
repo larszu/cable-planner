@@ -25,14 +25,12 @@ rendern erst, sobald die passend benannten Dateien hier liegen.
 > deshalb eine deutsche Oberfläche mit Knöpfen zu sehen („Configure
 > multiviewer layout →", „↻ auto"), die es so nicht mehr gibt.
 >
-> **Warum die Bilder trotzdem noch die alten sind:** das mitgelieferte
-> Beispielprojekt ist deutsch benannt („Kamera 1", „Bildmischer",
-> „Regie-Monitor"), und 12 der 64 ausgelieferten Gerätekategorien ebenfalls
-> („Funkstrecke", „Stromverteilung", „Sync/Referenz" …). Eine frische
-> Aufnahme zeigt daher eine englische Oberfläche mit deutschen Inhalten —
-> das ist nicht besser als ein altes Bild, nur anders falsch. Siehe Issue
-> zum Sprachmix in den ausgelieferten Daten; danach `docs:shots` laufen
-> lassen.
+> **Stand 2026-09-29:** neu aufgenommen mit v9.1.0 aus dem englischen
+> Beispielprojekt, in einem Wegwerf-Profil (`CP_USER_DATA_DIR`) und mit
+> `--lang=en-US`, damit ein deutscher Mac kein deutsches Bild liefert.
+> `camera-control.png` entsteht nur mit laufender LZ Camera Bridge:
+> `CP_BRIDGE=localhost:9700 npm run docs:shots`. `atem-multiview.png` ist
+> noch die alte Aufnahme — das Beispielprojekt hat keinen ATEM.
 
 ## ⚠️ Pflicht: Kundendaten schwärzen
 

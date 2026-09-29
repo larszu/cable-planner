@@ -313,6 +313,14 @@ type CablePlannerApi = {
    * im selben Netz und spricht nur JSON, deshalb ist das hier ausnahmsweise
    * kein „braucht die Desktop-App".
    */
+  /** Green-GO live ueber OSC (Geraeteskript osc-remote.gg5t). Nur in der Desktop-App: UDP geht im Browser nicht. */
+  greengo: {
+    connect: (a: { host: string; port: number }) => Promise<{ ok: boolean; message: string }>
+    disconnect: () => Promise<{ ok: boolean; message: string }>
+    send: (path: string, args: number[]) => Promise<{ ok: boolean; message: string }>
+    status: () => Promise<{ connected: boolean; host: string | null; port: number | null; lastHeard: number }>
+    onEvent: (cb: (msg: Record<string, unknown>) => void) => () => void
+  }
   camera: {
     connect: (address: { host: string; port: number }) => Promise<{ ok: boolean; message: string }>
     disconnect: () => Promise<{ ok: boolean; message: string }>
@@ -886,7 +894,20 @@ const webCameraBridge = (() => {
   }
 })()
 
+const webGreengo = (() => {
+  const antwort = (ok: boolean, text: string) => ({ ok, message: text })
+  const nurDesktop = () => antwort(false, tr('bridge.greengo.desktopOnly', 'Green-GO live control needs the desktop app — a browser cannot send UDP.'))
+  return {
+    connect: async () => nurDesktop(),
+    disconnect: async () => antwort(true, ''),
+    send: async () => nurDesktop(),
+    status: async () => ({ connected: false, host: null, port: null, lastHeard: 0 }),
+    onEvent: () => () => {},
+  }
+})()
+
 const webFallbackApi: CablePlannerApi = {
+  greengo: webGreengo,
   camera: webCameraBridge,
   /**
    * E-23 im Browser: es gibt keinen UDP-Port, und das wird GESAGT statt

@@ -47,8 +47,8 @@
 
 import { _electron as electron } from 'playwright-core'
 import { erststartOverlayWeg } from './lib/erststartOverlay.mjs'
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
-import { homedir } from 'node:os'
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
 const WURZEL = process.cwd()
@@ -74,8 +74,13 @@ mkdirSync(ZIEL, { recursive: true })
 // Produkt. Der Ordner geht deshalb weg, bevor Electron startet — dasselbe
 // Argument wie beim Festnageln von Sprache und Thema weiter unten, nur eine
 // Ebene tiefer.
-rmSync(join(homedir(), '.config', 'cable-planner'), { recursive: true, force: true })
-rmSync(join(homedir(), '.config', 'Cable Planner'), { recursive: true, force: true })
+// Seit 2026-09-29 ein eigenes Wegwerf-Profil statt Loeschen: das Loeschen
+// traf nur den Linux-Pfad (`~/.config`), auf dem Mac lag das Profil unter
+// `~/Library/Application Support` und der Lauf lud das Autosave einer
+// Pruefszene. Und ein Skript, das einen Profilordner loescht, loescht ihn
+// auch dann, wenn darin jemand arbeitet. `CP_USER_DATA_DIR` liest
+// `src/main/userDataPin.ts`.
+const PROFIL = mkdtempSync(join(tmpdir(), 'cp-shots-'))
 
 // ── WebGL statt `--disable-gpu` ────────────────────────────────────────────
 //
@@ -97,6 +102,9 @@ const app = await electron.launch({
     '--use-gl=swiftshader',
     '--enable-unsafe-swiftshader',
     '--use-angle=swiftshader',
+    // Die Voreinstellung der Sprache folgt navigator.language, also dem
+    // System; die README-Bilder sind englisch, auch auf einem deutschen Mac.
+    '--lang=en-US',
   ],
   // KEIN `executablePath` MEHR (2026-09-28).
   //
@@ -118,6 +126,7 @@ const app = await electron.launch({
   // keinen Workflow dafuer — der Fehler lag also die ganze Zeit da, in einer
   // Zeile, die aussieht, als waere sie sorgfaeltig.
   cwd: WURZEL,
+  env: { ...process.env, CP_USER_DATA_DIR: PROFIL },
 })
 const win = await app.firstWindow({ timeout: 30_000 })
 await win.setViewportSize({ width: BREITE, height: HOEHE })
@@ -169,6 +178,9 @@ const palette = async (text) => {
 // diesem Container zwischen Laeufen, und ein Bildersatz, der je nach letzter
 // Sitzung mal hell und mal dunkel ist, sagt nichts ueber das Produkt.
 await palette('Settings')
+// Ein frisches Profil startet in der Systemsprache; auf einem deutschen Mac
+// heisst der Befehl dann „Einstellungen".
+if ((await win.locator('[role="dialog"]').count()) === 0) await palette('Einstellungen')
 const darstellung = win.getByText(/^Appearance$|^Darstellung$/).first()
 if (await darstellung.count()) {
   await darstellung.click().catch(() => {})
@@ -205,10 +217,52 @@ gemacht.push('hero.png')
 // ── properties.png — ein Geraet mit seinen Eigenschaften ───────────────────
 const geraet = win.locator('.react-flow__node').first()
 if (await geraet.count()) {
-  await geraet.click()
+  // Auf die Titelzeile: in der Mitte liegen Ports, und ein Klick dort
+  // beginnt ein Kabel statt einer Auswahl.
+  await geraet.click({ position: { x: 40, y: 10 } })
   await win.waitForTimeout(900)
   await aufnehmen('properties.png')
   gemacht.push('properties.png')
+}
+
+// ── camera-control.png — die Kamerasteuerung am Geraet ─────────────────────
+//
+// Nur, wenn eine LZ Camera Bridge laeuft: `CP_BRIDGE=localhost:9700`. Ohne sie
+// zeigte das Bild einen Abschnitt, der auf eine Verbindung wartet — das waere
+// eine Aufnahme der Leere. Der Weg ist der eines Nutzers: Kamera waehlen,
+// Adresse eintragen, Bruecke verbinden, Raum schicken.
+if (process.env.CP_BRIDGE) {
+  const [bHost, bPort = '9700'] = process.env.CP_BRIDGE.split(':')
+  const kamera = win.locator('.react-flow__node', { hasText: 'Camera 1' }).first()
+  if (await kamera.count()) {
+    await kamera.click({ position: { x: 40, y: 10 } })
+    await win.waitForTimeout(700)
+    await win.locator('input[placeholder="192.168.1.10"]').first().fill('192.168.10.31').catch(() => {})
+    const kopf = win.getByText('Camera control (bridge)', { exact: true }).first()
+    await kopf.scrollIntoViewIfNeeded().catch(() => {})
+    await kopf.click().catch(() => {})
+    await win.waitForTimeout(400)
+    await win.locator('input[placeholder="192.168.1.20"]').first().fill(bHost).catch(() => {})
+    const portFeld = win.locator('input[placeholder="192.168.1.20"]').first().locator('xpath=../following-sibling::label[1]//input')
+    await portFeld.fill(bPort).catch(() => {})
+    await win.getByRole('button', { name: /^Connect$/ }).first().click().catch(() => {})
+    await win.waitForTimeout(1500)
+    await win.getByRole('button', { name: /Send room to bridge/ }).first().click().catch(() => {})
+    await win.waitForTimeout(2500)
+    // Das Bild beginnt beim Kopf des Abschnitts, damit Verbindung, Joystick
+    // und Shots zusammen zu sehen sind.
+    await win.getByText('Camera control (bridge)', { exact: true }).first().evaluate((el) => {
+      // Nur den Inspector scrollen: `scrollIntoView` verschiebt sonst auch das Fenster.
+      let p = el.parentElement
+      while (p && !(p.scrollHeight > p.clientHeight && /(auto|scroll)/.test(getComputedStyle(p).overflowY))) p = p.parentElement
+      if (p) p.scrollTop += el.getBoundingClientRect().top - p.getBoundingClientRect().top - 8
+    }).catch(() => {})
+    await win.waitForTimeout(500)
+    await aufnehmen('camera-control.png')
+    gemacht.push('camera-control.png')
+  } else {
+    console.log('  camera-control.png: keine Kamera im Beispiel — uebersprungen')
+  }
 }
 
 // ── Die Dialoge ────────────────────────────────────────────────────────────
