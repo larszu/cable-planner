@@ -37,7 +37,15 @@
     "react",
     "react-flow",
     "typescript",
-    "offline-first"
+    "offline-first",
+    "audiovisual",
+    "av-production",
+    "blackmagic-design",
+    "event-technology",
+    "threejs",
+    "desktop-app",
+    "cross-platform",
+    "patch-list"
   ],
   "type": "module",
   "main": "dist/main/index.js",
