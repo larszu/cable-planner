@@ -90,7 +90,7 @@ function blockHtml(md) {
       out.push(`<pre><code>${esc(code.join('\n'))}</code></pre>`)
       continue
     }
-    const h = z.match(/^(#{1,5})\s+(.*)$/)
+    const h = z.match(/^(#{1,6})\s+(.*)$/)
     if (h) {
       // ids wie GitHub, doppelte mit -1, -2 … — so zeigen die #-Links des Inhaltsverzeichnisses im PDF auf die Stelle.
       let id = slug(h[2])
@@ -113,6 +113,14 @@ function blockHtml(md) {
     }
     const absatz = []
     while (i < zeilen.length && zeilen[i].trim() !== '' && !/^(#|```|\||-\s|\d+\.\s|---+$)/.test(zeilen[i])) absatz.push(zeilen[i++])
+    if (absatz.length === 0) {
+      // No branch above claimed this line, and the paragraph loop wouldn't
+      // either (it matches its own stop pattern) — render it plainly and
+      // move on, rather than loop forever on it.
+      out.push(`<p>${inline(z)}</p>`)
+      i++
+      continue
+    }
     const text = absatz.join(' ')
     out.push(/^!\[[^\]]*\]\([^)]+\)$/.test(text) ? `<figure>${inline(text)}</figure>` : `<p>${inline(text)}</p>`)
   }
@@ -182,6 +190,7 @@ h2 { font-weight: 800; font-size: 18pt; line-height: 1.2; margin: 0 0 5mm; break
 h3 { font-weight: 800; font-size: 12pt; margin: 7mm 0 2mm; break-after: avoid; }
 h4 { font-weight: 700; font-size: 10.5pt; margin: 5mm 0 1.5mm; break-after: avoid; }
 h5 { font-weight: 700; font-size: 10pt; margin: 4mm 0 1mm; break-after: avoid; color: var(--schiefer); }
+h6 { font-weight: 700; font-size: 9.5pt; margin: 3mm 0 .5mm; break-after: avoid; color: var(--schiefer); font-style: italic; }
 p, li { max-width: 125mm; }
 p { margin: 0 0 2.5mm; }
 ul, ol { margin: 0 0 3mm; padding-left: 5mm; }
