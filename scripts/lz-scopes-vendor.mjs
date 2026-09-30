@@ -2,8 +2,17 @@
 // ---------------------------------------------------------------------------
 // lz-scopes, vendort unter `src/renderer/vendor/lz-scopes/` (larszu/lz-scopes#15).
 //
-//   npm run scopes:sync  -- --upstream ../lz-scopes    Dateien holen
-//   npm run scopes:check -- --upstream ../lz-scopes    Abweichung melden (Exit 1)
+//   npm run scopes:sync  -- --upstream ../lz-scopes [--ref <commit>]   Dateien holen, Pin setzen
+//   npm run scopes:check -- --upstream ../lz-scopes                    Abweichung vom Pin melden (Exit 1)
+//
+// WARUM EIN PIN STATT UPSTREAM `main` (2026-09-30). Der erste Stand verglich
+// gegen `main` und war am selben Tag zweimal rot: lz-scopes bekommt mehrere PRs
+// am Tag, und jeder machte jeden PR hier rot, ohne dass er etwas damit zu tun
+// hatte. Der Vergleich laeuft deshalb gegen den Commit in VENDOR.md — die
+// einzige Stelle, an der er steht. Gelesen wird per `git show <pin>:<pfad>`,
+// der lokale Checkout darf also auf beliebigem Stand sein. Wie weit upstream
+// voraus ist, meldet der Lauf als Hinweis; nachziehen ist ein eigener PR mit
+// `scopes:sync`.
 //
 // WARUM VENDORT UND KEIN PAKET. lz-scopes ist kein npm-Paket, und eine
 // Git-Abhaengigkeit liesse `npm ci` von GitHub abhaengen. lz-camera-bridge
@@ -30,7 +39,7 @@
 // Lauf das, statt still ungepatcht zu kopieren.
 // ---------------------------------------------------------------------------
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
-import { dirname, join, relative, resolve } from 'node:path'
+import { dirname, join, posix, relative, resolve } from 'node:path'
 import { execFileSync } from 'node:child_process'
 
 const ZIEL = resolve('src/renderer/vendor/lz-scopes')
@@ -57,29 +66,28 @@ export const PATCHES = [
 
 const IMPORT = /(?:import|export)\s[^;]*?from\s+['"](\.[^'"]+)['"]|import\s+['"](\.[^'"]+)['"]|\/\/\/\s*<reference\s+path=['"]([^'"]+)['"]/g
 
-/** Die Import-Huelle von `src/index.ts`, relativ zur Repo-Wurzel upstream. */
-export function huelle(wurzel) {
-  const gesehen = new Set()
+/** Die Import-Huelle von `src/index.ts`, relativ zur Repo-Wurzel upstream. `lies(rel)` liefert Text oder `null`. */
+export function huelle(lies) {
+  const gesehen = new Map()
   const offen = ['src/index.ts']
   while (offen.length) {
     const rel = offen.pop()
     if (gesehen.has(rel)) continue
-    const pfad = join(wurzel, rel)
-    if (!existsSync(pfad)) throw new Error(`upstream fehlt ${rel}`)
     if (rel.startsWith('..')) throw new Error(`Import verlaesst das Repo: ${rel}`)
-    gesehen.add(rel)
+    const text = lies(rel)
+    if (text === null) throw new Error(`upstream fehlt ${rel}`)
+    gesehen.set(rel, text)
     // Ein Import auf `x.mjs` zieht dessen Typen `x.d.mts` mit.
     const typen = rel.replace(/\.mjs$/, '.d.mts')
-    if (typen !== rel && existsSync(join(wurzel, typen))) offen.push(typen)
+    if (typen !== rel && !gesehen.has(typen) && lies(typen) !== null) offen.push(typen)
     if (!/\.(ts|mts)$/.test(rel)) continue
-    const text = readFileSync(pfad, 'utf8')
     for (const m of text.matchAll(IMPORT)) {
       let ziel = (m[1] ?? m[2] ?? m[3]).split('?')[0]
       if (!/\.(ts|mts|mjs|js)$/.test(ziel)) ziel += '.ts'
-      offen.push(relative(wurzel, resolve(dirname(pfad), ziel)))
+      offen.push(posix.normalize(posix.join(posix.dirname(rel), ziel)))
     }
   }
-  return [...gesehen].sort()
+  return new Map([...gesehen].sort(([x], [y]) => x.localeCompare(y)))
 }
 
 export function gepatcht(datei, text) {
@@ -99,25 +107,40 @@ const vorhanden = (dir, basis = dir) =>
       })
     : []
 
-function commitVon(upstream) {
+const VENDOR_MD = join(ZIEL, 'VENDOR.md')
+const PIN = /commit `([0-9a-f]{40})`/
+
+export function pin() {
+  const m = readFileSync(VENDOR_MD, 'utf8').match(PIN)
+  if (!m) throw new Error('VENDOR.md nennt keinen Commit (commit `<40 Zeichen>`)')
+  return m[1]
+}
+
+const git = (upstream, ...a) =>
+  execFileSync('git', ['-C', upstream, ...a], { encoding: 'utf8', maxBuffer: 64 << 20, stdio: ['ignore', 'pipe', 'ignore'] })
+
+const leser = (upstream, ref) => (rel) => {
   try {
-    return execFileSync('git', ['-C', upstream, 'rev-parse', '--short', 'HEAD'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim()
+    return git(upstream, 'show', `${ref}:${rel}`)
   } catch {
-    return 'unbekannt'
+    return null
   }
 }
 
 function main() {
   const args = process.argv.slice(2)
-  const i = args.indexOf('--upstream')
-  const upstream = resolve(i >= 0 ? args[i + 1] : '../lz-scopes')
+  const wert = (name) => (args.includes(name) ? args[args.indexOf(name) + 1] : undefined)
+  const upstream = resolve(wert('--upstream') ?? '../lz-scopes')
   const sync = args.includes('--sync')
-  if (!existsSync(join(upstream, 'src', 'index.ts'))) {
-    console.error(`Kein lz-scopes-Checkout unter ${upstream} (--upstream <pfad>).`)
+  let ref
+  try {
+    ref = git(upstream, 'rev-parse', '--verify', `${sync ? (wert('--ref') ?? 'HEAD') : pin()}^{commit}`).trim()
+  } catch {
+    console.error(`Kein lz-scopes-Checkout mit ${sync ? 'diesem Commit' : `dem Pin ${pin()}`} unter ${upstream} (--upstream <pfad>; volle Historie noetig).`)
     process.exit(2)
   }
-  const liste = huelle(upstream)
-  const erwartet = new Map(liste.map((rel) => [rel, gepatcht(rel, readFileSync(join(upstream, rel), 'utf8'))]))
+  const kurz = ref.slice(0, 7)
+  const erwartet = new Map([...huelle(leser(upstream, ref))].map(([rel, text]) => [rel, gepatcht(rel, text)]))
 
   if (sync) {
     for (const rel of vorhanden(ZIEL)) if (!EIGENE.has(rel) && !erwartet.has(rel)) rmSync(join(ZIEL, rel))
@@ -125,7 +148,8 @@ function main() {
       mkdirSync(dirname(join(ZIEL, rel)), { recursive: true })
       writeFileSync(join(ZIEL, rel), text)
     }
-    console.log(`${erwartet.size} Dateien von lz-scopes@${commitVon(upstream)} uebernommen. Commit in VENDOR.md eintragen.`)
+    writeFileSync(VENDOR_MD, readFileSync(VENDOR_MD, 'utf8').replace(PIN, `commit \`${ref}\``))
+    console.log(`${erwartet.size} Dateien von lz-scopes@${kurz} uebernommen, Pin in VENDOR.md gesetzt. PNGs in public/patterns/lz-display/ vergleichen.`)
     return
   }
 
@@ -135,12 +159,18 @@ function main() {
     if (!existsSync(hier)) fehler.push(`fehlt: ${rel}`)
     else if (readFileSync(hier, 'utf8') !== text) fehler.push(`weicht ab: ${rel}`)
   }
-  for (const rel of vorhanden(ZIEL)) if (!EIGENE.has(rel) && !erwartet.has(rel)) fehler.push(`upstream nicht mehr gebraucht: ${rel}`)
+  for (const rel of vorhanden(ZIEL)) if (!EIGENE.has(rel) && !erwartet.has(rel.split('\\').join('/'))) fehler.push(`upstream nicht mehr gebraucht: ${rel}`)
   if (fehler.length) {
-    console.error(`lz-scopes-Vendor weicht von ${upstream} (${commitVon(upstream)}) ab:\n  ${fehler.join('\n  ')}\nAbhilfe: npm run scopes:sync -- --upstream <pfad>, dann tsc/test/build.`)
+    console.error(`lz-scopes-Vendor weicht vom Pin lz-scopes@${kurz} ab:\n  ${fehler.join('\n  ')}\nNicht von Hand editieren. Abhilfe: npm run scopes:sync -- --upstream <pfad>, dann tsc/test/build.`)
     process.exit(1)
   }
-  console.log(`lz-scopes-Vendor = lz-scopes@${commitVon(upstream)} (${erwartet.size} Dateien, ${PATCHES.length} Patches).`)
+  console.log(`lz-scopes-Vendor = lz-scopes@${kurz} (${erwartet.size} Dateien, ${PATCHES.length} Patches).`)
+  try {
+    const voraus = git(upstream, 'rev-list', '--count', `${ref}..origin/HEAD`, '--', 'src', 'server').trim()
+    if (voraus !== '0') console.log(`Hinweis: upstream origin/HEAD hat ${voraus} neuere Commits unter src/ und server/ — nachziehen mit scopes:sync.`)
+  } catch {
+    // kein origin/HEAD im Checkout: kein Hinweis
+  }
 }
 
 if (process.argv[1] && process.argv[1].endsWith('lz-scopes-vendor.mjs')) main()

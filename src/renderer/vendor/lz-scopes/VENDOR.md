@@ -1,6 +1,6 @@
 # LZ Scopes (vendored)
 
-Source: [larszu/lz-scopes](https://github.com/larszu/lz-scopes), commit `2b22d0a` on `main`.
+Source: [larszu/lz-scopes](https://github.com/larszu/lz-scopes), commit `2b22d0a69f32a4b4fdbb345619050872a8a42475` on `main` — the pin: `scopes:check` compares against exactly this commit, `scopes:sync` rewrites it.
 Licence: proprietary, free to use in Lars Zumpe's own projects (see `LICENSE` upstream).
 
 The folder mirrors the upstream repo root (`src/`, `server/`), because the closure leaves `src/`: `src/clock/tai.ts` imports `../../server/leap.mjs` (with `leap.d.mts`). Relative imports stay untouched that way. Hosts import from `vendor/lz-scopes/src`.
@@ -25,9 +25,9 @@ Not vendored: the standalone app (`main.ts`, `dock.ts`, `output*.ts`, `face.ts`,
 ## Sync
 
 ```bash
-npm run scopes:sync -- --upstream ../lz-scopes    # copies the closure, applies PATCHES, removes files no longer needed
-npm run scopes:check -- --upstream ../lz-scopes   # what CI runs (job `scopes`) against larszu/lz-scopes@main
+npm run scopes:sync -- --upstream ../lz-scopes    # closure of upstream HEAD (or --ref <commit>), applies PATCHES, removes stale files, sets the pin
+npm run scopes:check -- --upstream ../lz-scopes   # what CI runs (job `scopes`): copy == pinned commit; notes how far upstream is ahead
 npx tsc -p tsconfig.app.json --noEmit && npm test && npm run build
 ```
 
-Then enter the new commit above. If a patch no longer applies, the script says which one — adjust `PATCHES`, do not edit the copy by hand. A new pattern upstream needs an English name in `lib/testPatternNames.ts` (the test says so). Copy the PNGs again if upstream changed them.
+Why a pin and not upstream `main`: upstream gets several PRs a day, and a check against `main` turned every PR here red. Updating is a deliberate PR. If a patch no longer applies, the script says which one — adjust `PATCHES`, do not edit the copy by hand. A new pattern upstream needs an English name in `lib/testPatternNames.ts` (the test says so). Copy the PNGs again if upstream changed them.
