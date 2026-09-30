@@ -4,6 +4,7 @@
 // full-range RGB and are clipped to 0.
 
 import { bt709Oetf, hlgFromNits, pqEncode } from './color';
+import { LED_PATTERNS } from './led/patterns';
 
 export interface PatternDef {
   id: string;
@@ -428,6 +429,9 @@ export const PATTERNS: PatternDef[] = [
     },
   },
 ];
+
+// LED wall patterns (#10), drawn from the wall settings in src/led/wall.ts
+PATTERNS.push(...LED_PATTERNS);
 
 // LZ display test set (Lars Zumpe Medienproduktion, bundled 1920×1080)
 const LZ = [

@@ -5,6 +5,7 @@
 
 import { LoudnessMeter } from './dsp/loudness';
 import { LevelMeter } from './dsp/meters';
+import { LtcReader } from './dsp/ltc';
 
 const RING = 32768;
 const HISTORY = 36000; // 1 h at 10 Hz
@@ -36,6 +37,11 @@ export class AudioAnalysis {
   lastPush = 0;
   /** where the numbers come from, e.g. "Bridge · aac 48 kHz" */
   label = '';
+  /** LTC reader on one channel (clock panel, src/clock); null = off */
+  ltc: LtcReader | null = null;
+  ltcChannel = 0;
+  /** performance.now() when the reader had consumed `ltc.position` samples */
+  ltcAt = 0;
 
   constructor(fs: number, channels: number, layout = '') {
     this.fs = fs; this.channels = Math.max(1, channels); this.layout = layout;
@@ -67,6 +73,14 @@ export class AudioAnalysis {
     this.frames += n;
     this.version++;
     this.lastPush = typeof performance !== 'undefined' ? performance.now() : Date.now();
+    if (this.ltc) { this.ltc.process(planar[Math.min(this.ltcChannel, this.channels - 1)], n); this.ltcAt = this.lastPush; }
+  }
+
+  /** Read LTC from channel ch (−1 = off). */
+  setLtc(ch: number) {
+    if (ch < 0) { this.ltc = null; return; }
+    if (!this.ltc || ch !== this.ltcChannel) this.ltc = new LtcReader(this.fs);
+    this.ltcChannel = ch;
   }
 
   /** Interleaved f32 (bridge). `first` = index of the first frame since stream start. */

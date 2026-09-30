@@ -28,6 +28,13 @@ export interface SourceSettings {
   transport: 'tcp' | 'udp';
   /** bridge streams: request the sound as well (protocol 2) */
   audio?: boolean;
+  /** bridge capture devices (device:…): explicit mode and raw pixel format, e.g. 1920x1080 / 50 / yuv422p10le */
+  device?: { size?: string; rate?: string; pixfmt?: string };
+  /** bridge: Y′CbCr → R′G′B′ matrix and range of the ffmpeg conversion ('auto' = tags, else BT.709 above SD) */
+  decodeMatrix?: 'auto' | 'bt709' | 'bt601' | 'bt2020';
+  decodeRange?: 'auto' | 'tv' | 'pc';
+  /** DeckLink helper: 10 bit (v210) or 8 bit (UYVY) capture */
+  deckLinkBits?: 8 | 10;
 }
 
 export interface StreamInfo {
@@ -36,7 +43,18 @@ export interface StreamInfo {
   /** protocol 2 (audio=1): header on every binary message */
   proto?: number;
   audio?: AudioStreamInfo | null;
+  /** start time code of the container (ffprobe tag, e.g. MOV tmcd) and the stream's start time in s */
+  timecode?: string; startTime?: number;
+  /** "30000/1001" (ffprobe r_frame_rate) and the source frame rate before any fps limit */
+  frameRate?: string; sourceFps?: number;
 }
+
+/**
+ * Latest time code message of the bridge (docs/frame-protocol.md): `tc` is the last time code
+ * found in the frame side data (GOP / SEI) at `tcPts`, `pts` the newest decoded frame; Resolve
+ * sends its timeline time code with `fps`/`df`.
+ */
+export interface SourceTc { tc: string | null; tcPts?: number | null; pts?: number | null; first?: number | null; kind: 'gop' | 's12m' | 'resolve' | null; fps?: number | null; df?: boolean; at: number }
 
 export interface Stats {
   hist: Float32Array[]; // R, G, B, Y — 256 bins each
@@ -45,6 +63,20 @@ export interface Stats {
   rgbAvg: [number, number, number];
   clipLow: number[]; clipHigh: number[]; // fraction per R, G, B
   samples: number;
+}
+
+/** Extra query parameters of the bridge for capture devices, DeckLink and the decode matrix. */
+export function bridgeInputParams(url: string, set: SourceSettings): Record<string, string> {
+  const q: Record<string, string> = {};
+  if (url.startsWith('device:')) {
+    if (set.device?.size) q.size = set.device.size;
+    if (set.device?.rate) q.rate = set.device.rate;
+    if (set.device?.pixfmt) q.pixfmt = set.device.pixfmt;
+  }
+  if (url.startsWith('decklink:') && set.deckLinkBits === 8) q.pixel = '8';
+  if (set.decodeMatrix && set.decodeMatrix !== 'auto') q.matrix = set.decodeMatrix;
+  if (set.decodeRange && set.decodeRange !== 'auto') q.range = set.decodeRange;
+  return q;
 }
 
 export const DEFAULT_SETTINGS: SourceSettings = { transfer: 'auto', colorspace: 'auto', gamut: 'auto', hlgLw: 1000, width: 960, fps: 0, depth: 8, transport: 'tcp', audio: true };
@@ -60,6 +92,8 @@ export class Source {
   status: 'idle' | 'connecting' | 'live' | 'error' | 'ended' = 'idle';
   message = '';
   info: StreamInfo | null = null;
+  /** time code of the source (bridge showinfo / Resolve), see src/clock/source.ts */
+  tc: SourceTc | null = null;
   width = 0;
   height = 0;
   depth: 8 | 16 = 8;
@@ -210,6 +244,7 @@ export class Source {
     const { width, fps, depth, transport } = this.settings;
     const q = new URLSearchParams({ url, width: String(width), fps: String(fps), depth: String(depth), transport });
     if (this.settings.audio !== false) q.set('audio', '1');
+    for (const [k, v] of Object.entries(bridgeInputParams(url, this.settings))) q.set(k, v);
     this.connectFrames(`${bridge}/stream?${q}`, false);
   }
 
@@ -232,6 +267,8 @@ export class Source {
           if (this.audio && a) this.audio.label = `Bridge · ${a.codec ?? ''} ${a.sampleRate / 1000} kHz`.replace('  ', ' ');
           const pic = msg.width ? `${msg.sourceWidth}×${msg.sourceHeight} ${msg.codec ?? ''}`.trim() : 'nur Ton';
           this.set('live', a ? `${pic} · Ton ${a.codec ?? ''} ${a.sampleRate / 1000} kHz ${a.channels} Kan.` : msg.proto === 2 ? `${pic} · kein Ton` : pic);
+        } else if (msg.type === 'tc') {
+          this.tc = { ...msg, at: performance.now() };
         } else if (msg.type === 'stats') {
           this.dropped = msg.dropped;
           if (msg.message) this.set(this.status === 'live' ? 'live' : 'connecting', msg.message);
@@ -526,7 +563,7 @@ export class Source {
     this.audio = null;
     if (this.videoEl) { this.videoEl.pause(); this.videoEl.srcObject = null; this.videoEl = null; }
     if (this.objectUrl) { URL.revokeObjectURL(this.objectUrl); this.objectUrl = null; }
-    this.element = null; this.data = null; this.info = null; this.width = 0; this.height = 0; this.stats = null;
+    this.element = null; this.data = null; this.info = null; this.tc = null; this.width = 0; this.height = 0; this.stats = null;
     this.fps = 0; this.dropped = 0;
     if (this.status !== 'idle') this.set('idle');
   }

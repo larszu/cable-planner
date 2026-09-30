@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { MonitorPlay, X } from 'lucide-react'
-import { PATTERNS, RESOLUTIONS, patternById, renderPattern } from '../../vendor/lz-scopes'
+import { PATTERNS, RESOLUTIONS, patternById, renderPattern } from '../../vendor/lz-scopes/src'
 import { cablePlannerApi, hasDesktopBridge, type TestPatternScreen } from '../../lib/bridge'
 import { format, useTranslation } from '../../lib/i18n'
 import { patternGroup, patternName } from '../../lib/testPatternNames'

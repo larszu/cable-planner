@@ -15,10 +15,16 @@
 // und dieser Lauf wird rot, statt dass der Build erst beim naechsten Sync
 // bricht.
 //
+// WARUM DER ORDNER DIE REPO-WURZEL SPIEGELT (`src/`, `server/`). Die Huelle
+// reicht ueber `src/` hinaus — `src/clock/tai.ts` importiert
+// `../../server/leap.mjs` (samt `leap.d.mts`). Mit derselben Ordnerform wie
+// upstream bleiben alle relativen Importe unveraendert.
+//
 // WARUM ES PATCHES GIBT. `tsconfig.app.json` verlangt `erasableSyntaxOnly`, und
 // `tsc` prueft importierte Dateien mit — eine Ordner-Ausnahme gibt es dafuer
-// nicht. Upstream nutzt an zwei Stellen Parameter-Properties. Die Patches
-// schreiben genau diese zwei Stellen aus; sie werden beim Vergleich auf
+// nicht. Upstream nutzt an zwei Stellen Parameter-Properties (und einen
+// unbenutzten Parameter, den `noUnusedParameters` hier anmahnt). Die Patches
+// schreiben genau diese Stellen aus; sie werden beim Vergleich auf
 // upstream angewandt, damit alles andere Byte fuer Byte gleich bleiben muss.
 // Faellt ein Patch ins Leere (upstream hat die Stelle geaendert), meldet der
 // Lauf das, statt still ungepatcht zu kopieren.
@@ -32,34 +38,45 @@ const EIGENE = new Set(['VENDOR.md'])
 
 export const PATCHES = [
   {
-    datei: 'renderer.ts',
+    datei: 'src/renderer.ts',
     alt: '  constructor(readonly canvas: HTMLCanvasElement) {\n',
     neu: '  readonly canvas: HTMLCanvasElement;\n  constructor(canvas: HTMLCanvasElement) {\n    this.canvas = canvas;\n',
   },
   {
-    datei: 'audio/dsp/signals.ts',
+    datei: 'src/audio/dsp/signals.ts',
     alt: "  constructor(seed: number, private kind: 'white' | 'pink' | 'pink-band', fs: number, calibrate = true) {\n",
     neu: "  private kind: 'white' | 'pink' | 'pink-band';\n  constructor(seed: number, kind: 'white' | 'pink' | 'pink-band', fs: number, calibrate = true) {\n    this.kind = kind;\n",
+  },
+  {
+    // `noUnusedParameters` gilt hier, upstream nicht. `_` ist die Ausnahme von tsc.
+    datei: 'src/led/wall.ts',
+    alt: 'export const cabinetLabel = (w: WallConfig, c: number, r: number)',
+    neu: 'export const cabinetLabel = (_w: WallConfig, c: number, r: number)',
   },
 ]
 
 const IMPORT = /(?:import|export)\s[^;]*?from\s+['"](\.[^'"]+)['"]|import\s+['"](\.[^'"]+)['"]|\/\/\/\s*<reference\s+path=['"]([^'"]+)['"]/g
 
-/** Die Import-Huelle von `index.ts`, relativ zu `src/`. */
-export function huelle(srcDir) {
+/** Die Import-Huelle von `src/index.ts`, relativ zur Repo-Wurzel upstream. */
+export function huelle(wurzel) {
   const gesehen = new Set()
-  const offen = ['index.ts']
+  const offen = ['src/index.ts']
   while (offen.length) {
     const rel = offen.pop()
     if (gesehen.has(rel)) continue
-    const pfad = join(srcDir, rel)
+    const pfad = join(wurzel, rel)
     if (!existsSync(pfad)) throw new Error(`upstream fehlt ${rel}`)
+    if (rel.startsWith('..')) throw new Error(`Import verlaesst das Repo: ${rel}`)
     gesehen.add(rel)
+    // Ein Import auf `x.mjs` zieht dessen Typen `x.d.mts` mit.
+    const typen = rel.replace(/\.mjs$/, '.d.mts')
+    if (typen !== rel && existsSync(join(wurzel, typen))) offen.push(typen)
+    if (!/\.(ts|mts)$/.test(rel)) continue
     const text = readFileSync(pfad, 'utf8')
     for (const m of text.matchAll(IMPORT)) {
       let ziel = (m[1] ?? m[2] ?? m[3]).split('?')[0]
-      if (!/\.ts$/.test(ziel)) ziel += '.ts'
-      offen.push(relative(srcDir, resolve(dirname(pfad), ziel)))
+      if (!/\.(ts|mts|mjs|js)$/.test(ziel)) ziel += '.ts'
+      offen.push(relative(wurzel, resolve(dirname(pfad), ziel)))
     }
   }
   return [...gesehen].sort()
@@ -84,7 +101,7 @@ const vorhanden = (dir, basis = dir) =>
 
 function commitVon(upstream) {
   try {
-    return execFileSync('git', ['-C', upstream, 'rev-parse', '--short', 'HEAD'], { encoding: 'utf8' }).trim()
+    return execFileSync('git', ['-C', upstream, 'rev-parse', '--short', 'HEAD'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim()
   } catch {
     return 'unbekannt'
   }
@@ -95,13 +112,12 @@ function main() {
   const i = args.indexOf('--upstream')
   const upstream = resolve(i >= 0 ? args[i + 1] : '../lz-scopes')
   const sync = args.includes('--sync')
-  const srcDir = join(upstream, 'src')
-  if (!existsSync(join(srcDir, 'index.ts'))) {
+  if (!existsSync(join(upstream, 'src', 'index.ts'))) {
     console.error(`Kein lz-scopes-Checkout unter ${upstream} (--upstream <pfad>).`)
     process.exit(2)
   }
-  const liste = huelle(srcDir)
-  const erwartet = new Map(liste.map((rel) => [rel, gepatcht(rel, readFileSync(join(srcDir, rel), 'utf8'))]))
+  const liste = huelle(upstream)
+  const erwartet = new Map(liste.map((rel) => [rel, gepatcht(rel, readFileSync(join(upstream, rel), 'utf8'))]))
 
   if (sync) {
     for (const rel of vorhanden(ZIEL)) if (!EIGENE.has(rel) && !erwartet.has(rel)) rmSync(join(ZIEL, rel))

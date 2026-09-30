@@ -9,13 +9,14 @@ import { CIE_VIEW, CIE_VIEW_UV, WAVE_MAX, WAVE_MIN, type Rect } from './renderer
 import type { Source } from './sources';
 
 export type ScopeType = 'picture' | 'wf-luma' | 'wf-color' | 'wf-skin' | 'wf-rgb' | 'parade' | 'yrgb' | 'ycbcr' | 'vector' | 'cie' | 'hist' | 'stats'
-  | 'audio-meter' | 'audio-loudness' | 'audio-spectrum' | 'audio-phase';
+  | 'audio-meter' | 'audio-loudness' | 'audio-spectrum' | 'audio-phase' | 'clock';
 export type Unit = 'percent' | 'bit8' | 'bit10' | 'nits';
 
 export const SCOPE_LABELS: Record<ScopeType, string> = {
   picture: 'Bild', 'wf-luma': 'Waveform Luma', 'wf-color': 'Waveform Farbe', 'wf-skin': 'Waveform Hauttöne', 'wf-rgb': 'Waveform RGB', parade: 'RGB-Parade', yrgb: 'YRGB-Parade',
   ycbcr: 'YCbCr-Parade', vector: 'Vectorscope', cie: 'CIE-Diagramm', hist: 'Histogramm', stats: 'Messwerte',
   'audio-meter': 'Audio Pegel & Lautheit', 'audio-loudness': 'Audio Lautheitsverlauf', 'audio-spectrum': 'Audio Spektrum', 'audio-phase': 'Audio Goniometer',
+  clock: 'Uhr / Timecode',
 };
 
 export const isAudio = (s: ScopeType) => s.startsWith('audio-');

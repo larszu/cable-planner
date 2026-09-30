@@ -3,7 +3,7 @@ import { messpunkt, plaketteStream, scopeQuelle, scopeQuellName, vergleichsStrea
 import { normaliseStream } from '../src/renderer/lib/streamEndpoints'
 import { oeffneScopeFeed, type PortEmpfang, type ScopeFeedZustand } from '../src/renderer/lib/scopeFeed'
 import { PATTERN_GROUPS_EN, PATTERN_NAMES_EN } from '../src/renderer/lib/testPatternNames'
-import { PATTERNS } from '../src/renderer/vendor/lz-scopes/patterns'
+import { PATTERNS } from '../src/renderer/vendor/lz-scopes/src/patterns'
 import type { EquipmentItem } from '../src/renderer/types/equipment'
 import type { StreamEndpoint } from '../src/renderer/types/stream'
 

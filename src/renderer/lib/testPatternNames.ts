@@ -71,6 +71,16 @@ export const PATTERN_NAMES_EN: Record<string, string> = {
   'lz-18': '18 Full field red',
   'lz-19': '19 Full field green',
   'lz-20': '20 Full field blue',
+  'led-cabinet-grid': 'Cabinet grid with ID',
+  'led-module-grid': 'Cabinet and module grid',
+  'led-pixelmap': 'Pixel mapping (grid, diagonal, corner pixels)',
+  'led-scroll': 'Scroll 1 px/frame',
+  'led-flat': 'Full field, free level',
+  'led-lowgray': 'Fine grey steps (low level)',
+  'led-lowramp': 'Fine ramps W R G B (low level)',
+  'led-shutter': 'Shutter/genlock (frame counter)',
+  'led-moire': 'Moiré (line pairs, circles)',
+  'led-patch': 'Measurement patch / patch sequencer',
 }
 
 export const PATTERN_GROUPS_EN: Record<string, string> = {
@@ -82,6 +92,7 @@ export const PATTERN_GROUPS_EN: Record<string, string> = {
   Testbild: 'Test card',
   HDR: 'HDR',
   'LZ Displaytest': 'LZ display test',
+  'LED-Wand': 'LED wall',
 }
 
 export const patternName = (def: { id: string; name: string }, lang: string): string =>

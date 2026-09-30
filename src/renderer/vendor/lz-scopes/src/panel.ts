@@ -10,6 +10,7 @@ import { drawAudioPanel, type AudioPanelOptions } from './audio/panels';
 import type { DisplayParams, PictureMode, Rect, Renderer, ScatterMode, SkinRange } from './renderer';
 import type { Source } from './sources';
 import { chainOf, stageView, type Stage } from './chain';
+import { clockOpts, drawClockOverlay, drawClockPanel, type ClockOptions } from './clock/panel';
 
 export interface PanelState {
   scope: ScopeType; sourceId: string; gain: number; colorize: boolean; zoom: number;
@@ -34,6 +35,10 @@ export interface PanelState {
   skinBand?: boolean;
   /** waveforms: zoom into blacks/highlights, visible channels (parade/YRGB/RGB), channel names and unit */
   waveZoom?: WaveZoom; channels?: WaveChannels; names?: boolean;
+  /** clock panel settings (src/clock/panel.ts); also used by the picture overlay */
+  clock?: Partial<ClockOptions>;
+  /** picture: compact time of day / source time code in the corner */
+  clockOverlay?: boolean;
 }
 
 /** Graticule options of a waveform panel. */
@@ -82,6 +87,9 @@ export const roiCloseBox = (rx: number, ry: number, rw: number) => [rx + rw - RO
 
 /** Everything a panel's pixels depend on; unchanged → the panel is not redrawn. */
 export function panelSignature(p: PanelState, src: Source | null, body: Rect, o: DrawOptions) {
+  // clocks run: redraw at 25 Hz
+  const tick = p.scope === 'clock' || (p.scope === 'picture' && p.clockOverlay) ? `|t${Math.floor(performance.now() / 40)}` : '';
+  if (p.scope === 'clock') return `C|${src?.id}|${JSON.stringify(p)}|${body.x},${body.y},${body.w},${body.h}${tick}`;
   if (isAudio(p.scope)) {
     const a = src?.audio;
     return `A|${src?.id}:${a ? `${a.version}:${a.paused}:${a.stale}` : `${src?.status}:${src?.message}`}|${JSON.stringify(p)}|${body.x},${body.y},${body.w},${body.h}`;
@@ -89,7 +97,7 @@ export function panelSignature(p: PanelState, src: Source | null, body: Rect, o:
   if (src) src = stageView(src, p.stage ?? o.stage ?? 'signal');
   const s = src ? `${chainOf(src)?.sig ?? ''}:${src.id}:${src.frameSeq}:${src.status}:${src.message}:${src.width}x${src.height}:${src.colorspace}:${src.transfer}:${src.gamut}:${src.hlgLw}:${src.probe?.x},${src.probe?.y}:${src.roi?.join(',')}:${src.faceMode}:${src.faces.map((f) => f.id + '/' + f.box.join(',')).join(';')}:${[...src.faceSel].join(',')}:${p.scope === 'hist' || p.scope === 'stats' ? src.statsVersion : ''}` : '-';
   const { displayFps, ...rest } = o;
-  return `${s}|${JSON.stringify(p)}|${body.x},${body.y},${body.w},${body.h}|${JSON.stringify(rest)}|${p.scope === 'stats' ? displayFps : ''}`;
+  return `${s}|${JSON.stringify(p)}|${body.x},${body.y},${body.w},${body.h}|${JSON.stringify(rest)}|${p.scope === 'stats' ? displayFps : ''}${tick}`;
 }
 
 export const defaultPanel = (scope: ScopeType): PanelState => ({
@@ -111,6 +119,11 @@ export function drawPanel(renderer: Renderer, ctx: CanvasRenderingContext2D, key
     const empty = src ? (src.kind === 'stream' && src.settings.audio === false ? 'Ton ist für diese Quelle aus (Quelle → Ton)'
       : src.status === 'live' ? 'Kein Ton in dieser Quelle' : (src.message || 'Keine Daten – Quelle starten')) : (o.emptyText ?? 'Links eine Quelle hinzufügen');
     drawAudioPanel(ctx, p.scope, src?.audio ?? null, body.w, body.h, p.audio, empty, p);
+    return;
+  }
+  if (p.scope === 'clock') {
+    renderer.clearRect(body);
+    drawClockPanel(ctx, clockOpts(p.clock), src, body.w, body.h);
     return;
   }
   if (src) src = stageView(src, p.stage ?? o.stage ?? 'signal');
@@ -214,6 +227,7 @@ export function drawPanel(renderer: Renderer, ctx: CanvasRenderingContext2D, key
       drawTextBox(ctx, r.x + r.w - 6, r.y + 6, probeLines(src, probeRgb, o.unit), 'right');
     }
     if (o.frozen) drawTextBox(ctx, r.x + 6, r.y + 6, ['STANDBILD']);
+    if (p.clockOverlay) drawClockOverlay(ctx, clockOpts(p.clock), src, r.x + r.w - 6, r.y + r.h - 6);
   } else if (p.scope === 'stats') {
     const lines = statsLines(src, o.displayFps);
     if (probeRgb) lines.push('', 'Messpunkt', ...probeLines(src, probeRgb, o.unit));

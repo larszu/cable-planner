@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
-import { SCOPE_LABELS, ScopeView, Source, type ScopeType } from '../../vendor/lz-scopes'
+import { SCOPE_LABELS, ScopeView, Source, type ScopeType } from '../../vendor/lz-scopes/src'
 import { oeffneScopeFeed, scopeZustandText, type ScopeFeedZustand } from '../../lib/scopeFeed'
 import { format, useTranslation } from '../../lib/i18n'
 import type { StreamEndpoint } from '../../types/stream'
