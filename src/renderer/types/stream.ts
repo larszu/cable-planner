@@ -87,6 +87,13 @@ export interface StreamEndpoint {
    * in dieser Sitzung (`streamPreviewStore`), siehe Nachtrag #946.
    */
   showPreview?: boolean
+  /**
+   * larszu/lz-scopes#15 — kleines Live-Waveform unter dem Geraet am Canvas.
+   * Planangabe wie `showPreview`, AUS als Vorgabe: jedes Waveform ist eine
+   * RTSP-Sitzung und ein Decoder, und Last soll nur entstehen, wenn jemand
+   * hinsieht. Auch hier startet erst ein Klick in dieser Sitzung den Strom.
+   */
+  showScope?: boolean
   notes?: string
   /** Port, wenn er nicht in der Adresse steht (NDI, Dante, SRT-Listener). */
   port?: number

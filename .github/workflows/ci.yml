@@ -213,6 +213,30 @@ jobs:
           if-no-files-found: ignore
 
   # ---------------------------------------------------------------------------
+  # lz-scopes (larszu/lz-scopes#15) ist unter `src/renderer/vendor/lz-scopes/`
+  # vendort, mit dokumentierten Patches (`scripts/lz-scopes-vendor.mjs`).
+  # Dieser Lauf vergleicht gegen den in VENDOR.md GEPINNTEN Commit, nicht gegen
+  # upstream `main` — gegen `main` war er am ersten Tag zweimal rot, weil
+  # lz-scopes weiterlief (Begruendung im Skriptkopf). Er faengt Handarbeit an
+  # der Kopie und einen Pin, der nicht zur Kopie passt; wie weit upstream voraus
+  # ist, steht als Hinweis im Log. `fetch-depth: 0`, weil das Skript per
+  # `git show <pin>:…` liest. Kein `npm ci` — das Skript nutzt nur Node.
+  scopes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/checkout@v5
+        with:
+          repository: larszu/lz-scopes
+          path: fremd/lz-scopes
+          fetch-depth: 0
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+      - name: lz-scopes-Vendor entspricht dem Pin in VENDOR.md
+        run: npm run scopes:check -- --upstream fremd/lz-scopes
+
+  # ---------------------------------------------------------------------------
   # Kataloge gegen die Schwester-Planner. `cameraBodyCatalog.ts`,
   # `lensCatalog.ts`, `rigCatalog.ts` und `fixtureCatalog.ts` sind ERZEUGT — aus
   # `multicam-planner/src/data/*` und `light-planner/src/core/fixtureLibrary.ts`.

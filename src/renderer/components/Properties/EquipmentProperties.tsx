@@ -30,6 +30,7 @@ import { CategoryPropsSection } from './sections/CategoryPropsSection'
 import { DeviceConfigsBlock } from './sections/DeviceConfigsBlock'
 import { NetworkAccessSection } from './sections/NetworkAccessSection'
 import { StreamsSection } from './sections/StreamsSection'
+import { TestPatternSection } from './sections/TestPatternSection'
 import { DeviceKindCards } from './sections/DeviceKindCards'
 import { OptionalFieldsSection } from './sections/OptionalFieldsSection'
 import { FotoSection } from './sections/FotoSection'
@@ -171,6 +172,7 @@ export const EquipmentProperties = () => {
       </label>
 
       <DisplayPropertiesBlock equipment={equipment} />
+      <TestPatternSection equipment={equipment} />
       <CategoryPropsSection equipment={equipment} />
 
       <SourceIdentitySection equipment={equipment} />

@@ -39,6 +39,7 @@ import { CIRCUIT_KIND_INFO } from '../../types/circuit'
 import { optikKurz } from '../../lib/kameraOptik'
 import { hatAdressZeile } from '../../lib/equipmentLayout'
 import { StreamPreviewTile } from './StreamPreviewTile'
+import { ScopeBadge } from './ScopeBadge'
 // 2026-09-12 — Diese fuenf Zahlen standen hier als Modul-Konstanten und waren
 // damit fuer die Lebensdauer des Moduls festgenagelt. Sie folgen jetzt der im
 // Menue eingestellten Rastergroesse und werden deshalb IN der Komponente
@@ -939,8 +940,15 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
         )}
       </div>
 
-      {/* #946 — das Standbild eines Streams, UNTER dem Knoten. */}
-      <StreamPreviewTile streams={data.streams} isLight={isLight} />
+      {/* #946 — das Standbild eines Streams, UNTER dem Knoten; darunter die
+          Scope-Plakette (larszu/lz-scopes#15). Ein gemeinsamer Stapel, damit
+          beide nicht uebereinander liegen. */}
+      {data.streams && data.streams.length > 0 && (
+        <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, width: '100%', display: 'flex', flexDirection: 'column', gap: 4 }}>
+          <StreamPreviewTile streams={data.streams} isLight={isLight} />
+          <ScopeBadge streams={data.streams} geraet={data.name} isLight={isLight} />
+        </div>
+      )}
 
       {/* v7.9.14 — Rack-Bänder: Hintergrund-Rechtecke + Geräte-Name-Labels
           für jedes interne Rack-Gerät. Mit subtilem farbigen Akzent

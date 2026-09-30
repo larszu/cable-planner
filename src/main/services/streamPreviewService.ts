@@ -49,7 +49,7 @@ export type PreviewResult =
   | SnapshotResult
   | { ok: false; code: 'not-local' | 'no-ffmpeg' | 'unsupported' | 'busy'; status?: undefined }
 
-const allesLokal = async (host: string): Promise<boolean> => {
+export const allesLokal = async (host: string): Promise<boolean> => {
   if (isIP(host)) return isLocalAddress(host)
   try {
     const addrs = await lookup(host, { all: true })
@@ -93,7 +93,7 @@ const MAX_GLEICHZEITIG = 2
 const FFMPEG_TIMEOUT_MS = 10_000
 let laufend = 0
 
-const zugang = async (credentialId: string): Promise<string | null> =>
+export const zugang = async (credentialId: string): Promise<string | null> =>
   streamCredentialService.get(credentialId).catch(() => null)
 
 const basicAuth = (secretsJson: string | null): string | undefined => {
@@ -105,6 +105,20 @@ const basicAuth = (secretsJson: string | null): string | undefined => {
   } catch {
     return undefined
   }
+}
+
+/**
+ * Was ffmpeg aus diesem Eintrag holen darf — gilt fuer das Standbild UND fuer
+ * die Scopes (`streamScopeService`), damit es nur eine Regel gibt.
+ */
+export const pruefeFfmpegStrom = (protocol: string, url: string): 'invalid-url' | 'unsupported' | null => {
+  const teile = parseStreamUrl(url)
+  if (!teile) return 'invalid-url'
+  if (!isPreviewProtocol(protocol)) return 'unsupported'
+  if (!SCHEMES[protocol].includes(teile.scheme)) return 'invalid-url'
+  // Ein SRT-Listener oeffnete auf DIESEM Rechner einen Port.
+  if (protocol === 'srt' && /[?&]mode=listener\b/i.test(url)) return 'invalid-url'
+  return null
 }
 
 export const takeSnapshot = async (req: SnapshotRequest): Promise<PreviewResult> => {
@@ -121,10 +135,8 @@ export const takeSnapshot = async (req: SnapshotRequest): Promise<PreviewResult>
   const teile = parseStreamUrl(req.url)
   if (!teile) return { ok: false, code: 'invalid-url' }
   if (req.weg === 'ffmpeg') {
-    if (!isPreviewProtocol(req.protocol)) return { ok: false, code: 'unsupported' }
-    if (!SCHEMES[req.protocol].includes(teile.scheme)) return { ok: false, code: 'invalid-url' }
-    // Ein SRT-Listener oeffnete auf DIESEM Rechner einen Port.
-    if (req.protocol === 'srt' && /[?&]mode=listener\b/i.test(req.url)) return { ok: false, code: 'invalid-url' }
+    const falsch = pruefeFfmpegStrom(req.protocol, req.url)
+    if (falsch) return { ok: false, code: falsch }
   }
   if (!(await allesLokal(teile.host))) return { ok: false, code: 'not-local' }
   if (laufend >= MAX_GLEICHZEITIG) return { ok: false, code: 'busy' }

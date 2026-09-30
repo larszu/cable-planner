@@ -8,6 +8,9 @@ import { appendLogCapped } from './util/appendLogCapped.js'
 import { registerRentmanIpc } from './ipc/rentmanIpc.js'
 import { registerDeviceLibraryIpc } from './ipc/deviceLibraryIpc.js'
 import { registerStreamPreviewIpc } from './ipc/streamPreviewIpc.js'
+import { registerStreamScopeIpc } from './ipc/streamScopeIpc.js'
+import { registerTestPatternIpc } from './ipc/testPatternIpc.js'
+import { stopAllScopes } from './services/streamScopeService.js'
 import { registerCloudIpc } from './ipc/cloudIpc.js'
 import { registerNetboxIpc } from './ipc/netboxIpc.js'
 import { openExternalProject, registerProjectIpc } from './ipc/projectIpc.js'
@@ -380,6 +383,8 @@ app.whenReady().then(async () => {
   registerNetboxIpc()
   registerDeviceLibraryIpc()
   registerStreamPreviewIpc()
+  registerStreamScopeIpc()
+  registerTestPatternIpc()
   registerCloudIpc()
   registerProjectIpc()
   registerAtemIpc()
@@ -441,4 +446,5 @@ app.on('window-all-closed', () => {
 // beim Beenden sauber schließen.
 app.on('will-quit', () => {
   stopSignalingServer()
+  stopAllScopes()
 })

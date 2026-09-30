@@ -54,6 +54,9 @@ import { EINGEBAUTE_SYMBOLE } from '../../lib/symbole/eingebaut'
 import { useGrundrissUi } from '../../store/grundrissUiStore'
 import { PendingCableOverlay } from './PendingCableOverlay'
 import { InlineSelectionToolbar } from './InlineSelectionToolbar'
+import { vergleichsStreams } from '../../lib/scopes'
+import { hasDesktopBridge } from '../../lib/bridge'
+import { useScopeStore } from '../../store/scopeStore'
 import { colorByLength } from '../../lib/cableColors'
 import { promptDialog } from '../../lib/promptDialog'
 import {
@@ -2373,6 +2376,15 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
           openDatasheet(ausgewaehlt.includes(nodeContextMenu.nodeId) ? ausgewaehlt : [nodeContextMenu.nodeId])
           setNodeContextMenu(null)
         }
+        // larszu/lz-scopes#15 — Scopes am Geraet, fuer die Auswahl wie das
+        // Datenblatt: ein Geraet = seine Scopes, mehrere = Vergleich.
+        const scopeIds = (() => {
+          if (isLocation || !hasDesktopBridge) return []
+          const ausgewaehlt = getNodes()
+            .filter((n) => n.selected && n.type === 'equipment')
+            .map((n) => n.id)
+          return vergleichsStreams(ausgewaehlt.includes(nodeContextMenu.nodeId) ? ausgewaehlt : [nodeContextMenu.nodeId], project.equipment)
+        })()
         const toggle = () => {
           if (isLocation) {
             updateLocation(nodeContextMenu.nodeId, { positionLocked: !isLocked })
@@ -2498,6 +2510,38 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
                   <path d="M6 7h4M6 9.5h4M6 12h2.5" />
                 </svg>
                 <span>{t('canvas.nodeMenu.datasheet', 'Device datasheet…')}</span>
+              </button>
+            )}
+            {scopeIds.length > 0 && (
+              <button
+                type="button"
+                onClick={() => {
+                  useScopeStore.getState().oeffne(scopeIds)
+                  setNodeContextMenu(null)
+                }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  width: '100%',
+                  padding: '6px 10px',
+                  background: 'transparent',
+                  color: 'inherit',
+                  border: 'none',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = '#334155')}
+                onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+              >
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path d="M1 9h3l2-6 4 10 2-4h3" />
+                </svg>
+                <span>
+                  {scopeIds.length > 1
+                    ? t('canvas.nodeMenu.compareScopes', 'Compare scopes')
+                    : t('canvas.nodeMenu.scopes', 'Scopes…')}
+                </span>
               </button>
             )}
             <button

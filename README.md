@@ -52,6 +52,13 @@
   planned in MultiCam driven and stored in the head, one offset on site, live
   picture and a video wall), and Green-GO intercom channels live over OSC —
   each in the properties of the device it belongs to, not in a separate tool.
+- **Scopes at the device.** Waveform, vectorscope, parade and histogram
+  ([LZ Scopes](https://github.com/larszu/lz-scopes)) live from a device's
+  RTSP, RTMP, SRT, HLS or MJPEG stream: *Scopes* next to the stream in the
+  properties, *Measure signal* on a cable, *Compare scopes* for a selection of
+  cameras, an optional live waveform under the device (off by default). Test
+  patterns borderless on a screen of this computer, from the display in the
+  plan. Desktop app with [ffmpeg](https://ffmpeg.org/) installed.
 - **On site.** Phones join by QR code, tick off work and send photos back into
   the plan.
 - **Together.** Live co-editing over WebRTC, optional cloud copy with revisions,
@@ -100,6 +107,11 @@ npm test        # vitest + guards
 npm run build   # renderer, main, preload
 npm run dist    # installers for macOS / Windows
 ```
+
+LZ Scopes is vendored under `src/renderer/vendor/lz-scopes/`
+([VENDOR.md](src/renderer/vendor/lz-scopes/VENDOR.md)). Update it with
+`npm run scopes:sync -- --upstream ../lz-scopes`; `npm run scopes:check`
+reports drift from the commit pinned in VENDOR.md (CI job `scopes`).
 
 Contributing, maintainer notes and conventions: [CONTRIBUTING.md](CONTRIBUTING.md).
 Architecture: [docs/architecture.md](docs/architecture.md). Everything else in

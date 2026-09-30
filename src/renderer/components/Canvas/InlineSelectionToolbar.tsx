@@ -28,7 +28,11 @@ import {
   FileText,
   SquareDashed,
   Trash2,
+  Activity,
 } from 'lucide-react'
+import { hasDesktopBridge } from '../../lib/bridge'
+import { vergleichsStreams } from '../../lib/scopes'
+import { useScopeStore } from '../../store/scopeStore'
 import { Icon } from '../shared/Icon'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
@@ -58,6 +62,7 @@ export const InlineSelectionToolbar = () => {
   const deleteSelected = useProjectStore((s) => s.deleteSelected)
   const addLocationAroundEquipment = useProjectStore((s) => s.addLocationAroundEquipment)
   const projectMode = useProjectStore((s) => s.project.mode ?? 'editing')
+  const oeffneScopes = useScopeStore((s) => s.oeffne)
 
   // Im gesperrten/Viewer-Plan keine Edit-Schnellaktionen, und nur wenn aktiviert.
   if (!enabled || projectMode !== 'editing') return null
@@ -103,6 +108,9 @@ export const InlineSelectionToolbar = () => {
   }
 
   const multiEq = eqNodes.length >= 2 && locNodes.length === 0
+  // larszu/lz-scopes#15 — Scopes vergleichen: je ausgewaehltem Geraet der
+  // erste messbare Strom, ab zwei Quellen.
+  const vergleich = hasDesktopBridge ? vergleichsStreams(ids, equipment) : []
   const hasEquipment = eqNodes.length >= 1
 
   const btn =
@@ -175,6 +183,17 @@ export const InlineSelectionToolbar = () => {
           >
             <Icon icon={SquareDashed} size="xs" />
           </button>
+          {vergleich.length >= 2 && (
+            <button
+              type="button"
+              className={btn}
+              title={t('inlineToolbar.compareScopes', 'Compare scopes (one parade per source)')}
+              aria-label={t('inlineToolbar.compareScopes', 'Compare scopes (one parade per source)')}
+              onClick={() => oeffneScopes(vergleich)}
+            >
+              <Icon icon={Activity} size="xs" />
+            </button>
+          )}
           {/* #919 — Datenblatt fuer die ganze Auswahl, eine Seite je Geraet. */}
           <button
             type="button"

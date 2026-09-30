@@ -161,6 +161,7 @@ export function normaliseStream(raw: unknown): StreamEndpoint | null {
     ...(url ? { url: streamUrlOhneZugang(url) } : {}),
     ...(previewUrl ? { previewUrl: streamUrlOhneZugang(previewUrl) } : {}),
     ...(r.showPreview === true ? { showPreview: true } : {}),
+    ...(r.showScope === true ? { showScope: true } : {}),
     ...(text(r.notes) ? { notes: text(r.notes) } : {}),
     ...(typeof r.port === 'number' && Number.isInteger(r.port) && r.port > 0 && r.port <= 65535 ? { port: r.port } : {}),
     ...(text(r.codec) ? { codec: text(r.codec) } : {}),

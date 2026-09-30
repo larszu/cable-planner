@@ -64,7 +64,7 @@ export const StreamPreviewTile = ({ streams, isLight }: { streams: StreamEndpoin
   if (!freigegeben) {
     const farbeAus = isLight ? '#0369a1' : '#38bdf8'
     return (
-      <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, width: '100%' }}>
+      <div style={{ width: '100%' }}>
         <button
           type="button"
           className="nodrag"
@@ -101,7 +101,7 @@ export const StreamPreviewTile = ({ streams, isLight }: { streams: StreamEndpoin
 
   return (
     <div
-      style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, width: '100%', pointerEvents: 'none' }}
+      style={{ width: '100%', pointerEvents: 'none' }}
     >
       <div style={{ fontSize: 9, letterSpacing: '0.04em', textTransform: 'uppercase', color: farbe, lineHeight: '12px' }}>
         {stand?.ok
