@@ -22,7 +22,10 @@
 //   • Kabel löschen
 
 import { useEffect, useRef, useState } from 'react'
-import { Pencil, Pin, X, Plus, Minus, RotateCcw, Navigation, CornerDownRight, Check, Milestone, ChevronDown, ChevronRight} from 'lucide-react'
+import { Pencil, Pin, X, Plus, Minus, RotateCcw, Navigation, CornerDownRight, Check, Milestone, ChevronDown, ChevronRight, Activity } from 'lucide-react'
+import { hasDesktopBridge } from '../../lib/bridge'
+import { messpunkt } from '../../lib/scopes'
+import { useScopeStore } from '../../store/scopeStore'
 import { Icon } from '../shared/Icon'
 import { useUiStore } from '../../store/uiStore'
 import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
@@ -116,6 +119,9 @@ export const CableContextMenu = () => {
     (s) => (cable ? !!s.project.checkState?.cables[cable.id] : false),
   )
   const [submenu, setSubmenu] = useState<'routing' | null>(null)
+  // larszu/lz-scopes#15 — Messpunkt: das Scope am Steckfeld.
+  const equipment = useProjectStore((s) => s.project.equipment)
+  const oeffneScopes = useScopeStore((s) => s.oeffne)
   const containerRef = useRef<HTMLDivElement | null>(null)
 
   // Close on outside click, Escape, or any window resize (the latter
@@ -251,6 +257,15 @@ export const CableContextMenu = () => {
   }
 
   const waypointCount = cable.waypoints?.length ?? 0
+  const mp = messpunkt(cable, equipment)
+  const messHinweis = mp.ok
+    ? t('canvas.cableMenu.measureTitle', 'Scopes of the stream sent by the device at the start of this cable.')
+    : mp.signal
+      ? format(
+          t('canvas.cableMenu.measureNeedsEncoder', '{signal}: to measure this line, a capture device or encoder is needed, with a stream this app can open (RTSP, RTMP, SRT, HLS, MJPEG) under Properties → Streams.'),
+          { signal: mp.signal },
+        )
+      : t('canvas.cableMenu.measureNoStream', 'The source device has no stream this app can open (RTSP, RTMP, SRT, HLS, MJPEG). Add one under Properties → Streams.')
   const bumpStyle = cable.bumpStyle
   const effectiveBumps =
     bumpStyle === 'on' ? true : bumpStyle === 'off' ? false : globalCableBumps
@@ -307,6 +322,26 @@ export const CableContextMenu = () => {
         >
           {t('canvas.cableMenu.removeMobileCheck', 'Remove mobile check')}
         </Item>
+      )}
+      {/* Ohne ffmpeg (Browser) kein Eintrag; mit, aber ohne Strom grau
+          und mit dem Grund daran. */}
+      {hasDesktopBridge && (
+        <Item
+          onClick={() => {
+            if (mp.ok) oeffneScopes([mp.stream.id])
+            close()
+          }}
+          icon={<Icon icon={Activity} size="xs" />}
+          disabled={!mp.ok}
+          title={messHinweis}
+        >
+          {t('canvas.cableMenu.measure', 'Measure signal')}
+        </Item>
+      )}
+      {/* Ein deaktivierter Knopf zeigt seinen Tooltip nicht zuverlaessig —
+          der Grund steht deshalb sichtbar darunter. */}
+      {hasDesktopBridge && !mp.ok && (
+        <div className="px-3 pb-1.5 pl-9 text-cp-xs text-cp-text-faint">{messHinweis}</div>
       )}
       <Separator />
       <Item onClick={addWaypointHere} icon={<Icon icon={Plus} size="xs" />}>
@@ -426,17 +461,20 @@ const Item = ({
   children,
   disabled,
   destructive,
+  title,
 }: {
   onClick: () => void
   icon?: React.ReactNode
   children: React.ReactNode
   disabled?: boolean
   destructive?: boolean
+  title?: string
 }) => (
   <button
     type="button"
     onClick={disabled ? undefined : onClick}
     disabled={disabled}
+    title={title}
     className={`flex w-full items-center gap-2 px-3 py-1.5 text-left text-cp-xs ${
       disabled
         ? 'text-slate-600'

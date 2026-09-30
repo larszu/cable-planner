@@ -34,6 +34,7 @@ import { SurveyDialog } from './components/Survey/SurveyDialog'
 import { LocationBomDialog } from './components/Project/LocationBomDialog'
 
 import { CableContextMenu } from './components/Canvas/CableContextMenu'
+import { ScopeDialogHost } from './components/Scopes/ScopesLazy'
 import { LayerVisibilityChips } from './components/Canvas/LayerVisibilityChips'
 import { ExportDialog } from './components/Export/ExportDialog'
 import { AnnotationsPanel } from './components/Annotations/AnnotationsPanel'
@@ -1626,6 +1627,7 @@ export default function App() {
       <CsvImportDialog />
       <TemplatesDialog />
       <CableContextMenu />
+      <ScopeDialogHost />
       <AnnotationsPanelHost />
       <GrundrissPanel />
       <SymbolPanel />

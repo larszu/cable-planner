@@ -4,6 +4,7 @@ import { useProjectStore } from '../../../store/projectStore'
 import { useTranslation } from '../../../lib/i18n'
 import type { EquipmentItem } from '../../../types/equipment'
 import { Icon } from '../../shared/Icon'
+import { siehtAusWieDisplay } from '../../../lib/displayHeuristik'
 
 const RESOLUTION_PRESETS = [
   '1280x720',
@@ -24,13 +25,7 @@ const RESOLUTION_PRESETS = [
 export const DisplayPropertiesBlock = ({ equipment }: { equipment: EquipmentItem }) => {
   const t = useTranslation()
   const updateEquipment = useProjectStore((state) => state.updateEquipment)
-  const category = equipment.category.toLowerCase()
-  const name = equipment.name.toLowerCase()
-  const looksLikeDisplay =
-    /monitor|display|screen|tv|oled|lcd|led|multiviewer|projector|beamer/.test(category) ||
-    /monitor|display|screen|tv|oled|lcd|led\b|projector|beamer/.test(name) ||
-    equipment.resolution !== undefined ||
-    equipment.displaySizeInch !== undefined
+  const looksLikeDisplay = siehtAusWieDisplay(equipment)
   // Ein-/ausklappbar (wie SDI-Caps / Abmessungen). Default offen, wenn schon
   // Werte gesetzt sind, sonst eingeklappt. <summary> statt Form-Control, damit
   // das Toggle auch im gesperrten (viewer/finalized) Fieldset bedienbar bleibt.

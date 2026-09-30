@@ -213,6 +213,30 @@ jobs:
           if-no-files-found: ignore
 
   # ---------------------------------------------------------------------------
+  # lz-scopes (larszu/lz-scopes#15) ist unter `src/renderer/vendor/lz-scopes/`
+  # vendort, mit zwei dokumentierten Patches (`scripts/lz-scopes-vendor.mjs`).
+  # Dieser Lauf vergleicht gegen upstream `main`: eine Aenderung dort SOLL hier
+  # rot werden, damit Planner und lz-camera-bridge auf demselben Stand bleiben.
+  #
+  # Eigener Job aus demselben Grund wie `katalog`: er haengt an einem fremden
+  # Repo und kann rot stehen, ohne dass der Pull Request etwas damit zu tun
+  # hat. Die Antwort ist dann `npm run scopes:sync`, nicht dieser Job. Er
+  # braucht kein `npm ci` — das Skript nutzt nur Node.
+  scopes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/checkout@v5
+        with:
+          repository: larszu/lz-scopes
+          path: fremd/lz-scopes
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+      - name: lz-scopes-Vendor ist auf dem Stand von upstream
+        run: npm run scopes:check -- --upstream fremd/lz-scopes
+
+  # ---------------------------------------------------------------------------
   # Kataloge gegen die Schwester-Planner. `cameraBodyCatalog.ts`,
   # `lensCatalog.ts`, `rigCatalog.ts` und `fixtureCatalog.ts` sind ERZEUGT — aus
   # `multicam-planner/src/data/*` und `light-planner/src/core/fixtureLibrary.ts`.

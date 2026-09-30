@@ -103,6 +103,20 @@ contextBridge.exposeInMainWorld('cablePlanner', {
     snapshot: (req: { credentialId: string; weg: 'http' | 'ffmpeg'; protocol: string; url: string }) =>
       ipcRenderer.invoke('streamPreview:snapshot', req) as Promise<unknown>,
   },
+  // larszu/lz-scopes#15 — Live-Scopes. Die Bilder kommen ueber einen
+  // MessagePort, den main mit `streamScope:port` schickt (siehe unten).
+  streamScope: {
+    start: (req: { id: string; credentialId: string; protocol: string; url: string; depth: 8 | 16; width: number }) =>
+      ipcRenderer.invoke('streamScope:start', req) as Promise<unknown>,
+    stop: (id: string) => ipcRenderer.invoke('streamScope:stop', id) as Promise<void>,
+  },
+  // larszu/lz-scopes#15 — Testbild im Vollbild auf einem Bildschirm dieses Rechners.
+  testPattern: {
+    screens: () => ipcRenderer.invoke('testPattern:screens') as Promise<unknown>,
+    show: (displayId: number, png: Uint8Array) =>
+      ipcRenderer.invoke('testPattern:show', displayId, png) as Promise<{ ok: boolean }>,
+    close: (displayId?: number) => ipcRenderer.invoke('testPattern:close', displayId) as Promise<void>,
+  },
   // Nachtrag #946 — Zugangsdaten der Geraete-Streams im Schluesselbund. Kein
   // `get`: den Klartext braucht nur der Standbild-Abruf im Main-Prozess.
   streamCredential: {
@@ -697,4 +711,18 @@ contextBridge.exposeInMainWorld('cablePlanner', {
       return () => ipcRenderer.removeListener('mobileShare:foto', listener)
     },
   },
+})
+
+// larszu/lz-scopes#15 — der MessagePort der Live-Scopes. contextBridge kann
+// keinen Port durchreichen; das Muster aus der Electron-Doku („MessagePorts",
+// isolierte Welt → Hauptwelt) ist `window.postMessage` mit Transfer. Der
+// Renderer (`lib/scopeFeed.ts`) nimmt nur Ports mit einer Id an, die er selbst
+// gerade angefragt hat, und nur von `window` selbst. `'*'`, weil das gepackte
+// Fenster von `file://` laedt und dort keinen benennbaren Ursprung hat — der
+// Empfaenger ist dasselbe Fenster.
+ipcRenderer.on('streamScope:port', (event, msg: { id?: unknown }) => {
+  if (typeof msg?.id !== 'string' || event.ports.length !== 1) return
+  // tsconfig.preload kennt kein DOM; `globalThis` ist hier das Fenster.
+  const fenster = globalThis as unknown as { postMessage: (m: unknown, origin: string, transfer: unknown[]) => void }
+  fenster.postMessage({ lzScopePort: msg.id }, '*', [...event.ports])
 })

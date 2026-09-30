@@ -81,7 +81,7 @@ export const ffmpegArgs = (protocol: PreviewProtocol, url: string): string[] => 
   '-loglevel',
   'error',
   '-nostdin',
-  ...(protocol === 'rtsp' ? ['-rtsp_transport', 'tcp'] : []),
+  ...inputFlags(protocol),
   '-i',
   url,
   '-frames:v',
@@ -96,4 +96,72 @@ export const ffmpegArgs = (protocol: PreviewProtocol, url: string): string[] => 
   '-q:v',
   '6',
   'pipe:1',
+]
+
+/** Eingangsoptionen je Protokoll — dieselben fuer Standbild, Scopes und Probe. */
+export const inputFlags = (protocol: PreviewProtocol): string[] =>
+  protocol === 'rtsp' ? ['-rtsp_transport', 'tcp'] : []
+
+/**
+ * Kuerzere Probe als ffmpegs 5 s: das erste Bild kommt nach rund 3 s statt
+ * 4,5 s (gemessen in lz-camera-bridge, 1080p25 ueber RTSP, 2026-09-29).
+ */
+export const FAST_PROBE = ['-analyzeduration', '1000000', '-probesize', '2000000']
+
+/**
+ * larszu/lz-scopes#15 — die Rohbild-Variante fuer die Scopes: unkomprimiertes
+ * R'G'B'A auf stdout, Format wie `docs/frame-protocol.md` in lz-scopes.
+ *
+ * KEIN JPEG, weil ein Scope Pegel misst: JPEG quantisiert neu, und die
+ * Farbunterabtastung verschmiert das Vectorscope. Die Matrix steht
+ * AUSDRUECKLICH da (`decodeParams` in `streamScope.ts`) — swscale nimmt fuer
+ * ungetaggtes HD sonst BT.601, und jede Farbe laege auf dem Vectorscope
+ * daneben. Die Transferfunktion bleibt unberuehrt: PQ/HLG kommen als
+ * Codewerte an.
+ */
+export const ffmpegRawArgs = (
+  protocol: PreviewProtocol,
+  url: string,
+  o: { width: number; height: number; depth: 8 | 16; decodeMatrix: string; decodeRange: 'full' | 'limited' },
+): string[] => [
+  '-hide_banner',
+  '-loglevel',
+  'error',
+  '-nostdin',
+  '-fflags',
+  'nobuffer',
+  '-flags',
+  'low_delay',
+  ...FAST_PROBE,
+  ...inputFlags(protocol),
+  '-i',
+  url,
+  '-an',
+  '-sn',
+  '-dn',
+  '-map',
+  '0:v:0',
+  '-vf',
+  `scale=${o.width}:${o.height}:flags=area:in_color_matrix=${o.decodeMatrix}:in_range=${o.decodeRange}`,
+  '-pix_fmt',
+  o.depth === 16 ? 'rgba64le' : 'rgba',
+  '-f',
+  'rawvideo',
+  'pipe:1',
+]
+
+/** ffprobe: Groesse und Farbangaben des ersten Videostroms als JSON. */
+export const ffprobeArgs = (protocol: PreviewProtocol, url: string): string[] => [
+  '-v',
+  'error',
+  ...FAST_PROBE,
+  ...inputFlags(protocol),
+  '-select_streams',
+  'v:0',
+  '-show_entries',
+  'stream=width,height,codec_name,avg_frame_rate,r_frame_rate,color_transfer,color_primaries,color_space,color_range,pix_fmt',
+  '-of',
+  'json',
+  '-i',
+  url,
 ]

@@ -104,6 +104,13 @@ const SONSTIGE_DOMAENEN = [
   // Geraet, landet aber nur im Komponenten-State der Kachel (mit Uhrzeit),
   // nie im Plan — genau die Grenze, die dieser Test bewacht.
   'streamPreview',
+  // larszu/lz-scopes#15 — Live-Scopes: Bilder eines Geraets, die nur in der
+  // Scope-Komponente gezeichnet werden (`lib/scopeFeed.ts` → `Source`), nie im
+  // Plan. Dieselbe Grenze wie das Standbild.
+  'streamScope',
+  // Testbild auf einem Bildschirm dieses Rechners: schreibt ein PNG hinaus,
+  // liest nichts zurueck.
+  'testPattern',
   'credentials',
   'documentLog',
   'graphml',

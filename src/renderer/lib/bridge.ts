@@ -37,6 +37,30 @@ export interface StreamSnapshotRequest {
   url: string
 }
 
+/** larszu/lz-scopes#15 — Anfrage fuer Live-Scopes; Riegel in `streamScopeService.ts`. */
+export interface StreamScopeRequest {
+  /** Vom Renderer gewaehlt; benennt den MessagePort, der zurueckkommt. */
+  id: string
+  credentialId: string
+  protocol: string
+  url: string
+  depth: 8 | 16
+  width: number
+}
+
+export type StreamScopeStartResult =
+  | { ok: true }
+  | { ok: false; code: 'invalid-url' | 'unsupported' | 'not-local' | 'no-ffmpeg' | 'busy' | 'desktop-only' }
+
+/** Ein Bildschirm dieses Rechners, fuer die Testbild-Ausgabe. */
+export interface TestPatternScreen {
+  id: number
+  label: string
+  width: number
+  height: number
+  primary: boolean
+}
+
 /**
  * BEDARF 133 — was die Freigabe anbietet, und was sie zurueckhaelt.
  *
@@ -200,7 +224,7 @@ export interface DiscoveredCollabSession {
   address: string
 }
 
-type CablePlannerApi = {
+export type CablePlannerApi = {
   /** Initiative 9 — Stream-Key je Ausspielziel. Der Wert steht NIE im
    *  Projekt; siehe `types/delivery.ts`. */
   streamKey: {
@@ -539,6 +563,17 @@ type CablePlannerApi = {
   /** #946 — Standbild fuer die Stream-Vorschau, geholt im Main-Prozess. */
   streamPreview: {
     snapshot: (req: StreamSnapshotRequest) => Promise<StreamSnapshotResult>
+  }
+  /** larszu/lz-scopes#15 — Live-Scopes; die Bilder kommen ueber einen MessagePort (`lib/scopeFeed.ts`). */
+  streamScope: {
+    start: (req: StreamScopeRequest) => Promise<StreamScopeStartResult>
+    stop: (id: string) => Promise<void>
+  }
+  /** larszu/lz-scopes#15 — Testbild im Vollbild auf einem Bildschirm dieses Rechners. */
+  testPattern: {
+    screens: () => Promise<TestPatternScreen[]>
+    show: (displayId: number, png: Uint8Array) => Promise<{ ok: boolean }>
+    close: (displayId?: number) => Promise<void>
   }
   /** Nachtrag #946 — Zugangsdaten der Geraete-Streams. Kein `get`: nur main braucht sie. */
   streamCredential: {
@@ -1353,6 +1388,19 @@ const webFallbackApi: CablePlannerApi = {
   // gesagt wird es, statt ein leeres Bild zu zeigen.
   streamPreview: {
     snapshot: async () => ({ ok: false, code: 'desktop-only' as const }),
+  },
+  // larszu/lz-scopes#15 — ohne ffmpeg kein Strom; die Oberflaeche blendet die
+  // Scopes im Browser aus (`hasDesktopBridge`), das hier ist nur der Boden.
+  streamScope: {
+    start: async () => ({ ok: false, code: 'desktop-only' as const }),
+    stop: async () => {},
+  },
+  // Kein Bildschirm dieses Rechners ansprechbar; die Testbild-Funktion am
+  // Display bietet im Browser stattdessen das Vollbild im eigenen Fenster an.
+  testPattern: {
+    screens: async () => [],
+    show: async () => ({ ok: false }),
+    close: async () => {},
   },
   // Nachtrag #946 — kein Schluesselbund im Browser. Die Zugangsdaten landen
   // NICHT in localStorage (anders als der Stream-Key): gebraucht werden sie

@@ -1258,3 +1258,25 @@ summary,
   min-height: 0;
   min-width: 0;
 }
+
+/* larszu/lz-scopes#15 — die Rahmen der vendorten Scopes (`vendor/lz-scopes/embed.ts`
+ * spritzt sie zur Laufzeit ein) folgen der Form der App: keine Rundung, Kopf und
+ * Auswahl in den Flaechen der Palette. Die Messflaeche selbst bleibt dunkel — sie
+ * ist Inhalt wie ein Bild, keine Oberflaeche. `.lzs-root` davor, weil das
+ * eingespritzte Stilblatt spaeter kommt und bei gleicher Spezifitaet gewaenne. */
+.lzs-root .lzs-panel,
+.lzs-root .lzs-head select {
+  border-radius: 0;
+}
+.lzs-root .lzs-panel {
+  border-color: var(--cp-border);
+}
+.lzs-root .lzs-head {
+  background: var(--cp-surface-3);
+  border-bottom-color: var(--cp-border);
+}
+.lzs-root .lzs-head select {
+  background: var(--cp-surface-1);
+  border-color: var(--cp-border);
+  color: var(--cp-text);
+}

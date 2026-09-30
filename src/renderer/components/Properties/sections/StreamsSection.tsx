@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react'
-import { KeyRound, Plus, Trash2 } from 'lucide-react'
+import { Activity, KeyRound, Maximize2, Plus, Trash2 } from 'lucide-react'
 import { useCanvasProjectStore as useProjectStore } from '../../../store/projectStoreContext'
 import { useTranslation } from '../../../lib/i18n'
-import { cablePlannerApi } from '../../../lib/bridge'
+import { cablePlannerApi, hasDesktopBridge } from '../../../lib/bridge'
+import { scopeQuelle, scopeQuellName } from '../../../lib/scopes'
+import { useScopeStore } from '../../../store/scopeStore'
+import { ScopeMonitorSlot } from '../../Scopes/ScopesLazy'
 import { useStreamPreviewStore } from '../../../store/streamPreviewStore'
 import { Icon } from '../../shared/Icon'
 import { SortableSection } from '../SortableSection'
@@ -38,6 +41,12 @@ export const StreamsSection = ({ equipment }: { equipment: EquipmentItem }) => {
   const [hinterlegt, setHinterlegt] = useState<Record<string, boolean>>({})
   const freigeben = useStreamPreviewStore((s) => s.freigeben)
   const sperren = useStreamPreviewStore((s) => s.sperren)
+  // larszu/lz-scopes#15 — welche Scope-Panels hier offen sind. Sitzung, nicht
+  // Plan: ein offenes Panel ist ein laufender Strom.
+  const [scopeOffen, setScopeOffen] = useState<Record<string, boolean>>({})
+  const oeffneScopes = useScopeStore((s) => s.oeffne)
+  const scopeFreigeben = useScopeStore((s) => s.freigeben)
+  const scopeSperren = useScopeStore((s) => s.sperren)
 
   const streams = equipment.streams ?? []
   const ids = streams.map((s) => s.id).join('|')
@@ -158,6 +167,7 @@ export const StreamsSection = ({ equipment }: { equipment: EquipmentItem }) => {
                   onClick={() => {
                     zugangLoeschen(s.id)
                     sperren(s.id)
+                    scopeSperren(s.id)
                     commit(streams.filter((x) => x.id !== s.id))
                   }}
                   aria-label={t('streams.remove', 'Remove stream')}
@@ -253,6 +263,59 @@ export const StreamsSection = ({ equipment }: { equipment: EquipmentItem }) => {
                 />
                 {t('streams.showPreview', 'Show a still image under the device on the canvas')}
               </label>
+              {/* larszu/lz-scopes#15 — Scopes neben der Vorschau. Nur in der
+                  Desktop-App (ffmpeg) und nur an einem Strom, den das Geraet
+                  sendet; die Plakette am Canvas ist AUS als Vorgabe. */}
+              {hasDesktopBridge && scopeQuelle(s) && (
+                <>
+                  <div className="mt-1 flex items-center gap-2">
+                    <button
+                      type="button"
+                      aria-pressed={!!scopeOffen[s.id]}
+                      onClick={() => setScopeOffen((o) => ({ ...o, [s.id]: !o[s.id] }))}
+                      title={t('streams.scopesTitle', 'Waveform and vectorscope of this stream, live. Opens the stream while the panel is open (needs ffmpeg).')}
+                      className={`flex items-center gap-1 border px-2 py-0.5 text-cp-xs ${scopeOffen[s.id] ? 'border-cp-accent text-cp-text' : 'border-cp-border text-cp-text-secondary hover:text-cp-text'}`}
+                    >
+                      <Icon icon={Activity} size="xs" /> {t('streams.scopes', 'Scopes')}
+                    </button>
+                    {scopeOffen[s.id] && (
+                      <button
+                        type="button"
+                        onClick={() => oeffneScopes([s.id])}
+                        title={t('streams.scopesLargeTitle', 'Waveform, vectorscope, parade and histogram in a large panel')}
+                        aria-label={t('streams.scopesLarge', 'Large scopes')}
+                        className="flex items-center gap-1 border border-cp-border px-2 py-0.5 text-cp-xs text-cp-text-secondary hover:text-cp-text"
+                      >
+                        <Icon icon={Maximize2} size="xs" /> {t('streams.scopesLarge', 'Large scopes')}
+                      </button>
+                    )}
+                  </div>
+                  {scopeOffen[s.id] && (
+                    <ScopeMonitorSlot
+                      key={`${s.id}|${s.url ?? ''}|${s.protocol}`}
+                      stream={s}
+                      name={scopeQuellName(equipment.name, s)}
+                      scopes={['wf-luma', 'vector']}
+                      className="mt-1"
+                      style={{ height: 200 }}
+                    />
+                  )}
+                  <label className="mt-1 flex items-center gap-2 text-cp-xs text-cp-text-secondary">
+                    <input
+                      type="checkbox"
+                      checked={!!s.showScope}
+                      onChange={(e) => {
+                        // Wie bei der Vorschau: das Einschalten HIER gibt den
+                        // Strom fuer diese Sitzung frei (`scopeStore`).
+                        if (e.target.checked) scopeFreigeben(s.id)
+                        else scopeSperren(s.id)
+                        patch(s.id, { showScope: e.target.checked || undefined })
+                      }}
+                    />
+                    {t('streams.showScope', 'Show a live waveform under the device on the canvas')}
+                  </label>
+                </>
+              )}
               {!vorschauQuelle(s) && (
                 <PanelHint
                   className="mt-1 text-cp-xs text-cp-text-faint"
