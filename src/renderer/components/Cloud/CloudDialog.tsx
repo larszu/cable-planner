@@ -213,9 +213,19 @@ export const CloudDialog = () => {
         {error && <p className="border border-cp-danger px-2 py-1 text-cp-danger" role="alert">{error}</p>}
         {notice && <p className="border border-cp-accent px-2 py-1 text-cp-text" role="status">{notice}</p>}
         {session !== 'signed-in' ? (
-          <p className="text-cp-text-secondary">
-            {t('cloud.signIn', 'Cloud projects use your device library account. Sign in under Settings → Device library.')}
-          </p>
+          <div className="flex flex-col items-start gap-2 text-cp-text-secondary">
+            <p>{t('cloud.signIn', 'Cloud projects use your device library account.')}</p>
+            {/* #996 — jump straight to the right Settings tab instead of describing the way. */}
+            <Button
+              variant="primary"
+              onClick={() => {
+                closeDialog()
+                useUiStore.getState().openSettings('deviceLibrary')
+              }}
+            >
+              {t('cloud.signInOpen', 'Sign in under Settings → Device library…')}
+            </Button>
+          </div>
         ) : (
           <>
             <section className="flex flex-col gap-2">

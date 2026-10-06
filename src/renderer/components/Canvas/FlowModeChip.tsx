@@ -49,12 +49,16 @@ export function FlowModeChip() {
             ? t('canvas.flow.toggleOff', 'Click: turn motion off.')
             : t('canvas.flow.toggleOn', 'Click: turn motion on.')
       }`}
-      className="av-focus flex items-center gap-1.5 border border-cp-border px-2 py-0.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-3"
+      className="av-focus flex items-center gap-1.5 whitespace-nowrap border border-cp-border px-2 py-0.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-3"
     >
       <span
         aria-hidden
         className="inline-block h-1.5 w-1.5"
-        style={{ background: live ? 'var(--cp-ok, #22c55e)' : 'var(--cp-text-faint, #64748b)' }}
+        style={{
+          background: live ? 'var(--cp-ok, #22c55e)' : 'var(--cp-text-faint, #64748b)',
+          // Motion off: dimmed dot instead of a text suffix, so a click never changes the width (#990).
+          opacity: motion ? 1 : 0.45,
+        }}
       />
       <span>{live ? t('canvas.flow.live', 'Live') : t('canvas.flow.schema', 'Schematic')}</span>
       {live && sekunden !== null && (
@@ -64,9 +68,6 @@ export function FlowModeChip() {
         <span className="text-cp-text-muted">
           {t('canvas.flow.lostContact', '· connection lost')}
         </span>
-      )}
-      {!motion && (
-        <span className="text-cp-text-muted">{t('canvas.flow.still', '· still')}</span>
       )}
     </button>
   )

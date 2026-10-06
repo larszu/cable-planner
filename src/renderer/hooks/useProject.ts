@@ -14,13 +14,7 @@ interface OpenProjectResponse {
   data: CablePlannerProject
 }
 
-/** Derive a human-readable project name from a file path (drops extension). */
-const nameFromPath = (filePath: string): string => {
-  const base = filePath.split(/[\\/]/).pop() ?? filePath
-  // #pre-sale — .cableplan ist die neue Projekt-Endung; .json/.cpviewer
-  // bleiben abwärtskompatibel.
-  return base.replace(/\.(cableplan|json|cpviewer)$/i, '')
-}
+import { nameAfterSaveAs, nameFromPath } from '../lib/projectName'
 
 export const useProject = () => {
   const loadProject = useProjectStore((state) => state.loadProject)
@@ -173,9 +167,10 @@ export const useProject = () => {
     const path = await cablePlannerApi.project.saveProjectAs(project)
     if (path) {
       useProjectStore.getState().setFilePath(path)
-      if (project.metadata.name === 'Untitled Project') {
-        setProjectMeta(nameFromPath(path), project.metadata.description ?? '')
-      }
+      // #986 — Save as always adopts the chosen file name as the new title,
+      // not only for the first save of an untitled project.
+      const next = nameAfterSaveAs(project.metadata.name, path)
+      if (next) setProjectMeta(next, project.metadata.description ?? '')
       await refreshRecent()
     }
   }, [refreshRecent, setProjectMeta])

@@ -224,25 +224,6 @@ export const CableLibraryPanel = () => {
           <h2 className="text-cp-base font-semibold">{t('cableLib.title', 'Cable library')}</h2>
           <span className="text-cp-xs text-cp-text-muted">{format(t('cableLib.installedCount', '{n} installed'), { n: cables.length })}</span>
         </div>
-        {/*
-          #836 — Das ANLEGEN eines Kabeltyps sitzt jetzt in den Einstellungen.
-          Meldung des Eigentuemers: „Neue kabeltypen anlegen muss eigentlich in
-          den Einstellungen sein und nicht links in der Geräte seitenleiste."
-
-          Der Weg dorthin bleibt hier stehen, statt ersatzlos zu verschwinden:
-          wer den Knopf gesucht hat, findet sonst nur eine Luecke und haelt die
-          Funktion fuer weg. Er OEFFNET die Einstellungen direkt auf dem
-          richtigen Tab — ein Verweis, der den Leser suchen laesst, ist kaum
-          besser als keiner.
-        */}
-        <button
-          type="button"
-          onClick={() => useUiStore.getState().openSettings('cableTypes')}
-          className="bg-cp-surface-4 px-2 py-1 text-cp-xs hover:bg-cp-surface-5"
-          title={t('cableLib.manageTitle', 'Cable types are managed in the settings')}
-        >
-          {t('cableLib.manage', 'Manage cable types…')}
-        </button>
       </div>
       <p className="mb-2 text-cp-xs text-cp-text-muted">
         {t('cableLib.presetsInfo', 'Presets with connector and signal info.')}
