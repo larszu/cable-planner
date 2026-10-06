@@ -1219,6 +1219,7 @@ export const BandwidthCalculatorDialog = () => {
       titleIcon={<Icon icon={Calculator} size="sm" />}
       maxWidth="2xl"
       draggableKey="cable-planner:modal-pos:bandwidth-calc"
+      zIndex={60}
     >
       <BandwidthTab />
     </ModalShell>
@@ -1237,6 +1238,7 @@ export const PowerCalculatorDialog = () => {
       titleIcon={<Icon icon={Calculator} size="sm" />}
       maxWidth="2xl"
       draggableKey="cable-planner:modal-pos:power-calc"
+      zIndex={60}
     >
       <PowerTab />
     </ModalShell>

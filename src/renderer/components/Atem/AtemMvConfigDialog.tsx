@@ -31,6 +31,7 @@ import {
   roleForSource,
   type AtemMvCapabilities,
 } from '../../lib/atemMvLayout'
+import { atemPortSources } from '../../lib/atemPortSources'
 import { PanelHint } from '../shared/PanelHint'
 import { useDialogA11y } from '../../hooks/useDialogA11y'
 
@@ -836,12 +837,13 @@ export const AtemMvConfigDialog = () => {
         ? groupForPortType(undefined, p.atemSourceId)
         : 'Inputs',
     }))
-    const fromOutputs = (Array.isArray(equipment.outputs) ? equipment.outputs : [])
-      .filter((p) => typeof p?.atemSourceId === 'number')
+    // #1008 — ohne gesetzte ID leitet atemPortSources sie aus dem Namen ab
+    // (AUX n, PGM, PVW), damit Portnamen aus Preset/Bibliothek ankommen.
+    const fromOutputs = atemPortSources({ outputs: equipment.outputs })
       .map((p) => ({
-        id: p.atemSourceId as number,
-        label: (p && typeof p.name === 'string' && p.name.trim()) || `Output (ID ${p.atemSourceId})`,
-        group: groupForPortType(undefined, p.atemSourceId as number),
+        id: p.id,
+        label: p.name,
+        group: groupForPortType(undefined, p.id),
       }))
     return [...fromInputs, ...fromOutputs]
   }, [equipment, liveInputs])
@@ -857,18 +859,8 @@ export const AtemMvConfigDialog = () => {
   const canvasPortNames = useMemo(() => {
     const m = new Map<number, string>()
     if (!equipment) return m
-    for (const p of [
-      ...(Array.isArray(equipment.inputs) ? equipment.inputs : []),
-      ...(Array.isArray(equipment.outputs) ? equipment.outputs : []),
-    ]) {
-      if (
-        typeof p?.atemSourceId === 'number' &&
-        typeof p?.name === 'string' &&
-        p.name.trim()
-      ) {
-        m.set(p.atemSourceId, p.name.trim())
-      }
-    }
+    // #1008 — auch Ports ohne gesetzte ID (Preset/Bibliothek): ID abgeleitet.
+    for (const p of atemPortSources(equipment)) m.set(p.id, p.name)
     return m
   }, [equipment])
 
