@@ -752,15 +752,28 @@ export const MenuBar = ({
               const p = useProjectStore.getState().project
               downloadBlob(
                 buildExportFilename(p.metadata.name, 'stageplot.svg'),
-                exportStagePlotSvg(p),
+                exportStagePlotSvg(p, canvasTheme),
                 'image/svg+xml',
               )
             }}
             icon={<Icon icon={ImageIcon} size="sm" />}
-          
-            note={t('app.menu.tools.stagePlot.note', 'Stage top view as a one-page sheet')}
+            note={t('app.menu.tools.stagePlot.note', 'Stage top view as a one-page sheet, light or dark like the canvas')}
           >
             {t('app.menu.tools.stagePlot', 'Stage plot (SVG)…')}
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              const p = useProjectStore.getState().project
+              downloadBlob(
+                buildExportFilename(p.metadata.name, 'stageplot.svg'),
+                exportStagePlotSvg(p, 'light'),
+                'image/svg+xml',
+              )
+            }}
+            icon={<Icon icon={ImageIcon} size="sm" />}
+            note={t('app.menu.tools.stagePlotLight.note', 'White background, for print and email')}
+          >
+            {t('app.menu.tools.stagePlotLight', 'Stage plot, light (SVG)…')}
           </MenuItem>
           {onOpenExportDialog ? (
             <MenuItem onClick={onOpenExportDialog} icon={<Icon icon={Upload} size="sm" />}>

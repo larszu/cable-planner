@@ -10,6 +10,7 @@
 import { toJpeg, toPng, toSvg } from 'html-to-image'
 import { composeExportBackground, type ExportBgVariant } from './exportBackground'
 import { buildExportFilename } from './exportFilename'
+import type { ProjectMetadata } from '../types/project'
 
 export type ImageExportFormat = 'png' | 'jpeg' | 'svg'
 
@@ -112,18 +113,75 @@ const computeContentBox = (viewportEl: HTMLElement): ContentBox => {
   }
 }
 
+/** Hoehe des Schriftfelds unterhalb des Plans (inkl. Abstand). */
+const FOOTER_BAND = 190
+const FOOTER_W = 320
+
+const esc = (v: string): string =>
+  v.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+
+/** Schriftfeld unten rechts, dieselben Angaben wie der Titelblock des PDF.
+ *  Leere Felder entfallen — ein Bild braucht keine Zeile voller Striche. */
+const buildFooter = (
+  meta: ProjectMetadata,
+  theme: 'dark' | 'light',
+  left: number,
+  top: number,
+): HTMLElement => {
+  const fmt = (iso?: string) => {
+    if (!iso) return ''
+    try {
+      return new Date(iso).toLocaleString()
+    } catch {
+      return iso
+    }
+  }
+  const rows: [string, string | undefined][] = [
+    ['Projekt', meta.name],
+    ['Projekt-Nr.', meta.projectNumber],
+    ['Kunde', meta.client],
+    ['Auftragnehmer', meta.contractor],
+    ['Planer', meta.author],
+    ['Erstellt', fmt(meta.createdAt)],
+    ['Geändert', fmt(meta.updatedAt)],
+    ['Revision', meta.revision],
+  ]
+  const fg = theme === 'light' ? '#0f172a' : '#e2e8f0'
+  const muted = theme === 'light' ? '#64748b' : '#94a3b8'
+  const line = theme === 'light' ? '#94a3b8' : '#475569'
+  const el = document.createElement('div')
+  el.setAttribute('data-export-footer', '1')
+  el.style.cssText = `position:absolute;left:${left}px;top:${top}px;width:${FOOTER_W}px;` +
+    `border:1px solid ${line};font:12px/1.5 system-ui,sans-serif;color:${fg};pointer-events:none;`
+  el.innerHTML = rows
+    .filter(([, v]) => !!v)
+    .map(
+      ([k, v]) =>
+        `<div style="display:flex;gap:8px;padding:1px 8px;border-bottom:1px solid ${line}">` +
+        `<span style="width:96px;flex:none;color:${muted}">${esc(k)}</span>` +
+        `<span style="min-width:0;overflow-wrap:anywhere">${esc(v as string)}</span></div>`,
+    )
+    .join('')
+  return el
+}
+
 const captureViewport = async (
   format: ImageExportFormat,
   backgroundTheme: 'dark' | 'light',
   pixelRatio: number,
   jpegQuality: number,
   bgOptions: ImageExportBackgroundOptions,
+  metadata?: ProjectMetadata,
 ): Promise<string> => {
   const viewportEl =
     (document.querySelector('.react-flow__viewport') as HTMLElement | null) ?? null
   if (!viewportEl) throw new Error('React Flow viewport nicht gefunden')
 
-  const { contentX, contentY, contentW, contentH } = computeContentBox(viewportEl)
+  const box = computeContentBox(viewportEl)
+  const { contentX, contentY, contentW } = box
+  // Das Schriftfeld bekommt ein eigenes Band unter dem Plan, damit es nie
+  // auf Geraeten oder Kabeln liegt.
+  const contentH = box.contentH + (metadata ? FOOTER_BAND : 0)
 
   const composed = composeExportBackground({
     theme: backgroundTheme,
@@ -132,6 +190,33 @@ const captureViewport = async (
     opacity: bgOptions.bgOpacity ?? 0.5,
     customPalette: bgOptions.customPalette ?? null,
   })
+
+  // Ursache von #995: Hintergrund und Raster hingen am Stil des Viewport-
+  // Elements selbst. Das ist ein Kasten ab Flow-Ursprung (0,0); er wird per
+  // translate(-contentX, -contentY) verschoben und deckte darum nur einen Teil
+  // des Bildes — oben/links blieb leer, unten und rechts brach das Raster ab.
+  // Jetzt liegt eine eigene Hintergrundflaeche genau auf dem Bildausschnitt
+  // (ein Kind des Viewports, wandert mit der Verschiebung mit); das Raster
+  // reicht dadurch lueckenlos bis an alle vier Raender.
+  const bgEl = document.createElement('div')
+  bgEl.setAttribute('data-export-bg', '1')
+  bgEl.style.cssText =
+    `position:absolute;left:${contentX}px;top:${contentY}px;width:${contentW}px;height:${contentH}px;` +
+    `z-index:-1;pointer-events:none;background:${composed.background};` +
+    `background-size:${composed.backgroundSize};background-repeat:${composed.backgroundRepeat};` +
+    `background-position:${-contentX}px ${-contentY}px, 0 0;background-color:${composed.bgFallback};`
+  viewportEl.insertBefore(bgEl, viewportEl.firstChild)
+  const extras: HTMLElement[] = [bgEl]
+  if (metadata) {
+    const footer = buildFooter(
+      metadata,
+      backgroundTheme,
+      contentX + contentW - FOOTER_W - 24,
+      contentY + contentH - FOOTER_BAND + 12,
+    )
+    viewportEl.appendChild(footer)
+    extras.push(footer)
+  }
 
   const captureOptions = {
     backgroundColor: composed.bgFallback,
@@ -142,10 +227,6 @@ const captureViewport = async (
     style: {
       width: `${contentW}px`,
       height: `${contentH}px`,
-      background: composed.background,
-      backgroundSize: composed.backgroundSize,
-      backgroundRepeat: composed.backgroundRepeat,
-      backgroundColor: composed.bgFallback,
       transform: `translate(${-contentX}px, ${-contentY}px)`,
       transformOrigin: '0 0',
     },
@@ -157,11 +238,27 @@ const captureViewport = async (
     },
   }
 
-  return format === 'svg'
-    ? toSvg(viewportEl, captureOptions)
-    : format === 'png'
-      ? toPng(viewportEl, captureOptions)
-      : toJpeg(viewportEl, { ...captureOptions, quality: jpegQuality })
+  // Kabelpfade sind offene Linien. html-to-image uebernimmt die berechnete
+  // `fill:none` des React-Flow-Stylesheets nicht immer und fuellt sonst die
+  // Flaeche zwischen Anfang und Ende schwarz.
+  const edgePaths = Array.from(
+    viewportEl.querySelectorAll<SVGPathElement>('.react-flow__edge path, .react-flow__connection-path'),
+  )
+  const oldFills = edgePaths.map((p) => p.style.fill)
+  for (const p of edgePaths) p.style.fill = 'none'
+
+  try {
+    return format === 'svg'
+      ? await toSvg(viewportEl, captureOptions)
+      : format === 'png'
+        ? await toPng(viewportEl, captureOptions)
+        : await toJpeg(viewportEl, { ...captureOptions, quality: jpegQuality })
+  } finally {
+    for (const el of extras) el.remove()
+    edgePaths.forEach((p, i) => {
+      p.style.fill = oldFills[i]
+    })
+  }
 }
 
 const triggerDownload = (dataUrl: string, fileName: string) => {
@@ -183,6 +280,8 @@ export const exportCanvasToImage = async (
     backgroundTheme?: 'dark' | 'light'
     pixelRatio?: number
     jpegQuality?: number
+    /** Projektdaten fuer das Schriftfeld unten rechts (wie im PDF). */
+    metadata?: ProjectMetadata
   } & ImageExportBackgroundOptions,
 ): Promise<void> => {
   const dataUrl = await captureViewport(
@@ -196,6 +295,7 @@ export const exportCanvasToImage = async (
       bgOpacity: options?.bgOpacity,
       customPalette: options?.customPalette,
     },
+    options?.metadata,
   )
   // v7.9.116 — Einheitlicher Stempel: YYYYMMDD_<name>_NNN.{png|jpg}
   triggerDownload(dataUrl, buildExportFilename(projectName, format === 'png' ? 'png' : format === 'svg' ? 'svg' : 'jpg'))

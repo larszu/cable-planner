@@ -1024,6 +1024,7 @@ export default function App() {
         return
       }
       await exportCanvasToImage(project.metadata.name, imgFormat, {
+        metadata: project.metadata,
         backgroundTheme: canvasTheme,
         bgVariant: exportBgVariant,
         gridSize: exportGridSize,
