@@ -18,7 +18,7 @@
 
 import { starte } from '../app.mjs'
 import { erststartOverlayWeg } from '../../lib/erststartOverlay.mjs'
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
+import { mkdtempSync, writeFileSync } from 'node:fs'
 import { createServer } from 'node:http'
 import { tmpdir } from 'node:os'
 import { join, dirname } from 'node:path'
@@ -31,7 +31,6 @@ const TMP = mkdtempSync(join(tmpdir(), 'cp-canvas-'))
 
 const a = await starte({ sprache, breite: 1800, hoehe: 1000 })
 const w = a.win
-w.setDefaultTimeout(7000)
 const de = sprache === 'de'
 /** Text in der Sprache des Laufs, wenn es keinen Wörterbuch-Schlüssel gibt. */
 const zw = (deText, enText) => (de ? deText : enText)
@@ -78,19 +77,11 @@ async function frisch({ leer = false } = {}) {
   await verschiebeAnsicht()
 }
 
-/**
- * Ansicht so verschieben, dass die Oberkante von „Camera 1" bei y = 270 (Fenster)
- * liegt: darüber ist Platz für die dreizeilige Werkzeugleiste und die Suche.
- */
-async function verschiebeAnsicht(zielY = 270) {
-  await pause(600)
-  const b = await knoten('Camera 1').boundingBox()
-  if (!b) return
-  const dy = Math.round(zielY - b.y)
-  if (Math.abs(dy) < 4) return
-  await w.mouse.move(900, 860)
+/** Ansicht nach unten schieben, damit die Werkzeugleiste kein Gerät verdeckt. */
+async function verschiebeAnsicht(dy = 150) {
+  await w.mouse.move(900, 720)
   await w.mouse.down()
-  await w.mouse.move(900, 860 + dy, { steps: 8 })
+  await w.mouse.move(900, 720 + dy, { steps: 8 })
   await w.mouse.up()
   await pause(400)
 }
@@ -100,17 +91,14 @@ const FENSTER = { width: 1800, height: 1000 }
 const leiste = () => w.locator('[data-cp-canvas-toolbar]')
 const flaeche = () => w.locator('#cable-planner-canvas')
 
-const istRechteck = (v) => v && typeof v === 'object' && typeof v.width === 'number' && typeof v.x === 'number'
 const alsRechteck = async (x) => {
-  let v = x
-  if (typeof v === 'function') v = await v()
-  if (istRechteck(v)) return { x: v.x, y: v.y, width: v.width, height: v.height }
+  const v = typeof x === 'function' ? await x() : x
   if (v && typeof v.first === 'function') {
     const el = v.first()
     if (!(await el.count())) return null
     return await el.boundingBox()
   }
-  return null
+  return v
 }
 
 /** Vereinigung mehrerer Locator/Rechtecke, mit Rand, auf das Fenster begrenzt. */
@@ -132,18 +120,9 @@ async function vereine(teile, rand = 8) {
 const ausschnitt = (...teile) => () => ({
   count: async () => 1,
   first: () => ({
-    screenshot: async (opt) => w.screenshot({ ...opt, clip: await vereine(teile, 0) }),
+    screenshot: async (opt) => w.screenshot({ ...opt, clip: await vereine(teile) }),
   }),
 })
-/** Ein festes Rechteck als Aufnahmeziel (und, für ausschnitt(), als Teil). */
-const festesZiel = (r) =>
-  Object.assign(
-    { ...r },
-    {
-      count: async () => 1,
-      first: () => ({ screenshot: async (opt) => w.screenshot({ ...opt, clip: r }) }),
-    },
-  )
 /** Rechteck um einen Punkt (Kontextmenüs ohne Rolle). */
 const umPunkt = (x, y, breite = 300, hoehe = 420) => ({
   x: Math.max(0, x - 10),
@@ -151,26 +130,14 @@ const umPunkt = (x, y, breite = 300, hoehe = 420) => ({
   width: Math.min(breite, FENSTER.width - x + 10),
   height: Math.min(hoehe, FENSTER.height - y + 10),
 })
-/** Die Zeichenfläche bis y = 720 (dort endet das Beispiel), ganz mit R_VOLL. */
-const flaecheOben = async () => {
-  const b = await flaeche().boundingBox()
-  return { x: b.x, y: b.y, width: b.width, height: Math.min(b.height, 722 - b.y) }
-}
-const R_FLAECHE = ausschnitt(flaecheOben)
-const R_VOLL = () => flaeche()
+const R_FLAECHE = () => flaeche()
 const R_LEISTE = () => leiste()
 const R_MENUE = () => w.locator('[role="menu"]').last()
 const R_DIALOG = () => w.locator('[role="dialog"]').last()
-const B_INSPECTOR = { x: 1518, y: 40, width: 282, height: 935 }
-const B_BIBLIOTHEK = { x: 0, y: 40, width: 262, height: 935 }
-const B_FENSTER = { x: 0, y: 0, ...FENSTER }
-const B_STATUS = { x: 0, y: 975, width: 1800, height: 25 }
-const B_PANEL = { x: 1416, y: 0, width: 384, height: 1000 }
-const R_INSPECTOR = festesZiel(B_INSPECTOR)
-const R_BIBLIOTHEK = festesZiel(B_BIBLIOTHEK)
-const R_FENSTER = festesZiel(B_FENSTER)
-const R_STATUS = festesZiel(B_STATUS)
-const R_PANEL = festesZiel(B_PANEL)
+const R_INSPECTOR = { x: 1518, y: 40, width: 282, height: 935 }
+const R_BIBLIOTHEK = { x: 0, y: 40, width: 262, height: 935 }
+const R_FENSTER = { x: 0, y: 0, ...FENSTER }
+const R_STATUS = { x: 0, y: 975, width: 1800, height: 25 }
 
 // ─── Hilfen zum Bedienen ──────────────────────────────────────────────────────
 const knoten = (name) => w.locator('.react-flow__node-equipment').filter({ hasText: name }).first()
@@ -188,20 +155,11 @@ const kabelPunkt = (i, anteil = 0.5) =>
   }, [i, anteil])
 const kabelAnzahl = () => w.locator('.react-flow__edge-path').count()
 
-/**
- * Menüs und Popups schließen: Escape, dann ein Klick auf die Statuszeile. Ein
- * Klick auf die Zeichenfläche schließt sie nicht (die Fläche verbraucht das
- * Ereignis), ein Klick auf die übrige Oberfläche schon.
- */
+/** Menüs und Popups ohne Rolle schließen: Escape, dann ein Klick auf freie Fläche. */
 async function leerklick() {
   await w.keyboard.press('Escape')
   await pause(150)
-  await w.mouse.click(1000, 988)
-  await pause(300)
-}
-/** Auswahl aufheben: Klick auf freie Zeichenfläche. */
-async function abwaehlen() {
-  await w.mouse.click(820, 905)
+  await w.mouse.click(820, 900)
   await pause(300)
 }
 async function alleZu() {
@@ -256,33 +214,8 @@ const abschnitte = []
 function abschnitt(name, fn) {
   abschnitte.push([name, fn])
 }
-/** Jedes `ziel:` (Locator, Rechteck, Funktion) so vereinheitlichen, dass es `count()`/`first()` kann. */
-const normZiel = (z) => {
-  if (z === undefined || z === null) return z
-  if (typeof z === 'function') {
-    return async () => {
-      const v = await z()
-      return typeof v?.count === 'function' ? v : rechteckZiel(v)
-    }
-  }
-  return typeof z.count === 'function' ? z : rechteckZiel(z)
-}
-const rechteckZiel = (r) =>
-  r && typeof r.width === 'number'
-    ? { count: async () => 1, first: () => ({ screenshot: async (opt) => w.screenshot({ ...opt, clip: { x: r.x, y: r.y, width: r.width, height: r.height } }) }) }
-    : { count: async () => 0 }
 const neueFolge = (name) => {
   const f = a.folge(`canvas-${name}`)
-  const roh = f.schritt.bind(f)
-  f.schritt = async (n, tun, opt = {}) => {
-    const z = normZiel(opt.ziel)
-    // folge() ruft ziel() ohne await auf: hier vorher auflösen.
-    let aufgeloest = z
-    return roh(n, async () => {
-      if (tun) await tun()
-      if (typeof z === 'function') aufgeloest = await z()
-    }, { ...opt, ziel: () => aufgeloest ?? z })
-  }
   folgen[name] = f
   return f
 }
@@ -482,31 +415,17 @@ const rueckgaengig = async () => {
   await w.getByRole('button', { name: M('app.undo') }).first().click({ timeout: 5000 })
   await pause(500)
 }
-const R_FLAECHE_INSPECTOR = ausschnitt(flaecheOben, { x: 1518, y: 40, width: 282, height: 680 })
+const R_FLAECHE_INSPECTOR = ausschnitt(R_FLAECHE, R_INSPECTOR)
 
 abschnitt('auswahl', async () => {
   const f = neueFolge('auswahl')
   await f.schritt('ein-geraet', async () => kopfKlick('Camera 2'), { ziel: R_FLAECHE_INSPECTOR })
-  for (const [name, key] of [
-    ['links', 'toolbar.align.leftViewport'],
-    ['unten', 'toolbar.align.bottomViewport'],
-  ]) {
-    await f.schritt(
-      `einzeln-${name}`,
-      async () => {
-        await merkeTitel(`ausrichten-einzeln-${name}`, leiste().getByRole('button', { name: M(key) }))
-        await klickMitte(leiste().getByRole('button', { name: M(key) }))
-      },
-      { ziel: R_FLAECHE },
-    )
-    await rueckgaengig().catch(() => {})
-  }
   await f.schritt('zwei-geraete', async () => kopfKlick('Vision mixer', 'Shift'), { ziel: R_FLAECHE })
   await f.schritt('drei-geraete', async () => kopfKlick('Multiviewer', 'Shift'), { ziel: R_FLAECHE })
   await f.schritt(
     'auswahl-aufgehoben',
     async () => {
-      await abwaehlen()
+      await w.mouse.click(820, 900)
       await pause(400)
     },
     { ziel: R_FLAECHE },
@@ -523,7 +442,7 @@ abschnitt('auswahl', async () => {
   await f.schritt(
     'alles-auswaehlen',
     async () => {
-      await abwaehlen()
+      await w.mouse.click(820, 900)
       await a.menue('app.menu.edit', 'app.menu.edit.selectAll')
       await pause(500)
     },
@@ -532,7 +451,7 @@ abschnitt('auswahl', async () => {
 
   // Ausrichten mit der Werkzeugleiste (3 Geräte: Camera 2, Vision mixer, Multiviewer)
   const dreiWaehlen = async () => {
-    await abwaehlen()
+    await w.mouse.click(820, 900)
     await kopfKlick('Camera 2')
     await kopfKlick('Vision mixer', 'Shift')
     await kopfKlick('Multiviewer', 'Shift')
@@ -552,11 +471,10 @@ abschnitt('auswahl', async () => {
     await f.schritt(
       `ausrichten-${name}`,
       async () => {
-        await dreiWaehlen()
         await merkeTitel(`ausrichten-${name}`, leiste().getByRole('button', { name: M(key) }))
         await klickMitte(leiste().getByRole('button', { name: M(key) }))
       },
-      { ziel: () => festesZiel({ x: 230, y: 230, width: 1260, height: 500 }) },
+      { ziel: R_FLAECHE },
     )
     await rueckgaengig().catch(() => {})
   }
@@ -613,7 +531,7 @@ abschnitt('auswahl', async () => {
   await f.schritt(
     'kabel-verbinden-knopf',
     async () => {
-      await abwaehlen()
+      await w.mouse.click(820, 900)
       await kopfKlick('Camera 2')
       await kopfKlick('Vision mixer', 'Shift')
       await merkeTitel('kabel-verbinden', leiste().getByRole('button', { name: M('toolbar.bulkConnect.label') }))
@@ -685,7 +603,7 @@ abschnitt('kuerzel', async () => {
   await f.schritt(
     'strg-c-v',
     async () => {
-      await abwaehlen()
+      await w.mouse.click(820, 900)
       await kopfKlick('Control room monitor')
       await w.keyboard.press('Control+c')
       await w.keyboard.press('Control+v')
@@ -726,7 +644,7 @@ abschnitt('kuerzel', async () => {
     'escape-kabel',
     async () => {
       await a.zu()
-      await abwaehlen()
+      await w.mouse.click(820, 900)
     },
     { ziel: R_FLAECHE },
   )
@@ -864,7 +782,7 @@ abschnitt('rahmen', async () => {
   await f.schritt(
     'rahmen-nimmt-mit',
     async () => {
-      await abwaehlen()
+      await w.mouse.click(820, 900)
       const b = await rahmenKnoten().first().boundingBox()
       await ziehe({ x: b.x + b.width / 2, y: b.y + 4 }, { x: b.x + b.width / 2 + 120, y: b.y + 4 + 60 })
     },
@@ -902,7 +820,7 @@ abschnitt('raeume', async () => {
       await kopfKlick('Camera 1')
       await kopfKlick('Camera 2', 'Shift')
       await klickMitte(rahmenUmAuswahl())
-      await abwaehlen()
+      await w.mouse.click(820, 900)
       await rahmenUmbenennen(0, zw('Studio', 'Studio'))
     },
     { ziel: R_FLAECHE },
@@ -913,7 +831,7 @@ abschnitt('raeume', async () => {
       await kopfKlick('Multiviewer')
       await kopfKlick('Control room monitor', 'Shift')
       await klickMitte(rahmenUmAuswahl())
-      await abwaehlen()
+      await w.mouse.click(820, 900)
       await rahmenUmbenennen(1, zw('Regie', 'Control room'))
     },
     { ziel: R_FLAECHE },
@@ -923,7 +841,7 @@ abschnitt('raeume', async () => {
     async () => {
       await kopfKlick('Vision mixer')
       await klickMitte(rahmenUmAuswahl())
-      await abwaehlen()
+      await w.mouse.click(820, 900)
       await rahmenUmbenennen(2, zw('Technik', 'Machine room'))
     },
     { ziel: R_FLAECHE },
@@ -994,9 +912,17 @@ abschnitt('raeume', async () => {
     { ziel: R_INSPECTOR },
   )
   await f.schritt(
+    'steigschacht-aus',
+    async () => {
+      await w.getByLabel(M('location.field.riser')).first().uncheck()
+      await pause(400)
+    },
+    { ziel: R_INSPECTOR },
+  )
+  await f.schritt(
     'raeume-menue',
     async () => {
-      await abwaehlen()
+      await w.mouse.click(820, 900)
       await klickMitte(raumButton())
       extra.texte['raeume-menue'] = await R_MENUE().innerText()
     },
@@ -1492,20 +1418,6 @@ abschnitt('abschliessen', async () => {
     },
     { ziel: R_LEISTE },
   )
-  // Betrachter-Datei (Beispiel): nur lesen
-  await f.schritt(
-    'betrachter',
-    async () => {
-      const p = projektGeruest('Viewer', [
-        GE('a1', 'Camera 1', 'Cameras', 80, 140, [], [PT('a1_o', 'SDI Out', 'BNC', 'out')]),
-        GE('a2', 'Vision mixer', 'Mixer', 480, 140, [PT('a2_i', 'In 1', 'BNC', 'in')], []),
-      ], [KB('v1', 'CAM 1', 'a1', 'a1_o', 'a2', 'a2_i', 'BNC', { layer: 'video' })])
-      p.mode = 'viewer'
-      await projektLaden(p, 'betrachter.json')
-      extra.tooltips['betrachter-knopf'] = await w.getByRole('button', { name: /^(Viewer|Betrachter)/ }).first().getAttribute('title').catch(() => '')
-    },
-    { ziel: ausschnitt(R_LEISTE, R_FLAECHE) },
-  )
 })
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1513,6 +1425,7 @@ abschnitt('abschliessen', async () => {
 // ═══════════════════════════════════════════════════════════════════════════
 const anmerkungenKnopf = () => leiste().getByRole('button', { name: M('toolbar.annotations.label') }).first()
 const badgesKnopf = () => leiste().getByRole('button', { name: M('toolbar.annotations.badgeLabel') }).first()
+const R_PANEL = { x: 1416, y: 0, width: 384, height: 1000 }
 
 abschnitt('anmerkungen', async () => {
   const f = neueFolge('anmerkungen')
@@ -1623,7 +1536,7 @@ abschnitt('anmerkungen', async () => {
       await klickMitte(badgesKnopf())
       extra.tooltips['badges-aus'] = await badgesKnopf().getAttribute('title')
     },
-    { ziel: ausschnitt(R_LEISTE, flaecheOben) },
+    { ziel: ausschnitt(R_LEISTE, R_FLAECHE) },
   )
   await f.schritt('badges-an', async () => klickMitte(badgesKnopf()), { ziel: R_LEISTE })
   await f.schritt(
@@ -1714,7 +1627,7 @@ abschnitt('hallenplan', async () => {
   const dataUrl = await planBild(png)
   const feld = () => R_GRUNDRISS().locator('input[type="file"]')
   const ladeKnopf = () => R_GRUNDRISS().getByRole('button', { name: /Load floor plan image|Replace image|Hallenplan-Bild laden|Bild ersetzen/i }).first()
-  const panelUndFlaeche = ausschnitt(flaecheOben, R_PANEL)
+  const panelUndFlaeche = ausschnitt(R_FLAECHE, R_PANEL)
   await f.schritt('knopf', async () => merkeTitel('hallenplan-knopf', leiste().getByRole('button', { name: M('toolbar.floorplan.label') })), { ziel: R_LEISTE })
   await f.schritt(
     'panel-leer',
@@ -2017,7 +1930,7 @@ async function panelScroll(loc, ganzUnten = true) {
 
 abschnitt('symbole', async () => {
   const f = neueFolge('symbole')
-  const panelUndFlaeche = ausschnitt(flaecheOben, R_PANEL)
+  const panelUndFlaeche = ausschnitt(R_FLAECHE, R_PANEL)
   const kat = (key) => R_SYMBOLE().getByRole('button', { name: M(key) }).first()
   await f.schritt('knopf', async () => merkeTitel('symbole-knopf', symbolKnopf()), { ziel: R_LEISTE })
   await f.schritt(
@@ -2270,7 +2183,7 @@ abschnitt('suche', async () => {
   await f.schritt(
     'strg-f',
     async () => {
-      await abwaehlen()
+      await w.mouse.click(820, 900)
       await w.keyboard.press('Control+f')
       await pause(600)
     },
@@ -2343,42 +2256,6 @@ abschnitt('suche', async () => {
     },
     { ziel: R_FLAECHE },
   )
-  // Felder, die die Suche außer dem Namen durchsucht (Beispieldaten)
-  const netz = projektGeruest('Netz', [
-    GE('sw', 'Switch A', 'Networking', 80, 140, [PT('sw_i', 'Port 1', 'RJ45', 'in')], [], {
-      ipAddress: '10.0.1.20', macAddress: 'aa:bb:cc:00:00:01', vlanId: 30, serialNumber: 'SN-4711', assetTag: 'INV-0815',
-      shortName: 'SWA', notes: zw('hängt im Rack 2', 'sits in rack 2'),
-    }),
-    GE('pc', zw('Regie-PC', 'Control PC'), 'IT/Server', 480, 140, [PT('pc_i', 'LAN', 'RJ45', 'in')], [], {
-      ipAddress: '10.0.1.30', macAddress: 'aa:bb:cc:00:00:04', subtitle: zw('Streaming', 'Streaming'),
-    }),
-  ], [])
-  await f.schritt(
-    'felder-ip',
-    async () => {
-      await projektLaden(netz, 'netz.json')
-      await w.keyboard.press('Control+f')
-      await pause(400)
-      await feld().fill('10.0.1')
-      await pause(600)
-    },
-    { ziel: R_FLAECHE },
-  )
-  for (const [name, text] of [
-    ['felder-seriennummer', 'SN-4711'],
-    ['felder-mac', 'cc:00:00:04'],
-    ['felder-notiz', zw('rack 2', 'rack 2')],
-    ['felder-vlan', '30'],
-  ]) {
-    await f.schritt(
-      name,
-      async () => {
-        await feld().fill(text)
-        await pause(600)
-      },
-      { ziel: R_FLAECHE },
-    )
-  }
 })
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -2421,7 +2298,7 @@ abschnitt('zoom', async () => {
       await w.keyboard.up('Control')
       await pause(600)
     },
-    { ziel: ausschnitt(flaecheOben, R_STATUS) },
+    { ziel: ausschnitt(R_FLAECHE, R_STATUS) },
   )
   await f.schritt(
     'minikarte-ziehen',
@@ -2444,7 +2321,7 @@ abschnitt('zoom', async () => {
       await a.klick('app.menu.view.zoom100')
       await pause(600)
     },
-    { ziel: ausschnitt(flaecheOben, R_STATUS) },
+    { ziel: ausschnitt(R_FLAECHE, R_STATUS) },
   )
 })
 
@@ -3214,439 +3091,78 @@ abschnitt('stream', async () => {
   }
 })
 
-
-// ═══════════════════════════════════════════════════════════════════════════
-// Eigene Beispielprojekte für Szenen, die das Beispielprojekt nicht enthält
-// ═══════════════════════════════════════════════════════════════════════════
-const PT = (id, name, ct, direction, extra = {}) => ({ id, name, type: ct, connectorType: ct, direction, ...extra })
-const GE = (id, name, category, x, y, inputs, outputs, extra = {}) => ({
-  id, name, category, x, y, width: 220, height: 40 + 24 * Math.max(inputs.length, outputs.length), inputs, outputs, ...extra,
-})
-const KB = (id, name, fe, fp, te, tp, type, extra = {}) => ({
-  id, name, type, length: 5, color: '#3b82f6', fromEquipmentId: fe, fromPortId: fp, toEquipmentId: te, toPortId: tp,
-  notes: '', routing: 'orthogonal', arrowEnd: true, ...extra,
-})
-const projektGeruest = (name, equipment, cables, extra = {}) => ({
-  metadata: { name, description: '', createdAt: '2026-09-30T00:00:00.000Z', updatedAt: '2026-09-30T00:00:00.000Z', defaultVideoFormat: '1080p50' },
-  equipment, cables, locations: [], canvasState: { x: 0, y: 0, zoom: 1 }, ...extra,
-})
-/** Ein Projekt über Datei → Öffnen laden (der Dateidialog des Systems ist ersetzt). */
-async function projektLaden(projekt, dateiName) {
-  const pfad = join(TMP, dateiName)
-  writeFileSync(pfad, JSON.stringify(projekt))
-  await a.app.evaluate(({ dialog }, p) => {
-    dialog.showOpenDialog = async () => ({ canceled: false, filePaths: [p] })
-  }, pfad)
-  await a.menue('app.menu.file', 'app.menu.file.open')
-  await pause(3500)
-  const ok = w.getByRole('button', { name: /^(OK|Discard|Verwerfen|Open anyway|Trotzdem öffnen)$/i })
-  if (await ok.count()) await ok.first().click().catch(() => {})
-  await pause(2000)
-  await a.zu()
-  await seiten()
-  // einpassen
-  await w.locator('.react-flow__controls button').nth(2).click({ timeout: 4000 }).catch(() => {})
+// ── Erkundung (nur Entwicklungslauf) ──────────────────────────────────────────
+abschnitt('erkunden', async () => {
+  const S = '/private/tmp/claude-501/-Users-larszumpe/12f0f693-b544-4eb3-a60a-27e5d3a1fe46/scratchpad/x'
+  const shot = (n) => w.screenshot({ path: `${S}/${n}.png` })
+  // Bibliothek: Suche nach HDMI
+  const suche = w.getByPlaceholder(/Suchen|Search/).first()
+  await suche.fill('HDMI')
   await pause(800)
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// AUSWAHLLEISTE — die schwebende Leiste an der Auswahl (Inline-Auswahl-Toolbar)
-// ═══════════════════════════════════════════════════════════════════════════
-abschnitt('inline', async () => {
-  const f = neueFolge('inline')
-  const inl = () => w.locator('[role="toolbar"]').last()
-  const umLeiste = ausschnitt(flaecheOben)
-  await f.schritt(
-    'ein-geraet',
-    async () => {
-      await kopfKlick('Camera 2')
-      await pause(500)
-      extra.tooltips['inline-ein-geraet'] = (await inl().locator('button').evaluateAll((els) => els.map((e) => e.getAttribute('title')))).join(' | ')
-    },
-    { ziel: umLeiste },
-  )
-  await f.schritt(
-    'ein-geraet-nah',
-    null,
-    { ziel: ausschnitt(inl, () => knoten('Camera 2').boundingBox().then((b) => ({ x: b.x - 40, y: b.y - 70, width: b.width + 80, height: b.height + 90 }))) },
-  )
-  await f.schritt(
-    'zwei-geraete',
-    async () => {
-      await kopfKlick('Vision mixer', 'Shift')
-      await pause(500)
-      extra.tooltips['inline-zwei-geraete'] = (await inl().locator('button').evaluateAll((els) => els.map((e) => e.getAttribute('title')))).join(' | ')
-    },
-    { ziel: umLeiste },
-  )
-  await f.schritt(
-    'drei-geraete',
-    async () => {
-      await kopfKlick('Multiviewer', 'Shift')
-      await pause(500)
-      extra.tooltips['inline-drei-geraete'] = (await inl().locator('button').evaluateAll((els) => els.map((e) => e.getAttribute('title')))).join(' | ')
-    },
-    { ziel: umLeiste },
-  )
-  await f.schritt(
-    'ausrichten-links',
-    async () => {
-      await inl().getByRole('button', { name: M('inlineToolbar.alignLeft') }).click()
-      await pause(500)
-    },
-    { ziel: umLeiste },
-  )
-  await f.schritt(
-    'verteilen',
-    async () => {
-      await inl().getByRole('button', { name: M('inlineToolbar.distributeV') }).click()
-      await pause(500)
-    },
-    { ziel: umLeiste },
-  )
-  await f.schritt(
-    'duplizieren',
-    async () => {
-      await abwaehlen()
-      await kopfKlick('Control room monitor')
-      await pause(400)
-      await inl().getByRole('button', { name: M('inlineToolbar.duplicate') }).click()
-      await pause(700)
-    },
-    { ziel: umLeiste },
-  )
-  await f.schritt(
-    'rahmen',
-    async () => {
-      await inl().getByRole('button', { name: M('inlineToolbar.frame') }).click()
-      await pause(700)
-    },
-    { ziel: umLeiste },
-  )
-  await f.schritt(
-    'datenblatt',
-    async () => {
-      await abwaehlen()
-      await kopfKlick('Camera 1')
-      await pause(400)
-      await inl().getByRole('button', { name: M('inlineToolbar.datasheet') }).click()
-      await pause(1500)
-      extra.texte['inline-datenblatt'] = await a.dialogText()
-    },
-    { ziel: R_FENSTER },
-  )
+  await shot('erk-lib-hdmi')
+  const eintraege = await w.locator('[draggable="true"]').allInnerTexts()
+  console.log('LIB-EINTRAEGE', JSON.stringify(eintraege.slice(0, 20)))
+  await suche.fill('')
+  // Kategorie Konverter aufklappen
+  await w.getByText(/^Konverter$|^Converters?$/).first().click().catch((e) => console.log('kat', e.message))
+  await pause(600)
+  await shot('erk-lib-konverter')
+  const e2 = await w.locator('[draggable="true"]').allInnerTexts()
+  console.log('KONVERTER', JSON.stringify(e2.slice(0, 12)))
+  // Ersten Eintrag anklicken
+  await w.locator('[draggable="true"]').first().click().catch((e) => console.log('klick', e.message))
+  await pause(900)
+  await shot('erk-lib-klick')
+  console.log('KNOTEN', await alleKnoten().count())
+  console.log('KNOTENTEXT', JSON.stringify((await alleKnoten().allInnerTexts()).map((t) => t.replace(/\n+/g, ' / ').slice(0, 160))))
+  // Rack-Builder aus Auswahl: Knöpfe auflisten
+  await kopfKlick('Camera 1')
+  await kopfKlick('Camera 2', 'Shift')
+  await klickMitte(leiste().getByRole('button', { name: M('toolbar.rack.arrange') }))
+  await pause(1800)
+  await shot('erk-rackbuilder')
+  console.log('RACKDLG', (await a.dialogText()).slice(0, 1500))
+  console.log('RACKBTN', JSON.stringify(await w.locator('[role=dialog] button').allInnerTexts()))
   await a.zu()
-  await f.schritt(
-    'loeschen',
-    async () => {
-      await abwaehlen()
-      await kopfKlick('Camera 1')
-      await pause(400)
-      await inl().getByRole('button', { name: M('inlineToolbar.delete') }).click()
-      await pause(700)
-      extra.texte['inline-loeschen'] = await a.dialogText()
-    },
-    { ziel: umLeiste },
-  )
-  await f.schritt(
-    'rahmen-gewaehlt',
-    async () => {
-      await a.zu()
-      await abwaehlen()
-      const r = rahmenKnoten().first()
-      const b = await r.boundingBox()
-      await w.mouse.click(b.x + b.width / 2, b.y + b.height - 10)
-      await pause(500)
-    },
-    { ziel: umLeiste },
-  )
+  // Inspector-Abschnitte des Geräts
+  await kopfKlick('Camera 1')
+  await pause(500)
+  console.log('INSPECTOR', (await w.locator('body').innerText()).slice(0, 100))
 })
 
 // ═══════════════════════════════════════════════════════════════════════════
-// ADAPTER — was zwischen zwei nicht passende Anschlüsse gehört
+// ABLAUF
 // ═══════════════════════════════════════════════════════════════════════════
-abschnitt('adapter', async () => {
-  const f = neueFolge('adapter')
-  const mx = GE('mx', zw('Audiomischer', 'Audio mixer'), 'Mixer', 80, 120,
-    [],
-    [PT('mx_o1', 'Line Out', 'Jack 6.35 mm TS', 'out'), PT('mx_o2', 'Mic Out', 'XLR', 'out', { gender: 'male' }), PT('mx_o3', 'SDI Out', 'BNC', 'out')])
-  const rc = GE('rc', zw('Rekorder', 'Recorder'), 'Recorder', 760, 120,
-    [PT('rc_i1', 'Line In', 'Jack 3.5 mm TRS', 'in'), PT('rc_i2', 'Mic In', 'XLR', 'in', { gender: 'male' }), PT('rc_i3', 'HDMI In', 'HDMI', 'in'),
-      PT('rc_i4', 'Line In 2', 'Jack 3.5 mm TRS', 'in'), PT('rc_i5', 'Mic In 2', 'XLR', 'in', { gender: 'male' })],
-    [])
-  const projekt = projektGeruest('Adapter', [mx, rc], [
-    KB('k1', 'Line', 'mx', 'mx_o1', 'rc', 'rc_i1', 'Jack 6.35 mm TS', { layer: 'audio', color: '#22c55e' }),
-    KB('k2', 'Mic', 'mx', 'mx_o2', 'rc', 'rc_i2', 'XLR', { layer: 'audio', color: '#22c55e' }),
-    KB('k3', 'SDI', 'mx', 'mx_o3', 'rc', 'rc_i3', 'BNC', { layer: 'video' }),
-  ])
-  await projektLaden(projekt, 'adapter.json')
-  const wahl = async (i) => {
-    await abwaehlen()
-    const p = await kabelPunkt(i, 0.5)
-    await w.mouse.click(p.x, p.y)
-    await pause(600)
-  }
-  await f.schritt('szene', null, { ziel: R_FLAECHE })
-  await f.schritt('adapter-hinweis', async () => wahl(0), { ziel: R_FLAECHE_INSPECTOR })
-  await f.schritt(
-    'adapter-eingesetzt',
-    async () => {
-      extra.tooltips['adapter-einsetzen'] = await w.getByRole('button', { name: M('adapter.insert') }).first().getAttribute('title')
-      await w.getByRole('button', { name: M('adapter.insert') }).first().click({ timeout: 6000 })
-      await pause(900)
-      await w.locator('.react-flow__controls button').nth(2).click().catch(() => {})
-      await pause(600)
-    },
-    { ziel: R_FLAECHE },
-  )
-  await f.schritt(
-    'adapter-rueckgaengig',
-    async () => {
-      await rueckgaengig()
-    },
-    { ziel: R_FLAECHE },
-  )
-  await f.schritt('geschlecht-hinweis', async () => wahl(1), { ziel: R_FLAECHE_INSPECTOR })
-  await f.schritt(
-    'geschlecht-eingesetzt',
-    async () => {
-      await w.getByRole('button', { name: M('adapter.insert') }).first().click({ timeout: 6000 })
-      await pause(900)
-      await w.locator('.react-flow__controls button').nth(2).click().catch(() => {})
-      await pause(600)
-    },
-    { ziel: R_FLAECHE },
-  )
-  await f.schritt(
-    'geschlecht-rueckgaengig',
-    async () => {
-      await rueckgaengig()
-    },
-    { ziel: R_FLAECHE },
-  )
-  await f.schritt('wandler-hinweis', async () => wahl(2), { ziel: R_FLAECHE_INSPECTOR })
-  // beim Anlegen: Dialog mit Hinweis
-  await f.schritt(
-    'dialog-adapter',
-    async () => {
-      await abwaehlen()
-      const von = await griff(zw('Audiomischer', 'Audio mixer'), 'source', 0)
-      const ziel = await griff(zw('Rekorder', 'Recorder'), 'target', 3)
-      await w.mouse.move(von.x, von.y)
-      await w.mouse.down()
-      await w.mouse.move((von.x + ziel.x) / 2, (von.y + ziel.y) / 2, { steps: 10 })
-      await w.mouse.move(ziel.x, ziel.y, { steps: 10 })
-      await w.mouse.up()
-      await pause(800)
-      extra.texte['dialog-adapter'] = await a.dialogText()
-    },
-    { ziel: R_DIALOG },
-  )
-  await a.zu()
-  await f.schritt(
-    'dialog-geschlecht',
-    async () => {
-      const von = await griff(zw('Audiomischer', 'Audio mixer'), 'source', 1)
-      const ziel = await griff(zw('Rekorder', 'Recorder'), 'target', 4)
-      await w.mouse.move(von.x, von.y)
-      await w.mouse.down()
-      await w.mouse.move((von.x + ziel.x) / 2, (von.y + ziel.y) / 2, { steps: 10 })
-      await w.mouse.move(ziel.x, ziel.y, { steps: 10 })
-      await w.mouse.up()
-      await pause(800)
-      extra.texte['dialog-geschlecht'] = await a.dialogText()
-    },
-    { ziel: R_DIALOG },
-  )
-  await a.zu()
-})
-
-// ═══════════════════════════════════════════════════════════════════════════
-// SCHALTBILD — Stromkreis rechnen (Wechselschaltung), Schalter umlegen, Vorschläge
-// ═══════════════════════════════════════════════════════════════════════════
-abschnitt('schaltbild', async () => {
-  const f = neueFolge('schaltbild')
-  const strom = (id, name, fe, fp, te, tp) => KB(id, name, fe, fp, te, tp, 'IEC 230V', { layer: 'power', color: '#f59e0b' })
-  const baue = (mitZweiterAder) => {
-    const en = zw('Einspeisung', 'Supply')
-    const eq = [
-      GE('fd', en, 'Power', 60, 240, [], [PT('fd_o', 'L', 'IEC 230V', 'out', { circuitTerminal: 0 })], { circuitKind: 'feed' }),
-      GE('wa', zw('Wechselschalter A', 'Two-way switch A'), 'Power', 380, 100,
-        [PT('wa_i', 'L', 'IEC 230V', 'in', { circuitTerminal: 0 })],
-        [PT('wa_o1', 'Terminal 1', 'IEC 230V', 'out', { circuitTerminal: 1 }), PT('wa_o2', 'Terminal 2', 'IEC 230V', 'out', { circuitTerminal: 2 })],
-        { circuitKind: 'changeover' }),
-      GE('wb', zw('Wechselschalter B', 'Two-way switch B'), 'Power', 380, 380,
-        [PT('wb_i1', 'Terminal 1', 'IEC 230V', 'in', { circuitTerminal: 1 }), PT('wb_i2', 'Terminal 2', 'IEC 230V', 'in', { circuitTerminal: 2 })],
-        [PT('wb_o', 'L', 'IEC 230V', 'out', { circuitTerminal: 0 })],
-        { circuitKind: 'changeover' }),
-      GE('lp', zw('Leuchte', 'Luminaire'), 'Lighting', 760, 240, [PT('lp_i', 'L', 'IEC 230V', 'in', { circuitTerminal: 0 })], [], { circuitKind: 'lamp' }),
-    ]
-    const kb = [
-      strom('s1', 'L1', 'fd', 'fd_o', 'wa', 'wa_i'),
-      strom('s2', 'L2', 'wa', 'wa_o1', 'wb', 'wb_i1'),
-      ...(mitZweiterAder ? [strom('s3', 'L3', 'wa', 'wa_o2', 'wb', 'wb_i2')] : []),
-      strom('s4', 'L4', 'wb', 'wb_o', 'lp', 'lp_i'),
-    ]
-    return projektGeruest('Schaltbild', eq, kb)
-  }
-  await projektLaden(baue(true), 'schaltbild.json')
-  const chip = () => leiste().getByRole('button', { name: M('canvas.circuit.label') }).first()
-  const marke = (name) => knoten(name).locator('span[title*="—"]').first()
-  await f.schritt('szene-aus', async () => merkeTitel('schaltbild-aus', chip()), { ziel: R_FLAECHE })
-  await f.schritt(
-    'an',
-    async () => {
-      await klickMitte(chip())
-      extra.tooltips['schaltbild-an'] = await chip().getAttribute('title')
-      extra.texte['schaltbild-chip'] = await leiste().innerText()
-    },
-    { ziel: ausschnitt(R_LEISTE, R_FLAECHE) },
-  )
-  await f.schritt(
-    'schalter-a',
-    async () => {
-      await marke(zw('Wechselschalter A', 'Two-way switch A')).click({ timeout: 5000 })
-      await pause(500)
-    },
-    { ziel: R_FLAECHE },
-  )
-  await f.schritt(
-    'schalter-b',
-    async () => {
-      await marke(zw('Wechselschalter B', 'Two-way switch B')).click({ timeout: 5000 })
-      await pause(500)
-    },
-    { ziel: R_FLAECHE },
-  )
-  await f.schritt(
-    'zuruecksetzen',
-    async () => {
-      await klickMitte(leiste().getByRole('button', { name: M('canvas.circuit.reset') }))
-      await pause(400)
-    },
-    { ziel: R_FLAECHE },
-  )
-  await f.schritt(
-    'vorschlaege-ohne-ader',
-    async () => {
-      await projektLaden(baue(false), 'schaltbild-luecke.json')
-      await klickMitte(chip())
-      await klickMitte(leiste().getByRole('button', { name: M('canvas.circuit.suggest'), exact: true }))
-      await pause(900)
-      extra.texte['schaltbild-vorschlaege'] = await a.dialogText()
-    },
-    { ziel: R_DIALOG },
-  )
-  await f.schritt(
-    'vorschlaege-tafel',
-    async () => {
-      await R_DIALOG().getByRole('button', { name: M('canvas.circuit.suggest.showTable') }).first().click({ timeout: 5000 })
-      await pause(500)
-    },
-    { ziel: R_DIALOG },
-  )
-  await f.schritt(
-    'vorschlag-eingetragen',
-    async () => {
-      await R_DIALOG().getByRole('button', { name: M('canvas.circuit.suggest.apply') }).first().click({ timeout: 5000 })
-      await pause(700)
-    },
-    { ziel: R_DIALOG },
-  )
-  await a.zu()
-  await f.schritt('nach-vorschlag', null, { ziel: R_FLAECHE })
-})
-
-// ═══════════════════════════════════════════════════════════════════════════
-// WEG SCHALTEN — Prüfbild über eine Kreuzschiene (nur Dialog, nichts wird gesendet)
-// ═══════════════════════════════════════════════════════════════════════════
-abschnitt('schalten', async () => {
-  const f = neueFolge('schalten')
-  const cam = GE('cm', 'Camera 1', 'Cameras', 60, 160, [], [PT('cm_o', 'SDI Out', 'BNC', 'out')], { nodeColor: '#0f4c81' })
-  const hub = GE('hb', 'Videohub 12x12', 'Router', 420, 100,
-    [PT('hb_i1', 'In 1', 'BNC', 'in'), PT('hb_i2', 'In 2', 'BNC', 'in')],
-    [PT('hb_o1', 'Out 1', 'BNC', 'out'), PT('hb_o2', 'Out 2', 'BNC', 'out')],
-    { ipAddress: '192.0.2.10', videohubRouting: { planned: { 0: 0 }, salvos: [] } })
-  const mon = GE('mo', 'Control room monitor', 'Monitors', 800, 160, [PT('mo_i', 'SDI In', 'BNC', 'in')], [])
-  await projektLaden(projektGeruest('Weg', [cam, hub, mon], [
-    KB('w1', 'CAM 1', 'cm', 'cm_o', 'hb', 'hb_i1', 'BNC', { layer: 'video' }),
-    KB('w2', 'PGM', 'hb', 'hb_o1', 'mo', 'mo_i', 'BNC', { layer: 'video', color: '#ef4444' }),
-  ]), 'weg.json')
-  const auswahl = () => leiste().locator('select').first()
-  await f.schritt('szene', null, { ziel: R_FLAECHE })
-  await f.schritt(
-    'quelle-gewaehlt',
-    async () => {
-      await auswahl().selectOption({ label: 'Camera 1' })
-      await pause(800)
-      extra.texte['schalten-leiste'] = await leiste().innerText()
-    },
-    { ziel: ausschnitt(R_LEISTE, R_FLAECHE) },
-  )
-  await f.schritt(
-    'dialog',
-    async () => {
-      await klickMitte(leiste().getByRole('button', { name: M('canvas.pattern.switch') }))
-      await pause(700)
-      extra.texte['schalten-dialog'] = await a.dialogText()
-    },
-    { ziel: R_DIALOG },
-  )
-  await f.schritt(
-    'ziel-gewaehlt',
-    async () => {
-      const s = R_DIALOG().locator('select').first()
-      extra.listen['schalten-ziele'] = await s.locator('option').allInnerTexts()
-      await s.selectOption({ index: 1 })
-      await pause(700)
-      extra.texte['schalten-plan'] = await a.dialogText()
-    },
-    { ziel: R_DIALOG },
-  )
-  await f.schritt(
-    'name-haken',
-    async () => {
-      await R_DIALOG().getByPlaceholder(T('canvas.hubSwitch.byPlaceholder')).fill(zw('Beispiel-Techniker', 'Example technician'))
-      await R_DIALOG().getByRole('checkbox').first().check()
-      await pause(500)
-      extra.texte['schalten-knopf-aktiv'] = String(await R_DIALOG().getByRole('button', { name: M('canvas.hubSwitch.send') }).first().isEnabled())
-    },
-    { ziel: R_DIALOG },
-  )
-  // Der Knopf zum Senden wird nicht gedrückt: die Adresse ist ein Beispiel (192.0.2.10).
-  await a.zu()
-  await w.getByRole('button', { name: M('canvas.hubSwitch.close') }).first().click({ timeout: 2000 }).catch(() => {})
-})
-
-// ═══════════════════════════════════════════════════════════════════════════
-// Lauf
-// ═══════════════════════════════════════════════════════════════════════════
-const ergebnisDatei = join(HIER, `canvas.${sprache}.json`)
-let bisher = { folgen: {}, extra: {} }
-try {
-  bisher = JSON.parse(readFileSync(ergebnisDatei, 'utf8'))
-} catch {}
-const speichern = () => {
-  const out = { folgen: { ...(bisher.folgen ?? {}) }, extra: { ...(bisher.extra ?? {}) } }
-  for (const [n, f] of Object.entries(folgen)) out.folgen[n] = { schritte: f.schritte, fehler: f.fehler }
-  for (const k of ['tooltips', 'listen', 'texte']) out.extra[k] = { ...(out.extra[k] ?? {}), ...extra[k] }
-  out.extra.fehler = [...(out.extra.fehler ?? []).filter((x) => !nur || !nur.includes(x.split(':')[0])), ...extra.fehler]
-  writeFileSync(ergebnisDatei, JSON.stringify(out, null, 2))
-}
 for (const [name, fn] of abschnitte) {
   if (nur && !nur.includes(name)) continue
-  console.log(`── Abschnitt ${name}`)
+  console.log(`\n== ${name}`)
   try {
     if (name !== 'start') await frisch()
     await fn()
   } catch (e) {
-    extra.fehler.push(`${name}: ${String(e.message).split('\n')[0]}`)
-    console.log(`!! Abschnitt ${name}: ${String(e.message).split('\n')[0]}`)
+    const m = `${name}: ${e.message.split('\n')[0]}`
+    extra.fehler.push(m)
+    console.log('✗ Abschnitt', m)
   }
   await a.zu().catch(() => {})
-  speichern()
 }
-speichern()
+
+const datei = join(HIER, `canvas.${sprache}.json`)
+let alt = { folgen: {}, tooltips: {}, listen: {}, texte: {}, fehler: [] }
+if (nur) {
+  try {
+    alt = JSON.parse((await import('node:fs')).readFileSync(datei, 'utf8'))
+  } catch {}
+}
+const neu = {
+  folgen: { ...alt.folgen, ...Object.fromEntries(Object.entries(folgen).map(([k, f]) => [k, { schritte: f.schritte, fehler: f.fehler }])) },
+  tooltips: { ...alt.tooltips, ...extra.tooltips },
+  listen: { ...alt.listen, ...extra.listen },
+  texte: { ...alt.texte, ...extra.texte },
+  fehler: nur ? [...(alt.fehler ?? []).filter((x) => !nur.some((n) => x.startsWith(n + ':'))), ...extra.fehler] : extra.fehler,
+}
+writeFileSync(datei, JSON.stringify(neu, null, 2))
+const offen = Object.entries(neu.folgen).flatMap(([k, f]) => f.fehler.map((x) => `${k}: ${x}`))
+if (offen.length || neu.fehler.length) console.log('FEHLER:\n' + [...offen, ...neu.fehler].join('\n'))
 await a.ende()
 console.log('FERTIG')
-process.exit(0)
