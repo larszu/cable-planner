@@ -1,4 +1,1416 @@
 {
-  "canvas-09-equipment-context-menu": "",
-  "canvas-11-canvas-context-menu": ""
+  "folgen": {
+    "start": {
+      "schritte": [
+        {
+          "nr": 1,
+          "name": "leerer-plan",
+          "datei": "canvas-start-01-leerer-plan.jpg",
+          "text": ""
+        },
+        {
+          "nr": 2,
+          "name": "beispiel-geladen",
+          "datei": "canvas-start-02-beispiel-geladen.jpg",
+          "text": ""
+        },
+        {
+          "nr": 3,
+          "name": "fenster",
+          "datei": "canvas-start-03-fenster.jpg",
+          "text": ""
+        }
+      ],
+      "fehler": []
+    },
+    "leiste": {
+      "schritte": [
+        {
+          "nr": 1,
+          "name": "leiste-ganz",
+          "datei": "canvas-leiste-01-leiste-ganz.jpg",
+          "text": ""
+        },
+        {
+          "nr": 2,
+          "name": "griff-ziehen",
+          "datei": "canvas-leiste-02-griff-ziehen.jpg",
+          "text": ""
+        },
+        {
+          "nr": 3,
+          "name": "schliessen-knopf",
+          "datei": "canvas-leiste-03-schliessen-knopf.jpg",
+          "text": ""
+        },
+        {
+          "nr": 4,
+          "name": "leiste-zu",
+          "datei": "canvas-leiste-04-leiste-zu.jpg",
+          "text": ""
+        },
+        {
+          "nr": 5,
+          "name": "ansicht-menue",
+          "datei": "canvas-leiste-05-ansicht-menue.jpg",
+          "text": ""
+        },
+        {
+          "nr": 6,
+          "name": "leiste-wieder-da",
+          "datei": "canvas-leiste-06-leiste-wieder-da.jpg",
+          "text": ""
+        }
+      ],
+      "fehler": []
+    },
+    "defaults": {
+      "schritte": [
+        {
+          "nr": 1,
+          "name": "menue-offen",
+          "datei": "canvas-defaults-01-menue-offen.jpg",
+          "text": ""
+        },
+        {
+          "nr": 2,
+          "name": "routing-direkt",
+          "datei": "canvas-defaults-02-routing-direkt.jpg",
+          "text": ""
+        },
+        {
+          "nr": 3,
+          "name": "routing-kurve",
+          "datei": "canvas-defaults-03-routing-kurve.jpg",
+          "text": ""
+        },
+        {
+          "nr": 4,
+          "name": "routing-ortho",
+          "datei": "canvas-defaults-04-routing-ortho.jpg",
+          "text": ""
+        },
+        {
+          "nr": 5,
+          "name": "farbe-laenge",
+          "datei": "canvas-defaults-05-farbe-laenge.jpg",
+          "text": ""
+        },
+        {
+          "nr": 6,
+          "name": "farbe-laenge-flaeche",
+          "datei": "canvas-defaults-06-farbe-laenge-flaeche.jpg",
+          "text": ""
+        },
+        {
+          "nr": 7,
+          "name": "farbe-legende",
+          "datei": "canvas-defaults-07-farbe-legende.jpg",
+          "text": ""
+        },
+        {
+          "nr": 11,
+          "name": "bruecken-flaeche",
+          "datei": "canvas-defaults-11-bruecken-flaeche.jpg",
+          "text": ""
+        },
+        {
+          "nr": 12,
+          "name": "labels-aus",
+          "datei": "canvas-defaults-12-labels-aus.jpg",
+          "text": ""
+        },
+        {
+          "nr": 13,
+          "name": "labels-aus-flaeche",
+          "datei": "canvas-defaults-13-labels-aus-flaeche.jpg",
+          "text": ""
+        },
+        {
+          "nr": 14,
+          "name": "kurzform",
+          "datei": "canvas-defaults-14-kurzform.jpg",
+          "text": ""
+        },
+        {
+          "nr": 15,
+          "name": "ports-nach-typ",
+          "datei": "canvas-defaults-15-ports-nach-typ.jpg",
+          "text": ""
+        },
+        {
+          "nr": 16,
+          "name": "ports-nach-typ-flaeche",
+          "datei": "canvas-defaults-16-ports-nach-typ-flaeche.jpg",
+          "text": ""
+        },
+        {
+          "nr": 17,
+          "name": "gewerk-farbe",
+          "datei": "canvas-defaults-17-gewerk-farbe.jpg",
+          "text": ""
+        }
+      ],
+      "fehler": [
+        "08 farbe-typ: locator.click: Timeout 8000ms exceeded.",
+        "09 pfeil-am-ende: locator.click: Timeout 8000ms exceeded.",
+        "10 bruecken: locator.click: Timeout 8000ms exceeded."
+      ]
+    },
+    "auswahl": {
+      "schritte": [
+        {
+          "nr": 1,
+          "name": "ein-geraet",
+          "datei": "canvas-auswahl-01-ein-geraet.jpg",
+          "text": ""
+        },
+        {
+          "nr": 2,
+          "name": "einzeln-links",
+          "datei": "canvas-auswahl-02-einzeln-links.jpg",
+          "text": ""
+        },
+        {
+          "nr": 6,
+          "name": "auswahl-aufgehoben",
+          "datei": "canvas-auswahl-06-auswahl-aufgehoben.jpg",
+          "text": ""
+        },
+        {
+          "nr": 7,
+          "name": "rechteck",
+          "datei": "canvas-auswahl-07-rechteck.jpg",
+          "text": ""
+        },
+        {
+          "nr": 8,
+          "name": "alles-auswaehlen",
+          "datei": "canvas-auswahl-08-alles-auswaehlen.jpg",
+          "text": ""
+        }
+      ],
+      "fehler": [
+        "03 einzeln-unten: locator.click: Timeout 8000ms exceeded.",
+        "04 zwei-geraete: locator.click: Timeout 8000ms exceeded.",
+        "05 drei-geraete: locator.click: Timeout 8000ms exceeded."
+      ]
+    },
+    "kuerzel": {
+      "schritte": [
+        {
+          "nr": 1,
+          "name": "auswahl",
+          "datei": "canvas-kuerzel-01-auswahl.jpg",
+          "text": ""
+        },
+        {
+          "nr": 2,
+          "name": "pfeil-rechts",
+          "datei": "canvas-kuerzel-02-pfeil-rechts.jpg",
+          "text": ""
+        },
+        {
+          "nr": 3,
+          "name": "umschalt-pfeil",
+          "datei": "canvas-kuerzel-03-umschalt-pfeil.jpg",
+          "text": ""
+        },
+        {
+          "nr": 4,
+          "name": "strg-d",
+          "datei": "canvas-kuerzel-04-strg-d.jpg",
+          "text": ""
+        },
+        {
+          "nr": 5,
+          "name": "strg-c-v",
+          "datei": "canvas-kuerzel-05-strg-c-v.jpg",
+          "text": ""
+        },
+        {
+          "nr": 6,
+          "name": "strg-plus",
+          "datei": "canvas-kuerzel-06-strg-plus.jpg",
+          "text": "Neues Gerät\nAbbrechen\nOK"
+        },
+        {
+          "nr": 7,
+          "name": "strg-plus-ergebnis",
+          "datei": "canvas-kuerzel-07-strg-plus-ergebnis.jpg",
+          "text": ""
+        },
+        {
+          "nr": 8,
+          "name": "entf",
+          "datei": "canvas-kuerzel-08-entf.jpg",
+          "text": ""
+        },
+        {
+          "nr": 9,
+          "name": "escape-kabel",
+          "datei": "canvas-kuerzel-09-escape-kabel.jpg",
+          "text": ""
+        }
+      ],
+      "fehler": []
+    },
+    "rahmen": {
+      "schritte": [
+        {
+          "nr": 1,
+          "name": "rahmen-leer",
+          "datei": "canvas-rahmen-01-rahmen-leer.jpg",
+          "text": ""
+        },
+        {
+          "nr": 2,
+          "name": "rahmen-umbenennen",
+          "datei": "canvas-rahmen-02-rahmen-umbenennen.jpg",
+          "text": ""
+        },
+        {
+          "nr": 6,
+          "name": "rahmen-verschieben",
+          "datei": "canvas-rahmen-06-rahmen-verschieben.jpg",
+          "text": ""
+        },
+        {
+          "nr": 9,
+          "name": "rahmen-kontext",
+          "datei": "canvas-rahmen-09-rahmen-kontext.jpg",
+          "text": ""
+        },
+        {
+          "nr": 14,
+          "name": "rahmen-nimmt-mit",
+          "datei": "canvas-rahmen-14-rahmen-nimmt-mit.jpg",
+          "text": ""
+        }
+      ],
+      "fehler": [
+        "03 rahmen-benannt: locator.fill: Timeout 30000ms exceeded.",
+        "04 rahmen-inspector: locator.click: Timeout 6000ms exceeded.",
+        "05 rahmen-groesse: locator.boundingBox: Timeout 30000ms exceeded.",
+        "07 rahmen-sperren: locator.click: Timeout 8000ms exceeded.",
+        "08 rahmen-entsperren: locator.click: Timeout 8000ms exceeded.",
+        "10 rahmen-loeschen-frage: locator.click: Timeout 5000ms exceeded.",
+        "11 rahmen-geloescht: locator.click: Timeout 8000ms exceeded.",
+        "12 rahmen-um-auswahl: locator.click: Timeout 8000ms exceeded.",
+        "13 rahmen-um-auswahl-fertig: locator.click: Timeout 8000ms exceeded."
+      ]
+    },
+    "raeume": {
+      "schritte": [
+        {
+          "nr": 4,
+          "name": "raeume-knopf",
+          "datei": "canvas-raeume-04-raeume-knopf.jpg",
+          "text": ""
+        },
+        {
+          "nr": 7,
+          "name": "etage-zweite",
+          "datei": "canvas-raeume-07-etage-zweite.jpg",
+          "text": ""
+        },
+        {
+          "nr": 12,
+          "name": "raeume-menue",
+          "datei": "canvas-raeume-12-raeume-menue.jpg",
+          "text": ""
+        },
+        {
+          "nr": 14,
+          "name": "raum-aus-flaeche",
+          "datei": "canvas-raeume-14-raum-aus-flaeche.jpg",
+          "text": ""
+        },
+        {
+          "nr": 15,
+          "name": "etage-aus",
+          "datei": "canvas-raeume-15-etage-aus.jpg",
+          "text": ""
+        },
+        {
+          "nr": 16,
+          "name": "etage-aus-flaeche",
+          "datei": "canvas-raeume-16-etage-aus-flaeche.jpg",
+          "text": ""
+        },
+        {
+          "nr": 23,
+          "name": "drei-d-zu",
+          "datei": "canvas-raeume-23-drei-d-zu.jpg",
+          "text": ""
+        }
+      ],
+      "fehler": [
+        "01 rahmen-kameras: locator.fill: Timeout 30000ms exceeded.",
+        "02 rahmen-monitore: locator.click: Timeout 8000ms exceeded.",
+        "03 rahmen-mischer: locator.boundingBox: Timeout 30000ms exceeded.",
+        "05 etage-neu: locator.click: Timeout 6000ms exceeded.",
+        "06 etage-benannt: locator.fill: Timeout 30000ms exceeded.",
+        "08 etage-hoehen: ziel.count is not a function",
+        "09 etage-dritter-raum: locator.click: Timeout 6000ms exceeded.",
+        "10 steigschacht: ziel.count is not a function",
+        "11 steigschacht-aus: ziel.count is not a function",
+        "13 raum-aus: locator.uncheck: Timeout 30000ms exceeded.",
+        "17 alle-zeigen: locator.click: Timeout 30000ms exceeded.",
+        "18 drei-d-raeume: ziel.count is not a function",
+        "19 drei-d-kabel: ziel.count is not a function",
+        "20 drei-d-ohne-beschriftung: ziel.count is not a function",
+        "21 drei-d-geschosshoehe: ziel.count is not a function",
+        "22 drei-d-raeume-menue: ziel.count is not a function"
+      ]
+    },
+    "ebenen": {
+      "schritte": [
+        {
+          "nr": 1,
+          "name": "chips",
+          "datei": "canvas-ebenen-01-chips.jpg",
+          "text": ""
+        },
+        {
+          "nr": 2,
+          "name": "video-aus",
+          "datei": "canvas-ebenen-02-video-aus.jpg",
+          "text": ""
+        },
+        {
+          "nr": 3,
+          "name": "menue",
+          "datei": "canvas-ebenen-03-menue.jpg",
+          "text": ""
+        },
+        {
+          "nr": 4,
+          "name": "alle-wieder",
+          "datei": "canvas-ebenen-04-alle-wieder.jpg",
+          "text": ""
+        },
+        {
+          "nr": 5,
+          "name": "eigene-anlegen",
+          "datei": "canvas-ebenen-05-eigene-anlegen.jpg",
+          "text": "Custom-Layer anlegen (z.B. \"intercom\", \"lighting\")\nAbbrechen\nOK"
+        },
+        {
+          "nr": 6,
+          "name": "eigene-chip",
+          "datei": "canvas-ebenen-06-eigene-chip.jpg",
+          "text": ""
+        },
+        {
+          "nr": 7,
+          "name": "eigene-aus",
+          "datei": "canvas-ebenen-07-eigene-aus.jpg",
+          "text": ""
+        },
+        {
+          "nr": 8,
+          "name": "eigene-entfernen-frage",
+          "datei": "canvas-ebenen-08-eigene-entfernen-frage.jpg",
+          "text": "Custom-Layer \"intercom\" entfernen?\nAbbrechen\nLöschen"
+        },
+        {
+          "nr": 9,
+          "name": "eigene-entfernt",
+          "datei": "canvas-ebenen-09-eigene-entfernt.jpg",
+          "text": ""
+        }
+      ],
+      "fehler": []
+    },
+    "signalweg": {
+      "schritte": [
+        {
+          "nr": 1,
+          "name": "kabel-gewaehlt",
+          "datei": "canvas-signalweg-01-kabel-gewaehlt.jpg",
+          "text": ""
+        },
+        {
+          "nr": 2,
+          "name": "signalweg-zeigen",
+          "datei": "canvas-signalweg-02-signalweg-zeigen.jpg",
+          "text": ""
+        },
+        {
+          "nr": 3,
+          "name": "signalweg-esc",
+          "datei": "canvas-signalweg-03-signalweg-esc.jpg",
+          "text": ""
+        }
+      ],
+      "fehler": [
+        "04 signalweg-chip-klick: locator.click: Timeout 8000ms exceeded."
+      ]
+    },
+    "modi": {
+      "schritte": [
+        {
+          "nr": 1,
+          "name": "schema-chip",
+          "datei": "canvas-modi-01-schema-chip.jpg",
+          "text": ""
+        },
+        {
+          "nr": 2,
+          "name": "schema-ruhig",
+          "datei": "canvas-modi-02-schema-ruhig.jpg",
+          "text": ""
+        },
+        {
+          "nr": 3,
+          "name": "schema-bewegt",
+          "datei": "canvas-modi-03-schema-bewegt.jpg",
+          "text": ""
+        },
+        {
+          "nr": 4,
+          "name": "schaltbild-an",
+          "datei": "canvas-modi-04-schaltbild-an.jpg",
+          "text": ""
+        },
+        {
+          "nr": 5,
+          "name": "schaltbild-aus",
+          "datei": "canvas-modi-05-schaltbild-aus.jpg",
+          "text": ""
+        },
+        {
+          "nr": 6,
+          "name": "pruefbild-quellen",
+          "datei": "canvas-modi-06-pruefbild-quellen.jpg",
+          "text": ""
+        },
+        {
+          "nr": 7,
+          "name": "pruefbild-gewaehlt",
+          "datei": "canvas-modi-07-pruefbild-gewaehlt.jpg",
+          "text": ""
+        },
+        {
+          "nr": 8,
+          "name": "pruefbild-leiste",
+          "datei": "canvas-modi-08-pruefbild-leiste.jpg",
+          "text": ""
+        },
+        {
+          "nr": 13,
+          "name": "weg-schalten-wahl",
+          "datei": "canvas-modi-13-weg-schalten-wahl.jpg",
+          "text": ""
+        },
+        {
+          "nr": 15,
+          "name": "pruefbild-ohne",
+          "datei": "canvas-modi-15-pruefbild-ohne.jpg",
+          "text": ""
+        }
+      ],
+      "fehler": [
+        "09 pruefbild-falsches-bild: locator.click: Timeout 6000ms exceeded.",
+        "10 pruefbild-vertauscht: locator.fill: Timeout 30000ms exceeded.",
+        "11 pruefbild-stimmt: locator.click: Timeout 6000ms exceeded.",
+        "12 weg-schalten-dialog: Weg schalten: Schaltfläche nicht vorhanden",
+        "14 weg-schalten-bestaetigung: locator.check: Timeout 30000ms exceeded."
+      ]
+    },
+    "sperren": {
+      "schritte": [
+        {
+          "nr": 1,
+          "name": "menue",
+          "datei": "canvas-sperren-01-menue.jpg",
+          "text": ""
+        },
+        {
+          "nr": 2,
+          "name": "geraete",
+          "datei": "canvas-sperren-02-geraete.jpg",
+          "text": ""
+        },
+        {
+          "nr": 3,
+          "name": "geraet-bleibt",
+          "datei": "canvas-sperren-03-geraet-bleibt.jpg",
+          "text": ""
+        },
+        {
+          "nr": 5,
+          "name": "kabel-ohne-griffe",
+          "datei": "canvas-sperren-05-kabel-ohne-griffe.jpg",
+          "text": ""
+        },
+        {
+          "nr": 6,
+          "name": "rahmen",
+          "datei": "canvas-sperren-06-rahmen.jpg",
+          "text": ""
+        },
+        {
+          "nr": 7,
+          "name": "alle-aus",
+          "datei": "canvas-sperren-07-alle-aus.jpg",
+          "text": ""
+        },
+        {
+          "nr": 8,
+          "name": "kabel-mit-griffen",
+          "datei": "canvas-sperren-08-kabel-mit-griffen.jpg",
+          "text": ""
+        }
+      ],
+      "fehler": [
+        "04 kabel: locator.click: Timeout 8000ms exceeded."
+      ]
+    },
+    "abschliessen": {
+      "schritte": [
+        {
+          "nr": 1,
+          "name": "knopf",
+          "datei": "canvas-abschliessen-01-knopf.jpg",
+          "text": ""
+        },
+        {
+          "nr": 2,
+          "name": "frage",
+          "datei": "canvas-abschliessen-02-frage.jpg",
+          "text": "Planung abschließen?\nDas Canvas wird gesperrt — keine Verschiebungen, neue Verbindungen oder Löschungen möglich. Du kannst die Sperre jederzeit wieder aufheben.\nAbbrechen\nAbschließen"
+        },
+        {
+          "nr": 3,
+          "name": "abgeschlossen",
+          "datei": "canvas-abschliessen-03-abgeschlossen.jpg",
+          "text": ""
+        },
+        {
+          "nr": 4,
+          "name": "verschieben-geht-nicht",
+          "datei": "canvas-abschliessen-04-verschieben-geht-nicht.jpg",
+          "text": ""
+        },
+        {
+          "nr": 5,
+          "name": "freigeben-frage",
+          "datei": "canvas-abschliessen-05-freigeben-frage.jpg",
+          "text": "Planung wieder zur Bearbeitung freigeben?\nGeräte, Kabel und Layout können dann wieder verändert werden.\nAbbrechen\nFreigeben"
+        },
+        {
+          "nr": 6,
+          "name": "freigegeben",
+          "datei": "canvas-abschliessen-06-freigegeben.jpg",
+          "text": ""
+        },
+        {
+          "nr": 7,
+          "name": "ueber-die-leiste-frage",
+          "datei": "canvas-abschliessen-07-ueber-die-leiste-frage.jpg",
+          "text": "Planung wieder zur Bearbeitung freigeben?\nGeräte, Kabel und Layout können dann wieder verändert werden.\nAbbrechen\nFreigeben"
+        },
+        {
+          "nr": 8,
+          "name": "ueber-die-leiste-frei",
+          "datei": "canvas-abschliessen-08-ueber-die-leiste-frei.jpg",
+          "text": ""
+        }
+      ],
+      "fehler": []
+    },
+    "anmerkungen": {
+      "schritte": [
+        {
+          "nr": 1,
+          "name": "knoepfe",
+          "datei": "canvas-anmerkungen-01-knoepfe.jpg",
+          "text": ""
+        }
+      ],
+      "fehler": [
+        "02 panel-offen: ziel.count is not a function",
+        "03 neu-name: ziel.count is not a function",
+        "04 neu-text: ziel.count is not a function",
+        "05 hinzugefuegt: locator.click: Timeout 8000ms exceeded."
+      ]
+    },
+    "hallenplan": {
+      "schritte": [
+        {
+          "nr": 1,
+          "name": "knopf",
+          "datei": "canvas-hallenplan-01-knopf.jpg",
+          "text": ""
+        },
+        {
+          "nr": 2,
+          "name": "panel-leer",
+          "datei": "canvas-hallenplan-02-panel-leer.jpg",
+          "text": ""
+        },
+        {
+          "nr": 3,
+          "name": "bild-geladen",
+          "datei": "canvas-hallenplan-03-bild-geladen.jpg",
+          "text": ""
+        },
+        {
+          "nr": 4,
+          "name": "deckkraft",
+          "datei": "canvas-hallenplan-04-deckkraft.jpg",
+          "text": ""
+        },
+        {
+          "nr": 5,
+          "name": "deckkraft-fest",
+          "datei": "canvas-hallenplan-05-deckkraft-fest.jpg",
+          "text": ""
+        },
+        {
+          "nr": 6,
+          "name": "plan-gewaehlt",
+          "datei": "canvas-hallenplan-06-plan-gewaehlt.jpg",
+          "text": ""
+        },
+        {
+          "nr": 7,
+          "name": "zwei-punkte-start",
+          "datei": "canvas-hallenplan-07-zwei-punkte-start.jpg",
+          "text": ""
+        },
+        {
+          "nr": 8,
+          "name": "zwei-punkte-erster",
+          "datei": "canvas-hallenplan-08-zwei-punkte-erster.jpg",
+          "text": ""
+        },
+        {
+          "nr": 9,
+          "name": "zwei-punkte-fertig",
+          "datei": "canvas-hallenplan-09-zwei-punkte-fertig.jpg",
+          "text": ""
+        },
+        {
+          "nr": 10,
+          "name": "vier-ecken-start",
+          "datei": "canvas-hallenplan-10-vier-ecken-start.jpg",
+          "text": ""
+        },
+        {
+          "nr": 11,
+          "name": "vier-ecken-falsch",
+          "datei": "canvas-hallenplan-11-vier-ecken-falsch.jpg",
+          "text": ""
+        },
+        {
+          "nr": 12,
+          "name": "vier-ecken-fertig",
+          "datei": "canvas-hallenplan-12-vier-ecken-fertig.jpg",
+          "text": ""
+        },
+        {
+          "nr": 17,
+          "name": "ersetzen-frage",
+          "datei": "canvas-hallenplan-17-ersetzen-frage.jpg",
+          "text": ""
+        },
+        {
+          "nr": 21,
+          "name": "venue-import",
+          "datei": "canvas-hallenplan-21-venue-import.jpg",
+          "text": ""
+        },
+        {
+          "nr": 26,
+          "name": "plan-entfernen",
+          "datei": "canvas-hallenplan-26-plan-entfernen.jpg",
+          "text": ""
+        },
+        {
+          "nr": 27,
+          "name": "panel-zu",
+          "datei": "canvas-hallenplan-27-panel-zu.jpg",
+          "text": ""
+        }
+      ],
+      "fehler": [
+        "13 export-gesperrt: ziel.count is not a function",
+        "14 laengen-neu: ziel.count is not a function",
+        "15 sperre: ziel.count is not a function",
+        "16 sperre-aus: ziel.count is not a function",
+        "18 ersetzt: locator.click: Timeout 8000ms exceeded.",
+        "19 kein-bild: ziel.count is not a function",
+        "20 pdf-nicht-moeglich: ziel.count is not a function",
+        "22 venue-export-moeglich: ziel.count is not a function",
+        "23 venue-ungueltig: ziel.count is not a function",
+        "24 venue-ohne-plan: ziel.count is not a function",
+        "25 venue-ohne-masse: ziel.count is not a function"
+      ]
+    },
+    "symbole": {
+      "schritte": [
+        {
+          "nr": 1,
+          "name": "knopf",
+          "datei": "canvas-symbole-01-knopf.jpg",
+          "text": ""
+        },
+        {
+          "nr": 2,
+          "name": "panel-offen",
+          "datei": "canvas-symbole-02-panel-offen.jpg",
+          "text": ""
+        },
+        {
+          "nr": 12,
+          "name": "platziert",
+          "datei": "canvas-symbole-12-platziert.jpg",
+          "text": ""
+        },
+        {
+          "nr": 13,
+          "name": "beschriftung",
+          "datei": "canvas-symbole-13-beschriftung.jpg",
+          "text": ""
+        },
+        {
+          "nr": 14,
+          "name": "groesse",
+          "datei": "canvas-symbole-14-groesse.jpg",
+          "text": ""
+        },
+        {
+          "nr": 15,
+          "name": "drehung",
+          "datei": "canvas-symbole-15-drehung.jpg",
+          "text": ""
+        },
+        {
+          "nr": 16,
+          "name": "gesperrt",
+          "datei": "canvas-symbole-16-gesperrt.jpg",
+          "text": ""
+        },
+        {
+          "nr": 17,
+          "name": "weitere",
+          "datei": "canvas-symbole-17-weitere.jpg",
+          "text": ""
+        },
+        {
+          "nr": 18,
+          "name": "loeschen",
+          "datei": "canvas-symbole-18-loeschen.jpg",
+          "text": ""
+        }
+      ],
+      "fehler": [
+        "03 kategorie-elektro: ziel.count is not a function",
+        "04 kategorie-ema: ziel.count is not a function",
+        "05 kategorie-bma: ziel.count is not a function",
+        "06 kategorie-saa: ziel.count is not a function",
+        "07 kategorie-it: ziel.count is not a function",
+        "08 kategorie-automation: ziel.count is not a function",
+        "09 kategorie-av: ziel.count is not a function",
+        "10 kategorie-eigene: ziel.count is not a function",
+        "11 suche: ziel.count is not a function",
+        "19 import-knopf: ziel.count is not a function",
+        "20 import-svg: ziel.count is not a function",
+        "21 import-png: ziel.count is not a function",
+        "22 import-zu-gross: ziel.count is not a function",
+        "23 import-kaputt: ziel.count is not a function",
+        "24 import-entfernen: ziel.count is not a function",
+        "25 ki-ohne-schluessel: ziel.count is not a function",
+        "26 ki-bereich: ziel.count is not a function",
+        "27 ki-beschreibung: ziel.count is not a function",
+        "28 ki-ergebnis: ziel.count is not a function",
+        "29 liste-csv: ziel.count is not a function"
+      ]
+    },
+    "suche": {
+      "schritte": [
+        {
+          "nr": 1,
+          "name": "pille",
+          "datei": "canvas-suche-01-pille.jpg",
+          "text": ""
+        },
+        {
+          "nr": 2,
+          "name": "strg-f",
+          "datei": "canvas-suche-02-strg-f.jpg",
+          "text": ""
+        },
+        {
+          "nr": 3,
+          "name": "treffer",
+          "datei": "canvas-suche-03-treffer.jpg",
+          "text": ""
+        },
+        {
+          "nr": 4,
+          "name": "treffer-grund",
+          "datei": "canvas-suche-04-treffer-grund.jpg",
+          "text": ""
+        },
+        {
+          "nr": 5,
+          "name": "kein-treffer",
+          "datei": "canvas-suche-05-kein-treffer.jpg",
+          "text": ""
+        },
+        {
+          "nr": 6,
+          "name": "springen",
+          "datei": "canvas-suche-06-springen.jpg",
+          "text": ""
+        },
+        {
+          "nr": 7,
+          "name": "einklappen",
+          "datei": "canvas-suche-07-einklappen.jpg",
+          "text": ""
+        },
+        {
+          "nr": 8,
+          "name": "verschieben",
+          "datei": "canvas-suche-08-verschieben.jpg",
+          "text": ""
+        },
+        {
+          "nr": 9,
+          "name": "schliessen",
+          "datei": "canvas-suche-09-schliessen.jpg",
+          "text": ""
+        },
+        {
+          "nr": 10,
+          "name": "ansicht-menue-suche",
+          "datei": "canvas-suche-10-ansicht-menue-suche.jpg",
+          "text": ""
+        }
+      ],
+      "fehler": []
+    },
+    "zoom": {
+      "schritte": [
+        {
+          "nr": 1,
+          "name": "regler-minikarte",
+          "datei": "canvas-zoom-01-regler-minikarte.jpg",
+          "text": ""
+        },
+        {
+          "nr": 2,
+          "name": "regler-aufschriften",
+          "datei": "canvas-zoom-02-regler-aufschriften.jpg",
+          "text": ""
+        },
+        {
+          "nr": 3,
+          "name": "vergroessern",
+          "datei": "canvas-zoom-03-vergroessern.jpg",
+          "text": ""
+        },
+        {
+          "nr": 4,
+          "name": "vergroessern-2",
+          "datei": "canvas-zoom-04-vergroessern-2.jpg",
+          "text": ""
+        },
+        {
+          "nr": 5,
+          "name": "verkleinern",
+          "datei": "canvas-zoom-05-verkleinern.jpg",
+          "text": ""
+        },
+        {
+          "nr": 6,
+          "name": "einpassen",
+          "datei": "canvas-zoom-06-einpassen.jpg",
+          "text": ""
+        },
+        {
+          "nr": 7,
+          "name": "sperren-knopf",
+          "datei": "canvas-zoom-07-sperren-knopf.jpg",
+          "text": ""
+        },
+        {
+          "nr": 8,
+          "name": "sperren-aus",
+          "datei": "canvas-zoom-08-sperren-aus.jpg",
+          "text": ""
+        },
+        {
+          "nr": 9,
+          "name": "mausrad",
+          "datei": "canvas-zoom-09-mausrad.jpg",
+          "text": ""
+        },
+        {
+          "nr": 10,
+          "name": "minikarte-ziehen",
+          "datei": "canvas-zoom-10-minikarte-ziehen.jpg",
+          "text": ""
+        },
+        {
+          "nr": 11,
+          "name": "ansicht-zoom-menue",
+          "datei": "canvas-zoom-11-ansicht-zoom-menue.jpg",
+          "text": ""
+        },
+        {
+          "nr": 12,
+          "name": "zoom-100",
+          "datei": "canvas-zoom-12-zoom-100.jpg",
+          "text": ""
+        }
+      ],
+      "fehler": []
+    },
+    "kabel": {
+      "schritte": [
+        {
+          "nr": 1,
+          "name": "ziehen",
+          "datei": "canvas-kabel-01-ziehen.jpg",
+          "text": ""
+        },
+        {
+          "nr": 2,
+          "name": "dialog",
+          "datei": "canvas-kabel-02-dialog.jpg",
+          "text": ""
+        },
+        {
+          "nr": 5,
+          "name": "besetzt",
+          "datei": "canvas-kabel-05-besetzt.jpg",
+          "text": ""
+        },
+        {
+          "nr": 8,
+          "name": "offenes-ende-abbruch",
+          "datei": "canvas-kabel-08-offenes-ende-abbruch.jpg",
+          "text": ""
+        },
+        {
+          "nr": 14,
+          "name": "klick-abbrechen",
+          "datei": "canvas-kabel-14-klick-abbrechen.jpg",
+          "text": ""
+        },
+        {
+          "nr": 15,
+          "name": "klick-fertig",
+          "datei": "canvas-kabel-15-klick-fertig.jpg",
+          "text": "Neues Kabel\nVon: SDI Out (BNC)\nNach: In 4 (BNC)\nKabel\n★ Custom-Kabel…\n✓ SDI 3G (1080p50/60) (BNC)\n✓ SDI 6G (4K30 4:2:0) (BNC)\n✓ SDI 12G (4K60) (BNC)\n✓ Referenz Blackburst / Tri-Level (BNC) (BNC)\n✓ Word Clock (BNC) (BNC)\n✓ LTC Timecode (BNC) (BNC)\n✓ MADI Koax (BNC, 75Ω) (BNC)\n✓ AES3id (BNC, 75Ω) (BNC)\n✓ DVB-ASI (BNC, 75Ω) (BNC)\n✓ Composite / FBAS (Cinch) (Cinch/RCA)\n✓ Component YPbPr (3× Cinch/BNC) (Cinch/RCA)\n✕ XLR 3-pin Audio (XLR)\n✕ HDMI 2.0 (4K60 4:4:4) (HDMI)\n✕ HDMI 2.1 (8K/4K120) (HDMI)\n✕ DisplayPort 1.4 (DisplayPort)\n✕ Ethernet Cat6 (1G) (Ethernet/RJ45)\n✕ Ethernet Cat6a (10G) (Ethernet/RJ45)\n✕ NDI über Cat6a (1G/10G) (Ethernet/RJ45)\n✕ Dante / AES67 (Cat6) (Ethernet/RJ45)\n✕ Stream-Uplink (SRT/RTMP/HLS) (Ethernet/RJ45)\n✕ SMPTE ST 2110 (Fiber) (Fiber)\n✕ PTP / Referenz (Ethernet) (Ethernet/RJ45)\n✕ Fiber SM (LC) (Fiber)\n✕ Fiber MM OM4 (LC) (Fiber)\n✕ USB 3.x (USB)\n✕ IEC C13/C14 230V (IEC 230V)\n✕ powerCON TRUE1 (PowerCON)\n✕ Schuko 230V (Schuko 230V)\n✕ Thunderbolt 3 (40Gbps) (USB-C)\n✕ Thunderbolt 4 (40Gbps, zertifiziert) (USB-C)\n✕ MADI Optisch (ST/SC Fiber) (Fiber)\n✕ SMPTE ST 297 — Optisches SDI (Glasfaser) (Fiber)\n✕ SMPTE 304M Hybrid-Fiber (LEMO 3K.93C / 311) (LEMO 3K.93C (SMPTE 304M))\n✕ SMPTE 304M Hybrid-Fiber (Neutrik Dragonfly) (Neutrik Dragonfly (SMPTE 304M))\n✕ Triax (Damar & Hagen) (Triax (Damar & Hagen))\n✕ Triax (Fischer) (Triax (Fischer))\n✕ Triax-Kamerakabel (analog/koaxial) (Triax)\n✕ Serielle Steuerung RS-232/422/485 (DB9) (DB9)\n✕ VGA (DE-15) (VGA)\n✕ DVI (Single/Dual-L"
+        },
+        {
+          "nr": 16,
+          "name": "klick-angelegt",
+          "datei": "canvas-kabel-16-klick-angelegt.jpg",
+          "text": "Port bereits belegt\nAn mindestens einem der Ports steckt bereits ein Kabel:\n\n• CAM 1 → mixer\n\n\"Ersetzen\" = bestehendes Kabel löschen und neue Verbindung anlegen.\n\"Abbrechen\" = neue Verbindung verwerfen, alles bleibt wie es ist.\nAbbrechen\nErsetzen"
+        }
+      ],
+      "fehler": [
+        "03 dialog-eigenes-kabel: locator.selectOption: Timeout 30000ms exceeded.",
+        "04 kabel-angelegt: locator.click: Timeout 6000ms exceeded.",
+        "06 besetzt-abbruch: locator.click: Timeout 30000ms exceeded.",
+        "07 offenes-ende: ziel.count is not a function",
+        "09 auf-den-koerper: ziel.count is not a function",
+        "10 auf-den-koerper-fertig: locator.click: Timeout 6000ms exceeded.",
+        "11 klick-start: locator.click: Timeout 6000ms exceeded.",
+        "12 klick-knick: ziel.count is not a function",
+        "13 klick-knick-zurueck: locator.click: Timeout 8000ms exceeded.",
+        "17 routing-direkt-neues-kabel: locator.click: Timeout 8000ms exceeded.",
+        "18 routing-kurve-neues-kabel: locator.click: Timeout 8000ms exceeded.",
+        "19 pfeil-vorgabe: locator.click: Timeout 8000ms exceeded.",
+        "20 umstecken: Cannot read properties of null (reading 'x')"
+      ]
+    },
+    "kabeleditor": {
+      "schritte": [
+        {
+          "nr": 1,
+          "name": "gewaehlt",
+          "datei": "canvas-kabeleditor-01-gewaehlt.jpg",
+          "text": ""
+        },
+        {
+          "nr": 2,
+          "name": "segment-ziehen",
+          "datei": "canvas-kabeleditor-02-segment-ziehen.jpg",
+          "text": ""
+        },
+        {
+          "nr": 3,
+          "name": "ecke-ziehen",
+          "datei": "canvas-kabeleditor-03-ecke-ziehen.jpg",
+          "text": ""
+        },
+        {
+          "nr": 4,
+          "name": "ecke-alt-klick",
+          "datei": "canvas-kabeleditor-04-ecke-alt-klick.jpg",
+          "text": ""
+        },
+        {
+          "nr": 5,
+          "name": "menue",
+          "datei": "canvas-kabeleditor-05-menue.jpg",
+          "text": ""
+        },
+        {
+          "nr": 16,
+          "name": "bruecken-menue",
+          "datei": "canvas-kabeleditor-16-bruecken-menue.jpg",
+          "text": ""
+        },
+        {
+          "nr": 23,
+          "name": "label-kreuz",
+          "datei": "canvas-kabeleditor-23-label-kreuz.jpg",
+          "text": ""
+        }
+      ],
+      "fehler": [
+        "06 wegpunkt-hier: locator.click: Timeout 30000ms exceeded.",
+        "07 routing-untermenue: locator.click: Timeout 30000ms exceeded.",
+        "08 routing-kurve: locator.click: Timeout 30000ms exceeded.",
+        "09 routing-direkt: locator.click: Timeout 30000ms exceeded.",
+        "10 routing-orthogonal: locator.click: Timeout 30000ms exceeded.",
+        "11 neu-routen: locator.click: Timeout 30000ms exceeded.",
+        "12 alle-wegpunkte-loeschen: locator.click: Timeout 30000ms exceeded.",
+        "13 pfeil-ende-aus: locator.click: Timeout 30000ms exceeded.",
+        "14 pfeil-anfang-an: locator.click: Timeout 30000ms exceeded.",
+        "15 beidseitig: locator.click: Timeout 30000ms exceeded.",
+        "17 bruecken-kabel: locator.click: Timeout 30000ms exceeded.",
+        "18 bezeichnung: locator.click: Timeout 30000ms exceeded.",
+        "19 bezeichnung-neu: locator.fill: Timeout 30000ms exceeded.",
+        "20 doppelklick: ziel.count is not a function",
+        "21 loeschen-frage: locator.click: Timeout 30000ms exceeded.",
+        "22 geloescht: locator.click: Timeout 8000ms exceeded.",
+        "24 rueckgaengig: locator.click: Timeout 5000ms exceeded."
+      ]
+    },
+    "seitenverbinder": {
+      "schritte": [
+        {
+          "nr": 1,
+          "name": "erstellen-frage",
+          "datei": "canvas-seitenverbinder-01-erstellen-frage.jpg",
+          "text": "Netzname / Signalname für die Off-Page-Verbindung:\nAbbrechen\nOK"
+        },
+        {
+          "nr": 2,
+          "name": "erstellt",
+          "datei": "canvas-seitenverbinder-02-erstellt.jpg",
+          "text": ""
+        },
+        {
+          "nr": 3,
+          "name": "namen-anzeigen",
+          "datei": "canvas-seitenverbinder-03-namen-anzeigen.jpg",
+          "text": ""
+        }
+      ],
+      "fehler": [
+        "04 netz-info: locator.boundingBox: Timeout 30000ms exceeded.",
+        "05 weg-griffe: locator.boundingBox: Timeout 30000ms exceeded.",
+        "06 wegpunkt-plus: locator.click: Timeout 5000ms exceeded.",
+        "07 wegpunkt-ziehen: locator.boundingBox: Timeout 30000ms exceeded.",
+        "08 wegpunkt-loeschen: locator.dblclick: Timeout 5000ms exceeded.",
+        "09 aufloesen: locator.boundingBox: Timeout 30000ms exceeded."
+      ]
+    },
+    "kontext": {
+      "schritte": [
+        {
+          "nr": 1,
+          "name": "geraet",
+          "datei": "canvas-kontext-01-geraet.jpg",
+          "text": ""
+        },
+        {
+          "nr": 3,
+          "name": "geraet-sperren",
+          "datei": "canvas-kontext-03-geraet-sperren.jpg",
+          "text": ""
+        },
+        {
+          "nr": 4,
+          "name": "geraet-entsperren-menue",
+          "datei": "canvas-kontext-04-geraet-entsperren-menue.jpg",
+          "text": ""
+        },
+        {
+          "nr": 5,
+          "name": "geraet-entsperrt",
+          "datei": "canvas-kontext-05-geraet-entsperrt.jpg",
+          "text": ""
+        },
+        {
+          "nr": 6,
+          "name": "geraet-loeschen-frage",
+          "datei": "canvas-kontext-06-geraet-loeschen-frage.jpg",
+          "text": "Gerät \"Camera 2\" löschen?\nDas Gerät und alle daran angeschlossenen Kabel werden gelöscht.\nAbbrechen\nLöschen"
+        },
+        {
+          "nr": 7,
+          "name": "geraet-loeschen-abbruch",
+          "datei": "canvas-kontext-07-geraet-loeschen-abbruch.jpg",
+          "text": ""
+        },
+        {
+          "nr": 8,
+          "name": "flaeche",
+          "datei": "canvas-kontext-08-flaeche.jpg",
+          "text": ""
+        }
+      ],
+      "fehler": [
+        "02 geraet-datenblatt: ziel.count is not a function",
+        "09 flaeche-neues-geraet: ziel.count is not a function"
+      ]
+    },
+    "stream": {
+      "schritte": [
+        {
+          "nr": 1,
+          "name": "geraet-gewaehlt",
+          "datei": "canvas-stream-01-geraet-gewaehlt.jpg",
+          "text": ""
+        },
+        {
+          "nr": 7,
+          "name": "kachel-fehler",
+          "datei": "canvas-stream-07-kachel-fehler.jpg",
+          "text": ""
+        },
+        {
+          "nr": 8,
+          "name": "kachel-nicht-lokal",
+          "datei": "canvas-stream-08-kachel-nicht-lokal.jpg",
+          "text": ""
+        }
+      ],
+      "fehler": [
+        "02 abschnitt-streams: ziel.count is not a function",
+        "03 stream-angelegt: ziel.count is not a function",
+        "04 vorschau-adresse: ziel.count is not a function",
+        "05 vorschau-an: locator.check: Timeout 30000ms exceeded.",
+        "06 kachel-start: locator.getAttribute: Timeout 30000ms exceeded."
+      ]
+    },
+    "inline": {
+      "schritte": [
+        {
+          "nr": 1,
+          "name": "ein-geraet",
+          "datei": "canvas-inline-01-ein-geraet.jpg",
+          "text": ""
+        },
+        {
+          "nr": 2,
+          "name": "ein-geraet-nah",
+          "datei": "canvas-inline-02-ein-geraet-nah.jpg",
+          "text": ""
+        },
+        {
+          "nr": 4,
+          "name": "drei-geraete",
+          "datei": "canvas-inline-04-drei-geraete.jpg",
+          "text": ""
+        },
+        {
+          "nr": 5,
+          "name": "ausrichten-links",
+          "datei": "canvas-inline-05-ausrichten-links.jpg",
+          "text": ""
+        },
+        {
+          "nr": 6,
+          "name": "verteilen",
+          "datei": "canvas-inline-06-verteilen.jpg",
+          "text": ""
+        },
+        {
+          "nr": 7,
+          "name": "duplizieren",
+          "datei": "canvas-inline-07-duplizieren.jpg",
+          "text": ""
+        }
+      ],
+      "fehler": [
+        "03 zwei-geraete: page.screenshot: Timeout 7000ms exceeded.",
+        "08 rahmen: locator.click: Timeout 7000ms exceeded.",
+        "09 datenblatt: locator.click: Timeout 8000ms exceeded.",
+        "10 loeschen: locator.click: Timeout 8000ms exceeded.",
+        "11 rahmen-gewaehlt: locator.boundingBox: Timeout 7000ms exceeded."
+      ]
+    },
+    "adapter": {
+      "schritte": [
+        {
+          "nr": 1,
+          "name": "szene",
+          "datei": "canvas-adapter-01-szene.jpg",
+          "text": ""
+        },
+        {
+          "nr": 2,
+          "name": "adapter-hinweis",
+          "datei": "canvas-adapter-02-adapter-hinweis.jpg",
+          "text": ""
+        },
+        {
+          "nr": 3,
+          "name": "adapter-eingesetzt",
+          "datei": "canvas-adapter-03-adapter-eingesetzt.jpg",
+          "text": ""
+        },
+        {
+          "nr": 4,
+          "name": "adapter-rueckgaengig",
+          "datei": "canvas-adapter-04-adapter-rueckgaengig.jpg",
+          "text": ""
+        },
+        {
+          "nr": 5,
+          "name": "geschlecht-hinweis",
+          "datei": "canvas-adapter-05-geschlecht-hinweis.jpg",
+          "text": ""
+        },
+        {
+          "nr": 6,
+          "name": "geschlecht-eingesetzt",
+          "datei": "canvas-adapter-06-geschlecht-eingesetzt.jpg",
+          "text": ""
+        },
+        {
+          "nr": 7,
+          "name": "geschlecht-rueckgaengig",
+          "datei": "canvas-adapter-07-geschlecht-rueckgaengig.jpg",
+          "text": ""
+        },
+        {
+          "nr": 8,
+          "name": "wandler-hinweis",
+          "datei": "canvas-adapter-08-wandler-hinweis.jpg",
+          "text": ""
+        },
+        {
+          "nr": 9,
+          "name": "dialog-adapter",
+          "datei": "canvas-adapter-09-dialog-adapter.jpg",
+          "text": "Neues Kabel\nVon: Line Out (Jack 6.35 mm TS)\nNach: Line In 2 (Jack 3.5 mm TRS)\nKabel\n★ Custom-Kabel…\n✕ XLR 3-pin Audio (XLR)\n✕ SDI 3G (1080p50/60) (BNC)\n✕ SDI 6G (4K30 4:2:0) (BNC)\n✕ SDI 12G (4K60) (BNC)\n✕ HDMI 2.0 (4K60 4:4:4) (HDMI)\n✕ HDMI 2.1 (8K/4K120) (HDMI)\n✕ DisplayPort 1.4 (DisplayPort)\n✕ Ethernet Cat6 (1G) (Ethernet/RJ45)\n✕ Ethernet Cat6a (10G) (Ethernet/RJ45)\n✕ NDI über Cat6a (1G/10G) (Ethernet/RJ45)\n✕ Dante / AES67 (Cat6) (Ethernet/RJ45)\n✕ Stream-Uplink (SRT/RTMP/HLS) (Ethernet/RJ45)\n✕ SMPTE ST 2110 (Fiber) (Fiber)\n✕ Referenz Blackburst / Tri-Level (BNC) (BNC)\n✕ Word Clock (BNC) (BNC)\n✕ LTC Timecode (BNC) (BNC)\n✕ PTP / Referenz (Ethernet) (Ethernet/RJ45)\n✕ Fiber SM (LC) (Fiber)\n✕ Fiber MM OM4 (LC) (Fiber)\n✕ USB 3.x (USB)\n✕ IEC C13/C14 230V (IEC 230V)\n✕ powerCON TRUE1 (PowerCON)\n✕ Schuko 230V (Schuko 230V)\n✕ Thunderbolt 3 (40Gbps) (USB-C)\n✕ Thunderbolt 4 (40Gbps, zertifiziert) (USB-C)\n✕ MADI Koax (BNC, 75Ω) (BNC)\n✕ AES3id (BNC, 75Ω) (BNC)\n✕ DVB-ASI (BNC, 75Ω) (BNC)\n✕ MADI Optisch (ST/SC Fiber) (Fiber)\n✕ SMPTE ST 297 — Optisches SDI (Glasfaser) (Fiber)\n✕ SMPTE 304M Hybrid-Fiber (LEMO 3K.93C / 311) (LEMO 3K.93C (SMPTE 304M))\n✕ SMPTE 304M Hybrid-Fiber (Neutrik Dragonfly) (Neutrik Dragonfly (SMPTE 304M))\n✕ Triax (Damar & Hagen) (Triax (Damar & Hagen))\n✕ Triax (Fischer) (Triax (Fischer))\n✕ Triax-Kamerakabel (analog/koaxial) (Triax)\n✕ Serielle Steuerung RS-232/422/485 (DB9) (DB9)\n✕ VGA (DE-15) (VGA)\n✕ DVI (Single/Dual-Link) (DVI)\n✕ DB25 Mehrkanal-Audio (AES59 / TASCAM) (DB"
+        },
+        {
+          "nr": 10,
+          "name": "dialog-geschlecht",
+          "datei": "canvas-adapter-10-dialog-geschlecht.jpg",
+          "text": "Neues Kabel\nVon: Mic Out (XLR)\nNach: Mic In 2 (XLR)\nKabel\n★ Custom-Kabel…\n✓ XLR 3-pin Audio (XLR)\n✕ SDI 3G (1080p50/60) (BNC)\n✕ SDI 6G (4K30 4:2:0) (BNC)\n✕ SDI 12G (4K60) (BNC)\n✕ HDMI 2.0 (4K60 4:4:4) (HDMI)\n✕ HDMI 2.1 (8K/4K120) (HDMI)\n✕ DisplayPort 1.4 (DisplayPort)\n✕ Ethernet Cat6 (1G) (Ethernet/RJ45)\n✕ Ethernet Cat6a (10G) (Ethernet/RJ45)\n✕ NDI über Cat6a (1G/10G) (Ethernet/RJ45)\n✕ Dante / AES67 (Cat6) (Ethernet/RJ45)\n✕ Stream-Uplink (SRT/RTMP/HLS) (Ethernet/RJ45)\n✕ SMPTE ST 2110 (Fiber) (Fiber)\n✕ Referenz Blackburst / Tri-Level (BNC) (BNC)\n✕ Word Clock (BNC) (BNC)\n✕ LTC Timecode (BNC) (BNC)\n✕ PTP / Referenz (Ethernet) (Ethernet/RJ45)\n✕ Fiber SM (LC) (Fiber)\n✕ Fiber MM OM4 (LC) (Fiber)\n✕ USB 3.x (USB)\n✕ IEC C13/C14 230V (IEC 230V)\n✕ powerCON TRUE1 (PowerCON)\n✕ Schuko 230V (Schuko 230V)\n✕ Thunderbolt 3 (40Gbps) (USB-C)\n✕ Thunderbolt 4 (40Gbps, zertifiziert) (USB-C)\n✕ MADI Koax (BNC, 75Ω) (BNC)\n✕ AES3id (BNC, 75Ω) (BNC)\n✕ DVB-ASI (BNC, 75Ω) (BNC)\n✕ MADI Optisch (ST/SC Fiber) (Fiber)\n✕ SMPTE ST 297 — Optisches SDI (Glasfaser) (Fiber)\n✕ SMPTE 304M Hybrid-Fiber (LEMO 3K.93C / 311) (LEMO 3K.93C (SMPTE 304M))\n✕ SMPTE 304M Hybrid-Fiber (Neutrik Dragonfly) (Neutrik Dragonfly (SMPTE 304M))\n✕ Triax (Damar & Hagen) (Triax (Damar & Hagen))\n✕ Triax (Fischer) (Triax (Fischer))\n✕ Triax-Kamerakabel (analog/koaxial) (Triax)\n✕ Serielle Steuerung RS-232/422/485 (DB9) (DB9)\n✕ VGA (DE-15) (VGA)\n✕ DVI (Single/Dual-Link) (DVI)\n✕ DB25 Mehrkanal-Audio (AES59 / TASCAM) (DB25)\n✕ DMX512 / RDM (5-pol "
+        }
+      ],
+      "fehler": []
+    },
+    "schaltbild": {
+      "schritte": [
+        {
+          "nr": 1,
+          "name": "szene-aus",
+          "datei": "canvas-schaltbild-01-szene-aus.jpg",
+          "text": ""
+        },
+        {
+          "nr": 9,
+          "name": "nach-vorschlag",
+          "datei": "canvas-schaltbild-09-nach-vorschlag.jpg",
+          "text": ""
+        }
+      ],
+      "fehler": [
+        "02 an: el.count is not a function",
+        "03 schalter-a: page.screenshot: Timeout 7000ms exceeded.",
+        "04 schalter-b: locator.click: Timeout 5000ms exceeded.",
+        "05 zuruecksetzen: page.screenshot: Timeout 7000ms exceeded.",
+        "06 vorschlaege-ohne-ader: locator.click: Timeout 8000ms exceeded.",
+        "07 vorschlaege-tafel: locator.click: Timeout 5000ms exceeded.",
+        "08 vorschlag-eingetragen: locator.click: Timeout 5000ms exceeded."
+      ]
+    },
+    "schalten": {
+      "schritte": [
+        {
+          "nr": 1,
+          "name": "szene",
+          "datei": "canvas-schalten-01-szene.jpg",
+          "text": ""
+        },
+        {
+          "nr": 3,
+          "name": "dialog",
+          "datei": "canvas-schalten-03-dialog.jpg",
+          "text": "Weg schalten\n\nDas ist ein Eingriff in die laufende Anlage, keine Anzeige. mehr\n\nWohin soll das Bild?\nbitte wählen\nControl room monitor · SDI In\nSchliessen\njetzt schalten"
+        },
+        {
+          "nr": 4,
+          "name": "ziel-gewaehlt",
+          "datei": "canvas-schalten-04-ziel-gewaehlt.jpg",
+          "text": "Weg schalten\n\nDas ist ein Eingriff in die laufende Anlage, keine Anzeige. mehr\n\nWohin soll das Bild?\nbitte wählen\nControl room monitor · SDI In\nCamera 1 · SDI Out —[CAM 1]→ Videohub 12x12 · In 1 —[PGM]→ Control room monitor · SDI In\nFür „Videohub 12x12\" ist kein Steuer-Protokoll erklärt (Eigenschaften → Steuerung). Ohne Erklärung wird nichts gesendet — welches Protokoll ein Gerät spricht, lässt sich nicht am Namen ablesen.\nWer schaltet\nIch habe gelesen, welche Ausgänge umgeschaltet werden, und schalte an der laufenden Anlage.\nSchliessen\njetzt schalten"
+        },
+        {
+          "nr": 5,
+          "name": "name-haken",
+          "datei": "canvas-schalten-05-name-haken.jpg",
+          "text": "Weg schalten\n\nDas ist ein Eingriff in die laufende Anlage, keine Anzeige. mehr\n\nWohin soll das Bild?\nbitte wählen\nControl room monitor · SDI In\nCamera 1 · SDI Out —[CAM 1]→ Videohub 12x12 · In 1 —[PGM]→ Control room monitor · SDI In\nFür „Videohub 12x12\" ist kein Steuer-Protokoll erklärt (Eigenschaften → Steuerung). Ohne Erklärung wird nichts gesendet — welches Protokoll ein Gerät spricht, lässt sich nicht am Namen ablesen.\nWer schaltet\nIch habe gelesen, welche Ausgänge umgeschaltet werden, und schalte an der laufenden Anlage.\nSchliessen\njetzt schalten"
+        }
+      ],
+      "fehler": [
+        "02 quelle-gewaehlt: el.count is not a function"
+      ]
+    }
+  },
+  "extra": {
+    "tooltips": {
+      "leiste-schliessen": "Werkzeugleiste schliessen (Ansicht-Menü holt sie zurück)",
+      "defaults-knopf": "Standard-Verhalten für neue Kabel + Darstellung",
+      "defaults-labels-aus": "Globaler Toggle. Per-Kabel-Position bleibt erhalten — beim Ausschalten kommen die Labels wieder.",
+      "defaults-kurzform": "Format-Suffix (z.B. \"(1080p50/60)\") aus dem Anzeige-Label entfernen. Voller Name bleibt in den Kabel-Eigenschaften gespeichert.",
+      "defaults-ports-nach-typ": "SDI = bernstein, HDMI = violett, Ethernet = grün, …",
+      "ausrichten-einzeln-links": "An linkem Viewport-Rand ausrichten",
+      "inline-ein-geraet": "Duplizieren | Rahmen um Auswahl | Geräte-Datenblatt (A4-PDF / Druck) | Löschen",
+      "inline-zwei-geraete": "Links ausrichten | Horizontal zentrieren | Rechts ausrichten | Oben ausrichten | Vertikal zentrieren | Unten ausrichten | Duplizieren | Rahmen um Auswahl | Geräte-Datenblatt (A4-PDF / Druck) | Löschen",
+      "inline-drei-geraete": "Links ausrichten | Horizontal zentrieren | Rechts ausrichten | Oben ausrichten | Vertikal zentrieren | Unten ausrichten | Horizontal verteilen | Vertikal verteilen | Duplizieren | Rahmen um Auswahl | Geräte-Datenblatt (A4-PDF / Druck) | Löschen",
+      "adapter-einsetzen": "In diesen Lauf einsetzen — ein Undo nimmt es wieder heraus",
+      "schaltbild-aus": "Schaltbild einblenden: brennende Leuchten, Schalterstellungen und Leitungen unter Spannung.",
+      "schaltbild-an": "GERECHNET, nicht gemessen: so verhält sich die Schaltung bei den eingestellten Schalterstellungen. Die Stellungen stehen nicht im Plan."
+    },
+    "listen": {
+      "schalten-ziele": [
+        "bitte wählen",
+        "Control room monitor · SDI In"
+      ]
+    },
+    "texte": {
+      "defaults-menue": "KABEL-ROUTING\nOrtho\nDirekt\nKurve\nKABELFARBE\nNach Typ\nNach Länge\nSONSTIGES\nPfeil am Kabel-Ende\nKabelbrücken bei Kreuzungen\nAlle Kabel-Labels ausblenden\nKabel-Labels: Kurzform\nPorts nach Connector-Typ einfärben",
+      "laengen-legende": "Defaults\nRahmen\nEBENEN\n📹\nVideo\n4\n🎙\nAudio\n🎛\nControl\n🌐\nNetwork\n⚡\nPower\n◆\nOther\nEbenen\n⋯\nSchema\nSchaltbild\nPrüfbild\nkeine\nCamera 1\nCamera 2\nVision mixer\nSperren\nAbschließen\nBadges\nAnmerkungen\nHallenplan\nSymbole\nLängenfarben\n1 m – rot\n2 m – gelb\n3 m – grün\n5 m – weiß\n10 m – rot\n20 m – gelb\n25 m – gelb/weiß gestrichelt\n50 m – weiß\n100 m – rot\nSchließen",
+      "entf-dialog": "",
+      "dialog-adapter": "Neues Kabel\nVon: Line Out (Jack 6.35 mm TS)\nNach: Line In 2 (Jack 3.5 mm TRS)\nKabel\n★ Custom-Kabel…\n✕ XLR 3-pin Audio (XLR)\n✕ SDI 3G (1080p50/60) (BNC)\n✕ SDI 6G (4K30 4:2:0) (BNC)\n✕ SDI 12G (4K60) (BNC)\n✕ HDMI 2.0 (4K60 4:4:4) (HDMI)\n✕ HDMI 2.1 (8K/4K120) (HDMI)\n✕ DisplayPort 1.4 (DisplayPort)\n✕ Ethernet Cat6 (1G) (Ethernet/RJ45)\n✕ Ethernet Cat6a (10G) (Ethernet/RJ45)\n✕ NDI über Cat6a (1G/10G) (Ethernet/RJ45)\n✕ Dante / AES67 (Cat6) (Ethernet/RJ45)\n✕ Stream-Uplink (SRT/RTMP/HLS) (Ethernet/RJ45)\n✕ SMPTE ST 2110 (Fiber) (Fiber)\n✕ Referenz Blackburst / Tri-Level (BNC) (BNC)\n✕ Word Clock (BNC) (BNC)\n✕ LTC Timecode (BNC) (BNC)\n✕ PTP / Referenz (Ethernet) (Ethernet/RJ45)\n✕ Fiber SM (LC) (Fiber)\n✕ Fiber MM OM4 (LC) (Fiber)\n✕ USB 3.x (USB)\n✕ IEC C13/C14 230V (IEC 230V)\n✕ powerCON TRUE1 (PowerCON)\n✕ Schuko 230V (Schuko 230V)\n✕ Thunderbolt 3 (40Gbps) (USB-C)\n✕ Thunderbolt 4 (40Gbps, zertifiziert) (USB-C)\n✕ MADI Koax (BNC, 75Ω) (BNC)\n✕ AES3id (BNC, 75Ω) (BNC)\n✕ DVB-ASI (BNC, 75Ω) (BNC)\n✕ MADI Optisch (ST/SC Fiber) (Fiber)\n✕ SMPTE ST 297 — Optisches SDI (Glasfaser) (Fiber)\n✕ SMPTE 304M Hybrid-Fiber (LEMO 3K.93C / 311) (LEMO 3K.93C (SMPTE 304M))\n✕ SMPTE 304M Hybrid-Fiber (Neutrik Dragonfly) (Neutrik Dragonfly (SMPTE 304M))\n✕ Triax (Damar & Hagen) (Triax (Damar & Hagen))\n✕ Triax (Fischer) (Triax (Fischer))\n✕ Triax-Kamerakabel (analog/koaxial) (Triax)\n✕ Serielle Steuerung RS-232/422/485 (DB9) (DB9)\n✕ VGA (DE-15) (VGA)\n✕ DVI (Single/Dual-Link) (DVI)\n✕ DB25 Mehrkanal-Audio (AES59 / TASCAM) (DB25)\n✕ DMX512 / RDM (5-pol XLR) (DMX 5-pol (XLR))\n✕ Art-Net / sACN (Ethernet) (Ethernet/RJ45)\n✕ Composite / FBAS (Cinch) (Cinch/RCA)\n✕ S-Video (Y/C) (S-Video)\n✕ Component YPbPr (3× Cinch/BNC) (Cinch/RCA)\n✕ Tally / GPI-GPO (DB9 / Kontakt) (DB9)\n✕ HDBaseT (Video/Audio/Steuerung/PoH über Cat) (Ethernet/RJ45)\n✕ HDMI AOC (Active Optical, bis ~100 m) (HDMI)\n✕ DisplayPort AOC (Active Optical, bis ~50 m) (DisplayPort)\n✕ USB-C AOC (Active Optical, bis ~30 m) (USB-C)\nKein passender Kabeltyp im Katalog. Bitte unten bewusst einen Steckertyp/Standard wählen oder einen neuen Kabeltyp anlegen — es wird sonst nur ein generisches Custom-Kabel erzeugt.\nCUSTOM-KABEL-DEFINITION\nStecker-Typ\nXLR\nMini-XLR\nJack 6.35 mm TS\nJack 6.35 mm TRS\nJack 6.35 mm\nJack 3.5 mm TS\nJack 3.5 mm TRS\nJack 3.5 mm TRRS\nJack 3.5 mm\nJack 2.5 mm TRS\nKlinke\nBNC\nHD-BNC\nHDMI\nMini-HDMI\nMicro-HDMI\nEthernet/RJ45\nGG45\nFiber\nSFP\nSFP+\nDIN\nDisplayPort\nVGA\nDVI\nUSB\nUSB-C\nTriax\nTriax (Damar & Hagen)\nTriax (Fischer)\nLEMO 3K.93C (SMPTE 304M)\nNeutrik Dragonfly (SMPTE 304M)\nNeutrik opticalCON DUO\nNeutrik opticalCON QUAD\nF-Connector\nDB9\nDB25\nWireless/RF\nDMX 5-pol (XLR)\nDMX 3-pol (XLR)\nCinch/RCA\nSCART\nS-Video\nTT/Bantam\nMini-BNC\nMicro-BNC\nIEC 230V\nPowerCON\nSchuko 230V\nC7 Eurostecker\nCEE16\nCEE32\nCEE63\nPowerlock\nSocapex\nHarting\nKleeblatt\nXLR 3 Male\nXLR 3 Female\nCombo XLR/Jack\nspeakON 2 Pole\nspeakON 4 Pole\nBinding Post\nXLR 4 Male\nXLR 4 Female\nXLR 5 Male\nXLR 5 Female\nXLR 6 Male\nXLR 6 Female\nXLR 7 Male\nXLR 7 Female\nMIDI\nS-VHS\nUSB Type A\nUSB Type B\nUSB 3 Type A\nUSB 3 Type B\nFireWire 400\nFireWire 800\nPS/2\nFiber Optic LC\nFiber Optic SC\nFiber Optic ST\nToslink\nopticalCON DUO\nopticalCON QUAD\npowerCON Input\npowerCON Output\nLemo\nTourine 25\nTourine 37\nGeneric\nBlanking Panel\nPhoenix/Euroblock\nTerminal Block\nBare Wire\netherCON\nRJ11\nQSFP\nQSFP28\nUSB Mini-B\nUSB Micro-B\nDB15\nDB37\nMini-DIN 4\nMini-DIN 7\nMini-DIN 8\nDIN 5-pol\nMini-DisplayPort\nMPO\nNEMA 5-15 (Edison)\nNEMA L5-20\nNEMA L6-20\nNEMA L6-30\nNEMA L21-30\nIEC C15\nIEC C20\npowerCON TRUE1\nCam-Lok\nDC Barrel\nPCIe 6-pin\nV-Mount\nD-Tap\nSMA\nRP-TNC\nMultipin\nCustom\n+ Neuer Stecker-Typ…\nSignal-Standard\nSDI-SD\nSDI-HD\nSDI-3G\nSDI-6G\nSDI-12G\nHDMI-1.4\nHDMI-2.0\nHDMI-2.1\nDP-1.2\nDP-1.4\nDP-2.0\nEth-100\nEth-1G\nEth-10G\nAnalog-Audio\nAES3\nAES3id\nUSB-2.0\nUSB-3.x\nThunderbolt-3\nThunderbolt-4\nMADI\nDVB-ASI\nSMPTE-297\nSMPTE-304M\nSMPTE-311M\nNDI\nNDI-HX\nDante\nAES67\nST2110-20\nST2110-30\nST2110-40\nSRT\nRTMP\nHLS\nBlackburst\nTri-Level\nWord-Clock\nPTP\nLTC\nRF-UHF\nRF-VHF\nRF-2.4G\nRF-5G\nRS-232\nRS-422\nRS-485\nDMX512\nRDM\nArt-Net\nsACN\nCVBS\nY/C\nYPbPr\nRGBHV\nMTC\nTally\nGPI/GPO\nHDBaseT\nPower-230V\nFiber-SM\nFiber-MM\nGeneric\n+ Neuer Signal-Standard…\nEmpfohlene Maximallänge (m)\nAls Kabel-Typ speichern…\nName\nLänge (m)\nFarbe\nNotizen\nDazwischen gehört ein Zwischenstück. Kabel anlegen, dann in den Kabel-Eigenschaften mit einem Klick einsetzen.\nAbbrechen\nErstellen",
+      "dialog-geschlecht": "Neues Kabel\nVon: Mic Out (XLR)\nNach: Mic In 2 (XLR)\nKabel\n★ Custom-Kabel…\n✓ XLR 3-pin Audio (XLR)\n✕ SDI 3G (1080p50/60) (BNC)\n✕ SDI 6G (4K30 4:2:0) (BNC)\n✕ SDI 12G (4K60) (BNC)\n✕ HDMI 2.0 (4K60 4:4:4) (HDMI)\n✕ HDMI 2.1 (8K/4K120) (HDMI)\n✕ DisplayPort 1.4 (DisplayPort)\n✕ Ethernet Cat6 (1G) (Ethernet/RJ45)\n✕ Ethernet Cat6a (10G) (Ethernet/RJ45)\n✕ NDI über Cat6a (1G/10G) (Ethernet/RJ45)\n✕ Dante / AES67 (Cat6) (Ethernet/RJ45)\n✕ Stream-Uplink (SRT/RTMP/HLS) (Ethernet/RJ45)\n✕ SMPTE ST 2110 (Fiber) (Fiber)\n✕ Referenz Blackburst / Tri-Level (BNC) (BNC)\n✕ Word Clock (BNC) (BNC)\n✕ LTC Timecode (BNC) (BNC)\n✕ PTP / Referenz (Ethernet) (Ethernet/RJ45)\n✕ Fiber SM (LC) (Fiber)\n✕ Fiber MM OM4 (LC) (Fiber)\n✕ USB 3.x (USB)\n✕ IEC C13/C14 230V (IEC 230V)\n✕ powerCON TRUE1 (PowerCON)\n✕ Schuko 230V (Schuko 230V)\n✕ Thunderbolt 3 (40Gbps) (USB-C)\n✕ Thunderbolt 4 (40Gbps, zertifiziert) (USB-C)\n✕ MADI Koax (BNC, 75Ω) (BNC)\n✕ AES3id (BNC, 75Ω) (BNC)\n✕ DVB-ASI (BNC, 75Ω) (BNC)\n✕ MADI Optisch (ST/SC Fiber) (Fiber)\n✕ SMPTE ST 297 — Optisches SDI (Glasfaser) (Fiber)\n✕ SMPTE 304M Hybrid-Fiber (LEMO 3K.93C / 311) (LEMO 3K.93C (SMPTE 304M))\n✕ SMPTE 304M Hybrid-Fiber (Neutrik Dragonfly) (Neutrik Dragonfly (SMPTE 304M))\n✕ Triax (Damar & Hagen) (Triax (Damar & Hagen))\n✕ Triax (Fischer) (Triax (Fischer))\n✕ Triax-Kamerakabel (analog/koaxial) (Triax)\n✕ Serielle Steuerung RS-232/422/485 (DB9) (DB9)\n✕ VGA (DE-15) (VGA)\n✕ DVI (Single/Dual-Link) (DVI)\n✕ DB25 Mehrkanal-Audio (AES59 / TASCAM) (DB25)\n✕ DMX512 / RDM (5-pol XLR) (DMX 5-pol (XLR))\n✕ Art-Net / sACN (Ethernet) (Ethernet/RJ45)\n✕ Composite / FBAS (Cinch) (Cinch/RCA)\n✕ S-Video (Y/C) (S-Video)\n✕ Component YPbPr (3× Cinch/BNC) (Cinch/RCA)\n✕ Tally / GPI-GPO (DB9 / Kontakt) (DB9)\n✕ HDBaseT (Video/Audio/Steuerung/PoH über Cat) (Ethernet/RJ45)\n✕ HDMI AOC (Active Optical, bis ~100 m) (HDMI)\n✕ DisplayPort AOC (Active Optical, bis ~50 m) (DisplayPort)\n✕ USB-C AOC (Active Optical, bis ~30 m) (USB-C)\nSignal-Standard\nAnalog-Audio\nAES3\nName\nLänge (m)\nFarbe\nNotizen\nXLR 3-pin Audio passt zu XLR ↔ XLR.\nBeide Enden sind male. Sie passen nicht ineinander — dazwischen gehört ein Geschlechtswandler.\nDazwischen gehört ein Zwischenstück. Kabel anlegen, dann in den Kabel-Eigenschaften mit einem Klick einsetzen.\nAbbrechen\nErstellen",
+      "schaltbild-chip": "Defaults\nRahmen\nEBENEN\n📹\nVideo\n🎙\nAudio\n🎛\nControl\n🌐\nNetwork\n⚡\nPower\n4\n◆\nOther\nEbenen\n⋯\nSchema\nSchaltbild\n· 1/1\nSchalter zurück\nVorschläge\nPrüfbild\nkeine\nEinspeisung\nWechselschalter A\nWechselschalter B\nSperren\nAbschließen\nBadges\nAnmerkungen\nHallenplan\nSymbole",
+      "schalten-leiste": "Defaults\nRahmen\nEBENEN\n📹\nVideo\n2\n🎙\nAudio\n🎛\nControl\n🌐\nNetwork\n⚡\nPower\n◆\nOther\nEbenen\n⋯\nSchema\nSchaltbild\nPrüfbild\nkeine\nCamera 1\nVideohub 12x12\n· 1\n· 1 ungeprüft\nBild sichern\nPrüfblatt\nAbnahme\nWeg schalten…\nSperren\nAbschließen\nBadges\nAnmerkungen\nHallenplan\nSymbole",
+      "schalten-dialog": "Weg schalten\n\nDas ist ein Eingriff in die laufende Anlage, keine Anzeige. mehr\n\nWohin soll das Bild?\nbitte wählen\nControl room monitor · SDI In\nSchliessen\njetzt schalten",
+      "schalten-plan": "Weg schalten\n\nDas ist ein Eingriff in die laufende Anlage, keine Anzeige. mehr\n\nWohin soll das Bild?\nbitte wählen\nControl room monitor · SDI In\nCamera 1 · SDI Out —[CAM 1]→ Videohub 12x12 · In 1 —[PGM]→ Control room monitor · SDI In\nFür „Videohub 12x12\" ist kein Steuer-Protokoll erklärt (Eigenschaften → Steuerung). Ohne Erklärung wird nichts gesendet — welches Protokoll ein Gerät spricht, lässt sich nicht am Namen ablesen.\nWer schaltet\nIch habe gelesen, welche Ausgänge umgeschaltet werden, und schalte an der laufenden Anlage.\nSchliessen\njetzt schalten",
+      "schalten-knopf-aktiv": "false"
+    },
+    "fehler": [
+      "auswahl: locator.click: Timeout 8000ms exceeded."
+    ]
+  }
 }
