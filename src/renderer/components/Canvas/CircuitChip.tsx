@@ -44,13 +44,13 @@ export function CircuitChip() {
         )
 
   return (
-    <span className="flex items-center gap-1">
+    <span className="relative flex items-center gap-1">
       <button
         type="button"
         onClick={() => setAn(!an)}
         title={titel}
         aria-pressed={an}
-        className={`av-focus flex items-center gap-1.5 border border-cp-border px-2 py-0.5 text-cp-xs ${
+        className={`av-focus flex items-center gap-1.5 whitespace-nowrap border border-cp-border px-2 py-0.5 text-cp-xs ${
           an ? 'bg-cp-surface-3 text-cp-text' : 'text-cp-text-secondary hover:bg-cp-surface-3'
         }`}
       >
@@ -74,7 +74,10 @@ export function CircuitChip() {
           </span>
         )}
       </button>
+      {/* The extra actions float below the chip: they used to join the toolbar row,
+          which made it wrap and the chip jump on every click (#990). */}
       {an && knoten > 0 && (
+        <div className="absolute left-0 top-full z-30 mt-1 flex gap-1 border border-cp-border bg-cp-surface-1 p-1 shadow-lg">
         <button
           type="button"
           onClick={zuruecksetzen}
@@ -82,12 +85,10 @@ export function CircuitChip() {
             'canvas.circuit.resetTitle',
             'All switches back to their default. The plan does not change — it never carried the positions.',
           )}
-          className="av-focus border border-cp-border px-2 py-0.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-3"
+          className="av-focus whitespace-nowrap border border-cp-border px-2 py-0.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-3"
         >
           {t('canvas.circuit.reset', 'Reset switches')}
         </button>
-      )}
-      {an && knoten > 0 && (
         <button
           type="button"
           onClick={() => setVorschlaegeOffen(true)}
@@ -95,10 +96,11 @@ export function CircuitChip() {
             'canvas.circuit.suggestTitle',
             'Why the circuit does not do what it should — and which wire would change that. Every suggestion is computed through and brings its own truth table; nothing is entered without a click.',
           )}
-          className="av-focus border border-cp-border px-2 py-0.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-3"
+          className="av-focus whitespace-nowrap border border-cp-border px-2 py-0.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-3"
         >
           {t('canvas.circuit.suggest', 'Suggestions')}
         </button>
+        </div>
       )}
       <CircuitSuggestDialog open={vorschlaegeOffen} onClose={() => setVorschlaegeOffen(false)} />
     </span>

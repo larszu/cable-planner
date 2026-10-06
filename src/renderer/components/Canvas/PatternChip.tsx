@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
 import { stampForRows } from '../../lib/documentStamp'
 import { usePatternStore } from '../../store/patternStore'
@@ -35,6 +35,17 @@ export function PatternChip() {
   const summe = usePatternSumme()
   const befunde = usePatternBefunde()
   const [schaltenOffen, setSchaltenOffen] = useState(false)
+  const [speicherOffen, setSpeicherOffen] = useState(false)
+  const speicherRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!speicherOffen) return
+    const zu = (e: MouseEvent) => {
+      if (!speicherRef.current?.contains(e.target as Node)) setSpeicherOffen(false)
+    }
+    document.addEventListener('mousedown', zu)
+    return () => document.removeEventListener('mousedown', zu)
+  }, [speicherOffen])
 
   // B-42 Inkrement 3 — „schalten" wird nur angeboten, wenn auf einem Weg
   // dieser Quelle ueberhaupt eine Kreuzschiene liegt. Ein Knopf, der bei
@@ -57,7 +68,8 @@ export function PatternChip() {
   )
 
   const speichern = (name: string, inhalt: string, typ: string) => {
-    const blob = new Blob([inhalt], { type: typ })
+    // CSV: UTF-8 BOM, otherwise Excel reads the file as ANSI and umlauts break (#990).
+    const blob = new Blob([typ === 'text/csv' ? `\uFEFF${inhalt}` : inhalt], { type: typ })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
@@ -169,39 +181,63 @@ export function PatternChip() {
       </label>
       {quelleId && (
         <>
-          <button
-            type="button"
-            onClick={bildSpeichern}
-            title={t(
-              'canvas.pattern.saveImageTitle',
-              'Save the image as SVG — for a media player, the switcher stills store, or a laptop on an output. This app feeds nothing in.',
+          <div ref={speicherRef} className="relative">
+            <button
+              type="button"
+              onClick={() => setSpeicherOffen((v) => !v)}
+              aria-expanded={speicherOffen}
+              title={t(
+                'canvas.pattern.saveTitle',
+                'Save the test pattern as an image, or the walk-around list and sign-off sheet as CSV.',
+              )}
+              className="av-focus whitespace-nowrap border border-cp-border px-2 py-0.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-3"
+            >
+              {t('canvas.pattern.save', 'Save…')}
+            </button>
+            {speicherOffen && (
+              <div className="absolute left-0 top-full z-30 mt-1 flex w-56 flex-col border border-cp-border bg-cp-surface-1 py-1 shadow-lg">
+                {[
+                  {
+                    run: bildSpeichern,
+                    label: t('canvas.pattern.saveImage', 'Test pattern image (SVG)'),
+                    hint: t(
+                      'canvas.pattern.saveImageTitle',
+                      'For a media player, the switcher stills store, or a laptop on an output. This app feeds nothing in.',
+                    ),
+                  },
+                  {
+                    run: blattSpeichern,
+                    label: t('canvas.pattern.saveSheet', 'Check sheet (CSV)'),
+                    hint: t(
+                      'canvas.pattern.saveSheetTitle',
+                      'The walk-around list — including the paths the plan cannot follow to the end, and why.',
+                    ),
+                  },
+                  {
+                    run: abnahmeSpeichern,
+                    label: t('canvas.pattern.saveAcceptance', 'Sign-off sheet (CSV)'),
+                    hint: t(
+                      'canvas.pattern.saveAcceptanceTitle',
+                      'What was actually seen, with timestamps — and the places nobody has looked at yet.',
+                    ),
+                  },
+                ].map((e) => (
+                  <button
+                    key={e.label}
+                    type="button"
+                    title={e.hint}
+                    onClick={() => {
+                      e.run()
+                      setSpeicherOffen(false)
+                    }}
+                    className="av-focus px-3 py-1 text-left text-cp-xs text-cp-text-secondary hover:bg-cp-surface-3"
+                  >
+                    {e.label}
+                  </button>
+                ))}
+              </div>
             )}
-            className="av-focus border border-cp-border px-2 py-0.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-3"
-          >
-            {t('canvas.pattern.saveImage', 'Save image')}
-          </button>
-          <button
-            type="button"
-            onClick={blattSpeichern}
-            title={t(
-              'canvas.pattern.saveSheetTitle',
-              'The walk-around list — including the paths the plan cannot follow to the end, and why.',
-            )}
-            className="av-focus border border-cp-border px-2 py-0.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-3"
-          >
-            {t('canvas.pattern.saveSheet', 'Check sheet')}
-          </button>
-          <button
-            type="button"
-            onClick={abnahmeSpeichern}
-            title={t(
-              'canvas.pattern.saveAcceptanceTitle',
-              'What was actually seen, with timestamps — and the places nobody has looked at yet.',
-            )}
-            className="av-focus border border-cp-border px-2 py-0.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-3"
-          >
-            {t('canvas.pattern.saveAcceptance', 'Sign-off')}
-          </button>
+          </div>
           {schaltbar && (
             <button
               type="button"

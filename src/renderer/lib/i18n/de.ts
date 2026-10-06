@@ -1258,8 +1258,6 @@ export const de: Dict = {
   'cableLib.groupReorderTitle': 'Per Drag&Drop verschieben',
   'cableLib.installedCount': '{n} verbaut',
   'cableLib.maxLength': 'Max. Länge (m) – optional',
-  'cableLib.manage': 'Kabeltypen verwalten …',
-  'cableLib.manageTitle': 'Kabeltypen werden in den Einstellungen verwaltet',
   'cableLib.nameExists': 'Name existiert bereits — Speichern überschreibt den vorhandenen Eintrag.',
   'cableLib.namePlaceholder': 'z.B. CAT6a Patch 5m',
   'cableLib.newConnectorTypePrompt': 'Neuer Stecker-Typ (z.B. "Speakon NL4"):',
@@ -1502,7 +1500,6 @@ export const de: Dict = {
   'canvas.flow.lostContact': '· Verbindung weg',
   'canvas.flow.schema': 'Schema',
   'canvas.flow.schemaTitle': 'Der geplante Weg. Es besteht keine Verbindung zu einer Anlage.',
-  'canvas.flow.still': '· ruhig',
   'canvas.flow.systemReduced': 'Das System hat Bewegung abgestellt; die Anzeige bleibt ruhig.',
   'canvas.flow.toggleOff': 'Klick: Bewegung ausschalten.',
   'canvas.flow.toggleOn': 'Klick: Bewegung einschalten.',
@@ -1589,13 +1586,16 @@ export const de: Dict = {
   'canvas.pattern.open': '· {n} offen',
   'canvas.pattern.pickTitle':
     'Eine Quelle wählen: der Plan zeigt dann an jedem Ankunftsort, welches Bild dort stehen müsste. Das ist die Erwartung — diese App sieht nicht, was wirklich ankommt.',
-  'canvas.pattern.saveAcceptance': 'Abnahme',
+  'canvas.pattern.save': 'Sichern…',
+  'canvas.pattern.saveTitle':
+    'Das Prüfbild als Bild sichern, oder die Liste zum Abgehen und das Abnahmeblatt als CSV.',
+  'canvas.pattern.saveAcceptance': 'Abnahmeblatt (CSV)',
   'canvas.pattern.saveAcceptanceTitle':
     'Was gesehen wurde, mit Zeitpunkt — und die Orte, an denen noch niemand hingesehen hat.',
-  'canvas.pattern.saveImage': 'Bild sichern',
+  'canvas.pattern.saveImage': 'Prüfbild (SVG)',
   'canvas.pattern.saveImageTitle':
-    'Das Bild als SVG sichern — für den Mediaplayer, den Standbild-Speicher des Mischers oder einen Laptop am Ausgang. Diese App speist nichts ein.',
-  'canvas.pattern.saveSheet': 'Prüfblatt',
+    'Für den Mediaplayer, den Standbild-Speicher des Mischers oder einen Laptop am Ausgang. Diese App speist nichts ein.',
+  'canvas.pattern.saveSheet': 'Prüfblatt (CSV)',
   'canvas.pattern.saveSheetTitle':
     'Die Liste zum Abgehen — mit den Wegen, die der Plan nicht zu Ende kennt, und ihrem Grund.',
   'canvas.pattern.swapped': '· {n} vertauscht',
@@ -6877,7 +6877,8 @@ export const de: Dict = {
   'app.menu.file.cloud': 'Cloud & Lese-Link…',
   'cloud.title': 'Cloud',
   'cloud.intro': 'Freiwillig. Deine Datei bleibt das Original; {host} hält eine Kopie mit Revisionen, verschlüsselt gespeichert. Zugangsdaten werden vor dem Hochladen entfernt.',
-  'cloud.signIn': 'Cloud-Projekte nutzen dein Konto der Gerätebibliothek. Melde dich unter Einstellungen → Gerätebibliothek an.',
+  'cloud.signIn': 'Cloud-Projekte nutzen dein Konto der Gerätebibliothek.',
+  'cloud.signInOpen': 'Anmelden unter Einstellungen → Gerätebibliothek…',
   'cloud.thisProject': 'Dieses Projekt',
   'cloud.put': 'Dieses Projekt in die Cloud legen',
   'cloud.status': 'Revision {rev}, zuletzt gespeichert {time}. Änderungen gehen automatisch in die Cloud.',
