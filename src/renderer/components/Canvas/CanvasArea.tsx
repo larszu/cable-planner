@@ -731,6 +731,12 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         if (n.type === 'grundriss' || n.type === 'symbol') {
           return { ...existing, data: n.data, draggable: n.draggable, selectable: n.selectable, zIndex: n.zIndex, style: n.style, position: n.position }
         }
+        // Rahmen: die Groesse aus dem Eigenschaften-Panel (Breite/Tiefe) muss
+        // ankommen — vorher blieb `style` auf dem Erstwert, und die Eingabe
+        // dort aenderte nur die Zahl, nicht den Rahmen (#985).
+        if (n.type === 'location') {
+          return { ...existing, data: n.data, draggable: n.draggable, style: n.style }
+        }
         return { ...existing, data: n.data, draggable: n.draggable }
       })
     })

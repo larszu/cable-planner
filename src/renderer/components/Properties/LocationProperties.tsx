@@ -9,6 +9,8 @@ import { PanelHint } from '../shared/PanelHint'
 import { promptDialog } from '../../lib/promptDialog'
 import { etagenIndex } from '../../lib/etagen'
 import { EtagenVerwaltung } from './EtagenVerwaltung'
+import { DEFAULT_LENGTH_ESTIMATION } from '../../lib/cableLengthEstimate'
+import { flaecheM2, meterZuPx, pxZuMeter, RAHMEN_MIN_PX } from '../../lib/raumMasse'
 import type { Floor } from '../../types/location'
 
 /** Wert der Auswahl-Option „Neue Etage…" — kann kein Etagenname sein. */
@@ -29,6 +31,9 @@ export const LocationProperties = () => {
   const openLocationBom = useUiStore((state) => state.openLocationBom)
   const floors = useProjectStore((state) => state.project.floors ?? EMPTY_FLOORS)
   const setFloors = useProjectStore((state) => state.setFloors)
+  const m100 = useProjectStore(
+    (state) => state.project.metadata.lengthEstimation?.metersPer100px ?? DEFAULT_LENGTH_ESTIMATION.metersPer100px,
+  )
 
   if (!location) return null
 
@@ -50,27 +55,33 @@ export const LocationProperties = () => {
 
       <div className="grid grid-cols-2 gap-2">
         <label className="block">
-          {t('location.field.width', 'Width')}
+          {t('location.field.width', 'Width (m)')}
           <input
             type="number"
-            value={Math.round(location.width)}
-            onChange={(e) =>
-              updateLocation(location.id, { width: Math.max(40, Number(e.target.value) || 0) })
-            }
+            min={pxZuMeter(RAHMEN_MIN_PX, m100)}
+            step={0.1}
+            value={pxZuMeter(location.width, m100)}
+            onChange={(e) => updateLocation(location.id, { width: meterZuPx(Number(e.target.value), m100) })}
             className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-1.5"
           />
         </label>
         <label className="block">
-          {t('location.field.height', 'Height')}
+          {t('location.field.height', 'Depth (m)')}
           <input
             type="number"
-            value={Math.round(location.height)}
-            onChange={(e) =>
-              updateLocation(location.id, { height: Math.max(40, Number(e.target.value) || 0) })
-            }
+            min={pxZuMeter(RAHMEN_MIN_PX, m100)}
+            step={0.1}
+            value={pxZuMeter(location.height, m100)}
+            onChange={(e) => updateLocation(location.id, { height: meterZuPx(Number(e.target.value), m100) })}
             className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-1.5"
           />
         </label>
+      </div>
+      <div
+        className="-mt-1 text-cp-text-muted"
+        title={t('location.field.areaTitle', 'Width × depth at the project scale (Settings → Project, or the floor plan scale).')}
+      >
+        {format(t('location.field.area', 'Area: {m2} m²'), { m2: flaecheM2(location.width, location.height, m100) })}
       </div>
 
       <div className="grid grid-cols-2 gap-2">
