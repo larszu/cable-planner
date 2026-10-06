@@ -41,7 +41,26 @@ import { buildChannelList, monitorPaths } from './channelList'
 const esc = (s: string): string =>
   s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 
-export const exportStagePlotSvg = (project: CablePlannerProject): string => {
+/** Farben des Blatts. Dunkel folgt dem dunklen Canvas, hell ist die Grafik
+ *  fuer Papier und Mail (weisser Grund, dunkle Schrift). */
+const PALETTES = {
+  dark: {
+    bg: '#0f172a', title: '#e2e8f0', sub: '#94a3b8', card: '#1e293b',
+    name: '#ffffff', onAccent: '#0f172a', faint: '#64748b', legend: '#cbd5e1',
+  },
+  light: {
+    bg: '#ffffff', title: '#0f172a', sub: '#475569', card: '#f1f5f9',
+    name: '#0f172a', onAccent: '#ffffff', faint: '#64748b', legend: '#334155',
+  },
+} as const
+
+/** `theme` folgt im Menue dem Canvas (Standard) oder ist 'light' fuer die
+ *  helle Grafik, unabhaengig vom Canvas. */
+export const exportStagePlotSvg = (
+  project: CablePlannerProject,
+  theme: 'dark' | 'light' = 'dark',
+): string => {
+  const c = PALETTES[theme]
   // Die Kanalliste ist DIESELBE wie in der Patchliste (Bedarf 37) — nicht eine
   // zweite Ableitung daneben. Genau das verlangt Bedarf 38: „generates the
   // input list … from the same objects".
@@ -113,12 +132,12 @@ export const exportStagePlotSvg = (project: CablePlannerProject): string => {
   parts.push(
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vx} ${vy} ${vw} ${vh}" font-family="sans-serif">`,
   )
-  parts.push(`<rect x="${vx}" y="${vy}" width="${vw}" height="${vh}" fill="#0f172a"/>`)
+  parts.push(`<rect x="${vx}" y="${vy}" width="${vw}" height="${vh}" fill="${c.bg}"/>`)
   parts.push(
-    `<text x="${minX - pad + 8}" y="${minY - pad - titleH + 34}" fill="#e2e8f0" font-size="26" font-weight="700">Stage-Plot — ${esc(project.metadata?.name ?? 'Plan')}</text>`,
+    `<text x="${minX - pad + 8}" y="${minY - pad - titleH + 34}" fill="${c.title}" font-size="26" font-weight="700">Stage-Plot — ${esc(project.metadata?.name ?? 'Plan')}</text>`,
   )
   parts.push(
-    `<text x="${minX - pad + 8}" y="${minY - pad - titleH + 52}" fill="#94a3b8" font-size="13">${
+    `<text x="${minX - pad + 8}" y="${minY - pad - titleH + 52}" fill="${c.sub}" font-size="13">${
       audioFound
         ? `${ordered.length} Audio-Quellen/-Ziele · ${channels.length} Kanäle`
         : `${ordered.length} Geräte — kein Audio-Kabel im Plan, daher alle`
@@ -131,7 +150,7 @@ export const exportStagePlotSvg = (project: CablePlannerProject): string => {
     const accent = e.nodeColor ?? '#ef4444'
     const ch = chByEquipment.get(e.id)
     parts.push(
-      `<rect x="${e.x}" y="${e.y}" width="${w}" height="${h}" rx="8" fill="#1e293b" stroke="${esc(accent)}" stroke-width="2"/>`,
+      `<rect x="${e.x}" y="${e.y}" width="${w}" height="${h}" rx="8" fill="${c.card}" stroke="${esc(accent)}" stroke-width="2"/>`,
     )
     // Die Nummer ist der KANAL. Ein Geraet ohne Kanal (Stagebox, Pult, Wedge)
     // bekommt keine: es ist Ziel und nicht Quelle, und eine Nummer an ihm
@@ -139,21 +158,21 @@ export const exportStagePlotSvg = (project: CablePlannerProject): string => {
     if (ch !== undefined) {
       parts.push(`<circle cx="${e.x + 16}" cy="${e.y + 16}" r="13" fill="${esc(accent)}"/>`)
       parts.push(
-        `<text x="${e.x + 16}" y="${e.y + 21}" fill="#0f172a" font-size="14" font-weight="700" text-anchor="middle">${ch}</text>`,
+        `<text x="${e.x + 16}" y="${e.y + 21}" fill="${c.onAccent}" font-size="14" font-weight="700" text-anchor="middle">${ch}</text>`,
       )
     }
     parts.push(
-      `<text x="${e.x + (ch !== undefined ? 36 : 12)}" y="${e.y + 21}" fill="#ffffff" font-size="13" font-weight="600">${esc(e.name)}</text>`,
+      `<text x="${e.x + (ch !== undefined ? 36 : 12)}" y="${e.y + 21}" fill="${c.name}" font-size="13" font-weight="600">${esc(e.name)}</text>`,
     )
     if (e.subtitle) {
       parts.push(
-        `<text x="${e.x + 12}" y="${e.y + 40}" fill="#94a3b8" font-size="12">${esc(e.subtitle)}</text>`,
+        `<text x="${e.x + 12}" y="${e.y + 40}" fill="${c.sub}" font-size="12">${esc(e.subtitle)}</text>`,
       )
     }
     const inCount = Array.isArray(e.inputs) ? e.inputs.length : 0
     const outCount = Array.isArray(e.outputs) ? e.outputs.length : 0
     parts.push(
-      `<text x="${e.x + 12}" y="${e.y + h - 10}" fill="#64748b" font-size="11">${inCount} In · ${outCount} Out</text>`,
+      `<text x="${e.x + 12}" y="${e.y + h - 10}" fill="${c.faint}" font-size="11">${inCount} In · ${outCount} Out</text>`,
     )
   })
 
@@ -162,28 +181,28 @@ export const exportStagePlotSvg = (project: CablePlannerProject): string => {
     const lx = maxX + pad
     let ly = minY - pad + 24
     parts.push(
-      `<text x="${lx}" y="${ly}" fill="#e2e8f0" font-size="15" font-weight="700">Eingangsliste</text>`,
+      `<text x="${lx}" y="${ly}" fill="${c.title}" font-size="15" font-weight="700">Eingangsliste</text>`,
     )
     ly += 22
     for (const row of channels) {
       const abnahme = row.sourcePort ? ` · ${row.sourcePort}` : ''
       parts.push(
-        `<text x="${lx}" y="${ly}" fill="#cbd5e1" font-size="12">${row.ch}. ${esc(row.source)}${esc(abnahme)}</text>`,
+        `<text x="${lx}" y="${ly}" fill="${c.legend}" font-size="12">${row.ch}. ${esc(row.source)}${esc(abnahme)}</text>`,
       )
       parts.push(
-        `<text x="${lx + 300}" y="${ly}" fill="#64748b" font-size="11">${esc(row.destinationPort)}</text>`,
+        `<text x="${lx + 300}" y="${ly}" fill="${c.faint}" font-size="11">${esc(row.destinationPort)}</text>`,
       )
       ly += 22
     }
     if (monitors.length > 0) {
       ly += 14
       parts.push(
-        `<text x="${lx}" y="${ly}" fill="#e2e8f0" font-size="15" font-weight="700">Monitor-Wege</text>`,
+        `<text x="${lx}" y="${ly}" fill="${c.title}" font-size="15" font-weight="700">Monitor-Wege</text>`,
       )
       ly += 22
       for (const m of monitors) {
         parts.push(
-          `<text x="${lx}" y="${ly}" fill="#cbd5e1" font-size="12">${esc(m.outputPort)} → ${esc(m.sink)}</text>`,
+          `<text x="${lx}" y="${ly}" fill="${c.legend}" font-size="12">${esc(m.outputPort)} → ${esc(m.sink)}</text>`,
         )
         ly += 22
       }

@@ -216,3 +216,18 @@ describe('Bedarf 38 — Zeichnung und Liste auf einem Blatt', () => {
     expect(exportStagePlotSvg(mitKanaelen())).not.toContain('Monitor-Wege')
   })
 })
+
+describe('exportStagePlotSvg — Thema', () => {
+  const p = project([eq('mic', 'SM58', 0, 0), eq('pult', 'X32', 400, 0)], [cable('mic', 'pult', 'audio')])
+  it('ist standardmaessig dunkel', () => {
+    const svg = exportStagePlotSvg(p)
+    expect(svg).toContain('fill="#0f172a"/>')
+  })
+  it('liefert mit light einen weissen Grund und dunkle Schrift', () => {
+    const svg = exportStagePlotSvg(p, 'light')
+    expect(svg).toContain('width="')
+    expect(svg).toMatch(/<rect [^>]*fill="#ffffff"\/>/)
+    expect(svg).not.toContain('fill="#0f172a"/>')
+    expect(svg).toContain('SM58')
+  })
+})
