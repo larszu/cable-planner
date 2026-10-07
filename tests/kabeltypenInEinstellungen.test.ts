@@ -60,9 +60,9 @@ describe('Die Seitenleiste legt nichts mehr an', () => {
     expect(src).toMatch(/updateCustomCableSpec\(/)
   })
 
-  it('führt statt dessen an die richtige Stelle — und öffnet sie', () => {
-    // Ein Verweis, der den Leser suchen lässt, ist kaum besser als keiner.
-    expect(src).toMatch(/openSettings\('cableTypes'\)/)
+  it('hat keinen zweiten Weg dorthin — Kabeltypen verwaltet nur die Einstellung', () => {
+    // #991: kein Extra-Knopf in der Bibliothek, auch kein Verweis darauf.
+    expect(src).not.toMatch(/openSettings\('cableTypes'\)/)
   })
 })
 
