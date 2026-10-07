@@ -195,7 +195,7 @@ export function PatternChip() {
               {t('canvas.pattern.save', 'Save…')}
             </button>
             {speicherOffen && (
-              <div className="absolute left-0 top-full z-30 mt-1 flex w-56 flex-col border border-cp-border bg-cp-surface-1 py-1 shadow-lg">
+              <div className="absolute left-0 top-full z-30 mt-1 flex w-56 flex-col border border-cp-border bg-cp-surface-1 py-1">
                 {[
                   {
                     run: bildSpeichern,
