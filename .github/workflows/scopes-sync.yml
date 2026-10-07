@@ -1,0 +1,140 @@
+name: lz-scopes nachziehen
+
+# ---------------------------------------------------------------------------
+# Taeglich: ist larszu/lz-scopes weiter als der Pin in VENDOR.md?
+#
+# WARUM NICHT IM PULL-REQUEST-LAUF. lz-scopes bekommt mehrere Aenderungen am
+# Tag. Ein Vergleich gegen dessen `main` im PR-Lauf machte jeden PR hier rot,
+# ohne dass er etwas damit zu tun hatte (2026-09-30, zweimal am ersten Tag).
+# Der PR-Lauf (`ci.yml`, Job `scopes`) prueft deshalb nur gegen den PIN — er
+# wird allein dann rot, wenn jemand die Kopie von Hand aendert. Wie weit
+# upstream voraus ist, beantwortet dieser Lauf hier.
+#
+# WAS ER TUT. `scopes:sync` auf upstream `main`, PNGs mit, dann die Gates des
+# Merge-Gates (Typen, Lint, Tests, Build). Hat sich etwas geaendert, liegt das
+# Ergebnis auf dem Branch `chore/lz-scopes-sync` (bei jedem Lauf neu), und EIN
+# offenes Issue „lz-scopes: Vendor nachziehen" sagt, was gruen war und was
+# nicht. Ist die Kopie wieder auf Stand, schliesst er das Issue.
+#
+# WARUM EIN ISSUE UND KEIN PULL REQUEST. Das Repo erlaubt Actions nicht, PRs
+# anzulegen (`can_approve_pull_request_reviews: false`), und ein PR mit dem
+# GITHUB_TOKEN wuerde ohnehin keinen CI-Lauf ausloesen — ein PR ohne Pruefung
+# sieht gruen aus, ohne es zu sein. Die Gates laufen deshalb HIER, und das
+# Issue verlinkt den Vergleich zum Branch: ein Klick legt den PR an, und der
+# bekommt dann seinen normalen CI-Lauf.
+# ---------------------------------------------------------------------------
+
+on:
+  schedule:
+    - cron: '23 4 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: scopes-sync
+  cancel-in-progress: false
+
+env:
+  BRANCH: chore/lz-scopes-sync
+  TITEL: 'lz-scopes: Vendor nachziehen'
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/checkout@v5
+        with:
+          repository: larszu/lz-scopes
+          path: fremd/lz-scopes
+          fetch-depth: 0
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Nachziehen
+        id: sync
+        run: |
+          if npm run scopes:sync -- --upstream fremd/lz-scopes > sync.log 2>&1; then
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          fi
+          cat sync.log
+          mkdir -p public/patterns/lz-display
+          cp -R fremd/lz-scopes/public/patterns/lz-display/. public/patterns/lz-display/
+          echo "ref=$(git -C fremd/lz-scopes rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+          if git diff --quiet -- src/renderer/vendor public/patterns && [ -z "$(git ls-files --others --exclude-standard -- src/renderer/vendor public/patterns)" ]; then
+            echo "geaendert=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "geaendert=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Gates
+        id: gates
+        if: steps.sync.outputs.ok == 'true' && steps.sync.outputs.geaendert == 'true'
+        run: |
+          sudo apt-get update && sudo apt-get install -y libsecret-1-dev
+          npm ci
+          zeile() { if eval "$2" > /dev/null 2>&1; then echo "- [x] $1"; else echo "- [ ] $1 — **rot**"; fi; }
+          {
+            zeile 'Typen (`tsc -p tsconfig.app.json`)' 'npx tsc -p tsconfig.app.json --noEmit'
+            zeile 'Lint' 'npm run lint'
+            zeile 'Tests (`npm test`)' 'npm test'
+            zeile 'Build' 'npm run build'
+          } > gates.md
+          cat gates.md
+
+      - name: Branch schreiben
+        if: steps.sync.outputs.ok == 'true' && steps.sync.outputs.geaendert == 'true'
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$BRANCH"
+          git add src/renderer/vendor public/patterns
+          git commit -m "chore(scopes): lz-scopes auf ${{ steps.sync.outputs.ref }} nachziehen"
+          git push --force origin "$BRANCH"
+
+      - name: Issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          OK: ${{ steps.sync.outputs.ok }}
+          GEAENDERT: ${{ steps.sync.outputs.geaendert }}
+          REF: ${{ steps.sync.outputs.ref }}
+        run: |
+          nummer=$(gh issue list --state open --search "\"$TITEL\" in:title" --json number,title --jq ".[] | select(.title == \"$TITEL\") | .number" | head -1)
+          if [ "$OK" = "true" ] && [ "$GEAENDERT" = "false" ]; then
+            if [ -n "$nummer" ]; then gh issue close "$nummer" --comment "Vendor entspricht lz-scopes@$REF."; fi
+            exit 0
+          fi
+          lauf="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          if [ "$OK" = "true" ]; then
+            {
+              echo "lz-scopes ist weiter als der Pin in \`src/renderer/vendor/lz-scopes/VENDOR.md\` — Stand upstream: \`$REF\`."
+              echo
+              echo "Nachgezogen auf [\`$BRANCH\`]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/compare/main...$BRANCH?expand=1) (Link legt den PR an). Gates in [diesem Lauf]($lauf):"
+              echo
+              cat gates.md
+              echo
+              echo "Neue Testbilder brauchen einen englischen Namen in \`src/renderer/lib/testPatternNames.ts\`; die Tests sagen, welche."
+            } > body.md
+          else
+            {
+              echo "\`scopes:sync\` gegen lz-scopes@$REF ist gescheitert ([Lauf]($lauf)):"
+              echo
+              echo '```'
+              tail -n 20 sync.log
+              echo '```'
+              echo
+              echo "Meist ein \`PATCHES\`-Eintrag in \`scripts/lz-scopes-vendor.mjs\`, der nicht mehr passt, oder ein Import, der das Repo verlaesst."
+            } > body.md
+          fi
+          if [ -n "$nummer" ]; then
+            gh issue edit "$nummer" --body-file body.md
+          else
+            gh issue create --title "$TITEL" --body-file body.md
+          fi

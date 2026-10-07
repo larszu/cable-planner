@@ -29,14 +29,13 @@
 // `../../server/leap.mjs` (samt `leap.d.mts`). Mit derselben Ordnerform wie
 // upstream bleiben alle relativen Importe unveraendert.
 //
-// WARUM ES PATCHES GIBT. `tsconfig.app.json` verlangt `erasableSyntaxOnly`, und
-// `tsc` prueft importierte Dateien mit — eine Ordner-Ausnahme gibt es dafuer
-// nicht. Upstream nutzt an zwei Stellen Parameter-Properties (und einen
-// unbenutzten Parameter, den `noUnusedParameters` hier anmahnt). Die Patches
-// schreiben genau diese Stellen aus; sie werden beim Vergleich auf
-// upstream angewandt, damit alles andere Byte fuer Byte gleich bleiben muss.
-// Faellt ein Patch ins Leere (upstream hat die Stelle geaendert), meldet der
-// Lauf das, statt still ungepatcht zu kopieren.
+// WARUM `@ts-nocheck` IN JEDER KOPIE. `tsconfig.app.json` verlangt
+// `erasableSyntaxOnly` und `noUnusedParameters`, upstream nicht, und `tsc`
+// prueft importierte Dateien mit — eine Ordner-Ausnahme gibt es nicht. Die
+// Kopfzeile (`NOCHECK`) wird beim Kopieren UND beim Vergleich gesetzt; alles
+// andere muss Byte fuer Byte gleich bleiben. Gezielte `PATCHES` bleiben fuer
+// den Fall, dass upstream etwas enthaelt, das hier nicht laeuft. Faellt ein
+// Patch ins Leere, meldet der Lauf das, statt still ungepatcht zu kopieren.
 // ---------------------------------------------------------------------------
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import { dirname, join, posix, relative, resolve } from 'node:path'
@@ -45,23 +44,13 @@ import { execFileSync } from 'node:child_process'
 const ZIEL = resolve('src/renderer/vendor/lz-scopes')
 const EIGENE = new Set(['VENDOR.md'])
 
+/**
+ * Gezielte Ersetzungen `{ datei, alt, neu }`, angewandt nach dem Kopieren.
+ * Heute leer: was frueher hier stand (Parameter-Properties, unbenutzte
+ * Parameter), deckt die Kopfzeile `NOCHECK` allgemein ab. Gebraucht nur noch,
+ * wenn upstream etwas enthaelt, das hier nicht LAEUFT — nicht fuer Typfragen.
+ */
 export const PATCHES = [
-  {
-    datei: 'src/renderer.ts',
-    alt: '  constructor(readonly canvas: HTMLCanvasElement) {\n',
-    neu: '  readonly canvas: HTMLCanvasElement;\n  constructor(canvas: HTMLCanvasElement) {\n    this.canvas = canvas;\n',
-  },
-  {
-    datei: 'src/audio/dsp/signals.ts',
-    alt: "  constructor(seed: number, private kind: 'white' | 'pink' | 'pink-band', fs: number, calibrate = true) {\n",
-    neu: "  private kind: 'white' | 'pink' | 'pink-band';\n  constructor(seed: number, kind: 'white' | 'pink' | 'pink-band', fs: number, calibrate = true) {\n    this.kind = kind;\n",
-  },
-  {
-    // `noUnusedParameters` gilt hier, upstream nicht. `_` ist die Ausnahme von tsc.
-    datei: 'src/led/wall.ts',
-    alt: 'export const cabinetLabel = (w: WallConfig, c: number, r: number)',
-    neu: 'export const cabinetLabel = (_w: WallConfig, c: number, r: number)',
-  },
 ]
 
 const IMPORT = /(?:import|export)\s[^;]*?from\s+['"](\.[^'"]+)['"]|import\s+['"](\.[^'"]+)['"]|\/\/\/\s*<reference\s+path=['"]([^'"]+)['"]/g
@@ -90,8 +79,18 @@ export function huelle(lies) {
   return new Map([...gesehen].sort(([x], [y]) => x.localeCompare(y)))
 }
 
+/**
+ * Jede vendorte TS-Datei bekommt diese Kopfzeile. upstream prueft seinen Code
+ * selbst (`tsc --noEmit` im Build von lz-scopes), aber mit anderen Schaltern als
+ * `tsconfig.app.json` hier (`erasableSyntaxOnly`, `noUnusedParameters`). Bis
+ * 2026-10-06 glich das eine Liste einzelner Patches aus; nach 25 Commits
+ * upstream brauchte der naechste Sync acht neue. Die Typen der Exporte bleiben
+ * erhalten — unterdrueckt werden nur die Meldungen IN der Kopie.
+ */
+export const NOCHECK = '// @ts-nocheck -- vendort aus larszu/lz-scopes, dort geprueft (scripts/lz-scopes-vendor.mjs)\n'
+
 export function gepatcht(datei, text) {
-  let out = text
+  let out = /\.(ts|mts)$/.test(datei) ? NOCHECK + text : text
   for (const p of PATCHES.filter((x) => x.datei === datei)) {
     if (!out.includes(p.alt)) throw new Error(`Patch passt nicht mehr: ${datei} — upstream hat die Stelle geaendert, PATCHES anpassen`)
     out = out.replace(p.alt, p.neu)

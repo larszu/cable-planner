@@ -1,3 +1,4 @@
+// @ts-nocheck -- vendort aus larszu/lz-scopes, dort geprueft (scripts/lz-scopes-vendor.mjs)
 // Camera log curves and camera gamuts.
 //
 // Curves and primaries are ported from alwan (https://github.com/soufianekhiat/alwan),
@@ -14,7 +15,28 @@
 // (64 + 876·v) / 1023.
 
 export type LogCurve =
-  | 'logc3' | 'logc4' | 'slog3' | 'vlog' | 'bmdfilm5' | 'clog2' | 'clog3' | 'log3g10' | 'flog2' | 'dlog' | 'nlog' | 'applelog';
+  | 'logc3' | 'logc4' | 'slog3' | 'vlog' | 'bmdfilm5' | 'clog2' | 'clog3' | 'log3g10' | 'flog2' | 'dlog' | 'nlog' | 'applelog'
+  | 'slog2' | 'acescct' | LogC3Ei;
+
+/**
+ * ARRI LogC3 for other exposure indices: parameters from ARRI, H. Brendel, "ALEXA Log C Curve –
+ * Usage in VFX" (2017-03), appendix, table "conversion between Log C values and exposure values"
+ * (p8): lin2log(x) = x > cut ? c·log10(a·x + b) + d : e·x + f. EI 800 is `logc3` (same values).
+ * Above EI 1600 the compact formula does not describe the camera curve (same document) – no entry.
+ */
+export const LOGC3_EI = {
+  160: [0.005561, 5.555556, 0.080216, 0.269036, 0.381991, 5.842037, 0.092778],
+  200: [0.006208, 5.555556, 0.076621, 0.266007, 0.382478, 5.776265, 0.092782],
+  250: [0.006871, 5.555556, 0.072941, 0.262978, 0.382966, 5.710494, 0.092786],
+  320: [0.007622, 5.555556, 0.068768, 0.259627, 0.383508, 5.637732, 0.092791],
+  400: [0.008318, 5.555556, 0.064901, 0.256598, 0.383999, 5.57196, 0.092795],
+  500: [0.009031, 5.555556, 0.060939, 0.253569, 0.384493, 5.506188, 0.0928],
+  640: [0.00984, 5.555556, 0.056443, 0.250219, 0.38504, 5.433426, 0.092805],
+  1000: [0.011361, 5.555556, 0.047996, 0.244161, 0.386036, 5.301883, 0.092814],
+  1280: [0.012235, 5.555556, 0.043137, 0.24081, 0.38659, 5.229121, 0.092819],
+  1600: [0.013047, 5.555556, 0.038625, 0.237781, 0.387093, 5.16335, 0.092824],
+} as const;
+export type LogC3Ei = `logc3-${keyof typeof LOGC3_EI}`;
 
 /** Camera and wide gamuts in addition to the video standards in color.ts. */
 export type CameraGamutId = 'awg3' | 'awg4' | 'sgamut3' | 'sgamut3cine' | 'vgamut' | 'bmdwg5' | 'cinema' | 'rwg' | 'dgamut' | 'dwg' | 'ap0' | 'ap1';
@@ -68,6 +90,16 @@ export interface LogCurveDef {
 
 const NONE = -1e9;
 
+const LOGC3_EI_CURVES = Object.fromEntries(Object.entries(LOGC3_EI).map(([ei, [cut, a, b, c, d, e, f]]) => [`logc3-${ei}`, {
+  name: `ARRI LogC3 EI ${ei}`, gamut: 'awg3', kind: 0, ref: 'ARRI ALEXA Log C Curve – Usage in VFX, p8',
+  p: { base: 10, logSlope: c, logOff: d, linSideSlope: a, linSideOff: b, cutLin: cut, cutEnc: e * cut + f, linSlope: e, linOff: f },
+} satisfies LogCurveDef])) as Record<LogC3Ei, LogCurveDef>;
+
+/** narrow-range carriage of a full-range curve value y: code/1023 = (876·y + 64)/1023 (alwan full_to_legal_10bit) */
+const L = (y: number) => (876 * y + 64) / 1023;
+const SLOG2_K = 155 / 219 / 0.9;
+const CCT_A = 10.5402377416545, CCT_B = 0.0729055341958355;
+
 export const LOG_CURVES: Record<LogCurve, LogCurveDef> = {
   // LogC3 EI 800: a 5.555556, b 0.052272, c 0.247190, d 0.385537, e 5.367655, f 0.092809, cut 0.010591
   logc3: { name: 'ARRI LogC3', gamut: 'awg3', kind: 0, ref: 'alwan_rgb_core.inc:367–394', p: { base: 10, logSlope: 0.24719, logOff: 0.385537, linSideSlope: 5.555556, linSideOff: 0.052272, cutLin: 0.010591, cutEnc: 5.367655 * 0.010591 + 0.092809, linSlope: 5.367655, linOff: 0.092809 } },
@@ -90,6 +122,15 @@ export const LOG_CURVES: Record<LogCurve, LogCurveDef> = {
   dlog: { name: 'DJI D-Log', gamut: 'dgamut', kind: 0, ref: 'alwan_rgb_core.inc:829–860', p: { base: 10, logSlope: 0.256663, logOff: 0.584555, linSideSlope: 0.9892, linSideOff: 0.0108, cutLin: 0.0078, cutEnc: 0.14, linSlope: 6.025, linOff: 0.0929 } },
   nlog: { name: 'Nikon N-Log', gamut: '2020', kind: 2, ref: 'alwan_rgb_core.inc:641–673' }, // N-Gamut = BT.2020 (n-gamut.csv)
   applelog: { name: 'Apple Log', gamut: '2020', kind: 3, ref: 'alwan_rgb_core.inc:696–730' },
+  // S-Log2 (alwan_rgb_core.inc:200–236): S-Log of lin·155/219, x = that/0.9;
+  // y = 0.432699·log10(x + 0.037584) + 0.646596 (x ≥ 0), else 5·x + 0.030001222851889303, then legal range.
+  // Native gamut S-Gamut (s-gamut.csv) has the same primaries as S-Gamut3.
+  slog2: { name: 'Sony S-Log2', gamut: 'sgamut3', kind: 0, ref: 'alwan_rgb_core.inc:200–236', p: { base: 10, logSlope: 0.432699 * 876 / 1023, logOff: L(0.646596), linSideSlope: SLOG2_K, linSideOff: 0.037584, cutLin: 0, cutEnc: L(0.030001222851889303), linSlope: 5 * SLOG2_K * 876 / 1023, linOff: L(0.030001222851889303) } },
+  // ACEScct (alwan_rgb_core.inc:174–196, Academy S-2016-001): (log2(x) + 9.72)/17.52, up to 2^-7 linear A·x + B.
+  // ACEScct is a full-range encoding: here the scope signal level equals the ACEScct value (0 % = 0.0,
+  // 100 % = 1.0), so the parameters are expressed in the narrow-range code domain of the other curves.
+  acescct: { name: 'ACEScct', gamut: 'ap1', kind: 0, ref: 'alwan_rgb_core.inc:174–196', p: { base: 2, logSlope: (876 / 1023) / 17.52, logOff: L(9.72 / 17.52), linSideSlope: 1, linSideOff: 0, cutLin: 0.0078125, cutEnc: L(0.155251141552511), linSlope: CCT_A * 876 / 1023, linOff: L(CCT_B) } },
+  ...LOGC3_EI_CURVES,
 };
 
 export const isLogCurve = (t: string): t is LogCurve => Object.prototype.hasOwnProperty.call(LOG_CURVES, t);

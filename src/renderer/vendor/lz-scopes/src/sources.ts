@@ -1,14 +1,29 @@
-import { LUMA, detectColorspace, detectTransfer, isLog, transferSignalled, type Colorspace, type GamutId, type Transfer } from './color';
+// @ts-nocheck -- vendort aus larszu/lz-scopes, dort geprueft (scripts/lz-scopes-vendor.mjs)
+import { LUMA, detectColorspace, detectTransfer, isLog, pqDecode, transferSignalled, type Colorspace, type GamutId, type Transfer } from './color';
 import { LOG_CURVES } from './camera';
 import type { ChainSettings, Compiled } from './chain';
 import { patternById, renderPattern } from './patterns';
 import { AudioAnalysis } from './audio/analysis';
-import { AudioTap, generator, measurementConstraints } from './audio/io';
+import { AudioTap, StreamMonitor, generator, measurementConstraints } from './audio/io';
+import { GRID_W, History, gridFromData, summarise } from './history';
+import { lineExtremes, neutralCast, type LineExtremes, type NeutralCast } from './minmax';
+import { r103Check, rgbDecoder, yuvDecoder, type Decode, type R103Result, type YuvCoding } from './ycbcr';
+import { debugFlags, openFrameSocket, workerAvailable, type FrameSocket } from './frameLink';
+import { GpuStats } from './gpuStats';
+import { LatencyMeter, type RtpStats } from './latency';
+import { effectiveWidth, mergeLowLatency, type LowLatencyConfig } from './lowLatency';
+import { meanLuma } from './luma';
+
+export { meanLuma };
 
 export type SourceKind = 'stream' | 'webcam' | 'screen' | 'file' | 'pattern' | 'folder' | 'audio';
 
-/** Input of an audio-only source. */
-export interface AudioInput { mode: 'device' | 'file' | 'generator'; deviceId: string }
+/**
+ * Input of an audio-only source: an audio device in the browser (getUserMedia, at most
+ * 2 channels in Chromium), a file, the generator loop-back, or an audio device read by the
+ * bridge's ffmpeg (`bridge`: all channels of the device, e.g. Dante Virtual Soundcard).
+ */
+export interface AudioInput { mode: 'device' | 'file' | 'generator' | 'bridge'; deviceId: string; bridgeUrl?: string }
 
 export interface AudioStreamInfo { sampleRate: number; channels: number; format: string; layout?: string; codec?: string }
 
@@ -25,6 +40,8 @@ export interface SourceSettings {
   width: number;
   fps: number;
   depth: 8 | 16;
+  /** bridge streams: unclipped 16-bit Y′CbCr instead of R′G′B′ (docs/frame-protocol.md, format "yuv") */
+  yuv?: boolean;
   transport: 'tcp' | 'udp';
   /** bridge streams: request the sound as well (protocol 2) */
   audio?: boolean;
@@ -35,18 +52,36 @@ export interface SourceSettings {
   decodeRange?: 'auto' | 'tv' | 'pc';
   /** DeckLink helper: 10 bit (v210) or 8 bit (UYVY) capture */
   deckLinkBits?: 8 | 10;
+  /** bridge streams: 'h264' = compressed 8-bit transport for remote bridges, decoded in the browser (#16) */
+  codec?: 'raw' | 'h264';
+  /** low-latency mode (docs/research/low-latency.md): undefined = follow the global switch */
+  lowLatency?: boolean;
+  /** this source's own low-latency settings; missing fields follow the global ones */
+  ll?: Partial<LowLatencyConfig>;
 }
 
 export interface StreamInfo {
+  /** bridge: own RTP reception in use, or why not (low-latency mode) */
+  rtp?: { own: boolean; transport?: string; codec?: string; note?: string };
   width: number; height: number; sourceWidth: number; sourceHeight: number; depth: 8 | 16; fps: number;
   codec?: string; pixFmt?: string; decodeMatrix?: string; transfer?: string; primaries?: string; matrix?: string; range?: string;
   /** protocol 2 (audio=1): header on every binary message */
   proto?: number;
   audio?: AudioStreamInfo | null;
+  /** 'yuv': samples are A, Y′, Cb, Cr (16 bit, left-justified codes, no range conversion) */
+  format?: 'rgb' | 'yuv';
+  /** format 'yuv': quantisation range and bit depth of the source codes */
+  yuvRange?: 'limited' | 'full'; bits?: number;
+  /** the source is interlaced: each frame carries both fields woven, scaled field by field */
+  interlaced?: boolean;
+  /** why the bridge sent something other than requested */
+  note?: string;
   /** start time code of the container (ffprobe tag, e.g. MOV tmcd) and the stream's start time in s */
   timecode?: string; startTime?: number;
   /** "30000/1001" (ffprobe r_frame_rate) and the source frame rate before any fps limit */
   frameRate?: string; sourceFps?: number;
+  /** 'h264' = compressed transport (8 bit, lossy), decoded by the browser */
+  transport?: string;
 }
 
 /**
@@ -63,7 +98,15 @@ export interface Stats {
   rgbAvg: [number, number, number];
   clipLow: number[]; clipHigh: number[]; // fraction per R, G, B
   samples: number;
+  /**
+   * PQ only: content light level of this frame (HDR10 static metadata, definition as in alwan docs/api/hdr.md) – per pixel max(R, G, B)
+   * in cd/m²; max = brightest pixel, avg = frame average (on the analysed samples).
+   */
+  cll?: { max: number; avg: number };
 }
+
+/** MaxCLL / MaxFALL (CTA-861.3) over the frames seen since the last reset. */
+export interface LightLevel { maxCll: number; maxFall: number; frames: number }
 
 /** Extra query parameters of the bridge for capture devices, DeckLink and the decode matrix. */
 export function bridgeInputParams(url: string, set: SourceSettings): Record<string, string> {
@@ -97,6 +140,8 @@ export class Source {
   width = 0;
   height = 0;
   depth: 8 | 16 = 8;
+  /** raw frames are 16-bit Y′CbCr (A, Y′, Cb, Cr) with this coding; null = R′G′B′ */
+  yuv: YuvCoding | null = null;
   /** Latest raw frame (bridge streams). */
   data: Uint8Array | Uint16Array | null = null;
   /** Browser-decoded media (webcam, screen, files). */
@@ -109,24 +154,118 @@ export class Source {
   frozen = false;
   stats: Stats | null = null;
   statsVersion = 0;
+  /** running MaxCLL / MaxFALL of PQ sources (whole frames only, reset on source/transfer change) */
+  lightLevel: LightLevel = { maxCll: 0, maxFall: 0, frames: 0 };
+  private lightKey = '';
+  resetLightLevel() { this.lightLevel = { maxCll: 0, maxFall: 0, frames: 0 }; }
   /** Sound of this source (bridge PCM, video file, audio device, generator); null = none. */
   audio: AudioAnalysis | null = null;
   audioIn: AudioInput = { mode: 'device', deviceId: '' };
   /** audio file playing in an audio source (mode 'file') */
   audioEl: HTMLAudioElement | null = null;
   private audioTap: AudioTap | null = null;
-  private lastFrame: { px: ArrayLike<number>; w: number; h: number; step: number; scale: number; roi: [number, number, number, number][] | null } | null = null;
+  /** PTS of the bridge's sound: sample index → presentation time (protocol 2 `apts`) */
+  private audioAnchor: { index: number; pts: number } | null = null;
+  /** listening to bridge sound (drift-compensated, io.ts StreamMonitor) */
+  monitor: StreamMonitor | null = null;
+  monitorError = '';
+  private lastFrame: { px: ArrayLike<number>; w: number; h: number; step: number; scale: number; roi: [number, number, number, number][] | null; decode: Decode } | null = null;
+  private r103Cache = new Map<string, { key: string; at: number; res: R103Result }>();
+  private cpuCache: { seq: string; f: { px: ArrayLike<number>; w: number; h: number; decode: Decode } | null } = { seq: '', f: null };
+  private cpuCanvas: HTMLCanvasElement | null = null;
+  /** The current frame on the CPU: raw data, or a readback of the element (at most 960 px wide), once per frame. */
+  cpuFrame() {
+    const seq = `${this.frameSeq}:${this.width}x${this.height}`;
+    if (this.cpuCache.seq === seq) return this.cpuCache.f;
+    let f: { px: ArrayLike<number>; w: number; h: number; decode: Decode } | null = null;
+    if (this.data) f = { px: this.data, w: this.width, h: this.height, decode: this.decoder() };
+    else if (this.element && this.width) {
+      const w = Math.min(960, this.width), h = Math.max(1, Math.round((this.height * w) / this.width));
+      this.cpuCanvas ??= document.createElement('canvas');
+      const c = this.cpuCanvas; if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
+      const ctx = c.getContext('2d', { willReadFrequently: true })!;
+      try { ctx.drawImage(this.element, 0, 0, w, h); f = { px: ctx.getImageData(0, 0, w, h).data, w, h, decode: rgbDecoder(255) }; } catch { f = null; }
+    }
+    this.cpuCache = { seq, f };
+    return f;
+  }
+  private extremes: { seq: string; v: LineExtremes | null } = { seq: '', v: null };
+  /** Min/max Y′ per picture line (minmax.ts), once per frame. */
+  lineExtremes(): LineExtremes | null {
+    const seq = `${this.frameSeq}:${this.colorspace}`;
+    if (this.extremes.seq !== seq) { const f = this.cpuFrame(); this.extremes = { seq, v: f ? lineExtremes(f.px, f.w, f.h, f.decode, this.colorspace) : null }; }
+    return this.extremes.v;
+  }
+  private neutral: { key: string; v: NeutralCast | null } = { key: '', v: null };
+  /** Mean cast of the near-neutral pixels (minmax.ts), once per frame and setting. */
+  neutralCast(threshold: number, lo: number, hi: number): NeutralCast | null {
+    const key = `${this.frameSeq}:${this.colorspace}:${threshold}:${lo}:${hi}`;
+    if (this.neutral.key !== key) {
+      const f = this.cpuFrame();
+      this.neutral = { key, v: f ? neutralCast(f.px, f.w, f.h, Math.max(1, Math.round(Math.sqrt((f.w * f.h) / 60000))), f.decode, this.colorspace, threshold, lo, hi) : null };
+    }
+    return this.neutral.v;
+  }
+  /** timeline panel (history.ts): ten samples per second while a timeline shows this source */
+  readonly history = new History();
+  private historyAt = 0;
+  private historyCanvas: HTMLCanvasElement | null = null;
+  private historySeq = -1;
+  /**
+   * @param everyFrame one sample per new picture (e.g. video files) instead of ten per second
+   * @param grid raster width (height = width · 9/16): 96 standard, finer for more exact means
+   */
+  sampleHistory(now = performance.now(), opts: { everyFrame?: boolean; grid?: number } = {}) {
+    if (!this.ready) return;
+    if (opts.everyFrame ? this.frameSeq === this.historySeq : now - this.historyAt < 100) return;
+    this.historyAt = now; this.historySeq = this.frameSeq;
+    const gw = opts.grid ?? GRID_W, gh = Math.max(1, Math.round((gw * 9) / 16));
+    let pts: number[][];
+    if (this.data) pts = gridFromData(this.data, this.width, this.height, this.decoder(), gw, gh);
+    else {
+      this.historyCanvas ??= document.createElement('canvas');
+      const c = this.historyCanvas; if (c.width !== gw || c.height !== gh) { c.width = gw; c.height = gh; }
+      const ctx = c.getContext('2d', { willReadFrequently: true })!;
+      try { ctx.drawImage(this.element!, 0, 0, gw, gh); } catch { return; }
+      const d = ctx.getImageData(0, 0, gw, gh).data;
+      pts = Array.from({ length: gw * gh }, (_, i) => [d[i * 4] / 255, d[i * 4 + 1] / 255, d[i * 4 + 2] / 255]);
+    }
+    this.history.push(summarise(pts, this.colorspace, now));
+  }
+
+  /** Reads a pixel of the raw frame (`data`) as normalised R′G′B′: Y′CbCr decoded with the source matrix. */
+  decoder(): Decode {
+    if (!this.yuv) return rgbDecoder(this.depth === 16 ? 65535 : 255);
+    const { kr, kb } = LUMA[this.colorspace];
+    return yuvDecoder(kr, kb, this.yuv);
+  }
+
+  /**
+   * EBU R 103 check of the last analysed frame (ycbcr.ts), optionally after the processing
+   * chain. Computed on demand, at most every 250 ms per stage.
+   */
+  r103Stats(c?: Compiled): R103Result | null {
+    const f = this.lastFrame ?? this.readbackFrame();
+    if (!f) return null;
+    const key = `${this.statsVersion}:${c?.sig ?? ''}:${this.colorspace}`, slot = c?.stage ?? 'signal';
+    const hit = this.r103Cache.get(slot), now = performance.now();
+    if (hit && (hit.key === key || now - hit.at < 250)) return hit.res;
+    const { kr, kb } = LUMA[c ? c.view.colorspace : this.colorspace];
+    const res = r103Check(f.px, f.w, f.h, f.decode, kr, kb, c?.apply, f.roi);
+    this.r103Cache.set(slot, { key, at: now, res });
+    return res;
+  }
   private stageCache = new Map<string, { key: string; stats: Stats }>();
 
   /** Statistics of the last analysed frame after the processing chain (stage views, chain.ts). */
   stageStats(c: Compiled): Stats | null {
-    const f = this.lastFrame;
+    const f = this.lastFrame ?? this.readbackFrame();
     if (!f) return this.stats;
     const key = `${this.statsVersion}:${c.sig}`;
     const hit = this.stageCache.get(c.stage);
     if (hit?.key === key) return hit.stats;
     const { kr, kb } = LUMA[c.view.colorspace];
-    const stats = computeStats(f.px, f.w, f.h, f.step, f.scale, kr, kb, f.roi, c.apply);
+    const stats = computeStats(f.px, f.w, f.h, f.step, f.scale, kr, kb, f.roi, c.apply, f.decode);
     this.stageCache.set(c.stage, { key, stats });
     return stats;
   }
@@ -136,7 +275,7 @@ export class Source {
    * 5th and 95th percentile – used to set the skin target range from a face.
    */
   skinLumaRange(kr: number, kb: number, tolDeg: number): { lo: number; hi: number; n: number } | null {
-    const f = this.lastFrame;
+    const f = this.lastFrame ?? this.readbackFrame();
     if (!f) return null;
     const kg = 1 - kr - kb;
     const sx = f.w / this.width, sy = f.h / this.height;
@@ -145,7 +284,7 @@ export class Source {
     for (const [x0, y0, x1, y1] of rects) for (let y = Math.floor(y0); y < Math.min(f.h, y1); y += f.step) {
       for (let x = Math.floor(x0); x < Math.min(f.w, x1); x += f.step) {
         const i = (y * f.w + x) * 4;
-        const r = f.px[i] / f.scale, g = f.px[i + 1] / f.scale, b = f.px[i + 2] / f.scale;
+        const [r, g, b] = f.decode(f.px, i);
         const Y = kr * r + kg * g + kb * b, cb = (b - Y) / (2 * (1 - kb)), cr = (r - Y) / (2 * (1 - kr));
         const ang = (Math.atan2(cr, cb) * 180) / Math.PI;
         if (Math.hypot(cb, cr) > 0.012 && Math.abs(ang - 123) <= tolDeg) ys.push(Y);
@@ -178,7 +317,22 @@ export class Source {
   private probeCache = { key: '', rgb: null as [number, number, number] | null };
   onChange: () => void = () => {};
 
-  private ws: WebSocket | null = null;
+  private ws: FrameSocket | null = null;
+  /** latency of stamped test pictures (#16) */
+  readonly latency = new LatencyMeter();
+  /** global low-latency switch (main.ts); a source's own setting overrides it */
+  static globalLowLatency = false;
+  /** global low-latency settings (Settings menu) */
+  static globalLowLatencyConfig: Partial<LowLatencyConfig> = {};
+  /** a bridge frame arrived (main.ts draws at once in low-latency mode) */
+  static onArrive: ((s: Source) => void) | null = null;
+  get lowLatency(): boolean { return this.settings.lowLatency ?? Source.globalLowLatency; }
+  /** effective low-latency settings of this source */
+  get llConfig(): LowLatencyConfig { return mergeLowLatency(Source.globalLowLatencyConfig, this.settings.ll); }
+  /** own RTP reception: how the bridge received this stream (info message), null = ffmpeg's RTSP */
+  get rtpInfo() { return this.info?.rtp ?? null; }
+  /** own RTP reception counters from the bridge's stats (1 s) */
+  rtpStats: RtpStats | null = null;
   private patternTimer: ReturnType<typeof setInterval> | null = null;
   private media: MediaStream | null = null;
   private objectUrl: string | null = null;
@@ -213,6 +367,7 @@ export class Source {
   }
   get colorspace(): Colorspace {
     if (this.settings.colorspace !== 'auto') return this.settings.colorspace;
+    if (this.kind === 'pattern') { const c = patternById(this.pattern.id).colorspace; if (c) return c; }
     if (!this.info) return this.height > 576 || this.height === 0 ? '709' : this.height === 576 ? '601-625' : '601';
     return detectColorspace(this.info.decodeMatrix ?? this.info.matrix, this.info.primaries, this.info.sourceHeight);
   }
@@ -241,10 +396,17 @@ export class Source {
     this.stop();
     this.url = url;
     this.set('connecting', 'Verbinde …');
-    const { width, fps, depth, transport } = this.settings;
+    const { fps, depth, transport } = this.settings;
+    const ll = this.llConfig;
+    const width = effectiveWidth(this.settings.width, this.lowLatency, ll.width);
     const q = new URLSearchParams({ url, width: String(width), fps: String(fps), depth: String(depth), transport });
     if (this.settings.audio !== false) q.set('audio', '1');
     for (const [k, v] of Object.entries(bridgeInputParams(url, this.settings))) q.set(k, v);
+    // H.264 (#16) is 8 bit 4:2:0 and excludes the unclipped Y′CbCr path (#7)
+    if (this.settings.codec === 'h264' && workerAvailable()) q.set('codec', 'h264');
+    else if (this.settings.yuv) { q.set('format', 'yuv'); q.set('depth', '16'); }
+    if (this.lowLatency && ll.ownRtp) q.set('rtp', 'own');
+    this.rtpStats = null;
     this.connectFrames(`${bridge}/stream?${q}`, false);
   }
 
@@ -254,23 +416,29 @@ export class Source {
    */
   connectFrames(wsUrl: string, reset = true) {
     if (reset) { this.stop(); this.url = wsUrl; this.set('connecting', 'Verbinde …'); }
-    const ws = new WebSocket(wsUrl);
-    ws.binaryType = 'arraybuffer';
+    const ws = openFrameSocket(wsUrl);
     this.ws = ws;
     ws.onmessage = (ev) => {
       if (typeof ev.data === 'string') {
         const msg = JSON.parse(ev.data);
         if (msg.type === 'info') {
           this.info = msg; this.width = msg.width; this.height = msg.height; this.depth = msg.depth;
+          this.yuv = yuvOf(msg);
           const a = msg.audio as AudioStreamInfo | null | undefined;
+          this.monitor?.close(); this.monitor = null; this.audioAnchor = null;
           this.audio = a ? new AudioAnalysis(a.sampleRate, a.channels, a.layout) : null;
           if (this.audio && a) this.audio.label = `Bridge · ${a.codec ?? ''} ${a.sampleRate / 1000} kHz`.replace('  ', ' ');
           const pic = msg.width ? `${msg.sourceWidth}×${msg.sourceHeight} ${msg.codec ?? ''}`.trim() : 'nur Ton';
           this.set('live', a ? `${pic} · Ton ${a.codec ?? ''} ${a.sampleRate / 1000} kHz ${a.channels} Kan.` : msg.proto === 2 ? `${pic} · kein Ton` : pic);
         } else if (msg.type === 'tc') {
           this.tc = { ...msg, at: performance.now() };
+        } else if (msg.type === 'apts') {
+          // PTS anchor of the sound: sample `index` has presentation time `pts` (s)
+          this.audioAnchor = { index: msg.index, pts: msg.pts };
         } else if (msg.type === 'stats') {
           this.dropped = msg.dropped;
+          this.latency.onBridgeStats(msg.stampAge);
+          this.rtpStats = msg.rtp ?? null;
           if (msg.message) this.set(this.status === 'live' ? 'live' : 'connecting', msg.message);
         } else if (msg.type === 'error' || msg.type === 'end') {
           this.set(msg.type === 'end' ? 'ended' : 'error', msg.message);
@@ -285,17 +453,36 @@ export class Source {
         if (magic === 'LZA1') {
           // audio keeps running while frozen: loudness must not have gaps
           const n = head.getUint32(4, true), first = head.getFloat64(8, true);
-          if (this.audio) this.audio.pushInterleaved(new Float32Array(buf, 16, n * this.audio.channels), first);
+          const an = this.audioAnchor;
+          const pts0 = an && this.audio ? an.pts + (first - an.index) / this.audio.fs : NaN;
+          if (this.audio) {
+            const pcm = new Float32Array(buf, 16, n * this.audio.channels);
+            this.audio.pushInterleaved(pcm, first, pts0);
+            this.monitor?.push(pcm);
+          }
           return;
         }
-        if (this.frozen || magic !== 'LZV1') return;
-        this.data = this.depth === 16 ? new Uint16Array(buf, 16) : new Uint8Array(buf, 16);
+        if (magic !== 'LZV1') return;
+        const pts = head.getFloat64(8, true);
+        const px = this.depth === 16 ? new Uint16Array(buf, 16) : new Uint8Array(buf, 16);
+        // A/V offset: mean luma of every frame (also while frozen), stamped with its PTS;
+        // the frame worker measured them already, including frames it replaced
+        if (this.audio && this.width) {
+          if (ev.meta?.av) for (const [t, l] of ev.meta.av) this.audio.av.pushVideo(t, l);
+          else this.audio.av.pushVideo(pts, meanLuma(px, this.width, this.height, this.depth === 16 ? 65535 : 255, !!this.yuv));
+        }
+        if (this.frozen) return;
+        this.data = px;
         this.tick();
+        this.latency.onFrame(ev.meta);
+        Source.onArrive?.(this);
         return;
       }
       if (this.frozen) return;
       this.data = this.depth === 16 ? new Uint16Array(buf) : new Uint8Array(buf);
       this.tick();
+      this.latency.onFrame(ev.meta);
+      Source.onArrive?.(this);
     };
     ws.onerror = () => this.set('error', 'Bridge nicht erreichbar – läuft `npm run dev` bzw. `npm start`?');
     ws.onclose = () => { if (this.ws === ws && this.status === 'live') this.set('ended', 'Verbindung beendet'); };
@@ -307,6 +494,7 @@ export class Source {
    */
   pushInfo(info: StreamInfo) {
     this.info = info; this.width = info.width; this.height = info.height; this.depth = info.depth;
+    this.yuv = yuvOf(info);
     this.set('live', `${info.sourceWidth}×${info.sourceHeight} ${info.codec ?? ''}`.trim());
   }
   pushFrame(buffer: ArrayBuffer) {
@@ -448,8 +636,13 @@ export class Source {
       return;
     }
     this.element = canvas; this.width = width; this.height = height; this.depth = 8;
+    if (def.frame16) {
+      // exact codes for the scopes; the canvas stays as the 8-bit picture for other uses
+      const f = def.frame16(width, height);
+      this.data = f.data; this.depth = 16; this.yuv = f.coding;
+    }
     this.tick();
-    this.set('live', `${def.name} · ${width}×${height}`);
+    this.set('live', `${def.name} · ${width}×${height}${def.frame16 ? ' · 16 bit Y′CbCr' : ''}`);
     if (def.animated) {
       let busy = false;
       const timer = setInterval(async () => {
@@ -504,14 +697,33 @@ export class Source {
     el.addEventListener('play', () => tap.resume());
   }
 
-  get monitoring() { return this.audioTap?.monitoring ?? false; }
-  setMonitor(on: boolean) { this.audioTap?.setMonitor(on); this.onChange(); }
-  get canMonitor() { return !!this.audioTap; }
+  get monitoring() { return this.audioTap?.monitoring ?? !!this.monitor; }
+  setMonitor(on: boolean) {
+    if (this.audioTap) { this.audioTap.setMonitor(on); this.onChange(); return; }
+    if (!on) { this.monitor?.close(); this.monitor = null; this.onChange(); return; }
+    const a = this.audio;
+    if (!a || this.monitor) return;
+    StreamMonitor.create(a.fs, a.channels, monitorSink.id).then((m) => {
+      if (this.audio !== a) { m.close(); return; }
+      this.monitor = m; this.monitorError = m.error;
+      m.setPair(monitorSink.pair);
+      m.onStats = () => this.onChange();
+      this.onChange();
+    }).catch((e) => { this.monitorError = (e as Error).message; this.onChange(); });
+  }
+  /** Element/device sources monitor through their tap, bridge sources through a StreamMonitor. */
+  get canMonitor() { return !!this.audioTap || (!!this.audio && this.kind === 'stream'); }
 
-  /** Audio-only source: audio device, audio file or the generator loop-back. */
-  async startAudio(file?: File) {
+  /** Audio-only source: audio device, audio file, the generator loop-back or a bridge audio device. */
+  async startAudio(file?: File, bridge?: string) {
     this.stop();
     const inp = this.audioIn;
+    if (inp.mode === 'bridge') {
+      if (!inp.bridgeUrl) { this.set('idle', 'Gerät wählen'); return; }
+      if (!bridge) { this.set('error', 'Bridge nicht verbunden'); return; }
+      this.connectStream(inp.bridgeUrl, bridge);
+      return;
+    }
     try {
       if (inp.mode === 'generator') {
         generator.setLoopback((chs, n, rate) => this.feed(chs, n, rate, `Generator · ${rate / 1000} kHz`));
@@ -558,12 +770,14 @@ export class Source {
     this.media?.getTracks().forEach((t) => t.stop());
     this.media = null;
     this.audioTap?.close(); this.audioTap = null;
+    this.monitor?.close(); this.monitor = null; this.audioAnchor = null;
     if (this.audioEl) { this.audioEl.pause(); this.audioEl.removeAttribute('src'); this.audioEl = null; }
     if (this.generatorBound) { generator.setLoopback(null); this.generatorBound = false; }
     this.audio = null;
     if (this.videoEl) { this.videoEl.pause(); this.videoEl.srcObject = null; this.videoEl = null; }
     if (this.objectUrl) { URL.revokeObjectURL(this.objectUrl); this.objectUrl = null; }
-    this.element = null; this.data = null; this.info = null; this.tc = null; this.width = 0; this.height = 0; this.stats = null;
+    this.history.clear();
+    this.element = null; this.data = null; this.yuv = null; this.info = null; this.tc = null; this.width = 0; this.height = 0; this.stats = null;
     this.fps = 0; this.dropped = 0;
     if (this.status !== 'idle') this.set('idle');
   }
@@ -625,10 +839,7 @@ export class Source {
   private readPixelNow(x: number, y: number): [number, number, number] | null {
     x = Math.floor(x); y = Math.floor(y);
     if (x < 0 || y < 0 || x >= this.width || y >= this.height) return null;
-    if (this.data) {
-      const i = (y * this.width + x) * 4, s = this.depth === 16 ? 65535 : 255;
-      return [this.data[i] / s, this.data[i + 1] / s, this.data[i + 2] / s];
-    }
+    if (this.data) return this.decoder()(this.data, (y * this.width + x) * 4);
     if (this.element) {
       const c = this.scratch(1, 1);
       const ctx = c.getContext('2d', { willReadFrequently: true })!;
@@ -645,11 +856,56 @@ export class Source {
     return this.statsCanvas;
   }
 
-  /** Histogram and clipping statistics on a subsampled frame (CPU, ~130 k samples). */
+  /** Where the last statistics came from and what they cost the main thread (ms, #16). */
+  statsPerf: { path: 'cpu' | 'gpu'; ms: number } = { path: 'cpu', ms: 0 };
+  private gpuStats: GpuStats | null | undefined;
+
+  /**
+   * Histogram and clipping statistics. Browser-decoded video (camera, capture, video
+   * files) goes through the GPU (src/gpuStats.ts, full resolution, result one tick later);
+   * bridge frames and still pictures on the CPU (subsampled, ~130 k samples).
+   */
   updateStats(kr: number, kb: number) {
     const seqKey = `${this.frameSeq}:${this.activeRois().flat().join(',')}`;
-    if (!this.ready || this.statsSeq === seqKey) return;
+    if (!this.ready) return;
+    const t0 = performance.now();
+    if (!this.data && this.videoEl && debugFlags().stats !== 'cpu') {
+      if (this.gpuStats === undefined) this.gpuStats = GpuStats.create();
+      const g = this.gpuStats;
+      if (g) {
+        const res = g.poll();
+        if (res) { this.stats = res; this.lastFrame = null; this.statsVersion++; }
+        let queued = true;
+        if (!g.busy && this.statsSeq !== seqKey) {
+          const rois = this.activeRois();
+          queued = g.submit(this.element as TexImageSource, this.width, this.height, kr, kb, rois.length ? rois : null);
+          if (queued) this.statsSeq = seqKey;
+        }
+        if (queued) {
+          if (res || this.statsSeq === seqKey) this.statsPerf = { path: 'gpu', ms: performance.now() - t0 };
+          return;
+        }
+      }
+    }
+    if (this.statsSeq === seqKey) return;
     this.statsSeq = seqKey;
+    const f = this.readbackFrame();
+    if (!f) return;
+    const pq = this.transfer === 'pq';
+    this.stats = computeStats(f.px, f.w, f.h, f.step, f.scale, kr, kb, f.roi, undefined, f.decode, pq ? pqDecode : undefined);
+    const lk = `${this.id}:${this.transfer}:${this.url}`;
+    if (lk !== this.lightKey) { this.lightKey = lk; this.resetLightLevel(); }
+    if (pq && this.stats.cll && !f.roi) {
+      const l = this.lightLevel;
+      l.maxCll = Math.max(l.maxCll, this.stats.cll.max); l.maxFall = Math.max(l.maxFall, this.stats.cll.avg); l.frames++;
+    }
+    this.statsVersion++;
+    this.statsPerf = { path: 'cpu', ms: performance.now() - t0 };
+  }
+
+  /** The current frame as CPU pixels (bridge data, or a 480-px readback of the element). */
+  private readbackFrame() {
+    if (!this.ready) return null;
     let px: Uint8Array | Uint8ClampedArray | Uint16Array, w: number, h: number, step: number, scale: number;
     if (this.data) {
       px = this.data; w = this.width; h = this.height; scale = this.depth === 16 ? 65535 : 255;
@@ -664,13 +920,14 @@ export class Source {
     const sx = w / this.width, sy = h / this.height;
     const rois = this.activeRois().map((r) => [Math.floor(r[0] * sx), Math.floor(r[1] * sy), Math.ceil(r[2] * sx), Math.ceil(r[3] * sy)] as [number, number, number, number]);
     const roi = rois.length ? rois : null;
-    this.lastFrame = { px, w, h, step, scale, roi };
-    this.stats = computeStats(px, w, h, step, scale, kr, kb, roi);
-    this.statsVersion++;
+    const decode = this.data ? this.decoder() : rgbDecoder(255);
+    this.lastFrame = { px, w, h, step, scale, roi, decode };
+    return this.lastFrame;
   }
 }
 
-export function computeStats(px: ArrayLike<number>, w: number, h: number, step: number, scale: number, kr: number, kb: number, rois: [number, number, number, number] | [number, number, number, number][] | null = null, map?: (rgb: number[]) => number[]): Stats {
+/** @param light signal → cd/m² (PQ): adds the frame's content light level (Stats.cll) */
+export function computeStats(px: ArrayLike<number>, w: number, h: number, step: number, scale: number, kr: number, kb: number, rois: [number, number, number, number] | [number, number, number, number][] | null = null, map?: (rgb: number[]) => number[], decode: Decode = rgbDecoder(scale), light?: (v: number) => number): Stats {
   // one rectangle or several (union); the bounding box limits the scan
   const list = !rois ? null : (typeof rois[0] === 'number' ? [rois as [number, number, number, number]] : rois as [number, number, number, number][]);
   const x0 = list ? Math.min(...list.map((r) => r[0])) : 0, y0 = list ? Math.min(...list.map((r) => r[1])) : 0;
@@ -680,12 +937,12 @@ export function computeStats(px: ArrayLike<number>, w: number, h: number, step: 
   const kg = 1 - kr - kb;
   const lo = 0.5 / 255, hi = 254.5 / 255;
   const clipLow = [0, 0, 0], clipHigh = [0, 0, 0];
-  let yMin = 1, yMax = 0, ySum = 0, n = 0, rS = 0, gS = 0, bS = 0;
+  let yMin = 1, yMax = 0, ySum = 0, n = 0, rS = 0, gS = 0, bS = 0, cllMax = 0, cllSum = 0;
   for (let y = Math.max(0, y0); y < Math.min(h, y1); y += step) {
     for (let x = Math.max(0, x0); x < Math.min(w, x1); x += step) {
       if (!inside(x, y)) continue;
       const i = (y * w + x) * 4;
-      let r = px[i] / scale, g = px[i + 1] / scale, b = px[i + 2] / scale;
+      let [r, g, b] = decode(px, i);
       if (map) [r, g, b] = map([r, g, b]);
       const Y = kr * r + kg * g + kb * b;
       hist[0][Math.max(0, Math.min(255, (r * 255 + 0.5) | 0))]++;
@@ -698,10 +955,22 @@ export function computeStats(px: ArrayLike<number>, w: number, h: number, step: 
       if (Y < yMin) yMin = Y;
       if (Y > yMax) yMax = Y;
       ySum += Y; n++; rS += r; gS += g; bS += b;
+      // signal clamped to 0…1: super-whites of unclipped Y′CbCr are not light above the PQ peak
+      if (light) { const l = light(Math.min(1, Math.max(r, g, b, 0))); cllSum += l; if (l > cllMax) cllMax = l; }
     }
   }
   return {
     hist, yMin, yMax, yAvg: n ? ySum / n : 0, samples: n, rgbAvg: n ? [rS / n, gS / n, bS / n] : [0, 0, 0],
     clipLow: clipLow.map((c) => c / Math.max(1, n)), clipHigh: clipHigh.map((c) => c / Math.max(1, n)),
+    ...(light ? { cll: { max: cllMax, avg: n ? cllSum / n : 0 } } : {}),
   };
 }
+
+/** Y′CbCr coding announced in a frame-protocol info message (format "yuv"). */
+export function yuvOf(info: StreamInfo): YuvCoding | null {
+  return info.format === 'yuv' ? { full: info.yuvRange === 'full', bits: info.bits ?? 10 } : null;
+}
+
+/** Output device and channel pair for listening to bridge sound (set from the UI). */
+export const monitorSink = { id: '', pair: 0 };
+

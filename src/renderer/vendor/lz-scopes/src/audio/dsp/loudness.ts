@@ -1,3 +1,4 @@
+// @ts-nocheck -- vendort aus larszu/lz-scopes, dort geprueft (scripts/lz-scopes-vendor.mjs)
 // Loudness after ITU-R BS.1770-5 and EBU Tech 3341 (“EBU Mode”):
 //   M = 0.4 s sliding window, S = 3 s sliding window, both ungated;
 //   I = gated blocks of 400 ms with 75 % overlap (100 ms step), absolute gate −70 LKFS,
@@ -10,19 +11,15 @@
 
 import { KFilter } from './kweight';
 import { loudnessRange } from './lra';
+import { channelInfo } from './layouts';
 
 /**
- * Channel weights G_i of BS.1770-5 Table 3 in ffmpeg/WAV channel order:
- * L, R, C = 1.0; Ls, Rs = 1.41; LFE is not measured (0).
- * Layouts beyond 5.1 get 1.0 per channel (not covered by Table 3 here).
+ * Channel weights G_i: BS.1770-5 Table 3 for up to 5.1 (L, R, C = 1.0; Ls, Rs = 1.41; LFE
+ * not measured) and the position-dependent weights of Annex 3, Table 4 for larger
+ * layouts, in ffmpeg/WAV channel order (see layouts.ts).
  */
 export function channelWeights(channels: number, layout = ''): number[] {
-  const l = layout.toLowerCase();
-  if (channels === 6) return [1, 1, 1, 0, 1.41, 1.41]; // FL FR FC LFE BL|SL BR|SR
-  if (channels === 5) return [1, 1, 1, 1.41, 1.41]; // 5.0: FL FR FC BL|SL BR|SR
-  if (channels === 4 && (l === 'quad' || l.startsWith('quad'))) return [1, 1, 1.41, 1.41];
-  if (channels === 3 && l === '2.1') return [1, 1, 0];
-  return Array.from({ length: channels }, () => 1);
+  return channelInfo(channels, layout).map((c) => c.weight);
 }
 
 export const ABS_GATE = -70;

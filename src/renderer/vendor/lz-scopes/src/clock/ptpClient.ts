@@ -1,3 +1,4 @@
+// @ts-nocheck -- vendort aus larszu/lz-scopes, dort geprueft (scripts/lz-scopes-vendor.mjs)
 // Browser side of the bridge's /clock WebSocket (server/ptp.mjs): PTP status and the ST 2110
 // RTP check. Connects only while a clock panel asks for it.
 

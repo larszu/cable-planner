@@ -1,3 +1,4 @@
+// @ts-nocheck -- vendort aus larszu/lz-scopes, dort geprueft (scripts/lz-scopes-vendor.mjs)
 // Clock / time code panel and the compact picture overlay (issue #28).
 //
 // Time of day comes from the system clock unless a PTP grandmaster is received and the user

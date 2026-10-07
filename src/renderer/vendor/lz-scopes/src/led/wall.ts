@@ -1,3 +1,4 @@
+// @ts-nocheck -- vendort aus larszu/lz-scopes, dort geprueft (scripts/lz-scopes-vendor.mjs)
 // LED wall model (#10): wall and cabinet geometry, cabinet numbering, and the pattern
 // settings shared between the main window and the pattern output window (same origin,
 // so both read them from localStorage).
@@ -73,7 +74,7 @@ export function cabinetNumber(w: WallConfig, c: number, r: number) {
 }
 
 /** Label of a cabinet: column-row from 1 (as on the wall plan) plus the running number. */
-export const cabinetLabel = (_w: WallConfig, c: number, r: number) => `C${c + 1}-R${r + 1}`;
+export const cabinetLabel = (w: WallConfig, c: number, r: number) => `C${c + 1}-R${r + 1}`;
 
 export interface Cabinet { c: number; r: number; id: number; label: string; x: number; y: number; w: number; h: number }
 

@@ -25,7 +25,10 @@ import { klassifiziere } from '../scripts/quellsprache.mjs'
 // stehen nie auf einem Blatt und nie in einem Dialog.
 
 const roh = {
-  ...(import.meta.glob('../src/renderer/**/*.ts', {
+  // Ohne `vendor/`: lz-scopes ist eine Kopie fremden Codes mit eigener
+  // Rechtschreibung (`VENDOR.md`), Treffer dort waeren nicht hier zu beheben —
+  // und „Bluetooth" ist kein Umlaut-Ersatz.
+  ...(import.meta.glob(['../src/renderer/**/*.ts', '!../src/renderer/vendor/**'], {
     query: '?raw',
     import: 'default',
     eager: true,

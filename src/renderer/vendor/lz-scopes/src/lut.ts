@@ -1,3 +1,4 @@
+// @ts-nocheck -- vendort aus larszu/lz-scopes, dort geprueft (scripts/lz-scopes-vendor.mjs)
 // LUT files: parsers for .cube (1D/3D, Adobe and Resolve keywords), .3dl, .spi3d, .spi1d and
 // .csp, CPU application (1D linear, 3D tetrahedral) and a small persistent library.
 //

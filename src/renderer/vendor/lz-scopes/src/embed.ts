@@ -1,3 +1,4 @@
+// @ts-nocheck -- vendort aus larszu/lz-scopes, dort geprueft (scripts/lz-scopes-vendor.mjs)
 // Embeddable scopes: `new ScopeView(container, { scopes: ['wf-luma', 'vector'] })`.
 // One WebGL canvas behind a small panel grid; feed it a Source (bridge frames,
 // video element, test pattern). Framework-free so React/Vue hosts wrap it in a ref.

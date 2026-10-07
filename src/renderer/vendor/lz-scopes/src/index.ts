@@ -1,3 +1,4 @@
+// @ts-nocheck -- vendort aus larszu/lz-scopes, dort geprueft (scripts/lz-scopes-vendor.mjs)
 // Library entry for hosts that embed LZ Scopes (lz-camera-bridge, cable-planner).
 export { ScopeView, type ScopeViewOptions } from './embed';
 export { Source, type SourceSettings, type StreamInfo } from './sources';

@@ -1,3 +1,4 @@
+// @ts-nocheck -- vendort aus larszu/lz-scopes, dort geprueft (scripts/lz-scopes-vendor.mjs)
 // Time code of a source: bridge frame side data (GOP / SEI), the container's start time code
 // plus the play position, DaVinci Resolve's timeline, or a browser video file's currentTime.
 

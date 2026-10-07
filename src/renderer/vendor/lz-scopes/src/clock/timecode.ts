@@ -1,3 +1,4 @@
+// @ts-nocheck -- vendort aus larszu/lz-scopes, dort geprueft (scripts/lz-scopes-vendor.mjs)
 // Time-of-day time code and frame phase after SMPTE ST 2059-1:2021 (pub.smpte.org, free).
 //
 // - §6.2 Alignment: Alignment Times are n × AlignmentPeriod from the SMPTE Epoch;

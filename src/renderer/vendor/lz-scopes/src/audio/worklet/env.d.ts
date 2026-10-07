@@ -1,3 +1,4 @@
+// @ts-nocheck -- vendort aus larszu/lz-scopes, dort geprueft (scripts/lz-scopes-vendor.mjs)
 // Minimal AudioWorkletGlobalScope typings (not part of lib.dom).
 declare const sampleRate: number;
 declare const currentFrame: number;
