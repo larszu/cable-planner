@@ -3536,13 +3536,15 @@ export const de: Dict = {
   'floors.up': 'Nach oben',
   'location.field.floorNone': '— keine —',
   'location.field.floor': 'Stockwerk',
-  'location.field.height': 'Höhe',
+  'location.field.height': 'Tiefe (m)',
+  'location.field.area': 'Fläche: {m2} m²',
+  'location.field.areaTitle': 'Breite × Tiefe im Maßstab des Projekts (Einstellungen → Projekt oder Maßstab des Hallenplans).',
   'location.field.name': 'Name',
   'location.field.riser': 'Steigschacht / senkrechte Trasse',
   'location.field.riserTitle':
     'In der 3D-Gebäudeansicht geht dieser Rahmen durch alle Etagen, und Kabel zwischen Etagen werden durch ihn gezeichnet statt als Luftlinie.',
   'location.field.notes': 'Notizen',
-  'location.field.width': 'Breite',
+  'location.field.width': 'Breite (m)',
   'location.tip':
     'Tipp: Der Rahmen bewegt sich standardmäßig unabhängig. Aktiviere „Geräte mitnehmen", wenn alle enthaltenen Geräte beim Verschieben des Rahmens mitwandern sollen.',
   'location.title': 'Location',
