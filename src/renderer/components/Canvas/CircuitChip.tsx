@@ -77,7 +77,7 @@ export function CircuitChip() {
       {/* The extra actions float below the chip: they used to join the toolbar row,
           which made it wrap and the chip jump on every click (#990). */}
       {an && knoten > 0 && (
-        <div className="absolute left-0 top-full z-30 mt-1 flex gap-1 border border-cp-border bg-cp-surface-1 p-1 shadow-lg">
+        <div className="absolute left-0 top-full z-30 mt-1 flex gap-1 border border-cp-border bg-cp-surface-1 p-1">
         <button
           type="button"
           onClick={zuruecksetzen}
