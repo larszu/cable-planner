@@ -1,10 +1,15 @@
+// @ts-nocheck -- vendort aus larszu/lz-scopes, dort geprueft (scripts/lz-scopes-vendor.mjs)
 // Test pattern generator. Every pattern draws into a 2D canvas in full-range R'G'B'
 // (0 = 0 %, 255 = 100 %). Ramps and zone plates are written pixel by pixel so the
 // browser cannot dither them. Values below 0 % (PLUGE sub-black) cannot exist in
 // full-range RGB and are clipped to 0.
 
-import { bt709Oetf, hlgFromNits, pqEncode } from './color';
+import { bt709Oetf, hlgFromNits, pqEncode, type Colorspace } from './color';
 import { LED_PATTERNS } from './led/patterns';
+import { avCalibration } from './audio/avcal';
+import { CodeRaster, NOTE_16, PATTERNS_16, PLUGE_16, drawRaster, plugeBoxes, plugeRaster, toFrame16, type Frame16 } from './patterns16';
+import { smpteLzRaster } from './egg';
+import { ramp10Labels, ramp10Raster } from './deep';
 
 export interface PatternDef {
   id: string;
@@ -16,6 +21,18 @@ export interface PatternDef {
   /** Image-based pattern (bundled or user file). */
   src?: string;
   draw?: (ctx: CanvasRenderingContext2D, w: number, h: number, t: number) => void;
+  /** exact 16-bit Y′CbCr frame for the scopes (patterns16.ts); the canvas stays 8 bit */
+  frame16?: (w: number, h: number) => Frame16;
+  /** Y′CbCr matrix of the pattern (default: by picture height) */
+  colorspace?: Colorspace;
+  /** shown with the pattern, e.g. what the 8-bit output window cannot carry */
+  note?: string;
+  /** exact 10-bit R′G′B′ codes: the output window draws these on its float16 canvas (src/deep.ts) */
+  raster?: (w: number, h: number) => CodeRaster;
+  /** code range of `raster` (false: narrow, 64 = 0 %) */
+  rasterFull?: boolean;
+  /** captions drawn over the raster in the output window [x, y, text] */
+  labels?: (w: number, h: number) => [number, number, string][];
 }
 
 type RGB = [number, number, number];
@@ -111,18 +128,8 @@ function smpteBars(ctx: CanvasRenderingContext2D, w: number, h: number, amp: num
  * SDR: Higher level 940 (100 %), HDR: 399 (38.2 %, same for PQ and HLG); lighter 80, darker 48.
  */
 export function plugeBT814(ctx: CanvasRenderingContext2D, w: number, h: number, higher: number) {
-  const X = (s: number) => (s / 1920) * w, Y = (l: number) => ((l - 42) / 1080) * h;
-  const box = (s0: number, s1: number, l0: number, l1: number, c: number) => fill(ctx, gray(code10(c)), X(s0), Y(l0), X(s1 + 1) - X(s0), Y(l1 + 1) - Y(l0));
   fill(ctx, gray(0), 0, 0, w, h);
-  const [Sb, Sc, Sd, Se, Sf, Sg] = [312, 599, 888, 1031, 1320, 1607];
-  const [Lb, Lc, Ld, Le, Lf, Lg, Lh, Li] = [366, 387, 509, 510, 653, 654, 776, 797];
-  for (let l = Lc; l <= Lh; l += 20) {
-    const lower = l >= Le;
-    box(Sb, Sc, l, Math.min(Lh, l + 9), lower ? 48 : 80);
-  }
-  box(Sd, Se, Le, Lf, higher);
-  box(Sf, Sg, Lb, Ld, 80);
-  box(Sf, Sg, Lg, Li, 48);
+  for (const [x, y, bw, bh, c] of plugeBoxes(w, h, higher)) fill(ctx, gray(code10(c)), x, y, bw, bh);
 }
 
 function arrows(ctx: CanvasRenderingContext2D, w: number, h: number, color = '#000') {
@@ -232,7 +239,8 @@ export const AV_FLASH_MS = 80;
  * runs along a scale of ±500 ms so a delay can be read off a recording.
  */
 function avSync(ctx: CanvasRenderingContext2D, w: number, h: number) {
-  const now = performance.timeOrigin + performance.now();
+  // calibrated lead of the picture (src/audio/avcal.ts; 0 = uncalibrated)
+  const now = performance.timeOrigin + performance.now() + avCalibration().videoLeadMs;
   const ph = now % 1000;
   if (ph < AV_FLASH_MS) { fill(ctx, gray(1), 0, 0, w, h); return; }
   fill(ctx, gray(0), 0, 0, w, h);
@@ -252,6 +260,8 @@ function avSync(ctx: CanvasRenderingContext2D, w: number, h: number) {
   ctx.fillRect(Math.round(mx) - 3, Math.round(y - h * 0.08), 6, Math.round(h * 0.16));
   text(ctx, 'A/V-Sync', w / 2, h * 0.22, h * 0.09);
   text(ctx, 'Blitz und Piep (Tongenerator „A/V-Sync-Piep“) zu jeder vollen Sekunde', w / 2, h * 0.34, h * 0.03, css(gray(0.75)));
+  const cal = avCalibration();
+  text(ctx, cal.note ? `Bild-Vorlauf ${Math.round(cal.videoLeadMs)} ms (${cal.note})` : 'Bildausgabe unkalibriert', w / 2, h * 0.4, h * 0.022, css(gray(0.55)));
 }
 
 export const PATTERNS: PatternDef[] = [
@@ -447,6 +457,38 @@ for (const [n, slug, name] of LZ) {
   PATTERNS.push({ id: `lz-${n}`, name: `${n} ${name}`, group: 'LZ Displaytest', src: `patterns/lz-display/lz_${n}_${slug}_1920x1080.png` });
 }
 
+// start pattern: SMPTE 75 % with the hidden signature in the waveform (egg.ts), right after the original
+PATTERNS.splice(PATTERNS.findIndex((p) => p.id === 'smpte75') + 1, 0, {
+  id: 'smpte75-lz', name: 'SMPTE 75 % Balken + PLUGE (LZ)', group: 'Farbe',
+  note: 'Wie SMPTE 75 %, aber im Schwarzfeld steht zwischen 0,8 und 3,8 % eine Signatur – in der Waveform lesbar (am besten mit der Schwarz-Lupe). Balken und PLUGE unverändert; Scopes bekommen exakte 10-bit-Codes.',
+  draw: (c, w, h) => drawRaster(c, smpteLzRaster(w, h), false), frame16: (w, h) => toFrame16(smpteLzRaster(w, h), false, h > 576 ? '709' : '601'),
+});
+
+// 16-bit patterns (issue #7): BT.2111-3 HDR bars, and exact frames for the BT.814 PLUGE
+for (const p of PATTERNS_16) {
+  PATTERNS.push({
+    id: p.id, name: p.name, group: 'HDR', transfer: p.transfer, colorspace: p.colorspace, note: NOTE_16,
+    draw: (c, w, h) => drawRaster(c, p.raster(w, h), p.full), frame16: (w, h) => toFrame16(p.raster(w, h), p.full, p.colorspace),
+    raster: p.raster, rasterFull: p.full,
+  });
+}
+for (const p of PATTERNS) {
+  const q = PLUGE_16[p.id];
+  if (q) {
+    Object.assign(p, {
+      colorspace: q.colorspace, note: NOTE_16, frame16: (w: number, h: number) => toFrame16(plugeRaster(w, h, q.higher), false, q.colorspace),
+      raster: (w: number, h: number) => plugeRaster(w, h, q.higher), rasterFull: false,
+    });
+  }
+}
+// 10-bit banding test for the output window (src/deep.ts)
+PATTERNS.push({
+  id: 'ramp10', name: '10-bit-Rampe (Banding-Test)', group: '10 bit', colorspace: '709',
+  note: 'Obere Hälften 10 bit, untere dieselben Codes über 8 bit. Sehen beide gleich aus, kommen nur 8 bit an.',
+  draw: (c, w, h) => drawRaster(c, ramp10Raster(w, h), true), frame16: (w, h) => toFrame16(ramp10Raster(w, h), true, '709'),
+  raster: ramp10Raster, rasterFull: true, labels: ramp10Labels,
+});
+
 export const RESOLUTIONS: [number, number][] = [[1280, 720], [1920, 1080], [2560, 1440], [3840, 2160], [1920, 1200], [1024, 768]];
 
 export function patternById(id: string) {
@@ -485,12 +527,26 @@ export async function renderPattern(ctx: CanvasRenderingContext2D, def: PatternD
   } else {
     def.draw?.(ctx, w, h, t);
   }
-  if (label) {
-    const size = h * 0.045;
-    ctx.font = `600 ${Math.round(size)}px system-ui, sans-serif`;
-    const tw = ctx.measureText(label).width + size;
-    ctx.fillStyle = 'rgba(0,0,0,0.75)';
-    ctx.fillRect((w - tw) / 2, h * 0.88 - size * 0.8, tw, size * 1.6);
-    text(ctx, label, w / 2, h * 0.88, size, '#fff');
+  if (label) drawLabel(ctx, w, h, label);
+}
+
+/** Label / identifier bar at the bottom of a pattern. */
+export function drawLabel(ctx: CanvasRenderingContext2D, w: number, h: number, label: string) {
+  const size = h * 0.045;
+  ctx.font = `600 ${Math.round(size)}px system-ui, sans-serif`;
+  const tw = ctx.measureText(label).width + size;
+  ctx.fillStyle = 'rgba(0,0,0,0.75)';
+  ctx.fillRect((w - tw) / 2, h * 0.88 - size * 0.8, tw, size * 1.6);
+  text(ctx, label, w / 2, h * 0.88, size, '#fff');
+}
+
+/** Small captions (left-aligned) over a pattern, e.g. the bands of the 10-bit ramp. */
+export function drawCaptions(ctx: CanvasRenderingContext2D, h: number, items: [number, number, string][]) {
+  const size = h * 0.018;
+  for (const [x, y, s] of items) {
+    ctx.font = `600 ${Math.round(size)}px system-ui, -apple-system, sans-serif`;
+    ctx.fillStyle = 'rgba(0,0,0,0.7)';
+    ctx.fillRect(x - size * 0.3, y - size * 0.75, ctx.measureText(s).width + size * 0.6, size * 1.5);
+    text(ctx, s, x, y, size, '#fff', 'left');
   }
 }

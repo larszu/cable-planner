@@ -1,3 +1,4 @@
+// @ts-nocheck -- vendort aus larszu/lz-scopes, dort geprueft (scripts/lz-scopes-vendor.mjs)
 // Linear Time Code (LTC) reader and writer, own implementation (no libltc).
 //
 // Code word after EBU Tech 3097-E (3rd ed. 1982, Part A, tech.ebu.ch, free), which matches

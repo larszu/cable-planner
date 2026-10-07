@@ -219,7 +219,8 @@ jobs:
   # upstream `main` — gegen `main` war er am ersten Tag zweimal rot, weil
   # lz-scopes weiterlief (Begruendung im Skriptkopf). Er faengt Handarbeit an
   # der Kopie und einen Pin, der nicht zur Kopie passt; wie weit upstream voraus
-  # ist, steht als Hinweis im Log. `fetch-depth: 0`, weil das Skript per
+  # ist, steht als Hinweis im Log; nachziehen tut der taegliche Lauf
+  # `scopes-sync.yml` (Branch + Issue). `fetch-depth: 0`, weil das Skript per
   # `git show <pin>:…` liest. Kein `npm ci` — das Skript nutzt nur Node.
   scopes:
     runs-on: ubuntu-latest

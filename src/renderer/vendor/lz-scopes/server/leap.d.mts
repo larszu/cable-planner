@@ -1,3 +1,4 @@
+// @ts-nocheck -- vendort aus larszu/lz-scopes, dort geprueft (scripts/lz-scopes-vendor.mjs)
 export const LEAP_TABLE: readonly (readonly [number, number])[];
 export const LEAP_TABLE_EXPIRES_MS: number;
 export const LEAP_SOURCE: string;

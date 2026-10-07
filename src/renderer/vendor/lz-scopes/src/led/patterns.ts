@@ -1,3 +1,4 @@
+// @ts-nocheck -- vendort aus larszu/lz-scopes, dort geprueft (scripts/lz-scopes-vendor.mjs)
 // LED wall test patterns (#10), after docs/research/led-wall-und-messgeraete.md A.5.
 // They draw the wall from the LED settings (src/led/wall.ts) at its offset into a picture
 // of any size – normally the wall resolution. Canvas output is 8-bit full-range RGB:

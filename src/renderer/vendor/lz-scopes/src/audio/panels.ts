@@ -1,14 +1,19 @@
+// @ts-nocheck -- vendort aus larszu/lz-scopes, dort geprueft (scripts/lz-scopes-vendor.mjs)
 // Audio panels, drawn with Canvas 2D into the panel overlay:
 //   audio-meter     sample peak / true peak per channel + M, S, I on the EBU +9/+18 scale
 //   audio-loudness  M and S over time with the target band
 //   audio-spectrum  FFT spectrum, logarithmic frequency axis, slope, third-octave bands
 //   audio-phase     goniometer (M/S, mono vertical) + correlation meter
+//   audio-check     ident recognition (dsp/ident.ts) and A/V offset (dsp/avsync.ts, BT.1359)
+// plus drawAudioBar(), the compact level bar on picture panels.
 // Scales after EBU Tech 3341 p6–7: EBU +9 = −18 … +9 LU, EBU +18 = −36 … +18 LU,
 // 0 LU = −23 LUFS, one decimal, unit always shown.
 
-import type { AudioAnalysis } from './analysis';
+import { TP_MARK, type AudioAnalysis } from './analysis';
 import { spectrumDb, thirdOctaveBands, thirdOctaveCentres, tiltDb } from './dsp/fft';
 import { toDb } from './dsp/truepeak';
+import { AV_RATING_TEXT, BT1359, rateAv } from './dsp/avsync';
+import { avCalibration } from './avcal';
 
 export interface AudioPanelOptions {
   scale?: 'ebu9' | 'ebu18';
@@ -73,6 +78,7 @@ export function drawAudioPanel(ctx: CanvasRenderingContext2D, scope: string, a: 
   else if (scope === 'audio-loudness') drawHistory(ctx, a, { x: 0, y: 0, w, h }, o);
   else if (scope === 'audio-spectrum') drawSpectrum(ctx, a, { x: 0, y: 0, w, h }, o, key);
   else if (scope === 'audio-phase') drawPhase(ctx, a, { x: 0, y: 0, w, h }, o);
+  else if (scope === 'audio-check') drawCheck(ctx, a, { x: 0, y: 0, w, h });
   ctx.restore();
   if (a.stale) {
     ctx.font = FONT; ctx.fillStyle = WARN; ctx.textAlign = 'right'; ctx.textBaseline = 'top';
@@ -177,11 +183,13 @@ function drawMeter(ctx: CanvasRenderingContext2D, a: AudioAnalysis, b: Box, o: R
     ['Max S', loudText(L.maxS, o.rel), maxS !== undefined && L.maxS > maxS ? BAD : undefined],
     ['Max TP', `${fmt1(maxTP)} dBTP`, maxTP > TP_MAX ? BAD : undefined],
     ['PLR', Number.isFinite(I) && Number.isFinite(maxTP) ? `${fmt1(maxTP - I)} dB` : '– dB'],
+    ['PSR', `${fmt1(a.psr)} dB`],
     ['Zeit', `${Math.floor(secs / 60)}:${String(Math.floor(secs % 60)).padStart(2, '0')}${L.paused ? ' Pause' : ''}`],
   ];
   const clips = lv.clips.reduce((s, c) => s + c, 0);
   if (clips) rows.push(['Clip', `${clips} Samples ≥ 0 dBFS`, BAD]);
   if (a.gaps) rows.push(['Lücken', `${a.gaps} (Ton fehlte)`, WARN]);
+  if (!a.layoutKnown) rows.push(['Layout', 'unbekannt: alle Kanäle Gewicht 1,0', WARN]);
   const big = Math.max(12, Math.min(22, b.h / 16));
   ctx.textBaseline = 'top';
   let y = ty;
@@ -246,6 +254,15 @@ function drawHistory(ctx: CanvasRenderingContext2D, a: AudioAnalysis, b: Box, o:
   };
   line(a.history('m', points), 'rgba(120, 170, 230, 0.55)', 1);
   line(a.history('s', points), '#8cff9e', 1.5);
+  // true-peak overs (> −1 dBTP, EBU R 128): red ticks at the top edge, time of the last one
+  const overs = a.tpMarks(points);
+  if (overs.length) {
+    ctx.fillStyle = BAD;
+    for (const m of overs) ctx.fillRect(r.x + (m.i / points) * r.w - 0.5, r.y, 2, 8);
+    const last = overs[overs.length - 1];
+    ctx.font = FONT; ctx.textAlign = 'right'; ctx.textBaseline = 'top';
+    ctx.fillText(`TP > ${fmt1(TP_MARK)} dBTP: ${overs.length}× · zuletzt ${new Date(last.time).toLocaleTimeString('de-DE')} (${fmt1(last.db)} dBTP)`, r.x + r.w - 4, r.y + 10);
+  }
   ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.font = FONT;
   ctx.fillStyle = 'rgba(120, 170, 230, 0.9)'; ctx.fillText(`M ${loudText(a.loud.momentary, o.rel)}`, r.x + 6, r.y + 4);
   ctx.fillStyle = '#8cff9e'; ctx.fillText(`S ${loudText(a.loud.shortTerm, o.rel)}`, r.x + 130, r.y + 4);
@@ -380,4 +397,105 @@ function drawPhase(ctx: CanvasRenderingContext2D, a: AudioAnalysis, b: Box, o: R
   ctx.fillText(r === null ? '–' : (r >= 0 ? '+' : '') + r.toFixed(2).replace('.', ',').replace('-', '−'), bar.x + bar.w + 4, bar.y + bar.h / 2);
   ctx.textAlign = 'right'; ctx.fillStyle = LABEL;
   ctx.fillText(`${o.corrMs} ms`, bar.x - 4, bar.y + bar.h / 2);
+}
+
+// ---------------------------------------------------------------- compact bar on the picture
+
+/**
+ * Compact level bar for picture panels: sample peak per channel (−60 … 0 dBFS, marks at
+ * −18 and −1) and short-term loudness as a number. Drawn at the right edge of `b`.
+ */
+export function drawAudioBar(ctx: CanvasRenderingContext2D, a: AudioAnalysis, b: Box) {
+  const n = Math.min(a.channels, 8), bw = 5, gap = 2;
+  const w = n * (bw + gap) + 8, h = Math.min(b.h - 12, 160);
+  const x0 = b.x + b.w - w - 6, y0 = b.y + (b.h - h) / 2;
+  ctx.fillStyle = 'rgba(8, 9, 11, 0.72)'; ctx.fillRect(x0, y0 - 14, w, h + 30);
+  const top = y0, hh = h;
+  const yDb = (d: number) => top + hh - ((Math.max(-60, Math.min(0, d)) + 60) / 60) * hh;
+  for (let c = 0; c < n; c++) {
+    const x = x0 + 4 + c * (bw + gap);
+    const sp = toDb(a.level.peakOver(c, 100)), hold = toDb(a.level.truePeakOver(c, 3000));
+    ctx.fillStyle = '#15181c'; ctx.fillRect(x, top, bw, hh);
+    if (Number.isFinite(sp) && sp > -60) {
+      ctx.fillStyle = sp > TP_MAX ? BAD : sp > ALIGN ? '#d6a23a' : '#3fa55a';
+      ctx.fillRect(x, yDb(sp), bw, top + hh - yDb(sp));
+    }
+    if (Number.isFinite(hold) && hold > -60) { ctx.fillStyle = hold > TP_MAX ? BAD : '#cfd3d8'; ctx.fillRect(x, yDb(hold) - 0.5, bw, 1); }
+  }
+  ctx.fillStyle = 'rgba(140, 255, 158, 0.6)'; ctx.fillRect(x0 + 2, yDb(ALIGN), w - 4, 1);
+  ctx.fillStyle = 'rgba(255, 92, 92, 0.7)'; ctx.fillRect(x0 + 2, yDb(TP_MAX), w - 4, 1);
+  ctx.font = '9px ui-monospace, Menlo, monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom'; ctx.fillStyle = TEXT;
+  ctx.fillText('♪', x0 + w / 2, top - 2);
+  ctx.textBaseline = 'top';
+  const S = a.loud.shortTerm;
+  ctx.fillStyle = Number.isFinite(S) && Math.abs(S - TARGET) <= 1 ? OK : TEXT;
+  ctx.fillText(Number.isFinite(S) ? `S${Math.round(S)}` : 'S –', x0 + w / 2, top + hh + 3);
+  if (a.stale) { ctx.fillStyle = WARN; ctx.fillText('kein Ton', x0 + w / 2, top + hh + 13); }
+}
+
+// ---------------------------------------------------------------- ident + A/V offset
+
+function drawCheck(ctx: CanvasRenderingContext2D, a: AudioAnalysis, b: Box) {
+  const pad = 10, split = b.w >= 620;
+  const left: Box = { x: b.x + pad, y: b.y + pad, w: split ? b.w / 2 - pad * 1.5 : b.w - 2 * pad, h: split ? b.h - 2 * pad : b.h * 0.5 - pad };
+  const right: Box = split ? { x: b.x + b.w / 2 + pad / 2, y: b.y + pad, w: b.w / 2 - pad * 1.5, h: b.h - 2 * pad } : { x: b.x + pad, y: b.y + b.h * 0.5, w: b.w - 2 * pad, h: b.h * 0.5 - pad };
+  const col = { ok: OK, warn: WARN, bad: BAD, info: '#8a9098' } as const;
+  // --- ident
+  const r = a.identReport();
+  ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  ctx.font = '600 13px ui-monospace, SFMono-Regular, Menlo, monospace'; ctx.fillStyle = TEXT;
+  ctx.fillText(r.kind && r.kind !== 'tone' ? `Ident: ${r.label}` : r.kind === 'tone' ? 'Kein Ident erkannt (Ton liegt an)' : 'Kein Signal', left.x, left.y, left.w);
+  let y = left.y + 20;
+  ctx.font = '11px ui-monospace, SFMono-Regular, Menlo, monospace';
+  for (const f of r.findings.slice(0, 8)) {
+    ctx.fillStyle = col[f.level]; ctx.fillText(f.level === 'ok' ? '✓' : f.level === 'info' ? '·' : '!', left.x, y);
+    ctx.fillStyle = f.level === 'info' ? '#8a9098' : TEXT; ctx.fillText(f.text, left.x + 14, y, left.w - 14);
+    y += 15;
+  }
+  y += 4;
+  ctx.fillStyle = '#6b7078';
+  ctx.fillText('Kanal   Pegel      Frequenz', left.x, y); y += 14;
+  for (const c of r.channels.slice(0, Math.max(0, Math.floor((left.y + left.h - y) / 13)))) {
+    ctx.fillStyle = c.present ? TEXT : '#6b7078';
+    ctx.fillText(`${c.name.padEnd(6)}  ${c.present && c.levelDb !== null ? `${fmt1(c.levelDb)} dBFS`.padEnd(11) : 'stumm'.padEnd(11)}${c.present && c.freq ? `${Math.round(c.freq)} Hz` : ''}`, left.x, y);
+    y += 13;
+  }
+  // --- A/V offset
+  const av = a.av.result();
+  ctx.font = '600 13px ui-monospace, SFMono-Regular, Menlo, monospace'; ctx.fillStyle = TEXT;
+  ctx.fillText('A/V-Versatz (Blitz ↔ Piep)', right.x, right.y);
+  ctx.font = '11px ui-monospace, SFMono-Regular, Menlo, monospace';
+  let ry = right.y + 20;
+  const say = (t: string, c = TEXT) => { ctx.fillStyle = c; ctx.fillText(t, right.x, ry, right.w); ry += 15; };
+  if (av.problem) { say(av.problem, WARN); say('Nur über die Bridge mit Bild und Ton im selben Stream (Protokoll 2).', '#8a9098'); return; }
+  if (av.medianMs === null) {
+    say(`Blitze ${av.flashes} · Pieps ${av.beeps} – noch kein Paar`, '#8a9098');
+    say('Testbild „A/V-Sync“ ausgeben und Generator „A/V-Sync-Piep“', '#8a9098');
+    say('in die Kette geben (Kamera/Capture mit Ton → Bridge).', '#8a9098');
+    return;
+  }
+  const rating = rateAv(av.medianMs);
+  const rc = rating === 'undetectable' ? OK : rating === 'acceptable' ? WARN : BAD;
+  ctx.font = `600 ${Math.max(18, Math.min(34, right.h / 7))}px ui-monospace, SFMono-Regular, Menlo, monospace`; ctx.fillStyle = rc;
+  ctx.fillText(`${av.medianMs > 0.05 ? '+' : ''}${fmt1(av.medianMs)} ms`, right.x, ry);
+  ry += Math.max(18, Math.min(34, right.h / 7)) + 6;
+  ctx.font = '11px ui-monospace, SFMono-Regular, Menlo, monospace';
+  say(av.medianMs > 0 ? 'Ton vor dem Bild' : av.medianMs < 0 ? 'Ton nach dem Bild' : 'synchron', TEXT);
+  say(AV_RATING_TEXT[rating], rc);
+  say(`Median der letzten ${Math.min(10, av.pairs.length)} · Streuung ${fmt1(av.minMs)} … ${fmt1(av.maxMs)} ms`, '#8a9098');
+  if (av.frameMs) say(`Auflösung Bild ±${fmt1(av.frameMs / 2)} ms (${fmt1(1000 / av.frameMs)} fps)`, '#8a9098');
+  // scale −200 … +100 ms with the BT.1359 bands and the recent pairs
+  const sc: Box = { x: right.x + 4, y: Math.min(ry + 8, right.y + right.h - 40), w: right.w - 8, h: 12 };
+  const lo = -200, hi = 100, xs = (v: number) => sc.x + ((Math.max(lo, Math.min(hi, v)) - lo) / (hi - lo)) * sc.w;
+  ctx.fillStyle = 'rgba(255, 92, 92, 0.25)'; ctx.fillRect(sc.x, sc.y, sc.w, sc.h);
+  ctx.fillStyle = 'rgba(214, 162, 58, 0.45)'; ctx.fillRect(xs(BT1359.accept[0]), sc.y, xs(BT1359.accept[1]) - xs(BT1359.accept[0]), sc.h);
+  ctx.fillStyle = 'rgba(63, 165, 90, 0.6)'; ctx.fillRect(xs(BT1359.detect[0]), sc.y, xs(BT1359.detect[1]) - xs(BT1359.detect[0]), sc.h);
+  ctx.fillStyle = '#ffffff';
+  for (const p of av.pairs.slice(-20)) ctx.fillRect(xs(p.offsetMs) - 1, sc.y - 3, 2, sc.h + 6);
+  ctx.fillStyle = LABEL; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  for (const v of [-185, -125, 0, 45, 90]) ctx.fillText(String(v).replace('-', '−'), xs(v), sc.y + sc.h + 3);
+  ctx.textAlign = 'left';
+  const cal = avCalibration();
+  ctx.fillStyle = '#6b7078';
+  ctx.fillText(`+ = Ton vor Bild (ITU-R BT.1359-1) · Bild-Vorlauf ${fmt1(cal.videoLeadMs)} ms${cal.note ? '' : ' (unkalibriert)'}`, right.x, sc.y + sc.h + 17, right.w);
 }

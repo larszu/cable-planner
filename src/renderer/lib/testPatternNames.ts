@@ -81,6 +81,11 @@ export const PATTERN_NAMES_EN: Record<string, string> = {
   'led-shutter': 'Shutter/genlock (frame counter)',
   'led-moire': 'Moiré (line pairs, circles)',
   'led-patch': 'Measurement patch / patch sequencer',
+  'smpte75-lz': 'SMPTE 75 % bars + PLUGE (LZ)',
+  'bt2111-hlg': 'BT.2111-3 HDR bars HLG (narrow)',
+  'bt2111-pq': 'BT.2111-3 HDR bars PQ (narrow)',
+  'bt2111-pqfull': 'BT.2111-3 HDR bars PQ (full)',
+  ramp10: '10-bit ramp (banding test)',
 }
 
 export const PATTERN_GROUPS_EN: Record<string, string> = {
@@ -93,6 +98,7 @@ export const PATTERN_GROUPS_EN: Record<string, string> = {
   HDR: 'HDR',
   'LZ Displaytest': 'LZ display test',
   'LED-Wand': 'LED wall',
+  '10 bit': '10 bit',
 }
 
 export const patternName = (def: { id: string; name: string }, lang: string): string =>

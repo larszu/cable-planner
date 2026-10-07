@@ -1,3 +1,4 @@
+// @ts-nocheck -- vendort aus larszu/lz-scopes, dort geprueft (scripts/lz-scopes-vendor.mjs)
 // K-weighting of ITU-R BS.1770-5 (pre-filter "head" shelf + RLB high-pass), for any
 // sample rate. The norm only tabulates 48 kHz (p6–7, Tables 1 and 2); the formula
 // below is the one of libebur128 (`ebur128_init_filter`, MIT) and reproduces the

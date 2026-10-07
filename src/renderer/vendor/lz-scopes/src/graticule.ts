@@ -1,22 +1,29 @@
+// @ts-nocheck -- vendort aus larszu/lz-scopes, dort geprueft (scripts/lz-scopes-vendor.mjs)
 // 2D overlays per panel: graticules, labels, histogram, statistics, probe read-outs.
 
 import {
-  GAMUTS, SKIN_LINE_DEG, isGamma, SPECTRAL_LOCUS, barTargets, codeValue, gamutConvert, hlgFromNits, isLog, levelText, nitsToSignal, pqEncode,
+  GAMUTS, LUMA, SKIN_LINE_DEG, isGamma, SPECTRAL_LOCUS, barTargets, codeValue, gamutConvert, hlgFromNits, isLog, levelText, nitsToSignal, pqEncode,
   sceneToSignal, transferLabel, xyToUv, ycbcr,
   type Colorspace, type GamutId, type Transfer,
 } from './color';
 import { CIE_VIEW, CIE_VIEW_UV, WAVE_MAX, WAVE_MIN, type Rect } from './renderer';
+import { latencyLines, rtpLines } from './latency';
 import type { Source } from './sources';
+import { CUBE_SPACE_LABELS, SIGNAL_SPACES, cubeProject, cubeRotation, cubeWireframe, qFromChl, qFromHsv, qFromIctcp, qFromLab, qFromRgb, qFromXyz, qFromYcc, type CubeSettings } from './cube';
 
-export type ScopeType = 'picture' | 'wf-luma' | 'wf-color' | 'wf-skin' | 'wf-rgb' | 'parade' | 'yrgb' | 'ycbcr' | 'vector' | 'cie' | 'hist' | 'stats'
-  | 'audio-meter' | 'audio-loudness' | 'audio-spectrum' | 'audio-phase' | 'clock';
+export type ScopeType = 'picture' | 'wf-luma' | 'wf-color' | 'wf-skin' | 'wf-rgb' | 'parade' | 'yrgb' | 'ycbcr' | 'vector' | 'cie' | 'diamond' | 'cube' | 'satlum' | 'chplot' | 'minmax' | 'timeline' | 'qclog' | 'hist' | 'stats'
+  | 'audio-meter' | 'audio-loudness' | 'audio-spectrum' | 'audio-phase' | 'audio-check' | 'clock'
+  | 'light-cie' | 'light-vector' | 'light-bands' | 'light-trend' | 'light-map' | 'light-spectrum' | 'light-swatch';
 export type Unit = 'percent' | 'bit8' | 'bit10' | 'nits';
 
 export const SCOPE_LABELS: Record<ScopeType, string> = {
   picture: 'Bild', 'wf-luma': 'Waveform Luma', 'wf-color': 'Waveform Farbe', 'wf-skin': 'Waveform Hauttöne', 'wf-rgb': 'Waveform RGB', parade: 'RGB-Parade', yrgb: 'YRGB-Parade',
-  ycbcr: 'YCbCr-Parade', vector: 'Vectorscope', cie: 'CIE-Diagramm', hist: 'Histogramm', stats: 'Messwerte',
-  'audio-meter': 'Audio Pegel & Lautheit', 'audio-loudness': 'Audio Lautheitsverlauf', 'audio-spectrum': 'Audio Spektrum', 'audio-phase': 'Audio Goniometer',
+  ycbcr: 'YCbCr-Parade', vector: 'Vectorscope', cie: 'CIE-Diagramm', diamond: 'Diamond (Gamut)', cube: '3D-Farbvolumen', satlum: 'Sättigung über Luma', chplot: 'Kanal-Plot', minmax: 'Min/Max je Zeile', qclog: 'QC-Protokoll', timeline: 'Zeitverlauf', hist: 'Histogramm', stats: 'Messwerte',
+  'audio-meter': 'Audio Pegel & Lautheit', 'audio-loudness': 'Audio Lautheitsverlauf', 'audio-spectrum': 'Audio Spektrum', 'audio-phase': 'Audio Goniometer', 'audio-check': 'Audio Ident & A/V-Versatz',
   clock: 'Uhr / Timecode',
+  // Opple Light Master (src/opple/scopes.ts, LIGHT_LABELS)
+  'light-cie': 'Licht: Farbort (CIE)', 'light-vector': 'Licht: Vectorscope', 'light-bands': 'Licht: Filterkanäle',
+  'light-trend': 'Licht: Zeitverlauf', 'light-map': 'Licht: Messfeld', 'light-spectrum': 'Licht: Wellenlängen', 'light-swatch': 'Licht: Farbfläche',
 };
 
 export const isAudio = (s: ScopeType) => s.startsWith('audio-');
@@ -24,10 +31,10 @@ export const isAudio = (s: ScopeType) => s.startsWith('audio-');
 export const isWaveform = (s: ScopeType) => s === 'wf-luma' || s === 'wf-color' || s === 'wf-skin' || s === 'wf-rgb' || s === 'parade' || s === 'yrgb' || s === 'ycbcr';
 export const sections = (s: ScopeType) => (s === 'parade' || s === 'ycbcr' ? 3 : s === 'yrgb' ? 4 : 1);
 
-const GRID = 'rgba(210, 190, 120, 0.42)';
-const GRID_DIM = 'rgba(210, 190, 120, 0.16)';
-const LABEL = 'rgba(230, 215, 170, 0.85)';
-const FONT = '10px ui-monospace, SFMono-Regular, Menlo, monospace';
+export const GRID = 'rgba(210, 190, 120, 0.42)';
+export const GRID_DIM = 'rgba(210, 190, 120, 0.16)';
+export const LABEL = 'rgba(230, 215, 170, 0.85)';
+export const FONT = '10px ui-monospace, SFMono-Regular, Menlo, monospace';
 
 /** Plot area inside a panel body (CSS px), shared by WebGL and the overlay. */
 export function plotRect(scope: ScopeType, w: number, h: number, aspect = 16 / 9): Rect {
@@ -39,6 +46,21 @@ export function plotRect(scope: ScopeType, w: number, h: number, aspect = 16 / 9
   if (scope === 'cie') {
     const s = Math.max(10, Math.min(w - 36, h - 24));
     return { x: (w - s + 24) / 2, y: (h - s - 16) / 2, w: s, h: s };
+  }
+  if (scope === 'minmax') return { x: 44, y: 8, w: Math.max(10, w - 52), h: Math.max(10, h - 26) };
+  if (scope === 'satlum') return { x: 44, y: 8, w: Math.max(10, w - 52), h: Math.max(10, h - 26) };
+  if (scope === 'chplot') {
+    const s = Math.max(10, Math.min(w - 52, h - 30));
+    return { x: 44 + (w - 52 - s) / 2, y: 8, w: s, h: s };
+  }
+  if (scope === 'cube') {
+    const s = Math.max(10, Math.min(w, h) - 16);
+    return { x: (w - s) / 2, y: (h - s) / 2, w: s, h: s };
+  }
+  if (scope === 'diamond') {
+    // two diamonds on top of each other: width : height = 1 : 2
+    const ph = Math.max(20, Math.min(h - 16, 2 * (w - 16))), pw = ph / 2;
+    return { x: (w - pw) / 2, y: (h - ph) / 2, w: pw, h: ph };
   }
   if (scope === 'hist') return { x: 8, y: 8, w: Math.max(10, w - 16), h: Math.max(10, h - 26) };
   if (scope === 'picture') {
@@ -236,6 +258,52 @@ export function vectorPoint(r: Rect, cb: number, cr: number, zoom: number) {
 }
 
 export interface BarTargetSet { t100: { label: string; cb: number; cr: number }[]; t75: { label: string; cb: number; cr: number }[]; label: string }
+
+/**
+ * Tektronix diamond display (Tektronix application note 25W-15609 "Preventing Illegal Colors"):
+ * upper diamond B′+G′ vertical over B′−G′ horizontal, lower diamond −(R′+G′) over R′−G′.
+ * Every legal R′G′B′ value (0…1 per channel) lies inside or on both diamonds. Clip-space scale
+ * of the trace (renderer.ts mode 8): x = 0.92·(B′−G′), y = 0.46·(B′+G′).
+ */
+export const DIAMOND_SCALE: [number, number] = [0.92, 0.46];
+
+/** Diamond plot position (CSS px) of a pair (a = B′ or R′ with G′; upper = the B/G diamond). */
+export function diamondPoint(r: Rect, a: number, g: number, upper: boolean): [number, number] {
+  const x = (a - g) * DIAMOND_SCALE[0], y = (a + g) * DIAMOND_SCALE[1] * (upper ? 1 : -1);
+  return [r.x + r.w / 2 + (x * r.w) / 2, r.y + r.h / 2 - (y * r.h) / 2];
+}
+
+export function drawDiamondGraticule(ctx: CanvasRenderingContext2D, r: Rect) {
+  ctx.save();
+  ctx.font = FONT; ctx.textBaseline = 'middle';
+  const outline = (upper: boolean, level: number, dash: number[]) => {
+    const pts = [diamondPoint(r, 0, 0, upper), diamondPoint(r, level, 0, upper), diamondPoint(r, level, level, upper), diamondPoint(r, 0, level, upper)];
+    ctx.setLineDash(dash);
+    ctx.beginPath(); pts.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y))); ctx.closePath(); ctx.stroke();
+  };
+  for (const upper of [true, false]) {
+    ctx.strokeStyle = GRID_DIM; ctx.lineWidth = 1;
+    outline(upper, 0.5, [3, 3]);
+    ctx.strokeStyle = GRID; ctx.lineWidth = 1.2;
+    outline(upper, 1, []);
+  }
+  ctx.setLineDash([]);
+  // centre line and corner names (100 % primaries and their sums)
+  ctx.strokeStyle = GRID_DIM;
+  ctx.beginPath(); ctx.moveTo(r.x + r.w / 2, r.y); ctx.lineTo(r.x + r.w / 2, r.y + r.h); ctx.stroke();
+  ctx.fillStyle = LABEL;
+  const label = (t: string, [x, y]: [number, number], dx: number, dy: number, align: CanvasTextAlign) => { ctx.textAlign = align; ctx.fillText(t, x + dx, y + dy); };
+  label('B', diamondPoint(r, 1, 0, true), 6, 0, 'left');
+  label('G', diamondPoint(r, 0, 1, true), -6, 0, 'right');
+  label('Cy', diamondPoint(r, 1, 1, true), 0, -2, 'center');
+  label('R', diamondPoint(r, 1, 0, false), 6, 0, 'left');
+  label('G', diamondPoint(r, 0, 1, false), -6, 0, 'right');
+  label('Yl', diamondPoint(r, 1, 1, false), 0, 2, 'center');
+  ctx.textAlign = 'left';
+  ctx.fillText('B′/G′', r.x + 2, r.y + 8);
+  ctx.fillText('R′/G′', r.x + 2, r.y + r.h - 8);
+  ctx.restore();
+}
 
 export function drawVectorGraticule(ctx: CanvasRenderingContext2D, r: Rect, cs: Colorspace, zoom: number, skinTol = 0, targets?: BarTargetSet) {
   const R = r.w / 2, cx = r.x + R, cy = r.y + R;
@@ -482,10 +550,13 @@ export function statsLines(src: Source, displayFps: number): string[] {
   const lines = [
     src.name,
     `Status     ${src.status}${src.message ? ` – ${src.message}` : ''}`,
-    `Analyse    ${src.width}×${src.height}  ${src.depth} bit`,
+    `Analyse    ${src.width}×${src.height}  ${src.yuv ? `16 bit Y′CbCr ${src.yuv.full ? 'full' : 'narrow'}, unbeschnitten (Quelle ${src.yuv.bits} bit)` : `${src.depth} bit R′G′B′`}`,
   ];
+  if (info?.note) lines.push(`Hinweis    ${info.note}`);
+  if (info) lines.push(`Abtastung  ${info.interlaced ? 'interlaced – beide Halbbilder als ein Bild, feldweise skaliert' : 'progressiv (bzw. nicht als interlaced gemeldet)'}; Scopes messen immer ganze Bilder`);
   if (info) {
     lines.push(`Quelle     ${info.sourceWidth}×${info.sourceHeight}  ${info.codec ?? ''} ${info.pixFmt ?? ''}`);
+    if (info.transport === 'h264') lines.push('Übertragung H.264 · 8 bit 4:2:0, verlustbehaftet (im Browser dekodiert)');
     lines.push(`Metadaten  ${info.matrix}/${info.primaries}/${info.transfer}  ${info.range}`);
   }
   lines.push(`Auswertung Rec.${src.colorspace}  ${transferLabel(src.transfer)}${src.transfer === 'hlg' ? ` (Lw ${src.hlgLw})` : ''}  ${GAMUTS[src.gamut].name}`);
@@ -498,6 +569,187 @@ export function statsLines(src: Source, displayFps: number): string[] {
     lines.push(`Y' Mittel  ${pct(st.yAvg)}${n(st.yAvg)}`);
     lines.push(`Clip ▲ RGB ${st.clipHigh.map((v) => (v * 100).toFixed(2)).join(' / ')} %`);
     lines.push(`Clip ▼ RGB ${st.clipLow.map((v) => (v * 100).toFixed(2)).join(' / ')} %`);
+    if (st.cll) {
+      // CTA-861.3: MaxCLL / MaxFALL since the last reset (whole frames), plus this frame
+      const l = src.lightLevel;
+      lines.push(`CLL/FALL   ${Math.round(st.cll.max)} / ${Math.round(st.cll.avg)} cd/m² (Frame)`);
+      lines.push(`MaxCLL     ${l.frames ? `${Math.round(l.maxCll)} cd/m²  MaxFALL ${Math.round(l.maxFall)} cd/m²  (${l.frames} Frames)` : '– (nur ohne Messrahmen)'}`);
+    }
   }
+  if (st) lines.push(`Statistik  ${src.statsPerf.path === 'gpu' ? 'GPU, volle Auflösung' : 'CPU, unterabgetastet'} · ${src.statsPerf.ms.toFixed(2)} ms Hauptthread`);
+  lines.push(...latencyLines(src.latency.summary(), src.kind === 'stream' && src.lowLatency), ...rtpLines(src.rtpInfo, src.rtpStats));
+  lines.push('', ...r103Lines(src));
   return lines;
+}
+
+/**
+ * EBU R 103 v3.0 block of the Messwerte panel: share of the area outside the preferred
+ * range −5/105 % (R, G, B or Y, after the measurement filter) and outside the total range.
+ */
+export function r103Lines(src: Source): string[] {
+  const r = src.r103Stats();
+  if (!r) return ['R 103      –'];
+  const p2 = (v: number) => `${(v * 100).toFixed(2)} %`;
+  const ext = (v: number) => `${(v * 100).toFixed(1)}`;
+  const out = [
+    `R 103      Vorzug −5/105 %: ${p2(r.pref)} der Fläche${r.alarm ? '  ⚠ außerhalb (> 1 %)' : '  (Meldung ab 1 %)'}`,
+    `           Gesamt 4–1019: ${p2(r.total)}${r.total > 0 ? '  ⚠ harte Grenze' : ''}`,
+    `           min R/G/B/Y ${r.min.map(ext).join(' / ')} %  max ${r.max.map(ext).join(' / ')} %`,
+  ];
+  if (!src.yuv) out.push('           Quelle ist R′G′B′ 0–100 % (beschnitten): nur mit Y′CbCr-Pfad aussagekräftig');
+  else if (src.yuv.full) out.push('           Quelle Full Range: R 103 ist für Narrow Range definiert, hier nur Prozentvergleich');
+  if (src.info && src.info.sourceWidth > r.width) out.push(`           gemessen auf ${r.width}×${r.height} (skaliert; normgerecht bei Analysebreite „nativ“)`);
+  return out;
+}
+
+/** 3D volume overlay: wire frame of the target, axis labels (cube.ts, same projection as the shader). */
+export function drawCubeGraticule(ctx: CanvasRenderingContext2D, r: Rect, c: CubeSettings, srcGamut: GamutId, nits: number, probe: number[] | null, cs: Colorspace = '709') {
+  const rot = cubeRotation(c.yaw, c.pitch), view = { zoom: c.zoom ?? 1, panX: c.panX ?? 0, panY: c.panY ?? 0 };
+  const P = (q: number[]): [number, number] => { const [x, y] = cubeProject(rot, q, view); return [r.x + (x * 0.5 + 0.5) * r.w, r.y + (0.5 - y * 0.5) * r.h]; };
+  const line = (pts: number[][], style: string, width = 1, dash: number[] = []) => {
+    ctx.strokeStyle = style; ctx.lineWidth = width; ctx.setLineDash(dash);
+    ctx.beginPath(); pts.forEach((q, i) => { const [x, y] = P(q); if (i) ctx.lineTo(x, y); else ctx.moveTo(x, y); }); ctx.stroke();
+  };
+  const STRONG = 'rgba(235, 220, 170, 0.85)', SOFT = 'rgba(210, 190, 120, 0.3)';
+  // small panels: only end and middle ticks are labelled
+  const dense = Math.min(r.w, r.h) < 320;
+  ctx.save();
+  ctx.font = FONT; ctx.fillStyle = LABEL; ctx.textBaseline = 'middle'; ctx.textAlign = 'center';
+  const label = (t: string, q: number[], dx = 0, dy = 0) => { const [x, y] = P(q); ctx.fillText(t, x + dx, y + dy); };
+  /** axis with ticks: values along a line q(v), tick labels next to it */
+  const axis = (q: (v: number) => number[], vals: number[], fmt: (v: number) => string, name: string, namePos: number) => {
+    line([q(vals[0]), q(vals[vals.length - 1])], STRONG, 1.5);
+    for (const v of vals) {
+      const [x, y] = P(q(v));
+      ctx.fillStyle = STRONG; ctx.fillRect(x - 1.5, y - 1.5, 3, 3);
+      if (dense && v !== vals[0] && v !== vals[vals.length - 1] && Math.abs(v) !== 50 && v !== 0.5) continue;
+      ctx.fillStyle = LABEL; ctx.fillText(fmt(v), x + 12, y - 7);
+    }
+    ctx.fillStyle = '#f0e6c8'; label(name, q(namePos));
+  };
+  const steps = [0, 0.25, 0.5, 0.75, 1];
+  if (c.space === 'rgb') {
+    // faint 25 % grid on the three faces through black, strong cube edges
+    for (const t of [0.25, 0.5, 0.75]) {
+      line([qFromRgb([t, 0, 0]), qFromRgb([t, 1, 0]), qFromRgb([t, 1, 1])], SOFT, 1, [2, 3]);
+      line([qFromRgb([0, t, 0]), qFromRgb([1, t, 0]), qFromRgb([1, t, 1])], SOFT, 1, [2, 3]);
+      line([qFromRgb([0, 0, t]), qFromRgb([1, 0, t]), qFromRgb([1, 1, t])], SOFT, 1, [2, 3]);
+    }
+    for (const l of cubeWireframe('rgb', srcGamut, srcGamut, nits)) line(l, STRONG, 1.5);
+    line([qFromRgb([0, 0, 0]), qFromRgb([1, 1, 1])], 'rgba(235,235,235,0.5)', 1, [4, 3]);
+    const pct = (v: number) => `${Math.round(v * 100)}`;
+    axis((v) => qFromRgb([v, 0, 0]), steps, pct, 'R′ %', 1.14);
+    axis((v) => qFromRgb([0, v, 0]), steps, pct, 'G′ %', 1.14);
+    axis((v) => qFromRgb([0, 0, v]), steps, pct, 'B′ %', 1.14);
+    label('Weiß', qFromRgb([1.06, 1.06, 1.06]));
+  } else if (c.space === 'ycbcr') {
+    for (const l of cubeWireframe('ycbcr', srcGamut, srcGamut, nits, 24, LUMA[cs])) line(l, STRONG, 1.5);
+    axis((v) => qFromYcc([v, 0, 0]), steps, (v) => `${Math.round(v * 100)}`, 'Y′ %', 1.1);
+    axis((v) => qFromYcc([0.5, v, 0]), [-0.5, -0.25, 0, 0.25, 0.5], (v) => (v ? v.toFixed(2) : ''), 'Cb', 0.6);
+    axis((v) => qFromYcc([0.5, 0, v]), [-0.5, -0.25, 0, 0.25, 0.5], (v) => (v ? v.toFixed(2) : ''), 'Cr', 0.6);
+  } else if (c.space === 'hsv') {
+    for (const l of cubeWireframe('hsv', srcGamut, srcGamut, nits)) line(l, STRONG, 1.5);
+    for (const sv of [0.5, 1]) line(Array.from({ length: 49 }, (_, i) => qFromHsv([(i / 48) * 360, sv, 1])), SOFT, 1, [2, 3]);
+    axis((v) => qFromHsv([0, 0, v]), steps, (v) => `${Math.round(v * 100)}`, 'V %', 1.12);
+    for (const [n, hd] of [['R', 0], ['Yl', 60], ['G', 120], ['Cy', 180], ['B', 240], ['Mg', 300]] as [string, number][]) label(n, qFromHsv([hd, 1.15, 1]));
+  } else if (c.space === 'xyz') {
+    for (const l of cubeWireframe('xyz', c.gamut, srcGamut, nits)) line(l, STRONG, 1.5);
+    axis((v) => qFromXyz([v, 0, 0]), steps, (v) => v.toFixed(2), 'X', 1.14);
+    axis((v) => qFromXyz([0, v, 0]), steps, (v) => v.toFixed(2), 'Y', 1.14);
+    axis((v) => qFromXyz([0, 0, v]), steps, (v) => v.toFixed(2), 'Z', 1.14);
+  } else if (c.space === 'chl') {
+    for (const l of cubeWireframe('chl', c.gamut, srcGamut, nits)) line(l, STRONG, 1.5);
+    axis((v) => qFromChl([0, 0, v]), [0, 90, 180, 270, 360], (v) => `${v}°`, 'h', 380);
+    axis((v) => qFromChl([v, 0, 0]), [0, 25, 50, 75, 100], (v) => `${v}`, 'L*', 112);
+    axis((v) => qFromChl([0, v, 0]), [0, 50, 100], (v) => `${v}`, 'C*', 125);
+  } else if (c.space === 'lab') {
+    for (const l of cubeWireframe('lab', c.gamut, srcGamut, nits)) line(l, STRONG, 1.5);
+    // chroma rings 50 and 100 at L* 50, the a*/b* axes through L* 50
+    for (const ch of [50, 100]) line(Array.from({ length: 49 }, (_, i) => qFromLab([50, ch * Math.cos((i / 48) * 2 * Math.PI), ch * Math.sin((i / 48) * 2 * Math.PI)])), SOFT, 1, [2, 3]);
+    axis((v) => qFromLab([v, 0, 0]), [0, 25, 50, 75, 100], (v) => `${v}`, 'L*', 112);
+    axis((v) => qFromLab([50, v, 0]), [-100, -50, 0, 50, 100], (v) => (v ? `${v}` : ''), 'a*', 122);
+    axis((v) => qFromLab([50, 0, v]), [-100, -50, 0, 50, 100], (v) => (v ? `${v}` : ''), 'b*', 122);
+  } else {
+    for (const l of cubeWireframe('ictcp', c.gamut, srcGamut, nits)) line(l, STRONG, 1.5);
+    axis((v) => qFromIctcp([v, 0, 0]), [0, 0.25, 0.5, 0.75, 1], (v) => v.toFixed(2), 'I', 1.08);
+    axis((v) => qFromIctcp([0.4, v, 0]), [-0.25, 0, 0.25], (v) => (v ? v.toFixed(2) : ''), 'CT', 0.32);
+    axis((v) => qFromIctcp([0.4, 0, v]), [-0.25, 0, 0.25], (v) => (v ? v.toFixed(2) : ''), 'CP', 0.32);
+  }
+  ctx.setLineDash([]);
+  if (probe) { ctx.strokeStyle = '#00dcff'; ctx.lineWidth = 1.5; const [x, y] = P(probe); ctx.beginPath(); ctx.arc(x, y, 5, 0, Math.PI * 2); ctx.stroke(); }
+  ctx.fillStyle = LABEL; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+  ctx.fillText(`${CUBE_SPACE_LABELS[c.space]}${SIGNAL_SPACES.includes(c.space) ? ' · 0–100 %' : ` · Drahtgitter ${GAMUTS[c.gamut].name}`} · ziehen = drehen, ⇧ = schieben, Rad = Zoom`, r.x + 4, r.y + r.h - 4);
+  ctx.restore();
+}
+
+/** waveform level → position inside r along one axis (same mapping as waveY in the shader) */
+const lvl = (v: number, a: number, len: number, flip: boolean) => { const f = (v - WAVE_MIN) / (WAVE_MAX - WAVE_MIN); return flip ? a + (1 - f) * len : a + f * len; };
+
+/**
+ * Saturation over luma (idea: Nobe OmniScope "Sat / Lum"; own implementation): x = Y′, y = length of
+ * the CbCr vector / 0.5 (100 % ≈ a fully saturated primary, 75 % bars ≈ 75 %). Desaturated pixels sit
+ * at the bottom; bulges top right = saturated highlights, top left = coloured shadows.
+ */
+export function drawSatLumGraticule(ctx: CanvasRenderingContext2D, r: Rect) {
+  ctx.save(); ctx.font = FONT; ctx.lineWidth = 1;
+  for (const v of [0, 0.25, 0.5, 0.75, 1]) {
+    const x = Math.round(lvl(v, r.x, r.w, false)) + 0.5;
+    ctx.strokeStyle = v === 0 || v === 1 ? GRID : GRID_DIM; ctx.beginPath(); ctx.moveTo(x, r.y); ctx.lineTo(x, r.y + r.h); ctx.stroke();
+    ctx.fillStyle = LABEL; ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillText(`${v * 100}`, x, r.y + r.h + 3);
+  }
+  for (const s of [0, 0.25, 0.5, 0.75, 1]) {
+    const y = Math.round(r.y + r.h - (s / 1.2) * r.h) + 0.5;
+    ctx.strokeStyle = s === 0 || s === 1 ? GRID : GRID_DIM; ctx.beginPath(); ctx.moveTo(r.x, y); ctx.lineTo(r.x + r.w, y); ctx.stroke();
+    ctx.fillStyle = LABEL; ctx.textAlign = 'right'; ctx.textBaseline = 'middle'; ctx.fillText(`${s * 100}`, r.x - 4, y);
+  }
+  ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillText('Sättigung % (|CbCr|)  über  Luma Y′ %', r.x + 4, r.y + 4);
+  ctx.restore();
+}
+
+export const CHANNEL_PAIRS = ['R′ / G′', 'R′ / B′', 'G′ / B′', 'Y′ / Cb', 'Y′ / Cr', 'Cb / Cr'];
+
+/** Channel plot: two channels as x/y (idea: OmniScope "Channel Plot"); diagonal = equal channels. */
+export function drawChannelPlotGraticule(ctx: CanvasRenderingContext2D, r: Rect, pair: number) {
+  const [nx, ny] = CHANNEL_PAIRS[pair].split(' / ');
+  const chroma = (axis: 0 | 1) => (pair === 5 || (axis === 1 && (pair === 3 || pair === 4)));
+  ctx.save(); ctx.font = FONT; ctx.lineWidth = 1;
+  for (const v of [0, 0.25, 0.5, 0.75, 1]) {
+    const x = Math.round(lvl(v, r.x, r.w, false)) + 0.5, y = Math.round(lvl(v, r.y, r.h, true)) + 0.5;
+    ctx.strokeStyle = v === 0 || v === 1 ? GRID : GRID_DIM;
+    ctx.beginPath(); ctx.moveTo(x, r.y); ctx.lineTo(x, r.y + r.h); ctx.moveTo(r.x, y); ctx.lineTo(r.x + r.w, y); ctx.stroke();
+    ctx.fillStyle = LABEL; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    ctx.fillText(chroma(0) ? (v - 0.5).toFixed(2) : `${v * 100}`, x, r.y + r.h + 3);
+    ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    ctx.fillText(chroma(1) ? (v - 0.5).toFixed(2) : `${v * 100}`, r.x - 4, y);
+  }
+  if (pair < 3) {
+    // neutral: both channels equal
+    ctx.strokeStyle = 'rgba(235,235,235,0.45)'; ctx.setLineDash([4, 3]);
+    ctx.beginPath(); ctx.moveTo(lvl(0, r.x, r.w, false), lvl(0, r.y, r.h, true)); ctx.lineTo(lvl(1, r.x, r.w, false), lvl(1, r.y, r.h, true)); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+  ctx.fillStyle = LABEL; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  ctx.fillText(`${ny} (senkrecht) über ${nx}${pair < 3 ? ' · Diagonale = gleiche Kanäle' : ''}`, r.x + 4, r.y + 4);
+  ctx.restore();
+}
+
+/**
+ * LUT volume points on the overlay: output of every lattice point in its own colour (and the
+ * input lattice as small grey dots), projected like the picture's volume.
+ */
+export function drawLutVolume(ctx: CanvasRenderingContext2D, r: Rect, c: CubeSettings, pts: { inp: number[]; out: number[] }[], q: (rgb: number[]) => number[], showInput: boolean) {
+  const rot = cubeRotation(c.yaw, c.pitch), view = { zoom: c.zoom ?? 1, panX: c.panX ?? 0, panY: c.panY ?? 0 };
+  const P = (v: number[]): [number, number] => { const [x, y] = cubeProject(rot, v, view); return [r.x + (x * 0.5 + 0.5) * r.w, r.y + (0.5 - y * 0.5) * r.h]; };
+  ctx.save();
+  if (showInput) {
+    ctx.fillStyle = 'rgba(200,200,200,0.35)';
+    for (const p of pts) { const [x, y] = P(q(p.inp)); ctx.fillRect(x - 0.5, y - 0.5, 1.5, 1.5); }
+  }
+  const cl = (v: number) => Math.round(Math.max(0, Math.min(1, v)) * 255);
+  for (const p of pts) {
+    const [x, y] = P(q(p.out));
+    ctx.fillStyle = `rgb(${cl(p.out[0])},${cl(p.out[1])},${cl(p.out[2])})`;
+    ctx.fillRect(x - 1.5, y - 1.5, 3, 3);
+  }
+  ctx.restore();
 }

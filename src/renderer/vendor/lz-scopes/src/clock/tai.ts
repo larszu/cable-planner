@@ -1,3 +1,4 @@
+// @ts-nocheck -- vendort aus larszu/lz-scopes, dort geprueft (scripts/lz-scopes-vendor.mjs)
 // TAI − UTC and the SMPTE/PTP epoch.
 //
 // SMPTE ST 2059-1:2021 §6.1: "The SMPTE Epoch shall be 01 January 1970 00:00:00 TAI",

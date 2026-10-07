@@ -1,3 +1,4 @@
+// @ts-nocheck -- vendort aus larszu/lz-scopes, dort geprueft (scripts/lz-scopes-vendor.mjs)
 // Spectrum: radix-2 FFT with a Hann window, levels in dBFS so that a full-scale sine
 // reads 0 dBFS, optional slope in dB/octave around 1 kHz and 1/3-octave bands on the
 // base-10 series fm = 1000 · 10^(k/10), band edges fm · 10^(±1/20).

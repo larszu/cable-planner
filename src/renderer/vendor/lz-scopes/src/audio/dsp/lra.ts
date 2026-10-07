@@ -1,3 +1,4 @@
+// @ts-nocheck -- vendort aus larszu/lz-scopes, dort geprueft (scripts/lz-scopes-vendor.mjs)
 // Loudness Range after EBU Tech 3342 (2023), following the MATLAB reference on p7:
 // short-term values (3 s window, ≥ 10 Hz) → absolute gate −70 LUFS → relative gate
 // −20 LU below the energy mean of the remaining values → 95th − 10th percentile,

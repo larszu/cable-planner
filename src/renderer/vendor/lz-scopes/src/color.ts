@@ -1,3 +1,4 @@
+// @ts-nocheck -- vendort aus larszu/lz-scopes, dort geprueft (scripts/lz-scopes-vendor.mjs)
 // Colour science used by the scopes and graticules. All signal values are normalised
 // R'G'B' / Y' in 0..1 where 0 = black level and 1 = nominal peak (100 %).
 
@@ -268,8 +269,16 @@ export const SPECTRAL_LOCUS: [number, number, number][] = [
   [660, 0.73, 0.27], [680, 0.7334, 0.2666], [700, 0.7347, 0.2653],
 ];
 
-export interface FalseColorBand { from: number; to: number; color: string; label: string }
-/** Signal-level bands in % (ARRI-style exposure false colour). Everything else shows as greyscale. */
+/** One false-colour band: signal level from ≤ Y < to (in %); range = legend text if it differs. */
+export interface FalseColorBand { from: number; to: number; color: string; label: string; range?: string }
+/**
+ * Signal-level bands in % on Y′. Everything else shows as greyscale; where bands overlap the
+ * later one wins. Up to 12 bands (renderer).
+ * - RED: "False Color Video Mode" (docs.red.com 955-0196, Monitor → False Color Video Mode),
+ *   ranges in IRE of the video output, integer IRE inclusive (41–48 = 41 ≤ Y < 49).
+ * - Sony: preset colour palettes of Sony Monitor & Control (helpguide.sony.net/promobile/mc,
+ *   "Shooting Assist Functions" → False color), Pattern1 (SDR) and Pattern2 (S-Log3).
+ */
 export const FALSE_COLOR_PRESETS: Record<string, FalseColorBand[]> = {
   ARRI: [
     { from: 0, to: 2.5, color: '#8a2be2', label: 'Schwarz-Clip' },
@@ -287,7 +296,45 @@ export const FALSE_COLOR_PRESETS: Record<string, FalseColorBand[]> = {
     { from: 90, to: 97, color: '#facc15', label: 'Lichter' },
     { from: 97, to: 100.01, color: '#dc2626', label: 'Clip' },
   ],
+  'RED Video': [
+    { from: -7, to: 5, color: '#7a2fbf', label: 'Violett', range: '0–4' },
+    { from: 5, to: 6, color: '#1f5bff', label: 'Blau', range: '5' },
+    { from: 10, to: 13, color: '#0fa3a3', label: 'Petrol, tiefe Schatten', range: '10–12' },
+    { from: 41, to: 49, color: '#22c55e', label: 'Grün, 18 % Grau', range: '41–48' },
+    { from: 61, to: 71, color: '#ff6ec7', label: 'Rosa, helle Haut', range: '61–70' },
+    { from: 92, to: 94, color: '#e8d98a', label: 'Stroh', range: '92–93' },
+    { from: 94, to: 96, color: '#ffe600', label: 'Gelb', range: '94–95' },
+    { from: 96, to: 99, color: '#ff8c00', label: 'Orange', range: '96–98' },
+    { from: 99, to: 109.01, color: '#ff1f1f', label: 'Rot, Clip', range: '99–100' },
+  ],
+  'Sony SDR': [
+    { from: -7, to: 0, color: '#000000', label: 'Schwarz' },
+    { from: 0, to: 1, color: '#7a2fbf', label: 'Violett' },
+    { from: 1, to: 13, color: '#1f5bff', label: 'Blau' },
+    { from: 13, to: 23, color: '#7fc8ff', label: 'Hellblau' },
+    { from: 43, to: 48, color: '#22c55e', label: 'Grün' },
+    { from: 56, to: 59, color: '#ff6ec7', label: 'Rosa' },
+    { from: 79, to: 84, color: '#00e5ff', label: 'Cyan' },
+    { from: 84, to: 94, color: '#ffe600', label: 'Gelb' },
+    { from: 94, to: 100, color: '#ff8c00', label: 'Orange' },
+    { from: 100, to: 109.01, color: '#ff1f1f', label: 'Rot' },
+  ],
+  'Sony S-Log3': [
+    { from: -7, to: 3.5, color: '#7a2fbf', label: 'Violett' },
+    { from: 3.5, to: 5.6, color: '#1f5bff', label: 'Blau' },
+    { from: 24.6, to: 34.4, color: '#7fc8ff', label: 'Hellblau' },
+    { from: 38.9, to: 42.2, color: '#22c55e', label: 'Grün' },
+    { from: 43.8, to: 46.5, color: '#00e5ff', label: 'Cyan' },
+    { from: 47.8, to: 50.8, color: '#ffb3d9', label: 'Hellrosa' },
+    { from: 54.3, to: 58, color: '#ff6ec7', label: 'Rosa' },
+    { from: 87.7, to: 90.6, color: '#ff8c00', label: 'Orange' },
+    { from: 91.3, to: 93.4, color: '#ffe600', label: 'Gelb' },
+    { from: 93.4, to: 96.1, color: '#ff1f1f', label: 'Rot' },
+  ],
 };
+
+/** Legend text of a band's range. */
+export const bandRange = (b: FalseColorBand) => b.range ?? `${b.from}–${Math.min(100, b.to)}`;
 
 export function hexToRgb(hex: string): [number, number, number] {
   const n = parseInt(hex.replace('#', ''), 16);
@@ -423,3 +470,93 @@ export function bt2390Eetf(e: number, srcPeak: number, tgtPeak: number): number 
   const p = (2 * t3 - 3 * t2 + 1) * ks + (t3 - 2 * t2 + t) * (1 - ks) + (-2 * t3 + 3 * t2) * maxLum;
   return p * range;
 }
+
+// ---------------------------------------------------------------- HDR → SDR preview (picture view)
+
+/** How the picture view shows HDR/log on an SDR display. */
+export type HdrPreview = 'bt2408' | 'bt2446a';
+export const HDR_PREVIEW_LABELS: Record<HdrPreview, string> = {
+  bt2408: 'BT.2408 hybrid-linear (×0,5, BT.2390-Roll-off)',
+  bt2446a: 'BT.2446 Methode A (1000 → 100 cd/m²)',
+};
+/** Luma weights of BT.2020 (BT.2446 Table 2). */
+const K2020 = [0.2627, 0.678, 0.0593];
+
+/**
+ * BT.2446-1 § 4.1 Method A (Tables 2 and 3): display-light HDR → SDR, peak 1000 → 100 cd/m².
+ * @param rgb linear BT.2020 display light, 1.0 = 1000 cd/m²
+ * @returns SDR R′G′B′ (BT.2020, BT.1886 γ 2.4 domain), from Y′CbCr_TMO via BT.2020 Table 4
+ */
+export function bt2446a(rgb: number[]): [number, number, number] {
+  const [R, G, B] = rgb.map((v) => Math.pow(Math.max(0, v), 1 / 2.4));
+  const Y = K2020[0] * R + K2020[1] * G + K2020[2] * B;
+  const rhoH = 1 + 32 * Math.pow(1000 / 10000, 1 / 2.4), rhoS = 1 + 32 * Math.pow(100 / 10000, 1 / 2.4);
+  const Yp = Math.log(1 + (rhoH - 1) * Y) / Math.log(rhoH);
+  const Yc = bt2446aKnee(Yp);
+  const Ys = (Math.pow(rhoS, Yc) - 1) / (rhoS - 1);
+  if (Y <= 0) return [0, 0, 0];
+  const f = Ys / (1.1 * Y);
+  const cb = (f * (B - Y)) / 1.8814, cr = (f * (R - Y)) / 1.4746;
+  const Yt = Ys - Math.max(0.1 * cr, 0);
+  const r = Yt + 1.4746 * cr, b = Yt + 1.8814 * cb;
+  return [r, (Yt - K2020[0] * r - K2020[2] * b) / K2020[1], b];
+}
+/** Tone mapping step 2 of BT.2446 Method A (knee in the perceptual domain). */
+export function bt2446aKnee(yp: number): number {
+  if (yp <= 0.7399) return 1.077 * yp;
+  if (yp < 0.9909) return -1.151 * yp * yp + 2.7811 * yp - 0.6302;
+  return 0.5 * yp + 0.5;
+}
+
+/**
+ * HDR display light → SDR display light for the picture view (BT.2020 primaries).
+ * - bt2408: linear down-mapping with factor 0.5 (BT.2408-8 § 5.2: SDR 100 cd/m² ≙ ≈ 203 cd/m²),
+ *   highlights above the knee rolled off with the BT.2390 EETF (§ 5.4, per channel in PQ) into
+ *   the 100 cd/m² SDR peak; HDR Reference White lands at ≈ 93 % SDR (BT.2408-8 § 7.1.3: 86–95 %).
+ * - bt2446a: BT.2446-1 Method A; sources above 1000 cd/m² are first brought to 1000 cd/m²
+ *   with the BT.2390 EETF.
+ * @param lin linear light, 1.0 = HDR Reference White (203 cd/m²)
+ * @param srcPeak peak of the source in cd/m² (PQ: mastering 1000, HLG: Lw)
+ * @returns linear SDR display light, 1.0 = 100 cd/m² (BT.1886 peak)
+ */
+export function hdrToSdr(lin: number[], mode: HdrPreview, srcPeak: number): number[] {
+  const eetf = (nits: number, from: number, to: number) => pqDecode(bt2390Eetf(pqEncode(Math.max(0, nits)), pqEncode(from), pqEncode(to)));
+  if (mode === 'bt2408') return lin.map((v) => eetf(v * 203 * 0.5, srcPeak * 0.5, 100) / 100);
+  const n = lin.map((v) => (srcPeak > 1000 ? eetf(v * 203, srcPeak, 1000) : Math.min(v * 203, 1000)) / 1000);
+  return bt2446a(n).map((v) => Math.pow(Math.min(1, Math.max(0, v)), 2.4));
+}
+
+/** GLSL twin of hdrToSdr (needs pqEnc/pqNits from chain.ts). uHdrMode 1 = bt2408, 2 = bt2446a. */
+export const HDR_PREVIEW_GLSL = `
+uniform int uHdrMode; uniform float uHdrPeak;
+float prevEetf(float nits, float from, float to) {
+  float range = pqEnc(from), e = pqEnc(nits);
+  float en = clamp(e / range, 0.0, 1.0), maxLum = min(1.0, pqEnc(to) / range);
+  float ks = clamp(1.5 * maxLum - 0.5, 0.0, 1.0);
+  if (en > ks) {
+    float t = min(1.0, (en - ks) / (1.0 - ks + 1e-10)), t2 = t * t, t3 = t2 * t;
+    en = (2.0 * t3 - 3.0 * t2 + 1.0) * ks + (t3 - 2.0 * t2 + t) * (1.0 - ks) + (-2.0 * t3 + 3.0 * t2) * maxLum;
+  }
+  return pqNits(en * range);
+}
+float knee2446(float yp) {
+  if (yp <= 0.7399) return 1.077 * yp;
+  if (yp < 0.9909) return -1.151 * yp * yp + 2.7811 * yp - 0.6302;
+  return 0.5 * yp + 0.5;
+}
+vec3 hdrToSdr(vec3 l) {
+  l = max(l, 0.0);
+  if (uHdrMode == 1) return vec3(prevEetf(l.r * 101.5, uHdrPeak * 0.5, 100.0), prevEetf(l.g * 101.5, uHdrPeak * 0.5, 100.0), prevEetf(l.b * 101.5, uHdrPeak * 0.5, 100.0)) / 100.0;
+  vec3 n = uHdrPeak > 1000.0
+    ? vec3(prevEetf(l.r * 203.0, uHdrPeak, 1000.0), prevEetf(l.g * 203.0, uHdrPeak, 1000.0), prevEetf(l.b * 203.0, uHdrPeak, 1000.0))
+    : min(l * 203.0, vec3(1000.0));
+  vec3 p = pow(n / 1000.0, vec3(1.0 / 2.4));
+  float Y = dot(p, vec3(0.2627, 0.678, 0.0593));
+  if (Y <= 0.0) return vec3(0.0);
+  float rhoH = 1.0 + 32.0 * pow(0.1, 1.0 / 2.4), rhoS = 1.0 + 32.0 * pow(0.01, 1.0 / 2.4);
+  float Ys = (pow(rhoS, knee2446(log(1.0 + (rhoH - 1.0) * Y) / log(rhoH))) - 1.0) / (rhoS - 1.0);
+  float f = Ys / (1.1 * Y), cb = f * (p.b - Y) / 1.8814, cr = f * (p.r - Y) / 1.4746;
+  float Yt = Ys - max(0.1 * cr, 0.0);
+  float r = Yt + 1.4746 * cr, b = Yt + 1.8814 * cb;
+  return pow(clamp(vec3(r, (Yt - 0.2627 * r - 0.0593 * b) / 0.678, b), 0.0, 1.0), vec3(2.4));
+}`;

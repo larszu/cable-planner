@@ -1,3 +1,4 @@
+// @ts-nocheck -- vendort aus larszu/lz-scopes, dort geprueft (scripts/lz-scopes-vendor.mjs)
 // True peak after ITU-R BS.1770-5 Annex 2 (p20): 4× oversampling with the example
 // FIR interpolator of order 48 (4 phases × 12 taps), absolute value, 20·log10.
 // Float processing, so the 12.04 dB attenuation/make-up of the integer path is not needed.

@@ -1,3 +1,4 @@
+// @ts-nocheck -- vendort aus larszu/lz-scopes, dort geprueft (scripts/lz-scopes-vendor.mjs)
 // Per-source processing chain: input (transfer/gamut of the source, incl. camera log) → CST
 // (target gamut + transfer, tone mapping, Bradford) → LUT 1 → LUT 2. Each panel measures at
 // one stage: the raw signal, after the CST or after the LUTs. The GPU runs the same chain in
@@ -176,6 +177,8 @@ export function stageView(src: Source, stage: Stage): Source {
     colorspace: { get: () => c.view.colorspace },
     readPixel: { value: (x: number, y: number) => { const p = src.readPixel(x, y); return p ? (c.apply(p) as [number, number, number]) : null; } },
     stats: { get: (): Stats | null => src.stageStats(c) },
+    r103Stats: { value: () => src.r103Stats(c) },
+    decoder: { value: () => src.decoder() },
   });
   return v;
 }

@@ -1,3 +1,4 @@
+// @ts-nocheck -- vendort aus larszu/lz-scopes, dort geprueft (scripts/lz-scopes-vendor.mjs)
 // Level meters on 10 ms sub-blocks: sample peak, true peak (truepeak.ts), clip counter,
 // correlation of channels 1/2 and a simple polarity indicator. Everything is kept in a
 // 3 s ring so every panel can read its own window without extra state.

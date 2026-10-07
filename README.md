@@ -111,7 +111,10 @@ npm run dist    # installers for macOS / Windows
 LZ Scopes is vendored under `src/renderer/vendor/lz-scopes/`
 ([VENDOR.md](src/renderer/vendor/lz-scopes/VENDOR.md)). Update it with
 `npm run scopes:sync -- --upstream ../lz-scopes`; `npm run scopes:check`
-reports drift from the commit pinned in VENDOR.md (CI job `scopes`).
+reports drift from the commit pinned in VENDOR.md (CI job `scopes`). A daily
+workflow (`scopes-sync.yml`) syncs to upstream `main` on the branch
+`chore/lz-scopes-sync`, runs the gates and reports in the issue
+“lz-scopes: Vendor nachziehen”.
 
 Contributing, maintainer notes and conventions: [CONTRIBUTING.md](CONTRIBUTING.md).
 Architecture: [docs/architecture.md](docs/architecture.md). Everything else in

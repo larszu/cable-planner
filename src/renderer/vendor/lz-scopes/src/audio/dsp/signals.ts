@@ -1,3 +1,4 @@
+// @ts-nocheck -- vendort aus larszu/lz-scopes, dort geprueft (scripts/lz-scopes-vendor.mjs)
 // Tone generator, sample-accurate and without DOM (runs in the AudioWorklet and in vitest).
 //
 // Levels are peak levels in dBFS (1.0 = 0 dBFS). Noise is scaled to the same RMS as a
@@ -9,16 +10,30 @@
 //   Kanal-Ident L/R: 3 s cycle, L 1 kHz 0–0.4 s, R 1 kHz 1.0–1.4 s and 1.6–2.0 s
 //   Polaritätstest: positive half-sine pulse, 1 ms long, every 20 ms, DC removed
 //   A/V-Sync: 1 kHz beep of 80 ms at every whole second of the shared clock
+// Multichannel idents after EBU Tech 3304 (2009, p6–8, opened as PDF):
+//   BLITS (§4.1): L=R 880 Hz, C 1320 Hz, LFE 82.5 Hz, Ls=Rs 660 Hz. Section 1 (0–4.8 s):
+//     one 600 ms burst per channel at −18 dBFS, 200 ms apart, order L, R, C, LFE, Ls, Rs
+//     (Figure 2), then 200 ms silence. Section 2 (4.8–10.2 s): 1 kHz at −18 dBFS, R on for
+//     5.1 s; L on 1 s, off 300 ms, three times on/off 300 ms, then 2 s on; 300 ms silence.
+//     Section 3 (10.2–13.4 s): 2 kHz at −24 dBFS in phase on all channels for 3 s, 200 ms
+//     silence. 13.4 s, repeating. The level setting is the −18 dBFS reference.
+//   EBU multichannel ident (§4.2): 3 s 1 kHz coherent on all main channels, 0.5 s silence,
+//     then each main channel alone for 0.5 s in clockwise order from front left, 0.5 s
+//     apart, a final 1 s of silence; LFE carries 80 Hz continuously. Cycle = 4 s + 1 s
+//     per main channel (Tech 3304: identification 6.0 s for 5.1, 8.0 s for 7.1).
+
+import { channelInfo, clockwiseOrder } from './layouts';
 
 export type Signal =
   | 'sine' | 'square' | 'triangle' | 'saw' | 'white' | 'pink' | 'pink-band' | 'sweep' | 'steps'
-  | 'ebu-ident' | 'glits' | 'ident-lr' | 'polarity' | 'avsync';
+  | 'ebu-ident' | 'glits' | 'ident-lr' | 'polarity' | 'avsync' | 'blits' | 'ebu-multi';
 
 export const SIGNAL_LABELS: Record<Signal, string> = {
   sine: 'Sinus', square: 'Rechteck', triangle: 'Dreieck', saw: 'Sägezahn',
   white: 'Weißes Rauschen', pink: 'Rosa Rauschen', 'pink-band': 'Rosa Rauschen 500–2000 Hz (Tech 3343)',
   sweep: 'Log-Sweep', steps: 'Stufen-Sweep (Terzmitten)',
   'ebu-ident': 'EBU-Stereo-Ident', glits: 'GLITS', 'ident-lr': 'Kanal-Ident L/R', polarity: 'Polaritätstest', avsync: 'A/V-Sync-Piep',
+  blits: 'BLITS (5.1-Ident, Tech 3304)', 'ebu-multi': 'EBU-Mehrkanal-Ident (Tech 3304)',
 };
 
 export interface ChannelRoute { on: boolean; invert: boolean; trim: number }
@@ -34,11 +49,13 @@ export interface GenConfig {
   correlated: boolean;
   routes: ChannelRoute[];
   running: boolean;
+  /** output channels (2 = stereo, 6 = 5.1, 8 = 7.1; ffmpeg/WAV channel order) */
+  channels?: number;
 }
 
 export const DEFAULT_GEN: GenConfig = {
   signal: 'sine', freq: 1000, level: -18, sweepFrom: 20, sweepTo: 20000, sweepSeconds: 10, sweepRepeat: true, stepSeconds: 2,
-  correlated: true, routes: [{ on: true, invert: false, trim: 0 }, { on: true, invert: false, trim: 0 }], running: false,
+  correlated: true, routes: [{ on: true, invert: false, trim: 0 }, { on: true, invert: false, trim: 0 }], running: false, channels: 2,
 };
 
 /** Third-octave centres 1000·10^(k/10) from 20 Hz to 20 kHz (base-10 series, exact values). */
@@ -95,9 +112,7 @@ class Noise {
   private pink = new Pink();
   private band: Biq[];
   private gain = 1;
-  private kind: 'white' | 'pink' | 'pink-band';
-  constructor(seed: number, kind: 'white' | 'pink' | 'pink-band', fs: number, calibrate = true) {
-    this.kind = kind;
+  constructor(seed: number, private kind: 'white' | 'pink' | 'pink-band', fs: number, calibrate = true) {
     this.rng = new Rng(seed);
     // 4th-order Butterworth high-pass 500 Hz and low-pass 2 kHz (two biquads each)
     const q = [0.5411961, 1.3065630];
@@ -122,6 +137,43 @@ class Noise {
 
 const TAU = 2 * Math.PI;
 
+/** BLITS (Tech 3304 §4.1): frequency per channel in 5.1 order L, R, C, LFE, Ls, Rs. */
+export const BLITS_FREQS = [880, 880, 1320, 82.5, 660, 660];
+export const BLITS_CYCLE = 13.4;
+/** BLITS section 2: L is on in these intervals (s after 4.8 s); R on for 5.1 s. */
+export const BLITS_LEFT_ON: [number, number][] = [[0, 1], [1.3, 1.6], [1.9, 2.2], [2.5, 2.8], [3.1, 5.1]];
+
+/** BLITS value of channel ch (5.1 order) at time tc in the cycle, relative to the −18 dBFS reference (1 = reference). */
+export function blitsValue(ch: number, t: number): number {
+  const tc = ((t % BLITS_CYCLE) + BLITS_CYCLE) % BLITS_CYCLE;
+  if (tc < 4.8) {
+    const k = Math.floor(tc / 0.8), u = tc - k * 0.8;
+    return k === ch && k < 6 && u < 0.6 ? Math.sin(TAU * BLITS_FREQS[ch] * tc) : 0;
+  }
+  if (tc < 10.2) {
+    const u = tc - 4.8;
+    if (u >= 5.1 || ch > 1) return 0;
+    const on = ch === 1 || BLITS_LEFT_ON.some(([a, b]) => u >= a && u < b);
+    return on ? Math.sin(TAU * 1000 * tc) : 0;
+  }
+  const u = tc - 10.2;
+  return u < 3 ? 0.5011872336272722 * Math.sin(TAU * 2000 * tc) : 0; // −24 dBFS = −6 dB re −18
+}
+
+/** EBU multichannel ident (Tech 3304 §4.2): cycle length in s for m main channels. */
+export const ebuMultiCycle = (mains: number) => 4 + mains;
+
+/** EBU multichannel ident value of channel ch at time t (relative to the line-up level). */
+export function ebuMultiValue(ch: number, t: number, order: number[], lfe: number[]): number {
+  if (lfe.includes(ch)) return Math.sin(TAU * 80 * t);
+  const T = ebuMultiCycle(order.length), tc = ((t % T) + T) % T;
+  const tone = Math.sin(TAU * 1000 * tc);
+  if (tc < 3) return tone;
+  if (tc < 3.5) return 0;
+  const k = Math.floor(tc - 3.5), u = tc - 3.5 - k;
+  return k < order.length && u < 0.5 && order[k] === ch ? tone : 0;
+}
+
 export class ToneGenerator {
   readonly fs: number;
   readonly channels: number;
@@ -136,9 +188,14 @@ export class ToneGenerator {
   private noise: Noise[] = [];
   private noiseKind = '';
   private polarityDc = 0;
+  private order: number[];
+  private lfe: number[];
 
   constructor(fs: number, channels = 2, cfg: GenConfig = DEFAULT_GEN) {
     this.fs = fs; this.channels = channels;
+    const info = channelInfo(channels);
+    this.order = clockwiseOrder(info);
+    this.lfe = info.map((c, i) => (c.lfe ? i : -1)).filter((i) => i >= 0);
     this.cfg = clone(cfg);
     this.gain = Array(channels).fill(0);
     this.avPeriod = fs;
@@ -218,6 +275,12 @@ export class ToneGenerator {
         case 'polarity': {
           const cyc = tc % 0.02;
           v = (cyc < 0.001 ? Math.sin((Math.PI * cyc) / 0.001) : 0) - this.polarityDc;
+          break;
+        }
+        case 'blits': case 'ebu-multi': {
+          gate = Array(this.channels);
+          for (let ch = 0; ch < this.channels; ch++) gate[ch] = c.signal === 'blits' ? blitsValue(ch, tc) : ebuMultiValue(ch, tc, this.order, this.lfe);
+          v = 1;
           break;
         }
         case 'avsync': {

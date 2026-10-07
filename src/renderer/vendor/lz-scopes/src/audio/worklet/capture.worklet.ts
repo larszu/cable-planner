@@ -1,3 +1,4 @@
+// @ts-nocheck -- vendort aus larszu/lz-scopes, dort geprueft (scripts/lz-scopes-vendor.mjs)
 // Capture tap: forwards every input sample to the main thread in blocks of 2048 frames
 // (planar Float32Arrays, transferred). The DSP runs on the main thread on the same code
 // path as bridge PCM, so all sources measure identically.
