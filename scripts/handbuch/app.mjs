@@ -25,7 +25,7 @@
 
 import { _electron as electron } from 'playwright-core'
 import { erststartOverlayWeg } from '../lib/erststartOverlay.mjs'
-import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -68,9 +68,44 @@ const MODULE = [...readFileSync(join(WURZEL, 'src', 'renderer', 'lib', 'modules.
   .replace(/\/\/.*$/gm, '')
   .matchAll(/(\w+)\s*:/g)].map((m) => m[1])
 
+const SPERRE = join(tmpdir(), 'cp-handbuch.sperre')
+
+/**
+ * Nur EINE App-Instanz gleichzeitig. Neun parallele Instanzen haben sich am
+ * 28.09. gegenseitig ausgebremst (Zeitüberschreitungen, hängende Klicks). Die
+ * Sperre ist ein Ordner (mkdir ist atomar) mit der PID des Halters; ein toter
+ * Halter wird übergangen.
+ */
+async function sperreNehmen() {
+  for (;;) {
+    try {
+      mkdirSync(SPERRE)
+      writeFileSync(join(SPERRE, 'pid'), String(process.pid))
+      return
+    } catch {
+      let tot = false
+      try {
+        process.kill(Number(readFileSync(join(SPERRE, 'pid'), 'utf8')), 0)
+      } catch {
+        tot = true
+      }
+      if (tot) rmSync(SPERRE, { recursive: true, force: true })
+      else await new Promise((r) => setTimeout(r, 2000))
+    }
+  }
+}
+const sperreLoesen = () => {
+  try {
+    if (readFileSync(join(SPERRE, 'pid'), 'utf8') === String(process.pid)) rmSync(SPERRE, { recursive: true, force: true })
+  } catch {}
+}
+process.on('exit', sperreLoesen)
+for (const sig of ['SIGINT', 'SIGTERM']) process.on(sig, () => process.exit(1))
+
 const escRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
-export async function starte({ sprache = 'de', breite = 1500, hoehe = 950, thema = 'light', sichtbar = false } = {}) {
+export async function starte({ sprache = 'de', breite = 1400, hoehe = 900, thema = 'light', sichtbar = false } = {}) {
+  await sperreNehmen()
   const profil = mkdtempSync(join(tmpdir(), 'cp-handbuch-'))
   const app = await electron.launch({
     args: ['.', `--user-data-dir=${profil}`, '--no-sandbox', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'],
@@ -173,6 +208,27 @@ export async function starte({ sprache = 'de', breite = 1500, hoehe = 950, thema
     throw new Error(`nicht gefunden: ${schluessel} → ${m}`)
   }
 
+  /** Klick auf sichtbaren Text oder Rollenname, der nicht als i18n-Schlüssel vorliegt (dynamische Reiter, Listeneinträge). */
+  const klickText = async (regex, { rolle } = {}) => {
+    const m = regex instanceof RegExp ? regex : new RegExp(escRe(regex), 'i')
+    const kandidaten = rolle ? [win.getByRole(rolle, { name: m })] : [
+      win.getByRole('tab', { name: m }), win.getByRole('button', { name: m }), win.getByRole('menuitem', { name: m }),
+      win.getByRole('option', { name: m }), win.getByRole('checkbox', { name: m }), win.getByText(m),
+    ]
+    for (const k of kandidaten) {
+      const n = await k.count()
+      for (let i = 0; i < n; i += 1) {
+        const el = k.nth(i)
+        if (await el.isVisible().catch(() => false)) {
+          await el.click({ timeout: 5000 }).catch(() => el.click({ timeout: 5000, force: true }))
+          await win.waitForTimeout(600)
+          return true
+        }
+      }
+    }
+    throw new Error(`Text nicht gefunden: ${m}`)
+  }
+
   /** Menüpfad öffnen: menue('app.menu.tools', 'app.menu.tools.patchList'). Untermenüs per Hover. */
   const menue = async (...pfad) => {
     await zu()
@@ -210,10 +266,50 @@ export async function starte({ sprache = 'de', breite = 1500, hoehe = 950, thema
     const ordner = join(BILDER, sprache)
     mkdirSync(ordner, { recursive: true })
     const pfad = join(ordner, `${name}.jpg`)
-    const opt = { path: pfad, type: 'jpeg', quality: 78, animations: 'disabled' }
+    const opt = { path: pfad, type: 'jpeg', quality: 62, animations: 'disabled' }
     if (ziel && (await ziel.count().catch(() => 0))) await ziel.first().screenshot(opt)
     else await win.screenshot(opt)
     return pfad
+  }
+
+  /**
+   * Schrittfolge für eine Anleitung: jeder Schritt tut etwas und bekommt danach
+   * sein Bild `<praefix>-<nn>-<name>.jpg`. Rückgabe: Liste { nr, name, datei,
+   * text } — `text` ist der sichtbare Dialogtext nach dem Schritt und die
+   * Grundlage für die Beschreibung. Ein Fehler in einem Schritt bricht die Folge
+   * nicht ab, er landet in `fehler`.
+   *
+   *   const f = a.folge('geraet-anlegen')
+   *   await f.schritt('name-eintippen', async () => { ... }, { ziel: a.dialog() })
+   */
+  const folge = (praefix) => {
+    const schritte = []
+    const fehler = []
+    let nr = 0
+    return {
+      schritte,
+      fehler,
+      async schritt(name, tun, { ziel, pause = 500 } = {}) {
+        nr += 1
+        const nn = String(nr).padStart(2, '0')
+        try {
+          if (tun) await tun()
+          await win.waitForTimeout(pause)
+          const datei = await bild(`${praefix}-${nn}-${name}`, typeof ziel === 'function' ? ziel() : ziel)
+          const text = (await dialogText()) || ''
+          schritte.push({ nr, name, datei: `${praefix}-${nn}-${name}.jpg`, text: text.slice(0, 1500) })
+          console.log(`✓ ${praefix} ${nn} ${name}`)
+        } catch (e) {
+          fehler.push(`${nn} ${name}: ${e.message.split('\n')[0]}`)
+          console.log(`✗ ${praefix} ${nn} ${name}: ${e.message.split('\n')[0]}`)
+        }
+      },
+      /** Ergebnis als JSON neben das Skript schreiben. */
+      speichern(datei) {
+        writeFileSync(datei, JSON.stringify({ schritte, fehler }, null, 2))
+        if (fehler.length) console.log('Fehler:\n' + fehler.join('\n'))
+      },
+    }
   }
 
   // Sprache und Thema direkt im gespeicherten UI-Zustand setzen und neu laden —
@@ -248,7 +344,8 @@ export async function starte({ sprache = 'de', breite = 1500, hoehe = 950, thema
   const ende = async () => {
     await app.close().catch(() => {})
     rmSync(profil, { recursive: true, force: true })
+    sperreLoesen()
   }
 
-  return { app, win, sprache, text, muster, klick, menue, palette, zu, dialog, menueFeld, dialogText, bild, ende }
+  return { app, win, sprache, text, muster, klick, klickText, folge, menue, palette, zu, dialog, menueFeld, dialogText, bild, ende }
 }

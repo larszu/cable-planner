@@ -1,7 +1,662 @@
 {
-  "vorlagen": "Neu aus Vorlage\n\nMitgelieferte Show-Setups oder eigene gespeicherte Vorlagen als Startpunkt. mehr\n\nAktuelles Projekt als Vorlage\nAs-Built als Vorlage\nMITGELIEFERTE VORLAGEN\nOB van\nÜbertragungswagen mit Bühne und FOH — getrennte Standort-Rahmen.\n0 Geräte · 0 Kabel · 2 Standorte\nVerwenden\nTV-Studio\nStudio mit Regie und Studioboden.\n0 Geräte · 0 Kabel · 2 Standorte\nVerwenden\nLive stage\nBühne, FOH und Monitorwelt für Live-Events.\n0 Geräte · 0 Kabel · 3 Standorte\nVerwenden\nKonferenz / Corporate\nSaal und Regie für Tagungen und Corporate-Events.\n0 Geräte · 0 Kabel · 2 Standorte\nVerwenden\nHouses of Worship\nAltarraum/Bühne und Technikempore für Gottesdienste.\n0 Geräte · 0 Kabel · 2 Standorte\nVerwenden\nEIGENE VORLAGEN\n\nNoch keine eigenen Vorlagen. Speichere ein Projekt über „Aktuelles Projekt als Vorlage“.",
-  "graphml": "yEd / GraphML importieren\n\nyEd / GraphML Importer\n\nWähle eine .graphml Datei. LZ Cable Planner erkennt Geräte, Ports und Kabel automatisch — du bekommst eine Vorschau und kannst einzelne Einträge ein- oder ausschließen, bevor sie ins Projekt übernommen werden.\n\nDatei auswählen…",
-  "csv": "Equipment aus CSV importieren\n\nCSV einfügen oder Datei wählen. mehr\n\nCSV-Datei wählen…\nAbbrechen\n0 importieren",
-  "rentman": "Aus Rentman importieren\nSchließen\nProjekte laden\nNoch keine Projekte geladen\nSortierung:\n# ↓\n# ↑\nDatum ↓\nDatum ↑\nError invoking remote method 'rentman:get-projects': Error: No Rentman token configured. Open Settings and add one.",
-  "netbox": "NetBox-Import\nBitte zuerst unter Einstellungen → Integrationen → NetBox die Instanz-URL und ein API-Token hinterlegen.\nKeine NetBox-URL konfiguriert\nAbbrechen\nVorschau erstellen"
+  "schritte": [
+    {
+      "nr": 2,
+      "name": "menue-eintrag-neu",
+      "datei": "datei-import-02-menue-eintrag-neu.jpg",
+      "text": ""
+    },
+    {
+      "nr": 4,
+      "name": "vorlagen-dialog",
+      "datei": "datei-import-04-vorlagen-dialog.jpg",
+      "text": "Neu aus Vorlage\n\nMitgelieferte Show-Setups oder eigene gespeicherte Vorlagen als Startpunkt. mehr\n\nAktuelles Projekt als Vorlage\nAs-Built als Vorlage\nMITGELIEFERTE VORLAGEN\nOB van\nÜbertragungswagen mit Bühne und FOH — getrennte Standort-Rahmen.\n0 Geräte · 0 Kabel · 2 Standorte\nVerwenden\nTV-Studio\nStudio mit Regie und Studioboden.\n0 Geräte · 0 Kabel · 2 Standorte\nVerwenden\nLive stage\nBühne, FOH und Monitorwelt für Live-Events.\n0 Geräte · 0 Kabel · 3 Standorte\nVerwenden\nKonferenz / Corporate\nSaal und Regie für Tagungen und Corporate-Events.\n0 Geräte · 0 Kabel · 2 Standorte\nVerwenden\nHouses of Worship\nAltarraum/Bühne und Technikempore für Gottesdienste.\n0 Geräte · 0 Kabel · 2 Standorte\nVerwenden\nEIGENE VORLAGEN\n\nNoch keine eigenen Vorlagen. Speichere ein Projekt über „Aktuelles Projekt als Vorlage“."
+    },
+    {
+      "nr": 5,
+      "name": "vorlagen-as-built-frage",
+      "datei": "datei-import-05-vorlagen-as-built-frage.jpg",
+      "text": "Name der Vorlage (aus dem As-Built)\nAbbrechen\nOK"
+    },
+    {
+      "nr": 6,
+      "name": "vorlagen-as-built-abgelehnt",
+      "datei": "datei-import-06-vorlagen-as-built-abgelehnt.jpg",
+      "text": "Kein As-Built festgeschrieben\nEs ist nichts als „wie gebaut\" festgeschrieben. Schreibe zuerst eine As-Built-Revision fest — sonst wäre die Vorlage der Plan von vor dem Aufbau, nur mit einem anderen Namen.\nOK"
+    },
+    {
+      "nr": 7,
+      "name": "speichern-unter",
+      "datei": "datei-import-07-speichern-unter.jpg",
+      "text": ""
+    },
+    {
+      "nr": 8,
+      "name": "speichern-erneut",
+      "datei": "datei-import-08-speichern-erneut.jpg",
+      "text": ""
+    },
+    {
+      "nr": 9,
+      "name": "speichern-unter-zweiter-name",
+      "datei": "datei-import-09-speichern-unter-zweiter-name.jpg",
+      "text": ""
+    },
+    {
+      "nr": 10,
+      "name": "oeffnen-menue",
+      "datei": "datei-import-10-oeffnen-menue.jpg",
+      "text": ""
+    },
+    {
+      "nr": 11,
+      "name": "oeffnen-geladen",
+      "datei": "datei-import-11-oeffnen-geladen.jpg",
+      "text": ""
+    },
+    {
+      "nr": 12,
+      "name": "oeffnen-kein-plan",
+      "datei": "datei-import-12-oeffnen-kein-plan.jpg",
+      "text": "Diese Datei ist kein LZ-Cable-Planner-Projekt\nDie Datei ließ sich lesen, enthält aber keine Geräte- und Kabel-Liste. \nOK"
+    },
+    {
+      "nr": 13,
+      "name": "oeffnen-viewer-name",
+      "datei": "datei-import-13-oeffnen-viewer-name.jpg",
+      "text": "Viewer-Datei — Name eingeben\nAbbrechen\nOK"
+    },
+    {
+      "nr": 14,
+      "name": "oeffnen-viewer-name-leer",
+      "datei": "datei-import-14-oeffnen-viewer-name-leer.jpg",
+      "text": "Name fehlt\nOhne Namen können keine Anmerkungen gemacht werden. Die Datei wird nicht geladen.\nOK"
+    },
+    {
+      "nr": 15,
+      "name": "oeffnen-ladebericht",
+      "datei": "datei-import-15-oeffnen-ladebericht.jpg",
+      "text": ""
+    },
+    {
+      "nr": 16,
+      "name": "graphml-dialog-leer",
+      "datei": "datei-import-16-graphml-dialog-leer.jpg",
+      "text": "yEd / GraphML importieren\n\nyEd / GraphML Importer\n\nWähle eine .graphml Datei. LZ Cable Planner erkennt Geräte, Ports und Kabel automatisch — du bekommst eine Vorschau und kannst einzelne Einträge ein- oder ausschließen, bevor sie ins Projekt übernommen werden.\n\nDatei auswählen…"
+    },
+    {
+      "nr": 17,
+      "name": "graphml-vorschau-yed",
+      "datei": "datei-import-17-graphml-vorschau-yed.jpg",
+      "text": "yEd / GraphML importieren\nDATEI beispiel.graphml4.1 KB • 10 Nodes • 3 Edges\nAndere Datei\nGeräte: 4/4\nKabel: 2/2\nÜbersprungen: 1\nEdges ohne Ziel: 1\nZiel:\nCanvas\nLibrary\nModus:\nAn Projekt anhängen\nGraphML-Import ersetzen\nyEd-Vorschau\nGeräte (4)\nKabel (2)\nÜbersprungen (2)\nKamera 1\nSDI OUT\nBildmischer\nSDI IN 1\nSDI IN 2\nPGM OUT\nMonitor\nHDMI IN\nPatchfeld\nLegende\n＋\n−\nReset\n100%\nMausrad zoomt · Ziehen verschiebt · 10 Nodes · 3 Edges\nAbbrechen\n4 Geräte & 2 Kabel auf Canvas importieren"
+    },
+    {
+      "nr": 18,
+      "name": "graphml-reiter-geraete",
+      "datei": "datei-import-18-graphml-reiter-geraete.jpg",
+      "text": "yEd / GraphML importieren\nDATEI beispiel.graphml4.1 KB • 10 Nodes • 3 Edges\nAndere Datei\nGeräte: 4/4\nKabel: 2/2\nÜbersprungen: 1\nEdges ohne Ziel: 1\nZiel:\nCanvas\nLibrary\nModus:\nAn Projekt anhängen\nGraphML-Import ersetzen\nyEd-Vorschau\nGeräte (4)\nKabel (2)\nÜbersprungen (2)\n\tName\tKategorie\tIP\tIn/Out\tStatus\n\t\t\t10.0.0.11\t0/1\tHIGH\n\t\t\t10.0.0.20\t2/1\tHIGH\n\t\t\t—\t1/0\tHIGH\n\t\t\t—\t0/0\tMEDNo ports detected — the diagram drew this devic…\nAbbrechen\n4 Geräte & 2 Kabel auf Canvas importieren"
+    },
+    {
+      "nr": 19,
+      "name": "graphml-geraet-abgewaehlt",
+      "datei": "datei-import-19-graphml-geraet-abgewaehlt.jpg",
+      "text": "yEd / GraphML importieren\nDATEI beispiel.graphml4.1 KB • 10 Nodes • 3 Edges\nAndere Datei\nGeräte: 3/4\nKabel: 2/2\nÜbersprungen: 1\nEdges ohne Ziel: 1\nZiel:\nCanvas\nLibrary\nModus:\nAn Projekt anhängen\nGraphML-Import ersetzen\nyEd-Vorschau\nGeräte (4)\nKabel (2)\nÜbersprungen (2)\n\tName\tKategorie\tIP\tIn/Out\tStatus\n\t\t\t10.0.0.11\t0/1\tHIGH\n\t\t\t10.0.0.20\t2/1\tHIGH\n\t\t\t—\t1/0\tHIGH\n\t\t\t—\t0/0\tMEDNo ports detected — the diagram drew this devic…\nAbbrechen\n3 Geräte & 2 Kabel auf Canvas importieren"
+    },
+    {
+      "nr": 20,
+      "name": "graphml-geraet-umbenannt",
+      "datei": "datei-import-20-graphml-geraet-umbenannt.jpg",
+      "text": "yEd / GraphML importieren\nDATEI beispiel.graphml4.1 KB • 10 Nodes • 3 Edges\nAndere Datei\nGeräte: 3/4\nKabel: 2/2\nÜbersprungen: 1\nEdges ohne Ziel: 1\nZiel:\nCanvas\nLibrary\nModus:\nAn Projekt anhängen\nGraphML-Import ersetzen\nyEd-Vorschau\nGeräte (4)\nKabel (2)\nÜbersprungen (2)\n\tName\tKategorie\tIP\tIn/Out\tStatus\n\t\t\t10.0.0.11\t0/1\tHIGH\n\t\t\t10.0.0.20\t2/1\tHIGH\n\t\t\t—\t1/0\tHIGH\n\t\t\t—\t0/0\tMEDNo ports detected — the diagram drew this devic…\nAbbrechen\n3 Geräte & 2 Kabel auf Canvas importieren"
+    },
+    {
+      "nr": 21,
+      "name": "graphml-reiter-kabel",
+      "datei": "datei-import-21-graphml-reiter-kabel.jpg",
+      "text": "yEd / GraphML importieren\nDATEI beispiel.graphml4.1 KB • 10 Nodes • 3 Edges\nAndere Datei\nGeräte: 3/4\nKabel: 2/2\nÜbersprungen: 1\nEdges ohne Ziel: 1\nZiel:\nCanvas\nLibrary\nModus:\nAn Projekt anhängen\nGraphML-Import ersetzen\nyEd-Vorschau\nGeräte (4)\nKabel (2)\nÜbersprungen (2)\n\tQuelle\tZiel\tTyp\tStandard\tLänge\n\tKamera 1\tBildmischer\tBNC\t—\t25 m\n\tBildmischer\tMonitor\tHDMI\t—\t5 m\nAbbrechen\n3 Geräte & 2 Kabel auf Canvas importieren"
+    },
+    {
+      "nr": 22,
+      "name": "graphml-kabel-abgewaehlt",
+      "datei": "datei-import-22-graphml-kabel-abgewaehlt.jpg",
+      "text": "yEd / GraphML importieren\nDATEI beispiel.graphml4.1 KB • 10 Nodes • 3 Edges\nAndere Datei\nGeräte: 3/4\nKabel: 1/2\nÜbersprungen: 1\nEdges ohne Ziel: 1\nZiel:\nCanvas\nLibrary\nModus:\nAn Projekt anhängen\nGraphML-Import ersetzen\nyEd-Vorschau\nGeräte (4)\nKabel (2)\nÜbersprungen (2)\n\tQuelle\tZiel\tTyp\tStandard\tLänge\n\tKamera 1\tBildmischer\tBNC\t—\t25 m\n\tBildmischer\tMonitor\tHDMI\t—\t5 m\nAbbrechen\n3 Geräte & 1 Kabel auf Canvas importieren"
+    },
+    {
+      "nr": 23,
+      "name": "graphml-filter",
+      "datei": "datei-import-23-graphml-filter.jpg",
+      "text": "yEd / GraphML importieren\nDATEI beispiel.graphml4.1 KB • 10 Nodes • 3 Edges\nAndere Datei\nGeräte: 3/4\nKabel: 1/2\nÜbersprungen: 1\nEdges ohne Ziel: 1\nZiel:\nCanvas\nLibrary\nModus:\nAn Projekt anhängen\nGraphML-Import ersetzen\nyEd-Vorschau\nGeräte (4)\nKabel (2)\nÜbersprungen (2)\n\tQuelle\tZiel\tTyp\tStandard\tLänge\nAbbrechen\n3 Geräte & 1 Kabel auf Canvas importieren"
+    },
+    {
+      "nr": 24,
+      "name": "graphml-reiter-uebersprungen",
+      "datei": "datei-import-24-graphml-reiter-uebersprungen.jpg",
+      "text": "yEd / GraphML importieren\nDATEI beispiel.graphml4.1 KB • 10 Nodes • 3 Edges\nAndere Datei\nGeräte: 3/4\nKabel: 1/2\nÜbersprungen: 1\nEdges ohne Ziel: 1\nZiel:\nCanvas\nLibrary\nModus:\nAn Projekt anhängen\nGraphML-Import ersetzen\nyEd-Vorschau\nGeräte (4)\nKabel (2)\nÜbersprungen (2)\nNodes übersprungen (1)\nn5 — Decorative shape\nEdges ohne aufgelöste Ports (1)\ne3: n5 → n1a\nAbbrechen\n3 Geräte & 1 Kabel auf Canvas importieren"
+    },
+    {
+      "nr": 25,
+      "name": "graphml-ziel-bibliothek",
+      "datei": "datei-import-25-graphml-ziel-bibliothek.jpg",
+      "text": "yEd / GraphML importieren\nDATEI beispiel.graphml4.1 KB • 10 Nodes • 3 Edges\nAndere Datei\nGeräte: 3/4\nKabel: 1/2\nÜbersprungen: 1\nEdges ohne Ziel: 1\nZiel:\nCanvas\nLibrary\nLibrary-Modus: Geräte werden als wiederverwendbare Vorlagen in die lokale Library gespeichert. Kabel werden nicht mit übernommen (Templates enthalten keine Verkabelung).\nyEd-Vorschau\nGeräte (4)\nKabel (2)\nÜbersprungen (2)\n\tName\tKategorie\tIP\tIn/Out\tStatus\n\t\t\t10.0.0.11\t0/1\tHIGH\n\t\t\t10.0.0.20\t2/1\tHIGH\n\t\t\t—\t1/0\tHIGH\n\t\t\t—\t0/0\tMEDNo ports detected — the diagram drew this devic…\nAbbrechen\n3 Geräte in Library übernehmen"
+    },
+    {
+      "nr": 26,
+      "name": "graphml-ziel-canvas-ersetzen",
+      "datei": "datei-import-26-graphml-ziel-canvas-ersetzen.jpg",
+      "text": "yEd / GraphML importieren\nDATEI beispiel.graphml4.1 KB • 10 Nodes • 3 Edges\nAndere Datei\nGeräte: 3/4\nKabel: 1/2\nÜbersprungen: 1\nEdges ohne Ziel: 1\nZiel:\nCanvas\nLibrary\nModus:\nAn Projekt anhängen\nGraphML-Import ersetzen\nyEd-Vorschau\nGeräte (4)\nKabel (2)\nÜbersprungen (2)\n\tName\tKategorie\tIP\tIn/Out\tStatus\n\t\t\t10.0.0.11\t0/1\tHIGH\n\t\t\t10.0.0.20\t2/1\tHIGH\n\t\t\t—\t1/0\tHIGH\n\t\t\t—\t0/0\tMEDNo ports detected — the diagram drew this devic…\nAbbrechen\n3 Geräte & 1 Kabel auf Canvas importieren"
+    },
+    {
+      "nr": 27,
+      "name": "graphml-andere-datei",
+      "datei": "datei-import-27-graphml-andere-datei.jpg",
+      "text": "yEd / GraphML importieren\n\nyEd / GraphML Importer\n\nWähle eine .graphml Datei. LZ Cable Planner erkennt Geräte, Ports und Kabel automatisch — du bekommst eine Vorschau und kannst einzelne Einträge ein- oder ausschließen, bevor sie ins Projekt übernommen werden.\n\nDatei auswählen…"
+    },
+    {
+      "nr": 28,
+      "name": "graphml-erneut-gewaehlt",
+      "datei": "datei-import-28-graphml-erneut-gewaehlt.jpg",
+      "text": "yEd / GraphML importieren\nDATEI beispiel.graphml4.1 KB • 10 Nodes • 3 Edges\nAndere Datei\nGeräte: 4/4\nKabel: 2/2\nÜbersprungen: 1\nEdges ohne Ziel: 1\nZiel:\nCanvas\nLibrary\nModus:\nAn Projekt anhängen\nGraphML-Import ersetzen\nyEd-Vorschau\nGeräte (4)\nKabel (2)\nÜbersprungen (2)\n\tName\tKategorie\tIP\tIn/Out\tStatus\n\t\t\t10.0.0.11\t0/1\tHIGH\n\t\t\t10.0.0.20\t2/1\tHIGH\n\t\t\t—\t1/0\tHIGH\n\t\t\t—\t0/0\tMEDNo ports detected — the diagram drew this devic…\nAbbrechen\n4 Geräte & 2 Kabel auf Canvas importieren"
+    },
+    {
+      "nr": 29,
+      "name": "graphml-hintergrund-rueckfrage",
+      "datei": "datei-import-29-graphml-hintergrund-rueckfrage.jpg",
+      "text": "Import verwerfen?\nWas hier noch nicht übernommen wurde, geht dabei verloren.\nWeiter bearbeiten\nVerwerfen"
+    },
+    {
+      "nr": 30,
+      "name": "csv-dialog-leer",
+      "datei": "datei-import-30-csv-dialog-leer.jpg",
+      "text": "Equipment aus CSV importieren\n\nCSV einfügen oder Datei wählen. mehr\n\nCSV-Datei wählen…\nAbbrechen\n0 importieren"
+    },
+    {
+      "nr": 31,
+      "name": "csv-eingefuegt",
+      "datei": "datei-import-31-csv-eingefuegt.jpg",
+      "text": "Equipment aus CSV importieren\n\nCSV einfügen oder Datei wählen. mehr\n\nCSV-Datei wählen…\nErkannt: 2 Zeile(n), zugeordnete Spalten: name, category, watts, weight, serial, ip, rackUnits, subtitle\nWas mit dem Rest passiert\nNicht als Feld erkannt, wandert in die Notizen: Verantwortlich, Kundennotiz\nZweite Spalte auf dasselbe Feld — die erste gewinnt, diese wird zur Notiz: Name (name)\n1 Zeile(n) ohne Namen werden übersprungen: 4\n1 Name(n) gibt es schon — sie bleiben unverändert, es wird nichts überschrieben: Monitor 24\nName\tKategorie\tW\tkg\tHE\nATEM Mini Pro\tMischer\t30\t1.1\t1\nMonitor 24\tMonitore\t45\t3.2\t\nAbbrechen\n2 importieren"
+    },
+    {
+      "nr": 32,
+      "name": "csv-import-ergebnis",
+      "datei": "datei-import-32-csv-import-ergebnis.jpg",
+      "text": "CSV importiert\n2 Gerät(e) neu angelegt. Unverändert geblieben: 1 bereits vorhandene(r) Name(n). Übersprungen: 1 Zeile(n) ohne Namen.\nOK"
+    },
+    {
+      "nr": 33,
+      "name": "csv-in-bibliothek",
+      "datei": "datei-import-33-csv-in-bibliothek.jpg",
+      "text": ""
+    },
+    {
+      "nr": 34,
+      "name": "csv-zweiter-import-vorhanden",
+      "datei": "datei-import-34-csv-zweiter-import-vorhanden.jpg",
+      "text": "Equipment aus CSV importieren\n\nCSV einfügen oder Datei wählen. mehr\n\nCSV-Datei wählen…\nErkannt: 0 Zeile(n), zugeordnete Spalten: name, category, watts, weight, serial, ip, rackUnits, subtitle\nWas mit dem Rest passiert\nNicht als Feld erkannt, wandert in die Notizen: Verantwortlich, Kundennotiz\nZweite Spalte auf dasselbe Feld — die erste gewinnt, diese wird zur Notiz: Name (name)\n1 Zeile(n) ohne Namen werden übersprungen: 4\n2 Name(n) gibt es schon — sie bleiben unverändert, es wird nichts überschrieben: ATEM Mini Pro, Monitor 24\nName\tKategorie\tW\tkg\tHE\nAbbrechen\n0 importieren"
+    },
+    {
+      "nr": 35,
+      "name": "csv-datei-gewaehlt",
+      "datei": "datei-import-35-csv-datei-gewaehlt.jpg",
+      "text": "Equipment aus CSV importieren\n\nCSV einfügen oder Datei wählen. mehr\n\nCSV-Datei wählen…\nErkannt: 1 Zeile(n), zugeordnete Spalten: name, category, watts, weight\nName\tKategorie\tW\tkg\tHE\nVideohub 12x12\tRouter\t20\t1.5\t\nAbbrechen\n1 importieren"
+    },
+    {
+      "nr": 36,
+      "name": "csv-abbrechen",
+      "datei": "datei-import-36-csv-abbrechen.jpg",
+      "text": ""
+    },
+    {
+      "nr": 37,
+      "name": "multicam-menue",
+      "datei": "datei-import-37-multicam-menue.jpg",
+      "text": ""
+    },
+    {
+      "nr": 38,
+      "name": "multicam-erster-import",
+      "datei": "datei-import-38-multicam-erster-import.jpg",
+      "text": "MultiCam-Kameras: 2 neu, 0 aktualisiert, 0 unverändert.\nOK"
+    },
+    {
+      "nr": 39,
+      "name": "multicam-canvas",
+      "datei": "datei-import-39-multicam-canvas.jpg",
+      "text": ""
+    },
+    {
+      "nr": 40,
+      "name": "multicam-zweiter-import",
+      "datei": "datei-import-40-multicam-zweiter-import.jpg",
+      "text": "MultiCam-Kameras: 1 neu, 1 aktualisiert, 0 unverändert.\nNicht mehr im MultiCam-Plan — markiert, nicht gelöscht, weil Kabel daran hängen können: Kamera Saal\nOK"
+    },
+    {
+      "nr": 41,
+      "name": "multicam-fehler",
+      "datei": "datei-import-41-multicam-fehler.jpg",
+      "text": "Kamera-Import fehlgeschlagen — keine gültige MultiCam-Kameraliste.\nOK"
+    },
+    {
+      "nr": 42,
+      "name": "rentman-menue",
+      "datei": "datei-import-42-rentman-menue.jpg",
+      "text": ""
+    },
+    {
+      "nr": 43,
+      "name": "netbox-menue",
+      "datei": "datei-import-43-netbox-menue.jpg",
+      "text": ""
+    },
+    {
+      "nr": 44,
+      "name": "netbox-ohne-url",
+      "datei": "datei-import-44-netbox-ohne-url.jpg",
+      "text": "NetBox-Import\nBitte zuerst unter Einstellungen → Integrationen → NetBox die Instanz-URL und ein API-Token hinterlegen.\nKeine NetBox-URL konfiguriert\nAbbrechen\nVorschau erstellen"
+    },
+    {
+      "nr": 45,
+      "name": "netbox-dialog-auswahl",
+      "datei": "datei-import-45-netbox-dialog-auswahl.jpg",
+      "text": "NetBox-Import\n\nWähle eine Site oder ein einzelnes Rack. mehr\n\nSite\n— Site wählen —\nStudio A (3)\nOB-Van (0)\nRack (optional)\n— ganze Site importieren —\nRack A1 (3)\nOptionen\nNur verkabelte Ports importieren\nEmpfohlen: ein 48-Port-Switch bringt sonst 48 unbenutzte Ports mit auf den Plan.\nVerbindungen importieren\nRahmen je Rack anlegen\nhttps://netbox.example.test\nAbbrechen\nVorschau erstellen"
+    },
+    {
+      "nr": 46,
+      "name": "netbox-standort-gewaehlt",
+      "datei": "datei-import-46-netbox-standort-gewaehlt.jpg",
+      "text": "NetBox-Import\n\nWähle eine Site oder ein einzelnes Rack. mehr\n\nSite\n— Site wählen —\nStudio A (3)\nOB-Van (0)\nRack (optional)\n— ganze Site importieren —\nRack A1 (3)\nOptionen\nNur verkabelte Ports importieren\nEmpfohlen: ein 48-Port-Switch bringt sonst 48 unbenutzte Ports mit auf den Plan.\nVerbindungen importieren\nRahmen je Rack anlegen\nhttps://netbox.example.test\nAbbrechen\nVorschau erstellen"
+    },
+    {
+      "nr": 47,
+      "name": "netbox-rack-gewaehlt",
+      "datei": "datei-import-47-netbox-rack-gewaehlt.jpg",
+      "text": "NetBox-Import\n\nWähle eine Site oder ein einzelnes Rack. mehr\n\nSite\n— Site wählen —\nStudio A (3)\nOB-Van (0)\nRack (optional)\n— ganze Site importieren —\nRack A1 (3)\nOptionen\nNur verkabelte Ports importieren\nEmpfohlen: ein 48-Port-Switch bringt sonst 48 unbenutzte Ports mit auf den Plan.\nVerbindungen importieren\nRahmen je Rack anlegen\nhttps://netbox.example.test\nAbbrechen\nVorschau erstellen"
+    },
+    {
+      "nr": 48,
+      "name": "netbox-optionen-aus",
+      "datei": "datei-import-48-netbox-optionen-aus.jpg",
+      "text": "NetBox-Import\n\nWähle eine Site oder ein einzelnes Rack. mehr\n\nSite\n— Site wählen —\nStudio A (3)\nOB-Van (0)\nRack (optional)\n— ganze Site importieren —\nRack A1 (3)\nOptionen\nNur verkabelte Ports importieren\nEmpfohlen: ein 48-Port-Switch bringt sonst 48 unbenutzte Ports mit auf den Plan.\nVerbindungen importieren\nRahmen je Rack anlegen\nhttps://netbox.example.test\nAbbrechen\nVorschau erstellen"
+    },
+    {
+      "nr": 49,
+      "name": "netbox-optionen-ein",
+      "datei": "datei-import-49-netbox-optionen-ein.jpg",
+      "text": "NetBox-Import\n\nWähle eine Site oder ein einzelnes Rack. mehr\n\nSite\n— Site wählen —\nStudio A (3)\nOB-Van (0)\nRack (optional)\n— ganze Site importieren —\nRack A1 (3)\nOptionen\nNur verkabelte Ports importieren\nEmpfohlen: ein 48-Port-Switch bringt sonst 48 unbenutzte Ports mit auf den Plan.\nVerbindungen importieren\nRahmen je Rack anlegen\nhttps://netbox.example.test\nAbbrechen\nVorschau erstellen"
+    },
+    {
+      "nr": 50,
+      "name": "netbox-vorschau",
+      "datei": "datei-import-50-netbox-vorschau.jpg",
+      "text": "NetBox-Import\nSite „Studio A\"Studio A · NetBox 4.1.0\n3\nNeue Geräte\n2\nNeue Verbindungen\n0\nNeue Ports an Bestand\n0\nUnverändert\nIn NetBox: 3 Geräte, 3 Verbindungen, 6 Ports — davon 5 übernommen.\n1 übersprungene Objekte\nGeräte, die angelegt werden\ncore-sw-01\nNetworking · 6 Ports\nenc-01\nVideo · 2 Ports\nregie-pc\nPC · 2 Ports\nhttps://netbox.example.test\nZurück\nAbbrechen\nIn Projekt übernehmen"
+    },
+    {
+      "nr": 51,
+      "name": "netbox-vorschau-uebersprungen",
+      "datei": "datei-import-51-netbox-vorschau-uebersprungen.jpg",
+      "text": "NetBox-Import\nSite „Studio A\"Studio A · NetBox 4.1.0\n3\nNeue Geräte\n2\nNeue Verbindungen\n0\nNeue Ports an Bestand\n0\nUnverändert\nIn NetBox: 3 Geräte, 3 Verbindungen, 6 Ports — davon 5 übernommen.\n1 übersprungene Objekte\n#502 K-502 — Mindestens ein Kabelende liegt außerhalb des importierten Bereichs.\nGeräte, die angelegt werden\ncore-sw-01\nNetworking · 6 Ports\nenc-01\nVideo · 2 Ports\nregie-pc\nPC · 2 Ports\nhttps://netbox.example.test\nZurück\nAbbrechen\nIn Projekt übernehmen"
+    },
+    {
+      "nr": 52,
+      "name": "netbox-zurueck",
+      "datei": "datei-import-52-netbox-zurueck.jpg",
+      "text": "NetBox-Import\n\nWähle eine Site oder ein einzelnes Rack. mehr\n\nSite\n— Site wählen —\nStudio A (3)\nOB-Van (0)\nRack (optional)\n— ganze Site importieren —\nRack A1 (3)\nOptionen\nNur verkabelte Ports importieren\nEmpfohlen: ein 48-Port-Switch bringt sonst 48 unbenutzte Ports mit auf den Plan.\nVerbindungen importieren\nRahmen je Rack anlegen\nhttps://netbox.example.test\nAbbrechen\nVorschau erstellen"
+    },
+    {
+      "nr": 53,
+      "name": "netbox-hinzufuegen",
+      "datei": "datei-import-53-netbox-hinzufuegen.jpg",
+      "text": ""
+    },
+    {
+      "nr": 54,
+      "name": "netbox-zweiter-lauf-verknuepft",
+      "datei": "datei-import-54-netbox-zweiter-lauf-verknuepft.jpg",
+      "text": "NetBox-Import\n\nWähle eine Site oder ein einzelnes Rack. mehr\n\nSite\n— Site wählen —\nStudio A (3)\nOB-Van (0)\nRack (optional)\n— ganze Site importieren —\nRack A1 (3)\nOptionen\nNur verkabelte Ports importieren\nEmpfohlen: ein 48-Port-Switch bringt sonst 48 unbenutzte Ports mit auf den Plan.\nVerbindungen importieren\nRahmen je Rack anlegen\nDieses Projekt ist mit Site „Studio A\" verknüpft. Letzter Abgleich: 30.9.2026, 12:49:31.\nhttps://netbox.example.test\nAbbrechen\nVorschau erstellen"
+    },
+    {
+      "nr": 55,
+      "name": "netbox-zweiter-lauf-delta",
+      "datei": "datei-import-55-netbox-zweiter-lauf-delta.jpg",
+      "text": "NetBox-Import\nSite „Studio A\"Studio A · NetBox 4.1.0\n1\nNeue Geräte\n0\nNeue Verbindungen\n0\nNeue Ports an Bestand\n5\nUnverändert\nIn NetBox: 4 Geräte, 4 Verbindungen, 7 Ports — davon 6 übernommen.\n2 übersprungene Objekte\nGeräte, die angelegt werden\nptz-01\nCameras · 2 Ports\nhttps://netbox.example.test\nZurück\nAbbrechen\nIn Projekt übernehmen"
+    },
+    {
+      "nr": 56,
+      "name": "netbox-dritter-lauf-nichts-mehr",
+      "datei": "datei-import-56-netbox-dritter-lauf-nichts-mehr.jpg",
+      "text": "NetBox-Import\nSite „Studio A\"Studio A · NetBox 4.1.0\n0\nNeue Geräte\n0\nNeue Verbindungen\n0\nNeue Ports an Bestand\n5\nUnverändert\nIn NetBox: 3 Geräte, 3 Verbindungen, 6 Ports — davon 5 übernommen.\nDer Plan ist bereits auf dem Stand von NetBox — es gibt nichts hinzuzufügen.\n1 übersprungene Objekte\nhttps://netbox.example.test\nZurück\nAbbrechen\nIn Projekt übernehmen"
+    },
+    {
+      "nr": 57,
+      "name": "avplan-export-menue",
+      "datei": "datei-import-57-avplan-export-menue.jpg",
+      "text": ""
+    },
+    {
+      "nr": 58,
+      "name": "avplan-export-zugangsdaten-frage",
+      "datei": "datei-import-58-avplan-export-zugangsdaten-frage.jpg",
+      "text": "Zugangsdaten mitgeben?\nEin Eintrag trägt Benutzername oder Passwort eines Geräts. Die .avplan geht an andere Gewerke. Ohne Zugangsdaten verliert ein Rück-Import in diese App sie allerdings.\nAbbrechen\nMitgeben\nOhne Zugangsdaten"
+    },
+    {
+      "nr": 59,
+      "name": "avplan-import-menue",
+      "datei": "datei-import-59-avplan-import-menue.jpg",
+      "text": ""
+    },
+    {
+      "nr": 60,
+      "name": "avplan-import-unbekannte-abschnitte",
+      "datei": "datei-import-60-avplan-import-unbekannte-abschnitte.jpg",
+      "text": "Diese Datei enthält unbekannte Bereiche\nDie Datei bringt Bereiche mit, die diese App nicht kennt — vermutlich aus einer neueren Fassung oder einem anderen Gewerk. Sie werden standardmäßig unverändert mitgeführt und stehen beim nächsten Export wieder in der Datei.\naudio\nMitführen (unverändert, bleibt beim Export erhalten)\nÜbernehmen als\nlighting\nVerwerfen\nAlle mitführen\nOK"
+    },
+    {
+      "nr": 61,
+      "name": "avplan-import-uebernehmen-als",
+      "datei": "datei-import-61-avplan-import-uebernehmen-als.jpg",
+      "text": "Diese Datei enthält unbekannte Bereiche\nDie Datei bringt Bereiche mit, die diese App nicht kennt — vermutlich aus einer neueren Fassung oder einem anderen Gewerk. Sie werden standardmäßig unverändert mitgeführt und stehen beim nächsten Export wieder in der Datei.\naudio\nMitführen (unverändert, bleibt beim Export erhalten)\nÜbernehmen als\nlighting\nVerwerfen\nAlle mitführen\nOK"
+    },
+    {
+      "nr": 62,
+      "name": "avplan-import-kameras-frage",
+      "datei": "datei-import-62-avplan-import-kameras-frage.jpg",
+      "text": "Diese Datei enthält die Kameras des MultiCam-Plans. In den Signalplan übernehmen?\nMultiCam-Kameras: 0 neu, 2 aktualisiert, 0 unverändert.\nNicht mehr im MultiCam-Plan — markiert, nicht gelöscht, weil Kabel daran hängen können: Kamera Galerie\nAbbrechen\nOK"
+    },
+    {
+      "nr": 63,
+      "name": "avplan-import-kameras-uebernommen",
+      "datei": "datei-import-63-avplan-import-kameras-uebernommen.jpg",
+      "text": ""
+    },
+    {
+      "nr": 64,
+      "name": "avplan-import-fehler",
+      "datei": "datei-import-64-avplan-import-fehler.jpg",
+      "text": "Import fehlgeschlagen — keine gültige .avplan-Datei.\nOK"
+    },
+    {
+      "nr": 65,
+      "name": "venue-menue",
+      "datei": "datei-import-65-venue-menue.jpg",
+      "text": ""
+    },
+    {
+      "nr": 66,
+      "name": "venue-dialog",
+      "datei": "datei-import-66-venue-dialog.jpg",
+      "text": "Verknüpfte Venue-Planung (nur Ansicht)\nRaum: Stadthalle Nord\n4 Wände · 3 Personen · 1 Bühne\nKameras (2)\nKamera Buehne\nKamera Saal\nLampen (0)\n—\nOK"
+    },
+    {
+      "nr": 67,
+      "name": "karte-import-menue",
+      "datei": "datei-import-67-karte-import-menue.jpg",
+      "text": ""
+    },
+    {
+      "nr": 68,
+      "name": "karte-import-neu",
+      "datei": "datei-import-68-karte-import-neu.jpg",
+      "text": "Identitäts-Karte importiert\nNeu angelegt: Kamera 1, Kamera 2\nVerworfen — Kamera 2 · umdAddress = 200: TSL UMD v3.1 kennt nur ganze Adressen 0–126.\nKein Feld dafür in dieser App — bleibt nur in der Datei: Kamera 1.notiz, Kamera 1.provenance.umdAddress (confirmed)\nOK"
+    },
+    {
+      "nr": 69,
+      "name": "karte-import-konflikt",
+      "datei": "datei-import-69-karte-import-konflikt.jpg",
+      "text": "Identitäts-Karte importiert\nNicht übernommen — Kamera 1 · umdAddress: hier „3“, in der Datei „5“.\nOK"
+    },
+    {
+      "nr": 70,
+      "name": "karte-import-nichts",
+      "datei": "datei-import-70-karte-import-nichts.jpg",
+      "text": "Identitäts-Karte importiert\nNichts zu tun — die Karte sagt dasselbe wie der Plan.\nOK"
+    },
+    {
+      "nr": 71,
+      "name": "karte-import-fehler",
+      "datei": "datei-import-71-karte-import-fehler.jpg",
+      "text": "Import fehlgeschlagen: Keine gültige .avsourcemap-Datei (kind != av-source-map).\nOK"
+    },
+    {
+      "nr": 72,
+      "name": "karte-export-menue",
+      "datei": "datei-import-72-karte-export-menue.jpg",
+      "text": ""
+    },
+    {
+      "nr": 73,
+      "name": "karte-export",
+      "datei": "datei-import-73-karte-export.jpg",
+      "text": ""
+    },
+    {
+      "nr": 74,
+      "name": "revisionen-leer",
+      "datei": "datei-import-74-revisionen-leer.jpg",
+      "text": "Revisionen & Snapshots\nAktuellen Stand festschreiben\nAs-Built\nFestschreiben\n\nNoch keine Revisionen festgeschrieben.\n\nEine Revision speichert einen vollständigen Snapshot des Plans. Beim Wiederherstellen bleibt die Historie erhalten."
+    },
+    {
+      "nr": 75,
+      "name": "revisionen-ausgefuellt",
+      "datei": "datei-import-75-revisionen-ausgefuellt.jpg",
+      "text": "Revisionen & Snapshots\nAktuellen Stand festschreiben\nAs-Built\nFestschreiben\n\nNoch keine Revisionen festgeschrieben.\n\nEine Revision speichert einen vollständigen Snapshot des Plans. Beim Wiederherstellen bleibt die Historie erhalten."
+    },
+    {
+      "nr": 76,
+      "name": "revisionen-festgeschrieben",
+      "datei": "datei-import-76-revisionen-festgeschrieben.jpg",
+      "text": "Revisionen & Snapshots\nAktuellen Stand festschreiben\nAs-Built\nFestschreiben\nA\nAngebotsstand30.9.2026, 12:52:06\n\nEine Revision speichert einen vollständigen Snapshot des Plans. Beim Wiederherstellen bleibt die Historie erhalten."
+    },
+    {
+      "nr": 77,
+      "name": "revisionen-as-built",
+      "datei": "datei-import-77-revisionen-as-built.jpg",
+      "text": "Revisionen & Snapshots\nAktuellen Stand festschreiben\nAs-Built\nFestschreiben\nAB\nNach dem Aufbau30.9.2026, 12:52:12· As-Built\nA\nAngebotsstand30.9.2026, 12:52:06\n\nEine Revision speichert einen vollständigen Snapshot des Plans. Beim Wiederherstellen bleibt die Historie erhalten."
+    },
+    {
+      "nr": 78,
+      "name": "revisionen-wiederherstellen-frage",
+      "datei": "datei-import-78-revisionen-wiederherstellen-frage.jpg",
+      "text": "Diesen Stand wiederherstellen?\nDer aktuelle Plan wird durch die Revision „AB\" ersetzt. Die Revisions-Historie bleibt erhalten.\nAbbrechen\nWiederherstellen"
+    },
+    {
+      "nr": 79,
+      "name": "revisionen-loeschen-frage",
+      "datei": "datei-import-79-revisionen-loeschen-frage.jpg",
+      "text": "Revision löschen?\nRevision „A\" wird endgültig entfernt.\nAbbrechen\nLöschen"
+    },
+    {
+      "nr": 80,
+      "name": "vergleich-menue",
+      "datei": "datei-import-80-vergleich-menue.jpg",
+      "text": ""
+    },
+    {
+      "nr": 81,
+      "name": "vergleich-dialog-leer",
+      "datei": "datei-import-81-vergleich-dialog-leer.jpg",
+      "text": "Plan-Stände vergleichen\nVergleichs-Datei wählen…\noder festgeschriebene Revision:\n— wählen —\nAB (As-Built)\nA\n\nWähle eine zweite Projektdatei — etwa den Stand, den ein Kollege zurückgeschickt hat — oder eine festgeschriebene Revision aus diesem Projekt. mehr\n\nDer geöffnete Plan gilt als der neuere Stand. Nichts wird geladen oder überschrieben.\nSchließen"
+    },
+    {
+      "nr": 82,
+      "name": "vergleich-datei",
+      "datei": "datei-import-82-vergleich-datei.jpg",
+      "text": "Plan-Stände vergleichen\nVergleichs-Datei wählen…\noder festgeschriebene Revision:\n— wählen —\nAB (As-Built)\nA\n\nFrüherer Stand: Datei /var/folders/wr/8pyyz5297tj42w8wp_8r4wr80000gn/T/cp-handbuch-di-RFaMdp/beispielplan.cableplan\n\nStand der gewählten Datei\n#7f46e71c\nStand des geöffneten Plans\n#c9526a4b\n8 inhaltlich, 4 nur Darstellung, 6 weitere Bereiche\n·\n16 überholt, 7 nicht beurteilbar\nDokumente\nüberholt\nAbnahmeprotokoll\nüberholt\nAsset-Register\nüberholt\nBedien-Kurzübersicht\nüberholt\nNetz-Merkblatt (Crew)\nüberholt\nKabel-Schedule\nüberholt\nKamera-Positionsblatt\nüberholt\nKonfigurationsvorgaben\nüberholt\nPlan\nüberholt\nPull-Liste\nüberholt\nSignalwege\nüberholt\nGeräte-Steckbrief\nüberholt\nTally-Karte\nüberholt\nTally-Vor-Show-Liste\nüberholt\nTermination-Liste\nüberholt\nTrassenplan\nüberholt\nÜbergabe-Dokument\nnicht beurteilbar\nMultiviewer-Layout\n— Es gibt ein Multiviewer-Layout je Mischer, und die Fensterzahl ist eine Einstellung am Gerät, die nicht im Plan steht.\nnicht beurteilbar\nGrundlage der Übergabe\n— Der Zustand hängt an der Revisionsliste (As-Built). Der Revisions-Vergleich spannt Snapshots ohne diese Liste auf — ein Stand daraus meldete jedes Blatt als überholt, obwohl sich nichts geändert hat.\nnicht beurteilbar\nKabel-Stückliste\n— Der Inhalt hängt am Reserve-Aufschlag, den der Nutzer beim Export einstellt; dieser Prozentsatz steht nicht im Stempel.\nnicht beurteilbar\nKunden-Übersicht\n— Jede Zeile nennt ihre Grundlage (Plan, As-Built, gemeldet), und die hängt an der Revisionsliste. Der Rev"
+    },
+    {
+      "nr": 83,
+      "name": "vergleich-revision",
+      "datei": "datei-import-83-vergleich-revision.jpg",
+      "text": "Plan-Stände vergleichen\nVergleichs-Datei wählen…\noder festgeschriebene Revision:\n— wählen —\nAB (As-Built)\nA\n\nFrüherer Stand: Revision AB (As-Built)\n\nStand der gewählten Revision\n#c9526a4b\nStand des geöffneten Plans\n#c9526a4b\n2 weitere Bereiche\n·\n7 nicht beurteilbar\nDokumente\nnicht beurteilbar\nMultiviewer-Layout\n— Es gibt ein Multiviewer-Layout je Mischer, und die Fensterzahl ist eine Einstellung am Gerät, die nicht im Plan steht.\nnicht beurteilbar\nGrundlage der Übergabe\n— Der Zustand hängt an der Revisionsliste (As-Built). Der Revisions-Vergleich spannt Snapshots ohne diese Liste auf — ein Stand daraus meldete jedes Blatt als überholt, obwohl sich nichts geändert hat.\nnicht beurteilbar\nKabel-Stückliste\n— Der Inhalt hängt am Reserve-Aufschlag, den der Nutzer beim Export einstellt; dieser Prozentsatz steht nicht im Stempel.\nnicht beurteilbar\nKunden-Übersicht\n— Jede Zeile nennt ihre Grundlage (Plan, As-Built, gemeldet), und die hängt an der Revisionsliste. Der Revisions-Vergleich spannt Snapshots ohne diese Liste auf — ein Stand daraus meldete jedes Blatt als überholt.\nnicht beurteilbar\nStückliste\n— Der Inhalt hängt am Lagerbestand, der projektübergreifend lebt und nicht im Plan steht — dieselbe Liste ergibt morgen ein anderes Ergebnis.\nnicht beurteilbar\nSwitch-Port-Karte\n— Es gibt eine Port-Karte je Switch; dieselbe Begründung wie bei den Videohub-Labels.\nnicht beurteilbar\nVideohub-Labels\n— Es gibt eine Label-Datei je Videohub; das Register führt einen Stand je Bezeichner. Ein "
+    },
+    {
+      "nr": 84,
+      "name": "vergleich-csv",
+      "datei": "datei-import-84-vergleich-csv.jpg",
+      "text": "Plan-Stände vergleichen\nVergleichs-Datei wählen…\noder festgeschriebene Revision:\n— wählen —\nAB (As-Built)\nA\n\nFrüherer Stand: Revision AB (As-Built)\n\nStand der gewählten Revision\n#c9526a4b\nStand des geöffneten Plans\n#c9526a4b\n2 weitere Bereiche\n·\n7 nicht beurteilbar\nDokumente\nnicht beurteilbar\nMultiviewer-Layout\n— Es gibt ein Multiviewer-Layout je Mischer, und die Fensterzahl ist eine Einstellung am Gerät, die nicht im Plan steht.\nnicht beurteilbar\nGrundlage der Übergabe\n— Der Zustand hängt an der Revisionsliste (As-Built). Der Revisions-Vergleich spannt Snapshots ohne diese Liste auf — ein Stand daraus meldete jedes Blatt als überholt, obwohl sich nichts geändert hat.\nnicht beurteilbar\nKabel-Stückliste\n— Der Inhalt hängt am Reserve-Aufschlag, den der Nutzer beim Export einstellt; dieser Prozentsatz steht nicht im Stempel.\nnicht beurteilbar\nKunden-Übersicht\n— Jede Zeile nennt ihre Grundlage (Plan, As-Built, gemeldet), und die hängt an der Revisionsliste. Der Revisions-Vergleich spannt Snapshots ohne diese Liste auf — ein Stand daraus meldete jedes Blatt als überholt.\nnicht beurteilbar\nStückliste\n— Der Inhalt hängt am Lagerbestand, der projektübergreifend lebt und nicht im Plan steht — dieselbe Liste ergibt morgen ein anderes Ergebnis.\nnicht beurteilbar\nSwitch-Port-Karte\n— Es gibt eine Port-Karte je Switch; dieselbe Begründung wie bei den Videohub-Labels.\nnicht beurteilbar\nVideohub-Labels\n— Es gibt eine Label-Datei je Videohub; das Register führt einen Stand je Bezeichner. Ein "
+    },
+    {
+      "nr": 85,
+      "name": "vergleich-keine-plan-datei",
+      "datei": "datei-import-85-vergleich-keine-plan-datei.jpg",
+      "text": "Plan-Stände vergleichen\nVergleichs-Datei wählen…\noder festgeschriebene Revision:\n— wählen —\nAB (As-Built)\nA\n\nDiese Datei enthält keinen lesbaren Plan (Geräte- und Kabel-Liste fehlen).\n\nDer geöffnete Plan gilt als der neuere Stand. Nichts wird geladen oder überschrieben.\nSchließen"
+    },
+    {
+      "nr": 86,
+      "name": "statusleiste-normal",
+      "datei": "datei-import-86-statusleiste-normal.jpg",
+      "text": ""
+    },
+    {
+      "nr": 87,
+      "name": "statusleiste-ohne-sicherungskopie",
+      "datei": "datei-import-87-statusleiste-ohne-sicherungskopie.jpg",
+      "text": ""
+    },
+    {
+      "nr": 88,
+      "name": "statusleiste-wieder-normal",
+      "datei": "datei-import-88-statusleiste-wieder-normal.jpg",
+      "text": ""
+    },
+    {
+      "nr": 89,
+      "name": "einstellungen-autosave",
+      "datei": "datei-import-89-einstellungen-autosave.jpg",
+      "text": "EINSTELLUNGEN\nProjekt\nModule\nDarstellung\nBearbeiten\nHotkeys\nIntegrationen\nGerätebibliothek\nMCP\nKonfigurationen\nKabeltypen\nStammdaten\nKategorien & Felder\nNetzwerk-Sync\nNachweise\nErweitert\nErweitert\nAutosave\n\nWie oft das aktuelle Projekt automatisch in localStorage gespeichert wird. Standard: 400 ms.\n\nAutosave-Intervall (ms)\nKategorienverwaltung\n\nBibliothek-Kategorien umbenennen oder neue anlegen. Beim Umbenennen wandern alle zugeordneten Vorlagen mit.\n\nKategorie\tVorlagen\t\nAudio\t22\tUmbenennen\nKabel(Cables)\t0\tUmbenennen\nKameras(Cameras)\t381\tUmbenennen\nKonverter(Converter)\t27\tUmbenennen\nIntercom\t13\tUmbenennen\nIP/NDI\t37\tUmbenennen\nIT/Server\t2\tUmbenennen\nLED Processing\t4\tUmbenennen\nObjektive(Lenses)\t835\tUmbenennen\nLicht(Lighting)\t84\tUmbenennen\nMikrofone(Microphones)\t184\tUmbenennen\nMischer\t1\tUmbenennen\nMischpult(Mixing console)\t0\tUmbenennen\nMonitore\t1\tUmbenennen\nMonitore(Monitors)\t39\tUmbenennen\nMultiviewer\t0\tUmbenennen\nNetzwerk(Networking)\t59\tUmbenennen\nSonstiges(Other)\t0\tUmbenennen\nPatchfelder(Patch panels)\t8\tUmbenennen\nPC\t0\tUmbenennen\nStrom(Power)\t0\tUmbenennen\nStromverteilung(Power distribution)\t6\tUmbenennen\nRigging\t0\tUmbenennen\nSync/Referenz(Sync/Reference)\t4\tUmbenennen\nStative(Tripods)\t49\tUmbenennen\nVideo\t23\tUmbenennen\nVideo-Konverter(Video Converter)\t7\tUmbenennen\nBildmischer(Video Mixer)\t36\tUmbenennen\nKreuzschiene(Video Router)\t17\tUmbenennen\nFunkstrecke(Wireless)\t11\tUmbenennen\n+ Neue Kategorie\nCaches & Lokale Daten\n\nCache-Inhalte werden bei Bedarf neu geladen. Daten gehen nicht"
+    },
+    {
+      "nr": 90,
+      "name": "vorlagen-as-built-name",
+      "datei": "datei-import-90-vorlagen-as-built-name.jpg",
+      "text": "Name der Vorlage (aus dem As-Built)\nAbbrechen\nOK"
+    },
+    {
+      "nr": 91,
+      "name": "vorlagen-haus-frage",
+      "datei": "datei-import-91-vorlagen-haus-frage.jpg",
+      "text": "Vorlage an dieses Haus binden?\n1 ortsgebundene Angaben hängen an diesem Projekt — die Antworten der Haus-IT und die Adresse (Beispielstrasse 1, 12345 Beispielstadt). Eine neutrale Vorlage lässt sie weg; eine Haus-Vorlage nimmt sie mit und merkt sich, für welches Haus sie gelten.\nAbbrechen\nFür dieses Haus\nNeutral (nur die Form)"
+    },
+    {
+      "nr": 92,
+      "name": "vorlagen-as-built-gespeichert",
+      "datei": "datei-import-92-vorlagen-as-built-gespeichert.jpg",
+      "text": "Als Vorlage gespeichert\nVorlage „Aufbau-Vorlage“ aus dem As-Built „AB“ erstellt.\nOK"
+    },
+    {
+      "nr": 93,
+      "name": "vorlagen-eigene-speichern-name",
+      "datei": "datei-import-93-vorlagen-eigene-speichern-name.jpg",
+      "text": "Name der Vorlage\nAbbrechen\nOK"
+    },
+    {
+      "nr": 94,
+      "name": "vorlagen-eigene-gespeichert",
+      "datei": "datei-import-94-vorlagen-eigene-gespeichert.jpg",
+      "text": "Als Vorlage gespeichert\nVorlage „Meine Vorlage“ gespeichert.\nOK"
+    },
+    {
+      "nr": 95,
+      "name": "vorlagen-eigene-liste",
+      "datei": "datei-import-95-vorlagen-eigene-liste.jpg",
+      "text": "Neu aus Vorlage\n\nMitgelieferte Show-Setups oder eigene gespeicherte Vorlagen als Startpunkt. mehr\n\nAktuelles Projekt als Vorlage\nAs-Built als Vorlage\nMITGELIEFERTE VORLAGEN\nOB van\nÜbertragungswagen mit Bühne und FOH — getrennte Standort-Rahmen.\n0 Geräte · 0 Kabel · 2 Standorte\nVerwenden\nTV-Studio\nStudio mit Regie und Studioboden.\n0 Geräte · 0 Kabel · 2 Standorte\nVerwenden\nLive stage\nBühne, FOH und Monitorwelt für Live-Events.\n0 Geräte · 0 Kabel · 3 Standorte\nVerwenden\nKonferenz / Corporate\nSaal und Regie für Tagungen und Corporate-Events.\n0 Geräte · 0 Kabel · 2 Standorte\nVerwenden\nHouses of Worship\nAltarraum/Bühne und Technikempore für Gottesdienste.\n0 Geräte · 0 Kabel · 2 Standorte\nVerwenden\nEIGENE VORLAGEN\nAufbau-Vorlage\nDemo plan: 2 cameras → vision mixer → multiviewer & control room monitor. Made to be poked at — click or delete any device or cable.\n11 Geräte · 6 Kabel · 1 Standorte\nGrundlage: Wie gebaut\nVerwenden\nMeine Vorlage\nDemo plan: 2 cameras → vision mixer → multiviewer & control room monitor. Made to be poked at — click or delete any device or cable.\n11 Geräte · 6 Kabel · 1 Standorte\nHaus-Vorlage: Beispielstrasse 1, 12345 Beispielstadt · 0 Antworten\nGrundlage: Wie gebaut\nVerwenden"
+    },
+    {
+      "nr": 96,
+      "name": "vorlagen-eigene-loeschen-frage",
+      "datei": "datei-import-96-vorlagen-eigene-loeschen-frage.jpg",
+      "text": "Vorlage „Aufbau-Vorlage“ löschen?\nAbbrechen\nLöschen"
+    },
+    {
+      "nr": 97,
+      "name": "vorlagen-verwenden-rueckfrage",
+      "datei": "datei-import-97-vorlagen-verwenden-rueckfrage.jpg",
+      "text": "Aktuelles Projekt verwerfen?\nDie Vorlage ersetzt das aktuelle Projekt. Ungespeicherte Änderungen gehen verloren.\nAbbrechen\nVorlage laden"
+    },
+    {
+      "nr": 98,
+      "name": "vorlagen-verwenden-name",
+      "datei": "datei-import-98-vorlagen-verwenden-name.jpg",
+      "text": "Name des neuen Projekts\nAbbrechen\nOK"
+    },
+    {
+      "nr": 99,
+      "name": "vorlagen-verwenden-geladen",
+      "datei": "datei-import-99-vorlagen-verwenden-geladen.jpg",
+      "text": "Vorlage geladen\nNeues Projekt „OB van“ aus Vorlage erstellt.\nOK"
+    },
+    {
+      "nr": 100,
+      "name": "vorlage-ob-van",
+      "datei": "datei-import-100-vorlage-ob-van.jpg",
+      "text": ""
+    },
+    {
+      "nr": 101,
+      "name": "vorlage-tv-studio",
+      "datei": "datei-import-101-vorlage-tv-studio.jpg",
+      "text": ""
+    },
+    {
+      "nr": 102,
+      "name": "vorlage-live-buehne",
+      "datei": "datei-import-102-vorlage-live-buehne.jpg",
+      "text": ""
+    },
+    {
+      "nr": 103,
+      "name": "vorlage-konferenz",
+      "datei": "datei-import-103-vorlage-konferenz.jpg",
+      "text": ""
+    },
+    {
+      "nr": 104,
+      "name": "vorlage-gottesdienst",
+      "datei": "datei-import-104-vorlage-gottesdienst.jpg",
+      "text": ""
+    },
+    {
+      "nr": 105,
+      "name": "neu-rueckfrage",
+      "datei": "datei-import-105-neu-rueckfrage.jpg",
+      "text": "Neues Projekt anlegen?\nAktuelles Projekt verwerfen und neues Projekt anlegen?\n\nUngespeicherte Änderungen gehen verloren.\nAbbrechen\nNeues Projekt"
+    },
+    {
+      "nr": 106,
+      "name": "neu-dialog-leer",
+      "datei": "datei-import-106-neu-dialog-leer.jpg",
+      "text": "Neues Projekt\nProjektname *\nAuftragnehmer (Firma)\nKunde\nPlaner / Autor\nProjekt-/Job-Nr.\nEinsatz-/Mietbeginn\nEinsatz-/Mietende\nBeschreibung\nFirmenlogo\nLogo auswählen…\nKundenlogo\nLogo auswählen…\n\nDiese Daten erscheinen im Planköpfchen unten rechts beim PDF-Export. mehr\n\nAbbrechen\nProjekt anlegen"
+    },
+    {
+      "nr": 107,
+      "name": "neu-dialog-ausgefuellt",
+      "datei": "datei-import-107-neu-dialog-ausgefuellt.jpg",
+      "text": "Neues Projekt\nProjektname *\nAuftragnehmer (Firma)\nKunde\nPlaner / Autor\nProjekt-/Job-Nr.\nEinsatz-/Mietbeginn\nEinsatz-/Mietende\nBeschreibung\nFirmenlogo\nLogo auswählen…\nKundenlogo\nLogo auswählen…\n\nDiese Daten erscheinen im Planköpfchen unten rechts beim PDF-Export. mehr\n\nAbbrechen\nProjekt anlegen"
+    },
+    {
+      "nr": 108,
+      "name": "neu-projekt-angelegt",
+      "datei": "datei-import-108-neu-projekt-angelegt.jpg",
+      "text": ""
+    },
+    {
+      "nr": 109,
+      "name": "neu-projekt-menue-ohne-rueckfrage",
+      "datei": "datei-import-109-neu-projekt-menue-ohne-rueckfrage.jpg",
+      "text": "Neues Projekt\nProjektname *\nAuftragnehmer (Firma)\nKunde\nPlaner / Autor\nProjekt-/Job-Nr.\nEinsatz-/Mietbeginn\nEinsatz-/Mietende\nBeschreibung\nFirmenlogo\nLogo auswählen…\nKundenlogo\nLogo auswählen…\n\nDiese Daten erscheinen im Planköpfchen unten rechts beim PDF-Export. mehr\n\nAbbrechen\nProjekt anlegen"
+    },
+    {
+      "nr": 110,
+      "name": "menue-datei-ohne-module",
+      "datei": "datei-import-110-menue-datei-ohne-module.jpg",
+      "text": ""
+    },
+    {
+      "nr": 111,
+      "name": "willkommen-dialog",
+      "datei": "datei-import-111-willkommen-dialog.jpg",
+      "text": "Willkommen beim LZ Cable Planner\n\nLege ein neues Projekt an oder öffne ein bestehendes, damit deine Arbeit zuverlässig gespeichert wird.\n\nNeues Projekt\nMit Projektname, Auftraggeber und Planer starten.\nProjekt öffnen…\nEine vorhandene .cableplan-Datei laden.\nZULETZT VERWENDET\nmit-zugangsdaten.cableplan\nmit-luecken.cableplan\npruefung.cpviewer\nkein-plan.cableplan\nbeispielplan-kopie.cableplan\nbeispielplan.cableplan\n\nKlick „Projekt öffnen…“ und wähle eine der Dateien im Datei-Dialog.\n\nSpäter entscheiden"
+    }
+  ],
+  "fehler": [
+    "01 menue-datei-offen: locator.screenshot: Timeout 9992.340000000782ms exceeded.",
+    "03 menue-eintrag-speichern: locator.hover: Timeout 10000ms exceeded."
+  ]
 }

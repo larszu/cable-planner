@@ -1,0 +1,163 @@
+{
+  "sprache": "de",
+  "dateien": {
+    "nach-speichern": [
+      "beispiel.graphml",
+      "beispielplan.cableplan",
+      "beispielplan.cableplan.bak",
+      "kaputt.graphml"
+    ],
+    "nach-speichern-unter": [
+      "beispiel.graphml",
+      "beispielplan-kopie.cableplan",
+      "beispielplan.cableplan",
+      "beispielplan.cableplan.bak",
+      "kaputt.graphml"
+    ],
+    "Example_small_studio_setup.avplan": 20211,
+    "Example_small_studio_setup.avsourcemap": 672,
+    "20260930_Example_ small studio setup_001_plan-vergleich.csv": 1251
+  },
+  "gelesen": {
+    "menueDatei": [
+      "Neues Projekt",
+      "Strg+N",
+      "Neu aus Vorlage…",
+      "Öffnen…",
+      "Strg+O",
+      "Speichern",
+      "Strg+S",
+      "Speichern unter…",
+      "Strg+Umsch+S",
+      "yEd / GraphML importieren…",
+      "MultiCam-Kameras importieren…",
+      "Equipment aus CSV importieren…",
+      "Rentman-Import…",
+      "NetBox-Import…",
+      "Gesamtprojekt exportieren (.avplan)…",
+      "Gesamtprojekt importieren (.avplan)…",
+      "Identitäts-Karte exportieren (.avsourcemap)…",
+      "Identitäts-Karte importieren (.avsourcemap)…",
+      "Patch-Liste…",
+      "Wer hängt an welchem Ein- und Ausgang",
+      "Festinstallation: Doku & Übergabe…",
+      "Stage-Plot (SVG)…",
+      "Bühnenaufsicht als Ein-Seiten-Blatt",
+      "Exportieren & Drucken…",
+      "Cloud & Lese-Link…",
+      "Als Viewer-Datei exportieren…",
+      "Anmerkungen aus Viewer-Datei importieren…",
+      "Plan-Stände vergleichen…",
+      "Ausgegebene Dokumente…",
+      "Plan an Rentman anhängen (kein Projekt verknüpft)",
+      "Kabel an Rentman senden (kein Projekt verknüpft)"
+    ],
+    "projektSchluessel": [
+      "metadata",
+      "equipment",
+      "cables",
+      "locations",
+      "canvasState",
+      "floors",
+      "revisions",
+      "changelog",
+      "sourceIdentities",
+      "tallyPositions",
+      "patternChecks",
+      "hubSwitches",
+      "cableStock",
+      "ledPanelTypes",
+      "ledWalls",
+      "fotos",
+      "farbnormen",
+      "berichtsvorlagen",
+      "mcpLog",
+      "polaritaetsnormen",
+      "oscLauscher",
+      "anschlussListe",
+      "networkSegments",
+      "addressLayers",
+      "deliveryDestinations"
+    ],
+    "metadata": {
+      "name": "Example: small studio setup",
+      "description": "Demo plan: 2 cameras → vision mixer → multiviewer & control room monitor. Made to be poked at — click or delete any device or cable.",
+      "createdAt": "2026-09-30T10:35:02.995Z",
+      "updatedAt": "2026-09-30T10:35:03.045Z",
+      "defaultVideoFormat": "1080p50",
+      "defaultPowerStandard": "eu-230-1ph",
+      "defaultLightingControl": "dmx512",
+      "projectId": "20622d38-50d9-4c2c-a9ab-b59baf5380d7"
+    },
+    "ladebericht": "",
+    "avplanSchluessel": [
+      "kind",
+      "formatVersion",
+      "app",
+      "appVersion",
+      "exportedAt",
+      "venue",
+      "domains"
+    ],
+    "avplanDomains": [
+      "cabling"
+    ],
+    "avplanDateiname": "Example_small_studio_setup.avplan",
+    "avplanMetaKeys": {
+      "kind": "avplan",
+      "formatVersion": 1,
+      "app": "cable-planner"
+    },
+    "karteSchluessel": [
+      "kind",
+      "formatVersion",
+      "app",
+      "appVersion",
+      "exportedAt",
+      "sources",
+      "unresolved"
+    ],
+    "karteName": "Example_small_studio_setup.avsourcemap",
+    "karteQuellen": [
+      "Kamera 1",
+      "Kamera 2"
+    ],
+    "vergleichCsv": "20260930_Example_ small studio setup_001_plan-vergleich.csv",
+    "vergleichCsvKopf": "Art;Typ;Bezeichnung;Feld;Klasse;Vorher;Nachher\r",
+    "badgeText": "Example: small studio setup\n|\n11 Geräte\n6 Kabel\n1 Rahmen\n0/11 gepackt\nKlein\nOK\nNetz 3\nRentman: Standalone\nZoom: 41%\nv9.1.0-10-gfa0733b6-dirty",
+    "autosaveKey": [
+      "cable-planner:projectAutosave"
+    ],
+    "menueDateiOhneModule": [
+      "Neues Projekt",
+      "Strg+N",
+      "Neu aus Vorlage…",
+      "Öffnen…",
+      "Strg+O",
+      "Speichern",
+      "Strg+S",
+      "Speichern unter…",
+      "Strg+Umsch+S",
+      "yEd / GraphML importieren…",
+      "MultiCam-Kameras importieren…",
+      "Equipment aus CSV importieren…",
+      "Gesamtprojekt exportieren (.avplan)…",
+      "Gesamtprojekt importieren (.avplan)…",
+      "Identitäts-Karte exportieren (.avsourcemap)…",
+      "Identitäts-Karte importieren (.avsourcemap)…",
+      "Patch-Liste…",
+      "Wer hängt an welchem Ein- und Ausgang",
+      "Stage-Plot (SVG)…",
+      "Bühnenaufsicht als Ein-Seiten-Blatt",
+      "Exportieren & Drucken…",
+      "Cloud & Lese-Link…",
+      "Als Viewer-Datei exportieren…",
+      "Anmerkungen aus Viewer-Datei importieren…",
+      "Plan-Stände vergleichen…",
+      "Ausgegebene Dokumente…"
+    ]
+  },
+  "abschnittFehler": [
+    "3  yEd / GraphML: locator.click: Timeout 10000ms exceeded."
+  ]
+}
