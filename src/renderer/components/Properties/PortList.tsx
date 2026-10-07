@@ -65,14 +65,25 @@ interface PortListProps {
    *  10011, ME-Outs 10020+) damit der MV-Picker sie kennt. Wird vom
    *  Eltern-Component nur fuer ATEM-Devices gesetzt. */
   showAtemSourceId?: boolean
+  /** #988 — Ids der eingeklappten Ports. Der Zustand liegt beim Aufrufer,
+   *  weil dort auch „alle ein-/ausklappen" sitzt und beide Listen
+   *  (Inputs/Outputs) damit gemeinsam bedient. */
+  collapsed: ReadonlySet<string>
+  onToggleCollapsed: (portId: string) => void
 }
 
 interface SortablePortItemProps {
   port: Port
+  /** Immer sichtbare Kopfzeile: Nummer, Name, Entfernen. */
+  header: React.ReactNode
+  open: boolean
+  onToggle: () => void
+  /** Kurzfassung unter dem Namen, solange der Port zu ist. */
+  summary: string
   children: React.ReactNode
 }
 
-const SortablePortItem = ({ port, children }: SortablePortItemProps) => {
+const SortablePortItem = ({ port, header, open, onToggle, summary, children }: SortablePortItemProps) => {
   const t = useTranslation()
   const {
     attributes,
@@ -93,17 +104,36 @@ const SortablePortItem = ({ port, children }: SortablePortItemProps) => {
       className={` border border-cp-border-muted bg-cp-surface-1 p-2 ${isDragging ? 'opacity-60' : ''}`}
     >
       <div className="flex items-start gap-2">
-        <button
-          type="button"
-          className="mt-1 cursor-grab border border-cp-border bg-cp-surface-3 px-1.5 py-1 text-cp-xs text-cp-text-muted hover:bg-cp-surface-1 active:cursor-grabbing"
-          title={t('ports.dragHandle', 'Reorder port')}
-          aria-label={format(t('ports.reorderAria', 'Reorder: {name}'), { name: port.name })}
-          {...attributes}
-          {...listeners}
-        >
-          ≡
-        </button>
-        <div className="min-w-0 flex-1">{children}</div>
+        {/* Griff und Auf-/Zuklappen stehen UEBEREINANDER: nebeneinander nahmen
+            sie in der schmalen Leiste dem Namensfeld die Breite. */}
+        <div className="mt-1 flex shrink-0 flex-col gap-1">
+          <button
+            type="button"
+            className="cursor-grab border border-cp-border bg-cp-surface-3 px-1.5 py-1 text-cp-xs text-cp-text-muted hover:bg-cp-surface-1 active:cursor-grabbing"
+            title={t('ports.dragHandle', 'Reorder port')}
+            aria-label={format(t('ports.reorderAria', 'Reorder: {name}'), { name: port.name })}
+            {...attributes}
+            {...listeners}
+          >
+            ≡
+          </button>
+          <button
+            type="button"
+            onClick={onToggle}
+            aria-expanded={open}
+            aria-label={format(t('ports.toggleAria', 'Show or hide settings: {name}'), { name: port.name })}
+            className="inline-flex items-center justify-center py-1 text-cp-text-muted hover:text-cp-text-bright"
+          >
+            <Icon icon={open ? ChevronDown : ChevronRight} size="xs" />
+          </button>
+        </div>
+        <div className="min-w-0 flex-1">
+          {header}
+          {!open && summary && (
+            <div className="mt-0.5 truncate text-cp-xs text-cp-text-muted">{summary}</div>
+          )}
+          {open && children}
+        </div>
       </div>
     </li>
   )
@@ -143,7 +173,6 @@ const CollapsibleSdiCaps = ({
       className="mt-1 border border-amber-900/60 bg-amber-950/20 [&_summary]:cursor-pointer"
     >
       <summary className="flex items-center gap-1 p-1.5 text-cp-xs font-semibold uppercase tracking-wide text-amber-300 hover:text-amber-200 [&::-webkit-details-marker]:hidden">
-        <Icon icon={open ? ChevronDown : ChevronRight} size="xs" className="text-amber-400/70" />
         <span className="flex-1">{t('ports.sdi.caps', 'SDI capabilities (port-specific)')}</span>
         {!open && badge && (
           <span className="bg-amber-900/50 px-1 text-cp-xs normal-case text-amber-200">
@@ -156,7 +185,15 @@ const CollapsibleSdiCaps = ({
   )
 }
 
-export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }: PortListProps) => {
+export const PortList = ({
+  title,
+  ports,
+  onChange,
+  hideTitle,
+  showAtemSourceId,
+  collapsed,
+  onToggleCollapsed,
+}: PortListProps) => {
   const t = useTranslation()
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
@@ -538,7 +575,13 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
         <SortableContext items={ports.map((port) => port.id)} strategy={verticalListSortingStrategy}>
           <ul className="space-y-2">
         {ports.map((port, portIdx) => (
-          <SortablePortItem key={port.id} port={port}>
+          <SortablePortItem
+            key={port.id}
+            port={port}
+            open={!collapsed.has(port.id)}
+            onToggle={() => onToggleCollapsed(port.id)}
+            summary={[port.connectorType, port.standard, port.contentLabel].filter(Boolean).join(' · ')}
+            header={
             <div className="flex items-center gap-1">
               <input
                 type="number"
@@ -571,7 +614,7 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                   })
                 }}
                 placeholder={t('ports.namePlaceholder', 'Port name')}
-                className="flex-1 border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
+                className="min-w-0 flex-1 border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
               />
               <Tooltip label={t('ports.remove', 'Remove port')}>
                 <button
@@ -584,6 +627,8 @@ export const PortList = ({ title, ports, onChange, hideTitle, showAtemSourceId }
                 </button>
               </Tooltip>
             </div>
+            }
+          >
             <div className="mt-1 grid grid-cols-2 gap-1">
               <div className="flex items-stretch gap-0.5">
                 <select

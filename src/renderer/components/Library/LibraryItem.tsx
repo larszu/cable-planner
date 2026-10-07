@@ -1,5 +1,5 @@
 import type { EquipmentTemplate } from '../../types/equipment'
-import { Star, Link, Eye, EyeOff, Download, Pencil } from 'lucide-react'
+import { Star, Link, Eye, EyeOff, Download } from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import { Tooltip } from '../shared/Tooltip'
 import { useProjectStore } from '../../store/projectStore'
@@ -15,10 +15,11 @@ interface LibraryItemProps {
   onToggleFavorite?: () => void
   onToggleHidden?: () => void
   onExport?: () => void
-  /** #901 — Bearbeiten sitzt in derselben Aktionszeile wie die uebrigen
-   *  Knoepfe. Vorher lag es absolut positioniert (`right-7`) UEBER dieser
-   *  Zeile und verdeckte Favorit/Ausblenden/Export. */
-  onEdit?: () => void
+  /** #987 — Klick auf die Karte oeffnet die Eigenschaften der Vorlage im
+   *  Inspector; ein eigener Bearbeiten-Knopf entfaellt. Ohne `onSelect`
+   *  (Rentman-Eintraege haben keine Vorlage zum Bearbeiten) bleibt der Klick
+   *  das Platzieren. Platzieren geht immer auch per Doppelklick und Drag. */
+  onSelect?: () => void
   /** v7.9.106 / Issue #227 — Rentman-Item ohne Ports + gleichnamiges
    *  lokales Item mit Ports → Aktion zum Verknuepfen/Sync. Wenn gesetzt
    *  erscheint ein 🔗-Button rechts. */
@@ -34,7 +35,7 @@ export const LibraryItem = ({
   onToggleFavorite,
   onToggleHidden,
   onExport,
-  onEdit,
+  onSelect,
   onLinkPorts,
   linkTargetName,
 }: LibraryItemProps) => {
@@ -45,6 +46,8 @@ export const LibraryItem = ({
   const linkedRentmanProjectId = useProjectStore(
     (state) => state.project.metadata.rentmanProjectId,
   )
+
+  const isSelected = useProjectStore((state) => !!onSelect && state.selectedTemplateName === item.name)
 
   const onDragStart = (event: React.DragEvent<HTMLDivElement>) => {
     clearCanvasSelection()
@@ -81,7 +84,12 @@ export const LibraryItem = ({
       onDragStart={onDragStart}
       onClick={(event) => {
         event.stopPropagation()
-        addFromClick()
+        if (onSelect) onSelect()
+        else addFromClick()
+      }}
+      onDoubleClick={(event) => {
+        event.stopPropagation()
+        if (onSelect) addFromClick()
       }}
       role="button"
       tabIndex={0}
@@ -95,7 +103,7 @@ export const LibraryItem = ({
         item.hidden
           ? 'border-cp-border-muted bg-cp-surface-3 opacity-60 hover:opacity-100'
           : 'border-cp-border bg-cp-surface-1 hover:bg-cp-surface-2'
-      }`}
+      } ${isSelected ? 'ring-1 ring-cp-accent' : ''}`}
       title={
         isFromActiveRentman
           ? format(
@@ -113,7 +121,7 @@ export const LibraryItem = ({
                 ),
                 { suffix: item.rentmanProjectName ? ` "${item.rentmanProjectName}"` : '' },
               )
-            : t('library.item.titleLocal', 'Local device — click or drag & drop onto canvas')
+            : t('library.item.titleLocal', 'Local device — click for properties, double-click or drag & drop onto canvas')
       }
     >
       {/* ─── `min-w-[8rem]` UND NICHT `min-w-0` (2026-09-28) ──────────────────
@@ -279,21 +287,6 @@ export const LibraryItem = ({
               aria-label={t('library.item.exportAria', 'Export')}
             >
               <Icon icon={Download} size="xs" />
-            </button>
-          </Tooltip>
-        )}
-        {onEdit && (
-          <Tooltip label={t('library.template.editTitle', 'Edit template (name, category)')}>
-            <button
-              type="button"
-              onClick={(event) => {
-                event.stopPropagation()
-                onEdit()
-              }}
-              className="bg-cp-surface-4 px-1 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-5"
-              aria-label={t('library.template.editTitle', 'Edit template (name, category)')}
-            >
-              <Icon icon={Pencil} size="xs" />
             </button>
           </Tooltip>
         )}

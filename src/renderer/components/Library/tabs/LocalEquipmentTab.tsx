@@ -449,7 +449,7 @@ export const LocalEquipmentTab = ({
                               )
                               if (ok) removeCustomTemplate(item.name)
                             }}
-                            onEdit={() => setSelectedTemplateName(item.name)}
+                            onSelect={() => setSelectedTemplateName(item.name)}
                             onToggleFavorite={() => toggleTemplateFavorite(item.name)}
                             onToggleHidden={() => toggleTemplateHidden(item.name)}
                             onExport={() => void exportTemplateToFile(item)}

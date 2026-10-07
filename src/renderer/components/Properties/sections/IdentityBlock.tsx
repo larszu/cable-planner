@@ -61,7 +61,7 @@ export const IdentityBlock = ({ equipment }: { equipment: EquipmentItem }) => {
                 if (event.key === 'Enter' || event.key === 'Escape') setKurznameOffen(false)
               }}
               onBlur={() => setKurznameOffen(false)}
-              className="flex-1 border border-cp-border bg-cp-surface-1 p-2 font-mono"
+              className="min-w-0 flex-1 border border-cp-border bg-cp-surface-1 p-2 font-mono"
             />
             <button
               type="button"
