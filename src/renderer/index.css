@@ -1280,3 +1280,40 @@ summary,
   border-color: var(--cp-border);
   color: var(--cp-text);
 }
+
+/* ───────────────────────────────────────────────────────────────────────────
+ * #989 — EIN Auf-/Zuklapp-Zeichen fuer jedes <details>.
+ *
+ * Vorher hatte jede Stelle ihr eigenes: manche ein Lucide-Chevron (rechts
+ * zu, unten offen), manche das native Dreieck, manche — alle mit
+ * `display: flex` auf dem <summary> — gar keins, weil ein Flex-Summary seinen
+ * Marker verliert. Das Ergebnis las sich, als klappten einige nach oben und
+ * andere nach unten auf.
+ *
+ * Jetzt: das native Zeichen ist aus, und jedes <summary> bekommt dasselbe
+ * Chevron vorangestellt — nach rechts, solange zu; nach unten, sobald offen.
+ * Der Inhalt klappt immer UNTER der Kopfzeile auf.
+ * ─────────────────────────────────────────────────────────────────────────── */
+details > summary {
+  list-style: none;
+}
+details > summary::-webkit-details-marker {
+  display: none;
+}
+details > summary::before {
+  content: '';
+  flex: none;
+  display: inline-block;
+  width: 0.4em;
+  height: 0.4em;
+  margin-right: 0.5em;
+  margin-left: 0.15em;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  opacity: 0.7;
+  transform: rotate(-45deg);
+  vertical-align: 0.1em;
+}
+details[open] > summary::before {
+  transform: rotate(45deg);
+}

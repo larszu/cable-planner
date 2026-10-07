@@ -1,9 +1,7 @@
-import { ChevronDown, ChevronRight } from 'lucide-react'
 import { useState } from 'react'
 import { useProjectStore } from '../../../store/projectStore'
 import { useTranslation } from '../../../lib/i18n'
 import type { EquipmentItem } from '../../../types/equipment'
-import { Icon } from '../../shared/Icon'
 import { siehtAusWieDisplay } from '../../../lib/displayHeuristik'
 
 const RESOLUTION_PRESETS = [
@@ -43,7 +41,6 @@ export const DisplayPropertiesBlock = ({ equipment }: { equipment: EquipmentItem
       className="border border-cp-border [&_summary]:cursor-pointer"
     >
       <summary className="flex items-center gap-1 px-2 py-1.5 text-cp-xs uppercase tracking-wide text-cp-text-muted hover:text-cp-text-bright [&::-webkit-details-marker]:hidden">
-        <Icon icon={open ? ChevronDown : ChevronRight} size="xs" className="text-cp-text-faint" />
         <span className="flex-1">{t('display.title', 'Display')}</span>
       </summary>
       <div className="px-2 pb-2">

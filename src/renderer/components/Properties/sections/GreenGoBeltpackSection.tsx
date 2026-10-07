@@ -1,8 +1,6 @@
-import { ChevronDown, ChevronRight } from 'lucide-react'
 import { useState } from 'react'
 import { useGreenGoBeltpack } from '../../../lib/greengoSync'
 import { format, useTranslation } from '../../../lib/i18n'
-import { Icon } from '../../shared/Icon'
 
 /**
  * #306 — GreenGo-Beltpack-Konfiguration pro Equipment. Aus
@@ -39,7 +37,6 @@ export const GreenGoBeltpackSection = ({ equipmentId }: { equipmentId: string })
       className="mb-2 bg-emerald-950/40 [&_summary]:cursor-pointer"
     >
       <summary className="flex items-center gap-1 px-2 py-1.5 text-cp-xs uppercase tracking-wide text-emerald-300 hover:text-emerald-200 [&::-webkit-details-marker]:hidden">
-        <Icon icon={open ? ChevronDown : ChevronRight} size="xs" className="text-emerald-400/70" />
         <span className="flex-1">{t('props.greengo.beltpack', 'Beltpack')}</span>
         {info?.channelNames && info.channelNames.length > 0 && (
           <span

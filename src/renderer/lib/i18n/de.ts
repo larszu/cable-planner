@@ -3246,7 +3246,7 @@ export const de: Dict = {
   'library.item.show': 'Wieder anzeigen',
   'library.item.titleActiveRentman':
     'Aus aktivem Rentman-Projekt{suffix} — Klick oder Drag & Drop auf den Canvas',
-  'library.item.titleLocal': 'Lokales Gerät — Klick oder Drag & Drop auf den Canvas',
+  'library.item.titleLocal': 'Lokales Gerät — Klick für Eigenschaften, Doppelklick oder Drag & Drop auf den Canvas',
   'library.item.titleOtherRentman':
     'Aus Rentman-Projekt{suffix} — Klick oder Drag & Drop auf den Canvas',
   'library.item.unfavorite': 'Favorit entfernen',
@@ -3450,7 +3450,6 @@ export const de: Dict = {
     '{racks} Racks übergeben. {skipped} Geräte sitzen ausserhalb ihres Racks und wurden weggelassen statt verschoben.',
   'library.tabs.racks.subtitle': 'Rack-Slots in HE, als platzierbare Gruppe gespeichert',
   'library.tabs.racks.title': '2D Rack Builder',
-  'library.template.editTitle': 'Vorlage bearbeiten (Name, Kategorie)',
   'library.title': 'Bibliothek',
   'eq.field.assetTag': 'Asset-Tag',
   'eq.field.internalNumber': 'Interne Nummer',
@@ -4209,6 +4208,9 @@ export const de: Dict = {
   'ports.fiber.classTitle': 'Faserklasse: OM1–OM5 (Multimode), OS1/OS2 (Singlemode)',
   'ports.fiber.connectorPlaceholder': 'Stecker (LC/SC/…)',
   'ports.fiber.connectorTitle': 'Optischer Steckverbinder',
+  'ports.collapseAll': 'Alle zuklappen',
+  'ports.expandAll': 'Alle aufklappen',
+  'ports.toggleAria': 'Einstellungen ein-/ausblenden: {name}',
   'ports.flip': 'Ports spiegeln (Inputs rechts, Outputs links)',
   'ports.listMove': 'Inputs und Outputs tauschen',
   'ports.flipTitle': 'Inputs werden rechts, Outputs werden links am Geräte-Knoten gerendert.',

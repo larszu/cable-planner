@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import {
   DndContext,
   KeyboardSensor,
@@ -94,6 +94,17 @@ export const PortsSection = ({ equipment }: { equipment: EquipmentItem }) => {
   const gespiegelt = !!equipment.portsFlipped
   const setGespiegelt = (wert: boolean) =>
     updateEquipment(equipment.id, { portsFlipped: wert || undefined })
+  // #988 — Welche Ports zugeklappt sind, merkt sich die Sektion (nicht der
+  // Port): „alle ein-/ausklappen" greift damit auf Inputs UND Outputs.
+  const [zu, setZu] = useState<ReadonlySet<string>>(() => new Set())
+  const alleIds = [...equipment.inputs, ...equipment.outputs].map((p) => p.id)
+  const alleZu = alleIds.length > 0 && alleIds.every((id) => zu.has(id))
+  const umschalten = (id: string) =>
+    setZu((alt) => {
+      const neu = new Set(alt)
+      if (!neu.delete(id)) neu.add(id)
+      return neu
+    })
   const listenSensoren = useSensors(
     useSensor(PointerSensor, SENSOR_ZEIGER),
     useSensor(KeyboardSensor, SENSOR_TASTATUR),
@@ -163,20 +174,33 @@ export const PortsSection = ({ equipment }: { equipment: EquipmentItem }) => {
         {/* #419 — "Ports spiegeln" gehoert thematisch zu In/Outputs (und nicht
             mehr zu "Darstellung & Flags"), weil es die Seiten-Zuordnung der
             Inputs/Outputs am Canvas-Knoten umdreht. */}
-        <label
-          className="flex items-center gap-2 px-1 text-cp-xs text-cp-text-secondary"
-          title={t(
-            'ports.flipTitle',
-            'Inputs render on the right, outputs on the left of the device node.',
+        <div className="flex items-center justify-between gap-2 px-1">
+          <label
+            className="flex min-w-0 items-center gap-2 text-cp-xs text-cp-text-secondary"
+            title={t(
+              'ports.flipTitle',
+              'Inputs render on the right, outputs on the left of the device node.',
+            )}
+          >
+            <input
+              type="checkbox"
+              checked={gespiegelt}
+              onChange={(event) => setGespiegelt(event.target.checked)}
+            />
+            {t('ports.flip', 'Flip ports (inputs on right, outputs on left)')}
+          </label>
+          {alleIds.length > 1 && (
+            <button
+              type="button"
+              onClick={() => setZu(alleZu ? new Set() : new Set(alleIds))}
+              className="shrink-0 bg-cp-surface-4 px-2 py-0.5 text-cp-xs hover:bg-cp-surface-5"
+            >
+              {alleZu
+                ? t('ports.expandAll', 'Expand all')
+                : t('ports.collapseAll', 'Collapse all')}
+            </button>
           )}
-        >
-          <input
-            type="checkbox"
-            checked={gespiegelt}
-            onChange={(event) => setGespiegelt(event.target.checked)}
-          />
-          {t('ports.flip', 'Flip ports (inputs on right, outputs on left)')}
-        </label>
+        </div>
         <DndContext
           sensors={listenSensoren}
           collisionDetection={closestCenter}
@@ -199,6 +223,8 @@ export const PortsSection = ({ equipment }: { equipment: EquipmentItem }) => {
                     onChange={(inputs) => applyPorts({ inputs })}
                     hideTitle
                     showAtemSourceId={isAtem}
+                    collapsed={zu}
+                    onToggleCollapsed={umschalten}
                   />
                 </PortListe>
               ) : (
@@ -214,6 +240,8 @@ export const PortsSection = ({ equipment }: { equipment: EquipmentItem }) => {
                     onChange={(outputs) => applyPorts({ outputs })}
                     hideTitle
                     showAtemSourceId={isAtem}
+                    collapsed={zu}
+                    onToggleCollapsed={umschalten}
                   />
                 </PortListe>
               ),
