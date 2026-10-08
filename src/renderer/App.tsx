@@ -891,6 +891,7 @@ export default function App() {
           useProjectStore.getState().project,
           frage.werkzeug,
           frage.args,
+          useProjectStore.getState().customLibrary,
         )
         cablePlannerApi.mcp.beantworten({ id: frage.id, daten, text })
       } catch (e) {

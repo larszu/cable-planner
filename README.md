@@ -68,6 +68,13 @@
 - **Together.** Live co-editing over WebRTC, optional cloud copy with revisions,
   a shared device library across the planner suite.
 - **Ask Claude.** A local MCP server answers questions about the open plan.
+  With write access switched on, Claude can build a system without touching
+  the UI: library devices (`search_library`, `add_device`), custom devices
+  from port groups (`create_device`), cables one by one or in batches
+  (`connect_ports`, `connect_many` — exact port names, input to input
+  refused, reversed pairs flipped, occupied inputs only with `replace`), rack
+  heights and racks (`set_rack_units`, `arrange_rack`), and a check against a
+  cable list (`verify_cabling`). Each write call is one undo step.
 - **Offline first.** One JSON file per project, secrets in the OS keychain.
 
 ## Screenshots

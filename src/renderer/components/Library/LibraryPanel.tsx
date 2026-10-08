@@ -51,7 +51,7 @@ import { CableLibraryPanel } from './CableLibraryPanel'
 
 const connectorOptions = ALL_CONNECTOR_TYPES
 
-import { defaultGroup, buildPorts, richtungWechseln } from './libraryPanelHelpers'
+import { defaultGroup, richtungWechseln, templateFromGroups } from './libraryPanelHelpers'
 import type { PortGroupDraft } from './libraryPanelHelpers'
 import { PanelHint } from '../shared/PanelHint'
 import { useDialogA11y } from '../../hooks/useDialogA11y'
@@ -608,21 +608,15 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
   }
 
   const buildTemplate = (): EquipmentTemplate => {
-    const inputs = buildPorts(groups, 'in')
-    const outputs = buildPorts(groups, 'out')
-    const maxPorts = Math.max(inputs.length, outputs.length, 3)
-    return {
+    const basis = templateFromGroups({
       name: name.trim() || t('library.create.defaultName', 'New device'),
       category: category.trim() || 'Other',
-      inputs,
-      outputs,
-      isRackDevice: isRackDeviceDraft,
+      groups,
       rackUnits: isRackDeviceDraft ? (rackUnitsDraft === '' ? 1 : rackUnitsDraft) : undefined,
-      width: 240,
-      height: 80 + maxPorts * 22,
-      // Ohne Ports angelegt: die Plan-Pruefung erinnert ruhig daran (info),
-      // und ein Kabel auf den Geraetekoerper legt den ersten an.
-      ...(inputs.length === 0 && outputs.length === 0 ? { portsUnknown: true } : {}),
+    })
+    const { inputs, outputs } = basis
+    return {
+      ...basis,
       // Die Herkunft wandert in die Vorlage mit. Ohne das waere sie beim
       // Anlegen weg — und jedes Geraet, das spaeter aus dieser Vorlage
       // entsteht, truege geratene Ports als Tatsache.

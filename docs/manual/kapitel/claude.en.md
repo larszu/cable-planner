@@ -1,7 +1,8 @@
 ## Claude (MCP)
 
 Claude can answer questions about the open plan — devices, ports, signal paths,
-cables and the plan check.
+cables and the plan check — search the device library and check the plan
+against a cable list (missing, extra, wrong port, wrong direction).
 
 **On this computer**
 
@@ -14,8 +15,14 @@ cables and the plan check.
    ```
 
 3. Reading is the default. **Writing** is a second switch: Claude can then
-   connect and remove cables, set cable details and rename devices. Each call
-   is one undo step and is listed under *What Claude changed*.
+   build a system — place library devices, create custom devices from port
+   groups, draw cables one at a time or many per call, set rack heights and
+   save devices as a rack with their internal cables — and remove cables, set
+   cable details and rename devices. Ports are named exactly; the cable type is
+   chosen as in the cable dialog. Input to input is refused, a reversed pair
+   is flipped, an occupied input stays as it is unless Claude is told to
+   replace it. Each call is one undo step and is listed under *What Claude
+   changed*.
 
 **From claude.ai, the phone or another machine**
 

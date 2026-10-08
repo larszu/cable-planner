@@ -3691,7 +3691,7 @@ export const de: Dict = {
   'mcp.setup': 'In Claude Code eintragen',
   'mcp.write': 'Claude darf den Plan auch ändern',
   'mcp.writeHint':
-    'Kabel anlegen und entfernen, Kabel-Angaben setzen, Geräte umbenennen — über dieselben Store-Aktionen wie die Leinwand. Jeder Aufruf ist EIN Undo-Schritt und hinterlässt eine Zeile unter „Was Claude geändert hat". Schaltbefehle an Geräte (Videohub, ATEM) werden nie angeboten. Gilt ab dem nächsten Start des Servers.',
+    'Geräte aus der Bibliothek und eigene Geräte setzen, Kabel anlegen und entfernen, Kabel-Angaben und Rackhöhen setzen, Racks speichern, Geräte umbenennen — über dieselben Store-Aktionen wie die Leinwand. Jeder Aufruf ist EIN Undo-Schritt und hinterlässt eine Zeile unter „Was Claude geändert hat". Schaltbefehle an Geräte (Videohub, ATEM) werden nie angeboten. Gilt ab dem nächsten Start des Servers.',
   'mcp.trace': 'Was Claude geändert hat',
   'mcp.copy': 'Kopieren',
   'statusbar.mcp.title':

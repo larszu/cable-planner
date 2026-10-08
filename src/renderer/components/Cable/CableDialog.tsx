@@ -15,7 +15,6 @@ import type { Cable } from '../../types/cable'
 import {
   ALL_SIGNAL_STANDARDS,
   cableCatalog,
-  checkCableCompatibility,
   checkSdiStandardMismatch,
   checkImpedanceMismatch,
   checkBalanceMismatch,
@@ -27,15 +26,10 @@ import {
   type CompatibilityResult,
 } from '../../types/cableSpec'
 import { adapterVorschlag } from '../../lib/adapterVorschlag'
-import {
-  DEFAULT_VIDEO_FORMAT,
-  pickCableStandardForFormat,
-  videoFormatById,
-  type VideoFormatId,
-} from '../../types/videoFormat'
+import type { VideoFormatId } from '../../types/videoFormat'
 import { CUSTOM_CABLE_SPEC_ID, makeCustomCableSpec } from './customCableSpec'
 import { useBackdropClose } from '../../hooks/useBackdropClose'
-import { cableChoiceKey, rememberedLength, rememberedSpecId } from '../../lib/lastCableChoice'
+import { cableChoiceKey, defaultCableSpecId, rankCablesForPorts, rememberedLength } from '../../lib/lastCableChoice'
 
 export interface CableDialogProps {
   fromPort?: Port
@@ -109,15 +103,7 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
         message: '',
       }))
     }
-    return fullCableCatalog
-      .map((cable) => ({
-        cable,
-        ...checkCableCompatibility(fromPort.connectorType, toPort.connectorType, cable),
-      }))
-      .sort((a, b) => {
-        const order = { ok: 0, warn: 1, error: 2 }
-        return order[a.level] - order[b.level]
-      })
+    return rankCablesForPorts(fullCableCatalog, fromPort.connectorType, toPort.connectorType)
   }, [fromPort, toPort, fullCableCatalog])
 
   // For SDI↔SDI connections, pick the cable that matches the project's default
@@ -132,24 +118,23 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
   const [lastChoice] = useState(() =>
     choiceKey ? useUiStore.getState().lastCableByConnector[choiceKey] : undefined,
   )
-  const initialSpecId = useMemo(() => {
-    const remembered = rememberedSpecId(lastChoice, ranked)
-    if (remembered) return remembered
-    const firstUsable = ranked.find((item) => item.level !== 'error')
-    if (!firstUsable) return CUSTOM_CABLE_SPEC_ID
-    if (!fromPort || !toPort) return firstUsable.cable.id
-    const sdiConnectors = new Set<ConnectorType>(['BNC'])
-    const bothSdi =
-      sdiConnectors.has(fromPort.connectorType) && sdiConnectors.has(toPort.connectorType)
-    if (!bothSdi) return firstUsable.cable.id
-    const format = videoFormatById(defaultVideoFormat ?? DEFAULT_VIDEO_FORMAT)
-    if (!format) return firstUsable.cable.id
-    const target = pickCableStandardForFormat(format, fromDev?.sdiCaps, toDev?.sdiCaps)
-    const match = ranked.find(
-      (item) => item.level !== 'error' && item.cable.standards.includes(target),
-    )
-    return match?.cable.id ?? firstUsable.cable.id
-  }, [ranked, fromPort, toPort, fromDev, toDev, defaultVideoFormat, lastChoice])
+  const initialSpecId = useMemo(
+    () =>
+      defaultCableSpecId(
+        ranked,
+        lastChoice,
+        fromPort && toPort
+          ? {
+              from: fromPort.connectorType,
+              to: toPort.connectorType,
+              fromCaps: fromDev?.sdiCaps,
+              toCaps: toDev?.sdiCaps,
+              videoFormat: defaultVideoFormat,
+            }
+          : undefined,
+      ) ?? CUSTOM_CABLE_SPEC_ID,
+    [ranked, fromPort, toPort, fromDev, toDev, defaultVideoFormat, lastChoice],
+  )
 
   // Default the Custom Cable's connector to the START port's type so the cable
   // type inherits from the start connector when the user keeps the Custom preset.

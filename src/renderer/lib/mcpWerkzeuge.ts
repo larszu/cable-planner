@@ -31,8 +31,9 @@ import { portDisplayLabel } from './portLabel'
 import { deviceInterfaces } from './networkInterfaces'
 import { streamZeilen } from './streamEndpoints'
 import { cableLabelId } from './docIds'
+import { findeGeraet, findePort } from './mcpAufloesen'
 import type { CablePlannerProject } from '../types/project'
-import type { EquipmentItem, Port } from '../types/equipment'
+import type { EquipmentItem, EquipmentTemplate, Port } from '../types/equipment'
 
 /** Die Namen der Werkzeuge. Eines je Frage, die #872 Stufe 1 nennt. */
 export const MCP_WERKZEUGE = [
@@ -41,6 +42,8 @@ export const MCP_WERKZEUGE = [
   'trace_signal',
   'list_cables',
   'plan_findings',
+  'search_library',
+  'verify_cabling',
 ] as const
 
 export type McpWerkzeug = (typeof MCP_WERKZEUGE)[number]
@@ -59,6 +62,8 @@ export const istWerkzeug = (v: unknown): v is McpWerkzeug =>
  */
 export const MCP_SEITE = 50
 export const MCP_SEITE_MAX = 200
+/** Vorlagen tragen alle Ports; zehn sind schon eine lange Antwort. */
+export const MCP_BIBLIOTHEK_SEITE = 10
 
 export interface McpAntwort {
   /** Was strukturiert zurueckgeht (`structuredContent` im MCP-Sinn). */
@@ -157,6 +162,96 @@ const streamZeilenMcp = (e: EquipmentItem) =>
     format: r.stream.format ?? null,
   }))
 
+const vorlageZeile = (t: EquipmentTemplate) => ({
+  template: t.name,
+  category: t.category ?? null,
+  rackUnits: t.isRackDevice || t.rackUnits ? Math.max(1, t.rackUnits ?? 1) : null,
+  manufacturerUrl: t.manufacturerUrl ?? null,
+  ports: [
+    ...t.inputs.map((p) => ({ name: p.name, direction: p.direction === 'bidirectional' ? 'bidirectional' : 'in', connectorType: p.connectorType })),
+    ...t.outputs.map((p) => ({ name: p.name, direction: p.direction === 'bidirectional' ? 'bidirectional' : 'out', connectorType: p.connectorType })),
+  ],
+})
+
+interface SollKabel {
+  from?: unknown
+  fromPort?: unknown
+  to?: unknown
+  toPort?: unknown
+}
+
+/**
+ * #1052 — Soll gegen Ist. Vier Durchgaenge, von streng nach weich, und jedes
+ * Planerkabel zaehlt hoechstens fuer EINE Sollzeile: erst exakte Treffer,
+ * dann dieselben Ports andersherum (falsche Richtung), dann ein Kabel
+ * zwischen denselben Geraeten, das einen der beiden Ports teilt (falscher
+ * Port). Was danach uebrig ist, fehlt. Ueberzaehlig sind nur Kabel zwischen
+ * Geraeten, die die Liste nennt — eine Teilliste soll den Rest der Anlage
+ * nicht als Abweichung melden.
+ */
+const pruefeVerkabelung = (project: Readonly<CablePlannerProject>, soll: readonly SollKabel[]) => {
+  const name = (id: string) => project.equipment.find((e) => e.id === id)?.name ?? '?'
+  const portName = (geraetId: string, portId: string) => {
+    const e = project.equipment.find((x) => x.id === geraetId)
+    return [...(e?.inputs ?? []), ...(e?.outputs ?? [])].find((p) => p.id === portId)?.name ?? portId
+  }
+  const ist = (c: CablePlannerProject['cables'][number]) => ({
+    cable: cableLabelId(c),
+    from: name(c.fromEquipmentId),
+    fromPort: portName(c.fromEquipmentId, c.fromPortId),
+    to: name(c.toEquipmentId),
+    toPort: portName(c.toEquipmentId, c.toPortId),
+  })
+  const vergeben = new Set<string>()
+  const unaufgeloest: Array<Record<string, unknown>> = []
+  const offen: Array<{ zeile: SollKabel; von: string; vp: string; nach: string; np: string }> = []
+  const genannt = new Set<string>()
+  for (const zeile of soll) {
+    const von = findeGeraet(project, zeile.from)
+    const nach = findeGeraet(project, zeile.to)
+    if (von.ok) genannt.add(von.wert.id)
+    if (nach.ok) genannt.add(nach.wert.id)
+    const vp = von.ok ? findePort(von.wert, zeile.fromPort, 'from') : null
+    const np = nach.ok ? findePort(nach.wert, zeile.toPort, 'to') : null
+    const fehler = !von.ok ? von.fehler : !nach.ok ? nach.fehler : vp && !vp.ok ? vp.fehler : np && !np.ok ? np.fehler : ''
+    if (fehler || !von.ok || !nach.ok || !vp?.ok || !np?.ok) {
+      unaufgeloest.push({ expected: zeile, error: fehler })
+      continue
+    }
+    offen.push({ zeile, von: von.wert.id, vp: vp.wert.port.id, nach: nach.wert.id, np: np.wert.port.id })
+  }
+  const nimm = (passt: (c: CablePlannerProject['cables'][number], o: (typeof offen)[number]) => boolean) => {
+    const treffer: Array<{ o: (typeof offen)[number]; c: CablePlannerProject['cables'][number] }> = []
+    for (const o of [...offen]) {
+      const c = project.cables.find((k) => !vergeben.has(k.id) && passt(k, o))
+      if (!c) continue
+      vergeben.add(c.id)
+      offen.splice(offen.indexOf(o), 1)
+      treffer.push({ o, c })
+    }
+    return treffer
+  }
+  const exakt = nimm((c, o) => c.fromEquipmentId === o.von && c.fromPortId === o.vp && c.toEquipmentId === o.nach && c.toPortId === o.np)
+  const verkehrt = nimm((c, o) => c.fromEquipmentId === o.nach && c.fromPortId === o.np && c.toEquipmentId === o.von && c.toPortId === o.vp)
+  const falscherPort = nimm(
+    (c, o) => c.fromEquipmentId === o.von && c.toEquipmentId === o.nach && (c.fromPortId === o.vp || c.toPortId === o.np),
+  )
+  const fehlt = offen.map((o) => o.zeile)
+  const ueberzaehlig = project.cables
+    .filter((c) => !vergeben.has(c.id) && genannt.has(c.fromEquipmentId) && genannt.has(c.toEquipmentId))
+    .map(ist)
+  const abweichungen = unaufgeloest.length + verkehrt.length + falscherPort.length + fehlt.length + ueberzaehlig.length
+  return {
+    deviations: abweichungen,
+    matched: exakt.length,
+    missing: fehlt,
+    extra: ueberzaehlig,
+    wrongPort: falscherPort.map(({ o, c }) => ({ expected: o.zeile, actual: ist(c) })),
+    wrongDirection: verkehrt.map(({ o, c }) => ({ expected: o.zeile, actual: ist(c) })),
+    unresolved: unaufgeloest,
+  }
+}
+
 /**
  * Die eine Stelle, die eine Werkzeug-Frage beantwortet.
  *
@@ -168,8 +263,36 @@ export const beantworteWerkzeug = (
   project: Readonly<CablePlannerProject>,
   werkzeug: string,
   args: Record<string, unknown> = {},
+  /** #1052 — die Geraete-Bibliothek fuer `search_library`. */
+  bibliothek: readonly EquipmentTemplate[] = [],
 ): McpAntwort => {
   switch (werkzeug) {
+    case 'search_library': {
+      // Jedes Wort muss im Namen oder in der Kategorie stehen: „Studio
+      // Camera G2" findet „Blackmagic Studio Camera 4K Pro G2".
+      const worte = (typeof args.query === 'string' ? args.query : '').toLowerCase().split(/\s+/).filter(Boolean)
+      const kategorie = typeof args.category === 'string' ? args.category.toLowerCase() : ''
+      const limit = grenze(args.limit, MCP_BIBLIOTHEK_SEITE, MCP_SEITE)
+      const offset = Math.max(0, Math.floor(Number(args.offset) || 0))
+      const alle = bibliothek.filter((t) => {
+        const heu = `${t.name} ${t.category ?? ''}`.toLowerCase()
+        return worte.every((w) => heu.includes(w)) && (!kategorie || (t.category ?? '').toLowerCase().includes(kategorie))
+      })
+      const seite = alle.slice(offset, offset + limit)
+      const text = `${alle.length} library templates match; showing ${seite.length} from ${offset}.`
+      return { daten: { total: alle.length, offset, templates: seite.map(vorlageZeile) }, text }
+    }
+
+    case 'verify_cabling': {
+      const soll = Array.isArray(args.expected) ? (args.expected as SollKabel[]) : []
+      const ergebnis = pruefeVerkabelung(project, soll)
+      const text =
+        ergebnis.deviations === 0
+          ? `All ${ergebnis.matched} expected cables are in the plan, nothing extra between these devices.`
+          : `${ergebnis.deviations} deviations: ${ergebnis.missing.length} missing, ${ergebnis.extra.length} extra, ${ergebnis.wrongPort.length} wrong port, ${ergebnis.wrongDirection.length} wrong direction, ${ergebnis.unresolved.length} not resolvable. ${ergebnis.matched} match.`
+      return { daten: ergebnis, text }
+    }
+
     case 'list_devices': {
       const suche = typeof args.query === 'string' ? args.query : ''
       const kategorie = typeof args.category === 'string' ? args.category : ''
