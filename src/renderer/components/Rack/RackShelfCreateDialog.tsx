@@ -14,6 +14,7 @@ import { Button } from '../shared/Button'
 import { ModalShell } from '../shared/ModalShell'
 import type { EquipmentTemplate } from '../../types/equipment'
 import { useTranslation } from '../../lib/i18n'
+import { NumberInput } from '../shared/NumberInput'
 
 interface Props {
   open: boolean
@@ -75,26 +76,22 @@ export const RackShelfCreateDialog = ({ open, onClose, onCreated }: Props) => {
           <div className="grid grid-cols-2 gap-2">
             <label className="block">
               <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('rack.shelf.heightUnits', 'Height (U)')}</span>
-              <input
-                type="number"
+              <NumberInput
                 min={1}
                 max={6}
                 value={heightUnits}
-                onChange={(e) => setHeightUnits(Math.max(1, Math.min(6, Number(e.target.value) || 1)))}
+                onChange={setHeightUnits}
                 className="w-full border border-cp-border bg-cp-surface-3 px-2 py-1.5"
               />
             </label>
             <label className="block">
               <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('rack.shelf.depth', 'Depth (mm)')}</span>
-              <input
-                type="number"
+              <NumberInput
                 min={150}
                 max={1200}
                 step={50}
                 value={depthMm}
-                onChange={(e) =>
-                  setDepthMm(Math.max(150, Math.min(1200, Number(e.target.value) || 450)))
-                }
+                onChange={setDepthMm}
                 className="w-full border border-cp-border bg-cp-surface-3 px-2 py-1.5"
               />
             </label>

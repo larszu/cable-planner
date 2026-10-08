@@ -21,6 +21,7 @@ import { Button } from '../shared/Button'
 import { ModalShell } from '../shared/ModalShell'
 import type { EquipmentTemplate } from '../../types/equipment'
 import { format, useTranslation } from '../../lib/i18n'
+import { NumberInput } from '../shared/NumberInput'
 
 interface Props {
   open: boolean
@@ -131,12 +132,11 @@ export const NonRackAddDialog = ({
           <div className="mb-3 space-y-2">
             <label className="block">
               <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('rack.nonRack.rackUnits', 'U height')}</span>
-              <input
-                type="number"
+              <NumberInput
                 min={1}
                 max={20}
                 value={rackUnits}
-                onChange={(e) => setRackUnits(Math.max(1, Math.min(20, Number(e.target.value) || 1)))}
+                onChange={setRackUnits}
                 className="w-full border border-cp-border bg-cp-surface-3 px-2 py-1.5"
                 autoFocus
               />

@@ -13,6 +13,7 @@ import { symbolTabelle } from '../../lib/symbole/symbolListe'
 import { getApiKey, getAiProviderConfig, getSelectedAiProvider } from '../../lib/aiSuggestions'
 import { format, useTranslation } from '../../lib/i18n'
 import type { SymbolDef, SymbolKategorie } from '../../types/symbol'
+import { NumberInput } from '../shared/NumberInput'
 
 /** Groesste Rasterdatei fuer ein eigenes Symbol. Ein Zeichen, kein Foto. */
 const BILD_MAX_BYTES = 512 * 1024
@@ -153,12 +154,11 @@ export const SymbolPanel = () => {
             </label>
             <label className="flex items-center gap-2">
               <span className="w-24">{t('symbols.sel.size', 'Size')}</span>
-              <input
-                type="number"
+              <NumberInput
                 min={16}
                 max={400}
                 value={sel.groesse}
-                onChange={(e) => updateSymbol(sel.id, { groesse: Math.min(400, Math.max(16, Number(e.target.value) || 16)) })}
+                onChange={(groesse) => updateSymbol(sel.id, { groesse })}
                 className="w-20 px-1 py-0.5 bg-cp-surface-2 border border-cp-border"
               />
               <span className="text-cp-text-muted">px</span>

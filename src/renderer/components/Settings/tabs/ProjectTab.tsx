@@ -16,6 +16,7 @@ import { POWER_STANDARDS, DEFAULT_POWER_STANDARD } from '../../../types/powerSta
 import type { CableNumberingScheme, LengthEstimationScheme } from '../../../types/project'
 import type { CableStockEntry } from '../../../types/cable'
 import type { PowerStandardId } from '../../../types/powerStandard'
+import { NumberInput } from '../../shared/NumberInput'
 
 /**
  * #307 — Project-Tab aus SettingsDialog ausgelagert. Enthaelt
@@ -250,12 +251,11 @@ const CableNumberingSection = () => {
           </label>
           <label className="block">
             <span className="mb-1 block text-cp-text-muted">{t('settings.project.numbering.padding', 'Digits')}</span>
-            <input
-              type="number"
+            <NumberInput
               min={1}
               max={6}
               value={eff.padding}
-              onChange={(e) => patch({ padding: Math.max(1, Math.min(6, Number(e.target.value) || 1)) })}
+              onChange={(v) => patch({ padding: v })}
               className="w-full border border-cp-border bg-cp-surface-3 p-1.5"
             />
           </label>
@@ -339,12 +339,11 @@ const LengthEstimationSection = () => {
             <span className="mb-1 block text-cp-text-muted">
               {t('settings.project.lengthEst.scale', 'Metres per 100 px')}
             </span>
-            <input
-              type="number"
+            <NumberInput
               min={0.1}
               step={0.1}
               value={eff.metersPer100px}
-              onChange={(e) => patch({ metersPer100px: Math.max(0.1, Number(e.target.value) || 0.1) })}
+              onChange={(metersPer100px) => patch({ metersPer100px })}
               className="w-full border border-cp-border bg-cp-surface-3 p-1.5"
             />
           </label>
@@ -467,11 +466,10 @@ const CableStockSection = () => {
               <span className="mb-1 block text-cp-text-muted">
                 {t('settings.project.stock.length', 'Length (m)')}
               </span>
-              <input
-                type="number"
+              <NumberInput
                 min={1}
                 value={e.lengthM}
-                onChange={(ev) => setzen(i, { lengthM: Math.max(1, Number(ev.target.value) || 1) })}
+                onChange={(v) => setzen(i, { lengthM: v })}
                 className="w-full border border-cp-border bg-cp-surface-3 p-1.5"
               />
             </label>

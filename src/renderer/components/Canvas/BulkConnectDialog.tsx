@@ -9,6 +9,7 @@ import { ModalShell } from '../shared/ModalShell'
 import { infoDialog } from '../../lib/infoDialog'
 import { cableCatalog } from '../../types/cableSpec'
 import type { CableType } from '../../types/cable'
+import { NumberInput } from '../shared/NumberInput'
 
 // CableType excludes DIN/DisplayPort/USB (legacy types); map them to 'Custom'.
 const EXCLUDED: Set<string> = new Set(['DIN', 'DisplayPort', 'USB'])
@@ -206,12 +207,11 @@ const BulkConnectDialogInner = () => {
                   { side: fromSide === 'outputs' ? 'Output' : 'Input', total: fromPorts.length },
                 )}
               </span>
-              <input
-                type="number"
+              <NumberInput
                 min={1}
                 max={Math.max(1, fromPorts.length)}
                 value={fromStart}
-                onChange={(e) => setFromStart(Math.max(1, Number(e.target.value) || 1))}
+                onChange={setFromStart}
                 className="w-full border border-cp-border bg-cp-surface-3 p-1.5 font-mono text-cp-xs"
               />
             </label>
@@ -255,12 +255,11 @@ const BulkConnectDialogInner = () => {
                   { side: toSide === 'inputs' ? 'Input' : 'Output', total: toPorts.length },
                 )}
               </span>
-              <input
-                type="number"
+              <NumberInput
                 min={1}
                 max={Math.max(1, toPorts.length)}
                 value={toStart}
-                onChange={(e) => setToStart(Math.max(1, Number(e.target.value) || 1))}
+                onChange={setToStart}
                 className="w-full border border-cp-border bg-cp-surface-3 p-1.5 font-mono text-cp-xs"
               />
             </label>
@@ -271,12 +270,11 @@ const BulkConnectDialogInner = () => {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <label className="block">
             <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('bulk.count', 'Cable count')}</span>
-            <input
-              type="number"
+            <NumberInput
               min={1}
               max={256}
               value={count}
-              onChange={(e) => setCount(Math.max(1, Math.min(256, Number(e.target.value) || 1)))}
+              onChange={setCount}
               className="w-full border border-cp-border bg-cp-surface-3 p-1.5 font-mono text-cp-xs"
             />
           </label>

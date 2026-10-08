@@ -23,6 +23,7 @@ import { powerStandardById, POWER_SUPPLY_PRESETS } from '../../types/powerStanda
 import jsPDF from 'jspdf'
 import { sanitizeForPdf } from '../../lib/sanitizeForPdf'
 import { PanelHint } from '../shared/PanelHint'
+import { NumberInput } from '../shared/NumberInput'
 
 // v7.5.0 — Cable-Length tab removed. The standalone calculator
 // can't produce meaningful estimates without inter-location distances
@@ -1001,11 +1002,10 @@ const PowerTab = () => {
               <span className="mb-1 block text-cp-xs text-cp-text-muted">
                 {t('calc.ups.battCount', 'Battery count')}
               </span>
-              <input
-                type="number"
+              <NumberInput
                 min={1}
                 value={battCount}
-                onChange={(e) => setBattCount(Math.max(1, Number(e.target.value) || 1))}
+                onChange={setBattCount}
                 className="w-full border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs"
               />
             </label>
@@ -1013,14 +1013,11 @@ const PowerTab = () => {
               <span className="mb-1 block text-cp-xs text-cp-text-muted">
                 {t('calc.ups.usable', 'Usable (%)')}
               </span>
-              <input
-                type="number"
+              <NumberInput
                 min={1}
                 max={100}
                 value={usablePercent}
-                onChange={(e) =>
-                  setUsablePercent(Math.min(100, Math.max(1, Number(e.target.value) || 1)))
-                }
+                onChange={setUsablePercent}
                 className="w-full border border-cp-border bg-cp-surface-3 px-2 py-1 text-cp-xs"
               />
             </label>
@@ -1063,11 +1060,10 @@ const PowerTab = () => {
             </dl>
             <div className="mt-2 flex items-center gap-2 border-t border-cp-border-muted pt-2 text-cp-xs">
               <span className="text-cp-text-muted">{t('calc.ups.target', 'Target runtime')}</span>
-              <input
-                type="number"
+              <NumberInput
                 min={1}
                 value={targetMinutes}
-                onChange={(e) => setTargetMinutes(Math.max(1, Number(e.target.value) || 1))}
+                onChange={setTargetMinutes}
                 className="w-16 border border-cp-border bg-cp-surface-3 px-1.5 py-0.5 text-cp-xs"
               />
               <span className="text-cp-text-muted">min →</span>

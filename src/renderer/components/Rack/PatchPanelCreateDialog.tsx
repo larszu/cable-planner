@@ -22,6 +22,7 @@ import { useUiStore } from '../../store/uiStore'
 import { format, useTranslation } from '../../lib/i18n'
 import { ConnectorPicker } from '../shared/ConnectorPicker'
 import { connectorGender, connectorLabel } from '../../lib/connectorCatalog'
+import { NumberInput } from '../shared/NumberInput'
 
 interface PatchPanelCreateDialogProps {
   open: boolean
@@ -179,12 +180,11 @@ export const PatchPanelCreateDialog = ({ open, onClose, onCreated }: PatchPanelC
             <div className="grid grid-cols-2 gap-2">
               <label className="block">
                 <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('rack.patchPanel.heightUnits', 'Height (U)')}</span>
-                <input
-                  type="number"
+                <NumberInput
                   min={1}
                   max={6}
                   value={heightUnits}
-                  onChange={(e) => setHeightUnits(Math.max(1, Math.min(6, Number(e.target.value) || 1)))}
+                  onChange={setHeightUnits}
                   className="w-full border border-cp-border bg-cp-surface-3 px-2 py-1.5"
                 />
               </label>
@@ -205,12 +205,11 @@ export const PatchPanelCreateDialog = ({ open, onClose, onCreated }: PatchPanelC
             <label className="block">
               <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('rack.patchPanel.portCount', 'Port count')}</span>
               <div className="flex items-center gap-2">
-                <input
-                  type="number"
+                <NumberInput
                   min={1}
                   max={128}
                   value={portCount}
-                  onChange={(e) => setPortCount(Math.max(1, Math.min(128, Number(e.target.value) || 1)))}
+                  onChange={setPortCount}
                   className="w-24 border border-cp-border bg-cp-surface-3 px-2 py-1.5"
                 />
                 <div className="flex gap-1">

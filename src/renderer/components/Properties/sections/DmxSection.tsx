@@ -11,6 +11,7 @@ import {
 } from '../../../lib/dmx'
 import { SortableSection } from '../SortableSection'
 import { PanelHint } from '../../shared/PanelHint'
+import { NumberInput } from '../../shared/NumberInput'
 
 /**
  * DMX: Betriebsmodus, Universe und Startadresse einer Lampe.
@@ -172,12 +173,12 @@ export const DmxSection = ({ equipment }: { equipment: EquipmentItem }) => {
                     onChange={(e) => modusAendern(m.id, { name: e.target.value })}
                     className="min-w-24 flex-1 border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
                   />
-                  <input
-                    type="number"
+                  <NumberInput
+                    integer
                     min={1}
                     max={UNIVERSE_GROESSE}
                     value={m.kanaele}
-                    onChange={(e) => modusAendern(m.id, { kanaele: Math.max(1, Math.floor(Number(e.target.value) || 1)) })}
+                    onChange={(v) => modusAendern(m.id, { kanaele: v })}
                     title={t('dmx.channelCount', 'Channels in this mode')}
                     className="w-16 border border-cp-border bg-cp-surface-3 p-1 text-center text-cp-xs tabular-nums"
                   />

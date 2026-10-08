@@ -28,6 +28,7 @@ import type { ConnectorType, EquipmentTemplate } from '../../types/equipment'
 import type { Foto } from '../../types/foto'
 import { erkennungZuGruppen, type PortGroupDraft } from './libraryPanelHelpers'
 import { v4 as uuidv4 } from 'uuid'
+import { NumberInput } from '../shared/NumberInput'
 
 interface Zeile extends ErkannterPort {
   id: string
@@ -313,12 +314,12 @@ export const FotoPortErkennung = ({
                       <option value="out">{t('library.create.directionOutput', 'Output')}</option>
                       <option value="bidirectional">{t('library.photo.bidirectional', 'Both ways')}</option>
                     </select>
-                    <input
-                      type="number"
+                    <NumberInput
+                      integer
                       min={1}
                       aria-label={t('library.photo.count', 'Count')}
                       value={z.count}
-                      onChange={(e) => setzeZeile(z.id, { count: Math.max(1, Math.floor(Number(e.target.value) || 1)) })}
+                      onChange={(v) => setzeZeile(z.id, { count: v })}
                       className="border border-cp-border bg-cp-surface-1 p-0.5"
                     />
                     <select

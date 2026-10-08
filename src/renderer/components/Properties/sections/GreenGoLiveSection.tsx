@@ -15,6 +15,7 @@ import { detectDeviceKind } from '../../../lib/deviceKind'
 import { GREENGO_CHANNELS } from '../../../lib/greengoLive'
 import { useGreengoLiveStore } from '../../../store/greengoLiveStore'
 import type { EquipmentItem } from '../../../types/equipment'
+import { NumberInput } from '../../shared/NumberInput'
 
 const LEVEL_MIN = -40
 const LEVEL_MAX = 12
@@ -63,7 +64,7 @@ export const GreenGoLiveSection = ({ equipment }: { equipment: EquipmentItem }) 
           </span>
           <label className="flex flex-col gap-0.5">
             <span className="text-cp-text-muted">{t('props.greengoLive.port', 'OSC port')}</span>
-            <input className="w-16 border border-cp-border bg-cp-surface-1 px-1 py-0.5" value={port} onChange={(e) => setPort(Number(e.target.value) || 8000)} />
+            <NumberInput min={1} max={65535} integer className="w-16 border border-cp-border bg-cp-surface-1 px-1 py-0.5" value={port} onChange={setPort} />
           </label>
           {mine ? (
             <button type="button" className="border border-cp-border bg-cp-surface-1 px-2 py-1 hover:bg-cp-surface-3" onClick={() => void disconnect()}>
