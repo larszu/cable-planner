@@ -77,6 +77,8 @@ import { useAtemTallyFeed } from '../../hooks/useAtemTallyFeed'
 import { useVideohubLinkFeed } from '../../hooks/useVideohubLinkFeed'
 import { styleForLayer } from '../../lib/cableLayers'
 import { MONO_TINTE, monochromLabel } from '../../lib/monochromeSheet'
+import { cableLabelName } from '../../lib/lastCableChoice'
+import { cableCatalog } from '../../types/cableSpec'
 import { DRUCK_MS, LangerDruck } from '../../lib/langerDruck'
 import { ansicht } from '../../lib/ansicht'
 import { portAmKoerper } from '../../lib/portAmKoerper'
@@ -163,6 +165,9 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
   const canvasBgImageFit = useUiStore((state) => state.canvasBgImageFit)
   const cableColorMode = useUiStore((state) => state.cableColorMode)
   const cableLabelShortForm = useUiStore((state) => state.cableLabelShortForm)
+  // #1036 — unnamed cables label themselves with their type's name.
+  const customCableSpecs = useUiStore((state) => state.customCableSpecs)
+  const labelSpecs = useMemo(() => [...cableCatalog, ...customCableSpecs], [customCableSpecs])
   const canvasTheme = useUiStore((state) => state.canvasTheme)
   // #914/#915 — was der Canvas gerade zeigt: Signalweg und ausgeblendete
   // Raeume/Etagen. Reine Ansicht, deshalb erst beim Uebergeben an ReactFlow
@@ -820,12 +825,13 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
             // entfernt, "SDI 3G (1080p50/60) (1m)" -> "SDI 3G (1m)".
             // Toggle ueber Toolbar (Defaults-Menue). Voller Name +
             // Standard sieht der User weiter in den Eigenschaften.
+            const fullName = cableLabelName(item, labelSpecs)
             const displayName = cableLabelShortForm
-              ? item.name.replace(
+              ? fullName.replace(
                   /\s*\(\d{2,4}[pi]\d{2,3}(?:\/\d{2,3})?\)/gi,
                   '',
                 ).trim()
-              : item.name
+              : fullName
             const base = `${displayName} (${item.length}m)`
             // Auto-Kabelnummerierung: Nummer als [Nr]-Praefix voranstellen.
             const numbered = item.cableNumber ? `[${item.cableNumber}] ${base}` : base
@@ -839,7 +845,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
           })(),
         }
       }),
-    [project.cables, cableColorMode, cableLabelShortForm, pdfExportThemeOverride, pdfExportMonochrome],
+    [project.cables, cableColorMode, cableLabelShortForm, pdfExportThemeOverride, pdfExportMonochrome, labelSpecs],
   )
 
   const angezeigteKanten = useMemo<Edge[]>(() => {

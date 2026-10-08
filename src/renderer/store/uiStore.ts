@@ -359,6 +359,9 @@ interface PersistedUiState {
    *  Default 11 entspricht dem historischen Hardcoded-Wert. Range
    *  8–18 ist durch den Slider in SettingsDialog limitiert. */
   portLabelFontSize: number
+  /** #1036 — last cable type + length per connector pair (key from
+   *  `cableChoiceKey`), so the cable dialog preselects them. */
+  lastCableByConnector: Record<string, import('../lib/lastCableChoice').LastCableChoice>
 }
 
 /**
@@ -407,6 +410,7 @@ const defaults: PersistedUiState = {
   bgVariant: 'dots',
   bgOpacity: 0.5,
   customCableSpecs: [],
+  lastCableByConnector: {},
   customConnectorTypes: [],
   customSignalStandards: [],
   stammdatenEntfernt: [],
@@ -546,6 +550,9 @@ const load = (): PersistedUiState => {
     // updated from a much older version with a different schema.
     const merged: PersistedUiState = { ...defaults, ...parsed }
     if (!Array.isArray(merged.customCableSpecs)) merged.customCableSpecs = []
+    if (!merged.lastCableByConnector || typeof merged.lastCableByConnector !== 'object' || Array.isArray(merged.lastCableByConnector)) {
+      merged.lastCableByConnector = {}
+    }
     if (!Array.isArray(merged.customConnectorTypes)) merged.customConnectorTypes = []
     if (!Array.isArray(merged.customSignalStandards)) merged.customSignalStandards = []
     if (!Array.isArray(merged.stammdatenEntfernt)) merged.stammdatenEntfernt = []
@@ -814,6 +821,7 @@ interface UiState extends PersistedUiState {
   /** Add a new custom cable spec. The store assigns a `custom-cable:`
    *  id automatically; if a spec with the same name already exists
    *  it's replaced (so re-saving keeps the library clean). */
+  rememberCableChoice: (key: string, choice: import('../lib/lastCableChoice').LastCableChoice) => void
   addCustomCableSpec: (spec: Omit<import('../types/cableSpec').CableSpec, 'id'>) => import('../types/cableSpec').CableSpec
   /** Patch an existing custom spec in place. No-op if `id` doesn't
    *  start with 'custom-cable:' — built-ins are read-only. */
@@ -1348,6 +1356,10 @@ export const useUiStore = create<UiState>((set) => ({
     }),
   setBgVariant: (value) => set(applyPatch({ bgVariant: value })),
   setBgOpacity: (value) => set(applyPatch({ bgOpacity: Math.max(0, Math.min(1, value)) })),
+  rememberCableChoice: (key, choice) =>
+    set((state) =>
+      applyPatch({ lastCableByConnector: { ...state.lastCableByConnector, [key]: choice } })(state),
+    ),
   addCustomCableSpec: (spec) => {
     const id = `custom-cable:${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`
     const entry = { ...spec, id }

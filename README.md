@@ -40,6 +40,9 @@
 
 - **Plan in signal flow, not in drawings.** Devices with real ports from 1,800+
   catalogue entries, each linked to its manufacturer datasheet.
+  A new cable starts with the type and length of the last cable drawn
+  between the same connectors; its name stays empty and the label shows the
+  type.
 - **Real cable lengths.** Put the floor plan under the canvas, calibrate it, and
   lengths follow the drawn route — split into the stock lengths you own.
 - **Rooms, floors, risers, 3D.** Every cable end reads *floor · room · device ·
