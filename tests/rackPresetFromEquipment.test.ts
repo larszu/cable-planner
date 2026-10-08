@@ -2,11 +2,14 @@ import { describe, expect, it } from 'vitest'
 import {
   RACK_DRAFT_FIELDS_NOT_FROM_EQUIPMENT,
   presetFromBlackBoxRack,
+  presetFromDraft,
   presetFromEquipmentSelection,
 } from '../src/renderer/lib/rackPreset'
+import { draftFromPreset, normalizeDraft } from '../src/renderer/components/Rack/rackBuilderHelpers'
+import type { Cable } from '../src/renderer/types/cable'
 import { interfaceKeys } from './support/interfaceKeys'
 import draftTypesSrc from '../src/renderer/components/Rack/rackBuilderTypes.ts?raw'
-import type { EquipmentItem } from '../src/renderer/types/equipment'
+import type { EquipmentItem, GroupPreset } from '../src/renderer/types/equipment'
 
 // ADR-005, Inkrement 4, Regel 1 — was das Rack aus dem Plan uebernimmt.
 //
@@ -82,12 +85,93 @@ describe('presetFromEquipmentSelection — Rack Builder aus Auswahl', () => {
     expect(preset.rack?.totalUnits).toBe(12)
   })
 
-  it('haelt interne Kabel leer — das ist Absicht, kein Verlust', () => {
-    // Die Kabel zwischen den markierten Geraeten liegen weiter im Plan; im
-    // Rack verkabelt der User im Sub-Canvas. Ausdruecklich festgehalten,
-    // damit es niemand fuer denselben Fehler wie #626 haelt.
+  it('ohne Projektkabel bleiben die internen Kabel leer', () => {
     const preset = presetFromEquipmentSelection([eq()], 'p1', 'Rack A')!
     expect(preset.cables).toEqual([])
+  })
+
+  describe('#1037 — vorhandene Kabel zwischen den markierten Geraeten', () => {
+    const atem = eq({
+      id: 'atem',
+      inputs: [port('atem-in1', 'SDI IN 1')],
+      outputs: [port('atem-pgm', 'PGM'), port('atem-aux', 'AUX 1')],
+    })
+    const hub = eq({
+      id: 'hub',
+      name: 'Videohub',
+      inputs: [port('hub-in1', 'IN 1')],
+      outputs: [port('hub-out1', 'OUT 1')],
+    })
+    const cable = (over: Partial<Cable>): Cable =>
+      ({
+        id: 'c',
+        name: 'K',
+        type: 'SDI',
+        length: 2,
+        color: '#123456',
+        fromEquipmentId: 'atem',
+        fromPortId: 'atem-pgm',
+        toEquipmentId: 'hub',
+        toPortId: 'hub-in1',
+        notes: '',
+        ...over,
+      }) as Cable
+    const projectCables: Cable[] = [
+      cable({ id: 'pgm', name: 'PGM', standard: 'SDI-12G' as Cable['standard'] }),
+      cable({ id: 'ret', name: 'Return', fromEquipmentId: 'hub', fromPortId: 'hub-out1', toEquipmentId: 'atem', toPortId: 'atem-in1' }),
+      // Ein Ende ausserhalb der Auswahl: aussen liegender Anschluss.
+      cable({ id: 'ext', fromPortId: 'atem-aux', toEquipmentId: 'monitor', toPortId: 'mon-in' }),
+      // Verwaister Port-Verweis: lieber weglassen als falsch verbinden.
+      cable({ id: 'stale', fromPortId: 'gibt-es-nicht' }),
+    ]
+
+    it('uebernimmt Kabel mit beiden Enden in der Auswahl als interne Kabel', () => {
+      const preset = presetFromEquipmentSelection([atem, hub], 'p1', 'Rack A', projectCables)!
+      expect(preset.cables).toEqual([
+        {
+          fromItemIndex: 0,
+          fromPortName: 'PGM',
+          toItemIndex: 1,
+          toPortName: 'IN 1',
+          name: 'PGM',
+          type: 'SDI',
+          length: 2,
+          color: '#123456',
+          standard: 'SDI-12G',
+        },
+        {
+          fromItemIndex: 1,
+          fromPortName: 'OUT 1',
+          toItemIndex: 0,
+          toPortName: 'SDI IN 1',
+          name: 'Return',
+          type: 'SDI',
+          length: 2,
+          color: '#123456',
+        },
+      ])
+    })
+
+    it('laesst die Projektkabel unberuehrt', () => {
+      const before = JSON.stringify(projectCables)
+      presetFromEquipmentSelection([atem, hub], 'p1', 'Rack A', projectCables)
+      expect(JSON.stringify(projectCables)).toBe(before)
+    })
+
+    it('Speichern ueber den Draft verliert und verdoppelt keine Kabel', () => {
+      const seeded = presetFromEquipmentSelection([atem, hub], 'p1', 'Rack A', projectCables)!
+      const draft = normalizeDraft(draftFromPreset(seeded))
+      expect(draft.internalCables).toHaveLength(2)
+      const saved = presetFromDraft(draft)
+      expect(saved.cables).toHaveLength(2)
+      const key = (c: GroupPreset['cables'][number]) =>
+        `${saved.items[c.fromItemIndex].name}:${c.fromPortName}>${saved.items[c.toItemIndex].name}:${c.toPortName}`
+      expect(saved.cables.map(key).sort()).toEqual(
+        seeded.cables
+          .map((c) => `${seeded.items[c.fromItemIndex].name}:${c.fromPortName}>${seeded.items[c.toItemIndex].name}:${c.toPortName}`)
+          .sort(),
+      )
+    })
   })
 
   it('gibt bei leerer Auswahl null zurueck', () => {

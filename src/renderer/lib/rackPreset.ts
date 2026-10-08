@@ -36,6 +36,7 @@
 // ───────────────────────────────────────────────────────────────────────────
 import { v4 as uuidv4 } from 'uuid'
 import type { EquipmentItem, GroupPreset } from '../types/equipment'
+import type { Cable } from '../types/cable'
 import type { RackPlacementDraft, InternalCableDraft } from '../components/Rack/rackBuilderTypes'
 
 export interface RackPresetDraft {
@@ -270,14 +271,19 @@ export const itemFromEquipment = (eq: EquipmentItem): GroupPreset['items'][numbe
  * „Rack Builder aus Auswahl": markierte Canvas-Geraete zu einem Rack-Preset
  * stapeln, von oben nach unten nach HE-Groesse.
  *
- * Interne Kabel bleiben ausdruecklich leer — der User verkabelt im Sub-Canvas.
- * Das ist eine Entscheidung, kein Verlust: die Kabel zwischen den markierten
- * Geraeten liegen weiter im Plan.
+ * #1037 — Projektkabel, deren BEIDE Enden in der Auswahl liegen, werden als
+ * interne Kabel uebernommen (Port-Referenz per Name, wie im Preset ueblich).
+ * Vorher blieb die Liste leer, und der Builder zeigte „0 interne Kabel",
+ * obwohl die Geraete laengst verbunden waren. Die Projektkabel selbst bleiben
+ * unberuehrt im Plan: das Preset ist eine Kopie, wie die Geraete auch.
+ * Kabel mit nur einem Ende in der Auswahl sind aussen liegende Anschluesse
+ * und bleiben draussen.
  */
 export const presetFromEquipmentSelection = (
   items: EquipmentItem[],
   presetId: string,
   name: string,
+  projectCables: readonly Cable[] = [],
 ): GroupPreset | null => {
   if (items.length === 0) return null
   let cursorUnit = 1
@@ -295,8 +301,39 @@ export const presetFromEquipmentSelection = (
       placements,
     },
     items: items.map(itemFromEquipment),
-    cables: [],
+    cables: internalCablesFromSelection(items, projectCables),
   }
+}
+
+const internalCablesFromSelection = (
+  items: EquipmentItem[],
+  projectCables: readonly Cable[],
+): GroupPreset['cables'] => {
+  const indexById = new Map(items.map((eq, i) => [eq.id, i]))
+  const portName = (eq: EquipmentItem, portId: string): string | undefined =>
+    [...eq.inputs, ...eq.outputs].find((p) => p.id === portId)?.name
+  const out: GroupPreset['cables'] = []
+  for (const c of projectCables) {
+    const fromIdx = indexById.get(c.fromEquipmentId)
+    const toIdx = indexById.get(c.toEquipmentId)
+    if (fromIdx == null || toIdx == null) continue
+    const fromPortName = portName(items[fromIdx], c.fromPortId)
+    const toPortName = portName(items[toIdx], c.toPortId)
+    if (!fromPortName || !toPortName) continue
+    const entry: GroupPreset['cables'][number] = {
+      fromItemIndex: fromIdx,
+      fromPortName,
+      toItemIndex: toIdx,
+      toPortName,
+      name: c.name,
+      type: c.type,
+      length: c.length,
+    }
+    if (c.color) entry.color = c.color
+    if (c.standard) entry.standard = c.standard
+    out.push(entry)
+  }
+  return out
 }
 
 /**
