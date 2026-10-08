@@ -316,8 +316,6 @@ export const RackImageCropDialog = ({
     onConfirm({ dataUrl: canvas.toDataURL('image/png'), crop })
   }
 
-  const cropGlow = activeHandle ? '0 0 0 1px rgba(34,211,238,0.9), 0 0 18px 2px rgba(34,211,238,0.55)' : '0 0 0 1px rgba(34,211,238,0.6)'
-
   return (
     <div
       {...backdrop}
@@ -428,7 +426,7 @@ export const RackImageCropDialog = ({
                       top: `${crop.y * 100}%`,
                       width: `${crop.width * 100}%`,
                       height: `${crop.height * 100}%`,
-                      boxShadow: cropGlow,
+                      boxShadow: activeHandle ? '0 0 0 2px rgba(34,211,238,0.9)' : '0 0 0 1px rgba(34,211,238,0.6)',
                       cursor: activeHandle === 'move' ? 'grabbing' : 'grab',
                     }}
                     onPointerDown={(e) => handlePointerDown('move', e)}

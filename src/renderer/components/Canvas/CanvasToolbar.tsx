@@ -87,7 +87,6 @@ const IconButton = ({
         background: active ? T.btnActiveBg : T.btnBg,
         color: active ? T.btnActiveText : (color ?? T.text),
         border: '1px solid transparent',
-        borderRadius: 6,
         cursor: disabled ? 'not-allowed' : 'pointer',
         opacity: disabled ? 0.4 : 1,
         transition: 'background 0.12s',
@@ -146,10 +145,8 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
   const setCableLabelShortForm = useUiStore((state) => state.setCableLabelShortForm)
   const cableColorMode = useUiStore((state) => state.cableColorMode)
   const setCableColorMode = useUiStore((state) => state.setCableColorMode)
-  const canvasTheme = useUiStore((state) => state.canvasTheme)
   const colorPortsByType = useUiStore((state) => state.colorPortsByType)
   const setColorPortsByType = useUiStore((state) => state.setColorPortsByType)
-  const isLight = canvasTheme === 'light'
   const [showLengthLegend, setShowLengthLegend] = useState(false)
   const addLocation = useProjectStore((state) => state.addLocation)
   const addLocationAroundEquipment = useProjectStore(
@@ -376,10 +373,6 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
         padding: '4px 6px',
         background: T.bg,
         border: `1px solid ${T.border}`,
-        borderRadius: 10,
-        boxShadow: isLight
-          ? '0 8px 24px rgba(15,23,42,0.10), 0 2px 6px rgba(15,23,42,0.06)'
-          : '0 8px 24px rgba(0,0,0,0.40), 0 2px 6px rgba(0,0,0,0.30)',
         fontSize: 11,
         ...containerStyle,
         color: T.text,
@@ -401,7 +394,6 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
           height: T.iconBtnSize,
           color: T.textMuted,
           userSelect: 'none',
-          borderRadius: 4,
         }}
       >
         <svg width="8" height="14" viewBox="0 0 8 14" fill="currentColor" aria-hidden="true">
@@ -656,7 +648,6 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
               border: `1px solid ${T.border}`,
               color: T.text,
               padding: '0 6px',
-              borderRadius: 4,
               fontSize: 11,
             }}
           />
@@ -669,7 +660,6 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
               background: '#059669',
               color: '#ffffff',
               border: 'none',
-              borderRadius: 4,
               cursor: 'pointer',
               display: 'inline-flex',
               alignItems: 'center',
@@ -904,7 +894,6 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
                 ? '#e0f2fe'
                 : T.text,
           border: `1px solid ${projectMode === 'finalized' ? '#06b6d4' : T.border}`,
-          borderRadius: 6,
           cursor: projectMode === 'viewer' ? 'not-allowed' : 'pointer',
           fontSize: 11,
           fontWeight: 500,
@@ -942,7 +931,6 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
           background: annotationsVisible ? T.btnBg : T.btnActiveBg,
           color: annotationsVisible ? T.text : '#ffffff',
           border: `1px solid ${annotationsVisible ? T.border : T.btnActiveBg}`,
-          borderRadius: 6,
           cursor: 'pointer',
           fontSize: 11,
         }}
@@ -990,7 +978,6 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
                 ? '#a78bfa'
                 : T.border
           }`,
-          borderRadius: 6,
           cursor: 'pointer',
           fontSize: 11,
           fontWeight: 500,
@@ -1044,11 +1031,9 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
             left: 0,
             background: T.bg,
             border: `1px solid ${T.border}`,
-            borderRadius: 8,
             padding: '10px 14px',
             zIndex: 20,
             minWidth: 200,
-            boxShadow: '0 6px 16px rgba(0,0,0,0.25)',
           }}
         >
           <div style={{ fontWeight: 600, marginBottom: 8, fontSize: 11, color: T.text }}>
@@ -1065,7 +1050,6 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
                   width: 28,
                   height: 3,
                   background: r.color,
-                  borderRadius: 2,
                   border: '1px solid var(--cp-text-faint)',
                   ...(r.dashArray
                     ? { backgroundImage: `repeating-linear-gradient(90deg,${r.color} 0 6px,transparent 6px 10px)`, backgroundColor: 'transparent' }
@@ -1183,7 +1167,6 @@ const DefaultsMenu = ({
           background: open ? T.btnActiveBg : T.btnBg,
           color: open ? T.btnActiveText : T.text,
           border: '1px solid transparent',
-          borderRadius: 6,
           cursor: 'pointer',
           fontSize: 11,
         }}
@@ -1217,9 +1200,7 @@ const DefaultsMenu = ({
             minWidth: 260,
             background: T.bg,
             border: `1px solid ${T.border}`,
-            borderRadius: 8,
             padding: 8,
-            boxShadow: '0 8px 20px rgba(0,0,0,0.3)',
             fontSize: 11,
             color: T.text,
             zIndex: 30,
@@ -1246,7 +1227,6 @@ const DefaultsMenu = ({
                   background: defaultRouting === opt.value ? T.btnActiveBg : 'var(--cp-surface-2)',
                   color: defaultRouting === opt.value ? T.btnActiveText : T.text,
                   border: '1px solid transparent',
-                  borderRadius: 4,
                   cursor: 'pointer',
                   fontSize: 11,
                 }}
@@ -1269,7 +1249,6 @@ const DefaultsMenu = ({
                 background: cableColorMode === 'manual' ? T.btnActiveBg : 'var(--cp-surface-2)',
                 color: cableColorMode === 'manual' ? T.btnActiveText : T.text,
                 border: '1px solid transparent',
-                borderRadius: 4,
                 cursor: 'pointer',
                 fontSize: 11,
               }}
@@ -1285,7 +1264,6 @@ const DefaultsMenu = ({
                 background: cableColorMode === 'byLength' ? T.btnActiveBg : 'var(--cp-surface-2)',
                 color: cableColorMode === 'byLength' ? T.btnActiveText : T.text,
                 border: '1px solid transparent',
-                borderRadius: 4,
                 cursor: 'pointer',
                 fontSize: 11,
               }}
@@ -1302,7 +1280,6 @@ const DefaultsMenu = ({
                   background: 'var(--cp-surface-2)',
                   color: T.textMuted,
                   border: '1px solid transparent',
-                  borderRadius: 4,
                   cursor: 'pointer',
                   fontSize: 11,
                 }}
@@ -1459,7 +1436,6 @@ const LockMenu = ({
           background: aktiv > 0 ? '#0e7490' : open ? T.btnActiveBg : T.btnBg,
           color: aktiv > 0 ? '#e0f2fe' : open ? T.btnActiveText : T.text,
           border: `1px solid ${aktiv > 0 ? '#06b6d4' : 'transparent'}`,
-          borderRadius: 6,
           cursor: 'pointer',
           fontSize: 11,
         }}
@@ -1490,9 +1466,7 @@ const LockMenu = ({
             minWidth: 220,
             background: T.bg,
             border: `1px solid ${T.border}`,
-            borderRadius: 8,
             padding: 8,
-            boxShadow: '0 8px 20px rgba(0,0,0,0.3)',
             fontSize: 11,
             color: T.text,
             zIndex: 30,
@@ -1513,7 +1487,6 @@ const LockMenu = ({
                 background: s.an ? T.btnActiveBg : 'transparent',
                 color: s.an ? T.btnActiveText : T.text,
                 border: '1px solid transparent',
-                borderRadius: 4,
                 cursor: 'pointer',
                 fontSize: 11,
                 textAlign: 'left',
@@ -1526,7 +1499,6 @@ const LockMenu = ({
                   justifyContent: 'center',
                   width: 14,
                   height: 14,
-                  borderRadius: 3,
                   border: `1px solid ${s.an ? '#06b6d4' : T.border}`,
                   background: s.an ? '#0e7490' : 'transparent',
                   flexShrink: 0,

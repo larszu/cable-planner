@@ -72,7 +72,6 @@ const PromptDialog = ({ title, defaultValue, onDone }: Props) => {
             padding: '6px 8px',
             background: '#0f172a',
             border: '1px solid #475569',
-            borderRadius: 4,
             color: '#e2e8f0',
             fontSize: 14,
           }}

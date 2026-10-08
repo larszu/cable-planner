@@ -39,7 +39,6 @@ export const LocationFrameNode = memo(({ id, data, selected }: NodeProps<Locatio
         minWidth: 40,
         minHeight: 40,
         border: `2px ${selected ? 'solid' : locked ? 'dotted' : 'dashed'} ${color}`,
-        borderRadius: 8,
         background: locked ? `${color}06` : `${color}12`,
         position: 'relative',
         boxSizing: 'border-box',

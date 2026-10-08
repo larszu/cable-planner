@@ -1098,7 +1098,6 @@ export const CableEdge = ({
               background: '#b91c1c',
               color: '#fff',
               border: '1px solid #fca5a5',
-              borderRadius: 9,
               width: 15,
               height: 15,
               lineHeight: '13px',
@@ -1146,7 +1145,6 @@ export const CableEdge = ({
                 ? '0 0 0 1px rgba(168,85,247,0.25)'
                 : undefined,
               padding: '2px 6px',
-              borderRadius: 4,
               fontSize: 11,
               pointerEvents: 'all',
             }}
@@ -1165,7 +1163,6 @@ export const CableEdge = ({
                   background: '#b91c1c',
                   border: 'none',
                   color: 'white',
-                  borderRadius: 3,
                   padding: '0 4px',
                   cursor: 'pointer',
                 }}
@@ -1215,7 +1212,6 @@ export const CableEdge = ({
             color: 'var(--cp-text-muted)',
             border: '1px dashed var(--cp-border)',
             padding: '1px 4px',
-            borderRadius: 3,
             fontSize: 9,
             lineHeight: 1.2,
             pointerEvents: 'none' as const,

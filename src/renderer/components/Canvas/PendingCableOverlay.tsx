@@ -22,7 +22,6 @@ const BANNER_BUTTON: CSSProperties = {
   background: 'rgba(251,191,36,0.15)',
   color: '#fde68a',
   border: '1px solid #f59e0b',
-  borderRadius: 4,
   fontSize: 12,
   cursor: 'pointer',
 }
@@ -143,7 +142,6 @@ export const PendingCableOverlay = () => {
           color: '#fde68a',
           border: '1px solid #f59e0b',
           padding: '6px 12px',
-          borderRadius: 6,
           fontSize: 12,
           zIndex: 50,
           display: 'flex',
@@ -308,7 +306,6 @@ const PendingCableSuggestions = ({
         color: 'var(--cp-text)',
         border: '1px solid var(--cp-border)',
         padding: 8,
-        borderRadius: 6,
         fontSize: 11,
         zIndex: 50,
         maxWidth: 220,
@@ -331,7 +328,6 @@ const PendingCableSuggestions = ({
               padding: '4px 6px',
               background: 'var(--cp-surface-2)',
               border: '1px solid var(--cp-border-muted)',
-              borderRadius: 3,
               color: 'var(--cp-text)',
               cursor: 'pointer',
             }}

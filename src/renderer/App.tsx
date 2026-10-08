@@ -316,7 +316,7 @@ export default function App() {
   const openRentmanCableExport = useUiStore((state) => state.openRentmanCableExport)
   const closeRentmanCableExport = useUiStore((state) => state.closeRentmanCableExport)
   const { addProjectFile } = useRentman()
-  const [metaDialog, setMetaDialog] = useState<{ mode: 'new' | 'edit' } | null>(null)
+  const [metaDialog, setMetaDialog] = useState<{ mode: 'new' | 'edit'; discardWarning?: boolean } | null>(null)
   const [cableBomOpen, setCableBomOpen] = useState(false)
   const [planCompareOpen, setPlanCompareOpen] = useState(false)
   const [documentLogOpen, setDocumentLogOpen] = useState(false)
@@ -954,25 +954,13 @@ export default function App() {
     // clicked, and if the user then hit Abbrechen (or the dialog closed for any
     // other reason) they were left with an empty project and no way to get back
     // to their work — it felt like "Neues Projekt" was broken until restart.
+    // #1040 — Die Verwerfen-Warnung steht im Formular selbst, statt als
+    // eigener Bestaetigungsdialog davor: ein Dialog, nicht zwei.
     const hasContent =
       project.equipment.length > 0 ||
       project.cables.length > 0 ||
       (project.locations?.length ?? 0) > 0
-    if (hasContent) {
-      const ok = await confirmDialog(
-        t('app.newProject.confirmTitle', 'Create new project?'),
-        {
-          body: t(
-            'app.newProject.confirm',
-            'Discard current project and create a new one?\n\nUnsaved changes will be lost.',
-          ),
-          okLabel: t('app.newProject.confirmOk', 'New project'),
-          destructive: true,
-        },
-      )
-      if (!ok) return
-    }
-    setMetaDialog({ mode: 'new' })
+    setMetaDialog({ mode: 'new', discardWarning: hasContent })
   }
 
   const handleMetaConfirm = async (patch: Partial<ProjectMetadata>) => {
@@ -1650,6 +1638,7 @@ export default function App() {
       <ProjectMetaDialog
         open={metaDialog !== null}
         mode={metaDialog?.mode ?? 'edit'}
+        discardWarning={metaDialog?.discardWarning}
         initial={project.metadata}
         onCancel={() => setMetaDialog(null)}
         onConfirm={(patch) => void handleMetaConfirm(patch)}

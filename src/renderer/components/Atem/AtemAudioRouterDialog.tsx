@@ -1242,7 +1242,6 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
                             marginLeft: 4,
                             background: '#10b981',
                             color: '#0f172a',
-                            borderRadius: 2,
                             padding: '0 3px',
                             fontSize: 9,
                             fontWeight: 700,

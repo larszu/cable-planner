@@ -88,7 +88,6 @@ const UnknownDomainsDialog = ({ slots, freeTargets, onDone }: Props) => {
                 key={slot}
                 style={{
                   border: '1px solid #334155',
-                  borderRadius: 6,
                   padding: 10,
                   display: 'grid',
                   gap: 6,

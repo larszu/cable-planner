@@ -191,6 +191,13 @@ export const LibraryItem = ({
             <span className="ml-1 text-cp-text-faint">· {item.rentmanProjectName}</span>
           )}
         </div>
+        {/* #1038 — Klick markiert nur (Eigenschaften, #987); ohne diesen
+            Hinweis wirkte er wirkungslos, weil auf dem Canvas nichts erscheint. */}
+        {isSelected && (
+          <div className="text-cp-xs text-cp-text-secondary" data-testid="library-place-hint">
+            {t('library.item.placeHint', 'Double-click or drag to place it')}
+          </div>
+        )}
       </div>
       {/* #901 hatte hier `shrink-0`, damit der Name kuerzt und nicht die
           Knoepfe gestaucht werden. Das bleibt die Absicht — nur liegt sie

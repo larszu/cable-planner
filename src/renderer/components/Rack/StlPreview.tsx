@@ -63,7 +63,6 @@ export const StlPreview = ({ stlDataUri, size = 96 }: Props) => {
       style={{
         width: size,
         height: Math.round(size * 0.7),
-        borderRadius: 4,
         overflow: 'hidden',
         background: 'linear-gradient(180deg, #1e293b 0%, #0f172a 100%)',
         border: '1px solid #334155',

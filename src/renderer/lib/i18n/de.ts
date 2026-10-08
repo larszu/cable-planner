@@ -707,10 +707,6 @@ export const de: Dict = {
   'app.mobileShare.ariaLabel': 'Handy-Zugriff',
   'app.mobileShare.title':
     'Handy-Zugriff: kleiner LAN-Server + QR-Code, damit das Handy den Mobile-Viewer öffnen kann.',
-  'app.newProject.confirm':
-    'Aktuelles Projekt verwerfen und neues Projekt anlegen?\n\nUngespeicherte Änderungen gehen verloren.',
-  'app.newProject.confirmOk': 'Neues Projekt',
-  'app.newProject.confirmTitle': 'Neues Projekt anlegen?',
   'app.pdfProgress.hint':
     'Bei großen Plänen können einige Sekunden vergehen. Bitte nicht abbrechen.',
   'app.pdfProgress.title': 'PDF wird erstellt…',
@@ -3248,6 +3244,7 @@ export const de: Dict = {
   'library.item.show': 'Wieder anzeigen',
   'library.item.titleActiveRentman':
     'Aus aktivem Rentman-Projekt{suffix} — Klick oder Drag & Drop auf den Canvas',
+  'library.item.placeHint': 'Doppelklick oder ziehen, um es zu platzieren',
   'library.item.titleLocal': 'Lokales Gerät — Klick für Eigenschaften, Doppelklick oder Drag & Drop auf den Canvas',
   'library.item.titleOtherRentman':
     'Aus Rentman-Projekt{suffix} — Klick oder Drag & Drop auf den Canvas',
@@ -4294,6 +4291,8 @@ export const de: Dict = {
   'project.meta.contractor': 'Auftragnehmer (Firma)',
   'project.meta.contractorPh': 'Deine Firma GmbH',
   'project.meta.create': 'Projekt anlegen',
+  'project.meta.discardWarning':
+    'Ein neues Projekt verwirft das aktuelle. Ungespeicherte Änderungen gehen verloren.',
   'project.meta.description': 'Beschreibung',
   'project.meta.eventEnd': 'Einsatz-/Mietende',
   'project.meta.eventStart': 'Einsatz-/Mietbeginn',
