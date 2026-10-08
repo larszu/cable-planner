@@ -129,7 +129,8 @@ describe('jeder Quellen-Kommentar steht auch als Feld im Eintrag', () => {
     // ZWEI Feldern (`datasheetUrl` das PDF, `manufacturerUrl` die
     // Produktseite), und die Uebernahme liest beide. Fuenf Leuchten, die nur
     // unter dem zweiten Namen belegt waren, zaehlen damit mit.
-    expect(pairs().length).toBe(1737)
+    // 1737 -> 1738 am 2026-10-08: ATEM 2 M/E Constellation HD (#1032), Techspecs W-APS-20.
+    expect(pairs().length).toBe(1738)
   })
 
   it('deckt die Kataloge ab, die Belege fuehren', () => {
@@ -291,6 +292,6 @@ describe('der Beleg zeigt auf den Hersteller, nicht auf einen Haendler', () => {
   it('prueft alle Belege, nicht nur die mit Feld', () => {
     // Ohne diese Zusicherung waere der Haendler-Test auch dann gruen, wenn
     // `pairs()` nichts mehr faende.
-    expect(pairs().filter((p) => p.field).length).toBe(1737)
+    expect(pairs().filter((p) => p.field).length).toBe(1738)
   })
 })

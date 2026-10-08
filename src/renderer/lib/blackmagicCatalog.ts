@@ -55,6 +55,10 @@ const withTypeId = (e: BlackmagicEntry): EquipmentTemplate => ({
 
 export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
   // --- Videohubs ---------------------------------------------------------
+  // Ref In, Ref-Loop-Out (nur 40x40) und HE der Smart-Videohub-Reihe: die
+  // Techspecs-Seite der Smart Videohubs ist offline (leitet auf die Nachfolger
+  // um), archiviert unter
+  // https://web.archive.org/web/20210507072830/https://www.blackmagicdesign.com/products/smartvideohub/techspecs/W-VHS-05
   {
     match: ['smart videohub', '40x40', '12g'],
     deviceTypeId: 'bb1964f5-f2e2-44b7-8cb4-8d8ea3a7a742',
@@ -65,8 +69,10 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
       manufacturerUrl: 'https://www.blackmagicdesign.com/products/blackmagicvideohub',
       name: 'Blackmagic Smart Videohub 40x40 12G',
       category: 'Video Router',
-      inputs: [...sdiIn(40), port('Ethernet', 'Ethernet/RJ45')],
-      outputs: sdiOut(40),
+      inputs: [...sdiIn(40), port('Ref In', 'BNC'), port('Ethernet', 'Ethernet/RJ45')],
+      outputs: [...sdiOut(40), port('Ref Loop Out', 'BNC')],
+      isRackDevice: true,
+      rackUnits: 2,
       width: 260,
       height: 360,
     },
@@ -81,8 +87,10 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
       manufacturerUrl: 'https://www.blackmagicdesign.com/products/blackmagicvideohub',
       name: 'Blackmagic Smart Videohub 40x40',
       category: 'Video Router',
-      inputs: [...sdiIn(40), port('Ethernet', 'Ethernet/RJ45')],
-      outputs: sdiOut(40),
+      inputs: [...sdiIn(40), port('Ref In', 'BNC'), port('Ethernet', 'Ethernet/RJ45')],
+      outputs: [...sdiOut(40), port('Ref Loop Out', 'BNC')],
+      isRackDevice: true,
+      rackUnits: 2,
       width: 260,
       height: 360,
     },
@@ -97,8 +105,10 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
       manufacturerUrl: 'https://www.blackmagicdesign.com/products/blackmagicvideohub',
       name: 'Blackmagic Smart Videohub 20x20',
       category: 'Video Router',
-      inputs: [...sdiIn(20), port('Ethernet', 'Ethernet/RJ45')],
+      inputs: [...sdiIn(20), port('Ref In', 'BNC'), port('Ethernet', 'Ethernet/RJ45')],
       outputs: sdiOut(20),
+      isRackDevice: true,
+      rackUnits: 1,
       width: 240,
       height: 260,
     },
@@ -113,8 +123,10 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
       manufacturerUrl: 'https://www.blackmagicdesign.com/products/blackmagicvideohub',
       name: 'Blackmagic Smart Videohub 12x12',
       category: 'Video Router',
-      inputs: [...sdiIn(12), port('Ethernet', 'Ethernet/RJ45')],
+      inputs: [...sdiIn(12), port('Ref In', 'BNC'), port('Ethernet', 'Ethernet/RJ45')],
       outputs: sdiOut(12),
+      isRackDevice: true,
+      rackUnits: 1,
       width: 240,
       height: 220,
     },
@@ -176,6 +188,8 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
         port('Audio Out L', 'XLR'),
         port('Audio Out R', 'XLR'),
       ],
+      isRackDevice: true,
+      rackUnits: 2,
       width: 280,
       height: 460,
     },
@@ -184,6 +198,10 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
     match: ['atem', 'constellation', '2 m/e', '4k'],
     deviceTypeId: '1472cfc1-df0d-41af-a5c3-b52496a20e53',
     kind: 'atem',
+    // Ports nach den Techspecs (gleiche Seite wie die HD-Variante): Audio
+    // ueber 6,35-mm-Klinke statt XLR, Multiviews nur SDI (12G), Talkback
+    // XLR-5. Die frueheren XLR-Audio- und HDMI-Multiview-Ports standen auf
+    // keiner Blackmagic-Seite.
     // Quelle: https://www.blackmagicdesign.com/products/atemconstellation
     template: {
       manufacturerUrl: 'https://www.blackmagicdesign.com/products/atemconstellation',
@@ -193,16 +211,55 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
         ...sdiIn(20),
         port('Ref In', 'BNC'),
         port('Ethernet', 'Ethernet/RJ45'),
-        port('Audio In L', 'XLR'),
-        port('Audio In R', 'XLR'),
+        port('Audio In 1', 'Jack 6.35 mm TRS'),
+        port('Audio In 2', 'Jack 6.35 mm TRS'),
+        port('Talkback In (XLR 5-pin)', 'XLR'),
       ],
       outputs: [
         ...sdiOut(12),
-        port('Multiview HDMI 1', 'HDMI'),
-        port('Multiview HDMI 2', 'HDMI'),
-        port('Audio Out L', 'XLR'),
-        port('Audio Out R', 'XLR'),
+        port('Multiview Out 1 (12G-SDI)', 'BNC'),
+        port('Multiview Out 2 (12G-SDI)', 'BNC'),
+        port('Talkback Out (XLR 5-pin)', 'XLR'),
+        port('USB-C (Webcam / Computer)', 'USB-C'),
       ],
+      isRackDevice: true,
+      rackUnits: 1,
+      notes:
+        'Techspecs: 2 x balanced 1/4 inch jack audio in, 1 x 5-pin XLR talkback in and out, multiviews on SDI only (no HDMI), 1 x internal 100-240 V AC supply. RJ45 for third-party talkback systems is listed but not modelled as a separate port.',
+      width: 280,
+      height: 400,
+    },
+  },
+  {
+    match: ['atem', 'constellation', '2 m/e', 'hd'],
+    deviceTypeId: '361cb58a-5bdb-4976-b10d-3e5ee9c0366c',
+    kind: 'atem',
+    // #1032 — 1 HE, 20 x 3G-SDI In, 12 x 3G-SDI Out, 2 x Multiview 3G-SDI,
+    // ein Netzteil (Techspecs W-APS-20, Abschnitt 2 M/E Constellation HD).
+    // Quelle: https://www.blackmagicdesign.com/products/atemconstellation/techspecs/W-APS-20
+    template: {
+      manufacturerUrl: 'https://www.blackmagicdesign.com/products/atemconstellation/techspecs/W-APS-20',
+      name: 'Blackmagic ATEM 2 M/E Constellation HD',
+      category: 'Video Mixer',
+      inputs: [
+        ...sdiIn(20),
+        port('Ref In', 'BNC'),
+        port('Ethernet', 'Ethernet/RJ45'),
+        port('Audio In 1', 'Jack 6.35 mm TRS'),
+        port('Audio In 2', 'Jack 6.35 mm TRS'),
+        port('Talkback In (XLR 5-pin)', 'XLR'),
+      ],
+      outputs: [
+        ...sdiOut(12),
+        port('Multiview Out 1 (3G-SDI)', 'BNC'),
+        port('Multiview Out 2 (3G-SDI)', 'BNC'),
+        port('Talkback Out (XLR 5-pin)', 'XLR'),
+        port('USB-C (Webcam / Computer)', 'USB-C'),
+      ],
+      isRackDevice: true,
+      rackUnits: 1,
+      notes:
+        'Techspecs: 2 x balanced 1/4 inch jack audio in, 1 x 5-pin XLR talkback in and out, multiviews on SDI only (no HDMI), 1 x internal 100-240 V AC supply. RJ45 for third-party talkback systems is listed but not modelled as a separate port.',
       width: 280,
       height: 400,
     },
@@ -377,6 +434,10 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
     // Ein HyperDeck zeichnet auf, was an seinem Eingang anliegt — eine
     // Aufzeichnung, keine Kanalnummer.
     records: 'per-device',
+    // Ports nach den Techspecs. Die frueheren XLR-Audio-Ein-/Ausgaenge hat
+    // das Geraet nicht; analoges Audio gibt es nur als Kopfhoerer-Klinke.
+    // Halbe 19"-Breite, 1 HE (#1033). Eine Breitenangabe in mm nennt die
+    // Seite nicht, deshalb kein widthMm (das wuerde es zum Shelf-Geraet machen).
     // Quelle: https://www.blackmagicdesign.com/products/hyperdeckstudio
     template: {
       manufacturerUrl: 'https://www.blackmagicdesign.com/products/hyperdeckstudio',
@@ -385,15 +446,25 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
       inputs: [
         ...sdiIn(1),
         port('HDMI In', 'HDMI'),
-        port('XLR L In', 'XLR'),
-        port('XLR R In', 'XLR'),
+        port('Ref In', 'BNC'),
+        port('Timecode In', 'BNC'),
+        port('RS-422 In', 'Generic'),
+        port('Ethernet', 'Ethernet/RJ45'),
       ],
       outputs: [
-        ...sdiOut(1),
+        ...sdiOut(2),
+        port('SDI Monitor Out', 'BNC'),
         port('HDMI Out', 'HDMI'),
-        port('XLR L Out', 'XLR'),
-        port('XLR R Out', 'XLR'),
+        port('Ref Out', 'BNC'),
+        port('Timecode Out', 'BNC'),
+        port('RS-422 Out', 'Generic'),
+        port('Headphones', 'Jack 6.35 mm'),
+        port('USB-C', 'USB-C'),
       ],
+      isRackDevice: true,
+      rackUnits: 1,
+      notes:
+        'Half rack width, 1 rack unit height (techspecs). Power: 1 x internal 100-240 V AC, 1 x 4-pin XLR 12 V DC in.',
       width: 240, height: 200,
     },
   },

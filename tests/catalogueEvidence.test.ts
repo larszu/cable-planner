@@ -100,7 +100,8 @@ describe('Initiative 11 — trägt diese Katalog-Zeile ein Datenblatt?', () => {
     // ZWEI Feldern (`datasheetUrl` das PDF, `manufacturerUrl` die
     // Produktseite), und die Uebernahme liest beide. Fuenf Leuchten, die nur
     // unter dem zweiten Namen belegt waren, zaehlen damit mit.
-    expect(kommentare).toBe(1737)
+    // 1737 -> 1738 am 2026-10-08: ATEM 2 M/E Constellation HD (#1032).
+    expect(kommentare).toBe(1738)
   })
 
   it('2. die Abdeckung wird gerechnet', () => {
@@ -108,11 +109,11 @@ describe('Initiative 11 — trägt diese Katalog-Zeile ein Datenblatt?', () => {
     // Die Summen stammen aus derselben Rechnung wie die Zeilen.
     expect(bericht.entries).toBe(bericht.perCatalogue.reduce((s, c) => s + c.entries, 0))
     expect(bericht.sourced + bericht.unsourced).toBe(bericht.entries)
-    expect(bericht.sourced).toBe(1737)
+    expect(bericht.sourced).toBe(1738)
     // 1831 -> 1827: der multicam-planner hat vier erfundene Kamera-Eintraege
     // entfernt (Datenblatt-Verifikation dort). Ein erzeugter Katalog, der
     // kleiner wird, weil die Quelle aufgeraeumt hat, ist ein Gewinn.
-    expect(bericht.entries).toBe(1836)
+    expect(bericht.entries).toBe(1837)
 
     // Kein Katalog steht mehr ganz ohne Beleg (B-11 abgeschlossen) — und die
     // Liste wird GERECHNET, nicht aufgezählt: trägt einer von ihnen morgen
