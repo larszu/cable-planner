@@ -51,6 +51,7 @@ import {
   formatRackUnits, draftFromPreset,
 } from './rackBuilderHelpers'
 import { useDialogA11y } from '../../hooks/useDialogA11y'
+import { NumberInput } from '../shared/NumberInput'
 import { useBackdropClose } from '../../hooks/useBackdropClose'
 
 export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onSave }: RackBuilderDialogProps) => {
@@ -677,17 +678,11 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
           </label>
           <label className="block text-cp-xs font-medium text-cp-text-secondary">
             {t('rack.field.height', 'Height')} <span className="text-cp-text-faint">(HE)</span>
-            <input
-              type="number"
+            <NumberInput
               min={1}
               max={LIMITS.MAX_RACK_HEIGHT_HE}
               value={draft.totalUnits}
-              onChange={(event) =>
-                setDraft((current) => ({
-                  ...current,
-                  totalUnits: Math.max(1, Math.min(LIMITS.MAX_RACK_HEIGHT_HE, Number(event.target.value) || 1)),
-                }))
-              }
+              onChange={(totalUnits) => setDraft((current) => ({ ...current, totalUnits }))}
               className="mt-1 w-full border border-cp-border bg-cp-surface-3 px-2.5 py-1.5 text-cp-base font-normal text-cp-text focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
             />
           </label>
@@ -695,18 +690,12 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
               um zu prüfen ob hinten noch Platz für Patchblenden ist. */}
           <label className="block text-cp-xs font-medium text-cp-text-secondary">
             {t('rack.field.depth', 'Depth')} <span className="text-cp-text-faint">(mm)</span>
-            <input
-              type="number"
+            <NumberInput
               min={200}
               max={1500}
               step={50}
               value={draft.depthMm ?? 800}
-              onChange={(event) =>
-                setDraft((current) => ({
-                  ...current,
-                  depthMm: Math.max(200, Math.min(1500, Number(event.target.value) || 800)),
-                }))
-              }
+              onChange={(depthMm) => setDraft((current) => ({ ...current, depthMm }))}
               className="mt-1 w-full border border-cp-border bg-cp-surface-3 px-2.5 py-1.5 text-cp-base font-normal text-cp-text focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
               title={t('rack.depthTitle', 'Rack depth in mm. Default: 800 mm. Common values: 350/450/600/800/1000/1200.')}
             />

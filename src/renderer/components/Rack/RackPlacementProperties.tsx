@@ -8,6 +8,7 @@ import { CategorySelect } from '../shared/CategorySelect'
 import { StlPreview } from './StlPreview'
 import { RACK_MOUNT_WIDTH_MM, type RackPlacementDraft } from './rackBuilderTypes'
 import type { EquipmentTemplate } from '../../types/equipment'
+import { NumberInput } from '../shared/NumberInput'
 
 /**
  * #310 — RackPlacementProperties aus RackBuilderDialog ausgelagert.
@@ -115,20 +116,12 @@ export const RackPlacementProperties = ({
         <div className="grid grid-cols-2 gap-2">
           <label className="block">
             {t('rack.props.heightHe', 'Height (RU)')}
-            <input
-              type="number"
+            <NumberInput
               min={1}
-              max={totalUnits}
+              max={totalUnits - selectedPlacement.startUnit + 1}
               value={selectedPlacement.rackUnits}
               aria-invalid={heightInvalid}
-              onChange={(event) => {
-                const raw = Math.max(1, Number(event.target.value) || 1)
-                const clamped = Math.min(
-                  raw,
-                  totalUnits - selectedPlacement.startUnit + 1,
-                )
-                onUpdate(selectedPlacement.id, { rackUnits: clamped })
-              }}
+              onChange={(rackUnits) => onUpdate(selectedPlacement.id, { rackUnits })}
               className={`mt-1 w-full border bg-cp-surface-3 p-1.5 ${
                 heightInvalid ? 'border-red-600 ring-1 ring-red-600/40' : 'border-cp-border'
               }`}
@@ -147,17 +140,12 @@ export const RackPlacementProperties = ({
           </label>
           <label className="block">
             {t('rack.props.startHe', 'Start RU')}
-            <input
-              type="number"
+            <NumberInput
               min={1}
               max={startMax}
               value={selectedPlacement.startUnit}
               aria-invalid={heightInvalid}
-              onChange={(event) => {
-                const raw = Math.max(1, Number(event.target.value) || 1)
-                const clamped = Math.min(raw, startMax)
-                onUpdate(selectedPlacement.id, { startUnit: clamped })
-              }}
+              onChange={(startUnit) => onUpdate(selectedPlacement.id, { startUnit })}
               className={`mt-1 w-full border bg-cp-surface-3 p-1.5 ${
                 heightInvalid ? 'border-red-600 ring-1 ring-red-600/40' : 'border-cp-border'
               }`}

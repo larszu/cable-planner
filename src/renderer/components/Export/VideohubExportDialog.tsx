@@ -44,6 +44,7 @@ import {
 } from '../../lib/salvoSheet'
 import { toCsv } from '../../lib/csv'
 import { useBackdropClose } from '../../hooks/useBackdropClose'
+import { NumberInput } from '../shared/NumberInput'
 
 // #237 — Stop-Words die im Smart-Routing nicht zum Score beitragen.
 // "out"/"in" matched sonst auf praktisch jeden Port-Namen weil beide
@@ -996,13 +997,11 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
             <div className="col-span-2 grid grid-cols-2 gap-2 border border-sky-700/40 bg-sky-950/20 p-2">
               <label className="block text-cp-xs text-cp-text-secondary">
                 {t('export.customInputs', 'Inputs')}
-                <input
-                  type="number"
+                <NumberInput
                   min={1}
                   max={1024}
                   value={customInputs}
-                  onChange={(e) => {
-                    const v = Math.max(1, Math.min(1024, Number(e.target.value) || 1))
+                  onChange={(v) => {
                     setCustomInputs(v)
                     setRouting(buildDefaultRouting(v, customOutputs))
                   }}
@@ -1011,13 +1010,11 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
               </label>
               <label className="block text-cp-xs text-cp-text-secondary">
                 {t('export.customOutputs', 'Outputs')}
-                <input
-                  type="number"
+                <NumberInput
                   min={1}
                   max={1024}
                   value={customOutputs}
-                  onChange={(e) => {
-                    const v = Math.max(1, Math.min(1024, Number(e.target.value) || 1))
+                  onChange={(v) => {
                     setCustomOutputs(v)
                     setRouting(buildDefaultRouting(customInputs, v))
                   }}

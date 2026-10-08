@@ -9,6 +9,7 @@ import { bilingualCategoryDialog } from '../../../lib/bilingualCategoryDialog'
 import { categoryDisplay } from '../../../lib/categoryTranslations'
 import { downloadBlob } from '../../../lib/downloadBlob'
 import { SettingsCard } from '../SettingsCard'
+import { NumberInput } from '../../shared/NumberInput'
 
 /**
  * #307 — Advanced-Tab aus SettingsDialog ausgelagert. Enthaelt Autosave-
@@ -138,13 +139,12 @@ export const AdvancedTab = () => {
       >
         <label className="block text-cp-base text-cp-text-secondary">
           {t('settings.advanced.autosaveInterval', 'Autosave interval (ms)')}
-          <input
-            type="number"
+          <NumberInput
             min={100}
             max={30000}
             step={100}
             value={autosaveIntervalMs}
-            onChange={(e) => setAutosaveIntervalMs(Number(e.target.value) || 400)}
+            onChange={setAutosaveIntervalMs}
             className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-2"
           />
         </label>

@@ -69,6 +69,7 @@ import {
 import { PanelHint } from '../shared/PanelHint'
 import { useDialogA11y } from '../../hooks/useDialogA11y'
 import { useBackdropClose } from '../../hooks/useBackdropClose'
+import { NumberInput } from '../shared/NumberInput'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Die Ausspielung (Initiative 9). Ein Register der Ziele: Plattform, Ingest,
@@ -1159,12 +1160,11 @@ export const DeliveryDialog = () => {
               <label className="text-cp-text-secondary" htmlFor="uplink">
                 {t('delivery.uplink', 'Uplink (Mbit/s)')}
               </label>
-              <input
+              <NumberInput
                 id="uplink"
-                type="number"
                 min={1}
                 value={uplinkMbps}
-                onChange={(e) => setUplinkMbps(Math.max(1, Number(e.target.value) || 1))}
+                onChange={setUplinkMbps}
                 className={`${inputCls} w-20`}
               />
               <span className={budget.fits ? 'text-cp-text-secondary' : 'text-cp-danger'}>
@@ -1372,15 +1372,10 @@ export const DeliveryDialog = () => {
                       ).map(([field, label]) => (
                         <label key={field} className="flex items-center gap-1 text-cp-text-muted">
                           {label}
-                          <input
-                            type="number"
+                          <NumberInput
                             min={1}
                             value={d.encoding[field]}
-                            onChange={(e) =>
-                              update(d.id, {
-                                encoding: { ...d.encoding, [field]: Math.max(1, Number(e.target.value) || 1) },
-                              })
-                            }
+                            onChange={(v) => update(d.id, { encoding: { ...d.encoding, [field]: v } })}
                             aria-label={label}
                             className={`${inputCls} w-20`}
                           />

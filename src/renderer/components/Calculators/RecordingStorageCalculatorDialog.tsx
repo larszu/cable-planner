@@ -4,6 +4,7 @@ import { Icon } from '../shared/Icon'
 import { useUiStore } from '../../store/uiStore'
 import { useTranslation } from '../../lib/i18n'
 import { ModalShell } from '../shared/ModalShell'
+import { NumberInput } from '../shared/NumberInput'
 
 /**
  * #404 — Recording-Speicherplatz-Rechner. Separates Tool unter
@@ -130,12 +131,11 @@ export const RecordingStorageCalcCore = ({
       {codecId === 'custom' && (
         <label className="block">
           <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('recStorage.customMbps', 'Custom bitrate (Mbps)')}</span>
-          <input
-            type="number"
+          <NumberInput
             min={1}
             max={10000}
             value={customMbps}
-            onChange={(e) => setCustomMbps(Math.max(1, Number(e.target.value) || 100))}
+            onChange={setCustomMbps}
             className="w-full border border-cp-border bg-cp-surface-3 p-2"
           />
         </label>
@@ -166,13 +166,12 @@ export const RecordingStorageCalcCore = ({
         </label>
         <label className="block">
           <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('recStorage.channels', 'Channels')}</span>
-          <input
-            type="number"
+          <NumberInput
             min={1}
             max={256}
             value={channels}
             disabled={fixedChannels !== undefined}
-            onChange={(e) => setChannels(Math.max(1, Math.min(256, Number(e.target.value) || 1)))}
+            onChange={setChannels}
             className="w-full border border-cp-border bg-cp-surface-3 p-2 disabled:opacity-50"
           />
           {fixedChannels !== undefined && (
@@ -247,12 +246,11 @@ export const RecordingStorageCalcCore = ({
           </label>
           <label className="block">
             <span className="mb-1 block text-cp-xs text-cp-text-muted">{t('recStorage.driveTb', 'Drive (TB)')}</span>
-            <input
-              type="number"
+            <NumberInput
               min={0.5}
               step={0.5}
               value={driveTb}
-              onChange={(e) => setDriveTb(Math.max(0.5, Number(e.target.value) || 0.5))}
+              onChange={setDriveTb}
               className="w-full border border-cp-border bg-cp-surface-3 p-1.5 text-cp-xs"
             />
           </label>

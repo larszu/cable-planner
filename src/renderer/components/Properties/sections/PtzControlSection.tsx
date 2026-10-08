@@ -28,6 +28,7 @@ import { useCameraBridgeStore } from '../../../store/cameraBridgeStore'
 import { bridgeVideoUrl, buildSite, isCameraDevice } from '../../../lib/cameraBridgeSite'
 import type { EquipmentItem } from '../../../types/equipment'
 import type { ControlPath } from '../../../optics/types'
+import { NumberInput } from '../../shared/NumberInput'
 
 const PATHS: { id: ControlPath; label: string }[] = [
   { id: 'none', label: 'Not remote-controlled' },
@@ -158,7 +159,7 @@ export const PtzControlSection = ({ equipment }: { equipment: EquipmentItem }) =
           </label>
           <label className="flex flex-col gap-0.5">
             <span className="text-cp-text-muted">{t('props.cameraControl.bridgePort', 'Port')}</span>
-            <input className="w-16 border border-cp-border bg-cp-surface-1 px-1 py-0.5" value={port} onChange={(e) => setCameraBridge({ host, port: Number(e.target.value) || 9700 })} />
+            <NumberInput min={1} max={65535} integer className="w-16 border border-cp-border bg-cp-surface-1 px-1 py-0.5" value={port} onChange={(p) => setCameraBridge({ host, port: p })} />
           </label>
           {connected ? (
             <button type="button" className="border border-cp-border bg-cp-surface-1 px-2 py-1 hover:bg-cp-surface-3" onClick={() => void disconnect()}>

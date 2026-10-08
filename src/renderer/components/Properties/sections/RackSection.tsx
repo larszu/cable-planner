@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { ArrowLeftRight } from 'lucide-react'
 import { Icon } from '../../shared/Icon'
+import { NumberInput } from '../../shared/NumberInput'
 import { useCanvasProjectStore as useProjectStore } from '../../../store/projectStoreContext'
 import { pickImageAsDataUri } from '../../../lib/readImageAsDataUri'
 import { SortableSection } from '../SortableSection'
@@ -68,16 +69,11 @@ export const RackSection = ({ equipment }: { equipment: EquipmentItem }) => {
               <div className="grid grid-cols-2 gap-2">
                 <label className="block">
                   <span className="mb-1 block text-cp-text-secondary">{t('props.rack.height', 'Height (RU)')}</span>
-                  <input
-                    type="number"
+                  <NumberInput
                     min={1}
                     step={1}
                     value={equipment.rackUnits ?? 1}
-                    onChange={(event) =>
-                      updateEquipment(equipment.id, {
-                        rackUnits: Math.max(1, Number(event.target.value) || 1),
-                      })
-                    }
+                    onChange={(rackUnits) => updateEquipment(equipment.id, { rackUnits })}
                     className="w-full border border-cp-border bg-cp-surface-1 p-2"
                   />
                 </label>
