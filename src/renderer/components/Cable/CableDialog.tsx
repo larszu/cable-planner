@@ -35,6 +35,7 @@ import {
 } from '../../types/videoFormat'
 import { CUSTOM_CABLE_SPEC_ID, makeCustomCableSpec } from './customCableSpec'
 import { useBackdropClose } from '../../hooks/useBackdropClose'
+import { cableChoiceKey, rememberedLength, rememberedSpecId } from '../../lib/lastCableChoice'
 
 export interface CableDialogProps {
   fromPort?: Port
@@ -124,7 +125,16 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
   // When no catalog entry fits the connectors, fall back to the Custom Cable
   // preset so the resulting cable inherits the start port's connector type
   // instead of landing on the first (unrelated) cable in the catalog.
+  // #1036 — the last cable drawn between the same plug pair wins over the
+  // catalog guess: 21 SDI runs in a row should not need 21 re-selections.
+  // Read once at mount; the dialog does not follow later store changes.
+  const choiceKey = cableChoiceKey(fromPort?.connectorType, toPort?.connectorType)
+  const [lastChoice] = useState(() =>
+    choiceKey ? useUiStore.getState().lastCableByConnector[choiceKey] : undefined,
+  )
   const initialSpecId = useMemo(() => {
+    const remembered = rememberedSpecId(lastChoice, ranked)
+    if (remembered) return remembered
     const firstUsable = ranked.find((item) => item.level !== 'error')
     if (!firstUsable) return CUSTOM_CABLE_SPEC_ID
     if (!fromPort || !toPort) return firstUsable.cable.id
@@ -139,7 +149,7 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
       (item) => item.level !== 'error' && item.cable.standards.includes(target),
     )
     return match?.cable.id ?? firstUsable.cable.id
-  }, [ranked, fromPort, toPort, fromDev, toDev, defaultVideoFormat])
+  }, [ranked, fromPort, toPort, fromDev, toDev, defaultVideoFormat, lastChoice])
 
   // Default the Custom Cable's connector to the START port's type so the cable
   // type inherits from the start connector when the user keeps the Custom preset.
@@ -165,8 +175,12 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
     ? customStandard
     : pickHighestSdiStandard(selected.standards)
   const [standard, setStandard] = useState<SignalStandard | undefined>(defaultStandard)
-  const [length, setLength] = useState(1)
-  const [name, setName] = useState(selected.name)
+  const initialLength = rememberedLength(lastChoice)
+  const [length, setLength] = useState(initialLength)
+  // #1036 — empty by default; the placeholder shows the type, and the
+  // canvas label falls back to it (cableLabelName). Repeating the type
+  // as the name only made every label say the same thing twice.
+  const [name, setName] = useState('')
   const [color, setColor] = useState(selected.color)
   const [notes, setNotes] = useState(selected.notes ?? '')
 
@@ -184,7 +198,6 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
     }
     const spec = fullCableCatalog.find((c) => c.id === id)
     if (!spec) return
-    setName(spec.name)
     setColor(spec.color)
     // Catalog entries use notesKey (language-aware via i18n). User-supplied
     // custom CableSpecs use the legacy `notes` literal which stays as-is.
@@ -285,8 +298,11 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
         return
       }
     }
+    if (choiceKey) {
+      useUiStore.getState().rememberCableChoice(choiceKey, { specId, length })
+    }
     onCreate({
-      name,
+      name: name.trim(),
       type: connectorToCableType(specId === CUSTOM_CABLE_SPEC_ID ? customConnectorType : selected.connectorType),
       length,
       color,
@@ -303,7 +319,7 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
   // nichts geschrieben. Gefragt wird, sobald der Nutzer etwas an der
   // Vorbelegung geaendert hat — beim unberuehrten Dialog nicht.
   const backdrop = useBackdropClose(onCancel, {
-    schutz: () => specId !== initialSpecId || length !== 1 || notes.trim().length > 0,
+    schutz: () => specId !== initialSpecId || length !== initialLength || notes.trim().length > 0,
     frage: t('cableDialog.closeUnsaved', 'Discard cable settings?'),
   })
 
@@ -460,7 +476,6 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
                     notes: notes || undefined,
                   })
                   setSpecId(created.id)
-                  setName(created.name)
                 }}
                 className="mt-2 w-full bg-sky-700 px-2 py-1 text-cp-xs font-medium text-white hover:bg-sky-600"
                 title={t('cable.dialog.saveCustomTitle', 'Stores this custom definition as a reusable cable type in the library.')}
@@ -491,6 +506,7 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
             {t('cable.field.name', 'Name')}
             <input
               value={name}
+              placeholder={selected.name}
               onChange={(e) => setName(e.target.value)}
               className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-2"
             />
