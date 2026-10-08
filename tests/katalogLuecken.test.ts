@@ -31,7 +31,8 @@ describe('#878 — Katalog-Luecken in den Zielbereichen', () => {
     // 490: +22 aus #907 (Clear-Com, Brompton, Luminex, NETGEAR, Lightware,
     // Decimator), jeder mit Datenblatt.
     // 498: +8 Nachzuegler am 2026-09-28.
-    expect(b.eintraegeGesamt).toBe(1836)
+    // 1837: +1 ATEM 2 M/E Constellation HD (#1032).
+    expect(b.eintraegeGesamt).toBe(1837)
     expect(b.eintraegeGesamt).toBe(evidenceReport().entries)
 
     // „ueber ein Drittel Mikrofone" — das stimmt, und zwar deutlich.
