@@ -492,7 +492,6 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
             ? `${effectiveNodeColor}${isLight ? '22' : '33'}`
             : tokens.body,
           border: `1px solid ${selected ? '#38bdf8' : (effectiveNodeColor ?? tokens.border)}`,
-          borderRadius: 6,
           color: tokens.text,
           fontSize: portLabelFontSize,
           display: 'flex',
@@ -500,7 +499,6 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
           justifyContent: 'center',
           gap: 4,
           padding: '4px 12px',
-          boxShadow: isLight ? '0 2px 6px rgba(0,0,0,0.12)' : '0 2px 6px rgba(0,0,0,0.4)',
         }}
         title={`${data.name}${data.subtitle ? ' — ' + data.subtitle : ''}`}
       >
@@ -612,7 +610,6 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
           ? `${effectiveNodeColor}${isLight ? '18' : '22'}`
           : tokens.body,
         border: `1px solid ${selected ? '#38bdf8' : (effectiveNodeColor ?? tokens.border)}`,
-        borderRadius: 6,
         color: tokens.text,
         fontSize: 12,
         // Tally-Ring (Eigentuemer-Entscheidung 2026-09-08). Als AUSSENRING
@@ -635,11 +632,10 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
         // `lampLevel === null` faerbt nichts. Ein dunkles Symbol an einem
         // Geraet, ueber das niemand etwas gesagt hat, waere eine Behauptung.
         boxShadow: [
-          isLight ? '0 2px 6px rgba(0,0,0,0.12)' : '0 2px 6px rgba(0,0,0,0.4)',
           tally === 'program' ? '0 0 0 3px #ef4444' : '',
           tally === 'preview' ? '0 0 0 3px #22c55e' : '',
           lampLevel !== null && lampLevel >= 0
-            ? `0 0 ${8 + Math.round(lampLevel * 0.16)}px ${2 + Math.round(lampLevel * 0.04)}px rgba(250, 204, 21, ${0.35 + lampLevel * 0.0055})`
+            ? `0 0 0 ${4 + Math.round(lampLevel * 0.04)}px rgba(250, 204, 21, ${0.35 + lampLevel * 0.0055})`
             : '',
         ]
           .filter(Boolean)
@@ -653,7 +649,6 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
         background: effectiveNodeColor
           ? `${effectiveNodeColor}${isLight ? '18' : '33'}`
           : tokens.header,
-        borderRadius: '5px 5px 0 0',
       }}>
         <div style={{ fontWeight: 600, lineHeight: '16px', display: 'flex', alignItems: 'center', gap: 4, minWidth: 0 }}>
           {/*
@@ -700,7 +695,6 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
                   color: '#fff',
                   fontSize: 9,
                   fontWeight: 700,
-                  borderRadius: 3,
                   padding: '0 3px',
                   lineHeight: '13px',
                   flexShrink: 0,
@@ -725,7 +719,6 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
                   color: '#fff',
                   fontSize: 9,
                   fontWeight: 700,
-                  borderRadius: 3,
                   padding: '0 3px',
                   lineHeight: '13px',
                   flexShrink: 0,
@@ -741,7 +734,6 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
                   color: '#fef3c7',
                   fontSize: 9,
                   fontWeight: 700,
-                  borderRadius: 3,
                   padding: '0 3px',
                   lineHeight: '13px',
                   flexShrink: 0,
@@ -795,7 +787,6 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
                 color: '#d1fae5',
                 fontSize: 9,
                 fontWeight: 700,
-                borderRadius: 3,
                 padding: '0 3px',
                 lineHeight: '13px',
               }}
@@ -815,7 +806,6 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
                 color: '#022c22',
                 fontSize: 9,
                 fontWeight: 700,
-                borderRadius: 3,
                 padding: '0 4px',
                 lineHeight: '14px',
                 display: 'inline-flex',
@@ -928,7 +918,6 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
               style={{
                 display: 'block',
                 width: '100%',
-                borderRadius: 3,
                 border: `1px dashed ${isLight ? '#a16207' : '#fbbf24'}`,
               }}
             />
@@ -1010,7 +999,6 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
               fontSize: portLabelFontSize,
               cursor: isRackInternal ? 'not-allowed' : 'crosshair',
               opacity: isRackInternal ? 0.55 : 1,
-              borderRadius: 3,
               background: isActive
                 ? 'rgba(251,191,36,0.15)'
                 : isHovered
@@ -1170,7 +1158,6 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
               fontSize: portLabelFontSize,
               cursor: isRackInternal ? 'not-allowed' : 'crosshair',
               opacity: isRackInternal ? 0.55 : 1,
-              borderRadius: 3,
               background: isActive
                 ? 'rgba(251,191,36,0.15)'
                 : isHovered

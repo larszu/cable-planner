@@ -61,7 +61,6 @@ export const RackBandsOverlay = ({ bands, headerHeight, isLight }: RackBandsOver
           left: 6,
           right: 6,
           height: h,
-          borderRadius: 4,
           background: isLight ? `${band.color}10` : `${band.color}1a`,
           border: `1px solid ${band.color}55`,
           borderLeft: `4px solid ${band.color}`,

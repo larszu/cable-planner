@@ -51,7 +51,6 @@ export const RoutingToggle = ({
                 value === opt.value ? '#0369a1' : isLight ? '#e2e8f0' : '#1e293b',
               border: `1px solid ${isLight ? '#cbd5e1' : '#334155'}`,
               color: isLight ? '#1e293b' : '#e2e8f0',
-              borderRadius: 3,
               cursor: 'pointer',
             }}
           >

@@ -105,7 +105,6 @@ export const OffPageLeaderHandles = ({
             borderRadius: '50%',
             background: color,
             border: `2px solid ${isLight ? '#ffffff' : '#0f172a'}`,
-            boxShadow: '0 1px 3px rgba(0,0,0,0.4)',
             cursor: 'grab',
             pointerEvents: 'all',
             touchAction: 'none',

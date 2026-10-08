@@ -2093,10 +2093,8 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
             background:
               projectMode === 'viewer' ? 'rgba(124, 58, 237, 0.92)' : 'rgba(14, 116, 144, 0.92)',
             color: '#fff',
-            borderRadius: '0 0 8px 8px',
             fontSize: 12,
             fontWeight: 600,
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.35)',
             pointerEvents: 'auto',
           }}
         >
@@ -2134,7 +2132,6 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
                 padding: '2px 10px',
                 background: 'rgba(255, 255, 255, 0.18)',
                 border: '1px solid rgba(255, 255, 255, 0.4)',
-                borderRadius: 4,
                 color: '#fff',
                 fontSize: 11,
                 cursor: 'pointer',
@@ -2491,8 +2488,6 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
               zIndex: 100,
               background: '#1e293b',
               border: '1px solid #334155',
-              borderRadius: 6,
-              boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
               padding: 4,
               minWidth: 180,
               fontSize: 12,
@@ -2513,7 +2508,6 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
                     background: 'transparent',
                     color: 'inherit',
                     border: 'none',
-                    borderRadius: 4,
                     cursor: 'pointer',
                     textAlign: 'left',
                   }}
@@ -2544,7 +2538,6 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
                   background: 'transparent',
                   color: 'inherit',
                   border: 'none',
-                  borderRadius: 4,
                   cursor: 'pointer',
                   textAlign: 'left',
                 }}
@@ -2634,7 +2627,6 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
                 background: 'transparent',
                 color: 'inherit',
                 border: 'none',
-                borderRadius: 4,
                 cursor: 'pointer',
                 textAlign: 'left',
               }}
@@ -2664,7 +2656,6 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
                 background: 'transparent',
                 color: '#f87171',
                 border: 'none',
-                borderRadius: 4,
                 cursor: 'pointer',
                 textAlign: 'left',
               }}

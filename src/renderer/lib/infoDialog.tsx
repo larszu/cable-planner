@@ -121,7 +121,6 @@ const InfoDialog = ({ title, options, onDone }: Props) => {
               padding: '6px 16px',
               background: accent.bg,
               border: 'none',
-              borderRadius: 4,
               color: '#0f172a',
               cursor: 'pointer',
               fontSize: 13,

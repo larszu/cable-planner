@@ -285,7 +285,6 @@ export const AnnotationsPanel = ({
                             'border-radius:50%',
                             `background:${STATUS_COLOR[a.status]}`,
                             'border:2px solid #0f172a',
-                            'box-shadow:0 2px 4px rgba(0,0,0,0.4)',
                             'pointer-events:none',
                           ].join(';')
                           document.body.appendChild(preview)

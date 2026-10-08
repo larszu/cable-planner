@@ -6,7 +6,7 @@ Das Menü *Datei* ist das zentrale Tor zum Projektmanagement: Projekte anlegen, 
 
 *Datei → Neu*
 
-Legt ein leeres Projekt an und öffnet es in einem neuen Fenster. Das alte Projekt bleibt im Hintergrund geöffnet. Das Projekt trägt die Vorgabebenennung und kann später unter einem Namen gespeichert werden.
+Öffnet das Formular *Neues Projekt* mit Projektname, Kunde und Logos. *Projekt anlegen* ersetzt den aktuellen Plan durch einen leeren. Enthält der aktuelle Plan schon Geräte, Kabel oder Orte, steht im Formular der Hinweis, dass ungespeicherte Änderungen verloren gehen.
 
 Tastatur: `Strg+N`
 

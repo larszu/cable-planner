@@ -6,7 +6,7 @@ The *File* menu is the central hub for project management: creating, opening, sa
 
 *File → New project*
 
-Creates a blank project and opens it in a new window. The previous project remains open in the background. The project has a default name and can be saved under a custom name later.
+Opens the *New project* form with project name, client and logos. *Create project* replaces the current plan with an empty one. If the current plan already holds devices, cables or locations, the form notes that unsaved changes will be lost.
 
 Keyboard: `Ctrl+N`
 

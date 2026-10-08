@@ -532,7 +532,6 @@ const DeviceBox = ({
           fontSize: 10,
           background: 'rgba(15,23,42,0.78)',
           padding: '2px 6px',
-          borderRadius: 3,
           pointerEvents: 'none',
           whiteSpace: 'nowrap',
         }}
@@ -549,7 +548,6 @@ const DeviceBox = ({
           fontSize: 10,
           background: 'rgba(15,23,42,0.78)',
           padding: '2px 6px',
-          borderRadius: 3,
           pointerEvents: 'none',
           whiteSpace: 'nowrap',
         }}
@@ -798,7 +796,6 @@ const Shelf = ({
           fontSize: 9,
           background: 'rgba(15,23,42,0.7)',
           padding: '1px 5px',
-          borderRadius: 3,
           pointerEvents: 'none',
         }}
         transform={false}
@@ -1186,7 +1183,6 @@ export const Rack3DView = ({
           left: 8,
           background: overlayBg,
           padding: '6px 8px',
-          borderRadius: 4,
           fontSize: 10,
           color: overlayLegendText,
           pointerEvents: 'none',
@@ -1212,7 +1208,6 @@ export const Rack3DView = ({
           right: 8,
           background: overlayBg,
           padding: '4px 8px',
-          borderRadius: 4,
           fontSize: 10,
           color: overlayText,
           pointerEvents: 'none',
@@ -1220,7 +1215,7 @@ export const Rack3DView = ({
         }}
       >
         <Icon icon={Mouse} size="xs" className="mr-1 inline-block align-text-bottom" />{t('rack3d.help.mouse', 'Rotate: left · Pan: right · Zoom: scroll')}<br />
-        <Icon icon={Keyboard} size="xs" className="mr-1 inline-block align-text-bottom" />{t('rack3d.help.heightLabel', 'Height:')} <kbd style={{ background: kbdBg, padding: '0 3px', borderRadius: 2 }}>Shift</kbd> {t('rack3d.help.up', 'up')} · <kbd style={{ background: kbdBg, padding: '0 3px', borderRadius: 2 }}>Space</kbd> {t('rack3d.help.down', 'down')}
+        <Icon icon={Keyboard} size="xs" className="mr-1 inline-block align-text-bottom" />{t('rack3d.help.heightLabel', 'Height:')} <kbd style={{ background: kbdBg, padding: '0 3px' }}>Shift</kbd> {t('rack3d.help.up', 'up')} · <kbd style={{ background: kbdBg, padding: '0 3px' }}>Space</kbd> {t('rack3d.help.down', 'down')}
       </div>
     </div>
   )

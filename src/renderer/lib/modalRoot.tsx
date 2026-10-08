@@ -54,18 +54,15 @@ export const MODAL_CARD: CSSProperties = {
   background: '#1e293b',
   color: '#e2e8f0',
   border: '1px solid #334155',
-  borderRadius: 8,
   padding: 16,
   minWidth: 320,
   maxWidth: 560,
-  boxShadow: '0 10px 40px rgba(0,0,0,0.5)',
 }
 
 export const MODAL_BUTTON_SECONDARY: CSSProperties = {
   padding: '6px 14px',
   background: '#334155',
   border: 'none',
-  borderRadius: 4,
   color: '#e2e8f0',
   cursor: 'pointer',
   fontSize: 13,
@@ -75,7 +72,6 @@ export const modalButtonPrimary = (color: string): CSSProperties => ({
   padding: '6px 14px',
   background: color,
   border: 'none',
-  borderRadius: 4,
   color: '#ffffff',
   cursor: 'pointer',
   fontSize: 13,

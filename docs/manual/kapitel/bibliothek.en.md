@@ -16,7 +16,7 @@ The local library contains 150+ built-in devices and all custom templates you cr
 - *Search*: Search field with `Ctrl+F` shortcut. Filters by name or category in real time.
 - *Filter Menu*: Sort order (Manual, A→Z, Z→A), show hidden devices, show only owned material.
 - *Categories*: Expand/collapse, edit button to rename.
-- *Entries*: One entry per device. Hover to show actions.
+- *Entries*: One entry per device. Hover to show actions. A click selects the entry and shows its properties; double-click or drag it onto the canvas to place it – the selected entry says so.
 
 ##### Create Your Own Device
 
@@ -29,7 +29,7 @@ Create new devices with ports and optional photos:
 The fields:
 
 - **Name**: What the device is called.
-- **Category**: E.g., Cameras, Mixers, Monitors. Appears as a folder in the library. New categories are created here.
+- **Category**: E.g., Cameras, Mixers, Monitors; starts out as “Other”. Appears as a folder in the library. New categories are created here.
 - **Is a rack device**: Checkbox. If yes, enter the height in rack units (RU).
 
 ###### Tab: Ports

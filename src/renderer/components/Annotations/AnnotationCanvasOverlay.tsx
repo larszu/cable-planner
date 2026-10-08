@@ -229,8 +229,8 @@ export const AnnotationCanvasOverlay = () => {
                 color: readableTextColor(STATUS_COLOR[annotation.status]),
                 border: isExpanded ? '2px solid #e2e8f0' : '2px solid #0f172a',
                 boxShadow: isExpanded
-                  ? '0 0 0 2px rgba(56,189,248,0.4), 0 2px 4px rgba(0,0,0,0.4)'
-                  : '0 2px 4px rgba(0,0,0,0.4)',
+                  ? '0 0 0 2px rgba(56,189,248,0.4)'
+                  : undefined,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -257,11 +257,9 @@ export const AnnotationCanvasOverlay = () => {
                   background: '#0f172a',
                   color: '#e2e8f0',
                   border: `2px solid ${STATUS_COLOR[annotation.status]}`,
-                  borderRadius: 6,
                   padding: 8,
                   fontSize: 11,
                   lineHeight: 1.35,
-                  boxShadow: '0 8px 24px rgba(0,0,0,0.6)',
                   pointerEvents: 'auto',
                   zIndex: 2,
                 }}
@@ -281,7 +279,6 @@ export const AnnotationCanvasOverlay = () => {
                       background: STATUS_COLOR[annotation.status],
                       color: readableTextColor(STATUS_COLOR[annotation.status]),
                       padding: '1px 6px',
-                      borderRadius: 3,
                       fontSize: 9,
                       fontWeight: 700,
                       letterSpacing: 0.2,
@@ -300,7 +297,6 @@ export const AnnotationCanvasOverlay = () => {
                       background: '#334155',
                       color: '#e2e8f0',
                       border: 'none',
-                      borderRadius: 3,
                       padding: '1px 6px',
                       fontSize: 11,
                       cursor: 'pointer',

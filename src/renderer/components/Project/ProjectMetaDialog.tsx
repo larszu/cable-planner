@@ -14,6 +14,8 @@ import { PanelHint } from '../shared/PanelHint'
 export interface ProjectMetaDialogProps {
   open: boolean
   mode: 'new' | 'edit'
+  /** #1040 — neues Projekt ueber einem nicht leeren: Warnung im Formular. */
+  discardWarning?: boolean
   initial: ProjectMetadata
   onCancel: () => void
   onConfirm: (patch: Partial<ProjectMetadata>) => void
@@ -23,6 +25,7 @@ export interface ProjectMetaDialogProps {
 export const ProjectMetaDialog = ({
   open,
   mode,
+  discardWarning,
   initial,
   onCancel,
   onConfirm,
@@ -117,6 +120,14 @@ export const ProjectMetaDialog = ({
       }
     >
       <div className="space-y-3 text-cp-xs">
+          {mode === 'new' && discardWarning && (
+            <p role="note" className="text-amber-300">
+              {t(
+                'project.meta.discardWarning',
+                'Creating a new project discards the current one. Unsaved changes will be lost.',
+              )}
+            </p>
+          )}
           <label className="block">
             {t('project.meta.name', 'Project name')} <span className="text-red-400">*</span>
             <input

@@ -27,6 +27,21 @@
 //            `rounded*`/`shadow*`-Utilities.
 //   CSS      `border-radius` mit einem anderen Wert als 0, und `box-shadow`
 //            mit Unschaerfe oder Versatz.
+//   TSX/TS   Stilobjekte (`style={{ … }}`, `CSSProperties`): `borderRadius`
+//            und `boxShadow` nach denselben Regeln (seit 2026-10-08, #1041).
+//
+// ─── WARUM AUCH DIE STILOBJEKTE (2026-10-08, #1041) ──────────────────────
+//
+// Die Geraeteknoten im Canvas — die groessten Flaechen der App — trugen
+// `borderRadius: 6` und `boxShadow: '0 2px 6px …'` als Inline-Stil. Gefunden
+// hat das kein Waechter, sondern ein Erklaervideo: dieser Lauf las nur
+// Klassenlisten und war gruen. Gezaehlt am selben Tag: rund 90 Rundungen
+// und 20 Schlagschatten in Stilobjekten, fast alle im Canvas.
+//
+// Ein Stilobjekt-Wert wird nur durchgelassen, wenn er als LITERAL im
+// Quelltext steht und die Regel einhaelt. Ein Wert aus einer Variablen
+// (`boxShadow: glow`) faellt, weil er nicht pruefbar ist — der Ausweg waere
+// sonst eine Zeile weiter oben.
 //
 // ─── UND WAS AUSDRUECKLICH ERLAUBT IST ────────────────────────────────────
 //
@@ -42,6 +57,11 @@
 //                                     behauptet keine Tiefe. Sobald eine
 //                                     Unschaerfe oder ein Versatz dazukommt,
 //                                     ist es ein Schlagschatten und faellt.
+//                                     Im Stilobjekt auch mit `inset`.
+//   borderRadius: '50%'               ein KREIS, keine gerundete Flaeche: er
+//                                     bildet etwas Rundes ab (Buchse und Loch
+//                                     der Frontplatte, LED, Anfasser). Eine
+//                                     Ecke von 6 px bildet nichts ab.
 //
 // ─── WAS ER NICHT SIEHT, UND DAS IST WICHTIG ──────────────────────────────
 //
@@ -53,8 +73,8 @@
 // Three.js.
 //
 // Er sieht auch keine Rundung, die zur Laufzeit entsteht — ein Stil aus einer
-// Bibliothek, ein `style={{ borderRadius }}` aus einer Variablen. Was er
-// zusagt, ist der Quelltext dieses Repos.
+// Bibliothek oder ein CSS-Text in einer Zeichenkette (`'border-radius:…'`).
+// Was er zusagt, ist der Quelltext dieses Repos.
 // ───────────────────────────────────────────────────────────────────────────
 import assert from 'node:assert/strict'
 import { readdirSync, statSync, readFileSync } from 'node:fs'
@@ -151,9 +171,65 @@ export function istRing(wert) {
   return [x, y, weich].every((v) => v === '0' || v === '0px')
 }
 
+/**
+ * Die Ausdruecke hinter `eigenschaft:` in Stilobjekten — bis zum Komma oder
+ * zur schliessenden Klammer auf derselben Tiefe; Zeichenketten werden dabei
+ * uebersprungen, damit `rgba(0, 0, 0, .4)` den Ausdruck nicht zerteilt.
+ */
+export function stilAusdruecke(quelle, eigenschaft) {
+  const raus = []
+  for (const m of quelle.matchAll(new RegExp(`\\b${eigenschaft}\\s*:`, 'g'))) {
+    const start = m.index + m[0].length
+    let tiefe = 0
+    let zeichen = null
+    let i = start
+    for (; i < quelle.length; i += 1) {
+      const c = quelle[i]
+      if (zeichen) {
+        if (c === '\\') i += 1
+        else if (c === zeichen) zeichen = null
+        continue
+      }
+      if (c === '"' || c === "'" || c === '`') zeichen = c
+      else if ('([{'.includes(c)) tiefe += 1
+      else if (')]}'.includes(c)) {
+        if (tiefe === 0) break
+        tiefe -= 1
+      } else if (c === ',' && tiefe === 0) break
+    }
+    raus.push(quelle.slice(start, i).trim())
+  }
+  return raus
+}
+
+const RUNDUNG_ERLAUBT = /^(?:0|'0(?:px)?'|"0(?:px)?"|'50%'|"50%"|undefined)$/
+export const rundungErlaubt = (ausdruck) => RUNDUNG_ERLAUBT.test(ausdruck)
+
+/**
+ * Ein `boxShadow`-Ausdruck ist erlaubt, wenn er `undefined` ist oder jede
+ * Zeichenkette darin nur aus Ringen besteht. Platzhalter `${…}` zaehlen als
+ * `1` — ein berechneter Versatz oder eine berechnete Unschaerfe fallen also.
+ */
+export function schattenErlaubt(ausdruck) {
+  if (ausdruck === 'undefined') return true
+  const literale = [...ausdruck.matchAll(/'([^'\\]*)'|"([^"\\]*)"|`([^`]*)`/g)].map((m) =>
+    (m[1] ?? m[2] ?? m[3]).replace(/\$\{[^}]*\}/g, '1'),
+  )
+  if (!literale.length) return false
+  // Ohne Ziffer ist eine Zeichenkette kein Schatten, sondern ein Vergleich
+  // (`highlight === 'pgm'`) oder ein Trenner (`.join(', ')`).
+  return literale.filter((l) => /\d/.test(l)).every((l) =>
+    l
+      .split(/,(?![^(]*\))/)
+      .map((ebene) => ebene.trim().replace(/^inset\s+/, ''))
+      .every((ebene) => ebene === '' || istRing(ebene)),
+  )
+}
+
 const funde = []
 let klassenGeprueft = 0
 let cssGeprueft = 0
+let stileGeprueft = 0
 
 for (const f of alle(join(WURZEL, 'src'))) {
   const kurz = relative(WURZEL, f)
@@ -167,6 +243,14 @@ for (const f of alle(join(WURZEL, 'src'))) {
       if (!istRing(w)) funde.push(`${kurz}  box-shadow: ${w}`)
     }
   } else {
+    for (const a of stilAusdruecke(quelle, 'borderRadius')) {
+      stileGeprueft += 1
+      if (!rundungErlaubt(a)) funde.push(`${kurz}  borderRadius: ${a}`)
+    }
+    for (const a of stilAusdruecke(quelle, 'boxShadow')) {
+      stileGeprueft += 1
+      if (!schattenErlaubt(a)) funde.push(`${kurz}  boxShadow: ${a.replace(/\s+/g, ' ')}`)
+    }
     for (const liste of klassenListen(quelle)) {
       klassenGeprueft += 1
       for (const t of liste.match(UTILITY) ?? []) {
@@ -182,6 +266,7 @@ for (const f of alle(join(WURZEL, 'src'))) {
 //    schlimmste Sorte gruen, weil sie nach Arbeit aussieht.
 assert.ok(klassenGeprueft > 2000, `nur ${klassenGeprueft} Klassenlisten gelesen — der Scan ist kaputt`)
 assert.ok(cssGeprueft >= 1, `keine CSS-Datei gelesen`)
+assert.ok(stileGeprueft >= 10, `nur ${stileGeprueft} Stilobjekt-Werte gelesen — der Scan ist kaputt`)
 
 // 1. Das Muster faengt wirklich, wonach es sucht.
 const trifft = (s) => (s.match(UTILITY) ?? []).filter((t) => !BEHALTEN.test(t)).length
@@ -218,6 +303,34 @@ assert.deepEqual(werte('a { border-radius: 8px; }', 'border-radius'), ['8px'])
   assert.deepEqual(klassenListen('light.shadow.mapSize = 2048'), [], 'ausserhalb wird gelesen')
 }
 
+// 3b. Stilobjekte (#1041).
+{
+  assert.deepEqual(stilAusdruecke('{ borderRadius: 6, padding: 2 }', 'borderRadius'), ['6'])
+  assert.deepEqual(
+    stilAusdruecke("{ boxShadow: a ? '0 2px 6px rgba(0,0,0,.4)' : undefined }", 'boxShadow'),
+    ["a ? '0 2px 6px rgba(0,0,0,.4)' : undefined"],
+    'ein Komma in rgba() zerteilt den Ausdruck',
+  )
+  assert.ok(!rundungErlaubt('6'), 'eine Rundung im Stilobjekt kommt durch')
+  assert.ok(!rundungErlaubt("'5px 5px 0 0'"))
+  assert.ok(!rundungErlaubt('r'), 'ein nicht pruefbarer Wert kommt durch')
+  assert.ok(rundungErlaubt('0') && rundungErlaubt("'50%'"), 'Null oder Kreis wird abgelehnt')
+  assert.ok(!schattenErlaubt("isLight ? '0 2px 6px rgba(0,0,0,0.12)' : '0 2px 6px rgba(0,0,0,0.4)'"))
+  assert.ok(!schattenErlaubt('glow'), 'ein Schatten aus einer Variablen kommt durch')
+  assert.ok(!schattenErlaubt("'0 0 0 2px red, 0 2px 4px black'"), 'eine zweite Ebene kommt durch')
+  assert.ok(
+    !schattenErlaubt('`0 0 ${n}px ${m}px rgba(1, 2, 3, ${a})`'),
+    'eine berechnete Unschaerfe kommt durch',
+  )
+  assert.ok(schattenErlaubt('`0 0 0 ${n}px rgba(1, 2, 3, ${a})`'), 'ein berechneter Ring wird abgelehnt')
+  assert.ok(schattenErlaubt('h ? `inset 0 0 0 2px ${h}` : undefined'), 'ein Innenring wird abgelehnt')
+  assert.ok(schattenErlaubt('undefined'))
+  assert.ok(
+    schattenErlaubt("h === 'pgm' ? 'inset 0 0 0 2px red' : undefined"),
+    'ein Vergleich wird als Schatten gelesen',
+  )
+}
+
 // 4. Kommentare zaehlen nicht mit — sonst duerfte dieser Kopf die Klassen
 //    nicht beim Namen nennen, und ein Waechter, den man nicht erklaeren darf,
 //    wird abgeschaltet.
@@ -238,10 +351,10 @@ if (funde.length) {
 
 console.log(
   `form:check ok — keine rohe Rundung, kein Schlagschatten ` +
-    `(${klassenGeprueft} Klassenlisten, ${cssGeprueft} Stilblatt-Datei(en) geprueft).`,
+    `(${klassenGeprueft} Klassenlisten, ${stileGeprueft} Stilobjekt-Werte, ` +
+    `${cssGeprueft} Stilblatt-Datei(en) geprueft).`,
 )
 console.log(
   'NICHT gemessen: Rundungen, die zur Laufzeit entstehen (Bibliotheks-Stile, ' +
-    '`style={{ borderRadius }}` aus einer Variablen) und alles ausserhalb von ' +
-    'Klassenlisten — ein Schatten in einer 3D-Szene ist Inhalt, keine Flaeche.',
+    'CSS-Text in Zeichenketten) — ein Schatten in einer 3D-Szene ist Inhalt, keine Flaeche.',
 )

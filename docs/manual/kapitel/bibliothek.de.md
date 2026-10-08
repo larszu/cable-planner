@@ -16,7 +16,7 @@ Die lokale Bibliothek enthält die 150+ mitgelieferten Geräte und alle selbst a
 - *Suchen*: Suchfeld mit `Strg+F`-Kurzbefehl. Der Such-Text filtert nach Name oder Kategorie.
 - *Filter-Menü*: Sortierrichtung (Manuell, A→Z, Z→A), Anzeige versteckter Geräte, nur Eigentum anzeigen.
 - *Kategorien*: Aufklappen/Einklappen, Bearbeiten-Button zum Umbenennen.
-- *Einträge*: Ein Eintrag pro Gerät. Hover zeigt Aktionen.
+- *Einträge*: Ein Eintrag pro Gerät. Hover zeigt Aktionen. Ein Klick markiert den Eintrag und zeigt seine Eigenschaften; platziert wird per Doppelklick oder Ziehen auf den Canvas – der markierte Eintrag nennt beides.
 
 ##### Eigenes Gerät anlegen
 
@@ -29,7 +29,7 @@ Neue Geräte mit Anschlüssen und optional Fotos erstellen:
 Die Felder:
 
 - **Name**: Wie das Gerät heißen soll.
-- **Kategorie**: Z.B. Kameras, Mixer, Monitore. Wird in der Bibliothek als Ordner angezeigt. Neue Kategorien entstehen hier.
+- **Kategorie**: Z.B. Kameras, Mixer, Monitore; steht zu Beginn auf „Sonstiges“. Wird in der Bibliothek als Ordner angezeigt. Neue Kategorien entstehen hier.
 - **Ist ein 19" Rack-Gerät**: Checkbox. Falls ja, Höhe in Rack-Einheiten (RU) eingeben.
 
 ###### Reiter: Anschlüsse

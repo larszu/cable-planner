@@ -263,8 +263,7 @@ export const OffPageConnectorSymbol = ({
           color: isLight ? '#1e293b' : '#e2e8f0',
           border: `1px solid ${isLight ? '#cbd5e1' : '#475569'}`,
           borderLeft: `4px solid ${color}`,
-          borderRadius: 5,
-          boxShadow: ring !== 'transparent' ? `0 0 0 2px ${ring}` : '0 1px 3px rgba(0,0,0,0.3)',
+          boxShadow: ring !== 'transparent' ? `0 0 0 2px ${ring}` : undefined,
           overflow: 'hidden',
           pointerEvents: 'all',
           cursor: 'grab',
@@ -330,11 +329,9 @@ export const OffPageConnectorSymbol = ({
               maxHeight: 252,
               overflowY: 'auto',
               zIndex: 10000,
-              borderRadius: 6,
               border: `1px solid ${isLight ? '#cbd5e1' : '#334155'}`,
               background: isLight ? 'rgba(255,255,255,0.99)' : 'rgba(15,23,42,0.99)',
               color: isLight ? '#0f172a' : '#e2e8f0',
-              boxShadow: '0 10px 30px rgba(0,0,0,0.4)',
               fontSize: 12,
             }}
           >
