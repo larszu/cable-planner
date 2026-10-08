@@ -1096,35 +1096,73 @@ input[type="range"]:disabled {
  * unsichtbar vergroesserte Flaeche waere dort eine Stelle, an der der Zeiger
  * etwas anfasst, was er nicht beruehrt.
  * ═══════════════════════════════════════════════════════════════════════ */
+/* #1031 — DASSELBE NACH AUSSEN-PRINZIP AUCH BEI KLEINEM ZOOM, fuer jeden
+ * Zeiger. Bei 40 % ist der Griff 6 px gross und die Kabellinie liegt direkt
+ * daneben; wer knapp vorbeizielt, waehlt das Kabel. `GriffZoom` in
+ * CanvasArea rechnet aus dem Zoom, wie weit die Flaeche ueber den Griff
+ * hinausreichen muss (`lib/griffFlaeche.ts`), und setzt die beiden
+ * Variablen. Ab etwa 75 % Zoom sind sie 0 — an der Maus aendert sich bei
+ * normaler Groesse also nichts. Der Finger behaelt seine festen 14 / 2 px
+ * als Untergrenze (`--cp-griff-*-min`). */
+.react-flow__handle {
+  --cp-griff-x: max(var(--cp-griff-aussen, 0px), var(--cp-griff-aussen-min, 0px));
+  --cp-griff-y: max(var(--cp-griff-vertikal, 0px), var(--cp-griff-vertikal-min, 0px));
+}
+
+.react-flow__handle::after {
+  content: '';
+  position: absolute;
+  top: calc(-1 * var(--cp-griff-y));
+  bottom: calc(-1 * var(--cp-griff-y));
+  left: 0;
+  right: 0;
+}
+
+.react-flow__handle-left::after {
+  left: calc(-1 * var(--cp-griff-x));
+}
+
+.react-flow__handle-right::after {
+  right: calc(-1 * var(--cp-griff-x));
+}
+
+.react-flow__handle-top::after {
+  top: calc(-1 * var(--cp-griff-x));
+  left: calc(-1 * var(--cp-griff-y));
+  right: calc(-1 * var(--cp-griff-y));
+}
+
+.react-flow__handle-bottom::after {
+  bottom: calc(-1 * var(--cp-griff-x));
+  left: calc(-1 * var(--cp-griff-y));
+  right: calc(-1 * var(--cp-griff-y));
+}
+
 @media (pointer: coarse) {
-  .react-flow__handle::after {
-    content: '';
-    position: absolute;
-    top: -2px;
-    bottom: -2px;
-    left: 0;
-    right: 0;
+  .react-flow__handle {
+    --cp-griff-aussen-min: 14px;
+    --cp-griff-vertikal-min: 2px;
   }
+}
 
-  .react-flow__handle-left::after {
-    left: -14px;
-  }
+/* #1031 — Waehrend ein Kabel gezogen oder per Klick gezeichnet wird, sind
+ * Kabel und ihre Beschriftungen fuer den Zeiger Luft: Ziel ist ein Griff,
+ * und eine Linie oder ein Label daneben soll ihn nicht abfangen (die Labels
+ * tragen `pointer-events: all` inline, daher `!important`). */
+.cp-verbindet .react-flow__edge,
+.cp-verbindet .react-flow__edgelabel-renderer * {
+  pointer-events: none !important;
+}
 
-  .react-flow__handle-right::after {
-    right: -14px;
-  }
+/* #1029 — Eingang auf Eingang / Ausgang auf Ausgang: ReactFlow markiert die
+ * Linie als `invalid`, der Griff bekommt kein `valid`. */
+.react-flow__connection.invalid .react-flow__connection-path {
+  stroke: var(--cp-danger);
+  stroke-dasharray: 4 3;
+}
 
-  .react-flow__handle-top::after {
-    top: -14px;
-    left: -2px;
-    right: -2px;
-  }
-
-  .react-flow__handle-bottom::after {
-    bottom: -14px;
-    left: -2px;
-    right: -2px;
-  }
+.react-flow__handle.connecting:not(.valid) {
+  cursor: not-allowed;
 }
 
 /* ───────────────────────────────────────────────────────────────────────────

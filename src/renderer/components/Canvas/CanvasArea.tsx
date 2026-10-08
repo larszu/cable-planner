@@ -9,6 +9,8 @@ import ReactFlow, {
   updateEdge,
   useReactFlow,
   useViewport,
+  useStore as useFlowStore,
+  useStoreApi,
   useUpdateNodeInternals,
   getRectOfNodes,
   getTransformForBounds,
@@ -29,6 +31,9 @@ import {
 import { projectHistory } from '../../store/projectHistory'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { infoDialog } from '../../lib/infoDialog'
+import { richteVerbindungAus } from '../../lib/connectionDirection'
+import { griffAusdehnung } from '../../lib/griffFlaeche'
+import { useRaster } from '../../lib/aktuellesRaster'
 import { planAblage, ziehtDateien } from '../../avplan/floorplan/planDatei'
 import { PLAN_PDF, planFehlerText, ungeeignetCode, ursprungUm } from '../../lib/grundriss/planUebernahme'
 import { planUebernehmen } from '../Grundriss/planUebernehmen'
@@ -123,6 +128,24 @@ const ViewportStateSync = ({
   return null
 }
 
+/**
+ * #1031 — Haelt die Trefferflaeche der Port-Griffe bei kleinem Zoom gross
+ * genug (Rechnung in `lib/griffFlaeche.ts`, Anwendung in index.css). Schreibt
+ * nur zwei CSS-Variablen an den ReactFlow-Wrapper; kein Re-Render der Knoten.
+ */
+const GriffZoom = () => {
+  const zoom = useFlowStore((s) => s.transform[2])
+  const domNode = useFlowStore((s) => s.domNode)
+  const { PORT_ROW, HANDLE_SIZE } = useRaster()
+  useEffect(() => {
+    if (!domNode) return
+    const { aussen, vertikal } = griffAusdehnung(zoom, PORT_ROW, HANDLE_SIZE)
+    domNode.style.setProperty('--cp-griff-aussen', `${aussen}px`)
+    domNode.style.setProperty('--cp-griff-vertikal', `${vertikal}px`)
+  }, [domNode, zoom, PORT_ROW, HANDLE_SIZE])
+  return null
+}
+
 const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
   const t = useTranslation()
   // Der Mischer-Zustand als Beobachtung. Er haengt am Canvas, weil der Canvas
@@ -183,6 +206,8 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
   const pdfExportThemeOverride = useUiStore((state) => state.pdfExportThemeOverride)
   const pdfExportMonochrome = useUiStore((state) => state.pdfExportMonochrome)
   const pendingCable = useUiStore((state) => state.pendingCable)
+  // #1031 — Ein Ziehen laeuft: Kabel geben den Zeiger frei (index.css).
+  const [verbindet, setVerbindet] = useState(false)
   const addPendingWaypoint = useUiStore((state) => state.addPendingWaypoint)
   const clearPendingCable = useUiStore((state) => state.clearPendingCable)
   const openCableEdit = useUiStore((state) => state.openCableEdit)
@@ -215,6 +240,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
   // the viewport origin.
   const lastMousePosRef = useRef<{ x: number; y: number } | null>(null)
   const { screenToFlowPosition, setViewport, fitView, getEdges, getNodes, zoomIn, zoomOut, zoomTo, setCenter } = useReactFlow()
+  const flowStore = useStoreApi()
   const updateCable = useProjectStore((state) => state.updateCable)
   const updateNodeInternals = useUpdateNodeInternals()
   const [interactionLocked, setInteractionLocked] = useState(false)
@@ -1527,36 +1553,25 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
   // (kein Korrektheitsbug aber unnötiger Overhead). project.equipment in
   // den deps damit der closure-capture korrekt ist — zustand triggert
   // sowieso re-render bei Project-Änderungen.
+  // Die Richtung (Ausgang -> Eingang) legt queueConnection fest (#1029);
+  // ReactFlow nennt im Loose-Modus einfach den Start-Griff `source`.
   const onConnect: OnConnect = useCallback(
     (connection) => {
-      // ReactFlow's ConnectionMode.Loose lets the user drag from any handle
-      // (including the transparent overlay handle on each port). When they
-      // drag from an Input to an Output, ReactFlow picks the drag-origin
-      // handle as `source` — which leaves the cable arrow pointing the wrong
-      // way (Input → Output). Normalise here so the canonical signal flow
-      // (output → input) is preserved regardless of which end the user
-      // started from.
       // v7.9.128 — Flag setzen damit onConnectEnd weiss: hier wurde
       // eine echte Verbindung gemacht, KEIN Open-End-Stub mehr noetig.
       connectMadeRef.current = true
-      if (connection.source && connection.target && connection.sourceHandle && connection.targetHandle) {
-        const sourceEq = project.equipment.find((e) => e.id === connection.source)
-        const targetEq = project.equipment.find((e) => e.id === connection.target)
-        const sourceIsOutput = !!sourceEq?.outputs.find((p) => p.id === connection.sourceHandle)
-        const targetIsOutput = !!targetEq?.outputs.find((p) => p.id === connection.targetHandle)
-        if (!sourceIsOutput && targetIsOutput) {
-          queueConnection({
-            source: connection.target,
-            sourceHandle: connection.targetHandle,
-            target: connection.source,
-            targetHandle: connection.sourceHandle,
-          })
-          return
-        }
-      }
       queueConnection(connection)
     },
-    [project.equipment, queueConnection],
+    [queueConnection],
+  )
+
+  // #1029 — Waehrend des Ziehens: ein Eingang rastet nicht an einem Eingang
+  // ein, ein Ausgang nicht an einem Ausgang. ReactFlow zeichnet die Linie
+  // dann als `invalid` (Stil in index.css) und ruft onConnect nicht. Gilt
+  // auch fuer das Umstecken eines Kabelendes.
+  const isValidConnection = useCallback(
+    (connection: Connection) => richteVerbindungAus(project.equipment, connection).ok,
+    [project.equipment],
   )
 
   // Reconnect / drag endpoints (draw.io-like).
@@ -1610,6 +1625,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
       params: { nodeId: string | null; handleId: string | null; handleType: 'source' | 'target' | null },
     ) => {
       connectStartRef.current = params
+      setVerbindet(true)
       // v7.9.128 — Reset flag fuer neue Drag-Session. Wird in onConnect
       // gesetzt wenn der Drop auf einem gueltigen Handle landet.
       connectMadeRef.current = false
@@ -1619,6 +1635,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
 
   const onConnectEnd = useCallback(
     (event: MouseEvent | TouchEvent) => {
+      setVerbindet(false)
       const start = connectStartRef.current
       connectStartRef.current = null
       if (!start || !start.nodeId || !start.handleId || !start.handleType) return
@@ -1649,6 +1666,11 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
       // erzeugen — z.B. Drop auf inkompatiblen Handle-Typ).
       const target = event.target as HTMLElement | null
       if (target?.closest('.react-flow__handle')) return
+      // #1029 — Losgelassen nahe einem Griff, den isValidConnection
+      // abgelehnt hat (Eingang auf Eingang): das ist ein verworfener
+      // Versuch, kein Wunsch nach einem offenen Ende. ReactFlow setzt den
+      // Status erst nach diesem Rueckruf zurueck.
+      if (flowStore.getState().connectionStatus === 'invalid') return
 
       // Resolve clientX/Y for mouse or touch.
       const pt =
@@ -1720,7 +1742,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         })
       }
     },
-    [addOpenEndStub, project.equipment, queueConnection, screenToFlowPosition, snapToGrid, gridSize, projectIsLocked, updateEquipment],
+    [addOpenEndStub, flowStore, project.equipment, queueConnection, screenToFlowPosition, snapToGrid, gridSize, projectIsLocked, updateEquipment],
   )
 
   // Plan-Datei per Drag & Drop (ADR-015, @avplan/floorplan). Nur im Haupt-
@@ -2170,6 +2192,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
       </svg>
       <ReactFlow
         proOptions={{ hideAttribution: true }}
+        className={verbindet || pendingCable ? 'cp-verbindet' : undefined}
         nodes={rfNodes.map((n) => {
           const node =
             overlapFlashId === n.id
@@ -2224,6 +2247,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         }}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
+        isValidConnection={isValidConnection}
         onConnectStart={onConnectStart}
         onConnectEnd={onConnectEnd}
         onEdgeUpdate={onEdgeUpdate}
@@ -2314,6 +2338,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         {/* #zoomfix — Viewport→Store-Sync (auch bei Menü-/Toolbar-Zoom), ersetzt
             das frühere onMoveEnd, das programmatischen Zoom nicht erfasste. */}
         <ViewportStateSync onChange={setCanvasState} />
+        <GriffZoom />
         <MiniMap pannable zoomable
           className={effectiveCanvasTheme === 'light' ? '!bg-slate-100' : '!bg-cp-surface-2'}
           maskColor={effectiveCanvasTheme === 'light' ? 'rgba(226,232,240,0.7)' : 'rgba(15,23,42,0.7)'}

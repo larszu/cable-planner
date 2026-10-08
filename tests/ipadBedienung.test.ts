@@ -101,13 +101,17 @@ describe('Port-Trefferflaechen auf grobem Zeiger (#877)', () => {
 
   it('waechst seitlich um mehr als nach oben', () => {
     // Oben und unten sitzen die Nachbarports. Der falsche Port getroffen ist
-    // schlimmer als der Port verfehlt.
-    expect(block).toMatch(/top: -2px/)
-    expect(block).toMatch(/left: -14px/)
+    // schlimmer als der Port verfehlt. Seit #1031 laufen die Masse ueber
+    // Variablen; der Finger traegt seine Untergrenze im coarse-Block.
+    expect(block).toMatch(/top: calc\(-1 \* var\(--cp-griff-y\)\)/)
+    expect(block).toMatch(/left: calc\(-1 \* var\(--cp-griff-x\)\)/)
+    const coarse = block.slice(block.indexOf('@media (pointer: coarse)'))
+    expect(coarse).toMatch(/--cp-griff-aussen-min: 14px/)
+    expect(coarse).toMatch(/--cp-griff-vertikal-min: 2px/)
   })
 
-  it('gilt nur fuer grobe Zeiger', () => {
-    const vor = css.slice(0, css.indexOf('.react-flow__handle::after'))
-    expect(vor.lastIndexOf('@media (pointer: coarse)')).toBeGreaterThan(vor.lastIndexOf('}\n\n.cp-hover-actions'))
+  it('die feste Fingerzugabe gilt nur fuer grobe Zeiger', () => {
+    const vor = css.slice(0, css.indexOf('--cp-griff-aussen-min: 14px'))
+    expect(vor.lastIndexOf('@media (pointer: coarse)')).toBeGreaterThan(vor.lastIndexOf('.react-flow__handle-bottom::after'))
   })
 })
