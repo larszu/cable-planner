@@ -179,7 +179,7 @@ export const McpTab = () => {
           <span className="block text-cp-text-muted">
             {t(
               'mcp.writeHint',
-              'Connect and remove cables, set cable details, rename devices - through the same store actions the canvas uses. Every call is ONE undo step and leaves a line under "What Claude changed" below. Switching devices (Videohub, ATEM) is never offered. Takes effect when the server is restarted.',
+              'Place library and custom devices, connect and remove cables, set cable details and rack heights, save racks, rename devices - through the same store actions the canvas uses. Every call is ONE undo step and leaves a line under "What Claude changed" below. Switching devices (Videohub, ATEM) is never offered. Takes effect when the server is restarted.',
             )}
           </span>
         </span>

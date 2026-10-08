@@ -212,6 +212,46 @@ const baueServer = (): McpServer => {
     async (args) => werkzeugAntwort('plan_findings', args as Record<string, unknown>),
   )
 
+  mcp.registerTool(
+    'search_library',
+    {
+      title: 'Search the device library',
+      description:
+        'Templates in the device library (what the library sidebar shows), with every port, rack height in RU (19" height units; null = not a rack device) and the manufacturer link. Every word of the query must appear in the name or category. Use the exact "template" value with add_device.',
+      annotations: { readOnlyHint: true },
+      inputSchema: {
+        query: z.string().optional().describe('Words of the template name, e.g. "Studio Camera G2".'),
+        category: z.string().optional().describe('Substring of the category, e.g. "Monitors".'),
+        limit: z.number().int().positive().max(50).optional().describe('How many templates to return (default 10).'),
+        offset: seite.offset,
+      },
+    },
+    async (args) => werkzeugAntwort('search_library', args as Record<string, unknown>),
+  )
+
+  mcp.registerTool(
+    'verify_cabling',
+    {
+      title: 'Check cabling against a list',
+      description:
+        'Compare an expected cable list with the plan. Devices and ports by exact name or id (case only forgiven when unique). Reports missing, extra (only cables between devices the list names), wrong port, wrong direction and unresolvable rows; deviations = 0 means the plan matches.',
+      annotations: { readOnlyHint: true },
+      inputSchema: {
+        expected: z
+          .array(
+            z.object({
+              from: z.string().describe('Sending device, name or id.'),
+              fromPort: z.string().describe('Output port name or id.'),
+              to: z.string().describe('Receiving device, name or id.'),
+              toPort: z.string().describe('Input port name or id.'),
+            }),
+          )
+          .max(500),
+      },
+    },
+    async (args) => werkzeugAntwort('verify_cabling', args as Record<string, unknown>),
+  )
+
   // #873 — die schreibenden Werkzeuge. NUR wenn der zweite Schalter an ist;
   // sonst existieren sie fuer den Client gar nicht. Ein Werkzeug, das immer
   // „nicht erlaubt" antwortet, ist dieselbe Sorte Luege wie ein Knopf, der
@@ -222,20 +262,129 @@ const baueServer = (): McpServer => {
       {
         title: 'Connect two ports',
         description:
-          'Draw a cable between two ports, through the same store action the canvas uses. Says what would fit if the two ends do not mate.',
+          'Draw one cable from an output to an input. A reversed pair is flipped; input to input and output to output are refused, and so is an occupied input unless replace is true. Says what would fit if the two connectors do not mate. Length in metres.',
         annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false },
         inputSchema: {
-          fromDeviceId: z.string(),
-          fromPortId: z.string(),
-          toDeviceId: z.string(),
-          toPortId: z.string(),
-          name: z.string().optional(),
-          type: z.string().optional(),
-          length: z.number().optional().describe('Metres. Leave it out rather than guessing.'),
+          fromDeviceId: z.string().describe('Device name or id.'),
+          fromPortId: z.string().describe('Port name or id, exact (case only forgiven when unique).'),
+          toDeviceId: z.string().describe('Device name or id.'),
+          toPortId: z.string().describe('Port name or id, exact (case only forgiven when unique).'),
+          name: z.string().optional().describe('Leave empty: the label then shows the cable type.'),
+          type: z.string().optional().describe('Cable type; left out, it is chosen like the cable dialog does from the two connectors.'),
+          length: z.number().nonnegative().optional().describe('Metres. Leave it out rather than guessing.'),
           notes: z.string().optional(),
+          color: z.string().optional(),
+          replace: z.boolean().optional().describe('Replace the cable already on the input. Without it an occupied input is refused.'),
         },
       },
       async (args) => werkzeugAntwort('connect_ports', args as Record<string, unknown>),
+    )
+
+    mcp.registerTool(
+      'connect_many',
+      {
+        title: 'Connect many cables',
+        description:
+          'Draw up to 200 cables in one call and one undo step, same rules as connect_ports, with a result or error per cable. Two cables onto the same input in one call are refused. Length in metres.',
+        annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false },
+        inputSchema: {
+          cables: z
+            .array(
+              z.object({
+          fromDeviceId: z.string().describe('Device name or id.'),
+                fromPortId: z.string().describe('Port name or id, exact (case only forgiven when unique).'),
+                toDeviceId: z.string().describe('Device name or id.'),
+                toPortId: z.string().describe('Port name or id, exact (case only forgiven when unique).'),
+                name: z.string().optional().describe('Leave empty: the label then shows the cable type.'),
+                type: z.string().optional().describe('Cable type; left out, it is chosen like the cable dialog does from the two connectors.'),
+                length: z.number().nonnegative().optional().describe('Metres. Leave it out rather than guessing.'),
+                notes: z.string().optional(),
+                color: z.string().optional(),
+                replace: z.boolean().optional().describe('Replace the cable already on the input. Without it an occupied input is refused.'),
+              }),
+            )
+            .min(1)
+            .max(200),
+        },
+      },
+      async (args) => werkzeugAntwort('connect_many', args as Record<string, unknown>),
+    )
+
+    mcp.registerTool(
+      'add_device',
+      {
+        title: 'Add a library device',
+        description:
+          'Place a device from the library, as a double click in the library does. Template by exact name (see search_library); an unknown or ambiguous name is refused with similar names. Returns the device id and its ports.',
+        annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false },
+        inputSchema: {
+          template: z.string().describe('Exact template name from search_library.'),
+          name: z.string().optional().describe('Device name in the plan, e.g. "Camera 1".'),
+          x: z.number().optional().describe('Canvas position in px; both x and y or neither.'),
+          y: z.number().optional(),
+        },
+      },
+      async (args) => werkzeugAntwort('add_device', args as Record<string, unknown>),
+    )
+
+    mcp.registerTool(
+      'create_device',
+      {
+        title: 'Create a custom device',
+        description:
+          'Create a device from port groups, as the "Create your own device" dialog does: a group of 3 with labelPrefix "SDI In" gives ports "SDI In 1" to "SDI In 3". Unknown connector types are refused. rackUnits (1-60 RU) marks it as a 19" rack device. Optionally also saved to the library.',
+        annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false },
+        inputSchema: {
+          name: z.string(),
+          category: z.string().optional().describe('Default "Other".'),
+          rackUnits: z.number().int().min(1).max(60).optional().describe('19" height units (1 RU = 44.45 mm).'),
+          portGroups: z
+            .array(
+              z.object({
+                direction: z.enum(['in', 'out', 'bidirectional']),
+                count: z.number().int().min(1).max(256),
+                connector: z.string().describe('Connector type as the planner names it, e.g. "BNC", "HDMI", "Ethernet/RJ45", "XLR", "Jack 6.35 mm TRS".'),
+                labelPrefix: z.string().optional().describe('Port names become "<labelPrefix> 1", "<labelPrefix> 2" ...'),
+              }),
+            )
+            .max(64)
+            .optional(),
+          saveToLibrary: z.boolean().optional(),
+          x: z.number().optional(),
+          y: z.number().optional(),
+        },
+      },
+      async (args) => werkzeugAntwort('create_device', args as Record<string, unknown>),
+    )
+
+    mcp.registerTool(
+      'set_rack_units',
+      {
+        title: 'Set rack height',
+        description: 'Mark a device as a 19" rack device and set its height in RU (whole number 1-60; 1 RU = 44.45 mm).',
+        annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true },
+        inputSchema: {
+          deviceId: z.string().describe('Device name or id.'),
+          rackUnits: z.number().int().min(1).max(60),
+        },
+      },
+      async (args) => werkzeugAntwort('set_rack_units', args as Record<string, unknown>),
+    )
+
+    mcp.registerTool(
+      'arrange_rack',
+      {
+        title: 'Arrange devices in a rack',
+        description:
+          'Stack devices top to bottom into a rack and save it to the library racks, as "Arrange in rack builder" does. Cables between the listed devices become its internal cables; the plan itself is not changed. totalUnits in RU (default: used height + 3, at least 12); smaller than the devices need is refused, so is a placed rack in the list.',
+        annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false },
+        inputSchema: {
+          deviceIds: z.array(z.string()).min(1).max(60).describe('Device names or ids, top to bottom.'),
+          name: z.string().optional().describe('Rack name, default "Rack".'),
+          totalUnits: z.number().int().min(1).max(60).optional(),
+        },
+      },
+      async (args) => werkzeugAntwort('arrange_rack', args as Record<string, unknown>),
     )
 
     mcp.registerTool(

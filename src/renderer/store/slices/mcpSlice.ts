@@ -3,6 +3,8 @@ import type { StateCreator } from 'zustand'
 import { scheduleProjectAutosave } from '../projectAutosave'
 import { isProjectLocked } from '../projectStoreHelpers'
 import { fuehreSchreibwerkzeugAus, type Aktionen } from '../../lib/mcpSchreiben'
+import { nextPlacementPosition } from '../../lib/library'
+import { useUiStore } from '../uiStore'
 import { mitEintrag } from '../../types/mcpLog'
 import type { ProjectState } from '../projectStore'
 
@@ -52,6 +54,14 @@ export const createMcpSlice: StateCreator<ProjectState, [], [], McpSlice> = (set
         deleteCable: zustand.deleteCable,
         updateCable: zustand.updateCable,
         updateEquipment: zustand.updateEquipment,
+        addEquipment: zustand.addEquipment,
+        addCustomTemplate: zustand.addCustomTemplate,
+        addKnownCategories: zustand.addKnownCategories,
+        addGroupPreset: zustand.addGroupPreset,
+        aktuell: () => get().project,
+        bibliothek: () => get().customLibrary,
+        letzteKabelwahl: () => useUiStore.getState().lastCableByConnector,
+        naechsterPlatz: () => nextPlacementPosition(get().project.equipment.length, get().project.equipment),
       }
       const antwort = fuehreSchreibwerkzeugAus(zustand.project, aktionen, werkzeug, args)
       if (!antwort.ok) return antwort

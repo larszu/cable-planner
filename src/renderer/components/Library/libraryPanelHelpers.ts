@@ -1,6 +1,6 @@
 // #468 — Port-Gruppen-Helfer aus LibraryPanel ausgelagert (rein, kein React).
 import { v4 as uuidv4 } from 'uuid'
-import type { ConnectorType, Port } from '../../types/equipment'
+import type { ConnectorType, EquipmentTemplate, Port } from '../../types/equipment'
 import type { SignalStandard } from '../../types/cableSpec'
 import type { ErkannterPort } from '../../lib/fotoPortErkennung'
 
@@ -80,6 +80,36 @@ export const buildPorts = (groups: PortGroupDraft[], direction: 'in' | 'out'): P
       ...(group.standard ? { standard: group.standard } : {}),
     })),
   )
+}
+
+/**
+ * The template the "Create custom device" dialog builds from its port
+ * groups. The MCP tool `create_device` builds through it too, so a device
+ * made by Claude has the same port names and size as one made by hand.
+ */
+export const templateFromGroups = (d: {
+  name: string
+  category: string
+  groups: PortGroupDraft[]
+  /** Set = 19" rack device of that height. */
+  rackUnits?: number
+}): EquipmentTemplate => {
+  const inputs = buildPorts(d.groups, 'in')
+  const outputs = buildPorts(d.groups, 'out')
+  const maxPorts = Math.max(inputs.length, outputs.length, 3)
+  return {
+    name: d.name,
+    category: d.category,
+    inputs,
+    outputs,
+    isRackDevice: d.rackUnits !== undefined,
+    rackUnits: d.rackUnits,
+    width: 240,
+    height: 80 + maxPorts * 22,
+    // Ohne Ports angelegt: die Plan-Pruefung erinnert ruhig daran (info),
+    // und ein Kabel auf den Geraetekoerper legt den ersten an.
+    ...(inputs.length === 0 && outputs.length === 0 ? { portsUnknown: true } : {}),
+  }
 }
 
 /** Angehakte Zeilen der Foto-Erkennung als Port-Gruppen des Anlegen-Dialogs. */

@@ -1,7 +1,8 @@
 ## Claude (MCP)
 
 Claude beantwortet Fragen zum offenen Plan — Geräte, Anschlüsse, Signalwege,
-Kabel und Plan-Check.
+Kabel und Plan-Check —, durchsucht die Gerätebibliothek und prüft den Plan
+gegen eine Kabelliste (fehlend, überzählig, falscher Port, falsche Richtung).
 
 **Auf diesem Rechner**
 
@@ -14,8 +15,14 @@ Kabel und Plan-Check.
    ```
 
 3. Standard ist Lesen. **Schreiben** ist ein zweiter Schalter: Claude kann dann
-   Kabel verbinden und entfernen, Kabelangaben setzen und Geräte umbenennen.
-   Jeder Aufruf ist ein Rückgängig-Schritt und steht unter **Was Claude
+   eine Anlage aufbauen — Geräte aus der Bibliothek setzen, eigene Geräte aus
+   Port-Gruppen anlegen, Kabel einzeln oder viele auf einmal ziehen,
+   Rackhöhen setzen und Geräte samt internen Kabeln als Rack speichern — und
+   Kabel entfernen, Kabelangaben setzen und Geräte umbenennen. Ports werden
+   exakt benannt; der Kabeltyp wird gewählt wie im Kabeldialog. Eingang auf
+   Eingang wird abgelehnt, eine verkehrte Richtung gedreht, ein belegter
+   Eingang bleibt, wie er ist, solange Claude ihn nicht ausdrücklich ersetzen
+   soll. Jeder Aufruf ist ein Rückgängig-Schritt und steht unter **Was Claude
    geändert hat**.
 
 **Von claude.ai, vom Telefon oder einem anderen Rechner**

@@ -103,8 +103,8 @@ const BESTAND: Record<string, number> = {
   'lib/mcpWerkzeuge.ts': 8,
   // #873 — dieselbe Begruendung wie eine Zeile darueber: die Saetze gehen an
   // den MCP-CLIENT und nicht auf ein Blatt. `mcpLog` traegt einen davon als
-  // Feldnamen (`text`), die Schreibwerkzeuge vier als Antworten.
-  'lib/mcpSchreiben.ts': 4,
+  // Feldnamen (`text`). `lib/mcpSchreiben.ts` steht seit #1052 auf 0: die
+  // Antworten laufen durch `ja()`/`nein()`.
   'types/mcpLog.ts': 1,
   'lib/eventMetadata.ts': 11,
   'lib/circuitSuggest.ts': 11,

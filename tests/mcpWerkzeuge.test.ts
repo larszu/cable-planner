@@ -75,13 +75,15 @@ const plan = (): CablePlannerProject =>
   }) as unknown as CablePlannerProject
 
 describe('#872 — die Werkzeuge', () => {
-  it('kennt genau die fuenf Fragen aus Stufe 1', () => {
+  it('kennt genau die Fragen aus Stufe 1 und #1052', () => {
     expect([...MCP_WERKZEUGE]).toEqual([
       'list_devices',
       'device_ports',
       'trace_signal',
       'list_cables',
       'plan_findings',
+      'search_library',
+      'verify_cabling',
     ])
   })
 

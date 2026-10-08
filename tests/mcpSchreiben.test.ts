@@ -38,7 +38,10 @@ const plan = (): CablePlannerProject =>
       {
         id: 'mix',
         name: 'Mischer',
-        inputs: [{ id: 'mix-in', name: 'In 1', type: 'BNC', connectorType: 'BNC' }],
+        inputs: [
+          { id: 'mix-in', name: 'In 1', type: 'BNC', connectorType: 'BNC' },
+          { id: 'mix-in2', name: 'In 2', type: 'BNC', connectorType: 'BNC' },
+        ],
         outputs: [],
       },
     ],
@@ -51,7 +54,7 @@ const plan = (): CablePlannerProject =>
         fromEquipmentId: 'cam',
         fromPortId: 'cam-out',
         toEquipmentId: 'mix',
-        toPortId: 'mix-in',
+        toPortId: 'mix-in2',
       },
     ],
   }) as unknown as CablePlannerProject
@@ -68,17 +71,23 @@ const aktionen = (
     deleteCable: vi.fn(),
     updateCable: vi.fn(),
     updateEquipment: vi.fn(),
+    letzteKabelwahl: () => ({}),
   }
   return spy as unknown as Aktionen & typeof spy
 }
 
 describe('#873 — der Umfang', () => {
-  it('kennt genau vier schreibende Werkzeuge', () => {
+  it('kennt genau diese schreibenden Werkzeuge', () => {
     expect([...MCP_SCHREIBWERKZEUGE]).toEqual([
       'connect_ports',
       'disconnect_cable',
       'set_cable',
       'rename_device',
+      'add_device',
+      'create_device',
+      'connect_many',
+      'set_rack_units',
+      'arrange_rack',
     ])
   })
 
