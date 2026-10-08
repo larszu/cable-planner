@@ -4155,6 +4155,10 @@ export const de: Dict = {
   'pendingCable.banner':
     'Kabel zeichnen: Tippen auf die Fläche setzt einen Knick, Tippen auf einen Port beendet.',
   'pendingCable.cancel': 'Abbrechen',
+  'pendingCable.inputToInput':
+    'Ein Eingang verbindet sich mit einem Ausgang, nicht mit einem anderen Eingang. Tippe auf einen Ausgang.',
+  'pendingCable.outputToOutput':
+    'Ein Ausgang verbindet sich mit einem Eingang, nicht mit einem anderen Ausgang. Tippe auf einen Eingang.',
   'pendingCable.undoBend': 'Knick zurück',
   'planCheck.allClear': 'Keine Auffälligkeiten gefunden.',
   'planCheck.footerHint':

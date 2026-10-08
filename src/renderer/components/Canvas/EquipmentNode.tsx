@@ -29,6 +29,7 @@ type EquipmentNodeData = EquipmentItem & {
 // equipmentLayout.ts dupliziert — Bug-Garantie wenn einer der beiden
 // geändert wurde.
 import { useRaster } from '../../lib/aktuellesRaster'
+import { richteVerbindungAus } from '../../lib/connectionDirection'
 import { useTally } from '../../hooks/useCanvasFlow'
 import { useLampLevel } from '../../hooks/useCircuit'
 import { useErwartetesBild } from '../../hooks/usePattern'
@@ -97,6 +98,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
   const pendingCable = useUiStore((s) => s.pendingCable)
   const startPendingCable = useUiStore((s) => s.startPendingCable)
   const clearPendingCable = useUiStore((s) => s.clearPendingCable)
+  const rejectPendingCableEnd = useUiStore((s) => s.rejectPendingCableEnd)
   const canvasTheme = useUiStore((s) => s.canvasTheme)
   const colorPortsByType = useUiStore((s) => s.colorPortsByType)
   // v7.9.59 — User-anpassbare Geräte-Karten-Farben pro Theme. Vorher
@@ -277,46 +279,23 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
       clearPendingCable()
       return
     }
-    // Build the Connection payload. We orient it so that source is an output
-    // and target is an input, regardless of which end the user started from.
-    const startIsSource = pendingCable.handleType === 'source'
-    const endIsSource = handleType === 'source'
-    let connection: {
-      source: string
-      sourceHandle: string
-      target: string
-      targetHandle: string
+    // In Zeichenrichtung uebergeben; queueConnection dreht auf
+    // Ausgang -> Eingang und die Knicke mit (#1029). Passt das Paar nicht
+    // zusammen (Eingang auf Eingang, Ausgang auf Ausgang), bleibt die
+    // Zeichnung offen und die Leiste sagt, warum.
+    const connection = {
+      source: pendingCable.nodeId,
+      sourceHandle: pendingCable.handleId,
+      target: id,
+      targetHandle: portId,
     }
-    let waypoints = pendingCable.waypoints
-    if (startIsSource && !endIsSource) {
-      connection = {
-        source: pendingCable.nodeId,
-        sourceHandle: pendingCable.handleId,
-        target: id,
-        targetHandle: portId,
-      }
-    } else if (!startIsSource && endIsSource) {
-      connection = {
-        source: id,
-        sourceHandle: portId,
-        target: pendingCable.nodeId,
-        targetHandle: pendingCable.handleId,
-      }
-      // Waypoints were recorded in the direction start -> end; reverse so they
-      // run source -> target.
-      waypoints = [...waypoints].reverse()
-    } else {
-      // Two outputs or two inputs clicked. With ConnectionMode.Loose we still
-      // allow it; pick the first as source.
-      connection = {
-        source: pendingCable.nodeId,
-        sourceHandle: pendingCable.handleId,
-        target: id,
-        targetHandle: portId,
-      }
+    const ausrichtung = richteVerbindungAus(projectEquipment, connection)
+    if (!ausrichtung.ok) {
+      rejectPendingCableEnd(ausrichtung.grund)
+      return
     }
     clearPendingCable()
-    queueConnection(connection, waypoints)
+    queueConnection(connection, pendingCable.waypoints)
   }
 
   const handlePortClick =

@@ -9,6 +9,7 @@ import {
 } from '../../lib/cableInheritance'
 import { detectLayerForConnector } from '../../lib/cableLayers'
 import { cablesEndingAt, targetKey } from '../../lib/portOccupancy'
+import { richteVerbindungAus } from '../../lib/connectionDirection'
 import { computeCableNumbers, nextCableNumber } from '../../lib/cableNumbering'
 import { estimateAllCableLengths, DEFAULT_LENGTH_ESTIMATION } from '../../lib/cableLengthEstimate'
 import { laengenKontext } from '../../lib/laengenKontext'
@@ -102,9 +103,18 @@ export const createCableSlice: StateCreator<ProjectState, [], [], CableSlice> = 
       }
     }),
 
-  queueConnection: (connection, waypoints) =>
+  queueConnection: (roh, rohWaypoints) =>
     set((state) => {
       if (isProjectLocked(state)) return state
+      // #1029 — Eine Stelle fuer alle Wege (Ziehen, Klicken, Tastatur,
+      // Eigenschaften): Eingang→Eingang und Ausgang→Ausgang kommen nicht
+      // an, alles andere laeuft danach von sendend nach empfangend. Die
+      // Knicke wurden in Zeichenrichtung aufgenommen und drehen mit.
+      const ausrichtung = richteVerbindungAus(state.project.equipment, roh)
+      if (!ausrichtung.ok) return state
+      const connection = ausrichtung.connection
+      const waypoints =
+        ausrichtung.umgedreht && rohWaypoints ? [...rohWaypoints].reverse() : rohWaypoints
       // #294 — Port-Konflikt-Check. Wenn am ZIEL-Port bereits ein Kabel
       // steckt, oeffnen wir den PortConflictDialog statt direkt den
       // CableDialog. Source-Ports werden bewusst NICHT geprueft — Outputs

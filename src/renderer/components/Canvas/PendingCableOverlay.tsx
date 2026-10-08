@@ -156,7 +156,11 @@ export const PendingCableOverlay = () => {
         onPointerDown={(e) => e.stopPropagation()}
       >
         <span style={{ pointerEvents: 'none' }}>
-          {t('pendingCable.banner', 'Draw cable: tap the canvas for a bend, tap a port to finish.')}
+          {pendingCable.abgelehnt === 'inputToInput'
+            ? t('pendingCable.inputToInput', 'An input connects to an output, not to another input. Tap an output.')
+            : pendingCable.abgelehnt === 'outputToOutput'
+              ? t('pendingCable.outputToOutput', 'An output connects to an input, not to another output. Tap an input.')
+              : t('pendingCable.banner', 'Draw cable: tap the canvas for a bend, tap a port to finish.')}
         </span>
         <button
           type="button"
