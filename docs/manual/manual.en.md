@@ -456,7 +456,7 @@ Groups can later be dragged from the library onto the canvas and the arrangement
 
 ### Arrange equipment in 2D rack builder
 
-If you have selected one or more regular equipment, you can move them with the **Rack** button to the 2D rack builder to arrange them in rows (e.g. to simulate a rack cabinet).
+If you have selected one or more regular equipment, you can move them with the toolbar's **Rack** button or via right-click → **Arrange in rack builder** to the 2D rack builder to arrange them in rows (e.g. to simulate a rack cabinet). If the selection contains a rack, neither is offered: racks cannot be packed into racks.
 
 If you select an existing rack (black and white black-box), an **Edit** button appears instead to open the rack builder for that specific rack.
 
@@ -472,7 +472,7 @@ Right-click on equipment. A menu appears with these options:
 - **Delete equipment**: Remove equipment and all its cables
 - **Hide label**: Show only the symbol without name
 - **Hide connectors**: Show only the equipment symbol without port dots
-- **Arrange in rack**: Open rack builder (like the toolbar button)
+- **Arrange in rack builder**: Open the rack builder with the device or the whole selection (like the toolbar's Rack button)
 
 #### Cable context menu
 

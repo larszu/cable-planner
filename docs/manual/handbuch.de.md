@@ -457,7 +457,7 @@ Gruppen können Sie später aus der Bibliothek auf den Canvas ziehen und die Ano
 
 ### Geräte im 2D-Rack-Builder anordnen
 
-Wenn Sie ein oder mehrere normale Geräte ausgewählt haben, können Sie sie mit dem **Rack**-Button in den 2D-Rack-Builder verschieben, um sie in Reihen anzuordnen (z. B. um einen Schrank zu simulieren).
+Wenn Sie ein oder mehrere normale Geräte ausgewählt haben, können Sie sie mit dem **Rack**-Button der Werkzeugleiste oder per Rechtsklick → **Im Rack-Builder anordnen** in den 2D-Rack-Builder verschieben, um sie in Reihen anzuordnen (z. B. um einen Schrank zu simulieren). Ist ein Rack in der Auswahl, fehlt beides: Racks lassen sich nicht in Racks packen.
 
 Wenn Sie ein bestehendes Rack (schwarz-weiße Black-Box) auswählen, erscheint stattdessen ein **Bearbeiten**-Button zum Öffnen des Rack-Builders für dieses spezifische Rack.
 
@@ -473,7 +473,7 @@ Klicken Sie mit der rechten Maustaste auf ein Gerät. Ein Menü erscheint mit di
 - **Gerät löschen**: Gerät und alle seine Kabel entfernen
 - **Beschriftung verbergen**: Symbol ohne Namen anzeigen
 - **Anschlüsse verbergen**: Nur das Gerätsymbol ohne Port-Punkte
-- **In Rack anordnen**: Öffnet den Rack-Builder (wie der Toolbar-Button)
+- **Im Rack-Builder anordnen**: Öffnet den Rack-Builder mit dem Gerät bzw. der ganzen Auswahl (wie der Rack-Button der Werkzeugleiste)
 
 #### Kabel-Kontextmenü
 
