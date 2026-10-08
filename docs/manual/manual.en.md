@@ -78,13 +78,23 @@ Deutsche Fassung: [handbuch.de.md](handbuch.de.md)
    - [View Linked Venue Plan](#view-linked-venue-plan)
    - [Project File Format: `.cableplan`](#project-file-format-cableplan)
    - [Backup Status in the Status Bar](#backup-status-in-the-status-bar)
-7. [Tools: Plan](#7-tools-plan)
+7. [Export & Print](#7-export--print)
+   - [Patch List](#patch-list)
+   - [Fixed Installation: Docs & Handover](#fixed-installation-docs--handover)
+   - [Stage Plot](#stage-plot)
+   - [Export & Print](#export--print)
+   - [Cloud & Share Link](#cloud--share-link)
+   - [Export as Viewer File](#export-as-viewer-file)
+   - [Import Annotations](#import-annotations)
+   - [Compare Plan Revisions](#compare-plan-revisions)
+   - [Documents Handed Out](#documents-handed-out)
+8. [Tools: Plan](#8-tools-plan)
    - [Calculate](#calculate)
    - [Check](#check)
    - [Plan](#plan)
    - [Create & Manage](#create--manage)
    - [Device Configuration](#device-configuration)
-8. [Tools](#8-tools)
+9. [Tools](#9-tools)
    - [Patch list](#patch-list)
    - [Patching order](#patching-order)
    - [LED wall](#led-wall)
@@ -104,16 +114,6 @@ Deutsche Fassung: [handbuch.de.md](handbuch.de.md)
    - [Videohub routing / labels](#videohub-routing--labels)
    - [GreenGo intercom](#greengo-intercom)
    - [Notes](#notes)
-9. [Export & Print](#9-export--print)
-   - [Patch List](#patch-list)
-   - [Fixed Installation: Docs & Handover](#fixed-installation-docs--handover)
-   - [Stage Plot](#stage-plot)
-   - [Export & Print](#export--print)
-   - [Cloud & Share Link](#cloud--share-link)
-   - [Export as Viewer File](#export-as-viewer-file)
-   - [Import Annotations](#import-annotations)
-   - [Compare Plan Revisions](#compare-plan-revisions)
-   - [Documents Handed Out](#documents-handed-out)
 10. [Settings](#10-settings)
    - [Project](#project)
    - [Appearance](#appearance)
@@ -666,14 +666,14 @@ The equipment tab shows local templates and external sources.
 
 #### Local Library
 
-![Equipment overview in the library](../bilder/en/bibliothek-geraete-lokal.jpg)
+![Equipment overview in the library](bilder/en/bibliothek-geraete-lokal.jpg)
 
 The local library contains 150+ built-in devices and all custom templates you create.
 
 - *Search*: Search field with `Ctrl+F` shortcut. Filters by name or category in real time.
 - *Filter Menu*: Sort order (Manual, A→Z, Z→A), show hidden devices, show only owned material.
 - *Categories*: Expand/collapse, edit button to rename.
-- *Entries*: One entry per device. Hover to show actions.
+- *Entries*: One entry per device. Hover to show actions. A click selects the entry and shows its properties; double-click or drag it onto the canvas to place it – the selected entry says so.
 
 ##### Create Your Own Device
 
@@ -681,17 +681,17 @@ Create new devices with ports and optional photos:
 
 *Library → +* (green button) *→ New device…*
 
-![Create new device](../bilder/en/bibliothek-dialog-geraet-anlegen-allgemein.jpg)
+![Create new device](bilder/en/bibliothek-dialog-geraet-anlegen-allgemein.jpg)
 
 The fields:
 
 - **Name**: What the device is called.
-- **Category**: E.g., Cameras, Mixers, Monitors. Appears as a folder in the library. New categories are created here.
+- **Category**: E.g., Cameras, Mixers, Monitors; starts out as “Other”. Appears as a folder in the library. New categories are created here.
 - **Is a rack device**: Checkbox. If yes, enter the height in rack units (RU).
 
 ###### Tab: Ports
 
-![Configure ports](../bilder/en/bibliothek-dialog-geraet-anlegen-anschluesse.jpg)
+![Configure ports](bilder/en/bibliothek-dialog-geraet-anlegen-anschluesse.jpg)
 
 Group ports together ("4x BNC In", "2x HDMI Out"):
 
@@ -706,7 +706,7 @@ Groups are expanded into individual ports when saved (e.g., "SDI In 1", "SDI In 
 
 ###### Tab: Photo
 
-![Upload photos and recognize ports](../bilder/en/bibliothek-dialog-geraet-anlegen-foto.jpg)
+![Upload photos and recognize ports](bilder/en/bibliothek-dialog-geraet-anlegen-foto.jpg)
 
 Automatically recognize ports from a device datasheet or photo:
 
@@ -743,7 +743,7 @@ Contribute custom devices to the device library:
 
 *Library → +* *→ Submit templates*
 
-![Submit templates dialog](../bilder/en/bibliothek-dialog-vorlagen-einreichen.jpg)
+![Submit templates dialog](bilder/en/bibliothek-dialog-vorlagen-einreichen.jpg)
 
 - Select which local templates to send.
 - Enter manufacturer and model, optionally datasheet link.
@@ -757,7 +757,7 @@ Import network infrastructure from NetBox:
 
 *Library → +* *→ Import file …* or via NetBox integration
 
-![Search NetBox devices](../bilder/en/bibliothek-dialog-netbox-import.jpg)
+![Search NetBox devices](bilder/en/bibliothek-dialog-netbox-import.jpg)
 
 - **Search field**: E.g., "Cisco Catalyst". Searches NetBox device types.
 - **Choose category**: Where the imported template is filed.
@@ -767,7 +767,7 @@ Import network infrastructure from NetBox:
 
 Public device database with 500+ verified templates:
 
-![Device library](../bilder/en/bibliothek-geraete-geraetebibliothek.jpg)
+![Device library](bilder/en/bibliothek-geraete-geraetebibliothek.jpg)
 
 - Load devices from the database (requires sign-in).
 - See verification status: how many users have verified the device.
@@ -777,7 +777,7 @@ Public device database with 500+ verified templates:
 
 Sync Rentman projects with device inventory (if Rentman module is active):
 
-![Rentman integration](../bilder/en/bibliothek-geraete-rentman.jpg)
+![Rentman integration](bilder/en/bibliothek-geraete-rentman.jpg)
 
 - **Linked Project**: Fetch the Rentman project.
 - **Imported**: Which Rentman devices are already imported.
@@ -788,7 +788,7 @@ Sync Rentman projects with device inventory (if Rentman module is active):
 
 Available cable types and their configurations:
 
-![Cable overview](../bilder/en/bibliothek-kabel-uebersicht.jpg)
+![Cable overview](bilder/en/bibliothek-kabel-uebersicht.jpg)
 
 - **Cable types** (SDI, HDMI, DisplayPort, Ethernet, Fiber, Audio/XLR, USB, Power, Custom):
   One group per cable type.
@@ -807,7 +807,7 @@ Define new cable types or edit existing ones:
 
 *Library → Cables tab → "Manage cable types…"*
 
-![Manage cable types](../bilder/en/bibliothek-dialog-kabeltypen-verwalten.jpg)
+![Manage cable types](bilder/en/bibliothek-dialog-kabeltypen-verwalten.jpg)
 
 - New group: e.g., "Satellite" with custom connector pair and standards.
 - Edit cable: name, length, color, signals, status (Recommended/Custom/Modified).
@@ -816,7 +816,7 @@ Define new cable types or edit existing ones:
 
 Save multiple devices + cables together and reuse later:
 
-![Groups overview](../bilder/en/bibliothek-gruppen-uebersicht.jpg)
+![Groups overview](bilder/en/bibliothek-gruppen-uebersicht.jpg)
 
 *Creating a group*:
 
@@ -840,7 +840,7 @@ Save multiple devices + cables together and reuse later:
 
 Save 2D rack layout: which devices, at what height, stacked:
 
-![Racks overview](../bilder/en/bibliothek-racks-uebersicht.jpg)
+![Racks overview](bilder/en/bibliothek-racks-uebersicht.jpg)
 
 #### Rack Builder
 
@@ -848,7 +848,7 @@ Edit an empty or existing rack:
 
 *Library → Racks tab → "+" → New rack*
 
-![Rack Builder dialog](../bilder/en/bibliothek-dialog-rack-builder-leer.jpg)
+![Rack Builder dialog](bilder/en/bibliothek-dialog-rack-builder-leer.jpg)
 
 - **Rack name**: E.g., "Server Rack 1".
 - **Rack height**: Total height in rack units (typically 42 RU).
@@ -868,7 +868,7 @@ Export rack inventory for warehouse system:
 
 *Library → Racks tab → "For the warehouse"*
 
-![Export rack for warehouse](../bilder/en/bibliothek-racks-zum-lagern.jpg)
+![Export rack for warehouse](bilder/en/bibliothek-racks-zum-lagern.jpg)
 
 Generates `rack-belegung.json` for your warehouse inventory system (e.g., Inventory Planner).
 
@@ -1154,7 +1154,7 @@ The *File* menu is the central hub for project management: creating, opening, sa
 
 *File → New project*
 
-Creates a blank project and opens it in a new window. The previous project remains open in the background. The project has a default name and can be saved under a custom name later.
+Opens the *New project* form with project name, client and logos. *Create project* replaces the current plan with an empty one. If the current plan already holds devices, cables or locations, the form notes that unsaved changes will be lost.
 
 Keyboard: `Ctrl+N`
 
@@ -1402,770 +1402,7 @@ The `.bak` file is written atomically: it is never left in a half-written state,
 
 ---
 
-## 7. Tools: Plan
-
-Tool dialogs for capturing, analyzing, and planning a facility — from site survey through function groups to delivery.
-
-### Calculate
-
-Specialized calculators for capacity and resource planning.
-
-#### Recording storage calculator
-
-*Tools → Calculate recording storage…*
-
-![Storage calculator for video recording](../bilder/en/werkzeuge-planen-recording-storage-calc.jpg)
-
-Calculates storage requirements for video recording based on codec, resolution, framerate, and duration.
-
-- **Inputs**: Video format (HD/4K/8K), codec (DCI/H.265/ProRes/etc.), framerate (25/50/60 fps), recording duration.
-- **Output**: Storage size in GB/TB.
-
-#### Projection & display
-
-*Tools → Projection & display…*
-
-![Projection calculator](../bilder/en/werkzeuge-planen-projection-calc.jpg)
-
-Calculates projection parameters for displays and projectors.
-
-- **Inputs**: Display size (diagonal), resolution, distance to audience.
-- **Output**: Optimal projection distance and lens parameters.
-
-### Check
-
-Analysis tools for validation and consistency checking of the plan.
-
-#### Analyses
-
-*Tools → Analyses (weight/network/redundancy)…*
-
-A comprehensive analysis tool with 14 tabs for checking all aspects of the facility.
-
-##### Tab: Weight & Heat
-
-![Weight and heat load by equipment category](../bilder/en/werkzeuge-planen-analysis-weight.jpg)
-
-Total weight and heat load (BTU/h) per equipment group and overall.
-
-- **Table**: Category, count, weight (kg), power (W), heat (BTU/h), optional value (€).
-- **Missing**: Display of equipment without weight values.
-- **Download**: CSV export for calculations.
-- **Link**: Direct access to power consumption calculator (see below).
-
-##### Tab: Network
-
-![Network overview: VLAN, IP duplicates, data flows](../bilder/en/werkzeuge-planen-analysis-network.jpg)
-
-Check IP addresses, VLANs, switch ports, and network topology.
-
-- **Address plan**: IP conflicts and missing assignments.
-- **VLAN counting**: Which VLANs and how many ports per VLAN.
-- **Switch port allocation**: Which device ports at which switch ports.
-- **Multicast**: Multicast addresses and groups.
-
-##### Tab: Redundancy
-
-![Detecting single points of failure](../bilder/en/werkzeuge-planen-analysis-redundancy.jpg)
-
-Checks where only one signal or power circuit exists.
-
-- **Connections**: How many independent power or upstream connections per device?
-- **Findings**: Red flags for devices with single connections only.
-
-##### Tab: RF / Wireless
-
-![Radio frequencies and spectrum conflicts](../bilder/en/werkzeuge-planen-analysis-rf.jpg)
-
-Check wireless frequencies (microphones, headphones, cameras) and spectrum conflicts.
-
-- **Frequency table**: All transmitters and receivers with frequency (MHz), bandwidth, power.
-- **Conflicts**: Channels too close together (< 0.4 MHz spacing).
-- **Spectrum scan**: Optional upload of spectrum measurement data for validation.
-
-##### Tab: Cable Runs
-
-![Cable lengths and routing](../bilder/en/werkzeuge-planen-analysis-runs.jpg)
-
-Checks physical routing paths and cable lengths.
-
-- **Findings**: Cables too long, invalid routing complexity.
-- **Route details**: Per cable length, conductor count, diameter.
-
-##### Tab: Signal Chain
-
-![Tracing signals from source to destination](../bilder/en/werkzeuge-planen-analysis-chain.jpg)
-
-Traces a signal through all layers — from source to output.
-
-- **Entry**: Choose source and destination.
-- **Chain**: Shows path through mixers, routers, players, etc.
-- **Conflicts**: Broken or ambiguous paths.
-
-##### Tab: Patch List
-
-![All device-to-port assignments](../bilder/en/werkzeuge-planen-analysis-patch.jpg)
-
-Tabular overview of all cable connections.
-
-- **Columns**: Source device, source port → destination device, destination port, cable type, length.
-- **Filter**: By device, cable type, or status (planned/installed).
-- **Download**: CSV for patch list printouts.
-
-##### Tab: Check Sheet
-
-![Device datasheet completeness](../bilder/en/werkzeuge-planen-analysis-sheet.jpg)
-
-Verifies that all required device datasheets are attached.
-
-- **Status**: Which devices have PDF datasheet links?
-- **Findings**: Missing or outdated datasheets.
-
-##### Tab: Client Summary
-
-![Overview for quotes and handover](../bilder/en/werkzeuge-planen-analysis-client.jpg)
-
-Summary for customer communication and project acceptance.
-
-- **Project name, system**: Standard info.
-- **Equipment list**: Short version for quotes.
-- **Configuration**: Key parameters (cameras, inputs, outputs).
-
-##### Tab: Costs: Plan vs. Actual
-
-![Comparison between quote and actual expenses](../bilder/en/werkzeuge-planen-analysis-cost.jpg)
-
-Deviations between planned and actual costs.
-
-- **Input**: Quoted and actual prices per equipment line.
-- **Variance**: Over-/under-budget, percentage.
-- **Tolerance**: Threshold for deviation.
-
-##### Tab: Crew: Hours & Expenses
-
-![Personnel and material costs](../bilder/en/werkzeuge-planen-analysis-crew.jpg)
-
-Work plan: who, when, how long, material budget.
-
-- **Positions**: Technicians, camera operators, audio, etc.
-- **Hours**: Setup, operation, teardown.
-- **Hourly rate**: Personnel cost calculation.
-- **Expenses**: Travel, accommodation, rental equipment.
-
-##### Tab: Naming Scheme
-
-![Apply automatic naming patterns](../bilder/en/werkzeuge-planen-analysis-naming.jpg)
-
-Consistent naming of devices, cables, and network ports.
-
-- **Schema**: Choose from predefined rules (category + number, manufacturer + model, custom).
-- **Application**: Which objects to update?
-- **Preview**: Shows what new names will look like.
-
-##### Tab: Dante Patch
-
-![Audio network routing and device assignment](../bilder/en/werkzeuge-planen-analysis-dante.jpg)
-
-Validation of Dante audio routing and device certification.
-
-- **Patch matrix**: Transmitter → receiver assignment.
-- **Line quality**: Latency, jitter, redundancy per line.
-- **Device list**: Dante certification and firmware version.
-
-##### Tab: To Do
-
-![Open tasks and findings](../bilder/en/werkzeuge-planen-analysis-todo.jpg)
-
-Summary of all findings and tasks to complete.
-
-- **Categories**: Weight, network, redundancy, RF, cables, costs, etc.
-- **Priority**: Red (critical), yellow (warning), gray (info).
-- **Actions**: What needs to be done to release the plan?
-
-#### Plan check
-
-*Tools → Plan check…*
-
-![Plan check: all findings and issues](../bilder/en/werkzeuge-planen-plan-check.jpg)
-
-Scans the entire plan for common errors and displays them structured.
-
-- **Filter**: By finding type (error, warning, info) or device/cable.
-- **Findings**: Incomplete connections, invalid combinations, missing metadata.
-- **Automatic**: Runs in background when saving.
-
-#### Plan vs. found
-
-*Tools → Plan vs. found…*
-
-![Deviations between plan and site survey](../bilder/en/werkzeuge-planen-reconcile.jpg)
-
-Compares the planned layout with the captured as-found situation on site.
-
-- **Load survey**: CSV/Excel with names and positions.
-- **Matching**: Automatic alignment or manual assignment.
-- **Differences**: What's planned but not present? What's on site but not in the plan?
-- **Export**: Side-by-side comparison report.
-
-### Plan
-
-Tools for capturing, structuring, and detailing the facility.
-
-#### Survey (capture existing)
-
-*Tools → Survey (capture existing)…*
-
-![Capturing existing equipment on site](../bilder/en/werkzeuge-planen-survey.jpg)
-
-Documents physically present equipment and their location.
-
-- **Equipment input**: Name, category, assumed location.
-- **Room**: Storage location in facility, or free-standing.
-- **Photo**: Snapshot of equipment (optional).
-- **Notes**: Observations (condition, alternatives, blocked connectors).
-- **Guess connectors**: Search device datasheet and fill in connector groups.
-
-#### Drum micing
-
-*Tools → Drum micing…*
-
-![Placement of drum microphones](../bilder/en/werkzeuge-planen-drum-micing.jpg)
-
-Specialized dialog for placing microphones on drum kit components.
-
-- **Drum kit sketch**: Kit with positions (kick, snare, hi-hat, toms, cymbals).
-- **Mic slots**: Drag-and-drop mic types to positions.
-- **Connectors**: Select devices (mixer, interface) and assign input connectors.
-- **Notes**: Name and notes per mic (e.g., kick-outside, snare top).
-
-#### Wireless / vocals (spectrum)
-
-*Tools → Wireless / vocals…*
-
-![Frequency planning for wireless systems](../bilder/en/werkzeuge-planen-wireless.jpg)
-
-Plans radio frequencies for wireless microphones and headphones.
-
-- **Bands**: 2.4 GHz, UHF (600–700 MHz), UHF (900 MHz), IR, SMD24.
-- **Devices**: Transmitter and receiver models, some with programmable frequencies.
-- **Frequency assignment**: Assign channels one-to-one, or automatically minimize conflicts.
-- **Spectrum scan**: Upload measurement data (CSV) to validate against real environmental frequencies.
-
-#### Rundown and camera assignments
-
-*Tools → Rundown and camera assignments…*
-
-![Scenes, cuts, and camera instructions](../bilder/en/werkzeuge-planen-rundown.jpg)
-
-Structures the timeline of an event and assigns camera tasks.
-
-- **Import segments**: Read from TCS files or enter manually.
-- **Cuts / scenes**: Per entry: name, duration, music timing.
-- **Camera assignment**: Per camera position (camera 1, camera 2, …) which cut/shot to show?
-- **Handover**: Creates instruction cards for camera crew (QR code or printout).
-
-#### Delivery (streaming destinations)
-
-*Tools → Delivery…*
-
-![Streaming destinations and parameters](../bilder/en/werkzeuge-planen-delivery.jpg)
-
-Defines where video/audio is routed (YouTube Live, Zoom, recording, etc.).
-
-- **Destinations**: YouTube Live, Facebook, Twitch, RTMPS server, local recording, multiview monitor.
-- **Parameters**: Bitrate, codec, resolution, framerate.
-- **Credentials**: API keys, stream URLs (securely stored, not in project file).
-- **Monitoring**: Live status, Mbps usage, error rate.
-
-#### LED wall
-
-*Tools → LED wall…*
-
-![LED wall: panel size, resolution, weight](../bilder/en/werkzeuge-planen-led-wall.jpg)
-
-Plan space and power for LED surfaces.
-
-- **Panel format**: Choose standard sizes or custom (e.g., 500×250 mm).
-- **Resolution**: Pixels per meter (256, 312, 500 ppm).
-- **Layout**: Width × height in panel units → total size in meters.
-- **Weight & power**: Calculated from panel data.
-- **Pixel map**: Export coordinates for media server (pixel mapping).
-
-#### Faceplate editor
-
-*Tools → Faceplate editor…*
-
-![Arranging connectors on wall plates or stage boxes](../bilder/en/werkzeuge-planen-faceplate.jpg)
-
-Places connectors on flat surfaces (wall plate, patchfield, stage box) and prints 1:1 for drilling.
-
-- **Plate**: Choose size and material (19" rack blank, wall plate, custom).
-- **Connectors**: Drag-and-drop connector groups.
-- **Positioning**: Millimeter-precise placement (grid-based).
-- **Labeling**: Automatic from device names, or custom.
-- **Print**: 1:1 to printer for hole drilling and label printing.
-
-#### Report editor
-
-*Tools → Report editor…*
-
-![Columns, sorting, and filtering for lists](../bilder/en/werkzeuge-planen-report-editor.jpg)
-
-Configures display of equipment and cable lists (print & export).
-
-- **Columns**: Selection, order, width.
-- **Grouping**: By category, room, status, or custom.
-- **Sorting**: A→Z, by value, by date.
-- **Filter**: Only devices of certain categories, rooms, or status.
-- **Templates**: Save and recall preconfigured layouts.
-
-#### Conductors and colour standards
-
-*Tools → Conductors and colour standards…*
-
-![Wire colors by standard or custom](../bilder/en/werkzeuge-planen-conductors.jpg)
-
-Defines wire colors for cables and connector markers per IEC or custom.
-
-- **Standards**: IEC 60757 (International), EN 50575 (EU), custom.
-- **Sets**: Predefined color sequences (e.g., brown/black/gray/white for 4×4 XLR).
-- **Assignment**: Which standard for which cable types?
-- **Preview**: Shows actual colors of current numbers.
-
-#### Received show-control messages
-
-*Tools → Received show-control messages…*
-
-![Protocol of received OSC/MIDI/API commands](../bilder/en/werkzeuge-planen-show-control.jpg)
-
-Shows a log of all show-control commands received by the app (OSC, MIDI, HTTP).
-
-- **Input source**: IP:port, network interface.
-- **Data flow**: Timestamp, command, parameters, status (processed/ignored).
-- **Errors**: Invalid commands, parse errors.
-- **Live view**: Real-time monitor during a show.
-
-### Create & Manage
-
-Tools for building and managing the facility.
-
-#### Connect multiple cables
-
-*Tools → Connect multiple cables…*
-
-![Mass cable connection in a table](../bilder/en/werkzeuge-planen-bulk-connect.jpg)
-
-Connects many cables at once instead of clicking individually.
-
-- **Table**: Source, source port, destination, destination port, cable type.
-- **Paste**: Copy-paste from Excel or CSV.
-- **Validation**: Checks for incompatibility (e.g., BNC to HDMI).
-- **Apply**: Wire all rows at once.
-
-#### Create new rack
-
-*Tools → Create new rack…*
-
-![New empty rack with configuration](../bilder/en/werkzeuge-planen-new-rack.jpg)
-
-Creates a new rack container from device templates.
-
-- **Name**: Label (e.g., "Server Rack 1").
-- **Height**: Rack units (RU), usually 42 RU.
-- **Template**: Optional from standard layouts or empty.
-- **Position**: Where to place on canvas?
-
-#### Rack builder
-
-*Tools → Rack builder…*
-
-![Interactive rack equipment placement](../bilder/en/werkzeuge-planen-rack-builder.jpg)
-
-Populates a rack with devices, arranges them, and visualizes in 3D.
-
-- **Existing racks**: List of editable racks.
-- **Device slots**: Height (RU) per device.
-- **3D view**: Front view for checking cable lengths and obstructions.
-- **Export**: Save rack structure or place on canvas.
-
-#### Generate AI plan
-
-*Tools → Generate AI plan…*
-
-![Generating draft plan from text description](../bilder/en/werkzeuge-planen-ai-plan.jpg)
-
-Generates initial plan draft based on text description (AI).
-
-- **Input**: Brief description of facility (e.g., "3 cameras, ATEM mixer, 2 monitors, streaming to YouTube").
-- **Options**: Preferred equipment types, budget limits.
-- **Draft**: AI selects devices from library and wires them.
-- **Adjust**: Edit generated plan.
-
-Requires an AI API key (OpenAI, Google, Anthropic).
-
-#### Revisions & snapshots
-
-*Tools → Revisions & snapshots…*
-
-![Version control: snapshots and comparison](../bilder/en/werkzeuge-planen-revisions.jpg)
-
-Saves intermediate versions of a plan to track changes.
-
-- **Snapshots**: Timestamp, optional note.
-- **Autosave**: Automatic snapshots after major changes.
-- **Comparison**: Two versions side-by-side, differences highlighted.
-- **Restore**: Return to an earlier version.
-
-### Device Configuration
-
-Setup of specialized devices (if present).
-
-#### ATEM multiviewer layout
-
-*Tools → ATEM multiviewer layout…*
-
-(Only if an ATEM mixer is present in the facility.)
-
-![Configure multiviewer windows on ATEM](../bilder/en/werkzeuge-planen-atem-mv.jpg)
-
-Sets which sources appear in which multiviewer windows.
-
-- **Layout**: How many windows and positions?
-- **Assignment**: Source → window number.
-- **Size & position**: Each window individually resizable (if supported by ATEM model).
-
-#### ATEM audio routing
-
-*Tools → ATEM audio routing…*
-
-(Only if an ATEM mixer with audio inputs is present.)
-
-![Assign audio inputs of the ATEM](../bilder/en/werkzeuge-planen-atem-audio.jpg)
-
-Routes audio inputs (XLR, RCA, Dante) to mixer channel faders.
-
-- **Inputs**: List all audio inputs of the ATEM.
-- **Channels**: Which channel gets which input?
-- **Sensitivity**: Level per input.
-
-#### ATEM input labels
-
-*Tools → ATEM input labels…*
-
-(Only if an ATEM mixer is present.)
-
-![Configure ATEM input source names](../bilder/en/werkzeuge-planen-atem-labels.jpg)
-
-Names the input sources on the ATEM mixer (name on control surface).
-
-- **Inputs**: List all ATEM inputs (1–20+).
-- **Names**: Custom name per input (e.g., "Camera 1", "Graphics").
-- **Color**: Optional marker color assignment.
-
----
-
-## 8. Tools
-
-The *Tools* menu contains specialised tasks for planning and building systems: connecting cables, building racks, configuring LED walls, exporting schematics and controlling devices such as ATEM switchers and Videohub.
-
-### Patch list
-
-*Tools → Patch list…*
-
-![Patch list dialog](../bilder/en/werkzeuge-bauen-patchlist.jpg)
-
-Shows all connections of the plan as a table — one row per cable, sorted for the patching order on site.
-
-**Columns:** No., From device, Port, To device, Port, Type, Length (m), Colour.
-
-**Layer filter:** The dropdown at the top selects which layer is shown (e.g. video only). The field shows how many cables are visible in total.
-
-**Search field:** Filters by device, port, type or colour — the search runs as you type.
-
-**Export options:**
-- **Export CSV:** Comma-separated file for spreadsheets.
-- **Export XLSX:** Excel format.
-- **Labels + QR (PDF):** Print template for labelling. If you pick a label type (Generic, Brother P-touch, Dymo), the matching export file is offered as well.
-
-### Patching order
-Cables are sorted by their position on the set — sources first (top), then targets (bottom). This lets you print the patch list at the desk and work through it line by line.
-
----
-
-### LED wall
-
-*Tools → LED wall…*
-
-Defines panels, resolution, weight and power of an LED wall and generates the pixel map for the media server.
-
-**Fields:**
-- **Panel type:** Manufacturer and model (e.g. Barco E22 Full HD, Unilumin LED panel).
-- **Resolution:** Width × height in pixels.
-- **Panel size:** Physical dimensions in mm (taken from the datasheet).
-- **Number of panels:** Horizontal × vertical (calculates total weight and power).
-- **Brightness:** Nits (relevant for planning the cooling).
-- **Viewing angle:** Horizontal and vertical, in degrees.
-
-**Pixel map:** After saving you can export the pixel map as CSV or JSON — for the media server configuration (vPro, Notch, …).
-
----
-
-### Faceplate editor
-
-*Tools → Faceplate editor…*
-
-Places connectors on a faceplate (wall panel, stage box) on a millimetre grid and prints 1:1 strips to attach or to use for milling.
-
-**Workflow:**
-1. Choose the equipment (e.g. a wall plate).
-2. Place connectors by drag & drop or by entering (X, Y) coordinates.
-3. Define labels, zones and colour codes.
-4. Print the strip at full size — to stick on, as a milling template or for checking on site.
-
-**Tabs/functions:**
-- **Layout:** Overview and placement of the connectors.
-- **Labelling:** Labels and legend.
-- **Print:** 1:1 print preview, paper size, margins.
-
----
-
-### Report editor
-
-*Tools → Report editor…*
-
-Adjusts every exportable list (cable BOM, equipment, inventory): show or hide columns, grouping, sorting, filters, and save as a template for later exports.
-
-**Tabs:**
-- **Columns:** Turn columns on or off — the list is exported or printed with the selected columns.
-- **Group:** Group by a field (e.g. by device type).
-- **Sort:** Primary and secondary sort order.
-- **Filter:** Show only rows that meet a condition (e.g. only cables > 50 m).
-
-After saving, the template is kept — the next cable export uses these settings.
-
----
-
-### Conductors and colour standards
-
-*Tools → Conductors and colour standards…*
-
-Shows pin assignments and colour codes for all supported connectors (XLR, HDMI, DB25, DMX, …) — for reference, for soldering cables and for documentation.
-
-**Structure:**
-- **Select connector:** Dropdown with all types (RCA, XLR, BNC, jack, Speakon, …).
-- **Pinout:** Graphic or table with contact number, name, colour and function.
-- **Standard:** For information (e.g. IEC 60268-12 for XLR audio).
-
-Use this tool when soldering cables or to avoid mix-ups during maintenance.
-
----
-
-### Received show-control messages
-
-*Tools → Received show-control messages…*
-
-Logs all OSC, MIDI and other show-control messages the planner app has received (from a cue system, a camera remote, etc.). It is a read-out, not a system configuration — it shows what arrived but does not store it.
-
-**Columns:** Time, command, source, parameters, status.
-
-**Use:** For testing integrations or for following remote-control actions while recording a rehearsal.
-
----
-
-### Connect multiple cables
-
-*Tools → Connect multiple cables…*
-
-Creates N cables at once — source port i → target port i. Occupied target ports are skipped.
-
-![Connect multiple cables dialog](../bilder/en/werkzeuge-bauen-mehrere-kabel.jpg)
-
-**Fields:**
-- **SOURCE:** Device and side (Outputs/Inputs) + start port number.
-- **TARGET:** Device and side (Inputs/Outputs) + start port number.
-- **Cable count:** How many connections are created.
-- **Cable type:** From a dropdown (XLR Audio, SDI 3G, HDMI, Dante, DMX, Power, …).
-- **Length per cable (m):** Applied to all cables (can be changed individually later).
-
-**Preview:** Shows which cables will be created before you confirm. Occupied targets are skipped — "Create 0 cables" means all target ports are already in use.
-
----
-
-### Create new rack
-
-*Tools → Create new rack…*
-
-Starts a wizard for building a new rack or shelving unit. You define:
-
-1. **Rack type:** 19" standard, floor-plan field or free-standing (e.g. standing shelf).
-2. **Size:** Height in RU, depth in mm.
-3. **Material & colour:** Housing, side panel.
-4. **Position in the plan:** Room and coordinates.
-
-The new rack is inserted into the plan and can be filled with equipment right away.
-
----
-
-### Rack builder
-
-*Tools → Rack builder…*
-
-Populates and edits racks — places devices in the housing, defines cable routes and exports STL/3D models for visualisation or milling.
-
-![Rack builder dialog](../bilder/en/werkzeuge-bauen-rack-builder.jpg)
-
-**Workflow:**
-1. Select a rack from the plan (or create one via "Create new rack").
-2. Drag devices from the equipment library into free RU positions.
-3. Connect rear sides (A/B) and define cable routes.
-4. Save — the 3D model is updated.
-
-**Tabs:**
-- **Overview:** Rack with installed devices (front and rear selectable).
-- **3D view:** Perspective model for visualising cable routes and space requirements.
-- **Cable routes:** List of connections in the rack with lengths and routes.
-- **Export:** STL for 3D printing, PDF for technical drawings.
-
----
-
-### Generate AI plan
-
-*Tools → Generate AI plan…*
-
-Generates a draft cable project from a text description — e.g. "Live concert, 3 cameras, ATEM 2 M/E, multiviewer, audio on Dante". The AI creates devices, connections and floor plan based on standard templates.
-
-![AI plan generation dialog](../bilder/en/werkzeuge-bauen-ki-plan.jpg)
-
-**Requirement:** An API key for an AI provider (OpenAI, Anthropic, …) stored under Settings → AI.
-
-**Workflow:**
-1. Describe the system in plain text.
-2. Click "Generate".
-3. A preview is shown.
-4. Confirm to insert it into the plan.
-
-The result is a first draft — not a complete plan. You add devices, change connections and check against reality as usual.
-
----
-
-### Revisions & snapshots
-
-*Tools → Revisions & snapshots…*
-
-Saves snapshots of the plan — to document as-built states, to compare with earlier versions or for archiving.
-
-![Revisions & snapshots dialog](../bilder/en/werkzeuge-bauen-revisionen.jpg)
-
-**Workflow:**
-1. Enter a name (e.g. "As-built", "Technical acceptance").
-2. Click "Commit" — a complete snapshot is saved.
-3. Revisions cannot be changed — you cannot edit them later.
-4. To restore: select a revision and click "Restore".
-
-**Difference from undo:** Revisions are milestones kept on purpose. Undo is a temporary buffer for the current working session.
-
-**Tabs:**
-- **Snapshots:** List of all revisions with date, user and description.
-- **Compare:** Shows the differences between two revisions (new devices, changed cables, …).
-
----
-
-### Inventory / stock
-
-*Tools → Inventory / stock…* (only with the rental module enabled)
-
-Manages stock — available devices, consumables, damaged items — if your company rents out or stores equipment.
-
-**Tabs:**
-- **Stock:** Current quantity of each device (available, rented out, maintenance).
-- **Transactions:** Incoming and outgoing items with date and reason.
-- **Availability:** Shows whether all devices of the plan are in stock (to make them available or to reorder).
-
-This tool is optional and is enabled by a module that you switch on under Settings → Modules.
-
----
-
-### ATEM multiviewer layout
-
-*Tools → ATEM multiviewer layout…* (only if an ATEM switcher is in the plan)
-
-Configures which sources are shown on the multiviewer — position, size and extras (e.g. audio meters).
-
-**Prerequisite:** The plan must contain a Blackmagic ATEM switcher. The tool shows its current multiviewer state and lets you change it — tabs, layouts, inputs.
-
-**Use:** To see how the operator sees the sources, and to export the configuration to the switcher script.
-
----
-
-### ATEM audio routing
-
-*Tools → ATEM audio routing…* (only if an ATEM switcher is in the plan)
-
-Defines audio inputs, mixing and outputs of the ATEM switcher — which Dante input goes to which channels, mic input gain, which master output goes where.
-
-**Structure:**
-- **Inputs:** Dante, AES/EBU, microphone with gain.
-- **Mixing:** Channel mute, fader, pan.
-- **Outputs:** Monitor, multiviewer, codec, etc.
-
-This tool exports an ATEM configuration script that the operator can load on the switcher — if the hardware supports this.
-
----
-
-### ATEM input labels
-
-*Tools → ATEM input labels…* (only if an ATEM switcher is in the plan)
-
-Labels the inputs of the ATEM switcher — name, display options, extras (e.g. show only the backup feed).
-
-**Procedure:**
-1. Assign each ATEM input to a device (e.g. input 3 ← "Camera 1 HD").
-2. Enter a display name (max. 20 characters for the ATEM display).
-3. Choose options (colour, symbols, …).
-
-The labels are included in the ATEM configuration on export.
-
----
-
-### Videohub routing / labels
-
-*Tools → Videohub routing / labels…* (only if a Blackmagic Videohub is in the plan)
-
-Configures the Videohub — input and output configuration, routing, labels.
-
-**Tabs:**
-- **Routing:** Shows all crosspoints (input X → output Y).
-- **Labels:** Labels inputs and outputs.
-- **Backup:** Options for reconfiguration under load.
-
-This tool exports a configuration in the Videohub export format (CSV/JSON) that is uploaded to the device — e.g. after a change on site.
-
----
-
-### GreenGo intercom
-
-*Tools → GreenGo intercom…* (only if a GreenGo system is in the plan)
-
-Shows the intercom configuration of the GreenGo headset system — channels, matrix, priority, routing. It is a display-only tool — changes have to be made in the GreenGo network configuration.
-
-**View:**
-- **Channels:** Name, network addresses, group membership.
-- **Headsets:** Assigned channels per ear.
-- **Paging & gates:** Talk groups with priorities.
-
-Use this tool for documentation and to check that the routing logic matches the cable project.
-
----
-
-### Notes
-
-- Many of these tools (ATEM, Videohub, GreenGo, LED wall) only appear in the menu if the corresponding devices are in the current plan. Empty menu entries are intentional — there is nothing to configure in this plan.
-- All exports (PDF, CSV, STL, JSON) use the project file name to avoid mix-ups.
-- Some tools save templates (e.g. report editor, rack templates) — these are kept across projects.
-
----
-
-## 9. Export & Print
+## 7. Export & Print
 
 The export section is the hub for all outputs: plans as PDF/image, patch lists, bill of materials, cloud storage and specialized documentation for fixed installations. Every sheet leaving the plan originates here.
 
@@ -2403,6 +1640,769 @@ The register is part of the project and saved with it.
 ---
 
 © 2026 Lars Zumpe Media Production · free to use, proprietary license
+
+---
+
+## 8. Tools: Plan
+
+Tool dialogs for capturing, analyzing, and planning a facility — from site survey through function groups to delivery.
+
+### Calculate
+
+Specialized calculators for capacity and resource planning.
+
+#### Recording storage calculator
+
+*Tools → Calculate recording storage…*
+
+![Storage calculator for video recording](bilder/en/werkzeuge-planen-recording-storage-calc.jpg)
+
+Calculates storage requirements for video recording based on codec, resolution, framerate, and duration.
+
+- **Inputs**: Video format (HD/4K/8K), codec (DCI/H.265/ProRes/etc.), framerate (25/50/60 fps), recording duration.
+- **Output**: Storage size in GB/TB.
+
+#### Projection & display
+
+*Tools → Projection & display…*
+
+![Projection calculator](bilder/en/werkzeuge-planen-projection-calc.jpg)
+
+Calculates projection parameters for displays and projectors.
+
+- **Inputs**: Display size (diagonal), resolution, distance to audience.
+- **Output**: Optimal projection distance and lens parameters.
+
+### Check
+
+Analysis tools for validation and consistency checking of the plan.
+
+#### Analyses
+
+*Tools → Analyses (weight/network/redundancy)…*
+
+A comprehensive analysis tool with 14 tabs for checking all aspects of the facility.
+
+##### Tab: Weight & Heat
+
+![Weight and heat load by equipment category](bilder/en/werkzeuge-planen-analysis-weight.jpg)
+
+Total weight and heat load (BTU/h) per equipment group and overall.
+
+- **Table**: Category, count, weight (kg), power (W), heat (BTU/h), optional value (€).
+- **Missing**: Display of equipment without weight values.
+- **Download**: CSV export for calculations.
+- **Link**: Direct access to power consumption calculator (see below).
+
+##### Tab: Network
+
+![Network overview: VLAN, IP duplicates, data flows](bilder/en/werkzeuge-planen-analysis-network.jpg)
+
+Check IP addresses, VLANs, switch ports, and network topology.
+
+- **Address plan**: IP conflicts and missing assignments.
+- **VLAN counting**: Which VLANs and how many ports per VLAN.
+- **Switch port allocation**: Which device ports at which switch ports.
+- **Multicast**: Multicast addresses and groups.
+
+##### Tab: Redundancy
+
+![Detecting single points of failure](bilder/en/werkzeuge-planen-analysis-redundancy.jpg)
+
+Checks where only one signal or power circuit exists.
+
+- **Connections**: How many independent power or upstream connections per device?
+- **Findings**: Red flags for devices with single connections only.
+
+##### Tab: RF / Wireless
+
+![Radio frequencies and spectrum conflicts](bilder/en/werkzeuge-planen-analysis-rf.jpg)
+
+Check wireless frequencies (microphones, headphones, cameras) and spectrum conflicts.
+
+- **Frequency table**: All transmitters and receivers with frequency (MHz), bandwidth, power.
+- **Conflicts**: Channels too close together (< 0.4 MHz spacing).
+- **Spectrum scan**: Optional upload of spectrum measurement data for validation.
+
+##### Tab: Cable Runs
+
+![Cable lengths and routing](bilder/en/werkzeuge-planen-analysis-runs.jpg)
+
+Checks physical routing paths and cable lengths.
+
+- **Findings**: Cables too long, invalid routing complexity.
+- **Route details**: Per cable length, conductor count, diameter.
+
+##### Tab: Signal Chain
+
+![Tracing signals from source to destination](bilder/en/werkzeuge-planen-analysis-chain.jpg)
+
+Traces a signal through all layers — from source to output.
+
+- **Entry**: Choose source and destination.
+- **Chain**: Shows path through mixers, routers, players, etc.
+- **Conflicts**: Broken or ambiguous paths.
+
+##### Tab: Patch List
+
+![All device-to-port assignments](bilder/en/werkzeuge-planen-analysis-patch.jpg)
+
+Tabular overview of all cable connections.
+
+- **Columns**: Source device, source port → destination device, destination port, cable type, length.
+- **Filter**: By device, cable type, or status (planned/installed).
+- **Download**: CSV for patch list printouts.
+
+##### Tab: Check Sheet
+
+![Device datasheet completeness](bilder/en/werkzeuge-planen-analysis-sheet.jpg)
+
+Verifies that all required device datasheets are attached.
+
+- **Status**: Which devices have PDF datasheet links?
+- **Findings**: Missing or outdated datasheets.
+
+##### Tab: Client Summary
+
+![Overview for quotes and handover](bilder/en/werkzeuge-planen-analysis-client.jpg)
+
+Summary for customer communication and project acceptance.
+
+- **Project name, system**: Standard info.
+- **Equipment list**: Short version for quotes.
+- **Configuration**: Key parameters (cameras, inputs, outputs).
+
+##### Tab: Costs: Plan vs. Actual
+
+![Comparison between quote and actual expenses](bilder/en/werkzeuge-planen-analysis-cost.jpg)
+
+Deviations between planned and actual costs.
+
+- **Input**: Quoted and actual prices per equipment line.
+- **Variance**: Over-/under-budget, percentage.
+- **Tolerance**: Threshold for deviation.
+
+##### Tab: Crew: Hours & Expenses
+
+![Personnel and material costs](bilder/en/werkzeuge-planen-analysis-crew.jpg)
+
+Work plan: who, when, how long, material budget.
+
+- **Positions**: Technicians, camera operators, audio, etc.
+- **Hours**: Setup, operation, teardown.
+- **Hourly rate**: Personnel cost calculation.
+- **Expenses**: Travel, accommodation, rental equipment.
+
+##### Tab: Naming Scheme
+
+![Apply automatic naming patterns](bilder/en/werkzeuge-planen-analysis-naming.jpg)
+
+Consistent naming of devices, cables, and network ports.
+
+- **Schema**: Choose from predefined rules (category + number, manufacturer + model, custom).
+- **Application**: Which objects to update?
+- **Preview**: Shows what new names will look like.
+
+##### Tab: Dante Patch
+
+![Audio network routing and device assignment](bilder/en/werkzeuge-planen-analysis-dante.jpg)
+
+Validation of Dante audio routing and device certification.
+
+- **Patch matrix**: Transmitter → receiver assignment.
+- **Line quality**: Latency, jitter, redundancy per line.
+- **Device list**: Dante certification and firmware version.
+
+##### Tab: To Do
+
+![Open tasks and findings](bilder/en/werkzeuge-planen-analysis-todo.jpg)
+
+Summary of all findings and tasks to complete.
+
+- **Categories**: Weight, network, redundancy, RF, cables, costs, etc.
+- **Priority**: Red (critical), yellow (warning), gray (info).
+- **Actions**: What needs to be done to release the plan?
+
+#### Plan check
+
+*Tools → Plan check…*
+
+![Plan check: all findings and issues](bilder/en/werkzeuge-planen-plan-check.jpg)
+
+Scans the entire plan for common errors and displays them structured.
+
+- **Filter**: By finding type (error, warning, info) or device/cable.
+- **Findings**: Incomplete connections, invalid combinations, missing metadata.
+- **Automatic**: Runs in background when saving.
+
+#### Plan vs. found
+
+*Tools → Plan vs. found…*
+
+![Deviations between plan and site survey](bilder/en/werkzeuge-planen-reconcile.jpg)
+
+Compares the planned layout with the captured as-found situation on site.
+
+- **Load survey**: CSV/Excel with names and positions.
+- **Matching**: Automatic alignment or manual assignment.
+- **Differences**: What's planned but not present? What's on site but not in the plan?
+- **Export**: Side-by-side comparison report.
+
+### Plan
+
+Tools for capturing, structuring, and detailing the facility.
+
+#### Survey (capture existing)
+
+*Tools → Survey (capture existing)…*
+
+![Capturing existing equipment on site](bilder/en/werkzeuge-planen-survey.jpg)
+
+Documents physically present equipment and their location.
+
+- **Equipment input**: Name, category, assumed location.
+- **Room**: Storage location in facility, or free-standing.
+- **Photo**: Snapshot of equipment (optional).
+- **Notes**: Observations (condition, alternatives, blocked connectors).
+- **Guess connectors**: Search device datasheet and fill in connector groups.
+
+#### Drum micing
+
+*Tools → Drum micing…*
+
+![Placement of drum microphones](bilder/en/werkzeuge-planen-drum-micing.jpg)
+
+Specialized dialog for placing microphones on drum kit components.
+
+- **Drum kit sketch**: Kit with positions (kick, snare, hi-hat, toms, cymbals).
+- **Mic slots**: Drag-and-drop mic types to positions.
+- **Connectors**: Select devices (mixer, interface) and assign input connectors.
+- **Notes**: Name and notes per mic (e.g., kick-outside, snare top).
+
+#### Wireless / vocals (spectrum)
+
+*Tools → Wireless / vocals…*
+
+![Frequency planning for wireless systems](bilder/en/werkzeuge-planen-wireless.jpg)
+
+Plans radio frequencies for wireless microphones and headphones.
+
+- **Bands**: 2.4 GHz, UHF (600–700 MHz), UHF (900 MHz), IR, SMD24.
+- **Devices**: Transmitter and receiver models, some with programmable frequencies.
+- **Frequency assignment**: Assign channels one-to-one, or automatically minimize conflicts.
+- **Spectrum scan**: Upload measurement data (CSV) to validate against real environmental frequencies.
+
+#### Rundown and camera assignments
+
+*Tools → Rundown and camera assignments…*
+
+![Scenes, cuts, and camera instructions](bilder/en/werkzeuge-planen-rundown.jpg)
+
+Structures the timeline of an event and assigns camera tasks.
+
+- **Import segments**: Read from TCS files or enter manually.
+- **Cuts / scenes**: Per entry: name, duration, music timing.
+- **Camera assignment**: Per camera position (camera 1, camera 2, …) which cut/shot to show?
+- **Handover**: Creates instruction cards for camera crew (QR code or printout).
+
+#### Delivery (streaming destinations)
+
+*Tools → Delivery…*
+
+![Streaming destinations and parameters](bilder/en/werkzeuge-planen-delivery.jpg)
+
+Defines where video/audio is routed (YouTube Live, Zoom, recording, etc.).
+
+- **Destinations**: YouTube Live, Facebook, Twitch, RTMPS server, local recording, multiview monitor.
+- **Parameters**: Bitrate, codec, resolution, framerate.
+- **Credentials**: API keys, stream URLs (securely stored, not in project file).
+- **Monitoring**: Live status, Mbps usage, error rate.
+
+#### LED wall
+
+*Tools → LED wall…*
+
+![LED wall: panel size, resolution, weight](bilder/en/werkzeuge-planen-led-wall.jpg)
+
+Plan space and power for LED surfaces.
+
+- **Panel format**: Choose standard sizes or custom (e.g., 500×250 mm).
+- **Resolution**: Pixels per meter (256, 312, 500 ppm).
+- **Layout**: Width × height in panel units → total size in meters.
+- **Weight & power**: Calculated from panel data.
+- **Pixel map**: Export coordinates for media server (pixel mapping).
+
+#### Faceplate editor
+
+*Tools → Faceplate editor…*
+
+![Arranging connectors on wall plates or stage boxes](bilder/en/werkzeuge-planen-faceplate.jpg)
+
+Places connectors on flat surfaces (wall plate, patchfield, stage box) and prints 1:1 for drilling.
+
+- **Plate**: Choose size and material (19" rack blank, wall plate, custom).
+- **Connectors**: Drag-and-drop connector groups.
+- **Positioning**: Millimeter-precise placement (grid-based).
+- **Labeling**: Automatic from device names, or custom.
+- **Print**: 1:1 to printer for hole drilling and label printing.
+
+#### Report editor
+
+*Tools → Report editor…*
+
+![Columns, sorting, and filtering for lists](bilder/en/werkzeuge-planen-report-editor.jpg)
+
+Configures display of equipment and cable lists (print & export).
+
+- **Columns**: Selection, order, width.
+- **Grouping**: By category, room, status, or custom.
+- **Sorting**: A→Z, by value, by date.
+- **Filter**: Only devices of certain categories, rooms, or status.
+- **Templates**: Save and recall preconfigured layouts.
+
+#### Conductors and colour standards
+
+*Tools → Conductors and colour standards…*
+
+![Wire colors by standard or custom](bilder/en/werkzeuge-planen-conductors.jpg)
+
+Defines wire colors for cables and connector markers per IEC or custom.
+
+- **Standards**: IEC 60757 (International), EN 50575 (EU), custom.
+- **Sets**: Predefined color sequences (e.g., brown/black/gray/white for 4×4 XLR).
+- **Assignment**: Which standard for which cable types?
+- **Preview**: Shows actual colors of current numbers.
+
+#### Received show-control messages
+
+*Tools → Received show-control messages…*
+
+![Protocol of received OSC/MIDI/API commands](bilder/en/werkzeuge-planen-show-control.jpg)
+
+Shows a log of all show-control commands received by the app (OSC, MIDI, HTTP).
+
+- **Input source**: IP:port, network interface.
+- **Data flow**: Timestamp, command, parameters, status (processed/ignored).
+- **Errors**: Invalid commands, parse errors.
+- **Live view**: Real-time monitor during a show.
+
+### Create & Manage
+
+Tools for building and managing the facility.
+
+#### Connect multiple cables
+
+*Tools → Connect multiple cables…*
+
+![Mass cable connection in a table](bilder/en/werkzeuge-planen-bulk-connect.jpg)
+
+Connects many cables at once instead of clicking individually.
+
+- **Table**: Source, source port, destination, destination port, cable type.
+- **Paste**: Copy-paste from Excel or CSV.
+- **Validation**: Checks for incompatibility (e.g., BNC to HDMI).
+- **Apply**: Wire all rows at once.
+
+#### Create new rack
+
+*Tools → Create new rack…*
+
+![New empty rack with configuration](bilder/en/werkzeuge-planen-new-rack.jpg)
+
+Creates a new rack container from device templates.
+
+- **Name**: Label (e.g., "Server Rack 1").
+- **Height**: Rack units (RU), usually 42 RU.
+- **Template**: Optional from standard layouts or empty.
+- **Position**: Where to place on canvas?
+
+#### Rack builder
+
+*Tools → Rack builder…*
+
+![Interactive rack equipment placement](bilder/en/werkzeuge-planen-rack-builder.jpg)
+
+Populates a rack with devices, arranges them, and visualizes in 3D.
+
+- **Existing racks**: List of editable racks.
+- **Device slots**: Height (RU) per device.
+- **3D view**: Front view for checking cable lengths and obstructions.
+- **Export**: Save rack structure or place on canvas.
+
+#### Generate AI plan
+
+*Tools → Generate AI plan…*
+
+![Generating draft plan from text description](bilder/en/werkzeuge-planen-ai-plan.jpg)
+
+Generates initial plan draft based on text description (AI).
+
+- **Input**: Brief description of facility (e.g., "3 cameras, ATEM mixer, 2 monitors, streaming to YouTube").
+- **Options**: Preferred equipment types, budget limits.
+- **Draft**: AI selects devices from library and wires them.
+- **Adjust**: Edit generated plan.
+
+Requires an AI API key (OpenAI, Google, Anthropic).
+
+#### Revisions & snapshots
+
+*Tools → Revisions & snapshots…*
+
+![Version control: snapshots and comparison](bilder/en/werkzeuge-planen-revisions.jpg)
+
+Saves intermediate versions of a plan to track changes.
+
+- **Snapshots**: Timestamp, optional note.
+- **Autosave**: Automatic snapshots after major changes.
+- **Comparison**: Two versions side-by-side, differences highlighted.
+- **Restore**: Return to an earlier version.
+
+### Device Configuration
+
+Setup of specialized devices (if present).
+
+#### ATEM multiviewer layout
+
+*Tools → ATEM multiviewer layout…*
+
+(Only if an ATEM mixer is present in the facility.)
+
+![Configure multiviewer windows on ATEM](bilder/en/werkzeuge-planen-atem-mv.jpg)
+
+Sets which sources appear in which multiviewer windows.
+
+- **Layout**: How many windows and positions?
+- **Assignment**: Source → window number.
+- **Size & position**: Each window individually resizable (if supported by ATEM model).
+
+#### ATEM audio routing
+
+*Tools → ATEM audio routing…*
+
+(Only if an ATEM mixer with audio inputs is present.)
+
+![Assign audio inputs of the ATEM](bilder/en/werkzeuge-planen-atem-audio.jpg)
+
+Routes audio inputs (XLR, RCA, Dante) to mixer channel faders.
+
+- **Inputs**: List all audio inputs of the ATEM.
+- **Channels**: Which channel gets which input?
+- **Sensitivity**: Level per input.
+
+#### ATEM input labels
+
+*Tools → ATEM input labels…*
+
+(Only if an ATEM mixer is present.)
+
+![Configure ATEM input source names](bilder/en/werkzeuge-planen-atem-labels.jpg)
+
+Names the input sources on the ATEM mixer (name on control surface).
+
+- **Inputs**: List all ATEM inputs (1–20+).
+- **Names**: Custom name per input (e.g., "Camera 1", "Graphics").
+- **Color**: Optional marker color assignment.
+
+---
+
+## 9. Tools
+
+The *Tools* menu contains specialised tasks for planning and building systems: connecting cables, building racks, configuring LED walls, exporting schematics and controlling devices such as ATEM switchers and Videohub.
+
+### Patch list
+
+*Tools → Patch list…*
+
+![Patch list dialog](bilder/en/werkzeuge-bauen-patchlist.jpg)
+
+Shows all connections of the plan as a table — one row per cable, sorted for the patching order on site.
+
+**Columns:** No., From device, Port, To device, Port, Type, Length (m), Colour.
+
+**Layer filter:** The dropdown at the top selects which layer is shown (e.g. video only). The field shows how many cables are visible in total.
+
+**Search field:** Filters by device, port, type or colour — the search runs as you type.
+
+**Export options:**
+- **Export CSV:** Comma-separated file for spreadsheets.
+- **Export XLSX:** Excel format.
+- **Labels + QR (PDF):** Print template for labelling. If you pick a label type (Generic, Brother P-touch, Dymo), the matching export file is offered as well.
+
+### Patching order
+Cables are sorted by their position on the set — sources first (top), then targets (bottom). This lets you print the patch list at the desk and work through it line by line.
+
+---
+
+### LED wall
+
+*Tools → LED wall…*
+
+Defines panels, resolution, weight and power of an LED wall and generates the pixel map for the media server.
+
+**Fields:**
+- **Panel type:** Manufacturer and model (e.g. Barco E22 Full HD, Unilumin LED panel).
+- **Resolution:** Width × height in pixels.
+- **Panel size:** Physical dimensions in mm (taken from the datasheet).
+- **Number of panels:** Horizontal × vertical (calculates total weight and power).
+- **Brightness:** Nits (relevant for planning the cooling).
+- **Viewing angle:** Horizontal and vertical, in degrees.
+
+**Pixel map:** After saving you can export the pixel map as CSV or JSON — for the media server configuration (vPro, Notch, …).
+
+---
+
+### Faceplate editor
+
+*Tools → Faceplate editor…*
+
+Places connectors on a faceplate (wall panel, stage box) on a millimetre grid and prints 1:1 strips to attach or to use for milling.
+
+**Workflow:**
+1. Choose the equipment (e.g. a wall plate).
+2. Place connectors by drag & drop or by entering (X, Y) coordinates.
+3. Define labels, zones and colour codes.
+4. Print the strip at full size — to stick on, as a milling template or for checking on site.
+
+**Tabs/functions:**
+- **Layout:** Overview and placement of the connectors.
+- **Labelling:** Labels and legend.
+- **Print:** 1:1 print preview, paper size, margins.
+
+---
+
+### Report editor
+
+*Tools → Report editor…*
+
+Adjusts every exportable list (cable BOM, equipment, inventory): show or hide columns, grouping, sorting, filters, and save as a template for later exports.
+
+**Tabs:**
+- **Columns:** Turn columns on or off — the list is exported or printed with the selected columns.
+- **Group:** Group by a field (e.g. by device type).
+- **Sort:** Primary and secondary sort order.
+- **Filter:** Show only rows that meet a condition (e.g. only cables > 50 m).
+
+After saving, the template is kept — the next cable export uses these settings.
+
+---
+
+### Conductors and colour standards
+
+*Tools → Conductors and colour standards…*
+
+Shows pin assignments and colour codes for all supported connectors (XLR, HDMI, DB25, DMX, …) — for reference, for soldering cables and for documentation.
+
+**Structure:**
+- **Select connector:** Dropdown with all types (RCA, XLR, BNC, jack, Speakon, …).
+- **Pinout:** Graphic or table with contact number, name, colour and function.
+- **Standard:** For information (e.g. IEC 60268-12 for XLR audio).
+
+Use this tool when soldering cables or to avoid mix-ups during maintenance.
+
+---
+
+### Received show-control messages
+
+*Tools → Received show-control messages…*
+
+Logs all OSC, MIDI and other show-control messages the planner app has received (from a cue system, a camera remote, etc.). It is a read-out, not a system configuration — it shows what arrived but does not store it.
+
+**Columns:** Time, command, source, parameters, status.
+
+**Use:** For testing integrations or for following remote-control actions while recording a rehearsal.
+
+---
+
+### Connect multiple cables
+
+*Tools → Connect multiple cables…*
+
+Creates N cables at once — source port i → target port i. Occupied target ports are skipped.
+
+![Connect multiple cables dialog](bilder/en/werkzeuge-bauen-mehrere-kabel.jpg)
+
+**Fields:**
+- **SOURCE:** Device and side (Outputs/Inputs) + start port number.
+- **TARGET:** Device and side (Inputs/Outputs) + start port number.
+- **Cable count:** How many connections are created.
+- **Cable type:** From a dropdown (XLR Audio, SDI 3G, HDMI, Dante, DMX, Power, …).
+- **Length per cable (m):** Applied to all cables (can be changed individually later).
+
+**Preview:** Shows which cables will be created before you confirm. Occupied targets are skipped — "Create 0 cables" means all target ports are already in use.
+
+---
+
+### Create new rack
+
+*Tools → Create new rack…*
+
+Starts a wizard for building a new rack or shelving unit. You define:
+
+1. **Rack type:** 19" standard, floor-plan field or free-standing (e.g. standing shelf).
+2. **Size:** Height in RU, depth in mm.
+3. **Material & colour:** Housing, side panel.
+4. **Position in the plan:** Room and coordinates.
+
+The new rack is inserted into the plan and can be filled with equipment right away.
+
+---
+
+### Rack builder
+
+*Tools → Rack builder…*
+
+Populates and edits racks — places devices in the housing, defines cable routes and exports STL/3D models for visualisation or milling.
+
+![Rack builder dialog](bilder/en/werkzeuge-bauen-rack-builder.jpg)
+
+**Workflow:**
+1. Select a rack from the plan (or create one via "Create new rack").
+2. Drag devices from the equipment library into free RU positions.
+3. Connect rear sides (A/B) and define cable routes.
+4. Save — the 3D model is updated.
+
+**Tabs:**
+- **Overview:** Rack with installed devices (front and rear selectable).
+- **3D view:** Perspective model for visualising cable routes and space requirements.
+- **Cable routes:** List of connections in the rack with lengths and routes.
+- **Export:** STL for 3D printing, PDF for technical drawings.
+
+---
+
+### Generate AI plan
+
+*Tools → Generate AI plan…*
+
+Generates a draft cable project from a text description — e.g. "Live concert, 3 cameras, ATEM 2 M/E, multiviewer, audio on Dante". The AI creates devices, connections and floor plan based on standard templates.
+
+![AI plan generation dialog](bilder/en/werkzeuge-bauen-ki-plan.jpg)
+
+**Requirement:** An API key for an AI provider (OpenAI, Anthropic, …) stored under Settings → AI.
+
+**Workflow:**
+1. Describe the system in plain text.
+2. Click "Generate".
+3. A preview is shown.
+4. Confirm to insert it into the plan.
+
+The result is a first draft — not a complete plan. You add devices, change connections and check against reality as usual.
+
+---
+
+### Revisions & snapshots
+
+*Tools → Revisions & snapshots…*
+
+Saves snapshots of the plan — to document as-built states, to compare with earlier versions or for archiving.
+
+![Revisions & snapshots dialog](bilder/en/werkzeuge-bauen-revisionen.jpg)
+
+**Workflow:**
+1. Enter a name (e.g. "As-built", "Technical acceptance").
+2. Click "Commit" — a complete snapshot is saved.
+3. Revisions cannot be changed — you cannot edit them later.
+4. To restore: select a revision and click "Restore".
+
+**Difference from undo:** Revisions are milestones kept on purpose. Undo is a temporary buffer for the current working session.
+
+**Tabs:**
+- **Snapshots:** List of all revisions with date, user and description.
+- **Compare:** Shows the differences between two revisions (new devices, changed cables, …).
+
+---
+
+### Inventory / stock
+
+*Tools → Inventory / stock…* (only with the rental module enabled)
+
+Manages stock — available devices, consumables, damaged items — if your company rents out or stores equipment.
+
+**Tabs:**
+- **Stock:** Current quantity of each device (available, rented out, maintenance).
+- **Transactions:** Incoming and outgoing items with date and reason.
+- **Availability:** Shows whether all devices of the plan are in stock (to make them available or to reorder).
+
+This tool is optional and is enabled by a module that you switch on under Settings → Modules.
+
+---
+
+### ATEM multiviewer layout
+
+*Tools → ATEM multiviewer layout…* (only if an ATEM switcher is in the plan)
+
+Configures which sources are shown on the multiviewer — position, size and extras (e.g. audio meters).
+
+**Prerequisite:** The plan must contain a Blackmagic ATEM switcher. The tool shows its current multiviewer state and lets you change it — tabs, layouts, inputs.
+
+**Use:** To see how the operator sees the sources, and to export the configuration to the switcher script.
+
+---
+
+### ATEM audio routing
+
+*Tools → ATEM audio routing…* (only if an ATEM switcher is in the plan)
+
+Defines audio inputs, mixing and outputs of the ATEM switcher — which Dante input goes to which channels, mic input gain, which master output goes where.
+
+**Structure:**
+- **Inputs:** Dante, AES/EBU, microphone with gain.
+- **Mixing:** Channel mute, fader, pan.
+- **Outputs:** Monitor, multiviewer, codec, etc.
+
+This tool exports an ATEM configuration script that the operator can load on the switcher — if the hardware supports this.
+
+---
+
+### ATEM input labels
+
+*Tools → ATEM input labels…* (only if an ATEM switcher is in the plan)
+
+Labels the inputs of the ATEM switcher — name, display options, extras (e.g. show only the backup feed).
+
+**Procedure:**
+1. Assign each ATEM input to a device (e.g. input 3 ← "Camera 1 HD").
+2. Enter a display name (max. 20 characters for the ATEM display).
+3. Choose options (colour, symbols, …).
+
+The labels are included in the ATEM configuration on export.
+
+---
+
+### Videohub routing / labels
+
+*Tools → Videohub routing / labels…* (only if a Blackmagic Videohub is in the plan)
+
+Configures the Videohub — input and output configuration, routing, labels.
+
+**Tabs:**
+- **Routing:** Shows all crosspoints (input X → output Y).
+- **Labels:** Labels inputs and outputs.
+- **Backup:** Options for reconfiguration under load.
+
+This tool exports a configuration in the Videohub export format (CSV/JSON) that is uploaded to the device — e.g. after a change on site.
+
+---
+
+### GreenGo intercom
+
+*Tools → GreenGo intercom…* (only if a GreenGo system is in the plan)
+
+Shows the intercom configuration of the GreenGo headset system — channels, matrix, priority, routing. It is a display-only tool — changes have to be made in the GreenGo network configuration.
+
+**View:**
+- **Channels:** Name, network addresses, group membership.
+- **Headsets:** Assigned channels per ear.
+- **Paging & gates:** Talk groups with priorities.
+
+Use this tool for documentation and to check that the routing logic matches the cable project.
+
+---
+
+### Notes
+
+- Many of these tools (ATEM, Videohub, GreenGo, LED wall) only appear in the menu if the corresponding devices are in the current plan. Empty menu entries are intentional — there is nothing to configure in this plan.
+- All exports (PDF, CSV, STL, JSON) use the project file name to avoid mix-ups.
+- Some tools save templates (e.g. report editor, rack templates) — these are kept across projects.
 
 ---
 

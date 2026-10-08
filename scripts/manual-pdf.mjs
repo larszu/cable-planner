@@ -28,7 +28,7 @@
 // für die Schrift von Google Fonts.
 
 import { chromium } from 'playwright-core'
-import { readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { slug } from './handbuch/slug.mjs'
@@ -57,7 +57,10 @@ const inline = (text) => {
   const codes = []
   let s = esc(text).replace(/`([^`]+)`/g, (_, c) => `\u0000${codes.push(c) - 1}\u0000`)
   s = s
-    .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_, alt, src) => `<img alt="${alt}" src="${ziel(src, true)}">`)
+    // Noch nicht aufgenommene Bilder weglassen statt als kaputtes Symbol zu setzen;
+    // zusammensetzen.mjs meldet sie je Kapitel.
+    .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_, alt, src) =>
+      /^[a-z]+:/i.test(src) || existsSync(resolve(DIR, src)) ? `<img alt="${alt}" src="${ziel(src, true)}">` : '')
     .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, t, href) => `<a href="${ziel(href, false)}">${t}</a>`)
     .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
     .replace(/\*([^*]+)\*/g, '<em>$1</em>')
@@ -122,7 +125,8 @@ function blockHtml(md) {
       continue
     }
     const text = absatz.join(' ')
-    out.push(/^!\[[^\]]*\]\([^)]+\)$/.test(text) ? `<figure>${inline(text)}</figure>` : `<p>${inline(text)}</p>`)
+    const html = inline(text)
+    if (html) out.push(/^!\[[^\]]*\]\([^)]+\)$/.test(text) ? `<figure>${html}</figure>` : `<p>${html}</p>`)
   }
   return out.join('\n')
 }
