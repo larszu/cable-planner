@@ -79,13 +79,23 @@ English version: [manual.en.md](manual.en.md)
    - [Verknüpfte Venue-Planung ansehen](#verknüpfte-venue-planung-ansehen)
    - [Projekt-Dateiformat: `.cableplan`](#projekt-dateiformat-cableplan)
    - [Sicherungskopie in der Statusleiste](#sicherungskopie-in-der-statusleiste)
-7. [Werkzeuge: Planen](#7-werkzeuge-planen)
+7. [Exportieren und Drucken](#7-exportieren-und-drucken)
+   - [Patchliste](#patchliste)
+   - [Festinstallation: Doku & Übergabe](#festinstallation-doku--übergabe)
+   - [Stage Plot](#stage-plot)
+   - [Exportieren & Drucken](#exportieren--drucken)
+   - [Cloud & Lese-Link](#cloud--lese-link)
+   - [Export als Viewer-Datei](#export-als-viewer-datei)
+   - [Anmerkungen importieren](#anmerkungen-importieren)
+   - [Plan-Stände vergleichen](#plan-stände-vergleichen)
+   - [Ausgegebene Dokumente](#ausgegebene-dokumente)
+8. [Werkzeuge: Planen](#8-werkzeuge-planen)
    - [Berechnen](#berechnen)
    - [Prüfen](#prüfen)
    - [Planen](#planen)
    - [Erstellen & Verwalten](#erstellen--verwalten)
    - [Device-Konfiguration](#device-konfiguration)
-8. [Werkzeuge](#8-werkzeuge)
+9. [Werkzeuge](#9-werkzeuge)
    - [Patchliste](#patchliste)
    - [Patch-Reihenfolge](#patch-reihenfolge)
    - [LED-Wand](#led-wand)
@@ -105,16 +115,6 @@ English version: [manual.en.md](manual.en.md)
    - [Videohub-Routing / Labels](#videohub-routing--labels)
    - [GreenGo-Intercom](#greengo-intercom)
    - [Hinweise](#hinweise)
-9. [Exportieren und Drucken](#9-exportieren-und-drucken)
-   - [Patchliste](#patchliste)
-   - [Festinstallation: Doku & Übergabe](#festinstallation-doku--übergabe)
-   - [Stage Plot](#stage-plot)
-   - [Exportieren & Drucken](#exportieren--drucken)
-   - [Cloud & Lese-Link](#cloud--lese-link)
-   - [Export als Viewer-Datei](#export-als-viewer-datei)
-   - [Anmerkungen importieren](#anmerkungen-importieren)
-   - [Plan-Stände vergleichen](#plan-stände-vergleichen)
-   - [Ausgegebene Dokumente](#ausgegebene-dokumente)
 10. [Einstellungen](#10-einstellungen)
    - [Projekt](#projekt)
    - [Darstellung](#darstellung)
@@ -667,14 +667,14 @@ Die Geräte-Registerkarte zeigt lokale Vorlagen und externe Quellen.
 
 #### Lokale Bibliothek
 
-![Geräte-Übersicht in der Bibliothek](../bilder/de/bibliothek-geraete-lokal.jpg)
+![Geräte-Übersicht in der Bibliothek](bilder/de/bibliothek-geraete-lokal.jpg)
 
 Die lokale Bibliothek enthält die 150+ mitgelieferten Geräte und alle selbst angelegten Vorlagen.
 
 - *Suchen*: Suchfeld mit `Strg+F`-Kurzbefehl. Der Such-Text filtert nach Name oder Kategorie.
 - *Filter-Menü*: Sortierrichtung (Manuell, A→Z, Z→A), Anzeige versteckter Geräte, nur Eigentum anzeigen.
 - *Kategorien*: Aufklappen/Einklappen, Bearbeiten-Button zum Umbenennen.
-- *Einträge*: Ein Eintrag pro Gerät. Hover zeigt Aktionen.
+- *Einträge*: Ein Eintrag pro Gerät. Hover zeigt Aktionen. Ein Klick markiert den Eintrag und zeigt seine Eigenschaften; platziert wird per Doppelklick oder Ziehen auf den Canvas – der markierte Eintrag nennt beides.
 
 ##### Eigenes Gerät anlegen
 
@@ -682,17 +682,17 @@ Neue Geräte mit Anschlüssen und optional Fotos erstellen:
 
 *Bibliothek → +* (grüner Button) *→ Eigenes Gerät anlegen*
 
-![Neues Gerät anlegen](../bilder/de/bibliothek-dialog-geraet-anlegen-allgemein.jpg)
+![Neues Gerät anlegen](bilder/de/bibliothek-dialog-geraet-anlegen-allgemein.jpg)
 
 Die Felder:
 
 - **Name**: Wie das Gerät heißen soll.
-- **Kategorie**: Z.B. Kameras, Mixer, Monitore. Wird in der Bibliothek als Ordner angezeigt. Neue Kategorien entstehen hier.
+- **Kategorie**: Z.B. Kameras, Mixer, Monitore; steht zu Beginn auf „Sonstiges“. Wird in der Bibliothek als Ordner angezeigt. Neue Kategorien entstehen hier.
 - **Ist ein 19" Rack-Gerät**: Checkbox. Falls ja, Höhe in Rack-Einheiten (RU) eingeben.
 
 ###### Reiter: Anschlüsse
 
-![Anschlüsse konfigurieren](../bilder/de/bibliothek-dialog-geraet-anlegen-anschluesse.jpg)
+![Anschlüsse konfigurieren](bilder/de/bibliothek-dialog-geraet-anlegen-anschluesse.jpg)
 
 Anschlüsse zu Gruppen zusammenfassen („4x BNC In", „2x HDMI Out"):
 
@@ -707,7 +707,7 @@ Die Gruppen werden beim Speichern in einzelne Anschlüsse aufgelöst (z.B. „SD
 
 ###### Reiter: Foto
 
-![Fotos hochladen und Anschlüsse erkennen](../bilder/de/bibliothek-dialog-geraet-anlegen-foto.jpg)
+![Fotos hochladen und Anschlüsse erkennen](bilder/de/bibliothek-dialog-geraet-anlegen-foto.jpg)
 
 Anschlüsse automatisch vom Gerätedatenblatt oder einem Foto erkennen:
 
@@ -744,7 +744,7 @@ Selbst erstellte Geräte zur Gerätebibliothek beitragen:
 
 *Bibliothek → +* *→ Vorlagen einreichen*
 
-![Vorlagen einreichen Dialog](../bilder/de/bibliothek-dialog-vorlagen-einreichen.jpg)
+![Vorlagen einreichen Dialog](bilder/de/bibliothek-dialog-vorlagen-einreichen.jpg)
 
 - Wähle aus, welche lokalen Vorlagen versendet werden sollen.
 - Gib Hersteller und Modell an, optional Datenblatt-Link.
@@ -758,7 +758,7 @@ Netzwerk-Infrastruktur aus NetBox importieren:
 
 *Bibliothek → +* *→ Import-Datei …* oder über NetBox-Integration
 
-![NetBox Geräte suchen](../bilder/de/bibliothek-dialog-netbox-import.jpg)
+![NetBox Geräte suchen](bilder/de/bibliothek-dialog-netbox-import.jpg)
 
 - **Suchfeld**: Z.B. „Cisco Catalyst". Sucht in NetBox-Datentypen.
 - **Kategorie wählen**: Wird die importierte Vorlage eingeordnet.
@@ -768,7 +768,7 @@ Netzwerk-Infrastruktur aus NetBox importieren:
 
 Öffentliche Gerätedatenbank mit 500+ verifizierten Vorlagen:
 
-![Gerätebibliothek](../bilder/de/bibliothek-geraete-geraetebibliothek.jpg)
+![Gerätebibliothek](bilder/de/bibliothek-geraete-geraetebibliothek.jpg)
 
 - Geräte aus der Datenbank laden (erfordert Anmeldung).
 - Bestätigungsstatus sehen: wie viele Nutzer das Gerät verifiziert haben.
@@ -778,7 +778,7 @@ Netzwerk-Infrastruktur aus NetBox importieren:
 
 Rentman-Projekte mit Gerätebestand abgleichen (falls Rentman-Modul aktiv):
 
-![Rentman-Integration](../bilder/de/bibliothek-geraete-rentman.jpg)
+![Rentman-Integration](bilder/de/bibliothek-geraete-rentman.jpg)
 
 - **Linked Project**: Das Rentman-Projekt abrufen.
 - **Imported**: Welche Rentman-Geräte bereits importiert sind.
@@ -789,7 +789,7 @@ Rentman-Projekte mit Gerätebestand abgleichen (falls Rentman-Modul aktiv):
 
 Verfügbare Kabeltypen und deren Konfigurationen:
 
-![Kabel-Übersicht](../bilder/de/bibliothek-kabel-uebersicht.jpg)
+![Kabel-Übersicht](bilder/de/bibliothek-kabel-uebersicht.jpg)
 
 - **Kabeltypen** (SDI, HDMI, DisplayPort, Ethernet, Lichtleiter, Audio/XLR, USB, Strom, Custom):
   Je eine Gruppe mit den Kabeln dieser Art.
@@ -808,7 +808,7 @@ Neue Kabeltypen definieren oder bestehende bearbeiten:
 
 *Bibliothek → Kabel-Reiter → „Manage cable types…"*
 
-![Kabeltypen-Verwaltung](../bilder/de/bibliothek-dialog-kabeltypen-verwalten.jpg)
+![Kabeltypen-Verwaltung](bilder/de/bibliothek-dialog-kabeltypen-verwalten.jpg)
 
 - Neue Gruppe: z.B. „Satellite" mit eigenem Konnektoren-Paar und Standards.
 - Kabel editieren: Name, Länge, Farbe, Signale, Status (Empfohlen/Custom/Modified).
@@ -817,7 +817,7 @@ Neue Kabeltypen definieren oder bestehende bearbeiten:
 
 Mehrere Geräte + Kabel zusammen speichern und später einzusetzen:
 
-![Gruppen-Übersicht](../bilder/de/bibliothek-gruppen-uebersicht.jpg)
+![Gruppen-Übersicht](bilder/de/bibliothek-gruppen-uebersicht.jpg)
 
 *So entsteht eine Gruppe*:
 
@@ -841,7 +841,7 @@ Mehrere Geräte + Kabel zusammen speichern und später einzusetzen:
 
 2D-Rack-Layout speichern: Welche Geräte, an welcher Höhe, hintereinander:
 
-![Racks-Übersicht](../bilder/de/bibliothek-racks-uebersicht.jpg)
+![Racks-Übersicht](bilder/de/bibliothek-racks-uebersicht.jpg)
 
 #### Rack Builder
 
@@ -849,7 +849,7 @@ Ein leeres oder bestehendes Rack editieren:
 
 *Bibliothek → Racks-Reiter → „+" → Neues Rack*
 
-![Rack Builder Dialog](../bilder/de/bibliothek-dialog-rack-builder-leer.jpg)
+![Rack Builder Dialog](bilder/de/bibliothek-dialog-rack-builder-leer.jpg)
 
 - **Rack-Name**: Z.B. „Server Rack 1".
 - **Rack-Höhe**: Gesamthöhe in Rack-Einheiten (meist 42 RU).
@@ -869,7 +869,7 @@ Rack-Bestand für Lagerbestandssystem exportieren:
 
 *Bibliothek → Racks-Reiter → „For the warehouse"*
 
-![Rack zum Lagern exportieren](../bilder/de/bibliothek-racks-zum-lagern.jpg)
+![Rack zum Lagern exportieren](bilder/de/bibliothek-racks-zum-lagern.jpg)
 
 Erzeugt `rack-belegung.json` für dein Lagerbestands-System (z.B. Inventory-Planner).
 
@@ -1155,7 +1155,7 @@ Das Menü *Datei* ist das zentrale Tor zum Projektmanagement: Projekte anlegen, 
 
 *Datei → Neu*
 
-Legt ein leeres Projekt an und öffnet es in einem neuen Fenster. Das alte Projekt bleibt im Hintergrund geöffnet. Das Projekt trägt die Vorgabebenennung und kann später unter einem Namen gespeichert werden.
+Öffnet das Formular *Neues Projekt* mit Projektname, Kunde und Logos. *Projekt anlegen* ersetzt den aktuellen Plan durch einen leeren. Enthält der aktuelle Plan schon Geräte, Kabel oder Orte, steht im Formular der Hinweis, dass ungespeicherte Änderungen verloren gehen.
 
 Tastatur: `Strg+N`
 
@@ -1403,7 +1403,248 @@ Die `.bak`-Datei ist atomar geschrieben: sie wird nie in einem Halb-Zustand auf 
 
 ---
 
-## 7. Werkzeuge: Planen
+## 7. Exportieren und Drucken
+
+Der Export-Bereich ist die Zentrale für alle Ausgaben: Pläne als PDF/Bild, Patchlisten, Stücklisten, Cloud-Speicherung und spezialisierte Doku für Festinstallationen. Hier entsteht jedes Blatt, das den Plan verlässt.
+
+### Patchliste
+
+*Datei → Werkzeuge → Patchliste…*
+
+![Patchlisten-Dialog](bilder/de/export-patchliste-dialog.jpg)
+
+Tabelle aller Kabel im Plan — eine Zeile je Kabel mit Quell- und Zielgerät, Port, Kabeltyp, Länge und Farbe. Speziell für den Techniker im Feld, der jedes einzelne Kabel legen muss, nicht für Planabstraktionen wie Stücklisten.
+
+**Spalten:**
+- **Nummer**: Kabelnummer (leer wenn keine vergeben)
+- **Quelle** → **Ziel**: Gerätename und Port
+- **Typ**, **Länge**: Kabelspezifikation
+- **Farbe**: Markierung des Kabels
+- **Multicore**: Bündel-Name (wenn Teil einer Schlange/Snake)
+- **Faser**: Bei Lichtwellenleitern die Faser-Nummer und -Rolle (TX/RX)
+- **Ebene**: Video, Audio, Steuerung, Netzwerk, Strom, Sonstiges
+
+**Filter & Sortierung:**
+- Nach Ebene filtern (z. B. nur Video-Kabel zeigen)
+- Nach Quell-Gerät, Ziel-Gerät, Kabeltyp, Länge oder Farbe sortieren
+- Freitext-Suche über alle Spalten
+
+**Export-Formate:**
+- **CSV**: Tabellarisch, zur Bearbeitung in Excel oder als Druckvorlage
+- **Etikettenformat**: CSV für Etikett-Drucker-Software (Generic, Brother, Dymo); enthält Angaben wie Quellport, Zielport und Kabellänge in dem Format, das die Drucker-Software erwartet
+- **PDF Etiketten + QR**: Kleine Sticker pro Kabel mit QR-Code (zur Verfolgung) und gedruckten Angaben; A4 oder Rollen-Format
+- **PDF Patchliste**: Die Tabelle als ein druckbares PDF — eine Seite pro Gerät mit dessen Kabelzuordnungen
+
+### Festinstallation: Doku & Übergabe
+
+*Datei → Werkzeuge → Festinstallation: Doku & Übergabe…*
+
+Doku-Zentrale für Installateure und Betreiber. Jeder Reiter erzeugt ein eigenständiges CSV- oder PDF-Ausgabedokument für einen Aspekt der Festinstallation.
+
+Die Reiter:
+
+**Übersicht** — Checkliste zur Installationsvorbereitung:
+- Installer-Listen: Pull-Liste (wer zieht was mit), Termination-Liste (wo werden Stecker aufgelöst), Zeitplan (Reihenfolge der Arbeitsschritte), Kabel-Stückliste (Typ+Länge zusammengefasst)
+- Betriebs-Asset-Register: Geräte-Inventar mit Seriennummern und Lagerort
+- Änderungsprotokoll: Wer hat wann welche Änderung eingetragen; kann geleert werden
+
+**Handover-Paket** — Markdown-Manifest aller Unterlagen mit Versionsstand und QR zum Nachverfolgung:
+- Umfasst automatisch alle Blätter: Installateur-Listen, Technische Doku, Signalwege, …
+- Jedes Blatt trägt seinen Stempel (Revision + Datum)
+
+**QR & Asset-IDs** — Markierung der Ausrüstung:
+- Auto-Nummern für Geräte und Kabel vergeben (falls noch nicht geschehen)
+- QR-Etikett-PDF erzeugen zum Aufkleben
+
+**Bearbeiter-ID** — Name des Installateurs/Technikers (steht in jedem Protokoll-Eintrag als Autor)
+
+### Stage Plot
+
+*Datei → Werkzeuge → Stage Plot (SVG)…*
+
+Draufsicht des Plans als **SVG** (Vektor-Grafik): nur die Geräte, keine Kabel, Vogelperspektive auf die Bühne/den Saal. Ideal zum Ausdrucken oder für technische Zeichnungen.
+
+### Exportieren & Drucken
+
+*Datei → Exportieren & Drucken…*
+
+![Export-Dialog Übersicht](bilder/de/export-dialog-plan.jpg)
+
+Zentrale Export-Dialog mit sieben Reitern für alle Ausgabe-Formate. Alle Aktionen sind nicht-destruktiv — keine Änderung am Plan selbst.
+
+#### Reiter: Plan
+
+Den Canvas-Plan als **PDF, PNG, JPEG, SVG oder DXF** exportieren.
+
+**PDF (Raster):**
+- Klassischer Raster-PDF (JPEG-Snapshot des Plans)
+- Mit Titelblock: Projektname, Revision, Änderungs-Fingerprint, QR-Code
+- Druckfertig, Text wird bei hohem Zoom unscharf
+
+**PDF (Vektor, Beta):**
+- Chromium printToPDF — Text bleibt selektierbar und scharf bei jedem Zoom
+- Kleinere Dateigröße
+- **Keine Titelblock** — Revision, Fingerprint und QR stehen nur im Raster-PDF
+
+**PNG, JPEG:**
+- Bitmap-Formate für E-Mail, Slack, Webseiten
+- PNG: transparent möglich, scharf bei kleinen Flächen
+- JPEG: komprimiert, kleinere Dateien
+
+**SVG:**
+- Vektorgrafik für Web und weitere Bearbeitung; alle Elemente bleiben selektierbar
+
+**DXF:**
+- CAD-Format für Plotter und Desktop-Planer
+- Geräte, Kabel und Text auf separaten Ebenen
+
+**Optionen:**
+
+- **PDF-Thema**: Dunkel (wie Canvas) oder Hell (empfohlen für Druck)
+- **Monochrom-sicher**: Text der Ebene auf jedem Kabel drucken statt Farben — für Schwarzweiß-Drucker, wo Videokabel sonst nicht von Audiokabeln zu unterscheiden sind
+- **Render-Mode** (nur Vektor-PDF):
+  - Raster (Classic): JPEG-Snapshot, zuverlässig, aber Text unscharf bei Zoom
+  - Vektor: Chromium printToPDF, Text scharf, kleinere Datei, aber kein Titelblock
+- **Seitengröße** (nur Vektor-PDF): Auto (A0-compat), A4–A0+, Original (volle Canvas-Größe für Plotter)
+- **Ebenen**: Welche Kabeltypen (Video, Audio, Steuerung, Netzwerk, Strom, Sonstiges) in die PDF einbezogen werden; Auswahl ist synchron mit der Canvas-Ansicht
+
+#### Reiter: Patch-Sheets
+
+Pro ausgewähltem Gerät eine Port-Belegungs-Liste — ideal zum Aufkleben am Gerät.
+
+- **Geräte auswählen**: Haken neben jedem Gerät setzen oder "Alle wählen"
+- **Format wählen**: A4 oder A3 (wird nach dem Klick abgefragt)
+- **Aktion**:
+  - "PDF herunterladen": alle ausgewählten Geräte in eine PDF
+  - "Drucken": sofort an den OS-Drucker
+  - "Etikett-CSV": kompakte Tabelle als CSV (eine Zeile pro Gerät statt ganzer Seite)
+
+#### Reiter: Kabel-Stückliste (BOM)
+
+Alle Kabel zusammengefasst nach Typ und Länge — zur Bestellung.
+
+- **Tabelle**: Kabeltyp + Länge, Menge, Rentman-Planung (editierbar)
+- **Export**:
+  - CSV: für Excel-Bearbeitung
+  - PDF: druckfertig mit Rentman-Spalte
+- **Rentman-Integration**: Falls die Gerätebibliothek mit Rentman verknüpft ist, können Ausgabemengen und Preise direkt übernommen werden
+
+#### Reiter: Geräte-Stückliste
+
+Was der Plan an Geräten braucht — gedeckt durch Bestand (Lager)?
+
+- **Drei Zustände pro Gerät**:
+  - Grün (Gedeckt): Gerät ist im Lager bekannt (über Katalog-Identität)
+  - Orange (VORSCHLAG): Namenstreffer — nur die Vermutung, dass es das richtige Gerät ist; wartet auf Bestätigung
+  - Rot (Nicht im Lager): Gerät nicht im Bestand
+- **Kommissionier-Liste**: nur die grünen Geräte, nach Lagerort sortiert — die Liste, die der Techniker zum Packen mitnimmt
+
+#### Reiter: Racks & Gruppen
+
+Gespeicherte Racks und Gruppen einzeln als PDF exportieren.
+
+- Liste aller Racks und Gruppen im Plan
+- **Pro Rack**: eine Patch-Seite je enthaltenem Gerät, zeigt die interne Verkabelung
+- Aktion: "PDF herunterladen" oder "Drucken"
+
+#### Reiter: Tally-Karte
+
+Die Kette Rolle (Show-Position) → Gerät (z. B. Kamera) → Mischer-Eingang → UMD-Adresse (Texteinblendung auf dem Multiviewer).
+
+Aus dem Plan abgeleitet und geprüft. Ideal zum gegenlesen oder zur Konfiguration der tally-pi-Hardware.
+
+- **CSV**: zum gegenlesen (Mensch)
+- **JSON**: für tally-pi-Konfiguration
+  - (Anmerkung: GPIO-Pins der physischen Lampen gehören zur Hardware, nicht zum Plan)
+
+#### Reiter: Unterlagen-Stapel
+
+Mehrere Blätter als ein druckbarer Stapel: eine Seite je Blatt, Spaltenkopf auf jeder Folgeseite, Farbe und Format wählbar.
+
+- **Blätter auswählen**: Haken neben jedem Blatt
+- **Format**: A4, A3, A2, A1, A0
+- **Farbmodus**: Farbe oder Schwarzweiß (jeder Eintrag bleibt lesbar)
+- **Aktion**: "Drucken" oder "PDF herunterladen"
+- Jedes Blatt trägt seinen Stempel (Revision + Datum) — später lässt sich ein Stapel gestempelter Blätter gegen den aktuellen Plan halten und überprüfen, ob noch alles gültig ist.
+
+### Cloud & Lese-Link
+
+*Datei → Cloud & Lese-Link…*
+
+![Cloud-Dialog](bilder/de/export-cloud-dialog.jpg)
+
+Plan in die Cloud speichern (optional), Revisionen verwalten, Lese-Link zum Öffnen in einem anderen Gerät erzeugen.
+
+**Voraussetzung:** Anmeldung an der Gerätebibliothek (unter *Einstellungen → Gerätebibliothek*).
+
+**Funktionen:**
+
+- **Jetzt speichern**: Der aktuelle Plan wird als neue Revision in die Cloud hochgeladen
+- **Revisionen**: Liste aller bisherigen Versionen (mit Änderungs-Fingerprint + Speicherzeitpunkt)
+  - Eine Revision kann wiederhergestellt werden (sie wird zur neuen obersten)
+  - Download: die Revision als .cp-Datei lokal speichern
+- **Lese-Links**: Externe Betrachter öffnen den Plan im Web-Viewer (read-only), ohne sich anzumelden
+  - Link erstellen: eigene Adresse eingeben
+  - Link kopieren (für E-Mail, Slack, Dokumentation)
+  - Link löschen (Zugriff widerrufen)
+  - Verfallsdatum setzen (optional)
+- **Andere Cloud-Projekte**: Existierende Cloud-Projekte anschauen, öffnen, herunterladen oder von der Cloud löschen
+
+**Datenschutz:**
+- Solange niemand „Jetzt speichern" drückt, verbleibt der Plan lokal.
+- Der Server fragt die Anmeldung ab — die Dateikennung ist device-spezifisch, nicht datei-spezifisch.
+
+### Export als Viewer-Datei
+
+*Datei → Export als Viewer-Datei…*
+
+Plan in das **`.cpviewer`-Format** exportieren. External Reviewer (Freelancer, andere Teams) können den Plan später im Web-Viewer öffnen, Anmerkungen einzeichnen und die Datei zurückmailen.
+
+(Aktion: direkter Download; kein Dialog)
+
+### Anmerkungen importieren
+
+*Datei → Anmerkungen importieren…*
+
+Eine `.cpviewer`-Datei mit Anmerkungen von einem Reviewer öffnen und die Markierungen / Kommentare in den aktuellen Plan mergen. Das ermöglicht einen Feedback-Workflow ohne direkte Cloud-Anbindung.
+
+(Aktion: Datei-Dialog öffnen; kein Upload an den Server)
+
+### Plan-Stände vergleichen
+
+*Datei → Plan-Stände vergleichen…*
+
+Zwei `.cp`-Dateien gegeneinander halten — z. B. die aktuelle Version gegen die Version von gestern, um Änderungen zu entdecken.
+
+- Gerät hinzugefügt/gelöscht
+- Kabel hinzugefügt/gelöscht/umgerouted
+- Port-Umbenennung
+- etc.
+
+Unterschiede werden visuell hervorgehoben, Details in einer Tabelle.
+
+### Ausgegebene Dokumente
+
+*Datei → Ausgegebene Dokumente…*
+
+Register aller Blätter, die bisher aus diesem Plan exportiert wurden. Warum? Damit sich ein Techniker morgen auf der Baustelle einen alten Ausdruck zu Hand nehmen und prüfen kann, ob er noch aktuell ist — oder ob der Plan seit damals gelaufen hat.
+
+**Spalten:**
+- **Zeitstempel**: Wann wurde es ausgegeben
+- **Blatt**: Welches Blatt (Patchliste, Plan-PDF, BOM, …)
+- **Änderungs-Fingerprint**: Eindeutige Kennung des Planstandes bei der Ausgabe
+- **Revision** (wenn Cloud): Revisions-Nummer bei Upload in die Cloud
+- **Bearbeiter**: Wer hat es ausgegeben (aus den Einstellungen)
+
+Das Register ist Teil des Projekts und wird mit gespeichert.
+
+---
+
+© 2026 Lars Zumpe Medienproduktion · kostenlos nutzbar, proprietär lizenziert
+
+---
+
+## 8. Werkzeuge: Planen
 
 Die Werkzeug-Dialoge zum Erfassen, Analysieren und Planen einer Anlage — von der Bestandsaufnahme über Funktionsgruppen bis zur Ausspielung.
 
@@ -1415,7 +1656,7 @@ Spezialisierte Rechner für Kapazitäten und Ressourcen.
 
 *Werkzeuge → Aufzeichnungsspeicher berechnen…*
 
-![Speicherplatz-Rechner](../bilder/de/werkzeuge-planen-recording-storage-calc.jpg)
+![Speicherplatz-Rechner](bilder/de/werkzeuge-planen-recording-storage-calc.jpg)
 
 Berechnet den Speicherbedarf für Video-Aufzeichnung basierend auf Codec, Auflösung, Framerate und Dauer.
 
@@ -1426,7 +1667,7 @@ Berechnet den Speicherbedarf für Video-Aufzeichnung basierend auf Codec, Auflö
 
 *Werkzeuge → Projektion & Display…*
 
-![Projektions-Rechner](../bilder/de/werkzeuge-planen-projection-calc.jpg)
+![Projektions-Rechner](bilder/de/werkzeuge-planen-projection-calc.jpg)
 
 Berechnet Projektions-Parameter für Bildschirme und Beamer.
 
@@ -1445,7 +1686,7 @@ Ein umfassendes Analyse-Werkzeug mit 14 Reitern zur Kontrolle aller Aspekte der 
 
 ##### Reiter: Gewicht & Wärme
 
-![Gewicht und Wärmelast nach Gerätegruppe](../bilder/de/werkzeuge-planen-analysis-weight.jpg)
+![Gewicht und Wärmelast nach Gerätegruppe](bilder/de/werkzeuge-planen-analysis-weight.jpg)
 
 Gesamtgewicht und Wärmelast (BTU/h) pro Gerätegruppe und insgesamt.
 
@@ -1456,7 +1697,7 @@ Gesamtgewicht und Wärmelast (BTU/h) pro Gerätegruppe und insgesamt.
 
 ##### Reiter: Netzwerk
 
-![Netzwerk-Übersicht: VLAN, IP-Doppelungen, Datenflüsse](../bilder/de/werkzeuge-planen-analysis-network.jpg)
+![Netzwerk-Übersicht: VLAN, IP-Doppelungen, Datenflüsse](bilder/de/werkzeuge-planen-analysis-network.jpg)
 
 IP-Adressen, VLANs, Switchports und Netzwerk-Topologie prüfen.
 
@@ -1467,7 +1708,7 @@ IP-Adressen, VLANs, Switchports und Netzwerk-Topologie prüfen.
 
 ##### Reiter: Redundanz
 
-![Single-Points-of-Failure erkennen](../bilder/de/werkzeuge-planen-analysis-redundancy.jpg)
+![Single-Points-of-Failure erkennen](bilder/de/werkzeuge-planen-analysis-redundancy.jpg)
 
 Überprüft, wo nur ein Signal oder Stromkreis vorhanden ist.
 
@@ -1476,7 +1717,7 @@ IP-Adressen, VLANs, Switchports und Netzwerk-Topologie prüfen.
 
 ##### Reiter: RF / Funk
 
-![Funkfrequenzen und Spektrum-Konflikte](../bilder/de/werkzeuge-planen-analysis-rf.jpg)
+![Funkfrequenzen und Spektrum-Konflikte](bilder/de/werkzeuge-planen-analysis-rf.jpg)
 
 Funkstrecken (Mikrofone, Kopfhörer, Kameras) und Spektrum-Konflikte prüfen.
 
@@ -1486,7 +1727,7 @@ Funkstrecken (Mikrofone, Kopfhörer, Kameras) und Spektrum-Konflikte prüfen.
 
 ##### Reiter: Kabelwege
 
-![Kabel-Längen und Routen prüfen](../bilder/de/werkzeuge-planen-analysis-runs.jpg)
+![Kabel-Längen und Routen prüfen](bilder/de/werkzeuge-planen-analysis-runs.jpg)
 
 Überprüft die physischen Verlegungswege und Kabellängen.
 
@@ -1495,7 +1736,7 @@ Funkstrecken (Mikrofone, Kopfhörer, Kameras) und Spektrum-Konflikte prüfen.
 
 ##### Reiter: Signalwege
 
-![Verfolgung der Signale von Quelle bis Ziel](../bilder/de/werkzeuge-planen-analysis-chain.jpg)
+![Verfolgung der Signale von Quelle bis Ziel](bilder/de/werkzeuge-planen-analysis-chain.jpg)
 
 Verfolgt ein Signal durch alle Ebenen — von der Quelle bis zur Ausgabe.
 
@@ -1505,7 +1746,7 @@ Verfolgt ein Signal durch alle Ebenen — von der Quelle bis zur Ausgabe.
 
 ##### Reiter: Anschlussliste
 
-![Alle Gerät-zu-Port-Zuordnungen](../bilder/de/werkzeuge-planen-analysis-patch.jpg)
+![Alle Gerät-zu-Port-Zuordnungen](bilder/de/werkzeuge-planen-analysis-patch.jpg)
 
 Tabellarische Übersicht aller Kabel-Verbindungen.
 
@@ -1515,7 +1756,7 @@ Tabellarische Übersicht aller Kabel-Verbindungen.
 
 ##### Reiter: Blatt prüfen
 
-![Datenblatts-Vollständigkeit prüfen](../bilder/de/werkzeuge-planen-analysis-sheet.jpg)
+![Datenblatts-Vollständigkeit prüfen](bilder/de/werkzeuge-planen-analysis-sheet.jpg)
 
 Überprüft, ob alle erforderlichen Geräte-Datenblätter hinterlegt sind.
 
@@ -1524,7 +1765,7 @@ Tabellarische Übersicht aller Kabel-Verbindungen.
 
 ##### Reiter: Kunden-Übersicht
 
-![Zusammenfassung für Angebot und Abnahme](../bilder/de/werkzeuge-planen-analysis-client.jpg)
+![Zusammenfassung für Angebot und Abnahme](bilder/de/werkzeuge-planen-analysis-client.jpg)
 
 Übersicht für Kundenkommunikation und Projektabnahme.
 
@@ -1534,7 +1775,7 @@ Tabellarische Übersicht aller Kabel-Verbindungen.
 
 ##### Reiter: Kosten: Plan gegen Ist
 
-![Vergleich zwischen Angebot und tatsächlichen Ausgaben](../bilder/de/werkzeuge-planen-analysis-cost.jpg)
+![Vergleich zwischen Angebot und tatsächlichen Ausgaben](bilder/de/werkzeuge-planen-analysis-cost.jpg)
 
 Abweichungen zwischen geplanten und tatsächlichen Kosten.
 
@@ -1544,7 +1785,7 @@ Abweichungen zwischen geplanten und tatsächlichen Kosten.
 
 ##### Reiter: Crew: Stunden & Auslagen
 
-![Personaleinsatz und Material-Kosten](../bilder/de/werkzeuge-planen-analysis-crew.jpg)
+![Personaleinsatz und Material-Kosten](bilder/de/werkzeuge-planen-analysis-crew.jpg)
 
 Arbeitsplan: Wer, wann, wie lange, Material-Budget.
 
@@ -1555,7 +1796,7 @@ Arbeitsplan: Wer, wann, wie lange, Material-Budget.
 
 ##### Reiter: Namensregel
 
-![Automatische Namens-Schemata anwenden](../bilder/de/werkzeuge-planen-analysis-naming.jpg)
+![Automatische Namens-Schemata anwenden](bilder/de/werkzeuge-planen-analysis-naming.jpg)
 
 Einheitliche Benennung von Geräten, Kabeln und Netzwerk-Ports.
 
@@ -1565,7 +1806,7 @@ Einheitliche Benennung von Geräten, Kabeln und Netzwerk-Ports.
 
 ##### Reiter: Dante-Patch
 
-![Audio-Netzwerk-Leitungen und Geräte-Zuordnung](../bilder/de/werkzeuge-planen-analysis-dante.jpg)
+![Audio-Netzwerk-Leitungen und Geräte-Zuordnung](bilder/de/werkzeuge-planen-analysis-dante.jpg)
 
 Überprüfung der Dante-Audio-Routing und Geräte-Zertifizierung.
 
@@ -1575,7 +1816,7 @@ Einheitliche Benennung von Geräten, Kabeln und Netzwerk-Ports.
 
 ##### Reiter: Was ansteht
 
-![Offene Aufgaben und Befunde](../bilder/de/werkzeuge-planen-analysis-todo.jpg)
+![Offene Aufgaben und Befunde](bilder/de/werkzeuge-planen-analysis-todo.jpg)
 
 Zusammenfassung aller Befunde und noch zu erledigenden Aufgaben.
 
@@ -1587,7 +1828,7 @@ Zusammenfassung aller Befunde und noch zu erledigenden Aufgaben.
 
 *Werkzeuge → Plan-Prüfung…*
 
-![Plan-Check: Alle Befunde und Probleme](../bilder/de/werkzeuge-planen-plan-check.jpg)
+![Plan-Check: Alle Befunde und Probleme](bilder/de/werkzeuge-planen-plan-check.jpg)
 
 Scannt den gesamten Plan nach häufigen Fehlern und zeigt sie strukturiert.
 
@@ -1599,7 +1840,7 @@ Scannt den gesamten Plan nach häufigen Fehlern und zeigt sie strukturiert.
 
 *Werkzeuge → Plan gegen Vorgefundenes…*
 
-![Abweichungen zwischen Plan und Bestandsaufnahme](../bilder/de/werkzeuge-planen-reconcile.jpg)
+![Abweichungen zwischen Plan und Bestandsaufnahme](bilder/de/werkzeuge-planen-reconcile.jpg)
 
 Vergleicht den geplanten Plan mit der erfassten Ist-Situation vor Ort.
 
@@ -1616,7 +1857,7 @@ Werkzeuge zum Erfassen, Strukturieren und Detaillieren der Anlage.
 
 *Werkzeuge → Bestandsaufnahme…*
 
-![Erfassung vorhandener Geräte vor Ort](../bilder/de/werkzeuge-planen-survey.jpg)
+![Erfassung vorhandener Geräte vor Ort](bilder/de/werkzeuge-planen-survey.jpg)
 
 Dokumentiert physisch vorhandene Geräte und deren Position.
 
@@ -1630,7 +1871,7 @@ Dokumentiert physisch vorhandene Geräte und deren Position.
 
 *Werkzeuge → Drum-Mikrofonierung…*
 
-![Platzierung von Drum-Mikrofonen](../bilder/de/werkzeuge-planen-drum-micing.jpg)
+![Platzierung von Drum-Mikrofonen](bilder/de/werkzeuge-planen-drum-micing.jpg)
 
 Spezial-Dialog zur Platzierung von Mikrofonen an Schlagzeug-Komponenten.
 
@@ -1643,7 +1884,7 @@ Spezial-Dialog zur Platzierung von Mikrofonen an Schlagzeug-Komponenten.
 
 *Werkzeuge → Funkstrecken / Gesang…*
 
-![Frequenz-Planung für Funkstrecken](../bilder/de/werkzeuge-planen-wireless.jpg)
+![Frequenz-Planung für Funkstrecken](bilder/de/werkzeuge-planen-wireless.jpg)
 
 Plant Funkfrequenzen für Drahtlos-Mikrofone und Kopfhörer.
 
@@ -1656,7 +1897,7 @@ Plant Funkfrequenzen für Drahtlos-Mikrofone und Kopfhörer.
 
 *Werkzeuge → Ablauf und Kamera-Aufträge…*
 
-![Szenen, Schnitte und Kamera-Anweisungen](../bilder/de/werkzeuge-planen-rundown.jpg)
+![Szenen, Schnitte und Kamera-Anweisungen](bilder/de/werkzeuge-planen-rundown.jpg)
 
 Strukturiert den zeitlichen Ablauf einer Veranstaltung und ordnet Kamera-Aufgaben zu.
 
@@ -1669,7 +1910,7 @@ Strukturiert den zeitlichen Ablauf einer Veranstaltung und ordnet Kamera-Aufgabe
 
 *Werkzeuge → Ausspielung…*
 
-![Streaming-Destinationen und Parameter](../bilder/de/werkzeuge-planen-delivery.jpg)
+![Streaming-Destinationen und Parameter](bilder/de/werkzeuge-planen-delivery.jpg)
 
 Definiert, wohin das Video/Audio geleitet wird (YouTube Live, Zoom, Recording, etc.).
 
@@ -1682,7 +1923,7 @@ Definiert, wohin das Video/Audio geleitet wird (YouTube Live, Zoom, Recording, e
 
 *Werkzeuge → LED-Wand…*
 
-![LED-Wand: Panelgröße, Auflösung, Gewicht](../bilder/de/werkzeuge-planen-led-wall.jpg)
+![LED-Wand: Panelgröße, Auflösung, Gewicht](bilder/de/werkzeuge-planen-led-wall.jpg)
 
 Platz und Leistung von LED-Flächen planen.
 
@@ -1696,7 +1937,7 @@ Platz und Leistung von LED-Flächen planen.
 
 *Werkzeuge → Frontplatten-Editor…*
 
-![Anordnung von Anschlüssen auf Wandplatten oder Stage Boxes](../bilder/de/werkzeuge-planen-faceplate.jpg)
+![Anordnung von Anschlüssen auf Wandplatten oder Stage Boxes](bilder/de/werkzeuge-planen-faceplate.jpg)
 
 Platziert Anschlüsse auf ebener Fläche (Wandplatte, Patchfeld, Stage Box) und druckt 1:1 zum Ausdruck.
 
@@ -1710,7 +1951,7 @@ Platziert Anschlüsse auf ebener Fläche (Wandplatte, Patchfeld, Stage Box) und 
 
 *Werkzeuge → Berichts-Editor…*
 
-![Spalten, Sortierung und Filter für Listen](../bilder/de/werkzeuge-planen-report-editor.jpg)
+![Spalten, Sortierung und Filter für Listen](bilder/de/werkzeuge-planen-report-editor.jpg)
 
 Konfiguriert die Darstellung von Gerät- und Kabel-Listen (Druck & Export).
 
@@ -1724,7 +1965,7 @@ Konfiguriert die Darstellung von Gerät- und Kabel-Listen (Druck & Export).
 
 *Werkzeuge → Adern und Farbnormen…*
 
-![Leitungs-Farben nach Standard und benutzerdefiniert](../bilder/de/werkzeuge-planen-conductors.jpg)
+![Leitungs-Farben nach Standard und benutzerdefiniert](bilder/de/werkzeuge-planen-conductors.jpg)
 
 Definiert Leitungs-Farben für Kabel und Anschlussmarker nach IEC oder Custom.
 
@@ -1737,7 +1978,7 @@ Definiert Leitungs-Farben für Kabel und Anschlussmarker nach IEC oder Custom.
 
 *Werkzeuge → Empfangene Show-Control-Nachrichten…*
 
-![Protokoll der eingegangenen OSC/MIDI/API-Befehle](../bilder/de/werkzeuge-planen-show-control.jpg)
+![Protokoll der eingegangenen OSC/MIDI/API-Befehle](bilder/de/werkzeuge-planen-show-control.jpg)
 
 Zeigt ein Protokoll aller Show-Control-Befehle, die die App erhalten hat (OSC, MIDI, HTTP).
 
@@ -1754,7 +1995,7 @@ Werkzeuge zum Aufbau und zur Verwaltung der Anlage.
 
 *Werkzeuge → Mehrere Kabel verbinden…*
 
-![Kabel-Massenverbindung in einer Tabelle](../bilder/de/werkzeuge-planen-bulk-connect.jpg)
+![Kabel-Massenverbindung in einer Tabelle](bilder/de/werkzeuge-planen-bulk-connect.jpg)
 
 Verbindet viele Kabel auf einmal, statt einzeln zu klicken.
 
@@ -1767,7 +2008,7 @@ Verbindet viele Kabel auf einmal, statt einzeln zu klicken.
 
 *Werkzeuge → Neues Rack erstellen…*
 
-![Neues leeres Rack mit Konfiguration](../bilder/de/werkzeuge-planen-new-rack.jpg)
+![Neues leeres Rack mit Konfiguration](bilder/de/werkzeuge-planen-new-rack.jpg)
 
 Erstellt einen neuen Rack-Container aus Geräte-Vorlagen.
 
@@ -1780,7 +2021,7 @@ Erstellt einen neuen Rack-Container aus Geräte-Vorlagen.
 
 *Werkzeuge → Rack-Builder…*
 
-![Interaktive Bestückung eines Racks](../bilder/de/werkzeuge-planen-rack-builder.jpg)
+![Interaktive Bestückung eines Racks](bilder/de/werkzeuge-planen-rack-builder.jpg)
 
 Populiert einen Rack mit Geräten, ordnet sie und visualisiert in 3D.
 
@@ -1793,7 +2034,7 @@ Populiert einen Rack mit Geräten, ordnet sie und visualisiert in 3D.
 
 *Werkzeuge → KI-Planung generieren…*
 
-![Generierung eines Draft-Plans aus Text-Beschreibung](../bilder/de/werkzeuge-planen-ai-plan.jpg)
+![Generierung eines Draft-Plans aus Text-Beschreibung](bilder/de/werkzeuge-planen-ai-plan.jpg)
 
 Generiert einen ersten Plan-Entwurf basierend auf einer Text-Beschreibung (KI).
 
@@ -1808,7 +2049,7 @@ Erfordert einen KI-API-Schlüssel (OpenAI, Google, Anthropic).
 
 *Werkzeuge → Überarbeitungen & Snapshots…*
 
-![Versionenverwaltung: Snapshots und Vergleich](../bilder/de/werkzeuge-planen-revisions.jpg)
+![Versionenverwaltung: Snapshots und Vergleich](bilder/de/werkzeuge-planen-revisions.jpg)
 
 Speichert Zwischen-Versionen eines Plans, um Änderungen nachzuverfolgen.
 
@@ -1827,7 +2068,7 @@ Einrichtung spezialisierter Geräte (falls vorhanden).
 
 (Nur wenn ein ATEM-Mischer in der Anlage vorhanden ist.)
 
-![Multiviewer-Windows auf dem ATEM konfigurieren](../bilder/de/werkzeuge-planen-atem-mv.jpg)
+![Multiviewer-Windows auf dem ATEM konfigurieren](bilder/de/werkzeuge-planen-atem-mv.jpg)
 
 Legt fest, welche Quellen in welchen Multiviewer-Fenstern angezeigt werden.
 
@@ -1841,7 +2082,7 @@ Legt fest, welche Quellen in welchen Multiviewer-Fenstern angezeigt werden.
 
 (Nur wenn ein ATEM-Mischer mit Audio-Eingängen vorhanden ist.)
 
-![Audio-Eingänge des ATEM zuordnen](../bilder/de/werkzeuge-planen-atem-audio.jpg)
+![Audio-Eingänge des ATEM zuordnen](bilder/de/werkzeuge-planen-atem-audio.jpg)
 
 Richtet Audio-Eingänge (XLR, RCA, Dante) zu Kanal-Fader des Mischers.
 
@@ -1855,7 +2096,7 @@ Richtet Audio-Eingänge (XLR, RCA, Dante) zu Kanal-Fader des Mischers.
 
 (Nur wenn ein ATEM-Mischer vorhanden ist.)
 
-![Eingangsnamen des ATEM konfigurieren](../bilder/de/werkzeuge-planen-atem-labels.jpg)
+![Eingangsnamen des ATEM konfigurieren](bilder/de/werkzeuge-planen-atem-labels.jpg)
 
 Benennt die Eingangs-Quellen am ATEM-Mischer (Name auf der Control Surface).
 
@@ -1865,7 +2106,7 @@ Benennt die Eingangs-Quellen am ATEM-Mischer (Name auf der Control Surface).
 
 ---
 
-## 8. Werkzeuge
+## 9. Werkzeuge
 
 Das Menü *Werkzeuge* enthält Spezialtasks zum Planen und Bauen von Systemen: Kabel verbinden, Racks aufbauen, LED-Wände konfigurieren, Schaltpläne exportieren und Geräte wie ATEM-Mischer und Videohub steuern.
 
@@ -2163,247 +2404,6 @@ Nutzen Sie dieses Werkzeug zur Dokumentation und zur Überprüfung, dass die Rou
 - Viele dieser Werkzeuge (ATEM, Videohub, GreenGo, LED-Wand) erscheinen nur im Menü, wenn die entsprechenden Geräte im aktuellen Plan vorhanden sind. Leere Menüpunkte sind absichtlich — es gibt in diesem Plan nichts zu konfigurieren.
 - Alle Exporte (PDF, CSV, STL, JSON) folgen dem Projekt-Dateinamen, um Verwechslungen zu vermeiden.
 - Einige Werkzeuge speichern Vorlagen (z. B. Bericht-Editor, Rack-Vorlagen) — diese bleiben über Projekte hinweg erhalten.
-
----
-
-## 9. Exportieren und Drucken
-
-Der Export-Bereich ist die Zentrale für alle Ausgaben: Pläne als PDF/Bild, Patchlisten, Stücklisten, Cloud-Speicherung und spezialisierte Doku für Festinstallationen. Hier entsteht jedes Blatt, das den Plan verlässt.
-
-### Patchliste
-
-*Datei → Werkzeuge → Patchliste…*
-
-![Patchlisten-Dialog](bilder/de/export-patchliste-dialog.jpg)
-
-Tabelle aller Kabel im Plan — eine Zeile je Kabel mit Quell- und Zielgerät, Port, Kabeltyp, Länge und Farbe. Speziell für den Techniker im Feld, der jedes einzelne Kabel legen muss, nicht für Planabstraktionen wie Stücklisten.
-
-**Spalten:**
-- **Nummer**: Kabelnummer (leer wenn keine vergeben)
-- **Quelle** → **Ziel**: Gerätename und Port
-- **Typ**, **Länge**: Kabelspezifikation
-- **Farbe**: Markierung des Kabels
-- **Multicore**: Bündel-Name (wenn Teil einer Schlange/Snake)
-- **Faser**: Bei Lichtwellenleitern die Faser-Nummer und -Rolle (TX/RX)
-- **Ebene**: Video, Audio, Steuerung, Netzwerk, Strom, Sonstiges
-
-**Filter & Sortierung:**
-- Nach Ebene filtern (z. B. nur Video-Kabel zeigen)
-- Nach Quell-Gerät, Ziel-Gerät, Kabeltyp, Länge oder Farbe sortieren
-- Freitext-Suche über alle Spalten
-
-**Export-Formate:**
-- **CSV**: Tabellarisch, zur Bearbeitung in Excel oder als Druckvorlage
-- **Etikettenformat**: CSV für Etikett-Drucker-Software (Generic, Brother, Dymo); enthält Angaben wie Quellport, Zielport und Kabellänge in dem Format, das die Drucker-Software erwartet
-- **PDF Etiketten + QR**: Kleine Sticker pro Kabel mit QR-Code (zur Verfolgung) und gedruckten Angaben; A4 oder Rollen-Format
-- **PDF Patchliste**: Die Tabelle als ein druckbares PDF — eine Seite pro Gerät mit dessen Kabelzuordnungen
-
-### Festinstallation: Doku & Übergabe
-
-*Datei → Werkzeuge → Festinstallation: Doku & Übergabe…*
-
-Doku-Zentrale für Installateure und Betreiber. Jeder Reiter erzeugt ein eigenständiges CSV- oder PDF-Ausgabedokument für einen Aspekt der Festinstallation.
-
-Die Reiter:
-
-**Übersicht** — Checkliste zur Installationsvorbereitung:
-- Installer-Listen: Pull-Liste (wer zieht was mit), Termination-Liste (wo werden Stecker aufgelöst), Zeitplan (Reihenfolge der Arbeitsschritte), Kabel-Stückliste (Typ+Länge zusammengefasst)
-- Betriebs-Asset-Register: Geräte-Inventar mit Seriennummern und Lagerort
-- Änderungsprotokoll: Wer hat wann welche Änderung eingetragen; kann geleert werden
-
-**Handover-Paket** — Markdown-Manifest aller Unterlagen mit Versionsstand und QR zum Nachverfolgung:
-- Umfasst automatisch alle Blätter: Installateur-Listen, Technische Doku, Signalwege, …
-- Jedes Blatt trägt seinen Stempel (Revision + Datum)
-
-**QR & Asset-IDs** — Markierung der Ausrüstung:
-- Auto-Nummern für Geräte und Kabel vergeben (falls noch nicht geschehen)
-- QR-Etikett-PDF erzeugen zum Aufkleben
-
-**Bearbeiter-ID** — Name des Installateurs/Technikers (steht in jedem Protokoll-Eintrag als Autor)
-
-### Stage Plot
-
-*Datei → Werkzeuge → Stage Plot (SVG)…*
-
-Draufsicht des Plans als **SVG** (Vektor-Grafik): nur die Geräte, keine Kabel, Vogelperspektive auf die Bühne/den Saal. Ideal zum Ausdrucken oder für technische Zeichnungen.
-
-### Exportieren & Drucken
-
-*Datei → Exportieren & Drucken…*
-
-![Export-Dialog Übersicht](bilder/de/export-dialog-plan.jpg)
-
-Zentrale Export-Dialog mit sieben Reitern für alle Ausgabe-Formate. Alle Aktionen sind nicht-destruktiv — keine Änderung am Plan selbst.
-
-#### Reiter: Plan
-
-Den Canvas-Plan als **PDF, PNG, JPEG, SVG oder DXF** exportieren.
-
-**PDF (Raster):**
-- Klassischer Raster-PDF (JPEG-Snapshot des Plans)
-- Mit Titelblock: Projektname, Revision, Änderungs-Fingerprint, QR-Code
-- Druckfertig, Text wird bei hohem Zoom unscharf
-
-**PDF (Vektor, Beta):**
-- Chromium printToPDF — Text bleibt selektierbar und scharf bei jedem Zoom
-- Kleinere Dateigröße
-- **Keine Titelblock** — Revision, Fingerprint und QR stehen nur im Raster-PDF
-
-**PNG, JPEG:**
-- Bitmap-Formate für E-Mail, Slack, Webseiten
-- PNG: transparent möglich, scharf bei kleinen Flächen
-- JPEG: komprimiert, kleinere Dateien
-
-**SVG:**
-- Vektorgrafik für Web und weitere Bearbeitung; alle Elemente bleiben selektierbar
-
-**DXF:**
-- CAD-Format für Plotter und Desktop-Planer
-- Geräte, Kabel und Text auf separaten Ebenen
-
-**Optionen:**
-
-- **PDF-Thema**: Dunkel (wie Canvas) oder Hell (empfohlen für Druck)
-- **Monochrom-sicher**: Text der Ebene auf jedem Kabel drucken statt Farben — für Schwarzweiß-Drucker, wo Videokabel sonst nicht von Audiokabeln zu unterscheiden sind
-- **Render-Mode** (nur Vektor-PDF):
-  - Raster (Classic): JPEG-Snapshot, zuverlässig, aber Text unscharf bei Zoom
-  - Vektor: Chromium printToPDF, Text scharf, kleinere Datei, aber kein Titelblock
-- **Seitengröße** (nur Vektor-PDF): Auto (A0-compat), A4–A0+, Original (volle Canvas-Größe für Plotter)
-- **Ebenen**: Welche Kabeltypen (Video, Audio, Steuerung, Netzwerk, Strom, Sonstiges) in die PDF einbezogen werden; Auswahl ist synchron mit der Canvas-Ansicht
-
-#### Reiter: Patch-Sheets
-
-Pro ausgewähltem Gerät eine Port-Belegungs-Liste — ideal zum Aufkleben am Gerät.
-
-- **Geräte auswählen**: Haken neben jedem Gerät setzen oder "Alle wählen"
-- **Format wählen**: A4 oder A3 (wird nach dem Klick abgefragt)
-- **Aktion**:
-  - "PDF herunterladen": alle ausgewählten Geräte in eine PDF
-  - "Drucken": sofort an den OS-Drucker
-  - "Etikett-CSV": kompakte Tabelle als CSV (eine Zeile pro Gerät statt ganzer Seite)
-
-#### Reiter: Kabel-Stückliste (BOM)
-
-Alle Kabel zusammengefasst nach Typ und Länge — zur Bestellung.
-
-- **Tabelle**: Kabeltyp + Länge, Menge, Rentman-Planung (editierbar)
-- **Export**:
-  - CSV: für Excel-Bearbeitung
-  - PDF: druckfertig mit Rentman-Spalte
-- **Rentman-Integration**: Falls die Gerätebibliothek mit Rentman verknüpft ist, können Ausgabemengen und Preise direkt übernommen werden
-
-#### Reiter: Geräte-Stückliste
-
-Was der Plan an Geräten braucht — gedeckt durch Bestand (Lager)?
-
-- **Drei Zustände pro Gerät**:
-  - Grün (Gedeckt): Gerät ist im Lager bekannt (über Katalog-Identität)
-  - Orange (VORSCHLAG): Namenstreffer — nur die Vermutung, dass es das richtige Gerät ist; wartet auf Bestätigung
-  - Rot (Nicht im Lager): Gerät nicht im Bestand
-- **Kommissionier-Liste**: nur die grünen Geräte, nach Lagerort sortiert — die Liste, die der Techniker zum Packen mitnimmt
-
-#### Reiter: Racks & Gruppen
-
-Gespeicherte Racks und Gruppen einzeln als PDF exportieren.
-
-- Liste aller Racks und Gruppen im Plan
-- **Pro Rack**: eine Patch-Seite je enthaltenem Gerät, zeigt die interne Verkabelung
-- Aktion: "PDF herunterladen" oder "Drucken"
-
-#### Reiter: Tally-Karte
-
-Die Kette Rolle (Show-Position) → Gerät (z. B. Kamera) → Mischer-Eingang → UMD-Adresse (Texteinblendung auf dem Multiviewer).
-
-Aus dem Plan abgeleitet und geprüft. Ideal zum gegenlesen oder zur Konfiguration der tally-pi-Hardware.
-
-- **CSV**: zum gegenlesen (Mensch)
-- **JSON**: für tally-pi-Konfiguration
-  - (Anmerkung: GPIO-Pins der physischen Lampen gehören zur Hardware, nicht zum Plan)
-
-#### Reiter: Unterlagen-Stapel
-
-Mehrere Blätter als ein druckbarer Stapel: eine Seite je Blatt, Spaltenkopf auf jeder Folgeseite, Farbe und Format wählbar.
-
-- **Blätter auswählen**: Haken neben jedem Blatt
-- **Format**: A4, A3, A2, A1, A0
-- **Farbmodus**: Farbe oder Schwarzweiß (jeder Eintrag bleibt lesbar)
-- **Aktion**: "Drucken" oder "PDF herunterladen"
-- Jedes Blatt trägt seinen Stempel (Revision + Datum) — später lässt sich ein Stapel gestempelter Blätter gegen den aktuellen Plan halten und überprüfen, ob noch alles gültig ist.
-
-### Cloud & Lese-Link
-
-*Datei → Cloud & Lese-Link…*
-
-![Cloud-Dialog](bilder/de/export-cloud-dialog.jpg)
-
-Plan in die Cloud speichern (optional), Revisionen verwalten, Lese-Link zum Öffnen in einem anderen Gerät erzeugen.
-
-**Voraussetzung:** Anmeldung an der Gerätebibliothek (unter *Einstellungen → Gerätebibliothek*).
-
-**Funktionen:**
-
-- **Jetzt speichern**: Der aktuelle Plan wird als neue Revision in die Cloud hochgeladen
-- **Revisionen**: Liste aller bisherigen Versionen (mit Änderungs-Fingerprint + Speicherzeitpunkt)
-  - Eine Revision kann wiederhergestellt werden (sie wird zur neuen obersten)
-  - Download: die Revision als .cp-Datei lokal speichern
-- **Lese-Links**: Externe Betrachter öffnen den Plan im Web-Viewer (read-only), ohne sich anzumelden
-  - Link erstellen: eigene Adresse eingeben
-  - Link kopieren (für E-Mail, Slack, Dokumentation)
-  - Link löschen (Zugriff widerrufen)
-  - Verfallsdatum setzen (optional)
-- **Andere Cloud-Projekte**: Existierende Cloud-Projekte anschauen, öffnen, herunterladen oder von der Cloud löschen
-
-**Datenschutz:**
-- Solange niemand „Jetzt speichern" drückt, verbleibt der Plan lokal.
-- Der Server fragt die Anmeldung ab — die Dateikennung ist device-spezifisch, nicht datei-spezifisch.
-
-### Export als Viewer-Datei
-
-*Datei → Export als Viewer-Datei…*
-
-Plan in das **`.cpviewer`-Format** exportieren. External Reviewer (Freelancer, andere Teams) können den Plan später im Web-Viewer öffnen, Anmerkungen einzeichnen und die Datei zurückmailen.
-
-(Aktion: direkter Download; kein Dialog)
-
-### Anmerkungen importieren
-
-*Datei → Anmerkungen importieren…*
-
-Eine `.cpviewer`-Datei mit Anmerkungen von einem Reviewer öffnen und die Markierungen / Kommentare in den aktuellen Plan mergen. Das ermöglicht einen Feedback-Workflow ohne direkte Cloud-Anbindung.
-
-(Aktion: Datei-Dialog öffnen; kein Upload an den Server)
-
-### Plan-Stände vergleichen
-
-*Datei → Plan-Stände vergleichen…*
-
-Zwei `.cp`-Dateien gegeneinander halten — z. B. die aktuelle Version gegen die Version von gestern, um Änderungen zu entdecken.
-
-- Gerät hinzugefügt/gelöscht
-- Kabel hinzugefügt/gelöscht/umgerouted
-- Port-Umbenennung
-- etc.
-
-Unterschiede werden visuell hervorgehoben, Details in einer Tabelle.
-
-### Ausgegebene Dokumente
-
-*Datei → Ausgegebene Dokumente…*
-
-Register aller Blätter, die bisher aus diesem Plan exportiert wurden. Warum? Damit sich ein Techniker morgen auf der Baustelle einen alten Ausdruck zu Hand nehmen und prüfen kann, ob er noch aktuell ist — oder ob der Plan seit damals gelaufen hat.
-
-**Spalten:**
-- **Zeitstempel**: Wann wurde es ausgegeben
-- **Blatt**: Welches Blatt (Patchliste, Plan-PDF, BOM, …)
-- **Änderungs-Fingerprint**: Eindeutige Kennung des Planstandes bei der Ausgabe
-- **Revision** (wenn Cloud): Revisions-Nummer bei Upload in die Cloud
-- **Bearbeiter**: Wer hat es ausgegeben (aus den Einstellungen)
-
-Das Register ist Teil des Projekts und wird mit gespeichert.
-
----
-
-© 2026 Lars Zumpe Medienproduktion · kostenlos nutzbar, proprietär lizenziert
 
 ---
 

@@ -27,4 +27,4 @@ do).
   then save to a file. The plan itself is unaffected.
 - Undo and redo cover the last 100 steps.
 
-![The canvas](../screenshots/hero.png)
+![The canvas](../../screenshots/hero.png)

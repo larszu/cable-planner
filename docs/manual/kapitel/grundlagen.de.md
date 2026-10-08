@@ -27,4 +27,4 @@ Ohne Installation läuft die Web-Ausgabe unter
   dann in eine Datei speichern. Der Plan selbst ist davon nicht betroffen.
 - Rückgängig und Wiederholen reichen 100 Schritte zurück.
 
-![Der Canvas](../screenshots/hero.png)
+![Der Canvas](../../screenshots/hero.png)

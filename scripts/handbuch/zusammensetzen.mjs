@@ -36,6 +36,16 @@ export const KAPITEL = [
 
 const AUSGABE = { de: ['handbuch.de.md', 'Inhalt'], en: ['manual.en.md', 'Contents'] }
 
+// Geplante Kapitel ohne Text in beiden Sprachen werden gemeldet und
+// uebersprungen statt das ganze Handbuch zu blockieren (#1049). Nur beide
+// Sprachen zusammen: sonst liefen die Kapitelnummern in DE und EN auseinander.
+const vorhanden = KAPITEL.filter((k) =>
+  Object.keys(AUSGABE).every((l) => existsSync(join(DIR, 'kapitel', `${k}.${l}.md`))),
+)
+for (const k of KAPITEL.filter((k) => !vorhanden.includes(k))) {
+  console.warn(`kapitel/${k}: noch kein Text in beiden Sprachen – übersprungen`)
+}
+
 for (const [sprache, [datei, inhalt]] of Object.entries(AUSGABE)) {
   // Der Kopf liegt in `kapitel/` und verlinkt deshalb mit `../` (sonst waere
   // der Link in der Quelle tot, tests/dokuErreichbar.test.ts); das fertige
@@ -43,8 +53,12 @@ for (const [sprache, [datei, inhalt]] of Object.entries(AUSGABE)) {
   const kopf = readFileSync(join(DIR, 'kapitel', `_kopf.${sprache}.md`), 'utf8').trim().replace(/\]\(\.\.\//g, '](')
   const titel = []
   const unter = []
-  const teile = KAPITEL.map((k, i) => {
-    const text = readFileSync(join(DIR, 'kapitel', `${k}.${sprache}.md`), 'utf8').trim()
+  const teile = vorhanden.map((k, i) => {
+    // Wie beim Kopf: aus `kapitel/` heraus zeigt `../` auf docs/manual, im
+    // fertigen Handbuch faellt es weg — sonst zeigen die Bilder ins Leere.
+    const text = readFileSync(join(DIR, 'kapitel', `${k}.${sprache}.md`), 'utf8').trim().replace(/\]\(\.\.\//g, '](')
+    const fehlend = [...text.matchAll(/!\[[^\]]*\]\(([^)\s]+)\)/g)].map((m) => m[1]).filter((b) => !existsSync(join(DIR, b)))
+    if (fehlend.length) console.warn(`kapitel/${k}.${sprache}.md: ${fehlend.length} Bilder noch nicht aufgenommen`)
     let nummeriert = false
     const mitNummer = text.replace(/^## +(.*)$/m, (_, t) => {
       nummeriert = true
@@ -79,6 +93,6 @@ writeFileSync(
   join(DIR, 'kapitel', 'README.md'),
   `# Handbuch-Kapitel\n\nQuelle des Benutzerhandbuchs. Hier bearbeiten, dann \`npm run manual:pdf\`.\n\n${[
     zeile('_kopf'),
-    ...KAPITEL.map(zeile),
+    ...KAPITEL.filter((k) => ['de', 'en'].some((l) => existsSync(join(DIR, 'kapitel', `${k}.${l}.md`)))).map(zeile),
   ].join('\n')}\n`,
 )
