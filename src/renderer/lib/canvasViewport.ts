@@ -269,3 +269,34 @@ export const routeAllCables = (): number => {
     return 0
   }
 }
+
+// #1035 — Werkzeugleiste und „Gerät suchen" schweben ueber dem oberen
+// Canvas-Rand und fangen dort die Klicks ab. Beide sind echte Bedienflaeche
+// (kein durchsichtiger Wrapper), `pointer-events: none` waere also falsch.
+// Stattdessen zaehlt der obere Streifen, den sie belegen, nicht zur freien
+// Flaeche: Einpassen und das Platzieren per Klick rechnen unterhalb davon.
+// Nur Ebenen, die in der oberen Haelfte beginnen, zaehlen — wer die Leiste
+// nach unten zieht, gibt den oberen Rand frei. Gekappt auf die halbe Hoehe,
+// damit eine niedrige Flaeche nicht auf null schrumpft.
+export const CANVAS_OVERLAY_ATTR = 'data-cp-canvas-overlay'
+
+export const overlayFreeTop = (
+  area: { top: number; height: number },
+  overlays: { top: number; bottom: number }[],
+): number => {
+  const half = area.height / 2
+  let top = 0
+  for (const o of overlays) {
+    if (o.top - area.top >= half) continue
+    top = Math.max(top, o.bottom - area.top)
+  }
+  return Math.min(Math.max(0, Math.round(top)), Math.floor(half))
+}
+
+export const measureOverlayFreeTop = (el: HTMLElement): number => {
+  const r = el.getBoundingClientRect()
+  const overlays = Array.from(el.querySelectorAll<HTMLElement>(`[${CANVAS_OVERLAY_ATTR}]`)).map((o) =>
+    o.getBoundingClientRect(),
+  )
+  return overlayFreeTop({ top: r.top, height: r.height }, overlays)
+}

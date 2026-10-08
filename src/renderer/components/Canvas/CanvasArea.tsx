@@ -10,6 +10,8 @@ import ReactFlow, {
   useReactFlow,
   useViewport,
   useUpdateNodeInternals,
+  getRectOfNodes,
+  getTransformForBounds,
   ConnectionMode,
   SelectionMode,
   BackgroundVariant,
@@ -70,7 +72,9 @@ import {
   setCanvasSelectAllHandler,
   triggerCanvasFitView,
   setCanvasCenterOnHandler,
+  measureOverlayFreeTop,
 } from '../../lib/canvasViewport'
+import { canArrangeInRack } from '../../lib/rackArrange'
 import { CanvasSearch } from './CanvasSearch'
 import { format, useTranslation } from '../../lib/i18n'
 import { useAtemTallyFeed } from '../../hooks/useAtemTallyFeed'
@@ -250,7 +254,9 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
       const el = wrapperRef.current
       if (!el) return null
       const r = el.getBoundingClientRect()
-      return screenToFlowPosition({ x: r.left + r.width / 2, y: r.top + r.height / 2 })
+      // #1035 — Mitte der FREIEN Flaeche, nicht unter Leiste und Suche.
+      const top = measureOverlayFreeTop(el)
+      return screenToFlowPosition({ x: r.left + r.width / 2, y: r.top + top + (r.height - top) / 2 })
     })
     return () => setViewportCenterGetter(null)
   }, [screenToFlowPosition])
@@ -323,9 +329,23 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
   // would leave devices outside the new viewport bounds and the user
   // reported "canvas verschwindet" because nodes scrolled off-screen.
   useEffect(() => {
-    setCanvasFitViewHandler(() => fitView({ padding: 0.1, duration: 250 }))
+    // #1035 — ReactFlow 11 kennt nur symmetrisches Padding; der Plan soll
+    // aber unter Werkzeugleiste und Suche beginnen. Deshalb wird in die
+    // freie Flaeche eingepasst und um deren oberen Rand verschoben.
+    setCanvasFitViewHandler(() => {
+      const el = wrapperRef.current
+      const nodes = getNodes().filter((n) => !n.hidden)
+      const top = el ? measureOverlayFreeTop(el) : 0
+      if (!el || nodes.length === 0 || top === 0) {
+        fitView({ padding: 0.1, duration: 250 })
+        return
+      }
+      const r = el.getBoundingClientRect()
+      const [x, y, zoom] = getTransformForBounds(getRectOfNodes(nodes), r.width, r.height - top, 0.1, 4, 0.1)
+      setViewport({ x, y: y + top, zoom }, { duration: 250 })
+    })
     return () => setCanvasFitViewHandler(null)
-  }, [fitView])
+  }, [fitView, getNodes, setViewport])
 
   // #ux — Canvas-Suche: auf ein Gerät zentrieren (Bridge wie fitView).
   useEffect(() => {
@@ -2397,6 +2417,20 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
             .map((n) => n.id)
           return vergleichsStreams(ausgewaehlt.includes(nodeContextMenu.nodeId) ? ausgewaehlt : [nodeContextMenu.nodeId], project.equipment)
         })()
+        // #1034 — „Im Rack-Builder anordnen" auch ohne Werkzeugleiste. Gilt
+        // wie das Datenblatt fuer die Auswahl, wenn der Knoten darin liegt.
+        const rackIds = (() => {
+          if (isLocation || mode !== 'main') return []
+          const ausgewaehlt = getNodes()
+            .filter((n) => n.selected && n.type === 'equipment')
+            .map((n) => n.id)
+          const ids = ausgewaehlt.includes(nodeContextMenu.nodeId) ? ausgewaehlt : [nodeContextMenu.nodeId]
+          return canArrangeInRack(ids, project.equipment) ? ids : []
+        })()
+        const arrangeInRack = () => {
+          useUiStore.getState().triggerRackBuilderFromSelection(rackIds)
+          setNodeContextMenu(null)
+        }
         const toggle = () => {
           if (isLocation) {
             updateLocation(nodeContextMenu.nodeId, { positionLocked: !isLocked })
@@ -2553,6 +2587,38 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
                   {scopeIds.length > 1
                     ? t('canvas.nodeMenu.compareScopes', 'Compare scopes')
                     : t('canvas.nodeMenu.scopes', 'Scopes…')}
+                </span>
+              </button>
+            )}
+            {rackIds.length > 0 && (
+              <button
+                type="button"
+                onClick={arrangeInRack}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  width: '100%',
+                  padding: '6px 10px',
+                  background: 'transparent',
+                  color: 'inherit',
+                  border: 'none',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = '#334155')}
+                onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+              >
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <rect x="3" y="2" width="10" height="12" />
+                  <path d="M3 5h10M3 8h10M3 11h10" />
+                </svg>
+                <span>
+                  {rackIds.length > 1
+                    ? format(t('canvas.nodeMenu.arrangeInRackMany', 'Arrange {count} devices in rack builder'), {
+                        count: rackIds.length,
+                      })
+                    : t('canvas.nodeMenu.arrangeInRack', 'Arrange in rack builder')}
                 </span>
               </button>
             )}

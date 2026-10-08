@@ -347,6 +347,7 @@ export const CanvasSearch = () => {
     return (
       <div
         ref={containerRef}
+        data-cp-canvas-overlay=""
         className={`pointer-events-auto absolute z-20 flex items-center gap-1 rounded-cp-control border border-cp-border bg-cp-surface-1 px-cp-2 py-cp-2 ${posClass}`}
         style={posStyle}
       >
@@ -371,6 +372,7 @@ export const CanvasSearch = () => {
   return (
     <div
       ref={containerRef}
+      data-cp-canvas-overlay=""
       className={`pointer-events-auto absolute z-20 w-80 rounded-cp-modal border border-cp-border bg-cp-surface-1 ${posClass}`}
       style={posStyle}
     >

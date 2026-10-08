@@ -1140,6 +1140,8 @@ export const de: Dict = {
   'datasheet.firstPhotoEach': 'Erstes Foto jedes Geräts',
   'datasheet.filledOf': 'ausgefüllt bei {n} von {m}',
   'canvas.nodeMenu.datasheet': 'Geräte-Datenblatt…',
+  'canvas.nodeMenu.arrangeInRack': 'Im Rack-Builder anordnen',
+  'canvas.nodeMenu.arrangeInRackMany': '{count} Geräte im Rack-Builder anordnen',
   'inlineToolbar.datasheet': 'Geräte-Datenblatt (A4-PDF / Druck)',
   'export.patch.datasheetTitle': 'Geräte-Datenblatt: Fotos und gewählte Eigenschaften, eine A4-Seite je Gerät',
   'export.patch.datasheetBtn': 'Datenblätter ({n})…',
