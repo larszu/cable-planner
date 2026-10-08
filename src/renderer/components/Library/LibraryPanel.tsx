@@ -155,6 +155,7 @@ export const LibraryPanel = () => {
       items,
       `__seed-${Date.now().toString(36)}`,
       'Neues Rack aus Auswahl',
+      useProjectStore.getState().project.cables,
     )
     if (!synthesized) {
       clearRackBuilderSeedTrigger()
