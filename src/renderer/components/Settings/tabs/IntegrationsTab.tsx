@@ -13,6 +13,8 @@ import {
   getApiKey,
   setApiKey,
   getSelectedAiProvider,
+  getClaudeWorkspaceId,
+  setClaudeWorkspaceId,
   setSelectedAiProvider,
   listAiProviders,
   type AiProvider,
@@ -121,6 +123,7 @@ const AiProvidersCard = () => {
     claude: getApiKey('claude'),
     openai: getApiKey('openai'),
   }))
+  const [workspaceId, setWorkspaceId] = useState(() => getClaudeWorkspaceId())
   const [saved, setSaved] = useState<Partial<Record<AiProvider, boolean>>>({})
   const [revealed, setRevealed] = useState<Partial<Record<AiProvider, boolean>>>({})
 
@@ -130,6 +133,10 @@ const AiProvidersCard = () => {
   }
   const handleSave = (p: AiProvider) => {
     setApiKey(p, keys[p].trim())
+    if (p === 'claude') setClaudeWorkspaceId(workspaceId.trim())
+    // Wer einen Schluessel speichert, will diesen Anbieter benutzen — die
+    // Auswahl getrennt anklicken zu muessen war die Stolperstelle.
+    if (keys[p].trim()) handleSelect(p)
     setSaved((s) => ({ ...s, [p]: true }))
     window.setTimeout(() => setSaved((s) => ({ ...s, [p]: false })), 2000)
   }
@@ -185,6 +192,9 @@ const AiProvidersCard = () => {
                   type={revealed[id] ? 'text' : 'password'}
                   value={keys[id]}
                   onChange={(e) => setKeys((k) => ({ ...k, [id]: e.target.value }))}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleSave(id)
+                  }}
                   placeholder={
                     id === 'gemini'
                       ? 'AIza…'
@@ -222,6 +232,25 @@ const AiProvidersCard = () => {
                   </button>
                 )}
               </div>
+              {id === 'claude' && (
+                <label className="mt-2 block text-cp-xs text-cp-text-muted">
+                  {t(
+                    'settings.integrations.ai.claudeWorkspace',
+                    'Workspace ID (only if the API asks for it)',
+                  )}
+                  <input
+                    type="text"
+                    value={workspaceId}
+                    onChange={(e) => setWorkspaceId(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleSave(id)
+                    }}
+                    placeholder="wrkspc_…"
+                    className="mt-1 block w-full border border-cp-border bg-cp-surface-3 p-1.5 font-mono text-cp-xs"
+                    autoComplete="off"
+                  />
+                </label>
+              )}
               <div className="mt-1 flex items-center justify-between text-cp-xs text-cp-text-muted">
                 <span>
                   Model: <span className="font-mono">{config.defaultModel}</span>

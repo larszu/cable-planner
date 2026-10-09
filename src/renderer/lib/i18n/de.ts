@@ -5400,6 +5400,7 @@ export const de: Dict = {
     'Der unten gewählte Anbieter. Braucht einen API-Schlüssel. Es nennt sich selbst als Urheber, aber keine Fundstelle.',
   'settings.integrations.ai.active': 'Aktiv',
   'settings.integrations.ai.createKey': 'Key erstellen',
+  'settings.integrations.ai.claudeWorkspace': 'Workspace-ID (nur wenn die API danach fragt)',
   'settings.integrations.keyStored': 'Schlüssel',
   'settings.integrations.ai.saved': 'gespeichert',
   'settings.integrations.aiDesc':

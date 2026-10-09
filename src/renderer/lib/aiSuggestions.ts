@@ -29,6 +29,7 @@ const STORAGE_PROVIDER_SELECTED = 'cable-planner:ai-provider'
 const STORAGE_KEY_GEMINI = STORAGE_KEYS.geminiApiKey
 const STORAGE_KEY_CLAUDE = 'cable-planner:claude-api-key'
 const STORAGE_KEY_OPENAI = 'cable-planner:openai-api-key'
+const STORAGE_KEY_CLAUDE_WORKSPACE = 'cable-planner:claude-workspace-id'
 
 const CONNECTOR_VALUES = ALL_CONNECTOR_TYPES
 const STANDARD_VALUES = ALL_SIGNAL_STANDARDS
@@ -122,6 +123,32 @@ export const setApiKey = (provider: AiProvider, key: string): void => {
   try {
     if (key) localStorage.setItem(PROVIDERS[provider].storageKey, key)
     else localStorage.removeItem(PROVIDERS[provider].storageKey)
+  } catch {
+    /* ignore */
+  }
+}
+
+/**
+ * Workspace-ID fuer Claude-Schluessel, die keinem Workspace zugeordnet sind.
+ *
+ * Gemeldet 2026-10-09: „Claude API 400: This API key is not scoped to a
+ * workspace, so this request must include the anthropic-workspace-id
+ * header". Solche Schluessel gelten fuer die ganze Organisation; die API
+ * verlangt dann bei jeder Anfrage, welcher Workspace gemeint ist. Leer
+ * heisst: kein Header — der Normalfall fuer Workspace-Schluessel.
+ */
+export const getClaudeWorkspaceId = (): string => {
+  try {
+    return localStorage.getItem(STORAGE_KEY_CLAUDE_WORKSPACE) ?? ''
+  } catch {
+    return ''
+  }
+}
+
+export const setClaudeWorkspaceId = (id: string): void => {
+  try {
+    if (id) localStorage.setItem(STORAGE_KEY_CLAUDE_WORKSPACE, id)
+    else localStorage.removeItem(STORAGE_KEY_CLAUDE_WORKSPACE)
   } catch {
     /* ignore */
   }
@@ -274,6 +301,7 @@ const callClaude = async (apiKey: string, prompt: string, images: string[] = [])
   const base = override?.base ?? 'https://api.anthropic.com/v1'
   const model = override?.model ?? PROVIDERS.claude.defaultModel
   const url = `${base}/messages`
+  const workspaceId = getClaudeWorkspaceId().trim()
   const body = {
     model,
     max_tokens: 4096,
@@ -303,11 +331,19 @@ const callClaude = async (apiKey: string, prompt: string, images: string[] = [])
       // CORS-Safe-Header-Flag damit der Browser ohne Backend-Proxy direkt
       // ansprechen kann (Anthropic erlaubt das mit einem expliziten Opt-In).
       'anthropic-dangerous-direct-browser-access': 'true',
+      ...(workspaceId ? { 'anthropic-workspace-id': workspaceId } : {}),
     },
     body: JSON.stringify(body),
   })
   if (!res.ok) {
     const text = await res.text().catch(() => '')
+    if (text.includes('anthropic-workspace-id')) {
+      throw new Error(
+        workspaceId
+          ? `Claude API ${res.status}: the workspace ID you entered was not accepted. Check it in the Anthropic Console under Settings → Workspaces.`
+          : `Claude API ${res.status}: this key is not scoped to a workspace. Enter the workspace ID under Settings → Integrations → Anthropic Claude (Anthropic Console → Settings → Workspaces, starts with wrkspc_), or create the key inside a workspace.`,
+      )
+    }
     throw new Error(`Claude API ${res.status}: ${text.slice(0, 200)}`)
   }
   const json = (await res.json()) as {
