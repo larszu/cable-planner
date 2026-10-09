@@ -22,16 +22,20 @@
  * carry over from the shared index.css.
  */
 
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import {
   AlertTriangle,
   ArrowRight,
   Cable,
   Camera,
   Check,
+  ChevronLeft,
   FolderOpen,
+  KeyRound,
   House,
   Loader2,
+  MessageSquareWarning,
+  MonitorCheck,
   RotateCcw,
   Send,
   Signal,
@@ -396,15 +400,16 @@ const ProjectPicker = ({
   }
 
   return (
-    <div className="mx-auto max-w-md space-y-4 p-4">
-      <header className="text-center">
-        <div className="flex justify-center text-cp-text-secondary">
-          <Icon icon={Cable} size={28} />
+    <div className="mx-auto w-full max-w-md space-y-4 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-6">
+      <header>
+        <div className="flex items-center gap-2 border-b border-cp-border pb-2 text-cp-xs font-bold uppercase tracking-[0.18em] text-cp-text-muted">
+          <Icon icon={Cable} size="sm" />
+          LZ Cable Planner
         </div>
-        <h1 className="mt-1 text-lg font-semibold text-cp-text">
-          LZ Cable Planner — Mobile
+        <h1 className="mt-4 text-3xl font-black tracking-tight text-cp-text-bright text-balance">
+          {t('mobile.picker.title', 'On site')}
         </h1>
-        <p className="mt-1 text-xs text-cp-text-muted">
+        <p className="mt-2 text-sm text-cp-text text-pretty">
           {t(
             'mobile.intro',
             'Tick off ports and cables while you patch them, or add missing patches right ' +
@@ -417,7 +422,7 @@ const ProjectPicker = ({
         type="button"
         onClick={reloadFromHost}
         disabled={reloading}
-        className="inline-flex w-full items-center justify-center gap-2 bg-emerald-700 px-3 py-3 text-sm font-semibold text-white hover:bg-emerald-600 disabled:opacity-50"
+        className="inline-flex min-h-13 w-full items-center justify-center gap-2 bg-cp-accent px-4 text-base font-semibold text-cp-accent-text hover:opacity-90 disabled:opacity-50"
         title={
           cached
             ? format(
@@ -440,7 +445,7 @@ const ProjectPicker = ({
             : t('mobile.reload.fresh', 'Load project from the desktop')}
       </button>
       {reloadError && (
-        <div className="flex items-center gap-1.5 border border-amber-700 bg-amber-900/30 p-2 text-cp-xs text-amber-200">
+        <div className="flex items-center gap-1.5 border border-cp-warn bg-cp-warn/10 p-2 text-cp-xs text-cp-text">
           <Icon icon={AlertTriangle} size="xs" />
           {reloadError}
         </div>
@@ -448,7 +453,7 @@ const ProjectPicker = ({
       <div className="text-center text-cp-xs uppercase tracking-wider text-cp-text-faint">
         {t('mobile.or', 'or')}
       </div>
-      <label className="block border border-dashed border-cp-border bg-cp-surface-1 p-4 text-center text-sm text-cp-text-secondary">
+      <label className="flex min-h-13 cursor-pointer items-center justify-center border border-cp-border bg-cp-surface-1 px-4 text-center text-sm text-cp-text hover:bg-cp-surface-2">
         <input
           type="file"
           accept=".json,application/json"
@@ -464,7 +469,7 @@ const ProjectPicker = ({
         <button
           type="button"
           onClick={() => setPasteOpen((v) => !v)}
-          className="text-xs text-cp-text-muted underline hover:text-cp-text"
+          className="min-h-11 px-3 text-sm text-cp-text-muted underline hover:text-cp-text"
         >
           {pasteOpen
             ? t('mobile.paste.cancel', 'Cancel pasting')
@@ -477,20 +482,20 @@ const ProjectPicker = ({
             value={pasted}
             onChange={(e) => setPasted(e.target.value)}
             rows={8}
-            className="w-full border border-cp-border bg-cp-bg p-2 font-mono text-xs text-cp-text"
+            className="w-full border border-cp-border bg-cp-surface-1 p-2 font-mono text-sm text-cp-text"
             placeholder="{ ... cable-planner project json ... }"
           />
           <button
             type="button"
             onClick={() => tryParse(pasted)}
-            className="w-full bg-cp-accent px-3 py-2 text-sm text-white hover:opacity-90"
+            className="min-h-11 w-full bg-cp-accent px-3 text-sm font-semibold text-cp-accent-text hover:opacity-90"
           >
             {t('mobile.paste.load', 'Load project')}
           </button>
         </div>
       )}
       {error && (
-        <div className="border border-red-700 bg-red-950 p-3 text-xs text-red-200">
+        <div className="border border-cp-danger bg-cp-danger/10 p-3 text-xs text-cp-text">
           {error}
         </div>
       )}
@@ -604,15 +609,15 @@ const DeviceCard = ({
       }`}
       onToggle={(e) => onOpenChange?.(device.id, (e.target as HTMLDetailsElement).open)}
     >
-      <summary className="flex cursor-pointer items-center gap-2 px-3 py-2 text-sm">
-        <span className="flex-1 truncate font-medium text-cp-text">{device.name}</span>
-        <span className="text-cp-xs text-cp-text-muted">
+      <summary className="flex min-h-13 cursor-pointer items-center gap-2 px-3 py-2 text-base">
+        <span className="min-w-0 flex-1 truncate font-semibold text-cp-text-bright">{device.name}</span>
+        <span className="hidden truncate text-cp-xs text-cp-text-muted min-[400px]:inline">
           {device.category}
         </span>
         <span
           className={`shrink-0 px-1.5 py-0.5 text-cp-xs ${
             checkedPorts === totalPorts && totalPorts > 0
-              ? 'bg-emerald-700 text-emerald-50'
+              ? 'bg-emerald-700 text-cp-text'
               : 'bg-cp-surface-4 text-cp-text'
           }`}
         >
@@ -921,14 +926,14 @@ const PortList = ({
               <button
                 type="button"
                 onClick={() => onTogglePort(deviceId, p.id)}
-                className={`flex w-full items-start gap-2 border px-2 py-2 text-left ${
+                className={`flex min-h-13 w-full items-start gap-3 border px-3 py-2.5 text-left ${
                   checked
-                    ? 'border-emerald-700 bg-emerald-900/30 text-emerald-100'
+                    ? 'border-emerald-700 bg-emerald-600/15 text-cp-text'
                     : 'border-cp-border-muted bg-cp-bg text-cp-text hover:border-cp-border'
                 } ${highlighted ? 'ring-2 ring-cp-accent' : ''}`}
               >
                 <span
-                  className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center ${
+                  className={`flex h-6 w-6 shrink-0 items-center justify-center ${
                     checked ? 'bg-emerald-600 text-white' : 'border border-cp-border bg-cp-surface-1'
                   }`}
                 >
@@ -951,27 +956,27 @@ const PortList = ({
                       end of THIS cable goes to. Was previously truncated
                       and too small to be useful on a phone. */}
                   {cable && otherDevice && (
-                    <span className="mt-1 block bg-cp-accent/60 px-2 py-1 text-xs text-cp-accent">
-                      <span className="inline-flex items-center gap-1 text-cp-xs uppercase tracking-wide text-cp-accent/80">
+                    <span className="mt-1 block border-l-2 border-cp-text-bright bg-cp-surface-2 px-2 py-1 text-xs text-cp-text">
+                      <span className="inline-flex items-center gap-1 text-cp-xs uppercase tracking-wide text-cp-text-muted">
                         <Icon icon={ArrowRight} size="xs" />
                         {t('mobile.port.goesTo', 'goes to')}
                       </span>
-                      <span className="ml-1 font-semibold text-white">
+                      <span className="ml-1 font-semibold text-cp-text-bright">
                         {otherDevice.name}
                       </span>
                       {otherPort && (
                         <>
-                          <span className="mx-1 text-cp-accent">·</span>
+                          <span className="mx-1 text-cp-text-muted">·</span>
                           <span>{portDisplayLabel(otherPort)}</span>
                           {otherPort.connectorType && (
-                            <span className="ml-1 text-cp-xs text-cp-accent/80">
+                            <span className="ml-1 text-cp-xs text-cp-text-muted">
                               ({otherPort.connectorType})
                             </span>
                           )}
                         </>
                       )}
                       {bridgeNames.length > 0 && (
-                        <span className="mt-0.5 block text-cp-xs text-cp-accent/80">
+                        <span className="mt-0.5 block text-cp-xs text-cp-text-muted">
                           {format(t('mobile.port.via', 'via {path}'), {
                             path: bridgeNames.join(' → '),
                           })}
@@ -1092,7 +1097,7 @@ const QrFindOverlay = ({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-cp-bg/95 p-4">
+    <div className="fixed inset-0 z-[301] flex flex-col overflow-y-auto bg-cp-bg p-4 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))]">
       <div className="mb-3 flex items-center justify-between">
         <h2 className="flex items-center gap-2 text-sm font-semibold text-cp-text">
           <Icon icon={QrCode} size="sm" /> {t('mobile.qr.title', 'Find QR / ID')}
@@ -1100,7 +1105,7 @@ const QrFindOverlay = ({
         <button
           type="button"
           onClick={onClose}
-          className="bg-cp-surface-3 p-1.5 text-cp-text-secondary hover:bg-cp-surface-4"
+          className="flex h-11 w-11 shrink-0 items-center justify-center bg-cp-surface-3 text-cp-text-secondary hover:bg-cp-surface-4"
           aria-label={t('mobile.close', 'Close')}
         >
           <Icon icon={X} size="sm" />
@@ -1109,15 +1114,15 @@ const QrFindOverlay = ({
 
       {canScan ? (
         <div className="relative mb-3 overflow-hidden border border-cp-border bg-black">
-          <video ref={videoRef} className="h-56 w-full object-cover" muted playsInline />
-          <div className="pointer-events-none absolute inset-0 m-auto h-40 w-40 border-2 border-cp-accent/80" />
+          <video ref={videoRef} className="aspect-[4/3] max-h-[50dvh] w-full object-cover" muted playsInline />
+          <div className="pointer-events-none absolute inset-0 m-auto h-40 w-40 border-2 border-white/80" />
           {laedt && (
             <div className="absolute inset-x-0 top-0 bg-cp-surface-1/90 px-2 py-1 text-cp-xs text-cp-text-secondary">
               {t('mobile.qr.loadingDecoder', 'Loading the scanner…')}
             </div>
           )}
           {camError && (
-            <div className="absolute inset-x-0 bottom-0 bg-amber-900/80 px-2 py-1 text-cp-xs text-amber-100">
+            <div className="absolute inset-x-0 bottom-0 bg-black/70 px-2 py-1 text-cp-xs text-white">
               {camError}
             </div>
           )}
@@ -1142,12 +1147,12 @@ const QrFindOverlay = ({
           }}
           autoFocus={!canScan}
           placeholder={t('mobile.lookup.placeholder', 'e.g. C-0001, A-0007 or cableplanner://…')}
-          className="flex-1 border border-cp-border bg-cp-surface-1 px-2 py-2 text-sm text-cp-text"
+          className="min-h-11 min-w-0 flex-1 border border-cp-border bg-cp-surface-1 px-3 text-base text-cp-text"
         />
         <button
           type="button"
           onClick={submitText}
-          className="flex items-center gap-1 bg-cp-accent px-3 py-2 text-xs text-white hover:opacity-90"
+          className="flex min-h-11 shrink-0 items-center gap-1 bg-cp-accent px-4 text-sm font-semibold text-cp-accent-text hover:opacity-90"
         >
           <Icon icon={Search} size="sm" /> {t('mobile.qr.find', 'Find')}
         </button>
@@ -1252,7 +1257,7 @@ const AblaufKarte = ({
           {/* Der Balken. Er steht NUR da, wenn es einen Vergleichsstand gibt
               und wirklich etwas anders ist. */}
           {diff && !diff.unveraendert && (
-            <div className="border border-amber-500/50 bg-amber-500/10 px-2 py-1 text-cp-xs text-amber-200">
+            <div className="border border-cp-warn bg-cp-warn/10 px-2 py-1 text-cp-xs text-cp-text">
               {t('mobile.rundown.sinceLast', 'Since your last look:')}{' '}
               {[
                 diff.geaendert > 0
@@ -1307,7 +1312,7 @@ const AblaufKarte = ({
                   key={z.segment.id}
                   className={` border px-2 py-1 ${
                     art === 'anders' || art === 'neu'
-                      ? 'border-amber-500/50 bg-amber-500/10'
+                      ? 'border-cp-warn bg-cp-warn/10'
                       : 'border-cp-border-muted bg-cp-surface-1'
                   }`}
                 >
@@ -1317,12 +1322,12 @@ const AblaufKarte = ({
                     </span>
                     <span className="text-xs text-cp-text">{z.segment.title}</span>
                     {art === 'neu' && (
-                      <span className="text-cp-xs text-amber-300">
+                      <span className="text-cp-xs text-cp-text">
                         {t('mobile.rundown.tagNew', 'new')}
                       </span>
                     )}
                     {art === 'anders' && (
-                      <span className="text-cp-xs text-amber-300">
+                      <span className="text-cp-xs text-cp-text">
                         {t('mobile.rundown.tagChanged', 'changed')}
                       </span>
                     )}
@@ -1365,12 +1370,42 @@ const AblaufKarte = ({
   )
 }
 
+/** Ein Werkzeug der Patchliste: Symbol ueber Wort, 52 px hoch. */
+const WerkzeugKnopf = ({
+  icon,
+  label,
+  title,
+  onClick,
+  primaer = false,
+}: {
+  icon: typeof QrCode
+  label: string
+  title: string
+  onClick: () => void
+  primaer?: boolean
+}) => (
+  <button
+    type="button"
+    onClick={onClick}
+    title={title}
+    className={`flex min-h-13 flex-col items-center justify-center gap-1 px-1 py-1.5 text-cp-xs font-semibold ${
+      primaer
+        ? 'bg-cp-accent text-cp-accent-text hover:opacity-90'
+        : 'border border-cp-border-muted bg-cp-surface-1 text-cp-text hover:bg-cp-surface-2'
+    }`}
+  >
+    <Icon icon={icon} size="sm" />
+    <span className="max-w-full truncate">{label}</span>
+  </button>
+)
+
 const ProjectView = ({
   project,
   online,
   cachedAt,
   writeMode,
   onUnload,
+  werkzeuge,
 }: {
   project: CablePlannerProject
   online?: boolean
@@ -1399,6 +1434,8 @@ const ProjectView = ({
    */
   writeMode: 'read-only' | 'contribute'
   onUnload: () => void
+  /** Verbindung + Zugangscodes — stehen im Kopf rechts, im Fluss. */
+  werkzeuge?: ReactNode
 }) => {
   const projectName = project.metadata?.name || 'cable-planner'
   // BEDARF 127 — die Show, an der dieses Handy gerade haengt. Der Name taugt
@@ -1664,20 +1701,21 @@ const ProjectView = ({
   )
 
   return (
-    <div className="mx-auto max-w-md p-3">
-      <header className="sticky top-0 z-10 -mx-3 mb-3 border-b border-cp-border-muted bg-cp-bg/95 px-3 py-2 backdrop-blur">
+    <div className="mx-auto w-full max-w-2xl px-3 pb-[max(1rem,env(safe-area-inset-bottom))]">
+      <header className="sticky top-0 z-10 -mx-3 mb-3 [@media(max-height:30rem)]:static border-b border-cp-border-muted bg-cp-bg/95 px-3 pb-2 pt-[max(0.5rem,env(safe-area-inset-top))] backdrop-blur">
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={onUnload}
-            className="bg-cp-surface-3 px-2 py-1 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-4"
+            className="flex h-11 w-11 shrink-0 items-center justify-center text-cp-text-secondary hover:bg-cp-surface-2"
             title={t('mobile.header.otherProject', 'Load a different project')}
+            aria-label={t('mobile.header.otherProject', 'Load a different project')}
           >
-            ◀
+            <Icon icon={ChevronLeft} size="md" />
           </button>
           <div className="min-w-0 flex-1">
-            <h1 className="truncate text-sm font-semibold text-cp-text">{projectName}</h1>
-            <div className="text-cp-xs text-cp-text-muted">
+            <h1 className="truncate text-base font-extrabold text-cp-text-bright">{projectName}</h1>
+            <div className="truncate text-cp-xs text-cp-text-muted">
               {format(t('mobile.header.counts', '{devices} devices · {cables} cables'), {
                 devices: project.equipment.length,
                 cables: project.cables.length,
@@ -1686,9 +1724,9 @@ const ProjectView = ({
               <span
                 className={
                   checkedPorts === totalPorts
-                    ? 'text-emerald-300'
+                    ? 'text-cp-text'
                     : checkedPorts > 0
-                      ? 'text-amber-300'
+                      ? 'text-cp-text'
                       : 'text-cp-text-faint'
                 }
               >
@@ -1699,10 +1737,12 @@ const ProjectView = ({
               </span>
             </div>
           </div>
+          {werkzeuge}
         </div>
         {/* #180 — Modus-Umschalter: Patchliste ↔ Plan ↔ (Bedarf 10) Ablauf */}
         <div
-          className={`mt-2 grid gap-1 bg-cp-surface-1 p-0.5 ${
+          role="tablist"
+          className={`mt-2 grid gap-1 border border-cp-border-muted bg-cp-surface-3 p-1 ${
             hatAblauf ? 'grid-cols-3' : 'grid-cols-2'
           }`}
         >
@@ -1711,9 +1751,13 @@ const ProjectView = ({
               <button
                 key={m}
                 type="button"
+                role="tab"
+                aria-selected={viewMode === m}
                 onClick={() => setViewMode(m)}
-                className={` px-2 py-1 text-cp-xs font-medium ${
-                  viewMode === m ? 'bg-cp-accent text-white' : 'text-cp-text-secondary hover:bg-cp-surface-3'
+                className={`min-h-11 px-2 text-sm font-semibold ${
+                  viewMode === m
+                    ? 'bg-cp-accent text-cp-accent-text'
+                    : 'text-cp-text-secondary hover:bg-cp-surface-2'
                 }`}
               >
                 {m === 'list'
@@ -1726,80 +1770,82 @@ const ProjectView = ({
           )}
         </div>
         {viewMode === 'list' && (
-        <div className="mt-2 flex items-center gap-2">
-          <input
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            placeholder={t('mobile.search', 'Search…')}
-            className="flex-1 border border-cp-border bg-cp-surface-1 px-2 py-1 text-xs text-cp-text"
-          />
-          <label className="flex items-center gap-1 text-cp-xs text-cp-text-secondary">
-            <input
-              type="checkbox"
-              checked={onlyOpen}
-              onChange={(e) => setOnlyOpen(e.target.checked)}
-            />
-            {t('mobile.filter.open', 'open')}
-          </label>
-          <button
-            type="button"
-            onClick={() => setFindOpen(true)}
-            className="flex items-center bg-cp-surface-3 px-2 py-1 text-cp-xs text-cp-text hover:bg-cp-surface-4"
-            title={t('mobile.find.title', 'Jump to a cable or device by QR scan or ID')}
-          >
-            <Icon icon={QrCode} size="xs" />
-          </button>
-          {/* Der Rundgang steht AUCH im Nur-Lesen-Modus zur Verfuegung: die
-              Erwartung abzulesen ist harmlos, und wer nicht melden darf, sieht
-              das im Rundgang selbst statt einen fehlenden Knopf zu suchen. */}
-          <button
-            type="button"
-            onClick={() => setWalkOpen(true)}
-            className="bg-cp-surface-3 px-2 py-1 text-cp-xs text-cp-text hover:bg-cp-surface-4"
-            title={t('mobile.walk.title', 'Test-pattern walk: which image should arrive where')}
-          >
-            {t('mobile.walk.button', 'Pattern')}
-          </button>
-          {writeMode === 'contribute' && (
-            <button
-              type="button"
-              onClick={() => setShowReport(true)}
-              className="bg-cp-surface-3 px-2 py-1 text-cp-xs text-amber-300 hover:bg-cp-surface-4"
-              title={t('mobile.report.title', 'Report a correction or problem (field feedback)')}
-            >
-              {t('mobile.report.button', 'Report')}
-            </button>
-          )}
-          {/* #884 — Foto vom Telefon in den Plan. Nur im Mitschreib-Modus:
-              ein Bild ist eine Aenderung am Plan wie jede andere. */}
-          {writeMode === 'contribute' && (
-            <button
-              type="button"
-              onClick={() => setShowFoto(true)}
-              className="bg-cp-surface-3 px-2 py-1 text-cp-xs text-cp-text hover:bg-cp-surface-4"
-              title={t('mobile.foto.title', 'Add a photo for the documentation')}
-            >
-              <Icon icon={Camera} size="xs" />
-            </button>
-          )}
-          {writeMode === 'contribute' && (
-          <button
-            type="button"
-            onClick={() => setShowAddCable(true)}
-            className="bg-cp-accent px-2 py-1 text-cp-xs text-white hover:opacity-90"
-            title={t('mobile.addCable.title', 'Add a cable on site (dropdowns)')}
-          >
-            {t('mobile.addCable.button', '+ Cable')}
-          </button>
-          )}
-        </div>
+          <>
+            <div className="mt-2 flex items-stretch gap-2">
+              <input
+                type="search"
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+                placeholder={t('mobile.search', 'Search…')}
+                aria-label={t('mobile.search', 'Search…')}
+                className="min-h-11 min-w-0 flex-1 border border-cp-border bg-cp-surface-1 px-3 text-base text-cp-text"
+              />
+              <label className="flex min-h-11 shrink-0 cursor-pointer items-center gap-2 border border-cp-border px-3 text-sm text-cp-text-secondary has-[:checked]:bg-cp-surface-2 has-[:checked]:text-cp-text-bright">
+                <input
+                  type="checkbox"
+                  checked={onlyOpen}
+                  onChange={(e) => setOnlyOpen(e.target.checked)}
+                  className="h-5 w-5"
+                />
+                {t('mobile.filter.open', 'open')}
+              </label>
+            </div>
+            {/* Eine Reihe gleich grosser Werkzeuge, Symbol ueber Wort. Bis
+                2026-10-09 standen bis zu sechs 32-px-Knoepfe in EINER Zeile
+                mit Suche und Filter; auf 390 px ragte „+ Kabel" ueber den
+                Rand und „Pruefbild"/„Meldung" waren abgeschnitten. */}
+            <div className="mt-2 grid grid-cols-[repeat(auto-fit,minmax(3.5rem,1fr))] gap-1">
+              <WerkzeugKnopf
+                icon={QrCode}
+                label={t('mobile.find.button', 'Find')}
+                title={t('mobile.find.title', 'Jump to a cable or device by QR scan or ID')}
+                onClick={() => setFindOpen(true)}
+              />
+              {/* Der Rundgang steht AUCH im Nur-Lesen-Modus zur Verfuegung: die
+                  Erwartung abzulesen ist harmlos, und wer nicht melden darf, sieht
+                  das im Rundgang selbst statt einen fehlenden Knopf zu suchen. */}
+              <WerkzeugKnopf
+                icon={MonitorCheck}
+                label={t('mobile.walk.button', 'Pattern')}
+                title={t('mobile.walk.title', 'Test-pattern walk: which image should arrive where')}
+                onClick={() => setWalkOpen(true)}
+              />
+              {writeMode === 'contribute' && (
+                <WerkzeugKnopf
+                  icon={MessageSquareWarning}
+                  label={t('mobile.report.button', 'Report')}
+                  title={t('mobile.report.title', 'Report a correction or problem (field feedback)')}
+                  onClick={() => setShowReport(true)}
+                />
+              )}
+              {/* #884 — Foto vom Telefon in den Plan. Nur im Mitschreib-Modus:
+                  ein Bild ist eine Aenderung am Plan wie jede andere. */}
+              {writeMode === 'contribute' && (
+                <WerkzeugKnopf
+                  icon={Camera}
+                  label={t('mobile.foto.button', 'Photo')}
+                  title={t('mobile.foto.title', 'Add a photo for the documentation')}
+                  onClick={() => setShowFoto(true)}
+                />
+              )}
+              {writeMode === 'contribute' && (
+                <WerkzeugKnopf
+                  icon={Cable}
+                  label={t('mobile.addCable.button', '+ Cable')}
+                  title={t('mobile.addCable.title', 'Add a cable on site (dropdowns)')}
+                  onClick={() => setShowAddCable(true)}
+                  primaer
+                />
+              )}
+            </div>
+          </>
         )}
         {lookupMsg && (
           <div
             className={`mt-2 px-2 py-1 text-cp-xs ${
               lookupMsg.ok
                 ? 'border border-cp-accent/60 bg-cp-accent/30 text-cp-accent'
-                : 'border border-amber-700/60 bg-amber-900/30 text-amber-200'
+                : 'border border-cp-warn bg-cp-warn/10 text-cp-text'
             }`}
           >
             {lookupMsg.ok ? '📍 ' : ''}
@@ -1811,7 +1857,7 @@ const ProjectView = ({
             Amber, damit der User weiß dass seine Checks gerade nur
             lokal sind und beim Re-Connect automatisch syncen. */}
         {online === false && (
-          <div className="mt-2 flex items-start gap-1.5 border border-amber-700/60 bg-amber-900/30 px-2 py-1 text-cp-xs text-amber-200">
+          <div className="mt-2 flex items-start gap-1.5 border border-cp-warn bg-cp-warn/10 px-2 py-1 text-cp-xs text-cp-text">
             <Icon icon={AlertTriangle} size="xs" className="mt-0.5 shrink-0" />
             <span>
               {format(
@@ -2052,13 +2098,15 @@ const Zugangscodes = () => {
       <button
         type="button"
         onClick={() => setOffen(true)}
-        className="fixed right-3 top-12 z-[300] flex items-center gap-1 border border-cp-border bg-cp-surface-3/90 px-2.5 py-1 text-cp-xs text-cp-text backdrop-blur"
+        className="flex min-h-11 min-w-11 items-center justify-center gap-1.5 border border-cp-border px-2.5 text-cp-xs text-cp-text hover:bg-cp-surface-2"
         title={t('mobile.pin.title', 'System access codes')}
+        aria-label={t('mobile.pin.button', 'Access codes')}
       >
-        {t('mobile.pin.button', 'Access codes')}
+        <Icon icon={KeyRound} size="sm" />
+        <span className="hidden sm:inline">{t('mobile.pin.button', 'Access codes')}</span>
       </button>
       {offen && (
-        <div className="fixed inset-0 z-[301] flex items-end justify-center bg-black/60 p-3" onClick={schliessen}>
+        <div className="fixed inset-0 z-[301] flex items-end justify-center bg-cp-bg/70 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-sm" onClick={schliessen}>
           <div
             className="w-full max-w-md border border-cp-border bg-cp-surface-1 p-3 text-cp-text"
             onClick={(e) => e.stopPropagation()}
@@ -2086,7 +2134,7 @@ const Zugangscodes = () => {
                   placeholder={t('mobile.pin.placeholder', 'Code from the planner')}
                   className="mb-2 w-full border border-cp-border bg-cp-surface-2 px-2 py-1.5 font-mono text-sm tracking-widest"
                 />
-                {fehler && <div className="mb-2 text-cp-xs text-red-300">{fehler}</div>}
+                {fehler && <div className="mb-2 text-cp-xs text-cp-text">{fehler}</div>}
                 <div className="flex justify-end gap-2">
                   <button type="button" onClick={schliessen} className="px-3 py-1.5 text-sm">
                     {t('mobile.cancel', 'Cancel')}
@@ -2095,7 +2143,7 @@ const Zugangscodes = () => {
                     type="button"
                     onClick={hole}
                     disabled={laeuft || code.trim() === ''}
-                    className="bg-sky-700 px-3 py-1.5 text-sm text-white disabled:opacity-50"
+                    className="bg-cp-accent px-3 py-1.5 text-sm text-cp-accent-text disabled:opacity-50"
                   >
                     {laeuft ? t('mobile.pin.fetching', 'Fetching…') : t('mobile.pin.show', 'Show')}
                   </button>
@@ -2154,16 +2202,19 @@ const ConnectionSettings = () => {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="fixed right-3 top-3 z-[300] flex items-center gap-1 border border-cp-border bg-cp-surface-3/90 px-2.5 py-1 text-cp-xs text-cp-text backdrop-blur"
+        className="flex min-h-11 min-w-11 items-center justify-center gap-1.5 border border-cp-border px-2.5 text-cp-xs text-cp-text hover:bg-cp-surface-2"
         title={t('mobile.connection', 'Connection')}
+        aria-label={t('mobile.connection', 'Connection')}
       >
-        <Icon icon={cfg.mode === 'remote' ? Signal : House} size="xs" />
-        {cfg.mode === 'remote'
-          ? t('mobile.conn.remote', 'Remote')
-          : t('mobile.conn.local', 'Local')}
+        <Icon icon={cfg.mode === 'remote' ? Signal : House} size="sm" />
+        <span className="hidden sm:inline">
+          {cfg.mode === 'remote'
+            ? t('mobile.conn.remote', 'Remote')
+            : t('mobile.conn.local', 'Local')}
+        </span>
       </button>
       {open && (
-        <div className="fixed inset-0 z-[301] flex items-end justify-center bg-black/60 p-3" onClick={() => setOpen(false)}>
+        <div className="fixed inset-0 z-[301] flex items-end justify-center bg-cp-bg/70 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-sm" onClick={() => setOpen(false)}>
           <div className="w-full max-w-md border border-cp-border bg-cp-surface-1 p-3 text-cp-text" onClick={(e) => e.stopPropagation()}>
             <div className="mb-2 text-sm font-semibold">
               {t('mobile.connection', 'Connection')}
@@ -2172,7 +2223,7 @@ const ConnectionSettings = () => {
               <button
                 type="button"
                 onClick={() => setCfg({ ...cfg, mode: 'local' })}
-                className={`inline-flex items-center justify-center gap-1 px-2 py-1.5 text-xs font-medium ${cfg.mode === 'local' ? 'bg-cp-accent text-white' : 'text-cp-text-secondary hover:bg-cp-surface-3'}`}
+                className={`inline-flex min-h-11 items-center justify-center gap-1 px-2 text-xs font-medium ${cfg.mode === 'local' ? 'bg-cp-accent text-cp-accent-text' : 'text-cp-text-secondary hover:bg-cp-surface-3'}`}
               >
                 <Icon icon={House} size="xs" />
                 {t('mobile.conn.localFull', 'Local (LAN)')}
@@ -2180,7 +2231,7 @@ const ConnectionSettings = () => {
               <button
                 type="button"
                 onClick={() => setCfg({ ...cfg, mode: 'remote' })}
-                className={`inline-flex items-center justify-center gap-1 px-2 py-1.5 text-xs font-medium ${cfg.mode === 'remote' ? 'bg-cp-accent text-white' : 'text-cp-text-secondary hover:bg-cp-surface-3'}`}
+                className={`inline-flex min-h-11 items-center justify-center gap-1 px-2 text-xs font-medium ${cfg.mode === 'remote' ? 'bg-cp-accent text-cp-accent-text' : 'text-cp-text-secondary hover:bg-cp-surface-3'}`}
               >
                 <Icon icon={Signal} size="xs" />
                 {t('mobile.conn.remoteFull', 'Remote (mobile data)')}
@@ -2208,10 +2259,10 @@ const ConnectionSettings = () => {
               )}
             </p>
             <div className="mt-3 flex justify-end gap-2">
-              <button type="button" onClick={() => setOpen(false)} className="bg-cp-surface-3 px-3 py-1 text-xs hover:bg-cp-surface-4">
+              <button type="button" onClick={() => setOpen(false)} className="min-h-11 bg-cp-surface-3 px-4 text-sm hover:bg-cp-surface-4">
                 {t('mobile.cancel', 'Cancel')}
               </button>
-              <button type="button" onClick={apply} className="bg-emerald-700 px-3 py-1 text-xs hover:bg-emerald-600">
+              <button type="button" onClick={apply} className="min-h-11 bg-cp-accent px-4 text-sm font-semibold text-cp-accent-text hover:opacity-90">
                 {t('mobile.apply', 'Apply')}
               </button>
             </div>
@@ -2221,6 +2272,14 @@ const ConnectionSettings = () => {
     </>
   )
 }
+
+/** Verbindung + Zugangscodes — eine Gruppe, im Kopf jeder Ansicht. */
+const KopfWerkzeuge = () => (
+  <div className="flex shrink-0 items-center gap-2">
+    <ConnectionSettings />
+    <Zugangscodes />
+  </div>
+)
 
 export const MobileApp = () => {
   const [project, setProject] = useState<CablePlannerProject | null>(null)
@@ -2343,16 +2402,23 @@ export const MobileApp = () => {
   }, [project !== null])
 
   return (
-    <div className="min-h-screen bg-cp-bg text-cp-text">
-      <ConnectionSettings />
-      <Zugangscodes />
+    <div className="min-h-dvh overflow-x-clip bg-cp-bg pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)] text-cp-text">
+      {/* Verbindung und Zugangscodes standen bis 2026-10-09 FEST oben rechts
+          (`fixed`, z-300) — ueber Projekttitel, Reitern und jedem Dialog,
+          inklusive dessen Schliessen-Knopf. Sie stehen jetzt im Kopf der
+          jeweiligen Ansicht und damit im Fluss. */}
+      {!project && (
+        <div className="flex justify-end gap-2 px-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
+          <KopfWerkzeuge />
+        </div>
+      )}
       {/* BEDARF 127 — am Desktop steht jetzt eine andere Show. Der Plan auf
           diesem Handy bleibt der, mit dem es geladen wurde: ein stiller Tausch
           mitten im Aufbau ist genau der Schaden, den `ontime#1325` beschreibt.
           Der Wechsel ist ein Neuladen und damit eine Entscheidung. */}
       {showSwitched && (
-        <div className="mx-auto max-w-md p-2">
-          <div className="border border-amber-600 bg-amber-950/60 p-2 text-cp-xs text-amber-100">
+        <div className="mx-auto w-full max-w-2xl p-3">
+          <div className="border border-cp-warn bg-cp-warn/10 p-2 text-cp-xs text-cp-text">
             <b>{t('mobile.showSwitched', 'A different show is now open on the desktop.')}</b>{' '}
             {t(
               'mobile.showSwitched.body',
@@ -2361,7 +2427,7 @@ export const MobileApp = () => {
             )}
             <button
               type="button"
-              className="mt-1 block border border-amber-500 px-2 py-0.5 text-cp-xs"
+              className="mt-2 block min-h-11 border border-cp-warn px-3 text-sm"
               onClick={() => window.location.reload()}
             >
               {t('mobile.showSwitched.reload', 'Switch to the new show (reload)')}
@@ -2370,7 +2436,7 @@ export const MobileApp = () => {
         </div>
       )}
       {!autoLoadAttempted ? (
-        <div className="grid min-h-screen place-items-center p-4 text-xs text-cp-text-muted">
+        <div className="grid min-h-[60dvh] place-items-center p-4 text-sm text-cp-text-muted" role="status">
           <div className="animate-pulse">
             {t('mobile.loading', 'Loading project from the desktop…')}
           </div>
@@ -2382,12 +2448,13 @@ export const MobileApp = () => {
           cachedAt={cachedAt}
           writeMode={writeMode}
           onUnload={() => setProject(null)}
+          werkzeuge={<KopfWerkzeuge />}
         />
       ) : (
         <>
           <ProjectPicker onLoad={setProject} />
           {autoLoadError && (
-            <div className="mx-auto mt-2 max-w-md border border-amber-700 bg-amber-950 p-2 text-cp-xs text-amber-200">
+            <div className="mx-auto mt-2 max-w-md border border-cp-warn bg-cp-warn/10 p-2 text-cp-xs text-cp-text">
               {format(
                 t(
                   'mobile.autoLoadError',
@@ -2542,7 +2609,7 @@ const AddCableModal = ({
 
   return (
     <div
-      className="fixed inset-0 z-20 flex items-end justify-center bg-black/60 p-2"
+      className="fixed inset-0 z-[301] flex items-end justify-center bg-cp-bg/70 p-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] backdrop-blur-sm"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose()
       }}
@@ -2563,7 +2630,7 @@ const AddCableModal = ({
         </header>
         <div className="space-y-3 p-3 text-xs">
           {done ? (
-            <div className="border border-emerald-700 bg-emerald-900/30 p-3 text-center text-emerald-200">
+            <div className="border border-emerald-700 bg-emerald-600/15 p-3 text-center text-cp-text">
               {/* ADR-005, Regel 4 — hier stand „wird am Desktop mit
                   📱-Marker eingefügt". Das konnte diese Seite nicht wissen:
                   der Server bestätigt den Empfang des JSON, der Desktop
@@ -2575,7 +2642,7 @@ const AddCableModal = ({
                 <Icon icon={Check} size="sm" />
                 {t('mobile.addCable.sent', 'Sent to the desktop')}
               </span>
-              <div className="mt-1 text-cp-xs font-normal text-emerald-300/80">
+              <div className="mt-1 text-cp-xs font-normal text-cp-text">
                 {t(
                   'mobile.addCable.sentHint',
                   'Whether it lands in the plan is the desktop\'s decision — it then shows ' +
@@ -2750,7 +2817,7 @@ const AddCableModal = ({
                 />
               </label>
               {err && (
-                <div className="flex items-center gap-1.5 border border-red-700/60 bg-red-900/30 p-2 text-cp-xs text-red-200">
+                <div className="flex items-center gap-1.5 border border-cp-danger bg-cp-danger/10 p-2 text-cp-xs text-cp-text">
                   <Icon icon={AlertTriangle} size="xs" />
                   {err}
                 </div>
@@ -2767,7 +2834,7 @@ const AddCableModal = ({
                   type="button"
                   onClick={submit}
                   disabled={!canSubmit}
-                  className="inline-flex items-center gap-1 bg-cp-accent px-3 py-1.5 text-xs font-medium text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="inline-flex items-center gap-1 bg-cp-accent px-3 py-1.5 text-xs font-medium text-cp-accent-text hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   {!busy && <Icon icon={Send} size="xs" />}
                   {busy
@@ -2914,7 +2981,7 @@ const MobileReportModal = ({
 
   return (
     <div
-      className="fixed inset-0 z-20 flex items-end justify-center bg-black/60 p-2"
+      className="fixed inset-0 z-[301] flex items-end justify-center bg-cp-bg/70 p-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] backdrop-blur-sm"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose()
       }}
@@ -2935,7 +3002,7 @@ const MobileReportModal = ({
         </header>
         <div className="space-y-3 p-3 text-xs">
           {done ? (
-            <div className="border border-emerald-700 bg-emerald-900/30 p-3 text-center text-emerald-200">
+            <div className="border border-emerald-700 bg-emerald-600/15 p-3 text-center text-cp-text">
               <span className="inline-flex items-center gap-1">
                 <Icon icon={Check} size="sm" />
                 {t(
@@ -2968,7 +3035,7 @@ const MobileReportModal = ({
                     type="button"
                     onClick={() => setKind(k)}
                     className={` px-2 py-1 text-cp-xs font-medium ${
-                      kind === k ? 'bg-cp-accent text-white' : 'text-cp-text-secondary hover:bg-cp-surface-3'
+                      kind === k ? 'bg-cp-accent text-cp-accent-text' : 'text-cp-text-secondary hover:bg-cp-surface-3'
                     }`}
                   >
                     {label}
@@ -3125,7 +3192,7 @@ const MobileReportModal = ({
                   type="button"
                   onClick={submit}
                   disabled={!canSubmit}
-                  className="inline-flex items-center gap-1 bg-amber-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-amber-500 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="inline-flex items-center gap-1 bg-cp-accent px-3 py-1.5 text-xs font-medium text-cp-accent-text hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   {!busy && <Icon icon={Send} size="xs" />}
                   {busy
@@ -3248,7 +3315,7 @@ const MobileFotoModal = ({
 
   return (
     <div
-      className="fixed inset-0 z-20 flex items-end justify-center bg-black/60 p-2"
+      className="fixed inset-0 z-[301] flex items-end justify-center bg-cp-bg/70 p-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] backdrop-blur-sm"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose()
       }}
@@ -3269,7 +3336,7 @@ const MobileFotoModal = ({
         </header>
         <div className="space-y-3 p-3 text-xs">
           {done ? (
-            <div className="border border-emerald-700 bg-emerald-900/30 p-3 text-center text-emerald-200">
+            <div className="border border-emerald-700 bg-emerald-600/15 p-3 text-center text-cp-text">
               <span className="inline-flex items-center gap-1">
                 <Icon icon={Check} size="sm" />
                 {t('mobile.foto.sent', 'Photo sent — it is in the plan on the desktop')}
@@ -3373,7 +3440,7 @@ const MobileFotoModal = ({
               </label>
 
               {err && (
-                <div className="border border-amber-700/60 bg-amber-900/30 px-2 py-1 text-cp-xs text-amber-200">
+                <div className="border border-cp-warn bg-cp-warn/10 px-2 py-1 text-cp-xs text-cp-text">
                   {err}
                 </div>
               )}
@@ -3390,7 +3457,7 @@ const MobileFotoModal = ({
                   type="button"
                   onClick={submit}
                   disabled={!bild || busy}
-                  className="inline-flex items-center gap-1 bg-cp-accent px-3 py-1.5 text-xs font-medium text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="inline-flex items-center gap-1 bg-cp-accent px-3 py-1.5 text-xs font-medium text-cp-accent-text hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   {!busy && <Icon icon={Send} size="xs" />}
                   {busy ? t('mobile.sending', 'Sending…') : t('mobile.foto.send', 'Send photo')}
