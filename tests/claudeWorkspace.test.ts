@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   completeWithAI,
+  suggestFromAI,
   setApiKey,
   setClaudeWorkspaceId,
   setSelectedAiProvider,
@@ -59,5 +60,34 @@ describe('Claude-Workspace-ID', () => {
       }),
     )
     await expect(completeWithAI('hi')).rejects.toThrow(/wrkspc_/)
+  })
+})
+describe('Port-Vorschlag schlaegt nach', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    setApiKey('claude', '')
+  })
+
+  it('schickt Claude die Websuche mit und liest JSON hinter einem Satz', async () => {
+    setSelectedAiProvider('claude')
+    setApiKey('claude', 'sk-ant-test')
+    const f = vi.fn(async () =>
+      antwort(200, {
+        stop_reason: 'end_turn',
+        content: [
+          { type: 'text', text: 'Laut Datenblatt: ' },
+          {
+            type: 'text',
+            text: '{"ports":[{"direction":"out","label":"HDMI","count":1,"connector":"HDMI"}]}',
+          },
+        ],
+      }),
+    )
+    vi.stubGlobal('fetch', f)
+    const hints = await suggestFromAI('Crestron DM-NVX-D30', 'Netzwerk')
+    const body = JSON.parse((f.mock.calls[0][1] as RequestInit).body as string)
+    expect(body.tools?.[0]?.type).toBe('web_search_20260209')
+    expect(body).not.toHaveProperty('temperature')
+    expect(hints).toHaveLength(1)
   })
 })

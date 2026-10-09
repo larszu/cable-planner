@@ -306,7 +306,7 @@ export const NewRentmanDeviceWizard = ({
               type="button"
               onClick={handleOpenAiSettings}
               className="bg-cp-surface-4 px-2 py-1 hover:bg-cp-surface-5"
-              title={t('rentman.wizard.aiSettingsTitle', 'Configure Gemini API key')}
+              title={t('rentman.wizard.aiSettingsTitle', 'Set up AI key')}
             >
               {t('rentman.wizard.aiSettings', 'AI settings')}
             </button>

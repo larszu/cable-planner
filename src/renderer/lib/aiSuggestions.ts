@@ -3,7 +3,7 @@
  *
  * Vorher: nur Gemini. Jetzt drei Provider auswählbar:
  *   - gemini  (Google Generative Language API, gemini-2.5-flash)
- *   - claude  (Anthropic Messages API, claude-haiku-4-5)
+ *   - claude  (Anthropic Messages API, claude-opus-5-5, mit Websuche)
  *   - openai  (OpenAI Chat Completions, gpt-4o-mini)
  *
  * Jeder Provider hat seinen eigenen API-Key (localStorage-Slot). Der
@@ -68,7 +68,7 @@ const PROVIDERS: Record<AiProvider, ProviderConfig> = {
   },
   claude: {
     label: 'Anthropic Claude',
-    defaultModel: 'claude-haiku-4-5-20251001',
+    defaultModel: 'claude-opus-5-5',
     storageKey: STORAGE_KEY_CLAUDE,
     consoleUrl: 'https://console.anthropic.com/settings/keys',
     overrideKey: '__CABLE_PLANNER_CLAUDE__',
@@ -199,11 +199,18 @@ JSON schema:
 }
 
 Rules:
+- Describe THIS exact model, not the product family. Encoder/decoder, transmitter/receiver and
+  variants with a suffix (C, D, E, -IOAV …) differ in their connectors — check which one is meant.
+- If you can search the web, look up the manufacturer datasheet or product page first and list
+  only what it documents.
 - "in" for signal inputs/returns, "out" for signal outputs/sends. Power inputs use direction "in".
 - Group identical ports (e.g. 4x BNC SDI inputs) into ONE entry with count=4.
-- Include power connectors (Schuko 230V / PowerCON / IEC 230V) and network ports (Ethernet/RJ45) when typical.
-- Do NOT include internal buses or non-user-facing connectors.
-- If unknown or generic item, return { "ports": [] }.`
+- Power: list a mains connector only if the datasheet shows one on the unit. Devices powered via
+  PoE or an external power pack have no mains connector — PoE goes into the Ethernet label.
+- Leave out service-only ports (console/micro-USB for setup) and internal buses.
+- Do not add connectors because they are "typical" for the category. Omit what you cannot confirm.
+- If the model is unknown to you and cannot be found, return { "ports": [] }.
+- Reply with the JSON object only.`
 
 // ─── Provider-Implementierungen ────────────────────────────────────────
 
@@ -223,9 +230,13 @@ const parseJsonResponse = (text: string): RawSuggestion[] => {
     .trim()
     .replace(/^```(?:json)?\s*/i, '')
     .replace(/\s*```$/, '')
+  // Nach einer Websuche schreibt das Modell manchmal einen Satz vor das JSON.
+  const start = stripped.indexOf('{')
+  const end = stripped.lastIndexOf('}')
+  const kern = start >= 0 && end > start ? stripped.slice(start, end + 1) : stripped
   let parsed: { ports?: RawSuggestion[] }
   try {
-    parsed = JSON.parse(stripped) as { ports?: RawSuggestion[] }
+    parsed = JSON.parse(kern) as { ports?: RawSuggestion[] }
   } catch {
     throw new Error('AI provider returned invalid JSON')
   }
@@ -258,7 +269,12 @@ export const zerlegeDataUri = (dataUri: string): { mime: string; data: string } 
   return { mime: m[1], data: m[2] }
 }
 
-const callGemini = async (apiKey: string, prompt: string, images: string[] = []): Promise<string> => {
+const callGemini = async (
+  apiKey: string,
+  prompt: string,
+  images: string[] = [],
+  opts: AiCallOptions = {},
+): Promise<string> => {
   const override = overrideFor<{ base?: string; model?: string }>('__CABLE_PLANNER_GEMINI__')
   const base = override?.base ?? 'https://generativelanguage.googleapis.com/v1beta'
   const model = override?.model ?? PROVIDERS.gemini.defaultModel
@@ -276,8 +292,11 @@ const callGemini = async (apiKey: string, prompt: string, images: string[] = [])
         ],
       },
     ],
+    // Google-Suche und JSON-Modus schliessen sich bei Gemini aus; das JSON
+    // holt dann parseJsonResponse aus dem Text.
+    ...(opts.webSearch ? { tools: [{ google_search: {} }] } : {}),
     generationConfig: {
-      responseMimeType: 'application/json',
+      ...(opts.webSearch ? {} : { responseMimeType: 'application/json' }),
       temperature: 0.2,
     },
   }
@@ -296,16 +315,35 @@ const callGemini = async (apiKey: string, prompt: string, images: string[] = [])
   return json.candidates?.[0]?.content?.parts?.[0]?.text ?? ''
 }
 
-const callClaude = async (apiKey: string, prompt: string, images: string[] = []): Promise<string> => {
+interface AiCallOptions {
+  /**
+   * Vor der Antwort im Web nachschlagen. Gemeldet 2026-10-09: fuer
+   * „Crestron DM-NVX-D30" kamen HDMI-Eingang, IEC 230V und USB-A — alles, was
+   * ein Netzwerkgeraet „typischerweise" hat, nichts davon am Decoder. Aus dem
+   * Namen allein raet jedes Modell die Produktfamilie, nicht das Geraet.
+   */
+  webSearch?: boolean
+}
+
+const callClaude = async (
+  apiKey: string,
+  prompt: string,
+  images: string[] = [],
+  opts: AiCallOptions = {},
+): Promise<string> => {
   const override = overrideFor<{ base?: string; model?: string }>('__CABLE_PLANNER_CLAUDE__')
   const base = override?.base ?? 'https://api.anthropic.com/v1'
   const model = override?.model ?? PROVIDERS.claude.defaultModel
   const url = `${base}/messages`
   const workspaceId = getClaudeWorkspaceId().trim()
-  const body = {
+  const body: Record<string, unknown> = {
     model,
-    max_tokens: 4096,
-    temperature: 0.2,
+    max_tokens: 16000,
+    // Verweigert ein Sicherheitsfilter, beantwortet ein anderes Modell.
+    fallbacks: 'default',
+    ...(opts.webSearch
+      ? { tools: [{ type: 'web_search_20260209', name: 'web_search', max_uses: 5 }] }
+      : {}),
     messages: [
       {
         role: 'user',
@@ -331,6 +369,7 @@ const callClaude = async (apiKey: string, prompt: string, images: string[] = [])
       // CORS-Safe-Header-Flag damit der Browser ohne Backend-Proxy direkt
       // ansprechen kann (Anthropic erlaubt das mit einem expliziten Opt-In).
       'anthropic-dangerous-direct-browser-access': 'true',
+      'anthropic-beta': 'server-side-fallback-2026-07-01',
       ...(workspaceId ? { 'anthropic-workspace-id': workspaceId } : {}),
     },
     body: JSON.stringify(body),
@@ -347,10 +386,16 @@ const callClaude = async (apiKey: string, prompt: string, images: string[] = [])
     throw new Error(`Claude API ${res.status}: ${text.slice(0, 200)}`)
   }
   const json = (await res.json()) as {
+    stop_reason?: string
     content?: Array<{ type?: string; text?: string }>
   }
-  const textBlock = json.content?.find((c) => c.type === 'text')
-  return textBlock?.text ?? ''
+  if (json.stop_reason === 'refusal') throw new Error('Claude API: request declined')
+  // Mit Websuche kommt die Antwort in mehreren Textbloecken (Zitate teilen
+  // sie); die JSON-Antwort steht am Ende.
+  return (json.content ?? [])
+    .filter((c) => c.type === 'text')
+    .map((c) => c.text ?? '')
+    .join('')
 }
 
 const callOpenAI = async (apiKey: string, prompt: string, images: string[] = []): Promise<string> => {
@@ -400,7 +445,7 @@ export const suggestFromAI = async (
   category: string,
 ): Promise<PortGroupHint[]> => {
   const prompt = PROMPT_TEMPLATE(deviceName, category)
-  const text = await completeWithAI(prompt)
+  const text = await completeWithAI(prompt, [], { webSearch: true })
   const raw = parseJsonResponse(text)
   return normalizeHints(raw)
 }
@@ -413,7 +458,11 @@ export const suggestFromAI = async (
  * kein API-Key hinterlegt ist. Liefert den rohen Modell-Text (Caller parst
  * JSON selbst via parseJsonResponse).
  */
-export const completeWithAI = async (prompt: string, images: string[] = []): Promise<string> => {
+export const completeWithAI = async (
+  prompt: string,
+  images: string[] = [],
+  opts: AiCallOptions = {},
+): Promise<string> => {
   const provider = getSelectedAiProvider()
   const key = getApiKey(provider)
   if (!key) {
@@ -423,9 +472,9 @@ export const completeWithAI = async (prompt: string, images: string[] = []): Pro
   }
   switch (provider) {
     case 'gemini':
-      return callGemini(key, prompt, images)
+      return callGemini(key, prompt, images, opts)
     case 'claude':
-      return callClaude(key, prompt, images)
+      return callClaude(key, prompt, images, opts)
     case 'openai':
       return callOpenAI(key, prompt, images)
   }

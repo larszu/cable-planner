@@ -528,11 +528,12 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
       setGroups(hintsToLocalDrafts(ergebnis.hints))
       if (ergebnis.quelle === 'ki') {
         setGroupsOrigin(
-          t('library.origin.ai', 'AI suggestion from name and category — not from a datasheet'),
+          t('library.origin.ai', 'AI suggestion with web search — check against the datasheet'),
         )
         setSuggestInfo(
-          format(t('library.suggest.ai.ok', '{n} port group(s) accepted from the model.'), {
+          format(t('library.suggest.ai.ok', '{n} port group(s) accepted from {provider}.'), {
             n: ergebnis.hints.length,
+            provider: getAiProviderConfig(getSelectedAiProvider()).label,
           }),
         )
       } else {
