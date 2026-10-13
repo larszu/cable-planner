@@ -56,6 +56,9 @@
   planned in MultiCam driven and stored in the head, one offset on site, live
   picture and a video wall), and Green-GO intercom channels live over OSC —
   each in the properties of the device it belongs to, not in a separate tool.
+  ATEM input names can follow the Videohub routing: when a hub output that
+  is cabled to an ATEM input is switched, the input takes the name of the
+  routed source.
 - **Scopes at the device.** Waveform, vectorscope, parade and histogram
   ([LZ Scopes](https://github.com/larszu/lz-scopes)) live from a device's
   RTSP, RTMP, SRT, HLS or MJPEG stream: *Scopes* next to the stream in the

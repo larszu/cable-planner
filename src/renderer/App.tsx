@@ -157,6 +157,7 @@ import { istPatternObservation } from './types/patternCheck'
 import { usePatternStore } from './store/patternStore'
 import { Icon } from './components/shared/Icon'
 import { cableTouches } from './lib/portOccupancy'
+import { useLabelFollowSync } from './components/Properties/sections/useLabelFollowSync'
 
 // ───────────────────────────────────────────────────────────────────────────
 // ADR-005, Regel 3 — die Beschriftung des Ladeberichts.
@@ -340,6 +341,8 @@ export default function App() {
     phase?: string
     detail?: string
   }>({ active: false })
+
+  useLabelFollowSync()
 
   useEffect(() => {
     document.documentElement.dataset.theme = pdfExportThemeOverride ?? canvasTheme

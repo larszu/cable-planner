@@ -367,7 +367,7 @@ export const istBildEingang = (port: Port): boolean =>
  * Rueckweg-Eingang ist. Alles andere ist mehrdeutig — dann haelt die Suche an
  * und nennt das Zwischengeraet. Das sagt weniger, stimmt aber.
  */
-const feedingInput = (device: EquipmentItem, arrival: Port): Port | null => {
+export const feedingInput = (device: EquipmentItem, arrival: Port): Port | null => {
   const kind = detectDeviceKind(device)
   if (kind === 'videohub') return routedInput(device, arrival)
   if (kind !== null) return null

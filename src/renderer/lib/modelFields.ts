@@ -272,6 +272,9 @@ export const INSTANCE_FIELDS = [
   'controlPort',
   'controlText',
   'controlCompanion',
+  // Welche ATEM-Eingaenge diesem Hub folgen, haengt an den Kabeln DIESES
+  // Aufbaus — in einer Bibliothek bedeutete es nichts.
+  'labelFollow',
   'notes',
 
   // Herkunft dieses Exemplars

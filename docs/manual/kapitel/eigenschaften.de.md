@@ -73,6 +73,14 @@ Laden Sie Bilder des Geräts hoch. Sie werden in der Galerie unter den Eigenscha
 
 Wenn das Gerät eine Spezial-Unterstützung hat (z. B. ATEM, Videohub, GreenGo Intercom), zeigt dieser Abschnitt einen Knopf zum Öffnen eines Geräteinformationen-Dialogs oder zum Exportieren (z. B. Export-Patch für ATEM).
 
+#### ATEM-Eingangsnamen folgen dem Videohub
+
+Unter **Schalten** eines Videohubs mit dem Steuerprotokoll „Blackmagic Videohub" steht der Schalter **ATEM-Eingangsnamen folgen der Route dieses Videohubs** (Vorgabe: aus). Ist er an, listet der Abschnitt jeden Hub-Ausgang, der über Kabel (auch durch Patchfelder und Wandler) an einem ATEM-Eingang endet. Einzelne Verbindungen lassen sich abwählen.
+
+- **Folgen starten** verbindet sich mit dem Hub und hält die Verbindung offen. Bei jedem Umschalten, auch am Hardware-Panel oder aus anderer Software, bekommt der ATEM-Eingang den Namen der neuen Hub-Quelle: Langname bis 20 Zeichen, Kurzname 4 Zeichen mit erhaltener Endnummer (aus „Cam 12" wird „CA12"). Umlaute werden ausgeschrieben.
+- Voraussetzungen: IP-Adresse an Hub und ATEM, ATEM mit Steuerprotokoll „Blackmagic ATEM" und die Quellen-Nummer am ATEM-Eingang (**Schalten → Nummern am Gerät**). Was fehlt, steht an der Zeile.
+- Geschrieben werden nur Namen; geschaltet wird nichts. Gestartet wird nur per Knopf, nie beim Öffnen eines Projekts. Nur in der Desktop-App.
+
 #### Katalog und Herkunft
 
 - **Katalog-Typ**: Der Hersteller und die Modell-Nummer aus der Geräte-Bibliothek (z. B. „Blackmagic Design: ATEM Constellation 8K").

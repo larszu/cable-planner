@@ -73,6 +73,14 @@ Upload images of the device. They are displayed in the gallery below the propert
 
 If the device has special support (e.g., ATEM, Videohub, GreenGo Intercom), this section shows a button to open a device information dialog or to export (e.g., ATEM patch export).
 
+#### ATEM input names follow the Videohub
+
+Under **Switching** of a Videohub with the control protocol "Blackmagic Videohub" there is the switch **ATEM input names follow this Videohub's routing** (default: off). When on, the section lists every hub output that is cabled to an ATEM input (also through patch panels and converters). Single connections can be deselected.
+
+- **Start following** connects to the hub and keeps the connection open. On every switch, also from the hardware panel or other software, the ATEM input takes the name of the new hub source: long name up to 20 characters, short name 4 characters keeping the trailing number ("Cam 12" becomes "CA12"). Umlauts are spelled out.
+- Requirements: IP address on hub and ATEM, the ATEM with the control protocol "Blackmagic ATEM", and the source number on the ATEM input (**Switching → Numbers on the device**). Whatever is missing is shown on the row.
+- Only names are written; nothing is switched. Following starts only from the button, never when a project opens. Desktop app only.
+
 #### Catalog and Source
 
 - **Catalog type**: The manufacturer and model number from the device library (e.g., "Blackmagic Design: ATEM Constellation 8K").

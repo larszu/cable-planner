@@ -239,6 +239,19 @@ contextBridge.exposeInMainWorld('cablePlanner', {
         connections: unknown
       }>,
   },
+  // ATEM-Eingangslabel folgt der Videohub-Route. Eigene Domaene: sie liest
+  // vom Hub und schreibt in den Mischer, gehoert also keinem der beiden.
+  atemLabelFollow: {
+    start: (links: unknown) => ipcRenderer.invoke('atemLabelFollow:start', links) as Promise<unknown>,
+    update: (links: unknown) => ipcRenderer.invoke('atemLabelFollow:update', links) as Promise<unknown>,
+    stop: () => ipcRenderer.invoke('atemLabelFollow:stop') as Promise<unknown>,
+    status: () => ipcRenderer.invoke('atemLabelFollow:status') as Promise<unknown>,
+    onStatus: (cb: (status: unknown) => void) => {
+      const listener = (_event: unknown, status: unknown) => cb(status)
+      ipcRenderer.on('atemLabelFollow:status', listener)
+      return () => ipcRenderer.removeListener('atemLabelFollow:status', listener)
+    },
+  },
   videohub: {
     sendRouting: (params: { host: string; port: number; block: string }) =>
       ipcRenderer.invoke('videohub:send', params) as Promise<{ ok: boolean; message: string }>,
