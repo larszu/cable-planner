@@ -72,6 +72,7 @@ import { VIEWPORT_DEFAULTS } from '../lib/layoutConstants'
 import { getCanvasSize } from '../lib/canvasViewport'
 import { seedLibrarySyncCache } from '../lib/librarySync'
 import { normaliseVideohubRouting } from '../lib/videohubRouting'
+import { normaliseLabelFollow } from '../lib/atemLabelFollow'
 import {
   clearDanglingIdentity,
   normaliseSourceIdentities,
@@ -1409,6 +1410,10 @@ const healProjectPositions = (
       // vorsichtige sein: ein Beleg, der faelschlich „Anlage" sagt, laesst
       // jemanden nachsehen; einer, der faelschlich „Pruefstand" sagt, laesst
       // ihn es lassen.
+      if (item.labelFollow !== undefined) {
+        const lf = normaliseLabelFollow(item.labelFollow)
+        item = lf ? { ...item, labelFollow: lf } : ((({ labelFollow: _weg, ...rest }) => rest)(item) as EquipmentItem)
+      }
       if (item.controlTarget !== undefined && !istControlTarget(item.controlTarget)) {
         onDrop?.({ kind: 'crosspoint', reason: 'invalid-value', label: item.name })
         item = (({ controlTarget: _weg, ...rest }) => rest)(item) as EquipmentItem

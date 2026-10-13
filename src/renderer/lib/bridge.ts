@@ -481,6 +481,14 @@ export type CablePlannerApi = {
       connections: unknown
     }>
   }
+  /** ATEM-Eingangslabel folgt der Videohub-Route. */
+  atemLabelFollow: {
+    start: (links: import('./atemLabelFollow').LabelFollowLink[]) => Promise<import('./atemLabelFollow').FollowStatus>
+    update: (links: import('./atemLabelFollow').LabelFollowLink[]) => Promise<import('./atemLabelFollow').FollowStatus>
+    stop: () => Promise<import('./atemLabelFollow').FollowStatus>
+    status: () => Promise<import('./atemLabelFollow').FollowStatus>
+    onStatus: (cb: (status: import('./atemLabelFollow').FollowStatus) => void) => () => void
+  }
   videohub: {
     sendRouting: (params: { host: string; port: number; block: string }) => Promise<{ ok: boolean; message: string }>
     readState: (params: { host: string; port: number }) => Promise<{
@@ -1323,6 +1331,14 @@ const webFallbackApi: CablePlannerApi = {
       message: 'Companion abfragen erfordert die Desktop-App.',
       connections: [],
     }),
+  },
+  atemLabelFollow: {
+    // Ohne Desktop-App kein Netz zum Geraet: das Folgen bleibt aus und sagt es.
+    start: async () => ({ running: false, hubs: [], log: ['Requires the desktop app.'] }),
+    update: async () => ({ running: false, hubs: [], log: [] }),
+    stop: async () => ({ running: false, hubs: [], log: [] }),
+    status: async () => ({ running: false, hubs: [], log: [] }),
+    onStatus: () => () => {},
   },
   videohub: {
     sendRouting: async () => ({

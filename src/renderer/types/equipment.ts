@@ -1059,6 +1059,9 @@ export interface EquipmentItem {
    *  Companion (MIT, ~500 gepflegte Hersteller-Module) spricht dann das
    *  Protokoll; hier wird keines nachgebaut (Invariante 18). */
   controlCompanion?: import('../lib/companionControl').CompanionConfig
+  /** Nur am Videohub: ob ATEM-Eingänge, die an seinen Ausgängen hängen, den
+   *  Namen der jeweils geschalteten Quelle übernehmen. Fehlt = aus. */
+  labelFollow?: import('../lib/atemLabelFollow').LabelFollowConfig
   /** ADR-001 — Rolle, die dieses Geraet realisiert („Kamera 1"). Zeigt auf
    *  `CablePlannerProject.sourceIdentities`. Mehrere Geraete duerfen dieselbe
    *  Rolle tragen: das Haupt-/Backup-Paar ist EINE Rolle, nicht zwei. */

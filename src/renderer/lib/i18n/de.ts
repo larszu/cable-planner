@@ -5485,6 +5485,9 @@ export const de: Dict = {
   'desktopOnly.tally': 'Direktweg zum Tally-Pi',
   'desktopOnly.tally.why':
     'Schickt die Tally-Karte an den Pi. Dessen Server sendet keine CORS-Kopfzeilen, eine Seite kommt also nicht heran – der Datei-Export bleibt.',
+  'desktopOnly.atemLabelFollow': 'ATEM-Eingangsnamen folgen dem Videohub',
+  'desktopOnly.atemLabelFollow.why':
+    'Hält eine Verbindung zum Videohub offen und schreibt Namen in den ATEM. Beides braucht Sockets, die eine Seite nicht hat.',
   'desktopOnly.switcher': 'Mischer und Kreuzschienen schalten',
   'desktopOnly.switcher.why':
     'Schickt die Schaltbefehle und fragt Companion. Beides braucht Sockets, die eine Seite nicht hat.',
@@ -5834,6 +5837,18 @@ export const de: Dict = {
   'statusbar.todo.title':
     'Überfällig oder heute fällig: Rückgaben, Ausgaben, Stunden, Belege, Kosten. Klick öffnet die Analysen auf „Was ansteht".',
   'statusbar.zoom': 'Zoom:',
+  'labelFollow.toggle': 'ATEM-Eingangsnamen folgen der Route dieses Videohubs',
+  'labelFollow.hint':
+    'Wird ein Ausgang umgeschaltet, übernimmt der daran verkabelte ATEM-Eingang den Namen der neuen Videohub-Quelle (Langname bis 20 Zeichen, Kurzname 4). Welcher Ausgang welchen Eingang speist, kommt aus den Kabeln im Plan. Geschrieben werden nur Namen, geschaltet wird nichts.',
+  'labelFollow.noLinks':
+    'Kein Ausgang dieses Videohubs ist an einen ATEM-Eingang verkabelt. Der ATEM braucht das Steuerprotokoll „Blackmagic ATEM".',
+  'labelFollow.missingHubIp': 'Videohub hat keine IP-Adresse',
+  'labelFollow.missingAtemIp': 'ATEM hat keine IP-Adresse',
+  'labelFollow.missingAtemInput': 'Quellen-Nummer am ATEM-Eingang fehlt (Schalten → Nummern)',
+  'labelFollow.start': 'Folgen starten',
+  'labelFollow.stop': 'Folgen beenden',
+  'labelFollow.running': 'läuft — {n} Videohub(s) verbunden',
+  'labelFollow.stopped': 'läuft nicht',
   'switching.addressHint':
     'Ohne Nummer wird an diesen Anschluss nicht gesendet. Beim ATEM ist die Quellen-Nummer eines Eingangs am Mischer abzulesen, ein Aux-Ausgang zählt in seiner eigenen Reihe, und Programm bzw. Vorschau tragen die Nummer des Mix-Effects. Die Position in der Liste sagt sie nicht.',
   'switching.addressPlaceholder': 'Nr.',

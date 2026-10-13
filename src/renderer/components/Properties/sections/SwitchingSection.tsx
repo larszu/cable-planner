@@ -35,6 +35,7 @@ import {
 import { portDisplayLabel } from '../../../lib/portLabel'
 import { SortableSection } from '../SortableSection'
 import { PanelHint } from '../../shared/PanelHint'
+import { LabelFollowPanel } from './LabelFollowPanel'
 
 /**
  * Was dieses Gerät SCHALTET — herstellerneutral, je Anschluss (S-1).
@@ -756,6 +757,8 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
               />
             </div>
           )}
+
+          {protokoll === 'videohub' && <LabelFollowPanel equipment={equipment} />}
         </>
       )}
     </SortableSection>

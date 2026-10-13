@@ -93,6 +93,11 @@ export function nurDesktop(t: Uebersetzen): NurDesktop[] {
       grund: t('desktopOnly.switcher.why', 'Sends the actual switch commands and asks Companion. Both need sockets a page does not have.'),
     },
     {
+      domaene: 'atemLabelFollow',
+      name: t('desktopOnly.atemLabelFollow', 'ATEM input names following the Videohub'),
+      grund: t('desktopOnly.atemLabelFollow.why', 'Keeps a connection to the Videohub open and writes names into the ATEM. Both need sockets a page does not have.'),
+    },
+    {
       domaene: 'rentman',
       name: t('desktopOnly.rentman', 'Rentman export'),
       grund: t('desktopOnly.rentman.why', 'Writes the export file through the desktop file path. Reading from Rentman works here.'),

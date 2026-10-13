@@ -65,6 +65,7 @@ Alle IPC-Channels sind nach Domäne präfixiert. Definitionen in
 | `streamCredential:*` | `credentialsIpc.ts` | `has`, `save`, `delete` (Nachtrag #946): die aus einer Stream-Adresse herausgetrennten Zugangsdaten (`benutzer:passwort@`, `passphrase=`, `token=` …) je Stream und Feld unter `stream-credential:<id>`. **Kein `get`:** den Klartext braucht nur `streamPreview` im Main-Prozess. |
 | `atem:*` | `atemIpc.ts` | `connect`, `disconnect`, `state`, `get-status`, `get-events`, `set-input-name`, `bulk-set-input-names`, `apply-mv-config`, `read-mv-config`, `apply-audio-config`, `discover`, plus `atem:event` (broadcast) |
 | `videohub:*` | `videohubIpc.ts` | `send` (TCP zu Blackmagic Videohub) |
+| `atemLabelFollow:*` | `atemLabelFollowIpc.ts` | `start`/`update`/`stop`/`status` — haelt je Videohub eine lesende TCP-Verbindung offen und schreibt bei Routen- oder Namensaenderung die Namen der verkabelten ATEM-Eingaenge |
 | `sync:*` | `syncIpc.ts` | `read-file`, `write-file`, `exists`, `acquire-lock`, `release-lock` |
 | `mobileShare:*` | `mobileShareIpc.ts` | `start`, `stop`, `status`, `setProject`, Events: `checksUpdate`, `cableAdded` |
 | `credentials:*` | `credentialsIpc.ts` | `get-token`, `save-token`, `delete-token`, `test-token` (via `keytar`) |

@@ -18,6 +18,7 @@ import { findProjectPathInArgv, setPendingLaunchPath } from './services/fileOpen
 import { registerAtemIpc } from './ipc/atemIpc.js'
 import { registerVideohubIpc } from './ipc/videohubIpc.js'
 import { registerSwitcherIpc } from './ipc/switcherIpc.js'
+import { registerAtemLabelFollowIpc } from './ipc/atemLabelFollowIpc.js'
 import { registerLogIpc } from './ipc/logIpc.js'
 import { registerDocumentLogIpc } from './ipc/documentLogIpc.js'
 import { registerReceiptIpc } from './ipc/receiptIpc.js'
@@ -390,6 +391,7 @@ app.whenReady().then(async () => {
   registerAtemIpc()
   registerVideohubIpc()
   registerSwitcherIpc()
+  registerAtemLabelFollowIpc()
   registerLogIpc()
   registerDocumentLogIpc()
   registerReceiptIpc()

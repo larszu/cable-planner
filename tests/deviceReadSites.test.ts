@@ -69,7 +69,7 @@ const RENDERER = resolve(__dirname, '..', 'src', 'renderer')
  * durchrutschen zu lassen.
  */
 const GERAETE_DOMAENEN = [
-  'atem', 'videohub', 'switcher', 'netbox', 'rentman', 'tally',
+  'atem', 'atemLabelFollow', 'videohub', 'switcher', 'netbox', 'rentman', 'tally',
   // Die Geraetebibliothek (devices.zumpelars.de) ist ein Fremdsystem wie
   // Rentman und NetBox: ein Katalog, kein Anlagenzustand. Eingeordnet als
   // Fremdsystem, damit eine Datei, die ihre Antwort in den Plan schreibt,
@@ -269,6 +269,25 @@ const CLASSIFIED: Site[] = [
       'Geraete behalten jede manuelle Nacharbeit. Dass dabei `portsUnknown` ' +
       'faellt, ist richtig: es fiel, WEIL echte Ports gelesen wurden — genau ' +
       'die Bedingung, unter der die Unbekannt-Markierung nicht mehr gilt.',
+  },
+  {
+    file: 'components/Properties/sections/LabelFollowPanel.tsx',
+    verdict: 'getrennt',
+    reason:
+      'ATEM-Label folgt der Videohub-Route. Die Datei liest vom Geraet nur den ' +
+      'Laufzustand des Folgens (`atemLabelFollow.status`/`onStatus`: verbunden, ' +
+      'Meldungen) in Komponenten-Zustand. Was sie in den Plan schreibt, ist ' +
+      'ausschliesslich der Schalter und die abgewaehlten Ausgaenge — Eingabe ' +
+      'des Nutzers. Die vom Hub gemeldeten Namen und Routen bleiben im ' +
+      'Hauptprozess und gehen in den ATEM, nie ins Projekt.',
+  },
+  {
+    file: 'components/Properties/sections/useLabelFollowSync.ts',
+    verdict: 'getrennt',
+    reason:
+      'Schickt die aus dem Plan abgeleiteten Verbindungen an den Hauptprozess, ' +
+      'solange das Folgen laeuft. Gelesen wird nur der Laufzustand, in ' +
+      'Komponenten-Zustand; geschrieben wird nichts in den Plan.',
   },
   {
     file: 'components/Properties/sections/SwitchingSection.tsx',
