@@ -609,11 +609,9 @@ html[data-cp-shell='app'] #root {
 [data-theme="light"] .bg-red-950\/50        { background-color: rgba(255,241,242,0.9); }
 [data-theme="light"] .bg-red-900\/50        { background-color: rgba(254,226,226,0.8); }
 [data-theme="light"] .bg-red-900\/60        { background-color: rgba(254,226,226,0.9); }
-[data-theme="light"] .bg-orange-900\/80     { background-color: rgba(255,237,213,0.9); }
 [data-theme="light"] .bg-orange-950\/50     { background-color: rgba(255,247,237,0.9); }
 [data-theme="light"] .bg-orange-700\/60     { background-color: rgba(234,88,12,0.6); }
 [data-theme="light"] .bg-sky-900            { background-color: #e0f2fe; }
-[data-theme="light"] .bg-sky-900\/80        { background-color: rgba(224,242,254,0.9); }
 [data-theme="light"] .bg-sky-800\/80        { background-color: rgba(224,242,254,0.8); }
 
 /* Dark colored borders → mid-tone */
