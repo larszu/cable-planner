@@ -52,7 +52,7 @@ for (let i = 0; i < menus.length; i++) {
   const label = (await menus[i].innerText()).trim().replace(/\s*▾\s*$/, '') || `menu${i + 1}`
   await menus[i].click()
   await win.waitForTimeout(400)
-  const itemCount = await win.locator('[role="menuitem"]').count()
+  const itemCount = await win.locator('[role="menuitem"], [role="menuitemradio"], [role="menuitemcheckbox"]').count()
   if (itemCount === 0) {
     console.error(`  ✗ "${label}" öffnete keine Einträge`)
     failures += 1
