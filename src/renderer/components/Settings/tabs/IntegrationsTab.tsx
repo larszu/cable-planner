@@ -700,7 +700,7 @@ const NetboxCard = ({ onClose }: { onClose: () => void }) => {
               type="button"
               disabled={busy || !hasToken || !(netboxUrl || url).trim()}
               onClick={() => void testConnection()}
-              className="bg-cp-ok px-3 py-1 text-cp-base hover:brightness-110 disabled:opacity-50"
+              className="bg-cp-ok text-white px-3 py-1 text-cp-base hover:brightness-110 disabled:opacity-50"
             >
               {t('settings.integrations.netbox.test', 'Test connection')}
             </button>
@@ -895,7 +895,7 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
             type="button"
             disabled={busy || !hasToken}
             onClick={testToken}
-            className="bg-cp-ok px-3 py-1 text-cp-base hover:brightness-110 disabled:opacity-50"
+            className="bg-cp-ok text-white px-3 py-1 text-cp-base hover:brightness-110 disabled:opacity-50"
           >
             {t('settings.integrations.rentman.test', 'Test connection')}
           </button>

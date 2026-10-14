@@ -215,12 +215,20 @@ for (const f of funde) {
  *   Wer das Symbol nicht deutet, findet die Leiste dort in Worten wieder —
  *   `tests/leistenSchliessen.test.ts` haelt das Paar fest.
  *
+ * DER NEUNTE KAM AM 2026-10-14 DAZU: der Darstellungs-Knopf in der Kopfleiste
+ * (Sonne / Mond / Bildschirm fuer Auto). Er zeigt die GELTENDE Darstellung
+ * als Symbol — ein Wort daneben („Dunkel") kostete in der 40-px-Leiste die
+ * Breite, die auf dem Telefon die Menues brauchen. Name und Tooltip sagen
+ * „Darstellung: Dunkel", die Klappe nennt alle drei Stellungen in Worten,
+ * und in Einstellungen → Darstellung steht dasselbe als beschriftetes
+ * Segment.
+ *
  * Die Zahl ist eine OBERGRENZE und keine Zielmarke: wer einen neunten
  * symbolgleichen Knopf anlegt, traegt ihn hier ein und sagt, warum er ohne
  * Wort auskommt. Ohne diese Grenze waechst die Zahl wieder still — sie war
  * schon einmal bei 32.
  */
-const BUDGET = 8
+const BUDGET = 9
 let befunde = funde.length
 if (nurSymbol.length > BUDGET) {
   console.error(

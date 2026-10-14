@@ -382,7 +382,7 @@ export const NewRentmanDeviceWizard = ({
               <button
                 type="button"
                 onClick={handleSaveAiSettings}
-                className="bg-cp-ok px-2 py-1 text-cp-xs hover:brightness-110"
+                className="bg-cp-ok text-white px-2 py-1 text-cp-xs hover:brightness-110"
               >
                 {t('common.save', 'Save')}
               </button>

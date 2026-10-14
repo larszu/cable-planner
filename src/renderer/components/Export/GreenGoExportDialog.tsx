@@ -602,7 +602,7 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
                   type="button"
                   onClick={addUser}
                   disabled={config.users.length >= MAX_USERS}
-                  className="bg-cp-ok px-2 py-1 text-cp-xs hover:brightness-110 disabled:opacity-50"
+                  className="bg-cp-ok text-white px-2 py-1 text-cp-xs hover:brightness-110 disabled:opacity-50"
                 >
                   {t('greengo.addStation', '+ Station')}
                 </button>
@@ -684,7 +684,7 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
                   type="button"
                   onClick={addGroup}
                   disabled={config.groups.length >= MAX_GROUPS}
-                  className="bg-cp-ok px-2 py-1 text-cp-xs hover:brightness-110 disabled:opacity-50"
+                  className="bg-cp-ok text-white px-2 py-1 text-cp-xs hover:brightness-110 disabled:opacity-50"
                 >
                   {t('greengo.addGroup', '+ Group')}
                 </button>
@@ -894,7 +894,7 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
                     )
                   : undefined
               }
-              className="bg-cp-ok px-3 py-1.5 text-cp-xs hover:brightness-110 disabled:cursor-not-allowed disabled:bg-cp-surface-4 disabled:text-cp-text-muted disabled:hover:bg-cp-surface-4"
+              className="bg-cp-ok text-white px-3 py-1.5 text-cp-xs hover:brightness-110 disabled:cursor-not-allowed disabled:bg-cp-surface-4 disabled:text-cp-text-muted disabled:hover:bg-cp-surface-4"
             >
               <Icon icon={Download} size="xs" className="mr-1 inline-block align-text-bottom" />{t('greengo.export.gg5', 'Export as .gg5')}
             </button>
@@ -1156,7 +1156,7 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
                   {t('greengo.importOverlay.cancel', 'Cancel')}
                 </button>
                 <button type="button" onClick={applyImport}
-                  className="inline-flex items-center gap-1 bg-cp-ok px-3 py-1.5 text-cp-xs font-medium hover:brightness-110">
+                  className="inline-flex items-center gap-1 bg-cp-ok text-white px-3 py-1.5 text-cp-xs font-medium hover:brightness-110">
                   {t('greengo.importOverlay.apply', 'Apply')}
                   <Icon icon={ArrowRight} size="xs" />
                 </button>

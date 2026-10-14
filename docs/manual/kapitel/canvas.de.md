@@ -4,9 +4,19 @@ Die Arbeitsfläche ist das Herzstück von Cable Planner. Hier planen Sie Ihr Ver
 
 ### Werkzeugleiste (Toolbar)
 
-Die Toolbar ist eine schwebende Leiste oben links auf dem Canvas. Sie enthält alle wichtigen Funktionen und lässt sich mit dem Zieh-Griff verschieben.
+Die Toolbar ist eine schwebende Leiste oben links auf dem Canvas, eine Zeile, mit dem Zieh-Griff verschiebbar. Sichtbar ist, was beim Zeichnen ständig gebraucht wird:
 
-![Toolbar-Hauptansicht](bilder/de/canvas-01-toolbar-main.jpg)
+- **Defaults** – Voreinstellungen für neue Kabel und die Darstellung
+- **Rahmen** – neuer Rahmen bzw. Rahmen um die Auswahl
+- **Auswahl- und Ausrichte-Knöpfe** – nur, solange Geräte ausgewählt sind
+- **Ebenen-Chips** (Video, Audio, Control, Network, Power, Other) – blenden die Kabel einer Ebene ein und aus; der farbige Punkt zeigt die Signalart
+- **Mehr** – alles Weitere
+
+Unter **Mehr** stehen: Ebenen-Verwaltung (eigene Ebene anlegen, alle wieder einblenden), Sperren, Signalweg, Räume, 3D, Schema, Schaltbild, Prüfbild, Abschließen, Badges, Anmerkungen, Hallenplan und Symbole. Hallenplan, Symbole und Anmerkungen gibt es zusätzlich im Menü *Ansicht*. Eine eingeschaltete Betriebsart – Signalweg, Schaltbild, Prüfbild – erscheint mit ihrem Stand direkt in der Leiste.
+
+Auf dem Telefon zeigt die Leiste nur Defaults und Mehr; Ebenen, Rahmen und Auswahl-Knöpfe stehen dort unter Mehr, damit der Plan die Breite bekommt.
+
+![Toolbar-Hauptansicht](bilder/de/canvas-leiste-01-leiste-ganz.jpg)
 
 #### Toolbar schließen und wieder öffnen
 
@@ -222,7 +232,7 @@ Wenn Sie mehrere Geräte auswählen, erscheint über der Auswahl eine kleine Wer
 
 ### Sperren (Lock)
 
-Der **Sperren**-Button fasst drei Schutzmaßnahmen zusammen:
+Der **Sperren**-Button unter *Mehr* fasst drei Schutzmaßnahmen zusammen:
 
 | Bereich | Effekt |
 |---------|--------|
@@ -234,7 +244,7 @@ Das Button-Label zeigt die Anzahl der aktiven Sperren. Wenn alle drei aktiv sind
 
 ### Finalisieren (Plan-Lock)
 
-Der **Finalize**-Button auf der rechten Seite der Toolbar sperrt den gesamten Plan:
+Der Eintrag **Abschließen** unter *Mehr* sperrt den gesamten Plan:
 
 ![Finalize-Button](bilder/de/canvas-17-finalize-button.jpg)
 
@@ -248,11 +258,11 @@ Ein Klick toggelt zwischen Editing und Finalised. Der Plan bleibt in dieser Date
 
 ![Anmerkungen-Buttons](bilder/de/canvas-18-annotations-buttons.jpg)
 
-**Badges** zeigen/verstecken die farbigen Kreis-Marken auf dem Canvas, ohne Anmerkungen zu löschen.
+Beide Einträge stehen unter *Mehr*. **Badges** zeigen/verstecken die farbigen Kreis-Marken auf dem Canvas, ohne Anmerkungen zu löschen.
 
 **Annotations** öffnet das Anmerkungs-Panel mit einer Liste aller Markierungen. Hier können Sie Notizen hinzufügen, Farben ändern und Anmerkungen verwalten.
 
-Im **Viewer-Modus** wird der Anmerkungen-Button lila und zeigt "Viewer", um Reviewer zu ermutigen, Feedback zu geben.
+Im **Viewer-Modus** lädt der Eintrag Reviewer ein, Anmerkungen zu hinterlassen.
 
 ### Zoom und Navigation
 

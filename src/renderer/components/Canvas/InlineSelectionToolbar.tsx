@@ -114,7 +114,7 @@ export const InlineSelectionToolbar = () => {
   const hasEquipment = eqNodes.length >= 1
 
   const btn =
-    'flex h-7 w-7 items-center justify-center rounded text-cp-text-secondary hover:bg-cp-surface-2 hover:text-cp-text'
+    'flex h-7 w-7 items-center justify-center rounded-cp-full text-cp-text-secondary hover:bg-cp-surface-2 hover:text-cp-text'
 
   const alignButtons: Array<{ mode: AlignMode; icon: typeof Copy; label: string }> = [
     { mode: 'left', icon: AlignHorizontalJustifyStart, label: t('inlineToolbar.alignLeft', 'Align left') },
@@ -127,7 +127,7 @@ export const InlineSelectionToolbar = () => {
 
   return (
     <div
-      className="nodrag nopan fixed z-40 flex items-center gap-0.5 border border-cp-border bg-cp-surface-1/95 p-1 backdrop-blur"
+      className="nodrag nopan fixed z-40 flex items-center gap-0.5 rounded-cp-full border border-cp-border bg-cp-surface-raised p-1 shadow-cp-2"
       style={{ left: screenX, top: Math.max(8, screenY), transform: 'translateX(-50%)' }}
       onMouseDown={(e) => e.stopPropagation()}
       onClick={(e) => e.stopPropagation()}

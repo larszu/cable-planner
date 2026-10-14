@@ -82,9 +82,13 @@
   heights and racks (`set_rack_units`, `arrange_rack`), and a check against a
   cable list (`verify_cabling`). Each write call is one undo step.
 - **Offline first.** One JSON file per project, secrets in the OS keychain.
-- **Light and dark.** A calm, neutral interface with the brand blue as the
-  only accent. *Auto* follows the system; *Light* and *Dark* are one click away
-  in *Settings → Appearance* or the *View* menu, and the choice is kept.
+- **Calm by default.** One single-line toolbar over the plan: defaults,
+  frame, selection tools and the layer chips; everything else sits under
+  *More*. Devices are neutral cards with their colour as a thin edge.
+- **Light and dark.** A neutral interface with the brand blue as the only
+  accent. *Auto* follows the system; *Light* and *Dark* are one click away
+  with the theme button in the header, in *Settings → Appearance* or the
+  *View* menu, and the choice is kept.
 
 ## Screenshots
 

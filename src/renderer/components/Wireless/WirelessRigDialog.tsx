@@ -132,7 +132,7 @@ export const WirelessRigDialog = () => {
           <button
             type="button"
             onClick={addChannel}
-            className="flex items-center gap-1 bg-cp-ok px-2.5 py-1.5 text-cp-xs hover:brightness-110"
+            className="flex items-center gap-1 bg-cp-ok text-white px-2.5 py-1.5 text-cp-xs hover:brightness-110"
           >
             <Plus size={14} /> {t('wireless.addChannel', 'Channel')}
           </button>

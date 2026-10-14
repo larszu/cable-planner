@@ -656,7 +656,7 @@ export const CableProperties = () => {
           ))}
           <button
             type="button"
-            className="bg-cp-ok px-2 py-1 text-cp-xs hover:brightness-110"
+            className="bg-cp-ok text-white px-2 py-1 text-cp-xs hover:brightness-110"
             onClick={() =>
               updateCable(cable.id, {
                 adern: [

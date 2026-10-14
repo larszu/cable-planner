@@ -483,7 +483,7 @@ const SourcePicker = ({
               const n = Number(custom)
               if (!Number.isNaN(n)) onPick(n)
             }}
-            className="flex-1 bg-cp-ok px-2 py-1 text-cp-xs hover:brightness-110"
+            className="flex-1 bg-cp-ok text-white px-2 py-1 text-cp-xs hover:brightness-110"
           >
             {t('common.apply', 'Apply')}
           </button>
@@ -1401,7 +1401,7 @@ export const AtemMvConfigDialog = () => {
               type="button"
               onClick={handleApply}
               disabled={!connected}
-              className="bg-cp-ok px-3 py-1 text-cp-xs enabled:hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+              className="bg-cp-ok text-white px-3 py-1 text-cp-xs enabled:hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
               title={
                 connected
                   ? t('atem.mv.applyTitle', 'Push configuration to ATEM')

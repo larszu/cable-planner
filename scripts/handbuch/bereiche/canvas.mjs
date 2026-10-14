@@ -97,7 +97,62 @@ async function verschiebeAnsicht(zielY = 270) {
 
 // ─── Bildausschnitte ──────────────────────────────────────────────────────────
 const FENSTER = { width: 1800, height: 1000 }
-const leiste = () => w.locator('[data-cp-canvas-toolbar]')
+// Seit 2026-10-14 (ruhige Leiste) stehen die selteneren Schalter unter
+// „Mehr" und sind nur bei offener Klappe im DOM. Statt jede der ~60 Stellen
+// unten umzuschreiben, oeffnet ein Locator aus der Leiste die Klappe selbst,
+// sobald er bedient wird und nichts findet. `count()` loest das bewusst NICHT
+// aus: damit fragen Schritte, ob etwas da IST — ein Nachsehen darf die Klappe
+// nicht aufreissen.
+const MEHR_AUSLOESER = new Set(['count', 'all', 'evaluateAll'])
+const ABGELEITET = new Set(['first', 'last', 'nth', 'filter', 'locator', 'getByRole', 'getByTitle', 'getByText', 'getByPlaceholder', 'getByLabel', 'and', 'or'])
+async function mehrBeiBedarf(loc) {
+  if (await loc.count()) return
+  if (await w.locator('.cp-mehr-klappe').count()) return
+  const mehr = w.locator('[data-cp-canvas-toolbar] button[aria-haspopup="true"]').first()
+  if (!(await mehr.count())) return
+  await mehr.click({ timeout: 5000 })
+  await w.waitForTimeout(350)
+  // Steht es auch dort nicht, war es nie unter „Mehr" — Klappe wieder zu,
+  // sonst liegt sie ueber dem Plan und faengt die naechsten Klicks.
+  if (!(await loc.count())) {
+    await mehr.click({ timeout: 5000 }).catch(() => {})
+    await w.waitForTimeout(200)
+  }
+}
+const klug = (loc) =>
+  new Proxy(loc, {
+    get(ziel, name) {
+      const wert = ziel[name]
+      if (typeof wert !== 'function') return wert
+      if (ABGELEITET.has(name)) return (...args) => klug(wert.apply(ziel, args))
+      if (MEHR_AUSLOESER.has(name)) return wert.bind(ziel)
+      return async (...args) => {
+        await mehrBeiBedarf(ziel)
+        return wert.apply(ziel, args)
+      }
+    },
+  })
+const leiste = () => klug(w.locator('[data-cp-canvas-toolbar]'))
+// Gegenstueck: wer auf dem PLAN etwas anfasst, braucht die Klappe zu — sie
+// liegt sonst ueber Geraeten und Rahmen und faengt den Klick ab.
+async function mehrZu() {
+  if (!(await w.locator('.cp-mehr-klappe').count())) return
+  await w.keyboard.press('Escape')
+  await w.waitForTimeout(200)
+}
+const freiePlanung = (loc) =>
+  new Proxy(loc, {
+    get(ziel, name) {
+      const wert = ziel[name]
+      if (typeof wert !== 'function') return wert
+      if (ABGELEITET.has(name)) return (...args) => freiePlanung(wert.apply(ziel, args))
+      if (MEHR_AUSLOESER.has(name)) return wert.bind(ziel)
+      return async (...args) => {
+        await mehrZu()
+        return wert.apply(ziel, args)
+      }
+    },
+  })
 const flaeche = () => w.locator('#cable-planner-canvas')
 
 const istRechteck = (v) => v && typeof v === 'object' && typeof v.width === 'number' && typeof v.x === 'number'
@@ -158,7 +213,17 @@ const flaecheOben = async () => {
 }
 const R_FLAECHE = ausschnitt(flaecheOben)
 const R_VOLL = () => flaeche()
-const R_LEISTE = () => leiste()
+// Die Leiste samt offener „Mehr"-Klappe (die ragt unter der Leiste heraus).
+const leisteMitKlappe = () =>
+  vereine([() => w.locator('[data-cp-canvas-toolbar]'), () => w.locator('.cp-mehr-klappe')], 0)
+const R_LEISTE = () => ({
+  count: async () => 1,
+  first: () => ({
+    count: async () => 1,
+    boundingBox: leisteMitKlappe,
+    screenshot: async (opt) => w.screenshot({ ...opt, clip: await leisteMitKlappe() }),
+  }),
+})
 const R_MENUE = () => w.locator('[role="menu"]').last()
 const R_DIALOG = () => w.locator('[role="dialog"]').last()
 const B_INSPECTOR = { x: 1518, y: 40, width: 282, height: 935 }
@@ -173,9 +238,9 @@ const R_STATUS = festesZiel(B_STATUS)
 const R_PANEL = festesZiel(B_PANEL)
 
 // ─── Hilfen zum Bedienen ──────────────────────────────────────────────────────
-const knoten = (name) => w.locator('.react-flow__node-equipment').filter({ hasText: name }).first()
+const knoten = (name) => freiePlanung(w.locator('.react-flow__node-equipment').filter({ hasText: name }).first())
 const alleKnoten = () => w.locator('.react-flow__node-equipment')
-const rahmenKnoten = () => w.locator('.react-flow__node-location')
+const rahmenKnoten = () => freiePlanung(w.locator('.react-flow__node-location'))
 const KOPF = { x: 70, y: 12 }
 const kabelPunkt = (i, anteil = 0.5) =>
   w.evaluate(([i, anteil]) => {
@@ -481,6 +546,14 @@ const kopfKlick = (name, mod) => knoten(name).click({ position: KOPF, modifiers:
 const rueckgaengig = async () => {
   await w.getByRole('button', { name: M('app.undo') }).first().click({ timeout: 5000 })
   await pause(500)
+  // Ein Schritt, der nichts veraendert hat (Verteilen bereits verteilter
+  // Geraete), legt keinen Verlaufseintrag an — dann nahm dieses Rueckgaengig
+  // das Laden des Beispielprojekts zurueck, und jeder folgende Schritt fand
+  // einen leeren Plan. Leerer Plan heisst: das war einer zu viel.
+  if ((await alleKnoten().count()) === 0) {
+    await w.getByRole('button', { name: M('app.redo') }).first().click({ timeout: 5000 })
+    await pause(500)
+  }
 }
 const R_FLAECHE_INSPECTOR = ausschnitt(flaecheOben, { x: 1518, y: 40, width: 282, height: 680 })
 
@@ -494,6 +567,10 @@ abschnitt('auswahl', async () => {
     await f.schritt(
       `einzeln-${name}`,
       async () => {
+        // Das Rueckgaengig nach dem vorigen Schritt hebt die Auswahl auf, und
+        // ohne Auswahl gibt es keine Ausrichte-Knoepfe.
+        await kopfKlick('Camera 2')
+        await pause(300)
         await merkeTitel(`ausrichten-einzeln-${name}`, leiste().getByRole('button', { name: M(key) }))
         await klickMitte(leiste().getByRole('button', { name: M(key) }))
       },
@@ -616,14 +693,14 @@ abschnitt('auswahl', async () => {
       await abwaehlen()
       await kopfKlick('Camera 2')
       await kopfKlick('Vision mixer', 'Shift')
-      await merkeTitel('kabel-verbinden', leiste().getByRole('button', { name: M('toolbar.bulkConnect.label') }))
+      await merkeTitel('kabel-verbinden', leiste().getByRole('button', { name: M('toolbar.bulkConnect.title') }))
     },
     { ziel: R_LEISTE },
   )
   await f.schritt(
     'kabel-verbinden-dialog',
     async () => {
-      await klickMitte(leiste().getByRole('button', { name: M('toolbar.bulkConnect.label') }))
+      await klickMitte(leiste().getByRole('button', { name: M('toolbar.bulkConnect.title') }))
       await pause(500)
     },
     { ziel: R_DIALOG },
@@ -644,7 +721,7 @@ abschnitt('auswahl', async () => {
     'kabel-verbinden-erstellt',
     async () => {
       const d = R_DIALOG()
-      await d.getByRole('button', { name: /^(Create|Erstelle)/ }).first().click({ timeout: 6000 })
+      await d.getByRole('button', { name: /(^Create|erstellen$|^Erstelle)/i }).first().click({ timeout: 6000 })
       await pause(900)
     },
     { ziel: R_FLAECHE },
@@ -738,9 +815,12 @@ abschnitt('kuerzel', async () => {
 const rahmenNeu = () => leiste().getByRole('button', { name: M('toolbar.location.add') })
 const rahmenUmAuswahl = () => leiste().getByRole('button', { name: M('toolbar.location.addAround') })
 const rahmenName = (n = 0) => rahmenKnoten().nth(n).locator('span').last()
+// Doppelklick auf den TITEL des Rahmens, nicht in seine Mitte: Kabel liegen
+// ueber Rahmen, und ein Doppelklick dort oeffnete „Kabel bearbeiten" statt
+// des Umbenennens — ob das passiert, hing davon ab, wo der Rahmen entstand.
+const rahmenDoppelklick = (n = 0) => rahmenName(n).dblclick({ timeout: 6000 })
 async function rahmenUmbenennen(n, name) {
-  const b = await rahmenKnoten().nth(n).boundingBox()
-  await w.mouse.dblclick(b.x + b.width / 2, b.y + b.height / 2)
+  await rahmenDoppelklick(n)
   await pause(500)
   const d = R_DIALOG()
   await d.getByRole('textbox').fill(name)
@@ -762,8 +842,7 @@ abschnitt('rahmen', async () => {
   await f.schritt(
     'rahmen-umbenennen',
     async () => {
-      const b = await rahmenKnoten().first().boundingBox()
-      await w.mouse.dblclick(b.x + b.width / 2, b.y + b.height - 30)
+      await rahmenDoppelklick(0)
       await pause(500)
     },
     { ziel: R_DIALOG },
@@ -789,6 +868,13 @@ abschnitt('rahmen', async () => {
   await f.schritt(
     'rahmen-groesse',
     async () => {
+      // Die Griffe erscheinen nur am im PLAN gewaehlten Rahmen; ein Klick auf
+      // das Namensschild waehlt ihn nur fuers Eigenschaften-Panel. Also in
+      // die freie obere linke Ecke des Rahmens klicken (Kabel liegen tiefer).
+      const r = await rahmenKnoten().first().boundingBox()
+      await mehrZu()
+      await w.mouse.click(r.x + 14, r.y + 14)
+      await pause(300)
       const g = w.locator('.react-flow__resize-control.handle.bottom.right').first()
       const p = await mitte(g)
       await ziehe(p, { x: p.x + 140, y: p.y + 90 })
@@ -821,11 +907,14 @@ abschnitt('rahmen', async () => {
   await f.schritt(
     'rahmen-kontext',
     async () => {
-      const b = await rahmenKnoten().first().boundingBox()
-      await w.mouse.click(b.x + b.width / 2, b.y + b.height - 12, { button: 'right' })
+      // Auf den Titel, nicht an den unteren Rand: dort liegen oft Kabel, und
+      // deren Kontextmenue kam statt dem des Rahmens.
+      const b = await rahmenName(0).boundingBox()
+      await mehrZu()
+      await w.mouse.click(b.x + b.width / 2, b.y + b.height / 2, { button: 'right' })
       await pause(400)
       gewaehlt.x = b.x + b.width / 2
-      gewaehlt.y = b.y + b.height - 12
+      gewaehlt.y = b.y + b.height / 2
     },
     { ziel: () => ({ count: async () => 1, first: () => ({ screenshot: async (o) => w.screenshot({ ...o, clip: umPunkt(gewaehlt.x, gewaehlt.y, 240, 130) }) }) }) },
   )
@@ -970,6 +1059,11 @@ abschnitt('raeume', async () => {
     'etage-hoehen',
     async () => {
       const felder = w.locator('input[placeholder="m"]')
+      // Die Etagen stehen in einem zugeklappten Abschnitt des Inspektors.
+      if (!(await felder.first().isVisible().catch(() => false))) {
+        await w.locator('summary').filter({ hasText: /Etagen|Floors/ }).first().click({ timeout: 5000 }).catch(() => {})
+        await pause(300)
+      }
       const n = await felder.count()
       if (n >= 2) {
         await felder.nth(0).fill('0')

@@ -71,7 +71,7 @@ export const RaumSichtbarkeit = () => {
         aria-haspopup="menu"
         aria-expanded={offen}
         title={t('canvas.rooms.title', 'Show or hide floors and rooms')}
-        className={`inline-flex h-6 items-center gap-1 border px-2 text-cp-xs transition ${
+        className={`inline-flex h-7 items-center gap-1 rounded-cp-full border px-3 text-cp-xs transition ${
           isLight
             ? 'border-slate-300 bg-slate-100 text-slate-600 hover:bg-slate-200'
             : 'border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700'
@@ -151,7 +151,7 @@ export const Gebaeude3DKnopf = () => {
       type="button"
       onClick={oeffnen}
       title={t('gebaeude3d.open', 'Show rooms by floor in 3D, with the connections between them')}
-      className={`inline-flex h-6 items-center gap-1 border px-2 text-cp-xs transition ${
+      className={`inline-flex h-7 items-center gap-1 rounded-cp-full border px-3 text-cp-xs transition ${
         isLight
           ? 'border-slate-300 bg-slate-100 text-slate-600 hover:bg-slate-200'
           : 'border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700'

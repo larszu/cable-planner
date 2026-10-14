@@ -28,7 +28,13 @@ import { useCanvasProjectStore as useProjectStore } from '../../store/projectSto
 import { format, useTranslation } from '../../lib/i18n'
 import { useLongPress } from '../../hooks/useLongPress'
 
-export const LayerVisibilityChips = () => {
+/**
+ * `teil`: die Leiste zeigt nur die Chips, die Verwaltung (eigene Ebene
+ * anlegen, alle wieder einblenden) steht unter „Mehr" (2026-10-14).
+ */
+export const LayerVisibilityChips = ({ teil = 'alles' }: { teil?: 'alles' | 'chips' | 'verwaltung' } = {}) => {
+  const chips = teil !== 'verwaltung'
+  const verwaltung = teil !== 'chips'
   const t = useTranslation()
   const layerVisibility = useUiStore((s) => s.layerVisibility)
   const setLayerVisibility = useUiStore((s) => s.setLayerVisibility)
@@ -36,8 +42,6 @@ export const LayerVisibilityChips = () => {
   const customLayers = useUiStore((s) => s.customLayers)
   const addCustomLayer = useUiStore((s) => s.addCustomLayer)
   const removeCustomLayer = useUiStore((s) => s.removeCustomLayer)
-  const canvasTheme = useUiStore((s) => s.canvasTheme)
-  const isLight = canvasTheme === 'light'
   const [menuOpen, setMenuOpen] = useState(false)
   const menuHuelle = useRef<HTMLDivElement | null>(null)
 
@@ -130,17 +134,22 @@ export const LayerVisibilityChips = () => {
        Wort „Control". `min-w-0` gehoert dazu: ohne das darf das Kind unter
        seine Inhaltsbreite gar nicht erst schrumpfen.
        Der Ausdruck-Dialog setzt denselben Umbruch schon aussen herum. */
-    <div ref={menuHuelle} className="relative flex min-w-0 flex-wrap items-center gap-1">
-      <span
-        className={`select-none text-cp-xs   ${isLight ? 'text-slate-400' : 'text-slate-400'}`}
-        title={t(
-          'canvas.layerChips.layerStripTitle',
-          'Layer visibility (only cables are filtered, devices stay)',
-        )}
-      >
-        {t('canvas.layerChips.layers', 'Layers')}
-      </span>
-      {(STANDARD_LAYERS as readonly StandardLayer[]).map((layer) => {
+    <div
+      ref={menuHuelle}
+      className="relative flex min-w-0 flex-wrap items-center gap-1"
+      role="group"
+      aria-label={t('canvas.layerChips.layers', 'Layers')}
+      title={t(
+        'canvas.layerChips.layerStripTitle',
+        'Layer visibility (only cables are filtered, devices stay)',
+      )}
+    >
+      {/* Design-Vertrag 2026-10, Runde „ruhiger" (2026-10-14): die Chips sind
+          einfarbig neutral, aktiv im Akzent-weich. Die Signalart steht nur
+          noch als kleiner Farbpunkt im Chip — vorher trug jeder Chip Rahmen,
+          Flaeche und Schrift in seiner Gewerkfarbe, fuenf bunte Kaesten in
+          einer Reihe, die lauter waren als der Plan darunter. */}
+      {chips && (STANDARD_LAYERS as readonly StandardLayer[]).map((layer) => {
         const style = LAYER_STYLES[layer]
         const visible = layerVisibility[layer] !== false
         const count = layerCounts.counts[layer] ?? 0
@@ -148,6 +157,7 @@ export const LayerVisibilityChips = () => {
           <button
             key={layer}
             type="button"
+            aria-pressed={visible}
             onClick={() => setLayerVisibility(layer, !visible)}
             title={format(
               t(
@@ -162,41 +172,20 @@ export const LayerVisibilityChips = () => {
                   : t('canvas.layerChips.hiddenShow', 'hidden (click to show)'),
               },
             )}
-            className="inline-flex h-6 items-center gap-1 border px-2 text-cp-xs font-medium transition"
-            style={{
-              borderColor: visible ? style.color : isLight ? '#cbd5e1' : '#334155',
-              background: visible
-                ? isLight
-                  ? `${style.color}22`
-                  : `${style.color}33`
-                : 'transparent',
-              color: visible ? style.color : isLight ? '#94a3b8' : '#475569',
-              opacity: visible ? 1 : 0.6,
-              textDecoration: visible ? 'none' : 'line-through',
-            }}
+            className="cp-chip"
           >
-            <span className="text-cp-xs">{style.icon}</span>
+            <span className="cp-chip__dot" style={{ color: style.color }} aria-hidden="true" />
             <span>{style.label}</span>
-            {count > 0 && (
-              <span
-                className="px-1 text-cp-xs font-semibold"
-                style={{
-                  background: visible ? `${style.color}55` : isLight ? '#cbd5e1' : '#334155',
-                  color: visible ? '#fff' : isLight ? '#475569' : '#94a3b8',
-                }}
-              >
-                {count}
-              </span>
-            )}
           </button>
         )
       })}
-      {customLayers.map((layer) => {
+      {chips && customLayers.map((layer) => {
         const visible = layerVisibility[layer] !== false
         return (
           <button
             key={layer}
             type="button"
+            aria-pressed={visible}
             onClick={() => setLayerVisibility(layer, !visible)}
             onContextMenu={(e) => {
               e.preventDefault()
@@ -209,24 +198,14 @@ export const LayerVisibilityChips = () => {
               t('canvas.layerChips.customTitle', '{layer} (custom) — right-click to remove'),
               { layer },
             )}
-            className="inline-flex h-6 items-center gap-1 border px-2 text-cp-xs font-medium transition"
-            style={{
-              borderColor: visible ? '#94a3b8' : isLight ? '#cbd5e1' : '#334155',
-              background: visible
-                ? isLight
-                  ? '#cbd5e122'
-                  : '#94a3b833'
-                : 'transparent',
-              color: visible ? (isLight ? '#475569' : '#cbd5e1') : isLight ? '#94a3b8' : '#475569',
-              opacity: visible ? 1 : 0.6,
-              textDecoration: visible ? 'none' : 'line-through',
-            }}
+            className="cp-chip"
           >
             <Icon icon={Diamond} size="xs" />
             <span>{layer}</span>
           </button>
         )
       })}
+      {verwaltung && (<>
       {/* „⋯" allein sagt niemandem, dass dahinter das Anlegen einer eigenen
           Ebene und das Zuruecksetzen aller Ebenen steckt (Nutzer-Rueckmeldung
           2026-09-07). Der Knopf traegt jetzt das Wort. */}
@@ -236,11 +215,7 @@ export const LayerVisibilityChips = () => {
         title={t('canvas.layerChips.menuTitle', 'Layer management (create custom / reset all)')}
         aria-haspopup="menu"
         aria-expanded={menuOpen}
-        className={`inline-flex h-6 items-center gap-1 border px-2 text-cp-xs transition ${
-          isLight
-            ? 'border-slate-300 bg-slate-100 text-slate-600 hover:bg-slate-200'
-            : 'border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700'
-        }`}
+        className="cp-chip cp-chip--plain"
       >
         <span>{t('canvas.layerChips.menuButton', 'Layers')}</span>
         <span aria-hidden="true">⋯</span>
@@ -255,9 +230,7 @@ export const LayerVisibilityChips = () => {
              dieser Zusage misst. */
           role="menu"
           onMouseLeave={() => setMenuOpen(false)}
-          className={`absolute right-0 top-7 z-50 w-56 overflow-hidden border text-cp-xs ${
-            isLight ? 'border-slate-300 bg-white text-slate-700' : 'border-slate-700 bg-slate-900 text-slate-200'
-          }`}
+          className="absolute right-0 top-8 z-50 w-56 overflow-hidden border border-cp-border bg-cp-surface-raised text-cp-xs text-cp-text"
         >
           <button
             type="button"
@@ -266,9 +239,7 @@ export const LayerVisibilityChips = () => {
               setMenuOpen(false)
               void handleAddCustom()
             }}
-            className={`flex w-full items-center gap-2 border-b px-3 py-2 text-left ${
-              isLight ? 'border-slate-200 hover:bg-slate-100' : 'border-slate-800 hover:bg-slate-800'
-            }`}
+            className="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-cp-surface-2"
           >
             <Icon icon={Plus} size="xs" />
             <span>{t('canvas.layerChips.addCustom', 'Create custom layer…')}</span>
@@ -280,9 +251,7 @@ export const LayerVisibilityChips = () => {
               setMenuOpen(false)
               resetLayerVisibility()
             }}
-            className={`flex w-full items-center gap-2 px-3 py-2 text-left ${
-              isLight ? 'hover:bg-slate-100' : 'hover:bg-slate-800'
-            }`}
+            className="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-cp-surface-2"
             disabled={allOn}
             style={{ opacity: allOn ? 0.5 : 1 }}
           >
@@ -291,6 +260,7 @@ export const LayerVisibilityChips = () => {
           </button>
         </div>
       )}
+      </>)}
     </div>
   )
 }

@@ -178,7 +178,7 @@ export const SinkProfileSection = ({ equipment }: { equipment: EquipmentItem }) 
 
           <button
             type="button"
-            className="mt-2 bg-cp-ok px-2 py-1 text-cp-xs hover:brightness-110"
+            className="mt-2 bg-cp-ok text-white px-2 py-1 text-cp-xs hover:brightness-110"
             onClick={() =>
               setze({
                 formate: [

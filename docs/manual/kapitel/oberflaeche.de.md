@@ -39,8 +39,11 @@ Das Menü Ansicht stellt Funktionen zur Verfügung, um die Canvas-Ansicht zu bee
 
 | Funktion | Beschreibung |
 |---|---|
-| Helles Design | Zwischen hellem und dunklem Design umschalten |
-| System-Theme folgen | Das Design des Betriebssystems verwenden |
+| Darstellung: wie System | Hell oder dunkel nach der Einstellung des Betriebssystems (Auto, Voreinstellung) |
+| Helle Darstellung | Immer hell |
+| Dunkle Darstellung | Immer dunkel |
+| Hallenplan | Hallenplan-Panel ein- und ausblenden |
+| Symbole | Symbol-Panel ein- und ausblenden |
 | Vollbild | App im Vollbildmodus anzeigen |
 
 #### Kabel und Beschriftungen
@@ -117,9 +120,7 @@ Zusätzlich können folgende Badges angezeigt werden:
 
 ![Helles Design](bilder/de/oberflaeche-theme-light.jpg)
 
-Das App-Design kann zwischen einem hellen und dunklem Design umgeschaltet werden. Im hellen Design hat die App einen weißen/hellen Hintergrund, im dunklen Design (Standard) einen dunklen Hintergrund. Die Farbpalette wird automatisch angepasst.
-
-Sie können auch einstellen, dass das System-Theme des Betriebssystems verwendet wird. Dann wechselt die App automatisch zwischen hellem und dunklem Design, je nach Systemeinstellung.
+Die App hat eine helle und eine dunkle Darstellung. Drei Stellungen stehen zur Wahl: **Auto** (Voreinstellung, folgt dem Betriebssystem), **Hell** und **Dunkel**. Umschalten geht an drei Stellen: mit dem Darstellungs-Knopf rechts in der Kopfzeile (Sonne, Mond oder Bildschirm – ein Klick öffnet die drei Stellungen), in *Einstellungen → Darstellung* und im Menü *Ansicht*. Die Wahl bleibt gespeichert.
 
 ### Canvas-Sichtbarkeitsoptionen
 

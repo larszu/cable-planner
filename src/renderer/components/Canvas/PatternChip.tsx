@@ -135,10 +135,10 @@ export function PatternChip() {
 
   return (
     <span className="flex items-center gap-1">
-      <label className="flex items-center gap-1.5 border border-cp-border px-2 py-0.5 text-cp-xs text-cp-text-secondary">
+      <label className="flex h-7 items-center gap-1.5 rounded-cp-full border border-cp-border px-3 text-cp-xs text-cp-text-secondary">
         <span
           aria-hidden
-          className="inline-block h-1.5 w-1.5"
+          className="inline-block h-2 w-2 rounded-cp-full"
           style={{ background: quelleId ? '#fbbf24' : 'var(--cp-text-faint, #64748b)' }}
         />
         <span>{t('canvas.pattern.label', 'Test pattern')}</span>

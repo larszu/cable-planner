@@ -608,7 +608,7 @@ export const PatchListDialog = () => {
               type="button"
               onClick={exportCsv}
               disabled={filtered.length === 0}
-              className="inline-flex items-center gap-1.5 bg-cp-ok px-3 py-1 text-cp-xs hover:brightness-110 disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 bg-cp-ok text-white px-3 py-1 text-cp-xs hover:brightness-110 disabled:opacity-50"
             >
               <Icon icon={Download} size="xs" />
               {t('patchList.exportCsv', 'Export CSV')}
@@ -617,7 +617,7 @@ export const PatchListDialog = () => {
               type="button"
               onClick={() => void exportXlsx()}
               disabled={filtered.length === 0}
-              className="inline-flex items-center gap-1.5 bg-cp-ok px-3 py-1 text-cp-xs hover:brightness-110 disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 bg-cp-ok text-white px-3 py-1 text-cp-xs hover:brightness-110 disabled:opacity-50"
             >
               <Icon icon={Download} size="xs" />
               {t('patchList.exportXlsx', 'Export XLSX')}

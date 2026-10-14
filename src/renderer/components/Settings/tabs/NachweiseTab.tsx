@@ -124,7 +124,7 @@ export const NachweiseTab = () => {
             <button
               type="button"
               onClick={() => setForm(leer())}
-              className="flex items-center gap-1 bg-cp-ok px-2.5 py-1.5 text-cp-xs hover:brightness-110"
+              className="flex items-center gap-1 bg-cp-ok text-white px-2.5 py-1.5 text-cp-xs hover:brightness-110"
             >
               <Plus size={14} /> {t('nachweis.add', 'Credential')}
             </button>
@@ -221,7 +221,7 @@ export const NachweiseTab = () => {
                 type="button"
                 disabled={!form.bezeichnung.trim()}
                 onClick={speichern}
-                className="bg-cp-ok px-3 py-1 text-cp-xs enabled:hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+                className="bg-cp-ok text-white px-3 py-1 text-cp-xs enabled:hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {t('common.save', 'Save')}
               </button>

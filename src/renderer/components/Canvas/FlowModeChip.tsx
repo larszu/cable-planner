@@ -49,11 +49,11 @@ export function FlowModeChip() {
             ? t('canvas.flow.toggleOff', 'Click: turn motion off.')
             : t('canvas.flow.toggleOn', 'Click: turn motion on.')
       }`}
-      className="av-focus flex items-center gap-1.5 whitespace-nowrap border border-cp-border px-2 py-0.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-3"
+      className="av-focus flex items-center gap-1.5 whitespace-nowrap rounded-cp-full border border-cp-border h-7 px-3 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-3"
     >
       <span
         aria-hidden
-        className="inline-block h-1.5 w-1.5"
+        className="inline-block h-2 w-2 rounded-cp-full"
         style={{
           background: live ? 'var(--cp-ok, #22c55e)' : 'var(--cp-text-faint, #64748b)',
           // Motion off: dimmed dot instead of a text suffix, so a click never changes the width (#990).

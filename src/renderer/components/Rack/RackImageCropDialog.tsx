@@ -575,7 +575,7 @@ export const RackImageCropDialog = ({
           <button type="button" onClick={onCancel} className="bg-cp-surface-4 px-3 py-1 text-cp-base hover:bg-cp-surface-5">
             {t('common.cancel', 'Cancel')}
           </button>
-          <button type="button" onClick={finalizeCrop} className="bg-cp-ok px-3 py-1 text-cp-base hover:brightness-110">
+          <button type="button" onClick={finalizeCrop} className="bg-cp-ok text-white px-3 py-1 text-cp-base hover:brightness-110">
             {t('rackCrop.confirm', 'Apply crop')}
           </button>
         </div>
