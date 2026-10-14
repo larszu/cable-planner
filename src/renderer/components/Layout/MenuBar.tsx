@@ -62,6 +62,8 @@ import {
 } from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import { setThemeChoice, useThemeChoice } from '../../lib/themeChoice'
+import { ThemeHeaderButton } from '../shared/ThemeSwitch'
+import { useGrundrissUi } from '../../store/grundrissUiStore'
 import {
   triggerCanvasDuplicate,
   triggerCanvasSelectAll,
@@ -622,6 +624,8 @@ export const MenuBar = ({
   const offPageShowNames = useUiStore((s) => s.offPageShowNames)
   const cableColorMode = useUiStore((s) => s.cableColorMode)
   const annotationsPanelOpen = useUiStore((s) => s.annotationsPanelOpen)
+  const grundrissPanel = useGrundrissUi((s) => s.grundrissPanel)
+  const symbolPanel = useGrundrissUi((s) => s.symbolPanel)
   const canvasSearchVisible = useUiStore((s) => s.canvasSearchVisible)
   const canvasToolbarVisible = useUiStore((s) => s.canvasToolbarVisible)
   // Re-render whenever the projectHistory store changes so the undo/redo
@@ -1262,6 +1266,20 @@ export const MenuBar = ({
           >
             {t('app.menu.view.annotations', 'Annotations panel')}
           </MenuItem>
+          {/* Seit 2026-10-14 auch hier: in der Werkzeugleiste stehen beide nur
+              noch unter „Mehr". */}
+          <MenuItem
+            onClick={() => useGrundrissUi.getState().setGrundrissPanel(!grundrissPanel)}
+            icon={grundrissPanel ? <Icon icon={Check} size="sm" /> : null}
+          >
+            {t('app.menu.view.floorplan', 'Floor plan')}
+          </MenuItem>
+          <MenuItem
+            onClick={() => useGrundrissUi.getState().setSymbolPanel(!symbolPanel)}
+            icon={symbolPanel ? <Icon icon={Check} size="sm" /> : null}
+          >
+            {t('app.menu.view.symbols', 'Symbols')}
+          </MenuItem>
         </Menu>
 
         <Menu label={t('app.menu.help', 'Help')}>
@@ -1355,6 +1373,7 @@ export const MenuBar = ({
           </button>
         </div>
         <SharedSyncPanel />
+        <ThemeHeaderButton />
         {/* #906 — auch in der Browser-Fassung sichtbar. Dort fehlte der Knopf
             ganz, ohne dass irgendwo stand, warum; der Dialog sagt jetzt, dass
             der Weg die Desktop-App braucht. */}

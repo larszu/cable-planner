@@ -1267,7 +1267,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
                 proceedAfterConflicts(decisions, pendingCategoryByName, {}, pendingLinks)
                 setPendingLinks({})
               }}
-              className="bg-cp-ok px-3 py-1.5 text-cp-base font-medium hover:brightness-110"
+              className="bg-cp-ok text-white px-3 py-1.5 text-cp-base font-medium hover:brightness-110"
             >
               {t('rentman.import.next', 'Next')}
             </button>
@@ -1444,7 +1444,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
                 type="button"
                 onClick={() => fetchEquipment(linkedProjectId)}
                 disabled={loading}
-                className="inline-flex items-center gap-1 bg-cp-ok px-3 py-1 text-cp-base font-medium hover:brightness-110 disabled:opacity-50"
+                className="inline-flex items-center gap-1 bg-cp-ok text-white px-3 py-1 text-cp-base font-medium hover:brightness-110 disabled:opacity-50"
                 title={format(t('rentman.import.refreshTitle', 'Reload quantities and devices for "{name}"'), { name: linkedProjectName ?? linkedProjectId })}
               >
                 <Icon icon={RotateCcw} size="xs" />

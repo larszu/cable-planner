@@ -371,7 +371,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
               <button
                 type="button"
                 onClick={openAtemMvLayout}
-                className="bg-cp-ok px-3 py-2 text-cp-base hover:brightness-110"
+                className="bg-cp-ok text-white px-3 py-2 text-cp-base hover:brightness-110"
                 title={t('atem.dialog.mvLive', 'Show multiviewer layout live')}
               >
                 MV Layout →
@@ -441,7 +441,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
                 type="button"
                 onClick={pushAll}
                 disabled={pushing || dirtyCount === 0}
-                className="bg-cp-ok px-3 py-1 text-cp-xs hover:brightness-110 disabled:opacity-50"
+                className="bg-cp-ok text-white px-3 py-1 text-cp-xs hover:brightness-110 disabled:opacity-50"
               >
                 {pushing
                   ? t('atem.dialog.sending', 'Sending…')

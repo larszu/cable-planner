@@ -44,7 +44,7 @@ export const PlusMenu = ({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex h-7 items-center gap-0.5 bg-cp-ok px-2 text-cp-xs hover:brightness-110"
+        className="flex h-7 items-center gap-0.5 rounded-cp-control bg-cp-accent-soft text-cp-text-bright px-2 text-cp-xs hover:bg-cp-surface-4"
         title={t('library.menus.plusTitle', 'Create new device or category')}
         aria-haspopup="menu"
         aria-expanded={open}

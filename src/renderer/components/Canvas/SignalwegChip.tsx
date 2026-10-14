@@ -31,7 +31,7 @@ export const SignalwegChip = () => {
       type="button"
       onClick={() => setSignalweg(null)}
       title={t('canvas.signalweg.clearTitle', 'End the signal path view (Esc)')}
-      className="inline-flex h-6 items-center gap-1 border border-cp-accent bg-cp-accent/15 px-2 text-cp-xs font-medium text-cp-accent"
+      className="inline-flex h-7 items-center gap-1 rounded-cp-full bg-cp-accent-soft px-3 text-cp-xs font-medium text-cp-text-bright"
     >
       <Icon icon={Route} size="xs" />
       <span>

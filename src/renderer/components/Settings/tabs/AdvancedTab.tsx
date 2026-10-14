@@ -208,7 +208,7 @@ export const AdvancedTab = () => {
         <button
           type="button"
           onClick={handleAdd}
-          className="mt-2 bg-cp-ok px-3 py-1 text-cp-xs hover:brightness-110"
+          className="mt-2 bg-cp-ok text-white px-3 py-1 text-cp-xs hover:brightness-110"
         >
           {t('settings.advanced.categories.addBtn', '+ New category')}
         </button>

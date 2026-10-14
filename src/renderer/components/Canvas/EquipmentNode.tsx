@@ -60,6 +60,27 @@ const resolvePortSide = (
   return defaultSide === 'left' ? 'right' : 'left'
 }
 
+/**
+ * Die Farbe eines Geraets (eigene oder Kategorie) als schmale Kante links.
+ * Absolut gesetzt und ohne Rahmenbreite: sie verschiebt nichts — die
+ * Port-Punkte und damit die Kabel-Enden bleiben, wo sie waren.
+ */
+const GeraeteKante = ({ farbe }: { farbe: string }) => (
+  <span
+    aria-hidden="true"
+    style={{
+      position: 'absolute',
+      left: 0,
+      top: 6,
+      bottom: 6,
+      width: 3,
+      background: farbe,
+      borderRadius: 'var(--cp-r-full)',
+      pointerEvents: 'none',
+    }}
+  />
+)
+
 export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeData>) => {
   const {
     HEADER_HEIGHT,
@@ -467,10 +488,8 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
           position: 'relative',
           width: cWidth,
           height: cHeight,
-          background: effectiveNodeColor
-            ? `${effectiveNodeColor}${isLight ? '22' : '33'}`
-            : tokens.body,
-          border: `1px solid ${selected ? 'var(--cp-accent)' : (effectiveNodeColor ?? tokens.border)}`,
+          background: tokens.body,
+          border: `1px solid ${selected ? 'var(--cp-accent)' : tokens.border}`,
           // Design-Vertrag 2026-10: Geraetekacheln sind weiche Karten (Radius m
           // statt l — die Kacheln sind klein und dicht gepackt).
           borderRadius: 'var(--cp-r-m)',
@@ -484,6 +503,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
         }}
         title={`${data.name}${data.subtitle ? ' — ' + data.subtitle : ''}`}
       >
+        {effectiveNodeColor && <GeraeteKante farbe={effectiveNodeColor} />}
         {icon && <span style={{ fontSize: 14, flexShrink: 0 }}>{icon}</span>}
         <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: 600 }}>
           {data.name}
@@ -588,10 +608,12 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
         position: 'relative',
         width,
         height,
-        background: effectiveNodeColor
-          ? `${effectiveNodeColor}${isLight ? '18' : '22'}`
-          : tokens.body,
-        border: `1px solid ${selected ? 'var(--cp-accent)' : (effectiveNodeColor ?? tokens.border)}`,
+        // Ruhige Kachel (2026-10-14): neutrale Flaeche, die Geraete- oder
+        // Kategoriefarbe steht nur noch als schmale Kante links (siehe
+        // `GeraeteKante`). Vorher fuellte sie Koerper, Kopf und Rahmen — fuenf
+        // Geraete waren fuenf bunte Flaechen, lauter als die Kabel.
+        background: tokens.body,
+        border: `1px solid ${selected ? 'var(--cp-accent)' : tokens.border}`,
           // Design-Vertrag 2026-10: Geraetekacheln sind weiche Karten (Radius m
           // statt l — die Kacheln sind klein und dicht gepackt).
           borderRadius: 'var(--cp-r-m)',
@@ -629,14 +651,13 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
           .join(', '),
       }}
     >
+      {effectiveNodeColor && <GeraeteKante farbe={effectiveNodeColor} />}
       {/* Header */}
       <div style={{
         borderRadius: 'var(--cp-r-m) var(--cp-r-m) 0 0',
         padding: `${PADDING}px ${PADDING}px 0 ${PADDING}px`,
-        borderBottom: `1px solid ${effectiveNodeColor ?? tokens.border}`,
-        background: effectiveNodeColor
-          ? `${effectiveNodeColor}${isLight ? '18' : '33'}`
-          : tokens.header,
+        borderBottom: `1px solid ${tokens.border}`,
+        background: tokens.header,
       }}>
         <div style={{ fontWeight: 600, lineHeight: '16px', display: 'flex', alignItems: 'center', gap: 4, minWidth: 0 }}>
           {/*

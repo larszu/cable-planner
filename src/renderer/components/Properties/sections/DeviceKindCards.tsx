@@ -34,7 +34,7 @@ export const DeviceKindCards = ({ equipment }: { equipment: EquipmentItem }) => 
         <button
           type="button"
           onClick={() => openGreenGoExport()}
-          className="inline-flex w-full items-center justify-center gap-1 bg-cp-ok px-2 py-1 text-cp-xs hover:brightness-110"
+          className="inline-flex w-full items-center justify-center gap-1 bg-cp-ok text-white px-2 py-1 text-cp-xs hover:brightness-110"
         >
           {t('props.deviceKind.greengoExport', 'Intercom planning / export .gg5')}
           <Icon icon={ArrowRight} size="xs" />
@@ -88,7 +88,7 @@ export const DeviceKindCards = ({ equipment }: { equipment: EquipmentItem }) => 
           <button
             type="button"
             onClick={() => openAtemMvConfig(equipment.id)}
-            className="inline-flex w-full items-center justify-center gap-1 bg-cp-ok px-2 py-1 text-cp-xs hover:brightness-110"
+            className="inline-flex w-full items-center justify-center gap-1 bg-cp-ok text-white px-2 py-1 text-cp-xs hover:brightness-110"
             title={t(
               'props.deviceKind.atemMvTitle',
               'Configure multiviewer layout offline. Pushed on next connect.',

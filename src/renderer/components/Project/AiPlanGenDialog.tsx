@@ -133,7 +133,7 @@ export const AiPlanGenDialog = () => {
                 type="button"
                 onClick={insert}
                 disabled={plan.equipment.length === 0}
-                className="bg-cp-ok px-3 py-1.5 text-cp-xs hover:brightness-110 disabled:opacity-50"
+                className="bg-cp-ok text-white px-3 py-1.5 text-cp-xs hover:brightness-110 disabled:opacity-50"
               >
                 {t('aiPlan.insert', 'Insert into plan')}
               </button>

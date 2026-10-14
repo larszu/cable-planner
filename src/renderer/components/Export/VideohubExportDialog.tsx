@@ -1661,7 +1661,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
             type="button"
             onClick={handleExport}
             disabled={!device}
-            className="bg-cp-ok px-3 py-1 text-cp-base hover:brightness-110 disabled:opacity-50"
+            className="bg-cp-ok text-white px-3 py-1 text-cp-base hover:brightness-110 disabled:opacity-50"
           >
             {t('export.saveAsFile', 'Save as file')}
           </button>

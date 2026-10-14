@@ -12,6 +12,7 @@ import { FlowModeChip } from './FlowModeChip'
 import { CircuitChip } from './CircuitChip'
 import { PatternChip } from './PatternChip'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
+import { useBelowBreakpoint } from '../../hooks/useBreakpoint'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { computeEquipmentLayout } from '../../lib/equipmentLayout'
 import { useRaster } from '../../lib/aktuellesRaster'
@@ -105,6 +106,93 @@ const IconButton = ({
     </button>
   </Tooltip>
 )
+
+/**
+ * „Mehr" der Werkzeugleiste (2026-10-14). Eine Klappe, die die selteneren
+ * Schalter traegt — dieselben Bauteile wie vorher, nur nicht mehr dauernd
+ * sichtbar. Klick daneben und Escape schliessen (B-44: kein Weg nur ueber
+ * die Maus). KEIN `role="dialog"`: die Klappe ist ein Teil der Leiste, und
+ * die Handbuch-Aufnahmen suchen Dialoge ueber genau diese Rolle.
+ */
+const MehrMenue = ({
+  T,
+  label,
+  title,
+  children,
+}: {
+  T: ToolbarTokens
+  label: string
+  title: string
+  children: React.ReactNode
+}) => {
+  const [offen, setOffen] = useState(false)
+  // Die Klappe bleibt im Plan: der Canvas schneidet ab, was ueber seinen
+  // Rand ragt (auf dem Telefon ist er nur gut 300 px breit). Gemessen wird
+  // beim Oeffnen, gesetzt wird ein `left` relativ zum Knopf.
+  const [lage, setLage] = useState<{ left: number; width: number }>({ left: 0, width: 360 })
+  const huelle = useRef<HTMLDivElement | null>(null)
+  useEffect(() => {
+    if (!offen) return
+    const daneben = (e: MouseEvent) => {
+      const ziel = e.target as Element
+      if (huelle.current?.contains(ziel)) return
+      // Bestaetigungen und Untermenues der Chips liegen ausserhalb der
+      // Klappe (Portal) — ein Klick dort ist kein Klick daneben.
+      if (ziel.closest?.('[role="dialog"],[role="alertdialog"],[role="menu"],[role="listbox"]')) return
+      setOffen(false)
+    }
+    const esc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOffen(false)
+    }
+    document.addEventListener('mousedown', daneben)
+    document.addEventListener('keydown', esc)
+    return () => {
+      document.removeEventListener('mousedown', daneben)
+      document.removeEventListener('keydown', esc)
+    }
+  }, [offen])
+  return (
+    <div ref={huelle} style={{ position: 'relative', display: 'inline-flex' }}>
+      <Tooltip label={title}>
+        <button
+          type="button"
+          aria-label={title}
+          aria-haspopup="true"
+          aria-expanded={offen}
+          onClick={(e) => {
+            const knopf = e.currentTarget.getBoundingClientRect()
+            const aussen = huelle.current?.getBoundingClientRect() ?? knopf
+            const plan =
+              e.currentTarget.closest('#cable-planner-canvas')?.getBoundingClientRect() ??
+              new DOMRect(0, 0, window.innerWidth, window.innerHeight)
+            const width = Math.min(360, plan.width - 16)
+            // Bevorzugt buendig mit der rechten Kante des Knopfs, dann in den
+            // Plan geschoben.
+            const wunsch = knopf.right - width
+            const links = Math.max(plan.left + 8, Math.min(wunsch, plan.right - 8 - width))
+            setLage({ left: links - aussen.left, width })
+            setOffen((v) => !v)
+          }}
+          className="cp-chip cp-chip--plain"
+          style={{ height: T.iconBtnSize, color: T.text }}
+        >
+          <span aria-hidden="true">⋯</span>
+          <span>{label}</span>
+        </button>
+      </Tooltip>
+      {offen && (
+        <div
+          className="cp-mehr-klappe"
+          role="group"
+          aria-label={label}
+          style={{ left: lage.left, width: lage.width }}
+        >
+          {children}
+        </div>
+      )}
+    </div>
+  )
+}
 
 export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = {}) => {
   // Geraete-Geometrie folgt der eingestellten Rastergroesse; mit Abonnement,
@@ -305,8 +393,8 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
     textMuted: 'var(--cp-text-muted)',
     btnBg: 'transparent',
     btnBgHover: 'color-mix(in srgb, var(--cp-text) 8%, transparent)',
-    btnActiveBg: '#0284c7',
-    btnActiveText: '#ffffff',
+    btnActiveBg: 'var(--cp-accent)',
+    btnActiveText: 'var(--cp-accent-text)',
     dividerColor: 'var(--cp-border-muted)',
   }
   const dividerStyle: React.CSSProperties = {
@@ -349,128 +437,24 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
   // v7.9.28 — Align-Buttons schon ab 1 Selection (richtet am Viewport
   // aus, Figma-Pattern). Distribute braucht 3+ Items.
   const alignEnabled = selectedEquipmentIds.length >= 1
+  // Auf dem Telefon (< 640 px) wandern Ebenen und Sperren unter „Mehr“.
+  const telefon = useBelowBreakpoint('sm')
+  const LOCK_JSX = (
+    <LockMenu
+      lockFrames={lockFrames}
+      setLockFrames={setLockFrames}
+      lockEquipment={lockEquipment}
+      setLockEquipment={setLockEquipment}
+      lockCables={lockCables}
+      setLockCables={setLockCables}
+      T={T}
+    />
+  )
   const distributeEnabled = selectedEquipmentIds.length >= 3
-
-  return (
-    <div
-      ref={containerRef}
-      className="nodrag nopan"
-      /* Marke fuer die Geraete-Suche: sie legt sich sonst genau hierhin.
-         Die Leiste UMBRICHT (`flexWrap`), ihre Hoehe ist also nicht
-         konstant — wer sie umgehen will, muss sie MESSEN. Siehe
-         `CanvasSearch.tsx`. */
-      data-cp-canvas-toolbar=""
-      data-cp-canvas-overlay=""
-      style={{
-        position: 'absolute',
-        top: 8,
-        left: 8,
-        zIndex: 10,
-        display: 'flex',
-        flexWrap: 'wrap',
-        gap: 2,
-        maxWidth: 'min(880px, calc(100% - 16px))',
-        padding: '4px 6px',
-        background: T.bg,
-        border: `1px solid ${T.border}`,
-        fontSize: 11,
-        ...containerStyle,
-        color: T.text,
-        alignItems: 'center',
-        backdropFilter: 'blur(8px)',
-        WebkitBackdropFilter: 'blur(8px)',
-      }}
-    >
-      {/* ── Drag-Grip (verschiebt die Toolbar) ─────────────────────── */}
-      <span
-        {...headerProps}
-        title={t('toolbar.dragHandle', 'Move toolbar')}
-        aria-label={t('toolbar.dragHandle', 'Move toolbar')}
-        style={{
-          ...headerProps.style,
-          display: 'inline-flex',
-          alignItems: 'center',
-          padding: '0 4px',
-          height: T.iconBtnSize,
-          color: T.textMuted,
-          userSelect: 'none',
-        }}
-      >
-        <svg width="8" height="14" viewBox="0 0 8 14" fill="currentColor" aria-hidden="true">
-          <circle cx="2" cy="2" r="1.1" />
-          <circle cx="6" cy="2" r="1.1" />
-          <circle cx="2" cy="7" r="1.1" />
-          <circle cx="6" cy="7" r="1.1" />
-          <circle cx="2" cy="12" r="1.1" />
-          <circle cx="6" cy="12" r="1.1" />
-        </svg>
-      </span>
-
-      {/* ── Schliessen (Nutzer-Meldung 2026-09-11) ────────────────────────
-          „Man muss … die Leiste wo die Ebenen drauf stehen auch schliessen
-          können und über das ‚Ansicht' Menü in der oberen Leiste auch wieder
-          öffnen können."
-
-          Diese Leiste schwebt ueber dem Plan und liess sich nur VERSCHIEBEN.
-          Auf einem vollen Plan ist Verschieben kein Ersatz fuers Wegraeumen:
-          sie verdeckt dann eben woanders etwas.
-
-          Der Knopf steht NEBEN dem Zieh-Griff und nicht am rechten Ende: die
-          Leiste umbricht (`flexWrap`), ihr rechtes Ende wandert also mit
-          Fensterbreite und Sprache. Ein Schliessen-Knopf, den man erst
-          suchen muss, ist keiner. */}
-      <button
-        type="button"
-        onClick={() => useUiStore.getState().setCanvasToolbarVisible(false)}
-        title={t('toolbar.close', 'Close toolbar (View menu brings it back)')}
-        aria-label={t('toolbar.close', 'Close toolbar (View menu brings it back)')}
-        style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          width: T.iconBtnSize,
-          height: T.iconBtnSize,
-          background: 'none',
-          border: 'none',
-          color: T.textMuted,
-          cursor: 'pointer',
-          padding: 0,
-        }}
-      >
-        <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
-          <path d="M1.5 1.5 L9.5 9.5 M9.5 1.5 L1.5 9.5" />
-        </svg>
-      </button>
-
-      <span style={dividerStyle} />
-
-      {/* ── Gruppe 1: Defaults-Dropdown ─────────────────────────────
-          v7.9.30 — Snap-to-Grid Toggle und Grid-Size Input entfernt.
-          Diese Werte sind jetzt fest (snapToGrid=true, gridSize=11) und
-          aufeinander abgestimmt mit dem Equipment-Layout — User-
-          Konfiguration brach das symmetrische Dot-Reihen-Alignment. */}
-      <DefaultsMenu
-        T={T}
-        defaultRouting={defaultRouting}
-        setDefaultRouting={setDefaultRouting}
-        defaultArrow={defaultArrow}
-        setDefaultArrow={setDefaultArrow}
-        cableBumps={cableBumps}
-        setCableBumps={setCableBumps}
-        hideAllCableLabels={hideAllCableLabels}
-        setHideAllCableLabels={setHideAllCableLabels}
-        cableLabelShortForm={cableLabelShortForm}
-        setCableLabelShortForm={setCableLabelShortForm}
-        colorPortsByType={colorPortsByType}
-        setColorPortsByType={setColorPortsByType}
-        cableColorMode={cableColorMode}
-        setCableColorMode={setCableColorMode}
-        showLengthLegend={showLengthLegend}
-        setShowLengthLegend={setShowLengthLegend}
-      />
-
-      <span style={dividerStyle} />
-
+  // Auswahl- und Ausrichte-Knoepfe: am Schreibtisch in der Leiste, auf dem
+  // Telefon unter „Mehr" — dort gehoert die eine Zeile dem Plan.
+  const AUSWAHL_JSX = (
+    <>
       {/* ── Gruppe 3: Auswahl-Aktionen ───────────────────────────────
           v7.9.12 — Im Rack-Mode ausgeblendet: Location-Frames, Group-
           Save, Sub-Rack-Build sind alle Project-Level Operations, im
@@ -791,235 +775,275 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
           )}
         </>
       )}
+    </>
+  )
 
-      {/* ── Status-Gruppe (rechts gepusht): Plan-Lock + Annotations ─
-          v7.9.12 — Im Rack-Mode komplett ausgeblendet. Plan-Lock und
-          Annotations sind Project-Level-Concerns, nicht Rack-intern. */}
+  return (
+    <div
+      ref={containerRef}
+      className="nodrag nopan"
+      /* Marke fuer die Geraete-Suche: sie legt sich sonst genau hierhin.
+         Die Leiste UMBRICHT (`flexWrap`), ihre Hoehe ist also nicht
+         konstant — wer sie umgehen will, muss sie MESSEN. Siehe
+         `CanvasSearch.tsx`. */
+      data-cp-canvas-toolbar=""
+      data-cp-canvas-overlay=""
+      style={{
+        position: 'absolute',
+        top: 8,
+        left: 8,
+        // Ueber der Geraetesuche (z-20): die „Mehr"-Klappe faellt nach unten
+        // auf deren Platz.
+        zIndex: 25,
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: 2,
+        maxWidth: 'calc(100% - 16px)',
+        padding: '4px 6px',
+        background: T.bg,
+        border: `1px solid ${T.border}`,
+        borderRadius: 'var(--cp-r-l)',
+        boxShadow: 'var(--cp-shadow-2)',
+        fontSize: 11,
+        ...containerStyle,
+        color: T.text,
+        alignItems: 'center',
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
+      }}
+    >
+      {/* ── Drag-Grip (verschiebt die Toolbar) ─────────────────────── */}
+      <span
+        {...headerProps}
+        title={t('toolbar.dragHandle', 'Move toolbar')}
+        aria-label={t('toolbar.dragHandle', 'Move toolbar')}
+        style={{
+          ...headerProps.style,
+          display: 'inline-flex',
+          alignItems: 'center',
+          padding: '0 4px',
+          height: T.iconBtnSize,
+          color: T.textMuted,
+          userSelect: 'none',
+        }}
+      >
+        <svg width="8" height="14" viewBox="0 0 8 14" fill="currentColor" aria-hidden="true">
+          <circle cx="2" cy="2" r="1.1" />
+          <circle cx="6" cy="2" r="1.1" />
+          <circle cx="2" cy="7" r="1.1" />
+          <circle cx="6" cy="7" r="1.1" />
+          <circle cx="2" cy="12" r="1.1" />
+          <circle cx="6" cy="12" r="1.1" />
+        </svg>
+      </span>
+
+      {/* ── Schliessen (Nutzer-Meldung 2026-09-11) ────────────────────────
+          „Man muss … die Leiste wo die Ebenen drauf stehen auch schliessen
+          können und über das ‚Ansicht' Menü in der oberen Leiste auch wieder
+          öffnen können."
+
+          Diese Leiste schwebt ueber dem Plan und liess sich nur VERSCHIEBEN.
+          Auf einem vollen Plan ist Verschieben kein Ersatz fuers Wegraeumen:
+          sie verdeckt dann eben woanders etwas.
+
+          Der Knopf steht NEBEN dem Zieh-Griff und nicht am rechten Ende: die
+          Leiste umbricht (`flexWrap`), ihr rechtes Ende wandert also mit
+          Fensterbreite und Sprache. Ein Schliessen-Knopf, den man erst
+          suchen muss, ist keiner. */}
+      <button
+        type="button"
+        onClick={() => useUiStore.getState().setCanvasToolbarVisible(false)}
+        title={t('toolbar.close', 'Close toolbar (View menu brings it back)')}
+        aria-label={t('toolbar.close', 'Close toolbar (View menu brings it back)')}
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: T.iconBtnSize,
+          height: T.iconBtnSize,
+          background: 'none',
+          border: 'none',
+          color: T.textMuted,
+          cursor: 'pointer',
+          padding: 0,
+        }}
+      >
+        <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
+          <path d="M1.5 1.5 L9.5 9.5 M9.5 1.5 L1.5 9.5" />
+        </svg>
+      </button>
+
+      <span style={dividerStyle} />
+
+      {/* ── Gruppe 1: Defaults-Dropdown ─────────────────────────────
+          v7.9.30 — Snap-to-Grid Toggle und Grid-Size Input entfernt.
+          Diese Werte sind jetzt fest (snapToGrid=true, gridSize=11) und
+          aufeinander abgestimmt mit dem Equipment-Layout — User-
+          Konfiguration brach das symmetrische Dot-Reihen-Alignment. */}
+      <DefaultsMenu
+        T={T}
+        defaultRouting={defaultRouting}
+        setDefaultRouting={setDefaultRouting}
+        defaultArrow={defaultArrow}
+        setDefaultArrow={setDefaultArrow}
+        cableBumps={cableBumps}
+        setCableBumps={setCableBumps}
+        hideAllCableLabels={hideAllCableLabels}
+        setHideAllCableLabels={setHideAllCableLabels}
+        cableLabelShortForm={cableLabelShortForm}
+        setCableLabelShortForm={setCableLabelShortForm}
+        colorPortsByType={colorPortsByType}
+        setColorPortsByType={setColorPortsByType}
+        cableColorMode={cableColorMode}
+        setCableColorMode={setCableColorMode}
+        showLengthLegend={showLengthLegend}
+        setShowLengthLegend={setShowLengthLegend}
+      />
+
+      <span style={dividerStyle} />
+
+      {!telefon && AUSWAHL_JSX}
+
+      {/* ── Ruhige Leiste (2026-10-14, „einfach statt mehr") ─────────
+          Vorher standen hier ELF Schalter nebeneinander — Signalweg,
+          Raeume, 3D, Ebenen, Schema, Schaltbild, Pruefbild, Sperren,
+          Abschliessen, Badges, Anmerkungen, Hallenplan, Symbole — und die
+          Leiste brach auf 1440 px in drei Zeilen um. Sichtbar bleibt, was
+          beim ZEICHNEN dauernd gebraucht wird: Voreinstellungen, Rahmen,
+          Auswahl-Aktionen und die Ebenen-Chips (Lesen des Plans, laut #123
+          der Branchenstandard). Was einmal gesetzt wird und dann gilt
+          (Sperren, eigene Ebenen) oder eine Betriebsart bzw. ein Panel
+          oeffnet, liegt unter „Mehr" — hoechstens drei Klicks; Hallenplan,
+          Symbole und Anmerkungen stehen zusaetzlich im Ansicht-Menue. Auf dem
+          Telefon wandern auch die Ebenen und der Rahmen unter „Mehr": dort
+          gehoert die Breite dem Plan. */}
       {mode === 'main' && <>
       <span style={{ ...dividerStyle, marginLeft: 'auto' }} />
-      {/* v7.9.85 / #123 — Layer-Visibility-Chips (Video/Audio/Control/
-          Network/Power + Custom). Klick toggelt Layer-Sichtbarkeit;
-          gefiltert wird nur das KABEL, nicht das Gerät (Option A aus
-          #123). Aus AV-Industrie-Recherche: D-Tools, Stardraw, AVECAV
-          nutzen genau diese 5 Top-Level-Layer als Branchenstandard. */}
-      <SignalwegChip />
-      <RaumSichtbarkeit />
-      <Gebaeude3DKnopf />
-      <LayerVisibilityChips />
-      <span style={dividerStyle} />
-      {/* Die Betriebsart des Signalflusses. Sie steht neben der
-          Layer-Legende, weil beide dasselbe beantworten: wonach ist dieses
-          Bild zu lesen. */}
-      <FlowModeChip />
-      <CircuitChip />
-      <PatternChip />
-      <span style={dividerStyle} />
-      {/* v7.9.67 / #177 — der Schutz gegen versehentliches Verschieben, je
-          Objektart (Rahmen / Geräte / Kabel).
-
-          ZUSAMMENGELEGT 2026-09-07, auf Zuruf des Nutzers: „Nicht jeder
-          Button ist beschriftet und man erkennt nicht auf den ersten Blick
-          wofür er gut sein soll." Hier standen DREI Knöpfe nebeneinander,
-          alle gleich gross, alle ohne Text, unterschieden nur durch ein
-          Rechteck, ein Rechteck mit zwei Punkten und eine Wellenlinie. Wer
-          die drei nicht kennt, kann sie nicht auseinanderhalten — und die
-          Beschriftung stand nur im Tooltip, also erst nach Zeigen und
-          Warten.
-
-          Jetzt EIN Knopf mit dem Wort „Sperren" und der Zahl der aktiven
-          Sperren; die drei Schalter stehen beschriftet im Menü darunter.
-          Das nimmt der Leiste zwei Bedienelemente und gibt dem dritten
-          einen lesbaren Namen. */}
-      <LockMenu
-        lockFrames={lockFrames}
-        setLockFrames={setLockFrames}
-        lockEquipment={lockEquipment}
-        setLockEquipment={setLockEquipment}
-        lockCables={lockCables}
-        setLockCables={setLockCables}
-        T={T}
-      />
-      <span style={dividerStyle} />
-      <button
-        type="button"
-        onClick={async () => {
-          if (projectMode === 'viewer') return
-          if (projectMode === 'finalized') {
-            const ok = await confirmDialog(
-              t('toolbar.planLock.unlock.title', 'Re-enable plan editing?'),
-              {
+      {!telefon && <LayerVisibilityChips teil="chips" />}
+      {!telefon && <span style={dividerStyle} />}
+      <MehrMenue T={T} label={t('toolbar.more.label', 'More')} title={t('toolbar.more.title', 'More: view modes, test pattern, finalise, annotations, floor plan, symbols')}>
+        {telefon && <div className="cp-mehr-reihe">{AUSWAHL_JSX}</div>}
+        {telefon && (
+          <div className="cp-mehr-reihe">
+            <LayerVisibilityChips teil="chips" />
+          </div>
+        )}
+        <div className="cp-mehr-reihe">
+          <LayerVisibilityChips teil="verwaltung" />
+          {LOCK_JSX}
+        </div>
+        <div className="cp-mehr-trenner" />
+        <div className="cp-mehr-reihe">
+          {/* Die Betriebsart des Signalflusses und was der Plan zeigt —
+              beides beantwortet „wonach ist dieses Bild zu lesen". */}
+          <SignalwegChip />
+          <RaumSichtbarkeit />
+          <Gebaeude3DKnopf />
+          <FlowModeChip />
+          <CircuitChip />
+          <PatternChip />
+        </div>
+        <div className="cp-mehr-trenner" />
+        <button
+          type="button"
+          className="cp-mehr-eintrag"
+          aria-pressed={projectMode === 'finalized'}
+          onClick={async () => {
+            if (projectMode === 'viewer') return
+            if (projectMode === 'finalized') {
+              const ok = await confirmDialog(
+                t('toolbar.planLock.unlock.title', 'Re-enable plan editing?'),
+                {
+                  body: t(
+                    'toolbar.planLock.unlock.body',
+                    'Devices, cables and layout can then be changed again.',
+                  ),
+                  okLabel: t('toolbar.planLock.unlock.ok', 'Re-enable'),
+                },
+              )
+              if (ok) setProjectMode('editing')
+            } else {
+              const ok = await confirmDialog(t('toolbar.planLock.finalize.title', 'Finalise plan?'), {
                 body: t(
-                  'toolbar.planLock.unlock.body',
-                  'Devices, cables and layout can then be changed again.',
+                  'toolbar.planLock.finalize.body',
+                  'The canvas will be locked — no moving, new connections or deletions. You can re-enable editing any time.',
                 ),
-                okLabel: t('toolbar.planLock.unlock.ok', 'Re-enable'),
-              },
-            )
-            if (ok) setProjectMode('editing')
-          } else {
-            const ok = await confirmDialog(t('toolbar.planLock.finalize.title', 'Finalise plan?'), {
-              body: t(
-                'toolbar.planLock.finalize.body',
-                'The canvas will be locked — no moving, new connections or deletions. You can re-enable editing any time.',
-              ),
-              okLabel: t('toolbar.planLock.finalize.ok', 'Finalise'),
-            })
-            if (ok) setProjectMode('finalized')
+                okLabel: t('toolbar.planLock.finalize.ok', 'Finalise'),
+              })
+              if (ok) setProjectMode('finalized')
+            }
+          }}
+          disabled={projectMode === 'viewer'}
+          title={
+            projectMode === 'viewer'
+              ? t('toolbar.planLock.viewer', 'Viewer file — read-only')
+              : projectMode === 'finalized'
+                ? t('toolbar.planLock.finalized', 'Plan is finalised (click: re-enable editing)')
+                : t('toolbar.planLock.editing', 'Mark plan as finalised')
           }
-        }}
-        disabled={projectMode === 'viewer'}
-        title={
-          projectMode === 'viewer'
-            ? t('toolbar.planLock.viewer', 'Viewer file — read-only')
-            : projectMode === 'finalized'
-              ? t('toolbar.planLock.finalized', 'Plan is finalised (click: re-enable editing)')
-              : t('toolbar.planLock.editing', 'Mark plan as finalised')
-        }
-        style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: 4,
-          height: T.iconBtnSize,
-          padding: '0 10px',
-          background:
-            projectMode === 'viewer'
-              ? 'var(--cp-surface-2)'
+        >
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+            <rect x="3" y="7" width="10" height="7" rx="1" />
+            <path d={projectMode === 'editing' ? 'M5 7V4.5a3 3 0 0 1 6 0V6' : 'M5 7V4.5a3 3 0 0 1 6 0V7'} />
+          </svg>
+          <span>
+            {projectMode === 'viewer'
+              ? t('toolbar.planLock.label.viewer', 'Viewer')
               : projectMode === 'finalized'
-                ? '#0e7490'
-                : T.btnBg,
-          color:
-            projectMode === 'viewer'
-              ? T.textMuted
-              : projectMode === 'finalized'
-                ? '#e0f2fe'
-                : T.text,
-          border: `1px solid ${projectMode === 'finalized' ? '#06b6d4' : T.border}`,
-          cursor: projectMode === 'viewer' ? 'not-allowed' : 'pointer',
-          fontSize: 11,
-          fontWeight: 500,
-        }}
-      >
-        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-          <rect x="3" y="7" width="10" height="7" rx="1" />
-          <path d={projectMode === 'editing' ? 'M5 7V4.5a3 3 0 0 1 6 0V6' : 'M5 7V4.5a3 3 0 0 1 6 0V7'} />
-        </svg>
-        <span>
-          {projectMode === 'viewer'
-            ? t('toolbar.planLock.label.viewer', 'Viewer')
-            : projectMode === 'finalized'
-              ? t('toolbar.planLock.label.finalized', 'Finalised')
-              : t('toolbar.planLock.label.editing', 'Finalise')}
-        </span>
-      </button>
-      {/* v7.9.8 — Sichtbarkeits-Toggle für Canvas-Annotations. Versteckt
-          die farbigen Kreis-Badges OHNE die Annotations zu löschen. */}
-      <button
-        type="button"
-        onClick={() => setAnnotationsVisible(!annotationsVisible)}
-        title={
-          annotationsVisible
-            ? t('toolbar.annotations.hide', 'Hide annotation badges on canvas (data stays)')
-            : t('toolbar.annotations.show', 'Show annotation badges on canvas')
-        }
-        style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: 4,
-          justifyContent: 'center',
-          height: T.iconBtnSize,
-          padding: '0 8px',
-          background: annotationsVisible ? T.btnBg : T.btnActiveBg,
-          color: annotationsVisible ? T.text : '#ffffff',
-          border: `1px solid ${annotationsVisible ? T.border : T.btnActiveBg}`,
-          cursor: 'pointer',
-          fontSize: 11,
-        }}
-      >
-        {annotationsVisible ? (
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+                ? t('toolbar.planLock.label.finalized', 'Finalised')
+                : t('toolbar.planLock.label.editing', 'Finalise')}
+          </span>
+        </button>
+        {/* „Badges" und nicht „Anmerkungen": der Eintrag DARUNTER oeffnet die
+            Anmerkungen, dieser blendet nur ihre Marken auf der Zeichnung aus. */}
+        <button
+          type="button"
+          className="cp-mehr-eintrag"
+          aria-pressed={annotationsVisible}
+          onClick={() => setAnnotationsVisible(!annotationsVisible)}
+          title={
+            annotationsVisible
+              ? t('toolbar.annotations.hide', 'Hide annotation badges on canvas (data stays)')
+              : t('toolbar.annotations.show', 'Show annotation badges on canvas')
+          }
+        >
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
             <path d="M1.5 8c1.5-3 4-5 6.5-5s5 2 6.5 5c-1.5 3-4 5-6.5 5s-5-2-6.5-5z" />
             <circle cx="8" cy="8" r="2" />
           </svg>
-        ) : (
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-            <path d="M2 2l12 12" />
-            <path d="M3 5.5c1.4-1.6 3-2.5 5-2.5s3.6.9 5 2.5M1.5 8c1-2 2.5-3.5 4.5-4.3M14.5 8c-1.5 3-4 5-6.5 5-.7 0-1.4-.15-2-.4" />
-          </svg>
-        )}
-        {/* „Badges" und nicht „Anmerkungen": der Knopf DANEBEN oeffnet die
-            Anmerkungen, dieser blendet nur ihre Marken auf der Zeichnung aus.
-            Zweimal dasselbe Wort waere schlimmer als das blosse Auge. */}
-        <span>{t('toolbar.annotations.badgeLabel', 'Badges')}</span>
-      </button>
-      <button
-        type="button"
-        onClick={() => setAnnotationsPanelOpen(!annotationsPanelOpen)}
-        title={
-          projectMode === 'viewer'
-            ? t('toolbar.annotations.openViewer', 'Annotations — leave reviewer notes')
-            : t('toolbar.annotations.open', 'Show / manage annotations')
-        }
-        style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: 4,
-          height: T.iconBtnSize,
-          padding: '0 10px',
-          background: annotationsPanelOpen
-            ? T.btnActiveBg
-            : projectMode === 'viewer'
-              ? '#7c3aed'
-              : T.btnBg,
-          color: annotationsPanelOpen || projectMode === 'viewer' ? '#ffffff' : T.text,
-          border: `1px solid ${
-            annotationsPanelOpen
-              ? T.btnActiveBg
-              : projectMode === 'viewer'
-                ? '#a78bfa'
-                : T.border
-          }`,
-          cursor: 'pointer',
-          fontSize: 11,
-          fontWeight: 500,
-        }}
-      >
-        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-          <path d="M2 4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H6.5L4 13.5V11H3a1 1 0 0 1-1-1V4z" />
-        </svg>
-        <span>
-          {t('toolbar.annotations.label', 'Annotations')}
-          {annotationsCount > 0 ? ` (${annotationsCount})` : ''}
-        </span>
-      </button>
-      {([
-        ['grundriss', grundrissPanel, () => setGrundrissPanel(!grundrissPanel), t('toolbar.floorplan.label', 'Floor plan'), t('toolbar.floorplan.title', 'Floor plan under the canvas, scale for cable lengths'), 'M2 2h12v12H2zM2 7h6v7M8 2v3'],
-        ['symbole', symbolPanel, () => setSymbolPanel(!symbolPanel), t('toolbar.symbols.label', 'Symbols'), t('toolbar.symbols.title', 'Plan symbols: electrical, alarm, PA, IT, automation, AV'), 'M8 2a6 6 0 1 0 0 12A6 6 0 0 0 8 2zM4 4l8 8M12 4l-8 8'],
-      ] as const).map(([id, aktiv, klick, label, titel, pfad]) => (
-        <button
-          key={id}
-          type="button"
-          onClick={klick}
-          title={titel}
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 4,
-            height: T.iconBtnSize,
-            padding: '0 10px',
-            background: aktiv ? T.btnActiveBg : T.btnBg,
-            color: aktiv ? '#ffffff' : T.text,
-            border: `1px solid ${aktiv ? T.btnActiveBg : T.border}`,
-            cursor: 'pointer',
-            fontSize: 11,
-            fontWeight: 500,
-          }}
-        >
-          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-            <path d={pfad} />
-          </svg>
-          <span>{label}</span>
+          <span>{t('toolbar.annotations.badgeLabel', 'Badges')}</span>
         </button>
-      ))}
+        <button
+          type="button"
+          className="cp-mehr-eintrag"
+          aria-pressed={annotationsPanelOpen}
+          onClick={() => setAnnotationsPanelOpen(!annotationsPanelOpen)}
+          title={
+            projectMode === 'viewer'
+              ? t('toolbar.annotations.openViewer', 'Annotations — leave reviewer notes')
+              : t('toolbar.annotations.open', 'Show / manage annotations')
+          }
+        >
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+            <path d="M2 4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H6.5L4 13.5V11H3a1 1 0 0 1-1-1V4z" />
+          </svg>
+          <span>
+            {t('toolbar.annotations.label', 'Annotations')}
+            {annotationsCount > 0 ? ` (${annotationsCount})` : ''}
+          </span>
+        </button>
+        {([
+          ['grundriss', grundrissPanel, () => setGrundrissPanel(!grundrissPanel), t('toolbar.floorplan.label', 'Floor plan'), t('toolbar.floorplan.title', 'Floor plan under the canvas, scale for cable lengths'), 'M2 2h12v12H2zM2 7h6v7M8 2v3'],
+          ['symbole', symbolPanel, () => setSymbolPanel(!symbolPanel), t('toolbar.symbols.label', 'Symbols'), t('toolbar.symbols.title', 'Plan symbols: electrical, alarm, PA, IT, automation, AV'), 'M8 2a6 6 0 1 0 0 12A6 6 0 0 0 8 2zM4 4l8 8M12 4l-8 8'],
+        ] as const).map(([id, aktiv, klick, label, titel, pfad]) => (
+          <button key={id} type="button" className="cp-mehr-eintrag" aria-pressed={aktiv} onClick={klick} title={titel}>
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+              <path d={pfad} />
+            </svg>
+            <span>{label}</span>
+          </button>
+        ))}
+      </MehrMenue>
       </>}
 
       {/* Length-Color-Legend Popover (bei Bedarf gerendert) */}

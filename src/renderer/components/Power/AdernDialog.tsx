@@ -242,7 +242,7 @@ export const AdernDialog = () => {
           <button
             type="button"
             onClick={neueNorm}
-            className="mt-3 flex items-center gap-1 bg-cp-ok px-2 py-1 text-cp-xs hover:brightness-110"
+            className="mt-3 flex items-center gap-1 bg-cp-ok text-white px-2 py-1 text-cp-xs hover:brightness-110"
           >
             <Icon icon={Plus} size="xs" /> {t('adern.norm.add', 'Enter colour standard')}
           </button>
@@ -345,7 +345,7 @@ export const AdernDialog = () => {
           <button
             type="button"
             onClick={neuerAnschluss}
-            className="mt-3 flex items-center gap-1 bg-cp-ok px-2 py-1 text-cp-xs hover:brightness-110"
+            className="mt-3 flex items-center gap-1 bg-cp-ok text-white px-2 py-1 text-cp-xs hover:brightness-110"
           >
             <Icon icon={Plus} size="xs" /> {t('adern.anschluss.add', 'Add connection')}
           </button>
@@ -457,7 +457,7 @@ export const AdernDialog = () => {
           <button
             type="button"
             onClick={neuePolNorm}
-            className="mt-3 flex items-center gap-1 bg-cp-ok px-2 py-1 text-cp-xs hover:brightness-110"
+            className="mt-3 flex items-center gap-1 bg-cp-ok text-white px-2 py-1 text-cp-xs hover:brightness-110"
           >
             <Icon icon={Plus} size="xs" /> {t('fibre.method.add', 'Enter polarity method')}
           </button>

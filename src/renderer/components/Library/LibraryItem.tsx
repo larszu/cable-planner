@@ -320,7 +320,7 @@ export const LibraryItem = ({
                 event.stopPropagation()
                 onLinkPorts()
               }}
-              className="bg-cp-ok px-1 text-cp-xs text-white hover:brightness-110"
+              className="rounded-cp-control bg-cp-accent-soft text-cp-text-bright px-1 text-cp-xs hover:bg-cp-surface-4"
               aria-label={t('library.item.linkAria', 'Link')}
             >
               <Icon icon={Link} size="xs" />

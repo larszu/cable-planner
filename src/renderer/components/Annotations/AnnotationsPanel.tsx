@@ -214,7 +214,7 @@ export const AnnotationsPanel = ({
                   setDraftText('')
                   setCreating(false)
                 }}
-                className="flex-1 bg-cp-ok px-2 py-1 text-cp-xs hover:brightness-110"
+                className="flex-1 bg-cp-ok text-white px-2 py-1 text-cp-xs hover:brightness-110"
               >
                 {t('annotations.add', 'Add')}
               </button>

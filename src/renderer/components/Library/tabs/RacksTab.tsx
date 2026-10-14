@@ -84,7 +84,7 @@ export const RacksTab = ({ onCreateRack, onEditRack }: RacksTabProps) => {
           <button
             type="button"
             onClick={onCreateRack}
-            className="bg-cp-ok px-2 py-1 text-cp-xs hover:brightness-110"
+            className="rounded-cp-control bg-cp-accent-soft text-cp-text-bright px-2 py-1 text-cp-xs hover:bg-cp-surface-4"
           >
             {t('library.tabs.racks.new', '+ New rack')}
           </button>

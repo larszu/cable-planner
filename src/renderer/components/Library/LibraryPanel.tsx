@@ -1235,7 +1235,7 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
                         type="button"
                         onClick={() => void handleImportNetBox(item)}
                         disabled={busy || !(netBoxCategoryByPath[item.path] ?? '').trim()}
-                        className="bg-cp-ok px-3 py-1.5 text-cp-xs font-semibold hover:brightness-110 disabled:opacity-50"
+                        className="bg-cp-ok text-white px-3 py-1.5 text-cp-xs font-semibold hover:brightness-110 disabled:opacity-50"
                       >
                         {busy ? t('library.netbox.importing', 'Importing…') : t('library.netbox.import', 'Import')}
                       </button>
@@ -1640,7 +1640,7 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
               <button
                 type="button"
                 onClick={saveCustomAndPlace}
-                className="bg-cp-ok px-3 py-1 text-cp-base hover:brightness-110"
+                className="bg-cp-ok text-white px-3 py-1 text-cp-base hover:brightness-110"
                 title={t(
                   'library.create.savePlaceTitle',
                   'Save and drop one on the canvas',
@@ -1765,7 +1765,7 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
                   setNetBoxMergePair(netBoxConflict)
                   setNetBoxConflict(null)
                 }}
-                className="bg-cp-ok px-3 py-1 text-cp-base hover:brightness-110"
+                className="bg-cp-ok text-white px-3 py-1 text-cp-base hover:brightness-110"
               >
                 {t('library.netbox.mergePortsBtn', 'Merge Ports')}
               </button>

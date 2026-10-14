@@ -110,7 +110,7 @@ export const ProjectMetaDialog = ({
             type="button"
             disabled={!canConfirm}
             onClick={handleConfirm}
-            className="bg-cp-ok px-3 py-1 text-cp-xs enabled:hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+            className="bg-cp-ok text-white px-3 py-1 text-cp-xs enabled:hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {mode === 'new'
               ? t('project.meta.create', 'Create project')

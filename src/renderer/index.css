@@ -527,12 +527,10 @@ html[data-cp-shell='app'] #root {
 [data-theme="light"] .bg-black\/50       { background-color: rgba(22,24,29,0.20); }
 [data-theme="light"] .bg-black\/70       { background-color: rgba(22,24,29,0.30); }
 
-[data-theme="light"] .border-slate-200  { border-color: #D3D4D2; }
 [data-theme="light"] .border-slate-300  { border-color: #A9ACB4; }
 [data-theme="light"] .border-slate-400  { border-color: #80848C; }
 [data-theme="light"] .border-slate-500  { border-color: #5A5D64; }
 [data-theme="light"] .border-slate-700  { border-color: #A9ACB4; }
-[data-theme="light"] .border-slate-800  { border-color: #C9CAC8; }
 
 [data-theme="light"] .text-slate-100    { color: #16181D; }
 [data-theme="light"] .text-slate-200    { color: #2B2E35; }
@@ -1486,6 +1484,16 @@ details[open] > summary::before {
   ::selection {
     background: var(--cp-accent-soft);
   }
+  /* Tiefere Dialoge und Seitenleisten (2026-10-14): rund 900 Kaesten tragen
+   * `border border-cp-border` ohne Rundung — Abschnitte, Hinweise, Karten in
+   * Dialogen. Statt sie einzeln umzuschreiben, bekommen gerahmte BLOCK-
+   * Kaesten dort die Knopf-Rundung. Tabellen und Zeilen bleiben aussen vor:
+   * eine gerundete Tabellenzelle waere ein Fehler, keine Gestaltung. Eine
+   * Utility am Element (`rounded-none`) gewinnt weiterhin. */
+  :is([role="dialog"], aside, [data-cp-panel])
+    :where(div, section, fieldset, details, label, ul, ol, pre):where(.border):where(:not(.react-flow *)) {
+    border-radius: var(--cp-r-m);
+  }
 }
 
 /* Scrim hinter Dialogen: neutral abgedunkelt und weichgezeichnet, statt
@@ -1573,4 +1581,109 @@ details[open] > summary::before {
 .cp-chip-danger {
   background: var(--cp-danger);
   color: #FFFFFF;
+}
+
+/* Ruhige Chips (Ebenen, Leistenschalter): neutral, aktiv im Akzent-weich,
+ * Signalart nur als Farbpunkt. `aria-pressed` traegt den Zustand — dieselbe
+ * Aussage fuer Screenreader und fuer das Auge. */
+.cp-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 9px;
+  border: 1px solid var(--cp-border);
+  border-radius: var(--cp-r-full);
+  background: transparent;
+  color: var(--cp-text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.cp-chip:hover {
+  background: var(--cp-surface-2);
+  color: var(--cp-text-bright);
+}
+.cp-chip[aria-pressed="true"] {
+  background: var(--cp-accent-soft);
+  border-color: transparent;
+  color: var(--cp-text-bright);
+}
+.cp-chip__dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.cp-chip[aria-pressed="false"] .cp-chip__dot {
+  background: transparent;
+  border: 1.5px solid currentColor;
+}
+.cp-chip__count {
+  font-variant-numeric: tabular-nums;
+  color: var(--cp-text-muted);
+}
+.cp-chip--plain {
+  border-color: transparent;
+}
+
+/* „Mehr"-Klappe der Werkzeugleiste: schwebende Karte, die selteneren
+ * Schalter als ruhige Zeilen. */
+.cp-mehr-klappe {
+  position: absolute;
+  top: calc(100% + 6px);
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px;
+  border: 1px solid var(--cp-border);
+  border-radius: var(--cp-r-l);
+  background: var(--cp-surface-raised);
+  color: var(--cp-text);
+  box-shadow: var(--cp-shadow-3);
+}
+.cp-mehr-reihe {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+}
+.cp-mehr-trenner {
+  height: 1px;
+  margin: 4px 6px;
+  background: var(--cp-border);
+}
+.cp-mehr-eintrag {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 36px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: var(--cp-r-m);
+  background: transparent;
+  color: var(--cp-text);
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+.cp-mehr-eintrag:hover:not(:disabled) {
+  background: var(--cp-surface-2);
+}
+.cp-mehr-eintrag[aria-pressed="true"] {
+  background: var(--cp-accent-soft);
+  color: var(--cp-text-bright);
+  font-weight: 600;
+}
+
+/* Auf dem Telefon gehoert die Flaeche dem Plan: die Minikarte waere dort
+ * ein Drittel des sichtbaren Canvas. Zoom und Einpassen bleiben. */
+@media (max-width: 639px) {
+  #cable-planner-canvas .react-flow__minimap {
+    display: none;
+  }
 }

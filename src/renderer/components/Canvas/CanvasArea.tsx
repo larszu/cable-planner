@@ -2341,8 +2341,12 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         <GriffZoom />
         <MiniMap pannable zoomable
           className="!bg-cp-surface-1"
-          nodeColor="var(--cp-text-dim)"
-          maskColor={effectiveCanvasTheme === 'light' ? 'rgba(232,232,228,0.7)' : 'rgba(25,25,29,0.7)'}
+          // Ruhige Minikarte (2026-10-14): Geraete als gedaempfte Flaechen,
+          // der sichtbare Ausschnitt nur leicht abgesetzt statt als
+          // weisses Fenster in einem dunklen Rahmen.
+          nodeColor="var(--cp-text-dimmer)"
+          nodeStrokeColor="transparent"
+          maskColor={effectiveCanvasTheme === 'light' ? 'rgba(22,24,29,0.05)' : 'rgba(0,0,0,0.22)'}
         />
         <Controls />
         {/* Issue #71: background pattern is user-configurable. When the

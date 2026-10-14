@@ -670,7 +670,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
             type="button"
             onClick={handleImport}
             disabled={includedDevices === 0}
-            className={` px-4 py-1.5 text-cp-xs font-medium text-cp-accent-text disabled:opacity-50 ${destination === 'library' ? 'bg-cp-accent hover:bg-cp-accent-hover' : 'bg-cp-ok hover:brightness-110'}`}
+            className={` px-4 py-1.5 text-cp-xs font-medium text-cp-accent-text disabled:opacity-50 ${destination === 'library' ? 'bg-cp-accent hover:bg-cp-accent-hover' : 'bg-cp-ok text-white hover:brightness-110'}`}
           >
             {destination === 'library'
               ? `${includedDevices} ${includedDevices === 1 ? t('graphml.dialog.deviceSingular', 'device') : t('graphml.dialog.devicePlural', 'devices')} ${t('graphml.dialog.toLibrary', 'into library')}`

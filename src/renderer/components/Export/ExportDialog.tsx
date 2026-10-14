@@ -1392,7 +1392,7 @@ const BomSection = () => {
             type="button"
             onClick={savePlan}
             disabled={!draftPlan}
-            className="bg-cp-ok px-3 py-1 text-cp-xs enabled:hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+            className="bg-cp-ok text-white px-3 py-1 text-cp-xs enabled:hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {t('export.bom.savePlan', 'Save Rentman plan')}
           </button>
