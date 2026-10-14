@@ -122,7 +122,7 @@ export const MicPlotPanel = () => {
   return (
     <div className="mt-4 border-t border-cp-border-muted pt-3">
       <div className="mb-2 flex flex-wrap items-center gap-2">
-        <span className="flex items-center gap-1.5 text-cp-xs font-semibold uppercase tracking-wide text-cp-text-secondary">
+        <span className="flex items-center gap-1.5 text-cp-xs font-semibold text-cp-text-secondary">
           <Users size={13} /> {t('micPlot.title', 'Mic plot — who wears which channel')}
         </span>
         <select
@@ -162,7 +162,7 @@ export const MicPlotPanel = () => {
           type="button"
           onClick={exportieren}
           disabled={!aktuelle || zuordnungen.length === 0}
-          className="bg-purple-700 px-2 py-1 text-cp-xs hover:bg-purple-600 disabled:opacity-40"
+          className="bg-cp-accent text-cp-accent-text px-2 py-1 text-cp-xs hover:bg-cp-accent-hover disabled:opacity-40"
         >
           <Download size={12} className="mr-1 inline" />
           {t('micPlot.export', 'Session sheet')}

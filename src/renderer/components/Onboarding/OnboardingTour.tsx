@@ -107,7 +107,7 @@ export const OnboardingTour = ({ open, onClose }: OnboardingTourProps) => {
       open={open}
       onClose={finish}
       title={
-        <span className="text-cp-xs uppercase tracking-wider text-cp-text-muted">
+        <span className="text-cp-xs text-cp-text-muted">
           {format(t('onboarding.header', 'Getting-started tour · step {step} / {total}'), {
             step: step + 1,
             total: STEPS.length,

@@ -169,7 +169,7 @@ export const ConfigsTab = () => {
           <button
             type="button"
             onClick={() => void handleUpload()}
-            className="inline-flex items-center gap-1.5 bg-sky-700 px-3 py-1 text-cp-xs text-white hover:bg-sky-600"
+            className="inline-flex items-center gap-1.5 bg-cp-accent px-3 py-1 text-cp-xs text-cp-accent-text hover:bg-cp-accent-hover"
           >
             <Icon icon={Upload} size="xs" />
             {t('settings.configs.pickFile', 'Choose file…')}
@@ -178,7 +178,7 @@ export const ConfigsTab = () => {
             type="button"
             onClick={handleExportBundle}
             disabled={library.length === 0}
-            className="inline-flex items-center gap-1.5 bg-emerald-700 px-3 py-1 text-cp-xs text-white hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 bg-cp-ok px-3 py-1 text-cp-xs text-white hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Icon icon={Save} size="xs" />
             {t('settings.configs.exportBundle', 'Export library as JSON')}
@@ -213,7 +213,7 @@ export const ConfigsTab = () => {
                 onClick={() => setFilter(k)}
                 className={`inline-flex items-center gap-1 px-2 py-0.5 text-cp-xs ${
                   filter === k
-                    ? 'bg-sky-700 text-white'
+                    ? 'bg-cp-accent text-cp-accent-text'
                     : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'
                 }`}
               >
@@ -246,7 +246,7 @@ export const ConfigsTab = () => {
           <ul className="space-y-2">
             {Array.from(grouped.entries()).map(([kind, entries]) => (
               <li key={kind}>
-                <div className="mb-1 flex items-center gap-1 text-cp-xs uppercase tracking-wide text-cp-text-muted">
+                <div className="mb-1 flex items-center gap-1 text-cp-xs text-cp-text-muted">
                   <Icon icon={CONFIG_KIND_ICON[kind]} size="xs" />
                   {t(`settings.configs.kind.${kind}`, CONFIG_KIND_LABEL[kind])}
                 </div>

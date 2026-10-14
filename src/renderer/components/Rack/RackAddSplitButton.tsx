@@ -59,7 +59,7 @@ export const RackAddSplitButton = ({
         <button
           type="button"
           onClick={onAddFull}
-          className="bg-emerald-600 px-2.5 py-1.5 text-cp-xs font-semibold text-white transition hover:bg-emerald-500"
+          className="bg-cp-ok px-2.5 py-1.5 text-cp-xs font-semibold text-white transition hover:brightness-110"
           title={t('rackAdd.fullDepthTitle', 'Add device full-depth (front + rear) to the rack')}
         >
           {resolvedLabel}
@@ -68,7 +68,7 @@ export const RackAddSplitButton = ({
           type="button"
           onClick={() => setOpen((v) => !v)}
           className={`border-l border-emerald-700/60 px-1.5 py-1.5 text-cp-xs font-bold text-white transition ${
-            open ? 'bg-emerald-700' : 'bg-emerald-600 hover:bg-emerald-500'
+            open ? 'bg-emerald-700' : 'bg-cp-ok text-white hover:brightness-110'
           }`}
           aria-expanded={open}
           aria-haspopup="menu"

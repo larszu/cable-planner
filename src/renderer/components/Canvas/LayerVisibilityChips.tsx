@@ -132,7 +132,7 @@ export const LayerVisibilityChips = () => {
        Der Ausdruck-Dialog setzt denselben Umbruch schon aussen herum. */
     <div ref={menuHuelle} className="relative flex min-w-0 flex-wrap items-center gap-1">
       <span
-        className={`select-none text-cp-xs uppercase tracking-wider ${isLight ? 'text-slate-400' : 'text-slate-400'}`}
+        className={`select-none text-cp-xs   ${isLight ? 'text-slate-400' : 'text-slate-400'}`}
         title={t(
           'canvas.layerChips.layerStripTitle',
           'Layer visibility (only cables are filtered, devices stay)',

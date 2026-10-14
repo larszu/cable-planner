@@ -183,7 +183,7 @@ export const CommandPalette = () => {
   return (
     <div
       {...backdrop}
-      className="fixed inset-0 z-[60] flex items-start justify-center bg-black/60 p-4 pt-[12vh]"
+      className="fixed inset-0 z-[60] flex items-start justify-center cp-scrim p-4 pt-[12vh]"
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) close()
       }}

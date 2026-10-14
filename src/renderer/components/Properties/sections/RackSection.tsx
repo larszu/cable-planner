@@ -98,7 +98,7 @@ export const RackSection = ({ equipment }: { equipment: EquipmentItem }) => {
                     const dataUri = await pickImageAsDataUri('image/png,image/jpeg,image/webp')
                     if (dataUri) setCropDialog({ side: 'front', src: dataUri })
                   }}
-                  className="bg-sky-700 px-2 py-1 text-cp-xs hover:bg-sky-600"
+                  className="bg-cp-accent text-cp-accent-text px-2 py-1 text-cp-xs hover:bg-cp-accent-hover"
                 >
                   {t('props.rack.importFront', 'Import front graphic + crop')}
                 </button>
@@ -108,7 +108,7 @@ export const RackSection = ({ equipment }: { equipment: EquipmentItem }) => {
                     const dataUri = await pickImageAsDataUri('image/png,image/jpeg,image/webp')
                     if (dataUri) setCropDialog({ side: 'rear', src: dataUri })
                   }}
-                  className="bg-purple-700 px-2 py-1 text-cp-xs hover:bg-purple-600"
+                  className="bg-cp-accent text-cp-accent-text px-2 py-1 text-cp-xs hover:bg-cp-accent-hover"
                 >
                   {t('props.rack.importRear', 'Import rear graphic + crop')}
                 </button>

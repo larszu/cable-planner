@@ -402,7 +402,7 @@ const ProjectPicker = ({
   return (
     <div className="mx-auto w-full max-w-md space-y-4 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-6">
       <header>
-        <div className="flex items-center gap-2 border-b border-cp-border pb-2 text-cp-xs font-bold uppercase tracking-[0.18em] text-cp-text-muted">
+        <div className="flex items-center gap-2 border-b border-cp-border pb-2 text-cp-xs font-bold text-cp-text-muted">
           <Icon icon={Cable} size="sm" />
           LZ Cable Planner
         </div>
@@ -450,7 +450,7 @@ const ProjectPicker = ({
           {reloadError}
         </div>
       )}
-      <div className="text-center text-cp-xs uppercase tracking-wider text-cp-text-faint">
+      <div className="text-center text-cp-xs text-cp-text-faint">
         {t('mobile.or', 'or')}
       </div>
       <label className="flex min-h-13 cursor-pointer items-center justify-center border border-cp-border bg-cp-surface-1 px-4 text-center text-sm text-cp-text hover:bg-cp-surface-2">
@@ -870,7 +870,7 @@ const PortList = ({
   if (ports.length === 0) return null
   return (
     <div className="mb-2 last:mb-0">
-      <div className="mb-1 text-cp-xs uppercase tracking-wide text-cp-text-faint">{label}</div>
+      <div className="mb-1 text-cp-xs text-cp-text-faint">{label}</div>
       <ul className="space-y-1">
         {ports.map((p) => {
           const cable = cables.find(
@@ -957,7 +957,7 @@ const PortList = ({
                       and too small to be useful on a phone. */}
                   {cable && otherDevice && (
                     <span className="mt-1 block border-l-2 border-cp-text-bright bg-cp-surface-2 px-2 py-1 text-xs text-cp-text">
-                      <span className="inline-flex items-center gap-1 text-cp-xs uppercase tracking-wide text-cp-text-muted">
+                      <span className="inline-flex items-center gap-1 text-cp-xs text-cp-text-muted">
                         <Icon icon={ArrowRight} size="xs" />
                         {t('mobile.port.goesTo', 'goes to')}
                       </span>

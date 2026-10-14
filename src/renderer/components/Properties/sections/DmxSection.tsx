@@ -127,7 +127,7 @@ export const DmxSection = ({ equipment }: { equipment: EquipmentItem }) => {
               muesste, um Platz zu sparen, hat sie faktisch weggelassen. */}
           <div className="border border-cp-border p-2">
             <div className="mb-1 flex items-center justify-between">
-              <span className="text-cp-xs font-semibold uppercase tracking-wide text-cp-text-secondary">
+              <span className="text-cp-xs font-semibold text-cp-text-secondary">
                 {t('dmx.modes', 'Modes')}
               </span>
               <button

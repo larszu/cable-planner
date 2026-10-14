@@ -216,7 +216,7 @@ export const DrumMicingDialog = () => {
   return (
     <div
       {...backdrop}
-      className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 p-4"
+      className="fixed inset-0 z-[200] flex items-center justify-center cp-scrim p-4"
     >
       <div
         ref={panelRef}
@@ -331,7 +331,7 @@ export const DrumMicingDialog = () => {
             {/* Kit-Bau-Editor (nur im Bearbeiten-Modus) */}
             {editKit && (
               <div className="border-b border-cp-border-muted p-3">
-                <h3 className="mb-2 text-cp-xs font-semibold uppercase tracking-wide text-cp-text-muted">
+                <h3 className="mb-2 text-cp-xs font-semibold text-cp-text-muted">
                   {t('drum.kitEdit', 'Assemble kit')}
                 </h3>
                 <p className="mb-2 text-cp-xs text-cp-text-faint">
@@ -370,7 +370,7 @@ export const DrumMicingDialog = () => {
                     placeholder={defaultZoneLabel(newZoneKind, plan.zones)}
                     className="w-full border border-cp-border bg-cp-surface-1 p-1 text-cp-xs"
                   />
-                  <button type="button" onClick={addZone} className="flex shrink-0 items-center gap-1 bg-sky-700 px-2 py-1 text-cp-xs text-white hover:bg-sky-600">
+                  <button type="button" onClick={addZone} className="flex shrink-0 items-center gap-1 bg-cp-accent px-2 py-1 text-cp-xs text-cp-accent-text hover:bg-cp-accent-hover">
                     <Plus size={12} /> {t('drum.addZone', 'Zone')}
                   </button>
                 </div>
@@ -388,7 +388,7 @@ export const DrumMicingDialog = () => {
                     <button
                       type="button"
                       onClick={() => addMicToZone(selectedZone)}
-                      className="flex items-center gap-1 bg-sky-700 px-2 py-1 text-cp-xs text-white hover:bg-sky-600"
+                      className="flex items-center gap-1 bg-cp-accent px-2 py-1 text-cp-xs text-cp-accent-text hover:bg-cp-accent-hover"
                     >
                       <Plus size={12} /> {t('drum.addMic', 'Mic')}
                     </button>
@@ -434,7 +434,7 @@ export const DrumMicingDialog = () => {
 
             {/* Ableitungen */}
             <div className="p-3">
-              <h3 className="mb-2 text-cp-xs font-semibold uppercase tracking-wide text-cp-text-muted">
+              <h3 className="mb-2 text-cp-xs font-semibold text-cp-text-muted">
                 {t('drum.summary', 'Channel list & requirements')}
               </h3>
               <div className="mb-2 flex flex-wrap gap-2 text-cp-xs">
@@ -488,7 +488,7 @@ export const DrumMicingDialog = () => {
               {bom.length > 0 && (
                 <div className="mt-3">
                   <div className="mb-1 flex items-center justify-between">
-                    <h3 className="text-cp-xs font-semibold uppercase tracking-wide text-cp-text-muted">
+                    <h3 className="text-cp-xs font-semibold text-cp-text-muted">
                       {t('drum.bom', 'Bill of materials')}
                     </h3>
                     <button

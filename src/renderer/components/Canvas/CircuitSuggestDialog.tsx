@@ -123,7 +123,7 @@ export function CircuitSuggestDialog({ open, onClose }: Props) {
   return (
     <div
       {...backdrop}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center cp-scrim p-4"
     >
       <div
         ref={panelRef}
@@ -192,7 +192,7 @@ export function CircuitSuggestDialog({ open, onClose }: Props) {
                   <button
                     type="button"
                     onClick={() => eintragen(v)}
-                    className="av-focus bg-cp-accent px-3 py-1 text-cp-xs text-cp-bg"
+                    className="av-focus bg-cp-accent px-3 py-1 text-cp-xs text-cp-accent-text"
                   >
                     {t('canvas.circuit.suggest.apply', 'Add wire')}
                   </button>

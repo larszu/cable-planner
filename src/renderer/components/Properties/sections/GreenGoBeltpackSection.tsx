@@ -36,7 +36,7 @@ export const GreenGoBeltpackSection = ({ equipmentId }: { equipmentId: string })
       onToggle={(e) => setOpen(e.currentTarget.open)}
       className="mb-2 bg-emerald-950/40 [&_summary]:cursor-pointer"
     >
-      <summary className="flex items-center gap-1 px-2 py-1.5 text-cp-xs uppercase tracking-wide text-emerald-300 hover:text-emerald-200 [&::-webkit-details-marker]:hidden">
+      <summary className="flex items-center gap-1 px-2 py-1.5 text-cp-xs text-emerald-300 hover:text-emerald-200 [&::-webkit-details-marker]:hidden">
         <span className="flex-1">{t('props.greengo.beltpack', 'Beltpack')}</span>
         {info?.channelNames && info.channelNames.length > 0 && (
           <span

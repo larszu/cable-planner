@@ -470,7 +470,10 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
           background: effectiveNodeColor
             ? `${effectiveNodeColor}${isLight ? '22' : '33'}`
             : tokens.body,
-          border: `1px solid ${selected ? '#38bdf8' : (effectiveNodeColor ?? tokens.border)}`,
+          border: `1px solid ${selected ? 'var(--cp-accent)' : (effectiveNodeColor ?? tokens.border)}`,
+          // Design-Vertrag 2026-10: Geraetekacheln sind weiche Karten (Radius m
+          // statt l — die Kacheln sind klein und dicht gepackt).
+          borderRadius: 'var(--cp-r-m)',
           color: tokens.text,
           fontSize: portLabelFontSize,
           display: 'flex',
@@ -588,7 +591,10 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
         background: effectiveNodeColor
           ? `${effectiveNodeColor}${isLight ? '18' : '22'}`
           : tokens.body,
-        border: `1px solid ${selected ? '#38bdf8' : (effectiveNodeColor ?? tokens.border)}`,
+        border: `1px solid ${selected ? 'var(--cp-accent)' : (effectiveNodeColor ?? tokens.border)}`,
+          // Design-Vertrag 2026-10: Geraetekacheln sind weiche Karten (Radius m
+          // statt l — die Kacheln sind klein und dicht gepackt).
+          borderRadius: 'var(--cp-r-m)',
         color: tokens.text,
         fontSize: 12,
         // Tally-Ring (Eigentuemer-Entscheidung 2026-09-08). Als AUSSENRING
@@ -616,6 +622,8 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
           lampLevel !== null && lampLevel >= 0
             ? `0 0 0 ${4 + Math.round(lampLevel * 0.04)}px rgba(250, 204, 21, ${0.35 + lampLevel * 0.0055})`
             : '',
+          selected ? '0 0 0 3px var(--cp-accent-soft)' : '',
+          'var(--cp-shadow-1)',
         ]
           .filter(Boolean)
           .join(', '),
@@ -623,6 +631,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
     >
       {/* Header */}
       <div style={{
+        borderRadius: 'var(--cp-r-m) var(--cp-r-m) 0 0',
         padding: `${PADDING}px ${PADDING}px 0 ${PADDING}px`,
         borderBottom: `1px solid ${effectiveNodeColor ?? tokens.border}`,
         background: effectiveNodeColor

@@ -27,7 +27,7 @@ import { DeviceLibrarySyncReport } from '../../Settings/tabs/DeviceLibraryTab'
 import type { DeviceLibraryEntry } from '../../../types/deviceLibrary'
 
 const STATUS_CLASS: Record<DeviceLibraryEntry['status'], string> = {
-  verified: 'bg-cp-accent text-white',
+  verified: 'bg-cp-accent text-cp-accent-text',
   confirmed: 'border border-cp-accent text-cp-accent',
   unconfirmed: 'border border-cp-border text-cp-text-muted',
   disputed: 'border border-cp-warn text-cp-warn',
@@ -139,7 +139,7 @@ export const DeviceLibrarySourceTab = () => {
 
       {groups.map(([category, entries]) => (
         <section key={category}>
-          <h4 className="mb-1 text-cp-xs font-semibold uppercase tracking-wider text-cp-text-muted">
+          <h4 className="mb-1 text-cp-xs font-semibold text-cp-text-muted">
             {categoryDisplay(category, lang, categoryTranslations)}
           </h4>
           <ul className="space-y-1">

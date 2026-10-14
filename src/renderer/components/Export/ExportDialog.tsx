@@ -152,7 +152,7 @@ export const ExportDialog = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center cp-scrim p-4"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose()
       }}
@@ -164,7 +164,7 @@ export const ExportDialog = ({
         className="flex h-[85vh] w-full max-w-5xl flex-col overflow-hidden border border-cp-border bg-cp-surface-1 text-cp-text outline-none sm:flex-row"
       >
         <aside className="flex shrink-0 flex-row gap-1 overflow-x-auto border-b border-cp-border-muted bg-cp-surface-3/40 p-3 sm:w-52 sm:flex-col sm:overflow-x-visible sm:overflow-y-auto sm:border-b-0 sm:border-r">
-          <h3 className="mb-2 hidden px-2 text-cp-xs font-semibold uppercase tracking-wider text-cp-text-faint sm:block">
+          <h3 className="mb-2 hidden px-2 text-cp-xs font-semibold text-cp-text-faint sm:block">
             {t('export.title', 'Export & print')}
           </h3>
           {(Object.keys(SECTION_LABEL) as Section[]).map((id) => (
@@ -174,7 +174,7 @@ export const ExportDialog = ({
               onClick={() => setSection(id)}
               className={`flex items-center gap-2 px-3 py-2 text-left text-cp-base ${
                 section === id
-                  ? 'bg-sky-700 text-white'
+                  ? 'bg-cp-accent text-cp-accent-text'
                   : 'text-cp-text-secondary hover:bg-cp-surface-2'
               }`}
             >
@@ -315,7 +315,7 @@ const PlanSection = ({
               key={opt.value}
               className={`flex cursor-pointer items-start gap-2 border px-3 py-2 text-cp-xs ${
                 selected
-                  ? 'border-sky-500 bg-sky-900/30'
+                  ? 'border-cp-accent bg-sky-900/30'
                   : 'border-cp-border bg-cp-surface-3 hover:border-cp-surface-5'
               }`}
             >
@@ -495,7 +495,7 @@ const PlanSection = ({
                   'Printing only works with the PDF format — for PNG/JPEG just download.',
                 )
           }
-          className="bg-indigo-700 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-indigo-600 disabled:opacity-50"
+          className="bg-cp-accent px-3 py-1.5 text-cp-xs font-medium text-cp-accent-text hover:bg-cp-accent-hover disabled:opacity-50"
         >
           <span className="inline-flex items-center gap-1"><Icon icon={Printer} size="xs" /> {t('export.printBtn', 'Print')}</span>
         </button>
@@ -503,7 +503,7 @@ const PlanSection = ({
           type="button"
           onClick={handleExport}
           disabled={busy}
-          className="inline-flex items-center gap-1.5 bg-emerald-600 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 bg-cp-ok px-3 py-1.5 text-cp-xs font-medium text-white hover:brightness-110 disabled:opacity-50"
         >
           {busy && <Spinner size="xs" />}
           {busy
@@ -715,7 +715,7 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
             type="button"
             onClick={() => setPendingAction('print')}
             disabled={busy || selectedIds.size === 0}
-            className="bg-indigo-700 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-indigo-600 disabled:opacity-50"
+            className="bg-cp-accent px-3 py-1.5 text-cp-xs font-medium text-cp-accent-text hover:bg-cp-accent-hover disabled:opacity-50"
             title={t('export.patch.osPrint', 'Open patch sheet(s) in OS print dialog')}
           >
             <span className="inline-flex items-center gap-1"><Icon icon={Printer} size="xs" /> {t('export.printBtn', 'Print')}</span>
@@ -731,7 +731,7 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
             type="button"
             disabled={busy}
             onClick={() => void runAction(pendingAction, 'a4')}
-            className="bg-emerald-600 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
+            className="bg-cp-ok px-3 py-1.5 text-cp-xs font-medium text-white hover:brightness-110 disabled:opacity-50"
           >
             A4
           </button>
@@ -739,7 +739,7 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
             type="button"
             disabled={busy}
             onClick={() => void runAction(pendingAction, 'a3')}
-            className="bg-emerald-600 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
+            className="bg-cp-ok px-3 py-1.5 text-cp-xs font-medium text-white hover:brightness-110 disabled:opacity-50"
           >
             A3
           </button>
@@ -866,7 +866,7 @@ const RackGroupSection = ({ onClose }: { onClose: () => void }) => {
                 type="button"
                 disabled={busy}
                 onClick={() => void run(p, 'pdf')}
-                className="bg-sky-700 px-2 py-1 text-cp-xs font-medium text-white hover:bg-sky-600 disabled:opacity-50"
+                className="bg-cp-accent px-2 py-1 text-cp-xs font-medium text-cp-accent-text hover:bg-cp-accent-hover disabled:opacity-50"
               >
                 {t('export.rack.pdf', 'PDF')}
               </button>
@@ -1346,7 +1346,7 @@ const BomSection = () => {
       {/* Per-Gewerk-Zusammenfassung (Anzahl + Meter je Layer). */}
       {layerSummary.length > 0 && (
         <div className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1 text-cp-xs text-cp-text-muted">
-          <span className="font-semibold uppercase tracking-wide text-cp-text-faint">
+          <span className="font-semibold text-cp-text-faint">
             {t('export.bom.byLayer', 'By discipline')}:
           </span>
           {layerSummary.map((l) => (
@@ -1360,7 +1360,7 @@ const BomSection = () => {
       )}
       {connectorSummary.length > 0 && (
         <div className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1 text-cp-xs text-cp-text-muted">
-          <span className="font-semibold uppercase tracking-wide text-cp-text-faint">
+          <span className="font-semibold text-cp-text-faint">
             {t('export.bom.connectors', 'Connectors (ends)')}:
           </span>
           {connectorSummary.map((c) => (
@@ -1392,7 +1392,7 @@ const BomSection = () => {
             type="button"
             onClick={savePlan}
             disabled={!draftPlan}
-            className="bg-emerald-700 px-3 py-1 text-cp-xs enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
+            className="bg-cp-ok px-3 py-1 text-cp-xs enabled:hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {t('export.bom.savePlan', 'Save Rentman plan')}
           </button>
@@ -1415,7 +1415,7 @@ const BomSection = () => {
         <button
           type="button"
           onClick={exportPdf}
-          className="bg-emerald-600 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-emerald-500"
+          className="bg-cp-ok px-3 py-1.5 text-cp-xs font-medium text-white hover:brightness-110"
           title={t('export.bom.pdfTitle', 'Download table as PDF')}
         >
           {t('export.bom.pdf', 'Download as PDF')}
@@ -1423,7 +1423,7 @@ const BomSection = () => {
         <button
           type="button"
           onClick={printPdf}
-          className="bg-indigo-700 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-indigo-600"
+          className="bg-cp-accent px-3 py-1.5 text-cp-xs font-medium text-cp-accent-text hover:bg-cp-accent-hover"
           title={t('export.bom.osPrint', 'Open cable BOM in OS print dialog')}
         >
           <span className="inline-flex items-center gap-1"><Icon icon={Printer} size="xs" /> {t('export.printBtn', 'Print')}</span>
@@ -1681,7 +1681,7 @@ const TallySection = () => {
           type="button"
           onClick={downloadCsv}
           disabled={map.rows.length === 0}
-          className="bg-sky-700 px-3 py-1.5 text-cp-xs text-white hover:bg-sky-600 disabled:opacity-40"
+          className="bg-cp-accent px-3 py-1.5 text-cp-xs text-cp-accent-text hover:bg-cp-accent-hover disabled:opacity-40"
         >
           {t('export.tally.csv', 'Tally map as CSV')}
         </button>
@@ -1732,7 +1732,7 @@ const TallySection = () => {
               // die Adresse nach dem Lesen aendert, hat den Stand eines
               // anderen Pi gesehen, und die Vorschau gilt nicht mehr.
               disabled={piLaeuft || piGelesen === null || piGelesen.adresse !== piUrl}
-              className="bg-cp-accent px-3 py-1.5 text-cp-xs text-white disabled:opacity-40"
+              className="bg-cp-accent px-3 py-1.5 text-cp-xs text-cp-accent-text disabled:opacity-40"
             >
               {t('export.tally.piSend', 'Send to the Pi')}
             </button>
@@ -1986,7 +1986,7 @@ const DeviceBomSection = () => {
           type="button"
           onClick={() => download('geraete-bom', planBomCsv(bom))}
           disabled={bom.rows.length === 0}
-          className="bg-sky-700 px-3 py-1.5 text-cp-xs text-white hover:bg-sky-600 disabled:opacity-40"
+          className="bg-cp-accent px-3 py-1.5 text-cp-xs text-cp-accent-text hover:bg-cp-accent-hover disabled:opacity-40"
         >
           {t('export.devicebom.csv', 'Device BOM as CSV')}
         </button>

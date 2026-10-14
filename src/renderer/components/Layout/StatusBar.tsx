@@ -36,10 +36,10 @@ const complexityFor = (
   t: (key: string, fallback?: string) => string,
 ): { label: string; tone: string } => {
   const score = devices + cables
-  if (score >= 200) return { label: t('statusbar.complexity.xl', 'XL'), tone: 'bg-purple-700 text-purple-100' }
-  if (score >= 80) return { label: t('statusbar.complexity.large', 'Large'), tone: 'bg-amber-600 text-amber-50' }
-  if (score >= 30) return { label: t('statusbar.complexity.medium', 'Medium'), tone: 'bg-sky-700 text-sky-50' }
-  if (score >= 8) return { label: t('statusbar.complexity.small', 'Small'), tone: 'bg-emerald-700 text-emerald-50' }
+  if (score >= 200) return { label: t('statusbar.complexity.xl', 'XL'), tone: 'bg-cp-surface-4 text-cp-text-bright' }
+  if (score >= 80) return { label: t('statusbar.complexity.large', 'Large'), tone: 'bg-cp-surface-4 text-cp-text-bright' }
+  if (score >= 30) return { label: t('statusbar.complexity.medium', 'Medium'), tone: 'bg-cp-surface-4 text-cp-text-bright' }
+  if (score >= 8) return { label: t('statusbar.complexity.small', 'Small'), tone: 'bg-cp-surface-4 text-cp-text-bright' }
   return { label: t('statusbar.complexity.new', 'New'), tone: 'bg-cp-surface-4 text-cp-text-bright' }
 }
 
@@ -55,9 +55,9 @@ const CollabStatusBadge = () => {
       type="button"
       onClick={() => useUiStore.getState().openSettings('sync')}
       title={t('statusbar.collab.title', 'Live collaboration active — click for participants & invite')}
-      className="flex items-center gap-1 whitespace-nowrap bg-emerald-700/80 px-1.5 py-0.5 text-cp-xs font-medium text-emerald-50 hover:bg-emerald-600"
+      className="cp-chip-ok flex items-center gap-1 whitespace-nowrap rounded-cp-full px-2 py-0.5 text-cp-xs font-medium"
     >
-      <span className="inline-block h-2 w-2 bg-emerald-300" />
+      <span className="inline-block h-2 w-2 bg-cp-signal" />
       {t('statusbar.collab.live', 'Live')} · {Math.max(peers.length, 1)}
     </button>
   )
@@ -108,7 +108,7 @@ const McpBadge = () => {
       )}
       className={`flex items-center gap-1 whitespace-nowrap px-1.5 py-0.5 text-cp-xs font-medium ${
         status.verbunden
-          ? 'bg-cp-accent text-white'
+          ? 'bg-cp-accent text-cp-accent-text'
           : 'bg-cp-surface-3 text-cp-text-secondary hover:bg-cp-surface-4'
       }`}
     >
@@ -241,10 +241,10 @@ export const StatusBar = ({
 
   const checkTone =
     errorCount > 0
-      ? 'bg-red-700 text-red-50'
+      ? 'cp-chip-danger'
       : warningCount > 0
-        ? 'bg-amber-600 text-amber-50'
-        : 'bg-emerald-700 text-emerald-50'
+        ? 'cp-chip-warn'
+        : 'cp-chip-ok'
   const checkIcon = errorCount > 0 ? AlertCircle : warningCount > 0 ? AlertTriangle : CheckCircle2
   return (
     <footer className="cp-statusbar justify-between gap-3 text-cp-xs">
@@ -273,7 +273,7 @@ export const StatusBar = ({
           </span>
         )}
         <span
-          className={`shrink-0 px-1.5 py-0.5 text-cp-xs font-bold ${complexity.tone}`}
+          className={`shrink-0 rounded-cp-full px-2 py-0.5 text-cp-xs font-semibold ${complexity.tone}`}
           title={t(
             'statusbar.complexity.title',
             'Complexity: heuristic from (devices + cables) count. Helps gauge readability + performance.',
@@ -284,7 +284,7 @@ export const StatusBar = ({
         <button
           type="button"
           onClick={() => togglePlanCheck()}
-          className={`inline-flex items-center gap-1 px-1.5 py-0.5 text-cp-xs font-bold ${checkTone}`}
+          className={`inline-flex items-center gap-1 rounded-cp-full px-2 py-0.5 text-cp-xs font-semibold ${checkTone}`}
           title={t('statusbar.planCheck.title', 'Open plan check: live validation (errors/warnings)')}
         >
           <Icon icon={checkIcon} size="xs" />

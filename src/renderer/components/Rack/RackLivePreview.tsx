@@ -202,7 +202,7 @@ export const RackLivePreview = ({
   return (
     <div>
       <div className="mb-1 flex items-center justify-between">
-        <div className="text-cp-xs font-semibold uppercase tracking-wide text-slate-400">
+        <div className="text-cp-xs font-semibold text-slate-400">
           {t('rackPreview.headerLabel', 'Black box on canvas')}
         </div>
         <div className="text-cp-xs text-slate-400">

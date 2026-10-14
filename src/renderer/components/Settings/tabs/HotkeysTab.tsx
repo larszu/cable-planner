@@ -41,7 +41,7 @@ const HotkeyRow = ({
         }}
         className={`min-w-[120px] border px-2 py-1 text-center font-mono text-cp-xs ${
           capturing
-            ? 'border-sky-500 bg-sky-950/60 text-sky-200'
+            ? 'border-cp-accent bg-sky-950/60 text-sky-200'
             : 'border-cp-border bg-cp-surface-1 text-cp-text-secondary hover:border-cp-surface-5'
         }`}
         title={

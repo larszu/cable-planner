@@ -177,11 +177,15 @@ Pfad-Validierung passiert **immer in main**, nie im Renderer.
   **`npm run lang:check` deckt alle drei Browser-Ordner ab.** Der Umfang ist
   keine Liste: derselbe Test liest die Ordner aus `tsconfig.app.json` und
   besteht darauf, dass jeder im Skript vorkommt.
-- **Theming (#449):** neue Komponenten nutzen die semantischen Farb-Utilities
-  (`bg-cp-surface-1/2/3`, `bg-cp-bg`, `border-cp-border(-muted)`,
-  `text-cp-text/-secondary/-muted/-faint`, `(bg|text|border)-cp-accent/-warn/-danger`),
+- **Theming (#449, Design-Vertrag 2026-10):** neue Komponenten nutzen die semantischen Farb-Utilities
+  (`bg-cp-surface-1/2/3`, `bg-cp-surface-raised`, `bg-cp-bg`, `border-cp-border(-muted/-strong)`,
+  `text-cp-text/-secondary/-muted/-faint`, `(bg|text|border)-cp-accent/-accent-soft/-ok/-warn/-danger`),
   gebunden in `index.css` via `@theme inline`. Sie flippen automatisch im
-  Light-Theme. Rohes `slate-*`/Inline-Hex nur noch in Canvas-/Print-Komponenten,
+  Light-Theme. Flächen sind neutral (Anthrazit/Fast-Weiß), Markenblau ist nur
+  Akzent. Rundung und Schatten **nur** über Tokens: `rounded-cp-s/-control/-card/-modal/-full`,
+  `shadow-cp-1/2/3`, im CSS `var(--cp-r-*)`/`var(--cp-shadow-*)` — `form:check` prüft das.
+  Hell/Dunkel/Auto: `lib/themeChoice.ts` + `shared/ThemeSwitch.tsx`.
+  Rohes `slate-*`/Inline-Hex nur noch in Canvas-/Print-Komponenten,
   die über einen `isLight`-Prop themen (EquipmentNode, Rack3DView …).
 - **Externe Tokens** (Rentman, NetBox, Gerätebibliothek), die **Stream-Keys der
   Ausspielziele** und die **Zugangsdaten der Geräte-Streams** (#946) liegen im OS-Credential-Store via `keytar` — niemals loggen

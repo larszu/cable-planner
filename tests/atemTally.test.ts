@@ -164,6 +164,6 @@ describe('Der Tally-Ring am Geraet', () => {
     // Der Rahmen traegt Geraetefarbe und Auswahl; zwei Aussagen an einer
     // Stelle streiten sich.
     expect(node).toContain('boxShadow: [')
-    expect(node).toMatch(/border: `1px solid \$\{selected \? '#38bdf8'/)
+    expect(node).toMatch(/border: `1px solid \$\{selected \? 'var\(--cp-accent\)'/)
   })
 })

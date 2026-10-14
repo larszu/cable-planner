@@ -229,7 +229,7 @@ export const RentmanTab = () => {
     <div className="flex flex-1 min-h-0 flex-col gap-3 overflow-auto">
       {linkedRentmanProjectId ? (
         <div className="border border-orange-600/60 bg-orange-900/20 p-2">
-          <div className="text-cp-xs uppercase tracking-wider text-orange-300/80">
+          <div className="text-cp-xs text-orange-300/80">
             {t('library.rentman.currentLinkedProject', 'Currently linked Rentman project')}
           </div>
           <div className="mt-0.5 truncate text-cp-base font-semibold text-orange-200">
@@ -477,7 +477,7 @@ export const RentmanTab = () => {
                                   <button
                                     type="button"
                                     onClick={() => toggleRentmanCat(categoryKey)}
-                                    className="flex w-full items-center justify-between gap-1 px-2 py-1 text-left text-cp-xs font-semibold uppercase tracking-wide text-cp-text-muted hover:text-cp-text-bright"
+                                    className="flex w-full items-center justify-between gap-1 px-2 py-1 text-left text-cp-xs font-semibold text-cp-text-muted hover:text-cp-text-bright"
                                   >
                                     <span className="flex items-center gap-1">
                                       <Icon icon={categoryCollapsed ? ChevronRight : ChevronDown} size="xs" />
@@ -725,7 +725,7 @@ export const RentmanTab = () => {
                           <button
                             type="button"
                             onClick={() => toggleFolder(folderId)}
-                            className="flex w-full items-center justify-between gap-1 px-2 py-1 text-left text-cp-xs font-semibold uppercase tracking-wide text-cp-text-secondary hover:text-cp-text"
+                            className="flex w-full items-center justify-between gap-1 px-2 py-1 text-left text-cp-xs font-semibold text-cp-text-secondary hover:text-cp-text"
                             style={{ paddingLeft: `${0.5 + depth * 0.75}rem` }}
                           >
                             <span className="flex items-center gap-1">
@@ -759,7 +759,7 @@ export const RentmanTab = () => {
                         {rootFolderIds.map((id) => renderFolder(id, 0))}
                         {orphans.length > 0 && (
                           <div className="border border-cp-border-muted/80">
-                            <div className="px-2 py-1 text-cp-xs font-semibold uppercase tracking-wide text-cp-text-muted">
+                            <div className="px-2 py-1 text-cp-xs font-semibold text-cp-text-muted">
                               {t('library.rentman.noFolder', 'No folder')} <span className="font-normal text-cp-text-dim">({orphans.length})</span>
                             </div>
                             <div className="space-y-1 px-2 pb-1">{orphans.map(renderItem)}</div>

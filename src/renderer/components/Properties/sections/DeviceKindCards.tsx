@@ -27,14 +27,14 @@ export const DeviceKindCards = ({ equipment }: { equipment: EquipmentItem }) => 
   if (deviceKind === 'greengo') {
     return (
       <div className="border border-emerald-700 bg-emerald-900/30 p-2">
-        <div className="mb-1 text-cp-xs uppercase tracking-wide text-emerald-300">
+        <div className="mb-1 text-cp-xs text-emerald-300">
           {t('props.deviceKind.greengo', 'GreenGo Intercom detected')}
         </div>
         <GreenGoBeltpackSection equipmentId={equipment.id} />
         <button
           type="button"
           onClick={() => openGreenGoExport()}
-          className="inline-flex w-full items-center justify-center gap-1 bg-emerald-700 px-2 py-1 text-cp-xs hover:bg-emerald-600"
+          className="inline-flex w-full items-center justify-center gap-1 bg-cp-ok px-2 py-1 text-cp-xs hover:brightness-110"
         >
           {t('props.deviceKind.greengoExport', 'Intercom planning / export .gg5')}
           <Icon icon={ArrowRight} size="xs" />
@@ -46,7 +46,7 @@ export const DeviceKindCards = ({ equipment }: { equipment: EquipmentItem }) => 
   if (deviceKind === 'videohub') {
     return (
       <div className="border border-purple-700 bg-purple-900/30 p-2">
-        <div className="mb-1 text-cp-xs uppercase tracking-wide text-purple-300">
+        <div className="mb-1 text-cp-xs text-purple-300">
           {t('props.deviceKind.videohub', 'Blackmagic Videohub detected')}
         </div>
         <div className="flex flex-col gap-1">
@@ -58,7 +58,7 @@ export const DeviceKindCards = ({ equipment }: { equipment: EquipmentItem }) => 
           <button
             type="button"
             onClick={() => openVideohubExport(equipment.id, true)}
-            className="inline-flex w-full items-center justify-center gap-1.5 bg-purple-700 px-2 py-1 text-cp-xs font-semibold hover:bg-purple-600"
+            className="inline-flex w-full items-center justify-center gap-1.5 bg-cp-accent text-cp-accent-text px-2 py-1 text-cp-xs font-semibold hover:bg-cp-accent-hover"
           >
             <Icon icon={SlidersHorizontal} size="xs" />
             {t('props.deviceKind.videohubConfigure', 'Configure Videohub · Labels + Routing')}
@@ -72,14 +72,14 @@ export const DeviceKindCards = ({ equipment }: { equipment: EquipmentItem }) => 
   if (deviceKind === 'atem') {
     return (
       <div className="border border-sky-700 bg-sky-900/30 p-2">
-        <div className="mb-1 text-cp-xs uppercase tracking-wide text-sky-300">
+        <div className="mb-1 text-cp-xs text-cp-accent">
           {t('props.deviceKind.atem', 'Blackmagic ATEM detected')}
         </div>
         <div className="flex flex-col gap-1">
           <button
             type="button"
             onClick={() => openAtemDialog(equipment.id)}
-            className="inline-flex w-full items-center justify-center gap-1 bg-sky-700 px-2 py-1 text-cp-xs hover:bg-sky-600"
+            className="inline-flex w-full items-center justify-center gap-1 bg-cp-accent text-cp-accent-text px-2 py-1 text-cp-xs hover:bg-cp-accent-hover"
             title={t('props.deviceKind.atemConnectTitle', 'Connects via UDP to the ATEM and transfers input names.')}
           >
             {t('props.deviceKind.atemConnect', 'Connect ATEM / push setup')}
@@ -88,7 +88,7 @@ export const DeviceKindCards = ({ equipment }: { equipment: EquipmentItem }) => 
           <button
             type="button"
             onClick={() => openAtemMvConfig(equipment.id)}
-            className="inline-flex w-full items-center justify-center gap-1 bg-emerald-700 px-2 py-1 text-cp-xs hover:bg-emerald-600"
+            className="inline-flex w-full items-center justify-center gap-1 bg-cp-ok px-2 py-1 text-cp-xs hover:brightness-110"
             title={t(
               'props.deviceKind.atemMvTitle',
               'Configure multiviewer layout offline. Pushed on next connect.',
@@ -100,7 +100,7 @@ export const DeviceKindCards = ({ equipment }: { equipment: EquipmentItem }) => 
           <button
             type="button"
             onClick={() => openAtemAudioConfig(equipment.id)}
-            className="inline-flex w-full items-center justify-center gap-1 bg-fuchsia-700 px-2 py-1 text-cp-xs hover:bg-fuchsia-600"
+            className="inline-flex w-full items-center justify-center gap-1 bg-cp-accent text-cp-accent-text px-2 py-1 text-cp-xs hover:bg-cp-accent-hover"
             title={t(
               'props.deviceKind.atemAudioTitle',
               'Plan ATEM audio router offline (matrix routing or classic mixer).',
@@ -117,7 +117,7 @@ export const DeviceKindCards = ({ equipment }: { equipment: EquipmentItem }) => 
   if (deviceKind === 'multiviewer') {
     return (
       <div className="border border-emerald-700 bg-emerald-900/30 p-2">
-        <div className="mb-1 text-cp-xs uppercase tracking-wide text-emerald-300">
+        <div className="mb-1 text-cp-xs text-emerald-300">
           {t('props.deviceKind.multiviewer', 'Multiviewer detected')}
         </div>
         <button

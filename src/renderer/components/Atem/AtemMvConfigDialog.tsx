@@ -193,7 +193,7 @@ const MvLayoutPicker = ({
             left: q.col === 1 ? 0 : '50%',
           }}
         >
-          <span className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 text-center text-cp-xs font-bold uppercase tracking-wider text-sky-100 opacity-60 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
+          <span className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 text-center text-cp-xs font-bold text-sky-100 opacity-60 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
             {quadrants[q.idx] === 'big' ? '1 → 4' : '4 → 1'}
           </span>
         </button>
@@ -483,7 +483,7 @@ const SourcePicker = ({
               const n = Number(custom)
               if (!Number.isNaN(n)) onPick(n)
             }}
-            className="flex-1 bg-emerald-700 px-2 py-1 text-cp-xs hover:bg-emerald-600"
+            className="flex-1 bg-cp-ok px-2 py-1 text-cp-xs hover:brightness-110"
           >
             {t('common.apply', 'Apply')}
           </button>
@@ -492,7 +492,7 @@ const SourcePicker = ({
       <div className="p-1 text-cp-xs">
         {grouped.map(([group, items]) => (
           <div key={group} className="mb-1">
-            <div className="px-1 py-0.5 text-cp-xs uppercase tracking-wider text-cp-text-muted">
+            <div className="px-1 py-0.5 text-cp-xs text-cp-text-muted">
               {group}
             </div>
             {items.map((item) => (
@@ -666,7 +666,7 @@ const AtemMvDevicePicker = () => {
   // nacheinander stehen, nicht ineinander.
   const { panelRef, titleId, dialogProps } = useDialogA11y(true, close)
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={close}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center cp-scrim" onClick={close}>
       <div
         ref={panelRef}
         aria-labelledby={titleId}
@@ -1119,7 +1119,7 @@ export const AtemMvConfigDialog = () => {
         title={`${quad.name} groß: ${label} (ID ${sid}) — klicken zum Ändern`}
       >
         {role !== 'other' && (
-          <div className="absolute left-1 top-0 text-cp-xs font-semibold uppercase tracking-wider opacity-70">
+          <div className="absolute left-1 top-0 text-cp-xs font-semibold opacity-70">
             {role.toUpperCase()}
           </div>
         )}
@@ -1168,7 +1168,7 @@ export const AtemMvConfigDialog = () => {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+      className="fixed inset-0 z-50 flex items-center justify-center cp-scrim"
       onClick={close}
     >
       <div
@@ -1199,7 +1199,7 @@ export const AtemMvConfigDialog = () => {
               onClick={() => setActiveMv(i)}
               className={` px-3 py-1 text-cp-xs ${
                 i === activeMv
-                  ? 'bg-sky-700 text-white'
+                  ? 'bg-cp-accent text-cp-accent-text'
                   : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'
               }`}
             >
@@ -1371,7 +1371,7 @@ export const AtemMvConfigDialog = () => {
             <button
               type="button"
               onClick={() => void handleExportPng()}
-              className="bg-indigo-700 px-3 py-1 text-cp-xs hover:bg-indigo-600"
+              className="bg-cp-accent text-cp-accent-text px-3 py-1 text-cp-xs hover:bg-cp-accent-hover"
               title={t('atem.mv.savePng', 'Save current MV layout as PNG')}
             >
               {t('atem.mv.asPng', 'As PNG')}
@@ -1388,7 +1388,7 @@ export const AtemMvConfigDialog = () => {
               type="button"
               onClick={() => void handleReadFromAtem()}
               disabled={!connected}
-              className="bg-sky-700 px-3 py-1 text-cp-xs enabled:hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-50"
+              className="bg-cp-accent text-cp-accent-text px-3 py-1 text-cp-xs enabled:hover:bg-cp-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
               title={
                 connected
                   ? t('atem.mv.readFromTitle', 'Read the multiviewer setup from the connected ATEM and use it in this view.')
@@ -1401,7 +1401,7 @@ export const AtemMvConfigDialog = () => {
               type="button"
               onClick={handleApply}
               disabled={!connected}
-              className="bg-emerald-700 px-3 py-1 text-cp-xs enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
+              className="bg-cp-ok px-3 py-1 text-cp-xs enabled:hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
               title={
                 connected
                   ? t('atem.mv.applyTitle', 'Push configuration to ATEM')

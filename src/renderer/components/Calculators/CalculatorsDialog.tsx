@@ -194,7 +194,7 @@ const BandwidthTab = () => {
         </label>
       </div>
       <div className="border border-amber-700 bg-amber-950/30 p-3">
-        <div className="text-cp-xs uppercase tracking-wide text-amber-300">{t('calc.dataRate', 'Data rate')}</div>
+        <div className="text-cp-xs text-amber-300">{t('calc.dataRate', 'Data rate')}</div>
         <div className="font-mono text-cp-xl text-amber-100">{mbps.toLocaleString(undefined, { maximumFractionDigits: 1 })} Mbps</div>
         <div className="mt-1 text-cp-xs text-amber-200">
           {fittingTier
@@ -208,7 +208,7 @@ const BandwidthTab = () => {
         </div>
       </div>
       <details className="border border-cp-border-muted bg-cp-surface-3/40">
-        <summary className="cursor-pointer px-3 py-1.5 text-cp-xs uppercase tracking-wide text-cp-text-muted">
+        <summary className="cursor-pointer px-3 py-1.5 text-cp-xs text-cp-text-muted">
           SDI-Tiers
         </summary>
         <ul className="space-y-0.5 px-3 py-2 text-cp-xs">
@@ -221,7 +221,7 @@ const BandwidthTab = () => {
         </ul>
       </details>
       <details className="border border-cp-border-muted bg-cp-surface-3/40">
-        <summary className="cursor-pointer px-3 py-1.5 text-cp-xs uppercase tracking-wide text-cp-text-muted">
+        <summary className="cursor-pointer px-3 py-1.5 text-cp-xs text-cp-text-muted">
           {t('calc.bandwidth.signalStds', 'IP / digital signal standards')}
         </summary>
         <ul className="space-y-0.5 px-3 py-2 text-cp-xs">
@@ -238,7 +238,7 @@ const BandwidthTab = () => {
       {netBudget.count > 0 && (
         <div className="border border-sky-700 bg-sky-950/20 p-3">
           <div className="mb-2 flex items-center justify-between">
-            <div className="text-cp-xs uppercase tracking-wide text-cp-text-secondary">
+            <div className="text-cp-xs text-cp-text-secondary">
               {t('calc.bandwidth.netBudget', 'Project network budget')}
             </div>
             <div className="text-cp-xs text-cp-text-muted">
@@ -727,7 +727,7 @@ const PowerTab = () => {
       {/* Distro-Vergleich: welcher Anschluss trägt die Last? */}
       {totals.totalW > 0 && (
         <div className="flex flex-wrap items-center gap-1.5 text-cp-xs">
-          <span className="font-semibold uppercase tracking-wide text-cp-text-faint">
+          <span className="font-semibold text-cp-text-faint">
             {t('calc.power.fitsOn', 'Fits on')}:
           </span>
           {supplies.map((p) => {
@@ -753,7 +753,7 @@ const PowerTab = () => {
           } p-3`}
         >
           <div className="mb-2 flex items-center justify-between">
-            <div className="text-cp-xs uppercase tracking-wide text-cp-text-secondary">
+            <div className="text-cp-xs text-cp-text-secondary">
               {t('calc.phaseDistribution', 'Phase distribution')} ({supply.label})
             </div>
             <div className="text-cp-xs text-cp-text-muted">
@@ -776,7 +776,7 @@ const PowerTab = () => {
                   className={` border ${PHASE_COLORS[PHASE_KEYS[idx]].border} ${PHASE_COLORS[PHASE_KEYS[idx]].bg} p-2`}
                 >
                   <div
-                    className={`flex items-center gap-1 text-cp-xs uppercase tracking-wider ${PHASE_COLORS[PHASE_KEYS[idx]].text}`}
+                    className={`flex items-center gap-1 text-cp-xs ${PHASE_COLORS[PHASE_KEYS[idx]].text}`}
                   >
                     <span
                       className="inline-block h-2 w-2"
@@ -829,7 +829,7 @@ const PowerTab = () => {
             </span>
           </div>
           <details className="mt-2">
-            <summary className="cursor-pointer text-cp-xs uppercase tracking-wide text-cp-text-muted hover:text-cp-text-bright">
+            <summary className="cursor-pointer text-cp-xs text-cp-text-muted hover:text-cp-text-bright">
               {t('calc.devicesToPhase', 'Devices → Phase')} ({distribution.assignments.length})
             </summary>
             <div className="mb-1 mt-1 text-cp-xs text-cp-text-muted">
@@ -883,7 +883,7 @@ const PowerTab = () => {
             </table>
           </details>
           <div className="mt-2 flex flex-wrap items-center gap-3 text-cp-xs text-cp-text-muted">
-            <span className="font-semibold uppercase tracking-wide text-cp-text-faint">
+            <span className="font-semibold text-cp-text-faint">
               {t('calc.euColorTitle', 'EU colour code (DIN VDE 0293-308)')}:
             </span>
             {(['L1', 'L2', 'L3', 'N', 'PE'] as const).map((key) => (
@@ -911,7 +911,7 @@ const PowerTab = () => {
             <button
               type="button"
               onClick={exportCsv}
-              className="inline-flex items-center gap-1 bg-emerald-700 px-2 py-1 text-cp-xs font-medium text-white hover:bg-emerald-600"
+              className="inline-flex items-center gap-1 bg-cp-ok px-2 py-1 text-cp-xs font-medium text-white hover:brightness-110"
             >
               <Icon icon={Download} size="xs" /> {t('analysis.exportCsv', 'Export CSV')}
             </button>
@@ -929,7 +929,7 @@ const PowerTab = () => {
       {/* #345 ff. — USV / Notstrom-Puffer-Rechner. Nutzt die Gesamtlast der
           Geräte (oben) und schätzt USV-Größe + Pufferzeit. */}
       <details className="border border-cp-border-muted bg-cp-surface-3/40" open={totals.totalW > 0}>
-        <summary className="flex cursor-pointer items-center gap-1.5 px-3 py-1.5 text-cp-xs uppercase tracking-wide text-cp-text-muted">
+        <summary className="flex cursor-pointer items-center gap-1.5 px-3 py-1.5 text-cp-xs text-cp-text-muted">
           <Icon icon={BatteryCharging} size="xs" />
           {t('calc.ups.title', 'UPS / battery backup')}
         </summary>
@@ -1081,7 +1081,7 @@ const PowerTab = () => {
 
       {/* #345 ff. — Spannungsfall auf der Zuleitung (Distro-Strecke). */}
       <details className="border border-cp-border-muted bg-cp-surface-3/40">
-        <summary className="flex cursor-pointer items-center gap-1.5 px-3 py-1.5 text-cp-xs uppercase tracking-wide text-cp-text-muted">
+        <summary className="flex cursor-pointer items-center gap-1.5 px-3 py-1.5 text-cp-xs text-cp-text-muted">
           {t('calc.vdrop.title', 'Voltage drop (feeder)')}
         </summary>
         <div className="space-y-3 px-3 py-2">
@@ -1173,7 +1173,7 @@ const PowerTab = () => {
 
       {totals.devices.length > 0 && (
         <details className="border border-cp-border-muted bg-cp-surface-3/40">
-          <summary className="cursor-pointer px-3 py-1.5 text-cp-xs uppercase tracking-wide text-cp-text-muted">
+          <summary className="cursor-pointer px-3 py-1.5 text-cp-xs text-cp-text-muted">
             {t('calc.topConsumers', 'Top consumers')}
           </summary>
           <ul className="px-3 py-2 text-cp-xs">

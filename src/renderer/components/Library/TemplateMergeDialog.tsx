@@ -195,7 +195,7 @@ export const TemplateMergeDialog = ({
 
         <div className="grid grid-cols-2 gap-3">
           <div className="border border-cp-border bg-cp-surface-3/50 p-2">
-            <div className="mb-2 text-cp-xs font-semibold uppercase tracking-wide text-cp-text-muted">
+            <div className="mb-2 text-cp-xs font-semibold text-cp-text-muted">
               {t('templateMerge.local', 'Local')}
             </div>
             <div className="mb-1 text-cp-xs text-cp-text-muted">{localTemplate.name}</div>
@@ -234,7 +234,7 @@ export const TemplateMergeDialog = ({
           </div>
 
           <div className="border border-cp-border bg-cp-surface-3/50 p-2">
-            <div className="mb-2 text-cp-xs font-semibold uppercase tracking-wide text-cp-text-muted">{incomingLabel}</div>
+            <div className="mb-2 text-cp-xs font-semibold text-cp-text-muted">{incomingLabel}</div>
             <div className="mb-1 text-cp-xs text-cp-text-muted">{incomingTemplate.name}</div>
             <div className="space-y-2">
               <div>

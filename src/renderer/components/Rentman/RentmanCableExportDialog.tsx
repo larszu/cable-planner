@@ -376,7 +376,7 @@ export const RentmanCableExportDialog = ({ open, onClose }: RentmanCableExportDi
                   type="button"
                   onClick={() => void sendAll()}
                   disabled={!linkedProjectId || sendableCount === 0 || busyKey !== null}
-                  className="ml-auto bg-emerald-700 px-3 py-1 text-cp-xs font-semibold text-white hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="ml-auto bg-cp-ok px-3 py-1 text-cp-xs font-semibold text-white hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
                   title={
                     !linkedProjectId
                       ? t('rentman.cableExport.noLink', 'No Rentman project linked.')

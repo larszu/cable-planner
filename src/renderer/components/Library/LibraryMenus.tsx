@@ -44,7 +44,7 @@ export const PlusMenu = ({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex h-7 items-center gap-0.5 bg-emerald-700 px-2 text-cp-xs hover:bg-emerald-600"
+        className="flex h-7 items-center gap-0.5 bg-cp-ok px-2 text-cp-xs hover:brightness-110"
         title={t('library.menus.plusTitle', 'Create new device or category')}
         aria-haspopup="menu"
         aria-expanded={open}
@@ -210,7 +210,7 @@ export const LibraryFiltersMenu = ({
               : t('library.menus.collapseAll', 'Collapse all categories')}
           </button>
           <div className="my-1 border-t border-cp-border-muted" />
-          <div className="px-3 py-1 text-cp-xs uppercase tracking-wider text-cp-text-muted">
+          <div className="px-3 py-1 text-cp-xs text-cp-text-muted">
             {t('library.menus.sorting', 'Sorting')}
           </div>
           {(

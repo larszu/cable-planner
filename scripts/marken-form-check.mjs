@@ -1,67 +1,45 @@
 #!/usr/bin/env node
 // ───────────────────────────────────────────────────────────────────────────
-// Die FORM der Oberflaeche — keine Rundungen, keine Schatten (ADR-007
-// Abschnitt 3). Lauf: `npm run form:check`.
+// Die FORM der Oberflaeche — Rundungen und Schatten NUR ueber Tokens.
+// Lauf: `npm run form:check`.
 //
-// ─── WARUM ES DIESEN LAUF ERST SEIT HEUTE GIBT ────────────────────────────
+// ─── WARUM ES DAS GIBT (umgebaut 2026-10-13) ──────────────────────────────
 //
-// Dieses Repo ist der Massstab, an dem die uebrigen Apps ausgerichtet werden
-// — und es war das einzige der fuenf OHNE einen Form-Waechter. Gemessen am
-// 2026-09-11, nur in Klassenlisten und ohne Kommentare:
+// Bis 2026-10-13 hiess die Regel „keine Rundungen, keine Schatten" (ADR-007
+// Abschnitt 3 in der alten Fassung). Der Design-Vertrag 2026-10 und das am
+// selben Tag geaenderte ADR-007 (lz-planner-suite) heben das auf: die
+// Oberflaeche hat weiche Rundungen (6/10/20/24/voll) und drei weiche
+// Schatten — aber jede davon kommt aus EINEM Token. Der Waechter bleibt, nur
+// seine Frage ist eine andere: nicht mehr „ist das null?", sondern „kommt das
+// aus der Token-Schicht?".
 //
-//   cable-planner              1854 Rundungen, 74 Schatten
-//   multicam-planner            237 Rundungen, 10 Schatten
-//   light-planner                 0             0
-//   inventory-planner             0             0
-//   larszu-facility-planner       0             0
-//
-// Drei von fuenf hielten die Regel genau ein; die beiden, die sie brachen,
-// waren die beiden mit den grossen Oberflaechen — und der schlimmste Fall war
-// der Massstab selbst. Die Tokens `--radius-cp-control/-card/-modal` standen
-// laengst auf null, nur hat sie kaum jemand benutzt: daneben lebten 1854 rohe
-// `rounded`-Utilities weiter, die Tailwind mit 4 px aufloest.
+// Warum das weiter einen Waechter braucht, steht in der Geschichte dieser
+// Datei: am 2026-09-11 zaehlte er 1854 rohe `rounded`-Utilities in diesem
+// Repo, die Tailwind mit 4 px aufloeste, neben drei Tokens, die kaum jemand
+// benutzte. Ohne Pruefung waechst so wieder ein Feld aus 4, 6, 8 und 12 px —
+// und acht Werkzeuge, die gleich aussehen sollen, laufen auseinander.
 //
 // ─── WAS ER PRUEFT ────────────────────────────────────────────────────────
 //
-//   TSX/TS   Klassenlisten (`className=…`, `class=…`) auf rohe
-//            `rounded*`/`shadow*`-Utilities.
-//   CSS      `border-radius` mit einem anderen Wert als 0, und `box-shadow`
-//            mit Unschaerfe oder Versatz.
-//   TSX/TS   Stilobjekte (`style={{ … }}`, `CSSProperties`): `borderRadius`
-//            und `boxShadow` nach denselben Regeln (seit 2026-10-08, #1041).
-//
-// ─── WARUM AUCH DIE STILOBJEKTE (2026-10-08, #1041) ──────────────────────
-//
-// Die Geraeteknoten im Canvas — die groessten Flaechen der App — trugen
-// `borderRadius: 6` und `boxShadow: '0 2px 6px …'` als Inline-Stil. Gefunden
-// hat das kein Waechter, sondern ein Erklaervideo: dieser Lauf las nur
-// Klassenlisten und war gruen. Gezaehlt am selben Tag: rund 90 Rundungen
-// und 20 Schlagschatten in Stilobjekten, fast alle im Canvas.
-//
-// Ein Stilobjekt-Wert wird nur durchgelassen, wenn er als LITERAL im
-// Quelltext steht und die Regel einhaelt. Ein Wert aus einer Variablen
-// (`boxShadow: glow`) faellt, weil er nicht pruefbar ist — der Ausweg waere
-// sonst eine Zeile weiter oben.
+//   TSX/TS   Klassenlisten: `rounded*`/`shadow*` nur als Token-Utility
+//            (`rounded-cp-s|control|card|modal|full`, auch mit Seite wie
+//            `rounded-t-cp-modal`; `shadow-cp-1|2|3`) oder als Verneinung.
+//            Tailwind-Standard (`rounded-lg`, `shadow-xl`) und Werte in
+//            eckigen Klammern fallen.
+//   CSS      `border-radius`: 0, 50 % (Kreis) oder `var(--cp-r-*)` /
+//            `var(--radius-cp-*)`. `box-shadow`: none, ein Ring
+//            (`0 0 0 Npx`) oder `var(--cp-shadow-N)`, auch kombiniert.
+//   TSX/TS   Stilobjekte (`borderRadius`, `boxShadow`) nach denselben Regeln;
+//            ein Wert aus einer Variablen faellt, weil er nicht pruefbar ist.
 //
 // ─── UND WAS AUSDRUECKLICH ERLAUBT IST ────────────────────────────────────
 //
-//   rounded-cp-control/-card/-modal   Haus-Token. Ihr Wert ist null; ADR-007
-//                                     sagt ausdruecklich, dass die NAMEN
-//                                     bleiben, damit kein Aufrufer umgebaut
-//                                     werden muss.
-//   rounded-none / shadow-none        eine Verneinung ist kein Verstoss.
 //   ring-*                            der Fokusring ist Pflicht, nicht Dekor.
-//   box-shadow: 0 0 0 Npx <farbe>     ein RING ohne Unschaerfe und ohne
-//                                     Versatz. Er traegt eine Meldung (der
-//                                     abgelehnte Zug blitzt rot), er
-//                                     behauptet keine Tiefe. Sobald eine
-//                                     Unschaerfe oder ein Versatz dazukommt,
-//                                     ist es ein Schlagschatten und faellt.
-//                                     Im Stilobjekt auch mit `inset`.
-//   borderRadius: '50%'               ein KREIS, keine gerundete Flaeche: er
-//                                     bildet etwas Rundes ab (Buchse und Loch
-//                                     der Frontplatte, LED, Anfasser). Eine
-//                                     Ecke von 6 px bildet nichts ab.
+//   box-shadow: 0 0 0 Npx <farbe>     ein RING traegt eine Meldung (Tally,
+//                                     abgelehnter Zug), er behauptet keine
+//                                     Tiefe.
+//   borderRadius: '50%'               ein KREIS bildet etwas Rundes ab
+//                                     (Buchse, LED, Anfasser).
 //
 // ─── WAS ER NICHT SIEHT, UND DAS IST WICHTIG ──────────────────────────────
 //
@@ -83,7 +61,8 @@ import { fileURLToPath } from 'node:url'
 
 const WURZEL = join(dirname(fileURLToPath(import.meta.url)), '..')
 
-export const BEHALTEN = /^(?:rounded-(?:cp-(?:control|card|modal)|none)|shadow-none)$/
+export const BEHALTEN =
+  /^(?:rounded(?:-(?:t|r|b|l|s|e|tl|tr|br|bl|ss|se|es|ee))?-(?:cp-(?:s|control|card|modal|full)|none)|shadow-(?:none|cp-[123]))$/
 export const UTILITY = /(?<![\w-])(?:rounded|shadow)(?:-[a-z0-9/.%]+)*(?:-\[[^\]]*\])?(?![\w-])/g
 
 const alle = (d, out = []) => {
@@ -202,13 +181,47 @@ export function stilAusdruecke(quelle, eigenschaft) {
   return raus
 }
 
-const RUNDUNG_ERLAUBT = /^(?:0|'0(?:px)?'|"0(?:px)?"|'50%'|"50%"|undefined)$/
-export const rundungErlaubt = (ausdruck) => RUNDUNG_ERLAUBT.test(ausdruck)
+/** Ein Rundungswert aus der Token-Schicht: 0, Kreis oder `var(--cp-r-*)`. */
+const RUNDUNG_TEIL = /^(?:0|0px|50%|var\(--(?:cp-r-(?:s|m|l|xl|full)|radius-cp-(?:s|control|card|modal|full))\)|inherit)$/
+export const rundungsWertErlaubt = (w) =>
+  w.trim().split(/\s+(?![^(]*\))/).every((t) => RUNDUNG_TEIL.test(t))
+
+const ATOM = /^(?:0|undefined|'([^'\\]*)'|"([^"\\]*)"|`([^`$]*)`)$/
+const atomErlaubt = (a) => {
+  const m = ATOM.exec(a.trim())
+  if (!m) return false
+  const lit = m[1] ?? m[2] ?? m[3]
+  return lit === undefined || rundungsWertErlaubt(lit)
+}
+/**
+ * Ein `borderRadius`-Ausdruck: ein erlaubtes Atom oder `bedingung ? a : b`
+ * aus zwei erlaubten Atomen. Alles andere (eine Variable, eine Rechnung) ist
+ * nicht pruefbar und faellt.
+ */
+export function rundungErlaubt(ausdruck) {
+  const q = ausdruck.indexOf('?')
+  if (q < 0) return atomErlaubt(ausdruck)
+  const zweige = ausdruck.slice(q + 1).split(':')
+  return zweige.length === 2 && zweige.every(atomErlaubt)
+}
+
+/** Eine Schatten-Ebene: Ring oder Token. */
+const ebeneErlaubt = (ebene) =>
+  ebene === '' || /^var\(--cp-shadow-[123]\)$/.test(ebene) || istRing(ebene)
+
+/** Ein CSS-`box-shadow`-Wert: jede Ebene ist Ring oder Token. */
+export const schattenWertErlaubt = (w) =>
+  w === 'none' ||
+  w
+    .split(/,(?![^(]*\))/)
+    .map((e) => e.trim().replace(/^inset\s+/, ''))
+    .every(ebeneErlaubt)
 
 /**
  * Ein `boxShadow`-Ausdruck ist erlaubt, wenn er `undefined` ist oder jede
- * Zeichenkette darin nur aus Ringen besteht. Platzhalter `${…}` zaehlen als
- * `1` — ein berechneter Versatz oder eine berechnete Unschaerfe fallen also.
+ * Zeichenkette darin nur aus Ringen und Schatten-Tokens besteht. Platzhalter
+ * `${…}` zaehlen als `1` — ein berechneter Versatz oder eine berechnete
+ * Unschaerfe fallen also.
  */
 export function schattenErlaubt(ausdruck) {
   if (ausdruck === 'undefined') return true
@@ -218,12 +231,7 @@ export function schattenErlaubt(ausdruck) {
   if (!literale.length) return false
   // Ohne Ziffer ist eine Zeichenkette kein Schatten, sondern ein Vergleich
   // (`highlight === 'pgm'`) oder ein Trenner (`.join(', ')`).
-  return literale.filter((l) => /\d/.test(l)).every((l) =>
-    l
-      .split(/,(?![^(]*\))/)
-      .map((ebene) => ebene.trim().replace(/^inset\s+/, ''))
-      .every((ebene) => ebene === '' || istRing(ebene)),
-  )
+  return literale.filter((l) => /\d/.test(l)).every(schattenWertErlaubt)
 }
 
 const funde = []
@@ -237,10 +245,10 @@ for (const f of alle(join(WURZEL, 'src'))) {
   if (f.endsWith('.css')) {
     cssGeprueft += 1
     for (const w of werte(quelle, 'border-radius')) {
-      if (w !== '0' && w !== '0px') funde.push(`${kurz}  border-radius: ${w}`)
+      if (!rundungsWertErlaubt(w)) funde.push(`${kurz}  border-radius: ${w}`)
     }
     for (const w of werte(quelle, 'box-shadow')) {
-      if (!istRing(w)) funde.push(`${kurz}  box-shadow: ${w}`)
+      if (!schattenWertErlaubt(w)) funde.push(`${kurz}  box-shadow: ${w}`)
     }
   } else {
     for (const a of stilAusdruecke(quelle, 'borderRadius')) {
@@ -275,6 +283,8 @@ assert.equal(trifft('rounded-full'), 1)
 assert.equal(trifft('shadow-2xl'), 1)
 assert.equal(trifft('rounded-[3px]'), 1, 'ein Wert in eckigen Klammern faellt nicht auf')
 assert.equal(trifft('rounded-cp-control rounded-none shadow-none'), 0, 'die Ausnahmen greifen nicht')
+assert.equal(trifft('rounded-cp-full rounded-t-cp-modal shadow-cp-3 hover:shadow-cp-2'), 0, 'die Tokens greifen nicht')
+assert.equal(trifft('shadow-cp-4 rounded-cp-xxl'), 2, 'ein erfundener Token kommt durch')
 assert.equal(trifft('ring-2 ring-sky-400'), 0, 'der Fokusring wird beschuldigt')
 assert.equal(trifft('surrounded rounder'), 0, 'das Muster liest aus laengeren Woertern heraus')
 
@@ -294,6 +304,8 @@ assert.ok(!istRing('inset 0 0 0 2px red'), 'ein Wert mit Schluesselwort ist kein
 assert.deepEqual(werte('a { border-radius: 0 !important; }', 'border-radius'), ['0'])
 assert.deepEqual(werte('a { box-shadow: none !important; }', 'box-shadow'), ['none'])
 assert.deepEqual(werte('a { border-radius: 8px; }', 'border-radius'), ['8px'])
+assert.ok(rundungsWertErlaubt('var(--cp-r-m)') && !rundungsWertErlaubt('8px'), 'CSS-Rundung falsch bewertet')
+assert.ok(schattenWertErlaubt('var(--cp-shadow-3)') && !schattenWertErlaubt('0 4px 16px black'), 'CSS-Schatten falsch bewertet')
 
 // 3. Klassenlisten werden gefunden, und NUR sie.
 {
@@ -315,6 +327,12 @@ assert.deepEqual(werte('a { border-radius: 8px; }', 'border-radius'), ['8px'])
   assert.ok(!rundungErlaubt("'5px 5px 0 0'"))
   assert.ok(!rundungErlaubt('r'), 'ein nicht pruefbarer Wert kommt durch')
   assert.ok(rundungErlaubt('0') && rundungErlaubt("'50%'"), 'Null oder Kreis wird abgelehnt')
+  assert.ok(rundungErlaubt("'var(--cp-r-m)'"), 'ein Token wird abgelehnt')
+  assert.ok(rundungErlaubt("a ? 'var(--cp-r-l) var(--cp-r-l) 0 0' : 0"), 'ein Token im Ternaer wird abgelehnt')
+  assert.ok(!rundungErlaubt("'var(--cp-r-m) 4px'"), 'ein roher px-Wert neben einem Token kommt durch')
+  assert.ok(schattenErlaubt("'var(--cp-shadow-1)'"), 'ein Schatten-Token wird abgelehnt')
+  assert.ok(schattenErlaubt("'0 0 0 3px red, var(--cp-shadow-2)'"), 'Ring plus Token wird abgelehnt')
+  assert.ok(!schattenErlaubt("'var(--cp-shadow-1), 0 2px 4px black'"), 'ein roher Schatten neben einem Token kommt durch')
   assert.ok(!schattenErlaubt("isLight ? '0 2px 6px rgba(0,0,0,0.12)' : '0 2px 6px rgba(0,0,0,0.4)'"))
   assert.ok(!schattenErlaubt('glow'), 'ein Schatten aus einer Variablen kommt durch')
   assert.ok(!schattenErlaubt("'0 0 0 2px red, 0 2px 4px black'"), 'eine zweite Ebene kommt durch')
@@ -342,15 +360,15 @@ if (funde.length) {
   for (const f of funde.slice(0, 40)) console.error(`  ${f}`)
   if (funde.length > 40) console.error(`  … ${funde.length - 40} weitere`)
   console.error(
-    '\nADR-007 Abschnitt 3: „Keine Rundungen, keine Schatten." Struktur entsteht ' +
-      'durch Linie und Weissraum. Fuer Flaechen, die einen Namen brauchen, gibt es ' +
-      'rounded-cp-control/-card/-modal — ihr Wert ist null.',
+    '\nDesign-Vertrag 2026-10 / ADR-007 (geaendert 2026-10-13): Rundungen und Schatten ' +
+      'nur ueber Tokens — rounded-cp-s/-control/-card/-modal/-full, shadow-cp-1/2/3, ' +
+      'var(--cp-r-*) und var(--cp-shadow-*).',
   )
   process.exit(1)
 }
 
 console.log(
-  `form:check ok — keine rohe Rundung, kein Schlagschatten ` +
+  `form:check ok — Rundungen und Schatten nur ueber Tokens ` +
     `(${klassenGeprueft} Klassenlisten, ${stileGeprueft} Stilobjekt-Werte, ` +
     `${cssGeprueft} Stilblatt-Datei(en) geprueft).`,
 )

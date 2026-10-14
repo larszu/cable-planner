@@ -298,7 +298,7 @@ export const TemplatesDialog = () => {
         </div>
 
         <div>
-          <div className="mb-1 text-cp-xs font-semibold uppercase tracking-wider text-[var(--cp-text-faint)]">
+          <div className="mb-1 text-cp-xs font-semibold text-[var(--cp-text-faint)]">
             {t('templates.builtinHeading', 'Bundled templates')}
           </div>
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
@@ -307,7 +307,7 @@ export const TemplatesDialog = () => {
         </div>
 
         <div>
-          <div className="mb-1 text-cp-xs font-semibold uppercase tracking-wider text-[var(--cp-text-faint)]">
+          <div className="mb-1 text-cp-xs font-semibold text-[var(--cp-text-faint)]">
             {t('templates.userHeading', 'My templates')}
           </div>
           {userTemplates.length === 0 ? (

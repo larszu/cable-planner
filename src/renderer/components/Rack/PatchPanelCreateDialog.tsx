@@ -151,7 +151,7 @@ export const PatchPanelCreateDialog = ({ open, onClose, onCreated }: PatchPanelC
             type="button"
             onClick={() => setTab('basics')}
             className={`flex-1 px-3 py-1.5 ${
-              tab === 'basics' ? 'bg-sky-700 text-white' : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'
+              tab === 'basics' ? 'bg-cp-accent text-cp-accent-text' : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'
             }`}
           >
             {t('rack.patchPanel.tab.basics', 'Basics')}
@@ -160,7 +160,7 @@ export const PatchPanelCreateDialog = ({ open, onClose, onCreated }: PatchPanelC
             type="button"
             onClick={() => setTab('ports')}
             className={`flex-1 px-3 py-1.5 ${
-              tab === 'ports' ? 'bg-sky-700 text-white' : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'
+              tab === 'ports' ? 'bg-cp-accent text-cp-accent-text' : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'
             }`}
           >
             {format(t('rack.patchPanel.tab.perPort', 'Per-port detail ({count})'), { count: portCount })}
@@ -220,7 +220,7 @@ export const PatchPanelCreateDialog = ({ open, onClose, onCreated }: PatchPanelC
                       onClick={() => setPortCount(n)}
                       className={` px-2 py-0.5 text-cp-xs ${
                         portCount === n
-                          ? 'bg-sky-700 text-white'
+                          ? 'bg-cp-accent text-cp-accent-text'
                           : 'bg-cp-surface-2 text-cp-text-muted hover:bg-cp-surface-4'
                       }`}
                     >

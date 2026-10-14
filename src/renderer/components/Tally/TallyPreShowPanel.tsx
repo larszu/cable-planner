@@ -232,7 +232,7 @@ export const TallyPreShowPanel = () => {
                       type="button"
                       onClick={() => festhalten(rolle.id)}
                       disabled={e.onProgram === 'not-checked' && e.onPreview === 'not-checked'}
-                      className="bg-emerald-700 px-2 py-0.5 hover:bg-emerald-600 disabled:opacity-40"
+                      className="bg-cp-ok text-white px-2 py-0.5 hover:brightness-110 disabled:opacity-40"
                     >
                       {t('tallyPos.record', 'seen')}
                     </button>

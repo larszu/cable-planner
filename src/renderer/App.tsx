@@ -1699,7 +1699,7 @@ export default function App() {
             )
           : undefined
         return (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+          <div className="fixed inset-0 z-50 flex items-center justify-center cp-scrim p-4">
             <div className="w-full max-w-md border border-amber-700 bg-cp-surface-1 text-cp-text">
               <header className="border-b border-cp-border px-4 py-2">
                 <h2 className="text-cp-base font-semibold text-amber-300">
@@ -1859,7 +1859,7 @@ export default function App() {
         </div>
       )}
       {pdfProgress.active && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center cp-scrim backdrop-blur-sm">
           <div className="w-[420px] max-w-[90vw] rounded-cp-card border border-cp-border bg-cp-surface-1 p-5 text-cp-text">
             <div className="mb-3 flex items-center gap-3">
               <div className="h-3 w-3 animate-pulse bg-sky-400" />
@@ -1904,7 +1904,7 @@ const PdfExportDialog = ({
   const t = useTranslation()
   if (!open) return null
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4">
+    <div className="fixed inset-0 z-50 grid place-items-center cp-scrim p-4">
       <div className="w-full max-w-md rounded-cp-card border border-cp-border bg-cp-surface-1 p-4">
         <h2 className="mb-3 text-cp-base font-semibold text-cp-text">{t('pdfExport.title', 'Export plan as PDF')}</h2>
         <div className="space-y-3">
@@ -1914,7 +1914,7 @@ const PdfExportDialog = ({
               User z.B. nur die Video-Ebene drucken indem er alle
               anderen Chips deaktiviert. */}
           <fieldset className="border border-cp-border p-3">
-            <legend className="px-1 text-cp-xs uppercase tracking-wide text-cp-text-muted">
+            <legend className="px-1 text-cp-xs text-cp-text-muted">
               {t('pdfExport.layers.title', 'Layers (included in PDF)')}
             </legend>
             <div className="-mx-1 flex flex-wrap gap-1">
@@ -1928,7 +1928,7 @@ const PdfExportDialog = ({
             </p>
           </fieldset>
           <fieldset className="border border-cp-border p-3">
-            <legend className="px-1 text-cp-xs uppercase tracking-wide text-cp-text-muted">
+            <legend className="px-1 text-cp-xs text-cp-text-muted">
               {t('pdfExport.bg.title', 'Background')}
             </legend>
             <label className="mb-2 flex cursor-pointer items-center gap-2 text-cp-xs text-cp-text-bright">
@@ -1955,7 +1955,7 @@ const PdfExportDialog = ({
               nutzen. Wenn an: Text bleibt im PDF als echter Text,
               keine Pixelung beim Zoom. */}
           <fieldset className="border border-cp-border p-3">
-            <legend className="px-1 text-cp-xs uppercase tracking-wide text-cp-text-muted">
+            <legend className="px-1 text-cp-xs text-cp-text-muted">
               {t('pdfExport.render.title', 'Render mode')}
             </legend>
             <label className="mb-2 flex cursor-pointer items-start gap-2 text-cp-xs text-cp-text-bright">
@@ -2005,7 +2005,7 @@ const PdfExportDialog = ({
           <button
             type="button"
             onClick={onExport}
-            className="bg-sky-700 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-sky-600"
+            className="bg-cp-accent px-3 py-1.5 text-cp-xs font-medium text-cp-accent-text hover:bg-cp-accent-hover"
           >
             {t('pdfExport.exportBtn', 'Export PDF')}
           </button>
@@ -2187,7 +2187,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6"
+      className="fixed inset-0 z-50 flex items-center justify-center cp-scrim p-6"
       onMouseDown={(e) => e.target === e.currentTarget && onClose()}
     >
       <div className="w-full max-w-lg border border-cp-border bg-cp-surface-1 p-4 text-cp-text">
@@ -2350,7 +2350,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
               device/port on either side. */}
           <details open className="border border-cp-border bg-cp-surface-3/50">
             <summary className="cursor-pointer select-none px-2 py-1.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-2/40">
-              <span className="font-semibold uppercase tracking-wide text-cp-text-muted">{t('cable.edit.connection', 'Connection')}</span>
+              <span className="font-semibold text-cp-text-muted">{t('cable.edit.connection', 'Connection')}</span>
               <span className="ml-2 text-cp-text-secondary">
                 {fromDev?.name ?? '?'} · {fromPort?.name ?? cable.fromPortId}
                 <span className="mx-1 text-cp-text-faint">→</span>
@@ -2476,7 +2476,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
             type="button"
             onClick={submit}
             disabled={!!sameEndpoints}
-            className="bg-emerald-600 px-3 py-1 hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
+            className="bg-cp-ok text-white px-3 py-1 hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
           >
             Speichern
           </button>

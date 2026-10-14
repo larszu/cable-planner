@@ -311,7 +311,7 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
   return (
     <div
       {...backdrop}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6"
+      className="fixed inset-0 z-50 flex items-center justify-center cp-scrim p-6"
     >
       <div
         ref={panelRef}
@@ -365,7 +365,7 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
 
           {specId === CUSTOM_CABLE_SPEC_ID && (
             <div className="border border-cp-border bg-cp-surface-3/60 p-2">
-              <div className="mb-2 text-cp-xs font-semibold uppercase tracking-wide text-cp-text-muted">
+              <div className="mb-2 text-cp-xs font-semibold text-cp-text-muted">
                 {t('cable.customDefinition', 'Custom Cable Definition')}
               </div>
               <div className="grid grid-cols-2 gap-2">
@@ -462,7 +462,7 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
                   })
                   setSpecId(created.id)
                 }}
-                className="mt-2 w-full bg-sky-700 px-2 py-1 text-cp-xs font-medium text-white hover:bg-sky-600"
+                className="mt-2 w-full bg-cp-accent px-2 py-1 text-cp-xs font-medium text-cp-accent-text hover:bg-cp-accent-hover"
                 title={t('cable.dialog.saveCustomTitle', 'Stores this custom definition as a reusable cable type in the library.')}
               >
                 <Icon icon={Save} size="xs" className="mr-1 inline-block align-text-bottom" />{t('cable.saveAsType', 'Save as cable type')}…
@@ -614,7 +614,7 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
           <button
             type="button"
             onClick={submit}
-            className="bg-emerald-600 px-3 py-1 hover:bg-emerald-500"
+            className="bg-cp-ok text-white px-3 py-1 hover:brightness-110"
           >
             {t('cable.dialog.create', 'Create')}
           </button>

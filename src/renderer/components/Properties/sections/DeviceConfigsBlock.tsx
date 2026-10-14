@@ -25,7 +25,7 @@ export const DeviceConfigsBlock = ({ equipmentId }: { equipmentId: string }) => 
       onToggle={(e) => setOpen(e.currentTarget.open)}
       className="border border-cp-border bg-cp-surface-1/40 [&_summary]:cursor-pointer"
     >
-      <summary className="flex items-center gap-1 px-2 py-1.5 text-cp-xs uppercase tracking-wide text-cp-text-muted hover:text-cp-text-bright [&::-webkit-details-marker]:hidden">
+      <summary className="flex items-center gap-1 px-2 py-1.5 text-cp-xs text-cp-text-muted hover:text-cp-text-bright [&::-webkit-details-marker]:hidden">
         <span className="flex-1">{t('props.deviceConfigs.title', 'Configurations')}</span>
         {!open && assigned.length > 0 && (
           <span className="bg-cp-surface-4/60 px-1 text-cp-xs normal-case text-cp-text-bright">

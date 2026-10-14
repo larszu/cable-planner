@@ -96,7 +96,7 @@ export const SortableSection = ({
         const nun = (event.currentTarget as HTMLDetailsElement).open
         if (nun !== offen) setOffen(id, nun)
       }}
-      className={` border border-cp-border bg-cp-surface-1/40 [&_summary]:cursor-pointer ${
+      className={`overflow-hidden rounded-cp-control border border-cp-border bg-cp-surface-1 [&_summary]:cursor-pointer ${
         isDragging ? 'opacity-60' : ''
       }`}
       style={
@@ -109,7 +109,7 @@ export const SortableSection = ({
             }
       }
     >
-      <summary className="flex items-center gap-2 px-2 py-1.5 text-cp-xs uppercase tracking-wide text-cp-text-muted hover:text-cp-text-bright">
+      <summary className="flex items-center gap-2 px-3 py-2 text-cp-sm font-semibold text-cp-text-secondary hover:text-cp-text-bright">
         {/* #421 — Drag-Handle deutlicher: groesseres ⠿-Glyph, hellere Farbe,
             breitere Klickflaeche; sichtbar auf jeder Sektion damit klar ist,
             dass die Reihenfolge per Drag&Drop am Handle aenderbar ist. */}
@@ -131,7 +131,7 @@ export const SortableSection = ({
           <span className="normal-case text-cp-xs text-cp-text-muted">{subtitle}</span>
         )}
       </summary>
-      <div className="border-t border-cp-border-muted p-2">{children}</div>
+      <div className="px-2 pb-2">{children}</div>
     </details>
   )
 }

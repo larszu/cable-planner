@@ -255,7 +255,7 @@ export const PtzControlSection = ({ equipment }: { equipment: EquipmentItem }) =
                 </button>
               )}
               {tally && tally !== 'off' && (
-                <span className={`px-1 font-semibold ${tally === 'program' ? 'bg-cp-accent text-cp-bg' : 'border border-cp-border text-cp-text'}`}>
+                <span className={`px-1 font-semibold ${tally === 'program' ? 'bg-cp-accent text-cp-accent-text' : 'border border-cp-border text-cp-text'}`}>
                   {tally === 'program' ? 'PGM' : 'PVW'}
                 </span>
               )}
@@ -419,7 +419,7 @@ export const PtzControlSection = ({ equipment }: { equipment: EquipmentItem }) =
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
-                    className={`border border-cp-border px-2 py-1 hover:bg-cp-surface-3 disabled:opacity-40 ${storeArmed ? 'bg-cp-accent text-cp-bg' : 'bg-cp-surface-1'}`}
+                    className={`border border-cp-border px-2 py-1 hover:bg-cp-surface-3 disabled:opacity-40 ${storeArmed ? 'bg-cp-accent text-cp-accent-text' : 'bg-cp-surface-1'}`}
                     disabled={!camOnline}
                     onClick={() => { if (storeArmed) { void send({ type: 'storePlannedPresets', cameraNumber: num }); setStoreArmed(false) } else setStoreArmed(true) }}
                   >

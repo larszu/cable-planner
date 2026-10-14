@@ -216,7 +216,7 @@ export const RecordingStorageCalcCore = ({
 
       {/* Array-Dimensionierung: wie viele Laufwerke brauche ich? */}
       <div className="border border-sky-700 bg-sky-950/20 p-3">
-        <div className="mb-2 text-cp-xs uppercase tracking-wide text-cp-text-secondary">
+        <div className="mb-2 text-cp-xs text-cp-text-secondary">
           {t('recStorage.sizing', 'Array sizing')}
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -269,7 +269,7 @@ export const RecordingStorageCalcCore = ({
       </div>
 
       <details className="border border-cp-border-muted bg-cp-surface-3/40">
-        <summary className="cursor-pointer px-3 py-1.5 text-cp-xs uppercase tracking-wide text-cp-text-muted">
+        <summary className="cursor-pointer px-3 py-1.5 text-cp-xs text-cp-text-muted">
           {t('recStorage.formulaHeader', 'Formula')}
         </summary>
         <code className="block px-3 py-2 text-cp-xs text-cp-text-secondary">

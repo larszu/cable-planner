@@ -89,7 +89,7 @@ export const DeviceLibrarySubmitDialog = ({ paket, total, onClose }: { paket: Ei
 
   return (
     <div
-      className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50 p-4"
+      className="fixed inset-0 z-[10000] flex items-center justify-center cp-scrim p-4"
       onMouseDown={backdropMouseDown(onClose)}
     >
       <div
@@ -230,7 +230,7 @@ export const DeviceLibrarySubmitDialog = ({ paket, total, onClose }: { paket: Ei
             type="button"
             onClick={() => void senden()}
             disabled={busy || !signedIn || bereit.length === 0}
-            className="bg-cp-accent px-3 py-1 text-cp-xs text-white disabled:opacity-40"
+            className="bg-cp-accent px-3 py-1 text-cp-xs text-cp-accent-text disabled:opacity-40"
           >
             {busy
               ? t('deviceLibrary.sending', 'Sending…')

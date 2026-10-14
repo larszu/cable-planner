@@ -87,7 +87,7 @@ export const RackInternalWireOverlay = ({
   return (
     <div
       {...backdrop}
-      className="fixed inset-0 z-[80] flex items-center justify-center bg-black/70 p-2 sm:p-6"
+      className="fixed inset-0 z-[80] flex items-center justify-center cp-scrim p-2 sm:p-6"
     >
       <div
         ref={panelRef}
@@ -109,7 +109,7 @@ export const RackInternalWireOverlay = ({
           <button
             type="button"
             onClick={onClose}
-            className="bg-emerald-700 px-3 py-1.5 text-cp-xs hover:bg-emerald-600"
+            className="bg-cp-ok px-3 py-1.5 text-cp-xs hover:brightness-110"
           >
             {t('common.done', 'Done')}
           </button>

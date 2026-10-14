@@ -220,7 +220,7 @@ export const NewRentmanDeviceWizard = ({
   return (
     <div
       {...backdrop}
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 p-6"
+      className="fixed inset-0 z-[60] flex items-center justify-center cp-scrim p-6"
     >
       <div
         ref={panelRef}
@@ -290,7 +290,7 @@ export const NewRentmanDeviceWizard = ({
               type="button"
               onClick={handleAusfuellen}
               disabled={ausfuellLaeuft}
-              className="bg-emerald-700 px-2 py-1 hover:bg-emerald-600 disabled:opacity-50"
+              className="bg-cp-ok text-white px-2 py-1 hover:brightness-110 disabled:opacity-50"
               title={t('rentman.wizard.fillTitle', 'Fill the port groups in from the source chosen in the settings')}
             >
               {ausfuellLaeuft ? (
@@ -313,7 +313,7 @@ export const NewRentmanDeviceWizard = ({
             <button
               type="button"
               onClick={() => addGroup('in')}
-              className="bg-sky-700 px-2 py-1 hover:bg-sky-600"
+              className="bg-cp-accent text-cp-accent-text px-2 py-1 hover:bg-cp-accent-hover"
             >
               {t('rentman.wizard.addInputGroup', '+ Input group')}
             </button>
@@ -382,7 +382,7 @@ export const NewRentmanDeviceWizard = ({
               <button
                 type="button"
                 onClick={handleSaveAiSettings}
-                className="bg-emerald-600 px-2 py-1 text-cp-xs hover:bg-emerald-500"
+                className="bg-cp-ok px-2 py-1 text-cp-xs hover:brightness-110"
               >
                 {t('common.save', 'Save')}
               </button>
@@ -466,7 +466,7 @@ export const NewRentmanDeviceWizard = ({
           <button
             type="button"
             onClick={handleSave}
-            className="bg-emerald-600 px-3 py-1 hover:bg-emerald-500"
+            className="bg-cp-ok text-white px-3 py-1 hover:brightness-110"
           >
             {isLast ? t('rentman.wizard.saveFinish', 'Save & finish') : t('rentman.wizard.saveNext', 'Save & next')}
           </button>

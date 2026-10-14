@@ -2,7 +2,7 @@
 //
 // Vorher hatte praktisch jeder Dialog (Settings, Print, Export, About,
 // ModeEditor, RentmanImport, Calculators, …) seinen eigenen
-// "fixed inset-0 z-50 bg-black/60"-Container + Drag-Header + Close-
+// "fixed inset-0 z-50 cp-scrim"-Container + Drag-Header + Close-
 // Button. Inkonsistente max-width, padding-Werte, header-Styles waren
 // die Folge.
 //
@@ -93,7 +93,7 @@ export const ModalShell = ({
 
   return (
     <div
-      className="cp-modal-backdrop fixed inset-0 flex items-center justify-center bg-black/60 p-4"
+      className="cp-modal-backdrop fixed inset-0 flex items-center justify-center cp-scrim p-4"
       style={{ zIndex }}
       /* B-44 — die Regel steht in `useBackdropClose` und nicht mehr hier.
          Zwei Fassungen derselben Bedingung waeren die Defektform
@@ -106,33 +106,33 @@ export const ModalShell = ({
         aria-labelledby={titleId}
         {...dialogProps}
         style={draggableKey ? drag.containerStyle : undefined}
-        className={`cp-modal-panel flex max-h-[90vh] w-full ${MAX_WIDTH_CLASS[maxWidth]} flex-col overflow-hidden rounded-cp-modal border border-cp-border bg-cp-surface-1 text-cp-text outline-none`}
+        className={`cp-modal-panel flex max-h-[90vh] w-full ${MAX_WIDTH_CLASS[maxWidth]} flex-col overflow-hidden rounded-cp-modal border border-cp-border bg-cp-surface-1 text-cp-text shadow-cp-3 outline-none`}
       >
         <header
           {...(draggableKey ? drag.headerProps : {})}
-          /* ADR-007 Abschnitt 6: die Kopflinie ist der Akzent. `cp-panel-head`
-             traegt sie; `justify-between` und `select-none` bleiben, weil sie
-             zum Dialog gehoeren und nicht zum Rahmen. */
+          /* `cp-panel-head` ist der gemeinsame Kopf (Titel, kein Strich —
+             Design-Vertrag 2026-10); `justify-between` und `select-none`
+             gehoeren zum Dialog und nicht zum Rahmen. */
           className="cp-panel-head justify-between select-none"
         >
-          <h2 id={titleId} className="flex items-center text-cp-xl font-semibold">
+          <h2 id={titleId} className="flex items-center text-cp-xl font-semibold text-cp-text-bright">
             {titleIcon && <span className="mr-2">{titleIcon}</span>}
             {title}
           </h2>
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex items-center justify-center rounded-cp-control px-2 py-1 text-cp-text-muted hover:bg-cp-surface-2 hover:text-cp-text"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-cp-full text-cp-text-muted hover:bg-cp-surface-2 hover:text-cp-text"
             aria-label={t('common.close', 'Close')}
           >
             <Icon icon={X} size="md" />
           </button>
         </header>
-        <div className={`flex-1 ${scrollBody ? 'overflow-y-auto' : 'overflow-hidden'} px-cp-4 py-cp-3`}>
+        <div className={`flex-1 ${scrollBody ? 'overflow-y-auto' : 'overflow-hidden'} px-5 py-cp-3`}>
           {children}
         </div>
         {footer && (
-          <footer className="border-t border-cp-border px-cp-4 py-cp-3">
+          <footer className="px-5 pb-4 pt-cp-3">
             {footer}
           </footer>
         )}

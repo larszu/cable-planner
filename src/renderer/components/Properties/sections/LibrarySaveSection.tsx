@@ -89,7 +89,7 @@ export const LibrarySaveSection = ({ equipment }: { equipment: EquipmentItem }) 
             }
             saveEquipmentAsNewTemplate(equipment.id, trimmed, equipment.category)
           }}
-          className="inline-flex w-full items-center justify-center gap-1 bg-emerald-700 px-2 py-1 text-cp-xs hover:bg-emerald-600"
+          className="inline-flex w-full items-center justify-center gap-1 bg-cp-ok px-2 py-1 text-cp-xs hover:brightness-110"
           title={t(
             'libSave.newBtnTitle',
             'Creates a new template under a different name — the existing one stays unchanged.',

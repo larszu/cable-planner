@@ -31,12 +31,31 @@
    *   - card:    Sub-Karten, Panels, Listeneinträge
    *   - modal:   Dialoge/Shells (ModalShell, FloatingPanelShell)
    * Neue Komponenten nutzen diese statt bare `rounded`. */
-  /* ADR-007 — der Guide kennt keine Rundungen ("Was es nicht gibt", S. 10).
-   * Die drei Namen bleiben, damit kein Aufrufer umgebaut werden muss; der
-   * Wert ist ueberall null. Struktur entsteht durch Linie und Weissraum. */
-  --radius-cp-control: 0;
-  --radius-cp-card: 0;
-  --radius-cp-modal: 0;
+  /* Design-Vertrag 2026-10 (ADR-007 geaendert am 2026-10-13): weiche
+   * Rundungen, aber NUR ueber diese Namen — `form:check` laesst keine
+   * Tailwind-Standard-`rounded-*` und keine rohen px-Werte durch.
+   *   s 6 · control 10 · card 20 · modal 24 · full (Pills, Schalter) */
+  --radius-cp-s: 6px;
+  --radius-cp-control: 10px;
+  --radius-cp-card: 20px;
+  --radius-cp-modal: 24px;
+  --radius-cp-full: 999px;
+
+  /* Die Slate-Leiter von Tailwind auf neutrales Anthrazit/Fast-Weiss
+   * umgelegt. Rund 120 rohe `slate-*`-Klassen leben noch im Canvas und in
+   * Druckansichten; ueber Tailwinds eigene Leiter kippen sie in einem Zug
+   * von Blaugrau auf die neutralen Flaechen des Vertrags. */
+  --color-slate-50: #FAFAF8;
+  --color-slate-100: #F4F4F1;
+  --color-slate-200: #E8E8E4;
+  --color-slate-300: #D3D4D2;
+  --color-slate-400: #A9ACB4;
+  --color-slate-500: #80848C;
+  --color-slate-600: #5A5D64;
+  --color-slate-700: #45464C;
+  --color-slate-800: #33343A;
+  --color-slate-900: #28292E;
+  --color-slate-950: #1E1F23;
 
   /* ── Spacing-Rhythmus (UX audit #53/#466) ────────────────────────────────
    * Die :root-Variablen --cp-space-x waren als Referenz gedacht, aber nicht
@@ -84,66 +103,102 @@
   --color-cp-accent: var(--cp-accent);
   --color-cp-accent-text: var(--cp-accent-text);
   --color-cp-signal: var(--cp-signal);
+  --color-cp-surface-raised: var(--cp-surface-raised);
+  --color-cp-border-strong: var(--cp-border-strong);
+  --color-cp-accent-hover: var(--cp-accent-hover);
+  --color-cp-accent-soft: var(--cp-accent-soft);
+  --color-cp-ok: var(--cp-ok);
+  --color-cp-logo: var(--cp-logo);
+  --shadow-cp-1: var(--cp-shadow-1);
+  --shadow-cp-2: var(--cp-shadow-2);
+  --shadow-cp-3: var(--cp-shadow-3);
   --color-cp-warn: var(--cp-warn);
   --color-cp-danger: var(--cp-danger);
 }
 
 :root {
   color-scheme: dark;
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Public Sans Variable', 'Public Sans', Inter, system-ui, 'Segoe UI', Roboto, Arial, sans-serif;
 
-  /* ── Phase 2: Farb-Token-Schicht (Dark = Default) ────────────────────────
-   * Theme-aware via Override im [data-theme="light"]-Block weiter unten.
-   * Die Werte spiegeln exakt die bisher in den Shells genutzten slate-
-   * Töne (bzw. deren Light-Remap), damit die Migration der zentralen
-   * Shells auf var(--cp-*) appearance-neutral ist. Neue Komponenten
-   * sollten diese Tokens statt roher slate-Klassen verwenden. */
-  /* #449 — Dark-Tokens an Tailwinds eigene Palette-Variablen gebunden
-   * (statt hartcodierter Hex-Werte). Tailwind v4 rendert slate-* in oklch;
-   * die früheren Hex-Werte wichen davon um 1–2 RGB-Stufen ab, wodurch eine
-   * slate-*→cp-*-Migration NICHT pixelgleich war. Über var(--color-slate-N)
-   * sind die Tokens jetzt per Definition deckungsgleich mit den rohen
-   * slate-/sky-/amber-/red-Utilities — die Migration ist damit beweisbar
-   * appearance-neutral, und es gibt nur noch EINE Farbquelle. */
-  /* ADR-007 (av-planner-suite) — die Tokens zeigen nicht mehr auf Tailwinds
-   * `slate`, sondern auf die Marken-Palette der Suite. Die Utilities
-   * (`bg-cp-surface-1`, `text-cp-muted`, …) bleiben unveraendert: genau
-   * dafuer wurde die Token-Schicht in #449 angelegt — die Umstellung einer
-   * ganzen App ist damit diese eine Stelle.
+  /* ── Token-Schicht, Design-Vertrag 2026-10 (ADR-007 in lz-planner-suite,
+   * geaendert am 2026-10-13) ───────────────────────────────────────────────
    *
-   * Werte und Rollen stehen in `@avplan/ui` (`src/brand.ts`,
-   * `packages/ui/test/brand.test.ts`) und kommen aus dem Brand Guide 2.0.
-   * Drei Stufen sind daraus ABGELEITET, weil ein Control-Surface mehr
-   * Flaechen braucht, als ein Marken-Handbuch vorsieht: versenkt, Panel,
-   * erhoben. Sie sind unten als abgeleitet gekennzeichnet. */
-  --cp-bg: #132040; /* Deep Navy — App-Hintergrund */
-  --cp-surface-1: #182948; /* abgeleitet — Panels/Modals */
-  --cp-surface-2: #1D324F; /* Zumpe Navy — raised/hover, Karten */
-  --cp-surface-3: #0E1930; /* abgeleitet — versenkt: Leisten, Inputs */
-  --cp-surface-4: #24405F; /* abgeleitet — Button-/Chip-Flaeche */
-  --cp-surface-5: #2E4E73; /* abgeleitet — surface-4-Hover */
-  --cp-border: rgba(246, 245, 240, 0.14);
-  --cp-border-muted: rgba(246, 245, 240, 0.07);
-  /* Off-White ist die HELLERE Stufe, Eisblau der Fliesstext — so steht es
-   * im Guide (S. 17). `--cp-text-bright` traegt damit die Ueberschriften,
-   * `--cp-text` den Lauftext. */
-  --cp-text: #E1ECEF; /* Eisblau — Fliesstext auf Dunkel */
-  --cp-text-bright: #F6F5F0; /* Off-White — Ueberschriften, Hervorhebung */
-  --cp-text-secondary: #C7D5DC; /* abgeleitet — zwischen Fliesstext und Meta */
-  --cp-text-muted: #8C9CB3; /* Stahlblau — Kicker, Meta, Platzhalter */
-  --cp-text-faint: #6E7F99; /* abgeleitet */
-  --cp-text-dim: #55678A; /* abgeleitet */
-  --cp-text-dimmer: #3E5175; /* abgeleitet */
-  /* Interaktiv/ausgewaehlt ist Off-White — der Primaerknopf des Guides.
-   * Nicht Rot: Rot ist das Signal, siehe `--cp-signal`. */
-  --cp-accent: #F6F5F0;
-  --cp-accent-text: #132040; /* Navy auf Off-White — 13:1 */
+   * Dunkel ist der Ausgangswert, `[data-theme="light"]` weiter unten kippt
+   * dieselben Namen. Die Utilities (`bg-cp-surface-1`, `text-cp-muted`, …)
+   * bleiben unveraendert — genau dafuer wurde die Schicht in #449 angelegt:
+   * die Umstellung einer ganzen App ist diese eine Stelle.
+   *
+   * WAS SICH GEGENUEBER DER FASSUNG VOM SEPTEMBER AENDERT: Flaechen sind
+   * NEUTRAL (Anthrazit dunkel, warmes Fast-Weiss hell), nicht mehr Navy.
+   * Markenblau ist nur noch Akzent — Hauptaktion, Auswahl, Fortschritt,
+   * Links, hoechstens ein Zehntel der Flaeche. Die Palette selbst ist
+   * unveraendert und steht als `--cp-brand-*` hier, damit `markenTokens`
+   * sie pruefen kann.
+   *
+   * Rollen der Flaechen (Vertrag):
+   *   bg         Grund                       #1E1F23 | #FAFAF8
+   *   surface-1  Panels, Karten, Dialoge     #28292E | #FFFFFF
+   *   surface-2  Felder, Toolbars, Hover     #33343A | #F1F1EE
+   *   surface-3  versenkt: Leisten, Rail     #19191D | #F4F4F1
+   *   surface-4  Knopf-/Chip-Flaeche         #3B3C42 | #F1F1EE
+   *   surface-5  surface-4-Hover             abgeleitet
+   *   raised     Menues, Popover, Dialog     #3B3C42 | #FFFFFF */
+  --cp-brand-deep-navy: #132040;
+  --cp-brand-navy: #1D324F;
+  --cp-brand-off-white: #F6F5F0;
+  --cp-brand-eisblau: #E1ECEF;
+  --cp-brand-stahlblau: #8C9CB3;
+
+  --cp-bg: #1E1F23;
+  --cp-surface-1: #28292E;
+  --cp-surface-2: #33343A;
+  --cp-surface-3: #19191D;
+  --cp-surface-4: #3B3C42;
+  --cp-surface-5: #46474E; /* abgeleitet — surface-4-Hover */
+  --cp-surface-raised: #3B3C42;
+  --cp-border: rgba(246, 245, 240, 0.09);
+  --cp-border-strong: rgba(246, 245, 240, 0.2);
+  --cp-border-muted: rgba(246, 245, 240, 0.05);
+  --cp-text-bright: #F6F5F0; /* Text stark */
+  --cp-text: #E6E6E3;
+  --cp-text-secondary: #C9CACB; /* abgeleitet — zwischen Text und gedaempft */
+  --cp-text-muted: #A9ACB4; /* gedaempft */
+  --cp-text-faint: #8E9199; /* abgeleitet */
+  --cp-text-dim: #74777F; /* abgeleitet */
+  --cp-text-dimmer: #5A5D64; /* abgeleitet */
+  /* Akzent: helles Markenblau auf Anthrazit, Navy-Text darauf. */
+  --cp-accent: #B9C7D8;
+  --cp-accent-text: #132040;
+  --cp-accent-hover: #CAD5E2; /* abgeleitet */
+  --cp-accent-soft: rgba(185, 199, 216, 0.12);
+  /* Logo nur in Kit-Farben — nie an --cp-accent koppeln. */
+  --cp-logo: #F6F5F0;
+  --cp-ok: #2F7D5C;
   --cp-warn: #C8892B;
   --cp-danger: #B04A3F;
-  /* Das Aufnahmelicht. Fokusring, EIN Punkt am primaeren Knopf, Live-/
-   * Aufnahme-Zustand. Nie Flaeche, nie Text, nie zweimal in einem
-   * Sichtfeld. Fehlerrot ist `--cp-danger` und ein anderer Ton. */
+  /* Das Aufnahmelicht: Fokusring, Live/REC/Tally, Claim-Punkt,
+   * Erfolgsmomente. Nie Flaeche, nie Text, nie Rahmen. Fehlerrot ist
+   * `--cp-danger` und ein anderer Ton. Steht genau einmal in dieser Datei. */
   --cp-signal: #D6402E;
+  --cp-glow-1: rgba(185, 199, 216, 0.16);
+  --cp-glow-2: rgba(200, 137, 43, 0.1);
+  --cp-glass: rgba(30, 31, 35, 0.72);
+  --cp-scrim: rgba(10, 10, 12, 0.5);
+
+  /* Form und Tiefe. Rundung und Schatten NUR ueber diese Namen
+   * (`form:check`). Logo, Tally-Punkt und Hardware-Zeichnungen bleiben eckig. */
+  --cp-r-s: 6px;
+  --cp-r-m: 10px;
+  --cp-r-l: 20px;
+  --cp-r-xl: 24px;
+  --cp-r-full: 999px;
+  --cp-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --cp-shadow-2: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --cp-shadow-3: 0 16px 48px rgba(0, 0, 0, 0.55);
+  --cp-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --cp-dur-1: 120ms;
+  --cp-dur-2: 220ms;
+  --cp-dur-3: 360ms;
 
   /* Spacing-Skala (Referenz; schrittweise Migration der Shells) */
   --cp-space-1: 0.25rem;
@@ -267,10 +322,10 @@ html[data-cp-shell='app'] #root {
  * obscures the user-configurable Background component entirely. The
  * pane must stay transparent for the pattern to be visible. */
 #cable-planner-canvas {
-  /* ADR-007 — keine Verlaeufe. Der Canvas-Grund ist die Flaeche der
-   * Marke, damit der Plan darauf und die Panels daneben derselben
-   * Anwendung angehoeren. */
-  background: #0E1930;
+  /* Design-Vertrag 2026-10: der Canvas-Grund ist der neutrale Grund der
+   * Anwendung — kein Schein, kein Verlauf dahinter. Hell liegt er eine
+   * Stufe tiefer (versenkt), damit die weissen Geraetekacheln abstehen. */
+  background: var(--cp-bg);
 }
 
 #cable-planner-canvas .react-flow__pane {
@@ -278,22 +333,38 @@ html[data-cp-shell='app'] #root {
 }
 
 #cable-planner-canvas.canvas-theme-light {
-  background: #ECEBE6;
+  background: var(--cp-surface-3);
 }
 
 #cable-planner-canvas.canvas-theme-light .react-flow__pane {
   background: transparent;
 }
 
-#cable-planner-canvas.canvas-theme-light .react-flow__controls {
-  background: rgba(248, 250, 252, 0.9);
-  border: 1px solid #cbd5e1;
+/* Zoom-Steuerung als schwebende Karte in beiden Modi. */
+#cable-planner-canvas .react-flow__controls {
+  overflow: hidden;
+  background: var(--cp-surface-raised);
+  border: 1px solid var(--cp-border);
+  border-radius: var(--cp-r-m);
+  box-shadow: var(--cp-shadow-2);
 }
 
-#cable-planner-canvas.canvas-theme-light .react-flow__controls button {
-  background: #ffffff;
-  color: #0f172a;
-  border-bottom: 1px solid #e2e8f0;
+#cable-planner-canvas .react-flow__controls button {
+  background: transparent;
+  color: var(--cp-text);
+  fill: currentColor;
+  border-bottom: 1px solid var(--cp-border);
+}
+
+#cable-planner-canvas .react-flow__controls button:hover {
+  background: var(--cp-surface-2);
+}
+
+#cable-planner-canvas .react-flow__minimap {
+  overflow: hidden;
+  border: 1px solid var(--cp-border);
+  border-radius: var(--cp-r-m);
+  box-shadow: var(--cp-shadow-2);
 }
 
 /* Rotes Aufblitzen an einem Knoten, dessen Zug wegen Ueberlappung abgelehnt
@@ -377,43 +448,49 @@ html[data-cp-shell='app'] #root {
  * avoid that.
  * ─────────────────────────────────────────────────────────── */
 [data-theme="light"] {
-  /* ADR-007 — dieselbe Palette, gedrehte Gewichtung: Print ist hell
-   * (60 % Weiss), das Web dunkel (70 % Deep Navy). Schiefer ist hier der
-   * Sekundaertext — der Wert, fuer den der Guide ihn misst (5,4:1 auf
-   * Weiss); auf Navy waere er unlesbar und kommt dort nicht vor. */
-  --cp-bg: #F6F5F0; /* Off-White */
+  /* Design-Vertrag 2026-10 — dieselben Namen, helle Werte. Neutral, das
+   * Navy der Marke ist Akzent und Logo, keine Flaeche. */
+  --cp-bg: #FAFAF8;
   --cp-surface-1: #FFFFFF;
-  --cp-surface-2: #E1ECEF; /* Eisblau — Karten, Tabellenkoepfe */
-  --cp-surface-3: #ECEBE6; /* abgeleitet — versenkt */
-  --cp-surface-4: #FFFFFF;
-  --cp-surface-5: #E1ECEF;
-  --cp-border: rgba(29, 50, 79, 0.16);
-  --cp-border-muted: rgba(29, 50, 79, 0.08);
-  --cp-text: #1D324F; /* Zumpe Navy */
-  --cp-text-bright: #132040;
-  --cp-text-secondary: #5C6B85; /* Schiefer */
-  --cp-text-muted: #6E7F99;
-  --cp-text-faint: #8C9CB3; /* Stahlblau */
-  --cp-text-dim: #8C9CB3;
-  --cp-text-dimmer: #A7B3C4;
+  --cp-surface-2: #F1F1EE;
+  --cp-surface-3: #F4F4F1;
+  --cp-surface-4: #F1F1EE;
+  --cp-surface-5: #E7E7E3; /* abgeleitet */
+  --cp-surface-raised: #FFFFFF;
+  --cp-border: rgba(22, 24, 29, 0.08);
+  --cp-border-strong: rgba(22, 24, 29, 0.18);
+  --cp-border-muted: rgba(22, 24, 29, 0.05);
+  --cp-text-bright: #16181D;
+  --cp-text: #2B2E35;
+  --cp-text-secondary: #464A52; /* abgeleitet */
+  --cp-text-muted: #6A6E77;
+  --cp-text-faint: #7C8089; /* abgeleitet */
+  --cp-text-dim: #9A9DA4; /* abgeleitet */
+  --cp-text-dimmer: #B8BAC0; /* abgeleitet */
   --cp-accent: #1D324F;
   --cp-accent-text: #F6F5F0;
-  --cp-warn: #C8892B;
-  --cp-danger: #B04A3F;
-  --cp-signal: #D6402E;
+  --cp-accent-hover: #2C4566; /* abgeleitet */
+  --cp-accent-soft: rgba(29, 50, 79, 0.1);
+  --cp-logo: #1D324F;
+  --cp-glow-1: rgba(29, 50, 79, 0.1);
+  --cp-glass: rgba(250, 250, 248, 0.72);
+  --cp-scrim: rgba(22, 24, 29, 0.32);
+  --cp-shadow-1: 0 1px 2px rgba(22, 24, 29, 0.06);
+  --cp-shadow-2: 0 4px 16px rgba(22, 24, 29, 0.08);
+  --cp-shadow-3: 0 16px 48px rgba(22, 24, 29, 0.14);
   /* Render native form elements (selects, checkboxes, inputs) in light mode */
   color-scheme: light;
 }
 
 /* ── Slate ramp: dark variants invert to light, light variants slightly darken ── */
-[data-theme="light"] .bg-slate-100      { background-color: #f8fafc; }
-[data-theme="light"] .bg-slate-200      { background-color: #f1f5f9; }
-[data-theme="light"] .bg-slate-300      { background-color: #e2e8f0; }
-[data-theme="light"] .bg-slate-500      { background-color: #b8c4d0; }
-[data-theme="light"] .bg-slate-900      { background-color: #eaeff5; }
-[data-theme="light"] .bg-slate-800      { background-color: #dde4ee; }
-[data-theme="light"] .bg-slate-700      { background-color: #cbd5e1; }
-[data-theme="light"] .bg-slate-600      { background-color: #b8c4d0; }
+[data-theme="light"] .bg-slate-100      { background-color: #FAFAF8; }
+[data-theme="light"] .bg-slate-200      { background-color: #F4F4F1; }
+[data-theme="light"] .bg-slate-300      { background-color: #E8E8E4; }
+[data-theme="light"] .bg-slate-500      { background-color: #C9CAC8; }
+[data-theme="light"] .bg-slate-900      { background-color: #F1F1EE; }
+[data-theme="light"] .bg-slate-800      { background-color: #E8E8E4; }
+[data-theme="light"] .bg-slate-700      { background-color: #D3D4D2; }
+[data-theme="light"] .bg-slate-600      { background-color: #C9CAC8; }
 
 /* v7.9.81 — Opacity-modified slate-Backgrounds (z.B. bg-slate-900/98,
  * bg-slate-950/50, bg-black/60) wurden vom obigen Mapping NICHT erfasst,
@@ -446,26 +523,25 @@ html[data-cp-shell='app'] #root {
  * mit der Migration mit, statt Karteileichen anzusammeln. */
 /* Modal-Backdrop: im Light-Mode statt schwarz ein helles Grau mit
  * Transparenz, damit Modals "weiches Glas" auf hellem Hintergrund sind. */
-[data-theme="light"] .bg-black\/40       { background-color: rgba(15,23,42,0.15); }
-[data-theme="light"] .bg-black\/50       { background-color: rgba(15,23,42,0.20); }
-[data-theme="light"] .bg-black\/60       { background-color: rgba(15,23,42,0.25); }
-[data-theme="light"] .bg-black\/70       { background-color: rgba(15,23,42,0.30); }
+[data-theme="light"] .bg-black\/40       { background-color: rgba(22,24,29,0.15); }
+[data-theme="light"] .bg-black\/50       { background-color: rgba(22,24,29,0.20); }
+[data-theme="light"] .bg-black\/70       { background-color: rgba(22,24,29,0.30); }
 
-[data-theme="light"] .border-slate-200  { border-color: #cbd5e1; }
-[data-theme="light"] .border-slate-300  { border-color: #94a3b8; }
-[data-theme="light"] .border-slate-400  { border-color: #64748b; }
-[data-theme="light"] .border-slate-500  { border-color: #475569; }
-[data-theme="light"] .border-slate-700  { border-color: #94a3b8; }
-[data-theme="light"] .border-slate-800  { border-color: #b8c4d0; }
+[data-theme="light"] .border-slate-200  { border-color: #D3D4D2; }
+[data-theme="light"] .border-slate-300  { border-color: #A9ACB4; }
+[data-theme="light"] .border-slate-400  { border-color: #80848C; }
+[data-theme="light"] .border-slate-500  { border-color: #5A5D64; }
+[data-theme="light"] .border-slate-700  { border-color: #A9ACB4; }
+[data-theme="light"] .border-slate-800  { border-color: #C9CAC8; }
 
-[data-theme="light"] .text-slate-100    { color: #0f172a; }
-[data-theme="light"] .text-slate-200    { color: #1e293b; }
-[data-theme="light"] .text-slate-300    { color: #1e293b; }
-[data-theme="light"] .text-slate-400    { color: #334155; }
-[data-theme="light"] .text-slate-500    { color: #475569; }
-[data-theme="light"] .text-slate-600    { color: #334155; }
-[data-theme="light"] .text-slate-700    { color: #94a3b8; }
-[data-theme="light"] .text-slate-900    { color: #cbd5e1; }
+[data-theme="light"] .text-slate-100    { color: #16181D; }
+[data-theme="light"] .text-slate-200    { color: #2B2E35; }
+[data-theme="light"] .text-slate-300    { color: #2B2E35; }
+[data-theme="light"] .text-slate-400    { color: #45464C; }
+[data-theme="light"] .text-slate-500    { color: #5A5D64; }
+[data-theme="light"] .text-slate-600    { color: #45464C; }
+[data-theme="light"] .text-slate-700    { color: #A9ACB4; }
+[data-theme="light"] .text-slate-900    { color: #D3D4D2; }
 
 /* ── Light theme: colored accent remapping ──────────────────────────────── */
 
@@ -478,8 +554,6 @@ html[data-cp-shell='app'] #root {
 [data-theme="light"] .text-amber-500    { color: #92400e; }
 [data-theme="light"] .text-cyan-300     { color: #0e7490; }
 [data-theme="light"] .text-sky-100      { color: #075985; }
-[data-theme="light"] .text-sky-300      { color: #0369a1; }
-[data-theme="light"] .text-sky-400      { color: #0284c7; }
 [data-theme="light"] .text-orange-200   { color: #c2410c; }
 [data-theme="light"] .text-orange-300   { color: #c2410c; }
 [data-theme="light"] .text-orange-300\/80 { color: rgba(194,65,12,0.8); }
@@ -520,7 +594,6 @@ html[data-cp-shell='app'] #root {
 [data-theme="light"] .bg-purple-700     { background-color: #7e22ce; }
 [data-theme="light"] .bg-purple-800     { background-color: #6b21a8; }
 [data-theme="light"] .bg-green-700      { background-color: #15803d; }
-[data-theme="light"] .bg-indigo-700     { background-color: #4338ca; }
 
 /* Dark colored bg fills → light tints */
 [data-theme="light"] .bg-emerald-950        { background-color: #ecfdf5; }
@@ -569,18 +642,17 @@ html[data-cp-shell='app'] #root {
 
 /* Minimap in light theme */
 #cable-planner-canvas.canvas-theme-light .react-flow__minimap {
-  background: rgba(248,250,252,0.9);
-  border: 1px solid #cbd5e1;
+  background: var(--cp-surface-1);
 }
 #cable-planner-canvas.canvas-theme-light .react-flow__minimap-mask {
-  fill: rgba(226,232,240,0.6);
+  fill: rgba(232, 232, 228, 0.6);
 }
 
 /* Hover variants */
-[data-theme="light"] .hover\:text-white:hover          { color: #0f172a; }
-[data-theme="light"] .hover\:bg-slate-800:hover     { background-color: #dde4ee; }
-[data-theme="light"] .hover\:bg-slate-700:hover     { background-color: #cbd5e1; }
-[data-theme="light"] .hover\:bg-slate-600:hover     { background-color: #b8c4d0; }
+[data-theme="light"] .hover\:text-white:hover          { color: #16181D; }
+[data-theme="light"] .hover\:bg-slate-800:hover     { background-color: #E8E8E4; }
+[data-theme="light"] .hover\:bg-slate-700:hover     { background-color: #D3D4D2; }
+[data-theme="light"] .hover\:bg-slate-600:hover     { background-color: #C9CAC8; }
 
 /* Focus variants */
 
@@ -645,10 +717,7 @@ html[data-cp-shell='app'] #root {
 [data-theme="light"] .border-emerald-900\/40 { border-color: rgba(4,120,87,0.4); }
 
 /* Fuchsia / Indigo / Green / Pink — primary surfaces */
-[data-theme="light"] .bg-fuchsia-600     { background-color: #c026d3; }
-[data-theme="light"] .bg-fuchsia-700     { background-color: #a21caf; }
 [data-theme="light"] .bg-green-600       { background-color: #16a34a; }
-[data-theme="light"] .bg-indigo-600      { background-color: #4f46e5; }
 
 /* Orange */
 [data-theme="light"] .bg-orange-900\/10  { background-color: rgba(255,237,213,0.4); }
@@ -657,12 +726,9 @@ html[data-cp-shell='app'] #root {
 [data-theme="light"] .text-orange-100    { color: #9a3412; }
 
 /* Purple / Violet */
-[data-theme="light"] .bg-purple-600      { background-color: #9333ea; }
 [data-theme="light"] .bg-purple-900\/30  { background-color: rgba(243,232,255,0.7); }
 [data-theme="light"] .bg-purple-950\/40  { background-color: rgba(250,245,255,0.85); }
 [data-theme="light"] .text-purple-100    { color: #581c87; }
-[data-theme="light"] .bg-violet-500      { background-color: #8b5cf6; }
-[data-theme="light"] .bg-violet-600      { background-color: #7c3aed; }
 [data-theme="light"] .bg-violet-700      { background-color: #6d28d9; }
 [data-theme="light"] .bg-violet-950\/30  { background-color: rgba(245,243,255,0.75); }
 [data-theme="light"] .text-violet-200    { color: #6d28d9; }
@@ -691,7 +757,6 @@ html[data-cp-shell='app'] #root {
 [data-theme="light"] .bg-sky-950\/20     { background-color: rgba(240,249,255,0.55); }
 [data-theme="light"] .bg-sky-950\/30     { background-color: rgba(240,249,255,0.7); }
 [data-theme="light"] .bg-sky-950\/60     { background-color: rgba(240,249,255,0.9); }
-[data-theme="light"] .text-sky-50        { color: #0c4a6e; }
 [data-theme="light"] .text-sky-200       { color: #075985; }
 [data-theme="light"] .border-sky-500     { border-color: #0ea5e9; }
 [data-theme="light"] .border-sky-600     { border-color: #0284c7; }
@@ -730,7 +795,6 @@ a:focus-visible,
    * arbeitet, soll sehen, wo er ist. */
   outline: 2px solid var(--cp-signal);
   outline-offset: 3px;
-  border-radius: 0;
 }
 input:focus-visible,
 select:focus-visible,
@@ -806,8 +870,9 @@ input[type="range"] {
 }
 input[type="range"]::-webkit-slider-runnable-track {
   height: 6px;
-  background: var(--cp-surface-3);
+  background: var(--cp-surface-2);
   border: 1px solid var(--cp-border);
+  border-radius: var(--cp-r-full);
 }
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
@@ -815,7 +880,9 @@ input[type="range"]::-webkit-slider-thumb {
   width: 18px;
   height: 18px;
   background: var(--cp-accent);
-  border: 2px solid var(--cp-surface-3);
+  border: 2px solid var(--cp-surface-1);
+  border-radius: 50%;
+  box-shadow: var(--cp-shadow-1);
   /* Der Griff sitzt auf der Bahn, nicht daneben: (6 px Bahn - 18 px Griff)
      / 2 = -6 px, plus 1 px Rahmen der Bahn. */
   margin-top: -7px;
@@ -823,15 +890,16 @@ input[type="range"]::-webkit-slider-thumb {
 }
 input[type="range"]::-moz-range-track {
   height: 6px;
-  background: var(--cp-surface-3);
+  background: var(--cp-surface-2);
   border: 1px solid var(--cp-border);
+  border-radius: var(--cp-r-full);
 }
 input[type="range"]::-moz-range-thumb {
   width: 18px;
   height: 18px;
   background: var(--cp-accent);
-  border: 2px solid var(--cp-surface-3);
-  border-radius: 0;
+  border: 2px solid var(--cp-surface-1);
+  border-radius: 50%;
   cursor: pointer;
 }
 input[type="range"]:focus-visible {
@@ -860,10 +928,7 @@ input[type="range"]:disabled {
 }
 ::-webkit-scrollbar-thumb {
   background-color: var(--cp-border);
-  /* Eckig wie alles andere (ADR-007 Abschnitt 3). Hier standen 8 px — die
-   * letzte harte Rundung im Stilblatt, und sie fiel niemandem auf, weil ein
-   * Rollbalken nicht wie Oberflaeche aussieht. Er ist aber einer. */
-  border-radius: 0;
+  border-radius: var(--cp-r-full);
   border: 2px solid transparent;
   background-clip: content-box;
 }
@@ -953,7 +1018,12 @@ input[type="range"]:disabled {
   height: 40px;
   flex: none;
   padding: 0 12px;
-  background: var(--cp-surface-3);
+  /* Glas-Kopfzeile (Design-Vertrag 2026-10): Grund zu 72 %. OHNE
+   * `backdrop-filter`, gemessen 2026-10-14: er macht die Leiste zum
+   * Stapelkontext, und ihre Menues lagen dann unter der Geraetesuche des
+   * Canvas. Hinter dieser Leiste scrollt nichts — die Weichzeichnung haette
+   * nichts zu zeigen, sie kostete nur die Menues. */
+  background: var(--cp-glass);
   border-bottom: 1px solid var(--cp-border);
 }
 
@@ -965,7 +1035,8 @@ input[type="range"]:disabled {
   display: block;
   height: auto;
 }
-.lzm-logo--signet img {
+.lzm-logo--signet svg {
+  display: block;
   height: 32px;
   width: auto;
 }
@@ -1000,21 +1071,21 @@ input[type="range"]:disabled {
   flex: none;
   padding-left: 12px;
   padding-right: 12px;
-  background: var(--cp-surface-3);
+  background: var(--cp-bg);
   border-top: 1px solid var(--cp-border);
   font-size: 12px;
-  color: var(--cp-text-secondary);
+  color: var(--cp-text-muted);
 }
 
-/* Die Kopflinie eines Dialogs/Panels: „Dialoge sind Flaechen, keine Karten —
- * kein Radius, kein Schatten, Kopflinie oben." Die Linie ist der Akzent, nicht
- * eine Flaeche in Akzentfarbe: sie trennt, ohne einen Balken zu setzen. */
+/* Kopf eines Dialogs/Panels. Bis 2026-10-13 trug er die Kopflinie in
+ * Akzentfarbe (ADR-007 alt); der Design-Vertrag 2026-10 hat sie gestrichen.
+ * Der Kopf ist jetzt ein normaler Titel — 600–700, Satzschreibung — und
+ * trennt sich durch Abstand vom Inhalt, nicht durch eine Linie. */
 .cp-panel-head {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--cp-accent);
+  padding: 16px 20px 8px;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -1298,13 +1369,16 @@ summary,
 }
 
 /* larszu/lz-scopes#15 — die Rahmen der vendorten Scopes (`vendor/lz-scopes/embed.ts`
- * spritzt sie zur Laufzeit ein) folgen der Form der App: keine Rundung, Kopf und
+ * spritzt sie zur Laufzeit ein) folgen der Form der App: Token-Rundung, Kopf und
  * Auswahl in den Flaechen der Palette. Die Messflaeche selbst bleibt dunkel — sie
  * ist Inhalt wie ein Bild, keine Oberflaeche. `.lzs-root` davor, weil das
  * eingespritzte Stilblatt spaeter kommt und bei gleicher Spezifitaet gewaenne. */
-.lzs-root .lzs-panel,
+.lzs-root .lzs-panel {
+  border-radius: var(--cp-r-l);
+  overflow: hidden;
+}
 .lzs-root .lzs-head select {
-  border-radius: 0;
+  border-radius: var(--cp-r-s);
 }
 .lzs-root .lzs-panel {
   border-color: var(--cp-border);
@@ -1354,4 +1428,149 @@ details > summary::before {
 }
 details[open] > summary::before {
   transform: rotate(45deg);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * Design-Vertrag 2026-10 — Komponenten-Grundform.
+ *
+ * WARUM ALS ELEMENT-REGEL IN `@layer base`: die App hat rund 1800
+ * Bedienelemente, gebaut aus rohen Utilities. Sie einzeln umzuschreiben
+ * hiesse 1800 Stellen, an denen die naechste Aenderung wieder vergessen
+ * wird. Die Grundform steht deshalb EINMAL hier, mit `:where()` ohne
+ * Spezifitaet und in der Base-Schicht — jede Utility am Element (etwa
+ * `rounded-none` an einer Segment-Gruppe) gewinnt weiterhin.
+ *
+ * Der Canvas ist ausgenommen: Ports, Griffe und Geraetezeichnungen zeigen
+ * Hardware und bleiben in ihrer eigenen Form.
+ * ═══════════════════════════════════════════════════════════════════════ */
+@layer base {
+  /* `:is()` statt `:where()` vorne: Tailwinds Preflight setzt `button {
+   * border-radius: 0 }` in derselben Schicht — die Element-Spezifitaet muss
+   * mindestens gleichziehen, damit diese spaetere Regel gewinnt. */
+  :is(button, select, textarea, [role="button"],
+    input:not([type="checkbox"], [type="radio"], [type="range"], [type="color"])):where(:not(.react-flow *)) {
+    border-radius: var(--cp-r-m);
+  }
+  :where(button, [role="button"], [role="menuitem"], [role="tab"]):where(:not(.react-flow *)) {
+    transition:
+      background-color var(--cp-dur-1) var(--cp-ease),
+      color var(--cp-dur-1) var(--cp-ease),
+      border-color var(--cp-dur-1) var(--cp-ease),
+      box-shadow var(--cp-dur-1) var(--cp-ease),
+      scale var(--cp-dur-1) var(--cp-ease);
+  }
+  :where(button:not(:disabled)):where(:not(.react-flow *)):active {
+    scale: 0.97;
+  }
+  :where(input[type="checkbox"], input[type="radio"]) {
+    accent-color: var(--cp-accent);
+  }
+  /* Dialoge sind schwebende Karten: Radius xl, Schatten 3. */
+  :where([role="dialog"], [role="alertdialog"]):where(:not(.react-flow *)) {
+    border-radius: var(--cp-r-xl);
+    box-shadow: var(--cp-shadow-3);
+  }
+  /* Menues, Listen-Popover, Tooltips: Radius l, Schatten 3, erhobene Flaeche. */
+  :where([role="menu"], [role="listbox"]):where(:not(.react-flow *)) {
+    border-radius: var(--cp-r-l);
+    box-shadow: var(--cp-shadow-3);
+    padding: 6px;
+  }
+  :where([role="menuitem"], [role="menuitemcheckbox"], [role="menuitemradio"], [role="option"]) {
+    border-radius: var(--cp-r-s);
+  }
+  :where([role="tooltip"]) {
+    border-radius: var(--cp-r-s);
+    box-shadow: var(--cp-shadow-2);
+  }
+  ::selection {
+    background: var(--cp-accent-soft);
+  }
+}
+
+/* Scrim hinter Dialogen: neutral abgedunkelt und weichgezeichnet, statt
+ * eines schwarzen Vorhangs. Ersetzt die rohen `bg-black/60` der Backdrops. */
+.cp-scrim,
+.cp-modal-backdrop {
+  background-color: var(--cp-scrim);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+
+/* Weicher Hintergrundschein — nur auf Start- und Leerflaechen, nie hinter
+ * dem Canvas (Design-Vertrag). */
+.cp-glow {
+  background:
+    radial-gradient(56rem 36rem at 8% -12%, var(--cp-glow-1), transparent 62%),
+    radial-gradient(44rem 30rem at 105% 4%, var(--cp-glow-2), transparent 60%),
+    var(--cp-bg);
+}
+
+/* Segment-Steuerung mit gleitender heller Auswahl (Theme-Umschalter u. a.). */
+.cp-segment {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--cp-r-full);
+  background: var(--cp-surface-2);
+}
+.cp-segment > button {
+  display: inline-flex;
+  flex: 1 1 0;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: var(--cp-r-full);
+  background: transparent;
+  color: var(--cp-text-muted);
+  font-size: 13px;
+  font-weight: 500;
+}
+.cp-segment > button:hover {
+  color: var(--cp-text-bright);
+}
+.cp-segment > button[aria-pressed="true"] {
+  background: var(--cp-surface-raised);
+  color: var(--cp-text-bright);
+  box-shadow: var(--cp-shadow-1);
+}
+[data-theme="light"] .cp-segment > button[aria-pressed="true"] {
+  color: var(--cp-accent);
+}
+
+/* Pill-Hauptknopf mit weichem Akzentschein — eine Hauptaktion pro Ansicht. */
+.cp-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: var(--cp-r-full);
+  background: var(--cp-accent);
+  color: var(--cp-accent-text);
+  font-weight: 600;
+  box-shadow: var(--cp-shadow-1);
+}
+.cp-btn-primary:hover:not(:disabled) {
+  background: var(--cp-accent-hover);
+  box-shadow: var(--cp-shadow-2);
+  translate: 0 -1px;
+}
+
+/* Status-Chips: die drei Statusfarben des Vertrags, in beiden Modi gleich,
+ * mit der Schrift, die darauf AA erreicht (weiss auf ok/danger, dunkel auf
+ * warn — weiss auf dem Gold laege unter 3:1). */
+.cp-chip-ok {
+  background: var(--cp-ok);
+  color: #FFFFFF;
+}
+.cp-chip-warn {
+  background: var(--cp-warn);
+  color: #16181D;
+}
+.cp-chip-danger {
+  background: var(--cp-danger);
+  color: #FFFFFF;
 }

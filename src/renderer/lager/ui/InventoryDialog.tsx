@@ -609,7 +609,7 @@ export const InventoryDialog = ({ open, onClose }: InventoryDialogProps) => {
               <button
                 type="button"
                 onClick={() => setForm({ model: '', quantity: 1 })}
-                className="flex items-center gap-1 bg-emerald-700 px-2.5 py-1.5 hover:bg-emerald-600"
+                className="flex items-center gap-1 bg-cp-ok text-white px-2.5 py-1.5 hover:brightness-110"
               >
                 <Plus size={14} />
                 {t('inventory.add', 'Item')}
@@ -750,7 +750,7 @@ export const InventoryDialog = ({ open, onClose }: InventoryDialogProps) => {
                     type="button"
                     disabled={form.model.trim() === ''}
                     onClick={handleSave}
-                    className="bg-emerald-700 px-3 py-1 enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="bg-cp-ok text-white px-3 py-1 enabled:hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {t('common.save', 'Save')}
                   </button>
@@ -1267,7 +1267,7 @@ const LocationsTab = ({ dimsEditor, formatDims, codeCell }: LocationsTabProps) =
         <span className="text-cp-text-muted">
           {t('inventory.locationsHint', 'Storage locations and cases — every node scannable, nestable at will (case in case in transport case).')}
         </span>
-        <button type="button" onClick={() => setForm({ name: '', kind: 'depot' })} className="flex items-center gap-1 bg-emerald-700 px-2.5 py-1.5 hover:bg-emerald-600">
+        <button type="button" onClick={() => setForm({ name: '', kind: 'depot' })} className="flex items-center gap-1 bg-cp-ok text-white px-2.5 py-1.5 hover:brightness-110">
           <Plus size={14} />
           {t('inventory.addNode', 'Location')}
         </button>
@@ -1328,7 +1328,7 @@ const LocationsTab = ({ dimsEditor, formatDims, codeCell }: LocationsTabProps) =
             <button type="button" onClick={() => setForm(null)} className="bg-cp-surface-4 px-3 py-1 hover:bg-cp-surface-5">
               {t('common.cancel', 'Cancel')}
             </button>
-            <button type="button" disabled={form.name.trim() === ''} onClick={handleSave} className="bg-emerald-700 px-3 py-1 enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50">
+            <button type="button" disabled={form.name.trim() === ''} onClick={handleSave} className="bg-cp-ok text-white px-3 py-1 enabled:hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50">
               {t('common.save', 'Save')}
             </button>
           </div>
@@ -1409,7 +1409,7 @@ const SetsTab = () => {
         <span className="text-cp-text-muted">
           {t('inventory.setsHint', 'Logical sets/kits — availability derived from the scarcest component.')}
         </span>
-        <button type="button" onClick={() => setForm({ name: '', components: [] })} className="flex items-center gap-1 bg-emerald-700 px-2.5 py-1.5 hover:bg-emerald-600">
+        <button type="button" onClick={() => setForm({ name: '', components: [] })} className="flex items-center gap-1 bg-cp-ok text-white px-2.5 py-1.5 hover:brightness-110">
           <Plus size={14} />
           {t('inventory.addSet', 'Set')}
         </button>
@@ -1458,7 +1458,7 @@ const SetsTab = () => {
             <button type="button" onClick={() => setForm(null)} className="bg-cp-surface-4 px-3 py-1 hover:bg-cp-surface-5">
               {t('common.cancel', 'Cancel')}
             </button>
-            <button type="button" disabled={form.name.trim() === ''} onClick={handleSave} className="bg-emerald-700 px-3 py-1 enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50">
+            <button type="button" disabled={form.name.trim() === ''} onClick={handleSave} className="bg-cp-ok text-white px-3 py-1 enabled:hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50">
               {t('common.save', 'Save')}
             </button>
           </div>
@@ -1673,7 +1673,7 @@ const UnitsTab = ({ codeCell }: UnitsTabProps) => {
             type="button"
             disabled={items.length === 0}
             onClick={() => setForm({ itemId: items[0]?.id ?? '', condition: 'ok' })}
-            className="flex items-center gap-1 bg-emerald-700 px-2.5 py-1.5 enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex items-center gap-1 bg-cp-ok text-white px-2.5 py-1.5 enabled:hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Plus size={14} />
             {t('inventory.addUnit', 'Unit')}
@@ -1782,7 +1782,7 @@ const UnitsTab = ({ codeCell }: UnitsTabProps) => {
             <button type="button" onClick={() => setForm(null)} className="bg-cp-surface-4 px-3 py-1 hover:bg-cp-surface-5">
               {t('common.cancel', 'Cancel')}
             </button>
-            <button type="button" disabled={!form.itemId} onClick={handleSave} className="bg-emerald-700 px-3 py-1 enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50">
+            <button type="button" disabled={!form.itemId} onClick={handleSave} className="bg-cp-ok text-white px-3 py-1 enabled:hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50">
               {t('common.save', 'Save')}
             </button>
           </div>
@@ -2222,7 +2222,7 @@ const LabelsTab = () => {
           type="button"
           disabled={busy || specsCount === 0}
           onClick={handlePrint}
-          className="flex items-center gap-1 bg-emerald-700 px-3 py-1.5 enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex items-center gap-1 bg-cp-ok text-white px-3 py-1.5 enabled:hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <Printer size={14} />
           {busy ? t('inventory.labelBusy', 'Generating…') : t('inventory.labelPrint', 'Print')}
@@ -2864,7 +2864,7 @@ const ReportsTab = () => {
 
   const kpi = (label: string, value: string | number) => (
     <div className="border border-cp-border-muted bg-cp-surface-2 px-3 py-2">
-      <div className="text-cp-xs uppercase tracking-wide text-cp-text-muted">{label}</div>
+      <div className="text-cp-xs text-cp-text-muted">{label}</div>
       <div className="text-cp-sm font-semibold tabular-nums text-cp-text">{value}</div>
     </div>
   )

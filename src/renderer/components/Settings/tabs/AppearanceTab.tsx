@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
-import { X, Moon, Sun, RotateCcw} from 'lucide-react'
+import { X, RotateCcw } from 'lucide-react'
+import { ThemeSwitch } from '../../shared/ThemeSwitch'
 import { Icon } from '../../shared/Icon'
 import { useUiStore } from '../../../store/uiStore'
 import { useProjectStore } from '../../../store/projectStore'
@@ -93,8 +94,6 @@ const CustomPaletteCard = () => {
 }
 
 export const AppearanceTab = () => {
-  const canvasTheme = useUiStore((s) => s.canvasTheme)
-  const setCanvasTheme = useUiStore((s) => s.setCanvasTheme)
   const colorPortsByType = useUiStore((s) => s.colorPortsByType)
   const setColorPortsByType = useUiStore((s) => s.setColorPortsByType)
   const cableColorMode = useUiStore((s) => s.cableColorMode)
@@ -183,7 +182,7 @@ export const AppearanceTab = () => {
               onClick={() => setLanguage(opt.value)}
               className={`flex-1 px-3 py-1 text-cp-xs ${
                 language === opt.value
-                  ? 'bg-sky-700 text-white'
+                  ? 'bg-cp-accent text-cp-accent-text'
                   : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'
               }`}
             >
@@ -204,33 +203,10 @@ export const AppearanceTab = () => {
         title={t('settings.appearance.theme', 'Theme')}
         description={t(
           'settings.appearance.themeDesc',
-          'Canvas background colour. Optimised for dark; light is intended for PDF export or bright environments.',
+          'Light, dark, or Auto to follow the system. Applies to the whole app including the canvas.',
         )}
       >
-        <div className="flex gap-1">
-          {(['dark', 'light'] as const).map((mode) => (
-            <button
-              key={mode}
-              type="button"
-              onClick={() => setCanvasTheme(mode)}
-              className={`inline-flex flex-1 items-center justify-center gap-1.5 px-3 py-1 text-cp-xs ${
-                canvasTheme === mode
-                  ? 'bg-sky-700 text-white'
-                  : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'
-              }`}
-            >
-              {mode === 'dark' ? (
-                <>
-                  <Icon icon={Moon} size="xs" /> {t('settings.appearance.theme.dark', 'Dark')}
-                </>
-              ) : (
-                <>
-                  <Icon icon={Sun} size="xs" /> {t('settings.appearance.theme.light', 'Light')}
-                </>
-              )}
-            </button>
-          ))}
-        </div>
+        <ThemeSwitch className="w-full" />
       </SettingsCard>
 
       <EquipmentColorsSection />
@@ -281,7 +257,7 @@ export const AppearanceTab = () => {
             onClick={() => setColorPortsByType(false)}
             className={`flex-1 px-3 py-1 text-cp-xs ${
               !colorPortsByType
-                ? 'bg-sky-700 text-white'
+                ? 'bg-cp-accent text-cp-accent-text'
                 : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'
             }`}
             title={t(
@@ -296,7 +272,7 @@ export const AppearanceTab = () => {
             onClick={() => setColorPortsByType(true)}
             className={`flex-1 px-3 py-1 text-cp-xs ${
               colorPortsByType
-                ? 'bg-sky-700 text-white'
+                ? 'bg-cp-accent text-cp-accent-text'
                 : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'
             }`}
             title={t(
@@ -322,7 +298,7 @@ export const AppearanceTab = () => {
             onClick={() => setCableColorMode('manual')}
             className={`flex-1 px-3 py-1 text-cp-xs ${
               cableColorMode === 'manual'
-                ? 'bg-sky-700 text-white'
+                ? 'bg-cp-accent text-cp-accent-text'
                 : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'
             }`}
           >
@@ -333,7 +309,7 @@ export const AppearanceTab = () => {
             onClick={() => setCableColorMode('byLength')}
             className={`flex-1 px-3 py-1 text-cp-xs ${
               cableColorMode === 'byLength'
-                ? 'bg-sky-700 text-white'
+                ? 'bg-cp-accent text-cp-accent-text'
                 : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'
             }`}
           >
@@ -348,7 +324,7 @@ export const AppearanceTab = () => {
             onClick={() => setCableColorMode('byLayer')}
             className={`flex-1 px-3 py-1 text-cp-xs ${
               cableColorMode === 'byLayer'
-                ? 'bg-sky-700 text-white'
+                ? 'bg-cp-accent text-cp-accent-text'
                 : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'
             }`}
           >
@@ -455,7 +431,7 @@ export const AppearanceTab = () => {
         </div>
         {/* v7.7.1 — Custom canvas background image upload (Issue #71). */}
         <div className="mt-4 border-t border-cp-border-muted pt-3">
-          <div className="mb-2 text-cp-xs font-semibold uppercase tracking-wide text-cp-text-muted">
+          <div className="mb-2 text-cp-xs font-semibold text-cp-text-muted">
             {t('settings.canvasBg.imageTitle', 'Custom background image')}
           </div>
           <div className="mb-2 text-cp-xs text-cp-text-muted">

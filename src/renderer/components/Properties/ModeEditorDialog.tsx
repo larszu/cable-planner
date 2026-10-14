@@ -171,7 +171,7 @@ export const ModeEditorDialog = ({
             type="button"
             onClick={handleSave}
             disabled={!canSave}
-            className="bg-emerald-600 px-3 py-1 text-cp-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
+            className="bg-cp-ok px-3 py-1 text-cp-xs font-medium text-white hover:brightness-110 disabled:opacity-50"
           >
             {isEditing ? t('common.save', 'Save') : t('modeEditor.createBtn', 'Create mode')}
           </button>

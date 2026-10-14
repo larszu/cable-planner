@@ -56,7 +56,7 @@ const renderLabelPart = (part: LabelPart, arrow: '←' | '→' = '←') => (
   <div className="flex w-full flex-col items-center text-center leading-tight">
     <span className="block truncate w-full">{stripLeadingNumber(part.port)}</span>
     {part.connDevice && (
-      <span className="block truncate w-full text-sky-300 text-[0.92em]">
+      <span className="block truncate w-full text-cp-accent text-[0.92em]">
         {arrow} {part.connDevice}
       </span>
     )}
@@ -362,7 +362,7 @@ export const VideohubRoutingMatrix = ({
             {/* Achsenbeschriftungs-Bar */}
             <tr style={{ height: 32 }}>
               <th
-                className="sticky left-0 top-0 z-30 border-b border-r border-cp-border bg-cp-surface-1 px-3 text-left uppercase tracking-wide text-cp-text-muted"
+                className="sticky left-0 top-0 z-30 border-b border-r border-cp-border bg-cp-surface-1 px-3 text-left text-cp-text-muted"
                 style={{ width: labelColW, minWidth: labelColW, fontSize: 12, fontWeight: 600, position: 'relative' }}
               >
                 {rowAxisLabel}
@@ -385,7 +385,7 @@ export const VideohubRoutingMatrix = ({
                 #
               </th>
               <th
-                className="sticky top-0 z-20 border-b border-cp-border bg-cp-surface-2/80 px-3 text-left uppercase tracking-wide text-cp-text-secondary"
+                className="sticky top-0 z-20 border-b border-cp-border bg-cp-surface-2/80 px-3 text-left text-cp-text-secondary"
                 colSpan={totalInputs}
                 style={{ fontSize: 12, fontWeight: 600 }}
               >
@@ -485,7 +485,7 @@ export const VideohubRoutingMatrix = ({
             {/* Input-Index-Reihe */}
             <tr style={{ height: 24 }}>
               <th
-                className="sticky left-0 z-30 border-b border-r border-cp-border bg-cp-surface-1 px-3 text-left uppercase text-cp-text-faint"
+                className="sticky left-0 z-30 border-b border-r border-cp-border bg-cp-surface-1 px-3 text-left text-cp-text-faint"
                 style={{
                   top: 32 + labelRowHeightPx,
                   width: labelColW,

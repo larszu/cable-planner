@@ -105,7 +105,7 @@ export const WirelessRigDialog = () => {
   return (
     <div
       {...backdrop}
-      className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 p-4"
+      className="fixed inset-0 z-[200] flex items-center justify-center cp-scrim p-4"
     >
       <div
         ref={panelRef}
@@ -132,7 +132,7 @@ export const WirelessRigDialog = () => {
           <button
             type="button"
             onClick={addChannel}
-            className="flex items-center gap-1 bg-emerald-700 px-2.5 py-1.5 text-cp-xs hover:bg-emerald-600"
+            className="flex items-center gap-1 bg-cp-ok px-2.5 py-1.5 text-cp-xs hover:brightness-110"
           >
             <Plus size={14} /> {t('wireless.addChannel', 'Channel')}
           </button>
@@ -259,7 +259,7 @@ export const WirelessRigDialog = () => {
           {/* RF-Koordination */}
           {derivation.rfConflicts.length > 0 && (
             <div className="mt-4">
-              <div className="mb-1 flex items-center gap-2 text-cp-xs font-semibold uppercase tracking-wide text-cp-text-secondary">
+              <div className="mb-1 flex items-center gap-2 text-cp-xs font-semibold text-cp-text-secondary">
                 <AlertTriangle size={13} className="text-cp-warn" /> {t('wireless.rfTitle', 'RF coordination — conflicts')}
               </div>
               <ul className="space-y-1 border border-cp-warn/40 bg-cp-warn/5 p-2 text-cp-xs">

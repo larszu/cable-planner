@@ -210,7 +210,7 @@ export const DeviceLibraryTab = () => {
               <button
                 type="submit"
                 disabled={busy || (challenge ? !code.trim() : !login.trim() || !password)}
-                className="bg-cp-accent px-3 py-1 text-cp-xs text-white disabled:opacity-40"
+                className="bg-cp-accent px-3 py-1 text-cp-xs text-cp-accent-text disabled:opacity-40"
               >
                 {challenge ? t('deviceLibrary.verify', 'Confirm code') : t('deviceLibrary.signIn', 'Sign in')}
               </button>

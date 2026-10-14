@@ -22,7 +22,7 @@ export const RackFacePreview = ({
 
   return (
     <fieldset className="border border-cp-border p-2">
-      <legend className="px-1 text-cp-xs uppercase tracking-wide text-cp-text-muted">
+      <legend className="px-1 text-cp-xs text-cp-text-muted">
         {t('rackFace.title', '2D rack preview')}
       </legend>
       <div className="mb-2 text-cp-xs text-cp-text-muted">{format(t('rackFace.subtitle', '19" rack · {he} U · front/rear with port markers'), { he: equipment.rackUnits })}</div>
@@ -32,7 +32,7 @@ export const RackFacePreview = ({
             const imageUrl = side === 'front' ? equipment.frontPanelImageUrl : equipment.rearPanelImageUrl
             return (
               <div key={side} className="border border-cp-surface-5 bg-gradient-to-b from-cp-surface-2 to-cp-surface-1 px-4 py-3">
-                <div className="mb-3 flex items-center justify-between text-cp-xs uppercase tracking-[0.2em] text-cp-text-muted">
+                <div className="mb-3 flex items-center justify-between text-cp-xs text-cp-text-muted">
                   <span>{side === 'front' ? t('rackFace.front', 'Front') : t('rackFace.rear', 'Rear')}</span>
                   <span>{equipment.rackUnits} HE</span>
                 </div>

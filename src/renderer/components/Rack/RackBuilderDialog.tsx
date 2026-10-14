@@ -617,7 +617,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
   return (
     <div
       {...backdrop}
-      className="fixed inset-0 z-[70] flex items-center justify-center bg-black/70 p-2 sm:p-6"
+      className="fixed inset-0 z-[70] flex items-center justify-center cp-scrim p-2 sm:p-6"
     >
       <div
         ref={panelRef}
@@ -669,7 +669,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
               aria-required="true"
               aria-invalid={!draft.rackName.trim() && !!saveError}
               placeholder={t('rack.field.namePlaceholder', 'e.g. "Power rack A" or "Main video rack"')}
-              className={`mt-1 w-full border bg-cp-surface-3 px-2.5 py-1.5 text-cp-base font-normal text-cp-text placeholder-slate-600 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 ${
+              className={`mt-1 w-full border bg-cp-surface-3 px-2.5 py-1.5 text-cp-base font-normal text-cp-text placeholder-slate-600 focus:border-cp-accent focus:outline-none focus:ring-1 focus:ring-sky-500 ${
                 !draft.rackName.trim() && saveError
                   ? 'border-red-600 ring-1 ring-red-600/40'
                   : 'border-cp-border'
@@ -683,7 +683,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
               max={LIMITS.MAX_RACK_HEIGHT_HE}
               value={draft.totalUnits}
               onChange={(totalUnits) => setDraft((current) => ({ ...current, totalUnits }))}
-              className="mt-1 w-full border border-cp-border bg-cp-surface-3 px-2.5 py-1.5 text-cp-base font-normal text-cp-text focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
+              className="mt-1 w-full border border-cp-border bg-cp-surface-3 px-2.5 py-1.5 text-cp-base font-normal text-cp-text focus:border-cp-accent focus:outline-none focus:ring-1 focus:ring-sky-500"
             />
           </label>
           {/* v7.9.73 / #170 — Rack-Tiefe in mm. Wird vom 3D-Builder genutzt
@@ -696,7 +696,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
               step={50}
               value={draft.depthMm ?? 800}
               onChange={(depthMm) => setDraft((current) => ({ ...current, depthMm }))}
-              className="mt-1 w-full border border-cp-border bg-cp-surface-3 px-2.5 py-1.5 text-cp-base font-normal text-cp-text focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
+              className="mt-1 w-full border border-cp-border bg-cp-surface-3 px-2.5 py-1.5 text-cp-base font-normal text-cp-text focus:border-cp-accent focus:outline-none focus:ring-1 focus:ring-sky-500"
               title={t('rack.depthTitle', 'Rack depth in mm. Default: 800 mm. Common values: 350/450/600/800/1000/1200.')}
             />
           </label>
@@ -722,7 +722,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
             {/* v7.9.11 — Library-Header mit Counter, dann Search-Input
                 mit Magnifier-Icon + Clear-Button für bessere Affordance. */}
             <div className="mb-2 flex items-center justify-between">
-              <div className="text-cp-xs font-semibold uppercase tracking-wide text-cp-text-muted">
+              <div className="text-cp-xs font-semibold text-cp-text-muted">
                 {t('library.title', 'Library')}
               </div>
               <span className="bg-cp-surface-2 px-1.5 py-0.5 text-cp-xs text-cp-text-muted">
@@ -770,7 +770,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder={t('rack.searchDevicesPlaceholder', 'Search device…')}
                 aria-label={t('rack.searchDevicesPlaceholder', 'Search device…')}
-                className="w-full border border-cp-border bg-cp-surface-3 pl-7 pr-7 py-1.5 text-cp-xs placeholder-slate-600 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
+                className="w-full border border-cp-border bg-cp-surface-3 pl-7 pr-7 py-1.5 text-cp-xs placeholder-slate-600 focus:border-cp-accent focus:outline-none focus:ring-1 focus:ring-sky-500"
               />
               {query && (
                 <button
@@ -858,7 +858,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                           <span className="min-w-0 break-words font-medium leading-snug text-cp-text">{template.name}</span>
                           {placedCount > 0 && (
                             <span
-                              className="shrink-0 bg-emerald-800/70 px-1 text-cp-xs font-semibold uppercase text-emerald-200"
+                              className="shrink-0 bg-emerald-800/70 px-1 text-cp-xs font-semibold text-emerald-200"
                               title={format(t('rack.placedCountTitle', '{count}× placed in rack'), { count: placedCount })}
                             >
                               <Icon icon={Check} size="xs" className="mr-1 inline" />
@@ -867,7 +867,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                           )}
                           {!isRack && (
                             <span
-                              className="shrink-0 bg-amber-800/60 px-1 text-cp-xs font-semibold uppercase text-amber-200"
+                              className="shrink-0 bg-amber-800/60 px-1 text-cp-xs font-semibold text-amber-200"
                               title={t('rack.notRackTitle', 'Not marked as 19" rack device — height will be asked on add.')}
                             >
                               No-HE
@@ -907,7 +907,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
             {/* v7.9.11 — Rack-Header mit Live-HE-Belegung + Drag-Hint. */}
             <div className="mb-2 flex items-center justify-between gap-2">
               <div className="flex items-center gap-2">
-                <div className="text-cp-xs font-semibold uppercase tracking-wide text-cp-text-muted">
+                <div className="text-cp-xs font-semibold text-cp-text-muted">
                   {t('rack.layout', 'Rack layout')}
                 </div>
                 {/* v7.9.73 / #170 — 2D/3D Tab-Toggle. 2D ist der bestehende
@@ -919,7 +919,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                     onClick={() => setViewTab('2d')}
                     className={`inline-flex items-center gap-1 px-2.5 py-1 ${
                       viewTab === '2d'
-                        ? 'bg-sky-600 text-white'
+                        ? 'bg-cp-accent text-cp-accent-text'
                         : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'
                     }`}
                     title={t('rack.tab2dTitle', '2D editor: front / rear as panel views')}
@@ -931,7 +931,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                     onClick={() => setViewTab('3d')}
                     className={`inline-flex items-center gap-1 border-l border-cp-border px-2.5 py-1 ${
                       viewTab === '3d'
-                        ? 'bg-purple-600 text-white'
+                        ? 'bg-cp-accent text-cp-accent-text'
                         : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'
                     }`}
                     title={t('rack.tab3dTitle', '3D visualisation with front/rear depth and rotation. Read-only — editing happens in the 2D tab.')}
@@ -1062,7 +1062,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                     onClick={() => setDraft((cur) => ({ ...cur, viewMode: mode }))}
                     className={`flex flex-1 items-center justify-center gap-1.5 px-2 py-1.5 font-medium transition ${
                       draft.viewMode === mode
-                        ? 'bg-sky-600 text-white'
+                        ? 'bg-cp-accent text-cp-accent-text'
                         : 'bg-cp-surface-1/50 text-cp-text-muted hover:bg-cp-surface-2/60'
                     }`}
                     aria-pressed={draft.viewMode === mode}
@@ -1101,7 +1101,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
               {draft.viewMode === 'side' && (
                 <div className="border border-cp-border-muted bg-cp-surface-3 p-2">
                   <div className="mb-2 flex items-center gap-2">
-                    <span className="inline-flex items-center gap-1 bg-sky-900/50 px-1.5 py-0.5 text-cp-xs font-semibold uppercase tracking-wide text-sky-200">
+                    <span className="inline-flex items-center gap-1 bg-sky-900/50 px-1.5 py-0.5 text-cp-xs font-semibold text-sky-200">
                       <span className="inline-block h-1.5 w-1.5" style={{ background: '#0ea5e9' }} />
                       {t('rack.builder.sideView', 'Side view (depth)')}
                     </span>
@@ -1178,7 +1178,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                 <div key={side} className="border border-cp-border-muted bg-cp-surface-3 p-2">
                   <div className="mb-2 flex items-center gap-2">
                     <span
-                      className={`inline-flex items-center gap-1 px-1.5 py-0.5 text-cp-xs font-semibold uppercase tracking-wide ${
+                      className={`inline-flex items-center gap-1 px-1.5 py-0.5 text-cp-xs font-semibold   ${
                         side === 'front'
                           ? 'bg-sky-900/50 text-sky-200'
                           : 'bg-purple-900/50 text-purple-200'
@@ -1521,7 +1521,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
           {/* v7.9.9 — Live-Preview-Pane: Black-Box auf Canvas + interne
               Verkabelung — Updates live mit jeder Draft-Änderung. */}
           <div className="border border-cp-border bg-cp-surface-3/50 p-2">
-            <div className="mb-2 text-cp-xs font-semibold uppercase tracking-wide text-cp-text-muted">
+            <div className="mb-2 text-cp-xs font-semibold text-cp-text-muted">
               Live-Preview
             </div>
             <RackLivePreview

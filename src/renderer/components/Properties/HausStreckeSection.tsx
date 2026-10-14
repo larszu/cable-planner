@@ -31,7 +31,7 @@ export const HausStreckeSection = ({ cable }: { cable: Cable }) => {
 
   return (
     <div className="border border-cp-border bg-cp-surface-3/50 p-2 text-cp-xs">
-      <div className="mb-1 font-semibold uppercase tracking-wide text-cp-text-muted">
+      <div className="mb-1 font-semibold text-cp-text-muted">
         <Icon icon={CableIcon} size="xs" className="mr-1 inline" />
         {t('hausStrecke.title', 'House run')}
       </div>

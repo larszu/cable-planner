@@ -687,10 +687,11 @@ export const de: Dict = {
   'app.menu.view.colorByLayer': 'Kabelfarbe nach Gewerk',
   'app.menu.view.colorByLength': 'Kabelfarbe nach Länge',
   'app.menu.view.fit': 'Einpassen',
-  'app.menu.view.followSystem': 'System-Theme folgen',
+  'app.menu.view.followSystem': 'Darstellung: wie System',
+  'app.menu.view.dark': 'Dunkle Darstellung',
   'app.menu.view.fullscreen': 'Vollbild',
   'app.menu.view.hideLabels': 'Kabel-Labels ausblenden',
-  'app.menu.view.light': 'Helles Design',
+  'app.menu.view.light': 'Helle Darstellung',
   'app.menu.view.offPageNames': 'Off-Page-Namen anzeigen',
   'app.menu.view.snap': 'Am Raster ausrichten',
   'app.menu.view.zoom100': 'Zoom 100 %',
@@ -5212,11 +5213,12 @@ export const de: Dict = {
   'settings.appearance.ports.byTypeTitle':
     'SDI=amber, HDMI=violett, Ethernet=grün, Glasfaser=gelb …',
   'settings.appearance.portsDesc': 'Steuert, wie Anschluss-Punkte auf Geräten eingefärbt sind.',
-  'settings.appearance.theme': 'Theme',
+  'settings.appearance.theme': 'Darstellung',
+  'settings.appearance.theme.auto': 'Auto',
   'settings.appearance.theme.dark': 'Dunkel',
   'settings.appearance.theme.light': 'Hell',
   'settings.appearance.themeDesc':
-    'Hintergrundfarbe des Canvas. Auf Dunkel optimiert; hell ist für PDF-Export oder helles Umgebungslicht.',
+    'Hell, Dunkel oder Auto (folgt dem System). Gilt für die ganze App einschließlich Canvas.',
   'settings.canvasBg.darkImage': 'Dark-Mode-Bild',
   'settings.canvasBg.desc':
     'Muster + Deckkraft des Canvas-Rasters. Bei großen Plänen reduziert eine niedrige Deckkraft die visuelle Unruhe. Rastergröße kommt aus dem Canvas-Toolbar oben.',

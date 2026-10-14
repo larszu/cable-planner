@@ -317,7 +317,7 @@ export async function starte({ sprache = 'de', breite = 1400, hoehe = 900, thema
   await win.evaluate(({ sprache, thema, module }) => {
     const key = 'cable-planner:ui'
     const alt = JSON.parse(localStorage.getItem(key) || '{}')
-    localStorage.setItem(key, JSON.stringify({ ...alt, language: sprache, canvasTheme: thema }))
+    localStorage.setItem(key, JSON.stringify({ ...alt, language: sprache, canvasTheme: thema, followSystemTheme: false }))
     // Alle Module an: das Handbuch beschreibt jede Funktion, auch die abschaltbaren.
     const skey = 'cable-planner:settings'
     const st = JSON.parse(localStorage.getItem(skey) || '{}')

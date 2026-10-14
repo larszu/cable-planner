@@ -132,7 +132,7 @@ export const AdernDialog = () => {
             onClick={() => setTab(k)}
             className={` px-3 py-1 text-cp-xs ${
               tab === k
-                ? 'bg-cp-accent text-white'
+                ? 'bg-cp-accent text-cp-accent-text'
                 : 'bg-cp-surface-3 text-cp-text-secondary hover:bg-cp-surface-4'
             }`}
           >
@@ -242,7 +242,7 @@ export const AdernDialog = () => {
           <button
             type="button"
             onClick={neueNorm}
-            className="mt-3 flex items-center gap-1 bg-emerald-700 px-2 py-1 text-cp-xs hover:bg-emerald-600"
+            className="mt-3 flex items-center gap-1 bg-cp-ok px-2 py-1 text-cp-xs hover:brightness-110"
           >
             <Icon icon={Plus} size="xs" /> {t('adern.norm.add', 'Enter colour standard')}
           </button>
@@ -345,7 +345,7 @@ export const AdernDialog = () => {
           <button
             type="button"
             onClick={neuerAnschluss}
-            className="mt-3 flex items-center gap-1 bg-emerald-700 px-2 py-1 text-cp-xs hover:bg-emerald-600"
+            className="mt-3 flex items-center gap-1 bg-cp-ok px-2 py-1 text-cp-xs hover:brightness-110"
           >
             <Icon icon={Plus} size="xs" /> {t('adern.anschluss.add', 'Add connection')}
           </button>
@@ -457,7 +457,7 @@ export const AdernDialog = () => {
           <button
             type="button"
             onClick={neuePolNorm}
-            className="mt-3 flex items-center gap-1 bg-emerald-700 px-2 py-1 text-cp-xs hover:bg-emerald-600"
+            className="mt-3 flex items-center gap-1 bg-cp-ok px-2 py-1 text-cp-xs hover:brightness-110"
           >
             <Icon icon={Plus} size="xs" /> {t('fibre.method.add', 'Enter polarity method')}
           </button>

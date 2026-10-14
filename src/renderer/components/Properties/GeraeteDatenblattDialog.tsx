@@ -142,7 +142,7 @@ export const GeraeteDatenblattDialog = ({ equipmentIds, onClose }: { equipmentId
             <Icon icon={Printer} size="xs" />
             {t('datasheet.print', 'Print')}
           </button>
-          <button type="button" className={`${knopf} bg-cp-accent text-white hover:bg-cp-accent`} onClick={() => void pdf()}>
+          <button type="button" className={`${knopf} bg-cp-accent text-cp-accent-text hover:bg-cp-accent`} onClick={() => void pdf()}>
             <Icon icon={FileDown} size="xs" />
             {t('datasheet.pdf', 'Save PDF')}
           </button>

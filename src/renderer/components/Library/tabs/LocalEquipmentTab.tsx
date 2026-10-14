@@ -186,7 +186,7 @@ export const LocalEquipmentTab = ({
               <Icon icon={X} size="sm" />
             </button>
           ) : (
-            <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-cp-xs uppercase tracking-wider text-cp-text-muted">
+            <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-cp-xs text-cp-text-muted">
               {t('library.search.shortcut', 'Ctrl+F')}
             </span>
           )}
@@ -261,7 +261,7 @@ export const LocalEquipmentTab = ({
           />
           <button
             type="submit"
-            className="bg-emerald-700 px-2 text-cp-xs hover:bg-emerald-600"
+            className="bg-cp-ok px-2 text-cp-xs hover:brightness-110"
           >
             {t('common.ok', 'OK')}
           </button>
@@ -365,7 +365,7 @@ export const LocalEquipmentTab = ({
                   } catch { /* ignore */ }
                 }}
               >
-                <div className="group/cat flex items-center gap-1.5 bg-cp-surface-1/60 px-2 py-1.5 text-left text-cp-xs font-semibold uppercase tracking-wide text-cp-text-secondary hover:bg-cp-surface-2/80 hover:text-cp-text">
+                <div className="group/cat flex items-center gap-1.5 bg-cp-surface-1/60 px-2 py-1.5 text-left text-cp-xs font-semibold text-cp-text-secondary hover:bg-cp-surface-2/80 hover:text-cp-text">
                   <button
                     type="button"
                     onClick={() =>

@@ -308,7 +308,7 @@ export const FloatingPanelShell = ({
                 onClick={onPopout}
                 title={t('panel.popoutTitle', 'Open in a separate window (other monitor)')}
                 aria-label={t('panel.popout', 'Pop out')}
-                className="inline-flex items-center gap-1 rounded-cp-control border border-[var(--cp-border)] bg-[var(--cp-surface-1)] px-2 py-0.5 text-cp-xs text-[var(--cp-text-secondary)] transition-colors hover:border-sky-500 hover:bg-[var(--cp-surface-2)] hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+                className="inline-flex items-center gap-1 rounded-cp-control border border-[var(--cp-border)] bg-[var(--cp-surface-1)] px-2 py-0.5 text-cp-xs text-[var(--cp-text-secondary)] transition-colors hover:border-cp-accent hover:bg-[var(--cp-surface-2)] hover:text-cp-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
               >
                 <Icon icon={ExternalLink} size="xs" />
               </button>
@@ -318,7 +318,7 @@ export const FloatingPanelShell = ({
               onClick={onDock}
               title={t('panel.dockTitle', 'Dock (back to side column)')}
               aria-label={t('panel.dock', 'Dock')}
-              className="inline-flex items-center gap-1 rounded-cp-control border border-[var(--cp-border)] bg-[var(--cp-surface-1)] px-2 py-0.5 text-cp-xs text-[var(--cp-text-secondary)] transition-colors hover:border-sky-500 hover:bg-[var(--cp-surface-2)] hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+              className="inline-flex items-center gap-1 rounded-cp-control border border-[var(--cp-border)] bg-[var(--cp-surface-1)] px-2 py-0.5 text-cp-xs text-[var(--cp-text-secondary)] transition-colors hover:border-cp-accent hover:bg-[var(--cp-surface-2)] hover:text-cp-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
             >
               <Icon icon={Pin} size="xs" /> {t('panel.dock', 'Dock')}
             </button>

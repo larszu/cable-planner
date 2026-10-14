@@ -202,7 +202,7 @@ export const RackPlacementProperties = ({
           <div className="mb-1 text-cp-xs text-cp-text-secondary">{t('rack.stl.header', '3D model (STL, optional)')}</div>
           <div className="mt-1 flex items-center gap-2">
             <label
-              className="inline-flex cursor-pointer items-center gap-1 border border-cp-surface-5 bg-sky-700 px-3 py-1 text-cp-xs font-semibold text-white hover:bg-sky-600"
+              className="inline-flex cursor-pointer items-center gap-1 border border-cp-surface-5 bg-cp-accent px-3 py-1 text-cp-xs font-semibold text-cp-accent-text hover:bg-cp-accent-hover"
               title={t('rack.stlUploadTitle', 'Upload STL file (.stl, max 5 MB) for this device')}
             >
               <Icon icon={Folder} size="xs" />
@@ -420,7 +420,7 @@ export const RackPlacementProperties = ({
                 >
                   <span className="flex min-w-0 items-center gap-1">
                     <span
-                      className={`shrink-0 px-1 text-cp-xs font-bold uppercase ${
+                      className={`shrink-0 px-1 text-cp-xs font-bold  ${
                         dir === 'in' ? 'bg-cyan-900/60 text-cyan-200' : 'bg-emerald-900/60 text-emerald-200'
                       }`}
                       title={dir === 'in' ? t('rack.portDir.input', 'Input (signal in)') : t('rack.portDir.output', 'Output (signal out)')}
@@ -512,7 +512,7 @@ export const RackPlacementProperties = ({
               const urlKey = side === 'front' ? 'frontPanelImageUrl' : 'rearPanelImageUrl'
               const currentUrl = selectedPlacement[urlKey]
               const label = side === 'front' ? t('rack.panelImages.front', 'Front') : t('rack.panelImages.rear', 'Rear')
-              const btnColor = side === 'front' ? 'bg-sky-700 hover:bg-sky-600' : 'bg-purple-700 hover:bg-purple-600'
+              const btnColor = side === 'front' ? 'bg-cp-accent text-cp-accent-text hover:bg-cp-accent-hover' : 'bg-cp-accent text-cp-accent-text hover:bg-cp-accent-hover'
               return (
                 <div key={side} className="space-y-1">
                   <button

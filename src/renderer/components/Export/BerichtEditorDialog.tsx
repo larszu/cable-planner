@@ -346,7 +346,7 @@ export const BerichtEditorDialog = () => {
           type="button"
           disabled={!name.trim()}
           onClick={() => speichere('projekt')}
-          className="inline-flex items-center gap-1 bg-emerald-700 px-2 py-1 hover:bg-emerald-600 disabled:opacity-40"
+          className="inline-flex items-center gap-1 bg-cp-ok text-white px-2 py-1 hover:brightness-110 disabled:opacity-40"
         >
           <Icon icon={Save} size="xs" /> {t('bericht.saveProject', 'with this project')}
         </button>

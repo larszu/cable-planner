@@ -58,7 +58,7 @@ export const NetworkConfig = ({ equipmentId, item, allPorts, kind }: NetworkConf
   return (
     <>
       <fieldset className="border border-cyan-700 bg-cyan-950/30 p-2">
-        <legend className="px-1 text-cp-xs uppercase tracking-wide text-cyan-300">
+        <legend className="px-1 text-cp-xs text-cyan-300">
           {kind === 'router' ? t('net.routerConfig', 'Router config') : t('net.switchConfig', 'Switch config')}
         </legend>
         <div className="grid grid-cols-2 gap-2">
@@ -119,7 +119,7 @@ export const NetworkConfig = ({ equipmentId, item, allPorts, kind }: NetworkConf
 
       <fieldset className="border border-cyan-700 bg-cyan-950/20 p-2">
         <div className="mb-2 flex items-center justify-between">
-          <span className="text-cp-xs uppercase tracking-wide text-cyan-300">{t('net.vlans', 'VLANs')}</span>
+          <span className="text-cp-xs text-cyan-300">{t('net.vlans', 'VLANs')}</span>
           <button
             type="button"
             onClick={addVlan}
@@ -167,7 +167,7 @@ export const NetworkConfig = ({ equipmentId, item, allPorts, kind }: NetworkConf
 
       {kind === 'switch' && allPorts.length > 0 && (
         <fieldset className="border border-cyan-700 bg-cyan-950/20 p-2">
-          <legend className="px-1 text-cp-xs uppercase tracking-wide text-cyan-300">
+          <legend className="px-1 text-cp-xs text-cyan-300">
             {t('net.portToVlan', 'Port → VLAN')}
           </legend>
           <div className="mb-1 grid grid-cols-[1fr_70px_120px] gap-1 text-cp-xs text-cp-text-muted">

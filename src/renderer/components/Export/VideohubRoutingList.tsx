@@ -40,7 +40,7 @@ export const VideohubRoutingList = ({
   const t = useTranslation()
   return (
     <div className="rounded-cp-control border border-cp-border bg-cp-surface-3">
-      <div className="border-b border-cp-border-muted bg-cp-surface-1 px-3 py-2 text-cp-xs uppercase tracking-wide text-cp-text-muted">
+      <div className="border-b border-cp-border-muted bg-cp-surface-1 px-3 py-2 text-cp-xs text-cp-text-muted">
         {t('export.routingListHeader', 'Routing list')} · {totalOutputs} Outputs · {totalInputs} {t('export.inputsAvailable', 'inputs available')}
       </div>
       <div
@@ -77,7 +77,7 @@ export const VideohubRoutingList = ({
               <select
                 value={routedIdx}
                 onChange={(e) => onRoute(oi, parseInt(e.target.value, 10))}
-                className="flex-1 min-w-0 border border-cp-border bg-cp-surface-3 px-2 py-1 text-[13px] text-cp-text-bright focus:border-sky-500 focus:outline-none"
+                className="flex-1 min-w-0 border border-cp-border bg-cp-surface-3 px-2 py-1 text-[13px] text-cp-text-bright focus:border-cp-accent focus:outline-none"
                 /* Ein Schluessel mit Platzhaltern statt drei zusammengesetzter
                    Stuecke: das Deutsche stellt das Verb ans Ende ("… waehlen"),
                    das Englische an den Anfang ("Select input for output …").

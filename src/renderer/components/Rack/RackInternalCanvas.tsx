@@ -504,7 +504,7 @@ const RackSidePropertiesPane = () => {
     <aside className="flex h-full min-h-0 flex-col border border-cp-border bg-cp-surface-3">
       <div className="border-b border-cp-border-muted px-3 py-2">
         <h3 className="truncate text-cp-xs font-semibold text-cp-text">{title}</h3>
-        <div className="mt-0.5 text-cp-xs uppercase tracking-wide text-cp-text-muted">
+        <div className="mt-0.5 text-cp-xs text-cp-text-muted">
           {t('rack.inspector.scope', 'Properties (rack scope)')}
         </div>
       </div>

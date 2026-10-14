@@ -67,7 +67,7 @@ export const TemplateProperties = () => {
   return (
     <div className="space-y-3 text-cp-xs">
       <div className="flex items-center justify-between">
-        <span className="text-cp-text-muted text-cp-xs uppercase tracking-wide">
+        <span className="text-cp-text-muted text-cp-xs">
           {t('template.title', 'Template')}
         </span>
         {template.rentmanSource && (
@@ -118,7 +118,7 @@ export const TemplateProperties = () => {
       <button
         type="button"
         onClick={handleSave}
-        className="w-full bg-emerald-700 px-2 py-1 text-white hover:bg-emerald-600"
+        className="w-full bg-cp-ok px-2 py-1 text-white hover:brightness-110"
       >
         {t('common.save', 'Save')}
       </button>
@@ -126,7 +126,7 @@ export const TemplateProperties = () => {
       <button
         type="button"
         onClick={handlePlace}
-        className="w-full bg-sky-700 px-2 py-1 text-white hover:bg-sky-600"
+        className="w-full bg-cp-accent px-2 py-1 text-cp-accent-text hover:bg-cp-accent-hover"
       >
         {t('template.action.place', 'Place on canvas')}
       </button>

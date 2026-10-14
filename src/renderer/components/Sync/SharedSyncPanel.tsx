@@ -222,7 +222,7 @@ export function SharedSyncPanel() {
         title={format(t('sync.pushTitle', 'Push to: {path}'), { path: syncPath })}
         disabled={busy}
         onClick={() => { void handlePush() }}
-        className="flex items-center gap-1 bg-sky-700 px-2 py-1 text-cp-xs text-white hover:bg-sky-600 disabled:opacity-50"
+        className="flex items-center gap-1 bg-cp-accent px-2 py-1 text-cp-xs text-cp-accent-text hover:bg-cp-accent-hover disabled:opacity-50"
       >
         <Icon icon={Upload} size="xs" />
         <span>{t('sync.push', 'Push')}</span>

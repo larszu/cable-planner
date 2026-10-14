@@ -30,7 +30,7 @@ export const SettingsDialog = ({ open, onClose, initialSection }: SettingsDialog
   return (
     <div
       {...backdrop}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-2 sm:p-6"
+      className="fixed inset-0 z-50 flex items-center justify-center cp-scrim p-2 sm:p-6"
     >
       <div
         ref={panelRef}
@@ -56,7 +56,7 @@ export const SettingsDialog = ({ open, onClose, initialSection }: SettingsDialog
               }}
               title={t('panel.popoutTitle', 'Open in a separate window (other monitor)')}
               aria-label={t('panel.popout', 'Pop out')}
-              className="inline-flex items-center justify-center px-2 py-1 text-[var(--cp-text-muted)] hover:bg-[var(--cp-surface-2)] hover:text-sky-300"
+              className="inline-flex items-center justify-center px-2 py-1 text-[var(--cp-text-muted)] hover:bg-[var(--cp-surface-2)] hover:text-cp-accent"
             >
               <Icon icon={ExternalLink} size="sm" />
             </button>

@@ -326,7 +326,7 @@ export const MobileShareDialog = () => {
                   <div className="h-[240px] w-[240px] animate-pulse bg-cp-surface-2" />
                 )}
                 <div className="w-full">
-                  <div className="text-cp-xs uppercase tracking-wide text-emerald-300">
+                  <div className="text-cp-xs text-emerald-300">
                     {t('mobile.dialog.activeUrl', 'Active URL')}
                   </div>
                   <div className="flex items-center gap-1">
@@ -357,7 +357,7 @@ export const MobileShareDialog = () => {
                   ein Feed, der nichts traegt, liest sich als „hat frei". */}
               {crewFeedUrl && (
                 <div className="w-full">
-                  <div className="text-cp-xs uppercase tracking-wide text-sky-300">
+                  <div className="text-cp-xs text-cp-accent">
                     {t('mobile.dialog.crewFeed', 'Subscribe to the crew calendar')}
                   </div>
                   <div className="flex items-center gap-1">
@@ -386,7 +386,7 @@ export const MobileShareDialog = () => {
               )}
               {status.urls.length > 1 && (
                 <div>
-                  <div className="mb-1 text-cp-xs uppercase tracking-wide text-cp-text-muted">
+                  <div className="mb-1 text-cp-xs text-cp-text-muted">
                     {t('mobile.dialog.altUrls', 'Alternative LAN addresses (in case one is unreachable)')}
                   </div>
                   <div className="flex flex-wrap gap-1">
@@ -397,7 +397,7 @@ export const MobileShareDialog = () => {
                         onClick={() => setSelectedUrl(u)}
                         className={` border px-2 py-0.5 text-cp-xs font-mono ${
                           u === selectedUrl
-                            ? 'border-sky-500 bg-sky-900 text-white'
+                            ? 'border-cp-accent bg-sky-900 text-white'
                             : 'border-cp-border bg-cp-surface-1 text-cp-text-secondary hover:border-sky-700'
                         }`}
                       >
@@ -420,7 +420,7 @@ export const MobileShareDialog = () => {
                   liest dabei, was er tut. */}
               {status.withheld.length > 0 && (
                 <div className="border border-amber-700 bg-amber-950/40 p-2">
-                  <div className="mb-1 text-cp-xs uppercase tracking-wide text-amber-300">
+                  <div className="mb-1 text-cp-xs text-amber-300">
                     {t('mobile.dialog.withheldTitle', 'Not shared')}
                   </div>
                   <div className="mb-1 flex flex-wrap gap-1">
@@ -475,7 +475,7 @@ export const MobileShareDialog = () => {
                 type="button"
                 onClick={() => void handleStart()}
                 disabled={busy || !hasDesktopBridge}
-                className="bg-sky-700 px-4 py-2 text-cp-base text-white hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-50"
+                className="bg-cp-accent px-4 py-2 text-cp-base text-cp-accent-text hover:bg-cp-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {busy ? t('mobile.dialog.starting', 'Starting…') : t('mobile.dialog.startServer', 'Start LAN server')}
               </button>
