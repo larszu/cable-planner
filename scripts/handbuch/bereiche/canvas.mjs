@@ -97,7 +97,36 @@ async function verschiebeAnsicht(zielY = 270) {
 
 // ─── Bildausschnitte ──────────────────────────────────────────────────────────
 const FENSTER = { width: 1800, height: 1000 }
-const leiste = () => w.locator('[data-cp-canvas-toolbar]')
+// Seit 2026-10-14 (ruhige Leiste) stehen die selteneren Schalter unter
+// „Mehr" und sind nur bei offener Klappe im DOM. Statt jede der ~60 Stellen
+// unten umzuschreiben, oeffnet ein Locator aus der Leiste die Klappe selbst,
+// sobald er bedient wird und nichts findet. `count()` loest das bewusst NICHT
+// aus: damit fragen Schritte, ob etwas da IST — ein Nachsehen darf die Klappe
+// nicht aufreissen.
+const MEHR_AUSLOESER = new Set(['count', 'all', 'evaluateAll'])
+const ABGELEITET = new Set(['first', 'last', 'nth', 'filter', 'locator', 'getByRole', 'getByTitle', 'getByText', 'getByPlaceholder', 'getByLabel', 'and', 'or'])
+async function mehrBeiBedarf(loc) {
+  if (await loc.count()) return
+  if (await w.locator('.cp-mehr-klappe').count()) return
+  const mehr = w.locator('[data-cp-canvas-toolbar] button[aria-haspopup="true"]').first()
+  if (!(await mehr.count())) return
+  await mehr.click({ timeout: 5000 })
+  await w.waitForTimeout(350)
+}
+const klug = (loc) =>
+  new Proxy(loc, {
+    get(ziel, name) {
+      const wert = ziel[name]
+      if (typeof wert !== 'function') return wert
+      if (ABGELEITET.has(name)) return (...args) => klug(wert.apply(ziel, args))
+      if (MEHR_AUSLOESER.has(name)) return wert.bind(ziel)
+      return async (...args) => {
+        await mehrBeiBedarf(ziel)
+        return wert.apply(ziel, args)
+      }
+    },
+  })
+const leiste = () => klug(w.locator('[data-cp-canvas-toolbar]'))
 const flaeche = () => w.locator('#cable-planner-canvas')
 
 const istRechteck = (v) => v && typeof v === 'object' && typeof v.width === 'number' && typeof v.x === 'number'
@@ -158,7 +187,17 @@ const flaecheOben = async () => {
 }
 const R_FLAECHE = ausschnitt(flaecheOben)
 const R_VOLL = () => flaeche()
-const R_LEISTE = () => leiste()
+// Die Leiste samt offener „Mehr"-Klappe (die ragt unter der Leiste heraus).
+const leisteMitKlappe = () =>
+  vereine([() => w.locator('[data-cp-canvas-toolbar]'), () => w.locator('.cp-mehr-klappe')], 0)
+const R_LEISTE = () => ({
+  count: async () => 1,
+  first: () => ({
+    count: async () => 1,
+    boundingBox: leisteMitKlappe,
+    screenshot: async (opt) => w.screenshot({ ...opt, clip: await leisteMitKlappe() }),
+  }),
+})
 const R_MENUE = () => w.locator('[role="menu"]').last()
 const R_DIALOG = () => w.locator('[role="dialog"]').last()
 const B_INSPECTOR = { x: 1518, y: 40, width: 282, height: 935 }

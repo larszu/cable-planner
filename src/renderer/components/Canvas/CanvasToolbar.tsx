@@ -11,6 +11,7 @@ import { SignalwegChip } from './SignalwegChip'
 import { FlowModeChip } from './FlowModeChip'
 import { CircuitChip } from './CircuitChip'
 import { PatternChip } from './PatternChip'
+import { usePatternStore } from '../../store/patternStore'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
 import { useBelowBreakpoint } from '../../hooks/useBreakpoint'
 import { confirmDialog } from '../../lib/confirmDialog'
@@ -439,6 +440,8 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
   const alignEnabled = selectedEquipmentIds.length >= 1
   // Auf dem Telefon (< 640 px) wandern Ebenen und Sperren unter „Mehr“.
   const telefon = useBelowBreakpoint('sm')
+  const schaltbildAn = useUiStore((st) => st.circuitOverlay)
+  const pruefbildAn = usePatternStore((st) => st.quelleId) != null
   const LOCK_JSX = (
     <LockMenu
       lockFrames={lockFrames}
@@ -921,6 +924,13 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
       <span style={{ ...dividerStyle, marginLeft: 'auto' }} />
       {!telefon && <LayerVisibilityChips teil="chips" />}
       {!telefon && <span style={dividerStyle} />}
+      {/* Eine EINGESCHALTETE Betriebsart bleibt sichtbar: Signalweg,
+          Schaltbild und Pruefbild melden in ihrem Chip, was gerade gilt
+          (Ziele, Vertauschungen, brennende Leuchten). Ein Zustand, der den
+          Plan veraendert, darf nicht hinter „Mehr" verschwinden. */}
+      {!telefon && <SignalwegChip />}
+      {!telefon && schaltbildAn && <CircuitChip />}
+      {!telefon && pruefbildAn && <PatternChip />}
       <MehrMenue T={T} label={t('toolbar.more.label', 'More')} title={t('toolbar.more.title', 'More: view modes, test pattern, finalise, annotations, floor plan, symbols')}>
         {telefon && <div className="cp-mehr-reihe">{AUSWAHL_JSX}</div>}
         {telefon && (
@@ -936,12 +946,12 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
         <div className="cp-mehr-reihe">
           {/* Die Betriebsart des Signalflusses und was der Plan zeigt —
               beides beantwortet „wonach ist dieses Bild zu lesen". */}
-          <SignalwegChip />
+          {telefon && <SignalwegChip />}
           <RaumSichtbarkeit />
           <Gebaeude3DKnopf />
           <FlowModeChip />
-          <CircuitChip />
-          <PatternChip />
+          {(telefon || !schaltbildAn) && <CircuitChip />}
+          {(telefon || !pruefbildAn) && <PatternChip />}
         </div>
         <div className="cp-mehr-trenner" />
         <button
