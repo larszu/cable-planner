@@ -1267,7 +1267,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
                 proceedAfterConflicts(decisions, pendingCategoryByName, {}, pendingLinks)
                 setPendingLinks({})
               }}
-              className="bg-emerald-600 px-3 py-1.5 text-cp-base font-medium hover:bg-emerald-500"
+              className="bg-cp-ok px-3 py-1.5 text-cp-base font-medium hover:brightness-110"
             >
               {t('rentman.import.next', 'Next')}
             </button>
@@ -1444,7 +1444,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
                 type="button"
                 onClick={() => fetchEquipment(linkedProjectId)}
                 disabled={loading}
-                className="inline-flex items-center gap-1 bg-emerald-700 px-3 py-1 text-cp-base font-medium hover:bg-emerald-600 disabled:opacity-50"
+                className="inline-flex items-center gap-1 bg-cp-ok px-3 py-1 text-cp-base font-medium hover:brightness-110 disabled:opacity-50"
                 title={format(t('rentman.import.refreshTitle', 'Reload quantities and devices for "{name}"'), { name: linkedProjectName ?? linkedProjectId })}
               >
                 <Icon icon={RotateCcw} size="xs" />
@@ -1890,7 +1890,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
                 onClick={handleImport}
                 disabled={importResult !== null || checkedCount === 0}
                 title={checkedCount === 0 ? t('rentman.import.addNoneTitle', 'Select devices in the list first') : undefined}
-                className="bg-emerald-600 px-3 py-1 hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
+                className="bg-cp-ok text-white px-3 py-1 hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {checkedCount > 0
                   ? format(t('rentman.import.addToLibraryN', 'Add to library ({count})'), { count: checkedCount })

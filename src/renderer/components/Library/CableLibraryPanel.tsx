@@ -323,7 +323,7 @@ export const CableLibraryPanel = () => {
                             </span>
                           )}
                           {isRecommended && (
-                            <span className="bg-emerald-600 px-1 text-cp-xs font-semibold text-white">
+                            <span className="bg-cp-ok px-1 text-cp-xs font-semibold text-white">
                               <Icon icon={Check} size="xs" />
                             </span>
                           )}

@@ -109,7 +109,7 @@ export const RackInternalWireOverlay = ({
           <button
             type="button"
             onClick={onClose}
-            className="bg-emerald-700 px-3 py-1.5 text-cp-xs hover:bg-emerald-600"
+            className="bg-cp-ok px-3 py-1.5 text-cp-xs hover:brightness-110"
           >
             {t('common.done', 'Done')}
           </button>

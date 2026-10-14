@@ -535,7 +535,7 @@ export const LedWallDialog = () => {
                 type="button"
                 onClick={pixelmapLaden}
                 disabled={summe.panels === 0}
-                className="bg-emerald-700 px-3 py-1.5 hover:bg-emerald-600 disabled:opacity-50"
+                className="bg-cp-ok text-white px-3 py-1.5 hover:brightness-110 disabled:opacity-50"
               >
                 {t('led.pixelmap', 'Pixel map as PNG')}
               </button>

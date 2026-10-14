@@ -118,7 +118,7 @@ export const TemplateProperties = () => {
       <button
         type="button"
         onClick={handleSave}
-        className="w-full bg-emerald-700 px-2 py-1 text-white hover:bg-emerald-600"
+        className="w-full bg-cp-ok px-2 py-1 text-white hover:brightness-110"
       >
         {t('common.save', 'Save')}
       </button>

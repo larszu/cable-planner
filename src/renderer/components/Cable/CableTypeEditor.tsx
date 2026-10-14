@@ -186,7 +186,7 @@ export const CableTypeEditor = ({
                       setConnectorType(n as ConnectorType)
                     }
                   }}
-                  className="bg-emerald-700 px-1.5 text-cp-xs text-emerald-100 hover:bg-emerald-600"
+                  className="bg-cp-ok px-1.5 text-cp-xs text-white hover:brightness-110"
                   title={t('cableLib.addConnectorTitle', 'Add new connector type')}
                 >
                   +
@@ -231,7 +231,7 @@ export const CableTypeEditor = ({
                     }
                     className={` px-1.5 py-0.5 text-cp-xs ${
                       on
-                        ? 'bg-emerald-700 text-white'
+                        ? 'bg-cp-ok text-white'
                         : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'
                     }`}
                   >
@@ -326,7 +326,7 @@ export const CableTypeEditor = ({
             type="button"
             onClick={submit}
             disabled={!canSave}
-            className="bg-emerald-600 px-3 py-1 text-cp-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
+            className="bg-cp-ok px-3 py-1 text-cp-xs font-medium text-white hover:brightness-110 disabled:opacity-50"
           >
             {isEditing ? t('common.save', 'Save') : t('cableLib.create', 'Create')}
           </button>

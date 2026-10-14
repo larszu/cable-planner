@@ -153,7 +153,7 @@ const BulkConnectDialogInner = () => {
             type="button"
             onClick={handleSubmit}
             disabled={!fromEq || !toEq || planned.length === 0}
-            className="bg-emerald-600 px-3 py-1 text-cp-xs text-white hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
+            className="bg-cp-ok px-3 py-1 text-cp-xs text-white hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {format(t('bulk.create', 'Create {n} cables'), { n: planned.length })}
           </button>

@@ -71,7 +71,7 @@ export const RackBuilder3DTab = ({
             onClick={() => onSetRenderMode(m)}
             className={` px-2 py-0.5 ${
               renderMode === m
-                ? 'bg-purple-700 text-white'
+                ? 'bg-cp-accent text-cp-accent-text'
                 : 'bg-cp-surface-2 text-cp-text-muted hover:bg-cp-surface-4'
             }`}
             title={

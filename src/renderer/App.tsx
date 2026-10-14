@@ -2476,7 +2476,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
             type="button"
             onClick={submit}
             disabled={!!sameEndpoints}
-            className="bg-emerald-600 px-3 py-1 hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
+            className="bg-cp-ok text-white px-3 py-1 hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
           >
             Speichern
           </button>

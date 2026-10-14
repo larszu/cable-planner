@@ -299,21 +299,48 @@ if (process.env.CP_BRIDGE) {
 // Je Eintrag: der Suchtext fuer die Palette und die Zieldatei. Der Dialog
 // selbst wird ausgeschnitten (`[role="dialog"]`), nicht das ganze Fenster —
 // sonst zeigt ein Galeriebild auf 420px vor allem Hintergrund.
-const DIALOGE = [
-  ['Export', 'export.png'],
-  ['Patch list', 'patch-sheets.png'],
-  ['Cable bill of materials', 'bom.png'],
-]
-for (const [befehl, datei] of DIALOGE) {
-  await palette(befehl)
-  if ((await win.locator('[role="dialog"]').count()) === 0) {
-    console.log(`  ${datei}: kein Dialog nach „${befehl}" — uebersprungen`)
-    continue
+// Export und Stueckliste haben KEINEN Eintrag in der Befehlspalette — bis
+// 2026-10-14 stand hier `palette('Export')`, und die Palette meldete „No
+// commands found". Weil die Palette selbst `role="dialog"` traegt, nahm der
+// Lauf sie als Dialog auf: `export.png` und `bom.png` zeigten seit Wochen nur
+// das leere Suchfeld. Der Weg geht jetzt ueber das Datei-Menue, wie ein
+// Mensch ihn geht, und vor jeder Aufnahme wird geprueft, dass die Palette zu ist.
+const paletteOffen = async () =>
+  (await win.locator('input[aria-label="Search command…"]').count()) > 0
+
+const dialogAufnehmen = async (datei) => {
+  if ((await win.locator('[role="dialog"]').count()) === 0 || (await paletteOffen())) {
+    console.log(`  ${datei}: kein Dialog — uebersprungen`)
+    await zu()
+    return
   }
   await win.waitForTimeout(700)
   await aufnehmen(datei, '[role="dialog"]')
   gemacht.push(datei)
 }
+
+const exportOeffnen = async () => {
+  await zu()
+  await win.getByRole('button', { name: /^File$|^Datei$/ }).first().click()
+  await win.waitForTimeout(400)
+  await win.getByRole('menuitem', { name: /Export & Print|Exportieren & Drucken/ }).first().click()
+  await win.waitForTimeout(1200)
+}
+
+await exportOeffnen()
+await dialogAufnehmen('export.png')
+const bomReiter = win.locator('[role="dialog"]').getByRole('button', { name: /Kabel-Stückliste|Cable BOM|Cable bill/ })
+if (await bomReiter.count()) {
+  await bomReiter.first().click()
+  await win.waitForTimeout(900)
+  await dialogAufnehmen('bom.png')
+} else {
+  console.log('  bom.png: kein Stuecklisten-Reiter im Export-Dialog — uebersprungen')
+}
+await zu()
+
+await palette('Patch list')
+await dialogAufnehmen('patch-sheets.png')
 await zu()
 
 // ── rack-3d.png — die 3D-Ansicht des Beispiel-Racks ────────────────────────

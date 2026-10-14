@@ -215,7 +215,7 @@ export const NetboxImportDialog = ({ open, onClose }: { open: boolean; onClose: 
                 type="button"
                 disabled={busy || nothingToDo}
                 onClick={confirmImport}
-                className="bg-emerald-600 px-3 py-1 text-cp-base font-semibold text-white hover:bg-emerald-500 disabled:opacity-50"
+                className="bg-cp-ok px-3 py-1 text-cp-base font-semibold text-white hover:brightness-110 disabled:opacity-50"
               >
                 <Icon icon={Download} size="sm" />{' '}
                 {t('netbox.import.apply', 'Add to project')}

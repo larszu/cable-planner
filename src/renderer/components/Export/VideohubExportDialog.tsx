@@ -1167,7 +1167,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
             <button
               type="button"
               onClick={generateSmartRouting}
-              className="ml-auto bg-purple-700 px-2 py-1 text-cp-xs text-purple-50 hover:bg-purple-600"
+              className="ml-auto bg-cp-accent text-cp-accent-text px-2 py-1 text-cp-xs text-purple-50 hover:bg-cp-accent-hover"
               title={t('videohub.suggestTitle', 'Suggests a routing based on the cables on the canvas. Best-match by device-name similarity; falls back to diagonal. Editable in the matrix.')}
             >
               <Icon icon={Wand2} size="xs" className="mr-1 inline-block align-text-bottom" />{t('export.smartRouting', 'Smart routing')}
@@ -1515,7 +1515,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
               onClick={() => { void handleSendLabels() }}
               disabled={!device || !hasDesktopBridge || sendStatus === 'sending'}
               title={t('videohub.sendLabelsTitle', 'Send INPUT LABELS + OUTPUT LABELS only. Routing on the hub stays untouched.')}
-              className="bg-purple-600 px-3 py-1.5 text-cp-xs hover:bg-purple-500 disabled:opacity-50"
+              className="bg-cp-accent text-cp-accent-text px-3 py-1.5 text-cp-xs hover:bg-cp-accent-hover disabled:opacity-50"
             >
               <Icon icon={sendStatus === 'sending' ? Loader2 : Upload} size="xs" className={`mr-1 inline-block align-text-bottom ${sendStatus === 'sending' ? 'animate-spin' : ''}`} />{sendStatus === 'sending' ? '…' : t('export.sendLabels', 'Send labels')}
             </button>
@@ -1524,7 +1524,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
               onClick={() => { void handleSendRouting() }}
               disabled={!device || !hasDesktopBridge || sendStatus === 'sending'}
               title={t('videohub.sendRoutingTitle', 'Send VIDEO OUTPUT ROUTING only. Labels on the hub unchanged.')}
-              className="bg-purple-600 px-3 py-1.5 text-cp-xs hover:bg-purple-500 disabled:opacity-50"
+              className="bg-cp-accent text-cp-accent-text px-3 py-1.5 text-cp-xs hover:bg-cp-accent-hover disabled:opacity-50"
             >
               <Icon icon={sendStatus === 'sending' ? Loader2 : Upload} size="xs" className={`mr-1 inline-block align-text-bottom ${sendStatus === 'sending' ? 'animate-spin' : ''}`} />{sendStatus === 'sending' ? '…' : t('export.sendRouting', 'Send routing')}
             </button>
@@ -1661,7 +1661,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
             type="button"
             onClick={handleExport}
             disabled={!device}
-            className="bg-emerald-600 px-3 py-1 text-cp-base hover:bg-emerald-500 disabled:opacity-50"
+            className="bg-cp-ok px-3 py-1 text-cp-base hover:brightness-110 disabled:opacity-50"
           >
             {t('export.saveAsFile', 'Save as file')}
           </button>
@@ -1685,7 +1685,7 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
             <button
               type="button"
               onClick={handleExportLabelsPdf}
-              className="inline-flex items-center gap-1 bg-indigo-700 px-3 py-1 text-cp-base hover:bg-indigo-600"
+              className="inline-flex items-center gap-1 bg-cp-accent text-cp-accent-text px-3 py-1 text-cp-base hover:bg-cp-accent-hover"
               title={t('videohub.labelsPdfTitle', 'Generate printable label strips (Smart Control grid) as PDF — to print and cut out.')}
             >
               <Icon icon={Tag} size="sm" />

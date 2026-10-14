@@ -495,7 +495,7 @@ const PlanSection = ({
                   'Printing only works with the PDF format — for PNG/JPEG just download.',
                 )
           }
-          className="bg-indigo-700 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-indigo-600 disabled:opacity-50"
+          className="bg-cp-accent px-3 py-1.5 text-cp-xs font-medium text-cp-accent-text hover:bg-cp-accent-hover disabled:opacity-50"
         >
           <span className="inline-flex items-center gap-1"><Icon icon={Printer} size="xs" /> {t('export.printBtn', 'Print')}</span>
         </button>
@@ -503,7 +503,7 @@ const PlanSection = ({
           type="button"
           onClick={handleExport}
           disabled={busy}
-          className="inline-flex items-center gap-1.5 bg-emerald-600 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 bg-cp-ok px-3 py-1.5 text-cp-xs font-medium text-white hover:brightness-110 disabled:opacity-50"
         >
           {busy && <Spinner size="xs" />}
           {busy
@@ -715,7 +715,7 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
             type="button"
             onClick={() => setPendingAction('print')}
             disabled={busy || selectedIds.size === 0}
-            className="bg-indigo-700 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-indigo-600 disabled:opacity-50"
+            className="bg-cp-accent px-3 py-1.5 text-cp-xs font-medium text-cp-accent-text hover:bg-cp-accent-hover disabled:opacity-50"
             title={t('export.patch.osPrint', 'Open patch sheet(s) in OS print dialog')}
           >
             <span className="inline-flex items-center gap-1"><Icon icon={Printer} size="xs" /> {t('export.printBtn', 'Print')}</span>
@@ -731,7 +731,7 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
             type="button"
             disabled={busy}
             onClick={() => void runAction(pendingAction, 'a4')}
-            className="bg-emerald-600 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
+            className="bg-cp-ok px-3 py-1.5 text-cp-xs font-medium text-white hover:brightness-110 disabled:opacity-50"
           >
             A4
           </button>
@@ -739,7 +739,7 @@ const PatchSheetSection = ({ onClose }: { onClose: () => void }) => {
             type="button"
             disabled={busy}
             onClick={() => void runAction(pendingAction, 'a3')}
-            className="bg-emerald-600 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
+            className="bg-cp-ok px-3 py-1.5 text-cp-xs font-medium text-white hover:brightness-110 disabled:opacity-50"
           >
             A3
           </button>
@@ -1392,7 +1392,7 @@ const BomSection = () => {
             type="button"
             onClick={savePlan}
             disabled={!draftPlan}
-            className="bg-emerald-700 px-3 py-1 text-cp-xs enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
+            className="bg-cp-ok px-3 py-1 text-cp-xs enabled:hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {t('export.bom.savePlan', 'Save Rentman plan')}
           </button>
@@ -1415,7 +1415,7 @@ const BomSection = () => {
         <button
           type="button"
           onClick={exportPdf}
-          className="bg-emerald-600 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-emerald-500"
+          className="bg-cp-ok px-3 py-1.5 text-cp-xs font-medium text-white hover:brightness-110"
           title={t('export.bom.pdfTitle', 'Download table as PDF')}
         >
           {t('export.bom.pdf', 'Download as PDF')}
@@ -1423,7 +1423,7 @@ const BomSection = () => {
         <button
           type="button"
           onClick={printPdf}
-          className="bg-indigo-700 px-3 py-1.5 text-cp-xs font-medium text-white hover:bg-indigo-600"
+          className="bg-cp-accent px-3 py-1.5 text-cp-xs font-medium text-cp-accent-text hover:bg-cp-accent-hover"
           title={t('export.bom.osPrint', 'Open cable BOM in OS print dialog')}
         >
           <span className="inline-flex items-center gap-1"><Icon icon={Printer} size="xs" /> {t('export.printBtn', 'Print')}</span>

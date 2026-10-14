@@ -162,7 +162,7 @@ const LibraryExportSection = () => {
         <button
           type="button"
           onClick={handleExport}
-          className="bg-emerald-700 px-3 py-1.5 hover:bg-emerald-600"
+          className="bg-cp-ok text-white px-3 py-1.5 hover:brightness-110"
           title={`${customLibrary.length} ${t('settings.project.libExport.devicesWord', 'devices')} + ${groupPresets.length} ${t('settings.project.libExport.groupsWord', 'groups')} ${t('settings.project.libExport.exportVerb', 'export')}`}
         >
           <Icon icon={Download} size="xs" className="mr-1 inline-block align-text-bottom" />{t('settings.project.libExport.exportBtn', 'Export library')} ({customLibrary.length} {t('settings.project.libExport.devicesWord', 'devices')}, {groupPresets.length} {t('settings.project.libExport.groupsWord', 'groups')})
@@ -815,7 +815,7 @@ export const ProjectTab = ({ onClose: _onClose }: { onClose: () => void }) => {
         <button
           type="button"
           onClick={persistMeta}
-          className="bg-emerald-600 px-3 py-1 text-cp-base hover:bg-emerald-500"
+          className="bg-cp-ok px-3 py-1 text-cp-base hover:brightness-110"
         >
           {t('common.save', 'Save')}
         </button>

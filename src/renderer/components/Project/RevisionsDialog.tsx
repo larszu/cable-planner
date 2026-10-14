@@ -118,7 +118,7 @@ export const RevisionsDialog = () => {
             <button
               type="button"
               onClick={commit}
-              className="inline-flex items-center gap-1 bg-emerald-700 px-3 py-1 text-cp-xs hover:bg-emerald-600"
+              className="inline-flex items-center gap-1 bg-cp-ok px-3 py-1 text-cp-xs hover:brightness-110"
             >
               <Icon icon={Camera} size="xs" />
               {t('revisions.commit', 'Commit')}

@@ -594,7 +594,6 @@ html[data-cp-shell='app'] #root {
 [data-theme="light"] .bg-purple-700     { background-color: #7e22ce; }
 [data-theme="light"] .bg-purple-800     { background-color: #6b21a8; }
 [data-theme="light"] .bg-green-700      { background-color: #15803d; }
-[data-theme="light"] .bg-indigo-700     { background-color: #4338ca; }
 
 /* Dark colored bg fills → light tints */
 [data-theme="light"] .bg-emerald-950        { background-color: #ecfdf5; }
@@ -718,10 +717,7 @@ html[data-cp-shell='app'] #root {
 [data-theme="light"] .border-emerald-900\/40 { border-color: rgba(4,120,87,0.4); }
 
 /* Fuchsia / Indigo / Green / Pink — primary surfaces */
-[data-theme="light"] .bg-fuchsia-600     { background-color: #c026d3; }
-[data-theme="light"] .bg-fuchsia-700     { background-color: #a21caf; }
 [data-theme="light"] .bg-green-600       { background-color: #16a34a; }
-[data-theme="light"] .bg-indigo-600      { background-color: #4f46e5; }
 
 /* Orange */
 [data-theme="light"] .bg-orange-900\/10  { background-color: rgba(255,237,213,0.4); }
@@ -730,12 +726,9 @@ html[data-cp-shell='app'] #root {
 [data-theme="light"] .text-orange-100    { color: #9a3412; }
 
 /* Purple / Violet */
-[data-theme="light"] .bg-purple-600      { background-color: #9333ea; }
 [data-theme="light"] .bg-purple-900\/30  { background-color: rgba(243,232,255,0.7); }
 [data-theme="light"] .bg-purple-950\/40  { background-color: rgba(250,245,255,0.85); }
 [data-theme="light"] .text-purple-100    { color: #581c87; }
-[data-theme="light"] .bg-violet-500      { background-color: #8b5cf6; }
-[data-theme="light"] .bg-violet-600      { background-color: #7c3aed; }
 [data-theme="light"] .bg-violet-700      { background-color: #6d28d9; }
 [data-theme="light"] .bg-violet-950\/30  { background-color: rgba(245,243,255,0.75); }
 [data-theme="light"] .text-violet-200    { color: #6d28d9; }

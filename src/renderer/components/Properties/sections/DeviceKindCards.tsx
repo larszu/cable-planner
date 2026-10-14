@@ -34,7 +34,7 @@ export const DeviceKindCards = ({ equipment }: { equipment: EquipmentItem }) => 
         <button
           type="button"
           onClick={() => openGreenGoExport()}
-          className="inline-flex w-full items-center justify-center gap-1 bg-emerald-700 px-2 py-1 text-cp-xs hover:bg-emerald-600"
+          className="inline-flex w-full items-center justify-center gap-1 bg-cp-ok px-2 py-1 text-cp-xs hover:brightness-110"
         >
           {t('props.deviceKind.greengoExport', 'Intercom planning / export .gg5')}
           <Icon icon={ArrowRight} size="xs" />
@@ -58,7 +58,7 @@ export const DeviceKindCards = ({ equipment }: { equipment: EquipmentItem }) => 
           <button
             type="button"
             onClick={() => openVideohubExport(equipment.id, true)}
-            className="inline-flex w-full items-center justify-center gap-1.5 bg-purple-700 px-2 py-1 text-cp-xs font-semibold hover:bg-purple-600"
+            className="inline-flex w-full items-center justify-center gap-1.5 bg-cp-accent text-cp-accent-text px-2 py-1 text-cp-xs font-semibold hover:bg-cp-accent-hover"
           >
             <Icon icon={SlidersHorizontal} size="xs" />
             {t('props.deviceKind.videohubConfigure', 'Configure Videohub · Labels + Routing')}
@@ -88,7 +88,7 @@ export const DeviceKindCards = ({ equipment }: { equipment: EquipmentItem }) => 
           <button
             type="button"
             onClick={() => openAtemMvConfig(equipment.id)}
-            className="inline-flex w-full items-center justify-center gap-1 bg-emerald-700 px-2 py-1 text-cp-xs hover:bg-emerald-600"
+            className="inline-flex w-full items-center justify-center gap-1 bg-cp-ok px-2 py-1 text-cp-xs hover:brightness-110"
             title={t(
               'props.deviceKind.atemMvTitle',
               'Configure multiviewer layout offline. Pushed on next connect.',
@@ -100,7 +100,7 @@ export const DeviceKindCards = ({ equipment }: { equipment: EquipmentItem }) => 
           <button
             type="button"
             onClick={() => openAtemAudioConfig(equipment.id)}
-            className="inline-flex w-full items-center justify-center gap-1 bg-fuchsia-700 px-2 py-1 text-cp-xs hover:bg-fuchsia-600"
+            className="inline-flex w-full items-center justify-center gap-1 bg-cp-accent text-cp-accent-text px-2 py-1 text-cp-xs hover:bg-cp-accent-hover"
             title={t(
               'props.deviceKind.atemAudioTitle',
               'Plan ATEM audio router offline (matrix routing or classic mixer).',

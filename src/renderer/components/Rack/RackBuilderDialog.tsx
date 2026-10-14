@@ -931,7 +931,7 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                     onClick={() => setViewTab('3d')}
                     className={`inline-flex items-center gap-1 border-l border-cp-border px-2.5 py-1 ${
                       viewTab === '3d'
-                        ? 'bg-purple-600 text-white'
+                        ? 'bg-cp-accent text-cp-accent-text'
                         : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'
                     }`}
                     title={t('rack.tab3dTitle', '3D visualisation with front/rear depth and rotation. Read-only — editing happens in the 2D tab.')}

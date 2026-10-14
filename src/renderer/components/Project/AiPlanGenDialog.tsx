@@ -92,7 +92,7 @@ export const AiPlanGenDialog = () => {
             type="button"
             onClick={() => void generate()}
             disabled={busy || !keyReady || prompt.trim().length === 0}
-            className="inline-flex items-center gap-1 bg-purple-700 px-3 py-1.5 text-cp-xs hover:bg-purple-600 disabled:opacity-50"
+            className="inline-flex items-center gap-1 bg-cp-accent text-cp-accent-text px-3 py-1.5 text-cp-xs hover:bg-cp-accent-hover disabled:opacity-50"
           >
             <Icon icon={Sparkles} size="xs" />
             {busy ? t('aiPlan.generating', 'Generating…') : t('aiPlan.generate', 'Generate')}
@@ -133,7 +133,7 @@ export const AiPlanGenDialog = () => {
                 type="button"
                 onClick={insert}
                 disabled={plan.equipment.length === 0}
-                className="bg-emerald-700 px-3 py-1.5 text-cp-xs hover:bg-emerald-600 disabled:opacity-50"
+                className="bg-cp-ok px-3 py-1.5 text-cp-xs hover:brightness-110 disabled:opacity-50"
               >
                 {t('aiPlan.insert', 'Insert into plan')}
               </button>

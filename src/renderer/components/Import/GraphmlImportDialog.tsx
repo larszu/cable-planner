@@ -309,7 +309,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
         type="button"
         disabled={busy}
         onClick={handlePickFile}
-        className="bg-emerald-600 px-4 py-2 text-cp-base font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
+        className="bg-cp-ok px-4 py-2 text-cp-base font-medium text-white hover:brightness-110 disabled:opacity-50"
       >
         {t('graphml.dialog.pickFile', 'Pick file…')}
       </button>
@@ -404,7 +404,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
               <button
                 type="button"
                 onClick={() => setDestination('canvas')}
-                className={` px-2 py-0.5 ${destination === 'canvas' ? 'bg-emerald-700 text-white' : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'}`}
+                className={` px-2 py-0.5 ${destination === 'canvas' ? 'bg-cp-ok text-white' : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'}`}
                 title={t('graphml.dialog.canvasTitle', 'Place devices directly on the canvas (incl. cables).')}
               >
                 <Icon icon={Map} size="xs" className="mr-1 inline-block align-text-bottom" />{t('graphml.dialog.canvas', 'Canvas')}
@@ -412,7 +412,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
               <button
                 type="button"
                 onClick={() => setDestination('library')}
-                className={` px-2 py-0.5 ${destination === 'library' ? 'bg-violet-700 text-white' : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'}`}
+                className={` px-2 py-0.5 ${destination === 'library' ? 'bg-cp-accent text-cp-accent-text' : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'}`}
                 title={t('graphml.dialog.libraryTitle', 'Only adopt as reusable device templates into the library (no cables, no canvas placement).')}
               >
                 <Icon icon={Library} size="xs" className="mr-1 inline-block align-text-bottom" />{t('graphml.dialog.library', 'Library')}
@@ -670,7 +670,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
             type="button"
             onClick={handleImport}
             disabled={includedDevices === 0}
-            className={` px-4 py-1.5 text-cp-xs font-medium text-white disabled:opacity-50 ${destination === 'library' ? 'bg-violet-600 hover:bg-violet-500' : 'bg-emerald-600 hover:bg-emerald-500'}`}
+            className={` px-4 py-1.5 text-cp-xs font-medium text-cp-accent-text disabled:opacity-50 ${destination === 'library' ? 'bg-cp-accent hover:bg-cp-accent-hover' : 'bg-cp-ok hover:brightness-110'}`}
           >
             {destination === 'library'
               ? `${includedDevices} ${includedDevices === 1 ? t('graphml.dialog.deviceSingular', 'device') : t('graphml.dialog.devicePlural', 'devices')} ${t('graphml.dialog.toLibrary', 'into library')}`

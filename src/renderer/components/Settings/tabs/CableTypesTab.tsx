@@ -141,7 +141,7 @@ export const CableTypesTab = () => {
         <button
           type="button"
           onClick={() => setEditing(undefined)}
-          className="mb-2 bg-emerald-700 px-2 py-1 text-cp-xs text-white hover:bg-emerald-600"
+          className="mb-2 bg-cp-ok px-2 py-1 text-cp-xs text-white hover:brightness-110"
         >
           {t('settings.cableTypes.new', '+ New cable type')}
         </button>

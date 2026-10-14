@@ -274,7 +274,7 @@ export const SourceIdentitySection = ({ equipment }: { equipment: EquipmentItem 
                     type="button"
                     onClick={applyRename}
                     disabled={Boolean(impact.refusal)}
-                    className="bg-emerald-700 px-2 py-1 hover:bg-emerald-600 disabled:opacity-40"
+                    className="bg-cp-ok text-white px-2 py-1 hover:brightness-110 disabled:opacity-40"
                   >
                     {t('rename.apply', 'Rename')}
                   </button>

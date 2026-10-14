@@ -911,7 +911,7 @@ const PowerTab = () => {
             <button
               type="button"
               onClick={exportCsv}
-              className="inline-flex items-center gap-1 bg-emerald-700 px-2 py-1 text-cp-xs font-medium text-white hover:bg-emerald-600"
+              className="inline-flex items-center gap-1 bg-cp-ok px-2 py-1 text-cp-xs font-medium text-white hover:brightness-110"
             >
               <Icon icon={Download} size="xs" /> {t('analysis.exportCsv', 'Export CSV')}
             </button>

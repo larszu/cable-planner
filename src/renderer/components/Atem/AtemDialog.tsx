@@ -341,7 +341,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
                 type="button"
                 onClick={discover}
                 disabled={discovering || status === 'connecting'}
-                className="bg-purple-700 px-3 py-2 text-cp-base hover:bg-purple-600 disabled:opacity-50"
+                className="bg-cp-accent text-cp-accent-text px-3 py-2 text-cp-base hover:bg-cp-accent-hover disabled:opacity-50"
                 title={t('atem.dialog.discoverTitle', 'Discover ATEM switchers on the local network via mDNS (Bonjour)')}
               >
                 <Icon icon={Search} size="xs" className="mr-1 inline-block align-text-bottom" />
@@ -371,7 +371,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
               <button
                 type="button"
                 onClick={openAtemMvLayout}
-                className="bg-emerald-700 px-3 py-2 text-cp-base hover:bg-emerald-600"
+                className="bg-cp-ok px-3 py-2 text-cp-base hover:brightness-110"
                 title={t('atem.dialog.mvLive', 'Show multiviewer layout live')}
               >
                 MV Layout →
@@ -441,7 +441,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
                 type="button"
                 onClick={pushAll}
                 disabled={pushing || dirtyCount === 0}
-                className="bg-emerald-700 px-3 py-1 text-cp-xs hover:bg-emerald-600 disabled:opacity-50"
+                className="bg-cp-ok px-3 py-1 text-cp-xs hover:brightness-110 disabled:opacity-50"
               >
                 {pushing
                   ? t('atem.dialog.sending', 'Sending…')

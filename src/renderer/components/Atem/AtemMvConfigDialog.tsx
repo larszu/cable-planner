@@ -483,7 +483,7 @@ const SourcePicker = ({
               const n = Number(custom)
               if (!Number.isNaN(n)) onPick(n)
             }}
-            className="flex-1 bg-emerald-700 px-2 py-1 text-cp-xs hover:bg-emerald-600"
+            className="flex-1 bg-cp-ok px-2 py-1 text-cp-xs hover:brightness-110"
           >
             {t('common.apply', 'Apply')}
           </button>
@@ -1371,7 +1371,7 @@ export const AtemMvConfigDialog = () => {
             <button
               type="button"
               onClick={() => void handleExportPng()}
-              className="bg-indigo-700 px-3 py-1 text-cp-xs hover:bg-indigo-600"
+              className="bg-cp-accent text-cp-accent-text px-3 py-1 text-cp-xs hover:bg-cp-accent-hover"
               title={t('atem.mv.savePng', 'Save current MV layout as PNG')}
             >
               {t('atem.mv.asPng', 'As PNG')}
@@ -1401,7 +1401,7 @@ export const AtemMvConfigDialog = () => {
               type="button"
               onClick={handleApply}
               disabled={!connected}
-              className="bg-emerald-700 px-3 py-1 text-cp-xs enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
+              className="bg-cp-ok px-3 py-1 text-cp-xs enabled:hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
               title={
                 connected
                   ? t('atem.mv.applyTitle', 'Push configuration to ATEM')

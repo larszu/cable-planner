@@ -480,7 +480,7 @@ export const AtemAudioRouterDialog = () => {
             type="button"
             onClick={handleSaveXml}
             disabled={!draft || busy}
-            className="bg-emerald-700 px-3 py-1 hover:bg-emerald-600 disabled:opacity-50"
+            className="bg-cp-ok text-white px-3 py-1 hover:brightness-110 disabled:opacity-50"
             title={t(
               'atem.audio.action.saveXmlTitle',
               'Download patched Profile XML (all non-audio sections stay unchanged)',
@@ -499,7 +499,7 @@ export const AtemAudioRouterDialog = () => {
                 type="button"
                 onClick={handleReadFromAtem}
                 disabled={!atemConnected || busy}
-                className="bg-purple-700 px-3 py-1 hover:bg-purple-600 disabled:opacity-50"
+                className="bg-cp-accent text-cp-accent-text px-3 py-1 hover:bg-cp-accent-hover disabled:opacity-50"
                 title={
                   atemConnected
                     ? t('atem.audio.readLiveTitle', 'Read live state from the connected ATEM (matrix + classic mixer + labels)')
@@ -579,7 +579,7 @@ export const AtemAudioRouterDialog = () => {
               <button
                 type="button"
                 onClick={() => void handleAdoptLive()}
-                className="ml-auto bg-purple-700 px-3 py-1 hover:bg-purple-600"
+                className="ml-auto bg-cp-accent text-cp-accent-text px-3 py-1 hover:bg-cp-accent-hover"
                 title={t(
                   'atem.audio.live.adoptTitle',
                   'Adopt the reading as the new plan — this replaces the previous intent.',
@@ -676,7 +676,7 @@ export const AtemAudioRouterDialog = () => {
             type="button"
             onClick={handleSaveToProject}
             disabled={!draft}
-            className="bg-emerald-700 px-3 py-1 hover:bg-emerald-600 disabled:opacity-50"
+            className="bg-cp-ok text-white px-3 py-1 hover:brightness-110 disabled:opacity-50"
             title={t(
               'atem.audio.action.saveProjectTitle',
               'Persist routing in the project (survives reload).',

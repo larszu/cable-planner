@@ -614,7 +614,7 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
           <button
             type="button"
             onClick={submit}
-            className="bg-emerald-600 px-3 py-1 hover:bg-emerald-500"
+            className="bg-cp-ok text-white px-3 py-1 hover:brightness-110"
           >
             {t('cable.dialog.create', 'Create')}
           </button>

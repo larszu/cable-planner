@@ -512,7 +512,7 @@ export const RackPlacementProperties = ({
               const urlKey = side === 'front' ? 'frontPanelImageUrl' : 'rearPanelImageUrl'
               const currentUrl = selectedPlacement[urlKey]
               const label = side === 'front' ? t('rack.panelImages.front', 'Front') : t('rack.panelImages.rear', 'Rear')
-              const btnColor = side === 'front' ? 'bg-cp-accent text-cp-accent-text hover:bg-cp-accent-hover' : 'bg-purple-700 hover:bg-purple-600'
+              const btnColor = side === 'front' ? 'bg-cp-accent text-cp-accent-text hover:bg-cp-accent-hover' : 'bg-cp-accent text-cp-accent-text hover:bg-cp-accent-hover'
               return (
                 <div key={side} className="space-y-1">
                   <button

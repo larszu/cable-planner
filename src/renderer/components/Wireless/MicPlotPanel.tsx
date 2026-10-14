@@ -162,7 +162,7 @@ export const MicPlotPanel = () => {
           type="button"
           onClick={exportieren}
           disabled={!aktuelle || zuordnungen.length === 0}
-          className="bg-purple-700 px-2 py-1 text-cp-xs hover:bg-purple-600 disabled:opacity-40"
+          className="bg-cp-accent text-cp-accent-text px-2 py-1 text-cp-xs hover:bg-cp-accent-hover disabled:opacity-40"
         >
           <Download size={12} className="mr-1 inline" />
           {t('micPlot.export', 'Session sheet')}

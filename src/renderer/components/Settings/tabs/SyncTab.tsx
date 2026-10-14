@@ -183,7 +183,7 @@ export const SyncTab = () => {
             setSyncPath(draftSyncPath)
             setSyncUser(draftSyncUser)
           }}
-          className="bg-emerald-600 px-3 py-1 text-cp-base hover:bg-emerald-500"
+          className="bg-cp-ok px-3 py-1 text-cp-base hover:brightness-110"
         >
           {t('common.save', 'Save')}
         </button>

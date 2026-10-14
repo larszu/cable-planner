@@ -56,7 +56,7 @@ export const ModuleOnboardingDialog = () => {
             type="button"
             onClick={confirm}
             disabled={selected.length === 0}
-            className="bg-emerald-700 px-3 py-1 text-cp-xs enabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
+            className="bg-cp-ok px-3 py-1 text-cp-xs enabled:hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {t('onboarding.confirm', 'Get started')}
           </button>
@@ -89,7 +89,7 @@ export const ModuleOnboardingDialog = () => {
                 <div className="mb-1 flex items-center gap-2 font-semibold text-cp-text-bright">
                   <span
                     className={`flex h-4 w-4 items-center justify-center border text-cp-xs ${
-                      on ? 'border-emerald-500 bg-emerald-600 text-white' : 'border-cp-border'
+                      on ? 'border-emerald-500 bg-cp-ok text-white' : 'border-cp-border'
                     }`}
                   >
                     {on ? <Icon icon={Check} size="xs" /> : null}

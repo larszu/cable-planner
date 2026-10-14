@@ -261,7 +261,7 @@ export const LocalEquipmentTab = ({
           />
           <button
             type="submit"
-            className="bg-emerald-700 px-2 text-cp-xs hover:bg-emerald-600"
+            className="bg-cp-ok px-2 text-cp-xs hover:brightness-110"
           >
             {t('common.ok', 'OK')}
           </button>

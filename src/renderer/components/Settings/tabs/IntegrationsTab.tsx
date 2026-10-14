@@ -323,7 +323,7 @@ const GreenGoPresetsCard = () => {
             saveGreenGoPreset(name, greengoConfig)
             refreshPresets()
           }}
-          className="bg-emerald-700 px-3 py-1 text-cp-xs text-white hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
+          className="bg-cp-ok px-3 py-1 text-cp-xs text-white hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
           title={
             usableConfig
               ? undefined
@@ -368,7 +368,7 @@ const GreenGoPresetsCard = () => {
                     if (!ok) return
                     updateGreenGoConfig(p.config)
                   }}
-                  className="bg-emerald-700 px-2 py-0.5 text-cp-xs text-white hover:bg-emerald-600"
+                  className="bg-cp-ok px-2 py-0.5 text-cp-xs text-white hover:brightness-110"
                 >
                   {t('settings.greengo.apply', 'Load')}
                 </button>
@@ -700,7 +700,7 @@ const NetboxCard = ({ onClose }: { onClose: () => void }) => {
               type="button"
               disabled={busy || !hasToken || !(netboxUrl || url).trim()}
               onClick={() => void testConnection()}
-              className="bg-emerald-600 px-3 py-1 text-cp-base hover:bg-emerald-500 disabled:opacity-50"
+              className="bg-cp-ok px-3 py-1 text-cp-base hover:brightness-110 disabled:opacity-50"
             >
               {t('settings.integrations.netbox.test', 'Test connection')}
             </button>
@@ -895,7 +895,7 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
             type="button"
             disabled={busy || !hasToken}
             onClick={testToken}
-            className="bg-emerald-600 px-3 py-1 text-cp-base hover:bg-emerald-500 disabled:opacity-50"
+            className="bg-cp-ok px-3 py-1 text-cp-base hover:brightness-110 disabled:opacity-50"
           >
             {t('settings.integrations.rentman.test', 'Test connection')}
           </button>
