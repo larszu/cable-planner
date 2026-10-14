@@ -39,20 +39,35 @@ export interface EquipmentColorTokens {
  *
  *  Per-Equipment-nodeColor (Properties → Gerätefarbe) überschreibt nur
  *  Body+Border alpha-blended — Header bleibt auf diesen Token-Werten. */
+// Design-Vertrag 2026-10: neutrale Kacheln statt Slate-Blaugrau. Hell: weisse
+// Karte auf dem versenkten Canvas-Grund (#F4F4F1); dunkel: Anthrazit eine
+// Stufe ueber dem Grund (#1E1F23), Kopf noch eine Stufe heller.
 export const DEFAULT_EQUIPMENT_COLORS_LIGHT: EquipmentColorTokens = {
   body: '#ffffff',
-  header: '#e2e8f0', // slate-200 — sichtbar gegen Body, nicht aufdringlich
-  border: '#64748b', // slate-500 — kräftige Silhouette gegen helle Canvas
-  text: '#0f172a',
-  subtext: '#475569',
+  header: '#f1f1ee',
+  border: '#c9cac8',
+  text: '#16181d',
+  subtext: '#6a6e77',
 }
 export const DEFAULT_EQUIPMENT_COLORS_DARK: EquipmentColorTokens = {
-  body: '#1e293b', // slate-800 — zwei Stufen heller als Canvas (slate-950)
-  header: '#334155', // slate-700 — HELLER als Body, Strip steht hervor
-  border: '#64748b', // slate-500 — denselbe wie Light für visuelle Konsistenz
-  text: '#f8fafc',
-  subtext: '#cbd5e1',
+  body: '#2b2c31',
+  header: '#3b3c42',
+  border: '#55575e',
+  text: '#f6f5f0',
+  subtext: '#a9acb4',
 }
+/** Die Voreinstellungen bis 2026-10 (v7.9.60). Wer sie noch unveraendert
+ *  gespeichert hat, bekommt die neuen — eigene Farben bleiben. */
+const V60_EQUIPMENT_DEFAULTS: EquipmentColorTokens[] = [
+  { body: '#ffffff', header: '#e2e8f0', border: '#64748b', text: '#0f172a', subtext: '#475569' },
+  { body: '#1e293b', header: '#334155', border: '#64748b', text: '#f8fafc', subtext: '#cbd5e1' },
+]
+const istV60Default = (v: EquipmentColorTokens) =>
+  V60_EQUIPMENT_DEFAULTS.some(
+    (d) =>
+      d.body === v.body && d.header === v.header && d.border === v.border &&
+      d.text === v.text && d.subtext === v.subtext,
+  )
 
 /** Issue #80: globally stored device-config files (ATEM MV/audio configs,
  *  Videohub label & routing dumps, GreenGo .gg5 etc.) that the user can
@@ -392,7 +407,9 @@ const defaults: PersistedUiState = {
   kennungAmKnoten: 'assetTag',
   circuitOverlay: false,
   canvasTheme: 'dark',
-  followSystemTheme: false,
+  // Design-Vertrag 2026-10: Auto ist die Voreinstellung — die App folgt dem
+  // System, bis jemand Hell oder Dunkel waehlt; die Wahl bleibt gespeichert.
+  followSystemTheme: true,
   colorPortsByType: false,
   language: detectDefaultLanguage(),
   overrideConnectionWarnings: false,
@@ -696,8 +713,8 @@ const load = (): PersistedUiState => {
       const lightTok = validTokens(obj.light) ? obj.light : { ...DEFAULT_EQUIPMENT_COLORS_LIGHT }
       const darkTok = validTokens(obj.dark) ? obj.dark : { ...DEFAULT_EQUIPMENT_COLORS_DARK }
       ;(merged as { equipmentColors: unknown }).equipmentColors = {
-        light: isV59LightDefault(lightTok) ? { ...DEFAULT_EQUIPMENT_COLORS_LIGHT } : lightTok,
-        dark: isV59DarkDefault(darkTok) ? { ...DEFAULT_EQUIPMENT_COLORS_DARK } : darkTok,
+        light: isV59LightDefault(lightTok) || istV60Default(lightTok) ? { ...DEFAULT_EQUIPMENT_COLORS_LIGHT } : lightTok,
+        dark: isV59DarkDefault(darkTok) || istV60Default(darkTok) ? { ...DEFAULT_EQUIPMENT_COLORS_DARK } : darkTok,
       }
     }
     if (typeof merged.bgOpacity !== 'number' || !Number.isFinite(merged.bgOpacity))

@@ -356,7 +356,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
         <div className="border-b border-cp-border px-4 py-2">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <div>
-              <span className="text-cp-xs uppercase tracking-wide text-cp-text-muted">{t('graphml.dialog.file', 'File')}</span>{' '}
+              <span className="text-cp-xs text-cp-text-muted">{t('graphml.dialog.file', 'File')}</span>{' '}
               <span className="font-medium text-cp-text">{s.fileName}</span>
               <span className="ml-2 text-cp-xs text-cp-text-faint">
                 {formatBytes(preview.meta.fileSize)} • {preview.meta.nodeCount} {t('graphml.dialog.nodes', 'nodes')} •{' '}
@@ -424,7 +424,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
                 <button
                   type="button"
                   onClick={() => setMode('append')}
-                  className={` px-2 py-0.5 ${mode === 'append' ? 'bg-sky-700 text-white' : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'}`}
+                  className={` px-2 py-0.5 ${mode === 'append' ? 'bg-cp-accent text-cp-accent-text' : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'}`}
                 >
                   {t('graphml.dialog.appendProject', 'Append to project')}
                 </button>
@@ -469,7 +469,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
               onClick={() => setTab(key)}
               className={`px-4 py-2 ${
                 tab === key
-                  ? 'border-b-2 border-sky-500 bg-cp-surface-1 text-cp-text'
+                  ? 'border-b-2 border-cp-accent bg-cp-surface-1 text-cp-text'
                   : 'text-cp-text-muted hover:text-cp-text-bright'
               }`}
             >
@@ -684,7 +684,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
   return (
     <div
       {...backdrop}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6"
+      className="fixed inset-0 z-50 flex items-center justify-center cp-scrim p-6"
     >
       <div
         ref={panelRef}

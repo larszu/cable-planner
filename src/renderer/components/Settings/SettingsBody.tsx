@@ -133,8 +133,8 @@ export const SettingsBody = ({ onClose, initialSection, headerProps, titleId, he
       key={id}
       type="button"
       onClick={() => setSection(id)}
-      className={`flex w-full items-center gap-2 px-3 py-2 text-left text-cp-base ${
-        section === id ? 'bg-sky-700 text-white' : 'text-cp-text-secondary hover:bg-cp-surface-2'
+      className={`flex shrink-0 items-center gap-2 whitespace-nowrap rounded-cp-full px-3 py-2 text-left text-cp-base sm:w-full sm:shrink sm:rounded-cp-control ${
+        section === id ? 'bg-cp-accent text-cp-accent-text' : 'text-cp-text-secondary hover:bg-cp-surface-2'
       }`}
     >
       <Icon icon={TAB_ICONS[id]} size="sm" />
@@ -145,7 +145,7 @@ export const SettingsBody = ({ onClose, initialSection, headerProps, titleId, he
   return (
     <>
       <aside className="flex shrink-0 flex-row gap-1 overflow-x-auto border-b border-cp-border-muted bg-cp-surface-3/40 p-3 sm:w-52 sm:flex-col sm:overflow-x-visible sm:overflow-y-auto sm:border-b-0 sm:border-r">
-        <h3 className="mb-2 hidden px-2 text-cp-xs font-semibold uppercase tracking-wider text-cp-text-faint sm:block">
+        <h3 className="mb-2 hidden px-2 text-cp-xs font-semibold text-cp-text-faint sm:block">
           {t('settings.section', 'Settings')}
         </h3>
         {(Object.keys(TAB_ICONS) as SettingsSection[]).map((id) => navItem(id))}

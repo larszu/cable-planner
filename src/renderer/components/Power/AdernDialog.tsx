@@ -132,7 +132,7 @@ export const AdernDialog = () => {
             onClick={() => setTab(k)}
             className={` px-3 py-1 text-cp-xs ${
               tab === k
-                ? 'bg-cp-accent text-white'
+                ? 'bg-cp-accent text-cp-accent-text'
                 : 'bg-cp-surface-3 text-cp-text-secondary hover:bg-cp-surface-4'
             }`}
           >

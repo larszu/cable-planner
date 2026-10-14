@@ -25,10 +25,10 @@ export const TabButton = ({
     onClick={onClick}
     title={title}
     className={`flex min-w-0 items-center gap-1 px-2 py-1 ${
-      active ? 'bg-sky-700 text-white' : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'
+      active ? 'bg-cp-accent text-cp-accent-text' : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'
     }`}
   >
-    <span className={`shrink-0 ${active ? 'text-white' : 'text-cp-text-muted'}`}>{icon}</span>
+    <span className={`shrink-0 ${active ? 'text-cp-accent-text' : 'text-cp-text-muted'}`}>{icon}</span>
     {/* `truncate` + `title` als Gürtel und Hosenträger: das Raster gibt jedem
         Register dieselbe Breite, aber eine künftige Sprache mit längerem Wort
         soll das Label KÜRZEN und nicht die Nachbarn aus dem Panel schieben —
@@ -36,8 +36,8 @@ export const TabButton = ({
     <span className="truncate">{label}</span>
     {count != null && count > 0 && (
       <span
-        className={`ml-1 px-1 text-cp-xs ${
-          active ? 'bg-sky-900/70 text-sky-100' : 'bg-cp-surface-1 text-cp-text-muted'
+        className={`ml-1 rounded-cp-full px-1.5 text-cp-xs tabular-nums ${
+          active ? 'bg-cp-accent-text/20 text-cp-accent-text' : 'bg-cp-surface-1 text-cp-text-muted'
         }`}
       >
         {count}

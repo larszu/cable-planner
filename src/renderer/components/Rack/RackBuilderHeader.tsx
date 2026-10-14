@@ -40,7 +40,7 @@ export const RackBuilderHeader = ({
             {editingId ? rackName || t('rack.unnamedRack', '(unnamed rack)') : t('rack.newRack', 'New rack')}
           </h3>
           <span
-            className={`shrink-0 px-1.5 py-0.5 text-cp-xs font-semibold uppercase tracking-wide ${
+            className={`shrink-0 px-1.5 py-0.5 text-cp-xs font-semibold   ${
               editingId
                 ? 'bg-sky-900/60 text-sky-200'
                 : 'bg-emerald-900/60 text-emerald-200'

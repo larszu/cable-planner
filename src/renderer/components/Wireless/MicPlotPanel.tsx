@@ -122,7 +122,7 @@ export const MicPlotPanel = () => {
   return (
     <div className="mt-4 border-t border-cp-border-muted pt-3">
       <div className="mb-2 flex flex-wrap items-center gap-2">
-        <span className="flex items-center gap-1.5 text-cp-xs font-semibold uppercase tracking-wide text-cp-text-secondary">
+        <span className="flex items-center gap-1.5 text-cp-xs font-semibold text-cp-text-secondary">
           <Users size={13} /> {t('micPlot.title', 'Mic plot — who wears which channel')}
         </span>
         <select

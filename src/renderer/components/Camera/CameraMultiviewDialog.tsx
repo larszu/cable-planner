@@ -75,7 +75,7 @@ export const CameraMultiviewDialog = ({ onClose }: { onClose: () => void }) => {
                   <div className="absolute inset-x-0 bottom-0 flex items-center gap-2 bg-cp-bg/90 px-2 py-1 text-cp-xs">
                     <span className="font-semibold">CAM {num}</span>
                     <span className="flex-1 truncate">{device.name}</span>
-                    {tl !== 'off' && <span className={`px-1 font-semibold ${tl === 'program' ? 'bg-cp-accent text-cp-bg' : 'border border-cp-border'}`}>{tl === 'program' ? 'PGM' : 'PVW'}</span>}
+                    {tl !== 'off' && <span className={`px-1 font-semibold ${tl === 'program' ? 'bg-cp-accent text-cp-accent-text' : 'border border-cp-border'}`}>{tl === 'program' ? 'PGM' : 'PVW'}</span>}
                   </div>
                 </div>
               )

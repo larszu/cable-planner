@@ -433,7 +433,7 @@ export const AtemAudioRouterDialog = () => {
   return (
     <div
       {...backdrop}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center cp-scrim p-4"
     >
       <div
         ref={panelRef}
@@ -468,7 +468,7 @@ export const AtemAudioRouterDialog = () => {
             type="button"
             onClick={handleLoadXml}
             disabled={busy}
-            className="bg-sky-700 px-3 py-1 hover:bg-sky-600 disabled:opacity-50"
+            className="bg-cp-accent text-cp-accent-text px-3 py-1 hover:bg-cp-accent-hover disabled:opacity-50"
             title={t(
               'atem.audio.action.loadXmlTitle',
               'Load ATEM Profile XML — the audio section(s) will be imported into the editor',
@@ -604,7 +604,7 @@ export const AtemAudioRouterDialog = () => {
                 {allDeltas(comparison).map((d) => (
                   <li key={d.key}>
                     <span className="text-slate-400">{d.label}:</span>{' '}
-                    <span className="text-sky-300">
+                    <span className="text-cp-accent">
                       {sourceName(d.planned, t('atem.audio.live.notPlanned', 'not planned'))}
                     </span>
                     {' -> '}
@@ -638,7 +638,7 @@ export const AtemAudioRouterDialog = () => {
               <button
                 type="button"
                 onClick={handleCreateMatrix}
-                className="mt-3 bg-sky-700 px-3 py-1 text-cp-xs text-white hover:bg-sky-600"
+                className="mt-3 bg-cp-accent px-3 py-1 text-cp-xs text-cp-accent-text hover:bg-cp-accent-hover"
               >
                 <Icon icon={SlidersHorizontal} size="xs" className="mr-1 inline-block align-text-bottom" />{t('atem.audio.createMatrixManual', 'Create matrix manually')}
               </button>
@@ -756,7 +756,7 @@ const EmptyState = ({
       <button
         type="button"
         onClick={onLoad}
-        className="bg-sky-700 px-4 py-2 text-cp-base hover:bg-sky-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+        className="bg-cp-accent text-cp-accent-text px-4 py-2 text-cp-base hover:bg-cp-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
       >
         <Icon icon={FolderOpen} size="xs" className="mr-1 inline-block align-text-bottom" />{t('atem.audio.loadProfileXml', 'Load profile XML')}
       </button>
@@ -1062,7 +1062,7 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
         >
           {t('atem.audio.sourcePicker', 'Source picker')}
           {excludedSourceIds.size > 0 && (
-            <span className="ml-1 text-cp-xs text-sky-300">
+            <span className="ml-1 text-cp-xs text-cp-accent">
               ({excludedSourceIds.size} {t('atem.audio.hidden', 'hidden')})
             </span>
           )}
@@ -1079,7 +1079,7 @@ const MatrixView = ({ config, setConfig }: ViewProps) => {
         >
           {t('atem.audio.outputPicker', 'Output picker')}
           {excludedOutputIds.size > 0 && (
-            <span className="ml-1 text-cp-xs text-sky-300">
+            <span className="ml-1 text-cp-xs text-cp-accent">
               ({excludedOutputIds.size} {t('atem.audio.hidden', 'hidden')})
             </span>
           )}

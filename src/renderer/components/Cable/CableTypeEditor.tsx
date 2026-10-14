@@ -134,7 +134,7 @@ export const CableTypeEditor = ({
   return (
     <div
       {...backdrop}
-      className="fixed inset-0 z-[80] flex items-center justify-center bg-black/70 p-4"
+      className="fixed inset-0 z-[80] flex items-center justify-center cp-scrim p-4"
     >
       <div
         ref={panelRef}
@@ -253,7 +253,7 @@ export const CableTypeEditor = ({
                     setStandards((prev) => [...prev, n as SignalStandard])
                   }
                 }}
-                className="bg-sky-700 px-1.5 text-cp-xs text-sky-100 hover:bg-sky-600"
+                className="bg-cp-accent px-1.5 text-cp-xs text-cp-accent-text hover:bg-cp-accent-hover"
                 title={t('cableLib.addSignalStandardTitle', 'Add new signal standard')}
               >
                 {t('cableLib.addStandard', '+ Standard')}
@@ -273,7 +273,7 @@ export const CableTypeEditor = ({
                     }
                     className={` px-1.5 py-0.5 text-cp-xs ${
                       on
-                        ? 'bg-sky-700 text-white'
+                        ? 'bg-cp-accent text-cp-accent-text'
                         : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'
                     } ${customSignalStandards.includes(s as string) ? 'italic' : ''}`}
                   >

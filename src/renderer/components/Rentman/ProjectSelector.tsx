@@ -57,7 +57,7 @@ export const ProjectSelector = ({ projects, selectedProjectId, onSelect }: Proje
             onClick={() => onSelect(project.id)}
             title={formatLabel(project)}
             className={`flex w-full items-center justify-between gap-2 border-b border-cp-border-muted px-2.5 py-1.5 text-left text-cp-xs last:border-b-0 ${
-              active ? 'bg-sky-600 text-white' : 'text-cp-text-bright hover:bg-cp-surface-2'
+              active ? 'bg-cp-accent text-cp-accent-text' : 'text-cp-text-bright hover:bg-cp-surface-2'
             }`}
           >
             <span className="min-w-0 flex-1 truncate">
@@ -73,7 +73,7 @@ export const ProjectSelector = ({ projects, selectedProjectId, onSelect }: Proje
               })()}
             </span>
             {project.status && (
-              <span className={`shrink-0 px-1.5 py-0.5 text-cp-xs ${active ? 'bg-sky-700 text-sky-50' : 'bg-cp-surface-2 text-cp-text-muted'}`}>
+              <span className={`shrink-0 px-1.5 py-0.5 text-cp-xs ${active ? 'bg-cp-accent text-cp-accent-text' : 'bg-cp-surface-2 text-cp-text-muted'}`}>
                 {project.status}
               </span>
             )}

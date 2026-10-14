@@ -183,7 +183,7 @@ export const Gebaeude3DDialog = () => {
   const abstand = szene.groesse * 1.4
 
   return (
-    <div {...backdrop} className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+    <div {...backdrop} className="fixed inset-0 z-50 flex items-center justify-center cp-scrim p-4">
       <div
         ref={panelRef}
         style={containerStyle}

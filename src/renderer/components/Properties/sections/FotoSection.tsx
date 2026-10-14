@@ -157,7 +157,7 @@ export const ProjektFotos = () => {
   const anzahl = fotosOhneZiel(alle).length
   return (
     <div className="border border-cp-border-muted bg-cp-surface-1/40 p-3">
-      <div className="mb-2 text-cp-xs font-semibold uppercase tracking-wide text-cp-text-muted">
+      <div className="mb-2 text-cp-xs font-semibold text-cp-text-muted">
         {t('foto.projectSection', 'Photos of the project')}
         {anzahl > 0 ? ` (${anzahl})` : ''}
       </div>

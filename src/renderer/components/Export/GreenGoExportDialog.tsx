@@ -403,7 +403,7 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
       ref={panelRef}
       aria-label={t('greengo.title', 'GreenGo Intercom planning')}
       {...dialogProps}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center cp-scrim p-4"
     >
       <div className="flex max-h-[92vh] w-full max-w-4xl flex-col overflow-hidden border border-emerald-700 bg-cp-surface-1 text-cp-text">
 
@@ -467,12 +467,12 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
                   <table className="w-full border-collapse text-cp-xs">
                     <thead>
                       <tr className="bg-cp-surface-2">
-                        <th className="w-8 px-2 py-2 text-left text-cp-xs font-semibold uppercase tracking-wide text-cp-text-muted">#</th>
-                        <th className="min-w-[130px] px-3 py-2 text-left text-cp-xs font-semibold uppercase tracking-wide text-cp-text-muted">{t('greengo.col.station', 'Station')}</th>
-                        <th className="min-w-[70px] px-3 py-2 text-left text-cp-xs font-semibold uppercase tracking-wide text-cp-text-muted">{t('greengo.col.type', 'Type')}</th>
-                        <th className="min-w-[160px] px-3 py-2 text-left text-cp-xs font-semibold uppercase tracking-wide text-cp-text-muted">{t('greengo.col.deviceCanvas', 'Device (canvas)')}</th>
+                        <th className="w-8 px-2 py-2 text-left text-cp-xs font-semibold text-cp-text-muted">#</th>
+                        <th className="min-w-[130px] px-3 py-2 text-left text-cp-xs font-semibold text-cp-text-muted">{t('greengo.col.station', 'Station')}</th>
+                        <th className="min-w-[70px] px-3 py-2 text-left text-cp-xs font-semibold text-cp-text-muted">{t('greengo.col.type', 'Type')}</th>
+                        <th className="min-w-[160px] px-3 py-2 text-left text-cp-xs font-semibold text-cp-text-muted">{t('greengo.col.deviceCanvas', 'Device (canvas)')}</th>
                         {config.groups.map((group) => (
-                          <th key={group.id} className="px-2 py-2 text-center text-cp-xs font-semibold uppercase tracking-wide text-emerald-400 whitespace-nowrap">
+                          <th key={group.id} className="px-2 py-2 text-center text-cp-xs font-semibold text-emerald-400 whitespace-nowrap">
                             {group.name}
                           </th>
                         ))}
@@ -567,7 +567,7 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
 
               {intercomEquipment.length > 0 && (
                 <div className="mt-5">
-                  <div className="mb-1.5 text-cp-xs uppercase tracking-wide text-cp-text-muted">{t('greengo.devicesOnCanvas', 'GreenGo devices on the canvas')}</div>
+                  <div className="mb-1.5 text-cp-xs text-cp-text-muted">{t('greengo.devicesOnCanvas', 'GreenGo devices on the canvas')}</div>
                   <div className="flex flex-wrap gap-2">
                     {intercomEquipment.map((eq) => {
                       const assignedTo = config.users.find((u) => u.equipmentId === eq.id)
@@ -928,7 +928,7 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
       {importResult && (
         <div
           {...importBackdrop}
-          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 p-4"
+          className="fixed inset-0 z-[60] flex items-center justify-center cp-scrim p-4"
         >
           <div className="flex max-h-[88vh] w-full max-w-3xl flex-col overflow-hidden border border-emerald-700 bg-cp-surface-1 text-cp-text">
 
@@ -1061,7 +1061,7 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
               {/* Groups summary */}
               {importResult.config.groups.length > 0 && (
                 <div>
-                  <div className="mb-1.5 text-cp-xs uppercase tracking-wide text-cp-text-muted">
+                  <div className="mb-1.5 text-cp-xs text-cp-text-muted">
                     {t('greengo.importOverlay.importedGroups', 'Imported groups')} ({importResult.config.groups.length})
                   </div>
                   <div className="flex flex-wrap gap-1.5">
@@ -1076,7 +1076,7 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
 
               {/* User → Equipment mapping table */}
               <div>
-                <div className="mb-1.5 text-cp-xs uppercase tracking-wide text-cp-text-muted">
+                <div className="mb-1.5 text-cp-xs text-cp-text-muted">
                   {t('greengo.importOverlay.linkStations', 'Link stations → canvas devices')} ({importResult.config.users.length})
                 </div>
                 <p className="mb-2 text-cp-xs text-cp-text-muted">
@@ -1085,10 +1085,10 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
                 <table className="w-full border-collapse text-cp-xs">
                   <thead>
                     <tr className="bg-cp-surface-2">
-                      <th className="px-3 py-2 text-left text-cp-xs font-semibold uppercase tracking-wide text-cp-text-muted">{t('greengo.importOverlay.col.nameFromGg5', 'Name (from .gg5)')}</th>
-                      <th className="px-3 py-2 text-left text-cp-xs font-semibold uppercase tracking-wide text-cp-text-muted">{t('greengo.col.type', 'Type')}</th>
-                      <th className="px-3 py-2 text-left text-cp-xs font-semibold uppercase tracking-wide text-cp-text-muted">{t('greengo.importOverlay.col.groups', 'Groups')}</th>
-                      <th className="min-w-[180px] px-3 py-2 text-left text-cp-xs font-semibold uppercase tracking-wide text-emerald-400">{t('greengo.importOverlay.col.deviceCanvas', 'Device on canvas')}</th>
+                      <th className="px-3 py-2 text-left text-cp-xs font-semibold text-cp-text-muted">{t('greengo.importOverlay.col.nameFromGg5', 'Name (from .gg5)')}</th>
+                      <th className="px-3 py-2 text-left text-cp-xs font-semibold text-cp-text-muted">{t('greengo.col.type', 'Type')}</th>
+                      <th className="px-3 py-2 text-left text-cp-xs font-semibold text-cp-text-muted">{t('greengo.importOverlay.col.groups', 'Groups')}</th>
+                      <th className="min-w-[180px] px-3 py-2 text-left text-cp-xs font-semibold text-emerald-400">{t('greengo.importOverlay.col.deviceCanvas', 'Device on canvas')}</th>
                     </tr>
                   </thead>
                   <tbody>

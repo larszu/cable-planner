@@ -25,7 +25,8 @@ import { stripComments } from './support/stripComments'
 //
 // GEGENGEPROBT: Hoehe in `.cp-topbar` auf 44 px geaendert -> rot; `cp-topbar`
 // im MenuBar durch die alte Utility-Kette ersetzt -> rot; `shadow-2xl` am
-// Dialog wieder eingesetzt -> rot.
+// Dialog wieder eingesetzt -> rot. Seit 2026-10-13 (Design-Vertrag) prueft er
+// statt der Kopflinie den Glas-Kopf und die Token-Schatten am Dialog.
 // ---------------------------------------------------------------------------
 
 const css = readFileSync(resolve(__dirname, '..', 'src', 'renderer', 'index.css'), 'utf8')
@@ -71,12 +72,25 @@ describe('ADR-007 Abschnitt 6: der Rahmen steht fest', () => {
     expect(regel('cp-statusbar')).toMatch(/flex:\s*none/)
   })
 
-  it('die Kopflinie eines Dialogs ist der Akzent', () => {
-    // „Kopflinie oben" — eine LINIE, kein Balken in Akzentfarbe. Deshalb
-    // border-bottom und kein background.
+  it('der Dialogkopf ist ein Titel, keine Linie (Design-Vertrag 2026-10)', () => {
+    // ERSETZT am 2026-10-13. Hier stand „die Kopflinie eines Dialogs ist der
+    // Akzent" — der Design-Vertrag 2026-10 und das geaenderte ADR-007 haben
+    // die Kopflinie gestrichen. Der Kopf trennt sich durch Abstand; eine
+    // zurueckkehrende Akzentlinie waere der alte Stand durch die Hintertuer.
     const kopf = regel('cp-panel-head')
-    expect(kopf).toMatch(/border-bottom:\s*1px solid var\(--cp-accent\)/)
-    expect(kopf).not.toMatch(/background/)
+    expect(kopf).not.toMatch(/border/)
+    expect(kopf).toMatch(/padding:/)
+  })
+
+  it('die Kopfzeile ist Glas ueber dem Grund — ohne Stapelkontext', () => {
+    // `backdrop-filter` oder ein z-index an der Leiste machen sie zum
+    // Stapelkontext; ihre Menues lagen dann unter der Geraetesuche des
+    // Canvas (gemessen 2026-10-14).
+    // Kommentare hier eigens weg: `stripComments` haelt CSS-Text mit Backticks
+    // im Kommentar fuer eine Zeichenkette.
+    const kopf = regel('cp-topbar').replace(/\/\*[\s\S]*?\*\//g, '')
+    expect(kopf).toMatch(/background:\s*var\(--cp-glass\)/)
+    expect(kopf).not.toMatch(/backdrop-filter|z-index/)
   })
 
   it('Kopfzeile, Statusleiste und Dialogkopf benutzen die Klassen wirklich', () => {
@@ -86,10 +100,12 @@ describe('ADR-007 Abschnitt 6: der Rahmen steht fest', () => {
     expect(stripComments(modalSrc)).toMatch(/className="cp-panel-head/)
   })
 
-  it('Dialoge sind Flaechen, keine Karten — kein Schatten', () => {
-    // „Dialoge sind Flaechen, keine Karten: kein Radius, kein Schatten."
-    // Der Radius liegt bereits bei 0 (Token-Schicht); der Schatten stand
-    // noch am Panel.
-    expect(stripComments(modalSrc)).not.toMatch(/shadow-2xl|shadow-xl|shadow-lg/)
+  it('Dialoge sind schwebende Karten — Radius xl und Schatten 3 aus Tokens', () => {
+    // UMGEDREHT am 2026-10-13: vorher „kein Schatten". Jetzt gilt der
+    // Vertrag — aber nur ueber die Tokens, nie ueber Tailwinds Standardwerte.
+    const src = stripComments(modalSrc)
+    expect(src).toMatch(/rounded-cp-modal/)
+    expect(src).toMatch(/shadow-cp-3/)
+    expect(src).not.toMatch(/shadow-2xl|shadow-xl|shadow-lg/)
   })
 })

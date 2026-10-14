@@ -626,7 +626,7 @@ export const PatchListDialog = () => {
               type="button"
               onClick={() => void exportLabels()}
               disabled={filtered.length === 0}
-              className="inline-flex items-center gap-1.5 bg-sky-700 px-3 py-1 text-cp-xs hover:bg-sky-600 disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 bg-cp-accent text-cp-accent-text px-3 py-1 text-cp-xs hover:bg-cp-accent-hover disabled:opacity-50"
             >
               <Icon icon={Tag} size="xs" />
               {t('patchList.exportLabels', 'Labels + QR (PDF)')}
@@ -646,7 +646,7 @@ export const PatchListDialog = () => {
               type="button"
               onClick={() => exportLabelCsv(labelCsvFormat)}
               disabled={filtered.length === 0}
-              className="inline-flex items-center gap-1 bg-sky-700 px-3 py-1 text-cp-xs hover:bg-sky-600 disabled:opacity-50"
+              className="inline-flex items-center gap-1 bg-cp-accent px-3 py-1 text-cp-xs hover:bg-cp-accent-hover disabled:opacity-50"
             >
               <Icon icon={Tag} size="xs" />
               {t('patchList.exportLabelCsv', 'Label CSV')}
@@ -904,7 +904,7 @@ export const PatchListDialog = () => {
             <tbody>
               {filtered.map((r) => (
                 <tr key={r.cableId} className="border-t border-cp-border-muted hover:bg-cp-surface-1">
-                  <td className="px-2 py-1 font-mono text-cp-xs text-sky-300">{r.cableNumber}</td>
+                  <td className="px-2 py-1 font-mono text-cp-xs text-cp-accent">{r.cableNumber}</td>
                   <td className="px-2 py-1 font-medium text-cp-text">{r.fromDevice}</td>
                   <td className="px-2 py-1 text-cp-text-secondary">
                     {r.fromPort}

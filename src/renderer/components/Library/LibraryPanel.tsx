@@ -892,7 +892,7 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
           onClick={toggleCollapsed}
           title={t('library.show', 'Show library')}
           aria-label={t('library.show', 'Show library')}
-          className="mt-2 flex h-7 w-7 items-center justify-center border border-cp-border bg-cp-surface-1 text-cp-text-secondary transition-all hover:border-sky-500 hover:bg-cp-surface-2 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+          className="mt-2 flex h-7 w-7 items-center justify-center border border-cp-border bg-cp-surface-1 text-cp-text-secondary transition-all hover:border-cp-accent hover:bg-cp-surface-2 hover:text-cp-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
         >
           <span className="text-cp-lg leading-none">›</span>
         </button>
@@ -900,7 +900,7 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
           type="button"
           onClick={toggleCollapsed}
           aria-label={t('library.show', 'Show library')}
-          className="mt-3 flex-1 self-stretch text-cp-xs font-semibold uppercase tracking-[0.18em] text-cp-text-muted transition-colors hover:text-cp-text-secondary focus-visible:outline-none focus-visible:text-sky-300"
+          className="mt-3 flex-1 self-stretch text-cp-xs font-semibold text-cp-text-muted transition-colors hover:text-cp-text-secondary focus-visible:outline-none focus-visible:text-cp-accent"
           style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}
         >
           {t('library.title', 'Library')}
@@ -953,7 +953,7 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
             onClick={toggleCollapsed}
             title={t('library.hide', 'Hide library')}
             aria-label={t('library.hide', 'Hide library')}
-            className="flex h-7 w-7 shrink-0 items-center justify-center border border-cp-border bg-cp-surface-1 text-cp-text-secondary transition-all hover:border-sky-500 hover:bg-cp-surface-2 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+            className="flex h-7 w-7 shrink-0 items-center justify-center border border-cp-border bg-cp-surface-1 text-cp-text-secondary transition-all hover:border-cp-accent hover:bg-cp-surface-2 hover:text-cp-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
           >
             <span className="text-cp-lg leading-none">‹</span>
           </button>
@@ -1045,7 +1045,7 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
               onClick={() => setEquipmentSection('local')}
               className={`flex-1 px-2 py-1 text-cp-xs ${
                 equipmentSection === 'local'
-                  ? 'bg-sky-700 text-white'
+                  ? 'bg-cp-accent text-cp-accent-text'
                   : 'text-cp-text-secondary hover:bg-cp-surface-2'
               }`}
               title={t('library.section.localTitle', 'Custom and imported templates, local to this installation')}
@@ -1061,7 +1061,7 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
               onClick={() => setEquipmentSection('deviceLibrary')}
               className={`flex-1 px-2 py-1 text-cp-xs ${
                 equipmentSection === 'deviceLibrary'
-                  ? 'bg-cp-accent text-white'
+                  ? 'bg-cp-accent text-cp-accent-text'
                   : 'text-cp-text-secondary hover:bg-cp-surface-2'
               }`}
               title={t('library.section.deviceLibraryTitle', 'Shared device library (devices.zumpelars.de), read-only')}
@@ -1120,7 +1120,7 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
       {showNetBoxDialog && (
         <div
           {...netBoxBackdrop}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6"
+          className="fixed inset-0 z-50 flex items-center justify-center cp-scrim p-6"
         >
           <div
             ref={netBoxRef}
@@ -1189,7 +1189,7 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
               </div>
             )}
 
-            <div className="mb-2 text-cp-xs uppercase tracking-wide text-cp-text-muted">
+            <div className="mb-2 text-cp-xs text-cp-text-muted">
               {t('library.netbox.hits', 'Hits')} {netBoxResults.length > 0 ? `(${netBoxResults.length})` : ''}
             </div>
             <div className="space-y-2">
@@ -1251,7 +1251,7 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
       {showCreateDialog && (
         <div
           {...anlegenBackdrop}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6"
+          className="fixed inset-0 z-50 flex items-center justify-center cp-scrim p-6"
         >
           <div
             ref={anlegenRef}
@@ -1492,7 +1492,7 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
                 <button
                   type="button"
                   onClick={() => addGroup('in')}
-                  className="bg-sky-700 px-2 py-1 hover:bg-sky-600"
+                  className="bg-cp-accent text-cp-accent-text px-2 py-1 hover:bg-cp-accent-hover"
                 >
                   {t('library.create.addInputGroup', '+ Input group')}
                 </button>
@@ -1618,7 +1618,7 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
               <button
                 type="button"
                 onClick={saveCustomToLibrary}
-                className="bg-sky-600 px-3 py-1 text-cp-base hover:bg-sky-500"
+                className="bg-cp-accent text-cp-accent-text px-3 py-1 text-cp-base hover:bg-cp-accent-hover"
                 title={t(
                   'library.create.saveTitle',
                   'Save to custom library for re-use',
@@ -1704,7 +1704,7 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
       {netBoxConflict && (
         <div
           {...seedBackdrop}
-          className="fixed inset-0 z-[75] flex items-center justify-center bg-black/70 p-6"
+          className="fixed inset-0 z-[75] flex items-center justify-center cp-scrim p-6"
         >
           <div
             ref={dubletteRef}

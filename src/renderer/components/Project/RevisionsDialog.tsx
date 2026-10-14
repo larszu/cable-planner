@@ -153,7 +153,7 @@ export const RevisionsDialog = () => {
                   type="button"
                   onClick={() => void restore(rev.id, rev.label)}
                   title={t('revisions.restore', 'Restore')}
-                  className="inline-flex items-center gap-1 bg-sky-700 px-2 py-1 hover:bg-sky-600"
+                  className="inline-flex items-center gap-1 bg-cp-accent text-cp-accent-text px-2 py-1 hover:bg-cp-accent-hover"
                 >
                   <Icon icon={RotateCcw} size="xs" />
                 </button>

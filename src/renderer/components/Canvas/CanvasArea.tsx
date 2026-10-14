@@ -2340,8 +2340,9 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         <ViewportStateSync onChange={setCanvasState} />
         <GriffZoom />
         <MiniMap pannable zoomable
-          className={effectiveCanvasTheme === 'light' ? '!bg-slate-100' : '!bg-cp-surface-2'}
-          maskColor={effectiveCanvasTheme === 'light' ? 'rgba(226,232,240,0.7)' : 'rgba(15,23,42,0.7)'}
+          className="!bg-cp-surface-1"
+          nodeColor="var(--cp-text-dim)"
+          maskColor={effectiveCanvasTheme === 'light' ? 'rgba(232,232,228,0.7)' : 'rgba(25,25,29,0.7)'}
         />
         <Controls />
         {/* Issue #71: background pattern is user-configurable. When the
@@ -2371,7 +2372,8 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
           // aber Snap weiter alle 2 px.
           const visualMultiplier = baseGap >= 8 ? 1 : Math.ceil(8 / baseGap)
           const gap = baseGap * visualMultiplier
-          const themeColor = effectiveCanvasTheme === 'light' ? '#94a3b8' : '#64748b'
+          // Raster neutral (Design-Vertrag 2026-10): gedaempfter Text des Modus.
+          const themeColor = effectiveCanvasTheme === 'light' ? '#a9acb4' : '#5a5d64'
           const color = customPalette?.gridColor ?? themeColor
           const opacity = Math.max(0.35, bgOpacity)
           return (

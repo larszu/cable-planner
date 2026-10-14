@@ -13,8 +13,8 @@ export const SettingsCard = ({
   description?: string
   children: ReactNode
 }) => (
-  <div className="border border-[var(--cp-border-muted)] bg-cp-surface-3/40 p-3">
-    <div className="mb-2 text-cp-xs font-semibold text-[var(--cp-text-secondary)]">{title}</div>
+  <div className="rounded-cp-card bg-cp-surface-2/60 p-4">
+    <div className="mb-1 text-cp-sm font-semibold text-cp-text-bright">{title}</div>
     {description && <p className="mb-2 text-cp-xs text-[var(--cp-text-faint)]">{description}</p>}
     {children}
   </div>

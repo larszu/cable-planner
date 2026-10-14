@@ -88,7 +88,7 @@ export const PanelWindowMenu = ({
         title={`${titel} — ${t('panel.window.title', 'undock, drag out or move to its own window')}`}
         aria-haspopup="menu"
         aria-expanded={offen}
-        className="flex h-7 shrink-0 items-center gap-1 border border-cp-border bg-cp-surface-1 px-2 text-cp-xs text-cp-text-secondary transition-all hover:border-sky-500 hover:bg-cp-surface-2 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+        className="flex h-7 shrink-0 items-center gap-1 border border-cp-border bg-cp-surface-1 px-2 text-cp-xs text-cp-text-secondary transition-all hover:border-cp-accent hover:bg-cp-surface-2 hover:text-cp-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
         style={{ touchAction: 'none' }}
       >
         <Icon icon={PictureInPicture2} size="xs" />

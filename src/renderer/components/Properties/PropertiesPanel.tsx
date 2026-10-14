@@ -83,7 +83,7 @@ export const PropertiesPanel = () => {
                 an der der Plan selbst der Gegenstand ist. */}
             <ProjektFotos />
             <div className="border border-cp-border-muted bg-cp-surface-1/40 p-3">
-              <div className="mb-2 text-cp-xs font-semibold uppercase tracking-wide text-cp-text-muted">
+              <div className="mb-2 text-cp-xs font-semibold text-cp-text-muted">
                 {t('inspector.hints.title', 'Quick orientation')}
               </div>
               <div className="space-y-1">
@@ -131,7 +131,7 @@ export const PropertiesPanel = () => {
         title={
           <span className="flex flex-col">
             <span className="text-cp-base font-semibold text-cp-text">{title}</span>
-            <span className="text-cp-xs uppercase tracking-wide text-cp-text-muted">
+            <span className="text-cp-xs text-cp-text-muted">
               {t('inspector.subtitle', 'Properties')}
             </span>
           </span>
@@ -160,7 +160,7 @@ export const PropertiesPanel = () => {
           onClick={toggle}
           title={t('inspector.collapse.show', 'Show properties')}
           aria-label={t('inspector.collapse.show', 'Show properties')}
-          className="mt-2 flex h-7 w-7 items-center justify-center border border-cp-border bg-cp-surface-1 text-cp-text-secondary transition-all hover:border-sky-500 hover:bg-cp-surface-2 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+          className="mt-2 flex h-7 w-7 items-center justify-center border border-cp-border bg-cp-surface-1 text-cp-text-secondary transition-all hover:border-cp-accent hover:bg-cp-surface-2 hover:text-cp-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
         >
           <span className="text-cp-lg leading-none">‹</span>
         </button>
@@ -168,7 +168,7 @@ export const PropertiesPanel = () => {
           type="button"
           onClick={toggle}
           aria-label={t('inspector.collapse.show', 'Show properties')}
-          className="mt-3 flex-1 self-stretch text-cp-xs font-semibold uppercase tracking-[0.18em] text-cp-text-muted transition-colors hover:text-cp-text-secondary focus-visible:outline-none focus-visible:text-sky-300"
+          className="mt-3 flex-1 self-stretch text-cp-xs font-semibold text-cp-text-muted transition-colors hover:text-cp-text-secondary focus-visible:outline-none focus-visible:text-cp-accent"
           style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}
         >
           {t('inspector.subtitle', 'Properties')}
@@ -193,7 +193,7 @@ export const PropertiesPanel = () => {
       <div className="spaltenkopf flex flex-wrap items-start justify-between gap-2 border-b border-cp-accent px-3 py-2.5">
         <div className="min-w-0">
           <h2 className="truncate text-cp-base font-semibold">{title}</h2>
-          <div className="mt-0.5 text-cp-xs uppercase tracking-wide text-cp-text-muted">
+          <div className="mt-0.5 text-cp-xs text-cp-text-muted">
             {t('inspector.subtitle', 'Properties')}
           </div>
         </div>
@@ -213,7 +213,7 @@ export const PropertiesPanel = () => {
             onClick={toggle}
             title={t('inspector.collapse.hide', 'Hide properties')}
             aria-label={t('inspector.collapse.hide', 'Hide properties')}
-            className="flex h-7 w-7 items-center justify-center border border-cp-border bg-cp-surface-1 text-cp-text-secondary transition-all hover:border-sky-500 hover:bg-cp-surface-2 hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+            className="flex h-7 w-7 items-center justify-center border border-cp-border bg-cp-surface-1 text-cp-text-secondary transition-all hover:border-cp-accent hover:bg-cp-surface-2 hover:text-cp-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
           >
             <span className="text-cp-lg leading-none">›</span>
           </button>

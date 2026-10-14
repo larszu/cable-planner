@@ -27,7 +27,7 @@ export const DeviceKindCards = ({ equipment }: { equipment: EquipmentItem }) => 
   if (deviceKind === 'greengo') {
     return (
       <div className="border border-emerald-700 bg-emerald-900/30 p-2">
-        <div className="mb-1 text-cp-xs uppercase tracking-wide text-emerald-300">
+        <div className="mb-1 text-cp-xs text-emerald-300">
           {t('props.deviceKind.greengo', 'GreenGo Intercom detected')}
         </div>
         <GreenGoBeltpackSection equipmentId={equipment.id} />
@@ -46,7 +46,7 @@ export const DeviceKindCards = ({ equipment }: { equipment: EquipmentItem }) => 
   if (deviceKind === 'videohub') {
     return (
       <div className="border border-purple-700 bg-purple-900/30 p-2">
-        <div className="mb-1 text-cp-xs uppercase tracking-wide text-purple-300">
+        <div className="mb-1 text-cp-xs text-purple-300">
           {t('props.deviceKind.videohub', 'Blackmagic Videohub detected')}
         </div>
         <div className="flex flex-col gap-1">
@@ -72,14 +72,14 @@ export const DeviceKindCards = ({ equipment }: { equipment: EquipmentItem }) => 
   if (deviceKind === 'atem') {
     return (
       <div className="border border-sky-700 bg-sky-900/30 p-2">
-        <div className="mb-1 text-cp-xs uppercase tracking-wide text-sky-300">
+        <div className="mb-1 text-cp-xs text-cp-accent">
           {t('props.deviceKind.atem', 'Blackmagic ATEM detected')}
         </div>
         <div className="flex flex-col gap-1">
           <button
             type="button"
             onClick={() => openAtemDialog(equipment.id)}
-            className="inline-flex w-full items-center justify-center gap-1 bg-sky-700 px-2 py-1 text-cp-xs hover:bg-sky-600"
+            className="inline-flex w-full items-center justify-center gap-1 bg-cp-accent text-cp-accent-text px-2 py-1 text-cp-xs hover:bg-cp-accent-hover"
             title={t('props.deviceKind.atemConnectTitle', 'Connects via UDP to the ATEM and transfers input names.')}
           >
             {t('props.deviceKind.atemConnect', 'Connect ATEM / push setup')}
@@ -117,7 +117,7 @@ export const DeviceKindCards = ({ equipment }: { equipment: EquipmentItem }) => 
   if (deviceKind === 'multiviewer') {
     return (
       <div className="border border-emerald-700 bg-emerald-900/30 p-2">
-        <div className="mb-1 text-cp-xs uppercase tracking-wide text-emerald-300">
+        <div className="mb-1 text-cp-xs text-emerald-300">
           {t('props.deviceKind.multiviewer', 'Multiviewer detected')}
         </div>
         <button

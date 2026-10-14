@@ -31,6 +31,10 @@ rendern erst, sobald die passend benannten Dateien hier liegen.
 > `camera-control.png` entsteht nur mit laufender LZ Camera Bridge:
 > `CP_BRIDGE=localhost:9700 npm run docs:shots`. `atem-multiview.png` ist
 > noch die alte Aufnahme — das Beispielprojekt hat keinen ATEM.
+>
+> **Stand 2026-10-14 (v9.6.0, Design-Vertrag 2026-10):** alle Bilder in der
+> neuen Optik und **hell** aufgenommen; dazu `hero-dark.png`, die das README
+> per `prefers-color-scheme` zeigt.
 
 ## ⚠️ Pflicht: Kundendaten schwärzen
 

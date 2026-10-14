@@ -172,7 +172,7 @@ const CollapsibleSdiCaps = ({
       onToggle={(e) => setOpen(e.currentTarget.open)}
       className="mt-1 border border-amber-900/60 bg-amber-950/20 [&_summary]:cursor-pointer"
     >
-      <summary className="flex items-center gap-1 p-1.5 text-cp-xs font-semibold uppercase tracking-wide text-amber-300 hover:text-amber-200 [&::-webkit-details-marker]:hidden">
+      <summary className="flex items-center gap-1 p-1.5 text-cp-xs font-semibold text-amber-300 hover:text-amber-200 [&::-webkit-details-marker]:hidden">
         <span className="flex-1">{t('ports.sdi.caps', 'SDI capabilities (port-specific)')}</span>
         {!open && badge && (
           <span className="bg-amber-900/50 px-1 text-cp-xs normal-case text-amber-200">
@@ -530,7 +530,7 @@ export const PortList = ({
             Count; PortList-Title hier ausgeblendet damit's nicht doppelt
             steht. Bei direkter Verwendung (ohne Wrapper) bleibt der
             Titel sichtbar. */}
-        <span className="text-cp-xs font-semibold uppercase tracking-wide text-cp-text-secondary">{hideTitle ? '' : title}</span>
+        <span className="text-cp-xs font-semibold text-cp-text-secondary">{hideTitle ? '' : title}</span>
         <button
           type="button"
           onClick={addPort}
@@ -766,7 +766,7 @@ export const PortList = ({
             </div>
             {showAtemSourceId && (
               <div className="mt-1 flex items-center gap-1.5 border border-emerald-900/60 bg-emerald-950/30 px-1.5 py-1">
-                <span className="text-cp-xs font-semibold uppercase tracking-wide text-emerald-300">
+                <span className="text-cp-xs font-semibold text-emerald-300">
                   ATEM Source-ID
                 </span>
                 <input
@@ -801,7 +801,7 @@ export const PortList = ({
             )}
             {(port.connectorType === 'Fiber' || port.connectorType === 'SFP' || port.connectorType === 'SFP+') && (
               <div className="mt-1 border border-sky-900/60 bg-sky-950/30 p-1.5">
-                <div className="mb-1 text-cp-xs font-semibold uppercase tracking-wide text-sky-400">SFP-Modul</div>
+                <div className="mb-1 text-cp-xs font-semibold text-cp-accent">SFP-Modul</div>
                 <div className="grid grid-cols-2 gap-1">
                   <input
                     value={port.sfpType ?? ''}

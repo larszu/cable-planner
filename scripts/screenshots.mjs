@@ -191,9 +191,27 @@ if (await englisch.count()) {
   await englisch.click().catch(() => {})
   await win.waitForTimeout(800)
 }
-const dunkel = win.getByRole('button', { name: /^Dark$|^Dunkel$/ }).first()
-if (await dunkel.count()) {
-  await dunkel.click().catch(() => {})
+// Hell seit 2026-10-14 (Design-Vertrag 2026-10): die Hauptbilder zeigen die
+// helle Fassung, `hero-dark.png` am Ende die dunkle — das README waehlt per
+// `prefers-color-scheme`. Fest eingestellt statt „Auto", sonst haengt das Bild
+// am System des Rechners, auf dem es entsteht.
+const thema = async (name) => {
+  await palette('Settings')
+  if ((await win.locator('[role="dialog"]').count()) === 0) await palette('Einstellungen')
+  const reiter = win.getByText(/^Appearance$|^Darstellung$/).first()
+  if (await reiter.count()) {
+    await reiter.click().catch(() => {})
+    await win.waitForTimeout(500)
+  }
+  const knopf = win.getByRole('button', { name }).first()
+  if (await knopf.count()) {
+    await knopf.click().catch(() => {})
+    await win.waitForTimeout(900)
+  }
+}
+const hell = win.getByRole('button', { name: /^Light$|^Hell$/ }).first()
+if (await hell.count()) {
+  await hell.click().catch(() => {})
   await win.waitForTimeout(900)
 }
 await zu()
@@ -213,6 +231,17 @@ await win.keyboard.press('Escape').catch(() => {})
 await win.waitForTimeout(600)
 await aufnehmen('hero.png')
 gemacht.push('hero.png')
+
+// Gleich danach die dunkle Fassung — aus DEMSELBEN Zustand, bevor Auswahl,
+// Bridge oder Rack-Reiter ihn veraendern; dann zurueck auf Hell.
+await thema(/^Dark$|^Dunkel$/)
+await zu()
+await win.waitForTimeout(700)
+await aufnehmen('hero-dark.png')
+gemacht.push('hero-dark.png')
+await thema(/^Light$|^Hell$/)
+await zu()
+await win.waitForTimeout(700)
 
 // ── properties.png — ein Geraet mit seinen Eigenschaften ───────────────────
 const geraet = win.locator('.react-flow__node').first()

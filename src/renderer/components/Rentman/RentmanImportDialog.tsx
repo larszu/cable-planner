@@ -1058,7 +1058,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
       ref={panelRef}
       aria-label={t('rentman.import.title', 'Import from Rentman')}
       {...dialogProps}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6"
+      className="fixed inset-0 z-50 flex items-center justify-center cp-scrim p-6"
     >
       {/* ── Confirmation: switch linked Rentman project ── */}
       {pendingProjectSwitch && (
@@ -1111,7 +1111,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
           />
           <div className="mb-3 max-h-[55vh] overflow-auto border border-cp-border-muted">
             <table className="w-full text-cp-xs">
-              <thead className="sticky top-0 bg-cp-surface-3 text-left text-cp-xs uppercase tracking-wide text-cp-text-muted">
+              <thead className="sticky top-0 bg-cp-surface-3 text-left text-cp-xs text-cp-text-muted">
                 <tr>
                   <th className="px-2 py-1">{t('rentman.import.col.device', 'Device')}</th>
                   <th className="px-2 py-1">{t('rentman.import.col.action', 'Action')}</th>
@@ -1287,7 +1287,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
           />
           <div className="mb-3 max-h-[55vh] overflow-auto border border-cp-border-muted">
             <table className="w-full text-cp-xs">
-              <thead className="sticky top-0 bg-cp-surface-3 text-left text-cp-xs uppercase tracking-wide text-cp-text-muted">
+              <thead className="sticky top-0 bg-cp-surface-3 text-left text-cp-xs text-cp-text-muted">
                 <tr>
                   <th className="px-2 py-1">{t('rentman.import.col.device', 'Device')}</th>
                   <th className="px-2 py-1">{t('rentman.import.col.rentman', 'Rentman')}</th>
@@ -1421,7 +1421,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
                 <button
                   type="button"
                   onClick={() => setPickerOpen(true)}
-                  className="px-2 py-0.5 font-medium text-sky-300 hover:bg-cp-surface-2"
+                  className="px-2 py-0.5 font-medium text-cp-accent hover:bg-cp-surface-2"
                 >
                   {t('rentman.import.changeProject', 'change')}
                 </button>
@@ -1435,7 +1435,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
             <button
               type="button"
               onClick={fetchProjects}
-              className="bg-sky-600 px-3 py-1 text-cp-base font-medium hover:bg-sky-500"
+              className="bg-cp-accent text-cp-accent-text px-3 py-1 text-cp-base font-medium hover:bg-cp-accent-hover"
             >
               {t('rentman.import.loadProjects', 'Load projects')}
             </button>
@@ -1472,7 +1472,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
                   onClick={() => setProjectSort(value)}
                   className={` px-2 py-0.5 ${
                     projectSort === value
-                      ? 'bg-sky-600 text-white'
+                      ? 'bg-cp-accent text-cp-accent-text'
                       : 'bg-cp-surface-4 hover:bg-cp-surface-5'
                   }`}
                 >
@@ -1588,7 +1588,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
                   onClick={() => setSelectedCategories(new Set())}
                   className={` px-2 py-0.5 ${
                     selectedCategories.size === 0
-                      ? 'bg-sky-600 text-white'
+                      ? 'bg-cp-accent text-cp-accent-text'
                       : 'bg-cp-surface-4 hover:bg-cp-surface-5'
                   }`}
                 >
@@ -1602,7 +1602,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
                       type="button"
                       onClick={() => toggleCategory(cat)}
                       className={` px-2 py-0.5 ${
-                        active ? 'bg-sky-600 text-white' : 'bg-cp-surface-4 hover:bg-cp-surface-5'
+                        active ? 'bg-cp-accent text-cp-accent-text' : 'bg-cp-surface-4 hover:bg-cp-surface-5'
                       }`}
                     >
                       {cat}

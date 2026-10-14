@@ -302,7 +302,7 @@ export const CollabPanel = () => {
               type="button"
               onClick={() => void discover()}
               disabled={discovering || !hasDesktopBridge}
-              className="rounded-cp-control border border-[var(--cp-border)] bg-[var(--cp-surface-1)] px-2 py-1 text-cp-xs text-[var(--cp-text-secondary)] hover:border-sky-500 hover:text-sky-300 disabled:opacity-50"
+              className="rounded-cp-control border border-[var(--cp-border)] bg-[var(--cp-surface-1)] px-2 py-1 text-cp-xs text-[var(--cp-text-secondary)] hover:border-cp-accent hover:text-cp-accent disabled:opacity-50"
             >
               {discovering
                 ? t('collab.discover.searching', 'Searching…')
@@ -386,7 +386,7 @@ export const CollabPanel = () => {
           <button
             type="button"
             onClick={copyInvite}
-            className="inline-flex items-center gap-1 border border-[var(--cp-border)] bg-[var(--cp-surface-1)] px-2 py-1 text-cp-xs text-[var(--cp-text-secondary)] hover:border-sky-500 hover:text-sky-300"
+            className="inline-flex items-center gap-1 border border-[var(--cp-border)] bg-[var(--cp-surface-1)] px-2 py-1 text-cp-xs text-[var(--cp-text-secondary)] hover:border-cp-accent hover:text-cp-accent"
           >
             {copied && <Icon icon={Check} size="xs" />}
             {copied ? t('collab.invite.copied', 'Copied') : t('collab.invite.copy', 'Copy invite')}

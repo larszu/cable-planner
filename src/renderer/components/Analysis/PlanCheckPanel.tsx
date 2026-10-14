@@ -22,7 +22,7 @@ const SEVERITY_META: Record<
 > = {
   error: { icon: AlertCircle, tone: 'text-red-400', row: 'hover:bg-red-950/40' },
   warning: { icon: AlertTriangle, tone: 'text-amber-400', row: 'hover:bg-amber-950/30' },
-  info: { icon: Info, tone: 'text-sky-400', row: 'hover:bg-sky-950/30' },
+  info: { icon: Info, tone: 'text-cp-accent', row: 'hover:bg-sky-950/30' },
 }
 
 export const PlanCheckPanel = () => {
@@ -103,7 +103,7 @@ export const PlanCheckPanel = () => {
           <span className="inline-flex items-center gap-1 text-amber-400">
             <Icon icon={AlertTriangle} size="xs" /> {warningCount}
           </span>
-          <span className="inline-flex items-center gap-1 text-sky-400">
+          <span className="inline-flex items-center gap-1 text-cp-accent">
             <Icon icon={Info} size="xs" /> {infoCount}
           </span>
           <span className="ml-auto text-cp-text-faint">

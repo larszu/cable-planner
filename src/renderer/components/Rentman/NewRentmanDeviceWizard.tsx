@@ -220,7 +220,7 @@ export const NewRentmanDeviceWizard = ({
   return (
     <div
       {...backdrop}
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 p-6"
+      className="fixed inset-0 z-[60] flex items-center justify-center cp-scrim p-6"
     >
       <div
         ref={panelRef}
@@ -313,7 +313,7 @@ export const NewRentmanDeviceWizard = ({
             <button
               type="button"
               onClick={() => addGroup('in')}
-              className="bg-sky-700 px-2 py-1 hover:bg-sky-600"
+              className="bg-cp-accent text-cp-accent-text px-2 py-1 hover:bg-cp-accent-hover"
             >
               {t('rentman.wizard.addInputGroup', '+ Input group')}
             </button>

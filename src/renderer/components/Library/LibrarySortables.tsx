@@ -44,7 +44,7 @@ export const SortableCategorySection = ({
       style={style}
       onDragOver={onDragOverTemplate}
       onDrop={onDropTemplate}
-      className="border border-cp-border-muted"
+      className="overflow-hidden rounded-cp-control border border-cp-border-muted"
     >
       {manualSort && (
         <span

@@ -185,7 +185,7 @@ export const EquipmentChecklist = ({
         .sort((a, b) => a[0].localeCompare(b[0]))
         .map(([category, categoryItems]) => (
         <div key={category}>
-          <div className="mb-1 text-cp-xs font-semibold uppercase tracking-wide text-cp-text-secondary">{category}</div>
+          <div className="mb-1 text-cp-xs font-semibold text-cp-text-secondary">{category}</div>
           <div className="space-y-1">
             {categoryItems.map((item) => {
               const children = childrenByParent[item.id]
@@ -198,7 +198,7 @@ export const EquipmentChecklist = ({
                 return (
                   <div key={item.id} className="flex items-center gap-2 bg-cp-surface-1/30 px-2 py-1 text-cp-xs">
                     <span className="w-5" />
-                    <span className="shrink-0 bg-cp-surface-2 px-1.5 py-0.5 text-cp-xs font-medium uppercase tracking-wide text-cp-text-muted">
+                    <span className="shrink-0 bg-cp-surface-2 px-1.5 py-0.5 text-cp-xs font-medium text-cp-text-muted">
                       {t('rentman.checklist.kind.comment', 'Comment')}
                     </span>
                     <span className="flex-1 italic text-cp-text-muted">{item.name}</span>

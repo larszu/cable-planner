@@ -73,7 +73,7 @@ export const RoutingToggle = ({
           title={opt.hint}
           className={`flex-1 px-2 py-1 text-cp-xs ${
             value === opt.value
-              ? 'bg-sky-700 text-white'
+              ? 'bg-cp-accent text-cp-accent-text'
               : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
           }`}
         >

@@ -500,7 +500,7 @@ export const ViewerApp = () => {
           </button>
         </div>
         <aside className="flex w-80 shrink-0 flex-col border-l border-cp-border bg-cp-surface-1">
-          <div className="flex items-center justify-between border-b border-cp-border px-3 py-2 text-xs font-semibold uppercase tracking-wide text-cp-text-muted">
+          <div className="flex items-center justify-between border-b border-cp-border px-3 py-2 text-xs font-semibold text-cp-text-muted">
             <span>
               {format(t('viewer.ann.heading', 'Annotations ({n})'), { n: annotations.length })}
             </span>

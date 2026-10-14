@@ -308,7 +308,7 @@ export const CableLibraryPanel = () => {
                           <span className="font-medium flex-1">{cable.name}</span>
                           {isCustom && (
                             <span
-                              className="bg-violet-700/80 px-1 text-cp-xs font-semibold uppercase text-violet-100"
+                              className="bg-violet-700/80 px-1 text-cp-xs font-semibold text-violet-100"
                               title={t('cableLib.customBadge', 'Custom cable type (created locally)')}
                             >
                               {t('cableLib.customBadgeLabel', 'Custom')}
@@ -316,14 +316,14 @@ export const CableLibraryPanel = () => {
                           )}
                           {!isCustom && cableSpecOverrides[cable.id] && (
                             <span
-                              className="bg-amber-700/70 px-1 text-cp-xs font-semibold uppercase text-amber-100"
+                              className="bg-amber-700/70 px-1 text-cp-xs font-semibold text-amber-100"
                               title={t('cableLib.overrideBadge', 'Built-in spec with local override (reset via edit dialog)')}
                             >
                               {t('cableLib.overrideBadgeLabel', 'Modified')}
                             </span>
                           )}
                           {isRecommended && (
-                            <span className="bg-emerald-600 px-1 text-cp-xs font-semibold uppercase text-white">
+                            <span className="bg-emerald-600 px-1 text-cp-xs font-semibold text-white">
                               <Icon icon={Check} size="xs" />
                             </span>
                           )}

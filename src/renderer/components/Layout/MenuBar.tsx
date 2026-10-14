@@ -61,6 +61,7 @@ import {
   ClipboardList,
 } from 'lucide-react'
 import { Icon } from '../shared/Icon'
+import { setThemeChoice, useThemeChoice } from '../../lib/themeChoice'
 import {
   triggerCanvasDuplicate,
   triggerCanvasSelectAll,
@@ -615,7 +616,7 @@ export const MenuBar = ({
   const rentalModule = useModule('rental')
   // #341 — View-Menü spiegelt Toolbar-Toggles; Status für Häkchen lesen.
   const canvasTheme = useUiStore((s) => s.canvasTheme)
-  const followSystemTheme = useUiStore((s) => s.followSystemTheme)
+  const themeChoice = useThemeChoice()
   const snapToGrid = useUiStore((s) => s.snapToGrid)
   const hideAllCableLabels = useUiStore((s) => s.hideAllCableLabels)
   const offPageShowNames = useUiStore((s) => s.offPageShowNames)
@@ -1177,21 +1178,25 @@ export const MenuBar = ({
             {t('app.menu.view.fullscreen', 'Fullscreen')}
           </MenuItem>
           <MenuSep />
+          {/* Design-Vertrag 2026-10: Auto · Hell · Dunkel, dieselbe Wahl wie
+              der Umschalter in Einstellungen → Darstellung. */}
           <MenuItem
-            onClick={() => {
-              // #453 — manuelle Theme-Wahl beendet das OS-Folgen.
-              useUiStore.getState().setFollowSystemTheme(false)
-              useUiStore.getState().setCanvasTheme(canvasTheme === 'dark' ? 'light' : 'dark')
-            }}
-            icon={canvasTheme === 'light' ? <Icon icon={Check} size="sm" /> : null}
+            onClick={() => setThemeChoice('auto')}
+            icon={themeChoice === 'auto' ? <Icon icon={Check} size="sm" /> : null}
+          >
+            {t('app.menu.view.followSystem', 'Theme: follow system')}
+          </MenuItem>
+          <MenuItem
+            onClick={() => setThemeChoice('light')}
+            icon={themeChoice === 'light' ? <Icon icon={Check} size="sm" /> : null}
           >
             {t('app.menu.view.light', 'Light theme')}
           </MenuItem>
           <MenuItem
-            onClick={() => useUiStore.getState().setFollowSystemTheme(!followSystemTheme)}
-            icon={followSystemTheme ? <Icon icon={Check} size="sm" /> : null}
+            onClick={() => setThemeChoice('dark')}
+            icon={themeChoice === 'dark' ? <Icon icon={Check} size="sm" /> : null}
           >
-            {t('app.menu.view.followSystem', 'Follow system theme')}
+            {t('app.menu.view.dark', 'Dark theme')}
           </MenuItem>
           <MenuItem
             onClick={() => useUiStore.getState().setSnapToGrid(!snapToGrid)}
@@ -1621,7 +1626,7 @@ const MenuSep = () => <div className="my-1 border-t border-cp-border" />
 /** Kleiner, nicht-interaktiver Gruppen-Titel innerhalb eines Menüs. Gliedert
  *  lange Menüs (z. B. Werkzeuge) optisch, ohne echte Flyout-Submenüs. */
 const MenuSectionHeader = ({ children }: { children: React.ReactNode }) => (
-  <div className="px-3 pb-0.5 pt-1.5 text-cp-xs font-semibold uppercase tracking-[0.14em] text-[var(--cp-text-faint)] select-none">
+  <div className="px-3 pb-0.5 pt-1.5 text-cp-xs font-semibold text-[var(--cp-text-faint)] select-none">
     {children}
   </div>
 )

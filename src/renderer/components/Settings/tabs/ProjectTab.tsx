@@ -167,7 +167,7 @@ const LibraryExportSection = () => {
         >
           <Icon icon={Download} size="xs" className="mr-1 inline-block align-text-bottom" />{t('settings.project.libExport.exportBtn', 'Export library')} ({customLibrary.length} {t('settings.project.libExport.devicesWord', 'devices')}, {groupPresets.length} {t('settings.project.libExport.groupsWord', 'groups')})
         </button>
-        <label className="bg-sky-700 px-3 py-1.5 cursor-pointer hover:bg-sky-600">
+        <label className="bg-cp-accent text-cp-accent-text px-3 py-1.5 cursor-pointer hover:bg-cp-accent-hover">
           {importBusy ? (
             <><Icon icon={Loader2} size="xs" className="mr-1 inline-block align-text-bottom animate-spin" />{t('settings.project.libExport.importing', 'Importing…')}</>
           ) : (
@@ -281,13 +281,13 @@ const CableNumberingSection = () => {
         <div className="flex items-center justify-between gap-2 pt-1">
           <span className="text-cp-text-muted">
             {t('settings.project.numbering.example', 'Example')}:{' '}
-            <span className="font-mono text-sky-300">{cableNumberExample(eff)}</span>
+            <span className="font-mono text-cp-accent">{cableNumberExample(eff)}</span>
           </span>
           <button
             type="button"
             onClick={handleRenumber}
             disabled={cableCount === 0}
-            className="bg-sky-700 px-3 py-1.5 hover:bg-sky-600 disabled:opacity-50"
+            className="bg-cp-accent text-cp-accent-text px-3 py-1.5 hover:bg-cp-accent-hover disabled:opacity-50"
           >
             {t('settings.project.numbering.renumber', 'Renumber all cables')} ({cableCount})
           </button>
@@ -374,7 +374,7 @@ const LengthEstimationSection = () => {
             type="button"
             onClick={handleEstimate}
             disabled={cableCount === 0}
-            className="bg-sky-700 px-3 py-1.5 hover:bg-sky-600 disabled:opacity-50"
+            className="bg-cp-accent text-cp-accent-text px-3 py-1.5 hover:bg-cp-accent-hover disabled:opacity-50"
           >
             {t('settings.project.lengthEst.run', 'Estimate lengths now')} ({cableCount})
           </button>
@@ -542,7 +542,7 @@ const CableStockSection = () => {
             type="button"
             onClick={anlegen}
             disabled={!typ}
-            className="bg-sky-700 px-3 py-1.5 hover:bg-sky-600 disabled:opacity-50"
+            className="bg-cp-accent text-cp-accent-text px-3 py-1.5 hover:bg-cp-accent-hover disabled:opacity-50"
           >
             {t('settings.project.stock.add', 'Add length')}
           </button>

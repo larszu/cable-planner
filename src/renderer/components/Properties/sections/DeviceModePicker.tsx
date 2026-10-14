@@ -160,7 +160,7 @@ export const DeviceModePicker = ({
           <div
             key={m.id}
             className={` border ${
-              active === m.id ? 'border-sky-500 bg-sky-900/40' : 'border-cp-border bg-cp-surface-1'
+              active === m.id ? 'border-cp-accent bg-sky-900/40' : 'border-cp-border bg-cp-surface-1'
             }`}
           >
             <button
@@ -170,7 +170,7 @@ export const DeviceModePicker = ({
               title={active === m.id ? t('modes.active', 'Active') : t('modes.activate', 'Activate')}
             >
               <span className="font-medium">
-                {active === m.id && <Icon icon={Dot} size="sm" className="text-sky-300" />}
+                {active === m.id && <Icon icon={Dot} size="sm" className="text-cp-accent" />}
                 {m.name}
               </span>
               {m.description && (
@@ -184,7 +184,7 @@ export const DeviceModePicker = ({
               <button
                 type="button"
                 onClick={() => setEditorState({ mode: 'edit', modeId: m.id })}
-                className="inline-flex items-center gap-1 px-1.5 py-0.5 text-sky-300 hover:bg-sky-900/30"
+                className="inline-flex items-center gap-1 px-1.5 py-0.5 text-cp-accent hover:bg-sky-900/30"
                 title={t('modes.editorTitle', 'Open mode in editor (name, description, ports in one place)')}
               >
                 <Icon icon={Pencil} size="xs" /> {t('modes.editor', 'Editor')}

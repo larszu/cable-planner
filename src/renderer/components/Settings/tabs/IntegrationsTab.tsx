@@ -162,7 +162,7 @@ const AiProvidersCard = () => {
               key={id}
               className={` border p-3 transition ${
                 isSelected
-                  ? 'border-sky-500 bg-sky-950/30'
+                  ? 'border-cp-accent bg-sky-950/30'
                   : 'border-cp-border bg-cp-surface-3/40'
               }`}
             >
@@ -182,7 +182,7 @@ const AiProvidersCard = () => {
                   </span>
                 )}
                 {isSelected && (
-                  <span className="ml-auto bg-sky-900/40 px-1.5 py-0.5 text-cp-xs text-sky-300">
+                  <span className="ml-auto bg-sky-900/40 px-1.5 py-0.5 text-cp-xs text-cp-accent">
                     {t('settings.integrations.ai.active', 'Active')}
                   </span>
                 )}
@@ -217,7 +217,7 @@ const AiProvidersCard = () => {
                 <button
                   type="button"
                   onClick={() => handleSave(id)}
-                  className="bg-sky-600 px-3 py-1 text-cp-xs hover:bg-sky-500"
+                  className="bg-cp-accent text-cp-accent-text px-3 py-1 text-cp-xs hover:bg-cp-accent-hover"
                 >
                   {t('common.save', 'Save')}
                 </button>
@@ -645,7 +645,7 @@ const NetboxCard = ({ onClose }: { onClose: () => void }) => {
                 type="button"
                 disabled={busy || !url.trim()}
                 onClick={() => void saveUrl()}
-                className="bg-sky-600 px-3 py-1 text-cp-base hover:bg-sky-500 disabled:opacity-50"
+                className="bg-cp-accent text-cp-accent-text px-3 py-1 text-cp-base hover:bg-cp-accent-hover disabled:opacity-50"
               >
                 {t('common.save', 'Save')}
               </button>
@@ -692,7 +692,7 @@ const NetboxCard = ({ onClose }: { onClose: () => void }) => {
               type="button"
               disabled={busy || !token}
               onClick={() => void saveToken()}
-              className="bg-sky-600 px-3 py-1 text-cp-base hover:bg-sky-500 disabled:opacity-50"
+              className="bg-cp-accent text-cp-accent-text px-3 py-1 text-cp-base hover:bg-cp-accent-hover disabled:opacity-50"
             >
               {t('settings.integrations.netbox.saveToken', 'Save token')}
             </button>
@@ -887,7 +887,7 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
             type="button"
             disabled={busy || !token}
             onClick={saveToken}
-            className="bg-sky-600 px-3 py-1 text-cp-base hover:bg-sky-500 disabled:opacity-50"
+            className="bg-cp-accent text-cp-accent-text px-3 py-1 text-cp-base hover:bg-cp-accent-hover disabled:opacity-50"
           >
             {t('settings.integrations.rentman.save', 'Save token')}
           </button>

@@ -72,7 +72,7 @@ export const LifecycleSection = ({ equipment }: { equipment: EquipmentItem }) =>
 
   return (
     <details className="border border-cp-border bg-cp-surface-3/40">
-      <summary className="flex cursor-pointer select-none items-center gap-1.5 px-2 py-1.5 text-cp-xs font-semibold uppercase tracking-wide text-cp-text-muted hover:bg-cp-surface-2/40">
+      <summary className="flex cursor-pointer select-none items-center gap-1.5 px-2 py-1.5 text-cp-xs font-semibold text-cp-text-muted hover:bg-cp-surface-2/40">
         <Icon icon={Wrench} size="xs" />
         {t('lifecycle.section', 'Lifecycle / maintenance')}
       </summary>
@@ -200,7 +200,7 @@ export const LifecycleSection = ({ equipment }: { equipment: EquipmentItem }) =>
         {/* Service-Historie — nur bei aktivem Festinstallations-Modul. */}
         {festinstallationModule && (
         <div>
-          <div className="mb-1 text-cp-xs font-semibold uppercase tracking-wide text-cp-text-muted">
+          <div className="mb-1 text-cp-xs font-semibold text-cp-text-muted">
             {t('lifecycle.history', 'Service history')} ({history.length})
           </div>
           {history.length > 0 && (

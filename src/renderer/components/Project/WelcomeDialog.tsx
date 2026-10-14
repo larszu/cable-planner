@@ -96,9 +96,9 @@ export const WelcomeDialog = ({ open, onNew, onOpen, onClose }: WelcomeDialogPro
             onOpen()
             onClose()
           }}
-          className="flex w-full items-start gap-3 border border-cp-border bg-cp-surface-2 px-3 py-2.5 text-left hover:border-sky-500 hover:bg-cp-surface-4"
+          className="flex w-full items-start gap-3 border border-cp-border bg-cp-surface-2 px-3 py-2.5 text-left hover:border-cp-accent hover:bg-cp-surface-4"
         >
-          <Icon icon={FolderOpen} size="lg" className="mt-0.5 text-sky-400" />
+          <Icon icon={FolderOpen} size="lg" className="mt-0.5 text-cp-accent" />
           <span className="flex-1">
             <span className="block text-cp-base font-semibold">
               {t('project.welcome.openTitle', 'Open project…')}
@@ -113,7 +113,7 @@ export const WelcomeDialog = ({ open, onNew, onOpen, onClose }: WelcomeDialogPro
 
         {recents.length > 0 && (
           <div className="pt-2">
-            <div className="mb-1 text-cp-xs font-semibold uppercase tracking-wider text-cp-text-muted">
+            <div className="mb-1 text-cp-xs font-semibold text-cp-text-muted">
               {t('project.welcome.recents', 'Recently used')}
             </div>
             <div className="max-h-32 space-y-1 overflow-auto">

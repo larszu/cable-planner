@@ -171,7 +171,7 @@ const BulkConnectDialogInner = () => {
         <div className="grid grid-cols-2 gap-3">
           {/* Quelle */}
           <fieldset className="border border-cp-border p-2">
-            <legend className="px-1 text-cp-xs uppercase tracking-wide text-cp-text-muted">
+            <legend className="px-1 text-cp-xs text-cp-text-muted">
               {t('bulk.source', 'Source')}
             </legend>
             <label className="block">
@@ -219,7 +219,7 @@ const BulkConnectDialogInner = () => {
 
           {/* Ziel */}
           <fieldset className="border border-cp-border p-2">
-            <legend className="px-1 text-cp-xs uppercase tracking-wide text-cp-text-muted">
+            <legend className="px-1 text-cp-xs text-cp-text-muted">
               {t('bulk.target', 'Target')}
             </legend>
             <label className="block">
@@ -308,7 +308,7 @@ const BulkConnectDialogInner = () => {
 
         {/* Preview */}
         <div className="border border-cp-border bg-cp-surface-3/40 p-2">
-          <div className="mb-1 text-cp-xs uppercase tracking-wide text-cp-text-muted">
+          <div className="mb-1 text-cp-xs text-cp-text-muted">
             {format(t('bulk.preview', 'Preview ({n}/{plan} cables)'), {
               n: planned.length,
               plan: count,

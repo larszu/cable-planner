@@ -31,7 +31,10 @@
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/hero.png" alt="LZ Cable Planner — node-based canvas with devices, ports and routed cables" width="860" />
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/hero-dark.png" />
+    <img src="docs/screenshots/hero.png" alt="LZ Cable Planner — node-based canvas with devices, ports and routed cables" width="860" />
+  </picture>
 </p>
 
 ---
@@ -79,6 +82,9 @@
   heights and racks (`set_rack_units`, `arrange_rack`), and a check against a
   cable list (`verify_cabling`). Each write call is one undo step.
 - **Offline first.** One JSON file per project, secrets in the OS keychain.
+- **Light and dark.** A calm, neutral interface with the brand blue as the
+  only accent. *Auto* follows the system; *Light* and *Dark* are one click away
+  in *Settings → Appearance* or the *View* menu, and the choice is kept.
 
 ## Screenshots
 

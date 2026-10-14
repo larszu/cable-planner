@@ -193,7 +193,7 @@ export const ReplaceDeviceSection = ({ equipment }: { equipment: EquipmentItem }
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="w-full bg-sky-700 px-2 py-1 text-cp-xs text-white hover:bg-sky-600"
+          className="w-full bg-cp-accent px-2 py-1 text-cp-xs text-cp-accent-text hover:bg-cp-accent-hover"
           title={t(
             'replaceDevice.btnTitle',
             'Swap the current device for another library template — ports are mapped by connector type + label, cables are preserved where possible.',

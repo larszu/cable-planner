@@ -319,7 +319,7 @@ export const RackImageCropDialog = ({
   return (
     <div
       {...backdrop}
-      className="fixed inset-0 z-[90] flex items-center justify-center bg-black/75 p-4 outline-none"
+      className="fixed inset-0 z-[90] flex items-center justify-center cp-scrim p-4 outline-none"
       tabIndex={-1}
       onKeyDown={onKeyDown}
     >
@@ -455,7 +455,7 @@ export const RackImageCropDialog = ({
 
           <div className="space-y-2 border border-cp-border bg-cp-surface-3/40 p-2 text-cp-xs">
             <div className="flex items-center justify-between">
-              <span className="text-cp-xs uppercase tracking-wide text-cp-text-muted">
+              <span className="text-cp-xs text-cp-text-muted">
                 {t('rackCrop.presets', 'Crop presets')}
               </span>
               <button
@@ -485,7 +485,7 @@ export const RackImageCropDialog = ({
             </div>
 
             <div className="mt-3 border border-cp-border-muted bg-cp-surface-1/60 p-2">
-              <div className="mb-1 text-cp-xs uppercase tracking-wide text-cp-text-muted">
+              <div className="mb-1 text-cp-xs text-cp-text-muted">
                 {t('rackCrop.manualValues', 'Manual values (0–1)')}
               </div>
               <div className="grid grid-cols-2 gap-1.5">

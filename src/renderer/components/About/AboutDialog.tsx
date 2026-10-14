@@ -69,7 +69,7 @@ export const AboutDialog = () => {
               href={APP_REPO_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-cp-accent underline hover:text-sky-300"
+              className="text-cp-accent underline hover:text-cp-accent"
             >
               {APP_REPO_URL.replace(/^https?:\/\//, '')}
             </a>

@@ -46,7 +46,7 @@ export const ScannerModal = ({ open, onClose, onDetect }: ScannerModalProps) => 
   if (!open) return null
 
   return (
-    <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/70 p-4">
+    <div className="fixed inset-0 z-[300] flex items-center justify-center cp-scrim p-4">
       <div className="flex w-full max-w-md flex-col overflow-hidden border border-cp-border bg-cp-bg">
         <header className="flex items-center justify-between border-b border-cp-border-muted px-4 py-2.5">
           <h2 className="flex items-center gap-2 text-cp-md font-semibold">

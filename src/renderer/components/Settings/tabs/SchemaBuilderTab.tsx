@@ -199,7 +199,7 @@ export const SchemaBuilderTab = () => {
             type="button"
             onClick={addCategory}
             disabled={!newCatDe.trim()}
-            className="flex items-center gap-1 bg-sky-700 px-2 py-1.5 text-cp-xs text-white hover:bg-sky-600 disabled:opacity-40"
+            className="flex items-center gap-1 bg-cp-accent px-2 py-1.5 text-cp-xs text-cp-accent-text hover:bg-cp-accent-hover disabled:opacity-40"
           >
             <Plus size={13} /> {t('schemaBuilder.addCat', 'Create category')}
           </button>
@@ -348,7 +348,7 @@ export const SchemaBuilderTab = () => {
             {error && <p className="text-cp-xs text-cp-danger">{error}</p>}
 
             <div className="flex gap-2">
-              <button type="button" onClick={addField} className="bg-sky-700 px-3 py-1.5 text-cp-sm text-white hover:bg-sky-600">
+              <button type="button" onClick={addField} className="bg-cp-accent px-3 py-1.5 text-cp-sm text-cp-accent-text hover:bg-cp-accent-hover">
                 {t('schemaBuilder.save', 'Create field')}
               </button>
               <button type="button" onClick={resetDraft} className="bg-cp-surface-2 px-3 py-1.5 text-cp-sm text-cp-text-secondary hover:bg-cp-surface-1">

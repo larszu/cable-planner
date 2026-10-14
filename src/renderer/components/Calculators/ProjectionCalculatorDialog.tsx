@@ -71,7 +71,7 @@ const NumField = ({
 const Result = ({ label, value }: { label: string; value: string }) => (
   <div className="flex items-baseline justify-between border border-cp-border-muted bg-cp-surface-1/50 px-3 py-1.5">
     <span className="text-cp-xs text-cp-text-muted">{label}</span>
-    <span className="font-mono text-cp-base text-sky-300">{value}</span>
+    <span className="font-mono text-cp-base text-cp-accent">{value}</span>
   </div>
 )
 
@@ -121,7 +121,7 @@ const ProjectionCalcCore = () => {
       type="button"
       onClick={() => setTab(id)}
       className={`flex-1 px-2 py-1 text-cp-xs ${
-        tab === id ? 'bg-sky-700 text-white' : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'
+        tab === id ? 'bg-cp-accent text-cp-accent-text' : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'
       }`}
     >
       {label}

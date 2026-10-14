@@ -125,7 +125,7 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
                 const v = event.target.value.trim().toUpperCase().slice(0, 6)
                 updateEquipment(equipment.id, { rentCurrency: v || undefined })
               }}
-              className="w-full border border-cp-border bg-cp-surface-1 p-2 text-center font-mono uppercase"
+              className="w-full border border-cp-border bg-cp-surface-1 p-2 text-center font-mono"
             />
           </label>
         </div>
@@ -152,7 +152,7 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
                 href={equipment.manufacturerUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 bg-sky-700 px-2 py-1 text-cp-xs hover:bg-sky-600"
+                className="inline-flex items-center gap-1 bg-cp-accent text-cp-accent-text px-2 py-1 text-cp-xs hover:bg-cp-accent-hover"
                 title={t('eq.field.manufacturerUrlOpenTitle', 'Open in external browser')}
               >
                 {t('eq.field.manufacturerUrlOpen', 'Open')}
@@ -303,7 +303,7 @@ export const OptionalFieldsSection = ({ equipment }: { equipment: EquipmentItem 
                 onClick={() => updateEquipment(equipment.id, { icon: g })}
                 className={` border px-1.5 py-1 text-cp-lg ${
                   equipment.icon === g
-                    ? 'border-sky-500 bg-sky-700/30'
+                    ? 'border-cp-accent bg-sky-700/30'
                     : 'border-cp-border bg-cp-surface-1 hover:bg-cp-surface-2'
                 }`}
                 title={format(t('opt.iconGlyphTitle', 'Icon {glyph}'), { glyph: g })}

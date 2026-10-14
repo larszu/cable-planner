@@ -40,7 +40,7 @@ export const LocationProperties = () => {
   return (
     <div className="space-y-3 text-cp-xs">
       <div>
-        <div className="mb-1 text-cp-xs uppercase tracking-wide text-cp-text-muted">
+        <div className="mb-1 text-cp-xs text-cp-text-muted">
           {t('location.title', 'Location')}
         </div>
         <label className="block">

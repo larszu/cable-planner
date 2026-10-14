@@ -1,9 +1,10 @@
 {
-  "version": "9.5.0",
+  "version": "9.6.0",
   "dateien": [
     "bom.png",
     "camera-control.png",
     "export.png",
+    "hero-dark.png",
     "hero.png",
     "patch-sheets.png",
     "properties.png",

@@ -53,7 +53,7 @@ export const FaserEditor = ({
   return (
     <div className="mt-1 border border-amber-900/60 bg-amber-950/20 p-1.5">
       <div className="mb-1 flex items-center justify-between">
-        <span className="text-cp-xs font-semibold uppercase tracking-wide text-amber-400">
+        <span className="text-cp-xs font-semibold text-amber-400">
           {t('fibre.breakout', 'Breakout')}
         </span>
         <div className="flex gap-1">

@@ -289,7 +289,7 @@ export const CableContextMenu = () => {
       onContextMenu={(e) => e.preventDefault()}
     >
       <div
-        className="border-b border-cp-border px-3 py-1.5 text-cp-xs uppercase tracking-wide text-cp-text-muted"
+        className="border-b border-cp-border px-3 py-1.5 text-cp-xs text-cp-text-muted"
       >
         {t('canvas.cableMenu.headerLabel', 'Cable:')}{' '}
         <span className="font-semibold text-cp-text">{cable.name}</span>

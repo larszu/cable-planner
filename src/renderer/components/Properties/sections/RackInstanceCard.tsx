@@ -18,7 +18,7 @@ export const RackInstanceCard = ({ equipment }: { equipment: EquipmentItem }) =>
 
   return (
     <div className="border border-cyan-700 bg-cyan-950/30 p-2">
-      <div className="mb-1 text-cp-xs uppercase tracking-wide text-cyan-300">
+      <div className="mb-1 text-cp-xs text-cyan-300">
         {t('rackInstance.label', 'Rack instance')} · {equipment.rackInstanceLabel ?? t('rackInstance.fallback', 'Rack')}
       </div>
       <PanelHint

@@ -127,7 +127,7 @@ export function HubSwitchDialog({ onClose }: { onClose: () => void }) {
   return (
     <div
       {...backdrop}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6"
+      className="fixed inset-0 z-50 flex items-center justify-center cp-scrim p-6"
     >
       <div
         ref={panelRef}

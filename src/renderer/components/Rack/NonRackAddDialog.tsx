@@ -103,7 +103,7 @@ export const NonRackAddDialog = ({
             onClick={() => setMode('rack')}
             className={` border p-3 text-left transition ${
               mode === 'rack'
-                ? 'border-sky-500 bg-sky-900/40 text-sky-100'
+                ? 'border-cp-accent bg-sky-900/40 text-sky-100'
                 : 'border-cp-border bg-cp-surface-3/50 text-cp-text-muted hover:bg-cp-surface-1'
             }`}
           >

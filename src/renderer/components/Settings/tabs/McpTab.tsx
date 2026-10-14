@@ -156,7 +156,7 @@ export const McpTab = () => {
             : t('mcp.stopped', 'Off')}
         </span>
         {status.running && status.verbunden && (
-          <span className="bg-cp-accent px-1.5 py-0.5 text-white">
+          <span className="bg-cp-accent px-1.5 py-0.5 text-cp-accent-text">
             {t('mcp.connected', 'a client is asking')}
           </span>
         )}

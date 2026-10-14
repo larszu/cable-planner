@@ -172,7 +172,7 @@ const SourceTile = ({ long, short, category, highlight }: TileProps) => {
       className="flex h-full w-full flex-col items-center justify-center overflow-hidden px-1 text-center"
     >
       {highlight && (
-        <div className="text-cp-xs font-semibold uppercase tracking-widest opacity-70">
+        <div className="text-cp-xs font-semibold opacity-70">
           {highlight === 'pgm' ? 'PGM' : 'PRV'}
         </div>
       )}
@@ -190,7 +190,7 @@ const MultiviewerPanel = ({ mv }: { mv: AtemMultiviewer }) => {
   const prvIndex = mv.programPreviewSwapped ? 1 : 0
   return (
     <div className="border border-cp-surface-5 bg-cp-surface-3 p-2">
-      <div className="mb-1 text-center text-cp-xs font-semibold uppercase tracking-wider text-cp-text-secondary">
+      <div className="mb-1 text-center text-cp-xs font-semibold text-cp-text-secondary">
         MV {mv.index + 1}
       </div>
       <div
@@ -293,7 +293,7 @@ export const MultiviewerLayoutView = ({ onClose }: MultiviewerLayoutViewProps) =
   return (
     <div
       {...backdrop}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center cp-scrim p-4"
     >
       <div
         ref={panelRef}
@@ -303,7 +303,7 @@ export const MultiviewerLayoutView = ({ onClose }: MultiviewerLayoutViewProps) =
       >
         <header className="flex items-center justify-between border-b border-cp-border px-4 py-2">
           <div>
-            <h2 id={titleId} className="text-cp-xl font-semibold text-sky-300">
+            <h2 id={titleId} className="text-cp-xl font-semibold text-cp-accent">
               {t('atem.mvLayout.title', 'Multiviewer layout (live)')}
             </h2>
             {state && (
@@ -367,7 +367,7 @@ export const MultiviewerLayoutView = ({ onClose }: MultiviewerLayoutViewProps) =
         </div>
 
         <footer className="flex flex-wrap items-center gap-4 border-t border-cp-border px-4 py-2 text-cp-xs text-cp-text-secondary">
-          <span className="font-semibold uppercase tracking-wider text-cp-text-muted">
+          <span className="font-semibold text-cp-text-muted">
             {t('atem.mvLayout.legend', 'Legend')}
           </span>
           <LegendSwatch label={t('atem.mvLayout.camera', 'Camera')} category="camera" />

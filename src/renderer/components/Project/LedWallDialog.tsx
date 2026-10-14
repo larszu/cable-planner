@@ -194,7 +194,7 @@ export const LedWallDialog = () => {
 
         {/* ── Panel-Typen ──────────────────────────────────────────────── */}
         <section>
-          <h3 className="mb-2 font-semibold uppercase tracking-wide text-cp-text-secondary">
+          <h3 className="mb-2 font-semibold text-cp-text-secondary">
             {t('led.types', 'Panel types')}
           </h3>
           {typen.length === 0 && (
@@ -282,7 +282,7 @@ export const LedWallDialog = () => {
           <button
             type="button"
             onClick={typAnlegen}
-            className="flex items-center gap-1 bg-sky-700 px-3 py-1.5 hover:bg-sky-600"
+            className="flex items-center gap-1 bg-cp-accent text-cp-accent-text px-3 py-1.5 hover:bg-cp-accent-hover"
           >
             <Icon icon={Plus} className="h-3 w-3" /> {t('led.types.add', 'Add panel type')}
           </button>
@@ -290,7 +290,7 @@ export const LedWallDialog = () => {
 
         {/* ── Wände ───────────────────────────────────────────────────── */}
         <section>
-          <h3 className="mb-2 font-semibold uppercase tracking-wide text-cp-text-secondary">
+          <h3 className="mb-2 font-semibold text-cp-text-secondary">
             {t('led.walls', 'Walls')}
           </h3>
           {waende.length === 0 ? (
@@ -308,7 +308,7 @@ export const LedWallDialog = () => {
                   onClick={() => setGewaehlt(w.id)}
                   className={`border px-2 py-1 ${
                     w.id === wand?.id
-                      ? 'border-sky-500 bg-sky-900/40'
+                      ? 'border-cp-accent bg-sky-900/40'
                       : 'border-cp-border hover:bg-cp-surface-3'
                   }`}
                 >
@@ -321,7 +321,7 @@ export const LedWallDialog = () => {
             type="button"
             onClick={wandAnlegen}
             disabled={typen.length === 0}
-            className="flex items-center gap-1 bg-sky-700 px-3 py-1.5 hover:bg-sky-600 disabled:opacity-50"
+            className="flex items-center gap-1 bg-cp-accent text-cp-accent-text px-3 py-1.5 hover:bg-cp-accent-hover disabled:opacity-50"
           >
             <Icon icon={Plus} className="h-3 w-3" /> {t('led.walls.add', 'Add wall')}
           </button>
@@ -393,7 +393,7 @@ export const LedWallDialog = () => {
                 type="button"
                 onClick={ausOeffnung}
                 disabled={!raster}
-                className="bg-sky-700 px-3 py-1.5 hover:bg-sky-600 disabled:opacity-50"
+                className="bg-cp-accent text-cp-accent-text px-3 py-1.5 hover:bg-cp-accent-hover disabled:opacity-50"
               >
                 {t('led.opening.apply', 'Fit the grid')}
               </button>

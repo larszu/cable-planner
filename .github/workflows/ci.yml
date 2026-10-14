@@ -80,9 +80,9 @@ jobs:
       # deutschen Fallback eintraegt.
       - name: Quellsprache
         run: npm run lang:check
-      # Die FORM der Oberflaeche (ADR-007 Abschnitt 3): keine Rundungen, keine
-      # Schatten. Eigener Schritt aus demselben Grund wie oben — die Ausgabe
-      # nennt Datei und Utility.
+      # Die FORM der Oberflaeche (Design-Vertrag 2026-10, ADR-007 geaendert am
+      # 2026-10-13): Rundungen und Schatten nur ueber Tokens. Eigener Schritt
+      # aus demselben Grund wie oben — die Ausgabe nennt Datei und Utility.
       - name: Form (Rundungen/Schatten)
         run: npm run form:check
       - name: Tests

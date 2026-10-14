@@ -170,7 +170,7 @@ export const AnnotationsPanel = ({
               onClick={() => setStatusFilter(s)}
               className={` px-2 py-0.5 text-cp-xs ${
                 statusFilter === s
-                  ? 'bg-sky-700 text-white'
+                  ? 'bg-cp-accent text-cp-accent-text'
                   : 'bg-cp-surface-2 text-cp-text-muted hover:bg-cp-surface-4'
               }`}
             >
@@ -234,7 +234,7 @@ export const AnnotationsPanel = ({
           <button
             type="button"
             onClick={() => setCreating(true)}
-            className="w-full bg-sky-700 px-2 py-1 text-cp-xs text-white hover:bg-sky-600"
+            className="w-full bg-cp-accent px-2 py-1 text-cp-xs text-cp-accent-text hover:bg-cp-accent-hover"
           >
             {t('annotations.new', '+ New annotation')}
           </button>
@@ -252,7 +252,7 @@ export const AnnotationsPanel = ({
         ) : (
           grouped.map(([authorName, items]) => (
             <div key={authorName} className="mb-3">
-              <h4 className="mb-1 text-cp-xs font-semibold uppercase tracking-wide text-cp-text-muted">
+              <h4 className="mb-1 text-cp-xs font-semibold text-cp-text-muted">
                 {authorName} ({items.length})
               </h4>
               <ul className="space-y-1">

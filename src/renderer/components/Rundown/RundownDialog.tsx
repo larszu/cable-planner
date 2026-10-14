@@ -141,7 +141,7 @@ export const RundownDialog = () => {
               type="button"
               onClick={einlesen}
               disabled={text.trim() === ''}
-              className="bg-cp-accent px-3 py-1 text-cp-xs text-white disabled:opacity-50"
+              className="bg-cp-accent px-3 py-1 text-cp-xs text-cp-accent-text disabled:opacity-50"
             >
               {t('rundown.read', 'Read in')}
             </button>

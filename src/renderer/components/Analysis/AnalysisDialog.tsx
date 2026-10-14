@@ -156,7 +156,7 @@ const RechnerLink = ({ onClick, label }: { onClick: () => void; label: string })
   <button
     type="button"
     onClick={onClick}
-    className="inline-flex items-center gap-1 border border-cp-border bg-cp-surface-2 px-2 py-0.5 text-cp-xs text-cp-text hover:border-sky-500 hover:bg-cp-surface-3"
+    className="inline-flex items-center gap-1 border border-cp-border bg-cp-surface-2 px-2 py-0.5 text-cp-xs text-cp-text hover:border-cp-accent hover:bg-cp-surface-3"
   >
     <Icon icon={Calculator} size="xs" />
     {label}
@@ -1847,7 +1847,7 @@ const RfTab = ({ projectName }: { projectName: string }) => {
 
       {/* #344 — Referenz: gängige Hersteller-Frequenzbänder. */}
       <details className="border border-[var(--cp-border-muted)] bg-[var(--cp-surface-3)]">
-        <summary className="cursor-pointer px-3 py-1.5 text-cp-xs uppercase tracking-wide text-[var(--cp-text-muted)]">
+        <summary className="cursor-pointer px-3 py-1.5 text-cp-xs text-[var(--cp-text-muted)]">
           {t('analysis.rf.bandRef', 'Frequency bands (Sennheiser / Shure / …)')} ({RF_BANDS.length})
         </summary>
         <div className="px-3 py-2">

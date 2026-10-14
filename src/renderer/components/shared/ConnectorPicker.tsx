@@ -188,7 +188,7 @@ export const ConnectorPicker = ({
               {filteredGroups.map((g) => (
                 <div key={g.category.id} className="mb-2 last:mb-0">
                   <div
-                    className="mb-1 flex items-center gap-1.5 px-1 text-cp-xs font-semibold tracking-wide uppercase"
+                    className="mb-1 flex items-center gap-1.5 px-1 text-cp-xs font-semibold"
                     style={{ color: g.category.color }}
                   >
                     <span
@@ -208,7 +208,7 @@ export const ConnectorPicker = ({
                           title={e.label}
                           className={`flex flex-col items-center gap-1 border px-1 py-1.5 text-center transition ${
                             active
-                              ? 'border-sky-500 bg-sky-500/10'
+                              ? 'border-cp-accent bg-sky-500/10'
                               : 'border-cp-border-muted bg-cp-surface-3/40 hover:border-cp-surface-5 hover:bg-cp-surface-2/60'
                           }`}
                         >

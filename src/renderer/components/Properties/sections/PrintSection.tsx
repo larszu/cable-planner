@@ -59,7 +59,7 @@ export const PrintSection = ({ equipment }: { equipment: EquipmentItem }) => {
               floors,
             })
           }
-          className="w-full bg-sky-700 px-2 py-1 text-cp-xs text-white hover:bg-sky-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+          className="w-full bg-cp-accent px-2 py-1 text-cp-xs text-cp-accent-text hover:bg-cp-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
           title={t(
             'printSection.a4Title',
             'Generates a single-page A4 patch list with all ports + connected cables — to stick on the device.',

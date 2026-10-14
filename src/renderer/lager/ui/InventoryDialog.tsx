@@ -2864,7 +2864,7 @@ const ReportsTab = () => {
 
   const kpi = (label: string, value: string | number) => (
     <div className="border border-cp-border-muted bg-cp-surface-2 px-3 py-2">
-      <div className="text-cp-xs uppercase tracking-wide text-cp-text-muted">{label}</div>
+      <div className="text-cp-xs text-cp-text-muted">{label}</div>
       <div className="text-cp-sm font-semibold tabular-nums text-cp-text">{value}</div>
     </div>
   )

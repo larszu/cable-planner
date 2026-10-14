@@ -317,7 +317,7 @@ export const CableProperties = () => {
           Terminierung und Mess-/Test-Ergebnis. Nur bei aktivem Modul. */}
       {festinstallationModule && (
       <details className="border border-cp-border bg-cp-surface-3/40">
-        <summary className="cursor-pointer select-none px-2 py-1.5 text-cp-xs font-semibold uppercase tracking-wide text-cp-text-muted hover:bg-cp-surface-2/40">
+        <summary className="cursor-pointer select-none px-2 py-1.5 text-cp-xs font-semibold text-cp-text-muted hover:bg-cp-surface-2/40">
           {t('lifecycle.cableSection', 'Fixed install / lifecycle')}
         </summary>
         <div className="space-y-2 border-t border-cp-border p-2">
@@ -558,7 +558,7 @@ export const CableProperties = () => {
           haben". Nur das Zweite kann merken, dass die vierte von fuenf
           Leitungen fehlt. */}
       <details className="border border-cp-border bg-cp-surface-3/40">
-        <summary className="cursor-pointer select-none px-2 py-1.5 text-cp-xs font-semibold uppercase tracking-wide text-cp-text-muted hover:bg-cp-surface-2/40">
+        <summary className="cursor-pointer select-none px-2 py-1.5 text-cp-xs font-semibold text-cp-text-muted hover:bg-cp-surface-2/40">
           {t('adern.cableSection', 'Conductors (power)')}
         </summary>
         <div className="space-y-2 border-t border-cp-border p-2">
@@ -766,7 +766,7 @@ export const CableProperties = () => {
           re-route a cable from the properties panel without opening a dialog. */}
       <details open className="border border-cp-border bg-cp-surface-3/50">
         <summary className="cursor-pointer select-none px-2 py-1.5 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-2/40">
-          <span className="font-semibold uppercase tracking-wide text-cp-text-muted">
+          <span className="font-semibold text-cp-text-muted">
             {t('cable.field.connection', 'Connection')}
           </span>
           <span className="ml-2 text-cp-text-secondary">
@@ -949,7 +949,7 @@ export const CableProperties = () => {
                       }
                       className={`flex-1 border px-2 py-1 text-cp-xs ${
                         isActive
-                          ? 'border-sky-500 bg-sky-800 text-white'
+                          ? 'border-cp-accent bg-sky-800 text-white'
                           : 'border-cp-border bg-cp-surface-1 text-cp-text-secondary hover:bg-cp-surface-2'
                       }`}
                     >

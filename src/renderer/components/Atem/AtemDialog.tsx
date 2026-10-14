@@ -353,7 +353,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
                 type="button"
                 onClick={connect}
                 disabled={status === 'connecting' || !ip.trim()}
-                className="bg-sky-700 px-3 py-2 text-cp-base hover:bg-sky-600 disabled:opacity-50"
+                className="bg-cp-accent text-cp-accent-text px-3 py-2 text-cp-base hover:bg-cp-accent-hover disabled:opacity-50"
               >
                 {status === 'connecting' ? t('atem.dialog.connecting', 'Connecting…') : t('atem.dialog.connect', 'Connect')}
               </button>
@@ -391,7 +391,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
                 </div>
               ) : (
                 <div className="space-y-1">
-                  <div className="text-cp-xs uppercase tracking-wide text-cp-text-muted">
+                  <div className="text-cp-xs text-cp-text-muted">
                     {format(t('atem.dialog.foundCount', 'Found ({n}) — click to take the IP:'), {
                       n: discovered.length,
                     })}
@@ -434,7 +434,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
         {status === 'connected' && state && (
           <div className="flex-1 overflow-auto px-4 py-3">
             <div className="mb-2 flex items-center justify-between">
-              <h3 className="text-cp-xs font-semibold uppercase tracking-wide text-cp-text-secondary">
+              <h3 className="text-cp-xs font-semibold text-cp-text-secondary">
                 {t('atem.dialog.inputNames', 'Input names')} ({rows.length})
               </h3>
               <button
@@ -468,13 +468,13 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
                     }`}
                   >
                     <td className="py-1 font-mono text-cp-text-muted">{row.inputId}</td>
-                    <td className="py-1 text-cp-xs uppercase tracking-wide">
+                    <td className="py-1 text-cp-xs">
                       <span
                         className={
                           row.category === 'video-input'
                             ? 'text-emerald-300'
                             : row.category === 'me-output'
-                              ? 'text-sky-300'
+                              ? 'text-cp-accent'
                               : row.category === 'aux'
                                 ? 'text-cyan-300'
                                 : row.category === 'multiviewer'
@@ -522,7 +522,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
                         onChange={(event) =>
                           setDraft(row.inputId, { short: event.target.value.toUpperCase() })
                         }
-                        className="w-full border border-cp-border bg-cp-surface-3 p-1 font-mono uppercase disabled:cursor-not-allowed disabled:bg-cp-surface-1 disabled:text-cp-text-faint"
+                        className="w-full border border-cp-border bg-cp-surface-3 p-1 font-mono disabled:cursor-not-allowed disabled:bg-cp-surface-1 disabled:text-cp-text-faint"
                       />
                     </td>
                   </tr>

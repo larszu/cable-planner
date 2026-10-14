@@ -142,7 +142,7 @@ export const SurveyDialog = () => {
             type="button"
             onClick={erfassen}
             disabled={!name.trim()}
-            className="bg-cp-accent px-3 py-1.5 text-cp-sm text-white hover:opacity-90 disabled:opacity-40"
+            className="bg-cp-accent px-3 py-1.5 text-cp-sm text-cp-accent-text hover:opacity-90 disabled:opacity-40"
           >
             {t('survey.capture', 'Capture (Enter)')}
           </button>

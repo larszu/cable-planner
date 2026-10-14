@@ -95,7 +95,7 @@ export const GreenGoLiveSection = ({ equipment }: { equipment: EquipmentItem }) 
                     <button
                       type="button"
                       aria-pressed={talking}
-                      className={`border border-cp-border px-2 py-0.5 ${talking ? 'bg-cp-accent text-cp-bg' : 'bg-cp-surface-1 hover:bg-cp-surface-3'}`}
+                      className={`border border-cp-border px-2 py-0.5 ${talking ? 'bg-cp-accent text-cp-accent-text' : 'bg-cp-surface-1 hover:bg-cp-surface-3'}`}
                       onClick={() => void send('channel/talk', [talking ? 0 : 2, ch])}
                     >
                       {t('props.greengoLive.talk', 'Talk')}
