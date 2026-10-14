@@ -157,7 +157,10 @@ const MehrMenue = ({
       <Tooltip label={title}>
         <button
           type="button"
-          aria-label={title}
+          // Der Name ist nur „Mehr": stuende die Liste der Inhalte darin,
+          // faende eine Suche nach „Hallenplan" diesen Knopf zuerst — und
+          // klappte die Klappe zu, statt das Panel zu oeffnen.
+          aria-label={label}
           aria-haspopup="true"
           aria-expanded={offen}
           onClick={(e) => {

@@ -39,8 +39,11 @@ The View menu provides functions to affect the canvas view and control the displ
 
 | Function | Description |
 |---|---|
-| Light theme | Switch between light and dark design |
-| Follow system theme | Use the operating system's theme setting |
+| Theme: follow system | Light or dark following the operating system (Auto, default) |
+| Light theme | Always light |
+| Dark theme | Always dark |
+| Floor plan | Show or hide the floor plan panel |
+| Symbols | Show or hide the symbols panel |
 | Fullscreen | Display the app in fullscreen mode |
 
 #### Cables and Labels
@@ -117,9 +120,7 @@ Additionally, the following badges may be displayed:
 
 ![Light theme](bilder/en/oberflaeche-theme-light.jpg)
 
-The app design can be switched between a light and dark theme. In light theme, the app has a white/light background, while in dark theme (default) it has a dark background. The color palette is automatically adjusted.
-
-You can also set the app to use the operating system's theme, which automatically switches between light and dark design based on the system setting.
+The app has a light and a dark theme with three settings: **Auto** (default, follows the operating system), **Light** and **Dark**. Switch in three places: the theme button on the right of the header (sun, moon or screen – one click opens the three settings), *Settings → Appearance* and the *View* menu. The choice is kept.
 
 ### Canvas Visibility Options
 

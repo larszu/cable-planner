@@ -1039,52 +1039,37 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
           {/* Sub-section toggle: Lokal / Geraetebibliothek / Rentman, alle im
               Equipment-Tab. Rentman nur, wenn das Modul an ist; die
               Geraetebibliothek immer — sie ist die Vorgabe-Quelle jedes Builds. */}
-          <div className="mb-2 flex gap-1 bg-cp-surface-3/40 p-1">
+          {/* Ruhiges Segment (2026-10-14): Quelle der Vorlagen. Die Zahlen
+              stehen im Tooltip; mit drei Reitern (Rentman an) schoben sie
+              die Woerter in 236 px Breite uebereinander. */}
+          <div className="cp-segment cp-segment--dicht mb-2 w-full" role="group" aria-label={t('library.section.group', 'Template source')}>
             <button
               type="button"
+              aria-pressed={equipmentSection === 'local'}
               onClick={() => setEquipmentSection('local')}
-              className={`flex-1 px-2 py-1 text-cp-xs ${
-                equipmentSection === 'local'
-                  ? 'bg-cp-accent text-cp-accent-text'
-                  : 'text-cp-text-secondary hover:bg-cp-surface-2'
-              }`}
-              title={t('library.section.localTitle', 'Custom and imported templates, local to this installation')}
+              className="min-w-0"
+              title={`${t('library.section.localTitle', 'Custom and imported templates, local to this installation')} (${customLibrary.filter((t) => !t.rentmanSource).length})`}
             >
-              <span className="mr-1 bg-sky-900/80 px-1 text-cp-xs font-bold text-sky-100">L</span>
-              {t('library.section.local', 'Local')}
-              <span className="ml-1 text-cp-xs text-cp-text-muted">
-                ({customLibrary.filter((t) => !t.rentmanSource).length})
-              </span>
+              <span className="truncate">{t('library.section.local', 'Local')}</span>
             </button>
             <button
               type="button"
+              aria-pressed={equipmentSection === 'deviceLibrary'}
               onClick={() => setEquipmentSection('deviceLibrary')}
-              className={`flex-1 px-2 py-1 text-cp-xs ${
-                equipmentSection === 'deviceLibrary'
-                  ? 'bg-cp-accent text-cp-accent-text'
-                  : 'text-cp-text-secondary hover:bg-cp-surface-2'
-              }`}
-              title={t('library.section.deviceLibraryTitle', 'Shared device library (devices.zumpelars.de), read-only')}
+              className="min-w-0"
+              title={`${t('library.section.deviceLibraryTitle', 'Shared device library (devices.zumpelars.de), read-only')} (${deviceLibraryCount})`}
             >
-              {t('library.section.deviceLibrary', 'Shared')}
-              <span className="ml-1 text-cp-xs text-cp-text-muted">({deviceLibraryCount})</span>
+              <span className="truncate">{t('library.section.deviceLibrary', 'Shared')}</span>
             </button>
             {rentmanEnabled && (
             <button
               type="button"
+              aria-pressed={equipmentSection === 'rentman'}
               onClick={() => setEquipmentSection('rentman')}
-              className={`flex-1 px-2 py-1 text-cp-xs ${
-                equipmentSection === 'rentman'
-                  ? 'bg-orange-600 text-white'
-                  : 'text-cp-text-secondary hover:bg-cp-surface-2'
-              }`}
-              title={t('library.section.rentmanTitle', 'Rentman-imported devices and account catalog')}
+              className="min-w-0"
+              title={`${t('library.section.rentmanTitle', 'Rentman-imported devices and account catalog')} (${customLibrary.filter((t) => t.rentmanSource).length})`}
             >
-              <span className="mr-1 bg-orange-900/80 px-1 text-cp-xs font-bold text-orange-100">R</span>
-              Rentman
-              <span className="ml-1 text-cp-xs text-cp-text-muted">
-                ({customLibrary.filter((t) => t.rentmanSource).length})
-              </span>
+              <span className="truncate">Rentman</span>
             </button>
             )}
           </div>

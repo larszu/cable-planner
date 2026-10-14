@@ -302,7 +302,13 @@ export async function starte({ sprache = 'de', breite = 1400, hoehe = 900, thema
         } catch (e) {
           fehler.push(`${nn} ${name}: ${e.message.split('\n')[0]}`)
           console.log(`✗ ${praefix} ${nn} ${name}: ${e.message.split('\n')[0]}`)
-          if (process.env.HB_DEBUG) console.log(e.message.split("\n").slice(0, 14).join("\n"))
+          // HB_DEBUG=1: die ersten Zeilen des Playwright-Protokolls (welcher
+          // Locator, was den Klick abfaengt) und ein Bild des Fensters im
+          // Moment des Fehlers — die erste Zeile allein sagt nur „Timeout".
+          if (process.env.HB_DEBUG) {
+            console.log(e.message.split('\n').slice(0, 14).join('\n'))
+            await win.screenshot({ path: join(tmpdir(), `hb-fehler-${praefix}-${nn}.png`) }).catch(() => {})
+          }
         }
       },
       /** Ergebnis als JSON neben das Skript schreiben. */

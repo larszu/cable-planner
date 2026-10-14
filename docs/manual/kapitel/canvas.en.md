@@ -4,9 +4,19 @@ The canvas is the heart of Cable Planner. Here you plan your wiring system, visu
 
 ### Toolbar
 
-The toolbar is a floating panel in the top left of the canvas. It contains all important functions and can be moved by dragging the handle.
+The toolbar is a floating single-line bar in the top left of the canvas; drag the handle to move it. It shows what drawing needs all the time:
 
-![Toolbar main view](bilder/en/canvas-01-toolbar-main.jpg)
+- **Defaults** – presets for new cables and the display
+- **Frame** – new frame, or a frame around the selection
+- **Selection and align buttons** – only while devices are selected
+- **Layer chips** (Video, Audio, Control, Network, Power, Other) – show and hide the cables of a layer; the coloured dot shows the signal type
+- **More** – everything else
+
+**More** holds: layer management (create a custom layer, show all again), Lock, signal path, rooms, 3D, Schematic, Circuit, Test pattern, Finalise, Badges, Annotations, Floor plan and Symbols. Floor plan, Symbols and Annotations are also in the *View* menu. A mode that is switched on – signal path, circuit, test pattern – shows up with its status directly in the bar.
+
+On a phone the bar shows only Defaults and More; layers, frame and selection buttons are under More so the plan gets the width.
+
+![Toolbar main view](bilder/en/canvas-leiste-01-leiste-ganz.jpg)
 
 #### Close and reopen toolbar
 
@@ -222,7 +232,7 @@ When you select multiple pieces of equipment, a small toolbar appears above the 
 
 ### Lock
 
-The **Lock** button combines three protection measures:
+The **Lock** button under *More* combines three protection measures:
 
 | Area | Effect |
 |------|--------|
@@ -234,7 +244,7 @@ The button label shows the number of active locks. If all three are active, the 
 
 ### Finalize (Plan lock)
 
-The **Finalize** button on the right side of the toolbar locks the entire plan:
+The **Finalise** entry under *More* locks the entire plan:
 
 ![Finalize button](bilder/en/canvas-17-finalize-button.jpg)
 
@@ -248,11 +258,11 @@ Clicking it toggles between Editing and Finalised. The plan remains in this stat
 
 ![Annotations buttons](bilder/en/canvas-18-annotations-buttons.jpg)
 
-**Badges** show/hide the coloured circle markers on the canvas without deleting annotations.
+Both entries are under *More*. **Badges** show/hide the coloured circle markers on the canvas without deleting annotations.
 
 **Annotations** opens the annotations panel with a list of all markings. Here you can add notes, change colours and manage annotations.
 
-In **Viewer mode** the annotations button is purple and shows "Viewer" to encourage reviewers to give feedback.
+In **Viewer mode** the entry invites reviewers to leave annotations.
 
 ### Zoom and navigation
 

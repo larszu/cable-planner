@@ -109,6 +109,24 @@
           "text": ""
         },
         {
+          "nr": 8,
+          "name": "farbe-typ",
+          "datei": "canvas-defaults-08-farbe-typ.jpg",
+          "text": ""
+        },
+        {
+          "nr": 9,
+          "name": "pfeil-am-ende",
+          "datei": "canvas-defaults-09-pfeil-am-ende.jpg",
+          "text": ""
+        },
+        {
+          "nr": 10,
+          "name": "bruecken",
+          "datei": "canvas-defaults-10-bruecken.jpg",
+          "text": ""
+        },
+        {
           "nr": 11,
           "name": "bruecken-flaeche",
           "datei": "canvas-defaults-11-bruecken-flaeche.jpg",
@@ -151,11 +169,7 @@
           "text": ""
         }
       ],
-      "fehler": [
-        "08 farbe-typ: locator.click: Timeout 8000ms exceeded.",
-        "09 pfeil-am-ende: locator.click: Timeout 8000ms exceeded.",
-        "10 bruecken: locator.click: Timeout 8000ms exceeded."
-      ]
+      "fehler": []
     },
     "auswahl": {
       "schritte": [
@@ -169,6 +183,24 @@
           "nr": 2,
           "name": "einzeln-links",
           "datei": "canvas-auswahl-02-einzeln-links.jpg",
+          "text": ""
+        },
+        {
+          "nr": 3,
+          "name": "einzeln-unten",
+          "datei": "canvas-auswahl-03-einzeln-unten.jpg",
+          "text": ""
+        },
+        {
+          "nr": 4,
+          "name": "zwei-geraete",
+          "datei": "canvas-auswahl-04-zwei-geraete.jpg",
+          "text": ""
+        },
+        {
+          "nr": 5,
+          "name": "drei-geraete",
+          "datei": "canvas-auswahl-05-drei-geraete.jpg",
           "text": ""
         },
         {
@@ -188,12 +220,100 @@
           "name": "alles-auswaehlen",
           "datei": "canvas-auswahl-08-alles-auswaehlen.jpg",
           "text": ""
+        },
+        {
+          "nr": 9,
+          "name": "ausrichten-links",
+          "datei": "canvas-auswahl-09-ausrichten-links.jpg",
+          "text": ""
+        },
+        {
+          "nr": 10,
+          "name": "ausrichten-mitte-waagerecht",
+          "datei": "canvas-auswahl-10-ausrichten-mitte-waagerecht.jpg",
+          "text": ""
+        },
+        {
+          "nr": 11,
+          "name": "ausrichten-rechts",
+          "datei": "canvas-auswahl-11-ausrichten-rechts.jpg",
+          "text": ""
+        },
+        {
+          "nr": 12,
+          "name": "ausrichten-oben",
+          "datei": "canvas-auswahl-12-ausrichten-oben.jpg",
+          "text": ""
+        },
+        {
+          "nr": 13,
+          "name": "ausrichten-mitte-senkrecht",
+          "datei": "canvas-auswahl-13-ausrichten-mitte-senkrecht.jpg",
+          "text": ""
+        },
+        {
+          "nr": 14,
+          "name": "ausrichten-unten",
+          "datei": "canvas-auswahl-14-ausrichten-unten.jpg",
+          "text": ""
+        },
+        {
+          "nr": 15,
+          "name": "ausrichten-verteilen-waagerecht",
+          "datei": "canvas-auswahl-15-ausrichten-verteilen-waagerecht.jpg",
+          "text": ""
+        },
+        {
+          "nr": 16,
+          "name": "ausrichten-verteilen-senkrecht",
+          "datei": "canvas-auswahl-16-ausrichten-verteilen-senkrecht.jpg",
+          "text": ""
+        },
+        {
+          "nr": 17,
+          "name": "gruppe-name",
+          "datei": "canvas-auswahl-17-gruppe-name.jpg",
+          "text": ""
+        },
+        {
+          "nr": 18,
+          "name": "gruppe-gespeichert",
+          "datei": "canvas-auswahl-18-gruppe-gespeichert.jpg",
+          "text": ""
+        },
+        {
+          "nr": 19,
+          "name": "gruppe-ueberschreiben",
+          "datei": "canvas-auswahl-19-gruppe-ueberschreiben.jpg",
+          "text": ""
+        },
+        {
+          "nr": 20,
+          "name": "rack-aus-auswahl",
+          "datei": "canvas-auswahl-20-rack-aus-auswahl.jpg",
+          "text": "Neues Rack aus Auswahl\nBearbeiten\n\n2D Rack Builder · Geräte aus Library hinzufügen, HE-Position per Drag, Verkabelung internEsc schließen\n\nExportieren\nRack-Name *\nHöhe (HE)\nTiefe (mm)\nKonflikte (3)\nCamera 2: ist nicht als Rack-Gerät markiert.\nVision mixer: ist nicht als Rack-Gerät markiert.\nMultiviewer: ist nicht als Rack-Gerät markiert.\nBibliothek\n28 / 1849\n+ Patchblende\n+ Rack-Shelf\nAuch Nicht-Rack-Geräte\nCrestron Avia DSP-1283\nAudio\n+ Ins Rack\n1 HE · 20 In · 8 Out\nClear-Com CS-702\nIntercom\n+ Ins Rack\n1 HE · 4 In · 8 Out\nClear-Com MS-702\nIntercom\n+ Ins Rack\n1 HE · 5 In · 8 Out\nClear-Com SB-704\nIntercom\n+ Ins Rack\n1 HE · 6 In · 16 Out\nSonnet xMac mini Server Thunderbolt 3 (XMAC-MS-A-TB3)\nIT/Server\n+ Ins Rack\n1 HE · 2 In · 4 Out\nBrompton Tessera S4\nLED Processing\n+ Ins Rack\n1 HE · 5 In · 6 Out\nBrompton Tessera S8\nLED Processing\n+ Ins Rack\n2 HE · 9 In · 12 Out\nBrompton Tessera T1\nLED Processing\n+ Ins Rack\n1 HE · 6 In · 4 Out\nBrompton Tessera XD 10G\nLED Processing\n+ Ins Rack\n1 HE · 2 In · 11 Out\nCisco Catalyst 9300 24-Port UPOE (C9300-24U)\nNetworking\n+ Ins Rack\n1 HE · 7 In · 27 Out\nCisco Catalyst 9300X 48-Port UPOE+ (C9300X-48HXN)\nNetworking\n+ Ins Rack\n1 HE · 7 In · 51 Out\nCisco Nexus 93108TC-EX\nNetworking\n+ Ins Rack\n1 HE · 6 In · 54 Out\nLuminex GigaCore 12\nNetworking\n+ Ins Rack\n1 HE · 2 In · 15 Out\nLuminex GigaCore 14R\nNetworking\n+ Ins Rack\n1 HE · 4 In · 16 Out\nLuminex GigaCore 16i\nNetworking\n+ Ins Rack\n1 HE · 1 In · 16 Out\nLuminex GigaCore 16RFO\nNetworking\n+ Ins Rack\n1 HE · 2"
+        },
+        {
+          "nr": 21,
+          "name": "kabel-verbinden-knopf",
+          "datei": "canvas-auswahl-21-kabel-verbinden-knopf.jpg",
+          "text": ""
+        },
+        {
+          "nr": 22,
+          "name": "kabel-verbinden-dialog",
+          "datei": "canvas-auswahl-22-kabel-verbinden-dialog.jpg",
+          "text": "Mehrere Kabel verbinden\n\nErstellt N Kabel auf einmal: Quelle-Port i → Ziel-Port i. Belegte Ziel-Ports werden übersprungen.\n\nQuelle\nGerät\n—\nCamera 1\nCamera 2\nVision mixer\nMultiviewer\nControl room monitor\nSeite\nOutputs\nInputs\nStart-Output (1..1)\nZiel\nGerät\n—\nCamera 1\nCamera 2\nVision mixer\nMultiviewer\nControl room monitor\nSeite\nInputs\nOutputs\nStart-Input (1..4)\nAnzahl Kabel\nKabel-Typ\nXLR 3-pin Audio (XLR)\nSDI 3G (1080p50/60) (BNC)\nSDI 6G (4K30 4:2:0) (BNC)\nSDI 12G (4K60) (BNC)\nHDMI 2.0 (4K60 4:4:4) (HDMI)\nHDMI 2.1 (8K/4K120) (HDMI)\nDisplayPort 1.4 (DisplayPort)\nEthernet Cat6 (1G) (Ethernet/RJ45)\nEthernet Cat6a (10G) (Ethernet/RJ45)\nNDI über Cat6a (1G/10G) (Ethernet/RJ45)\nDante / AES67 (Cat6) (Ethernet/RJ45)\nStream-Uplink (SRT/RTMP/HLS) (Ethernet/RJ45)\nSMPTE ST 2110 (Fiber) (Fiber)\nReferenz Blackburst / Tri-Level (BNC) (BNC)\nWord Clock (BNC) (BNC)\nLTC Timecode (BNC) (BNC)\nPTP / Referenz (Ethernet) (Ethernet/RJ45)\nFiber SM (LC) (Fiber)\nFiber MM OM4 (LC) (Fiber)\nUSB 3.x (USB)\nIEC C13/C14 230V (IEC 230V)\npowerCON TRUE1 (PowerCON)\nSchuko 230V (Schuko 230V)\nThunderbolt 3 (40Gbps) (USB-C)\nThunderbolt 4 (40Gbps, zertifiziert) (USB-C)\nMADI Koax (BNC, 75Ω) (BNC)\nAES3id (BNC, 75Ω) (BNC)\nDVB-ASI (BNC, 75Ω) (BNC)\nMADI Optisch (ST/SC Fiber) (Fiber)\nSMPTE ST 297 — Optisches SDI (Glasfaser) (Fiber)\nSMPTE 304M Hybrid-Fiber (LEMO 3K.93C / 311) (LEMO 3K.93C (SMPTE 304M))\nSMPTE 304M Hybrid-Fiber (Neutrik Dragonfly) (Neutrik Dragonfly (SMPTE 304M))\nTriax (Damar & Hagen) (Triax (Damar & Hagen))\nTriax"
+        },
+        {
+          "nr": 23,
+          "name": "kabel-verbinden-werte",
+          "datei": "canvas-auswahl-23-kabel-verbinden-werte.jpg",
+          "text": "Mehrere Kabel verbinden\n\nErstellt N Kabel auf einmal: Quelle-Port i → Ziel-Port i. Belegte Ziel-Ports werden übersprungen.\n\nQuelle\nGerät\n—\nCamera 1\nCamera 2\nVision mixer\nMultiviewer\nControl room monitor\nSeite\nOutputs\nInputs\nStart-Output (1..1)\nZiel\nGerät\n—\nCamera 1\nCamera 2\nVision mixer\nMultiviewer\nControl room monitor\nSeite\nInputs\nOutputs\nStart-Input (1..4)\nAnzahl Kabel\nKabel-Typ\nXLR 3-pin Audio (XLR)\nSDI 3G (1080p50/60) (BNC)\nSDI 6G (4K30 4:2:0) (BNC)\nSDI 12G (4K60) (BNC)\nHDMI 2.0 (4K60 4:4:4) (HDMI)\nHDMI 2.1 (8K/4K120) (HDMI)\nDisplayPort 1.4 (DisplayPort)\nEthernet Cat6 (1G) (Ethernet/RJ45)\nEthernet Cat6a (10G) (Ethernet/RJ45)\nNDI über Cat6a (1G/10G) (Ethernet/RJ45)\nDante / AES67 (Cat6) (Ethernet/RJ45)\nStream-Uplink (SRT/RTMP/HLS) (Ethernet/RJ45)\nSMPTE ST 2110 (Fiber) (Fiber)\nReferenz Blackburst / Tri-Level (BNC) (BNC)\nWord Clock (BNC) (BNC)\nLTC Timecode (BNC) (BNC)\nPTP / Referenz (Ethernet) (Ethernet/RJ45)\nFiber SM (LC) (Fiber)\nFiber MM OM4 (LC) (Fiber)\nUSB 3.x (USB)\nIEC C13/C14 230V (IEC 230V)\npowerCON TRUE1 (PowerCON)\nSchuko 230V (Schuko 230V)\nThunderbolt 3 (40Gbps) (USB-C)\nThunderbolt 4 (40Gbps, zertifiziert) (USB-C)\nMADI Koax (BNC, 75Ω) (BNC)\nAES3id (BNC, 75Ω) (BNC)\nDVB-ASI (BNC, 75Ω) (BNC)\nMADI Optisch (ST/SC Fiber) (Fiber)\nSMPTE ST 297 — Optisches SDI (Glasfaser) (Fiber)\nSMPTE 304M Hybrid-Fiber (LEMO 3K.93C / 311) (LEMO 3K.93C (SMPTE 304M))\nSMPTE 304M Hybrid-Fiber (Neutrik Dragonfly) (Neutrik Dragonfly (SMPTE 304M))\nTriax (Damar & Hagen) (Triax (Damar & Hagen))\nTriax"
         }
       ],
       "fehler": [
-        "03 einzeln-unten: locator.click: Timeout 8000ms exceeded.",
-        "04 zwei-geraete: locator.click: Timeout 8000ms exceeded.",
-        "05 drei-geraete: locator.click: Timeout 8000ms exceeded."
+        "24 kabel-verbinden-erstellt: locator.click: Timeout 6000ms exceeded."
       ]
     },
     "kuerzel": {
@@ -267,6 +387,24 @@
           "nr": 2,
           "name": "rahmen-umbenennen",
           "datei": "canvas-rahmen-02-rahmen-umbenennen.jpg",
+          "text": "Location umbenennen:\nAbbrechen\nOK"
+        },
+        {
+          "nr": 3,
+          "name": "rahmen-benannt",
+          "datei": "canvas-rahmen-03-rahmen-benannt.jpg",
+          "text": ""
+        },
+        {
+          "nr": 4,
+          "name": "rahmen-inspector",
+          "datei": "canvas-rahmen-04-rahmen-inspector.jpg",
+          "text": ""
+        },
+        {
+          "nr": 5,
+          "name": "rahmen-groesse",
+          "datei": "canvas-rahmen-05-rahmen-groesse.jpg",
           "text": ""
         },
         {
@@ -276,9 +414,45 @@
           "text": ""
         },
         {
+          "nr": 7,
+          "name": "rahmen-sperren",
+          "datei": "canvas-rahmen-07-rahmen-sperren.jpg",
+          "text": ""
+        },
+        {
+          "nr": 8,
+          "name": "rahmen-entsperren",
+          "datei": "canvas-rahmen-08-rahmen-entsperren.jpg",
+          "text": ""
+        },
+        {
           "nr": 9,
           "name": "rahmen-kontext",
           "datei": "canvas-rahmen-09-rahmen-kontext.jpg",
+          "text": ""
+        },
+        {
+          "nr": 10,
+          "name": "rahmen-loeschen-frage",
+          "datei": "canvas-rahmen-10-rahmen-loeschen-frage.jpg",
+          "text": "Rahmen \"Studio\" löschen?\nNur der Rahmen wird gelöscht. Die enthaltenen Geräte bleiben auf dem Canvas.\nAbbrechen\nLöschen"
+        },
+        {
+          "nr": 11,
+          "name": "rahmen-geloescht",
+          "datei": "canvas-rahmen-11-rahmen-geloescht.jpg",
+          "text": ""
+        },
+        {
+          "nr": 12,
+          "name": "rahmen-um-auswahl",
+          "datei": "canvas-rahmen-12-rahmen-um-auswahl.jpg",
+          "text": ""
+        },
+        {
+          "nr": 13,
+          "name": "rahmen-um-auswahl-fertig",
+          "datei": "canvas-rahmen-13-rahmen-um-auswahl-fertig.jpg",
           "text": ""
         },
         {
@@ -288,24 +462,44 @@
           "text": ""
         }
       ],
-      "fehler": [
-        "03 rahmen-benannt: locator.fill: Timeout 30000ms exceeded.",
-        "04 rahmen-inspector: locator.click: Timeout 6000ms exceeded.",
-        "05 rahmen-groesse: locator.boundingBox: Timeout 30000ms exceeded.",
-        "07 rahmen-sperren: locator.click: Timeout 8000ms exceeded.",
-        "08 rahmen-entsperren: locator.click: Timeout 8000ms exceeded.",
-        "10 rahmen-loeschen-frage: locator.click: Timeout 5000ms exceeded.",
-        "11 rahmen-geloescht: locator.click: Timeout 8000ms exceeded.",
-        "12 rahmen-um-auswahl: locator.click: Timeout 8000ms exceeded.",
-        "13 rahmen-um-auswahl-fertig: locator.click: Timeout 8000ms exceeded."
-      ]
+      "fehler": []
     },
     "raeume": {
       "schritte": [
         {
+          "nr": 1,
+          "name": "rahmen-kameras",
+          "datei": "canvas-raeume-01-rahmen-kameras.jpg",
+          "text": ""
+        },
+        {
+          "nr": 2,
+          "name": "rahmen-monitore",
+          "datei": "canvas-raeume-02-rahmen-monitore.jpg",
+          "text": ""
+        },
+        {
+          "nr": 3,
+          "name": "rahmen-mischer",
+          "datei": "canvas-raeume-03-rahmen-mischer.jpg",
+          "text": ""
+        },
+        {
           "nr": 4,
           "name": "raeume-knopf",
           "datei": "canvas-raeume-04-raeume-knopf.jpg",
+          "text": ""
+        },
+        {
+          "nr": 5,
+          "name": "etage-neu",
+          "datei": "canvas-raeume-05-etage-neu.jpg",
+          "text": "Name der neuen Etage (z. B. „3. OG“)\nAbbrechen\nOK"
+        },
+        {
+          "nr": 6,
+          "name": "etage-benannt",
+          "datei": "canvas-raeume-06-etage-benannt.jpg",
           "text": ""
         },
         {
@@ -315,54 +509,97 @@
           "text": ""
         },
         {
-          "nr": 12,
+          "nr": 8,
+          "name": "etage-hoehen",
+          "datei": "canvas-raeume-08-etage-hoehen.jpg",
+          "text": ""
+        },
+        {
+          "nr": 9,
+          "name": "etage-dritter-raum",
+          "datei": "canvas-raeume-09-etage-dritter-raum.jpg",
+          "text": ""
+        },
+        {
+          "nr": 10,
+          "name": "steigschacht",
+          "datei": "canvas-raeume-10-steigschacht.jpg",
+          "text": ""
+        },
+        {
+          "nr": 11,
           "name": "raeume-menue",
-          "datei": "canvas-raeume-12-raeume-menue.jpg",
+          "datei": "canvas-raeume-11-raeume-menue.jpg",
+          "text": ""
+        },
+        {
+          "nr": 12,
+          "name": "raum-aus",
+          "datei": "canvas-raeume-12-raum-aus.jpg",
+          "text": ""
+        },
+        {
+          "nr": 13,
+          "name": "raum-aus-flaeche",
+          "datei": "canvas-raeume-13-raum-aus-flaeche.jpg",
           "text": ""
         },
         {
           "nr": 14,
-          "name": "raum-aus-flaeche",
-          "datei": "canvas-raeume-14-raum-aus-flaeche.jpg",
+          "name": "etage-aus",
+          "datei": "canvas-raeume-14-etage-aus.jpg",
           "text": ""
         },
         {
           "nr": 15,
-          "name": "etage-aus",
-          "datei": "canvas-raeume-15-etage-aus.jpg",
+          "name": "etage-aus-flaeche",
+          "datei": "canvas-raeume-15-etage-aus-flaeche.jpg",
           "text": ""
         },
         {
           "nr": 16,
-          "name": "etage-aus-flaeche",
-          "datei": "canvas-raeume-16-etage-aus-flaeche.jpg",
+          "name": "alle-zeigen",
+          "datei": "canvas-raeume-16-alle-zeigen.jpg",
           "text": ""
         },
         {
-          "nr": 23,
+          "nr": 17,
+          "name": "drei-d-raeume",
+          "datei": "canvas-raeume-17-drei-d-raeume.jpg",
+          "text": "Gebäude 3D\nRaumverbindungen\nEinzelne Kabel\nBeschriftung\nGeschosshöhe (m)\nRäume\nSchließen\nErdgeschoss · Studio\n1. Obergeschoss · Regie\nTechnik\n2 Räume · 5 Geräte · 4 Kabel · 0 Raumverbindungen — ziehen zum Drehen, scrollen zum Zoomen"
+        },
+        {
+          "nr": 18,
+          "name": "drei-d-kabel",
+          "datei": "canvas-raeume-18-drei-d-kabel.jpg",
+          "text": "Gebäude 3D\nRaumverbindungen\nEinzelne Kabel\nBeschriftung\nGeschosshöhe (m)\nRäume\nSchließen\nErdgeschoss · Studio\n1. Obergeschoss · Regie\nTechnik\nCamera 1\nCamera 2\nVision mixer\nMultiviewer\nControl room monitor\n2 Räume · 5 Geräte · 4 Kabel · 0 Raumverbindungen — ziehen zum Drehen, scrollen zum Zoomen"
+        },
+        {
+          "nr": 19,
+          "name": "drei-d-ohne-beschriftung",
+          "datei": "canvas-raeume-19-drei-d-ohne-beschriftung.jpg",
+          "text": "Gebäude 3D\nRaumverbindungen\nEinzelne Kabel\nBeschriftung\nGeschosshöhe (m)\nRäume\nSchließen\n2 Räume · 5 Geräte · 4 Kabel · 0 Raumverbindungen — ziehen zum Drehen, scrollen zum Zoomen"
+        },
+        {
+          "nr": 20,
+          "name": "drei-d-geschosshoehe",
+          "datei": "canvas-raeume-20-drei-d-geschosshoehe.jpg",
+          "text": "Gebäude 3D\nRaumverbindungen\nEinzelne Kabel\nBeschriftung\nGeschosshöhe (m)\nRäume\nSchließen\nErdgeschoss · Studio\n1. Obergeschoss · Regie\nTechnik\nCamera 1\nCamera 2\nVision mixer\nMultiviewer\nControl room monitor\n2 Räume · 5 Geräte · 4 Kabel · 0 Raumverbindungen — ziehen zum Drehen, scrollen zum Zoomen"
+        },
+        {
+          "nr": 21,
+          "name": "drei-d-raeume-menue",
+          "datei": "canvas-raeume-21-drei-d-raeume-menue.jpg",
+          "text": "Gebäude 3D\nRaumverbindungen\nEinzelne Kabel\nBeschriftung\nGeschosshöhe (m)\nRäume\n1. Obergeschoss\nRegie\nTechnik\nErdgeschoss\nStudio\nSchließen\nErdgeschoss · Studio\n1. Obergeschoss · Regie\nTechnik\nCamera 1\nCamera 2\nVision mixer\nMultiviewer\nControl room monitor\n2 Räume · 5 Geräte · 4 Kabel · 0 Raumverbindungen — ziehen zum Drehen, scrollen zum Zoomen"
+        },
+        {
+          "nr": 22,
           "name": "drei-d-zu",
-          "datei": "canvas-raeume-23-drei-d-zu.jpg",
+          "datei": "canvas-raeume-22-drei-d-zu.jpg",
           "text": ""
         }
       ],
-      "fehler": [
-        "01 rahmen-kameras: locator.fill: Timeout 30000ms exceeded.",
-        "02 rahmen-monitore: locator.click: Timeout 8000ms exceeded.",
-        "03 rahmen-mischer: locator.boundingBox: Timeout 30000ms exceeded.",
-        "05 etage-neu: locator.click: Timeout 6000ms exceeded.",
-        "06 etage-benannt: locator.fill: Timeout 30000ms exceeded.",
-        "08 etage-hoehen: ziel.count is not a function",
-        "09 etage-dritter-raum: locator.click: Timeout 6000ms exceeded.",
-        "10 steigschacht: ziel.count is not a function",
-        "11 steigschacht-aus: ziel.count is not a function",
-        "13 raum-aus: locator.uncheck: Timeout 30000ms exceeded.",
-        "17 alle-zeigen: locator.click: Timeout 30000ms exceeded.",
-        "18 drei-d-raeume: ziel.count is not a function",
-        "19 drei-d-kabel: ziel.count is not a function",
-        "20 drei-d-ohne-beschriftung: ziel.count is not a function",
-        "21 drei-d-geschosshoehe: ziel.count is not a function",
-        "22 drei-d-raeume-menue: ziel.count is not a function"
-      ]
+      "fehler": []
     },
     "ebenen": {
       "schritte": [
@@ -513,10 +750,10 @@
       ],
       "fehler": [
         "09 pruefbild-falsches-bild: locator.click: Timeout 6000ms exceeded.",
-        "10 pruefbild-vertauscht: locator.fill: Timeout 30000ms exceeded.",
+        "10 pruefbild-vertauscht: locator.fill: Timeout 7000ms exceeded.",
         "11 pruefbild-stimmt: locator.click: Timeout 6000ms exceeded.",
         "12 weg-schalten-dialog: Weg schalten: Schaltfläche nicht vorhanden",
-        "14 weg-schalten-bestaetigung: locator.check: Timeout 30000ms exceeded."
+        "14 weg-schalten-bestaetigung: locator.check: Timeout 7000ms exceeded."
       ]
     },
     "sperren": {
@@ -537,6 +774,12 @@
           "nr": 3,
           "name": "geraet-bleibt",
           "datei": "canvas-sperren-03-geraet-bleibt.jpg",
+          "text": ""
+        },
+        {
+          "nr": 4,
+          "name": "kabel",
+          "datei": "canvas-sperren-04-kabel.jpg",
           "text": ""
         },
         {
@@ -564,9 +807,7 @@
           "text": ""
         }
       ],
-      "fehler": [
-        "04 kabel: locator.click: Timeout 8000ms exceeded."
-      ]
+      "fehler": []
     },
     "abschliessen": {
       "schritte": [
@@ -580,12 +821,6 @@
           "nr": 2,
           "name": "frage",
           "datei": "canvas-abschliessen-02-frage.jpg",
-          "text": "Planung abschließen?\nDas Canvas wird gesperrt — keine Verschiebungen, neue Verbindungen oder Löschungen möglich. Du kannst die Sperre jederzeit wieder aufheben.\nAbbrechen\nAbschließen"
-        },
-        {
-          "nr": 3,
-          "name": "abgeschlossen",
-          "datei": "canvas-abschliessen-03-abgeschlossen.jpg",
           "text": ""
         },
         {
@@ -593,33 +828,16 @@
           "name": "verschieben-geht-nicht",
           "datei": "canvas-abschliessen-04-verschieben-geht-nicht.jpg",
           "text": ""
-        },
-        {
-          "nr": 5,
-          "name": "freigeben-frage",
-          "datei": "canvas-abschliessen-05-freigeben-frage.jpg",
-          "text": "Planung wieder zur Bearbeitung freigeben?\nGeräte, Kabel und Layout können dann wieder verändert werden.\nAbbrechen\nFreigeben"
-        },
-        {
-          "nr": 6,
-          "name": "freigegeben",
-          "datei": "canvas-abschliessen-06-freigegeben.jpg",
-          "text": ""
-        },
-        {
-          "nr": 7,
-          "name": "ueber-die-leiste-frage",
-          "datei": "canvas-abschliessen-07-ueber-die-leiste-frage.jpg",
-          "text": "Planung wieder zur Bearbeitung freigeben?\nGeräte, Kabel und Layout können dann wieder verändert werden.\nAbbrechen\nFreigeben"
-        },
-        {
-          "nr": 8,
-          "name": "ueber-die-leiste-frei",
-          "datei": "canvas-abschliessen-08-ueber-die-leiste-frei.jpg",
-          "text": ""
         }
       ],
-      "fehler": []
+      "fehler": [
+        "03 abgeschlossen: locator.click: Timeout 8000ms exceeded.",
+        "05 freigeben-frage: locator.click: Timeout 8000ms exceeded.",
+        "06 freigegeben: locator.click: Timeout 8000ms exceeded.",
+        "07 ueber-die-leiste-frage: locator.click: Timeout 8000ms exceeded.",
+        "08 ueber-die-leiste-frei: locator.click: Timeout 8000ms exceeded.",
+        "09 betrachter: el.count is not a function"
+      ]
     },
     "anmerkungen": {
       "schritte": [
@@ -628,13 +846,28 @@
           "name": "knoepfe",
           "datei": "canvas-anmerkungen-01-knoepfe.jpg",
           "text": ""
+        },
+        {
+          "nr": 2,
+          "name": "panel-offen",
+          "datei": "canvas-anmerkungen-02-panel-offen.jpg",
+          "text": ""
+        },
+        {
+          "nr": 4,
+          "name": "neu-text",
+          "datei": "canvas-anmerkungen-04-neu-text.jpg",
+          "text": ""
+        },
+        {
+          "nr": 5,
+          "name": "hinzugefuegt",
+          "datei": "canvas-anmerkungen-05-hinzugefuegt.jpg",
+          "text": ""
         }
       ],
       "fehler": [
-        "02 panel-offen: ziel.count is not a function",
-        "03 neu-name: ziel.count is not a function",
-        "04 neu-text: ziel.count is not a function",
-        "05 hinzugefuegt: locator.click: Timeout 8000ms exceeded."
+        "03 neu-name: locator.click: Timeout 8000ms exceeded."
       ]
     },
     "hallenplan": {
@@ -644,110 +877,35 @@
           "name": "knopf",
           "datei": "canvas-hallenplan-01-knopf.jpg",
           "text": ""
-        },
-        {
-          "nr": 2,
-          "name": "panel-leer",
-          "datei": "canvas-hallenplan-02-panel-leer.jpg",
-          "text": ""
-        },
-        {
-          "nr": 3,
-          "name": "bild-geladen",
-          "datei": "canvas-hallenplan-03-bild-geladen.jpg",
-          "text": ""
-        },
-        {
-          "nr": 4,
-          "name": "deckkraft",
-          "datei": "canvas-hallenplan-04-deckkraft.jpg",
-          "text": ""
-        },
-        {
-          "nr": 5,
-          "name": "deckkraft-fest",
-          "datei": "canvas-hallenplan-05-deckkraft-fest.jpg",
-          "text": ""
-        },
-        {
-          "nr": 6,
-          "name": "plan-gewaehlt",
-          "datei": "canvas-hallenplan-06-plan-gewaehlt.jpg",
-          "text": ""
-        },
-        {
-          "nr": 7,
-          "name": "zwei-punkte-start",
-          "datei": "canvas-hallenplan-07-zwei-punkte-start.jpg",
-          "text": ""
-        },
-        {
-          "nr": 8,
-          "name": "zwei-punkte-erster",
-          "datei": "canvas-hallenplan-08-zwei-punkte-erster.jpg",
-          "text": ""
-        },
-        {
-          "nr": 9,
-          "name": "zwei-punkte-fertig",
-          "datei": "canvas-hallenplan-09-zwei-punkte-fertig.jpg",
-          "text": ""
-        },
-        {
-          "nr": 10,
-          "name": "vier-ecken-start",
-          "datei": "canvas-hallenplan-10-vier-ecken-start.jpg",
-          "text": ""
-        },
-        {
-          "nr": 11,
-          "name": "vier-ecken-falsch",
-          "datei": "canvas-hallenplan-11-vier-ecken-falsch.jpg",
-          "text": ""
-        },
-        {
-          "nr": 12,
-          "name": "vier-ecken-fertig",
-          "datei": "canvas-hallenplan-12-vier-ecken-fertig.jpg",
-          "text": ""
-        },
-        {
-          "nr": 17,
-          "name": "ersetzen-frage",
-          "datei": "canvas-hallenplan-17-ersetzen-frage.jpg",
-          "text": ""
-        },
-        {
-          "nr": 21,
-          "name": "venue-import",
-          "datei": "canvas-hallenplan-21-venue-import.jpg",
-          "text": ""
-        },
-        {
-          "nr": 26,
-          "name": "plan-entfernen",
-          "datei": "canvas-hallenplan-26-plan-entfernen.jpg",
-          "text": ""
-        },
-        {
-          "nr": 27,
-          "name": "panel-zu",
-          "datei": "canvas-hallenplan-27-panel-zu.jpg",
-          "text": ""
         }
       ],
       "fehler": [
-        "13 export-gesperrt: ziel.count is not a function",
-        "14 laengen-neu: ziel.count is not a function",
-        "15 sperre: ziel.count is not a function",
-        "16 sperre-aus: ziel.count is not a function",
+        "02 panel-leer: locator.innerText: Timeout 7000ms exceeded.",
+        "03 bild-geladen: locator.click: Timeout 7000ms exceeded.",
+        "04 deckkraft: locator.evaluate: Timeout 7000ms exceeded.",
+        "05 deckkraft-fest: locator.evaluate: Timeout 7000ms exceeded.",
+        "06 plan-gewaehlt: locator.boundingBox: Timeout 7000ms exceeded.",
+        "07 zwei-punkte-start: locator.click: Timeout 8000ms exceeded.",
+        "08 zwei-punkte-erster: locator.boundingBox: Timeout 7000ms exceeded.",
+        "09 zwei-punkte-fertig: locator.boundingBox: Timeout 7000ms exceeded.",
+        "10 vier-ecken-start: locator.fill: Timeout 7000ms exceeded.",
+        "11 vier-ecken-falsch: locator.boundingBox: Timeout 7000ms exceeded.",
+        "12 vier-ecken-fertig: locator.boundingBox: Timeout 7000ms exceeded.",
+        "13 export-gesperrt: locator.getAttribute: Timeout 7000ms exceeded.",
+        "14 laengen-neu: locator.click: Timeout 8000ms exceeded.",
+        "15 sperre: locator.check: Timeout 7000ms exceeded.",
+        "16 sperre-aus: locator.uncheck: Timeout 7000ms exceeded.",
+        "17 ersetzen-frage: locator.click: Timeout 7000ms exceeded.",
         "18 ersetzt: locator.click: Timeout 8000ms exceeded.",
-        "19 kein-bild: ziel.count is not a function",
-        "20 pdf-nicht-moeglich: ziel.count is not a function",
-        "22 venue-export-moeglich: ziel.count is not a function",
-        "23 venue-ungueltig: ziel.count is not a function",
-        "24 venue-ohne-plan: ziel.count is not a function",
-        "25 venue-ohne-masse: ziel.count is not a function"
+        "19 kein-bild: locator.setInputFiles: Timeout 7000ms exceeded.",
+        "20 pdf-nicht-moeglich: locator.setInputFiles: Timeout 7000ms exceeded.",
+        "21 venue-import: locator.click: Timeout 7000ms exceeded.",
+        "22 venue-export-moeglich: locator.isEnabled: Timeout 7000ms exceeded.",
+        "23 venue-ungueltig: locator.setInputFiles: Timeout 7000ms exceeded.",
+        "24 venue-ohne-plan: locator.setInputFiles: Timeout 7000ms exceeded.",
+        "25 venue-ohne-masse: locator.setInputFiles: Timeout 7000ms exceeded.",
+        "26 plan-entfernen: locator.click: Timeout 8000ms exceeded.",
+        "27 panel-zu: locator.click: Timeout 8000ms exceeded."
       ]
     },
     "symbole": {
@@ -757,77 +915,37 @@
           "name": "knopf",
           "datei": "canvas-symbole-01-knopf.jpg",
           "text": ""
-        },
-        {
-          "nr": 2,
-          "name": "panel-offen",
-          "datei": "canvas-symbole-02-panel-offen.jpg",
-          "text": ""
-        },
-        {
-          "nr": 12,
-          "name": "platziert",
-          "datei": "canvas-symbole-12-platziert.jpg",
-          "text": ""
-        },
-        {
-          "nr": 13,
-          "name": "beschriftung",
-          "datei": "canvas-symbole-13-beschriftung.jpg",
-          "text": ""
-        },
-        {
-          "nr": 14,
-          "name": "groesse",
-          "datei": "canvas-symbole-14-groesse.jpg",
-          "text": ""
-        },
-        {
-          "nr": 15,
-          "name": "drehung",
-          "datei": "canvas-symbole-15-drehung.jpg",
-          "text": ""
-        },
-        {
-          "nr": 16,
-          "name": "gesperrt",
-          "datei": "canvas-symbole-16-gesperrt.jpg",
-          "text": ""
-        },
-        {
-          "nr": 17,
-          "name": "weitere",
-          "datei": "canvas-symbole-17-weitere.jpg",
-          "text": ""
-        },
-        {
-          "nr": 18,
-          "name": "loeschen",
-          "datei": "canvas-symbole-18-loeschen.jpg",
-          "text": ""
         }
       ],
       "fehler": [
-        "03 kategorie-elektro: ziel.count is not a function",
-        "04 kategorie-ema: ziel.count is not a function",
-        "05 kategorie-bma: ziel.count is not a function",
-        "06 kategorie-saa: ziel.count is not a function",
-        "07 kategorie-it: ziel.count is not a function",
-        "08 kategorie-automation: ziel.count is not a function",
-        "09 kategorie-av: ziel.count is not a function",
-        "10 kategorie-eigene: ziel.count is not a function",
-        "11 suche: ziel.count is not a function",
-        "19 import-knopf: ziel.count is not a function",
-        "20 import-svg: ziel.count is not a function",
-        "21 import-png: ziel.count is not a function",
-        "22 import-zu-gross: ziel.count is not a function",
-        "23 import-kaputt: ziel.count is not a function",
-        "24 import-entfernen: ziel.count is not a function",
-        "25 ki-ohne-schluessel: ziel.count is not a function",
-        "26 ki-bereich: ziel.count is not a function",
-        "27 ki-beschreibung: ziel.count is not a function",
-        "28 ki-ergebnis: ziel.count is not a function",
-        "29 liste-csv: ziel.count is not a function"
+        "02 panel-offen: locator.innerText: Timeout 7000ms exceeded.",
+        "03 kategorie-elektro: locator.click: Timeout 8000ms exceeded.",
+        "04 kategorie-ema: locator.click: Timeout 8000ms exceeded.",
+        "05 kategorie-bma: locator.click: Timeout 8000ms exceeded.",
+        "06 kategorie-saa: locator.click: Timeout 8000ms exceeded.",
+        "07 kategorie-it: locator.click: Timeout 8000ms exceeded.",
+        "08 kategorie-automation: locator.click: Timeout 8000ms exceeded.",
+        "09 kategorie-av: locator.click: Timeout 8000ms exceeded.",
+        "10 kategorie-eigene: locator.click: Timeout 8000ms exceeded.",
+        "11 suche: locator.fill: Timeout 7000ms exceeded.",
+        "12 platziert: locator.fill: Timeout 7000ms exceeded.",
+        "13 beschriftung: locator.fill: Timeout 7000ms exceeded.",
+        "14 groesse: locator.fill: Timeout 7000ms exceeded.",
+        "15 drehung: locator.selectOption: Timeout 7000ms exceeded.",
+        "16 gesperrt: locator.check: Timeout 7000ms exceeded.",
+        "17 weitere: locator.uncheck: Timeout 7000ms exceeded.",
+        "18 loeschen: locator.click: Timeout 8000ms exceeded.",
+        "19 import-knopf: locator.evaluate: Timeout 7000ms exceeded.",
+        "20 import-svg: locator.click: Timeout 7000ms exceeded.",
+        "21 import-png: locator.setInputFiles: Timeout 7000ms exceeded.",
+        "22 import-zu-gross: locator.setInputFiles: Timeout 7000ms exceeded.",
+        "23 import-kaputt: locator.setInputFiles: Timeout 7000ms exceeded.",
+        "24 import-entfernen: locator.evaluate: Timeout 7000ms exceeded.",
+        "25 ki-ohne-schluessel: locator.evaluate: Timeout 7000ms exceeded.",
+        "26 ki-bereich: locator.evaluate: Timeout 7000ms exceeded.",
+        "27 ki-beschreibung: locator.fill: Timeout 7000ms exceeded.",
+        "28 ki-ergebnis: locator.click: Timeout 8000ms exceeded.",
+        "29 liste-csv: locator.evaluate: Timeout 7000ms exceeded."
       ]
     },
     "suche": {
@@ -890,6 +1008,36 @@
           "nr": 10,
           "name": "ansicht-menue-suche",
           "datei": "canvas-suche-10-ansicht-menue-suche.jpg",
+          "text": ""
+        },
+        {
+          "nr": 11,
+          "name": "felder-ip",
+          "datei": "canvas-suche-11-felder-ip.jpg",
+          "text": ""
+        },
+        {
+          "nr": 12,
+          "name": "felder-seriennummer",
+          "datei": "canvas-suche-12-felder-seriennummer.jpg",
+          "text": ""
+        },
+        {
+          "nr": 13,
+          "name": "felder-mac",
+          "datei": "canvas-suche-13-felder-mac.jpg",
+          "text": ""
+        },
+        {
+          "nr": 14,
+          "name": "felder-notiz",
+          "datei": "canvas-suche-14-felder-notiz.jpg",
+          "text": ""
+        },
+        {
+          "nr": 15,
+          "name": "felder-vlan",
+          "datei": "canvas-suche-15-felder-vlan.jpg",
           "text": ""
         }
       ],
@@ -993,9 +1141,27 @@
           "text": ""
         },
         {
+          "nr": 7,
+          "name": "offenes-ende",
+          "datei": "canvas-kabel-07-offenes-ende.jpg",
+          "text": ""
+        },
+        {
           "nr": 8,
           "name": "offenes-ende-abbruch",
           "datei": "canvas-kabel-08-offenes-ende-abbruch.jpg",
+          "text": ""
+        },
+        {
+          "nr": 9,
+          "name": "auf-den-koerper",
+          "datei": "canvas-kabel-09-auf-den-koerper.jpg",
+          "text": ""
+        },
+        {
+          "nr": 12,
+          "name": "klick-knick",
+          "datei": "canvas-kabel-12-klick-knick.jpg",
           "text": ""
         },
         {
@@ -1018,14 +1184,11 @@
         }
       ],
       "fehler": [
-        "03 dialog-eigenes-kabel: locator.selectOption: Timeout 30000ms exceeded.",
+        "03 dialog-eigenes-kabel: locator.selectOption: Timeout 7000ms exceeded.",
         "04 kabel-angelegt: locator.click: Timeout 6000ms exceeded.",
-        "06 besetzt-abbruch: locator.click: Timeout 30000ms exceeded.",
-        "07 offenes-ende: ziel.count is not a function",
-        "09 auf-den-koerper: ziel.count is not a function",
+        "06 besetzt-abbruch: locator.click: Timeout 7000ms exceeded.",
         "10 auf-den-koerper-fertig: locator.click: Timeout 6000ms exceeded.",
         "11 klick-start: locator.click: Timeout 6000ms exceeded.",
-        "12 klick-knick: ziel.count is not a function",
         "13 klick-knick-zurueck: locator.click: Timeout 8000ms exceeded.",
         "17 routing-direkt-neues-kabel: locator.click: Timeout 8000ms exceeded.",
         "18 routing-kurve-neues-kabel: locator.click: Timeout 8000ms exceeded.",
@@ -1389,17 +1552,59 @@
       "inline-drei-geraete": "Links ausrichten | Horizontal zentrieren | Rechts ausrichten | Oben ausrichten | Vertikal zentrieren | Unten ausrichten | Horizontal verteilen | Vertikal verteilen | Duplizieren | Rahmen um Auswahl | Geräte-Datenblatt (A4-PDF / Druck) | Löschen",
       "adapter-einsetzen": "In diesen Lauf einsetzen — ein Undo nimmt es wieder heraus",
       "schaltbild-aus": "Schaltbild einblenden: brennende Leuchten, Schalterstellungen und Leitungen unter Spannung.",
-      "schaltbild-an": "GERECHNET, nicht gemessen: so verhält sich die Schaltung bei den eingestellten Schalterstellungen. Die Stellungen stehen nicht im Plan."
+      "schaltbild-an": "Kein Gerät im Plan trägt eine Schaltbild-Bauart. Sie wird in den Eigenschaften angegeben und nicht aus der Kategorie geraten.",
+      "defaults-pfeil-am-ende": "Frisch gezogene Kabel bekommen einen Pfeil",
+      "defaults-bruecken": "Globaler Default — pro Kabel via Rechtsklick überschreibbar",
+      "rahmen-ohne-auswahl": "Neuen Location-Rahmen einfügen",
+      "rahmen-um-auswahl": "Rahmen um die 2 markierten Geräte",
+      "drei-d-geschosshoehe": "Gilt nur für Etagen ohne Höhe in der Etagenliste",
+      "ebene-video": "Video — 4 Kabel · sichtbar (klick: ausblenden)",
+      "ebenen-menue-knopf": "Layer-Verwaltung (Custom anlegen / alle zurücksetzen)",
+      "ebene-eigene": "intercom (custom) — Rechtsklick zum Entfernen",
+      "signalweg-knopf": "Die ganze Kette, in der dieses Kabel liegt, hervorheben und den Rest abdunkeln (Esc beendet)",
+      "flow-chip": "Der geplante Weg. Es besteht keine Verbindung zu einer Anlage. Klick: Bewegung ausschalten.",
+      "flow-chip-voll": "Der geplante Weg. Es besteht keine Verbindung zu einer Anlage. Klick: Bewegung ausschalten.",
+      "flow-chip-ruhig": "Der geplante Weg. Es besteht keine Verbindung zu einer Anlage. Klick: Bewegung einschalten.",
+      "pruefbild-auswahl": "Eine Quelle wählen: der Plan zeigt dann an jedem Ankunftsort, welches Bild dort stehen müsste. Das ist die Erwartung — diese App sieht nicht, was wirklich ankommt.",
+      "sperren-knopf": "Schutz gegen versehentliches Verschieben",
+      "abschliessen-knopf": "Mehr: Ansichten, Prüfbild, Abschließen, Anmerkungen, Hallenplan, Symbole",
+      "betrachter-knopf": "",
+      "ausrichten-einzeln-unten": "An unterem Viewport-Rand ausrichten",
+      "ausrichten-links": "Linksbündig",
+      "ausrichten-mitte-waagerecht": "Horizontal zentrieren",
+      "ausrichten-rechts": "Rechtsbündig",
+      "ausrichten-oben": "Oben ausrichten",
+      "ausrichten-mitte-senkrecht": "Vertikal zentrieren",
+      "ausrichten-unten": "Unten ausrichten",
+      "ausrichten-verteilen-waagerecht": "Horizontal gleichmäßig verteilen",
+      "ausrichten-verteilen-senkrecht": "Vertikal gleichmäßig verteilen",
+      "rack-anordnen": "3 markierte Geräte im 2D-Rack-Builder anordnen",
+      "raeume-knopf": "Etagen und Räume ein- oder ausblenden",
+      "drei-d-knopf": "Räume nach Etage in 3D zeigen, mit den Verbindungen dazwischen",
+      "kabel-verbinden": "Mehrere Kabel zwischen den zwei markierten Geräten auf einmal anlegen",
+      "badges-knopf": "Anmerkungen-Badges auf dem Canvas ausblenden (Daten bleiben erhalten)",
+      "anmerkungen-knopf": "Mehr: Ansichten, Prüfbild, Abschließen, Anmerkungen, Hallenplan, Symbole",
+      "hallenplan-knopf": "Mehr: Ansichten, Prüfbild, Abschließen, Anmerkungen, Hallenplan, Symbole",
+      "symbole-knopf": "Mehr: Ansichten, Prüfbild, Abschließen, Anmerkungen, Hallenplan, Symbole",
+      "zoom-regler": "zoom in | zoom out | fit view | toggle interactivity"
     },
     "listen": {
       "schalten-ziele": [
         "bitte wählen",
         "Control room monitor · SDI In"
-      ]
+      ],
+      "pruefbild-quellen": [
+        "keine",
+        "Camera 1",
+        "Camera 2",
+        "Vision mixer"
+      ],
+      "weg-schalten-ziele": [],
+      "kabel-dialog-typen": []
     },
     "texte": {
       "defaults-menue": "KABEL-ROUTING\nOrtho\nDirekt\nKurve\nKABELFARBE\nNach Typ\nNach Länge\nSONSTIGES\nPfeil am Kabel-Ende\nKabelbrücken bei Kreuzungen\nAlle Kabel-Labels ausblenden\nKabel-Labels: Kurzform\nPorts nach Connector-Typ einfärben",
-      "laengen-legende": "Defaults\nRahmen\nEbenen\n📹\nVideo\n4\n🎙\nAudio\n🎛\nControl\n🌐\nNetwork\n⚡\nPower\n◆\nOther\nEbenen\n⋯\nSchema\nSchaltbild\nPrüfbild\nkeine\nCamera 1\nCamera 2\nVision mixer\nSperren\nAbschließen\nBadges\nAnmerkungen\nHallenplan\nSymbole\nLängenfarben\n1 m – rot\n2 m – gelb\n3 m – grün\n5 m – weiß\n10 m – rot\n20 m – gelb\n25 m – gelb/weiß gestrichelt\n50 m – weiß\n100 m – rot\nSchließen",
+      "laengen-legende": "Defaults\nRahmen\nVideo\nAudio\nControl\nNetwork\nPower\nOther\n⋯\nMehr\nLängenfarben\n1 m – rot\n2 m – gelb\n3 m – grün\n5 m – weiß\n10 m – rot\n20 m – gelb\n25 m – gelb/weiß gestrichelt\n50 m – weiß\n100 m – rot\nSchließen",
       "entf-dialog": "",
       "dialog-adapter": "Neues Kabel\nVon: Line Out (Jack 6.35 mm TS)\nNach: Line In 2 (Jack 3.5 mm TRS)\nKabel\n★ Custom-Kabel…\n✕ XLR 3-pin Audio (XLR)\n✕ SDI 3G (1080p50/60) (BNC)\n✕ SDI 6G (4K30 4:2:0) (BNC)\n✕ SDI 12G (4K60) (BNC)\n✕ HDMI 2.0 (4K60 4:4:4) (HDMI)\n✕ HDMI 2.1 (8K/4K120) (HDMI)\n✕ DisplayPort 1.4 (DisplayPort)\n✕ Ethernet Cat6 (1G) (Ethernet/RJ45)\n✕ Ethernet Cat6a (10G) (Ethernet/RJ45)\n✕ NDI über Cat6a (1G/10G) (Ethernet/RJ45)\n✕ Dante / AES67 (Cat6) (Ethernet/RJ45)\n✕ Stream-Uplink (SRT/RTMP/HLS) (Ethernet/RJ45)\n✕ SMPTE ST 2110 (Fiber) (Fiber)\n✕ Referenz Blackburst / Tri-Level (BNC) (BNC)\n✕ Word Clock (BNC) (BNC)\n✕ LTC Timecode (BNC) (BNC)\n✕ PTP / Referenz (Ethernet) (Ethernet/RJ45)\n✕ Fiber SM (LC) (Fiber)\n✕ Fiber MM OM4 (LC) (Fiber)\n✕ USB 3.x (USB)\n✕ IEC C13/C14 230V (IEC 230V)\n✕ powerCON TRUE1 (PowerCON)\n✕ Schuko 230V (Schuko 230V)\n✕ Thunderbolt 3 (40Gbps) (USB-C)\n✕ Thunderbolt 4 (40Gbps, zertifiziert) (USB-C)\n✕ MADI Koax (BNC, 75Ω) (BNC)\n✕ AES3id (BNC, 75Ω) (BNC)\n✕ DVB-ASI (BNC, 75Ω) (BNC)\n✕ MADI Optisch (ST/SC Fiber) (Fiber)\n✕ SMPTE ST 297 — Optisches SDI (Glasfaser) (Fiber)\n✕ SMPTE 304M Hybrid-Fiber (LEMO 3K.93C / 311) (LEMO 3K.93C (SMPTE 304M))\n✕ SMPTE 304M Hybrid-Fiber (Neutrik Dragonfly) (Neutrik Dragonfly (SMPTE 304M))\n✕ Triax (Damar & Hagen) (Triax (Damar & Hagen))\n✕ Triax (Fischer) (Triax (Fischer))\n✕ Triax-Kamerakabel (analog/koaxial) (Triax)\n✕ Serielle Steuerung RS-232/422/485 (DB9) (DB9)\n✕ VGA (DE-15) (VGA)\n✕ DVI (Single/Dual-Link) (DVI)\n✕ DB25 Mehrkanal-Audio (AES59 / TASCAM) (DB25)\n✕ DMX512 / RDM (5-pol XLR) (DMX 5-pol (XLR))\n✕ Art-Net / sACN (Ethernet) (Ethernet/RJ45)\n✕ Composite / FBAS (Cinch) (Cinch/RCA)\n✕ S-Video (Y/C) (S-Video)\n✕ Component YPbPr (3× Cinch/BNC) (Cinch/RCA)\n✕ Tally / GPI-GPO (DB9 / Kontakt) (DB9)\n✕ HDBaseT (Video/Audio/Steuerung/PoH über Cat) (Ethernet/RJ45)\n✕ HDMI AOC (Active Optical, bis ~100 m) (HDMI)\n✕ DisplayPort AOC (Active Optical, bis ~50 m) (DisplayPort)\n✕ USB-C AOC (Active Optical, bis ~30 m) (USB-C)\nKein passender Kabeltyp im Katalog. Bitte unten bewusst einen Steckertyp/Standard wählen oder einen neuen Kabeltyp anlegen — es wird sonst nur ein generisches Custom-Kabel erzeugt.\nCUSTOM-KABEL-DEFINITION\nStecker-Typ\nXLR\nMini-XLR\nJack 6.35 mm TS\nJack 6.35 mm TRS\nJack 6.35 mm\nJack 3.5 mm TS\nJack 3.5 mm TRS\nJack 3.5 mm TRRS\nJack 3.5 mm\nJack 2.5 mm TRS\nKlinke\nBNC\nHD-BNC\nHDMI\nMini-HDMI\nMicro-HDMI\nEthernet/RJ45\nGG45\nFiber\nSFP\nSFP+\nDIN\nDisplayPort\nVGA\nDVI\nUSB\nUSB-C\nTriax\nTriax (Damar & Hagen)\nTriax (Fischer)\nLEMO 3K.93C (SMPTE 304M)\nNeutrik Dragonfly (SMPTE 304M)\nNeutrik opticalCON DUO\nNeutrik opticalCON QUAD\nF-Connector\nDB9\nDB25\nWireless/RF\nDMX 5-pol (XLR)\nDMX 3-pol (XLR)\nCinch/RCA\nSCART\nS-Video\nTT/Bantam\nMini-BNC\nMicro-BNC\nIEC 230V\nPowerCON\nSchuko 230V\nC7 Eurostecker\nCEE16\nCEE32\nCEE63\nPowerlock\nSocapex\nHarting\nKleeblatt\nXLR 3 Male\nXLR 3 Female\nCombo XLR/Jack\nspeakON 2 Pole\nspeakON 4 Pole\nBinding Post\nXLR 4 Male\nXLR 4 Female\nXLR 5 Male\nXLR 5 Female\nXLR 6 Male\nXLR 6 Female\nXLR 7 Male\nXLR 7 Female\nMIDI\nS-VHS\nUSB Type A\nUSB Type B\nUSB 3 Type A\nUSB 3 Type B\nFireWire 400\nFireWire 800\nPS/2\nFiber Optic LC\nFiber Optic SC\nFiber Optic ST\nToslink\nopticalCON DUO\nopticalCON QUAD\npowerCON Input\npowerCON Output\nLemo\nTourine 25\nTourine 37\nGeneric\nBlanking Panel\nPhoenix/Euroblock\nTerminal Block\nBare Wire\netherCON\nRJ11\nQSFP\nQSFP28\nUSB Mini-B\nUSB Micro-B\nDB15\nDB37\nMini-DIN 4\nMini-DIN 7\nMini-DIN 8\nDIN 5-pol\nMini-DisplayPort\nMPO\nNEMA 5-15 (Edison)\nNEMA L5-20\nNEMA L6-20\nNEMA L6-30\nNEMA L21-30\nIEC C15\nIEC C20\npowerCON TRUE1\nCam-Lok\nDC Barrel\nPCIe 6-pin\nV-Mount\nD-Tap\nSMA\nRP-TNC\nMultipin\nCustom\n+ Neuer Stecker-Typ…\nSignal-Standard\nSDI-SD\nSDI-HD\nSDI-3G\nSDI-6G\nSDI-12G\nHDMI-1.4\nHDMI-2.0\nHDMI-2.1\nDP-1.2\nDP-1.4\nDP-2.0\nEth-100\nEth-1G\nEth-10G\nAnalog-Audio\nAES3\nAES3id\nUSB-2.0\nUSB-3.x\nThunderbolt-3\nThunderbolt-4\nMADI\nDVB-ASI\nSMPTE-297\nSMPTE-304M\nSMPTE-311M\nNDI\nNDI-HX\nDante\nAES67\nST2110-20\nST2110-30\nST2110-40\nSRT\nRTMP\nHLS\nBlackburst\nTri-Level\nWord-Clock\nPTP\nLTC\nRF-UHF\nRF-VHF\nRF-2.4G\nRF-5G\nRS-232\nRS-422\nRS-485\nDMX512\nRDM\nArt-Net\nsACN\nCVBS\nY/C\nYPbPr\nRGBHV\nMTC\nTally\nGPI/GPO\nHDBaseT\nPower-230V\nFiber-SM\nFiber-MM\nGeneric\n+ Neuer Signal-Standard…\nEmpfohlene Maximallänge (m)\nAls Kabel-Typ speichern…\nName\nLänge (m)\nFarbe\nNotizen\nDazwischen gehört ein Zwischenstück. Kabel anlegen, dann in den Kabel-Eigenschaften mit einem Klick einsetzen.\nAbbrechen\nErstellen",
       "dialog-geschlecht": "Neues Kabel\nVon: Mic Out (XLR)\nNach: Mic In 2 (XLR)\nKabel\n★ Custom-Kabel…\n✓ XLR 3-pin Audio (XLR)\n✕ SDI 3G (1080p50/60) (BNC)\n✕ SDI 6G (4K30 4:2:0) (BNC)\n✕ SDI 12G (4K60) (BNC)\n✕ HDMI 2.0 (4K60 4:4:4) (HDMI)\n✕ HDMI 2.1 (8K/4K120) (HDMI)\n✕ DisplayPort 1.4 (DisplayPort)\n✕ Ethernet Cat6 (1G) (Ethernet/RJ45)\n✕ Ethernet Cat6a (10G) (Ethernet/RJ45)\n✕ NDI über Cat6a (1G/10G) (Ethernet/RJ45)\n✕ Dante / AES67 (Cat6) (Ethernet/RJ45)\n✕ Stream-Uplink (SRT/RTMP/HLS) (Ethernet/RJ45)\n✕ SMPTE ST 2110 (Fiber) (Fiber)\n✕ Referenz Blackburst / Tri-Level (BNC) (BNC)\n✕ Word Clock (BNC) (BNC)\n✕ LTC Timecode (BNC) (BNC)\n✕ PTP / Referenz (Ethernet) (Ethernet/RJ45)\n✕ Fiber SM (LC) (Fiber)\n✕ Fiber MM OM4 (LC) (Fiber)\n✕ USB 3.x (USB)\n✕ IEC C13/C14 230V (IEC 230V)\n✕ powerCON TRUE1 (PowerCON)\n✕ Schuko 230V (Schuko 230V)\n✕ Thunderbolt 3 (40Gbps) (USB-C)\n✕ Thunderbolt 4 (40Gbps, zertifiziert) (USB-C)\n✕ MADI Koax (BNC, 75Ω) (BNC)\n✕ AES3id (BNC, 75Ω) (BNC)\n✕ DVB-ASI (BNC, 75Ω) (BNC)\n✕ MADI Optisch (ST/SC Fiber) (Fiber)\n✕ SMPTE ST 297 — Optisches SDI (Glasfaser) (Fiber)\n✕ SMPTE 304M Hybrid-Fiber (LEMO 3K.93C / 311) (LEMO 3K.93C (SMPTE 304M))\n✕ SMPTE 304M Hybrid-Fiber (Neutrik Dragonfly) (Neutrik Dragonfly (SMPTE 304M))\n✕ Triax (Damar & Hagen) (Triax (Damar & Hagen))\n✕ Triax (Fischer) (Triax (Fischer))\n✕ Triax-Kamerakabel (analog/koaxial) (Triax)\n✕ Serielle Steuerung RS-232/422/485 (DB9) (DB9)\n✕ VGA (DE-15) (VGA)\n✕ DVI (Single/Dual-Link) (DVI)\n✕ DB25 Mehrkanal-Audio (AES59 / TASCAM) (DB25)\n✕ DMX512 / RDM (5-pol XLR) (DMX 5-pol (XLR))\n✕ Art-Net / sACN (Ethernet) (Ethernet/RJ45)\n✕ Composite / FBAS (Cinch) (Cinch/RCA)\n✕ S-Video (Y/C) (S-Video)\n✕ Component YPbPr (3× Cinch/BNC) (Cinch/RCA)\n✕ Tally / GPI-GPO (DB9 / Kontakt) (DB9)\n✕ HDBaseT (Video/Audio/Steuerung/PoH über Cat) (Ethernet/RJ45)\n✕ HDMI AOC (Active Optical, bis ~100 m) (HDMI)\n✕ DisplayPort AOC (Active Optical, bis ~50 m) (DisplayPort)\n✕ USB-C AOC (Active Optical, bis ~30 m) (USB-C)\nSignal-Standard\nAnalog-Audio\nAES3\nName\nLänge (m)\nFarbe\nNotizen\nXLR 3-pin Audio passt zu XLR ↔ XLR.\nBeide Enden sind male. Sie passen nicht ineinander — dazwischen gehört ein Geschlechtswandler.\nDazwischen gehört ein Zwischenstück. Kabel anlegen, dann in den Kabel-Eigenschaften mit einem Klick einsetzen.\nAbbrechen\nErstellen",
@@ -1407,10 +1612,24 @@
       "schalten-leiste": "Defaults\nRahmen\nEBENEN\n📹\nVideo\n2\n🎙\nAudio\n🎛\nControl\n🌐\nNetwork\n⚡\nPower\n◆\nOther\nEbenen\n⋯\nSchema\nSchaltbild\nPrüfbild\nkeine\nCamera 1\nVideohub 12x12\n· 1\n· 1 ungeprüft\nBild sichern\nPrüfblatt\nAbnahme\nWeg schalten…\nSperren\nAbschließen\nBadges\nAnmerkungen\nHallenplan\nSymbole",
       "schalten-dialog": "Weg schalten\n\nDas ist ein Eingriff in die laufende Anlage, keine Anzeige. mehr\n\nWohin soll das Bild?\nbitte wählen\nControl room monitor · SDI In\nSchliessen\njetzt schalten",
       "schalten-plan": "Weg schalten\n\nDas ist ein Eingriff in die laufende Anlage, keine Anzeige. mehr\n\nWohin soll das Bild?\nbitte wählen\nControl room monitor · SDI In\nCamera 1 · SDI Out —[CAM 1]→ Videohub 12x12 · In 1 —[PGM]→ Control room monitor · SDI In\nFür „Videohub 12x12\" ist kein Steuer-Protokoll erklärt (Eigenschaften → Steuerung). Ohne Erklärung wird nichts gesendet — welches Protokoll ein Gerät spricht, lässt sich nicht am Namen ablesen.\nWer schaltet\nIch habe gelesen, welche Ausgänge umgeschaltet werden, und schalte an der laufenden Anlage.\nSchliessen\njetzt schalten",
-      "schalten-knopf-aktiv": "false"
+      "schalten-knopf-aktiv": "false",
+      "etagen-inspector": "Von unten nach oben. Die Höhe ist die Fußbodenhöhe über dem Bezugspunkt in Metern; die 3D-Ansicht stapelt die Räume danach.",
+      "raeume-menue": "1. Obergeschoss\nRegie\nTechnik\nErdgeschoss\nStudio",
+      "ebenen-menue": "Custom-Layer anlegen…\nAlle Ebenen wieder einblenden",
+      "weg-schalten-plan": "",
+      "sperren-menue": "Rahmen\nKeine Frame-Verschiebung\nGeräte\nKeine Geräte-Verschiebung\nKabel\nKeine Waypoint-Bearbeitung",
+      "sperren-geraet-verschoben": "true",
+      "abschliessen-frage": "",
+      "abgeschlossen-geraet-verschoben": "true",
+      "rack-aus-auswahl": "Neues Rack aus Auswahl\nBearbeiten\n\n2D Rack Builder · Geräte aus Library hinzufügen, HE-Position per Drag, Verkabelung internEsc schließen\n\nExportieren\nRack-Name *\nHöhe (HE)\nTiefe (mm)\nKonflikte (3)\nCamera 2: ist nicht als Rack-Gerät markiert.\nVision mixer: ist nicht als Rack-Gerät markiert.\nMultiviewer: ist nicht als Rack-Gerät markiert.\nBibliothek\n28 / 1849\n+ Patchblende\n+ Rack-Shelf\nAuch Nicht-Rack-Geräte\nCrestron Avia DSP-1283\nAudio\n+ Ins Rack\n1 HE · 20 In · 8 Out\nClear-Com CS-702\nIntercom\n+ Ins Rack\n1 HE · 4 In · 8 Out\nClear-Com MS-702\nIntercom\n+ Ins Rack\n1 HE · 5 In · 8 Out\nClear-Com SB-704\nIntercom\n+ Ins Rack\n1 HE · 6 In · 16 Out\nSonnet xMac mini Server Thunderbolt 3 (XMAC-MS-A-TB3)\nIT/Server\n+ Ins Rack\n1 HE · 2 In · 4 Out\nBrompton Tessera S4\nLED Processing\n+ Ins Rack\n1 HE · 5 In · 6 Out\nBrompton Tessera S8\nLED Processing\n+ Ins Rack\n2 HE · 9 In · 12 Out\nBrompton Tessera T1\nLED Processing\n+ Ins Rack\n1 HE · 6 In · 4 Out\nBrompton Tessera XD 10G\nLED Processing\n+ Ins Rack\n1 HE · 2 In · 11 Out\nCisco Catalyst 9300 24-Port UPOE (C9300-24U)\nNetworking\n+ Ins Rack\n1 HE · 7 In · 27 Out\nCisco Catalyst 9300X 48-Port UPOE+ (C9300X-48HXN)\nNetworking\n+ Ins Rack\n1 HE · 7 In · 51 Out\nCisco Nexus 93108TC-EX\nNetworking\n+ Ins Rack\n1 HE · 6 In · 54 Out\nLuminex GigaCore 12\nNetworking\n+ Ins Rack\n1 HE · 2 In · 15 Out\nLuminex GigaCore 14R\nNetworking\n+ Ins Rack\n1 HE · 4 In · 16 Out\nLuminex GigaCore 16i\nNetworking\n+ Ins Rack\n1 HE · 1 In · 16 Out\nLuminex GigaCore 16RFO\nNetworking\n+ Ins Rack\n1 HE · 2 In · 21 Out\nLuminex GigaCore 16t\nNetworking\n+ Ins Rack\n1 HE · 1 In · 16 Out\nNETGEAR M4250-10G2XF-PoE+ (GSM4212PX)\nNetworking\n+ Ins Rack\n1 HE · 3 In · 12 Out\nNETGEAR M4250-26G4XF-PoE+ (GSM4230PX)\nNetworking\n+ Ins Rack\n1 HE · 3 In · 30 Out\nNETGEAR M4250-40G8XF-PoE+ (GSM4248PX)\nNetworking\n+ Ins Rack\n1 HE · 3 In · 48 Out\nBlackmagic Hyperdeck Studio HD Plus\nVideo\n+ Ins Rack\n1 HE · 6 In · 9 Out\nBlackmagic ATEM 2 M/E Constellation 4K\nVideo Mixer\n+ Ins Rack\n1 HE · 25 In · 16 Out\nBlackmagic ATEM 2 M/E Constellation HD\nVideo Mixer\n+ Ins Rack\n1 HE · 25 In · 16 Out\nBlackmagic ATEM Constellation 8K\nVideo Mixer\n+ Ins Rack\n2 HE · 44 In · 28 Out\nBlackmagic Smart Videohub 12x12\nVideo Router\n+ Ins Rack\n1 HE · 14 In · 12 Out\nBlackmagic Smart Videohub 20x20\nVideo Router\n+ Ins Rack\n1 HE · 22 In · 20 Out\nBlackmagic Smart Videohub 40x40\nVideo Router\n+ Ins Rack\n2 HE · 42 In · 41 Out\nBlackmagic Smart Videohub 40x40 12G\nVideo Router\n+ Ins Rack\n2 HE · 42 In · 41 Out\nRack-Layout\n2D\n3D\n100%\nDrag & Drop\nVorne\nHinten\nBeide\nSeite\nStecker-Symbole zeigen\nVorne\nU1\nU2\nU3\nU4\nU5\nU6\nU7\nU8\nU9\nU10\nU11\nU12\nCamera 2\n0 In · 1 Out\nVision mixer\n4 In · 2 Out\nMultiviewer\n1 In · 0 Out\nLive-Preview\nBlack-Box auf Canvas\n3 Geräte · 2 interne Kabel\nNeues Rack aus Auswahl\nCamera 2· 0 In · 0 Out\nVision mixer· 3 In · 1 Out\nMultiviewer· 0 In · 0 Out\nDoppelklick auf ein Gerät im Rack → öffnet Eigenschaften-Popup (Höhe, Start-HE, Panel-Bilder, Entfernen).\nGeräte:\n3\nHE belegt:\n3\n/ 12\n2\nKabel\n3\nKonflikte\nGespeichert\nIntern verkabeln\nAbbrechen\nSpeichern",
+      "kabel-verbinden-vorschau": "Mehrere Kabel verbinden\n\nErstellt N Kabel auf einmal: Quelle-Port i → Ziel-Port i. Belegte Ziel-Ports werden übersprungen.\n\nQuelle\nGerät\n—\nCamera 1\nCamera 2\nVision mixer\nMultiviewer\nControl room monitor\nSeite\nOutputs\nInputs\nStart-Output (1..1)\nZiel\nGerät\n—\nCamera 1\nCamera 2\nVision mixer\nMultiviewer\nControl room monitor\nSeite\nInputs\nOutputs\nStart-Input (1..4)\nAnzahl Kabel\nKabel-Typ\nXLR 3-pin Audio (XLR)\nSDI 3G (1080p50/60) (BNC)\nSDI 6G (4K30 4:2:0) (BNC)\nSDI 12G (4K60) (BNC)\nHDMI 2.0 (4K60 4:4:4) (HDMI)\nHDMI 2.1 (8K/4K120) (HDMI)\nDisplayPort 1.4 (DisplayPort)\nEthernet Cat6 (1G) (Ethernet/RJ45)\nEthernet Cat6a (10G) (Ethernet/RJ45)\nNDI über Cat6a (1G/10G) (Ethernet/RJ45)\nDante / AES67 (Cat6) (Ethernet/RJ45)\nStream-Uplink (SRT/RTMP/HLS) (Ethernet/RJ45)\nSMPTE ST 2110 (Fiber) (Fiber)\nReferenz Blackburst / Tri-Level (BNC) (BNC)\nWord Clock (BNC) (BNC)\nLTC Timecode (BNC) (BNC)\nPTP / Referenz (Ethernet) (Ethernet/RJ45)\nFiber SM (LC) (Fiber)\nFiber MM OM4 (LC) (Fiber)\nUSB 3.x (USB)\nIEC C13/C14 230V (IEC 230V)\npowerCON TRUE1 (PowerCON)\nSchuko 230V (Schuko 230V)\nThunderbolt 3 (40Gbps) (USB-C)\nThunderbolt 4 (40Gbps, zertifiziert) (USB-C)\nMADI Koax (BNC, 75Ω) (BNC)\nAES3id (BNC, 75Ω) (BNC)\nDVB-ASI (BNC, 75Ω) (BNC)\nMADI Optisch (ST/SC Fiber) (Fiber)\nSMPTE ST 297 — Optisches SDI (Glasfaser) (Fiber)\nSMPTE 304M Hybrid-Fiber (LEMO 3K.93C / 311) (LEMO 3K.93C (SMPTE 304M))\nSMPTE 304M Hybrid-Fiber (Neutrik Dragonfly) (Neutrik Dragonfly (SMPTE 304M))\nTriax (Damar & Hagen) (Triax (Damar & Hagen))\nTriax (Fischer) (Triax (Fischer))\nTriax-Kamerakabel (analog/koaxial) (Triax)\nSerielle Steuerung RS-232/422/485 (DB9) (DB9)\nVGA (DE-15) (VGA)\nDVI (Single/Dual-Link) (DVI)\nDB25 Mehrkanal-Audio (AES59 / TASCAM) (DB25)\nDMX512 / RDM (5-pol XLR) (DMX 5-pol (XLR))\nArt-Net / sACN (Ethernet) (Ethernet/RJ45)\nComposite / FBAS (Cinch) (Cinch/RCA)\nS-Video (Y/C) (S-Video)\nComponent YPbPr (3× Cinch/BNC) (Cinch/RCA)\nTally / GPI-GPO (DB9 / Kontakt) (DB9)\nHDBaseT (Video/Audio/Steuerung/PoH über Cat) (Ethernet/RJ45)\nHDMI AOC (Active Optical, bis ~100 m) (HDMI)\nDisplayPort AOC (Active Optical, bis ~50 m) (DisplayPort)\nUSB-C AOC (Active Optical, bis ~30 m) (USB-C)\nLänge pro Kabel (m)\nVorschau (1/4 Kabel)\nSDI Out → In 3\n\nAnzahl überschreitet verfügbare Ports — überzählige werden ausgelassen.\n\nAbbrechen\n1 Kabel erstellen",
+      "rahmen-loeschen": "Rahmen \"Studio\" löschen?\nNur der Rahmen wird gelöscht. Die enthaltenen Geräte bleiben auf dem Canvas.\nAbbrechen\nLöschen",
+      "kabel-dialog": "",
+      "kabel-besetzt": "",
+      "kabel-klick-dialog": "Neues Kabel\nVon: SDI Out (BNC)\nNach: In 4 (BNC)\nKabel\n★ Custom-Kabel…\n✓ SDI 3G (1080p50/60) (BNC)\n✓ SDI 6G (4K30 4:2:0) (BNC)\n✓ SDI 12G (4K60) (BNC)\n✓ Referenz Blackburst / Tri-Level (BNC) (BNC)\n✓ Word Clock (BNC) (BNC)\n✓ LTC Timecode (BNC) (BNC)\n✓ MADI Koax (BNC, 75Ω) (BNC)\n✓ AES3id (BNC, 75Ω) (BNC)\n✓ DVB-ASI (BNC, 75Ω) (BNC)\n✓ Composite / FBAS (Cinch) (Cinch/RCA)\n✓ Component YPbPr (3× Cinch/BNC) (Cinch/RCA)\n✕ XLR 3-pin Audio (XLR)\n✕ HDMI 2.0 (4K60 4:4:4) (HDMI)\n✕ HDMI 2.1 (8K/4K120) (HDMI)\n✕ DisplayPort 1.4 (DisplayPort)\n✕ Ethernet Cat6 (1G) (Ethernet/RJ45)\n✕ Ethernet Cat6a (10G) (Ethernet/RJ45)\n✕ NDI über Cat6a (1G/10G) (Ethernet/RJ45)\n✕ Dante / AES67 (Cat6) (Ethernet/RJ45)\n✕ Stream-Uplink (SRT/RTMP/HLS) (Ethernet/RJ45)\n✕ SMPTE ST 2110 (Fiber) (Fiber)\n✕ PTP / Referenz (Ethernet) (Ethernet/RJ45)\n✕ Fiber SM (LC) (Fiber)\n✕ Fiber MM OM4 (LC) (Fiber)\n✕ USB 3.x (USB)\n✕ IEC C13/C14 230V (IEC 230V)\n✕ powerCON TRUE1 (PowerCON)\n✕ Schuko 230V (Schuko 230V)\n✕ Thunderbolt 3 (40Gbps) (USB-C)\n✕ Thunderbolt 4 (40Gbps, zertifiziert) (USB-C)\n✕ MADI Optisch (ST/SC Fiber) (Fiber)\n✕ SMPTE ST 297 — Optisches SDI (Glasfaser) (Fiber)\n✕ SMPTE 304M Hybrid-Fiber (LEMO 3K.93C / 311) (LEMO 3K.93C (SMPTE 304M))\n✕ SMPTE 304M Hybrid-Fiber (Neutrik Dragonfly) (Neutrik Dragonfly (SMPTE 304M))\n✕ Triax (Damar & Hagen) (Triax (Damar & Hagen))\n✕ Triax (Fischer) (Triax (Fischer))\n✕ Triax-Kamerakabel (analog/koaxial) (Triax)\n✕ Serielle Steuerung RS-232/422/485 (DB9) (DB9)\n✕ VGA (DE-15) (VGA)\n✕ DVI (Single/Dual-Link) (DVI)\n✕ DB25 Mehrkanal-Audio (AES59 / TASCAM) (DB25)\n✕ DMX512 / RDM (5-pol XLR) (DMX 5-pol (XLR))\n✕ Art-Net / sACN (Ethernet) (Ethernet/RJ45)\n✕ S-Video (Y/C) (S-Video)\n✕ Tally / GPI-GPO (DB9 / Kontakt) (DB9)\n✕ HDBaseT (Video/Audio/Steuerung/PoH über Cat) (Ethernet/RJ45)\n✕ HDMI AOC (Active Optical, bis ~100 m) (HDMI)\n✕ DisplayPort AOC (Active Optical, bis ~50 m) (DisplayPort)\n✕ USB-C AOC (Active Optical, bis ~30 m) (USB-C)\nSignal-Standard\nSDI-SD\nSDI-HD\nSDI-3G\nName\nLänge (m)\nFarbe\nNotizen\nSDI 3G (1080p50/60) passt zu BNC ↔ BNC.\nAbbrechen\nErstellen"
     },
     "fehler": [
-      "auswahl: locator.click: Timeout 8000ms exceeded."
+      "anmerkungen: locator.click: Timeout 8000ms exceeded."
     ]
   }
 }

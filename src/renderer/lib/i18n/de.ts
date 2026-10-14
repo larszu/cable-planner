@@ -693,6 +693,7 @@ export const de: Dict = {
   'app.menu.view.floorplan': 'Hallenplan',
   'app.menu.view.symbols': 'Symbole',
   'toolbar.more.label': 'Mehr',
+  'library.section.group': 'Quelle der Vorlagen',
   'toolbar.more.title': 'Mehr: Ansichten, Prüfbild, Abschließen, Anmerkungen, Hallenplan, Symbole',
   'app.menu.view.fullscreen': 'Vollbild',
   'app.menu.view.hideLabels': 'Kabel-Labels ausblenden',
