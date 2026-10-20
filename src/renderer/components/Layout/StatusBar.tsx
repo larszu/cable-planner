@@ -77,16 +77,17 @@ const CollabStatusBadge = () => {
  */
 const McpBadge = () => {
   const t = useTranslation()
-  const [status, setStatus] = useState<{ running: boolean; verbunden: boolean }>({
+  const [status, setStatus] = useState<{ running: boolean; verbunden: boolean; schreiben: boolean }>({
     running: false,
     verbunden: false,
+    schreiben: false,
   })
   useEffect(() => {
     if (!hasDesktopBridge) return
     let lebt = true
     const holen = async () => {
       const s = await cablePlannerApi.mcp.status()
-      if (lebt) setStatus({ running: s.running, verbunden: s.verbunden })
+      if (lebt) setStatus({ running: s.running, verbunden: s.verbunden, schreiben: s.schreibenErlaubt })
     }
     // Erster Blick im Timeout, nicht direkt im Effekt — siehe `McpTab`.
     const sofort = window.setTimeout(() => void holen(), 0)
@@ -114,6 +115,10 @@ const McpBadge = () => {
     >
       <Icon icon={Bot} size="xs" />
       {status.verbunden ? t('statusbar.mcp.asking', 'MCP · asking') : t('statusbar.mcp.on', 'MCP')}
+      {/* #1068 — der Schreibmodus steht auch hier, nicht nur im Reiter. */}
+      <span className="opacity-70">
+        {status.schreiben ? t('statusbar.mcp.write', '· can edit') : t('statusbar.mcp.read', '· read only')}
+      </span>
     </button>
   )
 }

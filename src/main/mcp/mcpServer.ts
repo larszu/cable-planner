@@ -70,6 +70,8 @@ interface McpState {
    * zugestimmt haben, dass geaendert wird.
    */
   schreibenErlaubt: boolean
+  /** #1068 — der gewuenschte Port war belegt, der Server lief auf einen zufaelligen aus. */
+  ausweichPort: boolean
 }
 
 const state: McpState = {
@@ -79,6 +81,7 @@ const state: McpState = {
   letzterZugriff: null,
   frager: null,
   schreibenErlaubt: false,
+  ausweichPort: false,
 }
 
 export interface McpStatus {
@@ -90,6 +93,8 @@ export interface McpStatus {
   url: string
   /** Vor weniger als zwei Minuten hat ein Client gefragt. */
   verbunden: boolean
+  /** #1068 — Wunschport belegt; Clients mit gespeicherter Adresse finden ihn nicht. */
+  ausweichPort: boolean
 }
 
 const ZWEI_MINUTEN = 2 * 60 * 1000
@@ -100,6 +105,7 @@ export const getMcpStatus = (): McpStatus => ({
   schreibenErlaubt: state.schreibenErlaubt,
   url: state.server ? `http://127.0.0.1:${state.port}/mcp` : '',
   verbunden: !!state.letzterZugriff && Date.now() - state.letzterZugriff < ZWEI_MINUTEN,
+  ausweichPort: state.ausweichPort,
 })
 
 /**
@@ -615,7 +621,7 @@ const authed = (req: IncomingMessage): boolean => {
   return !!state.token && wert === state.token
 }
 
-export const startMcpServer = async (): Promise<McpStatus & { token: string }> => {
+export const startMcpServer = async (wunschPort = 0): Promise<McpStatus & { token: string }> => {
   if (state.server) return { ...getMcpStatus(), token: state.token }
 
   state.token = await mcpTokenService.ensure(() => randomBytes(24).toString('hex'))
@@ -644,12 +650,27 @@ export const startMcpServer = async (): Promise<McpStatus & { token: string }> =
       })
   })
 
-  await new Promise<void>((fertig, fehler) => {
-    server.once('error', fehler)
-    // AUSDRUECKLICH 127.0.0.1 und nicht 0.0.0.0: der Unterschied ist, ob die
-    // Halle mitlesen kann.
-    server.listen(0, '127.0.0.1', () => fertig())
-  })
+  // AUSDRUECKLICH 127.0.0.1 und nicht 0.0.0.0: der Unterschied ist, ob die
+  // Halle mitlesen kann.
+  const lauschen = (port: number) =>
+    new Promise<void>((fertig, fehler) => {
+      server.once('error', fehler)
+      server.listen(port, '127.0.0.1', () => {
+        server.off('error', fehler)
+        fertig()
+      })
+    })
+  // #1068 — fester Port, damit ein eingetragener Client nach dem Neustart
+  // wieder trifft. Ist er belegt, laeuft der Server trotzdem — auf einem
+  // zufaelligen, und der Status sagt es.
+  state.ausweichPort = false
+  try {
+    await lauschen(wunschPort)
+  } catch (e) {
+    if (!wunschPort || (e as NodeJS.ErrnoException).code !== 'EADDRINUSE') throw e
+    await lauschen(0)
+    state.ausweichPort = true
+  }
 
   const adresse = server.address()
   state.server = server
@@ -662,6 +683,7 @@ export const stopMcpServer = (): void => {
   state.server?.close()
   state.server = null
   state.port = 0
+  state.ausweichPort = false
   state.letzterZugriff = null
 }
 

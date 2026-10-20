@@ -95,6 +95,14 @@ export interface McpStatus {
   verbunden: boolean
   /** #873 — ob schreibende Werkzeuge angeboten werden. */
   schreibenErlaubt: boolean
+  /** #1068 — Wunschport belegt, Server laeuft auf einem zufaelligen. */
+  ausweichPort: boolean
+}
+
+export interface McpEinstellungen {
+  an: boolean
+  schreibenErlaubt: boolean
+  port: number
 }
 
 export interface MobileShareInfo {
@@ -606,6 +614,8 @@ export type CablePlannerApi = {
     stop: () => Promise<{ ok: boolean }>
     status: () => Promise<McpStatus>
     setSchreibmodus: (an: boolean) => Promise<McpStatus>
+    einstellungen: () => Promise<McpEinstellungen>
+    setPort: (port: number) => Promise<McpEinstellungen>
     token: () => Promise<{ token: string }>
     resetToken: () => Promise<{ token: string }>
     onFrage: (
@@ -1456,6 +1466,7 @@ const webFallbackApi: CablePlannerApi = {
       url: '',
       verbunden: false,
       schreibenErlaubt: false,
+      ausweichPort: false,
     }),
     setSchreibmodus: async () => ({
       running: false,
@@ -1463,7 +1474,10 @@ const webFallbackApi: CablePlannerApi = {
       url: '',
       verbunden: false,
       schreibenErlaubt: false,
+      ausweichPort: false,
     }),
+    einstellungen: async () => ({ an: false, schreibenErlaubt: false, port: 4187 }),
+    setPort: async (port: number) => ({ an: false, schreibenErlaubt: false, port }),
     token: async () => ({ token: '' }),
     resetToken: async () => ({ token: '' }),
     onFrage: () => () => {},

@@ -29,6 +29,8 @@ import {
   stopMcpServer,
 } from '../mcp/mcpServer.js'
 import { mcpTokenService } from '../services/credentialsService.js'
+import { ladeMcpEinstellungen, speichereMcpEinstellungen } from '../mcp/mcpEinstellungen.js'
+import { gueltigerPort } from '../mcp/mcpEinstellungenForm.js'
 
 const ANTWORT_FRIST_MS = 5000
 
@@ -70,16 +72,29 @@ export const registerMcpIpc = (): void => {
     else warten.fertig({ daten: o.daten ?? {}, text: o.text ?? '' })
   })
 
-  ipcMain.handle('mcp:start', async () => startMcpServer())
-  ipcMain.handle('mcp:stop', () => {
+  // #1068 — Start und Stopp merken sich den Schalter; beim naechsten
+  // App-Start geht der Server von selbst wieder an, mit demselben Port.
+  ipcMain.handle('mcp:start', async () => {
+    const e = await speichereMcpEinstellungen({ an: true })
+    return startMcpServer(e.port)
+  })
+  ipcMain.handle('mcp:stop', async () => {
     stopMcpServer()
+    await speichereMcpEinstellungen({ an: false })
     return { ok: true }
+  })
+  ipcMain.handle('mcp:einstellungen', () => ladeMcpEinstellungen())
+  // Wirkt beim naechsten Start des Servers, wie der Schreibmodus.
+  ipcMain.handle('mcp:setPort', async (_event, port: unknown) => {
+    if (!gueltigerPort(port)) throw new Error('Port must be a whole number between 1024 and 65535.')
+    return speichereMcpEinstellungen({ port })
   })
   ipcMain.handle('mcp:status', () => getMcpStatus())
   // #873 — der zweite Schalter. Er wirkt beim naechsten Start des Servers;
   // die Werkzeugliste ist dann eine andere.
-  ipcMain.handle('mcp:setSchreibmodus', (_event, an: unknown) => {
+  ipcMain.handle('mcp:setSchreibmodus', async (_event, an: unknown) => {
     setMcpSchreibmodus(an === true)
+    await speichereMcpEinstellungen({ schreibenErlaubt: an === true })
     return getMcpStatus()
   })
   // Das Token geht ueber einen EIGENEN Weg und nicht im Status: der Status
@@ -87,4 +102,10 @@ export const registerMcpIpc = (): void => {
   // anfasst. Das Token soll dorthin, wo jemand es sehen WILL.
   ipcMain.handle('mcp:token', async () => ({ token: (await mcpTokenService.get()) ?? '' }))
   ipcMain.handle('mcp:resetToken', async () => ({ token: await resetMcpToken() }))
+
+  void (async () => {
+    const e = await ladeMcpEinstellungen()
+    setMcpSchreibmodus(e.schreibenErlaubt)
+    if (e.an) await startMcpServer(e.port).catch(() => undefined)
+  })()
 }
