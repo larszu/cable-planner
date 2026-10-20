@@ -101,16 +101,32 @@ export const mitBilddaten = (
 /** Die Fotos zu einem Gerät oder Kabel. */
 export const fotosZu = (
   fotos: readonly Foto[] | undefined,
-  ziel: { equipmentId?: string; cableId?: string },
+  ziel: { equipmentId?: string; cableId?: string; deviceTypeId?: string },
 ): Foto[] =>
   (fotos ?? []).filter((f) =>
     ziel.equipmentId
       ? f.zeigtAuf?.equipmentId === ziel.equipmentId
       : ziel.cableId
         ? f.zeigtAuf?.cableId === ziel.cableId
-        : false,
+        : ziel.deviceTypeId
+          ? f.zeigtAuf?.deviceTypeId === ziel.deviceTypeId
+          : false,
   )
 
 /** Die Fotos, die auf nichts zeigen — sie gehören dem Projekt. */
 export const fotosOhneZiel = (fotos: readonly Foto[] | undefined): Foto[] =>
-  (fotos ?? []).filter((f) => !f.zeigtAuf?.equipmentId && !f.zeigtAuf?.cableId)
+  (fotos ?? []).filter((f) => !f.zeigtAuf?.equipmentId && !f.zeigtAuf?.cableId && !f.zeigtAuf?.deviceTypeId)
+
+/** Die Fotos eines Geraetetyps (#962) — sie gelten fuer jedes Geraet des Typs. */
+export const fotosZumTyp = (fotos: readonly Foto[] | undefined, deviceTypeId: string | undefined): Foto[] =>
+  deviceTypeId ? (fotos ?? []).filter((f) => f.zeigtAuf?.deviceTypeId === deviceTypeId) : []
+
+/** Alles, was an einem Geraet zu sehen ist: eigene Fotos und die seines Typs, ohne Doppel. */
+export const fotosAmGeraet = (
+  fotos: readonly Foto[] | undefined,
+  equipmentId: string,
+  deviceTypeId: string | undefined,
+): Foto[] =>
+  (fotos ?? []).filter(
+    (f) => f.zeigtAuf?.equipmentId === equipmentId || (!!deviceTypeId && f.zeigtAuf?.deviceTypeId === deviceTypeId),
+  )

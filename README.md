@@ -70,7 +70,9 @@
   patterns borderless on a screen of this computer, from the display in the
   plan. Desktop app with [ffmpeg](https://ffmpeg.org/) installed.
 - **On site.** Phones join by QR code, tick off work and send photos back into
-  the plan.
+  the plan. Photos attach to a single device or to its device type (shown on
+  every device of that type); adding one to a device asks whether it also
+  applies to the type.
 - **Together.** Live co-editing over WebRTC, optional cloud copy with revisions,
   a shared device library across the planner suite.
 - **Ask Claude.** A local MCP server answers questions about the open plan.
