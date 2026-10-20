@@ -93,7 +93,7 @@ export const deriveRig = (
     [
       ...plan.channels
         .filter((c) => typeof c.frequencyMhz === 'number' && c.frequencyMhz! > 0)
-        .map((c) => ({ id: c.id, label: c.label || 'Kanal', mhz: c.frequencyMhz! })),
+        .map((c) => ({ id: c.id, label: c.label || 'Kanal', mhz: c.frequencyMhz!, ...(c.bandwidthKhz ? { bandwidthMhz: c.bandwidthKhz / 1000 } : {}) })),
       // Fremde Sender, die dieselbe Luft benutzen. Ohne sie meldet die
       // Rechnung „frei", obwohl daneben ein Kamera-Rueckweg sendet.
       ...fremde,

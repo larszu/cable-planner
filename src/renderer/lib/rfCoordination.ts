@@ -17,6 +17,9 @@ export interface RfFreq {
   id: string
   label: string
   mhz: number
+  /** #1002 — belegte Bandbreite (MHz). Zwei Kanaele brauchen mindestens die
+   *  halbe Summe ihrer Bandbreiten Abstand, sonst ueberlappen sie. */
+  bandwidthMhz?: number
 }
 
 export type RfConflictKind = 'spacing' | 'imd3-2tx' | 'imd3-3tx'
@@ -71,13 +74,17 @@ export const computeRfConflicts = (
   for (let i = 0; i < used.length; i++) {
     for (let j = i + 1; j < used.length; j++) {
       const d = Math.abs(used[i].mhz - used[j].mhz)
-      if (d < opts.minSpacingMhz) {
+      const need = Math.max(
+        opts.minSpacingMhz,
+        round(((used[i].bandwidthMhz ?? 0) + (used[j].bandwidthMhz ?? 0)) / 2),
+      )
+      if (d < need) {
         const key = `sp:${[used[i].id, used[j].id].sort().join('|')}`
         push(
           {
             kind: 'spacing',
             ids: [used[i].id, used[j].id],
-            message: `${used[i].label} (${used[i].mhz}) ↔ ${used[j].label} (${used[j].mhz}): Abstand ${round(d)} MHz < ${opts.minSpacingMhz} MHz`,
+            message: `${used[i].label} (${used[i].mhz}) ↔ ${used[j].label} (${used[j].mhz}): Abstand ${round(d)} MHz < ${need} MHz`,
           },
           key,
         )

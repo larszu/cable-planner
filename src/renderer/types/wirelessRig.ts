@@ -17,9 +17,15 @@ export interface WirelessChannel {
   micDeviceTypeId?: string
   /** Belegte Sendefrequenz in MHz. */
   frequencyMhz?: number
+  /** #1002 — gewaehltes Hersteller-Band (`bandId` aus lib/rfBands). */
+  bandId?: string
+  /** #1002 — belegte Bandbreite des Senders in kHz (Datenblatt). */
+  bandwidthKhz?: number
 }
 
 export interface WirelessRigPlan {
   name?: string
+  /** #1002 — Land fuer die Frequenztabelle (ISO-3166-1 alpha-2). */
+  country?: string
   channels: WirelessChannel[]
 }

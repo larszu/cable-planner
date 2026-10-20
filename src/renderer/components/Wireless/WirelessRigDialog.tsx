@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from 'react'
-import { X, Plus, Trash2, Check, AlertTriangle, Radio } from 'lucide-react'
+import { X, Plus, Trash2, Check, AlertTriangle, Radio, Download, Printer, Table2 } from 'lucide-react'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
 import { useTranslation, format } from '../../lib/i18n'
@@ -9,6 +9,14 @@ import { emptyWirelessRig, deriveRig } from '../../lib/wirelessRig'
 import { collectTransmitters } from '../../lib/spectrumPlan'
 import type { WirelessRigPlan, WirelessChannel } from '../../types/wirelessRig'
 import { MicPlotPanel } from './MicPlotPanel'
+import { selectableBands, bandId, bandById, type RfBand } from '../../lib/rfBands'
+import { RF_COUNTRY_TABLES, countryTable } from '../../lib/rfCountryTables'
+import { wirelessRigTable, channelBandStatus } from '../../lib/wirelessRigExport'
+import { csvFromTable } from '../../lib/documentStamp'
+import { buildPacketHtml, sheetFromTable } from '../../lib/documentPacket'
+import { printHtmlDocument } from '../../lib/printHtml'
+import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
+import { downloadBlob } from '../../lib/downloadBlob'
 import { PanelHint } from '../shared/PanelHint'
 import { useDialogA11y } from '../../hooks/useDialogA11y'
 import { useBackdropClose } from '../../hooks/useBackdropClose'
@@ -58,6 +66,17 @@ export const WirelessRigDialog = () => {
   }, [derivation])
 
   const [freqDraft, setFreqDraft] = useState<Record<string, string>>({})
+  // #1002 — Laendertabelle auf Knopfdruck, Baender nur mit Herstellerquelle.
+  const [showTable, setShowTable] = useState(false)
+  const bandGroups = useMemo(() => {
+    const m = new Map<string, RfBand[]>()
+    for (const b of selectableBands()) {
+      const g = `${b.mfr} ${b.line}`
+      m.set(g, [...(m.get(g) ?? []), b])
+    }
+    return [...m.entries()]
+  }, [])
+  const table = countryTable(plan.country)
 
   // Phase 3 der UI-Pruefung: Escape, Fokus-Falle und Fokus-Rueckgabe aus dem
   // Haken. Vor dem bedingten Ausstieg, weil Haken nicht bedingt laufen.
@@ -74,6 +93,24 @@ export const WirelessRigDialog = () => {
   }
   const updateChannel = (id: string, patch: Partial<WirelessChannel>) =>
     commit({ ...plan, channels: plan.channels.map((c) => (c.id === id ? { ...c, ...patch } : c)) })
+  const projectName = project.metadata.name || 'cable-planner'
+  const exportCsv = () =>
+    downloadBlob(
+      buildExportFilenameWithSuffix(projectName, 'funkstrecken', 'csv'),
+      csvFromTable(wirelessRigTable(plan)),
+      'text/csv;charset=utf-8',
+    )
+  const printList = () =>
+    printHtmlDocument(
+      buildPacketHtml(projectName, [
+        sheetFromTable(
+          t('wireless.listTitle', 'Wireless channel list'),
+          wirelessRigTable(plan),
+          undefined,
+          table ? `${table.name} · ${table.regulator}` : undefined,
+        ),
+      ]),
+    )
   const removeChannel = (id: string) =>
     commit({ ...plan, channels: plan.channels.filter((c) => c.id !== id) })
 
@@ -149,9 +186,79 @@ export const WirelessRigDialog = () => {
               <AlertTriangle size={12} /> {format(t('wireless.rfConflicts', '{n} RF conflicts'), { n: derivation.rfConflicts.length })}
             </span>
           )}
+          <span className="ml-auto" />
+          <select
+            value={plan.country ?? ''}
+            onChange={(e) => commit({ ...plan, country: e.target.value || undefined })}
+            aria-label={t('wireless.country', 'Country')}
+            className={inputCls}
+          >
+            <option value="">{t('wireless.noCountry', '— country —')}</option>
+            {RF_COUNTRY_TABLES.map((c) => (
+              <option key={c.code} value={c.code}>{c.name}</option>
+            ))}
+          </select>
+          <button
+            type="button"
+            onClick={() => setShowTable((v) => !v)}
+            disabled={!table}
+            aria-pressed={showTable}
+            className="flex items-center gap-1 bg-cp-surface-3 px-2 py-1.5 text-cp-xs hover:bg-cp-surface-4 disabled:opacity-40"
+          >
+            <Table2 size={13} /> {t('wireless.freqTable', 'Frequency table')}
+          </button>
+          <button
+            type="button"
+            onClick={exportCsv}
+            disabled={plan.channels.length === 0}
+            className="flex items-center gap-1 bg-cp-surface-3 px-2 py-1.5 text-cp-xs hover:bg-cp-surface-4 disabled:opacity-40"
+          >
+            <Download size={13} /> CSV
+          </button>
+          <button
+            type="button"
+            onClick={printList}
+            disabled={plan.channels.length === 0}
+            className="flex items-center gap-1 bg-cp-accent text-cp-accent-text px-2 py-1.5 text-cp-xs hover:bg-cp-accent-hover disabled:opacity-40"
+          >
+            <Printer size={13} /> {t('wireless.print', 'Print / PDF')}
+          </button>
         </div>
 
         <div className="flex min-h-0 flex-1 flex-col overflow-auto p-4 text-cp-sm">
+          {showTable && table && (
+            <div className="mb-4 overflow-x-auto border border-cp-border">
+              <table className="w-full border-collapse text-left text-cp-xs">
+                <thead className="bg-cp-surface-2 text-cp-text-muted">
+                  <tr>
+                    <th className="px-2 py-1 font-medium">MHz</th>
+                    <th className="px-2 py-1 font-medium">{t('wireless.maxPower', 'Max. power')}</th>
+                    <th className="px-2 py-1 font-medium">{t('wireless.use', 'Who may use')}</th>
+                    <th className="px-2 py-1 font-medium">{t('wireless.conditions', 'Conditions')}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {table.ranges.map((r) => (
+                    <tr key={`${r.fromMHz}-${r.toMHz}`} className="border-t border-cp-border-muted">
+                      <td className="px-2 py-1 tabular-nums">{r.fromMHz}–{r.toMHz}</td>
+                      <td className="px-2 py-1">{r.maxPower ?? '—'}</td>
+                      <td className="px-2 py-1">
+                        {r.use === 'professional'
+                          ? t('wireless.useProfessional', 'professional production only')
+                          : t('wireless.useGeneral', 'general public')}
+                      </td>
+                      <td className="px-2 py-1 text-cp-text-secondary">
+                        {r.note}{' '}
+                        <a href={r.source} target="_blank" rel="noreferrer" className="text-cp-accent underline">
+                          {t('wireless.source', 'source')}
+                        </a>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
           {plan.channels.length === 0 ? (
             <div className="border border-dashed border-cp-border py-12 text-center text-cp-text-muted">
               {t('wireless.empty', 'No channels yet. Add a channel and assign body + capsule/headset.')}
@@ -167,7 +274,9 @@ export const WirelessRigDialog = () => {
                     <th className="px-2 py-1.5 text-center font-medium" title={t('wireless.compat', 'Compatibility')}>
                       <Icon icon={Check} size="xs" label={t('wireless.compat', 'Compatibility')} />
                     </th>
+                    <th className="px-2 py-1.5 font-medium">{t('wireless.band', 'Band')}</th>
                     <th className="px-2 py-1.5 font-medium">{t('wireless.freq', 'Frequency (MHz)')}</th>
+                    <th className="px-2 py-1.5 font-medium">{t('wireless.bandwidth', 'Bandwidth (kHz)')}</th>
                     <th className="px-2 py-1.5"></th>
                   </tr>
                 </thead>
@@ -175,6 +284,9 @@ export const WirelessRigDialog = () => {
                   {derivation.rows.map(({ channel, compat }) => {
                     const micOptions = micOptionsFor(channel.bodyDeviceTypeId)
                     const rfHit = conflictIds.has(channel.id)
+                    const band = bandById(channel.bandId)
+                    const st = channelBandStatus(plan, channel.id)
+                    const outside = st.inBand === false || st.allowed === false
                     return (
                       <tr key={channel.id} className={`border-t border-cp-border-muted ${rfHit ? 'bg-cp-warn/10' : ''}`}>
                         <td className="px-2 py-1.5">
@@ -224,8 +336,30 @@ export const WirelessRigDialog = () => {
                         </td>
                         <td className="px-2 py-1.5 text-center">{compatBadge(compat)}</td>
                         <td className="px-2 py-1.5">
+                          <select
+                            value={channel.bandId ?? ''}
+                            onChange={(e) => updateChannel(channel.id, { bandId: e.target.value || undefined })}
+                            aria-label={t('wireless.band', 'Band')}
+                            className={`${inputCls} w-40`}
+                          >
+                            <option value="">—</option>
+                            {bandGroups.map(([g, list]) => (
+                              <optgroup key={g} label={g}>
+                                {list.map((b) => (
+                                  <option key={bandId(b)} value={bandId(b)}>
+                                    {b.band} · {b.fromMHz}–{b.toMHz}
+                                  </option>
+                                ))}
+                              </optgroup>
+                            ))}
+                          </select>
+                        </td>
+                        <td className="px-2 py-1.5">
                           <input
                             type="number"
+                            min={band?.fromMHz}
+                            max={band?.toMHz}
+                            title={outside ? t('wireless.outside', 'Outside the selected band or not allowed in the selected country') : undefined}
                             step="0.001"
                             value={freqDraft[channel.id] ?? (channel.frequencyMhz != null ? String(channel.frequencyMhz) : '')}
                             onChange={(e) => setFreqDraft((d) => ({ ...d, [channel.id]: e.target.value }))}
@@ -235,7 +369,23 @@ export const WirelessRigDialog = () => {
                               setFreqDraft((d) => { const n = { ...d }; delete n[channel.id]; return n })
                             }}
                             placeholder="z.B. 502.375"
-                            className={`${inputCls} w-28 ${rfHit ? 'border-cp-warn' : ''}`}
+                            className={`${inputCls} w-28 ${rfHit || outside ? 'border-cp-warn' : ''}`}
+                          />
+                        </td>
+                        <td className="px-2 py-1.5">
+                          <input
+                            type="number"
+                            min={0}
+                            step="25"
+                            value={channel.bandwidthKhz ?? ''}
+                            onChange={(e) =>
+                              updateChannel(channel.id, {
+                                bandwidthKhz: e.target.value === '' ? undefined : Number(e.target.value),
+                              })
+                            }
+                            aria-label={t('wireless.bandwidth', 'Bandwidth (kHz)')}
+                            placeholder="200"
+                            className={`${inputCls} w-20`}
                           />
                         </td>
                         <td className="px-2 py-1.5">

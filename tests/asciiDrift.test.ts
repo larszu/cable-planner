@@ -146,7 +146,7 @@ const HARMLOS = new Set(
     // LED-Wand ist „{c} Kacheln quer", und das ist richtiges Deutsch.
     'zuerst', 'neuere', 'neueren', 'neueste', 'quer', 'querschnitt', 'dauer',
     'störquelle', 'signalquelle', 'signalquellen', 'prüfquelle', 'frequenzbänder',
-    'frequenzregulierung', 'koexistieren', 'graues', 'visuell', 'visuelle',
+    'frequenzregulierung', 'frequenzband', 'mittenfrequenz', 'frequenztabelle', 'koexistieren', 'graues', 'visuell', 'visuelle',
     'virtuelle', 'individuelle', 'aktuellem', 'nachbauen', 'zuerste',
     'queueconnection', 'venuescopedialog', 'catalogueevidence',
   ].map((w) => w.toLowerCase()),
