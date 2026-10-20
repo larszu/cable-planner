@@ -1354,22 +1354,23 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
                 <span className="font-semibold text-violet-200">
                   {t('library.suggest.heading', 'Guess the ports from the device name')}
                 </span>
-                {/* Nur bei der KI-Quelle (#858): ein „KI-Einstellungen"-Knopf
-                    neben einem Web-Such-Knopf ist ein Weg zu einem
-                    Schluessel, den gerade niemand braucht. */}
-                {ausfuellQuelle === 'ki' && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setAiKeyDraft(getApiKey(getSelectedAiProvider()))
-                      setAiSettingsOpen(true)
-                    }}
-                    className="text-cp-xs text-violet-300 hover:underline"
-                    title={t('library.create.aiSettings', 'AI settings')}
-                  >
-                    <Icon icon={Settings} size="xs" className="mr-1 inline-block align-text-bottom" />{t('library.create.aiSettingsLabel', 'AI settings')}
-                  </button>
-                )}
+                {/* Immer sichtbar: auch bei der Websuche ist das der Weg zum
+                    API-Schluessel, falls die Suche nichts findet und man auf
+                    die KI umsteigen will. */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAiKeyDraft(getApiKey(getSelectedAiProvider()))
+                    setAiSettingsOpen(true)
+                  }}
+                  className="text-cp-xs text-violet-300 hover:underline"
+                  title={t('library.create.aiSettings', 'AI settings')}
+                >
+                  <Icon icon={Settings} size="xs" className="mr-1 inline-block align-text-bottom" />
+                  {ausfuellQuelle === 'ki'
+                    ? t('library.create.aiSettingsLabel', 'AI settings')
+                    : t('library.create.aiKeyAdd', 'Add API key (AI)')}
+                </button>
               </div>
               {/*
                 EIN Knopf (#858). Hier standen drei — „Heuristik", „Web",

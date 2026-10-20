@@ -370,7 +370,11 @@ app.whenReady().then(async () => {
               // Einstellungen → AI gewaehlten Anbieter aus dem Renderer. Bis
               // hierher stand nur Gemini in der Liste — Claude und OpenAI waren
               // im gepackten Fenster waehlbar, aber von dieser Regel gesperrt.
-              "connect-src 'self' https://api.rentman.net https://generativelanguage.googleapis.com https://api.anthropic.com https://api.openai.com https://devices.zumpelars.de ws: wss:; " +
+              //
+              // en.wikipedia.org / api.duckduckgo.com (2026-10-20): die
+              // Websuche „Ports aus dem Namen raten" (`webPortSuggestions`)
+              // lief hier gegen die Regel und meldete nur „Failed to fetch".
+              "connect-src 'self' https://api.rentman.net https://generativelanguage.googleapis.com https://api.anthropic.com https://api.openai.com https://devices.zumpelars.de https://en.wikipedia.org https://api.duckduckgo.com ws: wss:; " +
               "object-src 'none'; base-uri 'none'; frame-ancestors 'none'",
           ],
           'X-Content-Type-Options': ['nosniff'],
