@@ -41,6 +41,7 @@ import { optikKurz } from '../../lib/kameraOptik'
 import { hatAdressZeile } from '../../lib/equipmentLayout'
 import { StreamPreviewTile } from './StreamPreviewTile'
 import { ScopeBadge } from './ScopeBadge'
+import { portZielUeberstand } from '../../lib/griffFlaeche'
 // 2026-09-12 — Diese fuenf Zahlen standen hier als Modul-Konstanten und waren
 // damit fuer die Lebensdauer des Moduls festgenagelt. Sie folgen jetzt der im
 // Menue eingestellten Rastergroesse und werden deshalb IN der Komponente
@@ -91,6 +92,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
     GRID_SIZE,
     DEFAULT_WIDTH,
   } = useRaster()
+  const portUeberstand = portZielUeberstand(PORT_ROW)
   // Tally aus dem Mischer — `null`, solange nichts bekannt ist.
   const tally = useTally(id)
   // Schaltbild: Helligkeit dieser Leuchte. `null` = keine Aussage (kein
@@ -994,10 +996,13 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
             aria-label={`${port.name} · ${port.connectorType} — ${t('eqNode.portConnectHint', 'Enter to connect')}`}
             style={{
               position: 'absolute',
-              top,
+              top: top - portUeberstand,
               ...(isLeft ? { left: 0 } : { right: 0 }),
               width: '50%',
-              height: PORT_ROW,
+              height: PORT_ROW + 2 * portUeberstand,
+              paddingTop: portUeberstand,
+              paddingBottom: portUeberstand,
+              backgroundClip: 'content-box',
               ...(isLeft
                 ? { paddingLeft: 14, paddingRight: 4 }
                 : { paddingRight: 14, paddingLeft: 4 }),
@@ -1153,10 +1158,13 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
             aria-label={`${port.name} · ${port.connectorType} — ${t('eqNode.portConnectHint', 'Enter to connect')}`}
             style={{
               position: 'absolute',
-              top,
+              top: top - portUeberstand,
               ...(isLeft ? { left: 0 } : { right: 0 }),
               width: '50%',
-              height: PORT_ROW,
+              height: PORT_ROW + 2 * portUeberstand,
+              paddingTop: portUeberstand,
+              paddingBottom: portUeberstand,
+              backgroundClip: 'content-box',
               ...(isLeft
                 ? { paddingLeft: 14, paddingRight: 4 }
                 : { paddingRight: 14, paddingLeft: 4 }),
