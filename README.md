@@ -93,6 +93,10 @@
 - **Calm by default.** One single-line toolbar over the plan: defaults,
   frame, selection tools and the layer chips; everything else sits under
   *More*. Devices are neutral cards with their colour as a thin edge.
+- **Shortcuts at a glance.** Press `?` (or *Help → Keyboard shortcuts*) for a
+  virtual keyboard — QWERTZ in German, QWERTY otherwise, ⌘/⇧ on a Mac —
+  with every assigned key highlighted; hover or click a key to see its
+  actions. The list view stays one click away.
 - **Light and dark.** A neutral interface with the brand blue as the only
   accent. *Auto* follows the system; *Light* and *Dark* are one click away
   with the theme button in the header, in *Settings → Appearance* or the

@@ -1,20 +1,123 @@
 // #ux — Tastaturkürzel-Übersicht.
 //
-// Listet die vorhandenen Shortcuts (aus MenuBar + useCanvasKeyboardShortcuts +
-// Geräte-Suche) in einem Overlay. Öffnet mit "?" (Shift+/) und über das
-// Hilfe-Menü (CustomEvent 'cp:open-shortcuts-help'). Mac zeigt ⌘/⇧ statt Strg/Umsch.
-import { useEffect, useState } from 'react'
-import { Keyboard } from 'lucide-react'
+// Öffnet mit "?" (Shift+/) und über das Hilfe-Menü (CustomEvent
+// 'cp:open-shortcuts-help'). Zwei Ansichten aus derselben Quelle
+// (lib/shortcutMap): virtuelle Tastatur (#949) und Liste.
+import { useEffect, useMemo, useState } from 'react'
+import { Keyboard, List } from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import { ModalShell } from '../shared/ModalShell'
 import { useTranslation } from '../../lib/i18n'
+import { useUiStore } from '../../store/uiStore'
+import {
+  KEYBOARD_LAYOUTS,
+  SHORTCUT_GROUPS,
+  formatCombo,
+  formatKey,
+  keyLabelsFor,
+  layoutForLanguage,
+  shortcutsByKey,
+  type KeyLabels,
+  type ShortcutItem,
+} from '../../lib/shortcutMap'
 
 const isMac =
   typeof navigator !== 'undefined' && /mac/i.test(navigator.platform || navigator.userAgent || '')
 
+type View = 'keyboard' | 'list'
+
+const Kbd = ({ children }: { children: string }) => (
+  <kbd className="shrink-0 rounded-cp-control border border-cp-border bg-cp-surface-2 px-2 py-0.5 text-cp-xs text-cp-text">
+    {children}
+  </kbd>
+)
+
+const ShortcutRows = ({ items, labels }: { items: ShortcutItem[]; labels: KeyLabels }) => {
+  const t = useTranslation()
+  return (
+    <ul className="space-y-1">
+      {items.map((it) => (
+        <li key={it.id} className="flex items-center justify-between gap-3 text-cp-sm">
+          <span className="text-cp-text-secondary">{t(it.labelKey, it.fallback)}</span>
+          <Kbd>{formatCombo(it.keys, labels)}</Kbd>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+const KeyboardView = ({ labels }: { labels: KeyLabels }) => {
+  const t = useTranslation()
+  const lang = useUiStore((s) => s.language)
+  const layout = KEYBOARD_LAYOUTS[layoutForLanguage(lang)]
+  const byKey = useMemo(() => shortcutsByKey(layout), [layout])
+  const [hover, setHover] = useState<string | null>(null)
+  const [pinned, setPinned] = useState<string | null>(null)
+  const active = hover ?? pinned
+  const activeItems = active ? (byKey.get(active) ?? []) : []
+
+  return (
+    <div className="space-y-3">
+      <div className="overflow-x-auto pb-1">
+        <div className="mx-auto flex min-w-[34rem] max-w-[46rem] flex-col gap-1" role="group">
+          {layout.map((row, i) => (
+            <div key={i} className="flex gap-1">
+              {row.map((k) => {
+                const assigned = byKey.has(k.code)
+                const selected = active === k.code
+                const text = k.label ?? formatKey(k.code, labels)
+                return (
+                  <button
+                    key={k.code}
+                    type="button"
+                    disabled={!assigned}
+                    aria-pressed={assigned ? pinned === k.code : undefined}
+                    aria-label={text || t('shortcutsHelp.space', 'Space')}
+                    onMouseEnter={() => assigned && setHover(k.code)}
+                    onMouseLeave={() => setHover(null)}
+                    onFocus={() => assigned && setHover(k.code)}
+                    onBlur={() => setHover(null)}
+                    onClick={() => setPinned((p) => (p === k.code ? null : k.code))}
+                    style={{ flexGrow: k.w ?? 1, flexBasis: 0 }}
+                    className={`h-9 min-w-0 truncate rounded-cp-s border px-1 text-cp-xs transition-colors ${
+                      selected
+                        ? 'border-cp-accent bg-cp-accent text-white'
+                        : assigned
+                          ? 'border-cp-accent bg-cp-accent-soft text-cp-text hover:border-cp-accent'
+                          : 'border-cp-border-muted bg-cp-surface-1 text-cp-text-faint'
+                    }`}
+                  >
+                    {text}
+                  </button>
+                )
+              })}
+            </div>
+          ))}
+        </div>
+      </div>
+      <div
+        className="min-h-[5rem] rounded-cp-card border border-cp-border-muted bg-cp-surface-2 p-3"
+        aria-live="polite"
+      >
+        {activeItems.length ? (
+          <ShortcutRows items={activeItems} labels={labels} />
+        ) : (
+          <p className="text-cp-sm text-cp-text-muted">
+            {t(
+              'shortcutsHelp.keyboardHint',
+              'Highlighted keys have actions. Hover or click a key to see them.',
+            )}
+          </p>
+        )}
+      </div>
+    </div>
+  )
+}
+
 export const ShortcutsHelp = () => {
   const t = useTranslation()
   const [open, setOpen] = useState(false)
+  const [view, setView] = useState<View>('keyboard')
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -36,51 +139,14 @@ export const ShortcutsHelp = () => {
     }
   }, [])
 
-  const mod = isMac ? '⌘' : t('shortcut.mod', 'Ctrl')
-  const shift = isMac ? '⇧' : t('shortcut.shift', 'Shift')
-
-  const groups: { title: string; items: [string, string][] }[] = [
+  const labels = keyLabelsFor(isMac, t)
+  const views: { id: View; icon: typeof Keyboard; label: string }[] = [
     {
-      title: t('shortcutsHelp.file', 'File'),
-      items: [
-        [`${mod}+N`, t('shortcutsHelp.new', 'New project')],
-        [`${mod}+O`, t('shortcutsHelp.open', 'Open project')],
-        [`${mod}+S`, t('shortcutsHelp.save', 'Save')],
-        [`${mod}+${shift}+S`, t('shortcutsHelp.saveAs', 'Save as')],
-      ],
+      id: 'keyboard',
+      icon: Keyboard,
+      label: t('shortcutsHelp.viewKeyboard', 'Keyboard'),
     },
-    {
-      title: t('shortcutsHelp.edit', 'Edit'),
-      items: [
-        [`${mod}+Z`, t('shortcutsHelp.undo', 'Undo')],
-        [`${mod}+Y`, t('shortcutsHelp.redo', 'Redo')],
-        [`${mod}+C`, t('shortcutsHelp.copy', 'Copy')],
-        [`${mod}+V`, t('shortcutsHelp.paste', 'Paste')],
-        [`${mod}+D`, t('shortcutsHelp.duplicate', 'Duplicate')],
-        [`${mod}+A`, t('shortcutsHelp.selectAll', 'Select all')],
-        [t('shortcut.del', 'Del'), t('shortcutsHelp.delete', 'Delete selection')],
-        [t('shortcut.esc', 'Esc'), t('shortcutsHelp.escape', 'Deselect / cancel')],
-      ],
-    },
-    {
-      title: t('shortcutsHelp.canvas', 'Canvas & navigation'),
-      items: [
-        [`${mod}+K`, t('shortcutsHelp.palette', 'Command palette')],
-        [`${mod}+F`, t('shortcutsHelp.find', 'Find device')],
-        [`${mod}++`, t('shortcutsHelp.quickAdd', 'New device at cursor')],
-        ['↑ ↓ ← →', t('shortcutsHelp.nudge', 'Move device (Shift = larger steps)')],
-        ['?', t('shortcutsHelp.help', 'Show this overview')],
-      ],
-    },
-    {
-      title: t('shortcutsHelp.panels', 'Panels & view'),
-      items: [
-        [`${mod}+B`, t('shortcutsHelp.toggleLibrary', 'Show/hide library')],
-        [`${mod}+I`, t('shortcutsHelp.toggleProperties', 'Show/hide properties')],
-        ['P', t('shortcutsHelp.jumpToPatches', 'Open patch list')],
-        ['A', t('shortcutsHelp.toggleArrows', 'Toggle arrow display')],
-      ],
-    },
+    { id: 'list', icon: List, label: t('shortcutsHelp.viewList', 'List') },
   ]
 
   return (
@@ -91,23 +157,42 @@ export const ShortcutsHelp = () => {
       titleIcon={<Icon icon={Keyboard} size="sm" />}
       maxWidth="lg"
     >
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {groups.map((g) => (
-          <div key={g.title}>
-            <h3 className="mb-2 text-cp-sm font-semibold text-cp-text-secondary">{g.title}</h3>
-            <ul className="space-y-1">
-              {g.items.map(([combo, desc]) => (
-                <li key={combo} className="flex items-center justify-between gap-3 text-cp-sm">
-                  <span className="text-cp-text-secondary">{desc}</span>
-                  <kbd className="shrink-0 rounded-cp-control border border-cp-border bg-cp-surface-2 px-2 py-0.5 text-cp-xs text-cp-text">
-                    {combo}
-                  </kbd>
-                </li>
-              ))}
-            </ul>
-          </div>
+      <div
+        className="mb-3 inline-flex rounded-cp-control border border-cp-border p-0.5"
+        role="tablist"
+      >
+        {views.map((v) => (
+          <button
+            key={v.id}
+            type="button"
+            role="tab"
+            aria-selected={view === v.id}
+            onClick={() => setView(v.id)}
+            className={`inline-flex min-h-8 items-center gap-1.5 rounded-cp-s px-3 text-cp-sm ${
+              view === v.id
+                ? 'bg-cp-accent text-white'
+                : 'text-cp-text-secondary hover:bg-cp-surface-2'
+            }`}
+          >
+            <Icon icon={v.icon} size="sm" />
+            {v.label}
+          </button>
         ))}
       </div>
+      {view === 'keyboard' ? (
+        <KeyboardView labels={labels} />
+      ) : (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          {SHORTCUT_GROUPS.map((g) => (
+            <div key={g.id}>
+              <h3 className="mb-2 text-cp-sm font-semibold text-cp-text-secondary">
+                {t(g.titleKey, g.fallback)}
+              </h3>
+              <ShortcutRows items={g.items} labels={labels} />
+            </div>
+          ))}
+        </div>
+      )}
     </ModalShell>
   )
 }

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import uiStoreSrc from '../src/renderer/store/uiStore.ts?raw'
 import hotkeysSrc from '../src/renderer/lib/hotkeys.ts?raw'
 import appSrc from '../src/renderer/App.tsx?raw'
-import helpSrc from '../src/renderer/components/Layout/ShortcutsHelp.tsx?raw'
+import { ALL_SHORTCUTS } from '../src/renderer/lib/shortcutMap'
 
 // Die Tastatur-Oberflaeche wird an VIER Stellen beschrieben, und sie waren sich
 // nicht einig (gemessen 2026-09-04):
@@ -10,7 +10,7 @@ import helpSrc from '../src/renderer/components/Layout/ShortcutsHelp.tsx?raw'
 //   Bindungen   `uiStore.ts` hotkeys                 14 Eintraege
 //   Namen       `hotkeys.ts` HOTKEY_ACTION_LABEL     14 -- speist den Einstellungen-Tab
 //   Handler     `App.tsx`    hotkeyHandlers          11
-//   Hilfe       `ShortcutsHelp.tsx`                  18
+//   Hilfe       `shortcutMap.ts` (#949, vorher ShortcutsHelp.tsx)  18
 //
 // Konkret gelogen hat die Hilfe an zwei Stellen: `Strg+P` (Drucken) und
 // `Strg+A` (Alles auswaehlen) hatten im ganzen Repo keinen Handler, keine
@@ -25,6 +25,12 @@ import helpSrc from '../src/renderer/components/Layout/ShortcutsHelp.tsx?raw'
 // Dieser Test rechnet die vier Listen aus dem Quelltext aus, statt sie zu
 // behaupten. Wer eine Zeile in der Hilfe ergaenzt, muss sagen, wo sie behandelt
 // wird -- genau das haette `Strg+P` nie ueberstanden.
+
+/** Mod+X der Hilfe; Shift zaehlt wie in der Registry nicht mit. */
+const hilfeModCombos = () =>
+  ALL_SHORTCUTS.filter((s) => s.keys[0] === 'Mod').map(
+    (s) => `Mod+${s.keys[s.keys.length - 1].toUpperCase()}`,
+  )
 
 /**
  * Die Schluessel eines Objekt-Literals `name: { a: '…', b: '…' }`.
@@ -115,9 +121,7 @@ describe('Tastenkuerzel — die vier Listen stimmen ueberein', () => {
   it('jedes Mod+X in der Hilfe ist entweder registriert oder nachweisbar erklaert', () => {
     // Das ist der Test, den `Strg+P` nicht ueberstanden haette: um es stehen zu
     // lassen, haette jemand hinschreiben muessen, wo es behandelt wird.
-    const combos = [...helpSrc.matchAll(/\$\{mod\}\+(?:\$\{shift\}\+)?(\+|\w)/g)].map(
-      (m) => `Mod+${m[1].toUpperCase()}`,
-    )
+    const combos = hilfeModCombos()
     expect(combos.length, 'keine Mod+X-Zeilen in der Hilfe gefunden').toBeGreaterThan(5)
 
     const ausRegistry = new Set(
@@ -136,9 +140,7 @@ describe('Tastenkuerzel — die vier Listen stimmen ueberein', () => {
 
   it('die Erklaerungsliste behauptet nichts, was die Hilfe gar nicht zeigt', () => {
     const inHilfe = new Set(
-      [...helpSrc.matchAll(/\$\{mod\}\+(?:\$\{shift\}\+)?(\+|\w)/g)].map(
-        (m) => `Mod+${m[1].toUpperCase()}`,
-      ),
+      hilfeModCombos(),
     )
     const verwaist = Object.keys(AUSSERHALB_DER_REGISTRY).filter((c) => !inHilfe.has(c))
     expect(verwaist, `erklaert, steht aber nicht in der Hilfe: ${verwaist.join(', ')}`).toEqual([])
