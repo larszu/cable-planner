@@ -132,6 +132,11 @@ npm run build   # renderer, main, preload
 npm run dist    # installers for macOS / Windows
 ```
 
+In a worktree, symlinking the main checkout's `node_modules` is enough:
+`vitest.config.ts` allows the resolved link target, so `?url` imports (zxing
+wasm) load. Tests use at most half the CPU cores and a 60 s timeout, so several
+worktrees can run `npm test` at once.
+
 LZ Scopes is vendored under `src/renderer/vendor/lz-scopes/`
 ([VENDOR.md](src/renderer/vendor/lz-scopes/VENDOR.md)). Update it with
 `npm run scopes:sync -- --upstream ../lz-scopes`; `npm run scopes:check`
