@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { atemPortSources, impliedOutputSourceId } from '../src/renderer/lib/atemPortSources'
+import { atemPortSources, impliedOutputSourceId, withCanvasPortNames } from '../src/renderer/lib/atemPortSources'
 
 describe('atemPortSources (#1008)', () => {
   it('leitet Eingangs-IDs aus der Position ab', () => {
@@ -19,5 +19,19 @@ describe('atemPortSources (#1008)', () => {
       outputs: [{ name: 'Monitor', atemSourceId: 8005 }, { name: 'Foo' }],
     })
     expect(r.map((p) => p.id)).toEqual([7, 8005])
+  })
+})
+
+describe('withCanvasPortNames (#1008)', () => {
+  it('ersetzt die Live-Namen im Multiviewer durch die Canvas-Portnamen', () => {
+    const windows = [
+      { sourceId: 1, longName: 'Camera 1', shortName: 'CAM1' },
+      { sourceId: 8001, longName: 'Auxiliary 1', shortName: 'AUX1' },
+      { sourceId: 3, longName: 'Camera 3', shortName: 'CAM3' },
+    ]
+    const eq = { inputs: [{ name: 'Pult links' }], outputs: [{ name: 'AUX 1 Buehne' }] }
+    expect(withCanvasPortNames(windows, eq).map((w) => w.longName)).toEqual(['Pult links', 'AUX 1 Buehne', 'Camera 3'])
+    expect(withCanvasPortNames(windows, { inputs: [{ name: 'Umbenannt' }] })[0].longName).toBe('Umbenannt')
+    expect(withCanvasPortNames(windows, undefined)).toBe(windows)
   })
 })

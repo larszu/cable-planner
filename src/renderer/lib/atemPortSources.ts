@@ -54,3 +54,18 @@ export function atemPortSources(equipment: {
   }
   return out
 }
+
+// Die Live-Ansicht des Multiviewers zeigte nur, was der ATEM meldet; ein im
+// Canvas umbenannter Port kam dort nie an (#1008). Der Canvas-Name gewinnt.
+export function withCanvasPortNames<W extends { sourceId: number; longName: string }>(
+  windows: W[],
+  equipment: { inputs?: PortLike[]; outputs?: PortLike[] } | undefined,
+): W[] {
+  if (!equipment) return windows
+  const names = new Map<number, string>()
+  for (const p of atemPortSources(equipment)) names.set(p.id, p.name)
+  return windows.map((w) => {
+    const name = w ? names.get(w.sourceId) : undefined
+    return name ? { ...w, longName: name } : w
+  })
+}

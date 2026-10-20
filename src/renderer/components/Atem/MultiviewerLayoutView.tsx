@@ -1,13 +1,17 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { RotateCcw, X } from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import { cablePlannerApi, type AtemStateSummary, type AtemMultiviewer } from '../../lib/bridge'
 import { useTranslation } from '../../lib/i18n'
 import { useDialogA11y } from '../../hooks/useDialogA11y'
 import { useBackdropClose } from '../../hooks/useBackdropClose'
+import { useProjectStore } from '../../store/projectStore'
+import { getEquipmentById } from '../../lib/equipmentSelectors'
+import { withCanvasPortNames } from '../../lib/atemPortSources'
 
 interface MultiviewerLayoutViewProps {
   onClose: () => void
+  deviceId?: string
 }
 
 /**
@@ -247,7 +251,7 @@ const MultiviewerPanel = ({ mv }: { mv: AtemMultiviewer }) => {
   )
 }
 
-export const MultiviewerLayoutView = ({ onClose }: MultiviewerLayoutViewProps) => {
+export const MultiviewerLayoutView = ({ onClose, deviceId }: MultiviewerLayoutViewProps) => {
   // Phase 3 der UI-Pruefung: Escape, Fokus-Falle und Fokus-Rueckgabe aus dem
   // Haken. Die Ansicht wird bedingt gemontiert und kennt kein `open`.
   const t = useTranslation()
@@ -281,8 +285,15 @@ export const MultiviewerLayoutView = ({ onClose }: MultiviewerLayoutViewProps) =
     return () => unsubscribe()
   }, [])
 
-  const mvs = (state?.multiViewers ?? []).filter(
-    (mv): mv is AtemMultiviewer => mv !== null && mv !== undefined,
+  const equipment = useProjectStore((s) =>
+    deviceId ? getEquipmentById(s.project.equipment, deviceId) : undefined,
+  )
+  const mvs = useMemo(
+    () =>
+      (state?.multiViewers ?? [])
+        .filter((mv): mv is AtemMultiviewer => mv !== null && mv !== undefined)
+        .map((mv) => ({ ...mv, windows: withCanvasPortNames(mv.windows, equipment) })),
+    [state, equipment],
   )
 
   const { panelRef, titleId, dialogProps } = useDialogA11y(true, onClose)
