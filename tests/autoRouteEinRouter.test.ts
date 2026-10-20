@@ -173,7 +173,7 @@ describe('Der automatische Weg kommt vom A*-Router, nicht vom Notfall-Router', (
     expect(bereich).toContain('routeCableWithAStar({')
     // Und das Ergebnis geht auch wirklich ins Kabel — nicht nur berechnet
     // und weggeworfen.
-    expect(bereich).toMatch(/updateCable\(cable\.id, \{ waypoints: \w+ \?\? orthogonalWaypoints \}\)/)
+    expect(bereich).toMatch(/queueWaypointPersist\(setCableWaypointsBatch, cable\.id, \w+ \?\? orthogonalWaypoints\)/)
   })
 
   it('routeAround bleibt der Ausweg und nicht der Normalfall', () => {
@@ -182,7 +182,7 @@ describe('Der automatische Weg kommt vom A*-Router, nicht vom Notfall-Router', (
     // vorkommen darf, ist ein Persist, der nur ihn kennt.
     const start = kante.indexOf('persistTriedRef.current = true')
     const bereich = kante.slice(start, start + 1200)
-    expect(bereich).not.toMatch(/updateCable\(cable\.id, \{ waypoints: orthogonalWaypoints \}\)/)
+    expect(bereich).not.toMatch(/queueWaypointPersist\(setCableWaypointsBatch, cable\.id, orthogonalWaypoints\)/)
   })
 })
 

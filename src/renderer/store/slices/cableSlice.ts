@@ -40,6 +40,7 @@ export type CableSlice = Pick<
   | 'createCableFromPending'
   | 'addCablesBulk'
   | 'updateCable'
+  | 'setCableWaypointsBatch'
   | 'renumberCables'
   | 'deleteCable'
   | 'reconnectCable'
@@ -328,6 +329,18 @@ export const createCableSlice: StateCreator<ProjectState, [], [], CableSlice> = 
             const typePatch = cableTypePatchFromPorts(merged, state.project.equipment)
             return typePatch ? { ...merged, ...typePatch } : merged
           }),
+        }),
+      }
+    }),
+  setCableWaypointsBatch: (byId) =>
+    set((state) => {
+      if (isProjectLocked(state) || byId.size === 0) return state
+      return {
+        project: touchProject({
+          ...state.project,
+          cables: state.project.cables.map((item) =>
+            byId.has(item.id) ? { ...item, waypoints: byId.get(item.id) } : item,
+          ),
         }),
       }
     }),
