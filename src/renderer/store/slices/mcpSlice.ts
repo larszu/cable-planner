@@ -7,6 +7,7 @@ import { nextPlacementPosition } from '../../lib/library'
 import { useUiStore } from '../uiStore'
 import { mitEintrag } from '../../types/mcpLog'
 import type { ProjectState } from '../projectStore'
+import { ohneRateGuard } from '../projectRateGuard'
 
 /**
  * #873 — der Schreibweg des MCP-Servers.
@@ -36,7 +37,7 @@ import type { ProjectState } from '../projectStore'
 export type McpSlice = Pick<ProjectState, 'mcpSchreiben'>
 
 export const createMcpSlice: StateCreator<ProjectState, [], [], McpSlice> = (set, get) => ({
-  mcpSchreiben: (werkzeug, args) => {
+  mcpSchreiben: (werkzeug, args) => ohneRateGuard(() => {
     const zustand = get()
     // Ein gesperrter Plan (finalized/viewer) bleibt gesperrt — auch fuer den
     // Assistenten. Dieselbe Verteidigung wie beim Handy-Weg.
@@ -81,5 +82,5 @@ export const createMcpSlice: StateCreator<ProjectState, [], [], McpSlice> = (set
       })
       return antwort
     }
-  },
+  }),
 })

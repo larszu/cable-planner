@@ -1420,7 +1420,7 @@ export default function App() {
             'app.rentman.overBuiltBody',
             '{built} x {type} {length} m are now built, but the rental plan lists only {planned}. Book the extra cables in Rentman or adjust the wiring.',
           ),
-          { built, type: draft.type, length: draft.length, planned },
+          { built, type: draft.type, length: draft.length ?? '', planned },
         ),
         tone: 'warning',
       })
@@ -2149,7 +2149,7 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
   // v7.9.68 / #182 — Bei Wireless gibt es keine "Länge"; daher auch keine
   // Längen-Warnung anzeigen.
   const lengthWarning =
-    !cable.wireless && selected.maxLengthMeters && length > selected.maxLengthMeters
+    !cable.wireless && selected.maxLengthMeters && (length ?? 0) > selected.maxLengthMeters
       ? format(
           t(
             'cable.lengthWarning',

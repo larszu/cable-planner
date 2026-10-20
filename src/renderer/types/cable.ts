@@ -55,7 +55,7 @@ export interface Cable {
    */
   specSource?: Record<string, { value: string; source: string }>
   type: CableType
-  length: number
+  length?: number
   color: string
   fromEquipmentId: string
   fromPortId: string
