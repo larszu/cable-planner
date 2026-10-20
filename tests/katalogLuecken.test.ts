@@ -32,7 +32,8 @@ describe('#878 — Katalog-Luecken in den Zielbereichen', () => {
     // Decimator), jeder mit Datenblatt.
     // 498: +8 Nachzuegler am 2026-09-28.
     // 1837: +1 ATEM 2 M/E Constellation HD (#1032).
-    expect(b.eintraegeGesamt).toBe(1837)
+    // 1842: +5 Crestron (#1067).
+    expect(b.eintraegeGesamt).toBe(1842)
     expect(b.eintraegeGesamt).toBe(evidenceReport().entries)
 
     // „ueber ein Drittel Mikrofone" — das stimmt, und zwar deutlich.
@@ -74,12 +75,14 @@ describe('#878 — Katalog-Luecken in den Zielbereichen', () => {
     // 90 -> 96 am 2026-09-28: drei Cisco-Switches (C9300-24U, C9300X-48HXN,
     // Nexus 93108TC-EX) und drei Crestron-Streamer, die unter „Networking"
     // laufen (DM-NVX-350/-351/-D30).
-    expect(stand('netzwerk').eintraege).toBe(96)
+    // 96 -> 97 am 2026-10-20: Crestron DM-NVX-E30 (#1067).
+    expect(stand('netzwerk').eintraege).toBe(97)
     expect(stand('intercom').eintraege).toBe(13) // +FreeSpeak II Base
     expect(stand('led-prozessoren').eintraege).toBe(6)
     // 528 -> 524: dieselben vier Kameras wie oben.
     // 524 -> 530: die sechs neuen Netzwerk-Eintraege (drei Cisco, drei Crestron).
-    expect(katalogLuecken().eintraegeInBereichen).toBe(530)
+    // 530 -> 531: DM-NVX-E30 (#1067).
+    expect(katalogLuecken().eintraegeInBereichen).toBe(531)
 
     // Und die Breite, nicht nur die Menge: Kameras hingen und haengen an
     // EINEM Katalog. Ein Bereich mit einem Hersteller ist kein bestueckter
