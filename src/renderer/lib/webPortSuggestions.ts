@@ -206,19 +206,24 @@ export const scanConnectors = (snippet: string): PortGroupHint[] => {
 export const suggestFromWeb = async (
   deviceName: string,
   category: string,
-): Promise<{ hints: PortGroupHint[]; source: string; snippet: string }> => {
+): Promise<{ hints: PortGroupHint[]; source: string; snippet: string; limited: boolean }> => {
   const query = `${deviceName} ${category}`.trim()
+  // Ohne Preload-Bruecke (Browser/Pages) gibt es keine echte Suche: Such-
+  // maschinen und Herstellerseiten senden kein CORS. DuckDuckGo ebenfalls
+  // nicht -- der Aufruf endete dort nur in „Failed to fetch" (#1070).
+  const limited = !hasDesktopBridge
   const web = await webSearch(deviceName)
   const [wiki, ddg] = web.inhalt
     ? ['', '']
-    : await Promise.all([wikiSummary(deviceName), ddgInstant(query)])
+    : await Promise.all([wikiSummary(deviceName), limited ? Promise.resolve('') : ddgInstant(query)])
   const snippet = (web.inhalt || `${wiki}\n${ddg}`).trim()
-  if (!snippet) return { hints: [], source: 'web', snippet: '' }
+  if (!snippet) return { hints: [], source: 'web', snippet: '', limited }
 
   const hints = scanConnectors(snippet)
   return {
     hints,
     source: web.source || (wiki ? 'wikipedia' : 'duckduckgo'),
     snippet: snippet.slice(0, 400),
+    limited,
   }
 }

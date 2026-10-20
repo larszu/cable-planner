@@ -3413,6 +3413,8 @@ export const de: Dict = {
   'library.suggest.ai.ok': '{n} Port-Gruppe(n) von {provider} übernommen.',
   'library.suggest.heading': 'Die Ports aus dem Geräte-Namen raten',
   'library.suggest.failed': 'Das Ausfüllen ist fehlgeschlagen.',
+  'library.suggest.web.browserOnly':
+    'Die volle Websuche läuft nur in der Desktop-App. Im Browser wird nur Wikipedia gefragt – lade ein Datenblatt hoch oder nutze die KI als Quelle.',
   'library.suggest.web.noHit': 'Kein Treffer im Web. Hersteller + Modell präzisieren.',
   'library.suggest.web.noPlugs':
     'Keine Stecker im {source}-Snippet erkannt. Hersteller + Modell präzisieren.',

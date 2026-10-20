@@ -483,7 +483,12 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
                 ),
                 { source: ergebnis.fundstelle ?? 'web' },
               )
-            : t('library.suggest.web.noHit', 'No hit on the web. Refine manufacturer + model.'),
+            : ergebnis.eingeschraenkt
+              ? t(
+                  'library.suggest.web.browserOnly',
+                  'The full web search only runs in the desktop app. In the browser only Wikipedia is asked - upload a datasheet or use the AI source instead.',
+                )
+              : t('library.suggest.web.noHit', 'No hit on the web. Refine manufacturer + model.'),
       )
       return
     }
