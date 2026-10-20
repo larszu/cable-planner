@@ -12,6 +12,9 @@ import { EtagenVerwaltung } from './EtagenVerwaltung'
 import { DEFAULT_LENGTH_ESTIMATION } from '../../lib/cableLengthEstimate'
 import { flaecheM2, meterZuPx, pxZuMeter, RAHMEN_MIN_PX } from '../../lib/raumMasse'
 import type { Floor } from '../../types/location'
+import { useCallback } from 'react'
+import { StandortKarte } from './StandortKarte'
+import type { StandortGeo } from '../../lib/standortKarte'
 
 /** Wert der Auswahl-Option „Neue Etage…" — kann kein Etagenname sein. */
 const NEUE_ETAGE = '\u0000neu'
@@ -33,6 +36,14 @@ export const LocationProperties = () => {
   const setFloors = useProjectStore((state) => state.setFloors)
   const m100 = useProjectStore(
     (state) => state.project.metadata.lengthEstimation?.metersPer100px ?? DEFAULT_LENGTH_ESTIMATION.metersPer100px,
+  )
+
+  const locationId = location?.id
+  const onGeo = useCallback(
+    (geo: StandortGeo) => {
+      if (locationId) updateLocation(locationId, { geo })
+    },
+    [locationId, updateLocation],
   )
 
   if (!location) return null
@@ -129,6 +140,31 @@ export const LocationProperties = () => {
         />
         <span>{t('location.field.riser', 'Riser / vertical cable route')}</span>
       </label>
+
+      <label className="block">
+        {t('location.field.roomNumber', 'Room number')}
+        <input
+          value={location.roomNumber ?? ''}
+          onChange={(e) => updateLocation(location.id, { roomNumber: e.target.value || undefined })}
+          className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-1.5"
+        />
+      </label>
+
+      <div>
+        <label className="block">
+          {t('location.field.address', 'Address')}
+          <textarea
+            value={location.address ?? ''}
+            onChange={(e) => updateLocation(location.id, { address: e.target.value || undefined })}
+            rows={2}
+            placeholder={t('location.field.addressPlaceholder', 'Street, postcode, city')}
+            className="mt-1 w-full resize-y border border-cp-border bg-cp-surface-3 p-1.5"
+          />
+        </label>
+        {location.address?.trim() && (
+          <StandortKarte address={location.address} geo={location.geo} onGeo={onGeo} />
+        )}
+      </div>
 
       <div>
         <label className="block">

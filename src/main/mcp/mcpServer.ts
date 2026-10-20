@@ -540,6 +540,8 @@ const baueServer = (): McpServer => {
           height: z.number().min(40).optional(),
           color: z.string().optional(),
           notes: z.string().optional(),
+          roomNumber: z.string().optional().describe('Room number, e.g. "2.14". Empty text removes it.'),
+          address: z.string().optional().describe('Postal address; the inspector shows an OpenStreetMap map for it. Empty text removes it.'),
         },
       },
       async (args) => werkzeugAntwort('set_location', args as Record<string, unknown>),

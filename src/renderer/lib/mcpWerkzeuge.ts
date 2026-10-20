@@ -405,6 +405,8 @@ export const beantworteWerkzeug = (
         id: l.id,
         name: l.name,
         floor: l.floor ?? null,
+        roomNumber: l.roomNumber ?? null,
+        address: l.address ?? null,
         x: l.x,
         y: l.y,
         width: l.width,

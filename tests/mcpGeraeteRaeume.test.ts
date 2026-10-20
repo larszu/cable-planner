@@ -172,6 +172,23 @@ describe('#1066 — Raeume', () => {
     expect(a.updateLocation).toHaveBeenCalledWith('r3', { x: 2500, y: 50 })
   })
 
+  it('set_location setzt Raumnummer und Adresse, leer entfernt sie (#952)', () => {
+    const a = aktionen()
+    fuehreSchreibwerkzeugAus(plan(), a, 'set_location', { locationId: 'Regie', roomNumber: ' 2.14 ', address: 'Hauptstr. 1, Berlin' })
+    expect(a.updateLocation).toHaveBeenCalledWith('r1', { roomNumber: '2.14', address: 'Hauptstr. 1, Berlin' })
+    const b = aktionen()
+    fuehreSchreibwerkzeugAus(plan(), b, 'set_location', { locationId: 'Regie', address: '' })
+    expect(b.updateLocation).toHaveBeenCalledWith('r1', { address: undefined })
+  })
+
+  it('list_locations nennt Raumnummer und Adresse (#952)', () => {
+    const p = plan()
+    p.locations![0] = { ...p.locations![0], roomNumber: '2.14', address: 'Hauptstr. 1' }
+    const r = beantworteWerkzeug(p, 'list_locations', {}) as { daten: { locations: Array<Record<string, unknown>> } }
+    expect(r.daten.locations[0]).toMatchObject({ roomNumber: '2.14', address: 'Hauptstr. 1' })
+    expect(r.daten.locations[1]).toMatchObject({ roomNumber: null, address: null })
+  })
+
   it('delete_location nimmt nur den Rahmen', () => {
     const a = aktionen()
     expect(fuehreSchreibwerkzeugAus(plan(), a, 'delete_location', { locationId: 'Regie' }).ok).toBe(true)

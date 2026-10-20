@@ -10,6 +10,12 @@ export interface LocationFrame {
    *  #911 — der NAME einer Etage aus `project.floors`; dort stehen Reihenfolge
    *  und Hoehe. Ein Name ohne Eintrag dort wird beim Laden nachgetragen. */
   floor?: string
+  /** #952 — Raumnummer (z. B. "2.14"), frei, getrennt vom Namen. */
+  roomNumber?: string
+  /** #952 — Postanschrift. Ist sie gesetzt, zeigt der Inspektor eine OSM-Karte. */
+  address?: string
+  /** #952 — aufgeloeste Koordinaten zu `address` (siehe `lib/standortKarte.ts`). */
+  geo?: { lat: number; lon: number; for: string }
   /** Free-form notes about the location. */
   notes?: string
   /** When true, dragging the frame also moves contained equipment (group drag). Defaults to false. */

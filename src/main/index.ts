@@ -375,7 +375,11 @@ app.whenReady().then(async () => {
               // en.wikipedia.org / api.duckduckgo.com (2026-10-20): die
               // Websuche „Ports aus dem Namen raten" (`webPortSuggestions`)
               // lief hier gegen die Regel und meldete nur „Failed to fetch".
-              "connect-src 'self' https://api.rentman.net https://generativelanguage.googleapis.com https://api.anthropic.com https://api.openai.com https://devices.zumpelars.de https://en.wikipedia.org https://api.duckduckgo.com ws: wss:; " +
+              //
+              // nominatim / www.openstreetmap.org (#952): Adresse eines Raums
+              // aufloesen und die OSM-Karte im Inspektor einbetten.
+              "frame-src https://www.openstreetmap.org; " +
+              "connect-src 'self' https://nominatim.openstreetmap.org https://api.rentman.net https://generativelanguage.googleapis.com https://api.anthropic.com https://api.openai.com https://devices.zumpelars.de https://en.wikipedia.org https://api.duckduckgo.com ws: wss:; " +
               "object-src 'none'; base-uri 'none'; frame-ancestors 'none'",
           ],
           'X-Content-Type-Options': ['nosniff'],
