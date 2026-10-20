@@ -1,3 +1,4 @@
+import { realpathSync } from 'node:fs'
 import { defineConfig } from 'vitest/config'
 
 // Test-Suite-Konfiguration. Bewusst getrennt von der App-/Build-Config:
@@ -8,6 +9,12 @@ import { defineConfig } from 'vitest/config'
 // environment: 'happy-dom' weil mehrere Renderer-Module beim Import den
 // Zustand-Store nachziehen, der localStorage/window beim Laden anfasst.
 export default defineConfig({
+  // Worktree mit node_modules-Symlink (#1021): Vite loest den Link auf und
+  // verweigert `zxing_reader.wasm?url` ausserhalb des Projektwurzel-Baums
+  // („Denied ID“). Das aufgeloeste node_modules ausdruecklich erlauben.
+  server: {
+    fs: { allow: ['.', realpathSync('node_modules')] },
+  },
   test: {
     environment: 'happy-dom',
     include: ['tests/**/*.test.ts'],
@@ -31,8 +38,13 @@ export default defineConfig({
     // kein Befund; er ist Rauschen, das echte Befunde unglaubwuerdig macht.
     // 30 s ist nicht „grosszuegig", sondern der Abstand zur gemessenen
     // Wirklichkeit. Wer den Wert senken will, misst vorher.
-    testTimeout: 30_000,
-    hookTimeout: 30_000,
+    //
+    // 2026-10-20 (#1021): mit mehreren Worktrees parallel liefen lokal viele
+    // Dateien in die 30 s. Daher 60 s und hoechstens die Haelfte der Kerne als
+    // Worker — CI (2 Kerne) aendert sich dadurch nicht.
+    testTimeout: 60_000,
+    hookTimeout: 60_000,
+    maxWorkers: '50%',
     // Node ab 25 bringt ein eigenes `localStorage` mit, und ohne
     // `--localstorage-file` ist es leer (`undefined`). Es verdeckt das von
     // happy-dom: unter Node 26 scheiterten 17 Testdateien an
