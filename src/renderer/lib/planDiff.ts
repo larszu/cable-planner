@@ -384,6 +384,7 @@ export const EQUIPMENT_FIELD_CLASS: Record<string, FieldClass> = {
   multicamProjectId: 'bookkeeping',
   multicamRemoved: 'bookkeeping',
   manufacturerUrl: 'bookkeeping',
+  controlInterfaces: 'bookkeeping',
   // Die Klasse nennt „Provenienz-Marker" ausdruecklich; `verifiedBy` steht
   // schon hier. Ein Beleg aendert nicht die physische Arbeit, ist aber auch
   // nicht bloss Optik: er sagt, worauf die Zahl daneben sich stuetzt.

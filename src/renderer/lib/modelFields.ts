@@ -50,6 +50,8 @@ export const MODEL_FIELDS = [
   'primaryInterfaceRole',
   'netboxPath',
   'manufacturerUrl',
+  // #1063 — Steuerprotokolle sind ein Datenblatt-Fakt ueber den TYP.
+  'controlInterfaces',
   // Der Beleg gehoert zum TYP: er sagt, woher die Angaben dieses Modells
   // stammen (Datenblatt, Katalog, oder — der Fall, der ihn noetig machte —
   // ein Modell, das aus dem Geraetenamen geraten hat).

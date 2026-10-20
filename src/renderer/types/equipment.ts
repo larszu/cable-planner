@@ -1117,6 +1117,9 @@ export interface EquipmentItem {
   imageUrl?: string
   /** Optional manufacturer / product page URL (issue #38). */
   manufacturerUrl?: string
+  /** #1063 — "Steuerung über": control protocols, ports and interfaces from
+   *  the manufacturer documentation (see `lib/steuerprotokolle.ts`). */
+  controlInterfaces?: import('../lib/steuerprotokolle').ControlInterface[]
   /**
    * Woher einzelne Angaben stammen — Feldname -> Beleg.
    *
