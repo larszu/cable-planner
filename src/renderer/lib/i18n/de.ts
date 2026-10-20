@@ -3185,6 +3185,7 @@ export const de: Dict = {
   'library.create.aiKey.hintSuffix': 'erstellen.',
   'library.create.aiSettings': 'KI-Schlüssel einrichten',
   'library.create.aiSettingsLabel': 'AI-Settings',
+  'library.create.aiKeyAdd': 'API-Schlüssel hinterlegen (KI)',
   'library.create.emptyCount': 'Eine Gruppe hat keine Anzahl — sie erzeugt keine Ports.',
   'library.create.category': 'Kategorie',
   'library.create.defaultName': 'Neues Gerät',

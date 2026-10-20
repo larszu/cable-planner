@@ -9,10 +9,14 @@ const wikiSummary = async (query: string): Promise<string> => {
   // Try the page directly first; fall back to opensearch+REST.
   const tryFetch = async (title: string) => {
     const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}?redirect=true`
-    const res = await fetch(url, { headers: { Accept: 'application/json' } })
-    if (!res.ok) return ''
-    const json = (await res.json()) as { extract?: string }
-    return json.extract ?? ''
+    try {
+      const res = await fetch(url, { headers: { Accept: 'application/json' } })
+      if (!res.ok) return ''
+      const json = (await res.json()) as { extract?: string }
+      return json.extract ?? ''
+    } catch {
+      return ''
+    }
   }
   const direct = await tryFetch(query)
   if (direct) return direct
